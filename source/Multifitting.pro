@@ -5,6 +5,7 @@
 #-------------------------------------------------
 
 QT       += core gui
+CONFIG   += console
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -13,6 +14,11 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp\
-        launcher.cpp
+        launcher.cpp \
+    settings.cpp \
+    gui.cpp
 
-HEADERS  += launcher.h
+HEADERS  += launcher.h \
+    global_definitions.h \
+    settings.h \
+    gui.h

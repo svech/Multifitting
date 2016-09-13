@@ -3,9 +3,17 @@
 
 int main(int argc, char *argv[])
 {
-	QApplication a(argc, argv);
-	Launcher w;
-	w.show();
+	QApplication app(argc, argv);
 
-	return a.exec();
+	IF_GUI
+	{
+		Launcher launcher;
+		launcher.show();
+		return app.exec();
+	}
+	else
+	{
+		Launcher launcher;
+		return 0;
+	}
 }
