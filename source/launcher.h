@@ -3,20 +3,21 @@
 
 #include <QtWidgets>
 #include "settings.h"
+#include "multilayer_approach.h"
 
 class Launcher : public QWidget
 {
 	Q_OBJECT
 
 public:
-	Launcher(QWidget *parent = 0);
+	Launcher();
 	~Launcher();
 
-	Settings settings;
+	Settings* settings;
 
 private slots:
-	void pushButton_Multilayer_Clicked();
-	void on_Button_One_More_Button_clicked();
+	void on_Button_Multilayer_Clicked();
+	void on_Button_Freeform_Clicked();
 
 	void change_Dir_Multilayer();
 	void open_Documentation();
@@ -33,7 +34,7 @@ private:
 	QHBoxLayout *main_Layout;
 	QMenuBar	*menu_Bar;
 	QPushButton *button_Multilayer_Launch;
-	QPushButton *button_One_More_Button;
+	QPushButton *button_Freeform_Launch;
 	QMenu		*file_Menu;
 	QMenu		*help_Menu;
 

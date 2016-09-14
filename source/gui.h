@@ -1,20 +1,22 @@
 #ifndef GUI_H
 #define GUI_H
 
-
 class Gui
 {
 public:
 	Gui();
 
-	/* launcher window geometry */
-	int launch_X_Corner = 100;
-	int launch_Y_Corner = 100;
+	// launcher window geometry
+	int launcher_X_Corner = 400;
+	int launcher_Y_Corner = 400;
 
-//	int win_x_c = 200;
-//	int win_y_c = 200;
-//	int win_w  = 1400;
-//	int win_h = 700;
+	// multilayer window geometry
+	int multilayer_X_Corner = 700;
+	int multilayer_Width = 500;
+	int multilayer_Min_Width = 300;
+	int multilayer_Y_Corner = 500;
+	int multilayer_Height = 400;
+	int multilayer_Min_Height = 100;
 };
 
 #endif // GUI_H
