@@ -27,6 +27,7 @@ private:
 	void closeEvent(QCloseEvent *event);
 	void create_Menu();
 	void create_Buttons();
+	void set_Window_Geometry();
 	void change_Dir(QString& directory);
 
 // ui objects to be placed in launcher window

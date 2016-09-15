@@ -18,13 +18,15 @@ SOURCES += main.cpp\
     settings.cpp \
     gui.cpp \
     multilayer_approach.cpp \
-    optical_constants.cpp
+    optical_constants.cpp \
+    multilayer.cpp
 
 HEADERS  += launcher.h \
     global_definitions.h \
     settings.h \
     gui.h \
     multilayer_approach.h \
-    optical_constants.h
+    optical_constants.h \
+    multilayer.h
 
 FORMS +=

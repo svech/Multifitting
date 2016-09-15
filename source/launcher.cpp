@@ -13,10 +13,7 @@ Launcher::Launcher()
 	main_Layout->addWidget(button_Multilayer_Launch);
 	main_Layout->addWidget(button_Freeform_Launch);
 	setLayout(main_Layout);
-	adjustSize();
-	setFixedSize(size());
-
-	setGeometry(settings->gui.launcher_X_Corner,settings->gui.launcher_Y_Corner,0,0);
+	set_Window_Geometry();
 }
 
 Launcher::~Launcher()
@@ -27,7 +24,7 @@ Launcher::~Launcher()
 void Launcher::closeEvent(QCloseEvent* event)
 {
 	qApp->quit();
-	event=NULL; // do nothing
+	event=NULL;
 }
 
 // create menu items
@@ -73,6 +70,13 @@ void Launcher::create_Buttons()
 	// pushButtons' actions
 	connect(button_Multilayer_Launch, SIGNAL(clicked()), this, SLOT(on_Button_Multilayer_Clicked()));
 	connect(button_Freeform_Launch,   SIGNAL(clicked()), this, SLOT(on_Button_Freeform_Clicked  ()));
+}
+
+void Launcher::set_Window_Geometry()
+{
+	adjustSize();
+	setFixedSize(size());
+	setGeometry(settings->gui.launcher_X_Corner,settings->gui.launcher_Y_Corner,0,0);
 }
 
 // change default direction
