@@ -5,6 +5,10 @@
 #include "settings.h"
 #include "launcher.h"
 #include "optical_constants.h"
+#include "multilayer.h"
+//#include <vector>
+
+//using namespace std;
 
 class Multilayer_Approach : public QWidget
 {
@@ -17,15 +21,13 @@ public:
 	Settings* settings;
 	Optical_Constants* optical_Constants;
 
+	QVector<Multilayer*> multilayer;
+
 private slots:
+	void add_Multilayer(int tab_Index);
+	void rename_Multilayer(int tab_Index);
 	void open_Documentation();
 	void open_About();
-	//void show_Context_Menu(const QPoint&);
-
-protected:
-#ifndef QT_NO_CONTEXTMENU
-	void contextMenuEvent(QContextMenuEvent *event) Q_DECL_OVERRIDE;
-#endif // QT_NO_CONTEXTMENU
 
 private:
 	void closeEvent(QCloseEvent *event);

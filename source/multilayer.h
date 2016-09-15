@@ -1,13 +1,13 @@
 #ifndef MULTILAYER_H
 #define MULTILAYER_H
 
-#include <QObject>
+#include <QtWidgets>
 
-class Multilayer : public QObject
+class Multilayer : public QWidget
 {
 	Q_OBJECT
 public:
-	explicit Multilayer(QObject *parent = 0);
+	Multilayer();
 
 signals:
 

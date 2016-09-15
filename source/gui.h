@@ -1,6 +1,8 @@
 #ifndef GUI_H
 #define GUI_H
 
+#include <QtWidgets>
+
 class Gui
 {
 public:
@@ -17,6 +19,10 @@ public:
 	int multilayer_Y_Corner = 400;
 	int multilayer_Height = 400;
 	int multilayer_Min_Height = 100;
+
+	// multilayer window names
+	QString default_Multilayer_Tab_Name = "Struc_";
+	QString new_Multilayer_Tab_Name = "+";
 };
 
 #endif // GUI_H

@@ -9,8 +9,10 @@ class Settings
 public:
 	Settings();
 
-// gui settings are here
+	// gui settings are here
 	Gui gui;
+
+
 
 };
 

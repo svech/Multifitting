@@ -8,10 +8,6 @@ Multilayer_Approach::Multilayer_Approach(Settings* settings):
 	// place ui elements
 	setWindowTitle("Multilayer_Approach");
 	set_Window_Geometry();	
-	//setContextMenuPolicy(Qt::CustomContextMenu);
-
-	//connect(this, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(show_Context_Menu(const QPoint&)));
-
 	main_Layout = new QHBoxLayout(this);
 
 	create_Menu_Bar();
@@ -26,6 +22,27 @@ Multilayer_Approach::Multilayer_Approach(Settings* settings):
 Multilayer_Approach::~Multilayer_Approach()
 {
 
+}
+
+void Multilayer_Approach::add_Multilayer(int tab_Index)
+{
+	if(tab_Index==multilayer.size())
+	{
+		Multilayer* new_Multilayer = new Multilayer;
+		multilayer.append(new_Multilayer);
+		structure_Tabs->removeTab(tab_Index);
+		structure_Tabs->addTab(new_Multilayer,settings->gui.new_Multilayer_Tab_Name);
+		structure_Tabs->setTabText(tab_Index,settings->gui.default_Multilayer_Tab_Name+QString::number(tab_Index+1));
+		structure_Tabs->addTab(new QWidget(),settings->gui.new_Multilayer_Tab_Name);
+	}
+}
+
+void Multilayer_Approach::rename_Multilayer(int tab_Index)
+{
+	bool ok;
+	QString text = QInputDialog::getText(this, "Rename structure", "New name", QLineEdit::Normal, QDir::home().dirName(), &ok);
+	if (ok && !text.isEmpty())
+		structure_Tabs->setTabText(tab_Index, text);
 }
 
 void Multilayer_Approach::open_Documentation()
@@ -51,7 +68,6 @@ void Multilayer_Approach::set_Window_Geometry()
 	setGeometry(settings->gui.multilayer_X_Corner,settings->gui.multilayer_Y_Corner,settings->gui.multilayer_Width,settings->gui.multilayer_Height);
 }
 
-// create menu items
 void Multilayer_Approach::create_Menu_Bar()
 {
 	// File
@@ -80,36 +96,12 @@ void Multilayer_Approach::create_Menu_Bar()
 void Multilayer_Approach::create_Structure_Tabs()
 {
 	structure_Tabs = new QTabWidget;
-	structure_Tabs->addTab(new QWidget(),"TAB 1");
-	structure_Tabs->addTab(new QWidget(),"TAB 2");
+	Multilayer* new_Multilayer = new Multilayer;
+	multilayer.append(new_Multilayer);
+	structure_Tabs->addTab(new_Multilayer,settings->gui.new_Multilayer_Tab_Name);
+	structure_Tabs->setTabText(0,settings->gui.default_Multilayer_Tab_Name+QString::number(1));
+	structure_Tabs->addTab(new QWidget(),settings->gui.new_Multilayer_Tab_Name);
 
-	structure_Tabs->setTabText(0,"qq");
-
-	cutAct = new QAction(tr("Cu&t"), this);
-	cutAct->setShortcuts(QKeySequence::Cut);
-	cutAct->setStatusTip(tr("Cut the current selection's contents to the "
-							"clipboard"));
-
-	copyAct = new QAction(tr("&Copy"), this);
-	copyAct->setShortcuts(QKeySequence::Copy);
-	copyAct->setStatusTip(tr("Copy the current selection's contents to the "
-							 "clipboard"));
-
-	pasteAct = new QAction(tr("&Paste"), this);
-	pasteAct->setShortcuts(QKeySequence::Paste);
-	pasteAct->setStatusTip(tr("Paste the clipboard's contents into the current "
-							  "selection"));
-
+	connect(structure_Tabs, SIGNAL(tabBarClicked(int)),		  this, SLOT(add_Multilayer(int)));
+	connect(structure_Tabs, SIGNAL(tabBarDoubleClicked(int)), this, SLOT(rename_Multilayer(int)));
 }
-
-#ifndef QT_NO_CONTEXTMENU
-void Multilayer_Approach::contextMenuEvent(QContextMenuEvent *event)
-{
-
-	QMenu menu(this);
-	menu.addAction(cutAct);
-	menu.addAction(copyAct);
-	menu.addAction(pasteAct);
-	menu.exec(event->globalPos());
-}
-#endif // QT_NO_CONTEXTMENU
