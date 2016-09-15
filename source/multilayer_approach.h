@@ -5,10 +5,7 @@
 #include "settings.h"
 #include "launcher.h"
 #include "optical_constants.h"
-#include "multilayer.h"
-//#include <vector>
-
-//using namespace std;
+#include "multilayer/multilayer.h"
 
 class Multilayer_Approach : public QWidget
 {
@@ -49,10 +46,6 @@ private:
 			QAction*		act_About;
 
 	QTabWidget*	structure_Tabs;
-
-	QAction *cutAct;
-	QAction *copyAct;
-	QAction *pasteAct;
 
 };
 

@@ -27,7 +27,6 @@ void Launcher::closeEvent(QCloseEvent* event)
 	event=NULL;
 }
 
-// create menu items
 void Launcher::create_Menu()
 {
 	// File
@@ -58,7 +57,6 @@ void Launcher::create_Menu()
 	menu_Bar->addMenu(help_Menu);
 }
 
-// create buttons
 void Launcher::create_Buttons()
 {
 	button_Multilayer_Launch = new QPushButton("Multilayer", this); button_Multilayer_Launch->setEnabled(true);

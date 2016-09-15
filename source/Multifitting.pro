@@ -19,7 +19,7 @@ SOURCES += main.cpp\
     gui.cpp \
     multilayer_approach.cpp \
     optical_constants.cpp \
-    multilayer.cpp
+    multilayer/multilayer.cpp
 
 HEADERS  += launcher.h \
     global_definitions.h \
@@ -27,6 +27,4 @@ HEADERS  += launcher.h \
     gui.h \
     multilayer_approach.h \
     optical_constants.h \
-    multilayer.h
-
-FORMS +=
+    multilayer/multilayer.h
