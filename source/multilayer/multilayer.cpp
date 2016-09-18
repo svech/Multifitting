@@ -152,13 +152,13 @@ void Multilayer::add_Measured_Data()
 	left_Layout->setSpacing(10);
 	right_Layout->setSpacing(0);
 
-	QPushButton* new_Import_Button = new QPushButton("Import " + QString::number(data_Measured_Data_Frame_Vector.count()));
+	QPushButton* new_Import_Button = new QPushButton("Import");
 	QLabel* new_Description_Label  = new QLabel("<description>");
-	QPushButton* new_Add_Button    = new QPushButton("Add "    + QString::number(data_Measured_Data_Frame_Vector.count()));
-	QPushButton* new_Remove_Button = new QPushButton("Remove " + QString::number(data_Measured_Data_Frame_Vector.count()));
+	QPushButton* new_Add_Button    = new QPushButton("Add");
+	QPushButton* new_Remove_Button = new QPushButton("Remove");
 
-	new_Import_Button->		setObjectName("Import Data");
-	new_Description_Label->	setObjectName("Data Description");
+	new_Import_Button->		setObjectName("Import");
+	new_Description_Label->	setObjectName("Description");
 	new_Add_Button->		setObjectName("Add Row");
 	new_Remove_Button->		setObjectName("Remove Row");
 
@@ -220,6 +220,8 @@ void Multilayer::add_Target_Profile()
 		QWidget::window()->resize(QWidget::window()->width(),QWidget::window()->height()+settings->gui.multilayer_Height_Additive);
 
 	QFrame* new_Frame = new QFrame;	data_Target_Profile_Frame_Vector.append(new_Frame);
+
+
 	QHBoxLayout* new_Frame_Layout = new QHBoxLayout(new_Frame);
 	new_Frame_Layout->setMargin(0);
 	QHBoxLayout* left_Layout  = new QHBoxLayout;
@@ -227,13 +229,13 @@ void Multilayer::add_Target_Profile()
 	left_Layout->setSpacing(10);
 	right_Layout->setSpacing(0);
 
-	QPushButton* new_Import_Button = new QPushButton("Import " + QString::number(data_Target_Profile_Frame_Vector.count()));
+	QPushButton* new_Import_Button = new QPushButton("Import");
 	QLabel* new_Description_Label  = new QLabel("<description>");
-	QPushButton* new_Add_Button    = new QPushButton("Add "    + QString::number(data_Target_Profile_Frame_Vector.count()));
-	QPushButton* new_Remove_Button = new QPushButton("Remove " + QString::number(data_Target_Profile_Frame_Vector.count()));
+	QPushButton* new_Add_Button    = new QPushButton("Add");
+	QPushButton* new_Remove_Button = new QPushButton("Remove");
 
-	new_Import_Button->		setObjectName("Import Data");
-	new_Description_Label->	setObjectName("Data Description");
+	new_Import_Button->		setObjectName("Import");
+	new_Description_Label->	setObjectName("Description");
 	new_Add_Button->		setObjectName("Add Row");
 	new_Remove_Button->		setObjectName("Remove Row");
 
