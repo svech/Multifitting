@@ -12,8 +12,6 @@ public:
 	// gui settings are here
 	Gui gui;
 
-
-
 };
 
 #endif // SETTINGS_H

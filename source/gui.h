@@ -20,9 +20,14 @@ public:
 	int multilayer_Height = 400;
 	int multilayer_Min_Height = 100;
 
+	int multilayer_Height_Additive = 23;
+
 	// multilayer window names
 	QString default_Multilayer_Tab_Name = "Struc_";
-	QString new_Multilayer_Tab_Name = "+";
+
+	// resource path
+	QString icon_Path = "../../imd icons/";
+
 };
 
 #endif // GUI_H

@@ -6,19 +6,8 @@ Launcher::Launcher()
 
 	// place ui elements
 	setWindowTitle("Multifitting");
-	create_Menu();
-	create_Buttons();
-	main_Layout = new QHBoxLayout(this);
-	main_Layout->setMenuBar(menu_Bar);
-	main_Layout->addWidget(button_Multilayer_Launch);
-	main_Layout->addWidget(button_Freeform_Launch);
-	setLayout(main_Layout);
+	create_Main_Layout();
 	set_Window_Geometry();
-}
-
-Launcher::~Launcher()
-{
-
 }
 
 void Launcher::closeEvent(QCloseEvent* event)
@@ -27,27 +16,36 @@ void Launcher::closeEvent(QCloseEvent* event)
 	event=NULL;
 }
 
+void Launcher::create_Main_Layout()
+{
+	main_Layout = new QHBoxLayout(this);
+
+	create_Menu();
+		main_Layout->setMenuBar(menu_Bar);
+
+	create_Buttons();
+		main_Layout->addWidget(button_Multilayer_Launch);
+		main_Layout->addWidget(button_Freeform_Launch);
+
+	setLayout(main_Layout);
+}
+
 void Launcher::create_Menu()
 {
 	// File
 	file_Menu = new QMenu("File", this);
 
-		act_Change_Dir_Multilayer = new QAction("Change multilayer working directory", this);
-			connect(act_Change_Dir_Multilayer,SIGNAL(triggered()), this, SLOT(change_Dir_Multilayer()));
-			file_Menu->addAction(act_Change_Dir_Multilayer);
-
-		act_Quit = new QAction("Close all", this);
+		QAction* act_Quit = new QAction("Close all", this);
 			connect(act_Quit, SIGNAL(triggered()), qApp, SLOT(quit()));
 			file_Menu->addAction(act_Quit);
 
-
 	// Help
 	help_Menu = new QMenu("Help",this);
-		act_Documentation = new QAction("Multifitting.pdf", this);
+		QAction* act_Documentation = new QAction("Multifitting.pdf", this);
 			connect(act_Documentation, SIGNAL(triggered()), this, SLOT(open_Documentation()));
 			help_Menu->addAction(act_Documentation);
 
-		act_About = new QAction("About Multifitting",this);
+		QAction* act_About = new QAction("About Multifitting",this);
 			connect(act_About, SIGNAL(triggered()), this, SLOT(open_About()));
 			help_Menu->addAction(act_About);
 
@@ -77,26 +75,7 @@ void Launcher::set_Window_Geometry()
 	setGeometry(settings->gui.launcher_X_Corner,settings->gui.launcher_Y_Corner,0,0);
 }
 
-// change default direction
-void Launcher::change_Dir(QString& directory)
-{
-	directory = QFileDialog::getExistingDirectory(this,	"Select a Directory", directory);
-}
-
-void Launcher::change_Dir_Multilayer()
-{
-	//change_Dir(settings.dir_of_Saved_Files_Multilayer);
-}
-
-void Launcher::open_Documentation()
-{
-
-}
-
-void Launcher::open_About()
-{
-	//QMessageBox::about(this,"About","-Say something\n-Something");
-}
+// slots
 
 void Launcher::on_Button_Multilayer_Clicked()
 {
@@ -108,3 +87,15 @@ void Launcher::on_Button_Freeform_Clicked()
 {
 
 }
+
+void Launcher::open_Documentation()
+{
+
+}
+
+void Launcher::open_About()
+{
+	QMessageBox::about(this,"About","-Say something\n-Something");
+}
+
+

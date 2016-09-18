@@ -13,39 +13,36 @@ class Multilayer_Approach : public QWidget
 
 public:
 	Multilayer_Approach(Settings* settings);
-	~Multilayer_Approach();
 
 	Settings* settings;
 	Optical_Constants* optical_Constants;
 
 	QVector<Multilayer*> multilayer;
 
+private:
+	void closeEvent(QCloseEvent *event);
+	void create_Main_Layout();
+		void create_Menu();
+		void create_Multilayer_Tabs();
+	void set_Window_Geometry();
+
+
 private slots:
-	void add_Multilayer(int tab_Index);
+	void change_Tab_Color(int index);
+	void add_Multilayer();
 	void rename_Multilayer(int tab_Index);
+
 	void open_Documentation();
 	void open_About();
 
-private:
-	void closeEvent(QCloseEvent *event);
-	void set_Window_Geometry();
-	void create_Menu_Bar();
-	void create_Structure_Tabs();
-
-
 // ui objects to be placed in launcher window
 private:
-	QHBoxLayout *main_Layout;
-
-	// menu
-	QMenuBar*	menu_Bar;
-		QMenu*		file_Menu;
-			QAction*	act_Quit;
-		QMenu*		help_Menu;
-			QAction*	act_Documentation;
-			QAction*		act_About;
-
-	QTabWidget*	structure_Tabs;
+	QHBoxLayout* main_Layout;
+		QMenuBar* menu_Bar;
+			QMenu* file_Menu;
+			QMenu* help_Menu;
+		QTabWidget*	multilayer_Tabs;
+		QToolButton* add_Tab_button;
 
 };
 
