@@ -140,6 +140,8 @@ void Multilayer::create_Data_Frame()
 
 void Multilayer::add_Measured_Data()
 {
+	setUpdatesEnabled(false);
+
 	// window resizing
 	if(!data_Measured_Data_Frame_Vector.isEmpty())
 		QWidget::window()->resize(QWidget::window()->width(),QWidget::window()->height()+settings->gui.multilayer_Height_Additive);
@@ -188,10 +190,14 @@ void Multilayer::add_Measured_Data()
 		add_Button = data_Measured_Data_Frame_Vector[data_Measured_Data_Frame_Vector.size()-2]->findChild<QPushButton*>(new_Add_Button->objectName());
 		add_Button->hide();
 	}
+
+	setUpdatesEnabled(true);
 }
 
 void Multilayer::remove_Measured_Data()
 {
+	setUpdatesEnabled(false);
+
 	QString add_Name = data_Measured_Data_Frame_Vector.first()->findChildren<QPushButton*>().end()[-2]->objectName();	// add button is the second from the end
 
 	int i0=-1;
@@ -207,14 +213,20 @@ void Multilayer::remove_Measured_Data()
 	if(data_Measured_Data_Frame_Vector.isEmpty())
 		add_Measured_Data();
 
+	setUpdatesEnabled(false);
+
 	// showing add button
 	QPushButton* add_Button;
 	add_Button = data_Measured_Data_Frame_Vector.last()->findChild<QPushButton*>(add_Name);
 	add_Button->show();
+
+	setUpdatesEnabled(true);
 }
 
 void Multilayer::add_Target_Profile()
 {
+	setUpdatesEnabled(false);
+
 	// window resizing
 	if(!data_Target_Profile_Frame_Vector.isEmpty())
 		QWidget::window()->resize(QWidget::window()->width(),QWidget::window()->height()+settings->gui.multilayer_Height_Additive);
@@ -265,10 +277,14 @@ void Multilayer::add_Target_Profile()
 		add_Button = data_Target_Profile_Frame_Vector[data_Target_Profile_Frame_Vector.size()-2]->findChild<QPushButton*>(new_Add_Button->objectName());
 		add_Button->hide();
 	}
+
+	setUpdatesEnabled(true);
 }
 
 void Multilayer::remove_Target_Profile()
 {
+	setUpdatesEnabled(false);
+
 	QString add_Name = data_Target_Profile_Frame_Vector.first()->findChildren<QPushButton*>().end()[-2]->objectName();	// add button is the second from the end
 
 	int i0=-1;
@@ -284,8 +300,12 @@ void Multilayer::remove_Target_Profile()
 	if(data_Target_Profile_Frame_Vector.isEmpty())
 		add_Target_Profile();
 
+	setUpdatesEnabled(false);
+
 	// showing add button
 	QPushButton* add_Button;
 	add_Button = data_Target_Profile_Frame_Vector.last()->findChild<QPushButton*>(add_Name);
 	add_Button->show();
+
+	setUpdatesEnabled(true);
 }
