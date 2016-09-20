@@ -41,15 +41,9 @@ void Multilayer::create_Struct_Tree()
 	struct_Tree = new QTreeWidget;
 	struct_Tree->setColumnCount(1);
 	struct_Tree->header()->close();
-	QTreeWidgetItem *parent = new QTreeWidgetItem(struct_Tree,QStringList(QObject::tr("A")));
-	parent->addChild(new QTreeWidgetItem(QStringList(QObject::tr("A"))));
-	parent->child(0)->addChild(new QTreeWidgetItem(QStringList(QObject::tr("AA"))));
-	parent->child(0)->addChild(new QTreeWidgetItem(QStringList(QObject::tr("AB"))));
-	parent->addChild(new QTreeWidgetItem(QStringList(QObject::tr("B"))));
-	parent->child(1)->addChild(new QTreeWidgetItem(QStringList(QObject::tr("BA"))));
-	//connect(parent, SIGNAL(itemDoubleClicked()), parent, SLOT(clear()));
-	parent->addChild(new QTreeWidgetItem(QStringList(QObject::tr("C"))));
 	struct_Tree->expandAll();
+
+	add_Layer(true);
 }
 
 void Multilayer::create_Struct_Toolbar()
@@ -71,23 +65,29 @@ void Multilayer::create_Struct_Toolbar()
 	QPixmap destroy			(settings->gui.icon_Path + "bomb.bmp");
 
 	struct_Toolbar = new QToolBar;
-	struct_Toolbar->addAction(QIcon(add_Layer),		"Add Layer");
-	struct_Toolbar->addAction(QIcon(add_Multilayer),"Add Multilayer");
-	struct_Toolbar->addAction(QIcon(add_Substrate), "Add Substrate");
-	struct_Toolbar->addAction(QIcon(edit),			"Edit");
-	struct_Toolbar->addAction(QIcon(remove),		"Remove");
-	struct_Toolbar->addAction(QIcon(cut),			"Cut");
-	struct_Toolbar->addAction(QIcon(copy),			"Copy");
-	struct_Toolbar->addAction(QIcon(paste),			"Paste");
-	struct_Toolbar->addAction(QIcon(move_Up),		"Move Up");
-	struct_Toolbar->addAction(QIcon(move_Down),		"Move Down");
-	struct_Toolbar->addAction(QIcon(group),			"Group");
-	struct_Toolbar->addAction(QIcon(ungroup),		"Ungroup");
-	struct_Toolbar->addAction(QIcon(thickness_Plot),"Plot Layer Thickness Profile");
-	struct_Toolbar->addAction(QIcon(sigma_Plot),	"Plot Interface Width Profile");
-	struct_Toolbar->addAction(QIcon(destroy),		"Remove Substrate and All Layers");
+	struct_Toolbar->addAction(QIcon(add_Layer),		"Add Layer");							// 0
+	struct_Toolbar->addAction(QIcon(add_Multilayer),"Add Multilayer");						// 1
+	struct_Toolbar->addAction(QIcon(add_Substrate), "Add Substrate");						// 2
+	struct_Toolbar->addAction(QIcon(edit),			"Edit");								// 3
+	struct_Toolbar->addAction(QIcon(remove),		"Remove");								// 4
+	struct_Toolbar->addAction(QIcon(cut),			"Cut");									// 5
+	struct_Toolbar->addAction(QIcon(copy),			"Copy");								// 6
+	struct_Toolbar->addAction(QIcon(paste),			"Paste");								// 7
+	struct_Toolbar->addAction(QIcon(move_Up),		"Move Up");								// 8
+	struct_Toolbar->addAction(QIcon(move_Down),		"Move Down");							// 9
+	struct_Toolbar->addAction(QIcon(group),			"Group");								// 10
+	struct_Toolbar->addAction(QIcon(ungroup),		"Ungroup");								// 11
+	struct_Toolbar->addAction(QIcon(thickness_Plot),"Plot Layer Thickness Profile");		// 12
+	struct_Toolbar->addAction(QIcon(sigma_Plot),	"Plot Interface Width Profile");		// 13
+	struct_Toolbar->addAction(QIcon(destroy),		"Remove Substrate and All Layers");		// 14
 
 	struct_Toolbar->setIconSize(add_Layer.size());
+
+	connect(struct_Toolbar->actions()[0], SIGNAL(triggered(bool)), this, SLOT(add_Layer(bool)));
+	connect(struct_Toolbar->actions()[1], SIGNAL(triggered(bool)), this, SLOT(add_Multilayer(bool)));
+	connect(struct_Toolbar->actions()[2], SIGNAL(triggered(bool)), this, SLOT(add_Substrate(bool)));
+	connect(struct_Toolbar->actions()[3], SIGNAL(triggered(bool)), this, SLOT(edit(bool)));
+	connect(struct_Toolbar->actions()[4], SIGNAL(triggered(bool)), this, SLOT(remove(bool)));
 }
 
 void Multilayer::create_Variables_Frame()
@@ -95,7 +95,7 @@ void Multilayer::create_Variables_Frame()
 	variables_Frame = new QFrame;
 	variables_Frame_Layout = new QVBoxLayout(variables_Frame);
 
-	create_Variable_Tabs();
+	create_Variables_Tabs();
 		variables_Frame_Layout->addWidget(variables_Tabs);
 
 	variables_Frame_Layout->setSpacing(0);
@@ -103,13 +103,84 @@ void Multilayer::create_Variables_Frame()
 	variables_Frame->setLayout(variables_Frame_Layout);
 }
 
-void Multilayer::create_Variable_Tabs()
+void Multilayer::create_Variables_Tabs()
 {
 	variables_Tabs = new QTabWidget;
-	variables_Tabs->addTab(new QWidget(), "Dependent Variables");
+	create_Dependent_Variables_Tabs();
+
+	{
+		QFrame* frame = new QFrame;
+		QVBoxLayout* layout = new QVBoxLayout;
+		layout->addWidget(dependent_Variables_Tabs);
+		frame->setLayout(layout);
+		frame->setContentsMargins(0,-5,0,-8);
+		variables_Tabs->addTab(frame, "Dependent Variables");
+	}
+
 	variables_Tabs->addTab(new QWidget(), "Independent Variables");
 	variables_Tabs->addTab(new QWidget(), "Fitting");
 	variables_Tabs->addTab(new QWidget(), "Optimization");
+	variables_Tabs->setSizePolicy(QSizePolicy::Preferred,QSizePolicy::Fixed);
+}
+
+void Multilayer::create_Dependent_Variables_Tabs()
+{
+	dependent_Variables_Tabs = new QTabWidget;
+	specular_Functions_Layout = new QVBoxLayout;
+	nonspecular_Functions_Layout = new QVBoxLayout;
+
+	create_Specular_Functions();
+		specular_Functions_Layout->addWidget(standard_Functions_Group_Box);
+		specular_Functions_Layout->addWidget(field_Functions_Group_Box);
+		specular_Functions_Layout->addWidget(user_Functions_Group_Box);
+	specular_Functions_Layout->setSpacing(0);
+	QFrame* specular_Frame = new QFrame;
+	specular_Frame->setContentsMargins(-5,-5,-5,-9);
+		specular_Frame->setLayout(specular_Functions_Layout);
+	dependent_Variables_Tabs->addTab(specular_Frame, "Specular Optical Functions");
+
+	create_Nonspecular_Functions();
+//		nonspecular_Functions_Layout->addWidget(nonspecular_Group_Box);
+	QFrame* nonspecular_Frame = new QFrame;
+		nonspecular_Frame->setLayout(nonspecular_Functions_Layout);
+	dependent_Variables_Tabs->addTab(nonspecular_Frame, "Scattering Functions");
+}
+
+void Multilayer::create_Specular_Functions()
+{
+	standard_Functions_Group_Box = new QGroupBox("Standard  Functions");
+	standard_Functions_Group_Box->setContentsMargins(0,8,0,-4);
+		QHBoxLayout* standard_Functions_Layout = new QHBoxLayout(standard_Functions_Group_Box);
+		standard_Functions_Layout->setAlignment(Qt::AlignLeft);
+		reflect_Functions = new QCheckBox("Reflectance");
+			standard_Functions_Layout->addWidget(reflect_Functions);
+		transmit_Functions = new QCheckBox("Transmittance");
+			standard_Functions_Layout->addWidget(transmit_Functions);
+		absorp_Functions = new QCheckBox("Absorptance");
+			standard_Functions_Layout->addWidget(absorp_Functions);
+
+	field_Functions_Group_Box = new QGroupBox("Field  Functions");
+	field_Functions_Group_Box->setContentsMargins(0,8,0,-4);
+		QHBoxLayout* field_Functions_Layout = new QHBoxLayout(field_Functions_Group_Box);
+		field_Functions_Layout->setAlignment(Qt::AlignLeft);
+		field_Intensity = new QCheckBox("Intensity");
+			field_Functions_Layout->addWidget(field_Intensity);
+		joule_Absorption= new QCheckBox("Joule Absorption");
+			field_Functions_Layout->addWidget(joule_Absorption);
+
+	user_Functions_Group_Box = new QGroupBox("User-defined Functions");
+	user_Functions_Group_Box->setContentsMargins(0,8,0,-4);
+		QHBoxLayout* user_Functions_Layout = new QHBoxLayout(user_Functions_Group_Box);
+		user_Functions_Layout->setAlignment(Qt::AlignLeft);
+		user_Supplied_Functions_Check = new QCheckBox;
+			user_Functions_Layout->addWidget(user_Supplied_Functions_Check);
+		user_Supplied_Functions = new QLineEdit;
+			user_Functions_Layout->addWidget(user_Supplied_Functions);
+}
+
+void Multilayer::create_Nonspecular_Functions()
+{
+
 }
 
 void Multilayer::create_Data_Frame()
@@ -138,6 +209,186 @@ void Multilayer::create_Data_Frame()
 	add_Target_Profile();
 }
 
+// slots
+
+void Multilayer::add_Layer(bool)
+{
+	QTreeWidgetItem* new_Layer = new QTreeWidgetItem;
+
+	// if no tree at all (at the beginning)
+	if(struct_Tree->topLevelItemCount()==0)
+	{
+		new_Layer->setText(struct_Tree->columnCount()-1, "ambient 0: ");
+		struct_Tree->addTopLevelItem(new_Layer);
+		new_Layer->setWhatsThis(struct_Tree->columnCount()-1,settings->gui.what_is_This_Ambient);
+	} else
+	{
+		// if no selected items
+		if(struct_Tree->selectedItems().isEmpty())
+		{
+			new_Layer->setText(struct_Tree->columnCount()-1, "last layer");
+
+			// if there is no substrate
+			if(struct_Tree->topLevelItem(struct_Tree->topLevelItemCount()-1)->whatsThis(struct_Tree->columnCount()-1)!=settings->gui.what_is_This_Substrate)
+			{
+				struct_Tree->addTopLevelItem(new_Layer);
+			} else
+			{
+				struct_Tree->insertTopLevelItem(struct_Tree->topLevelItemCount()-1,new_Layer);
+			}
+		} else
+		{
+			// if selected item is top-level
+			if(!struct_Tree->currentItem()->parent())
+			{
+				int position = struct_Tree->indexOfTopLevelItem(struct_Tree->currentItem());
+				new_Layer->setText(struct_Tree->columnCount()-1, "inserted layer");
+
+				// place layers before substrate
+				if(  (struct_Tree->topLevelItem(struct_Tree->topLevelItemCount()-1)->whatsThis(struct_Tree->columnCount()-1)!=settings->gui.what_is_This_Substrate)
+				   ||(position != (struct_Tree->topLevelItemCount()-1)))
+				{
+					struct_Tree->insertTopLevelItem(position+1, new_Layer);
+				} else
+				{
+					struct_Tree->insertTopLevelItem(position, new_Layer);
+				}
+			} else
+			{
+				int position = struct_Tree->currentIndex().row();
+				new_Layer->setText(struct_Tree->columnCount()-1, "inserted nested layer");
+				struct_Tree->currentItem()->parent()->insertChild(position+1,new_Layer);
+			}
+		}
+	}
+}
+
+void Multilayer::add_Multilayer(bool)
+{
+	int num_Children = 0;
+
+	bool ok, ok_Number;
+	QString text = QInputDialog::getText(this, "Multilayer", "Number of different layers in multilayers stack", QLineEdit::Normal, QString::number(2), &ok);
+	text.toInt(&ok_Number);
+	if (ok && ok_Number && (text.toInt()>=2))
+	{
+		num_Children = text.toInt();
+	} else
+	if(!ok_Number)
+	{
+		QMessageBox::warning(this, "Warning", text+" is not a integer number");
+		add_Multilayer(true);
+	} else
+	if (text.toInt()<2)
+	{
+		QMessageBox::warning(this, "Warning", "There should be at least 2 layers");
+		add_Multilayer(true);
+	}
+	if(num_Children<2) return;
+
+	QTreeWidgetItem* new_Multilayer = new QTreeWidgetItem;
+	QList<QTreeWidgetItem*> new_Child_Layers;
+	for(int i=0; i<num_Children; i++)
+	{
+		QTreeWidgetItem* new_Child_Layer = new QTreeWidgetItem;
+		new_Child_Layer->setText(struct_Tree->columnCount()-1, "child layer "+QString::number(i));
+		new_Child_Layers << new_Child_Layer;
+	}
+	new_Multilayer->addChildren(new_Child_Layers);
+
+	// if no selected items
+	if(struct_Tree->selectedItems().isEmpty())
+	{
+		new_Multilayer->setText(struct_Tree->columnCount()-1, "last multilayer");
+
+		// if there is no substrate
+		if(struct_Tree->topLevelItem(struct_Tree->topLevelItemCount()-1)->whatsThis(struct_Tree->columnCount()-1)!=settings->gui.what_is_This_Substrate)
+		{
+			struct_Tree->addTopLevelItem(new_Multilayer);
+		} else
+		{
+			struct_Tree->insertTopLevelItem(struct_Tree->topLevelItemCount()-1,new_Multilayer);
+		}
+	} else
+	{
+		// if selected item is top-level
+		if(!struct_Tree->currentItem()->parent())
+		{
+			int position = struct_Tree->indexOfTopLevelItem(struct_Tree->currentItem());
+			new_Multilayer->setText(struct_Tree->columnCount()-1, "inserted multilayer");
+
+			// place multilayers before substrate
+			if(  (struct_Tree->topLevelItem(struct_Tree->topLevelItemCount()-1)->whatsThis(struct_Tree->columnCount()-1)!=settings->gui.what_is_This_Substrate)
+			   ||(position != (struct_Tree->topLevelItemCount()-1)))
+			{
+				struct_Tree->insertTopLevelItem(position+1, new_Multilayer);
+			} else
+			{
+				struct_Tree->insertTopLevelItem(position, new_Multilayer);
+			}
+		} else
+		{
+			int position = struct_Tree->currentIndex().row();
+			new_Multilayer->setText(struct_Tree->columnCount()-1, "inserted nested multilayer");
+			struct_Tree->currentItem()->parent()->insertChild(position+1,new_Multilayer);
+		}
+	}
+	new_Multilayer->setExpanded(true);
+}
+
+void Multilayer::add_Substrate(bool)
+{
+	QTreeWidgetItem* new_Substrate = new QTreeWidgetItem;
+	new_Substrate->setWhatsThis(struct_Tree->columnCount()-1,settings->gui.what_is_This_Substrate);
+	new_Substrate->setText(struct_Tree->columnCount()-1, "substrate");
+	struct_Tree->addTopLevelItem(new_Substrate);
+
+	struct_Toolbar->actions()[2]->setDisabled(true);
+}
+
+void Multilayer::edit(bool)
+{
+	// TODO edit_toolbutton
+	qInfo() << "editing is not implemented";
+}
+
+void Multilayer::remove(bool)
+{
+	// TODO show item name before removal
+	if((struct_Tree->currentItem()->parent())&&(struct_Tree->currentItem()->parent()->childCount()<=2))
+	{
+		QMessageBox::StandardButton reply = QMessageBox::question(this,"Removal", "Whole multilayer "+struct_Tree->currentItem()->parent()->whatsThis(struct_Tree->columnCount()-1)+" will be removed.\nContinue?", QMessageBox::Yes|QMessageBox::No, QMessageBox::No);
+		if (reply == QMessageBox::Yes)
+		{
+			int child_Count = struct_Tree->currentItem()->parent()->childCount();
+			for(int i=0; i<=child_Count; i++)
+			{
+				delete struct_Tree->currentItem();
+			}
+		}
+	} else
+	if(struct_Tree->currentItem()->whatsThis(struct_Tree->columnCount()-1) != settings->gui.what_is_This_Ambient)
+	{
+		QMessageBox::StandardButton reply = QMessageBox::question(this,"Removal", "Really remove "+struct_Tree->currentItem()->whatsThis(struct_Tree->columnCount()-1)+"?", QMessageBox::Yes|QMessageBox::No, QMessageBox::No);
+		if (reply == QMessageBox::Yes)
+		{
+			if(struct_Tree->currentItem()->whatsThis(struct_Tree->columnCount()-1) == settings->gui.what_is_This_Substrate)
+			{
+				struct_Toolbar->actions()[2]->setDisabled(false);
+			}
+			delete struct_Tree->currentItem();
+		}
+	} else
+	{
+		QMessageBox::StandardButton reply = QMessageBox::question(this,"Removal", "Really reset ambient?", QMessageBox::Yes|QMessageBox::No, QMessageBox::No);
+		if (reply == QMessageBox::Yes)
+		{
+			// TODO reset ambient
+			qInfo() << "reset ambient";
+		}
+	}
+}
+
 void Multilayer::add_Measured_Data()
 {
 	setUpdatesEnabled(false);
@@ -155,8 +406,8 @@ void Multilayer::add_Measured_Data()
 	right_Layout->setSpacing(0);
 
 	QPushButton* new_Import_Button = new QPushButton("Import");
-	QLabel* new_Description_Label  = new QLabel("<description>");
-	QPushButton* new_Add_Button    = new QPushButton("Add");
+	QLabel* new_Description_Label  = new QLabel("<no description>");
+	QPushButton* new_Add_Button    = new QPushButton("Add Row");
 	QPushButton* new_Remove_Button = new QPushButton("Remove");
 
 	new_Import_Button->		setObjectName("Import");
@@ -242,8 +493,8 @@ void Multilayer::add_Target_Profile()
 	right_Layout->setSpacing(0);
 
 	QPushButton* new_Import_Button = new QPushButton("Import");
-	QLabel* new_Description_Label  = new QLabel("<description>");
-	QPushButton* new_Add_Button    = new QPushButton("Add");
+	QLabel* new_Description_Label  = new QLabel("<no description>");
+	QPushButton* new_Add_Button    = new QPushButton("Add Row");
 	QPushButton* new_Remove_Button = new QPushButton("Remove");
 
 	new_Import_Button->		setObjectName("Import");
@@ -285,7 +536,7 @@ void Multilayer::remove_Target_Profile()
 {
 	setUpdatesEnabled(false);
 
-	QString add_Name = data_Target_Profile_Frame_Vector.first()->findChildren<QPushButton*>().end()[-2]->objectName();	// add button is the second from the end
+	QString add_Name = data_Target_Profile_Frame_Vector.first()->findChildren<QPushButton*>().end()[-2]->objectName();	// add_button is the second from the end
 
 	int i0=-1;
 	for(int i=0; i<data_Target_Profile_Frame_Vector.size(); i++)

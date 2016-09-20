@@ -19,8 +19,19 @@ private:
 			void create_Struct_Tree();
 			void create_Struct_Toolbar();
 		void create_Variables_Frame();
-			void create_Variable_Tabs();
+			void create_Variables_Tabs();
+				void create_Dependent_Variables_Tabs();
+					void create_Specular_Functions();
+					void create_Nonspecular_Functions();
 		void create_Data_Frame();
+
+private slots:
+	void add_Layer(bool);
+	void add_Multilayer(bool);
+	void add_Substrate(bool);
+	void edit(bool);
+	void remove(bool);
+	// TODO all structure toolbuttons
 
 private slots:
 	void add_Measured_Data();
@@ -38,6 +49,20 @@ private:
 		QFrame* variables_Frame;
 			QVBoxLayout* variables_Frame_Layout;
 				QTabWidget*	variables_Tabs;
+					QTabWidget*	dependent_Variables_Tabs;
+						QVBoxLayout* specular_Functions_Layout;
+							QGroupBox* standard_Functions_Group_Box;
+								QCheckBox* reflect_Functions;
+								QCheckBox* transmit_Functions;
+								QCheckBox* absorp_Functions;
+							QGroupBox* field_Functions_Group_Box;
+								QCheckBox* field_Intensity;
+								QCheckBox* joule_Absorption;
+							QGroupBox* user_Functions_Group_Box;
+								QCheckBox* user_Supplied_Functions_Check;
+								QLineEdit* user_Supplied_Functions;
+						QVBoxLayout* nonspecular_Functions_Layout;
+
 		QFrame* data_Frame;
 			QVBoxLayout* data_Frame_Layout;
 				QGroupBox* data_Measured_Data_Group_Box;

@@ -14,19 +14,24 @@ public:
 
 	// multilayer window geometry
 	int multilayer_X_Corner = 500;
-	int multilayer_Width = 500;
+	int multilayer_Width = 450;
 	int multilayer_Min_Width = 300;
-	int multilayer_Y_Corner = 400;
-	int multilayer_Height = 400;
+	int multilayer_Y_Corner = 200;
+	int multilayer_Height = 500;
 	int multilayer_Min_Height = 100;
 
 	int multilayer_Height_Additive = 23;
+	QString what_is_This_Ambient = "ambient";
+	QString what_is_This_Substrate = "substrate";
 
 	// multilayer window names
 	QString default_Multilayer_Tab_Name = "Struc_";
 
 	// resource path
 	QString icon_Path = "../../imd icons/";
+
+	//	specular_Group_Box->setStyleSheet("QGroupBox { border: 1px solid gray; border-radius: 2px; margin-top: 1ex; }");
+	//	nonspecular_Group_Box->setStyleSheet("QGroupBox { border: 1px solid gray; border-radius: 2px; margin-top: 1ex; }");
 
 };
 

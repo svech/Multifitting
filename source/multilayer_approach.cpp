@@ -13,6 +13,7 @@ Multilayer_Approach::Multilayer_Approach(Settings* settings):
 
 void Multilayer_Approach::closeEvent(QCloseEvent* event)
 {
+	// TODO close multalayer window
 	qApp->quit();
 	event=NULL;
 }
@@ -74,7 +75,7 @@ void Multilayer_Approach::create_Multilayer_Tabs()
 	add_Tab_button->setFont(tmp_Qf);
 	multilayer_Tabs->setCornerWidget(add_Tab_button);
 
-	connect(multilayer_Tabs,SIGNAL(currentChanged(int)),this,SLOT(change_Tab_Color(int)));
+	connect(multilayer_Tabs, SIGNAL(currentChanged(int)),this,SLOT(change_Tab_Color(int)));
 
 	connect(add_Tab_button,  SIGNAL(clicked()),				  this, SLOT(add_Multilayer()));
 	connect(multilayer_Tabs, SIGNAL(tabBarDoubleClicked(int)),this, SLOT(rename_Multilayer(int)));
@@ -116,10 +117,12 @@ void Multilayer_Approach::rename_Multilayer(int tab_Index)
 
 void Multilayer_Approach::open_Documentation()
 {
-
+	// TODO open doumentation
+	qInfo() << "open documentation";
 }
 
 void Multilayer_Approach::open_About()
 {
-
+	// TODO about
+	QMessageBox::about(this,"About","-Say something\n-Something");
 }

@@ -90,11 +90,13 @@ void Launcher::on_Button_Freeform_Clicked()
 
 void Launcher::open_Documentation()
 {
-
+	// TODO open doumentation
+	qInfo() << "open doumentation";
 }
 
 void Launcher::open_About()
 {
+	// TODO about
 	QMessageBox::about(this,"About","-Say something\n-Something");
 }
 
