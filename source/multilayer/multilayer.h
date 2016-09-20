@@ -26,18 +26,33 @@ private:
 		void create_Data_Frame();
 
 private slots:
-	void add_Layer(bool);
-	void add_Multilayer(bool);
-	void add_Substrate(bool);
-	void edit(bool);
-	void remove(bool);
-	// TODO all structure toolbuttons
+	void add_Layer		(bool);
+	void add_Multilayer	(bool);
+	void add_Substrate	(bool);
+	void edit			(bool);
+	void remove			(bool);
+	void cut			(bool);
+	void copy			(bool);
+	void paste			(bool);
+	void move_Up		(bool);
+	void move_Down		(bool);
+	void group			(bool);
+	void ungroup		(bool);
+	void thickness_Plot	(bool);
+	void sigma_Plot		(bool);
+	void destroy		(bool);
+
+	void layer_Selected();
 
 private slots:
 	void add_Measured_Data();
 	void remove_Measured_Data();
 	void add_Target_Profile();
 	void remove_Target_Profile();
+
+// state variable
+//private:
+//	int different_Layers_Counter=0;
 
 // ui objects to be placed in Multilayer tab
 private:
