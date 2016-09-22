@@ -3,6 +3,9 @@
 Multilayer::Multilayer(Settings* settings):
 	settings(settings)
 {
+	buffered = new QTreeWidgetItem;
+	buffered = NULL;
+
 	create_Main_Layout();
 }
 
@@ -43,8 +46,7 @@ void Multilayer::create_Struct_Tree()
 	struct_Tree->header()->close();
 	struct_Tree->expandAll();
 
-	connect(struct_Tree, SIGNAL(itemSelectionChanged()), this, SLOT(layer_Selected()));
-
+	connect(struct_Tree, SIGNAL(itemSelectionChanged()), this, SLOT(if_Selected()));
 	add_Layer(true);
 }
 
@@ -100,6 +102,8 @@ void Multilayer::create_Struct_Toolbar()
 	connect(struct_Toolbar->actions()[12], SIGNAL(triggered(bool)), this, SLOT(thickness_Plot(bool)));
 	connect(struct_Toolbar->actions()[13], SIGNAL(triggered(bool)), this, SLOT(sigma_Plot(bool)));
 	connect(struct_Toolbar->actions()[14], SIGNAL(triggered(bool)), this, SLOT(destroy(bool)));
+
+	if_Selected();
 }
 
 void Multilayer::create_Variables_Frame()
@@ -119,7 +123,6 @@ void Multilayer::create_Variables_Tabs()
 {
 	variables_Tabs = new QTabWidget;
 	create_Dependent_Variables_Tabs();
-
 	{
 		QFrame* frame = new QFrame;
 		QVBoxLayout* layout = new QVBoxLayout;
@@ -129,7 +132,33 @@ void Multilayer::create_Variables_Tabs()
 		variables_Tabs->addTab(frame, "Dependent Variables");
 	}
 
-	variables_Tabs->addTab(new QWidget(), "Independent Variables");
+	create_Independent_Variables_List();
+	create_Independent_Variables_Toolbar();
+	{
+		QFrame* frame = new QFrame;
+		QVBoxLayout* layout = new QVBoxLayout;
+		layout->addWidget(independent_Variables_List);
+		layout->addWidget(independent_Variables_Toolbar);
+		layout->setSpacing(0);
+		frame->setLayout(layout);
+		frame->setContentsMargins(0,-5,0,-12);
+		variables_Tabs->addTab(frame, "Independent Variables");
+	}
+
+	create_Coupled_Parameters_List();
+	create_Coupled_Parameters_Toolbar();
+	{
+		QFrame* frame = new QFrame;
+		QVBoxLayout* layout = new QVBoxLayout;
+		layout->addWidget(coupled_Parameters_List);
+		layout->addWidget(coupled_Parameters_Toolbar);
+		layout->setSpacing(0);
+		frame->setLayout(layout);
+		frame->setContentsMargins(0,-5,0,-12);
+		variables_Tabs->addTab(frame, "Coupled Parameters");
+	}
+
+	// TODO make other variables tabs
 	variables_Tabs->addTab(new QWidget(), "Fitting");
 	variables_Tabs->addTab(new QWidget(), "Optimization");
 	variables_Tabs->setSizePolicy(QSizePolicy::Preferred,QSizePolicy::Fixed);
@@ -151,6 +180,7 @@ void Multilayer::create_Dependent_Variables_Tabs()
 		specular_Frame->setLayout(specular_Functions_Layout);
 	dependent_Variables_Tabs->addTab(specular_Frame, "Specular Optical Functions");
 
+	// TODO non-specular functions
 	create_Nonspecular_Functions();
 //		nonspecular_Functions_Layout->addWidget(nonspecular_Group_Box);
 	QFrame* nonspecular_Frame = new QFrame;
@@ -192,7 +222,79 @@ void Multilayer::create_Specular_Functions()
 
 void Multilayer::create_Nonspecular_Functions()
 {
+	// TODO nonspecular functions
+}
 
+void Multilayer::create_Independent_Variables_List()
+{
+	// TODO invisible if empty
+	independent_Variables_List = new QListWidget;
+	independent_Variables_List->setSizeAdjustPolicy(QListWidget::AdjustToContents);
+	QSizePolicy sp_Retain = independent_Variables_List->sizePolicy();
+				sp_Retain.setRetainSizeWhenHidden(true);
+	independent_Variables_List->setSizePolicy(sp_Retain);
+
+//	independent_Variables_List->hide();
+}
+
+void Multilayer::create_Independent_Variables_Toolbar()
+{
+	QPixmap new_Variable	(settings->gui.icon_Path + "new.bmp");
+	QPixmap edit			(settings->gui.icon_Path + "roi.bmp");
+	QPixmap remove			(settings->gui.icon_Path + "delete.bmp");
+
+	independent_Variables_Toolbar = new QToolBar;
+	independent_Variables_Toolbar->addAction(QIcon(new_Variable),	"Add Independent Variable");// 0
+	independent_Variables_Toolbar->addAction(QIcon(edit),			"Edit");					// 1
+	independent_Variables_Toolbar->addAction(QIcon(remove),			"Remove");					// 2
+
+	independent_Variables_Toolbar->setIconSize(new_Variable.size());
+}
+
+void Multilayer::create_Coupled_Parameters_List()
+{
+	// TODO invisible if empty
+	coupled_Parameters_List = new QListWidget;
+	coupled_Parameters_List->setSizeAdjustPolicy(QListWidget::AdjustToContents);
+	QSizePolicy sp_Retain = coupled_Parameters_List->sizePolicy();
+				sp_Retain.setRetainSizeWhenHidden(true);
+	coupled_Parameters_List->setSizePolicy(sp_Retain);
+
+//	coupled_Parameters_List->hide();
+}
+
+void Multilayer::create_Coupled_Parameters_Toolbar()
+{
+	QPixmap new_Variable	(settings->gui.icon_Path + "new.bmp");
+	QPixmap edit			(settings->gui.icon_Path + "roi.bmp");
+	QPixmap remove			(settings->gui.icon_Path + "delete.bmp");
+
+	coupled_Parameters_Toolbar = new QToolBar;
+	coupled_Parameters_Toolbar->addAction(QIcon(new_Variable),	"Add Coupled Parameter");	// 0
+	coupled_Parameters_Toolbar->addAction(QIcon(edit),			"Edit");					// 1
+	coupled_Parameters_Toolbar->addAction(QIcon(remove),		"Remove");					// 2
+
+	coupled_Parameters_Toolbar->setIconSize(new_Variable.size());
+}
+
+void Multilayer::create_Fitting_Parameters_List()
+{
+// TODO
+}
+
+void Multilayer::create_Fitting_Parameters_Toolbar()
+{
+// TODO
+}
+
+void Multilayer::create_Optimization_Parameters_List()
+{
+// TODO
+}
+
+void Multilayer::create_Optimization_Parameters_Toolbar()
+{
+// TODO
 }
 
 void Multilayer::create_Data_Frame()
@@ -228,53 +330,7 @@ void Multilayer::create_Data_Frame()
 void Multilayer::add_Layer(bool)
 {
 	QTreeWidgetItem* new_Layer = new QTreeWidgetItem;
-
-	// if no tree at all (at the beginning)
-	if(struct_Tree->topLevelItemCount()==0)
-	{
-		new_Layer->setText(struct_Tree->columnCount()-1, "ambient 0: ");
-		struct_Tree->addTopLevelItem(new_Layer);
-		new_Layer->setWhatsThis(struct_Tree->columnCount()-1,settings->gui.what_is_This_Ambient);
-	} else
-	{
-		// if no selected items
-		if(struct_Tree->selectedItems().isEmpty())
-		{
-			new_Layer->setText(struct_Tree->columnCount()-1, "last layer");
-
-			// if there is no substrate
-			if(struct_Tree->topLevelItem(struct_Tree->topLevelItemCount()-1)->whatsThis(struct_Tree->columnCount()-1)!=settings->gui.what_is_This_Substrate)
-			{
-				struct_Tree->addTopLevelItem(new_Layer);
-			} else
-			{
-				struct_Tree->insertTopLevelItem(struct_Tree->topLevelItemCount()-1,new_Layer);
-			}
-		} else
-		{
-			// if selected item is top-level
-			if(!struct_Tree->currentItem()->parent())
-			{
-				int position = struct_Tree->indexOfTopLevelItem(struct_Tree->currentItem());
-				new_Layer->setText(struct_Tree->columnCount()-1, "inserted layer");
-
-				// place layers before substrate
-				if(  (struct_Tree->topLevelItem(struct_Tree->topLevelItemCount()-1)->whatsThis(struct_Tree->columnCount()-1)!=settings->gui.what_is_This_Substrate)
-				   ||(position != (struct_Tree->topLevelItemCount()-1)))
-				{
-					struct_Tree->insertTopLevelItem(position+1, new_Layer);
-				} else
-				{
-					struct_Tree->insertTopLevelItem(position, new_Layer);
-				}
-			} else
-			{
-				int position = struct_Tree->currentIndex().row();
-				new_Layer->setText(struct_Tree->columnCount()-1, "inserted nested layer");
-				struct_Tree->currentItem()->parent()->insertChild(position+1,new_Layer);
-			}
-		}
-	}
+	add_Buffered_Layer(new_Layer);
 }
 
 void Multilayer::add_Multilayer(bool)
@@ -351,7 +407,8 @@ void Multilayer::add_Multilayer(bool)
 			struct_Tree->currentItem()->parent()->insertChild(position+1,new_Multilayer);
 		}
 	}
-	new_Multilayer->setExpanded(true);
+
+	refresh_Toolbar();
 }
 
 void Multilayer::add_Substrate(bool)
@@ -362,6 +419,8 @@ void Multilayer::add_Substrate(bool)
 	struct_Tree->addTopLevelItem(new_Substrate);
 
 	struct_Toolbar->actions()[2]->setDisabled(true);
+
+	refresh_Toolbar();
 }
 
 void Multilayer::edit(bool)
@@ -405,7 +464,7 @@ void Multilayer::remove(bool)
 		{
 			if(struct_Tree->currentItem()->whatsThis(struct_Tree->columnCount()-1) == settings->gui.what_is_This_Substrate)
 			{
-				struct_Toolbar->actions()[2]->setDisabled(false);
+				struct_Toolbar->actions()[2]->setDisabled(false);		// add_Substrate
 			}
 			delete struct_Tree->currentItem();
 		}
@@ -418,30 +477,68 @@ void Multilayer::remove(bool)
 			qInfo() << "reset ambient";
 		}
 	}
+
+	refresh_Toolbar();
 }
 
 void Multilayer::cut(bool)
 {
-	// TODO cut_toolbutton
-	qInfo() << "cut is not implemented";
+	buffered = struct_Tree->currentItem()->clone();
+
+	// TODO show item name before cut
+	if((struct_Tree->currentItem()->parent())&&(struct_Tree->currentItem()->parent()->childCount()==2))
+	{
+		QMessageBox::StandardButton reply = QMessageBox::question(this,"Cut", "Multilayer "+struct_Tree->currentItem()->parent()->whatsThis(struct_Tree->columnCount()-1)+" will be disbanded.\nContinue?", QMessageBox::Yes|QMessageBox::No, QMessageBox::No);
+		if (reply == QMessageBox::Yes)
+		{
+			QTreeWidgetItem* parent = struct_Tree->currentItem()->parent();
+			delete struct_Tree->currentItem();
+
+			QTreeWidgetItem* survived_Child_Copy = new QTreeWidgetItem();
+			*survived_Child_Copy = *parent->child(0);
+
+			// if multilayer is already nested
+			if(parent->parent())
+			{
+				int parent_Position = parent->parent()->indexOfChild(parent);
+				parent->parent()->insertChild(parent_Position, survived_Child_Copy);
+				delete parent;
+			} else
+			{
+				int parent_Position = struct_Tree->indexOfTopLevelItem(parent);
+				struct_Tree->insertTopLevelItem(parent_Position, survived_Child_Copy);
+				delete parent;
+			}
+		}
+	} else
+	{
+		QMessageBox::StandardButton reply = QMessageBox::question(this,"Cut", "Really cut "+struct_Tree->currentItem()->whatsThis(struct_Tree->columnCount()-1)+"?", QMessageBox::Yes|QMessageBox::No, QMessageBox::No);
+		if (reply == QMessageBox::Yes)
+		{
+			if(struct_Tree->currentItem()->whatsThis(struct_Tree->columnCount()-1) == settings->gui.what_is_This_Substrate)
+			{
+				struct_Toolbar->actions()[2]->setDisabled(false);
+			}
+			delete struct_Tree->currentItem();
+		}
+	}
+	refresh_Toolbar();
 }
 
 void Multilayer::copy(bool)
 {
-	// TODO copy_toolbutton
-	qInfo() << "copy is not implemented";
+	buffered = struct_Tree->currentItem()->clone();
+	refresh_Toolbar();
 }
 
 void Multilayer::paste(bool)
 {
-	// TODO paste_toolbutton
-	qInfo() << "paste is not implemented";
+	add_Buffered_Layer(buffered);
 }
 
 void Multilayer::move_Up(bool)
 {
 	int position = struct_Tree->currentIndex().row();
-	//if(position)
 	QTreeWidgetItem* parent = struct_Tree->currentItem()->parent();
 
 	// if nested
@@ -449,36 +546,65 @@ void Multilayer::move_Up(bool)
 	{
 		QTreeWidgetItem* taken = parent->takeChild(position-1);
 		parent->insertChild(position, taken);
-		struct_Tree->currentItem()->setSelected(false);
-		struct_Tree->currentItem()->setSelected(true);
 	} else
-	if(position>=2&&(struct_Tree->currentItem()->whatsThis(struct_Tree->columnCount()-1)!=settings->gui.what_is_This_Substrate))
 	{
 		QTreeWidgetItem* taken = struct_Tree->takeTopLevelItem(position-1);
 		struct_Tree->insertTopLevelItem(position, taken);
-		struct_Tree->currentItem()->setSelected(false);
-		struct_Tree->currentItem()->setSelected(true);
 	}
 
-	struct_Tree->expandAll();
+	refresh_Toolbar();
 }
 
 void Multilayer::move_Down(bool)
 {
-	// TODO move_down_toolbutton
-	qInfo() << "move_down is not implemented";
+	int position = struct_Tree->currentIndex().row();
+	QTreeWidgetItem* parent = struct_Tree->currentItem()->parent();
+
+	// if nested
+	if(parent)
+	{
+		QTreeWidgetItem* taken = parent->takeChild(position+1);
+		parent->insertChild(position, taken);
+	} else
+	{
+		QTreeWidgetItem* taken = struct_Tree->takeTopLevelItem(position+1);
+		struct_Tree->insertTopLevelItem(position, taken);
+	}
+
+	refresh_Toolbar();
 }
 
 void Multilayer::group(bool)
 {
 	// TODO group_toolbutton
 	qInfo() << "group is not implemented";
+
+	refresh_Toolbar();
 }
 
 void Multilayer::ungroup(bool)
 {
-	// TODO ungroup_toolbutton
-	qInfo() << "ungroup is not implemented";
+	int position = struct_Tree->currentIndex().row();
+
+	// deep copy of children
+	QList<QTreeWidgetItem*> child_List;
+	for(int i=0; i<struct_Tree->currentItem()->childCount(); i++)
+	{
+		child_List.append(struct_Tree->currentItem()->child(i)->clone());
+	}
+
+	// if nested
+	if(struct_Tree->currentItem()->parent())
+	{
+		struct_Tree->currentItem()->parent()->insertChildren(position+1, child_List);
+		delete struct_Tree->currentItem();
+	} else
+	{
+		struct_Tree->insertTopLevelItems(position+1, child_List);
+		delete struct_Tree->currentItem();
+	}
+
+	refresh_Toolbar();
 }
 
 void Multilayer::thickness_Plot(bool)
@@ -499,39 +625,185 @@ void Multilayer::destroy(bool)
 	if (reply == QMessageBox::Yes)
 	{
 		struct_Tree->clear();
-		add_Layer(true);
+		add_Layer(true);		
+		struct_Toolbar->actions()[2]->setDisabled(false);		// add_Substrate
+		refresh_Toolbar();
 	}
 }
 
-void Multilayer::layer_Selected()
+// service slots
+
+void Multilayer::if_Selected()
 {
-	int position = struct_Tree->currentIndex().row();
-
-	QTreeWidgetItem* parent = struct_Tree->currentItem()->parent();
-	// if nested
-	if(parent)
+	if(buffered!=NULL)
 	{
-		if(position == 0)
-			struct_Toolbar->actions()[8]->setDisabled(true);
-		else
-			struct_Toolbar->actions()[8]->setDisabled(false);
-
-		if(position == (parent->childCount()-1))
-			struct_Toolbar->actions()[9]->setDisabled(true);
-		else
-			struct_Toolbar->actions()[9]->setDisabled(false);
+		struct_Toolbar->actions()[7]->setDisabled(false);		 // paste
 	} else
 	{
-		if(position <= 1)
-			struct_Toolbar->actions()[8]->setDisabled(true);
-		else
-			struct_Toolbar->actions()[8]->setDisabled(false);
-
-		if((position == struct_Tree->topLevelItemCount()-1)&&(struct_Tree->currentItem()->whatsThis(struct_Tree->columnCount()-1)==settings->gui.what_is_This_Substrate))
-			struct_Toolbar->actions()[8]->setDisabled(true);
-		else
-			struct_Toolbar->actions()[8]->setDisabled(false);
+		struct_Toolbar->actions()[7]->setDisabled(true);		 // paste
 	}
+
+	struct_Toolbar->actions()[11]->setDisabled(true);		 // ungroup
+
+	if(struct_Tree->selectedItems().isEmpty())
+	{
+		struct_Toolbar->actions()[3]->setDisabled(true);		 // edit
+		struct_Toolbar->actions()[4]->setDisabled(true);		 // remove
+		struct_Toolbar->actions()[5]->setDisabled(true);		 // cut
+		struct_Toolbar->actions()[6]->setDisabled(true);		 // copy
+		struct_Toolbar->actions()[8]->setDisabled(true);		 // move_Up
+		struct_Toolbar->actions()[9]->setDisabled(true);		 // move_Down
+		struct_Toolbar->actions()[10]->setDisabled(true);		 // group
+		struct_Toolbar->actions()[12]->setDisabled(true);		 // thickness_Plot
+		struct_Toolbar->actions()[13]->setDisabled(true);		 // sigma_Plot
+	} else
+	{
+		bool if_Substrate = struct_Tree->currentItem()->whatsThis(struct_Tree->columnCount()-1)==settings->gui.what_is_This_Substrate;
+
+		struct_Toolbar->actions()[3]->setDisabled(false);		 // edit
+		struct_Toolbar->actions()[4]->setDisabled(false);		 // remove
+
+		// if multilayer
+		if(struct_Tree->currentItem()->childCount()>0)
+		{
+			struct_Toolbar->actions()[11]->setDisabled(false);		 // ungroup
+		}
+
+		int position = struct_Tree->currentIndex().row();
+		QTreeWidgetItem* parent = struct_Tree->currentItem()->parent();
+
+		// if nested
+		if(parent)
+		{
+			struct_Toolbar->actions()[5]->setDisabled(false);		 // cut
+			struct_Toolbar->actions()[6]->setDisabled(false);		 // copy
+
+			if(position == 0)
+			{
+				struct_Toolbar->actions()[8]->setDisabled(true);	// move_Up
+				struct_Toolbar->actions()[9]->setDisabled(false);	// move_Down
+			} else
+			if(position == (parent->childCount()-1))
+			{
+				struct_Toolbar->actions()[8]->setDisabled(false);	// move_Up
+				struct_Toolbar->actions()[9]->setDisabled(true);	// move_Down
+			} else
+			{
+				struct_Toolbar->actions()[8]->setDisabled(false);	// move_Up
+				struct_Toolbar->actions()[9]->setDisabled(false);	// move_Down
+			}
+		} else
+		{
+			// if ambient
+			if(position == 0)
+			{
+				struct_Toolbar->actions()[5]->setDisabled(true);	// cut
+				struct_Toolbar->actions()[6]->setDisabled(true);	// copy
+				struct_Toolbar->actions()[8]->setDisabled(true);	// move_Up
+				struct_Toolbar->actions()[9]->setDisabled(true);	// move_Down
+				struct_Toolbar->actions()[10]->setDisabled(true);	// group
+			} else
+			// if not at end
+			if(position<struct_Tree->topLevelItemCount()-1)
+			{
+				struct_Toolbar->actions()[5]->setDisabled(false);	// cut
+				struct_Toolbar->actions()[6]->setDisabled(false);	// copy
+
+				// if next is not substrate
+				if(struct_Tree->topLevelItem(position+1)->whatsThis(struct_Tree->columnCount()-1)!=settings->gui.what_is_This_Substrate)
+				{
+					struct_Toolbar->actions()[9]->setDisabled(false);	// move_Down
+				}
+				// if second
+				if(position == 1)
+				{
+					struct_Toolbar->actions()[8]->setDisabled(true);	// move_Up
+				} else
+				{
+					struct_Toolbar->actions()[8]->setDisabled(false);	// move_Up
+				}
+			} else
+			{ // if at end
+				if(if_Substrate)
+				{
+					struct_Toolbar->actions()[5]->setDisabled(true);	// cut
+					struct_Toolbar->actions()[6]->setDisabled(true);	// copy
+					struct_Toolbar->actions()[8]->setDisabled(true);	// move_Up
+				} else
+				{
+					struct_Toolbar->actions()[5]->setDisabled(false);	// cut
+					struct_Toolbar->actions()[6]->setDisabled(false);	// copy
+					struct_Toolbar->actions()[8]->setDisabled(false);	// move_Up
+				}
+				struct_Toolbar->actions()[9]->setDisabled(true);	// move_Down
+			}
+		}
+	}
+}
+
+void Multilayer::add_Buffered_Layer(QTreeWidgetItem* new_Layer_Passed)
+{
+	// copy of new_Layer
+	QTreeWidgetItem* new_Layer = new QTreeWidgetItem;
+	new_Layer = new_Layer_Passed->clone();
+
+	if(new_Layer_Passed->text(struct_Tree->columnCount()-1).isEmpty())
+		new_Layer->setText(struct_Tree->columnCount()-1, "new layer");
+
+	// if no tree at all (at the beginning)
+	if(struct_Tree->topLevelItemCount()==0)
+	{
+		new_Layer->setText(struct_Tree->columnCount()-1, "ambient: ");
+		struct_Tree->addTopLevelItem(new_Layer);
+		new_Layer->setWhatsThis(struct_Tree->columnCount()-1,settings->gui.what_is_This_Ambient);
+	} else
+	{
+		// if no selected items
+		if(struct_Tree->selectedItems().isEmpty())
+		{
+			// if there is no substrate
+			if(struct_Tree->topLevelItem(struct_Tree->topLevelItemCount()-1)->whatsThis(struct_Tree->columnCount()-1)!=settings->gui.what_is_This_Substrate)
+			{
+				struct_Tree->addTopLevelItem(new_Layer);
+			} else
+			{
+				struct_Tree->insertTopLevelItem(struct_Tree->topLevelItemCount()-1,new_Layer);
+			}
+		} else
+		{
+			// if selected item is top-level
+			if(!struct_Tree->currentItem()->parent())
+			{
+				int position = struct_Tree->indexOfTopLevelItem(struct_Tree->currentItem());
+
+				// place layers before substrate
+				if(  (struct_Tree->topLevelItem(struct_Tree->topLevelItemCount()-1)->whatsThis(struct_Tree->columnCount()-1)!=settings->gui.what_is_This_Substrate)
+				   ||(position != (struct_Tree->topLevelItemCount()-1)))
+				{
+					struct_Tree->insertTopLevelItem(position+1, new_Layer);
+				} else
+				{
+					struct_Tree->insertTopLevelItem(position, new_Layer);
+				}
+			} else
+			{
+				int position = struct_Tree->currentIndex().row();
+				struct_Tree->currentItem()->parent()->insertChild(position+1,new_Layer);
+			}
+		}
+	}
+
+	refresh_Toolbar();
+}
+
+void Multilayer::refresh_Toolbar()
+{
+	if(!struct_Tree->selectedItems().isEmpty())
+	{
+		struct_Tree->currentItem()->setSelected(false);
+		struct_Tree->currentItem()->setSelected(true);
+	}
+	struct_Tree->expandAll();
 }
 
 // data management

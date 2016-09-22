@@ -74,6 +74,7 @@ void Multilayer_Approach::create_Multilayer_Tabs()
 	QFont tmp_Qf; tmp_Qf.setBold(true);
 	add_Tab_button->setFont(tmp_Qf);
 	multilayer_Tabs->setCornerWidget(add_Tab_button);
+	// TODO removing multilayer tabs
 
 	connect(multilayer_Tabs, SIGNAL(currentChanged(int)),this,SLOT(change_Tab_Color(int)));
 

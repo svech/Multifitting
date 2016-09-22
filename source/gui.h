@@ -14,7 +14,7 @@ public:
 
 	// multilayer window geometry
 	int multilayer_X_Corner = 500;
-	int multilayer_Width = 450;
+	int multilayer_Width = 531;
 	int multilayer_Min_Width = 300;
 	int multilayer_Y_Corner = 200;
 	int multilayer_Height = 500;

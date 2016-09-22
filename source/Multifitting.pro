@@ -12,6 +12,8 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 TARGET = Multifitting
 TEMPLATE = app
 
+# under windows
+RC_FILE = icon.rc
 
 SOURCES += main.cpp\
         launcher.cpp \

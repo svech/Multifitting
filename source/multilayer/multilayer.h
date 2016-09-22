@@ -23,6 +23,17 @@ private:
 				void create_Dependent_Variables_Tabs();
 					void create_Specular_Functions();
 					void create_Nonspecular_Functions();
+				void create_Independent_Variables_List();
+				void create_Independent_Variables_Toolbar();
+
+				void create_Coupled_Parameters_List();
+				void create_Coupled_Parameters_Toolbar();
+
+				void create_Fitting_Parameters_List();
+				void create_Fitting_Parameters_Toolbar();
+
+				void create_Optimization_Parameters_List();
+				void create_Optimization_Parameters_Toolbar();
 		void create_Data_Frame();
 
 private slots:
@@ -42,7 +53,9 @@ private slots:
 	void sigma_Plot		(bool);
 	void destroy		(bool);
 
-	void layer_Selected();
+	void if_Selected();
+	void add_Buffered_Layer(QTreeWidgetItem*new_Layer_Passed);
+	void refresh_Toolbar();
 
 private slots:
 	void add_Measured_Data();
@@ -51,8 +64,9 @@ private slots:
 	void remove_Target_Profile();
 
 // state variable
-//private:
-//	int different_Layers_Counter=0;
+private:
+	int different_Layers_Counter=0;
+	QTreeWidgetItem* buffered;
 
 // ui objects to be placed in Multilayer tab
 private:
@@ -77,6 +91,17 @@ private:
 								QCheckBox* user_Supplied_Functions_Check;
 								QLineEdit* user_Supplied_Functions;
 						QVBoxLayout* nonspecular_Functions_Layout;
+					QListWidget* independent_Variables_List;
+					QToolBar* independent_Variables_Toolbar;
+
+					QListWidget* coupled_Parameters_List;
+					QToolBar* coupled_Parameters_Toolbar;
+
+					QListWidget* fitting_Parameters_List;
+					QToolBar* fitting_Parameters_Toolbar;
+
+					QListWidget* optimization_Parameters_List;
+					QToolBar* optimization_Parameters_Toolbar;
 
 		QFrame* data_Frame;
 			QVBoxLayout* data_Frame_Layout;
