@@ -249,6 +249,8 @@ void Multilayer::create_Independent_Variables_Toolbar()
 	independent_Variables_Toolbar->addAction(QIcon(remove),			"Remove");					// 2
 
 	independent_Variables_Toolbar->setIconSize(new_Variable.size());
+
+	// TODO connect actions
 }
 
 void Multilayer::create_Coupled_Parameters_List()
@@ -275,6 +277,8 @@ void Multilayer::create_Coupled_Parameters_Toolbar()
 	coupled_Parameters_Toolbar->addAction(QIcon(remove),		"Remove");					// 2
 
 	coupled_Parameters_Toolbar->setIconSize(new_Variable.size());
+
+	// TODO connect actions
 }
 
 void Multilayer::create_Fitting_Parameters_List()
