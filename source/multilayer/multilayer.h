@@ -2,16 +2,16 @@
 #define MULTILAYER_H
 
 #include <QtWidgets>
-#include "settings.h"
+#include "global_definitions.h"
 
 class Multilayer : public QWidget
 {
 	Q_OBJECT
 
 public:
-	Multilayer(Settings* settings);
+	Multilayer(QSettings* settings);
 
-	Settings* settings;
+	QSettings* settings;
 
 private:
 	void create_Main_Layout();

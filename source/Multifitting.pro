@@ -17,16 +17,13 @@ RC_FILE = icon.rc
 
 SOURCES += main.cpp\
         launcher.cpp \
-    settings.cpp \
-    gui.cpp \
     multilayer_approach.cpp \
-    optical_constants.cpp \
-    multilayer/multilayer.cpp
+    multilayer/multilayer.cpp \
+    global_definitions.cpp \
+    multilayer/layer_content.cpp
 
 HEADERS  += launcher.h \
-    global_definitions.h \
-    settings.h \
-    gui.h \
     multilayer_approach.h \
-    optical_constants.h \
-    multilayer/multilayer.h
+    multilayer/multilayer.h \
+    global_definitions.h \
+    multilayer/layer_content.h

@@ -2,8 +2,8 @@
 #define LAUNCHER_H
 
 #include <QtWidgets>
-#include "settings.h"
 #include "multilayer_approach.h"
+#include "global_definitions.h"
 
 class Launcher : public QWidget
 {
@@ -12,7 +12,7 @@ class Launcher : public QWidget
 public:
 	Launcher();
 
-	Settings* settings;
+	QSettings* settings;
 
 private slots:
 	void on_Button_Multilayer_Clicked();
@@ -22,6 +22,7 @@ private slots:
 	void open_About();
 
 private:
+	void reset_Settings();
 	void closeEvent(QCloseEvent *event);
 	void create_Main_Layout();
 		void create_Menu();

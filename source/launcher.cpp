@@ -2,7 +2,8 @@
 
 Launcher::Launcher()
 {	
-	settings = new Settings;
+	settings = new QSettings("../../settings.ini", QSettings::IniFormat);
+//	reset_Settings();
 
 	// place ui elements
 	setWindowTitle("Multifitting");
@@ -70,9 +71,52 @@ void Launcher::create_Buttons()
 
 void Launcher::set_Window_Geometry()
 {
+	settings->beginGroup( Launcher_Geometry );
+		int launcher_X_Corner = settings->value( "launcher_X_Corner", 0 ).toInt();
+		int launcher_Y_Corner = settings->value( "launcher_Y_Corner", 0 ).toInt();
+	settings->endGroup();
+
 	adjustSize();
 	setFixedSize(size());
-	setGeometry(settings->gui.launcher_X_Corner,settings->gui.launcher_Y_Corner,0,0);
+
+	setGeometry(launcher_X_Corner, launcher_Y_Corner, 0, 0);
+}
+
+void Launcher::reset_Settings()
+{
+	// launcher window geometry
+	settings->beginGroup( Launcher_Geometry );
+		settings->setValue( "launcher_X_Corner", 300 );
+		settings->setValue( "launcher_Y_Corner", 300 );
+	settings->endGroup();
+
+	// multilayer window geometry
+	settings->beginGroup( Multilayer_Window_Geometry );
+		settings->setValue( "multilayer_X_Corner", 500 );
+		settings->setValue( "multilayer_Y_Corner", 200 );
+		settings->setValue( "multilayer_Min_Width", 300 );
+		settings->setValue( "multilayer_Width", 531 );
+		settings->setValue( "multilayer_Min_Height", 100 );
+		settings->setValue( "multilayer_Height", 500 );
+		settings->setValue( "multilayer_Height_Additive", 23 );
+	settings->endGroup();
+
+	// multilayer tab name
+	settings->beginGroup( Multilayer_Tabs );
+		settings->setValue( "default_Multilayer_Tab_Name", "Struct_" );
+		settings->setValue( "default_New_Struct_Name", "New Struct" );
+	settings->endGroup();
+
+	// resource path
+	settings->beginGroup( Paths );
+		settings->setValue( "icon_Path", "../../imd icons/" );
+	settings->endGroup();
+
+	// whatsThis Property
+	settings->beginGroup( whatsThis_Properties );
+		settings->setValue( "what_is_This_Ambient", "ambient" );
+		settings->setValue( "what_is_This_Substrate", "substrate" );
+	settings->endGroup();
 }
 
 // slots
@@ -99,5 +143,7 @@ void Launcher::open_About()
 	// TODO about
 	QMessageBox::about(this,"About","-Say something\n-Something");
 }
+
+
 
 
