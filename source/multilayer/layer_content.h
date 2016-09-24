@@ -1,7 +1,6 @@
 #ifndef LAYER_CONTENT_H
 #define LAYER_CONTENT_H
 
-#include <QtWidgets>
 #include "global_definitions.h"
 
 class Ambient
@@ -36,7 +35,6 @@ class Layer : public Extreme_Layer
 public:
 	Layer();
 
-	double drift;
 	QString drift_Model;
 	QList<double> drift_Coefficients;
 
@@ -57,6 +55,9 @@ public:
 	double gamma;
 };
 
-
+Q_DECLARE_METATYPE( Ambient )
+Q_DECLARE_METATYPE( Substrate )
+Q_DECLARE_METATYPE( Layer )
+Q_DECLARE_METATYPE( Stack_Content )
 
 #endif // LAYER_CONTENT_H

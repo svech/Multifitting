@@ -1,9 +1,16 @@
 #include "launcher.h"
 
-Launcher::Launcher()
+Launcher::Launcher():
+	gui_Settings(Gui_Settings_Path, QSettings::IniFormat),
+	default_Values(Default_Value_Path, QSettings::IniFormat)
 {	
-	settings = new QSettings("../../settings.ini", QSettings::IniFormat);
-//	reset_Settings();
+//	reset_Gui_Settings();
+	reset_Default_Values();
+
+	gui_Settings.beginGroup( Application_Style );
+		QString application_Style = gui_Settings.value( "application_Style", 0 ).toString();
+	gui_Settings.endGroup();
+		qApp->setStyle(QStyleFactory::create(application_Style));
 
 	// place ui elements
 	setWindowTitle("Multifitting");
@@ -71,10 +78,10 @@ void Launcher::create_Buttons()
 
 void Launcher::set_Window_Geometry()
 {
-	settings->beginGroup( Launcher_Geometry );
-		int launcher_X_Corner = settings->value( "launcher_X_Corner", 0 ).toInt();
-		int launcher_Y_Corner = settings->value( "launcher_Y_Corner", 0 ).toInt();
-	settings->endGroup();
+	gui_Settings.beginGroup( Launcher_Geometry );
+		int launcher_X_Corner = gui_Settings.value( "launcher_X_Corner", 0 ).toInt();
+		int launcher_Y_Corner = gui_Settings.value( "launcher_Y_Corner", 0 ).toInt();
+	gui_Settings.endGroup();
 
 	adjustSize();
 	setFixedSize(size());
@@ -82,48 +89,76 @@ void Launcher::set_Window_Geometry()
 	setGeometry(launcher_X_Corner, launcher_Y_Corner, 0, 0);
 }
 
-void Launcher::reset_Settings()
+void Launcher::reset_Gui_Settings()
 {
+	QMessageBox::warning(this,"Warning","Reset Gui Settings");
+	qInfo() << "Reset Gui Settings";
+
+	// application style
+	gui_Settings.beginGroup( Application_Style );
+		gui_Settings.setValue( "application_Style", "WindowsXP" ); // Fusion Windows WindowsXP WindowsVista
+	gui_Settings.endGroup();
+
 	// launcher window geometry
-	settings->beginGroup( Launcher_Geometry );
-		settings->setValue( "launcher_X_Corner", 300 );
-		settings->setValue( "launcher_Y_Corner", 300 );
-	settings->endGroup();
+	gui_Settings.beginGroup( Launcher_Geometry );
+		gui_Settings.setValue( "launcher_X_Corner", 300 );
+		gui_Settings.setValue( "launcher_Y_Corner", 300 );
+	gui_Settings.endGroup();
 
 	// multilayer window geometry
-	settings->beginGroup( Multilayer_Window_Geometry );
-		settings->setValue( "multilayer_X_Corner", 500 );
-		settings->setValue( "multilayer_Y_Corner", 200 );
-		settings->setValue( "multilayer_Min_Width", 300 );
-		settings->setValue( "multilayer_Width", 531 );
-		settings->setValue( "multilayer_Min_Height", 100 );
-		settings->setValue( "multilayer_Height", 500 );
-		settings->setValue( "multilayer_Height_Additive", 23 );
-	settings->endGroup();
+	gui_Settings.beginGroup( Multilayer_Window_Geometry );
+		gui_Settings.setValue( "multilayer_X_Corner", 500 );
+		gui_Settings.setValue( "multilayer_Y_Corner", 200 );
+		gui_Settings.setValue( "multilayer_Min_Width", 300 );
+		gui_Settings.setValue( "multilayer_Width", 531 );
+		gui_Settings.setValue( "multilayer_Min_Height", 100 );
+		gui_Settings.setValue( "multilayer_Height", 500 );
+		gui_Settings.setValue( "multilayer_Height_Additive", 23 );
+	gui_Settings.endGroup();
 
 	// multilayer tab name
-	settings->beginGroup( Multilayer_Tabs );
-		settings->setValue( "default_Multilayer_Tab_Name", "Struct_" );
-		settings->setValue( "default_New_Struct_Name", "New Struct" );
-	settings->endGroup();
+	gui_Settings.beginGroup( Multilayer_Tabs );
+		gui_Settings.setValue( "default_Multilayer_Tab_Name", "Struct_" );
+		gui_Settings.setValue( "default_New_Struct_Name", "New Struct" );
+	gui_Settings.endGroup();
 
 	// resource path
-	settings->beginGroup( Paths );
-		settings->setValue( "icon_Path", "../../imd icons/" );
-	settings->endGroup();
+	gui_Settings.beginGroup( Paths );
+		gui_Settings.setValue( "icon_Path", "../../imd icons/" );
+	gui_Settings.endGroup();
+}
 
-	// whatsThis Property
-	settings->beginGroup( whatsThis_Properties );
-		settings->setValue( "what_is_This_Ambient", "ambient" );
-		settings->setValue( "what_is_This_Substrate", "substrate" );
-	settings->endGroup();
+void Launcher::reset_Default_Values()
+{
+//	QMessageBox::warning(this,"Warning","Reset Default Values");
+	qInfo() << "Reset Default Values";
+
+	// Structure Init Values
+	default_Values.beginGroup( Structure_Init_Values );
+		default_Values.beginGroup( Ambient_Values );
+			default_Values.setValue( "ambient_default_material", "Vacuum" );
+			default_Values.setValue( "ambient_default_density", 0 );
+			default_Values.setValue( "ambient_default_stoichiometry_composition", 1 );
+			default_Values.setValue( "ambient_default_stoichiometry_element", "Al" );
+		default_Values.endGroup();
+		default_Values.beginGroup( Layer_Values );
+			default_Values.setValue( "layer_default_material", "Vacuum" );
+			default_Values.setValue( "layer_default_density", 1 );
+			default_Values.setValue( "layer_default_sigma", 0 );
+			default_Values.setValue( "layer_default_interlayer_composition", 1 );
+			default_Values.setValue( "layer_default_interlayer_type", "erf" );
+			default_Values.setValue( "layer_default_thickness", 10 );
+			default_Values.setValue( "layer_default_drift_model", "no_drift" );
+			default_Values.setValue( "layer_default_drift_coefficients", 0 );
+		default_Values.endGroup();
+	default_Values.endGroup();
 }
 
 // slots
 
 void Launcher::on_Button_Multilayer_Clicked()
 {
-	Multilayer_Approach* multilayer_Approach = new Multilayer_Approach(settings);
+	Multilayer_Approach* multilayer_Approach = new Multilayer_Approach;
 	multilayer_Approach->show();
 }
 

@@ -1,7 +1,7 @@
 #include "multilayer_approach.h"
 
-Multilayer_Approach::Multilayer_Approach(QSettings* settings):
-	settings(settings)
+Multilayer_Approach::Multilayer_Approach():
+	gui_Settings(Gui_Settings_Path, QSettings::IniFormat)
 {
 	// place ui elements
 	setWindowTitle("Multilayer Model");
@@ -32,14 +32,14 @@ void Multilayer_Approach::create_Main_Layout()
 
 void Multilayer_Approach::set_Window_Geometry()
 {
-	settings->beginGroup( Multilayer_Window_Geometry );
-		int multilayer_X_Corner   = settings->value( "multilayer_X_Corner", 0 ).toInt();
-		int multilayer_Y_Corner   = settings->value( "multilayer_Y_Corner", 0 ).toInt();
-		int multilayer_Min_Width  = settings->value( "multilayer_Min_Width", 0 ).toInt();
-		int multilayer_Width	  = settings->value( "multilayer_Width", 0 ).toInt();
-		int multilayer_Min_Height = settings->value( "multilayer_Min_Height", 0 ).toInt();
-		int multilayer_Height	  = settings->value( "multilayer_Height", 0 ).toInt();
-	settings->endGroup();
+	gui_Settings.beginGroup( Multilayer_Window_Geometry );
+		int multilayer_X_Corner   = gui_Settings.value( "multilayer_X_Corner", 0 ).toInt();
+		int multilayer_Y_Corner   = gui_Settings.value( "multilayer_Y_Corner", 0 ).toInt();
+		int multilayer_Min_Width  = gui_Settings.value( "multilayer_Min_Width", 0 ).toInt();
+		int multilayer_Width	  = gui_Settings.value( "multilayer_Width", 0 ).toInt();
+		int multilayer_Min_Height = gui_Settings.value( "multilayer_Min_Height", 0 ).toInt();
+		int multilayer_Height	  = gui_Settings.value( "multilayer_Height", 0 ).toInt();
+	gui_Settings.endGroup();
 
 	setMinimumWidth(multilayer_Min_Width);
 	setMinimumHeight(multilayer_Min_Height);
@@ -105,11 +105,11 @@ void Multilayer_Approach::change_Tab_Color(int index)
 
 void Multilayer_Approach::add_Multilayer()
 {
-	settings->beginGroup( Multilayer_Tabs );
-		QString default_Multilayer_Tab_Name = settings->value( "default_Multilayer_Tab_Name", 0 ).toString();
-	settings->endGroup();
+	gui_Settings.beginGroup( Multilayer_Tabs );
+		QString default_Multilayer_Tab_Name = gui_Settings.value( "default_Multilayer_Tab_Name", 0 ).toString();
+	gui_Settings.endGroup();
 
-	Multilayer* new_Multilayer = new Multilayer(settings);
+	Multilayer* new_Multilayer = new Multilayer;
 	new_Multilayer->setContentsMargins(-8,-10,-8,-10);
 
 	multilayer.append(new_Multilayer);
@@ -121,9 +121,9 @@ void Multilayer_Approach::add_Multilayer()
 
 void Multilayer_Approach::rename_Multilayer(int tab_Index)
 {
-	settings->beginGroup( Multilayer_Tabs );
-		QString default_New_Struct_Name = settings->value( "default_New_Struct_Name", 0 ).toString();
-	settings->endGroup();
+	gui_Settings.beginGroup( Multilayer_Tabs );
+		QString default_New_Struct_Name = gui_Settings.value( "default_New_Struct_Name", 0 ).toString();
+	gui_Settings.endGroup();
 
 	bool ok;
 

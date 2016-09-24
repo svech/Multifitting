@@ -12,7 +12,8 @@ class Launcher : public QWidget
 public:
 	Launcher();
 
-	QSettings* settings;
+	QSettings gui_Settings;
+	QSettings default_Values;
 
 private slots:
 	void on_Button_Multilayer_Clicked();
@@ -22,7 +23,9 @@ private slots:
 	void open_About();
 
 private:
-	void reset_Settings();
+	void reset_Gui_Settings();
+	void reset_Default_Values();
+
 	void closeEvent(QCloseEvent *event);
 	void create_Main_Layout();
 		void create_Menu();

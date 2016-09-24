@@ -1,11 +1,9 @@
 #include "multilayer.h"
 
-Multilayer::Multilayer(QSettings* settings):
-	settings(settings)
+Multilayer::Multilayer():
+	gui_Settings(Gui_Settings_Path, QSettings::IniFormat),
+	default_Values(Default_Value_Path, QSettings::IniFormat)
 {
-	buffered = new QTreeWidgetItem;
-	buffered = NULL;
-
 	create_Main_Layout();
 }
 
@@ -52,9 +50,9 @@ void Multilayer::create_Struct_Tree()
 
 void Multilayer::create_Struct_Toolbar()
 {
-	settings->beginGroup( Paths );
-		QString icon_Path = settings->value( "icon_Path", 0 ).toString();
-	settings->endGroup();
+	gui_Settings.beginGroup( Paths );
+		QString icon_Path = gui_Settings.value( "icon_Path", 0 ).toString();
+	gui_Settings.endGroup();
 
 	QPixmap add_Layer		(icon_Path + "add_layer.bmp");
 	QPixmap add_Multilayer  (icon_Path + "add_multilayer.bmp");
@@ -243,9 +241,9 @@ void Multilayer::create_Independent_Variables_List()
 
 void Multilayer::create_Independent_Variables_Toolbar()
 {
-	settings->beginGroup( Paths );
-		QString icon_Path = settings->value( "icon_Path", 0 ).toString();
-	settings->endGroup();
+	gui_Settings.beginGroup( Paths );
+		QString icon_Path = gui_Settings.value( "icon_Path", 0 ).toString();
+	gui_Settings.endGroup();
 
 	QPixmap new_Variable	(icon_Path + "new.bmp");
 	QPixmap edit			(icon_Path + "roi.bmp");
@@ -275,9 +273,9 @@ void Multilayer::create_Coupled_Parameters_List()
 
 void Multilayer::create_Coupled_Parameters_Toolbar()
 {
-	settings->beginGroup( Paths );
-		QString icon_Path = settings->value( "icon_Path", 0 ).toString();
-	settings->endGroup();
+	gui_Settings.beginGroup( Paths );
+		QString icon_Path = gui_Settings.value( "icon_Path", 0 ).toString();
+	gui_Settings.endGroup();
 
 	QPixmap new_Variable	(icon_Path + "new.bmp");
 	QPixmap edit			(icon_Path + "roi.bmp");
@@ -351,10 +349,6 @@ void Multilayer::add_Layer(bool)
 
 void Multilayer::add_Multilayer(bool)
 {
-	settings->beginGroup( whatsThis_Properties );
-		QString what_is_This_Substrate = settings->value( "what_is_This_Substrate", 0 ).toString();
-	settings->endGroup();
-
 	int num_Children = 0;
 
 	bool ok, ok_Number;
@@ -385,7 +379,7 @@ void Multilayer::add_Multilayer(bool)
 	for(int i=0; i<num_Children; i++)
 	{
 		QTreeWidgetItem* new_Child_Layer = new QTreeWidgetItem;
-		new_Child_Layer->setText(struct_Tree->columnCount()-1, "child layer "+QString::number(i));
+		new_Child_Layer->setText(default_Column, "child layer "+QString::number(i));
 		new_Child_Layers << new_Child_Layer;
 	}
 	new_Multilayer->addChildren(new_Child_Layers);
@@ -393,10 +387,10 @@ void Multilayer::add_Multilayer(bool)
 	// if no selected items
 	if(struct_Tree->selectedItems().isEmpty())
 	{
-		new_Multilayer->setText(struct_Tree->columnCount()-1, "last multilayer");
+		new_Multilayer->setText(default_Column, "last multilayer");
 
 		// if there is no substrate
-		if(struct_Tree->topLevelItem(struct_Tree->topLevelItemCount()-1)->whatsThis(struct_Tree->columnCount()-1)!=what_is_This_Substrate)
+		if(struct_Tree->topLevelItem(struct_Tree->topLevelItemCount()-1)->whatsThis(default_Column)!=what_is_This_Substrate)
 		{
 			struct_Tree->addTopLevelItem(new_Multilayer);
 		} else
@@ -409,10 +403,10 @@ void Multilayer::add_Multilayer(bool)
 		if(!struct_Tree->currentItem()->parent())
 		{
 			int position = struct_Tree->indexOfTopLevelItem(struct_Tree->currentItem());
-			new_Multilayer->setText(struct_Tree->columnCount()-1, "inserted multilayer");
+			new_Multilayer->setText(default_Column, "inserted multilayer");
 
 			// place multilayers before substrate
-			if(  (struct_Tree->topLevelItem(struct_Tree->topLevelItemCount()-1)->whatsThis(struct_Tree->columnCount()-1)!=what_is_This_Substrate)
+			if(  (struct_Tree->topLevelItem(struct_Tree->topLevelItemCount()-1)->whatsThis(default_Column)!=what_is_This_Substrate)
 			   ||(position != (struct_Tree->topLevelItemCount()-1)))
 			{
 				struct_Tree->insertTopLevelItem(position+1, new_Multilayer);
@@ -423,7 +417,7 @@ void Multilayer::add_Multilayer(bool)
 		} else
 		{
 			int position = struct_Tree->currentIndex().row();
-			new_Multilayer->setText(struct_Tree->columnCount()-1, "inserted nested multilayer");
+			new_Multilayer->setText(default_Column, "inserted nested multilayer");
 			struct_Tree->currentItem()->parent()->insertChild(position+1,new_Multilayer);
 		}
 	}
@@ -433,13 +427,9 @@ void Multilayer::add_Multilayer(bool)
 
 void Multilayer::add_Substrate(bool)
 {
-	settings->beginGroup( whatsThis_Properties );
-		QString what_is_This_Substrate = settings->value( "what_is_This_Substrate", 0 ).toString();
-	settings->endGroup();
-
 	QTreeWidgetItem* new_Substrate = new QTreeWidgetItem;
-	new_Substrate->setWhatsThis(struct_Tree->columnCount()-1, what_is_This_Substrate);
-	new_Substrate->setText(struct_Tree->columnCount()-1, "substrate");
+	new_Substrate->setWhatsThis(default_Column, what_is_This_Substrate);
+	new_Substrate->setText(default_Column, "substrate");
 	struct_Tree->addTopLevelItem(new_Substrate);
 
 	struct_Toolbar->actions()[2]->setDisabled(true);
@@ -455,15 +445,10 @@ void Multilayer::edit(bool)
 
 void Multilayer::remove(bool)
 {
-	settings->beginGroup( whatsThis_Properties );
-		QString what_is_This_Ambient = settings->value( "what_is_This_Ambient", 0 ).toString();
-		QString what_is_This_Substrate = settings->value( "what_is_This_Substrate", 0 ).toString();
-	settings->endGroup();
-
 	// TODO show item name before removal
 	if((struct_Tree->currentItem()->parent())&&(struct_Tree->currentItem()->parent()->childCount()==2))
 	{
-		QMessageBox::StandardButton reply = QMessageBox::question(this,"Removal", "Multilayer " + struct_Tree->currentItem()->parent()->whatsThis(struct_Tree->columnCount()-1)+" will be disbanded.\nContinue?", QMessageBox::Yes|QMessageBox::No, QMessageBox::No);
+		QMessageBox::StandardButton reply = QMessageBox::question(this,"Removal", "Multilayer " + struct_Tree->currentItem()->parent()->whatsThis(default_Column)+" will be disbanded.\nContinue?", QMessageBox::Yes|QMessageBox::No, QMessageBox::No);
 		if (reply == QMessageBox::Yes)
 		{
 			QTreeWidgetItem* parent = struct_Tree->currentItem()->parent();
@@ -486,12 +471,12 @@ void Multilayer::remove(bool)
 			}
 		}
 	} else
-	if(struct_Tree->currentItem()->whatsThis(struct_Tree->columnCount()-1) != what_is_This_Ambient)
+	if(struct_Tree->currentItem()->whatsThis(default_Column) != what_is_This_Ambient)
 	{
-		QMessageBox::StandardButton reply = QMessageBox::question(this,"Removal", "Really remove "+struct_Tree->currentItem()->whatsThis(struct_Tree->columnCount()-1)+"?", QMessageBox::Yes|QMessageBox::No, QMessageBox::No);
+		QMessageBox::StandardButton reply = QMessageBox::question(this,"Removal", "Really remove "+struct_Tree->currentItem()->whatsThis(default_Column)+"?", QMessageBox::Yes|QMessageBox::No, QMessageBox::No);
 		if (reply == QMessageBox::Yes)
 		{
-			if(struct_Tree->currentItem()->whatsThis(struct_Tree->columnCount()-1) == what_is_This_Substrate)
+			if(struct_Tree->currentItem()->whatsThis(default_Column) == what_is_This_Substrate)
 			{
 				struct_Toolbar->actions()[2]->setDisabled(false);		// add_Substrate
 			}
@@ -512,16 +497,12 @@ void Multilayer::remove(bool)
 
 void Multilayer::cut(bool)
 {
-	settings->beginGroup( whatsThis_Properties );
-		QString what_is_This_Substrate = settings->value( "what_is_This_Substrate", 0 ).toString();
-	settings->endGroup();
-
 	buffered = struct_Tree->currentItem()->clone();
 
 	// TODO show item name before cut
 	if((struct_Tree->currentItem()->parent())&&(struct_Tree->currentItem()->parent()->childCount()==2))
 	{
-		QMessageBox::StandardButton reply = QMessageBox::question(this,"Cut", "Multilayer "+struct_Tree->currentItem()->parent()->whatsThis(struct_Tree->columnCount()-1)+" will be disbanded.\nContinue?", QMessageBox::Yes|QMessageBox::No, QMessageBox::No);
+		QMessageBox::StandardButton reply = QMessageBox::question(this,"Cut", "Multilayer "+struct_Tree->currentItem()->parent()->whatsThis(default_Column)+" will be disbanded.\nContinue?", QMessageBox::Yes|QMessageBox::No, QMessageBox::No);
 		if (reply == QMessageBox::Yes)
 		{
 			QTreeWidgetItem* parent = struct_Tree->currentItem()->parent();
@@ -545,10 +526,10 @@ void Multilayer::cut(bool)
 		}
 	} else
 	{
-		QMessageBox::StandardButton reply = QMessageBox::question(this,"Cut", "Really cut "+struct_Tree->currentItem()->whatsThis(struct_Tree->columnCount()-1)+"?", QMessageBox::Yes|QMessageBox::No, QMessageBox::No);
+		QMessageBox::StandardButton reply = QMessageBox::question(this,"Cut", "Really cut "+struct_Tree->currentItem()->whatsThis(default_Column)+"?", QMessageBox::Yes|QMessageBox::No, QMessageBox::No);
 		if (reply == QMessageBox::Yes)
 		{
-			if(struct_Tree->currentItem()->whatsThis(struct_Tree->columnCount()-1) == what_is_This_Substrate)
+			if(struct_Tree->currentItem()->whatsThis(default_Column) == what_is_This_Substrate)
 			{
 				struct_Toolbar->actions()[2]->setDisabled(false);
 			}
@@ -668,10 +649,6 @@ void Multilayer::destroy(bool)
 
 void Multilayer::if_Selected()
 {
-	settings->beginGroup( whatsThis_Properties );
-		QString what_is_This_Substrate = settings->value( "what_is_This_Substrate", 0 ).toString();
-	settings->endGroup();
-
 	if(buffered!=NULL)
 	{
 		struct_Toolbar->actions()[7]->setDisabled(false);		 // paste
@@ -695,7 +672,7 @@ void Multilayer::if_Selected()
 		struct_Toolbar->actions()[13]->setDisabled(true);		 // sigma_Plot
 	} else
 	{
-		bool if_Substrate = struct_Tree->currentItem()->whatsThis(struct_Tree->columnCount()-1)==what_is_This_Substrate;
+		bool if_Substrate = struct_Tree->currentItem()->whatsThis(default_Column)==what_is_This_Substrate;
 
 		struct_Toolbar->actions()[3]->setDisabled(false);		 // edit
 		struct_Toolbar->actions()[4]->setDisabled(false);		 // remove
@@ -747,7 +724,7 @@ void Multilayer::if_Selected()
 				struct_Toolbar->actions()[6]->setDisabled(false);	// copy
 
 				// if next is not substrate
-				if(struct_Tree->topLevelItem(position+1)->whatsThis(struct_Tree->columnCount()-1)!=what_is_This_Substrate)
+				if(struct_Tree->topLevelItem(position+1)->whatsThis(default_Column)!=what_is_This_Substrate)
 				{
 					struct_Toolbar->actions()[9]->setDisabled(false);	// move_Down
 				}
@@ -780,31 +757,38 @@ void Multilayer::if_Selected()
 
 void Multilayer::add_Buffered_Layer(QTreeWidgetItem* new_Layer_Passed)
 {
-	settings->beginGroup( whatsThis_Properties );
-		QString what_is_This_Ambient = settings->value( "what_is_This_Ambient", 0 ).toString();
-		QString what_is_This_Substrate = settings->value( "what_is_This_Substrate", 0 ).toString();
-	settings->endGroup();
+	// setting data to new layerItem
+	QVariant var;
 
 	// copy of new_Layer
 	QTreeWidgetItem* new_Layer = new QTreeWidgetItem;
 	new_Layer = new_Layer_Passed->clone();
 
-	if(new_Layer_Passed->text(struct_Tree->columnCount()-1).isEmpty())
-		new_Layer->setText(struct_Tree->columnCount()-1, "new layer");
+//	if(new_Layer_Passed->text(default_Column).isEmpty())
+//		new_Layer->setText(default_Column, "new layer");
 
 	// if no tree at all (at the beginning)
 	if(struct_Tree->topLevelItemCount()==0)
 	{
-		new_Layer->setText(struct_Tree->columnCount()-1, "ambient: ");
+		Ambient ambient;
+		var.setValue( ambient );
+		new_Layer->setData(default_Column, Qt::UserRole, var);
+		new_Layer->setText(default_Column, "ambient: " + new_Layer->data(default_Column, Qt::UserRole).value<Ambient>().material);
+
 		struct_Tree->addTopLevelItem(new_Layer);
-		new_Layer->setWhatsThis(struct_Tree->columnCount()-1,what_is_This_Ambient);
+		new_Layer->setWhatsThis(default_Column,what_is_This_Ambient);
 	} else
 	{
+		Layer layer;
+		var.setValue( layer );
+		new_Layer->setData(default_Column, Qt::UserRole, var);
+		new_Layer->setText(default_Column, new_Layer->data(default_Column, Qt::UserRole).value<Ambient>().material + "layer");
+
 		// if no selected items
 		if(struct_Tree->selectedItems().isEmpty())
 		{
 			// if there is no substrate
-			if(struct_Tree->topLevelItem(struct_Tree->topLevelItemCount()-1)->whatsThis(struct_Tree->columnCount()-1)!=what_is_This_Substrate)
+			if(struct_Tree->topLevelItem(struct_Tree->topLevelItemCount()-1)->whatsThis(default_Column)!=what_is_This_Substrate)
 			{
 				struct_Tree->addTopLevelItem(new_Layer);
 			} else
@@ -819,7 +803,7 @@ void Multilayer::add_Buffered_Layer(QTreeWidgetItem* new_Layer_Passed)
 				int position = struct_Tree->indexOfTopLevelItem(struct_Tree->currentItem());
 
 				// place layers before substrate
-				if(  (struct_Tree->topLevelItem(struct_Tree->topLevelItemCount()-1)->whatsThis(struct_Tree->columnCount()-1)!=what_is_This_Substrate)
+				if(  (struct_Tree->topLevelItem(struct_Tree->topLevelItemCount()-1)->whatsThis(default_Column)!=what_is_This_Substrate)
 				   ||(position != (struct_Tree->topLevelItemCount()-1)))
 				{
 					struct_Tree->insertTopLevelItem(position+1, new_Layer);
@@ -852,9 +836,9 @@ void Multilayer::refresh_Toolbar()
 
 void Multilayer::add_Measured_Data()
 {
-	settings->beginGroup( Multilayer_Window_Geometry );
-		int multilayer_Height_Additive = settings->value( "multilayer_Height_Additive", 0 ).toInt();
-	settings->endGroup();
+	gui_Settings.beginGroup( Multilayer_Window_Geometry );
+		int multilayer_Height_Additive = gui_Settings.value( "multilayer_Height_Additive", 0 ).toInt();
+	gui_Settings.endGroup();
 
 	setUpdatesEnabled(false);
 
@@ -912,9 +896,9 @@ void Multilayer::add_Measured_Data()
 
 void Multilayer::remove_Measured_Data()
 {
-	settings->beginGroup( Multilayer_Window_Geometry );
-		int multilayer_Height_Additive = settings->value( "multilayer_Height_Additive", 0 ).toInt();
-	settings->endGroup();
+	gui_Settings.beginGroup( Multilayer_Window_Geometry );
+		int multilayer_Height_Additive = gui_Settings.value( "multilayer_Height_Additive", 0 ).toInt();
+	gui_Settings.endGroup();
 
 	setUpdatesEnabled(false);
 
@@ -945,9 +929,9 @@ void Multilayer::remove_Measured_Data()
 
 void Multilayer::add_Target_Profile()
 {
-	settings->beginGroup( Multilayer_Window_Geometry );
-		int multilayer_Height_Additive = settings->value( "multilayer_Height_Additive", 0 ).toInt();
-	settings->endGroup();
+	gui_Settings.beginGroup( Multilayer_Window_Geometry );
+		int multilayer_Height_Additive = gui_Settings.value( "multilayer_Height_Additive", 0 ).toInt();
+	gui_Settings.endGroup();
 
 	setUpdatesEnabled(false);
 
@@ -1007,9 +991,9 @@ void Multilayer::add_Target_Profile()
 
 void Multilayer::remove_Target_Profile()
 {
-	settings->beginGroup( Multilayer_Window_Geometry );
-		int multilayer_Height_Additive = settings->value( "multilayer_Height_Additive", 0 ).toInt();
-	settings->endGroup();
+	gui_Settings.beginGroup( Multilayer_Window_Geometry );
+		int multilayer_Height_Additive = gui_Settings.value( "multilayer_Height_Additive", 0 ).toInt();
+	gui_Settings.endGroup();
 
 	setUpdatesEnabled(false);
 
@@ -1037,3 +1021,4 @@ void Multilayer::remove_Target_Profile()
 
 	setUpdatesEnabled(true);
 }
+

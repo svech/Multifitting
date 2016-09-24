@@ -11,9 +11,9 @@ class Multilayer_Approach : public QWidget
 	Q_OBJECT
 
 public:
-	Multilayer_Approach(QSettings* settings);
+	Multilayer_Approach();
 
-	QSettings* settings;
+	QSettings gui_Settings;
 
 	QVector<Multilayer*> multilayer;
 

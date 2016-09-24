@@ -2,6 +2,7 @@
 #define MULTILAYER_H
 
 #include <QtWidgets>
+#include "layer_content.h"
 #include "global_definitions.h"
 
 class Multilayer : public QWidget
@@ -9,9 +10,10 @@ class Multilayer : public QWidget
 	Q_OBJECT
 
 public:
-	Multilayer(QSettings* settings);
+	Multilayer();
 
-	QSettings* settings;
+	QSettings gui_Settings;
+	QSettings default_Values;
 
 private:
 	void create_Main_Layout();
@@ -66,7 +68,13 @@ private slots:
 // state variable
 private:
 	int different_Layers_Counter=0;
-	QTreeWidgetItem* buffered;
+	QTreeWidgetItem* buffered=NULL;
+
+// useful definitions
+private:
+	int default_Column = 0;
+	QString what_is_This_Ambient = "!ambient!";
+	QString what_is_This_Substrate = "!substrate!";
 
 // ui objects to be placed in Multilayer tab
 private:
