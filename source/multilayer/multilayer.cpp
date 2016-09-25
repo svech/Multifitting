@@ -2,7 +2,7 @@
 
 Multilayer::Multilayer():
 	gui_Settings(Gui_Settings_Path, QSettings::IniFormat),
-	default_Values(Default_Value_Path, QSettings::IniFormat)
+	default_Values(Default_Values_Path, QSettings::IniFormat)
 {
 	create_Main_Layout();
 }
@@ -379,16 +379,24 @@ void Multilayer::add_Multilayer(bool)
 	for(int i=0; i<num_Children; i++)
 	{
 		QTreeWidgetItem* new_Child_Layer = new QTreeWidgetItem;
-		new_Child_Layer->setText(default_Column, "child layer "+QString::number(i));
 		new_Child_Layers << new_Child_Layer;
+
+		Layer layer;
+		QVariant var;
+		var.setValue( layer );
+		new_Child_Layer->setData(default_Column, Qt::UserRole, var);
+
+		refresh_Structure_Item_Text(new_Child_Layer);
 	}
 	new_Multilayer->addChildren(new_Child_Layers);
+	Stack_Content stack_Content;
+	QVariant var;
+	var.setValue( stack_Content );
+	new_Multilayer->setData(default_Column, Qt::UserRole, var);
 
 	// if no selected items
 	if(struct_Tree->selectedItems().isEmpty())
 	{
-		new_Multilayer->setText(default_Column, "last multilayer");
-
 		// if there is no substrate
 		if(struct_Tree->topLevelItem(struct_Tree->topLevelItemCount()-1)->whatsThis(default_Column)!=what_is_This_Substrate)
 		{
@@ -403,7 +411,6 @@ void Multilayer::add_Multilayer(bool)
 		if(!struct_Tree->currentItem()->parent())
 		{
 			int position = struct_Tree->indexOfTopLevelItem(struct_Tree->currentItem());
-			new_Multilayer->setText(default_Column, "inserted multilayer");
 
 			// place multilayers before substrate
 			if(  (struct_Tree->topLevelItem(struct_Tree->topLevelItemCount()-1)->whatsThis(default_Column)!=what_is_This_Substrate)
@@ -417,11 +424,11 @@ void Multilayer::add_Multilayer(bool)
 		} else
 		{
 			int position = struct_Tree->currentIndex().row();
-			new_Multilayer->setText(default_Column, "inserted nested multilayer");
 			struct_Tree->currentItem()->parent()->insertChild(position+1,new_Multilayer);
 		}
 	}
 
+	refresh_Structure_Item_Text(new_Multilayer);
 	refresh_Toolbar();
 }
 
@@ -429,8 +436,8 @@ void Multilayer::add_Substrate(bool)
 {
 	QTreeWidgetItem* new_Substrate = new QTreeWidgetItem;
 	new_Substrate->setWhatsThis(default_Column, what_is_This_Substrate);
-	new_Substrate->setText(default_Column, "substrate");
 	struct_Tree->addTopLevelItem(new_Substrate);
+	refresh_Structure_Item_Text(new_Substrate);
 
 	struct_Toolbar->actions()[2]->setDisabled(true);
 
@@ -764,25 +771,19 @@ void Multilayer::add_Buffered_Layer(QTreeWidgetItem* new_Layer_Passed)
 	QTreeWidgetItem* new_Layer = new QTreeWidgetItem;
 	new_Layer = new_Layer_Passed->clone();
 
-//	if(new_Layer_Passed->text(default_Column).isEmpty())
-//		new_Layer->setText(default_Column, "new layer");
-
 	// if no tree at all (at the beginning)
 	if(struct_Tree->topLevelItemCount()==0)
 	{
 		Ambient ambient;
 		var.setValue( ambient );
 		new_Layer->setData(default_Column, Qt::UserRole, var);
-		new_Layer->setText(default_Column, "ambient: " + new_Layer->data(default_Column, Qt::UserRole).value<Ambient>().material);
-
-		struct_Tree->addTopLevelItem(new_Layer);
 		new_Layer->setWhatsThis(default_Column,what_is_This_Ambient);
+		struct_Tree->addTopLevelItem(new_Layer);
 	} else
 	{
 		Layer layer;
 		var.setValue( layer );
 		new_Layer->setData(default_Column, Qt::UserRole, var);
-		new_Layer->setText(default_Column, new_Layer->data(default_Column, Qt::UserRole).value<Ambient>().material + "layer");
 
 		// if no selected items
 		if(struct_Tree->selectedItems().isEmpty())
@@ -819,6 +820,7 @@ void Multilayer::add_Buffered_Layer(QTreeWidgetItem* new_Layer_Passed)
 		}
 	}
 
+	refresh_Structure_Item_Text(new_Layer);
 	refresh_Toolbar();
 }
 
@@ -830,6 +832,60 @@ void Multilayer::refresh_Toolbar()
 		struct_Tree->currentItem()->setSelected(true);
 	}
 	struct_Tree->expandAll();
+}
+
+void Multilayer::refresh_Structure_Item_Text(QTreeWidgetItem* item)
+{
+	default_Values.beginGroup( Structure_Values_Representation );
+		int precision = default_Values.value( "default_precision", 0 ).toInt();
+	default_Values.endGroup();
+
+	// if ambient
+	if(item->whatsThis(default_Column)==what_is_This_Ambient)
+	{
+		item->setText(default_Column, "ambient: " + item->data(default_Column, Qt::UserRole).value<Ambient>().material);
+		if(item->data(default_Column, Qt::UserRole).value<Ambient>().material!="Vacuum")
+		{
+			item->setText(default_Column, item->text(default_Column) + ", " + Rho_Sym + "=" +  QString::number(item->data(default_Column, Qt::UserRole).value<Ambient>().density,'f',precision) + "g/cm" + Cube_Sym);
+		}
+	} else
+	{
+		// if substrate
+		if(item->whatsThis(default_Column)==what_is_This_Substrate)
+		{
+			item->setText(default_Column, item->data(default_Column, Qt::UserRole).value<Substrate>().material + " substrate"
+						  + ", " + Rho_Sym + "=" +  QString::number(item->data(default_Column, Qt::UserRole).value<Substrate>().density,'f',precision) + "g/cm" + Cube_Sym);
+
+			if(item->data(default_Column, Qt::UserRole).value<Substrate>().sigma>0)
+			{
+				item->setText(default_Column, item->text(default_Column) + ", " + Sigma_Sym + "=" +  QString::number(item->data(default_Column, Qt::UserRole).value<Substrate>().sigma,'f',precision) + Angstrom_Sym);
+			}
+		} else
+		{
+			// if multilayer
+			if(item->childCount()>0)
+			{
+				item->setText(default_Column, "multilayer, N=" + QString::number(item->data(default_Column, Qt::UserRole).value<Stack_Content>().num_Repetition)
+							  + ", d=" + QString::number(item->data(default_Column, Qt::UserRole).value<Stack_Content>().period,'f',precision) + Angstrom_Sym);
+
+				if(item->childCount()==2)
+				{
+					item->setText(default_Column, item->text(default_Column) + ", " + ", " + Gamma_Sym + "=" + QString::number(item->data(default_Column, Qt::UserRole).value<Stack_Content>().gamma,'f',precision));
+				}
+			} else
+			// if layer
+			{
+				item->setText(default_Column, item->data(default_Column, Qt::UserRole).value<Layer>().material + " layer"
+							  + ", z=" +  QString::number(item->data(default_Column, Qt::UserRole).value<Layer>().thickness,'f',precision) + Angstrom_Sym
+							  + ", " + Rho_Sym + "=" +  QString::number(item->data(default_Column, Qt::UserRole).value<Layer>().density,'f',precision) + "g/cm" + Cube_Sym);
+
+				if(item->data(default_Column, Qt::UserRole).value<Layer>().sigma>0)
+				{
+					item->setText(default_Column, item->text(default_Column) + ", " + Sigma_Sym + "=" +  QString::number(item->data(default_Column, Qt::UserRole).value<Layer>().sigma,'f',precision) + Angstrom_Sym);
+				}
+			}
+		}
+	}
 }
 
 // data management

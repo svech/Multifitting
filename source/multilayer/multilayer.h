@@ -56,8 +56,9 @@ private slots:
 	void destroy		(bool);
 
 	void if_Selected();
-	void add_Buffered_Layer(QTreeWidgetItem*new_Layer_Passed);
+	void add_Buffered_Layer(QTreeWidgetItem* new_Layer_Passed);
 	void refresh_Toolbar();
+	void refresh_Structure_Item_Text(QTreeWidgetItem* item);
 
 private slots:
 	void add_Measured_Data();

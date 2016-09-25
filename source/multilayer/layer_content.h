@@ -10,7 +10,8 @@ public:
 
 	QString material;
 	double density;
-	QList<stoichiometry> composition;
+
+	QList<Stoichiometry> composition;
 };
 
 class Substrate : public Ambient
@@ -19,7 +20,7 @@ public:
 	Substrate();
 
 	double sigma;
-	QList<stoichiometry> interlayer_Composition;
+	QList<Stoichiometry> interlayer_Composition;
 };
 
 class Extreme_Layer: public Substrate
