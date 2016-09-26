@@ -44,7 +44,9 @@ void Multilayer::create_Struct_Tree()
 	struct_Tree->header()->close();
 	struct_Tree->expandAll();
 
+	struct_Tree->setExpandsOnDoubleClick(false);
 	connect(struct_Tree, SIGNAL(itemSelectionChanged()), this, SLOT(if_Selected()));
+	connect(struct_Tree, SIGNAL(itemDoubleClicked(QTreeWidgetItem*, int)), this, SLOT(if_DoubleClicked(QTreeWidgetItem*, int)));
 	add_Layer(true);
 }
 
@@ -386,7 +388,7 @@ void Multilayer::add_Multilayer(bool)
 		var.setValue( layer );
 		new_Child_Layer->setData(default_Column, Qt::UserRole, var);
 
-		refresh_Structure_Item_Text(new_Child_Layer);
+		set_Structure_Item_Text(new_Child_Layer);
 	}
 	new_Multilayer->addChildren(new_Child_Layers);
 	Stack_Content stack_Content;
@@ -428,7 +430,7 @@ void Multilayer::add_Multilayer(bool)
 		}
 	}
 
-	refresh_Structure_Item_Text(new_Multilayer);
+	set_Structure_Item_Text(new_Multilayer);
 	refresh_Toolbar();
 }
 
@@ -437,7 +439,7 @@ void Multilayer::add_Substrate(bool)
 	QTreeWidgetItem* new_Substrate = new QTreeWidgetItem;
 	new_Substrate->setWhatsThis(default_Column, what_is_This_Substrate);
 	struct_Tree->addTopLevelItem(new_Substrate);
-	refresh_Structure_Item_Text(new_Substrate);
+	set_Structure_Item_Text(new_Substrate);
 
 	struct_Toolbar->actions()[2]->setDisabled(true);
 
@@ -446,8 +448,9 @@ void Multilayer::add_Substrate(bool)
 
 void Multilayer::edit(bool)
 {
-	// TODO edit_toolbutton
-	qInfo() << "editing is not implemented";
+	// TODO editing
+	Item_Editing* item_Editing = new Item_Editing(struct_Tree->currentItem());
+	item_Editing->show();
 }
 
 void Multilayer::remove(bool)
@@ -762,6 +765,12 @@ void Multilayer::if_Selected()
 	}
 }
 
+void Multilayer::if_DoubleClicked(QTreeWidgetItem* item, int column)
+{
+	item;column;
+	edit(true);
+}
+
 void Multilayer::add_Buffered_Layer(QTreeWidgetItem* new_Layer_Passed)
 {
 	// setting data to new layerItem
@@ -820,7 +829,7 @@ void Multilayer::add_Buffered_Layer(QTreeWidgetItem* new_Layer_Passed)
 		}
 	}
 
-	refresh_Structure_Item_Text(new_Layer);
+	set_Structure_Item_Text(new_Layer);
 	refresh_Toolbar();
 }
 
@@ -832,9 +841,11 @@ void Multilayer::refresh_Toolbar()
 		struct_Tree->currentItem()->setSelected(true);
 	}
 	struct_Tree->expandAll();
+
+	refresh_Over_Struct();
 }
 
-void Multilayer::refresh_Structure_Item_Text(QTreeWidgetItem* item)
+void Multilayer::set_Structure_Item_Text(QTreeWidgetItem* item)
 {
 	default_Values.beginGroup( Structure_Values_Representation );
 		int precision = default_Values.value( "default_precision", 0 ).toInt();
@@ -870,7 +881,7 @@ void Multilayer::refresh_Structure_Item_Text(QTreeWidgetItem* item)
 
 				if(item->childCount()==2)
 				{
-					item->setText(default_Column, item->text(default_Column) + ", " + ", " + Gamma_Sym + "=" + QString::number(item->data(default_Column, Qt::UserRole).value<Stack_Content>().gamma,'f',precision));
+					item->setText(default_Column, item->text(default_Column) + ", " + Gamma_Sym + "=" + QString::number(item->data(default_Column, Qt::UserRole).value<Stack_Content>().gamma,'f',precision));
 				}
 			} else
 			// if layer
@@ -885,6 +896,65 @@ void Multilayer::refresh_Structure_Item_Text(QTreeWidgetItem* item)
 				}
 			}
 		}
+	}
+}
+
+void Multilayer::refresh_Over_Struct()
+{
+	different_Layers_Counter=0;
+	iterate_Over_Struct();
+}
+
+void Multilayer::iterate_Over_Struct(QTreeWidgetItem* item)
+{
+	// over main tree
+	if(item==NULL)
+	{
+		for(int i=0; i<struct_Tree->topLevelItemCount(); i++)
+		{
+			refresh_If_Layer_Or_Multilayer(struct_Tree->topLevelItem(i));
+		}
+	}else
+	// over child multilayer
+	{
+		for(int i=0; i<item->childCount(); i++)
+		{
+			refresh_If_Layer_Or_Multilayer(item->child(i));
+		}
+	}
+}
+
+void Multilayer::refresh_If_Layer_Or_Multilayer(QTreeWidgetItem* this_Item)
+{
+	// if not multilayer
+	if(this_Item->childCount()==0)
+	{
+		// just refresh name if ambient or substrate
+		if((this_Item->whatsThis(default_Column)==what_is_This_Ambient)||(this_Item->whatsThis(default_Column)==what_is_This_Substrate))
+		{
+			set_Structure_Item_Text(this_Item);
+		} else
+		// assign number if layer
+		{
+			different_Layers_Counter++;
+			set_Structure_Item_Text(this_Item);
+			QStringList list = this_Item->text(default_Column).split("layer");
+			this_Item->setText(default_Column, list[0] + "layer (" + QString::number(different_Layers_Counter) + ")" + list[1]);
+			this_Item->setWhatsThis(default_Column, "Layer (" + QString::number(different_Layers_Counter) + ")");
+
+			// TODO works?
+			Layer layer = this_Item->data(default_Column, Qt::UserRole).value<Layer>();
+			layer.layer_Index = different_Layers_Counter;
+			QVariant var; var.setValue( layer );
+			this_Item->setData(default_Column, Qt::UserRole, var);
+		}
+	} else
+	// if multilayer
+	{
+		// TODO refresh stack content in multilayer
+		this_Item->setWhatsThis(default_Column, "Multilayer");
+
+		iterate_Over_Struct(this_Item);
 	}
 }
 

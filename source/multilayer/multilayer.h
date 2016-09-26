@@ -3,6 +3,7 @@
 
 #include <QtWidgets>
 #include "layer_content.h"
+#include "item_editing.h"
 #include "global_definitions.h"
 
 class Multilayer : public QWidget
@@ -56,9 +57,13 @@ private slots:
 	void destroy		(bool);
 
 	void if_Selected();
+	void if_DoubleClicked(QTreeWidgetItem *item, int column);
 	void add_Buffered_Layer(QTreeWidgetItem* new_Layer_Passed);
 	void refresh_Toolbar();
-	void refresh_Structure_Item_Text(QTreeWidgetItem* item);
+	void set_Structure_Item_Text(QTreeWidgetItem* item);
+	void refresh_Over_Struct();
+		void iterate_Over_Struct(QTreeWidgetItem* item = NULL);
+			void refresh_If_Layer_Or_Multilayer(QTreeWidgetItem* this_Item);
 
 private slots:
 	void add_Measured_Data();
@@ -70,12 +75,6 @@ private slots:
 private:
 	int different_Layers_Counter=0;
 	QTreeWidgetItem* buffered=NULL;
-
-// useful definitions
-private:
-	int default_Column = 0;
-	QString what_is_This_Ambient = "!ambient!";
-	QString what_is_This_Substrate = "!substrate!";
 
 // ui objects to be placed in Multilayer tab
 private:

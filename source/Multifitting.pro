@@ -20,10 +20,12 @@ SOURCES += main.cpp\
     multilayer_approach.cpp \
     multilayer/multilayer.cpp \
     global_definitions.cpp \
-    multilayer/layer_content.cpp
+    multilayer/layer_content.cpp \
+    multilayer/item_editing.cpp
 
 HEADERS  += launcher.h \
     multilayer_approach.h \
     multilayer/multilayer.h \
     global_definitions.h \
-    multilayer/layer_content.h
+    multilayer/layer_content.h \
+    multilayer/item_editing.h

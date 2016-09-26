@@ -11,6 +11,8 @@ public:
 	QString material;
 	double density;
 
+	bool composed;
+
 	QList<Stoichiometry> composition;
 };
 
@@ -28,6 +30,7 @@ class Extreme_Layer: public Substrate
 public:
 	Extreme_Layer();
 
+	int layer_Index;
 	double thickness;
 };
 
@@ -50,6 +53,9 @@ class Stack_Content
 {
 public:
 	Stack_Content();
+
+	int first_Layer_Index;
+	int last_Layer_Index;
 
 	int num_Repetition;
 	double period;

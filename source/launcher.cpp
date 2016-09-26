@@ -138,12 +138,16 @@ void Launcher::reset_Default_Values()
 		default_Values.beginGroup( Ambient_Values );
 			default_Values.setValue( "ambient_default_material", "Vacuum" );
 			default_Values.setValue( "ambient_default_density", 0 );
+			default_Values.setValue( "ambient_default_composed", true );
 			default_Values.setValue( "ambient_default_stoichiometry_composition", 1 );
 			default_Values.setValue( "ambient_default_stoichiometry_element", "Al" );
 		default_Values.endGroup();
 		default_Values.beginGroup( Layer_Values );
 			default_Values.setValue( "layer_default_material", "Al" );
 			default_Values.setValue( "layer_default_density", 1 );
+			default_Values.setValue( "layer_default_composed", false );
+			default_Values.setValue( "layer_default_stoichiometry_composition", 1 );
+			default_Values.setValue( "layer_default_stoichiometry_element", "Al" );
 			default_Values.setValue( "layer_default_sigma", 123.5678 );
 			default_Values.setValue( "layer_default_interlayer_composition", 1 );
 			default_Values.setValue( "layer_default_interlayer_type", "erf" );
@@ -154,6 +158,9 @@ void Launcher::reset_Default_Values()
 		default_Values.beginGroup( Substrate_Values );
 			default_Values.setValue( "substrate_default_material", "Si" );
 			default_Values.setValue( "substrate_default_density", 2.33 );
+			default_Values.setValue( "substrate_default_composed", false );
+			default_Values.setValue( "substrate_default_stoichiometry_composition", 1 );
+			default_Values.setValue( "substrate_default_stoichiometry_element", "Al" );
 			default_Values.setValue( "substrate_default_sigma", 21.2 );
 			default_Values.setValue( "substrate_default_interlayer_composition", 1 );
 			default_Values.setValue( "substrate_default_interlayer_type", "erf" );
@@ -168,6 +175,7 @@ void Launcher::reset_Default_Values()
 	// color, precision, units etc
 	default_Values.beginGroup( Structure_Values_Representation );
 		default_Values.setValue( "default_precision", 2 );
+		default_Values.setValue( "default_density_precision", 3 );
 	default_Values.endGroup();
 }
 

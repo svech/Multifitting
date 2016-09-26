@@ -26,12 +26,18 @@
 #define Sigma_Sym QString(QChar(0x03C3))
 #define Gamma_Sym QString(QChar(0x03B3))
 
+extern int default_Column;
+extern QString what_is_This_Ambient;
+extern QString what_is_This_Substrate;
+
 extern QStringList element_Name;
 extern QVector<double> element_Mass;
 
 struct Stoichiometry			{double composition; QString type;};
 extern QStringList transition_Layer_Functions;
 extern QStringList drift_Models;
+
+enum class Item_Type {Ambient, Layer, Substrate, Stack_Content};
 
 class Global_Definitions
 {

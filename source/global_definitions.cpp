@@ -98,3 +98,7 @@ QVector<double> element_Mass
 
 QStringList transition_Layer_Functions	{"erf","lin","exp","tanh","sin"};
 QStringList drift_Models				{"no_drift","lin_sin","par_sin","hyp_sin","exp_sin","log_sin"};
+
+int default_Column = 0;
+QString what_is_This_Ambient = "Ambient";
+QString what_is_This_Substrate = "Substrate";

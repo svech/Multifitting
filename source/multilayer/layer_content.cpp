@@ -8,6 +8,7 @@ Ambient::Ambient()
 		default_Values.beginGroup( Ambient_Values );
 			material = default_Values.value( "ambient_default_material", 0 ).toString();
 			density	 = default_Values.value( "ambient_default_density", 0 ).toDouble();
+			composed = default_Values.value( "ambient_default_composed", 0 ).toBool();
 		default_Values.endGroup();
 	default_Values.endGroup();
 }
@@ -21,6 +22,7 @@ Substrate::Substrate()
 	default_Values.beginGroup( Substrate_Values );
 		material = default_Values.value( "substrate_default_material", 0 ).toString();
 		density	 = default_Values.value( "substrate_default_density", 0 ).toDouble();
+		composed = default_Values.value( "substrate_default_composed", 0 ).toBool();
 		sigma    = default_Values.value( "substrate_default_sigma", 0 ).toDouble();
 		stoichiometry.composition = default_Values.value( "substrate_default_interlayer_composition", 0 ).toDouble();
 		stoichiometry.type		  = default_Values.value( "substrate_default_interlayer_type", 0 ).toString();
@@ -39,6 +41,7 @@ Extreme_Layer::Extreme_Layer()
 		default_Values.beginGroup( Layer_Values );
 			material = default_Values.value( "layer_default_material", 0 ).toString();
 			density  = default_Values.value( "layer_default_density", 0 ).toDouble();
+			composed = default_Values.value( "layer_default_composed", 0 ).toBool();
 			sigma    = default_Values.value( "layer_default_sigma", 0 ).toDouble();
 			stoichiometry.composition = default_Values.value( "layer_default_interlayer_composition", 0 ).toDouble();
 			stoichiometry.type        = default_Values.value( "layer_default_interlayer_type", 0 ).toString();
@@ -58,6 +61,7 @@ Layer::Layer()
 		default_Values.beginGroup( Layer_Values );
 			material = default_Values.value( "layer_default_material", 0 ).toString();
 			density  = default_Values.value( "layer_default_density", 0 ).toDouble();
+			composed = default_Values.value( "layer_default_composed", 0 ).toBool();
 			sigma    = default_Values.value( "layer_default_sigma", 0 ).toDouble();
 			stoichiometry.composition = default_Values.value( "layer_default_interlayer_composition", 0 ).toDouble();
 			stoichiometry.type        = default_Values.value( "layer_default_interlayer_type", 0 ).toString();
