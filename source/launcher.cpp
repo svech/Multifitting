@@ -138,7 +138,7 @@ void Launcher::reset_Default_Values()
 		default_Values.beginGroup( Ambient_Values );
 			default_Values.setValue( "ambient_default_material", "Vacuum" );
 			default_Values.setValue( "ambient_default_density", 0 );
-			default_Values.setValue( "ambient_default_composed", true );
+			default_Values.setValue( "ambient_default_composed", false );
 			default_Values.setValue( "ambient_default_stoichiometry_composition", 1 );
 			default_Values.setValue( "ambient_default_stoichiometry_element", "Al" );
 		default_Values.endGroup();
@@ -176,6 +176,7 @@ void Launcher::reset_Default_Values()
 	default_Values.beginGroup( Structure_Values_Representation );
 		default_Values.setValue( "default_precision", 2 );
 		default_Values.setValue( "default_density_precision", 3 );
+		default_Values.setValue( "default_atomic_weight_precision", 4 );
 	default_Values.endGroup();
 }
 

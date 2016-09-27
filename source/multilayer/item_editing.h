@@ -9,6 +9,7 @@ class Item_Editing : public QWidget
 {
 	Q_OBJECT
 	Q_INVOKABLE void adjustSize() { QWidget::adjustSize(); }
+	Q_INVOKABLE void moreElementsClicked() { Item_Editing::more_Elements_Clicked(true); }
 public:
 	Item_Editing(QTreeWidgetItem* item);
 
@@ -30,11 +31,15 @@ private:
 		void make_Substrate_Editor();
 	void set_Window_Geometry();
 
+
+
 private slots:
 	void filename_Radio_Toggled(bool);
 	void composition_Radio_Toggled(bool);
 	void more_Elements_Clicked(bool);
 	void fewer_Elements_Clicked(bool);
+	void refresh_Data();
+	void refresh_Data(QString);
 
 // ui objects to be placed in launcher window
 private:
@@ -52,10 +57,11 @@ private:
 					QVBoxLayout* composition_Layout;
 						QGroupBox*	composition_Group_Box;
 							QVBoxLayout* composition_Layout_With_Elements_Vector;
-								QList<QLineEdit*> composition_Line_Edit_Vec;
-								QList<QLabel*>    composition_Label_Vec;
-								QList<QComboBox*> composition_Combo_Box_Vec;
-								QList<QLabel*>    composition_At_Weight_Vec;
+								QList<QFrame*> element_Frame_Vec;
+									QList<QLineEdit*> composition_Line_Edit_Vec;
+									QList<QLabel*>    composition_Label_Vec;
+									QList<QComboBox*> composition_Combo_Box_Vec;
+									QList<QLabel*>    composition_At_Weight_Vec;
 						QPushButton* more_Elements;
 						QPushButton* fewer_Elements;
 

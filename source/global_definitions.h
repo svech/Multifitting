@@ -26,6 +26,8 @@
 #define Sigma_Sym QString(QChar(0x03C3))
 #define Gamma_Sym QString(QChar(0x03B3))
 
+#define MAX_DOUBLE 1E100
+
 extern int default_Column;
 extern QString what_is_This_Ambient;
 extern QString what_is_This_Substrate;
