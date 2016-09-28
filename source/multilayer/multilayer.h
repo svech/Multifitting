@@ -16,6 +16,8 @@ public:
 	QSettings gui_Settings;
 	QSettings default_Values;
 
+	QMap<QTreeWidgetItem*,Item_Editing*> runned_Editors;
+
 private:
 	void create_Main_Layout();
 		void create_Struct_Frame();

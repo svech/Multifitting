@@ -160,7 +160,7 @@ void Launcher::reset_Default_Values()
 			default_Values.setValue( "substrate_default_density", 2.33 );
 			default_Values.setValue( "substrate_default_composed", false );
 			default_Values.setValue( "substrate_default_stoichiometry_composition", 1 );
-			default_Values.setValue( "substrate_default_stoichiometry_element", "Al" );
+			default_Values.setValue( "substrate_default_stoichiometry_element", "Be" );
 			default_Values.setValue( "substrate_default_sigma", 21.2 );
 			default_Values.setValue( "substrate_default_interlayer_composition", 1 );
 			default_Values.setValue( "substrate_default_interlayer_type", "erf" );

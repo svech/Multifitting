@@ -448,9 +448,24 @@ void Multilayer::add_Substrate(bool)
 
 void Multilayer::edit(bool)
 {
-	// TODO editing
-	Item_Editing* item_Editing = new Item_Editing(struct_Tree->currentItem());
-	item_Editing->show();
+	if(runned_Editors.contains(struct_Tree->currentItem()))
+	{
+		if(runned_Editors.value(struct_Tree->currentItem())->isVisible())
+		{
+			runned_Editors.value(struct_Tree->currentItem())->activateWindow();
+		} else
+		{
+			delete runned_Editors.value(struct_Tree->currentItem());
+			runned_Editors.remove(struct_Tree->currentItem());
+		}
+	}
+	if(!runned_Editors.contains(struct_Tree->currentItem()))
+	{
+		Item_Editing* item_Editing = new Item_Editing(struct_Tree->currentItem());
+		connect(item_Editing, SIGNAL(is_Closed()), this, SLOT(refresh_Over_Struct()));
+		item_Editing->show();
+		runned_Editors.insert(struct_Tree->currentItem(),item_Editing);
+	}
 }
 
 void Multilayer::remove(bool)
@@ -1147,4 +1162,3 @@ void Multilayer::remove_Target_Profile()
 
 	setUpdatesEnabled(true);
 }
-

@@ -13,7 +13,7 @@ void Multilayer_Approach::closeEvent(QCloseEvent* event)
 {
 	// TODO close multalayer window
 	qApp->quit();
-	event=NULL;
+	event;
 }
 
 void Multilayer_Approach::create_Main_Layout()

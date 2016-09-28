@@ -18,8 +18,14 @@ public:
 	QSettings gui_Settings;
 	QSettings default_Values;
 
+signals:
+	void is_Closed();
+private:
+	void closeEvent(QCloseEvent* event);
+
 private:
 	Item_Type item_Type;
+	QMap<QString,double> sorted_Elements;
 
 private:
 	void create_Main_Layout();
@@ -37,7 +43,11 @@ private slots:
 	void filename_Radio_Toggled(bool);
 	void composition_Radio_Toggled(bool);
 	void more_Elements_Clicked(bool);
+	void read_Elements_From_Item();
 	void fewer_Elements_Clicked(bool);
+	void refresh_Material();
+	void show_Material();
+	void show_Density();
 	void refresh_Data();
 	void refresh_Data(QString);
 
@@ -57,11 +67,11 @@ private:
 					QVBoxLayout* composition_Layout;
 						QGroupBox*	composition_Group_Box;
 							QVBoxLayout* composition_Layout_With_Elements_Vector;
-								QList<QFrame*> element_Frame_Vec;
-									QList<QLineEdit*> composition_Line_Edit_Vec;
-									QList<QLabel*>    composition_Label_Vec;
-									QList<QComboBox*> composition_Combo_Box_Vec;
-									QList<QLabel*>    composition_At_Weight_Vec;
+								QVector<QFrame*> element_Frame_Vec;
+									QVector<QLineEdit*> composition_Line_Edit_Vec;
+									QVector<QLabel*>    composition_Label_Vec;
+									QVector<QComboBox*> composition_Combo_Box_Vec;
+									QVector<QLabel*>    composition_At_Weight_Vec;
 						QPushButton* more_Elements;
 						QPushButton* fewer_Elements;
 
