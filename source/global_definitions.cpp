@@ -95,7 +95,7 @@ QVector<double> element_Mass
 							 231.03586,
 							 238.02891};
 
-QStringList transition_Layer_Functions	{"erf","lin","exp","tanh","sin"};
+QStringList transition_Layer_Functions	{"error function","linear","exponential","tanhgential","sinusoidal"};
 QStringList drift_Models				{"no_drift","lin_sin","par_sin","hyp_sin","exp_sin","log_sin"};
 
 int default_Column = 0;

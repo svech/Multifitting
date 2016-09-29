@@ -15,6 +15,8 @@ Ambient::Ambient()
 
 Substrate::Substrate()
 {
+	interlayer_Composition.clear();
+
 	Stoichiometry stoichiometry;
 
 	QSettings default_Values(Default_Values_Path, QSettings::IniFormat);
@@ -34,6 +36,7 @@ Substrate::Substrate()
 
 Extreme_Layer::Extreme_Layer()
 {
+	interlayer_Composition.clear();
 	Stoichiometry stoichiometry;
 
 	QSettings default_Values(Default_Values_Path, QSettings::IniFormat);
@@ -54,6 +57,7 @@ Extreme_Layer::Extreme_Layer()
 
 Layer::Layer()
 {
+	interlayer_Composition.clear();
 	Stoichiometry stoichiometry;
 
 	QSettings default_Values(Default_Values_Path, QSettings::IniFormat);
