@@ -27,6 +27,7 @@
 #define Gamma_Sym QString(QChar(0x03B3))
 
 #define MAX_DOUBLE 1E100
+#define MAX_INTEGER MAXINT
 #define MAX_PRECISION 100
 
 extern int default_Column;
@@ -37,6 +38,8 @@ extern QStringList element_Name;
 extern QVector<double> element_Mass;
 
 struct Stoichiometry			{double composition; QString type;};
+struct Interlayer_Enabled		{bool enabled; double interlayer;};
+
 extern QStringList transition_Layer_Functions;
 extern QStringList drift_Models;
 

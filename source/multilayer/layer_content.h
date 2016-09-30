@@ -22,7 +22,8 @@ public:
 	Substrate();
 
 	double sigma;
-	QList<Stoichiometry> interlayer_Composition;
+	bool use_PSD = false;
+	QVector<Interlayer_Enabled> interlayer_Composition;
 };
 
 class Extreme_Layer: public Substrate
@@ -42,10 +43,10 @@ public:
 	QString drift_Model;
 	QList<double> drift_Coefficients;
 
-	bool if_First = 0;
+	bool if_First = false;
 		Extreme_Layer First;
 
-	bool if_Last = 0;
+	bool if_Last = false;
 		Extreme_Layer Last;
 };
 
@@ -53,9 +54,6 @@ class Stack_Content
 {
 public:
 	Stack_Content();
-
-	int first_Layer_Index;
-	int last_Layer_Index;
 
 	int num_Repetition;
 	double period;

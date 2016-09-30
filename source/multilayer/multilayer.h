@@ -9,14 +9,15 @@
 class Multilayer : public QWidget
 {
 	Q_OBJECT
-
+	Q_INVOKABLE void refreshOverStruct() { Multilayer::refresh_Over_Struct(); }
 public:
 	Multilayer();
 
 	QSettings gui_Settings;
 	QSettings default_Values;
 
-	QMap<QTreeWidgetItem*,Item_Editing*> runned_Editors;
+	QMap<QTreeWidgetItem*, Item_Editing*> runned_Editors;
+	QList<Item_Editing*> list_Editors;
 
 private:
 	void create_Main_Layout();
@@ -63,9 +64,16 @@ private slots:
 	void add_Buffered_Layer(QTreeWidgetItem* new_Layer_Passed);
 	void refresh_Toolbar();
 	void set_Structure_Item_Text(QTreeWidgetItem* item);
+	void editor_Close();
+	void multiple_Refresh_Over_Struct();
 	void refresh_Over_Struct();
 		void iterate_Over_Struct(QTreeWidgetItem* item = NULL);
-			void refresh_If_Layer_Or_Multilayer(QTreeWidgetItem* this_Item);
+			void refresh_If_Layer(QTreeWidgetItem* this_Item);
+		void iterate_Over_Multilayers(QTreeWidgetItem* item = NULL);
+			void refresh_If_Multilayer(QTreeWidgetItem* this_Item);
+				void find_First_Layer(QTreeWidgetItem* this_Item, int& first);
+				void find_Last_Layer(QTreeWidgetItem* this_Item, int& last);
+				void find_Period(QTreeWidgetItem* this_Item);
 
 private slots:
 	void add_Measured_Data();

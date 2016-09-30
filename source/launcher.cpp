@@ -149,8 +149,6 @@ void Launcher::reset_Default_Values()
 			default_Values.setValue( "layer_default_stoichiometry_composition", 1 );
 			default_Values.setValue( "layer_default_stoichiometry_element", "Al" );
 			default_Values.setValue( "layer_default_sigma", 123.5678 );
-			default_Values.setValue( "layer_default_interlayer_composition", 1 );
-			default_Values.setValue( "layer_default_interlayer_type", "error function" );
 			default_Values.setValue( "layer_default_thickness", 10 );
 			default_Values.setValue( "layer_default_drift_model", "no_drift" );
 			default_Values.setValue( "layer_default_drift_coefficients", 0 );
@@ -162,8 +160,6 @@ void Launcher::reset_Default_Values()
 			default_Values.setValue( "substrate_default_stoichiometry_composition", 1 );
 			default_Values.setValue( "substrate_default_stoichiometry_element", "Be" );
 			default_Values.setValue( "substrate_default_sigma", 21.2 );
-			default_Values.setValue( "substrate_default_interlayer_composition", 1 );
-			default_Values.setValue( "substrate_default_interlayer_type", "linear" );
 		default_Values.endGroup();
 		default_Values.beginGroup( Stack_Values );
 			default_Values.setValue( "stack_default_number_of_repetition", 1 );
@@ -174,7 +170,7 @@ void Launcher::reset_Default_Values()
 
 	// color, precision, units etc
 	default_Values.beginGroup( Structure_Values_Representation );
-		default_Values.setValue( "default_precision", 2 );
+		default_Values.setValue( "default_precision", 3 );
 		default_Values.setValue( "default_density_precision", 3 );
 		default_Values.setValue( "default_interlayer_precision", 3 );
 		default_Values.setValue( "default_atomic_weight_precision", 4 );

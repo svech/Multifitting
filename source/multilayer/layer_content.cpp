@@ -14,11 +14,7 @@ Ambient::Ambient()
 }
 
 Substrate::Substrate()
-{
-	interlayer_Composition.clear();
-
-	Stoichiometry stoichiometry;
-
+{	
 	QSettings default_Values(Default_Values_Path, QSettings::IniFormat);
 	default_Values.beginGroup( Structure_Init_Values );
 	default_Values.beginGroup( Substrate_Values );
@@ -26,19 +22,25 @@ Substrate::Substrate()
 		density	 = default_Values.value( "substrate_default_density", 0 ).toDouble();
 		composed = default_Values.value( "substrate_default_composed", 0 ).toBool();
 		sigma    = default_Values.value( "substrate_default_sigma", 0 ).toDouble();
-		stoichiometry.composition = default_Values.value( "substrate_default_interlayer_composition", 0 ).toDouble();
-		stoichiometry.type		  = default_Values.value( "substrate_default_interlayer_type", 0 ).toString();
 	default_Values.endGroup();
 	default_Values.endGroup();
 
-	interlayer_Composition.append(stoichiometry);
+	interlayer_Composition.clear();
+	interlayer_Composition.resize(transition_Layer_Functions.size());
+
+	// erf interlayer
+	interlayer_Composition[0].enabled=true;
+	interlayer_Composition[0].interlayer=1;
+	// other interlayers
+	for(int i=1; i<interlayer_Composition.size(); ++i)
+	{
+		interlayer_Composition[i].enabled=false;
+		interlayer_Composition[i].interlayer=1;
+	}
 }
 
 Extreme_Layer::Extreme_Layer()
 {
-	interlayer_Composition.clear();
-	Stoichiometry stoichiometry;
-
 	QSettings default_Values(Default_Values_Path, QSettings::IniFormat);
 	default_Values.beginGroup( Structure_Init_Values );
 		default_Values.beginGroup( Layer_Values );
@@ -46,20 +48,26 @@ Extreme_Layer::Extreme_Layer()
 			density  = default_Values.value( "layer_default_density", 0 ).toDouble();
 			composed = default_Values.value( "layer_default_composed", 0 ).toBool();
 			sigma    = default_Values.value( "layer_default_sigma", 0 ).toDouble();
-			stoichiometry.composition = default_Values.value( "layer_default_interlayer_composition", 0 ).toDouble();
-			stoichiometry.type        = default_Values.value( "layer_default_interlayer_type", 0 ).toString();
 			thickness = default_Values.value( "layer_default_thickness", 0 ).toDouble();
 		default_Values.endGroup();
 	default_Values.endGroup();
 
-	interlayer_Composition.append(stoichiometry);
+	interlayer_Composition.clear();
+	interlayer_Composition.resize(transition_Layer_Functions.size());
+
+	// erf interlayer
+	interlayer_Composition[0].enabled=true;
+	interlayer_Composition[0].interlayer=1;
+	// other interlayers
+	for(int i=1; i<interlayer_Composition.size(); ++i)
+	{
+		interlayer_Composition[i].enabled=false;
+		interlayer_Composition[i].interlayer=1;
+	}
 }
 
 Layer::Layer()
 {
-	interlayer_Composition.clear();
-	Stoichiometry stoichiometry;
-
 	QSettings default_Values(Default_Values_Path, QSettings::IniFormat);
 	default_Values.beginGroup( Structure_Init_Values );
 		default_Values.beginGroup( Layer_Values );
@@ -67,13 +75,22 @@ Layer::Layer()
 			density  = default_Values.value( "layer_default_density", 0 ).toDouble();
 			composed = default_Values.value( "layer_default_composed", 0 ).toBool();
 			sigma    = default_Values.value( "layer_default_sigma", 0 ).toDouble();
-			stoichiometry.composition = default_Values.value( "layer_default_interlayer_composition", 0 ).toDouble();
-			stoichiometry.type        = default_Values.value( "layer_default_interlayer_type", 0 ).toString();
 			thickness = default_Values.value( "layer_default_thickness", 0 ).toDouble();
 		default_Values.endGroup();
 	default_Values.endGroup();
 
-	interlayer_Composition.append(stoichiometry);
+	interlayer_Composition.clear();
+	interlayer_Composition.resize(transition_Layer_Functions.size());
+
+	// erf interlayer
+	interlayer_Composition[0].enabled=true;
+	interlayer_Composition[0].interlayer=1;
+	// other interlayers
+	for(int i=1; i<interlayer_Composition.size(); ++i)
+	{
+		interlayer_Composition[i].enabled=false;
+		interlayer_Composition[i].interlayer=1;
+	}
 }
 
 Stack_Content::Stack_Content()

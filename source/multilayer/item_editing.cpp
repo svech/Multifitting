@@ -19,6 +19,7 @@ void Item_Editing::closeEvent(QCloseEvent* event)
 	norm_Interlayer_Composition();
 	refresh_Data();
 	refresh_Material();
+//	refresh_Stack_Data(); TODO
 	emit is_Closed();
 	event;
 }
@@ -225,7 +226,65 @@ void Item_Editing::make_Thickness_Group_Box()
 
 void Item_Editing::make_Multilayer_Editor()
 {
-// TODO
+	make_Multilayer_Group_Box();
+		main_Layout->addWidget(multilayer_Group_Box);
+}
+
+void Item_Editing::make_Multilayer_Group_Box()
+{
+	multilayer_Group_Box = new QGroupBox;
+	multilayer_Group_Box->setObjectName("multilayer_Group_Box");
+	multilayer_Group_Box->setStyleSheet("QGroupBox#multilayer_Group_Box { border-radius: 2px;  border: 1px solid gray;}");
+
+	QVBoxLayout* multilayer_Group_Box_Layout = new QVBoxLayout(multilayer_Group_Box);
+
+	{
+		QHBoxLayout* layout = new QHBoxLayout;
+		QLabel* repetitions_Label = new QLabel("Number of repetitions, N:");
+			layout->addWidget(repetitions_Label);
+
+		repetitions_Line_Edit = new QLineEdit;
+		repetitions_Line_Edit->setFixedWidth(50);
+		repetitions_Line_Edit->setValidator(new QIntValidator(0, MAX_INTEGER));
+			layout->addWidget(repetitions_Line_Edit);
+
+		multilayer_Group_Box_Layout->addLayout(layout);
+	}
+	{
+		QHBoxLayout* layout = new QHBoxLayout;
+		QLabel* period_Label = new QLabel("Period, d[" + Angstrom_Sym + "]:");
+			layout->addWidget(period_Label);
+
+		period_Line_Edit = new QLineEdit;
+		period_Line_Edit->setFixedWidth(50);
+		period_Line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION));
+			layout->addWidget(period_Line_Edit);
+
+		multilayer_Group_Box_Layout->addLayout(layout);
+	}
+	{
+		QHBoxLayout* layout = new QHBoxLayout;
+		gamma_Label = new QLabel("Thickness Ratio, " + Gamma_Sym + ":");
+
+		gamma_Line_Edit = new QLineEdit;
+		gamma_Line_Edit->setFixedWidth(50);
+		gamma_Line_Edit->setValidator(new QDoubleValidator(0, 1, MAX_PRECISION));
+
+		if(item->childCount()==2)
+		{
+			layout->addWidget(gamma_Label);
+			layout->addWidget(gamma_Line_Edit);
+
+			multilayer_Group_Box_Layout->addLayout(layout);
+		}
+	}
+	{
+		stack_Done = true;
+		show_Stack_Parameters();
+	}
+
+	// TODO refreshing
+//	connect(thickness_Line_Edit, SIGNAL(editingFinished()), this, SLOT(refresh_Stack_Data()));
 }
 
 void Item_Editing::make_Substrate_Editor()
@@ -262,39 +321,25 @@ void Item_Editing::make_Sigma_Group_Box()
 
 		connect(sigma_Line_Edit, SIGNAL(editingFinished()), this, SLOT(refresh_Data()));
 	}
-	// more/fewer interlayer functions buttons
+	// interlayer functions
 	{
 		interlayer_Composition_Frame = new QFrame;
-		interlayer_Composition_Frame->setContentsMargins(-5,-5,-5,-10);
+		interlayer_Composition_Frame->setContentsMargins(-5,-5,-5,-9);
 		QVBoxLayout* interlayer_Composition_Layout = new QVBoxLayout(interlayer_Composition_Frame);
+			interlayer_Composition_Layout->setAlignment(Qt::AlignLeft);
+			QHBoxLayout* sigma_PSD_Layout = new QHBoxLayout;
 		interlayer_Composition_Group_Box = new QGroupBox("Interlayer Composition");
 		interlayer_Composition_Group_Box->setObjectName("interlayer_Composition_Group_Box");
 		interlayer_Composition_Group_Box->setStyleSheet("QGroupBox#interlayer_Composition_Group_Box { border-radius: 2px;  border: 1px solid gray; margin-top: 2ex;} "
-											 "QGroupBox::title { subcontrol-origin: margin;	 left: 4px; padding: 0 0px 0 1px;}");
-
-		interlayer_Composition_Layout_With_Elements_Vector = new QVBoxLayout(interlayer_Composition_Group_Box);
-		QFrame* buttons_Frame = new QFrame;
-		buttons_Frame->setContentsMargins(-5,-10,-5,-9);
-		QHBoxLayout* buttons_Layout = new QHBoxLayout(buttons_Frame);
-			buttons_Layout->setSpacing(0); buttons_Layout->setAlignment(Qt::AlignLeft);
-		more_Interlayer_Functions = new QPushButton("More Functions");
-			more_Interlayer_Functions->setFixedWidth(86);
-			buttons_Layout->addWidget(more_Interlayer_Functions);
-		fewer_Interlayer_Functions = new QPushButton("Fewer Functions");
-			fewer_Interlayer_Functions->setFixedWidth(87);
-			buttons_Layout->addWidget(fewer_Interlayer_Functions);
-
-		interlayer_Composition_Layout->addWidget(interlayer_Composition_Group_Box);
-		interlayer_Composition_Layout->addWidget(buttons_Frame);
+														"QGroupBox::title { subcontrol-origin: margin;	 left: 4px; padding: 0 0px 0 1px;}");
+//		TODO create here first and last sigmas
+		interlayer_Composition_Layout_With_Elements_Vector = new QHBoxLayout(interlayer_Composition_Group_Box);
+			sigma_PSD_Layout->addWidget(interlayer_Composition_Group_Box);
+		psd_Check_Box = new QCheckBox("Use PSD");
+			sigma_PSD_Layout->addWidget(psd_Check_Box);
+		// TODO PSD
+		interlayer_Composition_Layout->addLayout(sigma_PSD_Layout);
 		sigma_Group_Box_Layout->addWidget(interlayer_Composition_Frame);
-
-		QSizePolicy sp_Retain; sp_Retain.setRetainSizeWhenHidden(true);
-		more_Interlayer_Functions->setSizePolicy(sp_Retain);
-		fewer_Interlayer_Functions->setSizePolicy(sp_Retain);
-
-
-		connect(more_Interlayer_Functions,  SIGNAL(clicked(bool)), this, SLOT(more_Interlayer_Functions_Clicked(bool)));
-		connect(fewer_Interlayer_Functions, SIGNAL(clicked(bool)), this, SLOT(fewer_Interlayer_Functions_Clicked(bool)));
 	}
 	{
 		sigma_Done = true;
@@ -337,7 +382,9 @@ void Item_Editing::filename_Radio_Toggled(bool)
 	item->setData(default_Column, Qt::UserRole, var);
 
 	composition_Frame->hide();
+	read_Elements_From_Item();
 	show_Material();	
+
 	QMetaObject::invokeMethod(this, "adjustSize", Qt::QueuedConnection);
 	QMetaObject::invokeMethod(this, "adjustSize", Qt::QueuedConnection);
 }
@@ -677,81 +724,72 @@ void Item_Editing::read_Interlayers_From_Item()
 	{
 		Layer layer = item->data(default_Column, Qt::UserRole).value<Layer>();
 
+		interlayer_Composition_Check_Box_Vec.resize(layer.interlayer_Composition.size());
 		interlayer_Composition_Line_Edit_Vec.resize(layer.interlayer_Composition.size());
-		interlayer_Composition_Label_Vec.resize(layer.interlayer_Composition.size());
-		interlayer_Composition_Combo_Box_Vec.resize(layer.interlayer_Composition.size());
 
 		// renew ui
 		for(int i=0; i<layer.interlayer_Composition.size(); ++i)
 		{
 			// creating ui elements
-			QLineEdit* line_Edit = new QLineEdit;		line_Edit->setFixedWidth(50); line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION));
-			QLabel*    label = new QLabel("of");
-			QComboBox* functions = new QComboBox;		functions->addItems(transition_Layer_Functions);
+			QCheckBox* check_Box = new QCheckBox(transition_Layer_Functions[i]);
+			QLineEdit* line_Edit = new QLineEdit;		line_Edit->setFixedWidth(40); line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION));
 
-			line_Edit->setText(QString::number(layer.interlayer_Composition[i].composition,'f',precision));
-			functions->setCurrentIndex(functions->findText(layer.interlayer_Composition[i].type));
+			check_Box->setChecked(layer.interlayer_Composition[i].enabled);
+			line_Edit->setText(QString::number(layer.interlayer_Composition[i].interlayer,'f',precision));
 
+			interlayer_Composition_Check_Box_Vec[i]=check_Box;
 			interlayer_Composition_Line_Edit_Vec[i]=line_Edit;
-			interlayer_Composition_Label_Vec[i]=label;
-			interlayer_Composition_Combo_Box_Vec[i]=functions;
 
+			connect(check_Box, SIGNAL(stateChanged(int)), this, SLOT(interlayer_Check(int)));
 			connect(line_Edit, SIGNAL(editingFinished()), this, SLOT(refresh_Data()));
-			connect(functions, SIGNAL(currentTextChanged(QString)), this, SLOT(refresh_Data(QString)));
 
 			// placing ui elements
-			QHBoxLayout* hor_Layout = new QHBoxLayout;
-				hor_Layout->setSpacing(4);
-				hor_Layout->addWidget(line_Edit);
-				hor_Layout->addWidget(label);
-				hor_Layout->addWidget(functions);
-			interlayer_Composition_Layout_With_Elements_Vector->setSpacing(0);
-			interlayer_Composition_Layout_With_Elements_Vector->addLayout(hor_Layout);
-			interlayer_Composition_Group_Box->adjustSize();
-			interlayer_Composition_Group_Box->setFixedWidth(interlayer_Composition_Group_Box->width());
+			QVBoxLayout* vert_Layout = new QVBoxLayout;
+			vert_Layout->setSpacing(3);
+			vert_Layout->setAlignment(Qt::AlignCenter);
+				vert_Layout->addWidget(check_Box);
+				vert_Layout->addWidget(line_Edit);
+			interlayer_Composition_Layout_With_Elements_Vector->addLayout(vert_Layout);
 		}
 	}
 	if(item_Type==Item_Type::Substrate)
 	{
 		Substrate substrate = item->data(default_Column, Qt::UserRole).value<Substrate>();
 
+		interlayer_Composition_Check_Box_Vec.resize(substrate.interlayer_Composition.size());
 		interlayer_Composition_Line_Edit_Vec.resize(substrate.interlayer_Composition.size());
-		interlayer_Composition_Label_Vec.resize(substrate.interlayer_Composition.size());
-		interlayer_Composition_Combo_Box_Vec.resize(substrate.interlayer_Composition.size());
 
 		// renew ui
 		for(int i=0; i<substrate.interlayer_Composition.size(); ++i)
 		{
 			// creating ui elements
-			QLineEdit* line_Edit = new QLineEdit;		line_Edit->setFixedWidth(50); line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION));
-			QLabel*    label = new QLabel("of");
-			QComboBox* functions = new QComboBox;		functions->addItems(transition_Layer_Functions);
+			QCheckBox* check_Box = new QCheckBox(transition_Layer_Functions[i]);
+			QLineEdit* line_Edit = new QLineEdit;		line_Edit->setFixedWidth(40); line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION));
 
-			line_Edit->setText(QString::number(substrate.interlayer_Composition[i].composition,'f',precision));
-			functions->setCurrentIndex(functions->findText(substrate.interlayer_Composition[i].type));
+			check_Box->setChecked(substrate.interlayer_Composition[i].enabled);
+			line_Edit->setText(QString::number(substrate.interlayer_Composition[i].interlayer,'f',precision));
 
+			interlayer_Composition_Check_Box_Vec[i]=check_Box;
 			interlayer_Composition_Line_Edit_Vec[i]=line_Edit;
-			interlayer_Composition_Label_Vec[i]=label;
-			interlayer_Composition_Combo_Box_Vec[i]=functions;
 
+			connect(check_Box, SIGNAL(stateChanged(int)), this, SLOT(interlayer_Check(int)));
 			connect(line_Edit, SIGNAL(editingFinished()), this, SLOT(refresh_Data()));
-			connect(functions, SIGNAL(currentTextChanged(QString)), this, SLOT(refresh_Data(QString)));
 
 			// placing ui elements
-			QHBoxLayout* hor_Layout = new QHBoxLayout;
-				hor_Layout->setSpacing(4);
-				hor_Layout->addWidget(line_Edit);
-				hor_Layout->addWidget(label);
-				hor_Layout->addWidget(functions);
-			interlayer_Composition_Layout_With_Elements_Vector->setSpacing(0);
-			interlayer_Composition_Layout_With_Elements_Vector->addLayout(hor_Layout);
-			interlayer_Composition_Group_Box->adjustSize();
-			interlayer_Composition_Group_Box->setFixedWidth(interlayer_Composition_Group_Box->width());
+			QVBoxLayout* vert_Layout = new QVBoxLayout;
+			vert_Layout->setSpacing(3);
+			vert_Layout->setAlignment(Qt::AlignCenter);
+				vert_Layout->addWidget(check_Box);
+				vert_Layout->addWidget(line_Edit);
+			interlayer_Composition_Layout_With_Elements_Vector->addLayout(vert_Layout);
 		}
 	}
 
-	refresh_Data();
-	show_Or_Hide_Interlayer_Buttons();
+	interlayer_Composition_Layout_With_Elements_Vector->setSpacing(10);
+	interlayer_Composition_Group_Box->adjustSize();
+	interlayer_Composition_Group_Box->setFixedWidth(interlayer_Composition_Group_Box->width());
+
+	interlayer_Check(true);
 }
 
 void Item_Editing::fewer_Elements_Clicked(bool)
@@ -805,112 +843,6 @@ void Item_Editing::fewer_Elements_Clicked(bool)
 	composition_Radio_Toggled(true);
 	filename_Radio_Toggled(true);
 	composition_Radio_Toggled(true);
-}
-
-void Item_Editing::more_Interlayer_Functions_Clicked(bool)
-{
-	default_Values.beginGroup( Structure_Values_Representation );
-		int precision = default_Values.value( "default_interlayer_precision", 0 ).toInt();
-	default_Values.endGroup();
-
-	Stoichiometry stoich;
-	default_Values.beginGroup( Structure_Init_Values );
-	if(item_Type==Item_Type::Layer)
-	{
-		default_Values.beginGroup( Layer_Values );
-			stoich.composition = default_Values.value( "layer_default_interlayer_composition", 0 ).toDouble();
-			stoich.type  = default_Values.value( "layer_default_interlayer_type", 0 ).toString();
-		default_Values.endGroup();
-	}
-	if(item_Type==Item_Type::Substrate)
-	{
-		default_Values.beginGroup( Substrate_Values );
-			stoich.composition = default_Values.value( "substrate_default_interlayer_composition", 0 ).toDouble();
-			stoich.type  = default_Values.value( "substrate_default_interlayer_type", 0 ).toString();
-		default_Values.endGroup();
-	}
-	default_Values.endGroup();
-
-	QVariant var;
-
-	// creating ui elements
-	QLineEdit* line_Edit = new QLineEdit;		line_Edit->setFixedWidth(50); line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION));
-	QLabel*    label = new QLabel("of");
-	QComboBox* functions = new QComboBox;		functions->addItems(transition_Layer_Functions);
-
-	line_Edit->setText(QString::number(stoich.composition,'f',precision));
-	functions->setCurrentIndex(functions->findText(stoich.type));
-
-	connect(line_Edit, SIGNAL(editingFinished()), this, SLOT(refresh_Data()));
-	connect(functions, SIGNAL(currentTextChanged(QString)), this, SLOT(refresh_Data(QString)));
-
-
-	interlayer_Composition_Line_Edit_Vec.append(line_Edit);
-	interlayer_Composition_Label_Vec.append(label);
-	interlayer_Composition_Combo_Box_Vec.append(functions);
-
-	// adding data
-	if(item_Type==Item_Type::Layer)
-	{
-		Layer layer = item->data(default_Column, Qt::UserRole).value<Layer>();
-		layer.interlayer_Composition.append(stoich);
-		var.setValue( layer );
-	}
-	if(item_Type==Item_Type::Substrate)
-	{
-		Substrate substrate = item->data(default_Column, Qt::UserRole).value<Substrate>();
-		substrate.interlayer_Composition.append(stoich);
-		var.setValue( substrate );
-	}
-	item->setData(default_Column, Qt::UserRole, var);
-
-	// placing ui elements
-	QHBoxLayout* hor_Layout = new QHBoxLayout;
-		hor_Layout->setSpacing(4);
-		hor_Layout->addWidget(line_Edit);
-		hor_Layout->addWidget(label);
-		hor_Layout->addWidget(functions);
-	interlayer_Composition_Layout_With_Elements_Vector->setSpacing(0);
-	interlayer_Composition_Layout_With_Elements_Vector->addLayout(hor_Layout);
-	interlayer_Composition_Group_Box->adjustSize();
-	interlayer_Composition_Group_Box->setFixedWidth(interlayer_Composition_Group_Box->width());
-
-	show_Or_Hide_Interlayer_Buttons();
-}
-
-void Item_Editing::fewer_Interlayer_Functions_Clicked(bool)
-{
-	QVariant var;
-	if(item_Type==Item_Type::Layer)
-	{
-		Layer layer = item->data(default_Column, Qt::UserRole).value<Layer>();
-		layer.interlayer_Composition.removeLast();
-		var.setValue( layer );
-	}
-	if(item_Type==Item_Type::Substrate)
-	{
-		Substrate substrate = item->data(default_Column, Qt::UserRole).value<Substrate>();
-		substrate.interlayer_Composition.removeLast();
-		var.setValue( substrate );
-	}
-	item->setData(default_Column, Qt::UserRole, var);
-
-	delete interlayer_Composition_Line_Edit_Vec.last();
-	delete interlayer_Composition_Label_Vec.last();
-	delete interlayer_Composition_Combo_Box_Vec.last();
-
-	interlayer_Composition_Line_Edit_Vec.removeLast();
-	interlayer_Composition_Label_Vec.removeLast();
-	interlayer_Composition_Combo_Box_Vec.removeLast();
-
-	refresh_Data();
-
-	// crutch
-	fewer_Interlayer_Functions->hide();
-	fewer_Interlayer_Functions->show();
-	show_Or_Hide_Interlayer_Buttons();
-
-	QMetaObject::invokeMethod(this, "adjustSize", Qt::QueuedConnection);adjustSize();
 }
 
 void Item_Editing::refresh_Material()
@@ -1008,31 +940,21 @@ void Item_Editing::show_Sigma()
 	}
 }
 
-void Item_Editing::show_Or_Hide_Interlayer_Buttons()
+void Item_Editing::show_Stack_Parameters()
 {
+	// TODO extreme layers
 	default_Values.beginGroup( Structure_Values_Representation );
-		int precision = default_Values.value( "default_interlayer_precision", 0 ).toInt();
+		int precision = default_Values.value( "default_density_precision", 0 ).toInt();
 	default_Values.endGroup();
 
-	if(sigma_Done)
+	if(item_Type==Item_Type::Stack_Content)
 	{
-		if (interlayer_Composition_Line_Edit_Vec.size()==1)
+		if(stack_Done)
 		{
-			interlayer_Composition_Line_Edit_Vec.first()->setDisabled(true);
-			interlayer_Composition_Line_Edit_Vec.first()->setText(QString::number(1,'f',precision));
-			fewer_Interlayer_Functions->hide();
-		}
-		if (interlayer_Composition_Line_Edit_Vec.size()>=2)
-		{
-			interlayer_Composition_Line_Edit_Vec.first()->setDisabled(false);
-			fewer_Interlayer_Functions->show();
-		}
-		if (interlayer_Composition_Line_Edit_Vec.size()==transition_Layer_Functions.size())
-		{
-			more_Interlayer_Functions->hide();
-		} else
-		{
-			more_Interlayer_Functions->show();
+			Stack_Content stack_Content = item->data(default_Column, Qt::UserRole).value<Stack_Content>();
+			repetitions_Line_Edit->setText(QString::number(stack_Content.num_Repetition));
+			period_Line_Edit->setText(QString::number(stack_Content.period,'f',precision));
+			gamma_Line_Edit->setText(QString::number(stack_Content.gamma,'f',precision));
 		}
 	}
 }
@@ -1048,13 +970,42 @@ void Item_Editing::norm_Interlayer_Composition()
 		double sum=0;
 		for(int i=0; i<interlayer_Composition_Line_Edit_Vec.size(); ++i)
 		{
-			sum+=interlayer_Composition_Line_Edit_Vec[i]->text().toDouble();
+			if(interlayer_Composition_Check_Box_Vec[i]->isChecked() == true)
+				sum+=interlayer_Composition_Line_Edit_Vec[i]->text().toDouble();
 		}
 		for(int i=0; i<interlayer_Composition_Line_Edit_Vec.size(); ++i)
 		{
-			interlayer_Composition_Line_Edit_Vec[i]->setText(QString::number(interlayer_Composition_Line_Edit_Vec[i]->text().toDouble()/sum,'f',precision));
+			if(interlayer_Composition_Check_Box_Vec[i]->isChecked() == true)
+				interlayer_Composition_Line_Edit_Vec[i]->setText(QString::number(interlayer_Composition_Line_Edit_Vec[i]->text().toDouble()/sum,'f',precision));
 		}
 	}
+}
+
+void Item_Editing::interlayer_Check(int)
+{
+	int counter=0;
+	if(sigma_Done)
+	{
+		for(int i=0; i<interlayer_Composition_Check_Box_Vec.size(); ++i)
+		{
+			if(interlayer_Composition_Check_Box_Vec[i]->isChecked() == true)
+			{
+				counter++;
+				interlayer_Composition_Line_Edit_Vec[i]->setDisabled(false);
+			} else
+			{
+				interlayer_Composition_Line_Edit_Vec[i]->setDisabled(true);
+			}
+		}
+		if(counter==0)
+		{
+			sigma_Line_Edit->setDisabled(true);
+		} else
+		{
+			sigma_Line_Edit->setDisabled(false);
+		}
+	}
+	refresh_Data();
 }
 
 void Item_Editing::refresh_Data()
@@ -1102,8 +1053,8 @@ void Item_Editing::refresh_Data()
 			layer.sigma = sigma_Line_Edit->text().toDouble();
 			for(int i=0; i<layer.interlayer_Composition.size(); ++i)
 			{
-				layer.interlayer_Composition[i].composition = interlayer_Composition_Line_Edit_Vec[i]->text().toDouble();
-				layer.interlayer_Composition[i].type = interlayer_Composition_Combo_Box_Vec[i]->currentText();
+				layer.interlayer_Composition[i].enabled = interlayer_Composition_Check_Box_Vec[i]->isChecked();
+				layer.interlayer_Composition[i].interlayer = interlayer_Composition_Line_Edit_Vec[i]->text().toDouble();
 			}
 		}
 		//TODO other fields
@@ -1127,8 +1078,8 @@ void Item_Editing::refresh_Data()
 			substrate.sigma = sigma_Line_Edit->text().toDouble();
 			for(int i=0; i<substrate.interlayer_Composition.size(); ++i)
 			{
-				substrate.interlayer_Composition[i].composition = interlayer_Composition_Line_Edit_Vec[i]->text().toDouble();
-				substrate.interlayer_Composition[i].type = interlayer_Composition_Combo_Box_Vec[i]->currentText();
+				substrate.interlayer_Composition[i].enabled = interlayer_Composition_Check_Box_Vec[i]->isChecked();
+				substrate.interlayer_Composition[i].interlayer = interlayer_Composition_Line_Edit_Vec[i]->text().toDouble();
 			}
 		}
 
@@ -1183,4 +1134,25 @@ void Item_Editing::refresh_Data()
 void Item_Editing::refresh_Data(QString)
 {
 	refresh_Data();
+}
+
+void Item_Editing::refresh_Stack_Data()
+{
+	// TODO force
+	QVariant var;
+	if(item_Type==Item_Type::Stack_Content)
+	{
+		Stack_Content stack_Content = item->data(default_Column, Qt::UserRole).value<Stack_Content>();
+		if(stack_Done)
+		{
+			stack_Content.num_Repetition = repetitions_Line_Edit->text().toInt();
+			stack_Content.period = period_Line_Edit->text().toDouble();
+			if(item->childCount()==2)
+			{
+				stack_Content.gamma = gamma_Line_Edit->text().toDouble();
+			}
+		}
+		var.setValue( stack_Content );
+	}
+	item->setData(default_Column, Qt::UserRole, var);
 }

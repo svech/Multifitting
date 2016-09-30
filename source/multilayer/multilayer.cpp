@@ -347,6 +347,7 @@ void Multilayer::add_Layer(bool)
 {
 	QTreeWidgetItem* new_Layer = new QTreeWidgetItem;
 	add_Buffered_Layer(new_Layer);
+	refresh_Over_Struct();
 }
 
 void Multilayer::add_Multilayer(bool)
@@ -432,6 +433,7 @@ void Multilayer::add_Multilayer(bool)
 
 	set_Structure_Item_Text(new_Multilayer);
 	refresh_Toolbar();
+	refresh_Over_Struct();
 }
 
 void Multilayer::add_Substrate(bool)
@@ -462,8 +464,11 @@ void Multilayer::edit(bool)
 	if(!runned_Editors.contains(struct_Tree->currentItem()))
 	{
 		Item_Editing* item_Editing = new Item_Editing(struct_Tree->currentItem());
-		connect(item_Editing, SIGNAL(is_Closed()), this, SLOT(refresh_Over_Struct()));
+		connect(item_Editing, SIGNAL(is_Closed()), this, SLOT(editor_Close()));
 		item_Editing->show();
+
+		list_Editors.append(item_Editing);
+		struct_Toolbar->setDisabled(true);
 		runned_Editors.insert(struct_Tree->currentItem(),item_Editing);
 	}
 }
@@ -857,7 +862,7 @@ void Multilayer::refresh_Toolbar()
 	}
 	struct_Tree->expandAll();
 
-	refresh_Over_Struct();
+	multiple_Refresh_Over_Struct();
 }
 
 void Multilayer::set_Structure_Item_Text(QTreeWidgetItem* item)
@@ -891,7 +896,7 @@ void Multilayer::set_Structure_Item_Text(QTreeWidgetItem* item)
 			// if multilayer
 			if(item->childCount()>0)
 			{
-				item->setText(default_Column, "multilayer, N=" + QString::number(item->data(default_Column, Qt::UserRole).value<Stack_Content>().num_Repetition)
+				item->setText(default_Column, "Multilayer, N=" + QString::number(item->data(default_Column, Qt::UserRole).value<Stack_Content>().num_Repetition)
 							  + ", d=" + QString::number(item->data(default_Column, Qt::UserRole).value<Stack_Content>().period,'f',precision) + Angstrom_Sym);
 
 				if(item->childCount()==2)
@@ -914,10 +919,33 @@ void Multilayer::set_Structure_Item_Text(QTreeWidgetItem* item)
 	}
 }
 
+void Multilayer::editor_Close()
+{
+	for(int i=0; i<list_Editors.size(); ++i)
+	{
+		if(list_Editors[i]==sender())
+			list_Editors.removeAt(i);
+	}
+	if(list_Editors.isEmpty())
+	{
+		struct_Toolbar->setDisabled(false);
+	}
+	multiple_Refresh_Over_Struct();
+}
+
+void Multilayer::multiple_Refresh_Over_Struct()
+{
+	refresh_Over_Struct();
+	QMetaObject::invokeMethod(this, "refreshOverStruct", Qt::QueuedConnection);
+	refresh_Over_Struct();
+	QMetaObject::invokeMethod(this, "refreshOverStruct", Qt::QueuedConnection);
+}
+
 void Multilayer::refresh_Over_Struct()
 {
 	different_Layers_Counter=0;
 	iterate_Over_Struct();
+	iterate_Over_Multilayers();
 }
 
 void Multilayer::iterate_Over_Struct(QTreeWidgetItem* item)
@@ -927,19 +955,19 @@ void Multilayer::iterate_Over_Struct(QTreeWidgetItem* item)
 	{
 		for(int i=0; i<struct_Tree->topLevelItemCount(); i++)
 		{
-			refresh_If_Layer_Or_Multilayer(struct_Tree->topLevelItem(i));
+			refresh_If_Layer(struct_Tree->topLevelItem(i));
 		}
 	}else
 	// over child multilayer
 	{
 		for(int i=0; i<item->childCount(); i++)
 		{
-			refresh_If_Layer_Or_Multilayer(item->child(i));
+			refresh_If_Layer(item->child(i));
 		}
 	}
 }
 
-void Multilayer::refresh_If_Layer_Or_Multilayer(QTreeWidgetItem* this_Item)
+void Multilayer::refresh_If_Layer(QTreeWidgetItem* this_Item)
 {
 	// if not multilayer
 	if(this_Item->childCount()==0)
@@ -966,11 +994,121 @@ void Multilayer::refresh_If_Layer_Or_Multilayer(QTreeWidgetItem* this_Item)
 	} else
 	// if multilayer
 	{
-		// TODO refresh stack content in multilayer
-		this_Item->setWhatsThis(default_Column, "Multilayer");
-
 		iterate_Over_Struct(this_Item);
 	}
+}
+
+void Multilayer::iterate_Over_Multilayers(QTreeWidgetItem* item)
+{
+	// over main tree
+	if(item==NULL)
+	{
+		for(int i=0; i<struct_Tree->topLevelItemCount(); i++)
+		{
+			refresh_If_Multilayer(struct_Tree->topLevelItem(i));
+		}
+	}else
+	// over child multilayer
+	{
+		for(int i=0; i<item->childCount(); i++)
+		{
+			refresh_If_Multilayer(item->child(i));
+		}
+	}
+}
+
+void Multilayer::refresh_If_Multilayer(QTreeWidgetItem* this_Item)
+{
+	// if multilayer
+	if(this_Item->childCount()>0)
+	{
+		// first and last layers
+		int first =-1, last = -2;
+		find_First_Layer(this_Item, first);
+		find_Last_Layer(this_Item, last);
+
+		set_Structure_Item_Text(this_Item);
+		QStringList list = this_Item->text(default_Column).split("Multilayer");
+		this_Item->setText(default_Column, list[0] + "Multilayer: (" + QString::number(first) + " - " + QString::number(last) + ")" + list[1]);
+		this_Item->setWhatsThis(default_Column, "Multilayer: (" + QString::number(first) + " - " + QString::number(last) + ")");
+
+		// period
+		find_Period(this_Item);
+
+		iterate_Over_Multilayers(this_Item);
+	}
+
+}
+
+void Multilayer::find_First_Layer(QTreeWidgetItem* this_Item, int& first)
+{
+	first=-2016;
+	// if first is pure layer
+	if(this_Item->child(0)->childCount()==0)
+	{
+		first = this_Item->child(0)->data(default_Column, Qt::UserRole).value<Layer>().layer_Index;
+	} else
+	// go deeper
+	{
+		find_First_Layer(this_Item->child(0), first);
+	}
+}
+
+void Multilayer::find_Last_Layer(QTreeWidgetItem* this_Item, int& last)
+{
+	last=-1025;
+	// if last is pure layer
+	if(this_Item->child(this_Item->childCount()-1)->childCount()==0)
+	{
+		last = this_Item->child(this_Item->childCount()-1)->data(default_Column, Qt::UserRole).value<Layer>().layer_Index;
+	} else
+	// go deeper
+	{
+		find_Last_Layer(this_Item->child(this_Item->childCount()-1), last);
+	}
+}
+
+void Multilayer::find_Period(QTreeWidgetItem* this_Item)
+{
+	double period=0;
+	// iterate over childs
+	for(int i=0; i<this_Item->childCount(); i++)
+	{
+		// if layer
+		if(this_Item->child(i)->childCount()==0) {period += this_Item->child(i)->data(default_Column, Qt::UserRole).value<Layer>().thickness;}
+		else
+		// go deeper
+		{
+			find_Period(this_Item->child(i));
+			period +=   this_Item->child(i)->data(default_Column, Qt::UserRole).value<Stack_Content>().period
+					  * this_Item->child(i)->data(default_Column, Qt::UserRole).value<Stack_Content>().num_Repetition;
+		}
+	}
+
+	// gamma update
+	double gamma=-4;
+	if(this_Item->childCount()==2)
+	{
+		// layer
+		if(this_Item->child(0)->childCount()==0)
+		{
+			gamma =   this_Item->child(0)->data(default_Column, Qt::UserRole).value<Layer>().thickness
+					/ this_Item->data(default_Column, Qt::UserRole).value<Stack_Content>().period;
+		} else
+		// multilayer
+		{
+			gamma =   this_Item->child(0)->data(default_Column, Qt::UserRole).value<Stack_Content>().period
+					* this_Item->child(0)->data(default_Column, Qt::UserRole).value<Stack_Content>().num_Repetition
+					/ this_Item->data(default_Column, Qt::UserRole).value<Stack_Content>().period;
+		}
+	}
+
+	// refresh data
+	Stack_Content stack_Content = this_Item->data(default_Column, Qt::UserRole).value<Stack_Content>();
+	stack_Content.period = period;
+	stack_Content.gamma  = gamma;
+	QVariant var; var.setValue(stack_Content);
+	this_Item->setData(default_Column, Qt::UserRole, var);
 }
 
 // data management
