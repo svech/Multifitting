@@ -921,11 +921,19 @@ void Multilayer::set_Structure_Item_Text(QTreeWidgetItem* item)
 
 void Multilayer::editor_Close()
 {
+	// remove closed editor from list
 	for(int i=0; i<list_Editors.size(); ++i)
 	{
 		if(list_Editors[i]==sender())
 			list_Editors.removeAt(i);
 	}
+	// broadcast to other editors
+	for(int i=0; i<list_Editors.size(); ++i)
+	{
+		// TODO
+//		list_Editors[i]->ite
+	}
+
 	if(list_Editors.isEmpty())
 	{
 		struct_Toolbar->setDisabled(false);

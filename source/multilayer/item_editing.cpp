@@ -19,7 +19,7 @@ void Item_Editing::closeEvent(QCloseEvent* event)
 	norm_Interlayer_Composition();
 	refresh_Data();
 	refresh_Material();
-//	refresh_Stack_Data(); TODO
+	refresh_Stack_Data();
 	emit is_Closed();
 	event;
 }
@@ -853,20 +853,22 @@ void Item_Editing::refresh_Material()
 		Ambient ambient = item->data(default_Column, Qt::UserRole).value<Ambient>();
 		ambient.material = material_Line_Edit->text();
 		var.setValue( ambient );
+		item->setData(default_Column, Qt::UserRole, var);
 	}
 	if(item_Type==Item_Type::Layer)
 	{
 		Layer layer = item->data(default_Column, Qt::UserRole).value<Layer>();
 		layer.material = material_Line_Edit->text();
 		var.setValue( layer );
+		item->setData(default_Column, Qt::UserRole, var);
 	}
 	if(item_Type==Item_Type::Substrate)
 	{
 		Substrate substrate = item->data(default_Column, Qt::UserRole).value<Substrate>();
 		substrate.material = material_Line_Edit->text();
 		var.setValue( substrate );
-	}
-	item->setData(default_Column, Qt::UserRole, var);
+		item->setData(default_Column, Qt::UserRole, var);
+	}	
 }
 
 void Item_Editing::show_Material()
@@ -955,6 +957,9 @@ void Item_Editing::show_Stack_Parameters()
 			repetitions_Line_Edit->setText(QString::number(stack_Content.num_Repetition));
 			period_Line_Edit->setText(QString::number(stack_Content.period,'f',precision));
 			gamma_Line_Edit->setText(QString::number(stack_Content.gamma,'f',precision));
+
+			init_Period = stack_Content.period;
+			init_Gamma = stack_Content.gamma;
 		}
 	}
 }
@@ -1029,6 +1034,7 @@ void Item_Editing::refresh_Data()
 			}
 		}
 		var.setValue( ambient );
+		item->setData(default_Column, Qt::UserRole, var);
 	}
 	if(item_Type==Item_Type::Layer)
 	{
@@ -1059,6 +1065,7 @@ void Item_Editing::refresh_Data()
 		}
 		//TODO other fields
 		var.setValue( layer );
+		item->setData(default_Column, Qt::UserRole, var);
 	}
 	if(item_Type==Item_Type::Substrate)
 	{
@@ -1082,10 +1089,9 @@ void Item_Editing::refresh_Data()
 				substrate.interlayer_Composition[i].interlayer = interlayer_Composition_Line_Edit_Vec[i]->text().toDouble();
 			}
 		}
-
 		var.setValue( substrate );
+		item->setData(default_Column, Qt::UserRole, var);
 	}
-	item->setData(default_Column, Qt::UserRole, var);
 
 	if(item_Type==Item_Type::Ambient)
 	{
@@ -1138,21 +1144,65 @@ void Item_Editing::refresh_Data(QString)
 
 void Item_Editing::refresh_Stack_Data()
 {
-	// TODO force
 	QVariant var;
-	if(item_Type==Item_Type::Stack_Content)
+	if(stack_Done)
 	{
-		Stack_Content stack_Content = item->data(default_Column, Qt::UserRole).value<Stack_Content>();
-		if(stack_Done)
+		if(item_Type==Item_Type::Stack_Content)
 		{
+			Stack_Content stack_Content = item->data(default_Column, Qt::UserRole).value<Stack_Content>();
+
 			stack_Content.num_Repetition = repetitions_Line_Edit->text().toInt();
 			stack_Content.period = period_Line_Edit->text().toDouble();
 			if(item->childCount()==2)
 			{
 				stack_Content.gamma = gamma_Line_Edit->text().toDouble();
 			}
+			var.setValue( stack_Content );
+			item->setData(default_Column, Qt::UserRole, var);
+
+
+			double factor;
+			if(factor!=0) factor = stack_Content.period / init_Period;
+
+			if(item->childCount()==2)
+			{
+
+			}
+
+			//change thicknesses of child layers
+			change_Stack_Thicknesses(item, );
 		}
-		var.setValue( stack_Content );
 	}
-	item->setData(default_Column, Qt::UserRole, var);
+}
+
+void Item_Editing::change_Stack_Thicknesses(QTreeWidgetItem* multilayer_Item, double factor)
+{
+	// stack data
+	QVariant var;
+	Stack_Content stack_Content = multilayer_Item->data(default_Column, Qt::UserRole).value<Stack_Content>();
+	stack_Content.period = init_Period*factor;
+	var.setValue( stack_Content );
+	multilayer_Item->setData(default_Column, Qt::UserRole, var);
+
+	// layer data
+	change_Child_Layers_Thickness(multilayer_Item, factor);
+}
+
+void Item_Editing::change_Child_Layers_Thickness(QTreeWidgetItem* multilayer_Item, double factor)
+{
+	for(int i=0; i<multilayer_Item->childCount(); ++i)
+	{
+		// if layer
+		if(multilayer_Item->child(i)->childCount()==0)
+		{
+			Layer layer = multilayer_Item->child(i)->data(default_Column, Qt::UserRole).value<Layer>();
+			layer.thickness = layer.thickness*factor;
+			var.setValue( layer );
+			item->setData(default_Column, Qt::UserRole, var);
+		} else
+		// if multilayer
+		{
+			change_Stack_Thicknesses(multilayer_Item->child(i), factor);
+		}
+	}
 }

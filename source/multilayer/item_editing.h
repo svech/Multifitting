@@ -65,6 +65,8 @@ private slots:
 	void refresh_Data();
 	void refresh_Data(QString);
 	void refresh_Stack_Data();
+	void change_Stack_Thicknesses(QTreeWidgetItem* multilayer_Item, double factor);
+	void change_Child_Layers_Thickness(QTreeWidgetItem* multilayer_Item, double factor);
 
 // ui objects to be placed in launcher window
 private:
@@ -107,6 +109,10 @@ private:
 			QLineEdit* period_Line_Edit;
 			QLabel* gamma_Label;
 			QLineEdit* gamma_Line_Edit;
+
+		// "initial" stack data
+		double init_Gamma;
+		double init_Period;
 
 
 		QPushButton* done_Button;
