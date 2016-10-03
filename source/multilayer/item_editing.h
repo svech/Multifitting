@@ -5,7 +5,7 @@
 #include "layer_content.h"
 #include "global_definitions.h"
 
-class Item_Editing : public QWidget
+class Item_Editing : public QDialog
 {
 	Q_OBJECT
 	Q_INVOKABLE void adjustSize() { QWidget::adjustSize(); }
@@ -20,6 +20,8 @@ public:
 
 signals:
 	void is_Closed();
+	void is_Edited();
+
 private:
 	void closeEvent(QCloseEvent* event);
 
@@ -47,26 +49,35 @@ private:
 	bool sigma_Done = false;
 	bool stack_Done = false;
 
+public slots:
+	void show_Material();
+	void show_Density();
+	void show_Thickness();
+	void show_Sigma();
+	void show_Stack_Parameters();
+
 private slots:
+	void browse_Material(bool);
 	void filename_Radio_Toggled(bool);
 	void composition_Radio_Toggled(bool);
 	void more_Elements_Clicked(bool);
 	void read_Elements_From_Item();
 	void read_Interlayers_From_Item();
 	void fewer_Elements_Clicked(bool);
-	void refresh_Material();
-	void show_Material();
-	void show_Density();
-	void show_Thickness();
-	void show_Sigma();
-	void show_Stack_Parameters();
 	void norm_Interlayer_Composition();
 	void interlayer_Check(int);
+	void refresh_Material();
+	void fast_Refresh_Material(QString);
 	void refresh_Data();
 	void refresh_Data(QString);
+	void fast_Refresh_Data(QString);
 	void refresh_Stack_Data();
-	void change_Stack_Thicknesses(QTreeWidgetItem* multilayer_Item, double factor);
+	void fast_Refresh_Stack(QString);
+
 	void change_Child_Layers_Thickness(QTreeWidgetItem* multilayer_Item, double factor);
+	void change_Stack_Gamma(Stack_Content stack_Content);
+		void reset_Layer_Thickness(QTreeWidgetItem* layer_Item, double new_Thickness);
+		void reset_Multilayer_Thickness(QTreeWidgetItem* multilayer_Item, double new_Thickness);
 
 // ui objects to be placed in launcher window
 private:
@@ -109,11 +120,6 @@ private:
 			QLineEdit* period_Line_Edit;
 			QLabel* gamma_Label;
 			QLineEdit* gamma_Line_Edit;
-
-		// "initial" stack data
-		double init_Gamma;
-		double init_Period;
-
 
 		QPushButton* done_Button;
 };

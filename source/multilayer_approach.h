@@ -28,6 +28,7 @@ private:
 private slots:
 	void change_Tab_Color(int index);
 	void add_Multilayer();
+	void remove_Multilayer(int index);
 	void rename_Multilayer(int tab_Index);
 
 	void open_Documentation();

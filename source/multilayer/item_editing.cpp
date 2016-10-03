@@ -21,6 +21,7 @@ void Item_Editing::closeEvent(QCloseEvent* event)
 	refresh_Material();
 	refresh_Stack_Data();
 	emit is_Closed();
+	emit is_Edited();
 	event;
 }
 
@@ -55,6 +56,7 @@ void Item_Editing::create_Main_Layout()
 	done_Button = new QPushButton("Done");
 		done_Button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 		main_Layout->addWidget(done_Button,0,Qt::AlignCenter);
+		done_Button->setFocus();
 
 	connect(done_Button, SIGNAL(clicked()), this, SLOT(close()));
 
@@ -103,6 +105,7 @@ void Item_Editing::make_Materials_Group_Box()
 		browse_Material_Button = new QPushButton("Browse...");
 		browse_Material_Button->setFixedWidth(60);
 			layout->addWidget(browse_Material_Button);
+			browse_Material_Button->setFocusPolicy(Qt::NoFocus);
 
 		QLabel* density_Label = new QLabel("Density [g/cm" + Cube_Sym + "]:");
 			layout->addWidget(density_Label);
@@ -115,8 +118,9 @@ void Item_Editing::make_Materials_Group_Box()
 
 		material_Group_Box_Layout->addLayout(layout);
 
-		connect(material_Line_Edit, SIGNAL(editingFinished()), this, SLOT(refresh_Material()));
-		connect(density_Line_Edit, SIGNAL(editingFinished()), this, SLOT(refresh_Data()));
+		connect(material_Line_Edit, SIGNAL(textEdited(QString)), this, SLOT(fast_Refresh_Material(QString)));
+		connect(density_Line_Edit, SIGNAL(textEdited(QString)), this, SLOT(fast_Refresh_Data(QString)));
+		connect(browse_Material_Button, SIGNAL(clicked(bool)), this, SLOT(browse_Material(bool)));
 	}
 	// radio buttons
 	{
@@ -212,12 +216,13 @@ void Item_Editing::make_Thickness_Group_Box()
 		thickness_Group_Box_Layout->addLayout(layout);
 
 		depth_Grading_Button = new QPushButton(" Depth Grading");
-		depth_Grading_Button->adjustSize();
-		depth_Grading_Button->setFixedSize(depth_Grading_Button->size());
+			depth_Grading_Button->adjustSize();
+			depth_Grading_Button->setFixedSize(depth_Grading_Button->size());
+			depth_Grading_Button->setFocusPolicy(Qt::NoFocus);
 
 		thickness_Group_Box_Layout->addWidget(depth_Grading_Button,0,Qt::AlignRight);
 
-		connect(thickness_Line_Edit, SIGNAL(editingFinished()), this, SLOT(refresh_Data()));
+		connect(thickness_Line_Edit, SIGNAL(textEdited(QString)), this, SLOT(fast_Refresh_Data(QString)));
 	}
 	{
 		thickness_Done = true;
@@ -268,6 +273,7 @@ void Item_Editing::make_Multilayer_Group_Box()
 
 		gamma_Line_Edit = new QLineEdit;
 		gamma_Line_Edit->setFixedWidth(50);
+		// TODO gamma check
 		gamma_Line_Edit->setValidator(new QDoubleValidator(0, 1, MAX_PRECISION));
 
 		if(item->childCount()==2)
@@ -283,8 +289,9 @@ void Item_Editing::make_Multilayer_Group_Box()
 		show_Stack_Parameters();
 	}
 
-	// TODO refreshing
-//	connect(thickness_Line_Edit, SIGNAL(editingFinished()), this, SLOT(refresh_Stack_Data()));
+	connect(repetitions_Line_Edit, SIGNAL(textEdited(QString)), this, SLOT(fast_Refresh_Stack(QString)));
+	connect(period_Line_Edit, SIGNAL(textEdited(QString)), this, SLOT(fast_Refresh_Stack(QString)));
+	connect(gamma_Line_Edit, SIGNAL(textEdited(QString)), this, SLOT(fast_Refresh_Stack(QString)));
 }
 
 void Item_Editing::make_Substrate_Editor()
@@ -319,7 +326,7 @@ void Item_Editing::make_Sigma_Group_Box()
 
 		sigma_Group_Box_Layout->addWidget(frame);
 
-		connect(sigma_Line_Edit, SIGNAL(editingFinished()), this, SLOT(refresh_Data()));
+		connect(sigma_Line_Edit, SIGNAL(textEdited(QString)), this, SLOT(fast_Refresh_Data(QString)));
 	}
 	// interlayer functions
 	{
@@ -471,7 +478,7 @@ void Item_Editing::more_Elements_Clicked(bool)
 	QComboBox* elements = new QComboBox;		elements->addItems(sorted_Elements.keys());
 	QLabel*	  at_Weight = new QLabel;
 
-	connect(line_Edit, SIGNAL(editingFinished()), this, SLOT(refresh_Data()));
+	connect(line_Edit, SIGNAL(textEdited(QString)), this, SLOT(fast_Refresh_Data(QString)));
 	connect(elements, SIGNAL(currentTextChanged(QString)), this, SLOT(refresh_Data(QString)));
 
 	// loading settings
@@ -594,7 +601,7 @@ void Item_Editing::read_Elements_From_Item()
 			composition_Combo_Box_Vec[i]=elements;
 			composition_At_Weight_Vec[i]=at_Weight;
 
-			connect(line_Edit, SIGNAL(editingFinished()), this, SLOT(refresh_Data()));
+			connect(line_Edit, SIGNAL(textEdited(QString)), this, SLOT(fast_Refresh_Data(QString)));
 			connect(elements, SIGNAL(currentTextChanged(QString)), this, SLOT(refresh_Data(QString)));
 
 			// placing ui elements
@@ -640,7 +647,7 @@ void Item_Editing::read_Elements_From_Item()
 			composition_Combo_Box_Vec[i]=elements;
 			composition_At_Weight_Vec[i]=at_Weight;
 
-			connect(line_Edit, SIGNAL(editingFinished()), this, SLOT(refresh_Data()));
+			connect(line_Edit, SIGNAL(textEdited(QString)), this, SLOT(fast_Refresh_Data(QString)));
 			connect(elements, SIGNAL(currentTextChanged(QString)), this, SLOT(refresh_Data(QString)));
 
 			// placing ui elements
@@ -686,7 +693,7 @@ void Item_Editing::read_Elements_From_Item()
 			composition_Combo_Box_Vec[i]=elements;
 			composition_At_Weight_Vec[i]=at_Weight;
 
-			connect(line_Edit, SIGNAL(editingFinished()), this, SLOT(refresh_Data()));
+			connect(line_Edit, SIGNAL(textEdited(QString)), this, SLOT(fast_Refresh_Data(QString)));
 			connect(elements, SIGNAL(currentTextChanged(QString)), this, SLOT(refresh_Data(QString)));
 
 			// placing ui elements
@@ -741,7 +748,7 @@ void Item_Editing::read_Interlayers_From_Item()
 			interlayer_Composition_Line_Edit_Vec[i]=line_Edit;
 
 			connect(check_Box, SIGNAL(stateChanged(int)), this, SLOT(interlayer_Check(int)));
-			connect(line_Edit, SIGNAL(editingFinished()), this, SLOT(refresh_Data()));
+			connect(line_Edit, SIGNAL(textEdited(QString)), this, SLOT(fast_Refresh_Data(QString)));
 
 			// placing ui elements
 			QVBoxLayout* vert_Layout = new QVBoxLayout;
@@ -773,7 +780,7 @@ void Item_Editing::read_Interlayers_From_Item()
 			interlayer_Composition_Line_Edit_Vec[i]=line_Edit;
 
 			connect(check_Box, SIGNAL(stateChanged(int)), this, SLOT(interlayer_Check(int)));
-			connect(line_Edit, SIGNAL(editingFinished()), this, SLOT(refresh_Data()));
+			connect(line_Edit, SIGNAL(textEdited(QString)), this, SLOT(fast_Refresh_Data(QString)));
 
 			// placing ui elements
 			QVBoxLayout* vert_Layout = new QVBoxLayout;
@@ -869,6 +876,13 @@ void Item_Editing::refresh_Material()
 		var.setValue( substrate );
 		item->setData(default_Column, Qt::UserRole, var);
 	}	
+
+	emit is_Edited();
+}
+
+void Item_Editing::fast_Refresh_Material(QString)
+{
+	refresh_Material();
 }
 
 void Item_Editing::show_Material()
@@ -915,12 +929,11 @@ void Item_Editing::show_Density()
 
 void Item_Editing::show_Thickness()
 {
-	default_Values.beginGroup( Structure_Values_Representation );
-		int precision = default_Values.value( "default_density_precision", 0 ).toInt();
-	default_Values.endGroup();
-
-	Layer layer = item->data(default_Column, Qt::UserRole).value<Layer>();
-	thickness_Line_Edit->setText(QString::number(layer.thickness,'f',precision));
+	if(item_Type==Item_Type::Layer)
+	{
+		Layer layer = item->data(default_Column, Qt::UserRole).value<Layer>();
+		thickness_Line_Edit->setText(QString::number(layer.thickness));
+	}
 }
 
 void Item_Editing::show_Sigma()
@@ -944,24 +957,22 @@ void Item_Editing::show_Sigma()
 
 void Item_Editing::show_Stack_Parameters()
 {
-	// TODO extreme layers
-	default_Values.beginGroup( Structure_Values_Representation );
-		int precision = default_Values.value( "default_density_precision", 0 ).toInt();
-	default_Values.endGroup();
-
 	if(item_Type==Item_Type::Stack_Content)
 	{
 		if(stack_Done)
 		{
 			Stack_Content stack_Content = item->data(default_Column, Qt::UserRole).value<Stack_Content>();
 			repetitions_Line_Edit->setText(QString::number(stack_Content.num_Repetition));
-			period_Line_Edit->setText(QString::number(stack_Content.period,'f',precision));
-			gamma_Line_Edit->setText(QString::number(stack_Content.gamma,'f',precision));
-
-			init_Period = stack_Content.period;
-			init_Gamma = stack_Content.gamma;
+			period_Line_Edit->setText(QString::number(stack_Content.period));
+			gamma_Line_Edit->setText(QString::number(stack_Content.gamma));
 		}
 	}
+}
+
+void Item_Editing::browse_Material(bool)
+{
+	// TODO
+	qInfo() << "browse...";
 }
 
 void Item_Editing::norm_Interlayer_Composition()
@@ -1135,9 +1146,16 @@ void Item_Editing::refresh_Data()
 			}
 		}
 	}
+
+	emit is_Edited();
 }
 
 void Item_Editing::refresh_Data(QString)
+{
+	refresh_Data();
+}
+
+void Item_Editing::fast_Refresh_Data(QString)
 {
 	refresh_Data();
 }
@@ -1150,46 +1168,73 @@ void Item_Editing::refresh_Stack_Data()
 		if(item_Type==Item_Type::Stack_Content)
 		{
 			Stack_Content stack_Content = item->data(default_Column, Qt::UserRole).value<Stack_Content>();
+			double init_Period = stack_Content.period;
 
-			stack_Content.num_Repetition = repetitions_Line_Edit->text().toInt();
+			stack_Content.num_Repetition = repetitions_Line_Edit->text().toInt();			
 			stack_Content.period = period_Line_Edit->text().toDouble();
 			if(item->childCount()==2)
 			{
-				stack_Content.gamma = gamma_Line_Edit->text().toDouble();
+				double temp_Gamma = gamma_Line_Edit->text().toDouble();
+				if(temp_Gamma>1)
+				{
+					gamma_Line_Edit->setText(QString::number(stack_Content.gamma));
+				} else
+				{
+					stack_Content.gamma = gamma_Line_Edit->text().toDouble();
+				}
 			}
 			var.setValue( stack_Content );
 			item->setData(default_Column, Qt::UserRole, var);
 
+			// children of stack
+			if(init_Period!=0)
+			{
+				if(item->childCount()==2)
+				{
+					change_Stack_Gamma(stack_Content);
+				} else
+				{
+					if(init_Period!=0)
+					{
+						double factor = stack_Content.period / init_Period;
+						change_Child_Layers_Thickness(item, factor);
+						init_Period = stack_Content.period;
+					}
+				}
+			}
+		}
+	}
 
-			double factor;
-			if(factor!=0) factor = stack_Content.period / init_Period;
+	emit is_Edited();
+}
 
+void Item_Editing::fast_Refresh_Stack(QString)
+{
+	Stack_Content sc = item->data(default_Column, Qt::UserRole).value<Stack_Content>();
+	if(period_Line_Edit->text().toDouble()!=0 || sc.period==0)
+	{
+		if(repetitions_Line_Edit->text().toInt()!=0 || sc.num_Repetition==0)
+		{
 			if(item->childCount()==2)
 			{
-
+				if(gamma_Line_Edit->text().toDouble()!=0 || sc.gamma==0)
+				{
+					if(gamma_Line_Edit->text().toDouble()!=1 || sc.gamma==1)
+					{
+						refresh_Stack_Data();
+					}
+				}
+			} else
+			{
+				refresh_Stack_Data();
 			}
-
-			//change thicknesses of child layers
-			change_Stack_Thicknesses(item, );
 		}
 	}
 }
 
-void Item_Editing::change_Stack_Thicknesses(QTreeWidgetItem* multilayer_Item, double factor)
-{
-	// stack data
-	QVariant var;
-	Stack_Content stack_Content = multilayer_Item->data(default_Column, Qt::UserRole).value<Stack_Content>();
-	stack_Content.period = init_Period*factor;
-	var.setValue( stack_Content );
-	multilayer_Item->setData(default_Column, Qt::UserRole, var);
-
-	// layer data
-	change_Child_Layers_Thickness(multilayer_Item, factor);
-}
-
 void Item_Editing::change_Child_Layers_Thickness(QTreeWidgetItem* multilayer_Item, double factor)
 {
+	QVariant var;
 	for(int i=0; i<multilayer_Item->childCount(); ++i)
 	{
 		// if layer
@@ -1198,11 +1243,59 @@ void Item_Editing::change_Child_Layers_Thickness(QTreeWidgetItem* multilayer_Ite
 			Layer layer = multilayer_Item->child(i)->data(default_Column, Qt::UserRole).value<Layer>();
 			layer.thickness = layer.thickness*factor;
 			var.setValue( layer );
-			item->setData(default_Column, Qt::UserRole, var);
+			multilayer_Item->child(i)->setData(default_Column, Qt::UserRole, var);
 		} else
 		// if multilayer
 		{
-			change_Stack_Thicknesses(multilayer_Item->child(i), factor);
+			change_Child_Layers_Thickness(multilayer_Item->child(i), factor);
 		}
+	}
+}
+
+void Item_Editing::change_Stack_Gamma(Stack_Content stack_Content)
+{
+	int i=0;
+	{
+		double new_Thickness = stack_Content.period*stack_Content.gamma;
+		if(item->child(i)->childCount()==0)
+		{
+			reset_Layer_Thickness(item->child(i), new_Thickness);
+		}
+		if(item->child(i)->childCount()>0)
+		{
+			reset_Multilayer_Thickness(item->child(i), new_Thickness);
+		}
+	}
+	i=1;
+	{
+		double new_Thickness = stack_Content.period*(1-stack_Content.gamma);
+		if(item->child(i)->childCount()==0)
+		{
+			reset_Layer_Thickness(item->child(i), new_Thickness);
+		}
+		if(item->child(i)->childCount()>0)
+		{
+			reset_Multilayer_Thickness(item->child(i), new_Thickness);
+		}
+	}
+}
+
+void Item_Editing::reset_Layer_Thickness(QTreeWidgetItem* layer_Item, double new_Thickness)
+{
+	QVariant var;
+	Layer layer = layer_Item->data(default_Column, Qt::UserRole).value<Layer>();
+	layer.thickness = new_Thickness;
+	var.setValue( layer );
+	layer_Item->setData(default_Column, Qt::UserRole, var);
+}
+
+void Item_Editing::reset_Multilayer_Thickness(QTreeWidgetItem* multilayer_Item, double new_Thickness)
+{
+	Stack_Content stack_Content = multilayer_Item->data(default_Column, Qt::UserRole).value<Stack_Content>();
+	double factor=1;
+	if(stack_Content.period!=0 && stack_Content.num_Repetition!=0)
+	{
+		factor = new_Thickness/(  stack_Content.period*stack_Content.num_Repetition  );
+		change_Child_Layers_Thickness(multilayer_Item, factor);
 	}
 }

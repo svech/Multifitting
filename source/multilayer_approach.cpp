@@ -75,20 +75,21 @@ void Multilayer_Approach::create_Multilayer_Tabs()
 {
 	multilayer_Tabs = new QTabWidget;
 	multilayer_Tabs->setMovable(true);
+	multilayer_Tabs->setTabsClosable(true);
 
 	add_Tab_button = new QToolButton;
 	add_Tab_button->setText("+");
 	QFont tmp_Qf; tmp_Qf.setBold(true);
 	add_Tab_button->setFont(tmp_Qf);
 	multilayer_Tabs->setCornerWidget(add_Tab_button);
-	// TODO removing multilayer tabs
+
+	add_Multilayer();
 
 	connect(multilayer_Tabs, SIGNAL(currentChanged(int)),this,SLOT(change_Tab_Color(int)));
+	connect(multilayer_Tabs, SIGNAL(tabCloseRequested(int)),this,SLOT(remove_Multilayer(int)));
 
 	connect(add_Tab_button,  SIGNAL(clicked()),				  this, SLOT(add_Multilayer()));
 	connect(multilayer_Tabs, SIGNAL(tabBarDoubleClicked(int)),this, SLOT(rename_Multilayer(int)));
-
-	add_Multilayer();
 }
 
 // slots
@@ -96,10 +97,17 @@ void Multilayer_Approach::create_Multilayer_Tabs()
 void Multilayer_Approach::change_Tab_Color(int index)
 {
 	multilayer_Tabs->tabBar()->setTabTextColor(index,Qt::black);
-	for(int i = 0;i<multilayer_Tabs->tabBar()->count();i++)
+	for(int i = 0; i<multilayer_Tabs->tabBar()->count(); i++)
 	{
 		if(i != index)
+		{
+			multilayer_Tabs->tabBar()->tabButton(i, QTabBar::RightSide)->hide();
 			multilayer_Tabs->tabBar()->setTabTextColor(i,Qt::gray);
+		} else
+		{
+			if(multilayer_Tabs->tabBar()->tabButton(i, QTabBar::RightSide))
+				multilayer_Tabs->tabBar()->tabButton(i, QTabBar::RightSide)->show();
+		}
 	}
 }
 
@@ -112,11 +120,38 @@ void Multilayer_Approach::add_Multilayer()
 	Multilayer* new_Multilayer = new Multilayer;
 	new_Multilayer->setContentsMargins(-8,-10,-8,-10);
 
+
 	multilayer.append(new_Multilayer);
 	multilayer_Tabs->addTab(new_Multilayer, default_Multilayer_Tab_Name);
+	multilayer_Tabs->widget(multilayer_Tabs->count()-1)->setObjectName(QString::number(multilayer_Tabs->count()));
+
+	if(multilayer_Tabs->count()!=1)
+	{
+		multilayer_Tabs->tabBar()->tabButton(multilayer_Tabs->count()-1, QTabBar::RightSide)->hide();
+	}
 	multilayer_Tabs->setTabText(multilayer_Tabs->count()-1, default_Multilayer_Tab_Name+QString::number(multilayer_Tabs->count()));
+	multilayer_Tabs->widget(multilayer_Tabs->count()-1)->setObjectName(QString::number(multilayer_Tabs->count()-1));
 	if(multilayer_Tabs->count()>1)
 		multilayer_Tabs->tabBar()->setTabTextColor(multilayer_Tabs->count()-1,Qt::gray);
+}
+
+void Multilayer_Approach::remove_Multilayer(int index)
+{
+	QMessageBox::StandardButton reply = QMessageBox::question(this,"Removal", "Multilayer \"" + multilayer_Tabs->tabBar()->tabText(index) + "\" will be removed.\nContinue?", QMessageBox::Yes|QMessageBox::No, QMessageBox::No);
+	if (reply == QMessageBox::Yes)
+	{
+		Multilayer* temp_Multilayer;
+
+		for(int i=0; i<multilayer.size(); i++)
+		{
+			if(multilayer[i] == multilayer_Tabs->widget(index))
+			{
+				temp_Multilayer = multilayer[i];
+			}
+		}
+		delete temp_Multilayer;
+		if(multilayer_Tabs->count()==0) add_Multilayer();
+	}
 }
 
 void Multilayer_Approach::rename_Multilayer(int tab_Index)

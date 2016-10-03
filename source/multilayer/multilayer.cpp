@@ -465,6 +465,7 @@ void Multilayer::edit(bool)
 	{
 		Item_Editing* item_Editing = new Item_Editing(struct_Tree->currentItem());
 		connect(item_Editing, SIGNAL(is_Closed()), this, SLOT(editor_Close()));
+		connect(item_Editing, SIGNAL(is_Edited()), this, SLOT(editors_Refresh()));
 		item_Editing->show();
 
 		list_Editors.append(item_Editing);
@@ -517,8 +518,15 @@ void Multilayer::remove(bool)
 		QMessageBox::StandardButton reply = QMessageBox::question(this,"Removal", "Really reset ambient?", QMessageBox::Yes|QMessageBox::No, QMessageBox::No);
 		if (reply == QMessageBox::Yes)
 		{
-			// TODO reset ambient
-			qInfo() << "reset ambient";
+			QVariant var;
+			QTreeWidgetItem* new_Ambient = new QTreeWidgetItem;
+			Ambient ambient;
+			var.setValue( ambient );
+			new_Ambient->setData(default_Column, Qt::UserRole, var);
+			new_Ambient->setWhatsThis(default_Column,what_is_This_Ambient);
+			struct_Tree->insertTopLevelItem(1,new_Ambient);
+
+			delete struct_Tree->currentItem();
 		}
 	}
 
@@ -927,18 +935,30 @@ void Multilayer::editor_Close()
 		if(list_Editors[i]==sender())
 			list_Editors.removeAt(i);
 	}
-	// broadcast to other editors
-	for(int i=0; i<list_Editors.size(); ++i)
-	{
-		// TODO
-//		list_Editors[i]->ite
-	}
 
 	if(list_Editors.isEmpty())
 	{
 		struct_Toolbar->setDisabled(false);
 	}
 	multiple_Refresh_Over_Struct();
+}
+
+void Multilayer::editors_Refresh()
+{
+	multiple_Refresh_Over_Struct();
+
+	// broadcast to other editors
+	for(int i=0; i<list_Editors.size(); ++i)
+	{
+		if(list_Editors[i]!=sender())
+		{
+			list_Editors[i]->show_Material();
+			list_Editors[i]->show_Density();
+			list_Editors[i]->show_Thickness();
+			list_Editors[i]->show_Sigma();
+			list_Editors[i]->show_Stack_Parameters();
+		}
+	}
 }
 
 void Multilayer::multiple_Refresh_Over_Struct()
@@ -1199,7 +1219,10 @@ void Multilayer::remove_Measured_Data()
 
 	// window resizing
 	if(!data_Measured_Data_Frame_Vector.isEmpty())
+	{
 		QWidget::window()->resize(QWidget::window()->width(),QWidget::window()->height() - multilayer_Height_Additive);
+		adjustSize();
+	}
 
 	if(data_Measured_Data_Frame_Vector.isEmpty())
 		add_Measured_Data();
@@ -1294,7 +1317,10 @@ void Multilayer::remove_Target_Profile()
 
 	// window resizing
 	if(!data_Target_Profile_Frame_Vector.isEmpty())
+	{
 		QWidget::window()->resize(QWidget::window()->width(),QWidget::window()->height() - multilayer_Height_Additive);
+		adjustSize();
+	}
 
 	if(data_Target_Profile_Frame_Vector.isEmpty())
 		add_Target_Profile();

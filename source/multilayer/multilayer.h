@@ -64,7 +64,10 @@ private slots:
 	void add_Buffered_Layer(QTreeWidgetItem* new_Layer_Passed);
 	void refresh_Toolbar();
 	void set_Structure_Item_Text(QTreeWidgetItem* item);
+
 	void editor_Close();
+	void editors_Refresh();
+
 	void multiple_Refresh_Over_Struct();
 	void refresh_Over_Struct();
 		void iterate_Over_Struct(QTreeWidgetItem* item = NULL);

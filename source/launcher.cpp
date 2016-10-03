@@ -5,7 +5,7 @@ Launcher::Launcher():
 	default_Values(Default_Values_Path, QSettings::IniFormat)
 {	
 //	reset_Gui_Settings();
-	reset_Default_Values();
+//	reset_Default_Values();
 
 	gui_Settings.beginGroup( Application_Style );
 		QString application_Style = gui_Settings.value( "application_Style", 0 ).toString();
@@ -92,7 +92,7 @@ void Launcher::set_Window_Geometry()
 void Launcher::reset_Gui_Settings()
 {
 	QMessageBox::warning(this,"Warning","Reset Gui Settings");
-	qInfo() << "Reset Gui Settings";
+//	qInfo() << "Reset Gui Settings";
 
 	// application style
 	gui_Settings.beginGroup( Application_Style );
@@ -130,8 +130,8 @@ void Launcher::reset_Gui_Settings()
 
 void Launcher::reset_Default_Values()
 {
-//	QMessageBox::warning(this,"Warning","Reset Default Values");
-	qInfo() << "Reset Default Values";
+	QMessageBox::warning(this,"Warning","Reset Default Values");
+//	qInfo() << "Reset Default Values";
 
 	// Structure Init Values
 	default_Values.beginGroup( Structure_Init_Values );
