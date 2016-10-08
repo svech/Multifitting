@@ -21,11 +21,15 @@ SOURCES += main.cpp\
     multilayer/multilayer.cpp \
     global_definitions.cpp \
     multilayer/layer_content.cpp \
-    multilayer/item_editing.cpp
+    multilayer/item_editing.cpp \
+    multilayer/variable_selection.cpp \
+    multilayer/independent_variables.cpp
 
 HEADERS  += launcher.h \
     multilayer_approach.h \
     multilayer/multilayer.h \
     global_definitions.h \
     multilayer/layer_content.h \
-    multilayer/item_editing.h
+    multilayer/item_editing.h \
+    multilayer/variable_selection.h \
+    multilayer/independent_variables.h

@@ -14,7 +14,6 @@ public:
 	Multilayer_Approach();
 
 	QSettings gui_Settings;
-
 	QVector<Multilayer*> multilayer;
 
 private:
@@ -41,8 +40,7 @@ private:
 			QMenu* file_Menu;
 			QMenu* help_Menu;
 		QTabWidget*	multilayer_Tabs;
-		QToolButton* add_Tab_button;
-
+		QToolButton* add_Tab_Corner_Button;
 };
 
 #endif // MULTILAYER_APPROACH_H

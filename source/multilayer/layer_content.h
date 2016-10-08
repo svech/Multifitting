@@ -8,11 +8,17 @@ class Ambient
 public:
 	Ambient();
 
+	bool composed_Material;
+
 	QString material;
-	double density;
+	Parameter density;
 
-	bool composed;
+	// tabular material
+	Tril separate_Optical_Constants = Tril::NotDefined;
+	Parameter permittivity;
+	Parameter absorption;
 
+	// composite material
 	QList<Stoichiometry> composition;
 };
 
@@ -21,8 +27,8 @@ class Substrate : public Ambient
 public:
 	Substrate();
 
-	double sigma;
 	bool use_PSD = false;
+	Parameter sigma;
 	QVector<Interlayer_Enabled> interlayer_Composition;
 };
 
@@ -32,7 +38,7 @@ public:
 	Extreme_Layer();
 
 	int layer_Index;
-	double thickness;
+	Parameter thickness;
 };
 
 class Layer : public Extreme_Layer
@@ -41,7 +47,7 @@ public:
 	Layer();
 
 	QString drift_Model;
-	QList<double> drift_Coefficients;
+	QList<Parameter> drift_Coefficients;
 
 	bool if_First = false;
 		Extreme_Layer First;
@@ -56,8 +62,10 @@ public:
 	Stack_Content();
 
 	int num_Repetition;
-	double period;
-	double gamma;
+
+	// stack parameters
+	Parameter period;
+	Parameter gamma;
 };
 
 Q_DECLARE_METATYPE( Ambient )

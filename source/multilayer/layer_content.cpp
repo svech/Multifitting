@@ -7,8 +7,8 @@ Ambient::Ambient()
 	default_Values.beginGroup( Structure_Init_Values );
 		default_Values.beginGroup( Ambient_Values );
 			material = default_Values.value( "ambient_default_material", 0 ).toString();
-			density	 = default_Values.value( "ambient_default_density", 0 ).toDouble();
-			composed = default_Values.value( "ambient_default_composed", 0 ).toBool();
+			density.value = default_Values.value( "ambient_default_density", 0 ).toDouble();
+			composed_Material = default_Values.value( "ambient_default_composed", 0 ).toBool();
 		default_Values.endGroup();
 	default_Values.endGroup();
 }
@@ -19,9 +19,9 @@ Substrate::Substrate()
 	default_Values.beginGroup( Structure_Init_Values );
 	default_Values.beginGroup( Substrate_Values );
 		material = default_Values.value( "substrate_default_material", 0 ).toString();
-		density	 = default_Values.value( "substrate_default_density", 0 ).toDouble();
-		composed = default_Values.value( "substrate_default_composed", 0 ).toBool();
-		sigma    = default_Values.value( "substrate_default_sigma", 0 ).toDouble();
+		density.value	 = default_Values.value( "substrate_default_density", 0 ).toDouble();
+		composed_Material = default_Values.value( "substrate_default_composed", 0 ).toBool();
+		sigma.value    = default_Values.value( "substrate_default_sigma", 0 ).toDouble();
 	default_Values.endGroup();
 	default_Values.endGroup();
 
@@ -30,12 +30,12 @@ Substrate::Substrate()
 
 	// erf interlayer
 	interlayer_Composition[0].enabled=true;
-	interlayer_Composition[0].interlayer=1;
+	interlayer_Composition[0].interlayer.value=1;
 	// other interlayers
 	for(int i=1; i<interlayer_Composition.size(); ++i)
 	{
 		interlayer_Composition[i].enabled=false;
-		interlayer_Composition[i].interlayer=1;
+		interlayer_Composition[i].interlayer.value=1;
 	}
 }
 
@@ -45,10 +45,10 @@ Extreme_Layer::Extreme_Layer()
 	default_Values.beginGroup( Structure_Init_Values );
 		default_Values.beginGroup( Layer_Values );
 			material = default_Values.value( "layer_default_material", 0 ).toString();
-			density  = default_Values.value( "layer_default_density", 0 ).toDouble();
-			composed = default_Values.value( "layer_default_composed", 0 ).toBool();
-			sigma    = default_Values.value( "layer_default_sigma", 0 ).toDouble();
-			thickness = default_Values.value( "layer_default_thickness", 0 ).toDouble();
+			density.value  = default_Values.value( "layer_default_density", 0 ).toDouble();
+			composed_Material = default_Values.value( "layer_default_composed", 0 ).toBool();
+			sigma.value    = default_Values.value( "layer_default_sigma", 0 ).toDouble();
+			thickness.value = default_Values.value( "layer_default_thickness", 0 ).toDouble();
 		default_Values.endGroup();
 	default_Values.endGroup();
 
@@ -57,12 +57,12 @@ Extreme_Layer::Extreme_Layer()
 
 	// erf interlayer
 	interlayer_Composition[0].enabled=true;
-	interlayer_Composition[0].interlayer=1;
+	interlayer_Composition[0].interlayer.value=1;
 	// other interlayers
 	for(int i=1; i<interlayer_Composition.size(); ++i)
 	{
 		interlayer_Composition[i].enabled=false;
-		interlayer_Composition[i].interlayer=1;
+		interlayer_Composition[i].interlayer.value=1;
 	}
 }
 
@@ -72,10 +72,10 @@ Layer::Layer()
 	default_Values.beginGroup( Structure_Init_Values );
 		default_Values.beginGroup( Layer_Values );
 			material = default_Values.value( "layer_default_material", 0 ).toString();
-			density  = default_Values.value( "layer_default_density", 0 ).toDouble();
-			composed = default_Values.value( "layer_default_composed", 0 ).toBool();
-			sigma    = default_Values.value( "layer_default_sigma", 0 ).toDouble();
-			thickness = default_Values.value( "layer_default_thickness", 0 ).toDouble();
+			density.value  = default_Values.value( "layer_default_density", 0 ).toDouble();
+			composed_Material = default_Values.value( "layer_default_composed", 0 ).toBool();
+			sigma.value    = default_Values.value( "layer_default_sigma", 0 ).toDouble();
+			thickness.value = default_Values.value( "layer_default_thickness", 0 ).toDouble();
 		default_Values.endGroup();
 	default_Values.endGroup();
 
@@ -84,12 +84,12 @@ Layer::Layer()
 
 	// erf interlayer
 	interlayer_Composition[0].enabled=true;
-	interlayer_Composition[0].interlayer=1;
+	interlayer_Composition[0].interlayer.value=1;
 	// other interlayers
 	for(int i=1; i<interlayer_Composition.size(); ++i)
 	{
 		interlayer_Composition[i].enabled=false;
-		interlayer_Composition[i].interlayer=1;
+		interlayer_Composition[i].interlayer.value=1;
 	}
 }
 
@@ -99,7 +99,7 @@ Stack_Content::Stack_Content()
 	default_Values.beginGroup( Structure_Init_Values );
 	default_Values.beginGroup( Stack_Values );
 		num_Repetition = default_Values.value( "stack_default_number_of_repetition", 0 ).toInt();
-		period		   = default_Values.value( "stack_default_period", 0 ).toDouble();
-		gamma		   = default_Values.value( "stack_default_gamma", 0 ).toDouble();
+		period.value   = default_Values.value( "stack_default_period", 0 ).toDouble();
+		gamma.value	   = default_Values.value( "stack_default_gamma", 0 ).toDouble();
 	default_Values.endGroup();
 }

@@ -5,13 +5,16 @@
 #include "layer_content.h"
 #include "item_editing.h"
 #include "global_definitions.h"
+#include "independent_variables.h"
 
 class Multilayer : public QWidget
 {
 	Q_OBJECT
 	Q_INVOKABLE void refreshOverStruct() { Multilayer::refresh_Over_Struct(); }
+
 public:
 	Multilayer();
+	~Multilayer();
 
 	QSettings gui_Settings;
 	QSettings default_Values;
@@ -29,8 +32,8 @@ private:
 				void create_Dependent_Variables_Tabs();
 					void create_Specular_Functions();
 					void create_Nonspecular_Functions();
-				void create_Independent_Variables_List();
-				void create_Independent_Variables_Toolbar();
+				void create_Independent_Variables_Tabs();
+
 
 				void create_Coupled_Parameters_List();
 				void create_Coupled_Parameters_Toolbar();
@@ -43,6 +46,13 @@ private:
 		void create_Data_Frame();
 
 private slots:
+	// independent variables
+	void add_Independent_Variables_Tab();
+	void change_Tab_Independent_Variables_Tab_Color(int index);
+	void remove_Independent_Variables_Tab(int index);
+	void rename_Independent_Variables_Tab(int tab_Index);
+
+	// structure toolbar
 	void add_Layer		(bool);
 	void add_Multilayer	(bool);
 	void add_Substrate	(bool);
@@ -78,13 +88,13 @@ private slots:
 				void find_Last_Layer(QTreeWidgetItem* this_Item, int& last);
 				void find_Period(QTreeWidgetItem* this_Item);
 
-private slots:
+	// data management
 	void add_Measured_Data();
 	void remove_Measured_Data();
 	void add_Target_Profile();
 	void remove_Target_Profile();
 
-// state variable
+	// state variable
 private:
 	int different_Layers_Counter=0;
 	QTreeWidgetItem* buffered=NULL;
@@ -112,8 +122,9 @@ private:
 								QCheckBox* user_Supplied_Functions_Check;
 								QLineEdit* user_Supplied_Functions;
 						QVBoxLayout* nonspecular_Functions_Layout;
-					QListWidget* independent_Variables_List;
-					QToolBar* independent_Variables_Toolbar;
+					QTabWidget* independent_Variables_Plot_Tabs;
+						QToolButton* independent_Variables_Corner_Button;
+						QVector<Independent_Variables*> independent_Widget_Vec;
 
 					QListWidget* coupled_Parameters_List;
 					QToolBar* coupled_Parameters_Toolbar;

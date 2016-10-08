@@ -7,6 +7,8 @@ Multilayer_Approach::Multilayer_Approach():
 	setWindowTitle("Multilayer Model");
 	create_Main_Layout();
 	set_Window_Geometry();
+
+	setAttribute(Qt::WA_DeleteOnClose);
 }
 
 void Multilayer_Approach::closeEvent(QCloseEvent* event)
@@ -19,15 +21,12 @@ void Multilayer_Approach::closeEvent(QCloseEvent* event)
 void Multilayer_Approach::create_Main_Layout()
 {
 	main_Layout = new QHBoxLayout(this);
+		main_Layout->setContentsMargins(4,3,2,3);
 
 	create_Menu();
 		main_Layout->setMenuBar(menu_Bar);
-
 	create_Multilayer_Tabs();
-		main_Layout->addWidget(multilayer_Tabs);
-
-	main_Layout->setContentsMargins(4,3,2,3);
-	setLayout(main_Layout);
+		main_Layout->addWidget(multilayer_Tabs);	
 }
 
 void Multilayer_Approach::set_Window_Geometry()
@@ -48,48 +47,45 @@ void Multilayer_Approach::set_Window_Geometry()
 
 void Multilayer_Approach::create_Menu()
 {
+	menu_Bar = new QMenuBar(this);
+
 	// File
 	file_Menu = new QMenu("File", this);
-
 		QAction* act_Quit = new QAction("Close all", this);
 			connect(act_Quit, SIGNAL(triggered()), qApp, SLOT(quit()));
 			file_Menu->addAction(act_Quit);
+		menu_Bar->addMenu(file_Menu);
 
 	// Help
 	help_Menu = new QMenu("Help",this);
 		QAction* act_Documentation = new QAction("Multifitting.pdf", this);
 			connect(act_Documentation, SIGNAL(triggered()), this, SLOT(open_Documentation()));
 			help_Menu->addAction(act_Documentation);
-
 		QAction* act_About = new QAction("About Multifitting",this);
 			connect(act_About, SIGNAL(triggered()), this, SLOT(open_About()));
-			help_Menu->addAction(act_About);
-
-	// add menu to menu bar
-	menu_Bar = new QMenuBar(this);
-	menu_Bar->addMenu(file_Menu);
-	menu_Bar->addMenu(help_Menu);
+			help_Menu->addAction(act_About);		
+		menu_Bar->addMenu(help_Menu);
 }
 
 void Multilayer_Approach::create_Multilayer_Tabs()
 {
 	multilayer_Tabs = new QTabWidget;
-	multilayer_Tabs->setMovable(true);
-	multilayer_Tabs->setTabsClosable(true);
+		multilayer_Tabs->setMovable(true);
+		multilayer_Tabs->setTabsClosable(true);
 
-	add_Tab_button = new QToolButton;
-	add_Tab_button->setText("+");
+	add_Tab_Corner_Button = new QToolButton;
+		add_Tab_Corner_Button->setText("+");
 	QFont tmp_Qf; tmp_Qf.setBold(true);
-	add_Tab_button->setFont(tmp_Qf);
-	multilayer_Tabs->setCornerWidget(add_Tab_button);
+		add_Tab_Corner_Button->setFont(tmp_Qf);
+		multilayer_Tabs->setCornerWidget(add_Tab_Corner_Button);
+
+	connect(multilayer_Tabs, SIGNAL(currentChanged(int)),	  this,SLOT(change_Tab_Color(int)));
+	connect(multilayer_Tabs, SIGNAL(tabCloseRequested(int)),  this,SLOT(remove_Multilayer(int)));
+
+	connect(add_Tab_Corner_Button,  SIGNAL(clicked()),		  this, SLOT(add_Multilayer()));
+	connect(multilayer_Tabs, SIGNAL(tabBarDoubleClicked(int)),this, SLOT(rename_Multilayer(int)));
 
 	add_Multilayer();
-
-	connect(multilayer_Tabs, SIGNAL(currentChanged(int)),this,SLOT(change_Tab_Color(int)));
-	connect(multilayer_Tabs, SIGNAL(tabCloseRequested(int)),this,SLOT(remove_Multilayer(int)));
-
-	connect(add_Tab_button,  SIGNAL(clicked()),				  this, SLOT(add_Multilayer()));
-	connect(multilayer_Tabs, SIGNAL(tabBarDoubleClicked(int)),this, SLOT(rename_Multilayer(int)));
 }
 
 // slots
@@ -97,16 +93,15 @@ void Multilayer_Approach::create_Multilayer_Tabs()
 void Multilayer_Approach::change_Tab_Color(int index)
 {
 	multilayer_Tabs->tabBar()->setTabTextColor(index,Qt::black);
+	if(multilayer_Tabs->tabBar()->tabButton(index, QTabBar::RightSide))
+	   multilayer_Tabs->tabBar()->tabButton(index, QTabBar::RightSide)->show();
+
 	for(int i = 0; i<multilayer_Tabs->tabBar()->count(); i++)
 	{
-		if(i != index)
+		if(i!=index)
 		{
 			multilayer_Tabs->tabBar()->tabButton(i, QTabBar::RightSide)->hide();
 			multilayer_Tabs->tabBar()->setTabTextColor(i,Qt::gray);
-		} else
-		{
-			if(multilayer_Tabs->tabBar()->tabButton(i, QTabBar::RightSide))
-				multilayer_Tabs->tabBar()->tabButton(i, QTabBar::RightSide)->show();
 		}
 	}
 }
@@ -118,21 +113,18 @@ void Multilayer_Approach::add_Multilayer()
 	gui_Settings.endGroup();
 
 	Multilayer* new_Multilayer = new Multilayer;
-	new_Multilayer->setContentsMargins(-8,-10,-8,-10);
+		new_Multilayer->setContentsMargins(-8,-10,-8,-10);
 
-
-	multilayer.append(new_Multilayer);
 	multilayer_Tabs->addTab(new_Multilayer, default_Multilayer_Tab_Name);
-	multilayer_Tabs->widget(multilayer_Tabs->count()-1)->setObjectName(QString::number(multilayer_Tabs->count()));
+	multilayer_Tabs->setTabText(multilayer_Tabs->count()-1, default_Multilayer_Tab_Name+QString::number(multilayer_Tabs->count()));
 
-	if(multilayer_Tabs->count()!=1)
+	if(multilayer_Tabs->count()>1)
 	{
+		multilayer_Tabs->tabBar()->setTabTextColor(multilayer_Tabs->count()-1,Qt::gray);
 		multilayer_Tabs->tabBar()->tabButton(multilayer_Tabs->count()-1, QTabBar::RightSide)->hide();
 	}
-	multilayer_Tabs->setTabText(multilayer_Tabs->count()-1, default_Multilayer_Tab_Name+QString::number(multilayer_Tabs->count()));
-	multilayer_Tabs->widget(multilayer_Tabs->count()-1)->setObjectName(QString::number(multilayer_Tabs->count()-1));
-	if(multilayer_Tabs->count()>1)
-		multilayer_Tabs->tabBar()->setTabTextColor(multilayer_Tabs->count()-1,Qt::gray);
+
+	multilayer.append(new_Multilayer);
 }
 
 void Multilayer_Approach::remove_Multilayer(int index)
@@ -147,6 +139,7 @@ void Multilayer_Approach::remove_Multilayer(int index)
 			if(multilayer[i] == multilayer_Tabs->widget(index))
 			{
 				temp_Multilayer = multilayer[i];
+				multilayer.removeAt(i);
 			}
 		}
 		delete temp_Multilayer;

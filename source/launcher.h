@@ -19,6 +19,7 @@ private slots:
 	void on_Button_Multilayer_Clicked();
 	void on_Button_Freeform_Clicked();
 
+	// menu actions
 	void open_Documentation();
 	void open_About();
 
@@ -38,8 +39,8 @@ private:
 		QMenuBar* menu_Bar;
 			QMenu* file_Menu;
 			QMenu* help_Menu;
-		QPushButton* button_Multilayer_Launch;
-		QPushButton* button_Freeform_Launch;
+		QPushButton* multilayer_Launch_Button;
+		QPushButton* freeform_Launch_Button;
 
 };
 

@@ -33,12 +33,12 @@ void Item_Editing::create_Main_Layout()
 	create_Menu();
 		main_Layout->setMenuBar(menu_Bar);
 
-	if(item->whatsThis(default_Column)==what_is_This_Ambient)
+	if(item->whatsThis(default_Column)==whats_This_Ambient)
 	{
 		item_Type = Item_Type::Ambient;
 		make_Ambient_Editor();
 	} else
-	if(item->whatsThis(default_Column)==what_is_This_Substrate)
+	if(item->whatsThis(default_Column)==whats_This_Substrate)
 	{
 		item_Type = Item_Type::Substrate;
 		make_Substrate_Editor();
@@ -57,6 +57,7 @@ void Item_Editing::create_Main_Layout()
 		done_Button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 		main_Layout->addWidget(done_Button,0,Qt::AlignCenter);
 		done_Button->setFocus();
+		done_Button->setDefault(true);
 
 	connect(done_Button, SIGNAL(clicked()), this, SLOT(close()));
 
@@ -167,18 +168,18 @@ void Item_Editing::make_Materials_Group_Box()
 		material_Done = true;
 		if(item_Type==Item_Type::Ambient)
 		{
-			if(!item->data(default_Column, Qt::UserRole).value<Ambient>().composed)	{filename_Radio->setChecked(true);    filename_Radio_Toggled(true);}
-			if( item->data(default_Column, Qt::UserRole).value<Ambient>().composed)	{composition_Radio->setChecked(true); composition_Radio_Toggled(true);}
+			if(!item->data(default_Column, Qt::UserRole).value<Ambient>().composed_Material)	{filename_Radio->setChecked(true);    filename_Radio_Toggled(true);}
+			if( item->data(default_Column, Qt::UserRole).value<Ambient>().composed_Material)	{composition_Radio->setChecked(true); composition_Radio_Toggled(true);}
 		}
 		if(item_Type==Item_Type::Layer)
 		{
-			if(!item->data(default_Column, Qt::UserRole).value<Layer>().composed)	{filename_Radio->setChecked(true);    filename_Radio_Toggled(true);}
-			if( item->data(default_Column, Qt::UserRole).value<Layer>().composed)	{composition_Radio->setChecked(true); composition_Radio_Toggled(true);}
+			if(!item->data(default_Column, Qt::UserRole).value<Layer>().composed_Material)		{filename_Radio->setChecked(true);    filename_Radio_Toggled(true);}
+			if( item->data(default_Column, Qt::UserRole).value<Layer>().composed_Material)		{composition_Radio->setChecked(true); composition_Radio_Toggled(true);}
 		}
 		if(item_Type==Item_Type::Substrate)
 		{
-			if(!item->data(default_Column, Qt::UserRole).value<Substrate>().composed)	{filename_Radio->setChecked(true);    filename_Radio_Toggled(true);}
-			if( item->data(default_Column, Qt::UserRole).value<Substrate>().composed)	{composition_Radio->setChecked(true); composition_Radio_Toggled(true);}
+			if(!item->data(default_Column, Qt::UserRole).value<Substrate>().composed_Material)	{filename_Radio->setChecked(true);    filename_Radio_Toggled(true);}
+			if( item->data(default_Column, Qt::UserRole).value<Substrate>().composed_Material)	{composition_Radio->setChecked(true); composition_Radio_Toggled(true);}
 		}
 	}
 }
@@ -374,17 +375,17 @@ void Item_Editing::filename_Radio_Toggled(bool)
 	if(item_Type==Item_Type::Ambient)
 	{
 		Ambient ambient = item->data(default_Column, Qt::UserRole).value<Ambient>();
-		ambient.composed = false;	var.setValue( ambient );
+		ambient.composed_Material = false;	var.setValue( ambient );
 	}
 	if(item_Type==Item_Type::Layer)
 	{
 		Layer layer = item->data(default_Column, Qt::UserRole).value<Layer>();
-		layer.composed = false;	var.setValue( layer );
+		layer.composed_Material = false;	var.setValue( layer );
 	}
 	if(item_Type==Item_Type::Substrate)
 	{
 		Substrate substrate = item->data(default_Column, Qt::UserRole).value<Substrate>();
-		substrate.composed = false;	var.setValue( substrate );
+		substrate.composed_Material = false;	var.setValue( substrate );
 	}
 	item->setData(default_Column, Qt::UserRole, var);
 
@@ -407,7 +408,7 @@ void Item_Editing::composition_Radio_Toggled(bool)
 	if(item_Type==Item_Type::Ambient)
 	{
 		Ambient ambient = item->data(default_Column, Qt::UserRole).value<Ambient>();
-		ambient.composed = true;	var.setValue( ambient );
+		ambient.composed_Material = true;	var.setValue( ambient );
 
 		// add element row if no data
 		if(ambient.composition.size()==0)
@@ -423,7 +424,7 @@ void Item_Editing::composition_Radio_Toggled(bool)
 	if(item_Type==Item_Type::Layer)
 	{
 		Layer layer = item->data(default_Column, Qt::UserRole).value<Layer>();
-		layer.composed = true;	var.setValue( layer );
+		layer.composed_Material = true;	var.setValue( layer );
 
 		// add element row if no data
 		if(layer.composition.size()==0)
@@ -439,7 +440,7 @@ void Item_Editing::composition_Radio_Toggled(bool)
 	if(item_Type==Item_Type::Substrate)
 	{
 		Substrate substrate = item->data(default_Column, Qt::UserRole).value<Substrate>();
-		substrate.composed = true;	var.setValue( substrate );
+		substrate.composed_Material = true;	var.setValue( substrate );
 
 		// add element row if no data
 		if(substrate.composition.size()==0)
@@ -486,28 +487,28 @@ void Item_Editing::more_Elements_Clicked(bool)
 	if(item_Type==Item_Type::Ambient)
 	{
 		default_Values.beginGroup( Ambient_Values );
-			stoich.composition = default_Values.value( "ambient_default_stoichiometry_composition", 0 ).toDouble();
+			stoich.composition.value = default_Values.value( "ambient_default_stoichiometry_composition", 0 ).toDouble();
 			stoich.type  = default_Values.value( "ambient_default_stoichiometry_element", 0 ).toString();
 		default_Values.endGroup();
 	}
 	if(item_Type==Item_Type::Layer)
 	{
 		default_Values.beginGroup( Layer_Values );
-			stoich.composition = default_Values.value( "layer_default_stoichiometry_composition", 0 ).toDouble();
+			stoich.composition.value = default_Values.value( "layer_default_stoichiometry_composition", 0 ).toDouble();
 			stoich.type  = default_Values.value( "layer_default_stoichiometry_element", 0 ).toString();
 		default_Values.endGroup();
 	}
 	if(item_Type==Item_Type::Substrate)
 	{
 		default_Values.beginGroup( Substrate_Values );
-			stoich.composition = default_Values.value( "substrate_default_stoichiometry_composition", 0 ).toDouble();
+			stoich.composition.value = default_Values.value( "substrate_default_stoichiometry_composition", 0 ).toDouble();
 			stoich.type  = default_Values.value( "substrate_default_stoichiometry_element", 0 ).toString();
 		default_Values.endGroup();
 	}
 	default_Values.endGroup();
 
 	// creating ui elements
-	line_Edit->setText(QString::number(stoich.composition,'f',precision));
+	line_Edit->setText(QString::number(stoich.composition.value,'f',precision));
 	elements->setCurrentIndex(elements->findText(stoich.type));
 	at_Weight->setText("At. Wt.=" + QString::number(sorted_Elements.value(elements->currentText()),'f',at_wt_precision) + ")");
 
@@ -592,7 +593,7 @@ void Item_Editing::read_Elements_From_Item()
 			QComboBox* elements = new QComboBox;		elements->addItems(sorted_Elements.keys());
 			QLabel*	  at_Weight = new QLabel;
 
-			line_Edit->setText(QString::number(ambient.composition[i].composition,'f',precision));
+			line_Edit->setText(QString::number(ambient.composition[i].composition.value,'f',precision));
 			elements->setCurrentIndex(elements->findText(ambient.composition[i].type));
 			at_Weight->setText("At. Wt.=" + QString::number(sorted_Elements.value(elements->currentText()),'f',at_wt_precision) + ")");
 
@@ -638,7 +639,7 @@ void Item_Editing::read_Elements_From_Item()
 			QComboBox* elements = new QComboBox;		elements->addItems(sorted_Elements.keys());
 			QLabel*	  at_Weight = new QLabel;
 
-			line_Edit->setText(QString::number(layer.composition[i].composition,'f',precision));
+			line_Edit->setText(QString::number(layer.composition[i].composition.value,'f',precision));
 			elements->setCurrentIndex(elements->findText(layer.composition[i].type));
 			at_Weight->setText("At. Wt.=" + QString::number(sorted_Elements.value(elements->currentText()),'f',at_wt_precision) + ")");
 
@@ -684,7 +685,7 @@ void Item_Editing::read_Elements_From_Item()
 			QComboBox* elements = new QComboBox;		elements->addItems(sorted_Elements.keys());
 			QLabel*	  at_Weight = new QLabel;
 
-			line_Edit->setText(QString::number(substrate.composition[i].composition,'f',precision));
+			line_Edit->setText(QString::number(substrate.composition[i].composition.value,'f',precision));
 			elements->setCurrentIndex(elements->findText(substrate.composition[i].type));
 			at_Weight->setText("At. Wt.=" + QString::number(sorted_Elements.value(elements->currentText()),'f',at_wt_precision) + ")");
 
@@ -742,7 +743,7 @@ void Item_Editing::read_Interlayers_From_Item()
 			QLineEdit* line_Edit = new QLineEdit;		line_Edit->setFixedWidth(40); line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION));
 
 			check_Box->setChecked(layer.interlayer_Composition[i].enabled);
-			line_Edit->setText(QString::number(layer.interlayer_Composition[i].interlayer,'f',precision));
+			line_Edit->setText(QString::number(layer.interlayer_Composition[i].interlayer.value,'f',precision));
 
 			interlayer_Composition_Check_Box_Vec[i]=check_Box;
 			interlayer_Composition_Line_Edit_Vec[i]=line_Edit;
@@ -774,7 +775,7 @@ void Item_Editing::read_Interlayers_From_Item()
 			QLineEdit* line_Edit = new QLineEdit;		line_Edit->setFixedWidth(40); line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION));
 
 			check_Box->setChecked(substrate.interlayer_Composition[i].enabled);
-			line_Edit->setText(QString::number(substrate.interlayer_Composition[i].interlayer,'f',precision));
+			line_Edit->setText(QString::number(substrate.interlayer_Composition[i].interlayer.value,'f',precision));
 
 			interlayer_Composition_Check_Box_Vec[i]=check_Box;
 			interlayer_Composition_Line_Edit_Vec[i]=line_Edit;
@@ -913,17 +914,17 @@ void Item_Editing::show_Density()
 	if(item_Type==Item_Type::Ambient)
 	{
 		Ambient ambient = item->data(default_Column, Qt::UserRole).value<Ambient>();
-		density_Line_Edit->setText(QString::number(ambient.density,'f',precision));
+		density_Line_Edit->setText(QString::number(ambient.density.value,'f',precision));
 	}
 	if(item_Type==Item_Type::Layer)
 	{
 		Layer layer = item->data(default_Column, Qt::UserRole).value<Layer>();
-		density_Line_Edit->setText(QString::number(layer.density,'f',precision));
+		density_Line_Edit->setText(QString::number(layer.density.value,'f',precision));
 	}
 	if(item_Type==Item_Type::Substrate)
 	{
 		Substrate substrate = item->data(default_Column, Qt::UserRole).value<Substrate>();
-		density_Line_Edit->setText(QString::number(substrate.density,'f',precision));
+		density_Line_Edit->setText(QString::number(substrate.density.value,'f',precision));
 	}
 }
 
@@ -932,7 +933,7 @@ void Item_Editing::show_Thickness()
 	if(item_Type==Item_Type::Layer)
 	{
 		Layer layer = item->data(default_Column, Qt::UserRole).value<Layer>();
-		thickness_Line_Edit->setText(QString::number(layer.thickness));
+		thickness_Line_Edit->setText(QString::number(layer.thickness.value));
 	}
 }
 
@@ -946,12 +947,12 @@ void Item_Editing::show_Sigma()
 	if(item_Type==Item_Type::Layer)
 	{
 		Layer layer = item->data(default_Column, Qt::UserRole).value<Layer>();
-		sigma_Line_Edit->setText(QString::number(layer.sigma,'f',precision));
+		sigma_Line_Edit->setText(QString::number(layer.sigma.value,'f',precision));
 	}
 	if(item_Type==Item_Type::Substrate)
 	{
 		Substrate substrate = item->data(default_Column, Qt::UserRole).value<Substrate>();
-		sigma_Line_Edit->setText(QString::number(substrate.sigma,'f',precision));
+		sigma_Line_Edit->setText(QString::number(substrate.sigma.value,'f',precision));
 	}
 }
 
@@ -963,8 +964,8 @@ void Item_Editing::show_Stack_Parameters()
 		{
 			Stack_Content stack_Content = item->data(default_Column, Qt::UserRole).value<Stack_Content>();
 			repetitions_Line_Edit->setText(QString::number(stack_Content.num_Repetition));
-			period_Line_Edit->setText(QString::number(stack_Content.period));
-			gamma_Line_Edit->setText(QString::number(stack_Content.gamma));
+			period_Line_Edit->setText(QString::number(stack_Content.period.value));
+			gamma_Line_Edit->setText(QString::number(stack_Content.gamma.value));
 		}
 	}
 }
@@ -1036,10 +1037,10 @@ void Item_Editing::refresh_Data()
 		Ambient ambient = item->data(default_Column, Qt::UserRole).value<Ambient>();
 		if(material_Done)
 		{
-			ambient.density = density_Line_Edit->text().toDouble();
+			ambient.density.value = density_Line_Edit->text().toDouble();
 			for(int i=0; i<ambient.composition.size(); ++i)
 			{
-				ambient.composition[i].composition = composition_Line_Edit_Vec[i]->text().toDouble();
+				ambient.composition[i].composition.value = composition_Line_Edit_Vec[i]->text().toDouble();
 				ambient.composition[i].type = composition_Combo_Box_Vec[i]->currentText();
 				composition_At_Weight_Vec[i]->setText("At. Wt.=" + QString::number(sorted_Elements.value(composition_Combo_Box_Vec[i]->currentText()),'f',at_wt_precision) + ")");
 			}
@@ -1053,25 +1054,25 @@ void Item_Editing::refresh_Data()
 
 		if(material_Done)
 		{
-			layer.density = density_Line_Edit->text().toDouble();
+			layer.density.value = density_Line_Edit->text().toDouble();
 			for(int i=0; i<layer.composition.size(); ++i)
 			{
-				layer.composition[i].composition = composition_Line_Edit_Vec[i]->text().toDouble();
+				layer.composition[i].composition.value = composition_Line_Edit_Vec[i]->text().toDouble();
 				layer.composition[i].type = composition_Combo_Box_Vec[i]->currentText();
 				composition_At_Weight_Vec[i]->setText("At. Wt.=" + QString::number(sorted_Elements.value(composition_Combo_Box_Vec[i]->currentText()),'f',at_wt_precision) + ")");
 			}
 		}
 		if(thickness_Done)
 		{
-			layer.thickness = thickness_Line_Edit->text().toDouble();
+			layer.thickness.value = thickness_Line_Edit->text().toDouble();
 		}
 		if(sigma_Done)
 		{
-			layer.sigma = sigma_Line_Edit->text().toDouble();
+			layer.sigma.value = sigma_Line_Edit->text().toDouble();
 			for(int i=0; i<layer.interlayer_Composition.size(); ++i)
 			{
 				layer.interlayer_Composition[i].enabled = interlayer_Composition_Check_Box_Vec[i]->isChecked();
-				layer.interlayer_Composition[i].interlayer = interlayer_Composition_Line_Edit_Vec[i]->text().toDouble();
+				layer.interlayer_Composition[i].interlayer.value = interlayer_Composition_Line_Edit_Vec[i]->text().toDouble();
 			}
 		}
 		//TODO other fields
@@ -1083,21 +1084,21 @@ void Item_Editing::refresh_Data()
 		Substrate substrate = item->data(default_Column, Qt::UserRole).value<Substrate>();
 		if(material_Done)
 		{
-			substrate.density = density_Line_Edit->text().toDouble();
+			substrate.density.value = density_Line_Edit->text().toDouble();
 			for(int i=0; i<substrate.composition.size(); ++i)
 			{
-				substrate.composition[i].composition = composition_Line_Edit_Vec[i]->text().toDouble();
+				substrate.composition[i].composition.value = composition_Line_Edit_Vec[i]->text().toDouble();
 				substrate.composition[i].type = composition_Combo_Box_Vec[i]->currentText();
 				composition_At_Weight_Vec[i]->setText("At. Wt.=" + QString::number(sorted_Elements.value(composition_Combo_Box_Vec[i]->currentText()),'f',at_wt_precision) + ")");
 			}
 		}
 		if(sigma_Done)
 		{
-			substrate.sigma = sigma_Line_Edit->text().toDouble();
+			substrate.sigma.value = sigma_Line_Edit->text().toDouble();
 			for(int i=0; i<substrate.interlayer_Composition.size(); ++i)
 			{
 				substrate.interlayer_Composition[i].enabled = interlayer_Composition_Check_Box_Vec[i]->isChecked();
-				substrate.interlayer_Composition[i].interlayer = interlayer_Composition_Line_Edit_Vec[i]->text().toDouble();
+				substrate.interlayer_Composition[i].interlayer.value = interlayer_Composition_Line_Edit_Vec[i]->text().toDouble();
 			}
 		}
 		var.setValue( substrate );
@@ -1107,7 +1108,7 @@ void Item_Editing::refresh_Data()
 	if(item_Type==Item_Type::Ambient)
 	{
 		Ambient ambient = item->data(default_Column, Qt::UserRole).value<Ambient>();
-		if(ambient.composed && material_Done)
+		if(ambient.composed_Material && material_Done)
 		{
 			material_Line_Edit->clear();
 			for(int i=0; i<ambient.composition.size(); ++i)
@@ -1121,7 +1122,7 @@ void Item_Editing::refresh_Data()
 	if(item_Type==Item_Type::Layer)
 	{
 		Layer layer = item->data(default_Column, Qt::UserRole).value<Layer>();
-		if(layer.composed && material_Done)
+		if(layer.composed_Material && material_Done)
 		{
 			material_Line_Edit->clear();
 			for(int i=0; i<layer.composition.size(); ++i)
@@ -1135,7 +1136,7 @@ void Item_Editing::refresh_Data()
 	if(item_Type==Item_Type::Substrate)
 	{
 		Substrate substrate = item->data(default_Column, Qt::UserRole).value<Substrate>();
-		if(substrate.composed && material_Done)
+		if(substrate.composed_Material && material_Done)
 		{
 			material_Line_Edit->clear();
 			for(int i=0; i<substrate.composition.size(); ++i)
@@ -1168,19 +1169,19 @@ void Item_Editing::refresh_Stack_Data()
 		if(item_Type==Item_Type::Stack_Content)
 		{
 			Stack_Content stack_Content = item->data(default_Column, Qt::UserRole).value<Stack_Content>();
-			double init_Period = stack_Content.period;
+			double init_Period = stack_Content.period.value;
 
 			stack_Content.num_Repetition = repetitions_Line_Edit->text().toInt();			
-			stack_Content.period = period_Line_Edit->text().toDouble();
+			stack_Content.period.value = period_Line_Edit->text().toDouble();
 			if(item->childCount()==2)
 			{
 				double temp_Gamma = gamma_Line_Edit->text().toDouble();
 				if(temp_Gamma>1)
 				{
-					gamma_Line_Edit->setText(QString::number(stack_Content.gamma));
+					gamma_Line_Edit->setText(QString::number(stack_Content.gamma.value));
 				} else
 				{
-					stack_Content.gamma = gamma_Line_Edit->text().toDouble();
+					stack_Content.gamma.value = gamma_Line_Edit->text().toDouble();
 				}
 			}
 			var.setValue( stack_Content );
@@ -1196,9 +1197,9 @@ void Item_Editing::refresh_Stack_Data()
 				{
 					if(init_Period!=0)
 					{
-						double factor = stack_Content.period / init_Period;
+						double factor = stack_Content.period.value / init_Period;
 						change_Child_Layers_Thickness(item, factor);
-						init_Period = stack_Content.period;
+						init_Period = stack_Content.period.value;
 					}
 				}
 			}
@@ -1211,15 +1212,15 @@ void Item_Editing::refresh_Stack_Data()
 void Item_Editing::fast_Refresh_Stack(QString)
 {
 	Stack_Content sc = item->data(default_Column, Qt::UserRole).value<Stack_Content>();
-	if(period_Line_Edit->text().toDouble()!=0 || sc.period==0)
+	if(period_Line_Edit->text().toDouble()!=0 || sc.period.value==0)
 	{
 		if(repetitions_Line_Edit->text().toInt()!=0 || sc.num_Repetition==0)
 		{
 			if(item->childCount()==2)
 			{
-				if(gamma_Line_Edit->text().toDouble()!=0 || sc.gamma==0)
+				if(gamma_Line_Edit->text().toDouble()!=0 || sc.gamma.value==0)
 				{
-					if(gamma_Line_Edit->text().toDouble()!=1 || sc.gamma==1)
+					if(gamma_Line_Edit->text().toDouble()!=1 || sc.gamma.value==1)
 					{
 						refresh_Stack_Data();
 					}
@@ -1241,7 +1242,7 @@ void Item_Editing::change_Child_Layers_Thickness(QTreeWidgetItem* multilayer_Ite
 		if(multilayer_Item->child(i)->childCount()==0)
 		{
 			Layer layer = multilayer_Item->child(i)->data(default_Column, Qt::UserRole).value<Layer>();
-			layer.thickness = layer.thickness*factor;
+			layer.thickness.value = layer.thickness.value*factor;
 			var.setValue( layer );
 			multilayer_Item->child(i)->setData(default_Column, Qt::UserRole, var);
 		} else
@@ -1256,7 +1257,7 @@ void Item_Editing::change_Stack_Gamma(Stack_Content stack_Content)
 {
 	int i=0;
 	{
-		double new_Thickness = stack_Content.period*stack_Content.gamma;
+		double new_Thickness = stack_Content.period.value*stack_Content.gamma.value;
 		if(item->child(i)->childCount()==0)
 		{
 			reset_Layer_Thickness(item->child(i), new_Thickness);
@@ -1268,7 +1269,7 @@ void Item_Editing::change_Stack_Gamma(Stack_Content stack_Content)
 	}
 	i=1;
 	{
-		double new_Thickness = stack_Content.period*(1-stack_Content.gamma);
+		double new_Thickness = stack_Content.period.value*(1-stack_Content.gamma.value);
 		if(item->child(i)->childCount()==0)
 		{
 			reset_Layer_Thickness(item->child(i), new_Thickness);
@@ -1284,7 +1285,7 @@ void Item_Editing::reset_Layer_Thickness(QTreeWidgetItem* layer_Item, double new
 {
 	QVariant var;
 	Layer layer = layer_Item->data(default_Column, Qt::UserRole).value<Layer>();
-	layer.thickness = new_Thickness;
+	layer.thickness.value = new_Thickness;
 	var.setValue( layer );
 	layer_Item->setData(default_Column, Qt::UserRole, var);
 }
@@ -1293,9 +1294,9 @@ void Item_Editing::reset_Multilayer_Thickness(QTreeWidgetItem* multilayer_Item, 
 {
 	Stack_Content stack_Content = multilayer_Item->data(default_Column, Qt::UserRole).value<Stack_Content>();
 	double factor=1;
-	if(stack_Content.period!=0 && stack_Content.num_Repetition!=0)
+	if(stack_Content.period.value!=0 && stack_Content.num_Repetition!=0)
 	{
-		factor = new_Thickness/(  stack_Content.period*stack_Content.num_Repetition  );
+		factor = new_Thickness/(  stack_Content.period.value*stack_Content.num_Repetition  );
 		change_Child_Layers_Thickness(multilayer_Item, factor);
 	}
 }

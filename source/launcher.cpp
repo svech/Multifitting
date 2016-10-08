@@ -20,6 +20,7 @@ Launcher::Launcher():
 
 void Launcher::closeEvent(QCloseEvent* event)
 {
+	// TODO close launcher
 	qApp->quit();
 	event=NULL;
 }
@@ -27,15 +28,11 @@ void Launcher::closeEvent(QCloseEvent* event)
 void Launcher::create_Main_Layout()
 {
 	main_Layout = new QHBoxLayout(this);
-
 	create_Menu();
 		main_Layout->setMenuBar(menu_Bar);
-
 	create_Buttons();
-		main_Layout->addWidget(button_Multilayer_Launch);
-		main_Layout->addWidget(button_Freeform_Launch);
-
-	setLayout(main_Layout);
+		main_Layout->addWidget(multilayer_Launch_Button);
+		main_Layout->addWidget(freeform_Launch_Button);
 }
 
 void Launcher::create_Menu()
@@ -65,15 +62,16 @@ void Launcher::create_Menu()
 
 void Launcher::create_Buttons()
 {
-	button_Multilayer_Launch = new QPushButton("Multilayer", this); button_Multilayer_Launch->setEnabled(true);
-	button_Freeform_Launch	 = new QPushButton("Freeform",   this);	button_Freeform_Launch  ->setEnabled(false);
+	multilayer_Launch_Button = new QPushButton("Multilayer");
+		multilayer_Launch_Button->setEnabled(true);
+		multilayer_Launch_Button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 
-	button_Multilayer_Launch->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-	button_Freeform_Launch  ->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+	freeform_Launch_Button	 = new QPushButton("Freeform");
+		freeform_Launch_Button  ->setEnabled(false); // todo enabled
+		freeform_Launch_Button  ->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 
-	// pushButtons' actions
-	connect(button_Multilayer_Launch, SIGNAL(clicked()), this, SLOT(on_Button_Multilayer_Clicked()));
-	connect(button_Freeform_Launch,   SIGNAL(clicked()), this, SLOT(on_Button_Freeform_Clicked  ()));
+	connect(multilayer_Launch_Button, SIGNAL(clicked()), this, SLOT(on_Button_Multilayer_Clicked()));
+	connect(freeform_Launch_Button,   SIGNAL(clicked()), this, SLOT(on_Button_Freeform_Clicked  ()));
 }
 
 void Launcher::set_Window_Geometry()
@@ -85,7 +83,6 @@ void Launcher::set_Window_Geometry()
 
 	adjustSize();
 	setFixedSize(size());
-
 	setGeometry(launcher_X_Corner, launcher_Y_Corner, 0, 0);
 }
 
@@ -119,6 +116,7 @@ void Launcher::reset_Gui_Settings()
 	// multilayer tab name
 	gui_Settings.beginGroup( Multilayer_Tabs );
 		gui_Settings.setValue( "default_Multilayer_Tab_Name", "Struct_" );
+		gui_Settings.setValue( "default_Independent_Variable_Tab_Name", "Plot_" );
 		gui_Settings.setValue( "default_New_Struct_Name", "New Struct" );
 	gui_Settings.endGroup();
 
@@ -182,12 +180,12 @@ void Launcher::reset_Default_Values()
 void Launcher::on_Button_Multilayer_Clicked()
 {
 	Multilayer_Approach* multilayer_Approach = new Multilayer_Approach;
-	multilayer_Approach->show();
+		multilayer_Approach->show();
 }
 
 void Launcher::on_Button_Freeform_Clicked()
 {
-
+	// TODO freeform
 }
 
 void Launcher::open_Documentation()

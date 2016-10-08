@@ -7,9 +7,18 @@ Multilayer::Multilayer():
 	create_Main_Layout();
 }
 
+Multilayer::~Multilayer()
+{
+	for(int i=0; i<list_Editors.size(); ++i)
+	{
+		delete list_Editors[i];
+	}
+}
+
 void Multilayer::create_Main_Layout()
 {
 	main_Layout = new QVBoxLayout(this);
+		main_Layout->setSpacing(0);
 
 	create_Struct_Frame();
 		main_Layout->addWidget(struct_Frame);
@@ -17,36 +26,34 @@ void Multilayer::create_Main_Layout()
 		main_Layout->addWidget(variables_Frame);
 	create_Data_Frame();
 		main_Layout->addWidget(data_Frame);
-
-	main_Layout->setSpacing(0);
-	setLayout(main_Layout);
 }
 
 void Multilayer::create_Struct_Frame()
-{
+{	
+	struct_Frame_Layout = new QVBoxLayout;
+		struct_Frame_Layout->setSpacing(0);
+
 	struct_Frame = new QFrame;
-	struct_Frame_Layout = new QVBoxLayout(struct_Frame);
+		struct_Frame->setContentsMargins(-7,-3,-7,-10);
+		struct_Frame->setLayout(struct_Frame_Layout);
 
 	create_Struct_Tree();
 		struct_Frame_Layout->addWidget(struct_Tree);
 	create_Struct_Toolbar();
 		struct_Frame_Layout->addWidget(struct_Toolbar);
-
-	struct_Frame_Layout->setSpacing(0);
-	struct_Frame->setContentsMargins(-7,-3,-7,-10);
-	struct_Frame->setLayout(struct_Frame_Layout);
 }
 
 void Multilayer::create_Struct_Tree()
 {
 	struct_Tree = new QTreeWidget;
-	struct_Tree->setColumnCount(1);
-	struct_Tree->header()->close();
-	struct_Tree->expandAll();
+		struct_Tree->setColumnCount(1);
+		struct_Tree->header()->close();
+		struct_Tree->expandAll();
+		struct_Tree->setExpandsOnDoubleClick(false);
 
-	struct_Tree->setExpandsOnDoubleClick(false);
-	connect(struct_Tree, SIGNAL(itemSelectionChanged()), this, SLOT(if_Selected()));
+	connect(struct_Tree, SIGNAL(itemSelectionChanged()),				   this, SLOT(if_Selected()));
 	connect(struct_Tree, SIGNAL(itemDoubleClicked(QTreeWidgetItem*, int)), this, SLOT(if_DoubleClicked(QTreeWidgetItem*, int)));
+
 	add_Layer(true);
 }
 
@@ -113,19 +120,19 @@ void Multilayer::create_Struct_Toolbar()
 void Multilayer::create_Variables_Frame()
 {
 	variables_Frame = new QFrame;
+		variables_Frame->setContentsMargins(-7,-8,-9,-10);
+
 	variables_Frame_Layout = new QVBoxLayout(variables_Frame);
+		variables_Frame_Layout->setSpacing(0);
 
 	create_Variables_Tabs();
 		variables_Frame_Layout->addWidget(variables_Tabs);
-
-	variables_Frame_Layout->setSpacing(0);
-	variables_Frame->setContentsMargins(-7,-8,-9,-10);
-	variables_Frame->setLayout(variables_Frame_Layout);
 }
 
 void Multilayer::create_Variables_Tabs()
 {
 	variables_Tabs = new QTabWidget;
+
 	create_Dependent_Variables_Tabs();
 	{
 		QFrame* frame = new QFrame;
@@ -136,16 +143,14 @@ void Multilayer::create_Variables_Tabs()
 		variables_Tabs->addTab(frame, "Dependent Variables");
 	}
 
-	create_Independent_Variables_List();
-	create_Independent_Variables_Toolbar();
+	create_Independent_Variables_Tabs();
 	{
 		QFrame* frame = new QFrame;
 		QVBoxLayout* layout = new QVBoxLayout;
-		layout->addWidget(independent_Variables_List);
-		layout->addWidget(independent_Variables_Toolbar);
+		layout->addWidget(independent_Variables_Plot_Tabs);
 		layout->setSpacing(0);
 		frame->setLayout(layout);
-		frame->setContentsMargins(0,-5,0,-12);
+		frame->setContentsMargins(0,-5,0,-8);
 		variables_Tabs->addTab(frame, "Independent Variables");
 	}
 
@@ -171,23 +176,26 @@ void Multilayer::create_Variables_Tabs()
 void Multilayer::create_Dependent_Variables_Tabs()
 {
 	dependent_Variables_Tabs = new QTabWidget;
-	specular_Functions_Layout = new QVBoxLayout;
-	nonspecular_Functions_Layout = new QVBoxLayout;
 
+	specular_Functions_Layout = new QVBoxLayout;
+		specular_Functions_Layout->setSpacing(0);
 	create_Specular_Functions();
 		specular_Functions_Layout->addWidget(standard_Functions_Group_Box);
 		specular_Functions_Layout->addWidget(field_Functions_Group_Box);
 		specular_Functions_Layout->addWidget(user_Functions_Group_Box);
-	specular_Functions_Layout->setSpacing(0);
+
 	QFrame* specular_Frame = new QFrame;
-	specular_Frame->setContentsMargins(-5,-5,-5,-9);
+		specular_Frame->setContentsMargins(-5,-5,-5,-9);
 		specular_Frame->setLayout(specular_Functions_Layout);
 	dependent_Variables_Tabs->addTab(specular_Frame, "Specular Optical Functions");
 
 	// TODO non-specular functions
+	nonspecular_Functions_Layout = new QVBoxLayout;
+		nonspecular_Functions_Layout->setSpacing(0);
 	create_Nonspecular_Functions();
 //		nonspecular_Functions_Layout->addWidget(nonspecular_Group_Box);
 	QFrame* nonspecular_Frame = new QFrame;
+//		nonspecular_Frame->setContentsMargins(-5,-5,-5,-9);
 		nonspecular_Frame->setLayout(nonspecular_Functions_Layout);
 	dependent_Variables_Tabs->addTab(nonspecular_Frame, "Scattering Functions");
 }
@@ -195,8 +203,9 @@ void Multilayer::create_Dependent_Variables_Tabs()
 void Multilayer::create_Specular_Functions()
 {
 	standard_Functions_Group_Box = new QGroupBox("Standard Functions");
-	standard_Functions_Group_Box->setContentsMargins(0,8,0,-4);
-		QHBoxLayout* standard_Functions_Layout = new QHBoxLayout(standard_Functions_Group_Box);
+		standard_Functions_Group_Box->setContentsMargins(0,8,0,-4);
+
+	QHBoxLayout* standard_Functions_Layout = new QHBoxLayout(standard_Functions_Group_Box);
 		standard_Functions_Layout->setAlignment(Qt::AlignLeft);
 		reflect_Functions = new QCheckBox("Reflectance");
 			standard_Functions_Layout->addWidget(reflect_Functions);
@@ -206,8 +215,9 @@ void Multilayer::create_Specular_Functions()
 			standard_Functions_Layout->addWidget(absorp_Functions);
 
 	field_Functions_Group_Box = new QGroupBox("Field Functions");
-	field_Functions_Group_Box->setContentsMargins(0,8,0,-4);
-		QHBoxLayout* field_Functions_Layout = new QHBoxLayout(field_Functions_Group_Box);
+		field_Functions_Group_Box->setContentsMargins(0,8,0,-4);
+
+	QHBoxLayout* field_Functions_Layout = new QHBoxLayout(field_Functions_Group_Box);
 		field_Functions_Layout->setAlignment(Qt::AlignLeft);
 		field_Intensity = new QCheckBox("Intensity");
 			field_Functions_Layout->addWidget(field_Intensity);
@@ -215,8 +225,9 @@ void Multilayer::create_Specular_Functions()
 			field_Functions_Layout->addWidget(joule_Absorption);
 
 	user_Functions_Group_Box = new QGroupBox("User-defined Functions");
-	user_Functions_Group_Box->setContentsMargins(0,8,0,-4);
-		QHBoxLayout* user_Functions_Layout = new QHBoxLayout(user_Functions_Group_Box);
+		user_Functions_Group_Box->setContentsMargins(0,8,0,-4);
+
+	QHBoxLayout* user_Functions_Layout = new QHBoxLayout(user_Functions_Group_Box);
 		user_Functions_Layout->setAlignment(Qt::AlignLeft);
 		user_Supplied_Functions_Check = new QCheckBox;
 			user_Functions_Layout->addWidget(user_Supplied_Functions_Check);
@@ -229,36 +240,24 @@ void Multilayer::create_Nonspecular_Functions()
 	// TODO nonspecular functions
 }
 
-void Multilayer::create_Independent_Variables_List()
+void Multilayer::create_Independent_Variables_Tabs()
 {
-	// TODO invisible if empty
-	independent_Variables_List = new QListWidget;
-	independent_Variables_List->setSizeAdjustPolicy(QListWidget::AdjustToContents);
-	QSizePolicy sp_Retain = independent_Variables_List->sizePolicy();
-				sp_Retain.setRetainSizeWhenHidden(true);
-	independent_Variables_List->setSizePolicy(sp_Retain);
+	independent_Variables_Plot_Tabs = new QTabWidget;
+		independent_Variables_Plot_Tabs->setMovable(true);
+		independent_Variables_Plot_Tabs->setTabsClosable(true);
 
-//	independent_Variables_List->hide();
-}
+	independent_Variables_Corner_Button = new QToolButton;
+		independent_Variables_Corner_Button->setText("+");
+	QFont tmp_Qf; tmp_Qf.setBold(true);
+		independent_Variables_Corner_Button->setFont(tmp_Qf);
+		independent_Variables_Plot_Tabs->setCornerWidget(independent_Variables_Corner_Button);
 
-void Multilayer::create_Independent_Variables_Toolbar()
-{
-	gui_Settings.beginGroup( Paths );
-		QString icon_Path = gui_Settings.value( "icon_Path", 0 ).toString();
-	gui_Settings.endGroup();
+	connect(independent_Variables_Corner_Button,  SIGNAL(clicked()),		  this, SLOT(add_Independent_Variables_Tab()));
+	connect(independent_Variables_Plot_Tabs, SIGNAL(currentChanged(int)),	  this, SLOT(change_Tab_Independent_Variables_Tab_Color(int)));
+	connect(independent_Variables_Plot_Tabs, SIGNAL(tabCloseRequested(int)),  this, SLOT(remove_Independent_Variables_Tab(int)));
+	connect(independent_Variables_Plot_Tabs, SIGNAL(tabBarDoubleClicked(int)),this, SLOT(rename_Independent_Variables_Tab(int)));
 
-	QPixmap new_Variable	(icon_Path + "new.bmp");
-	QPixmap edit			(icon_Path + "roi.bmp");
-	QPixmap remove			(icon_Path + "delete.bmp");
-
-	independent_Variables_Toolbar = new QToolBar;
-	independent_Variables_Toolbar->addAction(QIcon(new_Variable),	"Add Independent Variable");// 0
-	independent_Variables_Toolbar->addAction(QIcon(edit),			"Edit");					// 1
-	independent_Variables_Toolbar->addAction(QIcon(remove),			"Remove");					// 2
-
-	independent_Variables_Toolbar->setIconSize(new_Variable.size());
-
-	// TODO connect actions
+	add_Independent_Variables_Tab();
 }
 
 void Multilayer::create_Coupled_Parameters_List()
@@ -339,7 +338,73 @@ void Multilayer::create_Data_Frame()
 	add_Target_Profile();
 }
 
-// slots
+// service lots
+
+void Multilayer::add_Independent_Variables_Tab()
+{
+	gui_Settings.beginGroup( Multilayer_Tabs );
+		QString default_Independent_Variable_Tab_Name = gui_Settings.value( "default_Independent_Variable_Tab_Name", 0 ).toString();
+	gui_Settings.endGroup();
+
+	Independent_Variables* new_Independent = new Independent_Variables(struct_Tree);
+		new_Independent->setContentsMargins(-8,-10,-8,-10);
+
+	independent_Variables_Plot_Tabs->addTab(new_Independent, default_Independent_Variable_Tab_Name);
+	independent_Variables_Plot_Tabs->setTabText(independent_Variables_Plot_Tabs->count()-1, default_Independent_Variable_Tab_Name+QString::number(independent_Variables_Plot_Tabs->count()));
+
+	if(independent_Variables_Plot_Tabs->count()>1)
+	{
+		independent_Variables_Plot_Tabs->tabBar()->setTabTextColor(independent_Variables_Plot_Tabs->count()-1,Qt::gray);
+		independent_Variables_Plot_Tabs->tabBar()->tabButton(independent_Variables_Plot_Tabs->count()-1, QTabBar::RightSide)->hide();
+	}
+
+	independent_Widget_Vec.append(new_Independent);
+}
+
+void Multilayer::change_Tab_Independent_Variables_Tab_Color(int index)
+{
+	independent_Variables_Plot_Tabs->tabBar()->setTabTextColor(index,Qt::black);
+	if(independent_Variables_Plot_Tabs->tabBar()->tabButton(index, QTabBar::RightSide))
+	   independent_Variables_Plot_Tabs->tabBar()->tabButton(index, QTabBar::RightSide)->show();
+
+	for(int i = 0; i<independent_Variables_Plot_Tabs->tabBar()->count(); i++)
+	{
+		if(i!=index)
+		{
+			independent_Variables_Plot_Tabs->tabBar()->tabButton(i, QTabBar::RightSide)->hide();
+			independent_Variables_Plot_Tabs->tabBar()->setTabTextColor(i,Qt::gray);
+		}
+	}
+}
+
+void Multilayer::remove_Independent_Variables_Tab(int index)
+{
+	QMessageBox::StandardButton reply = QMessageBox::question(this,"Removal", "Variables tab \"" + independent_Variables_Plot_Tabs->tabBar()->tabText(index) + "\" will be removed.\nContinue?", QMessageBox::Yes|QMessageBox::No, QMessageBox::No);
+	if (reply == QMessageBox::Yes)
+	{
+		Independent_Variables* temp_Independent;
+
+		for(int i=0; i<independent_Widget_Vec.size(); i++)
+		{
+			if(independent_Widget_Vec[i] == independent_Variables_Plot_Tabs->widget(index))
+			{
+				temp_Independent = independent_Widget_Vec[i];
+				independent_Widget_Vec.removeAt(i);
+			}
+		}
+		delete temp_Independent;
+		if(independent_Variables_Plot_Tabs->count()==0) add_Independent_Variables_Tab();
+	}
+}
+
+void Multilayer::rename_Independent_Variables_Tab(int tab_Index)
+{
+	bool ok;
+
+	QString text = QInputDialog::getText(this, "Rename plot", "New name", QLineEdit::Normal, independent_Variables_Plot_Tabs->tabText(tab_Index), &ok);
+	if (ok && !text.isEmpty())
+		independent_Variables_Plot_Tabs->setTabText(tab_Index, text);
+}
 
 // structure toolbar
 
@@ -401,7 +466,7 @@ void Multilayer::add_Multilayer(bool)
 	if(struct_Tree->selectedItems().isEmpty())
 	{
 		// if there is no substrate
-		if(struct_Tree->topLevelItem(struct_Tree->topLevelItemCount()-1)->whatsThis(default_Column)!=what_is_This_Substrate)
+		if(struct_Tree->topLevelItem(struct_Tree->topLevelItemCount()-1)->whatsThis(default_Column)!=whats_This_Substrate)
 		{
 			struct_Tree->addTopLevelItem(new_Multilayer);
 		} else
@@ -416,7 +481,7 @@ void Multilayer::add_Multilayer(bool)
 			int position = struct_Tree->indexOfTopLevelItem(struct_Tree->currentItem());
 
 			// place multilayers before substrate
-			if(  (struct_Tree->topLevelItem(struct_Tree->topLevelItemCount()-1)->whatsThis(default_Column)!=what_is_This_Substrate)
+			if(  (struct_Tree->topLevelItem(struct_Tree->topLevelItemCount()-1)->whatsThis(default_Column)!=whats_This_Substrate)
 			   ||(position != (struct_Tree->topLevelItemCount()-1)))
 			{
 				struct_Tree->insertTopLevelItem(position+1, new_Multilayer);
@@ -439,10 +504,10 @@ void Multilayer::add_Multilayer(bool)
 void Multilayer::add_Substrate(bool)
 {
 	QTreeWidgetItem* new_Substrate = new QTreeWidgetItem;
-	new_Substrate->setWhatsThis(default_Column, what_is_This_Substrate);
+		new_Substrate->setWhatsThis(default_Column, whats_This_Substrate);
+
 	struct_Tree->addTopLevelItem(new_Substrate);
 	set_Structure_Item_Text(new_Substrate);
-
 	struct_Toolbar->actions()[2]->setDisabled(true);
 
 	refresh_Toolbar();
@@ -464,6 +529,9 @@ void Multilayer::edit(bool)
 	if(!runned_Editors.contains(struct_Tree->currentItem()))
 	{
 		Item_Editing* item_Editing = new Item_Editing(struct_Tree->currentItem());
+			item_Editing->setParent(this);
+			item_Editing->setWindowFlags(Qt::Window);
+
 		connect(item_Editing, SIGNAL(is_Closed()), this, SLOT(editor_Close()));
 		connect(item_Editing, SIGNAL(is_Edited()), this, SLOT(editors_Refresh()));
 		item_Editing->show();
@@ -502,12 +570,12 @@ void Multilayer::remove(bool)
 			}
 		}
 	} else
-	if(struct_Tree->currentItem()->whatsThis(default_Column) != what_is_This_Ambient)
+	if(struct_Tree->currentItem()->whatsThis(default_Column) != whats_This_Ambient)
 	{
 		QMessageBox::StandardButton reply = QMessageBox::question(this,"Removal", "Really remove "+struct_Tree->currentItem()->whatsThis(default_Column)+"?", QMessageBox::Yes|QMessageBox::No, QMessageBox::No);
 		if (reply == QMessageBox::Yes)
 		{
-			if(struct_Tree->currentItem()->whatsThis(default_Column) == what_is_This_Substrate)
+			if(struct_Tree->currentItem()->whatsThis(default_Column) == whats_This_Substrate)
 			{
 				struct_Toolbar->actions()[2]->setDisabled(false);		// add_Substrate
 			}
@@ -523,7 +591,7 @@ void Multilayer::remove(bool)
 			Ambient ambient;
 			var.setValue( ambient );
 			new_Ambient->setData(default_Column, Qt::UserRole, var);
-			new_Ambient->setWhatsThis(default_Column,what_is_This_Ambient);
+			new_Ambient->setWhatsThis(default_Column,whats_This_Ambient);
 			struct_Tree->insertTopLevelItem(1,new_Ambient);
 
 			delete struct_Tree->currentItem();
@@ -567,7 +635,7 @@ void Multilayer::cut(bool)
 		QMessageBox::StandardButton reply = QMessageBox::question(this,"Cut", "Really cut "+struct_Tree->currentItem()->whatsThis(default_Column)+"?", QMessageBox::Yes|QMessageBox::No, QMessageBox::No);
 		if (reply == QMessageBox::Yes)
 		{
-			if(struct_Tree->currentItem()->whatsThis(default_Column) == what_is_This_Substrate)
+			if(struct_Tree->currentItem()->whatsThis(default_Column) == whats_This_Substrate)
 			{
 				struct_Toolbar->actions()[2]->setDisabled(false);
 			}
@@ -710,7 +778,7 @@ void Multilayer::if_Selected()
 		struct_Toolbar->actions()[13]->setDisabled(true);		 // sigma_Plot
 	} else
 	{
-		bool if_Substrate = struct_Tree->currentItem()->whatsThis(default_Column)==what_is_This_Substrate;
+		bool if_Substrate = struct_Tree->currentItem()->whatsThis(default_Column)==whats_This_Substrate;
 
 		struct_Toolbar->actions()[3]->setDisabled(false);		 // edit
 		struct_Toolbar->actions()[4]->setDisabled(false);		 // remove
@@ -762,7 +830,7 @@ void Multilayer::if_Selected()
 				struct_Toolbar->actions()[6]->setDisabled(false);	// copy
 
 				// if next is not substrate
-				if(struct_Tree->topLevelItem(position+1)->whatsThis(default_Column)!=what_is_This_Substrate)
+				if(struct_Tree->topLevelItem(position+1)->whatsThis(default_Column)!=whats_This_Substrate)
 				{
 					struct_Toolbar->actions()[9]->setDisabled(false);	// move_Down
 				}
@@ -814,7 +882,7 @@ void Multilayer::add_Buffered_Layer(QTreeWidgetItem* new_Layer_Passed)
 		Ambient ambient;
 		var.setValue( ambient );
 		new_Layer->setData(default_Column, Qt::UserRole, var);
-		new_Layer->setWhatsThis(default_Column,what_is_This_Ambient);
+		new_Layer->setWhatsThis(default_Column,whats_This_Ambient);
 		struct_Tree->addTopLevelItem(new_Layer);
 	} else
 	{
@@ -826,7 +894,7 @@ void Multilayer::add_Buffered_Layer(QTreeWidgetItem* new_Layer_Passed)
 		if(struct_Tree->selectedItems().isEmpty())
 		{
 			// if there is no substrate
-			if(struct_Tree->topLevelItem(struct_Tree->topLevelItemCount()-1)->whatsThis(default_Column)!=what_is_This_Substrate)
+			if(struct_Tree->topLevelItem(struct_Tree->topLevelItemCount()-1)->whatsThis(default_Column)!=whats_This_Substrate)
 			{
 				struct_Tree->addTopLevelItem(new_Layer);
 			} else
@@ -841,7 +909,7 @@ void Multilayer::add_Buffered_Layer(QTreeWidgetItem* new_Layer_Passed)
 				int position = struct_Tree->indexOfTopLevelItem(struct_Tree->currentItem());
 
 				// place layers before substrate
-				if(  (struct_Tree->topLevelItem(struct_Tree->topLevelItemCount()-1)->whatsThis(default_Column)!=what_is_This_Substrate)
+				if(  (struct_Tree->topLevelItem(struct_Tree->topLevelItemCount()-1)->whatsThis(default_Column)!=whats_This_Substrate)
 				   ||(position != (struct_Tree->topLevelItemCount()-1)))
 				{
 					struct_Tree->insertTopLevelItem(position+1, new_Layer);
@@ -880,24 +948,24 @@ void Multilayer::set_Structure_Item_Text(QTreeWidgetItem* item)
 	default_Values.endGroup();
 
 	// if ambient
-	if(item->whatsThis(default_Column)==what_is_This_Ambient)
+	if(item->whatsThis(default_Column)==whats_This_Ambient)
 	{
 		item->setText(default_Column, "ambient: " + item->data(default_Column, Qt::UserRole).value<Ambient>().material);
 		if(item->data(default_Column, Qt::UserRole).value<Ambient>().material!="Vacuum")
 		{
-			item->setText(default_Column, item->text(default_Column) + ", " + Rho_Sym + "=" +  QString::number(item->data(default_Column, Qt::UserRole).value<Ambient>().density,'f',precision) + "g/cm" + Cube_Sym);
+			item->setText(default_Column, item->text(default_Column) + ", " + Rho_Sym + "=" +  QString::number(item->data(default_Column, Qt::UserRole).value<Ambient>().density.value,'f',precision) + "g/cm" + Cube_Sym);
 		}
 	} else
 	{
 		// if substrate
-		if(item->whatsThis(default_Column)==what_is_This_Substrate)
+		if(item->whatsThis(default_Column)==whats_This_Substrate)
 		{
 			item->setText(default_Column, item->data(default_Column, Qt::UserRole).value<Substrate>().material + " substrate"
-						  + ", " + Rho_Sym + "=" +  QString::number(item->data(default_Column, Qt::UserRole).value<Substrate>().density,'f',precision) + "g/cm" + Cube_Sym);
+						  + ", " + Rho_Sym + "=" +  QString::number(item->data(default_Column, Qt::UserRole).value<Substrate>().density.value,'f',precision) + "g/cm" + Cube_Sym);
 
-			if(item->data(default_Column, Qt::UserRole).value<Substrate>().sigma>0)
+			if(item->data(default_Column, Qt::UserRole).value<Substrate>().sigma.value>0)
 			{
-				item->setText(default_Column, item->text(default_Column) + ", " + Sigma_Sym + "=" +  QString::number(item->data(default_Column, Qt::UserRole).value<Substrate>().sigma,'f',precision) + Angstrom_Sym);
+				item->setText(default_Column, item->text(default_Column) + ", " + Sigma_Sym + "=" +  QString::number(item->data(default_Column, Qt::UserRole).value<Substrate>().sigma.value,'f',precision) + Angstrom_Sym);
 			}
 		} else
 		{
@@ -905,22 +973,22 @@ void Multilayer::set_Structure_Item_Text(QTreeWidgetItem* item)
 			if(item->childCount()>0)
 			{
 				item->setText(default_Column, "Multilayer, N=" + QString::number(item->data(default_Column, Qt::UserRole).value<Stack_Content>().num_Repetition)
-							  + ", d=" + QString::number(item->data(default_Column, Qt::UserRole).value<Stack_Content>().period,'f',precision) + Angstrom_Sym);
+							  + ", d=" + QString::number(item->data(default_Column, Qt::UserRole).value<Stack_Content>().period.value,'f',precision) + Angstrom_Sym);
 
 				if(item->childCount()==2)
 				{
-					item->setText(default_Column, item->text(default_Column) + ", " + Gamma_Sym + "=" + QString::number(item->data(default_Column, Qt::UserRole).value<Stack_Content>().gamma,'f',precision));
+					item->setText(default_Column, item->text(default_Column) + ", " + Gamma_Sym + "=" + QString::number(item->data(default_Column, Qt::UserRole).value<Stack_Content>().gamma.value,'f',precision));
 				}
 			} else
 			// if layer
 			{
 				item->setText(default_Column, item->data(default_Column, Qt::UserRole).value<Layer>().material + " layer"
-							  + ", z=" +  QString::number(item->data(default_Column, Qt::UserRole).value<Layer>().thickness,'f',precision) + Angstrom_Sym
-							  + ", " + Rho_Sym + "=" +  QString::number(item->data(default_Column, Qt::UserRole).value<Layer>().density,'f',precision) + "g/cm" + Cube_Sym);
+							  + ", z=" +  QString::number(item->data(default_Column, Qt::UserRole).value<Layer>().thickness.value,'f',precision) + Angstrom_Sym
+							  + ", " + Rho_Sym + "=" +  QString::number(item->data(default_Column, Qt::UserRole).value<Layer>().density.value,'f',precision) + "g/cm" + Cube_Sym);
 
-				if(item->data(default_Column, Qt::UserRole).value<Layer>().sigma>0)
+				if(item->data(default_Column, Qt::UserRole).value<Layer>().sigma.value>0)
 				{
-					item->setText(default_Column, item->text(default_Column) + ", " + Sigma_Sym + "=" +  QString::number(item->data(default_Column, Qt::UserRole).value<Layer>().sigma,'f',precision) + Angstrom_Sym);
+					item->setText(default_Column, item->text(default_Column) + ", " + Sigma_Sym + "=" +  QString::number(item->data(default_Column, Qt::UserRole).value<Layer>().sigma.value,'f',precision) + Angstrom_Sym);
 				}
 			}
 		}
@@ -1001,7 +1069,7 @@ void Multilayer::refresh_If_Layer(QTreeWidgetItem* this_Item)
 	if(this_Item->childCount()==0)
 	{
 		// just refresh name if ambient or substrate
-		if((this_Item->whatsThis(default_Column)==what_is_This_Ambient)||(this_Item->whatsThis(default_Column)==what_is_This_Substrate))
+		if((this_Item->whatsThis(default_Column)==whats_This_Ambient)||(this_Item->whatsThis(default_Column)==whats_This_Substrate))
 		{
 			set_Structure_Item_Text(this_Item);
 		} else
@@ -1011,7 +1079,7 @@ void Multilayer::refresh_If_Layer(QTreeWidgetItem* this_Item)
 			set_Structure_Item_Text(this_Item);
 			QStringList list = this_Item->text(default_Column).split("layer");
 			this_Item->setText(default_Column, list[0] + "layer (" + QString::number(different_Layers_Counter) + ")" + list[1]);
-			this_Item->setWhatsThis(default_Column, "Layer (" + QString::number(different_Layers_Counter) + ")");
+			this_Item->setWhatsThis(default_Column, whats_This_Layer + " (" + QString::number(different_Layers_Counter) + ")");
 
 			// TODO works?
 			Layer layer = this_Item->data(default_Column, Qt::UserRole).value<Layer>();
@@ -1058,7 +1126,7 @@ void Multilayer::refresh_If_Multilayer(QTreeWidgetItem* this_Item)
 		set_Structure_Item_Text(this_Item);
 		QStringList list = this_Item->text(default_Column).split("Multilayer");
 		this_Item->setText(default_Column, list[0] + "Multilayer: (" + QString::number(first) + " - " + QString::number(last) + ")" + list[1]);
-		this_Item->setWhatsThis(default_Column, "Multilayer: (" + QString::number(first) + " - " + QString::number(last) + ")");
+		this_Item->setWhatsThis(default_Column, whats_This_Multilayer + ": (" + QString::number(first) + " - " + QString::number(last) + ")");
 
 		// period
 		find_Period(this_Item);
@@ -1103,12 +1171,12 @@ void Multilayer::find_Period(QTreeWidgetItem* this_Item)
 	for(int i=0; i<this_Item->childCount(); i++)
 	{
 		// if layer
-		if(this_Item->child(i)->childCount()==0) {period += this_Item->child(i)->data(default_Column, Qt::UserRole).value<Layer>().thickness;}
+		if(this_Item->child(i)->childCount()==0) {period += this_Item->child(i)->data(default_Column, Qt::UserRole).value<Layer>().thickness.value;}
 		else
 		// go deeper
 		{
 			find_Period(this_Item->child(i));
-			period +=   this_Item->child(i)->data(default_Column, Qt::UserRole).value<Stack_Content>().period
+			period +=   this_Item->child(i)->data(default_Column, Qt::UserRole).value<Stack_Content>().period.value
 					  * this_Item->child(i)->data(default_Column, Qt::UserRole).value<Stack_Content>().num_Repetition;
 		}
 	}
@@ -1120,21 +1188,21 @@ void Multilayer::find_Period(QTreeWidgetItem* this_Item)
 		// layer
 		if(this_Item->child(0)->childCount()==0)
 		{
-			gamma =   this_Item->child(0)->data(default_Column, Qt::UserRole).value<Layer>().thickness
-					/ this_Item->data(default_Column, Qt::UserRole).value<Stack_Content>().period;
+			gamma =   this_Item->child(0)->data(default_Column, Qt::UserRole).value<Layer>().thickness.value
+					/ this_Item->data(default_Column, Qt::UserRole).value<Stack_Content>().period.value;
 		} else
 		// multilayer
 		{
-			gamma =   this_Item->child(0)->data(default_Column, Qt::UserRole).value<Stack_Content>().period
+			gamma =   this_Item->child(0)->data(default_Column, Qt::UserRole).value<Stack_Content>().period.value
 					* this_Item->child(0)->data(default_Column, Qt::UserRole).value<Stack_Content>().num_Repetition
-					/ this_Item->data(default_Column, Qt::UserRole).value<Stack_Content>().period;
+					/ this_Item->data(default_Column, Qt::UserRole).value<Stack_Content>().period.value;
 		}
 	}
 
 	// refresh data
 	Stack_Content stack_Content = this_Item->data(default_Column, Qt::UserRole).value<Stack_Content>();
-	stack_Content.period = period;
-	stack_Content.gamma  = gamma;
+	stack_Content.period.value = period;
+	stack_Content.gamma.value  = gamma;
 	QVariant var; var.setValue(stack_Content);
 	this_Item->setData(default_Column, Qt::UserRole, var);
 }
