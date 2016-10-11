@@ -4,8 +4,8 @@ Launcher::Launcher():
 	gui_Settings(Gui_Settings_Path, QSettings::IniFormat),
 	default_Values(Default_Values_Path, QSettings::IniFormat)
 {	
-//	reset_Gui_Settings();
-//	reset_Default_Values();
+	reset_Gui_Settings();
+	reset_Default_Values();
 
 	gui_Settings.beginGroup( Application_Style );
 		QString application_Style = gui_Settings.value( "application_Style", 0 ).toString();
@@ -88,8 +88,8 @@ void Launcher::set_Window_Geometry()
 
 void Launcher::reset_Gui_Settings()
 {
-	QMessageBox::warning(this,"Warning","Reset Gui Settings");
-//	qInfo() << "Reset Gui Settings";
+//	QMessageBox::warning(this,"Warning","Reset Gui Settings");
+	qInfo() << "Reset Gui Settings";
 
 	// application style
 	gui_Settings.beginGroup( Application_Style );
@@ -128,13 +128,13 @@ void Launcher::reset_Gui_Settings()
 
 void Launcher::reset_Default_Values()
 {
-	QMessageBox::warning(this,"Warning","Reset Default Values");
-//	qInfo() << "Reset Default Values";
+//	QMessageBox::warning(this,"Warning","Reset Default Values");
+	qInfo() << "Reset Default Values";
 
 	// Structure Init Values
 	default_Values.beginGroup( Structure_Init_Values );
 		default_Values.beginGroup( Ambient_Values );
-			default_Values.setValue( "ambient_default_material", "Vacuum" );
+			default_Values.setValue( "ambient_default_material", "Mo" );
 			default_Values.setValue( "ambient_default_density", 0 );
 			default_Values.setValue( "ambient_default_composed", false );
 			default_Values.setValue( "ambient_default_stoichiometry_composition", 1 );
@@ -172,6 +172,27 @@ void Launcher::reset_Default_Values()
 		default_Values.setValue( "default_density_precision", 3 );
 		default_Values.setValue( "default_interlayer_precision", 3 );
 		default_Values.setValue( "default_atomic_weight_precision", 4 );
+	default_Values.endGroup();
+
+	// parameters init values
+	default_Values.beginGroup( Parameters_Init_Values );
+		default_Values.beginGroup( Independent_Values );
+			default_Values.beginGroup( Angle_Values );
+				default_Values.setValue( "default_num_points", 1 );
+				default_Values.setValue( "default_min_angle", 0 );
+				default_Values.setValue( "default_max_angle", 7 );
+				default_Values.setValue( "default_type", int(Angle_Type::Incidence) );
+				default_Values.setValue( "default_angular_resolution", 0 );
+			default_Values.endGroup();
+			default_Values.beginGroup( Radiation_Values );
+				default_Values.setValue( "default_num_points", 1 );
+				default_Values.setValue( "default_min_wavelength", 1.54056 );
+				default_Values.setValue( "default_max_wavelength", 180 );
+				default_Values.setValue( "default_spectral_resolution", 0 );
+				default_Values.setValue( "default_polarization", 0 );
+				default_Values.setValue( "default_polarization_sensitivity", 0 );
+			default_Values.endGroup();
+		default_Values.endGroup();
 	default_Values.endGroup();
 }
 

@@ -3,6 +3,28 @@
 
 #include "global_definitions.h"
 
+class Probe_Angle
+{
+public:
+	Probe_Angle();
+
+	Independent angle;
+
+	double angular_Resolution;
+	Angle_Type type;
+};
+
+class Radiation
+{
+public:
+	Radiation();
+
+	Independent radiation;
+	double spectral_Resolution;
+	double polarization;
+	double polarization_Sensitivity;
+};
+
 class Ambient
 {
 public:
@@ -61,13 +83,15 @@ class Stack_Content
 public:
 	Stack_Content();
 
-	int num_Repetition;
+	Int_Independent num_Repetition;
 
 	// stack parameters
 	Parameter period;
 	Parameter gamma;
 };
 
+Q_DECLARE_METATYPE( Probe_Angle )
+Q_DECLARE_METATYPE( Radiation )
 Q_DECLARE_METATYPE( Ambient )
 Q_DECLARE_METATYPE( Substrate )
 Q_DECLARE_METATYPE( Layer )

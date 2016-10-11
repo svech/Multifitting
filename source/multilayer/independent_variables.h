@@ -10,13 +10,16 @@ class Independent_Variables: public QWidget
 	Q_OBJECT
 
 public:
-	Independent_Variables(QTreeWidget* struct_Tree);
+	Independent_Variables(QTreeWidget* struct_Tree_Copy);
 
 	QSettings gui_Settings;
 	QSettings default_Values;
 
-	QTreeWidget* struct_Tree;
+	QTreeWidget* struct_Tree_Copy;
 	QMap<QString, QListWidgetItem*>* independent_Variables_List_Map;
+
+public:
+	void clear_Parameters();
 
 private:
 	void create_Main_Layout();
@@ -27,6 +30,8 @@ private slots:
 	void add_Independent_Variable(bool);
 	void edit_Independent_Variable(bool);
 	void remove_Independent_Variable(bool);
+	void refresh_State(QTreeWidgetItem* structure_Item);
+	void refresh_State_All();
 
 	void if_Selected();
 

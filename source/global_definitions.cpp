@@ -99,7 +99,28 @@ QStringList transition_Layer_Functions	{"erf","lin","exp","tanh","sin"};
 QStringList drift_Models				{"no_drift","lin_sin","par_sin","hyp_sin","exp_sin","log_sin"};
 
 int default_Column = 0;
+int num_Permanent_Independent_Variables = 2;
+
+QString whats_This_Delimiter = ";";
+QString item_Type_Delimiter = " ";
+QString space = " ";
+
+// main whatsThis
+QString whats_This_Angle = "Angle";
+QString whats_This_Wavelength = "Wavelength";
 QString whats_This_Ambient = "Ambient";
 QString whats_This_Layer = "Layer";
 QString whats_This_Multilayer = "Multilayer";
 QString whats_This_Substrate = "Substrate";
+
+// specialized whatsThis additions
+QString whats_This_Density = "Density";
+QString whats_This_Permittivity = "Permittivity";
+QString whats_This_Absorption = "Absorption";
+QString whats_This_Composition = "Composition";
+QString whats_This_Thickness = "Thickness";
+QString whats_This_Sigma = "Sigma";
+QString whats_This_Interlayer_Composition = "Interlayer_Composition";
+QString whats_This_Num_Repetitions = "Num_Repetitions";
+QString whats_This_Period = "Period";
+QString whats_This_Gamma = "Gamma";

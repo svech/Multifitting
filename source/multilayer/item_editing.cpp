@@ -689,10 +689,10 @@ void Item_Editing::read_Elements_From_Item()
 			elements->setCurrentIndex(elements->findText(substrate.composition[i].type));
 			at_Weight->setText("At. Wt.=" + QString::number(sorted_Elements.value(elements->currentText()),'f',at_wt_precision) + ")");
 
-			composition_Line_Edit_Vec[i]=line_Edit;
-			composition_Label_Vec[i]=label;
-			composition_Combo_Box_Vec[i]=elements;
-			composition_At_Weight_Vec[i]=at_Weight;
+			composition_Line_Edit_Vec[i] = line_Edit;
+			composition_Label_Vec[i] = label;
+			composition_Combo_Box_Vec[i] = elements;
+			composition_At_Weight_Vec[i] = at_Weight;
 
 			connect(line_Edit, SIGNAL(textEdited(QString)), this, SLOT(fast_Refresh_Data(QString)));
 			connect(elements, SIGNAL(currentTextChanged(QString)), this, SLOT(refresh_Data(QString)));
@@ -963,7 +963,7 @@ void Item_Editing::show_Stack_Parameters()
 		if(stack_Done)
 		{
 			Stack_Content stack_Content = item->data(default_Column, Qt::UserRole).value<Stack_Content>();
-			repetitions_Line_Edit->setText(QString::number(stack_Content.num_Repetition));
+			repetitions_Line_Edit->setText(QString::number(stack_Content.num_Repetition.value));
 			period_Line_Edit->setText(QString::number(stack_Content.period.value));
 			gamma_Line_Edit->setText(QString::number(stack_Content.gamma.value));
 		}
@@ -1171,7 +1171,7 @@ void Item_Editing::refresh_Stack_Data()
 			Stack_Content stack_Content = item->data(default_Column, Qt::UserRole).value<Stack_Content>();
 			double init_Period = stack_Content.period.value;
 
-			stack_Content.num_Repetition = repetitions_Line_Edit->text().toInt();			
+			stack_Content.num_Repetition.value = repetitions_Line_Edit->text().toInt();
 			stack_Content.period.value = period_Line_Edit->text().toDouble();
 			if(item->childCount()==2)
 			{
@@ -1214,7 +1214,7 @@ void Item_Editing::fast_Refresh_Stack(QString)
 	Stack_Content sc = item->data(default_Column, Qt::UserRole).value<Stack_Content>();
 	if(period_Line_Edit->text().toDouble()!=0 || sc.period.value==0)
 	{
-		if(repetitions_Line_Edit->text().toInt()!=0 || sc.num_Repetition==0)
+		if(repetitions_Line_Edit->text().toInt()!=0 || sc.num_Repetition.value==0)
 		{
 			if(item->childCount()==2)
 			{
@@ -1294,9 +1294,9 @@ void Item_Editing::reset_Multilayer_Thickness(QTreeWidgetItem* multilayer_Item, 
 {
 	Stack_Content stack_Content = multilayer_Item->data(default_Column, Qt::UserRole).value<Stack_Content>();
 	double factor=1;
-	if(stack_Content.period.value!=0 && stack_Content.num_Repetition!=0)
+	if(stack_Content.period.value!=0 && stack_Content.num_Repetition.value!=0)
 	{
-		factor = new_Thickness/(  stack_Content.period.value*stack_Content.num_Repetition  );
+		factor = new_Thickness/(  stack_Content.period.value*stack_Content.num_Repetition.value  );
 		change_Child_Layers_Thickness(multilayer_Item, factor);
 	}
 }

@@ -51,6 +51,7 @@ private slots:
 	void change_Tab_Independent_Variables_Tab_Color(int index);
 	void remove_Independent_Variables_Tab(int index);
 	void rename_Independent_Variables_Tab(int tab_Index);
+	void reset_Independent_Variables_Structure();
 
 	// structure toolbar
 	void add_Layer		(bool);
@@ -125,6 +126,7 @@ private:
 					QTabWidget* independent_Variables_Plot_Tabs;
 						QToolButton* independent_Variables_Corner_Button;
 						QVector<Independent_Variables*> independent_Widget_Vec;
+						QVector<QTreeWidget*> independent_Struct_Tree_Copy_Vec;
 
 					QListWidget* coupled_Parameters_List;
 					QToolBar* coupled_Parameters_Toolbar;

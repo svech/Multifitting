@@ -346,9 +346,34 @@ void Multilayer::add_Independent_Variables_Tab()
 		QString default_Independent_Variable_Tab_Name = gui_Settings.value( "default_Independent_Variable_Tab_Name", 0 ).toString();
 	gui_Settings.endGroup();
 
-	Independent_Variables* new_Independent = new Independent_Variables(struct_Tree);
+	// hidden copy of main structure
+	QTreeWidget* new_Struct_Tree_Copy = new QTreeWidget;
+
+	for(int i=0; i<struct_Tree->topLevelItemCount(); i++)
+	{
+		new_Struct_Tree_Copy->addTopLevelItem(struct_Tree->topLevelItem(i)->clone());
+	}
+
+	// add angle and wavelength
+	QVariant var;
+	QTreeWidgetItem* new_Angle_Item = new QTreeWidgetItem;
+		Probe_Angle angle;
+		var.setValue(angle);
+		new_Angle_Item->setData(default_Column, Qt::UserRole, var);
+		new_Angle_Item->setWhatsThis(default_Column, whats_This_Angle);
+	QTreeWidgetItem* new_Wavelength_Item = new QTreeWidgetItem;
+		Radiation radiation;
+		var.setValue(radiation);
+		new_Wavelength_Item->setData(default_Column, Qt::UserRole, var);
+		new_Wavelength_Item->setWhatsThis(default_Column, whats_This_Wavelength);
+
+		new_Struct_Tree_Copy->insertTopLevelItem(0,new_Wavelength_Item);
+		new_Struct_Tree_Copy->insertTopLevelItem(0,new_Angle_Item);
+
+	Independent_Variables* new_Independent = new Independent_Variables(new_Struct_Tree_Copy);
 		new_Independent->setContentsMargins(-8,-10,-8,-10);
 
+	// add new tab
 	independent_Variables_Plot_Tabs->addTab(new_Independent, default_Independent_Variable_Tab_Name);
 	independent_Variables_Plot_Tabs->setTabText(independent_Variables_Plot_Tabs->count()-1, default_Independent_Variable_Tab_Name+QString::number(independent_Variables_Plot_Tabs->count()));
 
@@ -359,6 +384,7 @@ void Multilayer::add_Independent_Variables_Tab()
 	}
 
 	independent_Widget_Vec.append(new_Independent);
+	independent_Struct_Tree_Copy_Vec.append(new_Struct_Tree_Copy);
 }
 
 void Multilayer::change_Tab_Independent_Variables_Tab_Color(int index)
@@ -383,16 +409,20 @@ void Multilayer::remove_Independent_Variables_Tab(int index)
 	if (reply == QMessageBox::Yes)
 	{
 		Independent_Variables* temp_Independent;
+		QTreeWidget* temp_Tree;
 
 		for(int i=0; i<independent_Widget_Vec.size(); i++)
 		{
 			if(independent_Widget_Vec[i] == independent_Variables_Plot_Tabs->widget(index))
 			{
 				temp_Independent = independent_Widget_Vec[i];
+				temp_Tree = independent_Struct_Tree_Copy_Vec[i];
 				independent_Widget_Vec.removeAt(i);
+				independent_Struct_Tree_Copy_Vec.removeAt(i);
 			}
 		}
 		delete temp_Independent;
+		delete temp_Tree;
 		if(independent_Variables_Plot_Tabs->count()==0) add_Independent_Variables_Tab();
 	}
 }
@@ -406,13 +436,29 @@ void Multilayer::rename_Independent_Variables_Tab(int tab_Index)
 		independent_Variables_Plot_Tabs->setTabText(tab_Index, text);
 }
 
+void Multilayer::reset_Independent_Variables_Structure()
+{
+	if(independent_Variables_Plot_Tabs)
+	for(int tab=0; tab<independent_Variables_Plot_Tabs->count(); tab++)
+	{
+		independent_Widget_Vec[tab]->clear_Parameters();
+		independent_Widget_Vec[tab]->independent_Variables_List_Map->clear();
+
+		// reset hidden copy of main structure
+		for(int i=0; i<struct_Tree->topLevelItemCount(); i++)
+		{
+			independent_Struct_Tree_Copy_Vec[tab]->addTopLevelItem(struct_Tree->topLevelItem(i)->clone());
+		}
+	}
+}
+
 // structure toolbar
 
 void Multilayer::add_Layer(bool)
 {
 	QTreeWidgetItem* new_Layer = new QTreeWidgetItem;
 	add_Buffered_Layer(new_Layer);
-	refresh_Over_Struct();
+	refresh_Over_Struct();	
 }
 
 void Multilayer::add_Multilayer(bool)
@@ -498,7 +544,7 @@ void Multilayer::add_Multilayer(bool)
 
 	set_Structure_Item_Text(new_Multilayer);
 	refresh_Toolbar();
-	refresh_Over_Struct();
+	refresh_Over_Struct();	
 }
 
 void Multilayer::add_Substrate(bool)
@@ -754,7 +800,7 @@ void Multilayer::destroy(bool)
 // service slots
 
 void Multilayer::if_Selected()
-{
+{	
 	if(buffered!=NULL)
 	{
 		struct_Toolbar->actions()[7]->setDisabled(false);		 // paste
@@ -851,9 +897,16 @@ void Multilayer::if_Selected()
 					struct_Toolbar->actions()[8]->setDisabled(true);	// move_Up
 				} else
 				{
+					// if second
+					if(position == 1)
+					{
+						struct_Toolbar->actions()[8]->setDisabled(true);	// move_Up
+					} else
+					{
+						struct_Toolbar->actions()[8]->setDisabled(false);	// move_Up
+					}
 					struct_Toolbar->actions()[5]->setDisabled(false);	// cut
 					struct_Toolbar->actions()[6]->setDisabled(false);	// copy
-					struct_Toolbar->actions()[8]->setDisabled(false);	// move_Up
 				}
 				struct_Toolbar->actions()[9]->setDisabled(true);	// move_Down
 			}
@@ -972,7 +1025,7 @@ void Multilayer::set_Structure_Item_Text(QTreeWidgetItem* item)
 			// if multilayer
 			if(item->childCount()>0)
 			{
-				item->setText(default_Column, "Multilayer, N=" + QString::number(item->data(default_Column, Qt::UserRole).value<Stack_Content>().num_Repetition)
+				item->setText(default_Column, "Multilayer, N=" + QString::number(item->data(default_Column, Qt::UserRole).value<Stack_Content>().num_Repetition.value)
 							  + ", d=" + QString::number(item->data(default_Column, Qt::UserRole).value<Stack_Content>().period.value,'f',precision) + Angstrom_Sym);
 
 				if(item->childCount()==2)
@@ -1001,7 +1054,9 @@ void Multilayer::editor_Close()
 	for(int i=0; i<list_Editors.size(); ++i)
 	{
 		if(list_Editors[i]==sender())
+		{
 			list_Editors.removeAt(i);
+		}
 	}
 
 	if(list_Editors.isEmpty())
@@ -1042,6 +1097,7 @@ void Multilayer::refresh_Over_Struct()
 	different_Layers_Counter=0;
 	iterate_Over_Struct();
 	iterate_Over_Multilayers();
+	reset_Independent_Variables_Structure();
 }
 
 void Multilayer::iterate_Over_Struct(QTreeWidgetItem* item)
@@ -1079,7 +1135,7 @@ void Multilayer::refresh_If_Layer(QTreeWidgetItem* this_Item)
 			set_Structure_Item_Text(this_Item);
 			QStringList list = this_Item->text(default_Column).split("layer");
 			this_Item->setText(default_Column, list[0] + "layer (" + QString::number(different_Layers_Counter) + ")" + list[1]);
-			this_Item->setWhatsThis(default_Column, whats_This_Layer + " (" + QString::number(different_Layers_Counter) + ")");
+			this_Item->setWhatsThis(default_Column, whats_This_Layer + item_Type_Delimiter + "(" + QString::number(different_Layers_Counter) + ")");
 
 			// TODO works?
 			Layer layer = this_Item->data(default_Column, Qt::UserRole).value<Layer>();
@@ -1125,8 +1181,8 @@ void Multilayer::refresh_If_Multilayer(QTreeWidgetItem* this_Item)
 
 		set_Structure_Item_Text(this_Item);
 		QStringList list = this_Item->text(default_Column).split("Multilayer");
-		this_Item->setText(default_Column, list[0] + "Multilayer: (" + QString::number(first) + " - " + QString::number(last) + ")" + list[1]);
-		this_Item->setWhatsThis(default_Column, whats_This_Multilayer + ": (" + QString::number(first) + " - " + QString::number(last) + ")");
+		this_Item->setText(default_Column, list[0] + "Multilayer (" + QString::number(first) + " - " + QString::number(last) + ")" + list[1]);
+		this_Item->setWhatsThis(default_Column, whats_This_Multilayer + item_Type_Delimiter + "(" + QString::number(first) + " - " + QString::number(last) + ")");
 
 		// period
 		find_Period(this_Item);
@@ -1177,7 +1233,7 @@ void Multilayer::find_Period(QTreeWidgetItem* this_Item)
 		{
 			find_Period(this_Item->child(i));
 			period +=   this_Item->child(i)->data(default_Column, Qt::UserRole).value<Stack_Content>().period.value
-					  * this_Item->child(i)->data(default_Column, Qt::UserRole).value<Stack_Content>().num_Repetition;
+					  * this_Item->child(i)->data(default_Column, Qt::UserRole).value<Stack_Content>().num_Repetition.value;
 		}
 	}
 
@@ -1194,7 +1250,7 @@ void Multilayer::find_Period(QTreeWidgetItem* this_Item)
 		// multilayer
 		{
 			gamma =   this_Item->child(0)->data(default_Column, Qt::UserRole).value<Stack_Content>().period.value
-					* this_Item->child(0)->data(default_Column, Qt::UserRole).value<Stack_Content>().num_Repetition
+					* this_Item->child(0)->data(default_Column, Qt::UserRole).value<Stack_Content>().num_Repetition.value
 					/ this_Item->data(default_Column, Qt::UserRole).value<Stack_Content>().period.value;
 		}
 	}
