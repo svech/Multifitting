@@ -258,6 +258,7 @@ void Multilayer::create_Independent_Variables_Tabs()
 	connect(independent_Variables_Plot_Tabs, SIGNAL(tabBarDoubleClicked(int)),this, SLOT(rename_Independent_Variables_Tab(int)));
 
 	add_Independent_Variables_Tab();
+	independent_Tabs_Exist = true;
 }
 
 void Multilayer::create_Coupled_Parameters_List()
@@ -338,7 +339,7 @@ void Multilayer::create_Data_Frame()
 	add_Target_Profile();
 }
 
-// service lots
+// service slots
 
 void Multilayer::add_Independent_Variables_Tab()
 {
@@ -354,22 +355,15 @@ void Multilayer::add_Independent_Variables_Tab()
 		new_Struct_Tree_Copy->addTopLevelItem(struct_Tree->topLevelItem(i)->clone());
 	}
 
-	// add angle and wavelength
-	QVariant var;
-	QTreeWidgetItem* new_Angle_Item = new QTreeWidgetItem;
-		Probe_Angle angle;
-		var.setValue(angle);
-		new_Angle_Item->setData(default_Column, Qt::UserRole, var);
-		new_Angle_Item->setWhatsThis(default_Column, whats_This_Angle);
-	QTreeWidgetItem* new_Wavelength_Item = new QTreeWidgetItem;
-		Radiation radiation;
-		var.setValue(radiation);
-		new_Wavelength_Item->setData(default_Column, Qt::UserRole, var);
-		new_Wavelength_Item->setWhatsThis(default_Column, whats_This_Wavelength);
+	// add "measurement" item to struct_Tree_Copy
+	QTreeWidgetItem* new_Measurement_Item = new QTreeWidgetItem;
+		Measurement measurement;
+		QVariant var; var.setValue(measurement);
+		new_Measurement_Item->setData(default_Column, Qt::UserRole, var);
+		new_Measurement_Item->setWhatsThis(default_Column, whats_This_Measurement);
+	new_Struct_Tree_Copy->insertTopLevelItem(0, new_Measurement_Item);
 
-		new_Struct_Tree_Copy->insertTopLevelItem(0,new_Wavelength_Item);
-		new_Struct_Tree_Copy->insertTopLevelItem(0,new_Angle_Item);
-
+	// create new Independent_Variables instance
 	Independent_Variables* new_Independent = new Independent_Variables(new_Struct_Tree_Copy);
 		new_Independent->setContentsMargins(-8,-10,-8,-10);
 
@@ -384,7 +378,7 @@ void Multilayer::add_Independent_Variables_Tab()
 	}
 
 	independent_Widget_Vec.append(new_Independent);
-	independent_Struct_Tree_Copy_Vec.append(new_Struct_Tree_Copy);
+	plottable_Struct_Tree_Vec.append(new_Struct_Tree_Copy);
 }
 
 void Multilayer::change_Tab_Independent_Variables_Tab_Color(int index)
@@ -416,9 +410,9 @@ void Multilayer::remove_Independent_Variables_Tab(int index)
 			if(independent_Widget_Vec[i] == independent_Variables_Plot_Tabs->widget(index))
 			{
 				temp_Independent = independent_Widget_Vec[i];
-				temp_Tree = independent_Struct_Tree_Copy_Vec[i];
+				temp_Tree = plottable_Struct_Tree_Vec[i];
 				independent_Widget_Vec.removeAt(i);
-				independent_Struct_Tree_Copy_Vec.removeAt(i);
+				plottable_Struct_Tree_Vec.removeAt(i);
 			}
 		}
 		delete temp_Independent;
@@ -434,11 +428,14 @@ void Multilayer::rename_Independent_Variables_Tab(int tab_Index)
 	QString text = QInputDialog::getText(this, "Rename plot", "New name", QLineEdit::Normal, independent_Variables_Plot_Tabs->tabText(tab_Index), &ok);
 	if (ok && !text.isEmpty())
 		independent_Variables_Plot_Tabs->setTabText(tab_Index, text);
+
+	// TODO temporary
+	print_Hidden_Copy(tab_Index);
 }
 
 void Multilayer::reset_Independent_Variables_Structure()
 {
-	if(independent_Variables_Plot_Tabs)
+	if(independent_Tabs_Exist)
 	for(int tab=0; tab<independent_Variables_Plot_Tabs->count(); tab++)
 	{
 		independent_Widget_Vec[tab]->clear_Parameters();
@@ -447,7 +444,7 @@ void Multilayer::reset_Independent_Variables_Structure()
 		// reset hidden copy of main structure
 		for(int i=0; i<struct_Tree->topLevelItemCount(); i++)
 		{
-			independent_Struct_Tree_Copy_Vec[tab]->addTopLevelItem(struct_Tree->topLevelItem(i)->clone());
+			plottable_Struct_Tree_Vec[tab]->addTopLevelItem(struct_Tree->topLevelItem(i)->clone());
 		}
 	}
 }
@@ -458,7 +455,7 @@ void Multilayer::add_Layer(bool)
 {
 	QTreeWidgetItem* new_Layer = new QTreeWidgetItem;
 	add_Buffered_Layer(new_Layer);
-	refresh_Over_Struct();	
+	refresh_Over_Struct();
 }
 
 void Multilayer::add_Multilayer(bool)
@@ -577,10 +574,11 @@ void Multilayer::edit(bool)
 		Item_Editing* item_Editing = new Item_Editing(struct_Tree->currentItem());
 			item_Editing->setParent(this);
 			item_Editing->setWindowFlags(Qt::Window);
+			item_Editing->show();
 
 		connect(item_Editing, SIGNAL(is_Closed()), this, SLOT(editor_Close()));
 		connect(item_Editing, SIGNAL(is_Edited()), this, SLOT(editors_Refresh()));
-		item_Editing->show();
+
 
 		list_Editors.append(item_Editing);
 		struct_Toolbar->setDisabled(true);

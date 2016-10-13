@@ -18,7 +18,7 @@ void Independent_Variables::clear_Parameters()
 	while (*it)
 	{
 		structure_Item = *it;
-		if((structure_Item->whatsThis(default_Column) != whats_This_Angle) &&  (structure_Item->whatsThis(default_Column) != whats_This_Wavelength))
+		if(structure_Item->whatsThis(default_Column) != whats_This_Measurement)
 		{
 			struct_In_List.append(structure_Item);
 		}
@@ -76,21 +76,23 @@ void Independent_Variables::create_Independent_Variables_List()
 
 	connect(independent_Variables_List, SIGNAL(itemSelectionChanged()), this, SLOT(if_Selected()));
 
-	// add angle and wavelength
-	QListWidgetItem* wavelength = new QListWidgetItem;
-	Radiation radiation = struct_Tree_Copy->topLevelItem(1)->data(default_Column, Qt::UserRole).value<Radiation>();
-		wavelength->setText("Wavelength, " + Lambda_Sym + " [" + QString::number(radiation.radiation.min,'f',default_precision) + Angstrom_Sym + "]");
-		wavelength->setWhatsThis(whats_This_Wavelength);
-	independent_Variables_List->insertItem(0,wavelength);
+	// add angle and wavelength to independent variables list
+	Measurement measurement = struct_Tree_Copy->topLevelItem(0)->data(default_Column, Qt::UserRole).value<Measurement>();
 
 	QListWidgetItem* angle = new QListWidgetItem;
-	Probe_Angle probe_Angle = struct_Tree_Copy->topLevelItem(0)->data(default_Column, Qt::UserRole).value<Probe_Angle>();
 	QString angle_Type;
-	if(probe_Angle.type == Angle_Type::Grazing)   angle_Type = "Grazing";
-	if(probe_Angle.type == Angle_Type::Incidence) angle_Type = "Incidence";
-		angle->setText(angle_Type + " angle, " + Theta_Sym + " [" + QString::number(probe_Angle.angle.min,'f',default_precision) + Degree_Sym + "]");
-		angle->setWhatsThis(whats_This_Angle);
+	if(measurement.angle_Type == Angle_Type::Grazing)   angle_Type = "Grazing";
+	if(measurement.angle_Type == Angle_Type::Incidence) angle_Type = "Incidence";
+		angle->setText(angle_Type + " angle, " + Theta_Sym + " [" + QString::number(measurement.probe_Angle.value,'f',default_precision) + Degree_Sym + "]");
+		angle->setWhatsThis(whats_This_Angle);		
 	independent_Variables_List->insertItem(0, angle);
+
+	QListWidgetItem* wavelength = new QListWidgetItem;	
+		wavelength->setText("Wavelength, " + Lambda_Sym + " [" + QString::number(measurement.wavelength.value,'f',default_precision) + Angstrom_Sym + "]");
+		wavelength->setWhatsThis(whats_This_Wavelength);
+	independent_Variables_List->insertItem(1, wavelength);
+
+	connect(independent_Variables_List, SIGNAL(itemDoubleClicked(QListWidgetItem*)), this, SLOT(edit_Independent_Variable(QListWidgetItem*)));
 }
 
 void Independent_Variables::create_Independent_Variables_Toolbar()
@@ -112,7 +114,7 @@ void Independent_Variables::create_Independent_Variables_Toolbar()
 	independent_Variables_Toolbar->setIconSize(new_Variable.size());
 
 	connect(independent_Variables_Toolbar->actions()[0], SIGNAL(triggered(bool)), this, SLOT(add_Independent_Variable(bool)));
-	connect(independent_Variables_Toolbar->actions()[1], SIGNAL(triggered(bool)), this, SLOT(edit_Independent_Variable(bool)));
+	connect(independent_Variables_Toolbar->actions()[1], SIGNAL(triggered(bool)), this, SLOT(cause_Editing_Independent_Variable(bool)));
 	connect(independent_Variables_Toolbar->actions()[2], SIGNAL(triggered(bool)), this, SLOT(remove_Independent_Variable(bool)));
 
 	if_Selected();
@@ -126,12 +128,35 @@ void Independent_Variables::add_Independent_Variable(bool)
 		new_Variable->setWindowFlags(Qt::Window);
 		new_Variable->show();
 
-	connect(new_Variable, SIGNAL(is_Closed()), this, SLOT(refresh_State_All()));
+		connect(new_Variable, SIGNAL(is_Closed()), this, SLOT(refresh_State_All()));
 }
 
-void Independent_Variables::edit_Independent_Variable(bool)
+void Independent_Variables::cause_Editing_Independent_Variable(bool)
 {
-	// TODO
+	edit_Independent_Variable(independent_Variables_List->currentItem());
+}
+
+void Independent_Variables::edit_Independent_Variable(QListWidgetItem* item)
+{
+	// item search
+	QString whats_This = item->whatsThis();
+	QStringList whats_This_List = whats_This.split(whats_This_Delimiter,QString::SkipEmptyParts);
+
+	QTreeWidgetItem* structure_Item;
+	QTreeWidgetItemIterator it(struct_Tree_Copy);
+	while (*it)
+	{
+		structure_Item = *it;
+		if(structure_Item->whatsThis(default_Column) == whats_This_List[0])
+			break;
+		++it;
+	}
+
+	Independent_Variable_Editing* editor = new Independent_Variable_Editing(structure_Item, item);
+		editor->setParent(this);
+		editor->setModal(true);
+		editor->setWindowFlags(Qt::Window);
+		editor->show();
 }
 
 void Independent_Variables::remove_Independent_Variable(bool)
@@ -207,6 +232,7 @@ void Independent_Variables::remove_Independent_Variable(bool)
 				int index = QString(whats_This_List[2]).toInt();
 				layer.composition[index].composition.independent.is_Independent = false;
 			}
+
 			/// thickness parameters
 			// layer thickness
 			if(whats_This_List[1] == whats_This_Thickness)
@@ -215,7 +241,6 @@ void Independent_Variables::remove_Independent_Variable(bool)
 			}
 
 			/// interface parameters
-
 			// layer sigma
 			if(whats_This_List[1] == whats_This_Sigma)
 			{

@@ -62,7 +62,6 @@ void Item_Editing::create_Main_Layout()
 	connect(done_Button, SIGNAL(clicked()), this, SLOT(close()));
 
 	main_Layout->setContentsMargins(4,0,4,0);
-	setLayout(main_Layout);
 }
 
 void Item_Editing::create_Menu()

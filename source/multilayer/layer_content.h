@@ -3,26 +3,23 @@
 
 #include "global_definitions.h"
 
-class Probe_Angle
+class Measurement
 {
 public:
-	Probe_Angle();
+	Measurement();
 
-	Independent angle;
-
+	// angle
+	Parameter probe_Angle;
 	double angular_Resolution;
-	Angle_Type type;
-};
+	Angle_Type angle_Type;
 
-class Radiation
-{
-public:
-	Radiation();
-
-	Independent radiation;
+	// wavelength
+	Parameter wavelength;
 	double spectral_Resolution;
 	double polarization;
 	double polarization_Sensitivity;
+
+	//
 };
 
 class Ambient
@@ -90,8 +87,7 @@ public:
 	Parameter gamma;
 };
 
-Q_DECLARE_METATYPE( Probe_Angle )
-Q_DECLARE_METATYPE( Radiation )
+Q_DECLARE_METATYPE( Measurement )
 Q_DECLARE_METATYPE( Ambient )
 Q_DECLARE_METATYPE( Substrate )
 Q_DECLARE_METATYPE( Layer )

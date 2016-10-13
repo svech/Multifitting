@@ -21,9 +21,6 @@
 	#define Structure_Values_Representation "Structure_Values_Representation"
 	#define Parameters_Init_Values "Parameters_Init_Values"
 		#define Independent_Values "Independent_Values"
-			#define Angle_Values "Angle_Values"
-			#define Radiation_Values "Radiation_Values"
-
 
 #define Angstrom_Sym	QString(QChar(0x212B))
 #define Rho_Sym			QString(QChar(0x03C1))
@@ -39,6 +36,7 @@
 #define Degree_Sym		QString(QChar(0x00B0))
 
 
+
 #define MAX_DOUBLE 1E100
 #define MAX_INTEGER MAXINT
 #define MAX_PRECISION 100
@@ -50,14 +48,15 @@ extern QString whats_This_Delimiter;
 extern QString item_Type_Delimiter;
 
 // main whatsThis
-extern QString whats_This_Angle;
-extern QString whats_This_Wavelength;
+extern QString whats_This_Measurement;
 extern QString whats_This_Ambient;
 extern QString whats_This_Layer;
 extern QString whats_This_Multilayer;
 extern QString whats_This_Substrate;
 
 // specialized whatsThis additions
+extern QString whats_This_Angle;
+extern QString whats_This_Wavelength;
 extern QString whats_This_Density;
 extern QString whats_This_Permittivity;
 extern QString whats_This_Absorption;
@@ -69,16 +68,20 @@ extern QString whats_This_Num_Repetitions;
 extern QString whats_This_Period;
 extern QString whats_This_Gamma;
 
+// properties
+#define min_Size "min_Size"
+
 extern QStringList element_Name;
 extern QVector<double> element_Mass;
 
 struct Independent				{bool is_Independent=false;	double min; double max; int num_Points;};
+struct Coupled					{bool is_Coupled; };
 struct Fit						{bool is_Fitable=false;		bool min_Bounded; double min;
 															bool max_Bounded; double max;};
 struct Optimize					{bool is_Optimizable=false;	bool min_Bounded; double min;
 															bool max_Bounded; double max;};
 struct Int_Independent			{int value; bool is_Independent=false;	int start; int step; int num_steps;};
-struct Parameter				{double value; Independent independent; Fit fit; Optimize optimize;};
+struct Parameter				{double value; Independent independent; Coupled coupled; Fit fit; Optimize optimize;};
 struct Stoichiometry			{Parameter composition; QString type;};
 struct Interlayer_Enabled		{Parameter interlayer; bool enabled;};
 

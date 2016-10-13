@@ -4,6 +4,7 @@
 #include <QtWidgets>
 #include "global_definitions.h"
 #include "variable_selection.h"
+#include "independent_variable_editing.h"
 
 class Independent_Variables: public QWidget
 {
@@ -28,7 +29,8 @@ private:
 
 private slots:
 	void add_Independent_Variable(bool);
-	void edit_Independent_Variable(bool);
+	void cause_Editing_Independent_Variable(bool);
+	void edit_Independent_Variable(QListWidgetItem* item);
 	void remove_Independent_Variable(bool);
 	void refresh_State(QTreeWidgetItem* structure_Item);
 	void refresh_State_All();

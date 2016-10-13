@@ -10,13 +10,14 @@ class Variable_Selection : public QDialog
 	Q_OBJECT
 
 public:
-	Variable_Selection(QTreeWidget* struct_Tree_Copy, QMap<QString, QListWidgetItem*>* independent_Variables_List_Map, QListWidget* independent_Variables_List, Variable_Type type);
+	Variable_Selection(QTreeWidget* struct_Tree_Copy, QMap<QString, QListWidgetItem*>* variables_List_Map, QListWidget* variables_List, Variable_Type type);
 
 	QSettings default_Values;
 
 	QTreeWidget* struct_Tree_Copy;
-	QListWidget* independent_Variables_List;
-	QMap<QString, QListWidgetItem*>* independent_Variables_List_Map;
+	QListWidget* variables_List;
+	QMap<QString, QListWidgetItem*>* variables_List_Map;
+	Variable_Type type;
 
 signals:
 	void is_Closed();
@@ -45,6 +46,18 @@ private:
 		void fill_Layer_Variables(QTreeWidgetItem* item);
 		void fill_Multilayer_Variables(QTreeWidgetItem* item);
 		void fill_Substrate_Variables(QTreeWidgetItem* item);
+
+		// parameters one by one
+			void add_Density				(QTreeWidgetItem* item, QString whats_This_Type);
+			void add_Permittivity			(QTreeWidgetItem* item, QString whats_This_Type);
+			void add_Absorption				(QTreeWidgetItem* item, QString whats_This_Type);
+			void add_Composition			(QTreeWidgetItem* item, QString whats_This_Type);
+			void add_Thickness				(QTreeWidgetItem* item, QString whats_This_Type);
+			void add_Sigma					(QTreeWidgetItem* item, QString whats_This_Type);
+			void add_Interlayer_Composition	(QTreeWidgetItem* item, QString whats_This_Type);
+			void add_Num_repetitions		(QTreeWidgetItem* item, QString whats_This_Type);
+			void add_Period					(QTreeWidgetItem* item, QString whats_This_Type);
+			void add_Gamma					(QTreeWidgetItem* item, QString whats_This_Type);
 
 private slots:
 	void add_Variable();

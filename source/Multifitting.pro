@@ -23,7 +23,8 @@ SOURCES += main.cpp\
     multilayer/layer_content.cpp \
     multilayer/item_editing.cpp \
     multilayer/variable_selection.cpp \
-    multilayer/independent_variables.cpp
+    multilayer/independent_variables.cpp \
+    multilayer/independent_variable_editing.cpp
 
 HEADERS  += launcher.h \
     multilayer_approach.h \
@@ -32,4 +33,5 @@ HEADERS  += launcher.h \
     multilayer/layer_content.h \
     multilayer/item_editing.h \
     multilayer/variable_selection.h \
-    multilayer/independent_variables.h
+    multilayer/independent_variables.h \
+    multilayer/independent_variable_editing.h

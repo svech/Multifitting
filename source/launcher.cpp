@@ -170,28 +170,28 @@ void Launcher::reset_Default_Values()
 	default_Values.beginGroup( Structure_Values_Representation );
 		default_Values.setValue( "default_precision", 3 );
 		default_Values.setValue( "default_density_precision", 3 );
-		default_Values.setValue( "default_interlayer_precision", 3 );
+		default_Values.setValue( "default_interlayer_precision", 3 );		
 		default_Values.setValue( "default_atomic_weight_precision", 4 );
 	default_Values.endGroup();
 
 	// parameters init values
 	default_Values.beginGroup( Parameters_Init_Values );
 		default_Values.beginGroup( Independent_Values );
-			default_Values.beginGroup( Angle_Values );
-				default_Values.setValue( "default_num_points", 1 );
-				default_Values.setValue( "default_min_angle", 0 );
-				default_Values.setValue( "default_max_angle", 7 );
-				default_Values.setValue( "default_type", int(Angle_Type::Incidence) );
-				default_Values.setValue( "default_angular_resolution", 0 );
-			default_Values.endGroup();
-			default_Values.beginGroup( Radiation_Values );
-				default_Values.setValue( "default_num_points", 1 );
-				default_Values.setValue( "default_min_wavelength", 1.54056 );
-				default_Values.setValue( "default_max_wavelength", 180 );
-				default_Values.setValue( "default_spectral_resolution", 0 );
-				default_Values.setValue( "default_polarization", 0 );
-				default_Values.setValue( "default_polarization_sensitivity", 0 );
-			default_Values.endGroup();
+			default_Values.setValue( "default_num_angular_points", 1 );
+			default_Values.setValue( "default_num_spectral_points", 1 );
+
+			default_Values.setValue( "default_min_angle", 0 );
+			default_Values.setValue( "default_max_angle", 7 );
+
+			default_Values.setValue( "default_min_wavelength", 1.54056 );
+			default_Values.setValue( "default_max_wavelength", 180 );
+
+			default_Values.setValue( "default_angle_type", int(Angle_Type::Grazing) );
+			default_Values.setValue( "default_angular_resolution", 0 );
+
+			default_Values.setValue( "default_polarization", 0 );
+			default_Values.setValue( "default_spectral_resolution", 0 );
+			default_Values.setValue( "default_polarization_sensitivity", 0 );
 		default_Values.endGroup();
 	default_Values.endGroup();
 }

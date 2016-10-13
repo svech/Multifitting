@@ -112,6 +112,7 @@ void Multilayer_Approach::add_Multilayer()
 		QString default_Multilayer_Tab_Name = gui_Settings.value( "default_Multilayer_Tab_Name", 0 ).toString();
 	gui_Settings.endGroup();
 
+
 	Multilayer* new_Multilayer = new Multilayer;
 		new_Multilayer->setContentsMargins(-8,-10,-8,-10);
 
@@ -123,7 +124,6 @@ void Multilayer_Approach::add_Multilayer()
 		multilayer_Tabs->tabBar()->setTabTextColor(multilayer_Tabs->count()-1,Qt::gray);
 		multilayer_Tabs->tabBar()->tabButton(multilayer_Tabs->count()-1, QTabBar::RightSide)->hide();
 	}
-
 	multilayer.append(new_Multilayer);
 }
 

@@ -22,6 +22,20 @@ public:
 	QMap<QTreeWidgetItem*, Item_Editing*> runned_Editors;
 	QList<Item_Editing*> list_Editors;
 
+	// temporary
+	//------------------------------
+	void print_Hidden_Copy(int index)
+	{
+		QTreeWidgetItemIterator it(plottable_Struct_Tree_Vec[index]);
+		qInfo() << "\n---------------------\nplot " << index << ":\n";
+		while(*it)
+		{
+			QTreeWidgetItem* item = *it;
+			qInfo() << item->whatsThis(default_Column);
+			++it;
+		}
+	}
+	//------------------------------
 private:
 	void create_Main_Layout();
 		void create_Struct_Frame();
@@ -99,6 +113,7 @@ private slots:
 private:
 	int different_Layers_Counter=0;
 	QTreeWidgetItem* buffered=NULL;
+	bool independent_Tabs_Exist = false;
 
 // ui objects to be placed in Multilayer tab
 private:
@@ -126,7 +141,7 @@ private:
 					QTabWidget* independent_Variables_Plot_Tabs;
 						QToolButton* independent_Variables_Corner_Button;
 						QVector<Independent_Variables*> independent_Widget_Vec;
-						QVector<QTreeWidget*> independent_Struct_Tree_Copy_Vec;
+						QVector<QTreeWidget*> plottable_Struct_Tree_Vec;
 
 					QListWidget* coupled_Parameters_List;
 					QToolBar* coupled_Parameters_Toolbar;

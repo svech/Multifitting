@@ -1,48 +1,41 @@
 #include "layer_content.h"
 
-Probe_Angle::Probe_Angle()
+Measurement::Measurement()
 {
 	QSettings default_Values(Default_Values_Path, QSettings::IniFormat);
 	default_Values.beginGroup( Parameters_Init_Values );
 		default_Values.beginGroup( Independent_Values );
-			default_Values.beginGroup( Angle_Values );
-				int default_num_points = default_Values.value( "default_num_points", -100 ).toInt();
-				double default_min_angle = default_Values.value( "default_min_angle", -100.500 ).toDouble();
-				double default_max_angle = default_Values.value( "default_max_angle", -100.500 ).toDouble();
-				Angle_Type default_type = static_cast<Angle_Type>(default_Values.value( "default_type", 0 ).toInt());
-				double default_angular_resolution = default_Values.value( "default_angular_resolution", 0 ).toDouble();
-			default_Values.endGroup();
+			int default_num_angular_points			= default_Values.value( "default_num_angular_points", -100500 ).toInt();
+			int default_num_spectral_points			= default_Values.value( "default_num_spectral_points", -100500 ).toInt();
+			double default_min_angle				= default_Values.value( "default_min_angle", -100500 ).toDouble();
+			double default_max_angle				= default_Values.value( "default_max_angle", -100500 ).toDouble();
+			double default_min_wavelength			= default_Values.value( "default_min_wavelength", -100500 ).toDouble();
+			double default_max_wavelength			= default_Values.value( "default_max_wavelength", -100500 ).toDouble();
+			Angle_Type default_angle_type= static_cast<Angle_Type>(default_Values.value( "default_angle_type", -100500 ).toInt());
+			double default_angular_resolution		= default_Values.value( "default_angular_resolution", -100500 ).toDouble();
+			double default_polarization				= default_Values.value( "default_polarization", -100500 ).toDouble();
+			double default_spectral_resolution		= default_Values.value( "default_spectral_resolution", -100500 ).toDouble();
+			double default_polarization_sensitivity = default_Values.value( "default_polarization_sensitivity", -100500 ).toDouble();
 		default_Values.endGroup();
 	default_Values.endGroup();
 
-	angle.is_Independent = true;
-	angle.num_Points = default_num_points;
-	angle.min = default_min_angle;
-	angle.max = default_max_angle;
-	type = default_type;
+	// angle
+	probe_Angle.independent.is_Independent = true;
+	probe_Angle.independent.min = default_min_angle;
+	probe_Angle.independent.max = default_max_angle;
+	probe_Angle.independent.num_Points = default_num_angular_points;
+	probe_Angle.value = probe_Angle.independent.min;
+
 	angular_Resolution = default_angular_resolution;
-}
+	angle_Type = default_angle_type;
 
-Radiation::Radiation()
-{
-	QSettings default_Values(Default_Values_Path, QSettings::IniFormat);
-	default_Values.beginGroup( Parameters_Init_Values );
-		default_Values.beginGroup( Independent_Values );
-			default_Values.beginGroup( Radiation_Values );
-				int default_num_points = default_Values.value( "default_num_points", -100 ).toInt();
-				double default_min_angle = default_Values.value( "default_min_wavelength", -100.500 ).toDouble();
-				double default_max_angle = default_Values.value( "default_max_wavelength", -100.500 ).toDouble();
-				double default_spectral_resolution = default_Values.value( "default_spectral_resolution", -100.500 ).toDouble();
-				double default_polarization = default_Values.value( "default_polarization", -100.500 ).toDouble();
-				double default_polarization_sensitivity = default_Values.value( "default_polarization_sensitivity", -100.500 ).toDouble();
-			default_Values.endGroup();
-		default_Values.endGroup();
-	default_Values.endGroup();
+	// wavelength
+	wavelength.independent.is_Independent = true;
+	wavelength.independent.min = default_min_wavelength;
+	wavelength.independent.max = default_max_wavelength;
+	wavelength.independent.num_Points = default_num_spectral_points;
+	wavelength.value = wavelength.independent.min;
 
-	radiation.is_Independent = true;
-	radiation.num_Points = default_num_points;
-	radiation.min = default_min_angle;
-	radiation.max = default_max_angle;
 	spectral_Resolution = default_spectral_resolution;
 	polarization = default_polarization;
 	polarization_Sensitivity = default_polarization_sensitivity;
