@@ -16,9 +16,6 @@ public:
 	Multilayer();
 	~Multilayer();
 
-	QSettings gui_Settings;
-	QSettings default_Values;
-
 	QMap<QTreeWidgetItem*, Item_Editing*> runned_Editors;
 	QList<Item_Editing*> list_Editors;
 

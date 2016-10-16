@@ -2,7 +2,6 @@
 
 Independent_Variables::Independent_Variables(QTreeWidget* struct_Tree_Copy):
 	gui_Settings(Gui_Settings_Path, QSettings::IniFormat),
-	default_Values(Default_Values_Path, QSettings::IniFormat),
 	struct_Tree_Copy(struct_Tree_Copy)
 {
 	create_Main_Layout();
@@ -28,7 +27,6 @@ void Independent_Variables::clear_Parameters()
 	{
 		delete struct_In_List[i];
 	}
-
 
 	// clear independent list
 	for(int i=independent_Variables_List->count()-1; i>=0; i--)
@@ -63,10 +61,6 @@ void Independent_Variables::create_Main_Layout()
 
 void Independent_Variables::create_Independent_Variables_List()
 {
-	default_Values.beginGroup( Structure_Values_Representation );
-		int default_precision = default_Values.value( "default_precision", 0 ).toInt();
-	default_Values.endGroup();
-
 	independent_Variables_List = new QListWidget;
 		independent_Variables_List->setSizeAdjustPolicy(QListWidget::AdjustToContents);
 
@@ -83,12 +77,12 @@ void Independent_Variables::create_Independent_Variables_List()
 	QString angle_Type;
 	if(measurement.angle_Type == Angle_Type::Grazing)   angle_Type = "Grazing";
 	if(measurement.angle_Type == Angle_Type::Incidence) angle_Type = "Incidence";
-		angle->setText(angle_Type + " angle, " + Theta_Sym + " [" + QString::number(measurement.probe_Angle.value,'f',default_precision) + Degree_Sym + "]");
+		angle->setText(angle_Type + " angle, " + Theta_Sym + " [" + QString::number(measurement.probe_Angle.value,thumbnail_double_format,thumbnail_angle_precision) + Degree_Sym + "]");
 		angle->setWhatsThis(whats_This_Angle);		
 	independent_Variables_List->insertItem(0, angle);
 
 	QListWidgetItem* wavelength = new QListWidgetItem;	
-		wavelength->setText("Wavelength, " + Lambda_Sym + " [" + QString::number(measurement.wavelength.value,'f',default_precision) + Angstrom_Sym + "]");
+		wavelength->setText("Wavelength, " + Lambda_Sym + " [" + QString::number(measurement.wavelength.value,thumbnail_double_format,thumbnail_wavelength_precision) + Angstrom_Sym + "]");
 		wavelength->setWhatsThis(whats_This_Wavelength);
 	independent_Variables_List->insertItem(1, wavelength);
 

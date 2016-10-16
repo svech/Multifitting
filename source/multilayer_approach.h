@@ -13,7 +13,6 @@ class Multilayer_Approach : public QWidget
 public:
 	Multilayer_Approach();
 
-	QSettings gui_Settings;
 	QVector<Multilayer*> multilayer;
 
 private:

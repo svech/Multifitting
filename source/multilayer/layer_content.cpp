@@ -2,23 +2,6 @@
 
 Measurement::Measurement()
 {
-	QSettings default_Values(Default_Values_Path, QSettings::IniFormat);
-	default_Values.beginGroup( Parameters_Init_Values );
-		default_Values.beginGroup( Independent_Values );
-			int default_num_angular_points			= default_Values.value( "default_num_angular_points", -100500 ).toInt();
-			int default_num_spectral_points			= default_Values.value( "default_num_spectral_points", -100500 ).toInt();
-			double default_min_angle				= default_Values.value( "default_min_angle", -100500 ).toDouble();
-			double default_max_angle				= default_Values.value( "default_max_angle", -100500 ).toDouble();
-			double default_min_wavelength			= default_Values.value( "default_min_wavelength", -100500 ).toDouble();
-			double default_max_wavelength			= default_Values.value( "default_max_wavelength", -100500 ).toDouble();
-			Angle_Type default_angle_type= static_cast<Angle_Type>(default_Values.value( "default_angle_type", -100500 ).toInt());
-			double default_angular_resolution		= default_Values.value( "default_angular_resolution", -100500 ).toDouble();
-			double default_polarization				= default_Values.value( "default_polarization", -100500 ).toDouble();
-			double default_spectral_resolution		= default_Values.value( "default_spectral_resolution", -100500 ).toDouble();
-			double default_polarization_sensitivity = default_Values.value( "default_polarization_sensitivity", -100500 ).toDouble();
-		default_Values.endGroup();
-	default_Values.endGroup();
-
 	// angle
 	probe_Angle.independent.is_Independent = true;
 	probe_Angle.independent.min = default_min_angle;
@@ -43,27 +26,21 @@ Measurement::Measurement()
 
 Ambient::Ambient()
 {
-	QSettings default_Values(Default_Values_Path, QSettings::IniFormat);
-	default_Values.beginGroup( Structure_Init_Values );
-		default_Values.beginGroup( Ambient_Values );
-			material = default_Values.value( "ambient_default_material", 0 ).toString();
-			density.value = default_Values.value( "ambient_default_density", 0 ).toDouble();
-			composed_Material = default_Values.value( "ambient_default_composed", 0 ).toBool();
-		default_Values.endGroup();
-	default_Values.endGroup();
+	material			= ambient_default_material;
+	density.value		= ambient_default_density;
+	permittivity.value	= ambient_default_permittivity;
+	absorption.value	= ambient_default_absorption;
+	composed_Material	= ambient_default_composed;
 }
 
 Substrate::Substrate()
 {	
-	QSettings default_Values(Default_Values_Path, QSettings::IniFormat);
-	default_Values.beginGroup( Structure_Init_Values );
-	default_Values.beginGroup( Substrate_Values );
-		material = default_Values.value( "substrate_default_material", 0 ).toString();
-		density.value	 = default_Values.value( "substrate_default_density", 0 ).toDouble();
-		composed_Material = default_Values.value( "substrate_default_composed", 0 ).toBool();
-		sigma.value    = default_Values.value( "substrate_default_sigma", 0 ).toDouble();
-	default_Values.endGroup();
-	default_Values.endGroup();
+	material		  = substrate_default_material;
+	density.value	  = substrate_default_density;
+	permittivity.value= substrate_default_permittivity;
+	absorption.value  = substrate_default_absorption;
+	composed_Material = substrate_default_composed;
+	sigma.value		  = substrate_default_sigma;
 
 	interlayer_Composition.clear();
 	interlayer_Composition.resize(transition_Layer_Functions.size());
@@ -81,16 +58,13 @@ Substrate::Substrate()
 
 Extreme_Layer::Extreme_Layer()
 {
-	QSettings default_Values(Default_Values_Path, QSettings::IniFormat);
-	default_Values.beginGroup( Structure_Init_Values );
-		default_Values.beginGroup( Layer_Values );
-			material = default_Values.value( "layer_default_material", 0 ).toString();
-			density.value  = default_Values.value( "layer_default_density", 0 ).toDouble();
-			composed_Material = default_Values.value( "layer_default_composed", 0 ).toBool();
-			sigma.value    = default_Values.value( "layer_default_sigma", 0 ).toDouble();
-			thickness.value = default_Values.value( "layer_default_thickness", 0 ).toDouble();
-		default_Values.endGroup();
-	default_Values.endGroup();
+	material			= layer_default_material;
+	density.value		= layer_default_density;
+	permittivity.value	= layer_default_permittivity;
+	absorption.value	= layer_default_absorption;
+	composed_Material	= layer_default_composed;
+	sigma.value			= layer_default_sigma;
+	thickness.value		= layer_default_thickness;
 
 	interlayer_Composition.clear();
 	interlayer_Composition.resize(transition_Layer_Functions.size());
@@ -108,16 +82,13 @@ Extreme_Layer::Extreme_Layer()
 
 Layer::Layer()
 {
-	QSettings default_Values(Default_Values_Path, QSettings::IniFormat);
-	default_Values.beginGroup( Structure_Init_Values );
-		default_Values.beginGroup( Layer_Values );
-			material = default_Values.value( "layer_default_material", 0 ).toString();
-			density.value  = default_Values.value( "layer_default_density", 0 ).toDouble();
-			composed_Material = default_Values.value( "layer_default_composed", 0 ).toBool();
-			sigma.value    = default_Values.value( "layer_default_sigma", 0 ).toDouble();
-			thickness.value = default_Values.value( "layer_default_thickness", 0 ).toDouble();
-		default_Values.endGroup();
-	default_Values.endGroup();
+	material			= layer_default_material;
+	density.value		= layer_default_density;
+	permittivity.value	= layer_default_permittivity;
+	absorption.value	= layer_default_absorption;
+	composed_Material	= layer_default_composed;
+	sigma.value			= layer_default_sigma;
+	thickness.value		= layer_default_thickness;
 
 	interlayer_Composition.clear();
 	interlayer_Composition.resize(transition_Layer_Functions.size());
@@ -135,12 +106,8 @@ Layer::Layer()
 
 Stack_Content::Stack_Content()
 {
-	QSettings default_Values(Default_Values_Path, QSettings::IniFormat);
-	default_Values.beginGroup( Structure_Init_Values );
-	default_Values.beginGroup( Stack_Values );
-		num_Repetition.value = default_Values.value( "stack_default_number_of_repetition", 0 ).toInt();
-		period.value   = default_Values.value( "stack_default_period", 0 ).toDouble();
-		gamma.value	   = default_Values.value( "stack_default_gamma", 0 ).toDouble();
-	default_Values.endGroup();
+	num_Repetition.value= stack_default_number_of_repetition;
+	period.value		= stack_default_period;
+	gamma.value			= stack_default_gamma;
 }
 

@@ -18,8 +18,6 @@ public:
 	double spectral_Resolution;
 	double polarization;
 	double polarization_Sensitivity;
-
-	//
 };
 
 class Ambient

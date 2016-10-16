@@ -6,11 +6,9 @@ Launcher::Launcher():
 {	
 	reset_Gui_Settings();
 	reset_Default_Values();
+	Global_Definitions::set_Settings();
 
-	gui_Settings.beginGroup( Application_Style );
-		QString application_Style = gui_Settings.value( "application_Style", 0 ).toString();
-	gui_Settings.endGroup();
-		qApp->setStyle(QStyleFactory::create(application_Style));
+	qApp->setStyle(QStyleFactory::create(application_style));
 
 	// place ui elements
 	setWindowTitle("Multifitting");
@@ -76,14 +74,9 @@ void Launcher::create_Buttons()
 
 void Launcher::set_Window_Geometry()
 {
-	gui_Settings.beginGroup( Launcher_Geometry );
-		int launcher_X_Corner = gui_Settings.value( "launcher_X_Corner", 0 ).toInt();
-		int launcher_Y_Corner = gui_Settings.value( "launcher_Y_Corner", 0 ).toInt();
-	gui_Settings.endGroup();
-
 	adjustSize();
 	setFixedSize(size());
-	setGeometry(launcher_X_Corner, launcher_Y_Corner, 0, 0);
+	setGeometry(launcher_x_corner, launcher_x_corner, 0, 0);
 }
 
 void Launcher::reset_Gui_Settings()
@@ -93,36 +86,35 @@ void Launcher::reset_Gui_Settings()
 
 	// application style
 	gui_Settings.beginGroup( Application_Style );
-		gui_Settings.setValue( "application_Style", "WindowsXP" ); // Fusion Windows WindowsXP WindowsVista
+		gui_Settings.setValue( "application_style", "WindowsXP" ); // Fusion Windows WindowsXP WindowsVista
 	gui_Settings.endGroup();
 
 	// launcher window geometry
 	gui_Settings.beginGroup( Launcher_Geometry );
-		gui_Settings.setValue( "launcher_X_Corner", 300 );
-		gui_Settings.setValue( "launcher_Y_Corner", 300 );
+		gui_Settings.setValue( "launcher_x_corner", 300 );
+		gui_Settings.setValue( "launcher_y_corner", 300 );
 	gui_Settings.endGroup();
 
 	// multilayer window geometry
 	gui_Settings.beginGroup( Multilayer_Window_Geometry );
-		gui_Settings.setValue( "multilayer_X_Corner", 500 );
-		gui_Settings.setValue( "multilayer_Y_Corner", 200 );
-		gui_Settings.setValue( "multilayer_Min_Width", 300 );
-		gui_Settings.setValue( "multilayer_Width", 531 );
-		gui_Settings.setValue( "multilayer_Min_Height", 100 );
-		gui_Settings.setValue( "multilayer_Height", 500 );
-		gui_Settings.setValue( "multilayer_Height_Additive", 23 );
+		gui_Settings.setValue( "multilayer_x_corner",			500 );
+		gui_Settings.setValue( "multilayer_y_corner",			200 );
+		gui_Settings.setValue( "multilayer_min_width",			300 );
+		gui_Settings.setValue( "multilayer_min_height",			100 );
+		gui_Settings.setValue( "multilayer_width",				531 );
+		gui_Settings.setValue( "multilayer_height",				500 );
+		gui_Settings.setValue( "multilayer_height_additive",	23 );
 	gui_Settings.endGroup();
 
 	// multilayer tab name
 	gui_Settings.beginGroup( Multilayer_Tabs );
-		gui_Settings.setValue( "default_Multilayer_Tab_Name", "Struct_" );
-		gui_Settings.setValue( "default_Independent_Variable_Tab_Name", "Plot_" );
-		gui_Settings.setValue( "default_New_Struct_Name", "New Struct" );
+		gui_Settings.setValue( "default_multilayer_tab_name",			"Struct_" );
+		gui_Settings.setValue( "default_independent_variable_tab_name", "Plot_"   );
 	gui_Settings.endGroup();
 
 	// resource path
 	gui_Settings.beginGroup( Paths );
-		gui_Settings.setValue( "icon_Path", "../../imd icons/" );
+		gui_Settings.setValue( "icon_path", "../../imd icons/" );
 	gui_Settings.endGroup();
 }
 
@@ -131,67 +123,96 @@ void Launcher::reset_Default_Values()
 //	QMessageBox::warning(this,"Warning","Reset Default Values");
 	qInfo() << "Reset Default Values";
 
-	// Structure Init Values
+	// structure init values
 	default_Values.beginGroup( Structure_Init_Values );
 		default_Values.beginGroup( Ambient_Values );
-			default_Values.setValue( "ambient_default_material", "Mo" );
-			default_Values.setValue( "ambient_default_density", 0 );
-			default_Values.setValue( "ambient_default_composed", false );
-			default_Values.setValue( "ambient_default_stoichiometry_composition", 1 );
-			default_Values.setValue( "ambient_default_stoichiometry_element", "Al" );
+			default_Values.setValue( "ambient_default_material",					"Mo"	);
+			default_Values.setValue( "ambient_default_density",						0		);
+			default_Values.setValue( "ambient_default_permittivity",				100		);
+			default_Values.setValue( "ambient_default_absorption",					100		);
+			default_Values.setValue( "ambient_default_composed",					false	);
+			default_Values.setValue( "ambient_default_stoichiometry_composition",	1		);
+			default_Values.setValue( "ambient_default_stoichiometry_element",		"Al"	);
 		default_Values.endGroup();
 		default_Values.beginGroup( Layer_Values );
-			default_Values.setValue( "layer_default_material", "Al" );
-			default_Values.setValue( "layer_default_density", 1 );
-			default_Values.setValue( "layer_default_composed", false );
-			default_Values.setValue( "layer_default_stoichiometry_composition", 1 );
-			default_Values.setValue( "layer_default_stoichiometry_element", "Al" );
-			default_Values.setValue( "layer_default_sigma", 123.5678 );
-			default_Values.setValue( "layer_default_thickness", 10 );
-			default_Values.setValue( "layer_default_drift_model", "no_drift" );
-			default_Values.setValue( "layer_default_drift_coefficients", 0 );
+			default_Values.setValue( "layer_default_material",					"Al"		);
+			default_Values.setValue( "layer_default_density",					1			);
+			default_Values.setValue( "layer_default_permittivity",				100			);
+			default_Values.setValue( "layer_default_absorption",				100			);
+			default_Values.setValue( "layer_default_composed",					false		);
+			default_Values.setValue( "layer_default_stoichiometry_composition", 1			);
+			default_Values.setValue( "layer_default_stoichiometry_element",		"Al"		);
+			default_Values.setValue( "layer_default_sigma",						123.568		);
+			default_Values.setValue( "layer_default_thickness",					10			);
+			default_Values.setValue( "layer_default_drift_model",				"no_drift"	);
+			default_Values.setValue( "layer_default_drift_coefficients",		0			);
 		default_Values.endGroup();
 		default_Values.beginGroup( Substrate_Values );
-			default_Values.setValue( "substrate_default_material", "Si" );
-			default_Values.setValue( "substrate_default_density", 2.33 );
-			default_Values.setValue( "substrate_default_composed", false );
-			default_Values.setValue( "substrate_default_stoichiometry_composition", 1 );
-			default_Values.setValue( "substrate_default_stoichiometry_element", "Be" );
-			default_Values.setValue( "substrate_default_sigma", 21.2 );
+			default_Values.setValue( "substrate_default_material",					"Si"	);
+			default_Values.setValue( "substrate_default_density",					2.33	);
+			default_Values.setValue( "substrate_default_permittivity",				100		);
+			default_Values.setValue( "substrate_default_absorption",				100		);
+			default_Values.setValue( "substrate_default_composed",					false	);
+			default_Values.setValue( "substrate_default_stoichiometry_composition", 1		);
+			default_Values.setValue( "substrate_default_stoichiometry_element",		"Be"	);
+			default_Values.setValue( "substrate_default_sigma",						21.2	);
 		default_Values.endGroup();
 		default_Values.beginGroup( Stack_Values );
-			default_Values.setValue( "stack_default_number_of_repetition", 1 );
-			default_Values.setValue( "stack_default_period", 20 );
-			default_Values.setValue( "stack_default_gamma", 0.5 );
+			default_Values.setValue( "stack_default_number_of_repetition",	1	);
+			default_Values.setValue( "stack_default_period",				20	);
+			default_Values.setValue( "stack_default_gamma",					0.5 );
 		default_Values.endGroup();
 	default_Values.endGroup();
 
 	// color, precision, units etc
 	default_Values.beginGroup( Structure_Values_Representation );
-		default_Values.setValue( "default_precision", 3 );
-		default_Values.setValue( "default_density_precision", 3 );
-		default_Values.setValue( "default_interlayer_precision", 3 );		
-		default_Values.setValue( "default_atomic_weight_precision", 4 );
+
+	// qlineedit precisions
+		default_Values.setValue( "line_edit_double_format",		   'g');
+		default_Values.setValue( "line_edit_angle_precision",		7 );
+		default_Values.setValue( "line_edit_wavelength_precision",	7 );
+		default_Values.setValue( "line_edit_density_precision",		7 );
+		default_Values.setValue( "line_edit_permittivity_precision",7 );
+		default_Values.setValue( "line_edit_absorption_precision",	7 );
+		default_Values.setValue( "line_edit_composition_precision", 7 );
+		default_Values.setValue( "line_edit_thickness_precision",	7 );
+		default_Values.setValue( "line_edit_sigma_precision",		7 );
+		default_Values.setValue( "line_edit_interlayer_precision",	7 );
+		default_Values.setValue( "line_edit_period_precision",		7 );
+		default_Values.setValue( "line_edit_gamma_precision",		7 );
+
+	// thumbnail precisions
+		default_Values.setValue( "thumbnail_double_format",		   'f');
+		default_Values.setValue( "thumbnail_angle_precision",		3 );
+		default_Values.setValue( "thumbnail_wavelength_precision",	3 );
+		default_Values.setValue( "thumbnail_density_precision",		3 );
+		default_Values.setValue( "thumbnail_permittivity_precision",3 );
+		default_Values.setValue( "thumbnail_absorption_precision",	3 );
+		default_Values.setValue( "thumbnail_composition_precision", 3 );
+		default_Values.setValue( "thumbnail_thickness_precision",	3 );
+		default_Values.setValue( "thumbnail_sigma_precision",		3 );
+		default_Values.setValue( "thumbnail_interlayer_precision",	3 );
+		default_Values.setValue( "thumbnail_period_precision",		3 );
+		default_Values.setValue( "thumbnail_gamma_precision",		3 );
+
+	// other precisions
+		default_Values.setValue( "at_weight_precision",				5 );
 	default_Values.endGroup();
 
 	// parameters init values
 	default_Values.beginGroup( Parameters_Init_Values );
 		default_Values.beginGroup( Independent_Values );
-			default_Values.setValue( "default_num_angular_points", 1 );
+			default_Values.setValue( "default_num_angular_points",	1 );
 			default_Values.setValue( "default_num_spectral_points", 1 );
-
-			default_Values.setValue( "default_min_angle", 0 );
-			default_Values.setValue( "default_max_angle", 7 );
-
-			default_Values.setValue( "default_min_wavelength", 1.54056 );
-			default_Values.setValue( "default_max_wavelength", 180 );
-
+			default_Values.setValue( "default_min_angle",			0 );
+			default_Values.setValue( "default_max_angle",			7 );
+			default_Values.setValue( "default_min_wavelength",		1.54056 );
+			default_Values.setValue( "default_max_wavelength",		180 );
 			default_Values.setValue( "default_angle_type", int(Angle_Type::Grazing) );
-			default_Values.setValue( "default_angular_resolution", 0 );
-
-			default_Values.setValue( "default_polarization", 0 );
-			default_Values.setValue( "default_spectral_resolution", 0 );
-			default_Values.setValue( "default_polarization_sensitivity", 0 );
+			default_Values.setValue( "default_angular_resolution",	0 );
+			default_Values.setValue( "default_polarization",			0 );
+			default_Values.setValue( "default_spectral_resolution",		0 );
+			default_Values.setValue( "default_polarization_sensitivity",0 );
 		default_Values.endGroup();
 	default_Values.endGroup();
 }
@@ -220,7 +241,3 @@ void Launcher::open_About()
 	// TODO about
 	QMessageBox::about(this,"About","-Say something\n-Something");
 }
-
-
-
-

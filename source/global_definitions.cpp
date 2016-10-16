@@ -126,4 +126,104 @@ QString whats_This_Num_Repetitions = "Num_Repetitions";
 QString whats_This_Period = "Period";
 QString whats_This_Gamma = "Gamma";
 
+//-----------------------------------------------
+// settings
+//-----------------------------------------------
 
+// gui_Settings
+QString application_style;
+/// launcher window geometry
+int launcher_x_corner;
+int launcher_y_corner;
+/// multilayer window geometry
+int multilayer_x_corner;
+int multilayer_y_corner;
+int multilayer_min_width;
+int multilayer_min_height;
+int multilayer_width;
+int multilayer_height;
+int multilayer_height_additive;
+/// multilayer tab name
+QString default_multilayer_tab_name;
+QString default_independent_variable_tab_name;
+/// resource path
+QString icon_path;
+
+// default_Values
+/// Ambient_Values
+QString	ambient_default_material;
+double	ambient_default_density;
+double	ambient_default_permittivity;
+double	ambient_default_absorption;
+bool	ambient_default_composed;
+double	ambient_default_stoichiometry_composition;
+QString	ambient_default_stoichiometry_element;
+/// Layer_Values
+QString	layer_default_material;
+double	layer_default_density;
+double	layer_default_permittivity;
+double	layer_default_absorption;
+bool	layer_default_composed;
+double	layer_default_stoichiometry_composition;
+QString	layer_default_stoichiometry_element;
+double	layer_default_sigma;
+double	layer_default_thickness;
+QString	layer_default_drift_model;
+double	layer_default_drift_coefficients;
+/// Substrate_Values
+QString	substrate_default_material;
+double	substrate_default_density;
+double	substrate_default_permittivity;
+double	substrate_default_absorption;
+bool	substrate_default_composed;
+double	substrate_default_stoichiometry_composition;
+QString	substrate_default_stoichiometry_element;
+double	substrate_default_sigma;
+/// Stack_Values
+int		stack_default_number_of_repetition;
+double	stack_default_period;
+double	stack_default_gamma;
+
+/// qlineedit precisions
+char line_edit_double_format		;
+int line_edit_angle_precision		;
+int line_edit_wavelength_precision	;
+int line_edit_density_precision		;
+int line_edit_permittivity_precision;
+int line_edit_absorption_precision	;
+int line_edit_composition_precision	;
+int line_edit_thickness_precision	;
+int line_edit_sigma_precision		;
+int line_edit_interlayer_precision	;
+int line_edit_period_precision		;
+int line_edit_gamma_precision		;
+/// thumbnail precisions
+char thumbnail_double_format		;
+int thumbnail_angle_precision		;
+int thumbnail_wavelength_precision	;
+int thumbnail_density_precision		;
+int thumbnail_permittivity_precision;
+int thumbnail_absorption_precision	;
+int thumbnail_composition_precision	;
+int thumbnail_thickness_precision	;
+int thumbnail_sigma_precision		;
+int thumbnail_interlayer_precision	;
+int thumbnail_period_precision		;
+int thumbnail_gamma_precision		;
+/// other precisions
+int at_weight_precision				;
+
+/// angular and spectral independent variables
+int default_num_angular_points;
+int default_num_spectral_points;
+double default_min_angle;
+double default_max_angle;
+double default_min_wavelength;
+double default_max_wavelength;
+Angle_Type default_angle_type;
+double default_angular_resolution;
+double default_polarization;
+double default_spectral_resolution;
+double default_polarization_sensitivity;
+
+//-----------------------------------------------

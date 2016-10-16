@@ -1,7 +1,6 @@
 #include "multilayer_approach.h"
 
-Multilayer_Approach::Multilayer_Approach():
-	gui_Settings(Gui_Settings_Path, QSettings::IniFormat)
+Multilayer_Approach::Multilayer_Approach()
 {
 	// place ui elements
 	setWindowTitle("Multilayer Model");
@@ -31,18 +30,9 @@ void Multilayer_Approach::create_Main_Layout()
 
 void Multilayer_Approach::set_Window_Geometry()
 {
-	gui_Settings.beginGroup( Multilayer_Window_Geometry );
-		int multilayer_X_Corner   = gui_Settings.value( "multilayer_X_Corner", 0 ).toInt();
-		int multilayer_Y_Corner   = gui_Settings.value( "multilayer_Y_Corner", 0 ).toInt();
-		int multilayer_Min_Width  = gui_Settings.value( "multilayer_Min_Width", 0 ).toInt();
-		int multilayer_Width	  = gui_Settings.value( "multilayer_Width", 0 ).toInt();
-		int multilayer_Min_Height = gui_Settings.value( "multilayer_Min_Height", 0 ).toInt();
-		int multilayer_Height	  = gui_Settings.value( "multilayer_Height", 0 ).toInt();
-	gui_Settings.endGroup();
-
-	setMinimumWidth(multilayer_Min_Width);
-	setMinimumHeight(multilayer_Min_Height);
-	setGeometry(multilayer_X_Corner,multilayer_Y_Corner,multilayer_Width,multilayer_Height);
+	setMinimumWidth(multilayer_min_width);
+	setMinimumHeight(multilayer_min_height);
+	setGeometry(multilayer_x_corner,multilayer_y_corner,multilayer_width,multilayer_height);
 }
 
 void Multilayer_Approach::create_Menu()
@@ -108,16 +98,11 @@ void Multilayer_Approach::change_Tab_Color(int index)
 
 void Multilayer_Approach::add_Multilayer()
 {
-	gui_Settings.beginGroup( Multilayer_Tabs );
-		QString default_Multilayer_Tab_Name = gui_Settings.value( "default_Multilayer_Tab_Name", 0 ).toString();
-	gui_Settings.endGroup();
-
-
 	Multilayer* new_Multilayer = new Multilayer;
 		new_Multilayer->setContentsMargins(-8,-10,-8,-10);
 
-	multilayer_Tabs->addTab(new_Multilayer, default_Multilayer_Tab_Name);
-	multilayer_Tabs->setTabText(multilayer_Tabs->count()-1, default_Multilayer_Tab_Name+QString::number(multilayer_Tabs->count()));
+	multilayer_Tabs->addTab(new_Multilayer, default_multilayer_tab_name);
+	multilayer_Tabs->setTabText(multilayer_Tabs->count()-1, default_multilayer_tab_name+QString::number(multilayer_Tabs->count()));
 
 	if(multilayer_Tabs->count()>1)
 	{
@@ -149,13 +134,9 @@ void Multilayer_Approach::remove_Multilayer(int index)
 
 void Multilayer_Approach::rename_Multilayer(int tab_Index)
 {
-	gui_Settings.beginGroup( Multilayer_Tabs );
-		QString default_New_Struct_Name = gui_Settings.value( "default_New_Struct_Name", 0 ).toString();
-	gui_Settings.endGroup();
-
 	bool ok;
 
-	QString text = QInputDialog::getText(this, "Rename structure", "New name", QLineEdit::Normal, default_New_Struct_Name, &ok);
+	QString text = QInputDialog::getText(this, "Rename structure", "New name", QLineEdit::Normal, multilayer_Tabs->tabText(tab_Index), &ok);
 	if (ok && !text.isEmpty())
 		multilayer_Tabs->setTabText(tab_Index, text);
 }

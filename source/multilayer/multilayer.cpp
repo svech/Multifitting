@@ -1,8 +1,6 @@
 #include "multilayer.h"
 
-Multilayer::Multilayer():
-	gui_Settings(Gui_Settings_Path, QSettings::IniFormat),
-	default_Values(Default_Values_Path, QSettings::IniFormat)
+Multilayer::Multilayer()
 {
 	create_Main_Layout();
 }
@@ -59,25 +57,21 @@ void Multilayer::create_Struct_Tree()
 
 void Multilayer::create_Struct_Toolbar()
 {
-	gui_Settings.beginGroup( Paths );
-		QString icon_Path = gui_Settings.value( "icon_Path", 0 ).toString();
-	gui_Settings.endGroup();
-
-	QPixmap add_Layer		(icon_Path + "add_layer.bmp");
-	QPixmap add_Multilayer  (icon_Path + "add_multilayer.bmp");
-	QPixmap add_Substrate	(icon_Path + "add_substrate.bmp");
-	QPixmap edit			(icon_Path + "roi.bmp");
-	QPixmap remove			(icon_Path + "delete.bmp");
-	QPixmap cut				(icon_Path + "cut.bmp");
-	QPixmap copy			(icon_Path + "copy.bmp");
-	QPixmap paste			(icon_Path + "paste.bmp");
-	QPixmap move_Up			(icon_Path + "shift_up.bmp");
-	QPixmap move_Down		(icon_Path + "shift_down.bmp");
-	QPixmap group			(icon_Path + "group.bmp");
-	QPixmap ungroup			(icon_Path + "ungroup.bmp");
-	QPixmap thickness_Plot	(icon_Path + "zplot.bmp");
-	QPixmap sigma_Plot		(icon_Path + "sigmaplot.bmp");
-	QPixmap destroy			(icon_Path + "bomb.bmp");
+	QPixmap add_Layer		(icon_path + "add_layer.bmp");
+	QPixmap add_Multilayer  (icon_path + "add_multilayer.bmp");
+	QPixmap add_Substrate	(icon_path + "add_substrate.bmp");
+	QPixmap edit			(icon_path + "roi.bmp");
+	QPixmap remove			(icon_path + "delete.bmp");
+	QPixmap cut				(icon_path + "cut.bmp");
+	QPixmap copy			(icon_path + "copy.bmp");
+	QPixmap paste			(icon_path + "paste.bmp");
+	QPixmap move_Up			(icon_path + "shift_up.bmp");
+	QPixmap move_Down		(icon_path + "shift_down.bmp");
+	QPixmap group			(icon_path + "group.bmp");
+	QPixmap ungroup			(icon_path + "ungroup.bmp");
+	QPixmap thickness_Plot	(icon_path + "zplot.bmp");
+	QPixmap sigma_Plot		(icon_path + "sigmaplot.bmp");
+	QPixmap destroy			(icon_path + "bomb.bmp");
 
 	struct_Toolbar = new QToolBar;
 	struct_Toolbar->addAction(QIcon(add_Layer),		"Add Layer");							// 0
@@ -252,10 +246,10 @@ void Multilayer::create_Independent_Variables_Tabs()
 		independent_Variables_Corner_Button->setFont(tmp_Qf);
 		independent_Variables_Plot_Tabs->setCornerWidget(independent_Variables_Corner_Button);
 
-	connect(independent_Variables_Corner_Button,  SIGNAL(clicked()),		  this, SLOT(add_Independent_Variables_Tab()));
-	connect(independent_Variables_Plot_Tabs, SIGNAL(currentChanged(int)),	  this, SLOT(change_Tab_Independent_Variables_Tab_Color(int)));
-	connect(independent_Variables_Plot_Tabs, SIGNAL(tabCloseRequested(int)),  this, SLOT(remove_Independent_Variables_Tab(int)));
-	connect(independent_Variables_Plot_Tabs, SIGNAL(tabBarDoubleClicked(int)),this, SLOT(rename_Independent_Variables_Tab(int)));
+	connect(independent_Variables_Corner_Button,SIGNAL(clicked()),				 this, SLOT(add_Independent_Variables_Tab()));
+	connect(independent_Variables_Plot_Tabs,	SIGNAL(currentChanged(int)),	 this, SLOT(change_Tab_Independent_Variables_Tab_Color(int)));
+	connect(independent_Variables_Plot_Tabs,	SIGNAL(tabCloseRequested(int)),  this, SLOT(remove_Independent_Variables_Tab(int)));
+	connect(independent_Variables_Plot_Tabs,	SIGNAL(tabBarDoubleClicked(int)),this, SLOT(rename_Independent_Variables_Tab(int)));
 
 	add_Independent_Variables_Tab();
 	independent_Tabs_Exist = true;
@@ -275,13 +269,9 @@ void Multilayer::create_Coupled_Parameters_List()
 
 void Multilayer::create_Coupled_Parameters_Toolbar()
 {
-	gui_Settings.beginGroup( Paths );
-		QString icon_Path = gui_Settings.value( "icon_Path", 0 ).toString();
-	gui_Settings.endGroup();
-
-	QPixmap new_Variable	(icon_Path + "new.bmp");
-	QPixmap edit			(icon_Path + "roi.bmp");
-	QPixmap remove			(icon_Path + "delete.bmp");
+	QPixmap new_Variable	(icon_path + "new.bmp");
+	QPixmap edit			(icon_path + "roi.bmp");
+	QPixmap remove			(icon_path + "delete.bmp");
 
 	coupled_Parameters_Toolbar = new QToolBar;
 	coupled_Parameters_Toolbar->addAction(QIcon(new_Variable),	"Add Coupled Parameter");	// 0
@@ -343,10 +333,6 @@ void Multilayer::create_Data_Frame()
 
 void Multilayer::add_Independent_Variables_Tab()
 {
-	gui_Settings.beginGroup( Multilayer_Tabs );
-		QString default_Independent_Variable_Tab_Name = gui_Settings.value( "default_Independent_Variable_Tab_Name", 0 ).toString();
-	gui_Settings.endGroup();
-
 	// hidden copy of main structure
 	QTreeWidget* new_Struct_Tree_Copy = new QTreeWidget;
 
@@ -368,8 +354,8 @@ void Multilayer::add_Independent_Variables_Tab()
 		new_Independent->setContentsMargins(-8,-10,-8,-10);
 
 	// add new tab
-	independent_Variables_Plot_Tabs->addTab(new_Independent, default_Independent_Variable_Tab_Name);
-	independent_Variables_Plot_Tabs->setTabText(independent_Variables_Plot_Tabs->count()-1, default_Independent_Variable_Tab_Name+QString::number(independent_Variables_Plot_Tabs->count()));
+	independent_Variables_Plot_Tabs->addTab(new_Independent, default_independent_variable_tab_name);
+	independent_Variables_Plot_Tabs->setTabText(independent_Variables_Plot_Tabs->count()-1, default_independent_variable_tab_name+QString::number(independent_Variables_Plot_Tabs->count()));
 
 	if(independent_Variables_Plot_Tabs->count()>1)
 	{
@@ -424,7 +410,6 @@ void Multilayer::remove_Independent_Variables_Tab(int index)
 void Multilayer::rename_Independent_Variables_Tab(int tab_Index)
 {
 	bool ok;
-
 	QString text = QInputDialog::getText(this, "Rename plot", "New name", QLineEdit::Normal, independent_Variables_Plot_Tabs->tabText(tab_Index), &ok);
 	if (ok && !text.isEmpty())
 		independent_Variables_Plot_Tabs->setTabText(tab_Index, text);
@@ -807,7 +792,7 @@ void Multilayer::if_Selected()
 		struct_Toolbar->actions()[7]->setDisabled(true);		 // paste
 	}
 
-	struct_Toolbar->actions()[11]->setDisabled(true);		 // ungroup
+	struct_Toolbar->actions()[11]->setDisabled(true);			 // ungroup
 
 	if(struct_Tree->selectedItems().isEmpty())
 	{
@@ -994,29 +979,27 @@ void Multilayer::refresh_Toolbar()
 
 void Multilayer::set_Structure_Item_Text(QTreeWidgetItem* item)
 {
-	default_Values.beginGroup( Structure_Values_Representation );
-		int precision = default_Values.value( "default_precision", 0 ).toInt();
-	default_Values.endGroup();
-
 	// if ambient
 	if(item->whatsThis(default_Column)==whats_This_Ambient)
 	{
 		item->setText(default_Column, "ambient: " + item->data(default_Column, Qt::UserRole).value<Ambient>().material);
 		if(item->data(default_Column, Qt::UserRole).value<Ambient>().material!="Vacuum")
 		{
-			item->setText(default_Column, item->text(default_Column) + ", " + Rho_Sym + "=" +  QString::number(item->data(default_Column, Qt::UserRole).value<Ambient>().density.value,'f',precision) + "g/cm" + Cube_Sym);
+			item->setText(default_Column, item->text(default_Column) + ", " + Rho_Sym + "=" +
+						  QString::number(item->data(default_Column, Qt::UserRole).value<Ambient>().density.value,thumbnail_double_format,thumbnail_density_precision) + "g/cm" + Cube_Sym);
 		}
 	} else
 	{
 		// if substrate
 		if(item->whatsThis(default_Column)==whats_This_Substrate)
 		{
-			item->setText(default_Column, item->data(default_Column, Qt::UserRole).value<Substrate>().material + " substrate"
-						  + ", " + Rho_Sym + "=" +  QString::number(item->data(default_Column, Qt::UserRole).value<Substrate>().density.value,'f',precision) + "g/cm" + Cube_Sym);
+			item->setText(default_Column, item->data(default_Column, Qt::UserRole).value<Substrate>().material + " substrate" + ", " + Rho_Sym + "=" +
+						  QString::number(item->data(default_Column, Qt::UserRole).value<Substrate>().density.value,thumbnail_double_format,thumbnail_density_precision) + "g/cm" + Cube_Sym);
 
 			if(item->data(default_Column, Qt::UserRole).value<Substrate>().sigma.value>0)
 			{
-				item->setText(default_Column, item->text(default_Column) + ", " + Sigma_Sym + "=" +  QString::number(item->data(default_Column, Qt::UserRole).value<Substrate>().sigma.value,'f',precision) + Angstrom_Sym);
+				item->setText(default_Column, item->text(default_Column) + ", " + Sigma_Sym + "=" +
+							  QString::number(item->data(default_Column, Qt::UserRole).value<Substrate>().sigma.value,thumbnail_double_format,thumbnail_sigma_precision) + Angstrom_Sym);
 			}
 		} else
 		{
@@ -1024,22 +1007,24 @@ void Multilayer::set_Structure_Item_Text(QTreeWidgetItem* item)
 			if(item->childCount()>0)
 			{
 				item->setText(default_Column, "Multilayer, N=" + QString::number(item->data(default_Column, Qt::UserRole).value<Stack_Content>().num_Repetition.value)
-							  + ", d=" + QString::number(item->data(default_Column, Qt::UserRole).value<Stack_Content>().period.value,'f',precision) + Angstrom_Sym);
+							  + ", d=" + QString::number(item->data(default_Column, Qt::UserRole).value<Stack_Content>().period.value,thumbnail_double_format,thumbnail_period_precision) + Angstrom_Sym);
 
 				if(item->childCount()==2)
 				{
-					item->setText(default_Column, item->text(default_Column) + ", " + Gamma_Sym + "=" + QString::number(item->data(default_Column, Qt::UserRole).value<Stack_Content>().gamma.value,'f',precision));
+					item->setText(default_Column, item->text(default_Column) + ", " + Gamma_Sym + "=" +
+								  QString::number(item->data(default_Column, Qt::UserRole).value<Stack_Content>().gamma.value,thumbnail_double_format,thumbnail_gamma_precision));
 				}
 			} else
 			// if layer
 			{
 				item->setText(default_Column, item->data(default_Column, Qt::UserRole).value<Layer>().material + " layer"
-							  + ", z=" +  QString::number(item->data(default_Column, Qt::UserRole).value<Layer>().thickness.value,'f',precision) + Angstrom_Sym
-							  + ", " + Rho_Sym + "=" +  QString::number(item->data(default_Column, Qt::UserRole).value<Layer>().density.value,'f',precision) + "g/cm" + Cube_Sym);
+							  + ", z=" +  QString::number(item->data(default_Column, Qt::UserRole).value<Layer>().thickness.value,thumbnail_double_format,thumbnail_thickness_precision) + Angstrom_Sym
+							  + ", " + Rho_Sym + "=" +  QString::number(item->data(default_Column, Qt::UserRole).value<Layer>().density.value,thumbnail_double_format,thumbnail_density_precision) + "g/cm" + Cube_Sym);
 
 				if(item->data(default_Column, Qt::UserRole).value<Layer>().sigma.value>0)
 				{
-					item->setText(default_Column, item->text(default_Column) + ", " + Sigma_Sym + "=" +  QString::number(item->data(default_Column, Qt::UserRole).value<Layer>().sigma.value,'f',precision) + Angstrom_Sym);
+					item->setText(default_Column, item->text(default_Column) + ", " + Sigma_Sym + "=" +
+								  QString::number(item->data(default_Column, Qt::UserRole).value<Layer>().sigma.value,thumbnail_double_format,thumbnail_sigma_precision) + Angstrom_Sym);
 				}
 			}
 		}
@@ -1135,7 +1120,6 @@ void Multilayer::refresh_If_Layer(QTreeWidgetItem* this_Item)
 			this_Item->setText(default_Column, list[0] + "layer (" + QString::number(different_Layers_Counter) + ")" + list[1]);
 			this_Item->setWhatsThis(default_Column, whats_This_Layer + item_Type_Delimiter + "(" + QString::number(different_Layers_Counter) + ")");
 
-			// TODO works?
 			Layer layer = this_Item->data(default_Column, Qt::UserRole).value<Layer>();
 			layer.layer_Index = different_Layers_Counter;
 			QVariant var; var.setValue( layer );
@@ -1265,15 +1249,11 @@ void Multilayer::find_Period(QTreeWidgetItem* this_Item)
 
 void Multilayer::add_Measured_Data()
 {
-	gui_Settings.beginGroup( Multilayer_Window_Geometry );
-		int multilayer_Height_Additive = gui_Settings.value( "multilayer_Height_Additive", 0 ).toInt();
-	gui_Settings.endGroup();
-
 	setUpdatesEnabled(false);
 
 	// window resizing
 	if(!data_Measured_Data_Frame_Vector.isEmpty())
-		QWidget::window()->resize(QWidget::window()->width(),QWidget::window()->height() + multilayer_Height_Additive);
+		QWidget::window()->resize(QWidget::window()->width(),QWidget::window()->height() + multilayer_height_additive);
 
 	QFrame* new_Frame = new QFrame;	data_Measured_Data_Frame_Vector.append(new_Frame);
 	QHBoxLayout* new_Frame_Layout = new QHBoxLayout(new_Frame);
@@ -1325,10 +1305,6 @@ void Multilayer::add_Measured_Data()
 
 void Multilayer::remove_Measured_Data()
 {
-	gui_Settings.beginGroup( Multilayer_Window_Geometry );
-		int multilayer_Height_Additive = gui_Settings.value( "multilayer_Height_Additive", 0 ).toInt();
-	gui_Settings.endGroup();
-
 	setUpdatesEnabled(false);
 
 	QString add_Name = data_Measured_Data_Frame_Vector.first()->findChildren<QPushButton*>().end()[-2]->objectName();	// add button is the second from the end
@@ -1342,7 +1318,7 @@ void Multilayer::remove_Measured_Data()
 	// window resizing
 	if(!data_Measured_Data_Frame_Vector.isEmpty())
 	{
-		QWidget::window()->resize(QWidget::window()->width(),QWidget::window()->height() - multilayer_Height_Additive);
+		QWidget::window()->resize(QWidget::window()->width(),QWidget::window()->height() - multilayer_height_additive);
 		adjustSize();
 	}
 
@@ -1361,15 +1337,11 @@ void Multilayer::remove_Measured_Data()
 
 void Multilayer::add_Target_Profile()
 {
-	gui_Settings.beginGroup( Multilayer_Window_Geometry );
-		int multilayer_Height_Additive = gui_Settings.value( "multilayer_Height_Additive", 0 ).toInt();
-	gui_Settings.endGroup();
-
 	setUpdatesEnabled(false);
 
 	// window resizing
 	if(!data_Target_Profile_Frame_Vector.isEmpty())
-		QWidget::window()->resize(QWidget::window()->width(),QWidget::window()->height() + multilayer_Height_Additive);
+		QWidget::window()->resize(QWidget::window()->width(),QWidget::window()->height() + multilayer_height_additive);
 
 	QFrame* new_Frame = new QFrame;	data_Target_Profile_Frame_Vector.append(new_Frame);
 
@@ -1423,10 +1395,6 @@ void Multilayer::add_Target_Profile()
 
 void Multilayer::remove_Target_Profile()
 {
-	gui_Settings.beginGroup( Multilayer_Window_Geometry );
-		int multilayer_Height_Additive = gui_Settings.value( "multilayer_Height_Additive", 0 ).toInt();
-	gui_Settings.endGroup();
-
 	setUpdatesEnabled(false);
 
 	QString add_Name = data_Target_Profile_Frame_Vector.first()->findChildren<QPushButton*>().end()[-2]->objectName();	// add_button is the second from the end
@@ -1440,7 +1408,7 @@ void Multilayer::remove_Target_Profile()
 	// window resizing
 	if(!data_Target_Profile_Frame_Vector.isEmpty())
 	{
-		QWidget::window()->resize(QWidget::window()->width(),QWidget::window()->height() - multilayer_Height_Additive);
+		QWidget::window()->resize(QWidget::window()->width(),QWidget::window()->height() - multilayer_height_additive);
 		adjustSize();
 	}
 

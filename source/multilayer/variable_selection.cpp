@@ -686,7 +686,18 @@ void Variable_Selection::add_Gamma(QTreeWidgetItem* item, QString whats_This_Typ
 void Variable_Selection::add_Variable()
 {
 	default_Values.beginGroup( Structure_Values_Representation );
-		int default_density_precision = default_Values.value( "default_density_precision", 0 ).toInt();
+		char thumbnail_double_format		= qvariant_cast<char>(default_Values.value( "thumbnail_double_format",		   'f'));
+//		int thumbnail_angle_precision		= default_Values.value( "thumbnail_angle_precision",		1 ).toInt();
+//		int thumbnail_wavelength_precision	= default_Values.value( "thumbnail_wavelength_precision",	1 ).toInt();
+		int thumbnail_density_precision		= default_Values.value( "thumbnail_density_precision",		1 ).toInt();
+		int thumbnail_permittivity_precision= default_Values.value( "thumbnail_permittivity_precision",	1 ).toInt();
+		int thumbnail_absorption_precision	= default_Values.value( "thumbnail_absorption_precision",	1 ).toInt();
+		int thumbnail_composition_precision = default_Values.value( "thumbnail_composition_precision",	1 ).toInt();
+		int thumbnail_thickness_precision	= default_Values.value( "thumbnail_thickness_precision",	1 ).toInt();
+		int thumbnail_sigma_precision		= default_Values.value( "thumbnail_sigma_precision",		1 ).toInt();
+		int thumbnail_interlayer_precision	= default_Values.value( "thumbnail_interlayer_precision",	1 ).toInt();
+		int thumbnail_period_precision		= default_Values.value( "thumbnail_period_precision",		1 ).toInt();
+		int thumbnail_gamma_precision		= default_Values.value( "thumbnail_gamma_precision",		1 ).toInt();
 	default_Values.endGroup();
 
 	if(map_Of_Parameters_Lists.value(filters_Combo_Box->currentText())->currentItem())
@@ -728,7 +739,7 @@ void Variable_Selection::add_Variable()
 				ambient.density.independent.min = ambient.density.value;
 				ambient.density.independent.max = ambient.density.value;
 
-				new_Item->setText(new_Item->text() + " [" + QString::number(ambient.density.value,'f',default_density_precision) + " g/cm" + Cube_Sym + "]");
+				new_Item->setText(new_Item->text() + " [" + QString::number(ambient.density.value,thumbnail_double_format,thumbnail_density_precision) + " g/cm" + Cube_Sym + "]");
 			}
 			// ambient permittivity
 			if(whats_This_List[1] == whats_This_Permittivity)
@@ -738,7 +749,7 @@ void Variable_Selection::add_Variable()
 				ambient.permittivity.independent.min = ambient.permittivity.value;
 				ambient.permittivity.independent.max = ambient.permittivity.value;
 
-				new_Item->setText(new_Item->text() + " [" + QString::number(ambient.permittivity.value,'f',default_density_precision) + " % of nominal]");
+				new_Item->setText(new_Item->text() + " [" + QString::number(ambient.permittivity.value,thumbnail_double_format,thumbnail_permittivity_precision) + " % of nominal]");
 			}
 			// ambient absorption
 			if(whats_This_List[1] == whats_This_Absorption)
@@ -748,7 +759,7 @@ void Variable_Selection::add_Variable()
 				ambient.absorption.independent.min = ambient.absorption.value;
 				ambient.absorption.independent.max = ambient.absorption.value;
 
-				new_Item->setText(new_Item->text() + " [" + QString::number(ambient.absorption.value,'f',default_density_precision) + " % of nominal]");
+				new_Item->setText(new_Item->text() + " [" + QString::number(ambient.absorption.value,thumbnail_double_format,thumbnail_absorption_precision) + " % of nominal]");
 			}
 			//ambient composition
 			if(whats_This_List[1] == whats_This_Composition)
@@ -759,7 +770,7 @@ void Variable_Selection::add_Variable()
 				ambient.composition[index].composition.independent.min = ambient.composition[index].composition.value;
 				ambient.composition[index].composition.independent.max = ambient.composition[index].composition.value;
 
-				new_Item->setText(new_Item->text() + " [" + QString::number(ambient.composition[index].composition.value,'f',default_density_precision) + "]");
+				new_Item->setText(new_Item->text() + " [" + QString::number(ambient.composition[index].composition.value,thumbnail_double_format,thumbnail_composition_precision) + "]");
 			}
 
 			var.setValue(ambient);
@@ -781,7 +792,7 @@ void Variable_Selection::add_Variable()
 				layer.density.independent.min = layer.density.value;
 				layer.density.independent.max = layer.density.value;
 
-				new_Item->setText(new_Item->text() + " [" + QString::number(layer.density.value,'f',default_density_precision) + " g/cm" + Cube_Sym + "]");
+				new_Item->setText(new_Item->text() + " [" + QString::number(layer.density.value,thumbnail_double_format,thumbnail_density_precision) + " g/cm" + Cube_Sym + "]");
 			}
 			// layer permittivity
 			if(whats_This_List[1] == whats_This_Permittivity)
@@ -791,7 +802,7 @@ void Variable_Selection::add_Variable()
 				layer.permittivity.independent.min = layer.permittivity.value;
 				layer.permittivity.independent.max = layer.permittivity.value;
 
-				new_Item->setText(new_Item->text() + " [" + QString::number(layer.permittivity.value,'f',default_density_precision) + " % of nominal]");
+				new_Item->setText(new_Item->text() + " [" + QString::number(layer.permittivity.value,thumbnail_double_format,thumbnail_permittivity_precision) + " % of nominal]");
 			}
 			// layer absorption
 			if(whats_This_List[1] == whats_This_Absorption)
@@ -801,7 +812,7 @@ void Variable_Selection::add_Variable()
 				layer.absorption.independent.min = layer.absorption.value;
 				layer.absorption.independent.max = layer.absorption.value;
 
-				new_Item->setText(new_Item->text() + " [" + QString::number(layer.absorption.value,'f',default_density_precision) + " % of nominal]");
+				new_Item->setText(new_Item->text() + " [" + QString::number(layer.absorption.value,thumbnail_double_format,thumbnail_absorption_precision) + " % of nominal]");
 			}
 			// layer composition
 			if(whats_This_List[1] == whats_This_Composition)
@@ -812,7 +823,7 @@ void Variable_Selection::add_Variable()
 				layer.composition[index].composition.independent.min = layer.composition[index].composition.value;
 				layer.composition[index].composition.independent.max = layer.composition[index].composition.value;
 
-				new_Item->setText(new_Item->text() + " [" + QString::number(layer.composition[index].composition.value,'f',default_density_precision) + "]");
+				new_Item->setText(new_Item->text() + " [" + QString::number(layer.composition[index].composition.value,thumbnail_double_format,thumbnail_composition_precision) + "]");
 			}
 
 			/// thickness parameters
@@ -825,7 +836,7 @@ void Variable_Selection::add_Variable()
 				layer.thickness.independent.min = layer.thickness.value;
 				layer.thickness.independent.max = layer.thickness.value;
 
-				new_Item->setText(new_Item->text() + " [" + QString::number(layer.thickness.value,'f',default_density_precision) + " " + Angstrom_Sym + "]");
+				new_Item->setText(new_Item->text() + " [" + QString::number(layer.thickness.value,thumbnail_double_format,thumbnail_thickness_precision) + " " + Angstrom_Sym + "]");
 			}
 
 			/// interface parameters
@@ -838,7 +849,7 @@ void Variable_Selection::add_Variable()
 				layer.sigma.independent.min = layer.sigma.value;
 				layer.sigma.independent.max = layer.sigma.value;
 
-				new_Item->setText(new_Item->text() + " [" + QString::number(layer.sigma.value,'f',default_density_precision) + " " + Angstrom_Sym + "]");
+				new_Item->setText(new_Item->text() + " [" + QString::number(layer.sigma.value,thumbnail_double_format,thumbnail_sigma_precision) + " " + Angstrom_Sym + "]");
 			}
 			// layer interlayer composition (if enabled and >=2 elements)
 			if(whats_This_List[1] == whats_This_Interlayer_Composition)
@@ -849,7 +860,7 @@ void Variable_Selection::add_Variable()
 				layer.interlayer_Composition[index].interlayer.independent.min = layer.interlayer_Composition[index].interlayer.value;
 				layer.interlayer_Composition[index].interlayer.independent.max = layer.interlayer_Composition[index].interlayer.value;
 
-				new_Item->setText(new_Item->text() + " [" + QString::number(layer.interlayer_Composition[index].interlayer.value,'f',default_density_precision) + "]");
+				new_Item->setText(new_Item->text() + " [" + QString::number(layer.interlayer_Composition[index].interlayer.value,thumbnail_double_format,thumbnail_interlayer_precision) + "]");
 			}
 
 			var.setValue(layer);
@@ -879,7 +890,7 @@ void Variable_Selection::add_Variable()
 				stack_Content.period.independent.min = stack_Content.period.value;
 				stack_Content.period.independent.max = stack_Content.period.value;
 
-				new_Item->setText(new_Item->text() + " [" + QString::number(stack_Content.period.value,'f',default_density_precision) + " " + Angstrom_Sym + "]");
+				new_Item->setText(new_Item->text() + " [" + QString::number(stack_Content.period.value,thumbnail_double_format,thumbnail_period_precision) + " " + Angstrom_Sym + "]");
 			}
 			// multilayer gamma
 			if(whats_This_List[1] == whats_This_Gamma)
@@ -889,7 +900,7 @@ void Variable_Selection::add_Variable()
 				stack_Content.gamma.independent.min = stack_Content.gamma.value;
 				stack_Content.gamma.independent.max = stack_Content.gamma.value;
 
-				new_Item->setText(new_Item->text() + " [" + QString::number(stack_Content.gamma.value,'f',default_density_precision) + "]");
+				new_Item->setText(new_Item->text() + " [" + QString::number(stack_Content.gamma.value,thumbnail_double_format,thumbnail_gamma_precision) + "]");
 			}
 
 			var.setValue(stack_Content);
@@ -911,7 +922,7 @@ void Variable_Selection::add_Variable()
 				substrate.density.independent.min = substrate.density.value;
 				substrate.density.independent.max = substrate.density.value;
 
-				new_Item->setText(new_Item->text() + " [" + QString::number(substrate.density.value,'f',default_density_precision) + " g/cm" + Cube_Sym + "]");
+				new_Item->setText(new_Item->text() + " [" + QString::number(substrate.density.value,thumbnail_double_format,thumbnail_density_precision) + " g/cm" + Cube_Sym + "]");
 			}
 			// substrate permittivity
 			if(whats_This_List[1] == whats_This_Permittivity)
@@ -921,7 +932,7 @@ void Variable_Selection::add_Variable()
 				substrate.permittivity.independent.min = substrate.permittivity.value;
 				substrate.permittivity.independent.max = substrate.permittivity.value;
 
-				new_Item->setText(new_Item->text() + " [" + QString::number(substrate.permittivity.value,'f',default_density_precision) + " % of nominal]");
+				new_Item->setText(new_Item->text() + " [" + QString::number(substrate.permittivity.value,thumbnail_double_format,thumbnail_permittivity_precision) + " % of nominal]");
 			}
 			// substrate absorption
 			if(whats_This_List[1] == whats_This_Absorption)
@@ -931,7 +942,7 @@ void Variable_Selection::add_Variable()
 				substrate.absorption.independent.min = substrate.absorption.value;
 				substrate.absorption.independent.max = substrate.absorption.value;
 
-				new_Item->setText(new_Item->text() + " [" + QString::number(substrate.absorption.value,'f',default_density_precision) + " % of nominal]");
+				new_Item->setText(new_Item->text() + " [" + QString::number(substrate.absorption.value,thumbnail_double_format,thumbnail_absorption_precision) + " % of nominal]");
 			}
 			// substrate composition
 			if(whats_This_List[1] == whats_This_Composition)
@@ -942,7 +953,7 @@ void Variable_Selection::add_Variable()
 				substrate.composition[index].composition.independent.min = substrate.composition[index].composition.value;
 				substrate.composition[index].composition.independent.max = substrate.composition[index].composition.value;
 
-				new_Item->setText(new_Item->text() + " [" + QString::number(substrate.composition[index].composition.value,'f',default_density_precision) + "]");
+				new_Item->setText(new_Item->text() + " [" + QString::number(substrate.composition[index].composition.value,thumbnail_double_format,thumbnail_composition_precision) + "]");
 			}
 
 			/// interface parameters
@@ -955,7 +966,7 @@ void Variable_Selection::add_Variable()
 				substrate.sigma.independent.min = substrate.sigma.value;
 				substrate.sigma.independent.max = substrate.sigma.value;
 
-				new_Item->setText(new_Item->text() + " [" + QString::number(substrate.sigma.value,'f',default_density_precision) + " " + Angstrom_Sym + "]");
+				new_Item->setText(new_Item->text() + " [" + QString::number(substrate.sigma.value,thumbnail_double_format,thumbnail_sigma_precision) + " " + Angstrom_Sym + "]");
 			}
 			// substrate interlayer composition (if enabled and >=2 elements)
 			if(whats_This_List[1] == whats_This_Interlayer_Composition)
@@ -966,7 +977,7 @@ void Variable_Selection::add_Variable()
 				substrate.interlayer_Composition[index].interlayer.independent.min = substrate.interlayer_Composition[index].interlayer.value;
 				substrate.interlayer_Composition[index].interlayer.independent.max = substrate.interlayer_Composition[index].interlayer.value;
 
-				new_Item->setText(new_Item->text() + " [" + QString::number(substrate.interlayer_Composition[index].interlayer.value,'f',default_density_precision) + "]");
+				new_Item->setText(new_Item->text() + " [" + QString::number(substrate.interlayer_Composition[index].interlayer.value,thumbnail_double_format,thumbnail_interlayer_precision) + "]");
 			}
 
 			var.setValue(substrate);

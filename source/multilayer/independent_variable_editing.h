@@ -15,7 +15,6 @@ public:
 	QTreeWidgetItem* structure_Item;
 	QListWidgetItem* item;
 	QSettings gui_Settings;
-	QSettings default_Values;
 
 private:
 	void create_main_Layout();
@@ -31,7 +30,6 @@ private slots:
 
 private:
 	bool show_Data = true;
-	QString name = "variable 1, L";
 	QString units = "nm";
 
 	QString from_One = "value:";

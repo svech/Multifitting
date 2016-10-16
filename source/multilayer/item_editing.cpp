@@ -1,9 +1,7 @@
 #include "item_editing.h"
 
 Item_Editing::Item_Editing(QTreeWidgetItem* item):
-	item(item),
-	gui_Settings(Gui_Settings_Path, QSettings::IniFormat),
-	default_Values(Default_Values_Path, QSettings::IniFormat)
+	item(item)
 {
 	// map of sorted chemical elements
 	for(int i=0; i<element_Name.size(); ++i)
@@ -462,11 +460,6 @@ void Item_Editing::composition_Radio_Toggled(bool)
 
 void Item_Editing::more_Elements_Clicked(bool)
 {
-	default_Values.beginGroup( Structure_Values_Representation );
-		int precision = default_Values.value( "default_density_precision", 0 ).toInt();
-		int at_wt_precision = default_Values.value( "default_atomic_weight_precision", 0 ).toInt();
-	default_Values.endGroup();
-
 	if (element_Frame_Vec.size()==0)	{fewer_Elements->hide();}
 	else								{fewer_Elements->show();}
 
@@ -478,38 +471,30 @@ void Item_Editing::more_Elements_Clicked(bool)
 	QComboBox* elements = new QComboBox;		elements->addItems(sorted_Elements.keys());
 	QLabel*	  at_Weight = new QLabel;
 
-	connect(line_Edit, SIGNAL(textEdited(QString)), this, SLOT(fast_Refresh_Data(QString)));
-	connect(elements, SIGNAL(currentTextChanged(QString)), this, SLOT(refresh_Data(QString)));
+	connect(line_Edit, SIGNAL(textEdited(QString)),			this, SLOT(fast_Refresh_Data(QString)));
+	connect(elements,  SIGNAL(currentTextChanged(QString)), this, SLOT(refresh_Data(QString)));
 
 	// loading settings
-	default_Values.beginGroup( Structure_Init_Values );
 	if(item_Type==Item_Type::Ambient)
 	{
-		default_Values.beginGroup( Ambient_Values );
-			stoich.composition.value = default_Values.value( "ambient_default_stoichiometry_composition", 0 ).toDouble();
-			stoich.type  = default_Values.value( "ambient_default_stoichiometry_element", 0 ).toString();
-		default_Values.endGroup();
+		stoich.composition.value = ambient_default_stoichiometry_composition;
+		stoich.type				 = ambient_default_stoichiometry_element;
 	}
 	if(item_Type==Item_Type::Layer)
 	{
-		default_Values.beginGroup( Layer_Values );
-			stoich.composition.value = default_Values.value( "layer_default_stoichiometry_composition", 0 ).toDouble();
-			stoich.type  = default_Values.value( "layer_default_stoichiometry_element", 0 ).toString();
-		default_Values.endGroup();
+		stoich.composition.value = layer_default_stoichiometry_composition;
+		stoich.type				 = layer_default_stoichiometry_element;
 	}
 	if(item_Type==Item_Type::Substrate)
 	{
-		default_Values.beginGroup( Substrate_Values );
-			stoich.composition.value = default_Values.value( "substrate_default_stoichiometry_composition", 0 ).toDouble();
-			stoich.type  = default_Values.value( "substrate_default_stoichiometry_element", 0 ).toString();
-		default_Values.endGroup();
+		stoich.composition.value = substrate_default_stoichiometry_composition;
+		stoich.type				 = substrate_default_stoichiometry_element;
 	}
-	default_Values.endGroup();
 
 	// creating ui elements
-	line_Edit->setText(QString::number(stoich.composition.value,'f',precision));
+	line_Edit->setText(QString::number(stoich.composition.value,line_edit_double_format,line_edit_composition_precision));
 	elements->setCurrentIndex(elements->findText(stoich.type));
-	at_Weight->setText("At. Wt.=" + QString::number(sorted_Elements.value(elements->currentText()),'f',at_wt_precision) + ")");
+	at_Weight->setText("At. Wt.=" + QString::number(sorted_Elements.value(elements->currentText()),thumbnail_double_format,at_weight_precision) + ")");
 
 	composition_Line_Edit_Vec.append(line_Edit);
 	composition_Label_Vec.append(label);
@@ -554,7 +539,7 @@ void Item_Editing::more_Elements_Clicked(bool)
 	if (element_Frame_Vec.size()==1)
 	{
 		composition_Line_Edit_Vec.first()->setDisabled(true);
-		composition_Line_Edit_Vec.first()->setText(QString::number(1,'f',precision));
+		composition_Line_Edit_Vec.first()->setText(QString::number(1,line_edit_double_format,line_edit_composition_precision));
 		fewer_Elements->hide();
 	}
 	if (element_Frame_Vec.size()>=2) {composition_Line_Edit_Vec.first()->setDisabled(false);fewer_Elements->show();}
@@ -562,11 +547,6 @@ void Item_Editing::more_Elements_Clicked(bool)
 
 void Item_Editing::read_Elements_From_Item()
 {
-	default_Values.beginGroup( Structure_Values_Representation );
-		int precision = default_Values.value( "default_density_precision", 0 ).toInt();
-		int at_wt_precision = default_Values.value( "default_atomic_weight_precision", 0 ).toInt();
-	default_Values.endGroup();
-
 	// clear all previous widgets
 	for(int i=0; i<element_Frame_Vec.size(); ++i)
 		delete element_Frame_Vec[i];
@@ -577,7 +557,7 @@ void Item_Editing::read_Elements_From_Item()
 		Ambient ambient = item->data(default_Column, Qt::UserRole).value<Ambient>();
 
 		composition_Line_Edit_Vec.resize(ambient.composition.size());
-		composition_Label_Vec.resize(ambient.composition.size());
+		composition_Label_Vec.	  resize(ambient.composition.size());
 		composition_Combo_Box_Vec.resize(ambient.composition.size());
 		composition_At_Weight_Vec.resize(ambient.composition.size());
 
@@ -592,17 +572,17 @@ void Item_Editing::read_Elements_From_Item()
 			QComboBox* elements = new QComboBox;		elements->addItems(sorted_Elements.keys());
 			QLabel*	  at_Weight = new QLabel;
 
-			line_Edit->setText(QString::number(ambient.composition[i].composition.value,'f',precision));
+			line_Edit->setText(QString::number(ambient.composition[i].composition.value,line_edit_double_format,line_edit_composition_precision));
 			elements->setCurrentIndex(elements->findText(ambient.composition[i].type));
-			at_Weight->setText("At. Wt.=" + QString::number(sorted_Elements.value(elements->currentText()),'f',at_wt_precision) + ")");
+			at_Weight->setText("At. Wt.=" + QString::number(sorted_Elements.value(elements->currentText()),thumbnail_double_format,at_weight_precision) + ")");
 
 			composition_Line_Edit_Vec[i]=line_Edit;
-			composition_Label_Vec[i]=label;
+			composition_Label_Vec	 [i]=label;
 			composition_Combo_Box_Vec[i]=elements;
 			composition_At_Weight_Vec[i]=at_Weight;
 
-			connect(line_Edit, SIGNAL(textEdited(QString)), this, SLOT(fast_Refresh_Data(QString)));
-			connect(elements, SIGNAL(currentTextChanged(QString)), this, SLOT(refresh_Data(QString)));
+			connect(line_Edit, SIGNAL(textEdited(QString)),			this, SLOT(fast_Refresh_Data(QString)));
+			connect(elements,  SIGNAL(currentTextChanged(QString)), this, SLOT(refresh_Data(QString)));
 
 			// placing ui elements
 			QFrame* element_Frame = new QFrame;
@@ -623,7 +603,7 @@ void Item_Editing::read_Elements_From_Item()
 		Layer layer = item->data(default_Column, Qt::UserRole).value<Layer>();
 
 		composition_Line_Edit_Vec.resize(layer.composition.size());
-		composition_Label_Vec.resize(layer.composition.size());
+		composition_Label_Vec.	  resize(layer.composition.size());
 		composition_Combo_Box_Vec.resize(layer.composition.size());
 		composition_At_Weight_Vec.resize(layer.composition.size());
 
@@ -638,12 +618,12 @@ void Item_Editing::read_Elements_From_Item()
 			QComboBox* elements = new QComboBox;		elements->addItems(sorted_Elements.keys());
 			QLabel*	  at_Weight = new QLabel;
 
-			line_Edit->setText(QString::number(layer.composition[i].composition.value,'f',precision));
+			line_Edit->setText(QString::number(layer.composition[i].composition.value,line_edit_double_format,line_edit_composition_precision));
 			elements->setCurrentIndex(elements->findText(layer.composition[i].type));
-			at_Weight->setText("At. Wt.=" + QString::number(sorted_Elements.value(elements->currentText()),'f',at_wt_precision) + ")");
+			at_Weight->setText("At. Wt.=" + QString::number(sorted_Elements.value(elements->currentText()),thumbnail_double_format,at_weight_precision) + ")");
 
 			composition_Line_Edit_Vec[i]=line_Edit;
-			composition_Label_Vec[i]=label;
+			composition_Label_Vec	 [i]=label;
 			composition_Combo_Box_Vec[i]=elements;
 			composition_At_Weight_Vec[i]=at_Weight;
 
@@ -684,12 +664,12 @@ void Item_Editing::read_Elements_From_Item()
 			QComboBox* elements = new QComboBox;		elements->addItems(sorted_Elements.keys());
 			QLabel*	  at_Weight = new QLabel;
 
-			line_Edit->setText(QString::number(substrate.composition[i].composition.value,'f',precision));
+			line_Edit->setText(QString::number(substrate.composition[i].composition.value,line_edit_double_format,line_edit_composition_precision));
 			elements->setCurrentIndex(elements->findText(substrate.composition[i].type));
-			at_Weight->setText("At. Wt.=" + QString::number(sorted_Elements.value(elements->currentText()),'f',at_wt_precision) + ")");
+			at_Weight->setText("At. Wt.=" + QString::number(sorted_Elements.value(elements->currentText()),thumbnail_double_format,at_weight_precision) + ")");
 
 			composition_Line_Edit_Vec[i] = line_Edit;
-			composition_Label_Vec[i] = label;
+			composition_Label_Vec	 [i] = label;
 			composition_Combo_Box_Vec[i] = elements;
 			composition_At_Weight_Vec[i] = at_Weight;
 
@@ -715,7 +695,7 @@ void Item_Editing::read_Elements_From_Item()
 	if (element_Frame_Vec.size()==1)
 	{
 		composition_Line_Edit_Vec.first()->setDisabled(true);
-		composition_Line_Edit_Vec.first()->setText(QString::number(1,'f',precision));
+		composition_Line_Edit_Vec.first()->setText(QString::number(1,line_edit_double_format,line_edit_composition_precision));
 		fewer_Elements->hide();
 	}
 	if (element_Frame_Vec.size()>=2) {composition_Line_Edit_Vec.first()->setDisabled(false);fewer_Elements->show();}
@@ -723,10 +703,6 @@ void Item_Editing::read_Elements_From_Item()
 
 void Item_Editing::read_Interlayers_From_Item()
 {
-	default_Values.beginGroup( Structure_Values_Representation );
-		int precision = default_Values.value( "default_interlayer_precision", 0 ).toInt();
-	default_Values.endGroup();
-
 	if(item_Type==Item_Type::Layer)
 	{
 		Layer layer = item->data(default_Column, Qt::UserRole).value<Layer>();
@@ -742,18 +718,18 @@ void Item_Editing::read_Interlayers_From_Item()
 			QLineEdit* line_Edit = new QLineEdit;		line_Edit->setFixedWidth(40); line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION));
 
 			check_Box->setChecked(layer.interlayer_Composition[i].enabled);
-			line_Edit->setText(QString::number(layer.interlayer_Composition[i].interlayer.value,'f',precision));
+			line_Edit->setText(QString::number(layer.interlayer_Composition[i].interlayer.value,line_edit_double_format,line_edit_interlayer_precision));
 
 			interlayer_Composition_Check_Box_Vec[i]=check_Box;
 			interlayer_Composition_Line_Edit_Vec[i]=line_Edit;
 
-			connect(check_Box, SIGNAL(stateChanged(int)), this, SLOT(interlayer_Check(int)));
+			connect(check_Box, SIGNAL(stateChanged(int)),	this, SLOT(interlayer_Check(int)));
 			connect(line_Edit, SIGNAL(textEdited(QString)), this, SLOT(fast_Refresh_Data(QString)));
 
 			// placing ui elements
 			QVBoxLayout* vert_Layout = new QVBoxLayout;
-			vert_Layout->setSpacing(3);
-			vert_Layout->setAlignment(Qt::AlignCenter);
+				vert_Layout->setSpacing(3);
+				vert_Layout->setAlignment(Qt::AlignCenter);
 				vert_Layout->addWidget(check_Box);
 				vert_Layout->addWidget(line_Edit);
 			interlayer_Composition_Layout_With_Elements_Vector->addLayout(vert_Layout);
@@ -774,12 +750,12 @@ void Item_Editing::read_Interlayers_From_Item()
 			QLineEdit* line_Edit = new QLineEdit;		line_Edit->setFixedWidth(40); line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION));
 
 			check_Box->setChecked(substrate.interlayer_Composition[i].enabled);
-			line_Edit->setText(QString::number(substrate.interlayer_Composition[i].interlayer.value,'f',precision));
+			line_Edit->setText(QString::number(substrate.interlayer_Composition[i].interlayer.value,line_edit_double_format,line_edit_interlayer_precision));
 
 			interlayer_Composition_Check_Box_Vec[i]=check_Box;
 			interlayer_Composition_Line_Edit_Vec[i]=line_Edit;
 
-			connect(check_Box, SIGNAL(stateChanged(int)), this, SLOT(interlayer_Check(int)));
+			connect(check_Box, SIGNAL(stateChanged(int)),	this, SLOT(interlayer_Check(int)));
 			connect(line_Edit, SIGNAL(textEdited(QString)), this, SLOT(fast_Refresh_Data(QString)));
 
 			// placing ui elements
@@ -801,10 +777,6 @@ void Item_Editing::read_Interlayers_From_Item()
 
 void Item_Editing::fewer_Elements_Clicked(bool)
 {
-	default_Values.beginGroup( Structure_Values_Representation );
-		int precision = default_Values.value( "default_density_precision", 0 ).toInt();
-	default_Values.endGroup();
-
 	if (element_Frame_Vec.size()<=2)	fewer_Elements->hide();
 
 	QVariant var;
@@ -841,7 +813,7 @@ void Item_Editing::fewer_Elements_Clicked(bool)
 	if (element_Frame_Vec.size()==1)
 	{
 		composition_Line_Edit_Vec.first()->setDisabled(true);
-		composition_Line_Edit_Vec.first()->setText(QString::number(1,'f',precision));
+		composition_Line_Edit_Vec.first()->setText(QString::number(1,line_edit_double_format,line_edit_composition_precision));
 		fewer_Elements->hide();
 	}
 
@@ -906,24 +878,20 @@ void Item_Editing::show_Material()
 
 void Item_Editing::show_Density()
 {
-	default_Values.beginGroup( Structure_Values_Representation );
-		int precision = default_Values.value( "default_density_precision", 0 ).toInt();
-	default_Values.endGroup();
-
 	if(item_Type==Item_Type::Ambient)
 	{
 		Ambient ambient = item->data(default_Column, Qt::UserRole).value<Ambient>();
-		density_Line_Edit->setText(QString::number(ambient.density.value,'f',precision));
+		density_Line_Edit->setText(QString::number(ambient.density.value,line_edit_double_format,line_edit_density_precision));
 	}
 	if(item_Type==Item_Type::Layer)
 	{
 		Layer layer = item->data(default_Column, Qt::UserRole).value<Layer>();
-		density_Line_Edit->setText(QString::number(layer.density.value,'f',precision));
+		density_Line_Edit->setText(QString::number(layer.density.value,line_edit_double_format,line_edit_density_precision));
 	}
 	if(item_Type==Item_Type::Substrate)
 	{
 		Substrate substrate = item->data(default_Column, Qt::UserRole).value<Substrate>();
-		density_Line_Edit->setText(QString::number(substrate.density.value,'f',precision));
+		density_Line_Edit->setText(QString::number(substrate.density.value,line_edit_double_format,line_edit_density_precision));
 	}
 }
 
@@ -932,26 +900,22 @@ void Item_Editing::show_Thickness()
 	if(item_Type==Item_Type::Layer)
 	{
 		Layer layer = item->data(default_Column, Qt::UserRole).value<Layer>();
-		thickness_Line_Edit->setText(QString::number(layer.thickness.value));
+		thickness_Line_Edit->setText(QString::number(layer.thickness.value,line_edit_double_format,line_edit_thickness_precision));
 	}
 }
 
 void Item_Editing::show_Sigma()
 {
 	// TODO extreme layers
-	default_Values.beginGroup( Structure_Values_Representation );
-		int precision = default_Values.value( "default_density_precision", 0 ).toInt();
-	default_Values.endGroup();
-
 	if(item_Type==Item_Type::Layer)
 	{
 		Layer layer = item->data(default_Column, Qt::UserRole).value<Layer>();
-		sigma_Line_Edit->setText(QString::number(layer.sigma.value,'f',precision));
+		sigma_Line_Edit->setText(QString::number(layer.sigma.value,line_edit_double_format,line_edit_sigma_precision));
 	}
 	if(item_Type==Item_Type::Substrate)
 	{
 		Substrate substrate = item->data(default_Column, Qt::UserRole).value<Substrate>();
-		sigma_Line_Edit->setText(QString::number(substrate.sigma.value,'f',precision));
+		sigma_Line_Edit->setText(QString::number(substrate.sigma.value,line_edit_double_format,line_edit_sigma_precision));
 	}
 }
 
@@ -963,8 +927,8 @@ void Item_Editing::show_Stack_Parameters()
 		{
 			Stack_Content stack_Content = item->data(default_Column, Qt::UserRole).value<Stack_Content>();
 			repetitions_Line_Edit->setText(QString::number(stack_Content.num_Repetition.value));
-			period_Line_Edit->setText(QString::number(stack_Content.period.value));
-			gamma_Line_Edit->setText(QString::number(stack_Content.gamma.value));
+			period_Line_Edit->setText(QString::number(stack_Content.period.value,line_edit_double_format,line_edit_period_precision));
+			gamma_Line_Edit ->setText(QString::number(stack_Content.gamma. value,line_edit_double_format,line_edit_gamma_precision));
 		}
 	}
 }
@@ -977,10 +941,6 @@ void Item_Editing::browse_Material(bool)
 
 void Item_Editing::norm_Interlayer_Composition()
 {
-	default_Values.beginGroup( Structure_Values_Representation );
-		int precision = default_Values.value( "default_interlayer_precision", 0 ).toInt();
-	default_Values.endGroup();
-
 	if(sigma_Done)
 	{
 		double sum=0;
@@ -992,7 +952,7 @@ void Item_Editing::norm_Interlayer_Composition()
 		for(int i=0; i<interlayer_Composition_Line_Edit_Vec.size(); ++i)
 		{
 			if(interlayer_Composition_Check_Box_Vec[i]->isChecked() == true)
-				interlayer_Composition_Line_Edit_Vec[i]->setText(QString::number(interlayer_Composition_Line_Edit_Vec[i]->text().toDouble()/sum,'f',precision));
+				interlayer_Composition_Line_Edit_Vec[i]->setText(QString::number(interlayer_Composition_Line_Edit_Vec[i]->text().toDouble()/sum,line_edit_double_format,line_edit_interlayer_precision));
 		}
 	}
 }
@@ -1026,10 +986,6 @@ void Item_Editing::interlayer_Check(int)
 
 void Item_Editing::refresh_Data()
 {
-	default_Values.beginGroup( Structure_Values_Representation );
-		int at_wt_precision = default_Values.value( "default_atomic_weight_precision", 0 ).toInt();
-	default_Values.endGroup();
-
 	QVariant var;
 	if(item_Type==Item_Type::Ambient)
 	{
@@ -1041,7 +997,7 @@ void Item_Editing::refresh_Data()
 			{
 				ambient.composition[i].composition.value = composition_Line_Edit_Vec[i]->text().toDouble();
 				ambient.composition[i].type = composition_Combo_Box_Vec[i]->currentText();
-				composition_At_Weight_Vec[i]->setText("At. Wt.=" + QString::number(sorted_Elements.value(composition_Combo_Box_Vec[i]->currentText()),'f',at_wt_precision) + ")");
+				composition_At_Weight_Vec[i]->setText("At. Wt.=" + QString::number(sorted_Elements.value(composition_Combo_Box_Vec[i]->currentText()),thumbnail_double_format,at_weight_precision) + ")");
 			}
 		}
 		var.setValue( ambient );
@@ -1058,7 +1014,7 @@ void Item_Editing::refresh_Data()
 			{
 				layer.composition[i].composition.value = composition_Line_Edit_Vec[i]->text().toDouble();
 				layer.composition[i].type = composition_Combo_Box_Vec[i]->currentText();
-				composition_At_Weight_Vec[i]->setText("At. Wt.=" + QString::number(sorted_Elements.value(composition_Combo_Box_Vec[i]->currentText()),'f',at_wt_precision) + ")");
+				composition_At_Weight_Vec[i]->setText("At. Wt.=" + QString::number(sorted_Elements.value(composition_Combo_Box_Vec[i]->currentText()),thumbnail_double_format,at_weight_precision) + ")");
 			}
 		}
 		if(thickness_Done)
@@ -1088,7 +1044,7 @@ void Item_Editing::refresh_Data()
 			{
 				substrate.composition[i].composition.value = composition_Line_Edit_Vec[i]->text().toDouble();
 				substrate.composition[i].type = composition_Combo_Box_Vec[i]->currentText();
-				composition_At_Weight_Vec[i]->setText("At. Wt.=" + QString::number(sorted_Elements.value(composition_Combo_Box_Vec[i]->currentText()),'f',at_wt_precision) + ")");
+				composition_At_Weight_Vec[i]->setText("At. Wt.=" + QString::number(sorted_Elements.value(composition_Combo_Box_Vec[i]->currentText()),thumbnail_double_format,at_weight_precision) + ")");
 			}
 		}
 		if(sigma_Done)
@@ -1114,7 +1070,7 @@ void Item_Editing::refresh_Data()
 			{
 				material_Line_Edit->setText(material_Line_Edit->text() + composition_Combo_Box_Vec[i]->currentText());
 				if(composition_Line_Edit_Vec[i]->text().toDouble()!=1)
-					material_Line_Edit->setText(material_Line_Edit->text() + QString::number(composition_Line_Edit_Vec[i]->text().toDouble()));
+					material_Line_Edit->setText(material_Line_Edit->text() + QString::number(composition_Line_Edit_Vec[i]->text().toDouble(),line_edit_double_format,line_edit_composition_precision));
 			}
 		}
 	}
@@ -1128,7 +1084,7 @@ void Item_Editing::refresh_Data()
 			{
 				material_Line_Edit->setText(material_Line_Edit->text() + composition_Combo_Box_Vec[i]->currentText());
 				if(composition_Line_Edit_Vec[i]->text().toDouble()!=1)
-					material_Line_Edit->setText(material_Line_Edit->text() + QString::number(composition_Line_Edit_Vec[i]->text().toDouble()));
+					material_Line_Edit->setText(material_Line_Edit->text() + QString::number(composition_Line_Edit_Vec[i]->text().toDouble(),line_edit_double_format,line_edit_composition_precision));
 			}
 		}
 	}
@@ -1142,7 +1098,7 @@ void Item_Editing::refresh_Data()
 			{
 				material_Line_Edit->setText(material_Line_Edit->text() + composition_Combo_Box_Vec[i]->currentText());
 				if(composition_Line_Edit_Vec[i]->text().toDouble()!=1)
-					material_Line_Edit->setText(material_Line_Edit->text() + QString::number(composition_Line_Edit_Vec[i]->text().toDouble()));
+					material_Line_Edit->setText(material_Line_Edit->text() + QString::number(composition_Line_Edit_Vec[i]->text().toDouble(),line_edit_double_format,line_edit_composition_precision));
 			}
 		}
 	}

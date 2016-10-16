@@ -3,8 +3,7 @@
 Independent_Variable_Editing::Independent_Variable_Editing(QTreeWidgetItem* structure_Item, QListWidgetItem* item):
 	structure_Item(structure_Item),
 	item(item),
-	gui_Settings(Gui_Settings_Path, QSettings::IniFormat),
-	default_Values(Default_Values_Path, QSettings::IniFormat)
+	gui_Settings(Gui_Settings_Path, QSettings::IniFormat)
 {
 	create_main_Layout();
 
@@ -61,7 +60,7 @@ void Independent_Variable_Editing::create_Standard_Interface()
 		num_Points = new QLineEdit;
 			num_Points->setFixedWidth(30);
 			num_Points->setProperty(min_Size, 30);
-			num_Points->setValidator(new QIntValidator(1, MAX_INTEGER));
+			num_Points->setValidator(new QIntValidator(1, MAX_INTEGER, this));
 		layout->addWidget(num_Points);
 
 		from_Label = new QLabel(from_Many);
@@ -70,7 +69,7 @@ void Independent_Variable_Editing::create_Standard_Interface()
 		min = new QLineEdit;
 			min->setFixedWidth(40);
 			min->setProperty(min_Size, 40);
-			min->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION));
+			min->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION, this));			
 		layout->addWidget(min);
 
 		to_Label = new QLabel(to);
@@ -80,7 +79,7 @@ void Independent_Variable_Editing::create_Standard_Interface()
 		max = new QLineEdit;
 			max->setFixedWidth(40);
 			max->setProperty(min_Size, 40);
-			max->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION));
+			max->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION, this));
 			max->setSizePolicy(sp_retain);
 		layout->addWidget(max);
 
@@ -95,8 +94,9 @@ void Independent_Variable_Editing::create_Standard_Interface()
 		step_Edit = new QLineEdit;
 			step_Edit->setFixedWidth(40);
 			step_Edit->setProperty(min_Size, 40);
-			step_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION));
+			step_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION, this));
 			step_Edit->setSizePolicy(sp_retain);
+			step_Edit->setReadOnly(true);
 		layout->addWidget(step_Edit);
 
 		step_Units_Label = new QLabel(units);
@@ -185,16 +185,10 @@ void Independent_Variable_Editing::refresh_Data(QString)
 
 void Independent_Variable_Editing::refresh_Show_Data(bool show)
 {
-	default_Values.beginGroup( Structure_Values_Representation );
-		int default_density_precision = default_Values.value( "default_density_precision", 0 ).toInt();
-	default_Values.endGroup();
-
 	QString whats_This = item->whatsThis();
 	QStringList whats_This_List = whats_This.split(whats_This_Delimiter,QString::SkipEmptyParts);
 	QStringList whats_This_List_Type = whats_This_List[0].split(item_Type_Delimiter,QString::SkipEmptyParts);
-	QVariant var;
-
-	group_Box->setTitle(whats_This);
+	QVariant var;	
 
 	// if ambient
 	if(whats_This_List_Type[0] == whats_This_Ambient)
@@ -206,64 +200,158 @@ void Independent_Variable_Editing::refresh_Show_Data(bool show)
 		// ambient density
 		if(whats_This_List[1] == whats_This_Density)
 		{
+			group_Box->setTitle(whats_This_List_Type[0] + " density, " + Rho_Sym);
+			units = "g/cm" + Cube_Sym;
+			units_Label->setText(units);
+			step_Units_Label->setText(units);
+
 			// show data
 			if(show)
 			{
 				num_Points->setText(QString::number(ambient.density.independent.num_Points));
-				min->setText(		QString::number(ambient.density.independent.min,'f',default_density_precision));
-				max->setText(		QString::number(ambient.density.independent.max,'f',default_density_precision));
+				min->setText(		QString::number(ambient.density.independent.min,line_edit_double_format,line_edit_density_precision));
+				max->setText(		QString::number(ambient.density.independent.max,line_edit_double_format,line_edit_density_precision));
 			} else
 			// refresh data
 			{
-				if(num_Points->text().toInt()==0)	num_Points->setText("1");
-				if(min->text().toDouble()>=90)		min->setText("90");
-				if(max->text().toDouble()>=90)		max->setText("90");
+				if(num_Points->text().toInt()<1)
+				{
+					num_Points->setText(QString::number(ambient.density.independent.num_Points));
+				} else
+				{
+					ambient.density.independent.num_Points = num_Points->text().toInt();
+					ambient.density.independent.min = min->text().toDouble();
+					ambient.density.independent.max = max->text().toDouble();
 
-				ambient.density.independent.num_Points = num_Points->text().toInt();
-				ambient.density.independent.min = min->text().toDouble();
-				ambient.density.independent.max = max->text().toDouble();
-
-				if(ambient.density.independent.num_Points == 1)
-					item->setText(ambient.material + " (ambient)" + whats_This_List[1] + ", " + Rho_Sym + " [" + QString::number(ambient.density.value,'f',default_density_precision) + " g/cm" + Cube_Sym + "]");
-				else
-					item->setText(ambient.material + " (ambient)" + whats_This_List[1] + ", " + Rho_Sym + " [" + QString::number(ambient.density.independent.num_Points) + " values: " +
-								  QString::number(ambient.density.independent.min,'f',default_density_precision) + " - " +
-								  QString::number(ambient.density.independent.max,'f',default_density_precision) + " g/cm" + Cube_Sym + "]");
+					if(ambient.density.independent.num_Points == 1)
+						item->setText(ambient.material + " (ambient) " + whats_This_List[1] + ", " + Rho_Sym + " [" + QString::number(ambient.density.value,thumbnail_double_format,thumbnail_density_precision) + " g/cm" + Cube_Sym + "]");
+					else
+						item->setText(ambient.material + " (ambient) " + whats_This_List[1] + ", " + Rho_Sym + " [" + QString::number(ambient.density.independent.num_Points) + " values: " +
+									  QString::number(ambient.density.independent.min,thumbnail_double_format,thumbnail_density_precision) + " - " +
+									  QString::number(ambient.density.independent.max,thumbnail_double_format,thumbnail_density_precision) + " g/cm" + Cube_Sym + "]");
+				}
 			}
-			step_Edit->setText(QString::number((ambient.density.independent.max-ambient.density.independent.min)/ambient.density.independent.num_Points/*,'g',default_step_size_precision*/));
+			step_Edit->setText(QString::number((ambient.density.independent.max-ambient.density.independent.min)/ambient.density.independent.num_Points,line_edit_double_format,line_edit_density_precision));
 			step_Edit->textEdited(step_Edit->text());
 			show_Hide_Elements(ambient.density.independent.num_Points, show);
 		}
 		// ambient permittivity
 		if(whats_This_List[1] == whats_This_Permittivity)
 		{
-//			ambient.permittivity.independent.is_Independent = true;
-//			ambient.permittivity.independent.num_Points = 1;
-//			ambient.permittivity.independent.min = ambient.permittivity.value;
-//			ambient.permittivity.independent.max = ambient.permittivity.value;
+			min->setValidator(new QDoubleValidator(-MAX_DOUBLE, MAX_DOUBLE, MAX_PRECISION, this));
+			max->setValidator(new QDoubleValidator(-MAX_DOUBLE, MAX_DOUBLE, MAX_PRECISION, this));
 
-//			item->setText(item->text() + " [" + QString::number(ambient.permittivity.value,'f',default_density_precision) + " % of nominal]");
+			group_Box->setTitle(whats_This_List_Type[0] + " permittivity, " + "1-" + Epsilon_Sym);
+			units = "% of nominal";
+			units_Label->setText(units);
+			step_Units_Label->setText(units);
+
+			// show data
+			if(show)
+			{
+				num_Points->setText(QString::number(ambient.permittivity.independent.num_Points));
+				min->setText(		QString::number(ambient.permittivity.independent.min,line_edit_double_format,line_edit_permittivity_precision));
+				max->setText(		QString::number(ambient.permittivity.independent.max,line_edit_double_format,line_edit_permittivity_precision));
+			} else
+			// refresh data
+			{
+				if(num_Points->text().toInt()<1)
+				{
+					num_Points->setText(QString::number(ambient.permittivity.independent.num_Points));
+				} else
+				{
+					ambient.permittivity.independent.num_Points = num_Points->text().toInt();
+					ambient.permittivity.independent.min = min->text().toDouble();
+					ambient.permittivity.independent.max = max->text().toDouble();
+
+					if(ambient.permittivity.independent.num_Points == 1)
+						item->setText(ambient.material + " (ambient) " + whats_This_List[1] + ", " + "1-" + Epsilon_Sym + " [" + QString::number(ambient.permittivity.value,thumbnail_double_format,thumbnail_permittivity_precision) + " % of nominal" + "]");
+					else
+						item->setText(ambient.material + " (ambient) " + whats_This_List[1] + ", " + "1-" + Epsilon_Sym + " [" + QString::number(ambient.permittivity.independent.num_Points) + " values: " +
+									  QString::number(ambient.permittivity.independent.min,thumbnail_double_format,thumbnail_permittivity_precision) + " - " +
+									  QString::number(ambient.permittivity.independent.max,thumbnail_double_format,thumbnail_permittivity_precision) + " % of nominal" + "]");
+				}
+			}
+			step_Edit->setText(QString::number((ambient.permittivity.independent.max-ambient.permittivity.independent.min)/ambient.permittivity.independent.num_Points,line_edit_double_format,line_edit_permittivity_precision));
+			step_Edit->textEdited(step_Edit->text());
+			show_Hide_Elements(ambient.permittivity.independent.num_Points, show);
 		}
 		// ambient absorption
 		if(whats_This_List[1] == whats_This_Absorption)
 		{
-//			ambient.absorption.independent.is_Independent = true;
-//			ambient.absorption.independent.num_Points = 1;
-//			ambient.absorption.independent.min = ambient.absorption.value;
-//			ambient.absorption.independent.max = ambient.absorption.value;
+			group_Box->setTitle(whats_This_List_Type[0] + " absorption, " + Cappa_Sym);
+			units = "% of nominal";
+			units_Label->setText(units);
+			step_Units_Label->setText(units);
 
-//			item->setText(item->text() + " [" + QString::number(ambient.absorption.value,'f',default_density_precision) + " % of nominal]");
+			// show data
+			if(show)
+			{
+				num_Points->setText(QString::number(ambient.absorption.independent.num_Points));
+				min->setText(		QString::number(ambient.absorption.independent.min,line_edit_double_format,line_edit_absorption_precision));
+				max->setText(		QString::number(ambient.absorption.independent.max,line_edit_double_format,line_edit_absorption_precision));
+			} else
+			// refresh data
+			{
+				if(num_Points->text().toInt()<1)
+				{
+					num_Points->setText(QString::number(ambient.absorption.independent.num_Points));
+				} else
+				{
+					ambient.absorption.independent.num_Points = num_Points->text().toInt();
+					ambient.absorption.independent.min = min->text().toDouble();
+					ambient.absorption.independent.max = max->text().toDouble();
+
+					if(ambient.absorption.independent.num_Points == 1)
+						item->setText(ambient.material + " (ambient) " + whats_This_List[1] + ", " + Cappa_Sym + " [" + QString::number(ambient.absorption.value,thumbnail_double_format,thumbnail_absorption_precision) + " % of nominal" + "]");
+					else
+						item->setText(ambient.material + " (ambient) " + whats_This_List[1] + ", " + Cappa_Sym + " [" + QString::number(ambient.absorption.independent.num_Points) + " values: " +
+									  QString::number(ambient.absorption.independent.min,thumbnail_double_format,thumbnail_absorption_precision) + " - " +
+									  QString::number(ambient.absorption.independent.max,thumbnail_double_format,thumbnail_absorption_precision) + " % of nominal" + "]");
+				}
+			}
+			step_Edit->setText(QString::number((ambient.absorption.independent.max-ambient.absorption.independent.min)/ambient.absorption.independent.num_Points,line_edit_double_format,line_edit_absorption_precision));
+			step_Edit->textEdited(step_Edit->text());
+			show_Hide_Elements(ambient.absorption.independent.num_Points, show);
 		}
 		//ambient composition
 		if(whats_This_List[1] == whats_This_Composition)
 		{
-//			int index = QString(whats_This_List[2]).toInt();
-//			ambient.composition[index].composition.independent.is_Independent = true;
-//			ambient.composition[index].composition.independent.num_Points = 1;
-//			ambient.composition[index].composition.independent.min = ambient.composition[index].composition.value;
-//			ambient.composition[index].composition.independent.max = ambient.composition[index].composition.value;
+			int index = QString(whats_This_List[2]).toInt();
+			group_Box->setTitle(ambient.composition[index].type + " " + whats_This_List_Type[0] + " composition");
+			units = "";
+			units_Label->setText(units);
+			step_Units_Label->setText(units);
 
-//			item->setText(item->text() + " [" + QString::number(ambient.composition[index].composition.value,'f',default_density_precision) + "]");
+			// show data
+			if(show)
+			{
+				num_Points->setText(QString::number(ambient.composition[index].composition.independent.num_Points));
+				min->setText(		QString::number(ambient.composition[index].composition.independent.min,line_edit_double_format,line_edit_composition_precision));
+				max->setText(		QString::number(ambient.composition[index].composition.independent.max,line_edit_double_format,line_edit_composition_precision));
+			} else
+			// refresh data
+			{
+				if(num_Points->text().toInt()<1)
+				{
+					num_Points->setText(QString::number(ambient.composition[index].composition.independent.num_Points));
+				} else
+				{
+					ambient.composition[index].composition.independent.num_Points = num_Points->text().toInt();
+					ambient.composition[index].composition.independent.min = min->text().toDouble();
+					ambient.composition[index].composition.independent.max = max->text().toDouble();
+
+					if(ambient.composition[index].composition.independent.num_Points == 1)
+						item->setText(ambient.material + " (ambient) " + ambient.composition[index].type + " " + whats_This_List[1] + ", " + Zeta_Sym + " [" + QString::number(ambient.composition[index].composition.value,thumbnail_double_format,thumbnail_composition_precision) + "]");
+					else
+						item->setText(ambient.material + " (ambient) " + ambient.composition[index].type + " " + whats_This_List[1] + ", " + Zeta_Sym + " [" + QString::number(ambient.composition[index].composition.independent.num_Points) + " values: " +
+									  QString::number(ambient.composition[index].composition.independent.min,thumbnail_double_format,thumbnail_composition_precision) + " - " +
+									  QString::number(ambient.composition[index].composition.independent.max,thumbnail_double_format,thumbnail_composition_precision) + "]");
+				}
+			}
+			step_Edit->setText(QString::number((ambient.composition[index].composition.independent.max-ambient.composition[index].composition.independent.min)/ambient.composition[index].composition.independent.num_Points,line_edit_double_format,line_edit_composition_precision));
+			step_Edit->textEdited(step_Edit->text());
+			show_Hide_Elements(ambient.composition[index].composition.independent.num_Points, show);
 		}
 
 		var.setValue(ambient);

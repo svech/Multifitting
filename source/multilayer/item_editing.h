@@ -15,9 +15,6 @@ public:
 
 	QTreeWidgetItem* item;
 
-	QSettings gui_Settings;
-	QSettings default_Values;
-
 signals:
 	void is_Closed();
 	void is_Edited();

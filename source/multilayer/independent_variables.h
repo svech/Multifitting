@@ -14,7 +14,6 @@ public:
 	Independent_Variables(QTreeWidget* struct_Tree_Copy);
 
 	QSettings gui_Settings;
-	QSettings default_Values;
 
 	QTreeWidget* struct_Tree_Copy;
 	QMap<QString, QListWidgetItem*>* independent_Variables_List_Map;
