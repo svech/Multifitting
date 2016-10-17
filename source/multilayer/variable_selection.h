@@ -12,8 +12,6 @@ class Variable_Selection : public QDialog
 public:
 	Variable_Selection(QTreeWidget* struct_Tree_Copy, QMap<QString, QListWidgetItem*>* variables_List_Map, QListWidget* variables_List, Variable_Type type);
 
-	QSettings default_Values;
-
 	QTreeWidget* struct_Tree_Copy;
 	QListWidget* variables_List;
 	QMap<QString, QListWidgetItem*>* variables_List_Map;

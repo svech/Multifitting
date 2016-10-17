@@ -4,7 +4,6 @@ Variable_Selection::Variable_Selection(QTreeWidget* struct_Tree_Copy, QMap<QStri
 	struct_Tree_Copy(struct_Tree_Copy),
 	variables_List(variables_List),
 	variables_List_Map(variables_List_Map),
-	default_Values(Default_Values_Path, QSettings::IniFormat),
 	type(type)
 {
 	create_Window();
@@ -538,7 +537,7 @@ void Variable_Selection::add_Interlayer_Composition(QTreeWidgetItem* item, QStri
 	{
 		Layer layer = item->data(default_Column, Qt::UserRole).value<Layer>();
 		material = layer.material;
-		brackets = "(substrate)";
+		brackets = "(layer " + QString::number(layer.layer_Index) + ")";
 		interlayer_Composition_Size = layer.interlayer_Composition.size();
 		for(int i=0; i<interlayer_Composition_Size; i++)	{interlayer_Composition_Enabled.append(layer.interlayer_Composition[i].enabled);}
 		for(int i=0; i<interlayer_Composition_Size; i++)	{interlayer_Composition_Independent.append(layer.interlayer_Composition[i].interlayer.independent.is_Independent);}
@@ -685,21 +684,6 @@ void Variable_Selection::add_Gamma(QTreeWidgetItem* item, QString whats_This_Typ
 
 void Variable_Selection::add_Variable()
 {
-	default_Values.beginGroup( Structure_Values_Representation );
-		char thumbnail_double_format		= qvariant_cast<char>(default_Values.value( "thumbnail_double_format",		   'f'));
-//		int thumbnail_angle_precision		= default_Values.value( "thumbnail_angle_precision",		1 ).toInt();
-//		int thumbnail_wavelength_precision	= default_Values.value( "thumbnail_wavelength_precision",	1 ).toInt();
-		int thumbnail_density_precision		= default_Values.value( "thumbnail_density_precision",		1 ).toInt();
-		int thumbnail_permittivity_precision= default_Values.value( "thumbnail_permittivity_precision",	1 ).toInt();
-		int thumbnail_absorption_precision	= default_Values.value( "thumbnail_absorption_precision",	1 ).toInt();
-		int thumbnail_composition_precision = default_Values.value( "thumbnail_composition_precision",	1 ).toInt();
-		int thumbnail_thickness_precision	= default_Values.value( "thumbnail_thickness_precision",	1 ).toInt();
-		int thumbnail_sigma_precision		= default_Values.value( "thumbnail_sigma_precision",		1 ).toInt();
-		int thumbnail_interlayer_precision	= default_Values.value( "thumbnail_interlayer_precision",	1 ).toInt();
-		int thumbnail_period_precision		= default_Values.value( "thumbnail_period_precision",		1 ).toInt();
-		int thumbnail_gamma_precision		= default_Values.value( "thumbnail_gamma_precision",		1 ).toInt();
-	default_Values.endGroup();
-
 	if(map_Of_Parameters_Lists.value(filters_Combo_Box->currentText())->currentItem())
 	{
 		QListWidgetItem* new_Item = map_Of_Parameters_Lists.value(filters_Combo_Box->currentText())->currentItem()->clone();
@@ -876,7 +860,7 @@ void Variable_Selection::add_Variable()
 			if(whats_This_List[1] == whats_This_Num_Repetitions)
 			{
 				stack_Content.num_Repetition.is_Independent = true;
-				stack_Content.num_Repetition.num_steps = 0;
+				stack_Content.num_Repetition.num_steps = 1;
 				stack_Content.num_Repetition.start = stack_Content.num_Repetition.value;
 				stack_Content.num_Repetition.step = 1;
 

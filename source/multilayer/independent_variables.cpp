@@ -31,7 +31,7 @@ void Independent_Variables::clear_Parameters()
 	// clear independent list
 	for(int i=independent_Variables_List->count()-1; i>=0; i--)
 	{
-		if((independent_Variables_List->item(i)->whatsThis() != whats_This_Angle) && (independent_Variables_List->item(i)->whatsThis() != whats_This_Wavelength))
+		if((independent_Variables_List->item(i)->whatsThis() != whats_This_Measurement + whats_This_Delimiter + whats_This_Angle) && (independent_Variables_List->item(i)->whatsThis() != whats_This_Measurement + whats_This_Delimiter + whats_This_Wavelength))
 		{
 			delete	independent_Variables_List->item(i);
 		}
@@ -73,17 +73,28 @@ void Independent_Variables::create_Independent_Variables_List()
 	// add angle and wavelength to independent variables list
 	Measurement measurement = struct_Tree_Copy->topLevelItem(0)->data(default_Column, Qt::UserRole).value<Measurement>();
 
-	QListWidgetItem* angle = new QListWidgetItem;
 	QString angle_Type;
 	if(measurement.angle_Type == Angle_Type::Grazing)   angle_Type = "Grazing";
 	if(measurement.angle_Type == Angle_Type::Incidence) angle_Type = "Incidence";
+
+	QListWidgetItem* angle = new QListWidgetItem;
+	if(measurement.probe_Angle.independent.num_Points == 1)
 		angle->setText(angle_Type + " angle, " + Theta_Sym + " [" + QString::number(measurement.probe_Angle.value,thumbnail_double_format,thumbnail_angle_precision) + Degree_Sym + "]");
-		angle->setWhatsThis(whats_This_Angle);		
+	else
+		angle->setText(angle_Type + " angle, " + Theta_Sym + " [" + QString::number(measurement.probe_Angle.independent.num_Points) + " values: " +
+					  QString::number(measurement.probe_Angle.independent.min,thumbnail_double_format,thumbnail_angle_precision) + " - " +
+					  QString::number(measurement.probe_Angle.independent.max,thumbnail_double_format,thumbnail_angle_precision) + Degree_Sym + "]");
+		angle->setWhatsThis(whats_This_Measurement + whats_This_Delimiter + whats_This_Angle);
 	independent_Variables_List->insertItem(0, angle);
 
-	QListWidgetItem* wavelength = new QListWidgetItem;	
-		wavelength->setText("Wavelength, " + Lambda_Sym + " [" + QString::number(measurement.wavelength.value,thumbnail_double_format,thumbnail_wavelength_precision) + Angstrom_Sym + "]");
-		wavelength->setWhatsThis(whats_This_Wavelength);
+	QListWidgetItem* wavelength = new QListWidgetItem;
+	if(measurement.wavelength.independent.num_Points == 1)
+		wavelength->setText("Wavelength, " + Lambda_Sym + " [" + QString::number(measurement.wavelength.value,thumbnail_double_format,thumbnail_wavelength_precision) + " " + Angstrom_Sym + "]");
+	else
+		wavelength->setText("Wavelength, " + Lambda_Sym + " [" + QString::number(measurement.wavelength.independent.num_Points) + " values: " +
+					  QString::number(measurement.wavelength.independent.min,thumbnail_double_format,thumbnail_wavelength_precision) + " - " +
+					  QString::number(measurement.wavelength.independent.max,thumbnail_double_format,thumbnail_wavelength_precision) + " " + Angstrom_Sym + "]");
+		wavelength->setWhatsThis(whats_This_Measurement + whats_This_Delimiter + whats_This_Wavelength);
 	independent_Variables_List->insertItem(1, wavelength);
 
 	connect(independent_Variables_List, SIGNAL(itemDoubleClicked(QListWidgetItem*)), this, SLOT(edit_Independent_Variable(QListWidgetItem*)));

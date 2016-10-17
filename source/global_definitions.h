@@ -34,12 +34,14 @@
 #define Theta_Sym		QString(QChar(0x03B8))
 #define Lambda_Sym		QString(QChar(0x03BB))
 #define Degree_Sym		QString(QChar(0x00B0))
-
+#define Delta_Big_Sym	QString(QChar(0x0394))
 
 
 #define MAX_DOUBLE 1E100
 #define MAX_INTEGER MAXINT
 #define MAX_PRECISION 100
+#define MIN_ANGULAR_RESOLUTION_POINTS 5
+#define MIN_SPECTRAL_RESOLUTION_POINTS 5
 
 extern int default_Column;
 extern int num_Permanent_Independent_Variables;

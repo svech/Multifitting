@@ -10,14 +10,14 @@ public:
 
 	// angle
 	Parameter probe_Angle;
-	double angular_Resolution;
+	Parameter angular_Resolution;
 	Angle_Type angle_Type;
 
 	// wavelength
 	Parameter wavelength;
-	double spectral_Resolution;
-	double polarization;
-	double polarization_Sensitivity;
+	Parameter spectral_Resolution;
+	Parameter polarization;
+	Parameter polarization_Sensitivity;
 };
 
 class Ambient

@@ -7,9 +7,11 @@ Multilayer::Multilayer()
 
 Multilayer::~Multilayer()
 {
+	runned_Editors.clear();
 	for(int i=0; i<list_Editors.size(); ++i)
-	{
+	{		
 		delete list_Editors[i];
+		list_Editors.removeAt(i);
 	}
 }
 

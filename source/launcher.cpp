@@ -202,7 +202,7 @@ void Launcher::reset_Default_Values()
 	// parameters init values
 	default_Values.beginGroup( Parameters_Init_Values );
 		default_Values.beginGroup( Independent_Values );
-			default_Values.setValue( "default_num_angular_points",	1 );
+			default_Values.setValue( "default_num_angular_points",	100 );
 			default_Values.setValue( "default_num_spectral_points", 1 );
 			default_Values.setValue( "default_min_angle",			0 );
 			default_Values.setValue( "default_max_angle",			7 );

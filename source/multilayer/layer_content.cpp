@@ -9,7 +9,10 @@ Measurement::Measurement()
 	probe_Angle.independent.num_Points = default_num_angular_points;
 	probe_Angle.value = probe_Angle.independent.min;
 
-	angular_Resolution = default_angular_resolution;
+	angular_Resolution.value = default_angular_resolution;
+	angular_Resolution.independent.min = angular_Resolution.value;
+	angular_Resolution.independent.max = angular_Resolution.value;
+	angular_Resolution.independent.num_Points = 1;
 	angle_Type = default_angle_type;
 
 	// wavelength
@@ -19,9 +22,20 @@ Measurement::Measurement()
 	wavelength.independent.num_Points = default_num_spectral_points;
 	wavelength.value = wavelength.independent.min;
 
-	spectral_Resolution = default_spectral_resolution;
-	polarization = default_polarization;
-	polarization_Sensitivity = default_polarization_sensitivity;
+	spectral_Resolution.value = default_spectral_resolution;
+	spectral_Resolution.independent.min = spectral_Resolution.value;
+	spectral_Resolution.independent.max = spectral_Resolution.value;
+	spectral_Resolution.independent.num_Points = 1;
+
+	polarization.value = default_polarization;
+	polarization.independent.min = polarization.value;
+	polarization.independent.max = polarization.value;
+	polarization.independent.num_Points = 1;
+
+	polarization_Sensitivity.value = default_polarization_sensitivity;
+	polarization_Sensitivity.independent.min = polarization_Sensitivity.value;
+	polarization_Sensitivity.independent.max = polarization_Sensitivity.value;
+	polarization_Sensitivity.independent.num_Points = 1;
 }
 
 Ambient::Ambient()
