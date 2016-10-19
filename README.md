@@ -1,4 +1,4 @@
 # Multifitting
-Multiparameter fitting of multilayers
+Multiparameter of multilayers
 
 little addition
