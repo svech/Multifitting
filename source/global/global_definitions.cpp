@@ -104,5 +104,6 @@ void Element_Data::read_Element(QString& filename)
 	QFile file(filename);
 	file.open(QIODevice::ReadOnly);
 	// TODO
+
 	file.close();
 }
