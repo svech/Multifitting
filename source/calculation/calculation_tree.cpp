@@ -52,76 +52,79 @@ int Calculation_Tree::get_Item_Depth(QTreeWidgetItem* item)
 
 void Calculation_Tree::statify_Tree(QTreeWidget* item_Tree)
 {
-	for(int depth=item_Tree_Depth; depth>0; depth--)
+	for(int depth=item_Tree_Depth-1; depth>0; depth--)
 	{
+		QVector<QTreeWidgetItem*> chosen_Items;
+
 		// iterate over fixed depth
 		QTreeWidgetItemIterator fix_Depth_Iter(item_Tree);
 		while (*fix_Depth_Iter)
 		{
-			QTreeWidgetItem* item = *fix_Depth_Iter;
+			QTreeWidgetItem* item = *fix_Depth_Iter;			
 			if(get_Item_Depth(item) == depth)
 			{
-				qInfo() << item->whatsThis(DEFAULT_COLUMN) << "\t" << get_Item_Depth(item);
 				QStringList whats_This_List = item->whatsThis(DEFAULT_COLUMN).split(item_Type_Delimiter,QString::SkipEmptyParts);
 
 				if(whats_This_List[0] == whats_This_Multilayer)
 				{
-					// if 0 periods
-					if(item->data(DEFAULT_COLUMN, Qt::UserRole).value<Stack_Content>().num_Repetition.value == 0)
-					{
-						delete item;
-					} else
-
-					// if 1 period
-					if(item->data(DEFAULT_COLUMN, Qt::UserRole).value<Stack_Content>().num_Repetition.value == 1)
-					{
-						for(int child_Index=0; child_Index<item->childCount(); ++child_Index)
-						{
-							QTreeWidgetItem* parent_Item;
-							if(item->parent()) parent_Item = item->parent(); else parent_Item = item_Tree->invisibleRootItem();
-							parent_Item->insertChild(parent_Item->indexOfChild(item),item->child(child_Index)->clone());
-							++fix_Depth_Iter;
-							++fix_Depth_Iter;
-						}
-						delete item;
-					} else
-
-					// if 2 periods
-					if(item->data(DEFAULT_COLUMN, Qt::UserRole).value<Stack_Content>().num_Repetition.value == 2)
-					{
-						for(int child_Index=0; child_Index<item->childCount(); ++child_Index)
-						{
-							QTreeWidgetItem* parent_Item;
-							if(item->parent()) parent_Item = item->parent(); else parent_Item = item_Tree->invisibleRootItem();
-							parent_Item->insertChild(parent_Item->indexOfChild(item)  ,item->child(child_Index)->clone());
-							parent_Item->insertChild(parent_Item->indexOfChild(item)+1+child_Index,item->child(child_Index)->clone());
-							++fix_Depth_Iter;
-							++fix_Depth_Iter;
-						}
-						delete item;
-					} else
-
-					// if >=3 periods
-					if(item->data(DEFAULT_COLUMN, Qt::UserRole).value<Stack_Content>().num_Repetition.value >= 3)
-					{
-						for(int child_Index=0; child_Index<item->childCount(); ++child_Index)
-						{
-							QTreeWidgetItem* parent_Item;
-							if(item->parent()) parent_Item = item->parent(); else parent_Item = item_Tree->invisibleRootItem();
-							parent_Item->insertChild(parent_Item->indexOfChild(item)  ,item->child(child_Index)->clone());
-							parent_Item->insertChild(parent_Item->indexOfChild(item)+1+child_Index,item->child(child_Index)->clone());
-							++fix_Depth_Iter;
-							++fix_Depth_Iter;
-						}
-						// change data
-						Stack_Content stack_Content = item->data(DEFAULT_COLUMN, Qt::UserRole).value<Stack_Content>();
-						stack_Content.num_Repetition.value -= 2;
-						QVariant var; var.setValue(stack_Content);
-						item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
-					}
+					chosen_Items.append(item);
 				}
 			}
 			++fix_Depth_Iter;
+		}
+
+		/// stratification
+		for(int vec_Index=chosen_Items.size()-1; vec_Index>=0; --vec_Index)
+		{
+			QTreeWidgetItem* item = chosen_Items[vec_Index];
+
+			// if 0 periods
+			if(item->data(DEFAULT_COLUMN, Qt::UserRole).value<Stack_Content>().num_Repetition.value == 0)
+			{
+				delete item;
+			} else
+
+			// if 1 period
+			if(item->data(DEFAULT_COLUMN, Qt::UserRole).value<Stack_Content>().num_Repetition.value == 1)
+			{
+				for(int child_Index=0; child_Index<item->childCount(); ++child_Index)
+				{
+					QTreeWidgetItem* parent_Item;
+					if(item->parent()) parent_Item = item->parent(); else parent_Item = item_Tree->invisibleRootItem();
+					parent_Item->insertChild(parent_Item->indexOfChild(item),item->child(child_Index)->clone());
+				}
+				delete item;
+			} else
+
+			// if 2 periods
+			if(item->data(DEFAULT_COLUMN, Qt::UserRole).value<Stack_Content>().num_Repetition.value == 2)
+			{
+				for(int child_Index=0; child_Index<item->childCount(); ++child_Index)
+				{
+					QTreeWidgetItem* parent_Item;
+					if(item->parent()) parent_Item = item->parent(); else parent_Item = item_Tree->invisibleRootItem();
+					parent_Item->insertChild(parent_Item->indexOfChild(item)  ,item->child(child_Index)->clone());
+					parent_Item->insertChild(parent_Item->indexOfChild(item)+1+child_Index,item->child(child_Index)->clone());
+				}
+				delete item;
+			} else
+
+			// if >=3 periods
+			if(item->data(DEFAULT_COLUMN, Qt::UserRole).value<Stack_Content>().num_Repetition.value >= 3)
+			{
+				for(int child_Index=0; child_Index<item->childCount(); ++child_Index)
+				{
+					QTreeWidgetItem* parent_Item;
+					if(item->parent()) parent_Item = item->parent(); else parent_Item = item_Tree->invisibleRootItem();
+					parent_Item->insertChild(parent_Item->indexOfChild(item)  ,item->child(child_Index)->clone());
+					parent_Item->insertChild(parent_Item->indexOfChild(item)+1+child_Index,item->child(child_Index)->clone());
+				}
+				// change data
+				Stack_Content stack_Content = item->data(DEFAULT_COLUMN, Qt::UserRole).value<Stack_Content>();
+				stack_Content.num_Repetition.value -= 2;
+				QVariant var; var.setValue(stack_Content);
+				item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+			}
 		}
 	}
 }

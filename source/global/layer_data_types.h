@@ -55,6 +55,7 @@ class Extreme_Layer: public Substrate
 {
 public:
 	Extreme_Layer();
+	// materials near main multilayers should be the same
 
 	int layer_Index;
 	Parameter thickness;

@@ -325,17 +325,17 @@ void Settings::read_Precisions(bool reset_to_default)
 	precision_Values.beginGroup(Precisions);
 		precision_Values.beginGroup( Line_Edit );
 			line_edit_double_format	    = qvariant_cast<char>(precision_Values.value( "line_edit_double_format",'f'));
-			line_edit_angle_precision		= precision_Values.value( "line_edit_angle_precision",			4 ).toInt();
-			line_edit_wavelength_precision	= precision_Values.value( "line_edit_wavelength_precision",		4 ).toInt();
-			line_edit_density_precision		= precision_Values.value( "line_edit_density_precision",		4 ).toInt();
-			line_edit_permittivity_precision= precision_Values.value( "line_edit_permittivity_precision",	4 ).toInt();
-			line_edit_absorption_precision	= precision_Values.value( "line_edit_absorption_precision",		4 ).toInt();
+			line_edit_angle_precision		= precision_Values.value( "line_edit_angle_precision",			5 ).toInt();
+			line_edit_wavelength_precision	= precision_Values.value( "line_edit_wavelength_precision",		5 ).toInt();
+			line_edit_density_precision		= precision_Values.value( "line_edit_density_precision",		5 ).toInt();
+			line_edit_permittivity_precision= precision_Values.value( "line_edit_permittivity_precision",	5 ).toInt();
+			line_edit_absorption_precision	= precision_Values.value( "line_edit_absorption_precision",		5 ).toInt();
 			line_edit_composition_precision	= precision_Values.value( "line_edit_composition_precision",	4 ).toInt();
-			line_edit_thickness_precision	= precision_Values.value( "line_edit_thickness_precision",		4 ).toInt();
-			line_edit_sigma_precision		= precision_Values.value( "line_edit_sigma_precision",			4 ).toInt();	// = thickness precision
+			line_edit_thickness_precision	= precision_Values.value( "line_edit_thickness_precision",		5 ).toInt();
+			line_edit_sigma_precision		= precision_Values.value( "line_edit_sigma_precision",			5 ).toInt();	// = thickness precision
 			line_edit_interlayer_precision	= precision_Values.value( "line_edit_interlayer_precision",		4 ).toInt();
-			line_edit_period_precision		= precision_Values.value( "line_edit_period_precision",			4 ).toInt();	// = thickness precision
-			line_edit_gamma_precision		= precision_Values.value( "line_edit_gamma_precision",			4 ).toInt();	// = thickness precision
+			line_edit_period_precision		= precision_Values.value( "line_edit_period_precision",			5 ).toInt();	// = thickness precision
+			line_edit_gamma_precision		= precision_Values.value( "line_edit_gamma_precision",			5 ).toInt();	// = thickness precision
 		precision_Values.endGroup();
 		precision_Values.beginGroup( Thumbnail );
 			thumbnail_double_format	    = qvariant_cast<char>(precision_Values.value( "thumbnail_double_format",'f'));
