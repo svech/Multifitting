@@ -3,6 +3,7 @@
 
 #include "standard/menu.h"
 #include "multilayer_approach/multilayer.h"
+#include "main_calculation_module.h"
 
 class Multilayer_Approach : public QWidget
 {
@@ -17,6 +18,7 @@ public slots:
 	void refresh_All_Multilayers_View();
 	void open();
 	void save();
+	void calc_Reflection();
 
 private:
 	void closeEvent(QCloseEvent *event);

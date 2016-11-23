@@ -2,6 +2,8 @@
 #define LAYER_DATA_TYPES_H
 
 #include "global/settings.h"
+#include <complex>
+using namespace std;
 
 class Measurement
 {
@@ -67,10 +69,10 @@ public:
 	QList<Parameter> drift_Coefficients;
 
 	bool if_First = false;
-		Extreme_Layer First;
+	Extreme_Layer First;
 
 	bool if_Last = false;
-		Extreme_Layer Last;
+	Extreme_Layer Last;
 };
 
 class Stack_Content
@@ -101,5 +103,33 @@ Q_DECLARE_METATYPE( Ambient )
 Q_DECLARE_METATYPE( Substrate )
 Q_DECLARE_METATYPE( Layer )
 Q_DECLARE_METATYPE( Stack_Content )
+
+// tree node for calculation
+typedef float floatX;
+
+class Node
+{
+public:
+	Node();
+	Node(QTreeWidgetItem* item);
+
+	QString whats_This;
+
+	Ambient ambient;
+	Layer layer;
+	Stack_Content stack_Content;
+	Substrate substrate;
+
+	// for any media
+	complex<floatX> epsilon;
+
+	// for layers
+	complex<floatX> exponenta;
+
+	// for top interfaces
+	complex<floatX> r_Fresnel_s;
+	complex<floatX> r_Fresnel_p;
+	floatX weak_Factor = 1;
+};
 
 #endif // LAYER_DATA_TYPES_H

@@ -13,7 +13,8 @@ Launcher::Launcher(QWidget *parent) :
 	set_Window_Geometry();
 
 	// TODO
-	Optical_Constants optical_Constants;
+//	Optical_Constants optical_Constants;
+//	exit(1);
 }
 
 void Launcher::closeEvent(QCloseEvent* event)

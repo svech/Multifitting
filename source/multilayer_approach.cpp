@@ -170,3 +170,10 @@ void Multilayer_Approach::save()
 	}
 	file.close();
 }
+
+void Multilayer_Approach::calc_Reflection()
+{
+	// TODO
+	qInfo() << "\n\ncalc specular functions...";
+	Main_Calculation_Module main_Calculation_Module(multilayer_List);
+}

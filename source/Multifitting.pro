@@ -12,6 +12,7 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 TARGET = Multifitting
 TEMPLATE = app
 
+INCLUDEPATH += "C:/Program Files (x86)/C++ libraries"
 
 SOURCES += main.cpp\
         launcher.cpp \
@@ -28,7 +29,10 @@ SOURCES += main.cpp\
     multilayer_approach/multilayer/independent_variables.cpp \
     multilayer_approach/multilayer/independent_variables/independent_variables_editor.cpp \
     multilayer_approach/multilayer/variable_selection.cpp \
-    calculation/optical_constants.cpp
+    calculation/optical_constants.cpp \
+    main_calculation_module.cpp \
+    calculation/calculation_tree.cpp \
+    calculation/stratified_structure.cpp
 
 HEADERS  += launcher.h \
     global/global_definitions.h \
@@ -44,5 +48,8 @@ HEADERS  += launcher.h \
     multilayer_approach/multilayer/independent_variables.h \
     multilayer_approach/multilayer/independent_variables/independent_variables_editor.h \
     multilayer_approach/multilayer/variable_selection.h \
-    calculation/optical_constants.h
+    calculation/optical_constants.h \
+    main_calculation_module.h \
+    calculation/calculation_tree.h \
+    calculation/stratified_structure.h
 

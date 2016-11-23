@@ -15,6 +15,11 @@ void Menu::add_Menu_Points()
 		create_File_Menu();
 			menu_Bar->addMenu(file_Menu);
 	}
+	if(window_Type == Window_Type::Multilayer_Approach())
+	{
+		create_Calculate_Menu();
+			menu_Bar->addMenu(calculate_Menu);
+	}
 	if(window_Type == Window_Type::Independent_Variables_Editor())
 	{
 		independent_Variables_Editor = qobject_cast<Independent_Variables_Editor*>(my_Parent);
@@ -72,6 +77,16 @@ void Menu::create_File_Menu()
 			connect(act_Quit, SIGNAL(triggered()), qApp, SLOT(quit()));
 		}
 	}
+}
+
+void Menu::create_Calculate_Menu()
+{
+	calculate_Menu = new QMenu("Calculate", this);
+
+	QAction* act_Specular = new QAction("Specular optical functions/fields", this);
+	act_Specular->setShortcut(Qt::Key_C | Qt::CTRL);
+	connect(act_Specular, SIGNAL(triggered()), my_Parent, SLOT(calc_Reflection()));
+	calculate_Menu->addAction(act_Specular);
 }
 
 void Menu::create_Independent_Units_Menu()

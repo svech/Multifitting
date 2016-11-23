@@ -44,8 +44,11 @@
 
 // optical constants
 
-#define nk_Path		"../../nk"
-#define f1f2_Path	"../../f1f2"
+#define nk_Path		"../../nk/"
+#define f1f2_Path	"../../f1f2/"
+
+#define nk_Filter	"*.nk"
+#define f1f2_Filter	"*.ff"
 
 // -----------------------------------------------------------------------------------------
 
@@ -136,6 +139,7 @@ struct Stoichiometry			{Parameter composition; QString type;};
 struct Interlayer				{Parameter interlayer; bool enabled;};
 
 // optical constant types
+struct epsilon_Point			{double lambda; double e_Re;  double e_Im;};
 struct nk_Point					{double lambda; double n;  double k;  void read_Row(QTextStream& input);};
 struct f1f2_Point				{double lambda; double f1; double f2; void read_Row(QTextStream& input);};
 struct Material_Data			{QString substance; QString filename; QVector<nk_Point>  material_Data; void read_Material(QString& filename);};

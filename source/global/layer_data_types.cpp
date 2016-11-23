@@ -184,3 +184,21 @@ QDataStream& operator >>( QDataStream& stream,		 Stack_Content& stack_Content )
 {
 	return stream	>>  stack_Content.num_Repetition >> stack_Content.period >> stack_Content.gamma;
 }
+
+// tree node for calculation
+
+Node::Node()
+{
+
+}
+
+Node::Node(QTreeWidgetItem* item):
+	whats_This(item->whatsThis(DEFAULT_COLUMN))
+{
+	QStringList whats_This_List = whats_This.split(item_Type_Delimiter,QString::SkipEmptyParts);
+
+	if(whats_This_List[0] == whats_This_Ambient)	ambient		  = item->data(DEFAULT_COLUMN, Qt::UserRole).value<Ambient>();
+	if(whats_This_List[0] == whats_This_Layer)		layer		  = item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>();
+	if(whats_This_List[0] == whats_This_Multilayer)	stack_Content = item->data(DEFAULT_COLUMN, Qt::UserRole).value<Stack_Content>();
+	if(whats_This_List[0] == whats_This_Substrate)	substrate	  = item->data(DEFAULT_COLUMN, Qt::UserRole).value<Substrate>();
+}

@@ -1,4 +1,5 @@
 #include "global_definitions.h"
+#include "global_variables.h"
 
 Global_Definitions::Global_Definitions()
 {
@@ -83,27 +84,55 @@ QDataStream& operator >>( QDataStream& stream,		 Interlayer& interlayer )
 
 void nk_Point::read_Row(QTextStream& input)
 {
-	input>>lambda>>n>>k;
+	input >> lambda >> n >> k;
 }
 
 void f1f2_Point::read_Row(QTextStream& input)
 {
-	input>>lambda>>f1>>f2;
+	double temp_Energy;
+	input >> temp_Energy >> f1 >> f2;
+	lambda = Global_Variables::angstrom_eV(temp_Energy);
 }
 
 void Material_Data::read_Material(QString& filename)
 {
-	QFile file(filename);
-	file.open(QIODevice::ReadOnly);
 	// TODO
+	QFile file(nk_Path + filename);
+	file.open(QIODevice::ReadOnly);
+	QTextStream input(&file);
+	while(!input.atEnd())
+	{
+		QString temp_Line = input.readLine();
+		if(temp_Line[0]!=';')
+		{
+			nk_Point new_nk_Point;
+			QTextStream temp_Stream(&temp_Line);
+			new_nk_Point.read_Row(temp_Stream);
+			material_Data.append(new_nk_Point);
+		}
+	}
 	file.close();
 }
 
 void Element_Data::read_Element(QString& filename)
 {
-	QFile file(filename);
-	file.open(QIODevice::ReadOnly);
 	// TODO
-
+	QFile file(f1f2_Path + filename);
+	file.open(QIODevice::ReadOnly);
+	QTextStream input(&file);
+	while(!input.atEnd())
+	{
+		QString temp_Line = input.readLine();
+		if(temp_Line[0]!=';')
+		{
+			f1f2_Point new_f1f2_Point;
+			QTextStream temp_Stream(&temp_Line);
+			new_f1f2_Point.read_Row(temp_Stream);
+			if(new_f1f2_Point.f1>-8888)
+			{
+				element_Data.prepend(new_f1f2_Point);
+			}
+		}
+	}
 	file.close();
 }

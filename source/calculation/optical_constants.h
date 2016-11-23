@@ -2,6 +2,7 @@
 #define OPTICAL_CONSTANTS_H
 
 #include "global/settings.h"
+#include <thread>
 
 class Optical_Constants
 {
@@ -10,6 +11,9 @@ public:
 
 	QList<Material_Data> material_Data_List;
 	QList<Element_Data>	  element_Data_List;
+
+	QMap<QString, int> material_Map;
+	QMap<QString, int>  element_Map;
 
 private:
 	void read_All_Materials();

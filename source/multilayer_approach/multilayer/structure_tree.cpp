@@ -239,7 +239,7 @@ void Structure_Tree::if_DoubleClicked(QTreeWidgetItem*, int)
 			item_Editor->show();
 
 		connect(item_Editor, SIGNAL(closed()), this, SLOT(editor_Close()));
-		connect(item_Editor, SIGNAL(refresh()),this, SLOT(editors_Edit()));	// TODO ?
+		connect(item_Editor, SIGNAL(refresh()),this, SLOT(editors_Edit()));	// TODO ? (or editors_refresh?)
 		connect(item_Editor, SIGNAL(refresh()),this, SLOT(emit_Refresh()));
 		connect(item_Editor, SIGNAL(edited()), this, SLOT(editors_Edit()));
 
