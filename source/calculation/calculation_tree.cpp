@@ -11,21 +11,10 @@ Calculation_Tree::Calculation_Tree(QVector<Independent_Variables*>& independent_
 		max_Depth = tree_Depth(local_Item_Tree_Vec[independent_Index]->invisibleRootItem());	// unstratified depth
 
 		fill_Calc_Trees();
+		calculate_Intermediate_Values(independent_Widget_Vec);
 
-		//------------------------
-		statify_Item_Tree();
-		statify_Calc_Tree();
-		//------------------------
-
-
-//		calculate_Intermediate_Values(independent_Widget_Vec);
-
-
-//		qInfo() << "\ndepth = " << max_Depth;
 		qInfo() << endl;
 		print_Tree(calc_Tree_Vec[independent_Index].begin(), independent_Index);
-		qInfo() << endl;
-		print_Item_Tree(local_Item_Tree_Vec[independent_Index]->invisibleRootItem());
 	}
 }
 
@@ -52,6 +41,62 @@ int  Calculation_Tree::get_Item_Depth(QTreeWidgetItem* item)
 	  ++depth;
 	}
 	return depth;
+}
+
+void Calculation_Tree::fill_Calc_Trees()
+{
+	// for each plot
+	for(int independent_Index=0; independent_Index<local_Item_Tree_Vec.size(); ++independent_Index)
+	{
+		fill_Tree(calc_Tree_Vec[independent_Index].begin(), local_Item_Tree_Vec[independent_Index]->invisibleRootItem(), independent_Index);
+
+		// if no set substrate then the second ambient
+		if(local_Item_Tree_Vec[independent_Index]->topLevelItem(local_Item_Tree_Vec[independent_Index]->topLevelItemCount()-1)->whatsThis(DEFAULT_COLUMN) != whats_This_Substrate)
+		{
+			QTreeWidgetItem substrate_Item;
+			substrate_Item.setWhatsThis(DEFAULT_COLUMN, whats_This_Substrate);
+
+			Ambient ambient = local_Item_Tree_Vec[independent_Index]->topLevelItem(0)->data(DEFAULT_COLUMN, Qt::UserRole).value<Ambient>();
+			Substrate substrate;
+
+			// ambient inheritance
+			substrate.composed_Material				= ambient.composed_Material;
+			substrate.material						= ambient.material;
+			substrate.density						= ambient.density;
+			substrate.separate_Optical_Constants	= ambient.separate_Optical_Constants;
+			substrate.permittivity					= ambient.permittivity;
+			substrate.absorption					= ambient.absorption;
+			substrate.composition					= ambient.composition;
+
+			// substrate' fields
+			substrate.use_PSD = false;
+			substrate.sigma.value = 0;
+
+			// set data
+			QVariant var; var.setValue( substrate );
+			substrate_Item.setData(DEFAULT_COLUMN, Qt::UserRole, var);
+
+			// create node
+			Node substrate_Node(&substrate_Item);
+
+			// add node
+			calc_Tree_Vec[independent_Index].append_child(calc_Tree_Vec[independent_Index].begin(), substrate_Node);
+		}
+	}
+}
+
+void Calculation_Tree::fill_Tree(tree<Node>::iterator parent, QTreeWidgetItem* item, int independent_Index)
+{
+	for(int i=0; i<item->childCount(); ++i)
+	{
+		Node temp_Node(item->child(i));
+		calc_Tree_Vec[independent_Index].append_child(parent, temp_Node);
+
+		if(item->child(i)->childCount()>0)
+		{
+			fill_Tree(calc_Tree_Vec[independent_Index].child(parent,i), item->child(i), independent_Index);
+		}
+	}
 }
 
 void Calculation_Tree::statify_Item_Tree()
@@ -89,7 +134,7 @@ void Calculation_Tree::statify_Item_Tree()
 				if(item->data(DEFAULT_COLUMN, Qt::UserRole).value<Stack_Content>().num_Repetition.value == 0)
 				{
 					// TODO delete or not delete?
-//					delete item;
+					delete item;
 				} else
 
 				// if 1 period
@@ -102,12 +147,12 @@ void Calculation_Tree::statify_Item_Tree()
 						parent_Item->insertChild(parent_Item->indexOfChild(item),item->child(child_Index)->clone());
 					}
 					// TODO delete or not delete?
-//					delete item;
+					delete item;
 					// change data
-					Stack_Content stack_Content = item->data(DEFAULT_COLUMN, Qt::UserRole).value<Stack_Content>();
-					stack_Content.num_Repetition.value = 0;
-					QVariant var; var.setValue(stack_Content);
-					item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+//					Stack_Content stack_Content = item->data(DEFAULT_COLUMN, Qt::UserRole).value<Stack_Content>();
+//					stack_Content.num_Repetition.value = 0;
+//					QVariant var; var.setValue(stack_Content);
+//					item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
 				} else
 
 				// if 2 periods
@@ -121,7 +166,7 @@ void Calculation_Tree::statify_Item_Tree()
 						parent_Item->insertChild(parent_Item->indexOfChild(item)+1+child_Index,item->child(child_Index)->clone());
 					}
 					// TODO delete or not delete?
-//					delete item;
+					delete item;
 				} else
 
 				// if >=3 periods
@@ -168,96 +213,93 @@ void Calculation_Tree::statify_Calc_Tree_Iteration(tree<Node>::iterator parent, 
 	}
 }
 
-void Calculation_Tree::statify_Calc_Tree()
+void Calculation_Tree::statify_Calc_Tree(tree<Node>& calc_Tree)
 {
-	for(int independent_Index=0; independent_Index<calc_Tree_Vec.size(); ++independent_Index)
+	for(int depth=max_Depth-1; depth>0; depth--)
 	{
-//		tree<Node> calc_Tree = calc_Tree_Vec[independent_Index];
-		for(int depth=max_Depth-1; depth>0; depth--)
+		QVector<tree<Node>::iterator> chosen_Nodes;
+
+		statify_Calc_Tree_Iteration(calc_Tree.begin(), depth, chosen_Nodes);
+
+		/// stratification
+		for(int vec_Index=chosen_Nodes.size()-1; vec_Index>=0; --vec_Index)
 		{
-			QVector<tree<Node>::iterator> chosen_Nodes;
+			tree<Node>::iterator chosen_Child = chosen_Nodes[vec_Index];
 
-			statify_Calc_Tree_Iteration(calc_Tree_Vec[independent_Index].begin(), depth, chosen_Nodes);
-
-			/// stratification
-			for(int vec_Index=chosen_Nodes.size()-1; vec_Index>=0; --vec_Index)
+			// if 0 periods
+			if(chosen_Child.node->data.stack_Content.num_Repetition.value == 0)
 			{
-				tree<Node>::iterator chosen_Child = chosen_Nodes[vec_Index];
+				// delete
+				calc_Tree.erase(chosen_Child);
+			} else
 
-				// if 0 periods
-				if(chosen_Child.node->data.stack_Content.num_Repetition.value == 0)
+			// if 1 period
+			if(chosen_Child.node->data.stack_Content.num_Repetition.value == 1)
+			{
+				for(unsigned child_Index=0; child_Index<chosen_Child.number_of_children(); ++child_Index)
 				{
-					// TODO delete or not delete?
-//					delete item;
-				} else
-
-				// if 1 period
-				if(chosen_Child.node->data.stack_Content.num_Repetition.value == 1)
-				{
-					for(unsigned child_Index=0; child_Index<chosen_Child.number_of_children(); ++child_Index)
-					{
-						calc_Tree_Vec[independent_Index].insert_subtree(chosen_Child, tree<Node>::child(chosen_Child,child_Index));
-					}
-					// TODO delete or not delete?
-//					delete item;
-					// change data
-					chosen_Child.node->data.stack_Content.num_Repetition.value = 0;
-				} else
-
-				// if 2 periods
-				if(chosen_Child.node->data.stack_Content.num_Repetition.value == 2)
-				{
-					tree<Node>::iterator next = chosen_Child;
-					for(unsigned child_Index=0; child_Index<chosen_Child.number_of_children(); ++child_Index)
-					{
-						calc_Tree_Vec[independent_Index].insert_subtree      (chosen_Child, tree<Node>::child(chosen_Child,child_Index));
-						next = calc_Tree_Vec[independent_Index].insert_subtree_after(next, tree<Node>::child(chosen_Child,child_Index));
-					}
-					// TODO delete or not delete?
-//					delete item;
-					// change data
-					chosen_Child.node->data.stack_Content.num_Repetition.value = 0;
-				} else
-
-				// if >=3 periods
-				if(chosen_Child.node->data.stack_Content.num_Repetition.value >= 3)
-				{
-					tree<Node>::iterator next = chosen_Child;
-					for(unsigned child_Index=0; child_Index<chosen_Child.number_of_children(); ++child_Index)
-					{
-						calc_Tree_Vec[independent_Index].insert_subtree     (chosen_Child, tree<Node>::child(chosen_Child,child_Index));
-						next = calc_Tree_Vec[independent_Index].insert_subtree_after(next, tree<Node>::child(chosen_Child,child_Index));
-					}
-					// change data
-					chosen_Child.node->data.stack_Content.num_Repetition.value -= 2;
+					calc_Tree.insert_subtree(chosen_Child, tree<Node>::child(chosen_Child,child_Index));
 				}
+				// delete
+				calc_Tree.erase(chosen_Child);
+				// not delete
+//				chosen_Child.node->data.stack_Content.num_Repetition.value = 0;
+			} else
+
+			// if 2 periods
+			if(chosen_Child.node->data.stack_Content.num_Repetition.value == 2)
+			{
+				tree<Node>::iterator next = chosen_Child;
+				for(unsigned child_Index=0; child_Index<chosen_Child.number_of_children(); ++child_Index)
+				{
+					calc_Tree.insert_subtree     (chosen_Child, tree<Node>::child(chosen_Child,child_Index));
+					next = calc_Tree.insert_subtree_after(next, tree<Node>::child(chosen_Child,child_Index));
+				}
+				// delete
+				calc_Tree.erase(chosen_Child);
+				// not delete
+//				chosen_Child.node->data.stack_Content.num_Repetition.value = 0;
+			} else
+
+			// if >=3 periods
+			if(chosen_Child.node->data.stack_Content.num_Repetition.value >= 3)
+			{
+				tree<Node>::iterator next = chosen_Child;
+				for(unsigned child_Index=0; child_Index<chosen_Child.number_of_children(); ++child_Index)
+				{
+					calc_Tree.insert_subtree     (chosen_Child, tree<Node>::child(chosen_Child,child_Index));
+					next = calc_Tree.insert_subtree_after(next, tree<Node>::child(chosen_Child,child_Index));
+				}
+				// change data
+				chosen_Child.node->data.stack_Content.num_Repetition.value -= 2;
 			}
 		}
 	}
 }
 
-void Calculation_Tree::fill_Calc_Trees()
+void Calculation_Tree::flatten_Stratified_Calc_Tree_List_Iteration(tree<Node>::iterator parent, QList<Node>& flat_List, QMap<int, tree<Node>::iterator>& flat_Tree_Map)
 {
-	// for each plot
-	for(int independent_Index=0; independent_Index<local_Item_Tree_Vec.size(); ++independent_Index)
+	for(unsigned i=0; i<parent.number_of_children(); ++i)
 	{
-		fill_Tree(calc_Tree_Vec[independent_Index].begin(), local_Item_Tree_Vec[independent_Index]->invisibleRootItem(), independent_Index);
+		tree<Node>::pre_order_iterator child = tree<Node>::child(parent,i);
+
+		if(child.number_of_children()==0)
+		{
+			flat_List.append(child.node->data);
+			flat_Tree_Map.insert(flat_List.size()-1, child);
+		}
+		if(child.number_of_children()>0)
+		{
+			flatten_Stratified_Calc_Tree_List_Iteration(child, flat_List, flat_Tree_Map);
+		}
 	}
 }
 
-void Calculation_Tree::fill_Tree(tree<Node>::iterator parent, QTreeWidgetItem* item, int independent_Index)
+QList<Node> Calculation_Tree::flatten_Stratified_Calc_Tree_List(tree<Node>& calc_Tree, QMap<int, tree<Node>::iterator>& flat_Tree_Map)
 {
-	for(int i=0; i<item->childCount(); ++i)
-	{
-		Node temp_Node(item->child(i));
-		calc_Tree_Vec[independent_Index].append_child(parent, temp_Node);
-		calc_Tree_Vec[independent_Index].child(parent,i).node->data.this_Iter = calc_Tree_Vec[independent_Index].child(parent,i);
-
-		if(item->child(i)->childCount()>0)
-		{
-			fill_Tree(calc_Tree_Vec[independent_Index].child(parent,i), item->child(i), independent_Index);
-		}
-	}
+	QList<Node> flat_List;
+	flatten_Stratified_Calc_Tree_List_Iteration(calc_Tree.begin(), flat_List, flat_Tree_Map);
+	return flat_List;
 }
 
 void Calculation_Tree::calculate_Intermediate_Values(QVector<Independent_Variables*>& independent_Widget_Vec)
@@ -266,6 +308,7 @@ void Calculation_Tree::calculate_Intermediate_Values(QVector<Independent_Variabl
 	for(int independent_Index=0; independent_Index<calc_Tree_Vec.size(); ++independent_Index)
 	{
 		QString	active_Whats_This;
+
 		// find whatsThis of active item
 		for(int item_Index=0; item_Index<independent_Widget_Vec[independent_Index]->independent_Variables_List->count(); ++item_Index)
 		{
@@ -278,25 +321,36 @@ void Calculation_Tree::calculate_Intermediate_Values(QVector<Independent_Variabl
 			}
 		}
 
+		// preliminary "measurement" calculation for each tree
+		tree<Node>::iterator measurement_Iter = find_Node(calc_Tree_Vec[independent_Index].begin(), whats_This_Measurement, independent_Index);
+		Measurement* measur = &(measurement_Iter.node->data.measurement);
+		measur->calc_Independent_cos2_k();
+
 		// find corresponding node for active variable
 		QStringList active_Whats_This_List = active_Whats_This.split(whats_This_Delimiter,QString::SkipEmptyParts);
 
 		tree<Node>::iterator active_Iter = find_Node(calc_Tree_Vec[independent_Index].begin(), active_Whats_This_List[0], independent_Index);
 
-		// TODO if angle, if wavelength etc
-		// if angle
-		if(active_Whats_This_List[1] == whats_This_Angle)
+		// if measurement is not active, create tree for each plot point
+		if(active_Iter.node->data.whats_This != whats_This_Measurement)
 		{
-			// we know that data type == "Measurement"
-			Measurement* measur = &(active_Iter.node->data.measurement);
-			measur->calc_Independent_cos2_k();
-		}
+			// TODO
 
-		calculate_Intermediate_Values_1_Tree(calc_Tree_Vec[independent_Index].begin(), active_Iter, active_Whats_This, independent_Index);
+		} else
+		// 1 tree for 1 plot
+		{
+			statify_Calc_Tree(calc_Tree_Vec[independent_Index]);
+
+			// create map with flat list
+			QMap<int, tree<Node>::iterator> flat_Tree_Map;
+			QList<Node> flat_List = flatten_Stratified_Calc_Tree_List(calc_Tree_Vec[independent_Index], flat_Tree_Map);
+
+			calculate_Intermediate_Values_1_Tree(calc_Tree_Vec[independent_Index].begin(), active_Iter, active_Whats_This, flat_List, flat_Tree_Map, independent_Index);
+		}
 	}
 }
 
-void Calculation_Tree::calculate_Intermediate_Values_1_Tree(tree<Node>::iterator parent, tree<Node>::iterator active_Iter, QString active_Whats_This, int independent_Index)
+void Calculation_Tree::calculate_Intermediate_Values_1_Tree(tree<Node>::iterator parent, tree<Node>::iterator active_Iter, QString active_Whats_This, QList<Node>& flat_List, QMap<int, tree<Node>::iterator> flat_Tree_Map, int independent_Index)
 {
 	// iterate over tree
 	for(unsigned i=0; i<parent.number_of_children(); ++i)
@@ -304,18 +358,17 @@ void Calculation_Tree::calculate_Intermediate_Values_1_Tree(tree<Node>::iterator
 		tree<Node>::post_order_iterator child = calc_Tree_Vec[independent_Index].child(parent,i);
 		QStringList whats_This_List = child.node->data.whats_This.split(item_Type_Delimiter,QString::SkipEmptyParts);
 
-		child.node->data.calculate_Intermediate_Points(active_Iter, active_Whats_This);
+		child.node->data.calculate_Intermediate_Points(calc_Tree_Vec[independent_Index], child, active_Iter, active_Whats_This, flat_List, flat_Tree_Map);
 
 		if(whats_This_List[0] == whats_This_Multilayer)
 		{
-			calculate_Intermediate_Values_1_Tree(child, active_Iter, active_Whats_This, independent_Index);
+			calculate_Intermediate_Values_1_Tree(child, active_Iter, active_Whats_This, flat_List, flat_Tree_Map, independent_Index);
 		}
 	}
 }
 
 tree<Node>::iterator Calculation_Tree::find_Node(tree<Node>::iterator parent, QString active_Whats_This, int independent_Index)
 {
-
 	for(unsigned i=0; i<parent.number_of_children(); ++i)
 	{
 		tree<Node>::post_order_iterator child = calc_Tree_Vec[independent_Index].child(parent,i);
@@ -372,6 +425,14 @@ void Calculation_Tree::print_Tree(tree<Node>::iterator parent, int independent_I
 		{
 			print_Tree(child, independent_Index);
 		}
+	}
+}
+
+void Calculation_Tree::print_Flat_list(QList<Node> flat_List)
+{
+	for(int i=0; i<flat_List.size(); ++i)
+	{
+		std::cout << "list : \t\t" << flat_List[i].whats_This.toStdString() << std::endl;
 	}
 }
 

@@ -97,11 +97,11 @@ using namespace std;
 #define item_Type_Delimiter  " "
 
 // whatsThis : treeWidgetItem types
-#define whats_This_Measurement	"Measurement"
-#define whats_This_Ambient		"Ambient"
-#define whats_This_Layer		"Layer"
-#define whats_This_Multilayer	"Multilayer"
-#define whats_This_Substrate	"Substrate"
+#define whats_This_Measurement	 "Measurement"
+#define whats_This_Ambient		 "Ambient"
+#define whats_This_Layer		 "Layer"
+#define whats_This_Multilayer	 "Multilayer"
+#define whats_This_Substrate	 "Substrate"
 
 // whatsThis : specialized additions
 #define whats_This_Angle					"Angle"

@@ -11,9 +11,9 @@ public:
 	Node();
 	Node(QTreeWidgetItem* item);
 
-	void calculate_Intermediate_Points(tree<Node>::iterator active_Iter, QString active_Whats_This);
+	void calculate_Intermediate_Points(tree<Node>& calc_Tree, tree<Node>::iterator this_Iter, tree<Node>::iterator active_Iter, QString active_Whats_This, QList<Node>& flat_List, QMap<int, tree<Node>::iterator>& flat_Tree_Map);
 
-	tree<Node>::iterator this_Iter;
+//	tree<Node>::iterator this_Iter;
 	QString whats_This;
 	QStringList whats_This_List;
 

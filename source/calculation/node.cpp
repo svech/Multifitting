@@ -17,27 +17,22 @@ Node::Node(QTreeWidgetItem* item):
 	if(whats_This_List[0] == whats_This_Substrate)	substrate	  = item->data(DEFAULT_COLUMN, Qt::UserRole).value<Substrate>();
 }
 
-void Node::calculate_Intermediate_Points(tree<Node>::iterator active_Iter, QString active_Whats_This)
+void Node::calculate_Intermediate_Points(tree<Node>& calc_Tree, tree<Node>::iterator this_Iter, tree<Node>::iterator active_Iter, QString active_Whats_This, QList<Node>& flat_List, QMap<int, tree<Node>::iterator>& flat_Tree_Map)
 {
-	qInfo() << "node : calculate_Intermediate_Points in " << whats_This << endl;
+	qInfo() << "\nnode : calculate_Intermediate_Points in " << whats_This << endl;
 
 	QStringList active_Whats_This_List = active_Whats_This.split(whats_This_Delimiter,QString::SkipEmptyParts);
 
 	// for layers
 	if(whats_This_List[0] == whats_This_Layer)
 	{
-		qInfo() << "active       : " << active_Whats_This;
+//		qInfo() << "active       : " << active_Whats_This;
+//		qInfo() << "active node  : " << active_Iter.node->data.whats_This;
 
-
-		qInfo() << "active node  : " << active_Iter.node->data.whats_This;
-
-		tree<Node>::pre_order_iterator top    = --this_Iter;
-		qInfo() << "upper   node : " << top.node->data.whats_This;
-		qInfo() << "current node : " << whats_This;
-		tree<Node>::pre_order_iterator bottom = ++++this_Iter;
-		qInfo() << "lower   node : " << bottom.node->data.whats_This;
-
-
+//		qInfo() << "current node : " << this_Iter.node->data.whats_This;
+//		qInfo() << "prev flat    : " << flat_List[flat_Tree_Map.key(this_Iter)-1].whats_This;
+//		qInfo() << "current flat : " << flat_List[flat_Tree_Map.key(this_Iter)].whats_This;
+//		qInfo() << "next flat    : " << flat_List[flat_Tree_Map.key(this_Iter)+1].whats_This;
 
 		if(active_Whats_This_List[1] == whats_This_Angle)
 		{
@@ -51,6 +46,7 @@ void Node::calculate_Intermediate_Points(tree<Node>::iterator active_Iter, QStri
 
 			for(int i=0; i<plot_Points.size(); ++i)
 			{
+				// TODO
 				/// epsilon
 				// if density
 				if(layer.separate_Optical_Constants != TRIL_TRUE)
@@ -74,11 +70,38 @@ void Node::calculate_Intermediate_Points(tree<Node>::iterator active_Iter, QStri
 				/// weak factor
 				plot_Points[i].weak_Factor = 1;
 
-				/// fresnel
-//				plot_Points[i].r_Fresnel_s =
+				/// fresnel (reflections from the top border)
+				Node higher_Node = flat_List[flat_Tree_Map.key(this_Iter)-1];
+
+				// s - polarization
+				if(measur->polarization.value > -1)
+				{
+					complex<double> temp_Fre_Denominator_s   = higher_Node.plot_Points[i].hi + plot_Points[i].hi;
+					if(temp_Fre_Denominator_s!=0.)
+					{
+						complex<double> temp_Fre_Numerator_s = higher_Node.plot_Points[i].hi - plot_Points[i].hi;
+						plot_Points[i].r_Fresnel_s = plot_Points[i].weak_Factor * temp_Fre_Numerator_s / temp_Fre_Denominator_s;
+					}else
+					{
+						plot_Points[i].r_Fresnel_s = 0.;
+					}
+				}
+				// p - polarization
+				if(measur->polarization.value < 1)
+				{
+					complex<double> temp_Fre_Denominator_p   = higher_Node.plot_Points[i].hi / higher_Node.plot_Points[i].epsilon
+																		 + plot_Points[i].hi / plot_Points[i].epsilon;
+					if(temp_Fre_Denominator_p!=0.)
+					{
+						complex<double> temp_Fre_Numerator_p = higher_Node.plot_Points[i].hi / higher_Node.plot_Points[i].epsilon
+																		 - plot_Points[i].hi / plot_Points[i].epsilon;
+						plot_Points[i].r_Fresnel_p = plot_Points[i].weak_Factor * temp_Fre_Numerator_p / temp_Fre_Denominator_p;
+					} else
+					{
+						plot_Points[i].r_Fresnel_p = 0.;
+					}
+				}
 			}
-
 		}
-
 	}
 }

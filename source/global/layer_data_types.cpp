@@ -40,8 +40,6 @@ Measurement::Measurement()
 
 void Measurement::calc_Independent_cos2_k()
 {
-
-
 	// cos2
 	cos2_Value = pow(cos(probe_Angle.value*M_PI/180.),2);
 
