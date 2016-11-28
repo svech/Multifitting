@@ -8,7 +8,7 @@ class Independent_Variables_Editor : public QDialog
 	Q_OBJECT
 	Q_INVOKABLE void adjustSize() { QWidget::adjustSize(); }
 public:
-	explicit Independent_Variables_Editor(QTreeWidgetItem* structure_Item, QListWidgetItem* item, QWidget *parent = 0);
+	explicit Independent_Variables_Editor(QTreeWidgetItem* structure_Item, QListWidgetItem* item, QListWidget* variables_List, QWidget *parent = 0);
 
 signals:
 	void refresh();
@@ -25,15 +25,19 @@ private:
 
 public slots:
 	void resize_Line_Edit(QString text, QLineEdit* line_Edit = NULL);
+	void refresh_Special_Line_Edit(QString text);
 	void show_Hide_Elements(int points, bool show = false);
 	void refresh_Data(QString);
 	void refresh_Show_Data(bool show = false);
+	void activate_Variable(bool);
+	void show_Active_Check_Box();
 	void show_Hide_Angular_Elements(int points, bool show = false);
 	void show_Hide_Spectral_Elements(int points, bool show = false);
 
 public:
 	QTreeWidgetItem* structure_Item;
 	QListWidgetItem* item;
+	QListWidget* variables_List;
 
 private:
 	bool angle_Done = false;
@@ -47,6 +51,7 @@ private:
 	QString to = "to";
 	QString step = "step size";
 
+	QString end_Bracket = "]";
 private:
 	QVBoxLayout* main_Layout;
 		QGroupBox* group_Box;
@@ -60,6 +65,7 @@ private:
 				QLabel* step_Label;
 				QLineEdit* step_Edit;
 				QLabel* step_Units_Label;
+				QCheckBox* active_Check_Box;
 
 				QLabel* angular_Resolution_Label;
 				QLineEdit* angular_Resolution_Edit;

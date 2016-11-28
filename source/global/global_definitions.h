@@ -2,6 +2,10 @@
 #define GLOBAL_DEFINITIONS_H
 
 #include <QtWidgets>
+#include <vector>
+#include <complex>
+
+using namespace std;
 
 // -----------------------------------------------------------------------------------------
 
@@ -86,6 +90,8 @@
 
 // -----------------------------------------------------------------------------------------
 
+#define active "     Active"
+
 // whatsThis : delimiters
 #define whats_This_Delimiter ";"
 #define item_Type_Delimiter  " "
@@ -128,6 +134,11 @@ enum class Variable_Type	{Independent, Coupled, Fitted, Optimized};
 
 // -----------------------------------------------------------------------------------------
 
+// calculation
+#define I complex<double>(0,1)
+
+// -----------------------------------------------------------------------------------------
+
 // simple types					renew corresponding serialization operators!
 struct Int_Independent			{int value; bool is_Independent=false;	int start; int step; int num_steps;};
 struct Independent				{bool is_Independent = false;	double min; double max; int num_Points;};
@@ -144,6 +155,20 @@ struct nk_Point					{double lambda; double n;  double k;  void read_Row(QTextStr
 struct f1f2_Point				{double lambda; double f1; double f2; void read_Row(QTextStream& input);};
 struct Material_Data			{QString substance; QString filename; QVector<nk_Point>  material_Data; void read_Material(QString& filename);};
 struct Element_Data				{QString element;					  QVector<f1f2_Point> element_Data; void read_Element (QString& filename);};
+
+// intermediate values for optical functions
+struct intermediate_Point		{
+								complex<double> delta_Epsilon;	// = 1 - n^2  OR Re(1 - n^2)*permittivity/100 +(or - ??) Im(1 - n^2)*absorption/100
+								complex<double> epsilon;		// = 1 - density * delta_Epsilon or = 1 - bulk_density * delta_Epsilon
+
+								complex<double> hi;
+								complex<double> exponenta;
+
+								// for top interfaces
+								complex<double> r_Fresnel_s;
+								complex<double> r_Fresnel_p;
+								double weak_Factor = 1;
+								};
 
 struct Window_Type				{static QString Launcher()					  { return "Launcher"  ;}
 								 static QString Multilayer_Approach()		  { return "Multilayer_Approach";}

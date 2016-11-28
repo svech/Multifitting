@@ -691,6 +691,7 @@ void Variable_Selection::add_Variable()
 	if(map_Of_Parameters_Lists.value(filters_Combo_Box->currentText())->currentItem())
 	{
 		QListWidgetItem* new_Item = map_Of_Parameters_Lists.value(filters_Combo_Box->currentText())->currentItem()->clone();
+		new_Item->setData(Qt::UserRole, false);	// adding "passive" status
 
 		variables_List_Map->insert(new_Item->whatsThis(), new_Item);
 		variables_List->addItem(new_Item);

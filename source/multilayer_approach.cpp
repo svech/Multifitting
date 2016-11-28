@@ -174,6 +174,6 @@ void Multilayer_Approach::save()
 void Multilayer_Approach::calc_Reflection()
 {
 	// TODO
-	qInfo() << "\n\ncalc specular functions...";
+	qInfo() << "\n\n------------------------------------------------------------\ncalc specular functions...\n-------------------------------------------------------\n";
 	Main_Calculation_Module main_Calculation_Module(multilayer_List);
 }

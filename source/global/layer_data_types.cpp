@@ -38,6 +38,45 @@ Measurement::Measurement()
 	polarization_Sensitivity.independent.num_Points = 1;
 }
 
+void Measurement::calc_Independent_cos2_k()
+{
+
+
+	// cos2
+	cos2_Value = pow(cos(probe_Angle.value*M_PI/180.),2);
+
+	if(probe_Angle.independent.num_Points>1)
+	{
+		double angle_Step = (probe_Angle.independent.max - probe_Angle.independent.min) / (probe_Angle.independent.num_Points - 1);
+		double angle = probe_Angle.independent.min;
+		for(int i=0; i<probe_Angle.independent.num_Points; ++i)
+		{
+			cos2.append(pow(cos(angle*M_PI/180.),2));
+			angle += angle_Step;
+		}
+	} else
+	{
+		cos2.append(cos2_Value);
+	}
+
+	// k
+	k_Value = 2*M_PI/wavelength.value;
+
+	if(wavelength.independent.num_Points>1)
+	{
+		double wave_Step = (wavelength.independent.max - wavelength.independent.min) / (wavelength.independent.num_Points - 1);
+		double wave = wavelength.independent.min;
+		for(int i=0; i<wavelength.independent.num_Points; ++i)
+		{
+			k.append(2*M_PI/wave);
+			wave += wave_Step;
+		}
+	} else
+	{
+		k.append(k_Value);
+	}
+}
+
 Ambient::Ambient()
 {
 	material			= ambient_default_material;
@@ -183,22 +222,4 @@ QDataStream& operator <<( QDataStream& stream, const Stack_Content& stack_Conten
 QDataStream& operator >>( QDataStream& stream,		 Stack_Content& stack_Content )
 {
 	return stream	>>  stack_Content.num_Repetition >> stack_Content.period >> stack_Content.gamma;
-}
-
-// tree node for calculation
-
-Node::Node()
-{
-
-}
-
-Node::Node(QTreeWidgetItem* item):
-	whats_This(item->whatsThis(DEFAULT_COLUMN))
-{
-	QStringList whats_This_List = whats_This.split(item_Type_Delimiter,QString::SkipEmptyParts);
-
-	if(whats_This_List[0] == whats_This_Ambient)	ambient		  = item->data(DEFAULT_COLUMN, Qt::UserRole).value<Ambient>();
-	if(whats_This_List[0] == whats_This_Layer)		layer		  = item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>();
-	if(whats_This_List[0] == whats_This_Multilayer)	stack_Content = item->data(DEFAULT_COLUMN, Qt::UserRole).value<Stack_Content>();
-	if(whats_This_List[0] == whats_This_Substrate)	substrate	  = item->data(DEFAULT_COLUMN, Qt::UserRole).value<Substrate>();
 }

@@ -32,7 +32,7 @@ SOURCES += main.cpp\
     calculation/optical_constants.cpp \
     main_calculation_module.cpp \
     calculation/calculation_tree.cpp \
-    calculation/stratified_structure.cpp
+    calculation/node.cpp
 
 HEADERS  += launcher.h \
     global/global_definitions.h \
@@ -51,5 +51,5 @@ HEADERS  += launcher.h \
     calculation/optical_constants.h \
     main_calculation_module.h \
     calculation/calculation_tree.h \
-    calculation/stratified_structure.h
+    calculation/node.h
 

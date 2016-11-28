@@ -99,8 +99,8 @@ private:
 						QVBoxLayout* nonspecular_Functions_Layout;
 					QTabWidget* independent_Variables_Plot_Tabs;
 						QToolButton* independent_Variables_Corner_Button;
-						QVector<Independent_Variables*> independent_Widget_Vec;
-						QVector<QTreeWidget*> plottable_Struct_Tree_Vec;
+public:					QVector<Independent_Variables*> independent_Widget_Vec;
+private:				QVector<QTreeWidget*> plottable_Struct_Tree_Vec;
 
 					QListWidget* coupled_Parameters_List;
 					QToolBar* coupled_Parameters_Toolbar;

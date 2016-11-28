@@ -35,14 +35,13 @@ private slots:
 
 public:
 	QMap<QString, QListWidgetItem*>* independent_Variables_List_Map;
-
-private:
 	QTreeWidget* struct_Tree_Copy;
 
-	QFrame* independent_Frame;
-	QVBoxLayout* independent_Frame_Layout;
-		QListWidget* independent_Variables_List;
-		QToolBar* independent_Variables_Toolbar;
+private:
+		QFrame* independent_Frame;
+		QVBoxLayout* independent_Frame_Layout;
+public:		QListWidget* independent_Variables_List;
+private:		QToolBar* independent_Variables_Toolbar;
 };
 
 #endif // INDEPENDENT_VARIABLES_H

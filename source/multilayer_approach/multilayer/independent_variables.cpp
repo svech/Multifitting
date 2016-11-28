@@ -29,11 +29,28 @@ void Independent_Variables::clear_Parameters()
 	}
 
 	// clear independent list
+	bool wave_Active = false;
 	for(int i=independent_Variables_List->count()-1; i>=0; i--)
 	{
-		if((independent_Variables_List->item(i)->whatsThis() != whats_This_Measurement + QString(whats_This_Delimiter) + whats_This_Angle) && (independent_Variables_List->item(i)->whatsThis() != whats_This_Measurement + QString(whats_This_Delimiter) + whats_This_Wavelength))
+		QListWidgetItem* temp_Item = independent_Variables_List->item(i);
+		if((temp_Item->whatsThis() != whats_This_Measurement + QString(whats_This_Delimiter) + whats_This_Angle) && (temp_Item->whatsThis() != whats_This_Measurement + QString(whats_This_Delimiter) + whats_This_Wavelength))
 		{
-			delete independent_Variables_List->item(i);
+			delete temp_Item;
+		} else
+		if(temp_Item->whatsThis() == whats_This_Measurement + QString(whats_This_Delimiter) + whats_This_Wavelength)
+		{
+			if(temp_Item->data(Qt::UserRole).toBool()) wave_Active = true;
+
+		} else
+		if(temp_Item->whatsThis() == whats_This_Measurement + QString(whats_This_Delimiter) + whats_This_Angle)
+		{
+			if(!wave_Active)
+			{
+				temp_Item->setData(Qt::UserRole, true);
+
+				QStringList item_Text_List = temp_Item->text().split(active, QString::SkipEmptyParts);
+				temp_Item->setText(item_Text_List[0] + active);
+			}
 		}
 	}
 }
@@ -58,7 +75,7 @@ void Independent_Variables::refresh_Text()
 			++it;
 		}
 
-		Independent_Variables_Editor* editor = new Independent_Variables_Editor(structure_Item, item);
+		Independent_Variables_Editor* editor = new Independent_Variables_Editor(structure_Item, item, independent_Variables_List);
 			editor->close();
 	}
 
@@ -101,26 +118,28 @@ void Independent_Variables::create_Independent_Variables_List()
 
 	// units conversion
 	double wavelength_Coeff   = wavelength_Coefficients_Map.value(wavelength_units);
-	double angle_Coeff		= angle_Coefficients_Map.	  value(angle_units);
+	double angle_Coeff		  = angle_Coefficients_Map.	    value(angle_units);
 
 	QListWidgetItem* angle = new QListWidgetItem;
+	angle->setData(Qt::UserRole, true);	// adding "active" status
 	if(measurement.probe_Angle.independent.num_Points == 1)
 		angle->setText(measurement.angle_Type + " angle, " + Theta_Sym + " [" + QString::number(measurement.probe_Angle.value/angle_Coeff,thumbnail_double_format,thumbnail_angle_precision) + angle_units + "]");
 	else
 		angle->setText(measurement.angle_Type + " angle, " + Theta_Sym + " [" + QString::number(measurement.probe_Angle.independent.num_Points) + " values: " +
 					QString::number(measurement.probe_Angle.independent.min/angle_Coeff,thumbnail_double_format,thumbnail_angle_precision) + " - " +
-					QString::number(measurement.probe_Angle.independent.max/angle_Coeff,thumbnail_double_format,thumbnail_angle_precision) + angle_units + "]");
+					QString::number(measurement.probe_Angle.independent.max/angle_Coeff,thumbnail_double_format,thumbnail_angle_precision) + angle_units + "]" + active);
 		angle->setWhatsThis(QString(whats_This_Measurement) + whats_This_Delimiter + whats_This_Angle);
-		independent_Variables_List->insertItem(0, angle);
+	independent_Variables_List->insertItem(0, angle);
 
-		QListWidgetItem* wavelength = new QListWidgetItem;
-		if(measurement.wavelength.independent.num_Points == 1)
-			wavelength->setText(Global_Variables::wavelength_Energy_Name(wavelength_units) + " [" + QString::number(Global_Variables::wavelength_Energy(wavelength_units, measurement.wavelength.value)/wavelength_Coeff,thumbnail_double_format,thumbnail_wavelength_precision) + " " + wavelength_units + "]");
-		else
-			wavelength->setText(Global_Variables::wavelength_Energy_Name(wavelength_units) + " [" + QString::number(measurement.wavelength.independent.num_Points) + " values: " +
-					QString::number(Global_Variables::wavelength_Energy(wavelength_units,measurement.wavelength.independent.min)/wavelength_Coeff,thumbnail_double_format,thumbnail_wavelength_precision) + " - " +
-					QString::number(Global_Variables::wavelength_Energy(wavelength_units,measurement.wavelength.independent.max)/wavelength_Coeff,thumbnail_double_format,thumbnail_wavelength_precision) + " " + wavelength_units + "]");
-			wavelength->setWhatsThis(QString(whats_This_Measurement) + whats_This_Delimiter + whats_This_Wavelength);
+	QListWidgetItem* wavelength = new QListWidgetItem;
+	wavelength->setData(Qt::UserRole, false);	// adding "passive" status
+	if(measurement.wavelength.independent.num_Points == 1)
+		wavelength->setText(Global_Variables::wavelength_Energy_Name(wavelength_units) + " [" + QString::number(Global_Variables::wavelength_Energy(wavelength_units, measurement.wavelength.value)/wavelength_Coeff,thumbnail_double_format,thumbnail_wavelength_precision) + " " + wavelength_units + "]");
+	else
+		wavelength->setText(Global_Variables::wavelength_Energy_Name(wavelength_units) + " [" + QString::number(measurement.wavelength.independent.num_Points) + " values: " +
+				QString::number(Global_Variables::wavelength_Energy(wavelength_units,measurement.wavelength.independent.min)/wavelength_Coeff,thumbnail_double_format,thumbnail_wavelength_precision) + " - " +
+				QString::number(Global_Variables::wavelength_Energy(wavelength_units,measurement.wavelength.independent.max)/wavelength_Coeff,thumbnail_double_format,thumbnail_wavelength_precision) + " " + wavelength_units + "]");
+		wavelength->setWhatsThis(QString(whats_This_Measurement) + whats_This_Delimiter + whats_This_Wavelength);
 	independent_Variables_List->insertItem(1, wavelength);
 
 	connect(independent_Variables_List, SIGNAL(itemDoubleClicked(QListWidgetItem*)), this, SLOT(edit_Independent_Variable(QListWidgetItem*)));
@@ -179,7 +198,7 @@ void Independent_Variables::edit_Independent_Variable(QListWidgetItem* item)
 		++it;
 	}
 
-	Independent_Variables_Editor* editor = new Independent_Variables_Editor(structure_Item, item);
+	Independent_Variables_Editor* editor = new Independent_Variables_Editor(structure_Item, item, independent_Variables_List);
 		editor->setParent(this);
 		editor->setModal(true);
 		editor->setWindowFlags(Qt::Window);
@@ -195,6 +214,18 @@ void Independent_Variables::remove_Independent_Variable(bool)
 	QListWidgetItem* item = independent_Variables_List->currentItem();
 	if(item)
 	{
+		// if active then make active angle
+		if(item->data(Qt::UserRole).toBool())
+		{
+			QListWidgetItem* angle_Item = independent_Variables_List->item(0);
+			// check
+			if(angle_Item->whatsThis() == whats_This_Measurement + QString(whats_This_Delimiter) + whats_This_Angle)
+			{
+				angle_Item->setData(Qt::UserRole, true);
+				angle_Item->setText(angle_Item->text() + active);
+			}
+		}
+
 		// sorting
 		QString whats_This = item->whatsThis();
 		QStringList whats_This_List = whats_This.split(whats_This_Delimiter,QString::SkipEmptyParts);
