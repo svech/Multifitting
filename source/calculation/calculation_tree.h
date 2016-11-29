@@ -4,6 +4,7 @@
 #include "tree.hh"
 #include "Matrix.h"
 #include "global/layer_data_types.h"
+#include "calculation/optical_constants.h"
 #include "node.h"
 
 using namespace std;
@@ -14,7 +15,7 @@ typedef Matrix<double,2> myMatrix;
 class Calculation_Tree
 {
 public:
-	Calculation_Tree(QVector<Independent_Variables*>& independent_Widget_Vec);
+	Calculation_Tree(QVector<Independent_Variables*>& independent_Widget_Vec, Optical_Constants* optical_Constants);
 
 private:
 	void create_Local_Item_Tree(QVector<Independent_Variables*>& independent_Widget_Vec);
@@ -42,6 +43,7 @@ public:
 	int max_Depth;
 	QVector<QTreeWidget*> local_Item_Tree_Vec;
 	QVector<tree<Node>> calc_Tree_Vec;
+	Optical_Constants* optical_Constants;
 };
 
 #endif // CALCULATION_TREE_H

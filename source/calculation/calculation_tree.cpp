@@ -1,7 +1,8 @@
 #include "calculation_tree.h"
 #include <iostream>
 
-Calculation_Tree::Calculation_Tree(QVector<Independent_Variables*>& independent_Widget_Vec):
+Calculation_Tree::Calculation_Tree(QVector<Independent_Variables*>& independent_Widget_Vec, Optical_Constants* optical_Constants):
+	optical_Constants(optical_Constants),
 	calc_Tree_Vec(independent_Widget_Vec.size())
 {
 	create_Local_Item_Tree(independent_Widget_Vec);
@@ -16,6 +17,17 @@ Calculation_Tree::Calculation_Tree(QVector<Independent_Variables*>& independent_
 		qInfo() << endl;
 		print_Tree(calc_Tree_Vec[independent_Index].begin(), independent_Index);
 	}
+
+//	Material_Data temp_Material_Data = optical_Constants->material_Map.value("Y_sae-lao.nk");
+//	qInfo() << temp_Material_Data.substance << "\t" << temp_Material_Data.filename << endl;
+//	for(int i=temp_Material_Data.material_Data.size()-20; i<temp_Material_Data.material_Data.size(); ++i)
+////	for(int i=0; i<20; ++i)
+//	{
+//		qInfo() << QString::number(temp_Material_Data.material_Data[i].lambda,'f',9)
+//				<< QString::number(temp_Material_Data.material_Data[i].n,'g',9)
+//				<< QString::number(temp_Material_Data.material_Data[i].k,'g',9) ;
+//	}
+
 }
 
 void Calculation_Tree::create_Local_Item_Tree(QVector<Independent_Variables*>& independent_Widget_Vec)

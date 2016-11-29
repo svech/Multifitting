@@ -27,6 +27,8 @@ private slots:
 
 	void refresh_All_Multilayer_Approach_View();
 
+public:
+	Optical_Constants* optical_Constants;
 private:
 	QList<Multilayer_Approach*> multilayer_Approach_List;
 

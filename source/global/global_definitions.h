@@ -44,6 +44,10 @@ using namespace std;
 #define Units_Path "../../settings/units.ini"
 	#define Units "Units"
 
+// calculations
+#define Calculations_Path "../../settings/calculations.ini"
+	#define Threads "Threads"
+
 // -----------------------------------------------------------------------------------------
 
 // optical constants

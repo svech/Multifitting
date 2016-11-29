@@ -31,6 +31,7 @@ private:
 	void add_Menu_Points();
 		void create_File_Menu();
 		void create_Calculate_Menu();
+		void create_Optical_Constants_Menu();
 		void create_Help_Menu();
 		void create_Independent_Units_Menu();
 		void create_Independent_Precision_Menu();
@@ -80,6 +81,7 @@ public:
 	QMenuBar* menu_Bar;
 		QMenu* file_Menu;
 		QMenu* calculate_Menu;
+		QMenu* optical_Constants_Menu;
 		QMenu* help_Menu;
 		QMenu* units_Menu;
 			QMenu* menu_Length_Units;

@@ -12,9 +12,11 @@ Launcher::Launcher(QWidget *parent) :
 	create_Main_Layout();
 	set_Window_Geometry();
 
+	// read optical constants database
+	optical_Constants = new Optical_Constants;
+
 	// TODO
-//	Optical_Constants optical_Constants;
-//	exit(1);
+	multilayer_Approach_Launch_Button->clicked();
 }
 
 void Launcher::closeEvent(QCloseEvent* event)
@@ -68,7 +70,7 @@ void Launcher::set_Window_Geometry()
 
 void Launcher::add_Multilayer_Approach_Instance()
 {
-	Multilayer_Approach* multilayer_Approach = new Multilayer_Approach(this);
+	Multilayer_Approach* multilayer_Approach = new Multilayer_Approach(optical_Constants, this);
 		multilayer_Approach->setWindowFlags(Qt::Window);
 		multilayer_Approach->show();
 		multilayer_Approach_List.append(multilayer_Approach);

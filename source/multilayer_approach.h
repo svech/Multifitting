@@ -4,12 +4,13 @@
 #include "standard/menu.h"
 #include "multilayer_approach/multilayer.h"
 #include "main_calculation_module.h"
+#include "calculation/optical_constants.h"
 
 class Multilayer_Approach : public QWidget
 {
 	Q_OBJECT
 public:
-	explicit Multilayer_Approach(QWidget *parent = 0);
+	explicit Multilayer_Approach(Optical_Constants* optical_Constants, QWidget *parent = 0);
 
 signals:
 	void closed();
@@ -19,6 +20,7 @@ public slots:
 	void open();
 	void save();
 	void calc_Reflection();
+	void reload_Optical_Constants();
 
 private:
 	void closeEvent(QCloseEvent *event);
@@ -34,6 +36,7 @@ private slots:
 	void rename_Multilayer(int tab_Index);
 
 private:
+	Optical_Constants* optical_Constants;
 	QList<Multilayer*> multilayer_List;
 
 private:

@@ -133,6 +133,11 @@ QString opt_const_units;
 
 // -----------------------------------------------------------------------------------------
 
+// calculations
+int optical_Constants_Read_Threads;
+
+// -----------------------------------------------------------------------------------------
+
 Settings::Settings()
 {
 
@@ -143,7 +148,7 @@ void Settings::read_Gui_Settings(bool reset_to_default)
 	QString add_reset;
 	if(reset_to_default) add_reset = "wrong_path";
 
-	QSettings gui_Settings(Gui_Settings_Path+add_reset,   QSettings::IniFormat);
+	QSettings gui_Settings(Gui_Settings_Path + add_reset,   QSettings::IniFormat);
 
 	if(reset_to_default) gui_Settings.setPath(gui_Settings.format(),gui_Settings.scope(),"");
 
@@ -224,7 +229,7 @@ void Settings::read_Structure_Default_Values(bool reset_to_default)
 	QString add_reset;
 	if(reset_to_default) add_reset = "wrong_path";
 
-	QSettings structure_Default_Values(Structure_Default_Values_Path+add_reset, QSettings::IniFormat);
+	QSettings structure_Default_Values(Structure_Default_Values_Path + add_reset, QSettings::IniFormat);
 
 	// structure default values
 		structure_Default_Values.beginGroup( Structure_Init_Values );
@@ -319,7 +324,7 @@ void Settings::read_Precisions(bool reset_to_default)
 	QString add_reset;
 	if(reset_to_default) add_reset = "wrong_path";
 
-	QSettings precision_Values(Precisions_Path+add_reset, QSettings::IniFormat);
+	QSettings precision_Values(Precisions_Path + add_reset, QSettings::IniFormat);
 
 	// precisions
 	precision_Values.beginGroup(Precisions);
@@ -402,7 +407,7 @@ void Settings::read_Parameters_Default_Values(bool reset_to_default)
 	QString add_reset;
 	if(reset_to_default) add_reset = "wrong_path";
 
-	QSettings parameters_Default_Values(Parameters_Default_Values_Path+add_reset, QSettings::IniFormat);
+	QSettings parameters_Default_Values(Parameters_Default_Values_Path + add_reset, QSettings::IniFormat);
 
 	// parameters default values
 	parameters_Default_Values.beginGroup( Independent_Values );
@@ -449,7 +454,7 @@ void Settings::read_Units(bool reset_to_default)
 	QString add_reset;
 	if(reset_to_default) add_reset = "wrong_path";
 
-	QSettings units(Units_Path+add_reset, QSettings::IniFormat);
+	QSettings units(Units_Path + add_reset, QSettings::IniFormat);
 
 	// units
 	units.beginGroup( Units );
@@ -475,6 +480,29 @@ void Settings::save_Units()
 	units.endGroup();
 }
 
+void Settings::read_Calculations(bool reset_to_default)
+{
+	QString add_reset;
+	if(reset_to_default) add_reset = "wrong_path";
+
+	QSettings calculations(Calculations_Path + add_reset, QSettings::IniFormat);
+
+	// calculations
+	calculations.beginGroup( Threads );
+		optical_Constants_Read_Threads = calculations.value( "optical_Constants_Read_Threads",	4 ).toInt();
+	calculations.endGroup();
+}
+
+void Settings::save_Calculations()
+{
+	QSettings calculations(Calculations_Path, QSettings::IniFormat);
+
+	// calculations
+	calculations.beginGroup( Threads );
+		calculations.setValue( "optical_Constants_Read_Threads", optical_Constants_Read_Threads );
+	calculations.endGroup();
+}
+
 // -----------------------------------------------------------------------------------------
 
 void Settings::read_All_Settings(bool reset_to_default)
@@ -484,6 +512,7 @@ void Settings::read_All_Settings(bool reset_to_default)
 	read_Precisions(reset_to_default);
 	read_Parameters_Default_Values(reset_to_default);
 	read_Units(reset_to_default);
+	read_Calculations(reset_to_default);
 }
 
 void Settings::save_All_Settings()
@@ -493,4 +522,5 @@ void Settings::save_All_Settings()
 	save_Precisions();
 	save_Parameters_Default_Values();
 	save_Units();
+	save_Calculations();
 }

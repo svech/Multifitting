@@ -137,6 +137,11 @@ extern QString opt_const_units;
 
 // -----------------------------------------------------------------------------------------
 
+// calculations
+extern int optical_Constants_Read_Threads;
+
+// -----------------------------------------------------------------------------------------
+
 class Settings
 {
 public:
@@ -162,6 +167,9 @@ public:
 	static void read_Units(bool reset_to_default = false);
 	static void save_Units();
 
+	// calculation params
+	static void read_Calculations(bool reset_to_default = false);
+	static void save_Calculations();
 	// -----------------------------------------------------------------------------------------
 
 	// all

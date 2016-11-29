@@ -19,6 +19,8 @@ void Menu::add_Menu_Points()
 	{
 		create_Calculate_Menu();
 			menu_Bar->addMenu(calculate_Menu);
+		create_Optical_Constants_Menu();
+			menu_Bar->addMenu(optical_Constants_Menu);
 	}
 	if(window_Type == Window_Type::Independent_Variables_Editor())
 	{
@@ -87,6 +89,15 @@ void Menu::create_Calculate_Menu()
 	act_Specular->setShortcut(Qt::Key_C | Qt::CTRL);
 	connect(act_Specular, SIGNAL(triggered()), my_Parent, SLOT(calc_Reflection()));
 	calculate_Menu->addAction(act_Specular);
+}
+
+void Menu::create_Optical_Constants_Menu()
+{
+	optical_Constants_Menu = new QMenu("Optical Constants", this);
+
+	QAction* act_optical_Constants = new QAction("Reload optical constants", this);
+	connect(act_optical_Constants, SIGNAL(triggered()), my_Parent, SLOT(reload_Optical_Constants()));
+	optical_Constants_Menu->addAction(act_optical_Constants);
 }
 
 void Menu::create_Independent_Units_Menu()
