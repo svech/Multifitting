@@ -136,16 +136,18 @@ void Variable_Selection::fill_Variables_List()
 void Variable_Selection::fill_Ambient_Variables(QTreeWidgetItem* item)
 {
 	/// optical constants
-	add_Density		(item, whats_This_Ambient);
-	add_Permittivity(item, whats_This_Ambient);
-	add_Absorption	(item, whats_This_Ambient);
-	add_Composition	(item, whats_This_Ambient);
+	add_Absolute_Density(item, whats_This_Ambient);
+	add_Relative_Density(item, whats_This_Ambient);
+	add_Permittivity	(item, whats_This_Ambient);
+	add_Absorption		(item, whats_This_Ambient);
+	add_Composition		(item, whats_This_Ambient);
 }
 
 void Variable_Selection::fill_Layer_Variables(QTreeWidgetItem* item)
 {
 	/// optical constants
-	add_Density					(item, whats_This_Layer);
+	add_Absolute_Density		(item, whats_This_Layer);
+	add_Relative_Density		(item, whats_This_Layer);
 	add_Permittivity			(item, whats_This_Layer);
 	add_Absorption				(item, whats_This_Layer);
 	add_Composition				(item, whats_This_Layer);
@@ -166,7 +168,8 @@ void Variable_Selection::fill_Multilayer_Variables(QTreeWidgetItem* item)
 void Variable_Selection::fill_Substrate_Variables(QTreeWidgetItem* item)
 {
 	/// optical constants
-	add_Density					(item, whats_This_Substrate);
+	add_Absolute_Density		(item, whats_This_Substrate);
+	add_Relative_Density		(item, whats_This_Substrate);
 	add_Permittivity			(item, whats_This_Substrate);
 	add_Absorption				(item, whats_This_Substrate);
 	add_Composition				(item, whats_This_Substrate);
@@ -177,11 +180,11 @@ void Variable_Selection::fill_Substrate_Variables(QTreeWidgetItem* item)
 
 // adding parameters one by one
 
-void Variable_Selection::add_Density(QTreeWidgetItem* item, QString whats_This_Type)
+void Variable_Selection::add_Absolute_Density(QTreeWidgetItem* item, QString whats_This_Type)
 {
 	QString material, brackets;
 	QString separate_Optical_Constants;
-	bool is_True_Condition;
+	bool is_True_Condition, composed_Material;
 
 	if(whats_This_Type == whats_This_Ambient)
 	{
@@ -189,11 +192,12 @@ void Variable_Selection::add_Density(QTreeWidgetItem* item, QString whats_This_T
 		material = ambient.material;
 		brackets = "(ambient)";
 		separate_Optical_Constants = ambient.separate_Optical_Constants;
+		composed_Material = ambient.composed_Material;
 
-		if(type==Variable_Type::Independent)	is_True_Condition = ambient.density.independent.is_Independent;
-		if(type==Variable_Type::Coupled)		is_True_Condition = ambient.density.coupled.	is_Coupled;
-		if(type==Variable_Type::Fitted)			is_True_Condition = ambient.density.fit.		is_Fitable;
-		if(type==Variable_Type::Optimized)		is_True_Condition = ambient.density.optimize.	is_Optimizable;
+		if(type==Variable_Type::Independent)	is_True_Condition = ambient.absolute_Density.independent.is_Independent;
+		if(type==Variable_Type::Coupled)		is_True_Condition = ambient.absolute_Density.coupled.	 is_Coupled;
+		if(type==Variable_Type::Fitted)			is_True_Condition = ambient.absolute_Density.fit.		 is_Fitable;
+		if(type==Variable_Type::Optimized)		is_True_Condition = ambient.absolute_Density.optimize.	 is_Optimizable;
 	} else
 	if(whats_This_Type == whats_This_Layer)
 	{
@@ -201,11 +205,12 @@ void Variable_Selection::add_Density(QTreeWidgetItem* item, QString whats_This_T
 		material = layer.material;
 		brackets = "(layer " + QString::number(layer.layer_Index) + ")";
 		separate_Optical_Constants = layer.separate_Optical_Constants;
+		composed_Material = layer.composed_Material;
 
-		if(type==Variable_Type::Independent)	is_True_Condition = layer.density.independent.is_Independent;
-		if(type==Variable_Type::Coupled)		is_True_Condition = layer.density.coupled.	  is_Coupled;
-		if(type==Variable_Type::Fitted)			is_True_Condition = layer.density.fit.		  is_Fitable;
-		if(type==Variable_Type::Optimized)		is_True_Condition = layer.density.optimize.	  is_Optimizable;
+		if(type==Variable_Type::Independent)	is_True_Condition = layer.absolute_Density.independent.is_Independent;
+		if(type==Variable_Type::Coupled)		is_True_Condition = layer.absolute_Density.coupled.	   is_Coupled;
+		if(type==Variable_Type::Fitted)			is_True_Condition = layer.absolute_Density.fit.		   is_Fitable;
+		if(type==Variable_Type::Optimized)		is_True_Condition = layer.absolute_Density.optimize.   is_Optimizable;
 	} else
 	if(whats_This_Type == whats_This_Substrate)
 	{
@@ -213,20 +218,86 @@ void Variable_Selection::add_Density(QTreeWidgetItem* item, QString whats_This_T
 		material = substrate.material;
 		brackets = "(substrate)";
 		separate_Optical_Constants = substrate.separate_Optical_Constants;
+		composed_Material = substrate.composed_Material;
 
-		if(type==Variable_Type::Independent)	is_True_Condition = substrate.density.independent.is_Independent;
-		if(type==Variable_Type::Coupled)		is_True_Condition = substrate.density.coupled.	  is_Coupled;
-		if(type==Variable_Type::Fitted)			is_True_Condition = substrate.density.fit.		  is_Fitable;
-		if(type==Variable_Type::Optimized)		is_True_Condition = substrate.density.optimize.	  is_Optimizable;
+		if(type==Variable_Type::Independent)	is_True_Condition = substrate.absolute_Density.independent.is_Independent;
+		if(type==Variable_Type::Coupled)		is_True_Condition = substrate.absolute_Density.coupled.	   is_Coupled;
+		if(type==Variable_Type::Fitted)			is_True_Condition = substrate.absolute_Density.fit.		   is_Fitable;
+		if(type==Variable_Type::Optimized)		is_True_Condition = substrate.absolute_Density.optimize.   is_Optimizable;
 	} else return;
 
-	// item density (if not Vacuum and not arbitrary optical constants)
+	// item density (if not Vacuum and not arbitrary optical constants and composed_Material)
 	if(material!="Vacuum" && separate_Optical_Constants != TRIL_TRUE)
+	if(composed_Material == true)
 	{
 		QListWidgetItem* item_Density = new QListWidgetItem;
-		QString whats_This = item->whatsThis(DEFAULT_COLUMN) + whats_This_Delimiter + whats_This_Density;
+		QString whats_This = item->whatsThis(DEFAULT_COLUMN) + whats_This_Delimiter + whats_This_Absolute_Density;
 		item_Density->setWhatsThis(whats_This);
 		item_Density->setText(material + " " + brackets + " Density, " + Rho_Sym);
+
+		if(!is_True_Condition)
+		if(!variables_List_Map->contains(whats_This))
+		{
+			nonfiltered_Parameters->addItem(item_Density);
+			optical_Constants->addItem(item_Density->clone());
+		}
+	}
+}
+
+void Variable_Selection::add_Relative_Density(QTreeWidgetItem* item, QString whats_This_Type)
+{
+	QString material, brackets;
+	QString separate_Optical_Constants;
+	bool is_True_Condition, composed_Material;
+
+	if(whats_This_Type == whats_This_Ambient)
+	{
+		Ambient ambient = item->data(DEFAULT_COLUMN, Qt::UserRole).value<Ambient>();
+		material = ambient.material;
+		brackets = "(ambient)";
+		separate_Optical_Constants = ambient.separate_Optical_Constants;
+		composed_Material = ambient.composed_Material;
+
+		if(type==Variable_Type::Independent)	is_True_Condition = ambient.relative_Density.independent.is_Independent;
+		if(type==Variable_Type::Coupled)		is_True_Condition = ambient.relative_Density.coupled.	 is_Coupled;
+		if(type==Variable_Type::Fitted)			is_True_Condition = ambient.relative_Density.fit.		 is_Fitable;
+		if(type==Variable_Type::Optimized)		is_True_Condition = ambient.relative_Density.optimize.	 is_Optimizable;
+	} else
+	if(whats_This_Type == whats_This_Layer)
+	{
+		Layer layer = item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>();
+		material = layer.material;
+		brackets = "(layer " + QString::number(layer.layer_Index) + ")";
+		separate_Optical_Constants = layer.separate_Optical_Constants;
+		composed_Material = layer.composed_Material;
+
+		if(type==Variable_Type::Independent)	is_True_Condition = layer.relative_Density.independent.is_Independent;
+		if(type==Variable_Type::Coupled)		is_True_Condition = layer.relative_Density.coupled.	   is_Coupled;
+		if(type==Variable_Type::Fitted)			is_True_Condition = layer.relative_Density.fit.		   is_Fitable;
+		if(type==Variable_Type::Optimized)		is_True_Condition = layer.relative_Density.optimize.   is_Optimizable;
+	} else
+	if(whats_This_Type == whats_This_Substrate)
+	{
+		Substrate substrate = item->data(DEFAULT_COLUMN, Qt::UserRole).value<Substrate>();
+		material = substrate.material;
+		brackets = "(substrate)";
+		separate_Optical_Constants = substrate.separate_Optical_Constants;
+		composed_Material = substrate.composed_Material;
+
+		if(type==Variable_Type::Independent)	is_True_Condition = substrate.relative_Density.independent.is_Independent;
+		if(type==Variable_Type::Coupled)		is_True_Condition = substrate.relative_Density.coupled.	   is_Coupled;
+		if(type==Variable_Type::Fitted)			is_True_Condition = substrate.relative_Density.fit.		   is_Fitable;
+		if(type==Variable_Type::Optimized)		is_True_Condition = substrate.relative_Density.optimize.   is_Optimizable;
+	} else return;
+
+	// item density (if not Vacuum and not arbitrary optical constants and NOT composed_Material)
+	if(material!="Vacuum" && separate_Optical_Constants != TRIL_TRUE)
+	if(composed_Material == false)
+	{
+		QListWidgetItem* item_Density = new QListWidgetItem;
+		QString whats_This = item->whatsThis(DEFAULT_COLUMN) + whats_This_Delimiter + whats_This_Relative_Density;
+		item_Density->setWhatsThis(whats_This);
+		item_Density->setText(material + " " + brackets + " Relative Density, " + Rho_Sym);
 
 		if(!is_True_Condition)
 		if(!variables_List_Map->contains(whats_This))
@@ -720,15 +791,25 @@ void Variable_Selection::add_Variable()
 
 			/// optical constants
 
-			// ambient density
-			if(whats_This_List[1] == whats_This_Density)
+			// ambient absolute density
+			if(whats_This_List[1] == whats_This_Absolute_Density)
 			{
-				ambient.density.independent.is_Independent = true;
-				ambient.density.independent.num_Points = 1;
-				ambient.density.independent.min = ambient.density.value;
-				ambient.density.independent.max = ambient.density.value;
+				ambient.absolute_Density.independent.is_Independent = true;
+				ambient.absolute_Density.independent.num_Points = 1;
+				ambient.absolute_Density.independent.min = ambient.absolute_Density.value;
+				ambient.absolute_Density.independent.max = ambient.absolute_Density.value;
 
-				new_Item->setText(new_Item->text() + " [" + QString::number(ambient.density.value,thumbnail_double_format,thumbnail_density_precision) + " " + density_units + "]");
+				new_Item->setText(new_Item->text() + " [" + QString::number(ambient.absolute_Density.value,thumbnail_double_format,thumbnail_density_precision) + " " + density_units + "]");
+			}
+			// ambient relativve density
+			if(whats_This_List[1] == whats_This_Relative_Density)
+			{
+				ambient.relative_Density.independent.is_Independent = true;
+				ambient.relative_Density.independent.num_Points = 1;
+				ambient.relative_Density.independent.min = ambient.relative_Density.value;
+				ambient.relative_Density.independent.max = ambient.relative_Density.value;
+
+				new_Item->setText(new_Item->text() + " [" + QString::number(ambient.relative_Density.value,thumbnail_double_format,thumbnail_density_precision) + "]");
 			}
 			// ambient permittivity
 			if(whats_This_List[1] == whats_This_Permittivity)
@@ -773,15 +854,25 @@ void Variable_Selection::add_Variable()
 
 			/// optical constants
 
-			// layer density
-			if(whats_This_List[1] == whats_This_Density)
+			// layer absolute density
+			if(whats_This_List[1] == whats_This_Absolute_Density)
 			{
-				layer.density.independent.is_Independent = true;
-				layer.density.independent.num_Points = 1;
-				layer.density.independent.min = layer.density.value;
-				layer.density.independent.max = layer.density.value;
+				layer.absolute_Density.independent.is_Independent = true;
+				layer.absolute_Density.independent.num_Points = 1;
+				layer.absolute_Density.independent.min = layer.absolute_Density.value;
+				layer.absolute_Density.independent.max = layer.absolute_Density.value;
 
-				new_Item->setText(new_Item->text() + " [" + QString::number(layer.density.value,thumbnail_double_format,thumbnail_density_precision) + " " + density_units + "]");
+				new_Item->setText(new_Item->text() + " [" + QString::number(layer.absolute_Density.value,thumbnail_double_format,thumbnail_density_precision) + " " + density_units + "]");
+			}
+			// layer relative density
+			if(whats_This_List[1] == whats_This_Relative_Density)
+			{
+				layer.relative_Density.independent.is_Independent = true;
+				layer.relative_Density.independent.num_Points = 1;
+				layer.relative_Density.independent.min = layer.relative_Density.value;
+				layer.relative_Density.independent.max = layer.relative_Density.value;
+
+				new_Item->setText(new_Item->text() + " [" + QString::number(layer.relative_Density.value,thumbnail_double_format,thumbnail_density_precision) + "]");
 			}
 			// layer permittivity
 			if(whats_This_List[1] == whats_This_Permittivity)
@@ -909,15 +1000,25 @@ void Variable_Selection::add_Variable()
 
 			/// optical constants
 
-			// substrate density
-			if(whats_This_List[1] == whats_This_Density)
+			// substrate absolute density
+			if(whats_This_List[1] == whats_This_Absolute_Density)
 			{
-				substrate.density.independent.is_Independent = true;
-				substrate.density.independent.num_Points = 1;
-				substrate.density.independent.min = substrate.density.value;
-				substrate.density.independent.max = substrate.density.value;
+				substrate.absolute_Density.independent.is_Independent = true;
+				substrate.absolute_Density.independent.num_Points = 1;
+				substrate.absolute_Density.independent.min = substrate.absolute_Density.value;
+				substrate.absolute_Density.independent.max = substrate.absolute_Density.value;
 
-				new_Item->setText(new_Item->text() + " [" + QString::number(substrate.density.value,thumbnail_double_format,thumbnail_density_precision) + " " + density_units + "]");
+				new_Item->setText(new_Item->text() + " [" + QString::number(substrate.absolute_Density.value,thumbnail_double_format,thumbnail_density_precision) + " " + density_units + "]");
+			}
+			// substrate relative density
+			if(whats_This_List[1] == whats_This_Relative_Density)
+			{
+				substrate.relative_Density.independent.is_Independent = true;
+				substrate.relative_Density.independent.num_Points = 1;
+				substrate.relative_Density.independent.min = substrate.relative_Density.value;
+				substrate.relative_Density.independent.max = substrate.relative_Density.value;
+
+				new_Item->setText(new_Item->text() + " [" + QString::number(substrate.relative_Density.value,thumbnail_double_format,thumbnail_density_precision) + "]");
 			}
 			// substrate permittivity
 			if(whats_This_List[1] == whats_This_Permittivity)

@@ -249,9 +249,13 @@ void Independent_Variables::remove_Independent_Variable(bool)
 		  Ambient ambient = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Ambient>();
 
 		  /// optical constants
-		  if(whats_This_List[1] == whats_This_Density)
+		  if(whats_This_List[1] == whats_This_Absolute_Density)
 		  {
-			  ambient.density.independent.is_Independent = false;
+			  ambient.absolute_Density.independent.is_Independent = false;
+		  }
+		  if(whats_This_List[1] == whats_This_Relative_Density)
+		  {
+			  ambient.relative_Density.independent.is_Independent = false;
 		  }
 		  if(whats_This_List[1] == whats_This_Permittivity)
 		  {
@@ -277,9 +281,13 @@ void Independent_Variables::remove_Independent_Variable(bool)
 		  Layer layer = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>();
 
 		  /// optical constants
-		  if(whats_This_List[1] == whats_This_Density)
+		  if(whats_This_List[1] == whats_This_Absolute_Density)
 		  {
-			  layer.density.independent.is_Independent = false;
+			  layer.absolute_Density.independent.is_Independent = false;
+		  }
+		  if(whats_This_List[1] == whats_This_Relative_Density)
+		  {
+			  layer.relative_Density.independent.is_Independent = false;
 		  }
 		  if(whats_This_List[1] == whats_This_Permittivity)
 		  {
@@ -352,9 +360,13 @@ void Independent_Variables::remove_Independent_Variable(bool)
 		  /// optical constants
 
 		  // substrate density
-		  if(whats_This_List[1] == whats_This_Density)
+		  if(whats_This_List[1] == whats_This_Absolute_Density)
 		  {
-			  substrate.density.independent.is_Independent = false;
+			  substrate.absolute_Density.independent.is_Independent = false;
+		  }
+		  if(whats_This_List[1] == whats_This_Relative_Density)
+		  {
+			  substrate.relative_Density.independent.is_Independent = false;
 		  }
 		  // substrate permittivity
 		  if(whats_This_List[1] == whats_This_Permittivity)
@@ -427,9 +439,10 @@ void Independent_Variables::refresh_State(QTreeWidgetItem* structure_Item)
 	{
 		Ambient ambient = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Ambient>();
 
-		if( ambient.density.     independent.is_Independent == true ) {ambient.separate_Optical_Constants = TRIL_FALSE;} else
-		if( ambient.permittivity.independent.is_Independent == true ) {ambient.separate_Optical_Constants = TRIL_TRUE;}  else
-		if( ambient.absorption.  independent.is_Independent == true ) {ambient.separate_Optical_Constants = TRIL_TRUE;}  else
+		if( ambient.absolute_Density.independent.is_Independent == true ) {ambient.separate_Optical_Constants = TRIL_FALSE;} else
+		if( ambient.relative_Density.independent.is_Independent == true ) {ambient.separate_Optical_Constants = TRIL_FALSE;} else
+		if( ambient.permittivity.	 independent.is_Independent == true ) {ambient.separate_Optical_Constants = TRIL_TRUE;}  else
+		if( ambient.absorption.		 independent.is_Independent == true ) {ambient.separate_Optical_Constants = TRIL_TRUE;}  else
 
 		   {ambient.separate_Optical_Constants = TRIL_NOT_DEFINED;}
 
@@ -440,9 +453,10 @@ void Independent_Variables::refresh_State(QTreeWidgetItem* structure_Item)
 	{
 		Layer layer = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>();
 
-		if( layer.density.     independent.is_Independent == true ) {layer.separate_Optical_Constants = TRIL_FALSE;} else
-		if( layer.permittivity.independent.is_Independent == true ) {layer.separate_Optical_Constants = TRIL_TRUE;}  else
-		if( layer.absorption.  independent.is_Independent == true ) {layer.separate_Optical_Constants = TRIL_TRUE;}  else
+		if( layer.absolute_Density.independent.is_Independent == true ) {layer.separate_Optical_Constants = TRIL_FALSE;} else
+		if( layer.relative_Density.independent.is_Independent == true ) {layer.separate_Optical_Constants = TRIL_FALSE;} else
+		if( layer.permittivity.	   independent.is_Independent == true ) {layer.separate_Optical_Constants = TRIL_TRUE;}  else
+		if( layer.absorption.	   independent.is_Independent == true ) {layer.separate_Optical_Constants = TRIL_TRUE;}  else
 
 		   {layer.separate_Optical_Constants = TRIL_NOT_DEFINED;}
 
@@ -456,9 +470,10 @@ void Independent_Variables::refresh_State(QTreeWidgetItem* structure_Item)
 	{
 		Substrate substrate = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Substrate>();
 
-		if(	substrate.density.     independent.is_Independent == true ) {substrate.separate_Optical_Constants = TRIL_FALSE;} else
-		if( substrate.permittivity.independent.is_Independent == true ) {substrate.separate_Optical_Constants = TRIL_TRUE;}  else
-		if( substrate.absorption.  independent.is_Independent == true ) {substrate.separate_Optical_Constants = TRIL_TRUE;}  else
+		if( substrate.absolute_Density.independent.is_Independent == true ) {substrate.separate_Optical_Constants = TRIL_FALSE;} else
+		if( substrate.relative_Density.independent.is_Independent == true ) {substrate.separate_Optical_Constants = TRIL_FALSE;} else
+		if( substrate.permittivity.	   independent.is_Independent == true ) {substrate.separate_Optical_Constants = TRIL_TRUE;}  else
+		if( substrate.absorption.	   independent.is_Independent == true ) {substrate.separate_Optical_Constants = TRIL_TRUE;}  else
 
 		   {substrate.separate_Optical_Constants = TRIL_NOT_DEFINED;}
 

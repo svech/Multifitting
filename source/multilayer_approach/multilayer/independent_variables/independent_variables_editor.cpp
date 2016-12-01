@@ -337,8 +337,8 @@ void Independent_Variables_Editor::refresh_Show_Data(bool show)
 
 		/// optical constants
 
-		// ambient density
-		if(whats_This_List[1] == whats_This_Density)
+		// ambient absolute density
+		if(whats_This_List[1] == whats_This_Absolute_Density)
 		{
 			name = ambient.material + " (ambient) " + whats_This_List[1] + ", " + Rho_Sym;
 			group_Box->setTitle(name);
@@ -349,39 +349,85 @@ void Independent_Variables_Editor::refresh_Show_Data(bool show)
 			// show data
 			if(show)
 			{
-				num_Points->setText(QString::number(ambient.density.independent.num_Points));
-				if(ambient.density.independent.num_Points == 1)
-					min->setText(	QString::number(ambient.density.value,line_edit_double_format,line_edit_density_precision));
+				num_Points->setText(QString::number(ambient.absolute_Density.independent.num_Points));
+				if(ambient.absolute_Density.independent.num_Points == 1)
+					min->setText(	QString::number(ambient.absolute_Density.value,line_edit_double_format,line_edit_density_precision));
 				else
-					min->setText(	QString::number(ambient.density.independent.min,line_edit_double_format,line_edit_density_precision));
-				max->setText(		QString::number(ambient.density.independent.max,line_edit_double_format,line_edit_density_precision));
+					min->setText(	QString::number(ambient.absolute_Density.independent.min,line_edit_double_format,line_edit_density_precision));
+				max->setText(		QString::number(ambient.absolute_Density.independent.max,line_edit_double_format,line_edit_density_precision));
 			} else
 			// refresh data
 			{
 				if(num_Points->text().toInt()<1)
 				{
-					num_Points->setText(QString::number(ambient.density.independent.num_Points));
+					num_Points->setText(QString::number(ambient.absolute_Density.independent.num_Points));
 					num_Points->textEdited(num_Points->text());
 				} else
 				{
-					ambient.density.independent.num_Points = num_Points->text().toInt();
-					if(ambient.density.independent.num_Points == 1)
-						ambient.density.value = min->text().toDouble();
+					ambient.absolute_Density.independent.num_Points = num_Points->text().toInt();
+					if(ambient.absolute_Density.independent.num_Points == 1)
+						ambient.absolute_Density.value = min->text().toDouble();
 					else
-						ambient.density.independent.min = min->text().toDouble();
-					ambient.density.independent.max = max->text().toDouble();
+						ambient.absolute_Density.independent.min = min->text().toDouble();
+					ambient.absolute_Density.independent.max = max->text().toDouble();
 
-					if(ambient.density.independent.num_Points == 1)
-						item->setText(name + " [" + QString::number(ambient.density.value,thumbnail_double_format,thumbnail_density_precision) + " " + units + end_Bracket);
+					if(ambient.absolute_Density.independent.num_Points == 1)
+						item->setText(name + " [" + QString::number(ambient.absolute_Density.value,thumbnail_double_format,thumbnail_density_precision) + " " + units + end_Bracket);
 					else
-						item->setText(name + " [" + QString::number(ambient.density.independent.num_Points) + " values: " +
-									  QString::number(ambient.density.independent.min,thumbnail_double_format,thumbnail_density_precision) + " - " +
-									  QString::number(ambient.density.independent.max,thumbnail_double_format,thumbnail_density_precision) + " " + units + end_Bracket);
+						item->setText(name + " [" + QString::number(ambient.absolute_Density.independent.num_Points) + " values: " +
+									  QString::number(ambient.absolute_Density.independent.min,thumbnail_double_format,thumbnail_density_precision) + " - " +
+									  QString::number(ambient.absolute_Density.independent.max,thumbnail_double_format,thumbnail_density_precision) + " " + units + end_Bracket);
 				}
 			}
-			step_Edit->setText(QString::number((ambient.density.independent.max-ambient.density.independent.min)/ambient.density.independent.num_Points,line_edit_double_format,line_edit_density_precision));
+			step_Edit->setText(QString::number((ambient.absolute_Density.independent.max-ambient.absolute_Density.independent.min)/ambient.absolute_Density.independent.num_Points,line_edit_double_format,line_edit_density_precision));
 			step_Edit->textEdited(step_Edit->text());
-			show_Hide_Elements(ambient.density.independent.num_Points, show);
+			show_Hide_Elements(ambient.absolute_Density.independent.num_Points, show);
+		}
+		// ambient relative density
+		if(whats_This_List[1] == whats_This_Relative_Density)
+		{
+			name = ambient.material + " (ambient) " + whats_This_List[1] + ", " + Rho_Sym;
+			group_Box->setTitle(name);
+			units = "";
+			units_Label->setText(units);
+			step_Units_Label->setText(units);
+
+			// show data
+			if(show)
+			{
+				num_Points->setText(QString::number(ambient.relative_Density.independent.num_Points));
+				if(ambient.relative_Density.independent.num_Points == 1)
+					min->setText(	QString::number(ambient.relative_Density.value,line_edit_double_format,line_edit_density_precision));
+				else
+					min->setText(	QString::number(ambient.relative_Density.independent.min,line_edit_double_format,line_edit_density_precision));
+				max->setText(		QString::number(ambient.relative_Density.independent.max,line_edit_double_format,line_edit_density_precision));
+			} else
+			// refresh data
+			{
+				if(num_Points->text().toInt()<1)
+				{
+					num_Points->setText(QString::number(ambient.relative_Density.independent.num_Points));
+					num_Points->textEdited(num_Points->text());
+				} else
+				{
+					ambient.relative_Density.independent.num_Points = num_Points->text().toInt();
+					if(ambient.relative_Density.independent.num_Points == 1)
+						ambient.relative_Density.value = min->text().toDouble();
+					else
+						ambient.relative_Density.independent.min = min->text().toDouble();
+					ambient.relative_Density.independent.max = max->text().toDouble();
+
+					if(ambient.relative_Density.independent.num_Points == 1)
+						item->setText(name + " [" + QString::number(ambient.relative_Density.value,thumbnail_double_format,thumbnail_density_precision) + end_Bracket);
+					else
+						item->setText(name + " [" + QString::number(ambient.relative_Density.independent.num_Points) + " values: " +
+									  QString::number(ambient.relative_Density.independent.min,thumbnail_double_format,thumbnail_density_precision) + " - " +
+									  QString::number(ambient.relative_Density.independent.max,thumbnail_double_format,thumbnail_density_precision) + end_Bracket);
+				}
+			}
+			step_Edit->setText(QString::number((ambient.relative_Density.independent.max-ambient.relative_Density.independent.min)/ambient.relative_Density.independent.num_Points,line_edit_double_format,line_edit_density_precision));
+			step_Edit->textEdited(step_Edit->text());
+			show_Hide_Elements(ambient.relative_Density.independent.num_Points, show);
 		}
 		// ambient permittivity
 		if(whats_This_List[1] == whats_This_Permittivity)
@@ -536,8 +582,8 @@ void Independent_Variables_Editor::refresh_Show_Data(bool show)
 
 		/// optical constants
 
-		// layer density
-		if(whats_This_List[1] == whats_This_Density)
+		// layer absolute density
+		if(whats_This_List[1] == whats_This_Absolute_Density)
 		{
 			name = layer.material + " (layer " +  QString::number(layer.layer_Index) + ") " + whats_This_List[1] + ", " + Rho_Sym;
 			group_Box->setTitle(name);
@@ -548,39 +594,85 @@ void Independent_Variables_Editor::refresh_Show_Data(bool show)
 			// show data
 			if(show)
 			{
-				num_Points->setText(QString::number(layer.density.independent.num_Points));
-				if(layer.density.independent.num_Points == 1)
-					min->setText(	QString::number(layer.density.value,line_edit_double_format,line_edit_density_precision));
+				num_Points->setText(QString::number(layer.absolute_Density.independent.num_Points));
+				if(layer.absolute_Density.independent.num_Points == 1)
+					min->setText(	QString::number(layer.absolute_Density.value,line_edit_double_format,line_edit_density_precision));
 				else
-					min->setText(	QString::number(layer.density.independent.min,line_edit_double_format,line_edit_density_precision));
-				max->setText(		QString::number(layer.density.independent.max,line_edit_double_format,line_edit_density_precision));
+					min->setText(	QString::number(layer.absolute_Density.independent.min,line_edit_double_format,line_edit_density_precision));
+				max->setText(		QString::number(layer.absolute_Density.independent.max,line_edit_double_format,line_edit_density_precision));
 			} else
 			// refresh data
 			{
 				if(num_Points->text().toInt()<1)
 				{
-					num_Points->setText(QString::number(layer.density.independent.num_Points));
+					num_Points->setText(QString::number(layer.absolute_Density.independent.num_Points));
 					num_Points->textEdited(num_Points->text());
 				} else
 				{
-					layer.density.independent.num_Points = num_Points->text().toInt();
-					if(layer.density.independent.num_Points == 1)
-						layer.density.value = min->text().toDouble();
+					layer.absolute_Density.independent.num_Points = num_Points->text().toInt();
+					if(layer.absolute_Density.independent.num_Points == 1)
+						layer.absolute_Density.value = min->text().toDouble();
 					else
-						layer.density.independent.min = min->text().toDouble();
-					layer.density.independent.max = max->text().toDouble();
+						layer.absolute_Density.independent.min = min->text().toDouble();
+					layer.absolute_Density.independent.max = max->text().toDouble();
 
-					if(layer.density.independent.num_Points == 1)
-						item->setText(name + " [" + QString::number(layer.density.value,thumbnail_double_format,thumbnail_density_precision) + " " + units + end_Bracket);
+					if(layer.absolute_Density.independent.num_Points == 1)
+						item->setText(name + " [" + QString::number(layer.absolute_Density.value,thumbnail_double_format,thumbnail_density_precision) + " " + units + end_Bracket);
 					else
-						item->setText(name + " [" + QString::number(layer.density.independent.num_Points) + " values: " +
-									  QString::number(layer.density.independent.min,thumbnail_double_format,thumbnail_density_precision) + " - " +
-									  QString::number(layer.density.independent.max,thumbnail_double_format,thumbnail_density_precision) + " " + units + end_Bracket);
+						item->setText(name + " [" + QString::number(layer.absolute_Density.independent.num_Points) + " values: " +
+									  QString::number(layer.absolute_Density.independent.min,thumbnail_double_format,thumbnail_density_precision) + " - " +
+									  QString::number(layer.absolute_Density.independent.max,thumbnail_double_format,thumbnail_density_precision) + " " + units + end_Bracket);
 				}
 			}
-			step_Edit->setText(QString::number((layer.density.independent.max-layer.density.independent.min)/layer.density.independent.num_Points,line_edit_double_format,line_edit_density_precision));
+			step_Edit->setText(QString::number((layer.absolute_Density.independent.max-layer.absolute_Density.independent.min)/layer.absolute_Density.independent.num_Points,line_edit_double_format,line_edit_density_precision));
 			step_Edit->textEdited(step_Edit->text());
-			show_Hide_Elements(layer.density.independent.num_Points, show);
+			show_Hide_Elements(layer.absolute_Density.independent.num_Points, show);
+		}
+		// layer relative density
+		if(whats_This_List[1] == whats_This_Relative_Density)
+		{
+			name = layer.material + " (layer " +  QString::number(layer.layer_Index) + ") " + whats_This_List[1] + ", " + Rho_Sym;
+			group_Box->setTitle(name);
+			units = "";
+			units_Label->setText(units);
+			step_Units_Label->setText(units);
+
+			// show data
+			if(show)
+			{
+				num_Points->setText(QString::number(layer.relative_Density.independent.num_Points));
+				if(layer.relative_Density.independent.num_Points == 1)
+					min->setText(	QString::number(layer.relative_Density.value,line_edit_double_format,line_edit_density_precision));
+				else
+					min->setText(	QString::number(layer.relative_Density.independent.min,line_edit_double_format,line_edit_density_precision));
+				max->setText(		QString::number(layer.relative_Density.independent.max,line_edit_double_format,line_edit_density_precision));
+			} else
+			// refresh data
+			{
+				if(num_Points->text().toInt()<1)
+				{
+					num_Points->setText(QString::number(layer.relative_Density.independent.num_Points));
+					num_Points->textEdited(num_Points->text());
+				} else
+				{
+					layer.relative_Density.independent.num_Points = num_Points->text().toInt();
+					if(layer.relative_Density.independent.num_Points == 1)
+						layer.relative_Density.value = min->text().toDouble();
+					else
+						layer.relative_Density.independent.min = min->text().toDouble();
+					layer.relative_Density.independent.max = max->text().toDouble();
+
+					if(layer.relative_Density.independent.num_Points == 1)
+						item->setText(name + " [" + QString::number(layer.relative_Density.value,thumbnail_double_format,thumbnail_density_precision) + end_Bracket);
+					else
+						item->setText(name + " [" + QString::number(layer.relative_Density.independent.num_Points) + " values: " +
+									  QString::number(layer.relative_Density.independent.min,thumbnail_double_format,thumbnail_density_precision) + " - " +
+									  QString::number(layer.relative_Density.independent.max,thumbnail_double_format,thumbnail_density_precision) + end_Bracket);
+				}
+			}
+			step_Edit->setText(QString::number((layer.relative_Density.independent.max-layer.relative_Density.independent.min)/layer.relative_Density.independent.num_Points,line_edit_double_format,line_edit_density_precision));
+			step_Edit->textEdited(step_Edit->text());
+			show_Hide_Elements(layer.relative_Density.independent.num_Points, show);
 		}
 		// layer permittivity
 		if(whats_This_List[1] == whats_This_Permittivity)
@@ -1060,8 +1152,8 @@ void Independent_Variables_Editor::refresh_Show_Data(bool show)
 
 		/// optical constants
 
-		// substrate density
-		if(whats_This_List[1] == whats_This_Density)
+		// substrate absolute density
+		if(whats_This_List[1] == whats_This_Absolute_Density)
 		{
 			name = substrate.material + " (substrate) " + whats_This_List[1] + ", " + Rho_Sym;
 			group_Box->setTitle(name);
@@ -1072,39 +1164,85 @@ void Independent_Variables_Editor::refresh_Show_Data(bool show)
 			// show data
 			if(show)
 			{
-				num_Points->setText(QString::number(substrate.density.independent.num_Points));
-				if(substrate.density.independent.num_Points == 1)
-					min->setText(	QString::number(substrate.density.value,line_edit_double_format,line_edit_density_precision));
+				num_Points->setText(QString::number(substrate.absolute_Density.independent.num_Points));
+				if(substrate.absolute_Density.independent.num_Points == 1)
+					min->setText(	QString::number(substrate.absolute_Density.value,line_edit_double_format,line_edit_density_precision));
 				else
-					min->setText(	QString::number(substrate.density.independent.min,line_edit_double_format,line_edit_density_precision));
-				max->setText(		QString::number(substrate.density.independent.max,line_edit_double_format,line_edit_density_precision));
+					min->setText(	QString::number(substrate.absolute_Density.independent.min,line_edit_double_format,line_edit_density_precision));
+				max->setText(		QString::number(substrate.absolute_Density.independent.max,line_edit_double_format,line_edit_density_precision));
 			} else
 			// refresh data
 			{
 				if(num_Points->text().toInt()<1)
 				{
-					num_Points->setText(QString::number(substrate.density.independent.num_Points));
+					num_Points->setText(QString::number(substrate.absolute_Density.independent.num_Points));
 					num_Points->textEdited(num_Points->text());
 				} else
 				{
-					substrate.density.independent.num_Points = num_Points->text().toInt();
-					if(substrate.density.independent.num_Points == 1)
-						substrate.density.value = min->text().toDouble();
+					substrate.absolute_Density.independent.num_Points = num_Points->text().toInt();
+					if(substrate.absolute_Density.independent.num_Points == 1)
+						substrate.absolute_Density.value = min->text().toDouble();
 					else
-						substrate.density.independent.min = min->text().toDouble();
-					substrate.density.independent.max = max->text().toDouble();
+						substrate.absolute_Density.independent.min = min->text().toDouble();
+					substrate.absolute_Density.independent.max = max->text().toDouble();
 
-					if(substrate.density.independent.num_Points == 1)
-						item->setText(name + " [" + QString::number(substrate.density.value,thumbnail_double_format,thumbnail_density_precision) + " " + units + end_Bracket);
+					if(substrate.absolute_Density.independent.num_Points == 1)
+						item->setText(name + " [" + QString::number(substrate.absolute_Density.value,thumbnail_double_format,thumbnail_density_precision) + " " + units + end_Bracket);
 					else
-						item->setText(name + " [" + QString::number(substrate.density.independent.num_Points) + " values: " +
-									  QString::number(substrate.density.independent.min,thumbnail_double_format,thumbnail_density_precision) + " - " +
-									  QString::number(substrate.density.independent.max,thumbnail_double_format,thumbnail_density_precision) + " " + units + end_Bracket);
+						item->setText(name + " [" + QString::number(substrate.absolute_Density.independent.num_Points) + " values: " +
+									  QString::number(substrate.absolute_Density.independent.min,thumbnail_double_format,thumbnail_density_precision) + " - " +
+									  QString::number(substrate.absolute_Density.independent.max,thumbnail_double_format,thumbnail_density_precision) + " " + units + end_Bracket);
 				}
 			}
-			step_Edit->setText(QString::number((substrate.density.independent.max-substrate.density.independent.min)/substrate.density.independent.num_Points,line_edit_double_format,line_edit_density_precision));
+			step_Edit->setText(QString::number((substrate.absolute_Density.independent.max-substrate.absolute_Density.independent.min)/substrate.absolute_Density.independent.num_Points,line_edit_double_format,line_edit_density_precision));
 			step_Edit->textEdited(step_Edit->text());
-			show_Hide_Elements(substrate.density.independent.num_Points, show);
+			show_Hide_Elements(substrate.absolute_Density.independent.num_Points, show);
+		}
+		// substrate relative density
+		if(whats_This_List[1] == whats_This_Relative_Density)
+		{
+			name = substrate.material + " (substrate) " + whats_This_List[1] + ", " + Rho_Sym;
+			group_Box->setTitle(name);
+			units = "";
+			units_Label->setText(units);
+			step_Units_Label->setText(units);
+
+			// show data
+			if(show)
+			{
+				num_Points->setText(QString::number(substrate.relative_Density.independent.num_Points));
+				if(substrate.relative_Density.independent.num_Points == 1)
+					min->setText(	QString::number(substrate.relative_Density.value,line_edit_double_format,line_edit_density_precision));
+				else
+					min->setText(	QString::number(substrate.relative_Density.independent.min,line_edit_double_format,line_edit_density_precision));
+				max->setText(		QString::number(substrate.relative_Density.independent.max,line_edit_double_format,line_edit_density_precision));
+			} else
+			// refresh data
+			{
+				if(num_Points->text().toInt()<1)
+				{
+					num_Points->setText(QString::number(substrate.relative_Density.independent.num_Points));
+					num_Points->textEdited(num_Points->text());
+				} else
+				{
+					substrate.relative_Density.independent.num_Points = num_Points->text().toInt();
+					if(substrate.relative_Density.independent.num_Points == 1)
+						substrate.relative_Density.value = min->text().toDouble();
+					else
+						substrate.relative_Density.independent.min = min->text().toDouble();
+					substrate.relative_Density.independent.max = max->text().toDouble();
+
+					if(substrate.relative_Density.independent.num_Points == 1)
+						item->setText(name + " [" + QString::number(substrate.relative_Density.value,thumbnail_double_format,thumbnail_density_precision) + end_Bracket);
+					else
+						item->setText(name + " [" + QString::number(substrate.relative_Density.independent.num_Points) + " values: " +
+									  QString::number(substrate.relative_Density.independent.min,thumbnail_double_format,thumbnail_density_precision) + " - " +
+									  QString::number(substrate.relative_Density.independent.max,thumbnail_double_format,thumbnail_density_precision) + end_Bracket);
+				}
+			}
+			step_Edit->setText(QString::number((substrate.relative_Density.independent.max-substrate.relative_Density.independent.min)/substrate.relative_Density.independent.num_Points,line_edit_double_format,line_edit_density_precision));
+			step_Edit->textEdited(step_Edit->text());
+			show_Hide_Elements(substrate.relative_Density.independent.num_Points, show);
 		}
 		// substrate permittivity
 		if(whats_This_List[1] == whats_This_Permittivity)

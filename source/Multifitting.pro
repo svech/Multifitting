@@ -12,7 +12,11 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 TARGET = Multifitting
 TEMPLATE = app
 
-INCLUDEPATH += "C:/Program Files (x86)/C++ libraries"
+INCLUDEPATH += "C:/Program Files (x86)/C++ libraries" \
+               "C:/Program Files (x86)/C++ libraries/GSL 2.1/include"
+
+LIBS += "C:/Program Files (x86)/C++ libraries/GSL 2.1/lib_VS2015/x64/gslcblas.lib" \
+        "C:/Program Files (x86)/C++ libraries/GSL 2.1/lib_VS2015/x64/gsl.lib"
 
 SOURCES += main.cpp\
         launcher.cpp \

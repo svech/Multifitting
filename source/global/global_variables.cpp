@@ -96,6 +96,7 @@ QVector<double> element_Mass {1.00794,
 							 232.03806,
 							 231.03586,
 							 238.02891};
+QMap<QString, double> sorted_Elements;
 
 // lists of types
 QStringList transition_Layer_Functions	{"erf","lin","exp","tanh","sin"};
@@ -133,6 +134,13 @@ QStringList opt_Const_Units_List			{"% of nominal"};
 Global_Variables::Global_Variables()
 {
 
+}
+
+void Global_Variables::create_Sorted_Elements_Map()
+{
+	// map of sorted chemical elements
+	for(int i=0; i<element_Name.size(); ++i)
+		sorted_Elements.insert(element_Name[i],element_Mass[i]);
 }
 
 void Global_Variables::serialize_Tree(QDataStream &out, QTreeWidget* tree)

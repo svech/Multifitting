@@ -34,7 +34,8 @@ public:
 	bool composed_Material;
 
 	QString material;
-	Parameter density;
+	Parameter relative_Density;
+	Parameter absolute_Density;
 
 	// tabular material
 	QString separate_Optical_Constants = TRIL_NOT_DEFINED;

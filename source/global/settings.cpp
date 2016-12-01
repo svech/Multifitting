@@ -33,7 +33,8 @@ QString icon_path;
 
 // Ambient_Values
 QString	ambient_default_material;
-double	ambient_default_density;
+double	ambient_default_absolute_density;
+double	ambient_default_relative_density;
 double	ambient_default_permittivity;
 double	ambient_default_absorption;
 bool	ambient_default_composed;
@@ -42,7 +43,8 @@ QString	ambient_default_stoichiometry_element;
 
 // Layer_Values
 QString	layer_default_material;
-double	layer_default_density;
+double	layer_default_absolute_density;
+double	layer_default_relative_density;
 double	layer_default_permittivity;
 double	layer_default_absorption;
 bool	layer_default_composed;
@@ -55,7 +57,8 @@ double	layer_default_drift_coefficients;
 
 // Substrate_Values
 QString	substrate_default_material;
-double	substrate_default_density;
+double	substrate_default_absolute_density;
+double	substrate_default_relative_density;
 double	substrate_default_permittivity;
 double	substrate_default_absorption;
 bool	substrate_default_composed;
@@ -235,7 +238,8 @@ void Settings::read_Structure_Default_Values(bool reset_to_default)
 		structure_Default_Values.beginGroup( Structure_Init_Values );
 			structure_Default_Values.beginGroup( Ambient_Values );
 				ambient_default_material				  = structure_Default_Values.value( "ambient_default_material",				    "H"		).toString();
-				ambient_default_density					  = structure_Default_Values.value( "ambient_default_density",					0		).toDouble();
+				ambient_default_absolute_density		  = structure_Default_Values.value( "ambient_default_absolute_density",			0		).toDouble();
+				ambient_default_relative_density		  = structure_Default_Values.value( "ambient_default_relative_density",			0		).toDouble();
 				ambient_default_permittivity			  = structure_Default_Values.value( "ambient_default_permittivity",				100		).toDouble();
 				ambient_default_absorption				  = structure_Default_Values.value( "ambient_default_absorption",				100		).toDouble();
 				ambient_default_composed				  = structure_Default_Values.value( "ambient_default_composed",					false	).toBool();
@@ -244,7 +248,8 @@ void Settings::read_Structure_Default_Values(bool reset_to_default)
 			structure_Default_Values.endGroup();
 			structure_Default_Values.beginGroup( Layer_Values );
 				layer_default_material					= structure_Default_Values.value( "layer_default_material",					"Be"		).toString();
-				layer_default_density					= structure_Default_Values.value( "layer_default_density",					1			).toDouble();
+				layer_default_absolute_density			= structure_Default_Values.value( "layer_default_absolute_density",			2.699		).toDouble();
+				layer_default_relative_density			= structure_Default_Values.value( "layer_default_relative_density",			1			).toDouble();
 				layer_default_permittivity				= structure_Default_Values.value( "layer_default_permittivity",				100			).toDouble();
 				layer_default_absorption				= structure_Default_Values.value( "layer_default_absorption",				100			).toDouble();
 				layer_default_composed					= structure_Default_Values.value( "layer_default_composed",					false		).toBool();
@@ -257,12 +262,13 @@ void Settings::read_Structure_Default_Values(bool reset_to_default)
 			structure_Default_Values.endGroup();
 			structure_Default_Values.beginGroup( Substrate_Values );
 				substrate_default_material					= structure_Default_Values.value( "substrate_default_material",				   "Si"	).toString();
-				substrate_default_density					= structure_Default_Values.value( "substrate_default_density",				   2.33	).toDouble();
+				substrate_default_absolute_density			= structure_Default_Values.value( "substrate_default_absolute_density",		   2.33	).toDouble();
+				substrate_default_relative_density			= structure_Default_Values.value( "substrate_default_relative_density",		   1	).toDouble();
 				substrate_default_permittivity				= structure_Default_Values.value( "substrate_default_permittivity",			   100	).toDouble();
 				substrate_default_absorption				= structure_Default_Values.value( "substrate_default_absorption",			   100	).toDouble();
 				substrate_default_composed					= structure_Default_Values.value( "substrate_default_composed",				   false).toBool();
 				substrate_default_stoichiometry_composition = structure_Default_Values.value( "substrate_default_stoichiometry_composition",1	).toDouble();
-				substrate_default_stoichiometry_element		= structure_Default_Values.value( "substrate_default_stoichiometry_element",   "Be" ).toString();
+				substrate_default_stoichiometry_element		= structure_Default_Values.value( "substrate_default_stoichiometry_element",   "Si" ).toString();
 				substrate_default_sigma						= structure_Default_Values.value( "substrate_default_sigma",				   0	).toDouble();
 			structure_Default_Values.endGroup();
 			structure_Default_Values.beginGroup( Stack_Values );
@@ -281,7 +287,8 @@ void Settings::save_Structure_Default_Values()
 	structure_Default_Values.beginGroup( Structure_Init_Values );
 		structure_Default_Values.beginGroup( Ambient_Values );
 			structure_Default_Values.setValue( "ambient_default_material",					ambient_default_material					);
-			structure_Default_Values.setValue( "ambient_default_density",					ambient_default_density						);
+			structure_Default_Values.setValue( "ambient_default_absolute_density",			ambient_default_absolute_density			);
+			structure_Default_Values.setValue( "ambient_default_relative_density",			ambient_default_relative_density			);
 			structure_Default_Values.setValue( "ambient_default_permittivity",				ambient_default_permittivity				);
 			structure_Default_Values.setValue( "ambient_default_absorption",				ambient_default_absorption					);
 			structure_Default_Values.setValue( "ambient_default_composed",					ambient_default_composed					);
@@ -290,7 +297,8 @@ void Settings::save_Structure_Default_Values()
 		structure_Default_Values.endGroup();
 		structure_Default_Values.beginGroup( Layer_Values );
 			structure_Default_Values.setValue( "layer_default_material",					layer_default_material					);
-			structure_Default_Values.setValue( "layer_default_density",						layer_default_density					);
+			structure_Default_Values.setValue( "layer_default_absolute_density",			layer_default_absolute_density			);
+			structure_Default_Values.setValue( "layer_default_relative_density",			layer_default_relative_density			);
 			structure_Default_Values.setValue( "layer_default_permittivity",				layer_default_permittivity				);
 			structure_Default_Values.setValue( "layer_default_absorption",					layer_default_absorption				);
 			structure_Default_Values.setValue( "layer_default_composed",					layer_default_composed					);
@@ -303,7 +311,8 @@ void Settings::save_Structure_Default_Values()
 		structure_Default_Values.endGroup();
 		structure_Default_Values.beginGroup( Substrate_Values );
 			structure_Default_Values.setValue( "substrate_default_material",					substrate_default_material					);
-			structure_Default_Values.setValue( "substrate_default_density",						substrate_default_density					);
+			structure_Default_Values.setValue( "substrate_default_absolute_density",			substrate_default_absolute_density			);
+			structure_Default_Values.setValue( "substrate_default_relative_density",			substrate_default_relative_density			);
 			structure_Default_Values.setValue( "substrate_default_permittivity",				substrate_default_permittivity				);
 			structure_Default_Values.setValue( "substrate_default_absorption",					substrate_default_absorption				);
 			structure_Default_Values.setValue( "substrate_default_composed",					substrate_default_composed					);

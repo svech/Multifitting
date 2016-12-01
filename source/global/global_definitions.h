@@ -58,6 +58,9 @@ using namespace std;
 #define nk_Filter	"*.nk"
 #define f1f2_Filter	"*.ff"
 
+#define nk_Ext ".nk"
+#define ff_Ext ".ff"
+
 // -----------------------------------------------------------------------------------------
 
 // symbols
@@ -110,13 +113,14 @@ using namespace std;
 // whatsThis : specialized additions
 #define whats_This_Angle					"Angle"
 #define whats_This_Wavelength				"Wavelength"
-#define whats_This_Density					"Density"
+#define whats_This_Absolute_Density			"Density"
+#define whats_This_Relative_Density			"Relative Density"
 #define whats_This_Permittivity				"Permittivity"
 #define whats_This_Absorption				"Absorption"
 #define whats_This_Composition				"Composition"
 #define whats_This_Thickness				"Thickness"
 #define whats_This_Sigma					"Sigma"
-#define whats_This_Interlayer_Composition	"Interlayer_Composition"
+#define whats_This_Interlayer_Composition	"Interlayer Composition"
 #define whats_This_Num_Repetitions			"Num_Repetitions"
 #define whats_This_Period					"Period"
 #define whats_This_Gamma					"Gamma"
@@ -140,6 +144,8 @@ enum class Variable_Type	{Independent, Coupled, Fitted, Optimized};
 
 // calculation
 #define I complex<double>(0,1)
+#define Na 6.022140857E23
+#define Q 4.484891E-30
 
 // -----------------------------------------------------------------------------------------
 
@@ -154,11 +160,9 @@ struct Stoichiometry			{Parameter composition; QString type;};
 struct Interlayer				{Parameter interlayer; bool enabled;};
 
 // optical constant types
-struct epsilon_Point			{double lambda; double e_Re;  double e_Im;};
-struct nk_Point					{double lambda; double n;  double k;  void read_Row(QTextStream& input);};
-struct f1f2_Point				{double lambda; double f1; double f2; void read_Row(QTextStream& input);};
-struct Material_Data			{QString substance; QString filename; QVector<nk_Point>  material_Data; void read_Material(QString& filename);};
-struct Element_Data				{QString element;					  QVector<f1f2_Point> element_Data; void read_Element (QString& filename);};
+struct Point					{double lambda; double re;  double im; void read_Row(QTextStream& input, bool if_Factors);};
+struct Material_Data			{QString substance; QString filename; QVector<Point> material_Data; void read_Material(QString& filename);};
+struct Element_Data				{QString element;					  QVector<Point> element_Data;  void read_Element (QString& filename);};
 
 // intermediate values for optical functions
 struct intermediate_Point		{

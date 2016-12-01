@@ -43,7 +43,8 @@ private:
 		void fill_Substrate_Variables(QTreeWidgetItem* item);
 
 		// parameters one by one
-			void add_Density				(QTreeWidgetItem* item, QString whats_This_Type);
+			void add_Absolute_Density		(QTreeWidgetItem* item, QString whats_This_Type);
+			void add_Relative_Density		(QTreeWidgetItem* item, QString whats_This_Type);
 			void add_Permittivity			(QTreeWidgetItem* item, QString whats_This_Type);
 			void add_Absorption				(QTreeWidgetItem* item, QString whats_This_Type);
 			void add_Composition			(QTreeWidgetItem* item, QString whats_This_Type);

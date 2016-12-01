@@ -3,6 +3,8 @@
 
 #include "global/settings.h"
 #include <thread>
+#include "gsl/gsl_interp.h"
+#include "gsl/gsl_spline.h"
 
 class Optical_Constants
 {
@@ -13,6 +15,8 @@ public:
 	QMap<QString, Element_Data>  element_Map;
 
 	void reload();
+	QVector<complex<double>> interpolation_Epsilon    (QVector<Point>& input_Values,                      QVector<double>& output_Points);
+	QVector<complex<double>> make_Epsilon_From_Factors(QList<Stoichiometry>& composition, double density, QVector<double>& output_Points);
 private:
 	void read_All();
 	void read_nMin_nMax_Materials(int n_Min, int n_Max, int thread_Index);

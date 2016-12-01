@@ -260,16 +260,32 @@ void Structure_Tree::set_Structure_Item_Text(QTreeWidgetItem* item)
 		item->setText(DEFAULT_COLUMN, "ambient: " + item->data(DEFAULT_COLUMN, Qt::UserRole).value<Ambient>().material);
 		if(item->data(DEFAULT_COLUMN, Qt::UserRole).value<Ambient>().material!="Vacuum")
 		{
-			item->setText(DEFAULT_COLUMN, item->text(DEFAULT_COLUMN) + ", " + Rho_Sym + "=" +
-						  QString::number(item->data(DEFAULT_COLUMN, Qt::UserRole).value<Ambient>().density.value,thumbnail_double_format,thumbnail_density_precision) + density_units);
+			if(item->data(DEFAULT_COLUMN, Qt::UserRole).value<Ambient>().composed_Material)
+			{
+				item->setText(DEFAULT_COLUMN, item->text(DEFAULT_COLUMN) + ", " + Rho_Sym + "=" +
+							  QString::number(item->data(DEFAULT_COLUMN, Qt::UserRole).value<Ambient>().absolute_Density.value,thumbnail_double_format,thumbnail_density_precision) + density_units);
+			} else
+			{
+				item->setText(DEFAULT_COLUMN, item->text(DEFAULT_COLUMN) + ", " + Rho_Sym + "=" +
+							  QString::number(item->data(DEFAULT_COLUMN, Qt::UserRole).value<Ambient>().relative_Density.value,thumbnail_double_format,thumbnail_density_precision));
+			}
+
 		}
 	} else
 	{
 		// if substrate
 		if(item->whatsThis(DEFAULT_COLUMN)==whats_This_Substrate)
 		{
-			item->setText(DEFAULT_COLUMN, item->data(DEFAULT_COLUMN, Qt::UserRole).value<Substrate>().material + " substrate" + ", " + Rho_Sym + "=" +
-						  QString::number(item->data(DEFAULT_COLUMN, Qt::UserRole).value<Substrate>().density.value,thumbnail_double_format,thumbnail_density_precision) + density_units);
+
+			if(item->data(DEFAULT_COLUMN, Qt::UserRole).value<Substrate>().composed_Material)
+			{
+				item->setText(DEFAULT_COLUMN, item->data(DEFAULT_COLUMN, Qt::UserRole).value<Substrate>().material + " substrate" + ", " + Rho_Sym + "=" +
+							  QString::number(item->data(DEFAULT_COLUMN, Qt::UserRole).value<Substrate>().absolute_Density.value,thumbnail_double_format,thumbnail_density_precision) + density_units);
+			} else
+			{
+				item->setText(DEFAULT_COLUMN, item->data(DEFAULT_COLUMN, Qt::UserRole).value<Substrate>().material + " substrate" + ", " + Rho_Sym + "=" +
+							  QString::number(item->data(DEFAULT_COLUMN, Qt::UserRole).value<Substrate>().relative_Density.value,thumbnail_double_format,thumbnail_density_precision));
+			}
 
 			if(item->data(DEFAULT_COLUMN, Qt::UserRole).value<Substrate>().sigma.value>0)
 			{
@@ -292,9 +308,17 @@ void Structure_Tree::set_Structure_Item_Text(QTreeWidgetItem* item)
 			} else
 			// if layer
 			{
-				item->setText(DEFAULT_COLUMN, item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>().material + " layer"
-							  + ", z=" +  QString::number(item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>().thickness.value/length_Coeff,thumbnail_double_format,thumbnail_thickness_precision) + length_units
-							  + ", " + Rho_Sym + "=" +  QString::number(item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>().density.value,thumbnail_double_format,thumbnail_density_precision) + density_units);
+				if(item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>().composed_Material)
+				{
+					item->setText(DEFAULT_COLUMN, item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>().material + " layer"
+								  + ", z=" +  QString::number(item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>().thickness.value/length_Coeff,thumbnail_double_format,thumbnail_thickness_precision) + length_units
+								  + ", " + Rho_Sym + "=" +  QString::number(item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>().absolute_Density.value,thumbnail_double_format,thumbnail_density_precision) + density_units);
+				} else
+				{
+					item->setText(DEFAULT_COLUMN, item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>().material + " layer"
+								  + ", z=" +  QString::number(item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>().thickness.value/length_Coeff,thumbnail_double_format,thumbnail_thickness_precision) + length_units
+								  + ", " + Rho_Sym + "=" +  QString::number(item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>().relative_Density.value,thumbnail_double_format,thumbnail_density_precision));
+				}
 
 				if(item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>().sigma.value>0)
 				{

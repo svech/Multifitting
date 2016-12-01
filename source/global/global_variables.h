@@ -15,6 +15,7 @@ class Stack_Content;
 // tabulated chemical elements
 extern QStringList		element_Name;
 extern QVector<double>	element_Mass;
+extern QMap<QString, double> sorted_Elements;
 
 // lists of types
 extern QStringList transition_Layer_Functions;
@@ -34,6 +35,7 @@ class Global_Variables
 {
 public:
 	Global_Variables();
+	static void create_Sorted_Elements_Map();
 	static void serialize_Tree(QDataStream &out, QTreeWidget* tree);
 	static void deserialize_Tree(QDataStream &in, QTreeWidget* tree);
 	static double wavelength_Energy(QString wavelength_Units, double y);

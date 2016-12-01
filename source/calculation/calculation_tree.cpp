@@ -74,7 +74,8 @@ void Calculation_Tree::fill_Calc_Trees()
 			// ambient inheritance
 			substrate.composed_Material				= ambient.composed_Material;
 			substrate.material						= ambient.material;
-			substrate.density						= ambient.density;
+			substrate.absolute_Density				= ambient.absolute_Density;
+			substrate.relative_Density				= ambient.relative_Density;
 			substrate.separate_Optical_Constants	= ambient.separate_Optical_Constants;
 			substrate.permittivity					= ambient.permittivity;
 			substrate.absorption					= ambient.absorption;
@@ -370,7 +371,7 @@ void Calculation_Tree::calculate_Intermediate_Values_1_Tree(tree<Node>::iterator
 		tree<Node>::post_order_iterator child = calc_Tree_Vec[independent_Index].child(parent,i);
 		QStringList whats_This_List = child.node->data.whats_This.split(item_Type_Delimiter,QString::SkipEmptyParts);
 
-		child.node->data.calculate_Intermediate_Points(calc_Tree_Vec[independent_Index], child, active_Iter, active_Whats_This, flat_List, flat_Tree_Map);
+		child.node->data.calculate_Intermediate_Points(calc_Tree_Vec[independent_Index], child, active_Iter, active_Whats_This, flat_List, flat_Tree_Map, optical_Constants);
 
 		if(whats_This_List[0] == whats_This_Multilayer)
 		{

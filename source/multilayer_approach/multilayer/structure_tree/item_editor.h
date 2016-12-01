@@ -23,7 +23,6 @@ public:
 	QTreeWidgetItem* item;
 private:
 	Item_Type item_Type;
-	QMap<QString,double> sorted_Elements;
 
 	// state variables
 	bool material_Done = false;
@@ -79,6 +78,8 @@ private slots:
 
 // ui objects to be placed in launcher window
 private:
+	QString absolute_Density_Label = "Density [g/cm" + Cube_Sym + "]:";
+	QString relative_Density_Label = "Relative Density:";
 	QString atoms = "atoms of";
 	QString AtWt = "At. Wt.=";
 	QString thickness_Label_1 = "Thickness, z [";
@@ -94,6 +95,7 @@ private:
 			QLineEdit* material_Line_Edit;
 			QPushButton* browse_Material_Button;
 			QLineEdit* density_Line_Edit;
+			QLabel* density_Label;
 			QRadioButton* filename_Radio;
 			QRadioButton* composition_Radio;
 			QFrame* composition_Frame;

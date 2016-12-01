@@ -37,7 +37,8 @@ extern QString icon_path;
 
 // Ambient_Values
 extern QString	ambient_default_material;
-extern double	ambient_default_density;
+extern double	ambient_default_absolute_density;
+extern double	ambient_default_relative_density;
 extern double	ambient_default_permittivity;
 extern double	ambient_default_absorption;
 extern bool		ambient_default_composed;
@@ -46,7 +47,8 @@ extern QString	ambient_default_stoichiometry_element;
 
 // Layer_Values
 extern QString	layer_default_material;
-extern double	layer_default_density;
+extern double	layer_default_absolute_density;
+extern double	layer_default_relative_density;
 extern double	layer_default_permittivity;
 extern double	layer_default_absorption;
 extern bool		layer_default_composed;
@@ -59,7 +61,8 @@ extern double	layer_default_drift_coefficients;
 
 // Substrate_Values
 extern QString	substrate_default_material;
-extern double	substrate_default_density;
+extern double	substrate_default_absolute_density;
+extern double	substrate_default_relative_density;
 extern double	substrate_default_permittivity;
 extern double	substrate_default_absorption;
 extern bool		substrate_default_composed;

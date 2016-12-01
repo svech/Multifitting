@@ -4,10 +4,6 @@ Item_Editor::Item_Editor(QTreeWidgetItem* item, QWidget *parent) :
 	QDialog(parent),
 	item(item)
 {
-	// map of sorted chemical elements
-	for(int i=0; i<element_Name.size(); ++i)
-		sorted_Elements.insert(element_Name[i],element_Mass[i]);
-
 	setWindowTitle(item->whatsThis(DEFAULT_COLUMN));
 	create_Main_Layout();
 	set_Window_Geometry();
@@ -107,7 +103,7 @@ void Item_Editor::make_Materials_Group_Box()
 			layout->addWidget(browse_Material_Button);
 			browse_Material_Button->setFocusPolicy(Qt::NoFocus);
 
-		QLabel* density_Label = new QLabel("Density [g/cm" + Cube_Sym + "]:");
+		density_Label = new QLabel("<no label>");
 			layout->addWidget(density_Label);
 
 		density_Line_Edit = new QLineEdit;
@@ -398,6 +394,7 @@ void Item_Editor::filename_Radio_Toggled(bool temp_bool)
 {
 	material_Line_Edit->setEnabled(true);
 	browse_Material_Button->setEnabled(true);
+	density_Label->setText(relative_Density_Label);
 
 	// composition or filename
 	QVariant var;
@@ -428,6 +425,7 @@ void Item_Editor::filename_Radio_Toggled(bool temp_bool)
 
 void Item_Editor::composition_Radio_Toggled(bool temp_bool)
 {
+	density_Label->setText(absolute_Density_Label);
 	if (temp_bool) refresh_Material();
 	material_Line_Edit->setEnabled(false);
 	browse_Material_Button->setEnabled(false);
@@ -988,19 +986,37 @@ void Item_Editor::show_Density()
 		if(item_Type==Item_Type::Ambient)
 		{
 			Ambient ambient = item->data(DEFAULT_COLUMN, Qt::UserRole).value<Ambient>();
-			density_Line_Edit->setText(QString::number(ambient.density.value,line_edit_double_format,line_edit_density_precision));
+			if(ambient.composed_Material)
+			{
+				density_Line_Edit->setText(QString::number(ambient.absolute_Density.value,line_edit_double_format,line_edit_density_precision));
+			} else
+			{
+				density_Line_Edit->setText(QString::number(ambient.relative_Density.value,line_edit_double_format,line_edit_density_precision));
+			}
 			resize_Line_Edit("",density_Line_Edit);
 		}
 		if(item_Type==Item_Type::Layer)
 		{
 			Layer layer = item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>();
-			density_Line_Edit->setText(QString::number(layer.density.value,line_edit_double_format,line_edit_density_precision));
+			if(layer.composed_Material)
+			{
+				density_Line_Edit->setText(QString::number(layer.absolute_Density.value,line_edit_double_format,line_edit_density_precision));
+			} else
+			{
+				density_Line_Edit->setText(QString::number(layer.relative_Density.value,line_edit_double_format,line_edit_density_precision));
+			}
 			resize_Line_Edit("",density_Line_Edit);
 		}
 		if(item_Type==Item_Type::Substrate)
 		{
 			Substrate substrate = item->data(DEFAULT_COLUMN, Qt::UserRole).value<Substrate>();
-			density_Line_Edit->setText(QString::number(substrate.density.value,line_edit_double_format,line_edit_density_precision));
+			if(substrate.composed_Material)
+			{
+				density_Line_Edit->setText(QString::number(substrate.absolute_Density.value,line_edit_double_format,line_edit_density_precision));
+			} else
+			{
+				density_Line_Edit->setText(QString::number(substrate.relative_Density.value,line_edit_double_format,line_edit_density_precision));
+			}
 			resize_Line_Edit("",density_Line_Edit);
 		}
 	}
@@ -1179,7 +1195,13 @@ void Item_Editor::refresh_Data(QString str)
 		Ambient ambient = item->data(DEFAULT_COLUMN, Qt::UserRole).value<Ambient>();
 		if(material_Done)
 		{
-			ambient.density.value = density_Line_Edit->text().toDouble();
+			if(ambient.composed_Material)
+			{
+				ambient.absolute_Density.value = density_Line_Edit->text().toDouble();
+			} else
+			{
+				ambient.relative_Density.value = density_Line_Edit->text().toDouble();
+			}
 			for(int i=0; i<ambient.composition.size(); ++i)
 			{
 				ambient.composition[i].composition.value = composition_Line_Edit_Vec[i]->text().toDouble();
@@ -1196,7 +1218,13 @@ void Item_Editor::refresh_Data(QString str)
 
 		if(material_Done)
 		{
-			layer.density.value = density_Line_Edit->text().toDouble();
+			if(layer.composed_Material)
+			{
+				layer.absolute_Density.value = density_Line_Edit->text().toDouble();
+			} else
+			{
+				layer.relative_Density.value = density_Line_Edit->text().toDouble();
+			}
 			for(int i=0; i<layer.composition.size(); ++i)
 			{
 				layer.composition[i].composition.value = composition_Line_Edit_Vec[i]->text().toDouble();
@@ -1226,7 +1254,13 @@ void Item_Editor::refresh_Data(QString str)
 		Substrate substrate = item->data(DEFAULT_COLUMN, Qt::UserRole).value<Substrate>();
 		if(material_Done)
 		{
-			substrate.density.value = density_Line_Edit->text().toDouble();
+			if(substrate.composed_Material)
+			{
+				substrate.absolute_Density.value = density_Line_Edit->text().toDouble();
+			} else
+			{
+				substrate.relative_Density.value = density_Line_Edit->text().toDouble();
+			}
 			for(int i=0; i<substrate.composition.size(); ++i)
 			{
 				substrate.composition[i].composition.value = composition_Line_Edit_Vec[i]->text().toDouble();

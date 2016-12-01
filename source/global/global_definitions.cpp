@@ -82,16 +82,17 @@ QDataStream& operator >>( QDataStream& stream,		 Interlayer& interlayer )
 
 // optical constants
 
-void nk_Point::read_Row(QTextStream& input)
+void Point::read_Row(QTextStream& input, bool if_Factors)
 {
-	input >> lambda >> n >> k;
-}
-
-void f1f2_Point::read_Row(QTextStream& input)
-{
-	double temp_Energy;
-	input >> temp_Energy >> f1 >> f2;
-	lambda = Global_Variables::angstrom_eV(temp_Energy);
+	if(if_Factors)
+	{
+		double temp_Energy;
+		input >> temp_Energy >> re >> im;
+		lambda = Global_Variables::angstrom_eV(temp_Energy);
+	} else
+	{
+		input >> lambda >> re >> im;
+	}
 }
 
 void Material_Data::read_Material(QString& filename)
@@ -105,9 +106,9 @@ void Material_Data::read_Material(QString& filename)
 		QString temp_Line = input.readLine();
 		if(temp_Line[0]!=';')
 		{
-			nk_Point new_nk_Point;
+			Point new_nk_Point;
 			QTextStream temp_Stream(&temp_Line);
-			new_nk_Point.read_Row(temp_Stream);
+			new_nk_Point.read_Row(temp_Stream, false);
 			material_Data.append(new_nk_Point);
 		}
 	}
@@ -125,10 +126,10 @@ void Element_Data::read_Element(QString& filename)
 		QString temp_Line = input.readLine();
 		if(temp_Line[0]!=';')
 		{
-			f1f2_Point new_f1f2_Point;
+			Point new_f1f2_Point;
 			QTextStream temp_Stream(&temp_Line);
-			new_f1f2_Point.read_Row(temp_Stream);
-			if(new_f1f2_Point.f1>-8888)
+			new_f1f2_Point.read_Row(temp_Stream, true);
+			if(new_f1f2_Point.re>-8888)
 			{
 				element_Data.prepend(new_f1f2_Point);
 			}

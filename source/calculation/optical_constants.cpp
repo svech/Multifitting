@@ -43,8 +43,8 @@ void Optical_Constants::read_All()
 ////	for(int i=0; i<20; ++i)
 //	{
 //		qInfo() << QString::number(temp_Material_Data.material_Data[i].lambda,'f',9)
-//				<< QString::number(temp_Material_Data.material_Data[i].n,'g',9)
-//				<< QString::number(temp_Material_Data.material_Data[i].k,'g',9) ;
+//				<< QString::number(temp_Material_Data.material_Data[i].re,'g',9)
+//				<< QString::number(temp_Material_Data.material_Data[i].im,'g',9) ;
 //	}
 
 //	Element_Data temp_Element_Data = element_Map.value("Ag.ff");
@@ -53,8 +53,8 @@ void Optical_Constants::read_All()
 ////	for(int i=0; i<20; ++i)
 //	{
 //		qInfo() << QString::number(temp_Element_Data.element_Data[i].lambda,'f',9)
-//				<< QString::number(temp_Element_Data.element_Data[i].f1,'g',9)
-//				<< QString::number(temp_Element_Data.element_Data[i].f2,'g',9) ;
+//				<< QString::number(temp_Element_Data.element_Data[i].re,'g',9)
+//				<< QString::number(temp_Element_Data.element_Data[i].im,'g',9) ;
 //	}
 }
 
@@ -157,4 +157,93 @@ void Optical_Constants::read_All_Elements()
 	{
 		element_Map.unite(part_Element_Maps[thread_Index]);
 	}
+}
+
+QVector<complex<double>> Optical_Constants::interpolation_Epsilon(QVector<Point>& input_Values, QVector<double>& output_Points)
+{
+	const gsl_interp_type *interp_type = gsl_interp_steffen;
+
+	gsl_interp_accel* acc_Re = gsl_interp_accel_alloc();
+	gsl_interp_accel* acc_Im = gsl_interp_accel_alloc();
+	gsl_spline* spline_Re = gsl_spline_alloc(interp_type, input_Values.size());
+	gsl_spline* spline_Im = gsl_spline_alloc(interp_type, input_Values.size());
+
+	QVector<double> lambda,re,im;
+	for(int i=0; i<input_Values.size(); ++i)
+	{
+		lambda.push_back(input_Values[i].lambda);
+		re.push_back(input_Values[i].re);
+		im.push_back(input_Values[i].im);
+	}
+
+	// spline initialization
+	gsl_spline_init(spline_Re, lambda.data(), re.data(), input_Values.size());
+	gsl_spline_init(spline_Im, lambda.data(), im.data(), input_Values.size());
+
+	QVector<complex<double>> return_Value;
+	for(int l=0; l<output_Points.size(); ++l)
+	{
+		return_Value.append(complex<double>(gsl_spline_eval(spline_Re, output_Points[l], acc_Re), gsl_spline_eval(spline_Im, output_Points[l], acc_Im)));
+	}
+
+	gsl_spline_free(spline_Re);
+	gsl_spline_free(spline_Im);
+	gsl_interp_accel_free(acc_Re);
+	gsl_interp_accel_free(acc_Im);
+
+	return return_Value;
+}
+
+QVector<complex<double>> Optical_Constants::make_Epsilon_From_Factors(QList<Stoichiometry>& composition, double density, QVector<double>& output_Points)
+{
+	double denominator = 0;	// sum of stoich and masses
+
+	// for each element
+	for(int element_Index=0; element_Index<composition.size(); ++element_Index)
+	{
+		QString element = composition[element_Index].type;
+		Element_Data temp_Element_Data = element_Map.value(element + ff_Ext);
+
+		// range check
+		for(int point_Index=0; point_Index<output_Points.size(); ++point_Index)
+		{
+			if((output_Points[point_Index]<=temp_Element_Data.element_Data.first().lambda) ||
+			   (output_Points[point_Index]>=temp_Element_Data.element_Data.last().lambda))
+			{
+				// TODO correct warning
+				qInfo() << "Optical_Constants::make_Epsilon_From_Factors  :  Wavelength is out of range for " << element;
+				qInfo() << "Range is " << temp_Element_Data.element_Data.first().lambda << " - " << temp_Element_Data.element_Data.last().lambda;
+				exit(EXIT_FAILURE);
+			}
+		}
+		denominator += composition[element_Index].composition.value * sorted_Elements.value(element);
+	}
+
+	double compound_Concentration = Na * density / denominator;
+	QVector<double> element_Concentration(composition.size());
+	QVector<complex<double>> n (output_Points.size(), 1);	// index of refraction, initialized by 1
+	QVector<complex<double>> interpolated (output_Points.size(),-2016.0);
+
+	// calculation of concentrations
+	for(int element_Index=0; element_Index<composition.size(); ++element_Index)
+	{
+		QString element = composition[element_Index].type;
+		Element_Data temp_Element_Data = element_Map.value(element + ff_Ext);
+
+		element_Concentration[element_Index] = compound_Concentration * composition[element_Index].composition.value;
+		interpolated = interpolation_Epsilon(temp_Element_Data.element_Data, output_Points);
+
+		for(int point_Index=0; point_Index<output_Points.size(); ++point_Index)
+		{
+			n[point_Index] -= output_Points[point_Index] * output_Points[point_Index] * Q * element_Concentration[element_Index] * interpolated[point_Index];
+		}
+	}
+
+	QVector<complex<double>> epsilon (output_Points.size(),-2016.0);
+	for(int point_Index=0; point_Index<output_Points.size(); ++point_Index)
+	{
+		epsilon[point_Index] = conj(n[point_Index]*n[point_Index]);
+	}
+
+	return epsilon;
 }

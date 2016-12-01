@@ -7,13 +7,14 @@ Launcher::Launcher(QWidget *parent) :
 	Settings::save_All_Settings();
 	Global_Variables::fill_Units_Maps();
 
+	// read optical constants database
+	optical_Constants = new Optical_Constants;
+	Global_Variables::create_Sorted_Elements_Map();
+
 	qApp->setStyle(QStyleFactory::create(application_style));
 
 	create_Main_Layout();
 	set_Window_Geometry();
-
-	// read optical constants database
-	optical_Constants = new Optical_Constants;
 
 	// TODO
 	multilayer_Approach_Launch_Button->clicked();
