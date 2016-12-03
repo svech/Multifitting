@@ -1,5 +1,4 @@
 #include "optical_Constants.h"
-#include <thread>
 
 using namespace std;
 

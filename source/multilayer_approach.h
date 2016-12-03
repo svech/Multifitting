@@ -23,7 +23,9 @@ public slots:
 
 private slots:
 	// errors
-	void calc_Error_1(QString error_Text);
+	void catch_Critical   (QString critical_Text);
+	void catch_Warning    (QString warning_Text);
+	void catch_Information(QString information_Text);
 
 private:
 	void closeEvent(QCloseEvent *event);

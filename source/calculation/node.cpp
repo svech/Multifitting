@@ -18,7 +18,7 @@ Node::Node(QTreeWidgetItem* item):
 	if(whats_This_List[0] == whats_This_Substrate)	substrate	  = item->data(DEFAULT_COLUMN, Qt::UserRole).value<Substrate>();
 }
 
-void Node::calculate_Intermediate_Points(tree<Node>::iterator this_Iter, tree<Node>::iterator active_Iter, QString active_Whats_This, QList<Node>& flat_List, QMap<int, tree<Node>::iterator>& flat_Tree_Map)
+int Node::calculate_Intermediate_Points(tree<Node>::iterator this_Iter, tree<Node>::iterator active_Iter, QString active_Whats_This, QList<Node>& flat_List, QMap<int, tree<Node>::iterator>& flat_Tree_Map, QString& warning_Text)
 {
 	qInfo() << "\nnode : calculate_Intermediate_Points in " << whats_This << endl;
 
@@ -50,22 +50,15 @@ void Node::calculate_Intermediate_Points(tree<Node>::iterator this_Iter, tree<No
 			{
 				Material_Data temp_Material_Data = optical_Constants->material_Map.value(ambient.material + nk_Ext);
 
-				// TODO if material not found
-				if(temp_Material_Data.material_Data.isEmpty())
-				{
-					qInfo() << "\n--------------------------------\n" << ambient.material << " is wrong material!!!!\n--------------------------------\n";
-					exit(EXIT_FAILURE);
-				};
-
 				// range check
 				if((measur->wavelength.value <= temp_Material_Data.material_Data.first().lambda) ||
 				   (measur->wavelength.value >= temp_Material_Data.material_Data.last(). lambda))
 				{
-					// TODO correct warning
-					qInfo() << "Node::calculate_Intermediate_Points  :  Wavelength is out of range for " << ambient.material;
-					qInfo() << "Range is " << temp_Material_Data.material_Data.first().lambda << " - " << temp_Material_Data.material_Data.last().lambda;
-					exit(EXIT_FAILURE);
+					warning_Text = "Wavelength is out of range for " + ambient.material + ".\nAcceptable range is "
+								   + QString::number(temp_Material_Data.material_Data.first().lambda) + " - " +  QString::number(temp_Material_Data.material_Data.last().lambda) + " " + Angstrom_Sym;
+					return 1;
 				}
+				 TODO RANGE CHECK here and in optical constants
 				complex<double> n = optical_Constants->interpolation_Epsilon(temp_Material_Data.material_Data, spectral_Points).first();
 				delta_Epsilon = 1. - conj(n*n);
 			} else
@@ -150,21 +143,13 @@ void Node::calculate_Intermediate_Points(tree<Node>::iterator this_Iter, tree<No
 			{
 				Material_Data temp_Material_Data = optical_Constants->material_Map.value(layer.material + nk_Ext);
 
-				// TODO if material not found
-				if(temp_Material_Data.material_Data.isEmpty())
-				{
-					qInfo() << "\n--------------------------------\n" << layer.material << " is wrong material!!!!\n--------------------------------\n";
-					exit(EXIT_FAILURE);
-				};
-
 				// range check
 				if((measur->wavelength.value <= temp_Material_Data.material_Data.first().lambda) ||
 				   (measur->wavelength.value >= temp_Material_Data.material_Data.last(). lambda))
 				{
-					// TODO correct warning
-					qInfo() << "Node::calculate_Intermediate_Points  :  Wavelength is out of range for " << layer.material;
-					qInfo() << "Range is " << temp_Material_Data.material_Data.first().lambda << " - " << temp_Material_Data.material_Data.last().lambda;
-					exit(EXIT_FAILURE);
+					warning_Text = "Wavelength is out of range for " + layer.material + ".\nAcceptable range is "
+								   + QString::number(temp_Material_Data.material_Data.first().lambda) + " - " +  QString::number(temp_Material_Data.material_Data.last().lambda) + " " + Angstrom_Sym;
+					return 1;
 				}
 				complex<double> n = optical_Constants->interpolation_Epsilon(temp_Material_Data.material_Data, spectral_Points).first();
 				delta_Epsilon = 1. - conj(n*n);
@@ -284,21 +269,13 @@ void Node::calculate_Intermediate_Points(tree<Node>::iterator this_Iter, tree<No
 			{
 				Material_Data temp_Material_Data = optical_Constants->material_Map.value(substrate.material + nk_Ext);
 
-				// TODO if material not found
-				if(temp_Material_Data.material_Data.isEmpty())
-				{
-					qInfo() << "\n--------------------------------\n" << substrate.material << " is wrong material!!!!\n--------------------------------\n";
-					exit(EXIT_FAILURE);
-				};
-
 				// range check
 				if((measur->wavelength.value <= temp_Material_Data.material_Data.first().lambda) ||
 				   (measur->wavelength.value >= temp_Material_Data.material_Data.last(). lambda))
 				{
-					// TODO correct warning
-					qInfo() << "Node::calculate_Intermediate_Points  :  Wavelength is out of range for " << substrate.material;
-					qInfo() << "Range is " << temp_Material_Data.material_Data.first().lambda << " - " << temp_Material_Data.material_Data.last().lambda;
-					exit(EXIT_FAILURE);
+					warning_Text = "Wavelength is out of range for " + substrate.material + ".\nAcceptable range is "
+								   + QString::number(temp_Material_Data.material_Data.first().lambda) + " - " +  QString::number(temp_Material_Data.material_Data.last().lambda) + " " + Angstrom_Sym;
+					return 1;
 				}
 				complex<double> n = optical_Constants->interpolation_Epsilon(temp_Material_Data.material_Data, spectral_Points).first();
 				delta_Epsilon = 1. - conj(n*n);
@@ -394,4 +371,6 @@ void Node::calculate_Intermediate_Points(tree<Node>::iterator this_Iter, tree<No
 			}
 		}
 	}
+
+	return 0;
 }

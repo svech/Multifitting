@@ -176,7 +176,9 @@ void Multilayer_Approach::calc_Reflection()
 	// TODO
 	qInfo() << "\n\n------------------------------------------------------------\ncalc specular functions...\n-------------------------------------------------------\n";
 	Main_Calculation_Module* main_Calculation_Module = new Main_Calculation_Module(multilayer_List);
-	connect(main_Calculation_Module, SIGNAL(error(QString)), this, SLOT(calc_Error_1(QString)));
+	connect(main_Calculation_Module, SIGNAL(critical(QString)),    this, SLOT(catch_Critical(QString)));
+	connect(main_Calculation_Module, SIGNAL(warning(QString)),     this, SLOT(catch_Warning(QString)));
+	connect(main_Calculation_Module, SIGNAL(information(QString)), this, SLOT(catch_Information(QString)));
 	main_Calculation_Module->run_All();
 	delete main_Calculation_Module;
 }
@@ -188,7 +190,17 @@ void Multilayer_Approach::reload_Optical_Constants()
 	optical_Constants->reload();
 }
 
-void Multilayer_Approach::calc_Error_1(QString error_Text)
+void Multilayer_Approach::catch_Critical(QString critical_Text)
 {
-	QMessageBox::critical(this, "Error", error_Text);
+	QMessageBox::critical(this, "Error", critical_Text);
+}
+
+void Multilayer_Approach::catch_Warning(QString warning_Text)
+{
+	QMessageBox::warning(this, "Warning", warning_Text);
+}
+
+void Multilayer_Approach::catch_Information(QString information_Text)
+{
+	QMessageBox::information(this, "Information", information_Text);
 }

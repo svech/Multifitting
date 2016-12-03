@@ -14,7 +14,9 @@ public:
 	Calculation_Tree(QVector<Independent_Variables*>& independent_Widget_Vec);
 
 signals:
-	void error(QString error_Text);
+	void critical   (QString critical_Text);
+	void warning    (QString warning_Text);
+	void information(QString information_Text);
 
 public:
 	void run_All();

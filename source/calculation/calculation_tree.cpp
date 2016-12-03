@@ -378,7 +378,13 @@ void Calculation_Tree::calculate_Intermediate_Values_1_Tree(tree<Node>::iterator
 		tree<Node>::post_order_iterator child = calc_Tree_Vec[independent_Index].child(parent,i);
 		QStringList whats_This_List = child.node->data.whats_This.split(item_Type_Delimiter,QString::SkipEmptyParts);
 
-		child.node->data.calculate_Intermediate_Points(child, active_Iter, active_Whats_This, flat_List, flat_Tree_Map);
+		QString warning_Text;
+		int status = child.node->data.calculate_Intermediate_Points(child, active_Iter, active_Whats_This, flat_List, flat_Tree_Map, warning_Text);
+		if(status!=0)
+		{
+			emit information(warning_Text);
+			return;
+		}
 
 		if(whats_This_List[0] == whats_This_Multilayer)
 		{
@@ -405,7 +411,7 @@ tree<Node>::iterator Calculation_Tree::find_Node(tree<Node>::iterator parent, QS
 	}
 	// error handling
 	{
-		emit error("Calculation_Tree::find_Node\nerror: node \""+active_Whats_This+"\"not found");
+		emit critical("Calculation_Tree::find_Node\nerror: node \"" + active_Whats_This + "\"not found");
 		parent.node->data.whats_This = stop_Calculation;
 	}
 	return parent;

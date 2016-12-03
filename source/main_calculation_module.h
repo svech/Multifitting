@@ -15,9 +15,14 @@ public:
 
 	void run_All();
 signals:
-	void error(QString error_Text);
+	void critical   (QString critical_Text);
+	void warning    (QString warning_Text);
+	void information(QString information_Text);
+
 public slots:
-	void catch_Error(QString error_Text);
+	void catch_Critical   (QString critical_Text);
+	void catch_Warning    (QString warning_Text);
+	void catch_Information(QString information_Text);
 };
 
 #endif // MAIN_CALCULATION_MODULE_H
