@@ -2,21 +2,22 @@
 #define CALCULATION_TREE_H
 
 #include "tree.hh"
-#include "Matrix.h"
 #include "global/layer_data_types.h"
-#include "calculation/optical_constants.h"
 #include "node.h"
 
 using namespace std;
-using namespace Numeric_lib;
 
-typedef Matrix<double,2> myMatrix;
-
-class Calculation_Tree
+class Calculation_Tree: public QObject
 {
+	Q_OBJECT
 public:
-	Calculation_Tree(QVector<Independent_Variables*>& independent_Widget_Vec, Optical_Constants* optical_Constants);
+	Calculation_Tree(QVector<Independent_Variables*>& independent_Widget_Vec);
 
+signals:
+	void error(QString error_Text);
+
+public:
+	void run_All();
 private:
 	void create_Local_Item_Tree(QVector<Independent_Variables*>& independent_Widget_Vec);
 	int tree_Depth(QTreeWidgetItem* item);
@@ -42,8 +43,8 @@ private:
 public:
 	int max_Depth;
 	QVector<QTreeWidget*> local_Item_Tree_Vec;
+	QVector<Independent_Variables*>& independent_Widget_Vec;
 	QVector<tree<Node>> calc_Tree_Vec;
-	Optical_Constants* optical_Constants;
 };
 
 #endif // CALCULATION_TREE_H

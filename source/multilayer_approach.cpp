@@ -1,7 +1,6 @@
 #include "multilayer_approach.h"
 
-Multilayer_Approach::Multilayer_Approach(Optical_Constants* optical_Constants, QWidget *parent) :
-	optical_Constants(optical_Constants),
+Multilayer_Approach::Multilayer_Approach(QWidget *parent) :
 	QWidget(parent)
 {
 	setWindowTitle("Multilayer Model");
@@ -176,7 +175,10 @@ void Multilayer_Approach::calc_Reflection()
 {
 	// TODO
 	qInfo() << "\n\n------------------------------------------------------------\ncalc specular functions...\n-------------------------------------------------------\n";
-	Main_Calculation_Module main_Calculation_Module(multilayer_List, optical_Constants);
+	Main_Calculation_Module* main_Calculation_Module = new Main_Calculation_Module(multilayer_List);
+	connect(main_Calculation_Module, SIGNAL(error(QString)), this, SLOT(calc_Error_1(QString)));
+	main_Calculation_Module->run_All();
+	delete main_Calculation_Module;
 }
 
 void Multilayer_Approach::reload_Optical_Constants()
@@ -184,4 +186,9 @@ void Multilayer_Approach::reload_Optical_Constants()
 	// TODO
 	qInfo() << "\n\n------------------------------------------------------------\nreload optical constants...\n-------------------------------------------------------\n";
 	optical_Constants->reload();
+}
+
+void Multilayer_Approach::calc_Error_1(QString error_Text)
+{
+	QMessageBox::critical(this, "Error", error_Text);
 }

@@ -21,7 +21,7 @@ private:
 	QStackedWidget* filtered_Parameters_Pages;
 		QMap<QString,QListWidget*> map_Of_Parameters_Lists;
 			QListWidget* nonfiltered_Parameters;
-			QListWidget* optical_Constants;
+			QListWidget* optical_Constants_List;
 			QListWidget* interface_Parameters;
 			QListWidget* thickness_Parameters;
 	QLabel* filters_Label;

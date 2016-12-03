@@ -131,9 +131,16 @@ QStringList opt_Const_Units_List			{"% of nominal"};
 
 // -----------------------------------------------------------------------------------------
 
+Optical_Constants* optical_Constants;
+
 Global_Variables::Global_Variables()
 {
 
+}
+
+void Global_Variables::read_Optical_Constants()
+{
+	optical_Constants = new Optical_Constants;
 }
 
 void Global_Variables::create_Sorted_Elements_Map()

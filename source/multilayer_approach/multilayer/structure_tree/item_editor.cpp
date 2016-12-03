@@ -61,7 +61,7 @@ void Item_Editor::create_Main_Layout()
 		done_Button->setFocus();
 		done_Button->setDefault(true);
 
-	connect(done_Button, SIGNAL(clicked()), this, SLOT(close()));
+	connect(done_Button, SIGNAL(clicked()), this, SLOT(done_Slot()));
 
 	main_Layout->setContentsMargins(4,0,4,0);
 }
@@ -283,7 +283,6 @@ void Item_Editor::make_Multilayer_Group_Box()
 		gamma_Line_Edit = new QLineEdit;
 			gamma_Line_Edit->setFixedWidth(50);
 			gamma_Line_Edit->setProperty(min_Size_Property, gamma_Line_Edit->width());
-			// TODO gamma check
 			gamma_Line_Edit->setValidator(new QDoubleValidator(0, 1, MAX_PRECISION));
 
 		if(item->childCount()==2)
@@ -1112,8 +1111,59 @@ void Item_Editor::show_Interlayers()
 			interlayer_Composition_Line_Edit_Vec[i]->setText(QString::number(substrate.interlayer_Composition[i].interlayer.value,line_edit_double_format,line_edit_interlayer_precision));
 		}
 	}
+}
 
-
+void Item_Editor::done_Slot()
+{
+	QVariant var;
+	if(item_Type==Item_Type::Ambient)
+	{
+		Ambient ambient = item->data(DEFAULT_COLUMN, Qt::UserRole).value<Ambient>();
+		if(optical_Constants->material_Map.contains(ambient.material + nk_Ext))
+		{
+			ambient.approved_Material = ambient.material;
+			var.setValue( ambient );
+			item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+			close();
+		} else
+		{
+			material_Line_Edit->setText(ambient.approved_Material);
+			material_Line_Edit->textEdited(material_Line_Edit->text());
+			QMessageBox::information(this, "Wrong material", "File \"" + ambient.material + nk_Ext + "\" not found");
+		}
+	}
+	if(item_Type==Item_Type::Layer)
+	{
+		Layer layer = item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>();
+		if(optical_Constants->material_Map.contains(layer.material + nk_Ext))
+		{
+			layer.approved_Material = layer.material;
+			var.setValue( layer );
+			item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+			close();
+		} else
+		{
+			material_Line_Edit->setText(layer.approved_Material);
+			material_Line_Edit->textEdited(material_Line_Edit->text());
+			QMessageBox::information(this, "Wrong material", "File \"" + layer.material + nk_Ext + "\" not found");
+		}
+	}
+	if(item_Type==Item_Type::Substrate)
+	{
+		Substrate substrate = item->data(DEFAULT_COLUMN, Qt::UserRole).value<Substrate>();
+		if(optical_Constants->material_Map.contains(substrate.material + nk_Ext))
+		{
+			substrate.approved_Material = substrate.material;
+			var.setValue( substrate );
+			item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+			close();
+		} else
+		{
+			material_Line_Edit->setText(substrate.approved_Material);
+			material_Line_Edit->textEdited(material_Line_Edit->text());
+			QMessageBox::information(this, "Wrong material", "File \"" + substrate.material + nk_Ext + "\" not found");
+		}
+	}
 }
 
 void Item_Editor::resize_Line_Edit(QString text, QLineEdit* line_Edit)

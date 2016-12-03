@@ -1,9 +1,14 @@
 #include "calculation_tree.h"
 #include <iostream>
 
-Calculation_Tree::Calculation_Tree(QVector<Independent_Variables*>& independent_Widget_Vec, Optical_Constants* optical_Constants):
-	optical_Constants(optical_Constants),
+Calculation_Tree::Calculation_Tree(QVector<Independent_Variables*>& independent_Widget_Vec):
+	independent_Widget_Vec(independent_Widget_Vec),
 	calc_Tree_Vec(independent_Widget_Vec.size())
+{
+
+}
+
+void Calculation_Tree::run_All()
 {
 	create_Local_Item_Tree(independent_Widget_Vec);
 	if(local_Item_Tree_Vec.size()>0)
@@ -14,20 +19,10 @@ Calculation_Tree::Calculation_Tree(QVector<Independent_Variables*>& independent_
 		fill_Calc_Trees();
 		calculate_Intermediate_Values(independent_Widget_Vec);
 
+		// TODO remove this
 		qInfo() << endl;
 		print_Tree(calc_Tree_Vec[independent_Index].begin(), independent_Index);
 	}
-
-//	Material_Data temp_Material_Data = optical_Constants->material_Map.value("Y_sae-lao.nk");
-//	qInfo() << temp_Material_Data.substance << "\t" << temp_Material_Data.filename << endl;
-//	for(int i=temp_Material_Data.material_Data.size()-20; i<temp_Material_Data.material_Data.size(); ++i)
-////	for(int i=0; i<20; ++i)
-//	{
-//		qInfo() << QString::number(temp_Material_Data.material_Data[i].lambda,'f',9)
-//				<< QString::number(temp_Material_Data.material_Data[i].n,'g',9)
-//				<< QString::number(temp_Material_Data.material_Data[i].k,'g',9) ;
-//	}
-
 }
 
 void Calculation_Tree::create_Local_Item_Tree(QVector<Independent_Variables*>& independent_Widget_Vec)
@@ -68,12 +63,13 @@ void Calculation_Tree::fill_Calc_Trees()
 			QTreeWidgetItem substrate_Item;
 			substrate_Item.setWhatsThis(DEFAULT_COLUMN, whats_This_Substrate);
 
-			Ambient ambient = local_Item_Tree_Vec[independent_Index]->topLevelItem(0)->data(DEFAULT_COLUMN, Qt::UserRole).value<Ambient>();
+			Ambient ambient = local_Item_Tree_Vec[independent_Index]->topLevelItem(1)->data(DEFAULT_COLUMN, Qt::UserRole).value<Ambient>();
 			Substrate substrate;
 
 			// ambient inheritance
 			substrate.composed_Material				= ambient.composed_Material;
 			substrate.material						= ambient.material;
+			qInfo() << ambient.material;
 			substrate.absolute_Density				= ambient.absolute_Density;
 			substrate.relative_Density				= ambient.relative_Density;
 			substrate.separate_Optical_Constants	= ambient.separate_Optical_Constants;
@@ -336,6 +332,12 @@ void Calculation_Tree::calculate_Intermediate_Values(QVector<Independent_Variabl
 
 		// preliminary "measurement" calculation for each tree
 		tree<Node>::iterator measurement_Iter = find_Node(calc_Tree_Vec[independent_Index].begin(), whats_This_Measurement, independent_Index);
+
+		// ....................................................................
+		// emergency case
+		if (measurement_Iter.node->data.whats_This == stop_Calculation) return;
+		// ....................................................................
+
 		Measurement* measur = &(measurement_Iter.node->data.measurement);
 		measur->calc_Independent_cos2_k();
 
@@ -343,6 +345,11 @@ void Calculation_Tree::calculate_Intermediate_Values(QVector<Independent_Variabl
 		QStringList active_Whats_This_List = active_Whats_This.split(whats_This_Delimiter,QString::SkipEmptyParts);
 
 		tree<Node>::iterator active_Iter = find_Node(calc_Tree_Vec[independent_Index].begin(), active_Whats_This_List[0], independent_Index);
+
+		// ....................................................................
+		// emergency case
+		if (active_Iter.node->data.whats_This == stop_Calculation) return;
+		// ....................................................................
 
 		// if measurement is not active, create tree for each plot point
 		if(active_Iter.node->data.whats_This != whats_This_Measurement)
@@ -371,7 +378,7 @@ void Calculation_Tree::calculate_Intermediate_Values_1_Tree(tree<Node>::iterator
 		tree<Node>::post_order_iterator child = calc_Tree_Vec[independent_Index].child(parent,i);
 		QStringList whats_This_List = child.node->data.whats_This.split(item_Type_Delimiter,QString::SkipEmptyParts);
 
-		child.node->data.calculate_Intermediate_Points(calc_Tree_Vec[independent_Index], child, active_Iter, active_Whats_This, flat_List, flat_Tree_Map, optical_Constants);
+		child.node->data.calculate_Intermediate_Points(child, active_Iter, active_Whats_This, flat_List, flat_Tree_Map);
 
 		if(whats_This_List[0] == whats_This_Multilayer)
 		{
@@ -396,10 +403,12 @@ tree<Node>::iterator Calculation_Tree::find_Node(tree<Node>::iterator parent, QS
 			return find_Node(child, active_Whats_This, independent_Index);
 		}
 	}
-	// TODO potential danger?
-	qInfo() << "\ntree<Node>::iterator Calculation_Tree::find_Node error\n";
-	exit(1);
-	return NULL;
+	// error handling
+	{
+		emit error("Calculation_Tree::find_Node\nerror: node \""+active_Whats_This+"\"not found");
+		parent.node->data.whats_This = stop_Calculation;
+	}
+	return parent;
 }
 
 int  Calculation_Tree::tree_Depth(QTreeWidgetItem* item)

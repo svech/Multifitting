@@ -8,7 +8,7 @@ Launcher::Launcher(QWidget *parent) :
 	Global_Variables::fill_Units_Maps();
 
 	// read optical constants database
-	optical_Constants = new Optical_Constants;
+	Global_Variables::read_Optical_Constants();
 	Global_Variables::create_Sorted_Elements_Map();
 
 	qApp->setStyle(QStyleFactory::create(application_style));
@@ -71,7 +71,7 @@ void Launcher::set_Window_Geometry()
 
 void Launcher::add_Multilayer_Approach_Instance()
 {
-	Multilayer_Approach* multilayer_Approach = new Multilayer_Approach(optical_Constants, this);
+	Multilayer_Approach* multilayer_Approach = new Multilayer_Approach(this);
 		multilayer_Approach->setWindowFlags(Qt::Window);
 		multilayer_Approach->show();
 		multilayer_Approach_List.append(multilayer_Approach);

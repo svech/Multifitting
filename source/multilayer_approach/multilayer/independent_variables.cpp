@@ -1,8 +1,9 @@
 #include "independent_variables.h"
 
-Independent_Variables::Independent_Variables(QTreeWidget* struct_Tree_Copy, QWidget *parent) :
+Independent_Variables::Independent_Variables(QTreeWidget* struct_Tree_Copy, QTreeWidget* real_Struct_Tree, QWidget *parent) :
 	QWidget(parent),
-	struct_Tree_Copy(struct_Tree_Copy)
+	struct_Tree_Copy(struct_Tree_Copy),
+	real_Struct_Tree(real_Struct_Tree)
 {
 	create_Main_Layout();
 	independent_Variables_List_Map = new QMap<QString, QListWidgetItem*>;
@@ -242,171 +243,208 @@ void Independent_Variables::remove_Independent_Variable(bool)
 				break;
 			++it;
 		}
+		// item search in original tree
+		QTreeWidgetItem* real_Structure_Item;
+		QTreeWidgetItemIterator real_It(real_Struct_Tree);
+		while (*real_It)
+		{
+			real_Structure_Item = *real_It;
+			if(real_Structure_Item->whatsThis(DEFAULT_COLUMN) == whats_This_List[0])
+				break;
+			++real_It;
+		}
 
-	  // if ambient
-	  if(whats_This_List_Type[0] == whats_This_Ambient)
-	  {
-		  Ambient ambient = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Ambient>();
+		// if ambient
+		if(whats_This_List_Type[0] == whats_This_Ambient)
+		{
+			Ambient ambient      =      structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Ambient>();
+			Ambient real_Ambient = real_Structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Ambient>();
 
-		  /// optical constants
-		  if(whats_This_List[1] == whats_This_Absolute_Density)
-		  {
-			  ambient.absolute_Density.independent.is_Independent = false;
-		  }
-		  if(whats_This_List[1] == whats_This_Relative_Density)
-		  {
-			  ambient.relative_Density.independent.is_Independent = false;
-		  }
-		  if(whats_This_List[1] == whats_This_Permittivity)
-		  {
-			  ambient.permittivity.independent.is_Independent = false;
-		  }
-		  if(whats_This_List[1] == whats_This_Absorption)
-		  {
-			  ambient.absorption.independent.is_Independent = false;
-		  }
-		  if(whats_This_List[1] == whats_This_Composition)
-		  {
-			  int index = QString(whats_This_List[2]).toInt();
-			  ambient.composition[index].composition.independent.is_Independent = false;
-		  }
+			/// optical constants
+			if(whats_This_List[1] == whats_This_Absolute_Density)
+			{
+				ambient.absolute_Density.independent.is_Independent = false;
+				ambient.absolute_Density.value = real_Ambient.absolute_Density.value;
+			}
+			if(whats_This_List[1] == whats_This_Relative_Density)
+			{
+				ambient.relative_Density.independent.is_Independent = false;
+				ambient.relative_Density.value = real_Ambient.relative_Density.value;
+			}
+			if(whats_This_List[1] == whats_This_Permittivity)
+			{
+				ambient.permittivity.independent.is_Independent = false;
+				ambient.permittivity.value = real_Ambient.permittivity.value;
+			}
+			if(whats_This_List[1] == whats_This_Absorption)
+			{
+				ambient.absorption.independent.is_Independent = false;
+				ambient.absorption.value = real_Ambient.absorption.value;
+			}
+			if(whats_This_List[1] == whats_This_Composition)
+			{
+				int index = QString(whats_This_List[2]).toInt();
+				ambient.composition[index].composition.independent.is_Independent = false;
+				ambient.composition[index].composition.value = real_Ambient.composition[index].composition.value;
+			}
 
-		  var.setValue(ambient);
-		  structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
-	  }
+			var.setValue(ambient);
+			structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+		}
 
-	  // if layer
-	  if(whats_This_List_Type[0] == whats_This_Layer)
-	  {
-		  Layer layer = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>();
+		// if layer
+		if(whats_This_List_Type[0] == whats_This_Layer)
+		{
+			Layer layer      =      structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>();
+			Layer real_Layer = real_Structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>();
 
-		  /// optical constants
-		  if(whats_This_List[1] == whats_This_Absolute_Density)
-		  {
-			  layer.absolute_Density.independent.is_Independent = false;
-		  }
-		  if(whats_This_List[1] == whats_This_Relative_Density)
-		  {
-			  layer.relative_Density.independent.is_Independent = false;
-		  }
-		  if(whats_This_List[1] == whats_This_Permittivity)
-		  {
-			  layer.permittivity.independent.is_Independent = false;
-		  }
-		  if(whats_This_List[1] == whats_This_Absorption)
-		  {
-			  layer.absorption.independent.is_Independent = false;
-		  }
-		  if(whats_This_List[1] == whats_This_Composition)
-		  {
-			  int index = QString(whats_This_List[2]).toInt();
-			  layer.composition[index].composition.independent.is_Independent = false;
-		  }
+			/// optical constants
+			if(whats_This_List[1] == whats_This_Absolute_Density)
+			{
+				layer.absolute_Density.independent.is_Independent = false;
+				layer.absolute_Density.value = real_Layer.absolute_Density.value;
+			}
+			if(whats_This_List[1] == whats_This_Relative_Density)
+			{
+				layer.relative_Density.independent.is_Independent = false;
+				layer.relative_Density.value = real_Layer.relative_Density.value;
+			}
+			if(whats_This_List[1] == whats_This_Permittivity)
+			{
+				layer.permittivity.independent.is_Independent = false;
+				layer.permittivity.value = real_Layer.permittivity.value;
+			}
+			if(whats_This_List[1] == whats_This_Absorption)
+			{
+				layer.absorption.independent.is_Independent = false;
+				layer.absorption.value = real_Layer.absorption.value;
+			}
+			if(whats_This_List[1] == whats_This_Composition)
+			{
+				int index = QString(whats_This_List[2]).toInt();
+				layer.composition[index].composition.independent.is_Independent = false;
+				layer.composition[index].composition.value = real_Layer.composition[index].composition.value;
+			}
 
-		  /// thickness parameters
-		  // layer thickness
-		  if(whats_This_List[1] == whats_This_Thickness)
-		  {
-			  layer.thickness.independent.is_Independent = false;
-		  }
+			/// thickness parameters
+			// layer thickness
+			if(whats_This_List[1] == whats_This_Thickness)
+			{
+				layer.thickness.independent.is_Independent = false;
+				layer.thickness.value = real_Layer.thickness.value;
+			}
 
-		  /// interface parameters
-		  // layer sigma
-		  if(whats_This_List[1] == whats_This_Sigma)
-		  {
-			  layer.sigma.independent.is_Independent = false;
-		  }
-		  // layer interlayer composition (if enabled and >=2 elements)
-		  if(whats_This_List[1] == whats_This_Interlayer_Composition)
-		  {
-			  int index = QString(whats_This_List.last()).toInt();
-			  layer.interlayer_Composition[index].interlayer.independent.is_Independent = false;
-		  }
+			/// interface parameters
+			// layer sigma
+			if(whats_This_List[1] == whats_This_Sigma)
+			{
+				layer.sigma.independent.is_Independent = false;
+				layer.sigma.value = real_Layer.sigma.value;
+			}
+			// layer interlayer composition (if enabled and >=2 elements)
+			if(whats_This_List[1] == whats_This_Interlayer_Composition)
+			{
+				int index = QString(whats_This_List.last()).toInt();
+				layer.interlayer_Composition[index].interlayer.independent.is_Independent = false;
+				layer.interlayer_Composition[index].interlayer.value = real_Layer.interlayer_Composition[index].interlayer.value;
+			}
 
-		  var.setValue(layer);
-		  structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
-	  }
+			var.setValue(layer);
+			structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+		}
 
-	  // if multilayer
-	  if(whats_This_List_Type[0] == whats_This_Multilayer)
-	  {
-		  Stack_Content stack_Content = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Stack_Content>();
+		// if multilayer
+		if(whats_This_List_Type[0] == whats_This_Multilayer)
+		{
+			Stack_Content stack_Content      =      structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Stack_Content>();
+			Stack_Content real_Stack_Content = real_Structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Stack_Content>();
 
-		  // multilayer num_repetitions
-		  if(whats_This_List[1] == whats_This_Num_Repetitions)
-		  {
-			  stack_Content.num_Repetition.is_Independent = false;
-		  }
-		  // multilayer period
-		  if(whats_This_List[1] == whats_This_Period)
-		  {
-			  stack_Content.period.independent.is_Independent = false;
-		  }
-		  // multilayer gamma
-		  if(whats_This_List[1] == whats_This_Gamma)
-		  {
-			  stack_Content.gamma.independent.is_Independent = false;
-		  }
+			// multilayer num_repetitions
+			if(whats_This_List[1] == whats_This_Num_Repetitions)
+			{
+				stack_Content.num_Repetition.is_Independent = false;
+				stack_Content.num_Repetition.value = real_Stack_Content.num_Repetition.value;
+			}
+			// multilayer period
+			if(whats_This_List[1] == whats_This_Period)
+			{
+				stack_Content.period.independent.is_Independent = false;
+				stack_Content.period.value = real_Stack_Content.period.value;
+			}
+			// multilayer gamma
+			if(whats_This_List[1] == whats_This_Gamma)
+			{
+				stack_Content.gamma.independent.is_Independent = false;
+				stack_Content.gamma.value = real_Stack_Content.gamma.value;
+			}
 
-		  var.setValue(stack_Content);
-		  structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
-	  }
+			var.setValue(stack_Content);
+			structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+		}
 
-	  // if substrate
-	  if(whats_This_List_Type[0] == whats_This_Substrate)
-	  {
-		  Substrate substrate = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Substrate>();
+		// if substrate
+		if(whats_This_List_Type[0] == whats_This_Substrate)
+		{
+			Substrate substrate      =      structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Substrate>();
+			Substrate real_Substrate = real_Structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Substrate>();
 
-		  /// optical constants
+			/// optical constants
 
-		  // substrate density
-		  if(whats_This_List[1] == whats_This_Absolute_Density)
-		  {
-			  substrate.absolute_Density.independent.is_Independent = false;
-		  }
-		  if(whats_This_List[1] == whats_This_Relative_Density)
-		  {
-			  substrate.relative_Density.independent.is_Independent = false;
-		  }
-		  // substrate permittivity
-		  if(whats_This_List[1] == whats_This_Permittivity)
-		  {
-			  substrate.permittivity.independent.is_Independent = false;
-		  }
-		  // substrate absorption
-		  if(whats_This_List[1] == whats_This_Absorption)
-		  {
-			  substrate.absorption.independent.is_Independent = false;
-		  }
-		  // substrate composition
-		  if(whats_This_List[1] == whats_This_Composition)
-		  {
-			  int index = QString(whats_This_List[2]).toInt();
-			  substrate.composition[index].composition.independent.is_Independent = false;
-		  }
+			// substrate density
+			if(whats_This_List[1] == whats_This_Absolute_Density)
+			{
+				substrate.absolute_Density.independent.is_Independent = false;
+				substrate.absolute_Density.value = real_Substrate.absolute_Density.value;
+			}
+			if(whats_This_List[1] == whats_This_Relative_Density)
+			{
+				substrate.relative_Density.independent.is_Independent = false;
+				substrate.relative_Density.value = real_Substrate.relative_Density.value;
+			}
+			// substrate permittivity
+			if(whats_This_List[1] == whats_This_Permittivity)
+			{
+				substrate.permittivity.independent.is_Independent = false;
+				substrate.permittivity.value = real_Substrate.permittivity.value;
+			}
+			// substrate absorption
+			if(whats_This_List[1] == whats_This_Absorption)
+			{
+				substrate.absorption.independent.is_Independent = false;
+				substrate.absorption.value = real_Substrate.absorption.value;
+			}
+			// substrate composition
+			if(whats_This_List[1] == whats_This_Composition)
+			{
+				int index = QString(whats_This_List[2]).toInt();
+				substrate.composition[index].composition.independent.is_Independent = false;
+				substrate.composition[index].composition.value = real_Substrate.composition[index].composition.value;
+			}
 
-		  /// interface parameters
+			/// interface parameters
 
-		  // substrate sigma
-		  if(whats_This_List[1] == whats_This_Sigma)
-		  {
-			  substrate.sigma.independent.is_Independent = false;
-		  }
-		  // substrate interlayer composition (if enabled and >=2 elements)
-		  if(whats_This_List[1] == whats_This_Interlayer_Composition)
-		  {
-			  int index = QString(whats_This_List.last()).toInt();
-			  substrate.interlayer_Composition[index].interlayer.independent.is_Independent = false;
-		  }
+			// substrate sigma
+			if(whats_This_List[1] == whats_This_Sigma)
+			{
+				substrate.sigma.independent.is_Independent = false;
+				substrate.sigma.value = real_Substrate.sigma.value;
+			}
+			// substrate interlayer composition (if enabled and >=2 elements)
+			if(whats_This_List[1] == whats_This_Interlayer_Composition)
+			{
+				int index = QString(whats_This_List.last()).toInt();
+				substrate.interlayer_Composition[index].interlayer.independent.is_Independent = false;
+				substrate.interlayer_Composition[index].interlayer.value = real_Substrate.interlayer_Composition[index].interlayer.value;
+			}
 
-		  var.setValue(substrate);
-		  structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
-	  }
+			var.setValue(substrate);
+			structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+		}
 
-	  refresh_State(structure_Item);
-	  independent_Variables_List_Map->remove(whats_This);
-	  delete item;
-  }
+		refresh_State(structure_Item);
+		independent_Variables_List_Map->remove(whats_This);
+		delete item;
+	}
 }
 
 void Independent_Variables::if_Selected()

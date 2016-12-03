@@ -237,7 +237,7 @@ void Settings::read_Structure_Default_Values(bool reset_to_default)
 	// structure default values
 		structure_Default_Values.beginGroup( Structure_Init_Values );
 			structure_Default_Values.beginGroup( Ambient_Values );
-				ambient_default_material				  = structure_Default_Values.value( "ambient_default_material",				    "H"		).toString();
+				ambient_default_material				  = structure_Default_Values.value( "ambient_default_material",				    "Al"	).toString();
 				ambient_default_absolute_density		  = structure_Default_Values.value( "ambient_default_absolute_density",			0		).toDouble();
 				ambient_default_relative_density		  = structure_Default_Values.value( "ambient_default_relative_density",			0		).toDouble();
 				ambient_default_permittivity			  = structure_Default_Values.value( "ambient_default_permittivity",				100		).toDouble();
@@ -420,9 +420,9 @@ void Settings::read_Parameters_Default_Values(bool reset_to_default)
 
 	// parameters default values
 	parameters_Default_Values.beginGroup( Independent_Values );
-		default_num_angular_points		 = parameters_Default_Values.value( "default_num_angular_points",		100		).toInt();
+		default_num_angular_points		 = parameters_Default_Values.value( "default_num_angular_points",		1		).toInt();
 		default_num_spectral_points		 = parameters_Default_Values.value( "default_num_spectral_points",		1		).toInt();
-		default_angle_value				 = parameters_Default_Values.value( "default_angle_value",				1		).toDouble();
+		default_angle_value				 = parameters_Default_Values.value( "default_angle_value",				5		).toDouble();
 		default_min_angle				 = parameters_Default_Values.value( "default_min_angle",				0		).toDouble();
 		default_max_angle				 = parameters_Default_Values.value( "default_max_angle",				7		).toDouble();
 		default_wavelength_value		 = parameters_Default_Values.value( "default_wavelength_value",			1.54056 ).toDouble();

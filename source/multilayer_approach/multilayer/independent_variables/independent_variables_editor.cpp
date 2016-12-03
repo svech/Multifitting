@@ -379,8 +379,11 @@ void Independent_Variables_Editor::refresh_Show_Data(bool show)
 									  QString::number(ambient.absolute_Density.independent.max,thumbnail_double_format,thumbnail_density_precision) + " " + units + end_Bracket);
 				}
 			}
-			step_Edit->setText(QString::number((ambient.absolute_Density.independent.max-ambient.absolute_Density.independent.min)/ambient.absolute_Density.independent.num_Points,line_edit_double_format,line_edit_density_precision));
-			step_Edit->textEdited(step_Edit->text());
+			if(num_Points->text().toInt()>1)
+			{
+				step_Edit->setText(QString::number((ambient.absolute_Density.independent.max-ambient.absolute_Density.independent.min)/(ambient.absolute_Density.independent.num_Points-1),line_edit_double_format,line_edit_density_precision));
+				step_Edit->textEdited(step_Edit->text());
+			}
 			show_Hide_Elements(ambient.absolute_Density.independent.num_Points, show);
 		}
 		// ambient relative density
@@ -425,8 +428,11 @@ void Independent_Variables_Editor::refresh_Show_Data(bool show)
 									  QString::number(ambient.relative_Density.independent.max,thumbnail_double_format,thumbnail_density_precision) + end_Bracket);
 				}
 			}
-			step_Edit->setText(QString::number((ambient.relative_Density.independent.max-ambient.relative_Density.independent.min)/ambient.relative_Density.independent.num_Points,line_edit_double_format,line_edit_density_precision));
-			step_Edit->textEdited(step_Edit->text());
+			if(num_Points->text().toInt()>1)
+			{
+				step_Edit->setText(QString::number((ambient.relative_Density.independent.max-ambient.relative_Density.independent.min)/(ambient.relative_Density.independent.num_Points-1),line_edit_double_format,line_edit_density_precision));
+				step_Edit->textEdited(step_Edit->text());
+			}
 			show_Hide_Elements(ambient.relative_Density.independent.num_Points, show);
 		}
 		// ambient permittivity
@@ -474,8 +480,11 @@ void Independent_Variables_Editor::refresh_Show_Data(bool show)
 									  QString::number(ambient.permittivity.independent.max,thumbnail_double_format,thumbnail_permittivity_precision) + " " + units + end_Bracket);
 				}
 			}
-			step_Edit->setText(QString::number((ambient.permittivity.independent.max-ambient.permittivity.independent.min)/ambient.permittivity.independent.num_Points,line_edit_double_format,line_edit_permittivity_precision));
-			step_Edit->textEdited(step_Edit->text());
+			if(num_Points->text().toInt()>1)
+			{
+				step_Edit->setText(QString::number((ambient.permittivity.independent.max-ambient.permittivity.independent.min)/(ambient.permittivity.independent.num_Points-1),line_edit_double_format,line_edit_permittivity_precision));
+				step_Edit->textEdited(step_Edit->text());
+			}
 			show_Hide_Elements(ambient.permittivity.independent.num_Points, show);
 		}
 		// ambient absorption
@@ -520,8 +529,11 @@ void Independent_Variables_Editor::refresh_Show_Data(bool show)
 									  QString::number(ambient.absorption.independent.max,thumbnail_double_format,thumbnail_absorption_precision) + " " + units + end_Bracket);
 				}
 			}
-			step_Edit->setText(QString::number((ambient.absorption.independent.max-ambient.absorption.independent.min)/ambient.absorption.independent.num_Points,line_edit_double_format,line_edit_absorption_precision));
-			step_Edit->textEdited(step_Edit->text());
+			if(num_Points->text().toInt()>1)
+			{
+				step_Edit->setText(QString::number((ambient.absorption.independent.max-ambient.absorption.independent.min)/(ambient.absorption.independent.num_Points-1),line_edit_double_format,line_edit_absorption_precision));
+				step_Edit->textEdited(step_Edit->text());
+			}
 			show_Hide_Elements(ambient.absorption.independent.num_Points, show);
 		}
 		//ambient composition
@@ -567,8 +579,11 @@ void Independent_Variables_Editor::refresh_Show_Data(bool show)
 									  QString::number(ambient.composition[index].composition.independent.max,thumbnail_double_format,thumbnail_composition_precision) + end_Bracket);
 				}
 			}
-			step_Edit->setText(QString::number((ambient.composition[index].composition.independent.max-ambient.composition[index].composition.independent.min)/ambient.composition[index].composition.independent.num_Points,line_edit_double_format,line_edit_composition_precision));
-			step_Edit->textEdited(step_Edit->text());
+			if(num_Points->text().toInt()>1)
+			{
+				step_Edit->setText(QString::number((ambient.composition[index].composition.independent.max-ambient.composition[index].composition.independent.min)/(ambient.composition[index].composition.independent.num_Points-1),line_edit_double_format,line_edit_composition_precision));
+				step_Edit->textEdited(step_Edit->text());
+			}
 			show_Hide_Elements(ambient.composition[index].composition.independent.num_Points, show);
 		}
 
@@ -624,8 +639,11 @@ void Independent_Variables_Editor::refresh_Show_Data(bool show)
 									  QString::number(layer.absolute_Density.independent.max,thumbnail_double_format,thumbnail_density_precision) + " " + units + end_Bracket);
 				}
 			}
-			step_Edit->setText(QString::number((layer.absolute_Density.independent.max-layer.absolute_Density.independent.min)/layer.absolute_Density.independent.num_Points,line_edit_double_format,line_edit_density_precision));
-			step_Edit->textEdited(step_Edit->text());
+			if(num_Points->text().toInt()>1)
+			{
+				step_Edit->setText(QString::number((layer.absolute_Density.independent.max-layer.absolute_Density.independent.min)/(layer.absolute_Density.independent.num_Points-1),line_edit_double_format,line_edit_density_precision));
+				step_Edit->textEdited(step_Edit->text());
+			}
 			show_Hide_Elements(layer.absolute_Density.independent.num_Points, show);
 		}
 		// layer relative density
@@ -670,8 +688,11 @@ void Independent_Variables_Editor::refresh_Show_Data(bool show)
 									  QString::number(layer.relative_Density.independent.max,thumbnail_double_format,thumbnail_density_precision) + end_Bracket);
 				}
 			}
-			step_Edit->setText(QString::number((layer.relative_Density.independent.max-layer.relative_Density.independent.min)/layer.relative_Density.independent.num_Points,line_edit_double_format,line_edit_density_precision));
-			step_Edit->textEdited(step_Edit->text());
+			if(num_Points->text().toInt()>1)
+			{
+				step_Edit->setText(QString::number((layer.relative_Density.independent.max-layer.relative_Density.independent.min)/(layer.relative_Density.independent.num_Points-1),line_edit_double_format,line_edit_density_precision));
+				step_Edit->textEdited(step_Edit->text());
+			}
 			show_Hide_Elements(layer.relative_Density.independent.num_Points, show);
 		}
 		// layer permittivity
@@ -719,8 +740,11 @@ void Independent_Variables_Editor::refresh_Show_Data(bool show)
 									  QString::number(layer.permittivity.independent.max,thumbnail_double_format,thumbnail_permittivity_precision) + " " + units + end_Bracket);
 				}
 			}
-			step_Edit->setText(QString::number((layer.permittivity.independent.max-layer.permittivity.independent.min)/layer.permittivity.independent.num_Points,line_edit_double_format,line_edit_permittivity_precision));
-			step_Edit->textEdited(step_Edit->text());
+			if(num_Points->text().toInt()>1)
+			{
+				step_Edit->setText(QString::number((layer.permittivity.independent.max-layer.permittivity.independent.min)/(layer.permittivity.independent.num_Points-1),line_edit_double_format,line_edit_permittivity_precision));
+				step_Edit->textEdited(step_Edit->text());
+			}
 			show_Hide_Elements(layer.permittivity.independent.num_Points, show);
 		}
 		// layer absorption
@@ -765,8 +789,11 @@ void Independent_Variables_Editor::refresh_Show_Data(bool show)
 									  QString::number(layer.absorption.independent.max,thumbnail_double_format,thumbnail_absorption_precision) + " " + units + end_Bracket);
 				}
 			}
-			step_Edit->setText(QString::number((layer.absorption.independent.max-layer.absorption.independent.min)/layer.absorption.independent.num_Points,line_edit_double_format,line_edit_absorption_precision));
-			step_Edit->textEdited(step_Edit->text());
+			if(num_Points->text().toInt()>1)
+			{
+				step_Edit->setText(QString::number((layer.absorption.independent.max-layer.absorption.independent.min)/(layer.absorption.independent.num_Points-1),line_edit_double_format,line_edit_absorption_precision));
+				step_Edit->textEdited(step_Edit->text());
+			}
 			show_Hide_Elements(layer.absorption.independent.num_Points, show);
 		}
 		// layer composition
@@ -812,8 +839,11 @@ void Independent_Variables_Editor::refresh_Show_Data(bool show)
 									  QString::number(layer.composition[index].composition.independent.max,thumbnail_double_format,thumbnail_composition_precision) + end_Bracket);
 				}
 			}
-			step_Edit->setText(QString::number((layer.composition[index].composition.independent.max-layer.composition[index].composition.independent.min)/layer.composition[index].composition.independent.num_Points,line_edit_double_format,line_edit_composition_precision));
-			step_Edit->textEdited(step_Edit->text());
+			if(num_Points->text().toInt()>1)
+			{
+				step_Edit->setText(QString::number((layer.composition[index].composition.independent.max-layer.composition[index].composition.independent.min)/(layer.composition[index].composition.independent.num_Points-1),line_edit_double_format,line_edit_composition_precision));
+				step_Edit->textEdited(step_Edit->text());
+			}
 			show_Hide_Elements(layer.composition[index].composition.independent.num_Points, show);
 		}
 
@@ -863,8 +893,11 @@ void Independent_Variables_Editor::refresh_Show_Data(bool show)
 									  QString::number(layer.thickness.independent.max/coeff,thumbnail_double_format,thumbnail_thickness_precision) + " " + units + end_Bracket);
 				}
 			}
-			step_Edit->setText(QString::number((layer.thickness.independent.max-layer.thickness.independent.min)/layer.thickness.independent.num_Points/coeff,line_edit_double_format,line_edit_thickness_precision));
-			step_Edit->textEdited(step_Edit->text());
+			if(num_Points->text().toInt()>1)
+			{
+				step_Edit->setText(QString::number((layer.thickness.independent.max-layer.thickness.independent.min)/(layer.thickness.independent.num_Points-1)/coeff,line_edit_double_format,line_edit_thickness_precision));
+				step_Edit->textEdited(step_Edit->text());
+			}
 			show_Hide_Elements(layer.thickness.independent.num_Points, show);
 		}
 
@@ -914,8 +947,11 @@ void Independent_Variables_Editor::refresh_Show_Data(bool show)
 									  QString::number(layer.sigma.independent.max/coeff,thumbnail_double_format,thumbnail_sigma_precision) + " " + units + end_Bracket);
 				}
 			}
-			step_Edit->setText(QString::number((layer.sigma.independent.max-layer.sigma.independent.min)/layer.sigma.independent.num_Points/coeff,line_edit_double_format,line_edit_sigma_precision));
-			step_Edit->textEdited(step_Edit->text());
+			if(num_Points->text().toInt()>1)
+			{
+				step_Edit->setText(QString::number((layer.sigma.independent.max-layer.sigma.independent.min)/(layer.sigma.independent.num_Points-1)/coeff,line_edit_double_format,line_edit_sigma_precision));
+				step_Edit->textEdited(step_Edit->text());
+			}
 			show_Hide_Elements(layer.sigma.independent.num_Points, show);
 		}
 		// layer interlayer composition (if enabled and >=2 elements)
@@ -961,8 +997,11 @@ void Independent_Variables_Editor::refresh_Show_Data(bool show)
 									  QString::number(layer.interlayer_Composition[index].interlayer.independent.max,thumbnail_double_format,thumbnail_interlayer_precision) + end_Bracket);
 				}
 			}
-			step_Edit->setText(QString::number((layer.interlayer_Composition[index].interlayer.independent.max-layer.interlayer_Composition[index].interlayer.independent.min)/layer.interlayer_Composition[index].interlayer.independent.num_Points,line_edit_double_format,line_edit_interlayer_precision));
-			step_Edit->textEdited(step_Edit->text());
+			if(num_Points->text().toInt()>1)
+			{
+				step_Edit->setText(QString::number((layer.interlayer_Composition[index].interlayer.independent.max-layer.interlayer_Composition[index].interlayer.independent.min)/(layer.interlayer_Composition[index].interlayer.independent.num_Points-1),line_edit_double_format,line_edit_interlayer_precision));
+				step_Edit->textEdited(step_Edit->text());
+			}
 			show_Hide_Elements(layer.interlayer_Composition[index].interlayer.independent.num_Points, show);
 		}
 
@@ -1078,8 +1117,11 @@ void Independent_Variables_Editor::refresh_Show_Data(bool show)
 									  QString::number(stack_Content.period.independent.max/coeff,thumbnail_double_format,thumbnail_period_precision) + " " + units + end_Bracket);
 				}
 			}
-			step_Edit->setText(QString::number((stack_Content.period.independent.max-stack_Content.period.independent.min)/stack_Content.period.independent.num_Points/coeff,line_edit_double_format,line_edit_period_precision));
-			step_Edit->textEdited(step_Edit->text());
+			if(num_Points->text().toInt()>1)
+			{
+				step_Edit->setText(QString::number((stack_Content.period.independent.max-stack_Content.period.independent.min)/(stack_Content.period.independent.num_Points-1)/coeff,line_edit_double_format,line_edit_period_precision));
+				step_Edit->textEdited(step_Edit->text());
+			}
 			show_Hide_Elements(stack_Content.period.independent.num_Points, show);
 		}
 		// multilayer gamma
@@ -1137,8 +1179,11 @@ void Independent_Variables_Editor::refresh_Show_Data(bool show)
 									  QString::number(stack_Content.gamma.independent.max,thumbnail_double_format,thumbnail_gamma_precision) + end_Bracket);
 				}
 			}
-			step_Edit->setText(QString::number((stack_Content.gamma.independent.max-stack_Content.gamma.independent.min)/stack_Content.gamma.independent.num_Points,line_edit_double_format,line_edit_gamma_precision));
-			step_Edit->textEdited(step_Edit->text());
+			if(num_Points->text().toInt()>1)
+			{
+				step_Edit->setText(QString::number((stack_Content.gamma.independent.max-stack_Content.gamma.independent.min)/(stack_Content.gamma.independent.num_Points-1),line_edit_double_format,line_edit_gamma_precision));
+				step_Edit->textEdited(step_Edit->text());
+			}
 			show_Hide_Elements(stack_Content.gamma.independent.num_Points, show);
 		}
 
@@ -1194,8 +1239,11 @@ void Independent_Variables_Editor::refresh_Show_Data(bool show)
 									  QString::number(substrate.absolute_Density.independent.max,thumbnail_double_format,thumbnail_density_precision) + " " + units + end_Bracket);
 				}
 			}
-			step_Edit->setText(QString::number((substrate.absolute_Density.independent.max-substrate.absolute_Density.independent.min)/substrate.absolute_Density.independent.num_Points,line_edit_double_format,line_edit_density_precision));
-			step_Edit->textEdited(step_Edit->text());
+			if(num_Points->text().toInt()>1)
+			{
+				step_Edit->setText(QString::number((substrate.absolute_Density.independent.max-substrate.absolute_Density.independent.min)/(substrate.absolute_Density.independent.num_Points-1),line_edit_double_format,line_edit_density_precision));
+				step_Edit->textEdited(step_Edit->text());
+			}
 			show_Hide_Elements(substrate.absolute_Density.independent.num_Points, show);
 		}
 		// substrate relative density
@@ -1240,8 +1288,11 @@ void Independent_Variables_Editor::refresh_Show_Data(bool show)
 									  QString::number(substrate.relative_Density.independent.max,thumbnail_double_format,thumbnail_density_precision) + end_Bracket);
 				}
 			}
-			step_Edit->setText(QString::number((substrate.relative_Density.independent.max-substrate.relative_Density.independent.min)/substrate.relative_Density.independent.num_Points,line_edit_double_format,line_edit_density_precision));
-			step_Edit->textEdited(step_Edit->text());
+			if(num_Points->text().toInt()>1)
+			{
+				step_Edit->setText(QString::number((substrate.relative_Density.independent.max-substrate.relative_Density.independent.min)/(substrate.relative_Density.independent.num_Points-1),line_edit_double_format,line_edit_density_precision));
+				step_Edit->textEdited(step_Edit->text());
+			}
 			show_Hide_Elements(substrate.relative_Density.independent.num_Points, show);
 		}
 		// substrate permittivity
@@ -1289,8 +1340,11 @@ void Independent_Variables_Editor::refresh_Show_Data(bool show)
 									  QString::number(substrate.permittivity.independent.max,thumbnail_double_format,thumbnail_permittivity_precision) + " " + units + end_Bracket);
 				}
 			}
-			step_Edit->setText(QString::number((substrate.permittivity.independent.max-substrate.permittivity.independent.min)/substrate.permittivity.independent.num_Points,line_edit_double_format,line_edit_permittivity_precision));
-			step_Edit->textEdited(step_Edit->text());
+			if(num_Points->text().toInt()>1)
+			{
+				step_Edit->setText(QString::number((substrate.permittivity.independent.max-substrate.permittivity.independent.min)/(substrate.permittivity.independent.num_Points-1),line_edit_double_format,line_edit_permittivity_precision));
+				step_Edit->textEdited(step_Edit->text());
+			}
 			show_Hide_Elements(substrate.permittivity.independent.num_Points, show);
 		}
 		// substrate absorption
@@ -1335,8 +1389,11 @@ void Independent_Variables_Editor::refresh_Show_Data(bool show)
 									  QString::number(substrate.absorption.independent.max,thumbnail_double_format,thumbnail_absorption_precision) + " " + units + end_Bracket);
 				}
 			}
-			step_Edit->setText(QString::number((substrate.absorption.independent.max-substrate.absorption.independent.min)/substrate.absorption.independent.num_Points,line_edit_double_format,line_edit_absorption_precision));
-			step_Edit->textEdited(step_Edit->text());
+			if(num_Points->text().toInt()>1)
+			{
+				step_Edit->setText(QString::number((substrate.absorption.independent.max-substrate.absorption.independent.min)/(substrate.absorption.independent.num_Points-1),line_edit_double_format,line_edit_absorption_precision));
+				step_Edit->textEdited(step_Edit->text());
+			}
 			show_Hide_Elements(substrate.absorption.independent.num_Points, show);
 		}
 		// substrate composition
@@ -1382,8 +1439,11 @@ void Independent_Variables_Editor::refresh_Show_Data(bool show)
 									  QString::number(substrate.composition[index].composition.independent.max,thumbnail_double_format,thumbnail_composition_precision) + end_Bracket);
 				}
 			}
-			step_Edit->setText(QString::number((substrate.composition[index].composition.independent.max-substrate.composition[index].composition.independent.min)/substrate.composition[index].composition.independent.num_Points,line_edit_double_format,line_edit_composition_precision));
-			step_Edit->textEdited(step_Edit->text());
+			if(num_Points->text().toInt()>1)
+			{
+				step_Edit->setText(QString::number((substrate.composition[index].composition.independent.max-substrate.composition[index].composition.independent.min)/(substrate.composition[index].composition.independent.num_Points-1),line_edit_double_format,line_edit_composition_precision));
+				step_Edit->textEdited(step_Edit->text());
+			}
 			show_Hide_Elements(substrate.composition[index].composition.independent.num_Points, show);
 		}
 
@@ -1433,8 +1493,11 @@ void Independent_Variables_Editor::refresh_Show_Data(bool show)
 									  QString::number(substrate.sigma.independent.max/coeff,thumbnail_double_format,thumbnail_sigma_precision) + " " + units + end_Bracket);
 				}
 			}
-			step_Edit->setText(QString::number((substrate.sigma.independent.max-substrate.sigma.independent.min)/substrate.sigma.independent.num_Points/coeff,line_edit_double_format,line_edit_sigma_precision));
-			step_Edit->textEdited(step_Edit->text());
+			if(num_Points->text().toInt()>1)
+			{
+				step_Edit->setText(QString::number((substrate.sigma.independent.max-substrate.sigma.independent.min)/(substrate.sigma.independent.num_Points-1)/coeff,line_edit_double_format,line_edit_sigma_precision));
+				step_Edit->textEdited(step_Edit->text());
+			}
 			show_Hide_Elements(substrate.sigma.independent.num_Points, show);
 		}
 		// substrate interlayer composition (if enabled and >=2 elements)
@@ -1480,8 +1543,11 @@ void Independent_Variables_Editor::refresh_Show_Data(bool show)
 									  QString::number(substrate.interlayer_Composition[index].interlayer.independent.max,thumbnail_double_format,thumbnail_interlayer_precision) + end_Bracket);
 				}
 			}
-			step_Edit->setText(QString::number((substrate.interlayer_Composition[index].interlayer.independent.max-substrate.interlayer_Composition[index].interlayer.independent.min)/substrate.interlayer_Composition[index].interlayer.independent.num_Points,line_edit_double_format,line_edit_interlayer_precision));
-			step_Edit->textEdited(step_Edit->text());
+			if(num_Points->text().toInt()>1)
+			{
+				step_Edit->setText(QString::number((substrate.interlayer_Composition[index].interlayer.independent.max-substrate.interlayer_Composition[index].interlayer.independent.min)/(substrate.interlayer_Composition[index].interlayer.independent.num_Points-1),line_edit_double_format,line_edit_interlayer_precision));
+				step_Edit->textEdited(step_Edit->text());
+			}
 			show_Hide_Elements(substrate.interlayer_Composition[index].interlayer.independent.num_Points, show);
 		}
 
@@ -1557,8 +1623,11 @@ void Independent_Variables_Editor::refresh_Show_Data(bool show)
 //					measurement.angular_Resolution.value = default_angular_resolution*coeff;
 			}
 		}
-		step_Edit->setText(QString::number((measurement.probe_Angle.independent.max-measurement.probe_Angle.independent.min)/measurement.probe_Angle.independent.num_Points/coeff,line_edit_double_format,line_edit_angle_precision));
-		step_Edit->textEdited(step_Edit->text());
+		if(num_Points->text().toInt()>1)
+		{
+			step_Edit->setText(QString::number((measurement.probe_Angle.independent.max-measurement.probe_Angle.independent.min)/(measurement.probe_Angle.independent.num_Points-1)/coeff,line_edit_double_format,line_edit_angle_precision));
+			step_Edit->textEdited(step_Edit->text());
+		}
 		show_Hide_Elements(measurement.probe_Angle.independent.num_Points, show);
 		show_Hide_Angular_Elements(measurement.probe_Angle.independent.num_Points, show);
 
@@ -1654,8 +1723,11 @@ void Independent_Variables_Editor::refresh_Show_Data(bool show)
 //					measurement.spectral_Resolution.value = default_spectral_resolution*coeff;
 			}
 		}
-		step_Edit->setText(QString::number((Global_Variables::wavelength_Energy(wavelength_units,measurement.wavelength.independent.max)-Global_Variables::wavelength_Energy(wavelength_units,measurement.wavelength.independent.min))/measurement.wavelength.independent.num_Points/coeff,line_edit_double_format,line_edit_wavelength_precision));
-		step_Edit->textEdited(step_Edit->text());
+		if(num_Points->text().toInt()>1)
+		{
+			step_Edit->setText(QString::number((Global_Variables::wavelength_Energy(wavelength_units,measurement.wavelength.independent.max)-Global_Variables::wavelength_Energy(wavelength_units,measurement.wavelength.independent.min))/(measurement.wavelength.independent.num_Points-1)/coeff,line_edit_double_format,line_edit_wavelength_precision));
+			step_Edit->textEdited(step_Edit->text());
+		}
 		show_Hide_Elements(measurement.wavelength.independent.num_Points, show);
 		show_Hide_Spectral_Elements(measurement.wavelength.independent.num_Points, show);
 

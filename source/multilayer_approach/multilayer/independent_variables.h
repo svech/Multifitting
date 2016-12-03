@@ -8,7 +8,7 @@ class Independent_Variables : public QWidget
 {
 	Q_OBJECT
 public:
-	explicit Independent_Variables(QTreeWidget* struct_Tree_Copy, QWidget *parent = 0);
+	explicit Independent_Variables(QTreeWidget* struct_Tree_Copy, QTreeWidget* real_Struct_Tree, QWidget *parent = 0);
 
 signals:
 	void refresh();
@@ -36,6 +36,7 @@ private slots:
 public:
 	QMap<QString, QListWidgetItem*>* independent_Variables_List_Map;
 	QTreeWidget* struct_Tree_Copy;
+	QTreeWidget* real_Struct_Tree;
 
 private:
 		QFrame* independent_Frame;

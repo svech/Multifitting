@@ -3,12 +3,14 @@
 
 #include "global_definitions.h"
 #include "global/layer_data_types.h"
+#include "calculation/optical_Constants.h"
 
 class Measurement;
 class Ambient;
 class Substrate;
 class Layer;
 class Stack_Content;
+class Optical_Constants;
 
 // -----------------------------------------------------------------------------------------
 
@@ -31,10 +33,15 @@ extern QStringList angle_Units_List;		extern QMap<QString, double> angle_Coeffic
 extern QStringList density_Units_List;
 extern QStringList opt_Const_Units_List;
 
+// -----------------------------------------------------------------------------------------
+
+extern Optical_Constants* optical_Constants;
+
 class Global_Variables
 {
 public:
 	Global_Variables();
+	static void read_Optical_Constants();
 	static void create_Sorted_Elements_Map();
 	static void serialize_Tree(QDataStream &out, QTreeWidget* tree);
 	static void deserialize_Tree(QDataStream &in, QTreeWidget* tree);

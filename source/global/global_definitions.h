@@ -98,6 +98,7 @@ using namespace std;
 // -----------------------------------------------------------------------------------------
 
 #define active "     Active"
+#define	stop_Calculation "stop_Calculation"
 
 // whatsThis : delimiters
 #define whats_This_Delimiter ";"

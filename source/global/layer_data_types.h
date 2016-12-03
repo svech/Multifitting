@@ -34,6 +34,7 @@ public:
 	bool composed_Material;
 
 	QString material;
+	QString approved_Material;
 	Parameter relative_Density;
 	Parameter absolute_Density;
 

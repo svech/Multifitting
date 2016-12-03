@@ -56,6 +56,7 @@ public slots:
 	void show_Interlayers();
 
 private slots:
+	void done_Slot();
 	void resize_Line_Edit(QString text, QLineEdit* line_Edit = NULL);
 	void browse_Material(bool);
 	void filename_Radio_Toggled(bool temp_bool);

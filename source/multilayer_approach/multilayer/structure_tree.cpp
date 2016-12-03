@@ -234,7 +234,7 @@ void Structure_Tree::if_DoubleClicked(QTreeWidgetItem*, int)
 	}
 	if(!runned_Editors.contains(tree->currentItem()))
 	{
-		Item_Editor* item_Editor = new Item_Editor(tree->currentItem(),this);
+		Item_Editor* item_Editor = new Item_Editor(tree->currentItem(), this);
 			item_Editor->setWindowFlags(Qt::Window);
 			item_Editor->show();
 

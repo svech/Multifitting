@@ -3,7 +3,6 @@
 
 #include "standard/menu.h"
 #include "multilayer_approach.h"
-#include "calculation/optical_constants.h"
 
 class Launcher : public QWidget
 {
@@ -27,8 +26,6 @@ private slots:
 
 	void refresh_All_Multilayer_Approach_View();
 
-public:
-	Optical_Constants* optical_Constants;
 private:
 	QList<Multilayer_Approach*> multilayer_Approach_List;
 

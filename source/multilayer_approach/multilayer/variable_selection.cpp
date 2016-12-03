@@ -85,7 +85,7 @@ void Variable_Selection::create_Window()
 void Variable_Selection::fill_Variables_List()
 {
 	nonfiltered_Parameters = new QListWidget;
-	optical_Constants = new QListWidget;
+	optical_Constants_List = new QListWidget;
 	interface_Parameters = new QListWidget;
 	thickness_Parameters = new QListWidget;
 
@@ -112,8 +112,8 @@ void Variable_Selection::fill_Variables_List()
 
 	// add optical constants
 	filters_Combo_Box->addItem("Optical Constants");
-	filtered_Parameters_Pages->addWidget(optical_Constants);
-	map_Of_Parameters_Lists.insert(filters_Combo_Box->itemText(filters_Combo_Box->count()-1), optical_Constants);
+	filtered_Parameters_Pages->addWidget(optical_Constants_List);
+	map_Of_Parameters_Lists.insert(filters_Combo_Box->itemText(filters_Combo_Box->count()-1), optical_Constants_List);
 
 	// add interface parameters
 	filters_Combo_Box->addItem("Interface Parameters");
@@ -126,7 +126,7 @@ void Variable_Selection::fill_Variables_List()
 	map_Of_Parameters_Lists.insert(filters_Combo_Box->itemText(filters_Combo_Box->count()-1), thickness_Parameters);
 
 	connect(nonfiltered_Parameters, SIGNAL(itemDoubleClicked(QListWidgetItem*)), this, SLOT(add_Variable()));
-	connect(optical_Constants,		SIGNAL(itemDoubleClicked(QListWidgetItem*)), this, SLOT(add_Variable()));
+	connect(optical_Constants_List,	SIGNAL(itemDoubleClicked(QListWidgetItem*)), this, SLOT(add_Variable()));
 	connect(interface_Parameters,	SIGNAL(itemDoubleClicked(QListWidgetItem*)), this, SLOT(add_Variable()));
 	connect(thickness_Parameters,	SIGNAL(itemDoubleClicked(QListWidgetItem*)), this, SLOT(add_Variable()));
 
@@ -239,7 +239,7 @@ void Variable_Selection::add_Absolute_Density(QTreeWidgetItem* item, QString wha
 		if(!variables_List_Map->contains(whats_This))
 		{
 			nonfiltered_Parameters->addItem(item_Density);
-			optical_Constants->addItem(item_Density->clone());
+			optical_Constants_List->addItem(item_Density->clone());
 		}
 	}
 }
@@ -303,7 +303,7 @@ void Variable_Selection::add_Relative_Density(QTreeWidgetItem* item, QString wha
 		if(!variables_List_Map->contains(whats_This))
 		{
 			nonfiltered_Parameters->addItem(item_Density);
-			optical_Constants->addItem(item_Density->clone());
+			optical_Constants_List->addItem(item_Density->clone());
 		}
 	}
 }
@@ -367,7 +367,7 @@ void Variable_Selection::add_Permittivity(QTreeWidgetItem* item, QString whats_T
 		if(!variables_List_Map->contains(whats_This))
 		{
 			nonfiltered_Parameters->addItem(item_Permittivity);
-			optical_Constants->addItem(item_Permittivity->clone());
+			optical_Constants_List->addItem(item_Permittivity->clone());
 		}
 	}
 }
@@ -431,7 +431,7 @@ void Variable_Selection::add_Absorption(QTreeWidgetItem* item, QString whats_Thi
 		if(!variables_List_Map->contains(whats_This))
 		{
 			nonfiltered_Parameters->addItem(item_Absorption);
-			optical_Constants->addItem(item_Absorption->clone());
+			optical_Constants_List->addItem(item_Absorption->clone());
 		}
 	}
 }
@@ -501,7 +501,7 @@ void Variable_Selection::add_Composition(QTreeWidgetItem* item, QString whats_Th
 			if(!variables_List_Map->contains(whats_This))
 			{
 				nonfiltered_Parameters->addItem(item_Composition);
-				optical_Constants->addItem(item_Composition->clone());
+				optical_Constants_List->addItem(item_Composition->clone());
 			}
 		}
 	}

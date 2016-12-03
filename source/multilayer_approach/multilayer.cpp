@@ -273,7 +273,7 @@ void Multilayer::add_Independent_Variables_Tab()
 	new_Struct_Tree_Copy->insertTopLevelItem(0, new_Measurement_Item);
 
 	// create new Independent_Variables instance
-	Independent_Variables* new_Independent = new Independent_Variables(new_Struct_Tree_Copy,this);
+	Independent_Variables* new_Independent = new Independent_Variables(new_Struct_Tree_Copy, structure_Tree->tree, this);
 		new_Independent->setContentsMargins(-8,-10,-8,-10);
 
 		connect(new_Independent, SIGNAL(refresh()), this, SLOT(emit_Refresh()));
@@ -342,7 +342,7 @@ void Multilayer::rename_Independent_Variables_Tab(int tab_Index)
 		independent_Variables_Plot_Tabs->setTabText(tab_Index, text);
 
 	// TODO temporary
-	print_Hidden_Copy(tab_Index);
+//	print_Hidden_Copy(tab_Index);
 }
 
 void Multilayer::reset_Independent_Variables_Structure()

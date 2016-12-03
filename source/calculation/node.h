@@ -3,7 +3,6 @@
 
 #include "global/layer_data_types.h"
 #include "multilayer_approach/multilayer/independent_variables.h"
-#include "optical_constants.h"
 #include "tree.hh"
 
 class Node
@@ -12,7 +11,7 @@ public:
 	Node();
 	Node(QTreeWidgetItem* item);
 
-	void calculate_Intermediate_Points(tree<Node>& calc_Tree, tree<Node>::iterator this_Iter, tree<Node>::iterator active_Iter, QString active_Whats_This, QList<Node>& flat_List, QMap<int, tree<Node>::iterator>& flat_Tree_Map, Optical_Constants* optical_Constants);
+	void calculate_Intermediate_Points(tree<Node>::iterator this_Iter, tree<Node>::iterator active_Iter, QString active_Whats_This, QList<Node>& flat_List, QMap<int, tree<Node>::iterator>& flat_Tree_Map);
 
 
 //	tree<Node>::iterator this_Iter;

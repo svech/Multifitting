@@ -78,6 +78,7 @@ void Measurement::calc_Independent_cos2_k()
 Ambient::Ambient()
 {
 	material				= ambient_default_material;
+	approved_Material		= material;
 	absolute_Density.value	= ambient_default_absolute_density;
 	relative_Density.value	= ambient_default_relative_density;
 	permittivity.value		= ambient_default_permittivity;
@@ -88,6 +89,7 @@ Ambient::Ambient()
 Substrate::Substrate()
 {
 	material				= substrate_default_material;
+	approved_Material		= material;
 	absolute_Density.value	= substrate_default_absolute_density;
 	relative_Density.value	= substrate_default_relative_density;
 	permittivity.value		= substrate_default_permittivity;
@@ -112,6 +114,7 @@ Substrate::Substrate()
 Extreme_Layer::Extreme_Layer()
 {
 	material				= layer_default_material;
+	approved_Material		= material;
 	absolute_Density.value	= layer_default_absolute_density;
 	relative_Density.value	= layer_default_relative_density;
 	permittivity.value		= layer_default_permittivity;
@@ -137,6 +140,7 @@ Extreme_Layer::Extreme_Layer()
 Layer::Layer()
 {
 	material				= layer_default_material;
+	approved_Material		= material;
 	absolute_Density.value	= layer_default_absolute_density;
 	relative_Density.value	= layer_default_relative_density;
 	permittivity.value		= layer_default_permittivity;
