@@ -158,7 +158,7 @@ void Optical_Constants::read_All_Elements()
 	}
 }
 
-QVector<complex<double>> Optical_Constants::interpolation_Epsilon(QVector<Point>& input_Values, QVector<double>& output_Points)
+int Optical_Constants::interpolation_Epsilon(QVector<Point>& input_Values, QVector<double>& output_Points, QVector<complex<double>>& output_Values, QString& error_Text, QString material)
 {
 	const gsl_interp_type *interp_type = gsl_interp_steffen;
 
@@ -179,10 +179,30 @@ QVector<complex<double>> Optical_Constants::interpolation_Epsilon(QVector<Point>
 	gsl_spline_init(spline_Re, lambda.data(), re.data(), input_Values.size());
 	gsl_spline_init(spline_Im, lambda.data(), im.data(), input_Values.size());
 
-	QVector<complex<double>> return_Value;
+	// units
+	double coeff = wavelength_Coefficients_Map.value(wavelength_units);
+	QString temp_Wavelength_Name = Global_Variables::wavelength_Energy_Name(wavelength_units);
+	QString wavelength_Energy = temp_Wavelength_Name.split(",").first();
+
+	output_Values.clear();
 	for(int l=0; l<output_Points.size(); ++l)
 	{
-		return_Value.append(complex<double>(gsl_spline_eval(spline_Re, output_Points[l], acc_Re), gsl_spline_eval(spline_Im, output_Points[l], acc_Im)));
+		// range check
+		if((output_Points[l] <= lambda.first()) ||
+		   (output_Points[l] >= lambda.last()))
+		{
+			error_Text = wavelength_Energy + " is out of range for " + material + ".\nAcceptable range is " + QString::number(Global_Variables::wavelength_Energy(wavelength_units,lambda.first())/coeff)
+																								   + " - " +  QString::number(Global_Variables::wavelength_Energy(wavelength_units,lambda.last() )/coeff)
+																								   + " " + wavelength_units;
+
+			gsl_spline_free(spline_Re);
+			gsl_spline_free(spline_Im);
+			gsl_interp_accel_free(acc_Re);
+			gsl_interp_accel_free(acc_Im);
+
+			return 1;
+		}
+		output_Values.append(complex<double>(gsl_spline_eval(spline_Re, output_Points[l], acc_Re), gsl_spline_eval(spline_Im, output_Points[l], acc_Im)));
 	}
 
 	gsl_spline_free(spline_Re);
@@ -190,10 +210,10 @@ QVector<complex<double>> Optical_Constants::interpolation_Epsilon(QVector<Point>
 	gsl_interp_accel_free(acc_Re);
 	gsl_interp_accel_free(acc_Im);
 
-	return return_Value;
+	return 0;
 }
 
-QVector<complex<double>> Optical_Constants::make_Epsilon_From_Factors(QList<Stoichiometry>& composition, double density, QVector<double>& output_Points)
+int Optical_Constants::make_Epsilon_From_Factors(QList<Stoichiometry>& composition, double density, QVector<double>& output_Points, QVector<complex<double>>& epsilon, QString& error_Text)
 {
 	double denominator = 0;	// sum of stoich and masses
 
@@ -201,20 +221,6 @@ QVector<complex<double>> Optical_Constants::make_Epsilon_From_Factors(QList<Stoi
 	for(int element_Index=0; element_Index<composition.size(); ++element_Index)
 	{
 		QString element = composition[element_Index].type;
-		Element_Data temp_Element_Data = element_Map.value(element + ff_Ext);
-
-		// range check
-		for(int point_Index=0; point_Index<output_Points.size(); ++point_Index)
-		{
-			if((output_Points[point_Index]<=temp_Element_Data.element_Data.first().lambda) ||
-			   (output_Points[point_Index]>=temp_Element_Data.element_Data.last().lambda))
-			{
-				// TODO correct warning
-				qInfo() << "Optical_Constants::make_Epsilon_From_Factors  :  Wavelength is out of range for " << element;
-				qInfo() << "Range is " << temp_Element_Data.element_Data.first().lambda << " - " << temp_Element_Data.element_Data.last().lambda;
-				exit(EXIT_FAILURE);
-			}
-		}
 		denominator += composition[element_Index].composition.value * sorted_Elements.value(element);
 	}
 
@@ -230,7 +236,11 @@ QVector<complex<double>> Optical_Constants::make_Epsilon_From_Factors(QList<Stoi
 		Element_Data temp_Element_Data = element_Map.value(element + ff_Ext);
 
 		element_Concentration[element_Index] = compound_Concentration * composition[element_Index].composition.value;
-		interpolated = interpolation_Epsilon(temp_Element_Data.element_Data, output_Points);
+		int interpolation_Status = interpolation_Epsilon(temp_Element_Data.element_Data, output_Points, interpolated, error_Text, element);
+		if(interpolation_Status!=0)
+		{
+			return interpolation_Status;
+		}
 
 		for(int point_Index=0; point_Index<output_Points.size(); ++point_Index)
 		{
@@ -238,11 +248,11 @@ QVector<complex<double>> Optical_Constants::make_Epsilon_From_Factors(QList<Stoi
 		}
 	}
 
-	QVector<complex<double>> epsilon (output_Points.size(),-2016.0);
+	epsilon.resize(output_Points.size());
 	for(int point_Index=0; point_Index<output_Points.size(); ++point_Index)
 	{
 		epsilon[point_Index] = conj(n[point_Index]*n[point_Index]);
 	}
 
-	return epsilon;
+	return 0;
 }

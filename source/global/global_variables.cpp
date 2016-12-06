@@ -244,8 +244,8 @@ double Global_Variables::wavelength_Energy(QString wavelength_Units, double y)
 	{
 		if(wavelength_Units == wavelength_Units_List[i])
 		{
-			if( 0<=i && i<3) value=y;
-			if( 3<=i && i<wavelength_Units_List.size()) value=angstrom_eV(y);
+			if( 0<=i && i<3)                            value = y;
+			if( 3<=i && i<wavelength_Units_List.size()) value = angstrom_eV(y);
 		}
 	}
 	return value;

@@ -1675,7 +1675,8 @@ void Independent_Variables_Editor::refresh_Show_Data(bool show)
 				num_Points->setText(QString::number(measurement.wavelength.independent.num_Points));
 				num_Points->textEdited(num_Points->text());
 			} else
-			if(min->text().toDouble()==0)
+			// don't uncomment
+/*			if(min->text().toDouble()==0)
 			{
 				if(measurement.wavelength.independent.num_Points == 1)
 					min->setText(QString::number(Global_Variables::wavelength_Energy(wavelength_units,measurement.wavelength.value)/coeff,line_edit_double_format,line_edit_wavelength_precision));
@@ -1687,7 +1688,7 @@ void Independent_Variables_Editor::refresh_Show_Data(bool show)
 			{
 				max->setText(QString::number(Global_Variables::wavelength_Energy(wavelength_units,measurement.wavelength.independent.max)/coeff,line_edit_double_format,line_edit_wavelength_precision));
 				max->textEdited(max->text());
-			} else
+			} else*/
 			if(polarization_Edit->text().toDouble()>1)
 			{
 				polarization_Edit->setText(QString::number(measurement.polarization.value,line_edit_double_format,line_edit_wavelength_precision));

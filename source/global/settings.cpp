@@ -340,7 +340,7 @@ void Settings::read_Precisions(bool reset_to_default)
 		precision_Values.beginGroup( Line_Edit );
 			line_edit_double_format	    = qvariant_cast<char>(precision_Values.value( "line_edit_double_format",'f'));
 			line_edit_angle_precision		= precision_Values.value( "line_edit_angle_precision",			5 ).toInt();
-			line_edit_wavelength_precision	= precision_Values.value( "line_edit_wavelength_precision",		5 ).toInt();
+			line_edit_wavelength_precision	= precision_Values.value( "line_edit_wavelength_precision",		1 ).toInt();
 			line_edit_density_precision		= precision_Values.value( "line_edit_density_precision",		5 ).toInt();
 			line_edit_permittivity_precision= precision_Values.value( "line_edit_permittivity_precision",	5 ).toInt();
 			line_edit_absorption_precision	= precision_Values.value( "line_edit_absorption_precision",		5 ).toInt();

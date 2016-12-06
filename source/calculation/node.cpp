@@ -50,21 +50,23 @@ int Node::calculate_Intermediate_Points(tree<Node>::iterator this_Iter, tree<Nod
 			{
 				Material_Data temp_Material_Data = optical_Constants->material_Map.value(ambient.material + nk_Ext);
 
-				// range check
-				if((measur->wavelength.value <= temp_Material_Data.material_Data.first().lambda) ||
-				   (measur->wavelength.value >= temp_Material_Data.material_Data.last(). lambda))
+				QVector<complex<double>> n;
+				int status = optical_Constants->interpolation_Epsilon(temp_Material_Data.material_Data, spectral_Points, n, warning_Text, ambient.material);
+				if(status!=0)
 				{
-					warning_Text = "Wavelength is out of range for " + ambient.material + ".\nAcceptable range is "
-								   + QString::number(temp_Material_Data.material_Data.first().lambda) + " - " +  QString::number(temp_Material_Data.material_Data.last().lambda) + " " + Angstrom_Sym;
-					return 1;
+					return status;
 				}
-				 TODO RANGE CHECK here and in optical constants
-				complex<double> n = optical_Constants->interpolation_Epsilon(temp_Material_Data.material_Data, spectral_Points).first();
-				delta_Epsilon = 1. - conj(n*n);
+				delta_Epsilon = 1. - conj(n.first()*n.first());
 			} else
 			// compile from elements
 			{
-				delta_Epsilon = 1. - optical_Constants->make_Epsilon_From_Factors(ambient.composition, ambient.absolute_Density.value, spectral_Points).first();
+				QVector<complex<double>> temp_Delta_Epsilon;
+				int status = optical_Constants->make_Epsilon_From_Factors(ambient.composition, ambient.absolute_Density.value, spectral_Points, temp_Delta_Epsilon, warning_Text);
+				if(status!=0)
+				{
+					return status;
+				}
+				delta_Epsilon = 1. - temp_Delta_Epsilon.first();
 			}
 
 			// filling points
@@ -143,20 +145,23 @@ int Node::calculate_Intermediate_Points(tree<Node>::iterator this_Iter, tree<Nod
 			{
 				Material_Data temp_Material_Data = optical_Constants->material_Map.value(layer.material + nk_Ext);
 
-				// range check
-				if((measur->wavelength.value <= temp_Material_Data.material_Data.first().lambda) ||
-				   (measur->wavelength.value >= temp_Material_Data.material_Data.last(). lambda))
+				QVector<complex<double>> n;
+				int status = optical_Constants->interpolation_Epsilon(temp_Material_Data.material_Data, spectral_Points, n, warning_Text, layer.material);
+				if(status!=0)
 				{
-					warning_Text = "Wavelength is out of range for " + layer.material + ".\nAcceptable range is "
-								   + QString::number(temp_Material_Data.material_Data.first().lambda) + " - " +  QString::number(temp_Material_Data.material_Data.last().lambda) + " " + Angstrom_Sym;
-					return 1;
+					return status;
 				}
-				complex<double> n = optical_Constants->interpolation_Epsilon(temp_Material_Data.material_Data, spectral_Points).first();
-				delta_Epsilon = 1. - conj(n*n);
+				delta_Epsilon = 1. - conj(n.first()*n.first());
 			} else
 			// compile from elements
 			{
-				delta_Epsilon = 1. - optical_Constants->make_Epsilon_From_Factors(layer.composition, layer.absolute_Density.value, spectral_Points).first();
+				QVector<complex<double>> temp_Delta_Epsilon;
+				int status = optical_Constants->make_Epsilon_From_Factors(layer.composition, layer.absolute_Density.value, spectral_Points, temp_Delta_Epsilon, warning_Text);
+				if(status!=0)
+				{
+					return status;
+				}
+				delta_Epsilon = 1. - temp_Delta_Epsilon.first();
 			}
 
 			// filling points
@@ -269,20 +274,23 @@ int Node::calculate_Intermediate_Points(tree<Node>::iterator this_Iter, tree<Nod
 			{
 				Material_Data temp_Material_Data = optical_Constants->material_Map.value(substrate.material + nk_Ext);
 
-				// range check
-				if((measur->wavelength.value <= temp_Material_Data.material_Data.first().lambda) ||
-				   (measur->wavelength.value >= temp_Material_Data.material_Data.last(). lambda))
+				QVector<complex<double>> n;
+				int status = optical_Constants->interpolation_Epsilon(temp_Material_Data.material_Data, spectral_Points, n, warning_Text, layer.material);
+				if(status!=0)
 				{
-					warning_Text = "Wavelength is out of range for " + substrate.material + ".\nAcceptable range is "
-								   + QString::number(temp_Material_Data.material_Data.first().lambda) + " - " +  QString::number(temp_Material_Data.material_Data.last().lambda) + " " + Angstrom_Sym;
-					return 1;
+					return status;
 				}
-				complex<double> n = optical_Constants->interpolation_Epsilon(temp_Material_Data.material_Data, spectral_Points).first();
-				delta_Epsilon = 1. - conj(n*n);
+				delta_Epsilon = 1. - conj(n.first()*n.first());
 			} else
 			// compile from elements
 			{
-				delta_Epsilon = 1. - optical_Constants->make_Epsilon_From_Factors(substrate.composition, substrate.absolute_Density.value, spectral_Points).first();
+				QVector<complex<double>> temp_Delta_Epsilon;
+				int status = optical_Constants->make_Epsilon_From_Factors(substrate.composition, substrate.absolute_Density.value, spectral_Points, temp_Delta_Epsilon, warning_Text);
+				if(status!=0)
+				{
+					return status;
+				}
+				delta_Epsilon = 1. - temp_Delta_Epsilon.first();
 			}
 
 			// filling points

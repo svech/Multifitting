@@ -382,7 +382,7 @@ void Calculation_Tree::calculate_Intermediate_Values_1_Tree(tree<Node>::iterator
 		int status = child.node->data.calculate_Intermediate_Points(child, active_Iter, active_Whats_This, flat_List, flat_Tree_Map, warning_Text);
 		if(status!=0)
 		{
-			emit information(warning_Text);
+			emit warning(warning_Text);
 			return;
 		}
 
