@@ -42,6 +42,8 @@ int Node::calculate_Intermediate_Points(tree<Node>::iterator this_Iter, tree<Nod
 			/// intermediate values
 			///---------------------------------------------
 
+			/// delta_Epsilon
+
 			complex<double> delta_Epsilon;
 			QVector<double> spectral_Points (1, measur->wavelength.value);
 
@@ -60,13 +62,13 @@ int Node::calculate_Intermediate_Points(tree<Node>::iterator this_Iter, tree<Nod
 			} else
 			// compile from elements
 			{
-				QVector<complex<double>> temp_Delta_Epsilon;
-				int status = optical_Constants->make_Epsilon_From_Factors(ambient.composition, ambient.absolute_Density.value, spectral_Points, temp_Delta_Epsilon, warning_Text);
+				QVector<complex<double>> temp_Epsilon;
+				int status = optical_Constants->make_Epsilon_From_Factors(ambient.composition, ambient.absolute_Density.value, spectral_Points, temp_Epsilon, warning_Text);
 				if(status!=0)
 				{
 					return status;
 				}
-				delta_Epsilon = 1. - temp_Delta_Epsilon.first();
+				delta_Epsilon = 1. - temp_Epsilon.first();
 			}
 
 			// filling points
@@ -78,18 +80,18 @@ int Node::calculate_Intermediate_Points(tree<Node>::iterator this_Iter, tree<Nod
 				if(ambient.separate_Optical_Constants != TRIL_TRUE)
 				{
 											plot_Points[i].delta_Epsilon = delta_Epsilon;	 // depend on absolute density if composed_Material
-					corresponding_Flat_Node.plot_Points[i].delta_Epsilon = plot_Points[i].delta_Epsilon;
+//					corresponding_Flat_Node.plot_Points[i].delta_Epsilon = plot_Points[i].delta_Epsilon;
 
 					// if absolute density
 					if(ambient.composed_Material)
 					{
 												plot_Points[i].epsilon = 1. - plot_Points[i].delta_Epsilon;	// common epsilon, doesn't depend on "i"
-						corresponding_Flat_Node.plot_Points[i].epsilon = plot_Points[i].epsilon;
+//						corresponding_Flat_Node.plot_Points[i].epsilon = plot_Points[i].epsilon;
 					} else
 					// if relative density
 					{
 												plot_Points[i].epsilon = 1. - ambient.relative_Density.value * plot_Points[i].delta_Epsilon;	// common epsilon, doesn't depend on "i"
-						corresponding_Flat_Node.plot_Points[i].epsilon = plot_Points[i].epsilon;
+//						corresponding_Flat_Node.plot_Points[i].epsilon = plot_Points[i].epsilon;
 					}
 
 				} else
@@ -97,10 +99,10 @@ int Node::calculate_Intermediate_Points(tree<Node>::iterator this_Iter, tree<Nod
 				{
 											plot_Points[i].delta_Epsilon = complex<double>(real(delta_Epsilon) * ambient.permittivity.value / 100.,
 																						   imag(delta_Epsilon) * ambient.absorption.value   / 100.);
-					corresponding_Flat_Node.plot_Points[i].delta_Epsilon = plot_Points[i].delta_Epsilon;
+//					corresponding_Flat_Node.plot_Points[i].delta_Epsilon = plot_Points[i].delta_Epsilon;
 
 											plot_Points[i].epsilon = 1. - plot_Points[i].delta_Epsilon;
-					corresponding_Flat_Node.plot_Points[i].epsilon = plot_Points[i].epsilon;
+//					corresponding_Flat_Node.plot_Points[i].epsilon = plot_Points[i].epsilon;
 				}
 
 				/// hi
@@ -115,6 +117,9 @@ int Node::calculate_Intermediate_Points(tree<Node>::iterator this_Iter, tree<Nod
 
 				/// fresnel (reflections from the top border)
 				/// no fresnel for ambient
+
+				/// interferentional matrix
+				/// no interferentional matrix for ambient
 
 //				cout << ambient.material.toStdString() << "              has Epsilon = " <<                         plot_Points[i].epsilon << " at " << measur->wavelength.value << endl;
 //				cout << ambient.material.toStdString() << "         flat has Epsilon = " << corresponding_Flat_Node.plot_Points[i].epsilon << " at " << measur->wavelength.value << endl;
@@ -173,18 +178,18 @@ int Node::calculate_Intermediate_Points(tree<Node>::iterator this_Iter, tree<Nod
 				if(layer.separate_Optical_Constants != TRIL_TRUE)
 				{
 											plot_Points[i].delta_Epsilon = delta_Epsilon;	 // depend on absolute density if composed_Material
-					corresponding_Flat_Node.plot_Points[i].delta_Epsilon = plot_Points[i].delta_Epsilon;
+//					corresponding_Flat_Node.plot_Points[i].delta_Epsilon = plot_Points[i].delta_Epsilon;
 
 					// if absolute density
 					if(layer.composed_Material)
 					{
 												plot_Points[i].epsilon = 1. - plot_Points[i].delta_Epsilon;	// common epsilon, doesn't depend on "i"
-						corresponding_Flat_Node.plot_Points[i].epsilon = plot_Points[i].epsilon;
+//						corresponding_Flat_Node.plot_Points[i].epsilon = plot_Points[i].epsilon;
 					} else
 					// if relative density
 					{
 												plot_Points[i].epsilon = 1. - layer.relative_Density.value * plot_Points[i].delta_Epsilon;	// common epsilon, doesn't depend on "i"
-						corresponding_Flat_Node.plot_Points[i].epsilon = plot_Points[i].epsilon;
+//						corresponding_Flat_Node.plot_Points[i].epsilon = plot_Points[i].epsilon;
 					}
 
 				} else
@@ -204,11 +209,11 @@ int Node::calculate_Intermediate_Points(tree<Node>::iterator this_Iter, tree<Nod
 
 				/// exponent
 										plot_Points[i].exponenta = exp( I * plot_Points[i].hi * layer.thickness.value );
-				corresponding_Flat_Node.plot_Points[i].exponenta = plot_Points[i].exponenta;
+//				corresponding_Flat_Node.plot_Points[i].exponenta = plot_Points[i].exponenta;
 
 				/// weak factor
 										plot_Points[i].weak_Factor = 1; // TODO weak factor
-				corresponding_Flat_Node.plot_Points[i].weak_Factor = plot_Points[i].weak_Factor;
+//				corresponding_Flat_Node.plot_Points[i].weak_Factor = plot_Points[i].weak_Factor;
 
 				/// fresnel (reflections from the top border)
 
@@ -240,9 +245,34 @@ int Node::calculate_Intermediate_Points(tree<Node>::iterator this_Iter, tree<Nod
 						plot_Points[i].r_Fresnel_p = 0.;
 					}
 				}
+
+				/// interferentional matrix
+
+				// s-polarization
+				if(measur->polarization.value > -1)
+				{
+					complex<double> fresnel_Square_s = sqrt(1.-pow(plot_Points[i].r_Fresnel_s, 2));
+
+					plot_Points[i].interference_Matrix_s(0,0) = conj(plot_Points[i].exponenta)                               / fresnel_Square_s;
+					plot_Points[i].interference_Matrix_s(0,1) =      plot_Points[i].exponenta  * plot_Points[i].r_Fresnel_s  / fresnel_Square_s;
+					plot_Points[i].interference_Matrix_s(1,0) = conj(plot_Points[i].exponenta) * plot_Points[i].r_Fresnel_s  / fresnel_Square_s;
+					plot_Points[i].interference_Matrix_s(1,1) =      plot_Points[i].exponenta                                / fresnel_Square_s;
+				}
+
+				// p-polarization
+				if(measur->polarization.value < 1)
+				{
+					complex<double> fresnel_Square_p = sqrt(1.-pow(plot_Points[i].r_Fresnel_p, 2));
+
+					plot_Points[i].interference_Matrix_p(0,0) = conj(plot_Points[i].exponenta)                               / fresnel_Square_p;
+					plot_Points[i].interference_Matrix_p(0,1) =      plot_Points[i].exponenta  * plot_Points[i].r_Fresnel_p  / fresnel_Square_p;
+					plot_Points[i].interference_Matrix_p(1,0) = conj(plot_Points[i].exponenta) * plot_Points[i].r_Fresnel_p  / fresnel_Square_p;
+					plot_Points[i].interference_Matrix_p(1,1) =      plot_Points[i].exponenta                                / fresnel_Square_p;
+				}
+
 				cout << layer.material.toStdString() << "              has Epsilon = " <<                         plot_Points[i].epsilon << " at " << measur->wavelength.value << endl;
-				cout << layer.material.toStdString() << "         flat has Epsilon = " << corresponding_Flat_Node.plot_Points[i].epsilon << " at " << measur->wavelength.value << endl;
-				cout << layer.material.toStdString() << " higher  flat has Epsilon = " <<        higher_Flat_Node.plot_Points[i].epsilon << " at " << measur->wavelength.value << endl;
+//				cout << layer.material.toStdString() << "         flat has Epsilon = " << corresponding_Flat_Node.plot_Points[i].epsilon << " at " << measur->wavelength.value << endl;
+//				cout << layer.material.toStdString() << " higher  flat has Epsilon = " <<        higher_Flat_Node.plot_Points[i].epsilon << " at " << measur->wavelength.value << endl;
 				cout << endl;
 				cout << layer.material.toStdString() << "             has Hi       = " <<                         plot_Points[i].hi << " at " << measur->wavelength.value << " and at " << measur->cos2[i] << endl;
 				cout << layer.material.toStdString() << "        flat has Hi       = " << corresponding_Flat_Node.plot_Points[i].hi << " at " << measur->wavelength.value << " and at " << measur->cos2[i] << endl;
@@ -302,18 +332,18 @@ int Node::calculate_Intermediate_Points(tree<Node>::iterator this_Iter, tree<Nod
 				if(substrate.separate_Optical_Constants != TRIL_TRUE)
 				{
 											plot_Points[i].delta_Epsilon = delta_Epsilon;	 // depend on absolute density if composed_Material
-					corresponding_Flat_Node.plot_Points[i].delta_Epsilon = plot_Points[i].delta_Epsilon;
+//					corresponding_Flat_Node.plot_Points[i].delta_Epsilon = plot_Points[i].delta_Epsilon;
 
 					// if absolute density
 					if(substrate.composed_Material)
 					{
 												plot_Points[i].epsilon = 1. - plot_Points[i].delta_Epsilon;	// common epsilon, doesn't depend on "i"
-						corresponding_Flat_Node.plot_Points[i].epsilon = plot_Points[i].epsilon;
+//						corresponding_Flat_Node.plot_Points[i].epsilon = plot_Points[i].epsilon;
 					} else
 					// if relative density
 					{
 												plot_Points[i].epsilon = 1. - substrate.relative_Density.value * plot_Points[i].delta_Epsilon;	// common epsilon, doesn't depend on "i"
-						corresponding_Flat_Node.plot_Points[i].epsilon = plot_Points[i].epsilon;
+//						corresponding_Flat_Node.plot_Points[i].epsilon = plot_Points[i].epsilon;
 					}
 
 				} else
@@ -321,10 +351,10 @@ int Node::calculate_Intermediate_Points(tree<Node>::iterator this_Iter, tree<Nod
 				{
 											plot_Points[i].delta_Epsilon = complex<double>(real(delta_Epsilon) * substrate.permittivity.value / 100.,
 																						   imag(delta_Epsilon) * substrate.absorption.value   / 100.);
-					corresponding_Flat_Node.plot_Points[i].delta_Epsilon = plot_Points[i].delta_Epsilon;
+//					corresponding_Flat_Node.plot_Points[i].delta_Epsilon = plot_Points[i].delta_Epsilon;
 
 											plot_Points[i].epsilon = 1. - plot_Points[i].delta_Epsilon;
-					corresponding_Flat_Node.plot_Points[i].epsilon = plot_Points[i].epsilon;
+//					corresponding_Flat_Node.plot_Points[i].epsilon = plot_Points[i].epsilon;
 				}
 
 				/// hi
@@ -332,11 +362,11 @@ int Node::calculate_Intermediate_Points(tree<Node>::iterator this_Iter, tree<Nod
 				corresponding_Flat_Node.plot_Points[i].hi = plot_Points[i].hi;
 
 				/// exponent
-				/// no exponent for substrate
-
+				/// no really existing exponent for substrate, just "effective" value
+										plot_Points[i].exponenta = 1.;
 				/// weak factor
 										plot_Points[i].weak_Factor = 1; // TODO weak factor
-				corresponding_Flat_Node.plot_Points[i].weak_Factor = plot_Points[i].weak_Factor;
+//				corresponding_Flat_Node.plot_Points[i].weak_Factor = plot_Points[i].weak_Factor;
 
 				/// fresnel (reflections from the top border)
 
@@ -369,9 +399,33 @@ int Node::calculate_Intermediate_Points(tree<Node>::iterator this_Iter, tree<Nod
 					}
 				}
 
+				/// interferentional matrix
+
+				// s-polarization
+				if(measur->polarization.value > -1)
+				{
+					complex<double> fresnel_Square_s = sqrt(1.-pow(plot_Points[i].r_Fresnel_s, 2));
+
+					plot_Points[i].interference_Matrix_s(0,0) = conj(plot_Points[i].exponenta)                               / fresnel_Square_s;
+					plot_Points[i].interference_Matrix_s(0,1) =      plot_Points[i].exponenta  * plot_Points[i].r_Fresnel_s  / fresnel_Square_s;
+					plot_Points[i].interference_Matrix_s(1,0) = conj(plot_Points[i].exponenta) * plot_Points[i].r_Fresnel_s  / fresnel_Square_s;
+					plot_Points[i].interference_Matrix_s(1,1) =      plot_Points[i].exponenta                                / fresnel_Square_s;
+				}
+
+				// p-polarization
+				if(measur->polarization.value < 1)
+				{
+					complex<double> fresnel_Square_p = sqrt(1.-pow(plot_Points[i].r_Fresnel_p, 2));
+
+					plot_Points[i].interference_Matrix_p(0,0) = conj(plot_Points[i].exponenta)                               / fresnel_Square_p;
+					plot_Points[i].interference_Matrix_p(0,1) =      plot_Points[i].exponenta  * plot_Points[i].r_Fresnel_p  / fresnel_Square_p;
+					plot_Points[i].interference_Matrix_p(1,0) = conj(plot_Points[i].exponenta) * plot_Points[i].r_Fresnel_p  / fresnel_Square_p;
+					plot_Points[i].interference_Matrix_p(1,1) =      plot_Points[i].exponenta                                / fresnel_Square_p;
+				}
+
 //				cout << substrate.material.toStdString() << "              has Epsilon = " <<                         plot_Points[i].epsilon << " at " << measur->wavelength.value << endl;
-//				cout << substrate.material.toStdString() << "         flat has Epsilon = " << corresponding_Flat_Node.plot_Points[i].epsilon << " at " << measur->wavelength.value << endl;
-//				cout << substrate.material.toStdString() << " higher  flat has Epsilon = " <<        higher_Flat_Node.plot_Points[i].epsilon << " at " << measur->wavelength.value << endl;
+////				cout << substrate.material.toStdString() << "         flat has Epsilon = " << corresponding_Flat_Node.plot_Points[i].epsilon << " at " << measur->wavelength.value << endl;
+////				cout << substrate.material.toStdString() << " higher  flat has Epsilon = " <<        higher_Flat_Node.plot_Points[i].epsilon << " at " << measur->wavelength.value << endl;
 //				cout << endl;
 //				cout << substrate.material.toStdString() << "             has Hi       = " <<                         plot_Points[i].hi << " at " << measur->wavelength.value << " and at " << measur->cos2[i] << endl;
 //				cout << substrate.material.toStdString() << "        flat has Hi       = " << corresponding_Flat_Node.plot_Points[i].hi << " at " << measur->wavelength.value << " and at " << measur->cos2[i] << endl;
@@ -379,6 +433,5 @@ int Node::calculate_Intermediate_Points(tree<Node>::iterator this_Iter, tree<Nod
 			}
 		}
 	}
-
 	return 0;
 }

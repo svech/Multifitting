@@ -1148,6 +1148,10 @@ void Item_Editor::done_Slot()
 			QMessageBox::information(this, "Wrong material", "File \"" + layer.material + nk_Ext + "\" not found");
 		}
 	}
+	if(item_Type==Item_Type::Stack_Content)
+	{
+		close();
+	}
 	if(item_Type==Item_Type::Substrate)
 	{
 		Substrate substrate = item->data(DEFAULT_COLUMN, Qt::UserRole).value<Substrate>();

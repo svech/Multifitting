@@ -5,6 +5,8 @@
 #include <vector>
 #include <complex>
 
+#include "Eigen/Dense"
+
 using namespace std;
 
 // -----------------------------------------------------------------------------------------
@@ -171,12 +173,16 @@ struct intermediate_Point		{
 								complex<double> epsilon;		// = 1 - density * delta_Epsilon or = 1 - bulk_density * delta_Epsilon
 
 								complex<double> hi;
+
+								// for layers only
 								complex<double> exponenta;
 
 								// for top interfaces
-								complex<double> r_Fresnel_s;
-								complex<double> r_Fresnel_p;
 								double weak_Factor = 1;
+								complex<double> r_Fresnel_s;
+								complex<double> r_Fresnel_p;								
+								Eigen::Matrix2cd interference_Matrix_s;
+								Eigen::Matrix2cd interference_Matrix_p;
 								};
 
 struct Window_Type				{static QString Launcher()					  { return "Launcher"  ;}
