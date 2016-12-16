@@ -36,6 +36,9 @@ private:
 	void calculate_Intermediate_Values_1_Tree(tree<Node>::iterator parent, tree<Node>::iterator active_Iter, QString active_Whats_This, QList<Node>& flat_List, QMap<int, tree<Node>::iterator> flat_Tree_Map, int independent_Index);
 	tree<Node>::iterator find_Node(tree<Node>::iterator parent, QString active_Whats_This, int independent_Index);
 
+	void calculate_Reflectivity(tree<Node>::iterator active_Iter, int independent_Index);
+	void multiply_Matrices(tree<Node>::iterator parent, tree<Node>::iterator active_Iter, Eigen::Matrix2cd& interferentional_Matrix_s, Eigen::Matrix2cd& interferentional_Matrix_p, int independent_Index);
+
 	int get_Item_Depth(QTreeWidgetItem* item);
 
 	void print_Tree(tree<Node>::iterator parent, int independent_Index);
@@ -47,6 +50,11 @@ public:
 	QVector<QTreeWidget*> local_Item_Tree_Vec;
 	QVector<Independent_Variables*>& independent_Widget_Vec;
 	QVector<tree<Node>> calc_Tree_Vec;
+
+	QVector<QVector<Eigen::Matrix2cd>> structure_Matrix_s;
+	QVector<QVector<Eigen::Matrix2cd>> structure_Matrix_p;
+	QVector<complex<double>> alpha_s;
+	QVector<complex<double>> alpha_p;
 };
 
 #endif // CALCULATION_TREE_H

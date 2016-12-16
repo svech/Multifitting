@@ -69,7 +69,6 @@ void Calculation_Tree::fill_Calc_Trees()
 			// ambient inheritance
 			substrate.composed_Material				= ambient.composed_Material;
 			substrate.material						= ambient.material;
-			qInfo() << ambient.material;
 			substrate.absolute_Density				= ambient.absolute_Density;
 			substrate.relative_Density				= ambient.relative_Density;
 			substrate.separate_Optical_Constants	= ambient.separate_Optical_Constants;
@@ -366,6 +365,8 @@ void Calculation_Tree::calculate_Intermediate_Values(QVector<Independent_Variabl
 			QList<Node> flat_List = flatten_Stratified_Calc_Tree_List(calc_Tree_Vec[independent_Index], flat_Tree_Map);
 
 			calculate_Intermediate_Values_1_Tree(calc_Tree_Vec[independent_Index].begin(), active_Iter, active_Whats_This, flat_List, flat_Tree_Map, independent_Index);
+
+			calculate_Reflectivity(active_Iter, independent_Index);
 		}
 	}
 }
@@ -415,6 +416,94 @@ tree<Node>::iterator Calculation_Tree::find_Node(tree<Node>::iterator parent, QS
 		parent.node->data.whats_This = stop_Calculation;
 	}
 	return parent;
+}
+
+void Calculation_Tree::calculate_Reflectivity(tree<Node>::iterator active_Iter, int independent_Index)
+{
+	structure_Matrix_s.resize();
+
+	if(active_Iter.node->data.whats_This == whats_This_Measurement)
+	{
+		QVector<QVector<Eigen::Matrix2cd>> structure_Matrix_s = Eigen::Matrix2cd::Identity();
+		QVector<QVector<Eigen::Matrix2cd>> structure_Matrix_p = Eigen::Matrix2cd::Identity();
+
+		QVector<complex<double>> alpha_s();
+		QVector<complex<double>> alpha_p;
+
+		qInfo() << "\ncalculate_Reflectivity\n";
+		multiply_Matrices(calc_Tree_Vec[independent_Index].begin(), active_Iter, structure_Matrix_s, structure_Matrix_p, independent_Index);
+		cout << "\nFinal Matrix_s\n" << structure_Matrix_s << endl;
+		cout << "\nFinal Matrix_p\n" << structure_Matrix_p << endl;
+	}
+}
+
+void Calculation_Tree::multiply_Matrices(tree<Node>::iterator parent, tree<Node>::iterator active_Iter, Eigen::Matrix2cd& interferentional_Matrix_s, Eigen::Matrix2cd& interferentional_Matrix_p, int independent_Index)
+{
+	Eigen::Matrix2cd fixed_Depth_Matrix_s = Eigen::Matrix2cd::Identity();
+	Eigen::Matrix2cd fixed_Depth_Matrix_p = Eigen::Matrix2cd::Identity();
+
+	// iterate over tree
+	for(unsigned i=0; i<parent.number_of_children(); ++i)
+	{
+		tree<Node>::post_order_iterator child = calc_Tree_Vec[independent_Index].child(parent,i);
+		QStringList whats_This_List = child.node->data.whats_This.split(item_Type_Delimiter,QString::SkipEmptyParts);
+
+		qInfo() << "calculating " << child.node->data.whats_This;
+
+		// we know that active data type == "Measurement"
+		Measurement* measur = &(active_Iter.node->data.measurement);
+
+		// calculate internal matrix
+		if(whats_This_List[0] == whats_This_Multilayer)
+		{
+			int power = child.node->data.stack_Content.num_Repetition.value;
+
+			// s-polarization
+			if(measur->polarization.value > -1)
+			{
+				// filling points
+				for(int i=0; i<child.node->data.plot_Points.size(); ++i)
+				{
+					multiply_Matrices(child, active_Iter, child.node->data.plot_Points[i].interference_Matrix_s, child.node->data.plot_Points[i].interference_Matrix_p, independent_Index);
+					child.node->data.plot_Points[i].interference_Matrix_s = child.node->data.plot_Points[i].interference_Matrix_s.pow(power);
+				}
+			}
+			// p-polarization
+			if(measur->polarization.value < 1)
+			{
+				// filling points
+				for(int i=0; i<child.node->data.plot_Points.size(); ++i)
+				{
+					multiply_Matrices(child, active_Iter, child.node->data.plot_Points[i].interference_Matrix_s, child.node->data.plot_Points[i].interference_Matrix_p, independent_Index);
+					child.node->data.plot_Points[i].interference_Matrix_p = child.node->data.plot_Points[i].interference_Matrix_p.pow(power);
+				}
+			}
+		}
+
+		// s-polarization
+		if(measur->polarization.value > -1)
+		{
+			// filling points
+			for(int i=0; i<child.node->data.plot_Points.size(); ++i)
+			{
+				fixed_Depth_Matrix_s *= child.node->data.plot_Points[i].interference_Matrix_s;
+//				cout << "s" << endl << child.node->data.plot_Points[i].interference_Matrix_s << endl;
+			}
+		}
+		// p-polarization
+		if(measur->polarization.value < 1)
+		{
+			// filling points
+			for(int i=0; i<child.node->data.plot_Points.size(); ++i)
+			{
+				fixed_Depth_Matrix_p *= child.node->data.plot_Points[i].interference_Matrix_p;
+//				cout << "p" << endl << child.node->data.plot_Points[i].interference_Matrix_p << endl;
+			}
+		}
+	}
+
+	interferentional_Matrix_s *= fixed_Depth_Matrix_s;
+	interferentional_Matrix_p *= fixed_Depth_Matrix_p;
 }
 
 int  Calculation_Tree::tree_Depth(QTreeWidgetItem* item)

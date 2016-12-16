@@ -6,6 +6,7 @@
 #include <complex>
 
 #include "Eigen/Dense"
+#include "unsupported/Eigen/MatrixFunctions"
 
 using namespace std;
 
@@ -181,8 +182,8 @@ struct intermediate_Point		{
 								double weak_Factor = 1;
 								complex<double> r_Fresnel_s;
 								complex<double> r_Fresnel_p;								
-								Eigen::Matrix2cd interference_Matrix_s;
-								Eigen::Matrix2cd interference_Matrix_p;
+								Eigen::Matrix2cd interference_Matrix_s = Eigen::Matrix2cd::Identity();
+								Eigen::Matrix2cd interference_Matrix_p = Eigen::Matrix2cd::Identity();
 								};
 
 struct Window_Type				{static QString Launcher()					  { return "Launcher"  ;}
