@@ -66,6 +66,13 @@ void Structure_Toolbar::create_Toolbar()
 void Structure_Toolbar::add_Layer(bool)
 {
 	QTreeWidgetItem* new_Layer = new QTreeWidgetItem;
+
+	// setting data to new layerItem
+	QVariant var;
+	Layer layer;
+	var.setValue( layer );
+	new_Layer->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+
 	add_Buffered_Layer(new_Layer);
 	refresh_Toolbar();
 }
@@ -510,9 +517,6 @@ void Structure_Toolbar::refresh_Toolbar()
 
 void Structure_Toolbar::add_Buffered_Layer(QTreeWidgetItem* new_Layer_Passed)
 {
-	// setting data to new layerItem
-	QVariant var;
-
 	// copy of new_Layer
 	QTreeWidgetItem* new_Layer = new QTreeWidgetItem;
 	new_Layer = new_Layer_Passed->clone();
@@ -520,6 +524,7 @@ void Structure_Toolbar::add_Buffered_Layer(QTreeWidgetItem* new_Layer_Passed)
 	// if no structure_Tree->tree at all (at the beginning)
 	if(structure_Tree->tree->topLevelItemCount()==0)
 	{
+		QVariant var;
 		Ambient ambient;
 		var.setValue( ambient );
 		new_Layer->setData(DEFAULT_COLUMN, Qt::UserRole, var);
@@ -527,10 +532,6 @@ void Structure_Toolbar::add_Buffered_Layer(QTreeWidgetItem* new_Layer_Passed)
 		structure_Tree->tree->addTopLevelItem(new_Layer);
 	} else
 	{
-		Layer layer;
-		var.setValue( layer );
-		new_Layer->setData(DEFAULT_COLUMN, Qt::UserRole, var);
-
 		// if no selected items
 		if(structure_Tree->tree->selectedItems().isEmpty())
 		{

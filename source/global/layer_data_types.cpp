@@ -42,6 +42,7 @@ void Measurement::calc_Independent_cos2_k()
 {
 	// cos2
 	cos2_Value = pow(cos(probe_Angle.value*M_PI/180.),2);
+	cos2.resize(probe_Angle.independent.num_Points);
 
 	if(probe_Angle.independent.num_Points>1)
 	{
@@ -49,16 +50,17 @@ void Measurement::calc_Independent_cos2_k()
 		double angle = probe_Angle.independent.min;
 		for(int i=0; i<probe_Angle.independent.num_Points; ++i)
 		{
-			cos2.append(pow(cos(angle*M_PI/180.),2));
+			cos2[i] = pow(cos(angle*M_PI/180.),2);
 			angle += angle_Step;
 		}
 	} else
 	{
-		cos2.append(cos2_Value);
+		cos2[0] = cos2_Value;
 	}
 
 	// k
 	k_Value = 2*M_PI/wavelength.value;
+	k.resize(wavelength.independent.num_Points);
 
 	if(wavelength.independent.num_Points>1)
 	{
@@ -66,12 +68,12 @@ void Measurement::calc_Independent_cos2_k()
 		double wave = wavelength.independent.min;
 		for(int i=0; i<wavelength.independent.num_Points; ++i)
 		{
-			k.append(2*M_PI/wave);
+			k[i] = 2*M_PI/wave;
 			wave += wave_Step;
 		}
 	} else
 	{
-		k.append(k_Value);
+		k[0] = k_Value;
 	}
 }
 

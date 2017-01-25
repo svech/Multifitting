@@ -5,9 +5,6 @@
 #include <vector>
 #include <complex>
 
-#include "Eigen/Dense"
-#include "unsupported/Eigen/MatrixFunctions"
-
 using namespace std;
 
 // -----------------------------------------------------------------------------------------
@@ -151,6 +148,7 @@ enum class Variable_Type	{Independent, Coupled, Fitted, Optimized};
 #define Na 6.022140857E23
 #define Q 4.484891E-30
 
+#define MyVector vector
 // -----------------------------------------------------------------------------------------
 
 // simple types					renew corresponding serialization operators!
@@ -167,24 +165,6 @@ struct Interlayer				{Parameter interlayer; bool enabled;};
 struct Point					{double lambda; double re;  double im; void read_Row(QTextStream& input, bool if_Factors);};
 struct Material_Data			{QString substance; QString filename; QVector<Point> material_Data; void read_Material(QString& filename);};
 struct Element_Data				{QString element;					  QVector<Point> element_Data;  void read_Element (QString& filename);};
-
-// intermediate values for optical functions
-struct intermediate_Point		{
-								complex<double> delta_Epsilon;	// = 1 - n^2  OR Re(1 - n^2)*permittivity/100 +(or - ??) Im(1 - n^2)*absorption/100
-								complex<double> epsilon;		// = 1 - density * delta_Epsilon or = 1 - bulk_density * delta_Epsilon
-
-								complex<double> hi;
-
-								// for layers only
-								complex<double> exponenta;
-
-								// for top interfaces
-								double weak_Factor = 1;
-								complex<double> r_Fresnel_s;
-								complex<double> r_Fresnel_p;								
-								Eigen::Matrix2cd interference_Matrix_s = Eigen::Matrix2cd::Identity();
-								Eigen::Matrix2cd interference_Matrix_p = Eigen::Matrix2cd::Identity();
-								};
 
 struct Window_Type				{static QString Launcher()					  { return "Launcher"  ;}
 								 static QString Multilayer_Approach()		  { return "Multilayer_Approach";}

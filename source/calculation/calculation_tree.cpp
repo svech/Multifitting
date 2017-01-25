@@ -3,9 +3,21 @@
 
 Calculation_Tree::Calculation_Tree(QVector<Independent_Variables*>& independent_Widget_Vec):
 	independent_Widget_Vec(independent_Widget_Vec),
-	calc_Tree_Vec(independent_Widget_Vec.size())
+	unwrapped_Reflection_Vec(independent_Widget_Vec.size()),
+	unwrapped_Structure_Vec(independent_Widget_Vec.size()),
+	calc_Tree_Vec(independent_Widget_Vec.size()),
+	measurement_Vec(independent_Widget_Vec.size()),
+	active_Whats_This_Vec(independent_Widget_Vec.size())
 {
+}
 
+Calculation_Tree::~Calculation_Tree()
+{
+	for(int i=0; i<independent_Widget_Vec.size(); ++i)
+	{
+		delete unwrapped_Structure_Vec[i];
+		delete unwrapped_Reflection_Vec[i];
+	}
 }
 
 void Calculation_Tree::run_All()
@@ -15,13 +27,8 @@ void Calculation_Tree::run_All()
 	{
 		int independent_Index = 0;
 		max_Depth = tree_Depth(local_Item_Tree_Vec[independent_Index]->invisibleRootItem());	// unstratified depth
-
 		fill_Calc_Trees();
 		calculate_Intermediate_Values(independent_Widget_Vec);
-
-		// TODO remove this
-		qInfo() << endl;
-		print_Tree(calc_Tree_Vec[independent_Index].begin(), independent_Index);
 	}
 }
 
@@ -103,97 +110,6 @@ void Calculation_Tree::fill_Tree(tree<Node>::iterator parent, QTreeWidgetItem* i
 		if(item->child(i)->childCount()>0)
 		{
 			fill_Tree(calc_Tree_Vec[independent_Index].child(parent,i), item->child(i), independent_Index);
-		}
-	}
-}
-
-void Calculation_Tree::statify_Item_Tree()
-{
-	for(int independent_Index=0; independent_Index<local_Item_Tree_Vec.size(); ++independent_Index)
-	{
-		QTreeWidget* item_Tree = local_Item_Tree_Vec[independent_Index];
-		for(int depth=max_Depth-1; depth>0; depth--)
-		{
-			QVector<QTreeWidgetItem*> chosen_Items;
-
-			// iterate over fixed depth
-			QTreeWidgetItemIterator fix_Depth_Iter(item_Tree);
-			while (*fix_Depth_Iter)
-			{
-				QTreeWidgetItem* item = *fix_Depth_Iter;
-				if(get_Item_Depth(item) == depth)
-				{
-					QStringList whats_This_List = item->whatsThis(DEFAULT_COLUMN).split(item_Type_Delimiter,QString::SkipEmptyParts);
-
-					if(whats_This_List[0] == whats_This_Multilayer)
-					{
-						chosen_Items.append(item);
-					}
-				}
-				++fix_Depth_Iter;
-			}
-
-			/// stratification
-			for(int vec_Index=chosen_Items.size()-1; vec_Index>=0; --vec_Index)
-			{
-				QTreeWidgetItem* item = chosen_Items[vec_Index];
-
-				// if 0 periods
-				if(item->data(DEFAULT_COLUMN, Qt::UserRole).value<Stack_Content>().num_Repetition.value == 0)
-				{
-					// TODO delete or not delete?
-					delete item;
-				} else
-
-				// if 1 period
-				if(item->data(DEFAULT_COLUMN, Qt::UserRole).value<Stack_Content>().num_Repetition.value == 1)
-				{
-					for(int child_Index=0; child_Index<item->childCount(); ++child_Index)
-					{
-						QTreeWidgetItem* parent_Item;
-						if(item->parent()) parent_Item = item->parent(); else parent_Item = item_Tree->invisibleRootItem();
-						parent_Item->insertChild(parent_Item->indexOfChild(item),item->child(child_Index)->clone());
-					}
-					// TODO delete or not delete?
-					delete item;
-					// change data
-//					Stack_Content stack_Content = item->data(DEFAULT_COLUMN, Qt::UserRole).value<Stack_Content>();
-//					stack_Content.num_Repetition.value = 0;
-//					QVariant var; var.setValue(stack_Content);
-//					item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
-				} else
-
-				// if 2 periods
-				if(item->data(DEFAULT_COLUMN, Qt::UserRole).value<Stack_Content>().num_Repetition.value == 2)
-				{
-					for(int child_Index=0; child_Index<item->childCount(); ++child_Index)
-					{
-						QTreeWidgetItem* parent_Item;
-						if(item->parent()) parent_Item = item->parent(); else parent_Item = item_Tree->invisibleRootItem();
-						parent_Item->insertChild(parent_Item->indexOfChild(item)  ,item->child(child_Index)->clone());
-						parent_Item->insertChild(parent_Item->indexOfChild(item)+1+child_Index,item->child(child_Index)->clone());
-					}
-					// TODO delete or not delete?
-					delete item;
-				} else
-
-				// if >=3 periods
-				if(item->data(DEFAULT_COLUMN, Qt::UserRole).value<Stack_Content>().num_Repetition.value >= 3)
-				{
-					for(int child_Index=0; child_Index<item->childCount(); ++child_Index)
-					{
-						QTreeWidgetItem* parent_Item;
-						if(item->parent()) parent_Item = item->parent(); else parent_Item = item_Tree->invisibleRootItem();
-						parent_Item->insertChild(parent_Item->indexOfChild(item)  ,item->child(child_Index)->clone());
-						parent_Item->insertChild(parent_Item->indexOfChild(item)+1+child_Index,item->child(child_Index)->clone());
-					}
-					// change data
-					Stack_Content stack_Content = item->data(DEFAULT_COLUMN, Qt::UserRole).value<Stack_Content>();
-					stack_Content.num_Repetition.value -= 2;
-					QVariant var; var.setValue(stack_Content);
-					item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
-				}
-			}
 		}
 	}
 }
@@ -285,38 +201,11 @@ void Calculation_Tree::statify_Calc_Tree(tree<Node>& calc_Tree)
 	}
 }
 
-void Calculation_Tree::flatten_Stratified_Calc_Tree_List_Iteration(tree<Node>::iterator parent, QList<Node>& flat_List, QMap<int, tree<Node>::iterator>& flat_Tree_Map)
-{
-	for(unsigned i=0; i<parent.number_of_children(); ++i)
-	{
-		tree<Node>::pre_order_iterator child = tree<Node>::child(parent,i);
-
-		if(child.number_of_children()==0)
-		{
-			flat_List.append(child.node->data);
-			flat_Tree_Map.insert(flat_List.size()-1, child);
-		}
-		if(child.number_of_children()>0)
-		{
-			flatten_Stratified_Calc_Tree_List_Iteration(child, flat_List, flat_Tree_Map);
-		}
-	}
-}
-
-QList<Node> Calculation_Tree::flatten_Stratified_Calc_Tree_List(tree<Node>& calc_Tree, QMap<int, tree<Node>::iterator>& flat_Tree_Map)
-{
-	QList<Node> flat_List;
-	flatten_Stratified_Calc_Tree_List_Iteration(calc_Tree.begin(), flat_List, flat_Tree_Map);
-	return flat_List;
-}
-
 void Calculation_Tree::calculate_Intermediate_Values(QVector<Independent_Variables*>& independent_Widget_Vec)
 {
 	// for each plot
 	for(int independent_Index=0; independent_Index<calc_Tree_Vec.size(); ++independent_Index)
 	{
-		QString	active_Whats_This;
-
 		// find whatsThis of active item
 		for(int item_Index=0; item_Index<independent_Widget_Vec[independent_Index]->independent_Variables_List->count(); ++item_Index)
 		{
@@ -325,7 +214,7 @@ void Calculation_Tree::calculate_Intermediate_Values(QVector<Independent_Variabl
 			// if active
 			if(list_Item->data(Qt::UserRole).toBool())
 			{
-				active_Whats_This = list_Item->whatsThis();
+				active_Whats_This_Vec[independent_Index] = list_Item->whatsThis();
 			}
 		}
 
@@ -337,12 +226,12 @@ void Calculation_Tree::calculate_Intermediate_Values(QVector<Independent_Variabl
 		if (measurement_Iter.node->data.whats_This == stop_Calculation) return;
 		// ....................................................................
 
-		Measurement* measur = &(measurement_Iter.node->data.measurement);
-		measur->calc_Independent_cos2_k();
+		// calculation of wavenumbers and cos squares
+		measurement_Iter.node->data.measurement.calc_Independent_cos2_k();
+		measurement_Vec[independent_Index] = (measurement_Iter.node->data.measurement);
 
 		// find corresponding node for active variable
-		QStringList active_Whats_This_List = active_Whats_This.split(whats_This_Delimiter,QString::SkipEmptyParts);
-
+		QStringList active_Whats_This_List = active_Whats_This_Vec[independent_Index].split(whats_This_Delimiter,QString::SkipEmptyParts);
 		tree<Node>::iterator active_Iter = find_Node(calc_Tree_Vec[independent_Index].begin(), active_Whats_This_List[0], independent_Index);
 
 		// ....................................................................
@@ -359,19 +248,24 @@ void Calculation_Tree::calculate_Intermediate_Values(QVector<Independent_Variabl
 		// 1 tree for 1 plot
 		{
 			statify_Calc_Tree(calc_Tree_Vec[independent_Index]);
+			calculate_Intermediate_Values_1_Tree(calc_Tree_Vec[independent_Index].begin(), active_Iter, active_Whats_This_Vec[independent_Index], independent_Index);
 
-			// create map with flat list
-			QMap<int, tree<Node>::iterator> flat_Tree_Map;
-			QList<Node> flat_List = flatten_Stratified_Calc_Tree_List(calc_Tree_Vec[independent_Index], flat_Tree_Map);
+			auto start = std::chrono::system_clock::now();
+			calculate_Unwrapped_Structure(independent_Index);
+			auto end = std::chrono::system_clock::now();
+			auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+			qInfo() << "Unwrap: "<< elapsed.count()/1000. << " seconds" << endl;
 
-			calculate_Intermediate_Values_1_Tree(calc_Tree_Vec[independent_Index].begin(), active_Iter, active_Whats_This, flat_List, flat_Tree_Map, independent_Index);
-
-			calculate_Reflectivity(active_Iter, independent_Index);
+			start = std::chrono::system_clock::now();
+			calculate_Unwrapped_Reflectivity(independent_Index);
+			end = std::chrono::system_clock::now();
+			elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+			qInfo() << "Unwrap Reflect: "<< elapsed.count()/1000. << " seconds" << endl;
 		}
 	}
 }
 
-void Calculation_Tree::calculate_Intermediate_Values_1_Tree(tree<Node>::iterator parent, tree<Node>::iterator active_Iter, QString active_Whats_This, QList<Node>& flat_List, QMap<int, tree<Node>::iterator> flat_Tree_Map, int independent_Index)
+void Calculation_Tree::calculate_Intermediate_Values_1_Tree(tree<Node>::iterator parent, tree<Node>::iterator active_Iter, QString active_Whats_This, int independent_Index)
 {
 	// iterate over tree
 	for(unsigned i=0; i<parent.number_of_children(); ++i)
@@ -380,16 +274,15 @@ void Calculation_Tree::calculate_Intermediate_Values_1_Tree(tree<Node>::iterator
 		QStringList whats_This_List = child.node->data.whats_This.split(item_Type_Delimiter,QString::SkipEmptyParts);
 
 		QString warning_Text;
-		int status = child.node->data.calculate_Intermediate_Points(child, active_Iter, active_Whats_This, flat_List, flat_Tree_Map, warning_Text);
+		int status = child.node->data.calculate_Intermediate_Points(active_Iter, active_Whats_This, warning_Text);
 		if(status!=0)
 		{
 			emit warning(warning_Text);
 			return;
 		}
-
 		if(whats_This_List[0] == whats_This_Multilayer)
 		{
-			calculate_Intermediate_Values_1_Tree(child, active_Iter, active_Whats_This, flat_List, flat_Tree_Map, independent_Index);
+			calculate_Intermediate_Values_1_Tree(child, active_Iter, active_Whats_This, independent_Index);
 		}
 	}
 }
@@ -418,92 +311,72 @@ tree<Node>::iterator Calculation_Tree::find_Node(tree<Node>::iterator parent, QS
 	return parent;
 }
 
-void Calculation_Tree::calculate_Reflectivity(tree<Node>::iterator active_Iter, int independent_Index)
+void Calculation_Tree::calculate_Unwrapped_Structure(int independent_Index)
 {
-	structure_Matrix_s.resize();
+	num_Media = get_Total_Num_Layers(calc_Tree_Vec[independent_Index].begin(), independent_Index);
+	Unwrapped_Structure*   new_Unwrapped_Structure  = new Unwrapped_Structure (num_Media);
+	unwrapped_Structure_Vec [independent_Index] = new_Unwrapped_Structure;
 
-	if(active_Iter.node->data.whats_This == whats_This_Measurement)
+	if(max_Depth <= 2)
 	{
-		QVector<QVector<Eigen::Matrix2cd>> structure_Matrix_s = Eigen::Matrix2cd::Identity();
-		QVector<QVector<Eigen::Matrix2cd>> structure_Matrix_p = Eigen::Matrix2cd::Identity();
-
-		QVector<complex<double>> alpha_s();
-		QVector<complex<double>> alpha_p;
-
-		qInfo() << "\ncalculate_Reflectivity\n";
-		multiply_Matrices(calc_Tree_Vec[independent_Index].begin(), active_Iter, structure_Matrix_s, structure_Matrix_p, independent_Index);
-		cout << "\nFinal Matrix_s\n" << structure_Matrix_s << endl;
-		cout << "\nFinal Matrix_p\n" << structure_Matrix_p << endl;
+		new_Unwrapped_Structure->fill_Epsilon_Max_Depth_2	(calc_Tree_Vec[independent_Index].begin());
+		new_Unwrapped_Structure->fill_Sigma_Max_Depth_2		(calc_Tree_Vec[independent_Index].begin());
+		new_Unwrapped_Structure->fill_Thickness_Max_Depth_2 (calc_Tree_Vec[independent_Index].begin());
+	} else
+	{
+		new_Unwrapped_Structure->fill_Epsilon	(calc_Tree_Vec[independent_Index].begin());
+		new_Unwrapped_Structure->fill_Sigma		(calc_Tree_Vec[independent_Index].begin());
+		new_Unwrapped_Structure->fill_Thickness (calc_Tree_Vec[independent_Index].begin());
 	}
 }
 
-void Calculation_Tree::multiply_Matrices(tree<Node>::iterator parent, tree<Node>::iterator active_Iter, Eigen::Matrix2cd& interferentional_Matrix_s, Eigen::Matrix2cd& interferentional_Matrix_p, int independent_Index)
+void Calculation_Tree::calculate_Unwrapped_Reflectivity(int independent_Index)
 {
-	Eigen::Matrix2cd fixed_Depth_Matrix_s = Eigen::Matrix2cd::Identity();
-	Eigen::Matrix2cd fixed_Depth_Matrix_p = Eigen::Matrix2cd::Identity();
+	Unwrapped_Reflection*  new_Unwrapped_Reflection = new Unwrapped_Reflection(unwrapped_Structure_Vec[independent_Index], num_Media, active_Whats_This_Vec[independent_Index], measurement_Vec[independent_Index]);
+	unwrapped_Reflection_Vec[independent_Index] = new_Unwrapped_Reflection;
 
-	// iterate over tree
+	auto start = std::chrono::system_clock::now();
+	unwrapped_Reflection_Vec[independent_Index]->calc_Reflectivity();
+	auto end = std::chrono::system_clock::now();
+	auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+	qInfo() << "Bare Reflectivity:      "<< elapsed.count()/1000. << " seconds" << endl;
+
+//	cout << "r_s    [" << 0 << "] = " << unwrapped_Reflection_Vec[independent_Index]->r_s[0] << endl;
+//	cout << "r_p    [" << 0 << "] = " << unwrapped_Reflection_Vec[independent_Index]->r_p[0] << endl;
+
+//	cout << "R_s    [" << 0 << "] = " << unwrapped_Reflection_Vec[independent_Index]->R_s[0] << endl;
+//	cout << "R_p    [" << 0 << "] = " << unwrapped_Reflection_Vec[independent_Index]->R_p[0] << endl;
+//	cout << "--------------------------------\n";
+
+	cout << "r_s_RV [" << 0 << "] = " << unwrapped_Reflection_Vec[independent_Index]->r_s_RV[0] << endl;
+	cout << "r_p_RV [" << 0 << "] = " << unwrapped_Reflection_Vec[independent_Index]->r_p_RV[0] << endl;
+
+	cout << "R_s_RV [" << 0 << "] = " << unwrapped_Reflection_Vec[independent_Index]->R_s_RV[0] << endl;
+	cout << "R_p_RV [" << 0 << "] = " << unwrapped_Reflection_Vec[independent_Index]->R_p_RV[0] << endl;
+	cout << "--------------------------------\n";
+}
+
+int Calculation_Tree::get_Total_Num_Layers(tree<Node>::iterator parent, int independent_Index)
+{
+	int num_Media = 0;
 	for(unsigned i=0; i<parent.number_of_children(); ++i)
 	{
 		tree<Node>::post_order_iterator child = calc_Tree_Vec[independent_Index].child(parent,i);
-		QStringList whats_This_List = child.node->data.whats_This.split(item_Type_Delimiter,QString::SkipEmptyParts);
+		QStringList whats_This_List = child.node->data.whats_This_List;
 
-		qInfo() << "calculating " << child.node->data.whats_This;
+		if(whats_This_List[0] == whats_This_Ambient ||
+		   whats_This_List[0] == whats_This_Layer   ||
+		   whats_This_List[0] == whats_This_Substrate )
+		{
+			num_Media += 1;
+		}
 
-		// we know that active data type == "Measurement"
-		Measurement* measur = &(active_Iter.node->data.measurement);
-
-		// calculate internal matrix
 		if(whats_This_List[0] == whats_This_Multilayer)
 		{
-			int power = child.node->data.stack_Content.num_Repetition.value;
-
-			// s-polarization
-			if(measur->polarization.value > -1)
-			{
-				// filling points
-				for(int i=0; i<child.node->data.plot_Points.size(); ++i)
-				{
-					multiply_Matrices(child, active_Iter, child.node->data.plot_Points[i].interference_Matrix_s, child.node->data.plot_Points[i].interference_Matrix_p, independent_Index);
-					child.node->data.plot_Points[i].interference_Matrix_s = child.node->data.plot_Points[i].interference_Matrix_s.pow(power);
-				}
-			}
-			// p-polarization
-			if(measur->polarization.value < 1)
-			{
-				// filling points
-				for(int i=0; i<child.node->data.plot_Points.size(); ++i)
-				{
-					multiply_Matrices(child, active_Iter, child.node->data.plot_Points[i].interference_Matrix_s, child.node->data.plot_Points[i].interference_Matrix_p, independent_Index);
-					child.node->data.plot_Points[i].interference_Matrix_p = child.node->data.plot_Points[i].interference_Matrix_p.pow(power);
-				}
-			}
-		}
-
-		// s-polarization
-		if(measur->polarization.value > -1)
-		{
-			// filling points
-			for(int i=0; i<child.node->data.plot_Points.size(); ++i)
-			{
-				fixed_Depth_Matrix_s *= child.node->data.plot_Points[i].interference_Matrix_s;
-//				cout << "s" << endl << child.node->data.plot_Points[i].interference_Matrix_s << endl;
-			}
-		}
-		// p-polarization
-		if(measur->polarization.value < 1)
-		{
-			// filling points
-			for(int i=0; i<child.node->data.plot_Points.size(); ++i)
-			{
-				fixed_Depth_Matrix_p *= child.node->data.plot_Points[i].interference_Matrix_p;
-//				cout << "p" << endl << child.node->data.plot_Points[i].interference_Matrix_p << endl;
-			}
+			num_Media += child.node->data.stack_Content.num_Repetition.value * get_Total_Num_Layers(child, independent_Index);
 		}
 	}
-
-	interferentional_Matrix_s *= fixed_Depth_Matrix_s;
-	interferentional_Matrix_p *= fixed_Depth_Matrix_p;
+	return num_Media;
 }
 
 int  Calculation_Tree::tree_Depth(QTreeWidgetItem* item)

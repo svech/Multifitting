@@ -12,6 +12,8 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 TARGET = Multifitting
 TEMPLATE = app
 
+QMAKE_CXXFLAGS = -O2
+
 INCLUDEPATH += "C:/Program Files (x86)/C++ libraries" \
                "C:/Program Files (x86)/C++ libraries/GSL 2.1/include" \
                "C:/Program Files (x86)/C++ libraries/eigen 3.3.1"
@@ -37,7 +39,9 @@ SOURCES += main.cpp\
     main_calculation_module.cpp \
     calculation/calculation_tree.cpp \
     calculation/node.cpp \
-    calculation/optical_constants.cpp
+    calculation/optical_constants.cpp \
+    calculation/unwrapped/unwrapped_reflection.cpp \
+    calculation/unwrapped/unwrapped_structure.cpp
 
 HEADERS  += launcher.h \
     global/global_definitions.h \
@@ -56,5 +60,7 @@ HEADERS  += launcher.h \
     main_calculation_module.h \
     calculation/calculation_tree.h \
     calculation/node.h \
-    calculation/optical_constants.h
+    calculation/optical_constants.h \
+    calculation/unwrapped/unwrapped_reflection.h \
+    calculation/unwrapped/unwrapped_structure.h
 

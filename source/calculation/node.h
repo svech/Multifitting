@@ -11,7 +11,7 @@ public:
 	Node();
 	Node(QTreeWidgetItem* item);
 
-	int calculate_Intermediate_Points(tree<Node>::iterator this_Iter, tree<Node>::iterator active_Iter, QString active_Whats_This, QList<Node>& flat_List, QMap<int, tree<Node>::iterator>& flat_Tree_Map, QString& warning_Text);
+	int calculate_Intermediate_Points(tree<Node>::iterator active_Iter, QString active_Whats_This, QString& warning_Text);
 
 	QString whats_This;
 	QStringList whats_This_List;
@@ -22,7 +22,10 @@ public:
 	Stack_Content stack_Content;
 	Substrate substrate;
 
-	QVector<intermediate_Point> plot_Points;
+	// for any type
+	Ambient common_Data;
+	complex<double> delta_Epsilon;
+	complex<double> epsilon;
 };
 
 #endif // NODE_H

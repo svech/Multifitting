@@ -138,6 +138,8 @@ QString opt_const_units;
 
 // calculations
 int optical_Constants_Read_Threads;
+int reflectivity_Calc_Threads;
+int epsilon_Partial_Fill_Threads;
 
 // -----------------------------------------------------------------------------------------
 
@@ -340,7 +342,7 @@ void Settings::read_Precisions(bool reset_to_default)
 		precision_Values.beginGroup( Line_Edit );
 			line_edit_double_format	    = qvariant_cast<char>(precision_Values.value( "line_edit_double_format",'f'));
 			line_edit_angle_precision		= precision_Values.value( "line_edit_angle_precision",			5 ).toInt();
-			line_edit_wavelength_precision	= precision_Values.value( "line_edit_wavelength_precision",		1 ).toInt();
+			line_edit_wavelength_precision	= precision_Values.value( "line_edit_wavelength_precision",		5 ).toInt();
 			line_edit_density_precision		= precision_Values.value( "line_edit_density_precision",		5 ).toInt();
 			line_edit_permittivity_precision= precision_Values.value( "line_edit_permittivity_precision",	5 ).toInt();
 			line_edit_absorption_precision	= precision_Values.value( "line_edit_absorption_precision",		5 ).toInt();
@@ -422,8 +424,8 @@ void Settings::read_Parameters_Default_Values(bool reset_to_default)
 	parameters_Default_Values.beginGroup( Independent_Values );
 		default_num_angular_points		 = parameters_Default_Values.value( "default_num_angular_points",		1		).toInt();
 		default_num_spectral_points		 = parameters_Default_Values.value( "default_num_spectral_points",		1		).toInt();
-		default_angle_value				 = parameters_Default_Values.value( "default_angle_value",				5		).toDouble();
-		default_min_angle				 = parameters_Default_Values.value( "default_min_angle",				0		).toDouble();
+		default_angle_value				 = parameters_Default_Values.value( "default_angle_value",				1		).toDouble();
+		default_min_angle				 = parameters_Default_Values.value( "default_min_angle",				1		).toDouble();
 		default_max_angle				 = parameters_Default_Values.value( "default_max_angle",				7		).toDouble();
 		default_wavelength_value		 = parameters_Default_Values.value( "default_wavelength_value",			1.54056 ).toDouble();
 		default_min_wavelength			 = parameters_Default_Values.value( "default_min_wavelength",			100		).toDouble();
@@ -499,6 +501,8 @@ void Settings::read_Calculations(bool reset_to_default)
 	// calculations
 	calculations.beginGroup( Threads );
 		optical_Constants_Read_Threads = calculations.value( "optical_Constants_Read_Threads",	4 ).toInt();
+		reflectivity_Calc_Threads	   = calculations.value( "reflectivity_Calc_Threads",		1 ).toInt();
+		epsilon_Partial_Fill_Threads   = calculations.value( "epsilon_Partial_Fill_Threads",	4 ).toInt();
 	calculations.endGroup();
 }
 
@@ -509,6 +513,8 @@ void Settings::save_Calculations()
 	// calculations
 	calculations.beginGroup( Threads );
 		calculations.setValue( "optical_Constants_Read_Threads", optical_Constants_Read_Threads );
+		calculations.setValue( "reflectivity_Calc_Threads",		 reflectivity_Calc_Threads		);
+		calculations.setValue( "epsilon_Partial_Fill_Threads",	 epsilon_Partial_Fill_Threads	);
 	calculations.endGroup();
 }
 

@@ -142,6 +142,8 @@ extern QString opt_const_units;
 
 // calculations
 extern int optical_Constants_Read_Threads;
+extern int reflectivity_Calc_Threads;
+extern int epsilon_Partial_Fill_Threads;
 
 // -----------------------------------------------------------------------------------------
 
