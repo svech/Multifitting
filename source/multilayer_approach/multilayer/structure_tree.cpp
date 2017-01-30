@@ -1,3 +1,7 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
+
 #include "structure_tree.h"
 
 Structure_Tree::Structure_Tree(Multilayer* multilayer, QWidget *parent) :
@@ -37,7 +41,7 @@ void Structure_Tree::create_Toolbar()
 
 void Structure_Tree::multiple_Refresh_Over_Struct()
 {
-	refresh_Over_Struct();
+	refresh_Over_Struct(); //-V760
 	QMetaObject::invokeMethod(this, "refreshOverStruct", Qt::QueuedConnection);
 	refresh_Over_Struct();
 	QMetaObject::invokeMethod(this, "refreshOverStruct", Qt::QueuedConnection);

@@ -1,3 +1,7 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
+
 #include "global_definitions.h"
 #include "global_variables.h"
 
@@ -95,7 +99,7 @@ void Point::read_Row(QTextStream& input, bool if_Factors)
 	}
 }
 
-void Material_Data::read_Material(QString& filename)
+void Material_Data::read_Material(QString& filename) //-V688
 {
 	// TODO
 	QFile file(nk_Path + filename);

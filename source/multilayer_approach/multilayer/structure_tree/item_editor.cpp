@@ -1,3 +1,7 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
+
 #include "item_editor.h"
 
 Item_Editor::Item_Editor(QTreeWidgetItem* item, QWidget *parent) :
@@ -836,7 +840,7 @@ void Item_Editor::read_Interlayers_From_Item()
 	interlayer_Composition_Group_Box->adjustSize();
 	interlayer_Composition_Group_Box->setFixedWidth(interlayer_Composition_Group_Box->width());
 
-	interlayer_Check(true);
+	interlayer_Check(true); //-V601
 }
 
 void Item_Editor::fewer_Elements_Clicked(bool)

@@ -7,33 +7,35 @@ class Unwrapped_Structure
 {
 public:
 	Unwrapped_Structure();
-	Unwrapped_Structure(int num_Media);
+	Unwrapped_Structure(tree<Node>* calc_Tree, int num_Media, int max_Depth);
 
 	int num_Threads;
 	int num_Media;
 	int num_Layers;
 	int num_Boundaries;
+	int max_Depth;
+	tree<Node>* calc_Tree;
 
-	MyVector<complex<double>> epsilon;								//	[media]
-	MyVector<double> epsilon_Norm;									//	[media]
-	MyVector<double> epsilon_RE;									//	[media]
-	MyVector<double> epsilon_IM;									//	[media]
+	vector<complex<double>> epsilon;								//	[media]
+	vector<double> epsilon_Norm;									//	[media]
+	vector<double> epsilon_RE;										//	[media]
+	vector<double> epsilon_IM;										//	[media]
 
-	MyVector<double> sigma;											//	[boundary]
-	MyVector<MyVector<Interlayer>> boundary_Interlayer_Composition;	//  [boundary][function]
-	MyVector<double> thickness;										//	[layer]
+	vector<double> sigma;											//	[boundary]
+	vector<vector<Interlayer>> boundary_Interlayer_Composition;		//  [boundary][function]
+	vector<double> thickness;										//	[layer]
 
-	int fill_Epsilon_Max_Depth_2  (tree<Node>::iterator parent, int media_Index = 0);
-	int fill_Sigma_Max_Depth_2    (tree<Node>::iterator parent, int boundary_Index = 0);
-	int fill_Thickness_Max_Depth_2(tree<Node>::iterator parent, int layer_Index = 0);
+//	int fill_Epsilon_Max_Depth_2  (const tree<Node>::iterator& parent, int media_Index = 0);
+//	int fill_Sigma_Max_Depth_2    (const tree<Node>::iterator& parent, int boundary_Index = 0);
+//	int fill_Thickness_Max_Depth_2(const tree<Node>::iterator& parent, int layer_Index = 0);
 
-	int fill_Epsilon  (tree<Node>::iterator parent, int media_Index = 0);
-	int fill_Sigma    (tree<Node>::iterator parent, int boundary_Index = 0);
-	int fill_Thickness(tree<Node>::iterator parent, int layer_Index = 0);
+	int fill_Epsilon  (const tree<Node>::iterator& parent, int media_Index = 0);
+	int fill_Sigma    (const tree<Node>::iterator& parent, int boundary_Index = 0);
+	int fill_Thickness(const tree<Node>::iterator& parent, int layer_Index = 0);
 };
 
 template <typename T>
-void print_Vector	(QString name, MyVector<T>& vec, int transpose)	// output
+void print_Vector	(QString name, vector<T>& vec, int transpose)	// output
 {
 	if(vec.size()==0) return;
 	if(transpose==0)

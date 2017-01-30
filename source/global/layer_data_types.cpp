@@ -1,3 +1,7 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
+
 #include "layer_data_types.h"
 
 Measurement::Measurement()
@@ -100,7 +104,7 @@ Substrate::Substrate()
 	sigma.value				= substrate_default_sigma;
 
 	interlayer_Composition.clear();
-	interlayer_Composition.resize(transition_Layer_Functions.size());
+	interlayer_Composition.resize(int(transition_Layer_Functions_Size));
 
 	// erf interlayer
 	interlayer_Composition[0].enabled=true;
@@ -126,7 +130,7 @@ Extreme_Layer::Extreme_Layer()
 	thickness.value			= layer_default_thickness;
 
 	interlayer_Composition.clear();
-	interlayer_Composition.resize(transition_Layer_Functions.size());
+	interlayer_Composition.resize(int(transition_Layer_Functions_Size));
 
 	// erf interlayer
 	interlayer_Composition[0].enabled=true;
@@ -152,7 +156,7 @@ Layer::Layer()
 	thickness.value			= layer_default_thickness;
 
 	interlayer_Composition.clear();
-	interlayer_Composition.resize(transition_Layer_Functions.size());
+	interlayer_Composition.resize(int(transition_Layer_Functions_Size));
 
 	// erf interlayer
 	interlayer_Composition[0].enabled=true;

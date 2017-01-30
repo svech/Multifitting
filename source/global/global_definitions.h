@@ -138,8 +138,9 @@ using namespace std;
 // -----------------------------------------------------------------------------------------
 
 // enums
-enum class Item_Type		{Ambient, Layer, Substrate, Stack_Content};
-enum class Variable_Type	{Independent, Coupled, Fitted, Optimized};
+enum class Item_Type			{Ambient, Layer, Substrate, Stack_Content};
+enum class Variable_Type		{Independent, Coupled, Fitted, Optimized};
+enum       Transitional_Layer	{ Erf , Lin , Exp , Tanh , Sin };
 
 // -----------------------------------------------------------------------------------------
 
@@ -147,8 +148,8 @@ enum class Variable_Type	{Independent, Coupled, Fitted, Optimized};
 #define I complex<double>(0,1)
 #define Na 6.022140857E23
 #define Q 4.484891E-30
+#define REAL_VALUED REAL_VALUED
 
-#define MyVector vector
 // -----------------------------------------------------------------------------------------
 
 // simple types					renew corresponding serialization operators!

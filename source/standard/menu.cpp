@@ -1,3 +1,7 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
+
 #include "menu.h"
 
 Menu::Menu(QString window_Type, QWidget *parent):
@@ -208,8 +212,8 @@ void Menu::create_Independent_Precision_Menu()
 
 	precision_Menu = new QMenu("Precision", this);
 
-	QMenu* menu_Thumb  = new QMenu("Thumbnail precision", this);
-	QMenu* menu_Edit   = new QMenu("Operating precision", this);
+	menu_Thumb  = new QMenu("Thumbnail precision", this);
+	menu_Edit   = new QMenu("Operating precision", this);
 
 	precision_Menu->addMenu(menu_Thumb);
 	precision_Menu->addMenu(menu_Edit);

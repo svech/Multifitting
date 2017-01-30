@@ -12,8 +12,6 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 TARGET = Multifitting
 TEMPLATE = app
 
-QMAKE_CXXFLAGS = -O2
-
 INCLUDEPATH += "C:/Program Files (x86)/C++ libraries" \
                "C:/Program Files (x86)/C++ libraries/GSL 2.1/include" \
                "C:/Program Files (x86)/C++ libraries/eigen 3.3.1"

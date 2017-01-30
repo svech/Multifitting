@@ -1,3 +1,7 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
+
 #include "calculation_tree.h"
 #include <iostream>
 
@@ -22,17 +26,17 @@ Calculation_Tree::~Calculation_Tree()
 
 void Calculation_Tree::run_All()
 {
-	create_Local_Item_Tree(independent_Widget_Vec);
+	create_Local_Item_Tree();
 	if(local_Item_Tree_Vec.size()>0)
 	{
 		int independent_Index = 0;
 		max_Depth = tree_Depth(local_Item_Tree_Vec[independent_Index]->invisibleRootItem());	// unstratified depth
 		fill_Calc_Trees();
-		calculate_Intermediate_Values(independent_Widget_Vec);
+		calculate_Intermediate_Values();
 	}
 }
 
-void Calculation_Tree::create_Local_Item_Tree(QVector<Independent_Variables*>& independent_Widget_Vec)
+void Calculation_Tree::create_Local_Item_Tree()
 {
 	// TODO delete local_Item_Tree at the end
 	for(int independent_Index=0; independent_Index<independent_Widget_Vec.size(); ++independent_Index)
@@ -100,7 +104,7 @@ void Calculation_Tree::fill_Calc_Trees()
 	}
 }
 
-void Calculation_Tree::fill_Tree(tree<Node>::iterator parent, QTreeWidgetItem* item, int independent_Index)
+void Calculation_Tree::fill_Tree(const tree<Node>::iterator& parent, QTreeWidgetItem* item, int independent_Index)
 {
 	for(int i=0; i<item->childCount(); ++i)
 	{
@@ -114,7 +118,7 @@ void Calculation_Tree::fill_Tree(tree<Node>::iterator parent, QTreeWidgetItem* i
 	}
 }
 
-void Calculation_Tree::statify_Calc_Tree_Iteration(tree<Node>::iterator parent, int depth, QVector<tree<Node>::iterator>& chosen_Nodes)
+void Calculation_Tree::statify_Calc_Tree_Iteration(const tree<Node>::iterator& parent, int depth, QVector<tree<Node>::iterator>& chosen_Nodes)
 {
 	// iterate over tree, looking for fixed depth
 	for(unsigned i=0; i<parent.number_of_children(); ++i)
@@ -201,7 +205,7 @@ void Calculation_Tree::statify_Calc_Tree(tree<Node>& calc_Tree)
 	}
 }
 
-void Calculation_Tree::calculate_Intermediate_Values(QVector<Independent_Variables*>& independent_Widget_Vec)
+void Calculation_Tree::calculate_Intermediate_Values()
 {
 	// for each plot
 	for(int independent_Index=0; independent_Index<calc_Tree_Vec.size(); ++independent_Index)
@@ -247,25 +251,29 @@ void Calculation_Tree::calculate_Intermediate_Values(QVector<Independent_Variabl
 		} else
 		// 1 tree for 1 plot
 		{
+			auto start = std::chrono::system_clock::now();
 			statify_Calc_Tree(calc_Tree_Vec[independent_Index]);
 			calculate_Intermediate_Values_1_Tree(calc_Tree_Vec[independent_Index].begin(), active_Iter, active_Whats_This_Vec[independent_Index], independent_Index);
-
-			auto start = std::chrono::system_clock::now();
-			calculate_Unwrapped_Structure(independent_Index);
 			auto end = std::chrono::system_clock::now();
-			auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
-			qInfo() << "Unwrap: "<< elapsed.count()/1000. << " seconds" << endl;
+			auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+			qInfo() << "Intermediate: "<< elapsed.count()/1000000. << " seconds" << endl;
+
+			start = std::chrono::system_clock::now();
+			calculate_Unwrapped_Structure(independent_Index);
+			end = std::chrono::system_clock::now();
+			elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+			qInfo() << "Unwrap: "<< elapsed.count()/1000000. << " seconds" << endl;
 
 			start = std::chrono::system_clock::now();
 			calculate_Unwrapped_Reflectivity(independent_Index);
 			end = std::chrono::system_clock::now();
-			elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
-			qInfo() << "Unwrap Reflect: "<< elapsed.count()/1000. << " seconds" << endl;
+			elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+			qInfo() << "Unwrap Reflect: "<< elapsed.count()/1000000. << " seconds" << endl;
 		}
 	}
 }
 
-void Calculation_Tree::calculate_Intermediate_Values_1_Tree(tree<Node>::iterator parent, tree<Node>::iterator active_Iter, QString active_Whats_This, int independent_Index)
+void Calculation_Tree::calculate_Intermediate_Values_1_Tree(const tree<Node>::iterator& parent, tree<Node>::iterator& active_Iter, QString active_Whats_This, int independent_Index, Node* above_Node)
 {
 	// iterate over tree
 	for(unsigned i=0; i<parent.number_of_children(); ++i)
@@ -274,20 +282,24 @@ void Calculation_Tree::calculate_Intermediate_Values_1_Tree(tree<Node>::iterator
 		QStringList whats_This_List = child.node->data.whats_This.split(item_Type_Delimiter,QString::SkipEmptyParts);
 
 		QString warning_Text;
-		int status = child.node->data.calculate_Intermediate_Points(active_Iter, active_Whats_This, warning_Text);
+
+		int status = child.node->data.calculate_Intermediate_Points(active_Iter, above_Node, active_Whats_This, warning_Text);
 		if(status!=0)
 		{
 			emit warning(warning_Text);
 			return;
 		}
-		if(whats_This_List[0] == whats_This_Multilayer)
+		if(whats_This_List[0] != whats_This_Multilayer)
 		{
-			calculate_Intermediate_Values_1_Tree(child, active_Iter, active_Whats_This, independent_Index);
+			above_Node = &child.node->data;
+		} else
+		{
+			calculate_Intermediate_Values_1_Tree(child, active_Iter, active_Whats_This, independent_Index, above_Node);
 		}
 	}
 }
 
-tree<Node>::iterator Calculation_Tree::find_Node(tree<Node>::iterator parent, QString active_Whats_This, int independent_Index)
+tree<Node>::iterator Calculation_Tree::find_Node(const tree<Node>::iterator& parent, QString active_Whats_This, int independent_Index)
 {
 	for(unsigned i=0; i<parent.number_of_children(); ++i)
 	{
@@ -314,20 +326,8 @@ tree<Node>::iterator Calculation_Tree::find_Node(tree<Node>::iterator parent, QS
 void Calculation_Tree::calculate_Unwrapped_Structure(int independent_Index)
 {
 	num_Media = get_Total_Num_Layers(calc_Tree_Vec[independent_Index].begin(), independent_Index);
-	Unwrapped_Structure*   new_Unwrapped_Structure  = new Unwrapped_Structure (num_Media);
+	Unwrapped_Structure*   new_Unwrapped_Structure  = new Unwrapped_Structure (&calc_Tree_Vec[independent_Index], num_Media, max_Depth);
 	unwrapped_Structure_Vec [independent_Index] = new_Unwrapped_Structure;
-
-	if(max_Depth <= 2)
-	{
-		new_Unwrapped_Structure->fill_Epsilon_Max_Depth_2	(calc_Tree_Vec[independent_Index].begin());
-		new_Unwrapped_Structure->fill_Sigma_Max_Depth_2		(calc_Tree_Vec[independent_Index].begin());
-		new_Unwrapped_Structure->fill_Thickness_Max_Depth_2 (calc_Tree_Vec[independent_Index].begin());
-	} else
-	{
-		new_Unwrapped_Structure->fill_Epsilon	(calc_Tree_Vec[independent_Index].begin());
-		new_Unwrapped_Structure->fill_Sigma		(calc_Tree_Vec[independent_Index].begin());
-		new_Unwrapped_Structure->fill_Thickness (calc_Tree_Vec[independent_Index].begin());
-	}
 }
 
 void Calculation_Tree::calculate_Unwrapped_Reflectivity(int independent_Index)
@@ -341,24 +341,17 @@ void Calculation_Tree::calculate_Unwrapped_Reflectivity(int independent_Index)
 	auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
 	qInfo() << "Bare Reflectivity:      "<< elapsed.count()/1000. << " seconds" << endl;
 
-//	cout << "r_s    [" << 0 << "] = " << unwrapped_Reflection_Vec[independent_Index]->r_s[0] << endl;
-//	cout << "r_p    [" << 0 << "] = " << unwrapped_Reflection_Vec[independent_Index]->r_p[0] << endl;
+	cout << "r_s     [" << 0 << "] = " << unwrapped_Reflection_Vec[independent_Index]->r_s[0] << endl;
+	cout << "r_p     [" << 0 << "] = " << unwrapped_Reflection_Vec[independent_Index]->r_p[0] << endl;
 
-//	cout << "R_s    [" << 0 << "] = " << unwrapped_Reflection_Vec[independent_Index]->R_s[0] << endl;
-//	cout << "R_p    [" << 0 << "] = " << unwrapped_Reflection_Vec[independent_Index]->R_p[0] << endl;
-//	cout << "--------------------------------\n";
-
-	cout << "r_s_RV [" << 0 << "] = " << unwrapped_Reflection_Vec[independent_Index]->r_s_RV[0] << endl;
-	cout << "r_p_RV [" << 0 << "] = " << unwrapped_Reflection_Vec[independent_Index]->r_p_RV[0] << endl;
-
-	cout << "R_s_RV [" << 0 << "] = " << unwrapped_Reflection_Vec[independent_Index]->R_s_RV[0] << endl;
-	cout << "R_p_RV [" << 0 << "] = " << unwrapped_Reflection_Vec[independent_Index]->R_p_RV[0] << endl;
+	cout << "R_s     [" << 0 << "] = " << unwrapped_Reflection_Vec[independent_Index]->R_s[0] << endl;
+	cout << "R_p     [" << 0 << "] = " << unwrapped_Reflection_Vec[independent_Index]->R_p[0] << endl;
 	cout << "--------------------------------\n";
 }
 
-int Calculation_Tree::get_Total_Num_Layers(tree<Node>::iterator parent, int independent_Index)
+int Calculation_Tree::get_Total_Num_Layers(const tree<Node>::iterator& parent, int independent_Index)
 {
-	int num_Media = 0;
+	int num_Media_Local = 0;
 	for(unsigned i=0; i<parent.number_of_children(); ++i)
 	{
 		tree<Node>::post_order_iterator child = calc_Tree_Vec[independent_Index].child(parent,i);
@@ -368,15 +361,15 @@ int Calculation_Tree::get_Total_Num_Layers(tree<Node>::iterator parent, int inde
 		   whats_This_List[0] == whats_This_Layer   ||
 		   whats_This_List[0] == whats_This_Substrate )
 		{
-			num_Media += 1;
+			num_Media_Local += 1;
 		}
 
 		if(whats_This_List[0] == whats_This_Multilayer)
 		{
-			num_Media += child.node->data.stack_Content.num_Repetition.value * get_Total_Num_Layers(child, independent_Index);
+			num_Media_Local += child.node->data.stack_Content.num_Repetition.value * get_Total_Num_Layers(child, independent_Index);
 		}
 	}
-	return num_Media;
+	return num_Media_Local;
 }
 
 int  Calculation_Tree::tree_Depth(QTreeWidgetItem* item)
@@ -394,7 +387,7 @@ int  Calculation_Tree::tree_Depth(QTreeWidgetItem* item)
 	return depth;
 }
 
-void Calculation_Tree::print_Tree(tree<Node>::iterator parent, int independent_Index)
+void Calculation_Tree::print_Tree(const tree<Node>::iterator& parent, int independent_Index)
 {
 	for(unsigned i=0; i<parent.number_of_children(); ++i)
 	{

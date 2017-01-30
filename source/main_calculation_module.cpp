@@ -1,3 +1,7 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
+
 #include "main_calculation_module.h"
 
 Main_Calculation_Module::Main_Calculation_Module(QList<Multilayer*> multilayer_List):

@@ -1,3 +1,7 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
+
 #include "structure_toolbar.h"
 
 Structure_Toolbar::Structure_Toolbar(Structure_Tree* structure_Tree, QWidget *parent) :
@@ -181,14 +185,15 @@ void Structure_Toolbar::edit(bool)
 
 void Structure_Toolbar::remove(bool)
 {
+	QTreeWidgetItem* current = structure_Tree->tree->currentItem();
 	// TODO show item name before removal
-	if((structure_Tree->tree->currentItem()->parent())&&(structure_Tree->tree->currentItem()->parent()->childCount()==2))
+	if((current->parent())&&(current->parent()->childCount()==2))
 	{
-		QMessageBox::StandardButton reply = QMessageBox::question(this,"Removal", "Multilayer " + structure_Tree->tree->currentItem()->parent()->whatsThis(DEFAULT_COLUMN)+" will be disbanded.\nContinue?", QMessageBox::Yes|QMessageBox::No, QMessageBox::No);
+		QMessageBox::StandardButton reply = QMessageBox::question(this,"Removal", "Multilayer " + current->parent()->whatsThis(DEFAULT_COLUMN)+" will be disbanded.\nContinue?", QMessageBox::Yes|QMessageBox::No, QMessageBox::No);
 		if (reply == QMessageBox::Yes)
 		{
-			QTreeWidgetItem* parent = structure_Tree->tree->currentItem()->parent();
-			delete structure_Tree->tree->currentItem();
+			QTreeWidgetItem* parent = current->parent();
+			delete current;
 
 			QTreeWidgetItem* survived_Child_Copy = new QTreeWidgetItem();
 			*survived_Child_Copy = *parent->child(0);
@@ -207,16 +212,16 @@ void Structure_Toolbar::remove(bool)
 			}
 		}
 	} else
-	if(structure_Tree->tree->currentItem()->whatsThis(DEFAULT_COLUMN) != whats_This_Ambient)
+	if(current->whatsThis(DEFAULT_COLUMN) != whats_This_Ambient)
 	{
-		QMessageBox::StandardButton reply = QMessageBox::question(this,"Removal", "Really remove "+structure_Tree->tree->currentItem()->whatsThis(DEFAULT_COLUMN)+"?", QMessageBox::Yes|QMessageBox::No, QMessageBox::No);
+		QMessageBox::StandardButton reply = QMessageBox::question(this,"Removal", "Really remove " + current->whatsThis(DEFAULT_COLUMN)+"?", QMessageBox::Yes|QMessageBox::No, QMessageBox::No);
 		if (reply == QMessageBox::Yes)
 		{
-			if(structure_Tree->tree->currentItem()->whatsThis(DEFAULT_COLUMN) == whats_This_Substrate)
+			if(current->whatsThis(DEFAULT_COLUMN) == whats_This_Substrate)
 			{
 				toolbar->actions()[2]->setDisabled(false);		// add_Substrate
 			}
-			delete structure_Tree->tree->currentItem();
+			delete current;
 		}
 	} else
 	{
@@ -231,7 +236,7 @@ void Structure_Toolbar::remove(bool)
 			new_Ambient->setWhatsThis(DEFAULT_COLUMN,whats_This_Ambient);
 			structure_Tree->tree->insertTopLevelItem(1,new_Ambient);
 
-			delete structure_Tree->tree->currentItem();
+			delete current;
 		}
 	}
 
@@ -240,16 +245,17 @@ void Structure_Toolbar::remove(bool)
 
 void Structure_Toolbar::cut(bool)
 {
+	QTreeWidgetItem* current = structure_Tree->tree->currentItem();
 	buffered = structure_Tree->tree->currentItem()->clone();
 
 	// TODO show item name before cut
-	if((structure_Tree->tree->currentItem()->parent())&&(structure_Tree->tree->currentItem()->parent()->childCount()==2))
+	if((current->parent())&&(current->parent()->childCount()==2))
 	{
-		QMessageBox::StandardButton reply = QMessageBox::question(this,"Cut", "Multilayer "+structure_Tree->tree->currentItem()->parent()->whatsThis(DEFAULT_COLUMN)+" will be disbanded.\nContinue?", QMessageBox::Yes|QMessageBox::No, QMessageBox::No);
+		QMessageBox::StandardButton reply = QMessageBox::question(this,"Cut", "Multilayer " + current->parent()->whatsThis(DEFAULT_COLUMN)+" will be disbanded.\nContinue?", QMessageBox::Yes|QMessageBox::No, QMessageBox::No);
 		if (reply == QMessageBox::Yes)
 		{
-			QTreeWidgetItem* parent = structure_Tree->tree->currentItem()->parent();
-			delete structure_Tree->tree->currentItem();
+			QTreeWidgetItem* parent = current->parent();
+			delete current;
 
 			QTreeWidgetItem* survived_Child_Copy = new QTreeWidgetItem();
 			*survived_Child_Copy = *parent->child(0);
@@ -269,14 +275,14 @@ void Structure_Toolbar::cut(bool)
 		}
 	} else
 	{
-		QMessageBox::StandardButton reply = QMessageBox::question(this,"Cut", "Really cut "+structure_Tree->tree->currentItem()->whatsThis(DEFAULT_COLUMN)+"?", QMessageBox::Yes|QMessageBox::No, QMessageBox::No);
+		QMessageBox::StandardButton reply = QMessageBox::question(this,"Cut", "Really cut " + current->whatsThis(DEFAULT_COLUMN)+"?", QMessageBox::Yes|QMessageBox::No, QMessageBox::No);
 		if (reply == QMessageBox::Yes)
 		{
-			if(structure_Tree->tree->currentItem()->whatsThis(DEFAULT_COLUMN) == whats_This_Substrate)
+			if(current->whatsThis(DEFAULT_COLUMN) == whats_This_Substrate)
 			{
 				toolbar->actions()[2]->setDisabled(false);
 			}
-			delete structure_Tree->tree->currentItem();
+			delete current;
 		}
 	}
 	refresh_Toolbar();
@@ -341,24 +347,25 @@ void Structure_Toolbar::group(bool)
 
 void Structure_Toolbar::ungroup(bool)
 {
+	QTreeWidgetItem* current = structure_Tree->tree->currentItem();
 	int position = structure_Tree->tree->currentIndex().row();
 
 	// deep copy of children
 	QList<QTreeWidgetItem*> child_List;
-	for(int i=0; i<structure_Tree->tree->currentItem()->childCount(); i++)
+	for(int i=0; i<current->childCount(); i++)
 	{
-		child_List.append(structure_Tree->tree->currentItem()->child(i)->clone());
+		child_List.append(current->child(i)->clone());
 	}
 
 	// if nested
-	if(structure_Tree->tree->currentItem()->parent())
+	if(current->parent())
 	{
-		structure_Tree->tree->currentItem()->parent()->insertChildren(position+1, child_List);
-		delete structure_Tree->tree->currentItem();
+		current->parent()->insertChildren(position+1, child_List);
+		delete current;
 	} else
 	{
 		structure_Tree->tree->insertTopLevelItems(position+1, child_List);
-		delete structure_Tree->tree->currentItem();
+		delete current;
 	}
 
 	refresh_Toolbar();
@@ -519,7 +526,7 @@ void Structure_Toolbar::add_Buffered_Layer(QTreeWidgetItem* new_Layer_Passed)
 {
 	// copy of new_Layer
 	QTreeWidgetItem* new_Layer = new QTreeWidgetItem;
-	new_Layer = new_Layer_Passed->clone();
+	new_Layer = new_Layer_Passed->clone(); //-V519
 
 	// if no structure_Tree->tree at all (at the beginning)
 	if(structure_Tree->tree->topLevelItemCount()==0)

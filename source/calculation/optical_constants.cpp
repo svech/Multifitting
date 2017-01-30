@@ -1,3 +1,7 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
+
 #include "optical_Constants.h"
 
 using namespace std;
@@ -165,7 +169,7 @@ int Optical_Constants::interpolation_Epsilon(QVector<Point>& input_Values, QVect
 	gsl_interp_accel* acc_Re = gsl_interp_accel_alloc();
 	gsl_interp_accel* acc_Im = gsl_interp_accel_alloc();
 	gsl_spline* spline_Re = gsl_spline_alloc(interp_type, input_Values.size());
-	gsl_spline* spline_Im = gsl_spline_alloc(interp_type, input_Values.size());
+	gsl_spline* spline_Im = gsl_spline_alloc(interp_type, input_Values.size()); //-V656
 
 	QVector<double> lambda,re,im;
 	for(int i=0; i<input_Values.size(); ++i)

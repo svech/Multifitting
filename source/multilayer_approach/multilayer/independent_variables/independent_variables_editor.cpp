@@ -1,3 +1,7 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
+
 #include "independent_variables_editor.h"
 
 Independent_Variables_Editor::Independent_Variables_Editor(QTreeWidgetItem* structure_Item, QListWidgetItem* item, QListWidget* variables_List, QWidget *parent) :
@@ -1674,9 +1678,10 @@ void Independent_Variables_Editor::refresh_Show_Data(bool show)
 			{
 				num_Points->setText(QString::number(measurement.wavelength.independent.num_Points));
 				num_Points->textEdited(num_Points->text());
-			} else
+			}
 			// don't uncomment
-/*			if(min->text().toDouble()==0)
+/*			else
+			if(min->text().toDouble()==0)
 			{
 				if(measurement.wavelength.independent.num_Points == 1)
 					min->setText(QString::number(Global_Variables::wavelength_Energy(wavelength_units,measurement.wavelength.value)/coeff,line_edit_double_format,line_edit_wavelength_precision));
