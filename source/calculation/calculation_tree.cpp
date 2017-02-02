@@ -251,6 +251,9 @@ void Calculation_Tree::calculate_Intermediate_Values()
 		} else
 		// 1 tree for 1 plot
 		{
+			QStringList active_Whats_This_List = active_Whats_This_Vec[independent_Index].split(whats_This_Delimiter,QString::SkipEmptyParts);
+			qInfo() << active_Whats_This_List[1] << endl;
+
 			auto start = std::chrono::system_clock::now();
 			statify_Calc_Tree(calc_Tree_Vec[independent_Index]);
 			calculate_Intermediate_Values_1_Tree(calc_Tree_Vec[independent_Index].begin(), active_Iter, active_Whats_This_Vec[independent_Index], independent_Index);
@@ -259,7 +262,7 @@ void Calculation_Tree::calculate_Intermediate_Values()
 			qInfo() << "Intermediate: "<< elapsed.count()/1000000. << " seconds" << endl;
 
 			start = std::chrono::system_clock::now();
-			calculate_Unwrapped_Structure(independent_Index);
+			calculate_Unwrapped_Structure(active_Iter, active_Whats_This_Vec[independent_Index], independent_Index);
 			end = std::chrono::system_clock::now();
 			elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
 			qInfo() << "Unwrap: "<< elapsed.count()/1000000. << " seconds" << endl;
@@ -269,11 +272,13 @@ void Calculation_Tree::calculate_Intermediate_Values()
 			end = std::chrono::system_clock::now();
 			elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
 			qInfo() << "Unwrap Reflect: "<< elapsed.count()/1000000. << " seconds" << endl;
+
+			print_Reflect_To_File(measurement_Vec[independent_Index], active_Whats_This_Vec[independent_Index], independent_Index);
 		}
 	}
 }
 
-void Calculation_Tree::calculate_Intermediate_Values_1_Tree(const tree<Node>::iterator& parent, tree<Node>::iterator& active_Iter, QString active_Whats_This, int independent_Index, Node* above_Node)
+void Calculation_Tree::calculate_Intermediate_Values_1_Tree(const tree<Node>::iterator& parent, const tree<Node>::iterator& active_Iter, QString active_Whats_This, int independent_Index, Node* above_Node)
 {
 	// iterate over tree
 	for(unsigned i=0; i<parent.number_of_children(); ++i)
@@ -323,10 +328,10 @@ tree<Node>::iterator Calculation_Tree::find_Node(const tree<Node>::iterator& par
 	return parent;
 }
 
-void Calculation_Tree::calculate_Unwrapped_Structure(int independent_Index)
+void Calculation_Tree::calculate_Unwrapped_Structure(const tree<Node>::iterator& active_Iter, QString active_Whats_This, int independent_Index)
 {
 	num_Media = get_Total_Num_Layers(calc_Tree_Vec[independent_Index].begin(), independent_Index);
-	Unwrapped_Structure*   new_Unwrapped_Structure  = new Unwrapped_Structure (&calc_Tree_Vec[independent_Index], num_Media, max_Depth);
+	Unwrapped_Structure*   new_Unwrapped_Structure  = new Unwrapped_Structure (&calc_Tree_Vec[independent_Index], active_Iter, active_Whats_This, num_Media, max_Depth);
 	unwrapped_Structure_Vec [independent_Index] = new_Unwrapped_Structure;
 }
 
@@ -336,9 +341,10 @@ void Calculation_Tree::calculate_Unwrapped_Reflectivity(int independent_Index)
 	unwrapped_Reflection_Vec[independent_Index] = new_Unwrapped_Reflection;
 
 	auto start = std::chrono::system_clock::now();
-	unwrapped_Reflection_Vec[independent_Index]->calc_Reflectivity();
+	unwrapped_Reflection_Vec[independent_Index]->calc_Specular();
 	auto end = std::chrono::system_clock::now();
 	auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+
 	qInfo() << "Bare Reflectivity:      "<< elapsed.count()/1000. << " seconds" << endl;
 
 	cout << "r_s     [" << 0 << "] = " << unwrapped_Reflection_Vec[independent_Index]->r_s[0] << endl;
@@ -347,6 +353,38 @@ void Calculation_Tree::calculate_Unwrapped_Reflectivity(int independent_Index)
 	cout << "R_s     [" << 0 << "] = " << unwrapped_Reflection_Vec[independent_Index]->R_s[0] << endl;
 	cout << "R_p     [" << 0 << "] = " << unwrapped_Reflection_Vec[independent_Index]->R_p[0] << endl;
 	cout << "--------------------------------\n";
+}
+
+void Calculation_Tree::print_Reflect_To_File(const Measurement& measurement, QString active_Whats_This, int independent_Index)
+{
+	int num_Points = 0;
+	QVector<double> arg;
+	QStringList active_Whats_This_List = active_Whats_This.split(whats_This_Delimiter,QString::SkipEmptyParts);
+	if(active_Whats_This_List[1] == whats_This_Angle )
+	{
+		num_Points = measurement.angle.size();
+		arg = measurement.angle;
+	}
+	if(active_Whats_This_List[1] == whats_This_Wavelength )
+	{
+		num_Points = measurement.lambda.size();
+		arg = measurement.lambda;
+	}
+
+	QString name = "refl_"+QString::number(independent_Index)+".txt";
+	QFile file(name);
+	if (file.open(QIODevice::WriteOnly))
+	{
+		QTextStream out(&file);
+		for(auto i=0; i<num_Points; ++i)
+		{
+			out << "\t" << QString::number(arg[i],'f',4)
+				<< "\t" << QString::number(unwrapped_Reflection_Vec[independent_Index]->R[i],'e',6)
+				<< endl;
+		}
+	file.close();
+	} else{QTextStream(stderr) << "Calculation_Tree::print_Reflect_To_File  :  Can't write file " + name << endl;	exit(EXIT_FAILURE);}
+
 }
 
 int Calculation_Tree::get_Total_Num_Layers(const tree<Node>::iterator& parent, int independent_Index)

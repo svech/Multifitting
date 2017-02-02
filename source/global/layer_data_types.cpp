@@ -45,25 +45,31 @@ Measurement::Measurement()
 void Measurement::calc_Independent_cos2_k()
 {
 	// cos2
+	angle_Value = probe_Angle.value;
 	cos2_Value = pow(cos(probe_Angle.value*M_PI/180.),2);
+	angle.resize(probe_Angle.independent.num_Points);
 	cos2.resize(probe_Angle.independent.num_Points);
 
 	if(probe_Angle.independent.num_Points>1)
 	{
 		double angle_Step = (probe_Angle.independent.max - probe_Angle.independent.min) / (probe_Angle.independent.num_Points - 1);
-		double angle = probe_Angle.independent.min;
+		double angle_Temp = probe_Angle.independent.min;
 		for(int i=0; i<probe_Angle.independent.num_Points; ++i)
 		{
-			cos2[i] = pow(cos(angle*M_PI/180.),2);
-			angle += angle_Step;
+			cos2[i] = pow(cos(angle_Temp*M_PI/180.),2);
+			angle[i] = angle_Temp;
+			angle_Temp += angle_Step;
 		}
 	} else
 	{
 		cos2[0] = cos2_Value;
+		angle[0] = angle_Value;
 	}
 
 	// k
+	lambda_Value = wavelength.value;
 	k_Value = 2*M_PI/wavelength.value;
+	lambda.resize(wavelength.independent.num_Points);
 	k.resize(wavelength.independent.num_Points);
 
 	if(wavelength.independent.num_Points>1)
@@ -73,10 +79,12 @@ void Measurement::calc_Independent_cos2_k()
 		for(int i=0; i<wavelength.independent.num_Points; ++i)
 		{
 			k[i] = 2*M_PI/wave;
+			lambda[i] = wave;
 			wave += wave_Step;
 		}
 	} else
 	{
+		lambda[0] = lambda_Value;
 		k[0] = k_Value;
 	}
 }

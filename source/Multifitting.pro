@@ -61,4 +61,3 @@ HEADERS  += launcher.h \
     calculation/optical_constants.h \
     calculation/unwrapped/unwrapped_reflection.h \
     calculation/unwrapped/unwrapped_structure.h
-

@@ -11,14 +11,18 @@ public:
 	// angle
 	Parameter probe_Angle;
 	QVector<double>  cos2;
+	QVector<double>  angle;
 	double			 cos2_Value;
+	double			 angle_Value;
 	Parameter angular_Resolution;
 	QString	  angle_Type;
 
 	// wavelength
 	Parameter wavelength;
 	QVector<double>    k;
+	QVector<double>	   lambda;
 	double			   k_Value;
+	double			   lambda_Value;
 	Parameter spectral_Resolution; // warning: can be in eV or keV
 	Parameter polarization;
 	Parameter polarization_Sensitivity;

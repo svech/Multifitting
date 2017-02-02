@@ -35,10 +35,10 @@ private:
 //	QList<Node> flatten_Stratified_Calc_Tree_List(tree<Node>& calc_Tree, QMap<int, tree<Node>::iterator>& flat_Tree_Map);
 
 	void calculate_Intermediate_Values();
-	void calculate_Intermediate_Values_1_Tree(const tree<Node>::iterator& parent, tree<Node>::iterator& active_Iter, QString active_Whats_This, int independent_Index, Node* above_Node = NULL);
+	void calculate_Intermediate_Values_1_Tree(const tree<Node>::iterator& parent, const tree<Node>::iterator& active_Iter, QString active_Whats_This, int independent_Index, Node* above_Node = NULL);
 	tree<Node>::iterator find_Node(const tree<Node>::iterator& parent, QString active_Whats_This, int independent_Index);
 
-	void calculate_Unwrapped_Structure(int independent_Index);
+	void calculate_Unwrapped_Structure(const tree<Node>::iterator& active_Iter, QString active_Whats_This, int independent_Index);
 	void calculate_Unwrapped_Reflectivity(int independent_Index);
 
 //	void multiply_Matrices(tree<Node>::iterator parent, tree<Node>::iterator active_Iter, Eigen::Matrix2cd& interferentional_Matrix_s, Eigen::Matrix2cd& interferentional_Matrix_p, int independent_Index, int plot_Point);
@@ -46,6 +46,7 @@ private:
 	int get_Total_Num_Layers(const tree<Node>::iterator& parent, int independent_Index);
 	int get_Item_Depth(QTreeWidgetItem* item);
 
+	void print_Reflect_To_File(const Measurement& measurement, QString active_Whats_This, int independent_Index);
 	void print_Tree(const tree<Node>::iterator& parent, int independent_Index);
 	void print_Flat_list(QList<Node> flat_List);
 	void print_Item_Tree(QTreeWidgetItem* item);

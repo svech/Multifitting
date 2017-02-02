@@ -124,6 +124,7 @@ private:
 						QVector<QCheckBox*> interlayer_Composition_Check_Box_Vec;
 						QVector<QLineEdit*> interlayer_Composition_Line_Edit_Vec;
 				QCheckBox* psd_Check_Box;
+			QPushButton* sigma_Grading_Button;
 
 		QGroupBox* multilayer_Group_Box;
 			QLineEdit* repetitions_Line_Edit;

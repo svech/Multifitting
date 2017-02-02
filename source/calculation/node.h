@@ -11,7 +11,7 @@ public:
 	Node();
 	Node(QTreeWidgetItem* item);
 
-	int calculate_Intermediate_Points(tree<Node>::iterator& active_Iter, Node* above_Node, QString active_Whats_This, QString& warning_Text);
+	int calculate_Intermediate_Points(const tree<Node>::iterator& active_Iter, Node* above_Node, QString active_Whats_This, QString& warning_Text);
 
 	QString whats_This;
 	QStringList whats_This_List;
@@ -23,39 +23,31 @@ public:
 	Substrate substrate;
 
 	/// ------------------------------------------------
-	/// if angle
+
+	vector<complex<double>> delta_Epsilon;
+	vector<complex<double>> epsilon;
+
 	/// ------------------------------------------------
 
-	// for any type
+	vector<double> epsilon_RE;
+	vector<double> epsilon_IM;
+	vector<double> epsilon_NORM;
+
+	vector<double> hi_RE;
+	vector<double> hi_IM;
+	vector<double> Fresnel_s_RE;
+	vector<double> Fresnel_s_IM;
+	vector<double> Fresnel_p_RE;
+	vector<double> Fresnel_p_IM;
+	vector<double> exponenta_RE;
+	vector<double> exponenta_IM;
+	vector<double> weak_Factor;
+
+	/// ------------------------------------------------
+
 	Ambient common_Data;
-	complex<double> delta_Epsilon_Ang;
-	complex<double> epsilon_Ang;
-
-#ifndef REAL_VALUED    // complex-valued
-	vector<complex<double>> hi_Ang;
-	vector<complex<double>> Fresnel_s_Ang;
-	vector<complex<double>> Fresnel_p_Ang;
-	vector<complex<double>> exponenta_Ang;
-#else	               // real-valued
-	double epsilon_Ang_RE;
-	double epsilon_Ang_IM;
-	double epsilon_Ang_NORM;
-	vector<double> hi_Ang_RE;
-	vector<double> hi_Ang_IM;
-	vector<double> Fresnel_s_Ang_RE;
-	vector<double> Fresnel_s_Ang_IM;
-	vector<double> Fresnel_p_Ang_RE;
-	vector<double> Fresnel_p_Ang_IM;
-	vector<double> exponenta_Ang_RE;
-	vector<double> exponenta_Ang_IM;
-#endif
-	vector<double> weak_Factor_Ang;
-
-	// for layers and substrate
 	double sigma;
 	vector<Interlayer> boundary_Interlayer_Composition;
-
-	// for layers
 	double thickness;
 };
 

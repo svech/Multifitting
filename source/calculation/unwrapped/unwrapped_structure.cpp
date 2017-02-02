@@ -9,7 +9,7 @@ Unwrapped_Structure::Unwrapped_Structure() //-V730
 
 }
 
-Unwrapped_Structure::Unwrapped_Structure(tree<Node>* calc_Tree, int num_Media, int max_Depth):
+Unwrapped_Structure::Unwrapped_Structure(tree<Node>* calc_Tree, const tree<Node>::iterator& active_Iter, QString active_Whats_This, int num_Media, int max_Depth):
 	calc_Tree		(calc_Tree),
 	num_Threads		(epsilon_Partial_Fill_Threads),
 	num_Media		(num_Media),
@@ -19,27 +19,42 @@ Unwrapped_Structure::Unwrapped_Structure(tree<Node>* calc_Tree, int num_Media, i
 {	
 	if(max_Depth > 2)
 	{
-		epsilon.resize(num_Media);
-#ifdef REAL_VALUED    // real-valued
-		epsilon_Norm.resize(num_Media);
-		epsilon_RE.resize(num_Media);
-		epsilon_IM.resize(num_Media);
-#endif
+		QStringList active_Whats_This_List = active_Whats_This.split(whats_This_Delimiter,QString::SkipEmptyParts);
+
+		if(active_Whats_This_List[1] == whats_This_Wavelength )
+		{
+			Measurement* measur = &active_Iter.node->data.measurement;
+			int num_Lambda_Points = measur->lambda.size();
+
+			epsilon_Dependent.resize(num_Lambda_Points, vector<complex<double>>(num_Media));
+			epsilon_Dependent_RE.resize(num_Lambda_Points, vector<double>(num_Media));
+			epsilon_Dependent_IM.resize(num_Lambda_Points, vector<double>(num_Media));
+			epsilon_Dependent_NORM.resize(num_Lambda_Points, vector<double>(num_Media));
+
+			fill_Epsilon_Dependent(calc_Tree->begin(), num_Lambda_Points);
+		} else
+		{
+			epsilon.resize(num_Media);
+			epsilon_RE.resize(num_Media);
+			epsilon_IM.resize(num_Media);
+			epsilon_NORM.resize(num_Media);
+
+			fill_Epsilon(calc_Tree->begin());
+		}
+
 		sigma.resize(num_Boundaries);
 		boundary_Interlayer_Composition.resize(num_Boundaries, vector<Interlayer>(transition_Layer_Functions_Size));
 		thickness.resize(num_Layers);
 
-		fill_Epsilon	(calc_Tree->begin());
 		fill_Sigma		(calc_Tree->begin());
 		fill_Thickness	(calc_Tree->begin());
 	} /*else
 	{
 		epsilon.resize(num_Media);
-#ifdef REAL_VALUED    // real-valued
 		epsilon_Norm.resize(num_Media);
 		epsilon_RE.resize(num_Media);
 		epsilon_IM.resize(num_Media);
-#endif
+
 		sigma.resize(num_Boundaries);
 		boundary_Interlayer_Composition.resize(num_Boundaries, vector<Interlayer>(transition_Layer_Functions_Size));
 		thickness.resize(num_Layers);
@@ -63,12 +78,10 @@ int Unwrapped_Structure::fill_Epsilon_Max_Depth_2(const tree<Node>::iterator& pa
 		   whats_This_List[0] == whats_This_Substrate )
 		{
 			// TODO extreme layers
-				epsilon[media_Index] = child.node->data.epsilon_Ang;
-			#ifdef REAL_VALUED    // real-valued
+				epsilon[media_Index] = child.node->data.epsilon;
 				epsilon_Norm[media_Index] = real(epsilon[media_Index])*real(epsilon[media_Index]) + imag(epsilon[media_Index])*imag(epsilon[media_Index]);
 				epsilon_RE  [media_Index] = real(epsilon[media_Index]);
 				epsilon_IM  [media_Index] = imag(epsilon[media_Index]);
-			#endif
 			++media_Index;
 		}
 
@@ -80,12 +93,10 @@ int Unwrapped_Structure::fill_Epsilon_Max_Depth_2(const tree<Node>::iterator& pa
 				{
 					tree<Node>::post_order_iterator grandchild = tree<Node>::child(child,grandchild_Index);
 					// TODO extreme layers
-						epsilon[media_Index] = grandchild.node->data.epsilon_Ang;
-					#ifdef REAL_VALUED    // real-valued
+						epsilon[media_Index] = grandchild.node->data.epsilon;
 						epsilon_Norm[media_Index] = real(epsilon[media_Index])*real(epsilon[media_Index]) + imag(epsilon[media_Index])*imag(epsilon[media_Index]);
 						epsilon_RE  [media_Index] = real(epsilon[media_Index]);
 						epsilon_IM  [media_Index] = imag(epsilon[media_Index]);
-					#endif
 					++media_Index;
 				}
 			}
@@ -181,7 +192,6 @@ int Unwrapped_Structure::fill_Thickness_Max_Depth_2(const tree<Node>::iterator& 
 }
 */
 
-
 int Unwrapped_Structure::fill_Epsilon(const tree<Node>::iterator& parent, int media_Index)
 {
 	for(unsigned child_Index=0; child_Index<parent.number_of_children(); ++child_Index)
@@ -194,12 +204,10 @@ int Unwrapped_Structure::fill_Epsilon(const tree<Node>::iterator& parent, int me
 		   whats_This_List[0] == whats_This_Substrate )
 		{
 			// TODO extreme layers
-				epsilon[media_Index] = child.node->data.epsilon_Ang;
-			#ifdef REAL_VALUED    // real-valued
-				epsilon_Norm[media_Index] = real(epsilon[media_Index])*real(epsilon[media_Index]) + imag(epsilon[media_Index])*imag(epsilon[media_Index]);
-				epsilon_RE  [media_Index] = real(epsilon[media_Index]);
-				epsilon_IM  [media_Index] = imag(epsilon[media_Index]);
-			#endif
+				epsilon     [media_Index] = child.node->data.epsilon     .front();
+				epsilon_RE  [media_Index] = child.node->data.epsilon_RE  .front();
+				epsilon_IM  [media_Index] = child.node->data.epsilon_IM  .front();
+				epsilon_NORM[media_Index] = child.node->data.epsilon_NORM.front();
 			++media_Index;
 		}
 
@@ -208,6 +216,39 @@ int Unwrapped_Structure::fill_Epsilon(const tree<Node>::iterator& parent, int me
 			for(int period_Index=0; period_Index<child.node->data.stack_Content.num_Repetition.value; ++period_Index)
 			{
 				media_Index = fill_Epsilon(child, media_Index);
+			}
+		}
+	}
+	return media_Index;
+}
+
+int Unwrapped_Structure::fill_Epsilon_Dependent(const tree<Node>::iterator& parent, int num_Lambda_Points, int media_Index)
+{
+	for(unsigned child_Index=0; child_Index<parent.number_of_children(); ++child_Index)
+	{
+		tree<Node>::post_order_iterator child = tree<Node>::child(parent,child_Index);
+		QStringList whats_This_List = child.node->data.whats_This_List;
+
+		if(whats_This_List[0] == whats_This_Ambient ||
+		   whats_This_List[0] == whats_This_Layer   ||
+		   whats_This_List[0] == whats_This_Substrate )
+		{
+			for(int point_Index = 0; point_Index<num_Lambda_Points; ++point_Index)
+			{
+			// TODO extreme layers
+				epsilon_Dependent     [point_Index][media_Index] = child.node->data.epsilon     [point_Index];
+				epsilon_Dependent_RE  [point_Index][media_Index] = child.node->data.epsilon_RE  [point_Index];
+				epsilon_Dependent_IM  [point_Index][media_Index] = child.node->data.epsilon_IM  [point_Index];
+				epsilon_Dependent_NORM[point_Index][media_Index] = child.node->data.epsilon_NORM[point_Index];
+			}
+			++media_Index;
+		}
+
+		if(whats_This_List[0] == whats_This_Multilayer)
+		{
+			for(int period_Index=0; period_Index<child.node->data.stack_Content.num_Repetition.value; ++period_Index)
+			{
+				media_Index = fill_Epsilon_Dependent(child, num_Lambda_Points, media_Index);
 			}
 		}
 	}

@@ -4,6 +4,7 @@
 #include <QtWidgets>
 #include <vector>
 #include <complex>
+//#include "float.h"
 
 using namespace std;
 
@@ -86,7 +87,7 @@ using namespace std;
 
 // magic numbers
 #define MAX_DOUBLE 1E300
-#define MAX_INTEGER MAXINT
+#define MAX_INTEGER INT_MAX					// MAXINT
 #define MAX_PRECISION 100
 #define MIN_ANGULAR_RESOLUTION_POINTS 5		// minimal number of points necessary for specifying non-zero resolution
 #define MIN_SPECTRAL_RESOLUTION_POINTS 5	// -||-
@@ -148,7 +149,6 @@ enum       Transitional_Layer	{ Erf , Lin , Exp , Tanh , Sin };
 #define I complex<double>(0,1)
 #define Na 6.022140857E23
 #define Q 4.484891E-30
-#define REAL_VALUED REAL_VALUED
 
 // -----------------------------------------------------------------------------------------
 
@@ -210,5 +210,23 @@ class Global_Definitions
 public:
 	Global_Definitions();
 };
+
+template <typename T>
+void print_Vector	(QString name, vector<T>& vec, int transpose)	// output
+{
+	if(vec.size()==0) return;
+	if(transpose==0)
+	{
+		cout<<name.toStdString()<<"[0.."<<vec.size()-1<<"] = ";
+		for(auto i=0; i<vec.size(); ++i)
+			cout<<vec[i]<<"\t";
+	} else
+	for(auto i=0; i<vec.size(); ++i)
+	{
+		cout<<name.toStdString()<<"["<<i<<"] = ";
+		cout<<vec[i]<<endl;
+	}
+	cout<<endl;
+}
 
 #endif // GLOBAL_DEFINITIONS_H

@@ -323,7 +323,7 @@ void Item_Editor::make_Sigma_Group_Box()
 	sigma_Group_Box = new QGroupBox;
 	sigma_Group_Box->setObjectName("sigma_Group_Box");
 	sigma_Group_Box->setStyleSheet("QGroupBox#sigma_Group_Box { border-radius: 2px;  border: 1px solid gray;}");
-	QVBoxLayout* sigma_Group_Box_Layout = new QVBoxLayout(sigma_Group_Box);
+	QGridLayout* sigma_Group_Box_Layout = new QGridLayout(sigma_Group_Box);
 
 	// sigma
 	{
@@ -342,6 +342,12 @@ void Item_Editor::make_Sigma_Group_Box()
 			show_Sigma_Start();
 
 		sigma_Group_Box_Layout->addWidget(frame);
+
+		sigma_Grading_Button = new QPushButton(" Sigma Grading");
+			sigma_Grading_Button->adjustSize();
+			sigma_Grading_Button->setFixedSize(sigma_Grading_Button->size());
+			sigma_Grading_Button->setFocusPolicy(Qt::NoFocus);
+		sigma_Group_Box_Layout->addWidget(sigma_Grading_Button,0,Qt::AlignRight);
 
 		connect(sigma_Line_Edit, SIGNAL(textEdited(QString)), this, SLOT(resize_Line_Edit(QString)));
 		connect(sigma_Line_Edit, SIGNAL(textEdited(QString)), this, SLOT(refresh_Data(QString)));
