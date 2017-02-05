@@ -5,19 +5,20 @@
 #include "calculation_tree.h"
 #include <iostream>
 
-Calculation_Tree::Calculation_Tree(QVector<Independent_Variables*>& independent_Widget_Vec):
-	independent_Widget_Vec(independent_Widget_Vec),
-	unwrapped_Reflection_Vec(independent_Widget_Vec.size()),
-	unwrapped_Structure_Vec(independent_Widget_Vec.size()),
-	calc_Tree_Vec(independent_Widget_Vec.size()),
-	measurement_Vec(independent_Widget_Vec.size()),
-	active_Whats_This_Vec(independent_Widget_Vec.size())
+Calculation_Tree::Calculation_Tree(QTabWidget* independent_Variables_Plot_Tabs):
+	independent_Variables_Plot_Tabs(independent_Variables_Plot_Tabs),
+	num_Independent(independent_Variables_Plot_Tabs->count()),
+	unwrapped_Reflection_Vec(num_Independent),
+	unwrapped_Structure_Vec	(num_Independent),
+	calc_Tree_Vec			(num_Independent),
+	measurement_Vec			(num_Independent),
+	active_Whats_This_Vec	(num_Independent)
 {
 }
 
 Calculation_Tree::~Calculation_Tree()
 {
-	for(int i=0; i<independent_Widget_Vec.size(); ++i)
+	for(int i=0; i<num_Independent; ++i)
 	{
 		delete unwrapped_Structure_Vec[i];
 		delete unwrapped_Reflection_Vec[i];
@@ -39,14 +40,15 @@ void Calculation_Tree::run_All()
 void Calculation_Tree::create_Local_Item_Tree()
 {
 	// TODO delete local_Item_Tree at the end
-	for(int independent_Index=0; independent_Index<independent_Widget_Vec.size(); ++independent_Index)
+	for(int independent_Index=0; independent_Index<num_Independent; ++independent_Index)
 	{
+		independent_Widget_Vec.append(dynamic_cast<Independent_Variables*>(independent_Variables_Plot_Tabs->widget(independent_Index)));
 		QTreeWidget*local_Item_Tree = new QTreeWidget;
 		for(int i=0; i<independent_Widget_Vec[independent_Index]->struct_Tree_Copy->topLevelItemCount(); ++i)
 		{
 			local_Item_Tree->addTopLevelItem(independent_Widget_Vec[independent_Index]->struct_Tree_Copy->topLevelItem(i)->clone());
 		}
-		local_Item_Tree_Vec.append(local_Item_Tree);
+		local_Item_Tree_Vec.append(local_Item_Tree);		
 	}
 }
 

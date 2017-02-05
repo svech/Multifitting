@@ -43,8 +43,10 @@ public:
 	Global_Variables();
 	static void read_Optical_Constants();
 	static void create_Sorted_Elements_Map();
-	static void serialize_Tree(QDataStream &out, QTreeWidget* tree);
-	static void deserialize_Tree(QDataStream &in, QTreeWidget* tree);
+	static void   serialize_Tree(QDataStream &out, QTreeWidget* tree);
+	static void deserialize_Tree(QDataStream &in,  QTreeWidget* tree);
+	static void   serialize_Variables_List(QDataStream &out, QListWidget* list);
+	static void deserialize_Variables_List(QDataStream &in,  QListWidget* list);
 	static double wavelength_Energy(QString wavelength_Units, double y);
 	static QString wavelength_Energy_Name(QString wavelength_Units);
 	static double angstrom_eV(double x);

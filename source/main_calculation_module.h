@@ -5,13 +5,15 @@
 #include "calculation/calculation_tree.h"
 #include "multilayer_approach/multilayer.h"
 
+class Multilayer;
+
 class Main_Calculation_Module: public QObject
 {
 	Q_OBJECT
 public:
-	Main_Calculation_Module(QList<Multilayer*> multilayer_List);
+	Main_Calculation_Module(QTabWidget*	multilayer_Tabs);
 
-	QList<Multilayer*> multilayer_List;
+	QTabWidget*	multilayer_Tabs;
 
 	void run_All();
 signals:

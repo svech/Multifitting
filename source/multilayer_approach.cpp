@@ -4,13 +4,19 @@
 
 #include "multilayer_approach.h"
 
-Multilayer_Approach::Multilayer_Approach(QWidget *parent) :
+Multilayer_Approach::Multilayer_Approach(Launcher* launcher, QWidget *parent) :
+	launcher(launcher),
 	QWidget(parent)
 {
 	setWindowTitle("Multilayer Model");
 	create_Main_Layout();
 	set_Window_Geometry();
 	setAttribute(Qt::WA_DeleteOnClose);
+}
+
+void Multilayer_Approach::open_Launcher()
+{
+	launcher->show();
 }
 
 void Multilayer_Approach::closeEvent(QCloseEvent* event)
@@ -68,7 +74,7 @@ void Multilayer_Approach::set_Window_Geometry()
 
 void Multilayer_Approach::add_Multilayer()
 {
-	Multilayer* new_Multilayer = new Multilayer(this);
+	Multilayer* new_Multilayer = new Multilayer(this, this);
 		new_Multilayer->setContentsMargins(-8,-10,-8,-10);
 
 	connect(new_Multilayer, SIGNAL(refresh()),	this,SLOT(refresh_All_Multilayers_View()));
@@ -81,7 +87,6 @@ void Multilayer_Approach::add_Multilayer()
 		multilayer_Tabs->tabBar()->setTabTextColor(multilayer_Tabs->count()-1,Qt::gray);
 		multilayer_Tabs->tabBar()->tabButton(multilayer_Tabs->count()-1, QTabBar::RightSide)->hide();
 	}
-	multilayer_List.append(new_Multilayer);
 }
 
 void Multilayer_Approach::remove_Multilayer(int index)
@@ -89,16 +94,7 @@ void Multilayer_Approach::remove_Multilayer(int index)
 	QMessageBox::StandardButton reply = QMessageBox::question(this,"Removal", "Multilayer \"" + multilayer_Tabs->tabBar()->tabText(index) + "\" will be removed.\nContinue?", QMessageBox::Yes|QMessageBox::No, QMessageBox::No);
 	if (reply == QMessageBox::Yes)
 	{
-		Multilayer* temp_Multilayer;
-		for(int i=0; i<multilayer_List.size(); i++)
-		{
-			if(multilayer_List[i] == multilayer_Tabs->widget(index))
-			{
-				temp_Multilayer = multilayer_List[i];
-				multilayer_List.removeAt(i);
-			}
-		}
-		delete temp_Multilayer;
+		delete multilayer_Tabs->widget(index);
 		if(multilayer_Tabs->count()==0) add_Multilayer();
 	}
 }
@@ -129,9 +125,9 @@ void Multilayer_Approach::rename_Multilayer(int tab_Index)
 
 void Multilayer_Approach::refresh_All_Multilayers_View()
 {
-	for(int i=0; i<multilayer_List.size(); ++i)
+	for(int i=0; i<multilayer_Tabs->count(); ++i)
 	{
-		multilayer_List[i]->refresh_Text();
+		dynamic_cast<Multilayer*>(multilayer_Tabs->widget(i))->refresh_Text();
 	}
 }
 
@@ -144,18 +140,95 @@ void Multilayer_Approach::open()
 	int num_Multilayers;
 	in >> num_Multilayers;
 
-	for(int i=0; i<multilayer_List.size(); ++i)
+	for(int i=0; i<multilayer_Tabs->count(); ++i)
 	{
-		delete multilayer_List[i];
+		delete multilayer_Tabs->widget(i);
 	}
-	multilayer_List.clear();
-	multilayer_List.reserve(num_Multilayers);
+	multilayer_Tabs->clear();
 
 	for(int i=0; i<num_Multilayers; ++i)
-	{
+	{		
+		// add new multilayer
 		add_Multilayer();
-		Global_Variables::deserialize_Tree(in, multilayer_List[i]->structure_Tree->tree);
-		multilayer_List[i]->refresh_State();
+
+		Multilayer* multilayer = dynamic_cast<Multilayer*>(multilayer_Tabs->widget(i));
+
+		// set tab name
+		QString multilayer_tab_name;
+		in >> multilayer_tab_name;
+		multilayer_Tabs->setTabText(multilayer_Tabs->count()-1, multilayer_tab_name);
+
+		// load tree
+		Global_Variables::deserialize_Tree(in, multilayer->structure_Tree->tree);
+
+		// load dependent checkboxes state
+		bool is_Checked;
+
+		/// standard
+			// reflectance
+			in >> is_Checked;
+			multilayer->reflect_Functions->setChecked(is_Checked);
+			// transmittance
+			in >> is_Checked;
+			multilayer->transmit_Functions->setChecked(is_Checked);
+			// transmittance
+			in >> is_Checked;
+			multilayer->transmit_Functions->setChecked(is_Checked);
+		/// field
+			// field intensity
+			in >> is_Checked;
+			multilayer->field_Intensity->setChecked(is_Checked);
+			// joule absorption
+			in >> is_Checked;
+			multilayer->joule_Absorption->setChecked(is_Checked);
+		/// user
+			in >> is_Checked;
+			multilayer->user_Supplied_Functions_Check->setChecked(is_Checked);
+			QString user_Text;
+			in >> user_Text;
+			multilayer->user_Supplied_Functions->setText(user_Text);
+
+		// load number of independent tabs
+		int num_Independent;
+		in >> num_Independent;
+
+		for(int i=0; i<multilayer->independent_Variables_Plot_Tabs->count(); ++i)
+		{
+			delete multilayer->independent_Variables_Plot_Tabs->widget(i);
+		}
+		multilayer->independent_Variables_Plot_Tabs->clear();
+
+		// load independent tabs
+		for(int i=0; i<num_Independent; ++i)
+		{
+			multilayer->add_Independent_Variables_Tab();
+			Independent_Variables* independent = dynamic_cast<Independent_Variables*>(multilayer->independent_Variables_Plot_Tabs->widget(i));
+
+			// load plot name
+			QString tab_Text;
+			in >> tab_Text;
+			multilayer->independent_Variables_Plot_Tabs->setTabText(i, tab_Text);
+
+			// load real tree
+			independent->real_Struct_Tree = multilayer->structure_Tree->tree;
+
+			// load plot tree
+			Global_Variables::deserialize_Tree(in, independent->struct_Tree_Copy);
+
+			// load variables list
+//			Global_Variables::deserialize_Variables_List(in, independent->independent_Variables_List);
+
+		}
+
+
+
+
+		multilayer->refresh_State();
+
+		// disable adding substrate if it already exists
+		QStringList whats_This_List = multilayer->structure_Tree->tree->topLevelItem(multilayer->structure_Tree->tree->topLevelItemCount()-1)->whatsThis(DEFAULT_COLUMN).split(item_Type_Delimiter,QString::SkipEmptyParts);
+		if(whats_This_List[0] == whats_This_Substrate)
+			multilayer->structure_Tree->structure_Toolbar->toolbar->actions()[2]->setDisabled(true);
 	}
 	file.close();
 }
@@ -166,11 +239,57 @@ void Multilayer_Approach::save()
 	QFile file("save.fit");
 	file.open(QIODevice::WriteOnly);
 	QDataStream out(&file);
-	out << multilayer_List.size();
 
-	for(int i=0; i<multilayer_List.size(); ++i)
+	// save number of multilayers
+	out << multilayer_Tabs->count();
+
+	for(int i=0; i<multilayer_Tabs->count(); ++i)
 	{
-		Global_Variables::serialize_Tree(out, multilayer_List[i]->structure_Tree->tree);
+		Multilayer* multilayer = dynamic_cast<Multilayer*>(multilayer_Tabs->widget(i));
+
+		// save tab name
+		out << multilayer_Tabs->tabText(i);
+
+		// save tree
+		Global_Variables::serialize_Tree(out, multilayer->structure_Tree->tree);
+
+		// save dependent checkboxes state
+		// specular
+		/// standard
+			// reflectance
+			out <<  multilayer->reflect_Functions->isChecked();
+			// transmittance
+			out <<  multilayer->transmit_Functions->isChecked();
+			// absorptance
+			out <<  multilayer->absorp_Functions->isChecked();
+		/// field
+			// field intensity
+			out <<  multilayer->field_Intensity->isChecked();
+			// joule absorption
+			out <<  multilayer->joule_Absorption->isChecked();
+		/// user
+			out <<  multilayer->user_Supplied_Functions_Check->isChecked();
+			out <<  multilayer->user_Supplied_Functions->text();
+
+		// save number of independent tabs
+		out << multilayer->independent_Variables_Plot_Tabs->count();
+
+		// save independent tabs
+		for(int i=0; i<multilayer->independent_Variables_Plot_Tabs->count(); ++i)
+		{
+			Independent_Variables* independent = dynamic_cast<Independent_Variables*>(multilayer->independent_Variables_Plot_Tabs->widget(i));
+
+			// save plot name
+			out << multilayer->independent_Variables_Plot_Tabs->tabText(i);
+
+			// save plot tree
+			Global_Variables::serialize_Tree(out, independent->struct_Tree_Copy);
+
+			// save variables list
+//			Global_Variables::serialize_Variables_List(out, independent->independent_Variables_List);
+		}
+
+
 	}
 	file.close();
 }
@@ -179,7 +298,7 @@ void Multilayer_Approach::calc_Reflection()
 {
 	// TODO
 	qInfo() << "\n\n------------------------------------------------------------\ncalc specular functions...\n-------------------------------------------------------\n";
-	Main_Calculation_Module* main_Calculation_Module = new Main_Calculation_Module(multilayer_List);
+	Main_Calculation_Module* main_Calculation_Module = new Main_Calculation_Module(multilayer_Tabs);
 	connect(main_Calculation_Module, SIGNAL(critical(QString)),    this, SLOT(catch_Critical(QString)));
 	connect(main_Calculation_Module, SIGNAL(warning(QString)),     this, SLOT(catch_Warning(QString)));
 	connect(main_Calculation_Module, SIGNAL(information(QString)), this, SLOT(catch_Information(QString)));

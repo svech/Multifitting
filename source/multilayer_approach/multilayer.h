@@ -1,32 +1,33 @@
 #ifndef MULTILAYER_H
 #define MULTILAYER_H
 
+#include "multilayer_approach.h"
 #include "multilayer/structure_tree.h"
 #include "multilayer/independent_variables.h"
 
 class Structure_Tree;
+class Multilayer_Approach;
 
 class Multilayer : public QWidget
 {
 	Q_OBJECT
 public:	
-	explicit Multilayer(QWidget *parent = 0);
+	explicit Multilayer(Multilayer_Approach* multilayer_Approach, QWidget *parent = 0);
 
-
-	// temporary
-	//------------------------------
-	void print_Hidden_Copy(int index)
-	{
-		QTreeWidgetItemIterator it(plottable_Struct_Tree_Vec[index]);
-		qInfo() << "\n---------------------\nplot " << index << ":\n";
-		while(*it)
-		{
-			QTreeWidgetItem* item = *it;
-			qInfo() << item->whatsThis(DEFAULT_COLUMN);
-			++it;
-		}
-	}
-	//------------------------------
+//	// temporary
+//	//------------------------------
+//	void print_Hidden_Copy(int index)
+//	{
+//		QTreeWidgetItemIterator it(plottable_Struct_Tree_Vec[index]);
+//		qInfo() << "\n---------------------\nplot " << index << ":\n";
+//		while(*it)
+//		{
+//			QTreeWidgetItem* item = *it;
+//			qInfo() << item->whatsThis(DEFAULT_COLUMN);
+//			++it;
+//		}
+//	}
+//	//------------------------------
 
 signals:
 	void refresh();
@@ -53,8 +54,7 @@ private:
 				void create_Optimization_Parameters_Toolbar();
 		void create_Data_Frame();
 
-
-private slots:
+public slots:
 	void add_Independent_Variables_Tab();
 	void change_Tab_Independent_Variables_Tab_Color(int index);
 	void remove_Independent_Variables_Tab(int index);
@@ -71,16 +71,17 @@ private slots:
 	void add_Target_Profile();
 	void remove_Target_Profile();
 
-private:
+public:
+	Multilayer_Approach* multilayer_Approach;
+
 	bool independent_Tabs_Exist = false;
 //	bool struct_Exist = false;
 
-	QVBoxLayout* main_Layout;
+	QVBoxLayout* main_Layout;		
 		QFrame* struct_Frame;
-public:
 			QVBoxLayout* struct_Frame_Layout;
 				Structure_Tree* structure_Tree;
-private:
+
 		QFrame* variables_Frame;
 			QVBoxLayout* variables_Frame_Layout;
 				QTabWidget*	variables_Tabs;
@@ -99,8 +100,6 @@ private:
 						QVBoxLayout* nonspecular_Functions_Layout;
 					QTabWidget* independent_Variables_Plot_Tabs;
 						QToolButton* independent_Variables_Corner_Button;
-public:					QVector<Independent_Variables*> independent_Widget_Vec;
-private:				QVector<QTreeWidget*> plottable_Struct_Tree_Vec;
 
 					QListWidget* coupled_Parameters_List;
 					QToolBar* coupled_Parameters_Toolbar;

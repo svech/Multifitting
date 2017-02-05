@@ -27,7 +27,7 @@ Launcher::Launcher(QWidget *parent) :
 void Launcher::closeEvent(QCloseEvent* event)
 {
 	event;
-	qApp->quit();
+//	qApp->quit();	// closing launcher does nothing
 }
 
 void Launcher::create_Main_Layout()
@@ -75,12 +75,12 @@ void Launcher::set_Window_Geometry()
 
 void Launcher::add_Multilayer_Approach_Instance()
 {
-	Multilayer_Approach* multilayer_Approach = new Multilayer_Approach(this);
+	Multilayer_Approach* multilayer_Approach = new Multilayer_Approach(this);	// Launcher is not a parent! Multilayer instances are completely independent
 		multilayer_Approach->setWindowFlags(Qt::Window);
 		multilayer_Approach->show();
 		multilayer_Approach_List.append(multilayer_Approach);
 
-		connect(multilayer_Approach, SIGNAL(closed()),  this, SLOT(multilayer_Approach_Closed()));
+		connect(multilayer_Approach, SIGNAL(closed()),  this, SLOT(multilayer_Approach_Closed()));				// if closed, delete from list
 		connect(multilayer_Approach, SIGNAL(refresh()), this, SLOT(refresh_All_Multilayer_Approach_View()));
 }
 
@@ -105,7 +105,7 @@ void Launcher::freeform_Approach_Closed()
 
 void Launcher::refresh_All_Multilayer_Approach_View()
 {
-	qInfo() << "launcher fesreshing and saving";
+	qInfo() << "launcher resreshing and saving";
 	for(int i=0; i<multilayer_Approach_List.size(); ++i)
 	{
 		if(multilayer_Approach_List[i]!=sender())

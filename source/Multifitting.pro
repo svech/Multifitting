@@ -30,6 +30,7 @@ SOURCES += main.cpp\
     multilayer_approach/multilayer.cpp \
     multilayer_approach/multilayer/structure_tree.cpp \
     multilayer_approach/multilayer/structure_tree/item_editor.cpp \
+    multilayer_approach/multilayer/structure_tree/grading_editor.cpp \
     multilayer_approach/multilayer/structure_tree/structure_toolbar.cpp \
     multilayer_approach/multilayer/independent_variables.cpp \
     multilayer_approach/multilayer/independent_variables/independent_variables_editor.cpp \
@@ -40,6 +41,7 @@ SOURCES += main.cpp\
     calculation/optical_constants.cpp \
     calculation/unwrapped/unwrapped_reflection.cpp \
     calculation/unwrapped/unwrapped_structure.cpp
+
 
 HEADERS  += launcher.h \
     global/global_definitions.h \
@@ -52,6 +54,7 @@ HEADERS  += launcher.h \
     multilayer_approach/multilayer/structure_tree.h \
     multilayer_approach/multilayer/structure_tree/item_editor.h \
     multilayer_approach/multilayer/structure_tree/structure_toolbar.h \
+    multilayer_approach/multilayer/structure_tree/grading_editor.h \
     multilayer_approach/multilayer/independent_variables.h \
     multilayer_approach/multilayer/independent_variables/independent_variables_editor.h \
     multilayer_approach/multilayer/variable_selection.h \

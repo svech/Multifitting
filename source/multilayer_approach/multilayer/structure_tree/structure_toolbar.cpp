@@ -518,7 +518,6 @@ void Structure_Toolbar::refresh_Toolbar()
 		structure_Tree->tree->currentItem()->setSelected(true);
 	}
 	structure_Tree->tree->expandAll();
-
 	structure_Tree->multiple_Refresh_Over_Struct();
 }
 

@@ -1,20 +1,26 @@
 #ifndef MULTILAYER_APPROACH_H
 #define MULTILAYER_APPROACH_H
 
+#include "launcher.h"
 #include "standard/menu.h"
 #include "multilayer_approach/multilayer.h"
 #include "main_calculation_module.h"
+
+class Launcher;
+class Multilayer;
 
 class Multilayer_Approach : public QWidget
 {
 	Q_OBJECT
 public:
-	explicit Multilayer_Approach(QWidget *parent = 0);
+	explicit Multilayer_Approach(Launcher* launcher, QWidget *parent = 0);
 
 signals:
 	void closed();
 	void refresh();
+
 public slots:
+	void open_Launcher();
 	void refresh_All_Multilayers_View();
 	void open();
 	void save();
@@ -40,12 +46,13 @@ private slots:
 	void change_Tab_Color(int index);
 	void rename_Multilayer(int tab_Index);
 
-private:
-	QList<Multilayer*> multilayer_List;
-
+public:
+	Launcher* launcher;					// "parent"
 private:
 	QHBoxLayout* main_Layout;
+public:
 		QTabWidget*	multilayer_Tabs;
+private:
 		QToolButton* add_Tab_Corner_Button;
 };
 

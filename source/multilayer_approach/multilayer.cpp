@@ -4,7 +4,8 @@
 
 #include "multilayer.h"
 
-Multilayer::Multilayer(QWidget *parent) :
+Multilayer::Multilayer(Multilayer_Approach* multilayer_Approach, QWidget *parent) :
+	multilayer_Approach(multilayer_Approach),
 	QWidget(parent)
 {
 	create_Main_Layout();
@@ -291,10 +292,6 @@ void Multilayer::add_Independent_Variables_Tab()
 		independent_Variables_Plot_Tabs->tabBar()->setTabTextColor(independent_Variables_Plot_Tabs->count()-1,Qt::gray);
 		independent_Variables_Plot_Tabs->tabBar()->tabButton(independent_Variables_Plot_Tabs->count()-1, QTabBar::RightSide)->hide();
 	}
-
-	independent_Widget_Vec.append(new_Independent);
-	plottable_Struct_Tree_Vec.append(new_Struct_Tree_Copy);
-
 	independent_Tabs_Exist = true;
 }
 
@@ -319,21 +316,7 @@ void Multilayer::remove_Independent_Variables_Tab(int index)
 	QMessageBox::StandardButton reply = QMessageBox::question(this,"Removal", "Variables tab \"" + independent_Variables_Plot_Tabs->tabBar()->tabText(index) + "\" will be removed.\nContinue?", QMessageBox::Yes|QMessageBox::No, QMessageBox::No);
 	if (reply == QMessageBox::Yes)
 	{
-		Independent_Variables* temp_Independent;
-		QTreeWidget* temp_Tree;
-
-		for(int i=0; i<independent_Widget_Vec.size(); i++)
-		{
-			if(independent_Widget_Vec[i] == independent_Variables_Plot_Tabs->widget(index))
-			{
-				temp_Independent = independent_Widget_Vec[i];
-				temp_Tree = plottable_Struct_Tree_Vec[i];
-				independent_Widget_Vec.removeAt(i);
-				plottable_Struct_Tree_Vec.removeAt(i);
-			}
-		}
-		delete temp_Independent;
-		delete temp_Tree;
+		delete independent_Variables_Plot_Tabs->widget(index);
 		if(independent_Variables_Plot_Tabs->count()==0) add_Independent_Variables_Tab();
 	}
 }
@@ -354,13 +337,15 @@ void Multilayer::reset_Independent_Variables_Structure()
 	if(independent_Tabs_Exist)
 	for(int tab=0; tab<independent_Variables_Plot_Tabs->count(); tab++)
 	{
-		independent_Widget_Vec[tab]->clear_Parameters();
-		independent_Widget_Vec[tab]->independent_Variables_List_Map->clear();
+		Independent_Variables* independent_Widget = dynamic_cast<Independent_Variables*>(independent_Variables_Plot_Tabs->widget(tab));
+
+		independent_Widget->clear_Parameters();
+		independent_Widget->independent_Variables_List_Map->clear();
 
 		// reset hidden copy of main structure
 		for(int i=0; i<structure_Tree->tree->topLevelItemCount(); i++)
 		{
-			plottable_Struct_Tree_Vec[tab]->addTopLevelItem(structure_Tree->tree->topLevelItem(i)->clone());
+			independent_Widget->struct_Tree_Copy->addTopLevelItem(structure_Tree->tree->topLevelItem(i)->clone());
 		}
 	}
 }
@@ -376,7 +361,7 @@ void Multilayer::refresh_Text()
 	if(independent_Tabs_Exist)
 	for(int tab=0; tab<independent_Variables_Plot_Tabs->count(); tab++)
 	{
-		independent_Widget_Vec[tab]->refresh_Text();
+		dynamic_cast<Independent_Variables*>(independent_Variables_Plot_Tabs->widget(tab))->refresh_Text();
 	}
 }
 

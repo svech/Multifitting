@@ -4,6 +4,8 @@
 #include "standard/menu.h"
 #include "multilayer_approach.h"
 
+class Multilayer_Approach;
+
 class Launcher : public QWidget
 {
 	Q_OBJECT
@@ -26,7 +28,7 @@ private slots:
 
 	void refresh_All_Multilayer_Approach_View();
 
-private:
+public:
 	QList<Multilayer_Approach*> multilayer_Approach_List;
 
 private:

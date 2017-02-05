@@ -13,7 +13,7 @@ class Calculation_Tree: public QObject
 {
 	Q_OBJECT
 public:
-	Calculation_Tree(QVector<Independent_Variables*>& independent_Widget_Vec);
+	Calculation_Tree(QTabWidget* independent_Variables_Plot_Tabs);
 	~Calculation_Tree();
 signals:
 	void critical   (QString critical_Text);
@@ -54,8 +54,12 @@ private:
 public:
 	int max_Depth;
 	int num_Media;
+	int num_Independent;
 	QVector<QTreeWidget*> local_Item_Tree_Vec;
-	QVector<Independent_Variables*>& independent_Widget_Vec;
+
+	QTabWidget* independent_Variables_Plot_Tabs;
+	QVector<Independent_Variables*> independent_Widget_Vec;
+
 	QVector<tree<Node>> calc_Tree_Vec;
 	QVector<Measurement> measurement_Vec;
 	QVector<QString> active_Whats_This_Vec;

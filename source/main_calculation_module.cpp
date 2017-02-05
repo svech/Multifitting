@@ -4,19 +4,20 @@
 
 #include "main_calculation_module.h"
 
-Main_Calculation_Module::Main_Calculation_Module(QList<Multilayer*> multilayer_List):
-	multilayer_List(multilayer_List)
+Main_Calculation_Module::Main_Calculation_Module(QTabWidget*	multilayer_Tabs):
+	multilayer_Tabs(multilayer_Tabs)
 {
-
 }
 
 void Main_Calculation_Module::run_All()
 {
-	for(int i=0; i<multilayer_List.size(); ++i)
+	for(int i=0; i<multilayer_Tabs->count(); ++i)
 	{
-		Calculation_Tree* calculation_Tree = new Calculation_Tree(multilayer_List[i]->independent_Widget_Vec);
-		connect(calculation_Tree, SIGNAL(critical(QString)), this, SLOT(catch_Critical(QString)));
-		connect(calculation_Tree, SIGNAL(warning(QString)), this, SLOT(catch_Warning(QString)));
+		Multilayer* multilayer = dynamic_cast<Multilayer*>(multilayer_Tabs->widget(i));
+
+		Calculation_Tree* calculation_Tree = new Calculation_Tree(multilayer->independent_Variables_Plot_Tabs);
+		connect(calculation_Tree, SIGNAL(critical(QString)),    this, SLOT(catch_Critical(QString)));
+		connect(calculation_Tree, SIGNAL(warning(QString)),     this, SLOT(catch_Warning(QString)));
 		connect(calculation_Tree, SIGNAL(information(QString)), this, SLOT(catch_Information(QString)));
 		calculation_Tree->run_All();
 		delete calculation_Tree;

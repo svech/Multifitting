@@ -68,6 +68,10 @@ void Menu::create_File_Menu()
 			act_Save->setShortcut(Qt::Key_S | Qt::CTRL);
 			file_Menu->addAction(act_Save);
 			connect(act_Save, SIGNAL(triggered()), my_Parent, SLOT(save()));
+
+			QAction* act_Open_Launcher = new QAction("Open Launcher", this);
+			connect(act_Open_Launcher, SIGNAL(triggered()), my_Parent, SLOT(open_Launcher()));
+			file_Menu->addAction(act_Open_Launcher);
 		}
 
 		QAction* act_Quit = new QAction("Done", this);		

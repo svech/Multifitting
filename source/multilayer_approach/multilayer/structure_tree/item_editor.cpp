@@ -228,8 +228,8 @@ void Item_Editor::make_Thickness_Group_Box()
 			depth_Grading_Button->adjustSize();
 			depth_Grading_Button->setFixedSize(depth_Grading_Button->size());
 			depth_Grading_Button->setFocusPolicy(Qt::NoFocus);
-
-		thickness_Group_Box_Layout->addWidget(depth_Grading_Button,0,Qt::AlignRight);
+		if(item->parent())
+			thickness_Group_Box_Layout->addWidget(depth_Grading_Button,0,Qt::AlignRight);
 
 		connect(thickness_Line_Edit, SIGNAL(textEdited(QString)), this, SLOT(resize_Line_Edit(QString)));
 		connect(thickness_Line_Edit, SIGNAL(textEdited(QString)), this, SLOT(refresh_Data(QString)));
@@ -347,7 +347,8 @@ void Item_Editor::make_Sigma_Group_Box()
 			sigma_Grading_Button->adjustSize();
 			sigma_Grading_Button->setFixedSize(sigma_Grading_Button->size());
 			sigma_Grading_Button->setFocusPolicy(Qt::NoFocus);
-		sigma_Group_Box_Layout->addWidget(sigma_Grading_Button,0,Qt::AlignRight);
+		if(item->parent())
+			sigma_Group_Box_Layout->addWidget(sigma_Grading_Button,0,Qt::AlignRight);
 
 		connect(sigma_Line_Edit, SIGNAL(textEdited(QString)), this, SLOT(resize_Line_Edit(QString)));
 		connect(sigma_Line_Edit, SIGNAL(textEdited(QString)), this, SLOT(refresh_Data(QString)));

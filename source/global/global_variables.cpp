@@ -206,7 +206,6 @@ void Global_Variables::deserialize_Tree(QDataStream& in, QTreeWidget* tree)
 	tree_Map.insert(NOPARENT, tree->invisibleRootItem());
 	for(int i=0; i<num_Items; ++i)
 	{
-
 		// create item
 		QTreeWidgetItem* item = new QTreeWidgetItem;
 
@@ -239,6 +238,16 @@ void Global_Variables::deserialize_Tree(QDataStream& in, QTreeWidget* tree)
 		tree_Map.value(whatsThis_Parent_List[i])->addChild(item_Vec[i]);
 	}
 
+}
+
+void Global_Variables::serialize_Variables_List(QDataStream& out, QListWidget* list)
+{
+// TODO
+}
+
+void Global_Variables::deserialize_Variables_List(QDataStream& in, QListWidget* list)
+{
+// TODO
 }
 
 double Global_Variables::wavelength_Energy(QString wavelength_Units, double y)
