@@ -191,7 +191,7 @@ void Settings::read_Gui_Settings(bool reset_to_default)
 
 	// resource path
 	gui_Settings.beginGroup( Resource_Paths );
-		icon_path = gui_Settings.value( "icon_path", "../../icons/" ).toString();
+        icon_path = gui_Settings.value( "icon_path", Pre_Path + "icons/" ).toString();
 	gui_Settings.endGroup();
 }
 

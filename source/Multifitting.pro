@@ -5,19 +5,26 @@
 #-------------------------------------------------
 
 QT       += core gui
-CONFIG   += console #force_debug_info
+CONFIG   += console
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET = Multifitting
 TEMPLATE = app
 
-INCLUDEPATH += "C:/Program Files (x86)/C++ libraries" \
-               "C:/Program Files (x86)/C++ libraries/GSL 2.1/include" \
-               "C:/Program Files (x86)/C++ libraries/eigen 3.3.1"
+#win32
+#{
+#INCLUDEPATH += "C:/Program Files (x86)/C++ libraries" \
+#               "C:/Program Files (x86)/C++ libraries/GSL 2.1/include" \
+#               "C:/Program Files (x86)/C++ libraries/eigen 3.3.1"
 
-LIBS += "C:/Program Files (x86)/C++ libraries/GSL 2.1/lib_VS2015/x64/gslcblas.lib" \
-        "C:/Program Files (x86)/C++ libraries/GSL 2.1/lib_VS2015/x64/gsl.lib"
+#LIBS += "C:/Program Files (x86)/C++ libraries/GSL 2.1/lib_VS2015/x64/gslcblas.lib" \
+#        "C:/Program Files (x86)/C++ libraries/GSL 2.1/lib_VS2015/x64/gsl.lib"
+#}
+#unix
+#{
+    LIBS += -lgsl -lgslcblas
+#}
 
 SOURCES += main.cpp\
         launcher.cpp \

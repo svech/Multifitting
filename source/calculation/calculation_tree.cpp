@@ -33,7 +33,8 @@ void Calculation_Tree::run_All()
 		int independent_Index = 0;
 		max_Depth = tree_Depth(local_Item_Tree_Vec[independent_Index]->invisibleRootItem());	// unstratified depth
 		fill_Calc_Trees();
-		calculate_Intermediate_Values();
+        print_Tree(calc_Tree_Vec[independent_Index].begin(), independent_Index);
+//		calculate_Intermediate_Values();
 	}
 }
 
@@ -101,8 +102,9 @@ void Calculation_Tree::fill_Calc_Trees()
 			Node substrate_Node(&substrate_Item);
 
 			// add node
-			calc_Tree_Vec[independent_Index].append_child(calc_Tree_Vec[independent_Index].begin(), substrate_Node);
-		}
+//            calc_Tree_Vec[independent_Index].append_child(calc_Tree_Vec[independent_Index].begin(), substrate_Node);
+            calc_Tree_Vec[independent_Index].insert(calc_Tree_Vec[independent_Index].begin(), substrate_Node);
+        }
 	}
 }
 
@@ -111,7 +113,8 @@ void Calculation_Tree::fill_Tree(const tree<Node>::iterator& parent, QTreeWidget
 	for(int i=0; i<item->childCount(); ++i)
 	{
 		Node temp_Node(item->child(i));
-		calc_Tree_Vec[independent_Index].append_child(parent, temp_Node);
+//		calc_Tree_Vec[independent_Index].append_child(parent, temp_Node);
+        calc_Tree_Vec[independent_Index].insert(parent, temp_Node);
 
 		if(item->child(i)->childCount()>0)
 		{
@@ -434,6 +437,7 @@ int  Calculation_Tree::tree_Depth(QTreeWidgetItem* item)
 
 void Calculation_Tree::print_Tree(const tree<Node>::iterator& parent, int independent_Index)
 {
+    qInfo() << "print_Tree";
 	for(unsigned i=0; i<parent.number_of_children(); ++i)
 	{
 		tree<Node>::post_order_iterator child = calc_Tree_Vec[independent_Index].child(parent,i);

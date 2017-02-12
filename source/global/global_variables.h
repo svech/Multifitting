@@ -3,7 +3,7 @@
 
 #include "global_definitions.h"
 #include "global/layer_data_types.h"
-#include "calculation/optical_Constants.h"
+#include "calculation/optical_constants.h"
 
 class Measurement;
 class Ambient;

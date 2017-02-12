@@ -4,7 +4,10 @@
 #include <QtWidgets>
 #include <vector>
 #include <complex>
-//#include "float.h"
+
+#ifdef __linux__
+    #include <iostream>
+#endif
 
 using namespace std;
 
@@ -12,8 +15,16 @@ using namespace std;
 
 // settings
 
+#ifdef __WIN32__
+    #define Pre_Path QString("../../")
+#endif
+#ifdef __linux__
+    #define Pre_Path QString("../")
+#endif
+
 // gui
-#define Gui_Settings_Path "../../settings/gui.ini"
+#define Gui_Settings_Path Pre_Path + "settings/gui.ini"
+
 	#define Application_Style			"Application_Style"
 	#define Launcher_Geometry			"Launcher_Geometry"
 	#define Multilayer_Window_Geometry	"Multilayer_Window_Geometry"
@@ -21,7 +32,7 @@ using namespace std;
 	#define Resource_Paths				"Resource_Paths"
 
 // structure default values
-#define Structure_Default_Values_Path "../../settings/structure_default_values.ini"
+#define Structure_Default_Values_Path Pre_Path + "settings/structure_default_values.ini"
 	#define Structure_Init_Values	"Structure_Init_Values"
 		#define Ambient_Values		"Ambient_Values"
 		#define Layer_Values		"Layer_Values"
@@ -29,32 +40,32 @@ using namespace std;
 		#define Stack_Values		"Stack_Values"
 
 // precisions
-#define Precisions_Path "../../settings/precisions.ini"
+#define Precisions_Path Pre_Path + "settings/precisions.ini"
 	#define Precisions "Precisions"
 		#define Line_Edit "Line_Edit"
 		#define Thumbnail "Thumbnail"
 		#define Other	  "Other"
 
 // parameters default values
-#define Parameters_Default_Values_Path "../../settings/parameters_default_values.ini"
+#define Parameters_Default_Values_Path Pre_Path + "settings/parameters_default_values.ini"
 	#define Independent_Values  "Independent_Values"
 	#define Optimization_Values "Optimization_Values"
 	#define Fitting_Values		"Fitting_Values"
 
 // units
-#define Units_Path "../../settings/units.ini"
+#define Units_Path Pre_Path + "settings/units.ini"
 	#define Units "Units"
 
 // calculations
-#define Calculations_Path "../../settings/calculations.ini"
-	#define Threads "Threads"
+#define Calculations_Path Pre_Path + "settings/calculations.ini"
+    #define Threads "Threads"
 
 // -----------------------------------------------------------------------------------------
 
 // optical constants
 
-#define nk_Path		"../../nk/"
-#define f1f2_Path	"../../f1f2/"
+#define nk_Path		Pre_Path + "nk/"
+#define f1f2_Path	Pre_Path + "f1f2/"
 
 #define nk_Filter	"*.nk"
 #define f1f2_Filter	"*.ff"
@@ -151,6 +162,9 @@ enum       Transitional_Layer	{ Erf , Lin , Exp , Tanh , Sin };
 #define Na 6.022140857E23
 #define Q 4.484891E-30
 
+#ifndef DBL_EPSILON
+#define DBL_EPSILON 2.2204460492503131e-16
+#endif
 // -----------------------------------------------------------------------------------------
 
 // simple types					renew corresponding serialization operators!
@@ -215,19 +229,19 @@ public:
 template <typename T>
 void print_Vector	(QString name, vector<T>& vec, int transpose)	// output
 {
-	if(vec.size()==0) return;
-	if(transpose==0)
-	{
-		cout<<name.toStdString()<<"[0.."<<vec.size()-1<<"] = "; //-V128
-		for(auto i=0; i<vec.size(); ++i) //-V104
-			cout<<vec[i]<<"\t";
-	} else
-	for(auto i=0; i<vec.size(); ++i) //-V104
-	{
-		cout<<name.toStdString()<<"["<<i<<"] = ";
-		cout<<vec[i]<<endl;
-	}
-	cout<<endl;
+    if(vec.size()==0) return;
+    if(transpose==0)
+    {
+        cout<<name.toStdString()<<"[0.."<<vec.size()-1<<"] = "; //-V128
+        for(auto i=0; i<vec.size(); ++i) //-V104
+            cout<<vec[i]<<"\t";
+    } else
+    for(auto i=0; i<vec.size(); ++i) //-V104
+    {
+        cout<<name.toStdString()<<"["<<i<<"] = ";
+        cout<<vec[i]<<endl;
+    }
+    cout<<endl;
 }
 
 #endif // GLOBAL_DEFINITIONS_H
