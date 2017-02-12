@@ -15,7 +15,7 @@ using namespace std;
 
 // settings
 
-#ifdef __WIN32__
+#ifdef _WIN32
     #define Pre_Path QString("../../")
 #endif
 #ifdef __linux__
