@@ -26,9 +26,9 @@ private:
 	void create_Local_Item_Tree();
 	int tree_Depth(QTreeWidgetItem* item);
 	void fill_Calc_Trees();
-	void fill_Tree(const tree<Node>::iterator& parent, QTreeWidgetItem* item, int independent_Index);
+    void fill_Tree(const tree<Node>::iterator& parent, QTreeWidgetItem* item, int independent_Index);
 //	void statify_Item_Tree();
-	void statify_Calc_Tree_Iteration(const tree<Node>::iterator& parent, int depth, QVector<tree<Node>::iterator>& chosen_Iters);
+    void statify_Calc_Tree_Iteration(const tree<Node>::iterator& parent, int depth, QVector<tree<Node>::iterator>& chosen_Iters);
 	void statify_Calc_Tree(tree<Node>& calc_Tree);
 
 //	void flatten_Stratified_Calc_Tree_List_Iteration(tree<Node>::iterator parent, QList<Node>& flat_List, QMap<int, tree<Node>::iterator>& flat_Tree_Map);
