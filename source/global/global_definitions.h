@@ -95,6 +95,7 @@ using namespace std;
 #define DEFAULT_COLUMN 0					// as far as we use single-column trees
 #define PERMANENT_INDEPENDENT 2				// angle and wavelength items in list
 #define MAX_PRECISION_USED 10				// tthumbnail and lineedit precisions
+#define RAND_SHIFT	100000					// rand * RAND_SHIFT + rand
 
 // -----------------------------------------------------------------------------------------
 
@@ -115,7 +116,7 @@ using namespace std;
 // whatsThis : specialized additions
 #define whats_This_Angle					"Angle"
 #define whats_This_Wavelength				"Wavelength"
-#define whats_This_Absolute_Density			"Density"
+#define whats_This_Absolute_Density			"Absolute Density"
 #define whats_This_Relative_Density			"Relative Density"
 #define whats_This_Permittivity				"Permittivity"
 #define whats_This_Absorption				"Absorption"
@@ -217,11 +218,11 @@ void print_Vector	(QString name, vector<T>& vec, int transpose)	// output
 	if(vec.size()==0) return;
 	if(transpose==0)
 	{
-		cout<<name.toStdString()<<"[0.."<<vec.size()-1<<"] = ";
-		for(auto i=0; i<vec.size(); ++i)
+		cout<<name.toStdString()<<"[0.."<<vec.size()-1<<"] = "; //-V128
+		for(auto i=0; i<vec.size(); ++i) //-V104
 			cout<<vec[i]<<"\t";
 	} else
-	for(auto i=0; i<vec.size(); ++i)
+	for(auto i=0; i<vec.size(); ++i) //-V104
 	{
 		cout<<name.toStdString()<<"["<<i<<"] = ";
 		cout<<vec[i]<<endl;

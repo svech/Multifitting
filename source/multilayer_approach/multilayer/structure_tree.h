@@ -24,8 +24,9 @@ private slots:
 private:
 	void create_Tree();
 	void create_Toolbar();
-
+public:
 	void refresh_Over_Struct();
+private:
 		void iterate_Over_Struct(QTreeWidgetItem* item = NULL);
 			void refresh_If_Layer(QTreeWidgetItem* this_Item);
 		void iterate_Over_Multilayers(QTreeWidgetItem* item = NULL);

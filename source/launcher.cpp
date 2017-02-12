@@ -20,7 +20,7 @@ Launcher::Launcher(QWidget *parent) :
 	create_Main_Layout();
 	set_Window_Geometry();
 
-	// TODO
+	// TODO temporary
 	multilayer_Approach_Launch_Button->clicked();
 }
 

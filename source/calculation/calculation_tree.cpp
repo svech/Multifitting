@@ -5,7 +5,7 @@
 #include "calculation_tree.h"
 #include <iostream>
 
-Calculation_Tree::Calculation_Tree(QTabWidget* independent_Variables_Plot_Tabs):
+Calculation_Tree::Calculation_Tree(QTabWidget* independent_Variables_Plot_Tabs): //-V730
 	independent_Variables_Plot_Tabs(independent_Variables_Plot_Tabs),
 	num_Independent(independent_Variables_Plot_Tabs->count()),
 	unwrapped_Reflection_Vec(num_Independent),
@@ -117,6 +117,7 @@ void Calculation_Tree::fill_Tree(const tree<Node>::iterator& parent, QTreeWidget
 		{
 			fill_Tree(calc_Tree_Vec[independent_Index].child(parent,i), item->child(i), independent_Index);
 		}
+
 	}
 }
 
@@ -220,7 +221,11 @@ void Calculation_Tree::calculate_Intermediate_Values()
 			// if active
 			if(list_Item->data(Qt::UserRole).toBool())
 			{
-				active_Whats_This_Vec[independent_Index] = list_Item->whatsThis();
+				QStringList whats_This_List = list_Item->whatsThis().split(whats_This_Delimiter,QString::SkipEmptyParts);
+				whats_This_List.removeFirst();
+				QString good_Whats_This = whats_This_List.join(whats_This_Delimiter);
+
+				active_Whats_This_Vec[independent_Index] = good_Whats_This;
 			}
 		}
 

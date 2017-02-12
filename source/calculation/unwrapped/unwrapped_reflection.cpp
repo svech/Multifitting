@@ -243,7 +243,7 @@ void Unwrapped_Reflection::calc_Weak_Factor(int thread_Index)
 			is_Norm = is_Norm || unwrapped_Structure->boundary_Interlayer_Composition[i][func_Index].enabled;
 		}
 
-		if(is_Norm && abs(unwrapped_Structure->sigma[i]) > DBL_EPSILON)
+		if(is_Norm && abs(unwrapped_Structure->sigma[i]) > DBL_EPSILON) //-V674
 		{
 			norm = 0;
 			s = unwrapped_Structure->sigma[i] * sqrt(hi_RE[thread_Index][i+1]*hi_RE[thread_Index][i]);
@@ -431,7 +431,7 @@ void Unwrapped_Reflection::calc_Local(double polarization, int thread_Index)
 	}
 }
 
-void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(const Measurement& measurement, int thread_Index, int point_Index)
+void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(const Measurement& measurement, int thread_Index, int point_Index) //-V688
 {
 //	auto start = std::chrono::system_clock::now();
 
@@ -485,7 +485,7 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(const Measurement& mea
 //	qInfo() << "Local  : "<< elapseD.count()/1000. << " seconds";
 }
 
-void Unwrapped_Reflection::fill_Specular_Values(const Measurement& measurement, int thread_Index, int point_Index)
+void Unwrapped_Reflection::fill_Specular_Values(const Measurement& measurement, int thread_Index, int point_Index) //-V688
 {
 	double s_Weight = (1. + measurement.polarization.value) / 2.;
 	double p_Weight = (1. - measurement.polarization.value) / 2.;
@@ -498,7 +498,7 @@ void Unwrapped_Reflection::fill_Specular_Values(const Measurement& measurement, 
 	R  [point_Index] = s_Weight * R_s[point_Index] + p_Weight * R_p[point_Index];
 }
 
-void Unwrapped_Reflection::calc_Specular_nMin_nMax_1_Thread(const Measurement& measurement, int n_Min, int n_Max, int thread_Index)
+void Unwrapped_Reflection::calc_Specular_nMin_nMax_1_Thread(const Measurement& measurement, int n_Min, int n_Max, int thread_Index) //-V688
 {
 	for(int point_Index = n_Min; point_Index<n_Max; ++point_Index)
 	{

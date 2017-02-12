@@ -70,7 +70,6 @@ void Structure_Toolbar::create_Toolbar()
 void Structure_Toolbar::add_Layer(bool)
 {
 	QTreeWidgetItem* new_Layer = new QTreeWidgetItem;
-
 	// setting data to new layerItem
 	QVariant var;
 	Layer layer;
@@ -109,10 +108,20 @@ void Structure_Toolbar::add_Multilayer(bool)
 	if(num_Children<2) return;
 
 	QTreeWidgetItem* new_Multilayer = new QTreeWidgetItem;
+
+	// set unique id
+	int id = rand()*RAND_SHIFT+rand();
+	new_Multilayer->setStatusTip(DEFAULT_COLUMN, QString::number(id));
+
 	QList<QTreeWidgetItem*> new_Child_Layers;
 	for(int i=0; i<num_Children; i++)
 	{
 		QTreeWidgetItem* new_Child_Layer = new QTreeWidgetItem;
+
+		// set unique id
+		int id = rand()*RAND_SHIFT+rand();
+		new_Child_Layer->setStatusTip(DEFAULT_COLUMN, QString::number(id));
+
 		new_Child_Layers << new_Child_Layer;
 
 		Layer layer;
@@ -170,6 +179,11 @@ void Structure_Toolbar::add_Substrate(bool)
 {
 	QTreeWidgetItem* new_Substrate = new QTreeWidgetItem;
 		new_Substrate->setWhatsThis(DEFAULT_COLUMN, whats_This_Substrate);
+
+	// set unique id
+	int id = rand()*RAND_SHIFT+rand();
+	new_Substrate->setStatusTip(DEFAULT_COLUMN, QString::number(id));
+
 
 	structure_Tree->tree->addTopLevelItem(new_Substrate);
 	structure_Tree->set_Structure_Item_Text(new_Substrate);
@@ -229,14 +243,14 @@ void Structure_Toolbar::remove(bool)
 		if (reply == QMessageBox::Yes)
 		{
 			QVariant var;
-			QTreeWidgetItem* new_Ambient = new QTreeWidgetItem;
+
 			Ambient ambient;
 			var.setValue( ambient );
-			new_Ambient->setData(DEFAULT_COLUMN, Qt::UserRole, var);
-			new_Ambient->setWhatsThis(DEFAULT_COLUMN,whats_This_Ambient);
-			structure_Tree->tree->insertTopLevelItem(1,new_Ambient);
+			current->setData(DEFAULT_COLUMN, Qt::UserRole, var);
 
-			delete current;
+//			// set new id
+//			int id = rand()*RAND_SHIFT+rand();
+//			current->setStatusTip(DEFAULT_COLUMN, QString::number(id));
 		}
 	}
 
@@ -257,7 +271,7 @@ void Structure_Toolbar::cut(bool)
 			QTreeWidgetItem* parent = current->parent();
 			delete current;
 
-			QTreeWidgetItem* survived_Child_Copy = new QTreeWidgetItem();
+			QTreeWidgetItem* survived_Child_Copy = new QTreeWidgetItem;
 			*survived_Child_Copy = *parent->child(0);
 
 			// if multilayer is already nested
@@ -526,6 +540,12 @@ void Structure_Toolbar::add_Buffered_Layer(QTreeWidgetItem* new_Layer_Passed)
 	// copy of new_Layer
 	QTreeWidgetItem* new_Layer = new QTreeWidgetItem;
 	new_Layer = new_Layer_Passed->clone(); //-V519
+
+	// set unique id
+	clock_t t = clock();
+	srand(t);
+	int id = rand()*RAND_SHIFT+rand();
+	new_Layer->setStatusTip(DEFAULT_COLUMN, QString::number(id));
 
 	// if no structure_Tree->tree at all (at the beginning)
 	if(structure_Tree->tree->topLevelItemCount()==0)

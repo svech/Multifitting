@@ -67,7 +67,7 @@ public:
 	Extreme_Layer();
 	// materials near main multilayers should be the same
 
-	int layer_Index;
+	int layer_Index = -1;
 	Parameter thickness;
 };
 
@@ -108,6 +108,8 @@ QDataStream& operator <<( QDataStream& stream, const Substrate& substrate );
 QDataStream& operator >>( QDataStream& stream,		 Substrate& substrate );
 QDataStream& operator <<( QDataStream& stream, const Ambient& ambient );
 QDataStream& operator >>( QDataStream& stream,		 Ambient& ambient );
+QDataStream& operator <<( QDataStream& stream, const Measurement& measurement );
+QDataStream& operator >>( QDataStream& stream,		 Measurement& measurement );
 
 Q_DECLARE_METATYPE( Measurement )
 Q_DECLARE_METATYPE( Ambient )

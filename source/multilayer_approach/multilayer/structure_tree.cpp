@@ -97,6 +97,7 @@ void Structure_Tree::refresh_If_Layer(QTreeWidgetItem* this_Item)
 			set_Structure_Item_Text(this_Item);
 			QStringList list = this_Item->text(DEFAULT_COLUMN).split("layer");
 			this_Item->setText(DEFAULT_COLUMN, list[0] + "layer (" + QString::number(different_Layers_Counter) + ")" + list[1]);
+
 			this_Item->setWhatsThis(DEFAULT_COLUMN, QString(whats_This_Layer) + item_Type_Delimiter + "(" + QString::number(different_Layers_Counter) + ")");
 
 			Layer layer = this_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>();
@@ -143,6 +144,7 @@ void Structure_Tree::refresh_If_Multilayer(QTreeWidgetItem* this_Item)
 		set_Structure_Item_Text(this_Item);
 		QStringList list = this_Item->text(DEFAULT_COLUMN).split("Multilayer");
 		this_Item->setText(DEFAULT_COLUMN, list[0] + "Multilayer (" + QString::number(first) + " - " + QString::number(last) + ")" + list[1]);
+
 		this_Item->setWhatsThis(DEFAULT_COLUMN, QString(whats_This_Multilayer) + item_Type_Delimiter + "(" + QString::number(first) + " - " + QString::number(last) + ")");
 
 		// period
@@ -247,7 +249,6 @@ void Structure_Tree::if_DoubleClicked(QTreeWidgetItem*, int)
 		connect(item_Editor, SIGNAL(refresh()),this, SLOT(emit_Refresh()));
 		connect(item_Editor, SIGNAL(edited()), this, SLOT(editors_Edit()));
 
-
 		list_Editors.append(item_Editor);
 		structure_Toolbar->toolbar->setDisabled(true);
 		runned_Editors.insert(tree->currentItem(),item_Editor);
@@ -349,6 +350,8 @@ void Structure_Tree::editor_Close()
 	{
 		structure_Toolbar->toolbar->setDisabled(false);
 	}
+
+	// TODO refresh or not refresh?
 	multiple_Refresh_Over_Struct();
 }
 

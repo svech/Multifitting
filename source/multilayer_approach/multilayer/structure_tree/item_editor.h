@@ -73,7 +73,7 @@ private slots:
 	void fast_Refresh_Stack(QString);
 
 	void change_Child_Layers_Thickness(QTreeWidgetItem* multilayer_Item, double factor);
-	void change_Stack_Gamma(Stack_Content stack_Content);
+	void change_Stack_Gamma(const Stack_Content& stack_Content);
 		void reset_Layer_Thickness(QTreeWidgetItem* layer_Item, double new_Thickness);
 		void reset_Multilayer_Thickness(QTreeWidgetItem* multilayer_Item, double new_Thickness);
 

@@ -939,7 +939,7 @@ void Item_Editor::show_Material()
 				for(int i=0; i<ambient.composition.size(); ++i)
 				{
 					material_Line_Edit->setText(material_Line_Edit->text() + composition_Combo_Box_Vec[i]->currentText());
-					if(composition_Line_Edit_Vec[i]->text().toDouble()!=1)
+					if( abs(composition_Line_Edit_Vec[i]->text().toDouble() - 1.) > DBL_EPSILON )
 						material_Line_Edit->setText(material_Line_Edit->text() + QString::number(composition_Line_Edit_Vec[i]->text().toDouble(),line_edit_double_format,line_edit_composition_precision));
 				}
 			}
@@ -958,7 +958,7 @@ void Item_Editor::show_Material()
 				for(int i=0; i<layer.composition.size(); ++i)
 				{
 					material_Line_Edit->setText(material_Line_Edit->text() + composition_Combo_Box_Vec[i]->currentText());
-					if(composition_Line_Edit_Vec[i]->text().toDouble()!=1)
+					if( abs(composition_Line_Edit_Vec[i]->text().toDouble() - 1 ) > DBL_EPSILON )
 						material_Line_Edit->setText(material_Line_Edit->text() + QString::number(composition_Line_Edit_Vec[i]->text().toDouble(),line_edit_double_format,line_edit_composition_precision));
 				}
 			}
@@ -977,7 +977,7 @@ void Item_Editor::show_Material()
 				for(int i=0; i<substrate.composition.size(); ++i)
 				{
 					material_Line_Edit->setText(material_Line_Edit->text() + composition_Combo_Box_Vec[i]->currentText());
-					if(composition_Line_Edit_Vec[i]->text().toDouble()!=1)
+					if( abs(composition_Line_Edit_Vec[i]->text().toDouble() - 1 ) > DBL_EPSILON )
 						material_Line_Edit->setText(material_Line_Edit->text() + QString::number(composition_Line_Edit_Vec[i]->text().toDouble(),line_edit_double_format,line_edit_composition_precision));
 				}
 			}
@@ -1130,7 +1130,8 @@ void Item_Editor::done_Slot()
 	if(item_Type==Item_Type::Ambient)
 	{
 		Ambient ambient = item->data(DEFAULT_COLUMN, Qt::UserRole).value<Ambient>();
-		if(optical_Constants->material_Map.contains(ambient.material + nk_Ext))
+
+		if(optical_Constants->material_Map.contains(ambient.material + nk_Ext) || ambient.composed_Material)
 		{
 			ambient.approved_Material = ambient.material;
 			var.setValue( ambient );
@@ -1146,7 +1147,8 @@ void Item_Editor::done_Slot()
 	if(item_Type==Item_Type::Layer)
 	{
 		Layer layer = item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>();
-		if(optical_Constants->material_Map.contains(layer.material + nk_Ext))
+
+		if(optical_Constants->material_Map.contains(layer.material + nk_Ext) || layer.composed_Material)
 		{
 			layer.approved_Material = layer.material;
 			var.setValue( layer );
@@ -1166,7 +1168,8 @@ void Item_Editor::done_Slot()
 	if(item_Type==Item_Type::Substrate)
 	{
 		Substrate substrate = item->data(DEFAULT_COLUMN, Qt::UserRole).value<Substrate>();
-		if(optical_Constants->material_Map.contains(substrate.material + nk_Ext))
+
+		if(optical_Constants->material_Map.contains(substrate.material + nk_Ext) || substrate.composed_Material)
 		{
 			substrate.approved_Material = substrate.material;
 			var.setValue( substrate );
@@ -1355,7 +1358,7 @@ void Item_Editor::refresh_Data(QString str)
 			for(int i=0; i<ambient.composition.size(); ++i)
 			{
 				material_Line_Edit->setText(material_Line_Edit->text() + composition_Combo_Box_Vec[i]->currentText());
-				if(composition_Line_Edit_Vec[i]->text().toDouble()!=1)
+				if( abs(composition_Line_Edit_Vec[i]->text().toDouble() - 1 ) > DBL_EPSILON )
 					material_Line_Edit->setText(material_Line_Edit->text() + QString::number(composition_Line_Edit_Vec[i]->text().toDouble(),line_edit_double_format,line_edit_composition_precision));
 				resize_Line_Edit("",material_Line_Edit);
 			}
@@ -1370,7 +1373,7 @@ void Item_Editor::refresh_Data(QString str)
 			for(int i=0; i<layer.composition.size(); ++i)
 			{
 				material_Line_Edit->setText(material_Line_Edit->text() + composition_Combo_Box_Vec[i]->currentText());
-				if(composition_Line_Edit_Vec[i]->text().toDouble()!=1)
+				if( abs(composition_Line_Edit_Vec[i]->text().toDouble() - 1.) > DBL_EPSILON)
 					material_Line_Edit->setText(material_Line_Edit->text() + QString::number(composition_Line_Edit_Vec[i]->text().toDouble(),line_edit_double_format,line_edit_composition_precision));
 				resize_Line_Edit("",material_Line_Edit);
 			}
@@ -1385,7 +1388,7 @@ void Item_Editor::refresh_Data(QString str)
 			for(int i=0; i<substrate.composition.size(); ++i)
 			{
 				material_Line_Edit->setText(material_Line_Edit->text() + composition_Combo_Box_Vec[i]->currentText());
-				if(composition_Line_Edit_Vec[i]->text().toDouble()!=1)
+				if( abs(composition_Line_Edit_Vec[i]->text().toDouble()) > DBL_EPSILON )
 					material_Line_Edit->setText(material_Line_Edit->text() + QString::number(composition_Line_Edit_Vec[i]->text().toDouble(),line_edit_double_format,line_edit_composition_precision));
 				resize_Line_Edit("",material_Line_Edit);
 			}
@@ -1424,14 +1427,14 @@ void Item_Editor::refresh_Stack_Data()
 			item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
 
 			// children of stack
-			if(init_Period!=0)
+			if( abs(init_Period) > DBL_EPSILON )
 			{
 				if(item->childCount()==2)
 				{
 					change_Stack_Gamma(stack_Content);
 				} else
 				{
-					if(init_Period!=0)
+					if( abs(init_Period) > DBL_EPSILON )
 					{
 						double factor = stack_Content.period.value / init_Period;
 						change_Child_Layers_Thickness(item, factor);
@@ -1448,15 +1451,15 @@ void Item_Editor::refresh_Stack_Data()
 void Item_Editor::fast_Refresh_Stack(QString)
 {
 	Stack_Content sc = item->data(DEFAULT_COLUMN, Qt::UserRole).value<Stack_Content>();
-	if(period_Line_Edit->text().toDouble()!=0 || sc.period.value==0)
+	if( abs(period_Line_Edit->text().toDouble()) > DBL_EPSILON || abs(sc.period.value) < DBL_EPSILON )
 	{
-		if(repetitions_Line_Edit->text().toInt()!=0 || sc.num_Repetition.value==0)
+		if(repetitions_Line_Edit->text().toInt()!=0 || sc.num_Repetition.value == 0)
 		{
 			if(item->childCount()==2)
 			{
-				if(gamma_Line_Edit->text().toDouble()!=0 || sc.gamma.value==0)
+				if( abs(gamma_Line_Edit->text().toDouble()) > DBL_EPSILON || abs(sc.gamma.value) < DBL_EPSILON )
 				{
-					if(gamma_Line_Edit->text().toDouble()!=1 || sc.gamma.value==1)
+					if( abs(gamma_Line_Edit->text().toDouble() - 1.) > DBL_EPSILON || abs(sc.gamma.value - 1) < DBL_EPSILON )
 					{
 						refresh_Stack_Data();
 					}
@@ -1489,7 +1492,7 @@ void Item_Editor::change_Child_Layers_Thickness(QTreeWidgetItem* multilayer_Item
 	}
 }
 
-void Item_Editor::change_Stack_Gamma(Stack_Content stack_Content)
+void Item_Editor::change_Stack_Gamma(const Stack_Content& stack_Content)
 {
 	int i=0;
 	{
@@ -1530,7 +1533,7 @@ void Item_Editor::reset_Multilayer_Thickness(QTreeWidgetItem* multilayer_Item, d
 {
 	Stack_Content stack_Content = multilayer_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Stack_Content>();
 	double factor=1;
-	if(stack_Content.period.value!=0 && stack_Content.num_Repetition.value!=0)
+	if( abs(stack_Content.period.value) > DBL_EPSILON && stack_Content.num_Repetition.value!=0)
 	{
 		factor = new_Thickness/(  stack_Content.period.value*stack_Content.num_Repetition.value  );
 		change_Child_Layers_Thickness(multilayer_Item, factor);

@@ -176,11 +176,16 @@ void Global_Variables::serialize_Tree(QDataStream &out, QTreeWidget* tree)
 		// whatsThis
 		out << item->whatsThis(DEFAULT_COLUMN);
 
+		// id
+		out << item->statusTip(DEFAULT_COLUMN);
+
 		// data
+		if(whats_This_List[0] == whats_This_Measurement)out << qvariant_cast<Measurement>	(item->data(DEFAULT_COLUMN, Qt::UserRole));
 		if(whats_This_List[0] == whats_This_Ambient)	out << qvariant_cast<Ambient>		(item->data(DEFAULT_COLUMN, Qt::UserRole));
 		if(whats_This_List[0] == whats_This_Layer)		out << qvariant_cast<Layer>			(item->data(DEFAULT_COLUMN, Qt::UserRole));
 		if(whats_This_List[0] == whats_This_Multilayer)	out << qvariant_cast<Stack_Content>	(item->data(DEFAULT_COLUMN, Qt::UserRole));
 		if(whats_This_List[0] == whats_This_Substrate)	out << qvariant_cast<Substrate>		(item->data(DEFAULT_COLUMN, Qt::UserRole));
+
 
 		// parent's whatsThis
 		if(item->parent())
@@ -216,9 +221,15 @@ void Global_Variables::deserialize_Tree(QDataStream& in, QTreeWidget* tree)
 		in >> whatsThis;
 		item->setWhatsThis(DEFAULT_COLUMN,whatsThis);
 
+		// id
+		QString id;
+		in >> id;
+		item->setStatusTip(DEFAULT_COLUMN, id);
+
 		// data
 		QStringList whats_This_List = whatsThis.split(item_Type_Delimiter,QString::SkipEmptyParts);
 		QVariant var;
+		if(whats_This_List[0] == whats_This_Measurement){Measurement	measurement;	in >> measurement;	var.setValue(measurement);	item->setData(DEFAULT_COLUMN, Qt::UserRole, var);}
 		if(whats_This_List[0] == whats_This_Ambient)	{Ambient		ambient;		in >> ambient;		var.setValue(ambient);		item->setData(DEFAULT_COLUMN, Qt::UserRole, var);}
 		if(whats_This_List[0] == whats_This_Layer)		{Layer			layer;			in >> layer;		var.setValue(layer);		item->setData(DEFAULT_COLUMN, Qt::UserRole, var);}
 		if(whats_This_List[0] == whats_This_Multilayer)	{Stack_Content	stack_Content;	in >> stack_Content;var.setValue(stack_Content);item->setData(DEFAULT_COLUMN, Qt::UserRole, var);}
@@ -237,17 +248,56 @@ void Global_Variables::deserialize_Tree(QDataStream& in, QTreeWidget* tree)
 	{
 		tree_Map.value(whatsThis_Parent_List[i])->addChild(item_Vec[i]);
 	}
-
 }
 
 void Global_Variables::serialize_Variables_List(QDataStream& out, QListWidget* list)
 {
-// TODO
+	// save number of items
+	out << list->count();
+
+	for(int i=0; i<list->count(); ++i)
+	{
+		QListWidgetItem* temp_Item = list->item(i);
+
+		// save whatsThis
+		out << temp_Item->whatsThis();
+
+		// save text
+		out << temp_Item->text();
+
+		// save active
+		out << temp_Item->data(Qt::UserRole).toBool();
+	}
 }
 
 void Global_Variables::deserialize_Variables_List(QDataStream& in, QListWidget* list)
 {
-// TODO
+	// load number of items
+	int num_Items;
+	in >> num_Items;
+
+	list->clear();
+
+	for(int i=0; i<num_Items; ++i)
+	{
+		QListWidgetItem* new_Item = new QListWidgetItem;
+		list->insertItem(i,new_Item);
+
+		// load whatsThis
+		QString whats_This;
+		in >> whats_This;
+		new_Item->setWhatsThis(whats_This);
+
+		// load text
+		QString text;
+		in >> text;
+		new_Item->setText(text);
+
+		// load active
+		bool is_Active;
+		in >> is_Active;
+		new_Item->setData(Qt::UserRole,is_Active);
+	}
 }
 
 double Global_Variables::wavelength_Energy(QString wavelength_Units, double y)

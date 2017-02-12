@@ -16,27 +16,30 @@ private slots:
 	void emit_Refresh();
 
 public:
-	void clear_Parameters();
+	void clear_Structure();
+	void clear_Independent_List();
 	void refresh_Text();
 private:
 	void create_Main_Layout();
 	void create_Independent_Variables_List();
 	void create_Independent_Variables_Toolbar();
 
+public slots:
+	void remove_Independent_Variable(QListWidgetItem* item);
+
 private slots:
 	void add_Independent_Variable(bool);
 	void cause_Editing_Independent_Variable(bool);
 	void edit_Independent_Variable(QListWidgetItem* item);
-	void remove_Independent_Variable(bool);
-	void refresh_State(QTreeWidgetItem* structure_Item);
+	void remove_Current_Independent_Variable(bool);
 	void refresh_State_All();
 
 	void if_Selected();
 
 public:
-	QMap<QString, QListWidgetItem*>* independent_Variables_List_Map;
-	QTreeWidget* struct_Tree_Copy;
-	QTreeWidget* real_Struct_Tree;
+	QMap<QString, QListWidgetItem*>* independent_Variables_List_Map;	// independent whatsThis and corresponding items in ListWidget
+	QTreeWidget* struct_Tree_Copy;										// modified copy of real tree to be plotted
+	QTreeWidget* real_Struct_Tree;										// real tree itself
 
 private:
 		QFrame* independent_Frame;

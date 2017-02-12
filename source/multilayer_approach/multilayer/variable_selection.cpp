@@ -100,7 +100,7 @@ void Variable_Selection::fill_Variables_List()
 		QString whats_This = item->whatsThis(DEFAULT_COLUMN);
 		QStringList whats_This_List_Type = whats_This.split(item_Type_Delimiter,QString::SkipEmptyParts);
 
-
+		refresh_State(item);
 
 		if(whats_This_List_Type[0] == whats_This_Ambient)	 fill_Ambient_Variables(item);		else
 		if(whats_This_List_Type[0] == whats_This_Layer)		 fill_Layer_Variables(item);		else
@@ -139,6 +139,8 @@ void Variable_Selection::fill_Variables_List()
 
 void Variable_Selection::fill_Ambient_Variables(QTreeWidgetItem* item)
 {
+	// PARAMETER
+
 	/// optical constants
 	add_Absolute_Density(item, whats_This_Ambient);
 	add_Relative_Density(item, whats_This_Ambient);
@@ -149,6 +151,8 @@ void Variable_Selection::fill_Ambient_Variables(QTreeWidgetItem* item)
 
 void Variable_Selection::fill_Layer_Variables(QTreeWidgetItem* item)
 {
+	// PARAMETER
+
 	/// optical constants
 	add_Absolute_Density		(item, whats_This_Layer);
 	add_Relative_Density		(item, whats_This_Layer);
@@ -164,6 +168,8 @@ void Variable_Selection::fill_Layer_Variables(QTreeWidgetItem* item)
 
 void Variable_Selection::fill_Multilayer_Variables(QTreeWidgetItem* item)
 {
+	// PARAMETER
+
 	add_Num_repetitions	(item, whats_This_Multilayer);
 	add_Period			(item, whats_This_Multilayer);
 	add_Gamma			(item, whats_This_Multilayer);
@@ -171,6 +177,8 @@ void Variable_Selection::fill_Multilayer_Variables(QTreeWidgetItem* item)
 
 void Variable_Selection::fill_Substrate_Variables(QTreeWidgetItem* item)
 {
+	// PARAMETER
+
 	/// optical constants
 	add_Absolute_Density		(item, whats_This_Substrate);
 	add_Relative_Density		(item, whats_This_Substrate);
@@ -230,12 +238,12 @@ void Variable_Selection::add_Absolute_Density(QTreeWidgetItem* item, QString wha
 		if(type==Variable_Type::Optimized)		is_True_Condition = substrate.absolute_Density.optimize.   is_Optimizable;
 	} else return;
 
-	// item density (if not Vacuum and not arbitrary optical constants and composed_Material)
-	if(material!="Vacuum" && separate_Optical_Constants != TRIL_TRUE)
+	// item density (if not Vacuum and not arbitrary optical constants and if composed_Material)
+	if((material!="Vacuum") && (separate_Optical_Constants != TRIL_TRUE))
 	if(composed_Material == true)
 	{
 		QListWidgetItem* item_Density = new QListWidgetItem;
-		QString whats_This = item->whatsThis(DEFAULT_COLUMN) + whats_This_Delimiter + whats_This_Absolute_Density;
+		QString whats_This = item->statusTip(DEFAULT_COLUMN) + whats_This_Delimiter + item->whatsThis(DEFAULT_COLUMN) + whats_This_Delimiter + whats_This_Absolute_Density;
 		item_Density->setWhatsThis(whats_This);
 		item_Density->setText(material + " " + brackets + " Density, " + Rho_Sym);
 
@@ -295,11 +303,11 @@ void Variable_Selection::add_Relative_Density(QTreeWidgetItem* item, QString wha
 	} else return;
 
 	// item density (if not Vacuum and not arbitrary optical constants and NOT composed_Material)
-	if(material!="Vacuum" && separate_Optical_Constants != TRIL_TRUE)
+	if((material!="Vacuum") && (separate_Optical_Constants != TRIL_TRUE))
 	if(composed_Material == false)
 	{
 		QListWidgetItem* item_Density = new QListWidgetItem;
-		QString whats_This = item->whatsThis(DEFAULT_COLUMN) + whats_This_Delimiter + whats_This_Relative_Density;
+		QString whats_This = item->statusTip(DEFAULT_COLUMN) + whats_This_Delimiter + item->whatsThis(DEFAULT_COLUMN) + whats_This_Delimiter + whats_This_Relative_Density;
 		item_Density->setWhatsThis(whats_This);
 		item_Density->setText(material + " " + brackets + " Relative Density, " + Rho_Sym);
 
@@ -359,10 +367,10 @@ void Variable_Selection::add_Permittivity(QTreeWidgetItem* item, QString whats_T
 	} else return;
 
 	// item permittivity (if not Vacuum, not specified and not composed material)
-	if(material!="Vacuum" && separate_Optical_Constants != TRIL_FALSE && composed_Material == false)
+	if((material!="Vacuum") && (separate_Optical_Constants != TRIL_FALSE) /*&& (composed_Material == false)*/)
 	{
 		QListWidgetItem* item_Permittivity = new QListWidgetItem;
-		QString whats_This = item->whatsThis(DEFAULT_COLUMN) + whats_This_Delimiter + whats_This_Permittivity;
+		QString whats_This = item->statusTip(DEFAULT_COLUMN) + whats_This_Delimiter + item->whatsThis(DEFAULT_COLUMN) + whats_This_Delimiter + whats_This_Permittivity;
 
 		item_Permittivity->setWhatsThis(whats_This);
 		item_Permittivity->setText(material + " " + brackets + " Permittivity, 1-" + Epsilon_Sym);
@@ -423,10 +431,10 @@ void Variable_Selection::add_Absorption(QTreeWidgetItem* item, QString whats_Thi
 	} else return;
 
 	// item absorption (if not Vacuum, not specified and not composed material)
-	if(material!="Vacuum" && separate_Optical_Constants != TRIL_FALSE && composed_Material == false)
+	if((material!="Vacuum") && (separate_Optical_Constants != TRIL_FALSE) /*&& (composed_Material == false)*/)
 	{
 		QListWidgetItem* item_Absorption = new QListWidgetItem;
-		QString whats_This = item->whatsThis(DEFAULT_COLUMN) + whats_This_Delimiter + whats_This_Absorption;
+		QString whats_This = item->statusTip(DEFAULT_COLUMN) + whats_This_Delimiter + item->whatsThis(DEFAULT_COLUMN) + whats_This_Delimiter + whats_This_Absorption;
 
 		item_Absorption->setWhatsThis(whats_This);
 		item_Absorption->setText(material + " " + brackets + " Absorption, " + Cappa_Sym);
@@ -497,7 +505,7 @@ void Variable_Selection::add_Composition(QTreeWidgetItem* item, QString whats_Th
 		for(int i=0; i<composition_Size; i++)
 		{
 			QListWidgetItem* item_Composition = new QListWidgetItem;
-			QString whats_This = item->whatsThis(DEFAULT_COLUMN) + whats_This_Delimiter + whats_This_Composition + whats_This_Delimiter + QString::number(i);
+			QString whats_This = item->statusTip(DEFAULT_COLUMN) + whats_This_Delimiter + item->whatsThis(DEFAULT_COLUMN) + whats_This_Delimiter + whats_This_Composition + whats_This_Delimiter + QString::number(i);
 			item_Composition->setWhatsThis(whats_This);
 			item_Composition->setText(material + " " + brackets + " " + composition_type[i] + " Composition, " + Zeta_Sym + "_" + composition_type[i]);
 
@@ -534,7 +542,7 @@ void Variable_Selection::add_Thickness(QTreeWidgetItem* item, QString whats_This
 	if(thickness_Condition)
 	{
 		QListWidgetItem* item_Thickness = new QListWidgetItem;
-		QString whats_This = item->whatsThis(DEFAULT_COLUMN) + whats_This_Delimiter + whats_This_Thickness;
+		QString whats_This = item->statusTip(DEFAULT_COLUMN) + whats_This_Delimiter + item->whatsThis(DEFAULT_COLUMN) + whats_This_Delimiter + whats_This_Thickness;
 		item_Thickness->setWhatsThis(whats_This);
 		item_Thickness->setText(material + " " + brackets + " Thickness, z");
 
@@ -590,7 +598,7 @@ void Variable_Selection::add_Sigma(QTreeWidgetItem* item, QString whats_This_Typ
 	if(interlayers_Counter>=1)
 	{
 		QListWidgetItem* item_Sigma = new QListWidgetItem;
-		QString whats_This = item->whatsThis(DEFAULT_COLUMN) + whats_This_Delimiter + whats_This_Sigma;
+		QString whats_This = item->statusTip(DEFAULT_COLUMN) + whats_This_Delimiter + item->whatsThis(DEFAULT_COLUMN) + whats_This_Delimiter + whats_This_Sigma;
 
 		item_Sigma->setWhatsThis(whats_This);
 		item_Sigma->setText(material + " " + brackets + " Roughness/Diffuseness, " + Sigma_Sym);
@@ -651,7 +659,7 @@ void Variable_Selection::add_Interlayer_Composition(QTreeWidgetItem* item, QStri
 		for(int i=0; i<interlayer_Composition_Size; i++)
 		{
 			QListWidgetItem* item_Composition = new QListWidgetItem;
-			QString whats_This = item->whatsThis(DEFAULT_COLUMN) + whats_This_Delimiter + whats_This_Interlayer_Composition + whats_This_Delimiter + QString::number(i);
+			QString whats_This = item->statusTip(DEFAULT_COLUMN) + whats_This_Delimiter + item->whatsThis(DEFAULT_COLUMN) + whats_This_Delimiter + whats_This_Interlayer_Composition + whats_This_Delimiter + QString::number(i);
 			item_Composition->setWhatsThis(whats_This);
 			item_Composition->setText(material + " " + brackets + " Interlayer Composition, " + transition_Layer_Functions[i]);
 
@@ -682,7 +690,7 @@ void Variable_Selection::add_Num_repetitions(QTreeWidgetItem* item, QString what
 	if(thickness_Condition)
 	{
 		QListWidgetItem* item_Num_Repetition = new QListWidgetItem;
-		QString whats_This = item->whatsThis(DEFAULT_COLUMN) + whats_This_Delimiter + whats_This_Num_Repetitions;
+		QString whats_This = item->statusTip(DEFAULT_COLUMN) + whats_This_Delimiter + item->whatsThis(DEFAULT_COLUMN) + whats_This_Delimiter + whats_This_Num_Repetitions;
 		item_Num_Repetition->setWhatsThis(whats_This);
 		item_Num_Repetition->setText(item->whatsThis(DEFAULT_COLUMN) + " Number of repetitions, N");
 
@@ -714,7 +722,7 @@ void Variable_Selection::add_Period(QTreeWidgetItem* item, QString whats_This_Ty
 	if(thickness_Condition)
 	{
 		QListWidgetItem* item_Period = new QListWidgetItem;
-		QString whats_This = item->whatsThis(DEFAULT_COLUMN) + whats_This_Delimiter + whats_This_Period;
+		QString whats_This = item->statusTip(DEFAULT_COLUMN) + whats_This_Delimiter + item->whatsThis(DEFAULT_COLUMN) + whats_This_Delimiter + whats_This_Period;
 		item_Period->setWhatsThis(whats_This);
 		item_Period->setText(item->whatsThis(DEFAULT_COLUMN) + " Period, d");
 
@@ -745,7 +753,7 @@ void Variable_Selection::add_Gamma(QTreeWidgetItem* item, QString whats_This_Typ
 	if(item->childCount()==2 && thickness_Condition)
 	{
 		QListWidgetItem* item_Gamma = new QListWidgetItem;
-		QString whats_This = item->whatsThis(DEFAULT_COLUMN) + whats_This_Delimiter + whats_This_Gamma;
+		QString whats_This = item->statusTip(DEFAULT_COLUMN) + whats_This_Delimiter + item->whatsThis(DEFAULT_COLUMN) + whats_This_Delimiter + whats_This_Gamma;
 		item_Gamma->setWhatsThis(whats_This);
 		item_Gamma->setText(item->whatsThis(DEFAULT_COLUMN) + " Thickness Ratio, " + Gamma_Sym);
 
@@ -758,7 +766,385 @@ void Variable_Selection::add_Gamma(QTreeWidgetItem* item, QString whats_This_Typ
 	}
 }
 
+void Variable_Selection::refresh_State(QTreeWidgetItem* structure_Item)
+{
+	// PARAMETER
+
+	QVariant var;
+	QString whats_This = structure_Item->whatsThis(DEFAULT_COLUMN);
+	QStringList whats_This_List_Type = whats_This.split(item_Type_Delimiter,QString::SkipEmptyParts);
+
+	if(whats_This_List_Type[0] == whats_This_Ambient)
+	{
+		Ambient ambient = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Ambient>();
+
+		if( ambient.absolute_Density.independent.is_Independent == true ) {ambient.separate_Optical_Constants = TRIL_FALSE;} else
+		if( ambient.relative_Density.independent.is_Independent == true ) {ambient.separate_Optical_Constants = TRIL_FALSE;} else
+		if( ambient.permittivity.	 independent.is_Independent == true ) {ambient.separate_Optical_Constants = TRIL_TRUE;}  else
+		if( ambient.absorption.		 independent.is_Independent == true ) {ambient.separate_Optical_Constants = TRIL_TRUE;}  else
+
+		   {ambient.separate_Optical_Constants = TRIL_NOT_DEFINED;}
+
+		var.setValue(ambient);
+		structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+	}
+	if(whats_This_List_Type[0] == whats_This_Layer)
+	{
+		Layer layer = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>();
+
+		if( layer.absolute_Density.independent.is_Independent == true ) {layer.separate_Optical_Constants = TRIL_FALSE;} else
+		if( layer.relative_Density.independent.is_Independent == true ) {layer.separate_Optical_Constants = TRIL_FALSE;} else
+		if( layer.permittivity.	   independent.is_Independent == true ) {layer.separate_Optical_Constants = TRIL_TRUE;}  else
+		if( layer.absorption.	   independent.is_Independent == true ) {layer.separate_Optical_Constants = TRIL_TRUE;}  else
+
+		   {layer.separate_Optical_Constants = TRIL_NOT_DEFINED;}
+
+		var.setValue(layer);
+		structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+	}
+	if(whats_This_List_Type[0] == whats_This_Multilayer)
+	{
+	}
+	if(whats_This_List_Type[0] == whats_This_Substrate)
+	{
+		Substrate substrate = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Substrate>();
+
+		if( substrate.absolute_Density.independent.is_Independent == true ) {substrate.separate_Optical_Constants = TRIL_FALSE;} else
+		if( substrate.relative_Density.independent.is_Independent == true ) {substrate.separate_Optical_Constants = TRIL_FALSE;} else
+		if( substrate.permittivity.	   independent.is_Independent == true ) {substrate.separate_Optical_Constants = TRIL_TRUE;}  else
+		if( substrate.absorption.	   independent.is_Independent == true ) {substrate.separate_Optical_Constants = TRIL_TRUE;}  else
+
+		   {substrate.separate_Optical_Constants = TRIL_NOT_DEFINED;}
+
+		var.setValue(substrate);
+		structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+	}
+}
+
 // -------------------------------------------
+
+void Variable_Selection::add_Variable_Item(QListWidgetItem* new_Item)
+{
+	new_Item->setData(Qt::UserRole, false);	// adding "passive" status
+
+	variables_List_Map->insert(new_Item->whatsThis(), new_Item);
+	variables_List->addItem(new_Item);
+
+	// sorting
+	QString whats_This = new_Item->whatsThis();
+	QStringList whats_This_List = whats_This.split(whats_This_Delimiter,QString::SkipEmptyParts);
+	QStringList whats_This_List_Type = whats_This_List[1].split(item_Type_Delimiter,QString::SkipEmptyParts);
+	QVariant var;
+
+	// item search
+	QTreeWidgetItem* structure_Item;
+	QTreeWidgetItemIterator it(struct_Tree_Copy);
+	while (*it)
+	{
+		structure_Item = *it;
+		if(structure_Item->statusTip(DEFAULT_COLUMN) == whats_This_List[0])
+			break;
+		++it;
+	}
+
+	// if ambient
+	if(whats_This_List_Type[0] == whats_This_Ambient)
+	{
+		Ambient ambient = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Ambient>();
+
+		/// optical constants
+
+		// ambient absolute density
+		if(whats_This_List[2] == whats_This_Absolute_Density)
+		{
+			ambient.absolute_Density.independent.is_Independent = true;
+			ambient.absolute_Density.independent.num_Points = 1;
+			ambient.absolute_Density.independent.min = ambient.absolute_Density.value;
+			ambient.absolute_Density.independent.max = ambient.absolute_Density.value;
+
+			new_Item->setText(new_Item->text() + " [" + QString::number(ambient.absolute_Density.value,thumbnail_double_format,thumbnail_density_precision) + " " + density_units + "]");
+		}
+		// ambient relative density
+		if(whats_This_List[2] == whats_This_Relative_Density)
+		{
+			ambient.relative_Density.independent.is_Independent = true;
+			ambient.relative_Density.independent.num_Points = 1;
+			ambient.relative_Density.independent.min = ambient.relative_Density.value;
+			ambient.relative_Density.independent.max = ambient.relative_Density.value;
+
+			new_Item->setText(new_Item->text() + " [" + QString::number(ambient.relative_Density.value,thumbnail_double_format,thumbnail_density_precision) + "]");
+		}
+		// ambient permittivity
+		if(whats_This_List[2] == whats_This_Permittivity)
+		{
+			ambient.permittivity.independent.is_Independent = true;
+			ambient.permittivity.independent.num_Points = 1;
+			ambient.permittivity.independent.min = ambient.permittivity.value;
+			ambient.permittivity.independent.max = ambient.permittivity.value;
+
+			new_Item->setText(new_Item->text() + " [" + QString::number(ambient.permittivity.value,thumbnail_double_format,thumbnail_permittivity_precision) + " " + opt_const_units + "]");
+		}
+		// ambient absorption
+		if(whats_This_List[2] == whats_This_Absorption)
+		{
+			ambient.absorption.independent.is_Independent = true;
+			ambient.absorption.independent.num_Points = 1;
+			ambient.absorption.independent.min = ambient.absorption.value;
+			ambient.absorption.independent.max = ambient.absorption.value;
+
+			new_Item->setText(new_Item->text() + " [" + QString::number(ambient.absorption.value,thumbnail_double_format,thumbnail_absorption_precision) + " " + opt_const_units + "]");
+		}
+		//ambient composition
+		if(whats_This_List[2] == whats_This_Composition)
+		{
+			int index = QString(whats_This_List[2]).toInt();
+			ambient.composition[index].composition.independent.is_Independent = true;
+			ambient.composition[index].composition.independent.num_Points = 1;
+			ambient.composition[index].composition.independent.min = ambient.composition[index].composition.value;
+			ambient.composition[index].composition.independent.max = ambient.composition[index].composition.value;
+
+			new_Item->setText(new_Item->text() + " [" + QString::number(ambient.composition[index].composition.value,thumbnail_double_format,thumbnail_composition_precision) + "]");
+		}
+
+		var.setValue(ambient);
+		structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+	}
+
+	// if layer
+	if(whats_This_List_Type[0] == whats_This_Layer)
+	{
+		Layer layer = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>();
+
+		/// optical constants
+
+		// layer absolute density
+		if(whats_This_List[2] == whats_This_Absolute_Density)
+		{
+			layer.absolute_Density.independent.is_Independent = true;
+			layer.absolute_Density.independent.num_Points = 1;
+			layer.absolute_Density.independent.min = layer.absolute_Density.value;
+			layer.absolute_Density.independent.max = layer.absolute_Density.value;
+
+			new_Item->setText(new_Item->text() + " [" + QString::number(layer.absolute_Density.value,thumbnail_double_format,thumbnail_density_precision) + " " + density_units + "]");
+		}
+		// layer relative density
+		if(whats_This_List[2] == whats_This_Relative_Density)
+		{
+			layer.relative_Density.independent.is_Independent = true;
+			layer.relative_Density.independent.num_Points = 1;
+			layer.relative_Density.independent.min = layer.relative_Density.value;
+			layer.relative_Density.independent.max = layer.relative_Density.value;
+
+			new_Item->setText(new_Item->text() + " [" + QString::number(layer.relative_Density.value,thumbnail_double_format,thumbnail_density_precision) + "]");
+		}
+		// layer permittivity
+		if(whats_This_List[2] == whats_This_Permittivity)
+		{
+			layer.permittivity.independent.is_Independent = true;
+			layer.permittivity.independent.num_Points = 1;
+			layer.permittivity.independent.min = layer.permittivity.value;
+			layer.permittivity.independent.max = layer.permittivity.value;
+
+			new_Item->setText(new_Item->text() + " [" + QString::number(layer.permittivity.value,thumbnail_double_format,thumbnail_permittivity_precision) + " " + opt_const_units + "]");
+		}
+		// layer absorption
+		if(whats_This_List[2] == whats_This_Absorption)
+		{
+			layer.absorption.independent.is_Independent = true;
+			layer.absorption.independent.num_Points = 1;
+			layer.absorption.independent.min = layer.absorption.value;
+			layer.absorption.independent.max = layer.absorption.value;
+
+			new_Item->setText(new_Item->text() + " [" + QString::number(layer.absorption.value,thumbnail_double_format,thumbnail_absorption_precision) + " " + opt_const_units + "]");
+		}
+		// layer composition
+		if(whats_This_List[2] == whats_This_Composition)
+		{
+			int index = QString(whats_This_List[2]).toInt();
+			layer.composition[index].composition.independent.is_Independent = true;
+			layer.composition[index].composition.independent.num_Points = 1;
+			layer.composition[index].composition.independent.min = layer.composition[index].composition.value;
+			layer.composition[index].composition.independent.max = layer.composition[index].composition.value;
+
+			new_Item->setText(new_Item->text() + " [" + QString::number(layer.composition[index].composition.value,thumbnail_double_format,thumbnail_composition_precision) + "]");
+		}
+
+		/// thickness parameters
+
+		// layer thickness
+		if(whats_This_List[2] == whats_This_Thickness)
+		{
+			double coeff = length_Coefficients_Map.value(length_units);
+
+			layer.thickness.independent.is_Independent = true;
+			layer.thickness.independent.num_Points = 1;
+			layer.thickness.independent.min = layer.thickness.value;
+			layer.thickness.independent.max = layer.thickness.value;
+
+			new_Item->setText(new_Item->text() + " [" + QString::number(layer.thickness.value/coeff,thumbnail_double_format,thumbnail_thickness_precision) + " " + length_units + "]");
+		}
+
+		/// interface parameters
+
+		// layer sigma
+		if(whats_This_List[2] == whats_This_Sigma)
+		{
+			double coeff = length_Coefficients_Map.value(length_units);
+
+			layer.sigma.independent.is_Independent = true;
+			layer.sigma.independent.num_Points = 1;
+			layer.sigma.independent.min = layer.sigma.value;
+			layer.sigma.independent.max = layer.sigma.value;
+
+			new_Item->setText(new_Item->text() + " [" + QString::number(layer.sigma.value/coeff,thumbnail_double_format,thumbnail_sigma_precision) + " " + length_units + "]");
+		}
+		// layer interlayer composition (if enabled and >=2 elements)
+		if(whats_This_List[2] == whats_This_Interlayer_Composition)
+		{
+			int index = QString(whats_This_List.last()).toInt();
+			layer.interlayer_Composition[index].interlayer.independent.is_Independent = true;
+			layer.interlayer_Composition[index].interlayer.independent.num_Points = 1;
+			layer.interlayer_Composition[index].interlayer.independent.min = layer.interlayer_Composition[index].interlayer.value;
+			layer.interlayer_Composition[index].interlayer.independent.max = layer.interlayer_Composition[index].interlayer.value;
+
+			new_Item->setText(new_Item->text() + " [" + QString::number(layer.interlayer_Composition[index].interlayer.value,thumbnail_double_format,thumbnail_interlayer_precision) + "]");
+		}
+
+		var.setValue(layer);
+		structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+	}
+
+	// if multilayer
+	if(whats_This_List_Type[0] == whats_This_Multilayer)
+	{
+		Stack_Content stack_Content = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Stack_Content>();
+
+		// multilayer num_repetitions
+		if(whats_This_List[2] == whats_This_Num_Repetitions)
+		{
+			stack_Content.num_Repetition.is_Independent = true;
+			stack_Content.num_Repetition.num_steps = 1;
+			stack_Content.num_Repetition.start = stack_Content.num_Repetition.value;
+			stack_Content.num_Repetition.step = 1;
+
+			new_Item->setText(new_Item->text() + " [" + QString::number(stack_Content.num_Repetition.value) + "]");
+		}
+		// multilayer period
+		if(whats_This_List[2] == whats_This_Period)
+		{
+			double coeff = length_Coefficients_Map.value(length_units);
+
+			stack_Content.period.independent.is_Independent = true;
+			stack_Content.period.independent.num_Points = 1;
+			stack_Content.period.independent.min = stack_Content.period.value;
+			stack_Content.period.independent.max = stack_Content.period.value;
+
+			new_Item->setText(new_Item->text() + " [" + QString::number(stack_Content.period.value/coeff,thumbnail_double_format,thumbnail_period_precision) + " " + length_units + "]");
+		}
+		// multilayer gamma
+		if(whats_This_List[2] == whats_This_Gamma)
+		{
+			stack_Content.gamma.independent.is_Independent = true;
+			stack_Content.gamma.independent.num_Points = 1;
+			stack_Content.gamma.independent.min = stack_Content.gamma.value;
+			stack_Content.gamma.independent.max = stack_Content.gamma.value;
+
+			new_Item->setText(new_Item->text() + " [" + QString::number(stack_Content.gamma.value,thumbnail_double_format,thumbnail_gamma_precision) + "]");
+		}
+
+		var.setValue(stack_Content);
+		structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+	}
+
+	// if substrate
+	if(whats_This_List_Type[0] == whats_This_Substrate)
+	{
+		Substrate substrate = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Substrate>();
+
+		/// optical constants
+
+		// substrate absolute density
+		if(whats_This_List[2] == whats_This_Absolute_Density)
+		{
+			substrate.absolute_Density.independent.is_Independent = true;
+			substrate.absolute_Density.independent.num_Points = 1;
+			substrate.absolute_Density.independent.min = substrate.absolute_Density.value;
+			substrate.absolute_Density.independent.max = substrate.absolute_Density.value;
+
+			new_Item->setText(new_Item->text() + " [" + QString::number(substrate.absolute_Density.value,thumbnail_double_format,thumbnail_density_precision) + " " + density_units + "]");
+		}
+		// substrate relative density
+		if(whats_This_List[2] == whats_This_Relative_Density)
+		{
+			substrate.relative_Density.independent.is_Independent = true;
+			substrate.relative_Density.independent.num_Points = 1;
+			substrate.relative_Density.independent.min = substrate.relative_Density.value;
+			substrate.relative_Density.independent.max = substrate.relative_Density.value;
+
+			new_Item->setText(new_Item->text() + " [" + QString::number(substrate.relative_Density.value,thumbnail_double_format,thumbnail_density_precision) + "]");
+		}
+		// substrate permittivity
+		if(whats_This_List[2] == whats_This_Permittivity)
+		{
+			substrate.permittivity.independent.is_Independent = true;
+			substrate.permittivity.independent.num_Points = 1;
+			substrate.permittivity.independent.min = substrate.permittivity.value;
+			substrate.permittivity.independent.max = substrate.permittivity.value;
+
+			new_Item->setText(new_Item->text() + " [" + QString::number(substrate.permittivity.value,thumbnail_double_format,thumbnail_permittivity_precision) + " " + opt_const_units + "]");
+		}
+		// substrate absorption
+		if(whats_This_List[2] == whats_This_Absorption)
+		{
+			substrate.absorption.independent.is_Independent = true;
+			substrate.absorption.independent.num_Points = 1;
+			substrate.absorption.independent.min = substrate.absorption.value;
+			substrate.absorption.independent.max = substrate.absorption.value;
+
+			new_Item->setText(new_Item->text() + " [" + QString::number(substrate.absorption.value,thumbnail_double_format,thumbnail_absorption_precision) + " " + opt_const_units + "]");
+		}
+		// substrate composition
+		if(whats_This_List[2] == whats_This_Composition)
+		{
+			int index = QString(whats_This_List[2]).toInt();
+			substrate.composition[index].composition.independent.is_Independent = true;
+			substrate.composition[index].composition.independent.num_Points = 1;
+			substrate.composition[index].composition.independent.min = substrate.composition[index].composition.value;
+			substrate.composition[index].composition.independent.max = substrate.composition[index].composition.value;
+
+			new_Item->setText(new_Item->text() + " [" + QString::number(substrate.composition[index].composition.value,thumbnail_double_format,thumbnail_composition_precision) + "]");
+		}
+
+		/// interface parameters
+
+		// substrate sigma
+		if(whats_This_List[2] == whats_This_Sigma)
+		{
+			double coeff = length_Coefficients_Map.value(length_units);
+
+			substrate.sigma.independent.is_Independent = true;
+			substrate.sigma.independent.num_Points = 1;
+			substrate.sigma.independent.min = substrate.sigma.value;
+			substrate.sigma.independent.max = substrate.sigma.value;
+
+			new_Item->setText(new_Item->text() + " [" + QString::number(substrate.sigma.value/coeff,thumbnail_double_format,thumbnail_sigma_precision) + " " + length_units + "]");
+		}
+		// substrate interlayer composition (if enabled and >=2 elements)
+		if(whats_This_List[2] == whats_This_Interlayer_Composition)
+		{
+			int index = QString(whats_This_List.last()).toInt();
+			substrate.interlayer_Composition[index].interlayer.independent.is_Independent = true;
+			substrate.interlayer_Composition[index].interlayer.independent.num_Points = 1;
+			substrate.interlayer_Composition[index].interlayer.independent.min = substrate.interlayer_Composition[index].interlayer.value;
+			substrate.interlayer_Composition[index].interlayer.independent.max = substrate.interlayer_Composition[index].interlayer.value;
+
+			new_Item->setText(new_Item->text() + " [" + QString::number(substrate.interlayer_Composition[index].interlayer.value,thumbnail_double_format,thumbnail_interlayer_precision) + "]");
+		}
+
+		var.setValue(substrate);
+		structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+	}
+}
 
 void Variable_Selection::add_Variable()
 {
@@ -766,325 +1152,7 @@ void Variable_Selection::add_Variable()
 	if(map_Of_Parameters_Lists.value(filters_Combo_Box->currentText())->currentItem())
 	{
 		QListWidgetItem* new_Item = map_Of_Parameters_Lists.value(filters_Combo_Box->currentText())->currentItem()->clone();
-		new_Item->setData(Qt::UserRole, false);	// adding "passive" status
-
-		variables_List_Map->insert(new_Item->whatsThis(), new_Item);
-		variables_List->addItem(new_Item);
-
-		// sorting
-		QString whats_This = new_Item->whatsThis();
-		QStringList whats_This_List = whats_This.split(whats_This_Delimiter,QString::SkipEmptyParts);
-		QStringList whats_This_List_Type = whats_This_List[0].split(item_Type_Delimiter,QString::SkipEmptyParts);
-		QVariant var;
-
-		// item search
-		QTreeWidgetItem* structure_Item;
-		QTreeWidgetItemIterator it(struct_Tree_Copy);
-		while (*it)
-		{
-			structure_Item = *it;
-			if(structure_Item->whatsThis(DEFAULT_COLUMN) == whats_This_List[0])
-				break;
-			++it;
-		}
-
-		// if ambient
-		if(whats_This_List_Type[0] == whats_This_Ambient)
-		{
-			Ambient ambient = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Ambient>();
-
-			/// optical constants
-
-			// ambient absolute density
-			if(whats_This_List[1] == whats_This_Absolute_Density)
-			{
-				ambient.absolute_Density.independent.is_Independent = true;
-				ambient.absolute_Density.independent.num_Points = 1;
-				ambient.absolute_Density.independent.min = ambient.absolute_Density.value;
-				ambient.absolute_Density.independent.max = ambient.absolute_Density.value;
-
-				new_Item->setText(new_Item->text() + " [" + QString::number(ambient.absolute_Density.value,thumbnail_double_format,thumbnail_density_precision) + " " + density_units + "]");
-			}
-			// ambient relativve density
-			if(whats_This_List[1] == whats_This_Relative_Density)
-			{
-				ambient.relative_Density.independent.is_Independent = true;
-				ambient.relative_Density.independent.num_Points = 1;
-				ambient.relative_Density.independent.min = ambient.relative_Density.value;
-				ambient.relative_Density.independent.max = ambient.relative_Density.value;
-
-				new_Item->setText(new_Item->text() + " [" + QString::number(ambient.relative_Density.value,thumbnail_double_format,thumbnail_density_precision) + "]");
-			}
-			// ambient permittivity
-			if(whats_This_List[1] == whats_This_Permittivity)
-			{
-				ambient.permittivity.independent.is_Independent = true;
-				ambient.permittivity.independent.num_Points = 1;
-				ambient.permittivity.independent.min = ambient.permittivity.value;
-				ambient.permittivity.independent.max = ambient.permittivity.value;
-
-				new_Item->setText(new_Item->text() + " [" + QString::number(ambient.permittivity.value,thumbnail_double_format,thumbnail_permittivity_precision) + " " + opt_const_units + "]");
-			}
-			// ambient absorption
-			if(whats_This_List[1] == whats_This_Absorption)
-			{
-				ambient.absorption.independent.is_Independent = true;
-				ambient.absorption.independent.num_Points = 1;
-				ambient.absorption.independent.min = ambient.absorption.value;
-				ambient.absorption.independent.max = ambient.absorption.value;
-
-				new_Item->setText(new_Item->text() + " [" + QString::number(ambient.absorption.value,thumbnail_double_format,thumbnail_absorption_precision) + " " + opt_const_units + "]");
-			}
-			//ambient composition
-			if(whats_This_List[1] == whats_This_Composition)
-			{
-				int index = QString(whats_This_List[2]).toInt();
-				ambient.composition[index].composition.independent.is_Independent = true;
-				ambient.composition[index].composition.independent.num_Points = 1;
-				ambient.composition[index].composition.independent.min = ambient.composition[index].composition.value;
-				ambient.composition[index].composition.independent.max = ambient.composition[index].composition.value;
-
-				new_Item->setText(new_Item->text() + " [" + QString::number(ambient.composition[index].composition.value,thumbnail_double_format,thumbnail_composition_precision) + "]");
-			}
-
-			var.setValue(ambient);
-			structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
-		}
-
-		// if layer
-		if(whats_This_List_Type[0] == whats_This_Layer)
-		{
-			Layer layer = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>();
-
-			/// optical constants
-
-			// layer absolute density
-			if(whats_This_List[1] == whats_This_Absolute_Density)
-			{
-				layer.absolute_Density.independent.is_Independent = true;
-				layer.absolute_Density.independent.num_Points = 1;
-				layer.absolute_Density.independent.min = layer.absolute_Density.value;
-				layer.absolute_Density.independent.max = layer.absolute_Density.value;
-
-				new_Item->setText(new_Item->text() + " [" + QString::number(layer.absolute_Density.value,thumbnail_double_format,thumbnail_density_precision) + " " + density_units + "]");
-			}
-			// layer relative density
-			if(whats_This_List[1] == whats_This_Relative_Density)
-			{
-				layer.relative_Density.independent.is_Independent = true;
-				layer.relative_Density.independent.num_Points = 1;
-				layer.relative_Density.independent.min = layer.relative_Density.value;
-				layer.relative_Density.independent.max = layer.relative_Density.value;
-
-				new_Item->setText(new_Item->text() + " [" + QString::number(layer.relative_Density.value,thumbnail_double_format,thumbnail_density_precision) + "]");
-			}
-			// layer permittivity
-			if(whats_This_List[1] == whats_This_Permittivity)
-			{
-				layer.permittivity.independent.is_Independent = true;
-				layer.permittivity.independent.num_Points = 1;
-				layer.permittivity.independent.min = layer.permittivity.value;
-				layer.permittivity.independent.max = layer.permittivity.value;
-
-				new_Item->setText(new_Item->text() + " [" + QString::number(layer.permittivity.value,thumbnail_double_format,thumbnail_permittivity_precision) + " " + opt_const_units + "]");
-			}
-			// layer absorption
-			if(whats_This_List[1] == whats_This_Absorption)
-			{
-				layer.absorption.independent.is_Independent = true;
-				layer.absorption.independent.num_Points = 1;
-				layer.absorption.independent.min = layer.absorption.value;
-				layer.absorption.independent.max = layer.absorption.value;
-
-				new_Item->setText(new_Item->text() + " [" + QString::number(layer.absorption.value,thumbnail_double_format,thumbnail_absorption_precision) + " " + opt_const_units + "]");
-			}
-			// layer composition
-			if(whats_This_List[1] == whats_This_Composition)
-			{
-				int index = QString(whats_This_List[2]).toInt();
-				layer.composition[index].composition.independent.is_Independent = true;
-				layer.composition[index].composition.independent.num_Points = 1;
-				layer.composition[index].composition.independent.min = layer.composition[index].composition.value;
-				layer.composition[index].composition.independent.max = layer.composition[index].composition.value;
-
-				new_Item->setText(new_Item->text() + " [" + QString::number(layer.composition[index].composition.value,thumbnail_double_format,thumbnail_composition_precision) + "]");
-			}
-
-			/// thickness parameters
-
-			// layer thickness
-			if(whats_This_List[1] == whats_This_Thickness)
-			{
-				double coeff = length_Coefficients_Map.value(length_units);
-
-				layer.thickness.independent.is_Independent = true;
-				layer.thickness.independent.num_Points = 1;
-				layer.thickness.independent.min = layer.thickness.value;
-				layer.thickness.independent.max = layer.thickness.value;
-
-				new_Item->setText(new_Item->text() + " [" + QString::number(layer.thickness.value/coeff,thumbnail_double_format,thumbnail_thickness_precision) + " " + length_units + "]");
-			}
-
-			/// interface parameters
-
-			// layer sigma
-			if(whats_This_List[1] == whats_This_Sigma)
-			{
-				double coeff = length_Coefficients_Map.value(length_units);
-
-				layer.sigma.independent.is_Independent = true;
-				layer.sigma.independent.num_Points = 1;
-				layer.sigma.independent.min = layer.sigma.value;
-				layer.sigma.independent.max = layer.sigma.value;
-
-				new_Item->setText(new_Item->text() + " [" + QString::number(layer.sigma.value/coeff,thumbnail_double_format,thumbnail_sigma_precision) + " " + length_units + "]");
-			}
-			// layer interlayer composition (if enabled and >=2 elements)
-			if(whats_This_List[1] == whats_This_Interlayer_Composition)
-			{
-				int index = QString(whats_This_List.last()).toInt();
-				layer.interlayer_Composition[index].interlayer.independent.is_Independent = true;
-				layer.interlayer_Composition[index].interlayer.independent.num_Points = 1;
-				layer.interlayer_Composition[index].interlayer.independent.min = layer.interlayer_Composition[index].interlayer.value;
-				layer.interlayer_Composition[index].interlayer.independent.max = layer.interlayer_Composition[index].interlayer.value;
-
-				new_Item->setText(new_Item->text() + " [" + QString::number(layer.interlayer_Composition[index].interlayer.value,thumbnail_double_format,thumbnail_interlayer_precision) + "]");
-			}
-
-			var.setValue(layer);
-			structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
-		}
-
-		// if multilayer
-		if(whats_This_List_Type[0] == whats_This_Multilayer)
-		{
-			Stack_Content stack_Content = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Stack_Content>();
-
-			// multilayer num_repetitions
-			if(whats_This_List[1] == whats_This_Num_Repetitions)
-			{
-				stack_Content.num_Repetition.is_Independent = true;
-				stack_Content.num_Repetition.num_steps = 1;
-				stack_Content.num_Repetition.start = stack_Content.num_Repetition.value;
-				stack_Content.num_Repetition.step = 1;
-
-				new_Item->setText(new_Item->text() + " [" + QString::number(stack_Content.num_Repetition.value) + "]");
-			}
-			// multilayer period
-			if(whats_This_List[1] == whats_This_Period)
-			{
-				double coeff = length_Coefficients_Map.value(length_units);
-
-				stack_Content.period.independent.is_Independent = true;
-				stack_Content.period.independent.num_Points = 1;
-				stack_Content.period.independent.min = stack_Content.period.value;
-				stack_Content.period.independent.max = stack_Content.period.value;
-
-				new_Item->setText(new_Item->text() + " [" + QString::number(stack_Content.period.value/coeff,thumbnail_double_format,thumbnail_period_precision) + " " + length_units + "]");
-			}
-			// multilayer gamma
-			if(whats_This_List[1] == whats_This_Gamma)
-			{
-				stack_Content.gamma.independent.is_Independent = true;
-				stack_Content.gamma.independent.num_Points = 1;
-				stack_Content.gamma.independent.min = stack_Content.gamma.value;
-				stack_Content.gamma.independent.max = stack_Content.gamma.value;
-
-				new_Item->setText(new_Item->text() + " [" + QString::number(stack_Content.gamma.value,thumbnail_double_format,thumbnail_gamma_precision) + "]");
-			}
-
-			var.setValue(stack_Content);
-			structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
-		}
-
-		// if substrate
-		if(whats_This_List_Type[0] == whats_This_Substrate)
-		{
-			Substrate substrate = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Substrate>();
-
-			/// optical constants
-
-			// substrate absolute density
-			if(whats_This_List[1] == whats_This_Absolute_Density)
-			{
-				substrate.absolute_Density.independent.is_Independent = true;
-				substrate.absolute_Density.independent.num_Points = 1;
-				substrate.absolute_Density.independent.min = substrate.absolute_Density.value;
-				substrate.absolute_Density.independent.max = substrate.absolute_Density.value;
-
-				new_Item->setText(new_Item->text() + " [" + QString::number(substrate.absolute_Density.value,thumbnail_double_format,thumbnail_density_precision) + " " + density_units + "]");
-			}
-			// substrate relative density
-			if(whats_This_List[1] == whats_This_Relative_Density)
-			{
-				substrate.relative_Density.independent.is_Independent = true;
-				substrate.relative_Density.independent.num_Points = 1;
-				substrate.relative_Density.independent.min = substrate.relative_Density.value;
-				substrate.relative_Density.independent.max = substrate.relative_Density.value;
-
-				new_Item->setText(new_Item->text() + " [" + QString::number(substrate.relative_Density.value,thumbnail_double_format,thumbnail_density_precision) + "]");
-			}
-			// substrate permittivity
-			if(whats_This_List[1] == whats_This_Permittivity)
-			{
-				substrate.permittivity.independent.is_Independent = true;
-				substrate.permittivity.independent.num_Points = 1;
-				substrate.permittivity.independent.min = substrate.permittivity.value;
-				substrate.permittivity.independent.max = substrate.permittivity.value;
-
-				new_Item->setText(new_Item->text() + " [" + QString::number(substrate.permittivity.value,thumbnail_double_format,thumbnail_permittivity_precision) + " " + opt_const_units + "]");
-			}
-			// substrate absorption
-			if(whats_This_List[1] == whats_This_Absorption)
-			{
-				substrate.absorption.independent.is_Independent = true;
-				substrate.absorption.independent.num_Points = 1;
-				substrate.absorption.independent.min = substrate.absorption.value;
-				substrate.absorption.independent.max = substrate.absorption.value;
-
-				new_Item->setText(new_Item->text() + " [" + QString::number(substrate.absorption.value,thumbnail_double_format,thumbnail_absorption_precision) + " " + opt_const_units + "]");
-			}
-			// substrate composition
-			if(whats_This_List[1] == whats_This_Composition)
-			{
-				int index = QString(whats_This_List[2]).toInt();
-				substrate.composition[index].composition.independent.is_Independent = true;
-				substrate.composition[index].composition.independent.num_Points = 1;
-				substrate.composition[index].composition.independent.min = substrate.composition[index].composition.value;
-				substrate.composition[index].composition.independent.max = substrate.composition[index].composition.value;
-
-				new_Item->setText(new_Item->text() + " [" + QString::number(substrate.composition[index].composition.value,thumbnail_double_format,thumbnail_composition_precision) + "]");
-			}
-
-			/// interface parameters
-
-			// substrate sigma
-			if(whats_This_List[1] == whats_This_Sigma)
-			{
-				double coeff = length_Coefficients_Map.value(length_units);
-
-				substrate.sigma.independent.is_Independent = true;
-				substrate.sigma.independent.num_Points = 1;
-				substrate.sigma.independent.min = substrate.sigma.value;
-				substrate.sigma.independent.max = substrate.sigma.value;
-
-				new_Item->setText(new_Item->text() + " [" + QString::number(substrate.sigma.value/coeff,thumbnail_double_format,thumbnail_sigma_precision) + " " + length_units + "]");
-			}
-			// substrate interlayer composition (if enabled and >=2 elements)
-			if(whats_This_List[1] == whats_This_Interlayer_Composition)
-			{
-				int index = QString(whats_This_List.last()).toInt();
-				substrate.interlayer_Composition[index].interlayer.independent.is_Independent = true;
-				substrate.interlayer_Composition[index].interlayer.independent.num_Points = 1;
-				substrate.interlayer_Composition[index].interlayer.independent.min = substrate.interlayer_Composition[index].interlayer.value;
-				substrate.interlayer_Composition[index].interlayer.independent.max = substrate.interlayer_Composition[index].interlayer.value;
-
-				new_Item->setText(new_Item->text() + " [" + QString::number(substrate.interlayer_Composition[index].interlayer.value,thumbnail_double_format,thumbnail_interlayer_precision) + "]");
-			}
-
-			var.setValue(substrate);
-			structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
-		}
+		add_Variable_Item(new_Item);
 	}
 	close();
 }

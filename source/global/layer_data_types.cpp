@@ -4,7 +4,7 @@
 
 #include "layer_data_types.h"
 
-Measurement::Measurement()
+Measurement::Measurement() //-V730
 {
 	// angle
 	probe_Angle.independent.is_Independent = true;
@@ -125,7 +125,7 @@ Substrate::Substrate()
 	}
 }
 
-Extreme_Layer::Extreme_Layer()
+Extreme_Layer::Extreme_Layer() //-V730
 {
 	material				= layer_default_material;
 	approved_Material		= material;
@@ -186,6 +186,17 @@ Stack_Content::Stack_Content()
 
 // serialization
 
+/// measurement
+QDataStream& operator <<( QDataStream& stream, const Measurement& measurement )
+{
+	return stream	<< measurement.probe_Angle << measurement.angular_Resolution << measurement.angle_Type
+					<< measurement.wavelength << measurement.spectral_Resolution << measurement.polarization << measurement.polarization_Sensitivity;
+}
+QDataStream& operator >>( QDataStream& stream,		 Measurement& measurement )
+{
+	return stream	>> measurement.probe_Angle >> measurement.angular_Resolution >> measurement.angle_Type
+					>> measurement.wavelength >> measurement.spectral_Resolution >> measurement.polarization >> measurement.polarization_Sensitivity;
+}
 /// ambient
 QDataStream& operator <<( QDataStream& stream, const Ambient& ambient )
 {

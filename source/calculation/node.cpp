@@ -5,12 +5,12 @@
 #include "node.h"
 #include <iostream>
 
-Node::Node()
+Node::Node() //-V730
 {
 
 }
 
-Node::Node(QTreeWidgetItem* item):
+Node::Node(QTreeWidgetItem* item): //-V730
 	whats_This(item->whatsThis(DEFAULT_COLUMN))
 {
 	whats_This_List = whats_This.split(item_Type_Delimiter,QString::SkipEmptyParts);

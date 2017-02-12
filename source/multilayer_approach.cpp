@@ -161,6 +161,11 @@ void Multilayer_Approach::open()
 		// load tree
 		Global_Variables::deserialize_Tree(in, multilayer->structure_Tree->tree);
 
+		// save active tab
+		int current_Index;
+		in >> current_Index;
+		multilayer->variables_Tabs->setCurrentIndex(current_Index);
+
 		// load dependent checkboxes state
 		bool is_Checked;
 
@@ -216,12 +221,8 @@ void Multilayer_Approach::open()
 			Global_Variables::deserialize_Tree(in, independent->struct_Tree_Copy);
 
 			// load variables list
-//			Global_Variables::deserialize_Variables_List(in, independent->independent_Variables_List);
-
+			Global_Variables::deserialize_Variables_List(in, independent->independent_Variables_List);
 		}
-
-
-
 
 		multilayer->refresh_State();
 
@@ -252,6 +253,9 @@ void Multilayer_Approach::save()
 
 		// save tree
 		Global_Variables::serialize_Tree(out, multilayer->structure_Tree->tree);
+
+		// save active tab
+		out << multilayer->variables_Tabs->currentIndex();
 
 		// save dependent checkboxes state
 		// specular
@@ -286,10 +290,8 @@ void Multilayer_Approach::save()
 			Global_Variables::serialize_Tree(out, independent->struct_Tree_Copy);
 
 			// save variables list
-//			Global_Variables::serialize_Variables_List(out, independent->independent_Variables_List);
+			Global_Variables::serialize_Variables_List(out, independent->independent_Variables_List);
 		}
-
-
 	}
 	file.close();
 }

@@ -5,7 +5,7 @@
 #-------------------------------------------------
 
 QT       += core gui
-CONFIG   += console
+CONFIG   += console #force_debug_info
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 

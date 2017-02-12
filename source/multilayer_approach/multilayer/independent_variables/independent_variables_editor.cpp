@@ -34,10 +34,11 @@ void Independent_Variables_Editor::create_Main_Layout()
 	create_Standard_Interface();
 		main_Layout->addWidget(group_Box);
 
+	QStringList whats_This_List = item->whatsThis().split(whats_This_Delimiter,QString::SkipEmptyParts);
 	// if angle
-	if(item->whatsThis() == QString(whats_This_Measurement) + whats_This_Delimiter + whats_This_Angle)		create_Angle_Interface();
+	if(whats_This_List.last() == whats_This_Angle)		create_Angle_Interface();
 	// if wavelength
-	if(item->whatsThis() == QString(whats_This_Measurement) + whats_This_Delimiter + whats_This_Wavelength)	create_Wavelength_Interface();
+	if(whats_This_List.last() == whats_This_Wavelength)	create_Wavelength_Interface();
 
 	done_Button = new QPushButton("Done");
 		done_Button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
@@ -331,8 +332,10 @@ void Independent_Variables_Editor::refresh_Show_Data(bool show)
 
 	QString whats_This = item->whatsThis();
 	QStringList whats_This_List = whats_This.split(whats_This_Delimiter,QString::SkipEmptyParts);
-	QStringList whats_This_List_Type = whats_This_List[0].split(item_Type_Delimiter,QString::SkipEmptyParts);
+	QStringList whats_This_List_Type = whats_This_List[1].split(item_Type_Delimiter,QString::SkipEmptyParts);
 	QVariant var;
+
+	int wtl_index = 2;
 
 	// if ambient
 	if(whats_This_List_Type[0] == whats_This_Ambient)
@@ -342,9 +345,9 @@ void Independent_Variables_Editor::refresh_Show_Data(bool show)
 		/// optical constants
 
 		// ambient absolute density
-		if(whats_This_List[1] == whats_This_Absolute_Density)
+		if(whats_This_List[wtl_index] == whats_This_Absolute_Density)
 		{
-			name = ambient.material + " (ambient) " + whats_This_List[1] + ", " + Rho_Sym;
+			name = ambient.material + " (ambient) " + whats_This_List[wtl_index] + ", " + Rho_Sym;
 			group_Box->setTitle(name);
 			units = density_units;
 			units_Label->setText(units);
@@ -391,9 +394,9 @@ void Independent_Variables_Editor::refresh_Show_Data(bool show)
 			show_Hide_Elements(ambient.absolute_Density.independent.num_Points, show);
 		}
 		// ambient relative density
-		if(whats_This_List[1] == whats_This_Relative_Density)
+		if(whats_This_List[wtl_index] == whats_This_Relative_Density)
 		{
-			name = ambient.material + " (ambient) " + whats_This_List[1] + ", " + Rho_Sym;
+			name = ambient.material + " (ambient) " + whats_This_List[wtl_index] + ", " + Rho_Sym;
 			group_Box->setTitle(name);
 			units = "";
 			units_Label->setText(units);
@@ -440,12 +443,12 @@ void Independent_Variables_Editor::refresh_Show_Data(bool show)
 			show_Hide_Elements(ambient.relative_Density.independent.num_Points, show);
 		}
 		// ambient permittivity
-		if(whats_This_List[1] == whats_This_Permittivity)
+		if(whats_This_List[wtl_index] == whats_This_Permittivity)
 		{
 			min->setValidator(new QDoubleValidator(-MAX_DOUBLE, MAX_DOUBLE, MAX_PRECISION, this));
 			max->setValidator(new QDoubleValidator(-MAX_DOUBLE, MAX_DOUBLE, MAX_PRECISION, this));
 
-			name = ambient.material + " (ambient) " + whats_This_List[1] + ", " + "1-" + Epsilon_Sym;
+			name = ambient.material + " (ambient) " + whats_This_List[wtl_index] + ", " + "1-" + Epsilon_Sym;
 			group_Box->setTitle(name);
 			units = opt_const_units;
 			units_Label->setText(units);
@@ -492,9 +495,9 @@ void Independent_Variables_Editor::refresh_Show_Data(bool show)
 			show_Hide_Elements(ambient.permittivity.independent.num_Points, show);
 		}
 		// ambient absorption
-		if(whats_This_List[1] == whats_This_Absorption)
+		if(whats_This_List[wtl_index] == whats_This_Absorption)
 		{
-			name = ambient.material + " (ambient) " + whats_This_List[1] + ", " + Cappa_Sym;
+			name = ambient.material + " (ambient) " + whats_This_List[wtl_index] + ", " + Cappa_Sym;
 			group_Box->setTitle(whats_This_List_Type[0] + " Absorption, " + Cappa_Sym);
 			units = opt_const_units;
 			units_Label->setText(units);
@@ -541,10 +544,10 @@ void Independent_Variables_Editor::refresh_Show_Data(bool show)
 			show_Hide_Elements(ambient.absorption.independent.num_Points, show);
 		}
 		//ambient composition
-		if(whats_This_List[1] == whats_This_Composition)
+		if(whats_This_List[wtl_index] == whats_This_Composition)
 		{
-			int index = QString(whats_This_List[2]).toInt();
-			name = ambient.material + " (ambient) " + ambient.composition[index].type + " " + whats_This_List[1] + ", " + Zeta_Sym + "_" + ambient.composition[index].type;
+			int index = QString(whats_This_List[wtl_index+1]).toInt();
+			name = ambient.material + " (ambient) " + ambient.composition[index].type + " " + whats_This_List[wtl_index] + ", " + Zeta_Sym + "_" + ambient.composition[index].type;
 			group_Box->setTitle(name);
 			units = "";
 			units_Label->setText(units);
@@ -602,9 +605,9 @@ void Independent_Variables_Editor::refresh_Show_Data(bool show)
 		/// optical constants
 
 		// layer absolute density
-		if(whats_This_List[1] == whats_This_Absolute_Density)
+		if(whats_This_List[wtl_index] == whats_This_Absolute_Density)
 		{
-			name = layer.material + " (layer " +  QString::number(layer.layer_Index) + ") " + whats_This_List[1] + ", " + Rho_Sym;
+			name = layer.material + " (layer " +  QString::number(layer.layer_Index) + ") " + whats_This_List[wtl_index] + ", " + Rho_Sym;
 			group_Box->setTitle(name);
 			units = density_units;
 			units_Label->setText(units);
@@ -651,9 +654,9 @@ void Independent_Variables_Editor::refresh_Show_Data(bool show)
 			show_Hide_Elements(layer.absolute_Density.independent.num_Points, show);
 		}
 		// layer relative density
-		if(whats_This_List[1] == whats_This_Relative_Density)
+		if(whats_This_List[wtl_index] == whats_This_Relative_Density)
 		{
-			name = layer.material + " (layer " +  QString::number(layer.layer_Index) + ") " + whats_This_List[1] + ", " + Rho_Sym;
+			name = layer.material + " (layer " +  QString::number(layer.layer_Index) + ") " + whats_This_List[wtl_index] + ", " + Rho_Sym;
 			group_Box->setTitle(name);
 			units = "";
 			units_Label->setText(units);
@@ -700,12 +703,12 @@ void Independent_Variables_Editor::refresh_Show_Data(bool show)
 			show_Hide_Elements(layer.relative_Density.independent.num_Points, show);
 		}
 		// layer permittivity
-		if(whats_This_List[1] == whats_This_Permittivity)
+		if(whats_This_List[wtl_index] == whats_This_Permittivity)
 		{
 			min->setValidator(new QDoubleValidator(-MAX_DOUBLE, MAX_DOUBLE, MAX_PRECISION, this));
 			max->setValidator(new QDoubleValidator(-MAX_DOUBLE, MAX_DOUBLE, MAX_PRECISION, this));
 
-			name = layer.material + " (layer " +  QString::number(layer.layer_Index) + ") " + whats_This_List[1] + ", " + "1-" + Epsilon_Sym;
+			name = layer.material + " (layer " +  QString::number(layer.layer_Index) + ") " + whats_This_List[wtl_index] + ", " + "1-" + Epsilon_Sym;
 			group_Box->setTitle(name);
 			units = opt_const_units;
 			units_Label->setText(units);
@@ -752,9 +755,9 @@ void Independent_Variables_Editor::refresh_Show_Data(bool show)
 			show_Hide_Elements(layer.permittivity.independent.num_Points, show);
 		}
 		// layer absorption
-		if(whats_This_List[1] == whats_This_Absorption)
+		if(whats_This_List[wtl_index] == whats_This_Absorption)
 		{
-			name = layer.material + " (layer " +  QString::number(layer.layer_Index) + ") " + whats_This_List[1] + ", " + Cappa_Sym;
+			name = layer.material + " (layer " +  QString::number(layer.layer_Index) + ") " + whats_This_List[wtl_index] + ", " + Cappa_Sym;
 			group_Box->setTitle(name);
 			units = opt_const_units;
 			units_Label->setText(units);
@@ -801,10 +804,10 @@ void Independent_Variables_Editor::refresh_Show_Data(bool show)
 			show_Hide_Elements(layer.absorption.independent.num_Points, show);
 		}
 		// layer composition
-		if(whats_This_List[1] == whats_This_Composition)
+		if(whats_This_List[wtl_index] == whats_This_Composition)
 		{
-			int index = QString(whats_This_List[2]).toInt();
-			name = layer.material + " (layer " +  QString::number(layer.layer_Index) + ") " + layer.composition[index].type + " " + whats_This_List[1] + ", " + Zeta_Sym + "_" + layer.composition[index].type;
+			int index = QString(whats_This_List[wtl_index+1]).toInt();
+			name = layer.material + " (layer " +  QString::number(layer.layer_Index) + ") " + layer.composition[index].type + " " + whats_This_List[wtl_index] + ", " + Zeta_Sym + "_" + layer.composition[index].type;
 			group_Box->setTitle(name);
 			units = "";
 			units_Label->setText(units);
@@ -854,11 +857,11 @@ void Independent_Variables_Editor::refresh_Show_Data(bool show)
 		/// thickness parameters
 
 		// layer thickness
-		if(whats_This_List[1] == whats_This_Thickness)
+		if(whats_This_List[wtl_index] == whats_This_Thickness)
 		{
 			double coeff = length_Coefficients_Map.value(length_units);
 
-			name = layer.material + " (layer " +  QString::number(layer.layer_Index) + ") " + whats_This_List[1] + ", z";
+			name = layer.material + " (layer " +  QString::number(layer.layer_Index) + ") " + whats_This_List[wtl_index] + ", z";
 			group_Box->setTitle(name);
 			units = length_units;
 			units_Label->setText(units);
@@ -908,7 +911,7 @@ void Independent_Variables_Editor::refresh_Show_Data(bool show)
 		/// interface parameters
 
 		// layer sigma
-		if(whats_This_List[1] == whats_This_Sigma)
+		if(whats_This_List[wtl_index] == whats_This_Sigma)
 		{
 			double coeff = length_Coefficients_Map.value(length_units);
 
@@ -959,7 +962,7 @@ void Independent_Variables_Editor::refresh_Show_Data(bool show)
 			show_Hide_Elements(layer.sigma.independent.num_Points, show);
 		}
 		// layer interlayer composition (if enabled and >=2 elements)
-		if(whats_This_List[1] == whats_This_Interlayer_Composition)
+		if(whats_This_List[wtl_index] == whats_This_Interlayer_Composition)
 		{
 			int index = QString(whats_This_List.last()).toInt();
 			name = layer.material + " (layer " +  QString::number(layer.layer_Index) + ") " + "Interlayer Composition, " + transition_Layer_Functions[index];
@@ -1018,9 +1021,9 @@ void Independent_Variables_Editor::refresh_Show_Data(bool show)
 		Stack_Content stack_Content = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Stack_Content>();
 
 		// multilayer num_repetitions
-		if(whats_This_List[1] == whats_This_Num_Repetitions)
+		if(whats_This_List[wtl_index] == whats_This_Num_Repetitions)
 		{
-			name = whats_This_List[0] + " Number of repetitions, N";
+			name = whats_This_List[wtl_index-1] + " " + whats_This_List[wtl_index] + " Number of repetitions, N";
 			group_Box->setTitle(name);
 			units = "";
 			units_Label->setText(units);
@@ -1078,11 +1081,11 @@ void Independent_Variables_Editor::refresh_Show_Data(bool show)
 			}
 		}
 		// multilayer period
-		if(whats_This_List[1] == whats_This_Period)
+		if(whats_This_List[wtl_index] == whats_This_Period)
 		{
 			double coeff = length_Coefficients_Map.value(length_units);
 
-			name = whats_This_List[0] + " " + whats_This_List[1] + ", d";
+			name = whats_This_List[wtl_index-1] + " " + whats_This_List[wtl_index] + ", d";
 			group_Box->setTitle(name);
 			units = length_units;
 			units_Label->setText(units);
@@ -1129,9 +1132,9 @@ void Independent_Variables_Editor::refresh_Show_Data(bool show)
 			show_Hide_Elements(stack_Content.period.independent.num_Points, show);
 		}
 		// multilayer gamma
-		if(whats_This_List[1] == whats_This_Gamma)
+		if(whats_This_List[wtl_index] == whats_This_Gamma)
 		{
-			name = whats_This_List[0] + " Thickness Ratio, " + Gamma_Sym;
+			name = whats_This_List[wtl_index-1] + " Thickness Ratio, " + Gamma_Sym;
 			group_Box->setTitle(name);
 			units = "";
 			units_Label->setText(units);
@@ -1202,9 +1205,9 @@ void Independent_Variables_Editor::refresh_Show_Data(bool show)
 		/// optical constants
 
 		// substrate absolute density
-		if(whats_This_List[1] == whats_This_Absolute_Density)
+		if(whats_This_List[wtl_index] == whats_This_Absolute_Density)
 		{
-			name = substrate.material + " (substrate) " + whats_This_List[1] + ", " + Rho_Sym;
+			name = substrate.material + " (substrate) " + whats_This_List[wtl_index] + ", " + Rho_Sym;
 			group_Box->setTitle(name);
 			units = density_units;
 			units_Label->setText(units);
@@ -1251,9 +1254,9 @@ void Independent_Variables_Editor::refresh_Show_Data(bool show)
 			show_Hide_Elements(substrate.absolute_Density.independent.num_Points, show);
 		}
 		// substrate relative density
-		if(whats_This_List[1] == whats_This_Relative_Density)
+		if(whats_This_List[wtl_index] == whats_This_Relative_Density)
 		{
-			name = substrate.material + " (substrate) " + whats_This_List[1] + ", " + Rho_Sym;
+			name = substrate.material + " (substrate) " + whats_This_List[wtl_index] + ", " + Rho_Sym;
 			group_Box->setTitle(name);
 			units = "";
 			units_Label->setText(units);
@@ -1300,12 +1303,12 @@ void Independent_Variables_Editor::refresh_Show_Data(bool show)
 			show_Hide_Elements(substrate.relative_Density.independent.num_Points, show);
 		}
 		// substrate permittivity
-		if(whats_This_List[1] == whats_This_Permittivity)
+		if(whats_This_List[wtl_index] == whats_This_Permittivity)
 		{
 			min->setValidator(new QDoubleValidator(-MAX_DOUBLE, MAX_DOUBLE, MAX_PRECISION, this));
 			max->setValidator(new QDoubleValidator(-MAX_DOUBLE, MAX_DOUBLE, MAX_PRECISION, this));
 
-			name = substrate.material + " (substrate) " + whats_This_List[1] + ", " + "1-" + Epsilon_Sym;
+			name = substrate.material + " (substrate) " + whats_This_List[wtl_index] + ", " + "1-" + Epsilon_Sym;
 			group_Box->setTitle(name);
 			units = opt_const_units;
 			units_Label->setText(units);
@@ -1352,9 +1355,9 @@ void Independent_Variables_Editor::refresh_Show_Data(bool show)
 			show_Hide_Elements(substrate.permittivity.independent.num_Points, show);
 		}
 		// substrate absorption
-		if(whats_This_List[1] == whats_This_Absorption)
+		if(whats_This_List[wtl_index] == whats_This_Absorption)
 		{
-			name = substrate.material + " (substrate) " + whats_This_List[1] + ", " + Cappa_Sym;
+			name = substrate.material + " (substrate) " + whats_This_List[wtl_index] + ", " + Cappa_Sym;
 			group_Box->setTitle(name);
 			units = opt_const_units;
 			units_Label->setText(units);
@@ -1401,10 +1404,10 @@ void Independent_Variables_Editor::refresh_Show_Data(bool show)
 			show_Hide_Elements(substrate.absorption.independent.num_Points, show);
 		}
 		// substrate composition
-		if(whats_This_List[1] == whats_This_Composition)
+		if(whats_This_List[wtl_index] == whats_This_Composition)
 		{
-			int index = QString(whats_This_List[2]).toInt();
-			name = substrate.material + " (substrate) " + substrate.composition[index].type + " " + whats_This_List[1] + ", " + Zeta_Sym;
+			int index = QString(whats_This_List[wtl_index+1]).toInt();
+			name = substrate.material + " (substrate) " + substrate.composition[index].type + " " + whats_This_List[wtl_index] + ", " + Zeta_Sym;
 			group_Box->setTitle(name);
 			units = "";
 			units_Label->setText(units);
@@ -1454,7 +1457,7 @@ void Independent_Variables_Editor::refresh_Show_Data(bool show)
 		/// interface parameters
 
 		// substrate sigma
-		if(whats_This_List[1] == whats_This_Sigma)
+		if(whats_This_List[wtl_index] == whats_This_Sigma)
 		{
 			double coeff = length_Coefficients_Map.value(length_units);
 
@@ -1505,7 +1508,7 @@ void Independent_Variables_Editor::refresh_Show_Data(bool show)
 			show_Hide_Elements(substrate.sigma.independent.num_Points, show);
 		}
 		// substrate interlayer composition (if enabled and >=2 elements)
-		if(whats_This_List[1] == whats_This_Interlayer_Composition)
+		if(whats_This_List[wtl_index] == whats_This_Interlayer_Composition)
 		{
 			int index = QString(whats_This_List.last()).toInt();
 			name = substrate.material + " (substrate) " + "Interlayer Composition, " + transition_Layer_Functions[index];
@@ -1558,187 +1561,191 @@ void Independent_Variables_Editor::refresh_Show_Data(bool show)
 		var.setValue(substrate);
 		structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
 	}
-	// if angle
-	if(angle_Done)
-	if(whats_This_List[1] == whats_This_Angle)
+	// if measurement
+	if(whats_This_List_Type[0] == whats_This_Measurement)
 	{
 		Measurement measurement = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Measurement>();
-		double coeff = angle_Coefficients_Map.value(angle_units);
 
-		name = measurement.angle_Type + " angle, " + Theta_Sym;
-		group_Box->setTitle(name);
-		units = angle_units;
-		units_Label->setText(units);
-		step_Units_Label->setText(units);
-		angle_Units_Label->setText(units);
-
-		// show data
-		if(show)
+		// if angle
+		if(angle_Done)
+		if(whats_This_List[wtl_index] == whats_This_Angle)
 		{
-			num_Points->setText(QString::number(measurement.probe_Angle.independent.num_Points));
-			if(measurement.probe_Angle.independent.num_Points == 1)
-				min->setText(	QString::number(measurement.probe_Angle.value/coeff,line_edit_double_format,line_edit_angle_precision));
-			else
-				min->setText(	QString::number(measurement.probe_Angle.independent.min/coeff,line_edit_double_format,line_edit_angle_precision));
-			max->setText(		QString::number(measurement.probe_Angle.independent.max/coeff,line_edit_double_format,line_edit_angle_precision));
+			double coeff = angle_Coefficients_Map.value(angle_units);
 
-			if(measurement.probe_Angle.independent.num_Points >= MIN_ANGULAR_RESOLUTION_POINTS)
-				angular_Resolution_Edit->setText(QString::number(measurement.angular_Resolution.value/coeff,line_edit_double_format,line_edit_angle_precision));
-		} else
-		// refresh data
-		{
-			if(num_Points->text().toInt()<1)
+			name = measurement.angle_Type + " angle, " + Theta_Sym;
+			group_Box->setTitle(name);
+			units = angle_units;
+			units_Label->setText(units);
+			step_Units_Label->setText(units);
+			angle_Units_Label->setText(units);
+
+			// show data
+			if(show)
 			{
 				num_Points->setText(QString::number(measurement.probe_Angle.independent.num_Points));
-				num_Points->textEdited(num_Points->text());
-			} else
-			if(min->text().toDouble()*coeff>90)
-			{
 				if(measurement.probe_Angle.independent.num_Points == 1)
-					min->setText(QString::number(measurement.probe_Angle.value/coeff,line_edit_double_format,line_edit_angle_precision));
+					min->setText(	QString::number(measurement.probe_Angle.value/coeff,line_edit_double_format,line_edit_angle_precision));
 				else
-					min->setText(QString::number(measurement.probe_Angle.independent.min/coeff,line_edit_double_format,line_edit_angle_precision));
-				min->textEdited(min->text());
-			} else
-			if(max->text().toDouble()*coeff>90)
-			{
-				max->setText(QString::number(measurement.probe_Angle.independent.max/coeff,line_edit_double_format,line_edit_angle_precision));
-				max->textEdited(max->text());
-			} else
-			{
-				measurement.probe_Angle.independent.num_Points = num_Points->text().toInt();
-				if(measurement.probe_Angle.independent.num_Points == 1)
-					measurement.probe_Angle.value = min->text().toDouble()*coeff;
-				else
-					measurement.probe_Angle.independent.min = min->text().toDouble()*coeff;
-				measurement.probe_Angle.independent.max = max->text().toDouble()*coeff;
+					min->setText(	QString::number(measurement.probe_Angle.independent.min/coeff,line_edit_double_format,line_edit_angle_precision));
+				max->setText(		QString::number(measurement.probe_Angle.independent.max/coeff,line_edit_double_format,line_edit_angle_precision));
 
-				if(measurement.probe_Angle.independent.num_Points == 1)
-					item->setText(name + " [" + QString::number(measurement.probe_Angle.value/coeff,thumbnail_double_format,thumbnail_angle_precision) + units + end_Bracket);
-				else
-					item->setText(name + " [" + QString::number(measurement.probe_Angle.independent.num_Points) + " values: " +
-								  QString::number(measurement.probe_Angle.independent.min/coeff,thumbnail_double_format,thumbnail_angle_precision) + " - " +
-								  QString::number(measurement.probe_Angle.independent.max/coeff,thumbnail_double_format,thumbnail_angle_precision)  + units + end_Bracket);
+//				if(measurement.probe_Angle.independent.num_Points >= MIN_ANGULAR_RESOLUTION_POINTS)
+					angular_Resolution_Edit->setText(QString::number(measurement.angular_Resolution.value/coeff,line_edit_double_format,line_edit_angle_precision));
+			} else
+			// refresh data
+			{
+				if(num_Points->text().toInt()<1)
+				{
+					num_Points->setText(QString::number(measurement.probe_Angle.independent.num_Points));
+					num_Points->textEdited(num_Points->text());
+				} else
+				if(min->text().toDouble()*coeff>90)
+				{
+					if(measurement.probe_Angle.independent.num_Points == 1)
+						min->setText(QString::number(measurement.probe_Angle.value/coeff,line_edit_double_format,line_edit_angle_precision));
+					else
+						min->setText(QString::number(measurement.probe_Angle.independent.min/coeff,line_edit_double_format,line_edit_angle_precision));
+					min->textEdited(min->text());
+				} else
+				if(max->text().toDouble()*coeff>90)
+				{
+					max->setText(QString::number(measurement.probe_Angle.independent.max/coeff,line_edit_double_format,line_edit_angle_precision));
+					max->textEdited(max->text());
+				} else
+				{
+					measurement.probe_Angle.independent.num_Points = num_Points->text().toInt();
+					if(measurement.probe_Angle.independent.num_Points == 1)
+						measurement.probe_Angle.value = min->text().toDouble()*coeff;
+					else
+						measurement.probe_Angle.independent.min = min->text().toDouble()*coeff;
+					measurement.probe_Angle.independent.max = max->text().toDouble()*coeff;
 
-				if(measurement.probe_Angle.independent.num_Points >= MIN_ANGULAR_RESOLUTION_POINTS)
-					measurement.angular_Resolution.value = angular_Resolution_Edit->text().toDouble()*coeff;
-				// TODO decide reset to default or not
-//				else
-//					measurement.angular_Resolution.value = default_angular_resolution*coeff;
+					if(measurement.probe_Angle.independent.num_Points == 1)
+						item->setText(name + " [" + QString::number(measurement.probe_Angle.value/coeff,thumbnail_double_format,thumbnail_angle_precision) + units + end_Bracket);
+					else
+						item->setText(name + " [" + QString::number(measurement.probe_Angle.independent.num_Points) + " values: " +
+									  QString::number(measurement.probe_Angle.independent.min/coeff,thumbnail_double_format,thumbnail_angle_precision) + " - " +
+									  QString::number(measurement.probe_Angle.independent.max/coeff,thumbnail_double_format,thumbnail_angle_precision)  + units + end_Bracket);
+
+					if(measurement.probe_Angle.independent.num_Points >= MIN_ANGULAR_RESOLUTION_POINTS)
+						measurement.angular_Resolution.value = angular_Resolution_Edit->text().toDouble()*coeff;
+					// TODO decide reset to default or not
+	//				else
+	//					measurement.angular_Resolution.value = default_angular_resolution*coeff;
+				}
 			}
+			if(num_Points->text().toInt()>1)
+			{
+				step_Edit->setText(QString::number((measurement.probe_Angle.independent.max-measurement.probe_Angle.independent.min)/(measurement.probe_Angle.independent.num_Points-1)/coeff,line_edit_double_format,line_edit_angle_precision));
+				step_Edit->textEdited(step_Edit->text());
+			}
+			show_Hide_Elements(measurement.probe_Angle.independent.num_Points, show);
+			show_Hide_Angular_Elements(measurement.probe_Angle.independent.num_Points, show);
+
+			var.setValue(measurement);
+			structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
 		}
-		if(num_Points->text().toInt()>1)
+
+		// if wavelength
+		if(wavelength_Done)
+		if(whats_This_List[wtl_index] == whats_This_Wavelength)
 		{
-			step_Edit->setText(QString::number((measurement.probe_Angle.independent.max-measurement.probe_Angle.independent.min)/(measurement.probe_Angle.independent.num_Points-1)/coeff,line_edit_double_format,line_edit_angle_precision));
-			step_Edit->textEdited(step_Edit->text());
-		}
-		show_Hide_Elements(measurement.probe_Angle.independent.num_Points, show);
-		show_Hide_Angular_Elements(measurement.probe_Angle.independent.num_Points, show);
+			double coeff = wavelength_Coefficients_Map.value(wavelength_units);
 
-		var.setValue(measurement);
-		structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
-	}
-	// if wavelength
-	if(wavelength_Done)
-	if(whats_This_List[1] == whats_This_Wavelength)
-	{
-		Measurement measurement = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Measurement>();
-		double coeff = wavelength_Coefficients_Map.value(wavelength_units);
+			name = Global_Variables::wavelength_Energy_Name(wavelength_units);
+			group_Box->setTitle(name);
+			units = wavelength_units;
+			units_Label->setText(units);
+			step_Units_Label->setText(units);
+			wavelength_Units_Label->setText(units);
+			spectral_Resolution_Label->setText("Spectral Resolution, " + Delta_Big_Sym + name[name.size()-1]);
 
-		name = Global_Variables::wavelength_Energy_Name(wavelength_units);
-		group_Box->setTitle(name);
-		units = wavelength_units;
-		units_Label->setText(units);
-		step_Units_Label->setText(units);
-		wavelength_Units_Label->setText(units);
-		spectral_Resolution_Label->setText("Spectral Resolution, " + Delta_Big_Sym + name[name.size()-1]);
-
-		// show data
-		if(show)
-		{
-			num_Points->setText(QString::number(measurement.wavelength.independent.num_Points));
-			if(measurement.wavelength.independent.num_Points == 1)
-				min->setText(	QString::number(Global_Variables::wavelength_Energy(wavelength_units,measurement.wavelength.value)/coeff,line_edit_double_format,line_edit_wavelength_precision));
-			else
-				min->setText(	QString::number(Global_Variables::wavelength_Energy(wavelength_units,measurement.wavelength.independent.min)/coeff,line_edit_double_format,line_edit_wavelength_precision));
-			max->setText(		QString::number(Global_Variables::wavelength_Energy(wavelength_units,measurement.wavelength.independent.max)/coeff,line_edit_double_format,line_edit_wavelength_precision));
-
-			polarization_Edit->setText(QString::number(measurement.polarization.value/coeff,line_edit_double_format,line_edit_wavelength_precision));
-			polarization_Edit->textEdited(polarization_Edit->text());
-			analyzer_Edit->setText(QString::number(measurement.polarization_Sensitivity.value/coeff,line_edit_double_format,line_edit_wavelength_precision));
-			analyzer_Edit->textEdited(analyzer_Edit->text());
-
-			if(measurement.wavelength.independent.num_Points >= MIN_SPECTRAL_RESOLUTION_POINTS)
-				spectral_Resolution_Edit->setText(QString::number(measurement.spectral_Resolution.value/coeff,line_edit_double_format,line_edit_wavelength_precision));
-
-		} else
-		// refresh data
-		{
-			if(num_Points->text().toInt()<1)
+			// show data
+			if(show)
 			{
 				num_Points->setText(QString::number(measurement.wavelength.independent.num_Points));
-				num_Points->textEdited(num_Points->text());
-			}
-			// don't uncomment
-/*			else
-			if(min->text().toDouble()==0)
-			{
 				if(measurement.wavelength.independent.num_Points == 1)
-					min->setText(QString::number(Global_Variables::wavelength_Energy(wavelength_units,measurement.wavelength.value)/coeff,line_edit_double_format,line_edit_wavelength_precision));
+					min->setText(	QString::number(Global_Variables::wavelength_Energy(wavelength_units,measurement.wavelength.value)/coeff,line_edit_double_format,line_edit_wavelength_precision));
 				else
-					min->setText(QString::number(Global_Variables::wavelength_Energy(wavelength_units,measurement.wavelength.independent.min)/coeff,line_edit_double_format,line_edit_wavelength_precision));
-				min->textEdited(min->text());
-			} else
-			if(max->text().toDouble()==0)
-			{
-				max->setText(QString::number(Global_Variables::wavelength_Energy(wavelength_units,measurement.wavelength.independent.max)/coeff,line_edit_double_format,line_edit_wavelength_precision));
-				max->textEdited(max->text());
-			} else*/
-			if(polarization_Edit->text().toDouble()>1)
-			{
-				polarization_Edit->setText(QString::number(measurement.polarization.value,line_edit_double_format,line_edit_wavelength_precision));
+					min->setText(	QString::number(Global_Variables::wavelength_Energy(wavelength_units,measurement.wavelength.independent.min)/coeff,line_edit_double_format,line_edit_wavelength_precision));
+				max->setText(		QString::number(Global_Variables::wavelength_Energy(wavelength_units,measurement.wavelength.independent.max)/coeff,line_edit_double_format,line_edit_wavelength_precision));
+
+				polarization_Edit->setText(QString::number(measurement.polarization.value/coeff,line_edit_double_format,line_edit_wavelength_precision));
 				polarization_Edit->textEdited(polarization_Edit->text());
+				analyzer_Edit->setText(QString::number(measurement.polarization_Sensitivity.value/coeff,line_edit_double_format,line_edit_wavelength_precision));
+				analyzer_Edit->textEdited(analyzer_Edit->text());
+
+//				if(measurement.wavelength.independent.num_Points >= MIN_SPECTRAL_RESOLUTION_POINTS)
+					spectral_Resolution_Edit->setText(QString::number(measurement.spectral_Resolution.value/coeff,line_edit_double_format,line_edit_wavelength_precision));
 			} else
-			if(polarization_Edit->text().toDouble()<-1)
+			// refresh data
 			{
-				polarization_Edit->setText(QString::number(measurement.polarization.value,line_edit_double_format,line_edit_wavelength_precision));
-				polarization_Edit->textEdited(polarization_Edit->text());
-			} else
-			{
-				measurement.wavelength.independent.num_Points = num_Points->text().toInt();
-				if(measurement.wavelength.independent.num_Points == 1)
-					measurement.wavelength.value = Global_Variables::wavelength_Energy(wavelength_units,min->text().toDouble()*coeff);
-				else
-					measurement.wavelength.independent.min = Global_Variables::wavelength_Energy(wavelength_units,min->text().toDouble()*coeff);
-				measurement.wavelength.independent.max = Global_Variables::wavelength_Energy(wavelength_units,max->text().toDouble()*coeff);
+				if(num_Points->text().toInt()<1)
+				{
+					num_Points->setText(QString::number(measurement.wavelength.independent.num_Points));
+					num_Points->textEdited(num_Points->text());
+				}
+				// don't uncomment
+	/*			else
+				if(min->text().toDouble()==0)
+				{
+					if(measurement.wavelength.independent.num_Points == 1)
+						min->setText(QString::number(Global_Variables::wavelength_Energy(wavelength_units,measurement.wavelength.value)/coeff,line_edit_double_format,line_edit_wavelength_precision));
+					else
+						min->setText(QString::number(Global_Variables::wavelength_Energy(wavelength_units,measurement.wavelength.independent.min)/coeff,line_edit_double_format,line_edit_wavelength_precision));
+					min->textEdited(min->text());
+				} else
+				if(max->text().toDouble()==0)
+				{
+					max->setText(QString::number(Global_Variables::wavelength_Energy(wavelength_units,measurement.wavelength.independent.max)/coeff,line_edit_double_format,line_edit_wavelength_precision));
+					max->textEdited(max->text());
+				} else*/
+				if(polarization_Edit->text().toDouble()>1)
+				{
+					polarization_Edit->setText(QString::number(measurement.polarization.value,line_edit_double_format,line_edit_wavelength_precision));
+					polarization_Edit->textEdited(polarization_Edit->text());
+				} else
+				if(polarization_Edit->text().toDouble()<-1)
+				{
+					polarization_Edit->setText(QString::number(measurement.polarization.value,line_edit_double_format,line_edit_wavelength_precision));
+					polarization_Edit->textEdited(polarization_Edit->text());
+				} else
+				{
+					measurement.wavelength.independent.num_Points = num_Points->text().toInt();
+					if(measurement.wavelength.independent.num_Points == 1)
+						measurement.wavelength.value = Global_Variables::wavelength_Energy(wavelength_units,min->text().toDouble()*coeff);
+					else
+						measurement.wavelength.independent.min = Global_Variables::wavelength_Energy(wavelength_units,min->text().toDouble()*coeff);
+					measurement.wavelength.independent.max = Global_Variables::wavelength_Energy(wavelength_units,max->text().toDouble()*coeff);
 
-				measurement.polarization.value = polarization_Edit->text().toDouble();
-				measurement.polarization_Sensitivity.value = analyzer_Edit->text().toDouble();
+					measurement.polarization.value = polarization_Edit->text().toDouble();
+					measurement.polarization_Sensitivity.value = analyzer_Edit->text().toDouble();
 
-				if(measurement.wavelength.independent.num_Points == 1)
-					item->setText(name + " [" + QString::number(Global_Variables::wavelength_Energy(wavelength_units,measurement.wavelength.value)/coeff,thumbnail_double_format,thumbnail_wavelength_precision) + " " + units + end_Bracket);
-				else
-					item->setText(name + " [" + QString::number(measurement.wavelength.independent.num_Points) + " values: " +
-								  QString::number(Global_Variables::wavelength_Energy(wavelength_units,measurement.wavelength.independent.min)/coeff,thumbnail_double_format,thumbnail_wavelength_precision) + " - " +
-								  QString::number(Global_Variables::wavelength_Energy(wavelength_units,measurement.wavelength.independent.max)/coeff,thumbnail_double_format,thumbnail_wavelength_precision)  + " " + units + end_Bracket);
+					if(measurement.wavelength.independent.num_Points == 1)
+						item->setText(name + " [" + QString::number(Global_Variables::wavelength_Energy(wavelength_units,measurement.wavelength.value)/coeff,thumbnail_double_format,thumbnail_wavelength_precision) + " " + units + end_Bracket);
+					else
+						item->setText(name + " [" + QString::number(measurement.wavelength.independent.num_Points) + " values: " +
+									  QString::number(Global_Variables::wavelength_Energy(wavelength_units,measurement.wavelength.independent.min)/coeff,thumbnail_double_format,thumbnail_wavelength_precision) + " - " +
+									  QString::number(Global_Variables::wavelength_Energy(wavelength_units,measurement.wavelength.independent.max)/coeff,thumbnail_double_format,thumbnail_wavelength_precision)  + " " + units + end_Bracket);
 
-				if(measurement.wavelength.independent.num_Points >= MIN_SPECTRAL_RESOLUTION_POINTS)
-					measurement.spectral_Resolution.value = spectral_Resolution_Edit->text().toDouble()*coeff;
-				// TODO decide reset to default or not
-//				else
-//					measurement.spectral_Resolution.value = default_spectral_resolution*coeff;
+					if(measurement.wavelength.independent.num_Points >= MIN_SPECTRAL_RESOLUTION_POINTS)
+						measurement.spectral_Resolution.value = spectral_Resolution_Edit->text().toDouble()*coeff;
+					// TODO decide reset to default or not
+	//				else
+	//					measurement.spectral_Resolution.value = default_spectral_resolution*coeff;
+				}
 			}
-		}
-		if(num_Points->text().toInt()>1)
-		{
-			step_Edit->setText(QString::number((Global_Variables::wavelength_Energy(wavelength_units,measurement.wavelength.independent.max)-Global_Variables::wavelength_Energy(wavelength_units,measurement.wavelength.independent.min))/(measurement.wavelength.independent.num_Points-1)/coeff,line_edit_double_format,line_edit_wavelength_precision));
-			step_Edit->textEdited(step_Edit->text());
-		}
-		show_Hide_Elements(measurement.wavelength.independent.num_Points, show);
-		show_Hide_Spectral_Elements(measurement.wavelength.independent.num_Points, show);
+			if(num_Points->text().toInt()>1)
+			{
+				step_Edit->setText(QString::number((Global_Variables::wavelength_Energy(wavelength_units,measurement.wavelength.independent.max)-Global_Variables::wavelength_Energy(wavelength_units,measurement.wavelength.independent.min))/(measurement.wavelength.independent.num_Points-1)/coeff,line_edit_double_format,line_edit_wavelength_precision));
+				step_Edit->textEdited(step_Edit->text());
+			}
+			show_Hide_Elements(measurement.wavelength.independent.num_Points, show);
+			show_Hide_Spectral_Elements(measurement.wavelength.independent.num_Points, show);
 
-		var.setValue(measurement);
-		structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+			var.setValue(measurement);
+			structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+		}
 	}
 
 	show_Active_Check_Box();

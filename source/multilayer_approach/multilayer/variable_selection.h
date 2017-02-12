@@ -55,7 +55,9 @@ private:
 			void add_Period					(QTreeWidgetItem* item, QString whats_This_Type);
 			void add_Gamma					(QTreeWidgetItem* item, QString whats_This_Type);
 
-private slots:
+public slots:
+	static void refresh_State(QTreeWidgetItem* structure_Item);
+	void add_Variable_Item(QListWidgetItem* new_Item);
 	void add_Variable();
 	void filter_Change(int index);
 };

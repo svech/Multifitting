@@ -118,21 +118,21 @@ void Menu::create_Independent_Units_Menu()
 	QStringList whats_This_List = whats_This.split(whats_This_Delimiter,QString::SkipEmptyParts);
 
 	// if density, permittivity, absorption, composition, num_repetitions, or gamma
-	if((whats_This_List[1] == whats_This_Absolute_Density)		 ||
-	   (whats_This_List[1] == whats_This_Relative_Density)		 ||
-	   (whats_This_List[1] == whats_This_Permittivity)			 ||
-	   (whats_This_List[1] == whats_This_Absorption)			 ||
-	   (whats_This_List[1] == whats_This_Composition)			 ||
-	   (whats_This_List[1] == whats_This_Interlayer_Composition) ||
-	   (whats_This_List[1] == whats_This_Num_Repetitions)		 ||
-	   (whats_This_List[1] == whats_This_Gamma))
+	if((whats_This_List[2] == whats_This_Absolute_Density)		 ||
+	   (whats_This_List[2] == whats_This_Relative_Density)		 ||
+	   (whats_This_List[2] == whats_This_Permittivity)			 ||
+	   (whats_This_List[2] == whats_This_Absorption)			 ||
+	   (whats_This_List[2] == whats_This_Composition)			 ||
+	   (whats_This_List[2] == whats_This_Interlayer_Composition) ||
+	   (whats_This_List[2] == whats_This_Num_Repetitions)		 ||
+	   (whats_This_List[2] == whats_This_Gamma))
 	{
 		units_Menu->setDisabled(true);
 	}
 	// if thickness, sigma or period
-	if((whats_This_List[1] == whats_This_Thickness) ||
-	   (whats_This_List[1] == whats_This_Sigma)	    ||
-	   (whats_This_List[1] == whats_This_Period))
+	if((whats_This_List[2] == whats_This_Thickness) ||
+	   (whats_This_List[2] == whats_This_Sigma)	    ||
+	   (whats_This_List[2] == whats_This_Period))
 	{
 		QActionGroup* group_Act_Unit = new QActionGroup(this);
 			group_Act_Unit->setExclusive(true);
@@ -152,7 +152,7 @@ void Menu::create_Independent_Units_Menu()
 		}
 	}
 	// if angle
-	if(whats_This_List[1] == whats_This_Angle)
+	if(whats_This_List[2] == whats_This_Angle)
 	{
 		QActionGroup* group_Act_Angle = new QActionGroup(this);
 			group_Act_Angle->setExclusive(true);
@@ -186,7 +186,7 @@ void Menu::create_Independent_Units_Menu()
 		}
 	}
 	// if wavelength
-	if(whats_This_List[1] == whats_This_Wavelength)
+	if(whats_This_List[2] == whats_This_Wavelength)
 	{
 		QActionGroup* group_Act_Unit = new QActionGroup(this);
 			group_Act_Unit->setExclusive(true);
@@ -242,8 +242,8 @@ void Menu::create_Independent_Precision_Menu()
 			menu_Edit->addAction(precision_Edit);
 
 		// if density
-		if((whats_This_List[1] == whats_This_Absolute_Density) ||
-		   (whats_This_List[1] == whats_This_Relative_Density))
+		if((whats_This_List[2] == whats_This_Absolute_Density) ||
+		   (whats_This_List[2] == whats_This_Relative_Density))
 		{
 			if(index == thumbnail_density_precision) precision_Thumb->setChecked(true);
 			if(index == line_edit_density_precision) precision_Edit->setChecked(true);
@@ -252,7 +252,7 @@ void Menu::create_Independent_Precision_Menu()
 			connect(precision_Edit, SIGNAL(triggered()), this, SLOT(set_Line_Edit_Density_Precision()));
 		}
 		// if permittivity
-		if(whats_This_List[1] == whats_This_Permittivity)
+		if(whats_This_List[2] == whats_This_Permittivity)
 		{
 			if(index == thumbnail_permittivity_precision) precision_Thumb->setChecked(true);
 			if(index == line_edit_permittivity_precision) precision_Edit->setChecked(true);
@@ -261,7 +261,7 @@ void Menu::create_Independent_Precision_Menu()
 			connect(precision_Edit, SIGNAL(triggered()), this, SLOT(set_Line_Edit_Permittivity_Precision()));
 		}
 		// if absorption
-		if(whats_This_List[1] == whats_This_Absorption)
+		if(whats_This_List[2] == whats_This_Absorption)
 		{
 			if(index == thumbnail_absorption_precision) precision_Thumb->setChecked(true);
 			if(index == line_edit_absorption_precision) precision_Edit->setChecked(true);
@@ -270,7 +270,7 @@ void Menu::create_Independent_Precision_Menu()
 			connect(precision_Edit, SIGNAL(triggered()), this, SLOT(set_Line_Edit_Absorption_Precision()));
 		}
 		// if composition
-		if(whats_This_List[1] == whats_This_Composition)
+		if(whats_This_List[2] == whats_This_Composition)
 		{
 			if(index == thumbnail_composition_precision) precision_Thumb->setChecked(true);
 			if(index == line_edit_composition_precision) precision_Edit->setChecked(true);
@@ -279,7 +279,7 @@ void Menu::create_Independent_Precision_Menu()
 			connect(precision_Edit, SIGNAL(triggered()), this, SLOT(set_Line_Edit_Composition_Precision()));
 		}
 		// if thickness
-		if(whats_This_List[1] == whats_This_Thickness)
+		if(whats_This_List[2] == whats_This_Thickness)
 		{
 			if(index == thumbnail_thickness_precision) precision_Thumb->setChecked(true);
 			if(index == line_edit_thickness_precision) precision_Edit->setChecked(true);
@@ -288,7 +288,7 @@ void Menu::create_Independent_Precision_Menu()
 			connect(precision_Edit, SIGNAL(triggered()), this, SLOT(set_Line_Edit_Thickness_Precision()));
 		}
 		// if sigma
-		if(whats_This_List[1] == whats_This_Sigma)
+		if(whats_This_List[2] == whats_This_Sigma)
 		{
 			if(index == thumbnail_sigma_precision) precision_Thumb->setChecked(true);
 			if(index == line_edit_sigma_precision) precision_Edit->setChecked(true);
@@ -297,7 +297,7 @@ void Menu::create_Independent_Precision_Menu()
 			connect(precision_Edit, SIGNAL(triggered()), this, SLOT(set_Line_Edit_Sigma_Precision()));
 		}
 		// if interlayer composition
-		if(whats_This_List[1] == whats_This_Interlayer_Composition)
+		if(whats_This_List[2] == whats_This_Interlayer_Composition)
 		{
 			if(index == thumbnail_interlayer_precision) precision_Thumb->setChecked(true);
 			if(index == line_edit_interlayer_precision) precision_Edit->setChecked(true);
@@ -306,12 +306,12 @@ void Menu::create_Independent_Precision_Menu()
 			connect(precision_Edit, SIGNAL(triggered()), this, SLOT(set_Line_Edit_Interlayer_Precision()));
 		}
 		// multilayer num_repetitions
-		if(whats_This_List[1] == whats_This_Num_Repetitions)
+		if(whats_This_List[2] == whats_This_Num_Repetitions)
 		{
 			precision_Menu->setDisabled(true);
 		}
 		// multilayer period
-		if(whats_This_List[1] == whats_This_Period)
+		if(whats_This_List[2] == whats_This_Period)
 		{
 			if(index == thumbnail_period_precision) precision_Thumb->setChecked(true);
 			if(index == line_edit_period_precision) precision_Edit->setChecked(true);
@@ -320,7 +320,7 @@ void Menu::create_Independent_Precision_Menu()
 			connect(precision_Edit, SIGNAL(triggered()), this, SLOT(set_Line_Edit_Period_Precision()));
 		}
 		// multilayer gamma
-		if(whats_This_List[1] == whats_This_Gamma)
+		if(whats_This_List[2] == whats_This_Gamma)
 		{
 			if(index == thumbnail_gamma_precision) precision_Thumb->setChecked(true);
 			if(index == line_edit_gamma_precision) precision_Edit->setChecked(true);
@@ -329,7 +329,7 @@ void Menu::create_Independent_Precision_Menu()
 			connect(precision_Edit, SIGNAL(triggered()), this, SLOT(set_Line_Edit_Gamma_Precision()));
 		}
 		// if angle
-		if(whats_This_List[1] == whats_This_Angle)
+		if(whats_This_List[2] == whats_This_Angle)
 		{
 			if(index == thumbnail_angle_precision) precision_Thumb->setChecked(true);
 			if(index == line_edit_angle_precision) precision_Edit->setChecked(true);
@@ -338,7 +338,7 @@ void Menu::create_Independent_Precision_Menu()
 			connect(precision_Edit, SIGNAL(triggered()), this, SLOT(set_Line_Edit_Angle_Precision()));
 		}
 		// if wavelength
-		if(whats_This_List[1] == whats_This_Wavelength)
+		if(whats_This_List[2] == whats_This_Wavelength)
 		{
 			if(index == thumbnail_wavelength_precision) precision_Thumb->setChecked(true);
 			if(index == line_edit_wavelength_precision) precision_Edit->setChecked(true);
@@ -433,7 +433,7 @@ void Menu::create_Item_Precision_Menu()
 	}
 
 	connect(menu_Density,	 SIGNAL(aboutToShow()), this, SLOT(menu_Focus()));
-	connect(menu_Lengths,  SIGNAL(aboutToShow()), this, SLOT(menu_Focus()));
+	connect(menu_Lengths,	 SIGNAL(aboutToShow()), this, SLOT(menu_Focus()));
 	connect(menu_Composition,SIGNAL(aboutToShow()), this, SLOT(menu_Focus()));
 	connect(menu_Interlayer, SIGNAL(aboutToShow()), this, SLOT(menu_Focus()));
 
