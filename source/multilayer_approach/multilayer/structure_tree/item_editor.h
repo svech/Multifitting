@@ -3,6 +3,7 @@
 
 #include "global/layer_data_types.h"
 #include "standard/menu.h"
+#include "grading_editor.h"
 
 class Item_Editor : public QDialog
 {
@@ -59,6 +60,8 @@ private slots:
 	void done_Slot();
 	void resize_Line_Edit(QString text, QLineEdit* line_Edit = NULL);
 	void browse_Material(bool);
+    void depth_Grading(bool);
+    void sigma_Grading(bool);
 	void filename_Radio_Toggled(bool temp_bool);
 	void composition_Radio_Toggled(bool temp_bool);
 	void more_Elements_Clicked(bool);

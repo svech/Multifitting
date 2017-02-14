@@ -76,8 +76,9 @@ class Layer : public Extreme_Layer
 public:
 	Layer();
 
-	QString drift_Model;
-	QList<Parameter> drift_Coefficients;
+    bool is_Drift_Line;  Parameter drift_Line_Value;
+    bool is_Drift_Sine;  Parameter drift_Sine_Amplitude; Parameter drift_Sine_Frequency; Parameter drift_Sine_Phase;
+    bool is_Drift_Rand;  Parameter drift_Rand_Rms;
 
 	bool if_First = false;
 	Extreme_Layer First;

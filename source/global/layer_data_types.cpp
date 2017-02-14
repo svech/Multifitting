@@ -236,14 +236,18 @@ QDataStream& operator <<( QDataStream& stream, const Layer& layer )
 	return stream	<< layer.composed_Material << layer.material << layer.absolute_Density << layer.relative_Density << layer.separate_Optical_Constants << layer.permittivity << layer.absorption	<< layer.composition
 					<< layer.use_PSD << layer.sigma << layer.interlayer_Composition
 					<< layer.layer_Index << layer.thickness
-					<< layer.drift_Model << layer.drift_Coefficients << layer.if_First << layer. First	<< layer. if_Last << layer. Last;
+                    << layer.is_Drift_Line << layer.is_Drift_Sine << layer.is_Drift_Rand
+                    << layer.drift_Line_Value << layer.drift_Rand_Rms << layer.drift_Sine_Amplitude << layer.drift_Sine_Frequency << layer.drift_Sine_Phase
+                    << layer.if_First << layer. First	<< layer. if_Last << layer. Last;
 }
 QDataStream& operator >>( QDataStream& stream,		 Layer& layer )
 {
 	return stream	>> layer.composed_Material >> layer.material >> layer.absolute_Density >> layer.relative_Density >> layer.separate_Optical_Constants >> layer.permittivity >> layer.absorption	>> layer.composition
 					>> layer.use_PSD >> layer.sigma >> layer.interlayer_Composition
 					>> layer.layer_Index >> layer.thickness
-					>> layer. drift_Model >> layer.drift_Coefficients >> layer.if_First >> layer. First	>> layer. if_Last >> layer. Last;
+                    >> layer.is_Drift_Line >> layer.is_Drift_Sine >> layer.is_Drift_Rand
+                    >> layer.drift_Line_Value >> layer.drift_Rand_Rms >> layer.drift_Sine_Amplitude >> layer.drift_Sine_Frequency >> layer.drift_Sine_Phase
+                    >> layer.if_First >> layer. First	>> layer. if_Last >> layer. Last;
 }
 /// stack_Content
 QDataStream& operator <<( QDataStream& stream, const Stack_Content& stack_Content )

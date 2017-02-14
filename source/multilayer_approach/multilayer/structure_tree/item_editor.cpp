@@ -231,6 +231,7 @@ void Item_Editor::make_Thickness_Group_Box()
 		if(item->parent())
 			thickness_Group_Box_Layout->addWidget(depth_Grading_Button,0,Qt::AlignRight);
 
+        connect(depth_Grading_Button,SIGNAL(clicked(bool)),       this, SLOT(depth_Grading(bool)));
 		connect(thickness_Line_Edit, SIGNAL(textEdited(QString)), this, SLOT(resize_Line_Edit(QString)));
 		connect(thickness_Line_Edit, SIGNAL(textEdited(QString)), this, SLOT(refresh_Data(QString)));
 	}
@@ -350,6 +351,7 @@ void Item_Editor::make_Sigma_Group_Box()
 		if(item->parent())
 			sigma_Group_Box_Layout->addWidget(sigma_Grading_Button,0,Qt::AlignRight);
 
+        connect(sigma_Grading_Button,SIGNAL(clicked(bool)),   this, SLOT(sigma_Grading(bool)));
 		connect(sigma_Line_Edit, SIGNAL(textEdited(QString)), this, SLOT(resize_Line_Edit(QString)));
 		connect(sigma_Line_Edit, SIGNAL(textEdited(QString)), this, SLOT(refresh_Data(QString)));
 	}
@@ -1205,7 +1207,33 @@ void Item_Editor::resize_Line_Edit(QString text, QLineEdit* line_Edit)
 void Item_Editor::browse_Material(bool)
 {
 	// TODO
-	qInfo() << "browse...";
+    qInfo() << "browse...";
+}
+
+void Item_Editor::depth_Grading(bool)
+{
+    // TODO
+    qInfo() << "depth_Grading...";
+    Grading_Editor* depth_Grading = new Grading_Editor(item, whats_This_Thickness);
+        depth_Grading->setParent(this);
+        depth_Grading->setModal(true);
+        depth_Grading->setWindowFlags(Qt::Window);
+        depth_Grading->show();
+
+    connect(depth_Grading, SIGNAL(refresh()), this, SLOT(emit_Refresh()));
+}
+
+void Item_Editor::sigma_Grading(bool)
+{
+    // TODO
+    qInfo() << "sigma_Grading...";
+    Grading_Editor* sigma_Grading = new Grading_Editor(item, whats_This_Sigma);
+        sigma_Grading->setParent(this);
+        sigma_Grading->setModal(true);
+        sigma_Grading->setWindowFlags(Qt::Window);
+        sigma_Grading->show();
+
+    connect(sigma_Grading, SIGNAL(refresh()), this, SLOT(emit_Refresh()));
 }
 
 void Item_Editor::norm_Interlayer_Composition()
