@@ -30,7 +30,7 @@ void Grading_Editor::create_Main_Layout()
     create_Interface();
         main_Layout->addWidget(group_Box);
 
-    done_Button = new QPushButton("Done");
+    done_Button = new QPushButton("Done", this);
         done_Button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
         done_Button->setFocus();
         done_Button->setDefault(true);
@@ -41,7 +41,7 @@ void Grading_Editor::create_Main_Layout()
 
 void Grading_Editor::create_Interface()
 {
-    group_Box = new QGroupBox;
+    group_Box = new QGroupBox(this);
         group_Box->setObjectName("group_Box");
         group_Box->setStyleSheet("QGroupBox#group_Box { border-radius: 2px;  border: 1px solid gray; margin-top: 2ex;}"
                                  "QGroupBox::title    { subcontrol-origin: margin;	 left: 9px; padding: 0 0px 0 1px;}");
@@ -53,7 +53,22 @@ void Grading_Editor::create_Interface()
         layout->setAlignment(Qt::AlignLeft);
     group_Box_Layout->addLayout(layout);
 
-//    function_Label = new QLabel("Grading type :");
+    read_Drift_From_Item();
+
+//    layout->addWidget(line_Check);
+}
+
+void Grading_Editor::read_Drift_From_Item()
+{
+    qInfo() << "wtf : " << item->whatsThis(0);
+    Layer layer = item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>();
+
+//    Parameter parameter;
+//    if(parameter_Name==whats_This_Thickness) { parameter = layer.thickness;}
+//    if(parameter_Name==whats_This_Sigma)     { parameter = layer.sigma;    }
+
+//    line_Check = new QCheckBox("Linear Drift",this);
+//    line_Line
 
 }
 
