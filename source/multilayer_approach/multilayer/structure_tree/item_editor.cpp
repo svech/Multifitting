@@ -1212,8 +1212,6 @@ void Item_Editor::browse_Material(bool)
 
 void Item_Editor::depth_Grading(bool)
 {
-    // TODO
-    qInfo() << "depth_Grading...";
     Grading_Editor* depth_Grading = new Grading_Editor(item, whats_This_Thickness);
         depth_Grading->setParent(this);
         depth_Grading->setModal(true);
@@ -1225,9 +1223,6 @@ void Item_Editor::depth_Grading(bool)
 
 void Item_Editor::sigma_Grading(bool)
 {
-    // TODO
-    qInfo() << "sigma_Grading...";
-    qInfo() << "wtf Item_Editor : " << item->whatsThis(0);
     Grading_Editor* sigma_Grading = new Grading_Editor(item, whats_This_Sigma);
         sigma_Grading->setParent(this);
         sigma_Grading->setModal(true);

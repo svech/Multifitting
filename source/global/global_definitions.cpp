@@ -84,6 +84,17 @@ QDataStream& operator >>( QDataStream& stream,		 Interlayer& interlayer )
 	return stream >> interlayer.interlayer >> interlayer.enabled;
 }
 
+QDataStream& operator <<( QDataStream& stream, const Drift& drift )
+{
+	return stream << drift.is_Drift_Line << drift.is_Drift_Sine << drift.is_Drift_Rand
+				  << drift.drift_Line_Value << drift.drift_Rand_Rms << drift.drift_Sine_Amplitude << drift.drift_Sine_Frequency << drift.drift_Sine_Phase;
+}
+QDataStream& operator >>( QDataStream& stream,		 Drift& drift )
+{
+	return stream >> drift.is_Drift_Line >> drift.is_Drift_Sine >> drift.is_Drift_Rand
+				  >> drift.drift_Line_Value >> drift.drift_Rand_Rms >> drift.drift_Sine_Amplitude >> drift.drift_Sine_Frequency >> drift.drift_Sine_Phase;
+}
+
 // optical constants
 
 void Point::read_Row(QTextStream& input, bool if_Factors)

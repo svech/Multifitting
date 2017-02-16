@@ -7,12 +7,14 @@ class Grading_Editor : public QDialog
 {
     Q_OBJECT
 public:
-    explicit Grading_Editor(QTreeWidgetItem* item, QString parameter_Name, QWidget* parent = 0);
+	explicit Grading_Editor(QTreeWidgetItem* item, QString drift_Name, QWidget* parent = 0);
 
 signals:
     void refresh();
 private slots:
     void emit_Refresh();
+    void refresh_Data(QString q = "nothing");
+    void refresh_Data_Bool(bool);
 
 private:
     void create_Main_Layout();
@@ -22,20 +24,23 @@ private:
     void set_Window_Geometry();
 
     QTreeWidgetItem* item;
-    QString parameter_Name;
+	QString drift_Name;
+	int default_Min_Line_Size;
+    Drift drift;
 
 private:
     QVBoxLayout* main_Layout;
-        QGroupBox* group_Box;
-            QVBoxLayout* group_Box_Layout;
-                QCheckBox* line_Check;
-                    QLineEdit* line_Line;
-                QCheckBox* sine_Check;
-                    QLineEdit* sine_Amplitude_Line;
-                    QLineEdit* sine_Frequency_Line;
-                    QLineEdit* sine_Phase_Line;
-                QCheckBox* rand_Check;
-                    QLineEdit* rms_Line;
+		QGroupBox* line_Group_Box;
+			QGridLayout* line_GB_Layout;
+				QLabel* line_Value_Label; QLineEdit* line_Value_Line;
+		QGroupBox* sine_Group_Box;
+			QGridLayout* sine_GB_Layout;
+				QLabel* sine_Amplitude_Label; QLineEdit* sine_Amplitude_Line;
+				QLabel* sine_Frequency_Label; QLineEdit* sine_Frequency_Line;
+				QLabel* sine_Phase_Label;	  QLineEdit* sine_Phase_Line;
+		QGroupBox* rand_Group_Box;
+			QGridLayout* rand_GB_Layout;
+				QLabel* rand_Rms_Label; QLineEdit* rand_Rms_Line;
 
         QPushButton* done_Button;
 };

@@ -80,6 +80,7 @@ using namespace std;
 #define Angstrom_Sym		QString(QChar(0x212B))
 #define Rho_Sym				QString(QChar(0x03C1))
 #define Cube_Sym			QString(QChar(0x00B3))
+#define Minus_One_Sym		QString(QChar(0x207B))+QString(QChar(0x00B9))
 #define Sigma_Sym			QString(QChar(0x03C3))
 #define Gamma_Sym			QString(QChar(0x03B3))
 #define Epsilon_Sym			QString(QChar(0x03B5))
@@ -176,6 +177,10 @@ struct Optimize					{bool is_Optimizable = false;	bool min_Bounded; double min; 
 struct Parameter				{double value; Independent independent; Coupled coupled; Fit fit; Optimize optimize;};
 struct Stoichiometry			{Parameter composition; QString type;};
 struct Interlayer				{Parameter interlayer; bool enabled;};
+struct Drift					{bool is_Drift_Line;  Parameter drift_Line_Value;
+								 bool is_Drift_Sine;  Parameter drift_Sine_Amplitude; Parameter drift_Sine_Frequency; Parameter drift_Sine_Phase;
+								 bool is_Drift_Rand;  Parameter drift_Rand_Rms;};
+
 
 // optical constant types
 struct Point					{double lambda; double re;  double im; void read_Row(QTextStream& input, bool if_Factors);};
@@ -218,6 +223,9 @@ QDataStream& operator >>( QDataStream& stream,		 Stoichiometry& stoichiometry );
 
 QDataStream& operator <<( QDataStream& stream, const Interlayer& interlayer );
 QDataStream& operator >>( QDataStream& stream,		 Interlayer& interlayer );
+
+QDataStream& operator <<( QDataStream& stream, const Drift& drift );
+QDataStream& operator >>( QDataStream& stream,		 Drift& drift );
 // -----------------------------------------------------------------------------------------
 
 class Global_Definitions

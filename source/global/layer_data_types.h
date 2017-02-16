@@ -76,9 +76,8 @@ class Layer : public Extreme_Layer
 public:
 	Layer();
 
-    bool is_Drift_Line;  Parameter drift_Line_Value;
-    bool is_Drift_Sine;  Parameter drift_Sine_Amplitude; Parameter drift_Sine_Frequency; Parameter drift_Sine_Phase;
-    bool is_Drift_Rand;  Parameter drift_Rand_Rms;
+	Drift thickness_Drift;
+	Drift sigma_Drift;
 
 	bool if_First = false;
 	Extreme_Layer First;
