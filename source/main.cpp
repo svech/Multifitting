@@ -6,6 +6,7 @@
 #include <QApplication>
 
 // comment for commiit
+// second comment for check
 
 int main(int argc, char *argv[])
 {
