@@ -5,6 +5,8 @@
 #include "launcher.h"
 #include <QApplication>
 
+// comment for commiit
+
 int main(int argc, char *argv[])
 {
 	QApplication app(argc, argv);
