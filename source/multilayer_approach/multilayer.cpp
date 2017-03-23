@@ -335,6 +335,37 @@ void Multilayer::rename_Independent_Variables_Tab(int tab_Index)
 //	print_Hidden_Copy(tab_Index);
 }
 
+void Multilayer::print_Data(QTreeWidgetItem* parent_Item)
+{
+	qInfo() << "Print Data";
+	for(int i=0; i<parent_Item->childCount(); ++i)
+	{
+		Measurement measurement;
+		Ambient ambient;
+		Layer layer;
+		Stack_Content stack_Content;
+		Substrate substrate;
+
+		QStringList whats_This_List = parent_Item->child(i)->whatsThis(0).split(item_Type_Delimiter,QString::SkipEmptyParts);
+		if(whats_This_List[0] == whats_This_Measurement)  measurement	= parent_Item->child(i)->data(DEFAULT_COLUMN, Qt::UserRole).value<Measurement>();
+		if(whats_This_List[0] == whats_This_Ambient)	  ambient		= parent_Item->child(i)->data(DEFAULT_COLUMN, Qt::UserRole).value<Ambient>();
+		if(whats_This_List[0] == whats_This_Layer)		 {layer			= parent_Item->child(i)->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>();			qInfo() << "thickness = " << layer.thickness.value ;}
+		if(whats_This_List[0] == whats_This_Multilayer)
+		{
+			stack_Content = parent_Item->child(i)->data(DEFAULT_COLUMN, Qt::UserRole).value<Stack_Content>();
+			qInfo() << "num_Rep = " << stack_Content.num_Repetition.value ;
+
+		}
+		if(whats_This_List[0] == whats_This_Substrate)	  substrate		= parent_Item->child(i)->data(DEFAULT_COLUMN, Qt::UserRole).value<Substrate>();
+
+		if(parent_Item->child(i)->childCount()>0)
+		{
+			print_Data(parent_Item->child(i));
+		}
+	}
+	qInfo() << "--";
+}
+
 void Multilayer::reset_Independent_Variables_Structure()
 {
 	// PARAMETER
@@ -453,7 +484,8 @@ void Multilayer::reset_Independent_Variables_Structure()
 						Stack_Content stack_Content     = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Stack_Content>();
 						Stack_Content old_Stack_Content =       old_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Stack_Content>();
 
-						stack_Content.num_Repetition     = old_Stack_Content.num_Repetition;
+						// crutch
+						//stack_Content.num_Repetition     = old_Stack_Content.num_Repetition;
 						stack_Content.period.independent = old_Stack_Content.period.independent;
 						stack_Content.gamma.independent  = old_Stack_Content.gamma.independent;
 
@@ -494,35 +526,6 @@ void Multilayer::reset_Independent_Variables_Structure()
 				++old_It;
 			}
 			++it;
-
-//			qInfo() << "reset_Text";
-//			QTreeWidgetItem* temp_structure_Item;
-//			QTreeWidgetItemIterator temp_it(independent_Widget->struct_Tree_Copy);
-//			while (*temp_it)
-//			{
-//				temp_structure_Item = *temp_it;
-
-//				QString whats_This = temp_structure_Item->whatsThis(DEFAULT_COLUMN);
-//				QStringList whats_This_List = whats_This.split(whats_This_Delimiter,QString::SkipEmptyParts);
-//				QStringList whats_This_List_Type = whats_This_List[0].split(item_Type_Delimiter,QString::SkipEmptyParts);
-//				if(whats_This_List_Type[0] == whats_This_Ambient)
-//				{
-//					Ambient ambient = temp_structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Ambient>();
-//					qInfo() <<whats_This_List[0]<<" : "<< ambient.permittivity.independent.num_Points;
-//				}
-//				if(whats_This_List_Type[0] == whats_This_Layer)
-//				{
-//					Layer layer = temp_structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>();
-//					qInfo() <<whats_This_List[0]<<" : "<< layer.sigma.independent.num_Points;
-//				}
-//				if(whats_This_List_Type[0] == whats_This_Substrate)
-//				{
-//					Substrate substrate = temp_structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Substrate>();
-//					qInfo() <<whats_This_List[0]<<" : "<< substrate.sigma.independent.num_Points;
-//				}
-//				++temp_it;
-//			}
-//			qInfo() <<"\n";
 		}
 
 		delete temp_Tree;

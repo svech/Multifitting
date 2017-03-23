@@ -111,7 +111,7 @@ void Calculation_Tree::fill_Calc_Trees()
 
 void Calculation_Tree::fill_Tree(const tree<Node>::iterator& parent, QTreeWidgetItem* item, int independent_Index)
 {
-for(int i=0; i<item->childCount(); ++i)
+	for(int i=0; i<item->childCount(); ++i)
     {
         Node temp_Node(item->child(i));
         calc_Tree_Vec[independent_Index].append_child(parent, temp_Node);

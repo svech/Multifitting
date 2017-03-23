@@ -60,7 +60,7 @@ void Independent_Variables::clear_Independent_List()
 		}
 
 		// if found but deprecated
-		if( is_Found || (whats_This_List[2] != whats_This_Composition))
+		if( is_Found && (whats_This_List[2] != whats_This_Composition))
 		{
 			if(whats_This_List_Type[0] == whats_This_Ambient)
 			{

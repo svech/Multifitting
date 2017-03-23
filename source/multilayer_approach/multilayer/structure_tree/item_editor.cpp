@@ -1212,24 +1212,24 @@ void Item_Editor::browse_Material(bool)
 
 void Item_Editor::depth_Grading(bool)
 {
-    Grading_Editor* depth_Grading = new Grading_Editor(item, whats_This_Thickness);
-        depth_Grading->setParent(this);
-        depth_Grading->setModal(true);
-        depth_Grading->setWindowFlags(Qt::Window);
-        depth_Grading->show();
+	Grading_Editor* depth_Grading = new Grading_Editor(item, whats_This_Thickness);
+		depth_Grading->setParent(this);
+		depth_Grading->setModal(true);
+		depth_Grading->setWindowFlags(Qt::Window);
+		depth_Grading->show();
 
-    connect(depth_Grading, SIGNAL(refresh()), this, SLOT(emit_Refresh()));
+	connect(depth_Grading, SIGNAL(refresh()), this, SLOT(emit_Refresh()));
 }
 
 void Item_Editor::sigma_Grading(bool)
 {
-    Grading_Editor* sigma_Grading = new Grading_Editor(item, whats_This_Sigma);
-        sigma_Grading->setParent(this);
-        sigma_Grading->setModal(true);
-        sigma_Grading->setWindowFlags(Qt::Window);
-        sigma_Grading->show();
+	Grading_Editor* sigma_Grading = new Grading_Editor(item, whats_This_Sigma);
+		sigma_Grading->setParent(this);
+		sigma_Grading->setModal(true);
+		sigma_Grading->setWindowFlags(Qt::Window);
+		sigma_Grading->show();
 
-    connect(sigma_Grading, SIGNAL(refresh()), this, SLOT(emit_Refresh()));
+	connect(sigma_Grading, SIGNAL(refresh()), this, SLOT(emit_Refresh()));
 }
 
 void Item_Editor::norm_Interlayer_Composition()

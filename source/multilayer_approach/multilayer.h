@@ -64,6 +64,7 @@ public slots:
 	void reset_Independent_Variables_Structure();
 	void refresh_Text();
 	void refresh_State();
+	void print_Data(QTreeWidgetItem* parent_Item);
 
 private slots:
 	void add_Measured_Data();
