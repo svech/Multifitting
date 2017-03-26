@@ -70,12 +70,12 @@ void Structure_Tree::refresh_Layers(QTreeWidgetItem* item)
 	}
 }
 
-void Structure_Tree::set_Layer_Text_And_WhatsThis(QTreeWidgetItem* item, int different_Layers_Counter)
+void Structure_Tree::set_Layer_Text_And_WhatsThis(QTreeWidgetItem* item, int dif_Layers_Counter)
 {
 	set_Structure_Item_Text(item);
 	QStringList list = item->text(DEFAULT_COLUMN).split("layer");
 	item->setText(DEFAULT_COLUMN, list[0] + "layer (" + QString::number(different_Layers_Counter) + ")" + list[1]);
-	item->setWhatsThis(DEFAULT_COLUMN, QString(whats_This_Layer) + item_Type_Delimiter + "(" + QString::number(different_Layers_Counter) + ")");
+	item->setWhatsThis(DEFAULT_COLUMN, QString(whats_This_Layer) + item_Type_Delimiter + "(" + QString::number(dif_Layers_Counter) + ")");
 }
 
 void Structure_Tree::refresh_If_Layer(QTreeWidgetItem* this_Item)
@@ -146,6 +146,8 @@ void Structure_Tree::refresh_If_Multilayer(QTreeWidgetItem* this_Item)
 		find_Period(this_Item);
 
 		set_Multilayer_Text_And_WhatsThis(this_Item, first, last);
+
+		refresh_Multilayers(this_Item);
 	}
 }
 

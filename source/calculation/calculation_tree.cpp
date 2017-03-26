@@ -30,23 +30,24 @@ void Calculation_Tree::run_All()
 	create_Local_Item_Tree();
     if(local_Item_Tree_Vec.size()>0)
 	{
-        int independent_Index = 0;
+		int independent_Index = 0;																// all tree copies have equal depths
 		max_Depth = tree_Depth(local_Item_Tree_Vec[independent_Index]->invisibleRootItem());	// unstratified depth
-        fill_Calc_Trees();
+		fill_Calc_Trees();																		// here we have trees of "Node"
         calculate_Intermediate_Values();
 	}
+	local_Item_Tree_Vec.clear();
 }
 
 void Calculation_Tree::create_Local_Item_Tree()
 {
-	// TODO delete local_Item_Tree at the end
 	for(int independent_Index=0; independent_Index<num_Independent; ++independent_Index)
 	{
-		independent_Widget_Vec.append(dynamic_cast<Independent_Variables*>(independent_Variables_Plot_Tabs->widget(independent_Index)));
-		QTreeWidget*local_Item_Tree = new QTreeWidget;
+		independent_Widget_Vec.append(dynamic_cast<Independent_Variables*>(independent_Variables_Plot_Tabs->widget(independent_Index))); // this is not local. It stores pointers to originals
+
+		QTreeWidget* local_Item_Tree = new QTreeWidget;
 		for(int i=0; i<independent_Widget_Vec[independent_Index]->struct_Tree_Copy->topLevelItemCount(); ++i)
 		{
-			local_Item_Tree->addTopLevelItem(independent_Widget_Vec[independent_Index]->struct_Tree_Copy->topLevelItem(i)->clone());
+			local_Item_Tree->addTopLevelItem(independent_Widget_Vec[independent_Index]->struct_Tree_Copy->topLevelItem(i)->clone()); // this is local
 		}
 		local_Item_Tree_Vec.append(local_Item_Tree);		
 	}
@@ -69,7 +70,7 @@ void Calculation_Tree::fill_Calc_Trees()
 	for(int independent_Index=0; independent_Index<local_Item_Tree_Vec.size(); ++independent_Index)
 	{
         Node empty_Top_Node;
-        calc_Tree_Vec[independent_Index].insert(calc_Tree_Vec[independent_Index].begin(), empty_Top_Node);
+		calc_Tree_Vec[independent_Index].insert(calc_Tree_Vec[independent_Index].begin(), empty_Top_Node);	// according to the tree.hh API
 
 		fill_Tree(calc_Tree_Vec[independent_Index].begin(), local_Item_Tree_Vec[independent_Index]->invisibleRootItem(), independent_Index);
 
@@ -114,7 +115,7 @@ void Calculation_Tree::fill_Tree(const tree<Node>::iterator& parent, QTreeWidget
 	for(int i=0; i<item->childCount(); ++i)
     {
         Node temp_Node(item->child(i));
-        calc_Tree_Vec[independent_Index].append_child(parent, temp_Node);
+		calc_Tree_Vec[independent_Index].append_child(parent, temp_Node);	// Multilayer items are also here
 
         if(item->child(i)->childCount()>0)
         {
@@ -154,7 +155,6 @@ void Calculation_Tree::statify_Calc_Tree(tree<Node>& calc_Tree)
 
 		statify_Calc_Tree_Iteration(calc_Tree.begin(), depth, chosen_Nodes);
 
-		/// stratification
 		for(int vec_Index=chosen_Nodes.size()-1; vec_Index>=0; --vec_Index)
 		{
 			tree<Node>::iterator chosen_Child = chosen_Nodes[vec_Index];

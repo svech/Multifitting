@@ -461,7 +461,6 @@ void Independent_Variables::reset_Independent_Variables_Structure()
 		QTreeWidgetItem* old_Copy_Item;
 		QTreeWidgetItemIterator old_It(temp_Tree);
 		while (*old_It)
-
 		{
 			old_Copy_Item = *old_It;
 
@@ -597,6 +596,7 @@ void Independent_Variables::reset_Independent_Variables_Structure()
 
 void Independent_Variables::refresh_Independent_State_All()
 {
+
 	// refresh state for all struct_Tree_Copy items
 	QTreeWidgetItemIterator it(struct_Tree_Copy);
 	while (*it)

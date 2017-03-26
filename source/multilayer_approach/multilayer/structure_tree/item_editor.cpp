@@ -1446,6 +1446,7 @@ void Item_Editor::refresh_Stack_Data()
 					stack_Content.gamma.value = gamma_Line_Edit->text().toDouble();
 				}
 			}
+
 			var.setValue( stack_Content );
 			item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
 
