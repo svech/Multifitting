@@ -1411,7 +1411,7 @@ void Item_Editor::refresh_Data(QString str)
 			for(int i=0; i<substrate.composition.size(); ++i)
 			{
 				material_Line_Edit->setText(material_Line_Edit->text() + composition_Combo_Box_Vec[i]->currentText());
-				if( abs(composition_Line_Edit_Vec[i]->text().toDouble()) > DBL_EPSILON )
+				if( abs(composition_Line_Edit_Vec[i]->text().toDouble() - 1) > DBL_EPSILON )
 					material_Line_Edit->setText(material_Line_Edit->text() + QString::number(composition_Line_Edit_Vec[i]->text().toDouble(),line_edit_double_format,line_edit_composition_precision));
 				resize_Line_Edit("",material_Line_Edit);
 			}
