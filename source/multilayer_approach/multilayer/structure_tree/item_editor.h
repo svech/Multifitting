@@ -11,17 +11,18 @@ class Item_Editor : public QDialog
 	Q_INVOKABLE void adjustSize()							{ QWidget::adjustSize(); }
 	Q_INVOKABLE void moreElementsClicked()					{ Item_Editor::more_Elements_Clicked(true); }
 public:
-	explicit Item_Editor(QTreeWidgetItem* item, QWidget *parent = 0);
+	explicit Item_Editor(QList<Item_Editor*>& list_Editors, QTreeWidgetItem* item, QWidget *parent = 0);
 
 signals:
-	void refresh();
+//	void refresh();
 	void closed();
-	void edited();
+	void item_Data_Edited();
 private slots:
-	void emit_Refresh();
+	void emit_Item_Data_Edited();
 
 public:
 	QTreeWidgetItem* item;
+	QList<Item_Editor*> list_Editors;
 private:
 	Item_Type item_Type;
 

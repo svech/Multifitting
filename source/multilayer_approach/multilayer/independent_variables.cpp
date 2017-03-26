@@ -4,124 +4,37 @@
 
 #include "independent_variables.h"
 
-Independent_Variables::Independent_Variables(QTreeWidget* struct_Tree_Copy, QTreeWidget* real_Struct_Tree, QWidget *parent) :
+Independent_Variables::Independent_Variables(QTreeWidget* real_Struct_Tree, QWidget *parent) :
 	QWidget(parent),
-	struct_Tree_Copy(struct_Tree_Copy),
 	real_Struct_Tree(real_Struct_Tree)
 {
+	create_Struct_Tree_Copy();
 	create_Main_Layout();
 	independent_Variables_List_Map = new QMap<QString, QListWidgetItem*>;
 }
 
-void Independent_Variables::clear_Structure()
+void Independent_Variables::create_Struct_Tree_Copy()
 {
-	QList<QTreeWidgetItem*> struct_In_List;
-	QTreeWidgetItem* structure_Item;
-	QTreeWidgetItemIterator it(struct_Tree_Copy);
-	while (*it)
+	// creates hidden copy of main structure for plotting
+
+	struct_Tree_Copy = new QTreeWidget(this);
+	struct_Tree_Copy->hide();					// can be used for degugging
+	for(int i=0; i<real_Struct_Tree->topLevelItemCount(); i++)
 	{
-		structure_Item = *it;
-		if(structure_Item->whatsThis(DEFAULT_COLUMN) != whats_This_Measurement)
-		{
-			struct_In_List.append(structure_Item);
-		}
-		++it;
+		struct_Tree_Copy->addTopLevelItem(real_Struct_Tree->topLevelItem(i)->clone());	// the data are also copied here (check?)
 	}
-	for(int i=struct_In_List.size()-1; i>=0; i--)
-	{
-		delete struct_In_List[i];
-	}
-}
 
-void Independent_Variables::clear_Independent_List()
-{
-	for(int i=independent_Variables_List->count()-1; i>=0; i--)
-	{
-		QListWidgetItem* temp_Angle_Item = independent_Variables_List->item(0);
-		QListWidgetItem* temp_Item       = independent_Variables_List->item(i);
+	// add "measurement" item to the top
+	QTreeWidgetItem* new_Measurement_Item = new QTreeWidgetItem;
+	// set unique id to measurenent
+	int id = rand()*RAND_SHIFT+rand();
+	new_Measurement_Item->setStatusTip(DEFAULT_COLUMN, QString::number(id));
 
-		QString whats_This = temp_Item->whatsThis();
-		QStringList whats_This_List = whats_This.split(whats_This_Delimiter,QString::SkipEmptyParts);
-		QStringList whats_This_List_Type = whats_This_List[1].split(item_Type_Delimiter,QString::SkipEmptyParts);
-
-		// search for target item
-		bool is_Found = false;
-		QTreeWidgetItem* struct_Tree_Copy_item;
-		QTreeWidgetItemIterator it(struct_Tree_Copy);
-		while (*it)
-		{
-			struct_Tree_Copy_item = *it;
-			if(struct_Tree_Copy_item->statusTip(DEFAULT_COLUMN) == whats_This_List[0])
-			{
-				is_Found = true;
-				break;
-			}
-			++it;
-		}
-
-		// if found but deprecated
-		if( is_Found && (whats_This_List[2] != whats_This_Composition))
-		{
-			if(whats_This_List_Type[0] == whats_This_Ambient)
-			{
-				Ambient ambient = struct_Tree_Copy_item->data(DEFAULT_COLUMN, Qt::UserRole).value<Ambient>();
-
-				if(		((whats_This_List[2] == whats_This_Relative_Density) && (ambient.composed_Material))
-				   ||	((whats_This_List[2] == whats_This_Absolute_Density) && (!ambient.composed_Material))   )
-				{ is_Found=false; }
-
-			} else
-			if(whats_This_List_Type[0] == whats_This_Layer)
-			{
-				Layer layer = struct_Tree_Copy_item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>();
-
-				if(		((whats_This_List[2] == whats_This_Relative_Density) && (layer.composed_Material))
-				   ||	((whats_This_List[2] == whats_This_Absolute_Density) && (!layer.composed_Material))   )
-				{ is_Found=false; }
-
-			} else
-			if(whats_This_List_Type[0] == whats_This_Substrate)
-			{
-				Substrate substrate = struct_Tree_Copy_item->data(DEFAULT_COLUMN, Qt::UserRole).value<Substrate>();
-
-				if(		((whats_This_List[2] == whats_This_Relative_Density) && (substrate.composed_Material))
-				   ||	((whats_This_List[2] == whats_This_Absolute_Density) && (!substrate.composed_Material))   )
-				{ is_Found=false; }
-			}
-		}
-		// if not found
-		if( (!is_Found) || (whats_This_List[2] == whats_This_Composition))
-		{
-			// if was active, set angle active
-			if(temp_Item->data(Qt::UserRole).toBool())		temp_Angle_Item->setData(Qt::UserRole, true);
-			remove_Independent_Variable(temp_Item);
-		}
-	}
-}
-
-void Independent_Variables::refresh_Text()
-{
-	for(int i=0; i<independent_Variables_List->count(); ++i)
-	{
-		QListWidgetItem* item = independent_Variables_List->item(i);
-
-		// item search
-		QString whats_This = item->whatsThis();
-		QStringList whats_This_List = whats_This.split(whats_This_Delimiter,QString::SkipEmptyParts);
-
-		QTreeWidgetItem* structure_Item;
-		QTreeWidgetItemIterator it(struct_Tree_Copy);
-		while (*it)
-		{
-			structure_Item = *it;
-			if(structure_Item->statusTip(DEFAULT_COLUMN) == whats_This_List[0])
-				break;
-			++it;
-		}
-
-		Independent_Variables_Editor* editor = new Independent_Variables_Editor(structure_Item, item, independent_Variables_List);
-			editor->close();
-	}
+	Measurement measurement;
+	QVariant var; var.setValue(measurement);
+	new_Measurement_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+	new_Measurement_Item->setWhatsThis(DEFAULT_COLUMN, whats_This_Measurement);
+	struct_Tree_Copy->insertTopLevelItem(0, new_Measurement_Item);
 }
 
 void Independent_Variables::create_Main_Layout()
@@ -142,12 +55,11 @@ void Independent_Variables::create_Main_Layout()
 
 	create_Independent_Variables_Toolbar();
 		independent_Frame_Layout->addWidget(independent_Variables_Toolbar);
-
 }
 
 void Independent_Variables::create_Independent_Variables_List()
 {
-	independent_Variables_List = new QListWidget;
+	independent_Variables_List = new QListWidget(this);
 		independent_Variables_List->setSizeAdjustPolicy(QListWidget::AdjustToContents);
 
 	QSizePolicy sp_Retain = independent_Variables_List->sizePolicy();
@@ -219,7 +131,7 @@ void Independent_Variables::add_Independent_Variable(bool)
 		new_Variable->setWindowFlags(Qt::Window);
 		new_Variable->show();
 
-	connect(new_Variable, SIGNAL(closed()), this, SLOT(refresh_State_All()));
+	connect(new_Variable, SIGNAL(closed()), this, SLOT(refresh_Independent_State_All()));
 }
 
 void Independent_Variables::cause_Editing_Independent_Variable(bool)
@@ -227,12 +139,11 @@ void Independent_Variables::cause_Editing_Independent_Variable(bool)
 	edit_Independent_Variable(independent_Variables_List->currentItem());
 }
 
-void Independent_Variables::edit_Independent_Variable(QListWidgetItem* item)
+void Independent_Variables::edit_Independent_Variable(QListWidgetItem* list_Item)
 {
-	// item search
-	QString whats_This = item->whatsThis();
+	// item search by unique number
+	QString whats_This = list_Item->whatsThis();
 	QStringList whats_This_List = whats_This.split(whats_This_Delimiter,QString::SkipEmptyParts);
-
 	QTreeWidgetItem* structure_Item;
 	QTreeWidgetItemIterator it(struct_Tree_Copy);
 	while (*it)
@@ -245,19 +156,19 @@ void Independent_Variables::edit_Independent_Variable(QListWidgetItem* item)
 		++it;
 	}
 
-	Independent_Variables_Editor* editor = new Independent_Variables_Editor(structure_Item, item, independent_Variables_List);
+	// editing itself
+	Independent_Variables_Editor* editor = new Independent_Variables_Editor(structure_Item, list_Item, independent_Variables_List);
 		editor->setParent(this);
 		editor->setModal(true);
 		editor->setWindowFlags(Qt::Window);
 		editor->show();
 
-		connect(editor, SIGNAL(refresh()), this, SLOT(emit_Refresh()));
+	connect(editor, SIGNAL(refresh_Multilayer()), this, SLOT(refresh_All()));
 }
 
 void Independent_Variables::remove_Current_Independent_Variable(bool)
 {
-	QListWidgetItem* item = independent_Variables_List->currentItem();
-	remove_Independent_Variable(item);
+	remove_Independent_Variable(independent_Variables_List->currentItem());
 }
 
 void Independent_Variables::remove_Independent_Variable(QListWidgetItem* item)
@@ -270,12 +181,8 @@ void Independent_Variables::remove_Independent_Variable(QListWidgetItem* item)
 		if(item->data(Qt::UserRole).toBool())
 		{
 			QListWidgetItem* angle_Item = independent_Variables_List->item(0);
-			// check
-			if(angle_Item->whatsThis() == whats_This_Measurement + QString(whats_This_Delimiter) + whats_This_Angle)
-			{
-				angle_Item->setData(Qt::UserRole, true);
-				angle_Item->setText(angle_Item->text() + active);
-			}
+			angle_Item->setData(Qt::UserRole, true);
+			angle_Item->setText(angle_Item->text() + active);
 		}
 
 		// sorting
@@ -285,12 +192,12 @@ void Independent_Variables::remove_Independent_Variable(QListWidgetItem* item)
 		QVariant var;
 
 		// item search
-		QTreeWidgetItem* structure_Item;
+		QTreeWidgetItem* copy_Structure_Item;
 		QTreeWidgetItemIterator it(struct_Tree_Copy);
 		while (*it)
 		{
-			structure_Item = *it;
-			if(structure_Item->statusTip(DEFAULT_COLUMN) == whats_This_List[0])
+			copy_Structure_Item = *it;
+			if(copy_Structure_Item->statusTip(DEFAULT_COLUMN) == whats_This_List[0])
 				break;
 			++it;
 		}
@@ -308,7 +215,7 @@ void Independent_Variables::remove_Independent_Variable(QListWidgetItem* item)
 		// if ambient
 		if(whats_This_List_Type[0] == whats_This_Ambient)
 		{
-			Ambient ambient      =      structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Ambient>();
+			Ambient ambient      = copy_Structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Ambient>();
 			Ambient real_Ambient = real_Structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Ambient>();
 
 			/// optical constants
@@ -340,13 +247,13 @@ void Independent_Variables::remove_Independent_Variable(QListWidgetItem* item)
 			}
 
 			var.setValue(ambient);
-			structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+			copy_Structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
 		}
 
 		// if layer
 		if(whats_This_List_Type[0] == whats_This_Layer)
 		{
-			Layer layer      =      structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>();
+			Layer layer      = copy_Structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>();
 			Layer real_Layer = real_Structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>();
 
 			/// optical constants
@@ -401,13 +308,13 @@ void Independent_Variables::remove_Independent_Variable(QListWidgetItem* item)
 			}
 
 			var.setValue(layer);
-			structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+			copy_Structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
 		}
 
 		// if multilayer
 		if(whats_This_List_Type[0] == whats_This_Multilayer)
 		{
-			Stack_Content stack_Content      =      structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Stack_Content>();
+			Stack_Content stack_Content      = copy_Structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Stack_Content>();
 			Stack_Content real_Stack_Content = real_Structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Stack_Content>();
 
 			// multilayer num_repetitions
@@ -430,13 +337,13 @@ void Independent_Variables::remove_Independent_Variable(QListWidgetItem* item)
 			}
 
 			var.setValue(stack_Content);
-			structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+			copy_Structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
 		}
 
 		// if substrate
 		if(whats_This_List_Type[0] == whats_This_Substrate)
 		{
-			Substrate substrate      =      structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Substrate>();
+			Substrate substrate      = copy_Structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Substrate>();
 			Substrate real_Substrate = real_Structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Substrate>();
 
 			/// optical constants
@@ -489,10 +396,10 @@ void Independent_Variables::remove_Independent_Variable(QListWidgetItem* item)
 			}
 
 			var.setValue(substrate);
-			structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+			copy_Structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
 		}
 
-		Variable_Selection::refresh_State(structure_Item);
+		Variable_Selection::refresh_Independent_State_Of_Struct_Tree_Copy_Item(copy_Structure_Item);
 		independent_Variables_List_Map->remove(whats_This);
 		delete item;
 	}
@@ -507,7 +414,7 @@ void Independent_Variables::if_Selected()
 	} else
 	{
 		independent_Variables_Toolbar->actions()[1]->setDisabled(false);	 // edit
-		if(independent_Variables_List->currentIndex().row()<PERMANENT_INDEPENDENT)
+		if(independent_Variables_List->currentIndex().row()<PERMANENT_INDEPENDENT)	// make angle and wavelength nonremovable
 		{
 			independent_Variables_Toolbar->actions()[2]->setDisabled(true);	 // remove
 		} else
@@ -517,19 +424,299 @@ void Independent_Variables::if_Selected()
 	}
 }
 
-void Independent_Variables::refresh_State_All()
+void Independent_Variables::reset_Independent_Variables_Structure()
 {
-	// refresh state for all
+	// PARAMETER
+
+	/// -----------------------------------------------------
+
+	// temporary copy
+	QTreeWidget* temp_Tree = new QTreeWidget;
+	for(int i=0; i<struct_Tree_Copy->topLevelItemCount(); i++)
+	{
+		temp_Tree->addTopLevelItem(struct_Tree_Copy->topLevelItem(i)->clone());
+	};
+
+	// clear
+	clear_Structure_Copy();
+
+	// reset hidden copy of main structure
+	for(int i=0; i<real_Struct_Tree->topLevelItemCount(); i++)
+	{
+		struct_Tree_Copy->addTopLevelItem(real_Struct_Tree->topLevelItem(i)->clone());
+	}
+
+	// search for previously existing items
+	QTreeWidgetItem* new_Copy_Item;
 	QTreeWidgetItemIterator it(struct_Tree_Copy);
 	while (*it)
 	{
-		Variable_Selection::refresh_State(*it);
+		new_Copy_Item = *it;
+
+		QString whats_This = new_Copy_Item->whatsThis(DEFAULT_COLUMN);
+		QStringList whats_This_List = whats_This.split(item_Type_Delimiter,QString::SkipEmptyParts);
+		QVariant var;
+
+		// iterate over copy of old tree
+		QTreeWidgetItem* old_Copy_Item;
+		QTreeWidgetItemIterator old_It(temp_Tree);
+		while (*old_It)
+
+		{
+			old_Copy_Item = *old_It;
+
+			if(new_Copy_Item->statusTip(DEFAULT_COLUMN) == old_Copy_Item->statusTip(DEFAULT_COLUMN))
+			{
+				// if measurement
+				if(whats_This_List[0] == whats_This_Measurement)
+				{
+					Measurement measurement     = new_Copy_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Measurement>();
+					Measurement old_Measurement = old_Copy_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Measurement>();
+
+					measurement = old_Measurement; //-V519
+
+					var.setValue(measurement);
+					new_Copy_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+				}
+				// if ambient
+				if(whats_This_List[0] == whats_This_Ambient)
+				{
+					Ambient ambient     = new_Copy_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Ambient>();
+					Ambient old_Ambient = old_Copy_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Ambient>();
+
+					/// optical
+					ambient.absolute_Density.independent = old_Ambient.absolute_Density.independent;
+					ambient.relative_Density.independent = old_Ambient.relative_Density.independent;
+					ambient.permittivity.independent	 = old_Ambient.permittivity.independent;
+					ambient.absorption.independent		 = old_Ambient.absorption.independent;
+
+					for(int index=0; index<ambient.composition.size(); ++index)
+					{
+						ambient.composition[index].composition.independent.min = 0;
+						ambient.composition[index].composition.independent.max = 1;
+						ambient.composition[index].composition.independent.num_Points = 1;
+					}
+
+					var.setValue(ambient);
+					new_Copy_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+				}
+				// if layer
+				if(whats_This_List[0] == whats_This_Layer)
+				{
+					Layer layer     = new_Copy_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>();
+					Layer old_Layer = old_Copy_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>();
+
+					/// optical
+					layer.absolute_Density.independent	= old_Layer.absolute_Density.independent;
+					layer.relative_Density.independent	= old_Layer.relative_Density.independent;
+					layer.permittivity.independent		= old_Layer.permittivity.independent;
+					layer.absorption.independent		= old_Layer.absorption.independent;
+
+					for(int index=0; index<layer.composition.size(); ++index)
+					{
+						layer.composition[index].composition.independent.min = 0;
+						layer.composition[index].composition.independent.max = 1;
+						layer.composition[index].composition.independent.num_Points = 1;
+					}
+
+					/// thickness
+					layer.thickness.independent = old_Layer.thickness.independent;
+
+					/// interface parameters
+					layer.sigma.independent = old_Layer.sigma.independent;
+
+					for(int func_Index=0; func_Index<transition_Layer_Functions_Size; ++func_Index)
+					{
+						layer.interlayer_Composition[func_Index].interlayer.independent = old_Layer.interlayer_Composition[func_Index].interlayer.independent;
+					}
+
+					var.setValue(layer);
+					new_Copy_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+				}
+				// if multilayer
+				if(whats_This_List[0] == whats_This_Multilayer)
+				{
+					Stack_Content stack_Content     = new_Copy_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Stack_Content>();
+					Stack_Content old_Stack_Content = old_Copy_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Stack_Content>();
+
+					// renew value of num_Repetition, other things remain old
+					int temp_Value = stack_Content.num_Repetition.value;
+					stack_Content.num_Repetition     = old_Stack_Content.num_Repetition;
+					stack_Content.num_Repetition.value = temp_Value;
+
+					stack_Content.period.independent = old_Stack_Content.period.independent;
+					stack_Content.gamma.independent  = old_Stack_Content.gamma.independent;
+
+					var.setValue(stack_Content);
+					new_Copy_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+				}
+				// if substrate
+				if(whats_This_List[0] == whats_This_Substrate)
+				{
+					Substrate substrate     = new_Copy_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Substrate>();
+					Substrate old_Substrate = old_Copy_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Substrate>();
+
+					/// optical
+					substrate.absolute_Density.independent	= old_Substrate.absolute_Density.independent;
+					substrate.relative_Density.independent	= old_Substrate.relative_Density.independent;
+					substrate.permittivity.independent		= old_Substrate.permittivity.independent;
+					substrate.absorption.independent		= old_Substrate.absorption.independent;
+
+					for(int index=0; index<substrate.composition.size(); ++index)
+					{
+						substrate.composition[index].composition.independent.min = 0;
+						substrate.composition[index].composition.independent.max = 1;
+						substrate.composition[index].composition.independent.num_Points = 1;
+					}
+
+					/// interface parameters
+					substrate.sigma.independent = old_Substrate.sigma.independent;
+
+					for(int func_Index=0; func_Index<transition_Layer_Functions_Size; ++func_Index)
+					{
+						substrate.interlayer_Composition[func_Index].interlayer.independent = old_Substrate.interlayer_Composition[func_Index].interlayer.independent;
+					}
+
+					var.setValue(substrate);
+					new_Copy_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+				}
+			}
+			++old_It;
+		}
+		++it;
+	}
+
+	delete temp_Tree;
+
+	/// -----------------------------------------------------
+
+	// clear irrelevant variables
+	clear_Unused_Independent_List();
+	refresh_Text();
+}
+
+void Independent_Variables::refresh_Independent_State_All()
+{
+	// refresh state for all struct_Tree_Copy items
+	QTreeWidgetItemIterator it(struct_Tree_Copy);
+	while (*it)
+	{
+		Variable_Selection::refresh_Independent_State_Of_Struct_Tree_Copy_Item(*it);
 		++it;
 	}
 }
 
-void Independent_Variables::emit_Refresh()
+void Independent_Variables::clear_Structure_Copy()
 {
-	emit refresh();
+	// delete ALL items from struct_Tree_Copy except Measurement
+
+	QList<QTreeWidgetItem*> struct_In_List;
+	QTreeWidgetItem* structure_Item;
+	QTreeWidgetItemIterator it(struct_Tree_Copy);
+	while (*it)
+	{
+		structure_Item = *it;
+		if(structure_Item->whatsThis(DEFAULT_COLUMN) != whats_This_Measurement)
+		{
+			struct_In_List.append(structure_Item);
+		}
+		++it;
+	}
+	for(int i=struct_In_List.size()-1; i>=0; i--)
+	{
+		delete struct_In_List[i];
+	}
 }
 
+void Independent_Variables::clear_Unused_Independent_List()
+{
+	for(int i=independent_Variables_List->count()-1; i>=0; i--)
+	{
+		QListWidgetItem* temp_Item       = independent_Variables_List->item(i);
+
+		QString whats_This = temp_Item->whatsThis();
+		QStringList whats_This_List = whats_This.split(whats_This_Delimiter,QString::SkipEmptyParts);
+		QStringList whats_This_List_Type = whats_This_List[1].split(item_Type_Delimiter,QString::SkipEmptyParts);
+
+		// search for target item
+		bool is_Found = false;
+		QTreeWidgetItem* struct_Tree_Copy_item;
+		QTreeWidgetItemIterator it(struct_Tree_Copy);
+		while (*it)
+		{
+			struct_Tree_Copy_item = *it;
+			if(struct_Tree_Copy_item->statusTip(DEFAULT_COLUMN) == whats_This_List[0])
+			{
+				is_Found = true;
+				break;
+			}
+			++it;
+		}
+
+		// if found but deprecated
+		if( is_Found && (whats_This_List[2] != whats_This_Composition))
+		{
+			if(whats_This_List_Type[0] == whats_This_Ambient)
+			{
+				Ambient ambient = struct_Tree_Copy_item->data(DEFAULT_COLUMN, Qt::UserRole).value<Ambient>();
+
+				if(		((whats_This_List[2] == whats_This_Relative_Density) && (ambient.composed_Material))
+				   ||	((whats_This_List[2] == whats_This_Absolute_Density) && (!ambient.composed_Material))   )
+				{ is_Found=false; }
+
+			} else
+			if(whats_This_List_Type[0] == whats_This_Layer)
+			{
+				Layer layer = struct_Tree_Copy_item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>();
+
+				if(		((whats_This_List[2] == whats_This_Relative_Density) && (layer.composed_Material))
+				   ||	((whats_This_List[2] == whats_This_Absolute_Density) && (!layer.composed_Material))   )
+				{ is_Found=false; }
+
+			} else
+			if(whats_This_List_Type[0] == whats_This_Substrate)
+			{
+				Substrate substrate = struct_Tree_Copy_item->data(DEFAULT_COLUMN, Qt::UserRole).value<Substrate>();
+
+				if(		((whats_This_List[2] == whats_This_Relative_Density) && (substrate.composed_Material))
+				   ||	((whats_This_List[2] == whats_This_Absolute_Density) && (!substrate.composed_Material))   )
+				{ is_Found=false; }
+			}
+		}
+		// if not found
+		if( (!is_Found) || (whats_This_List[2] == whats_This_Composition))
+		{
+			remove_Independent_Variable(temp_Item);
+		}
+	}
+}
+
+void Independent_Variables::refresh_Text()
+{
+	for(int i=0; i<independent_Variables_List->count(); ++i)
+	{
+		QListWidgetItem* item = independent_Variables_List->item(i);
+
+		// item search
+		QString whats_This = item->whatsThis();
+		QStringList whats_This_List = whats_This.split(whats_This_Delimiter,QString::SkipEmptyParts);
+
+		QTreeWidgetItem* structure_Item;
+		QTreeWidgetItemIterator it(struct_Tree_Copy);
+		while (*it)
+		{
+			structure_Item = *it;
+			if(structure_Item->statusTip(DEFAULT_COLUMN) == whats_This_List[0])
+				break;
+			++it;
+		}
+
+		Independent_Variables_Editor* editor = new Independent_Variables_Editor(structure_Item, item, independent_Variables_List);
+			editor->close();
+	}
+}
+
+void Independent_Variables::refresh_All()
+{
+	emit refresh_Multilayer();
+}

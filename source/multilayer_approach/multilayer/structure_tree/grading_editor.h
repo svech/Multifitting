@@ -10,9 +10,9 @@ public:
 	explicit Grading_Editor(QTreeWidgetItem* item, QString drift_Name, QWidget* parent = 0);
 
 signals:
-    void refresh();
+	void grading_Edited();
 private slots:
-    void emit_Refresh();
+	void emit_Grading_Edited();
     void refresh_Data(QString q = "nothing");
     void refresh_Data_Bool(bool);
 

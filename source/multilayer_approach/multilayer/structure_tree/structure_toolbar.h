@@ -11,6 +11,9 @@ class Structure_Toolbar : public QWidget
 public:
 	explicit Structure_Toolbar(Structure_Tree* structure_Tree, QWidget *parent = 0);
 
+signals:
+	void refresh_Str_And_Independ_signal();
+
 public slots:
 	void add_Buffered_Layer(QTreeWidgetItem* new_Layer_Passed);
 	void add_Layer		(bool);

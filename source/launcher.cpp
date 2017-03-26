@@ -81,7 +81,7 @@ void Launcher::add_Multilayer_Approach_Instance()
 		multilayer_Approach_List.append(multilayer_Approach);
 
 		connect(multilayer_Approach, SIGNAL(closed()),  this, SLOT(multilayer_Approach_Closed()));				// if closed, delete from list
-		connect(multilayer_Approach, SIGNAL(refresh()), this, SLOT(refresh_All_Multilayer_Approach_View()));
+//		connect(multilayer_Approach, SIGNAL(refresh()), this, SLOT(refresh_All_Multilayer_Approach_View()));
 }
 
 void Launcher::multilayer_Approach_Closed()
@@ -103,13 +103,13 @@ void Launcher::freeform_Approach_Closed()
 	// TODO
 }
 
-void Launcher::refresh_All_Multilayer_Approach_View()
-{
-	qInfo() << "launcher resreshing and saving";
-	for(int i=0; i<multilayer_Approach_List.size(); ++i)
-	{
-		if(multilayer_Approach_List[i]!=sender())
-			multilayer_Approach_List[i]->refresh_All_Multilayers_View();
-	}
-	Settings::save_All_Settings();
-}
+//void Launcher::refresh_All_Multilayer_Approach_View()
+//{
+//	qInfo() << "launcher resreshing and saving";
+//	for(int i=0; i<multilayer_Approach_List.size(); ++i)
+//	{
+//		if(multilayer_Approach_List[i]!=sender())
+//			multilayer_Approach_List[i]->refresh_All_Multilayers_View();
+//	}
+//	Settings::save_All_Settings();
+//}

@@ -11,9 +11,9 @@ public:
 	explicit Independent_Variables_Editor(QTreeWidgetItem* structure_Item, QListWidgetItem* item, QListWidget* variables_List, QWidget *parent = 0);
 
 signals:
-	void refresh();
+	void refresh_Multilayer();
 private slots:
-	void emit_Refresh();
+	void refresh_All();
 
 private:
 	void create_Main_Layout();

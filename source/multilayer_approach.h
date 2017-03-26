@@ -17,7 +17,6 @@ public:
 
 signals:
 	void closed();
-	void refresh();
 
 public slots:
 	void open_Launcher();

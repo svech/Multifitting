@@ -12,11 +12,6 @@ Structure_Tree::Structure_Tree(Multilayer* multilayer, QWidget *parent) :
 	create_Toolbar();
 }
 
-void Structure_Tree::emit_Refresh()
-{
-	emit refresh();
-}
-
 void Structure_Tree::create_Tree()
 {
 	tree = new QTreeWidget(this);
@@ -26,7 +21,7 @@ void Structure_Tree::create_Tree()
 		tree->setExpandsOnDoubleClick(false);
 	multilayer->struct_Frame_Layout->addWidget(tree);
 
-	connect(tree, SIGNAL(itemDoubleClicked(QTreeWidgetItem*, int)), this, SLOT(if_DoubleClicked(QTreeWidgetItem*, int)));	
+	connect(tree, SIGNAL(itemDoubleClicked(QTreeWidgetItem*, int)), this, SLOT(if_DoubleClicked(QTreeWidgetItem*, int)));
 }
 
 void Structure_Tree::create_Toolbar()
@@ -35,34 +30,28 @@ void Structure_Tree::create_Toolbar()
 		multilayer->struct_Frame_Layout->addWidget(structure_Toolbar->toolbar);
 
 	connect(tree, SIGNAL(itemSelectionChanged()), structure_Toolbar, SLOT(if_Selected()));
-
-	structure_Toolbar->add_Layer(true);
+	structure_Toolbar->add_Layer(false);
+	connect(structure_Toolbar, SIGNAL(refresh_Str_And_Independ_signal()), multilayer, SLOT(refresh_Structure_And_Independent()));
 }
 
-void Structure_Tree::multiple_Refresh_Over_Struct()
-{
-	refresh_Over_Struct(); //-V760
-	QMetaObject::invokeMethod(this, "refreshOverStruct", Qt::QueuedConnection);
-	refresh_Over_Struct();
-	QMetaObject::invokeMethod(this, "refreshOverStruct", Qt::QueuedConnection);
-}
+//-----------------------------------------------------------------------------------
+// refresh text and data of tree
+//-----------------------------------------------------------------------------------
 
-void Structure_Tree::refresh_Over_Struct()
+void Structure_Tree::refresh__StructureTree__Data_and_Text()
 {
+	/// emergency kit
+	//	refresh__StructureTree__Data_and_Text(); //-V760
+	//	QMetaObject::invokeMethod(this, "refreshStructureTreeDataAndText", Qt::QueuedConnection);
+	//	refresh__StructureTree__Data_and_Text();
+	//	QMetaObject::invokeMethod(this, "refreshStructureTreeDataAndText", Qt::QueuedConnection);
+
 	different_Layers_Counter=0;
-	iterate_Over_Struct();
-	iterate_Over_Multilayers();
-	multilayer->reset_Independent_Variables_Structure();
+	refresh_Layers();
+	refresh_Multilayers();
 }
 
-void Structure_Tree::refresh_Text()
-{
-	different_Layers_Counter=0;
-	iterate_Over_Struct();
-	iterate_Over_Multilayers();
-}
-
-void Structure_Tree::iterate_Over_Struct(QTreeWidgetItem* item)
+void Structure_Tree::refresh_Layers(QTreeWidgetItem* item)
 {
 	// over main tree
 	if(item==NULL)
@@ -81,6 +70,14 @@ void Structure_Tree::iterate_Over_Struct(QTreeWidgetItem* item)
 	}
 }
 
+void Structure_Tree::set_Layer_Text_And_WhatsThis(QTreeWidgetItem* item, int different_Layers_Counter)
+{
+	set_Structure_Item_Text(item);
+	QStringList list = item->text(DEFAULT_COLUMN).split("layer");
+	item->setText(DEFAULT_COLUMN, list[0] + "layer (" + QString::number(different_Layers_Counter) + ")" + list[1]);
+	item->setWhatsThis(DEFAULT_COLUMN, QString(whats_This_Layer) + item_Type_Delimiter + "(" + QString::number(different_Layers_Counter) + ")");
+}
+
 void Structure_Tree::refresh_If_Layer(QTreeWidgetItem* this_Item)
 {
 	// if not multilayer
@@ -94,11 +91,7 @@ void Structure_Tree::refresh_If_Layer(QTreeWidgetItem* this_Item)
 		// assign number if layer
 		{
 			different_Layers_Counter++;
-			set_Structure_Item_Text(this_Item);
-			QStringList list = this_Item->text(DEFAULT_COLUMN).split("layer");
-			this_Item->setText(DEFAULT_COLUMN, list[0] + "layer (" + QString::number(different_Layers_Counter) + ")" + list[1]);
-
-			this_Item->setWhatsThis(DEFAULT_COLUMN, QString(whats_This_Layer) + item_Type_Delimiter + "(" + QString::number(different_Layers_Counter) + ")");
+			set_Layer_Text_And_WhatsThis(this_Item, different_Layers_Counter);
 
 			Layer layer = this_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>();
 			layer.layer_Index = different_Layers_Counter;
@@ -108,11 +101,11 @@ void Structure_Tree::refresh_If_Layer(QTreeWidgetItem* this_Item)
 	} else
 	// if multilayer
 	{
-		iterate_Over_Struct(this_Item);
+		refresh_Layers(this_Item);
 	}
 }
 
-void Structure_Tree::iterate_Over_Multilayers(QTreeWidgetItem* item)
+void Structure_Tree::refresh_Multilayers(QTreeWidgetItem* item)
 {
 	// over main tree
 	if(item==NULL)
@@ -131,6 +124,14 @@ void Structure_Tree::iterate_Over_Multilayers(QTreeWidgetItem* item)
 	}
 }
 
+void Structure_Tree::set_Multilayer_Text_And_WhatsThis(QTreeWidgetItem* item, int first, int last)
+{
+	set_Structure_Item_Text(item);
+	QStringList list = item->text(DEFAULT_COLUMN).split("Multilayer");
+	item->setText(DEFAULT_COLUMN, list[0] + "Multilayer (" + QString::number(first) + " - " + QString::number(last) + ")" + list[1]);
+	item->setWhatsThis(DEFAULT_COLUMN, QString(whats_This_Multilayer) + item_Type_Delimiter + "(" + QString::number(first) + " - " + QString::number(last) + ")");
+}
+
 void Structure_Tree::refresh_If_Multilayer(QTreeWidgetItem* this_Item)
 {
 	// if multilayer
@@ -141,16 +142,10 @@ void Structure_Tree::refresh_If_Multilayer(QTreeWidgetItem* this_Item)
 		find_First_Layer(this_Item, first);
 		find_Last_Layer(this_Item, last);
 
-		set_Structure_Item_Text(this_Item);
-		QStringList list = this_Item->text(DEFAULT_COLUMN).split("Multilayer");
-		this_Item->setText(DEFAULT_COLUMN, list[0] + "Multilayer (" + QString::number(first) + " - " + QString::number(last) + ")" + list[1]);
-
-		this_Item->setWhatsThis(DEFAULT_COLUMN, QString(whats_This_Multilayer) + item_Type_Delimiter + "(" + QString::number(first) + " - " + QString::number(last) + ")");
-
 		// period
 		find_Period(this_Item);
 
-		iterate_Over_Multilayers(this_Item);
+		set_Multilayer_Text_And_WhatsThis(this_Item, first, last);
 	}
 }
 
@@ -207,13 +202,13 @@ void Structure_Tree::find_Period(QTreeWidgetItem* this_Item)
 		if(this_Item->child(0)->childCount()==0)
 		{
 			gamma =   this_Item->child(0)->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>().thickness.value
-					/ this_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Stack_Content>().period.value;
+					/ period;
 		} else
 		// multilayer
 		{
 			gamma =   this_Item->child(0)->data(DEFAULT_COLUMN, Qt::UserRole).value<Stack_Content>().period.value
 					* this_Item->child(0)->data(DEFAULT_COLUMN, Qt::UserRole).value<Stack_Content>().num_Repetition.value
-					/ this_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Stack_Content>().period.value;
+					/ period;
 		}
 	}
 
@@ -224,6 +219,8 @@ void Structure_Tree::find_Period(QTreeWidgetItem* this_Item)
 	QVariant var; var.setValue(stack_Content);
 	this_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
 }
+
+//-----------------------------------------------------------------------------------
 
 void Structure_Tree::if_DoubleClicked(QTreeWidgetItem*, int)
 {
@@ -240,14 +237,12 @@ void Structure_Tree::if_DoubleClicked(QTreeWidgetItem*, int)
 	}
 	if(!runned_Editors.contains(tree->currentItem()))
 	{
-		Item_Editor* item_Editor = new Item_Editor(tree->currentItem(), this);
+		Item_Editor* item_Editor = new Item_Editor(list_Editors, tree->currentItem(), this);
 			item_Editor->setWindowFlags(Qt::Window);
 			item_Editor->show();
 
 		connect(item_Editor, SIGNAL(closed()), this, SLOT(editor_Close()));
-		connect(item_Editor, SIGNAL(refresh()),this, SLOT(editors_Edit()));	// TODO ? (or editors_refresh?)
-		connect(item_Editor, SIGNAL(refresh()),this, SLOT(emit_Refresh()));
-		connect(item_Editor, SIGNAL(edited()), this, SLOT(editors_Edit()));
+		connect(item_Editor, SIGNAL(item_Data_Edited()), multilayer, SLOT(refresh_Structure_And_Independent()));
 
 		list_Editors.append(item_Editor);
 		structure_Toolbar->toolbar->setDisabled(true);
@@ -350,28 +345,14 @@ void Structure_Tree::editor_Close()
 	{
 		structure_Toolbar->toolbar->setDisabled(false);
 	}
-
-	// TODO refresh or not refresh?
-	multiple_Refresh_Over_Struct();
 }
 
-void Structure_Tree::editors_Refresh()
+void Structure_Tree::editors_Edit(QObject* sender)
 {
-	for(int i=0; i<list_Editors.size(); ++i)
-	{
-		list_Editors[i]->show_All();
-		list_Editors[i]->initial_Radio_Check(false);
-	}
-}
-
-void Structure_Tree::editors_Edit()
-{
-	multiple_Refresh_Over_Struct();
-
 	// broadcast to other editors
 	for(int i=0; i<list_Editors.size(); ++i)
 	{
-		if(list_Editors[i]!=sender())
+		if(list_Editors[i]!=sender)
 		{
 			list_Editors[i]->show_All();
 			list_Editors[i]->initial_Radio_Check(false);

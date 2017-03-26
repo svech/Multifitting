@@ -32,7 +32,7 @@ void Multilayer::create_Structure_Frame()
 
 	structure_Tree = new Structure_Tree(this, this);
 	main_Layout->addWidget(struct_Frame);
-	connect(structure_Tree, SIGNAL(refresh()), this, SLOT(emit_Refresh()));
+//	connect(structure_Tree, SIGNAL(refresh()), this, SLOT(emit_Refresh()));
 }
 
 void Multilayer::create_Variables_Frame()
@@ -50,7 +50,7 @@ void Multilayer::create_Variables_Frame()
 
 void Multilayer::create_Variables_Tabs()
 {
-	variables_Tabs = new QTabWidget;
+	variables_Tabs = new QTabWidget(this);
 
 	create_Dependent_Variables_Tabs();
 	{
@@ -73,20 +73,8 @@ void Multilayer::create_Variables_Tabs()
 		variables_Tabs->addTab(frame, "Independent Variables");
 	}
 
-	create_Coupled_Parameters_List();
-	create_Coupled_Parameters_Toolbar();
-	{
-		QFrame* frame = new QFrame;
-		QVBoxLayout* layout = new QVBoxLayout;
-		layout->addWidget(coupled_Parameters_List);
-		layout->addWidget(coupled_Parameters_Toolbar);
-		layout->setSpacing(0);
-		frame->setLayout(layout);
-		frame->setContentsMargins(0,-5,0,-12);
-		variables_Tabs->addTab(frame, "Coupled Parameters");
-	}
-
-	// TODO make other variables tabs
+	// TODO
+	variables_Tabs->addTab(new QWidget(), "Coupled Parameters");
 	variables_Tabs->addTab(new QWidget(), "Fitting");
 	variables_Tabs->addTab(new QWidget(), "Optimization");
 	variables_Tabs->setSizePolicy(QSizePolicy::Preferred,QSizePolicy::Fixed);
@@ -177,35 +165,16 @@ void Multilayer::create_Independent_Variables_Tabs()
 	connect(independent_Variables_Plot_Tabs,	SIGNAL(tabBarDoubleClicked(int)),this, SLOT(rename_Independent_Variables_Tab(int)));
 
 	add_Independent_Variables_Tab();
-	independent_Tabs_Exist = true;
 }
 
 void Multilayer::create_Coupled_Parameters_List()
 {
-	// TODO invisible if empty
-	coupled_Parameters_List = new QListWidget;
-	coupled_Parameters_List->setSizeAdjustPolicy(QListWidget::AdjustToContents);
-	QSizePolicy sp_Retain = coupled_Parameters_List->sizePolicy();
-				sp_Retain.setRetainSizeWhenHidden(true);
-	coupled_Parameters_List->setSizePolicy(sp_Retain);
-
-//	coupled_Parameters_List->hide();
+	// TODO
 }
 
 void Multilayer::create_Coupled_Parameters_Toolbar()
 {
-	QPixmap new_Variable	(icon_path + "new.bmp");
-	QPixmap edit			(icon_path + "roi.bmp");
-	QPixmap remove			(icon_path + "delete.bmp");
-
-	coupled_Parameters_Toolbar = new QToolBar;
-	coupled_Parameters_Toolbar->addAction(QIcon(new_Variable),	"Add Coupled Parameter");	// 0
-	coupled_Parameters_Toolbar->addAction(QIcon(edit),			"Edit");					// 1
-	coupled_Parameters_Toolbar->addAction(QIcon(remove),		"Remove");					// 2
-
-	coupled_Parameters_Toolbar->setIconSize(new_Variable.size());
-
-	// TODO connect actions
+	// TODO
 }
 
 void Multilayer::create_Fitting_Parameters_List()
@@ -261,30 +230,10 @@ void Multilayer::create_Data_Frame()
 
 void Multilayer::add_Independent_Variables_Tab()
 {
-	// hidden copy of main structure
-	QTreeWidget* new_Struct_Tree_Copy = new QTreeWidget;
-	for(int i=0; i<structure_Tree->tree->topLevelItemCount(); i++)
-	{
-		new_Struct_Tree_Copy->addTopLevelItem(structure_Tree->tree->topLevelItem(i)->clone());
-	}
-
-	// add "measurement" item to structure_Tree->tree_Copy
-	QTreeWidgetItem* new_Measurement_Item = new QTreeWidgetItem;
-		// set unique id to measurenent
-		int id = rand()*RAND_SHIFT+rand();
-		new_Measurement_Item->setStatusTip(DEFAULT_COLUMN, QString::number(id));
-
-		Measurement measurement;
-		QVariant var; var.setValue(measurement);
-		new_Measurement_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
-		new_Measurement_Item->setWhatsThis(DEFAULT_COLUMN, whats_This_Measurement);
-	new_Struct_Tree_Copy->insertTopLevelItem(0, new_Measurement_Item);
-
-	// create new Independent_Variables instance
-	Independent_Variables* new_Independent = new Independent_Variables(new_Struct_Tree_Copy, structure_Tree->tree, this);
+	Independent_Variables* new_Independent = new Independent_Variables(structure_Tree->tree, this);
 		new_Independent->setContentsMargins(-8,-10,-8,-10);
 
-		connect(new_Independent, SIGNAL(refresh()), this, SLOT(emit_Refresh()));
+	connect(new_Independent, SIGNAL(refresh_Multilayer()), this, SLOT(refresh_Structure_And_Independent()));
 
 	// add new tab
 	independent_Variables_Plot_Tabs->addTab(new_Independent, default_independent_variable_tab_name);
@@ -295,7 +244,6 @@ void Multilayer::add_Independent_Variables_Tab()
 		independent_Variables_Plot_Tabs->tabBar()->setTabTextColor(independent_Variables_Plot_Tabs->count()-1,Qt::gray);
 		independent_Variables_Plot_Tabs->tabBar()->tabButton(independent_Variables_Plot_Tabs->count()-1, QTabBar::RightSide)->hide();
 	}
-	independent_Tabs_Exist = true;
 }
 
 void Multilayer::change_Tab_Independent_Variables_Tab_Color(int index)
@@ -330,233 +278,24 @@ void Multilayer::rename_Independent_Variables_Tab(int tab_Index)
 	QString text = QInputDialog::getText(this, "Rename plot", "New name", QLineEdit::Normal, independent_Variables_Plot_Tabs->tabText(tab_Index), &ok);
 	if (ok && !text.isEmpty())
 		independent_Variables_Plot_Tabs->setTabText(tab_Index, text);
-
-	// TODO temporary
-//	print_Hidden_Copy(tab_Index);
 }
 
-void Multilayer::print_Data(QTreeWidgetItem* parent_Item)
+void Multilayer::refresh_Structure_And_Independent(QObject* my_Sender)
 {
-	qInfo() << "Print Data";
-	for(int i=0; i<parent_Item->childCount(); ++i)
+	structure_Tree->refresh__StructureTree__Data_and_Text();
+	structure_Tree->editors_Edit(sender());
+
+	for(int i=0; i<independent_Variables_Plot_Tabs->count(); ++i)
 	{
-		Measurement measurement;
-		Ambient ambient;
-		Layer layer;
-		Stack_Content stack_Content;
-		Substrate substrate;
-
-		QStringList whats_This_List = parent_Item->child(i)->whatsThis(0).split(item_Type_Delimiter,QString::SkipEmptyParts);
-		if(whats_This_List[0] == whats_This_Measurement)  measurement	= parent_Item->child(i)->data(DEFAULT_COLUMN, Qt::UserRole).value<Measurement>();
-		if(whats_This_List[0] == whats_This_Ambient)	  ambient		= parent_Item->child(i)->data(DEFAULT_COLUMN, Qt::UserRole).value<Ambient>();
-		if(whats_This_List[0] == whats_This_Layer)		 {layer			= parent_Item->child(i)->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>();			qInfo() << "thickness = " << layer.thickness.value ;}
-		if(whats_This_List[0] == whats_This_Multilayer)
+		Independent_Variables* independent = dynamic_cast<Independent_Variables*>(independent_Variables_Plot_Tabs->widget(i));
+		if(independent!=sender())
 		{
-			stack_Content = parent_Item->child(i)->data(DEFAULT_COLUMN, Qt::UserRole).value<Stack_Content>();
-			qInfo() << "num_Rep = " << stack_Content.num_Repetition.value ;
-
-		}
-		if(whats_This_List[0] == whats_This_Substrate)	  substrate		= parent_Item->child(i)->data(DEFAULT_COLUMN, Qt::UserRole).value<Substrate>();
-
-		if(parent_Item->child(i)->childCount()>0)
-		{
-			print_Data(parent_Item->child(i));
+			independent->reset_Independent_Variables_Structure();
 		}
 	}
-	qInfo() << "--";
-}
 
-void Multilayer::reset_Independent_Variables_Structure()
-{
-	// PARAMETER
-	if(independent_Tabs_Exist)
-	for(int tab=0; tab<independent_Variables_Plot_Tabs->count(); tab++)
-	{
-		Independent_Variables* independent_Widget = dynamic_cast<Independent_Variables*>(independent_Variables_Plot_Tabs->widget(tab));
-
-		/// -----------------------------------------------------
-
-		// temporary copy
-		QTreeWidget* temp_Tree = new QTreeWidget;
-		for(int i=0; i<independent_Widget->struct_Tree_Copy->topLevelItemCount(); i++)
-		{
-			temp_Tree->addTopLevelItem(independent_Widget->struct_Tree_Copy->topLevelItem(i)->clone());
-		};
-
-		// clear
-		independent_Widget->clear_Structure();
-
-		// reset hidden copy of main structure
-		for(int i=0; i<structure_Tree->tree->topLevelItemCount(); i++)
-		{
-			independent_Widget->struct_Tree_Copy->addTopLevelItem(structure_Tree->tree->topLevelItem(i)->clone());
-		}
-
-		// search for previously existing items
-		QTreeWidgetItem* structure_Item;
-		QTreeWidgetItemIterator it(independent_Widget->struct_Tree_Copy);
-		while (*it)
-		{
-			structure_Item = *it;
-
-			QString whats_This = structure_Item->whatsThis(DEFAULT_COLUMN);
-			QStringList whats_This_List = whats_This.split(item_Type_Delimiter,QString::SkipEmptyParts);
-			QVariant var;
-
-			// iterate over copy of old tree
-			QTreeWidgetItem* old_Item;
-			QTreeWidgetItemIterator old_It(temp_Tree);
-			while (*old_It)
-			{
-				old_Item = *old_It;
-
-				if(structure_Item->statusTip(DEFAULT_COLUMN) == old_Item->statusTip(DEFAULT_COLUMN))
-				{
-					// if measurement
-					if(whats_This_List[0] == whats_This_Measurement)
-					{
-						Measurement measurement     = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Measurement>();
-						Measurement old_Measurement =       old_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Measurement>();
-
-						measurement = old_Measurement; //-V519
-
-						var.setValue(measurement);
-						structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
-					}
-					// if ambient
-					if(whats_This_List[0] == whats_This_Ambient)
-					{
-						Ambient ambient     = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Ambient>();
-						Ambient old_Ambient =       old_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Ambient>();
-
-						/// optical
-						ambient.absolute_Density.independent = old_Ambient.absolute_Density.independent;
-						ambient.relative_Density.independent = old_Ambient.relative_Density.independent;
-						ambient.permittivity.independent	 = old_Ambient.permittivity.independent;
-						ambient.absorption.independent		 = old_Ambient.absorption.independent;
-
-						for(int index=0; index<ambient.composition.size(); ++index)
-						{
-							ambient.composition[index].composition.independent.min = 0;
-							ambient.composition[index].composition.independent.max = 1;
-							ambient.composition[index].composition.independent.num_Points = 1;
-						}
-
-						var.setValue(ambient);
-						structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
-					}
-					// if layer
-					if(whats_This_List[0] == whats_This_Layer)
-					{
-						Layer layer     = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>();
-						Layer old_Layer =       old_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>();
-
-						/// optical
-						layer.absolute_Density.independent	= old_Layer.absolute_Density.independent;
-						layer.relative_Density.independent	= old_Layer.relative_Density.independent;
-						layer.permittivity.independent		= old_Layer.permittivity.independent;
-						layer.absorption.independent		= old_Layer.absorption.independent;
-
-						for(int index=0; index<layer.composition.size(); ++index)
-						{
-							layer.composition[index].composition.independent.min = 0;
-							layer.composition[index].composition.independent.max = 1;
-							layer.composition[index].composition.independent.num_Points = 1;
-						}
-
-						/// thickness
-						layer.thickness.independent = old_Layer.thickness.independent;
-
-						/// interface parameters
-						layer.sigma.independent = old_Layer.sigma.independent;
-
-						for(int func_Index=0; func_Index<transition_Layer_Functions_Size; ++func_Index)
-						{
-							layer.interlayer_Composition[func_Index].interlayer.independent = old_Layer.interlayer_Composition[func_Index].interlayer.independent;
-						}
-
-						var.setValue(layer);
-						structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
-					}
-					// if multilayer
-					if(whats_This_List[0] == whats_This_Multilayer)
-					{
-						Stack_Content stack_Content     = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Stack_Content>();
-						Stack_Content old_Stack_Content =       old_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Stack_Content>();
-
-						// crutch
-						//stack_Content.num_Repetition     = old_Stack_Content.num_Repetition;
-						stack_Content.period.independent = old_Stack_Content.period.independent;
-						stack_Content.gamma.independent  = old_Stack_Content.gamma.independent;
-
-						var.setValue(stack_Content);
-						structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
-					}
-					// if substrate
-					if(whats_This_List[0] == whats_This_Substrate)
-					{
-						Substrate substrate     = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Substrate>();
-						Substrate old_Substrate =       old_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Substrate>();
-
-						/// optical
-						substrate.absolute_Density.independent	= old_Substrate.absolute_Density.independent;
-						substrate.relative_Density.independent	= old_Substrate.relative_Density.independent;
-						substrate.permittivity.independent		= old_Substrate.permittivity.independent;
-						substrate.absorption.independent		= old_Substrate.absorption.independent;
-
-						for(int index=0; index<substrate.composition.size(); ++index)
-						{
-							substrate.composition[index].composition.independent.min = 0;
-							substrate.composition[index].composition.independent.max = 1;
-							substrate.composition[index].composition.independent.num_Points = 1;
-						}
-
-						/// interface parameters
-						substrate.sigma.independent = old_Substrate.sigma.independent;
-
-						for(int func_Index=0; func_Index<transition_Layer_Functions_Size; ++func_Index)
-						{
-							substrate.interlayer_Composition[func_Index].interlayer.independent = old_Substrate.interlayer_Composition[func_Index].interlayer.independent;
-						}
-
-						var.setValue(substrate);
-						structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
-					}
-				}
-				++old_It;
-			}
-			++it;
-		}
-
-		delete temp_Tree;
-
-		/// -----------------------------------------------------
-
-		// clear irrelevant variables
-		independent_Widget->clear_Independent_List();
-		independent_Widget->refresh_Text();
-	}
-}
-
-void Multilayer::refresh_Text()
-{
-//	if(struct_Exist)
-	{
-		structure_Tree->refresh_Text();
-		structure_Tree->editors_Refresh();
-		structure_Tree->tree->expandAll();
-	}
-	if(independent_Tabs_Exist)
-	for(int tab=0; tab<independent_Variables_Plot_Tabs->count(); tab++)
-	{
-		dynamic_cast<Independent_Variables*>(independent_Variables_Plot_Tabs->widget(tab))->refresh_Text();
-	}
-}
-
-void Multilayer::refresh_State()
-{
-	// TODO
-	refresh_Text();
+	// refresh other multilayers
+	if(!my_Sender) emit refresh_All_Multilayers();
 }
 
 void Multilayer::add_Measured_Data()
@@ -734,9 +473,4 @@ void Multilayer::remove_Target_Profile()
 	add_Button->show();
 
 	setUpdatesEnabled(true);
-}
-
-void Multilayer::emit_Refresh()
-{	
-	emit refresh();
 }

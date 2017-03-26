@@ -249,6 +249,8 @@ void Global_Variables::deserialize_Tree(QDataStream& in, QTreeWidget* tree)
 	{
 		tree_Map.value(whatsThis_Parent_List[i])->addChild(item_Vec[i]);
 	}
+
+	tree->expandAll();
 }
 
 void Global_Variables::serialize_Variables_List(QDataStream& out, QListWidget* list)

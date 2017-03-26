@@ -100,7 +100,7 @@ void Variable_Selection::fill_Variables_List()
 		QString whats_This = item->whatsThis(DEFAULT_COLUMN);
 		QStringList whats_This_List_Type = whats_This.split(item_Type_Delimiter,QString::SkipEmptyParts);
 
-		refresh_State(item);
+		refresh_Independent_State_Of_Struct_Tree_Copy_Item(item);
 
 		if(whats_This_List_Type[0] == whats_This_Ambient)	 fill_Ambient_Variables(item);		else
 		if(whats_This_List_Type[0] == whats_This_Layer)		 fill_Layer_Variables(item);		else
@@ -194,6 +194,8 @@ void Variable_Selection::fill_Substrate_Variables(QTreeWidgetItem* item)
 
 void Variable_Selection::add_Absolute_Density(QTreeWidgetItem* item, QString whats_This_Type)
 {
+	// PARAMETER
+
 	QString material, brackets;
 	QString separate_Optical_Constants;
 	bool is_True_Condition, composed_Material;
@@ -258,6 +260,8 @@ void Variable_Selection::add_Absolute_Density(QTreeWidgetItem* item, QString wha
 
 void Variable_Selection::add_Relative_Density(QTreeWidgetItem* item, QString whats_This_Type)
 {
+	// PARAMETER
+
 	QString material, brackets;
 	QString separate_Optical_Constants;
 	bool is_True_Condition, composed_Material;
@@ -322,6 +326,8 @@ void Variable_Selection::add_Relative_Density(QTreeWidgetItem* item, QString wha
 
 void Variable_Selection::add_Permittivity(QTreeWidgetItem* item, QString whats_This_Type)
 {
+	// PARAMETER
+
 	QString material, brackets;
 	QString separate_Optical_Constants;
 	bool is_True_Condition, composed_Material;
@@ -386,6 +392,8 @@ void Variable_Selection::add_Permittivity(QTreeWidgetItem* item, QString whats_T
 
 void Variable_Selection::add_Absorption(QTreeWidgetItem* item, QString whats_This_Type)
 {
+	// PARAMETER
+
 	QString material, brackets;
 	QString separate_Optical_Constants;
 	bool is_True_Condition, composed_Material;
@@ -450,6 +458,8 @@ void Variable_Selection::add_Absorption(QTreeWidgetItem* item, QString whats_Thi
 
 void Variable_Selection::add_Composition(QTreeWidgetItem* item, QString whats_This_Type)
 {
+	// PARAMETER
+
 	QString material, brackets;
 	bool composed_Material;
 	QVector<bool> is_True_Condition;
@@ -521,6 +531,8 @@ void Variable_Selection::add_Composition(QTreeWidgetItem* item, QString whats_Th
 
 void Variable_Selection::add_Thickness(QTreeWidgetItem* item, QString whats_This_Type)
 {
+	// PARAMETER
+
 	QString material, brackets;
 	bool is_True_Condition;
 
@@ -557,6 +569,8 @@ void Variable_Selection::add_Thickness(QTreeWidgetItem* item, QString whats_This
 
 void Variable_Selection::add_Sigma(QTreeWidgetItem* item, QString whats_This_Type)
 {
+	// PARAMETER
+
 	QString material, brackets;
 	QVector<bool> interlayer_Composition_Enabled;
 	bool is_True_Condition;
@@ -614,6 +628,8 @@ void Variable_Selection::add_Sigma(QTreeWidgetItem* item, QString whats_This_Typ
 
 void Variable_Selection::add_Interlayer_Composition(QTreeWidgetItem* item, QString whats_This_Type)
 {
+	// PARAMETER
+
 	QString material, brackets;
 	QVector<bool> interlayer_Composition_Enabled, interlayer_Composition_Independent;
 	bool is_True_Condition;
@@ -676,6 +692,8 @@ void Variable_Selection::add_Interlayer_Composition(QTreeWidgetItem* item, QStri
 
 void Variable_Selection::add_Num_repetitions(QTreeWidgetItem* item, QString whats_This_Type)
 {
+	// PARAMETER
+
 	bool is_True_Condition;
 	if(whats_This_Type == whats_This_Multilayer)
 	{
@@ -705,6 +723,8 @@ void Variable_Selection::add_Num_repetitions(QTreeWidgetItem* item, QString what
 
 void Variable_Selection::add_Period(QTreeWidgetItem* item, QString whats_This_Type)
 {
+	// PARAMETER
+
 	bool is_True_Condition;
 	if(whats_This_Type == whats_This_Multilayer)
 	{
@@ -737,6 +757,8 @@ void Variable_Selection::add_Period(QTreeWidgetItem* item, QString whats_This_Ty
 
 void Variable_Selection::add_Gamma(QTreeWidgetItem* item, QString whats_This_Type)
 {
+	// PARAMETER
+
 	bool is_True_Condition;
 	if(whats_This_Type == whats_This_Multilayer)
 	{
@@ -766,7 +788,7 @@ void Variable_Selection::add_Gamma(QTreeWidgetItem* item, QString whats_This_Typ
 	}
 }
 
-void Variable_Selection::refresh_State(QTreeWidgetItem* structure_Item)
+void Variable_Selection::refresh_Independent_State_Of_Struct_Tree_Copy_Item(QTreeWidgetItem* structure_Item)
 {
 	// PARAMETER
 
@@ -825,6 +847,8 @@ void Variable_Selection::refresh_State(QTreeWidgetItem* structure_Item)
 
 void Variable_Selection::add_Variable_Item(QListWidgetItem* new_Item)
 {
+	// PARAMETER
+
 	new_Item->setData(Qt::UserRole, false);	// adding "passive" status
 
 	variables_List_Map->insert(new_Item->whatsThis(), new_Item);
@@ -1148,7 +1172,6 @@ void Variable_Selection::add_Variable_Item(QListWidgetItem* new_Item)
 
 void Variable_Selection::add_Variable()
 {
-	// PARAMETER
 	if(map_Of_Parameters_Lists.value(filters_Combo_Box->currentText())->currentItem())
 	{
 		QListWidgetItem* new_Item = map_Of_Parameters_Lists.value(filters_Combo_Box->currentText())->currentItem()->clone();

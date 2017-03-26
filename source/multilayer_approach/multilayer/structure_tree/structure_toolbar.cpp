@@ -77,7 +77,6 @@ void Structure_Toolbar::add_Layer(bool)
 	new_Layer->setData(DEFAULT_COLUMN, Qt::UserRole, var);
 
 	add_Buffered_Layer(new_Layer);
-	refresh_Toolbar();
 }
 
 void Structure_Toolbar::add_Multilayer(bool)
@@ -524,6 +523,8 @@ void Structure_Toolbar::if_Selected()
 	}
 }
 
+//----------------------------------------------------------------------
+
 void Structure_Toolbar::refresh_Toolbar()
 {
 	if(!structure_Tree->tree->selectedItems().isEmpty())
@@ -532,7 +533,8 @@ void Structure_Toolbar::refresh_Toolbar()
 		structure_Tree->tree->currentItem()->setSelected(true);
 	}
 	structure_Tree->tree->expandAll();
-	structure_Tree->multiple_Refresh_Over_Struct();
+
+	emit refresh_Str_And_Independ_signal();
 }
 
 void Structure_Toolbar::add_Buffered_Layer(QTreeWidgetItem* new_Layer_Passed)
@@ -594,5 +596,6 @@ void Structure_Toolbar::add_Buffered_Layer(QTreeWidgetItem* new_Layer_Passed)
 	}
 
 	structure_Tree->set_Structure_Item_Text(new_Layer);
+
 	refresh_Toolbar();
 }

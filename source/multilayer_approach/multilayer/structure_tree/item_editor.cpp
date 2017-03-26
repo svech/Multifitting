@@ -4,8 +4,9 @@
 
 #include "item_editor.h"
 
-Item_Editor::Item_Editor(QTreeWidgetItem* item, QWidget *parent) :
+Item_Editor::Item_Editor(QList<Item_Editor*>& list_Editors, QTreeWidgetItem* item, QWidget *parent) :
 	QDialog(parent),
+	list_Editors(list_Editors),
 	item(item)
 {
 	setWindowTitle(item->whatsThis(DEFAULT_COLUMN));
@@ -13,12 +14,12 @@ Item_Editor::Item_Editor(QTreeWidgetItem* item, QWidget *parent) :
 	set_Window_Geometry();
 }
 
-void Item_Editor::emit_Refresh()
+void Item_Editor::emit_Item_Data_Edited()
 {
 	// TODO
 	show_All();
-	initial_Radio_Check(false);	
-	emit refresh();
+	initial_Radio_Check(false);
+	emit item_Data_Edited();
 }
 
 void Item_Editor::closeEvent(QCloseEvent* event)
@@ -26,9 +27,7 @@ void Item_Editor::closeEvent(QCloseEvent* event)
 	norm_Interlayer_Composition();
 	refresh_Data();
 	refresh_Material();
-	refresh_Stack_Data();
 	emit closed();
-	emit edited();
 	event;
 }
 
@@ -74,7 +73,7 @@ void Item_Editor::create_Menu()
 {
 	Menu* menu = new Menu(Window_Type::Item_Editor(),this);
 	main_Layout->setMenuBar(menu->menu_Bar);
-	connect(menu, SIGNAL(refresh()), this, SLOT(emit_Refresh()));
+	connect(menu, SIGNAL(refresh()), this, SLOT(emit_Item_Data_Edited()));
 }
 
 void Item_Editor::make_Ambient_Editor()
@@ -924,7 +923,7 @@ void Item_Editor::refresh_Material(QString str)
 		item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
 	}
 
-	emit edited();
+	emit item_Data_Edited();
 }
 
 void Item_Editor::show_Material()
@@ -1093,7 +1092,7 @@ void Item_Editor::show_Stack_Parameters()
 			Stack_Content stack_Content = item->data(DEFAULT_COLUMN, Qt::UserRole).value<Stack_Content>();			
 			repetitions_Line_Edit->setText(QString::number(stack_Content.num_Repetition.value));
 			period_Line_Edit->setText(QString::number(stack_Content.period.value/coeff,line_edit_double_format,line_edit_period_precision));
-			gamma_Line_Edit ->setText(QString::number(stack_Content.gamma. value,line_edit_double_format,line_edit_gamma_precision));
+			gamma_Line_Edit ->setText(QString::number(stack_Content.gamma.value,line_edit_double_format,line_edit_gamma_precision));
 
 			resize_Line_Edit("",repetitions_Line_Edit);
 			resize_Line_Edit("",period_Line_Edit);
@@ -1218,7 +1217,7 @@ void Item_Editor::depth_Grading(bool)
 		depth_Grading->setWindowFlags(Qt::Window);
 		depth_Grading->show();
 
-	connect(depth_Grading, SIGNAL(refresh()), this, SLOT(emit_Refresh()));
+	connect(depth_Grading, SIGNAL(grading_Edited()), this, SLOT(emit_Item_Data_Edited()));
 }
 
 void Item_Editor::sigma_Grading(bool)
@@ -1229,7 +1228,7 @@ void Item_Editor::sigma_Grading(bool)
 		sigma_Grading->setWindowFlags(Qt::Window);
 		sigma_Grading->show();
 
-	connect(sigma_Grading, SIGNAL(refresh()), this, SLOT(emit_Refresh()));
+	connect(sigma_Grading, SIGNAL(grading_Edited()), this, SLOT(emit_Item_Data_Edited()));
 }
 
 void Item_Editor::norm_Interlayer_Composition()
@@ -1419,7 +1418,7 @@ void Item_Editor::refresh_Data(QString str)
 		}
 	}
 
-	emit edited();
+	refresh_Stack_Data();
 }
 
 void Item_Editor::refresh_Stack_Data()
@@ -1469,7 +1468,7 @@ void Item_Editor::refresh_Stack_Data()
 		}
 	}
 
-	emit edited();
+	emit item_Data_Edited();
 }
 
 void Item_Editor::fast_Refresh_Stack(QString)

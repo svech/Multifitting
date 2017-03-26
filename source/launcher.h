@@ -22,11 +22,10 @@ private:
 private slots:
 	void add_Multilayer_Approach_Instance();
 	void multilayer_Approach_Closed();
-
 	void add_Freeform_Approach_Instance();
 	void freeform_Approach_Closed();
 
-	void refresh_All_Multilayer_Approach_View();
+//	void refresh_All_Multilayer_Approach_View();
 
 public:
 	QList<Multilayer_Approach*> multilayer_Approach_List;

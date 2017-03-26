@@ -8,18 +8,15 @@ class Independent_Variables : public QWidget
 {
 	Q_OBJECT
 public:
-	explicit Independent_Variables(QTreeWidget* struct_Tree_Copy, QTreeWidget* real_Struct_Tree, QWidget *parent = 0);
+	explicit Independent_Variables(QTreeWidget* real_Struct_Tree, QWidget *parent = 0);
 
 signals:
-	void refresh();
+	void refresh_Multilayer();
 private slots:
-	void emit_Refresh();
+	void refresh_All();
 
-public:
-	void clear_Structure();
-	void clear_Independent_List();
-	void refresh_Text();
 private:
+	void create_Struct_Tree_Copy();
 	void create_Main_Layout();
 	void create_Independent_Variables_List();
 	void create_Independent_Variables_Toolbar();
@@ -30,11 +27,17 @@ public slots:
 private slots:
 	void add_Independent_Variable(bool);
 	void cause_Editing_Independent_Variable(bool);
-	void edit_Independent_Variable(QListWidgetItem* item);
+	void edit_Independent_Variable(QListWidgetItem* list_Item);
 	void remove_Current_Independent_Variable(bool);
-	void refresh_State_All();
+	void refresh_Independent_State_All();
 
 	void if_Selected();
+
+public:
+	void reset_Independent_Variables_Structure();
+	void clear_Structure_Copy();
+	void clear_Unused_Independent_List();
+	void refresh_Text();
 
 public:
 	QMap<QString, QListWidgetItem*>* independent_Variables_List_Map;	// independent whatsThis and corresponding items in ListWidget

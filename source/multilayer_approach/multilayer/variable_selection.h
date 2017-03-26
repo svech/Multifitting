@@ -56,7 +56,7 @@ private:
 			void add_Gamma					(QTreeWidgetItem* item, QString whats_This_Type);
 
 public slots:
-	static void refresh_State(QTreeWidgetItem* structure_Item);
+	static void refresh_Independent_State_Of_Struct_Tree_Copy_Item(QTreeWidgetItem* structure_Item);
 	void add_Variable_Item(QListWidgetItem* new_Item);
 	void add_Variable();
 	void filter_Change(int index);

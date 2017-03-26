@@ -17,9 +17,11 @@ Grading_Editor::Grading_Editor(QTreeWidgetItem* item, QString drift_Name, QWidge
     setAttribute(Qt::WA_DeleteOnClose);
 }
 
-void Grading_Editor::emit_Refresh()
+void Grading_Editor::emit_Grading_Edited()
 {
-    emit refresh();
+	// directly to Structure_Tree, over Item_Editor
+	emit grading_Edited();
+
 }
 
 void Grading_Editor::refresh_Data_Bool(bool)

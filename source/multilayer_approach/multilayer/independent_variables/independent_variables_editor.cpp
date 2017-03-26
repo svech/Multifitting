@@ -17,10 +17,10 @@ Independent_Variables_Editor::Independent_Variables_Editor(QTreeWidgetItem* stru
 	setAttribute(Qt::WA_DeleteOnClose);
 }
 
-void Independent_Variables_Editor::emit_Refresh()
+void Independent_Variables_Editor::refresh_All()
 {
 	refresh_Show_Data(show_Data);
-	emit refresh();
+	emit refresh_Multilayer();
 }
 
 void Independent_Variables_Editor::create_Main_Layout()
@@ -53,7 +53,7 @@ void Independent_Variables_Editor::create_Menu()
 {
 	Menu* menu = new Menu(Window_Type::Independent_Variables_Editor(), this);
 	main_Layout->setMenuBar(menu->menu_Bar);
-	connect(menu, SIGNAL(refresh()), this, SLOT(emit_Refresh()));
+	connect(menu, SIGNAL(refresh()), this, SLOT(refresh_All()));
 }
 
 void Independent_Variables_Editor::create_Standard_Interface()
@@ -1022,8 +1022,8 @@ void Independent_Variables_Editor::refresh_Show_Data(bool show)
 
 		// multilayer num_repetitions
 		if(whats_This_List[wtl_index] == whats_This_Num_Repetitions)
-		{
-			name = whats_This_List[wtl_index-1] + " " + whats_This_List[wtl_index] + " Number of repetitions, N";
+		{			
+			name = whats_This_List[wtl_index-1] + " Number of repetitions, N";
 			group_Box->setTitle(name);
 			units = "";
 			units_Label->setText(units);
@@ -1063,7 +1063,9 @@ void Independent_Variables_Editor::refresh_Show_Data(bool show)
 					stack_Content.num_Repetition.step  = max->text().toDouble();
 
 					if(stack_Content.num_Repetition.num_steps == 1)
+					{
 						item->setText(name + " [" + QString::number(stack_Content.num_Repetition.value) + end_Bracket);
+					}
 					else
 						item->setText(name + " [" + QString::number(stack_Content.num_Repetition.num_steps) + " values: " +
 									  QString::number(stack_Content.num_Repetition.start) + " - " +

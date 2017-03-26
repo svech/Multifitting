@@ -14,25 +14,8 @@ class Multilayer : public QWidget
 public:	
 	explicit Multilayer(Multilayer_Approach* multilayer_Approach, QWidget *parent = 0);
 
-//	// temporary
-//	//------------------------------
-//	void print_Hidden_Copy(int index)
-//	{
-//		QTreeWidgetItemIterator it(plottable_Struct_Tree_Vec[index]);
-//		qInfo() << "\n---------------------\nplot " << index << ":\n";
-//		while(*it)
-//		{
-//			QTreeWidgetItem* item = *it;
-//			qInfo() << item->whatsThis(DEFAULT_COLUMN);
-//			++it;
-//		}
-//	}
-//	//------------------------------
-
 signals:
-	void refresh();
-private slots:
-	void emit_Refresh();
+	void refresh_All_Multilayers();
 
 private:
 	void create_Main_Layout();
@@ -61,10 +44,11 @@ public slots:
 	void rename_Independent_Variables_Tab(int tab_Index);
 
 public slots:
-	void reset_Independent_Variables_Structure();
-	void refresh_Text();
-	void refresh_State();
-	void print_Data(QTreeWidgetItem* parent_Item);
+	void refresh_Structure_And_Independent(QObject* my_Sender = NULL);
+
+public slots:
+//	void refresh_Text();
+//	void refresh_State();
 
 private slots:
 	void add_Measured_Data();
@@ -75,10 +59,7 @@ private slots:
 public:
 	Multilayer_Approach* multilayer_Approach;
 
-	bool independent_Tabs_Exist = false;
-//	bool struct_Exist = false;
-
-	QVBoxLayout* main_Layout;		
+	QVBoxLayout* main_Layout;
 		QFrame* struct_Frame;
 			QVBoxLayout* struct_Frame_Layout;
 				Structure_Tree* structure_Tree;

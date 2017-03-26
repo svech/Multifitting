@@ -12,47 +12,43 @@ class Structure_Toolbar;
 class Structure_Tree : public QWidget
 {
 	Q_OBJECT
-	Q_INVOKABLE void refreshOverStruct() { Structure_Tree::refresh_Over_Struct(); }
+//	Q_INVOKABLE void refreshStructureTreeDataAndText() { Structure_Tree::refresh__StructureTree__Data_and_Text(); }
 public:
 	explicit Structure_Tree(Multilayer* multilayer, QWidget *parent = 0);
-
-signals:
-	void refresh();
-private slots:
-	void emit_Refresh();
 
 private:
 	void create_Tree();
 	void create_Toolbar();
+
+public slots:
+	void if_DoubleClicked(QTreeWidgetItem*, int);	
+	void editor_Close();
+	void editors_Edit(QObject* sender = NULL);
+
 public:
-	void refresh_Over_Struct();
+	void refresh__StructureTree__Data_and_Text();
+	void set_Structure_Item_Text(QTreeWidgetItem* item);
+
 private:
-		void iterate_Over_Struct(QTreeWidgetItem* item = NULL);
+	void refresh_Layers(QTreeWidgetItem* item = NULL);
+		void set_Layer_Text_And_WhatsThis(QTreeWidgetItem* item, int different_Layers_Counter);
 			void refresh_If_Layer(QTreeWidgetItem* this_Item);
-		void iterate_Over_Multilayers(QTreeWidgetItem* item = NULL);
+	void refresh_Multilayers(QTreeWidgetItem* item = NULL);
+		void set_Multilayer_Text_And_WhatsThis(QTreeWidgetItem* item, int first, int last);
 			void refresh_If_Multilayer(QTreeWidgetItem* this_Item);
 				void find_First_Layer(QTreeWidgetItem* this_Item, int& first);
 				void find_Last_Layer(QTreeWidgetItem* this_Item, int& last);
 				void find_Period(QTreeWidgetItem* this_Item);
 
-public slots:
-	void if_DoubleClicked(QTreeWidgetItem*, int);	
-	void set_Structure_Item_Text(QTreeWidgetItem* item);
-	void editor_Close();
-	void editors_Edit();
-	void editors_Refresh();
-	void multiple_Refresh_Over_Struct();
-	void refresh_Text();
-
 private:
 	int different_Layers_Counter=0;
-	Multilayer* multilayer;
 
 	QMap<QTreeWidgetItem*, Item_Editor*> runned_Editors;
 	QList<Item_Editor*> list_Editors;
 
 public:	
 	Structure_Toolbar* structure_Toolbar;
+	Multilayer* multilayer;
 	QTreeWidget* tree;
 };
 

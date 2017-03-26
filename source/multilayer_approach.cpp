@@ -77,7 +77,7 @@ void Multilayer_Approach::add_Multilayer()
 	Multilayer* new_Multilayer = new Multilayer(this, this);
 		new_Multilayer->setContentsMargins(-8,-10,-8,-10);
 
-	connect(new_Multilayer, SIGNAL(refresh()),	this,SLOT(refresh_All_Multilayers_View()));
+	connect(new_Multilayer, SIGNAL(refresh_All_Multilayers()),	this,SLOT(refresh_All_Multilayers_View()));
 
 	multilayer_Tabs->addTab(new_Multilayer, default_multilayer_tab_name);
 	multilayer_Tabs->setTabText(multilayer_Tabs->count()-1, default_multilayer_tab_name + QString::number(multilayer_Tabs->count()));
@@ -127,7 +127,11 @@ void Multilayer_Approach::refresh_All_Multilayers_View()
 {
 	for(int i=0; i<multilayer_Tabs->count(); ++i)
 	{
-		dynamic_cast<Multilayer*>(multilayer_Tabs->widget(i))->refresh_Text();
+		Multilayer* multilayer = dynamic_cast<Multilayer*>(multilayer_Tabs->widget(i));
+		if(multilayer!=sender())
+		{
+			multilayer->refresh_Structure_And_Independent(sender());
+		}
 	}
 }
 
@@ -224,7 +228,7 @@ void Multilayer_Approach::open()
 			Global_Variables::deserialize_Variables_List(in, independent->independent_Variables_List);
 		}
 
-		multilayer->refresh_State();
+		multilayer->refresh_Structure_And_Independent();
 
 		// disable adding substrate if it already exists
 		QStringList whats_This_List = multilayer->structure_Tree->tree->topLevelItem(multilayer->structure_Tree->tree->topLevelItemCount()-1)->whatsThis(DEFAULT_COLUMN).split(item_Type_Delimiter,QString::SkipEmptyParts);
