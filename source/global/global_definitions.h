@@ -154,7 +154,7 @@ using namespace std;
 // enums
 enum class Item_Type			{Ambient, Layer, Substrate, Stack_Content};
 enum class Variable_Type		{Independent, Coupled, Fitted, Optimized};
-enum       Transitional_Layer	{ Erf , Lin , Exp , Tanh , Sin };
+enum       Transitional_Layer	{ Erf , Lin , Exp , Tanh , Sin , Step};
 
 // -----------------------------------------------------------------------------------------
 

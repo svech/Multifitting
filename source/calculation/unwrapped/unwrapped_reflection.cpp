@@ -300,6 +300,15 @@ void Unwrapped_Reflection::calc_Weak_Factor(int thread_Index)
 				weak_Factor[thread_Index][i] += unwrapped_Structure->boundary_Interlayer_Composition[i][Sin].interlayer.value * factor;
 			}
 			//-------------------------------------------------------------------------------
+			// step interlayer
+			if(unwrapped_Structure->boundary_Interlayer_Composition[i][Step].enabled)
+			{
+				norm += unwrapped_Structure->boundary_Interlayer_Composition[i][Step].interlayer.value;
+				my_Sigma = unwrapped_Structure->boundary_Interlayer_Composition[i][Step].my_Sigma.value;
+				factor = cos(2 * s * my_Sigma);
+				weak_Factor[thread_Index][i] += unwrapped_Structure->boundary_Interlayer_Composition[i][Step].interlayer.value * factor;
+			}
+			//-------------------------------------------------------------------------------
 			// normalization
 			{
 				if( norm > 0 )

@@ -103,7 +103,7 @@ QVector<double> element_Mass {1.00794,
 QMap<QString, double> sorted_Elements;
 
 // lists of types
-QStringList transition_Layer_Functions	{"erf","lin","exp","tanh","sin"}; size_t transition_Layer_Functions_Size = transition_Layer_Functions.size();
+QStringList transition_Layer_Functions	{"erf","lin","exp","tanh","sin","step"}; size_t transition_Layer_Functions_Size = transition_Layer_Functions.size();
 //QStringList thickness_Drift_Functions	{"no grading","linear","parabolic","sinusoidal"}; size_t thickness_Drift_Functions_Size = thickness_Drift_Functions.size();
 //QStringList drift_Models				{"no_drift","lin_sin","par_sin","hyp_sin","exp_sin","log_sin"};
 QStringList tril						{TRIL_TRUE, TRIL_FALSE, TRIL_NOT_DEFINED};

@@ -24,6 +24,7 @@ void Item_Editor::emit_Item_Data_Edited()
 
 void Item_Editor::closeEvent(QCloseEvent* event)
 {
+	norm_Interlayer_Composition();
 	refresh_Data();
 	refresh_Material();
 	emit closed();
@@ -1338,6 +1339,28 @@ void Item_Editor::interlayer_Check(int)
 	refresh_Data();
 }
 
+void Item_Editor::norm_Interlayer_Composition()
+{
+	if(sigma_Done)
+	{
+		double sum=0;
+		for(int i=0; i<transition_Layer_Functions_Size; ++i)
+		{
+			if(interlayer_Composition_Check_Box_Vec[i]->isChecked() == true)
+			{
+				sum+=interlayer_Composition_Comp_Line_Edit_Vec[i]->text().toDouble();
+			}
+		}
+		for(int i=0; i<transition_Layer_Functions_Size; ++i)
+		{
+			if(interlayer_Composition_Check_Box_Vec[i]->isChecked() == true)
+			{
+				interlayer_Composition_Comp_Line_Edit_Vec[i]->setText(QString::number(interlayer_Composition_Comp_Line_Edit_Vec[i]->text().toDouble()/sum,line_edit_short_double_format,line_edit_interlayer_precision));
+			}
+		}
+	}
+}
+
 void Item_Editor::refresh_Data(QString str)
 {
 	double coeff = length_Coefficients_Map.value(length_units);
@@ -1410,8 +1433,8 @@ void Item_Editor::refresh_Data(QString str)
 				layer.interlayer_Composition[i].my_Sigma.value = interlayer_Composition_My_Sigma_Line_Edit_Vec[i]->text().toDouble();
 				if(interlayer_Composition_Check_Box_Vec[i]->isChecked())
 				{
-					layer.interlayer_Composition[i].interlayer.value = interlayer_Composition_Comp_Line_Edit_Vec[i]->text().toDouble()/sum;
-					temp_Sigma += layer.interlayer_Composition[i].my_Sigma.value * layer.interlayer_Composition[i].interlayer.value;
+					layer.interlayer_Composition[i].interlayer.value = interlayer_Composition_Comp_Line_Edit_Vec[i]->text().toDouble();
+					temp_Sigma += layer.interlayer_Composition[i].my_Sigma.value * interlayer_Composition_Comp_Line_Edit_Vec[i]->text().toDouble()/sum;
 				}
 			}
 
@@ -1476,8 +1499,8 @@ void Item_Editor::refresh_Data(QString str)
 				substrate.interlayer_Composition[i].my_Sigma.value = interlayer_Composition_My_Sigma_Line_Edit_Vec[i]->text().toDouble();
 				if(interlayer_Composition_Check_Box_Vec[i]->isChecked())
 				{
-					substrate.interlayer_Composition[i].interlayer.value = interlayer_Composition_Comp_Line_Edit_Vec[i]->text().toDouble()/sum;
-					temp_Sigma += substrate.interlayer_Composition[i].my_Sigma.value * substrate.interlayer_Composition[i].interlayer.value;
+					substrate.interlayer_Composition[i].interlayer.value = interlayer_Composition_Comp_Line_Edit_Vec[i]->text().toDouble();
+					temp_Sigma += substrate.interlayer_Composition[i].my_Sigma.value * interlayer_Composition_Comp_Line_Edit_Vec[i]->text().toDouble()/sum;
 				}
 			}
 

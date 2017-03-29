@@ -70,6 +70,7 @@ private slots:
 	void read_Interlayers_From_Item();
 	void fewer_Elements_Clicked(bool);
 	void interlayer_Check(int);
+	void norm_Interlayer_Composition();
 	void refresh_Material(QString str="");
 	void refresh_Data(QString str="");
 	void refresh_Stack_Data();

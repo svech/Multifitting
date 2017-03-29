@@ -429,6 +429,18 @@ int Node::calculate_Intermediate_Points(const tree<Node>::iterator& active_Iter,
 						}
 					}
 					//-------------------------------------------------------------------------------
+					// step interlayer
+					if(boundary_Interlayer_Composition[Step].enabled)
+					{
+						norm += boundary_Interlayer_Composition[Step].interlayer.value;
+						my_Sigma = boundary_Interlayer_Composition[Step].my_Sigma.value;
+						for(int i=0; i<num_Points; ++i)
+						{
+							factor = cos(2 * s[i] * my_Sigma);
+							weak_Factor[i] += boundary_Interlayer_Composition[Step].interlayer.value * factor;
+						}
+					}
+					//-------------------------------------------------------------------------------
 					// normalization
 					{
 						if( norm > 0 )
