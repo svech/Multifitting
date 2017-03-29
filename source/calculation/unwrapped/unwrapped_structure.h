@@ -2,6 +2,10 @@
 #define UNWRAPPED_STRUCTURE_H
 
 #include "calculation/node.h"
+#include <chrono>
+
+#include <gsl/gsl_rng.h>
+#include <gsl/gsl_randist.h>
 
 class Unwrapped_Structure
 {
@@ -36,10 +40,13 @@ public:
 //	int fill_Sigma_Max_Depth_2    (const tree<Node>::iterator& parent, int boundary_Index = 0);
 //	int fill_Thickness_Max_Depth_2(const tree<Node>::iterator& parent, int layer_Index = 0);
 
+	void fill_Rand_Values(double sig_Percent, vector<double>& values);
+
 	int fill_Epsilon		  (const tree<Node>::iterator& parent, int media_Index = 0);
 	int fill_Epsilon_Dependent(const tree<Node>::iterator& parent, int num_Lambda_Points, int media_Index = 0);
 	int fill_Sigma    (const tree<Node>::iterator& parent, int boundary_Index = 0);
 	int fill_Thickness(const tree<Node>::iterator& parent, int layer_Index = 0);
+
 };
 
 #endif // UNWRAPPED_STRUCTURE_H

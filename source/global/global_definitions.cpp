@@ -77,11 +77,11 @@ QDataStream& operator >>( QDataStream& stream,		 Stoichiometry& stoichiometry )
 
 QDataStream& operator <<( QDataStream& stream, const Interlayer& interlayer )
 {
-	return stream << interlayer.interlayer << interlayer.enabled;
+	return stream << interlayer.interlayer << interlayer.my_Sigma << interlayer.enabled;
 }
 QDataStream& operator >>( QDataStream& stream,		 Interlayer& interlayer )
 {
-	return stream >> interlayer.interlayer >> interlayer.enabled;
+	return stream >> interlayer.interlayer >> interlayer.my_Sigma >> interlayer.enabled;
 }
 
 QDataStream& operator <<( QDataStream& stream, const Drift& drift )

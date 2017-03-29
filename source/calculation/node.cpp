@@ -22,7 +22,7 @@ Node::Node(QTreeWidgetItem* item): //-V730
 	if(whats_This_List[0] == whats_This_Substrate)	substrate	  = item->data(DEFAULT_COLUMN, Qt::UserRole).value<Substrate>();
 }
 
-int Node::calculate_Intermediate_Points(const tree<Node>::iterator& active_Iter, Node* above_Node, QString active_Whats_This, QString& warning_Text)
+int Node::calculate_Intermediate_Points(const tree<Node>::iterator& active_Iter, Node* above_Node, QString active_Whats_This, QString& warning_Text, bool depth_Grading, bool sigma_Grading)
 {
 	QStringList active_Whats_This_List = active_Whats_This.split(whats_This_Delimiter,QString::SkipEmptyParts);
 
@@ -61,6 +61,9 @@ int Node::calculate_Intermediate_Points(const tree<Node>::iterator& active_Iter,
 				boundary_Interlayer_Composition = layer.interlayer_Composition.toStdVector();
 
 				thickness = layer.thickness.value;
+
+				thickness_Drift = layer.thickness_Drift;
+				sigma_Drift		= layer.sigma_Drift;
 			} else
 			if(whats_This_List[0] == whats_This_Substrate)
 			{
@@ -330,6 +333,7 @@ int Node::calculate_Intermediate_Points(const tree<Node>::iterator& active_Iter,
 			/// weak_Factor_Ang	(if not sigma-graded)
 			/// ---------------------------------------------------------------------------------------------------------------
 
+//			if( !sigma_Grading )
 			if( whats_This_List[0] == whats_This_Layer   ||
 				whats_This_List[0] == whats_This_Substrate )
 			{
@@ -444,6 +448,7 @@ int Node::calculate_Intermediate_Points(const tree<Node>::iterator& active_Iter,
 			/// exponenta (if not depth-graded)
 			/// ---------------------------------------------------------------------------------------------------------------
 
+//			if( !depth_Grading )
 			if( whats_This_List[0] == whats_This_Layer)
 			{
 				double re, im, ere;

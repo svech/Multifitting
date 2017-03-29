@@ -24,6 +24,8 @@ public:
 	void run_All();
 private:
 	void create_Local_Item_Tree();
+	void check_If_Graded();
+
 	int tree_Depth(QTreeWidgetItem* item);
 	void fill_Calc_Trees();
     void fill_Tree(const tree<Node>::iterator& parent, QTreeWidgetItem* item, int independent_Index);
@@ -31,17 +33,12 @@ private:
     void statify_Calc_Tree_Iteration(const tree<Node>::iterator& parent, int depth, QVector<tree<Node>::iterator>& chosen_Iters);
 	void statify_Calc_Tree(tree<Node>& calc_Tree);
 
-//	void flatten_Stratified_Calc_Tree_List_Iteration(tree<Node>::iterator parent, QList<Node>& flat_List, QMap<int, tree<Node>::iterator>& flat_Tree_Map);
-//	QList<Node> flatten_Stratified_Calc_Tree_List(tree<Node>& calc_Tree, QMap<int, tree<Node>::iterator>& flat_Tree_Map);
-
 	void calculate_Intermediate_Values();
 	void calculate_Intermediate_Values_1_Tree(const tree<Node>::iterator& parent, const tree<Node>::iterator& active_Iter, QString active_Whats_This, int independent_Index, Node* above_Node = NULL);
 	tree<Node>::iterator find_Node(const tree<Node>::iterator& parent, QString active_Whats_This, int independent_Index);
 
 	void calculate_Unwrapped_Structure(const tree<Node>::iterator& active_Iter, QString active_Whats_This, int independent_Index);
 	void calculate_Unwrapped_Reflectivity(int independent_Index);
-
-//	void multiply_Matrices(tree<Node>::iterator parent, tree<Node>::iterator active_Iter, Eigen::Matrix2cd& interferentional_Matrix_s, Eigen::Matrix2cd& interferentional_Matrix_p, int independent_Index, int plot_Point);
 
 	int get_Total_Num_Layers(const tree<Node>::iterator& parent, int independent_Index);
 	int get_Item_Depth(QTreeWidgetItem* item);
@@ -52,6 +49,9 @@ private:
 	void print_Item_Tree(QTreeWidgetItem* item);
 
 public:
+	bool depth_Grading = false;
+	bool sigma_Grading = false;
+
 	int max_Depth;
 	int num_Media;
 	int num_Independent;

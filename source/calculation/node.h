@@ -11,7 +11,7 @@ public:
 	Node();
 	Node(QTreeWidgetItem* item);
 
-	int calculate_Intermediate_Points(const tree<Node>::iterator& active_Iter, Node* above_Node, QString active_Whats_This, QString& warning_Text);
+	int calculate_Intermediate_Points(const tree<Node>::iterator& active_Iter, Node* above_Node, QString active_Whats_This, QString& warning_Text, bool depth_Grading, bool sigma_Grading);
 
 	QString whats_This;
 	QStringList whats_This_List;
@@ -49,6 +49,9 @@ public:
 	double sigma;
 	vector<Interlayer> boundary_Interlayer_Composition;
 	double thickness;
+
+	Drift thickness_Drift;
+	Drift sigma_Drift;
 };
 
 #endif // NODE_H

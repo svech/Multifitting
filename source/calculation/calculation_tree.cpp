@@ -28,6 +28,7 @@ Calculation_Tree::~Calculation_Tree()
 void Calculation_Tree::run_All()
 {
 	create_Local_Item_Tree();
+	check_If_Graded();
     if(local_Item_Tree_Vec.size()>0)
 	{
 		int independent_Index = 0;																// all tree copies have equal depths
@@ -50,6 +51,35 @@ void Calculation_Tree::create_Local_Item_Tree()
 			local_Item_Tree->addTopLevelItem(independent_Widget_Vec[independent_Index]->struct_Tree_Copy->topLevelItem(i)->clone()); // this is local
 		}
 		local_Item_Tree_Vec.append(local_Item_Tree);		
+	}
+}
+
+void Calculation_Tree::check_If_Graded()
+{
+	int independent_Index=0;					// all tree copies are equal
+
+	QTreeWidgetItem* structure_Item;
+	QTreeWidgetItemIterator it(local_Item_Tree_Vec[independent_Index]);
+	while (*it)
+	{
+		structure_Item = *it;
+
+		QString whats_This = structure_Item->whatsThis(DEFAULT_COLUMN);
+		QStringList whats_This_List = whats_This.split(item_Type_Delimiter,QString::SkipEmptyParts);
+
+		if(whats_This_List[0] == whats_This_Layer)
+		{
+			Layer layer = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>();
+
+			if(layer.thickness_Drift.is_Drift_Line) depth_Grading = true;
+			if(layer.thickness_Drift.is_Drift_Sine) depth_Grading = true;
+			if(layer.thickness_Drift.is_Drift_Rand) depth_Grading = true;
+
+			if(layer.sigma_Drift.is_Drift_Line) sigma_Grading = true;
+			if(layer.sigma_Drift.is_Drift_Sine) sigma_Grading = true;
+			if(layer.sigma_Drift.is_Drift_Rand) sigma_Grading = true;
+		}
+		++it;
 	}
 }
 
@@ -297,7 +327,7 @@ void Calculation_Tree::calculate_Intermediate_Values_1_Tree(const tree<Node>::it
 
 		QString warning_Text;
 
-		int status = child.node->data.calculate_Intermediate_Points(active_Iter, above_Node, active_Whats_This, warning_Text);
+		int status = child.node->data.calculate_Intermediate_Points(active_Iter, above_Node, active_Whats_This, warning_Text, depth_Grading, sigma_Grading);
 		if(status!=0)
 		{
 			emit warning(warning_Text);

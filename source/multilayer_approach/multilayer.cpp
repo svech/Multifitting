@@ -32,7 +32,6 @@ void Multilayer::create_Structure_Frame()
 
 	structure_Tree = new Structure_Tree(this, this);
 	main_Layout->addWidget(struct_Frame);
-//	connect(structure_Tree, SIGNAL(refresh()), this, SLOT(emit_Refresh()));
 }
 
 void Multilayer::create_Variables_Frame()

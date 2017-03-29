@@ -17,7 +17,7 @@ Unwrapped_Structure::Unwrapped_Structure(tree<Node>* calc_Tree, const tree<Node>
 	num_Layers		(num_Media - 2),
 	max_Depth		(max_Depth)
 {	
-	if(max_Depth > 2)
+	if( max_Depth > 2 )
 	{
 		QStringList active_Whats_This_List = active_Whats_This.split(whats_This_Delimiter,QString::SkipEmptyParts);
 
@@ -38,7 +38,6 @@ Unwrapped_Structure::Unwrapped_Structure(tree<Node>* calc_Tree, const tree<Node>
 			epsilon_RE.resize(num_Media);
 			epsilon_IM.resize(num_Media);
 			epsilon_NORM.resize(num_Media);
-
 			fill_Epsilon(calc_Tree->begin());
 		}
 
@@ -192,6 +191,25 @@ int Unwrapped_Structure::fill_Thickness_Max_Depth_2(const tree<Node>::iterator& 
 }
 */
 
+void Unwrapped_Structure::fill_Rand_Values(double sig_Percent, vector<double>& values)
+{
+	const gsl_rng_type * T;
+	gsl_rng * r;
+
+	T = gsl_rng_default;
+	r = gsl_rng_alloc (T);
+
+	auto now = std::chrono::system_clock::now();
+	gsl_rng_set(r,std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch()).count());
+
+	for(int i=0; i<values.size(); ++i)
+	{
+		double sig = sig_Percent*values[i]/100.;
+		values[i] = abs(values[i] + gsl_ran_gaussian(r, sig));
+	}
+	gsl_rng_free (r);
+}
+
 int Unwrapped_Structure::fill_Epsilon(const tree<Node>::iterator& parent, int media_Index)
 {
 	for(unsigned child_Index=0; child_Index<parent.number_of_children(); ++child_Index)
@@ -224,6 +242,7 @@ int Unwrapped_Structure::fill_Epsilon(const tree<Node>::iterator& parent, int me
 
 int Unwrapped_Structure::fill_Epsilon_Dependent(const tree<Node>::iterator& parent, int num_Lambda_Points, int media_Index)
 {
+	// epsilon depends on variable
 	for(unsigned child_Index=0; child_Index<parent.number_of_children(); ++child_Index)
 	{
 		tree<Node>::post_order_iterator child = tree<Node>::child(parent,child_Index);
@@ -264,7 +283,7 @@ int Unwrapped_Structure::fill_Sigma(const tree<Node>::iterator& parent, int boun
 
 		if(whats_This_List[0] == whats_This_Layer)
 		{
-			// TODO extreme layers
+			// TODO extreme layers			
 			sigma[boundary_Index] = child.node->data.layer.sigma.value;
 
 			for(int func_Index=0; func_Index<transition_Layer_Functions_Size; ++func_Index)

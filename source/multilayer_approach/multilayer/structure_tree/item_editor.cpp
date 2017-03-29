@@ -24,7 +24,6 @@ void Item_Editor::emit_Item_Data_Edited()
 
 void Item_Editor::closeEvent(QCloseEvent* event)
 {
-	norm_Interlayer_Composition();
 	refresh_Data();
 	refresh_Material();
 	emit closed();
@@ -331,7 +330,7 @@ void Item_Editor::make_Sigma_Group_Box()
 		frame->setContentsMargins(-6,-7,-6,-7);
 		QHBoxLayout* layout = new QHBoxLayout(frame);
 		layout->setAlignment(Qt::AlignLeft);
-		roughness_Label = new QLabel(sigma_Label_1+ length_units + sigma_Label_2);
+		roughness_Label = new QLabel(sigma_Label_1 + length_units + sigma_Label_2);
 			layout->addWidget(roughness_Label,0,Qt::AlignLeft);
 
 		sigma_Line_Edit = new QLineEdit;
@@ -368,8 +367,18 @@ void Item_Editor::make_Sigma_Group_Box()
 //		TODO create here first and last sigmas
 		interlayer_Composition_Layout_With_Elements_Vector = new QHBoxLayout(interlayer_Composition_Group_Box);
 			sigma_PSD_Layout->addWidget(interlayer_Composition_Group_Box);
-		psd_Check_Box = new QCheckBox("Use PSD");
-			sigma_PSD_Layout->addWidget(psd_Check_Box);
+
+		QFrame* PSD_Frame = new QFrame;
+		PSD_Frame->setContentsMargins(-5,-5,-5,-9);
+		QVBoxLayout* PSD_Layout = new QVBoxLayout(PSD_Frame);
+		PSD_Check_Box				= new QCheckBox("Use PSD");
+		individual_Sigma_Check_Box	= new QCheckBox("Use many " + Sigma_Sym);
+			PSD_Layout->addWidget(PSD_Check_Box);
+			PSD_Layout->addWidget(individual_Sigma_Check_Box);
+		sigma_PSD_Layout->addWidget(PSD_Frame);
+
+		connect(individual_Sigma_Check_Box, SIGNAL(stateChanged(int)),	 this, SLOT(interlayer_Check(int)));
+
 		// TODO PSD
 		interlayer_Composition_Layout->addLayout(sigma_PSD_Layout);
 		sigma_Group_Box_Layout->addWidget(interlayer_Composition_Frame);
@@ -538,7 +547,7 @@ void Item_Editor::more_Elements_Clicked(bool)
 	}
 
 	// creating ui elements
-	line_Edit->setText(QString::number(stoich.composition.value,line_edit_double_format,line_edit_composition_precision));
+	line_Edit->setText(QString::number(stoich.composition.value,line_edit_short_double_format,line_edit_composition_precision));
 		resize_Line_Edit("",line_Edit);
 	elements->setCurrentIndex(elements->findText(stoich.type));
 	at_Weight->setText(AtWt + QString::number(sorted_Elements.value(elements->currentText()),thumbnail_double_format,at_weight_precision) + ")");
@@ -586,7 +595,7 @@ void Item_Editor::more_Elements_Clicked(bool)
 	if (element_Frame_Vec.size()==1)
 	{
 		composition_Line_Edit_Vec.first()->setDisabled(true);
-		composition_Line_Edit_Vec.first()->setText(QString::number(1,line_edit_double_format,line_edit_composition_precision));
+		composition_Line_Edit_Vec.first()->setText(QString::number(1,line_edit_short_double_format,line_edit_composition_precision));
 			resize_Line_Edit("",composition_Line_Edit_Vec.first());
 		fewer_Elements->hide();
 	}
@@ -625,7 +634,7 @@ void Item_Editor::read_Elements_From_Item(bool temp_bool)
 
 			connect(line_Edit, SIGNAL(textEdited(QString)),			this, SLOT(resize_Line_Edit(QString)));
 
-			line_Edit->setText(QString::number(ambient.composition[i].composition.value,line_edit_double_format,line_edit_composition_precision));
+			line_Edit->setText(QString::number(ambient.composition[i].composition.value,line_edit_short_double_format,line_edit_composition_precision));
 				resize_Line_Edit("",line_Edit);
 			elements->setCurrentIndex(elements->findText(ambient.composition[i].type));
 			at_Weight->setText(AtWt + QString::number(sorted_Elements.value(elements->currentText()),thumbnail_double_format,at_weight_precision) + ")");
@@ -677,7 +686,7 @@ void Item_Editor::read_Elements_From_Item(bool temp_bool)
 
 			connect(line_Edit, SIGNAL(textEdited(QString)),			this, SLOT(resize_Line_Edit(QString)));
 
-			line_Edit->setText(QString::number(layer.composition[i].composition.value,line_edit_double_format,line_edit_composition_precision));
+			line_Edit->setText(QString::number(layer.composition[i].composition.value,line_edit_short_double_format,line_edit_composition_precision));
 				resize_Line_Edit("",line_Edit);
 			elements->setCurrentIndex(elements->findText(layer.composition[i].type));
 			at_Weight->setText(AtWt + QString::number(sorted_Elements.value(elements->currentText()),thumbnail_double_format,at_weight_precision) + ")");
@@ -729,7 +738,7 @@ void Item_Editor::read_Elements_From_Item(bool temp_bool)
 
 			connect(line_Edit, SIGNAL(textEdited(QString)),			this, SLOT(resize_Line_Edit(QString)));
 
-			line_Edit->setText(QString::number(substrate.composition[i].composition.value,line_edit_double_format,line_edit_composition_precision));
+			line_Edit->setText(QString::number(substrate.composition[i].composition.value,line_edit_short_double_format,line_edit_composition_precision));
 				resize_Line_Edit("",line_Edit);
 			elements->setCurrentIndex(elements->findText(substrate.composition[i].type));
 			at_Weight->setText(AtWt + QString::number(sorted_Elements.value(elements->currentText()),thumbnail_double_format,at_weight_precision) + ")");
@@ -760,7 +769,7 @@ void Item_Editor::read_Elements_From_Item(bool temp_bool)
 	if (element_Frame_Vec.size()==1)
 	{
 		composition_Line_Edit_Vec.first()->setDisabled(true);
-		composition_Line_Edit_Vec.first()->setText(QString::number(1,line_edit_double_format,line_edit_composition_precision));
+		composition_Line_Edit_Vec.first()->setText(QString::number(1,line_edit_short_double_format,line_edit_composition_precision));
 			resize_Line_Edit("",composition_Line_Edit_Vec.first());
 		fewer_Elements->hide();
 	}
@@ -773,75 +782,133 @@ void Item_Editor::read_Interlayers_From_Item()
 	{
 		Layer layer = item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>();
 
-		interlayer_Composition_Check_Box_Vec.resize(layer.interlayer_Composition.size());
-		interlayer_Composition_Line_Edit_Vec.resize(layer.interlayer_Composition.size());
+		interlayer_Composition_Check_Box_Vec.		  resize(layer.interlayer_Composition.size());
+		interlayer_Composition_Comp_Line_Edit_Vec.	  resize(layer.interlayer_Composition.size());
+		interlayer_Composition_My_Sigma_Line_Edit_Vec.resize(layer.interlayer_Composition.size());
+
+		// add labels
+		{
+			QVBoxLayout* vert_Layout = new QVBoxLayout;
+				vert_Layout->setSpacing(0);
+			QLabel* empty_Label    = new QLabel;
+			QLabel* weight_Label   = new QLabel(sigma_Weight);
+			QLabel* my_Sigma_Label = new QLabel(sigma_Label_3 + length_units + sigma_Label_2);
+			vert_Layout->addWidget(empty_Label);
+			vert_Layout->addWidget(weight_Label);
+			vert_Layout->addWidget(my_Sigma_Label);
+
+			interlayer_Composition_Layout_With_Elements_Vector->addLayout(vert_Layout);
+		}
 
 		// renew ui
 		for(int i=0; i<layer.interlayer_Composition.size(); ++i)
 		{
 			// creating ui elements
 			QCheckBox* check_Box = new QCheckBox(transition_Layer_Functions[i]);
-			QLineEdit* line_Edit = new QLineEdit;
-				line_Edit->setFixedWidth(40);
-//				line_Edit->setProperty(min_Size_Property, line_Edit->width());
-				line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION));
+			QLineEdit* comp_Line_Edit = new QLineEdit;
+				comp_Line_Edit->setFixedWidth(41);
+//				comp_Line_Edit->setProperty(min_Size_Property, line_Edit->width());
+				comp_Line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION));
+			QLineEdit* my_Sigma_Line_Edit = new QLineEdit;
+				my_Sigma_Line_Edit->setFixedWidth(41);
+//				my_Sigma_Line_Edit->setProperty(min_Size_Property, line_Edit->width());
+				my_Sigma_Line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION));
 
-//			connect(line_Edit, SIGNAL(textEdited(QString)),	this, SLOT(resize_Line_Edit(QString)));
+//			connect(comp_Line_Edit,		SIGNAL(textEdited(QString)),	this, SLOT(resize_Line_Edit(QString)));
+//			connect(my_Sigma_Line_Edit, SIGNAL(textEdited(QString)),	this, SLOT(resize_Line_Edit(QString)));
 
 			check_Box->setChecked(layer.interlayer_Composition[i].enabled);
-			line_Edit->setText(QString::number(layer.interlayer_Composition[i].interlayer.value,line_edit_double_format,line_edit_interlayer_precision));
-//				resize_Line_Edit(line_Edit);
-			interlayer_Composition_Check_Box_Vec[i]=check_Box;
-			interlayer_Composition_Line_Edit_Vec[i]=line_Edit;
+			comp_Line_Edit->setText(QString::number(layer.interlayer_Composition[i].interlayer.value,line_edit_short_double_format,line_edit_interlayer_precision));
+			my_Sigma_Line_Edit->setText(QString::number(layer.interlayer_Composition[i].my_Sigma.value,line_edit_short_double_format,line_edit_interlayer_precision));
+//				resize_Line_Edit(comp_Line_Edit);
+//				resize_Line_Edit(my_Sigma_Line_Edit);
 
-			connect(check_Box, SIGNAL(stateChanged(int)),	this, SLOT(interlayer_Check(int)));
-			connect(line_Edit, SIGNAL(textEdited(QString)), this, SLOT(refresh_Data(QString)));
+			interlayer_Composition_Check_Box_Vec		 [i]=check_Box;
+			interlayer_Composition_Comp_Line_Edit_Vec	 [i]=comp_Line_Edit;
+			interlayer_Composition_My_Sigma_Line_Edit_Vec[i]=my_Sigma_Line_Edit;
+
+			connect(check_Box,			SIGNAL(stateChanged(int)),	 this, SLOT(interlayer_Check(int)));
+			connect(comp_Line_Edit,		SIGNAL(textEdited(QString)), this, SLOT(refresh_Data(QString)));
+			connect(my_Sigma_Line_Edit, SIGNAL(textEdited(QString)), this, SLOT(refresh_Data(QString)));
 
 			// placing ui elements
 			QVBoxLayout* vert_Layout = new QVBoxLayout;
 				vert_Layout->setSpacing(3);
 				vert_Layout->setAlignment(Qt::AlignCenter);
 				vert_Layout->addWidget(check_Box);
-				vert_Layout->addWidget(line_Edit);
+				vert_Layout->addWidget(comp_Line_Edit);
+				vert_Layout->addWidget(my_Sigma_Line_Edit);
 			interlayer_Composition_Layout_With_Elements_Vector->addLayout(vert_Layout);
 		}
+
+		individual_Sigma_Check_Box->setChecked(!layer.common_Sigma);
+		connect(individual_Sigma_Check_Box, SIGNAL(stateChanged(int)),	 this, SLOT(interlayer_Check(int)));
 	}
 	if(item_Type==Item_Type::Substrate)
 	{
 		Substrate substrate = item->data(DEFAULT_COLUMN, Qt::UserRole).value<Substrate>();
 
-		interlayer_Composition_Check_Box_Vec.resize(substrate.interlayer_Composition.size());
-		interlayer_Composition_Line_Edit_Vec.resize(substrate.interlayer_Composition.size());
+		interlayer_Composition_Check_Box_Vec.		  resize(substrate.interlayer_Composition.size());
+		interlayer_Composition_Comp_Line_Edit_Vec.	  resize(substrate.interlayer_Composition.size());
+		interlayer_Composition_My_Sigma_Line_Edit_Vec.resize(substrate.interlayer_Composition.size());
+
+		// add labels
+		{
+			QVBoxLayout* vert_Layout = new QVBoxLayout;
+				vert_Layout->setSpacing(0);
+			QLabel* empty_Label    = new QLabel;
+			QLabel* weight_Label   = new QLabel(sigma_Weight);
+			QLabel* my_Sigma_Label = new QLabel(sigma_Label_3 + length_units + sigma_Label_2);
+			vert_Layout->addWidget(empty_Label);
+			vert_Layout->addWidget(weight_Label);
+			vert_Layout->addWidget(my_Sigma_Label);
+
+			interlayer_Composition_Layout_With_Elements_Vector->addLayout(vert_Layout);
+		}
 
 		// renew ui
 		for(int i=0; i<substrate.interlayer_Composition.size(); ++i)
 		{
 			// creating ui elements
 			QCheckBox* check_Box = new QCheckBox(transition_Layer_Functions[i]);
-			QLineEdit* line_Edit = new QLineEdit;
-				line_Edit->setFixedWidth(40);
-				line_Edit->setProperty(min_Size_Property, line_Edit->width());
-				line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION));
+			QLineEdit* comp_Line_Edit = new QLineEdit;
+				comp_Line_Edit->setFixedWidth(41);
+//				comp_Line_Edit->setProperty(min_Size_Property, line_Edit->width());
+				comp_Line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION));
+			QLineEdit* my_Sigma_Line_Edit = new QLineEdit;
+				my_Sigma_Line_Edit->setFixedWidth(41);
+//				my_Sigma_Line_Edit->setProperty(min_Size_Property, line_Edit->width());
+				my_Sigma_Line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION));
 
-			connect(line_Edit, SIGNAL(textEdited(QString)),	this, SLOT(resize_Line_Edit(QString)));
+//			connect(comp_Line_Edit,		SIGNAL(textEdited(QString)),	this, SLOT(resize_Line_Edit(QString)));
+//			connect(my_Sigma_Line_Edit, SIGNAL(textEdited(QString)),	this, SLOT(resize_Line_Edit(QString)));
 
 			check_Box->setChecked(substrate.interlayer_Composition[i].enabled);
-			line_Edit->setText(QString::number(substrate.interlayer_Composition[i].interlayer.value,line_edit_double_format,line_edit_interlayer_precision));
-				resize_Line_Edit("",line_Edit);
-			interlayer_Composition_Check_Box_Vec[i]=check_Box;
-			interlayer_Composition_Line_Edit_Vec[i]=line_Edit;
+			comp_Line_Edit->setText(QString::number(substrate.interlayer_Composition[i].interlayer.value,line_edit_short_double_format,line_edit_interlayer_precision));
+			my_Sigma_Line_Edit->setText(QString::number(substrate.interlayer_Composition[i].my_Sigma.value,line_edit_short_double_format,line_edit_interlayer_precision));
+//				resize_Line_Edit(comp_Line_Edit);
+//				resize_Line_Edit(my_Sigma_Line_Edit);
 
-			connect(check_Box, SIGNAL(stateChanged(int)),	this, SLOT(interlayer_Check(int)));
-			connect(line_Edit, SIGNAL(textEdited(QString)), this, SLOT(refresh_Data(QString)));
+			interlayer_Composition_Check_Box_Vec		 [i]=check_Box;
+			interlayer_Composition_Comp_Line_Edit_Vec	 [i]=comp_Line_Edit;
+			interlayer_Composition_My_Sigma_Line_Edit_Vec[i]=my_Sigma_Line_Edit;
+
+			connect(check_Box,			SIGNAL(stateChanged(int)),	 this, SLOT(interlayer_Check(int)));
+			connect(comp_Line_Edit,		SIGNAL(textEdited(QString)), this, SLOT(refresh_Data(QString)));
+			connect(my_Sigma_Line_Edit, SIGNAL(textEdited(QString)), this, SLOT(refresh_Data(QString)));
 
 			// placing ui elements
 			QVBoxLayout* vert_Layout = new QVBoxLayout;
-			vert_Layout->setSpacing(3);
-			vert_Layout->setAlignment(Qt::AlignCenter);
+				vert_Layout->setSpacing(3);
+				vert_Layout->setAlignment(Qt::AlignCenter);
 				vert_Layout->addWidget(check_Box);
-				vert_Layout->addWidget(line_Edit);
+				vert_Layout->addWidget(comp_Line_Edit);
+				vert_Layout->addWidget(my_Sigma_Line_Edit);
 			interlayer_Composition_Layout_With_Elements_Vector->addLayout(vert_Layout);
 		}
+
+		individual_Sigma_Check_Box->setChecked(!substrate.common_Sigma);
+		connect(individual_Sigma_Check_Box, SIGNAL(stateChanged(int)),	 this, SLOT(interlayer_Check(int)));
 	}
 
 	interlayer_Composition_Layout_With_Elements_Vector->setSpacing(10);
@@ -889,7 +956,7 @@ void Item_Editor::fewer_Elements_Clicked(bool)
 	if (element_Frame_Vec.size()==1)
 	{
 		composition_Line_Edit_Vec.first()->setDisabled(true);
-		composition_Line_Edit_Vec.first()->setText(QString::number(1,line_edit_double_format,line_edit_composition_precision));
+		composition_Line_Edit_Vec.first()->setText(QString::number(1,line_edit_short_double_format,line_edit_composition_precision));
 			resize_Line_Edit("",composition_Line_Edit_Vec.first());
 		fewer_Elements->hide();
 	}
@@ -941,7 +1008,7 @@ void Item_Editor::show_Material()
 				{
 					material_Line_Edit->setText(material_Line_Edit->text() + composition_Combo_Box_Vec[i]->currentText());
 					if( abs(composition_Line_Edit_Vec[i]->text().toDouble() - 1.) > DBL_EPSILON )
-						material_Line_Edit->setText(material_Line_Edit->text() + QString::number(composition_Line_Edit_Vec[i]->text().toDouble(),line_edit_double_format,line_edit_composition_precision));
+						material_Line_Edit->setText(material_Line_Edit->text() + QString::number(composition_Line_Edit_Vec[i]->text().toDouble(),line_edit_short_double_format,line_edit_composition_precision));
 				}
 			}
 			else
@@ -960,7 +1027,7 @@ void Item_Editor::show_Material()
 				{
 					material_Line_Edit->setText(material_Line_Edit->text() + composition_Combo_Box_Vec[i]->currentText());
 					if( abs(composition_Line_Edit_Vec[i]->text().toDouble() - 1 ) > DBL_EPSILON )
-						material_Line_Edit->setText(material_Line_Edit->text() + QString::number(composition_Line_Edit_Vec[i]->text().toDouble(),line_edit_double_format,line_edit_composition_precision));
+						material_Line_Edit->setText(material_Line_Edit->text() + QString::number(composition_Line_Edit_Vec[i]->text().toDouble(),line_edit_short_double_format,line_edit_composition_precision));
 				}
 			}
 			else
@@ -979,7 +1046,7 @@ void Item_Editor::show_Material()
 				{
 					material_Line_Edit->setText(material_Line_Edit->text() + composition_Combo_Box_Vec[i]->currentText());
 					if( abs(composition_Line_Edit_Vec[i]->text().toDouble() - 1 ) > DBL_EPSILON )
-						material_Line_Edit->setText(material_Line_Edit->text() + QString::number(composition_Line_Edit_Vec[i]->text().toDouble(),line_edit_double_format,line_edit_composition_precision));
+						material_Line_Edit->setText(material_Line_Edit->text() + QString::number(composition_Line_Edit_Vec[i]->text().toDouble(),line_edit_short_double_format,line_edit_composition_precision));
 				}
 			}
 			else
@@ -1107,20 +1174,25 @@ void Item_Editor::show_Interlayers()
 	{
 		Layer layer = item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>();
 
-		if(layer.interlayer_Composition.size() == interlayer_Composition_Line_Edit_Vec.size())
-		for(int i=0; i<layer.interlayer_Composition.size(); ++i)
+		if(layer.interlayer_Composition.size() == interlayer_Composition_Comp_Line_Edit_Vec.size())
 		{
-			interlayer_Composition_Line_Edit_Vec[i]->setText(QString::number(layer.interlayer_Composition[i].interlayer.value,line_edit_double_format,line_edit_interlayer_precision));
+			for(int i=0; i<layer.interlayer_Composition.size(); ++i)
+			{
+				interlayer_Composition_Comp_Line_Edit_Vec	 [i]->setText(QString::number(layer.interlayer_Composition[i].interlayer.value,line_edit_short_double_format,line_edit_interlayer_precision));
+				interlayer_Composition_My_Sigma_Line_Edit_Vec[i]->setText(QString::number(layer.interlayer_Composition[i].my_Sigma.value,line_edit_short_double_format,line_edit_sigma_precision));
+			}
 		}
-
 	}
 	if(item_Type==Item_Type::Substrate)
 	{
 		Substrate substrate = item->data(DEFAULT_COLUMN, Qt::UserRole).value<Substrate>();
-		if(substrate.interlayer_Composition.size() == interlayer_Composition_Line_Edit_Vec.size())
-		for(int i=0; i<substrate.interlayer_Composition.size(); ++i)
+		if(substrate.interlayer_Composition.size() == interlayer_Composition_Comp_Line_Edit_Vec.size())
 		{
-			interlayer_Composition_Line_Edit_Vec[i]->setText(QString::number(substrate.interlayer_Composition[i].interlayer.value,line_edit_double_format,line_edit_interlayer_precision));
+			for(int i=0; i<substrate.interlayer_Composition.size(); ++i)
+			{
+				interlayer_Composition_Comp_Line_Edit_Vec	 [i]->setText(QString::number(substrate.interlayer_Composition[i].interlayer.value,line_edit_short_double_format,line_edit_interlayer_precision));
+				interlayer_Composition_My_Sigma_Line_Edit_Vec[i]->setText(QString::number(substrate.interlayer_Composition[i].my_Sigma.value,line_edit_short_double_format,line_edit_sigma_precision));
+			}
 		}
 	}
 }
@@ -1231,25 +1303,6 @@ void Item_Editor::sigma_Grading(bool)
 	connect(sigma_Grading, SIGNAL(grading_Edited()), this, SLOT(emit_Item_Data_Edited()));
 }
 
-void Item_Editor::norm_Interlayer_Composition()
-{
-	if(sigma_Done)
-	{
-		double sum=0;
-		for(int i=0; i<interlayer_Composition_Line_Edit_Vec.size(); ++i)
-		{
-			if(interlayer_Composition_Check_Box_Vec[i]->isChecked() == true)
-				sum+=interlayer_Composition_Line_Edit_Vec[i]->text().toDouble();
-		}
-		for(int i=0; i<interlayer_Composition_Line_Edit_Vec.size(); ++i)
-		{
-			if(interlayer_Composition_Check_Box_Vec[i]->isChecked() == true)
-				interlayer_Composition_Line_Edit_Vec[i]->setText(QString::number(interlayer_Composition_Line_Edit_Vec[i]->text().toDouble()/sum,line_edit_double_format,line_edit_interlayer_precision));
-			resize_Line_Edit("",interlayer_Composition_Line_Edit_Vec[i]);
-		}
-	}
-}
-
 void Item_Editor::interlayer_Check(int)
 {
 	int counter=0;
@@ -1260,13 +1313,21 @@ void Item_Editor::interlayer_Check(int)
 			if(interlayer_Composition_Check_Box_Vec[i]->isChecked() == true)
 			{
 				counter++;
-				interlayer_Composition_Line_Edit_Vec[i]->setDisabled(false);
+				interlayer_Composition_Comp_Line_Edit_Vec[i]->setDisabled(false);
+				if(individual_Sigma_Check_Box->isChecked())
+				{
+					interlayer_Composition_My_Sigma_Line_Edit_Vec[i]->setDisabled(false);
+				} else
+				{
+					interlayer_Composition_My_Sigma_Line_Edit_Vec[i]->setDisabled(true);
+				}
 			} else
 			{
-				interlayer_Composition_Line_Edit_Vec[i]->setDisabled(true);
+				interlayer_Composition_Comp_Line_Edit_Vec[i]->setDisabled(true);
+				interlayer_Composition_My_Sigma_Line_Edit_Vec[i]->setDisabled(true);
 			}
 		}
-		if(counter==0)
+		if(counter==0 || individual_Sigma_Check_Box->isChecked())
 		{
 			sigma_Line_Edit->setDisabled(true);
 		} else
@@ -1329,12 +1390,45 @@ void Item_Editor::refresh_Data(QString str)
 		}
 		if(sigma_Done)
 		{
-			layer.sigma.value = sigma_Line_Edit->text().toDouble()*coeff;
+			layer.common_Sigma = !individual_Sigma_Check_Box->isChecked();
+
+			// sum for normalizing
+			double sum=0;
+			for(int i=0; i<layer.interlayer_Composition.size(); ++i)
+			{
+				if(interlayer_Composition_Check_Box_Vec[i]->isChecked())
+				{
+					sum+=interlayer_Composition_Comp_Line_Edit_Vec[i]->text().toDouble();
+				}
+			}
+
+			// normalizing and saving
+			double temp_Sigma=0;
 			for(int i=0; i<layer.interlayer_Composition.size(); ++i)
 			{
 				layer.interlayer_Composition[i].enabled = interlayer_Composition_Check_Box_Vec[i]->isChecked();
-				layer.interlayer_Composition[i].interlayer.value = interlayer_Composition_Line_Edit_Vec[i]->text().toDouble();
+				layer.interlayer_Composition[i].my_Sigma.value = interlayer_Composition_My_Sigma_Line_Edit_Vec[i]->text().toDouble();
+				if(interlayer_Composition_Check_Box_Vec[i]->isChecked())
+				{
+					layer.interlayer_Composition[i].interlayer.value = interlayer_Composition_Comp_Line_Edit_Vec[i]->text().toDouble()/sum;
+				}
+				temp_Sigma += layer.interlayer_Composition[i].my_Sigma.value * layer.interlayer_Composition[i].interlayer.value;
 			}
+
+			if(layer.common_Sigma)
+			{
+				layer.sigma.value = sigma_Line_Edit->text().toDouble()*coeff;
+				for(int i=0; i<layer.interlayer_Composition.size(); ++i)
+				{
+					layer.interlayer_Composition[i].my_Sigma.value = layer.sigma.value;
+					interlayer_Composition_My_Sigma_Line_Edit_Vec[i]->setText(QString::number(layer.sigma.value/coeff,line_edit_short_double_format,line_edit_sigma_precision));
+				}
+			} else
+			{
+				layer.sigma.value = temp_Sigma*coeff;
+				sigma_Line_Edit->setText(QString::number(layer.sigma.value/coeff,line_edit_double_format,line_edit_sigma_precision));
+			}
+
 		}
 		//TODO other fields
 		var.setValue( layer );
@@ -1361,11 +1455,43 @@ void Item_Editor::refresh_Data(QString str)
 		}
 		if(sigma_Done)
 		{
-			substrate.sigma.value = sigma_Line_Edit->text().toDouble()*coeff;
+			substrate.common_Sigma = !individual_Sigma_Check_Box->isChecked();
+
+			// sum for normalizing
+			double sum=0;
+			for(int i=0; i<substrate.interlayer_Composition.size(); ++i)
+			{
+				if(interlayer_Composition_Check_Box_Vec[i]->isChecked())
+				{
+					sum+=interlayer_Composition_Comp_Line_Edit_Vec[i]->text().toDouble();
+				}
+			}
+
+			// normalizing and saving
+			double temp_Sigma=0;
 			for(int i=0; i<substrate.interlayer_Composition.size(); ++i)
 			{
 				substrate.interlayer_Composition[i].enabled = interlayer_Composition_Check_Box_Vec[i]->isChecked();
-				substrate.interlayer_Composition[i].interlayer.value = interlayer_Composition_Line_Edit_Vec[i]->text().toDouble();
+				substrate.interlayer_Composition[i].my_Sigma.value = interlayer_Composition_My_Sigma_Line_Edit_Vec[i]->text().toDouble();
+				if(interlayer_Composition_Check_Box_Vec[i]->isChecked())
+				{
+					substrate.interlayer_Composition[i].interlayer.value = interlayer_Composition_Comp_Line_Edit_Vec[i]->text().toDouble()/sum;
+				}
+				temp_Sigma += substrate.interlayer_Composition[i].my_Sigma.value * substrate.interlayer_Composition[i].interlayer.value;
+			}
+
+			if(substrate.common_Sigma)
+			{
+				substrate.sigma.value = sigma_Line_Edit->text().toDouble()*coeff;
+				for(int i=0; i<substrate.interlayer_Composition.size(); ++i)
+				{
+					substrate.interlayer_Composition[i].my_Sigma.value = substrate.sigma.value;
+					interlayer_Composition_My_Sigma_Line_Edit_Vec[i]->setText(QString::number(substrate.sigma.value/coeff,line_edit_short_double_format,line_edit_sigma_precision));
+				}
+			} else
+			{
+				substrate.sigma.value = temp_Sigma*coeff;
+				sigma_Line_Edit->setText(QString::number(substrate.sigma.value/coeff,line_edit_double_format,line_edit_sigma_precision));
 			}
 		}
 		var.setValue( substrate );
@@ -1382,7 +1508,7 @@ void Item_Editor::refresh_Data(QString str)
 			{
 				material_Line_Edit->setText(material_Line_Edit->text() + composition_Combo_Box_Vec[i]->currentText());
 				if( abs(composition_Line_Edit_Vec[i]->text().toDouble() - 1 ) > DBL_EPSILON )
-					material_Line_Edit->setText(material_Line_Edit->text() + QString::number(composition_Line_Edit_Vec[i]->text().toDouble(),line_edit_double_format,line_edit_composition_precision));
+					material_Line_Edit->setText(material_Line_Edit->text() + QString::number(composition_Line_Edit_Vec[i]->text().toDouble(),line_edit_short_double_format,line_edit_composition_precision));
 				resize_Line_Edit("",material_Line_Edit);
 			}
 		}
@@ -1397,7 +1523,7 @@ void Item_Editor::refresh_Data(QString str)
 			{
 				material_Line_Edit->setText(material_Line_Edit->text() + composition_Combo_Box_Vec[i]->currentText());
 				if( abs(composition_Line_Edit_Vec[i]->text().toDouble() - 1.) > DBL_EPSILON)
-					material_Line_Edit->setText(material_Line_Edit->text() + QString::number(composition_Line_Edit_Vec[i]->text().toDouble(),line_edit_double_format,line_edit_composition_precision));
+					material_Line_Edit->setText(material_Line_Edit->text() + QString::number(composition_Line_Edit_Vec[i]->text().toDouble(),line_edit_short_double_format,line_edit_composition_precision));
 				resize_Line_Edit("",material_Line_Edit);
 			}
 		}
@@ -1412,7 +1538,7 @@ void Item_Editor::refresh_Data(QString str)
 			{
 				material_Line_Edit->setText(material_Line_Edit->text() + composition_Combo_Box_Vec[i]->currentText());
 				if( abs(composition_Line_Edit_Vec[i]->text().toDouble() - 1) > DBL_EPSILON )
-					material_Line_Edit->setText(material_Line_Edit->text() + QString::number(composition_Line_Edit_Vec[i]->text().toDouble(),line_edit_double_format,line_edit_composition_precision));
+					material_Line_Edit->setText(material_Line_Edit->text() + QString::number(composition_Line_Edit_Vec[i]->text().toDouble(),line_edit_short_double_format,line_edit_composition_precision));
 				resize_Line_Edit("",material_Line_Edit);
 			}
 		}

@@ -174,9 +174,9 @@ struct Independent				{bool is_Independent = false;	double min; double max; int 
 struct Coupled					{bool is_Coupled	 = false;};
 struct Fit						{bool is_Fitable	 = false;	bool min_Bounded; double min; bool max_Bounded; double max;};
 struct Optimize					{bool is_Optimizable = false;	bool min_Bounded; double min; bool max_Bounded; double max;};
-struct Parameter				{double value; Independent independent; Coupled coupled; Fit fit; Optimize optimize;};
+struct Parameter				{double value; Independent independent; Coupled coupled; Fit fit; Optimize optimize;                     };
 struct Stoichiometry			{Parameter composition; QString type;};
-struct Interlayer				{Parameter interlayer; bool enabled;};
+struct Interlayer				{Parameter interlayer; Parameter my_Sigma; bool enabled;};
 struct Drift					{bool is_Drift_Line;  Parameter drift_Line_Value;
 								 bool is_Drift_Sine;  Parameter drift_Sine_Amplitude; Parameter drift_Sine_Frequency; Parameter drift_Sine_Phase;
 								 bool is_Drift_Rand;  Parameter drift_Rand_Rms;};

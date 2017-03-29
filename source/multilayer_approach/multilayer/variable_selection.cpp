@@ -34,8 +34,7 @@ Variable_Selection::Variable_Selection(QTreeWidget* struct_Tree_Copy, QMap<QStri
 	}
 
 	adjustSize();
-	setFixedSize(size());
-
+//	setFixedSize(size());
 	setAttribute(Qt::WA_DeleteOnClose);
 }
 

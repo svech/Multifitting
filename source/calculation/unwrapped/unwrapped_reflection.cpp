@@ -221,7 +221,7 @@ void Unwrapped_Reflection::calc_Hi(double k, double cos2, const vector<double>& 
 		re = eps_RE[i] - cos2;
 		im = eps_IM[i];
 
-		phase = atan2(im, re)/2;
+		phase = atan2(im, re)/2.;
 		mod = k*sqrt(sqrt(re*re + im*im));
 
 		hi_RE[thread_Index][i] = mod*cos(phase);

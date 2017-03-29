@@ -46,10 +46,6 @@ public slots:
 public slots:
 	void refresh_Structure_And_Independent(QObject* my_Sender = NULL);
 
-public slots:
-//	void refresh_Text();
-//	void refresh_State();
-
 private slots:
 	void add_Measured_Data();
 	void remove_Measured_Data();

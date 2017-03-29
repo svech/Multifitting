@@ -57,6 +57,7 @@ public:
 	Substrate();
 
 	bool use_PSD = false;
+	bool common_Sigma = true;
 	Parameter sigma;
 	QVector<Interlayer> interlayer_Composition;
 };

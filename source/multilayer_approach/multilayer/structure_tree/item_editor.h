@@ -69,7 +69,6 @@ private slots:
 	void read_Elements_From_Item(bool temp_bool);
 	void read_Interlayers_From_Item();
 	void fewer_Elements_Clicked(bool);
-	void norm_Interlayer_Composition();
 	void interlayer_Check(int);
 	void refresh_Material(QString str="");
 	void refresh_Data(QString str="");
@@ -81,7 +80,6 @@ private slots:
 		void reset_Layer_Thickness(QTreeWidgetItem* layer_Item, double new_Thickness);
 		void reset_Multilayer_Thickness(QTreeWidgetItem* multilayer_Item, double new_Thickness);
 
-// ui objects to be placed in launcher window
 private:
 	QString absolute_Density_Label = "Density [g/cm" + Cube_Sym + "]:";
 	QString relative_Density_Label = "Relative Density:";
@@ -93,6 +91,8 @@ private:
 	QString period_Label_2 = "]:";
 	QString sigma_Label_1 = "Roughness/Diffuseness, " + Sigma_Sym + "[";
 	QString sigma_Label_2 = "]:";
+	QString sigma_Label_3 = Sigma_Sym + "[";
+	QString sigma_Weight = "weight:";
 
 private:
 	QVBoxLayout* main_Layout;
@@ -126,8 +126,10 @@ private:
 				QGroupBox* interlayer_Composition_Group_Box;
 					QHBoxLayout* interlayer_Composition_Layout_With_Elements_Vector;
 						QVector<QCheckBox*> interlayer_Composition_Check_Box_Vec;
-						QVector<QLineEdit*> interlayer_Composition_Line_Edit_Vec;
-				QCheckBox* psd_Check_Box;
+						QVector<QLineEdit*> interlayer_Composition_Comp_Line_Edit_Vec;
+						QVector<QLineEdit*> interlayer_Composition_My_Sigma_Line_Edit_Vec;
+				QCheckBox* PSD_Check_Box;
+				QCheckBox* individual_Sigma_Check_Box;
 			QPushButton* sigma_Grading_Button;
 
 		QGroupBox* multilayer_Group_Box;

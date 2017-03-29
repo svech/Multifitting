@@ -81,6 +81,7 @@ extern double	stack_default_gamma;
 
 // lineedit
 extern char line_edit_double_format			;
+extern char line_edit_short_double_format	;
 extern int line_edit_angle_precision		;
 extern int line_edit_wavelength_precision	;
 extern int line_edit_density_precision		;

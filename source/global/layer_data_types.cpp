@@ -117,11 +117,13 @@ Substrate::Substrate()
 	// erf interlayer
 	interlayer_Composition[0].enabled=true;
 	interlayer_Composition[0].interlayer.value=1;
+	interlayer_Composition[0].my_Sigma.value=0;
 	// other interlayers
 	for(int i=1; i<interlayer_Composition.size(); ++i)
 	{
 		interlayer_Composition[i].enabled=false;
 		interlayer_Composition[i].interlayer.value=1;
+		interlayer_Composition[i].my_Sigma.value=0;
 	}
 }
 
@@ -143,11 +145,13 @@ Extreme_Layer::Extreme_Layer() //-V730
 	// erf interlayer
 	interlayer_Composition[0].enabled=true;
 	interlayer_Composition[0].interlayer.value=1;
+	interlayer_Composition[0].my_Sigma.value=0;
 	// other interlayers
 	for(int i=1; i<interlayer_Composition.size(); ++i)
 	{
 		interlayer_Composition[i].enabled=false;
 		interlayer_Composition[i].interlayer.value=1;
+		interlayer_Composition[i].my_Sigma.value=0;
 	}
 }
 
@@ -169,11 +173,13 @@ Layer::Layer()
 	// erf interlayer
 	interlayer_Composition[0].enabled=true;
 	interlayer_Composition[0].interlayer.value=1;
+	interlayer_Composition[0].my_Sigma.value=0;
 	// other interlayers
 	for(int i=1; i<interlayer_Composition.size(); ++i)
 	{
 		interlayer_Composition[i].enabled=false;
 		interlayer_Composition[i].interlayer.value=1;
+		interlayer_Composition[i].my_Sigma.value=0;
 	}
 
 	// drift
