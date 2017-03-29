@@ -1411,10 +1411,11 @@ void Item_Editor::refresh_Data(QString str)
 				if(interlayer_Composition_Check_Box_Vec[i]->isChecked())
 				{
 					layer.interlayer_Composition[i].interlayer.value = interlayer_Composition_Comp_Line_Edit_Vec[i]->text().toDouble()/sum;
+					temp_Sigma += layer.interlayer_Composition[i].my_Sigma.value * layer.interlayer_Composition[i].interlayer.value;
 				}
-				temp_Sigma += layer.interlayer_Composition[i].my_Sigma.value * layer.interlayer_Composition[i].interlayer.value;
 			}
 
+			// refresh
 			if(layer.common_Sigma)
 			{
 				layer.sigma.value = sigma_Line_Edit->text().toDouble()*coeff;
@@ -1476,10 +1477,11 @@ void Item_Editor::refresh_Data(QString str)
 				if(interlayer_Composition_Check_Box_Vec[i]->isChecked())
 				{
 					substrate.interlayer_Composition[i].interlayer.value = interlayer_Composition_Comp_Line_Edit_Vec[i]->text().toDouble()/sum;
+					temp_Sigma += substrate.interlayer_Composition[i].my_Sigma.value * substrate.interlayer_Composition[i].interlayer.value;
 				}
-				temp_Sigma += substrate.interlayer_Composition[i].my_Sigma.value * substrate.interlayer_Composition[i].interlayer.value;
 			}
 
+			// refresh
 			if(substrate.common_Sigma)
 			{
 				substrate.sigma.value = sigma_Line_Edit->text().toDouble()*coeff;

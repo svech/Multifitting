@@ -57,7 +57,8 @@ int Node::calculate_Intermediate_Points(const tree<Node>::iterator& active_Iter,
 				common_Data.absorption					= layer.absorption;
 				common_Data.composition					= layer.composition;
 
-				sigma = layer.sigma.value;
+				common_Sigma					= layer.common_Sigma;
+				sigma							= layer.sigma.value;
 				boundary_Interlayer_Composition = layer.interlayer_Composition.toStdVector();
 
 				thickness = layer.thickness.value;
@@ -77,7 +78,8 @@ int Node::calculate_Intermediate_Points(const tree<Node>::iterator& active_Iter,
 				common_Data.absorption					= substrate.absorption;
 				common_Data.composition					= substrate.composition;
 
-				sigma = substrate.sigma.value;
+				common_Sigma					= substrate.common_Sigma;
+				sigma							= substrate.sigma.value;
 				boundary_Interlayer_Composition = substrate.interlayer_Composition.toStdVector();;
 			}
 
@@ -346,13 +348,14 @@ int Node::calculate_Intermediate_Points(const tree<Node>::iterator& active_Iter,
 					is_Norm = is_Norm || boundary_Interlayer_Composition[func_Index].enabled;
 				}
 
-				if(is_Norm && abs(sigma) > DBL_EPSILON)
+				if(is_Norm && (abs(sigma) > DBL_EPSILON) )
 				{
 					// temp variables
 					double a = M_PI/sqrt(M_PI*M_PI - 8.);
 					double factor, x, y;
 
 					double norm = 0;
+					double my_Sigma = 0;
 					vector<double> s (num_Points);
 
 					for(int i=0; i<num_Points; ++i)
@@ -365,9 +368,10 @@ int Node::calculate_Intermediate_Points(const tree<Node>::iterator& active_Iter,
 					if(boundary_Interlayer_Composition[Erf].enabled)
 					{
 						norm += boundary_Interlayer_Composition[Erf].interlayer.value;
+						my_Sigma = boundary_Interlayer_Composition[Erf].my_Sigma.value;
 						for(int i=0; i<num_Points; ++i)
 						{
-							factor = exp( - 2 * s[i] * s[i] * sigma * sigma );
+							factor = exp( - 2 * s[i] * s[i] * my_Sigma * my_Sigma );
 							weak_Factor[i] += boundary_Interlayer_Composition[Erf].interlayer.value * factor;
 						}
 					}
@@ -376,9 +380,10 @@ int Node::calculate_Intermediate_Points(const tree<Node>::iterator& active_Iter,
 					if(boundary_Interlayer_Composition[Lin].enabled)
 					{
 						norm += boundary_Interlayer_Composition[Lin].interlayer.value;
+						my_Sigma = boundary_Interlayer_Composition[Lin].my_Sigma.value;
 						for(int i=0; i<num_Points; ++i)
 						{
-							x = sqrt(3.) * 2 * s[i] * sigma;
+							x = sqrt(3.) * 2 * s[i] * my_Sigma;
 							factor = sin(x) / (x);
 							weak_Factor[i] += boundary_Interlayer_Composition[Lin].interlayer.value * factor;
 						}
@@ -388,9 +393,10 @@ int Node::calculate_Intermediate_Points(const tree<Node>::iterator& active_Iter,
 					if(boundary_Interlayer_Composition[Exp].enabled)
 					{
 						norm += boundary_Interlayer_Composition[Exp].interlayer.value;
+						my_Sigma = boundary_Interlayer_Composition[Exp].my_Sigma.value;
 						for(int i=0; i<num_Points; ++i)
 						{
-							x = 2 * pow(s[i] * sigma, 2);
+							x = 2 * pow(s[i] * my_Sigma, 2);
 							factor = 1. / (1. + x);
 							weak_Factor[i] += boundary_Interlayer_Composition[Exp].interlayer.value * factor;
 						}
@@ -400,9 +406,10 @@ int Node::calculate_Intermediate_Points(const tree<Node>::iterator& active_Iter,
 					if(boundary_Interlayer_Composition[Tanh].enabled)
 					{
 						norm += boundary_Interlayer_Composition[Tanh].interlayer.value;
+						my_Sigma = boundary_Interlayer_Composition[Tanh].my_Sigma.value;
 						for(int i=0; i<num_Points; ++i)
 						{
-							x = 2 * sqrt(3.) * s[i] * sigma;
+							x = 2 * sqrt(3.) * s[i] * my_Sigma;
 							factor = x / sinh(x);
 							weak_Factor[i] += boundary_Interlayer_Composition[Tanh].interlayer.value * factor;
 						}
@@ -412,9 +419,10 @@ int Node::calculate_Intermediate_Points(const tree<Node>::iterator& active_Iter,
 					if(boundary_Interlayer_Composition[Sin].enabled)
 					{
 						norm += boundary_Interlayer_Composition[Sin].interlayer.value;
+						my_Sigma = boundary_Interlayer_Composition[Sin].my_Sigma.value;
 						for(int i=0; i<num_Points; ++i)
 						{
-							x = 2 * a * sigma * s[i] - M_PI_2;
+							x = 2 * a * my_Sigma * s[i] - M_PI_2;
 							y = x + M_PI;
 							factor = M_PI_4 * (sin(x)/x + sin(y)/y);
 							weak_Factor[i] += boundary_Interlayer_Composition[Sin].interlayer.value * factor;

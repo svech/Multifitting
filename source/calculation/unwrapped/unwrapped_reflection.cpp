@@ -233,6 +233,7 @@ void Unwrapped_Reflection::calc_Weak_Factor(int thread_Index)
 {
 	bool is_Norm = false;
 	double norm, s, factor, x, y, a = M_PI/sqrt(M_PI*M_PI - 8.);
+	double my_Sigma=0;
 
 	for (int i = 0; i < num_Boundaries; ++i)
 	{
@@ -243,17 +244,18 @@ void Unwrapped_Reflection::calc_Weak_Factor(int thread_Index)
 			is_Norm = is_Norm || unwrapped_Structure->boundary_Interlayer_Composition[i][func_Index].enabled;
 		}
 
-		if(is_Norm && abs(unwrapped_Structure->sigma[i]) > DBL_EPSILON) //-V674
+		if(is_Norm && (abs(unwrapped_Structure->sigma[i]) > DBL_EPSILON)) //-V674
 		{
 			norm = 0;
-			s = unwrapped_Structure->sigma[i] * sqrt(hi_RE[thread_Index][i+1]*hi_RE[thread_Index][i]);
+			s = sqrt(hi_RE[thread_Index][i+1]*hi_RE[thread_Index][i]);
 
 			//-------------------------------------------------------------------------------
 			// erf interlayer
 			if(unwrapped_Structure->boundary_Interlayer_Composition[i][Erf].enabled)
 			{
 				norm += unwrapped_Structure->boundary_Interlayer_Composition[i][Erf].interlayer.value;
-				factor = exp( - 2 * s * s);
+				my_Sigma = unwrapped_Structure->boundary_Interlayer_Composition[i][Erf].my_Sigma.value;
+				factor = exp( - 2 * s * s * my_Sigma * my_Sigma);
 				weak_Factor[thread_Index][i] += unwrapped_Structure->boundary_Interlayer_Composition[i][Erf].interlayer.value * factor;
 			}
 			//-------------------------------------------------------------------------------
@@ -261,7 +263,8 @@ void Unwrapped_Reflection::calc_Weak_Factor(int thread_Index)
 			if(unwrapped_Structure->boundary_Interlayer_Composition[i][Lin].enabled)
 			{
 				norm += unwrapped_Structure->boundary_Interlayer_Composition[i][Lin].interlayer.value;
-				x = sqrt(3.) * 2 * s;
+				my_Sigma = unwrapped_Structure->boundary_Interlayer_Composition[i][Lin].my_Sigma.value;
+				x = sqrt(3.) * 2 * s * my_Sigma;
 				factor = sin(x) / (x);
 				weak_Factor[thread_Index][i] += unwrapped_Structure->boundary_Interlayer_Composition[i][Lin].interlayer.value * factor;
 			}
@@ -270,7 +273,8 @@ void Unwrapped_Reflection::calc_Weak_Factor(int thread_Index)
 			if(unwrapped_Structure->boundary_Interlayer_Composition[i][Exp].enabled)
 			{
 				norm += unwrapped_Structure->boundary_Interlayer_Composition[i][Exp].interlayer.value;
-				x = 2 * pow(s, 2);
+				my_Sigma = unwrapped_Structure->boundary_Interlayer_Composition[i][Exp].my_Sigma.value;
+				x = 2 * pow(s * my_Sigma, 2);
 				factor = 1. / (1. + x);
 				weak_Factor[thread_Index][i] += unwrapped_Structure->boundary_Interlayer_Composition[i][Exp].interlayer.value * factor;
 			}
@@ -279,7 +283,8 @@ void Unwrapped_Reflection::calc_Weak_Factor(int thread_Index)
 			if(unwrapped_Structure->boundary_Interlayer_Composition[i][Tanh].enabled)
 			{
 				norm += unwrapped_Structure->boundary_Interlayer_Composition[i][Tanh].interlayer.value;
-				x = 2 * sqrt(3.) * s;
+				my_Sigma = unwrapped_Structure->boundary_Interlayer_Composition[i][Tanh].my_Sigma.value;
+				x = 2 * sqrt(3.) * s * my_Sigma;
 				factor = x / sinh(x);
 				weak_Factor[thread_Index][i] += unwrapped_Structure->boundary_Interlayer_Composition[i][Tanh].interlayer.value * factor;
 			}
@@ -288,7 +293,8 @@ void Unwrapped_Reflection::calc_Weak_Factor(int thread_Index)
 			if(unwrapped_Structure->boundary_Interlayer_Composition[i][Sin].enabled)
 			{
 				norm += unwrapped_Structure->boundary_Interlayer_Composition[i][Sin].interlayer.value;
-				x = 2 * a * s - M_PI_2;
+				my_Sigma = unwrapped_Structure->boundary_Interlayer_Composition[i][Sin].my_Sigma.value;
+				x = 2 * a * s * my_Sigma - M_PI_2;
 				y = x + M_PI;
 				factor = M_PI_4 * (sin(x)/x + sin(y)/y);
 				weak_Factor[thread_Index][i] += unwrapped_Structure->boundary_Interlayer_Composition[i][Sin].interlayer.value * factor;
@@ -305,7 +311,6 @@ void Unwrapped_Reflection::calc_Weak_Factor(int thread_Index)
 					weak_Factor[thread_Index][i] = 1;
 				}
 			}
-
 		} else
 		{
 			weak_Factor[thread_Index][i] = 1;

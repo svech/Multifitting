@@ -47,6 +47,7 @@ public:
 
 	Ambient common_Data;
 	double sigma;
+	bool common_Sigma;
 	vector<Interlayer> boundary_Interlayer_Composition;
 	double thickness;
 
