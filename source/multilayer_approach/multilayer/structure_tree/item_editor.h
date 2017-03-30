@@ -126,6 +126,8 @@ private:
 			QFrame* interlayer_Composition_Frame;
 				QGroupBox* interlayer_Composition_Group_Box;
 					QHBoxLayout* interlayer_Composition_Layout_With_Elements_Vector;
+						QLabel* my_Sigma_Label_Layer;
+						QLabel* my_Sigma_Label_Substrate;
 						QVector<QCheckBox*> interlayer_Composition_Check_Box_Vec;
 						QVector<QLineEdit*> interlayer_Composition_Comp_Line_Edit_Vec;
 						QVector<QLineEdit*> interlayer_Composition_My_Sigma_Line_Edit_Vec;

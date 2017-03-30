@@ -19,6 +19,7 @@ void Item_Editor::emit_Item_Data_Edited()
 	// TODO
 	show_All();
 	initial_Radio_Check(false);
+	show_Interlayers();
 	emit item_Data_Edited();
 }
 
@@ -779,6 +780,8 @@ void Item_Editor::read_Elements_From_Item(bool temp_bool)
 
 void Item_Editor::read_Interlayers_From_Item()
 {
+	double coeff = length_Coefficients_Map.value(length_units);
+
 	if(item_Type==Item_Type::Layer)
 	{
 		Layer layer = item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>();
@@ -791,12 +794,12 @@ void Item_Editor::read_Interlayers_From_Item()
 		{
 			QVBoxLayout* vert_Layout = new QVBoxLayout;
 				vert_Layout->setSpacing(0);
-			QLabel* empty_Label    = new QLabel;
-			QLabel* weight_Label   = new QLabel(sigma_Weight);
-			QLabel* my_Sigma_Label = new QLabel(sigma_Label_3 + length_units + sigma_Label_2);
+			QLabel* empty_Label  = new QLabel;
+			QLabel* weight_Label = new QLabel(sigma_Weight);
+			my_Sigma_Label_Layer = new QLabel;
 			vert_Layout->addWidget(empty_Label);
 			vert_Layout->addWidget(weight_Label);
-			vert_Layout->addWidget(my_Sigma_Label);
+			vert_Layout->addWidget(my_Sigma_Label_Layer);
 
 			interlayer_Composition_Layout_With_Elements_Vector->addLayout(vert_Layout);
 		}
@@ -820,7 +823,7 @@ void Item_Editor::read_Interlayers_From_Item()
 
 			check_Box->setChecked(layer.interlayer_Composition[i].enabled);
 			comp_Line_Edit->setText(QString::number(layer.interlayer_Composition[i].interlayer.value,line_edit_short_double_format,line_edit_interlayer_precision));
-			my_Sigma_Line_Edit->setText(QString::number(layer.interlayer_Composition[i].my_Sigma.value,line_edit_short_double_format,line_edit_interlayer_precision));
+			my_Sigma_Line_Edit->setText(QString::number(layer.interlayer_Composition[i].my_Sigma.value/coeff,line_edit_short_double_format,line_edit_interlayer_precision));
 //				resize_Line_Edit(comp_Line_Edit);
 //				resize_Line_Edit(my_Sigma_Line_Edit);
 
@@ -857,12 +860,12 @@ void Item_Editor::read_Interlayers_From_Item()
 		{
 			QVBoxLayout* vert_Layout = new QVBoxLayout;
 				vert_Layout->setSpacing(0);
-			QLabel* empty_Label    = new QLabel;
-			QLabel* weight_Label   = new QLabel(sigma_Weight);
-			QLabel* my_Sigma_Label = new QLabel(sigma_Label_3 + length_units + sigma_Label_2);
+			QLabel* empty_Label  = new QLabel;
+			QLabel* weight_Label = new QLabel(sigma_Weight);
+			my_Sigma_Label_Substrate = new QLabel;
 			vert_Layout->addWidget(empty_Label);
 			vert_Layout->addWidget(weight_Label);
-			vert_Layout->addWidget(my_Sigma_Label);
+			vert_Layout->addWidget(my_Sigma_Label_Substrate);
 
 			interlayer_Composition_Layout_With_Elements_Vector->addLayout(vert_Layout);
 		}
@@ -886,7 +889,7 @@ void Item_Editor::read_Interlayers_From_Item()
 
 			check_Box->setChecked(substrate.interlayer_Composition[i].enabled);
 			comp_Line_Edit->setText(QString::number(substrate.interlayer_Composition[i].interlayer.value,line_edit_short_double_format,line_edit_interlayer_precision));
-			my_Sigma_Line_Edit->setText(QString::number(substrate.interlayer_Composition[i].my_Sigma.value,line_edit_short_double_format,line_edit_interlayer_precision));
+			my_Sigma_Line_Edit->setText(QString::number(substrate.interlayer_Composition[i].my_Sigma.value/coeff,line_edit_short_double_format,line_edit_interlayer_precision));
 //				resize_Line_Edit(comp_Line_Edit);
 //				resize_Line_Edit(my_Sigma_Line_Edit);
 
@@ -917,6 +920,7 @@ void Item_Editor::read_Interlayers_From_Item()
 	interlayer_Composition_Group_Box->setFixedWidth(interlayer_Composition_Group_Box->width());
 
 	interlayer_Check(true); //-V601
+	show_Interlayers();
 }
 
 void Item_Editor::fewer_Elements_Clicked(bool)
@@ -1171,6 +1175,8 @@ void Item_Editor::show_Stack_Parameters()
 
 void Item_Editor::show_Interlayers()
 {
+	double coeff = length_Coefficients_Map.value(length_units);
+
 	if(item_Type==Item_Type::Layer)
 	{
 		Layer layer = item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>();
@@ -1180,8 +1186,9 @@ void Item_Editor::show_Interlayers()
 			for(int i=0; i<layer.interlayer_Composition.size(); ++i)
 			{
 				interlayer_Composition_Comp_Line_Edit_Vec	 [i]->setText(QString::number(layer.interlayer_Composition[i].interlayer.value,line_edit_short_double_format,line_edit_interlayer_precision));
-				interlayer_Composition_My_Sigma_Line_Edit_Vec[i]->setText(QString::number(layer.interlayer_Composition[i].my_Sigma.value,line_edit_short_double_format,line_edit_sigma_precision));
+				interlayer_Composition_My_Sigma_Line_Edit_Vec[i]->setText(QString::number(layer.interlayer_Composition[i].my_Sigma.value/coeff,line_edit_short_double_format,line_edit_sigma_precision));
 			}
+			my_Sigma_Label_Layer->setText(sigma_Label_3 + length_units + sigma_Label_2);
 		}
 	}
 	if(item_Type==Item_Type::Substrate)
@@ -1192,10 +1199,13 @@ void Item_Editor::show_Interlayers()
 			for(int i=0; i<substrate.interlayer_Composition.size(); ++i)
 			{
 				interlayer_Composition_Comp_Line_Edit_Vec	 [i]->setText(QString::number(substrate.interlayer_Composition[i].interlayer.value,line_edit_short_double_format,line_edit_interlayer_precision));
-				interlayer_Composition_My_Sigma_Line_Edit_Vec[i]->setText(QString::number(substrate.interlayer_Composition[i].my_Sigma.value,line_edit_short_double_format,line_edit_sigma_precision));
+				interlayer_Composition_My_Sigma_Line_Edit_Vec[i]->setText(QString::number(substrate.interlayer_Composition[i].my_Sigma.value/coeff,line_edit_short_double_format,line_edit_sigma_precision));
 			}
+			my_Sigma_Label_Substrate->setText(sigma_Label_3 + length_units + sigma_Label_2);
 		}
 	}
+
+	show_Sigma();
 }
 
 void Item_Editor::done_Slot()
@@ -1415,44 +1425,39 @@ void Item_Editor::refresh_Data(QString str)
 		{
 			layer.common_Sigma = !individual_Sigma_Check_Box->isChecked();
 
-			// sum for normalizing
 			double sum=0;
 			for(int i=0; i<layer.interlayer_Composition.size(); ++i)
 			{
-				if(interlayer_Composition_Check_Box_Vec[i]->isChecked())
-				{
-					sum+=interlayer_Composition_Comp_Line_Edit_Vec[i]->text().toDouble();
-				}
-			}
-
-			// normalizing and saving
-			double temp_Sigma=0;
-			for(int i=0; i<layer.interlayer_Composition.size(); ++i)
-			{
 				layer.interlayer_Composition[i].enabled = interlayer_Composition_Check_Box_Vec[i]->isChecked();
-				layer.interlayer_Composition[i].my_Sigma.value = interlayer_Composition_My_Sigma_Line_Edit_Vec[i]->text().toDouble();
 				if(interlayer_Composition_Check_Box_Vec[i]->isChecked())
 				{
 					layer.interlayer_Composition[i].interlayer.value = interlayer_Composition_Comp_Line_Edit_Vec[i]->text().toDouble();
-					temp_Sigma += layer.interlayer_Composition[i].my_Sigma.value * interlayer_Composition_Comp_Line_Edit_Vec[i]->text().toDouble()/sum;
+					// sum for normalizing
+					sum+=layer.interlayer_Composition[i].interlayer.value;
 				}
 			}
 
-			// refresh
 			if(layer.common_Sigma)
 			{
 				layer.sigma.value = sigma_Line_Edit->text().toDouble()*coeff;
 				for(int i=0; i<layer.interlayer_Composition.size(); ++i)
 				{
 					layer.interlayer_Composition[i].my_Sigma.value = layer.sigma.value;
-					interlayer_Composition_My_Sigma_Line_Edit_Vec[i]->setText(QString::number(layer.sigma.value/coeff,line_edit_short_double_format,line_edit_sigma_precision));
 				}
 			} else
 			{
-				layer.sigma.value = temp_Sigma*coeff;
-				sigma_Line_Edit->setText(QString::number(layer.sigma.value/coeff,line_edit_double_format,line_edit_sigma_precision));
+				// normalizing and saving
+				double temp_Sigma=0;
+				for(int i=0; i<layer.interlayer_Composition.size(); ++i)
+				{
+					layer.interlayer_Composition[i].my_Sigma.value = interlayer_Composition_My_Sigma_Line_Edit_Vec[i]->text().toDouble()*coeff;
+					if(interlayer_Composition_Check_Box_Vec[i]->isChecked())
+					{
+						temp_Sigma += layer.interlayer_Composition[i].my_Sigma.value * layer.interlayer_Composition[i].interlayer.value/sum;
+					}
+				}
+				layer.sigma.value = temp_Sigma;
 			}
-
 		}
 		//TODO other fields
 		var.setValue( layer );
@@ -1481,42 +1486,38 @@ void Item_Editor::refresh_Data(QString str)
 		{
 			substrate.common_Sigma = !individual_Sigma_Check_Box->isChecked();
 
-			// sum for normalizing
 			double sum=0;
 			for(int i=0; i<substrate.interlayer_Composition.size(); ++i)
 			{
-				if(interlayer_Composition_Check_Box_Vec[i]->isChecked())
-				{
-					sum+=interlayer_Composition_Comp_Line_Edit_Vec[i]->text().toDouble();
-				}
-			}
-
-			// normalizing and saving
-			double temp_Sigma=0;
-			for(int i=0; i<substrate.interlayer_Composition.size(); ++i)
-			{
 				substrate.interlayer_Composition[i].enabled = interlayer_Composition_Check_Box_Vec[i]->isChecked();
-				substrate.interlayer_Composition[i].my_Sigma.value = interlayer_Composition_My_Sigma_Line_Edit_Vec[i]->text().toDouble();
 				if(interlayer_Composition_Check_Box_Vec[i]->isChecked())
 				{
 					substrate.interlayer_Composition[i].interlayer.value = interlayer_Composition_Comp_Line_Edit_Vec[i]->text().toDouble();
-					temp_Sigma += substrate.interlayer_Composition[i].my_Sigma.value * interlayer_Composition_Comp_Line_Edit_Vec[i]->text().toDouble()/sum;
+					// sum for normalizing
+					sum+=substrate.interlayer_Composition[i].interlayer.value;
 				}
 			}
 
-			// refresh
 			if(substrate.common_Sigma)
 			{
 				substrate.sigma.value = sigma_Line_Edit->text().toDouble()*coeff;
 				for(int i=0; i<substrate.interlayer_Composition.size(); ++i)
 				{
 					substrate.interlayer_Composition[i].my_Sigma.value = substrate.sigma.value;
-					interlayer_Composition_My_Sigma_Line_Edit_Vec[i]->setText(QString::number(substrate.sigma.value/coeff,line_edit_short_double_format,line_edit_sigma_precision));
 				}
 			} else
 			{
-				substrate.sigma.value = temp_Sigma*coeff;
-				sigma_Line_Edit->setText(QString::number(substrate.sigma.value/coeff,line_edit_double_format,line_edit_sigma_precision));
+				// normalizing and saving
+				double temp_Sigma=0;
+				for(int i=0; i<substrate.interlayer_Composition.size(); ++i)
+				{
+					substrate.interlayer_Composition[i].my_Sigma.value = interlayer_Composition_My_Sigma_Line_Edit_Vec[i]->text().toDouble()*coeff;
+					if(interlayer_Composition_Check_Box_Vec[i]->isChecked())
+					{
+						temp_Sigma += substrate.interlayer_Composition[i].my_Sigma.value * substrate.interlayer_Composition[i].interlayer.value/sum;
+					}
+				}
+				substrate.sigma.value = temp_Sigma;
 			}
 		}
 		var.setValue( substrate );
@@ -1570,6 +1571,7 @@ void Item_Editor::refresh_Data(QString str)
 	}
 
 	refresh_Stack_Data();
+	show_Interlayers();
 }
 
 void Item_Editor::refresh_Stack_Data()

@@ -275,6 +275,7 @@ void Structure_Tree::set_Structure_Item_Text(QTreeWidgetItem* item)
 		}
 	} else
 	{
+		QString temp_Sigma_Sym;
 		// if substrate
 		if(item->whatsThis(DEFAULT_COLUMN)==whats_This_Substrate)
 		{
@@ -291,7 +292,12 @@ void Structure_Tree::set_Structure_Item_Text(QTreeWidgetItem* item)
 
 			if(item->data(DEFAULT_COLUMN, Qt::UserRole).value<Substrate>().sigma.value>0)
 			{
-				item->setText(DEFAULT_COLUMN, item->text(DEFAULT_COLUMN) + ", " + Sigma_Sym + "=" +
+				if(item->data(DEFAULT_COLUMN, Qt::UserRole).value<Substrate>().common_Sigma)
+					temp_Sigma_Sym = Sigma_Sym;
+				else
+					temp_Sigma_Sym = "<"+Sigma_Sym+">";
+
+				item->setText(DEFAULT_COLUMN, item->text(DEFAULT_COLUMN) + ", " + temp_Sigma_Sym + "=" +
 							  QString::number(item->data(DEFAULT_COLUMN, Qt::UserRole).value<Substrate>().sigma.value/length_Coeff,thumbnail_double_format,thumbnail_sigma_precision) + length_units);
 			}
 		} else
@@ -324,7 +330,12 @@ void Structure_Tree::set_Structure_Item_Text(QTreeWidgetItem* item)
 
 				if(item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>().sigma.value>0)
 				{
-					item->setText(DEFAULT_COLUMN, item->text(DEFAULT_COLUMN) + ", " + Sigma_Sym + "=" +
+					if(item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>().common_Sigma)
+						temp_Sigma_Sym = Sigma_Sym;
+					else
+						temp_Sigma_Sym = "<"+Sigma_Sym+">";
+
+					item->setText(DEFAULT_COLUMN, item->text(DEFAULT_COLUMN) + ", " + temp_Sigma_Sym + "=" +
 								  QString::number(item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>().sigma.value/length_Coeff,thumbnail_double_format,thumbnail_sigma_precision) + length_units);
 				}
 			}
