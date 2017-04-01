@@ -26,6 +26,7 @@ int Node::calculate_Intermediate_Points(const tree<Node>::iterator& active_Iter,
 {
 	QStringList active_Whats_This_List = active_Whats_This.split(whats_This_Delimiter,QString::SkipEmptyParts);
 
+	// PARAMETER
 	if(active_Whats_This_List[1] == whats_This_Angle ||
 	   active_Whats_This_List[1] == whats_This_Wavelength )
 	{
@@ -332,10 +333,10 @@ int Node::calculate_Intermediate_Points(const tree<Node>::iterator& active_Iter,
 			}
 
 			/// ---------------------------------------------------------------------------------------------------------------
-			/// weak_Factor_Ang	(if not sigma-graded)
+			/// weak_Factor_Ang
 			/// ---------------------------------------------------------------------------------------------------------------
 
-//			if( !sigma_Grading )
+			// if sigma graded, set WF=1 here and recalculate later
 			if( whats_This_List[0] == whats_This_Layer   ||
 				whats_This_List[0] == whats_This_Substrate )
 			{
@@ -348,7 +349,7 @@ int Node::calculate_Intermediate_Points(const tree<Node>::iterator& active_Iter,
 					is_Norm = is_Norm || boundary_Interlayer_Composition[func_Index].enabled;
 				}
 
-				if(is_Norm && (abs(sigma) > DBL_EPSILON) )
+				if( is_Norm && (abs(sigma) > DBL_EPSILON) && (!sigma_Grading) )
 				{
 					// temp variables
 					double a = M_PI/sqrt(M_PI*M_PI - 8.);
@@ -360,6 +361,7 @@ int Node::calculate_Intermediate_Points(const tree<Node>::iterator& active_Iter,
 
 					for(int i=0; i<num_Points; ++i)
 					{
+						weak_Factor[i] = 0;
 						s[i] = sqrt(above_Node->hi_RE[i]*hi_RE[i]);
 					}
 
@@ -465,24 +467,34 @@ int Node::calculate_Intermediate_Points(const tree<Node>::iterator& active_Iter,
 			}
 
 			/// ---------------------------------------------------------------------------------------------------------------
-			/// exponenta (if not depth-graded)
+			/// exponenta
 			/// ---------------------------------------------------------------------------------------------------------------
 
-//			if( !depth_Grading )
+			// if depth graded, set exp=1 here and recalculate later
 			if( whats_This_List[0] == whats_This_Layer)
 			{
 				double re, im, ere;
 				exponenta_RE.resize(num_Points);
 				exponenta_IM.resize(num_Points);
 
-				for(int i=0; i<num_Points; ++i)
+				if( depth_Grading )
 				{
-					re = -2.*hi_IM[i]*thickness;
-					im =  2.*hi_RE[i]*thickness;
-					ere = exp(re);
+					for(int i=0; i<num_Points; ++i)
+					{
+						exponenta_RE[i] = 1;
+						exponenta_IM[i] = 1;
+					}
+				} else
+				{
+					for(int i=0; i<num_Points; ++i)
+					{
+						re = -2.*hi_IM[i]*thickness;
+						im =  2.*hi_RE[i]*thickness;
+						ere = exp(re);
 
-					exponenta_RE[i] = ere*cos(im);
-					exponenta_IM[i] = ere*sin(im);
+						exponenta_RE[i] = ere*cos(im);
+						exponenta_IM[i] = ere*sin(im);
+					}
 				}
 			}
 		}

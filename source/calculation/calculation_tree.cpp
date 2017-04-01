@@ -27,6 +27,7 @@ Calculation_Tree::~Calculation_Tree()
 
 void Calculation_Tree::run_All()
 {
+	create_Rand_Generator();
 	create_Local_Item_Tree();
 	check_If_Graded();
     if(local_Item_Tree_Vec.size()>0)
@@ -37,6 +38,16 @@ void Calculation_Tree::run_All()
         calculate_Intermediate_Values();
 	}
 	local_Item_Tree_Vec.clear();
+}
+
+void Calculation_Tree::create_Rand_Generator()
+{
+	const gsl_rng_type * T;
+	T = gsl_rng_default;
+	r = gsl_rng_alloc (T);
+
+	auto now = std::chrono::system_clock::now();
+	gsl_rng_set(r,std::chrono::duration_cast<std::chrono::microseconds>(now.time_since_epoch()).count());
 }
 
 void Calculation_Tree::create_Local_Item_Tree()
@@ -370,13 +381,13 @@ tree<Node>::iterator Calculation_Tree::find_Node(const tree<Node>::iterator& par
 void Calculation_Tree::calculate_Unwrapped_Structure(const tree<Node>::iterator& active_Iter, QString active_Whats_This, int independent_Index)
 {
 	num_Media = get_Total_Num_Layers(calc_Tree_Vec[independent_Index].begin(), independent_Index);
-	Unwrapped_Structure*   new_Unwrapped_Structure  = new Unwrapped_Structure (&calc_Tree_Vec[independent_Index], active_Iter, active_Whats_This, num_Media, max_Depth);
+	Unwrapped_Structure*   new_Unwrapped_Structure  = new Unwrapped_Structure (&calc_Tree_Vec[independent_Index], active_Iter, active_Whats_This, num_Media, max_Depth, depth_Grading, sigma_Grading, r);
 	unwrapped_Structure_Vec [independent_Index] = new_Unwrapped_Structure;
 }
 
 void Calculation_Tree::calculate_Unwrapped_Reflectivity(int independent_Index)
 {
-	Unwrapped_Reflection*  new_Unwrapped_Reflection = new Unwrapped_Reflection(unwrapped_Structure_Vec[independent_Index], num_Media, active_Whats_This_Vec[independent_Index], measurement_Vec[independent_Index]);
+	Unwrapped_Reflection*  new_Unwrapped_Reflection = new Unwrapped_Reflection(unwrapped_Structure_Vec[independent_Index], num_Media, active_Whats_This_Vec[independent_Index], measurement_Vec[independent_Index], depth_Grading, sigma_Grading);
 	unwrapped_Reflection_Vec[independent_Index] = new_Unwrapped_Reflection;
 
 	auto start = std::chrono::system_clock::now();

@@ -7,6 +7,9 @@
 #include "unwrapped/unwrapped_reflection.h"
 #include "unwrapped/unwrapped_structure.h"
 
+#include <gsl/gsl_rng.h>
+#include <gsl/gsl_randist.h>
+
 using namespace std;
 
 class Calculation_Tree: public QObject
@@ -23,6 +26,7 @@ signals:
 public:
 	void run_All();
 private:
+	void create_Rand_Generator();
 	void create_Local_Item_Tree();
 	void check_If_Graded();
 
@@ -49,6 +53,8 @@ private:
 	void print_Item_Tree(QTreeWidgetItem* item);
 
 public:
+	gsl_rng * r;
+
 	bool depth_Grading = false;
 	bool sigma_Grading = false;
 

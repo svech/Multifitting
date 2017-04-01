@@ -21,7 +21,6 @@ void Grading_Editor::emit_Grading_Edited()
 {
 	// directly to Structure_Tree, over Item_Editor
 	emit grading_Edited();
-
 }
 
 void Grading_Editor::refresh_Data_Bool(bool)
@@ -49,6 +48,7 @@ void Grading_Editor::refresh_Data(QString)
     QVariant var;
     var.setValue(layer);
     item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+	emit_Grading_Edited();
 }
 
 void Grading_Editor::create_Main_Layout()

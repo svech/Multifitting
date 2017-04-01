@@ -9,18 +9,23 @@ Unwrapped_Structure::Unwrapped_Structure() //-V730
 
 }
 
-Unwrapped_Structure::Unwrapped_Structure(tree<Node>* calc_Tree, const tree<Node>::iterator& active_Iter, QString active_Whats_This, int num_Media, int max_Depth):
+Unwrapped_Structure::Unwrapped_Structure(tree<Node>* calc_Tree, const tree<Node>::iterator& active_Iter, QString active_Whats_This, int num_Media, int max_Depth, bool depth_Grading, bool sigma_Grading, gsl_rng* r):
 	calc_Tree		(calc_Tree),
 	num_Threads		(epsilon_Partial_Fill_Threads),
 	num_Media		(num_Media),
 	num_Boundaries	(num_Media - 1),
 	num_Layers		(num_Media - 2),
-	max_Depth		(max_Depth)
+	max_Depth		(max_Depth),
+	depth_Grading	(depth_Grading),
+	sigma_Grading	(sigma_Grading),
+	r(r)
 {	
+	// recalculate all if depth is big
 	if( max_Depth > 2 )
-	{
+	{		
 		QStringList active_Whats_This_List = active_Whats_This.split(whats_This_Delimiter,QString::SkipEmptyParts);
 
+		// PARAMETER
 		if(active_Whats_This_List[1] == whats_This_Wavelength )
 		{
 			Measurement* measur = &active_Iter.node->data.measurement;
@@ -40,12 +45,19 @@ Unwrapped_Structure::Unwrapped_Structure(tree<Node>* calc_Tree, const tree<Node>
 			epsilon_NORM.resize(num_Media);
 			fill_Epsilon(calc_Tree->begin());
 		}
-
+	}
+	// recalculate sigmas if depth is big or sigma grading
+	if( (max_Depth > 2) || sigma_Grading )
+	{
 		sigma.resize(num_Boundaries);
 		boundary_Interlayer_Composition.resize(num_Boundaries, vector<Interlayer>(transition_Layer_Functions_Size));
-		thickness.resize(num_Layers);
-
 		fill_Sigma		(calc_Tree->begin());
+	}
+
+	// recalculate thicknesses if depth is big or depth grading
+	if( (max_Depth > 2) || depth_Grading )
+	{
+		thickness.resize(num_Layers);
 		fill_Thickness	(calc_Tree->begin());
 	} /*else
 	{
@@ -191,23 +203,30 @@ int Unwrapped_Structure::fill_Thickness_Max_Depth_2(const tree<Node>::iterator& 
 }
 */
 
-void Unwrapped_Structure::fill_Rand_Values(double sig_Percent, vector<double>& values)
+void Unwrapped_Structure::variable_Drift(double& value, Drift& drift, int period_Index)
 {
-	const gsl_rng_type * T;
-	gsl_rng * r;
-
-	T = gsl_rng_default;
-	r = gsl_rng_alloc (T);
-
-	auto now = std::chrono::system_clock::now();
-	gsl_rng_set(r,std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch()).count());
-
-	for(int i=0; i<values.size(); ++i)
+	double drift_Factor = 1;
+	if(drift.is_Drift_Line)
 	{
-		double sig = sig_Percent*values[i]/100.;
-		values[i] = abs(values[i] + gsl_ran_gaussian(r, sig));
+		drift_Factor += drift.drift_Line_Value.value*period_Index/100.;
 	}
-	gsl_rng_free (r);
+	if(drift.is_Drift_Sine)
+	{
+		drift_Factor += drift.drift_Sine_Amplitude.value*sin(2*M_PI*(period_Index*drift.drift_Sine_Frequency.value + drift.drift_Sine_Phase.value))/100.;
+	}
+	if(drift.is_Drift_Rand)
+	{
+		drift_Factor += gsl_ran_gaussian(r, drift.drift_Rand_Rms.value)/100.;
+	}
+	if(drift_Factor>=0)
+	{
+		value *= drift_Factor;
+	} else
+	{
+		// TODO stop calculation and show error!
+		qInfo() << "==========\nUnwrapped_Structure::variable_Drift  :  negative drifted variable!\n==========";
+		value *= abs(drift_Factor);
+	}
 }
 
 int Unwrapped_Structure::fill_Epsilon(const tree<Node>::iterator& parent, int media_Index)
@@ -274,7 +293,7 @@ int Unwrapped_Structure::fill_Epsilon_Dependent(const tree<Node>::iterator& pare
 	return media_Index;
 }
 
-int Unwrapped_Structure::fill_Sigma(const tree<Node>::iterator& parent, int boundary_Index)
+int Unwrapped_Structure::fill_Sigma(const tree<Node>::iterator& parent, int boundary_Index, int per_Index)
 {
 	for(unsigned child_Index=0; child_Index<parent.number_of_children(); ++child_Index)
 	{
@@ -288,8 +307,13 @@ int Unwrapped_Structure::fill_Sigma(const tree<Node>::iterator& parent, int boun
 
 			for(int func_Index=0; func_Index<transition_Layer_Functions_Size; ++func_Index)
 			{
-				if(child.node->data.layer.interlayer_Composition[func_Index].enabled)
+//				if(child.node->data.layer.interlayer_Composition[func_Index].enabled)
+				{
 					boundary_Interlayer_Composition[boundary_Index][func_Index] = child.node->data.layer.interlayer_Composition[func_Index];
+
+					// can drift
+					variable_Drift(boundary_Interlayer_Composition[boundary_Index][func_Index].my_Sigma.value, child.node->data.layer.sigma_Drift,	per_Index);
+				}
 			}
 			++boundary_Index;
 		}
@@ -300,8 +324,10 @@ int Unwrapped_Structure::fill_Sigma(const tree<Node>::iterator& parent, int boun
 
 			for(int func_Index=0; func_Index<transition_Layer_Functions_Size; ++func_Index)
 			{
-				if(child.node->data.substrate.interlayer_Composition[func_Index].enabled)
+//				if(child.node->data.substrate.interlayer_Composition[func_Index].enabled)
+				{
 					boundary_Interlayer_Composition[boundary_Index][func_Index] = child.node->data.substrate.interlayer_Composition[func_Index];
+				}
 			}
 			++boundary_Index;
 		}
@@ -310,14 +336,14 @@ int Unwrapped_Structure::fill_Sigma(const tree<Node>::iterator& parent, int boun
 		{
 			for(int period_Index=0; period_Index<child.node->data.stack_Content.num_Repetition.value; ++period_Index)
 			{
-				boundary_Index = fill_Sigma(child, boundary_Index);
+				boundary_Index = fill_Sigma(child, boundary_Index, period_Index);
 			}
 		}
 	}
 	return boundary_Index;
 }
 
-int Unwrapped_Structure::fill_Thickness(const tree<Node>::iterator& parent, int layer_Index)
+int Unwrapped_Structure::fill_Thickness(const tree<Node>::iterator& parent, int layer_Index, int per_Index)
 {
 	for(unsigned child_Index=0; child_Index<parent.number_of_children(); ++child_Index)
 	{
@@ -328,6 +354,10 @@ int Unwrapped_Structure::fill_Thickness(const tree<Node>::iterator& parent, int 
 		{
 			// TODO extreme layers
 			thickness[layer_Index] = child.node->data.layer.thickness.value;
+
+			// can drift
+			variable_Drift(thickness[layer_Index], child.node->data.layer.thickness_Drift, per_Index);
+
 			++layer_Index;
 		}
 
@@ -335,7 +365,7 @@ int Unwrapped_Structure::fill_Thickness(const tree<Node>::iterator& parent, int 
 		{
 			for(int period_Index=0; period_Index<child.node->data.stack_Content.num_Repetition.value; ++period_Index)
 			{
-				layer_Index = fill_Thickness(child, layer_Index);
+				layer_Index = fill_Thickness(child, layer_Index, period_Index);
 			}
 		}
 	}

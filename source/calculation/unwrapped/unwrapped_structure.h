@@ -11,13 +11,19 @@ class Unwrapped_Structure
 {
 public:
 	Unwrapped_Structure();
-	Unwrapped_Structure(tree<Node>* calc_Tree, const tree<Node>::iterator& active_Iter, QString active_Whats_This, int num_Media, int max_Depth);
+	Unwrapped_Structure(tree<Node>* calc_Tree, const tree<Node>::iterator& active_Iter, QString active_Whats_This, int num_Media, int max_Depth, bool depth_Grading, bool sigma_Grading, gsl_rng * r);
+
+	gsl_rng * r;
 
 	int num_Threads;
 	int num_Media;
 	int num_Layers;
 	int num_Boundaries;
 	int max_Depth;
+
+	bool depth_Grading;
+	bool sigma_Grading;
+
 	tree<Node>* calc_Tree;
 
 	vector<complex<double>> epsilon;								//	[media]
@@ -40,12 +46,12 @@ public:
 //	int fill_Sigma_Max_Depth_2    (const tree<Node>::iterator& parent, int boundary_Index = 0);
 //	int fill_Thickness_Max_Depth_2(const tree<Node>::iterator& parent, int layer_Index = 0);
 
-	void fill_Rand_Values(double sig_Percent, vector<double>& values);
+	void variable_Drift(double& value, Drift& drift, int period_Index);
 
 	int fill_Epsilon		  (const tree<Node>::iterator& parent, int media_Index = 0);
 	int fill_Epsilon_Dependent(const tree<Node>::iterator& parent, int num_Lambda_Points, int media_Index = 0);
-	int fill_Sigma    (const tree<Node>::iterator& parent, int boundary_Index = 0);
-	int fill_Thickness(const tree<Node>::iterator& parent, int layer_Index = 0);
+	int fill_Sigma    (const tree<Node>::iterator& parent, int boundary_Index = 0, int per_Index = 0);
+	int fill_Thickness(const tree<Node>::iterator& parent, int layer_Index = 0, int per_Index = 0);
 
 };
 

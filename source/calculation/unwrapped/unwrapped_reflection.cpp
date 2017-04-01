@@ -10,7 +10,7 @@ Unwrapped_Reflection::Unwrapped_Reflection() //-V730
 
 }
 
-Unwrapped_Reflection::Unwrapped_Reflection(Unwrapped_Structure* unwrapped_Structure, int num_Media, QString active_Whats_This, const Measurement& measurement):
+Unwrapped_Reflection::Unwrapped_Reflection(Unwrapped_Structure* unwrapped_Structure, int num_Media, QString active_Whats_This, const Measurement& measurement, bool depth_Grading, bool sigma_Grading):
 	num_Threads		(reflectivity_Calc_Threads),
 	num_Layers		(num_Media-2),
 	num_Boundaries	(num_Media-1),
@@ -19,6 +19,8 @@ Unwrapped_Reflection::Unwrapped_Reflection(Unwrapped_Structure* unwrapped_Struct
 	active_Whats_This(active_Whats_This),
 	unwrapped_Structure(unwrapped_Structure),
 	measurement(measurement),
+	depth_Grading(depth_Grading),
+	sigma_Grading(sigma_Grading),
 
 	r_Fresnel_s_RE(num_Threads,vector<double>(num_Boundaries)),
 	r_Fresnel_s_IM(num_Threads,vector<double>(num_Boundaries)),
@@ -244,6 +246,7 @@ void Unwrapped_Reflection::calc_Weak_Factor(int thread_Index)
 			is_Norm = is_Norm || unwrapped_Structure->boundary_Interlayer_Composition[i][func_Index].enabled;
 		}
 
+		weak_Factor[thread_Index][i] = 0;
 		if(is_Norm && (abs(unwrapped_Structure->sigma[i]) > DBL_EPSILON)) //-V674
 		{
 			norm = 0;
@@ -445,11 +448,30 @@ void Unwrapped_Reflection::calc_Local(double polarization, int thread_Index)
 	}
 }
 
+void Unwrapped_Reflection::multifly_Fresnel_And_Weak_Factor(double polarization, int thread_Index)
+{
+	// s-polarization
+	if (polarization >-1)
+	for (int i = 0; i < num_Boundaries; ++i)
+	{
+		r_Fresnel_s_RE[thread_Index][i] *= weak_Factor[thread_Index][i];
+		r_Fresnel_s_IM[thread_Index][i] *= weak_Factor[thread_Index][i];
+	}
+
+	// p-polarization
+	if (polarization < 1)
+	for (int i = 0; i < num_Boundaries; ++i)
+	{
+		r_Fresnel_p_RE[thread_Index][i] *= weak_Factor[thread_Index][i];
+		r_Fresnel_p_IM[thread_Index][i] *= weak_Factor[thread_Index][i];
+	}
+}
+
 void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(const Measurement& measurement, int thread_Index, int point_Index) //-V688
 {
 //	auto start = std::chrono::system_clock::now();
 
-	if(max_Depth <= 2)
+	if( max_Depth <= 2 )
 	{
 		if( abs(measurement.polarization.value - 1) < DBL_EPSILON )			// s-polarization only
 		{
@@ -461,6 +483,17 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(const Measurement& mea
 		} else																// both polarizations
 		{
 			fill_sp_Max_Depth_2(unwrapped_Structure->calc_Tree->begin(), thread_Index, point_Index);
+		}
+
+		// if we have some grading
+		if( depth_Grading )
+		{
+			calc_Exponenta  (thread_Index);
+		}
+		if( sigma_Grading )
+		{
+			calc_Weak_Factor(thread_Index);
+			multifly_Fresnel_And_Weak_Factor(measurement.polarization.value, thread_Index);
 		}
 	} else
 	{

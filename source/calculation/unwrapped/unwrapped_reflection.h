@@ -7,7 +7,7 @@ class Unwrapped_Reflection
 {
 public:
 	Unwrapped_Reflection();
-	Unwrapped_Reflection(Unwrapped_Structure* unwrapped_Structure, int num_Media, QString active_Whats_This, const Measurement& measurement);
+	Unwrapped_Reflection(Unwrapped_Structure* unwrapped_Structure, int num_Media, QString active_Whats_This, const Measurement& measurement, bool depth_Grading, bool sigma_Grading);
 
 	int num_Threads;
 	int num_Layers;
@@ -15,6 +15,9 @@ public:
 	int num_Media;
 	int max_Depth;
 	int num_Points = 0;
+
+	bool depth_Grading;
+	bool sigma_Grading;
 
 	QString active_Whats_This;
 	Unwrapped_Structure* unwrapped_Structure;
@@ -43,6 +46,9 @@ public:
 	void calc_Fresnel	 (double polarization,   const vector<double>& eps_RE, const vector<double>& eps_IM, const vector<double>& eps_NORM, int thread_Index);
 	void calc_Exponenta	 (int thread_Index);
 	void calc_Local		 (double polarization, int thread_Index);
+
+	// for sigma grading
+	void multifly_Fresnel_And_Weak_Factor(double polarization, int thread_Index);
 
 	vector<complex<double>> r_s;
 	vector<complex<double>> r_p;
