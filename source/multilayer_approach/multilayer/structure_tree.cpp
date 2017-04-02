@@ -292,6 +292,7 @@ void Structure_Tree::set_Structure_Item_Text(QTreeWidgetItem* item)
 
 			if(item->data(DEFAULT_COLUMN, Qt::UserRole).value<Substrate>().sigma.value>0)
 			{
+				// average sigma
 				if(item->data(DEFAULT_COLUMN, Qt::UserRole).value<Substrate>().common_Sigma)
 					temp_Sigma_Sym = Sigma_Sym;
 				else
@@ -316,20 +317,23 @@ void Structure_Tree::set_Structure_Item_Text(QTreeWidgetItem* item)
 			} else
 			// if layer
 			{
+				QString thickness_Text = ", z=" +  QString::number(item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>().thickness.value/length_Coeff,thumbnail_double_format,thumbnail_thickness_precision) + length_units;
+
 				if(item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>().composed_Material)
 				{
 					item->setText(DEFAULT_COLUMN, item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>().material + " layer"
-								  + ", z=" +  QString::number(item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>().thickness.value/length_Coeff,thumbnail_double_format,thumbnail_thickness_precision) + length_units
+								  + thickness_Text
 								  + ", " + Rho_Sym + "=" +  QString::number(item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>().absolute_Density.value,thumbnail_double_format,thumbnail_density_precision) + density_units);
 				} else
 				{
 					item->setText(DEFAULT_COLUMN, item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>().material + " layer"
-								  + ", z=" +  QString::number(item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>().thickness.value/length_Coeff,thumbnail_double_format,thumbnail_thickness_precision) + length_units
+								  + thickness_Text
 								  + ", " + Rho_Sym + "=" +  QString::number(item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>().relative_Density.value,thumbnail_double_format,thumbnail_density_precision));
 				}
 
 				if(item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>().sigma.value>0)
 				{
+					// average sigma
 					if(item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>().common_Sigma)
 						temp_Sigma_Sym = Sigma_Sym;
 					else
@@ -337,7 +341,25 @@ void Structure_Tree::set_Structure_Item_Text(QTreeWidgetItem* item)
 
 					item->setText(DEFAULT_COLUMN, item->text(DEFAULT_COLUMN) + ", " + temp_Sigma_Sym + "=" +
 								  QString::number(item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>().sigma.value/length_Coeff,thumbnail_double_format,thumbnail_sigma_precision) + length_units);
+
+					// reflect sigma drift
+					Drift sigma_Drift = item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>().sigma_Drift;
+					if(sigma_Drift.is_Drift_Line || sigma_Drift.is_Drift_Sine || sigma_Drift.is_Drift_Rand)
+						item->setText(DEFAULT_COLUMN, item->text(DEFAULT_COLUMN) + " || d" + Sigma_Sym + " = on");
 				}
+
+				// reflect thickness drift
+				Drift thick_Drift = item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>().thickness_Drift;
+				QString thick_Drift_Text = "";
+				if(thick_Drift.is_Drift_Line || thick_Drift.is_Drift_Sine || thick_Drift.is_Drift_Rand)
+					thick_Drift_Text += "\n---> dz =";
+				if(thick_Drift.is_Drift_Line) thick_Drift_Text += " {line, " + QString::number(thick_Drift.drift_Line_Value.value,thumbnail_double_format,thumbnail_thickness_precision) + "%}";
+				if(thick_Drift.is_Drift_Sine) thick_Drift_Text += " {sine, " + QString::number(thick_Drift.drift_Sine_Amplitude.value,thumbnail_double_format,thumbnail_thickness_precision) + "%,"
+																			 + QString::number(thick_Drift.drift_Sine_Frequency.value,thumbnail_double_format,thumbnail_thickness_precision) + ","
+																			 + QString::number(thick_Drift.drift_Sine_Phase.value,thumbnail_double_format,thumbnail_thickness_precision) + "}";
+				if(thick_Drift.is_Drift_Rand) thick_Drift_Text += " {rand, " + QString::number(thick_Drift.drift_Rand_Rms.value,thumbnail_double_format,thumbnail_thickness_precision) + "%}";
+
+				item->setText(DEFAULT_COLUMN, item->text(DEFAULT_COLUMN) +  thick_Drift_Text);
 			}
 		}
 	}
