@@ -27,14 +27,14 @@ private:
 					void create_Nonspecular_Functions();
 				void create_Independent_Variables_Tabs();
 
-				void create_Coupled_Parameters_List();
-				void create_Coupled_Parameters_Toolbar();
+//				void create_Coupled_Parameters_List();
+//				void create_Coupled_Parameters_Toolbar();
 
-				void create_Fitting_Parameters_List();
-				void create_Fitting_Parameters_Toolbar();
+//				void create_Fitting_Parameters_List();
+//				void create_Fitting_Parameters_Toolbar();
 
-				void create_Optimization_Parameters_List();
-				void create_Optimization_Parameters_Toolbar();
+//				void create_Optimization_Parameters_List();
+//				void create_Optimization_Parameters_Toolbar();
 		void create_Data_Frame();
 
 public slots:

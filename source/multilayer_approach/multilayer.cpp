@@ -166,36 +166,6 @@ void Multilayer::create_Independent_Variables_Tabs()
 	add_Independent_Variables_Tab();
 }
 
-void Multilayer::create_Coupled_Parameters_List()
-{
-	// TODO
-}
-
-void Multilayer::create_Coupled_Parameters_Toolbar()
-{
-	// TODO
-}
-
-void Multilayer::create_Fitting_Parameters_List()
-{
-// TODO
-}
-
-void Multilayer::create_Fitting_Parameters_Toolbar()
-{
-// TODO
-}
-
-void Multilayer::create_Optimization_Parameters_List()
-{
-// TODO
-}
-
-void Multilayer::create_Optimization_Parameters_Toolbar()
-{
-// TODO
-}
-
 void Multilayer::create_Data_Frame()
 {
 	data_Frame = new QFrame;
