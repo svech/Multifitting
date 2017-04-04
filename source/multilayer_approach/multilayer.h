@@ -27,6 +27,8 @@ private:
 					void create_Nonspecular_Functions();
 				void create_Independent_Variables_Tabs();
 
+				void create_Structure_Table();
+
 //				void create_Coupled_Parameters_List();
 //				void create_Coupled_Parameters_Toolbar();
 
@@ -79,14 +81,16 @@ public:
 					QTabWidget* independent_Variables_Plot_Tabs;
 						QToolButton* independent_Variables_Corner_Button;
 
-					QListWidget* coupled_Parameters_List;
-					QToolBar* coupled_Parameters_Toolbar;
+					QPushButton* structure_Table_Button;
 
-					QListWidget* fitting_Parameters_List;
-					QToolBar* fitting_Parameters_Toolbar;
+//					QListWidget* coupled_Parameters_List;
+//					QToolBar* coupled_Parameters_Toolbar;
 
-					QListWidget* optimization_Parameters_List;
-					QToolBar* optimization_Parameters_Toolbar;
+//					QListWidget* fitting_Parameters_List;
+//					QToolBar* fitting_Parameters_Toolbar;
+
+//					QListWidget* optimization_Parameters_List;
+//					QToolBar* optimization_Parameters_Toolbar;
 
 		QFrame* data_Frame;
 			QVBoxLayout* data_Frame_Layout;

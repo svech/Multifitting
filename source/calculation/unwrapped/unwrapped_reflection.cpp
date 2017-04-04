@@ -543,6 +543,7 @@ void Unwrapped_Reflection::fill_Specular_Values(const Measurement& measurement, 
 	R_s[point_Index] = pow(abs(r_s[point_Index]),2);
 	R_p[point_Index] = pow(abs(r_p[point_Index]),2);
 	R  [point_Index] = s_Weight * R_s[point_Index] + p_Weight * R_p[point_Index];
+	if(R[point_Index]!=R[point_Index]) {R[point_Index]=1;}
 }
 
 void Unwrapped_Reflection::calc_Specular_nMin_nMax_1_Thread(const Measurement& measurement, int n_Min, int n_Max, int thread_Index) //-V688

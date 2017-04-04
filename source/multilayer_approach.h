@@ -5,9 +5,11 @@
 #include "standard/menu.h"
 #include "multilayer_approach/multilayer.h"
 #include "main_calculation_module.h"
+#include "multilayer_approach/table_of_structures.h"
 
 class Launcher;
 class Multilayer;
+class Table_Of_Structures;
 
 class Multilayer_Approach : public QWidget
 {
@@ -25,6 +27,7 @@ public slots:
 	void save();
 	void calc_Reflection();
 	void reload_Optical_Constants();
+	void open_Table_Of_Structures(bool);
 
 private slots:
 	// errors
@@ -51,6 +54,8 @@ private:
 	QHBoxLayout* main_Layout;
 public:
 		QTabWidget*	multilayer_Tabs;
+		QList<Table_Of_Structures*>* table_Of_Structures_List;
+		Table_Of_Structures* table_Of_Structures;
 private:
 		QToolButton* add_Tab_Corner_Button;
 };

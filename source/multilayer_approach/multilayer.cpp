@@ -72,10 +72,18 @@ void Multilayer::create_Variables_Tabs()
 		variables_Tabs->addTab(frame, "Independent Variables");
 	}
 
-	// TODO
-	variables_Tabs->addTab(new QWidget(), "Coupled Parameters");
-	variables_Tabs->addTab(new QWidget(), "Fitting");
-	variables_Tabs->addTab(new QWidget(), "Optimization");
+	{
+		QFrame* frame = new QFrame;
+		QVBoxLayout* layout = new QVBoxLayout;
+		structure_Table_Button = new QPushButton("Open structure table");
+		layout->addWidget(structure_Table_Button);
+		frame->setLayout(layout);
+		frame->setContentsMargins(0,-5,0,-8);
+		variables_Tabs->addTab(frame, "Structure Table");
+
+		connect(structure_Table_Button, SIGNAL(clicked(bool)), multilayer_Approach, SLOT(open_Table_Of_Structures(bool)));
+	}
+
 	variables_Tabs->setSizePolicy(QSizePolicy::Preferred,QSizePolicy::Fixed);
 }
 
