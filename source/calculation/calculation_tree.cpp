@@ -33,7 +33,7 @@ void Calculation_Tree::run_All()
     if(local_Item_Tree_Vec.size()>0)
 	{
 		int independent_Index = 0;																// all tree copies have equal depths
-		max_Depth = tree_Depth(local_Item_Tree_Vec[independent_Index]->invisibleRootItem());	// unstratified depth
+		max_Depth = Global_Variables::get_Tree_Depth(local_Item_Tree_Vec[independent_Index]->invisibleRootItem());	// unstratified depth
 		fill_Calc_Trees();																		// here we have trees of "Node"
         calculate_Intermediate_Values();
 	}
@@ -92,17 +92,6 @@ void Calculation_Tree::check_If_Graded()
 		}
 		++it;
 	}
-}
-
-int  Calculation_Tree::get_Item_Depth(QTreeWidgetItem* item)
-{
-	int depth = 0;
-	while(item!=NULL)
-	{
-	  item = item->parent();
-	  ++depth;
-	}
-	return depth;
 }
 
 void Calculation_Tree::fill_Calc_Trees()
@@ -460,21 +449,6 @@ int Calculation_Tree::get_Total_Num_Layers(const tree<Node>::iterator& parent, i
 	return num_Media_Local;
 }
 
-int  Calculation_Tree::tree_Depth(QTreeWidgetItem* item)
-{
-	int depth = 0;
-	QVector<int> child_Depth;
-	if(item->childCount()>0)
-	{
-		for(int item_Child_Index=0; item_Child_Index<item->childCount(); item_Child_Index++)
-		{
-			child_Depth.append(tree_Depth(item->child(item_Child_Index)));
-		}
-		depth=1+*(std::minmax_element(child_Depth.begin(),child_Depth.end()).second);
-	}
-	return depth;
-}
-
 void Calculation_Tree::print_Tree(const tree<Node>::iterator& parent, int independent_Index)
 {
 	for(unsigned i=0; i<parent.number_of_children(); ++i)
@@ -515,8 +489,8 @@ void Calculation_Tree::print_Item_Tree(QTreeWidgetItem* item)
 		QStringList whats_This_List = child->whatsThis(DEFAULT_COLUMN).split(item_Type_Delimiter,QString::SkipEmptyParts);
 
 		{
-			std::cout << "item :  depth : " << get_Item_Depth(child) << "   ";
-			for(int y=0; y<get_Item_Depth(child)-1; y++)
+			std::cout << "item :  depth : " << Global_Variables::get_Item_Depth(child) << "   ";
+			for(int y=0; y<Global_Variables::get_Item_Depth(child)-1; y++)
 			{	std::cout << "\t";}
 			std::cout << child->whatsThis(DEFAULT_COLUMN).toStdString();
 			if(whats_This_List[0] == whats_This_Multilayer)

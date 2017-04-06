@@ -355,3 +355,41 @@ void Global_Variables::fill_Units_Maps()
 		angle_Units_Legend_Map.insert(angle_Units_List[i], angle_Units_Legend_List[i]);
 	}
 }
+
+int Global_Variables::get_Item_Depth(QTreeWidgetItem* item)
+{
+	int depth = 0;
+	while(item!=NULL)
+	{
+	  item = item->parent();
+	  ++depth;
+	}
+	return depth;
+}
+
+int Global_Variables::get_Number_Of_Items(QTreeWidget* tree)
+{
+	int counter = 0;
+	QTreeWidgetItemIterator it(tree);
+	while (*it)
+	{
+		++counter;
+		++it;
+	}
+	return counter;
+}
+
+int Global_Variables::get_Tree_Depth(QTreeWidgetItem* item)
+{
+	int depth = 0;
+	QVector<int> child_Depth;
+	if(item->childCount()>0)
+	{
+		for(int item_Child_Index=0; item_Child_Index<item->childCount(); item_Child_Index++)
+		{
+			child_Depth.append(get_Tree_Depth(item->child(item_Child_Index)));
+		}
+		depth=1+*(std::minmax_element(child_Depth.begin(),child_Depth.end()).second);
+	}
+	return depth;
+}

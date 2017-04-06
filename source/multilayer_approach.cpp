@@ -126,16 +126,15 @@ void Multilayer_Approach::rename_Multilayer(int tab_Index)
 void Multilayer_Approach::open_Table_Of_Structures(bool)
 {
 	// TODO
-	qInfo() << table_Of_Structures_List->size();
-	if(table_Of_Structures_List->size()==0)
+	if(!runned_Tables_Of_Structures.contains(table_Key))
 	{
-		table_Of_Structures = new Table_Of_Structures(table_Of_Structures_List, this);
-		table_Of_Structures_List->append(table_Of_Structures);
+		table_Of_Structures = new Table_Of_Structures(&runned_Tables_Of_Structures, multilayer_Tabs);
+		runned_Tables_Of_Structures.insert(table_Key, table_Of_Structures);
 			table_Of_Structures->setWindowFlags(Qt::Window);
 			table_Of_Structures->show();
 	} else
 	{
-		(*table_Of_Structures_List)[0]->setFocus();
+		runned_Tables_Of_Structures.value(table_Key)->activateWindow();
 	}
 }
 

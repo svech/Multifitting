@@ -30,7 +30,6 @@ private:
 	void create_Local_Item_Tree();
 	void check_If_Graded();
 
-	int tree_Depth(QTreeWidgetItem* item);
 	void fill_Calc_Trees();
     void fill_Tree(const tree<Node>::iterator& parent, QTreeWidgetItem* item, int independent_Index);
 //	void statify_Item_Tree();
@@ -45,7 +44,6 @@ private:
 	void calculate_Unwrapped_Reflectivity(int independent_Index);
 
 	int get_Total_Num_Layers(const tree<Node>::iterator& parent, int independent_Index);
-	int get_Item_Depth(QTreeWidgetItem* item);
 
 	void print_Reflect_To_File(const Measurement& measurement, QString active_Whats_This, int independent_Index);
 	void print_Tree(const tree<Node>::iterator& parent, int independent_Index);

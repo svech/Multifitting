@@ -54,7 +54,7 @@ private:
 	QHBoxLayout* main_Layout;
 public:
 		QTabWidget*	multilayer_Tabs;
-		QList<Table_Of_Structures*>* table_Of_Structures_List;
+		QMap<QString, Table_Of_Structures*> runned_Tables_Of_Structures;
 		Table_Of_Structures* table_Of_Structures;
 private:
 		QToolButton* add_Tab_Corner_Button;

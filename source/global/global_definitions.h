@@ -149,6 +149,10 @@ using namespace std;
 #define TRIL_FALSE			"False"
 #define TRIL_NOT_DEFINED	"NotDefined"
 #define NOPARENT			"No parents"
+
+// keys
+#define table_Key	"table_Of_Structures"
+
 // -----------------------------------------------------------------------------------------
 
 // enums

@@ -52,6 +52,9 @@ public:
 	static QString wavelength_Energy_Name(QString wavelength_Units);
 	static double angstrom_eV(double x);
 	static void fill_Units_Maps();
+	static int get_Item_Depth(QTreeWidgetItem* item);
+	static int get_Number_Of_Items(QTreeWidget* tree);
+	static int get_Tree_Depth(QTreeWidgetItem* item);
 };
 
 #endif // GLOBAL_VARIABLES_H
