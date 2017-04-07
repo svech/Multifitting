@@ -67,6 +67,7 @@ void Table_Of_Structures::read_Trees()
 	{
 		Structure_Tree* old_Structure_Tree = dynamic_cast<Multilayer*>(multilayer_Tabs->widget(i))->structure_Tree;
 		list_Of_Trees.append(old_Structure_Tree);
+		old_Structure_Tree->structure_Toolbar->toolbar->setDisabled(true);
 	}
 }
 
@@ -74,4 +75,9 @@ void Table_Of_Structures::closeEvent(QCloseEvent* event)
 {
 	event;
 	runned_Tables_Of_Structures->remove(table_Key);
+
+	for(int i=0; i<list_Of_Trees.size(); ++i)
+	{
+		list_Of_Trees[i]->structure_Toolbar->toolbar->setDisabled(false);
+	}
 }
