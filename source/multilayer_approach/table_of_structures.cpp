@@ -51,10 +51,12 @@ void Table_Of_Structures::create_Table()
 			structure_Item = *it;
 			depth = Global_Variables::get_Item_Depth(structure_Item);
 			main_Table->insertRow(main_Table->rowCount());
+			main_Table->insertRow(main_Table->rowCount());
+
 			current_Row = main_Table->rowCount()-1;
+			add_Columns(depth);
 
 			// print whatsThis
-			add_Columns(depth);
 			main_Table->setItem(current_Row,depth, new QTableWidgetItem(structure_Item->whatsThis(DEFAULT_COLUMN)));
 			{
 				main_Table->item(current_Row,depth)->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEnabled);
@@ -96,35 +98,25 @@ void Table_Of_Structures::create_Table()
 				material = substrate.material;
 			}
 
-			current_Column = max_Depth+2;
+			current_Column = max_Depth+3;
 
 			if(item_Type == Item_Type::Ambient || item_Type == Item_Type::Layer || item_Type == Item_Type::Substrate)
 			if(composed_Material)
 			{
-				for(int comp_Index=0; comp_Index<composition.size(); ++comp_Index)
-				{
-					add_Columns(current_Column);
-					main_Table->setItem(current_Row,current_Column, new QTableWidgetItem(composition[comp_Index].type));
-					main_Table->item(current_Row,current_Column)->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEnabled);
-					++current_Column;
-				}
+				create_Combo_Elements(current_Row,current_Column, structure_Item, item_Type);
 			} else
 			{
 				add_Columns(current_Column);
 				main_Table->setItem(current_Row,current_Column, new QTableWidgetItem(material));
-				main_Table->item(current_Row,current_Column)->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEnabled);
 				++current_Column;
 			}
-
-
-
-
 			++it;
 		}
-
+		main_Table->insertRow(main_Table->rowCount());
 		main_Table->insertRow(main_Table->rowCount());
 	}
-	span_Title_Rows();
+	span_Structure_Headers();
+	span_Structure_Items();
 	main_Table->resizeColumnsToContents();
 	main_Table->resizeRowsToContents();
 }
@@ -147,11 +139,57 @@ void Table_Of_Structures::add_Columns(int add_After)
 	}
 }
 
-void Table_Of_Structures::span_Title_Rows()
+void Table_Of_Structures::create_Combo_Elements(int current_Row, int start_Column, QTreeWidgetItem* structure_Item, Item_Type item_Type)
 {
-	for(int i=0; i<rows_List_To_Span.size(); ++i)
+	QList<Stoichiometry> composition;
+
+	if(item_Type == Item_Type::Ambient)		{composition = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Ambient>().	 composition;	}
+	if(item_Type == Item_Type::Layer)		{composition = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>().	 composition;	}
+	if(item_Type == Item_Type::Substrate)	{composition = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Substrate>().composition;	}
+
+	int current_Column = start_Column;
+	for(int composition_Index=0; composition_Index<composition.size(); ++composition_Index)
 	{
-		main_Table->setSpan(rows_List_To_Span[i],0,1,main_Table->columnCount());
+		add_Columns(current_Column+1);
+
+		// create combobox
+		QComboBox* elements = new QComboBox;
+		elements->addItems(sorted_Elements.keys());
+		elements->setCurrentIndex(elements->findText(composition[composition_Index].type));
+
+		// create item
+		main_Table->setCellWidget(current_Row, current_Column, elements);
+
+		current_Column+=3;
+	}
+}
+
+void Table_Of_Structures::span_Structure_Headers()
+{
+	for(int struct_Index=0; struct_Index<rows_List_To_Span.size(); ++struct_Index)
+	{
+		main_Table->setSpan(rows_List_To_Span[struct_Index],0,1,main_Table->columnCount());
+	}
+}
+
+void Table_Of_Structures::span_Structure_Items()
+{
+	for(int row_Index=0; row_Index<main_Table->rowCount(); ++row_Index)
+	{
+		for(int col_Index=0; col_Index<main_Table->columnCount(); ++col_Index)
+		{
+			if(main_Table->item(row_Index,col_Index))
+			{
+				QStringList wtf_List = main_Table->item(row_Index,col_Index)->text().split(item_Type_Delimiter,QString::SkipEmptyParts);
+				if(	   wtf_List[0] == whats_This_Ambient
+					|| wtf_List[0] == whats_This_Layer
+					|| wtf_List[0] == whats_This_Multilayer
+					|| wtf_List[0] == whats_This_Substrate )
+				{
+					main_Table->setSpan(row_Index,col_Index,2,1);
+				}
+			}
+		}
 	}
 }
 

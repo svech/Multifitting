@@ -23,7 +23,10 @@ public:
 		void read_Trees();
 
 	void add_Columns(int add_After);
-	void span_Title_Rows();
+		void create_Combo_Elements(int current_Row, int start_Column, QTreeWidgetItem* structure_Item, Item_Type item_Type);
+
+	void span_Structure_Headers();
+	void span_Structure_Items();
 
 	int basic_Row_Number = 0;
 	int basic_Column_Number = 1;
