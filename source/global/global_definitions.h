@@ -6,7 +6,7 @@
 #include <complex>
 
 #ifdef __linux__
-    #include <iostream>
+	#include <iostream>
 #endif
 
 using namespace std;
@@ -16,10 +16,10 @@ using namespace std;
 // settings
 
 #ifdef _WIN32
-    #define Pre_Path QString("../../")
+	#define Pre_Path QString("../../")
 #endif
 #ifdef __linux__
-    #define Pre_Path QString("../")
+	#define Pre_Path QString("../")
 #endif
 
 // gui
@@ -58,7 +58,7 @@ using namespace std;
 
 // calculations
 #define Calculations_Path Pre_Path + "settings/calculations.ini"
-    #define Threads "Threads"
+	#define Threads "Threads"
 
 // -----------------------------------------------------------------------------------------
 
@@ -108,6 +108,8 @@ using namespace std;
 #define PERMANENT_INDEPENDENT 2				// angle and wavelength items in list
 #define MAX_PRECISION_USED 10				// tthumbnail and lineedit precisions
 #define RAND_SHIFT	100000					// rand * RAND_SHIFT + rand
+#define TABLE_FIX_WIDTH_LINE_EDIT 50		// qLineEdit->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT)
+#define TABLE_COLUMN_ELEMENTS_SHIFT 4		// current_Column += TABLE_COLUMN_ELEMENTS_SHIFT
 
 // -----------------------------------------------------------------------------------------
 
@@ -149,6 +151,10 @@ using namespace std;
 #define TRIL_FALSE			"False"
 #define TRIL_NOT_DEFINED	"NotDefined"
 #define NOPARENT			"No parents"
+
+#define num_Chemic_Element_Property "num_Chemic_Element"
+#define item_Type_Property			"item_Type"
+#define column_Property				"column"
 
 // keys
 #define table_Key	"table_Of_Structures"
@@ -241,19 +247,19 @@ public:
 template <typename T>
 void print_Vector	(QString name, vector<T>& vec, int transpose)	// output
 {
-    if(vec.size()==0) return;
-    if(transpose==0)
-    {
-        cout<<name.toStdString()<<"[0.."<<vec.size()-1<<"] = "; //-V128
-        for(auto i=0; i<vec.size(); ++i) //-V104
-            cout<<vec[i]<<"\t";
-    } else
-    for(auto i=0; i<vec.size(); ++i) //-V104
-    {
-        cout<<name.toStdString()<<"["<<i<<"] = ";
-        cout<<vec[i]<<endl;
-    }
-    cout<<endl;
+	if(vec.size()==0) return;
+	if(transpose==0)
+	{
+		cout<<name.toStdString()<<"[0.."<<vec.size()-1<<"] = "; //-V128
+		for(auto i=0; i<vec.size(); ++i) //-V104
+			cout<<vec[i]<<"\t";
+	} else
+	for(auto i=0; i<vec.size(); ++i) //-V104
+	{
+		cout<<name.toStdString()<<"["<<i<<"] = ";
+		cout<<vec[i]<<endl;
+	}
+	cout<<endl;
 }
 
 #endif // GLOBAL_DEFINITIONS_H

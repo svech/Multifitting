@@ -366,7 +366,7 @@ void Settings::read_Precisions(bool reset_to_default)
 			thumbnail_density_precision		= precision_Values.value( "thumbnail_density_precision",		3 ).toInt();
 			thumbnail_permittivity_precision= precision_Values.value( "thumbnail_permittivity_precision",	3 ).toInt();
 			thumbnail_absorption_precision	= precision_Values.value( "thumbnail_absorption_precision",		3 ).toInt();
-			thumbnail_composition_precision = precision_Values.value( "thumbnail_composition_precision",	3 ).toInt();
+			thumbnail_composition_precision = precision_Values.value( "thumbnail_composition_precision",	6 ).toInt();
 			thumbnail_thickness_precision	= precision_Values.value( "thumbnail_thickness_precision",		3 ).toInt();
 			thumbnail_sigma_precision		= precision_Values.value( "thumbnail_sigma_precision",			3 ).toInt();	// = thickness precision
 			thumbnail_interlayer_precision	= precision_Values.value( "thumbnail_interlayer_precision",		3 ).toInt();

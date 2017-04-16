@@ -132,6 +132,8 @@ void Multilayer_Approach::open_Table_Of_Structures(bool)
 		runned_Tables_Of_Structures.insert(table_Key, table_Of_Structures);
 			table_Of_Structures->setWindowFlags(Qt::Window);
 			table_Of_Structures->show();
+
+		connect(table_Of_Structures, SIGNAL(data_Edited()), this, SLOT(refresh_All_Multilayers_View()));
 	} else
 	{
 		runned_Tables_Of_Structures.value(table_Key)->activateWindow();

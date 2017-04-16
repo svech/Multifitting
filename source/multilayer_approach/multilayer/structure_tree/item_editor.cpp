@@ -25,6 +25,7 @@ void Item_Editor::emit_Item_Data_Edited()
 
 void Item_Editor::closeEvent(QCloseEvent* event)
 {
+	done_Slot();
 	norm_Interlayer_Composition();
 	refresh_Data();
 	refresh_Material();
