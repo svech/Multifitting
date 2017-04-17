@@ -22,11 +22,15 @@ public slots:
 	void emit_Data_Edited();
 
 	void refresh_Element(QString temp = "empty");
-	void refresh_Stoich_Val(QString temp = "empty");
-	void refresh_Stoich_Min(QString temp = "empty");
-	void refresh_Stoich_Max(QString temp = "empty");
+	void refresh_Stoich(QString temp = "empty");
+	void refresh_Fit_Element(bool b = false);
 
 	void refresh_Material(QString temp = "empty");
+
+	void refresh_Parameter(QString temp = "empty");
+
+
+	void cells_On_Off(bool b = false);
 
 	void check_Material();
 	void browse_Material(bool b = false);
@@ -38,9 +42,12 @@ public:
 
 	void add_Columns(int add_After);
 		void create_Combo_Elements(int current_Row, int start_Column, QTreeWidgetItem* structure_Item, QString item_Type_String);
-		void create_Val_Stoich(int current_Row, int start_Column, QTreeWidgetItem* structure_Item, QString item_Type_String);
-		void create_Min_Stoich(int current_Row, int start_Column, QTreeWidgetItem* structure_Item, QString item_Type_String);
-		void create_Max_Stoich(int current_Row, int start_Column, QTreeWidgetItem* structure_Item, QString item_Type_String);
+		void create_Stoich(int current_Row, int start_Column, QTreeWidgetItem* structure_Item, QString item_Type_String, QString val_Type);
+		void create_Stoich_Check_Box_Fit(int current_Row, int start_Column, QTreeWidgetItem* structure_Item, QString item_Type_String);
+
+		void create_Label(int current_Row, int current_Column, QString text);
+		void create_Line_Edit(int current_Row, int current_Column, QTreeWidgetItem* structure_Item, QString item_Type_String, QString whats_This, QString val_Type);
+		void create_Check_Box_Fit(int current_Row, int start_Column, QTreeWidgetItem* structure_Item, QString item_Type_String, QString whats_This);
 
 		void create_Material(int current_Row, int start_Column, QTreeWidgetItem* structure_Item, QString item_Type_String);
 		void create_Browse_Button(int current_Row, int start_Column);
@@ -66,6 +73,7 @@ private:
 
 	QMap<QComboBox*,QTreeWidgetItem*> elements_Map;
 	QMap<QLineEdit*,QTreeWidgetItem*> line_Edits_Map;
+	QMap<QCheckBox*,QTreeWidgetItem*> check_Boxes_Map;
 };
 
 #endif // TABLE_OF_STRUCTURES_H

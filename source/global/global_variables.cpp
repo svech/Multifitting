@@ -180,12 +180,11 @@ void Global_Variables::serialize_Tree(QDataStream &out, QTreeWidget* tree)
 		// id
 		out << item->statusTip(DEFAULT_COLUMN);
 
-		// data
-		if(whats_This_List[0] == whats_This_Measurement)out << qvariant_cast<Measurement>	(item->data(DEFAULT_COLUMN, Qt::UserRole));
-		if(whats_This_List[0] == whats_This_Ambient)	out << qvariant_cast<Ambient>		(item->data(DEFAULT_COLUMN, Qt::UserRole));
-		if(whats_This_List[0] == whats_This_Layer)		out << qvariant_cast<Layer>			(item->data(DEFAULT_COLUMN, Qt::UserRole));
-		if(whats_This_List[0] == whats_This_Multilayer)	out << qvariant_cast<Stack_Content>	(item->data(DEFAULT_COLUMN, Qt::UserRole));
-		if(whats_This_List[0] == whats_This_Substrate)	out << qvariant_cast<Substrate>		(item->data(DEFAULT_COLUMN, Qt::UserRole));
+		if(whats_This_List[0] == whats_This_Measurement) out << item->data(DEFAULT_COLUMN, Qt::UserRole).value<Measurement>();
+		if(whats_This_List[0] == whats_This_Ambient)	 out << item->data(DEFAULT_COLUMN, Qt::UserRole).value<Ambient>();
+		if(whats_This_List[0] == whats_This_Layer)		 out << item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>();
+		if(whats_This_List[0] == whats_This_Multilayer)	 out << item->data(DEFAULT_COLUMN, Qt::UserRole).value<Stack_Content>();
+		if(whats_This_List[0] == whats_This_Substrate)	 out << item->data(DEFAULT_COLUMN, Qt::UserRole).value<Substrate>();
 
 
 		// parent's whatsThis

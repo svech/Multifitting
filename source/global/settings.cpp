@@ -35,6 +35,8 @@ QString icon_path;
 
 // structure default values
 
+double dispersion; // from [0,1)
+
 // Ambient_Values
 QString	ambient_default_material;
 double	ambient_default_absolute_density;
@@ -192,7 +194,7 @@ void Settings::read_Gui_Settings(bool reset_to_default)
 
 	// resource path
 	gui_Settings.beginGroup( Resource_Paths );
-        icon_path = gui_Settings.value( "icon_path", Pre_Path + "icons/" ).toString();
+		icon_path = gui_Settings.value( "icon_path", Pre_Path + "icons/" ).toString();
 	gui_Settings.endGroup();
 }
 
@@ -243,6 +245,9 @@ void Settings::read_Structure_Default_Values(bool reset_to_default)
 
 	// structure default values
 		structure_Default_Values.beginGroup( Structure_Init_Values );
+
+		dispersion = structure_Default_Values.value( "dispersion",	0.5 ).toDouble();
+
 			structure_Default_Values.beginGroup( Ambient_Values );
 				ambient_default_material				  = structure_Default_Values.value( "ambient_default_material",				    "Al"	).toString();
 				ambient_default_absolute_density		  = structure_Default_Values.value( "ambient_default_absolute_density",			0		).toDouble();
@@ -292,6 +297,9 @@ void Settings::save_Structure_Default_Values()
 
 	// structure default values
 	structure_Default_Values.beginGroup( Structure_Init_Values );
+
+	structure_Default_Values.setValue( "dispersion", dispersion	);
+
 		structure_Default_Values.beginGroup( Ambient_Values );
 			structure_Default_Values.setValue( "ambient_default_material",					ambient_default_material					);
 			structure_Default_Values.setValue( "ambient_default_absolute_density",			ambient_default_absolute_density			);
@@ -336,7 +344,7 @@ void Settings::save_Structure_Default_Values()
 }
 
 void Settings::read_Precisions(bool reset_to_default)
-{	
+{
 	QString add_reset;
 	if(reset_to_default) add_reset = "wrong_path";
 
@@ -380,7 +388,7 @@ void Settings::read_Precisions(bool reset_to_default)
 }
 
 void Settings::save_Precisions()
-{	
+{
 	QSettings precision_Values(Precisions_Path, QSettings::IniFormat);
 
 	// precisions

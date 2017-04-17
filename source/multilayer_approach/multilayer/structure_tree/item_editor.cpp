@@ -232,7 +232,7 @@ void Item_Editor::make_Thickness_Group_Box()
 		if(item->parent())
 			thickness_Group_Box_Layout->addWidget(depth_Grading_Button,0,Qt::AlignRight);
 
-        connect(depth_Grading_Button,SIGNAL(clicked(bool)),       this, SLOT(depth_Grading(bool)));
+		connect(depth_Grading_Button,SIGNAL(clicked(bool)),       this, SLOT(depth_Grading(bool)));
 		connect(thickness_Line_Edit, SIGNAL(textEdited(QString)), this, SLOT(resize_Line_Edit(QString)));
 		connect(thickness_Line_Edit, SIGNAL(textEdited(QString)), this, SLOT(refresh_Data(QString)));
 	}
@@ -352,7 +352,7 @@ void Item_Editor::make_Sigma_Group_Box()
 		if(item->parent())
 			sigma_Group_Box_Layout->addWidget(sigma_Grading_Button,0,Qt::AlignRight);
 
-        connect(sigma_Grading_Button,SIGNAL(clicked(bool)),   this, SLOT(sigma_Grading(bool)));
+		connect(sigma_Grading_Button,SIGNAL(clicked(bool)),   this, SLOT(sigma_Grading(bool)));
 		connect(sigma_Line_Edit, SIGNAL(textEdited(QString)), this, SLOT(resize_Line_Edit(QString)));
 		connect(sigma_Line_Edit, SIGNAL(textEdited(QString)), this, SLOT(refresh_Data(QString)));
 	}
@@ -387,7 +387,7 @@ void Item_Editor::make_Sigma_Group_Box()
 		sigma_Group_Box_Layout->addWidget(interlayer_Composition_Frame);
 	}
 	{
-		sigma_Done = true;		
+		sigma_Done = true;
 		read_Interlayers_From_Item();
 		show_Sigma();
 	}
@@ -548,6 +548,9 @@ void Item_Editor::more_Elements_Clicked(bool)
 		stoich.composition.value = substrate_default_stoichiometry_composition;
 		stoich.type				 = substrate_default_stoichiometry_element;
 	}
+	// for all
+//	stoich.composition.fit.min = stoich.composition.value*(1-dispersion);
+//	stoich.composition.fit.max = stoich.composition.value*(1+dispersion);
 
 	// creating ui elements
 	line_Edit->setText(QString::number(stoich.composition.value,line_edit_short_double_format,line_edit_composition_precision));
@@ -1168,7 +1171,7 @@ void Item_Editor::show_Stack_Parameters()
 		{
 			period_Label->setText(period_Label_1 + length_units + period_Label_2);
 
-			Stack_Content stack_Content = item->data(DEFAULT_COLUMN, Qt::UserRole).value<Stack_Content>();			
+			Stack_Content stack_Content = item->data(DEFAULT_COLUMN, Qt::UserRole).value<Stack_Content>();
 			repetitions_Line_Edit->setText(QString::number(stack_Content.num_Repetition.value));
 			period_Line_Edit->setText(QString::number(stack_Content.period.value/coeff,line_edit_double_format,line_edit_period_precision));
 			gamma_Line_Edit ->setText(QString::number(stack_Content.gamma.value,line_edit_double_format,line_edit_gamma_precision));
@@ -1297,7 +1300,7 @@ void Item_Editor::resize_Line_Edit(QString text, QLineEdit* line_Edit)
 void Item_Editor::browse_Material(bool)
 {
 	// TODO
-    qInfo() << "browse...";
+	qInfo() << "browse...";
 }
 
 void Item_Editor::depth_Grading(bool)
@@ -1398,6 +1401,9 @@ void Item_Editor::refresh_Data(QString str)
 			for(int i=0; i<ambient.composition.size(); ++i)
 			{
 				ambient.composition[i].composition.value = composition_Line_Edit_Vec[i]->text().toDouble();
+				ambient.composition[i].composition.fit.min = ambient.composition[i].composition.value*(1-dispersion);
+				ambient.composition[i].composition.fit.max = ambient.composition[i].composition.value*(1+dispersion);
+
 				ambient.composition[i].type = composition_Combo_Box_Vec[i]->currentText();
 				composition_At_Weight_Vec[i]->setText(AtWt + QString::number(sorted_Elements.value(composition_Combo_Box_Vec[i]->currentText()),thumbnail_double_format,at_weight_precision) + ")");
 			}
@@ -1421,6 +1427,9 @@ void Item_Editor::refresh_Data(QString str)
 			for(int i=0; i<layer.composition.size(); ++i)
 			{
 				layer.composition[i].composition.value = composition_Line_Edit_Vec[i]->text().toDouble();
+				layer.composition[i].composition.fit.min = layer.composition[i].composition.value*(1-dispersion);
+				layer.composition[i].composition.fit.max = layer.composition[i].composition.value*(1+dispersion);
+
 				layer.composition[i].type = composition_Combo_Box_Vec[i]->currentText();
 				composition_At_Weight_Vec[i]->setText(AtWt + QString::number(sorted_Elements.value(composition_Combo_Box_Vec[i]->currentText()),thumbnail_double_format,at_weight_precision) + ")");
 			}
@@ -1428,6 +1437,9 @@ void Item_Editor::refresh_Data(QString str)
 		if(thickness_Done)
 		{
 			layer.thickness.value = thickness_Line_Edit->text().toDouble()*coeff;
+
+			layer.thickness.fit.min = layer.thickness.value*(1-dispersion);
+			layer.thickness.fit.max = layer.thickness.value*(1+dispersion);
 		}
 		if(sigma_Done)
 		{
@@ -1486,6 +1498,9 @@ void Item_Editor::refresh_Data(QString str)
 			for(int i=0; i<substrate.composition.size(); ++i)
 			{
 				substrate.composition[i].composition.value = composition_Line_Edit_Vec[i]->text().toDouble();
+				substrate.composition[i].composition.fit.min = substrate.composition[i].composition.value*(1-dispersion);
+				substrate.composition[i].composition.fit.max = substrate.composition[i].composition.value*(1+dispersion);
+
 				substrate.composition[i].type = composition_Combo_Box_Vec[i]->currentText();
 				composition_At_Weight_Vec[i]->setText(AtWt + QString::number(sorted_Elements.value(composition_Combo_Box_Vec[i]->currentText()),thumbnail_double_format,at_weight_precision) + ")");
 			}

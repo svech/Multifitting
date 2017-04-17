@@ -256,7 +256,7 @@ QDataStream& operator <<( QDataStream& stream, const Layer& layer )
 					<< layer.use_PSD << layer.sigma << layer.interlayer_Composition
 					<< layer.layer_Index << layer.thickness
 					<< layer.thickness_Drift << layer.sigma_Drift
-                    << layer.if_First << layer. First	<< layer. if_Last << layer. Last;
+					<< layer.if_First << layer. First	<< layer. if_Last << layer. Last;
 }
 QDataStream& operator >>( QDataStream& stream,		 Layer& layer )
 {

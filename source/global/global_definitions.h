@@ -109,7 +109,7 @@ using namespace std;
 #define MAX_PRECISION_USED 10				// tthumbnail and lineedit precisions
 #define RAND_SHIFT	100000					// rand * RAND_SHIFT + rand
 #define TABLE_FIX_WIDTH_LINE_EDIT 50		// qLineEdit->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT)
-#define TABLE_COLUMN_ELEMENTS_SHIFT 4		// current_Column += TABLE_COLUMN_ELEMENTS_SHIFT
+#define TABLE_COLUMN_ELEMENTS_SHIFT 1		// current_Column += TABLE_COLUMN_ELEMENTS_SHIFT
 
 // -----------------------------------------------------------------------------------------
 
@@ -142,6 +142,11 @@ using namespace std;
 #define whats_This_Period					"Period"
 #define whats_This_Gamma					"Gamma"
 
+// value types
+#define VAL				"value"
+#define MIN				"min value"
+#define MAX				"max value"
+
 // -----------------------------------------------------------------------------------------
 
 // properties
@@ -154,7 +159,15 @@ using namespace std;
 
 #define num_Chemic_Element_Property "num_Chemic_Element"
 #define item_Type_Property			"item_Type"
+#define row_Property				"row"
 #define column_Property				"column"
+#define whats_This_Property			"whats_This"
+#define value_Type_Property			"value_Type"
+
+#define relative_Rows_To_Disable_Start_Property		"relative_Rows_To_Disable_Start"
+#define relative_Rows_To_Disable_Finish_Property	"relative_Rows_To_Disable_Finish"
+#define relative_Columns_To_Disable_Start_Property	"relative_Columns_To_Disable_Start"
+#define relative_Columns_To_Disable_Finish_Property	"relative_Columns_To_Disable_Finish"
 
 // keys
 #define table_Key	"table_Of_Structures"

@@ -35,6 +35,8 @@ extern QString icon_path;
 
 // structure default values
 
+extern double dispersion;	// from [0,1)
+
 // Ambient_Values
 extern QString	ambient_default_material;
 extern double	ambient_default_absolute_density;

@@ -24,7 +24,7 @@ void Table_Of_Structures::create_Main_Layout()
 		main_Layout->setContentsMargins(0,0,0,0);
 	create_Table();
 	main_Layout->addWidget(main_Table);
-	resize(800,500);
+	resize(800,800);
 }
 
 void Table_Of_Structures::create_Table()
@@ -59,8 +59,11 @@ void Table_Of_Structures::create_Table()
 			structure_Item = *it;
 			depth = Global_Variables::get_Item_Depth(structure_Item);
 			main_Table->insertRow(main_Table->rowCount());
-//			main_Table->insertRow(main_Table->rowCount());
-			current_Row = main_Table->rowCount()-1;
+			main_Table->insertRow(main_Table->rowCount());
+			main_Table->insertRow(main_Table->rowCount());
+
+			current_Row = main_Table->rowCount()-3;
+			main_Table->insertRow(main_Table->rowCount());
 			main_Table->insertRow(main_Table->rowCount());
 
 			add_Columns(depth);
@@ -99,14 +102,21 @@ void Table_Of_Structures::create_Table()
 
 			int current_Column = max_Depth+3;
 
-			// creation
+			///--------------------------------------------------------------------------------------------
+			/// creation
+			///--------------------------------------------------------------------------------------------
+
+			// material
 			if(item_Type_String == whats_This_Ambient || item_Type_String == whats_This_Layer || item_Type_String == whats_This_Substrate)
 			if(composed_Material)
 			{
-				create_Combo_Elements(current_Row,   current_Column,   structure_Item, item_Type_String);
-				create_Val_Stoich	 (current_Row+1, current_Column,   structure_Item, item_Type_String);
-				create_Min_Stoich	 (current_Row+1, current_Column-1, structure_Item, item_Type_String);
-				create_Max_Stoich	 (current_Row+1, current_Column+1, structure_Item, item_Type_String);
+				create_Combo_Elements(current_Row,   current_Column, structure_Item, item_Type_String);
+				create_Stoich		 (current_Row+1, current_Column, structure_Item, item_Type_String, VAL);
+				create_Stoich		 (current_Row+3, current_Column, structure_Item, item_Type_String, MIN);
+				create_Stoich		 (current_Row+4, current_Column, structure_Item, item_Type_String, MAX);
+
+				// it should be created last
+				create_Stoich_Check_Box_Fit (current_Row+2, current_Column, structure_Item, item_Type_String);
 			}
 			else
 			{
@@ -114,10 +124,25 @@ void Table_Of_Structures::create_Table()
 				create_Browse_Button (current_Row+1, current_Column);
 			}
 
+			///--------------------------------------------------------------------------------------------
+
+			current_Column += 4; // temporary
+
+			// thickness
+			if(item_Type_String == whats_This_Layer)
+			{
+				create_Label(current_Row, current_Column, "thick");
+				create_Line_Edit(current_Row+1, current_Column, structure_Item, item_Type_String, whats_This_Thickness, VAL);
+				create_Line_Edit(current_Row+3, current_Column, structure_Item, item_Type_String, whats_This_Thickness, MIN);
+				create_Line_Edit(current_Row+4, current_Column, structure_Item, item_Type_String, whats_This_Thickness, MAX);
+
+				// it should be created last
+//				create_Check_Box_Fit (current_Row+2, current_Column, structure_Item, item_Type_String);
+			}
+
 			++it;
 		}
 		main_Table->insertRow(main_Table->rowCount());
-//		main_Table->insertRow(main_Table->rowCount());
 	}
 	span_Structure_Headers();
 	span_Structure_Items();
@@ -178,7 +203,7 @@ void Table_Of_Structures::create_Combo_Elements(int current_Row, int start_Colum
 	}
 }
 
-void Table_Of_Structures::create_Val_Stoich(int current_Row, int start_Column, QTreeWidgetItem* structure_Item, QString item_Type_String)
+void Table_Of_Structures::create_Stoich(int current_Row, int start_Column, QTreeWidgetItem* structure_Item, QString item_Type_String, QString val_Type)
 {
 	QList<Stoichiometry> composition;
 
@@ -187,9 +212,14 @@ void Table_Of_Structures::create_Val_Stoich(int current_Row, int start_Column, Q
 	if(item_Type_String == whats_This_Substrate)	{composition = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Substrate>().composition;}
 
 	int current_Column = start_Column;
+	double value;
+
 	for(int composition_Index=0; composition_Index<composition.size(); ++composition_Index)
 	{
-		double value = composition[composition_Index].composition.value;
+		if(val_Type == VAL)	{value = composition[composition_Index].composition.value;	}
+		if(val_Type == MIN)	{value = composition[composition_Index].composition.fit.min;}
+		if(val_Type == MAX)	{value = composition[composition_Index].composition.fit.max;}
+
 		QString text_Value = QString::number(value, line_edit_short_double_format, line_edit_composition_precision);
 
 		// create lineedit
@@ -201,6 +231,7 @@ void Table_Of_Structures::create_Val_Stoich(int current_Row, int start_Column, Q
 		line_Edit->setProperty(min_Size_Property, line_Edit->width());
 		line_Edit->setProperty(item_Type_Property, item_Type_String);
 		line_Edit->setProperty(column_Property, current_Column);
+		line_Edit->setProperty(value_Type_Property, val_Type);
 		line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION));
 
 		connect(line_Edit, SIGNAL(textEdited(QString)), this, SLOT(resize_Line_Edit(QString)));
@@ -208,85 +239,103 @@ void Table_Of_Structures::create_Val_Stoich(int current_Row, int start_Column, Q
 		// create item
 		main_Table->setCellWidget(current_Row, current_Column, line_Edit);
 		line_Edits_Map.insert(line_Edit, structure_Item);
-		connect(line_Edit, SIGNAL(textEdited(QString)), this, SLOT(refresh_Stoich_Val(QString)));
+		connect(line_Edit, SIGNAL(textEdited(QString)), this, SLOT(refresh_Stoich(QString)));
 		line_Edit->textEdited(line_Edit->text());
+		current_Column+=TABLE_COLUMN_ELEMENTS_SHIFT;
+	}
+}
+
+void Table_Of_Structures::create_Stoich_Check_Box_Fit(int current_Row, int start_Column, QTreeWidgetItem* structure_Item, QString item_Type_String)
+{
+	QList<Stoichiometry> composition;
+
+	if(item_Type_String == whats_This_Ambient)		{composition = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Ambient>().	 composition;}
+	if(item_Type_String == whats_This_Layer)		{composition = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>().	 composition;}
+	if(item_Type_String == whats_This_Substrate)	{composition = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Substrate>().composition;}
+
+	int current_Column = start_Column;
+
+	for(int composition_Index=0; composition_Index<composition.size(); ++composition_Index)
+	{
+		// create check_Box
+		QCheckBox* check_Box = new QCheckBox("fit");
+
+		// number of element is here
+		check_Box->setProperty(num_Chemic_Element_Property, composition_Index);
+		check_Box->setProperty(item_Type_Property, item_Type_String);
+		check_Box->setProperty(row_Property, current_Row);
+		check_Box->setProperty(column_Property, current_Column);
+
+		// which cells disable and enable
+		check_Box->setProperty(relative_Rows_To_Disable_Start_Property, 1);
+		check_Box->setProperty(relative_Rows_To_Disable_Finish_Property, 2);
+		check_Box->setProperty(relative_Columns_To_Disable_Start_Property, 0);
+		check_Box->setProperty(relative_Columns_To_Disable_Finish_Property, 0);
+
+		// create item
+		main_Table->setCellWidget(current_Row, current_Column, check_Box);
+		check_Boxes_Map.insert(check_Box, structure_Item);
+		connect(check_Box, SIGNAL(toggled(bool)), this, SLOT(refresh_Fit_Element(bool)));
+		connect(check_Box, SIGNAL(toggled(bool)), this, SLOT(cells_On_Off(bool)));
+		check_Box->setChecked(composition[composition_Index].composition.fit.is_Fitable);
+		check_Box->toggled(false);
 
 		current_Column+=TABLE_COLUMN_ELEMENTS_SHIFT;
 	}
 }
 
-void Table_Of_Structures::create_Min_Stoich(int current_Row, int start_Column, QTreeWidgetItem* structure_Item, QString item_Type_String)
+void Table_Of_Structures::create_Label(int current_Row, int current_Column, QString text)
 {
-	QList<Stoichiometry> composition;
-
-	if(item_Type_String == whats_This_Ambient)		{composition = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Ambient>().	 composition;}
-	if(item_Type_String == whats_This_Layer)		{composition = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>().	 composition;}
-	if(item_Type_String == whats_This_Substrate)	{composition = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Substrate>().composition;}
-
-	int current_Column = start_Column;
-	for(int composition_Index=0; composition_Index<composition.size(); ++composition_Index)
-	{
-		double value = composition[composition_Index].composition.fit.min;
-		QString text_Value = QString::number(value, line_edit_short_double_format, line_edit_composition_precision);
-
-		// create lineedit
-		QLineEdit* line_Edit = new QLineEdit(text_Value);
-		line_Edit->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT);
-
-		// number of element is here
-		line_Edit->setProperty(num_Chemic_Element_Property, composition_Index);
-		line_Edit->setProperty(min_Size_Property, line_Edit->width());
-		line_Edit->setProperty(item_Type_Property, item_Type_String);
-		line_Edit->setProperty(column_Property, current_Column);
-		line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION));
-
-		connect(line_Edit, SIGNAL(textEdited(QString)), this, SLOT(resize_Line_Edit(QString)));
-
-		// create item
-		main_Table->setCellWidget(current_Row, current_Column, line_Edit);
-		line_Edits_Map.insert(line_Edit, structure_Item);
-		connect(line_Edit, SIGNAL(textEdited(QString)), this, SLOT(refresh_Stoich_Min(QString)));
-		line_Edit->textEdited(line_Edit->text());
-
-		current_Column+=TABLE_COLUMN_ELEMENTS_SHIFT;
-	}
+	add_Columns(current_Column+1);
+	main_Table->setItem(current_Row, current_Column, new QTableWidgetItem(text));
+	main_Table->item(current_Row,current_Column)->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEnabled);
 }
 
-void Table_Of_Structures::create_Max_Stoich(int current_Row, int start_Column, QTreeWidgetItem* structure_Item, QString item_Type_String)
+void Table_Of_Structures::create_Line_Edit(int current_Row, int current_Column, QTreeWidgetItem* structure_Item, QString item_Type_String, QString whats_This, QString val_Type)
 {
-	QList<Stoichiometry> composition;
+	// PARAMETER
+	Parameter parameter;
 
-	if(item_Type_String == whats_This_Ambient)		{composition = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Ambient>().	 composition;}
-	if(item_Type_String == whats_This_Layer)		{composition = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>().	 composition;}
-	if(item_Type_String == whats_This_Substrate)	{composition = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Substrate>().composition;}
-
-	int current_Column = start_Column;
-	for(int composition_Index=0; composition_Index<composition.size(); ++composition_Index)
+	if(item_Type_String == whats_This_Ambient)		{/*parameter = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Ambient>().composition;*/}
+	if(item_Type_String == whats_This_Layer)
 	{
-		double value = composition[composition_Index].composition.fit.max;
-		QString text_Value = QString::number(value, line_edit_short_double_format, line_edit_composition_precision);
-
-		// create lineedit
-		QLineEdit* line_Edit = new QLineEdit(text_Value);
-		line_Edit->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT);
-
-		// number of element is here
-		line_Edit->setProperty(num_Chemic_Element_Property, composition_Index);
-		line_Edit->setProperty(min_Size_Property, line_Edit->width());
-		line_Edit->setProperty(item_Type_Property, item_Type_String);
-		line_Edit->setProperty(column_Property, current_Column);
-		line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION));
-
-		connect(line_Edit, SIGNAL(textEdited(QString)), this, SLOT(resize_Line_Edit(QString)));
-
-		// create item
-		main_Table->setCellWidget(current_Row, current_Column, line_Edit);
-		line_Edits_Map.insert(line_Edit, structure_Item);
-		connect(line_Edit, SIGNAL(textEdited(QString)), this, SLOT(refresh_Stoich_Max(QString)));
-		line_Edit->textEdited(line_Edit->text());
-
-		current_Column+=TABLE_COLUMN_ELEMENTS_SHIFT;
+		if(whats_This == whats_This_Thickness)	parameter = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>().thickness;
 	}
+	if(item_Type_String == whats_This_Substrate)	{/*parameter = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Substrate>().composition;*/}
+
+	double value;
+
+	if(val_Type == VAL)	{value = parameter.value;	}
+	if(val_Type == MIN)	{value = parameter.fit.min;}
+	if(val_Type == MAX)	{value = parameter.fit.max;}
+
+	QString text_Value = QString::number(value, line_edit_short_double_format, line_edit_composition_precision);
+
+	// create lineedit
+	QLineEdit* line_Edit = new QLineEdit(text_Value);
+	line_Edit->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT);
+
+	// number of element is here
+	line_Edit->setProperty(min_Size_Property, line_Edit->width());
+	line_Edit->setProperty(item_Type_Property, item_Type_String);
+	line_Edit->setProperty(column_Property, current_Column);
+	line_Edit->setProperty(whats_This_Property, whats_This);
+	line_Edit->setProperty(value_Type_Property, val_Type);
+
+	if(whats_This == whats_This_Thickness) line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION));
+
+	connect(line_Edit, SIGNAL(textEdited(QString)), this, SLOT(resize_Line_Edit(QString)));
+
+	// create item
+	main_Table->setCellWidget(current_Row, current_Column, line_Edit);
+	line_Edits_Map.insert(line_Edit, structure_Item);
+	connect(line_Edit, SIGNAL(textEdited(QString)), this, SLOT(refresh_Parameter(QString)));
+	line_Edit->textEdited(line_Edit->text());
+}
+
+void Table_Of_Structures::create_Check_Box_Fit(int current_Row, int start_Column, QTreeWidgetItem* structure_Item, QString item_Type_String, QString whats_This)
+{
+
 }
 
 void Table_Of_Structures::create_Material(int current_Row, int start_Column, QTreeWidgetItem* structure_Item, QString item_Type_String)
@@ -373,32 +422,45 @@ void Table_Of_Structures::refresh_Element(QString temp)
 	emit_Data_Edited();
 }
 
-void Table_Of_Structures::refresh_Stoich_Val(QString temp)
+void Table_Of_Structures::refresh_Stoich(QString temp)
 {
 	QLineEdit* line_Edit = qobject_cast<QLineEdit*>(QObject::sender());
 	QTreeWidgetItem* structure_Item = line_Edits_Map.value(line_Edit);
 	QString item_Type_String = line_Edit->property(item_Type_Property).toString();
 	int composition_Index = line_Edit->property(num_Chemic_Element_Property).toInt();
+	QString value_Type = line_Edit->property(value_Type_Property).toString();
 
 	QVariant var;
 	if(item_Type_String == whats_This_Ambient)
 	{
 		Ambient ambient = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Ambient>();
-		ambient.composition[composition_Index].composition.value = line_Edit->text().toDouble();
+
+		if(value_Type == VAL)	{ambient.composition[composition_Index].composition.value = line_Edit->text().toDouble();  }
+		if(value_Type == MIN)	{ambient.composition[composition_Index].composition.fit.min = line_Edit->text().toDouble();}
+		if(value_Type == MAX)	{ambient.composition[composition_Index].composition.fit.max = line_Edit->text().toDouble();}
+
 		ambient.material = material_From_Composition(ambient.composition);
 		var.setValue( ambient );
 	}
 	if(item_Type_String == whats_This_Layer)
 	{
 		Layer layer = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>();
-		layer.composition[composition_Index].composition.value = line_Edit->text().toDouble();
+
+		if(value_Type == VAL)	{layer.composition[composition_Index].composition.value = line_Edit->text().toDouble();	 }
+		if(value_Type == MIN)	{layer.composition[composition_Index].composition.fit.min = line_Edit->text().toDouble();}
+		if(value_Type == MAX)	{layer.composition[composition_Index].composition.fit.max = line_Edit->text().toDouble();}
+
 		layer.material = material_From_Composition(layer.composition);
 		var.setValue( layer );
 	}
 	if(item_Type_String == whats_This_Substrate)
 	{
 		Substrate substrate = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Substrate>();
-		substrate.composition[composition_Index].composition.value = line_Edit->text().toDouble();
+
+		if(value_Type == VAL)	{substrate.composition[composition_Index].composition.value = line_Edit->text().toDouble();  }
+		if(value_Type == MIN)	{substrate.composition[composition_Index].composition.fit.min = line_Edit->text().toDouble();}
+		if(value_Type == MAX)	{substrate.composition[composition_Index].composition.fit.max = line_Edit->text().toDouble();}
+
 		substrate.material = material_From_Composition(substrate.composition);
 		var.setValue( substrate );
 	}
@@ -407,14 +469,39 @@ void Table_Of_Structures::refresh_Stoich_Val(QString temp)
 	emit_Data_Edited();
 }
 
-void Table_Of_Structures::refresh_Stoich_Min(QString temp)
+void Table_Of_Structures::refresh_Fit_Element(bool b)
 {
+	b;
+	QCheckBox* check_Box = qobject_cast<QCheckBox*>(QObject::sender());
+	QTreeWidgetItem* structure_Item = check_Boxes_Map.value(check_Box);
+	QString item_Type_String = check_Box->property(item_Type_Property).toString();
+	int composition_Index = check_Box->property(num_Chemic_Element_Property).toInt();
 
-}
+	QVariant var;
+	if(item_Type_String == whats_This_Ambient)
+	{
+		Ambient ambient = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Ambient>();
+		ambient.composition[composition_Index].composition.fit.is_Fitable = check_Box->isChecked();
+		ambient.material = material_From_Composition(ambient.composition);
+		var.setValue( ambient );
+	}
+	if(item_Type_String == whats_This_Layer)
+	{
+		Layer layer = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>();
+		layer.composition[composition_Index].composition.fit.is_Fitable = check_Box->isChecked();
+		layer.material = material_From_Composition(layer.composition);
+		var.setValue( layer );
+	}
+	if(item_Type_String == whats_This_Substrate)
+	{
+		Substrate substrate = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Substrate>();
+		substrate.composition[composition_Index].composition.fit.is_Fitable = check_Box->isChecked();
+		substrate.material = material_From_Composition(substrate.composition);
+		var.setValue( substrate );
+	}
+	structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
 
-void Table_Of_Structures::refresh_Stoich_Max(QString temp)
-{
-
+	emit_Data_Edited();
 }
 
 void Table_Of_Structures::refresh_Material(QString temp)
@@ -445,6 +532,85 @@ void Table_Of_Structures::refresh_Material(QString temp)
 	structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
 
 	emit_Data_Edited();
+}
+
+void Table_Of_Structures::refresh_Parameter(QString temp)
+{
+	QLineEdit* line_Edit = qobject_cast<QLineEdit*>(QObject::sender());
+	QTreeWidgetItem* structure_Item = line_Edits_Map.value(line_Edit);
+	QString item_Type_String = line_Edit->property(item_Type_Property).toString();
+	QString value_Type = line_Edit->property(value_Type_Property).toString();
+	QString whats_This = line_Edit->property(whats_This_Property).toString();
+
+	QVariant var;
+	if(item_Type_String == whats_This_Ambient)
+	{
+		Ambient ambient = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Ambient>();
+
+//		if(value_Type == VAL)	{ambient.composition[composition_Index].composition.value = line_Edit->text().toDouble();  }
+//		if(value_Type == MIN)	{ambient.composition[composition_Index].composition.fit.min = line_Edit->text().toDouble();}
+//		if(value_Type == MAX)	{ambient.composition[composition_Index].composition.fit.max = line_Edit->text().toDouble();}
+
+		ambient.material = material_From_Composition(ambient.composition);
+		var.setValue( ambient );
+	}
+	if(item_Type_String == whats_This_Layer)
+	{
+		Layer layer = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>();
+
+		if(whats_This == whats_This_Thickness)
+		{
+			if(value_Type == VAL)	{layer.thickness.value = line_Edit->text().toDouble();	 }
+			if(value_Type == MIN)	{layer.thickness.fit.min = line_Edit->text().toDouble();}
+			if(value_Type == MAX)	{layer.thickness.fit.max = line_Edit->text().toDouble();}
+		}
+
+		layer.material = material_From_Composition(layer.composition);
+		var.setValue( layer );
+	}
+	if(item_Type_String == whats_This_Substrate)
+	{
+		Substrate substrate = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Substrate>();
+
+//		if(value_Type == VAL)	{substrate.composition[composition_Index].composition.value = line_Edit->text().toDouble();  }
+//		if(value_Type == MIN)	{substrate.composition[composition_Index].composition.fit.min = line_Edit->text().toDouble();}
+//		if(value_Type == MAX)	{substrate.composition[composition_Index].composition.fit.max = line_Edit->text().toDouble();}
+
+		substrate.material = material_From_Composition(substrate.composition);
+		var.setValue( substrate );
+	}
+	structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+
+	emit_Data_Edited();
+}
+
+void Table_Of_Structures::cells_On_Off(bool b)
+{
+	b;
+	QCheckBox* check_Box = qobject_cast<QCheckBox*>(QObject::sender());
+
+	int current_Row = check_Box->property(row_Property).toInt();
+	int current_Column = check_Box->property(column_Property).toInt();
+
+	int row_Start = check_Box->property(relative_Rows_To_Disable_Start_Property).toInt();
+	int row_Finish = check_Box->property(relative_Rows_To_Disable_Finish_Property).toInt();
+	int column_Start = check_Box->property(relative_Columns_To_Disable_Start_Property).toInt();
+	int column_Finish = check_Box->property(relative_Columns_To_Disable_Finish_Property).toInt();
+
+	for(int row=row_Start; row<=row_Finish; ++row)
+	for(int col=column_Start; col<=column_Finish; ++col)
+	{
+		QWidget* widget = main_Table->cellWidget(current_Row+row,current_Column+col);
+		if(widget)
+		{
+			widget->setDisabled(!check_Box->isChecked());
+
+			if(!check_Box->isChecked())
+				widget->setStyleSheet("border: 0px solid red");
+			else
+				widget->setStyleSheet("border: 1px solid grey");
+		}
+	}
 }
 
 void Table_Of_Structures::check_Material()
@@ -533,7 +699,7 @@ void Table_Of_Structures::span_Structure_Items()
 					|| wtf_List[0] == whats_This_Multilayer
 					|| wtf_List[0] == whats_This_Substrate )
 				{
-					main_Table->setSpan(row_Index,col_Index,2,1);
+					main_Table->setSpan(row_Index,col_Index,5,1);
 				}
 			}
 		}
@@ -547,9 +713,11 @@ void Table_Of_Structures::fit_Column(int start_Width, int current_Column)
 	{
 		QLineEdit* current_Line_Edit = qobject_cast<QLineEdit*>(main_Table->cellWidget(row, current_Column));
 		if(current_Line_Edit)
-		if(max_Width<current_Line_Edit->width())
 		{
-			max_Width=current_Line_Edit->width()+1;
+			if(max_Width<current_Line_Edit->width())
+			{
+				max_Width=current_Line_Edit->width()+1;
+			}
 		}
 	}
 	main_Table->setColumnWidth(current_Column,max_Width);
