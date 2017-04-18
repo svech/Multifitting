@@ -93,8 +93,18 @@ Ambient::Ambient()
 {
 	material				= ambient_default_material;
 	approved_Material		= material;
-	absolute_Density.value	= ambient_default_absolute_density;
-	relative_Density.value	= ambient_default_relative_density;
+	{
+		absolute_Density.value			= ambient_default_absolute_density;
+		absolute_Density.fit.is_Fitable = false;
+		absolute_Density.fit.min = absolute_Density.value*(1-dispersion);
+		absolute_Density.fit.max = absolute_Density.value*(1+dispersion);
+	}
+	{
+		relative_Density.value			= ambient_default_relative_density;
+		relative_Density.fit.is_Fitable = false;
+		relative_Density.fit.min = relative_Density.value*(1-dispersion);
+		relative_Density.fit.max = relative_Density.value*(1+dispersion);
+	}
 	permittivity.value		= ambient_default_permittivity;
 	absorption.value		= ambient_default_absorption;
 	composed_Material		= ambient_default_composed;
@@ -104,12 +114,27 @@ Substrate::Substrate()
 {
 	material				= substrate_default_material;
 	approved_Material		= material;
-	absolute_Density.value	= substrate_default_absolute_density;
-	relative_Density.value	= substrate_default_relative_density;
+	{
+		absolute_Density.value			= substrate_default_absolute_density;
+		absolute_Density.fit.is_Fitable = false;
+		absolute_Density.fit.min = absolute_Density.value*(1-dispersion);
+		absolute_Density.fit.max = absolute_Density.value*(1+dispersion);
+	}
+	{
+		relative_Density.value			= substrate_default_relative_density;
+		relative_Density.fit.is_Fitable = false;
+		relative_Density.fit.min = relative_Density.value*(1-dispersion);
+		relative_Density.fit.max = relative_Density.value*(1+dispersion);
+	}
 	permittivity.value		= substrate_default_permittivity;
 	absorption.value		= substrate_default_absorption;
 	composed_Material		= substrate_default_composed;
-	sigma.value				= substrate_default_sigma;
+	{
+		sigma.value			= substrate_default_sigma;
+		sigma.fit.is_Fitable = false;
+		sigma.fit.min = sigma.value*(1-dispersion);
+		sigma.fit.max = sigma.value*(1+dispersion);
+	}
 
 	interlayer_Composition.clear();
 	interlayer_Composition.resize(int(transition_Layer_Functions_Size));
@@ -131,13 +156,33 @@ Extreme_Layer::Extreme_Layer() //-V730
 {
 	material				= layer_default_material;
 	approved_Material		= material;
-	absolute_Density.value	= layer_default_absolute_density;
-	relative_Density.value	= layer_default_relative_density;
+	{
+		absolute_Density.value			= layer_default_absolute_density;
+		absolute_Density.fit.is_Fitable = false;
+		absolute_Density.fit.min = absolute_Density.value*(1-dispersion);
+		absolute_Density.fit.max = absolute_Density.value*(1+dispersion);
+	}
+	{
+		relative_Density.value			= layer_default_relative_density;
+		relative_Density.fit.is_Fitable = false;
+		relative_Density.fit.min = relative_Density.value*(1-dispersion);
+		relative_Density.fit.max = relative_Density.value*(1+dispersion);
+	}
 	permittivity.value		= layer_default_permittivity;
 	absorption.value		= layer_default_absorption;
 	composed_Material		= layer_default_composed;
-	sigma.value				= layer_default_sigma;
-	thickness.value			= layer_default_thickness;
+	{
+		sigma.value			= layer_default_sigma;
+		sigma.fit.is_Fitable = false;
+		sigma.fit.min = sigma.value*(1-dispersion);
+		sigma.fit.max = sigma.value*(1+dispersion);
+	}
+	{
+		thickness.value			= layer_default_thickness;
+		thickness.fit.is_Fitable = false;
+		thickness.fit.min = thickness.value*(1-dispersion);
+		thickness.fit.max = thickness.value*(1+dispersion);
+	}
 
 	interlayer_Composition.clear();
 	interlayer_Composition.resize(int(transition_Layer_Functions_Size));
@@ -159,13 +204,33 @@ Layer::Layer()
 {
 	material				= layer_default_material;
 	approved_Material		= material;
-	absolute_Density.value	= layer_default_absolute_density;
-	relative_Density.value	= layer_default_relative_density;
+	{
+		absolute_Density.value			= layer_default_absolute_density;
+		absolute_Density.fit.is_Fitable = false;
+		absolute_Density.fit.min = absolute_Density.value*(1-dispersion);
+		absolute_Density.fit.max = absolute_Density.value*(1+dispersion);
+	}
+	{
+		relative_Density.value			= layer_default_relative_density;
+		relative_Density.fit.is_Fitable = false;
+		relative_Density.fit.min = relative_Density.value*(1-dispersion);
+		relative_Density.fit.max = relative_Density.value*(1+dispersion);
+	}
 	permittivity.value		= layer_default_permittivity;
 	absorption.value		= layer_default_absorption;
 	composed_Material		= layer_default_composed;
-	sigma.value				= layer_default_sigma;
-	thickness.value			= layer_default_thickness;
+	{
+		sigma.value			= layer_default_sigma;
+		sigma.fit.is_Fitable = false;
+		sigma.fit.min = sigma.value*(1-dispersion);
+		sigma.fit.max = sigma.value*(1+dispersion);
+	}
+	{
+		thickness.value			= layer_default_thickness;
+		thickness.fit.is_Fitable = false;
+		thickness.fit.min = thickness.value*(1-dispersion);
+		thickness.fit.max = thickness.value*(1+dispersion);
+	}
 
 	interlayer_Composition.clear();
 	interlayer_Composition.resize(int(transition_Layer_Functions_Size));
@@ -219,40 +284,40 @@ QDataStream& operator >>( QDataStream& stream,		 Measurement& measurement )
 /// ambient
 QDataStream& operator <<( QDataStream& stream, const Ambient& ambient )
 {
-	return stream	<< ambient.composed_Material << ambient.material << ambient.absolute_Density << ambient.relative_Density << ambient.separate_Optical_Constants << ambient.permittivity << ambient.absorption	<< ambient.composition;
+	return stream	<< ambient.composed_Material << ambient.material << ambient.approved_Material << ambient.absolute_Density << ambient.relative_Density << ambient.separate_Optical_Constants << ambient.permittivity << ambient.absorption	<< ambient.composition;
 }
 QDataStream& operator >>( QDataStream& stream,		 Ambient& ambient )
 {
-	return stream	>> ambient.composed_Material >> ambient.material >> ambient.absolute_Density >> ambient.relative_Density >> ambient.separate_Optical_Constants >> ambient.permittivity >> ambient.absorption	>> ambient.composition;
+	return stream	>> ambient.composed_Material >> ambient.material >> ambient.approved_Material >> ambient.absolute_Density >> ambient.relative_Density >> ambient.separate_Optical_Constants >> ambient.permittivity >> ambient.absorption	>> ambient.composition;
 }
 /// substrate
 QDataStream& operator <<( QDataStream& stream, const Substrate& substrate )
 {
-	return stream	<< substrate.composed_Material << substrate.material << substrate.absolute_Density << substrate.relative_Density << substrate.separate_Optical_Constants << substrate.permittivity << substrate.absorption	<< substrate.composition
+	return stream	<< substrate.composed_Material << substrate.material << substrate.approved_Material << substrate.absolute_Density << substrate.relative_Density << substrate.separate_Optical_Constants << substrate.permittivity << substrate.absorption	<< substrate.composition
 					<< substrate.use_PSD << substrate.sigma << substrate.interlayer_Composition;
 }
 QDataStream& operator >>( QDataStream& stream,		 Substrate& substrate )
 {
-	return stream	>> substrate.composed_Material >> substrate.material >> substrate.absolute_Density >> substrate.relative_Density >> substrate.separate_Optical_Constants >> substrate.permittivity >> substrate.absorption	>> substrate.composition
+	return stream	>> substrate.composed_Material >> substrate.material >> substrate.approved_Material >> substrate.absolute_Density >> substrate.relative_Density >> substrate.separate_Optical_Constants >> substrate.permittivity >> substrate.absorption	>> substrate.composition
 					>> substrate.use_PSD >> substrate.sigma >> substrate.interlayer_Composition;
 }
 /// extreme_Layer
 QDataStream& operator <<( QDataStream& stream, const Extreme_Layer& extreme_Layer )
 {
-	return stream	<< extreme_Layer.composed_Material << extreme_Layer.material << extreme_Layer.absolute_Density << extreme_Layer.relative_Density << extreme_Layer.separate_Optical_Constants <<extreme_Layer.permittivity << extreme_Layer.absorption	<< extreme_Layer.composition
+	return stream	<< extreme_Layer.composed_Material << extreme_Layer.material << extreme_Layer.approved_Material << extreme_Layer.absolute_Density << extreme_Layer.relative_Density << extreme_Layer.separate_Optical_Constants <<extreme_Layer.permittivity << extreme_Layer.absorption	<< extreme_Layer.composition
 					<< extreme_Layer.use_PSD << extreme_Layer.sigma << extreme_Layer.interlayer_Composition
 					<< extreme_Layer.layer_Index << extreme_Layer.thickness;
 }
 QDataStream& operator >>( QDataStream& stream,	     Extreme_Layer& extreme_Layer )
 {
-	return stream	>> extreme_Layer.composed_Material >> extreme_Layer.material >> extreme_Layer.absolute_Density >> extreme_Layer.relative_Density >> extreme_Layer.separate_Optical_Constants >> extreme_Layer.permittivity >> extreme_Layer.absorption	>> extreme_Layer.composition
+	return stream	>> extreme_Layer.composed_Material >> extreme_Layer.material >> extreme_Layer.approved_Material >> extreme_Layer.absolute_Density >> extreme_Layer.relative_Density >> extreme_Layer.separate_Optical_Constants >> extreme_Layer.permittivity >> extreme_Layer.absorption	>> extreme_Layer.composition
 					>> extreme_Layer.use_PSD >> extreme_Layer.sigma >> extreme_Layer.interlayer_Composition
 					>> extreme_Layer.layer_Index >> extreme_Layer.thickness;
 }
 /// layer
 QDataStream& operator <<( QDataStream& stream, const Layer& layer )
 {
-	return stream	<< layer.composed_Material << layer.material << layer.absolute_Density << layer.relative_Density << layer.separate_Optical_Constants << layer.permittivity << layer.absorption	<< layer.composition
+	return stream	<< layer.composed_Material << layer.material << layer.approved_Material << layer.absolute_Density << layer.relative_Density << layer.separate_Optical_Constants << layer.permittivity << layer.absorption	<< layer.composition
 					<< layer.use_PSD << layer.sigma << layer.interlayer_Composition
 					<< layer.layer_Index << layer.thickness
 					<< layer.thickness_Drift << layer.sigma_Drift
@@ -260,7 +325,7 @@ QDataStream& operator <<( QDataStream& stream, const Layer& layer )
 }
 QDataStream& operator >>( QDataStream& stream,		 Layer& layer )
 {
-	return stream	>> layer.composed_Material >> layer.material >> layer.absolute_Density >> layer.relative_Density >> layer.separate_Optical_Constants >> layer.permittivity >> layer.absorption	>> layer.composition
+	return stream	>> layer.composed_Material >> layer.material >> layer.approved_Material >> layer.absolute_Density >> layer.relative_Density >> layer.separate_Optical_Constants >> layer.permittivity >> layer.absorption	>> layer.composition
 					>> layer.use_PSD >> layer.sigma >> layer.interlayer_Composition
 					>> layer.layer_Index >> layer.thickness
 					>> layer.thickness_Drift >> layer.sigma_Drift

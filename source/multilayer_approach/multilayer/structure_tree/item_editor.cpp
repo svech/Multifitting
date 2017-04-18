@@ -1225,35 +1225,49 @@ void Item_Editor::done_Slot()
 	if(item_Type==Item_Type::Ambient)
 	{
 		Ambient ambient = item->data(DEFAULT_COLUMN, Qt::UserRole).value<Ambient>();
-
-		if(optical_Constants->material_Map.contains(ambient.material + nk_Ext) || ambient.composed_Material)
+		if(!ambient.composed_Material)
 		{
-			ambient.approved_Material = ambient.material;
-			var.setValue( ambient );
-			item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
-			close();
+			material_Line_Edit->textEdited(material_Line_Edit->text());
+			if(optical_Constants->material_Map.contains(ambient.material + nk_Ext) || ambient.composed_Material)
+			{
+				ambient.approved_Material = ambient.material;
+				var.setValue( ambient );
+				item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+				close();
+			} else
+			{
+				QMessageBox::information(this, "Wrong material", "File \"" + ambient.material + nk_Ext + "\" not found");
+				ambient.material = ambient.approved_Material;
+				material_Line_Edit->setText(ambient.material);
+				material_Line_Edit->textEdited(material_Line_Edit->text());
+			}
 		} else
 		{
-			material_Line_Edit->setText(ambient.approved_Material);
-			material_Line_Edit->textEdited(material_Line_Edit->text());
-			QMessageBox::information(this, "Wrong material", "File \"" + ambient.material + nk_Ext + "\" not found");
+			close();
 		}
 	}
 	if(item_Type==Item_Type::Layer)
 	{
 		Layer layer = item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>();
-
-		if(optical_Constants->material_Map.contains(layer.material + nk_Ext) || layer.composed_Material)
+		if(!layer.composed_Material)
 		{
-			layer.approved_Material = layer.material;
-			var.setValue( layer );
-			item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
-			close();
+			material_Line_Edit->textEdited(material_Line_Edit->text());
+			if(optical_Constants->material_Map.contains(layer.material + nk_Ext))
+			{
+				layer.approved_Material = layer.material;
+				var.setValue( layer );
+				item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+				close();
+			} else
+			{
+				QMessageBox::information(this, "Wrong material", "File \"" + layer.material + nk_Ext + "\" not found");
+				layer.material = layer.approved_Material;
+				material_Line_Edit->setText(layer.material);
+				material_Line_Edit->textEdited(material_Line_Edit->text());
+			}
 		} else
 		{
-			material_Line_Edit->setText(layer.approved_Material);
-			material_Line_Edit->textEdited(material_Line_Edit->text());
-			QMessageBox::information(this, "Wrong material", "File \"" + layer.material + nk_Ext + "\" not found");
+			close();
 		}
 	}
 	if(item_Type==Item_Type::Stack_Content)
@@ -1263,18 +1277,25 @@ void Item_Editor::done_Slot()
 	if(item_Type==Item_Type::Substrate)
 	{
 		Substrate substrate = item->data(DEFAULT_COLUMN, Qt::UserRole).value<Substrate>();
-
-		if(optical_Constants->material_Map.contains(substrate.material + nk_Ext) || substrate.composed_Material)
+		if(!substrate.composed_Material)
 		{
-			substrate.approved_Material = substrate.material;
-			var.setValue( substrate );
-			item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
-			close();
+			material_Line_Edit->textEdited(material_Line_Edit->text());
+			if(optical_Constants->material_Map.contains(substrate.material + nk_Ext) || substrate.composed_Material)
+			{
+				substrate.approved_Material = substrate.material;
+				var.setValue( substrate );
+				item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+				close();
+			} else
+			{
+				QMessageBox::information(this, "Wrong material", "File \"" + substrate.material + nk_Ext + "\" not found");
+				substrate.material = substrate.approved_Material;
+				material_Line_Edit->setText(substrate.material);
+				material_Line_Edit->textEdited(material_Line_Edit->text());
+			}
 		} else
 		{
-			material_Line_Edit->setText(substrate.approved_Material);
-			material_Line_Edit->textEdited(material_Line_Edit->text());
-			QMessageBox::information(this, "Wrong material", "File \"" + substrate.material + nk_Ext + "\" not found");
+			close();
 		}
 	}
 }
@@ -1394,9 +1415,13 @@ void Item_Editor::refresh_Data(QString str)
 			if(ambient.composed_Material)
 			{
 				ambient.absolute_Density.value = density_Line_Edit->text().toDouble();
+				ambient.absolute_Density.fit.min = ambient.absolute_Density.value*(1-dispersion);
+				ambient.absolute_Density.fit.max = ambient.absolute_Density.value*(1+dispersion);
 			} else
 			{
 				ambient.relative_Density.value = density_Line_Edit->text().toDouble();
+				ambient.relative_Density.fit.min = ambient.relative_Density.value*(1-dispersion);
+				ambient.relative_Density.fit.max = ambient.relative_Density.value*(1+dispersion);
 			}
 			for(int i=0; i<ambient.composition.size(); ++i)
 			{
@@ -1420,9 +1445,13 @@ void Item_Editor::refresh_Data(QString str)
 			if(layer.composed_Material)
 			{
 				layer.absolute_Density.value = density_Line_Edit->text().toDouble();
+				layer.absolute_Density.fit.min = layer.absolute_Density.value*(1-dispersion);
+				layer.absolute_Density.fit.max = layer.absolute_Density.value*(1+dispersion);
 			} else
 			{
 				layer.relative_Density.value = density_Line_Edit->text().toDouble();
+				layer.relative_Density.fit.min = layer.relative_Density.value*(1-dispersion);
+				layer.relative_Density.fit.max = layer.relative_Density.value*(1+dispersion);
 			}
 			for(int i=0; i<layer.composition.size(); ++i)
 			{
@@ -1491,9 +1520,13 @@ void Item_Editor::refresh_Data(QString str)
 			if(substrate.composed_Material)
 			{
 				substrate.absolute_Density.value = density_Line_Edit->text().toDouble();
+				substrate.absolute_Density.fit.min = substrate.absolute_Density.value*(1-dispersion);
+				substrate.absolute_Density.fit.max = substrate.absolute_Density.value*(1+dispersion);
 			} else
 			{
 				substrate.relative_Density.value = density_Line_Edit->text().toDouble();
+				substrate.relative_Density.fit.min = substrate.relative_Density.value*(1-dispersion);
+				substrate.relative_Density.fit.max = substrate.relative_Density.value*(1+dispersion);
 			}
 			for(int i=0; i<substrate.composition.size(); ++i)
 			{

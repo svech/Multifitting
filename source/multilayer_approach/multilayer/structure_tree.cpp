@@ -259,19 +259,18 @@ void Structure_Tree::set_Structure_Item_Text(QTreeWidgetItem* item)
 	// if ambient
 	if(item->whatsThis(DEFAULT_COLUMN)==whats_This_Ambient)
 	{
-		item->setText(DEFAULT_COLUMN, "ambient: " + item->data(DEFAULT_COLUMN, Qt::UserRole).value<Ambient>().material);
-		if(item->data(DEFAULT_COLUMN, Qt::UserRole).value<Ambient>().material!="Vacuum")
+		Ambient ambient = item->data(DEFAULT_COLUMN, Qt::UserRole).value<Ambient>();
+		if(ambient.material!="Vacuum")
 		{
-			if(item->data(DEFAULT_COLUMN, Qt::UserRole).value<Ambient>().composed_Material)
+			if(ambient.composed_Material)
 			{
-				item->setText(DEFAULT_COLUMN, item->text(DEFAULT_COLUMN) + ", " + Rho_Sym + "=" +
-							  QString::number(item->data(DEFAULT_COLUMN, Qt::UserRole).value<Ambient>().absolute_Density.value,thumbnail_double_format,thumbnail_density_precision) + density_units);
+				item->setText(DEFAULT_COLUMN, "ambient: " + ambient.material + ", " + Rho_Sym + "=" +
+							  QString::number(ambient.absolute_Density.value,thumbnail_double_format,thumbnail_density_precision) + density_units);
 			} else
 			{
-				item->setText(DEFAULT_COLUMN, item->text(DEFAULT_COLUMN) + ", " + Rho_Sym + "=" +
-							  QString::number(item->data(DEFAULT_COLUMN, Qt::UserRole).value<Ambient>().relative_Density.value,thumbnail_double_format,thumbnail_density_precision));
+				item->setText(DEFAULT_COLUMN, "ambient: " + ambient.material + ", " + Rho_Sym + "=" +
+							  QString::number(ambient.relative_Density.value,thumbnail_double_format,thumbnail_density_precision));
 			}
-
 		}
 	} else
 	{
@@ -279,77 +278,79 @@ void Structure_Tree::set_Structure_Item_Text(QTreeWidgetItem* item)
 		// if substrate
 		if(item->whatsThis(DEFAULT_COLUMN)==whats_This_Substrate)
 		{
-
-			if(item->data(DEFAULT_COLUMN, Qt::UserRole).value<Substrate>().composed_Material)
+			Substrate substrate = item->data(DEFAULT_COLUMN, Qt::UserRole).value<Substrate>();
+			if(substrate.composed_Material)
 			{
-				item->setText(DEFAULT_COLUMN, item->data(DEFAULT_COLUMN, Qt::UserRole).value<Substrate>().material + " substrate" + ", " + Rho_Sym + "=" +
-							  QString::number(item->data(DEFAULT_COLUMN, Qt::UserRole).value<Substrate>().absolute_Density.value,thumbnail_double_format,thumbnail_density_precision) + density_units);
+				item->setText(DEFAULT_COLUMN, substrate.material + " substrate" + ", " + Rho_Sym + "=" +
+							  QString::number(substrate.absolute_Density.value,thumbnail_double_format,thumbnail_density_precision) + density_units);
 			} else
 			{
-				item->setText(DEFAULT_COLUMN, item->data(DEFAULT_COLUMN, Qt::UserRole).value<Substrate>().material + " substrate" + ", " + Rho_Sym + "=" +
-							  QString::number(item->data(DEFAULT_COLUMN, Qt::UserRole).value<Substrate>().relative_Density.value,thumbnail_double_format,thumbnail_density_precision));
+				item->setText(DEFAULT_COLUMN, substrate.material + " substrate" + ", " + Rho_Sym + "=" +
+							  QString::number(substrate.relative_Density.value,thumbnail_double_format,thumbnail_density_precision));
 			}
 
-			if(item->data(DEFAULT_COLUMN, Qt::UserRole).value<Substrate>().sigma.value>0)
+			if(substrate.sigma.value>0)
 			{
 				// average sigma
-				if(item->data(DEFAULT_COLUMN, Qt::UserRole).value<Substrate>().common_Sigma)
+				if(substrate.common_Sigma)
 					temp_Sigma_Sym = Sigma_Sym;
 				else
 					temp_Sigma_Sym = "<"+Sigma_Sym+">";
 
 				item->setText(DEFAULT_COLUMN, item->text(DEFAULT_COLUMN) + ", " + temp_Sigma_Sym + "=" +
-							  QString::number(item->data(DEFAULT_COLUMN, Qt::UserRole).value<Substrate>().sigma.value/length_Coeff,thumbnail_double_format,thumbnail_sigma_precision) + length_units);
+							  QString::number(substrate.sigma.value/length_Coeff,thumbnail_double_format,thumbnail_sigma_precision) + length_units);
 			}
 		} else
 		{
 			// if multilayer
 			if(item->childCount()>0)
 			{
-				item->setText(DEFAULT_COLUMN, "Multilayer, N=" + QString::number(item->data(DEFAULT_COLUMN, Qt::UserRole).value<Stack_Content>().num_Repetition.value)
-							  + ", d=" + QString::number(item->data(DEFAULT_COLUMN, Qt::UserRole).value<Stack_Content>().period.value/length_Coeff,thumbnail_double_format,thumbnail_period_precision) + length_units);
+				Stack_Content stack_Content = item->data(DEFAULT_COLUMN, Qt::UserRole).value<Stack_Content>();
+				item->setText(DEFAULT_COLUMN, "Multilayer, N=" + QString::number(stack_Content.num_Repetition.value)
+							  + ", d=" + QString::number(stack_Content.period.value/length_Coeff,thumbnail_double_format,thumbnail_period_precision) + length_units);
 
 				if(item->childCount()==2)
 				{
 					item->setText(DEFAULT_COLUMN, item->text(DEFAULT_COLUMN) + ", " + Gamma_Sym + "=" +
-								  QString::number(item->data(DEFAULT_COLUMN, Qt::UserRole).value<Stack_Content>().gamma.value,thumbnail_double_format,thumbnail_gamma_precision));
+								  QString::number(stack_Content.gamma.value,thumbnail_double_format,thumbnail_gamma_precision));
 				}
 			} else
 			// if layer
 			{
-				QString thickness_Text = ", z=" +  QString::number(item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>().thickness.value/length_Coeff,thumbnail_double_format,thumbnail_thickness_precision) + length_units;
+				Layer layer = item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>();
+				QString thickness_Text = ", z=" +  QString::number(layer.thickness.value/length_Coeff,thumbnail_double_format,thumbnail_thickness_precision) + length_units;
 
-				if(item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>().composed_Material)
+				if(layer.composed_Material)
 				{
-					item->setText(DEFAULT_COLUMN, item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>().material + " layer"
+					item->setText(DEFAULT_COLUMN, layer.material + " layer"
 								  + thickness_Text
-								  + ", " + Rho_Sym + "=" +  QString::number(item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>().absolute_Density.value,thumbnail_double_format,thumbnail_density_precision) + density_units);
+								  + ", " + Rho_Sym + "=" +  QString::number(layer.absolute_Density.value,thumbnail_double_format,thumbnail_density_precision) + density_units);
 				} else
 				{
-					item->setText(DEFAULT_COLUMN, item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>().material + " layer"
+					item->setText(DEFAULT_COLUMN, layer.material + " layer"
 								  + thickness_Text
-								  + ", " + Rho_Sym + "=" +  QString::number(item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>().relative_Density.value,thumbnail_double_format,thumbnail_density_precision));
+								  + ", " + Rho_Sym + "=" +  QString::number(layer.relative_Density.value,thumbnail_double_format,thumbnail_density_precision));
 				}
 
-				if(item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>().sigma.value>0)
+				if(layer.sigma.value>0)
 				{
 					// average sigma
-					if(item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>().common_Sigma)
+					if(layer.common_Sigma)
 						temp_Sigma_Sym = Sigma_Sym;
 					else
 						temp_Sigma_Sym = "<"+Sigma_Sym+">";
 
 					item->setText(DEFAULT_COLUMN, item->text(DEFAULT_COLUMN) + ", " + temp_Sigma_Sym + "=" +
-								  QString::number(item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>().sigma.value/length_Coeff,thumbnail_double_format,thumbnail_sigma_precision) + length_units);
+								  QString::number(layer.sigma.value/length_Coeff,thumbnail_double_format,thumbnail_sigma_precision) + length_units);
 
 					// reflect sigma drift
-					Drift sigma_Drift = item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>().sigma_Drift;
+					Drift sigma_Drift = layer.sigma_Drift;
 					if(sigma_Drift.is_Drift_Line || sigma_Drift.is_Drift_Sine || sigma_Drift.is_Drift_Rand)
 						item->setText(DEFAULT_COLUMN, item->text(DEFAULT_COLUMN) + " || d" + Sigma_Sym + " = on");
 				}
 
 				// reflect thickness drift
-				Drift thick_Drift = item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>().thickness_Drift;
+				Drift thick_Drift = layer.thickness_Drift;
 				QString thick_Drift_Text = "";
 				if(thick_Drift.is_Drift_Line || thick_Drift.is_Drift_Sine || thick_Drift.is_Drift_Rand)
 					thick_Drift_Text += "\n---> dz =";

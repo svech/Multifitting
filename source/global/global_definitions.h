@@ -142,6 +142,20 @@ using namespace std;
 #define whats_This_Period					"Period"
 #define whats_This_Gamma					"Gamma"
 
+// whatsThis : thickness drifts
+#define whats_This_Thickness_Drift_Line_Value		"Thickness Drift Lin Value"
+#define whats_This_Thickness_Drift_Sine_Amplitude	"Thickness Drift Sine Amplitude"
+#define whats_This_Thickness_Drift_Sine_Frequency	"Thickness Drift Sine Frequency"
+#define whats_This_Thickness_Drift_Sine_Phase		"Thickness Drift Sine Phase"
+#define whats_This_Thickness_Drift_Rand_Rms			"Thickness Drift Rand Rms"
+
+// whatsThis : sigma drifts
+#define whats_This_Sigma_Drift_Line_Value			"Sigma Drift Lin Value"
+#define whats_This_Sigma_Drift_Sine_Amplitude		"Sigma Drift Sine Amplitude"
+#define whats_This_Sigma_Drift_Sine_Frequency		"Sigma Drift Sine Frequency"
+#define whats_This_Sigma_Drift_Sine_Phase			"Sigma Drift Sine Phase"
+#define whats_This_Sigma_Drift_Rand_Rms				"Sigma Drift Rand Rms"
+
 // value types
 #define VAL				"value"
 #define MIN				"min value"

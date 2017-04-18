@@ -177,7 +177,7 @@ void Settings::read_Gui_Settings(bool reset_to_default)
 
 	// multilayer window geometry
 	gui_Settings.beginGroup( Multilayer_Window_Geometry );
-		multilayer_x_corner			= gui_Settings.value( "multilayer_x_corner",		500 ).toInt();
+		multilayer_x_corner			= gui_Settings.value( "multilayer_x_corner",		150 ).toInt();
 		multilayer_y_corner			= gui_Settings.value( "multilayer_y_corner",		200 ).toInt();
 		multilayer_min_width		= gui_Settings.value( "multilayer_min_width",		300 ).toInt();
 		multilayer_min_height		= gui_Settings.value( "multilayer_min_height",		100 ).toInt();
@@ -356,12 +356,12 @@ void Settings::read_Precisions(bool reset_to_default)
 			line_edit_double_format		  = qvariant_cast<char>(precision_Values.value( "line_edit_double_format",      'f'));
 			line_edit_short_double_format = qvariant_cast<char>(precision_Values.value( "line_edit_short_double_format",'g'));
 			line_edit_angle_precision		= precision_Values.value( "line_edit_angle_precision",			5 ).toInt();
-			line_edit_wavelength_precision	= precision_Values.value( "line_edit_wavelength_precision",		5 ).toInt();
-			line_edit_density_precision		= precision_Values.value( "line_edit_density_precision",		5 ).toInt();
-			line_edit_permittivity_precision= precision_Values.value( "line_edit_permittivity_precision",	5 ).toInt();
-			line_edit_absorption_precision	= precision_Values.value( "line_edit_absorption_precision",		5 ).toInt();
+			line_edit_wavelength_precision	= precision_Values.value( "line_edit_wavelength_precision",		6 ).toInt();
+			line_edit_density_precision		= precision_Values.value( "line_edit_density_precision",		4 ).toInt();
+			line_edit_permittivity_precision= precision_Values.value( "line_edit_permittivity_precision",	4 ).toInt();
+			line_edit_absorption_precision	= precision_Values.value( "line_edit_absorption_precision",		4 ).toInt();
 			line_edit_composition_precision	= precision_Values.value( "line_edit_composition_precision",	4 ).toInt();
-			line_edit_thickness_precision	= precision_Values.value( "line_edit_thickness_precision",		4 ).toInt();
+			line_edit_thickness_precision	= precision_Values.value( "line_edit_thickness_precision",		5 ).toInt();
 			line_edit_sigma_precision		= precision_Values.value( "line_edit_sigma_precision",			4 ).toInt();	// = thickness precision
 			line_edit_interlayer_precision	= precision_Values.value( "line_edit_interlayer_precision",		4 ).toInt();
 			line_edit_period_precision		= precision_Values.value( "line_edit_period_precision",			5 ).toInt();	// = thickness precision
