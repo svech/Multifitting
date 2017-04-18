@@ -217,6 +217,49 @@ void Table_Of_Structures::create_Table()
 				// last
 				create_Check_Box_Fit(current_Row+2, current_Column, structure_Item, item_Type_String, whats_This, 1, 2, 0, 0);
 			}
+
+			///--------------------------------------------------------------------------------------------
+
+			current_Column += 1;
+
+			// thickness sine drift
+			if(item_Type_String == whats_This_Layer && depth >=2)
+			{
+				// amplitude
+				QString whats_This = whats_This_Thickness_Drift_Sine_Amplitude;
+				add_Columns(current_Column+3);
+				create_Line_Edit	(current_Row+1, current_Column, structure_Item, item_Type_String, whats_This, VAL);
+				// second
+				create_Check_Box_Label(current_Row, current_Column, structure_Item, item_Type_String, whats_This,"dz sin : A*sin(2"+Pi_Sym+"n"+Nu_Sym+"+"+Phi_Sym+")", 1, 1, 0, 0);
+				create_Line_Edit	(current_Row+3, current_Column, structure_Item, item_Type_String, whats_This, MIN);
+				create_Line_Edit	(current_Row+4, current_Column, structure_Item, item_Type_String, whats_This, MAX);
+				// last
+				create_Check_Box_Fit(current_Row+2, current_Column, structure_Item, item_Type_String, whats_This, 1, 2, 0, 0);
+
+				// frequency
+				int our_Column = current_Column+1;
+				whats_This = whats_This_Thickness_Drift_Sine_Frequency;
+				create_Line_Edit	(current_Row+1, our_Column, structure_Item, item_Type_String, whats_This, VAL);
+				// second
+				create_Line_Edit	(current_Row+3, our_Column, structure_Item, item_Type_String, whats_This, MIN);
+				create_Line_Edit	(current_Row+4, our_Column, structure_Item, item_Type_String, whats_This, MAX);
+				// last
+				create_Check_Box_Fit(current_Row+2, our_Column, structure_Item, item_Type_String, whats_This, 1, 2, 0, 0);
+
+				// phase
+				our_Column += 1;
+				whats_This = whats_This_Thickness_Drift_Sine_Phase;
+				create_Line_Edit	(current_Row+1, our_Column, structure_Item, item_Type_String, whats_This, VAL);
+				// second
+				create_Line_Edit	(current_Row+3, our_Column, structure_Item, item_Type_String, whats_This, MIN);
+				create_Line_Edit	(current_Row+4, our_Column, structure_Item, item_Type_String, whats_This, MAX);
+				// last
+				create_Check_Box_Fit(current_Row+2, our_Column, structure_Item, item_Type_String, whats_This, 1, 2, 0, 0);
+
+				main_Table->setSpan(current_Row,current_Column,1,3);
+			}
+
+
 			++it;
 		}
 		main_Table->insertRow(main_Table->rowCount());

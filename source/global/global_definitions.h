@@ -92,6 +92,9 @@ using namespace std;
 #define Degree_Sym			QString(QChar(0x00B0))
 #define Delta_Big_Sym		QString(QChar(0x0394))
 #define Mu_Sym				QString(QChar(0x03BC))
+#define Pi_Sym				QString(QChar(0x03C0))
+#define Nu_Sym				QString(QChar(0x03BD))
+#define Phi_Sym				QString(QChar(0x03C6))
 #define Prime_Sym			QString(QChar(0x2032))
 #define Double_Prime_Sym	QString(QChar(0x2033))
 
