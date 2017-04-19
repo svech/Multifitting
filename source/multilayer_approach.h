@@ -19,6 +19,7 @@ public:
 
 signals:
 	void closed();
+	void refresh_Table_Of_Structures(QObject*);
 
 public slots:
 	void open_Launcher();

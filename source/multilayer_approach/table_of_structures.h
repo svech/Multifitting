@@ -52,7 +52,6 @@ public:
 	void span_Structure_Items();
 	void fit_Column(int start_Width, int current_Column);
 	void add_Columns(int add_After);
-	void reload_All_Widgets(QObject* sender = NULL);
 
 public slots:
 
@@ -83,6 +82,7 @@ public slots:
 	void cells_On_Off(bool b = false);
 	void resize_Line_Edit(QString text, QLineEdit* line_Edit = NULL);
 	void emit_Data_Edited();
+	void reload_All_Widgets(QObject* sender = NULL);
 
 public:
 	int temp_Counter = 0;

@@ -84,23 +84,6 @@ void Table_Of_Structures::create_Table()
 		while (*it)
 		{
 			structure_Item = *it;
-			depth = Global_Variables::get_Item_Depth(structure_Item);
-
-			current_Column = depth-1;
-			main_Table->insertRow(main_Table->rowCount());
-			main_Table->insertRow(main_Table->rowCount());
-			main_Table->insertRow(main_Table->rowCount());
-			main_Table->insertRow(main_Table->rowCount());
-
-			current_Row = main_Table->rowCount()-3;
-			main_Table->insertRow(main_Table->rowCount());
-			main_Table->insertRow(main_Table->rowCount());
-
-			add_Columns(depth);
-
-			// print whatsThis
-			main_Table->setItem(current_Row,current_Column, new QTableWidgetItem(structure_Item->whatsThis(DEFAULT_COLUMN)));
-			main_Table->item(current_Row,current_Column)->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEnabled);
 
 			// common variables
 			bool composed_Material;
@@ -112,6 +95,28 @@ void Table_Of_Structures::create_Table()
 			if(item_Type_String == whats_This_Layer)		{composed_Material = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>().composed_Material;	}
 			if(item_Type_String == whats_This_Multilayer)	{		}
 			if(item_Type_String == whats_This_Substrate)	{composed_Material = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Substrate>().composed_Material;}
+
+			depth = Global_Variables::get_Item_Depth(structure_Item);
+
+			current_Column = depth-1;
+			main_Table->insertRow(main_Table->rowCount());
+			main_Table->insertRow(main_Table->rowCount());
+			main_Table->insertRow(main_Table->rowCount());
+
+			current_Row = main_Table->rowCount()-2;
+
+			if(item_Type_String != whats_This_Multilayer)
+			{
+				main_Table->insertRow(main_Table->rowCount());
+				main_Table->insertRow(main_Table->rowCount());
+				main_Table->insertRow(main_Table->rowCount());
+			}
+
+			add_Columns(depth);
+
+			// print whatsThis
+			main_Table->setItem(current_Row,current_Column, new QTableWidgetItem(structure_Item->whatsThis(DEFAULT_COLUMN)));
+			main_Table->item(current_Row,current_Column)->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEnabled);
 
 			current_Column = max_Depth+1;
 
@@ -391,10 +396,13 @@ void Table_Of_Structures::span_Structure_Items()
 				QStringList wtf_List = main_Table->item(row_Index,col_Index)->text().split(item_Type_Delimiter,QString::SkipEmptyParts);
 				if(	   wtf_List[0] == whats_This_Ambient
 					|| wtf_List[0] == whats_This_Layer
-					|| wtf_List[0] == whats_This_Multilayer
 					|| wtf_List[0] == whats_This_Substrate )
 				{
 					main_Table->setSpan(row_Index,col_Index,5,1);
+				}
+				if( wtf_List[0] == whats_This_Multilayer )
+				{
+					main_Table->setSpan(row_Index,col_Index,2,1);
 				}
 			}
 		}
@@ -416,30 +424,6 @@ void Table_Of_Structures::fit_Column(int start_Width, int current_Column)
 		}
 	}
 	main_Table->setColumnWidth(current_Column,max_Width);
-}
-
-void Table_Of_Structures::reload_All_Widgets(QObject* sender)
-{
-	if(table_Is_Created)
-	{
-		for(int i=0; i<all_Widgets_To_Reload.size(); ++i)
-		{
-			if(all_Widgets_To_Reload[i] != sender)
-			{
-				all_Widgets_To_Reload[i]->setProperty(reload_Property, true);
-
-				QCheckBox* check_Box = qobject_cast<QCheckBox*>(all_Widgets_To_Reload[i]);
-				QLineEdit* line_Edit = qobject_cast<QLineEdit*>(all_Widgets_To_Reload[i]);
-				QComboBox* combo_Box = qobject_cast<QComboBox*>(all_Widgets_To_Reload[i]);
-
-				if(check_Box)	check_Box->toggled(false);
-				if(line_Edit)	line_Edit->textEdited("temp");
-				if(combo_Box)	combo_Box->currentTextChanged("temp");
-
-				all_Widgets_To_Reload[i]->setProperty(reload_Property, false);
-			}
-		}
-	}
 }
 
 // creation
@@ -2049,4 +2033,29 @@ void Table_Of_Structures::resize_Line_Edit(QString text, QLineEdit* line_Edit)
 
 	int current_Column = line_Edit->property(column_Property).toInt();
 	fit_Column(0, current_Column);
+}
+
+void Table_Of_Structures::reload_All_Widgets(QObject* sender)
+{
+	if(table_Is_Created)
+	{
+//		qInfo() << temp_Counter++ << " reload_All_Widgets";
+		for(int i=0; i<all_Widgets_To_Reload.size(); ++i)
+		{
+			if(all_Widgets_To_Reload[i] != sender)
+			{
+				all_Widgets_To_Reload[i]->setProperty(reload_Property, true);
+
+				QCheckBox* check_Box = qobject_cast<QCheckBox*>(all_Widgets_To_Reload[i]);
+				QLineEdit* line_Edit = qobject_cast<QLineEdit*>(all_Widgets_To_Reload[i]);
+				QComboBox* combo_Box = qobject_cast<QComboBox*>(all_Widgets_To_Reload[i]);
+
+				if(check_Box)	check_Box->toggled(false);
+				if(line_Edit)	line_Edit->textEdited("temp");
+				if(combo_Box)	combo_Box->currentTextChanged("temp");
+
+				all_Widgets_To_Reload[i]->setProperty(reload_Property, false);
+			}
+		}
+	}
 }
