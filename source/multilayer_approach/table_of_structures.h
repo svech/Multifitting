@@ -39,6 +39,14 @@ public:
 	void create_Line_Edit    (int current_Row, int current_Column, QTreeWidgetItem* structure_Item, QString item_Type_String, QString whats_This, QString val_Type);
 	void create_Check_Box_Fit(int current_Row, int current_Column, QTreeWidgetItem* structure_Item, QString item_Type_String, QString whats_This, int r_S, int r_F, int c_S, int c_F);
 
+	// for interlayers
+	void create_Check_Box_Label_Interlayer		(int current_Row, int start_Column, QTreeWidgetItem* structure_Item, QString item_Type_String);
+	void create_Weigts_Interlayer				(int current_Row, int start_Column, QTreeWidgetItem* structure_Item, QString item_Type_String, QString val_Type);
+	void create_Weights_Check_Box_Fit_Interlayer(int current_Row, int start_Column, QTreeWidgetItem* structure_Item, QString item_Type_String);
+
+	void create_MySigma_Labels_Interlayer		(int current_Row, int start_Column, QTreeWidgetItem* structure_Item, QString item_Type_String);
+	void create_MySigma_Interlayer				(int current_Row, int start_Column, QTreeWidgetItem* structure_Item, QString item_Type_String);
+
 	void span_Structure_Headers();
 	void span_Structure_Items();
 	void fit_Column(int start_Width, int current_Column);
@@ -62,6 +70,13 @@ public slots:
 	void refresh_Parameter(QString temp = "empty");
 	void refresh_Fit_Parameter(bool b = false);
 
+	// for interlayers
+	void refresh_Check_Box_Label_Interlayer		 (bool b = false);
+	void refresh_Weigts_Interlayer				 (QString temp = "empty");
+	void refresh_Weights_Check_Box_Fit_Interlayer(bool b = false);
+
+	void refresh_MySigma_Interlayer(QString temp = "empty");
+
 	void cells_On_Off(bool b = false);
 	void resize_Line_Edit(QString text, QLineEdit* line_Edit = NULL);
 	void emit_Data_Edited();
@@ -82,6 +97,7 @@ private:
 	QMap<QComboBox*,QTreeWidgetItem*> elements_Map;
 	QMap<QLineEdit*,QTreeWidgetItem*> line_Edits_Map;
 	QMap<QCheckBox*,QTreeWidgetItem*> check_Boxes_Map;
+	QList<QWidget*> all_Widgets_To_Reload;
 };
 
 #endif // TABLE_OF_STRUCTURES_H

@@ -132,23 +132,30 @@ Substrate::Substrate()
 	{
 		sigma.value			= substrate_default_sigma;
 		sigma.fit.is_Fitable = false;
-		sigma.fit.min = sigma.value*(1-dispersion);
-		sigma.fit.max = sigma.value*(1+dispersion);
+		sigma.fit.min = sigma_Dispersion_Min*sigma.value;
+		sigma.fit.max = sigma_Dispersion_Max*sigma.value;
 	}
 
 	interlayer_Composition.clear();
 	interlayer_Composition.resize(int(transition_Layer_Functions_Size));
 
-	// erf interlayer
-	interlayer_Composition[0].enabled=true;
-	interlayer_Composition[0].interlayer.value=1;
-	interlayer_Composition[0].my_Sigma.value=0;
-	// other interlayers
-	for(int i=1; i<interlayer_Composition.size(); ++i)
+	// interlayers
+	for(int i=0; i<interlayer_Composition.size(); ++i)
 	{
-		interlayer_Composition[i].enabled=false;
-		interlayer_Composition[i].interlayer.value=1;
-		interlayer_Composition[i].my_Sigma.value=0;
+		if(i==0)	interlayer_Composition[i].enabled=true;
+		else 		interlayer_Composition[i].enabled=false;
+		{
+			interlayer_Composition[i].interlayer.value=1;
+			interlayer_Composition[i].interlayer.fit.is_Fitable = false;
+			interlayer_Composition[i].interlayer.fit.min = 0;
+			interlayer_Composition[i].interlayer.fit.max = 1;
+		}
+		{
+			interlayer_Composition[i].my_Sigma.value=0;
+			interlayer_Composition[i].my_Sigma.fit.is_Fitable = false;
+			interlayer_Composition[i].my_Sigma.fit.min = sigma_Dispersion_Min*interlayer_Composition[i].my_Sigma.value;
+			interlayer_Composition[i].my_Sigma.fit.max = sigma_Dispersion_Max*interlayer_Composition[i].my_Sigma.value;
+		}
 	}
 }
 
@@ -174,8 +181,8 @@ Extreme_Layer::Extreme_Layer() //-V730
 	{
 		sigma.value			= layer_default_sigma;
 		sigma.fit.is_Fitable = false;
-		sigma.fit.min = sigma.value*(1-dispersion);
-		sigma.fit.max = sigma.value*(1+dispersion);
+		sigma.fit.min = sigma_Dispersion_Min*sigma.value;
+		sigma.fit.max = sigma_Dispersion_Max*sigma.value;
 	}
 	{
 		thickness.value			= layer_default_thickness;
@@ -187,16 +194,23 @@ Extreme_Layer::Extreme_Layer() //-V730
 	interlayer_Composition.clear();
 	interlayer_Composition.resize(int(transition_Layer_Functions_Size));
 
-	// erf interlayer
-	interlayer_Composition[0].enabled=true;
-	interlayer_Composition[0].interlayer.value=1;
-	interlayer_Composition[0].my_Sigma.value=0;
-	// other interlayers
-	for(int i=1; i<interlayer_Composition.size(); ++i)
+	// interlayers
+	for(int i=0; i<interlayer_Composition.size(); ++i)
 	{
-		interlayer_Composition[i].enabled=false;
-		interlayer_Composition[i].interlayer.value=1;
-		interlayer_Composition[i].my_Sigma.value=0;
+		if(i==0)	interlayer_Composition[i].enabled=true;
+		else 		interlayer_Composition[i].enabled=false;
+		{
+			interlayer_Composition[i].interlayer.value=1;
+			interlayer_Composition[i].interlayer.fit.is_Fitable = false;
+			interlayer_Composition[i].interlayer.fit.min = 0;
+			interlayer_Composition[i].interlayer.fit.max = 1;
+		}
+		{
+			interlayer_Composition[i].my_Sigma.value=0;
+			interlayer_Composition[i].my_Sigma.fit.is_Fitable = false;
+			interlayer_Composition[i].my_Sigma.fit.min = sigma_Dispersion_Min*interlayer_Composition[i].my_Sigma.value;
+			interlayer_Composition[i].my_Sigma.fit.max = sigma_Dispersion_Max*interlayer_Composition[i].my_Sigma.value;
+		}
 	}
 }
 
@@ -222,8 +236,8 @@ Layer::Layer()
 	{
 		sigma.value			= layer_default_sigma;
 		sigma.fit.is_Fitable = false;
-		sigma.fit.min = sigma.value*(1-dispersion);
-		sigma.fit.max = sigma.value*(1+dispersion);
+		sigma.fit.min = sigma_Dispersion_Min*sigma.value;
+		sigma.fit.max = sigma_Dispersion_Max*sigma.value;
 	}
 	{
 		thickness.value			= layer_default_thickness;
@@ -235,28 +249,54 @@ Layer::Layer()
 	interlayer_Composition.clear();
 	interlayer_Composition.resize(int(transition_Layer_Functions_Size));
 
-	// erf interlayer
-	interlayer_Composition[0].enabled=true;
-	interlayer_Composition[0].interlayer.value=1;
-	interlayer_Composition[0].my_Sigma.value=0;
-	// other interlayers
-	for(int i=1; i<interlayer_Composition.size(); ++i)
+	// interlayers
+	for(int i=0; i<interlayer_Composition.size(); ++i)
 	{
-		interlayer_Composition[i].enabled=false;
-		interlayer_Composition[i].interlayer.value=1;
-		interlayer_Composition[i].my_Sigma.value=0;
+		if(i==0)	interlayer_Composition[i].enabled=true;
+		else 		interlayer_Composition[i].enabled=false;
+		{
+			interlayer_Composition[i].interlayer.value=1;
+			interlayer_Composition[i].interlayer.fit.is_Fitable = false;
+			interlayer_Composition[i].interlayer.fit.min = 0;
+			interlayer_Composition[i].interlayer.fit.max = 1;
+		}
+		{
+			interlayer_Composition[i].my_Sigma.value=0;
+			interlayer_Composition[i].my_Sigma.fit.is_Fitable = false;
+			interlayer_Composition[i].my_Sigma.fit.min = sigma_Dispersion_Min*interlayer_Composition[i].my_Sigma.value;
+			interlayer_Composition[i].my_Sigma.fit.max = sigma_Dispersion_Max*interlayer_Composition[i].my_Sigma.value;
+		}
 	}
 
 	// drift
 	thickness_Drift.is_Drift_Line = false;
 	thickness_Drift.is_Drift_Sine = false;
 	thickness_Drift.is_Drift_Rand = false;
-
-	thickness_Drift.drift_Line_Value.value = 0;
-	thickness_Drift.drift_Rand_Rms.value = 0;
-	thickness_Drift.drift_Sine_Amplitude.value = 0;
-	thickness_Drift.drift_Sine_Frequency.value = 0.333;
-	thickness_Drift.drift_Sine_Phase.value = 0;
+	{
+		thickness_Drift.drift_Line_Value.value = 0;
+		thickness_Drift.drift_Line_Value.fit.min = -thickness_Drift.drift_Line_Value.value*2;
+		thickness_Drift.drift_Line_Value.fit.max =  thickness_Drift.drift_Line_Value.value*2;
+	}
+	{
+		thickness_Drift.drift_Rand_Rms.value = 0;
+		thickness_Drift.drift_Rand_Rms.fit.min = 0;
+		thickness_Drift.drift_Rand_Rms.fit.max = thickness_Drift.drift_Rand_Rms.value*2;
+	}
+	{
+		thickness_Drift.drift_Sine_Amplitude.value = 0;
+		thickness_Drift.drift_Sine_Amplitude.fit.min = 0;
+		thickness_Drift.drift_Sine_Amplitude.fit.max = thickness_Drift.drift_Sine_Amplitude.value*2;
+	}
+	{
+		thickness_Drift.drift_Sine_Frequency.value = 0.333;
+		thickness_Drift.drift_Sine_Frequency.fit.min = thickness_Drift.drift_Sine_Frequency.value*(1-dispersion);
+		thickness_Drift.drift_Sine_Frequency.fit.max = thickness_Drift.drift_Sine_Frequency.value*(1+dispersion);
+	}
+	{
+		thickness_Drift.drift_Sine_Phase.value = 0;
+		thickness_Drift.drift_Sine_Phase.fit.min = 0;
+		thickness_Drift.drift_Sine_Phase.fit.max = 1;
+	}
 
 	sigma_Drift = thickness_Drift;
 }

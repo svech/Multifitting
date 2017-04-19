@@ -36,6 +36,8 @@ QString icon_path;
 // structure default values
 
 double dispersion; // from [0,1)
+double sigma_Dispersion_Min;	// 2
+double sigma_Dispersion_Max;	// 2
 
 // Ambient_Values
 QString	ambient_default_material;
@@ -247,6 +249,8 @@ void Settings::read_Structure_Default_Values(bool reset_to_default)
 		structure_Default_Values.beginGroup( Structure_Init_Values );
 
 		dispersion = structure_Default_Values.value( "dispersion",	0.5 ).toDouble();
+		sigma_Dispersion_Min = structure_Default_Values.value( "sigma_Dispersion_Min",	0 ).toDouble();
+		sigma_Dispersion_Max = structure_Default_Values.value( "sigma_Dispersion_Max",	2 ).toDouble();
 
 			structure_Default_Values.beginGroup( Ambient_Values );
 				ambient_default_material				  = structure_Default_Values.value( "ambient_default_material",				    "Al"	).toString();
@@ -299,6 +303,8 @@ void Settings::save_Structure_Default_Values()
 	structure_Default_Values.beginGroup( Structure_Init_Values );
 
 	structure_Default_Values.setValue( "dispersion", dispersion	);
+	structure_Default_Values.setValue( "sigma_Dispersion_Min", sigma_Dispersion_Min	);
+	structure_Default_Values.setValue( "sigma_Dispersion_Max", sigma_Dispersion_Max	);
 
 		structure_Default_Values.beginGroup( Ambient_Values );
 			structure_Default_Values.setValue( "ambient_default_material",					ambient_default_material					);

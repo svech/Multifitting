@@ -35,7 +35,7 @@ void Table_Of_Structures::create_Main_Layout()
 		main_Layout->setContentsMargins(0,0,0,0);
 	create_Table();
 	main_Layout->addWidget(main_Table);
-	resize(800,700);
+	resize(1450,800);
 }
 
 void Table_Of_Structures::create_Table()
@@ -45,8 +45,6 @@ void Table_Of_Structures::create_Table()
 	read_Trees();
 	main_Table = new QTableWidget(basic_Row_Number, basic_Column_Number, this);
 	rows_List_To_Span.clear();
-
-//	main_Table->setShowGrid(false);
 
 	for(int tab_Index=0; tab_Index<multilayer_Tabs->count(); ++tab_Index)
 	{
@@ -58,7 +56,6 @@ void Table_Of_Structures::create_Table()
 		main_Table->item   (current_Row,0)->setTextAlignment(Qt::AlignCenter);
 		main_Table->item   (current_Row,0)->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEnabled);
 
-		main_Table->insertRow(main_Table->rowCount());
 
 		// structure display
 		int max_Depth = Global_Variables::get_Tree_Depth(list_Of_Trees[tab_Index]->tree->invisibleRootItem());
@@ -91,6 +88,7 @@ void Table_Of_Structures::create_Table()
 			depth = Global_Variables::get_Item_Depth(structure_Item);
 
 			current_Column = depth-1;
+			main_Table->insertRow(main_Table->rowCount());
 			main_Table->insertRow(main_Table->rowCount());
 			main_Table->insertRow(main_Table->rowCount());
 			main_Table->insertRow(main_Table->rowCount());
@@ -139,10 +137,8 @@ void Table_Of_Structures::create_Table()
 				create_Material      (current_Row,   current_Column, structure_Item, item_Type_String);
 				create_Browse_Button (current_Row+1, current_Column);
 			}
-
-			///--------------------------------------------------------------------------------------------
-
 			current_Column += (max_Number_Of_Elements+1);
+			///--------------------------------------------------------------------------------------------
 
 			// density
 			if(item_Type_String == whats_This_Ambient || item_Type_String == whats_This_Layer || item_Type_String == whats_This_Substrate)
@@ -164,10 +160,8 @@ void Table_Of_Structures::create_Table()
 				// last
 				create_Check_Box_Fit(current_Row+2, current_Column, structure_Item, item_Type_String, whats_This, 1, 2, 0, 0);
 			}
-
-			///--------------------------------------------------------------------------------------------
-
 			current_Column += 2;
+			///--------------------------------------------------------------------------------------------
 
 			// thickness
 			if(item_Type_String == whats_This_Layer)
@@ -181,10 +175,42 @@ void Table_Of_Structures::create_Table()
 				// last
 				create_Check_Box_Fit(current_Row+2, current_Column, structure_Item, item_Type_String, whats_This, 1, 2, 0, 0);
 			}
-
+			current_Column += 2;
 			///--------------------------------------------------------------------------------------------
 
+			// common sigma
+			if(item_Type_String == whats_This_Layer || item_Type_String == whats_This_Substrate)
+			{
+				QString whats_This = whats_This_Sigma;
+				add_Columns(current_Column+1);
+				create_Label(current_Row, current_Column, Sigma_Sym+" ["+Angstrom_Sym+"]");
+				create_Line_Edit	(current_Row+1, current_Column, structure_Item, item_Type_String, whats_This, VAL);
+				create_Line_Edit	(current_Row+3, current_Column, structure_Item, item_Type_String, whats_This, MIN);
+				create_Line_Edit	(current_Row+4, current_Column, structure_Item, item_Type_String, whats_This, MAX);
+				// last
+				create_Check_Box_Fit(current_Row+2, current_Column, structure_Item, item_Type_String, whats_This, 1, 2, 0, 0);
+			}
 			current_Column += 2;
+			///--------------------------------------------------------------------------------------------
+
+			// interlayers: weights and sigmas
+			if(item_Type_String == whats_This_Layer || item_Type_String == whats_This_Substrate)
+			{
+				add_Columns(current_Column+transition_Layer_Functions_Size);
+
+				// weights
+				create_Weigts_Interlayer(current_Row+1, current_Column, structure_Item, item_Type_String, VAL);
+				create_Check_Box_Label_Interlayer(current_Row, current_Column, structure_Item, item_Type_String);
+				create_Weights_Check_Box_Fit_Interlayer(current_Row+2, current_Column, structure_Item, item_Type_String);
+
+				// sigmas
+				create_MySigma_Labels_Interlayer(current_Row+3, current_Column, structure_Item, item_Type_String);
+				create_MySigma_Interlayer		(current_Row+4, current_Column, structure_Item, item_Type_String);
+			}
+			current_Column += (1+transition_Layer_Functions_Size);
+			///--------------------------------------------------------------------------------------------
+
+
 
 			// thickness linear drift
 			if(item_Type_String == whats_This_Layer && depth >=2)
@@ -199,10 +225,8 @@ void Table_Of_Structures::create_Table()
 				// last
 				create_Check_Box_Fit(current_Row+2, current_Column, structure_Item, item_Type_String, whats_This, 1, 2, 0, 0);
 			}
-
-			///--------------------------------------------------------------------------------------------
-
 			current_Column += 1;
+			///--------------------------------------------------------------------------------------------
 
 			// thickness random drift
 			if(item_Type_String == whats_This_Layer && depth >=2)
@@ -217,48 +241,102 @@ void Table_Of_Structures::create_Table()
 				// last
 				create_Check_Box_Fit(current_Row+2, current_Column, structure_Item, item_Type_String, whats_This, 1, 2, 0, 0);
 			}
-
-			///--------------------------------------------------------------------------------------------
-
 			current_Column += 1;
+			///--------------------------------------------------------------------------------------------
 
 			// thickness sine drift
 			if(item_Type_String == whats_This_Layer && depth >=2)
 			{
-				// amplitude
-				QString whats_This = whats_This_Thickness_Drift_Sine_Amplitude;
 				add_Columns(current_Column+3);
-				create_Line_Edit	(current_Row+1, current_Column, structure_Item, item_Type_String, whats_This, VAL);
+
+				create_Line_Edit	(current_Row+1, current_Column,   structure_Item, item_Type_String, whats_This_Thickness_Drift_Sine_Amplitude, VAL);
+				create_Line_Edit	(current_Row+1, current_Column+1, structure_Item, item_Type_String, whats_This_Thickness_Drift_Sine_Frequency, VAL);
+				create_Line_Edit	(current_Row+1, current_Column+2, structure_Item, item_Type_String, whats_This_Thickness_Drift_Sine_Phase, VAL);
+
 				// second
-				create_Check_Box_Label(current_Row, current_Column, structure_Item, item_Type_String, whats_This,"dz sin : A*sin(2"+Pi_Sym+"n"+Nu_Sym+"+"+Phi_Sym+")", 1, 1, 0, 0);
+				create_Check_Box_Label(current_Row, current_Column,   structure_Item, item_Type_String, whats_This_Thickness_Drift_Sine,"dz sin : A*sin(2"+Pi_Sym+"n"+Nu_Sym+"+"+Phi_Sym+")", 1, 1, 0, 2);
+
+				create_Line_Edit	(current_Row+3, current_Column,   structure_Item, item_Type_String, whats_This_Thickness_Drift_Sine_Amplitude, MIN);
+				create_Line_Edit	(current_Row+3, current_Column+1, structure_Item, item_Type_String, whats_This_Thickness_Drift_Sine_Frequency, MIN);
+				create_Line_Edit	(current_Row+3, current_Column+2, structure_Item, item_Type_String, whats_This_Thickness_Drift_Sine_Phase, MIN);
+
+				create_Line_Edit	(current_Row+4, current_Column,	  structure_Item, item_Type_String, whats_This_Thickness_Drift_Sine_Amplitude, MAX);
+				create_Line_Edit	(current_Row+4, current_Column+1, structure_Item, item_Type_String, whats_This_Thickness_Drift_Sine_Frequency, MAX);
+				create_Line_Edit	(current_Row+4, current_Column+2, structure_Item, item_Type_String, whats_This_Thickness_Drift_Sine_Phase, MAX);
+
+				// last
+				create_Check_Box_Fit(current_Row+2, current_Column,	  structure_Item, item_Type_String, whats_This_Thickness_Drift_Sine_Amplitude, 1, 2, 0, 0);
+				create_Check_Box_Fit(current_Row+2, current_Column+1, structure_Item, item_Type_String, whats_This_Thickness_Drift_Sine_Frequency, 1, 2, 0, 0);
+				create_Check_Box_Fit(current_Row+2, current_Column+2, structure_Item, item_Type_String, whats_This_Thickness_Drift_Sine_Phase, 1, 2, 0, 0);
+
+				main_Table->setSpan(current_Row,current_Column,1,3);
+			}
+			current_Column += 4;
+			///--------------------------------------------------------------------------------------------
+
+
+
+			// sigma linear drift
+			if(item_Type_String == whats_This_Layer && depth >=2)
+			{
+				QString whats_This = whats_This_Sigma_Drift_Line_Value;
+				add_Columns(current_Column+1);
+				create_Line_Edit(current_Row+1, current_Column, structure_Item, item_Type_String, whats_This, VAL);
+				// second
+				create_Check_Box_Label(current_Row, current_Column, structure_Item, item_Type_String, whats_This, "d"+Sigma_Sym+" lin", 1, 1, 0, 0);
 				create_Line_Edit	(current_Row+3, current_Column, structure_Item, item_Type_String, whats_This, MIN);
 				create_Line_Edit	(current_Row+4, current_Column, structure_Item, item_Type_String, whats_This, MAX);
 				// last
 				create_Check_Box_Fit(current_Row+2, current_Column, structure_Item, item_Type_String, whats_This, 1, 2, 0, 0);
+			}
+			current_Column += 1;
+			///--------------------------------------------------------------------------------------------
 
-				// frequency
-				int our_Column = current_Column+1;
-				whats_This = whats_This_Thickness_Drift_Sine_Frequency;
-				create_Line_Edit	(current_Row+1, our_Column, structure_Item, item_Type_String, whats_This, VAL);
+			// sigma random drift
+			if(item_Type_String == whats_This_Layer && depth >=2)
+			{
+				QString whats_This = whats_This_Sigma_Drift_Rand_Rms;
+				add_Columns(current_Column+1);
+				create_Line_Edit(current_Row+1, current_Column, structure_Item, item_Type_String, whats_This, VAL);
 				// second
-				create_Line_Edit	(current_Row+3, our_Column, structure_Item, item_Type_String, whats_This, MIN);
-				create_Line_Edit	(current_Row+4, our_Column, structure_Item, item_Type_String, whats_This, MAX);
+				create_Check_Box_Label(current_Row, current_Column, structure_Item, item_Type_String, whats_This,"d"+Sigma_Sym+" ran", 1, 1, 0, 0);
+				create_Line_Edit	(current_Row+3, current_Column, structure_Item, item_Type_String, whats_This, MIN);
+				create_Line_Edit	(current_Row+4, current_Column, structure_Item, item_Type_String, whats_This, MAX);
 				// last
-				create_Check_Box_Fit(current_Row+2, our_Column, structure_Item, item_Type_String, whats_This, 1, 2, 0, 0);
+				create_Check_Box_Fit(current_Row+2, current_Column, structure_Item, item_Type_String, whats_This, 1, 2, 0, 0);
+			}
+			current_Column += 1;
+			///--------------------------------------------------------------------------------------------
 
-				// phase
-				our_Column += 1;
-				whats_This = whats_This_Thickness_Drift_Sine_Phase;
-				create_Line_Edit	(current_Row+1, our_Column, structure_Item, item_Type_String, whats_This, VAL);
+			// sigma sine drift
+			if(item_Type_String == whats_This_Layer && depth >=2)
+			{
+				add_Columns(current_Column+3);
+
+				create_Line_Edit	(current_Row+1, current_Column,   structure_Item, item_Type_String, whats_This_Sigma_Drift_Sine_Amplitude, VAL);
+				create_Line_Edit	(current_Row+1, current_Column+1, structure_Item, item_Type_String, whats_This_Sigma_Drift_Sine_Frequency, VAL);
+				create_Line_Edit	(current_Row+1, current_Column+2, structure_Item, item_Type_String, whats_This_Sigma_Drift_Sine_Phase, VAL);
+
 				// second
-				create_Line_Edit	(current_Row+3, our_Column, structure_Item, item_Type_String, whats_This, MIN);
-				create_Line_Edit	(current_Row+4, our_Column, structure_Item, item_Type_String, whats_This, MAX);
+				create_Check_Box_Label(current_Row, current_Column,   structure_Item, item_Type_String, whats_This_Sigma_Drift_Sine,"d"+Sigma_Sym+" sin : A*sin(2"+Pi_Sym+"n"+Nu_Sym+"+"+Phi_Sym+")", 1, 1, 0, 2);
+
+				create_Line_Edit	(current_Row+3, current_Column,   structure_Item, item_Type_String, whats_This_Sigma_Drift_Sine_Amplitude, MIN);
+				create_Line_Edit	(current_Row+3, current_Column+1, structure_Item, item_Type_String, whats_This_Sigma_Drift_Sine_Frequency, MIN);
+				create_Line_Edit	(current_Row+3, current_Column+2, structure_Item, item_Type_String, whats_This_Sigma_Drift_Sine_Phase, MIN);
+
+				create_Line_Edit	(current_Row+4, current_Column,	  structure_Item, item_Type_String, whats_This_Sigma_Drift_Sine_Amplitude, MAX);
+				create_Line_Edit	(current_Row+4, current_Column+1, structure_Item, item_Type_String, whats_This_Sigma_Drift_Sine_Frequency, MAX);
+				create_Line_Edit	(current_Row+4, current_Column+2, structure_Item, item_Type_String, whats_This_Sigma_Drift_Sine_Phase, MAX);
+
 				// last
-				create_Check_Box_Fit(current_Row+2, our_Column, structure_Item, item_Type_String, whats_This, 1, 2, 0, 0);
+				create_Check_Box_Fit(current_Row+2, current_Column,	  structure_Item, item_Type_String, whats_This_Sigma_Drift_Sine_Amplitude, 1, 2, 0, 0);
+				create_Check_Box_Fit(current_Row+2, current_Column+1, structure_Item, item_Type_String, whats_This_Sigma_Drift_Sine_Frequency, 1, 2, 0, 0);
+				create_Check_Box_Fit(current_Row+2, current_Column+2, structure_Item, item_Type_String, whats_This_Sigma_Drift_Sine_Phase, 1, 2, 0, 0);
 
 				main_Table->setSpan(current_Row,current_Column,1,3);
 			}
-
+			current_Column += 4;
+			///--------------------------------------------------------------------------------------------
 
 			++it;
 		}
@@ -344,10 +422,11 @@ void Table_Of_Structures::fit_Column(int start_Width, int current_Column)
 void Table_Of_Structures::create_Combo_Elements(int current_Row, int start_Column, QTreeWidgetItem* structure_Item, QString item_Type_String)
 {
 	QList<Stoichiometry> composition;
+	QVariant data = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole);
 
-	if(item_Type_String == whats_This_Ambient)		{composition = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Ambient>().	 composition;}
-	if(item_Type_String == whats_This_Layer)		{composition = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>().	 composition;}
-	if(item_Type_String == whats_This_Substrate)	{composition = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Substrate>().composition;}
+	if(item_Type_String == whats_This_Ambient)		{composition = data.value<Ambient>().  composition;}
+	if(item_Type_String == whats_This_Layer)		{composition = data.value<Layer>().	   composition;}
+	if(item_Type_String == whats_This_Substrate)	{composition = data.value<Substrate>().composition;}
 
 	int current_Column = start_Column;
 	for(int composition_Index=0; composition_Index<composition.size(); ++composition_Index)
@@ -363,6 +442,10 @@ void Table_Of_Structures::create_Combo_Elements(int current_Row, int start_Colum
 		elements->setProperty(num_Chemic_Element_Property, composition_Index);
 		elements->setProperty(item_Type_Property, item_Type_String);
 
+		// for reloading
+		elements->setProperty(reload_Property, false);
+		all_Widgets_To_Reload.append(elements);
+
 		// create item
 		main_Table->setCellWidget(current_Row, current_Column, elements);
 		elements_Map.insert(elements, structure_Item);
@@ -375,10 +458,11 @@ void Table_Of_Structures::create_Combo_Elements(int current_Row, int start_Colum
 void Table_Of_Structures::create_Stoich(int current_Row, int start_Column, QTreeWidgetItem* structure_Item, QString item_Type_String, QString val_Type)
 {
 	QList<Stoichiometry> composition;
+	QVariant data = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole);
 
-	if(item_Type_String == whats_This_Ambient)		{composition = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Ambient>().	 composition;}
-	if(item_Type_String == whats_This_Layer)		{composition = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>().	 composition;}
-	if(item_Type_String == whats_This_Substrate)	{composition = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Substrate>().composition;}
+	if(item_Type_String == whats_This_Ambient)		{composition = data.value<Ambient>().	 composition;}
+	if(item_Type_String == whats_This_Layer)		{composition = data.value<Layer>().	 composition;}
+	if(item_Type_String == whats_This_Substrate)	{composition = data.value<Substrate>().composition;}
 
 	int current_Column = start_Column;
 	double value;
@@ -402,6 +486,10 @@ void Table_Of_Structures::create_Stoich(int current_Row, int start_Column, QTree
 		line_Edit->setProperty(column_Property, current_Column);
 		line_Edit->setProperty(value_Type_Property, val_Type);
 		line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION));
+
+		// for reloading
+		line_Edit->setProperty(reload_Property, false);
+		all_Widgets_To_Reload.append(line_Edit);
 
 		connect(line_Edit, SIGNAL(textEdited(QString)), this, SLOT(resize_Line_Edit(QString)));
 
@@ -429,10 +517,11 @@ QString Table_Of_Structures::material_From_Composition(QList<Stoichiometry>& com
 void Table_Of_Structures::create_Stoich_Check_Box_Fit(int current_Row, int start_Column, QTreeWidgetItem* structure_Item, QString item_Type_String, int r_S, int r_F, int c_S, int c_F)
 {
 	QList<Stoichiometry> composition;
+	QVariant data = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole);
 
-	if(item_Type_String == whats_This_Ambient)		{composition = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Ambient>().	 composition;}
-	if(item_Type_String == whats_This_Layer)		{composition = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>().	 composition;}
-	if(item_Type_String == whats_This_Substrate)	{composition = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Substrate>().composition;}
+	if(item_Type_String == whats_This_Ambient)		{composition = data.value<Ambient>().  composition;}
+	if(item_Type_String == whats_This_Layer)		{composition = data.value<Layer>().	   composition;}
+	if(item_Type_String == whats_This_Substrate)	{composition = data.value<Substrate>().composition;}
 
 	int current_Column = start_Column;
 
@@ -460,6 +549,10 @@ void Table_Of_Structures::create_Stoich_Check_Box_Fit(int current_Row, int start
 		check_Box->setProperty(relative_Rows_To_Disable_Finish_Property, r_F);
 		check_Box->setProperty(relative_Columns_To_Disable_Start_Property, c_S);
 		check_Box->setProperty(relative_Columns_To_Disable_Finish_Property, c_F);
+
+		// for reloading
+		check_Box->setProperty(reload_Property, false);
+		all_Widgets_To_Reload.append(check_Box);
 
 		// create item
 		main_Table->setCellWidget(current_Row, current_Column, back_Widget);
@@ -489,13 +582,14 @@ void Table_Of_Structures::create_Material(int current_Row, int current_Column, Q
 {
 	QString material = "bad";
 	QString approved_Material = "very bad";
+	QVariant data = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole);
 
-	if(item_Type_String == whats_This_Ambient)		{		  material = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Ambient>().material;
-													 approved_Material = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Ambient>().approved_Material;}
-	if(item_Type_String == whats_This_Layer)		{		  material = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>().material;
-													 approved_Material = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>().approved_Material;}
-	if(item_Type_String == whats_This_Substrate)	{		  material = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Substrate>().material;
-													 approved_Material = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Substrate>().approved_Material;}
+	if(item_Type_String == whats_This_Ambient)		{		  material = data.value<Ambient>().  material;
+													 approved_Material = data.value<Ambient>().  approved_Material;}
+	if(item_Type_String == whats_This_Layer)		{		  material = data.value<Layer>().    material;
+													 approved_Material = data.value<Layer>().    approved_Material;}
+	if(item_Type_String == whats_This_Substrate)	{		  material = data.value<Substrate>().material;
+													 approved_Material = data.value<Substrate>().approved_Material;}
 
 	add_Columns(current_Column+1);
 
@@ -504,6 +598,10 @@ void Table_Of_Structures::create_Material(int current_Row, int current_Column, Q
 	material_Line_Edit->setProperty(min_Size_Property, material_Line_Edit->width());
 	material_Line_Edit->setProperty(item_Type_Property, item_Type_String);
 	material_Line_Edit->setProperty(column_Property, current_Column);
+
+	// for reloading
+	material_Line_Edit->setProperty(reload_Property, false);
+	all_Widgets_To_Reload.append(material_Line_Edit);
 
 	connect(material_Line_Edit, SIGNAL(textEdited(QString)), this, SLOT(resize_Line_Edit(QString)));
 
@@ -527,7 +625,7 @@ void Table_Of_Structures::create_Browse_Button(int current_Row, int start_Column
 void Table_Of_Structures::create_Label(int current_Row, int current_Column, QString text)
 {
 	QLabel* label = new QLabel(text);
-	label->setStyleSheet("background-color: lightblue"); // border: 2px solid red;
+	label->setStyleSheet("background-color: lightblue");
 	label->setAlignment(Qt::AlignCenter);
 
 	main_Table->setCellWidget(current_Row, current_Column, label);
@@ -544,6 +642,12 @@ void Table_Of_Structures::create_Check_Box_Label(int current_Row, int current_Co
 	{
 		if(whats_This == whats_This_Thickness_Drift_Line_Value)	is_Drift = data.value<Layer>().thickness_Drift.is_Drift_Line;
 		if(whats_This == whats_This_Thickness_Drift_Rand_Rms)	is_Drift = data.value<Layer>().thickness_Drift.is_Drift_Rand;
+		if(whats_This == whats_This_Thickness_Drift_Sine)		is_Drift = data.value<Layer>().thickness_Drift.is_Drift_Sine;
+
+		if(whats_This == whats_This_Sigma_Drift_Line_Value)		is_Drift = data.value<Layer>().sigma_Drift.is_Drift_Line;
+		if(whats_This == whats_This_Sigma_Drift_Rand_Rms)		is_Drift = data.value<Layer>().sigma_Drift.is_Drift_Rand;
+		if(whats_This == whats_This_Sigma_Drift_Sine)			is_Drift = data.value<Layer>().sigma_Drift.is_Drift_Sine;
+
 	}
 
 	QCheckBox* check_Box = new QCheckBox(text);
@@ -560,6 +664,10 @@ void Table_Of_Structures::create_Check_Box_Label(int current_Row, int current_Co
 	check_Box->setProperty(whats_This_Property, whats_This);
 	check_Boxes_Map.insert(check_Box, structure_Item);
 
+	// for reloading
+	check_Box->setProperty(reload_Property, false);
+	all_Widgets_To_Reload.append(check_Box);
+
 	check_Box->setChecked(is_Drift);
 	connect(check_Box, SIGNAL(toggled(bool)), this, SLOT(cells_On_Off(bool)));
 	connect(check_Box, SIGNAL(toggled(bool)), this, SLOT(refresh_Drift_Header(bool)));
@@ -573,7 +681,7 @@ void Table_Of_Structures::create_Check_Box_Label(int current_Row, int current_Co
 	back_Layout->setContentsMargins(0,0,0,0);
 	back_Layout->setAlignment(Qt::AlignCenter);
 
-	back_Widget->setStyleSheet("background-color: lightblue"); // border: 2px solid red;
+	back_Widget->setStyleSheet("background-color: lightblue");
 	main_Table->setCellWidget(current_Row, current_Column, back_Widget);
 }
 
@@ -582,34 +690,48 @@ void Table_Of_Structures::create_Line_Edit(int current_Row, int current_Column, 
 {
 	// PARAMETER
 	Parameter parameter;
+	int precision;
 
 	QVariant data = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole);
+
 	if(item_Type_String == whats_This_Ambient)
 	{
-		if(whats_This == whats_This_Absolute_Density)	parameter = data.value<Ambient>().absolute_Density;
-		if(whats_This == whats_This_Relative_Density)	parameter = data.value<Ambient>().relative_Density;
+		if(whats_This == whats_This_Absolute_Density)	{parameter = data.value<Ambient>().absolute_Density;		precision = line_edit_density_precision;}
+		if(whats_This == whats_This_Relative_Density)	{parameter = data.value<Ambient>().relative_Density;		precision = line_edit_density_precision;}
 	}
 	if(item_Type_String == whats_This_Layer)
 	{
-		if(whats_This == whats_This_Absolute_Density)			parameter = data.value<Layer>().absolute_Density;
-		if(whats_This == whats_This_Relative_Density)			parameter = data.value<Layer>().relative_Density;
-		if(whats_This == whats_This_Thickness)					parameter = data.value<Layer>().thickness;
-		if(whats_This == whats_This_Thickness_Drift_Line_Value)	parameter = data.value<Layer>().thickness_Drift.drift_Line_Value;
-		if(whats_This == whats_This_Thickness_Drift_Rand_Rms)	parameter = data.value<Layer>().thickness_Drift.drift_Rand_Rms;
+		if(whats_This == whats_This_Absolute_Density)				{parameter = data.value<Layer>().absolute_Density;		precision = line_edit_density_precision;}
+		if(whats_This == whats_This_Relative_Density)				{parameter = data.value<Layer>().relative_Density;		precision = line_edit_density_precision;}
+		if(whats_This == whats_This_Thickness)						{parameter = data.value<Layer>().thickness;				precision = line_edit_thickness_precision;}
+		if(whats_This == whats_This_Sigma)							{parameter = data.value<Layer>().sigma;					precision = line_edit_sigma_precision;}
+
+		if(whats_This == whats_This_Thickness_Drift_Line_Value)		{parameter = data.value<Layer>().thickness_Drift.drift_Line_Value;			precision = line_edit_thickness_precision;}
+		if(whats_This == whats_This_Thickness_Drift_Rand_Rms)		{parameter = data.value<Layer>().thickness_Drift.drift_Rand_Rms;			precision = line_edit_thickness_precision;}
+		if(whats_This == whats_This_Thickness_Drift_Sine_Amplitude)	{parameter = data.value<Layer>().thickness_Drift.drift_Sine_Amplitude;		precision = line_edit_thickness_precision;}
+		if(whats_This == whats_This_Thickness_Drift_Sine_Frequency)	{parameter = data.value<Layer>().thickness_Drift.drift_Sine_Frequency;		precision = line_edit_thickness_precision;}
+		if(whats_This == whats_This_Thickness_Drift_Sine_Phase)		{parameter = data.value<Layer>().thickness_Drift.drift_Sine_Phase;			precision = line_edit_thickness_precision;}
+
+		if(whats_This == whats_This_Sigma_Drift_Line_Value)			{parameter = data.value<Layer>().sigma_Drift.drift_Line_Value;		precision = line_edit_sigma_precision;}
+		if(whats_This == whats_This_Sigma_Drift_Rand_Rms)			{parameter = data.value<Layer>().sigma_Drift.drift_Rand_Rms;		precision = line_edit_sigma_precision;}
+		if(whats_This == whats_This_Sigma_Drift_Sine_Amplitude)		{parameter = data.value<Layer>().sigma_Drift.drift_Sine_Amplitude;	precision = line_edit_sigma_precision;}
+		if(whats_This == whats_This_Sigma_Drift_Sine_Frequency)		{parameter = data.value<Layer>().sigma_Drift.drift_Sine_Frequency;	precision = line_edit_sigma_precision;}
+		if(whats_This == whats_This_Sigma_Drift_Sine_Phase)			{parameter = data.value<Layer>().sigma_Drift.drift_Sine_Phase;		precision = line_edit_sigma_precision;}
 	}
 	if(item_Type_String == whats_This_Substrate)
 	{
-		if(whats_This == whats_This_Absolute_Density)	parameter = data.value<Substrate>().absolute_Density;
-		if(whats_This == whats_This_Relative_Density)	parameter = data.value<Substrate>().relative_Density;
+		if(whats_This == whats_This_Absolute_Density)	{parameter = data.value<Substrate>().absolute_Density;		precision = line_edit_density_precision;}
+		if(whats_This == whats_This_Relative_Density)	{parameter = data.value<Substrate>().relative_Density;		precision = line_edit_density_precision;}
+		if(whats_This == whats_This_Sigma)				{parameter = data.value<Substrate>().sigma;					precision = line_edit_sigma_precision;	}
 	}
 
 	double value;
 
-	if(val_Type == VAL)	{value = parameter.value;	}
+	if(val_Type == VAL)	{value = parameter.value;  }
 	if(val_Type == MIN)	{value = parameter.fit.min;}
 	if(val_Type == MAX)	{value = parameter.fit.max;}
 
-	QString text_Value = QString::number(value, line_edit_double_format, line_edit_density_precision);
+	QString text_Value = QString::number(value, line_edit_double_format, precision);
 
 	// create lineedit
 	QLineEdit* line_Edit = new QLineEdit(text_Value);
@@ -622,11 +744,24 @@ void Table_Of_Structures::create_Line_Edit(int current_Row, int current_Column, 
 	line_Edit->setProperty(whats_This_Property, whats_This);
 	line_Edit->setProperty(value_Type_Property, val_Type);
 
-	if(whats_This == whats_This_Thickness)					line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION));
-	if(whats_This == whats_This_Absolute_Density)			line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION));
-	if(whats_This == whats_This_Relative_Density)			line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION));
-	if(whats_This == whats_This_Thickness_Drift_Rand_Rms)	line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION));
+	if(whats_This == whats_This_Absolute_Density)				line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION));
+	if(whats_This == whats_This_Relative_Density)				line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION));
+	if(whats_This == whats_This_Thickness)						line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION));
+	if(whats_This == whats_This_Sigma)							line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION));
 
+	if(whats_This == whats_This_Thickness_Drift_Rand_Rms)		line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION));
+	if(whats_This == whats_This_Thickness_Drift_Sine_Amplitude)	line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION));
+	if(whats_This == whats_This_Thickness_Drift_Sine_Frequency)	line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION));
+	if(whats_This == whats_This_Thickness_Drift_Sine_Phase)		line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION));
+
+	if(whats_This == whats_This_Sigma_Drift_Rand_Rms)			line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION));
+	if(whats_This == whats_This_Sigma_Drift_Sine_Amplitude)		line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION));
+	if(whats_This == whats_This_Sigma_Drift_Sine_Frequency)		line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION));
+	if(whats_This == whats_This_Sigma_Drift_Sine_Phase)			line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION));
+
+	// for reloading
+	line_Edit->setProperty(reload_Property, false);
+	all_Widgets_To_Reload.append(line_Edit);
 
 	connect(line_Edit, SIGNAL(textEdited(QString)), this, SLOT(resize_Line_Edit(QString)));
 
@@ -641,7 +776,6 @@ void Table_Of_Structures::create_Check_Box_Fit(int current_Row, int current_Colu
 {
 	// PARAMETER
 	Parameter parameter;
-
 	QVariant data = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole);
 
 	if(item_Type_String == whats_This_Ambient)
@@ -651,17 +785,28 @@ void Table_Of_Structures::create_Check_Box_Fit(int current_Row, int current_Colu
 	}
 	if(item_Type_String == whats_This_Layer)
 	{
-		if(whats_This == whats_This_Absolute_Density)			parameter = data.value<Layer>().absolute_Density;
-		if(whats_This == whats_This_Relative_Density)			parameter = data.value<Layer>().relative_Density;
-		if(whats_This == whats_This_Thickness)					parameter = data.value<Layer>().thickness;
-		if(whats_This == whats_This_Thickness_Drift_Line_Value)	parameter = data.value<Layer>().thickness_Drift.drift_Line_Value;
-		if(whats_This == whats_This_Thickness_Drift_Rand_Rms)	parameter = data.value<Layer>().thickness_Drift.drift_Rand_Rms;
+		if(whats_This == whats_This_Absolute_Density)				parameter = data.value<Layer>().absolute_Density;
+		if(whats_This == whats_This_Relative_Density)				parameter = data.value<Layer>().relative_Density;
+		if(whats_This == whats_This_Thickness)						parameter = data.value<Layer>().thickness;
+		if(whats_This == whats_This_Sigma)							parameter = data.value<Layer>().sigma;
 
+		if(whats_This == whats_This_Thickness_Drift_Line_Value)		parameter = data.value<Layer>().thickness_Drift.drift_Line_Value;
+		if(whats_This == whats_This_Thickness_Drift_Rand_Rms)		parameter = data.value<Layer>().thickness_Drift.drift_Rand_Rms;
+		if(whats_This == whats_This_Thickness_Drift_Sine_Amplitude)	parameter = data.value<Layer>().thickness_Drift.drift_Sine_Amplitude;
+		if(whats_This == whats_This_Thickness_Drift_Sine_Frequency)	parameter = data.value<Layer>().thickness_Drift.drift_Sine_Frequency;
+		if(whats_This == whats_This_Thickness_Drift_Sine_Phase)		parameter = data.value<Layer>().thickness_Drift.drift_Sine_Phase;
+
+		if(whats_This == whats_This_Sigma_Drift_Line_Value)			parameter = data.value<Layer>().sigma_Drift.drift_Line_Value;
+		if(whats_This == whats_This_Sigma_Drift_Rand_Rms)			parameter = data.value<Layer>().sigma_Drift.drift_Rand_Rms;
+		if(whats_This == whats_This_Sigma_Drift_Sine_Amplitude)		parameter = data.value<Layer>().sigma_Drift.drift_Sine_Amplitude;
+		if(whats_This == whats_This_Sigma_Drift_Sine_Frequency)		parameter = data.value<Layer>().sigma_Drift.drift_Sine_Frequency;
+		if(whats_This == whats_This_Sigma_Drift_Sine_Phase)			parameter = data.value<Layer>().sigma_Drift.drift_Sine_Phase;
 	}
 	if(item_Type_String == whats_This_Substrate)
 	{
 		if(whats_This == whats_This_Absolute_Density)	parameter = data.value<Substrate>().absolute_Density;
 		if(whats_This == whats_This_Relative_Density)	parameter = data.value<Substrate>().relative_Density;
+		if(whats_This == whats_This_Sigma)				parameter = data.value<Substrate>().sigma;
 	}
 
 	// create check_Box
@@ -686,6 +831,10 @@ void Table_Of_Structures::create_Check_Box_Fit(int current_Row, int current_Colu
 	check_Box->setProperty(relative_Columns_To_Disable_Start_Property, c_S);
 	check_Box->setProperty(relative_Columns_To_Disable_Finish_Property, c_F);
 
+	// for reloading
+	check_Box->setProperty(reload_Property, false);
+	all_Widgets_To_Reload.append(check_Box);
+
 	// create item
 	main_Table->setCellWidget(current_Row, current_Column, back_Widget);
 	check_Boxes_Map.insert(check_Box, structure_Item);
@@ -693,6 +842,204 @@ void Table_Of_Structures::create_Check_Box_Fit(int current_Row, int current_Colu
 	connect(check_Box, SIGNAL(toggled(bool)), this, SLOT(cells_On_Off(bool)));
 	check_Box->setChecked(parameter.fit.is_Fitable);
 	check_Box->toggled(false);
+}
+
+// for interlayers
+void Table_Of_Structures::create_Check_Box_Label_Interlayer(int current_Row, int start_Column, QTreeWidgetItem* structure_Item, QString item_Type_String)
+{
+	QVector<Interlayer> interlayer_Composition;
+	QVariant data = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole);
+
+	if(item_Type_String == whats_This_Layer)		{interlayer_Composition = data.value<Layer>().	  interlayer_Composition;}
+	if(item_Type_String == whats_This_Substrate)	{interlayer_Composition = data.value<Substrate>().interlayer_Composition;}
+
+	int current_Column = start_Column;
+	for(int interlayer_Index=0; interlayer_Index<interlayer_Composition.size(); ++interlayer_Index)
+	{
+		QCheckBox* check_Box = new QCheckBox(transition_Layer_Functions[interlayer_Index]);
+
+		// enable/disable function
+		check_Box->setProperty(row_Property, current_Row);
+		check_Box->setProperty(column_Property, current_Column);
+		check_Box->setProperty(relative_Rows_To_Disable_Start_Property, 1);
+		check_Box->setProperty(relative_Rows_To_Disable_Finish_Property, 1);
+		check_Box->setProperty(relative_Columns_To_Disable_Start_Property, 0);
+		check_Box->setProperty(relative_Columns_To_Disable_Finish_Property, 0);
+
+		check_Box->setProperty(interlayer_Index_Property, interlayer_Index);
+		check_Box->setProperty(item_Type_Property, item_Type_String);
+		check_Boxes_Map.insert(check_Box, structure_Item);
+
+		// for reloading
+		check_Box->setProperty(reload_Property, false);
+		all_Widgets_To_Reload.append(check_Box);
+
+		check_Box->setChecked(interlayer_Composition[interlayer_Index].enabled);
+		connect(check_Box, SIGNAL(toggled(bool)), this, SLOT(cells_On_Off(bool)));
+		connect(check_Box, SIGNAL(toggled(bool)), this, SLOT(refresh_Check_Box_Label_Interlayer(bool)));
+		check_Box->toggled(false);
+
+		// alignment
+		QWidget* back_Widget = new QWidget;
+		QVBoxLayout* back_Layout = new QVBoxLayout(back_Widget);
+		back_Layout->addWidget(check_Box);
+		back_Layout->setSpacing(0);
+		back_Layout->setContentsMargins(0,0,0,0);
+		back_Layout->setAlignment(Qt::AlignCenter);
+
+		back_Widget->setStyleSheet("background-color: lightblue");
+		main_Table->setCellWidget(current_Row, current_Column, back_Widget);
+
+		current_Column+=TABLE_COLUMN_INTERLAYERS_SHIFT;
+	}
+}
+
+void Table_Of_Structures::create_Weigts_Interlayer(int current_Row, int start_Column, QTreeWidgetItem* structure_Item, QString item_Type_String, QString val_Type)
+{
+	QVector<Interlayer> interlayer_Composition;
+	QVariant data = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole);
+
+	if(item_Type_String == whats_This_Layer)		{interlayer_Composition = data.value<Layer>().	  interlayer_Composition;}
+	if(item_Type_String == whats_This_Substrate)	{interlayer_Composition = data.value<Substrate>().interlayer_Composition;}
+
+	int current_Column = start_Column;
+	double value;
+
+	for(int interlayer_Index=0; interlayer_Index<interlayer_Composition.size(); ++interlayer_Index)
+	{
+		if(val_Type == VAL)	{value = interlayer_Composition[interlayer_Index].interlayer.value;	}
+		if(val_Type == MIN)	{value = interlayer_Composition[interlayer_Index].interlayer.fit.min;}
+		if(val_Type == MAX)	{value = interlayer_Composition[interlayer_Index].interlayer.fit.max;}
+
+		QString text_Value = QString::number(value, line_edit_short_double_format, line_edit_interlayer_precision);
+
+		QLineEdit* line_Edit = new QLineEdit(text_Value);
+		line_Edit->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT);
+
+		line_Edit->setProperty(interlayer_Index_Property, interlayer_Index);
+		line_Edit->setProperty(min_Size_Property, line_Edit->width());
+		line_Edit->setProperty(item_Type_Property, item_Type_String);
+		line_Edit->setProperty(column_Property, current_Column);
+		line_Edit->setProperty(value_Type_Property, val_Type);
+		line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION));
+
+		// for reloading
+		line_Edit->setProperty(reload_Property, false);
+		all_Widgets_To_Reload.append(line_Edit);
+
+		connect(line_Edit, SIGNAL(textEdited(QString)), this, SLOT(resize_Line_Edit(QString)));
+
+		// create item
+		main_Table->setCellWidget(current_Row, current_Column, line_Edit);
+		line_Edits_Map.insert(line_Edit, structure_Item);
+		connect(line_Edit, SIGNAL(textEdited(QString)), this, SLOT(refresh_Weigts_Interlayer(QString)));
+		line_Edit->textEdited(line_Edit->text());
+
+		current_Column+=TABLE_COLUMN_INTERLAYERS_SHIFT;
+	}
+}
+
+void Table_Of_Structures::create_Weights_Check_Box_Fit_Interlayer(int current_Row, int start_Column, QTreeWidgetItem* structure_Item, QString item_Type_String)
+{
+	QVector<Interlayer> interlayer_Composition;
+	QVariant data = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole);
+
+	if(item_Type_String == whats_This_Layer)		{interlayer_Composition = data.value<Layer>().	  interlayer_Composition;}
+	if(item_Type_String == whats_This_Substrate)	{interlayer_Composition = data.value<Substrate>().interlayer_Composition;}
+
+	int current_Column = start_Column;
+
+	for(int interlayer_Index=0; interlayer_Index<interlayer_Composition.size(); ++interlayer_Index)
+	{
+		QCheckBox* check_Box = new QCheckBox("fit");
+
+		check_Box->setProperty(interlayer_Index_Property, interlayer_Index);
+		check_Box->setProperty(item_Type_Property, item_Type_String);
+		check_Boxes_Map.insert(check_Box, structure_Item);
+
+		// for reloading
+		check_Box->setProperty(reload_Property, false);
+		all_Widgets_To_Reload.append(check_Box);
+
+		check_Box->setChecked(interlayer_Composition[interlayer_Index].interlayer.fit.is_Fitable);
+		connect(check_Box, SIGNAL(toggled(bool)), this, SLOT(refresh_Weights_Check_Box_Fit_Interlayer(bool)));
+		check_Box->toggled(false);
+
+		// alignment
+		QWidget* back_Widget = new QWidget;
+		QVBoxLayout* back_Layout = new QVBoxLayout(back_Widget);
+		back_Layout->addWidget(check_Box);
+		back_Layout->setSpacing(0);
+		back_Layout->setContentsMargins(0,0,0,0);
+		back_Layout->setAlignment(Qt::AlignCenter);
+
+		main_Table->setCellWidget(current_Row, current_Column, back_Widget);
+
+		current_Column+=TABLE_COLUMN_ELEMENTS_SHIFT;
+	}
+}
+
+void Table_Of_Structures::create_MySigma_Labels_Interlayer(int current_Row, int start_Column, QTreeWidgetItem* structure_Item, QString item_Type_String)
+{
+	QVector<Interlayer> interlayer_Composition;
+	QVariant data = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole);
+
+	if(item_Type_String == whats_This_Layer)		{interlayer_Composition = data.value<Layer>().	  interlayer_Composition;}
+	if(item_Type_String == whats_This_Substrate)	{interlayer_Composition = data.value<Substrate>().interlayer_Composition;}
+
+	int current_Column = start_Column;
+	for(int interlayer_Index=0; interlayer_Index<interlayer_Composition.size(); ++interlayer_Index)
+	{
+		QLabel* label = new QLabel(Sigma_Sym+" "+transition_Layer_Functions[interlayer_Index]);
+		label->setStyleSheet("background-color: lightblue");
+		label->setAlignment(Qt::AlignCenter);
+
+		main_Table->setCellWidget(current_Row, current_Column, label);
+
+		current_Column+=TABLE_COLUMN_INTERLAYERS_SHIFT;
+	}
+}
+
+void Table_Of_Structures::create_MySigma_Interlayer(int current_Row, int start_Column, QTreeWidgetItem* structure_Item, QString item_Type_String)
+{
+	QVector<Interlayer> interlayer_Composition;
+	QVariant data = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole);
+
+	if(item_Type_String == whats_This_Layer)		{interlayer_Composition = data.value<Layer>().	  interlayer_Composition;}
+	if(item_Type_String == whats_This_Substrate)	{interlayer_Composition = data.value<Substrate>().interlayer_Composition;}
+
+	int current_Column = start_Column;
+	double value;
+
+	for(int interlayer_Index=0; interlayer_Index<interlayer_Composition.size(); ++interlayer_Index)
+	{
+		value = interlayer_Composition[interlayer_Index].my_Sigma.value;
+
+		QString text_Value = QString::number(value, line_edit_short_double_format, line_edit_interlayer_precision);
+
+		QLineEdit* line_Edit = new QLineEdit(text_Value);
+		line_Edit->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT);
+
+		line_Edit->setProperty(interlayer_Index_Property, interlayer_Index);
+		line_Edit->setProperty(min_Size_Property, line_Edit->width());
+		line_Edit->setProperty(item_Type_Property, item_Type_String);
+		line_Edit->setProperty(column_Property, current_Column);
+		line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION));
+
+		// for reloading
+		line_Edit->setProperty(reload_Property, false);
+		all_Widgets_To_Reload.append(line_Edit);
+
+		connect(line_Edit, SIGNAL(textEdited(QString)), this, SLOT(resize_Line_Edit(QString)));
+
+		// create item
+		main_Table->setCellWidget(current_Row, current_Column, line_Edit);
+		line_Edits_Map.insert(line_Edit, structure_Item);
+		connect(line_Edit, SIGNAL(textEdited(QString)), this, SLOT(refresh_MySigma_Interlayer(QString)));
+		line_Edit->textEdited(line_Edit->text());
+
+		current_Column+=TABLE_COLUMN_INTERLAYERS_SHIFT;
+	}
 }
 
 // refresh
@@ -705,10 +1052,16 @@ void Table_Of_Structures::refresh_Element(QString temp)
 	QString item_Type_String = combo_Box->property(item_Type_Property).toString();
 	int composition_Index = combo_Box->property(num_Chemic_Element_Property).toInt();
 
+	// for reloading
+	bool reload = combo_Box->property(reload_Property).toBool();
+
 	QVariant var;
 	if(item_Type_String == whats_This_Ambient)
 	{
 		Ambient ambient = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Ambient>();
+
+		if(reload)	{combo_Box->setCurrentIndex(combo_Box->findText(ambient.composition[composition_Index].type));	return;	}
+
 		ambient.composition[composition_Index].type = combo_Box->currentText();
 		ambient.material = material_From_Composition(ambient.composition);
 		var.setValue( ambient );
@@ -716,6 +1069,9 @@ void Table_Of_Structures::refresh_Element(QString temp)
 	if(item_Type_String == whats_This_Layer)
 	{
 		Layer layer = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>();
+
+		if(reload)	{combo_Box->setCurrentIndex(combo_Box->findText(layer.composition[composition_Index].type));	return;	}
+
 		layer.composition[composition_Index].type = combo_Box->currentText();
 		layer.material = material_From_Composition(layer.composition);
 		var.setValue( layer );
@@ -723,6 +1079,9 @@ void Table_Of_Structures::refresh_Element(QString temp)
 	if(item_Type_String == whats_This_Substrate)
 	{
 		Substrate substrate = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Substrate>();
+
+		if(reload)	{combo_Box->setCurrentIndex(combo_Box->findText(substrate.composition[composition_Index].type));return;	}
+
 		substrate.composition[composition_Index].type = combo_Box->currentText();
 		substrate.material = material_From_Composition(substrate.composition);
 		var.setValue( substrate );
@@ -740,14 +1099,26 @@ void Table_Of_Structures::refresh_Stoich(QString temp)
 	int composition_Index = line_Edit->property(num_Chemic_Element_Property).toInt();
 	QString value_Type = line_Edit->property(value_Type_Property).toString();
 
+	// for reloading
+	bool reload = line_Edit->property(reload_Property).toBool();
+
 	QVariant var;
 	if(item_Type_String == whats_This_Ambient)
 	{
 		Ambient ambient = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Ambient>();
 
-		if(value_Type == VAL)	{ambient.composition[composition_Index].composition.value = line_Edit->text().toDouble();  }
-		if(value_Type == MIN)	{ambient.composition[composition_Index].composition.fit.min = line_Edit->text().toDouble();}
-		if(value_Type == MAX)	{ambient.composition[composition_Index].composition.fit.max = line_Edit->text().toDouble();}
+		if(reload)
+		{
+			if(value_Type == VAL)	line_Edit->setText(QString::number(ambient.composition[composition_Index].composition.value,   line_edit_short_double_format, line_edit_composition_precision));
+			if(value_Type == MIN)	line_Edit->setText(QString::number(ambient.composition[composition_Index].composition.fit.min, line_edit_short_double_format, line_edit_composition_precision));
+			if(value_Type == MAX)	line_Edit->setText(QString::number(ambient.composition[composition_Index].composition.fit.max, line_edit_short_double_format, line_edit_composition_precision));
+
+			return;
+		}
+
+		if(value_Type == VAL)	ambient.composition[composition_Index].composition.value = line_Edit->text().toDouble();
+		if(value_Type == MIN)	ambient.composition[composition_Index].composition.fit.min = line_Edit->text().toDouble();
+		if(value_Type == MAX)	ambient.composition[composition_Index].composition.fit.max = line_Edit->text().toDouble();
 
 		ambient.material = material_From_Composition(ambient.composition);
 		var.setValue( ambient );
@@ -756,9 +1127,18 @@ void Table_Of_Structures::refresh_Stoich(QString temp)
 	{
 		Layer layer = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>();
 
-		if(value_Type == VAL)	{layer.composition[composition_Index].composition.value = line_Edit->text().toDouble();	 }
-		if(value_Type == MIN)	{layer.composition[composition_Index].composition.fit.min = line_Edit->text().toDouble();}
-		if(value_Type == MAX)	{layer.composition[composition_Index].composition.fit.max = line_Edit->text().toDouble();}
+		if(reload)
+		{
+			if(value_Type == VAL)	line_Edit->setText(QString::number(layer.composition[composition_Index].composition.value,   line_edit_short_double_format, line_edit_composition_precision));
+			if(value_Type == MIN)	line_Edit->setText(QString::number(layer.composition[composition_Index].composition.fit.min, line_edit_short_double_format, line_edit_composition_precision));
+			if(value_Type == MAX)	line_Edit->setText(QString::number(layer.composition[composition_Index].composition.fit.max, line_edit_short_double_format, line_edit_composition_precision));
+
+			return;
+		}
+
+		if(value_Type == VAL)	layer.composition[composition_Index].composition.value = line_Edit->text().toDouble();
+		if(value_Type == MIN)	layer.composition[composition_Index].composition.fit.min = line_Edit->text().toDouble();
+		if(value_Type == MAX)	layer.composition[composition_Index].composition.fit.max = line_Edit->text().toDouble();
 
 		layer.material = material_From_Composition(layer.composition);
 		var.setValue( layer );
@@ -767,9 +1147,18 @@ void Table_Of_Structures::refresh_Stoich(QString temp)
 	{
 		Substrate substrate = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Substrate>();
 
-		if(value_Type == VAL)	{substrate.composition[composition_Index].composition.value = line_Edit->text().toDouble();  }
-		if(value_Type == MIN)	{substrate.composition[composition_Index].composition.fit.min = line_Edit->text().toDouble();}
-		if(value_Type == MAX)	{substrate.composition[composition_Index].composition.fit.max = line_Edit->text().toDouble();}
+		if(reload)
+		{
+			if(value_Type == VAL)	line_Edit->setText(QString::number(substrate.composition[composition_Index].composition.value,   line_edit_short_double_format, line_edit_composition_precision));
+			if(value_Type == MIN)	line_Edit->setText(QString::number(substrate.composition[composition_Index].composition.fit.min, line_edit_short_double_format, line_edit_composition_precision));
+			if(value_Type == MAX)	line_Edit->setText(QString::number(substrate.composition[composition_Index].composition.fit.max, line_edit_short_double_format, line_edit_composition_precision));
+
+			return;
+		}
+
+		if(value_Type == VAL)	substrate.composition[composition_Index].composition.value = line_Edit->text().toDouble();
+		if(value_Type == MIN)	substrate.composition[composition_Index].composition.fit.min = line_Edit->text().toDouble();
+		if(value_Type == MAX)	substrate.composition[composition_Index].composition.fit.max = line_Edit->text().toDouble();
 
 		substrate.material = material_From_Composition(substrate.composition);
 		var.setValue( substrate );
@@ -787,10 +1176,16 @@ void Table_Of_Structures::refresh_Fit_Element(bool b)
 	QString item_Type_String = check_Box->property(item_Type_Property).toString();
 	int composition_Index = check_Box->property(num_Chemic_Element_Property).toInt();
 
+	// for reloading
+	bool reload = check_Box->property(reload_Property).toBool();
+
 	QVariant var;
 	if(item_Type_String == whats_This_Ambient)
 	{
 		Ambient ambient = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Ambient>();
+
+		if(reload)	{check_Box->setChecked(ambient.composition[composition_Index].composition.fit.is_Fitable);	return;	}
+
 		ambient.composition[composition_Index].composition.fit.is_Fitable = check_Box->isChecked();
 		ambient.material = material_From_Composition(ambient.composition);
 		var.setValue( ambient );
@@ -798,6 +1193,9 @@ void Table_Of_Structures::refresh_Fit_Element(bool b)
 	if(item_Type_String == whats_This_Layer)
 	{
 		Layer layer = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>();
+
+		if(reload)	{check_Box->setChecked(layer.composition[composition_Index].composition.fit.is_Fitable);	return;	}
+
 		layer.composition[composition_Index].composition.fit.is_Fitable = check_Box->isChecked();
 		layer.material = material_From_Composition(layer.composition);
 		var.setValue( layer );
@@ -805,6 +1203,9 @@ void Table_Of_Structures::refresh_Fit_Element(bool b)
 	if(item_Type_String == whats_This_Substrate)
 	{
 		Substrate substrate = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Substrate>();
+
+		if(reload)	{check_Box->setChecked(substrate.composition[composition_Index].composition.fit.is_Fitable);	return;	}
+
 		substrate.composition[composition_Index].composition.fit.is_Fitable = check_Box->isChecked();
 		substrate.material = material_From_Composition(substrate.composition);
 		var.setValue( substrate );
@@ -821,22 +1222,34 @@ void Table_Of_Structures::refresh_Material(QString temp)
 	QTreeWidgetItem* structure_Item = line_Edits_Map.value(line_Edit);
 	QString item_Type_String = line_Edit->property(item_Type_Property).toString();
 
+	// for reloading
+	bool reload = line_Edit->property(reload_Property).toBool();
+
 	QVariant var;
 	if(item_Type_String == whats_This_Ambient)
 	{
 		Ambient ambient = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Ambient>();
+
+		if(reload)	{line_Edit->setText(ambient.material);	return;	}
+
 		ambient.material = line_Edit->text();
 		var.setValue( ambient );
 	}
 	if(item_Type_String == whats_This_Layer)
 	{
 		Layer layer = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>();
+
+		if(reload)	{line_Edit->setText(layer.material);	return;	}
+
 		layer.material = line_Edit->text();
 		var.setValue( layer );
 	}
 	if(item_Type_String == whats_This_Substrate)
 	{
 		Substrate substrate = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Substrate>();
+
+		if(reload)	{line_Edit->setText(substrate.material);	return;	}
+
 		substrate.material = line_Edit->text();
 		var.setValue( substrate );
 	}
@@ -850,6 +1263,10 @@ void Table_Of_Structures::check_Material()
 	QLineEdit* line_Edit = qobject_cast<QLineEdit*>(QObject::sender());
 	QTreeWidgetItem* structure_Item = line_Edits_Map.value(line_Edit);
 	QString item_Type_String = line_Edit->property(item_Type_Property).toString();
+
+	// no cheking for reloading
+	bool reload = line_Edit->property(reload_Property).toBool();
+	if(reload)	{return;}
 
 	QVariant var;
 	if(item_Type_String == whats_This_Ambient)
@@ -923,26 +1340,37 @@ void Table_Of_Structures::refresh_Drift_Header(bool b)
 	QString item_Type_String = check_Box->property(item_Type_Property).toString();
 	QString whats_This = check_Box->property(whats_This_Property).toString();
 
+	// for reloading
+	bool reload = check_Box->property(reload_Property).toBool();
+
 	QVariant data = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole);
 	QVariant var;
-	if(item_Type_String == whats_This_Ambient)
-	{
-		Ambient ambient = data.value<Ambient>();
-		var.setValue( ambient );
-	}
 	if(item_Type_String == whats_This_Layer)
 	{
 		Layer layer = data.value<Layer>();
 
+		if(reload)
+		{
+			if(whats_This == whats_This_Thickness_Drift_Line_Value)	check_Box->setChecked(layer.thickness_Drift.is_Drift_Line);
+			if(whats_This == whats_This_Thickness_Drift_Rand_Rms  )	check_Box->setChecked(layer.thickness_Drift.is_Drift_Rand);
+			if(whats_This == whats_This_Thickness_Drift_Sine	  )	check_Box->setChecked(layer.thickness_Drift.is_Drift_Sine);
+
+			if(whats_This == whats_This_Sigma_Drift_Line_Value)		check_Box->setChecked(layer.sigma_Drift.is_Drift_Line);
+			if(whats_This == whats_This_Sigma_Drift_Rand_Rms  )		check_Box->setChecked(layer.sigma_Drift.is_Drift_Rand);
+			if(whats_This == whats_This_Sigma_Drift_Sine	  )		check_Box->setChecked(layer.sigma_Drift.is_Drift_Sine);
+
+			return;
+		}
+
 		if(whats_This == whats_This_Thickness_Drift_Line_Value)	layer.thickness_Drift.is_Drift_Line = check_Box->isChecked();
-		if(whats_This == whats_This_Thickness_Drift_Rand_Rms)	layer.thickness_Drift.is_Drift_Rand = check_Box->isChecked();
+		if(whats_This == whats_This_Thickness_Drift_Rand_Rms  )	layer.thickness_Drift.is_Drift_Rand = check_Box->isChecked();
+		if(whats_This == whats_This_Thickness_Drift_Sine	  )	layer.thickness_Drift.is_Drift_Sine = check_Box->isChecked();
+
+		if(whats_This == whats_This_Sigma_Drift_Line_Value)		layer.sigma_Drift.is_Drift_Line = check_Box->isChecked();
+		if(whats_This == whats_This_Sigma_Drift_Rand_Rms  )		layer.sigma_Drift.is_Drift_Rand = check_Box->isChecked();
+		if(whats_This == whats_This_Sigma_Drift_Sine	  )		layer.sigma_Drift.is_Drift_Sine = check_Box->isChecked();
 
 		var.setValue( layer );
-	}
-	if(item_Type_String == whats_This_Substrate)
-	{
-		Substrate substrate = data.value<Substrate>();
-		var.setValue( substrate );
 	}
 	structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
 
@@ -959,22 +1387,42 @@ void Table_Of_Structures::refresh_Parameter(QString temp)
 	QString value_Type = line_Edit->property(value_Type_Property).toString();
 	QString whats_This = line_Edit->property(whats_This_Property).toString();
 
+	// for reloading
+	bool reload = line_Edit->property(reload_Property).toBool();
+
 	QVariant var;
 	if(item_Type_String == whats_This_Ambient)
 	{
 		Ambient ambient = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Ambient>();
 
+		if(reload)
+		{
+			if(whats_This == whats_This_Absolute_Density)
+			{
+				if(value_Type == VAL)	line_Edit->setText(QString::number(ambient.absolute_Density.value,	 line_edit_double_format, line_edit_density_precision));
+				if(value_Type == MIN)	line_Edit->setText(QString::number(ambient.absolute_Density.fit.min, line_edit_double_format, line_edit_density_precision));
+				if(value_Type == MAX)	line_Edit->setText(QString::number(ambient.absolute_Density.fit.max, line_edit_double_format, line_edit_density_precision));
+			}
+			if(whats_This == whats_This_Relative_Density)
+			{
+				if(value_Type == VAL)	line_Edit->setText(QString::number(ambient.relative_Density.value,	 line_edit_double_format, line_edit_density_precision));
+				if(value_Type == MIN)	line_Edit->setText(QString::number(ambient.relative_Density.fit.min, line_edit_double_format, line_edit_density_precision));
+				if(value_Type == MAX)	line_Edit->setText(QString::number(ambient.relative_Density.fit.max, line_edit_double_format, line_edit_density_precision));
+			}
+			return;
+		}
+
 		if(whats_This == whats_This_Absolute_Density)
 		{
-			if(value_Type == VAL)	{ambient.absolute_Density.value = line_Edit->text().toDouble();	}
-			if(value_Type == MIN)	{ambient.absolute_Density.fit.min = line_Edit->text().toDouble();}
-			if(value_Type == MAX)	{ambient.absolute_Density.fit.max = line_Edit->text().toDouble();}
+			if(value_Type == VAL)	ambient.absolute_Density.value = line_Edit->text().toDouble();
+			if(value_Type == MIN)	ambient.absolute_Density.fit.min = line_Edit->text().toDouble();
+			if(value_Type == MAX)	ambient.absolute_Density.fit.max = line_Edit->text().toDouble();
 		}
 		if(whats_This == whats_This_Relative_Density)
 		{
-			if(value_Type == VAL)	{ambient.relative_Density.value = line_Edit->text().toDouble();	}
-			if(value_Type == MIN)	{ambient.relative_Density.fit.min = line_Edit->text().toDouble();}
-			if(value_Type == MAX)	{ambient.relative_Density.fit.max = line_Edit->text().toDouble();}
+			if(value_Type == VAL)	ambient.relative_Density.value = line_Edit->text().toDouble();
+			if(value_Type == MIN)	ambient.relative_Density.fit.min = line_Edit->text().toDouble();
+			if(value_Type == MAX)	ambient.relative_Density.fit.max = line_Edit->text().toDouble();
 		}
 
 		var.setValue( ambient );
@@ -983,35 +1431,196 @@ void Table_Of_Structures::refresh_Parameter(QString temp)
 	{
 		Layer layer = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>();
 
+		if(reload)
+		{
+			if(whats_This == whats_This_Absolute_Density)
+			{
+				if(value_Type == VAL)	line_Edit->setText(QString::number(layer.absolute_Density.value,   line_edit_double_format, line_edit_density_precision));
+				if(value_Type == MIN)	line_Edit->setText(QString::number(layer.absolute_Density.fit.min, line_edit_double_format, line_edit_density_precision));
+				if(value_Type == MAX)	line_Edit->setText(QString::number(layer.absolute_Density.fit.max, line_edit_double_format, line_edit_density_precision));
+			}
+			if(whats_This == whats_This_Relative_Density)
+			{
+				if(value_Type == VAL)	line_Edit->setText(QString::number(layer.relative_Density.value,   line_edit_double_format, line_edit_density_precision));
+				if(value_Type == MIN)	line_Edit->setText(QString::number(layer.relative_Density.fit.min, line_edit_double_format, line_edit_density_precision));
+				if(value_Type == MAX)	line_Edit->setText(QString::number(layer.relative_Density.fit.max, line_edit_double_format, line_edit_density_precision));
+			}
+			if(whats_This == whats_This_Thickness)
+			{
+				if(value_Type == VAL)	line_Edit->setText(QString::number(layer.thickness.value,   line_edit_double_format, line_edit_thickness_precision));
+				if(value_Type == MIN)	line_Edit->setText(QString::number(layer.thickness.fit.min, line_edit_double_format, line_edit_thickness_precision));
+				if(value_Type == MAX)	line_Edit->setText(QString::number(layer.thickness.fit.max, line_edit_double_format, line_edit_thickness_precision));
+			}
+			if(whats_This == whats_This_Sigma)
+			{
+				if(value_Type == VAL)	line_Edit->setText(QString::number(layer.sigma.value,   line_edit_double_format, line_edit_sigma_precision));
+				if(value_Type == MIN)	line_Edit->setText(QString::number(layer.sigma.fit.min, line_edit_double_format, line_edit_sigma_precision));
+				if(value_Type == MAX)	line_Edit->setText(QString::number(layer.sigma.fit.max, line_edit_double_format, line_edit_sigma_precision));
+			}
+
+			if(whats_This == whats_This_Thickness_Drift_Line_Value)
+			{
+				if(value_Type == VAL)	line_Edit->setText(QString::number(layer.thickness_Drift.drift_Line_Value.value,   line_edit_double_format, line_edit_thickness_precision));
+				if(value_Type == MIN)	line_Edit->setText(QString::number(layer.thickness_Drift.drift_Line_Value.fit.min, line_edit_double_format, line_edit_thickness_precision));
+				if(value_Type == MAX)	line_Edit->setText(QString::number(layer.thickness_Drift.drift_Line_Value.fit.max, line_edit_double_format, line_edit_thickness_precision));
+			}
+			if(whats_This == whats_This_Thickness_Drift_Rand_Rms)
+			{
+				if(value_Type == VAL)	line_Edit->setText(QString::number(layer.thickness_Drift.drift_Rand_Rms.value,   line_edit_double_format, line_edit_thickness_precision));
+				if(value_Type == MIN)	line_Edit->setText(QString::number(layer.thickness_Drift.drift_Rand_Rms.fit.min, line_edit_double_format, line_edit_thickness_precision));
+				if(value_Type == MAX)	line_Edit->setText(QString::number(layer.thickness_Drift.drift_Rand_Rms.fit.max, line_edit_double_format, line_edit_thickness_precision));
+			}
+			if(whats_This == whats_This_Thickness_Drift_Sine_Amplitude)
+			{
+				if(value_Type == VAL)	line_Edit->setText(QString::number(layer.thickness_Drift.drift_Sine_Amplitude.value,   line_edit_double_format, line_edit_thickness_precision));
+				if(value_Type == MIN)	line_Edit->setText(QString::number(layer.thickness_Drift.drift_Sine_Amplitude.fit.min, line_edit_double_format, line_edit_thickness_precision));
+				if(value_Type == MAX)	line_Edit->setText(QString::number(layer.thickness_Drift.drift_Sine_Amplitude.fit.max, line_edit_double_format, line_edit_thickness_precision));
+			}
+			if(whats_This == whats_This_Thickness_Drift_Sine_Frequency)
+			{
+				if(value_Type == VAL)	line_Edit->setText(QString::number(layer.thickness_Drift.drift_Sine_Frequency.value,   line_edit_double_format, line_edit_thickness_precision));
+				if(value_Type == MIN)	line_Edit->setText(QString::number(layer.thickness_Drift.drift_Sine_Frequency.fit.min, line_edit_double_format, line_edit_thickness_precision));
+				if(value_Type == MAX)	line_Edit->setText(QString::number(layer.thickness_Drift.drift_Sine_Frequency.fit.max, line_edit_double_format, line_edit_thickness_precision));
+			}
+			if(whats_This == whats_This_Thickness_Drift_Sine_Phase)
+			{
+				if(value_Type == VAL)	line_Edit->setText(QString::number(layer.thickness_Drift.drift_Sine_Phase.value,   line_edit_double_format, line_edit_thickness_precision));
+				if(value_Type == MIN)	line_Edit->setText(QString::number(layer.thickness_Drift.drift_Sine_Phase.fit.min, line_edit_double_format, line_edit_thickness_precision));
+				if(value_Type == MAX)	line_Edit->setText(QString::number(layer.thickness_Drift.drift_Sine_Phase.fit.max, line_edit_double_format, line_edit_thickness_precision));
+			}
+
+			if(whats_This == whats_This_Sigma_Drift_Line_Value)
+			{
+				if(value_Type == VAL)	line_Edit->setText(QString::number(layer.sigma_Drift.drift_Line_Value.value,   line_edit_double_format, line_edit_sigma_precision));
+				if(value_Type == MIN)	line_Edit->setText(QString::number(layer.sigma_Drift.drift_Line_Value.fit.min, line_edit_double_format, line_edit_sigma_precision));
+				if(value_Type == MAX)	line_Edit->setText(QString::number(layer.sigma_Drift.drift_Line_Value.fit.max, line_edit_double_format, line_edit_sigma_precision));
+			}
+			if(whats_This == whats_This_Sigma_Drift_Rand_Rms)
+			{
+				if(value_Type == VAL)	line_Edit->setText(QString::number(layer.sigma_Drift.drift_Rand_Rms.value,   line_edit_double_format, line_edit_sigma_precision));
+				if(value_Type == MIN)	line_Edit->setText(QString::number(layer.sigma_Drift.drift_Rand_Rms.fit.min, line_edit_double_format, line_edit_sigma_precision));
+				if(value_Type == MAX)	line_Edit->setText(QString::number(layer.sigma_Drift.drift_Rand_Rms.fit.max, line_edit_double_format, line_edit_sigma_precision));
+			}
+			if(whats_This == whats_This_Sigma_Drift_Sine_Amplitude)
+			{
+				if(value_Type == VAL)	line_Edit->setText(QString::number(layer.sigma_Drift.drift_Sine_Amplitude.value,   line_edit_double_format, line_edit_sigma_precision));
+				if(value_Type == MIN)	line_Edit->setText(QString::number(layer.sigma_Drift.drift_Sine_Amplitude.fit.min, line_edit_double_format, line_edit_sigma_precision));
+				if(value_Type == MAX)	line_Edit->setText(QString::number(layer.sigma_Drift.drift_Sine_Amplitude.fit.max, line_edit_double_format, line_edit_sigma_precision));
+			}
+			if(whats_This == whats_This_Sigma_Drift_Sine_Frequency)
+			{
+				if(value_Type == VAL)	line_Edit->setText(QString::number(layer.sigma_Drift.drift_Sine_Frequency.value,   line_edit_double_format, line_edit_sigma_precision));
+				if(value_Type == MIN)	line_Edit->setText(QString::number(layer.sigma_Drift.drift_Sine_Frequency.fit.min, line_edit_double_format, line_edit_sigma_precision));
+				if(value_Type == MAX)	line_Edit->setText(QString::number(layer.sigma_Drift.drift_Sine_Frequency.fit.max, line_edit_double_format, line_edit_sigma_precision));
+			}
+			if(whats_This == whats_This_Sigma_Drift_Sine_Phase)
+			{
+				if(value_Type == VAL)	line_Edit->setText(QString::number(layer.sigma_Drift.drift_Sine_Phase.value,   line_edit_double_format, line_edit_sigma_precision));
+				if(value_Type == MIN)	line_Edit->setText(QString::number(layer.sigma_Drift.drift_Sine_Phase.fit.min, line_edit_double_format, line_edit_sigma_precision));
+				if(value_Type == MAX)	line_Edit->setText(QString::number(layer.sigma_Drift.drift_Sine_Phase.fit.max, line_edit_double_format, line_edit_sigma_precision));
+			}
+			return;
+		}
+
 		if(whats_This == whats_This_Absolute_Density)
 		{
-			if(value_Type == VAL)	{layer.absolute_Density.value = line_Edit->text().toDouble();	}
-			if(value_Type == MIN)	{layer.absolute_Density.fit.min = line_Edit->text().toDouble();}
-			if(value_Type == MAX)	{layer.absolute_Density.fit.max = line_Edit->text().toDouble();}
+			if(value_Type == VAL)	layer.absolute_Density.value = line_Edit->text().toDouble();
+			if(value_Type == MIN)	layer.absolute_Density.fit.min = line_Edit->text().toDouble();
+			if(value_Type == MAX)	layer.absolute_Density.fit.max = line_Edit->text().toDouble();
 		}
 		if(whats_This == whats_This_Relative_Density)
 		{
-			if(value_Type == VAL)	{layer.relative_Density.value = line_Edit->text().toDouble();	}
-			if(value_Type == MIN)	{layer.relative_Density.fit.min = line_Edit->text().toDouble();}
-			if(value_Type == MAX)	{layer.relative_Density.fit.max = line_Edit->text().toDouble();}
+			if(value_Type == VAL)	layer.relative_Density.value = line_Edit->text().toDouble();
+			if(value_Type == MIN)	layer.relative_Density.fit.min = line_Edit->text().toDouble();
+			if(value_Type == MAX)	layer.relative_Density.fit.max = line_Edit->text().toDouble();
 		}
 		if(whats_This == whats_This_Thickness)
 		{
-			if(value_Type == VAL)	{layer.thickness.value = line_Edit->text().toDouble();	}
-			if(value_Type == MIN)	{layer.thickness.fit.min = line_Edit->text().toDouble();}
-			if(value_Type == MAX)	{layer.thickness.fit.max = line_Edit->text().toDouble();}
+			if(value_Type == VAL)	layer.thickness.value = line_Edit->text().toDouble();
+			if(value_Type == MIN)	layer.thickness.fit.min = line_Edit->text().toDouble();
+			if(value_Type == MAX)	layer.thickness.fit.max = line_Edit->text().toDouble();
 		}
+		if(whats_This == whats_This_Sigma)
+		{
+			if(value_Type == VAL)	layer.sigma.value = line_Edit->text().toDouble();
+			if(value_Type == MIN)
+			{
+				layer.sigma.fit.min = line_Edit->text().toDouble();
+				for(int interlayer_Index=0; interlayer_Index<transition_Layer_Functions_Size; ++interlayer_Index)
+				{
+					layer.interlayer_Composition[interlayer_Index].interlayer.fit.min = line_Edit->text().toDouble();
+				}
+			}
+			if(value_Type == MAX)
+			{
+				layer.sigma.fit.max = line_Edit->text().toDouble();
+				for(int interlayer_Index=0; interlayer_Index<transition_Layer_Functions_Size; ++interlayer_Index)
+				{
+					layer.interlayer_Composition[interlayer_Index].interlayer.fit.max = line_Edit->text().toDouble();
+				}
+			}
+		}
+
 		if(whats_This == whats_This_Thickness_Drift_Line_Value)
 		{
-			if(value_Type == VAL)	{layer.thickness_Drift.drift_Line_Value.value = line_Edit->text().toDouble();	}
-			if(value_Type == MIN)	{layer.thickness_Drift.drift_Line_Value.fit.min = line_Edit->text().toDouble();}
-			if(value_Type == MAX)	{layer.thickness_Drift.drift_Line_Value.fit.max = line_Edit->text().toDouble();}
+			if(value_Type == VAL)	layer.thickness_Drift.drift_Line_Value.value = line_Edit->text().toDouble();
+			if(value_Type == MIN)	layer.thickness_Drift.drift_Line_Value.fit.min = line_Edit->text().toDouble();
+			if(value_Type == MAX)	layer.thickness_Drift.drift_Line_Value.fit.max = line_Edit->text().toDouble();
 		}
 		if(whats_This == whats_This_Thickness_Drift_Rand_Rms)
 		{
-			if(value_Type == VAL)	{layer.thickness_Drift.drift_Rand_Rms.value = line_Edit->text().toDouble();	}
-			if(value_Type == MIN)	{layer.thickness_Drift.drift_Rand_Rms.fit.min = line_Edit->text().toDouble();}
-			if(value_Type == MAX)	{layer.thickness_Drift.drift_Rand_Rms.fit.max = line_Edit->text().toDouble();}
+			if(value_Type == VAL)	layer.thickness_Drift.drift_Rand_Rms.value = line_Edit->text().toDouble();
+			if(value_Type == MIN)	layer.thickness_Drift.drift_Rand_Rms.fit.min = line_Edit->text().toDouble();
+			if(value_Type == MAX)	layer.thickness_Drift.drift_Rand_Rms.fit.max = line_Edit->text().toDouble();
+		}
+		if(whats_This == whats_This_Thickness_Drift_Sine_Amplitude)
+		{
+			if(value_Type == VAL)	layer.thickness_Drift.drift_Sine_Amplitude.value = line_Edit->text().toDouble();
+			if(value_Type == MIN)	layer.thickness_Drift.drift_Sine_Amplitude.fit.min = line_Edit->text().toDouble();
+			if(value_Type == MAX)	layer.thickness_Drift.drift_Sine_Amplitude.fit.max = line_Edit->text().toDouble();
+		}
+		if(whats_This == whats_This_Thickness_Drift_Sine_Frequency)
+		{
+			if(value_Type == VAL)	layer.thickness_Drift.drift_Sine_Frequency.value = line_Edit->text().toDouble();
+			if(value_Type == MIN)	layer.thickness_Drift.drift_Sine_Frequency.fit.min = line_Edit->text().toDouble();
+			if(value_Type == MAX)	layer.thickness_Drift.drift_Sine_Frequency.fit.max = line_Edit->text().toDouble();
+		}
+		if(whats_This == whats_This_Thickness_Drift_Sine_Phase)
+		{
+			if(value_Type == VAL)	layer.thickness_Drift.drift_Sine_Phase.value = line_Edit->text().toDouble();
+			if(value_Type == MIN)	layer.thickness_Drift.drift_Sine_Phase.fit.min = line_Edit->text().toDouble();
+			if(value_Type == MAX)	layer.thickness_Drift.drift_Sine_Phase.fit.max = line_Edit->text().toDouble();
+		}
+
+		if(whats_This == whats_This_Sigma_Drift_Line_Value)
+		{
+			if(value_Type == VAL)	layer.sigma_Drift.drift_Line_Value.value = line_Edit->text().toDouble();
+			if(value_Type == MIN)	layer.sigma_Drift.drift_Line_Value.fit.min = line_Edit->text().toDouble();
+			if(value_Type == MAX)	layer.sigma_Drift.drift_Line_Value.fit.max = line_Edit->text().toDouble();
+		}
+		if(whats_This == whats_This_Sigma_Drift_Rand_Rms)
+		{
+			if(value_Type == VAL)	layer.sigma_Drift.drift_Rand_Rms.value = line_Edit->text().toDouble();
+			if(value_Type == MIN)	layer.sigma_Drift.drift_Rand_Rms.fit.min = line_Edit->text().toDouble();
+			if(value_Type == MAX)	layer.sigma_Drift.drift_Rand_Rms.fit.max = line_Edit->text().toDouble();
+		}
+		if(whats_This == whats_This_Sigma_Drift_Sine_Amplitude)
+		{
+			if(value_Type == VAL)	layer.sigma_Drift.drift_Sine_Amplitude.value = line_Edit->text().toDouble();
+			if(value_Type == MIN)	layer.sigma_Drift.drift_Sine_Amplitude.fit.min = line_Edit->text().toDouble();
+			if(value_Type == MAX)	layer.sigma_Drift.drift_Sine_Amplitude.fit.max = line_Edit->text().toDouble();
+		}
+		if(whats_This == whats_This_Sigma_Drift_Sine_Frequency)
+		{
+			if(value_Type == VAL)	layer.sigma_Drift.drift_Sine_Frequency.value = line_Edit->text().toDouble();
+			if(value_Type == MIN)	layer.sigma_Drift.drift_Sine_Frequency.fit.min = line_Edit->text().toDouble();
+			if(value_Type == MAX)	layer.sigma_Drift.drift_Sine_Frequency.fit.max = line_Edit->text().toDouble();
+		}
+		if(whats_This == whats_This_Sigma_Drift_Sine_Phase)
+		{
+			if(value_Type == VAL)	layer.sigma_Drift.drift_Sine_Phase.value = line_Edit->text().toDouble();
+			if(value_Type == MIN)	layer.sigma_Drift.drift_Sine_Phase.fit.min = line_Edit->text().toDouble();
+			if(value_Type == MAX)	layer.sigma_Drift.drift_Sine_Phase.fit.max = line_Edit->text().toDouble();
 		}
 
 		var.setValue( layer );
@@ -1020,6 +1629,28 @@ void Table_Of_Structures::refresh_Parameter(QString temp)
 	{
 		Substrate substrate = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Substrate>();
 
+		if(reload)
+		{
+			if(whats_This == whats_This_Absolute_Density)
+			{
+				if(value_Type == VAL)	line_Edit->setText(QString::number(substrate.absolute_Density.value,   line_edit_double_format, line_edit_density_precision));
+				if(value_Type == MIN)	line_Edit->setText(QString::number(substrate.absolute_Density.fit.min, line_edit_double_format, line_edit_density_precision));
+				if(value_Type == MAX)	line_Edit->setText(QString::number(substrate.absolute_Density.fit.max, line_edit_double_format, line_edit_density_precision));
+			}
+			if(whats_This == whats_This_Relative_Density)
+			{
+				if(value_Type == VAL)	line_Edit->setText(QString::number(substrate.relative_Density.value,   line_edit_double_format, line_edit_density_precision));
+				if(value_Type == MIN)	line_Edit->setText(QString::number(substrate.relative_Density.fit.min, line_edit_double_format, line_edit_density_precision));
+				if(value_Type == MAX)	line_Edit->setText(QString::number(substrate.relative_Density.fit.max, line_edit_double_format, line_edit_density_precision));
+			}
+			if(whats_This == whats_This_Sigma)
+			{
+				if(value_Type == VAL)	line_Edit->setText(QString::number(substrate.sigma.value,   line_edit_double_format, line_edit_sigma_precision));
+				if(value_Type == MIN)	line_Edit->setText(QString::number(substrate.sigma.fit.min, line_edit_double_format, line_edit_sigma_precision));
+				if(value_Type == MAX)	line_Edit->setText(QString::number(substrate.sigma.fit.max, line_edit_double_format, line_edit_sigma_precision));
+			}
+			return;
+		}
 		if(whats_This == whats_This_Absolute_Density)
 		{
 			if(value_Type == VAL)	{substrate.absolute_Density.value = line_Edit->text().toDouble();	}
@@ -1031,6 +1662,26 @@ void Table_Of_Structures::refresh_Parameter(QString temp)
 			if(value_Type == VAL)	{substrate.relative_Density.value = line_Edit->text().toDouble();	}
 			if(value_Type == MIN)	{substrate.relative_Density.fit.min = line_Edit->text().toDouble();}
 			if(value_Type == MAX)	{substrate.relative_Density.fit.max = line_Edit->text().toDouble();}
+		}
+		if(whats_This == whats_This_Sigma)
+		{
+			if(value_Type == VAL)	{substrate.sigma.value = line_Edit->text().toDouble();	}
+			if(value_Type == MIN)
+			{
+				substrate.sigma.fit.min = line_Edit->text().toDouble();
+				for(int interlayer_Index=0; interlayer_Index<transition_Layer_Functions_Size; ++interlayer_Index)
+				{
+					substrate.interlayer_Composition[interlayer_Index].interlayer.fit.min = line_Edit->text().toDouble();
+				}
+			}
+			if(value_Type == MAX)
+			{
+				substrate.sigma.fit.max = line_Edit->text().toDouble();
+				for(int interlayer_Index=0; interlayer_Index<transition_Layer_Functions_Size; ++interlayer_Index)
+				{
+					substrate.interlayer_Composition[interlayer_Index].interlayer.fit.max = line_Edit->text().toDouble();
+				}
+			}
 		}
 
 		var.setValue( substrate );
@@ -1049,10 +1700,21 @@ void Table_Of_Structures::refresh_Fit_Parameter(bool b)
 	QString item_Type_String = check_Box->property(item_Type_Property).toString();
 	QString whats_This = check_Box->property(whats_This_Property).toString();
 
+	// for reloading
+	bool reload = check_Box->property(reload_Property).toBool();
+
 	QVariant var;
 	if(item_Type_String == whats_This_Ambient)
 	{
 		Ambient ambient = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Ambient>();
+
+		if(reload)
+		{
+			if(whats_This == whats_This_Absolute_Density)	check_Box->setChecked(ambient.absolute_Density.fit.is_Fitable);
+			if(whats_This == whats_This_Relative_Density)	check_Box->setChecked(ambient.absolute_Density.fit.is_Fitable);
+
+			return;
+		}
 
 		if(whats_This == whats_This_Absolute_Density)	ambient.absolute_Density.fit.is_Fitable = check_Box->isChecked();
 		if(whats_This == whats_This_Relative_Density)	ambient.relative_Density.fit.is_Fitable = check_Box->isChecked();
@@ -1063,11 +1725,51 @@ void Table_Of_Structures::refresh_Fit_Parameter(bool b)
 	{
 		Layer layer = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>();
 
-		if(whats_This == whats_This_Absolute_Density)			layer.absolute_Density.fit.is_Fitable = check_Box->isChecked();
-		if(whats_This == whats_This_Relative_Density)			layer.relative_Density.fit.is_Fitable = check_Box->isChecked();
-		if(whats_This == whats_This_Thickness)					layer.thickness.fit.is_Fitable = check_Box->isChecked();
-		if(whats_This == whats_This_Thickness_Drift_Line_Value)	layer.thickness_Drift.drift_Line_Value.fit.is_Fitable = check_Box->isChecked();
-		if(whats_This == whats_This_Thickness_Drift_Rand_Rms)	layer.thickness_Drift.drift_Rand_Rms.fit.is_Fitable = check_Box->isChecked();
+		if(reload)
+		{
+			if(whats_This == whats_This_Absolute_Density)				check_Box->setChecked(layer.absolute_Density.fit.is_Fitable);
+			if(whats_This == whats_This_Relative_Density)				check_Box->setChecked(layer.relative_Density.fit.is_Fitable);
+			if(whats_This == whats_This_Thickness)						check_Box->setChecked(layer.thickness.fit.is_Fitable);
+			if(whats_This == whats_This_Sigma)                  		check_Box->setChecked(layer.sigma.fit.is_Fitable);
+
+			if(whats_This == whats_This_Thickness_Drift_Line_Value)		check_Box->setChecked(layer.thickness_Drift.drift_Line_Value.fit.is_Fitable);
+			if(whats_This == whats_This_Thickness_Drift_Rand_Rms)		check_Box->setChecked(layer.thickness_Drift.drift_Rand_Rms.fit.is_Fitable);
+			if(whats_This == whats_This_Thickness_Drift_Sine_Amplitude)	check_Box->setChecked(layer.thickness_Drift.drift_Sine_Amplitude.fit.is_Fitable);
+			if(whats_This == whats_This_Thickness_Drift_Sine_Frequency)	check_Box->setChecked(layer.thickness_Drift.drift_Sine_Frequency.fit.is_Fitable);
+			if(whats_This == whats_This_Thickness_Drift_Sine_Phase)		check_Box->setChecked(layer.thickness_Drift.drift_Sine_Phase.fit.is_Fitable);
+
+			if(whats_This == whats_This_Sigma_Drift_Line_Value)			check_Box->setChecked(layer.sigma_Drift.drift_Line_Value.fit.is_Fitable);
+			if(whats_This == whats_This_Sigma_Drift_Rand_Rms)			check_Box->setChecked(layer.sigma_Drift.drift_Rand_Rms.fit.is_Fitable);
+			if(whats_This == whats_This_Sigma_Drift_Sine_Amplitude)		check_Box->setChecked(layer.sigma_Drift.drift_Sine_Amplitude.fit.is_Fitable);
+			if(whats_This == whats_This_Sigma_Drift_Sine_Frequency)		check_Box->setChecked(layer.sigma_Drift.drift_Sine_Frequency.fit.is_Fitable);
+			if(whats_This == whats_This_Sigma_Drift_Sine_Phase)			check_Box->setChecked(layer.sigma_Drift.drift_Sine_Phase.fit.is_Fitable);
+
+			return;
+		}
+
+		if(whats_This == whats_This_Absolute_Density)				layer.absolute_Density.fit.is_Fitable = check_Box->isChecked();
+		if(whats_This == whats_This_Relative_Density)				layer.relative_Density.fit.is_Fitable = check_Box->isChecked();
+		if(whats_This == whats_This_Thickness)						layer.thickness.fit.is_Fitable = check_Box->isChecked();
+		if(whats_This == whats_This_Sigma)
+		{
+			layer.sigma.fit.is_Fitable = check_Box->isChecked();
+			for(int interlayer_Index=0; interlayer_Index<transition_Layer_Functions_Size; ++interlayer_Index)
+			{
+				layer.interlayer_Composition[interlayer_Index].my_Sigma.fit.is_Fitable = check_Box->isChecked();
+			}
+		}
+
+		if(whats_This == whats_This_Thickness_Drift_Line_Value)		layer.thickness_Drift.drift_Line_Value.fit.is_Fitable = check_Box->isChecked();
+		if(whats_This == whats_This_Thickness_Drift_Rand_Rms)		layer.thickness_Drift.drift_Rand_Rms.fit.is_Fitable = check_Box->isChecked();
+		if(whats_This == whats_This_Thickness_Drift_Sine_Amplitude)	layer.thickness_Drift.drift_Sine_Amplitude.fit.is_Fitable = check_Box->isChecked();
+		if(whats_This == whats_This_Thickness_Drift_Sine_Frequency)	layer.thickness_Drift.drift_Sine_Frequency.fit.is_Fitable = check_Box->isChecked();
+		if(whats_This == whats_This_Thickness_Drift_Sine_Phase)		layer.thickness_Drift.drift_Sine_Phase.fit.is_Fitable = check_Box->isChecked();
+
+		if(whats_This == whats_This_Sigma_Drift_Line_Value)			layer.sigma_Drift.drift_Line_Value.fit.is_Fitable = check_Box->isChecked();
+		if(whats_This == whats_This_Sigma_Drift_Rand_Rms)			layer.sigma_Drift.drift_Rand_Rms.fit.is_Fitable = check_Box->isChecked();
+		if(whats_This == whats_This_Sigma_Drift_Sine_Amplitude)		layer.sigma_Drift.drift_Sine_Amplitude.fit.is_Fitable = check_Box->isChecked();
+		if(whats_This == whats_This_Sigma_Drift_Sine_Frequency)		layer.sigma_Drift.drift_Sine_Frequency.fit.is_Fitable = check_Box->isChecked();
+		if(whats_This == whats_This_Sigma_Drift_Sine_Phase)			layer.sigma_Drift.drift_Sine_Phase.fit.is_Fitable = check_Box->isChecked();
 
 		var.setValue( layer );
 	}
@@ -1075,8 +1777,191 @@ void Table_Of_Structures::refresh_Fit_Parameter(bool b)
 	{
 		Substrate substrate = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Substrate>();
 
+		if(reload)
+		{
+			if(whats_This == whats_This_Absolute_Density)	check_Box->setChecked(substrate.absolute_Density.fit.is_Fitable);
+			if(whats_This == whats_This_Relative_Density)	check_Box->setChecked(substrate.relative_Density.fit.is_Fitable);
+			if(whats_This == whats_This_Sigma)              check_Box->setChecked(substrate.sigma.fit.is_Fitable);
+
+			return;
+		}
+
 		if(whats_This == whats_This_Absolute_Density)	substrate.absolute_Density.fit.is_Fitable = check_Box->isChecked();
 		if(whats_This == whats_This_Relative_Density)	substrate.relative_Density.fit.is_Fitable = check_Box->isChecked();
+		if(whats_This == whats_This_Sigma)
+		{
+			substrate.sigma.fit.is_Fitable = check_Box->isChecked();
+			for(int interlayer_Index=0; interlayer_Index<transition_Layer_Functions_Size; ++interlayer_Index)
+			{
+				substrate.interlayer_Composition[interlayer_Index].my_Sigma.fit.is_Fitable = check_Box->isChecked();
+			}
+		}
+
+		var.setValue( substrate );
+	}
+	structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+
+	emit_Data_Edited();
+}
+
+// for interlayers
+void Table_Of_Structures::refresh_Check_Box_Label_Interlayer(bool b)
+{
+	// PARAMETER
+	b;
+	QCheckBox* check_Box = qobject_cast<QCheckBox*>(QObject::sender());
+	QTreeWidgetItem* structure_Item = check_Boxes_Map.value(check_Box);
+	QString item_Type_String = check_Box->property(item_Type_Property).toString();
+	int interlayer_Index = check_Box->property(interlayer_Index_Property).toInt();
+
+	// for reloading
+	bool reload = check_Box->property(reload_Property).toBool();
+
+	QVariant var;
+	if(item_Type_String == whats_This_Layer)
+	{
+		Layer layer = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>();
+
+		if(reload)	{check_Box->setChecked(layer.interlayer_Composition[interlayer_Index].enabled);	return;	}
+
+		layer.interlayer_Composition[interlayer_Index].enabled = check_Box->isChecked();
+		var.setValue( layer );
+	}
+	if(item_Type_String == whats_This_Substrate)
+	{
+		Substrate substrate = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Substrate>();
+
+		if(reload)	{check_Box->setChecked(substrate.interlayer_Composition[interlayer_Index].enabled);	return;	}
+
+		substrate.interlayer_Composition[interlayer_Index].enabled = check_Box->isChecked();
+		var.setValue( substrate );
+	}
+	structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+
+	emit_Data_Edited();
+}
+
+void Table_Of_Structures::refresh_Weigts_Interlayer(QString temp)
+{
+	QLineEdit* line_Edit = qobject_cast<QLineEdit*>(QObject::sender());
+	QTreeWidgetItem* structure_Item = line_Edits_Map.value(line_Edit);
+	QString item_Type_String = line_Edit->property(item_Type_Property).toString();
+	int interlayer_Index = line_Edit->property(interlayer_Index_Property).toInt();
+	QString value_Type = line_Edit->property(value_Type_Property).toString();
+
+	// for reloading
+	bool reload = line_Edit->property(reload_Property).toBool();
+
+	QVariant var;
+
+	if(item_Type_String == whats_This_Layer)
+	{
+		Layer layer = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>();
+
+		if(reload)
+		{
+			if(value_Type == VAL)	line_Edit->setText(QString::number(layer.interlayer_Composition[interlayer_Index].interlayer.value,	  line_edit_short_double_format, line_edit_interlayer_precision));
+			if(value_Type == MIN)	line_Edit->setText(QString::number(layer.interlayer_Composition[interlayer_Index].interlayer.fit.min, line_edit_short_double_format, line_edit_interlayer_precision));
+			if(value_Type == MAX)	line_Edit->setText(QString::number(layer.interlayer_Composition[interlayer_Index].interlayer.fit.max, line_edit_short_double_format, line_edit_interlayer_precision));
+
+			return;
+		}
+
+		if(value_Type == VAL)	layer.interlayer_Composition[interlayer_Index].interlayer.value = line_Edit->text().toDouble();
+		if(value_Type == MIN)	layer.interlayer_Composition[interlayer_Index].interlayer.fit.min = line_Edit->text().toDouble();
+		if(value_Type == MAX)	layer.interlayer_Composition[interlayer_Index].interlayer.fit.max = line_Edit->text().toDouble();
+
+		var.setValue( layer );
+	}
+	if(item_Type_String == whats_This_Substrate)
+	{
+		Substrate substrate = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Substrate>();
+
+		if(reload)
+		{
+			if(value_Type == VAL)	line_Edit->setText(QString::number(substrate.interlayer_Composition[interlayer_Index].interlayer.value,	  line_edit_short_double_format, line_edit_interlayer_precision));
+			if(value_Type == MIN)	line_Edit->setText(QString::number(substrate.interlayer_Composition[interlayer_Index].interlayer.fit.min, line_edit_short_double_format, line_edit_interlayer_precision));
+			if(value_Type == MAX)	line_Edit->setText(QString::number(substrate.interlayer_Composition[interlayer_Index].interlayer.fit.max, line_edit_short_double_format, line_edit_interlayer_precision));
+
+			return;
+		}
+
+		if(value_Type == VAL)	substrate.interlayer_Composition[interlayer_Index].interlayer.value = line_Edit->text().toDouble();
+		if(value_Type == MIN)	substrate.interlayer_Composition[interlayer_Index].interlayer.fit.min = line_Edit->text().toDouble();
+		if(value_Type == MAX)	substrate.interlayer_Composition[interlayer_Index].interlayer.fit.max = line_Edit->text().toDouble();
+
+		var.setValue( substrate );
+	}
+	structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+
+	emit_Data_Edited();
+}
+
+void Table_Of_Structures::refresh_Weights_Check_Box_Fit_Interlayer(bool b)
+{
+	// PARAMETER
+	b;
+	QCheckBox* check_Box = qobject_cast<QCheckBox*>(QObject::sender());
+	QTreeWidgetItem* structure_Item = check_Boxes_Map.value(check_Box);
+	QString item_Type_String = check_Box->property(item_Type_Property).toString();
+	int interlayer_Index = check_Box->property(interlayer_Index_Property).toInt();
+
+	// for reloading
+	bool reload = check_Box->property(reload_Property).toBool();
+
+	QVariant var;
+	if(item_Type_String == whats_This_Layer)
+	{
+		Layer layer = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>();
+
+		if(reload)	{check_Box->setChecked(layer.interlayer_Composition[interlayer_Index].interlayer.fit.is_Fitable);	return;	}
+
+		layer.interlayer_Composition[interlayer_Index].interlayer.fit.is_Fitable = check_Box->isChecked();
+		var.setValue( layer );
+	}
+	if(item_Type_String == whats_This_Substrate)
+	{
+		Substrate substrate = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Substrate>();
+
+		if(reload)	{check_Box->setChecked(substrate.interlayer_Composition[interlayer_Index].interlayer.fit.is_Fitable);	return;	}
+
+		substrate.interlayer_Composition[interlayer_Index].interlayer.fit.is_Fitable = check_Box->isChecked();
+		var.setValue( substrate );
+	}
+	structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+
+	emit_Data_Edited();
+}
+
+void Table_Of_Structures::refresh_MySigma_Interlayer(QString temp)
+{
+	QLineEdit* line_Edit = qobject_cast<QLineEdit*>(QObject::sender());
+	QTreeWidgetItem* structure_Item = line_Edits_Map.value(line_Edit);
+	QString item_Type_String = line_Edit->property(item_Type_Property).toString();
+	int interlayer_Index = line_Edit->property(interlayer_Index_Property).toInt();
+
+	// for reloading
+	bool reload = line_Edit->property(reload_Property).toBool();
+
+	QVariant var;
+
+	if(item_Type_String == whats_This_Layer)
+	{
+		Layer layer = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>();
+
+		if(reload)	{line_Edit->setText(QString::number(layer.interlayer_Composition[interlayer_Index].my_Sigma.value, line_edit_double_format, line_edit_sigma_precision)); return;}
+
+		layer.interlayer_Composition[interlayer_Index].my_Sigma.value = line_Edit->text().toDouble();
+
+		var.setValue( layer );
+	}
+	if(item_Type_String == whats_This_Substrate)
+	{
+		Substrate substrate = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Substrate>();
+
+		if(reload)	{line_Edit->setText(QString::number(substrate.interlayer_Composition[interlayer_Index].my_Sigma.value, line_edit_double_format, line_edit_sigma_precision)); return;}
+
+		substrate.interlayer_Composition[interlayer_Index].my_Sigma.value = line_Edit->text().toDouble();
 
 		var.setValue( substrate );
 	}
@@ -1128,5 +2013,3 @@ void Table_Of_Structures::resize_Line_Edit(QString text, QLineEdit* line_Edit)
 	int current_Column = line_Edit->property(column_Property).toInt();
 	fit_Column(0, current_Column);
 }
-
-

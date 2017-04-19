@@ -113,6 +113,7 @@ using namespace std;
 #define RAND_SHIFT	100000					// rand * RAND_SHIFT + rand
 #define TABLE_FIX_WIDTH_LINE_EDIT 50		// qLineEdit->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT)
 #define TABLE_COLUMN_ELEMENTS_SHIFT 1		// current_Column += TABLE_COLUMN_ELEMENTS_SHIFT
+#define TABLE_COLUMN_INTERLAYERS_SHIFT 1	// current_Column += TABLE_COLUMN_INTERLAYERS_SHIFT
 
 // -----------------------------------------------------------------------------------------
 
@@ -147,17 +148,19 @@ using namespace std;
 
 // whatsThis : thickness drifts
 #define whats_This_Thickness_Drift_Line_Value		"Thickness Drift Lin Value"
+#define whats_This_Thickness_Drift_Rand_Rms			"Thickness Drift Rand Rms"
+#define whats_This_Thickness_Drift_Sine				"Thickness Drift Sine"
 #define whats_This_Thickness_Drift_Sine_Amplitude	"Thickness Drift Sine Amplitude"
 #define whats_This_Thickness_Drift_Sine_Frequency	"Thickness Drift Sine Frequency"
 #define whats_This_Thickness_Drift_Sine_Phase		"Thickness Drift Sine Phase"
-#define whats_This_Thickness_Drift_Rand_Rms			"Thickness Drift Rand Rms"
 
 // whatsThis : sigma drifts
 #define whats_This_Sigma_Drift_Line_Value			"Sigma Drift Lin Value"
+#define whats_This_Sigma_Drift_Rand_Rms				"Sigma Drift Rand Rms"
+#define whats_This_Sigma_Drift_Sine					"Sigma Drift Sine"
 #define whats_This_Sigma_Drift_Sine_Amplitude		"Sigma Drift Sine Amplitude"
 #define whats_This_Sigma_Drift_Sine_Frequency		"Sigma Drift Sine Frequency"
 #define whats_This_Sigma_Drift_Sine_Phase			"Sigma Drift Sine Phase"
-#define whats_This_Sigma_Drift_Rand_Rms				"Sigma Drift Rand Rms"
 
 // value types
 #define VAL				"value"
@@ -175,11 +178,14 @@ using namespace std;
 #define NOPARENT			"No parents"
 
 #define num_Chemic_Element_Property "num_Chemic_Element"
+#define interlayer_Index_Property	"interlayer_Index"
 #define item_Type_Property			"item_Type"
 #define row_Property				"row"
 #define column_Property				"column"
 #define whats_This_Property			"whats_This"
 #define value_Type_Property			"value_Type"
+
+#define reload_Property	"reload"
 
 #define relative_Rows_To_Disable_Start_Property		"relative_Rows_To_Disable_Start"
 #define relative_Rows_To_Disable_Finish_Property	"relative_Rows_To_Disable_Finish"

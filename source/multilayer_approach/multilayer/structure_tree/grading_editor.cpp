@@ -36,28 +36,28 @@ void Grading_Editor::refresh_Data(QString)
 
 	{
 		drift.drift_Line_Value.value = line_Value_Line->text().toDouble();
-		drift.drift_Line_Value.fit.min = -drift.drift_Line_Value.value*2;
-		drift.drift_Line_Value.fit.max =  drift.drift_Line_Value.value*2;
+//		drift.drift_Line_Value.fit.min = -drift.drift_Line_Value.value*2;
+//		drift.drift_Line_Value.fit.max =  drift.drift_Line_Value.value*2;
 	}
 	{
 		drift.drift_Sine_Amplitude.value = sine_Amplitude_Line->text().toDouble();
-		drift.drift_Sine_Amplitude.fit.min = 0;
-		drift.drift_Sine_Amplitude.fit.max = drift.drift_Sine_Amplitude.value*2;
+//		drift.drift_Sine_Amplitude.fit.min = 0;
+//		drift.drift_Sine_Amplitude.fit.max = drift.drift_Sine_Amplitude.value*2;
 	}
 	{
 		drift.drift_Sine_Frequency.value = sine_Frequency_Line->text().toDouble();
-		drift.drift_Sine_Frequency.fit.min = drift.drift_Sine_Frequency.value*(1-dispersion);
-		drift.drift_Sine_Frequency.fit.max = drift.drift_Sine_Frequency.value*(1+dispersion);
+//		drift.drift_Sine_Frequency.fit.min = drift.drift_Sine_Frequency.value*(1-dispersion);
+//		drift.drift_Sine_Frequency.fit.max = drift.drift_Sine_Frequency.value*(1+dispersion);
 	}
 	{
 		drift.drift_Sine_Phase.value = sine_Phase_Line->text().toDouble();
-		drift.drift_Sine_Phase.fit.min = 0;
-		drift.drift_Sine_Phase.fit.max = 1;
+//		drift.drift_Sine_Phase.fit.min = 0;
+//		drift.drift_Sine_Phase.fit.max = 1;
 	}
 	{
 		drift.drift_Rand_Rms.value = rand_Rms_Line->text().toDouble();
-		drift.drift_Rand_Rms.fit.min = 0;
-		drift.drift_Rand_Rms.fit.max = drift.drift_Rand_Rms.value*2;
+//		drift.drift_Rand_Rms.fit.min = 0;
+//		drift.drift_Rand_Rms.fit.max = drift.drift_Rand_Rms.value*2;
 	}
 
     Layer layer = item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>();

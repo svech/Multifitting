@@ -20,7 +20,7 @@ extern QVector<double>	element_Mass;
 extern QMap<QString, double> sorted_Elements;
 
 // lists of types
-extern QStringList transition_Layer_Functions; extern size_t transition_Layer_Functions_Size;
+extern QStringList transition_Layer_Functions; extern int transition_Layer_Functions_Size;
 //extern QStringList thickness_Drift_Functions;  extern size_t thickness_Drift_Functions_Size;
 //extern QStringList drift_Models;
 extern QStringList tril;

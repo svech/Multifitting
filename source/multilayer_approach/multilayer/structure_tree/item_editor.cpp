@@ -1415,19 +1415,19 @@ void Item_Editor::refresh_Data(QString str)
 			if(ambient.composed_Material)
 			{
 				ambient.absolute_Density.value = density_Line_Edit->text().toDouble();
-				ambient.absolute_Density.fit.min = ambient.absolute_Density.value*(1-dispersion);
-				ambient.absolute_Density.fit.max = ambient.absolute_Density.value*(1+dispersion);
+//				ambient.absolute_Density.fit.min = ambient.absolute_Density.value*(1-dispersion);
+//				ambient.absolute_Density.fit.max = ambient.absolute_Density.value*(1+dispersion);
 			} else
 			{
 				ambient.relative_Density.value = density_Line_Edit->text().toDouble();
-				ambient.relative_Density.fit.min = ambient.relative_Density.value*(1-dispersion);
-				ambient.relative_Density.fit.max = ambient.relative_Density.value*(1+dispersion);
+//				ambient.relative_Density.fit.min = ambient.relative_Density.value*(1-dispersion);
+//				ambient.relative_Density.fit.max = ambient.relative_Density.value*(1+dispersion);
 			}
 			for(int i=0; i<ambient.composition.size(); ++i)
 			{
 				ambient.composition[i].composition.value = composition_Line_Edit_Vec[i]->text().toDouble();
-				ambient.composition[i].composition.fit.min = ambient.composition[i].composition.value*(1-dispersion);
-				ambient.composition[i].composition.fit.max = ambient.composition[i].composition.value*(1+dispersion);
+//				ambient.composition[i].composition.fit.min = ambient.composition[i].composition.value*(1-dispersion);
+//				ambient.composition[i].composition.fit.max = ambient.composition[i].composition.value*(1+dispersion);
 
 				ambient.composition[i].type = composition_Combo_Box_Vec[i]->currentText();
 				composition_At_Weight_Vec[i]->setText(AtWt + QString::number(sorted_Elements.value(composition_Combo_Box_Vec[i]->currentText()),thumbnail_double_format,at_weight_precision) + ")");
@@ -1445,13 +1445,13 @@ void Item_Editor::refresh_Data(QString str)
 			if(layer.composed_Material)
 			{
 				layer.absolute_Density.value = density_Line_Edit->text().toDouble();
-				layer.absolute_Density.fit.min = layer.absolute_Density.value*(1-dispersion);
-				layer.absolute_Density.fit.max = layer.absolute_Density.value*(1+dispersion);
+//				layer.absolute_Density.fit.min = layer.absolute_Density.value*(1-dispersion);
+//				layer.absolute_Density.fit.max = layer.absolute_Density.value*(1+dispersion);
 			} else
 			{
 				layer.relative_Density.value = density_Line_Edit->text().toDouble();
-				layer.relative_Density.fit.min = layer.relative_Density.value*(1-dispersion);
-				layer.relative_Density.fit.max = layer.relative_Density.value*(1+dispersion);
+//				layer.relative_Density.fit.min = layer.relative_Density.value*(1-dispersion);
+//				layer.relative_Density.fit.max = layer.relative_Density.value*(1+dispersion);
 			}
 			for(int i=0; i<layer.composition.size(); ++i)
 			{
@@ -1466,9 +1466,8 @@ void Item_Editor::refresh_Data(QString str)
 		if(thickness_Done)
 		{
 			layer.thickness.value = thickness_Line_Edit->text().toDouble()*coeff;
-
-			layer.thickness.fit.min = layer.thickness.value*(1-dispersion);
-			layer.thickness.fit.max = layer.thickness.value*(1+dispersion);
+//			layer.thickness.fit.min = layer.thickness.value*(1-dispersion);
+//			layer.thickness.fit.max = layer.thickness.value*(1+dispersion);
 		}
 		if(sigma_Done)
 		{
@@ -1481,6 +1480,9 @@ void Item_Editor::refresh_Data(QString str)
 				if(interlayer_Composition_Check_Box_Vec[i]->isChecked())
 				{
 					layer.interlayer_Composition[i].interlayer.value = interlayer_Composition_Comp_Line_Edit_Vec[i]->text().toDouble();
+//					layer.interlayer_Composition[i].interlayer.fit.min = 0;
+//					layer.interlayer_Composition[i].interlayer.fit.max = 1;
+
 					// sum for normalizing
 					sum+=layer.interlayer_Composition[i].interlayer.value;
 				}
@@ -1492,6 +1494,8 @@ void Item_Editor::refresh_Data(QString str)
 				for(int i=0; i<layer.interlayer_Composition.size(); ++i)
 				{
 					layer.interlayer_Composition[i].my_Sigma.value = layer.sigma.value;
+					layer.interlayer_Composition[i].my_Sigma.fit.min = sigma_Dispersion_Min*layer.interlayer_Composition[i].my_Sigma.value;
+					layer.interlayer_Composition[i].my_Sigma.fit.max = sigma_Dispersion_Max*layer.interlayer_Composition[i].my_Sigma.value;
 				}
 			} else
 			{
@@ -1520,13 +1524,13 @@ void Item_Editor::refresh_Data(QString str)
 			if(substrate.composed_Material)
 			{
 				substrate.absolute_Density.value = density_Line_Edit->text().toDouble();
-				substrate.absolute_Density.fit.min = substrate.absolute_Density.value*(1-dispersion);
-				substrate.absolute_Density.fit.max = substrate.absolute_Density.value*(1+dispersion);
+//				substrate.absolute_Density.fit.min = substrate.absolute_Density.value*(1-dispersion);
+//				substrate.absolute_Density.fit.max = substrate.absolute_Density.value*(1+dispersion);
 			} else
 			{
 				substrate.relative_Density.value = density_Line_Edit->text().toDouble();
-				substrate.relative_Density.fit.min = substrate.relative_Density.value*(1-dispersion);
-				substrate.relative_Density.fit.max = substrate.relative_Density.value*(1+dispersion);
+//				substrate.relative_Density.fit.min = substrate.relative_Density.value*(1-dispersion);
+//				substrate.relative_Density.fit.max = substrate.relative_Density.value*(1+dispersion);
 			}
 			for(int i=0; i<substrate.composition.size(); ++i)
 			{
@@ -1549,6 +1553,9 @@ void Item_Editor::refresh_Data(QString str)
 				if(interlayer_Composition_Check_Box_Vec[i]->isChecked())
 				{
 					substrate.interlayer_Composition[i].interlayer.value = interlayer_Composition_Comp_Line_Edit_Vec[i]->text().toDouble();
+//					substrate.interlayer_Composition[i].interlayer.fit.min = 0;
+//					substrate.interlayer_Composition[i].interlayer.fit.max = 1;
+
 					// sum for normalizing
 					sum+=substrate.interlayer_Composition[i].interlayer.value;
 				}
@@ -1560,6 +1567,8 @@ void Item_Editor::refresh_Data(QString str)
 				for(int i=0; i<substrate.interlayer_Composition.size(); ++i)
 				{
 					substrate.interlayer_Composition[i].my_Sigma.value = substrate.sigma.value;
+//					substrate.interlayer_Composition[i].my_Sigma.fit.min = sigma_Dispersion_Min*substrate.interlayer_Composition[i].my_Sigma.value;
+//					substrate.interlayer_Composition[i].my_Sigma.fit.max = sigma_Dispersion_Max*substrate.interlayer_Composition[i].my_Sigma.value;
 				}
 			} else
 			{

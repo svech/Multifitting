@@ -35,7 +35,9 @@ extern QString icon_path;
 
 // structure default values
 
-extern double dispersion;	// from [0,1)
+extern double dispersion;			// from [0,1)
+extern double sigma_Dispersion_Min;	// 2
+extern double sigma_Dispersion_Max;	// 2
 
 // Ambient_Values
 extern QString	ambient_default_material;
