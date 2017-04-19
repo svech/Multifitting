@@ -47,10 +47,12 @@ public:
 	void create_MySigma_Labels_Interlayer		(int current_Row, int start_Column, QTreeWidgetItem* structure_Item, QString item_Type_String);
 	void create_MySigma_Interlayer				(int current_Row, int start_Column, QTreeWidgetItem* structure_Item, QString item_Type_String);
 
+	// general
 	void span_Structure_Headers();
 	void span_Structure_Items();
 	void fit_Column(int start_Width, int current_Column);
 	void add_Columns(int add_After);
+	void reload_All_Widgets(QObject* sender = NULL);
 
 public slots:
 
@@ -77,15 +79,20 @@ public slots:
 
 	void refresh_MySigma_Interlayer(QString temp = "empty");
 
+	// general
 	void cells_On_Off(bool b = false);
 	void resize_Line_Edit(QString text, QLineEdit* line_Edit = NULL);
 	void emit_Data_Edited();
+
 public:
+	int temp_Counter = 0;
+	bool table_Is_Created = false;
 	int basic_Row_Number = 0;
 	int basic_Column_Number = 1;
 
 	QTableWidget* main_Table;
 	QList<Structure_Tree*> list_Of_Trees;
+
 private:
 	QList<int> rows_List_To_Span;
 	QHBoxLayout* main_Layout;

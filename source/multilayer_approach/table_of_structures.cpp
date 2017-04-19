@@ -26,7 +26,7 @@ void Table_Of_Structures::closeEvent(QCloseEvent* event)
 
 void Table_Of_Structures::emit_Data_Edited()
 {
-	emit data_Edited();
+	emit data_Edited();	
 }
 
 void Table_Of_Structures::create_Main_Layout()
@@ -55,7 +55,6 @@ void Table_Of_Structures::create_Table()
 		main_Table->setItem(current_Row,0, new QTableWidgetItem(multilayer_Tabs->tabText(tab_Index)));
 		main_Table->item   (current_Row,0)->setTextAlignment(Qt::AlignCenter);
 		main_Table->item   (current_Row,0)->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEnabled);
-
 
 		// structure display
 		int max_Depth = Global_Variables::get_Tree_Depth(list_Of_Trees[tab_Index]->tree->invisibleRootItem());
@@ -347,6 +346,9 @@ void Table_Of_Structures::create_Table()
 	main_Table->resizeColumnsToContents();
 	main_Table->resizeRowsToContents();
 
+	table_Is_Created = true;
+	reload_All_Widgets();
+
 	// fit initial size of columns
 	for(int i=0; i<main_Table->columnCount(); ++i)
 		fit_Column(main_Table->columnWidth(i), i);
@@ -414,6 +416,30 @@ void Table_Of_Structures::fit_Column(int start_Width, int current_Column)
 		}
 	}
 	main_Table->setColumnWidth(current_Column,max_Width);
+}
+
+void Table_Of_Structures::reload_All_Widgets(QObject* sender)
+{
+	if(table_Is_Created)
+	{
+		for(int i=0; i<all_Widgets_To_Reload.size(); ++i)
+		{
+			if(all_Widgets_To_Reload[i] != sender)
+			{
+				all_Widgets_To_Reload[i]->setProperty(reload_Property, true);
+
+				QCheckBox* check_Box = qobject_cast<QCheckBox*>(all_Widgets_To_Reload[i]);
+				QLineEdit* line_Edit = qobject_cast<QLineEdit*>(all_Widgets_To_Reload[i]);
+				QComboBox* combo_Box = qobject_cast<QComboBox*>(all_Widgets_To_Reload[i]);
+
+				if(check_Box)	check_Box->toggled(false);
+				if(line_Edit)	line_Edit->textEdited("temp");
+				if(combo_Box)	combo_Box->currentTextChanged("temp");
+
+				all_Widgets_To_Reload[i]->setProperty(reload_Property, false);
+			}
+		}
+	}
 }
 
 // creation
@@ -627,7 +653,6 @@ void Table_Of_Structures::create_Label(int current_Row, int current_Column, QStr
 	QLabel* label = new QLabel(text);
 	label->setStyleSheet("background-color: lightblue");
 	label->setAlignment(Qt::AlignCenter);
-
 	main_Table->setCellWidget(current_Row, current_Column, label);
 }
 
@@ -1015,7 +1040,7 @@ void Table_Of_Structures::create_MySigma_Interlayer(int current_Row, int start_C
 	{
 		value = interlayer_Composition[interlayer_Index].my_Sigma.value;
 
-		QString text_Value = QString::number(value, line_edit_short_double_format, line_edit_interlayer_precision);
+		QString text_Value = QString::number(value, line_edit_double_format, line_edit_sigma_precision);
 
 		QLineEdit* line_Edit = new QLineEdit(text_Value);
 		line_Edit->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT);
@@ -1089,6 +1114,7 @@ void Table_Of_Structures::refresh_Element(QString temp)
 	structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
 
 	emit_Data_Edited();
+	reload_All_Widgets(QObject::sender());
 }
 
 void Table_Of_Structures::refresh_Stoich(QString temp)
@@ -1166,6 +1192,7 @@ void Table_Of_Structures::refresh_Stoich(QString temp)
 	structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
 
 	emit_Data_Edited();
+	reload_All_Widgets(QObject::sender());
 }
 
 void Table_Of_Structures::refresh_Fit_Element(bool b)
@@ -1213,6 +1240,7 @@ void Table_Of_Structures::refresh_Fit_Element(bool b)
 	structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
 
 	emit_Data_Edited();
+	reload_All_Widgets(QObject::sender());
 }
 
 
@@ -1256,6 +1284,7 @@ void Table_Of_Structures::refresh_Material(QString temp)
 	structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
 
 	emit_Data_Edited();
+	reload_All_Widgets(QObject::sender());
 }
 
 void Table_Of_Structures::check_Material()
@@ -1321,6 +1350,7 @@ void Table_Of_Structures::check_Material()
 	structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
 
 	emit_Data_Edited();
+	reload_All_Widgets(QObject::sender());
 }
 
 void Table_Of_Structures::browse_Material(bool b)
@@ -1375,6 +1405,7 @@ void Table_Of_Structures::refresh_Drift_Header(bool b)
 	structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
 
 	emit_Data_Edited();
+	reload_All_Widgets(QObject::sender());
 }
 
 // for all parameters
@@ -1689,6 +1720,7 @@ void Table_Of_Structures::refresh_Parameter(QString temp)
 	structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
 
 	emit_Data_Edited();
+	reload_All_Widgets(QObject::sender());
 }
 
 void Table_Of_Structures::refresh_Fit_Parameter(bool b)
@@ -1802,6 +1834,7 @@ void Table_Of_Structures::refresh_Fit_Parameter(bool b)
 	structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
 
 	emit_Data_Edited();
+	reload_All_Widgets(QObject::sender());
 }
 
 // for interlayers
@@ -1839,6 +1872,7 @@ void Table_Of_Structures::refresh_Check_Box_Label_Interlayer(bool b)
 	structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
 
 	emit_Data_Edited();
+	reload_All_Widgets(QObject::sender());
 }
 
 void Table_Of_Structures::refresh_Weigts_Interlayer(QString temp)
@@ -1895,6 +1929,7 @@ void Table_Of_Structures::refresh_Weigts_Interlayer(QString temp)
 	structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
 
 	emit_Data_Edited();
+	reload_All_Widgets(QObject::sender());
 }
 
 void Table_Of_Structures::refresh_Weights_Check_Box_Fit_Interlayer(bool b)
@@ -1931,6 +1966,7 @@ void Table_Of_Structures::refresh_Weights_Check_Box_Fit_Interlayer(bool b)
 	structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
 
 	emit_Data_Edited();
+	reload_All_Widgets(QObject::sender());
 }
 
 void Table_Of_Structures::refresh_MySigma_Interlayer(QString temp)
@@ -1968,6 +2004,7 @@ void Table_Of_Structures::refresh_MySigma_Interlayer(QString temp)
 	structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
 
 	emit_Data_Edited();
+	reload_All_Widgets(QObject::sender());
 }
 
 // general
