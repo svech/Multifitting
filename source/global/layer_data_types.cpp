@@ -288,7 +288,7 @@ Layer::Layer()
 		thickness_Drift.drift_Sine_Amplitude.fit.max = thickness_Drift.drift_Sine_Amplitude.value*2;
 	}
 	{
-		thickness_Drift.drift_Sine_Frequency.value = 0.333;
+		thickness_Drift.drift_Sine_Frequency.value = 0.333333333333333333333;
 		thickness_Drift.drift_Sine_Frequency.fit.min = thickness_Drift.drift_Sine_Frequency.value*(1-dispersion);
 		thickness_Drift.drift_Sine_Frequency.fit.max = thickness_Drift.drift_Sine_Frequency.value*(1+dispersion);
 	}

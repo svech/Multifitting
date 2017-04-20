@@ -309,7 +309,7 @@ void Structure_Tree::set_Structure_Item_Text(QTreeWidgetItem* item)
 				item->setText(DEFAULT_COLUMN, "Multilayer, N=" + QString::number(stack_Content.num_Repetition.value)
 							  + ", d=" + QString::number(stack_Content.period.value/length_Coeff,thumbnail_double_format,thumbnail_period_precision) + length_units);
 
-				if(item->childCount()==2)
+				if(item->childCount()==2 && abs(stack_Content.period.value)>DBL_EPSILON)
 				{
 					item->setText(DEFAULT_COLUMN, item->text(DEFAULT_COLUMN) + ", " + Gamma_Sym + "=" +
 								  QString::number(stack_Content.gamma.value,thumbnail_double_format,thumbnail_gamma_precision));

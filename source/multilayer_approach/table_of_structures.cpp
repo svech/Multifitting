@@ -21,6 +21,7 @@ void Table_Of_Structures::closeEvent(QCloseEvent* event)
 	for(int i=0; i<list_Of_Trees.size(); ++i)
 	{
 		list_Of_Trees[i]->structure_Toolbar->toolbar->setDisabled(false);
+		list_Of_Trees[i]->tree->blockSignals(false);
 	}
 }
 
@@ -144,34 +145,18 @@ void Table_Of_Structures::create_Table()
 			current_Column += (max_Number_Of_Elements+1);
 			///--------------------------------------------------------------------------------------------
 
-			// density
-			if(item_Type_String == whats_This_Ambient || item_Type_String == whats_This_Layer || item_Type_String == whats_This_Substrate)
-			{
-				QString whats_This;
-				add_Columns(current_Column+1);
-				if(composed_Material)
-				{
-					whats_This = whats_This_Absolute_Density;
-					create_Label(current_Row, current_Column, Rho_Sym+" ["+density_units+"]");
-				} else
-				{
-					whats_This = whats_This_Relative_Density;
-					create_Label(current_Row, current_Column, Rho_Sym+" [r.u.]");
-				}
-				create_Line_Edit(current_Row+1, current_Column, structure_Item, item_Type_String, whats_This, VAL);
-				create_Line_Edit(current_Row+3, current_Column, structure_Item, item_Type_String, whats_This, MIN);
-				create_Line_Edit(current_Row+4, current_Column, structure_Item, item_Type_String, whats_This, MAX);
-				// last
-				create_Check_Box_Fit(current_Row+2, current_Column, structure_Item, item_Type_String, whats_This, 1, 2, 0, 0);
-			}
-			current_Column += 2;
-			///--------------------------------------------------------------------------------------------
-
 			// multilayer
 			if(item_Type_String == whats_This_Multilayer)
 			{
 				// period
-				QString whats_This = whats_This_Period;
+				QString whats_This = whats_This_Num_Repetitions;
+				add_Columns(current_Column+5);
+				create_Label(current_Row, current_Column, "N");
+				create_Line_Edit(current_Row+1, current_Column, structure_Item, item_Type_String, whats_This, VAL);
+				current_Column += 2;
+
+				// period
+				whats_This = whats_This_Period;
 				add_Columns(current_Column+5);
 				create_Label(current_Row, current_Column, "d ["+Angstrom_Sym+"]");
 				create_Line_Edit(current_Row+1, current_Column, structure_Item, item_Type_String, whats_This, VAL);
@@ -195,6 +180,29 @@ void Table_Of_Structures::create_Table()
 					current_Column += 5;
 				}
 			}
+			///--------------------------------------------------------------------------------------------
+
+			// density
+			if(item_Type_String == whats_This_Ambient || item_Type_String == whats_This_Layer || item_Type_String == whats_This_Substrate)
+			{
+				QString whats_This;
+				add_Columns(current_Column+1);
+				if(composed_Material)
+				{
+					whats_This = whats_This_Absolute_Density;
+					create_Label(current_Row, current_Column, Rho_Sym+" ["+density_units+"]");
+				} else
+				{
+					whats_This = whats_This_Relative_Density;
+					create_Label(current_Row, current_Column, Rho_Sym+" [r.u.]");
+				}
+				create_Line_Edit(current_Row+1, current_Column, structure_Item, item_Type_String, whats_This, VAL);
+				create_Line_Edit(current_Row+3, current_Column, structure_Item, item_Type_String, whats_This, MIN);
+				create_Line_Edit(current_Row+4, current_Column, structure_Item, item_Type_String, whats_This, MAX);
+				// last
+				create_Check_Box_Fit(current_Row+2, current_Column, structure_Item, item_Type_String, whats_This, 1, 2, 0, 0);
+			}
+			current_Column += 2;
 			///--------------------------------------------------------------------------------------------
 
 			// thickness
@@ -397,6 +405,7 @@ void Table_Of_Structures::read_Trees()
 		Structure_Tree* old_Structure_Tree = dynamic_cast<Multilayer*>(multilayer_Tabs->widget(i))->structure_Tree;
 		list_Of_Trees.append(old_Structure_Tree);
 		old_Structure_Tree->structure_Toolbar->toolbar->setDisabled(true);
+		old_Structure_Tree->tree->blockSignals(true);//setDisabled(true);
 	}
 }
 
@@ -507,14 +516,15 @@ void Table_Of_Structures::create_Stoich(int current_Row, int start_Column, QTree
 
 	int current_Column = start_Column;
 	double value;
+	char format;
 
 	for(int composition_Index=0; composition_Index<composition.size(); ++composition_Index)
 	{
-		if(val_Type == VAL)	{value = composition[composition_Index].composition.value;	}
-		if(val_Type == MIN)	{value = composition[composition_Index].composition.fit.min;}
-		if(val_Type == MAX)	{value = composition[composition_Index].composition.fit.max;}
+		if(val_Type == VAL)	{value = composition[composition_Index].composition.value;		format = line_edit_short_double_format;}
+		if(val_Type == MIN)	{value = composition[composition_Index].composition.fit.min;	format = line_edit_short_double_format;}
+		if(val_Type == MAX)	{value = composition[composition_Index].composition.fit.max;	format = line_edit_short_double_format;}
 
-		QString text_Value = QString::number(value, line_edit_short_double_format, line_edit_composition_precision);
+		QString text_Value = QString::number(value, format, line_edit_composition_precision);
 
 		// create lineedit
 		QLineEdit* line_Edit = new QLineEdit(text_Value);
@@ -736,6 +746,8 @@ void Table_Of_Structures::create_Line_Edit(int current_Row, int current_Column, 
 	// PARAMETER
 	Parameter parameter;
 	int precision;
+	char format;
+	double value;
 
 	QVariant data = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole);
 
@@ -771,17 +783,22 @@ void Table_Of_Structures::create_Line_Edit(int current_Row, int current_Column, 
 	}
 	if(item_Type_String == whats_This_Multilayer)
 	{
-		if(whats_This == whats_This_Period)	{parameter = data.value<Stack_Content>().period;	precision = line_edit_period_precision;}
-		if(whats_This == whats_This_Gamma)	{parameter = data.value<Stack_Content>().gamma;		precision = line_edit_gamma_precision;}
+		if(whats_This == whats_This_Num_Repetitions)	{value = data.value<Stack_Content>().num_Repetition.value;}
+		if(whats_This == whats_This_Period)				{parameter = data.value<Stack_Content>().period;	precision = line_edit_period_precision;}
+		if(whats_This == whats_This_Gamma)				{parameter = data.value<Stack_Content>().gamma;		precision = line_edit_gamma_precision;}
 	}
 
-	double value;
+		if(val_Type == VAL)
+		{
+			if(whats_This != whats_This_Num_Repetitions)	value = parameter.value;
+			format = line_edit_double_format;
+		}
+		if(val_Type == MIN)	{value = parameter.fit.min; format = line_edit_short_double_format;}
+		if(val_Type == MAX)	{value = parameter.fit.max; format = line_edit_short_double_format;}
 
-	if(val_Type == VAL)	{value = parameter.value;  }
-	if(val_Type == MIN)	{value = parameter.fit.min;}
-	if(val_Type == MAX)	{value = parameter.fit.max;}
-
-	QString text_Value = QString::number(value, line_edit_double_format, precision);
+	QString text_Value;
+	if(whats_This != whats_This_Num_Repetitions)	text_Value = QString::number(value, format, precision);
+	else											text_Value = QString::number(value);
 
 	// create lineedit
 	QLineEdit* line_Edit = new QLineEdit(text_Value);
@@ -808,7 +825,9 @@ void Table_Of_Structures::create_Line_Edit(int current_Row, int current_Column, 
 	if(whats_This == whats_This_Sigma_Drift_Sine_Frequency)		line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION));
 	if(whats_This == whats_This_Sigma_Drift_Sine_Phase)			line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION));
 
+	if(whats_This == whats_This_Num_Repetitions)				line_Edit->setValidator(new QIntValidator(0, MAX_INTEGER));
 	if(whats_This == whats_This_Period)							line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION));
+	if(whats_This == whats_This_Gamma)							line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION));
 
 	// for reloading
 	line_Edit->setProperty(reload_Property, false);
@@ -820,6 +839,8 @@ void Table_Of_Structures::create_Line_Edit(int current_Row, int current_Column, 
 	main_Table->setCellWidget(current_Row, current_Column, line_Edit);
 	line_Edits_Map.insert(line_Edit, structure_Item);
 	connect(line_Edit, SIGNAL(textEdited(QString)), this, SLOT(refresh_Parameter(QString)));
+	connect(line_Edit, SIGNAL(editingFinished()), this, SLOT(refresh_Parameter()));
+
 	line_Edit->textEdited(line_Edit->text());
 }
 
@@ -969,14 +990,15 @@ void Table_Of_Structures::create_Weigts_Interlayer(int current_Row, int start_Co
 
 	int current_Column = start_Column;
 	double value;
+	char format;
 
 	for(int interlayer_Index=0; interlayer_Index<interlayer_Composition.size(); ++interlayer_Index)
 	{
-		if(val_Type == VAL)	{value = interlayer_Composition[interlayer_Index].interlayer.value;	}
-		if(val_Type == MIN)	{value = interlayer_Composition[interlayer_Index].interlayer.fit.min;}
-		if(val_Type == MAX)	{value = interlayer_Composition[interlayer_Index].interlayer.fit.max;}
+		if(val_Type == VAL)	{value = interlayer_Composition[interlayer_Index].interlayer.value;		format = line_edit_short_double_format;}
+		if(val_Type == MIN)	{value = interlayer_Composition[interlayer_Index].interlayer.fit.min;	format = line_edit_short_double_format;}
+		if(val_Type == MAX)	{value = interlayer_Composition[interlayer_Index].interlayer.fit.max;	format = line_edit_short_double_format;}
 
-		QString text_Value = QString::number(value, line_edit_short_double_format, line_edit_interlayer_precision);
+		QString text_Value = QString::number(value, format, line_edit_interlayer_precision);
 
 		QLineEdit* line_Edit = new QLineEdit(text_Value);
 		line_Edit->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT);
@@ -1166,6 +1188,9 @@ void Table_Of_Structures::refresh_Stoich(QString temp)
 	int composition_Index = line_Edit->property(num_Chemic_Element_Property).toInt();
 	QString value_Type = line_Edit->property(value_Type_Property).toString();
 
+	char format = line_edit_short_double_format;
+	int precision = line_edit_composition_precision;
+
 	// for reloading
 	bool reload = line_Edit->property(reload_Property).toBool();
 
@@ -1176,9 +1201,9 @@ void Table_Of_Structures::refresh_Stoich(QString temp)
 
 		if(reload)
 		{
-			if(value_Type == VAL)	line_Edit->setText(QString::number(ambient.composition[composition_Index].composition.value,   line_edit_short_double_format, line_edit_composition_precision));
-			if(value_Type == MIN)	line_Edit->setText(QString::number(ambient.composition[composition_Index].composition.fit.min, line_edit_short_double_format, line_edit_composition_precision));
-			if(value_Type == MAX)	line_Edit->setText(QString::number(ambient.composition[composition_Index].composition.fit.max, line_edit_short_double_format, line_edit_composition_precision));
+			if(value_Type == VAL)	line_Edit->setText(QString::number(ambient.composition[composition_Index].composition.value,   format, precision));
+			if(value_Type == MIN)	line_Edit->setText(QString::number(ambient.composition[composition_Index].composition.fit.min, format, precision));
+			if(value_Type == MAX)	line_Edit->setText(QString::number(ambient.composition[composition_Index].composition.fit.max, format, precision));
 
 			return;
 		}
@@ -1196,9 +1221,9 @@ void Table_Of_Structures::refresh_Stoich(QString temp)
 
 		if(reload)
 		{
-			if(value_Type == VAL)	line_Edit->setText(QString::number(layer.composition[composition_Index].composition.value,   line_edit_short_double_format, line_edit_composition_precision));
-			if(value_Type == MIN)	line_Edit->setText(QString::number(layer.composition[composition_Index].composition.fit.min, line_edit_short_double_format, line_edit_composition_precision));
-			if(value_Type == MAX)	line_Edit->setText(QString::number(layer.composition[composition_Index].composition.fit.max, line_edit_short_double_format, line_edit_composition_precision));
+			if(value_Type == VAL)	line_Edit->setText(QString::number(layer.composition[composition_Index].composition.value,   format, precision));
+			if(value_Type == MIN)	line_Edit->setText(QString::number(layer.composition[composition_Index].composition.fit.min, format, precision));
+			if(value_Type == MAX)	line_Edit->setText(QString::number(layer.composition[composition_Index].composition.fit.max, format, precision));
 
 			return;
 		}
@@ -1216,9 +1241,9 @@ void Table_Of_Structures::refresh_Stoich(QString temp)
 
 		if(reload)
 		{
-			if(value_Type == VAL)	line_Edit->setText(QString::number(substrate.composition[composition_Index].composition.value,   line_edit_short_double_format, line_edit_composition_precision));
-			if(value_Type == MIN)	line_Edit->setText(QString::number(substrate.composition[composition_Index].composition.fit.min, line_edit_short_double_format, line_edit_composition_precision));
-			if(value_Type == MAX)	line_Edit->setText(QString::number(substrate.composition[composition_Index].composition.fit.max, line_edit_short_double_format, line_edit_composition_precision));
+			if(value_Type == VAL)	line_Edit->setText(QString::number(substrate.composition[composition_Index].composition.value,   format, precision));
+			if(value_Type == MIN)	line_Edit->setText(QString::number(substrate.composition[composition_Index].composition.fit.min, format, precision));
+			if(value_Type == MAX)	line_Edit->setText(QString::number(substrate.composition[composition_Index].composition.fit.max, format, precision));
 
 			return;
 		}
@@ -1466,6 +1491,78 @@ void Table_Of_Structures::refresh_Check_Box_Header(bool b)
 	reload_All_Widgets(QObject::sender());
 }
 
+void Table_Of_Structures::change_Child_Layers_Thickness(QTreeWidgetItem* multilayer_Item, double factor)
+{
+	QVariant var;
+	for(int i=0; i<multilayer_Item->childCount(); ++i)
+	{
+		// if layer
+		if(multilayer_Item->child(i)->childCount()==0)
+		{
+			Layer layer = multilayer_Item->child(i)->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>();
+			layer.thickness.value = layer.thickness.value*factor;
+			var.setValue( layer );
+			multilayer_Item->child(i)->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+		} else
+		// if multilayer
+		{
+			change_Child_Layers_Thickness(multilayer_Item->child(i), factor);
+		}
+	}
+}
+
+void Table_Of_Structures::reset_Multilayer_Thickness(QTreeWidgetItem* multilayer_Item, double new_Thickness)
+{
+	Stack_Content stack_Content = multilayer_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Stack_Content>();
+	double factor=1;
+	if( abs(stack_Content.period.value) > DBL_EPSILON && stack_Content.num_Repetition.value!=0)
+	{
+		factor = new_Thickness/(  stack_Content.period.value*stack_Content.num_Repetition.value  );
+		change_Child_Layers_Thickness(multilayer_Item, factor);
+	}
+}
+
+void Table_Of_Structures::reset_Layer_Thickness(QTreeWidgetItem* layer_Item, double new_Thickness)
+{
+	QVariant var;
+	Layer layer = layer_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>();
+	layer.thickness.value = new_Thickness;
+	var.setValue( layer );
+	layer_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+}
+
+void Table_Of_Structures::change_Stack_Gamma(QTreeWidgetItem* structure_Item, double new_Gamma_Value)
+{
+	QVariant var;
+	Stack_Content stack_Content = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Stack_Content>();
+	int i=0;
+	{
+		double new_Thickness = stack_Content.period.value*new_Gamma_Value;
+		if(structure_Item->child(i)->childCount()==0)	// children are simple layers
+		{
+			reset_Layer_Thickness(structure_Item->child(i), new_Thickness);
+		}
+		if(structure_Item->child(i)->childCount()>0)	// children are multilayers
+		{
+			reset_Multilayer_Thickness(structure_Item->child(i), new_Thickness);
+		}
+	}
+	i=1;
+	{
+		double new_Thickness = stack_Content.period.value*(1-new_Gamma_Value);
+		if(structure_Item->child(i)->childCount()==0)	// children are simple layers
+		{
+			reset_Layer_Thickness(structure_Item->child(i), new_Thickness);
+		}
+		if(structure_Item->child(i)->childCount()>0)	// children are multilayers
+		{
+			reset_Multilayer_Thickness(structure_Item->child(i), new_Thickness);
+		}
+	}
+	var.setValue( stack_Content );
+	structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+}
+
 // for all parameters
 void Table_Of_Structures::refresh_Parameter(QString temp)
 {
@@ -1475,6 +1572,8 @@ void Table_Of_Structures::refresh_Parameter(QString temp)
 	QString item_Type_String = line_Edit->property(item_Type_Property).toString();
 	QString value_Type = line_Edit->property(value_Type_Property).toString();
 	QString whats_This = line_Edit->property(whats_This_Property).toString();
+
+	char min_Max_Format = line_edit_short_double_format;
 
 	// for reloading
 	bool reload = line_Edit->property(reload_Property).toBool();
@@ -1489,14 +1588,14 @@ void Table_Of_Structures::refresh_Parameter(QString temp)
 			if(whats_This == whats_This_Absolute_Density)
 			{
 				if(value_Type == VAL)	line_Edit->setText(QString::number(ambient.absolute_Density.value,	 line_edit_double_format, line_edit_density_precision));
-				if(value_Type == MIN)	line_Edit->setText(QString::number(ambient.absolute_Density.fit.min, line_edit_double_format, line_edit_density_precision));
-				if(value_Type == MAX)	line_Edit->setText(QString::number(ambient.absolute_Density.fit.max, line_edit_double_format, line_edit_density_precision));
+				if(value_Type == MIN)	line_Edit->setText(QString::number(ambient.absolute_Density.fit.min, min_Max_Format, line_edit_density_precision));
+				if(value_Type == MAX)	line_Edit->setText(QString::number(ambient.absolute_Density.fit.max, min_Max_Format, line_edit_density_precision));
 			}
 			if(whats_This == whats_This_Relative_Density)
 			{
 				if(value_Type == VAL)	line_Edit->setText(QString::number(ambient.relative_Density.value,	 line_edit_double_format, line_edit_density_precision));
-				if(value_Type == MIN)	line_Edit->setText(QString::number(ambient.relative_Density.fit.min, line_edit_double_format, line_edit_density_precision));
-				if(value_Type == MAX)	line_Edit->setText(QString::number(ambient.relative_Density.fit.max, line_edit_double_format, line_edit_density_precision));
+				if(value_Type == MIN)	line_Edit->setText(QString::number(ambient.relative_Density.fit.min, min_Max_Format, line_edit_density_precision));
+				if(value_Type == MAX)	line_Edit->setText(QString::number(ambient.relative_Density.fit.max, min_Max_Format, line_edit_density_precision));
 			}
 			return;
 		}
@@ -1525,88 +1624,88 @@ void Table_Of_Structures::refresh_Parameter(QString temp)
 			if(whats_This == whats_This_Absolute_Density)
 			{
 				if(value_Type == VAL)	line_Edit->setText(QString::number(layer.absolute_Density.value,   line_edit_double_format, line_edit_density_precision));
-				if(value_Type == MIN)	line_Edit->setText(QString::number(layer.absolute_Density.fit.min, line_edit_double_format, line_edit_density_precision));
-				if(value_Type == MAX)	line_Edit->setText(QString::number(layer.absolute_Density.fit.max, line_edit_double_format, line_edit_density_precision));
+				if(value_Type == MIN)	line_Edit->setText(QString::number(layer.absolute_Density.fit.min, min_Max_Format, line_edit_density_precision));
+				if(value_Type == MAX)	line_Edit->setText(QString::number(layer.absolute_Density.fit.max, min_Max_Format, line_edit_density_precision));
 			}
 			if(whats_This == whats_This_Relative_Density)
 			{
 				if(value_Type == VAL)	line_Edit->setText(QString::number(layer.relative_Density.value,   line_edit_double_format, line_edit_density_precision));
-				if(value_Type == MIN)	line_Edit->setText(QString::number(layer.relative_Density.fit.min, line_edit_double_format, line_edit_density_precision));
-				if(value_Type == MAX)	line_Edit->setText(QString::number(layer.relative_Density.fit.max, line_edit_double_format, line_edit_density_precision));
+				if(value_Type == MIN)	line_Edit->setText(QString::number(layer.relative_Density.fit.min, min_Max_Format, line_edit_density_precision));
+				if(value_Type == MAX)	line_Edit->setText(QString::number(layer.relative_Density.fit.max, min_Max_Format, line_edit_density_precision));
 			}
 			if(whats_This == whats_This_Thickness)
 			{
 				if(value_Type == VAL)	line_Edit->setText(QString::number(layer.thickness.value,   line_edit_double_format, line_edit_thickness_precision));
-				if(value_Type == MIN)	line_Edit->setText(QString::number(layer.thickness.fit.min, line_edit_double_format, line_edit_thickness_precision));
-				if(value_Type == MAX)	line_Edit->setText(QString::number(layer.thickness.fit.max, line_edit_double_format, line_edit_thickness_precision));
+				if(value_Type == MIN)	line_Edit->setText(QString::number(layer.thickness.fit.min, min_Max_Format, line_edit_thickness_precision));
+				if(value_Type == MAX)	line_Edit->setText(QString::number(layer.thickness.fit.max, min_Max_Format, line_edit_thickness_precision));
 			}
 			if(whats_This == whats_This_Sigma)
 			{
 				if(value_Type == VAL)	line_Edit->setText(QString::number(layer.sigma.value,   line_edit_double_format, line_edit_sigma_precision));
-				if(value_Type == MIN)	line_Edit->setText(QString::number(layer.sigma.fit.min, line_edit_double_format, line_edit_sigma_precision));
-				if(value_Type == MAX)	line_Edit->setText(QString::number(layer.sigma.fit.max, line_edit_double_format, line_edit_sigma_precision));
+				if(value_Type == MIN)	line_Edit->setText(QString::number(layer.sigma.fit.min, min_Max_Format, line_edit_sigma_precision));
+				if(value_Type == MAX)	line_Edit->setText(QString::number(layer.sigma.fit.max, min_Max_Format, line_edit_sigma_precision));
 			}
 
 			if(whats_This == whats_This_Thickness_Drift_Line_Value)
 			{
 				if(value_Type == VAL)	line_Edit->setText(QString::number(layer.thickness_Drift.drift_Line_Value.value,   line_edit_double_format, line_edit_thickness_precision));
-				if(value_Type == MIN)	line_Edit->setText(QString::number(layer.thickness_Drift.drift_Line_Value.fit.min, line_edit_double_format, line_edit_thickness_precision));
-				if(value_Type == MAX)	line_Edit->setText(QString::number(layer.thickness_Drift.drift_Line_Value.fit.max, line_edit_double_format, line_edit_thickness_precision));
+				if(value_Type == MIN)	line_Edit->setText(QString::number(layer.thickness_Drift.drift_Line_Value.fit.min, min_Max_Format, line_edit_thickness_precision));
+				if(value_Type == MAX)	line_Edit->setText(QString::number(layer.thickness_Drift.drift_Line_Value.fit.max, min_Max_Format, line_edit_thickness_precision));
 			}
 			if(whats_This == whats_This_Thickness_Drift_Rand_Rms)
 			{
 				if(value_Type == VAL)	line_Edit->setText(QString::number(layer.thickness_Drift.drift_Rand_Rms.value,   line_edit_double_format, line_edit_thickness_precision));
-				if(value_Type == MIN)	line_Edit->setText(QString::number(layer.thickness_Drift.drift_Rand_Rms.fit.min, line_edit_double_format, line_edit_thickness_precision));
-				if(value_Type == MAX)	line_Edit->setText(QString::number(layer.thickness_Drift.drift_Rand_Rms.fit.max, line_edit_double_format, line_edit_thickness_precision));
+				if(value_Type == MIN)	line_Edit->setText(QString::number(layer.thickness_Drift.drift_Rand_Rms.fit.min, min_Max_Format, line_edit_thickness_precision));
+				if(value_Type == MAX)	line_Edit->setText(QString::number(layer.thickness_Drift.drift_Rand_Rms.fit.max, min_Max_Format, line_edit_thickness_precision));
 			}
 			if(whats_This == whats_This_Thickness_Drift_Sine_Amplitude)
 			{
 				if(value_Type == VAL)	line_Edit->setText(QString::number(layer.thickness_Drift.drift_Sine_Amplitude.value,   line_edit_double_format, line_edit_thickness_precision));
-				if(value_Type == MIN)	line_Edit->setText(QString::number(layer.thickness_Drift.drift_Sine_Amplitude.fit.min, line_edit_double_format, line_edit_thickness_precision));
-				if(value_Type == MAX)	line_Edit->setText(QString::number(layer.thickness_Drift.drift_Sine_Amplitude.fit.max, line_edit_double_format, line_edit_thickness_precision));
+				if(value_Type == MIN)	line_Edit->setText(QString::number(layer.thickness_Drift.drift_Sine_Amplitude.fit.min, min_Max_Format, line_edit_thickness_precision));
+				if(value_Type == MAX)	line_Edit->setText(QString::number(layer.thickness_Drift.drift_Sine_Amplitude.fit.max, min_Max_Format, line_edit_thickness_precision));
 			}
 			if(whats_This == whats_This_Thickness_Drift_Sine_Frequency)
 			{
 				if(value_Type == VAL)	line_Edit->setText(QString::number(layer.thickness_Drift.drift_Sine_Frequency.value,   line_edit_double_format, line_edit_thickness_precision));
-				if(value_Type == MIN)	line_Edit->setText(QString::number(layer.thickness_Drift.drift_Sine_Frequency.fit.min, line_edit_double_format, line_edit_thickness_precision));
-				if(value_Type == MAX)	line_Edit->setText(QString::number(layer.thickness_Drift.drift_Sine_Frequency.fit.max, line_edit_double_format, line_edit_thickness_precision));
+				if(value_Type == MIN)	line_Edit->setText(QString::number(layer.thickness_Drift.drift_Sine_Frequency.fit.min, min_Max_Format, line_edit_thickness_precision));
+				if(value_Type == MAX)	line_Edit->setText(QString::number(layer.thickness_Drift.drift_Sine_Frequency.fit.max, min_Max_Format, line_edit_thickness_precision));
 			}
 			if(whats_This == whats_This_Thickness_Drift_Sine_Phase)
 			{
 				if(value_Type == VAL)	line_Edit->setText(QString::number(layer.thickness_Drift.drift_Sine_Phase.value,   line_edit_double_format, line_edit_thickness_precision));
-				if(value_Type == MIN)	line_Edit->setText(QString::number(layer.thickness_Drift.drift_Sine_Phase.fit.min, line_edit_double_format, line_edit_thickness_precision));
-				if(value_Type == MAX)	line_Edit->setText(QString::number(layer.thickness_Drift.drift_Sine_Phase.fit.max, line_edit_double_format, line_edit_thickness_precision));
+				if(value_Type == MIN)	line_Edit->setText(QString::number(layer.thickness_Drift.drift_Sine_Phase.fit.min, min_Max_Format, line_edit_thickness_precision));
+				if(value_Type == MAX)	line_Edit->setText(QString::number(layer.thickness_Drift.drift_Sine_Phase.fit.max, min_Max_Format, line_edit_thickness_precision));
 			}
 
 			if(whats_This == whats_This_Sigma_Drift_Line_Value)
 			{
 				if(value_Type == VAL)	line_Edit->setText(QString::number(layer.sigma_Drift.drift_Line_Value.value,   line_edit_double_format, line_edit_sigma_precision));
-				if(value_Type == MIN)	line_Edit->setText(QString::number(layer.sigma_Drift.drift_Line_Value.fit.min, line_edit_double_format, line_edit_sigma_precision));
-				if(value_Type == MAX)	line_Edit->setText(QString::number(layer.sigma_Drift.drift_Line_Value.fit.max, line_edit_double_format, line_edit_sigma_precision));
+				if(value_Type == MIN)	line_Edit->setText(QString::number(layer.sigma_Drift.drift_Line_Value.fit.min, min_Max_Format, line_edit_sigma_precision));
+				if(value_Type == MAX)	line_Edit->setText(QString::number(layer.sigma_Drift.drift_Line_Value.fit.max, min_Max_Format, line_edit_sigma_precision));
 			}
 			if(whats_This == whats_This_Sigma_Drift_Rand_Rms)
 			{
 				if(value_Type == VAL)	line_Edit->setText(QString::number(layer.sigma_Drift.drift_Rand_Rms.value,   line_edit_double_format, line_edit_sigma_precision));
-				if(value_Type == MIN)	line_Edit->setText(QString::number(layer.sigma_Drift.drift_Rand_Rms.fit.min, line_edit_double_format, line_edit_sigma_precision));
-				if(value_Type == MAX)	line_Edit->setText(QString::number(layer.sigma_Drift.drift_Rand_Rms.fit.max, line_edit_double_format, line_edit_sigma_precision));
+				if(value_Type == MIN)	line_Edit->setText(QString::number(layer.sigma_Drift.drift_Rand_Rms.fit.min, min_Max_Format, line_edit_sigma_precision));
+				if(value_Type == MAX)	line_Edit->setText(QString::number(layer.sigma_Drift.drift_Rand_Rms.fit.max, min_Max_Format, line_edit_sigma_precision));
 			}
 			if(whats_This == whats_This_Sigma_Drift_Sine_Amplitude)
 			{
 				if(value_Type == VAL)	line_Edit->setText(QString::number(layer.sigma_Drift.drift_Sine_Amplitude.value,   line_edit_double_format, line_edit_sigma_precision));
-				if(value_Type == MIN)	line_Edit->setText(QString::number(layer.sigma_Drift.drift_Sine_Amplitude.fit.min, line_edit_double_format, line_edit_sigma_precision));
-				if(value_Type == MAX)	line_Edit->setText(QString::number(layer.sigma_Drift.drift_Sine_Amplitude.fit.max, line_edit_double_format, line_edit_sigma_precision));
+				if(value_Type == MIN)	line_Edit->setText(QString::number(layer.sigma_Drift.drift_Sine_Amplitude.fit.min, min_Max_Format, line_edit_sigma_precision));
+				if(value_Type == MAX)	line_Edit->setText(QString::number(layer.sigma_Drift.drift_Sine_Amplitude.fit.max, min_Max_Format, line_edit_sigma_precision));
 			}
 			if(whats_This == whats_This_Sigma_Drift_Sine_Frequency)
 			{
 				if(value_Type == VAL)	line_Edit->setText(QString::number(layer.sigma_Drift.drift_Sine_Frequency.value,   line_edit_double_format, line_edit_sigma_precision));
-				if(value_Type == MIN)	line_Edit->setText(QString::number(layer.sigma_Drift.drift_Sine_Frequency.fit.min, line_edit_double_format, line_edit_sigma_precision));
-				if(value_Type == MAX)	line_Edit->setText(QString::number(layer.sigma_Drift.drift_Sine_Frequency.fit.max, line_edit_double_format, line_edit_sigma_precision));
+				if(value_Type == MIN)	line_Edit->setText(QString::number(layer.sigma_Drift.drift_Sine_Frequency.fit.min, min_Max_Format, line_edit_sigma_precision));
+				if(value_Type == MAX)	line_Edit->setText(QString::number(layer.sigma_Drift.drift_Sine_Frequency.fit.max, min_Max_Format, line_edit_sigma_precision));
 			}
 			if(whats_This == whats_This_Sigma_Drift_Sine_Phase)
 			{
 				if(value_Type == VAL)	line_Edit->setText(QString::number(layer.sigma_Drift.drift_Sine_Phase.value,   line_edit_double_format, line_edit_sigma_precision));
-				if(value_Type == MIN)	line_Edit->setText(QString::number(layer.sigma_Drift.drift_Sine_Phase.fit.min, line_edit_double_format, line_edit_sigma_precision));
-				if(value_Type == MAX)	line_Edit->setText(QString::number(layer.sigma_Drift.drift_Sine_Phase.fit.max, line_edit_double_format, line_edit_sigma_precision));
+				if(value_Type == MIN)	line_Edit->setText(QString::number(layer.sigma_Drift.drift_Sine_Phase.fit.min, min_Max_Format, line_edit_sigma_precision));
+				if(value_Type == MAX)	line_Edit->setText(QString::number(layer.sigma_Drift.drift_Sine_Phase.fit.max, min_Max_Format, line_edit_sigma_precision));
 			}
 			return;
 		}
@@ -1723,20 +1822,20 @@ void Table_Of_Structures::refresh_Parameter(QString temp)
 			if(whats_This == whats_This_Absolute_Density)
 			{
 				if(value_Type == VAL)	line_Edit->setText(QString::number(substrate.absolute_Density.value,   line_edit_double_format, line_edit_density_precision));
-				if(value_Type == MIN)	line_Edit->setText(QString::number(substrate.absolute_Density.fit.min, line_edit_double_format, line_edit_density_precision));
-				if(value_Type == MAX)	line_Edit->setText(QString::number(substrate.absolute_Density.fit.max, line_edit_double_format, line_edit_density_precision));
+				if(value_Type == MIN)	line_Edit->setText(QString::number(substrate.absolute_Density.fit.min, min_Max_Format, line_edit_density_precision));
+				if(value_Type == MAX)	line_Edit->setText(QString::number(substrate.absolute_Density.fit.max, min_Max_Format, line_edit_density_precision));
 			}
 			if(whats_This == whats_This_Relative_Density)
 			{
 				if(value_Type == VAL)	line_Edit->setText(QString::number(substrate.relative_Density.value,   line_edit_double_format, line_edit_density_precision));
-				if(value_Type == MIN)	line_Edit->setText(QString::number(substrate.relative_Density.fit.min, line_edit_double_format, line_edit_density_precision));
-				if(value_Type == MAX)	line_Edit->setText(QString::number(substrate.relative_Density.fit.max, line_edit_double_format, line_edit_density_precision));
+				if(value_Type == MIN)	line_Edit->setText(QString::number(substrate.relative_Density.fit.min, min_Max_Format, line_edit_density_precision));
+				if(value_Type == MAX)	line_Edit->setText(QString::number(substrate.relative_Density.fit.max, min_Max_Format, line_edit_density_precision));
 			}
 			if(whats_This == whats_This_Sigma)
 			{
 				if(value_Type == VAL)	line_Edit->setText(QString::number(substrate.sigma.value,   line_edit_double_format, line_edit_sigma_precision));
-				if(value_Type == MIN)	line_Edit->setText(QString::number(substrate.sigma.fit.min, line_edit_double_format, line_edit_sigma_precision));
-				if(value_Type == MAX)	line_Edit->setText(QString::number(substrate.sigma.fit.max, line_edit_double_format, line_edit_sigma_precision));
+				if(value_Type == MIN)	line_Edit->setText(QString::number(substrate.sigma.fit.min, min_Max_Format, line_edit_sigma_precision));
+				if(value_Type == MAX)	line_Edit->setText(QString::number(substrate.sigma.fit.max, min_Max_Format, line_edit_sigma_precision));
 			}
 			return;
 		}
@@ -1781,32 +1880,77 @@ void Table_Of_Structures::refresh_Parameter(QString temp)
 
 		if(reload)
 		{
+			if(whats_This == whats_This_Num_Repetitions)
+			{
+				if(value_Type == VAL)	line_Edit->setText(QString::number(stack_Content.num_Repetition.value));
+			}
 			if(whats_This == whats_This_Period)
 			{
 				if(value_Type == VAL)	line_Edit->setText(QString::number(stack_Content.period.value,   line_edit_double_format, line_edit_period_precision));
-				if(value_Type == MIN)	line_Edit->setText(QString::number(stack_Content.period.fit.min, line_edit_double_format, line_edit_period_precision));
-				if(value_Type == MAX)	line_Edit->setText(QString::number(stack_Content.period.fit.max, line_edit_double_format, line_edit_period_precision));
+				if(value_Type == MIN)	line_Edit->setText(QString::number(stack_Content.period.fit.min, min_Max_Format, line_edit_period_precision));
+				if(value_Type == MAX)	line_Edit->setText(QString::number(stack_Content.period.fit.max, min_Max_Format, line_edit_period_precision));
 			}
 			if(whats_This == whats_This_Gamma)
 			{
-				if(value_Type == VAL)	line_Edit->setText(QString::number(stack_Content.gamma.value,   line_edit_double_format, line_edit_gamma_precision));
-				if(value_Type == MIN)	line_Edit->setText(QString::number(stack_Content.gamma.fit.min, line_edit_double_format, line_edit_gamma_precision));
-				if(value_Type == MAX)	line_Edit->setText(QString::number(stack_Content.gamma.fit.max, line_edit_double_format, line_edit_gamma_precision));
+				if(value_Type == VAL)
+				{
+					if( abs(stack_Content.period.value) > DBL_EPSILON )
+					{
+						line_Edit->setText(QString::number(stack_Content.gamma.value, min_Max_Format, line_edit_gamma_precision));
+						line_Edit->setDisabled(false);
+						line_Edit->setStyleSheet("border: 1px solid grey");
+					} else
+					{
+						line_Edit->setDisabled(true);
+						line_Edit->setStyleSheet("border: 0px solid grey");
+					}
+				}
+				if(value_Type == MIN)	line_Edit->setText(QString::number(stack_Content.gamma.fit.min, min_Max_Format, line_edit_gamma_precision));
+				if(value_Type == MAX)	line_Edit->setText(QString::number(stack_Content.gamma.fit.max, min_Max_Format, line_edit_gamma_precision));
 			}
 			return;
 		}
 
+		if(whats_This == whats_This_Num_Repetitions)
+		{
+			if(value_Type == VAL)	stack_Content.num_Repetition.value = line_Edit->text().toInt();
+		}
 		if(whats_This == whats_This_Period)
 		{
-			if(value_Type == VAL)	{stack_Content.period.value = line_Edit->text().toDouble();	}
-			if(value_Type == MIN)	{stack_Content.period.fit.min = line_Edit->text().toDouble();}
-			if(value_Type == MAX)	{stack_Content.period.fit.max = line_Edit->text().toDouble();}
+			if(value_Type == VAL)
+			{
+				double new_Period_Value = line_Edit->text().toDouble();
+				if(		qApp->focusWidget() != line_Edit
+					||	abs(new_Period_Value) > DBL_EPSILON )
+				{
+					double factor = 1;
+					if( abs(stack_Content.period.value) > DBL_EPSILON )	factor = new_Period_Value / stack_Content.period.value;
+					change_Child_Layers_Thickness(structure_Item, factor);
+				}
+			}
+			if(value_Type == MIN)	stack_Content.period.fit.min = line_Edit->text().toDouble();
+			if(value_Type == MAX)	stack_Content.period.fit.max = line_Edit->text().toDouble();
 		}
 		if(whats_This == whats_This_Gamma)
 		{
-			if(value_Type == VAL)	{stack_Content.gamma.value = line_Edit->text().toDouble();	}
-			if(value_Type == MIN)	{stack_Content.gamma.fit.min = line_Edit->text().toDouble();}
-			if(value_Type == MAX)	{stack_Content.gamma.fit.max = line_Edit->text().toDouble();}
+			if(value_Type == VAL)
+			{
+				double new_Gamma_Value = line_Edit->text().toDouble();
+				if(new_Gamma_Value>1)
+				{
+					line_Edit->setText(QString::number(stack_Content.gamma.value));
+					resize_Line_Edit("",line_Edit);
+				} else
+				{
+					if(		qApp->focusWidget() != line_Edit
+						||	(abs(new_Gamma_Value) > DBL_EPSILON && abs(new_Gamma_Value-1) > DBL_EPSILON) )
+					{
+						if( abs(stack_Content.period.value) > DBL_EPSILON )	change_Stack_Gamma(structure_Item, new_Gamma_Value);
+					}
+				}
+			}
+			if(value_Type == MIN)	stack_Content.gamma.fit.min = line_Edit->text().toDouble();
+			if(value_Type == MAX)	stack_Content.gamma.fit.max = line_Edit->text().toDouble();
 		}
 		var.setValue( stack_Content );
 	}
@@ -2150,7 +2294,7 @@ void Table_Of_Structures::cells_On_Off(bool b)
 			widget->setDisabled(!check_Box->isChecked());
 
 			if(!check_Box->isChecked())
-				widget->setStyleSheet("border: 0px solid red");
+				widget->setStyleSheet("border: 0px solid grey");
 			else
 				widget->setStyleSheet("border: 1px solid grey");
 		}
@@ -2204,6 +2348,7 @@ void Table_Of_Structures::reload_All_Widgets(QObject* sender)
 {
 	if(table_Is_Created)
 	{
+//		qInfo() << temp_Counter++ << " reload_All_Widgets";
 		for(int i=0; i<all_Widgets_To_Reload.size(); ++i)
 		{
 			if(all_Widgets_To_Reload[i] != sender)

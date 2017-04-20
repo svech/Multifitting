@@ -66,6 +66,10 @@ public slots:
 
 	// for several parameters
 	void refresh_Check_Box_Header(bool b = false);
+	void change_Child_Layers_Thickness(QTreeWidgetItem* multilayer_Item, double factor);
+	void reset_Multilayer_Thickness(QTreeWidgetItem* multilayer_Item, double new_Thickness);
+	void reset_Layer_Thickness(QTreeWidgetItem* layer_Item, double new_Thickness);
+	void change_Stack_Gamma(QTreeWidgetItem* structure_Item, double new_Gamma_Value);
 
 	// for all parameters
 	void refresh_Parameter(QString temp = "empty");
