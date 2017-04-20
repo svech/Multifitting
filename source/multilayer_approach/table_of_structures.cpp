@@ -167,6 +167,36 @@ void Table_Of_Structures::create_Table()
 			current_Column += 2;
 			///--------------------------------------------------------------------------------------------
 
+			// multilayer
+			if(item_Type_String == whats_This_Multilayer)
+			{
+				// period
+				QString whats_This = whats_This_Period;
+				add_Columns(current_Column+5);
+				create_Label(current_Row, current_Column, "d ["+Angstrom_Sym+"]");
+				create_Line_Edit(current_Row+1, current_Column, structure_Item, item_Type_String, whats_This, VAL);
+				create_Line_Edit(current_Row+1, current_Column+2, structure_Item, item_Type_String, whats_This, MIN);
+				create_Line_Edit(current_Row+1, current_Column+3, structure_Item, item_Type_String, whats_This, MAX);
+				// last
+				create_Check_Box_Fit(current_Row+1, current_Column+1, structure_Item, item_Type_String, whats_This, 0, 0, 1, 2);
+				current_Column += 5;
+
+				// gamma
+				if(structure_Item->childCount()==2)
+				{
+					whats_This = whats_This_Gamma;
+					add_Columns(current_Column+5);
+					create_Label(current_Row, current_Column, Gamma_Sym);
+					create_Line_Edit(current_Row+1, current_Column, structure_Item, item_Type_String, whats_This, VAL);
+					create_Line_Edit(current_Row+1, current_Column+2, structure_Item, item_Type_String, whats_This, MIN);
+					create_Line_Edit(current_Row+1, current_Column+3, structure_Item, item_Type_String, whats_This, MAX);
+					// last
+					create_Check_Box_Fit(current_Row+1, current_Column+1, structure_Item, item_Type_String, whats_This, 0, 0, 1, 2);
+					current_Column += 5;
+				}
+			}
+			///--------------------------------------------------------------------------------------------
+
 			// thickness
 			if(item_Type_String == whats_This_Layer)
 			{
@@ -187,8 +217,9 @@ void Table_Of_Structures::create_Table()
 			{
 				QString whats_This = whats_This_Sigma;
 				add_Columns(current_Column+1);
-				create_Label(current_Row, current_Column, Sigma_Sym+" ["+Angstrom_Sym+"]");
 				create_Line_Edit	(current_Row+1, current_Column, structure_Item, item_Type_String, whats_This, VAL);
+				// second
+				create_Check_Box_Label(current_Row, current_Column, structure_Item, item_Type_String, whats_This, Sigma_Sym+" ["+Angstrom_Sym+"]", 1, 1, 0, 0);
 				create_Line_Edit	(current_Row+3, current_Column, structure_Item, item_Type_String, whats_This, MIN);
 				create_Line_Edit	(current_Row+4, current_Column, structure_Item, item_Type_String, whats_This, MAX);
 				// last
@@ -643,20 +674,25 @@ void Table_Of_Structures::create_Label(int current_Row, int current_Column, QStr
 void Table_Of_Structures::create_Check_Box_Label(int current_Row, int current_Column, QTreeWidgetItem* structure_Item, QString item_Type_String, QString whats_This, QString text, int r_S, int r_F, int c_S, int c_F)
 {
 	// PARAMETER
-	bool is_Drift;
+	bool bool_Check;
 
 	QVariant data = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole);
 
 	if(item_Type_String == whats_This_Layer)
 	{
-		if(whats_This == whats_This_Thickness_Drift_Line_Value)	is_Drift = data.value<Layer>().thickness_Drift.is_Drift_Line;
-		if(whats_This == whats_This_Thickness_Drift_Rand_Rms)	is_Drift = data.value<Layer>().thickness_Drift.is_Drift_Rand;
-		if(whats_This == whats_This_Thickness_Drift_Sine)		is_Drift = data.value<Layer>().thickness_Drift.is_Drift_Sine;
+		if(whats_This == whats_This_Thickness_Drift_Line_Value)	bool_Check = data.value<Layer>().thickness_Drift.is_Drift_Line;
+		if(whats_This == whats_This_Thickness_Drift_Rand_Rms)	bool_Check = data.value<Layer>().thickness_Drift.is_Drift_Rand;
+		if(whats_This == whats_This_Thickness_Drift_Sine)		bool_Check = data.value<Layer>().thickness_Drift.is_Drift_Sine;
 
-		if(whats_This == whats_This_Sigma_Drift_Line_Value)		is_Drift = data.value<Layer>().sigma_Drift.is_Drift_Line;
-		if(whats_This == whats_This_Sigma_Drift_Rand_Rms)		is_Drift = data.value<Layer>().sigma_Drift.is_Drift_Rand;
-		if(whats_This == whats_This_Sigma_Drift_Sine)			is_Drift = data.value<Layer>().sigma_Drift.is_Drift_Sine;
+		if(whats_This == whats_This_Sigma_Drift_Line_Value)		bool_Check = data.value<Layer>().sigma_Drift.is_Drift_Line;
+		if(whats_This == whats_This_Sigma_Drift_Rand_Rms)		bool_Check = data.value<Layer>().sigma_Drift.is_Drift_Rand;
+		if(whats_This == whats_This_Sigma_Drift_Sine)			bool_Check = data.value<Layer>().sigma_Drift.is_Drift_Sine;
 
+		if(whats_This == whats_This_Sigma)						bool_Check = data.value<Layer>().common_Sigma;
+	}
+	if(item_Type_String == whats_This_Substrate)
+	{
+		if(whats_This == whats_This_Sigma)						bool_Check = data.value<Substrate>().common_Sigma;
 	}
 
 	QCheckBox* check_Box = new QCheckBox(text);
@@ -677,9 +713,9 @@ void Table_Of_Structures::create_Check_Box_Label(int current_Row, int current_Co
 	check_Box->setProperty(reload_Property, false);
 	all_Widgets_To_Reload.append(check_Box);
 
-	check_Box->setChecked(is_Drift);
+	check_Box->setChecked(bool_Check);
 	connect(check_Box, SIGNAL(toggled(bool)), this, SLOT(cells_On_Off(bool)));
-	connect(check_Box, SIGNAL(toggled(bool)), this, SLOT(refresh_Drift_Header(bool)));
+	connect(check_Box, SIGNAL(toggled(bool)), this, SLOT(refresh_Check_Box_Header(bool)));
 	check_Box->toggled(false);
 
 	// alignment
@@ -733,6 +769,11 @@ void Table_Of_Structures::create_Line_Edit(int current_Row, int current_Column, 
 		if(whats_This == whats_This_Relative_Density)	{parameter = data.value<Substrate>().relative_Density;		precision = line_edit_density_precision;}
 		if(whats_This == whats_This_Sigma)				{parameter = data.value<Substrate>().sigma;					precision = line_edit_sigma_precision;	}
 	}
+	if(item_Type_String == whats_This_Multilayer)
+	{
+		if(whats_This == whats_This_Period)	{parameter = data.value<Stack_Content>().period;	precision = line_edit_period_precision;}
+		if(whats_This == whats_This_Gamma)	{parameter = data.value<Stack_Content>().gamma;		precision = line_edit_gamma_precision;}
+	}
 
 	double value;
 
@@ -746,7 +787,6 @@ void Table_Of_Structures::create_Line_Edit(int current_Row, int current_Column, 
 	QLineEdit* line_Edit = new QLineEdit(text_Value);
 	line_Edit->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT);
 
-	// number of element is here
 	line_Edit->setProperty(min_Size_Property, line_Edit->width());
 	line_Edit->setProperty(item_Type_Property, item_Type_String);
 	line_Edit->setProperty(column_Property, current_Column);
@@ -767,6 +807,8 @@ void Table_Of_Structures::create_Line_Edit(int current_Row, int current_Column, 
 	if(whats_This == whats_This_Sigma_Drift_Sine_Amplitude)		line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION));
 	if(whats_This == whats_This_Sigma_Drift_Sine_Frequency)		line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION));
 	if(whats_This == whats_This_Sigma_Drift_Sine_Phase)			line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION));
+
+	if(whats_This == whats_This_Period)							line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION));
 
 	// for reloading
 	line_Edit->setProperty(reload_Property, false);
@@ -816,6 +858,11 @@ void Table_Of_Structures::create_Check_Box_Fit(int current_Row, int current_Colu
 		if(whats_This == whats_This_Absolute_Density)	parameter = data.value<Substrate>().absolute_Density;
 		if(whats_This == whats_This_Relative_Density)	parameter = data.value<Substrate>().relative_Density;
 		if(whats_This == whats_This_Sigma)				parameter = data.value<Substrate>().sigma;
+	}
+	if(item_Type_String == whats_This_Multilayer)
+	{
+		if(whats_This == whats_This_Period)				parameter = data.value<Stack_Content>().period;
+		if(whats_This == whats_This_Gamma)				parameter = data.value<Stack_Content>().gamma;
 	}
 
 	// create check_Box
@@ -870,10 +917,18 @@ void Table_Of_Structures::create_Check_Box_Label_Interlayer(int current_Row, int
 		// enable/disable function
 		check_Box->setProperty(row_Property, current_Row);
 		check_Box->setProperty(column_Property, current_Column);
+
+		// first group
 		check_Box->setProperty(relative_Rows_To_Disable_Start_Property, 1);
 		check_Box->setProperty(relative_Rows_To_Disable_Finish_Property, 1);
 		check_Box->setProperty(relative_Columns_To_Disable_Start_Property, 0);
 		check_Box->setProperty(relative_Columns_To_Disable_Finish_Property, 0);
+
+		// second group
+		check_Box->setProperty(relative_Rows_To_Disable_Start_Property_2, 4);
+		check_Box->setProperty(relative_Rows_To_Disable_Finish_Property_2, 4);
+		check_Box->setProperty(relative_Columns_To_Disable_Start_Property_2, 0);
+		check_Box->setProperty(relative_Columns_To_Disable_Finish_Property_2, 0);
 
 		check_Box->setProperty(interlayer_Index_Property, interlayer_Index);
 		check_Box->setProperty(item_Type_Property, item_Type_String);
@@ -885,6 +940,7 @@ void Table_Of_Structures::create_Check_Box_Label_Interlayer(int current_Row, int
 
 		check_Box->setChecked(interlayer_Composition[interlayer_Index].enabled);
 		connect(check_Box, SIGNAL(toggled(bool)), this, SLOT(cells_On_Off(bool)));
+		connect(check_Box, SIGNAL(toggled(bool)), this, SLOT(cells_On_Off_2(bool)));
 		connect(check_Box, SIGNAL(toggled(bool)), this, SLOT(refresh_Check_Box_Label_Interlayer(bool)));
 		check_Box->toggled(false);
 
@@ -1034,6 +1090,7 @@ void Table_Of_Structures::create_MySigma_Interlayer(int current_Row, int start_C
 		line_Edit->setProperty(item_Type_Property, item_Type_String);
 		line_Edit->setProperty(column_Property, current_Column);
 		line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION));
+
 
 		// for reloading
 		line_Edit->setProperty(reload_Property, false);
@@ -1345,7 +1402,7 @@ void Table_Of_Structures::browse_Material(bool b)
 }
 
 // for several parameters
-void Table_Of_Structures::refresh_Drift_Header(bool b)
+void Table_Of_Structures::refresh_Check_Box_Header(bool b)
 {
 	// PARAMETER
 	b;
@@ -1373,6 +1430,8 @@ void Table_Of_Structures::refresh_Drift_Header(bool b)
 			if(whats_This == whats_This_Sigma_Drift_Rand_Rms  )		check_Box->setChecked(layer.sigma_Drift.is_Drift_Rand);
 			if(whats_This == whats_This_Sigma_Drift_Sine	  )		check_Box->setChecked(layer.sigma_Drift.is_Drift_Sine);
 
+			if(whats_This == whats_This_Sigma)		check_Box->setChecked(layer.common_Sigma);
+
 			return;
 		}
 
@@ -1384,7 +1443,22 @@ void Table_Of_Structures::refresh_Drift_Header(bool b)
 		if(whats_This == whats_This_Sigma_Drift_Rand_Rms  )		layer.sigma_Drift.is_Drift_Rand = check_Box->isChecked();
 		if(whats_This == whats_This_Sigma_Drift_Sine	  )		layer.sigma_Drift.is_Drift_Sine = check_Box->isChecked();
 
+		if(whats_This == whats_This_Sigma)			layer.common_Sigma = check_Box->isChecked();
+
 		var.setValue( layer );
+	}
+	if(item_Type_String == whats_This_Substrate)
+	{
+		Substrate substrate = data.value<Substrate>();
+
+		if(reload)
+		{
+			if(whats_This == whats_This_Sigma)	check_Box->setChecked(substrate.common_Sigma);
+			return;
+		}
+		if(whats_This == whats_This_Sigma)	substrate.common_Sigma = check_Box->isChecked();
+
+		var.setValue( substrate );
 	}
 	structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
 
@@ -1701,6 +1775,41 @@ void Table_Of_Structures::refresh_Parameter(QString temp)
 
 		var.setValue( substrate );
 	}
+	if(item_Type_String == whats_This_Multilayer)
+	{
+		Stack_Content stack_Content = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Stack_Content>();
+
+		if(reload)
+		{
+			if(whats_This == whats_This_Period)
+			{
+				if(value_Type == VAL)	line_Edit->setText(QString::number(stack_Content.period.value,   line_edit_double_format, line_edit_period_precision));
+				if(value_Type == MIN)	line_Edit->setText(QString::number(stack_Content.period.fit.min, line_edit_double_format, line_edit_period_precision));
+				if(value_Type == MAX)	line_Edit->setText(QString::number(stack_Content.period.fit.max, line_edit_double_format, line_edit_period_precision));
+			}
+			if(whats_This == whats_This_Gamma)
+			{
+				if(value_Type == VAL)	line_Edit->setText(QString::number(stack_Content.gamma.value,   line_edit_double_format, line_edit_gamma_precision));
+				if(value_Type == MIN)	line_Edit->setText(QString::number(stack_Content.gamma.fit.min, line_edit_double_format, line_edit_gamma_precision));
+				if(value_Type == MAX)	line_Edit->setText(QString::number(stack_Content.gamma.fit.max, line_edit_double_format, line_edit_gamma_precision));
+			}
+			return;
+		}
+
+		if(whats_This == whats_This_Period)
+		{
+			if(value_Type == VAL)	{stack_Content.period.value = line_Edit->text().toDouble();	}
+			if(value_Type == MIN)	{stack_Content.period.fit.min = line_Edit->text().toDouble();}
+			if(value_Type == MAX)	{stack_Content.period.fit.max = line_Edit->text().toDouble();}
+		}
+		if(whats_This == whats_This_Gamma)
+		{
+			if(value_Type == VAL)	{stack_Content.gamma.value = line_Edit->text().toDouble();	}
+			if(value_Type == MIN)	{stack_Content.gamma.fit.min = line_Edit->text().toDouble();}
+			if(value_Type == MAX)	{stack_Content.gamma.fit.max = line_Edit->text().toDouble();}
+		}
+		var.setValue( stack_Content );
+	}
 	structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
 
 	emit_Data_Edited();
@@ -1814,6 +1923,21 @@ void Table_Of_Structures::refresh_Fit_Parameter(bool b)
 		}
 
 		var.setValue( substrate );
+	}
+	if(item_Type_String == whats_This_Multilayer)
+	{
+		Stack_Content stack_Content = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Stack_Content>();
+
+		if(reload)
+		{
+			if(whats_This == whats_This_Period)	check_Box->setChecked(stack_Content.period.fit.is_Fitable);
+			if(whats_This == whats_This_Gamma)	check_Box->setChecked(stack_Content.gamma.fit.is_Fitable);
+			return;
+		}
+		if(whats_This == whats_This_Period)	stack_Content.period.fit.is_Fitable = check_Box->isChecked();
+		if(whats_This == whats_This_Gamma)	stack_Content.gamma.fit.is_Fitable = check_Box->isChecked();
+
+		var.setValue( stack_Content );
 	}
 	structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
 
@@ -1969,7 +2093,13 @@ void Table_Of_Structures::refresh_MySigma_Interlayer(QString temp)
 	{
 		Layer layer = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>();
 
-		if(reload)	{line_Edit->setText(QString::number(layer.interlayer_Composition[interlayer_Index].my_Sigma.value, line_edit_double_format, line_edit_sigma_precision)); return;}
+		if(reload)
+		{
+			line_Edit->setText(QString::number(layer.interlayer_Composition[interlayer_Index].my_Sigma.value, line_edit_double_format, line_edit_sigma_precision));
+			bool disable = layer.common_Sigma || !layer.interlayer_Composition[interlayer_Index].enabled;
+			line_Edit->setDisabled(disable);
+			return;
+		}
 
 		layer.interlayer_Composition[interlayer_Index].my_Sigma.value = line_Edit->text().toDouble();
 
@@ -1979,7 +2109,13 @@ void Table_Of_Structures::refresh_MySigma_Interlayer(QString temp)
 	{
 		Substrate substrate = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Substrate>();
 
-		if(reload)	{line_Edit->setText(QString::number(substrate.interlayer_Composition[interlayer_Index].my_Sigma.value, line_edit_double_format, line_edit_sigma_precision)); return;}
+		if(reload)
+		{
+			line_Edit->setText(QString::number(substrate.interlayer_Composition[interlayer_Index].my_Sigma.value, line_edit_double_format, line_edit_sigma_precision));
+			bool disable = substrate.common_Sigma || !substrate.interlayer_Composition[interlayer_Index].enabled;
+			line_Edit->setDisabled(disable);
+			return;
+		}
 
 		substrate.interlayer_Composition[interlayer_Index].my_Sigma.value = line_Edit->text().toDouble();
 
@@ -2021,9 +2157,38 @@ void Table_Of_Structures::cells_On_Off(bool b)
 	}
 }
 
+void Table_Of_Structures::cells_On_Off_2(bool b)
+{
+	b;
+	QCheckBox* check_Box = qobject_cast<QCheckBox*>(QObject::sender());
+
+	int current_Row = check_Box->property(row_Property).toInt();
+	int current_Column = check_Box->property(column_Property).toInt();
+
+	int row_Start = check_Box->property(relative_Rows_To_Disable_Start_Property_2).toInt();
+	int row_Finish = check_Box->property(relative_Rows_To_Disable_Finish_Property_2).toInt();
+	int column_Start = check_Box->property(relative_Columns_To_Disable_Start_Property_2).toInt();
+	int column_Finish = check_Box->property(relative_Columns_To_Disable_Finish_Property_2).toInt();
+
+	for(int row=row_Start; row<=row_Finish; ++row)
+	for(int col=column_Start; col<=column_Finish; ++col)
+	{
+		QWidget* widget = main_Table->cellWidget(current_Row+row,current_Column+col);
+		if(widget)
+		{
+			widget->setDisabled(!check_Box->isChecked());
+
+			if(!check_Box->isChecked())
+				widget->setStyleSheet("border: 0px solid red");
+			else
+				widget->setStyleSheet("border: 1px solid grey");
+		}
+	}
+}
+
 void Table_Of_Structures::resize_Line_Edit(QString text, QLineEdit* line_Edit)
 {
-	if(line_Edit == NULL) line_Edit = qobject_cast<QLineEdit*>(QObject::sender());
+	if(!line_Edit) line_Edit = qobject_cast<QLineEdit*>(QObject::sender());
 
 	text = line_Edit->text();
 	QFontMetrics fm = line_Edit->fontMetrics();
@@ -2039,7 +2204,6 @@ void Table_Of_Structures::reload_All_Widgets(QObject* sender)
 {
 	if(table_Is_Created)
 	{
-//		qInfo() << temp_Counter++ << " reload_All_Widgets";
 		for(int i=0; i<all_Widgets_To_Reload.size(); ++i)
 		{
 			if(all_Widgets_To_Reload[i] != sender)
@@ -2050,8 +2214,10 @@ void Table_Of_Structures::reload_All_Widgets(QObject* sender)
 				QLineEdit* line_Edit = qobject_cast<QLineEdit*>(all_Widgets_To_Reload[i]);
 				QComboBox* combo_Box = qobject_cast<QComboBox*>(all_Widgets_To_Reload[i]);
 
-				if(check_Box)	check_Box->toggled(false);
-				if(line_Edit)	line_Edit->textEdited("temp");
+				if(check_Box)	check_Box->toggled(false);				//
+				if(check_Box)	check_Box->toggled(false);				//
+				if(line_Edit)	line_Edit->textEdited("temp");			// repeated intentionally!
+				if(line_Edit)	line_Edit->textEdited("temp");			//
 				if(combo_Box)	combo_Box->currentTextChanged("temp");
 
 				all_Widgets_To_Reload[i]->setProperty(reload_Property, false);

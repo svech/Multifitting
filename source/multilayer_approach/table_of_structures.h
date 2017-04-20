@@ -65,7 +65,7 @@ public slots:
 	void browse_Material(bool b = false);
 
 	// for several parameters
-	void refresh_Drift_Header(bool b = false);
+	void refresh_Check_Box_Header(bool b = false);
 
 	// for all parameters
 	void refresh_Parameter(QString temp = "empty");
@@ -80,6 +80,7 @@ public slots:
 
 	// general
 	void cells_On_Off(bool b = false);
+	void cells_On_Off_2(bool b = false);
 	void resize_Line_Edit(QString text, QLineEdit* line_Edit = NULL);
 	void emit_Data_Edited();
 	void reload_All_Widgets(QObject* sender = NULL);

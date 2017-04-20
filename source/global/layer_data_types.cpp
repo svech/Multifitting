@@ -304,8 +304,18 @@ Layer::Layer()
 Stack_Content::Stack_Content()
 {
 	num_Repetition.value= stack_default_number_of_repetition;
-	period.value		= stack_default_period;
-	gamma.value			= stack_default_gamma;
+	{
+		period.value	= stack_default_period;
+		period.fit.is_Fitable = false;
+		period.fit.min = period.value*(1-dispersion);
+		period.fit.max = period.value*(1+dispersion);
+	}
+	{
+		gamma.value		= stack_default_gamma;
+		gamma.fit.is_Fitable = false;
+		gamma.fit.min = 0;
+		gamma.fit.max = 1;
+	}
 }
 
 // serialization

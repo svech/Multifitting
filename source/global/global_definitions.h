@@ -187,10 +187,17 @@ using namespace std;
 
 #define reload_Property	"reload"
 
+// first group
 #define relative_Rows_To_Disable_Start_Property		"relative_Rows_To_Disable_Start"
 #define relative_Rows_To_Disable_Finish_Property	"relative_Rows_To_Disable_Finish"
 #define relative_Columns_To_Disable_Start_Property	"relative_Columns_To_Disable_Start"
 #define relative_Columns_To_Disable_Finish_Property	"relative_Columns_To_Disable_Finish"
+
+// second group
+#define relative_Rows_To_Disable_Start_Property_2		"relative_Rows_To_Disable_Start_2"
+#define relative_Rows_To_Disable_Finish_Property_2		"relative_Rows_To_Disable_Finish_2"
+#define relative_Columns_To_Disable_Start_Property_2	"relative_Columns_To_Disable_Start_2"
+#define relative_Columns_To_Disable_Finish_Property_2	"relative_Columns_To_Disable_Finish_2"
 
 // keys
 #define table_Key	"table_Of_Structures"
