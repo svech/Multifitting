@@ -370,7 +370,7 @@ void Settings::read_Precisions(bool reset_to_default)
 			line_edit_thickness_precision	= precision_Values.value( "line_edit_thickness_precision",		4 ).toInt();
 			line_edit_sigma_precision		= precision_Values.value( "line_edit_sigma_precision",			3 ).toInt();	// = thickness precision
 			line_edit_interlayer_precision	= precision_Values.value( "line_edit_interlayer_precision",		4 ).toInt();
-			line_edit_period_precision		= precision_Values.value( "line_edit_period_precision",			5 ).toInt();	// = thickness precision
+			line_edit_period_precision		= precision_Values.value( "line_edit_period_precision",			4 ).toInt();	// = thickness precision
 			line_edit_gamma_precision		= precision_Values.value( "line_edit_gamma_precision",			9 ).toInt();	// = thickness precision
 		precision_Values.endGroup();
 		precision_Values.beginGroup( Thumbnail );

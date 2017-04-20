@@ -113,6 +113,7 @@ void Table_Of_Structures::create_Table()
 				main_Table->insertRow(main_Table->rowCount());
 			}
 
+
 			add_Columns(depth);
 
 			// print whatsThis
@@ -227,7 +228,7 @@ void Table_Of_Structures::create_Table()
 				add_Columns(current_Column+1);
 				create_Line_Edit	(current_Row+1, current_Column, structure_Item, item_Type_String, whats_This, VAL);
 				// second
-				create_Check_Box_Label(current_Row, current_Column, structure_Item, item_Type_String, whats_This, Sigma_Sym+" ["+Angstrom_Sym+"]", 1, 1, 0, 0);
+				create_Check_Box_Label(current_Row, current_Column, structure_Item, item_Type_String, whats_This, Sigma_Sym+" ["+Angstrom_Sym+"]", 1, 0, 0, 0);
 				create_Line_Edit	(current_Row+3, current_Column, structure_Item, item_Type_String, whats_This, MIN);
 				create_Line_Edit	(current_Row+4, current_Column, structure_Item, item_Type_String, whats_This, MAX);
 				// last
@@ -392,6 +393,8 @@ void Table_Of_Structures::create_Table()
 
 	table_Is_Created = true;
 	reload_All_Widgets();
+	reload_All_Widgets();
+	reload_All_Widgets();
 
 	// fit initial size of columns
 	for(int i=0; i<main_Table->columnCount(); ++i)
@@ -405,7 +408,18 @@ void Table_Of_Structures::read_Trees()
 		Structure_Tree* old_Structure_Tree = dynamic_cast<Multilayer*>(multilayer_Tabs->widget(i))->structure_Tree;
 		list_Of_Trees.append(old_Structure_Tree);
 		old_Structure_Tree->structure_Toolbar->toolbar->setDisabled(true);
-		old_Structure_Tree->tree->blockSignals(true);//setDisabled(true);
+		old_Structure_Tree->tree->blockSignals(true);
+	}
+}
+
+void Table_Of_Structures::colorize_Row(int row, int red, int green, int blue)
+{
+	for (int column=0; column<main_Table->columnCount(); column++)
+	{
+		QWidget *newItem = new QWidget;
+		QString qss = QString("background: rgb(%1,%2,%3);").arg(red).arg(green).arg(blue);
+		newItem->setStyleSheet(qss);
+		main_Table->setCellWidget(row, column, newItem);
 	}
 }
 
@@ -439,10 +453,12 @@ void Table_Of_Structures::span_Structure_Items()
 					|| wtf_List[0] == whats_This_Substrate )
 				{
 					main_Table->setSpan(row_Index,col_Index,5,1);
+//					if(wtf_List[0] != whats_This_Ambient) colorize_Row(row_Index-1);
 				}
 				if( wtf_List[0] == whats_This_Multilayer )
 				{
 					main_Table->setSpan(row_Index,col_Index,2,1);
+//					colorize_Row(row_Index-1);
 				}
 			}
 		}
@@ -1455,8 +1471,7 @@ void Table_Of_Structures::refresh_Check_Box_Header(bool b)
 			if(whats_This == whats_This_Sigma_Drift_Rand_Rms  )		check_Box->setChecked(layer.sigma_Drift.is_Drift_Rand);
 			if(whats_This == whats_This_Sigma_Drift_Sine	  )		check_Box->setChecked(layer.sigma_Drift.is_Drift_Sine);
 
-			if(whats_This == whats_This_Sigma)		check_Box->setChecked(layer.common_Sigma);
-
+			if(whats_This == whats_This_Sigma)			check_Box->setChecked(layer.common_Sigma);
 			return;
 		}
 
@@ -1641,7 +1656,12 @@ void Table_Of_Structures::refresh_Parameter(QString temp)
 			}
 			if(whats_This == whats_This_Sigma)
 			{
-				if(value_Type == VAL)	line_Edit->setText(QString::number(layer.sigma.value,   line_edit_double_format, line_edit_sigma_precision));
+				if(value_Type == VAL)
+				{
+					line_Edit->setText(QString::number(layer.sigma.value,   line_edit_double_format, line_edit_sigma_precision));
+					line_Edit->setDisabled(!layer.common_Sigma);
+					line_Edit->setStyleSheet("border: 1px solid grey");
+				}
 				if(value_Type == MIN)	line_Edit->setText(QString::number(layer.sigma.fit.min, min_Max_Format, line_edit_sigma_precision));
 				if(value_Type == MAX)	line_Edit->setText(QString::number(layer.sigma.fit.max, min_Max_Format, line_edit_sigma_precision));
 			}
@@ -1730,13 +1750,20 @@ void Table_Of_Structures::refresh_Parameter(QString temp)
 		}
 		if(whats_This == whats_This_Sigma)
 		{
-			if(value_Type == VAL)	layer.sigma.value = line_Edit->text().toDouble();
+			if(value_Type == VAL)
+			{
+				layer.sigma.value = line_Edit->text().toDouble();
+				for(int interlayer_Index=0; interlayer_Index<transition_Layer_Functions_Size; ++interlayer_Index)
+				{
+					layer.interlayer_Composition[interlayer_Index].my_Sigma.value = layer.sigma.value;
+				}
+			}
 			if(value_Type == MIN)
 			{
 				layer.sigma.fit.min = line_Edit->text().toDouble();
 				for(int interlayer_Index=0; interlayer_Index<transition_Layer_Functions_Size; ++interlayer_Index)
 				{
-					layer.interlayer_Composition[interlayer_Index].interlayer.fit.min = line_Edit->text().toDouble();
+					layer.interlayer_Composition[interlayer_Index].my_Sigma.fit.min = layer.sigma.fit.min;
 				}
 			}
 			if(value_Type == MAX)
@@ -1744,7 +1771,7 @@ void Table_Of_Structures::refresh_Parameter(QString temp)
 				layer.sigma.fit.max = line_Edit->text().toDouble();
 				for(int interlayer_Index=0; interlayer_Index<transition_Layer_Functions_Size; ++interlayer_Index)
 				{
-					layer.interlayer_Composition[interlayer_Index].interlayer.fit.max = line_Edit->text().toDouble();
+					layer.interlayer_Composition[interlayer_Index].my_Sigma.fit.max = layer.sigma.fit.max;
 				}
 			}
 		}
@@ -1833,7 +1860,12 @@ void Table_Of_Structures::refresh_Parameter(QString temp)
 			}
 			if(whats_This == whats_This_Sigma)
 			{
-				if(value_Type == VAL)	line_Edit->setText(QString::number(substrate.sigma.value,   line_edit_double_format, line_edit_sigma_precision));
+				if(value_Type == VAL)
+				{
+					line_Edit->setText(QString::number(substrate.sigma.value,   line_edit_double_format, line_edit_sigma_precision));
+					line_Edit->setDisabled(!substrate.common_Sigma);
+					line_Edit->setStyleSheet("border: 1px solid grey");
+				}
 				if(value_Type == MIN)	line_Edit->setText(QString::number(substrate.sigma.fit.min, min_Max_Format, line_edit_sigma_precision));
 				if(value_Type == MAX)	line_Edit->setText(QString::number(substrate.sigma.fit.max, min_Max_Format, line_edit_sigma_precision));
 			}
@@ -1853,13 +1885,20 @@ void Table_Of_Structures::refresh_Parameter(QString temp)
 		}
 		if(whats_This == whats_This_Sigma)
 		{
-			if(value_Type == VAL)	{substrate.sigma.value = line_Edit->text().toDouble();	}
+			if(value_Type == VAL)
+			{
+				substrate.sigma.value = line_Edit->text().toDouble();
+				for(int interlayer_Index=0; interlayer_Index<transition_Layer_Functions_Size; ++interlayer_Index)
+				{
+					substrate.interlayer_Composition[interlayer_Index].my_Sigma.value = substrate.sigma.value;
+				}
+			}
 			if(value_Type == MIN)
 			{
 				substrate.sigma.fit.min = line_Edit->text().toDouble();
 				for(int interlayer_Index=0; interlayer_Index<transition_Layer_Functions_Size; ++interlayer_Index)
 				{
-					substrate.interlayer_Composition[interlayer_Index].interlayer.fit.min = line_Edit->text().toDouble();
+					substrate.interlayer_Composition[interlayer_Index].my_Sigma.fit.min = substrate.sigma.fit.min;
 				}
 			}
 			if(value_Type == MAX)
@@ -1867,7 +1906,7 @@ void Table_Of_Structures::refresh_Parameter(QString temp)
 				substrate.sigma.fit.max = line_Edit->text().toDouble();
 				for(int interlayer_Index=0; interlayer_Index<transition_Layer_Functions_Size; ++interlayer_Index)
 				{
-					substrate.interlayer_Composition[interlayer_Index].interlayer.fit.max = line_Edit->text().toDouble();
+					substrate.interlayer_Composition[interlayer_Index].my_Sigma.fit.max = substrate.sigma.fit.max;
 				}
 			}
 		}
@@ -2246,6 +2285,20 @@ void Table_Of_Structures::refresh_MySigma_Interlayer(QString temp)
 		}
 
 		layer.interlayer_Composition[interlayer_Index].my_Sigma.value = line_Edit->text().toDouble();
+		if(!layer.common_Sigma)
+		{
+			double temp_Sigma_Square=0;
+			double sum = 0;
+			for(int interlayer_Index=0; interlayer_Index<transition_Layer_Functions_Size; ++interlayer_Index)
+			{
+				if(layer.interlayer_Composition[interlayer_Index].enabled)
+				{
+					sum += layer.interlayer_Composition[interlayer_Index].interlayer.value;
+					temp_Sigma_Square += pow(layer.interlayer_Composition[interlayer_Index].my_Sigma.value,2) * layer.interlayer_Composition[interlayer_Index].interlayer.value;
+				}
+			}
+			layer.sigma.value = sqrt(temp_Sigma_Square/sum);
+		}
 
 		var.setValue( layer );
 	}
@@ -2262,6 +2315,21 @@ void Table_Of_Structures::refresh_MySigma_Interlayer(QString temp)
 		}
 
 		substrate.interlayer_Composition[interlayer_Index].my_Sigma.value = line_Edit->text().toDouble();
+		if(!substrate.common_Sigma)
+		{
+			double temp_Sigma_Square=0;
+			double sum = 0;
+			for(int interlayer_Index=0; interlayer_Index<transition_Layer_Functions_Size; ++interlayer_Index)
+			{
+				if(substrate.interlayer_Composition[interlayer_Index].enabled)
+				{
+					sum += substrate.interlayer_Composition[interlayer_Index].interlayer.value;
+					temp_Sigma_Square += pow(substrate.interlayer_Composition[interlayer_Index].my_Sigma.value,2) * substrate.interlayer_Composition[interlayer_Index].interlayer.value;
+				}
+			}
+			substrate.sigma.value = sqrt(temp_Sigma_Square/sum);
+		}
+
 
 		var.setValue( substrate );
 	}

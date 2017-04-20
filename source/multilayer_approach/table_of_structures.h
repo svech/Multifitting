@@ -22,6 +22,8 @@ public:
 		void create_Table();
 		void read_Trees();
 
+	void colorize_Row(int row, int red=255, int green=204, int blue=153);
+
 	// for material only
 	void create_Combo_Elements(int current_Row, int start_Column, QTreeWidgetItem* structure_Item, QString item_Type_String);
 	void create_Stoich(int current_Row, int start_Column, QTreeWidgetItem* structure_Item, QString item_Type_String, QString val_Type);
