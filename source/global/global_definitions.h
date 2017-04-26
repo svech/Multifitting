@@ -250,6 +250,11 @@ struct Angle_Type				{static QString Grazing()		 { return "Grazing"  ;}
 								 static QString Incidence()		 { return "Incidence";}
 								};
 
+// measured data types
+struct Argument					{vector<double> val; double shift;									   };
+struct Value					{vector<double> val; double shift; vector<double> sigma; double factor;};
+struct Measured_Curve			{vector<Argument> arguments; vector<Value> values; QString measurement_Type;};
+
 // -----------------------------------------------------------------------------------------
 
 // serialization

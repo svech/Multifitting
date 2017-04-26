@@ -55,6 +55,7 @@ private slots:
 	void remove_Target_Profile();
 
 public:
+	QList<Measured_Curve> measured_Curves_List;
 	Multilayer_Approach* multilayer_Approach;
 
 	QVBoxLayout* main_Layout;
