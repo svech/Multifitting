@@ -107,6 +107,11 @@ QStringList transition_Layer_Functions	{"erf","lin","exp","tanh","sin","step"}; 
 //QStringList thickness_Drift_Functions	{"no grading","linear","parabolic","sinusoidal"}; size_t thickness_Drift_Functions_Size = thickness_Drift_Functions.size();
 //QStringList drift_Models				{"no_drift","lin_sin","par_sin","hyp_sin","exp_sin","log_sin"};
 QStringList tril						{TRIL_TRUE, TRIL_FALSE, TRIL_NOT_DEFINED};
+
+// measured curves
+QStringList measurement_Types			{"Angular","Spectral"};
+QStringList value_Type					{"R","R + "+Phi_Sym,"r"};
+
 // -----------------------------------------------------------------------------------------
 
 // units
