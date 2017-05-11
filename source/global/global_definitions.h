@@ -202,6 +202,10 @@ using namespace std;
 // keys
 #define table_Key	"table_Of_Structures"
 
+// target curves
+#define MEASURED	"MEASURED"
+#define OPTIMIZE	"OPTIMIZE"
+
 // -----------------------------------------------------------------------------------------
 
 // enums
@@ -251,9 +255,16 @@ struct Angle_Type				{static QString Grazing()		 { return "Grazing"  ;}
 								};
 
 // measured data types
-struct Argument					{vector<double> val; double shift;									   };
-struct Value					{vector<double> val; double shift; vector<double> sigma; double factor;};
-struct Measured_Curve			{vector<Argument> arguments; vector<Value> values; QString measurement_Type; QString angle_Type; QString anglular_Units; QString spectral_Units;};
+struct Value					{double val_1; double val_2; /*double sigma_1; double sigma_2;*/};
+struct Curve					{vector<double> argument;
+								 vector<Value> values;
+								 double arg_Shift = 0;
+								 double val_Factor = 1;
+								 QString measurement_Type;
+								 QString angle_Type;
+								 QString value_Type;
+								 QString angular_Units;
+								 QString spectral_Units;};
 
 // -----------------------------------------------------------------------------------------
 

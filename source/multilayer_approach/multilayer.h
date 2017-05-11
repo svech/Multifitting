@@ -4,6 +4,7 @@
 #include "multilayer_approach.h"
 #include "multilayer/structure_tree.h"
 #include "multilayer/independent_variables.h"
+#include "multilayer/target_curve.h"
 
 class Structure_Tree;
 class Multilayer_Approach;
@@ -49,13 +50,10 @@ public slots:
 	void refresh_Structure_And_Independent(QObject* my_Sender = NULL);
 
 private slots:
-	void add_Measured_Data();
-	void remove_Measured_Data();
-	void add_Target_Profile();
-	void remove_Target_Profile();
+	void add_Target_Curve   (int index_Pressed, QString target_Curve_Type);
+	void remove_Target_Curve(int index_Pressed, QString target_Curve_Type);
 
 public:
-	QList<Measured_Curve> measured_Curves_List;
 	Multilayer_Approach* multilayer_Approach;
 
 	QVBoxLayout* main_Layout;
@@ -95,12 +93,19 @@ public:
 
 		QFrame* data_Frame;
 			QVBoxLayout* data_Frame_Layout;
+
+int measured_Counter = 0;
+int target_Counter = 0;
+
 				QGroupBox* data_Measured_Data_Group_Box;
 					QVBoxLayout* layout_Measured_Data_With_Frame_Vector;
-						QVector<QFrame*> data_Measured_Data_Frame_Vector;
+						QList<QFrame*> data_Measured_Data_Frame_Vector;
+						QList<Target_Curve*> measured_Data_Vector;
+
 				QGroupBox* data_Target_Profile_Group_Box;
 					QVBoxLayout* layout_Target_Profile_With_Frame_Vector;
-						QVector<QFrame*> data_Target_Profile_Frame_Vector;
+						QList<QFrame*> data_Target_Profile_Frame_Vector;
+						QList<Target_Curve*> target_Profiles_Vector;
 };
 
 #endif // MULTILAYER_H

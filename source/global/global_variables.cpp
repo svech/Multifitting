@@ -110,7 +110,7 @@ QStringList tril						{TRIL_TRUE, TRIL_FALSE, TRIL_NOT_DEFINED};
 
 // measured curves
 QStringList measurement_Types			{"Angular","Spectral"};
-QStringList value_Type					{"R","R + "+Phi_Sym,"r"};
+QStringList value_Types					{"R","R + "+Phi_Sym,"r"};
 
 // -----------------------------------------------------------------------------------------
 

@@ -183,7 +183,6 @@ void Multilayer::create_Data_Frame()
 	data_Frame_Layout = new QVBoxLayout(data_Frame);
 		data_Frame_Layout->setSpacing(0);
 
-
 	data_Measured_Data_Group_Box = new QGroupBox("Measured Data");
 	data_Target_Profile_Group_Box= new QGroupBox("Target Profile");
 
@@ -199,8 +198,8 @@ void Multilayer::create_Data_Frame()
 	layout_Measured_Data_With_Frame_Vector->setMargin(0);
 	layout_Target_Profile_With_Frame_Vector->setMargin(0);
 
-	add_Measured_Data();
-	add_Target_Profile();
+	add_Target_Curve(0, MEASURED);
+	add_Target_Curve(0, OPTIMIZE);
 }
 
 // --------------------------------------------------------------------------------------
@@ -275,15 +274,37 @@ void Multilayer::refresh_Structure_And_Independent(QObject* my_Sender)
 	if(!my_Sender) emit refresh_All_Multilayers();
 }
 
-void Multilayer::add_Measured_Data()
+// --------------------------------------------------------------------------------------
+
+void Multilayer::add_Target_Curve(int index_Pressed, QString target_Curve_Type)
 {
-	setUpdatesEnabled(false);
-
 	// window resizing
-	if(!data_Measured_Data_Frame_Vector.isEmpty())
+	if( (target_Curve_Type == MEASURED && !data_Measured_Data_Frame_Vector.isEmpty()) ||
+		(target_Curve_Type == OPTIMIZE && !data_Target_Profile_Frame_Vector.isEmpty())		)
+	{
+		struct_Frame->setFixedSize(struct_Frame->size());
 		QWidget::window()->resize(QWidget::window()->width(),QWidget::window()->height() + multilayer_height_additive);
+	}
 
-	QFrame* new_Frame = new QFrame;	data_Measured_Data_Frame_Vector.append(new_Frame);
+
+	QPushButton* new_Import_Button = new QPushButton("Import");
+	QLabel* new_Description_Label  = new QLabel("<no description>");
+	QPushButton* new_Add_Button    = new QPushButton("Add Row");
+	QPushButton* new_Remove_Button = new QPushButton("Remove");
+
+	QFrame* new_Frame = new QFrame;
+	Target_Curve* new_Target_Curve = new Target_Curve(new_Description_Label);
+	if(target_Curve_Type == MEASURED)
+	{
+		data_Measured_Data_Frame_Vector.insert(index_Pressed, new_Frame);
+		measured_Data_Vector.insert(index_Pressed, new_Target_Curve);
+	} else
+	if(target_Curve_Type == OPTIMIZE)
+	{
+		data_Target_Profile_Frame_Vector.insert(index_Pressed,new_Frame);
+		target_Profiles_Vector.insert(index_Pressed, new_Target_Curve);
+	}else	{qInfo() << "Multilayer::add_Target_Curve  :  target_Curve_Type should be \"MEASURED\" or \"OPTIMIZE\"";}
+
 	QHBoxLayout* new_Frame_Layout = new QHBoxLayout(new_Frame);
 	new_Frame_Layout->setMargin(0);
 	QHBoxLayout* left_Layout  = new QHBoxLayout;
@@ -291,15 +312,8 @@ void Multilayer::add_Measured_Data()
 	left_Layout->setSpacing(10);
 	right_Layout->setSpacing(0);
 
-	QPushButton* new_Import_Button = new QPushButton("Import");
-	QLabel* new_Description_Label  = new QLabel("<no description>");
-	QPushButton* new_Add_Button    = new QPushButton("Add Row");
-	QPushButton* new_Remove_Button = new QPushButton("Remove");
-
-	new_Import_Button->		setObjectName("Import");
-	new_Description_Label->	setObjectName("Description");
-	new_Add_Button->		setObjectName("Add Row");
-	new_Remove_Button->		setObjectName("Remove Row");
+	if(target_Curve_Type == MEASURED) {new_Description_Label->setText(new_Description_Label->text() + " " + QString::number(measured_Counter)); measured_Counter++;} else
+	if(target_Curve_Type == OPTIMIZE) {new_Description_Label->setText(new_Description_Label->text() + " " + QString::number(target_Counter));   target_Counter++; }
 
 	new_Import_Button->		setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 	new_Description_Label->	setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
@@ -314,140 +328,63 @@ void Multilayer::add_Measured_Data()
 	new_Frame_Layout->addLayout(right_Layout, Qt::AlignRight);
 
 	new_Frame->setLayout(new_Frame_Layout);
-	layout_Measured_Data_With_Frame_Vector->addWidget(new_Frame);
 
-	//connect(new_Import_Button, SIGNAL(clicked()), this, SLOT(     ));
-	connect(new_Add_Button,    SIGNAL(clicked()), this, SLOT(add_Measured_Data()));
-	connect(new_Remove_Button, SIGNAL(clicked()), this, SLOT(remove_Measured_Data()));
+	if(target_Curve_Type == MEASURED) layout_Measured_Data_With_Frame_Vector->insertWidget(index_Pressed,new_Frame); else
+	if(target_Curve_Type == OPTIMIZE) layout_Target_Profile_With_Frame_Vector->insertWidget(index_Pressed,new_Frame);
+
+	connect(new_Import_Button, SIGNAL(clicked()), new_Target_Curve, SLOT(open_Window()));
+	if(target_Curve_Type == MEASURED)
+	{
+		connect(new_Add_Button,    &QPushButton::clicked, this, [=, this]{ add_Target_Curve   (data_Measured_Data_Frame_Vector.indexOf(new_Frame)+1, target_Curve_Type); });
+		connect(new_Remove_Button, &QPushButton::clicked, this, [=, this]{ remove_Target_Curve(data_Measured_Data_Frame_Vector.indexOf(new_Frame),   target_Curve_Type); });
+	} else
+	if(target_Curve_Type == OPTIMIZE)
+	{
+		connect(new_Add_Button,    &QPushButton::clicked, this, [=, this]{ add_Target_Curve   (data_Target_Profile_Frame_Vector.indexOf(new_Frame)+1, target_Curve_Type); });
+		connect(new_Remove_Button, &QPushButton::clicked, this, [=, this]{ remove_Target_Curve(data_Target_Profile_Frame_Vector.indexOf(new_Frame),   target_Curve_Type); });
+	}
 
 	// hiding add button
-	QPushButton* add_Button;
-	if(data_Measured_Data_Frame_Vector.size()>1)
-	{
-		add_Button = data_Measured_Data_Frame_Vector[data_Measured_Data_Frame_Vector.size()-2]->findChild<QPushButton*>(new_Add_Button->objectName());
-		add_Button->hide();
-	}
-
-	setUpdatesEnabled(true);
+//	QPushButton* add_Button;
+//	if(data_Measured_Data_Frame_Vector.size()>1)
+//	{
+//		add_Button = data_Measured_Data_Frame_Vector[data_Measured_Data_Frame_Vector.size()-2]->findChild<QPushButton*>(new_Add_Button->objectName());
+//		add_Button->hide();
+//	}
 }
 
-void Multilayer::remove_Measured_Data()
+void Multilayer::remove_Target_Curve(int index_Pressed, QString target_Curve_Type)
 {
-	setUpdatesEnabled(false);
+	if(target_Curve_Type == MEASURED)
+	{
+		// delete frame
+		delete data_Measured_Data_Frame_Vector[index_Pressed];
+		data_Measured_Data_Frame_Vector.removeAt(index_Pressed);
 
-	QString add_Name = data_Measured_Data_Frame_Vector.first()->findChildren<QPushButton*>().end()[-2]->objectName();	// add button is the second from the end
+		// delete data
+		delete measured_Data_Vector[index_Pressed];
+		measured_Data_Vector.removeAt(index_Pressed);
+	} else
+	if(target_Curve_Type == OPTIMIZE)
+	{
+		// delete frame
+		delete data_Target_Profile_Frame_Vector[index_Pressed];
+		data_Target_Profile_Frame_Vector.removeAt(index_Pressed);
 
-	int i0=-1;
-	for(int i=0; i<data_Measured_Data_Frame_Vector.size(); i++)
-		if(QObject::sender()->parent() == data_Measured_Data_Frame_Vector[i]) i0=i;
-	if(i0!=-1) data_Measured_Data_Frame_Vector.remove(i0);
-	delete QObject::sender()->parent();
+		// delete data
+		delete target_Profiles_Vector[index_Pressed];
+		target_Profiles_Vector.removeAt(index_Pressed);
+	}
 
 	// window resizing
-	if(!data_Measured_Data_Frame_Vector.isEmpty())
+	if( (target_Curve_Type == MEASURED && !data_Measured_Data_Frame_Vector.isEmpty())  ||
+		(target_Curve_Type == OPTIMIZE && !data_Target_Profile_Frame_Vector.isEmpty()) )
 	{
+		struct_Frame->setFixedSize(struct_Frame->size());
 		QWidget::window()->resize(QWidget::window()->width(),QWidget::window()->height() - multilayer_height_additive);
-		adjustSize();
 	}
 
-	if(data_Measured_Data_Frame_Vector.isEmpty())
-		add_Measured_Data();
-
-	setUpdatesEnabled(false);
-
-	// showing add button
-	QPushButton* add_Button;
-	add_Button = data_Measured_Data_Frame_Vector.last()->findChild<QPushButton*>(add_Name);
-	add_Button->show();
-
-	setUpdatesEnabled(true);
+	if(target_Curve_Type == MEASURED && data_Measured_Data_Frame_Vector.isEmpty())	add_Target_Curve(0, MEASURED);
+	if(target_Curve_Type == OPTIMIZE && data_Target_Profile_Frame_Vector.isEmpty())	add_Target_Curve(0, OPTIMIZE);
 }
 
-void Multilayer::add_Target_Profile()
-{
-	setUpdatesEnabled(false);
-
-	// window resizing
-	if(!data_Target_Profile_Frame_Vector.isEmpty())
-		QWidget::window()->resize(QWidget::window()->width(),QWidget::window()->height() + multilayer_height_additive);
-
-	QFrame* new_Frame = new QFrame;	data_Target_Profile_Frame_Vector.append(new_Frame);
-
-	QHBoxLayout* new_Frame_Layout = new QHBoxLayout(new_Frame);
-	new_Frame_Layout->setMargin(0);
-	QHBoxLayout* left_Layout  = new QHBoxLayout;
-	QHBoxLayout* right_Layout = new QHBoxLayout;
-	left_Layout->setSpacing(10);
-	right_Layout->setSpacing(0);
-
-	QPushButton* new_Import_Button = new QPushButton("Import");
-	QLabel* new_Description_Label  = new QLabel("<no description>");
-	QPushButton* new_Add_Button    = new QPushButton("Add Row");
-	QPushButton* new_Remove_Button = new QPushButton("Remove");
-
-	new_Import_Button->		setObjectName("Import");
-	new_Description_Label->	setObjectName("Description");
-	new_Add_Button->		setObjectName("Add Row");
-	new_Remove_Button->		setObjectName("Remove Row");
-
-	new_Import_Button->		setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-	new_Description_Label->	setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-	new_Add_Button->		setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-	new_Remove_Button->		setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-
-	left_Layout->addWidget(new_Import_Button);
-	left_Layout->addWidget(new_Description_Label, 0, Qt::AlignLeft);
-	right_Layout->addWidget(new_Add_Button);
-	right_Layout->addWidget(new_Remove_Button);
-	new_Frame_Layout->addLayout(left_Layout, Qt::AlignLeft);
-	new_Frame_Layout->addLayout(right_Layout, Qt::AlignRight);
-
-	new_Frame->setLayout(new_Frame_Layout);
-	layout_Target_Profile_With_Frame_Vector->addWidget(new_Frame);
-
-	//connect(new_Import_Button, SIGNAL(clicked()), this, SLOT(     ));
-	connect(new_Add_Button,    SIGNAL(clicked()), this, SLOT(add_Target_Profile()));
-	connect(new_Remove_Button, SIGNAL(clicked()), this, SLOT(remove_Target_Profile()));
-
-	// hiding add button
-	QPushButton* add_Button;
-	if(data_Target_Profile_Frame_Vector.size()>1)
-	{
-		add_Button = data_Target_Profile_Frame_Vector[data_Target_Profile_Frame_Vector.size()-2]->findChild<QPushButton*>(new_Add_Button->objectName());
-		add_Button->hide();
-	}
-
-	setUpdatesEnabled(true);
-}
-
-void Multilayer::remove_Target_Profile()
-{
-	setUpdatesEnabled(false);
-
-	QString add_Name = data_Target_Profile_Frame_Vector.first()->findChildren<QPushButton*>().end()[-2]->objectName();	// add_button is the second from the end
-
-	int i0=-1;
-	for(int i=0; i<data_Target_Profile_Frame_Vector.size(); i++)
-		if(QObject::sender()->parent() == data_Target_Profile_Frame_Vector[i]) i0=i;
-	if(i0!=-1) data_Target_Profile_Frame_Vector.remove(i0);
-	delete QObject::sender()->parent();
-
-	// window resizing
-	if(!data_Target_Profile_Frame_Vector.isEmpty())
-	{
-		QWidget::window()->resize(QWidget::window()->width(),QWidget::window()->height() - multilayer_height_additive);
-		adjustSize();
-	}
-
-	if(data_Target_Profile_Frame_Vector.isEmpty())
-		add_Target_Profile();
-
-	setUpdatesEnabled(false);
-
-	// showing add button
-	QPushButton* add_Button;
-	add_Button = data_Target_Profile_Frame_Vector.last()->findChild<QPushButton*>(add_Name);
-	add_Button->show();
-
-	setUpdatesEnabled(true);
-}

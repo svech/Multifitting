@@ -48,7 +48,8 @@ SOURCES += main.cpp\
     calculation/optical_constants.cpp \
     calculation/unwrapped/unwrapped_reflection.cpp \
     calculation/unwrapped/unwrapped_structure.cpp \
-    multilayer_approach/table_of_structures.cpp
+    multilayer_approach/table_of_structures.cpp \
+    multilayer_approach/multilayer/target_curve.cpp
 
 
 HEADERS  += launcher.h \
@@ -72,4 +73,5 @@ HEADERS  += launcher.h \
     calculation/optical_constants.h \
     calculation/unwrapped/unwrapped_reflection.h \
     calculation/unwrapped/unwrapped_structure.h \
-    multilayer_approach/table_of_structures.h
+    multilayer_approach/table_of_structures.h \
+    multilayer_approach/multilayer/target_curve.h

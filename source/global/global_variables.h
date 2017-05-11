@@ -27,7 +27,7 @@ extern QStringList tril;
 
 // measured curves
 extern QStringList measurement_Types;
-extern QStringList value_Type;
+extern QStringList value_Types;
 
 // -----------------------------------------------------------------------------------------
 
