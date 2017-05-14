@@ -209,6 +209,8 @@ void Multilayer::add_Independent_Variables_Tab()
 	Independent_Variables* new_Independent = new Independent_Variables(structure_Tree->tree, this);
 		new_Independent->setContentsMargins(-8,-10,-8,-10);
 
+	independent_Variables_Vector.append(new_Independent);
+
 	connect(new_Independent, SIGNAL(refresh_Multilayer()), this, SLOT(refresh_Structure_And_Independent()));
 
 	// add new tab
@@ -243,6 +245,7 @@ void Multilayer::remove_Independent_Variables_Tab(int index)
 	QMessageBox::StandardButton reply = QMessageBox::question(this,"Removal", "Variables tab \"" + independent_Variables_Plot_Tabs->tabBar()->tabText(index) + "\" will be removed.\nContinue?", QMessageBox::Yes|QMessageBox::No, QMessageBox::No);
 	if (reply == QMessageBox::Yes)
 	{
+		independent_Variables_Vector.remove(index);
 		delete independent_Variables_Plot_Tabs->widget(index);
 		if(independent_Variables_Plot_Tabs->count()==0) add_Independent_Variables_Tab();
 	}
@@ -293,7 +296,7 @@ void Multilayer::add_Target_Curve(int index_Pressed, QString target_Curve_Type)
 	QPushButton* new_Remove_Button = new QPushButton("Remove");
 
 	QFrame* new_Frame = new QFrame;
-	Target_Curve* new_Target_Curve = new Target_Curve(new_Description_Label);
+	Target_Curve* new_Target_Curve = new Target_Curve(new_Description_Label, structure_Tree->tree);
 	if(target_Curve_Type == MEASURED)
 	{
 		data_Measured_Data_Frame_Vector.insert(index_Pressed, new_Frame);

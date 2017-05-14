@@ -205,6 +205,8 @@ using namespace std;
 // target curves
 #define MEASURED	"MEASURED"
 #define OPTIMIZE	"OPTIMIZE"
+// independent curves
+#define INDEPENDENT	"INDEPENDENT"
 
 // -----------------------------------------------------------------------------------------
 
@@ -256,8 +258,8 @@ struct Angle_Type				{static QString Grazing()		 { return "Grazing"  ;}
 
 // measured data types
 struct Value					{double val_1; double val_2; /*double sigma_1; double sigma_2;*/};
-struct Curve					{vector<double> argument;
-								 vector<Value> values;
+struct Curve					{QVector<double> argument;
+								 QVector<Value> values;
 								 double arg_Shift = 0;
 								 double val_Factor = 1;
 								 QString measurement_Type;

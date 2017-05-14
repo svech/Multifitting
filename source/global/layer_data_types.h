@@ -27,6 +27,7 @@ public:
 	Parameter polarization;
 	Parameter polarization_Sensitivity;
 
+	void calc_Measured_cos2_k();
 	void calc_Independent_cos2_k();
 };
 

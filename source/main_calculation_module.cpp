@@ -15,7 +15,7 @@ void Main_Calculation_Module::run_All()
 	{
 		Multilayer* multilayer = dynamic_cast<Multilayer*>(multilayer_Tabs->widget(i));
 
-		Calculation_Tree* calculation_Tree = new Calculation_Tree(multilayer->independent_Variables_Plot_Tabs);
+		Calculation_Tree* calculation_Tree = new Calculation_Tree(multilayer->independent_Variables_Vector, multilayer->measured_Data_Vector, multilayer->target_Profiles_Vector);
 		connect(calculation_Tree, SIGNAL(critical(QString)),    this, SLOT(catch_Critical(QString)));
 		connect(calculation_Tree, SIGNAL(warning(QString)),     this, SLOT(catch_Warning(QString)));
 		connect(calculation_Tree, SIGNAL(information(QString)), this, SLOT(catch_Information(QString)));

@@ -5,39 +5,62 @@
 #include "calculation_tree.h"
 #include <iostream>
 
-Calculation_Tree::Calculation_Tree(QTabWidget* independent_Variables_Plot_Tabs): //-V730
-	independent_Variables_Plot_Tabs(independent_Variables_Plot_Tabs),
-	num_Independent(independent_Variables_Plot_Tabs->count()),
-	unwrapped_Reflection_Vec(num_Independent),
-	unwrapped_Structure_Vec	(num_Independent),
-	calc_Tree_Vec			(num_Independent),
-	measurement_Vec			(num_Independent),
-	active_Whats_This_Vec	(num_Independent)
+Calculation_Tree::Calculation_Tree(QVector<Independent_Variables*>& independent_Variables_Vector, QVector<Target_Curve*>& measured_Data_Vector, QVector<Target_Curve*>& target_Profiles_Vector): //-V730
+	independent(independent_Variables_Vector.size()),
+	measured(0/*measured_Data_Vector.size()*/),
+	target(0/*target_Profiles_Vector.size()*/)	// TEMPORARY
 {
+	// initialization of vectors
+	for(int i=0; i<independent.size(); ++i)
+	{
+		independent[i].the_Class = independent_Variables_Vector[i];
+		independent[i].whats_This = INDEPENDENT;
+	}
+	for(int i=0; i<measured.size(); ++i)
+	{
+		measured[i].the_Class = measured_Data_Vector[i];
+		measured[i].whats_This = MEASURED;
+	}
+	for(int i=0; i<target.size(); ++i)
+	{
+		target[i].the_Class = target_Profiles_Vector[i];
+		target[i].whats_This = OPTIMIZE;
+	}
+
+	// choose one existing item tree for analysis
+	if(independent.size()>0) one_Local_Item_Tree = independent[0].local_Item_Tree;	else
+	if(measured.size()>0)	 one_Local_Item_Tree = measured[0].local_Item_Tree;	else
+	if(target.size()>0)		 one_Local_Item_Tree = target[0].local_Item_Tree;
 }
 
 Calculation_Tree::~Calculation_Tree()
 {
-	for(int i=0; i<num_Independent; ++i)
-	{
-		delete unwrapped_Structure_Vec[i];
-		delete unwrapped_Reflection_Vec[i];
-	}
+//	for(int i=0; i<num_Independent; ++i)
+//	{
+//		delete unwrapped_Structure_Vec[i];
+//		delete unwrapped_Reflection_Vec[i];
+//	}
 }
 
 void Calculation_Tree::run_All()
 {
-	create_Rand_Generator();
-	create_Local_Item_Tree();
-	check_If_Graded();
-    if(local_Item_Tree_Vec.size()>0)
+	if(independent.size()+measured.size()+target.size()>0)
 	{
-		int independent_Index = 0;																// all tree copies have equal depths
-		max_Depth = Global_Variables::get_Tree_Depth(local_Item_Tree_Vec[independent_Index]->invisibleRootItem());	// unstratified depth
-		fill_Calc_Trees();																		// here we have trees of "Node"
-        calculate_Intermediate_Values();
+		create_Rand_Generator();
+		create_All_Local_Item_Trees();
+		check_If_Graded();
+		{
+			max_Depth = Global_Variables::get_Tree_Depth(one_Local_Item_Tree->invisibleRootItem());	// unstratified depth
+			fill_All_Calc_Trees();																	// here we have trees of "Node"
+			calculate_Intermediate_Values();
+		}
+		//	independent.clear();
+		//	measured.clear();
+		//	target.clear();
+	} else
+	{
+		qInfo() << "Calculation_Tree::run_All  :  no data for calculation";
 	}
-	local_Item_Tree_Vec.clear();
 }
 
 void Calculation_Tree::create_Rand_Generator()
@@ -50,27 +73,34 @@ void Calculation_Tree::create_Rand_Generator()
 	gsl_rng_set(r,std::chrono::duration_cast<std::chrono::microseconds>(now.time_since_epoch()).count());
 }
 
-void Calculation_Tree::create_Local_Item_Tree()
+template <typename T>
+void Calculation_Tree::create_1_Kind_of_Local_Item_Tree(QVector<Data_Element<T>>& data_Element_Vec)
 {
-	for(int independent_Index=0; independent_Index<num_Independent; ++independent_Index)
+	// independent trees
+	for(int index=0; index<data_Element_Vec.size(); ++index)
 	{
-		independent_Widget_Vec.append(dynamic_cast<Independent_Variables*>(independent_Variables_Plot_Tabs->widget(independent_Index))); // this is not local. It stores pointers to originals
-
 		QTreeWidget* local_Item_Tree = new QTreeWidget;
-		for(int i=0; i<independent_Widget_Vec[independent_Index]->struct_Tree_Copy->topLevelItemCount(); ++i)
+		for(int i=0; i<data_Element_Vec[index].the_Class->struct_Tree_Copy->topLevelItemCount(); ++i)
 		{
-			local_Item_Tree->addTopLevelItem(independent_Widget_Vec[independent_Index]->struct_Tree_Copy->topLevelItem(i)->clone()); // this is local
+			local_Item_Tree->addTopLevelItem(data_Element_Vec[index].the_Class->struct_Tree_Copy->topLevelItem(i)->clone()); // this is local
 		}
-		local_Item_Tree_Vec.append(local_Item_Tree);		
+		data_Element_Vec[index].local_Item_Tree = local_Item_Tree;
 	}
+}
+template void Calculation_Tree::create_1_Kind_of_Local_Item_Tree<Independent_Variables>(QVector<Data_Element<Independent_Variables>>&);
+template void Calculation_Tree::create_1_Kind_of_Local_Item_Tree<Target_Curve>		   (QVector<Data_Element<Target_Curve>>&);
+
+void Calculation_Tree::create_All_Local_Item_Trees()
+{
+	create_1_Kind_of_Local_Item_Tree(independent);
+	create_1_Kind_of_Local_Item_Tree(measured);
+	create_1_Kind_of_Local_Item_Tree(target);
 }
 
 void Calculation_Tree::check_If_Graded()
 {
-	int independent_Index=0;					// all tree copies are equal
-
 	QTreeWidgetItem* structure_Item;
-	QTreeWidgetItemIterator it(local_Item_Tree_Vec[independent_Index]);
+	QTreeWidgetItemIterator it(one_Local_Item_Tree);
 	while (*it)
 	{
 		structure_Item = *it;
@@ -94,23 +124,24 @@ void Calculation_Tree::check_If_Graded()
 	}
 }
 
-void Calculation_Tree::fill_Calc_Trees()
+template <typename T>
+void Calculation_Tree::fill_1_Kind_of_Calc_Trees(QVector<Data_Element<T>>& data_Element_Vec)
 {
 	// for each plot
-	for(int independent_Index=0; independent_Index<local_Item_Tree_Vec.size(); ++independent_Index)
+	for(int index=0; index<data_Element_Vec.size(); ++index)
 	{
-        Node empty_Top_Node;
-		calc_Tree_Vec[independent_Index].insert(calc_Tree_Vec[independent_Index].begin(), empty_Top_Node);	// according to the tree.hh API
+		Node empty_Top_Node;
+		data_Element_Vec[index].calc_Tree.insert(data_Element_Vec[index].calc_Tree.begin(), empty_Top_Node);	// according to the tree.hh API
 
-		fill_Tree(calc_Tree_Vec[independent_Index].begin(), local_Item_Tree_Vec[independent_Index]->invisibleRootItem(), independent_Index);
+		fill_Tree(data_Element_Vec[index].calc_Tree.begin(), data_Element_Vec[index].calc_Tree, data_Element_Vec[index].local_Item_Tree->invisibleRootItem());
 
 		// if no set substrate then the second ambient
-		if(local_Item_Tree_Vec[independent_Index]->topLevelItem(local_Item_Tree_Vec[independent_Index]->topLevelItemCount()-1)->whatsThis(DEFAULT_COLUMN) != whats_This_Substrate)
+		if(data_Element_Vec[index].local_Item_Tree->topLevelItem(data_Element_Vec[index].local_Item_Tree->topLevelItemCount()-1)->whatsThis(DEFAULT_COLUMN) != whats_This_Substrate)
 		{
 			QTreeWidgetItem substrate_Item;
 			substrate_Item.setWhatsThis(DEFAULT_COLUMN, whats_This_Substrate);
 
-			Ambient ambient = local_Item_Tree_Vec[independent_Index]->topLevelItem(1)->data(DEFAULT_COLUMN, Qt::UserRole).value<Ambient>();
+			Ambient ambient = data_Element_Vec[index].local_Item_Tree->topLevelItem(1)->data(DEFAULT_COLUMN, Qt::UserRole).value<Ambient>();
 			Substrate substrate;
 
 			// ambient inheritance
@@ -135,21 +166,30 @@ void Calculation_Tree::fill_Calc_Trees()
 			Node substrate_Node(&substrate_Item);
 
 			// add node
-            calc_Tree_Vec[independent_Index].append_child(calc_Tree_Vec[independent_Index].begin(), substrate_Node);
-        }
+			data_Element_Vec[index].calc_Tree.append_child(data_Element_Vec[index].calc_Tree.begin(), substrate_Node);
+		}
 	}
 }
+template void Calculation_Tree::fill_1_Kind_of_Calc_Trees<Independent_Variables>(QVector<Data_Element<Independent_Variables>>&);
+template void Calculation_Tree::fill_1_Kind_of_Calc_Trees<Target_Curve>			(QVector<Data_Element<Target_Curve>>&);
 
-void Calculation_Tree::fill_Tree(const tree<Node>::iterator& parent, QTreeWidgetItem* item, int independent_Index)
+void Calculation_Tree::fill_All_Calc_Trees()
+{
+	fill_1_Kind_of_Calc_Trees(independent);
+	fill_1_Kind_of_Calc_Trees(measured);
+	fill_1_Kind_of_Calc_Trees(target);
+}
+
+void Calculation_Tree::fill_Tree(const tree<Node>::iterator& parent, tree<Node>& calc_Tree, QTreeWidgetItem* item)
 {
 	for(int i=0; i<item->childCount(); ++i)
     {
         Node temp_Node(item->child(i));
-		calc_Tree_Vec[independent_Index].append_child(parent, temp_Node);	// Multilayer items are also here
+		calc_Tree.append_child(parent, temp_Node);	// Multilayer items are also here
 
         if(item->child(i)->childCount()>0)
         {
-            fill_Tree(calc_Tree_Vec[independent_Index].child(parent,i), item->child(i), independent_Index);
+			fill_Tree(calc_Tree.child(parent,i), calc_Tree, item->child(i));
         }
     }
 }
@@ -240,29 +280,40 @@ void Calculation_Tree::statify_Calc_Tree(tree<Node>& calc_Tree)
 	}
 }
 
-void Calculation_Tree::calculate_Intermediate_Values()
+template <typename T>
+void Calculation_Tree::calculate_Intermediate_Values_For_1_Kind(QVector<Data_Element<T>>& data_Element_Vec)
 {
 	// for each plot
-	for(int independent_Index=0; independent_Index<calc_Tree_Vec.size(); ++independent_Index)
+	for(int index=0; index<data_Element_Vec.size(); ++index)
 	{
-		// find whatsThis of active item
-		for(int item_Index=0; item_Index<independent_Widget_Vec[independent_Index]->independent_Variables_List->count(); ++item_Index)
+		// for independent only
+		if(data_Element_Vec[index].whats_This == INDEPENDENT)
 		{
-			QListWidgetItem* list_Item = independent_Widget_Vec[independent_Index]->independent_Variables_List->item(item_Index);
-
-			// if active
-			if(list_Item->data(Qt::UserRole).toBool())
+			Independent_Variables* object = qobject_cast<Independent_Variables*>(data_Element_Vec[index].the_Class);
+			// find whatsThis of active item
+			for(int item_Index=0; item_Index<object->independent_Variables_List->count(); ++item_Index)
 			{
-				QStringList whats_This_List = list_Item->whatsThis().split(whats_This_Delimiter,QString::SkipEmptyParts);
-				whats_This_List.removeFirst();
-				QString good_Whats_This = whats_This_List.join(whats_This_Delimiter);
+				QListWidgetItem* list_Item = object->independent_Variables_List->item(item_Index);
 
-				active_Whats_This_Vec[independent_Index] = good_Whats_This;
+				// if active
+				if(list_Item->data(Qt::UserRole).toBool())
+				{
+					QStringList whats_This_List = list_Item->whatsThis().split(whats_This_Delimiter,QString::SkipEmptyParts);
+					whats_This_List.removeFirst();
+					QString good_Whats_This = whats_This_List.join(whats_This_Delimiter);
+
+					data_Element_Vec[index].active_Whats_This = good_Whats_This;
+				}
 			}
+			qInfo() << "Calculation_Tree::calculate_Intermediate_Values_For_1_Kind : independent\t" << data_Element_Vec[index].active_Whats_This;
+		} else
+		{
+			qInfo() << "Calculation_Tree::calculate_Intermediate_Values_For_1_Kind : not independent";
+			data_Element_Vec[index].active_Whats_This = whats_This_Measurement;
 		}
 
 		// preliminary "measurement" calculation for each tree
-		tree<Node>::iterator measurement_Iter = find_Node(calc_Tree_Vec[independent_Index].begin(), whats_This_Measurement, independent_Index);
+		tree<Node>::iterator measurement_Iter = find_Node(data_Element_Vec[index].calc_Tree.begin(), whats_This_Measurement, data_Element_Vec[index].calc_Tree);
 
 		// ....................................................................
 		// emergency case
@@ -270,17 +321,24 @@ void Calculation_Tree::calculate_Intermediate_Values()
 		// ....................................................................
 
 		// calculation of wavenumbers and cos squares
-		measurement_Iter.node->data.measurement.calc_Independent_cos2_k();
-		measurement_Vec[independent_Index] = (measurement_Iter.node->data.measurement);
+		if(data_Element_Vec[index].whats_This == INDEPENDENT)
+		{
+			measurement_Iter.node->data.measurement.calc_Independent_cos2_k();
+		} else
+		{
+			measurement_Iter.node->data.measurement.calc_Measured_cos2_k();
+		}
+		data_Element_Vec[index].measurement = measurement_Iter.node->data.measurement;
 
 		// find corresponding node for active variable
-		QStringList active_Whats_This_List = active_Whats_This_Vec[independent_Index].split(whats_This_Delimiter,QString::SkipEmptyParts);
-		tree<Node>::iterator active_Iter = find_Node(calc_Tree_Vec[independent_Index].begin(), active_Whats_This_List[0], independent_Index);
+		QStringList active_Whats_This_List = data_Element_Vec[index].active_Whats_This.split(whats_This_Delimiter,QString::SkipEmptyParts);
+		tree<Node>::iterator active_Iter = find_Node(data_Element_Vec[index].calc_Tree.begin(), active_Whats_This_List[0], data_Element_Vec[index].calc_Tree);
 
 		// ....................................................................
 		// emergency case
 		if (active_Iter.node->data.whats_This == stop_Calculation) return;
 		// ....................................................................
+
 
 		// if measurement is not active, create tree for each plot point
 		if(active_Iter.node->data.whats_This != whats_This_Measurement)
@@ -290,39 +348,68 @@ void Calculation_Tree::calculate_Intermediate_Values()
 		} else
 		// 1 tree for 1 plot
 		{
-			QStringList active_Whats_This_List = active_Whats_This_Vec[independent_Index].split(whats_This_Delimiter,QString::SkipEmptyParts);
+			QStringList active_Whats_This_List = data_Element_Vec[index].active_Whats_This.split(whats_This_Delimiter,QString::SkipEmptyParts);
 			qInfo() << active_Whats_This_List[1] << endl;
 
 			auto start = std::chrono::system_clock::now();
-			statify_Calc_Tree(calc_Tree_Vec[independent_Index]);
-			calculate_Intermediate_Values_1_Tree(calc_Tree_Vec[independent_Index].begin(), active_Iter, active_Whats_This_Vec[independent_Index], independent_Index);
+			statify_Calc_Tree(data_Element_Vec[index].calc_Tree);
+			calculate_Intermediate_Values_1_Tree(data_Element_Vec[index].calc_Tree.begin(), active_Iter, data_Element_Vec[index].active_Whats_This, data_Element_Vec[index].calc_Tree);
 			auto end = std::chrono::system_clock::now();
 			auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
 			qInfo() << "Intermediate: "<< elapsed.count()/1000000. << " seconds" << endl;
 
 			start = std::chrono::system_clock::now();
-			calculate_Unwrapped_Structure(active_Iter, active_Whats_This_Vec[independent_Index], independent_Index);
+			calculate_Unwrapped_Structure(active_Iter, data_Element_Vec[index].active_Whats_This, data_Element_Vec[index].calc_Tree, data_Element_Vec[index].unwrapped_Structure);
 			end = std::chrono::system_clock::now();
 			elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
 			qInfo() << "Unwrap: "<< elapsed.count()/1000000. << " seconds" << endl;
 
 			start = std::chrono::system_clock::now();
-			calculate_Unwrapped_Reflectivity(independent_Index);
+			calculate_Unwrapped_Reflectivity(data_Element_Vec[index].active_Whats_This, data_Element_Vec[index].measurement, data_Element_Vec[index].unwrapped_Structure, data_Element_Vec[index].unwrapped_Reflection);
 			end = std::chrono::system_clock::now();
 			elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
 			qInfo() << "Unwrap Reflect: "<< elapsed.count()/1000000. << " seconds" << endl;
 
-			print_Reflect_To_File(measurement_Vec[independent_Index], active_Whats_This_Vec[independent_Index], independent_Index);
+			QString first_Name, arg_Type;
+			if(data_Element_Vec[index].whats_This == INDEPENDENT)
+			{
+				QStringList active_Whats_This_List = data_Element_Vec[index].active_Whats_This.split(whats_This_Delimiter,QString::SkipEmptyParts);
+				if(active_Whats_This_List[1] == whats_This_Angle )			arg_Type = measurement_Types[0];
+				if(active_Whats_This_List[1] == whats_This_Wavelength )		arg_Type = measurement_Types[1];
+				first_Name = "calc_independent";
+			} else
+			if(data_Element_Vec[index].whats_This == MEASURED)
+			{
+				arg_Type = qobject_cast<Target_Curve*>(data_Element_Vec[index].the_Class)->curve.measurement_Type;
+				first_Name = "calc_measured";
+			} else
+			if(data_Element_Vec[index].whats_This == OPTIMIZE)
+			{
+				arg_Type = qobject_cast<Target_Curve*>(data_Element_Vec[index].the_Class)->curve.measurement_Type;
+				first_Name = "calc_target";
+			}
+
+			print_Reflect_To_File(data_Element_Vec[index].active_Whats_This, measurement_Iter.node->data.measurement, data_Element_Vec[index].unwrapped_Reflection, first_Name, index);
 		}
 	}
 }
+template void Calculation_Tree::calculate_Intermediate_Values_For_1_Kind<Independent_Variables>(QVector<Data_Element<Independent_Variables>>&);
+template void Calculation_Tree::calculate_Intermediate_Values_For_1_Kind<Target_Curve>		   (QVector<Data_Element<Target_Curve>>&);
 
-void Calculation_Tree::calculate_Intermediate_Values_1_Tree(const tree<Node>::iterator& parent, const tree<Node>::iterator& active_Iter, QString active_Whats_This, int independent_Index, Node* above_Node)
+
+void Calculation_Tree::calculate_Intermediate_Values()
+{
+	calculate_Intermediate_Values_For_1_Kind(independent);
+	calculate_Intermediate_Values_For_1_Kind(measured);
+	calculate_Intermediate_Values_For_1_Kind(target);
+}
+
+void Calculation_Tree::calculate_Intermediate_Values_1_Tree(const tree<Node>::iterator& parent, const tree<Node>::iterator& active_Iter, QString active_Whats_This, tree<Node>& calc_Tree, Node* above_Node)
 {
 	// iterate over tree
 	for(unsigned i=0; i<parent.number_of_children(); ++i)
 	{
-		tree<Node>::post_order_iterator child = calc_Tree_Vec[independent_Index].child(parent,i);
+		tree<Node>::post_order_iterator child = calc_Tree.child(parent,i);
 		QStringList whats_This_List = child.node->data.whats_This.split(item_Type_Delimiter,QString::SkipEmptyParts);
 
 		QString warning_Text;
@@ -338,25 +425,25 @@ void Calculation_Tree::calculate_Intermediate_Values_1_Tree(const tree<Node>::it
 			above_Node = &child.node->data;
 		} else
 		{
-			calculate_Intermediate_Values_1_Tree(child, active_Iter, active_Whats_This, independent_Index, above_Node);
+			calculate_Intermediate_Values_1_Tree(child, active_Iter, active_Whats_This, calc_Tree, above_Node);
 		}
 	}
 }
 
-tree<Node>::iterator Calculation_Tree::find_Node(const tree<Node>::iterator& parent, QString active_Whats_This, int independent_Index)
+tree<Node>::iterator Calculation_Tree::find_Node(const tree<Node>::iterator& parent, QString active_Whats_This, tree<Node>& calc_Tree)
 {
 	for(unsigned i=0; i<parent.number_of_children(); ++i)
 	{
-		tree<Node>::post_order_iterator child = calc_Tree_Vec[independent_Index].child(parent,i);
+		tree<Node>::post_order_iterator child = calc_Tree.child(parent,i);
 		QStringList whats_This_List = child.node->data.whats_This_List;
 
 		if(child.node->data.whats_This == active_Whats_This)
 		{
-			return calc_Tree_Vec[independent_Index].child(parent,i);
+			return calc_Tree.child(parent,i);
 		} else
 		if(whats_This_List[0] == whats_This_Multilayer)
 		{
-			return find_Node(child, active_Whats_This, independent_Index);
+			return find_Node(child, active_Whats_This, calc_Tree);
 		}
 	}
 	// error handling
@@ -367,50 +454,50 @@ tree<Node>::iterator Calculation_Tree::find_Node(const tree<Node>::iterator& par
 	return parent;
 }
 
-void Calculation_Tree::calculate_Unwrapped_Structure(const tree<Node>::iterator& active_Iter, QString active_Whats_This, int independent_Index)
+void Calculation_Tree::calculate_Unwrapped_Structure(const tree<Node>::iterator& active_Iter, QString active_Whats_This, tree<Node>& calc_Tree, Unwrapped_Structure* unwrapped_Structure_Vec_Element)
 {
-	num_Media = get_Total_Num_Layers(calc_Tree_Vec[independent_Index].begin(), independent_Index);
-	Unwrapped_Structure*   new_Unwrapped_Structure  = new Unwrapped_Structure (&calc_Tree_Vec[independent_Index], active_Iter, active_Whats_This, num_Media, max_Depth, depth_Grading, sigma_Grading, r);
-	unwrapped_Structure_Vec [independent_Index] = new_Unwrapped_Structure;
+	num_Media = get_Total_Num_Layers(calc_Tree.begin(), calc_Tree);
+	Unwrapped_Structure*   new_Unwrapped_Structure  = new Unwrapped_Structure (&calc_Tree, active_Iter, active_Whats_This, num_Media, max_Depth, depth_Grading, sigma_Grading, r);
+	unwrapped_Structure_Vec_Element = new_Unwrapped_Structure;
 }
 
-void Calculation_Tree::calculate_Unwrapped_Reflectivity(int independent_Index)
+void Calculation_Tree::calculate_Unwrapped_Reflectivity(QString active_Whats_This, Measurement& measurement, Unwrapped_Structure* unwrapped_Structure_Vec_Element, Unwrapped_Reflection* unwrapped_Reflection_Vec_Element)
 {
-	Unwrapped_Reflection*  new_Unwrapped_Reflection = new Unwrapped_Reflection(unwrapped_Structure_Vec[independent_Index], num_Media, active_Whats_This_Vec[independent_Index], measurement_Vec[independent_Index], depth_Grading, sigma_Grading);
-	unwrapped_Reflection_Vec[independent_Index] = new_Unwrapped_Reflection;
+	Unwrapped_Reflection*  new_Unwrapped_Reflection = new Unwrapped_Reflection(unwrapped_Structure_Vec_Element, num_Media, active_Whats_This, measurement, depth_Grading, sigma_Grading);
+	unwrapped_Reflection_Vec_Element = new_Unwrapped_Reflection;
 
 	auto start = std::chrono::system_clock::now();
-	unwrapped_Reflection_Vec[independent_Index]->calc_Specular();
+	unwrapped_Reflection_Vec_Element->calc_Specular();
 	auto end = std::chrono::system_clock::now();
 	auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
 
 	qInfo() << "Bare Reflectivity:      "<< elapsed.count()/1000. << " seconds" << endl;
 
-	cout << "r_s     [" << 0 << "] = " << unwrapped_Reflection_Vec[independent_Index]->r_s[0] << endl;
-	cout << "r_p     [" << 0 << "] = " << unwrapped_Reflection_Vec[independent_Index]->r_p[0] << endl;
+	cout << "r_s     [" << 0 << "] = " << unwrapped_Reflection_Vec_Element->r_s[0] << endl;
+	cout << "r_p     [" << 0 << "] = " << unwrapped_Reflection_Vec_Element->r_p[0] << endl;
 
-	cout << "R_s     [" << 0 << "] = " << unwrapped_Reflection_Vec[independent_Index]->R_s[0] << endl;
-	cout << "R_p     [" << 0 << "] = " << unwrapped_Reflection_Vec[independent_Index]->R_p[0] << endl;
+	cout << "R_s     [" << 0 << "] = " << unwrapped_Reflection_Vec_Element->R_s[0] << endl;
+	cout << "R_p     [" << 0 << "] = " << unwrapped_Reflection_Vec_Element->R_p[0] << endl;
 	cout << "--------------------------------\n";
 }
 
-void Calculation_Tree::print_Reflect_To_File(const Measurement& measurement, QString active_Whats_This, int independent_Index)
+void Calculation_Tree::print_Reflect_To_File(QString arg_Type, Measurement& measurement, Unwrapped_Reflection* unwrapped_Reflection_Vec_Element, QString first_Name, int index)
 {
 	int num_Points = 0;
 	QVector<double> arg;
-	QStringList active_Whats_This_List = active_Whats_This.split(whats_This_Delimiter,QString::SkipEmptyParts);
-	if(active_Whats_This_List[1] == whats_This_Angle )
+
+	if(arg_Type == measurement_Types[0])
 	{
 		num_Points = measurement.angle.size();
 		arg = measurement.angle;
 	}
-	if(active_Whats_This_List[1] == whats_This_Wavelength )
+	if(arg_Type == measurement_Types[1])
 	{
 		num_Points = measurement.lambda.size();
 		arg = measurement.lambda;
 	}
 
-	QString name = "refl_"+QString::number(independent_Index)+".txt";
+	QString name = first_Name+"_"+QString::number(index)+".txt";
 	QFile file(name);
 	if (file.open(QIODevice::WriteOnly))
 	{
@@ -418,7 +505,7 @@ void Calculation_Tree::print_Reflect_To_File(const Measurement& measurement, QSt
 		for(auto i=0; i<num_Points; ++i)
 		{
 			out << "\t" << QString::number(arg[i],'f',4)
-				<< "\t" << QString::number(unwrapped_Reflection_Vec[independent_Index]->R[i],'e',6)
+				<< "\t" << QString::number(unwrapped_Reflection_Vec_Element->R[i],'e',6)
 				<< endl;
 		}
 	file.close();
@@ -426,12 +513,12 @@ void Calculation_Tree::print_Reflect_To_File(const Measurement& measurement, QSt
 
 }
 
-int Calculation_Tree::get_Total_Num_Layers(const tree<Node>::iterator& parent, int independent_Index)
+int Calculation_Tree::get_Total_Num_Layers(const tree<Node>::iterator& parent, tree<Node>& calc_Tree)
 {
 	int num_Media_Local = 0;
 	for(unsigned i=0; i<parent.number_of_children(); ++i)
 	{
-		tree<Node>::post_order_iterator child = calc_Tree_Vec[independent_Index].child(parent,i);
+		tree<Node>::post_order_iterator child = calc_Tree.child(parent,i);
 		QStringList whats_This_List = child.node->data.whats_This_List;
 
 		if(whats_This_List[0] == whats_This_Ambient ||
@@ -443,22 +530,22 @@ int Calculation_Tree::get_Total_Num_Layers(const tree<Node>::iterator& parent, i
 
 		if(whats_This_List[0] == whats_This_Multilayer)
 		{
-			num_Media_Local += child.node->data.stack_Content.num_Repetition.value * get_Total_Num_Layers(child, independent_Index);
+			num_Media_Local += child.node->data.stack_Content.num_Repetition.value * get_Total_Num_Layers(child, calc_Tree);
 		}
 	}
 	return num_Media_Local;
 }
 
-void Calculation_Tree::print_Tree(const tree<Node>::iterator& parent, int independent_Index)
+void Calculation_Tree::print_Tree(const tree<Node>::iterator& parent, tree<Node>& calc_Tree)
 {
 	for(unsigned i=0; i<parent.number_of_children(); ++i)
 	{
-		tree<Node>::post_order_iterator child = calc_Tree_Vec[independent_Index].child(parent,i);
+		tree<Node>::post_order_iterator child = calc_Tree.child(parent,i);
 		QStringList whats_This_List = child.node->data.whats_This_List;
 
 		{
-			std::cout << "node :  depth : " << calc_Tree_Vec[independent_Index].depth(child) << "   ";
-			for(int y=0; y<calc_Tree_Vec[independent_Index].depth(child)-1; y++)
+			std::cout << "node :  depth : " << calc_Tree.depth(child) << "   ";
+			for(int y=0; y<calc_Tree.depth(child)-1; y++)
 			{	std::cout << "\t";}
 			std::cout << child.node->data.whats_This.toStdString();
 			if(whats_This_List[0] == whats_This_Multilayer)
@@ -468,7 +555,7 @@ void Calculation_Tree::print_Tree(const tree<Node>::iterator& parent, int indepe
 
 		if(whats_This_List[0] == whats_This_Multilayer)
 		{
-			print_Tree(child, independent_Index);
+			print_Tree(child, calc_Tree);
 		}
 	}
 }

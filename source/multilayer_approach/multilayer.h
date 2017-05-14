@@ -79,6 +79,7 @@ public:
 						QVBoxLayout* nonspecular_Functions_Layout;
 					QTabWidget* independent_Variables_Plot_Tabs;
 						QToolButton* independent_Variables_Corner_Button;
+						QVector<Independent_Variables*> independent_Variables_Vector;
 
 					QPushButton* structure_Table_Button;
 
@@ -99,13 +100,13 @@ int target_Counter = 0;
 
 				QGroupBox* data_Measured_Data_Group_Box;
 					QVBoxLayout* layout_Measured_Data_With_Frame_Vector;
-						QList<QFrame*> data_Measured_Data_Frame_Vector;
-						QList<Target_Curve*> measured_Data_Vector;
+						QVector<QFrame*> data_Measured_Data_Frame_Vector;
+						QVector<Target_Curve*> measured_Data_Vector;
 
 				QGroupBox* data_Target_Profile_Group_Box;
 					QVBoxLayout* layout_Target_Profile_With_Frame_Vector;
-						QList<QFrame*> data_Target_Profile_Frame_Vector;
-						QList<Target_Curve*> target_Profiles_Vector;
+						QVector<QFrame*> data_Target_Profile_Frame_Vector;
+						QVector<Target_Curve*> target_Profiles_Vector;
 };
 
 #endif // MULTILAYER_H

@@ -1,7 +1,12 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
+
 #include "target_curve.h"
 
-Target_Curve::Target_Curve(QLabel* description_Label, QWidget *parent) :
+Target_Curve::Target_Curve(QLabel* description_Label, QTreeWidget* real_Struct_Tree, QWidget *parent) :
 	description_Label(description_Label),
+	real_Struct_Tree(real_Struct_Tree),
 	QWidget(parent)
 {
 
@@ -16,7 +21,9 @@ Target_Curve::~Target_Curve()
 void Target_Curve::open_Window()
 {
 	import_Data();
-	description_Label->setText("imported");
+	create_Measurement();
+	create_Struct_Tree_Copy();
+	description_Label->setText(curve.measurement_Type + "; " + curve.value_Type + "; " + QString::number(curve.argument.first()) + "-" + QString::number(curve.argument.last()) + arg_Units);
 }
 
 void Target_Curve::import_Data()
@@ -61,34 +68,13 @@ void Target_Curve::import_Data()
 		{
 			/// argument
 
-			// common part
-			{
-				if(numbers.size()<=number_Index) throw "arg | " + main_Exception_Text;
-				double temp_Number = QString(numbers[number_Index]).toDouble();
-				curve.argument.push_back(temp_Number);
-				++number_Index;
-			}
-
-			// type of argument
-			if(curve.measurement_Type == measurement_Types[0])	// angular
-			{
-				if(curve.angle_Type == Angle_Type::Grazing())
-				{
-
-				}
-				if(curve.angle_Type == Angle_Type::Incidence())
-				{
-
-				}
-			} else
-			if(curve.measurement_Type == measurement_Types[1])	// spectral
-			{
-
-			}
+			if(numbers.size()<=number_Index) throw "arg | " + main_Exception_Text;
+			double temp_Number = QString(numbers[number_Index]).toDouble();
+			curve.argument.push_back(temp_Number);
+			++number_Index;
 
 			/// value
 
-			// type of value
 			if(curve.value_Type == value_Types[0])	// R
 			{
 				if(numbers.size()<=number_Index) throw "val_1 | " + main_Exception_Text;
@@ -100,36 +86,81 @@ void Target_Curve::import_Data()
 				curve.values.push_back(val);
 			} else
 			{
-				// common part
-				{
-					if(numbers.size()<=number_Index) throw "val_1 | " + main_Exception_Text;
-					double temp_Number_1 = QString(numbers[number_Index]).toDouble();
-					++number_Index;
-					if(numbers.size()<=number_Index) throw "val_2 | " + main_Exception_Text;
-					double temp_Number_2 = QString(numbers[number_Index]).toDouble();
-					++number_Index;
+				if(numbers.size()<=number_Index) throw "val_1 | " + main_Exception_Text;
+				double temp_Number_1 = QString(numbers[number_Index]).toDouble();
+				++number_Index;
+				if(numbers.size()<=number_Index) throw "val_2 | " + main_Exception_Text;
+				double temp_Number_2 = QString(numbers[number_Index]).toDouble();
+				++number_Index;
 
-					Value val;
-					val.val_1 = temp_Number_1;
-					val.val_2 = temp_Number_2;
-					curve.values.push_back(val);
-				}
-
-				if(curve.value_Type == value_Types[1])	// R + Phi
-				{
-
-				} else
-				if(curve.value_Type == value_Types[2])	// r
-				{
-
-				}
+				Value val;
+				val.val_1 = temp_Number_1;
+				val.val_2 = temp_Number_2;
+				curve.values.push_back(val);
 			}
 		}
-		catch(QString exception )
+		catch(QString exception)
 		{
 			qInfo() << exception;
 		}
 	}
 }
 
+void Target_Curve::create_Measurement()
+{
+	// TODO reduce units to default
+	measurement.angle_Type = curve.angle_Type;
 
+	// TODO temporary
+	double lambda_Value = 113;
+	double angle_Value = 85;
+
+	// type of argument
+	if(curve.measurement_Type == measurement_Types[0])	// angular
+	{
+		arg_Units = Degree_Sym;
+		measurement.angle = curve.argument;
+		measurement.lambda_Value = lambda_Value;
+	} else
+	if(curve.measurement_Type == measurement_Types[1])	// spectral
+	{
+		arg_Units = " "+Angstrom_Sym;
+		measurement.lambda = curve.argument;
+		measurement.angle_Value = angle_Value;
+	}
+
+	// type of value
+	if(curve.value_Type == value_Types[0])	// R
+	{
+		qInfo() << "R";
+	} else
+	if(curve.value_Type == value_Types[1])	// R + Phi
+	{
+		qInfo() << "R+Phi";
+	} else
+	if(curve.value_Type == value_Types[2])	// r
+	{
+		qInfo() << "r";
+	}
+}
+
+void Target_Curve::create_Struct_Tree_Copy()
+{
+	struct_Tree_Copy = new QTreeWidget(this);
+	struct_Tree_Copy->hide();					// can be used for degugging
+	for(int i=0; i<real_Struct_Tree->topLevelItemCount(); i++)
+	{
+		struct_Tree_Copy->addTopLevelItem(real_Struct_Tree->topLevelItem(i)->clone());	// the data are also copied here (check?)
+	}
+
+	// add "measurement" item to the top
+	QTreeWidgetItem* new_Measurement_Item = new QTreeWidgetItem;
+	// set unique id to measurenent // NOT USED
+	int id = rand()*RAND_SHIFT+rand();
+	new_Measurement_Item->setStatusTip(DEFAULT_COLUMN, QString::number(id));
+
+	QVariant var; var.setValue(measurement);
+	new_Measurement_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+	new_Measurement_Item->setWhatsThis(DEFAULT_COLUMN, whats_This_Measurement);
+	struct_Tree_Copy->insertTopLevelItem(0, new_Measurement_Item);
+}
