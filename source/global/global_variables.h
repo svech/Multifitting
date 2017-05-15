@@ -26,7 +26,6 @@ extern QStringList transition_Layer_Functions; extern int transition_Layer_Funct
 extern QStringList tril;
 
 // measured curves
-extern QStringList measurement_Types;
 extern QStringList value_Types;
 
 // -----------------------------------------------------------------------------------------

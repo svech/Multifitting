@@ -25,6 +25,8 @@ private:
 	void import_Data();
 	void create_Measurement();
 	void create_Struct_Tree_Copy();
+public:
+	void renew_Struct_Tree_Copy();
 
 private:
 	int valid_Lines_Counter = 0;

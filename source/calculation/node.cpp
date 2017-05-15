@@ -41,7 +41,6 @@ int Node::calculate_Intermediate_Points(const tree<Node>::iterator& active_Iter,
 		   whats_This_List[0] == whats_This_Layer   ||
 		   whats_This_List[0] == whats_This_Substrate )
 		{
-
 			if(whats_This_List[0] == whats_This_Ambient)
 			{
 				common_Data = ambient;

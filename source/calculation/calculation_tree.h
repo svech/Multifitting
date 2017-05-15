@@ -64,12 +64,14 @@ private:
 	void calculate_Intermediate_Values_1_Tree(const tree<Node>::iterator& parent, const tree<Node>::iterator& active_Iter, QString active_Whats_This, tree<Node>& calc_Tree, Node* above_Node = NULL);
 	tree<Node>::iterator find_Node(const tree<Node>::iterator& parent, QString active_Whats_This, tree<Node>& calc_Tree);
 
-	void calculate_Unwrapped_Structure(const tree<Node>::iterator& active_Iter, QString active_Whats_This, tree<Node>& calc_Tree, Unwrapped_Structure* unwrapped_Structure_Vec_Element);
-	void calculate_Unwrapped_Reflectivity(QString active_Whats_This, Measurement& measurement, Unwrapped_Structure* unwrapped_Structure_Vec_Element, Unwrapped_Reflection*  unwrapped_Reflection_Vec_Element);
+	void calculate_Unwrapped_Structure(const tree<Node>::iterator& active_Iter, QString active_Whats_This, tree<Node>& calc_Tree, Unwrapped_Structure*& unwrapped_Structure_Vec_Element);
+	void calculate_Unwrapped_Reflectivity(QString active_Whats_This, Measurement& measurement, Unwrapped_Structure* unwrapped_Structure_Vec_Element, Unwrapped_Reflection*& unwrapped_Reflection_Vec_Element);
 
 	int get_Total_Num_Layers(const tree<Node>::iterator& parent, tree<Node>& calc_Tree);
 
-	void print_Reflect_To_File(QString active_Whats_This, Measurement& measurement, Unwrapped_Reflection* unwrapped_Reflection_Vec_Element, QString first_Name, int index);
+	template <typename T>
+	void print_Reflect_To_File(Data_Element<T>& data_Element, int index);
+
 	void print_Tree(const tree<Node>::iterator& parent, tree<Node>& calc_Tree);
 	void print_Flat_list(QList<Node> flat_List);
 	void print_Item_Tree(QTreeWidgetItem* item);

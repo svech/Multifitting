@@ -29,7 +29,7 @@ void Target_Curve::open_Window()
 void Target_Curve::import_Data()
 {
 	// TEMPORARY
-	curve.measurement_Type = measurement_Types[0];
+	curve.measurement_Type = whats_This_Angle;
 	curve.value_Type = value_Types[0];
 	curve.angle_Type = Angle_Type::Grazing();
 
@@ -44,7 +44,6 @@ void Target_Curve::import_Data()
 	{
 		QTextStream input_Stream(&input_File);
 		lines_List.clear();
-
 		while ( !input_Stream.atEnd() )
 		{
 			temp_Line=input_Stream.readLine();
@@ -55,8 +54,9 @@ void Target_Curve::import_Data()
 
 
 	/// parsing data
+	curve.argument.clear();
+	curve.values.clear();
 	QString main_Exception_Text = "Target_Curve::import_Data  :  short data in " + filename;
-
 	for(int line_Index=0; line_Index<lines_List.size(); ++line_Index)
 	{
 		temp_Line = lines_List[line_Index];
@@ -112,17 +112,18 @@ void Target_Curve::create_Measurement()
 	measurement.angle_Type = curve.angle_Type;
 
 	// TODO temporary
-	double lambda_Value = 113;
-	double angle_Value = 85;
+	double lambda_Value = 1.54056;
+	double angle_Value = 1;
+	measurement.polarization.value = 0;
 
 	// type of argument
-	if(curve.measurement_Type == measurement_Types[0])	// angular
+	if(curve.measurement_Type == whats_This_Angle)	// angular
 	{
 		arg_Units = Degree_Sym;
 		measurement.angle = curve.argument;
 		measurement.lambda_Value = lambda_Value;
 	} else
-	if(curve.measurement_Type == measurement_Types[1])	// spectral
+	if(curve.measurement_Type == whats_This_Wavelength)	// spectral
 	{
 		arg_Units = " "+Angstrom_Sym;
 		measurement.lambda = curve.argument;
@@ -147,6 +148,12 @@ void Target_Curve::create_Measurement()
 void Target_Curve::create_Struct_Tree_Copy()
 {
 	struct_Tree_Copy = new QTreeWidget(this);
+	renew_Struct_Tree_Copy();
+}
+
+void Target_Curve::renew_Struct_Tree_Copy()
+{
+	struct_Tree_Copy->clear();
 	struct_Tree_Copy->hide();					// can be used for degugging
 	for(int i=0; i<real_Struct_Tree->topLevelItemCount(); i++)
 	{

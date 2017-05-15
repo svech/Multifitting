@@ -83,20 +83,11 @@ public:
 
 					QPushButton* structure_Table_Button;
 
-//					QListWidget* coupled_Parameters_List;
-//					QToolBar* coupled_Parameters_Toolbar;
-
-//					QListWidget* fitting_Parameters_List;
-//					QToolBar* fitting_Parameters_Toolbar;
-
-//					QListWidget* optimization_Parameters_List;
-//					QToolBar* optimization_Parameters_Toolbar;
-
 		QFrame* data_Frame;
 			QVBoxLayout* data_Frame_Layout;
 
-int measured_Counter = 0;
-int target_Counter = 0;
+//int measured_Counter = 0;
+//int target_Counter = 0;
 
 				QGroupBox* data_Measured_Data_Group_Box;
 					QVBoxLayout* layout_Measured_Data_With_Frame_Vector;

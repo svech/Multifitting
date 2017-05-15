@@ -297,6 +297,12 @@ void Multilayer::add_Target_Curve(int index_Pressed, QString target_Curve_Type)
 
 	QFrame* new_Frame = new QFrame;
 	Target_Curve* new_Target_Curve = new Target_Curve(new_Description_Label, structure_Tree->tree);
+
+	// -----
+	// TEMPORARY
+	new_Target_Curve->open_Window();
+	// ------
+
 	if(target_Curve_Type == MEASURED)
 	{
 		data_Measured_Data_Frame_Vector.insert(index_Pressed, new_Frame);
@@ -315,8 +321,8 @@ void Multilayer::add_Target_Curve(int index_Pressed, QString target_Curve_Type)
 	left_Layout->setSpacing(10);
 	right_Layout->setSpacing(0);
 
-	if(target_Curve_Type == MEASURED) {new_Description_Label->setText(new_Description_Label->text() + " " + QString::number(measured_Counter)); measured_Counter++;} else
-	if(target_Curve_Type == OPTIMIZE) {new_Description_Label->setText(new_Description_Label->text() + " " + QString::number(target_Counter));   target_Counter++; }
+//	if(target_Curve_Type == MEASURED) {new_Description_Label->setText(new_Description_Label->text() + " " + QString::number(measured_Counter)); measured_Counter++;} else
+//	if(target_Curve_Type == OPTIMIZE) {new_Description_Label->setText(new_Description_Label->text() + " " + QString::number(target_Counter));   target_Counter++; }
 
 	new_Import_Button->		setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 	new_Description_Label->	setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);

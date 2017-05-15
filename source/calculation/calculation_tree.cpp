@@ -6,8 +6,8 @@
 #include <iostream>
 
 Calculation_Tree::Calculation_Tree(QVector<Independent_Variables*>& independent_Variables_Vector, QVector<Target_Curve*>& measured_Data_Vector, QVector<Target_Curve*>& target_Profiles_Vector): //-V730
-//	measured(measured_Data_Vector.size()),
-//	target(target_Profiles_Vector.size()),
+	measured(measured_Data_Vector.size()),
+	target(target_Profiles_Vector.size()),
 	independent(independent_Variables_Vector.size())
 {
 	// initialization of vectors
@@ -19,11 +19,13 @@ Calculation_Tree::Calculation_Tree(QVector<Independent_Variables*>& independent_
 	for(int i=0; i<measured.size(); ++i)
 	{
 		measured[i].the_Class = measured_Data_Vector[i];
+		measured[i].the_Class->renew_Struct_Tree_Copy();
 		measured[i].whats_This = MEASURED;
 	}
 	for(int i=0; i<target.size(); ++i)
 	{
 		target[i].the_Class = target_Profiles_Vector[i];
+		target[i].the_Class->renew_Struct_Tree_Copy();
 		target[i].whats_This = OPTIMIZE;
 	}
 }
@@ -39,7 +41,7 @@ Calculation_Tree::~Calculation_Tree()
 
 void Calculation_Tree::run_All()
 {
-	qInfo() << "Calculation_Tree::run_All : independent.size() = " << independent.size();
+	qInfo() << "\nCalculation_Tree::run_All : independent.size() = " << independent.size();
 	qInfo() << "Calculation_Tree::run_All : measured.size() = " << measured.size();
 	qInfo() << "Calculation_Tree::run_All : target.size() = " << target.size();
 	if(independent.size()+measured.size()+target.size()>0)
@@ -81,7 +83,6 @@ void Calculation_Tree::create_1_Kind_of_Local_Item_Tree(QVector<Data_Element<T>>
 			local_Item_Tree->addTopLevelItem(data_Element_Vec[index].the_Class->struct_Tree_Copy->topLevelItem(i)->clone()); // this is local
 		}
 		data_Element_Vec[index].local_Item_Tree = local_Item_Tree;
-		qInfo() << data_Element_Vec[index].whats_This;
 	}
 }
 template void Calculation_Tree::create_1_Kind_of_Local_Item_Tree<Independent_Variables>(QVector<Data_Element<Independent_Variables>>&);
@@ -307,11 +308,9 @@ void Calculation_Tree::calculate_Intermediate_Values_For_1_Kind(QVector<Data_Ele
 					data_Element_Vec[index].active_Whats_This = good_Whats_This;
 				}
 			}
-			qInfo() << "Calculation_Tree::calculate_Intermediate_Values_For_1_Kind : independent\t" << data_Element_Vec[index].active_Whats_This;
 		} else
 		{
 			data_Element_Vec[index].active_Whats_This = QString(whats_This_Measurement)+whats_This_Delimiter+qobject_cast<Target_Curve*>(data_Element_Vec[index].the_Class)->curve.measurement_Type;
-			qInfo() << "Calculation_Tree::calculate_Intermediate_Values_For_1_Kind : not independent\t" << data_Element_Vec[index].active_Whats_This;
 		}
 
 		// preliminary "measurement" calculation for each tree
@@ -367,31 +366,12 @@ void Calculation_Tree::calculate_Intermediate_Values_For_1_Kind(QVector<Data_Ele
 			qInfo() << "Unwrap: "<< elapsed.count()/1000000. << " seconds" << endl;
 
 			start = std::chrono::system_clock::now();
-//			calculate_Unwrapped_Reflectivity(data_Element_Vec[index].active_Whats_This, data_Element_Vec[index].measurement, data_Element_Vec[index].unwrapped_Structure, data_Element_Vec[index].unwrapped_Reflection);
+			calculate_Unwrapped_Reflectivity(data_Element_Vec[index].active_Whats_This, data_Element_Vec[index].measurement, data_Element_Vec[index].unwrapped_Structure, data_Element_Vec[index].unwrapped_Reflection);
 			end = std::chrono::system_clock::now();
 			elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
 			qInfo() << "Unwrap Reflect: "<< elapsed.count()/1000000. << " seconds" << endl;
 
-//			QString first_Name, arg_Type;
-//			if(data_Element_Vec[index].whats_This == INDEPENDENT)
-//			{
-//				QStringList active_Whats_This_List = data_Element_Vec[index].active_Whats_This.split(whats_This_Delimiter,QString::SkipEmptyParts);
-//				if(active_Whats_This_List[1] == whats_This_Angle )			arg_Type = measurement_Types[0];
-//				if(active_Whats_This_List[1] == whats_This_Wavelength )		arg_Type = measurement_Types[1];
-//				first_Name = "calc_independent";
-//			} else
-//			if(data_Element_Vec[index].whats_This == MEASURED)
-//			{
-//				arg_Type = qobject_cast<Target_Curve*>(data_Element_Vec[index].the_Class)->curve.measurement_Type;
-//				first_Name = "calc_measured";
-//			} else
-//			if(data_Element_Vec[index].whats_This == OPTIMIZE)
-//			{
-//				arg_Type = qobject_cast<Target_Curve*>(data_Element_Vec[index].the_Class)->curve.measurement_Type;
-//				first_Name = "calc_target";
-//			}
-
-//			print_Reflect_To_File(data_Element_Vec[index].active_Whats_This, measurement_Iter.node->data.measurement, data_Element_Vec[index].unwrapped_Reflection, first_Name, index);
+			print_Reflect_To_File(data_Element_Vec[index], index);
 		}
 	}
 }
@@ -456,14 +436,14 @@ tree<Node>::iterator Calculation_Tree::find_Node(const tree<Node>::iterator& par
 	return parent;
 }
 
-void Calculation_Tree::calculate_Unwrapped_Structure(const tree<Node>::iterator& active_Iter, QString active_Whats_This, tree<Node>& calc_Tree, Unwrapped_Structure* unwrapped_Structure_Vec_Element)
+void Calculation_Tree::calculate_Unwrapped_Structure(const tree<Node>::iterator& active_Iter, QString active_Whats_This, tree<Node>& calc_Tree, Unwrapped_Structure*& unwrapped_Structure_Vec_Element)
 {
 	num_Media = get_Total_Num_Layers(calc_Tree.begin(), calc_Tree);
 	Unwrapped_Structure*   new_Unwrapped_Structure  = new Unwrapped_Structure (&calc_Tree, active_Iter, active_Whats_This, num_Media, max_Depth, depth_Grading, sigma_Grading, r);
 	unwrapped_Structure_Vec_Element = new_Unwrapped_Structure;
 }
 
-void Calculation_Tree::calculate_Unwrapped_Reflectivity(QString active_Whats_This, Measurement& measurement, Unwrapped_Structure* unwrapped_Structure_Vec_Element, Unwrapped_Reflection* unwrapped_Reflection_Vec_Element)
+void Calculation_Tree::calculate_Unwrapped_Reflectivity(QString active_Whats_This, Measurement& measurement, Unwrapped_Structure* unwrapped_Structure_Vec_Element, Unwrapped_Reflection*& unwrapped_Reflection_Vec_Element)
 {
 	Unwrapped_Reflection*  new_Unwrapped_Reflection = new Unwrapped_Reflection(unwrapped_Structure_Vec_Element, num_Media, active_Whats_This, measurement, depth_Grading, sigma_Grading);
 	unwrapped_Reflection_Vec_Element = new_Unwrapped_Reflection;
@@ -483,20 +463,26 @@ void Calculation_Tree::calculate_Unwrapped_Reflectivity(QString active_Whats_Thi
 	cout << "--------------------------------\n";
 }
 
-void Calculation_Tree::print_Reflect_To_File(QString arg_Type, Measurement& measurement, Unwrapped_Reflection* unwrapped_Reflection_Vec_Element, QString first_Name, int index)
+template <typename T>
+void Calculation_Tree::print_Reflect_To_File(Data_Element<T>& data_Element, int index)
 {
+	QString first_Name;
+	if(data_Element.whats_This == INDEPENDENT)	first_Name = "calc_independent";
+	if(data_Element.whats_This == MEASURED)		first_Name = "calc_measured";
+	if(data_Element.whats_This == OPTIMIZE)		first_Name = "calc_target";
+
 	int num_Points = 0;
 	QVector<double> arg;
-
-	if(arg_Type == measurement_Types[0])
+	QStringList active_Whats_This_List = data_Element.active_Whats_This.split(whats_This_Delimiter,QString::SkipEmptyParts);
+	if(active_Whats_This_List[1] == whats_This_Angle )
 	{
-		num_Points = measurement.angle.size();
-		arg = measurement.angle;
+		num_Points = data_Element.measurement.angle.size();
+		arg = data_Element.measurement.angle;
 	}
-	if(arg_Type == measurement_Types[1])
+	if(active_Whats_This_List[1] == whats_This_Wavelength )
 	{
-		num_Points = measurement.lambda.size();
-		arg = measurement.lambda;
+		num_Points = data_Element.measurement.lambda.size();
+		arg = data_Element.measurement.lambda;
 	}
 
 	QString name = first_Name+"_"+QString::number(index)+".txt";
@@ -507,13 +493,14 @@ void Calculation_Tree::print_Reflect_To_File(QString arg_Type, Measurement& meas
 		for(auto i=0; i<num_Points; ++i)
 		{
 			out << "\t" << QString::number(arg[i],'f',4)
-				<< "\t" << QString::number(unwrapped_Reflection_Vec_Element->R[i],'e',6)
+				<< "\t" << QString::number(data_Element.unwrapped_Reflection->R[i],'e',6)
 				<< endl;
 		}
 	file.close();
 	} else{QTextStream(stderr) << "Calculation_Tree::print_Reflect_To_File  :  Can't write file " + name << endl;	exit(EXIT_FAILURE);}
-
 }
+template void Calculation_Tree::print_Reflect_To_File<Independent_Variables>(Data_Element<Independent_Variables>&, int);
+template void Calculation_Tree::print_Reflect_To_File<Target_Curve>		    (Data_Element<Target_Curve>&, int);
 
 int Calculation_Tree::get_Total_Num_Layers(const tree<Node>::iterator& parent, tree<Node>& calc_Tree)
 {

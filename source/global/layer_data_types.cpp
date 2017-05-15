@@ -46,6 +46,8 @@ void Measurement::calc_Measured_cos2_k()
 {
 	// cos2
 	cos2_Value = pow(cos(angle_Value*M_PI/180.),2);
+
+	cos2.resize(angle.size());
 	for(int i=0; i<angle.size(); ++i)
 	{
 		cos2[i] = pow(cos(angle[i]*M_PI/180.),2);
@@ -53,6 +55,8 @@ void Measurement::calc_Measured_cos2_k()
 
 	// k
 	k_Value = 2*M_PI/lambda_Value;
+
+	k.resize(lambda.size());
 	for(int i=0; i<lambda.size(); ++i)
 	{
 		k[i] = 2*M_PI/lambda[i];
