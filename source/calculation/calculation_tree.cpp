@@ -6,9 +6,9 @@
 #include <iostream>
 
 Calculation_Tree::Calculation_Tree(QVector<Independent_Variables*>& independent_Variables_Vector, QVector<Target_Curve*>& measured_Data_Vector, QVector<Target_Curve*>& target_Profiles_Vector): //-V730
-	independent(independent_Variables_Vector.size()),
-	measured(0/*measured_Data_Vector.size()*/),
-	target(0/*target_Profiles_Vector.size()*/)	// TEMPORARY
+//	measured(measured_Data_Vector.size()),
+//	target(target_Profiles_Vector.size()),
+	independent(independent_Variables_Vector.size())
 {
 	// initialization of vectors
 	for(int i=0; i<independent.size(); ++i)
@@ -26,11 +26,6 @@ Calculation_Tree::Calculation_Tree(QVector<Independent_Variables*>& independent_
 		target[i].the_Class = target_Profiles_Vector[i];
 		target[i].whats_This = OPTIMIZE;
 	}
-
-	// choose one existing item tree for analysis
-	if(independent.size()>0) one_Local_Item_Tree = independent[0].local_Item_Tree;	else
-	if(measured.size()>0)	 one_Local_Item_Tree = measured[0].local_Item_Tree;	else
-	if(target.size()>0)		 one_Local_Item_Tree = target[0].local_Item_Tree;
 }
 
 Calculation_Tree::~Calculation_Tree()
@@ -44,16 +39,17 @@ Calculation_Tree::~Calculation_Tree()
 
 void Calculation_Tree::run_All()
 {
+	qInfo() << "Calculation_Tree::run_All : independent.size() = " << independent.size();
+	qInfo() << "Calculation_Tree::run_All : measured.size() = " << measured.size();
+	qInfo() << "Calculation_Tree::run_All : target.size() = " << target.size();
 	if(independent.size()+measured.size()+target.size()>0)
 	{
 		create_Rand_Generator();
 		create_All_Local_Item_Trees();
 		check_If_Graded();
-		{
-			max_Depth = Global_Variables::get_Tree_Depth(one_Local_Item_Tree->invisibleRootItem());	// unstratified depth
-			fill_All_Calc_Trees();																	// here we have trees of "Node"
-			calculate_Intermediate_Values();
-		}
+		max_Depth = Global_Variables::get_Tree_Depth(one_Local_Item_Tree->invisibleRootItem());	// unstratified depth
+		fill_All_Calc_Trees();																	// here we have trees of "Node"
+		calculate_Intermediate_Values();
 		//	independent.clear();
 		//	measured.clear();
 		//	target.clear();
@@ -85,6 +81,7 @@ void Calculation_Tree::create_1_Kind_of_Local_Item_Tree(QVector<Data_Element<T>>
 			local_Item_Tree->addTopLevelItem(data_Element_Vec[index].the_Class->struct_Tree_Copy->topLevelItem(i)->clone()); // this is local
 		}
 		data_Element_Vec[index].local_Item_Tree = local_Item_Tree;
+		qInfo() << data_Element_Vec[index].whats_This;
 	}
 }
 template void Calculation_Tree::create_1_Kind_of_Local_Item_Tree<Independent_Variables>(QVector<Data_Element<Independent_Variables>>&);
@@ -95,6 +92,11 @@ void Calculation_Tree::create_All_Local_Item_Trees()
 	create_1_Kind_of_Local_Item_Tree(independent);
 	create_1_Kind_of_Local_Item_Tree(measured);
 	create_1_Kind_of_Local_Item_Tree(target);
+
+	// choose one existing item tree for analysis
+	if(independent.size()>0) one_Local_Item_Tree = independent[0].local_Item_Tree;	else
+	if(measured.size()>0)	 one_Local_Item_Tree = measured[0].local_Item_Tree;	else
+	if(target.size()>0)		 one_Local_Item_Tree = target[0].local_Item_Tree;
 }
 
 void Calculation_Tree::check_If_Graded()
@@ -308,8 +310,8 @@ void Calculation_Tree::calculate_Intermediate_Values_For_1_Kind(QVector<Data_Ele
 			qInfo() << "Calculation_Tree::calculate_Intermediate_Values_For_1_Kind : independent\t" << data_Element_Vec[index].active_Whats_This;
 		} else
 		{
-			qInfo() << "Calculation_Tree::calculate_Intermediate_Values_For_1_Kind : not independent";
-			data_Element_Vec[index].active_Whats_This = whats_This_Measurement;
+			data_Element_Vec[index].active_Whats_This = QString(whats_This_Measurement)+whats_This_Delimiter+qobject_cast<Target_Curve*>(data_Element_Vec[index].the_Class)->curve.measurement_Type;
+			qInfo() << "Calculation_Tree::calculate_Intermediate_Values_For_1_Kind : not independent\t" << data_Element_Vec[index].active_Whats_This;
 		}
 
 		// preliminary "measurement" calculation for each tree
@@ -365,31 +367,31 @@ void Calculation_Tree::calculate_Intermediate_Values_For_1_Kind(QVector<Data_Ele
 			qInfo() << "Unwrap: "<< elapsed.count()/1000000. << " seconds" << endl;
 
 			start = std::chrono::system_clock::now();
-			calculate_Unwrapped_Reflectivity(data_Element_Vec[index].active_Whats_This, data_Element_Vec[index].measurement, data_Element_Vec[index].unwrapped_Structure, data_Element_Vec[index].unwrapped_Reflection);
+//			calculate_Unwrapped_Reflectivity(data_Element_Vec[index].active_Whats_This, data_Element_Vec[index].measurement, data_Element_Vec[index].unwrapped_Structure, data_Element_Vec[index].unwrapped_Reflection);
 			end = std::chrono::system_clock::now();
 			elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
 			qInfo() << "Unwrap Reflect: "<< elapsed.count()/1000000. << " seconds" << endl;
 
-			QString first_Name, arg_Type;
-			if(data_Element_Vec[index].whats_This == INDEPENDENT)
-			{
-				QStringList active_Whats_This_List = data_Element_Vec[index].active_Whats_This.split(whats_This_Delimiter,QString::SkipEmptyParts);
-				if(active_Whats_This_List[1] == whats_This_Angle )			arg_Type = measurement_Types[0];
-				if(active_Whats_This_List[1] == whats_This_Wavelength )		arg_Type = measurement_Types[1];
-				first_Name = "calc_independent";
-			} else
-			if(data_Element_Vec[index].whats_This == MEASURED)
-			{
-				arg_Type = qobject_cast<Target_Curve*>(data_Element_Vec[index].the_Class)->curve.measurement_Type;
-				first_Name = "calc_measured";
-			} else
-			if(data_Element_Vec[index].whats_This == OPTIMIZE)
-			{
-				arg_Type = qobject_cast<Target_Curve*>(data_Element_Vec[index].the_Class)->curve.measurement_Type;
-				first_Name = "calc_target";
-			}
+//			QString first_Name, arg_Type;
+//			if(data_Element_Vec[index].whats_This == INDEPENDENT)
+//			{
+//				QStringList active_Whats_This_List = data_Element_Vec[index].active_Whats_This.split(whats_This_Delimiter,QString::SkipEmptyParts);
+//				if(active_Whats_This_List[1] == whats_This_Angle )			arg_Type = measurement_Types[0];
+//				if(active_Whats_This_List[1] == whats_This_Wavelength )		arg_Type = measurement_Types[1];
+//				first_Name = "calc_independent";
+//			} else
+//			if(data_Element_Vec[index].whats_This == MEASURED)
+//			{
+//				arg_Type = qobject_cast<Target_Curve*>(data_Element_Vec[index].the_Class)->curve.measurement_Type;
+//				first_Name = "calc_measured";
+//			} else
+//			if(data_Element_Vec[index].whats_This == OPTIMIZE)
+//			{
+//				arg_Type = qobject_cast<Target_Curve*>(data_Element_Vec[index].the_Class)->curve.measurement_Type;
+//				first_Name = "calc_target";
+//			}
 
-			print_Reflect_To_File(data_Element_Vec[index].active_Whats_This, measurement_Iter.node->data.measurement, data_Element_Vec[index].unwrapped_Reflection, first_Name, index);
+//			print_Reflect_To_File(data_Element_Vec[index].active_Whats_This, measurement_Iter.node->data.measurement, data_Element_Vec[index].unwrapped_Reflection, first_Name, index);
 		}
 	}
 }
