@@ -186,6 +186,9 @@ using namespace std;
 #define value_Type_Property			"value_Type"
 
 #define reload_Property	"reload"
+//#define table_Index_Property "table_Index"
+//#define master_Reload_Property "master_Reload"
+//#define slave_Reload_Property  "slave_Reload"
 
 // first group
 #define relative_Rows_To_Disable_Start_Property		"relative_Rows_To_Disable_Start"
@@ -249,8 +252,9 @@ struct Element_Data				{QString element;					  QVector<Point> element_Data;  voi
 struct Window_Type				{static QString Launcher()					  { return "Launcher"  ;}
 								 static QString Multilayer_Approach()		  { return "Multilayer_Approach";}
 								 static QString Independent_Variables_Editor(){ return "Independent_Variable_Editor";}
-								 static QString Item_Editor()				  { return "Item_Editor";}
-								};
+                                 static QString Item_Editor()				  { return "Item_Editor";}
+                                 static QString Table()                       { return "Table";}
+                                };
 
 struct Angle_Type				{static QString Grazing()		 { return "Grazing"  ;}
 								 static QString Incidence()		 { return "Incidence";}

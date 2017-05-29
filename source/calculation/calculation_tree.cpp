@@ -32,11 +32,24 @@ Calculation_Tree::Calculation_Tree(QVector<Independent_Variables*>& independent_
 
 Calculation_Tree::~Calculation_Tree()
 {
-//	for(int i=0; i<num_Independent; ++i)
-//	{
-//		delete unwrapped_Structure_Vec[i];
-//		delete unwrapped_Reflection_Vec[i];
-//	}
+    for(int i=0; i<independent.size(); ++i)
+    {
+        delete independent[i].local_Item_Tree;
+        delete independent[i].unwrapped_Reflection;
+        delete independent[i].unwrapped_Structure;
+    }
+    for(int i=0; i<measured.size(); ++i)
+    {
+        delete measured[i].local_Item_Tree;
+        delete measured[i].unwrapped_Reflection;
+        delete measured[i].unwrapped_Structure;
+    }
+    for(int i=0; i<target.size(); ++i)
+    {
+        delete target[i].local_Item_Tree;
+        delete target[i].unwrapped_Reflection;
+        delete target[i].unwrapped_Structure;
+    }
 }
 
 void Calculation_Tree::run_All()
@@ -52,9 +65,6 @@ void Calculation_Tree::run_All()
 		max_Depth = Global_Variables::get_Tree_Depth(one_Local_Item_Tree->invisibleRootItem());	// unstratified depth
 		fill_All_Calc_Trees();																	// here we have trees of "Node"
 		calculate_Intermediate_Values();
-		//	independent.clear();
-		//	measured.clear();
-		//	target.clear();
 	} else
 	{
 		qInfo() << "Calculation_Tree::run_All  :  no data for calculation";

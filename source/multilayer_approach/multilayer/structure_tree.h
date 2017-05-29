@@ -8,6 +8,8 @@
 
 class Multilayer;
 class Structure_Toolbar;
+class Table_Of_Structures;
+class Item_Editor;
 
 class Structure_Tree : public QWidget
 {

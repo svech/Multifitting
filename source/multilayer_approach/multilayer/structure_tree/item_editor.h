@@ -53,7 +53,7 @@ public slots:
 	void show_Density();
 	void show_Thickness();
 	void show_Sigma_Start(bool at_Start=false);
-	void show_Sigma();
+    void show_Sigma(bool b);
 	void show_Stack_Parameters();
 	void show_Interlayers();
 

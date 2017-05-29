@@ -44,6 +44,13 @@ void Menu::add_Menu_Points()
 		create_Item_Precision_Menu();
 			menu_Bar->addMenu(precision_Menu);
 	}
+    if(window_Type == Window_Type::Table())
+    {
+        create_Table_Units_Menu();
+            menu_Bar->addMenu(units_Menu);
+        create_Table_Precision_Menu();
+            menu_Bar->addMenu(precision_Menu);
+    }
 	if(window_Type == Window_Type::Launcher() ||
 	   window_Type == Window_Type::Multilayer_Approach())
 	{
@@ -462,7 +469,103 @@ void Menu::create_Item_Precision_Menu()
 
 		connect(precision_Thumb,SIGNAL(triggered()), this, SLOT(activate_Item_Thumbnail_Precision()));
 		connect(precision_Edit, SIGNAL(triggered()), this, SLOT(activate_Item_Line_Edit_Precision()));
-	}
+    }
+}
+
+void Menu::create_Table_Units_Menu()
+{
+    // PARAMETER
+
+    units_Menu = new QMenu("Units", this);
+
+    menu_Length_Units = new QMenu("Lengths", this);
+    {
+        QActionGroup* group_Act_Unit = new QActionGroup(this);
+            group_Act_Unit->setExclusive(true);
+
+        for(int index=0; index<length_Units_List.size(); index++)
+        {
+            QAction* act_Unit = new QAction(length_Units_List[index], this);
+                act_Unit->setProperty(index_Property, index);
+                act_Unit->setCheckable(true);
+                act_Unit->setActionGroup(group_Act_Unit);
+
+                if(length_Units_List[index] == length_units) act_Unit->setChecked(true);
+
+            menu_Length_Units->addAction(act_Unit);
+            units_Menu->addMenu(menu_Length_Units);
+
+            connect(act_Unit, SIGNAL(triggered()), this, SLOT(set_Length_Unit()));
+        }
+    }
+}
+
+void Menu::create_Table_Precision_Menu()
+{
+    // PARAMETER
+
+    precision_Menu = new QMenu("Precision", this);
+
+    menu_Density	 = new QMenu("Density", this);
+    menu_Lengths	 = new QMenu("Lengths", this);
+    menu_Composition = new QMenu("Atomic Composition", this);
+    menu_Interlayer  = new QMenu("Interlayer Composition", this);
+
+    menu_Thumb  = new QMenu("Thumbnail precision", this);
+    menu_Edit   = new QMenu("Operating precision", this);
+
+    {
+        precision_Menu->addMenu(menu_Density);
+            menu_Density->addMenu(menu_Thumb);
+            menu_Density->addMenu(menu_Edit);
+    }
+    {
+        precision_Menu->addMenu(menu_Lengths);
+            menu_Lengths->addMenu(menu_Thumb);
+            menu_Lengths->addMenu(menu_Edit);
+    }
+    {
+        precision_Menu->addMenu(menu_Composition);
+            //menu_Composition->addMenu(menu_Thumb);
+            menu_Composition->addMenu(menu_Edit);
+    }
+    {
+        precision_Menu->addMenu(menu_Interlayer);
+            //menu_Interlayer->addMenu(menu_Thumb);
+            menu_Interlayer->addMenu(menu_Edit);
+    }
+
+    connect(menu_Density,	 SIGNAL(aboutToShow()), this, SLOT(menu_Focus()));
+    connect(menu_Lengths,	 SIGNAL(aboutToShow()), this, SLOT(menu_Focus()));
+    connect(menu_Composition,SIGNAL(aboutToShow()), this, SLOT(menu_Focus()));
+    connect(menu_Interlayer, SIGNAL(aboutToShow()), this, SLOT(menu_Focus()));
+
+    connect(menu_Thumb,		 SIGNAL(aboutToShow()), this, SLOT(thumb_Edit_Focus()));
+    connect(menu_Edit,		 SIGNAL(aboutToShow()), this, SLOT(thumb_Edit_Focus()));
+
+    QActionGroup* group_Precision_Thumb = new QActionGroup(this);
+    QActionGroup* group_Precision_Edit  = new QActionGroup(this);
+        group_Precision_Thumb->setExclusive(true);
+        group_Precision_Edit->setExclusive(true);
+
+    for(int index=0; index<MAX_PRECISION_USED; index++)
+    {
+        QAction* precision_Thumb  = new QAction(QString::number(index), menu_Thumb);
+        QAction* precision_Edit   = new QAction(QString::number(index), menu_Edit);
+            precision_Thumb->setProperty(index_Property, index);
+            precision_Edit->setProperty(index_Property, index);
+
+            precision_Thumb->setCheckable(true);
+            precision_Edit->setCheckable(true);
+            precision_Thumb->setActionGroup(group_Precision_Thumb);
+            precision_Edit->setActionGroup(group_Precision_Edit);
+
+            menu_Thumb->addAction(precision_Thumb);
+            menu_Edit->addAction(precision_Edit);
+
+        connect(precision_Thumb,SIGNAL(triggered()), this, SLOT(activate_Item_Thumbnail_Precision()));
+        connect(precision_Edit, SIGNAL(triggered()), this, SLOT(activate_Item_Line_Edit_Precision()));
+    }
 }
 
 void Menu::menu_Focus()

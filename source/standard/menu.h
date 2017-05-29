@@ -2,8 +2,8 @@
 #define MENU_H
 
 #include "global/layer_data_types.h"
-#include <multilayer_approach/multilayer/independent_variables/independent_variables_editor.h>
-#include <multilayer_approach/multilayer/structure_tree/item_editor.h>
+#include "multilayer_approach/multilayer/independent_variables/independent_variables_editor.h"
+#include "multilayer_approach/multilayer/structure_tree/item_editor.h"
 
 class Independent_Variables_Editor;
 class Item_Editor;
@@ -17,8 +17,8 @@ public:
 private:
 	QString window_Type;
 	Independent_Variables_Editor* independent_Variables_Editor;
-	Item_Editor* item_Editor;
-	QObject* my_Parent;
+    Item_Editor* item_Editor;
+    QObject* my_Parent;
 
 	// state variables
 	QString precision_Menu_Thumb_Edit;
@@ -33,10 +33,15 @@ private:
 		void create_Calculate_Menu();
 		void create_Optical_Constants_Menu();
 		void create_Help_Menu();
+
 		void create_Independent_Units_Menu();
 		void create_Independent_Precision_Menu();
+
 		void create_Item_Units_Menu();
 		void create_Item_Precision_Menu();
+
+        void create_Table_Units_Menu();
+        void create_Table_Precision_Menu();
 
 // menu actions
 private slots:

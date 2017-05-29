@@ -18,9 +18,9 @@ void Item_Editor::emit_Item_Data_Edited()
 {
 	// TODO
 	show_All();
-	initial_Radio_Check(false);
+    initial_Radio_Check(false);
 	show_Interlayers();
-	emit item_Data_Edited();
+    emit item_Data_Edited();
 }
 
 void Item_Editor::closeEvent(QCloseEvent* event)
@@ -389,7 +389,7 @@ void Item_Editor::make_Sigma_Group_Box()
 	{
 		sigma_Done = true;
 		read_Interlayers_From_Item();
-		show_Sigma();
+        show_Sigma(true);
 	}
 }
 
@@ -406,7 +406,7 @@ void Item_Editor::show_All()
 	show_Material();
 	show_Density();
 	show_Thickness();
-	show_Sigma();
+    show_Sigma(true);
 	show_Interlayers();
 	show_Stack_Parameters();
 }
@@ -1135,9 +1135,9 @@ void Item_Editor::show_Sigma_Start(bool at_Start)
 		roughness_Label->setText(sigma_Label_1+ length_units + sigma_Label_2);
 
 		Layer layer = item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>();
-		if(!layer.common_Sigma || at_Start)
+        if(!layer.common_Sigma || at_Start)
 		{
-			sigma_Line_Edit->setText(QString::number(layer.sigma.value/coeff,line_edit_double_format,line_edit_sigma_precision));
+            sigma_Line_Edit->setText(QString::number(layer.sigma.value/coeff,line_edit_double_format,line_edit_sigma_precision));
 		}
 	}
 	if(item_Type==Item_Type::Substrate)
@@ -1145,20 +1145,20 @@ void Item_Editor::show_Sigma_Start(bool at_Start)
 		roughness_Label->setText(sigma_Label_1+ length_units + sigma_Label_2);
 
 		Substrate substrate = item->data(DEFAULT_COLUMN, Qt::UserRole).value<Substrate>();
-		if(!substrate.common_Sigma || at_Start)
+        if(!substrate.common_Sigma || at_Start)
 		{
-			sigma_Line_Edit->setText(QString::number(substrate.sigma.value/coeff,line_edit_double_format,line_edit_sigma_precision));
+            sigma_Line_Edit->setText(QString::number(substrate.sigma.value/coeff,line_edit_double_format,line_edit_sigma_precision));
 		}
 	}
 }
 
-void Item_Editor::show_Sigma()
+void Item_Editor::show_Sigma(bool b)
 {
 	// TODO extreme layers
 	if(sigma_Done)
 	{
-		show_Sigma_Start();
-		resize_Line_Edit("",sigma_Line_Edit);
+        show_Sigma_Start(b);
+        resize_Line_Edit("",sigma_Line_Edit);
 	}
 }
 
@@ -1193,13 +1193,12 @@ void Item_Editor::show_Interlayers()
 
 		if(layer.interlayer_Composition.size() == interlayer_Composition_Comp_Line_Edit_Vec.size())
 		{
-			if(layer.common_Sigma)
 			for(int i=0; i<layer.interlayer_Composition.size(); ++i)
 			{
 				interlayer_Composition_Comp_Line_Edit_Vec	 [i]->setText(QString::number(layer.interlayer_Composition[i].interlayer.value,line_edit_short_double_format,line_edit_interlayer_precision));
 				interlayer_Composition_My_Sigma_Line_Edit_Vec[i]->setText(QString::number(layer.interlayer_Composition[i].my_Sigma.value/coeff,line_edit_short_double_format,line_edit_sigma_precision));
-			}
-			my_Sigma_Label_Layer->setText(sigma_Label_3 + length_units + sigma_Label_2);
+            }
+            my_Sigma_Label_Layer->setText(sigma_Label_3 + length_units + sigma_Label_2);
 		}
 	}
 	if(item_Type==Item_Type::Substrate)
@@ -1216,7 +1215,7 @@ void Item_Editor::show_Interlayers()
 		}
 	}
 
-	show_Sigma();
+    show_Sigma(false);
 }
 
 void Item_Editor::done_Slot()
@@ -1406,7 +1405,8 @@ void Item_Editor::norm_Interlayer_Composition()
 void Item_Editor::refresh_Data(QString str)
 {
 	double coeff = length_Coefficients_Map.value(length_units);
-	QVariant var;
+
+    QVariant var;
 	if(item_Type==Item_Type::Ambient)
 	{
 		Ambient ambient = item->data(DEFAULT_COLUMN, Qt::UserRole).value<Ambient>();
@@ -1494,8 +1494,8 @@ void Item_Editor::refresh_Data(QString str)
 				for(int i=0; i<layer.interlayer_Composition.size(); ++i)
 				{
 					layer.interlayer_Composition[i].my_Sigma.value = layer.sigma.value;
-					layer.interlayer_Composition[i].my_Sigma.fit.min = sigma_Dispersion_Min*layer.interlayer_Composition[i].my_Sigma.value;
-					layer.interlayer_Composition[i].my_Sigma.fit.max = sigma_Dispersion_Max*layer.interlayer_Composition[i].my_Sigma.value;
+//					layer.interlayer_Composition[i].my_Sigma.fit.min = sigma_Dispersion_Min*layer.interlayer_Composition[i].my_Sigma.value;
+//					layer.interlayer_Composition[i].my_Sigma.fit.max = sigma_Dispersion_Max*layer.interlayer_Composition[i].my_Sigma.value;
 				}
 			} else
 			{
@@ -1509,7 +1509,7 @@ void Item_Editor::refresh_Data(QString str)
 						temp_Sigma_Square += pow(layer.interlayer_Composition[i].my_Sigma.value,2) * layer.interlayer_Composition[i].interlayer.value/sum;
 					}
 				}
-				layer.sigma.value = sqrt(temp_Sigma_Square);
+                layer.sigma.value = sqrt(temp_Sigma_Square);
 			}
 		}
 		//TODO other fields
@@ -1563,10 +1563,10 @@ void Item_Editor::refresh_Data(QString str)
 
 			if(substrate.common_Sigma)
 			{
-				substrate.sigma.value = sigma_Line_Edit->text().toDouble()*coeff;
-				for(int i=0; i<substrate.interlayer_Composition.size(); ++i)
+                substrate.sigma.value = sigma_Line_Edit->text().toDouble()*coeff;
+                for(int i=0; i<substrate.interlayer_Composition.size(); ++i)
 				{
-					substrate.interlayer_Composition[i].my_Sigma.value = substrate.sigma.value;
+                    substrate.interlayer_Composition[i].my_Sigma.value = substrate.sigma.value;
 //					substrate.interlayer_Composition[i].my_Sigma.fit.min = sigma_Dispersion_Min*substrate.interlayer_Composition[i].my_Sigma.value;
 //					substrate.interlayer_Composition[i].my_Sigma.fit.max = sigma_Dispersion_Max*substrate.interlayer_Composition[i].my_Sigma.value;
 				}
@@ -1582,7 +1582,7 @@ void Item_Editor::refresh_Data(QString str)
 						temp_Sigma_Square += pow(substrate.interlayer_Composition[i].my_Sigma.value,2) * substrate.interlayer_Composition[i].interlayer.value/sum;
 					}
 				}
-				substrate.sigma.value = sqrt(temp_Sigma_Square);
+                substrate.sigma.value = sqrt(temp_Sigma_Square);
 			}
 		}
 		var.setValue( substrate );

@@ -133,12 +133,12 @@ void Multilayer_Approach::open_Table_Of_Structures(bool)
 			table_Of_Structures->setWindowFlags(Qt::Window);
 			table_Of_Structures->show();
 
-		connect(table_Of_Structures, SIGNAL(data_Edited()), this, SLOT(refresh_All_Multilayers_View()));
+        connect(table_Of_Structures, SIGNAL(data_Edited()), this, SLOT(refresh_All_Multilayers_View()));
 
 		for(int i=0; i<multilayer_Tabs->count(); ++i)
 		{
 			Multilayer* multilayer = dynamic_cast<Multilayer*>(multilayer_Tabs->widget(i));
-			connect(multilayer, SIGNAL(refresh_All_Multilayers()), table_Of_Structures, SLOT(reload_All_Widgets()));
+            connect(multilayer, SIGNAL(refresh_All_Multilayers()), table_Of_Structures, SLOT(reload_All_Widgets()));
 		}
 	} else
 	{
