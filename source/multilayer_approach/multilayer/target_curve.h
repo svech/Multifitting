@@ -11,6 +11,7 @@ public:
 	explicit Target_Curve(QLabel* description_Label, QTreeWidget* real_Struct_Tree, QWidget *parent = 0);
 	~Target_Curve();
 
+	// LAST_BOOKMARK
 	QLabel* description_Label;
 	QTreeWidget* real_Struct_Tree;
 	QTreeWidget* struct_Tree_Copy;
@@ -29,7 +30,6 @@ public:
 	void renew_Struct_Tree_Copy();
 
 private:
-	int valid_Lines_Counter = 0;
 	QStringList lines_List;
 	QString arg_Units;
 };

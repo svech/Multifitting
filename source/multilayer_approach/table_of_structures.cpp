@@ -21,7 +21,8 @@ void Table_Of_Structures::closeEvent(QCloseEvent* event)
 	event;
 	runned_Tables_Of_Structures->remove(table_Key);
 
-    for(int i=0; i<multilayer_Tabs->count(); ++i)
+	multilayer_Tabs->cornerWidget()->setDisabled(false);
+	for(int i=0; i<multilayer_Tabs->count(); ++i)
 	{
 		list_Of_Trees[i]->structure_Toolbar->toolbar->setDisabled(false);
 		list_Of_Trees[i]->tree->blockSignals(false);
@@ -435,11 +436,17 @@ void Table_Of_Structures::read_Trees()
 		Structure_Tree* old_Structure_Tree = dynamic_cast<Multilayer*>(multilayer_Tabs->widget(i))->structure_Tree;
 		list_Of_Trees.append(old_Structure_Tree);
 
-        // disabling main interface
+		// closing editors
+		QList<Item_Editor*> local_List_Editors = old_Structure_Tree->list_Editors;
+		for(int editor_Index=0; editor_Index<local_List_Editors.size(); ++editor_Index)
+			local_List_Editors[editor_Index]->close();
+
+		// disabling main interface
 		old_Structure_Tree->structure_Toolbar->toolbar->setDisabled(true);
 		old_Structure_Tree->tree->blockSignals(true);
         multilayer_Tabs->tabBar()->tabButton(i, QTabBar::RightSide)->setDisabled(true);
 	}
+	multilayer_Tabs->cornerWidget()->setDisabled(true);
 }
 
 void Table_Of_Structures::add_Columns(QTableWidget* table, int add_After)

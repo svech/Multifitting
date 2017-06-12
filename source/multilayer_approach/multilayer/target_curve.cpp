@@ -9,7 +9,6 @@ Target_Curve::Target_Curve(QLabel* description_Label, QTreeWidget* real_Struct_T
 	real_Struct_Tree(real_Struct_Tree),
 	QWidget(parent)
 {
-
 	qInfo() << "Target_Curve created!";
 }
 
@@ -20,6 +19,7 @@ Target_Curve::~Target_Curve()
 
 void Target_Curve::open_Window()
 {
+	// LAST_BOOKMARK
 	import_Data();
 	create_Measurement();
 	create_Struct_Tree_Copy();

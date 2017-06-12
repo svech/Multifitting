@@ -42,7 +42,7 @@ private:
 				void find_Last_Layer(QTreeWidgetItem* this_Item, int& last);
 				void find_Period(QTreeWidgetItem* this_Item);
 
-private:
+public:
 	int different_Layers_Counter=0;
 
 	QMap<QTreeWidgetItem*, Item_Editor*> runned_Editors;

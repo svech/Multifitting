@@ -5,6 +5,7 @@
 #include "multilayer/structure_tree.h"
 #include "multilayer/independent_variables.h"
 #include "multilayer/target_curve.h"
+#include "multilayer/target_curve/target_curve_editor.h"
 
 class Structure_Tree;
 class Multilayer_Approach;
@@ -52,7 +53,7 @@ public slots:
 private slots:
 	void add_Target_Curve   (int index_Pressed, QString target_Curve_Type);
 	void remove_Target_Curve(int index_Pressed, QString target_Curve_Type);
-
+	void open_Import_Window(Target_Curve* target_Curve);
 public:
 	Multilayer_Approach* multilayer_Approach;
 

@@ -300,6 +300,7 @@ void Multilayer::add_Target_Curve(int index_Pressed, QString target_Curve_Type)
 
 	// -----
 	// TEMPORARY
+	// LAST_BOOKMARK
 	new_Target_Curve->open_Window();
 	// ------
 
@@ -341,7 +342,8 @@ void Multilayer::add_Target_Curve(int index_Pressed, QString target_Curve_Type)
 	if(target_Curve_Type == MEASURED) layout_Measured_Data_With_Frame_Vector->insertWidget(index_Pressed,new_Frame); else
 	if(target_Curve_Type == OPTIMIZE) layout_Target_Profile_With_Frame_Vector->insertWidget(index_Pressed,new_Frame);
 
-	connect(new_Import_Button, SIGNAL(clicked()), new_Target_Curve, SLOT(open_Window()));
+	connect(new_Import_Button,    &QPushButton::clicked, this, [=, this]{ open_Import_Window(new_Target_Curve); });
+
 	if(target_Curve_Type == MEASURED)
 	{
 		connect(new_Add_Button,    &QPushButton::clicked, this, [=, this]{ add_Target_Curve   (data_Measured_Data_Frame_Vector.indexOf(new_Frame)+1, target_Curve_Type); });
@@ -395,5 +397,16 @@ void Multilayer::remove_Target_Curve(int index_Pressed, QString target_Curve_Typ
 
 	if(target_Curve_Type == MEASURED && data_Measured_Data_Frame_Vector.isEmpty())	add_Target_Curve(0, MEASURED);
 	if(target_Curve_Type == OPTIMIZE && data_Target_Profile_Frame_Vector.isEmpty())	add_Target_Curve(0, OPTIMIZE);
+}
+
+void Multilayer::open_Import_Window(Target_Curve* target_Curve)
+{
+	// LAST_BOOKMARK
+	Target_Curve_Editor* new_Target_Curve_Editor = new Target_Curve_Editor(target_Curve, this);
+	new_Target_Curve_Editor->setParent(this);
+	new_Target_Curve_Editor->setWindowFlags(Qt::Window);
+	new_Target_Curve_Editor->show();
+
+//	connect(depth_Grading, SIGNAL(grading_Edited()), this, SLOT(emit_Item_Data_Edited()));
 }
 
