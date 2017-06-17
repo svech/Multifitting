@@ -109,7 +109,11 @@ QStringList transition_Layer_Functions	{"erf","lin","exp","tanh","sin","step"}; 
 QStringList tril						{TRIL_TRUE, TRIL_FALSE, TRIL_NOT_DEFINED};
 
 // measured curves
-QStringList value_Types					{"R","R + "+Phi_Sym,"r"};
+QStringList argument_Types				{"Grazing angle","Incident angle","Wavelength/Energy"};
+QStringList value_Function				{"Reflectance","Transmittance","Absorptance"};
+QStringList value_R_Mode				{"R","R+"+Phi_Sym,"r, Re+Im","r, |r|+"+Phi_Sym};
+QStringList value_T_Mode				{"T"};
+QStringList value_A_Mode				{"A"};
 
 // -----------------------------------------------------------------------------------------
 

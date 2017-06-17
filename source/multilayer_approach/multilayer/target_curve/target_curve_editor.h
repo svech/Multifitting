@@ -7,19 +7,65 @@
 class Target_Curve_Editor : public QWidget
 {
 	Q_OBJECT
+	Q_INVOKABLE void adjustSize()							{ QWidget::adjustSize(); }
 public:
 	explicit Target_Curve_Editor(Target_Curve* target_Curve, QWidget *parent = 0);
 
+	Target_Curve* target_Curve;
 private:
 	void closeEvent(QCloseEvent *event);
 	void create_Main_Layout();
+		void create_Filepath_GroupBox();
+		void create_Data_GroupBox();
 	void set_Window_Geometry();
 
+
+	void read_Data_File(QString filepath);
+	void browse_Data_File();
+
+	void fill_Arg_Units_ComboBox(QString arg_Type);
+	void fill_Val_Modes_ComboBox(QString val_Mode);
+
+	void resize_Line_Edit();
+	void resize_ComboBox();
+
+private:
 	QVBoxLayout* main_Layout;
+		QGroupBox* filepath_GroupBox;
+			QComboBox* filepath_ComboBox;
+			QPushButton* browse_Button;
 
-signals:
+		QGroupBox* data_GroupBox;
+			QLabel* arg_Type_Label;
+			QComboBox* arg_Type_ComboBox;
+			QLabel* arg_Units_Label;
+			QComboBox* arg_Units_ComboBox;
+			QLabel* arg_Offset_Label;
+			QDoubleSpinBox* arg_Offset_SpinBox;
+			QLabel* arg_Factor_Label;
+			QDoubleSpinBox* arg_Factor_SpinBox;
 
-public slots:
+			QLabel* val_Function_Label;
+			QComboBox* val_Function_ComboBox;
+			QLabel* val_Mode_Label;
+			QComboBox* val_Mode_ComboBox;
+			QLabel* val_Offset_Label;
+			QDoubleSpinBox* val_Offset_SpinBox;
+			QLabel* val_Factor_Label;
+			QDoubleSpinBox* val_Factor_SpinBox;
+
+			QLabel* polarization_Label;
+			QLineEdit* polarization_LineEdit;
+			QLabel* polarization_Sensitivity_Label;
+			QLineEdit* polarization_Sensitivity_LineEdit;
+			QLabel* spectral_Resolution_Label;
+			QLineEdit* spectral_Resolution_LineEdit;
+			QLabel* angular_Resolution_Label;
+			QLineEdit* angular_Resolution_LineEdit;
+			QLabel* angular_Units_Label;
+
+		QLabel* data_Indicator_Label;
+		QPushButton* close_Button;
 };
 
 #endif // TARGET_CURVE_EDITOR_H

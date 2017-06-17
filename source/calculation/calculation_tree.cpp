@@ -320,7 +320,7 @@ void Calculation_Tree::calculate_Intermediate_Values_For_1_Kind(QVector<Data_Ele
 			}
 		} else
 		{
-			data_Element_Vec[index].active_Whats_This = QString(whats_This_Measurement)+whats_This_Delimiter+qobject_cast<Target_Curve*>(data_Element_Vec[index].the_Class)->curve.measurement_Type;
+			data_Element_Vec[index].active_Whats_This = QString(whats_This_Measurement)+whats_This_Delimiter+qobject_cast<Target_Curve*>(data_Element_Vec[index].the_Class)->curve.argument_Type;
 		}
 
 		// preliminary "measurement" calculation for each tree

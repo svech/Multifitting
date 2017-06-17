@@ -27,7 +27,7 @@ void Multilayer::create_Structure_Frame()
 		struct_Frame_Layout->setSpacing(0);
 
 	struct_Frame = new QFrame;
-		struct_Frame->setContentsMargins(-7,-3,-7,-10);
+        struct_Frame->setContentsMargins(-7,-3,-7,-10);
 		struct_Frame->setLayout(struct_Frame_Layout);
 
 	structure_Tree = new Structure_Tree(this, this);
@@ -300,7 +300,6 @@ void Multilayer::add_Target_Curve(int index_Pressed, QString target_Curve_Type)
 
 	// -----
 	// TEMPORARY
-	// LAST_BOOKMARK
 	new_Target_Curve->open_Window();
 	// ------
 
@@ -401,11 +400,10 @@ void Multilayer::remove_Target_Curve(int index_Pressed, QString target_Curve_Typ
 
 void Multilayer::open_Import_Window(Target_Curve* target_Curve)
 {
-	// LAST_BOOKMARK
 	Target_Curve_Editor* new_Target_Curve_Editor = new Target_Curve_Editor(target_Curve, this);
-	new_Target_Curve_Editor->setParent(this);
-	new_Target_Curve_Editor->setWindowFlags(Qt::Window);
-	new_Target_Curve_Editor->show();
+		new_Target_Curve_Editor->setParent(this);
+		new_Target_Curve_Editor->setWindowFlags(Qt::Window);
+		new_Target_Curve_Editor->show();
 
 //	connect(depth_Grading, SIGNAL(grading_Edited()), this, SLOT(emit_Item_Data_Edited()));
 }

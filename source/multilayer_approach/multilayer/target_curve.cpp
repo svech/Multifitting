@@ -19,18 +19,17 @@ Target_Curve::~Target_Curve()
 
 void Target_Curve::open_Window()
 {
-	// LAST_BOOKMARK
 	import_Data();
 	create_Measurement();
 	create_Struct_Tree_Copy();
-	description_Label->setText(curve.measurement_Type + "; " + curve.value_Type + "; " + QString::number(curve.argument.first()) + "-" + QString::number(curve.argument.last()) + arg_Units);
+	description_Label->setText(curve.argument_Type + "; " + curve.value_Mode + "; " + QString::number(curve.argument.first()) + "-" + QString::number(curve.argument.last()) + arg_Units);
 }
 
 void Target_Curve::import_Data()
 {
 	// TEMPORARY
-	curve.measurement_Type = whats_This_Angle;
-	curve.value_Type = value_Types[0];
+	curve.argument_Type = whats_This_Angle;
+	curve.value_Mode = value_R_Mode[0];
 	curve.angle_Type = Angle_Type::Grazing();
 
 	QRegExp delims("\\ |\\,|\\:|\\t|\\;|\\{|\\}");
@@ -75,7 +74,7 @@ void Target_Curve::import_Data()
 
 			/// value
 
-			if(curve.value_Type == value_Types[0])	// R
+			if(curve.value_Mode == value_R_Mode[0])	// R
 			{
 				if(numbers.size()<=number_Index) throw "val_1 | " + main_Exception_Text;
 				double temp_Number = QString(numbers[number_Index]).toDouble();
@@ -117,13 +116,13 @@ void Target_Curve::create_Measurement()
 	measurement.polarization.value = 0;
 
 	// type of argument
-	if(curve.measurement_Type == whats_This_Angle)	// angular
+	if(curve.argument_Type == whats_This_Angle)	// angular
 	{
 		arg_Units = Degree_Sym;
 		measurement.angle = curve.argument;
 		measurement.lambda_Value = lambda_Value;
 	} else
-	if(curve.measurement_Type == whats_This_Wavelength)	// spectral
+	if(curve.argument_Type == whats_This_Wavelength)	// spectral
 	{
 		arg_Units = " "+Angstrom_Sym;
 		measurement.lambda = curve.argument;
@@ -131,17 +130,21 @@ void Target_Curve::create_Measurement()
 	}
 
 	// type of value
-	if(curve.value_Type == value_Types[0])	// R
+	if(curve.value_Mode == value_R_Mode[0])	// R
 	{
 		qInfo() << "R";
 	} else
-	if(curve.value_Type == value_Types[1])	// R + Phi
+	if(curve.value_Mode == value_R_Mode[1])	// R + Phi
 	{
 		qInfo() << "R+Phi";
 	} else
-	if(curve.value_Type == value_Types[2])	// r
+	if(curve.value_Mode == value_R_Mode[2])	// r
 	{
 		qInfo() << "r";
+	}
+	if(curve.value_Mode == value_R_Mode[3])	// r + phi
+	{
+		qInfo() << "r+phi";
 	}
 }
 

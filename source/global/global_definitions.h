@@ -107,6 +107,7 @@ using namespace std;
 #define MIN_ANGULAR_RESOLUTION_POINTS 5		// minimal number of points necessary for specifying non-zero resolution
 #define MIN_SPECTRAL_RESOLUTION_POINTS 5	// -||-
 #define QLINEEDIT_RESIZE_MARGIN 7			// minimal white space in right side of qlineedit, pixels
+#define QLINEEDIT_TO_QCOMBOBOX_DIFFERENCE 20// difference between qcombobox size and internal qlineedit, pixels
 #define DEFAULT_COLUMN 0					// as far as we use single-column trees
 #define PERMANENT_INDEPENDENT 2				// angle and wavelength items in list
 #define MAX_PRECISION_USED 10				// tthumbnail and lineedit precisions
@@ -264,13 +265,16 @@ struct Angle_Type				{static QString Grazing()		 { return "Grazing"  ;}
 struct Value					{double val_1; double val_2; /*double sigma_1; double sigma_2;*/};
 struct Curve					{QVector<double> argument;
 								 QVector<Value> values;
-								 double arg_Shift = 0;
-								 double val_Factor = 1;
-								 QString measurement_Type;
+								 double arg_Offset = 0; double arg_Factor = 1;
+								 double val_Offset = 0; double val_Factor = 1;
+								 QString argument_Type;
 								 QString angle_Type;
-								 QString value_Type;
 								 QString angular_Units;
-								 QString spectral_Units;};
+								 QString spectral_Units;
+
+								 QString value_Function;
+								 QString value_Mode;
+								 };
 
 // -----------------------------------------------------------------------------------------
 
