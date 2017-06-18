@@ -42,15 +42,32 @@ void Target_Curve_Editor::browse_Data_File()
 void Target_Curve_Editor::fill_Arg_Units_ComboBox(QString arg_Type)
 {
 	arg_Units_ComboBox->clear();
+	at_Fixed_Units_ComboBox->clear();
 
 	if(arg_Type == argument_Types[0] || arg_Type == argument_Types[1])	// grazing of incidence angle
 	{
 		arg_Units_ComboBox->addItems(angle_Units_List);
+		at_Fixed_Units_ComboBox->addItems(wavelength_Units_List);
+		at_Fixed_Label->setText("At fixed wavelength:");
+		at_Fixed_LineEdit->setText(QString::number(default_wavelength_value,line_edit_double_format,line_edit_wavelength_precision));
+		angular_Units_Label->setText(arg_Units_ComboBox->currentText());
 	}
 	if(arg_Type == argument_Types[2])									// wavelength or energy
 	{
 		arg_Units_ComboBox->addItems(wavelength_Units_List);
+		at_Fixed_Label->setText("At fixed angle:");
+		QStringList list_Grazing, list_Incidence;
+		for(int i=0; i<angle_Units_List.size(); ++i)
+		{
+			list_Grazing.append(angle_Units_List[i]+", Grazing");
+			list_Incidence.append(angle_Units_List[i]+", Incidence");
+		}
+		at_Fixed_Units_ComboBox->addItems(list_Grazing);
+		at_Fixed_Units_ComboBox->addItems(list_Incidence);
+		at_Fixed_LineEdit->setText(QString::number(default_angle_value,line_edit_double_format,line_edit_angle_precision));
+		angular_Units_Label->setText(at_Fixed_Units_ComboBox->currentText().split(",")[0]);
 	}
+	at_Fixed_LineEdit->textEdited(at_Fixed_LineEdit->text());
 }
 
 void Target_Curve_Editor::fill_Val_Modes_ComboBox(QString val_Mode)
@@ -68,6 +85,22 @@ void Target_Curve_Editor::fill_Val_Modes_ComboBox(QString val_Mode)
 	if(val_Mode == value_Function[2])	// absorptance
 	{
 		val_Mode_ComboBox->addItems(value_A_Mode);
+	}
+}
+
+void Target_Curve_Editor::change_Arg_Units_ComboBox(QString arg_Units)
+{
+	if(arg_Type_ComboBox->currentText() == argument_Types[0] || arg_Type_ComboBox->currentText() == argument_Types[1])	// grazing or incidence angle
+	{
+		angular_Units_Label->setText(arg_Units);
+	}
+}
+
+void Target_Curve_Editor::change_At_Fixed_Units_ComboBox(QString fixed_Units)
+{
+	if(arg_Type_ComboBox->currentText() == argument_Types[2])	// wavelength/energy
+	{
+		angular_Units_Label->setText(fixed_Units.split(",")[0]);
 	}
 }
 
@@ -149,6 +182,7 @@ void Target_Curve_Editor::create_Data_GroupBox()
 		arg_Units_ComboBox = new QComboBox;
 			arg_Units_ComboBox->setFixedWidth(70);
 			arg_Units_ComboBox->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+			connect(arg_Units_ComboBox, &QComboBox::currentTextChanged, this, &Target_Curve_Editor::change_Arg_Units_ComboBox);
 		layout->addWidget(arg_Units_ComboBox,0,Qt::AlignLeft);
 
 		arg_Offset_Label = new QLabel("Offset");
@@ -230,17 +264,30 @@ void Target_Curve_Editor::create_Data_GroupBox()
 		data_GroupBox_Layout->addLayout(layout);
 	}
 
-	// set up after creation
-	arg_Type_ComboBox->currentTextChanged(arg_Type_ComboBox->currentText());
-	val_Function_ComboBox->currentTextChanged(val_Function_ComboBox->currentText());
-
 	// measurement
 	{
 		QGridLayout* layout = new QGridLayout;
 		layout->setAlignment(Qt::AlignLeft);
 
+		at_Fixed_Label = new QLabel("At fixed wavelength");
+		layout->addWidget(at_Fixed_Label,0,0,2,1,Qt::AlignRight);
+		at_Fixed_LineEdit = new QLineEdit;
+			at_Fixed_LineEdit->setFixedWidth(50);
+			at_Fixed_LineEdit->setProperty(min_Size_Property, 50);
+			at_Fixed_LineEdit->setValidator(new QDoubleValidator(-1, 1, MAX_PRECISION, this));
+			connect(at_Fixed_LineEdit, &QLineEdit::textEdited, this, &Target_Curve_Editor::resize_Line_Edit );
+			at_Fixed_LineEdit->textEdited(at_Fixed_LineEdit->text());
+		layout->addWidget(at_Fixed_LineEdit,0,1,2,1,Qt::AlignLeft);
+		at_Fixed_Units_ComboBox = new QComboBox;
+			at_Fixed_Units_ComboBox->addItems(argument_Types);
+			at_Fixed_Units_ComboBox->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+			at_Fixed_Units_ComboBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
+			connect(at_Fixed_Units_ComboBox, &QComboBox::currentTextChanged, this, &Target_Curve_Editor::change_At_Fixed_Units_ComboBox);
+		layout->addWidget(at_Fixed_Units_ComboBox,0,2,2,1,Qt::AlignLeft);
+
+
 		polarization_Label = new QLabel("Polarization");
-		layout->addWidget(polarization_Label,0,0,Qt::AlignRight);
+		layout->addWidget(polarization_Label,0,3,Qt::AlignRight);
 		polarization_LineEdit = new QLineEdit;
 			polarization_LineEdit->setText(QString::number(default_polarization,line_edit_double_format,line_edit_wavelength_precision));
 			polarization_LineEdit->setFixedWidth(50);
@@ -248,10 +295,10 @@ void Target_Curve_Editor::create_Data_GroupBox()
 			polarization_LineEdit->setValidator(new QDoubleValidator(-1, 1, MAX_PRECISION, this));
 			connect(polarization_LineEdit, &QLineEdit::textEdited, this, &Target_Curve_Editor::resize_Line_Edit );
 			polarization_LineEdit->textEdited(polarization_LineEdit->text());
-		layout->addWidget(polarization_LineEdit,0,1,Qt::AlignLeft);
+		layout->addWidget(polarization_LineEdit,0,4,Qt::AlignLeft);
 
 		polarization_Sensitivity_Label = new QLabel("Polarization sensitivity");
-		layout->addWidget(polarization_Sensitivity_Label,1,0,Qt::AlignRight);
+		layout->addWidget(polarization_Sensitivity_Label,1,3,Qt::AlignRight);
 		polarization_Sensitivity_LineEdit = new QLineEdit;
 			polarization_Sensitivity_LineEdit->setText(QString::number(default_polarization_sensitivity,line_edit_double_format,line_edit_wavelength_precision));
 			polarization_Sensitivity_LineEdit->setFixedWidth(50);
@@ -259,11 +306,11 @@ void Target_Curve_Editor::create_Data_GroupBox()
 			polarization_Sensitivity_LineEdit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION, this));
 			connect(polarization_Sensitivity_LineEdit, &QLineEdit::textEdited, this, &Target_Curve_Editor::resize_Line_Edit );
 			polarization_Sensitivity_LineEdit->textEdited(polarization_Sensitivity_LineEdit->text());
-		layout->addWidget(polarization_Sensitivity_LineEdit,1,1,Qt::AlignLeft);
+		layout->addWidget(polarization_Sensitivity_LineEdit,1,4,Qt::AlignLeft);
 
 
 		spectral_Resolution_Label = new QLabel("Spectral resolution");
-		layout->addWidget(spectral_Resolution_Label,0,2,Qt::AlignRight);
+		layout->addWidget(spectral_Resolution_Label,0,5,Qt::AlignRight);
 		spectral_Resolution_LineEdit = new QLineEdit;
 			spectral_Resolution_LineEdit->setText(QString::number(default_spectral_resolution,line_edit_double_format,line_edit_wavelength_precision));
 			spectral_Resolution_LineEdit->setFixedWidth(50);
@@ -271,10 +318,10 @@ void Target_Curve_Editor::create_Data_GroupBox()
 			spectral_Resolution_LineEdit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION, this));
 			connect(spectral_Resolution_LineEdit, &QLineEdit::textEdited, this, &Target_Curve_Editor::resize_Line_Edit );
 			spectral_Resolution_LineEdit->textEdited(spectral_Resolution_LineEdit->text());
-		layout->addWidget(spectral_Resolution_LineEdit,0,3,Qt::AlignLeft);
+		layout->addWidget(spectral_Resolution_LineEdit,0,6,Qt::AlignLeft);
 
 		angular_Resolution_Label = new QLabel("Angular resolution");
-		layout->addWidget(angular_Resolution_Label,1,2,Qt::AlignRight);
+		layout->addWidget(angular_Resolution_Label,1,5,Qt::AlignRight);
 		angular_Resolution_LineEdit = new QLineEdit;
 			angular_Resolution_LineEdit->setText(QString::number(default_angular_resolution,line_edit_double_format,line_edit_angle_precision));
 			angular_Resolution_LineEdit->setFixedWidth(50);
@@ -282,12 +329,16 @@ void Target_Curve_Editor::create_Data_GroupBox()
 			angular_Resolution_LineEdit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION, this));
 			connect(angular_Resolution_LineEdit, &QLineEdit::textEdited, this, &Target_Curve_Editor::resize_Line_Edit );
 			angular_Resolution_LineEdit->textEdited(angular_Resolution_LineEdit->text());
-		layout->addWidget(angular_Resolution_LineEdit,1,3,Qt::AlignLeft);
+		layout->addWidget(angular_Resolution_LineEdit,1,6,Qt::AlignLeft);
 		angular_Units_Label = new QLabel("<ang unit>");
-		layout->addWidget(angular_Units_Label,1,4,Qt::AlignRight);
+		layout->addWidget(angular_Units_Label,1,7,Qt::AlignRight);
 
 		data_GroupBox_Layout->addLayout(layout);
 	}
+
+	// set up after creation (at the end!)
+	arg_Type_ComboBox->currentTextChanged(arg_Type_ComboBox->currentText());
+	val_Function_ComboBox->currentTextChanged(val_Function_ComboBox->currentText());
 }
 
 void Target_Curve_Editor::resize_Line_Edit()

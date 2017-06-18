@@ -25,6 +25,8 @@ private:
 
 	void fill_Arg_Units_ComboBox(QString arg_Type);
 	void fill_Val_Modes_ComboBox(QString val_Mode);
+	void change_Arg_Units_ComboBox(QString arg_Units);
+	void change_At_Fixed_Units_ComboBox(QString fixed_Units);
 
 	void resize_Line_Edit();
 	void resize_ComboBox();
@@ -54,6 +56,9 @@ private:
 			QLabel* val_Factor_Label;
 			QDoubleSpinBox* val_Factor_SpinBox;
 
+			QLabel* at_Fixed_Label;
+			QLineEdit* at_Fixed_LineEdit;
+			QComboBox* at_Fixed_Units_ComboBox;
 			QLabel* polarization_Label;
 			QLineEdit* polarization_LineEdit;
 			QLabel* polarization_Sensitivity_Label;
