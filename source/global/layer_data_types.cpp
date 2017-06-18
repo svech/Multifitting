@@ -13,6 +13,8 @@ Measurement::Measurement() //-V730
 	probe_Angle.independent.num_Points = default_num_angular_points;
 	probe_Angle.value = default_angle_value;
 
+	angle_Value = 75;
+
 	angular_Resolution.value = default_angular_resolution;
 	angular_Resolution.independent.min = angular_Resolution.value;
 	angular_Resolution.independent.max = angular_Resolution.value;
@@ -25,6 +27,8 @@ Measurement::Measurement() //-V730
 	wavelength.independent.max = default_max_wavelength;
 	wavelength.independent.num_Points = default_num_spectral_points;
 	wavelength.value = default_wavelength_value;
+
+	lambda_Value = 2.13;
 
 	spectral_Resolution.value = default_spectral_resolution;
 	spectral_Resolution.independent.min = spectral_Resolution.value;

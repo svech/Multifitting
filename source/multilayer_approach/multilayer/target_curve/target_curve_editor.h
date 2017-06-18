@@ -28,8 +28,15 @@ private:
 	void change_Arg_Units_ComboBox(QString arg_Units);
 	void change_At_Fixed_Units_ComboBox(QString fixed_Units);
 
-	void resize_Line_Edit();
-	void resize_ComboBox();
+	void resize_Line_Edit(QLineEdit* line_Edit = NULL);
+	void resize_ComboBox(QLineEdit* line_Edit = NULL);
+
+	void show_All();
+		void show_Filepath();
+		void show_Curve_Data();
+		void show_Measurement_Data();
+	void refresh_Data();
+		void refresh_Filepath(QString filepath);
 
 private:
 	QVBoxLayout* main_Layout;

@@ -1580,7 +1580,6 @@ void Independent_Variables_Editor::refresh_Show_Data(bool show)
 			units_Label->setText(units);
 			step_Units_Label->setText(units);
 			angle_Units_Label->setText(units);
-
 			// show data
 			if(show)
 			{
@@ -1601,7 +1600,7 @@ void Independent_Variables_Editor::refresh_Show_Data(bool show)
 					num_Points->setText(QString::number(measurement.probe_Angle.independent.num_Points));
 					num_Points->textEdited(num_Points->text());
 				} else
-				if(min->text().toDouble()*coeff>90)
+				if(min->text().toDouble()*coeff>90.+3*pow(10.,-line_edit_angle_precision+1))
 				{
 					if(measurement.probe_Angle.independent.num_Points == 1)
 						min->setText(QString::number(measurement.probe_Angle.value/coeff,line_edit_double_format,line_edit_angle_precision));
@@ -1609,7 +1608,7 @@ void Independent_Variables_Editor::refresh_Show_Data(bool show)
 						min->setText(QString::number(measurement.probe_Angle.independent.min/coeff,line_edit_double_format,line_edit_angle_precision));
 					min->textEdited(min->text());
 				} else
-				if(max->text().toDouble()*coeff>90)
+				if(max->text().toDouble()*coeff>90.+3*pow(10.,-line_edit_angle_precision+1))
 				{
 					max->setText(QString::number(measurement.probe_Angle.independent.max/coeff,line_edit_double_format,line_edit_angle_precision));
 					max->textEdited(max->text());

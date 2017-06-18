@@ -121,18 +121,18 @@ QStringList value_A_Mode				{"A"};
 
 // length
 QStringList   wavelength_Units_List				{Angstrom_Sym,"nm",Mu_Sym + "m","eV","keV"};
-QList<double> wavelength_Coefficients_List		{1           ,1E1 ,1E4         ,1   ,1E3  };
+QList<double> wavelength_Coefficients_List		{1.           ,1E1 ,1E4         ,1.   ,1E3  };
 QMap<QString, double>  wavelength_Coefficients_Map;
 
 // length
 QStringList   length_Units_List					{Angstrom_Sym,"nm",Mu_Sym + "m"};
-QList<double> length_Coefficients_List			{1           ,1E1 ,1E4         };
+QList<double> length_Coefficients_List			{1.           ,1E1 ,1E4         };
 QMap<QString, double>  length_Coefficients_Map;
 
 // angle
 QStringList   angle_Units_List				{Degree_Sym,Prime_Sym   ,Double_Prime_Sym," rad"   ," mrad"   };
 QStringList   angle_Units_Legend_List		{"degree"  ,"arc minute","arc second"    ,"radian","mrad"   };
-QList<double> angle_Coefficients_List		{1		   ,1./60       ,1./3600         ,180/M_PI,0.18/M_PI};
+QList<double> angle_Coefficients_List		{1.		   ,1./60       ,1./3600         ,180./M_PI,0.18/M_PI};
 QMap<QString, double>  angle_Coefficients_Map;
 QMap<QString, QString> angle_Units_Legend_Map;
 

@@ -300,7 +300,7 @@ void Multilayer::add_Target_Curve(int index_Pressed, QString target_Curve_Type)
 
 	// -----
 	// TEMPORARY
-	new_Target_Curve->open_Window();
+//	new_Target_Curve->open_Window();
 	// ------
 
 	if(target_Curve_Type == MEASURED)

@@ -9,6 +9,8 @@ Target_Curve_Editor::Target_Curve_Editor(Target_Curve* target_Curve, QWidget *pa
 	setWindowTitle("Import Data");
 	set_Window_Geometry();
 	setAttribute(Qt::WA_DeleteOnClose);
+
+	show_All();
 }
 
 void Target_Curve_Editor::closeEvent(QCloseEvent *event)
@@ -24,7 +26,7 @@ void Target_Curve_Editor::set_Window_Geometry()
 
 void Target_Curve_Editor::read_Data_File(QString filepath)
 {
-//	target_Curve->import_Data();
+	refresh_Filepath(filepath);
 }
 
 void Target_Curve_Editor::browse_Data_File()
@@ -36,6 +38,7 @@ void Target_Curve_Editor::browse_Data_File()
 		if (filepath_ComboBox->findText(directory) == -1)
 			filepath_ComboBox->addItem(directory);
 		filepath_ComboBox->setCurrentIndex(filepath_ComboBox->findText(directory));
+		filepath_ComboBox->lineEdit()->returnPressed();
 	}
 }
 
@@ -67,7 +70,7 @@ void Target_Curve_Editor::fill_Arg_Units_ComboBox(QString arg_Type)
 		at_Fixed_LineEdit->setText(QString::number(default_angle_value,line_edit_double_format,line_edit_angle_precision));
 		angular_Units_Label->setText(at_Fixed_Units_ComboBox->currentText().split(",")[0]);
 	}
-	at_Fixed_LineEdit->textEdited(at_Fixed_LineEdit->text());
+//	at_Fixed_LineEdit->textEdited(at_Fixed_LineEdit->text());
 }
 
 void Target_Curve_Editor::fill_Val_Modes_ComboBox(QString val_Mode)
@@ -137,11 +140,8 @@ void Target_Curve_Editor::create_Filepath_GroupBox()
 		// filepath
 		filepath_ComboBox = new QComboBox;
 			filepath_ComboBox->setEditable(true);
-			filepath_ComboBox->addItem(QDir::toNativeSeparators(QDir::currentPath()));
-				QFontMetrics fm = filepath_ComboBox->lineEdit()->fontMetrics();
-				int width = fm.width(QDir::currentPath()) + QLINEEDIT_RESIZE_MARGIN;
-			filepath_ComboBox->lineEdit()->setProperty(min_Size_Property, max(width, width/*600*/));
-			connect(filepath_ComboBox->lineEdit(), &QLineEdit::textEdited, this, &Target_Curve_Editor::resize_ComboBox );
+			connect(filepath_ComboBox->lineEdit(), &QLineEdit::textEdited, this, [=]{resize_ComboBox();} );
+			connect(filepath_ComboBox, &QComboBox::currentTextChanged, this, [=](QString str){ filepath_ComboBox->lineEdit()->textEdited(str); } );
 			connect(filepath_ComboBox->lineEdit(), &QLineEdit::returnPressed, this, [=]{ read_Data_File(filepath_ComboBox->lineEdit()->text()); });
 		layout->addWidget(filepath_ComboBox,0,Qt::AlignLeft);
 
@@ -275,8 +275,8 @@ void Target_Curve_Editor::create_Data_GroupBox()
 			at_Fixed_LineEdit->setFixedWidth(50);
 			at_Fixed_LineEdit->setProperty(min_Size_Property, 50);
 			at_Fixed_LineEdit->setValidator(new QDoubleValidator(-1, 1, MAX_PRECISION, this));
-			connect(at_Fixed_LineEdit, &QLineEdit::textEdited, this, &Target_Curve_Editor::resize_Line_Edit );
-			at_Fixed_LineEdit->textEdited(at_Fixed_LineEdit->text());
+			connect(at_Fixed_LineEdit, &QLineEdit::textEdited, this, [=]{resize_Line_Edit();} );
+//			at_Fixed_LineEdit->textEdited(at_Fixed_LineEdit->text());
 		layout->addWidget(at_Fixed_LineEdit,0,1,2,1,Qt::AlignLeft);
 		at_Fixed_Units_ComboBox = new QComboBox;
 			at_Fixed_Units_ComboBox->addItems(argument_Types);
@@ -293,8 +293,8 @@ void Target_Curve_Editor::create_Data_GroupBox()
 			polarization_LineEdit->setFixedWidth(50);
 			polarization_LineEdit->setProperty(min_Size_Property, 50);
 			polarization_LineEdit->setValidator(new QDoubleValidator(-1, 1, MAX_PRECISION, this));
-			connect(polarization_LineEdit, &QLineEdit::textEdited, this, &Target_Curve_Editor::resize_Line_Edit );
-			polarization_LineEdit->textEdited(polarization_LineEdit->text());
+			connect(polarization_LineEdit, &QLineEdit::textEdited, this, [=]{resize_Line_Edit();} );
+//			polarization_LineEdit->textEdited(polarization_LineEdit->text());
 		layout->addWidget(polarization_LineEdit,0,4,Qt::AlignLeft);
 
 		polarization_Sensitivity_Label = new QLabel("Polarization sensitivity");
@@ -304,8 +304,8 @@ void Target_Curve_Editor::create_Data_GroupBox()
 			polarization_Sensitivity_LineEdit->setFixedWidth(50);
 			polarization_Sensitivity_LineEdit->setProperty(min_Size_Property, 50);
 			polarization_Sensitivity_LineEdit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION, this));
-			connect(polarization_Sensitivity_LineEdit, &QLineEdit::textEdited, this, &Target_Curve_Editor::resize_Line_Edit );
-			polarization_Sensitivity_LineEdit->textEdited(polarization_Sensitivity_LineEdit->text());
+			connect(polarization_Sensitivity_LineEdit, &QLineEdit::textEdited, this, [=]{resize_Line_Edit();} );
+//			polarization_Sensitivity_LineEdit->textEdited(polarization_Sensitivity_LineEdit->text());
 		layout->addWidget(polarization_Sensitivity_LineEdit,1,4,Qt::AlignLeft);
 
 
@@ -316,8 +316,8 @@ void Target_Curve_Editor::create_Data_GroupBox()
 			spectral_Resolution_LineEdit->setFixedWidth(50);
 			spectral_Resolution_LineEdit->setProperty(min_Size_Property, 50);
 			spectral_Resolution_LineEdit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION, this));
-			connect(spectral_Resolution_LineEdit, &QLineEdit::textEdited, this, &Target_Curve_Editor::resize_Line_Edit );
-			spectral_Resolution_LineEdit->textEdited(spectral_Resolution_LineEdit->text());
+			connect(spectral_Resolution_LineEdit, &QLineEdit::textEdited, this, [=]{resize_Line_Edit();} );
+//			spectral_Resolution_LineEdit->textEdited(spectral_Resolution_LineEdit->text());
 		layout->addWidget(spectral_Resolution_LineEdit,0,6,Qt::AlignLeft);
 
 		angular_Resolution_Label = new QLabel("Angular resolution");
@@ -327,8 +327,8 @@ void Target_Curve_Editor::create_Data_GroupBox()
 			angular_Resolution_LineEdit->setFixedWidth(50);
 			angular_Resolution_LineEdit->setProperty(min_Size_Property, 50);
 			angular_Resolution_LineEdit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION, this));
-			connect(angular_Resolution_LineEdit, &QLineEdit::textEdited, this, &Target_Curve_Editor::resize_Line_Edit );
-			angular_Resolution_LineEdit->textEdited(angular_Resolution_LineEdit->text());
+			connect(angular_Resolution_LineEdit, &QLineEdit::textEdited, this, [=]{resize_Line_Edit();} );
+//			angular_Resolution_LineEdit->textEdited(angular_Resolution_LineEdit->text());
 		layout->addWidget(angular_Resolution_LineEdit,1,6,Qt::AlignLeft);
 		angular_Units_Label = new QLabel("<ang unit>");
 		layout->addWidget(angular_Units_Label,1,7,Qt::AlignRight);
@@ -341,9 +341,9 @@ void Target_Curve_Editor::create_Data_GroupBox()
 	val_Function_ComboBox->currentTextChanged(val_Function_ComboBox->currentText());
 }
 
-void Target_Curve_Editor::resize_Line_Edit()
+void Target_Curve_Editor::resize_Line_Edit(QLineEdit* line_Edit)
 {
-	QLineEdit* line_Edit = qobject_cast<QLineEdit*>(QObject::sender());
+	if(!line_Edit) line_Edit = qobject_cast<QLineEdit*>(QObject::sender());
 
 	QString text = line_Edit->text();
 	QFontMetrics fm = line_Edit->fontMetrics();
@@ -358,9 +358,9 @@ void Target_Curve_Editor::resize_Line_Edit()
 	QMetaObject::invokeMethod(this, "adjustSize", Qt::QueuedConnection);
 }
 
-void Target_Curve_Editor::resize_ComboBox()
+void Target_Curve_Editor::resize_ComboBox(QLineEdit* line_Edit)
 {
-	QLineEdit* line_Edit = qobject_cast<QLineEdit*>(QObject::sender());
+	if(!line_Edit) line_Edit = qobject_cast<QLineEdit*>(QObject::sender());
 	QComboBox* comboBox = qobject_cast<QComboBox*>(line_Edit->parent());
 
 	QString text = line_Edit->text();
@@ -376,4 +376,134 @@ void Target_Curve_Editor::resize_ComboBox()
 		comboBox->setFixedWidth(line_Edit->width()+QLINEEDIT_TO_QCOMBOBOX_DIFFERENCE);
 	}
 	QMetaObject::invokeMethod(this, "adjustSize", Qt::QueuedConnection);
+}
+
+void Target_Curve_Editor::show_All()
+{
+	show_Filepath();
+	show_Curve_Data();
+	show_Measurement_Data();
+}
+
+void Target_Curve_Editor::show_Filepath()
+{
+	QString current_Filepath;
+
+	// show directory
+	if(target_Curve->filepath.isEmpty()) // check for previous directory
+	{
+		// default directory
+		current_Filepath = QDir::toNativeSeparators(QDir::currentPath());
+	} else
+	{
+		// previous directory
+		current_Filepath = QDir::toNativeSeparators(target_Curve->filepath);
+	}
+
+	// show filename
+	if(!target_Curve->filename.isEmpty()) // check for filename
+	{
+		current_Filepath += QDir::toNativeSeparators("/"+target_Curve->filename);
+	}
+
+	filepath_ComboBox->addItem(current_Filepath);
+		QFontMetrics fm = filepath_ComboBox->lineEdit()->fontMetrics();
+		int width = fm.width(current_Filepath) + QLINEEDIT_RESIZE_MARGIN;
+	filepath_ComboBox->lineEdit()->setProperty(min_Size_Property, width);
+
+	resize_ComboBox(filepath_ComboBox->lineEdit());
+}
+
+void Target_Curve_Editor::show_Curve_Data()
+{
+	// argument type
+	{
+		if(target_Curve->curve.argument_Type == whats_This_Angle)
+		{
+			if(target_Curve->curve.angle_Type == Angle_Type::Grazing())
+				arg_Type_ComboBox->setCurrentIndex(arg_Type_ComboBox->findText(argument_Types[0]));	// Grazing angle
+			if(target_Curve->curve.angle_Type == Angle_Type::Incidence())
+				arg_Type_ComboBox->setCurrentIndex(arg_Type_ComboBox->findText(argument_Types[1]));	// Incidence angle
+		} else
+		if(target_Curve->curve.argument_Type == whats_This_Wavelength)
+		{
+			arg_Type_ComboBox->setCurrentIndex(arg_Type_ComboBox->findText(argument_Types[2]));		// Wavelength/energy
+		}
+	}
+
+	// value type
+	{
+		val_Function_ComboBox->setCurrentIndex(val_Function_ComboBox->findText(target_Curve->curve.value_Function));
+	}
+
+	// argument units
+	{
+		if(target_Curve->curve.argument_Type == whats_This_Angle)
+			arg_Units_ComboBox->setCurrentIndex(arg_Units_ComboBox->findText(target_Curve->curve.angular_Units));
+		if(target_Curve->curve.argument_Type == whats_This_Wavelength)
+			arg_Units_ComboBox->setCurrentIndex(arg_Units_ComboBox->findText(target_Curve->curve.spectral_Units));
+	}
+
+	// value mode
+	{
+		val_Mode_ComboBox->setCurrentIndex(val_Mode_ComboBox->findText(target_Curve->curve.value_Mode));
+	}
+
+	// offsets
+	{
+		arg_Offset_SpinBox->setValue(target_Curve->curve.arg_Offset);
+		val_Offset_SpinBox->setValue(target_Curve->curve.val_Offset);
+	}
+
+	// scale factors
+	{
+		arg_Factor_SpinBox->setValue(target_Curve->curve.arg_Factor);
+		val_Factor_SpinBox->setValue(target_Curve->curve.val_Factor);
+	}
+}
+
+void Target_Curve_Editor::show_Measurement_Data()
+{
+	// at fixed
+	if(target_Curve->curve.argument_Type == whats_This_Angle)
+		at_Fixed_LineEdit->setText(QString::number(target_Curve->measurement.lambda_Value, line_edit_double_format, line_edit_wavelength_precision));
+	if(target_Curve->curve.argument_Type == whats_This_Wavelength)
+		at_Fixed_LineEdit->setText(QString::number(target_Curve->measurement.angle_Value, line_edit_double_format, line_edit_angle_precision));
+
+	// at fixed units
+	if(target_Curve->curve.argument_Type == whats_This_Angle)
+		at_Fixed_Units_ComboBox->setCurrentIndex(at_Fixed_Units_ComboBox->findText(target_Curve->curve.spectral_Units));
+	if(target_Curve->curve.argument_Type == whats_This_Wavelength)
+		at_Fixed_Units_ComboBox->setCurrentIndex(at_Fixed_Units_ComboBox->findText(target_Curve->curve.angular_Units+", "+target_Curve->curve.angle_Type));
+
+	polarization_LineEdit->setText(QString::number(target_Curve->measurement.polarization.value, line_edit_double_format, line_edit_wavelength_precision));
+	polarization_Sensitivity_LineEdit->setText(QString::number(target_Curve->measurement.polarization_Sensitivity.value, line_edit_double_format, line_edit_wavelength_precision));
+	spectral_Resolution_LineEdit->setText(QString::number(target_Curve->measurement.spectral_Resolution.value, line_edit_double_format, line_edit_wavelength_precision));
+	angular_Resolution_LineEdit->setText(QString::number(target_Curve->measurement.angular_Resolution.value, line_edit_double_format, line_edit_angle_precision));
+
+	resize_Line_Edit(at_Fixed_LineEdit);
+	resize_Line_Edit(polarization_LineEdit);
+	resize_Line_Edit(polarization_Sensitivity_LineEdit);
+	resize_Line_Edit(spectral_Resolution_LineEdit);
+	resize_Line_Edit(angular_Resolution_LineEdit);
+}
+
+void Target_Curve_Editor::refresh_Data()
+{
+
+}
+
+void Target_Curve_Editor::refresh_Filepath(QString filepath)
+{
+	QFile file(filepath);
+	QFileInfo file_Info(file.fileName());
+
+	if(file.exists() && !file_Info.isDir())
+	{
+		target_Curve->filename = file_Info.fileName();
+		target_Curve->filepath = file_Info.absolutePath();
+	} else
+	{
+		QMessageBox::information(this, "Wrong filename", "File \"" + file_Info.fileName() + "\" doesn't exist");
+	}
 }

@@ -18,10 +18,12 @@ public:
 	Curve curve;
 	Measurement measurement;
 
-public slots:
+public:
+	QString filename;	// should be empty
+	QString filepath;	// should be empty
+
 	void open_Window();
 
-public:
 	void import_Data();
 	void create_Measurement();
 	void create_Struct_Tree_Copy();
@@ -29,6 +31,8 @@ public:
 
 	QStringList lines_List;
 	QString arg_Units;
+
+	bool loaded_And_Ready = false;
 };
 
 #endif // TARGET_CURVE_H

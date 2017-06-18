@@ -9,29 +9,33 @@ Target_Curve::Target_Curve(QLabel* description_Label, QTreeWidget* real_Struct_T
 	real_Struct_Tree(real_Struct_Tree),
 	QWidget(parent)
 {
-	qInfo() << "Target_Curve created!";
+	curve.argument_Type = whats_This_Wavelength;		// angular curve
+	curve.angle_Type = Angle_Type::Incidence()/*default_angle_type*/;
+	curve.angular_Units = angle_Units_List[2]/*angle_units*/;
+	curve.spectral_Units = wavelength_Units_List[1]/*wavelength_units*/;
+	curve.value_Function = value_Function[0];	// reflectivity
+	curve.value_Mode = value_R_Mode[3];			// R
+
+	curve.arg_Offset = -0.01; curve.arg_Factor = 0.52;
+	curve.val_Offset = 0.2;   curve.val_Factor = 1.034;
+
+	measurement.calc_Measured_cos2_k();
 }
 
 Target_Curve::~Target_Curve()
 {
-	qInfo() << "Target_Curve deleted!";
 }
 
 void Target_Curve::open_Window()
 {
-	import_Data();
-	create_Measurement();
-	create_Struct_Tree_Copy();
-	description_Label->setText(curve.argument_Type + "; " + curve.value_Mode + "; " + QString::number(curve.argument.first()) + "-" + QString::number(curve.argument.last()) + arg_Units);
+//	import_Data();
+//	create_Measurement();
+//	create_Struct_Tree_Copy();
+//	description_Label->setText(curve.argument_Type + "; " + curve.value_Mode + "; " + QString::number(curve.argument.first()) + "-" + QString::number(curve.argument.last()) + arg_Units);
 }
 
 void Target_Curve::import_Data()
 {
-	// TEMPORARY
-	curve.argument_Type = whats_This_Angle;
-	curve.value_Mode = value_R_Mode[0];
-	curve.angle_Type = Angle_Type::Grazing();
-
 	QRegExp delims("\\ |\\,|\\:|\\t|\\;|\\{|\\}");
 
 	/// reading data
