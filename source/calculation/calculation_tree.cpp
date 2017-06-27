@@ -154,7 +154,7 @@ void Calculation_Tree::fill_1_Kind_of_Calc_Trees(QVector<Data_Element<T>>& data_
 			QTreeWidgetItem substrate_Item;
 			substrate_Item.setWhatsThis(DEFAULT_COLUMN, whats_This_Substrate);
 
-			Ambient ambient = data_Element_Vec[index].local_Item_Tree->topLevelItem(1)->data(DEFAULT_COLUMN, Qt::UserRole).value<Ambient>();
+            Ambient ambient = data_Element_Vec[index].local_Item_Tree->topLevelItem(1)->data(DEFAULT_COLUMN, Qt::UserRole).template value<Ambient>();
 			Substrate substrate;
 
 			// ambient inheritance

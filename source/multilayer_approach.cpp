@@ -23,7 +23,7 @@ void Multilayer_Approach::closeEvent(QCloseEvent* event)
 {
 	// TODO
 	qApp->quit();
-	event;
+    event->accept();
 	emit closed();
 }
 
