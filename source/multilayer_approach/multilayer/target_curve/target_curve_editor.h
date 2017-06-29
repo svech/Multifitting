@@ -35,8 +35,22 @@ private:
 		void show_Filepath();
 		void show_Curve_Data();
 		void show_Measurement_Data();
+			void show_Unit_Dependent_Data();
+				void show_Angular_Resolution();
 	void refresh_Data();
 		void refresh_Filepath(QString filepath);
+		void refresh_Curve_Data();
+			void refresh_Argument_Type();
+			void refresh_Value_Type();
+			void refresh_Argument_Units();
+			void refresh_Value_Mode();
+			void refresh_At_Fixed_Value();
+			void refresh_At_Fixed_Units();
+			void refresh_Offsets();
+			void refresh_Factors();
+			void refresh_Polarization();
+			void refresh_Spectral_Resolution();
+			void refresh_Angular_Resolution();
 
 private:
 	QVBoxLayout* main_Layout;

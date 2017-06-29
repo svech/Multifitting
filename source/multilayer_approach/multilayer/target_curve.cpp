@@ -9,9 +9,9 @@ Target_Curve::Target_Curve(QLabel* description_Label, QTreeWidget* real_Struct_T
 	real_Struct_Tree(real_Struct_Tree),
 	QWidget(parent)
 {
-	curve.argument_Type = whats_This_Wavelength;		// angular curve
+	curve.argument_Type = whats_This_Angle;		// angular curve
 	curve.angle_Type = Angle_Type::Incidence()/*default_angle_type*/;
-	curve.angular_Units = angle_Units_List[2]/*angle_units*/;
+	curve.angular_Units = angle_Units_List[1]/*angle_units*/;
 	curve.spectral_Units = wavelength_Units_List[1]/*wavelength_units*/;
 	curve.value_Function = value_Function[0];	// reflectivity
 	curve.value_Mode = value_R_Mode[3];			// R

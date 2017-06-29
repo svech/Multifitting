@@ -452,9 +452,9 @@ void Settings::read_Parameters_Default_Values(bool reset_to_default)
 		default_min_wavelength			 = parameters_Default_Values.value( "default_min_wavelength",			100		).toDouble();
 		default_max_wavelength			 = parameters_Default_Values.value( "default_max_wavelength",			180		).toDouble();
 		default_angle_type				 = parameters_Default_Values.value( "default_angle_type",				Angle_Type::Grazing() ).toString();
-		default_angular_resolution		 = parameters_Default_Values.value( "default_angular_resolution",		0		).toDouble();
+		default_angular_resolution		 = parameters_Default_Values.value( "default_angular_resolution",		0.009	).toDouble();
 		default_polarization			 = parameters_Default_Values.value( "default_polarization",				0		).toDouble();
-		default_spectral_resolution		 = parameters_Default_Values.value( "default_spectral_resolution",		0		).toDouble();
+		default_spectral_resolution		 = parameters_Default_Values.value( "default_spectral_resolution",		0.001	).toDouble();
 		default_polarization_sensitivity = parameters_Default_Values.value( "default_polarization_sensitivity",	0		).toDouble();
 	parameters_Default_Values.endGroup();
 }
