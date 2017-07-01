@@ -4,7 +4,7 @@
 #include "global/layer_data_types.h"
 #include "multilayer_approach/multilayer/target_curve.h"
 
-class Target_Curve_Editor : public QWidget
+class Target_Curve_Editor : public QDialog
 {
 	Q_OBJECT
 	Q_INVOKABLE void adjustSize()							{ QWidget::adjustSize(); }
@@ -17,10 +17,12 @@ private:
 	void create_Main_Layout();
 		void create_Filepath_GroupBox();
 		void create_Data_GroupBox();
+		void create_Buttons();
 	void set_Window_Geometry();
 
 
 	void read_Data_File(QString filepath);
+	void show_Description_Label();
 	void browse_Data_File();
 
 	void fill_Arg_Units_ComboBox(QString arg_Type);
@@ -37,21 +39,21 @@ private:
 		void show_Measurement_Data();
 			void show_Unit_Dependent_Data();
 				void show_Angular_Resolution();
-	void refresh_Data();
-		void refresh_Filepath(QString filepath);
-		void refresh_Curve_Data();
-			void refresh_Argument_Type();
-			void refresh_Value_Type();
-			void refresh_Argument_Units();
-			void refresh_Value_Mode();
-			void refresh_At_Fixed_Value();
-			void refresh_At_Fixed_Units();
-			void refresh_Offsets();
-			void refresh_Factors();
-			void refresh_Polarization();
-			void refresh_Spectral_Resolution();
-			void refresh_Angular_Resolution();
 
+	void refresh_Filepath(QString filepath);
+	void refresh_Argument_Type();
+	void refresh_Value_Type();
+	void refresh_Argument_Units();
+	void refresh_Value_Mode();
+	void refresh_At_Fixed_Value();
+	void refresh_At_Fixed_Units();
+	void refresh_Offsets();
+	void refresh_Factors();
+	void refresh_Polarization();
+	void refresh_Spectral_Resolution();
+	void refresh_Angular_Resolution();
+
+	bool is_File_Exists = false;
 private:
 	QVBoxLayout* main_Layout;
 		QGroupBox* filepath_GroupBox;
@@ -92,6 +94,7 @@ private:
 
 		QLabel* data_Indicator_Label;
 		QPushButton* close_Button;
+		QPushButton* read_Data_Button;
 };
 
 #endif // TARGET_CURVE_EDITOR_H

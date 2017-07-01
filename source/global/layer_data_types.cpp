@@ -13,6 +13,7 @@ Measurement::Measurement() //-V730
 	probe_Angle.independent.num_Points = default_num_angular_points;
 	probe_Angle.value = default_angle_value;
 
+	angle_Type = Angle_Type::Grazing();
 	angle_Value = 90;
 
 	angular_Resolution.value = default_angular_resolution;

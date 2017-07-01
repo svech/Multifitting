@@ -22,15 +22,14 @@ public:
 	QString filename;	// should be empty
 	QString filepath;	// should be empty
 
-	void open_Window();
-
-	void import_Data();
-	void create_Measurement();
+	void import_Data(QString filename);
 	void create_Struct_Tree_Copy();
 	void renew_Struct_Tree_Copy();
 
 	QStringList lines_List;
 	QString arg_Units;
+	QString at_Fixed;
+	QString arg_Type_For_Label;
 
 	bool loaded_And_Ready = false;
 };

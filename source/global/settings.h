@@ -31,6 +31,9 @@ extern QString default_independent_variable_tab_name;
 // resource path
 extern QString icon_path;
 
+// measurement default file
+extern QString default_Measured_Filename;
+
 // -----------------------------------------------------------------------------------------
 
 // structure default values
@@ -180,6 +183,11 @@ public:
 	// calculation params
 	static void read_Calculations(bool reset_to_default = false);
 	static void save_Calculations();
+
+	// measurements
+	static void read_Measurements(bool reset_to_default = false);
+	static void save_Measurements();
+
 	// -----------------------------------------------------------------------------------------
 
 	// all

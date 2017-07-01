@@ -60,6 +60,10 @@ using namespace std;
 #define Calculations_Path Pre_Path + "settings/calculations.ini"
 	#define Threads "Threads"
 
+// measurements
+#define Measurements_Path Pre_Path + "settings/measurements.ini"
+	#define Filenames "Filenames"
+
 // -----------------------------------------------------------------------------------------
 
 // optical constants

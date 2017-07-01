@@ -6,7 +6,7 @@
 
 Target_Curve_Editor::Target_Curve_Editor(Target_Curve* target_Curve, QWidget *parent) :
 	target_Curve(target_Curve),
-	QWidget(parent)
+	QDialog(parent)
 {
 	create_Main_Layout();
 
@@ -29,6 +29,50 @@ void Target_Curve_Editor::set_Window_Geometry()
 void Target_Curve_Editor::read_Data_File(QString filepath)
 {
 	refresh_Filepath(filepath);
+	if(is_File_Exists)
+	{
+		target_Curve->import_Data(filepath);
+		target_Curve->create_Struct_Tree_Copy();
+		target_Curve->create_Struct_Tree_Copy();
+	} else
+	{
+		target_Curve->loaded_And_Ready = false;
+	}
+
+	show_Description_Label();
+}
+
+void Target_Curve_Editor::show_Description_Label()
+{
+	if(target_Curve->loaded_And_Ready)
+	{
+		if(target_Curve->curve.argument_Type == whats_This_Angle)
+		{
+			target_Curve->arg_Type_For_Label = "Angular";
+			target_Curve->arg_Units = target_Curve->curve.angular_Units;
+
+			double coeff = wavelength_Coefficients_Map.value(target_Curve->curve.spectral_Units);
+			target_Curve->at_Fixed = QString::number(Global_Variables::wavelength_Energy(target_Curve->curve.spectral_Units,target_Curve->measurement.lambda_Value)/coeff, thumbnail_double_format, thumbnail_wavelength_precision)+" "+target_Curve->curve.spectral_Units;
+		}
+		if(target_Curve->curve.argument_Type == whats_This_Wavelength)
+		{
+			target_Curve->arg_Type_For_Label = "Spectral";
+			target_Curve->arg_Units = target_Curve->curve.spectral_Units;
+
+			double coeff = angle_Coefficients_Map.value(target_Curve->curve.angular_Units);
+			target_Curve->at_Fixed = QString::number(target_Curve->measurement.angle_Value/coeff, thumbnail_double_format, thumbnail_angle_precision)+" "+target_Curve->curve.angular_Units;
+		}
+
+		target_Curve->description_Label->setText(
+					target_Curve->arg_Type_For_Label + "; " +
+					target_Curve->curve.value_Mode + "; " +
+					QString::number(target_Curve->curve.argument.first()) + "-" + QString::number(target_Curve->curve.argument.last()) + " " + target_Curve->arg_Units + "; " +
+					"at " + target_Curve->at_Fixed
+					);
+	} else
+	{
+		target_Curve->description_Label->setText("<no description>");
+	}
 }
 
 void Target_Curve_Editor::browse_Data_File()
@@ -111,7 +155,6 @@ void Target_Curve_Editor::fill_Val_Modes_ComboBox(QString val_Mode)
 	if(val_Mode == value_Function[0])	// reflectance
 	{
 		val_Mode_ComboBox->addItems(value_R_Mode);
-		val_Mode_ComboBox->setCurrentIndex(val_Mode_ComboBox->findText(target_Curve->curve.value_Mode));
 	}
 	if(val_Mode == value_Function[1])	// transmittance
 	{
@@ -122,6 +165,10 @@ void Target_Curve_Editor::fill_Val_Modes_ComboBox(QString val_Mode)
 		val_Mode_ComboBox->addItems(value_A_Mode);
 	}
 	val_Mode_ComboBox->blockSignals(false);
+
+	int index = val_Mode_ComboBox->findText(target_Curve->curve.value_Mode);
+	if(index>=0) {val_Mode_ComboBox->setCurrentIndex(index);}
+	else		 {val_Mode_ComboBox->setCurrentIndex(0);val_Mode_ComboBox->currentTextChanged(val_Mode_ComboBox->currentText());}
 }
 
 void Target_Curve_Editor::change_Arg_Units_ComboBox(QString arg_Units)
@@ -144,21 +191,13 @@ void Target_Curve_Editor::create_Main_Layout()
 {
 	main_Layout = new QVBoxLayout(this);
 	main_Layout->setContentsMargins(4,10,4,0);
+	main_Layout->setSpacing(0);
 
 	create_Filepath_GroupBox();
 		main_Layout->addWidget(filepath_GroupBox);
 	create_Data_GroupBox();
 		main_Layout->addWidget(data_GroupBox);
-
-	// close
-	{
-		close_Button = new QPushButton("Done", this);
-			close_Button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-			close_Button->setFocus();
-			close_Button->setDefault(true);
-			connect(close_Button, SIGNAL(clicked()), this, SLOT(close()));
-		main_Layout->addWidget(close_Button,0,Qt::AlignCenter);
-	}
+	create_Buttons();
 }
 
 void Target_Curve_Editor::create_Filepath_GroupBox()
@@ -395,6 +434,32 @@ void Target_Curve_Editor::create_Data_GroupBox()
 	connect(angular_Resolution_LineEdit, &QLineEdit::textEdited, this, &Target_Curve_Editor::refresh_Angular_Resolution);
 }
 
+void Target_Curve_Editor::create_Buttons()
+{
+	QHBoxLayout* button_Layout = new QHBoxLayout();
+	button_Layout->setAlignment(Qt::AlignCenter);
+
+	// close
+	{
+		close_Button = new QPushButton("Done", this);
+			close_Button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+//			close_Button->setFocus();
+			close_Button->setDefault(true);
+			connect(close_Button, SIGNAL(clicked()), this, SLOT(close()));
+		button_Layout->addWidget(close_Button,0,Qt::AlignCenter);
+	}
+
+	// read data
+	{
+		read_Data_Button = new QPushButton("Read Data", this);
+			read_Data_Button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+			connect(read_Data_Button, &QPushButton::clicked, this, [=]{ filepath_ComboBox->lineEdit()->returnPressed(); });
+		button_Layout->addWidget(read_Data_Button,0,Qt::AlignCenter);
+	}
+
+	main_Layout->addLayout(button_Layout);
+}
+
 void Target_Curve_Editor::resize_Line_Edit(QLineEdit* line_Edit)
 {
 	if(!line_Edit) line_Edit = qobject_cast<QLineEdit*>(QObject::sender());
@@ -447,7 +512,7 @@ void Target_Curve_Editor::show_Filepath()
 	if(target_Curve->filepath.isEmpty()) // check for previous directory
 	{
 		// default directory
-		current_Filepath = QDir::toNativeSeparators(QDir::currentPath());
+		current_Filepath = QDir::toNativeSeparators(QDir::currentPath()+"/"+default_Measured_Filename);
 	} else
 	{
 		// previous directory
@@ -566,11 +631,6 @@ void Target_Curve_Editor::show_Angular_Resolution()
 	resize_Line_Edit(angular_Resolution_LineEdit);
 }
 
-void Target_Curve_Editor::refresh_Data()
-{
-	// UNUSED
-}
-
 void Target_Curve_Editor::refresh_Filepath(QString filepath)
 {
 	QFile file(filepath);
@@ -580,23 +640,12 @@ void Target_Curve_Editor::refresh_Filepath(QString filepath)
 	{
 		target_Curve->filename = file_Info.fileName();
 		target_Curve->filepath = file_Info.absolutePath();
+		is_File_Exists = true;
 	} else
 	{
+		is_File_Exists = false;
 		QMessageBox::information(this, "Wrong filename", "File \"" + file_Info.fileName() + "\" doesn't exist");
 	}
-}
-
-void Target_Curve_Editor::refresh_Curve_Data()
-{
-	// UNUSED
-	refresh_Argument_Type();
-	refresh_Value_Type();
-	refresh_Argument_Units();
-	refresh_Value_Mode();
-	refresh_At_Fixed_Value();
-	refresh_At_Fixed_Units();
-	refresh_Offsets();
-	refresh_Factors();
 }
 
 void Target_Curve_Editor::refresh_Argument_Type()
@@ -605,21 +654,25 @@ void Target_Curve_Editor::refresh_Argument_Type()
 	{
 		target_Curve->curve.argument_Type = whats_This_Angle;
 		target_Curve->curve.angle_Type = Angle_Type::Grazing();
+		target_Curve->measurement.angle_Type = target_Curve->curve.angle_Type;
 	} else
 	if(arg_Type_ComboBox->currentText() == argument_Types[1])	// Incident angle
 	{
 		target_Curve->curve.argument_Type = whats_This_Angle;
 		target_Curve->curve.angle_Type = Angle_Type::Incidence();
+		target_Curve->measurement.angle_Type = target_Curve->curve.angle_Type;
 	} else
 	if(arg_Type_ComboBox->currentText() == argument_Types[2])	// Wavelength/energy
 	{
 		target_Curve->curve.argument_Type = whats_This_Wavelength;
 	}
+	show_Description_Label();
 }
 
 void Target_Curve_Editor::refresh_Value_Type()
 {
 	target_Curve->curve.value_Function = val_Function_ComboBox->currentText();
+	show_Description_Label();
 }
 
 void Target_Curve_Editor::refresh_Argument_Units()
@@ -628,6 +681,7 @@ void Target_Curve_Editor::refresh_Argument_Units()
 		target_Curve->curve.angular_Units = arg_Units_ComboBox->currentText();
 	if(arg_Type_ComboBox->currentText() == argument_Types[2])							// Wavelength/energy
 		target_Curve->curve.spectral_Units = arg_Units_ComboBox->currentText();
+	show_Description_Label();
 }
 
 void Target_Curve_Editor::refresh_Value_Mode()
@@ -646,8 +700,15 @@ void Target_Curve_Editor::refresh_At_Fixed_Value()
 	if(arg_Type_ComboBox->currentText() == argument_Types[2])															// Wavelength/energy
 	{
 		double coeff = angle_Coefficients_Map.value(local_Unit);			// angular units
-		target_Curve->measurement.angle_Value = at_Fixed_LineEdit->text().toDouble()*coeff;
+		if(at_Fixed_LineEdit->text().toDouble()*coeff<=90)//.+3*pow(10.,-line_edit_angle_precision+1))	// be ready to have a bug!
+		{
+			target_Curve->measurement.angle_Value = at_Fixed_LineEdit->text().toDouble()*coeff;
+		} else
+		{
+			at_Fixed_LineEdit->setText(QString::number(target_Curve->measurement.angle_Value/coeff, line_edit_double_format, line_edit_angle_precision));
+		}
 	}
+	show_Description_Label();
 }
 
 void Target_Curve_Editor::refresh_At_Fixed_Units()
@@ -660,7 +721,9 @@ void Target_Curve_Editor::refresh_At_Fixed_Units()
 	{
 		target_Curve->curve.angular_Units = at_Fixed_Units_ComboBox->currentText().split(", ")[0];
 		target_Curve->curve.angle_Type = at_Fixed_Units_ComboBox->currentText().split(", ")[1];
+		target_Curve->measurement.angle_Type = target_Curve->curve.angle_Type;
 	}
+	show_Description_Label();
 }
 
 void Target_Curve_Editor::refresh_Offsets()
@@ -673,6 +736,7 @@ void Target_Curve_Editor::refresh_Factors()
 {
 	target_Curve->curve.arg_Factor = arg_Factor_SpinBox->value();
 	target_Curve->curve.val_Factor = val_Factor_SpinBox->value();
+	show_Description_Label();
 }
 
 void Target_Curve_Editor::refresh_Polarization()

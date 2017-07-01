@@ -298,11 +298,6 @@ void Multilayer::add_Target_Curve(int index_Pressed, QString target_Curve_Type)
 	QFrame* new_Frame = new QFrame;
 	Target_Curve* new_Target_Curve = new Target_Curve(new_Description_Label, structure_Tree->tree);
 
-	// -----
-	// TEMPORARY
-//	new_Target_Curve->open_Window();
-	// ------
-
 	if(target_Curve_Type == MEASURED)
 	{
 		data_Measured_Data_Frame_Vector.insert(index_Pressed, new_Frame);
@@ -312,7 +307,10 @@ void Multilayer::add_Target_Curve(int index_Pressed, QString target_Curve_Type)
 	{
 		data_Target_Profile_Frame_Vector.insert(index_Pressed,new_Frame);
 		target_Profiles_Vector.insert(index_Pressed, new_Target_Curve);
-	}else	{qInfo() << "Multilayer::add_Target_Curve  :  target_Curve_Type should be \"MEASURED\" or \"OPTIMIZE\"";}
+	} else
+	{
+		QMessageBox::information(this, "Multilayer::add_Target_Curve", "target_Curve_Type should be \"MEASURED\" or \"OPTIMIZE\"");
+	}
 
 	QHBoxLayout* new_Frame_Layout = new QHBoxLayout(new_Frame);
 	new_Frame_Layout->setMargin(0);

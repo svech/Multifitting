@@ -31,6 +31,9 @@ QString default_independent_variable_tab_name;
 // resource path
 QString icon_path;
 
+// measurement default file
+QString default_Measured_Filename;
+
 // -----------------------------------------------------------------------------------------
 
 // structure default values
@@ -539,6 +542,29 @@ void Settings::save_Calculations()
 	calculations.endGroup();
 }
 
+void Settings::read_Measurements(bool reset_to_default)
+{
+	QString add_reset;
+	if(reset_to_default) add_reset = "wrong_path";
+
+	QSettings measurements(Measurements_Path + add_reset, QSettings::IniFormat);
+
+	// measurements
+	measurements.beginGroup( Threads );
+		default_Measured_Filename = measurements.value( "default_Measured_Filename",	"measured.txt" ).toString();
+	measurements.endGroup();
+}
+
+void Settings::save_Measurements()
+{
+	QSettings measurements(Measurements_Path, QSettings::IniFormat);
+
+	// measurements
+	measurements.beginGroup( Filenames );
+		measurements.setValue( "default_Measured_Filename", default_Measured_Filename );
+	measurements.endGroup();
+}
+
 // -----------------------------------------------------------------------------------------
 
 void Settings::read_All_Settings(bool reset_to_default)
@@ -549,6 +575,7 @@ void Settings::read_All_Settings(bool reset_to_default)
 	read_Parameters_Default_Values(reset_to_default);
 	read_Units(reset_to_default);
 	read_Calculations(reset_to_default);
+	read_Measurements(reset_to_default);
 }
 
 void Settings::save_All_Settings()
@@ -559,4 +586,5 @@ void Settings::save_All_Settings()
 	save_Parameters_Default_Values();
 	save_Units();
 	save_Calculations();
+	save_Measurements();
 }

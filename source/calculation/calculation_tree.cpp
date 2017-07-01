@@ -7,7 +7,7 @@
 
 Calculation_Tree::Calculation_Tree(QVector<Independent_Variables*>& independent_Variables_Vector, QVector<Target_Curve*>& measured_Data_Vector, QVector<Target_Curve*>& target_Profiles_Vector): //-V730
 	measured(measured_Data_Vector.size()),
-	target(target_Profiles_Vector.size()),
+	target(0),//(target_Profiles_Vector.size()),
 	independent(independent_Variables_Vector.size())
 {
 	// initialization of vectors
