@@ -6,10 +6,17 @@
 #include <iostream>
 
 Calculation_Tree::Calculation_Tree(QVector<Independent_Variables*>& independent_Variables_Vector, QVector<Target_Curve*>& measured_Data_Vector, QVector<Target_Curve*>& target_Profiles_Vector): //-V730
-	measured(measured_Data_Vector.size()),
-	target(0),//(target_Profiles_Vector.size()),
 	independent(independent_Variables_Vector.size())
 {
+	int counter=0;
+	for(int i=0; i<measured_Data_Vector.size(); ++i)	if(measured_Data_Vector[i]->loaded_And_Ready) ++counter;
+	measured.resize(counter);
+
+	counter=0;
+	for(int i=0; i<target_Profiles_Vector.size(); ++i)	if(target_Profiles_Vector[i]->loaded_And_Ready) ++counter;
+	target.resize(counter);
+
+
 	// initialization of vectors
 	for(int i=0; i<independent.size(); ++i)
 	{

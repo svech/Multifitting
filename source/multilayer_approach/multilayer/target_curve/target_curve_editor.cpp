@@ -32,8 +32,12 @@ void Target_Curve_Editor::read_Data_File(QString filepath)
 	if(is_File_Exists)
 	{
 		target_Curve->import_Data(filepath);
-		target_Curve->create_Struct_Tree_Copy();
-		target_Curve->create_Struct_Tree_Copy();
+
+		if(target_Curve->loaded_And_Ready)
+		{
+			target_Curve->fill_Measurement_With_Data();
+			target_Curve->create_Struct_Tree_Copy();
+		}
 	} else
 	{
 		target_Curve->loaded_And_Ready = false;

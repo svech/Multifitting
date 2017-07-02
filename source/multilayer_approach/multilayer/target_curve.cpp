@@ -107,6 +107,18 @@ void Target_Curve::import_Data(QString filename)
 	}
 }
 
+void Target_Curve::fill_Measurement_With_Data()
+{
+	if(curve.argument_Type == whats_This_Angle)	// angular
+	{
+		measurement.angle = curve.argument;
+	} else
+	if(curve.argument_Type == whats_This_Wavelength)	// spectral
+	{
+		measurement.lambda = curve.argument;
+	}
+}
+
 void Target_Curve::create_Struct_Tree_Copy()
 {
 	struct_Tree_Copy = new QTreeWidget(this);

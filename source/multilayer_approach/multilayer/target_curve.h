@@ -23,6 +23,7 @@ public:
 	QString filepath;	// should be empty
 
 	void import_Data(QString filename);
+	void fill_Measurement_With_Data();
 	void create_Struct_Tree_Copy();
 	void renew_Struct_Tree_Copy();
 
