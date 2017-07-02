@@ -226,8 +226,10 @@ void Multilayer_Approach::open()
 
 		for(int i=0; i<multilayer->independent_Variables_Plot_Tabs->count(); ++i)
 		{
+			delete multilayer->independent_Variables_Vector[i];
 			delete multilayer->independent_Variables_Plot_Tabs->widget(i);
 		}
+		multilayer->independent_Variables_Vector.clear();
 		multilayer->independent_Variables_Plot_Tabs->clear();
 
 		// load independent tabs
@@ -249,6 +251,60 @@ void Multilayer_Approach::open()
 
 			// load variables list
 			Global_Variables::deserialize_Variables_List(in, independent->independent_Variables_List);
+		}
+
+		// load number of measured curves/frames
+		int num_Measured;
+		in >> num_Measured;
+
+		// clear existing data
+		for(int i=0; i<multilayer->data_Measured_Data_Frame_Vector.size(); ++i)
+		{
+			delete multilayer->measured_Data_Vector[i];
+			delete multilayer->data_Measured_Data_Frame_Vector[i];
+		}
+		multilayer->measured_Data_Vector.clear();
+		multilayer->data_Measured_Data_Frame_Vector.clear();
+
+		// load measured data
+		for(int i=0; i<num_Measured; ++i)
+		{
+			// create default target
+			multilayer->add_Target_Curve(i, MEASURED);
+
+			// work with it
+			Target_Curve* target_Curve = multilayer->measured_Data_Vector[i];
+
+			// load main data
+			in >> target_Curve;
+			target_Curve->set_Text_To_Label();
+		}
+
+		// load number of target curves/frames
+		int num_Target;
+		in >> num_Target;
+
+		// clear existing data
+		for(int i=0; i<multilayer->data_Target_Profile_Frame_Vector.size(); ++i)
+		{
+			delete multilayer->target_Profiles_Vector[i];
+			delete multilayer->data_Target_Profile_Frame_Vector[i];
+		}
+		multilayer->target_Profiles_Vector.clear();
+		multilayer->data_Target_Profile_Frame_Vector.clear();
+
+		// load target profile
+		for(int i=0; i<num_Target; ++i)
+		{
+			// create default target
+			multilayer->add_Target_Curve(i, OPTIMIZE);
+
+			// work with it
+			Target_Curve* target_Curve = multilayer->target_Profiles_Vector[i];
+
+			// load main data
+			in >> target_Curve;
+			target_Curve->set_Text_To_Label();
 		}
 
 		multilayer->refresh_Structure_And_Independent();
@@ -318,6 +374,26 @@ void Multilayer_Approach::save()
 
 			// save variables list
 			Global_Variables::serialize_Variables_List(out, independent->independent_Variables_List);
+		}
+
+		// save number of measured curves/frames
+		out << multilayer->measured_Data_Vector.size();
+
+		// save measured data
+		for(int i=0; i<multilayer->measured_Data_Vector.size(); ++i)
+		{
+			Target_Curve* target_Curve = multilayer->measured_Data_Vector[i];
+			out << target_Curve;
+		}
+
+		// save number of target curves/frames
+		out << multilayer->target_Profiles_Vector.size();
+
+		// save target profile
+		for(int i=0; i<multilayer->target_Profiles_Vector.size(); ++i)
+		{
+			Target_Curve* target_Curve = multilayer->target_Profiles_Vector[i];
+			out << target_Curve;
 		}
 	}
 	file.close();

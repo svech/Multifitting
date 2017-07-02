@@ -95,6 +95,26 @@ QDataStream& operator >>( QDataStream& stream,		 Drift& drift )
 				  >> drift.drift_Line_Value >> drift.drift_Rand_Rms >> drift.drift_Sine_Amplitude >> drift.drift_Sine_Frequency >> drift.drift_Sine_Phase;
 }
 
+QDataStream& operator <<( QDataStream& stream, const Value& value )
+{
+	return stream << value.val_1 << value.val_2;
+}
+QDataStream& operator >>( QDataStream& stream,		 Value& value )
+{
+	return stream >> value.val_1 >> value.val_2;
+}
+
+QDataStream& operator <<( QDataStream& stream, const Curve& curve )
+{
+	return stream << curve.argument << curve.values << curve.arg_Offset << curve.arg_Factor << curve.val_Offset << curve.val_Factor
+				  << curve.argument_Type << curve.angle_Type << curve.angular_Units << curve.spectral_Units << curve.value_Function << curve.value_Mode;
+}
+QDataStream& operator >>( QDataStream& stream,		 Curve& curve )
+{
+	return stream >> curve.argument >> curve.values >> curve.arg_Offset >> curve.arg_Factor >> curve.val_Offset >> curve.val_Factor
+				  >> curve.argument_Type >> curve.angle_Type >> curve.angular_Units >> curve.spectral_Units >> curve.value_Function >> curve.value_Mode;
+}
+
 // optical constants
 
 void Point::read_Row(QTextStream& input, bool if_Factors)

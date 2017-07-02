@@ -20,6 +20,7 @@ Target_Curve::Target_Curve(QLabel* description_Label, QTreeWidget* real_Struct_T
 	curve.val_Offset = 0.2;   curve.val_Factor = 1.034;
 
 	measurement.calc_Measured_cos2_k();
+	struct_Tree_Copy = new QTreeWidget(this);
 }
 
 Target_Curve::~Target_Curve()
@@ -119,11 +120,11 @@ void Target_Curve::fill_Measurement_With_Data()
 	}
 }
 
-void Target_Curve::create_Struct_Tree_Copy()
-{
-	struct_Tree_Copy = new QTreeWidget(this);
-	renew_Struct_Tree_Copy();
-}
+//void Target_Curve::create_Struct_Tree_Copy()
+//{
+//	struct_Tree_Copy = new QTreeWidget(this);
+//	renew_Struct_Tree_Copy();
+//}
 
 void Target_Curve::renew_Struct_Tree_Copy()
 {
@@ -144,4 +145,21 @@ void Target_Curve::renew_Struct_Tree_Copy()
 	new_Measurement_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
 	new_Measurement_Item->setWhatsThis(DEFAULT_COLUMN, whats_This_Measurement);
 	struct_Tree_Copy->insertTopLevelItem(0, new_Measurement_Item);
+}
+
+void Target_Curve::set_Text_To_Label()
+{
+	description_Label->setText(label_Text);
+}
+
+// serialization
+QDataStream& operator <<( QDataStream& stream, const Target_Curve* target_Curve )
+{
+	return stream	<< target_Curve->curve << target_Curve->measurement << target_Curve->filename << target_Curve->filepath << target_Curve->loaded_And_Ready
+					<< target_Curve->lines_List << target_Curve->arg_Units << target_Curve->at_Fixed << target_Curve->arg_Type_For_Label << target_Curve->label_Text;
+}
+QDataStream& operator >>(QDataStream& stream,		 Target_Curve* target_Curve )
+{
+	return stream	>> target_Curve->curve >> target_Curve->measurement >> target_Curve->filename >> target_Curve->filepath >> target_Curve->loaded_And_Ready
+					>> target_Curve->lines_List >> target_Curve->arg_Units >> target_Curve->at_Fixed >> target_Curve->arg_Type_For_Label >> target_Curve->label_Text;
 }

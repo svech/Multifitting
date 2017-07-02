@@ -265,7 +265,7 @@ struct Angle_Type				{static QString Grazing()		 { return "Grazing"  ;}
 								 static QString Incidence()		 { return "Incidence";}
 								};
 
-// measured data types
+// measured/target data types
 struct Value					{double val_1; double val_2; /*double sigma_1; double sigma_2;*/};
 struct Curve					{QVector<double> argument;
 								 QVector<Value> values;
@@ -309,6 +309,12 @@ QDataStream& operator >>( QDataStream& stream,		 Interlayer& interlayer );
 
 QDataStream& operator <<( QDataStream& stream, const Drift& drift );
 QDataStream& operator >>( QDataStream& stream,		 Drift& drift );
+
+QDataStream& operator <<( QDataStream& stream, const Value& value );
+QDataStream& operator >>( QDataStream& stream,		 Value& value );
+
+QDataStream& operator <<( QDataStream& stream, const Curve& curve );
+QDataStream& operator >>( QDataStream& stream,		 Curve& curve );
 // -----------------------------------------------------------------------------------------
 
 class Global_Definitions

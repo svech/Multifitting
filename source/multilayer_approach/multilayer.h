@@ -50,7 +50,6 @@ public slots:
 public slots:
 	void refresh_Structure_And_Independent(QObject* my_Sender = NULL);
 
-private slots:
 	void add_Target_Curve   (int index_Pressed, QString target_Curve_Type);
 	void remove_Target_Curve(int index_Pressed, QString target_Curve_Type);
 	void open_Import_Window(Target_Curve* target_Curve);

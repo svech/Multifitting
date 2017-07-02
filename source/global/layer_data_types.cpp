@@ -50,7 +50,8 @@ Measurement::Measurement() //-V730
 void Measurement::calc_Measured_cos2_k()
 {
 	// cos2
-	cos2_Value = pow(cos(angle_Value*M_PI/180.),2);
+	angle_Value = probe_Angle.value;
+	cos2_Value = pow(cos(probe_Angle.value*M_PI/180.),2);
 
 	cos2.resize(angle.size());
 	for(int i=0; i<angle.size(); ++i)
@@ -59,7 +60,8 @@ void Measurement::calc_Measured_cos2_k()
 	}
 
 	// k
-	k_Value = 2*M_PI/lambda_Value;
+	lambda_Value = wavelength.value;
+	k_Value = 2*M_PI/wavelength.value;
 
 	k.resize(lambda.size());
 	for(int i=0; i<lambda.size(); ++i)
@@ -349,13 +351,13 @@ Stack_Content::Stack_Content()
 /// measurement
 QDataStream& operator <<( QDataStream& stream, const Measurement& measurement )
 {
-	return stream	<< measurement.probe_Angle << measurement.angular_Resolution << measurement.angle_Type
-					<< measurement.wavelength << measurement.spectral_Resolution << measurement.polarization << measurement.polarization_Sensitivity;
+	return stream	<< measurement.probe_Angle << measurement.cos2 << measurement.angle << measurement.cos2_Value << measurement.angle_Value << measurement.angular_Resolution << measurement.angle_Type
+					<< measurement.wavelength << measurement.k << measurement.lambda << measurement.k_Value << measurement.lambda_Value << measurement.spectral_Resolution << measurement.polarization << measurement.polarization_Sensitivity;
 }
 QDataStream& operator >>( QDataStream& stream,		 Measurement& measurement )
 {
-	return stream	>> measurement.probe_Angle >> measurement.angular_Resolution >> measurement.angle_Type
-					>> measurement.wavelength >> measurement.spectral_Resolution >> measurement.polarization >> measurement.polarization_Sensitivity;
+	return stream	>> measurement.probe_Angle >> measurement.cos2 >> measurement.angle >> measurement.cos2_Value >> measurement.angle_Value >> measurement.angular_Resolution >> measurement.angle_Type
+					>> measurement.wavelength >> measurement.k >> measurement.lambda >> measurement.k_Value >> measurement.lambda_Value >> measurement.spectral_Resolution >> measurement.polarization >> measurement.polarization_Sensitivity;
 }
 /// ambient
 QDataStream& operator <<( QDataStream& stream, const Ambient& ambient )
