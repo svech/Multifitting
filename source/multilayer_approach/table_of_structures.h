@@ -3,6 +3,7 @@
 
 #include "global/settings.h"
 #include "multilayer/structure_tree.h"
+#include "table_of_structures/my_table_widget.h"
 
 class Structure_Tree;
 
@@ -10,7 +11,6 @@ class Table_Of_Structures : public QWidget
 {
 	Q_OBJECT
 	void closeEvent(QCloseEvent* event);
-	void contextMenuEvent(QContextMenuEvent *event);
 public:
 	explicit Table_Of_Structures(QMap<QString, Table_Of_Structures*>* runned_Tables_Of_Structures, QTabWidget* multilayer_Tabs, QWidget *parent = 0);
 
@@ -23,39 +23,39 @@ public:
         void create_Menu();
         void create_Tabs();
         void add_Tabs();
-        void create_Table(QTableWidget* new_Table, int tab_Index);
+		void create_Table(My_Table_Widget* new_Table, int tab_Index);
 		void read_Trees();
 
 	// for material only
-    void create_Combo_Elements(QTableWidget* table, int current_Row, int start_Column, QTreeWidgetItem* structure_Item, QString item_Type_String);
-    void create_Stoich(QTableWidget* table, int current_Row, int start_Column, QTreeWidgetItem* structure_Item, QString item_Type_String, QString val_Type);
+	void create_Combo_Elements(My_Table_Widget* table, int current_Row, int start_Column, QTreeWidgetItem* structure_Item, QString item_Type_String);
+	void create_Stoich(My_Table_Widget* table, int current_Row, int start_Column, QTreeWidgetItem* structure_Item, QString item_Type_String, QString val_Type);
 	QString material_From_Composition(QList<Stoichiometry>& composition);
-    void create_Stoich_Check_Box_Fit(QTableWidget* table, int current_Row, int start_Column, QTreeWidgetItem* structure_Item, QString item_Type_String, int r_S, int r_F, int c_S, int c_F);
+	void create_Stoich_Check_Box_Fit(My_Table_Widget* table, int current_Row, int start_Column, QTreeWidgetItem* structure_Item, QString item_Type_String, int r_S, int r_F, int c_S, int c_F);
 
-    void create_Material(QTableWidget* table, int current_Row, int current_Column, QTreeWidgetItem* structure_Item, QString item_Type_String);
-    void create_Browse_Button(QTableWidget* table, int current_Row, int start_Column);
+	void create_Material(My_Table_Widget* table, int current_Row, int current_Column, QTreeWidgetItem* structure_Item, QString item_Type_String);
+	void create_Browse_Button(My_Table_Widget* table, int current_Row, int start_Column);
 
 	// for several parameters
-    void create_Label			(QTableWidget* table, int current_Row, int current_Column, QString item_Type_String, QString whats_This, QString text);
-    void create_Check_Box_Label	(QTableWidget* table, int current_Row, int current_Column, QTreeWidgetItem* structure_Item, QString item_Type_String, QString whats_This, QString text, int r_S, int r_F, int c_S, int c_F);
+	void create_Label			(My_Table_Widget* table, int current_Row, int current_Column, QString item_Type_String, QString whats_This, QString text);
+	void create_Check_Box_Label	(My_Table_Widget* table, int current_Row, int current_Column, QTreeWidgetItem* structure_Item, QString item_Type_String, QString whats_This, QString text, int r_S, int r_F, int c_S, int c_F);
 
 	// for all parameters
-    void create_Line_Edit    (QTableWidget* table, int current_Row, int current_Column, QTreeWidgetItem* structure_Item, QString item_Type_String, QString whats_This, QString val_Type);
-    void create_Check_Box_Fit(QTableWidget* table, int current_Row, int current_Column, QTreeWidgetItem* structure_Item, QString item_Type_String, QString whats_This, int r_S, int r_F, int c_S, int c_F);
+	void create_Line_Edit    (My_Table_Widget* table, int current_Row, int current_Column, QTreeWidgetItem* structure_Item, QString item_Type_String, QString whats_This, QString val_Type);
+	void create_Check_Box_Fit(My_Table_Widget* table, int current_Row, int current_Column, QTreeWidgetItem* structure_Item, QString item_Type_String, QString whats_This, int r_S, int r_F, int c_S, int c_F);
 
 	// for interlayers
-    void create_Check_Box_Label_Interlayer		(QTableWidget* table, int current_Row, int start_Column, QTreeWidgetItem* structure_Item, QString item_Type_String);
-    void create_Weigts_Interlayer				(QTableWidget* table, int current_Row, int start_Column, QTreeWidgetItem* structure_Item, QString item_Type_String, QString val_Type);
-    void create_Weights_Check_Box_Fit_Interlayer(QTableWidget* table, int current_Row, int start_Column, QTreeWidgetItem* structure_Item, QString item_Type_String);
+	void create_Check_Box_Label_Interlayer		(My_Table_Widget* table, int current_Row, int start_Column, QTreeWidgetItem* structure_Item, QString item_Type_String);
+	void create_Weigts_Interlayer				(My_Table_Widget* table, int current_Row, int start_Column, QTreeWidgetItem* structure_Item, QString item_Type_String, QString val_Type);
+	void create_Weights_Check_Box_Fit_Interlayer(My_Table_Widget* table, int current_Row, int start_Column, QTreeWidgetItem* structure_Item, QString item_Type_String);
 
-    void create_MySigma_Labels_Interlayer		(QTableWidget* table, int current_Row, int start_Column, QTreeWidgetItem* structure_Item, QString item_Type_String);
-    void create_MySigma_Interlayer				(QTableWidget* table, int current_Row, int start_Column, QTreeWidgetItem* structure_Item, QString item_Type_String);
+	void create_MySigma_Labels_Interlayer		(My_Table_Widget* table, int current_Row, int start_Column, QTreeWidgetItem* structure_Item, QString item_Type_String);
+	void create_MySigma_Interlayer				(My_Table_Widget* table, int current_Row, int start_Column, QTreeWidgetItem* structure_Item, QString item_Type_String);
 
 	// general
-    void span_Structure_Headers(QTableWidget* table);
-    void span_Structure_Items(QTableWidget* table);
-    void fit_Column(QTableWidget* table, int start_Width, int current_Column);
-    void add_Columns(QTableWidget* table, int add_After);
+	void span_Structure_Headers(My_Table_Widget* table);
+	void span_Structure_Items(My_Table_Widget* table);
+	void fit_Column(My_Table_Widget* table, int start_Width, int current_Column);
+	void add_Columns(My_Table_Widget* table, int add_After);
 
 public slots:
 
@@ -77,7 +77,7 @@ public slots:
 	void change_Stack_Gamma(QTreeWidgetItem* structure_Item, double new_Gamma_Value);
 
 	// for all parameters
-    void refresh_Parameter(QTableWidget* table);
+	void refresh_Parameter(My_Table_Widget* table);
     void refresh_Fit_Parameter();
 
 	// for interlayers
@@ -89,9 +89,9 @@ public slots:
     double recalculate_Sigma_From_Individuals(QVector<Interlayer> &interlayer_Composition);
 
 	// general
-    void cells_On_Off(QTableWidget* table);
-    void cells_On_Off_2(QTableWidget* table, bool b = false);
-    void resize_Line_Edit(QTableWidget* table, QLineEdit* line_Edit = NULL);
+	void cells_On_Off(My_Table_Widget* table);
+	void cells_On_Off_2(My_Table_Widget* table, bool b = false);
+	void resize_Line_Edit(My_Table_Widget* table, QLineEdit* line_Edit = NULL);
 	void emit_Data_Edited();
 	void reload_All_Widgets(QObject* sender = NULL);
 
@@ -102,8 +102,8 @@ public:
 	int basic_Row_Number = 0;
 	int basic_Column_Number = 1;
 
-    QTabWidget* main_Tabs;
-    QList<QTableWidget*> list_Of_Tables;
+	QTabWidget* main_Tabs;
+	QList<My_Table_Widget*> list_Of_Tables;
 	QList<Structure_Tree*> list_Of_Trees;
 
 	QList<int> rows_List_To_Span;
