@@ -3,6 +3,7 @@
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
 #include "menu.h"
+#include "multilayer_approach/table_of_structures.h"
 
 Menu::Menu(QString window_Type, QWidget *parent):
 	window_Type(window_Type),
@@ -46,7 +47,9 @@ void Menu::add_Menu_Points()
 	}
     if(window_Type == Window_Type::Table())
     {
-        create_Table_Units_Menu();
+		create_Calculate_Menu();
+			menu_Bar->addMenu(calculate_Menu);
+		create_Table_Units_Menu();
             menu_Bar->addMenu(units_Menu);
         create_Table_Precision_Menu();
             menu_Bar->addMenu(precision_Menu);
@@ -101,8 +104,16 @@ void Menu::create_Calculate_Menu()
 	calculate_Menu = new QMenu("Calculate", this);
 
 	QAction* act_Specular = new QAction("Specular optical functions/fields", this);
-	act_Specular->setShortcut(Qt::Key_C | Qt::CTRL);
-	connect(act_Specular, SIGNAL(triggered()), my_Parent, SLOT(calc_Reflection()));
+	act_Specular->setShortcut(Qt::Key_C | Qt::CTRL | Qt::SHIFT);
+	if(window_Type == Window_Type::Table())
+	{
+		Table_Of_Structures* table_Of_Structures = dynamic_cast<Table_Of_Structures*>(my_Parent);
+		connect(act_Specular, SIGNAL(triggered()), table_Of_Structures->multilayer_Tabs->parent(), SLOT(calc_Reflection()));
+	}
+	if(window_Type == Window_Type::Multilayer_Approach())
+	{
+		connect(act_Specular, SIGNAL(triggered()), my_Parent, SLOT(calc_Reflection()));
+	}
 	calculate_Menu->addAction(act_Specular);
 }
 

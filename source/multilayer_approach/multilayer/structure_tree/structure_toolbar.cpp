@@ -544,8 +544,6 @@ void Structure_Toolbar::add_Buffered_Layer(QTreeWidgetItem* new_Layer_Passed)
 	new_Layer = new_Layer_Passed->clone(); //-V519
 
 	// set unique id
-	clock_t t = clock();
-	srand(t);
 	int id = rand()*RAND_SHIFT+rand();
 	new_Layer->setStatusTip(DEFAULT_COLUMN, QString::number(id));
 

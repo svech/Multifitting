@@ -38,7 +38,7 @@ void Multilayer_Approach::create_Main_Layout()
 
 void Multilayer_Approach::create_Menu()
 {
-	Menu* menu = new Menu(Window_Type::Multilayer_Approach(), this);
+	menu = new Menu(Window_Type::Multilayer_Approach(), this);
 		main_Layout->setMenuBar(menu->menu_Bar);
 }
 

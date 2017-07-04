@@ -238,10 +238,16 @@ enum       Transitional_Layer	{ Erf , Lin , Exp , Tanh , Sin , Step};
 // simple types					renew corresponding serialization operators!
 struct Int_Independent			{int value; bool is_Independent=false;	int start; int step; int num_steps;};
 struct Independent				{bool is_Independent = false;	double min; double max; int num_Points;};
-struct Coupled					{bool is_Coupled	 = false;};
+struct Coupled					{bool is_Coupled	 = false;
+								 bool has_Master = false; int master_Id = 0; QString function_Type = "default"; double function(double argument){ return argument;}
+								 bool has_Slaves = false; QVector<int> slaves_Id;};
 struct Fit						{bool is_Fitable	 = false;	bool min_Bounded; double min; bool max_Bounded; double max;};
 struct Optimize					{bool is_Optimizable = false;	bool min_Bounded; double min; bool max_Bounded; double max;};
-struct Parameter				{double value; Independent independent; Coupled coupled; Fit fit; Optimize optimize;                     };
+struct Parameter				{double value; Independent independent; Coupled coupled; Fit fit; Optimize optimize;  int id;
+								 Parameter()
+								 {
+									id = rand()*RAND_SHIFT+rand();	// create unique id
+								 }};
 struct Stoichiometry			{Parameter composition; QString type;};
 struct Interlayer				{Parameter interlayer; Parameter my_Sigma; bool enabled;};
 struct Drift					{bool is_Drift_Line;  Parameter drift_Line_Value;

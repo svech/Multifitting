@@ -50,6 +50,7 @@ private slots:
 	void rename_Multilayer(int tab_Index);
 
 public:
+	Menu* menu;
 	Launcher* launcher;					// "parent"
 private:
 	QHBoxLayout* main_Layout;

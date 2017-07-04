@@ -32,11 +32,11 @@ QDataStream& operator >>( QDataStream& stream,		 Independent& independent )
 
 QDataStream& operator <<( QDataStream& stream, const Coupled& coupled )
 {
-	return stream << coupled.is_Coupled;
+	return stream << coupled.is_Coupled << coupled.has_Master << coupled.master_Id << coupled.function_Type << coupled.has_Slaves << coupled.slaves_Id;
 }
 QDataStream& operator >>( QDataStream& stream,		 Coupled& coupled )
 {
-	return stream >> coupled.is_Coupled;
+	return stream >> coupled.is_Coupled >> coupled.has_Master >> coupled.master_Id >> coupled.function_Type >> coupled.has_Slaves >> coupled.slaves_Id;
 }
 
 QDataStream& operator <<( QDataStream& stream, const Fit& fit )
@@ -59,11 +59,11 @@ QDataStream& operator >>( QDataStream& stream,		 Optimize& optimize )
 
 QDataStream& operator <<( QDataStream& stream, const Parameter& parameter )
 {
-	return stream << parameter.value << parameter.independent << parameter.coupled << parameter.fit << parameter.optimize;
+	return stream << parameter.value << parameter.independent << parameter.coupled << parameter.fit << parameter.optimize << parameter.id;
 }
 QDataStream& operator >>( QDataStream& stream,		 Parameter& parameter )
 {
-	return stream >> parameter.value >> parameter.independent >> parameter.coupled >> parameter.fit >> parameter.optimize;
+	return stream >> parameter.value >> parameter.independent >> parameter.coupled >> parameter.fit >> parameter.optimize >> parameter.id;
 }
 
 QDataStream& operator <<( QDataStream& stream, const Stoichiometry& stoichiometry )

@@ -10,6 +10,7 @@ class Table_Of_Structures : public QWidget
 {
 	Q_OBJECT
 	void closeEvent(QCloseEvent* event);
+	void contextMenuEvent(QContextMenuEvent *event);
 public:
 	explicit Table_Of_Structures(QMap<QString, Table_Of_Structures*>* runned_Tables_Of_Structures, QTabWidget* multilayer_Tabs, QWidget *parent = 0);
 
@@ -105,7 +106,6 @@ public:
     QList<QTableWidget*> list_Of_Tables;
 	QList<Structure_Tree*> list_Of_Trees;
 
-private:
 	QList<int> rows_List_To_Span;
 	QHBoxLayout* main_Layout;
 	QMap<QString, Table_Of_Structures*>* runned_Tables_Of_Structures;

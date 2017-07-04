@@ -21,13 +21,22 @@ void Table_Of_Structures::closeEvent(QCloseEvent* event)
 	event;
 	runned_Tables_Of_Structures->remove(table_Key);
 
+	Multilayer_Approach* multilayer_Approach = dynamic_cast<Multilayer_Approach*>(multilayer_Tabs->parent());
+	multilayer_Approach->menu->setDisabled(false);
+
 	multilayer_Tabs->cornerWidget()->setDisabled(false);
 	for(int i=0; i<multilayer_Tabs->count(); ++i)
 	{
 		list_Of_Trees[i]->structure_Toolbar->toolbar->setDisabled(false);
 		list_Of_Trees[i]->tree->blockSignals(false);
         multilayer_Tabs->tabBar()->tabButton(i, QTabBar::RightSide)->setEnabled(true);
-    }
+	}
+}
+
+void Table_Of_Structures::contextMenuEvent(QContextMenuEvent* event)
+{
+//	indexAt
+	qInfo() << "contextMenuEvent " << event->x();
 }
 
 void Table_Of_Structures::emit_Data_Edited()
@@ -447,6 +456,9 @@ void Table_Of_Structures::read_Trees()
         multilayer_Tabs->tabBar()->tabButton(i, QTabBar::RightSide)->setDisabled(true);
 	}
 	multilayer_Tabs->cornerWidget()->setDisabled(true);
+
+	Multilayer_Approach* multilayer_Approach = dynamic_cast<Multilayer_Approach*>(multilayer_Tabs->parent());
+	multilayer_Approach->menu->setDisabled(true);
 }
 
 void Table_Of_Structures::add_Columns(QTableWidget* table, int add_After)
