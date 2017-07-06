@@ -1426,8 +1426,8 @@ void Item_Editor::refresh_Data(QString str)
 			for(int i=0; i<ambient.composition.size(); ++i)
 			{
 				ambient.composition[i].composition.value = composition_Line_Edit_Vec[i]->text().toDouble();
-//				ambient.composition[i].composition.fit.min = ambient.composition[i].composition.value*(1-dispersion);
-//				ambient.composition[i].composition.fit.max = ambient.composition[i].composition.value*(1+dispersion);
+				ambient.composition[i].composition.fit.min = ambient.composition[i].composition.value*(1-dispersion);
+				ambient.composition[i].composition.fit.max = ambient.composition[i].composition.value*(1+dispersion);
 
 				ambient.composition[i].type = composition_Combo_Box_Vec[i]->currentText();
 				composition_At_Weight_Vec[i]->setText(AtWt + QString::number(sorted_Elements.value(composition_Combo_Box_Vec[i]->currentText()),thumbnail_double_format,at_weight_precision) + ")");

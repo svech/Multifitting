@@ -36,7 +36,7 @@ public:
 	void create_Browse_Button(My_Table_Widget* table, int current_Row, int start_Column);
 
 	// for several parameters
-	void create_Label			(My_Table_Widget* table, int current_Row, int current_Column, QString item_Type_String, QString whats_This, QString text);
+	void create_Label			(My_Table_Widget* table, int current_Row, int current_Column, QTreeWidgetItem* structure_Item, QString item_Type_String, QString whats_This, QString text);
 	void create_Check_Box_Label	(My_Table_Widget* table, int current_Row, int current_Column, QTreeWidgetItem* structure_Item, QString item_Type_String, QString whats_This, QString text, int r_S, int r_F, int c_S, int c_F);
 
 	// for all parameters
@@ -57,6 +57,7 @@ public:
 	void fit_Column(My_Table_Widget* table, int start_Width, int current_Column);
 	void add_Columns(My_Table_Widget* table, int add_After);
 
+	void get_Parameter(Parameter& parameter, QTreeWidgetItem* structure_Item, QString whats_This); 
 public slots:
 
 	// for material only
@@ -90,7 +91,7 @@ public slots:
 
 	// general
 	void cells_On_Off(My_Table_Widget* table);
-	void cells_On_Off_2(My_Table_Widget* table, bool b = false);
+	void cells_On_Off_2(My_Table_Widget* table);
 	void resize_Line_Edit(My_Table_Widget* table, QLineEdit* line_Edit = NULL);
 	void emit_Data_Edited();
 	void reload_All_Widgets(QObject* sender = NULL);

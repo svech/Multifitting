@@ -8,7 +8,20 @@ My_Table_Widget::My_Table_Widget(int rows, int columns, QWidget *parent) : QTabl
 
 void My_Table_Widget::contextMenuEvent(QContextMenuEvent *event)
 {
-	qInfo() << "row = " << currentRow() << "column = " << currentColumn();
+	int row = currentRow();
+	int column = currentColumn();;
+	qInfo() << "row = " << row << "column = " << column;
+
+	QWidget* widget = cellWidget(row,column);
+
+	if(widget)
+	if(!widget->whatsThis().isEmpty())
+	{
+		qInfo() << "wtf = " << widget->whatsThis();
+		QMenu menu(this);
+		menu.addAction(new QAction("id = " + widget->whatsThis()));
+		menu.exec(event->globalPos());
+	}
 }
 
 //My_Table_Widget::My_Table_Widget(QWidget *parent) : QWidget(parent)
