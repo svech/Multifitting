@@ -244,7 +244,9 @@ struct Coupled					{bool is_Coupled	 = false;
 								 bool has_Slaves = false; QVector<int> slaves_Id;};
 struct Fit						{bool is_Fitable	 = false;	bool min_Bounded; double min; bool max_Bounded; double max;};
 struct Optimize					{bool is_Optimizable = false;	bool min_Bounded; double min; bool max_Bounded; double max;};
-struct Parameter				{double value; Independent independent; Coupled coupled; Fit fit; Optimize optimize;  int id;
+struct Parameter				{double value; Independent independent; Coupled coupled; Fit fit; Optimize optimize;
+								 int id;
+								 QString full_Name;
 								 Parameter()
 								 {
 									id = rand()*RAND_SHIFT+rand();	// create unique id

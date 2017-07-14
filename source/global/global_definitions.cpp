@@ -59,11 +59,11 @@ QDataStream& operator >>( QDataStream& stream,		 Optimize& optimize )
 
 QDataStream& operator <<( QDataStream& stream, const Parameter& parameter )
 {
-	return stream << parameter.value << parameter.independent << parameter.coupled << parameter.fit << parameter.optimize << parameter.id;
+	return stream << parameter.value << parameter.independent << parameter.coupled << parameter.fit << parameter.optimize << parameter.id << parameter.full_Name;
 }
 QDataStream& operator >>( QDataStream& stream,		 Parameter& parameter )
 {
-	return stream >> parameter.value >> parameter.independent >> parameter.coupled >> parameter.fit >> parameter.optimize >> parameter.id;
+	return stream >> parameter.value >> parameter.independent >> parameter.coupled >> parameter.fit >> parameter.optimize >> parameter.id >> parameter.full_Name;
 }
 
 QDataStream& operator <<( QDataStream& stream, const Stoichiometry& stoichiometry )

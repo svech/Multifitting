@@ -234,7 +234,7 @@ void Item_Editor::make_Thickness_Group_Box()
 
 		connect(depth_Grading_Button,SIGNAL(clicked(bool)),       this, SLOT(depth_Grading(bool)));
 		connect(thickness_Line_Edit, SIGNAL(textEdited(QString)), this, SLOT(resize_Line_Edit(QString)));
-		connect(thickness_Line_Edit, SIGNAL(textEdited(QString)), this, SLOT(refresh_Data(QString)));
+		connect(thickness_Line_Edit, &QLineEdit::textEdited, this, [=]{refresh_Data();});
 	}
 	{
 		thickness_Done = true;
@@ -354,7 +354,7 @@ void Item_Editor::make_Sigma_Group_Box()
 
 		connect(sigma_Grading_Button,SIGNAL(clicked(bool)),   this, SLOT(sigma_Grading(bool)));
 		connect(sigma_Line_Edit, SIGNAL(textEdited(QString)), this, SLOT(resize_Line_Edit(QString)));
-		connect(sigma_Line_Edit, SIGNAL(textEdited(QString)), this, SLOT(refresh_Data(QString)));
+		connect(sigma_Line_Edit, &QLineEdit::textEdited, this, [=]{refresh_Data();});
 	}
 	// interlayer functions
 	{
@@ -529,8 +529,8 @@ void Item_Editor::more_Elements_Clicked(bool)
 	QLabel*	  at_Weight = new QLabel;
 
 	connect(line_Edit, SIGNAL(textEdited(QString)),			this, SLOT(resize_Line_Edit(QString)));
-	connect(line_Edit, SIGNAL(textEdited(QString)),			this, SLOT(refresh_Data(QString)));
-	connect(elements,  SIGNAL(currentTextChanged(QString)), this, SLOT(refresh_Data(QString)));
+	connect(line_Edit, &QLineEdit::textEdited, this, [=]{refresh_Data();});
+	connect(elements, &QComboBox::currentTextChanged, this, [=]{refresh_Data();});
 
 	// loading settings
 	if(item_Type==Item_Type::Ambient)
@@ -650,8 +650,8 @@ void Item_Editor::read_Elements_From_Item(bool temp_bool)
 			composition_Combo_Box_Vec[i]=elements;
 			composition_At_Weight_Vec[i]=at_Weight;
 
-			connect(line_Edit, SIGNAL(textEdited(QString)),			this, SLOT(refresh_Data(QString)));
-			connect(elements,  SIGNAL(currentTextChanged(QString)), this, SLOT(refresh_Data(QString)));
+			connect(line_Edit, &QLineEdit::textEdited, this, [=]{refresh_Data();});
+			connect(elements,  &QComboBox::currentTextChanged, this, [=]{refresh_Data();});
 
 			// placing ui elements
 			QFrame* element_Frame = new QFrame;
@@ -702,8 +702,8 @@ void Item_Editor::read_Elements_From_Item(bool temp_bool)
 			composition_Combo_Box_Vec[i]=elements;
 			composition_At_Weight_Vec[i]=at_Weight;
 
-			connect(line_Edit, SIGNAL(textEdited(QString)),			this, SLOT(refresh_Data(QString)));
-			connect(elements,  SIGNAL(currentTextChanged(QString)), this, SLOT(refresh_Data(QString)));
+			connect(line_Edit, &QLineEdit::textEdited, this, [=]{refresh_Data();});
+			connect(elements,  &QComboBox::currentTextChanged, this, [=]{refresh_Data();});
 
 			// placing ui elements
 			QFrame* element_Frame = new QFrame;
@@ -754,7 +754,7 @@ void Item_Editor::read_Elements_From_Item(bool temp_bool)
 			composition_Combo_Box_Vec[i] = elements;
 			composition_At_Weight_Vec[i] = at_Weight;
 
-			connect(line_Edit, SIGNAL(textEdited(QString)),			this, SLOT(refresh_Data(QString)));
+			connect(line_Edit, &QLineEdit::textEdited, this, [=]{refresh_Data();});
 
 			// placing ui elements
 			QFrame* element_Frame = new QFrame;
@@ -836,8 +836,8 @@ void Item_Editor::read_Interlayers_From_Item()
 			interlayer_Composition_My_Sigma_Line_Edit_Vec[i]=my_Sigma_Line_Edit;
 
 			connect(check_Box,			SIGNAL(stateChanged(int)),	 this, SLOT(interlayer_Check(int)));
-			connect(comp_Line_Edit,		SIGNAL(textEdited(QString)), this, SLOT(refresh_Data(QString)));
-			connect(my_Sigma_Line_Edit, SIGNAL(textEdited(QString)), this, SLOT(refresh_Data(QString)));
+			connect(comp_Line_Edit,		&QLineEdit::textEdited, this, [=]{refresh_Data();});
+			connect(my_Sigma_Line_Edit, &QLineEdit::textEdited, this, [=]{refresh_Data();});
 
 			// placing ui elements
 			QVBoxLayout* vert_Layout = new QVBoxLayout;
@@ -902,8 +902,8 @@ void Item_Editor::read_Interlayers_From_Item()
 			interlayer_Composition_My_Sigma_Line_Edit_Vec[i]=my_Sigma_Line_Edit;
 
 			connect(check_Box,			SIGNAL(stateChanged(int)),	 this, SLOT(interlayer_Check(int)));
-			connect(comp_Line_Edit,		SIGNAL(textEdited(QString)), this, SLOT(refresh_Data(QString)));
-			connect(my_Sigma_Line_Edit, SIGNAL(textEdited(QString)), this, SLOT(refresh_Data(QString)));
+			connect(comp_Line_Edit,		&QLineEdit::textEdited, this, [=]{refresh_Data();});
+			connect(my_Sigma_Line_Edit, &QLineEdit::textEdited, this, [=]{refresh_Data();});
 
 			// placing ui elements
 			QVBoxLayout* vert_Layout = new QVBoxLayout;

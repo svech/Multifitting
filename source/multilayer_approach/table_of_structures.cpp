@@ -46,7 +46,7 @@ void Table_Of_Structures::create_Main_Layout()
 	create_Tabs();
 	main_Layout->addWidget(main_Tabs);
 	//	resize(800,550);
-	resize(1520,750);
+	resize(920,750);
 	add_Tabs();
 }
 
@@ -165,21 +165,21 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 		// material
 		if(item_Type_String == whats_This_Ambient || item_Type_String == whats_This_Layer || item_Type_String == whats_This_Substrate)
 		{
-		if(composed_Material)
-		{
-			create_Combo_Elements(new_Table, current_Row,   current_Column, structure_Item, item_Type_String);
-			create_Stoich		 (new_Table, current_Row+1, current_Column, structure_Item, item_Type_String, VAL);
-			create_Stoich		 (new_Table, current_Row+3, current_Column, structure_Item, item_Type_String, MIN);
-			create_Stoich		 (new_Table, current_Row+4, current_Column, structure_Item, item_Type_String, MAX);
+			if(composed_Material)
+			{
+				create_Combo_Elements(new_Table, current_Row,   current_Column, structure_Item, item_Type_String);
+				create_Stoich		 (new_Table, current_Row+1, current_Column, structure_Item, item_Type_String, VAL);
+				create_Stoich		 (new_Table, current_Row+3, current_Column, structure_Item, item_Type_String, MIN);
+				create_Stoich		 (new_Table, current_Row+4, current_Column, structure_Item, item_Type_String, MAX);
 
-			// it should be created last
-			create_Stoich_Check_Box_Fit (new_Table, current_Row+2, current_Column, structure_Item, item_Type_String, 1, 2, 0, 0);
-		}
-		else
-		{
-			create_Material      (new_Table, current_Row,   current_Column, structure_Item, item_Type_String);
-			create_Browse_Button (new_Table, current_Row+1, current_Column);
-		}
+				// it should be created last
+				create_Stoich_Check_Box_Fit (new_Table, current_Row+2, current_Column, structure_Item, item_Type_String, 1, 2, 0, 0);
+			}
+			else
+			{
+				create_Material      (new_Table, current_Row,   current_Column, structure_Item, item_Type_String);
+				create_Browse_Button (new_Table, current_Row+1, current_Column);
+			}
 		}
 		current_Column += (max_Number_Of_Elements+1);
 		///--------------------------------------------------------------------------------------------
@@ -711,9 +711,10 @@ void Table_Of_Structures::create_Stoich_Check_Box_Fit(My_Table_Widget* table, in
 
 	// set parameter id to BACK widget
 	QVariant var;
+	composition[composition_Index].composition.full_Name = structure_Item->whatsThis(DEFAULT_COLUMN) + " " + composition[composition_Index].type + " composition";
 	var.setValue( composition[composition_Index].composition );
 	back_Widget->setProperty(parameter_Property,var);
-	back_Widget->setWhatsThis(QString::number(composition[composition_Index].composition.id));
+	back_Widget->setWhatsThis(structure_Item->whatsThis(DEFAULT_COLUMN));
 
 	current_Column+=TABLE_COLUMN_ELEMENTS_SHIFT;
 
@@ -789,9 +790,10 @@ void Table_Of_Structures::create_Label(My_Table_Widget* table, int current_Row, 
 	if(parameter.id!=0)
 	{
 		QVariant var;
+		parameter.full_Name = structure_Item->whatsThis(DEFAULT_COLUMN) + " " + whats_This;
 		var.setValue( parameter );
 		label->setProperty(parameter_Property,var);
-		label->setWhatsThis(QString::number(parameter.id));
+		label->setWhatsThis(structure_Item->whatsThis(DEFAULT_COLUMN));
 	}
 
 	// for reloading
@@ -867,11 +869,11 @@ void Table_Of_Structures::create_Check_Box_Label(My_Table_Widget* table, int cur
 	if(parameter.id!=0)
 	{
 		QVariant var;
+		parameter.full_Name = structure_Item->whatsThis(DEFAULT_COLUMN) + " " + whats_This;
 		var.setValue( parameter );
 		back_Widget->setProperty(parameter_Property,var);
-		back_Widget->setWhatsThis(QString::number(parameter.id));
+		back_Widget->setWhatsThis(structure_Item->whatsThis(DEFAULT_COLUMN));
 	}
-
 
 	back_Widget->setStyleSheet("background-color: lightblue");
 	table->setCellWidget(current_Row, current_Column, back_Widget);
@@ -1072,9 +1074,10 @@ void Table_Of_Structures::create_Check_Box_Fit(My_Table_Widget* table, int curre
 
 	// set parameter id to BACK widget
 	QVariant var;
+	parameter.full_Name = structure_Item->whatsThis(DEFAULT_COLUMN) + " " + whats_This;
 	var.setValue( parameter );
 	back_Widget->setProperty(parameter_Property,var);
-	back_Widget->setWhatsThis(QString::number(parameter.id));
+	back_Widget->setWhatsThis(structure_Item->whatsThis(DEFAULT_COLUMN));
 
 	connect(check_Box, &QCheckBox::toggled, this, [=]{refresh_Fit_Parameter(); });
 	//	connect(check_Box, SIGNAL(toggled(bool)), this, SLOT(refresh_Fit_Parameter(bool))); old version
@@ -1146,9 +1149,10 @@ void Table_Of_Structures::create_Check_Box_Label_Interlayer(My_Table_Widget* tab
 
 	// set parameter id to BACK widget
 	QVariant var;
+	interlayer_Composition[interlayer_Index].interlayer.full_Name = structure_Item->whatsThis(DEFAULT_COLUMN) + " " + "Weight "+transition_Layer_Functions[interlayer_Index];
 	var.setValue( interlayer_Composition[interlayer_Index].interlayer );
 	back_Widget->setProperty(parameter_Property,var);
-	back_Widget->setWhatsThis(QString::number(interlayer_Composition[interlayer_Index].interlayer.id));
+	back_Widget->setWhatsThis(structure_Item->whatsThis(DEFAULT_COLUMN));
 
 	back_Widget->setStyleSheet("background-color: lightblue");
 	table->setCellWidget(current_Row, current_Column, back_Widget);
@@ -1246,9 +1250,10 @@ void Table_Of_Structures::create_Weights_Check_Box_Fit_Interlayer(My_Table_Widge
 
 	// set parameter id to BACK widget
 	QVariant var;
+	interlayer_Composition[interlayer_Index].interlayer.full_Name = structure_Item->whatsThis(DEFAULT_COLUMN) + " " + "Weight "+transition_Layer_Functions[interlayer_Index];
 	var.setValue( interlayer_Composition[interlayer_Index].interlayer );
 	back_Widget->setProperty(parameter_Property,var);
-	back_Widget->setWhatsThis(QString::number(interlayer_Composition[interlayer_Index].interlayer.id));
+	back_Widget->setWhatsThis(structure_Item->whatsThis(DEFAULT_COLUMN));
 
 	table->setCellWidget(current_Row, current_Column, back_Widget);
 
@@ -1273,9 +1278,10 @@ void Table_Of_Structures::create_MySigma_Labels_Interlayer(My_Table_Widget* tabl
 
 	// set parameter id to widget
 	QVariant var;
-	var.setValue( interlayer_Composition[interlayer_Index].my_Sigma.id );
+	interlayer_Composition[interlayer_Index].my_Sigma.full_Name = structure_Item->whatsThis(DEFAULT_COLUMN) + " " + "Sigma "+transition_Layer_Functions[interlayer_Index];
+	var.setValue( interlayer_Composition[interlayer_Index].my_Sigma );
 	label->setProperty(parameter_Property,var);
-	label->setWhatsThis(QString::number(interlayer_Composition[interlayer_Index].my_Sigma.id));
+	label->setWhatsThis(structure_Item->whatsThis(DEFAULT_COLUMN));
 
 	table->setCellWidget(current_Row, current_Column, label);
 

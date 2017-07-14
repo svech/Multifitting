@@ -50,7 +50,8 @@ SOURCES += main.cpp\
     	multilayer_approach/table_of_structures.cpp \
 	multilayer_approach/multilayer/target_curve.cpp \
 	multilayer_approach/multilayer/target_curve/target_curve_editor.cpp \
-    	multilayer_approach/table_of_structures/my_table_widget.cpp
+    	multilayer_approach/table_of_structures/my_table_widget.cpp \
+    multilayer_approach/table_of_structures/coupling_editor.cpp
 
 HEADERS  += launcher.h \
 	global/global_definitions.h \
@@ -75,4 +76,5 @@ HEADERS  += launcher.h \
    	multilayer_approach/table_of_structures.h \
    	multilayer_approach/multilayer/target_curve.h \
    	multilayer_approach/multilayer/target_curve/target_curve_editor.h \
-	multilayer_approach/table_of_structures/my_table_widget.h
+	multilayer_approach/table_of_structures/my_table_widget.h \
+    multilayer_approach/table_of_structures/coupling_editor.h
