@@ -41,7 +41,7 @@ Variable_Selection::Variable_Selection(QTreeWidget* struct_Tree_Copy, QMap<QStri
 void Variable_Selection::closeEvent(QCloseEvent* event)
 {
 	emit closed();
-	event;
+	event->accept();
 }
 
 void Variable_Selection::create_Window()
@@ -197,7 +197,7 @@ void Variable_Selection::add_Absolute_Density(QTreeWidgetItem* item, QString wha
 
 	QString material, brackets;
 	QString separate_Optical_Constants;
-	bool is_True_Condition, composed_Material;
+	bool is_True_Condition=true, composed_Material=false;
 
 	if(whats_This_Type == whats_This_Ambient)
 	{
@@ -263,7 +263,7 @@ void Variable_Selection::add_Relative_Density(QTreeWidgetItem* item, QString wha
 
 	QString material, brackets;
 	QString separate_Optical_Constants;
-	bool is_True_Condition, composed_Material;
+	bool is_True_Condition=true, composed_Material=false;
 
 	if(whats_This_Type == whats_This_Ambient)
 	{
@@ -329,7 +329,7 @@ void Variable_Selection::add_Permittivity(QTreeWidgetItem* item, QString whats_T
 
 	QString material, brackets;
 	QString separate_Optical_Constants;
-	bool is_True_Condition, composed_Material;
+	bool is_True_Condition=true;//, composed_Material;
 
 	if(whats_This_Type == whats_This_Ambient)
 	{
@@ -337,7 +337,7 @@ void Variable_Selection::add_Permittivity(QTreeWidgetItem* item, QString whats_T
 		material = ambient.material;
 		brackets = "(ambient)";
 		separate_Optical_Constants = ambient.separate_Optical_Constants;
-		composed_Material = ambient.composed_Material;
+//		composed_Material = ambient.composed_Material;
 
 		if(type==Variable_Type::Independent)	is_True_Condition = ambient.permittivity.independent.is_Independent;
 		if(type==Variable_Type::Coupled)		is_True_Condition = ambient.permittivity.coupled.	is_Coupled;
@@ -350,7 +350,7 @@ void Variable_Selection::add_Permittivity(QTreeWidgetItem* item, QString whats_T
 		material = layer.material;
 		brackets = "(layer " + QString::number(layer.layer_Index) + ")";
 		separate_Optical_Constants = layer.separate_Optical_Constants;
-		composed_Material = layer.composed_Material;
+//		composed_Material = layer.composed_Material;
 
 		if(type==Variable_Type::Independent)	is_True_Condition = layer.permittivity.independent.is_Independent;
 		if(type==Variable_Type::Coupled)		is_True_Condition = layer.permittivity.coupled.	   is_Coupled;
@@ -363,7 +363,7 @@ void Variable_Selection::add_Permittivity(QTreeWidgetItem* item, QString whats_T
 		material = substrate.material;
 		brackets = "(substrate)";
 		separate_Optical_Constants = substrate.separate_Optical_Constants;
-		composed_Material = substrate.composed_Material;
+//		composed_Material = substrate.composed_Material;
 
 		if(type==Variable_Type::Independent)	is_True_Condition = substrate.permittivity.independent.is_Independent;
 		if(type==Variable_Type::Coupled)		is_True_Condition = substrate.permittivity.coupled.	   is_Coupled;
@@ -395,7 +395,7 @@ void Variable_Selection::add_Absorption(QTreeWidgetItem* item, QString whats_Thi
 
 	QString material, brackets;
 	QString separate_Optical_Constants;
-	bool is_True_Condition, composed_Material;
+	bool is_True_Condition=true;//, composed_Material;
 
 	if(whats_This_Type == whats_This_Ambient)
 	{
@@ -403,7 +403,7 @@ void Variable_Selection::add_Absorption(QTreeWidgetItem* item, QString whats_Thi
 		material = ambient.material;
 		brackets = "(ambient)";
 		separate_Optical_Constants = ambient.separate_Optical_Constants;
-		composed_Material = ambient.composed_Material;
+//		composed_Material = ambient.composed_Material;
 
 		if(type==Variable_Type::Independent)	is_True_Condition = ambient.absorption.independent.is_Independent;
 		if(type==Variable_Type::Coupled)		is_True_Condition = ambient.absorption.coupled.	is_Coupled;
@@ -416,7 +416,7 @@ void Variable_Selection::add_Absorption(QTreeWidgetItem* item, QString whats_Thi
 		material = layer.material;
 		brackets = "(layer " + QString::number(layer.layer_Index) + ")";
 		separate_Optical_Constants = layer.separate_Optical_Constants;
-		composed_Material = layer.composed_Material;
+//		composed_Material = layer.composed_Material;
 
 		if(type==Variable_Type::Independent)	is_True_Condition = layer.absorption.independent.is_Independent;
 		if(type==Variable_Type::Coupled)		is_True_Condition = layer.absorption.coupled.	   is_Coupled;
@@ -429,7 +429,7 @@ void Variable_Selection::add_Absorption(QTreeWidgetItem* item, QString whats_Thi
 		material = substrate.material;
 		brackets = "(substrate)";
 		separate_Optical_Constants = substrate.separate_Optical_Constants;
-		composed_Material = substrate.composed_Material;
+//		composed_Material = substrate.composed_Material;
 
 		if(type==Variable_Type::Independent)	is_True_Condition = substrate.absorption.independent.is_Independent;
 		if(type==Variable_Type::Coupled)		is_True_Condition = substrate.absorption.coupled.	   is_Coupled;
@@ -533,7 +533,7 @@ void Variable_Selection::add_Thickness(QTreeWidgetItem* item, QString whats_This
 	// PARAMETER
 
 	QString material, brackets;
-	bool is_True_Condition;
+	bool is_True_Condition=true;
 
 	if(whats_This_Type == whats_This_Layer)
 	{
@@ -572,7 +572,7 @@ void Variable_Selection::add_Sigma(QTreeWidgetItem* item, QString whats_This_Typ
 
 	QString material, brackets;
 	QVector<bool> interlayer_Composition_Enabled;
-	bool is_True_Condition;
+	bool is_True_Condition=true;
 	int interlayer_Composition_Size;
 
 	if(whats_This_Type == whats_This_Layer)
@@ -631,7 +631,7 @@ void Variable_Selection::add_Interlayer_Composition(QTreeWidgetItem* item, QStri
 
 	QString material, brackets;
 	QVector<bool> interlayer_Composition_Enabled, interlayer_Composition_Independent;
-	bool is_True_Condition;
+//	bool is_True_Condition;
 	int interlayer_Composition_Size;
 
 	if(whats_This_Type == whats_This_Layer)
@@ -643,10 +643,10 @@ void Variable_Selection::add_Interlayer_Composition(QTreeWidgetItem* item, QStri
 		for(int i=0; i<interlayer_Composition_Size; i++)	{interlayer_Composition_Enabled.append(layer.interlayer_Composition[i].enabled);}
 		for(int i=0; i<interlayer_Composition_Size; i++)	{interlayer_Composition_Independent.append(layer.interlayer_Composition[i].interlayer.independent.is_Independent);}
 
-		if(type==Variable_Type::Independent)	is_True_Condition = layer.sigma.independent.is_Independent;
-		if(type==Variable_Type::Coupled)		is_True_Condition = layer.sigma.coupled.	is_Coupled;
-		if(type==Variable_Type::Fitted)			is_True_Condition = layer.sigma.fit.		is_Fitable;
-		if(type==Variable_Type::Optimized)		is_True_Condition = layer.sigma.optimize.	is_Optimizable;
+//		if(type==Variable_Type::Independent)	is_True_Condition = layer.sigma.independent.is_Independent;
+//		if(type==Variable_Type::Coupled)		is_True_Condition = layer.sigma.coupled.	is_Coupled;
+//		if(type==Variable_Type::Fitted)			is_True_Condition = layer.sigma.fit.		is_Fitable;
+//		if(type==Variable_Type::Optimized)		is_True_Condition = layer.sigma.optimize.	is_Optimizable;
 	} else
 	if(whats_This_Type == whats_This_Substrate)
 	{
@@ -657,10 +657,10 @@ void Variable_Selection::add_Interlayer_Composition(QTreeWidgetItem* item, QStri
 		for(int i=0; i<interlayer_Composition_Size; i++)	{interlayer_Composition_Enabled.append(substrate.interlayer_Composition[i].enabled);}
 		for(int i=0; i<interlayer_Composition_Size; i++)	{interlayer_Composition_Independent.append(substrate.interlayer_Composition[i].interlayer.independent.is_Independent);}
 
-		if(type==Variable_Type::Independent)	is_True_Condition = substrate.sigma.independent.is_Independent;
-		if(type==Variable_Type::Coupled)		is_True_Condition = substrate.sigma.coupled.	is_Coupled;
-		if(type==Variable_Type::Fitted)			is_True_Condition = substrate.sigma.fit.		is_Fitable;
-		if(type==Variable_Type::Optimized)		is_True_Condition = substrate.sigma.optimize.	is_Optimizable;
+//		if(type==Variable_Type::Independent)	is_True_Condition = substrate.sigma.independent.is_Independent;
+//		if(type==Variable_Type::Coupled)		is_True_Condition = substrate.sigma.coupled.	is_Coupled;
+//		if(type==Variable_Type::Fitted)			is_True_Condition = substrate.sigma.fit.		is_Fitable;
+//		if(type==Variable_Type::Optimized)		is_True_Condition = substrate.sigma.optimize.	is_Optimizable;
 	} else return;
 
 	// item interlayer composition (if enabled and >=2 interlayers)
@@ -724,7 +724,7 @@ void Variable_Selection::add_Period(QTreeWidgetItem* item, QString whats_This_Ty
 {
 	// PARAMETER
 
-	bool is_True_Condition;
+	bool is_True_Condition=true;
 	if(whats_This_Type == whats_This_Multilayer)
 	{
 		Stack_Content stack_Content = item->data(DEFAULT_COLUMN, Qt::UserRole).value<Stack_Content>();
@@ -758,7 +758,7 @@ void Variable_Selection::add_Gamma(QTreeWidgetItem* item, QString whats_This_Typ
 {
 	// PARAMETER
 
-	bool is_True_Condition;
+	bool is_True_Condition=true;
 	if(whats_This_Type == whats_This_Multilayer)
 	{
 		Stack_Content stack_Content = item->data(DEFAULT_COLUMN, Qt::UserRole).value<Stack_Content>();
@@ -860,7 +860,7 @@ void Variable_Selection::add_Variable_Item(QListWidgetItem* new_Item)
 	QVariant var;
 
 	// item search
-	QTreeWidgetItem* structure_Item;
+	QTreeWidgetItem* structure_Item = NULL;
 	QTreeWidgetItemIterator it(struct_Tree_Copy);
 	while (*it)
 	{

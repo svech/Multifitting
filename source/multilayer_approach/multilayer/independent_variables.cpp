@@ -144,7 +144,7 @@ void Independent_Variables::edit_Independent_Variable(QListWidgetItem* list_Item
 	// item search by unique number
 	QString whats_This = list_Item->whatsThis();
 	QStringList whats_This_List = whats_This.split(whats_This_Delimiter,QString::SkipEmptyParts);
-	QTreeWidgetItem* structure_Item;
+	QTreeWidgetItem* structure_Item = NULL;
 	QTreeWidgetItemIterator it(struct_Tree_Copy);
 	while (*it)
 	{
@@ -192,7 +192,7 @@ void Independent_Variables::remove_Independent_Variable(QListWidgetItem* item)
 		QVariant var;
 
 		// item search
-		QTreeWidgetItem* copy_Structure_Item;
+		QTreeWidgetItem* copy_Structure_Item = NULL;
 		QTreeWidgetItemIterator it(struct_Tree_Copy);
 		while (*it)
 		{
@@ -202,7 +202,7 @@ void Independent_Variables::remove_Independent_Variable(QListWidgetItem* item)
 			++it;
 		}
 		// item search in original tree
-		QTreeWidgetItem* real_Structure_Item;
+		QTreeWidgetItem* real_Structure_Item = NULL;
 		QTreeWidgetItemIterator real_It(real_Struct_Tree);
 		while (*real_It)
 		{
@@ -701,7 +701,7 @@ void Independent_Variables::refresh_Text()
 		QString whats_This = item->whatsThis();
 		QStringList whats_This_List = whats_This.split(whats_This_Delimiter,QString::SkipEmptyParts);
 
-		QTreeWidgetItem* structure_Item;
+		QTreeWidgetItem* structure_Item = NULL;
 		QTreeWidgetItemIterator it(struct_Tree_Copy);
 		while (*it)
 		{

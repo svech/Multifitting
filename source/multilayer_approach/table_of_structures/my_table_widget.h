@@ -1,7 +1,7 @@
 #ifndef MY_TABLE_WIDGET_H
 #define MY_TABLE_WIDGET_H
 
-#include <QtWidgets>
+#include "global/settings.h"
 
 class My_Table_Widget : public QTableWidget
 {
@@ -12,9 +12,18 @@ public:
 
 	void contextMenuEvent(QContextMenuEvent *event);
 
-signals:
+	void cell_Response();
 
-public slots:
+	void add_Slave_Func(int id, QMenu* menu);
+
+	QLabel* label;
+	QWidgetAction* a_Label;
+	QAction* my_Id;
+	QMenu* master;
+	QVector<QMenu*> slaves;
+	QAction* add_Slave;
+
+	bool get_Id_From_Cell = false;
 };
 
 #endif // MY_TABLE_WIDGET_H

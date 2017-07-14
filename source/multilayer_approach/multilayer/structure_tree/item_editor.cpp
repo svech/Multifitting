@@ -5,9 +5,9 @@
 #include "item_editor.h"
 
 Item_Editor::Item_Editor(QList<Item_Editor*>& list_Editors, QTreeWidgetItem* item, QWidget *parent) :
-	QDialog(parent),
 	list_Editors(list_Editors),
-	item(item)
+	item(item),
+	QDialog(parent)
 {
 	setWindowTitle(item->whatsThis(DEFAULT_COLUMN));
 	create_Main_Layout();
@@ -30,7 +30,7 @@ void Item_Editor::closeEvent(QCloseEvent* event)
 	refresh_Data();
 	refresh_Material();
 	emit closed();
-	event;
+	event->accept();
 }
 
 void Item_Editor::create_Main_Layout()
@@ -123,9 +123,9 @@ void Item_Editor::make_Materials_Group_Box()
 		connect(material_Line_Edit, SIGNAL(textEdited(QString)), this, SLOT(resize_Line_Edit(QString)));
 		connect(density_Line_Edit,  SIGNAL(textEdited(QString)), this, SLOT(resize_Line_Edit(QString)));
 
-		connect(material_Line_Edit, SIGNAL(textEdited(QString)), this, SLOT(refresh_Material(QString)));
-		connect(density_Line_Edit,  SIGNAL(textEdited(QString)), this, SLOT(refresh_Data(QString)));
-		connect(browse_Material_Button, SIGNAL(clicked(bool)),   this, SLOT(browse_Material(bool)));
+		connect(material_Line_Edit, &QLineEdit::textEdited, this, [=]{refresh_Material();});
+		connect(density_Line_Edit,	&QLineEdit::textEdited, this, [=]{refresh_Data();});
+		connect(browse_Material_Button,	&QPushButton::clicked, this, [=]{browse_Material();});
 	}
 	// radio buttons
 	{
@@ -974,7 +974,7 @@ void Item_Editor::fewer_Elements_Clicked(bool)
 	initial_Radio_Check(false);
 }
 
-void Item_Editor::refresh_Material(QString str)
+void Item_Editor::refresh_Material()
 {
 	QVariant var;
 	if(item_Type==Item_Type::Ambient)
@@ -1317,7 +1317,7 @@ void Item_Editor::resize_Line_Edit(QString text, QLineEdit* line_Edit)
 	}
 }
 
-void Item_Editor::browse_Material(bool)
+void Item_Editor::browse_Material()
 {
 	// TODO
 	qInfo() << "browse...";
@@ -1402,7 +1402,7 @@ void Item_Editor::norm_Interlayer_Composition()
 	}
 }
 
-void Item_Editor::refresh_Data(QString str)
+void Item_Editor::refresh_Data()
 {
 	double coeff = length_Coefficients_Map.value(length_units);
 

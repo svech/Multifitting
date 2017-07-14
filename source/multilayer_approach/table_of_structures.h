@@ -63,9 +63,9 @@ public slots:
 	// for material only
     void refresh_Element();
     void refresh_Stoich();
-	void refresh_Fit_Element(bool b = false);
+	void refresh_Fit_Element();
 
-	void refresh_Material(QString temp = "empty");
+	void refresh_Material();
 	void check_Material();
     void browse_Material();
 

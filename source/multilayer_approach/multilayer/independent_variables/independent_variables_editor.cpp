@@ -123,15 +123,17 @@ void Independent_Variables_Editor::create_Standard_Interface()
 			show_Active_Check_Box();
 		layout->addWidget(active_Check_Box);
 
+
 		connect(num_Points, SIGNAL(textEdited(QString)), this, SLOT(resize_Line_Edit(QString)));
-		connect(num_Points, SIGNAL(textEdited(QString)), this, SLOT(refresh_Special_Line_Edit(QString)));
 		connect(min,		SIGNAL(textEdited(QString)), this, SLOT(resize_Line_Edit(QString)));
 		connect(max,		SIGNAL(textEdited(QString)), this, SLOT(resize_Line_Edit(QString)));
 		connect(step_Edit,	SIGNAL(textEdited(QString)), this, SLOT(resize_Line_Edit(QString)));
 
-		connect(num_Points, SIGNAL(textEdited(QString)), this, SLOT(refresh_Data(QString)));
-		connect(min,		SIGNAL(textEdited(QString)), this, SLOT(refresh_Data(QString)));
-		connect(max,		SIGNAL(textEdited(QString)), this, SLOT(refresh_Data(QString)));
+		connect(num_Points, &QLineEdit::textEdited, [=]{refresh_Special_Line_Edit();});
+
+		connect(num_Points, &QLineEdit::textEdited, [=]{refresh_Data();});
+		connect(min,		&QLineEdit::textEdited, [=]{refresh_Data();});
+		connect(max,		&QLineEdit::textEdited, [=]{refresh_Data();});
 
 		connect(active_Check_Box, SIGNAL(toggled(bool)), this, SLOT(activate_Variable(bool)));
 	}
@@ -163,7 +165,7 @@ void Independent_Variables_Editor::create_Angle_Interface()
 	layout->addWidget(angle_Units_Label);
 
 	connect(angular_Resolution_Edit, SIGNAL(textEdited(QString)), this, SLOT(resize_Line_Edit(QString)));
-	connect(angular_Resolution_Edit, SIGNAL(textEdited(QString)), this, SLOT(refresh_Data(QString)));
+	connect(angular_Resolution_Edit, &QLineEdit::textEdited, [=]{refresh_Data();});
 
 	angle_Done = true;
 	refresh_Show_Data(show_Data);
@@ -223,13 +225,13 @@ void Independent_Variables_Editor::create_Wavelength_Interface()
 	}
 
 	connect(spectral_Resolution_Edit, SIGNAL(textEdited(QString)), this, SLOT(resize_Line_Edit(QString)));
-	connect(spectral_Resolution_Edit, SIGNAL(textEdited(QString)), this, SLOT(refresh_Data(QString)));
+	connect(spectral_Resolution_Edit, &QLineEdit::textEdited, [=]{refresh_Data();});
 
 	connect(polarization_Edit, SIGNAL(textEdited(QString)), this, SLOT(resize_Line_Edit(QString)));
-	connect(polarization_Edit, SIGNAL(textEdited(QString)), this, SLOT(refresh_Data(QString)));
+	connect(polarization_Edit, &QLineEdit::textEdited, [=]{refresh_Data();});
 
 	connect(analyzer_Edit, SIGNAL(textEdited(QString)), this, SLOT(resize_Line_Edit(QString)));
-	connect(analyzer_Edit, SIGNAL(textEdited(QString)), this, SLOT(refresh_Data(QString)));
+	connect(analyzer_Edit, &QLineEdit::textEdited, [=]{refresh_Data();});
 
 	wavelength_Done = true;
 	refresh_Show_Data(show_Data);
@@ -259,7 +261,7 @@ void Independent_Variables_Editor::resize_Line_Edit(QString text, QLineEdit* lin
 	}
 }
 
-void Independent_Variables_Editor::refresh_Special_Line_Edit(QString text)
+void Independent_Variables_Editor::refresh_Special_Line_Edit()
 {
 	QString whats_This = item->whatsThis();
 	QStringList whats_This_List = whats_This.split(whats_This_Delimiter,QString::SkipEmptyParts);
@@ -321,7 +323,7 @@ void Independent_Variables_Editor::show_Hide_Elements(int points, bool show)
 	QMetaObject::invokeMethod(this, "adjustSize", Qt::QueuedConnection);
 }
 
-void Independent_Variables_Editor::refresh_Data(QString)
+void Independent_Variables_Editor::refresh_Data()
 {
 	refresh_Show_Data();
 }

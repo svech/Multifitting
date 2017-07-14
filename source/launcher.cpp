@@ -30,8 +30,8 @@ Launcher::Launcher(QWidget *parent) :
 
 void Launcher::closeEvent(QCloseEvent* event)
 {
-	event;
 //	qApp->quit();	// closing launcher does nothing
+	event->accept();
 }
 
 void Launcher::create_Main_Layout()

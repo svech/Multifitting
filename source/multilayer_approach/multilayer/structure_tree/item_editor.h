@@ -60,7 +60,7 @@ public slots:
 private slots:
 	void done_Slot();
 	void resize_Line_Edit(QString text, QLineEdit* line_Edit = NULL);
-	void browse_Material(bool);
+	void browse_Material();
     void depth_Grading(bool);
     void sigma_Grading(bool);
 	void filename_Radio_Toggled(bool temp_bool);
@@ -71,8 +71,8 @@ private slots:
 	void fewer_Elements_Clicked(bool);
 	void interlayer_Check(int);
 	void norm_Interlayer_Composition();
-	void refresh_Material(QString str="");
-	void refresh_Data(QString str="");
+	void refresh_Material();
+	void refresh_Data();
 	void refresh_Stack_Data();
 	void fast_Refresh_Stack(QString);
 

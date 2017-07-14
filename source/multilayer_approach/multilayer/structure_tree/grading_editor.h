@@ -24,8 +24,8 @@ private:
     void set_Window_Geometry();
 
     QTreeWidgetItem* item;
-	QString drift_Name;
 	int default_Min_Line_Size;
+	QString drift_Name;
     Drift drift;
 
 private:

@@ -339,17 +339,17 @@ void Multilayer::add_Target_Curve(int index_Pressed, QString target_Curve_Type)
 	if(target_Curve_Type == MEASURED) layout_Measured_Data_With_Frame_Vector->insertWidget(index_Pressed,new_Frame); else
 	if(target_Curve_Type == OPTIMIZE) layout_Target_Profile_With_Frame_Vector->insertWidget(index_Pressed,new_Frame);
 
-	connect(new_Import_Button,    &QPushButton::clicked, this, [=, this]{ open_Import_Window(new_Target_Curve); });
+	connect(new_Import_Button,    &QPushButton::clicked, this, [=]{ open_Import_Window(new_Target_Curve); });
 
 	if(target_Curve_Type == MEASURED)
 	{
-		connect(new_Add_Button,    &QPushButton::clicked, this, [=, this]{ add_Target_Curve   (data_Measured_Data_Frame_Vector.indexOf(new_Frame)+1, target_Curve_Type); });
-		connect(new_Remove_Button, &QPushButton::clicked, this, [=, this]{ remove_Target_Curve(data_Measured_Data_Frame_Vector.indexOf(new_Frame),   target_Curve_Type); });
+		connect(new_Add_Button,    &QPushButton::clicked, this, [=]{ add_Target_Curve   (data_Measured_Data_Frame_Vector.indexOf(new_Frame)+1, target_Curve_Type); });
+		connect(new_Remove_Button, &QPushButton::clicked, this, [=]{ remove_Target_Curve(data_Measured_Data_Frame_Vector.indexOf(new_Frame),   target_Curve_Type); });
 	} else
 	if(target_Curve_Type == OPTIMIZE)
 	{
-		connect(new_Add_Button,    &QPushButton::clicked, this, [=, this]{ add_Target_Curve   (data_Target_Profile_Frame_Vector.indexOf(new_Frame)+1, target_Curve_Type); });
-		connect(new_Remove_Button, &QPushButton::clicked, this, [=, this]{ remove_Target_Curve(data_Target_Profile_Frame_Vector.indexOf(new_Frame),   target_Curve_Type); });
+		connect(new_Add_Button,    &QPushButton::clicked, this, [=]{ add_Target_Curve   (data_Target_Profile_Frame_Vector.indexOf(new_Frame)+1, target_Curve_Type); });
+		connect(new_Remove_Button, &QPushButton::clicked, this, [=]{ remove_Target_Curve(data_Target_Profile_Frame_Vector.indexOf(new_Frame),   target_Curve_Type); });
 	}
 
 	// hiding add button

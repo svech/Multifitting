@@ -189,6 +189,7 @@ using namespace std;
 #define column_Property				"column"
 #define whats_This_Property			"whats_This"
 #define value_Type_Property			"value_Type"
+#define parameter_Property			"parameter"
 
 #define reload_Property	"reload"
 //#define table_Index_Property "table_Index"
@@ -248,6 +249,8 @@ struct Parameter				{double value; Independent independent; Coupled coupled; Fit
 								 {
 									id = rand()*RAND_SHIFT+rand();	// create unique id
 								 }};
+Q_DECLARE_METATYPE( Parameter )
+
 struct Stoichiometry			{Parameter composition; QString type;};
 struct Interlayer				{Parameter interlayer; Parameter my_Sigma; bool enabled;};
 struct Drift					{bool is_Drift_Line;  Parameter drift_Line_Value;

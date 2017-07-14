@@ -25,9 +25,9 @@ private:
 
 public slots:
 	void resize_Line_Edit(QString text, QLineEdit* line_Edit = NULL);
-	void refresh_Special_Line_Edit(QString text);
+	void refresh_Special_Line_Edit();
 	void show_Hide_Elements(int points, bool show = false);
-	void refresh_Data(QString);
+	void refresh_Data();
 	void refresh_Show_Data(bool show = false);
 	void activate_Variable(bool);
 	void show_Active_Check_Box();

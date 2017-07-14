@@ -6,8 +6,8 @@
 
 Grading_Editor::Grading_Editor(QTreeWidgetItem* item, QString drift_Name, QWidget *parent):
     item(item),
-	drift_Name(drift_Name),
 	default_Min_Line_Size(100),
+	drift_Name(drift_Name),
     QDialog(parent)
 {
     create_Main_Layout();
