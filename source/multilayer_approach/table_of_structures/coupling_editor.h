@@ -20,11 +20,8 @@ public:
 		void remove_Slave(int index_Pressed);
 		void add_Slave(int index_Pressed);
 
-	void enable_Getting_Parameter_Master(QWidget* old, QWidget* now);
-	void get_Parameter_Master();
-
-	void enable_Getting_Parameter_Slave(QWidget* old, QWidget* now, int index_Pressed);
-	void get_Parameter_Slave(int index_Pressed);
+	void enable_Getting_Parameter(QWidget* old, QWidget* now, QLabel* label, QLineEdit* line_Edit);
+	void get_Parameter(QLabel* label);
 
 	QTabWidget* main_Tabs;
 	QVBoxLayout* main_Layout;
