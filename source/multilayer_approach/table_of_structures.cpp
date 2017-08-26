@@ -69,11 +69,11 @@ void Table_Of_Structures::add_Tabs()
 	read_Trees();
 	for(int tab_Index=0; tab_Index<multilayer_Tabs->count(); ++tab_Index)
 	{
-	My_Table_Widget* new_Table = new My_Table_Widget(basic_Row_Number, basic_Column_Number, main_Tabs);
-	list_Of_Tables.append(new_Table);
+		My_Table_Widget* new_Table = new My_Table_Widget(basic_Row_Number, basic_Column_Number, main_Tabs, main_Tabs);
+		list_Of_Tables.append(new_Table);
 
-	create_Table(new_Table, tab_Index);
-	main_Tabs->addTab(new_Table, multilayer_Tabs->tabText(tab_Index));
+		create_Table(new_Table, tab_Index);
+		main_Tabs->addTab(new_Table, multilayer_Tabs->tabText(tab_Index));
 	}
 	table_Is_Created = true;
 	reload_All_Widgets();
@@ -173,7 +173,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 				create_Stoich		 (new_Table, current_Row+4, current_Column, structure_Item, item_Type_String, MAX);
 
 				// it should be created last
-				create_Stoich_Check_Box_Fit (new_Table, current_Row+2, current_Column, structure_Item, item_Type_String, 1, 2, 0, 0);
+				create_Stoich_Check_Box_Fit (new_Table, current_Row+2, current_Column, structure_Item, item_Type_String, tab_Index, 1, 2, 0, 0);
 			}
 			else
 			{
@@ -190,19 +190,19 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 		// num repetitions
 		QString whats_This = whats_This_Num_Repetitions;
 		add_Columns		(new_Table, current_Column+5);
-		create_Label	(new_Table, current_Row,   current_Column, structure_Item, item_Type_String, whats_This, "N");
+		create_Label	(new_Table, current_Row,   current_Column, structure_Item, item_Type_String, tab_Index, whats_This, "N");
 		create_Line_Edit(new_Table, current_Row+1, current_Column, structure_Item, item_Type_String, whats_This, VAL);
 		current_Column += 2;
 
 		// period
 		whats_This = whats_This_Period;
 		add_Columns		(new_Table, current_Column+5);
-		create_Label	(new_Table, current_Row,   current_Column,   structure_Item, item_Type_String, whats_This, "d ["+length_units+"]");
+		create_Label	(new_Table, current_Row,   current_Column,   structure_Item, item_Type_String, tab_Index, whats_This, "d ["+length_units+"]");
 		create_Line_Edit(new_Table, current_Row+1, current_Column,   structure_Item, item_Type_String, whats_This, VAL);
 		create_Line_Edit(new_Table, current_Row+1, current_Column+2, structure_Item, item_Type_String, whats_This, MIN);
 		create_Line_Edit(new_Table, current_Row+1, current_Column+3, structure_Item, item_Type_String, whats_This, MAX);
 		// lastcolumn
-		create_Check_Box_Fit(new_Table, current_Row+1, current_Column+1, structure_Item, item_Type_String, whats_This, 0, 0, 1, 2);
+		create_Check_Box_Fit(new_Table, current_Row+1, current_Column+1, structure_Item, item_Type_String, tab_Index, whats_This, 0, 0, 1, 2);
 		current_Column += 5;
 
 		// gamma
@@ -210,12 +210,12 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 		{
 			whats_This = whats_This_Gamma;
 			add_Columns		(new_Table, current_Column+5);
-			create_Label	(new_Table, current_Row,   current_Column,   structure_Item, item_Type_String, whats_This, Gamma_Sym);
+			create_Label	(new_Table, current_Row,   current_Column,   structure_Item, item_Type_String, tab_Index, whats_This, Gamma_Sym);
 			create_Line_Edit(new_Table, current_Row+1, current_Column,   structure_Item, item_Type_String, whats_This, VAL);
 			create_Line_Edit(new_Table, current_Row+1, current_Column+2, structure_Item, item_Type_String, whats_This, MIN);
 			create_Line_Edit(new_Table, current_Row+1, current_Column+3, structure_Item, item_Type_String, whats_This, MAX);
 			// last
-			create_Check_Box_Fit(new_Table, current_Row+1, current_Column+1, structure_Item, item_Type_String, whats_This, 0, 0, 1, 2);
+			create_Check_Box_Fit(new_Table, current_Row+1, current_Column+1, structure_Item, item_Type_String, tab_Index, whats_This, 0, 0, 1, 2);
 			current_Column += 5;
 		}
 		}
@@ -229,17 +229,17 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 		if(composed_Material)
 		{
 			whats_This = whats_This_Absolute_Density;
-			create_Label(new_Table, current_Row, current_Column, structure_Item, item_Type_String, whats_This, Rho_Sym+" ["+density_units+"]");
+			create_Label(new_Table, current_Row, current_Column, structure_Item, item_Type_String, tab_Index, whats_This, Rho_Sym+" ["+density_units+"]");
 		} else
 		{
 			whats_This = whats_This_Relative_Density;
-			create_Label(new_Table, current_Row, current_Column, structure_Item, item_Type_String, whats_This, Rho_Sym+" [r.u.]");
+			create_Label(new_Table, current_Row, current_Column, structure_Item, item_Type_String, tab_Index, whats_This, Rho_Sym+" [r.u.]");
 		}
 		create_Line_Edit(new_Table, current_Row+1, current_Column, structure_Item, item_Type_String, whats_This, VAL);
 		create_Line_Edit(new_Table, current_Row+3, current_Column, structure_Item, item_Type_String, whats_This, MIN);
 		create_Line_Edit(new_Table, current_Row+4, current_Column, structure_Item, item_Type_String, whats_This, MAX);
 		// last
-		create_Check_Box_Fit(new_Table, current_Row+2, current_Column, structure_Item, item_Type_String, whats_This, 1, 2, 0, 0);
+		create_Check_Box_Fit(new_Table, current_Row+2, current_Column, structure_Item, item_Type_String, tab_Index, whats_This, 1, 2, 0, 0);
 		}
 		current_Column += 2;
 		///--------------------------------------------------------------------------------------------
@@ -249,12 +249,12 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 		{
 		QString whats_This = whats_This_Thickness;
 		add_Columns		(new_Table, current_Column+1);
-		create_Label	(new_Table, current_Row,   current_Column, structure_Item, item_Type_String, whats_This, "z ["+length_units+"]");
+		create_Label	(new_Table, current_Row,   current_Column, structure_Item, item_Type_String, tab_Index, whats_This, "z ["+length_units+"]");
 		create_Line_Edit(new_Table, current_Row+1, current_Column, structure_Item, item_Type_String, whats_This, VAL);
 		create_Line_Edit(new_Table, current_Row+3, current_Column, structure_Item, item_Type_String, whats_This, MIN);
 		create_Line_Edit(new_Table, current_Row+4, current_Column, structure_Item, item_Type_String, whats_This, MAX);
 		// last
-		create_Check_Box_Fit(new_Table, current_Row+2, current_Column, structure_Item, item_Type_String, whats_This, 1, 2, 0, 0);
+		create_Check_Box_Fit(new_Table, current_Row+2, current_Column, structure_Item, item_Type_String, tab_Index, whats_This, 1, 2, 0, 0);
 		}
 		current_Column += 2;
 		///--------------------------------------------------------------------------------------------
@@ -266,11 +266,11 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 		add_Columns(new_Table, current_Column+1);
 		create_Line_Edit	(new_Table, current_Row+1, current_Column, structure_Item, item_Type_String, whats_This, VAL);
 		// second
-		create_Check_Box_Label(new_Table, current_Row, current_Column, structure_Item, item_Type_String, whats_This, Sigma_Sym+" ["+length_units+"]", 1, 0, 0, 0);
+		create_Check_Box_Label(new_Table, current_Row, current_Column, structure_Item, item_Type_String, tab_Index, whats_This, Sigma_Sym+" ["+length_units+"]", 1, 0, 0, 0);
 		create_Line_Edit	(new_Table, current_Row+3, current_Column, structure_Item, item_Type_String, whats_This, MIN);
 		create_Line_Edit	(new_Table, current_Row+4, current_Column, structure_Item, item_Type_String, whats_This, MAX);
 		// last
-		create_Check_Box_Fit(new_Table, current_Row+2, current_Column, structure_Item, item_Type_String, whats_This, 1, 2, 0, 0);
+		create_Check_Box_Fit(new_Table, current_Row+2, current_Column, structure_Item, item_Type_String, tab_Index, whats_This, 1, 2, 0, 0);
 		}
 		current_Column += 2;
 		///--------------------------------------------------------------------------------------------
@@ -282,11 +282,11 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 
 		// weights
 		create_Weigts_Interlayer(new_Table, current_Row+1, current_Column, structure_Item, item_Type_String, VAL);
-		create_Check_Box_Label_Interlayer(new_Table, current_Row, current_Column, structure_Item, item_Type_String);
-		create_Weights_Check_Box_Fit_Interlayer(new_Table, current_Row+2, current_Column, structure_Item, item_Type_String);
+		create_Check_Box_Label_Interlayer(new_Table, current_Row, current_Column, structure_Item, item_Type_String, tab_Index);
+		create_Weights_Check_Box_Fit_Interlayer(new_Table, current_Row+2, current_Column, structure_Item, item_Type_String, tab_Index);
 
 		// sigmas
-		create_MySigma_Labels_Interlayer(new_Table, current_Row+3, current_Column, structure_Item, item_Type_String);
+		create_MySigma_Labels_Interlayer(new_Table, current_Row+3, current_Column, structure_Item, item_Type_String, tab_Index);
 		create_MySigma_Interlayer		(new_Table, current_Row+4, current_Column, structure_Item, item_Type_String);
 		}
 		current_Column += (1+transition_Layer_Functions_Size);
@@ -301,11 +301,11 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 		add_Columns(new_Table, current_Column+1);
 		create_Line_Edit(new_Table, current_Row+1, current_Column, structure_Item, item_Type_String, whats_This, VAL);
 		// second
-		create_Check_Box_Label(new_Table, current_Row, current_Column, structure_Item, item_Type_String, whats_This,"dz lin", 1, 1, 0, 0);
+		create_Check_Box_Label(new_Table, current_Row, current_Column, structure_Item, item_Type_String, tab_Index, whats_This,"dz lin", 1, 1, 0, 0);
 		create_Line_Edit	(new_Table, current_Row+3, current_Column, structure_Item, item_Type_String, whats_This, MIN);
 		create_Line_Edit	(new_Table, current_Row+4, current_Column, structure_Item, item_Type_String, whats_This, MAX);
 		// last
-		create_Check_Box_Fit(new_Table, current_Row+2, current_Column, structure_Item, item_Type_String, whats_This, 1, 2, 0, 0);
+		create_Check_Box_Fit(new_Table, current_Row+2, current_Column, structure_Item, item_Type_String, tab_Index, whats_This, 1, 2, 0, 0);
 		}
 		current_Column += 1;
 		///--------------------------------------------------------------------------------------------
@@ -317,11 +317,11 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 		add_Columns(new_Table, current_Column+1);
 		create_Line_Edit(new_Table, current_Row+1, current_Column, structure_Item, item_Type_String, whats_This, VAL);
 		// second
-		create_Check_Box_Label(new_Table, current_Row, current_Column, structure_Item, item_Type_String, whats_This,"dz ran", 1, 1, 0, 0);
+		create_Check_Box_Label(new_Table, current_Row, current_Column, structure_Item, item_Type_String, tab_Index, whats_This,"dz ran", 1, 1, 0, 0);
 		create_Line_Edit	(new_Table, current_Row+3, current_Column, structure_Item, item_Type_String, whats_This, MIN);
 		create_Line_Edit	(new_Table, current_Row+4, current_Column, structure_Item, item_Type_String, whats_This, MAX);
 		// last
-		create_Check_Box_Fit(new_Table, current_Row+2, current_Column, structure_Item, item_Type_String, whats_This, 1, 2, 0, 0);
+		create_Check_Box_Fit(new_Table, current_Row+2, current_Column, structure_Item, item_Type_String, tab_Index, whats_This, 1, 2, 0, 0);
 		}
 		current_Column += 1;
 		///--------------------------------------------------------------------------------------------
@@ -336,7 +336,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 		create_Line_Edit	(new_Table, current_Row+1, current_Column+2, structure_Item, item_Type_String, whats_This_Thickness_Drift_Sine_Phase, VAL);
 
 		// second
-		create_Check_Box_Label(new_Table, current_Row, current_Column,   structure_Item, item_Type_String, whats_This_Thickness_Drift_Sine,"dz sin : A*sin(2"+Pi_Sym+"n"+Nu_Sym+"+"+Phi_Sym+")", 1, 1, 0, 2);
+		create_Check_Box_Label(new_Table, current_Row, current_Column,   structure_Item, item_Type_String, tab_Index, whats_This_Thickness_Drift_Sine,"dz sin : A*sin(2"+Pi_Sym+"n"+Nu_Sym+"+"+Phi_Sym+")", 1, 1, 0, 2);
 
 		create_Line_Edit	(new_Table, current_Row+3, current_Column,   structure_Item, item_Type_String, whats_This_Thickness_Drift_Sine_Amplitude, MIN);
 		create_Line_Edit	(new_Table, current_Row+3, current_Column+1, structure_Item, item_Type_String, whats_This_Thickness_Drift_Sine_Frequency, MIN);
@@ -347,9 +347,9 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 		create_Line_Edit	(new_Table, current_Row+4, current_Column+2, structure_Item, item_Type_String, whats_This_Thickness_Drift_Sine_Phase, MAX);
 
 		// last
-		create_Check_Box_Fit(new_Table, current_Row+2, current_Column,	 structure_Item, item_Type_String, whats_This_Thickness_Drift_Sine_Amplitude, 1, 2, 0, 0);
-		create_Check_Box_Fit(new_Table, current_Row+2, current_Column+1, structure_Item, item_Type_String, whats_This_Thickness_Drift_Sine_Frequency, 1, 2, 0, 0);
-		create_Check_Box_Fit(new_Table, current_Row+2, current_Column+2, structure_Item, item_Type_String, whats_This_Thickness_Drift_Sine_Phase, 1, 2, 0, 0);
+		create_Check_Box_Fit(new_Table, current_Row+2, current_Column,	 structure_Item, item_Type_String, tab_Index, whats_This_Thickness_Drift_Sine_Amplitude, 1, 2, 0, 0);
+		create_Check_Box_Fit(new_Table, current_Row+2, current_Column+1, structure_Item, item_Type_String, tab_Index, whats_This_Thickness_Drift_Sine_Frequency, 1, 2, 0, 0);
+		create_Check_Box_Fit(new_Table, current_Row+2, current_Column+2, structure_Item, item_Type_String, tab_Index, whats_This_Thickness_Drift_Sine_Phase, 1, 2, 0, 0);
 
 		new_Table->setSpan(current_Row,current_Column,1,3);
 		}
@@ -365,11 +365,11 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 		add_Columns(new_Table, current_Column+1);
 		create_Line_Edit(new_Table, current_Row+1, current_Column, structure_Item, item_Type_String, whats_This, VAL);
 		// second
-		create_Check_Box_Label(new_Table, current_Row, current_Column, structure_Item, item_Type_String, whats_This, "d"+Sigma_Sym+" lin", 1, 1, 0, 0);
+		create_Check_Box_Label(new_Table, current_Row, current_Column, structure_Item, item_Type_String, tab_Index, whats_This, "d"+Sigma_Sym+" lin", 1, 1, 0, 0);
 		create_Line_Edit	(new_Table, current_Row+3, current_Column, structure_Item, item_Type_String, whats_This, MIN);
 		create_Line_Edit	(new_Table, current_Row+4, current_Column, structure_Item, item_Type_String, whats_This, MAX);
 		// last
-		create_Check_Box_Fit(new_Table, current_Row+2, current_Column, structure_Item, item_Type_String, whats_This, 1, 2, 0, 0);
+		create_Check_Box_Fit(new_Table, current_Row+2, current_Column, structure_Item, item_Type_String, tab_Index, whats_This, 1, 2, 0, 0);
 		}
 		current_Column += 1;
 		///--------------------------------------------------------------------------------------------
@@ -381,11 +381,11 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 		add_Columns(new_Table, current_Column+1);
 		create_Line_Edit(new_Table, current_Row+1, current_Column, structure_Item, item_Type_String, whats_This, VAL);
 		// second
-		create_Check_Box_Label(new_Table, current_Row, current_Column, structure_Item, item_Type_String, whats_This,"d"+Sigma_Sym+" ran", 1, 1, 0, 0);
+		create_Check_Box_Label(new_Table, current_Row, current_Column, structure_Item, item_Type_String, tab_Index, whats_This,"d"+Sigma_Sym+" ran", 1, 1, 0, 0);
 		create_Line_Edit	(new_Table, current_Row+3, current_Column, structure_Item, item_Type_String, whats_This, MIN);
 		create_Line_Edit	(new_Table, current_Row+4, current_Column, structure_Item, item_Type_String, whats_This, MAX);
 		// last
-		create_Check_Box_Fit(new_Table, current_Row+2, current_Column, structure_Item, item_Type_String, whats_This, 1, 2, 0, 0);
+		create_Check_Box_Fit(new_Table, current_Row+2, current_Column, structure_Item, item_Type_String, tab_Index, whats_This, 1, 2, 0, 0);
 		}
 		current_Column += 1;
 		///--------------------------------------------------------------------------------------------
@@ -400,7 +400,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 		create_Line_Edit	(new_Table, current_Row+1, current_Column+2, structure_Item, item_Type_String, whats_This_Sigma_Drift_Sine_Phase, VAL);
 
 		// second
-		create_Check_Box_Label(new_Table, current_Row, current_Column,   structure_Item, item_Type_String, whats_This_Sigma_Drift_Sine,"d"+Sigma_Sym+" sin : A*sin(2"+Pi_Sym+"n"+Nu_Sym+"+"+Phi_Sym+")", 1, 1, 0, 2);
+		create_Check_Box_Label(new_Table, current_Row, current_Column,   structure_Item, item_Type_String, tab_Index, whats_This_Sigma_Drift_Sine,"d"+Sigma_Sym+" sin : A*sin(2"+Pi_Sym+"n"+Nu_Sym+"+"+Phi_Sym+")", 1, 1, 0, 2);
 
 		create_Line_Edit	(new_Table, current_Row+3, current_Column,   structure_Item, item_Type_String, whats_This_Sigma_Drift_Sine_Amplitude, MIN);
 		create_Line_Edit	(new_Table, current_Row+3, current_Column+1, structure_Item, item_Type_String, whats_This_Sigma_Drift_Sine_Frequency, MIN);
@@ -411,9 +411,9 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 		create_Line_Edit	(new_Table, current_Row+4, current_Column+2, structure_Item, item_Type_String, whats_This_Sigma_Drift_Sine_Phase, MAX);
 
 		// last
-		create_Check_Box_Fit(new_Table, current_Row+2, current_Column,	 structure_Item, item_Type_String, whats_This_Sigma_Drift_Sine_Amplitude, 1, 2, 0, 0);
-		create_Check_Box_Fit(new_Table, current_Row+2, current_Column+1, structure_Item, item_Type_String, whats_This_Sigma_Drift_Sine_Frequency, 1, 2, 0, 0);
-		create_Check_Box_Fit(new_Table, current_Row+2, current_Column+2, structure_Item, item_Type_String, whats_This_Sigma_Drift_Sine_Phase, 1, 2, 0, 0);
+		create_Check_Box_Fit(new_Table, current_Row+2, current_Column,	 structure_Item, item_Type_String, tab_Index, whats_This_Sigma_Drift_Sine_Amplitude, 1, 2, 0, 0);
+		create_Check_Box_Fit(new_Table, current_Row+2, current_Column+1, structure_Item, item_Type_String, tab_Index, whats_This_Sigma_Drift_Sine_Frequency, 1, 2, 0, 0);
+		create_Check_Box_Fit(new_Table, current_Row+2, current_Column+2, structure_Item, item_Type_String, tab_Index, whats_This_Sigma_Drift_Sine_Phase, 1, 2, 0, 0);
 
 		new_Table->setSpan(current_Row,current_Column,1,3);
 		}
@@ -662,7 +662,7 @@ QString Table_Of_Structures::material_From_Composition(QList<Stoichiometry>& com
 	return text;
 }
 
-void Table_Of_Structures::create_Stoich_Check_Box_Fit(My_Table_Widget* table, int current_Row, int start_Column, QTreeWidgetItem* structure_Item, QString item_Type_String, int r_S, int r_F, int c_S, int c_F)
+void Table_Of_Structures::create_Stoich_Check_Box_Fit(My_Table_Widget* table, int current_Row, int start_Column, QTreeWidgetItem* structure_Item, QString item_Type_String, int tab_Index, int r_S, int r_F, int c_S, int c_F)
 {
 	QList<Stoichiometry> composition;
 	QVariant data = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole);
@@ -711,7 +711,8 @@ void Table_Of_Structures::create_Stoich_Check_Box_Fit(My_Table_Widget* table, in
 
 	// set parameter id to BACK widget
 	QVariant var;
-	composition[composition_Index].composition.full_Name = structure_Item->whatsThis(DEFAULT_COLUMN) + " " + composition[composition_Index].type + " composition";
+	composition[composition_Index].composition.indicator.tab_Index = tab_Index;
+	composition[composition_Index].composition.indicator.full_Name = structure_Item->whatsThis(DEFAULT_COLUMN) + " " + composition[composition_Index].type + " composition";
 	var.setValue( composition[composition_Index].composition );
 	back_Widget->setProperty(parameter_Property,var);
 	back_Widget->setWhatsThis(structure_Item->whatsThis(DEFAULT_COLUMN));
@@ -777,7 +778,7 @@ void Table_Of_Structures::create_Browse_Button(My_Table_Widget* table, int curre
 }
 
 // for several parameters
-void Table_Of_Structures::create_Label(My_Table_Widget* table, int current_Row, int current_Column, QTreeWidgetItem* structure_Item, QString item_Type_String, QString whats_This, QString text)
+void Table_Of_Structures::create_Label(My_Table_Widget* table, int current_Row, int current_Column, QTreeWidgetItem* structure_Item, QString item_Type_String, int tab_Index, QString whats_This, QString text)
 {
 	QLabel* label = new QLabel(text);
 	label->setStyleSheet("background-color: lightblue");
@@ -785,12 +786,13 @@ void Table_Of_Structures::create_Label(My_Table_Widget* table, int current_Row, 
 	table->setCellWidget(current_Row, current_Column, label);
 
 	// set parameter id to widget
-	Parameter parameter; parameter.id=0;
+	Parameter parameter; parameter.indicator.id=0;
 	get_Parameter(parameter, structure_Item, whats_This);
-	if(parameter.id!=0)
+	if(parameter.indicator.id!=0)
 	{
 		QVariant var;
-		parameter.full_Name = structure_Item->whatsThis(DEFAULT_COLUMN) + " " + whats_This;
+		parameter.indicator.tab_Index = tab_Index;
+		parameter.indicator.full_Name = structure_Item->whatsThis(DEFAULT_COLUMN) + " " + whats_This;
 		var.setValue( parameter );
 		label->setProperty(parameter_Property,var);
 		label->setWhatsThis(structure_Item->whatsThis(DEFAULT_COLUMN));
@@ -805,7 +807,7 @@ void Table_Of_Structures::create_Label(My_Table_Widget* table, int current_Row, 
 	connect(label, &QLabel::windowTitleChanged, this, [=]{refresh_Header(); });
 }
 
-void Table_Of_Structures::create_Check_Box_Label(My_Table_Widget* table, int current_Row, int current_Column, QTreeWidgetItem* structure_Item, QString item_Type_String, QString whats_This, QString text, int r_S, int r_F, int c_S, int c_F)
+void Table_Of_Structures::create_Check_Box_Label(My_Table_Widget* table, int current_Row, int current_Column, QTreeWidgetItem* structure_Item, QString item_Type_String, int tab_Index, QString whats_This, QString text, int r_S, int r_F, int c_S, int c_F)
 {
 	// PARAMETER
 	bool bool_Check = false;
@@ -864,12 +866,13 @@ void Table_Of_Structures::create_Check_Box_Label(My_Table_Widget* table, int cur
 	back_Layout->setAlignment(Qt::AlignCenter);
 
 	// set parameter id to BACK widget
-	Parameter parameter; parameter.id=0;
+	Parameter parameter; parameter.indicator.id=0;
 	get_Parameter(parameter, structure_Item, whats_This);
-	if(parameter.id!=0)
+	if(parameter.indicator.id!=0)
 	{
 		QVariant var;
-		parameter.full_Name = structure_Item->whatsThis(DEFAULT_COLUMN) + " " + whats_This;
+		parameter.indicator.tab_Index = tab_Index;
+		parameter.indicator.full_Name = structure_Item->whatsThis(DEFAULT_COLUMN) + " " + whats_This;
 		var.setValue( parameter );
 		back_Widget->setProperty(parameter_Property,var);
 		back_Widget->setWhatsThis(structure_Item->whatsThis(DEFAULT_COLUMN));
@@ -997,7 +1000,7 @@ void Table_Of_Structures::create_Line_Edit(My_Table_Widget* table, int current_R
 	//    line_Edit->textEdited(line_Edit->text());
 }
 
-void Table_Of_Structures::create_Check_Box_Fit(My_Table_Widget* table, int current_Row, int current_Column, QTreeWidgetItem* structure_Item, QString item_Type_String, QString whats_This, int r_S, int r_F, int c_S, int c_F)
+void Table_Of_Structures::create_Check_Box_Fit(My_Table_Widget* table, int current_Row, int current_Column, QTreeWidgetItem* structure_Item, QString item_Type_String, int tab_Index, QString whats_This, int r_S, int r_F, int c_S, int c_F)
 {
 	// PARAMETER
 	Parameter parameter;
@@ -1074,7 +1077,8 @@ void Table_Of_Structures::create_Check_Box_Fit(My_Table_Widget* table, int curre
 
 	// set parameter id to BACK widget
 	QVariant var;
-	parameter.full_Name = structure_Item->whatsThis(DEFAULT_COLUMN) + " " + whats_This;
+	parameter.indicator.tab_Index = tab_Index;
+	parameter.indicator.full_Name = structure_Item->whatsThis(DEFAULT_COLUMN) + " " + whats_This;
 	var.setValue( parameter );
 	back_Widget->setProperty(parameter_Property,var);
 	back_Widget->setWhatsThis(structure_Item->whatsThis(DEFAULT_COLUMN));
@@ -1089,7 +1093,7 @@ void Table_Of_Structures::create_Check_Box_Fit(My_Table_Widget* table, int curre
 }
 
 // for interlayers
-void Table_Of_Structures::create_Check_Box_Label_Interlayer(My_Table_Widget* table, int current_Row, int start_Column, QTreeWidgetItem* structure_Item, QString item_Type_String)
+void Table_Of_Structures::create_Check_Box_Label_Interlayer(My_Table_Widget* table, int current_Row, int start_Column, QTreeWidgetItem* structure_Item, QString item_Type_String, int tab_Index)
 {
 	QVector<Interlayer> interlayer_Composition;
 	QVariant data = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole);
@@ -1149,7 +1153,8 @@ void Table_Of_Structures::create_Check_Box_Label_Interlayer(My_Table_Widget* tab
 
 	// set parameter id to BACK widget
 	QVariant var;
-	interlayer_Composition[interlayer_Index].interlayer.full_Name = structure_Item->whatsThis(DEFAULT_COLUMN) + " " + "Weight "+transition_Layer_Functions[interlayer_Index];
+	interlayer_Composition[interlayer_Index].interlayer.indicator.tab_Index = tab_Index;
+	interlayer_Composition[interlayer_Index].interlayer.indicator.full_Name = structure_Item->whatsThis(DEFAULT_COLUMN) + " " + "Weight "+transition_Layer_Functions[interlayer_Index];
 	var.setValue( interlayer_Composition[interlayer_Index].interlayer );
 	back_Widget->setProperty(parameter_Property,var);
 	back_Widget->setWhatsThis(structure_Item->whatsThis(DEFAULT_COLUMN));
@@ -1211,7 +1216,7 @@ void Table_Of_Structures::create_Weigts_Interlayer(My_Table_Widget* table, int c
 	}
 }
 
-void Table_Of_Structures::create_Weights_Check_Box_Fit_Interlayer(My_Table_Widget* table, int current_Row, int start_Column, QTreeWidgetItem* structure_Item, QString item_Type_String)
+void Table_Of_Structures::create_Weights_Check_Box_Fit_Interlayer(My_Table_Widget* table, int current_Row, int start_Column, QTreeWidgetItem* structure_Item, QString item_Type_String, int tab_Index)
 {
 	QVector<Interlayer> interlayer_Composition;
 	QVariant data = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole);
@@ -1250,7 +1255,8 @@ void Table_Of_Structures::create_Weights_Check_Box_Fit_Interlayer(My_Table_Widge
 
 	// set parameter id to BACK widget
 	QVariant var;
-	interlayer_Composition[interlayer_Index].interlayer.full_Name = structure_Item->whatsThis(DEFAULT_COLUMN) + " " + "Weight "+transition_Layer_Functions[interlayer_Index];
+	interlayer_Composition[interlayer_Index].interlayer.indicator.tab_Index = tab_Index;
+	interlayer_Composition[interlayer_Index].interlayer.indicator.full_Name = structure_Item->whatsThis(DEFAULT_COLUMN) + " " + "Weight "+transition_Layer_Functions[interlayer_Index];
 	var.setValue( interlayer_Composition[interlayer_Index].interlayer );
 	back_Widget->setProperty(parameter_Property,var);
 	back_Widget->setWhatsThis(structure_Item->whatsThis(DEFAULT_COLUMN));
@@ -1261,7 +1267,7 @@ void Table_Of_Structures::create_Weights_Check_Box_Fit_Interlayer(My_Table_Widge
 	}
 }
 
-void Table_Of_Structures::create_MySigma_Labels_Interlayer(My_Table_Widget* table, int current_Row, int start_Column, QTreeWidgetItem* structure_Item, QString item_Type_String)
+void Table_Of_Structures::create_MySigma_Labels_Interlayer(My_Table_Widget* table, int current_Row, int start_Column, QTreeWidgetItem* structure_Item, QString item_Type_String, int tab_Index)
 {
 	QVector<Interlayer> interlayer_Composition;
 	QVariant data = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole);
@@ -1278,7 +1284,8 @@ void Table_Of_Structures::create_MySigma_Labels_Interlayer(My_Table_Widget* tabl
 
 	// set parameter id to widget
 	QVariant var;
-	interlayer_Composition[interlayer_Index].my_Sigma.full_Name = structure_Item->whatsThis(DEFAULT_COLUMN) + " " + "Sigma "+transition_Layer_Functions[interlayer_Index];
+	interlayer_Composition[interlayer_Index].my_Sigma.indicator.tab_Index = tab_Index;
+	interlayer_Composition[interlayer_Index].my_Sigma.indicator.full_Name = structure_Item->whatsThis(DEFAULT_COLUMN) + " " + "Sigma "+transition_Layer_Functions[interlayer_Index];
 	var.setValue( interlayer_Composition[interlayer_Index].my_Sigma );
 	label->setProperty(parameter_Property,var);
 	label->setWhatsThis(structure_Item->whatsThis(DEFAULT_COLUMN));

@@ -1,6 +1,8 @@
 #include "my_table_widget.h"
 
-My_Table_Widget::My_Table_Widget(int rows, int columns, QWidget *parent) : QTableWidget(parent)
+My_Table_Widget::My_Table_Widget(int rows, int columns, QTabWidget* main_Tabs, QWidget *parent) :
+	main_Tabs(main_Tabs),
+	QTableWidget(parent)
 {
 	for(int i=0; i<rows; ++i)		insertRow(i);
 	for(int i=0; i<columns; ++i)	insertColumn(i);
@@ -10,7 +12,6 @@ void My_Table_Widget::contextMenuEvent(QContextMenuEvent *event)
 {
 	int row = currentRow();
 	int column = currentColumn();;
-	qInfo() << "row = " << row << "column = " << column;
 
 	QWidget* widget = cellWidget(row,column);
 
@@ -18,10 +19,10 @@ void My_Table_Widget::contextMenuEvent(QContextMenuEvent *event)
 	if(!widget->whatsThis().isEmpty())
 	{
 		Parameter parameter = widget->property(parameter_Property).value<Parameter>();
-		qInfo() << "parameter id = " << parameter.id << "\n" << parameter.full_Name << endl;
+		qInfo() << "parameter id = " << parameter.indicator.id << "\n" << main_Tabs->tabText(parameter.indicator.tab_Index) << " " << parameter.indicator.full_Name << endl;
 
 		QMenu menu;
-		QAction my_Name_Action(parameter.full_Name);
+		QAction my_Name_Action(parameter.indicator.full_Name);
 		menu.addAction(&my_Name_Action);
 
 		connect(&my_Name_Action, &QAction::triggered, [=]{ open_Coupling_Editor(parameter);});
@@ -32,7 +33,13 @@ void My_Table_Widget::contextMenuEvent(QContextMenuEvent *event)
 
 void My_Table_Widget::open_Coupling_Editor(Parameter parameter)
 {
-	Coupling_Editor* new_Coupling_Editor = new Coupling_Editor(parameter,this);
-		new_Coupling_Editor->setModal(true);
+	Coupling_Editor* new_Coupling_Editor = new Coupling_Editor(parameter, main_Tabs, this);
+//		new_Coupling_Editor->setModal(true);
 		new_Coupling_Editor->show();
 }
+
+QWidget* My_Table_Widget::get_Cell_Widget()
+{
+	return cellWidget(currentRow(),currentColumn());
+}
+

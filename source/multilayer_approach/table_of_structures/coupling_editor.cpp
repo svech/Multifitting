@@ -1,11 +1,23 @@
 #include "coupling_editor.h"
 
-Coupling_Editor::Coupling_Editor(Parameter parameter, QWidget* parent): QDialog(parent)
+Coupling_Editor::Coupling_Editor(Parameter parameter, QTabWidget *main_Tabs, QWidget* parent):
+	main_Tabs(main_Tabs),
+	QDialog(parent)
 {
-	setWindowTitle(parameter.full_Name);
+	setWindowTitle("<"+main_Tabs->tabText(parameter.indicator.tab_Index)+"> "+parameter.indicator.full_Name/*+" "+QString::number(parameter.indicator.id)*/);
 	create_Main_Layout();
 	set_Window_Geometry();
 	setAttribute(Qt::WA_DeleteOnClose);
+}
+
+void Coupling_Editor::closeEvent(QCloseEvent *)
+{
+	// enable context menu
+	for(int tab_Index=0; tab_Index<main_Tabs->count(); ++tab_Index)
+	{
+		My_Table_Widget* table = dynamic_cast<My_Table_Widget*>(main_Tabs->widget(tab_Index));
+		table->setContextMenuPolicy(Qt::DefaultContextMenu);
+	}
 }
 
 void Coupling_Editor::set_Window_Geometry()
@@ -32,6 +44,13 @@ void Coupling_Editor::create_Main_Layout()
 	main_Layout->addWidget(done_Button,0,Qt::AlignCenter);
 
 	connect(done_Button, &QPushButton::clicked, this, &Coupling_Editor::close);
+
+	// disable context menu
+	for(int tab_Index=0; tab_Index<main_Tabs->count(); ++tab_Index)
+	{
+		My_Table_Widget* table = dynamic_cast<My_Table_Widget*>(main_Tabs->widget(tab_Index));
+		table->setContextMenuPolicy(Qt::CustomContextMenu);
+	}
 }
 
 void Coupling_Editor::create_Master_Box()
@@ -43,9 +62,11 @@ void Coupling_Editor::create_Master_Box()
 
 	QHBoxLayout* group_Box_Layout = new QHBoxLayout(master_Group_Box);
 
-	master_Label = new QLabel("<no master>");
+	master_Label = new QLabel(".........<no master>.........");
 		group_Box_Layout->addWidget(master_Label);
+
 	master_Line_Edit = new QLineEdit("1");
+		master_Line_Edit->setMinimumWidth(MIN_FORMULA_WIDTH_LINE_EDIT);
 		group_Box_Layout->addWidget(master_Line_Edit);
 
 	QHBoxLayout* button_Layout = new QHBoxLayout;
@@ -57,6 +78,8 @@ void Coupling_Editor::create_Master_Box()
 		button_Layout->addWidget(set_Master_Button,0,Qt::AlignRight);
 	remove_Master_Button = new QPushButton("Remove");
 		button_Layout->addWidget(remove_Master_Button,0,Qt::AlignRight);
+
+	connect(qApp, &QApplication::focusChanged, this, &Coupling_Editor::enable_Getting_Parameter_Master);
 }
 
 void Coupling_Editor::create_Slave_Box()
@@ -86,12 +109,17 @@ void Coupling_Editor::add_Slave(int index_Pressed)
 	QHBoxLayout* frame_Layout = new QHBoxLayout;
 		slave_Group_Box_Layout->insertLayout(index_Pressed, frame_Layout);
 
-	QLabel* slave_Label = new QLabel("<no slave> "+QString::number(global_Counter++));
+	QLabel* slave_Label = new QLabel(".........<no slave>..........");
 		frame_Layout->addWidget(slave_Label);
 		slave_Label_Vec.insert(index_Pressed, slave_Label);
+
 	QLineEdit* slave_Line_Edit = new QLineEdit("1");
+		slave_Line_Edit->setMinimumWidth(MIN_FORMULA_WIDTH_LINE_EDIT);
 		frame_Layout->addWidget(slave_Line_Edit);
 		slave_Line_Edit_Vec.insert(index_Pressed, slave_Line_Edit);
+
+	bool slave_Connected = false;
+		slave_Connected_Vec.insert(index_Pressed, slave_Connected);
 
 	QHBoxLayout* button_Layout = new QHBoxLayout;
 		button_Layout->setAlignment(Qt::AlignRight);
@@ -106,8 +134,104 @@ void Coupling_Editor::add_Slave(int index_Pressed)
 		button_Layout->addWidget(add_Slave_Button,0,Qt::AlignRight);
 
 
-	qInfo() << "index_Pressed = " << index_Pressed;
+	qInfo() << "index_Pressed of created = " << index_Pressed;
 	connect(set_Slave_Button,    &QPushButton::clicked, this, [=]{ set_Slave   (slave_Label_Vec.indexOf(slave_Label)); });
 	connect(remove_Slave_Button, &QPushButton::clicked, this, [=]{ remove_Slave(slave_Label_Vec.indexOf(slave_Label)); });
 	connect(add_Slave_Button,	 &QPushButton::clicked, this, [=]{ add_Slave   (slave_Label_Vec.indexOf(slave_Label)+1); });
+
+	connect(qApp, &QApplication::focusChanged, this, [=](QWidget* old, QWidget* now){enable_Getting_Parameter_Slave(old, now, index_Pressed);});
+}
+
+void Coupling_Editor::enable_Getting_Parameter_Master(QWidget* old, QWidget* now)
+{
+	// got focus
+	if( master_Line_Edit != qobject_cast<QLineEdit*>(old) &&
+		master_Line_Edit == qobject_cast<QLineEdit*>(now) )
+	{
+		qInfo() << "master_Line_Edit got focus";
+		if(!master_Connected)
+		for(int tab_Index=0; tab_Index<main_Tabs->count(); ++tab_Index)
+		{
+			My_Table_Widget* table = dynamic_cast<My_Table_Widget*>(main_Tabs->widget(tab_Index));
+			connect(table, &My_Table_Widget::customContextMenuRequested, this, &Coupling_Editor::get_Parameter_Master);
+		}
+		master_Connected=true;
+	}
+
+	// focus went to another lineEdit
+	if( master_Line_Edit == qobject_cast<QLineEdit*>(old) &&
+		master_Line_Edit != qobject_cast<QLineEdit*>(now) &&
+		qobject_cast<QLineEdit*>(now))
+	{
+		qInfo() << "master_Line_Edit lost focus";
+		for(int tab_Index=0; tab_Index<main_Tabs->count(); ++tab_Index)
+		{
+			My_Table_Widget* table = dynamic_cast<My_Table_Widget*>(main_Tabs->widget(tab_Index));
+			disconnect(table, &My_Table_Widget::customContextMenuRequested, this, nullptr);
+		}
+		master_Connected=false;
+	}
+}
+
+void Coupling_Editor::get_Parameter_Master()
+{
+	My_Table_Widget* table = qobject_cast<My_Table_Widget*>(QObject::sender());
+	QWidget* widget = table->get_Cell_Widget();
+
+	if(widget)
+	{
+		if(!widget->whatsThis().isEmpty())
+		{
+			Parameter parameter = widget->property(parameter_Property).value<Parameter>();
+			qInfo() << "parameter id = " << parameter.indicator.id << "\n" << main_Tabs->tabText(parameter.indicator.tab_Index) << " " << parameter.indicator.full_Name << endl;
+			master_Label->setText("<"+main_Tabs->tabText(parameter.indicator.tab_Index)+"> "+parameter.indicator.full_Name/* + " " + QString::number(parameter.indicator.id)*/);
+		}
+	}
+}
+
+void Coupling_Editor::enable_Getting_Parameter_Slave(QWidget* old, QWidget* now, int index_Pressed)
+{
+	// got focus
+	if( slave_Line_Edit_Vec[index_Pressed] != qobject_cast<QLineEdit*>(old) &&
+		slave_Line_Edit_Vec[index_Pressed] == qobject_cast<QLineEdit*>(now) )
+	{
+		qInfo() << "slave_Line_Edit got focus";
+		if(!slave_Connected_Vec[index_Pressed])
+		for(int tab_Index=0; tab_Index<main_Tabs->count(); ++tab_Index)
+		{
+			My_Table_Widget* table = dynamic_cast<My_Table_Widget*>(main_Tabs->widget(tab_Index));
+			connect(table, &My_Table_Widget::customContextMenuRequested, this, [=]{get_Parameter_Slave(index_Pressed);});
+		}
+		slave_Connected_Vec[index_Pressed]=true;
+	}
+
+	// focus went to another lineEdit
+	if( slave_Line_Edit_Vec[index_Pressed] == qobject_cast<QLineEdit*>(old) &&
+		slave_Line_Edit_Vec[index_Pressed] != qobject_cast<QLineEdit*>(now) &&
+		qobject_cast<QLineEdit*>(now))
+	{
+		qInfo() << "slave_Line_Edit lost focus";
+		for(int tab_Index=0; tab_Index<main_Tabs->count(); ++tab_Index)
+		{
+			My_Table_Widget* table = dynamic_cast<My_Table_Widget*>(main_Tabs->widget(tab_Index));
+			disconnect(table, &My_Table_Widget::customContextMenuRequested, this, nullptr);
+		}
+		slave_Connected_Vec[index_Pressed]=false;
+	}
+}
+
+void Coupling_Editor::get_Parameter_Slave(int index_Pressed)
+{
+	My_Table_Widget* table = qobject_cast<My_Table_Widget*>(QObject::sender());
+	QWidget* widget = table->get_Cell_Widget();
+
+	if(widget)
+	{
+		if(!widget->whatsThis().isEmpty())
+		{
+			Parameter parameter = widget->property(parameter_Property).value<Parameter>();
+			qInfo() << "parameter id = " << parameter.indicator.id << "\n" << main_Tabs->tabText(parameter.indicator.tab_Index) << " " << parameter.indicator.full_Name << endl;
+			slave_Label_Vec[index_Pressed]->setText("<"+main_Tabs->tabText(parameter.indicator.tab_Index)+"> "+parameter.indicator.full_Name/* + " " + QString::number(parameter.indicator.id)*/);
+		}
+	}
 }

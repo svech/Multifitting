@@ -12,6 +12,15 @@ Global_Definitions::Global_Definitions()
 
 // -----------------------------------------------------------------------------------------
 // serialization
+QDataStream& operator <<( QDataStream& stream, const Parameter_Indicator& indicator )
+{
+	return stream << indicator.id << indicator.tab_Index << indicator.full_Name;
+}
+QDataStream& operator >>( QDataStream& stream,		 Parameter_Indicator& indicator )
+{
+	return stream >> indicator.id >> indicator.tab_Index >> indicator.full_Name;
+}
+
 QDataStream& operator <<( QDataStream& stream, const Int_Independent& int_Independent )
 {
 	return stream << int_Independent.value << int_Independent.is_Independent << int_Independent.start << int_Independent.step << int_Independent.num_steps;
@@ -32,11 +41,11 @@ QDataStream& operator >>( QDataStream& stream,		 Independent& independent )
 
 QDataStream& operator <<( QDataStream& stream, const Coupled& coupled )
 {
-	return stream << coupled.is_Coupled << coupled.has_Master << coupled.master_Id << coupled.function_Type << coupled.has_Slaves << coupled.slaves_Id;
+	return stream << coupled.is_Coupled << coupled.has_Master << coupled.master << coupled.function_Type << coupled.has_Slaves << coupled.slaves;
 }
 QDataStream& operator >>( QDataStream& stream,		 Coupled& coupled )
 {
-	return stream >> coupled.is_Coupled >> coupled.has_Master >> coupled.master_Id >> coupled.function_Type >> coupled.has_Slaves >> coupled.slaves_Id;
+	return stream >> coupled.is_Coupled >> coupled.has_Master >> coupled.master >> coupled.function_Type >> coupled.has_Slaves >> coupled.slaves;
 }
 
 QDataStream& operator <<( QDataStream& stream, const Fit& fit )
@@ -59,11 +68,11 @@ QDataStream& operator >>( QDataStream& stream,		 Optimize& optimize )
 
 QDataStream& operator <<( QDataStream& stream, const Parameter& parameter )
 {
-	return stream << parameter.value << parameter.independent << parameter.coupled << parameter.fit << parameter.optimize << parameter.id << parameter.full_Name;
+	return stream << parameter.value << parameter.independent << parameter.coupled << parameter.fit << parameter.optimize << parameter.indicator;
 }
 QDataStream& operator >>( QDataStream& stream,		 Parameter& parameter )
 {
-	return stream >> parameter.value >> parameter.independent >> parameter.coupled >> parameter.fit >> parameter.optimize >> parameter.id >> parameter.full_Name;
+	return stream >> parameter.value >> parameter.independent >> parameter.coupled >> parameter.fit >> parameter.optimize >> parameter.indicator;
 }
 
 QDataStream& operator <<( QDataStream& stream, const Stoichiometry& stoichiometry )

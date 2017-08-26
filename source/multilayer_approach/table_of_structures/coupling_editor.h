@@ -2,13 +2,15 @@
 #define COUPLING_EDITOR_H
 
 #include "global/settings.h"
+#include "my_table_widget.h"
 
 class Coupling_Editor : public QDialog
 {
 	Q_OBJECT
 public:
-	explicit Coupling_Editor(Parameter parameter, QWidget *parent = 0);
+	explicit Coupling_Editor(Parameter parameter, QTabWidget* main_Tabs, QWidget *parent = 0);
 
+	void closeEvent(QCloseEvent*);
 	void set_Window_Geometry();
 	void create_Main_Layout();
 
@@ -18,12 +20,19 @@ public:
 		void remove_Slave(int index_Pressed);
 		void add_Slave(int index_Pressed);
 
-	int global_Counter = 0;
+	void enable_Getting_Parameter_Master(QWidget* old, QWidget* now);
+	void get_Parameter_Master();
+
+	void enable_Getting_Parameter_Slave(QWidget* old, QWidget* now, int index_Pressed);
+	void get_Parameter_Slave(int index_Pressed);
+
+	QTabWidget* main_Tabs;
 	QVBoxLayout* main_Layout;
 
 	QGroupBox* master_Group_Box;
 		QLabel* master_Label;
 		QLineEdit* master_Line_Edit;
+		bool master_Connected = false;
 		QPushButton* set_Master_Button;
 		QPushButton* remove_Master_Button;
 
@@ -31,6 +40,7 @@ public:
 		QVBoxLayout* slave_Group_Box_Layout;
 			QVector<QLabel*> slave_Label_Vec;
 			QVector<QLineEdit*> slave_Line_Edit_Vec;
+			QVector<bool> slave_Connected_Vec;
 
 	QPushButton* done_Button;
 };

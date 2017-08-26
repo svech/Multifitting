@@ -120,6 +120,8 @@ using namespace std;
 #define TABLE_COLUMN_ELEMENTS_SHIFT 1		// current_Column += TABLE_COLUMN_ELEMENTS_SHIFT
 #define TABLE_COLUMN_INTERLAYERS_SHIFT 1	// current_Column += TABLE_COLUMN_INTERLAYERS_SHIFT
 
+#define MIN_FORMULA_WIDTH_LINE_EDIT 80		// master/slave width for dependance formula
+
 // -----------------------------------------------------------------------------------------
 
 #define active "     Active"
@@ -171,6 +173,10 @@ using namespace std;
 #define VAL				"value"
 #define MIN				"min value"
 #define MAX				"max value"
+
+// master/slave keywords
+//#define MASTER			"master"
+//#define SLAVE			"slave"
 
 // -----------------------------------------------------------------------------------------
 
@@ -237,19 +243,23 @@ enum       Transitional_Layer	{ Erf , Lin , Exp , Tanh , Sin , Step};
 // -----------------------------------------------------------------------------------------
 
 // simple types					renew corresponding serialization operators!
+struct Parameter_Indicator		{int id; int tab_Index; QString full_Name;};
+
 struct Int_Independent			{int value; bool is_Independent=false;	int start; int step; int num_steps;};
 struct Independent				{bool is_Independent = false;	double min; double max; int num_Points;};
+
 struct Coupled					{bool is_Coupled	 = false;
-								 bool has_Master = false; int master_Id = 0; QString function_Type = "default"; double function(double argument){ return argument;}
-								 bool has_Slaves = false; QVector<int> slaves_Id;};
+								 bool has_Master = false; Parameter_Indicator master; QString function_Type = "default"; double function(double argument){ return argument;}
+								 bool has_Slaves = false; QVector<Parameter_Indicator> slaves;};
+
 struct Fit						{bool is_Fitable	 = false;	bool min_Bounded; double min; bool max_Bounded; double max;};
 struct Optimize					{bool is_Optimizable = false;	bool min_Bounded; double min; bool max_Bounded; double max;};
+
 struct Parameter				{double value; Independent independent; Coupled coupled; Fit fit; Optimize optimize;
-								 int id;
-								 QString full_Name;
+								 Parameter_Indicator indicator;
 								 Parameter()
 								 {
-									id = rand()*RAND_SHIFT+rand();	// create unique id
+									indicator.id = rand()*RAND_SHIFT+rand();	// create unique id
 								 }};
 Q_DECLARE_METATYPE( Parameter )
 
@@ -294,6 +304,10 @@ struct Curve					{QVector<double> argument;
 // -----------------------------------------------------------------------------------------
 
 // serialization
+
+QDataStream& operator <<( QDataStream& stream, const Parameter_Indicator& indicator );
+QDataStream& operator >>( QDataStream& stream,		 Parameter_Indicator& indicator );
+
 QDataStream& operator <<( QDataStream& stream, const Int_Independent& int_Independent );
 QDataStream& operator >>( QDataStream& stream,		 Int_Independent& int_Independent );
 
