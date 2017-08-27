@@ -1,10 +1,12 @@
 #include "coupling_editor.h"
 
-Coupling_Editor::Coupling_Editor(Parameter parameter, QTabWidget *main_Tabs, QWidget* parent):
+Coupling_Editor::Coupling_Editor(QWidget* coupling_Widget, QTabWidget *main_Tabs, QWidget* parent):
+	coupling_Widget(coupling_Widget),
+	coupling_Parameter(coupling_Widget->property(parameter_Property).value<Parameter>()),
 	main_Tabs(main_Tabs),
 	QDialog(parent)
 {
-	setWindowTitle("<"+main_Tabs->tabText(parameter.indicator.tab_Index)+"> "+parameter.indicator.full_Name/*+" "+QString::number(parameter.indicator.id)*/);
+	setWindowTitle("<"+main_Tabs->tabText(coupling_Parameter.indicator.tab_Index)+"> "+coupling_Parameter.indicator.full_Name/*+" "+QString::number(coupling_Parameter.indicator.id)*/);
 	create_Main_Layout();
 	set_Window_Geometry();
 	setAttribute(Qt::WA_DeleteOnClose);
@@ -109,6 +111,9 @@ void Coupling_Editor::add_Slave(int index_Pressed)
 	QHBoxLayout* frame_Layout = new QHBoxLayout;
 		slave_Group_Box_Layout->insertLayout(index_Pressed, frame_Layout);
 
+	QWidget* slave_Widget;
+		slave_Widget_Vec.insert(index_Pressed, slave_Widget);
+
 	QLabel* slave_Label = new QLabel(".........<no slave>..........");
 		frame_Layout->addWidget(slave_Label);
 		slave_Label_Vec.insert(index_Pressed, slave_Label);
@@ -117,9 +122,6 @@ void Coupling_Editor::add_Slave(int index_Pressed)
 		slave_Line_Edit->setMinimumWidth(MIN_FORMULA_WIDTH_LINE_EDIT);
 		frame_Layout->addWidget(slave_Line_Edit);
 		slave_Line_Edit_Vec.insert(index_Pressed, slave_Line_Edit);
-
-	bool slave_Connected = false;
-		slave_Connected_Vec.insert(index_Pressed, slave_Connected);
 
 	QHBoxLayout* button_Layout = new QHBoxLayout;
 		button_Layout->setAlignment(Qt::AlignRight);
@@ -152,10 +154,7 @@ void Coupling_Editor::enable_Getting_Parameter(QWidget* old, QWidget* now, QLabe
 		{
 			My_Table_Widget* table = dynamic_cast<My_Table_Widget*>(main_Tabs->widget(tab_Index));
 			disconnect(table, &My_Table_Widget::customContextMenuRequested, this, nullptr);
-//			if(line_Edit == master_Line_Edit)
 			   connect(table, &My_Table_Widget::customContextMenuRequested, this, [=]{get_Parameter(label);});
-//			else
-//			   connect(table, &My_Table_Widget::customContextMenuRequested, this, [=]{get_Parameter_Slave(index);});
 		}
 	}
 }
@@ -170,8 +169,31 @@ void Coupling_Editor::get_Parameter(QLabel* label)
 		if(!widget->whatsThis().isEmpty())
 		{
 			Parameter parameter = widget->property(parameter_Property).value<Parameter>();
-			qInfo() << "parameter id = " << parameter.indicator.id << "\n" << main_Tabs->tabText(parameter.indicator.tab_Index) << " " << parameter.indicator.full_Name << endl;
 			label->setText("<"+main_Tabs->tabText(parameter.indicator.tab_Index)+"> "+parameter.indicator.full_Name/* + " " + QString::number(parameter.indicator.id)*/);
+
+			// Name and tab are reloading inside the Parameter at Table opening, so they should be correct after changing the structure and tab order.
+
+			// set master
+			if(label == master_Label)
+			{
+				// slave's side
+				coupling_Parameter.coupled.has_Master = true;
+				coupling_Parameter.coupled.master = parameter.indicator;
+
+				// master's side
+				master_Widget = widget;	// remember widget. data will be saved at close.
+			} else
+			// set slave
+			{
+				// slave's side
+				int index = slave_Label_Vec.indexOf(label);
+				slave_Widget_Vec[index] = widget;
+
+				// master's side
+				coupling_Parameter.coupled.slaves[index] = parameter.indicator;
+			}
+
+			qInfo() << "parameter id = " << parameter.indicator.id << "\n" << main_Tabs->tabText(parameter.indicator.tab_Index) << " " << parameter.indicator.full_Name << endl;
 		}
 	}
 }

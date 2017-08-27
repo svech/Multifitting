@@ -243,7 +243,7 @@ enum       Transitional_Layer	{ Erf , Lin , Exp , Tanh , Sin , Step};
 // -----------------------------------------------------------------------------------------
 
 // simple types					renew corresponding serialization operators!
-struct Parameter_Indicator		{int id; int tab_Index; QString full_Name;};
+struct Parameter_Indicator		{int id; int tab_Index = -1; QString full_Name;};
 
 struct Int_Independent			{int value; bool is_Independent=false;	int start; int step; int num_steps;};
 struct Independent				{bool is_Independent = false;	double min; double max; int num_Points;};

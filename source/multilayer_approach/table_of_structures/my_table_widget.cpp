@@ -25,21 +25,29 @@ void My_Table_Widget::contextMenuEvent(QContextMenuEvent *event)
 		QAction my_Name_Action(parameter.indicator.full_Name);
 		menu.addAction(&my_Name_Action);
 
-		connect(&my_Name_Action, &QAction::triggered, [=]{ open_Coupling_Editor(parameter);});
+		connect(&my_Name_Action, &QAction::triggered, [=]{ open_Coupling_Editor(widget);});
 
 		menu.exec(event->globalPos());
 	}
 }
 
-void My_Table_Widget::open_Coupling_Editor(Parameter parameter)
+void My_Table_Widget::open_Coupling_Editor(QWidget* coupling_Widget)
 {
-	Coupling_Editor* new_Coupling_Editor = new Coupling_Editor(parameter, main_Tabs, this);
+	Coupling_Editor* new_Coupling_Editor = new Coupling_Editor(coupling_Widget, main_Tabs, this);
 //		new_Coupling_Editor->setModal(true);
 		new_Coupling_Editor->show();
 }
 
 QWidget* My_Table_Widget::get_Cell_Widget()
 {
-	return cellWidget(currentRow(),currentColumn());
+	QWidget* widget = cellWidget(currentRow(),currentColumn());
+
+//	if(widget)
+//	{
+//		widget->setProperty(row_Property,currentRow());
+//		widget->setProperty(column_Property,currentColumn());
+//	}
+
+	return widget;
 }
 

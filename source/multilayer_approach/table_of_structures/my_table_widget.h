@@ -13,7 +13,7 @@ public:
 	QTabWidget* main_Tabs;
 
 	void contextMenuEvent(QContextMenuEvent *event);
-	void open_Coupling_Editor(Parameter parameter);
+	void open_Coupling_Editor(QWidget *coupling_Widget);
 
 	QWidget* get_Cell_Widget();
 };
