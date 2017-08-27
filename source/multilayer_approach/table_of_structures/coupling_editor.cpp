@@ -187,10 +187,10 @@ void Coupling_Editor::get_Parameter(QLabel* label)
 			{
 				// slave's side
 				int index = slave_Label_Vec.indexOf(label);
-				slave_Widget_Vec[index] = widget;
+				slave_Widget_Vec[index] = widget;		// remember widget. data will be saved at close.
 
 				// master's side
-				coupling_Parameter.coupled.slaves[index] = parameter.indicator;
+				coupling_Parameter.coupled.slaves[index] = parameter.indicator; // ERROR
 			}
 
 			qInfo() << "parameter id = " << parameter.indicator.id << "\n" << main_Tabs->tabText(parameter.indicator.tab_Index) << " " << parameter.indicator.full_Name << endl;
