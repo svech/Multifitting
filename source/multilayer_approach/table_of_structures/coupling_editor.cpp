@@ -14,6 +14,44 @@ Coupling_Editor::Coupling_Editor(QWidget* coupling_Widget, QTabWidget *main_Tabs
 
 void Coupling_Editor::closeEvent(QCloseEvent *)
 {
+	// save data
+	// external master
+	if(master_Widget)
+	{
+		bool already_Contains = false;
+		QVariant var;
+		Parameter master_Parameter = master_Widget->property(parameter_Property).value<Parameter>();
+		for(Parameter_Indicator master_Slave : master_Parameter.coupled.slaves)
+		{
+			if(master_Slave.id == coupling_Parameter.indicator.id)
+			{
+				already_Contains = true;
+				break;
+			}
+		}
+		if(!already_Contains)
+		{
+			master_Parameter.coupled.slaves.append(coupling_Parameter.indicator);
+			var.setValue( master_Parameter );
+			master_Widget->setProperty(parameter_Property,var);
+			qInfo() << "master " << master_Parameter.indicator.full_Name << " added me as slave";
+		}
+	}
+
+	// external slaves
+	for(QWidget* slave_Widget : slave_Widget_Vec)
+	{
+		if(slave_Widget)
+		{
+			QVariant var;
+			Parameter slave_Parameter = slave_Widget->property(parameter_Property).value<Parameter>();
+			slave_Parameter.coupled.master = coupling_Parameter.indicator;
+			var.setValue( slave_Parameter );
+			slave_Widget->setProperty(parameter_Property,var);
+			qInfo() << "slave " << slave_Parameter.indicator.full_Name << " added me as master";
+		}
+	}
+
 	// enable context menu
 	for(int tab_Index=0; tab_Index<main_Tabs->count(); ++tab_Index)
 	{
@@ -108,10 +146,13 @@ void Coupling_Editor::remove_Slave(int index_Pressed)
 
 void Coupling_Editor::add_Slave(int index_Pressed)
 {
+	Parameter_Indicator slave_Indicator;
+	coupling_Parameter.coupled.slaves.insert(index_Pressed, slave_Indicator);
+
 	QHBoxLayout* frame_Layout = new QHBoxLayout;
 		slave_Group_Box_Layout->insertLayout(index_Pressed, frame_Layout);
 
-	QWidget* slave_Widget;
+	QWidget* slave_Widget = NULL;
 		slave_Widget_Vec.insert(index_Pressed, slave_Widget);
 
 	QLabel* slave_Label = new QLabel(".........<no slave>..........");
@@ -190,7 +231,7 @@ void Coupling_Editor::get_Parameter(QLabel* label)
 				slave_Widget_Vec[index] = widget;		// remember widget. data will be saved at close.
 
 				// master's side
-				coupling_Parameter.coupled.slaves[index] = parameter.indicator; // ERROR
+				coupling_Parameter.coupled.slaves[index] = parameter.indicator;
 			}
 
 			qInfo() << "parameter id = " << parameter.indicator.id << "\n" << main_Tabs->tabText(parameter.indicator.tab_Index) << " " << parameter.indicator.full_Name << endl;
