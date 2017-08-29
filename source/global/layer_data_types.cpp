@@ -296,7 +296,7 @@ Layer::Layer()
 		}
 	}
 
-	// drift
+	// thickness drift
 	thickness_Drift.is_Drift_Line = false;
 	thickness_Drift.is_Drift_Sine = false;
 	thickness_Drift.is_Drift_Rand = false;
@@ -326,7 +326,35 @@ Layer::Layer()
 		thickness_Drift.drift_Sine_Phase.fit.max = 1;
 	}
 
-	sigma_Drift = thickness_Drift;
+	// sigma drift
+	sigma_Drift.is_Drift_Line = false;
+	sigma_Drift.is_Drift_Sine = false;
+	sigma_Drift.is_Drift_Rand = false;
+	{
+		sigma_Drift.drift_Line_Value.value = 0;
+		sigma_Drift.drift_Line_Value.fit.min = -thickness_Drift.drift_Line_Value.value*2;
+		sigma_Drift.drift_Line_Value.fit.max =  thickness_Drift.drift_Line_Value.value*2;
+	}
+	{
+		sigma_Drift.drift_Rand_Rms.value = 0;
+		sigma_Drift.drift_Rand_Rms.fit.min = 0;
+		sigma_Drift.drift_Rand_Rms.fit.max = thickness_Drift.drift_Rand_Rms.value*2;
+	}
+	{
+		sigma_Drift.drift_Sine_Amplitude.value = 0;
+		sigma_Drift.drift_Sine_Amplitude.fit.min = 0;
+		sigma_Drift.drift_Sine_Amplitude.fit.max = thickness_Drift.drift_Sine_Amplitude.value*2;
+	}
+	{
+		sigma_Drift.drift_Sine_Frequency.value = 0.333333333333333333333;
+		sigma_Drift.drift_Sine_Frequency.fit.min = thickness_Drift.drift_Sine_Frequency.value*(1-dispersion);
+		sigma_Drift.drift_Sine_Frequency.fit.max = thickness_Drift.drift_Sine_Frequency.value*(1+dispersion);
+	}
+	{
+		sigma_Drift.drift_Sine_Phase.value = 0;
+		sigma_Drift.drift_Sine_Phase.fit.min = 0;
+		sigma_Drift.drift_Sine_Phase.fit.max = 1;
+	}
 }
 
 Stack_Content::Stack_Content()

@@ -107,7 +107,7 @@ void Menu::create_Calculate_Menu()
 	act_Specular->setShortcut(Qt::Key_C | Qt::CTRL | Qt::SHIFT);
 	if(window_Type == Window_Type::Table())
 	{
-		Table_Of_Structures* table_Of_Structures = dynamic_cast<Table_Of_Structures*>(my_Parent);
+		Table_Of_Structures* table_Of_Structures = qobject_cast<Table_Of_Structures*>(my_Parent);
 		connect(act_Specular, SIGNAL(triggered()), table_Of_Structures->multilayer_Tabs->parent(), SLOT(calc_Reflection()));
 	}
 	if(window_Type == Window_Type::Multilayer_Approach())

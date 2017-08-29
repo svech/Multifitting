@@ -14,48 +14,60 @@ Coupling_Editor::Coupling_Editor(QWidget* coupling_Widget, QTabWidget *main_Tabs
 
 void Coupling_Editor::closeEvent(QCloseEvent *)
 {
-	// save data
-	// external master
-	if(master_Widget)
+	// save data to table
 	{
-		bool already_Contains = false;
-		QVariant var;
-		Parameter master_Parameter = master_Widget->property(parameter_Property).value<Parameter>();
-		for(Parameter_Indicator master_Slave : master_Parameter.coupled.slaves)
+		// coupling parameter
+		QVariant varvar;
+		varvar.setValue( coupling_Parameter );
+		coupling_Widget->setProperty(parameter_Property,varvar);
+
+		// external master parameter
+		if(master_Widget)
 		{
-			if(master_Slave.id == coupling_Parameter.indicator.id)
+			bool already_Contains = false;
+			QVariant var;
+			Parameter master_Parameter = master_Widget->property(parameter_Property).value<Parameter>();
+			for(Parameter_Indicator master_Slave : master_Parameter.coupled.slaves)
 			{
-				already_Contains = true;
-				break;
+				if(master_Slave.id == coupling_Parameter.indicator.id)
+				{
+					already_Contains = true;
+					break;
+				}
+			}
+			if(!already_Contains)
+			{
+				master_Parameter.coupled.slaves.append(coupling_Parameter.indicator);
+				var.setValue( master_Parameter );
+				master_Widget->setProperty(parameter_Property,var);
+				qInfo() << "master " << master_Parameter.indicator.full_Name << " added me as slave";
 			}
 		}
-		if(!already_Contains)
+
+		// external slaves parameters
+		for(QWidget* slave_Widget : slave_Widget_Vec)
 		{
-			master_Parameter.coupled.slaves.append(coupling_Parameter.indicator);
-			var.setValue( master_Parameter );
-			master_Widget->setProperty(parameter_Property,var);
-			qInfo() << "master " << master_Parameter.indicator.full_Name << " added me as slave";
+			if(slave_Widget)
+			{
+				QVariant var;
+				Parameter slave_Parameter = slave_Widget->property(parameter_Property).value<Parameter>();
+				slave_Parameter.coupled.master = coupling_Parameter.indicator;
+				var.setValue( slave_Parameter );
+				slave_Widget->setProperty(parameter_Property,var);
+				qInfo() << "slave " << slave_Parameter.indicator.full_Name << " added me as master";
+			}
 		}
 	}
 
-	// external slaves
-	for(QWidget* slave_Widget : slave_Widget_Vec)
+	// save data to structure
 	{
-		if(slave_Widget)
-		{
-			QVariant var;
-			Parameter slave_Parameter = slave_Widget->property(parameter_Property).value<Parameter>();
-			slave_Parameter.coupled.master = coupling_Parameter.indicator;
-			var.setValue( slave_Parameter );
-			slave_Widget->setProperty(parameter_Property,var);
-			qInfo() << "slave " << slave_Parameter.indicator.full_Name << " added me as master";
-		}
+
 	}
 
 	// enable context menu
 	for(int tab_Index=0; tab_Index<main_Tabs->count(); ++tab_Index)
 	{
-		My_Table_Widget* table = dynamic_cast<My_Table_Widget*>(main_Tabs->widget(tab_Index));
+		My_Table_Widget* table = qobject_cast<My_Table_Widget*>(main_Tabs->widget(tab_Index));
 		table->setContextMenuPolicy(Qt::DefaultContextMenu);
 	}
 }
@@ -88,7 +100,7 @@ void Coupling_Editor::create_Main_Layout()
 	// disable context menu
 	for(int tab_Index=0; tab_Index<main_Tabs->count(); ++tab_Index)
 	{
-		My_Table_Widget* table = dynamic_cast<My_Table_Widget*>(main_Tabs->widget(tab_Index));
+		My_Table_Widget* table = qobject_cast<My_Table_Widget*>(main_Tabs->widget(tab_Index));
 		table->setContextMenuPolicy(Qt::CustomContextMenu);
 	}
 }
@@ -102,7 +114,7 @@ void Coupling_Editor::create_Master_Box()
 
 	QHBoxLayout* group_Box_Layout = new QHBoxLayout(master_Group_Box);
 
-	master_Label = new QLabel(".........<no master>.........");
+	master_Label = new QLabel(no_Master_Text);
 		group_Box_Layout->addWidget(master_Label);
 
 	master_Line_Edit = new QLineEdit("1");
@@ -120,6 +132,28 @@ void Coupling_Editor::create_Master_Box()
 		button_Layout->addWidget(remove_Master_Button,0,Qt::AlignRight);
 
 	connect(qApp, &QApplication::focusChanged, this, [=](QWidget* old, QWidget* now){enable_Getting_Parameter(old, now, master_Label, master_Line_Edit);});
+
+	load_Master();
+}
+
+void Coupling_Editor::load_Master()
+{
+	// if had master
+	if(coupling_Parameter.coupled.has_Master)
+	{
+		old_Master_Widget = search_Widget_By_Id(coupling_Parameter.coupled.master.id);
+
+		// if master still exists
+		if(old_Master_Widget)
+		{
+			Parameter old_Master_Parameter = old_Master_Widget->property(parameter_Property).value<Parameter>();
+			master_Label->setText("<"+main_Tabs->tabText(old_Master_Parameter.indicator.tab_Index)+"> "+old_Master_Parameter.indicator.full_Name);
+		} else
+		{
+			coupling_Parameter.coupled.has_Master = false;
+			master_Label->setText(no_Master_Text);
+		}
+	}
 }
 
 void Coupling_Editor::create_Slave_Box()
@@ -155,7 +189,7 @@ void Coupling_Editor::add_Slave(int index_Pressed)
 	QWidget* slave_Widget = NULL;
 		slave_Widget_Vec.insert(index_Pressed, slave_Widget);
 
-	QLabel* slave_Label = new QLabel(".........<no slave>..........");
+	QLabel* slave_Label = new QLabel(no_Slave_Text);
 		frame_Layout->addWidget(slave_Label);
 		slave_Label_Vec.insert(index_Pressed, slave_Label);
 
@@ -193,7 +227,7 @@ void Coupling_Editor::enable_Getting_Parameter(QWidget* old, QWidget* now, QLabe
 	{
 		for(int tab_Index=0; tab_Index<main_Tabs->count(); ++tab_Index)
 		{
-			My_Table_Widget* table = dynamic_cast<My_Table_Widget*>(main_Tabs->widget(tab_Index));
+			My_Table_Widget* table = qobject_cast<My_Table_Widget*>(main_Tabs->widget(tab_Index));
 			disconnect(table, &My_Table_Widget::customContextMenuRequested, this, nullptr);
 			   connect(table, &My_Table_Widget::customContextMenuRequested, this, [=]{get_Parameter(label);});
 		}
@@ -235,6 +269,34 @@ void Coupling_Editor::get_Parameter(QLabel* label)
 			}
 
 			qInfo() << "parameter id = " << parameter.indicator.id << "\n" << main_Tabs->tabText(parameter.indicator.tab_Index) << " " << parameter.indicator.full_Name << endl;
+//			search_Widget_By_Id(parameter.indicator.id);
 		}
 	}
+}
+
+QWidget* Coupling_Editor::search_Widget_By_Id(int id)
+{
+	for(int tab_Index = 0; tab_Index<main_Tabs->count(); tab_Index++)
+	{
+		My_Table_Widget* table = qobject_cast<My_Table_Widget*>(main_Tabs->widget(tab_Index));
+
+		// search over sheet
+		for(int row=0; row<table->rowCount(); row++)
+		{
+			for(int column=0; column<table->columnCount(); column++)
+			{
+				QWidget* widget = table->cellWidget(row,column);
+				if(widget)
+				{
+					Parameter parameter = widget->property(parameter_Property).value<Parameter>();
+					if(parameter.indicator.id == id)
+					{
+//						qInfo() << "id = " << id << " found at " << "tab " << tab_Index << "; row " << row << "; column " << column;
+						return widget;
+					}
+				}
+			}
+		}
+	}
+	return NULL;
 }

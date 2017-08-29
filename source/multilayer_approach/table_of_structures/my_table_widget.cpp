@@ -40,14 +40,6 @@ void My_Table_Widget::open_Coupling_Editor(QWidget* coupling_Widget)
 
 QWidget* My_Table_Widget::get_Cell_Widget()
 {
-	QWidget* widget = cellWidget(currentRow(),currentColumn());
-
-//	if(widget)
-//	{
-//		widget->setProperty(row_Property,currentRow());
-//		widget->setProperty(column_Property,currentColumn());
-//	}
-
-	return widget;
+	return cellWidget(currentRow(),currentColumn());
 }
 

@@ -20,7 +20,7 @@ void Table_Of_Structures::closeEvent(QCloseEvent* event)
 {
 	runned_Tables_Of_Structures->remove(table_Key);
 
-	Multilayer_Approach* multilayer_Approach = dynamic_cast<Multilayer_Approach*>(multilayer_Tabs->parent());
+	Multilayer_Approach* multilayer_Approach = qobject_cast<Multilayer_Approach*>(multilayer_Tabs->parent());
 	multilayer_Approach->menu->setDisabled(false);
 
 	multilayer_Tabs->cornerWidget()->setDisabled(false);
@@ -85,344 +85,344 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 	// PARAMETER
 	rows_List_To_Span.clear();
 	{
-	// header for each structure
-	new_Table->insertRow(new_Table->rowCount());
-	int current_Row = new_Table->rowCount()-1;
-	rows_List_To_Span.append(current_Row);
-	new_Table->setItem(current_Row,0, new QTableWidgetItem(multilayer_Tabs->tabText(tab_Index)));
-	new_Table->item   (current_Row,0)->setTextAlignment(Qt::AlignCenter);
-	new_Table->item   (current_Row,0)->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEnabled);
+		// header for each structure
+		new_Table->insertRow(new_Table->rowCount());
+		int current_Row = new_Table->rowCount()-1;
+		rows_List_To_Span.append(current_Row);
+		new_Table->setItem(current_Row,0, new QTableWidgetItem(multilayer_Tabs->tabText(tab_Index)));
+		new_Table->item   (current_Row,0)->setTextAlignment(Qt::AlignCenter);
+		new_Table->item   (current_Row,0)->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEnabled);
 
-	// structure display
-	int max_Depth = Global_Variables::get_Tree_Depth(list_Of_Trees[tab_Index]->tree->invisibleRootItem());
-	int depth, current_Column;
+		// structure display
+		int max_Depth = Global_Variables::get_Tree_Depth(list_Of_Trees[tab_Index]->tree->invisibleRootItem());
+		int depth, current_Column;
 
-	int max_Number_Of_Elements=1;
-	{
+		int max_Number_Of_Elements=1;
+		{
+			QTreeWidgetItem* structure_Item;
+			QTreeWidgetItemIterator it(list_Of_Trees[tab_Index]->tree);
+			while (*it)
+			{
+				structure_Item=*it;
+				QList<Stoichiometry> composition;
+				QStringList whats_This_List = structure_Item->whatsThis(DEFAULT_COLUMN).split(item_Type_Delimiter,QString::SkipEmptyParts);
+				item_Type_String = whats_This_List[0];
+				if(item_Type_String == whats_This_Ambient)		{composition = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Ambient>().composition;	}
+				if(item_Type_String == whats_This_Layer)		{composition = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>().composition;	}
+				if(item_Type_String == whats_This_Substrate)	{composition = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Substrate>().composition;}
+
+				if(max_Number_Of_Elements<composition.size()) max_Number_Of_Elements=composition.size();
+				++it;
+			}
+		}
+
 		QTreeWidgetItem* structure_Item;
 		QTreeWidgetItemIterator it(list_Of_Trees[tab_Index]->tree);
 		while (*it)
 		{
-		structure_Item=*it;
-		QList<Stoichiometry> composition;
-		QStringList whats_This_List = structure_Item->whatsThis(DEFAULT_COLUMN).split(item_Type_Delimiter,QString::SkipEmptyParts);
-		item_Type_String = whats_This_List[0];
-		if(item_Type_String == whats_This_Ambient)		{composition = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Ambient>().composition;	}
-		if(item_Type_String == whats_This_Layer)		{composition = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>().composition;	}
-		if(item_Type_String == whats_This_Substrate)	{composition = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Substrate>().composition;}
+			structure_Item = *it;
 
-		if(max_Number_Of_Elements<composition.size()) max_Number_Of_Elements=composition.size();
-		++it;
-		}
-	}
+			// common variables
+			bool composed_Material = false;
 
-	QTreeWidgetItem* structure_Item;
-	QTreeWidgetItemIterator it(list_Of_Trees[tab_Index]->tree);
-	while (*it)
-	{
-		structure_Item = *it;
+			// load data
+			QStringList whats_This_List = structure_Item->whatsThis(DEFAULT_COLUMN).split(item_Type_Delimiter,QString::SkipEmptyParts);
+			item_Type_String = whats_This_List[0];
+			if(item_Type_String == whats_This_Ambient)		{composed_Material = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Ambient>().composed_Material;	}
+			if(item_Type_String == whats_This_Layer)		{composed_Material = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>().composed_Material;	}
+			if(item_Type_String == whats_This_Multilayer)	{		}
+			if(item_Type_String == whats_This_Substrate)	{composed_Material = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Substrate>().composed_Material;}
 
-		// common variables
-		bool composed_Material = false;
+			depth = Global_Variables::get_Item_Depth(structure_Item);
 
-		// load data
-		QStringList whats_This_List = structure_Item->whatsThis(DEFAULT_COLUMN).split(item_Type_Delimiter,QString::SkipEmptyParts);
-		item_Type_String = whats_This_List[0];
-		if(item_Type_String == whats_This_Ambient)		{composed_Material = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Ambient>().composed_Material;	}
-		if(item_Type_String == whats_This_Layer)		{composed_Material = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>().composed_Material;	}
-		if(item_Type_String == whats_This_Multilayer)	{		}
-		if(item_Type_String == whats_This_Substrate)	{composed_Material = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Substrate>().composed_Material;}
-
-		depth = Global_Variables::get_Item_Depth(structure_Item);
-
-		current_Column = depth-1;
-		new_Table->insertRow(new_Table->rowCount());
-		new_Table->insertRow(new_Table->rowCount());
-		new_Table->insertRow(new_Table->rowCount());
-
-		current_Row = new_Table->rowCount()-2;
-
-		if(item_Type_String != whats_This_Multilayer)
-		{
+			current_Column = depth-1;
 			new_Table->insertRow(new_Table->rowCount());
 			new_Table->insertRow(new_Table->rowCount());
 			new_Table->insertRow(new_Table->rowCount());
-		}
 
+			current_Row = new_Table->rowCount()-2;
 
-		add_Columns(new_Table,depth);
-
-		// print whatsThis
-		new_Table->setItem(current_Row,current_Column, new QTableWidgetItem(structure_Item->whatsThis(DEFAULT_COLUMN)));
-		new_Table->item(current_Row,current_Column)->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEnabled);
-
-		current_Column = max_Depth+1;
-
-		///--------------------------------------------------------------------------------------------
-		/// creation
-		///--------------------------------------------------------------------------------------------
-
-		// material
-		if(item_Type_String == whats_This_Ambient || item_Type_String == whats_This_Layer || item_Type_String == whats_This_Substrate)
-		{
-			if(composed_Material)
+			if(item_Type_String != whats_This_Multilayer)
 			{
-				create_Combo_Elements(new_Table, current_Row,   current_Column, structure_Item, item_Type_String);
-				create_Stoich		 (new_Table, current_Row+1, current_Column, structure_Item, item_Type_String, VAL);
-				create_Stoich		 (new_Table, current_Row+3, current_Column, structure_Item, item_Type_String, MIN);
-				create_Stoich		 (new_Table, current_Row+4, current_Column, structure_Item, item_Type_String, MAX);
-
-				// it should be created last
-				create_Stoich_Check_Box_Fit (new_Table, current_Row+2, current_Column, structure_Item, item_Type_String, tab_Index, 1, 2, 0, 0);
+				new_Table->insertRow(new_Table->rowCount());
+				new_Table->insertRow(new_Table->rowCount());
+				new_Table->insertRow(new_Table->rowCount());
 			}
-			else
+
+
+			add_Columns(new_Table,depth);
+
+			// print whatsThis
+			new_Table->setItem(current_Row,current_Column, new QTableWidgetItem(structure_Item->whatsThis(DEFAULT_COLUMN)));
+			new_Table->item(current_Row,current_Column)->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEnabled);
+
+			current_Column = max_Depth+1;
+
+			///--------------------------------------------------------------------------------------------
+			/// creation
+			///--------------------------------------------------------------------------------------------
+
+			// material
+			if(item_Type_String == whats_This_Ambient || item_Type_String == whats_This_Layer || item_Type_String == whats_This_Substrate)
 			{
-				create_Material      (new_Table, current_Row,   current_Column, structure_Item, item_Type_String);
-				create_Browse_Button (new_Table, current_Row+1, current_Column);
+				if(composed_Material)
+				{
+					create_Combo_Elements(new_Table, current_Row,   current_Column, structure_Item, item_Type_String);
+					create_Stoich		 (new_Table, current_Row+1, current_Column, structure_Item, item_Type_String, VAL);
+					create_Stoich		 (new_Table, current_Row+3, current_Column, structure_Item, item_Type_String, MIN);
+					create_Stoich		 (new_Table, current_Row+4, current_Column, structure_Item, item_Type_String, MAX);
+
+					// it should be created last
+					create_Stoich_Check_Box_Fit (new_Table, current_Row+2, current_Column, structure_Item, item_Type_String, tab_Index, 1, 2, 0, 0);
+				}
+				else
+				{
+					create_Material      (new_Table, current_Row,   current_Column, structure_Item, item_Type_String);
+					create_Browse_Button (new_Table, current_Row+1, current_Column);
+				}
 			}
+			current_Column += (max_Number_Of_Elements+1);
+			///--------------------------------------------------------------------------------------------
+
+			// multilayer
+			if(item_Type_String == whats_This_Multilayer)
+			{
+				// num repetitions
+				QString whats_This = whats_This_Num_Repetitions;
+				add_Columns		(new_Table, current_Column+5);
+				create_Label	(new_Table, current_Row,   current_Column, structure_Item, item_Type_String, tab_Index, whats_This, "N");
+				create_Line_Edit(new_Table, current_Row+1, current_Column, structure_Item, item_Type_String, whats_This, VAL);
+				current_Column += 2;
+
+				// period
+				whats_This = whats_This_Period;
+				add_Columns		(new_Table, current_Column+5);
+				create_Label	(new_Table, current_Row,   current_Column,   structure_Item, item_Type_String, tab_Index, whats_This, "d ["+length_units+"]");
+				create_Line_Edit(new_Table, current_Row+1, current_Column,   structure_Item, item_Type_String, whats_This, VAL);
+				create_Line_Edit(new_Table, current_Row+1, current_Column+2, structure_Item, item_Type_String, whats_This, MIN);
+				create_Line_Edit(new_Table, current_Row+1, current_Column+3, structure_Item, item_Type_String, whats_This, MAX);
+				// lastcolumn
+				create_Check_Box_Fit(new_Table, current_Row+1, current_Column+1, structure_Item, item_Type_String, tab_Index, whats_This, 0, 0, 1, 2);
+				current_Column += 5;
+
+				// gamma
+				if(structure_Item->childCount()==2)
+				{
+					whats_This = whats_This_Gamma;
+					add_Columns		(new_Table, current_Column+5);
+					create_Label	(new_Table, current_Row,   current_Column,   structure_Item, item_Type_String, tab_Index, whats_This, Gamma_Sym);
+					create_Line_Edit(new_Table, current_Row+1, current_Column,   structure_Item, item_Type_String, whats_This, VAL);
+					create_Line_Edit(new_Table, current_Row+1, current_Column+2, structure_Item, item_Type_String, whats_This, MIN);
+					create_Line_Edit(new_Table, current_Row+1, current_Column+3, structure_Item, item_Type_String, whats_This, MAX);
+					// last
+					create_Check_Box_Fit(new_Table, current_Row+1, current_Column+1, structure_Item, item_Type_String, tab_Index, whats_This, 0, 0, 1, 2);
+					current_Column += 5;
+				}
+			}
+			///--------------------------------------------------------------------------------------------
+
+			// density
+			if(item_Type_String == whats_This_Ambient || item_Type_String == whats_This_Layer || item_Type_String == whats_This_Substrate)
+			{
+				QString whats_This;
+				add_Columns(new_Table, current_Column+1);
+				if(composed_Material)
+				{
+					whats_This = whats_This_Absolute_Density;
+					create_Label(new_Table, current_Row, current_Column, structure_Item, item_Type_String, tab_Index, whats_This, Rho_Sym+" ["+density_units+"]");
+				} else
+				{
+					whats_This = whats_This_Relative_Density;
+					create_Label(new_Table, current_Row, current_Column, structure_Item, item_Type_String, tab_Index, whats_This, Rho_Sym+" [r.u.]");
+				}
+				create_Line_Edit(new_Table, current_Row+1, current_Column, structure_Item, item_Type_String, whats_This, VAL);
+				create_Line_Edit(new_Table, current_Row+3, current_Column, structure_Item, item_Type_String, whats_This, MIN);
+				create_Line_Edit(new_Table, current_Row+4, current_Column, structure_Item, item_Type_String, whats_This, MAX);
+				// last
+				create_Check_Box_Fit(new_Table, current_Row+2, current_Column, structure_Item, item_Type_String, tab_Index, whats_This, 1, 2, 0, 0);
+			}
+			current_Column += 2;
+			///--------------------------------------------------------------------------------------------
+
+			// thickness
+			if(item_Type_String == whats_This_Layer)
+			{
+				QString whats_This = whats_This_Thickness;
+				add_Columns		(new_Table, current_Column+1);
+				create_Label	(new_Table, current_Row,   current_Column, structure_Item, item_Type_String, tab_Index, whats_This, "z ["+length_units+"]");
+				create_Line_Edit(new_Table, current_Row+1, current_Column, structure_Item, item_Type_String, whats_This, VAL);
+				create_Line_Edit(new_Table, current_Row+3, current_Column, structure_Item, item_Type_String, whats_This, MIN);
+				create_Line_Edit(new_Table, current_Row+4, current_Column, structure_Item, item_Type_String, whats_This, MAX);
+				// last
+				create_Check_Box_Fit(new_Table, current_Row+2, current_Column, structure_Item, item_Type_String, tab_Index, whats_This, 1, 2, 0, 0);
+			}
+			current_Column += 2;
+			///--------------------------------------------------------------------------------------------
+
+			// common sigma
+			if(item_Type_String == whats_This_Layer || item_Type_String == whats_This_Substrate)
+			{
+				QString whats_This = whats_This_Sigma;
+				add_Columns(new_Table, current_Column+1);
+				create_Line_Edit	(new_Table, current_Row+1, current_Column, structure_Item, item_Type_String, whats_This, VAL);
+				// second
+				create_Check_Box_Label(new_Table, current_Row, current_Column, structure_Item, item_Type_String, tab_Index, whats_This, Sigma_Sym+" ["+length_units+"]", 1, 0, 0, 0);
+				create_Line_Edit	(new_Table, current_Row+3, current_Column, structure_Item, item_Type_String, whats_This, MIN);
+				create_Line_Edit	(new_Table, current_Row+4, current_Column, structure_Item, item_Type_String, whats_This, MAX);
+				// last
+				create_Check_Box_Fit(new_Table, current_Row+2, current_Column, structure_Item, item_Type_String, tab_Index, whats_This, 1, 2, 0, 0);
+			}
+			current_Column += 2;
+			///--------------------------------------------------------------------------------------------
+
+			// interlayers: weights and sigmas
+			if(item_Type_String == whats_This_Layer || item_Type_String == whats_This_Substrate)
+			{
+				add_Columns(new_Table, current_Column+transition_Layer_Functions_Size);
+
+				// weights
+				create_Weigts_Interlayer(new_Table, current_Row+1, current_Column, structure_Item, item_Type_String, VAL);
+				create_Check_Box_Label_Interlayer(new_Table, current_Row, current_Column, structure_Item, item_Type_String, tab_Index);
+				create_Weights_Check_Box_Fit_Interlayer(new_Table, current_Row+2, current_Column, structure_Item, item_Type_String, tab_Index);
+
+				// sigmas
+				create_MySigma_Labels_Interlayer(new_Table, current_Row+3, current_Column, structure_Item, item_Type_String, tab_Index);
+				create_MySigma_Interlayer		(new_Table, current_Row+4, current_Column, structure_Item, item_Type_String);
+			}
+			current_Column += (1+transition_Layer_Functions_Size);
+			///--------------------------------------------------------------------------------------------
+
+
+
+			// thickness linear drift
+			if(item_Type_String == whats_This_Layer && depth >=2)
+			{
+				QString whats_This = whats_This_Thickness_Drift_Line_Value;
+				add_Columns(new_Table, current_Column+1);
+				create_Line_Edit(new_Table, current_Row+1, current_Column, structure_Item, item_Type_String, whats_This, VAL);
+				// second
+				create_Check_Box_Label(new_Table, current_Row, current_Column, structure_Item, item_Type_String, tab_Index, whats_This,"dz lin", 1, 1, 0, 0);
+				create_Line_Edit	(new_Table, current_Row+3, current_Column, structure_Item, item_Type_String, whats_This, MIN);
+				create_Line_Edit	(new_Table, current_Row+4, current_Column, structure_Item, item_Type_String, whats_This, MAX);
+				// last
+				create_Check_Box_Fit(new_Table, current_Row+2, current_Column, structure_Item, item_Type_String, tab_Index, whats_This, 1, 2, 0, 0);
+			}
+			current_Column += 1;
+			///--------------------------------------------------------------------------------------------
+
+			// thickness random drift
+			if(item_Type_String == whats_This_Layer && depth >=2)
+			{
+				QString whats_This = whats_This_Thickness_Drift_Rand_Rms;
+				add_Columns(new_Table, current_Column+1);
+				create_Line_Edit(new_Table, current_Row+1, current_Column, structure_Item, item_Type_String, whats_This, VAL);
+				// second
+				create_Check_Box_Label(new_Table, current_Row, current_Column, structure_Item, item_Type_String, tab_Index, whats_This,"dz ran", 1, 1, 0, 0);
+				create_Line_Edit	(new_Table, current_Row+3, current_Column, structure_Item, item_Type_String, whats_This, MIN);
+				create_Line_Edit	(new_Table, current_Row+4, current_Column, structure_Item, item_Type_String, whats_This, MAX);
+				// last
+				create_Check_Box_Fit(new_Table, current_Row+2, current_Column, structure_Item, item_Type_String, tab_Index, whats_This, 1, 2, 0, 0);
+			}
+			current_Column += 1;
+			///--------------------------------------------------------------------------------------------
+
+			// thickness sine drift
+			if(item_Type_String == whats_This_Layer && depth >=2)
+			{
+				add_Columns(new_Table, current_Column+3);
+
+				create_Line_Edit	(new_Table, current_Row+1, current_Column,   structure_Item, item_Type_String, whats_This_Thickness_Drift_Sine_Amplitude, VAL);
+				create_Line_Edit	(new_Table, current_Row+1, current_Column+1, structure_Item, item_Type_String, whats_This_Thickness_Drift_Sine_Frequency, VAL);
+				create_Line_Edit	(new_Table, current_Row+1, current_Column+2, structure_Item, item_Type_String, whats_This_Thickness_Drift_Sine_Phase, VAL);
+
+				// second
+				create_Check_Box_Label(new_Table, current_Row, current_Column,   structure_Item, item_Type_String, tab_Index, whats_This_Thickness_Drift_Sine,"dz sin : A*sin(2"+Pi_Sym+"n"+Nu_Sym+"+"+Phi_Sym+")", 1, 1, 0, 2);
+
+				create_Line_Edit	(new_Table, current_Row+3, current_Column,   structure_Item, item_Type_String, whats_This_Thickness_Drift_Sine_Amplitude, MIN);
+				create_Line_Edit	(new_Table, current_Row+3, current_Column+1, structure_Item, item_Type_String, whats_This_Thickness_Drift_Sine_Frequency, MIN);
+				create_Line_Edit	(new_Table, current_Row+3, current_Column+2, structure_Item, item_Type_String, whats_This_Thickness_Drift_Sine_Phase, MIN);
+
+				create_Line_Edit	(new_Table, current_Row+4, current_Column,	 structure_Item, item_Type_String, whats_This_Thickness_Drift_Sine_Amplitude, MAX);
+				create_Line_Edit	(new_Table, current_Row+4, current_Column+1, structure_Item, item_Type_String, whats_This_Thickness_Drift_Sine_Frequency, MAX);
+				create_Line_Edit	(new_Table, current_Row+4, current_Column+2, structure_Item, item_Type_String, whats_This_Thickness_Drift_Sine_Phase, MAX);
+
+				// last
+				create_Check_Box_Fit(new_Table, current_Row+2, current_Column,	 structure_Item, item_Type_String, tab_Index, whats_This_Thickness_Drift_Sine_Amplitude, 1, 2, 0, 0);
+				create_Check_Box_Fit(new_Table, current_Row+2, current_Column+1, structure_Item, item_Type_String, tab_Index, whats_This_Thickness_Drift_Sine_Frequency, 1, 2, 0, 0);
+				create_Check_Box_Fit(new_Table, current_Row+2, current_Column+2, structure_Item, item_Type_String, tab_Index, whats_This_Thickness_Drift_Sine_Phase, 1, 2, 0, 0);
+
+				new_Table->setSpan(current_Row,current_Column,1,3);
+			}
+			current_Column += 4;
+			///--------------------------------------------------------------------------------------------
+
+
+
+			// sigma linear drift
+			if(item_Type_String == whats_This_Layer && depth >=2)
+			{
+				QString whats_This = whats_This_Sigma_Drift_Line_Value;
+				add_Columns(new_Table, current_Column+1);
+				create_Line_Edit(new_Table, current_Row+1, current_Column, structure_Item, item_Type_String, whats_This, VAL);
+				// second
+				create_Check_Box_Label(new_Table, current_Row, current_Column, structure_Item, item_Type_String, tab_Index, whats_This, "d"+Sigma_Sym+" lin", 1, 1, 0, 0);
+				create_Line_Edit	(new_Table, current_Row+3, current_Column, structure_Item, item_Type_String, whats_This, MIN);
+				create_Line_Edit	(new_Table, current_Row+4, current_Column, structure_Item, item_Type_String, whats_This, MAX);
+				// last
+				create_Check_Box_Fit(new_Table, current_Row+2, current_Column, structure_Item, item_Type_String, tab_Index, whats_This, 1, 2, 0, 0);
+			}
+			current_Column += 1;
+			///--------------------------------------------------------------------------------------------
+
+			// sigma random drift
+			if(item_Type_String == whats_This_Layer && depth >=2)
+			{
+				QString whats_This = whats_This_Sigma_Drift_Rand_Rms;
+				add_Columns(new_Table, current_Column+1);
+				create_Line_Edit(new_Table, current_Row+1, current_Column, structure_Item, item_Type_String, whats_This, VAL);
+				// second
+				create_Check_Box_Label(new_Table, current_Row, current_Column, structure_Item, item_Type_String, tab_Index, whats_This,"d"+Sigma_Sym+" ran", 1, 1, 0, 0);
+				create_Line_Edit	(new_Table, current_Row+3, current_Column, structure_Item, item_Type_String, whats_This, MIN);
+				create_Line_Edit	(new_Table, current_Row+4, current_Column, structure_Item, item_Type_String, whats_This, MAX);
+				// last
+				create_Check_Box_Fit(new_Table, current_Row+2, current_Column, structure_Item, item_Type_String, tab_Index, whats_This, 1, 2, 0, 0);
+			}
+			current_Column += 1;
+			///--------------------------------------------------------------------------------------------
+
+			// sigma sine drift
+			if(item_Type_String == whats_This_Layer && depth >=2)
+			{
+				add_Columns(new_Table, current_Column+3);
+
+				create_Line_Edit	(new_Table, current_Row+1, current_Column,   structure_Item, item_Type_String, whats_This_Sigma_Drift_Sine_Amplitude, VAL);
+				create_Line_Edit	(new_Table, current_Row+1, current_Column+1, structure_Item, item_Type_String, whats_This_Sigma_Drift_Sine_Frequency, VAL);
+				create_Line_Edit	(new_Table, current_Row+1, current_Column+2, structure_Item, item_Type_String, whats_This_Sigma_Drift_Sine_Phase, VAL);
+
+				// second
+				create_Check_Box_Label(new_Table, current_Row, current_Column,   structure_Item, item_Type_String, tab_Index, whats_This_Sigma_Drift_Sine,"d"+Sigma_Sym+" sin : A*sin(2"+Pi_Sym+"n"+Nu_Sym+"+"+Phi_Sym+")", 1, 1, 0, 2);
+
+				create_Line_Edit	(new_Table, current_Row+3, current_Column,   structure_Item, item_Type_String, whats_This_Sigma_Drift_Sine_Amplitude, MIN);
+				create_Line_Edit	(new_Table, current_Row+3, current_Column+1, structure_Item, item_Type_String, whats_This_Sigma_Drift_Sine_Frequency, MIN);
+				create_Line_Edit	(new_Table, current_Row+3, current_Column+2, structure_Item, item_Type_String, whats_This_Sigma_Drift_Sine_Phase, MIN);
+
+				create_Line_Edit	(new_Table, current_Row+4, current_Column,	 structure_Item, item_Type_String, whats_This_Sigma_Drift_Sine_Amplitude, MAX);
+				create_Line_Edit	(new_Table, current_Row+4, current_Column+1, structure_Item, item_Type_String, whats_This_Sigma_Drift_Sine_Frequency, MAX);
+				create_Line_Edit	(new_Table, current_Row+4, current_Column+2, structure_Item, item_Type_String, whats_This_Sigma_Drift_Sine_Phase, MAX);
+
+				// last
+				create_Check_Box_Fit(new_Table, current_Row+2, current_Column,	 structure_Item, item_Type_String, tab_Index, whats_This_Sigma_Drift_Sine_Amplitude, 1, 2, 0, 0);
+				create_Check_Box_Fit(new_Table, current_Row+2, current_Column+1, structure_Item, item_Type_String, tab_Index, whats_This_Sigma_Drift_Sine_Frequency, 1, 2, 0, 0);
+				create_Check_Box_Fit(new_Table, current_Row+2, current_Column+2, structure_Item, item_Type_String, tab_Index, whats_This_Sigma_Drift_Sine_Phase, 1, 2, 0, 0);
+
+				new_Table->setSpan(current_Row,current_Column,1,3);
+			}
+			current_Column += 4;
+			///--------------------------------------------------------------------------------------------
+
+			++it;
 		}
-		current_Column += (max_Number_Of_Elements+1);
-		///--------------------------------------------------------------------------------------------
-
-		// multilayer
-		if(item_Type_String == whats_This_Multilayer)
-		{
-		// num repetitions
-		QString whats_This = whats_This_Num_Repetitions;
-		add_Columns		(new_Table, current_Column+5);
-		create_Label	(new_Table, current_Row,   current_Column, structure_Item, item_Type_String, tab_Index, whats_This, "N");
-		create_Line_Edit(new_Table, current_Row+1, current_Column, structure_Item, item_Type_String, whats_This, VAL);
-		current_Column += 2;
-
-		// period
-		whats_This = whats_This_Period;
-		add_Columns		(new_Table, current_Column+5);
-		create_Label	(new_Table, current_Row,   current_Column,   structure_Item, item_Type_String, tab_Index, whats_This, "d ["+length_units+"]");
-		create_Line_Edit(new_Table, current_Row+1, current_Column,   structure_Item, item_Type_String, whats_This, VAL);
-		create_Line_Edit(new_Table, current_Row+1, current_Column+2, structure_Item, item_Type_String, whats_This, MIN);
-		create_Line_Edit(new_Table, current_Row+1, current_Column+3, structure_Item, item_Type_String, whats_This, MAX);
-		// lastcolumn
-		create_Check_Box_Fit(new_Table, current_Row+1, current_Column+1, structure_Item, item_Type_String, tab_Index, whats_This, 0, 0, 1, 2);
-		current_Column += 5;
-
-		// gamma
-		if(structure_Item->childCount()==2)
-		{
-			whats_This = whats_This_Gamma;
-			add_Columns		(new_Table, current_Column+5);
-			create_Label	(new_Table, current_Row,   current_Column,   structure_Item, item_Type_String, tab_Index, whats_This, Gamma_Sym);
-			create_Line_Edit(new_Table, current_Row+1, current_Column,   structure_Item, item_Type_String, whats_This, VAL);
-			create_Line_Edit(new_Table, current_Row+1, current_Column+2, structure_Item, item_Type_String, whats_This, MIN);
-			create_Line_Edit(new_Table, current_Row+1, current_Column+3, structure_Item, item_Type_String, whats_This, MAX);
-			// last
-			create_Check_Box_Fit(new_Table, current_Row+1, current_Column+1, structure_Item, item_Type_String, tab_Index, whats_This, 0, 0, 1, 2);
-			current_Column += 5;
-		}
-		}
-		///--------------------------------------------------------------------------------------------
-
-		// density
-		if(item_Type_String == whats_This_Ambient || item_Type_String == whats_This_Layer || item_Type_String == whats_This_Substrate)
-		{
-		QString whats_This;
-		add_Columns(new_Table, current_Column+1);
-		if(composed_Material)
-		{
-			whats_This = whats_This_Absolute_Density;
-			create_Label(new_Table, current_Row, current_Column, structure_Item, item_Type_String, tab_Index, whats_This, Rho_Sym+" ["+density_units+"]");
-		} else
-		{
-			whats_This = whats_This_Relative_Density;
-			create_Label(new_Table, current_Row, current_Column, structure_Item, item_Type_String, tab_Index, whats_This, Rho_Sym+" [r.u.]");
-		}
-		create_Line_Edit(new_Table, current_Row+1, current_Column, structure_Item, item_Type_String, whats_This, VAL);
-		create_Line_Edit(new_Table, current_Row+3, current_Column, structure_Item, item_Type_String, whats_This, MIN);
-		create_Line_Edit(new_Table, current_Row+4, current_Column, structure_Item, item_Type_String, whats_This, MAX);
-		// last
-		create_Check_Box_Fit(new_Table, current_Row+2, current_Column, structure_Item, item_Type_String, tab_Index, whats_This, 1, 2, 0, 0);
-		}
-		current_Column += 2;
-		///--------------------------------------------------------------------------------------------
-
-		// thickness
-		if(item_Type_String == whats_This_Layer)
-		{
-		QString whats_This = whats_This_Thickness;
-		add_Columns		(new_Table, current_Column+1);
-		create_Label	(new_Table, current_Row,   current_Column, structure_Item, item_Type_String, tab_Index, whats_This, "z ["+length_units+"]");
-		create_Line_Edit(new_Table, current_Row+1, current_Column, structure_Item, item_Type_String, whats_This, VAL);
-		create_Line_Edit(new_Table, current_Row+3, current_Column, structure_Item, item_Type_String, whats_This, MIN);
-		create_Line_Edit(new_Table, current_Row+4, current_Column, structure_Item, item_Type_String, whats_This, MAX);
-		// last
-		create_Check_Box_Fit(new_Table, current_Row+2, current_Column, structure_Item, item_Type_String, tab_Index, whats_This, 1, 2, 0, 0);
-		}
-		current_Column += 2;
-		///--------------------------------------------------------------------------------------------
-
-		// common sigma
-		if(item_Type_String == whats_This_Layer || item_Type_String == whats_This_Substrate)
-		{
-		QString whats_This = whats_This_Sigma;
-		add_Columns(new_Table, current_Column+1);
-		create_Line_Edit	(new_Table, current_Row+1, current_Column, structure_Item, item_Type_String, whats_This, VAL);
-		// second
-		create_Check_Box_Label(new_Table, current_Row, current_Column, structure_Item, item_Type_String, tab_Index, whats_This, Sigma_Sym+" ["+length_units+"]", 1, 0, 0, 0);
-		create_Line_Edit	(new_Table, current_Row+3, current_Column, structure_Item, item_Type_String, whats_This, MIN);
-		create_Line_Edit	(new_Table, current_Row+4, current_Column, structure_Item, item_Type_String, whats_This, MAX);
-		// last
-		create_Check_Box_Fit(new_Table, current_Row+2, current_Column, structure_Item, item_Type_String, tab_Index, whats_This, 1, 2, 0, 0);
-		}
-		current_Column += 2;
-		///--------------------------------------------------------------------------------------------
-
-		// interlayers: weights and sigmas
-		if(item_Type_String == whats_This_Layer || item_Type_String == whats_This_Substrate)
-		{
-		add_Columns(new_Table, current_Column+transition_Layer_Functions_Size);
-
-		// weights
-		create_Weigts_Interlayer(new_Table, current_Row+1, current_Column, structure_Item, item_Type_String, VAL);
-		create_Check_Box_Label_Interlayer(new_Table, current_Row, current_Column, structure_Item, item_Type_String, tab_Index);
-		create_Weights_Check_Box_Fit_Interlayer(new_Table, current_Row+2, current_Column, structure_Item, item_Type_String, tab_Index);
-
-		// sigmas
-		create_MySigma_Labels_Interlayer(new_Table, current_Row+3, current_Column, structure_Item, item_Type_String, tab_Index);
-		create_MySigma_Interlayer		(new_Table, current_Row+4, current_Column, structure_Item, item_Type_String);
-		}
-		current_Column += (1+transition_Layer_Functions_Size);
-		///--------------------------------------------------------------------------------------------
-
-
-
-		// thickness linear drift
-		if(item_Type_String == whats_This_Layer && depth >=2)
-		{
-		QString whats_This = whats_This_Thickness_Drift_Line_Value;
-		add_Columns(new_Table, current_Column+1);
-		create_Line_Edit(new_Table, current_Row+1, current_Column, structure_Item, item_Type_String, whats_This, VAL);
-		// second
-		create_Check_Box_Label(new_Table, current_Row, current_Column, structure_Item, item_Type_String, tab_Index, whats_This,"dz lin", 1, 1, 0, 0);
-		create_Line_Edit	(new_Table, current_Row+3, current_Column, structure_Item, item_Type_String, whats_This, MIN);
-		create_Line_Edit	(new_Table, current_Row+4, current_Column, structure_Item, item_Type_String, whats_This, MAX);
-		// last
-		create_Check_Box_Fit(new_Table, current_Row+2, current_Column, structure_Item, item_Type_String, tab_Index, whats_This, 1, 2, 0, 0);
-		}
-		current_Column += 1;
-		///--------------------------------------------------------------------------------------------
-
-		// thickness random drift
-		if(item_Type_String == whats_This_Layer && depth >=2)
-		{
-		QString whats_This = whats_This_Thickness_Drift_Rand_Rms;
-		add_Columns(new_Table, current_Column+1);
-		create_Line_Edit(new_Table, current_Row+1, current_Column, structure_Item, item_Type_String, whats_This, VAL);
-		// second
-		create_Check_Box_Label(new_Table, current_Row, current_Column, structure_Item, item_Type_String, tab_Index, whats_This,"dz ran", 1, 1, 0, 0);
-		create_Line_Edit	(new_Table, current_Row+3, current_Column, structure_Item, item_Type_String, whats_This, MIN);
-		create_Line_Edit	(new_Table, current_Row+4, current_Column, structure_Item, item_Type_String, whats_This, MAX);
-		// last
-		create_Check_Box_Fit(new_Table, current_Row+2, current_Column, structure_Item, item_Type_String, tab_Index, whats_This, 1, 2, 0, 0);
-		}
-		current_Column += 1;
-		///--------------------------------------------------------------------------------------------
-
-		// thickness sine drift
-		if(item_Type_String == whats_This_Layer && depth >=2)
-		{
-		add_Columns(new_Table, current_Column+3);
-
-		create_Line_Edit	(new_Table, current_Row+1, current_Column,   structure_Item, item_Type_String, whats_This_Thickness_Drift_Sine_Amplitude, VAL);
-		create_Line_Edit	(new_Table, current_Row+1, current_Column+1, structure_Item, item_Type_String, whats_This_Thickness_Drift_Sine_Frequency, VAL);
-		create_Line_Edit	(new_Table, current_Row+1, current_Column+2, structure_Item, item_Type_String, whats_This_Thickness_Drift_Sine_Phase, VAL);
-
-		// second
-		create_Check_Box_Label(new_Table, current_Row, current_Column,   structure_Item, item_Type_String, tab_Index, whats_This_Thickness_Drift_Sine,"dz sin : A*sin(2"+Pi_Sym+"n"+Nu_Sym+"+"+Phi_Sym+")", 1, 1, 0, 2);
-
-		create_Line_Edit	(new_Table, current_Row+3, current_Column,   structure_Item, item_Type_String, whats_This_Thickness_Drift_Sine_Amplitude, MIN);
-		create_Line_Edit	(new_Table, current_Row+3, current_Column+1, structure_Item, item_Type_String, whats_This_Thickness_Drift_Sine_Frequency, MIN);
-		create_Line_Edit	(new_Table, current_Row+3, current_Column+2, structure_Item, item_Type_String, whats_This_Thickness_Drift_Sine_Phase, MIN);
-
-		create_Line_Edit	(new_Table, current_Row+4, current_Column,	 structure_Item, item_Type_String, whats_This_Thickness_Drift_Sine_Amplitude, MAX);
-		create_Line_Edit	(new_Table, current_Row+4, current_Column+1, structure_Item, item_Type_String, whats_This_Thickness_Drift_Sine_Frequency, MAX);
-		create_Line_Edit	(new_Table, current_Row+4, current_Column+2, structure_Item, item_Type_String, whats_This_Thickness_Drift_Sine_Phase, MAX);
-
-		// last
-		create_Check_Box_Fit(new_Table, current_Row+2, current_Column,	 structure_Item, item_Type_String, tab_Index, whats_This_Thickness_Drift_Sine_Amplitude, 1, 2, 0, 0);
-		create_Check_Box_Fit(new_Table, current_Row+2, current_Column+1, structure_Item, item_Type_String, tab_Index, whats_This_Thickness_Drift_Sine_Frequency, 1, 2, 0, 0);
-		create_Check_Box_Fit(new_Table, current_Row+2, current_Column+2, structure_Item, item_Type_String, tab_Index, whats_This_Thickness_Drift_Sine_Phase, 1, 2, 0, 0);
-
-		new_Table->setSpan(current_Row,current_Column,1,3);
-		}
-		current_Column += 4;
-		///--------------------------------------------------------------------------------------------
-
-
-
-		// sigma linear drift
-		if(item_Type_String == whats_This_Layer && depth >=2)
-		{
-		QString whats_This = whats_This_Sigma_Drift_Line_Value;
-		add_Columns(new_Table, current_Column+1);
-		create_Line_Edit(new_Table, current_Row+1, current_Column, structure_Item, item_Type_String, whats_This, VAL);
-		// second
-		create_Check_Box_Label(new_Table, current_Row, current_Column, structure_Item, item_Type_String, tab_Index, whats_This, "d"+Sigma_Sym+" lin", 1, 1, 0, 0);
-		create_Line_Edit	(new_Table, current_Row+3, current_Column, structure_Item, item_Type_String, whats_This, MIN);
-		create_Line_Edit	(new_Table, current_Row+4, current_Column, structure_Item, item_Type_String, whats_This, MAX);
-		// last
-		create_Check_Box_Fit(new_Table, current_Row+2, current_Column, structure_Item, item_Type_String, tab_Index, whats_This, 1, 2, 0, 0);
-		}
-		current_Column += 1;
-		///--------------------------------------------------------------------------------------------
-
-		// sigma random drift
-		if(item_Type_String == whats_This_Layer && depth >=2)
-		{
-		QString whats_This = whats_This_Sigma_Drift_Rand_Rms;
-		add_Columns(new_Table, current_Column+1);
-		create_Line_Edit(new_Table, current_Row+1, current_Column, structure_Item, item_Type_String, whats_This, VAL);
-		// second
-		create_Check_Box_Label(new_Table, current_Row, current_Column, structure_Item, item_Type_String, tab_Index, whats_This,"d"+Sigma_Sym+" ran", 1, 1, 0, 0);
-		create_Line_Edit	(new_Table, current_Row+3, current_Column, structure_Item, item_Type_String, whats_This, MIN);
-		create_Line_Edit	(new_Table, current_Row+4, current_Column, structure_Item, item_Type_String, whats_This, MAX);
-		// last
-		create_Check_Box_Fit(new_Table, current_Row+2, current_Column, structure_Item, item_Type_String, tab_Index, whats_This, 1, 2, 0, 0);
-		}
-		current_Column += 1;
-		///--------------------------------------------------------------------------------------------
-
-		// sigma sine drift
-		if(item_Type_String == whats_This_Layer && depth >=2)
-		{
-		add_Columns(new_Table, current_Column+3);
-
-		create_Line_Edit	(new_Table, current_Row+1, current_Column,   structure_Item, item_Type_String, whats_This_Sigma_Drift_Sine_Amplitude, VAL);
-		create_Line_Edit	(new_Table, current_Row+1, current_Column+1, structure_Item, item_Type_String, whats_This_Sigma_Drift_Sine_Frequency, VAL);
-		create_Line_Edit	(new_Table, current_Row+1, current_Column+2, structure_Item, item_Type_String, whats_This_Sigma_Drift_Sine_Phase, VAL);
-
-		// second
-		create_Check_Box_Label(new_Table, current_Row, current_Column,   structure_Item, item_Type_String, tab_Index, whats_This_Sigma_Drift_Sine,"d"+Sigma_Sym+" sin : A*sin(2"+Pi_Sym+"n"+Nu_Sym+"+"+Phi_Sym+")", 1, 1, 0, 2);
-
-		create_Line_Edit	(new_Table, current_Row+3, current_Column,   structure_Item, item_Type_String, whats_This_Sigma_Drift_Sine_Amplitude, MIN);
-		create_Line_Edit	(new_Table, current_Row+3, current_Column+1, structure_Item, item_Type_String, whats_This_Sigma_Drift_Sine_Frequency, MIN);
-		create_Line_Edit	(new_Table, current_Row+3, current_Column+2, structure_Item, item_Type_String, whats_This_Sigma_Drift_Sine_Phase, MIN);
-
-		create_Line_Edit	(new_Table, current_Row+4, current_Column,	 structure_Item, item_Type_String, whats_This_Sigma_Drift_Sine_Amplitude, MAX);
-		create_Line_Edit	(new_Table, current_Row+4, current_Column+1, structure_Item, item_Type_String, whats_This_Sigma_Drift_Sine_Frequency, MAX);
-		create_Line_Edit	(new_Table, current_Row+4, current_Column+2, structure_Item, item_Type_String, whats_This_Sigma_Drift_Sine_Phase, MAX);
-
-		// last
-		create_Check_Box_Fit(new_Table, current_Row+2, current_Column,	 structure_Item, item_Type_String, tab_Index, whats_This_Sigma_Drift_Sine_Amplitude, 1, 2, 0, 0);
-		create_Check_Box_Fit(new_Table, current_Row+2, current_Column+1, structure_Item, item_Type_String, tab_Index, whats_This_Sigma_Drift_Sine_Frequency, 1, 2, 0, 0);
-		create_Check_Box_Fit(new_Table, current_Row+2, current_Column+2, structure_Item, item_Type_String, tab_Index, whats_This_Sigma_Drift_Sine_Phase, 1, 2, 0, 0);
-
-		new_Table->setSpan(current_Row,current_Column,1,3);
-		}
-		current_Column += 4;
-		///--------------------------------------------------------------------------------------------
-
-		++it;
-	}
-	new_Table->insertRow(new_Table->rowCount());
+		new_Table->insertRow(new_Table->rowCount());
 	}
 	span_Structure_Headers(new_Table);
 	span_Structure_Items(new_Table);
@@ -431,29 +431,29 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 
 	// fit initial size of columns
 	for(int i=0; i<new_Table->columnCount(); ++i)
-	fit_Column(new_Table, new_Table->columnWidth(i), i);
+		fit_Column(new_Table, new_Table->columnWidth(i), i);
 }
 
 void Table_Of_Structures::read_Trees()
 {
 	for(int i=0; i<multilayer_Tabs->count(); ++i)
 	{
-	Structure_Tree* old_Structure_Tree = dynamic_cast<Multilayer*>(multilayer_Tabs->widget(i))->structure_Tree;
-	list_Of_Trees.append(old_Structure_Tree);
+		Structure_Tree* old_Structure_Tree = qobject_cast<Multilayer*>(multilayer_Tabs->widget(i))->structure_Tree;
+		list_Of_Trees.append(old_Structure_Tree);
 
-	// closing editors
-	QList<Item_Editor*> local_List_Editors = old_Structure_Tree->list_Editors;
-	for(int editor_Index=0; editor_Index<local_List_Editors.size(); ++editor_Index)
-		local_List_Editors[editor_Index]->close();
+		// closing editors
+		QList<Item_Editor*> local_List_Editors = old_Structure_Tree->list_Editors;
+		for(int editor_Index=0; editor_Index<local_List_Editors.size(); ++editor_Index)
+			local_List_Editors[editor_Index]->close();
 
-	// disabling main interface
-	old_Structure_Tree->structure_Toolbar->toolbar->setDisabled(true);
-	old_Structure_Tree->tree->blockSignals(true);
-	multilayer_Tabs->tabBar()->tabButton(i, QTabBar::RightSide)->setDisabled(true);
+		// disabling main interface
+		old_Structure_Tree->structure_Toolbar->toolbar->setDisabled(true);
+		old_Structure_Tree->tree->blockSignals(true);
+		multilayer_Tabs->tabBar()->tabButton(i, QTabBar::RightSide)->setDisabled(true);
 	}
 	multilayer_Tabs->cornerWidget()->setDisabled(true);
 
-	Multilayer_Approach* multilayer_Approach = dynamic_cast<Multilayer_Approach*>(multilayer_Tabs->parent());
+	Multilayer_Approach* multilayer_Approach = qobject_cast<Multilayer_Approach*>(multilayer_Tabs->parent());
 	multilayer_Approach->menu->setDisabled(true);
 }
 
@@ -461,7 +461,7 @@ void Table_Of_Structures::add_Columns(My_Table_Widget* table, int add_After)
 {
 	while(add_After>=table->columnCount())
 	{
-	table->insertColumn(table->columnCount());
+		table->insertColumn(table->columnCount());
 	}
 }
 
@@ -472,38 +472,38 @@ void Table_Of_Structures::get_Parameter(Parameter& parameter, QTreeWidgetItem* s
 
 	if(item_Type_String == whats_This_Ambient)
 	{
-	if(whats_This == whats_This_Absolute_Density)				{parameter = data.value<Ambient>().absolute_Density;}
-	if(whats_This == whats_This_Relative_Density)				{parameter = data.value<Ambient>().relative_Density;}
+		if(whats_This == whats_This_Absolute_Density)				{parameter = data.value<Ambient>().absolute_Density;}
+		if(whats_This == whats_This_Relative_Density)				{parameter = data.value<Ambient>().relative_Density;}
 	}
 	if(item_Type_String == whats_This_Layer)
 	{
-	if(whats_This == whats_This_Absolute_Density)				{parameter = data.value<Layer>().absolute_Density;}
-	if(whats_This == whats_This_Relative_Density)				{parameter = data.value<Layer>().relative_Density;}
-	if(whats_This == whats_This_Thickness)						{parameter = data.value<Layer>().thickness;		}
-	if(whats_This == whats_This_Sigma)							{parameter = data.value<Layer>().sigma;					}
+		if(whats_This == whats_This_Absolute_Density)				{parameter = data.value<Layer>().absolute_Density;}
+		if(whats_This == whats_This_Relative_Density)				{parameter = data.value<Layer>().relative_Density;}
+		if(whats_This == whats_This_Thickness)						{parameter = data.value<Layer>().thickness;		}
+		if(whats_This == whats_This_Sigma)							{parameter = data.value<Layer>().sigma;					}
 
-	if(whats_This == whats_This_Thickness_Drift_Line_Value)		{parameter = data.value<Layer>().thickness_Drift.drift_Line_Value;	}
-	if(whats_This == whats_This_Thickness_Drift_Rand_Rms)		{parameter = data.value<Layer>().thickness_Drift.drift_Rand_Rms;	}
-	if(whats_This == whats_This_Thickness_Drift_Sine_Amplitude)	{parameter = data.value<Layer>().thickness_Drift.drift_Sine_Amplitude;}
-	if(whats_This == whats_This_Thickness_Drift_Sine_Frequency)	{parameter = data.value<Layer>().thickness_Drift.drift_Sine_Frequency;}
-	if(whats_This == whats_This_Thickness_Drift_Sine_Phase)		{parameter = data.value<Layer>().thickness_Drift.drift_Sine_Phase;	}
+		if(whats_This == whats_This_Thickness_Drift_Line_Value)		{parameter = data.value<Layer>().thickness_Drift.drift_Line_Value;	}
+		if(whats_This == whats_This_Thickness_Drift_Rand_Rms)		{parameter = data.value<Layer>().thickness_Drift.drift_Rand_Rms;	}
+		if(whats_This == whats_This_Thickness_Drift_Sine_Amplitude)	{parameter = data.value<Layer>().thickness_Drift.drift_Sine_Amplitude;}
+		if(whats_This == whats_This_Thickness_Drift_Sine_Frequency)	{parameter = data.value<Layer>().thickness_Drift.drift_Sine_Frequency;}
+		if(whats_This == whats_This_Thickness_Drift_Sine_Phase)		{parameter = data.value<Layer>().thickness_Drift.drift_Sine_Phase;	}
 
-	if(whats_This == whats_This_Sigma_Drift_Line_Value)			{parameter = data.value<Layer>().sigma_Drift.drift_Line_Value;	}
-	if(whats_This == whats_This_Sigma_Drift_Rand_Rms)			{parameter = data.value<Layer>().sigma_Drift.drift_Rand_Rms;	}
-	if(whats_This == whats_This_Sigma_Drift_Sine_Amplitude)		{parameter = data.value<Layer>().sigma_Drift.drift_Sine_Amplitude;	}
-	if(whats_This == whats_This_Sigma_Drift_Sine_Frequency)		{parameter = data.value<Layer>().sigma_Drift.drift_Sine_Frequency;	}
-	if(whats_This == whats_This_Sigma_Drift_Sine_Phase)			{parameter = data.value<Layer>().sigma_Drift.drift_Sine_Phase;	}
+		if(whats_This == whats_This_Sigma_Drift_Line_Value)			{parameter = data.value<Layer>().sigma_Drift.drift_Line_Value;	}
+		if(whats_This == whats_This_Sigma_Drift_Rand_Rms)			{parameter = data.value<Layer>().sigma_Drift.drift_Rand_Rms;	}
+		if(whats_This == whats_This_Sigma_Drift_Sine_Amplitude)		{parameter = data.value<Layer>().sigma_Drift.drift_Sine_Amplitude;	}
+		if(whats_This == whats_This_Sigma_Drift_Sine_Frequency)		{parameter = data.value<Layer>().sigma_Drift.drift_Sine_Frequency;	}
+		if(whats_This == whats_This_Sigma_Drift_Sine_Phase)			{parameter = data.value<Layer>().sigma_Drift.drift_Sine_Phase;	}
 	}
 	if(item_Type_String == whats_This_Substrate)
 	{
-	if(whats_This == whats_This_Absolute_Density)	{parameter = data.value<Substrate>().absolute_Density;	}
-	if(whats_This == whats_This_Relative_Density)	{parameter = data.value<Substrate>().relative_Density;	}
-	if(whats_This == whats_This_Sigma)				{parameter = data.value<Substrate>().sigma;				}
+		if(whats_This == whats_This_Absolute_Density)	{parameter = data.value<Substrate>().absolute_Density;	}
+		if(whats_This == whats_This_Relative_Density)	{parameter = data.value<Substrate>().relative_Density;	}
+		if(whats_This == whats_This_Sigma)				{parameter = data.value<Substrate>().sigma;				}
 	}
 	if(item_Type_String == whats_This_Multilayer)
 	{
-	if(whats_This == whats_This_Period)				{parameter = data.value<Stack_Content>().period;	}
-	if(whats_This == whats_This_Gamma)				{parameter = data.value<Stack_Content>().gamma;		}
+		if(whats_This == whats_This_Period)				{parameter = data.value<Stack_Content>().period;	}
+		if(whats_This == whats_This_Gamma)				{parameter = data.value<Stack_Content>().gamma;		}
 	}
 }
 
@@ -511,7 +511,7 @@ void Table_Of_Structures::span_Structure_Headers(My_Table_Widget* table)
 {
 	for(int struct_Index=0; struct_Index<rows_List_To_Span.size(); ++struct_Index)
 	{
-	table->setSpan(rows_List_To_Span[struct_Index],0,1,table->columnCount());
+		table->setSpan(rows_List_To_Span[struct_Index],0,1,table->columnCount());
 	}
 }
 
@@ -519,25 +519,25 @@ void Table_Of_Structures::span_Structure_Items(My_Table_Widget* table)
 {
 	for(int row_Index=0; row_Index<table->rowCount(); ++row_Index)
 	{
-	for(int col_Index=0; col_Index<table->columnCount(); ++col_Index)
-	{
-		if(table->item(row_Index,col_Index))
+		for(int col_Index=0; col_Index<table->columnCount(); ++col_Index)
 		{
-		QStringList wtf_List = table->item(row_Index,col_Index)->text().split(item_Type_Delimiter,QString::SkipEmptyParts);
-		if(	   wtf_List[0] == whats_This_Ambient
-		|| wtf_List[0] == whats_This_Layer
-		|| wtf_List[0] == whats_This_Substrate )
-		{
-			table->setSpan(row_Index,col_Index,5,1);
-			//					if(wtf_List[0] != whats_This_Ambient) colorize_Row(row_Index-1);
+			if(table->item(row_Index,col_Index))
+			{
+				QStringList wtf_List = table->item(row_Index,col_Index)->text().split(item_Type_Delimiter,QString::SkipEmptyParts);
+				if(	   wtf_List[0] == whats_This_Ambient
+					|| wtf_List[0] == whats_This_Layer
+					|| wtf_List[0] == whats_This_Substrate )
+				{
+					table->setSpan(row_Index,col_Index,5,1);
+//					if(wtf_List[0] != whats_This_Ambient) colorize_Row(row_Index-1);
+				}
+				if( wtf_List[0] == whats_This_Multilayer )
+				{
+					table->setSpan(row_Index,col_Index,2,1);
+//					colorize_Row(row_Index-1);
+				}
+			}
 		}
-		if( wtf_List[0] == whats_This_Multilayer )
-		{
-			table->setSpan(row_Index,col_Index,2,1);
-			//					colorize_Row(row_Index-1);
-		}
-		}
-	}
 	}
 }
 
@@ -1076,12 +1076,21 @@ void Table_Of_Structures::create_Check_Box_Fit(My_Table_Widget* table, int curre
 	check_Boxes_Map.insert(check_Box, structure_Item);
 
 	// set parameter id to BACK widget
-	QVariant var;
-	parameter.indicator.tab_Index = tab_Index;
-	parameter.indicator.full_Name = structure_Item->whatsThis(DEFAULT_COLUMN) + " " + whats_This;
-	var.setValue( parameter );
-	back_Widget->setProperty(parameter_Property,var);
-	back_Widget->setWhatsThis(structure_Item->whatsThis(DEFAULT_COLUMN));
+	if(	whats_This == whats_This_Thickness_Drift_Sine_Amplitude ||
+		whats_This == whats_This_Thickness_Drift_Sine_Frequency ||
+		whats_This == whats_This_Thickness_Drift_Sine_Phase		||
+
+		whats_This == whats_This_Sigma_Drift_Sine_Amplitude		||
+		whats_This == whats_This_Sigma_Drift_Sine_Frequency		||
+		whats_This == whats_This_Sigma_Drift_Sine_Phase			)
+	{
+		QVariant var;
+		parameter.indicator.tab_Index = tab_Index;
+		parameter.indicator.full_Name = structure_Item->whatsThis(DEFAULT_COLUMN) + " " + whats_This;
+		var.setValue( parameter );
+		back_Widget->setProperty(parameter_Property,var);
+		back_Widget->setWhatsThis(structure_Item->whatsThis(DEFAULT_COLUMN));
+	}
 
 	connect(check_Box, &QCheckBox::toggled, this, [=]{refresh_Fit_Parameter(); });
 	//	connect(check_Box, SIGNAL(toggled(bool)), this, SLOT(refresh_Fit_Parameter(bool))); old version
@@ -1253,13 +1262,15 @@ void Table_Of_Structures::create_Weights_Check_Box_Fit_Interlayer(My_Table_Widge
 	back_Layout->setContentsMargins(0,0,0,0);
 	back_Layout->setAlignment(Qt::AlignCenter);
 
+
 	// set parameter id to BACK widget
 	QVariant var;
 	interlayer_Composition[interlayer_Index].interlayer.indicator.tab_Index = tab_Index;
 	interlayer_Composition[interlayer_Index].interlayer.indicator.full_Name = structure_Item->whatsThis(DEFAULT_COLUMN) + " " + "Weight "+transition_Layer_Functions[interlayer_Index];
 	var.setValue( interlayer_Composition[interlayer_Index].interlayer );
-	back_Widget->setProperty(parameter_Property,var);
-	back_Widget->setWhatsThis(structure_Item->whatsThis(DEFAULT_COLUMN));
+///	unused for non-duplicating parameter
+//	back_Widget->setProperty(parameter_Property,var);
+//	back_Widget->setWhatsThis(structure_Item->whatsThis(DEFAULT_COLUMN));
 
 	table->setCellWidget(current_Row, current_Column, back_Widget);
 

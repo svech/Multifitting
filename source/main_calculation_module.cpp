@@ -13,7 +13,7 @@ void Main_Calculation_Module::run_All()
 {
 	for(int i=0; i<multilayer_Tabs->count(); ++i)
 	{
-		Multilayer* multilayer = dynamic_cast<Multilayer*>(multilayer_Tabs->widget(i));
+		Multilayer* multilayer = qobject_cast<Multilayer*>(multilayer_Tabs->widget(i));
 
 		Calculation_Tree* calculation_Tree = new Calculation_Tree(multilayer->independent_Variables_Vector, multilayer->measured_Data_Vector, multilayer->target_Profiles_Vector);
 		connect(calculation_Tree, SIGNAL(critical(QString)),    this, SLOT(catch_Critical(QString)));

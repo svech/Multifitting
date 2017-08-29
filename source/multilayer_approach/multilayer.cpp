@@ -266,7 +266,7 @@ void Multilayer::refresh_Structure_And_Independent(QObject* my_Sender)
 
 	for(int i=0; i<independent_Variables_Plot_Tabs->count(); ++i)
 	{
-		Independent_Variables* independent = dynamic_cast<Independent_Variables*>(independent_Variables_Plot_Tabs->widget(i));
+		Independent_Variables* independent = qobject_cast<Independent_Variables*>(independent_Variables_Plot_Tabs->widget(i));
 		if(independent!=sender())
 		{
 			independent->reset_Independent_Variables_Structure();

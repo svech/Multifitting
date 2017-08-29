@@ -137,7 +137,7 @@ void Multilayer_Approach::open_Table_Of_Structures(bool)
 
 		for(int i=0; i<multilayer_Tabs->count(); ++i)
 		{
-			Multilayer* multilayer = dynamic_cast<Multilayer*>(multilayer_Tabs->widget(i));
+			Multilayer* multilayer = qobject_cast<Multilayer*>(multilayer_Tabs->widget(i));
             connect(multilayer, SIGNAL(refresh_All_Multilayers()), table_Of_Structures, SLOT(reload_All_Widgets()));
 		}
 	} else
@@ -150,7 +150,7 @@ void Multilayer_Approach::refresh_All_Multilayers_View()
 {
 	for(int i=0; i<multilayer_Tabs->count(); ++i)
 	{
-		Multilayer* multilayer = dynamic_cast<Multilayer*>(multilayer_Tabs->widget(i));
+		Multilayer* multilayer = qobject_cast<Multilayer*>(multilayer_Tabs->widget(i));
 		if(multilayer!=sender())
 		{
 			multilayer->refresh_Structure_And_Independent(sender());
@@ -178,7 +178,7 @@ void Multilayer_Approach::open()
 		// add new multilayer
 		add_Multilayer();
 
-		Multilayer* multilayer = dynamic_cast<Multilayer*>(multilayer_Tabs->widget(i));
+		Multilayer* multilayer = qobject_cast<Multilayer*>(multilayer_Tabs->widget(i));
 
 		// set tab name
 		QString multilayer_tab_name;
@@ -236,7 +236,7 @@ void Multilayer_Approach::open()
 		for(int i=0; i<num_Independent; ++i)
 		{
 			multilayer->add_Independent_Variables_Tab();
-			Independent_Variables* independent = dynamic_cast<Independent_Variables*>(multilayer->independent_Variables_Plot_Tabs->widget(i));
+			Independent_Variables* independent = qobject_cast<Independent_Variables*>(multilayer->independent_Variables_Plot_Tabs->widget(i));
 
 			// load plot name
 			QString tab_Text;
@@ -329,7 +329,7 @@ void Multilayer_Approach::save()
 
 	for(int i=0; i<multilayer_Tabs->count(); ++i)
 	{
-		Multilayer* multilayer = dynamic_cast<Multilayer*>(multilayer_Tabs->widget(i));
+		Multilayer* multilayer = qobject_cast<Multilayer*>(multilayer_Tabs->widget(i));
 
 		// save tab name
 		out << multilayer_Tabs->tabText(i);
@@ -364,7 +364,7 @@ void Multilayer_Approach::save()
 		// save independent tabs
 		for(int i=0; i<multilayer->independent_Variables_Plot_Tabs->count(); ++i)
 		{
-			Independent_Variables* independent = dynamic_cast<Independent_Variables*>(multilayer->independent_Variables_Plot_Tabs->widget(i));
+			Independent_Variables* independent = qobject_cast<Independent_Variables*>(multilayer->independent_Variables_Plot_Tabs->widget(i));
 
 			// save plot name
 			out << multilayer->independent_Variables_Plot_Tabs->tabText(i);

@@ -46,7 +46,7 @@ public:
 	// for interlayers
 	void create_Check_Box_Label_Interlayer		(My_Table_Widget* table, int current_Row, int start_Column, QTreeWidgetItem* structure_Item, QString item_Type_String, int tab_Index);
 	void create_Weigts_Interlayer				(My_Table_Widget* table, int current_Row, int start_Column, QTreeWidgetItem* structure_Item, QString item_Type_String, QString val_Type);
-	void create_Weights_Check_Box_Fit_Interlayer(My_Table_Widget* table, int current_Row, int start_Column, QTreeWidgetItem* structure_Item, QString item_Type_String, int tab_Index);
+	void create_Weights_Check_Box_Fit_Interlayer(My_Table_Widget* table, int current_Row, int start_Column, QTreeWidgetItem* structure_Item, QString item_Type_String/*, int tab_Index*/, int tab_Index);
 
 	void create_MySigma_Labels_Interlayer		(My_Table_Widget* table, int current_Row, int start_Column, QTreeWidgetItem* structure_Item, QString item_Type_String, int tab_Index);
 	void create_MySigma_Interlayer				(My_Table_Widget* table, int current_Row, int start_Column, QTreeWidgetItem* structure_Item, QString item_Type_String);

@@ -248,7 +248,7 @@ struct Parameter_Indicator		{int id; int tab_Index = -1; QString full_Name;};
 struct Int_Independent			{int value; bool is_Independent=false;	int start; int step; int num_steps;};
 struct Independent				{bool is_Independent = false;	double min; double max; int num_Points;};
 
-struct Coupled					{bool is_Coupled	 = false;
+struct Coupled					{bool is_Coupled = false;
 								 bool has_Master = false; Parameter_Indicator master; QString function_Type = "default"; double function(double argument){ return argument;}
 								 bool has_Slaves = false; QVector<Parameter_Indicator> slaves;};
 
