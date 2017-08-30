@@ -8,7 +8,7 @@ class Coupling_Editor : public QDialog
 {
 	Q_OBJECT
 public:
-	explicit Coupling_Editor(QWidget* coupling_Widget, QTabWidget* main_Tabs, QWidget *parent = 0);
+	explicit Coupling_Editor(QWidget* coupling_Widget, QMap<QLineEdit*,QTreeWidgetItem*>& line_Edits_Map, QMap<QWidget*,QTreeWidgetItem*>& coupled_Widgets_Map, QTabWidget* main_Tabs, QWidget *parent = 0);
 
 	void closeEvent(QCloseEvent*);
 	void set_Window_Geometry();
@@ -35,8 +35,8 @@ public:
 	QVBoxLayout* main_Layout;
 
 	QGroupBox* master_Group_Box;
-		QWidget* master_Widget;
-		QWidget* old_Master_Widget;
+		QWidget* master_Widget = NULL;
+		QWidget* old_Master_Widget = NULL;
 		QLabel* master_Label;
 		QLineEdit* master_Line_Edit;
 
@@ -54,6 +54,9 @@ public:
 
 	QString no_Master_Text = ".........<no master>.........";
 	QString no_Slave_Text  = ".........<no slave>..........";
+
+	QMap<QLineEdit*,QTreeWidgetItem*>& line_Edits_Map;
+	QMap<QWidget*,QTreeWidgetItem*>& coupled_Widgets_Map;
 };
 
 #endif // COUPLING_EDITOR_H

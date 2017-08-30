@@ -149,6 +149,7 @@ using namespace std;
 #define whats_This_Thickness				"Thickness"
 #define whats_This_Sigma					"Sigma"
 #define whats_This_Interlayer_Composition	"Interlayer Composition"
+#define whats_This_Interlayer_My_Sigma		"Interlayer My Sigma"
 #define whats_This_Num_Repetitions			"Num_Repetitions"
 #define whats_This_Period					"Period"
 #define whats_This_Gamma					"Gamma"
@@ -243,7 +244,8 @@ enum       Transitional_Layer	{ Erf , Lin , Exp , Tanh , Sin , Step};
 // -----------------------------------------------------------------------------------------
 
 // simple types					renew corresponding serialization operators!
-struct Parameter_Indicator		{int id; int tab_Index = -1; QString full_Name;};
+struct Parameter_Indicator		{int id; QString whats_This;				// once and for all
+								 int tab_Index = -1; QString full_Name; };	// can be changed!
 
 struct Int_Independent			{int value; bool is_Independent=false;	int start; int step; int num_steps;};
 struct Independent				{bool is_Independent = false;	double min; double max; int num_Points;};
@@ -263,11 +265,22 @@ struct Parameter				{double value; Independent independent; Coupled coupled; Fit
 								 }};
 Q_DECLARE_METATYPE( Parameter )
 
-struct Stoichiometry			{Parameter composition; QString type;};
-struct Interlayer				{Parameter interlayer; Parameter my_Sigma; bool enabled;};
+struct Stoichiometry			{Parameter composition; QString type;
+								 Stoichiometry()
+								 {
+									composition.indicator.whats_This = whats_This_Composition;
+								 }
+								};
+struct Interlayer				{Parameter interlayer; Parameter my_Sigma; bool enabled;
+								 Interlayer()
+								 {
+									interlayer.indicator.whats_This = whats_This_Interlayer_Composition;
+									my_Sigma.indicator.whats_This = whats_This_Interlayer_My_Sigma;
+								 }
+								};
 struct Drift					{bool is_Drift_Line;  Parameter drift_Line_Value;
 								 bool is_Drift_Sine;  Parameter drift_Sine_Amplitude; Parameter drift_Sine_Frequency; Parameter drift_Sine_Phase;
-								 bool is_Drift_Rand;  Parameter drift_Rand_Rms;};
+								 bool is_Drift_Rand;  Parameter drift_Rand_Rms;	};
 
 
 // optical constant types

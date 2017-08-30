@@ -126,15 +126,23 @@ Ambient::Ambient()
 		absolute_Density.fit.is_Fitable = false;
 		absolute_Density.fit.min = absolute_Density.value*(1-dispersion);
 		absolute_Density.fit.max = absolute_Density.value*(1+dispersion);
+		absolute_Density.indicator.whats_This = whats_This_Absolute_Density;
 	}
 	{
 		relative_Density.value			= ambient_default_relative_density;
 		relative_Density.fit.is_Fitable = false;
 		relative_Density.fit.min = relative_Density.value*(1-dispersion);
 		relative_Density.fit.max = relative_Density.value*(1+dispersion);
+		relative_Density.indicator.whats_This = whats_This_Relative_Density;
 	}
-	permittivity.value		= ambient_default_permittivity;
-	absorption.value		= ambient_default_absorption;
+	{
+		permittivity.value		= ambient_default_permittivity;
+		permittivity.indicator.whats_This = whats_This_Permittivity;
+	}
+	{
+		absorption.value		= ambient_default_absorption;
+		absorption.indicator.whats_This = whats_This_Absorption;
+	}
 	composed_Material		= ambient_default_composed;
 }
 
@@ -147,21 +155,30 @@ Substrate::Substrate()
 		absolute_Density.fit.is_Fitable = false;
 		absolute_Density.fit.min = absolute_Density.value*(1-dispersion);
 		absolute_Density.fit.max = absolute_Density.value*(1+dispersion);
+		absolute_Density.indicator.whats_This = whats_This_Absolute_Density;
 	}
 	{
 		relative_Density.value			= substrate_default_relative_density;
 		relative_Density.fit.is_Fitable = false;
 		relative_Density.fit.min = relative_Density.value*(1-dispersion);
 		relative_Density.fit.max = relative_Density.value*(1+dispersion);
+		relative_Density.indicator.whats_This = whats_This_Relative_Density;
 	}
-	permittivity.value		= substrate_default_permittivity;
-	absorption.value		= substrate_default_absorption;
+	{
+		permittivity.value		= substrate_default_permittivity;
+		permittivity.indicator.whats_This = whats_This_Permittivity;
+	}
+	{
+		absorption.value		= substrate_default_absorption;
+		absorption.indicator.whats_This = whats_This_Absorption;
+	}
 	composed_Material		= substrate_default_composed;
 	{
 		sigma.value			= substrate_default_sigma;
 		sigma.fit.is_Fitable = false;
 		sigma.fit.min = sigma_Dispersion_Min*sigma.value;
 		sigma.fit.max = sigma_Dispersion_Max*sigma.value;
+		sigma.indicator.whats_This = whats_This_Sigma;
 	}
 
 	interlayer_Composition.clear();
@@ -196,27 +213,37 @@ Extreme_Layer::Extreme_Layer() //-V730
 		absolute_Density.fit.is_Fitable = false;
 		absolute_Density.fit.min = absolute_Density.value*(1-dispersion);
 		absolute_Density.fit.max = absolute_Density.value*(1+dispersion);
+		absolute_Density.indicator.whats_This = whats_This_Absolute_Density;
 	}
 	{
 		relative_Density.value			= layer_default_relative_density;
 		relative_Density.fit.is_Fitable = false;
 		relative_Density.fit.min = relative_Density.value*(1-dispersion);
 		relative_Density.fit.max = relative_Density.value*(1+dispersion);
+		relative_Density.indicator.whats_This = whats_This_Relative_Density;
 	}
-	permittivity.value		= layer_default_permittivity;
-	absorption.value		= layer_default_absorption;
+	{
+		permittivity.value		= layer_default_permittivity;
+		permittivity.indicator.whats_This = whats_This_Permittivity;
+	}
+	{
+		absorption.value		= layer_default_absorption;
+		absorption.indicator.whats_This = whats_This_Absorption;
+	}
 	composed_Material		= layer_default_composed;
 	{
 		sigma.value			= layer_default_sigma;
 		sigma.fit.is_Fitable = false;
 		sigma.fit.min = sigma_Dispersion_Min*sigma.value;
 		sigma.fit.max = sigma_Dispersion_Max*sigma.value;
+		sigma.indicator.whats_This = whats_This_Sigma;
 	}
 	{
 		thickness.value			= layer_default_thickness;
 		thickness.fit.is_Fitable = false;
 		thickness.fit.min = thickness.value*(1-dispersion);
 		thickness.fit.max = thickness.value*(1+dispersion);
+		thickness.indicator.whats_This = whats_This_Thickness;
 	}
 
 	interlayer_Composition.clear();
@@ -251,27 +278,37 @@ Layer::Layer()
 		absolute_Density.fit.is_Fitable = false;
 		absolute_Density.fit.min = absolute_Density.value*(1-dispersion);
 		absolute_Density.fit.max = absolute_Density.value*(1+dispersion);
+		absolute_Density.indicator.whats_This = whats_This_Absolute_Density;
 	}
 	{
 		relative_Density.value			= layer_default_relative_density;
 		relative_Density.fit.is_Fitable = false;
 		relative_Density.fit.min = relative_Density.value*(1-dispersion);
 		relative_Density.fit.max = relative_Density.value*(1+dispersion);
+		relative_Density.indicator.whats_This = whats_This_Relative_Density;
 	}
-	permittivity.value		= layer_default_permittivity;
-	absorption.value		= layer_default_absorption;
+	{
+		permittivity.value		= layer_default_permittivity;
+		permittivity.indicator.whats_This = whats_This_Permittivity;
+	}
+	{
+		absorption.value		= layer_default_absorption;
+		absorption.indicator.whats_This = whats_This_Absorption;
+	}
 	composed_Material		= layer_default_composed;
 	{
 		sigma.value			= layer_default_sigma;
 		sigma.fit.is_Fitable = false;
 		sigma.fit.min = sigma_Dispersion_Min*sigma.value;
 		sigma.fit.max = sigma_Dispersion_Max*sigma.value;
+		sigma.indicator.whats_This = whats_This_Sigma;
 	}
 	{
 		thickness.value			= layer_default_thickness;
 		thickness.fit.is_Fitable = false;
 		thickness.fit.min = thickness.value*(1-dispersion);
 		thickness.fit.max = thickness.value*(1+dispersion);
+		thickness.indicator.whats_This = whats_This_Thickness;
 	}
 
 	interlayer_Composition.clear();
@@ -304,26 +341,31 @@ Layer::Layer()
 		thickness_Drift.drift_Line_Value.value = 0;
 		thickness_Drift.drift_Line_Value.fit.min = -thickness_Drift.drift_Line_Value.value*2;
 		thickness_Drift.drift_Line_Value.fit.max =  thickness_Drift.drift_Line_Value.value*2;
+		thickness_Drift.drift_Line_Value.indicator.whats_This = whats_This_Thickness_Drift_Line_Value;
 	}
 	{
 		thickness_Drift.drift_Rand_Rms.value = 0;
 		thickness_Drift.drift_Rand_Rms.fit.min = 0;
 		thickness_Drift.drift_Rand_Rms.fit.max = thickness_Drift.drift_Rand_Rms.value*2;
+		thickness_Drift.drift_Rand_Rms.indicator.whats_This = whats_This_Thickness_Drift_Rand_Rms;
 	}
 	{
 		thickness_Drift.drift_Sine_Amplitude.value = 0;
 		thickness_Drift.drift_Sine_Amplitude.fit.min = 0;
 		thickness_Drift.drift_Sine_Amplitude.fit.max = thickness_Drift.drift_Sine_Amplitude.value*2;
+		thickness_Drift.drift_Sine_Amplitude.indicator.whats_This = whats_This_Thickness_Drift_Sine_Amplitude;
 	}
 	{
 		thickness_Drift.drift_Sine_Frequency.value = 0.333333333333333333333;
 		thickness_Drift.drift_Sine_Frequency.fit.min = thickness_Drift.drift_Sine_Frequency.value*(1-dispersion);
 		thickness_Drift.drift_Sine_Frequency.fit.max = thickness_Drift.drift_Sine_Frequency.value*(1+dispersion);
+		thickness_Drift.drift_Sine_Frequency.indicator.whats_This = whats_This_Thickness_Drift_Sine_Frequency;
 	}
 	{
 		thickness_Drift.drift_Sine_Phase.value = 0;
 		thickness_Drift.drift_Sine_Phase.fit.min = 0;
 		thickness_Drift.drift_Sine_Phase.fit.max = 1;
+		thickness_Drift.drift_Sine_Phase.indicator.whats_This = whats_This_Thickness_Drift_Sine_Phase;
 	}
 
 	// sigma drift
@@ -334,26 +376,31 @@ Layer::Layer()
 		sigma_Drift.drift_Line_Value.value = 0;
 		sigma_Drift.drift_Line_Value.fit.min = -thickness_Drift.drift_Line_Value.value*2;
 		sigma_Drift.drift_Line_Value.fit.max =  thickness_Drift.drift_Line_Value.value*2;
+		sigma_Drift.drift_Line_Value.indicator.whats_This = whats_This_Sigma_Drift_Line_Value;
 	}
 	{
 		sigma_Drift.drift_Rand_Rms.value = 0;
 		sigma_Drift.drift_Rand_Rms.fit.min = 0;
 		sigma_Drift.drift_Rand_Rms.fit.max = thickness_Drift.drift_Rand_Rms.value*2;
+		sigma_Drift.drift_Rand_Rms.indicator.whats_This = whats_This_Sigma_Drift_Rand_Rms;
 	}
 	{
 		sigma_Drift.drift_Sine_Amplitude.value = 0;
 		sigma_Drift.drift_Sine_Amplitude.fit.min = 0;
 		sigma_Drift.drift_Sine_Amplitude.fit.max = thickness_Drift.drift_Sine_Amplitude.value*2;
+		sigma_Drift.drift_Sine_Amplitude.indicator.whats_This = whats_This_Sigma_Drift_Sine_Amplitude;
 	}
 	{
 		sigma_Drift.drift_Sine_Frequency.value = 0.333333333333333333333;
 		sigma_Drift.drift_Sine_Frequency.fit.min = thickness_Drift.drift_Sine_Frequency.value*(1-dispersion);
 		sigma_Drift.drift_Sine_Frequency.fit.max = thickness_Drift.drift_Sine_Frequency.value*(1+dispersion);
+		sigma_Drift.drift_Sine_Frequency.indicator.whats_This = whats_This_Sigma_Drift_Sine_Frequency;
 	}
 	{
 		sigma_Drift.drift_Sine_Phase.value = 0;
 		sigma_Drift.drift_Sine_Phase.fit.min = 0;
 		sigma_Drift.drift_Sine_Phase.fit.max = 1;
+		sigma_Drift.drift_Sine_Phase.indicator.whats_This = whats_This_Sigma_Drift_Sine_Phase;
 	}
 }
 
@@ -365,12 +412,14 @@ Stack_Content::Stack_Content()
 		period.fit.is_Fitable = false;
 		period.fit.min = period.value*(1-dispersion);
 		period.fit.max = period.value*(1+dispersion);
+		period.indicator.whats_This = whats_This_Period;
 	}
 	{
 		gamma.value		= stack_default_gamma;
 		gamma.fit.is_Fitable = false;
 		gamma.fit.min = 0;
 		gamma.fit.max = 1;
+		gamma.indicator.whats_This = whats_This_Gamma;
 	}
 }
 

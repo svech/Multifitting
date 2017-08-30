@@ -6,9 +6,9 @@
 #include "algorithm"
 
 Table_Of_Structures::Table_Of_Structures(QMap<QString, Table_Of_Structures*>* runned_Tables_Of_Structures, QTabWidget* multilayer_Tabs, QWidget *parent) :
-runned_Tables_Of_Structures(runned_Tables_Of_Structures),
-multilayer_Tabs(multilayer_Tabs),
-QWidget(parent)
+	runned_Tables_Of_Structures(runned_Tables_Of_Structures),
+	multilayer_Tabs(multilayer_Tabs),
+	QWidget(parent)
 {
 	setWindowTitle("Table Of Structures");
 	create_Main_Layout();
@@ -26,9 +26,9 @@ void Table_Of_Structures::closeEvent(QCloseEvent* event)
 	multilayer_Tabs->cornerWidget()->setDisabled(false);
 	for(int i=0; i<multilayer_Tabs->count(); ++i)
 	{
-	list_Of_Trees[i]->structure_Toolbar->toolbar->setDisabled(false);
-	list_Of_Trees[i]->tree->blockSignals(false);
-	multilayer_Tabs->tabBar()->tabButton(i, QTabBar::RightSide)->setEnabled(true);
+		list_Of_Trees[i]->structure_Toolbar->toolbar->setDisabled(false);
+		list_Of_Trees[i]->tree->blockSignals(false);
+		multilayer_Tabs->tabBar()->tabButton(i, QTabBar::RightSide)->setEnabled(true);
 	}
 	event->accept();
 }
@@ -69,7 +69,7 @@ void Table_Of_Structures::add_Tabs()
 	read_Trees();
 	for(int tab_Index=0; tab_Index<multilayer_Tabs->count(); ++tab_Index)
 	{
-		My_Table_Widget* new_Table = new My_Table_Widget(basic_Row_Number, basic_Column_Number, main_Tabs, main_Tabs);
+		My_Table_Widget* new_Table = new My_Table_Widget(basic_Row_Number, basic_Column_Number, line_Edits_Map,	coupled_Widgets_Map, main_Tabs, main_Tabs);
 		list_Of_Tables.append(new_Table);
 
 		create_Table(new_Table, tab_Index);
@@ -97,6 +97,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 		int max_Depth = Global_Variables::get_Tree_Depth(list_Of_Trees[tab_Index]->tree->invisibleRootItem());
 		int depth, current_Column;
 
+		// calculate max_Number_Of_Elements for tabulation
 		int max_Number_Of_Elements=1;
 		{
 			QTreeWidgetItem* structure_Item;
@@ -525,16 +526,16 @@ void Table_Of_Structures::span_Structure_Items(My_Table_Widget* table)
 			{
 				QStringList wtf_List = table->item(row_Index,col_Index)->text().split(item_Type_Delimiter,QString::SkipEmptyParts);
 				if(	   wtf_List[0] == whats_This_Ambient
-					|| wtf_List[0] == whats_This_Layer
-					|| wtf_List[0] == whats_This_Substrate )
+					   || wtf_List[0] == whats_This_Layer
+					   || wtf_List[0] == whats_This_Substrate )
 				{
 					table->setSpan(row_Index,col_Index,5,1);
-//					if(wtf_List[0] != whats_This_Ambient) colorize_Row(row_Index-1);
+					//					if(wtf_List[0] != whats_This_Ambient) colorize_Row(row_Index-1);
 				}
 				if( wtf_List[0] == whats_This_Multilayer )
 				{
 					table->setSpan(row_Index,col_Index,2,1);
-//					colorize_Row(row_Index-1);
+					//					colorize_Row(row_Index-1);
 				}
 			}
 		}
@@ -546,14 +547,14 @@ void Table_Of_Structures::fit_Column(My_Table_Widget* table, int start_Width, in
 	int max_Width=start_Width;
 	for(int row=0; row<table->rowCount(); ++row)
 	{
-	QLineEdit* current_Line_Edit = qobject_cast<QLineEdit*>(table->cellWidget(row, current_Column));
-	if(current_Line_Edit)
-	{
-		if(max_Width<current_Line_Edit->width())
+		QLineEdit* current_Line_Edit = qobject_cast<QLineEdit*>(table->cellWidget(row, current_Column));
+		if(current_Line_Edit)
 		{
-		max_Width=current_Line_Edit->width()+1;
+			if(max_Width<current_Line_Edit->width())
+			{
+				max_Width=current_Line_Edit->width()+1;
+			}
 		}
-	}
 	}
 	table->setColumnWidth(current_Column,max_Width);
 }
@@ -573,28 +574,28 @@ void Table_Of_Structures::create_Combo_Elements(My_Table_Widget* table, int curr
 	int current_Column = start_Column;
 	for(int composition_Index=0; composition_Index<composition.size(); ++composition_Index)
 	{
-	add_Columns(table, current_Column+1);
+		add_Columns(table, current_Column+1);
 
-	// create combobox
-	QComboBox* elements = new QComboBox;
-	elements->addItems(sorted_Elements.keys());
-	elements->setCurrentIndex(elements->findText(composition[composition_Index].type));
+		// create combobox
+		QComboBox* elements = new QComboBox;
+		elements->addItems(sorted_Elements.keys());
+		elements->setCurrentIndex(elements->findText(composition[composition_Index].type));
 
-	// number of element is here
-	elements->setProperty(num_Chemic_Element_Property, composition_Index);
-	elements->setProperty(item_Type_Property, item_Type_String);
+		// number of element is here
+		elements->setProperty(num_Chemic_Element_Property, composition_Index);
+		elements->setProperty(item_Type_Property, item_Type_String);
 
-	// for reloading
-	elements->setProperty(reload_Property, false);
-	all_Widgets_To_Reload.append(elements);
+		// for reloading
+		elements->setProperty(reload_Property, false);
+		all_Widgets_To_Reload.append(elements);
 
-	// create item
-	table->setCellWidget(current_Row, current_Column, elements);
-	elements_Map.insert(elements, structure_Item);
-	connect(elements, &QComboBox::currentTextChanged, this, [=]{refresh_Element(); });
-	//      connect(elements,  SIGNAL(currentTextChanged(QString)), this, SLOT(refresh_Element(QString))); old version
+		// create item
+		table->setCellWidget(current_Row, current_Column, elements);
+		elements_Map.insert(elements, structure_Item);
+		connect(elements, &QComboBox::currentTextChanged, this, [=]{refresh_Element(); });
+		//      connect(elements,  SIGNAL(currentTextChanged(QString)), this, SLOT(refresh_Element(QString))); old version
 
-	current_Column+=TABLE_COLUMN_ELEMENTS_SHIFT;
+		current_Column+=TABLE_COLUMN_ELEMENTS_SHIFT;
 	}
 }
 
@@ -603,8 +604,8 @@ void Table_Of_Structures::create_Stoich(My_Table_Widget* table, int current_Row,
 	QList<Stoichiometry> composition;
 	QVariant data = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole);
 
-	if(item_Type_String == whats_This_Ambient)		{composition = data.value<Ambient>().	 composition;}
-	if(item_Type_String == whats_This_Layer)		{composition = data.value<Layer>().	 composition;}
+	if(item_Type_String == whats_This_Ambient)		{composition = data.value<Ambient>().  composition;}
+	if(item_Type_String == whats_This_Layer)		{composition = data.value<Layer>().	   composition;}
 	if(item_Type_String == whats_This_Substrate)	{composition = data.value<Substrate>().composition;}
 
 	int current_Column = start_Column;
@@ -613,40 +614,40 @@ void Table_Of_Structures::create_Stoich(My_Table_Widget* table, int current_Row,
 
 	for(int composition_Index=0; composition_Index<composition.size(); ++composition_Index)
 	{
-	if(val_Type == VAL)	{value = composition[composition_Index].composition.value;		format = line_edit_short_double_format;}
-	if(val_Type == MIN)	{value = composition[composition_Index].composition.fit.min;	format = line_edit_short_double_format;}
-	if(val_Type == MAX)	{value = composition[composition_Index].composition.fit.max;	format = line_edit_short_double_format;}
+		if(val_Type == VAL)	{value = composition[composition_Index].composition.value;		format = line_edit_short_double_format;}
+		if(val_Type == MIN)	{value = composition[composition_Index].composition.fit.min;	format = line_edit_short_double_format;}
+		if(val_Type == MAX)	{value = composition[composition_Index].composition.fit.max;	format = line_edit_short_double_format;}
 
-	QString text_Value = QString::number(value, format, line_edit_composition_precision);
+		QString text_Value = QString::number(value, format, line_edit_composition_precision);
 
-	// create lineedit
-	QLineEdit* line_Edit = new QLineEdit(text_Value);
-	line_Edit->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT);
+		// create lineedit
+		QLineEdit* line_Edit = new QLineEdit(text_Value);
+		line_Edit->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT);
 
-	// number of element is here
-	line_Edit->setProperty(num_Chemic_Element_Property, composition_Index);
-	line_Edit->setProperty(min_Size_Property, line_Edit->width());
-	line_Edit->setProperty(item_Type_Property, item_Type_String);
-	line_Edit->setProperty(column_Property, current_Column);
-	line_Edit->setProperty(value_Type_Property, val_Type);
-	line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION));
+		// number of element is here
+		line_Edit->setProperty(num_Chemic_Element_Property, composition_Index);
+		line_Edit->setProperty(min_Size_Property, line_Edit->width());
+		line_Edit->setProperty(item_Type_Property, item_Type_String);
+		line_Edit->setProperty(column_Property, current_Column);
+		line_Edit->setProperty(value_Type_Property, val_Type);
+		line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION));
 
-	// for reloading
-	line_Edit->setProperty(reload_Property, false);
-	all_Widgets_To_Reload.append(line_Edit);
+		// for reloading
+		line_Edit->setProperty(reload_Property, false);
+		all_Widgets_To_Reload.append(line_Edit);
 
-	connect(line_Edit, &QLineEdit::textEdited, this, [=]{resize_Line_Edit(table); });
-	//		connect(line_Edit, SIGNAL(textEdited(QString)), this, SLOT(resize_Line_Edit(QString)));     old variant
+		connect(line_Edit, &QLineEdit::textEdited, this, [=]{resize_Line_Edit(table); });
+		//		connect(line_Edit, SIGNAL(textEdited(QString)), this, SLOT(resize_Line_Edit(QString)));     old variant
 
-	// create item
-	table->setCellWidget(current_Row, current_Column, line_Edit);
-	line_Edits_Map.insert(line_Edit, structure_Item);
+		// create item
+		table->setCellWidget(current_Row, current_Column, line_Edit);
+		line_Edits_Map.insert(line_Edit, structure_Item);
 
-	connect(line_Edit, &QLineEdit::textEdited, this, [=]{refresh_Stoich(); });
-	//      connect(line_Edit, SIGNAL(textEdited(QString)), this, SLOT(refresh_Stoich(QString))); old version
+		connect(line_Edit, &QLineEdit::textEdited, this, [=]{refresh_Stoich(); });
+		//      connect(line_Edit, SIGNAL(textEdited(QString)), this, SLOT(refresh_Stoich(QString))); old version
 
-	//        line_Edit->textEdited(line_Edit->text());
-	current_Column+=TABLE_COLUMN_ELEMENTS_SHIFT;
+		//        line_Edit->textEdited(line_Edit->text());
+		current_Column+=TABLE_COLUMN_ELEMENTS_SHIFT;
 	}
 }
 
@@ -655,9 +656,9 @@ QString Table_Of_Structures::material_From_Composition(QList<Stoichiometry>& com
 	QString text;
 	for(int i=0; i<composition.size(); ++i)
 	{
-	text += composition[i].type;
-	if( abs(composition[i].composition.value - 1.) > DBL_EPSILON )
-		text += QString::number(composition[i].composition.value, line_edit_short_double_format, thumbnail_composition_precision);
+		text += composition[i].type;
+		if( abs(composition[i].composition.value - 1.) > DBL_EPSILON )
+			text += QString::number(composition[i].composition.value, line_edit_short_double_format, thumbnail_composition_precision);
 	}
 	return text;
 }
@@ -675,61 +676,62 @@ void Table_Of_Structures::create_Stoich_Check_Box_Fit(My_Table_Widget* table, in
 
 	for(int composition_Index=0; composition_Index<composition.size(); ++composition_Index)
 	{
-	// create check_Box
-	QCheckBox* check_Box = new QCheckBox("fit");//;
+		// create check_Box
+		QCheckBox* check_Box = new QCheckBox("fit");//;
 
-	// alignment
-	QWidget* back_Widget = new QWidget;
-	QVBoxLayout* back_Layout = new QVBoxLayout(back_Widget);
-	back_Layout->addWidget(check_Box);
-	back_Layout->setSpacing(0);
-	back_Layout->setContentsMargins(0,0,0,0);
-	back_Layout->setAlignment(Qt::AlignCenter);
+		// alignment
+		QWidget* back_Widget = new QWidget;
+		QVBoxLayout* back_Layout = new QVBoxLayout(back_Widget);
+		back_Layout->addWidget(check_Box);
+		back_Layout->setSpacing(0);
+		back_Layout->setContentsMargins(0,0,0,0);
+		back_Layout->setAlignment(Qt::AlignCenter);
 
-	// number of element is here
-	check_Box->setProperty(num_Chemic_Element_Property, composition_Index);
-	check_Box->setProperty(item_Type_Property, item_Type_String);
-	check_Box->setProperty(row_Property, current_Row);
-	check_Box->setProperty(column_Property, current_Column);
+		// number of element is here
+		check_Box->setProperty(num_Chemic_Element_Property, composition_Index);
+		check_Box->setProperty(item_Type_Property, item_Type_String);
+		check_Box->setProperty(row_Property, current_Row);
+		check_Box->setProperty(column_Property, current_Column);
 
-	// which cells disable and enable
-	check_Box->setProperty(relative_Rows_To_Disable_Start_Property, r_S);
-	check_Box->setProperty(relative_Rows_To_Disable_Finish_Property, r_F);
-	check_Box->setProperty(relative_Columns_To_Disable_Start_Property, c_S);
-	check_Box->setProperty(relative_Columns_To_Disable_Finish_Property, c_F);
+		// which cells disable and enable
+		check_Box->setProperty(relative_Rows_To_Disable_Start_Property, r_S);
+		check_Box->setProperty(relative_Rows_To_Disable_Finish_Property, r_F);
+		check_Box->setProperty(relative_Columns_To_Disable_Start_Property, c_S);
+		check_Box->setProperty(relative_Columns_To_Disable_Finish_Property, c_F);
 
-	// for reloading
-	check_Box->setProperty(reload_Property, false);
-	all_Widgets_To_Reload.append(check_Box);
+		// for reloading
+		check_Box->setProperty(reload_Property, false);
+		all_Widgets_To_Reload.append(check_Box);
 
-	// create item
-	table->setCellWidget(current_Row, current_Column, back_Widget);
-	check_Boxes_Map.insert(check_Box, structure_Item);
-	connect(check_Box, &QCheckBox::toggled, this, [=]{refresh_Fit_Element(); });
-	connect(check_Box, &QCheckBox::toggled, this, [=]{cells_On_Off(table); });
-	check_Box->setChecked(composition[composition_Index].composition.fit.is_Fitable);
+		// create item
+		table->setCellWidget(current_Row, current_Column, back_Widget);
+		check_Boxes_Map.insert(check_Box, structure_Item);
+		connect(check_Box, &QCheckBox::toggled, this, [=]{refresh_Fit_Element(); });
+		connect(check_Box, &QCheckBox::toggled, this, [=]{cells_On_Off(table); });
+		check_Box->setChecked(composition[composition_Index].composition.fit.is_Fitable);
 
-	// set parameter id to BACK widget
-	QVariant var;
-	composition[composition_Index].composition.indicator.tab_Index = tab_Index;
-	composition[composition_Index].composition.indicator.full_Name = structure_Item->whatsThis(DEFAULT_COLUMN) + " " + composition[composition_Index].type + " composition";
-	var.setValue( composition[composition_Index].composition );
-	back_Widget->setProperty(parameter_Property,var);
-	back_Widget->setWhatsThis(structure_Item->whatsThis(DEFAULT_COLUMN));
+		// set parameter id to BACK widget
+		QVariant var;
+		composition[composition_Index].composition.indicator.tab_Index = tab_Index;
+		composition[composition_Index].composition.indicator.full_Name = structure_Item->whatsThis(DEFAULT_COLUMN) + " " + composition[composition_Index].type + " composition";
+		var.setValue( composition[composition_Index].composition );
+		back_Widget->setProperty(parameter_Property,var);
+		back_Widget->setWhatsThis(structure_Item->whatsThis(DEFAULT_COLUMN));
+		coupled_Widgets_Map.insert(back_Widget,structure_Item);
 
-	current_Column+=TABLE_COLUMN_ELEMENTS_SHIFT;
+		current_Column+=TABLE_COLUMN_ELEMENTS_SHIFT;
 
-	// disable if 1 element
-	if(composition.size()==1)
-	{
-		check_Box->setProperty(relative_Rows_To_Disable_Start_Property, -1);
-		check_Box->setProperty(relative_Rows_To_Disable_Finish_Property, 2);
-		check_Box->setProperty(relative_Columns_To_Disable_Start_Property, 0);
-		check_Box->setProperty(relative_Columns_To_Disable_Finish_Property, 0);
+		// disable if 1 element
+		if(composition.size()==1)
+		{
+			check_Box->setProperty(relative_Rows_To_Disable_Start_Property, -1);
+			check_Box->setProperty(relative_Rows_To_Disable_Finish_Property, 2);
+			check_Box->setProperty(relative_Columns_To_Disable_Start_Property, 0);
+			check_Box->setProperty(relative_Columns_To_Disable_Finish_Property, 0);
 
-		check_Box->setChecked(false);
-		//			check_Box->toggled(false);
-	}
+			check_Box->setChecked(false);
+			//			check_Box->toggled(false);
+		}
 	}
 }
 
@@ -740,11 +742,11 @@ void Table_Of_Structures::create_Material(My_Table_Widget* table, int current_Ro
 	QVariant data = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole);
 
 	if(item_Type_String == whats_This_Ambient)		{		  material = data.value<Ambient>().  material;
-	approved_Material = data.value<Ambient>().  approved_Material;}
+		approved_Material = data.value<Ambient>().  approved_Material;}
 	if(item_Type_String == whats_This_Layer)		{		  material = data.value<Layer>().    material;
-	approved_Material = data.value<Layer>().    approved_Material;}
+		approved_Material = data.value<Layer>().    approved_Material;}
 	if(item_Type_String == whats_This_Substrate)	{		  material = data.value<Substrate>().material;
-	approved_Material = data.value<Substrate>().approved_Material;}
+		approved_Material = data.value<Substrate>().approved_Material;}
 
 	add_Columns(table, current_Column+1);
 
@@ -796,6 +798,7 @@ void Table_Of_Structures::create_Label(My_Table_Widget* table, int current_Row, 
 		var.setValue( parameter );
 		label->setProperty(parameter_Property,var);
 		label->setWhatsThis(structure_Item->whatsThis(DEFAULT_COLUMN));
+		coupled_Widgets_Map.insert(label,structure_Item);
 	}
 
 	// for reloading
@@ -816,19 +819,19 @@ void Table_Of_Structures::create_Check_Box_Label(My_Table_Widget* table, int cur
 
 	if(item_Type_String == whats_This_Layer)
 	{
-	if(whats_This == whats_This_Thickness_Drift_Line_Value)	bool_Check = data.value<Layer>().thickness_Drift.is_Drift_Line;
-	if(whats_This == whats_This_Thickness_Drift_Rand_Rms)	bool_Check = data.value<Layer>().thickness_Drift.is_Drift_Rand;
-	if(whats_This == whats_This_Thickness_Drift_Sine)		bool_Check = data.value<Layer>().thickness_Drift.is_Drift_Sine;
+		if(whats_This == whats_This_Thickness_Drift_Line_Value)	bool_Check = data.value<Layer>().thickness_Drift.is_Drift_Line;
+		if(whats_This == whats_This_Thickness_Drift_Rand_Rms)	bool_Check = data.value<Layer>().thickness_Drift.is_Drift_Rand;
+		if(whats_This == whats_This_Thickness_Drift_Sine)		bool_Check = data.value<Layer>().thickness_Drift.is_Drift_Sine;
 
-	if(whats_This == whats_This_Sigma_Drift_Line_Value)		bool_Check = data.value<Layer>().sigma_Drift.is_Drift_Line;
-	if(whats_This == whats_This_Sigma_Drift_Rand_Rms)		bool_Check = data.value<Layer>().sigma_Drift.is_Drift_Rand;
-	if(whats_This == whats_This_Sigma_Drift_Sine)			bool_Check = data.value<Layer>().sigma_Drift.is_Drift_Sine;
+		if(whats_This == whats_This_Sigma_Drift_Line_Value)		bool_Check = data.value<Layer>().sigma_Drift.is_Drift_Line;
+		if(whats_This == whats_This_Sigma_Drift_Rand_Rms)		bool_Check = data.value<Layer>().sigma_Drift.is_Drift_Rand;
+		if(whats_This == whats_This_Sigma_Drift_Sine)			bool_Check = data.value<Layer>().sigma_Drift.is_Drift_Sine;
 
-	if(whats_This == whats_This_Sigma)						bool_Check = data.value<Layer>().common_Sigma;
+		if(whats_This == whats_This_Sigma)						bool_Check = data.value<Layer>().common_Sigma;
 	}
 	if(item_Type_String == whats_This_Substrate)
 	{
-	if(whats_This == whats_This_Sigma)						bool_Check = data.value<Substrate>().common_Sigma;
+		if(whats_This == whats_This_Sigma)						bool_Check = data.value<Substrate>().common_Sigma;
 	}
 
 	QCheckBox* check_Box = new QCheckBox(text);
@@ -876,6 +879,7 @@ void Table_Of_Structures::create_Check_Box_Label(My_Table_Widget* table, int cur
 		var.setValue( parameter );
 		back_Widget->setProperty(parameter_Property,var);
 		back_Widget->setWhatsThis(structure_Item->whatsThis(DEFAULT_COLUMN));
+		coupled_Widgets_Map.insert(back_Widget,structure_Item);
 	}
 
 	back_Widget->setStyleSheet("background-color: lightblue");
@@ -895,45 +899,45 @@ void Table_Of_Structures::create_Line_Edit(My_Table_Widget* table, int current_R
 
 	if(item_Type_String == whats_This_Ambient)
 	{
-	if(whats_This == whats_This_Absolute_Density)	{parameter = data.value<Ambient>().absolute_Density;		precision = line_edit_density_precision;}
-	if(whats_This == whats_This_Relative_Density)	{parameter = data.value<Ambient>().relative_Density;		precision = line_edit_density_precision;}
+		if(whats_This == whats_This_Absolute_Density)	{parameter = data.value<Ambient>().absolute_Density;		precision = line_edit_density_precision;}
+		if(whats_This == whats_This_Relative_Density)	{parameter = data.value<Ambient>().relative_Density;		precision = line_edit_density_precision;}
 	}
 	if(item_Type_String == whats_This_Layer)
 	{
-	if(whats_This == whats_This_Absolute_Density)				{parameter = data.value<Layer>().absolute_Density;		precision = line_edit_density_precision;}
-	if(whats_This == whats_This_Relative_Density)				{parameter = data.value<Layer>().relative_Density;		precision = line_edit_density_precision;}
-	if(whats_This == whats_This_Thickness)						{parameter = data.value<Layer>().thickness;				precision = line_edit_thickness_precision;}
-	if(whats_This == whats_This_Sigma)							{parameter = data.value<Layer>().sigma;					precision = line_edit_sigma_precision;}
+		if(whats_This == whats_This_Absolute_Density)				{parameter = data.value<Layer>().absolute_Density;		precision = line_edit_density_precision;}
+		if(whats_This == whats_This_Relative_Density)				{parameter = data.value<Layer>().relative_Density;		precision = line_edit_density_precision;}
+		if(whats_This == whats_This_Thickness)						{parameter = data.value<Layer>().thickness;				precision = line_edit_thickness_precision;}
+		if(whats_This == whats_This_Sigma)							{parameter = data.value<Layer>().sigma;					precision = line_edit_sigma_precision;}
 
-	if(whats_This == whats_This_Thickness_Drift_Line_Value)		{parameter = data.value<Layer>().thickness_Drift.drift_Line_Value;			precision = line_edit_thickness_precision;}
-	if(whats_This == whats_This_Thickness_Drift_Rand_Rms)		{parameter = data.value<Layer>().thickness_Drift.drift_Rand_Rms;			precision = line_edit_thickness_precision;}
-	if(whats_This == whats_This_Thickness_Drift_Sine_Amplitude)	{parameter = data.value<Layer>().thickness_Drift.drift_Sine_Amplitude;		precision = line_edit_thickness_precision;}
-	if(whats_This == whats_This_Thickness_Drift_Sine_Frequency)	{parameter = data.value<Layer>().thickness_Drift.drift_Sine_Frequency;		precision = line_edit_thickness_precision;}
-	if(whats_This == whats_This_Thickness_Drift_Sine_Phase)		{parameter = data.value<Layer>().thickness_Drift.drift_Sine_Phase;			precision = line_edit_thickness_precision;}
+		if(whats_This == whats_This_Thickness_Drift_Line_Value)		{parameter = data.value<Layer>().thickness_Drift.drift_Line_Value;			precision = line_edit_thickness_precision;}
+		if(whats_This == whats_This_Thickness_Drift_Rand_Rms)		{parameter = data.value<Layer>().thickness_Drift.drift_Rand_Rms;			precision = line_edit_thickness_precision;}
+		if(whats_This == whats_This_Thickness_Drift_Sine_Amplitude)	{parameter = data.value<Layer>().thickness_Drift.drift_Sine_Amplitude;		precision = line_edit_thickness_precision;}
+		if(whats_This == whats_This_Thickness_Drift_Sine_Frequency)	{parameter = data.value<Layer>().thickness_Drift.drift_Sine_Frequency;		precision = line_edit_thickness_precision;}
+		if(whats_This == whats_This_Thickness_Drift_Sine_Phase)		{parameter = data.value<Layer>().thickness_Drift.drift_Sine_Phase;			precision = line_edit_thickness_precision;}
 
-	if(whats_This == whats_This_Sigma_Drift_Line_Value)			{parameter = data.value<Layer>().sigma_Drift.drift_Line_Value;		precision = line_edit_sigma_precision;}
-	if(whats_This == whats_This_Sigma_Drift_Rand_Rms)			{parameter = data.value<Layer>().sigma_Drift.drift_Rand_Rms;		precision = line_edit_sigma_precision;}
-	if(whats_This == whats_This_Sigma_Drift_Sine_Amplitude)		{parameter = data.value<Layer>().sigma_Drift.drift_Sine_Amplitude;	precision = line_edit_sigma_precision;}
-	if(whats_This == whats_This_Sigma_Drift_Sine_Frequency)		{parameter = data.value<Layer>().sigma_Drift.drift_Sine_Frequency;	precision = line_edit_sigma_precision;}
-	if(whats_This == whats_This_Sigma_Drift_Sine_Phase)			{parameter = data.value<Layer>().sigma_Drift.drift_Sine_Phase;		precision = line_edit_sigma_precision;}
+		if(whats_This == whats_This_Sigma_Drift_Line_Value)			{parameter = data.value<Layer>().sigma_Drift.drift_Line_Value;		precision = line_edit_sigma_precision;}
+		if(whats_This == whats_This_Sigma_Drift_Rand_Rms)			{parameter = data.value<Layer>().sigma_Drift.drift_Rand_Rms;		precision = line_edit_sigma_precision;}
+		if(whats_This == whats_This_Sigma_Drift_Sine_Amplitude)		{parameter = data.value<Layer>().sigma_Drift.drift_Sine_Amplitude;	precision = line_edit_sigma_precision;}
+		if(whats_This == whats_This_Sigma_Drift_Sine_Frequency)		{parameter = data.value<Layer>().sigma_Drift.drift_Sine_Frequency;	precision = line_edit_sigma_precision;}
+		if(whats_This == whats_This_Sigma_Drift_Sine_Phase)			{parameter = data.value<Layer>().sigma_Drift.drift_Sine_Phase;		precision = line_edit_sigma_precision;}
 	}
 	if(item_Type_String == whats_This_Substrate)
 	{
-	if(whats_This == whats_This_Absolute_Density)	{parameter = data.value<Substrate>().absolute_Density;		precision = line_edit_density_precision;}
-	if(whats_This == whats_This_Relative_Density)	{parameter = data.value<Substrate>().relative_Density;		precision = line_edit_density_precision;}
-	if(whats_This == whats_This_Sigma)				{parameter = data.value<Substrate>().sigma;					precision = line_edit_sigma_precision;	}
+		if(whats_This == whats_This_Absolute_Density)	{parameter = data.value<Substrate>().absolute_Density;		precision = line_edit_density_precision;}
+		if(whats_This == whats_This_Relative_Density)	{parameter = data.value<Substrate>().relative_Density;		precision = line_edit_density_precision;}
+		if(whats_This == whats_This_Sigma)				{parameter = data.value<Substrate>().sigma;					precision = line_edit_sigma_precision;	}
 	}
 	if(item_Type_String == whats_This_Multilayer)
 	{
-	if(whats_This == whats_This_Num_Repetitions)	{value = data.value<Stack_Content>().num_Repetition.value;}
-	if(whats_This == whats_This_Period)				{parameter = data.value<Stack_Content>().period;	precision = line_edit_period_precision;}
-	if(whats_This == whats_This_Gamma)				{parameter = data.value<Stack_Content>().gamma;		precision = line_edit_gamma_precision;}
+		if(whats_This == whats_This_Num_Repetitions)	{value = data.value<Stack_Content>().num_Repetition.value;}
+		if(whats_This == whats_This_Period)				{parameter = data.value<Stack_Content>().period;	precision = line_edit_period_precision;}
+		if(whats_This == whats_This_Gamma)				{parameter = data.value<Stack_Content>().gamma;		precision = line_edit_gamma_precision;}
 	}
 
 	if(val_Type == VAL)
 	{
-	if(whats_This != whats_This_Num_Repetitions)	value = parameter.value;
-	format = line_edit_double_format;
+		if(whats_This != whats_This_Num_Repetitions)	value = parameter.value;
+		format = line_edit_double_format;
 	}
 	if(val_Type == MIN)	{value = parameter.fit.min; format = line_edit_short_double_format;}
 	if(val_Type == MAX)	{value = parameter.fit.max; format = line_edit_short_double_format;}
@@ -1077,12 +1081,12 @@ void Table_Of_Structures::create_Check_Box_Fit(My_Table_Widget* table, int curre
 
 	// set parameter id to BACK widget
 	if(	whats_This == whats_This_Thickness_Drift_Sine_Amplitude ||
-		whats_This == whats_This_Thickness_Drift_Sine_Frequency ||
-		whats_This == whats_This_Thickness_Drift_Sine_Phase		||
+			whats_This == whats_This_Thickness_Drift_Sine_Frequency ||
+			whats_This == whats_This_Thickness_Drift_Sine_Phase		||
 
-		whats_This == whats_This_Sigma_Drift_Sine_Amplitude		||
-		whats_This == whats_This_Sigma_Drift_Sine_Frequency		||
-		whats_This == whats_This_Sigma_Drift_Sine_Phase			)
+			whats_This == whats_This_Sigma_Drift_Sine_Amplitude		||
+			whats_This == whats_This_Sigma_Drift_Sine_Frequency		||
+			whats_This == whats_This_Sigma_Drift_Sine_Phase			)
 	{
 		QVariant var;
 		parameter.indicator.tab_Index = tab_Index;
@@ -1090,6 +1094,7 @@ void Table_Of_Structures::create_Check_Box_Fit(My_Table_Widget* table, int curre
 		var.setValue( parameter );
 		back_Widget->setProperty(parameter_Property,var);
 		back_Widget->setWhatsThis(structure_Item->whatsThis(DEFAULT_COLUMN));
+		coupled_Widgets_Map.insert(back_Widget,structure_Item);
 	}
 
 	connect(check_Box, &QCheckBox::toggled, this, [=]{refresh_Fit_Parameter(); });
@@ -1113,65 +1118,66 @@ void Table_Of_Structures::create_Check_Box_Label_Interlayer(My_Table_Widget* tab
 	int current_Column = start_Column;
 	for(int interlayer_Index=0; interlayer_Index<interlayer_Composition.size(); ++interlayer_Index)
 	{
-	QCheckBox* check_Box = new QCheckBox(transition_Layer_Functions[interlayer_Index]);
+		QCheckBox* check_Box = new QCheckBox(transition_Layer_Functions[interlayer_Index]);
 
-	// enable/disable function
-	check_Box->setProperty(row_Property, current_Row);
-	check_Box->setProperty(column_Property, current_Column);
+		// enable/disable function
+		check_Box->setProperty(row_Property, current_Row);
+		check_Box->setProperty(column_Property, current_Column);
 
-	// first group
-	check_Box->setProperty(relative_Rows_To_Disable_Start_Property, 1);
-	check_Box->setProperty(relative_Rows_To_Disable_Finish_Property, 1);
-	check_Box->setProperty(relative_Columns_To_Disable_Start_Property, 0);
-	check_Box->setProperty(relative_Columns_To_Disable_Finish_Property, 0);
+		// first group
+		check_Box->setProperty(relative_Rows_To_Disable_Start_Property, 1);
+		check_Box->setProperty(relative_Rows_To_Disable_Finish_Property, 1);
+		check_Box->setProperty(relative_Columns_To_Disable_Start_Property, 0);
+		check_Box->setProperty(relative_Columns_To_Disable_Finish_Property, 0);
 
-	// second group
-	check_Box->setProperty(relative_Rows_To_Disable_Start_Property_2, 4);
-	check_Box->setProperty(relative_Rows_To_Disable_Finish_Property_2, 4);
-	check_Box->setProperty(relative_Columns_To_Disable_Start_Property_2, 0);
-	check_Box->setProperty(relative_Columns_To_Disable_Finish_Property_2, 0);
+		// second group
+		check_Box->setProperty(relative_Rows_To_Disable_Start_Property_2, 4);
+		check_Box->setProperty(relative_Rows_To_Disable_Finish_Property_2, 4);
+		check_Box->setProperty(relative_Columns_To_Disable_Start_Property_2, 0);
+		check_Box->setProperty(relative_Columns_To_Disable_Finish_Property_2, 0);
 
-	check_Box->setProperty(interlayer_Index_Property, interlayer_Index);
-	check_Box->setProperty(item_Type_Property, item_Type_String);
-	check_Boxes_Map.insert(check_Box, structure_Item);
+		check_Box->setProperty(interlayer_Index_Property, interlayer_Index);
+		check_Box->setProperty(item_Type_Property, item_Type_String);
+		check_Boxes_Map.insert(check_Box, structure_Item);
 
-	// for reloading
-	check_Box->setProperty(reload_Property, false);
-	all_Widgets_To_Reload.append(check_Box);
+		// for reloading
+		check_Box->setProperty(reload_Property, false);
+		all_Widgets_To_Reload.append(check_Box);
 
-	check_Box->setChecked(interlayer_Composition[interlayer_Index].enabled);
+		check_Box->setChecked(interlayer_Composition[interlayer_Index].enabled);
 
-	connect(check_Box, &QCheckBox::toggled, this, [=]{cells_On_Off(table); });
-	//		connect(check_Box, SIGNAL(toggled(bool)), this, SLOT(cells_On_Off(bool)));  old version
+		connect(check_Box, &QCheckBox::toggled, this, [=]{cells_On_Off(table); });
+		//		connect(check_Box, SIGNAL(toggled(bool)), this, SLOT(cells_On_Off(bool)));  old version
 
-	connect(check_Box, &QCheckBox::toggled, this, [=]{cells_On_Off_2(table); });
-	//		connect(check_Box, SIGNAL(toggled(bool)), this, SLOT(cells_On_Off_2(bool))); old version
+		connect(check_Box, &QCheckBox::toggled, this, [=]{cells_On_Off_2(table); });
+		//		connect(check_Box, SIGNAL(toggled(bool)), this, SLOT(cells_On_Off_2(bool))); old version
 
-	connect(check_Box, &QCheckBox::toggled, this, [=]{refresh_Check_Box_Label_Interlayer(); });
-	//		connect(check_Box, SIGNAL(toggled(bool)), this, SLOT(refresh_Check_Box_Label_Interlayer(bool)));  old version
+		connect(check_Box, &QCheckBox::toggled, this, [=]{refresh_Check_Box_Label_Interlayer(); });
+		//		connect(check_Box, SIGNAL(toggled(bool)), this, SLOT(refresh_Check_Box_Label_Interlayer(bool)));  old version
 
-	//		check_Box->toggled(false);
+		//		check_Box->toggled(false);
 
-	// alignment
-	QWidget* back_Widget = new QWidget;
-	QVBoxLayout* back_Layout = new QVBoxLayout(back_Widget);
-	back_Layout->addWidget(check_Box);
-	back_Layout->setSpacing(0);
-	back_Layout->setContentsMargins(0,0,0,0);
-	back_Layout->setAlignment(Qt::AlignCenter);
+		// alignment
+		QWidget* back_Widget = new QWidget;
+		QVBoxLayout* back_Layout = new QVBoxLayout(back_Widget);
+		back_Layout->addWidget(check_Box);
+		back_Layout->setSpacing(0);
+		back_Layout->setContentsMargins(0,0,0,0);
+		back_Layout->setAlignment(Qt::AlignCenter);
 
-	// set parameter id to BACK widget
-	QVariant var;
-	interlayer_Composition[interlayer_Index].interlayer.indicator.tab_Index = tab_Index;
-	interlayer_Composition[interlayer_Index].interlayer.indicator.full_Name = structure_Item->whatsThis(DEFAULT_COLUMN) + " " + "Weight "+transition_Layer_Functions[interlayer_Index];
-	var.setValue( interlayer_Composition[interlayer_Index].interlayer );
-	back_Widget->setProperty(parameter_Property,var);
-	back_Widget->setWhatsThis(structure_Item->whatsThis(DEFAULT_COLUMN));
+		// set parameter id to BACK widget
+		QVariant var;
+		interlayer_Composition[interlayer_Index].interlayer.indicator.tab_Index = tab_Index;
+		interlayer_Composition[interlayer_Index].interlayer.indicator.full_Name = structure_Item->whatsThis(DEFAULT_COLUMN) + " " + "Weight "+transition_Layer_Functions[interlayer_Index];
+		var.setValue( interlayer_Composition[interlayer_Index].interlayer );
+		back_Widget->setProperty(parameter_Property,var);
+		back_Widget->setWhatsThis(structure_Item->whatsThis(DEFAULT_COLUMN));
+		coupled_Widgets_Map.insert(back_Widget,structure_Item);
 
-	back_Widget->setStyleSheet("background-color: lightblue");
-	table->setCellWidget(current_Row, current_Column, back_Widget);
+		back_Widget->setStyleSheet("background-color: lightblue");
+		table->setCellWidget(current_Row, current_Column, back_Widget);
 
-	current_Column+=TABLE_COLUMN_INTERLAYERS_SHIFT;
+		current_Column+=TABLE_COLUMN_INTERLAYERS_SHIFT;
 	}
 }
 
@@ -1189,39 +1195,39 @@ void Table_Of_Structures::create_Weigts_Interlayer(My_Table_Widget* table, int c
 
 	for(int interlayer_Index=0; interlayer_Index<interlayer_Composition.size(); ++interlayer_Index)
 	{
-	if(val_Type == VAL)	{value = interlayer_Composition[interlayer_Index].interlayer.value;		format = line_edit_short_double_format;}
-	if(val_Type == MIN)	{value = interlayer_Composition[interlayer_Index].interlayer.fit.min;	format = line_edit_short_double_format;}
-	if(val_Type == MAX)	{value = interlayer_Composition[interlayer_Index].interlayer.fit.max;	format = line_edit_short_double_format;}
+		if(val_Type == VAL)	{value = interlayer_Composition[interlayer_Index].interlayer.value;		format = line_edit_short_double_format;}
+		if(val_Type == MIN)	{value = interlayer_Composition[interlayer_Index].interlayer.fit.min;	format = line_edit_short_double_format;}
+		if(val_Type == MAX)	{value = interlayer_Composition[interlayer_Index].interlayer.fit.max;	format = line_edit_short_double_format;}
 
-	QString text_Value = QString::number(value, format, line_edit_interlayer_precision);
+		QString text_Value = QString::number(value, format, line_edit_interlayer_precision);
 
-	QLineEdit* line_Edit = new QLineEdit(text_Value);
-	line_Edit->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT);
+		QLineEdit* line_Edit = new QLineEdit(text_Value);
+		line_Edit->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT);
 
-	line_Edit->setProperty(interlayer_Index_Property, interlayer_Index);
-	line_Edit->setProperty(min_Size_Property, line_Edit->width());
-	line_Edit->setProperty(item_Type_Property, item_Type_String);
-	line_Edit->setProperty(column_Property, current_Column);
-	line_Edit->setProperty(value_Type_Property, val_Type);
-	line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION));
+		line_Edit->setProperty(interlayer_Index_Property, interlayer_Index);
+		line_Edit->setProperty(min_Size_Property, line_Edit->width());
+		line_Edit->setProperty(item_Type_Property, item_Type_String);
+		line_Edit->setProperty(column_Property, current_Column);
+		line_Edit->setProperty(value_Type_Property, val_Type);
+		line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION));
 
-	// for reloading
-	line_Edit->setProperty(reload_Property, false);
-	all_Widgets_To_Reload.append(line_Edit);
+		// for reloading
+		line_Edit->setProperty(reload_Property, false);
+		all_Widgets_To_Reload.append(line_Edit);
 
-	connect(line_Edit, &QLineEdit::textEdited, this, [=]{resize_Line_Edit(table); });
-	//		connect(line_Edit, SIGNAL(textEdited(QString)), this, SLOT(resize_Line_Edit(QString))); old version
+		connect(line_Edit, &QLineEdit::textEdited, this, [=]{resize_Line_Edit(table); });
+		//		connect(line_Edit, SIGNAL(textEdited(QString)), this, SLOT(resize_Line_Edit(QString))); old version
 
-	// create item
-	table->setCellWidget(current_Row, current_Column, line_Edit);
-	line_Edits_Map.insert(line_Edit, structure_Item);
+		// create item
+		table->setCellWidget(current_Row, current_Column, line_Edit);
+		line_Edits_Map.insert(line_Edit, structure_Item);
 
-	connect(line_Edit, &QLineEdit::textEdited, this, [=]{refresh_Weigts_Interlayer(); });
-	//		connect(line_Edit, SIGNAL(textEdited(QString)), this, SLOT(refresh_Weigts_Interlayer(QString))); old version
+		connect(line_Edit, &QLineEdit::textEdited, this, [=]{refresh_Weigts_Interlayer(); });
+		//		connect(line_Edit, SIGNAL(textEdited(QString)), this, SLOT(refresh_Weigts_Interlayer(QString))); old version
 
-	//		line_Edit->textEdited(line_Edit->text());
+		//		line_Edit->textEdited(line_Edit->text());
 
-	current_Column+=TABLE_COLUMN_INTERLAYERS_SHIFT;
+		current_Column+=TABLE_COLUMN_INTERLAYERS_SHIFT;
 	}
 }
 
@@ -1237,44 +1243,45 @@ void Table_Of_Structures::create_Weights_Check_Box_Fit_Interlayer(My_Table_Widge
 
 	for(int interlayer_Index=0; interlayer_Index<interlayer_Composition.size(); ++interlayer_Index)
 	{
-	QCheckBox* check_Box = new QCheckBox("fit");
+		QCheckBox* check_Box = new QCheckBox("fit");
 
-	check_Box->setProperty(interlayer_Index_Property, interlayer_Index);
-	check_Box->setProperty(item_Type_Property, item_Type_String);
-	check_Boxes_Map.insert(check_Box, structure_Item);
+		check_Box->setProperty(interlayer_Index_Property, interlayer_Index);
+		check_Box->setProperty(item_Type_Property, item_Type_String);
+		check_Boxes_Map.insert(check_Box, structure_Item);
 
-	// for reloading
-	check_Box->setProperty(reload_Property, false);
-	all_Widgets_To_Reload.append(check_Box);
+		// for reloading
+		check_Box->setProperty(reload_Property, false);
+		all_Widgets_To_Reload.append(check_Box);
 
-	check_Box->setChecked(interlayer_Composition[interlayer_Index].interlayer.fit.is_Fitable);
+		check_Box->setChecked(interlayer_Composition[interlayer_Index].interlayer.fit.is_Fitable);
 
-	connect(check_Box, &QCheckBox::toggled, this, [=]{refresh_Weights_Check_Box_Fit_Interlayer(); });
-	//		connect(check_Box, SIGNAL(toggled(bool)), this, SLOT(refresh_Weights_Check_Box_Fit_Interlayer(bool))); old version
+		connect(check_Box, &QCheckBox::toggled, this, [=]{refresh_Weights_Check_Box_Fit_Interlayer(); });
+		//		connect(check_Box, SIGNAL(toggled(bool)), this, SLOT(refresh_Weights_Check_Box_Fit_Interlayer(bool))); old version
 
-	//		check_Box->toggled(false);
+		//		check_Box->toggled(false);
 
-	// alignment
-	QWidget* back_Widget = new QWidget;
-	QVBoxLayout* back_Layout = new QVBoxLayout(back_Widget);
-	back_Layout->addWidget(check_Box);
-	back_Layout->setSpacing(0);
-	back_Layout->setContentsMargins(0,0,0,0);
-	back_Layout->setAlignment(Qt::AlignCenter);
+		// alignment
+		QWidget* back_Widget = new QWidget;
+		QVBoxLayout* back_Layout = new QVBoxLayout(back_Widget);
+		back_Layout->addWidget(check_Box);
+		back_Layout->setSpacing(0);
+		back_Layout->setContentsMargins(0,0,0,0);
+		back_Layout->setAlignment(Qt::AlignCenter);
 
 
-	// set parameter id to BACK widget
-	QVariant var;
-	interlayer_Composition[interlayer_Index].interlayer.indicator.tab_Index = tab_Index;
-	interlayer_Composition[interlayer_Index].interlayer.indicator.full_Name = structure_Item->whatsThis(DEFAULT_COLUMN) + " " + "Weight "+transition_Layer_Functions[interlayer_Index];
-	var.setValue( interlayer_Composition[interlayer_Index].interlayer );
-///	unused for non-duplicating parameter
-//	back_Widget->setProperty(parameter_Property,var);
-//	back_Widget->setWhatsThis(structure_Item->whatsThis(DEFAULT_COLUMN));
+		// set parameter id to BACK widget
+		QVariant var;
+		interlayer_Composition[interlayer_Index].interlayer.indicator.tab_Index = tab_Index;
+		interlayer_Composition[interlayer_Index].interlayer.indicator.full_Name = structure_Item->whatsThis(DEFAULT_COLUMN) + " " + "Weight "+transition_Layer_Functions[interlayer_Index];
+		var.setValue( interlayer_Composition[interlayer_Index].interlayer );
+		///	unused for non-duplicating parameter
+		//	back_Widget->setProperty(parameter_Property,var);
+		//	back_Widget->setWhatsThis(structure_Item->whatsThis(DEFAULT_COLUMN));
+		//	coupled_Widgets_Map.insert(back_Widget,structure_Item);
 
-	table->setCellWidget(current_Row, current_Column, back_Widget);
+		table->setCellWidget(current_Row, current_Column, back_Widget);
 
-	current_Column+=TABLE_COLUMN_ELEMENTS_SHIFT;
+		current_Column+=TABLE_COLUMN_ELEMENTS_SHIFT;
 	}
 }
 
@@ -1289,21 +1296,22 @@ void Table_Of_Structures::create_MySigma_Labels_Interlayer(My_Table_Widget* tabl
 	int current_Column = start_Column;
 	for(int interlayer_Index=0; interlayer_Index<interlayer_Composition.size(); ++interlayer_Index)
 	{
-	QLabel* label = new QLabel(Sigma_Sym+" "+transition_Layer_Functions[interlayer_Index]);
-	label->setStyleSheet("background-color: lightblue");
-	label->setAlignment(Qt::AlignCenter);
+		QLabel* label = new QLabel(Sigma_Sym+" "+transition_Layer_Functions[interlayer_Index]);
+		label->setStyleSheet("background-color: lightblue");
+		label->setAlignment(Qt::AlignCenter);
 
-	// set parameter id to widget
-	QVariant var;
-	interlayer_Composition[interlayer_Index].my_Sigma.indicator.tab_Index = tab_Index;
-	interlayer_Composition[interlayer_Index].my_Sigma.indicator.full_Name = structure_Item->whatsThis(DEFAULT_COLUMN) + " " + "Sigma "+transition_Layer_Functions[interlayer_Index];
-	var.setValue( interlayer_Composition[interlayer_Index].my_Sigma );
-	label->setProperty(parameter_Property,var);
-	label->setWhatsThis(structure_Item->whatsThis(DEFAULT_COLUMN));
+		// set parameter id to widget
+		QVariant var;
+		interlayer_Composition[interlayer_Index].my_Sigma.indicator.tab_Index = tab_Index;
+		interlayer_Composition[interlayer_Index].my_Sigma.indicator.full_Name = structure_Item->whatsThis(DEFAULT_COLUMN) + " " + "Sigma "+transition_Layer_Functions[interlayer_Index];
+		var.setValue( interlayer_Composition[interlayer_Index].my_Sigma );
+		label->setProperty(parameter_Property,var);
+		label->setWhatsThis(structure_Item->whatsThis(DEFAULT_COLUMN));
+		coupled_Widgets_Map.insert(label,structure_Item);
 
-	table->setCellWidget(current_Row, current_Column, label);
+		table->setCellWidget(current_Row, current_Column, label);
 
-	current_Column+=TABLE_COLUMN_INTERLAYERS_SHIFT;
+		current_Column+=TABLE_COLUMN_INTERLAYERS_SHIFT;
 	}
 }
 
@@ -1320,37 +1328,37 @@ void Table_Of_Structures::create_MySigma_Interlayer(My_Table_Widget* table, int 
 
 	for(int interlayer_Index=0; interlayer_Index<interlayer_Composition.size(); ++interlayer_Index)
 	{
-	value = interlayer_Composition[interlayer_Index].my_Sigma.value;
+		value = interlayer_Composition[interlayer_Index].my_Sigma.value;
 
-	QString text_Value = QString::number(value, line_edit_double_format, line_edit_sigma_precision);
+		QString text_Value = QString::number(value, line_edit_double_format, line_edit_sigma_precision);
 
-	QLineEdit* line_Edit = new QLineEdit(text_Value);
-	line_Edit->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT);
+		QLineEdit* line_Edit = new QLineEdit(text_Value);
+		line_Edit->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT);
 
-	line_Edit->setProperty(interlayer_Index_Property, interlayer_Index);
-	line_Edit->setProperty(min_Size_Property, line_Edit->width());
-	line_Edit->setProperty(item_Type_Property, item_Type_String);
-	line_Edit->setProperty(column_Property, current_Column);
-	line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION));
+		line_Edit->setProperty(interlayer_Index_Property, interlayer_Index);
+		line_Edit->setProperty(min_Size_Property, line_Edit->width());
+		line_Edit->setProperty(item_Type_Property, item_Type_String);
+		line_Edit->setProperty(column_Property, current_Column);
+		line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION));
 
 
-	// for reloading
-	line_Edit->setProperty(reload_Property, false);
-	all_Widgets_To_Reload.append(line_Edit);
+		// for reloading
+		line_Edit->setProperty(reload_Property, false);
+		all_Widgets_To_Reload.append(line_Edit);
 
-	connect(line_Edit, &QLineEdit::textEdited, this, [=]{resize_Line_Edit(table); });
-	//		connect(line_Edit, SIGNAL(textEdited(QString)), this, SLOT(resize_Line_Edit(QString))); old version
+		connect(line_Edit, &QLineEdit::textEdited, this, [=]{resize_Line_Edit(table); });
+//		connect(line_Edit, SIGNAL(textEdited(QString)), this, SLOT(resize_Line_Edit(QString))); old version
 
-	// create item
-	table->setCellWidget(current_Row, current_Column, line_Edit);
-	line_Edits_Map.insert(line_Edit, structure_Item);
+		// create item
+		table->setCellWidget(current_Row, current_Column, line_Edit);
+		line_Edits_Map.insert(line_Edit, structure_Item);
 
-	connect(line_Edit, &QLineEdit::textEdited, this, [=]{refresh_MySigma_Interlayer(); });
-	//		connect(line_Edit, SIGNAL(textEdited(QString)), this, SLOT(refresh_MySigma_Interlayer(QString))); old version
+		connect(line_Edit, &QLineEdit::textEdited, this, [=]{refresh_MySigma_Interlayer(); });
+//		connect(line_Edit, SIGNAL(textEdited(QString)), this, SLOT(refresh_MySigma_Interlayer(QString))); old version
 
-	//		line_Edit->textEdited(line_Edit->text());
+//		line_Edit->textEdited(line_Edit->text());
 
-	current_Column+=TABLE_COLUMN_INTERLAYERS_SHIFT;
+		current_Column+=TABLE_COLUMN_INTERLAYERS_SHIFT;
 	}
 }
 
@@ -1370,39 +1378,39 @@ void Table_Of_Structures::refresh_Element()
 	QVariant var;
 	if(item_Type_String == whats_This_Ambient)
 	{
-	Ambient ambient = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Ambient>();
+		Ambient ambient = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Ambient>();
 
-	if(reload)	{combo_Box->setCurrentIndex(combo_Box->findText(ambient.composition[composition_Index].type));	return;	}
+		if(reload)	{combo_Box->setCurrentIndex(combo_Box->findText(ambient.composition[composition_Index].type));	return;	}
 
-	ambient.composition[composition_Index].type = combo_Box->currentText();
-	ambient.material = material_From_Composition(ambient.composition);
-	var.setValue( ambient );
+		ambient.composition[composition_Index].type = combo_Box->currentText();
+		ambient.material = material_From_Composition(ambient.composition);
+		var.setValue( ambient );
 	}
 	if(item_Type_String == whats_This_Layer)
 	{
-	Layer layer = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>();
+		Layer layer = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>();
 
-	if(reload)	{combo_Box->setCurrentIndex(combo_Box->findText(layer.composition[composition_Index].type));	return;	}
+		if(reload)	{combo_Box->setCurrentIndex(combo_Box->findText(layer.composition[composition_Index].type));	return;	}
 
-	layer.composition[composition_Index].type = combo_Box->currentText();
-	layer.material = material_From_Composition(layer.composition);
-	var.setValue( layer );
+		layer.composition[composition_Index].type = combo_Box->currentText();
+		layer.material = material_From_Composition(layer.composition);
+		var.setValue( layer );
 	}
 	if(item_Type_String == whats_This_Substrate)
 	{
-	Substrate substrate = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Substrate>();
+		Substrate substrate = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Substrate>();
 
-	if(reload)	{combo_Box->setCurrentIndex(combo_Box->findText(substrate.composition[composition_Index].type));return;	}
+		if(reload)	{combo_Box->setCurrentIndex(combo_Box->findText(substrate.composition[composition_Index].type));return;	}
 
-	substrate.composition[composition_Index].type = combo_Box->currentText();
-	substrate.material = material_From_Composition(substrate.composition);
-	var.setValue( substrate );
+		substrate.composition[composition_Index].type = combo_Box->currentText();
+		substrate.material = material_From_Composition(substrate.composition);
+		var.setValue( substrate );
 	}
 	structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
 
 	{
-	emit_Data_Edited();
-	reload_All_Widgets(QObject::sender());
+		emit_Data_Edited();
+		reload_All_Widgets(QObject::sender());
 	}
 }
 
@@ -1423,69 +1431,69 @@ void Table_Of_Structures::refresh_Stoich()
 	QVariant var;
 	if(item_Type_String == whats_This_Ambient)
 	{
-	Ambient ambient = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Ambient>();
+		Ambient ambient = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Ambient>();
 
-	if(reload)
-	{
-		if(value_Type == VAL)	line_Edit->setText(QString::number(ambient.composition[composition_Index].composition.value,   format, precision));
-		if(value_Type == MIN)	line_Edit->setText(QString::number(ambient.composition[composition_Index].composition.fit.min, format, precision));
-		if(value_Type == MAX)	line_Edit->setText(QString::number(ambient.composition[composition_Index].composition.fit.max, format, precision));
+		if(reload)
+		{
+			if(value_Type == VAL)	line_Edit->setText(QString::number(ambient.composition[composition_Index].composition.value,   format, precision));
+			if(value_Type == MIN)	line_Edit->setText(QString::number(ambient.composition[composition_Index].composition.fit.min, format, precision));
+			if(value_Type == MAX)	line_Edit->setText(QString::number(ambient.composition[composition_Index].composition.fit.max, format, precision));
 
-		return;
-	}
+			return;
+		}
 
-	if(value_Type == VAL)	ambient.composition[composition_Index].composition.value = line_Edit->text().toDouble();
-	if(value_Type == MIN)	ambient.composition[composition_Index].composition.fit.min = line_Edit->text().toDouble();
-	if(value_Type == MAX)	ambient.composition[composition_Index].composition.fit.max = line_Edit->text().toDouble();
+		if(value_Type == VAL)	ambient.composition[composition_Index].composition.value = line_Edit->text().toDouble();
+		if(value_Type == MIN)	ambient.composition[composition_Index].composition.fit.min = line_Edit->text().toDouble();
+		if(value_Type == MAX)	ambient.composition[composition_Index].composition.fit.max = line_Edit->text().toDouble();
 
-	ambient.material = material_From_Composition(ambient.composition);
-	var.setValue( ambient );
+		ambient.material = material_From_Composition(ambient.composition);
+		var.setValue( ambient );
 	}
 	if(item_Type_String == whats_This_Layer)
 	{
-	Layer layer = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>();
+		Layer layer = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>();
 
-	if(reload)
-	{
-		if(value_Type == VAL)	line_Edit->setText(QString::number(layer.composition[composition_Index].composition.value,   format, precision));
-		if(value_Type == MIN)	line_Edit->setText(QString::number(layer.composition[composition_Index].composition.fit.min, format, precision));
-		if(value_Type == MAX)	line_Edit->setText(QString::number(layer.composition[composition_Index].composition.fit.max, format, precision));
+		if(reload)
+		{
+			if(value_Type == VAL)	line_Edit->setText(QString::number(layer.composition[composition_Index].composition.value,   format, precision));
+			if(value_Type == MIN)	line_Edit->setText(QString::number(layer.composition[composition_Index].composition.fit.min, format, precision));
+			if(value_Type == MAX)	line_Edit->setText(QString::number(layer.composition[composition_Index].composition.fit.max, format, precision));
 
-		return;
-	}
+			return;
+		}
 
-	if(value_Type == VAL)	layer.composition[composition_Index].composition.value = line_Edit->text().toDouble();
-	if(value_Type == MIN)	layer.composition[composition_Index].composition.fit.min = line_Edit->text().toDouble();
-	if(value_Type == MAX)	layer.composition[composition_Index].composition.fit.max = line_Edit->text().toDouble();
+		if(value_Type == VAL)	layer.composition[composition_Index].composition.value = line_Edit->text().toDouble();
+		if(value_Type == MIN)	layer.composition[composition_Index].composition.fit.min = line_Edit->text().toDouble();
+		if(value_Type == MAX)	layer.composition[composition_Index].composition.fit.max = line_Edit->text().toDouble();
 
-	layer.material = material_From_Composition(layer.composition);
-	var.setValue( layer );
+		layer.material = material_From_Composition(layer.composition);
+		var.setValue( layer );
 	}
 	if(item_Type_String == whats_This_Substrate)
 	{
-	Substrate substrate = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Substrate>();
+		Substrate substrate = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Substrate>();
 
-	if(reload)
-	{
-		if(value_Type == VAL)	line_Edit->setText(QString::number(substrate.composition[composition_Index].composition.value,   format, precision));
-		if(value_Type == MIN)	line_Edit->setText(QString::number(substrate.composition[composition_Index].composition.fit.min, format, precision));
-		if(value_Type == MAX)	line_Edit->setText(QString::number(substrate.composition[composition_Index].composition.fit.max, format, precision));
+		if(reload)
+		{
+			if(value_Type == VAL)	line_Edit->setText(QString::number(substrate.composition[composition_Index].composition.value,   format, precision));
+			if(value_Type == MIN)	line_Edit->setText(QString::number(substrate.composition[composition_Index].composition.fit.min, format, precision));
+			if(value_Type == MAX)	line_Edit->setText(QString::number(substrate.composition[composition_Index].composition.fit.max, format, precision));
 
-		return;
-	}
+			return;
+		}
 
-	if(value_Type == VAL)	substrate.composition[composition_Index].composition.value = line_Edit->text().toDouble();
-	if(value_Type == MIN)	substrate.composition[composition_Index].composition.fit.min = line_Edit->text().toDouble();
-	if(value_Type == MAX)	substrate.composition[composition_Index].composition.fit.max = line_Edit->text().toDouble();
+		if(value_Type == VAL)	substrate.composition[composition_Index].composition.value = line_Edit->text().toDouble();
+		if(value_Type == MIN)	substrate.composition[composition_Index].composition.fit.min = line_Edit->text().toDouble();
+		if(value_Type == MAX)	substrate.composition[composition_Index].composition.fit.max = line_Edit->text().toDouble();
 
-	substrate.material = material_From_Composition(substrate.composition);
-	var.setValue( substrate );
+		substrate.material = material_From_Composition(substrate.composition);
+		var.setValue( substrate );
 	}
 	structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
 
 	{
-	emit_Data_Edited();
-	reload_All_Widgets(QObject::sender());
+		emit_Data_Edited();
+		reload_All_Widgets(QObject::sender());
 	}
 }
 
@@ -1502,39 +1510,39 @@ void Table_Of_Structures::refresh_Fit_Element()
 	QVariant var;
 	if(item_Type_String == whats_This_Ambient)
 	{
-	Ambient ambient = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Ambient>();
+		Ambient ambient = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Ambient>();
 
-	if(reload)	{check_Box->setChecked(ambient.composition[composition_Index].composition.fit.is_Fitable);	return;	}
+		if(reload)	{check_Box->setChecked(ambient.composition[composition_Index].composition.fit.is_Fitable);	return;	}
 
-	ambient.composition[composition_Index].composition.fit.is_Fitable = check_Box->isChecked();
-	ambient.material = material_From_Composition(ambient.composition);
-	var.setValue( ambient );
+		ambient.composition[composition_Index].composition.fit.is_Fitable = check_Box->isChecked();
+		ambient.material = material_From_Composition(ambient.composition);
+		var.setValue( ambient );
 	}
 	if(item_Type_String == whats_This_Layer)
 	{
-	Layer layer = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>();
+		Layer layer = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>();
 
-	if(reload)	{check_Box->setChecked(layer.composition[composition_Index].composition.fit.is_Fitable);	return;	}
+		if(reload)	{check_Box->setChecked(layer.composition[composition_Index].composition.fit.is_Fitable);	return;	}
 
-	layer.composition[composition_Index].composition.fit.is_Fitable = check_Box->isChecked();
-	layer.material = material_From_Composition(layer.composition);
-	var.setValue( layer );
+		layer.composition[composition_Index].composition.fit.is_Fitable = check_Box->isChecked();
+		layer.material = material_From_Composition(layer.composition);
+		var.setValue( layer );
 	}
 	if(item_Type_String == whats_This_Substrate)
 	{
-	Substrate substrate = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Substrate>();
+		Substrate substrate = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Substrate>();
 
-	if(reload)	{check_Box->setChecked(substrate.composition[composition_Index].composition.fit.is_Fitable);	return;	}
+		if(reload)	{check_Box->setChecked(substrate.composition[composition_Index].composition.fit.is_Fitable);	return;	}
 
-	substrate.composition[composition_Index].composition.fit.is_Fitable = check_Box->isChecked();
-	substrate.material = material_From_Composition(substrate.composition);
-	var.setValue( substrate );
+		substrate.composition[composition_Index].composition.fit.is_Fitable = check_Box->isChecked();
+		substrate.material = material_From_Composition(substrate.composition);
+		var.setValue( substrate );
 	}
 	structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
 
 	{
-	emit_Data_Edited();
-	reload_All_Widgets(QObject::sender());
+		emit_Data_Edited();
+		reload_All_Widgets(QObject::sender());
 	}
 }
 
@@ -1551,36 +1559,36 @@ void Table_Of_Structures::refresh_Material()
 	QVariant var;
 	if(item_Type_String == whats_This_Ambient)
 	{
-	Ambient ambient = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Ambient>();
+		Ambient ambient = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Ambient>();
 
-	if(reload)	{line_Edit->setText(ambient.material);	return;	}
+		if(reload)	{line_Edit->setText(ambient.material);	return;	}
 
-	ambient.material = line_Edit->text();
-	var.setValue( ambient );
+		ambient.material = line_Edit->text();
+		var.setValue( ambient );
 	}
 	if(item_Type_String == whats_This_Layer)
 	{
-	Layer layer = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>();
+		Layer layer = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>();
 
-	if(reload)	{line_Edit->setText(layer.material);	return;	}
+		if(reload)	{line_Edit->setText(layer.material);	return;	}
 
-	layer.material = line_Edit->text();
-	var.setValue( layer );
+		layer.material = line_Edit->text();
+		var.setValue( layer );
 	}
 	if(item_Type_String == whats_This_Substrate)
 	{
-	Substrate substrate = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Substrate>();
+		Substrate substrate = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Substrate>();
 
-	if(reload)	{line_Edit->setText(substrate.material);	return;	}
+		if(reload)	{line_Edit->setText(substrate.material);	return;	}
 
-	substrate.material = line_Edit->text();
-	var.setValue( substrate );
+		substrate.material = line_Edit->text();
+		var.setValue( substrate );
 	}
 	structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
 
 	{
-	emit_Data_Edited();
-	reload_All_Widgets(QObject::sender());
+		emit_Data_Edited();
+		reload_All_Widgets(QObject::sender());
 	}
 }
 
@@ -1597,58 +1605,58 @@ void Table_Of_Structures::check_Material()
 	QVariant var;
 	if(item_Type_String == whats_This_Ambient)
 	{
-	line_Edit->textEdited(line_Edit->text());
-	Ambient ambient = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Ambient>();
-	if(optical_Constants->material_Map.contains(ambient.material + nk_Ext))
-	{
-		ambient.approved_Material = ambient.material;
-	} else
-	{
-		QMessageBox::information(this, "Wrong material", "File \"" + ambient.material + nk_Ext + "\" not found");
-		ambient.material = ambient.approved_Material;
-		line_Edit->setText(ambient.material);
 		line_Edit->textEdited(line_Edit->text());
-	}
-	var.setValue( ambient );
+		Ambient ambient = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Ambient>();
+		if(optical_Constants->material_Map.contains(ambient.material + nk_Ext))
+		{
+			ambient.approved_Material = ambient.material;
+		} else
+		{
+			QMessageBox::information(this, "Wrong material", "File \"" + ambient.material + nk_Ext + "\" not found");
+			ambient.material = ambient.approved_Material;
+			line_Edit->setText(ambient.material);
+			line_Edit->textEdited(line_Edit->text());
+		}
+		var.setValue( ambient );
 	}
 	if(item_Type_String == whats_This_Layer)
 	{
-	line_Edit->textEdited(line_Edit->text());
-
-	Layer layer = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>();
-	if(optical_Constants->material_Map.contains(layer.material + nk_Ext))
-	{
-		layer.approved_Material = layer.material;
-	} else
-	{
-		QMessageBox::information(this, "Wrong material", "File \"" + layer.material + nk_Ext + "\" not found");
-		layer.material = layer.approved_Material;
-		line_Edit->setText(layer.material);
 		line_Edit->textEdited(line_Edit->text());
-	}
-	var.setValue( layer );
+
+		Layer layer = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>();
+		if(optical_Constants->material_Map.contains(layer.material + nk_Ext))
+		{
+			layer.approved_Material = layer.material;
+		} else
+		{
+			QMessageBox::information(this, "Wrong material", "File \"" + layer.material + nk_Ext + "\" not found");
+			layer.material = layer.approved_Material;
+			line_Edit->setText(layer.material);
+			line_Edit->textEdited(line_Edit->text());
+		}
+		var.setValue( layer );
 	}
 	if(item_Type_String == whats_This_Substrate)
 	{
-	line_Edit->textEdited(line_Edit->text());
-	Substrate substrate = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Substrate>();
-	if(optical_Constants->material_Map.contains(substrate.material + nk_Ext))
-	{
-		substrate.approved_Material = substrate.material;
-	} else
-	{
-		QMessageBox::information(this, "Wrong material", "File \"" + substrate.material + nk_Ext + "\" not found");
-		substrate.material = substrate.approved_Material;
-		line_Edit->setText(substrate.material);
 		line_Edit->textEdited(line_Edit->text());
-	}
-	var.setValue( substrate );
+		Substrate substrate = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Substrate>();
+		if(optical_Constants->material_Map.contains(substrate.material + nk_Ext))
+		{
+			substrate.approved_Material = substrate.material;
+		} else
+		{
+			QMessageBox::information(this, "Wrong material", "File \"" + substrate.material + nk_Ext + "\" not found");
+			substrate.material = substrate.approved_Material;
+			line_Edit->setText(substrate.material);
+			line_Edit->textEdited(line_Edit->text());
+		}
+		var.setValue( substrate );
 	}
 	structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
 
 	{
-	emit_Data_Edited();
-	reload_All_Widgets(QObject::sender());
+		emit_Data_Edited();
+		reload_All_Widgets(QObject::sender());
 	}
 }
 
@@ -1670,25 +1678,25 @@ void Table_Of_Structures::refresh_Header()
 
 	if(item_Type_String == whats_This_Layer)
 	{
-	if(reload)
-	{
-		if(whats_This == whats_This_Thickness)
+		if(reload)
 		{
-		label->setText("z ["+length_units+"]");
+			if(whats_This == whats_This_Thickness)
+			{
+				label->setText("z ["+length_units+"]");
+			}
+			return;
 		}
-		return;
-	}
 	}
 	if(item_Type_String == whats_This_Multilayer)
 	{
-	if(reload)
-	{
-		if(whats_This == whats_This_Period)
+		if(reload)
 		{
-		label->setText("d ["+length_units+"]");
+			if(whats_This == whats_This_Period)
+			{
+				label->setText("d ["+length_units+"]");
+			}
+			return;
 		}
-		return;
-	}
 	}
 }
 
@@ -1708,60 +1716,60 @@ void Table_Of_Structures::refresh_Check_Box_Header()
 	QVariant var;
 	if(item_Type_String == whats_This_Layer)
 	{
-	Layer layer = data.value<Layer>();
+		Layer layer = data.value<Layer>();
 
-	if(reload)
-	{
-		if(whats_This == whats_This_Thickness_Drift_Line_Value)	check_Box->setChecked(layer.thickness_Drift.is_Drift_Line);
-		if(whats_This == whats_This_Thickness_Drift_Rand_Rms  )	check_Box->setChecked(layer.thickness_Drift.is_Drift_Rand);
-		if(whats_This == whats_This_Thickness_Drift_Sine	  )	check_Box->setChecked(layer.thickness_Drift.is_Drift_Sine);
-
-		if(whats_This == whats_This_Sigma_Drift_Line_Value)		check_Box->setChecked(layer.sigma_Drift.is_Drift_Line);
-		if(whats_This == whats_This_Sigma_Drift_Rand_Rms  )		check_Box->setChecked(layer.sigma_Drift.is_Drift_Rand);
-		if(whats_This == whats_This_Sigma_Drift_Sine	  )		check_Box->setChecked(layer.sigma_Drift.is_Drift_Sine);
-
-		if(whats_This == whats_This_Sigma)
+		if(reload)
 		{
-		check_Box->setChecked(layer.common_Sigma);
-		check_Box->setText(Sigma_Sym+" ["+length_units+"]");
+			if(whats_This == whats_This_Thickness_Drift_Line_Value)	check_Box->setChecked(layer.thickness_Drift.is_Drift_Line);
+			if(whats_This == whats_This_Thickness_Drift_Rand_Rms  )	check_Box->setChecked(layer.thickness_Drift.is_Drift_Rand);
+			if(whats_This == whats_This_Thickness_Drift_Sine	  )	check_Box->setChecked(layer.thickness_Drift.is_Drift_Sine);
+
+			if(whats_This == whats_This_Sigma_Drift_Line_Value)		check_Box->setChecked(layer.sigma_Drift.is_Drift_Line);
+			if(whats_This == whats_This_Sigma_Drift_Rand_Rms  )		check_Box->setChecked(layer.sigma_Drift.is_Drift_Rand);
+			if(whats_This == whats_This_Sigma_Drift_Sine	  )		check_Box->setChecked(layer.sigma_Drift.is_Drift_Sine);
+
+			if(whats_This == whats_This_Sigma)
+			{
+				check_Box->setChecked(layer.common_Sigma);
+				check_Box->setText(Sigma_Sym+" ["+length_units+"]");
+			}
+			return;
 		}
-		return;
-	}
 
-	if(whats_This == whats_This_Thickness_Drift_Line_Value)	layer.thickness_Drift.is_Drift_Line = check_Box->isChecked();
-	if(whats_This == whats_This_Thickness_Drift_Rand_Rms  )	layer.thickness_Drift.is_Drift_Rand = check_Box->isChecked();
-	if(whats_This == whats_This_Thickness_Drift_Sine	  )	layer.thickness_Drift.is_Drift_Sine = check_Box->isChecked();
+		if(whats_This == whats_This_Thickness_Drift_Line_Value)	layer.thickness_Drift.is_Drift_Line = check_Box->isChecked();
+		if(whats_This == whats_This_Thickness_Drift_Rand_Rms  )	layer.thickness_Drift.is_Drift_Rand = check_Box->isChecked();
+		if(whats_This == whats_This_Thickness_Drift_Sine	  )	layer.thickness_Drift.is_Drift_Sine = check_Box->isChecked();
 
-	if(whats_This == whats_This_Sigma_Drift_Line_Value)		layer.sigma_Drift.is_Drift_Line = check_Box->isChecked();
-	if(whats_This == whats_This_Sigma_Drift_Rand_Rms  )		layer.sigma_Drift.is_Drift_Rand = check_Box->isChecked();
-	if(whats_This == whats_This_Sigma_Drift_Sine	  )		layer.sigma_Drift.is_Drift_Sine = check_Box->isChecked();
+		if(whats_This == whats_This_Sigma_Drift_Line_Value)		layer.sigma_Drift.is_Drift_Line = check_Box->isChecked();
+		if(whats_This == whats_This_Sigma_Drift_Rand_Rms  )		layer.sigma_Drift.is_Drift_Rand = check_Box->isChecked();
+		if(whats_This == whats_This_Sigma_Drift_Sine	  )		layer.sigma_Drift.is_Drift_Sine = check_Box->isChecked();
 
-	if(whats_This == whats_This_Sigma)			layer.common_Sigma = check_Box->isChecked();
+		if(whats_This == whats_This_Sigma)			layer.common_Sigma = check_Box->isChecked();
 
-	var.setValue( layer );
+		var.setValue( layer );
 	}
 	if(item_Type_String == whats_This_Substrate)
 	{
-	Substrate substrate = data.value<Substrate>();
+		Substrate substrate = data.value<Substrate>();
 
-	if(reload)
-	{
-		if(whats_This == whats_This_Sigma)
+		if(reload)
 		{
-		check_Box->setChecked(substrate.common_Sigma);
-		check_Box->setText(Sigma_Sym+" ["+length_units+"]");
+			if(whats_This == whats_This_Sigma)
+			{
+				check_Box->setChecked(substrate.common_Sigma);
+				check_Box->setText(Sigma_Sym+" ["+length_units+"]");
+			}
+			return;
 		}
-		return;
-	}
-	if(whats_This == whats_This_Sigma)	substrate.common_Sigma = check_Box->isChecked();
+		if(whats_This == whats_This_Sigma)	substrate.common_Sigma = check_Box->isChecked();
 
-	var.setValue( substrate );
+		var.setValue( substrate );
 	}
 	structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
 
 	{
-	emit_Data_Edited();
-	reload_All_Widgets(QObject::sender());
+		emit_Data_Edited();
+		reload_All_Widgets(QObject::sender());
 	}
 }
 
@@ -1770,18 +1778,18 @@ void Table_Of_Structures::change_Child_Layers_Thickness(QTreeWidgetItem* multila
 	QVariant var;
 	for(int i=0; i<multilayer_Item->childCount(); ++i)
 	{
-	// if layer
-	if(multilayer_Item->child(i)->childCount()==0)
-	{
-		Layer layer = multilayer_Item->child(i)->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>();
-		layer.thickness.value = layer.thickness.value*factor;
-		var.setValue( layer );
-		multilayer_Item->child(i)->setData(DEFAULT_COLUMN, Qt::UserRole, var);
-	} else
-		// if multilayer
-	{
-		change_Child_Layers_Thickness(multilayer_Item->child(i), factor);
-	}
+		// if layer
+		if(multilayer_Item->child(i)->childCount()==0)
+		{
+			Layer layer = multilayer_Item->child(i)->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>();
+			layer.thickness.value = layer.thickness.value*factor;
+			var.setValue( layer );
+			multilayer_Item->child(i)->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+		} else
+			// if multilayer
+		{
+			change_Child_Layers_Thickness(multilayer_Item->child(i), factor);
+		}
 	}
 }
 
@@ -1791,8 +1799,8 @@ void Table_Of_Structures::reset_Multilayer_Thickness(QTreeWidgetItem* multilayer
 	double factor=1;
 	if( abs(stack_Content.period.value) > DBL_EPSILON && stack_Content.num_Repetition.value!=0)
 	{
-	factor = new_Thickness/(  stack_Content.period.value*stack_Content.num_Repetition.value  );
-	change_Child_Layers_Thickness(multilayer_Item, factor);
+		factor = new_Thickness/(  stack_Content.period.value*stack_Content.num_Repetition.value  );
+		change_Child_Layers_Thickness(multilayer_Item, factor);
 	}
 }
 
@@ -1811,27 +1819,27 @@ void Table_Of_Structures::change_Stack_Gamma(QTreeWidgetItem* structure_Item, do
 	Stack_Content stack_Content = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Stack_Content>();
 	int i=0;
 	{
-	double new_Thickness = stack_Content.period.value*new_Gamma_Value;
-	if(structure_Item->child(i)->childCount()==0)	// children are simple layers
-	{
-		reset_Layer_Thickness(structure_Item->child(i), new_Thickness);
-	}
-	if(structure_Item->child(i)->childCount()>0)	// children are multilayers
-	{
-		reset_Multilayer_Thickness(structure_Item->child(i), new_Thickness);
-	}
+		double new_Thickness = stack_Content.period.value*new_Gamma_Value;
+		if(structure_Item->child(i)->childCount()==0)	// children are simple layers
+		{
+			reset_Layer_Thickness(structure_Item->child(i), new_Thickness);
+		}
+		if(structure_Item->child(i)->childCount()>0)	// children are multilayers
+		{
+			reset_Multilayer_Thickness(structure_Item->child(i), new_Thickness);
+		}
 	}
 	i=1;
 	{
-	double new_Thickness = stack_Content.period.value*(1-new_Gamma_Value);
-	if(structure_Item->child(i)->childCount()==0)	// children are simple layers
-	{
-		reset_Layer_Thickness(structure_Item->child(i), new_Thickness);
-	}
-	if(structure_Item->child(i)->childCount()>0)	// children are multilayers
-	{
-		reset_Multilayer_Thickness(structure_Item->child(i), new_Thickness);
-	}
+		double new_Thickness = stack_Content.period.value*(1-new_Gamma_Value);
+		if(structure_Item->child(i)->childCount()==0)	// children are simple layers
+		{
+			reset_Layer_Thickness(structure_Item->child(i), new_Thickness);
+		}
+		if(structure_Item->child(i)->childCount()>0)	// children are multilayers
+		{
+			reset_Multilayer_Thickness(structure_Item->child(i), new_Thickness);
+		}
 	}
 	var.setValue( stack_Content );
 	structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
@@ -1857,408 +1865,408 @@ void Table_Of_Structures::refresh_Parameter(My_Table_Widget* table)
 	QVariant var;
 	if(item_Type_String == whats_This_Ambient)
 	{
-	Ambient ambient = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Ambient>();
+		Ambient ambient = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Ambient>();
 
-	if(reload)
-	{
+		if(reload)
+		{
+			if(whats_This == whats_This_Absolute_Density)
+			{
+				if(value_Type == VAL)	line_Edit->setText(QString::number(ambient.absolute_Density.value,	 line_edit_double_format, line_edit_density_precision));
+				if(value_Type == MIN)	line_Edit->setText(QString::number(ambient.absolute_Density.fit.min, min_Max_Format, line_edit_density_precision));
+				if(value_Type == MAX)	line_Edit->setText(QString::number(ambient.absolute_Density.fit.max, min_Max_Format, line_edit_density_precision));
+			}
+			if(whats_This == whats_This_Relative_Density)
+			{
+				if(value_Type == VAL)	line_Edit->setText(QString::number(ambient.relative_Density.value,	 line_edit_double_format, line_edit_density_precision));
+				if(value_Type == MIN)	line_Edit->setText(QString::number(ambient.relative_Density.fit.min, min_Max_Format, line_edit_density_precision));
+				if(value_Type == MAX)	line_Edit->setText(QString::number(ambient.relative_Density.fit.max, min_Max_Format, line_edit_density_precision));
+			}
+			return;
+		}
+
 		if(whats_This == whats_This_Absolute_Density)
 		{
-		if(value_Type == VAL)	line_Edit->setText(QString::number(ambient.absolute_Density.value,	 line_edit_double_format, line_edit_density_precision));
-		if(value_Type == MIN)	line_Edit->setText(QString::number(ambient.absolute_Density.fit.min, min_Max_Format, line_edit_density_precision));
-		if(value_Type == MAX)	line_Edit->setText(QString::number(ambient.absolute_Density.fit.max, min_Max_Format, line_edit_density_precision));
+			if(value_Type == VAL)	ambient.absolute_Density.value = line_Edit->text().toDouble();
+			if(value_Type == MIN)	ambient.absolute_Density.fit.min = line_Edit->text().toDouble();
+			if(value_Type == MAX)	ambient.absolute_Density.fit.max = line_Edit->text().toDouble();
 		}
 		if(whats_This == whats_This_Relative_Density)
 		{
-		if(value_Type == VAL)	line_Edit->setText(QString::number(ambient.relative_Density.value,	 line_edit_double_format, line_edit_density_precision));
-		if(value_Type == MIN)	line_Edit->setText(QString::number(ambient.relative_Density.fit.min, min_Max_Format, line_edit_density_precision));
-		if(value_Type == MAX)	line_Edit->setText(QString::number(ambient.relative_Density.fit.max, min_Max_Format, line_edit_density_precision));
+			if(value_Type == VAL)	ambient.relative_Density.value = line_Edit->text().toDouble();
+			if(value_Type == MIN)	ambient.relative_Density.fit.min = line_Edit->text().toDouble();
+			if(value_Type == MAX)	ambient.relative_Density.fit.max = line_Edit->text().toDouble();
 		}
-		return;
-	}
 
-	if(whats_This == whats_This_Absolute_Density)
-	{
-		if(value_Type == VAL)	ambient.absolute_Density.value = line_Edit->text().toDouble();
-		if(value_Type == MIN)	ambient.absolute_Density.fit.min = line_Edit->text().toDouble();
-		if(value_Type == MAX)	ambient.absolute_Density.fit.max = line_Edit->text().toDouble();
-	}
-	if(whats_This == whats_This_Relative_Density)
-	{
-		if(value_Type == VAL)	ambient.relative_Density.value = line_Edit->text().toDouble();
-		if(value_Type == MIN)	ambient.relative_Density.fit.min = line_Edit->text().toDouble();
-		if(value_Type == MAX)	ambient.relative_Density.fit.max = line_Edit->text().toDouble();
-	}
-
-	var.setValue( ambient );
+		var.setValue( ambient );
 	}
 	if(item_Type_String == whats_This_Layer)
 	{
-	Layer layer = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>();
+		Layer layer = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>();
 
-	if(reload)
-	{
+		if(reload)
+		{
+			if(whats_This == whats_This_Absolute_Density)
+			{
+				if(value_Type == VAL)	line_Edit->setText(QString::number(layer.absolute_Density.value,   line_edit_double_format, line_edit_density_precision));
+				if(value_Type == MIN)	line_Edit->setText(QString::number(layer.absolute_Density.fit.min, min_Max_Format, line_edit_density_precision));
+				if(value_Type == MAX)	line_Edit->setText(QString::number(layer.absolute_Density.fit.max, min_Max_Format, line_edit_density_precision));
+			}
+			if(whats_This == whats_This_Relative_Density)
+			{
+				if(value_Type == VAL)	line_Edit->setText(QString::number(layer.relative_Density.value,   line_edit_double_format, line_edit_density_precision));
+				if(value_Type == MIN)	line_Edit->setText(QString::number(layer.relative_Density.fit.min, min_Max_Format, line_edit_density_precision));
+				if(value_Type == MAX)	line_Edit->setText(QString::number(layer.relative_Density.fit.max, min_Max_Format, line_edit_density_precision));
+			}
+			if(whats_This == whats_This_Thickness)
+			{
+				if(value_Type == VAL)	line_Edit->setText(QString::number(layer.thickness.value/length_Coeff,   line_edit_double_format, line_edit_thickness_precision));
+				if(value_Type == MIN)	line_Edit->setText(QString::number(layer.thickness.fit.min/length_Coeff, min_Max_Format, line_edit_thickness_precision));
+				if(value_Type == MAX)	line_Edit->setText(QString::number(layer.thickness.fit.max/length_Coeff, min_Max_Format, line_edit_thickness_precision));
+			}
+			if(whats_This == whats_This_Sigma)
+			{
+				if(value_Type == VAL)
+				{
+					line_Edit->setText(QString::number(layer.sigma.value/length_Coeff,   line_edit_double_format, line_edit_sigma_precision));
+					line_Edit->setDisabled(!layer.common_Sigma);
+					line_Edit->setStyleSheet("border: 1px solid grey");
+				}
+				if(value_Type == MIN)	line_Edit->setText(QString::number(layer.sigma.fit.min/length_Coeff, min_Max_Format, line_edit_sigma_precision));
+				if(value_Type == MAX)	line_Edit->setText(QString::number(layer.sigma.fit.max/length_Coeff, min_Max_Format, line_edit_sigma_precision));
+			}
+
+			if(whats_This == whats_This_Thickness_Drift_Line_Value)
+			{
+				if(value_Type == VAL)	line_Edit->setText(QString::number(layer.thickness_Drift.drift_Line_Value.value,   line_edit_double_format, line_edit_thickness_precision));
+				if(value_Type == MIN)	line_Edit->setText(QString::number(layer.thickness_Drift.drift_Line_Value.fit.min, min_Max_Format, line_edit_thickness_precision));
+				if(value_Type == MAX)	line_Edit->setText(QString::number(layer.thickness_Drift.drift_Line_Value.fit.max, min_Max_Format, line_edit_thickness_precision));
+			}
+			if(whats_This == whats_This_Thickness_Drift_Rand_Rms)
+			{
+				if(value_Type == VAL)	line_Edit->setText(QString::number(layer.thickness_Drift.drift_Rand_Rms.value,   line_edit_double_format, line_edit_thickness_precision));
+				if(value_Type == MIN)	line_Edit->setText(QString::number(layer.thickness_Drift.drift_Rand_Rms.fit.min, min_Max_Format, line_edit_thickness_precision));
+				if(value_Type == MAX)	line_Edit->setText(QString::number(layer.thickness_Drift.drift_Rand_Rms.fit.max, min_Max_Format, line_edit_thickness_precision));
+			}
+			if(whats_This == whats_This_Thickness_Drift_Sine_Amplitude)
+			{
+				if(value_Type == VAL)	line_Edit->setText(QString::number(layer.thickness_Drift.drift_Sine_Amplitude.value,   line_edit_double_format, line_edit_thickness_precision));
+				if(value_Type == MIN)	line_Edit->setText(QString::number(layer.thickness_Drift.drift_Sine_Amplitude.fit.min, min_Max_Format, line_edit_thickness_precision));
+				if(value_Type == MAX)	line_Edit->setText(QString::number(layer.thickness_Drift.drift_Sine_Amplitude.fit.max, min_Max_Format, line_edit_thickness_precision));
+			}
+			if(whats_This == whats_This_Thickness_Drift_Sine_Frequency)
+			{
+				if(value_Type == VAL)	line_Edit->setText(QString::number(layer.thickness_Drift.drift_Sine_Frequency.value,   line_edit_double_format, line_edit_thickness_precision));
+				if(value_Type == MIN)	line_Edit->setText(QString::number(layer.thickness_Drift.drift_Sine_Frequency.fit.min, min_Max_Format, line_edit_thickness_precision));
+				if(value_Type == MAX)	line_Edit->setText(QString::number(layer.thickness_Drift.drift_Sine_Frequency.fit.max, min_Max_Format, line_edit_thickness_precision));
+			}
+			if(whats_This == whats_This_Thickness_Drift_Sine_Phase)
+			{
+				if(value_Type == VAL)	line_Edit->setText(QString::number(layer.thickness_Drift.drift_Sine_Phase.value,   line_edit_double_format, line_edit_thickness_precision));
+				if(value_Type == MIN)	line_Edit->setText(QString::number(layer.thickness_Drift.drift_Sine_Phase.fit.min, min_Max_Format, line_edit_thickness_precision));
+				if(value_Type == MAX)	line_Edit->setText(QString::number(layer.thickness_Drift.drift_Sine_Phase.fit.max, min_Max_Format, line_edit_thickness_precision));
+			}
+
+			if(whats_This == whats_This_Sigma_Drift_Line_Value)
+			{
+				if(value_Type == VAL)	line_Edit->setText(QString::number(layer.sigma_Drift.drift_Line_Value.value,   line_edit_double_format, line_edit_sigma_precision));
+				if(value_Type == MIN)	line_Edit->setText(QString::number(layer.sigma_Drift.drift_Line_Value.fit.min, min_Max_Format, line_edit_sigma_precision));
+				if(value_Type == MAX)	line_Edit->setText(QString::number(layer.sigma_Drift.drift_Line_Value.fit.max, min_Max_Format, line_edit_sigma_precision));
+			}
+			if(whats_This == whats_This_Sigma_Drift_Rand_Rms)
+			{
+				if(value_Type == VAL)	line_Edit->setText(QString::number(layer.sigma_Drift.drift_Rand_Rms.value,   line_edit_double_format, line_edit_sigma_precision));
+				if(value_Type == MIN)	line_Edit->setText(QString::number(layer.sigma_Drift.drift_Rand_Rms.fit.min, min_Max_Format, line_edit_sigma_precision));
+				if(value_Type == MAX)	line_Edit->setText(QString::number(layer.sigma_Drift.drift_Rand_Rms.fit.max, min_Max_Format, line_edit_sigma_precision));
+			}
+			if(whats_This == whats_This_Sigma_Drift_Sine_Amplitude)
+			{
+				if(value_Type == VAL)	line_Edit->setText(QString::number(layer.sigma_Drift.drift_Sine_Amplitude.value,   line_edit_double_format, line_edit_sigma_precision));
+				if(value_Type == MIN)	line_Edit->setText(QString::number(layer.sigma_Drift.drift_Sine_Amplitude.fit.min, min_Max_Format, line_edit_sigma_precision));
+				if(value_Type == MAX)	line_Edit->setText(QString::number(layer.sigma_Drift.drift_Sine_Amplitude.fit.max, min_Max_Format, line_edit_sigma_precision));
+			}
+			if(whats_This == whats_This_Sigma_Drift_Sine_Frequency)
+			{
+				if(value_Type == VAL)	line_Edit->setText(QString::number(layer.sigma_Drift.drift_Sine_Frequency.value,   line_edit_double_format, line_edit_sigma_precision));
+				if(value_Type == MIN)	line_Edit->setText(QString::number(layer.sigma_Drift.drift_Sine_Frequency.fit.min, min_Max_Format, line_edit_sigma_precision));
+				if(value_Type == MAX)	line_Edit->setText(QString::number(layer.sigma_Drift.drift_Sine_Frequency.fit.max, min_Max_Format, line_edit_sigma_precision));
+			}
+			if(whats_This == whats_This_Sigma_Drift_Sine_Phase)
+			{
+				if(value_Type == VAL)	line_Edit->setText(QString::number(layer.sigma_Drift.drift_Sine_Phase.value,   line_edit_double_format, line_edit_sigma_precision));
+				if(value_Type == MIN)	line_Edit->setText(QString::number(layer.sigma_Drift.drift_Sine_Phase.fit.min, min_Max_Format, line_edit_sigma_precision));
+				if(value_Type == MAX)	line_Edit->setText(QString::number(layer.sigma_Drift.drift_Sine_Phase.fit.max, min_Max_Format, line_edit_sigma_precision));
+			}
+			return;
+		}
+
 		if(whats_This == whats_This_Absolute_Density)
 		{
-		if(value_Type == VAL)	line_Edit->setText(QString::number(layer.absolute_Density.value,   line_edit_double_format, line_edit_density_precision));
-		if(value_Type == MIN)	line_Edit->setText(QString::number(layer.absolute_Density.fit.min, min_Max_Format, line_edit_density_precision));
-		if(value_Type == MAX)	line_Edit->setText(QString::number(layer.absolute_Density.fit.max, min_Max_Format, line_edit_density_precision));
+			if(value_Type == VAL)	layer.absolute_Density.value = line_Edit->text().toDouble();
+			if(value_Type == MIN)	layer.absolute_Density.fit.min = line_Edit->text().toDouble();
+			if(value_Type == MAX)	layer.absolute_Density.fit.max = line_Edit->text().toDouble();
 		}
 		if(whats_This == whats_This_Relative_Density)
 		{
-		if(value_Type == VAL)	line_Edit->setText(QString::number(layer.relative_Density.value,   line_edit_double_format, line_edit_density_precision));
-		if(value_Type == MIN)	line_Edit->setText(QString::number(layer.relative_Density.fit.min, min_Max_Format, line_edit_density_precision));
-		if(value_Type == MAX)	line_Edit->setText(QString::number(layer.relative_Density.fit.max, min_Max_Format, line_edit_density_precision));
+			if(value_Type == VAL)	layer.relative_Density.value = line_Edit->text().toDouble();
+			if(value_Type == MIN)	layer.relative_Density.fit.min = line_Edit->text().toDouble();
+			if(value_Type == MAX)	layer.relative_Density.fit.max = line_Edit->text().toDouble();
 		}
 		if(whats_This == whats_This_Thickness)
 		{
-		if(value_Type == VAL)	line_Edit->setText(QString::number(layer.thickness.value/length_Coeff,   line_edit_double_format, line_edit_thickness_precision));
-		if(value_Type == MIN)	line_Edit->setText(QString::number(layer.thickness.fit.min/length_Coeff, min_Max_Format, line_edit_thickness_precision));
-		if(value_Type == MAX)	line_Edit->setText(QString::number(layer.thickness.fit.max/length_Coeff, min_Max_Format, line_edit_thickness_precision));
+			if(value_Type == VAL)	layer.thickness.value = line_Edit->text().toDouble()*length_Coeff;
+			if(value_Type == MIN)	layer.thickness.fit.min = line_Edit->text().toDouble()*length_Coeff;
+			if(value_Type == MAX)	layer.thickness.fit.max = line_Edit->text().toDouble()*length_Coeff;
 		}
 		if(whats_This == whats_This_Sigma)
 		{
-		if(value_Type == VAL)
-		{
-			line_Edit->setText(QString::number(layer.sigma.value/length_Coeff,   line_edit_double_format, line_edit_sigma_precision));
-			line_Edit->setDisabled(!layer.common_Sigma);
-			line_Edit->setStyleSheet("border: 1px solid grey");
-		}
-		if(value_Type == MIN)	line_Edit->setText(QString::number(layer.sigma.fit.min/length_Coeff, min_Max_Format, line_edit_sigma_precision));
-		if(value_Type == MAX)	line_Edit->setText(QString::number(layer.sigma.fit.max/length_Coeff, min_Max_Format, line_edit_sigma_precision));
+			if(value_Type == VAL)
+			{
+				layer.sigma.value = line_Edit->text().toDouble()*length_Coeff;
+				for(int interlayer_Index=0; interlayer_Index<transition_Layer_Functions_Size; ++interlayer_Index)
+				{
+					layer.interlayer_Composition[interlayer_Index].my_Sigma.value = layer.sigma.value;
+				}
+			}
+			if(value_Type == MIN)
+			{
+				layer.sigma.fit.min = line_Edit->text().toDouble()*length_Coeff;
+				for(int interlayer_Index=0; interlayer_Index<transition_Layer_Functions_Size; ++interlayer_Index)
+				{
+					layer.interlayer_Composition[interlayer_Index].my_Sigma.fit.min = layer.sigma.fit.min;
+				}
+			}
+			if(value_Type == MAX)
+			{
+				layer.sigma.fit.max = line_Edit->text().toDouble()*length_Coeff;
+				for(int interlayer_Index=0; interlayer_Index<transition_Layer_Functions_Size; ++interlayer_Index)
+				{
+					layer.interlayer_Composition[interlayer_Index].my_Sigma.fit.max = layer.sigma.fit.max;
+				}
+			}
 		}
 
 		if(whats_This == whats_This_Thickness_Drift_Line_Value)
 		{
-		if(value_Type == VAL)	line_Edit->setText(QString::number(layer.thickness_Drift.drift_Line_Value.value,   line_edit_double_format, line_edit_thickness_precision));
-		if(value_Type == MIN)	line_Edit->setText(QString::number(layer.thickness_Drift.drift_Line_Value.fit.min, min_Max_Format, line_edit_thickness_precision));
-		if(value_Type == MAX)	line_Edit->setText(QString::number(layer.thickness_Drift.drift_Line_Value.fit.max, min_Max_Format, line_edit_thickness_precision));
+			if(value_Type == VAL)	layer.thickness_Drift.drift_Line_Value.value = line_Edit->text().toDouble();
+			if(value_Type == MIN)	layer.thickness_Drift.drift_Line_Value.fit.min = line_Edit->text().toDouble();
+			if(value_Type == MAX)	layer.thickness_Drift.drift_Line_Value.fit.max = line_Edit->text().toDouble();
 		}
 		if(whats_This == whats_This_Thickness_Drift_Rand_Rms)
 		{
-		if(value_Type == VAL)	line_Edit->setText(QString::number(layer.thickness_Drift.drift_Rand_Rms.value,   line_edit_double_format, line_edit_thickness_precision));
-		if(value_Type == MIN)	line_Edit->setText(QString::number(layer.thickness_Drift.drift_Rand_Rms.fit.min, min_Max_Format, line_edit_thickness_precision));
-		if(value_Type == MAX)	line_Edit->setText(QString::number(layer.thickness_Drift.drift_Rand_Rms.fit.max, min_Max_Format, line_edit_thickness_precision));
+			if(value_Type == VAL)	layer.thickness_Drift.drift_Rand_Rms.value = line_Edit->text().toDouble();
+			if(value_Type == MIN)	layer.thickness_Drift.drift_Rand_Rms.fit.min = line_Edit->text().toDouble();
+			if(value_Type == MAX)	layer.thickness_Drift.drift_Rand_Rms.fit.max = line_Edit->text().toDouble();
 		}
 		if(whats_This == whats_This_Thickness_Drift_Sine_Amplitude)
 		{
-		if(value_Type == VAL)	line_Edit->setText(QString::number(layer.thickness_Drift.drift_Sine_Amplitude.value,   line_edit_double_format, line_edit_thickness_precision));
-		if(value_Type == MIN)	line_Edit->setText(QString::number(layer.thickness_Drift.drift_Sine_Amplitude.fit.min, min_Max_Format, line_edit_thickness_precision));
-		if(value_Type == MAX)	line_Edit->setText(QString::number(layer.thickness_Drift.drift_Sine_Amplitude.fit.max, min_Max_Format, line_edit_thickness_precision));
+			if(value_Type == VAL)	layer.thickness_Drift.drift_Sine_Amplitude.value = line_Edit->text().toDouble();
+			if(value_Type == MIN)	layer.thickness_Drift.drift_Sine_Amplitude.fit.min = line_Edit->text().toDouble();
+			if(value_Type == MAX)	layer.thickness_Drift.drift_Sine_Amplitude.fit.max = line_Edit->text().toDouble();
 		}
 		if(whats_This == whats_This_Thickness_Drift_Sine_Frequency)
 		{
-		if(value_Type == VAL)	line_Edit->setText(QString::number(layer.thickness_Drift.drift_Sine_Frequency.value,   line_edit_double_format, line_edit_thickness_precision));
-		if(value_Type == MIN)	line_Edit->setText(QString::number(layer.thickness_Drift.drift_Sine_Frequency.fit.min, min_Max_Format, line_edit_thickness_precision));
-		if(value_Type == MAX)	line_Edit->setText(QString::number(layer.thickness_Drift.drift_Sine_Frequency.fit.max, min_Max_Format, line_edit_thickness_precision));
+			if(value_Type == VAL)	layer.thickness_Drift.drift_Sine_Frequency.value = line_Edit->text().toDouble();
+			if(value_Type == MIN)	layer.thickness_Drift.drift_Sine_Frequency.fit.min = line_Edit->text().toDouble();
+			if(value_Type == MAX)	layer.thickness_Drift.drift_Sine_Frequency.fit.max = line_Edit->text().toDouble();
 		}
 		if(whats_This == whats_This_Thickness_Drift_Sine_Phase)
 		{
-		if(value_Type == VAL)	line_Edit->setText(QString::number(layer.thickness_Drift.drift_Sine_Phase.value,   line_edit_double_format, line_edit_thickness_precision));
-		if(value_Type == MIN)	line_Edit->setText(QString::number(layer.thickness_Drift.drift_Sine_Phase.fit.min, min_Max_Format, line_edit_thickness_precision));
-		if(value_Type == MAX)	line_Edit->setText(QString::number(layer.thickness_Drift.drift_Sine_Phase.fit.max, min_Max_Format, line_edit_thickness_precision));
+			if(value_Type == VAL)	layer.thickness_Drift.drift_Sine_Phase.value = line_Edit->text().toDouble();
+			if(value_Type == MIN)	layer.thickness_Drift.drift_Sine_Phase.fit.min = line_Edit->text().toDouble();
+			if(value_Type == MAX)	layer.thickness_Drift.drift_Sine_Phase.fit.max = line_Edit->text().toDouble();
 		}
 
 		if(whats_This == whats_This_Sigma_Drift_Line_Value)
 		{
-		if(value_Type == VAL)	line_Edit->setText(QString::number(layer.sigma_Drift.drift_Line_Value.value,   line_edit_double_format, line_edit_sigma_precision));
-		if(value_Type == MIN)	line_Edit->setText(QString::number(layer.sigma_Drift.drift_Line_Value.fit.min, min_Max_Format, line_edit_sigma_precision));
-		if(value_Type == MAX)	line_Edit->setText(QString::number(layer.sigma_Drift.drift_Line_Value.fit.max, min_Max_Format, line_edit_sigma_precision));
+			if(value_Type == VAL)	layer.sigma_Drift.drift_Line_Value.value = line_Edit->text().toDouble();
+			if(value_Type == MIN)	layer.sigma_Drift.drift_Line_Value.fit.min = line_Edit->text().toDouble();
+			if(value_Type == MAX)	layer.sigma_Drift.drift_Line_Value.fit.max = line_Edit->text().toDouble();
 		}
 		if(whats_This == whats_This_Sigma_Drift_Rand_Rms)
 		{
-		if(value_Type == VAL)	line_Edit->setText(QString::number(layer.sigma_Drift.drift_Rand_Rms.value,   line_edit_double_format, line_edit_sigma_precision));
-		if(value_Type == MIN)	line_Edit->setText(QString::number(layer.sigma_Drift.drift_Rand_Rms.fit.min, min_Max_Format, line_edit_sigma_precision));
-		if(value_Type == MAX)	line_Edit->setText(QString::number(layer.sigma_Drift.drift_Rand_Rms.fit.max, min_Max_Format, line_edit_sigma_precision));
+			if(value_Type == VAL)	layer.sigma_Drift.drift_Rand_Rms.value = line_Edit->text().toDouble();
+			if(value_Type == MIN)	layer.sigma_Drift.drift_Rand_Rms.fit.min = line_Edit->text().toDouble();
+			if(value_Type == MAX)	layer.sigma_Drift.drift_Rand_Rms.fit.max = line_Edit->text().toDouble();
 		}
 		if(whats_This == whats_This_Sigma_Drift_Sine_Amplitude)
 		{
-		if(value_Type == VAL)	line_Edit->setText(QString::number(layer.sigma_Drift.drift_Sine_Amplitude.value,   line_edit_double_format, line_edit_sigma_precision));
-		if(value_Type == MIN)	line_Edit->setText(QString::number(layer.sigma_Drift.drift_Sine_Amplitude.fit.min, min_Max_Format, line_edit_sigma_precision));
-		if(value_Type == MAX)	line_Edit->setText(QString::number(layer.sigma_Drift.drift_Sine_Amplitude.fit.max, min_Max_Format, line_edit_sigma_precision));
+			if(value_Type == VAL)	layer.sigma_Drift.drift_Sine_Amplitude.value = line_Edit->text().toDouble();
+			if(value_Type == MIN)	layer.sigma_Drift.drift_Sine_Amplitude.fit.min = line_Edit->text().toDouble();
+			if(value_Type == MAX)	layer.sigma_Drift.drift_Sine_Amplitude.fit.max = line_Edit->text().toDouble();
 		}
 		if(whats_This == whats_This_Sigma_Drift_Sine_Frequency)
 		{
-		if(value_Type == VAL)	line_Edit->setText(QString::number(layer.sigma_Drift.drift_Sine_Frequency.value,   line_edit_double_format, line_edit_sigma_precision));
-		if(value_Type == MIN)	line_Edit->setText(QString::number(layer.sigma_Drift.drift_Sine_Frequency.fit.min, min_Max_Format, line_edit_sigma_precision));
-		if(value_Type == MAX)	line_Edit->setText(QString::number(layer.sigma_Drift.drift_Sine_Frequency.fit.max, min_Max_Format, line_edit_sigma_precision));
+			if(value_Type == VAL)	layer.sigma_Drift.drift_Sine_Frequency.value = line_Edit->text().toDouble();
+			if(value_Type == MIN)	layer.sigma_Drift.drift_Sine_Frequency.fit.min = line_Edit->text().toDouble();
+			if(value_Type == MAX)	layer.sigma_Drift.drift_Sine_Frequency.fit.max = line_Edit->text().toDouble();
 		}
 		if(whats_This == whats_This_Sigma_Drift_Sine_Phase)
 		{
-		if(value_Type == VAL)	line_Edit->setText(QString::number(layer.sigma_Drift.drift_Sine_Phase.value,   line_edit_double_format, line_edit_sigma_precision));
-		if(value_Type == MIN)	line_Edit->setText(QString::number(layer.sigma_Drift.drift_Sine_Phase.fit.min, min_Max_Format, line_edit_sigma_precision));
-		if(value_Type == MAX)	line_Edit->setText(QString::number(layer.sigma_Drift.drift_Sine_Phase.fit.max, min_Max_Format, line_edit_sigma_precision));
+			if(value_Type == VAL)	layer.sigma_Drift.drift_Sine_Phase.value = line_Edit->text().toDouble();
+			if(value_Type == MIN)	layer.sigma_Drift.drift_Sine_Phase.fit.min = line_Edit->text().toDouble();
+			if(value_Type == MAX)	layer.sigma_Drift.drift_Sine_Phase.fit.max = line_Edit->text().toDouble();
 		}
-		return;
-	}
 
-	if(whats_This == whats_This_Absolute_Density)
-	{
-		if(value_Type == VAL)	layer.absolute_Density.value = line_Edit->text().toDouble();
-		if(value_Type == MIN)	layer.absolute_Density.fit.min = line_Edit->text().toDouble();
-		if(value_Type == MAX)	layer.absolute_Density.fit.max = line_Edit->text().toDouble();
-	}
-	if(whats_This == whats_This_Relative_Density)
-	{
-		if(value_Type == VAL)	layer.relative_Density.value = line_Edit->text().toDouble();
-		if(value_Type == MIN)	layer.relative_Density.fit.min = line_Edit->text().toDouble();
-		if(value_Type == MAX)	layer.relative_Density.fit.max = line_Edit->text().toDouble();
-	}
-	if(whats_This == whats_This_Thickness)
-	{
-		if(value_Type == VAL)	layer.thickness.value = line_Edit->text().toDouble()*length_Coeff;
-		if(value_Type == MIN)	layer.thickness.fit.min = line_Edit->text().toDouble()*length_Coeff;
-		if(value_Type == MAX)	layer.thickness.fit.max = line_Edit->text().toDouble()*length_Coeff;
-	}
-	if(whats_This == whats_This_Sigma)
-	{
-		if(value_Type == VAL)
-		{
-		layer.sigma.value = line_Edit->text().toDouble()*length_Coeff;
-		for(int interlayer_Index=0; interlayer_Index<transition_Layer_Functions_Size; ++interlayer_Index)
-		{
-			layer.interlayer_Composition[interlayer_Index].my_Sigma.value = layer.sigma.value;
-		}
-		}
-		if(value_Type == MIN)
-		{
-		layer.sigma.fit.min = line_Edit->text().toDouble()*length_Coeff;
-		for(int interlayer_Index=0; interlayer_Index<transition_Layer_Functions_Size; ++interlayer_Index)
-		{
-			layer.interlayer_Composition[interlayer_Index].my_Sigma.fit.min = layer.sigma.fit.min;
-		}
-		}
-		if(value_Type == MAX)
-		{
-		layer.sigma.fit.max = line_Edit->text().toDouble()*length_Coeff;
-		for(int interlayer_Index=0; interlayer_Index<transition_Layer_Functions_Size; ++interlayer_Index)
-		{
-			layer.interlayer_Composition[interlayer_Index].my_Sigma.fit.max = layer.sigma.fit.max;
-		}
-		}
-	}
-
-	if(whats_This == whats_This_Thickness_Drift_Line_Value)
-	{
-		if(value_Type == VAL)	layer.thickness_Drift.drift_Line_Value.value = line_Edit->text().toDouble();
-		if(value_Type == MIN)	layer.thickness_Drift.drift_Line_Value.fit.min = line_Edit->text().toDouble();
-		if(value_Type == MAX)	layer.thickness_Drift.drift_Line_Value.fit.max = line_Edit->text().toDouble();
-	}
-	if(whats_This == whats_This_Thickness_Drift_Rand_Rms)
-	{
-		if(value_Type == VAL)	layer.thickness_Drift.drift_Rand_Rms.value = line_Edit->text().toDouble();
-		if(value_Type == MIN)	layer.thickness_Drift.drift_Rand_Rms.fit.min = line_Edit->text().toDouble();
-		if(value_Type == MAX)	layer.thickness_Drift.drift_Rand_Rms.fit.max = line_Edit->text().toDouble();
-	}
-	if(whats_This == whats_This_Thickness_Drift_Sine_Amplitude)
-	{
-		if(value_Type == VAL)	layer.thickness_Drift.drift_Sine_Amplitude.value = line_Edit->text().toDouble();
-		if(value_Type == MIN)	layer.thickness_Drift.drift_Sine_Amplitude.fit.min = line_Edit->text().toDouble();
-		if(value_Type == MAX)	layer.thickness_Drift.drift_Sine_Amplitude.fit.max = line_Edit->text().toDouble();
-	}
-	if(whats_This == whats_This_Thickness_Drift_Sine_Frequency)
-	{
-		if(value_Type == VAL)	layer.thickness_Drift.drift_Sine_Frequency.value = line_Edit->text().toDouble();
-		if(value_Type == MIN)	layer.thickness_Drift.drift_Sine_Frequency.fit.min = line_Edit->text().toDouble();
-		if(value_Type == MAX)	layer.thickness_Drift.drift_Sine_Frequency.fit.max = line_Edit->text().toDouble();
-	}
-	if(whats_This == whats_This_Thickness_Drift_Sine_Phase)
-	{
-		if(value_Type == VAL)	layer.thickness_Drift.drift_Sine_Phase.value = line_Edit->text().toDouble();
-		if(value_Type == MIN)	layer.thickness_Drift.drift_Sine_Phase.fit.min = line_Edit->text().toDouble();
-		if(value_Type == MAX)	layer.thickness_Drift.drift_Sine_Phase.fit.max = line_Edit->text().toDouble();
-	}
-
-	if(whats_This == whats_This_Sigma_Drift_Line_Value)
-	{
-		if(value_Type == VAL)	layer.sigma_Drift.drift_Line_Value.value = line_Edit->text().toDouble();
-		if(value_Type == MIN)	layer.sigma_Drift.drift_Line_Value.fit.min = line_Edit->text().toDouble();
-		if(value_Type == MAX)	layer.sigma_Drift.drift_Line_Value.fit.max = line_Edit->text().toDouble();
-	}
-	if(whats_This == whats_This_Sigma_Drift_Rand_Rms)
-	{
-		if(value_Type == VAL)	layer.sigma_Drift.drift_Rand_Rms.value = line_Edit->text().toDouble();
-		if(value_Type == MIN)	layer.sigma_Drift.drift_Rand_Rms.fit.min = line_Edit->text().toDouble();
-		if(value_Type == MAX)	layer.sigma_Drift.drift_Rand_Rms.fit.max = line_Edit->text().toDouble();
-	}
-	if(whats_This == whats_This_Sigma_Drift_Sine_Amplitude)
-	{
-		if(value_Type == VAL)	layer.sigma_Drift.drift_Sine_Amplitude.value = line_Edit->text().toDouble();
-		if(value_Type == MIN)	layer.sigma_Drift.drift_Sine_Amplitude.fit.min = line_Edit->text().toDouble();
-		if(value_Type == MAX)	layer.sigma_Drift.drift_Sine_Amplitude.fit.max = line_Edit->text().toDouble();
-	}
-	if(whats_This == whats_This_Sigma_Drift_Sine_Frequency)
-	{
-		if(value_Type == VAL)	layer.sigma_Drift.drift_Sine_Frequency.value = line_Edit->text().toDouble();
-		if(value_Type == MIN)	layer.sigma_Drift.drift_Sine_Frequency.fit.min = line_Edit->text().toDouble();
-		if(value_Type == MAX)	layer.sigma_Drift.drift_Sine_Frequency.fit.max = line_Edit->text().toDouble();
-	}
-	if(whats_This == whats_This_Sigma_Drift_Sine_Phase)
-	{
-		if(value_Type == VAL)	layer.sigma_Drift.drift_Sine_Phase.value = line_Edit->text().toDouble();
-		if(value_Type == MIN)	layer.sigma_Drift.drift_Sine_Phase.fit.min = line_Edit->text().toDouble();
-		if(value_Type == MAX)	layer.sigma_Drift.drift_Sine_Phase.fit.max = line_Edit->text().toDouble();
-	}
-
-	var.setValue( layer );
+		var.setValue( layer );
 	}
 	if(item_Type_String == whats_This_Substrate)
 	{
-	Substrate substrate = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Substrate>();
+		Substrate substrate = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Substrate>();
 
-	if(reload)
-	{
+		if(reload)
+		{
+			if(whats_This == whats_This_Absolute_Density)
+			{
+				if(value_Type == VAL)	line_Edit->setText(QString::number(substrate.absolute_Density.value,   line_edit_double_format, line_edit_density_precision));
+				if(value_Type == MIN)	line_Edit->setText(QString::number(substrate.absolute_Density.fit.min, min_Max_Format, line_edit_density_precision));
+				if(value_Type == MAX)	line_Edit->setText(QString::number(substrate.absolute_Density.fit.max, min_Max_Format, line_edit_density_precision));
+			}
+			if(whats_This == whats_This_Relative_Density)
+			{
+				if(value_Type == VAL)	line_Edit->setText(QString::number(substrate.relative_Density.value,   line_edit_double_format, line_edit_density_precision));
+				if(value_Type == MIN)	line_Edit->setText(QString::number(substrate.relative_Density.fit.min, min_Max_Format, line_edit_density_precision));
+				if(value_Type == MAX)	line_Edit->setText(QString::number(substrate.relative_Density.fit.max, min_Max_Format, line_edit_density_precision));
+			}
+			if(whats_This == whats_This_Sigma)
+			{
+				if(value_Type == VAL)
+				{
+					line_Edit->setText(QString::number(substrate.sigma.value/length_Coeff,   line_edit_double_format, line_edit_sigma_precision));
+					line_Edit->setDisabled(!substrate.common_Sigma);
+					line_Edit->setStyleSheet("border: 1px solid grey");
+				}
+				if(value_Type == MIN)	line_Edit->setText(QString::number(substrate.sigma.fit.min/length_Coeff, min_Max_Format, line_edit_sigma_precision));
+				if(value_Type == MAX)	line_Edit->setText(QString::number(substrate.sigma.fit.max/length_Coeff, min_Max_Format, line_edit_sigma_precision));
+			}
+			return;
+		}
 		if(whats_This == whats_This_Absolute_Density)
 		{
-		if(value_Type == VAL)	line_Edit->setText(QString::number(substrate.absolute_Density.value,   line_edit_double_format, line_edit_density_precision));
-		if(value_Type == MIN)	line_Edit->setText(QString::number(substrate.absolute_Density.fit.min, min_Max_Format, line_edit_density_precision));
-		if(value_Type == MAX)	line_Edit->setText(QString::number(substrate.absolute_Density.fit.max, min_Max_Format, line_edit_density_precision));
+			if(value_Type == VAL)	{substrate.absolute_Density.value = line_Edit->text().toDouble();	}
+			if(value_Type == MIN)	{substrate.absolute_Density.fit.min = line_Edit->text().toDouble();}
+			if(value_Type == MAX)	{substrate.absolute_Density.fit.max = line_Edit->text().toDouble();}
 		}
 		if(whats_This == whats_This_Relative_Density)
 		{
-		if(value_Type == VAL)	line_Edit->setText(QString::number(substrate.relative_Density.value,   line_edit_double_format, line_edit_density_precision));
-		if(value_Type == MIN)	line_Edit->setText(QString::number(substrate.relative_Density.fit.min, min_Max_Format, line_edit_density_precision));
-		if(value_Type == MAX)	line_Edit->setText(QString::number(substrate.relative_Density.fit.max, min_Max_Format, line_edit_density_precision));
+			if(value_Type == VAL)	{substrate.relative_Density.value = line_Edit->text().toDouble();	}
+			if(value_Type == MIN)	{substrate.relative_Density.fit.min = line_Edit->text().toDouble();}
+			if(value_Type == MAX)	{substrate.relative_Density.fit.max = line_Edit->text().toDouble();}
 		}
 		if(whats_This == whats_This_Sigma)
 		{
-		if(value_Type == VAL)
-		{
-			line_Edit->setText(QString::number(substrate.sigma.value/length_Coeff,   line_edit_double_format, line_edit_sigma_precision));
-			line_Edit->setDisabled(!substrate.common_Sigma);
-			line_Edit->setStyleSheet("border: 1px solid grey");
+			if(value_Type == VAL)
+			{
+				substrate.sigma.value = line_Edit->text().toDouble()*length_Coeff;
+				for(int interlayer_Index=0; interlayer_Index<transition_Layer_Functions_Size; ++interlayer_Index)
+				{
+					substrate.interlayer_Composition[interlayer_Index].my_Sigma.value = substrate.sigma.value;
+				}
+			}
+			if(value_Type == MIN)
+			{
+				substrate.sigma.fit.min = line_Edit->text().toDouble()*length_Coeff;
+				for(int interlayer_Index=0; interlayer_Index<transition_Layer_Functions_Size; ++interlayer_Index)
+				{
+					substrate.interlayer_Composition[interlayer_Index].my_Sigma.fit.min = substrate.sigma.fit.min;
+				}
+			}
+			if(value_Type == MAX)
+			{
+				substrate.sigma.fit.max = line_Edit->text().toDouble()*length_Coeff;
+				for(int interlayer_Index=0; interlayer_Index<transition_Layer_Functions_Size; ++interlayer_Index)
+				{
+					substrate.interlayer_Composition[interlayer_Index].my_Sigma.fit.max = substrate.sigma.fit.max;
+				}
+			}
 		}
-		if(value_Type == MIN)	line_Edit->setText(QString::number(substrate.sigma.fit.min/length_Coeff, min_Max_Format, line_edit_sigma_precision));
-		if(value_Type == MAX)	line_Edit->setText(QString::number(substrate.sigma.fit.max/length_Coeff, min_Max_Format, line_edit_sigma_precision));
-		}
-		return;
-	}
-	if(whats_This == whats_This_Absolute_Density)
-	{
-		if(value_Type == VAL)	{substrate.absolute_Density.value = line_Edit->text().toDouble();	}
-		if(value_Type == MIN)	{substrate.absolute_Density.fit.min = line_Edit->text().toDouble();}
-		if(value_Type == MAX)	{substrate.absolute_Density.fit.max = line_Edit->text().toDouble();}
-	}
-	if(whats_This == whats_This_Relative_Density)
-	{
-		if(value_Type == VAL)	{substrate.relative_Density.value = line_Edit->text().toDouble();	}
-		if(value_Type == MIN)	{substrate.relative_Density.fit.min = line_Edit->text().toDouble();}
-		if(value_Type == MAX)	{substrate.relative_Density.fit.max = line_Edit->text().toDouble();}
-	}
-	if(whats_This == whats_This_Sigma)
-	{
-		if(value_Type == VAL)
-		{
-		substrate.sigma.value = line_Edit->text().toDouble()*length_Coeff;
-		for(int interlayer_Index=0; interlayer_Index<transition_Layer_Functions_Size; ++interlayer_Index)
-		{
-			substrate.interlayer_Composition[interlayer_Index].my_Sigma.value = substrate.sigma.value;
-		}
-		}
-		if(value_Type == MIN)
-		{
-		substrate.sigma.fit.min = line_Edit->text().toDouble()*length_Coeff;
-		for(int interlayer_Index=0; interlayer_Index<transition_Layer_Functions_Size; ++interlayer_Index)
-		{
-			substrate.interlayer_Composition[interlayer_Index].my_Sigma.fit.min = substrate.sigma.fit.min;
-		}
-		}
-		if(value_Type == MAX)
-		{
-		substrate.sigma.fit.max = line_Edit->text().toDouble()*length_Coeff;
-		for(int interlayer_Index=0; interlayer_Index<transition_Layer_Functions_Size; ++interlayer_Index)
-		{
-			substrate.interlayer_Composition[interlayer_Index].my_Sigma.fit.max = substrate.sigma.fit.max;
-		}
-		}
-	}
 
-	var.setValue( substrate );
+		var.setValue( substrate );
 	}
 	if(item_Type_String == whats_This_Multilayer)
 	{
-	Stack_Content stack_Content = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Stack_Content>();
+		Stack_Content stack_Content = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Stack_Content>();
 
-	if(reload)
-	{
+		if(reload)
+		{
+			if(whats_This == whats_This_Num_Repetitions)
+			{
+				if(value_Type == VAL)	line_Edit->setText(QString::number(stack_Content.num_Repetition.value));
+			}
+			if(whats_This == whats_This_Period)
+			{
+				if(value_Type == VAL)	line_Edit->setText(QString::number(stack_Content.period.value/length_Coeff,   line_edit_double_format, line_edit_period_precision));
+				if(value_Type == MIN)	line_Edit->setText(QString::number(stack_Content.period.fit.min/length_Coeff, min_Max_Format, line_edit_period_precision));
+				if(value_Type == MAX)	line_Edit->setText(QString::number(stack_Content.period.fit.max/length_Coeff, min_Max_Format, line_edit_period_precision));
+			}
+			if(whats_This == whats_This_Gamma)
+			{
+				if(value_Type == VAL)
+				{
+					if( abs(stack_Content.period.value) > DBL_EPSILON )
+					{
+						line_Edit->setText(QString::number(stack_Content.gamma.value, min_Max_Format, line_edit_gamma_precision));
+						line_Edit->setDisabled(false);
+						line_Edit->setStyleSheet("border: 1px solid grey");
+					} else
+					{
+						line_Edit->setDisabled(true);
+						line_Edit->setStyleSheet("border: 0px solid grey");
+					}
+				}
+				if(value_Type == MIN)	line_Edit->setText(QString::number(stack_Content.gamma.fit.min, min_Max_Format, line_edit_gamma_precision));
+				if(value_Type == MAX)	line_Edit->setText(QString::number(stack_Content.gamma.fit.max, min_Max_Format, line_edit_gamma_precision));
+			}
+			return;
+		}
+
 		if(whats_This == whats_This_Num_Repetitions)
 		{
-		if(value_Type == VAL)	line_Edit->setText(QString::number(stack_Content.num_Repetition.value));
+			if(value_Type == VAL)	stack_Content.num_Repetition.value = line_Edit->text().toInt();
 		}
 		if(whats_This == whats_This_Period)
 		{
-		if(value_Type == VAL)	line_Edit->setText(QString::number(stack_Content.period.value/length_Coeff,   line_edit_double_format, line_edit_period_precision));
-		if(value_Type == MIN)	line_Edit->setText(QString::number(stack_Content.period.fit.min/length_Coeff, min_Max_Format, line_edit_period_precision));
-		if(value_Type == MAX)	line_Edit->setText(QString::number(stack_Content.period.fit.max/length_Coeff, min_Max_Format, line_edit_period_precision));
+			if(value_Type == VAL)
+			{
+				double new_Period_Value = line_Edit->text().toDouble()*length_Coeff;
+				if(		qApp->focusWidget() != line_Edit
+						||	abs(new_Period_Value) > DBL_EPSILON )
+				{
+					double factor = 1;
+					if( abs(stack_Content.period.value) > DBL_EPSILON )	factor = new_Period_Value / stack_Content.period.value;
+					change_Child_Layers_Thickness(structure_Item, factor);
+				}
+			}
+			if(value_Type == MIN)	stack_Content.period.fit.min = line_Edit->text().toDouble();
+			if(value_Type == MAX)	stack_Content.period.fit.max = line_Edit->text().toDouble();
 		}
 		if(whats_This == whats_This_Gamma)
 		{
-		if(value_Type == VAL)
-		{
-			if( abs(stack_Content.period.value) > DBL_EPSILON )
+			if(value_Type == VAL)
 			{
-			line_Edit->setText(QString::number(stack_Content.gamma.value, min_Max_Format, line_edit_gamma_precision));
-			line_Edit->setDisabled(false);
-			line_Edit->setStyleSheet("border: 1px solid grey");
-			} else
-			{
-			line_Edit->setDisabled(true);
-			line_Edit->setStyleSheet("border: 0px solid grey");
+				double new_Gamma_Value = line_Edit->text().toDouble();
+				if(new_Gamma_Value>1)
+				{
+					line_Edit->setText(QString::number(stack_Content.gamma.value));
+					resize_Line_Edit(table, line_Edit);
+				} else
+				{
+					if(		qApp->focusWidget() != line_Edit
+							||	(abs(new_Gamma_Value) > DBL_EPSILON && abs(new_Gamma_Value-1) > DBL_EPSILON) )
+					{
+						if( abs(stack_Content.period.value) > DBL_EPSILON )	change_Stack_Gamma(structure_Item, new_Gamma_Value);
+					}
+				}
 			}
+			if(value_Type == MIN)	stack_Content.gamma.fit.min = line_Edit->text().toDouble();
+			if(value_Type == MAX)	stack_Content.gamma.fit.max = line_Edit->text().toDouble();
 		}
-		if(value_Type == MIN)	line_Edit->setText(QString::number(stack_Content.gamma.fit.min, min_Max_Format, line_edit_gamma_precision));
-		if(value_Type == MAX)	line_Edit->setText(QString::number(stack_Content.gamma.fit.max, min_Max_Format, line_edit_gamma_precision));
-		}
-		return;
-	}
-
-	if(whats_This == whats_This_Num_Repetitions)
-	{
-		if(value_Type == VAL)	stack_Content.num_Repetition.value = line_Edit->text().toInt();
-	}
-	if(whats_This == whats_This_Period)
-	{
-		if(value_Type == VAL)
-		{
-		double new_Period_Value = line_Edit->text().toDouble()*length_Coeff;
-		if(		qApp->focusWidget() != line_Edit
-		||	abs(new_Period_Value) > DBL_EPSILON )
-		{
-			double factor = 1;
-			if( abs(stack_Content.period.value) > DBL_EPSILON )	factor = new_Period_Value / stack_Content.period.value;
-			change_Child_Layers_Thickness(structure_Item, factor);
-		}
-		}
-		if(value_Type == MIN)	stack_Content.period.fit.min = line_Edit->text().toDouble();
-		if(value_Type == MAX)	stack_Content.period.fit.max = line_Edit->text().toDouble();
-	}
-	if(whats_This == whats_This_Gamma)
-	{
-		if(value_Type == VAL)
-		{
-		double new_Gamma_Value = line_Edit->text().toDouble();
-		if(new_Gamma_Value>1)
-		{
-			line_Edit->setText(QString::number(stack_Content.gamma.value));
-			resize_Line_Edit(table, line_Edit);
-		} else
-		{
-			if(		qApp->focusWidget() != line_Edit
-			||	(abs(new_Gamma_Value) > DBL_EPSILON && abs(new_Gamma_Value-1) > DBL_EPSILON) )
-			{
-			if( abs(stack_Content.period.value) > DBL_EPSILON )	change_Stack_Gamma(structure_Item, new_Gamma_Value);
-			}
-		}
-		}
-		if(value_Type == MIN)	stack_Content.gamma.fit.min = line_Edit->text().toDouble();
-		if(value_Type == MAX)	stack_Content.gamma.fit.max = line_Edit->text().toDouble();
-	}
-	var.setValue( stack_Content );
+		var.setValue( stack_Content );
 	}
 	structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
 
 	{
-	emit_Data_Edited();
-	reload_All_Widgets(QObject::sender());
+		emit_Data_Edited();
+		reload_All_Widgets(QObject::sender());
 	}
 }
 
@@ -2276,119 +2284,119 @@ void Table_Of_Structures::refresh_Fit_Parameter()
 	QVariant var;
 	if(item_Type_String == whats_This_Ambient)
 	{
-	Ambient ambient = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Ambient>();
+		Ambient ambient = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Ambient>();
 
-	if(reload)
-	{
-		if(whats_This == whats_This_Absolute_Density)	check_Box->setChecked(ambient.absolute_Density.fit.is_Fitable);
-		if(whats_This == whats_This_Relative_Density)	check_Box->setChecked(ambient.absolute_Density.fit.is_Fitable);
+		if(reload)
+		{
+			if(whats_This == whats_This_Absolute_Density)	check_Box->setChecked(ambient.absolute_Density.fit.is_Fitable);
+			if(whats_This == whats_This_Relative_Density)	check_Box->setChecked(ambient.absolute_Density.fit.is_Fitable);
 
-		return;
-	}
+			return;
+		}
 
-	if(whats_This == whats_This_Absolute_Density)	ambient.absolute_Density.fit.is_Fitable = check_Box->isChecked();
-	if(whats_This == whats_This_Relative_Density)	ambient.relative_Density.fit.is_Fitable = check_Box->isChecked();
+		if(whats_This == whats_This_Absolute_Density)	ambient.absolute_Density.fit.is_Fitable = check_Box->isChecked();
+		if(whats_This == whats_This_Relative_Density)	ambient.relative_Density.fit.is_Fitable = check_Box->isChecked();
 
-	var.setValue( ambient );
+		var.setValue( ambient );
 	}
 	if(item_Type_String == whats_This_Layer)
 	{
-	Layer layer = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>();
+		Layer layer = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>();
 
-	if(reload)
-	{
-		if(whats_This == whats_This_Absolute_Density)				check_Box->setChecked(layer.absolute_Density.fit.is_Fitable);
-		if(whats_This == whats_This_Relative_Density)				check_Box->setChecked(layer.relative_Density.fit.is_Fitable);
-		if(whats_This == whats_This_Thickness)						check_Box->setChecked(layer.thickness.fit.is_Fitable);
-		if(whats_This == whats_This_Sigma)                  		check_Box->setChecked(layer.sigma.fit.is_Fitable);
-
-		if(whats_This == whats_This_Thickness_Drift_Line_Value)		check_Box->setChecked(layer.thickness_Drift.drift_Line_Value.fit.is_Fitable);
-		if(whats_This == whats_This_Thickness_Drift_Rand_Rms)		check_Box->setChecked(layer.thickness_Drift.drift_Rand_Rms.fit.is_Fitable);
-		if(whats_This == whats_This_Thickness_Drift_Sine_Amplitude)	check_Box->setChecked(layer.thickness_Drift.drift_Sine_Amplitude.fit.is_Fitable);
-		if(whats_This == whats_This_Thickness_Drift_Sine_Frequency)	check_Box->setChecked(layer.thickness_Drift.drift_Sine_Frequency.fit.is_Fitable);
-		if(whats_This == whats_This_Thickness_Drift_Sine_Phase)		check_Box->setChecked(layer.thickness_Drift.drift_Sine_Phase.fit.is_Fitable);
-
-		if(whats_This == whats_This_Sigma_Drift_Line_Value)			check_Box->setChecked(layer.sigma_Drift.drift_Line_Value.fit.is_Fitable);
-		if(whats_This == whats_This_Sigma_Drift_Rand_Rms)			check_Box->setChecked(layer.sigma_Drift.drift_Rand_Rms.fit.is_Fitable);
-		if(whats_This == whats_This_Sigma_Drift_Sine_Amplitude)		check_Box->setChecked(layer.sigma_Drift.drift_Sine_Amplitude.fit.is_Fitable);
-		if(whats_This == whats_This_Sigma_Drift_Sine_Frequency)		check_Box->setChecked(layer.sigma_Drift.drift_Sine_Frequency.fit.is_Fitable);
-		if(whats_This == whats_This_Sigma_Drift_Sine_Phase)			check_Box->setChecked(layer.sigma_Drift.drift_Sine_Phase.fit.is_Fitable);
-
-		return;
-	}
-
-	if(whats_This == whats_This_Absolute_Density)				layer.absolute_Density.fit.is_Fitable = check_Box->isChecked();
-	if(whats_This == whats_This_Relative_Density)				layer.relative_Density.fit.is_Fitable = check_Box->isChecked();
-	if(whats_This == whats_This_Thickness)						layer.thickness.fit.is_Fitable = check_Box->isChecked();
-	if(whats_This == whats_This_Sigma)
-	{
-		layer.sigma.fit.is_Fitable = check_Box->isChecked();
-		for(int interlayer_Index=0; interlayer_Index<transition_Layer_Functions_Size; ++interlayer_Index)
+		if(reload)
 		{
-		layer.interlayer_Composition[interlayer_Index].my_Sigma.fit.is_Fitable = check_Box->isChecked();
+			if(whats_This == whats_This_Absolute_Density)				check_Box->setChecked(layer.absolute_Density.fit.is_Fitable);
+			if(whats_This == whats_This_Relative_Density)				check_Box->setChecked(layer.relative_Density.fit.is_Fitable);
+			if(whats_This == whats_This_Thickness)						check_Box->setChecked(layer.thickness.fit.is_Fitable);
+			if(whats_This == whats_This_Sigma)                  		check_Box->setChecked(layer.sigma.fit.is_Fitable);
+
+			if(whats_This == whats_This_Thickness_Drift_Line_Value)		check_Box->setChecked(layer.thickness_Drift.drift_Line_Value.fit.is_Fitable);
+			if(whats_This == whats_This_Thickness_Drift_Rand_Rms)		check_Box->setChecked(layer.thickness_Drift.drift_Rand_Rms.fit.is_Fitable);
+			if(whats_This == whats_This_Thickness_Drift_Sine_Amplitude)	check_Box->setChecked(layer.thickness_Drift.drift_Sine_Amplitude.fit.is_Fitable);
+			if(whats_This == whats_This_Thickness_Drift_Sine_Frequency)	check_Box->setChecked(layer.thickness_Drift.drift_Sine_Frequency.fit.is_Fitable);
+			if(whats_This == whats_This_Thickness_Drift_Sine_Phase)		check_Box->setChecked(layer.thickness_Drift.drift_Sine_Phase.fit.is_Fitable);
+
+			if(whats_This == whats_This_Sigma_Drift_Line_Value)			check_Box->setChecked(layer.sigma_Drift.drift_Line_Value.fit.is_Fitable);
+			if(whats_This == whats_This_Sigma_Drift_Rand_Rms)			check_Box->setChecked(layer.sigma_Drift.drift_Rand_Rms.fit.is_Fitable);
+			if(whats_This == whats_This_Sigma_Drift_Sine_Amplitude)		check_Box->setChecked(layer.sigma_Drift.drift_Sine_Amplitude.fit.is_Fitable);
+			if(whats_This == whats_This_Sigma_Drift_Sine_Frequency)		check_Box->setChecked(layer.sigma_Drift.drift_Sine_Frequency.fit.is_Fitable);
+			if(whats_This == whats_This_Sigma_Drift_Sine_Phase)			check_Box->setChecked(layer.sigma_Drift.drift_Sine_Phase.fit.is_Fitable);
+
+			return;
 		}
-	}
 
-	if(whats_This == whats_This_Thickness_Drift_Line_Value)		layer.thickness_Drift.drift_Line_Value.fit.is_Fitable = check_Box->isChecked();
-	if(whats_This == whats_This_Thickness_Drift_Rand_Rms)		layer.thickness_Drift.drift_Rand_Rms.fit.is_Fitable = check_Box->isChecked();
-	if(whats_This == whats_This_Thickness_Drift_Sine_Amplitude)	layer.thickness_Drift.drift_Sine_Amplitude.fit.is_Fitable = check_Box->isChecked();
-	if(whats_This == whats_This_Thickness_Drift_Sine_Frequency)	layer.thickness_Drift.drift_Sine_Frequency.fit.is_Fitable = check_Box->isChecked();
-	if(whats_This == whats_This_Thickness_Drift_Sine_Phase)		layer.thickness_Drift.drift_Sine_Phase.fit.is_Fitable = check_Box->isChecked();
+		if(whats_This == whats_This_Absolute_Density)				layer.absolute_Density.fit.is_Fitable = check_Box->isChecked();
+		if(whats_This == whats_This_Relative_Density)				layer.relative_Density.fit.is_Fitable = check_Box->isChecked();
+		if(whats_This == whats_This_Thickness)						layer.thickness.fit.is_Fitable = check_Box->isChecked();
+		if(whats_This == whats_This_Sigma)
+		{
+			layer.sigma.fit.is_Fitable = check_Box->isChecked();
+			for(int interlayer_Index=0; interlayer_Index<transition_Layer_Functions_Size; ++interlayer_Index)
+			{
+				layer.interlayer_Composition[interlayer_Index].my_Sigma.fit.is_Fitable = check_Box->isChecked();
+			}
+		}
 
-	if(whats_This == whats_This_Sigma_Drift_Line_Value)			layer.sigma_Drift.drift_Line_Value.fit.is_Fitable = check_Box->isChecked();
-	if(whats_This == whats_This_Sigma_Drift_Rand_Rms)			layer.sigma_Drift.drift_Rand_Rms.fit.is_Fitable = check_Box->isChecked();
-	if(whats_This == whats_This_Sigma_Drift_Sine_Amplitude)		layer.sigma_Drift.drift_Sine_Amplitude.fit.is_Fitable = check_Box->isChecked();
-	if(whats_This == whats_This_Sigma_Drift_Sine_Frequency)		layer.sigma_Drift.drift_Sine_Frequency.fit.is_Fitable = check_Box->isChecked();
-	if(whats_This == whats_This_Sigma_Drift_Sine_Phase)			layer.sigma_Drift.drift_Sine_Phase.fit.is_Fitable = check_Box->isChecked();
+		if(whats_This == whats_This_Thickness_Drift_Line_Value)		layer.thickness_Drift.drift_Line_Value.fit.is_Fitable = check_Box->isChecked();
+		if(whats_This == whats_This_Thickness_Drift_Rand_Rms)		layer.thickness_Drift.drift_Rand_Rms.fit.is_Fitable = check_Box->isChecked();
+		if(whats_This == whats_This_Thickness_Drift_Sine_Amplitude)	layer.thickness_Drift.drift_Sine_Amplitude.fit.is_Fitable = check_Box->isChecked();
+		if(whats_This == whats_This_Thickness_Drift_Sine_Frequency)	layer.thickness_Drift.drift_Sine_Frequency.fit.is_Fitable = check_Box->isChecked();
+		if(whats_This == whats_This_Thickness_Drift_Sine_Phase)		layer.thickness_Drift.drift_Sine_Phase.fit.is_Fitable = check_Box->isChecked();
 
-	var.setValue( layer );
+		if(whats_This == whats_This_Sigma_Drift_Line_Value)			layer.sigma_Drift.drift_Line_Value.fit.is_Fitable = check_Box->isChecked();
+		if(whats_This == whats_This_Sigma_Drift_Rand_Rms)			layer.sigma_Drift.drift_Rand_Rms.fit.is_Fitable = check_Box->isChecked();
+		if(whats_This == whats_This_Sigma_Drift_Sine_Amplitude)		layer.sigma_Drift.drift_Sine_Amplitude.fit.is_Fitable = check_Box->isChecked();
+		if(whats_This == whats_This_Sigma_Drift_Sine_Frequency)		layer.sigma_Drift.drift_Sine_Frequency.fit.is_Fitable = check_Box->isChecked();
+		if(whats_This == whats_This_Sigma_Drift_Sine_Phase)			layer.sigma_Drift.drift_Sine_Phase.fit.is_Fitable = check_Box->isChecked();
+
+		var.setValue( layer );
 	}
 	if(item_Type_String == whats_This_Substrate)
 	{
-	Substrate substrate = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Substrate>();
+		Substrate substrate = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Substrate>();
 
-	if(reload)
-	{
-		if(whats_This == whats_This_Absolute_Density)	check_Box->setChecked(substrate.absolute_Density.fit.is_Fitable);
-		if(whats_This == whats_This_Relative_Density)	check_Box->setChecked(substrate.relative_Density.fit.is_Fitable);
-		if(whats_This == whats_This_Sigma)              check_Box->setChecked(substrate.sigma.fit.is_Fitable);
-
-		return;
-	}
-
-	if(whats_This == whats_This_Absolute_Density)	substrate.absolute_Density.fit.is_Fitable = check_Box->isChecked();
-	if(whats_This == whats_This_Relative_Density)	substrate.relative_Density.fit.is_Fitable = check_Box->isChecked();
-	if(whats_This == whats_This_Sigma)
-	{
-		substrate.sigma.fit.is_Fitable = check_Box->isChecked();
-		for(int interlayer_Index=0; interlayer_Index<transition_Layer_Functions_Size; ++interlayer_Index)
+		if(reload)
 		{
-		substrate.interlayer_Composition[interlayer_Index].my_Sigma.fit.is_Fitable = check_Box->isChecked();
-		}
-	}
+			if(whats_This == whats_This_Absolute_Density)	check_Box->setChecked(substrate.absolute_Density.fit.is_Fitable);
+			if(whats_This == whats_This_Relative_Density)	check_Box->setChecked(substrate.relative_Density.fit.is_Fitable);
+			if(whats_This == whats_This_Sigma)              check_Box->setChecked(substrate.sigma.fit.is_Fitable);
 
-	var.setValue( substrate );
+			return;
+		}
+
+		if(whats_This == whats_This_Absolute_Density)	substrate.absolute_Density.fit.is_Fitable = check_Box->isChecked();
+		if(whats_This == whats_This_Relative_Density)	substrate.relative_Density.fit.is_Fitable = check_Box->isChecked();
+		if(whats_This == whats_This_Sigma)
+		{
+			substrate.sigma.fit.is_Fitable = check_Box->isChecked();
+			for(int interlayer_Index=0; interlayer_Index<transition_Layer_Functions_Size; ++interlayer_Index)
+			{
+				substrate.interlayer_Composition[interlayer_Index].my_Sigma.fit.is_Fitable = check_Box->isChecked();
+			}
+		}
+
+		var.setValue( substrate );
 	}
 	if(item_Type_String == whats_This_Multilayer)
 	{
-	Stack_Content stack_Content = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Stack_Content>();
+		Stack_Content stack_Content = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Stack_Content>();
 
-	if(reload)
-	{
-		if(whats_This == whats_This_Period)	check_Box->setChecked(stack_Content.period.fit.is_Fitable);
-		if(whats_This == whats_This_Gamma)	check_Box->setChecked(stack_Content.gamma.fit.is_Fitable);
-		return;
-	}
-	if(whats_This == whats_This_Period)	stack_Content.period.fit.is_Fitable = check_Box->isChecked();
-	if(whats_This == whats_This_Gamma)	stack_Content.gamma.fit.is_Fitable = check_Box->isChecked();
+		if(reload)
+		{
+			if(whats_This == whats_This_Period)	check_Box->setChecked(stack_Content.period.fit.is_Fitable);
+			if(whats_This == whats_This_Gamma)	check_Box->setChecked(stack_Content.gamma.fit.is_Fitable);
+			return;
+		}
+		if(whats_This == whats_This_Period)	stack_Content.period.fit.is_Fitable = check_Box->isChecked();
+		if(whats_This == whats_This_Gamma)	stack_Content.gamma.fit.is_Fitable = check_Box->isChecked();
 
-	var.setValue( stack_Content );
+		var.setValue( stack_Content );
 	}
 	structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
 
 	{
-	emit_Data_Edited();
-	reload_All_Widgets(QObject::sender());
+		emit_Data_Edited();
+		reload_All_Widgets(QObject::sender());
 	}
 }
 
@@ -2407,35 +2415,35 @@ void Table_Of_Structures::refresh_Check_Box_Label_Interlayer()
 	QVariant var;
 	if(item_Type_String == whats_This_Layer)
 	{
-	Layer layer = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>();
+		Layer layer = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>();
 
-	if(reload)	{check_Box->setChecked(layer.interlayer_Composition[interlayer_Index].enabled);	return;	}
+		if(reload)	{check_Box->setChecked(layer.interlayer_Composition[interlayer_Index].enabled);	return;	}
 
-	layer.interlayer_Composition[interlayer_Index].enabled = check_Box->isChecked();
-	if(!layer.common_Sigma)
-	{
-		layer.sigma.value = recalculate_Sigma_From_Individuals(layer.interlayer_Composition);
-	}
-	var.setValue( layer );
+		layer.interlayer_Composition[interlayer_Index].enabled = check_Box->isChecked();
+		if(!layer.common_Sigma)
+		{
+			layer.sigma.value = recalculate_Sigma_From_Individuals(layer.interlayer_Composition);
+		}
+		var.setValue( layer );
 	}
 	if(item_Type_String == whats_This_Substrate)
 	{
-	Substrate substrate = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Substrate>();
+		Substrate substrate = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Substrate>();
 
-	if(reload)	{check_Box->setChecked(substrate.interlayer_Composition[interlayer_Index].enabled);	return;	}
+		if(reload)	{check_Box->setChecked(substrate.interlayer_Composition[interlayer_Index].enabled);	return;	}
 
-	substrate.interlayer_Composition[interlayer_Index].enabled = check_Box->isChecked();
-	if(!substrate.common_Sigma)
-	{
-		substrate.sigma.value = recalculate_Sigma_From_Individuals(substrate.interlayer_Composition);
-	}
-	var.setValue( substrate );
+		substrate.interlayer_Composition[interlayer_Index].enabled = check_Box->isChecked();
+		if(!substrate.common_Sigma)
+		{
+			substrate.sigma.value = recalculate_Sigma_From_Individuals(substrate.interlayer_Composition);
+		}
+		var.setValue( substrate );
 	}
 	structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
 
 	{
-	emit_Data_Edited();
-	reload_All_Widgets(QObject::sender());
+		emit_Data_Edited();
+		reload_All_Widgets(QObject::sender());
 	}
 }
 
@@ -2454,61 +2462,61 @@ void Table_Of_Structures::refresh_Weigts_Interlayer()
 
 	if(item_Type_String == whats_This_Layer)
 	{
-	Layer layer = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>();
+		Layer layer = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>();
 
-	if(reload)
-	{
-		if(value_Type == VAL)	line_Edit->setText(QString::number(layer.interlayer_Composition[interlayer_Index].interlayer.value,	  line_edit_short_double_format, line_edit_interlayer_precision));
-		if(value_Type == MIN)	line_Edit->setText(QString::number(layer.interlayer_Composition[interlayer_Index].interlayer.fit.min, line_edit_short_double_format, line_edit_interlayer_precision));
-		if(value_Type == MAX)	line_Edit->setText(QString::number(layer.interlayer_Composition[interlayer_Index].interlayer.fit.max, line_edit_short_double_format, line_edit_interlayer_precision));
-
-		return;
-	}
-
-	if(value_Type == VAL)
-	{
-		layer.interlayer_Composition[interlayer_Index].interlayer.value = line_Edit->text().toDouble();
-		if(!layer.common_Sigma)
+		if(reload)
 		{
-		layer.sigma.value = recalculate_Sigma_From_Individuals(layer.interlayer_Composition);
-		}
-	}
-	if(value_Type == MIN)	layer.interlayer_Composition[interlayer_Index].interlayer.fit.min = line_Edit->text().toDouble();
-	if(value_Type == MAX)	layer.interlayer_Composition[interlayer_Index].interlayer.fit.max = line_Edit->text().toDouble();
+			if(value_Type == VAL)	line_Edit->setText(QString::number(layer.interlayer_Composition[interlayer_Index].interlayer.value,	  line_edit_short_double_format, line_edit_interlayer_precision));
+			if(value_Type == MIN)	line_Edit->setText(QString::number(layer.interlayer_Composition[interlayer_Index].interlayer.fit.min, line_edit_short_double_format, line_edit_interlayer_precision));
+			if(value_Type == MAX)	line_Edit->setText(QString::number(layer.interlayer_Composition[interlayer_Index].interlayer.fit.max, line_edit_short_double_format, line_edit_interlayer_precision));
 
-	var.setValue( layer );
+			return;
+		}
+
+		if(value_Type == VAL)
+		{
+			layer.interlayer_Composition[interlayer_Index].interlayer.value = line_Edit->text().toDouble();
+			if(!layer.common_Sigma)
+			{
+				layer.sigma.value = recalculate_Sigma_From_Individuals(layer.interlayer_Composition);
+			}
+		}
+		if(value_Type == MIN)	layer.interlayer_Composition[interlayer_Index].interlayer.fit.min = line_Edit->text().toDouble();
+		if(value_Type == MAX)	layer.interlayer_Composition[interlayer_Index].interlayer.fit.max = line_Edit->text().toDouble();
+
+		var.setValue( layer );
 	}
 	if(item_Type_String == whats_This_Substrate)
 	{
-	Substrate substrate = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Substrate>();
+		Substrate substrate = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Substrate>();
 
-	if(reload)
-	{
-		if(value_Type == VAL)	line_Edit->setText(QString::number(substrate.interlayer_Composition[interlayer_Index].interlayer.value,	  line_edit_short_double_format, line_edit_interlayer_precision));
-		if(value_Type == MIN)	line_Edit->setText(QString::number(substrate.interlayer_Composition[interlayer_Index].interlayer.fit.min, line_edit_short_double_format, line_edit_interlayer_precision));
-		if(value_Type == MAX)	line_Edit->setText(QString::number(substrate.interlayer_Composition[interlayer_Index].interlayer.fit.max, line_edit_short_double_format, line_edit_interlayer_precision));
-
-		return;
-	}
-
-	if(value_Type == VAL)
-	{
-		substrate.interlayer_Composition[interlayer_Index].interlayer.value = line_Edit->text().toDouble();
-		if(!substrate.common_Sigma)
+		if(reload)
 		{
-		substrate.sigma.value = recalculate_Sigma_From_Individuals(substrate.interlayer_Composition);
-		}
-	}
-	if(value_Type == MIN)	substrate.interlayer_Composition[interlayer_Index].interlayer.fit.min = line_Edit->text().toDouble();
-	if(value_Type == MAX)	substrate.interlayer_Composition[interlayer_Index].interlayer.fit.max = line_Edit->text().toDouble();
+			if(value_Type == VAL)	line_Edit->setText(QString::number(substrate.interlayer_Composition[interlayer_Index].interlayer.value,	  line_edit_short_double_format, line_edit_interlayer_precision));
+			if(value_Type == MIN)	line_Edit->setText(QString::number(substrate.interlayer_Composition[interlayer_Index].interlayer.fit.min, line_edit_short_double_format, line_edit_interlayer_precision));
+			if(value_Type == MAX)	line_Edit->setText(QString::number(substrate.interlayer_Composition[interlayer_Index].interlayer.fit.max, line_edit_short_double_format, line_edit_interlayer_precision));
 
-	var.setValue( substrate );
+			return;
+		}
+
+		if(value_Type == VAL)
+		{
+			substrate.interlayer_Composition[interlayer_Index].interlayer.value = line_Edit->text().toDouble();
+			if(!substrate.common_Sigma)
+			{
+				substrate.sigma.value = recalculate_Sigma_From_Individuals(substrate.interlayer_Composition);
+			}
+		}
+		if(value_Type == MIN)	substrate.interlayer_Composition[interlayer_Index].interlayer.fit.min = line_Edit->text().toDouble();
+		if(value_Type == MAX)	substrate.interlayer_Composition[interlayer_Index].interlayer.fit.max = line_Edit->text().toDouble();
+
+		var.setValue( substrate );
 	}
 	structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
 
 	{
-	emit_Data_Edited();
-	reload_All_Widgets(QObject::sender());
+		emit_Data_Edited();
+		reload_All_Widgets(QObject::sender());
 	}
 }
 
@@ -2526,27 +2534,27 @@ void Table_Of_Structures::refresh_Weights_Check_Box_Fit_Interlayer()
 	QVariant var;
 	if(item_Type_String == whats_This_Layer)
 	{
-	Layer layer = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>();
+		Layer layer = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>();
 
-	if(reload)	{check_Box->setChecked(layer.interlayer_Composition[interlayer_Index].interlayer.fit.is_Fitable);	return;	}
+		if(reload)	{check_Box->setChecked(layer.interlayer_Composition[interlayer_Index].interlayer.fit.is_Fitable);	return;	}
 
-	layer.interlayer_Composition[interlayer_Index].interlayer.fit.is_Fitable = check_Box->isChecked();
-	var.setValue( layer );
+		layer.interlayer_Composition[interlayer_Index].interlayer.fit.is_Fitable = check_Box->isChecked();
+		var.setValue( layer );
 	}
 	if(item_Type_String == whats_This_Substrate)
 	{
-	Substrate substrate = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Substrate>();
+		Substrate substrate = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Substrate>();
 
-	if(reload)	{check_Box->setChecked(substrate.interlayer_Composition[interlayer_Index].interlayer.fit.is_Fitable);	return;	}
+		if(reload)	{check_Box->setChecked(substrate.interlayer_Composition[interlayer_Index].interlayer.fit.is_Fitable);	return;	}
 
-	substrate.interlayer_Composition[interlayer_Index].interlayer.fit.is_Fitable = check_Box->isChecked();
-	var.setValue( substrate );
+		substrate.interlayer_Composition[interlayer_Index].interlayer.fit.is_Fitable = check_Box->isChecked();
+		var.setValue( substrate );
 	}
 	structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
 
 	{
-	emit_Data_Edited();
-	reload_All_Widgets(QObject::sender());
+		emit_Data_Edited();
+		reload_All_Widgets(QObject::sender());
 	}
 }
 
@@ -2566,49 +2574,49 @@ void Table_Of_Structures::refresh_MySigma_Interlayer()
 
 	if(item_Type_String == whats_This_Layer)
 	{
-	Layer layer = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>();
+		Layer layer = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>();
 
-	if(reload)
-	{
-		line_Edit->setText(QString::number(layer.interlayer_Composition[interlayer_Index].my_Sigma.value/length_Coeff, line_edit_double_format, line_edit_sigma_precision));
-		bool disable = layer.common_Sigma || !layer.interlayer_Composition[interlayer_Index].enabled;
-		line_Edit->setDisabled(disable);
-		return;
-	}
+		if(reload)
+		{
+			line_Edit->setText(QString::number(layer.interlayer_Composition[interlayer_Index].my_Sigma.value/length_Coeff, line_edit_double_format, line_edit_sigma_precision));
+			bool disable = layer.common_Sigma || !layer.interlayer_Composition[interlayer_Index].enabled;
+			line_Edit->setDisabled(disable);
+			return;
+		}
 
-	layer.interlayer_Composition[interlayer_Index].my_Sigma.value = line_Edit->text().toDouble()*length_Coeff;
-	if(!layer.common_Sigma)
-	{
-		layer.sigma.value = recalculate_Sigma_From_Individuals(layer.interlayer_Composition);
-	}
+		layer.interlayer_Composition[interlayer_Index].my_Sigma.value = line_Edit->text().toDouble()*length_Coeff;
+		if(!layer.common_Sigma)
+		{
+			layer.sigma.value = recalculate_Sigma_From_Individuals(layer.interlayer_Composition);
+		}
 
-	var.setValue( layer );
+		var.setValue( layer );
 	}
 	if(item_Type_String == whats_This_Substrate)
 	{
-	Substrate substrate = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Substrate>();
+		Substrate substrate = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Substrate>();
 
-	if(reload)
-	{
-		line_Edit->setText(QString::number(substrate.interlayer_Composition[interlayer_Index].my_Sigma.value/length_Coeff, line_edit_double_format, line_edit_sigma_precision));
-		bool disable = substrate.common_Sigma || !substrate.interlayer_Composition[interlayer_Index].enabled;
-		line_Edit->setDisabled(disable);
-		return;
-	}
+		if(reload)
+		{
+			line_Edit->setText(QString::number(substrate.interlayer_Composition[interlayer_Index].my_Sigma.value/length_Coeff, line_edit_double_format, line_edit_sigma_precision));
+			bool disable = substrate.common_Sigma || !substrate.interlayer_Composition[interlayer_Index].enabled;
+			line_Edit->setDisabled(disable);
+			return;
+		}
 
-	substrate.interlayer_Composition[interlayer_Index].my_Sigma.value = line_Edit->text().toDouble()*length_Coeff;
-	if(!substrate.common_Sigma)
-	{
-		substrate.sigma.value = recalculate_Sigma_From_Individuals(substrate.interlayer_Composition);
-	}
+		substrate.interlayer_Composition[interlayer_Index].my_Sigma.value = line_Edit->text().toDouble()*length_Coeff;
+		if(!substrate.common_Sigma)
+		{
+			substrate.sigma.value = recalculate_Sigma_From_Individuals(substrate.interlayer_Composition);
+		}
 
-	var.setValue( substrate );
+		var.setValue( substrate );
 	}
 	structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
 
 	{
-	emit_Data_Edited();
-	reload_All_Widgets(QObject::sender());
+		emit_Data_Edited();
+		reload_All_Widgets(QObject::sender());
 	}
 }
 
@@ -2618,11 +2626,11 @@ double Table_Of_Structures::recalculate_Sigma_From_Individuals(QVector<Interlaye
 	double sum = 0;
 	for(int interlayer_Index=0; interlayer_Index<transition_Layer_Functions_Size; ++interlayer_Index)
 	{
-	if(interlayer_Composition[interlayer_Index].enabled)
-	{
-		sum += interlayer_Composition[interlayer_Index].interlayer.value;
-		temp_Sigma_Square += pow(interlayer_Composition[interlayer_Index].my_Sigma.value,2) * interlayer_Composition[interlayer_Index].interlayer.value;
-	}
+		if(interlayer_Composition[interlayer_Index].enabled)
+		{
+			sum += interlayer_Composition[interlayer_Index].interlayer.value;
+			temp_Sigma_Square += pow(interlayer_Composition[interlayer_Index].my_Sigma.value,2) * interlayer_Composition[interlayer_Index].interlayer.value;
+		}
 	}
 	if(sum!=0)    return sqrt(temp_Sigma_Square/sum);
 	else          return 0;
@@ -2644,19 +2652,19 @@ void Table_Of_Structures::cells_On_Off(My_Table_Widget* table)
 	int column_Finish = check_Box->property(relative_Columns_To_Disable_Finish_Property).toInt();
 
 	for(int row=row_Start; row<=row_Finish; ++row)
-	for(int col=column_Start; col<=column_Finish; ++col)
-	{
-		QWidget* widget = table->cellWidget(current_Row+row,current_Column+col);
-		if(widget)
+		for(int col=column_Start; col<=column_Finish; ++col)
 		{
-		widget->setDisabled(!check_Box->isChecked());
+			QWidget* widget = table->cellWidget(current_Row+row,current_Column+col);
+			if(widget)
+			{
+				widget->setDisabled(!check_Box->isChecked());
 
-		if(!check_Box->isChecked())
-			widget->setStyleSheet("border: 0px solid grey");
-		else
-			widget->setStyleSheet("border: 1px solid grey");
+				if(!check_Box->isChecked())
+					widget->setStyleSheet("border: 0px solid grey");
+				else
+					widget->setStyleSheet("border: 1px solid grey");
+			}
 		}
-	}
 }
 
 void Table_Of_Structures::cells_On_Off_2(My_Table_Widget* table)
@@ -2672,19 +2680,19 @@ void Table_Of_Structures::cells_On_Off_2(My_Table_Widget* table)
 	int column_Finish = check_Box->property(relative_Columns_To_Disable_Finish_Property_2).toInt();
 
 	for(int row=row_Start; row<=row_Finish; ++row)
-	for(int col=column_Start; col<=column_Finish; ++col)
-	{
-		QWidget* widget = table->cellWidget(current_Row+row,current_Column+col);
-		if(widget)
+		for(int col=column_Start; col<=column_Finish; ++col)
 		{
-		widget->setDisabled(!check_Box->isChecked());
+			QWidget* widget = table->cellWidget(current_Row+row,current_Column+col);
+			if(widget)
+			{
+				widget->setDisabled(!check_Box->isChecked());
 
-		if(!check_Box->isChecked())
-			widget->setStyleSheet("border: 0px solid red");
-		else
-			widget->setStyleSheet("border: 1px solid grey");
+				if(!check_Box->isChecked())
+					widget->setStyleSheet("border: 0px solid red");
+				else
+					widget->setStyleSheet("border: 1px solid grey");
+			}
 		}
-	}
 }
 
 void Table_Of_Structures::resize_Line_Edit(My_Table_Widget* table, QLineEdit* line_Edit)
@@ -2705,38 +2713,38 @@ void Table_Of_Structures::reload_All_Widgets(QObject* sender)
 {
 	if(table_Is_Created)
 	{
-	//        qInfo() << "reload_All_Widgets " << ++temp_Counter;
-	for(int i=0; i<all_Widgets_To_Reload.size(); ++i)
-	{
-		if(all_Widgets_To_Reload[i] != sender)
+		//        qInfo() << "reload_All_Widgets " << ++temp_Counter;
+		for(int i=0; i<all_Widgets_To_Reload.size(); ++i)
 		{
-		all_Widgets_To_Reload[i]->setProperty(reload_Property, true);
+			if(all_Widgets_To_Reload[i] != sender)
+			{
+				all_Widgets_To_Reload[i]->setProperty(reload_Property, true);
 
-		QLabel*        label = qobject_cast<QLabel*>   (all_Widgets_To_Reload[i]);
-		QCheckBox* check_Box = qobject_cast<QCheckBox*>(all_Widgets_To_Reload[i]);
-		QLineEdit* line_Edit = qobject_cast<QLineEdit*>(all_Widgets_To_Reload[i]);
-		QComboBox* combo_Box = qobject_cast<QComboBox*>(all_Widgets_To_Reload[i]);
+				QLabel*        label = qobject_cast<QLabel*>   (all_Widgets_To_Reload[i]);
+				QCheckBox* check_Box = qobject_cast<QCheckBox*>(all_Widgets_To_Reload[i]);
+				QLineEdit* line_Edit = qobject_cast<QLineEdit*>(all_Widgets_To_Reload[i]);
+				QComboBox* combo_Box = qobject_cast<QComboBox*>(all_Widgets_To_Reload[i]);
 
-		if(label)
-		{
-			label->windowTitleChanged("temp");
-		}
-		if(check_Box)
-		{
-			check_Box->toggled(false);
-		}
-		if(line_Edit)
-		{
-			line_Edit->textEdited("temp");			//
-			line_Edit->textEdited("temp");			// repeated intentionally!
-		}
-		if(combo_Box)
-		{
-			combo_Box->currentTextChanged("temp");
-		}
+				if(label)
+				{
+					label->windowTitleChanged("temp");
+				}
+				if(check_Box)
+				{
+					check_Box->toggled(false);
+				}
+				if(line_Edit)
+				{
+					line_Edit->textEdited("temp");			//
+					line_Edit->textEdited("temp");			// repeated intentionally!
+				}
+				if(combo_Box)
+				{
+					combo_Box->currentTextChanged("temp");
+				}
 
-		all_Widgets_To_Reload[i]->setProperty(reload_Property, false);
+				all_Widgets_To_Reload[i]->setProperty(reload_Property, false);
+			}
 		}
-	}
 	}
 }

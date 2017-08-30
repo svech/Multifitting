@@ -1,6 +1,8 @@
 #include "coupling_editor.h"
 
-Coupling_Editor::Coupling_Editor(QWidget* coupling_Widget, QTabWidget *main_Tabs, QWidget* parent):
+Coupling_Editor::Coupling_Editor(QWidget* coupling_Widget, QMap<QLineEdit*,QTreeWidgetItem*>& line_Edits_Map, QMap<QWidget*,QTreeWidgetItem*>& coupled_Widgets_Map, QTabWidget *main_Tabs, QWidget* parent):
+	line_Edits_Map(line_Edits_Map),
+	coupled_Widgets_Map(coupled_Widgets_Map),
 	coupling_Widget(coupling_Widget),
 	coupling_Parameter(coupling_Widget->property(parameter_Property).value<Parameter>()),
 	main_Tabs(main_Tabs),
@@ -107,6 +109,69 @@ void Coupling_Editor::create_Master_Box()
 
 void Coupling_Editor::load_Master()
 {
+	// get access to tree item
+	QTreeWidgetItem* structure_Item = coupled_Widgets_Map.value(coupling_Widget);
+	QStringList item_Type_List = structure_Item->whatsThis(DEFAULT_COLUMN).split(item_Type_Delimiter,QString::SkipEmptyParts);
+	QString item_Type_String = item_Type_List[0];
+	QString whats_This = coupling_Parameter.indicator.whats_This;
+	QVariant data = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole);
+
+	Coupled coupled;
+	if(item_Type_String == whats_This_Ambient)
+	{
+		Ambient ambient = data.value<Ambient>();
+		if(whats_This == whats_This_Composition)
+		{
+			for(int i=0; i<ambient.composition.size(); ++i)
+			{
+				if(ambient.composition[i].composition.indicator.id == coupling_Parameter.indicator.id)
+				{
+//					qInfo() << "FOUND " << whats_This << " " << i;
+					coupled = ambient.composition[i].composition.coupled;
+					break;
+				}
+			}
+		}
+		if(whats_This == whats_This_Interlayer_Composition)
+		{
+
+		}
+
+		if(whats_This == whats_This_Absolute_Density)	coupled = data.value<Ambient>().absolute_Density.coupled;
+		if(whats_This == whats_This_Relative_Density)	coupled = data.value<Ambient>().relative_Density.coupled;
+	}
+//	if(item_Type_String == whats_This_Layer)
+//	{
+//		if(whats_This == whats_This_Absolute_Density)				{parameter = data.value<Layer>().absolute_Density;		precision = line_edit_density_precision;}
+//		if(whats_This == whats_This_Relative_Density)				{parameter = data.value<Layer>().relative_Density;		precision = line_edit_density_precision;}
+//		if(whats_This == whats_This_Thickness)						{parameter = data.value<Layer>().thickness;				precision = line_edit_thickness_precision;}
+//		if(whats_This == whats_This_Sigma)							{parameter = data.value<Layer>().sigma;					precision = line_edit_sigma_precision;}
+
+//		if(whats_This == whats_This_Thickness_Drift_Line_Value)		{parameter = data.value<Layer>().thickness_Drift.drift_Line_Value;			precision = line_edit_thickness_precision;}
+//		if(whats_This == whats_This_Thickness_Drift_Rand_Rms)		{parameter = data.value<Layer>().thickness_Drift.drift_Rand_Rms;			precision = line_edit_thickness_precision;}
+//		if(whats_This == whats_This_Thickness_Drift_Sine_Amplitude)	{parameter = data.value<Layer>().thickness_Drift.drift_Sine_Amplitude;		precision = line_edit_thickness_precision;}
+//		if(whats_This == whats_This_Thickness_Drift_Sine_Frequency)	{parameter = data.value<Layer>().thickness_Drift.drift_Sine_Frequency;		precision = line_edit_thickness_precision;}
+//		if(whats_This == whats_This_Thickness_Drift_Sine_Phase)		{parameter = data.value<Layer>().thickness_Drift.drift_Sine_Phase;			precision = line_edit_thickness_precision;}
+
+//		if(whats_This == whats_This_Sigma_Drift_Line_Value)			{parameter = data.value<Layer>().sigma_Drift.drift_Line_Value;		precision = line_edit_sigma_precision;}
+//		if(whats_This == whats_This_Sigma_Drift_Rand_Rms)			{parameter = data.value<Layer>().sigma_Drift.drift_Rand_Rms;		precision = line_edit_sigma_precision;}
+//		if(whats_This == whats_This_Sigma_Drift_Sine_Amplitude)		{parameter = data.value<Layer>().sigma_Drift.drift_Sine_Amplitude;	precision = line_edit_sigma_precision;}
+//		if(whats_This == whats_This_Sigma_Drift_Sine_Frequency)		{parameter = data.value<Layer>().sigma_Drift.drift_Sine_Frequency;	precision = line_edit_sigma_precision;}
+//		if(whats_This == whats_This_Sigma_Drift_Sine_Phase)			{parameter = data.value<Layer>().sigma_Drift.drift_Sine_Phase;		precision = line_edit_sigma_precision;}
+//	}
+//	if(item_Type_String == whats_This_Substrate)
+//	{
+//		if(whats_This == whats_This_Absolute_Density)	{parameter = data.value<Substrate>().absolute_Density;		precision = line_edit_density_precision;}
+//		if(whats_This == whats_This_Relative_Density)	{parameter = data.value<Substrate>().relative_Density;		precision = line_edit_density_precision;}
+//		if(whats_This == whats_This_Sigma)				{parameter = data.value<Substrate>().sigma;					precision = line_edit_sigma_precision;	}
+//	}
+//	if(item_Type_String == whats_This_Multilayer)
+//	{
+//		if(whats_This == whats_This_Period)				{parameter = data.value<Stack_Content>().period;	precision = line_edit_period_precision;}
+//		if(whats_This == whats_This_Gamma)				{parameter = data.value<Stack_Content>().gamma;		precision = line_edit_gamma_precision;}
+//	}
+
+
 	// if had master
 	if(coupling_Parameter.coupled.has_Master)
 	{
@@ -130,6 +195,7 @@ void Coupling_Editor::save_Master()
 	// external master parameter
 	if(master_Widget)
 	{
+//		qInfo() << master_Widget;
 		bool already_Contains = false;
 		QVariant var;
 		Parameter master_Parameter = master_Widget->property(parameter_Property).value<Parameter>();

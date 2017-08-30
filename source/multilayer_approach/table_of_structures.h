@@ -115,7 +115,8 @@ public:
 	QString item_Type_String;
 
 	QMap<QComboBox*,QTreeWidgetItem*> elements_Map;
-	QMap<QLineEdit*,QTreeWidgetItem*> line_Edits_Map;
+	QMap<QLineEdit*,QTreeWidgetItem*> line_Edits_Map;	
+		QMap<QWidget*,QTreeWidgetItem*> coupled_Widgets_Map;
 	QMap<QCheckBox*,QTreeWidgetItem*> check_Boxes_Map;
 	QList<QWidget*> all_Widgets_To_Reload;
 };

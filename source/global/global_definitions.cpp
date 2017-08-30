@@ -14,11 +14,11 @@ Global_Definitions::Global_Definitions()
 // serialization
 QDataStream& operator <<( QDataStream& stream, const Parameter_Indicator& indicator )
 {
-	return stream << indicator.id << indicator.tab_Index << indicator.full_Name;
+	return stream << indicator.id << indicator.tab_Index << indicator.full_Name << indicator.whats_This;
 }
 QDataStream& operator >>( QDataStream& stream,		 Parameter_Indicator& indicator )
 {
-	return stream >> indicator.id >> indicator.tab_Index >> indicator.full_Name;
+	return stream >> indicator.id >> indicator.tab_Index >> indicator.full_Name >> indicator.whats_This;
 }
 
 QDataStream& operator <<( QDataStream& stream, const Int_Independent& int_Independent )
