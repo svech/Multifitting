@@ -16,10 +16,13 @@ public:
 
 	void create_Master_Box();
 		void load_Master();
+		void save_Master();
 	void create_Slave_Box();
 		void set_Slave(int index_Pressed);
 		void remove_Slave(int index_Pressed);
 		void add_Slave(int index_Pressed);
+		void load_Slaves();
+		void save_Slaves();
 
 	void enable_Getting_Parameter(QWidget* old, QWidget* now, QLabel* label, QLineEdit* line_Edit);
 	void get_Parameter(QLabel* label);

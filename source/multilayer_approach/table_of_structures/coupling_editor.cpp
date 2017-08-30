@@ -17,46 +17,15 @@ void Coupling_Editor::closeEvent(QCloseEvent *)
 	// save data to table
 	{
 		// coupling parameter
-		QVariant varvar;
-		varvar.setValue( coupling_Parameter );
-		coupling_Widget->setProperty(parameter_Property,varvar);
+		QVariant var;
+		var.setValue( coupling_Parameter );
+		coupling_Widget->setProperty(parameter_Property,var);
 
 		// external master parameter
-		if(master_Widget)
-		{
-			bool already_Contains = false;
-			QVariant var;
-			Parameter master_Parameter = master_Widget->property(parameter_Property).value<Parameter>();
-			for(Parameter_Indicator master_Slave : master_Parameter.coupled.slaves)
-			{
-				if(master_Slave.id == coupling_Parameter.indicator.id)
-				{
-					already_Contains = true;
-					break;
-				}
-			}
-			if(!already_Contains)
-			{
-				master_Parameter.coupled.slaves.append(coupling_Parameter.indicator);
-				var.setValue( master_Parameter );
-				master_Widget->setProperty(parameter_Property,var);
-				qInfo() << "master " << master_Parameter.indicator.full_Name << " added me as slave";
-			}
-		}
+		save_Master();
 
 		// external slaves parameters
-		for(QWidget* slave_Widget : slave_Widget_Vec)
-		{
-			if(slave_Widget)
-			{
-				QVariant var;
-				Parameter slave_Parameter = slave_Widget->property(parameter_Property).value<Parameter>();
-				slave_Parameter.coupled.master = coupling_Parameter.indicator;
-				var.setValue( slave_Parameter );
-				slave_Widget->setProperty(parameter_Property,var);
-				qInfo() << "slave " << slave_Parameter.indicator.full_Name << " added me as master";
-			}
-		}
+		save_Slaves();
 	}
 
 	// save data to structure
@@ -156,6 +125,32 @@ void Coupling_Editor::load_Master()
 	}
 }
 
+void Coupling_Editor::save_Master()
+{
+	// external master parameter
+	if(master_Widget)
+	{
+		bool already_Contains = false;
+		QVariant var;
+		Parameter master_Parameter = master_Widget->property(parameter_Property).value<Parameter>();
+		for(Parameter_Indicator master_Slave : master_Parameter.coupled.slaves)
+		{
+			if(master_Slave.id == coupling_Parameter.indicator.id)
+			{
+				already_Contains = true;
+				break;
+			}
+		}
+		if(!already_Contains)
+		{
+			master_Parameter.coupled.slaves.append(coupling_Parameter.indicator);
+			var.setValue( master_Parameter );
+			master_Widget->setProperty(parameter_Property,var);
+			qInfo() << "master " << master_Parameter.indicator.full_Name << " added me as slave";
+		}
+	}
+}
+
 void Coupling_Editor::create_Slave_Box()
 {
 	slave_Group_Box = new QGroupBox("Slaves");
@@ -166,6 +161,8 @@ void Coupling_Editor::create_Slave_Box()
 	slave_Group_Box_Layout = new QVBoxLayout(slave_Group_Box);
 
 	add_Slave(0);
+
+	load_Slaves();
 }
 
 void Coupling_Editor::set_Slave(int index_Pressed)
@@ -217,6 +214,28 @@ void Coupling_Editor::add_Slave(int index_Pressed)
 	connect(add_Slave_Button,	 &QPushButton::clicked, this, [=]{ add_Slave   (slave_Label_Vec.indexOf(slave_Label)+1); });
 
 	connect(qApp, &QApplication::focusChanged, this, [=](QWidget* old, QWidget* now){enable_Getting_Parameter(old, now, slave_Label, slave_Line_Edit);});
+}
+
+void Coupling_Editor::load_Slaves()
+{
+
+}
+
+void Coupling_Editor::save_Slaves()
+{
+	// external slaves parameters
+	for(QWidget* slave_Widget : slave_Widget_Vec)
+	{
+		if(slave_Widget)
+		{
+			QVariant var;
+			Parameter slave_Parameter = slave_Widget->property(parameter_Property).value<Parameter>();
+			slave_Parameter.coupled.master = coupling_Parameter.indicator;
+			var.setValue( slave_Parameter );
+			slave_Widget->setProperty(parameter_Property,var);
+			qInfo() << "slave " << slave_Parameter.indicator.full_Name << " added me as master";
+		}
+	}
 }
 
 void Coupling_Editor::enable_Getting_Parameter(QWidget* old, QWidget* now, QLabel *label, QLineEdit* line_Edit)
