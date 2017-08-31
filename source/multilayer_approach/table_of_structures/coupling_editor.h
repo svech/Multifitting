@@ -23,11 +23,13 @@ public:
 		void add_Slave(int index_Pressed);
 		void load_Slaves();
 		void save_Slaves();
+	void refresh_Reload_Coupled(QString refresh_Reload);
 
 	void enable_Getting_Parameter(QWidget* old, QWidget* now, QLabel* label, QLineEdit* line_Edit);
 	void get_Parameter(QLabel* label);
 
 	QWidget* search_Widget_By_Id(int id);
+
 
 	QWidget* coupling_Widget;
 	Parameter coupling_Parameter;

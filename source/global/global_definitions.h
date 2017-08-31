@@ -198,7 +198,8 @@ using namespace std;
 #define value_Type_Property			"value_Type"
 #define parameter_Property			"parameter"
 
-#define reload_Property	"reload"
+#define reload_Property		"reload"
+#define refresh_Property	"refresh"
 //#define table_Index_Property "table_Index"
 //#define master_Reload_Property "master_Reload"
 //#define slave_Reload_Property  "slave_Reload"

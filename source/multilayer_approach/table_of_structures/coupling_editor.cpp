@@ -109,70 +109,10 @@ void Coupling_Editor::create_Master_Box()
 
 void Coupling_Editor::load_Master()
 {
-	// get access to tree item
-	QTreeWidgetItem* structure_Item = coupled_Widgets_Map.value(coupling_Widget);
-	QStringList item_Type_List = structure_Item->whatsThis(DEFAULT_COLUMN).split(item_Type_Delimiter,QString::SkipEmptyParts);
-	QString item_Type_String = item_Type_List[0];
-	QString whats_This = coupling_Parameter.indicator.whats_This;
-	QVariant data = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole);
+	// load from tree
+	refresh_Reload_Coupled(reload_Property);
 
-	Coupled coupled;
-	if(item_Type_String == whats_This_Ambient)
-	{
-		Ambient ambient = data.value<Ambient>();
-		if(whats_This == whats_This_Composition)
-		{
-			for(int i=0; i<ambient.composition.size(); ++i)
-			{
-				if(ambient.composition[i].composition.indicator.id == coupling_Parameter.indicator.id)
-				{
-//					qInfo() << "FOUND " << whats_This << " " << i;
-					coupled = ambient.composition[i].composition.coupled;
-					break;
-				}
-			}
-		}
-		if(whats_This == whats_This_Interlayer_Composition)
-		{
-
-		}
-
-		if(whats_This == whats_This_Absolute_Density)	coupled = data.value<Ambient>().absolute_Density.coupled;
-		if(whats_This == whats_This_Relative_Density)	coupled = data.value<Ambient>().relative_Density.coupled;
-	}
-//	if(item_Type_String == whats_This_Layer)
-//	{
-//		if(whats_This == whats_This_Absolute_Density)				{parameter = data.value<Layer>().absolute_Density;		precision = line_edit_density_precision;}
-//		if(whats_This == whats_This_Relative_Density)				{parameter = data.value<Layer>().relative_Density;		precision = line_edit_density_precision;}
-//		if(whats_This == whats_This_Thickness)						{parameter = data.value<Layer>().thickness;				precision = line_edit_thickness_precision;}
-//		if(whats_This == whats_This_Sigma)							{parameter = data.value<Layer>().sigma;					precision = line_edit_sigma_precision;}
-
-//		if(whats_This == whats_This_Thickness_Drift_Line_Value)		{parameter = data.value<Layer>().thickness_Drift.drift_Line_Value;			precision = line_edit_thickness_precision;}
-//		if(whats_This == whats_This_Thickness_Drift_Rand_Rms)		{parameter = data.value<Layer>().thickness_Drift.drift_Rand_Rms;			precision = line_edit_thickness_precision;}
-//		if(whats_This == whats_This_Thickness_Drift_Sine_Amplitude)	{parameter = data.value<Layer>().thickness_Drift.drift_Sine_Amplitude;		precision = line_edit_thickness_precision;}
-//		if(whats_This == whats_This_Thickness_Drift_Sine_Frequency)	{parameter = data.value<Layer>().thickness_Drift.drift_Sine_Frequency;		precision = line_edit_thickness_precision;}
-//		if(whats_This == whats_This_Thickness_Drift_Sine_Phase)		{parameter = data.value<Layer>().thickness_Drift.drift_Sine_Phase;			precision = line_edit_thickness_precision;}
-
-//		if(whats_This == whats_This_Sigma_Drift_Line_Value)			{parameter = data.value<Layer>().sigma_Drift.drift_Line_Value;		precision = line_edit_sigma_precision;}
-//		if(whats_This == whats_This_Sigma_Drift_Rand_Rms)			{parameter = data.value<Layer>().sigma_Drift.drift_Rand_Rms;		precision = line_edit_sigma_precision;}
-//		if(whats_This == whats_This_Sigma_Drift_Sine_Amplitude)		{parameter = data.value<Layer>().sigma_Drift.drift_Sine_Amplitude;	precision = line_edit_sigma_precision;}
-//		if(whats_This == whats_This_Sigma_Drift_Sine_Frequency)		{parameter = data.value<Layer>().sigma_Drift.drift_Sine_Frequency;	precision = line_edit_sigma_precision;}
-//		if(whats_This == whats_This_Sigma_Drift_Sine_Phase)			{parameter = data.value<Layer>().sigma_Drift.drift_Sine_Phase;		precision = line_edit_sigma_precision;}
-//	}
-//	if(item_Type_String == whats_This_Substrate)
-//	{
-//		if(whats_This == whats_This_Absolute_Density)	{parameter = data.value<Substrate>().absolute_Density;		precision = line_edit_density_precision;}
-//		if(whats_This == whats_This_Relative_Density)	{parameter = data.value<Substrate>().relative_Density;		precision = line_edit_density_precision;}
-//		if(whats_This == whats_This_Sigma)				{parameter = data.value<Substrate>().sigma;					precision = line_edit_sigma_precision;	}
-//	}
-//	if(item_Type_String == whats_This_Multilayer)
-//	{
-//		if(whats_This == whats_This_Period)				{parameter = data.value<Stack_Content>().period;	precision = line_edit_period_precision;}
-//		if(whats_This == whats_This_Gamma)				{parameter = data.value<Stack_Content>().gamma;		precision = line_edit_gamma_precision;}
-//	}
-
-
-	// if had master
+	// now check if had master
 	if(coupling_Parameter.coupled.has_Master)
 	{
 		old_Master_Widget = search_Widget_By_Id(coupling_Parameter.coupled.master.id);
@@ -304,6 +244,222 @@ void Coupling_Editor::save_Slaves()
 	}
 }
 
+void Coupling_Editor::refresh_Reload_Coupled(QString refresh_Reload)
+{
+	// get access to tree item
+	QTreeWidgetItem* structure_Item = coupled_Widgets_Map.value(coupling_Widget);
+	QStringList item_Type_List = structure_Item->whatsThis(DEFAULT_COLUMN).split(item_Type_Delimiter,QString::SkipEmptyParts);
+	QString item_Type_String = item_Type_List[0];
+	QString whats_This = coupling_Parameter.indicator.whats_This;
+	QVariant data = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole);
+
+	QVariant var;
+	if(item_Type_String == whats_This_Ambient)
+	{
+		Ambient ambient = data.value<Ambient>();
+		if(whats_This == whats_This_Composition)
+		{
+			for(int i=0; i<ambient.composition.size(); ++i)
+			if(ambient.composition[i].composition.indicator.id == coupling_Parameter.indicator.id)
+			{
+//				qInfo() << "FOUND " << whats_This << " " << i;
+				if(refresh_Reload == reload_Property)	coupling_Parameter.coupled = ambient.composition[i].composition.coupled;
+				if(refresh_Reload == refresh_Property)	ambient.composition[i].composition.coupled = coupling_Parameter.coupled;
+				break;
+			}
+		}
+		if(whats_This == whats_This_Absolute_Density)
+		{
+			if(refresh_Reload == reload_Property)	coupling_Parameter.coupled = ambient.absolute_Density.coupled;
+			if(refresh_Reload == refresh_Property)	ambient.absolute_Density.coupled = coupling_Parameter.coupled;
+		}
+		if(whats_This == whats_This_Relative_Density)
+		{
+			if(refresh_Reload == reload_Property)	coupling_Parameter.coupled = ambient.relative_Density.coupled;
+			if(refresh_Reload == refresh_Property)	ambient.relative_Density.coupled = coupling_Parameter.coupled;
+		}
+		var.setValue( ambient );
+	}
+	if(item_Type_String == whats_This_Layer)
+	{
+		Layer layer = data.value<Layer>();
+		if(whats_This == whats_This_Composition)
+		{
+			for(int i=0; i<layer.composition.size(); ++i)
+			if(layer.composition[i].composition.indicator.id == coupling_Parameter.indicator.id)
+			{
+				if(refresh_Reload == reload_Property)	coupling_Parameter.coupled = layer.composition[i].composition.coupled;
+				if(refresh_Reload == refresh_Property)	layer.composition[i].composition.coupled = coupling_Parameter.coupled;
+				break;
+			}
+		}
+		if(whats_This == whats_This_Interlayer_Composition)
+		{
+			for(int i=0; i<layer.interlayer_Composition.size(); ++i)
+			if(layer.interlayer_Composition[i].interlayer.indicator.id == coupling_Parameter.indicator.id)
+			{
+				if(refresh_Reload == reload_Property)	coupling_Parameter.coupled = layer.interlayer_Composition[i].interlayer.coupled;
+				if(refresh_Reload == refresh_Property)	layer.interlayer_Composition[i].interlayer.coupled = coupling_Parameter.coupled;
+				break;
+			}
+		}
+		if(whats_This == whats_This_Interlayer_My_Sigma)
+		{
+			for(int i=0; i<layer.interlayer_Composition.size(); ++i)
+			if(layer.interlayer_Composition[i].my_Sigma.indicator.id == coupling_Parameter.indicator.id)
+			{
+				if(refresh_Reload == reload_Property)	coupling_Parameter.coupled = layer.interlayer_Composition[i].my_Sigma.coupled;
+				if(refresh_Reload == refresh_Property)	layer.interlayer_Composition[i].my_Sigma.coupled = coupling_Parameter.coupled;
+				break;
+			}
+		}
+		if(whats_This == whats_This_Absolute_Density)
+		{
+			if(refresh_Reload == reload_Property)	coupling_Parameter.coupled = layer.absolute_Density.coupled;
+			if(refresh_Reload == refresh_Property)	layer.absolute_Density.coupled = coupling_Parameter.coupled;
+		}
+		if(whats_This == whats_This_Relative_Density)
+		{
+			if(refresh_Reload == reload_Property)	coupling_Parameter.coupled = layer.relative_Density.coupled;
+			if(refresh_Reload == refresh_Property)	layer.relative_Density.coupled = coupling_Parameter.coupled;
+		}
+		if(whats_This == whats_This_Thickness)
+		{
+			if(refresh_Reload == reload_Property)	coupling_Parameter.coupled = layer.thickness.coupled;
+			if(refresh_Reload == refresh_Property)	layer.thickness.coupled = coupling_Parameter.coupled;
+		}
+		if(whats_This == whats_This_Sigma)
+		{
+			if(refresh_Reload == reload_Property)	coupling_Parameter.coupled = layer.sigma.coupled;
+			if(refresh_Reload == refresh_Property)	layer.sigma.coupled = coupling_Parameter.coupled;
+		}
+
+		if(whats_This == whats_This_Thickness_Drift_Line_Value)
+		{
+			if(refresh_Reload == reload_Property)	coupling_Parameter.coupled = layer.thickness_Drift.drift_Line_Value.coupled;
+			if(refresh_Reload == refresh_Property)	layer.thickness_Drift.drift_Line_Value.coupled = coupling_Parameter.coupled;
+		}
+		if(whats_This == whats_This_Thickness_Drift_Rand_Rms)
+		{
+			if(refresh_Reload == reload_Property)	coupling_Parameter.coupled = layer.thickness_Drift.drift_Rand_Rms.coupled;
+			if(refresh_Reload == refresh_Property)	layer.thickness_Drift.drift_Rand_Rms.coupled = coupling_Parameter.coupled;
+		}
+		if(whats_This == whats_This_Thickness_Drift_Sine_Amplitude)
+		{
+			if(refresh_Reload == reload_Property)	coupling_Parameter.coupled = layer.thickness_Drift.drift_Sine_Amplitude.coupled;
+			if(refresh_Reload == refresh_Property)	layer.thickness_Drift.drift_Sine_Amplitude.coupled = coupling_Parameter.coupled;
+		}
+		if(whats_This == whats_This_Thickness_Drift_Sine_Frequency)
+		{
+			if(refresh_Reload == reload_Property)	coupling_Parameter.coupled = layer.thickness_Drift.drift_Sine_Frequency.coupled;
+			if(refresh_Reload == refresh_Property)	layer.thickness_Drift.drift_Sine_Frequency.coupled = coupling_Parameter.coupled;
+		}
+		if(whats_This == whats_This_Thickness_Drift_Sine_Phase)
+		{
+			if(refresh_Reload == reload_Property)	coupling_Parameter.coupled = layer.thickness_Drift.drift_Sine_Phase.coupled;
+			if(refresh_Reload == refresh_Property)	layer.thickness_Drift.drift_Sine_Phase.coupled = coupling_Parameter.coupled;
+		}
+
+		if(whats_This == whats_This_Sigma_Drift_Line_Value)
+		{
+			if(refresh_Reload == reload_Property)	coupling_Parameter.coupled = layer.sigma_Drift.drift_Line_Value.coupled;
+			if(refresh_Reload == refresh_Property)	layer.sigma_Drift.drift_Line_Value.coupled = coupling_Parameter.coupled;
+		}
+		if(whats_This == whats_This_Sigma_Drift_Rand_Rms)
+		{
+			if(refresh_Reload == reload_Property)	coupling_Parameter.coupled = layer.sigma_Drift.drift_Rand_Rms.coupled;
+			if(refresh_Reload == refresh_Property)	layer.sigma_Drift.drift_Rand_Rms.coupled = coupling_Parameter.coupled;
+		}
+		if(whats_This == whats_This_Sigma_Drift_Sine_Amplitude)
+		{
+			if(refresh_Reload == reload_Property)	coupling_Parameter.coupled = layer.sigma_Drift.drift_Sine_Amplitude.coupled;
+			if(refresh_Reload == refresh_Property)	layer.sigma_Drift.drift_Sine_Amplitude.coupled = coupling_Parameter.coupled;
+		}
+		if(whats_This == whats_This_Sigma_Drift_Sine_Frequency)
+		{
+			if(refresh_Reload == reload_Property)	coupling_Parameter.coupled = layer.sigma_Drift.drift_Sine_Frequency.coupled;
+			if(refresh_Reload == refresh_Property)	layer.sigma_Drift.drift_Sine_Frequency.coupled = coupling_Parameter.coupled;
+		}
+		if(whats_This == whats_This_Sigma_Drift_Sine_Phase)
+		{
+			if(refresh_Reload == reload_Property)	coupling_Parameter.coupled = layer.sigma_Drift.drift_Sine_Phase.coupled;
+			if(refresh_Reload == refresh_Property)	layer.sigma_Drift.drift_Sine_Phase.coupled = coupling_Parameter.coupled;
+		}
+		var.setValue( layer );
+	}
+	if(item_Type_String == whats_This_Substrate)
+	{
+		Substrate substrate = data.value<Substrate>();
+		if(whats_This == whats_This_Composition)
+		{
+			for(int i=0; i<substrate.composition.size(); ++i)
+			if(substrate.composition[i].composition.indicator.id == coupling_Parameter.indicator.id)
+			{
+				if(refresh_Reload == reload_Property)	coupling_Parameter.coupled = substrate.composition[i].composition.coupled;
+				if(refresh_Reload == refresh_Property)	substrate.composition[i].composition.coupled = coupling_Parameter.coupled;
+				break;
+			}
+		}
+		if(whats_This == whats_This_Interlayer_Composition)
+		{
+			for(int i=0; i<substrate.interlayer_Composition.size(); ++i)
+			if(substrate.interlayer_Composition[i].interlayer.indicator.id == coupling_Parameter.indicator.id)
+			{
+				if(refresh_Reload == reload_Property)	coupling_Parameter.coupled = substrate.interlayer_Composition[i].interlayer.coupled;
+				if(refresh_Reload == refresh_Property)	substrate.interlayer_Composition[i].interlayer.coupled = coupling_Parameter.coupled;
+				break;
+			}
+		}
+		if(whats_This == whats_This_Interlayer_My_Sigma)
+		{
+			for(int i=0; i<substrate.interlayer_Composition.size(); ++i)
+			if(substrate.interlayer_Composition[i].my_Sigma.indicator.id == coupling_Parameter.indicator.id)
+			{
+				if(refresh_Reload == reload_Property)	coupling_Parameter.coupled = substrate.interlayer_Composition[i].my_Sigma.coupled;
+				if(refresh_Reload == refresh_Property)	substrate.interlayer_Composition[i].my_Sigma.coupled = coupling_Parameter.coupled;
+				break;
+			}
+		}
+		if(whats_This == whats_This_Absolute_Density)
+		{
+			if(refresh_Reload == reload_Property)	coupling_Parameter.coupled = substrate.absolute_Density.coupled;
+			if(refresh_Reload == refresh_Property)	substrate.absolute_Density.coupled = coupling_Parameter.coupled;
+		}
+		if(whats_This == whats_This_Relative_Density)
+		{
+			if(refresh_Reload == reload_Property)	coupling_Parameter.coupled = substrate.relative_Density.coupled;
+			if(refresh_Reload == refresh_Property)	substrate.relative_Density.coupled = coupling_Parameter.coupled;
+		}
+		if(whats_This == whats_This_Sigma)
+		{
+			if(refresh_Reload == reload_Property)	coupling_Parameter.coupled = substrate.sigma.coupled;
+			if(refresh_Reload == refresh_Property)	substrate.sigma.coupled = coupling_Parameter.coupled;
+		}
+		var.setValue( substrate );
+	}
+	if(item_Type_String == whats_This_Multilayer)
+	{
+		Stack_Content stack_Content = data.value<Stack_Content>();
+		if(whats_This == whats_This_Period)
+		{
+			if(refresh_Reload == reload_Property)	coupling_Parameter.coupled = stack_Content.period.coupled;
+			if(refresh_Reload == refresh_Property)	stack_Content.period.coupled = coupling_Parameter.coupled;
+		}
+		if(whats_This == whats_This_Gamma)
+		{
+			if(refresh_Reload == reload_Property)	coupling_Parameter.coupled = stack_Content.gamma.coupled;
+			if(refresh_Reload == refresh_Property)	stack_Content.gamma.coupled = coupling_Parameter.coupled;
+		}
+		var.setValue( stack_Content );
+	}
+
+	// refreshing
+	if(refresh_Reload == refresh_Property)
+	{
+		structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+	}
+}
+
 void Coupling_Editor::enable_Getting_Parameter(QWidget* old, QWidget* now, QLabel *label, QLineEdit* line_Edit)
 {
 	// got focus
@@ -352,6 +508,8 @@ void Coupling_Editor::get_Parameter(QLabel* label)
 				// master's side
 				coupling_Parameter.coupled.slaves[index] = parameter.indicator;
 			}
+
+			refresh_Reload_Coupled(refresh_Property);
 
 			qInfo() << "parameter id = " << parameter.indicator.id << "\n" << main_Tabs->tabText(parameter.indicator.tab_Index) << " " << parameter.indicator.full_Name << endl;
 //			search_Widget_By_Id(parameter.indicator.id);
