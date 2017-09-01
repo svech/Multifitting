@@ -16,7 +16,7 @@ Coupling_Editor::Coupling_Editor(QWidget* coupling_Widget, QMap<QLineEdit*,QTree
 
 void Coupling_Editor::closeEvent(QCloseEvent *)
 {
-	// save data to table
+	// save data
 	{
 		// coupling parameter
 		QVariant var;
@@ -28,11 +28,6 @@ void Coupling_Editor::closeEvent(QCloseEvent *)
 
 		// external slaves parameters
 		save_Slaves();
-	}
-
-	// save data to structure
-	{
-
 	}
 
 	// enable context menu
@@ -54,6 +49,9 @@ void Coupling_Editor::create_Main_Layout()
 	main_Layout = new QVBoxLayout(this);
 	main_Layout->setSpacing(0);
 	main_Layout->setContentsMargins(4,0,4,0);
+
+	// load from tree
+	refresh_Reload_Coupled(reload_Property, coupling_Widget);
 
 	create_Master_Box();
 		main_Layout->addWidget(master_Group_Box);
@@ -97,21 +95,22 @@ void Coupling_Editor::create_Master_Box()
 		button_Layout->setSpacing(0);
 		group_Box_Layout->addLayout(button_Layout);
 
-	set_Master_Button = new QPushButton("Set");
-		button_Layout->addWidget(set_Master_Button,0,Qt::AlignRight);
-	remove_Master_Button = new QPushButton("Remove");
+	remove_Master_Button = new QPushButton("Clear");
 		button_Layout->addWidget(remove_Master_Button,0,Qt::AlignRight);
 
+	connect(remove_Master_Button, &QPushButton::clicked, this, &Coupling_Editor::remove_Master);
 	connect(qApp, &QApplication::focusChanged, this, [=](QWidget* old, QWidget* now){enable_Getting_Parameter(old, now, master_Label, master_Line_Edit);});
 
 	load_Master();
 }
 
+void Coupling_Editor::remove_Master()
+{
+
+}
+
 void Coupling_Editor::load_Master()
 {
-	// load from tree
-	refresh_Reload_Coupled(reload_Property);
-
 	// now check if had master
 	if(coupling_Parameter.coupled.has_Master)
 	{
@@ -135,11 +134,9 @@ void Coupling_Editor::save_Master()
 	// external master parameter
 	if(master_Widget)
 	{
-//		qInfo() << master_Widget;
 		bool already_Contains = false;
-		QVariant var;
 		Parameter master_Parameter = master_Widget->property(parameter_Property).value<Parameter>();
-		for(Parameter_Indicator master_Slave : master_Parameter.coupled.slaves)
+		for(Parameter_Indicator& master_Slave : master_Parameter.coupled.slaves)
 		{
 			if(master_Slave.id == coupling_Parameter.indicator.id)
 			{
@@ -149,10 +146,12 @@ void Coupling_Editor::save_Master()
 		}
 		if(!already_Contains)
 		{
+			QVariant var;
 			master_Parameter.coupled.slaves.append(coupling_Parameter.indicator);
 			var.setValue( master_Parameter );
 			master_Widget->setProperty(parameter_Property,var);
-			qInfo() << "master " << master_Parameter.indicator.full_Name << " added me as slave";
+			refresh_Reload_Coupled(refresh_Property, master_Widget);
+			qInfo() << "master " << master_Parameter.indicator.full_Name << " added me as slave. Now " << master_Parameter.coupled.slaves.size() << "slaves";
 		}
 	}
 }
@@ -166,14 +165,7 @@ void Coupling_Editor::create_Slave_Box()
 
 	slave_Group_Box_Layout = new QVBoxLayout(slave_Group_Box);
 
-	add_Slave(0);
-
 	load_Slaves();
-}
-
-void Coupling_Editor::set_Slave(int index_Pressed)
-{
-
 }
 
 void Coupling_Editor::remove_Slave(int index_Pressed)
@@ -184,7 +176,7 @@ void Coupling_Editor::remove_Slave(int index_Pressed)
 void Coupling_Editor::add_Slave(int index_Pressed)
 {
 	Parameter_Indicator slave_Indicator;
-	coupling_Parameter.coupled.slaves.insert(index_Pressed, slave_Indicator);
+		coupling_Parameter.coupled.slaves.insert(index_Pressed, slave_Indicator);
 
 	QHBoxLayout* frame_Layout = new QHBoxLayout;
 		slave_Group_Box_Layout->insertLayout(index_Pressed, frame_Layout);
@@ -206,16 +198,11 @@ void Coupling_Editor::add_Slave(int index_Pressed)
 		button_Layout->setSpacing(0);
 		frame_Layout->addLayout(button_Layout);
 
-	QPushButton* set_Slave_Button = new QPushButton("Set");
-		button_Layout->addWidget(set_Slave_Button,0,Qt::AlignRight);
-	QPushButton* remove_Slave_Button = new QPushButton("Remove");
+	QPushButton* remove_Slave_Button = new QPushButton("Clear");
 		button_Layout->addWidget(remove_Slave_Button,0,Qt::AlignRight);
 	QPushButton* add_Slave_Button = new QPushButton("Add");
 		button_Layout->addWidget(add_Slave_Button,0,Qt::AlignRight);
 
-
-	qInfo() << "index_Pressed of created = " << index_Pressed;
-	connect(set_Slave_Button,    &QPushButton::clicked, this, [=]{ set_Slave   (slave_Label_Vec.indexOf(slave_Label)); });
 	connect(remove_Slave_Button, &QPushButton::clicked, this, [=]{ remove_Slave(slave_Label_Vec.indexOf(slave_Label)); });
 	connect(add_Slave_Button,	 &QPushButton::clicked, this, [=]{ add_Slave   (slave_Label_Vec.indexOf(slave_Label)+1); });
 
@@ -224,7 +211,37 @@ void Coupling_Editor::add_Slave(int index_Pressed)
 
 void Coupling_Editor::load_Slaves()
 {
+	QVector<Parameter_Indicator> copy_Old_Slaved_Indicator_Vec = coupling_Parameter.coupled.slaves;
+	coupling_Parameter.coupled.slaves.clear();
+	add_Slave(0);
+	int counter = 0;
 
+	qInfo() << "loaded " << copy_Old_Slaved_Indicator_Vec.size() << " slaves";
+	for(Parameter_Indicator& slave_Indicator : copy_Old_Slaved_Indicator_Vec)
+	{
+		QWidget* old_Slave_Widget = search_Widget_By_Id(slave_Indicator.id);
+
+		if(old_Slave_Widget)
+		{
+			Parameter old_Slave_Parameter = old_Slave_Widget->property(parameter_Property).value<Parameter>();
+			if( old_Slave_Parameter.coupled.has_Master &&
+				old_Slave_Parameter.coupled.master.id == coupling_Parameter.indicator.id)
+			{
+				qInfo() << "counter = " << counter;
+				if(counter>=slave_Label_Vec.size())
+					add_Slave(counter);
+
+				slave_Label_Vec[counter]->setText("<"+main_Tabs->tabText(old_Slave_Parameter.indicator.tab_Index)+"> "+old_Slave_Parameter.indicator.full_Name);
+				coupling_Parameter.coupled.slaves[counter] = slave_Indicator;
+
+				counter++;
+			}
+		}
+	}
+
+	loaded_Slaves = coupling_Parameter.coupled.slaves;
+
+	refresh_Reload_Coupled(refresh_Property, coupling_Widget);
 }
 
 void Coupling_Editor::save_Slaves()
@@ -236,47 +253,88 @@ void Coupling_Editor::save_Slaves()
 		{
 			QVariant var;
 			Parameter slave_Parameter = slave_Widget->property(parameter_Property).value<Parameter>();
+			slave_Parameter.coupled.has_Master = true;
 			slave_Parameter.coupled.master = coupling_Parameter.indicator;
 			var.setValue( slave_Parameter );
 			slave_Widget->setProperty(parameter_Property,var);
+			refresh_Reload_Coupled(refresh_Property, slave_Widget);
 			qInfo() << "slave " << slave_Parameter.indicator.full_Name << " added me as master";
+		}
+	}
+
+	// remove unused slaves on slave's side
+	for(int loaded_Index=0; loaded_Index<loaded_Slaves.size(); ++loaded_Index)
+	{
+		int id=loaded_Slaves[loaded_Index].id;
+		bool keep = false;
+
+		// search in actual base
+		for(Parameter_Indicator slave : coupling_Parameter.coupled.slaves)
+		{
+			if(slave.id == id)
+				keep=true;
+		}
+
+		// if not found, delete
+		if(!keep)
+		{
+			QVariant var;
+			QWidget* deprecated_Widget = search_Widget_By_Id(id);
+			if(deprecated_Widget)
+			{
+				Parameter deprecated_Parameter = deprecated_Widget->property(parameter_Property).value<Parameter>();
+				deprecated_Parameter.coupled.has_Master=false;
+				var.setValue( deprecated_Parameter );
+				deprecated_Widget->setProperty(parameter_Property,var);
+				refresh_Reload_Coupled(refresh_Property, deprecated_Widget);
+			}
 		}
 	}
 }
 
-void Coupling_Editor::refresh_Reload_Coupled(QString refresh_Reload)
+void Coupling_Editor::refresh_Reload_Coupled(QString refresh_Reload, QWidget* widget)
 {
+	if(!widget) qInfo() << "Coupling_Editor::refresh_Reload_Coupled : null widget";
+	QVariant var;
+
+	// save what we have
+	if(refresh_Reload == refresh_Property)
+	{
+		var.setValue( coupling_Parameter );
+		coupling_Widget->setProperty(parameter_Property,var);
+	}
+
 	// get access to tree item
-	QTreeWidgetItem* structure_Item = coupled_Widgets_Map.value(coupling_Widget);
+	Parameter parameter = widget->property(parameter_Property).value<Parameter>();
+	QTreeWidgetItem* structure_Item = coupled_Widgets_Map.value(widget);
 	QStringList item_Type_List = structure_Item->whatsThis(DEFAULT_COLUMN).split(item_Type_Delimiter,QString::SkipEmptyParts);
 	QString item_Type_String = item_Type_List[0];
-	QString whats_This = coupling_Parameter.indicator.whats_This;
+	QString whats_This = parameter.indicator.whats_This;
 	QVariant data = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole);
 
-	QVariant var;
 	if(item_Type_String == whats_This_Ambient)
 	{
 		Ambient ambient = data.value<Ambient>();
 		if(whats_This == whats_This_Composition)
 		{
 			for(int i=0; i<ambient.composition.size(); ++i)
-			if(ambient.composition[i].composition.indicator.id == coupling_Parameter.indicator.id)
+			if(ambient.composition[i].composition.indicator.id == parameter.indicator.id)
 			{
 //				qInfo() << "FOUND " << whats_This << " " << i;
-				if(refresh_Reload == reload_Property)	coupling_Parameter.coupled = ambient.composition[i].composition.coupled;
-				if(refresh_Reload == refresh_Property)	ambient.composition[i].composition.coupled = coupling_Parameter.coupled;
+				if(refresh_Reload == reload_Property)	parameter.coupled = ambient.composition[i].composition.coupled;
+				if(refresh_Reload == refresh_Property)	ambient.composition[i].composition.coupled = parameter.coupled;
 				break;
 			}
 		}
 		if(whats_This == whats_This_Absolute_Density)
 		{
-			if(refresh_Reload == reload_Property)	coupling_Parameter.coupled = ambient.absolute_Density.coupled;
-			if(refresh_Reload == refresh_Property)	ambient.absolute_Density.coupled = coupling_Parameter.coupled;
+			if(refresh_Reload == reload_Property)	parameter.coupled = ambient.absolute_Density.coupled;
+			if(refresh_Reload == refresh_Property)	ambient.absolute_Density.coupled = parameter.coupled;
 		}
 		if(whats_This == whats_This_Relative_Density)
 		{
-			if(refresh_Reload == reload_Property)	coupling_Parameter.coupled = ambient.relative_Density.coupled;
-			if(refresh_Reload == refresh_Property)	ambient.relative_Density.coupled = coupling_Parameter.coupled;
+			if(refresh_Reload == reload_Property)	parameter.coupled = ambient.relative_Density.coupled;
+			if(refresh_Reload == refresh_Property)	ambient.relative_Density.coupled = parameter.coupled;
 		}
 		var.setValue( ambient );
 	}
@@ -286,104 +344,104 @@ void Coupling_Editor::refresh_Reload_Coupled(QString refresh_Reload)
 		if(whats_This == whats_This_Composition)
 		{
 			for(int i=0; i<layer.composition.size(); ++i)
-			if(layer.composition[i].composition.indicator.id == coupling_Parameter.indicator.id)
+			if(layer.composition[i].composition.indicator.id == parameter.indicator.id)
 			{
-				if(refresh_Reload == reload_Property)	coupling_Parameter.coupled = layer.composition[i].composition.coupled;
-				if(refresh_Reload == refresh_Property)	layer.composition[i].composition.coupled = coupling_Parameter.coupled;
+				if(refresh_Reload == reload_Property)	parameter.coupled = layer.composition[i].composition.coupled;
+				if(refresh_Reload == refresh_Property)	layer.composition[i].composition.coupled = parameter.coupled;
 				break;
 			}
 		}
 		if(whats_This == whats_This_Interlayer_Composition)
 		{
 			for(int i=0; i<layer.interlayer_Composition.size(); ++i)
-			if(layer.interlayer_Composition[i].interlayer.indicator.id == coupling_Parameter.indicator.id)
+			if(layer.interlayer_Composition[i].interlayer.indicator.id == parameter.indicator.id)
 			{
-				if(refresh_Reload == reload_Property)	coupling_Parameter.coupled = layer.interlayer_Composition[i].interlayer.coupled;
-				if(refresh_Reload == refresh_Property)	layer.interlayer_Composition[i].interlayer.coupled = coupling_Parameter.coupled;
+				if(refresh_Reload == reload_Property)	parameter.coupled = layer.interlayer_Composition[i].interlayer.coupled;
+				if(refresh_Reload == refresh_Property)	layer.interlayer_Composition[i].interlayer.coupled = parameter.coupled;
 				break;
 			}
 		}
 		if(whats_This == whats_This_Interlayer_My_Sigma)
 		{
 			for(int i=0; i<layer.interlayer_Composition.size(); ++i)
-			if(layer.interlayer_Composition[i].my_Sigma.indicator.id == coupling_Parameter.indicator.id)
+			if(layer.interlayer_Composition[i].my_Sigma.indicator.id == parameter.indicator.id)
 			{
-				if(refresh_Reload == reload_Property)	coupling_Parameter.coupled = layer.interlayer_Composition[i].my_Sigma.coupled;
-				if(refresh_Reload == refresh_Property)	layer.interlayer_Composition[i].my_Sigma.coupled = coupling_Parameter.coupled;
+				if(refresh_Reload == reload_Property)	parameter.coupled = layer.interlayer_Composition[i].my_Sigma.coupled;
+				if(refresh_Reload == refresh_Property)	layer.interlayer_Composition[i].my_Sigma.coupled = parameter.coupled;
 				break;
 			}
 		}
 		if(whats_This == whats_This_Absolute_Density)
 		{
-			if(refresh_Reload == reload_Property)	coupling_Parameter.coupled = layer.absolute_Density.coupled;
-			if(refresh_Reload == refresh_Property)	layer.absolute_Density.coupled = coupling_Parameter.coupled;
+			if(refresh_Reload == reload_Property)	parameter.coupled = layer.absolute_Density.coupled;
+			if(refresh_Reload == refresh_Property)	layer.absolute_Density.coupled = parameter.coupled;
 		}
 		if(whats_This == whats_This_Relative_Density)
 		{
-			if(refresh_Reload == reload_Property)	coupling_Parameter.coupled = layer.relative_Density.coupled;
-			if(refresh_Reload == refresh_Property)	layer.relative_Density.coupled = coupling_Parameter.coupled;
+			if(refresh_Reload == reload_Property)	parameter.coupled = layer.relative_Density.coupled;
+			if(refresh_Reload == refresh_Property)	layer.relative_Density.coupled = parameter.coupled;
 		}
 		if(whats_This == whats_This_Thickness)
 		{
-			if(refresh_Reload == reload_Property)	coupling_Parameter.coupled = layer.thickness.coupled;
-			if(refresh_Reload == refresh_Property)	layer.thickness.coupled = coupling_Parameter.coupled;
+			if(refresh_Reload == reload_Property)	parameter.coupled = layer.thickness.coupled;
+			if(refresh_Reload == refresh_Property)	layer.thickness.coupled = parameter.coupled;
 		}
 		if(whats_This == whats_This_Sigma)
 		{
-			if(refresh_Reload == reload_Property)	coupling_Parameter.coupled = layer.sigma.coupled;
-			if(refresh_Reload == refresh_Property)	layer.sigma.coupled = coupling_Parameter.coupled;
+			if(refresh_Reload == reload_Property)	parameter.coupled = layer.sigma.coupled;
+			if(refresh_Reload == refresh_Property)	layer.sigma.coupled = parameter.coupled;
 		}
 
 		if(whats_This == whats_This_Thickness_Drift_Line_Value)
 		{
-			if(refresh_Reload == reload_Property)	coupling_Parameter.coupled = layer.thickness_Drift.drift_Line_Value.coupled;
-			if(refresh_Reload == refresh_Property)	layer.thickness_Drift.drift_Line_Value.coupled = coupling_Parameter.coupled;
+			if(refresh_Reload == reload_Property)	parameter.coupled = layer.thickness_Drift.drift_Line_Value.coupled;
+			if(refresh_Reload == refresh_Property)	layer.thickness_Drift.drift_Line_Value.coupled = parameter.coupled;
 		}
 		if(whats_This == whats_This_Thickness_Drift_Rand_Rms)
 		{
-			if(refresh_Reload == reload_Property)	coupling_Parameter.coupled = layer.thickness_Drift.drift_Rand_Rms.coupled;
-			if(refresh_Reload == refresh_Property)	layer.thickness_Drift.drift_Rand_Rms.coupled = coupling_Parameter.coupled;
+			if(refresh_Reload == reload_Property)	parameter.coupled = layer.thickness_Drift.drift_Rand_Rms.coupled;
+			if(refresh_Reload == refresh_Property)	layer.thickness_Drift.drift_Rand_Rms.coupled = parameter.coupled;
 		}
 		if(whats_This == whats_This_Thickness_Drift_Sine_Amplitude)
 		{
-			if(refresh_Reload == reload_Property)	coupling_Parameter.coupled = layer.thickness_Drift.drift_Sine_Amplitude.coupled;
-			if(refresh_Reload == refresh_Property)	layer.thickness_Drift.drift_Sine_Amplitude.coupled = coupling_Parameter.coupled;
+			if(refresh_Reload == reload_Property)	parameter.coupled = layer.thickness_Drift.drift_Sine_Amplitude.coupled;
+			if(refresh_Reload == refresh_Property)	layer.thickness_Drift.drift_Sine_Amplitude.coupled = parameter.coupled;
 		}
 		if(whats_This == whats_This_Thickness_Drift_Sine_Frequency)
 		{
-			if(refresh_Reload == reload_Property)	coupling_Parameter.coupled = layer.thickness_Drift.drift_Sine_Frequency.coupled;
-			if(refresh_Reload == refresh_Property)	layer.thickness_Drift.drift_Sine_Frequency.coupled = coupling_Parameter.coupled;
+			if(refresh_Reload == reload_Property)	parameter.coupled = layer.thickness_Drift.drift_Sine_Frequency.coupled;
+			if(refresh_Reload == refresh_Property)	layer.thickness_Drift.drift_Sine_Frequency.coupled = parameter.coupled;
 		}
 		if(whats_This == whats_This_Thickness_Drift_Sine_Phase)
 		{
-			if(refresh_Reload == reload_Property)	coupling_Parameter.coupled = layer.thickness_Drift.drift_Sine_Phase.coupled;
-			if(refresh_Reload == refresh_Property)	layer.thickness_Drift.drift_Sine_Phase.coupled = coupling_Parameter.coupled;
+			if(refresh_Reload == reload_Property)	parameter.coupled = layer.thickness_Drift.drift_Sine_Phase.coupled;
+			if(refresh_Reload == refresh_Property)	layer.thickness_Drift.drift_Sine_Phase.coupled = parameter.coupled;
 		}
 
 		if(whats_This == whats_This_Sigma_Drift_Line_Value)
 		{
-			if(refresh_Reload == reload_Property)	coupling_Parameter.coupled = layer.sigma_Drift.drift_Line_Value.coupled;
-			if(refresh_Reload == refresh_Property)	layer.sigma_Drift.drift_Line_Value.coupled = coupling_Parameter.coupled;
+			if(refresh_Reload == reload_Property)	parameter.coupled = layer.sigma_Drift.drift_Line_Value.coupled;
+			if(refresh_Reload == refresh_Property)	layer.sigma_Drift.drift_Line_Value.coupled = parameter.coupled;
 		}
 		if(whats_This == whats_This_Sigma_Drift_Rand_Rms)
 		{
-			if(refresh_Reload == reload_Property)	coupling_Parameter.coupled = layer.sigma_Drift.drift_Rand_Rms.coupled;
-			if(refresh_Reload == refresh_Property)	layer.sigma_Drift.drift_Rand_Rms.coupled = coupling_Parameter.coupled;
+			if(refresh_Reload == reload_Property)	parameter.coupled = layer.sigma_Drift.drift_Rand_Rms.coupled;
+			if(refresh_Reload == refresh_Property)	layer.sigma_Drift.drift_Rand_Rms.coupled = parameter.coupled;
 		}
 		if(whats_This == whats_This_Sigma_Drift_Sine_Amplitude)
 		{
-			if(refresh_Reload == reload_Property)	coupling_Parameter.coupled = layer.sigma_Drift.drift_Sine_Amplitude.coupled;
-			if(refresh_Reload == refresh_Property)	layer.sigma_Drift.drift_Sine_Amplitude.coupled = coupling_Parameter.coupled;
+			if(refresh_Reload == reload_Property)	parameter.coupled = layer.sigma_Drift.drift_Sine_Amplitude.coupled;
+			if(refresh_Reload == refresh_Property)	layer.sigma_Drift.drift_Sine_Amplitude.coupled = parameter.coupled;
 		}
 		if(whats_This == whats_This_Sigma_Drift_Sine_Frequency)
 		{
-			if(refresh_Reload == reload_Property)	coupling_Parameter.coupled = layer.sigma_Drift.drift_Sine_Frequency.coupled;
-			if(refresh_Reload == refresh_Property)	layer.sigma_Drift.drift_Sine_Frequency.coupled = coupling_Parameter.coupled;
+			if(refresh_Reload == reload_Property)	parameter.coupled = layer.sigma_Drift.drift_Sine_Frequency.coupled;
+			if(refresh_Reload == refresh_Property)	layer.sigma_Drift.drift_Sine_Frequency.coupled = parameter.coupled;
 		}
 		if(whats_This == whats_This_Sigma_Drift_Sine_Phase)
 		{
-			if(refresh_Reload == reload_Property)	coupling_Parameter.coupled = layer.sigma_Drift.drift_Sine_Phase.coupled;
-			if(refresh_Reload == refresh_Property)	layer.sigma_Drift.drift_Sine_Phase.coupled = coupling_Parameter.coupled;
+			if(refresh_Reload == reload_Property)	parameter.coupled = layer.sigma_Drift.drift_Sine_Phase.coupled;
+			if(refresh_Reload == refresh_Property)	layer.sigma_Drift.drift_Sine_Phase.coupled = parameter.coupled;
 		}
 		var.setValue( layer );
 	}
@@ -393,47 +451,47 @@ void Coupling_Editor::refresh_Reload_Coupled(QString refresh_Reload)
 		if(whats_This == whats_This_Composition)
 		{
 			for(int i=0; i<substrate.composition.size(); ++i)
-			if(substrate.composition[i].composition.indicator.id == coupling_Parameter.indicator.id)
+			if(substrate.composition[i].composition.indicator.id == parameter.indicator.id)
 			{
-				if(refresh_Reload == reload_Property)	coupling_Parameter.coupled = substrate.composition[i].composition.coupled;
-				if(refresh_Reload == refresh_Property)	substrate.composition[i].composition.coupled = coupling_Parameter.coupled;
+				if(refresh_Reload == reload_Property)	parameter.coupled = substrate.composition[i].composition.coupled;
+				if(refresh_Reload == refresh_Property)	substrate.composition[i].composition.coupled = parameter.coupled;
 				break;
 			}
 		}
 		if(whats_This == whats_This_Interlayer_Composition)
 		{
 			for(int i=0; i<substrate.interlayer_Composition.size(); ++i)
-			if(substrate.interlayer_Composition[i].interlayer.indicator.id == coupling_Parameter.indicator.id)
+			if(substrate.interlayer_Composition[i].interlayer.indicator.id == parameter.indicator.id)
 			{
-				if(refresh_Reload == reload_Property)	coupling_Parameter.coupled = substrate.interlayer_Composition[i].interlayer.coupled;
-				if(refresh_Reload == refresh_Property)	substrate.interlayer_Composition[i].interlayer.coupled = coupling_Parameter.coupled;
+				if(refresh_Reload == reload_Property)	parameter.coupled = substrate.interlayer_Composition[i].interlayer.coupled;
+				if(refresh_Reload == refresh_Property)	substrate.interlayer_Composition[i].interlayer.coupled = parameter.coupled;
 				break;
 			}
 		}
 		if(whats_This == whats_This_Interlayer_My_Sigma)
 		{
 			for(int i=0; i<substrate.interlayer_Composition.size(); ++i)
-			if(substrate.interlayer_Composition[i].my_Sigma.indicator.id == coupling_Parameter.indicator.id)
+			if(substrate.interlayer_Composition[i].my_Sigma.indicator.id == parameter.indicator.id)
 			{
-				if(refresh_Reload == reload_Property)	coupling_Parameter.coupled = substrate.interlayer_Composition[i].my_Sigma.coupled;
-				if(refresh_Reload == refresh_Property)	substrate.interlayer_Composition[i].my_Sigma.coupled = coupling_Parameter.coupled;
+				if(refresh_Reload == reload_Property)	parameter.coupled = substrate.interlayer_Composition[i].my_Sigma.coupled;
+				if(refresh_Reload == refresh_Property)	substrate.interlayer_Composition[i].my_Sigma.coupled = parameter.coupled;
 				break;
 			}
 		}
 		if(whats_This == whats_This_Absolute_Density)
 		{
-			if(refresh_Reload == reload_Property)	coupling_Parameter.coupled = substrate.absolute_Density.coupled;
-			if(refresh_Reload == refresh_Property)	substrate.absolute_Density.coupled = coupling_Parameter.coupled;
+			if(refresh_Reload == reload_Property)	parameter.coupled = substrate.absolute_Density.coupled;
+			if(refresh_Reload == refresh_Property)	substrate.absolute_Density.coupled = parameter.coupled;
 		}
 		if(whats_This == whats_This_Relative_Density)
 		{
-			if(refresh_Reload == reload_Property)	coupling_Parameter.coupled = substrate.relative_Density.coupled;
-			if(refresh_Reload == refresh_Property)	substrate.relative_Density.coupled = coupling_Parameter.coupled;
+			if(refresh_Reload == reload_Property)	parameter.coupled = substrate.relative_Density.coupled;
+			if(refresh_Reload == refresh_Property)	substrate.relative_Density.coupled = parameter.coupled;
 		}
 		if(whats_This == whats_This_Sigma)
 		{
-			if(refresh_Reload == reload_Property)	coupling_Parameter.coupled = substrate.sigma.coupled;
-			if(refresh_Reload == refresh_Property)	substrate.sigma.coupled = coupling_Parameter.coupled;
+			if(refresh_Reload == reload_Property)	parameter.coupled = substrate.sigma.coupled;
+			if(refresh_Reload == refresh_Property)	substrate.sigma.coupled = parameter.coupled;
 		}
 		var.setValue( substrate );
 	}
@@ -442,13 +500,13 @@ void Coupling_Editor::refresh_Reload_Coupled(QString refresh_Reload)
 		Stack_Content stack_Content = data.value<Stack_Content>();
 		if(whats_This == whats_This_Period)
 		{
-			if(refresh_Reload == reload_Property)	coupling_Parameter.coupled = stack_Content.period.coupled;
-			if(refresh_Reload == refresh_Property)	stack_Content.period.coupled = coupling_Parameter.coupled;
+			if(refresh_Reload == reload_Property)	parameter.coupled = stack_Content.period.coupled;
+			if(refresh_Reload == refresh_Property)	stack_Content.period.coupled = parameter.coupled;
 		}
 		if(whats_This == whats_This_Gamma)
 		{
-			if(refresh_Reload == reload_Property)	coupling_Parameter.coupled = stack_Content.gamma.coupled;
-			if(refresh_Reload == refresh_Property)	stack_Content.gamma.coupled = coupling_Parameter.coupled;
+			if(refresh_Reload == reload_Property)	parameter.coupled = stack_Content.gamma.coupled;
+			if(refresh_Reload == refresh_Property)	stack_Content.gamma.coupled = parameter.coupled;
 		}
 		var.setValue( stack_Content );
 	}
@@ -457,6 +515,17 @@ void Coupling_Editor::refresh_Reload_Coupled(QString refresh_Reload)
 	if(refresh_Reload == refresh_Property)
 	{
 		structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+		var.setValue(parameter);
+		widget->setProperty(parameter_Property, var);
+	}
+
+	// reloading
+	if(refresh_Reload == reload_Property)
+	{
+		if(coupling_Widget == widget)
+		{
+			coupling_Parameter = parameter;
+		}
 	}
 }
 
@@ -497,7 +566,7 @@ void Coupling_Editor::get_Parameter(QLabel* label)
 				coupling_Parameter.coupled.master = parameter.indicator;
 
 				// master's side
-				master_Widget = widget;	// remember widget. data will be saved at close.
+				master_Widget = widget;					// remember widget. data will be saved at close.
 			} else
 			// set slave
 			{
@@ -509,7 +578,7 @@ void Coupling_Editor::get_Parameter(QLabel* label)
 				coupling_Parameter.coupled.slaves[index] = parameter.indicator;
 			}
 
-			refresh_Reload_Coupled(refresh_Property);
+			refresh_Reload_Coupled(refresh_Property, coupling_Widget);
 
 			qInfo() << "parameter id = " << parameter.indicator.id << "\n" << main_Tabs->tabText(parameter.indicator.tab_Index) << " " << parameter.indicator.full_Name << endl;
 //			search_Widget_By_Id(parameter.indicator.id);
