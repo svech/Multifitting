@@ -18,16 +18,20 @@ void Coupling_Editor::closeEvent(QCloseEvent *)
 {
 	// save data
 	{
-		// coupling parameter
-		QVariant var;
-		var.setValue( coupling_Parameter );
-		coupling_Widget->setProperty(parameter_Property,var);
+		// clear for having correct number of slaves
+//		clear_Nonexisting_Slaves();
+
+		{
+			QVariant var;
+			var.setValue( coupling_Parameter );
+			coupling_Widget->setProperty(parameter_Property,var);
+		}
 
 		// external master parameter
-		save_Master();
+		save_External_Master();
 
 		// external slaves parameters
-		save_Slaves();
+		save_External_Slaves();
 	}
 
 	// enable context menu
@@ -50,7 +54,7 @@ void Coupling_Editor::create_Main_Layout()
 	main_Layout->setSpacing(0);
 	main_Layout->setContentsMargins(4,0,4,0);
 
-	// load from tree
+	// load my widget from tree
 	refresh_Reload_Coupled(reload_Property, coupling_Widget);
 
 	create_Master_Box();
@@ -106,32 +110,63 @@ void Coupling_Editor::create_Master_Box()
 
 void Coupling_Editor::remove_Master()
 {
-
+	coupling_Parameter.coupled.master.exist = false;
+	master_Label->setText(no_Master_Text);
+	master_Widget = NULL;
 }
 
 void Coupling_Editor::load_Master()
 {
 	// now check if had master
-	if(coupling_Parameter.coupled.has_Master)
+	if(coupling_Parameter.coupled.master.exist)
 	{
-		old_Master_Widget = search_Widget_By_Id(coupling_Parameter.coupled.master.id);
+		old_Master_Widget = search_Widget_By_Id(coupling_Parameter.coupled.master.id); // old_Master_Widget is set only here
+		master_Widget = old_Master_Widget; // set equal at the beginning
 
-		// if master still exists
+		// if old master widget still exists
 		if(old_Master_Widget)
 		{
 			Parameter old_Master_Parameter = old_Master_Widget->property(parameter_Property).value<Parameter>();
 			master_Label->setText("<"+main_Tabs->tabText(old_Master_Parameter.indicator.tab_Index)+"> "+old_Master_Parameter.indicator.full_Name);
+//			master_Line_Edit
+			qInfo() << "loaded 1 master";
 		} else
 		{
-			coupling_Parameter.coupled.has_Master = false;
+			coupling_Parameter.coupled.master.exist = false;
 			master_Label->setText(no_Master_Text);
+//			master_Line_Edit
+			qInfo() << "loaded 0 masters";
 		}
+	} else
+	{
+		qInfo() << "loaded 0 masters";
 	}
 }
 
-void Coupling_Editor::save_Master()
+void Coupling_Editor::save_External_Master()
 {
-	// external master parameter
+	// remove me from previous master (if master was really changed)
+	if(old_Master_Widget &&
+	   old_Master_Widget != master_Widget) // compare widgets. Be careful!
+	{
+		// if master widget exists (it should be always true)
+		Parameter old_Master_Parameter = old_Master_Widget->property(parameter_Property).value<Parameter>();
+		for(int old_Index=old_Master_Parameter.coupled.slaves.size()-1; old_Index>=0; old_Index--)
+		{
+			if(old_Master_Parameter.coupled.slaves[old_Index].id == coupling_Parameter.indicator.id)
+			{
+				old_Master_Parameter.coupled.slaves.remove(old_Index);
+			}
+		}
+
+		QVariant var;
+		var.setValue( old_Master_Parameter );
+		old_Master_Widget->setProperty(parameter_Property,var);
+		refresh_Reload_Coupled(refresh_Property, old_Master_Widget);
+		qInfo() << "old master " << old_Master_Parameter.indicator.full_Name << " removed me from slaves. Now " << old_Master_Parameter.coupled.slaves.size() << "slaves";
+	}
+
+	// add me to current master
 	if(master_Widget)
 	{
 		bool already_Contains = false;
@@ -147,6 +182,7 @@ void Coupling_Editor::save_Master()
 		if(!already_Contains)
 		{
 			QVariant var;
+			coupling_Parameter.indicator.exist = true; // i should exist as Master's slave
 			master_Parameter.coupled.slaves.append(coupling_Parameter.indicator);
 			var.setValue( master_Parameter );
 			master_Widget->setProperty(parameter_Property,var);
@@ -170,6 +206,9 @@ void Coupling_Editor::create_Slave_Box()
 
 void Coupling_Editor::remove_Slave(int index_Pressed)
 {
+	slave_Label_Vec[index_Pressed]->setText(no_Slave_Text);
+
+//	QWidget* slave_To_Remove = search_Widget_By_Id(coupling_Parameter.coupled.slaves[index_Pressed]);
 
 }
 
@@ -211,71 +250,60 @@ void Coupling_Editor::add_Slave(int index_Pressed)
 
 void Coupling_Editor::load_Slaves()
 {
-	QVector<Parameter_Indicator> copy_Old_Slaved_Indicator_Vec = coupling_Parameter.coupled.slaves;
+	// make copy of slaves
+	old_Slaves = coupling_Parameter.coupled.slaves;
 	coupling_Parameter.coupled.slaves.clear();
 	add_Slave(0);
 	int counter = 0;
 
-	qInfo() << "loaded " << copy_Old_Slaved_Indicator_Vec.size() << " slaves";
-	for(Parameter_Indicator& slave_Indicator : copy_Old_Slaved_Indicator_Vec)
+	qInfo() << "loaded" << old_Slaves.size() << "slaves";
+	for(Parameter_Indicator& old_Slave : old_Slaves)
 	{
-		QWidget* old_Slave_Widget = search_Widget_By_Id(slave_Indicator.id);
+		QWidget* old_Slave_Widget = search_Widget_By_Id(old_Slave.id);
 
 		if(old_Slave_Widget)
 		{
 			Parameter old_Slave_Parameter = old_Slave_Widget->property(parameter_Property).value<Parameter>();
-			if( old_Slave_Parameter.coupled.has_Master &&
+			if( old_Slave_Parameter.coupled.master.exist &&
 				old_Slave_Parameter.coupled.master.id == coupling_Parameter.indicator.id)
 			{
-				qInfo() << "counter = " << counter;
+//				qInfo() << "counter =" << counter;
 				if(counter>=slave_Label_Vec.size())
 					add_Slave(counter);
 
 				slave_Label_Vec[counter]->setText("<"+main_Tabs->tabText(old_Slave_Parameter.indicator.tab_Index)+"> "+old_Slave_Parameter.indicator.full_Name);
-				coupling_Parameter.coupled.slaves[counter] = slave_Indicator;
+				slave_Widget_Vec[counter] = old_Slave_Widget;
+//				slave_Line_Edit_Vec[counter]
+				coupling_Parameter.coupled.slaves[counter] = old_Slave_Parameter.indicator;
+				coupling_Parameter.coupled.slaves[counter].exist = true;
 
 				counter++;
 			}
 		}
 	}
+//	qInfo() << "final counter =" << counter;
 
-	loaded_Slaves = coupling_Parameter.coupled.slaves;
+//	loaded_Slaves = coupling_Parameter.coupled.slaves;
 
 	refresh_Reload_Coupled(refresh_Property, coupling_Widget);
 }
 
-void Coupling_Editor::save_Slaves()
+void Coupling_Editor::save_External_Slaves()
 {
-	// external slaves parameters
-	for(QWidget* slave_Widget : slave_Widget_Vec)
-	{
-		if(slave_Widget)
-		{
-			QVariant var;
-			Parameter slave_Parameter = slave_Widget->property(parameter_Property).value<Parameter>();
-			slave_Parameter.coupled.has_Master = true;
-			slave_Parameter.coupled.master = coupling_Parameter.indicator;
-			var.setValue( slave_Parameter );
-			slave_Widget->setProperty(parameter_Property,var);
-			refresh_Reload_Coupled(refresh_Property, slave_Widget);
-			qInfo() << "slave " << slave_Parameter.indicator.full_Name << " added me as master";
-		}
-	}
-
 	// remove unused slaves on slave's side
-	for(int loaded_Index=0; loaded_Index<loaded_Slaves.size(); ++loaded_Index)
+	for(Parameter_Indicator& old_Slave : old_Slaves)
 	{
-		int id=loaded_Slaves[loaded_Index].id;
+		int id=old_Slave.id;
 		bool keep = false;
 
 		// search in actual base
-		for(Parameter_Indicator slave : coupling_Parameter.coupled.slaves)
+		for(Parameter_Indicator& slave : coupling_Parameter.coupled.slaves)
 		{
 			if(slave.id == id)
 				keep=true;
 		}
 
-		// if not found, delete
+		// if not found, mark and remove from list
 		if(!keep)
 		{
 			QVariant var;
@@ -283,12 +311,37 @@ void Coupling_Editor::save_Slaves()
 			if(deprecated_Widget)
 			{
 				Parameter deprecated_Parameter = deprecated_Widget->property(parameter_Property).value<Parameter>();
-				deprecated_Parameter.coupled.has_Master=false;
+				deprecated_Parameter.coupled.master.exist = false;
 				var.setValue( deprecated_Parameter );
 				deprecated_Widget->setProperty(parameter_Property,var);
 				refresh_Reload_Coupled(refresh_Property, deprecated_Widget);
 			}
 		}
+	}
+
+	// current slaves add me as master
+	for(QWidget* slave_Widget : slave_Widget_Vec)
+	{
+		if(slave_Widget)
+		{
+			QVariant var;
+			Parameter slave_Parameter = slave_Widget->property(parameter_Property).value<Parameter>();
+			slave_Parameter.coupled.master = coupling_Parameter.indicator;
+			slave_Parameter.coupled.master.exist = true;
+			var.setValue( slave_Parameter );
+			slave_Widget->setProperty(parameter_Property,var);
+			refresh_Reload_Coupled(refresh_Property, slave_Widget);
+			qInfo() << "slave " << slave_Parameter.indicator.full_Name << " added me as master";
+		}
+	}
+}
+
+void Coupling_Editor::clear_Nonexisting_Slaves()
+{
+	for(int i=coupling_Parameter.coupled.slaves.size()-1; i>=0; --i)
+	{
+		if(!coupling_Parameter.coupled.slaves[i].exist)
+			coupling_Parameter.coupled.slaves.remove(i);
 	}
 }
 
@@ -554,7 +607,6 @@ void Coupling_Editor::get_Parameter(QLabel* label)
 		if(!widget->whatsThis().isEmpty())
 		{
 			Parameter parameter = widget->property(parameter_Property).value<Parameter>();
-			label->setText("<"+main_Tabs->tabText(parameter.indicator.tab_Index)+"> "+parameter.indicator.full_Name/* + " " + QString::number(parameter.indicator.id)*/);
 
 			// Name and tab are reloading inside the Parameter at Table opening, so they should be correct after changing the structure and tab order.
 
@@ -562,20 +614,33 @@ void Coupling_Editor::get_Parameter(QLabel* label)
 			if(label == master_Label)
 			{
 				// slave's side
-				coupling_Parameter.coupled.has_Master = true;
 				coupling_Parameter.coupled.master = parameter.indicator;
+				coupling_Parameter.coupled.master.exist = true;
 
 				// master's side
 				master_Widget = widget;					// remember widget. data will be saved at close.
+				label->setText("<"+main_Tabs->tabText(parameter.indicator.tab_Index)+"> "+parameter.indicator.full_Name/* + " " + QString::number(parameter.indicator.id)*/);
 			} else
 			// set slave
 			{
-				// slave's side
-				int index = slave_Label_Vec.indexOf(label);
-				slave_Widget_Vec[index] = widget;		// remember widget. data will be saved at close.
+				// if we dont have such slave
+				bool have = false;
+				for(Parameter_Indicator& slave : coupling_Parameter.coupled.slaves)
+				{
+					if(slave.id == parameter.indicator.id)
+						have = true;
+				}
+				if(!have)
+				{
+					// slave's side
+					int index = slave_Label_Vec.indexOf(label);
+					slave_Widget_Vec[index] = widget;		// remember widget. data will be saved at close.
 
-				// master's side
-				coupling_Parameter.coupled.slaves[index] = parameter.indicator;
+					// master's side
+					coupling_Parameter.coupled.slaves[index] = parameter.indicator;
+					coupling_Parameter.coupled.slaves[index].exist = true;
+					label->setText("<"+main_Tabs->tabText(parameter.indicator.tab_Index)+"> "+parameter.indicator.full_Name/* + " " + QString::number(parameter.indicator.id)*/);
+				}
 			}
 
 			refresh_Reload_Coupled(refresh_Property, coupling_Widget);

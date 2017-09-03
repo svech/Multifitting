@@ -245,15 +245,15 @@ enum       Transitional_Layer	{ Erf , Lin , Exp , Tanh , Sin , Step};
 // -----------------------------------------------------------------------------------------
 
 // simple types					renew corresponding serialization operators!
-struct Parameter_Indicator		{int id; QString whats_This;				// once and for all
-								 int tab_Index = -1; QString full_Name; };	// can be changed!
+struct Parameter_Indicator		{int id = 0; QString whats_This;								// once and for all
+								 int tab_Index = -1; QString full_Name; bool exist = false;};	// can be changed!
 
 struct Int_Independent			{int value; bool is_Independent=false;	int start; int step; int num_steps;};
 struct Independent				{bool is_Independent = false;	double min; double max; int num_Points;};
 
 struct Coupled					{bool is_Coupled = false;
-								 bool has_Master = false; Parameter_Indicator master; QString function_Type = "default"; double function(double argument){ return argument;}
-								 bool has_Slaves = false; QVector<Parameter_Indicator> slaves;};
+								 Parameter_Indicator master; QString function_Type = "default"; double function(double argument){ return argument;}
+								 QVector<Parameter_Indicator> slaves;};
 
 struct Fit						{bool is_Fitable	 = false;	bool min_Bounded; double min; bool max_Bounded; double max;};
 struct Optimize					{bool is_Optimizable = false;	bool min_Bounded; double min; bool max_Bounded; double max;};
@@ -319,8 +319,8 @@ struct Curve					{QVector<double> argument;
 
 // serialization
 
-QDataStream& operator <<( QDataStream& stream, const Parameter_Indicator& indicator );
-QDataStream& operator >>( QDataStream& stream,		 Parameter_Indicator& indicator );
+QDataStream& operator <<( QDataStream& stream, const Parameter_Indicator& parameter_Indicator );
+QDataStream& operator >>( QDataStream& stream,		 Parameter_Indicator& parameter_Indicator );
 
 QDataStream& operator <<( QDataStream& stream, const Int_Independent& int_Independent );
 QDataStream& operator >>( QDataStream& stream,		 Int_Independent& int_Independent );

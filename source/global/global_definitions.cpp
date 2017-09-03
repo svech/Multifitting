@@ -12,13 +12,13 @@ Global_Definitions::Global_Definitions()
 
 // -----------------------------------------------------------------------------------------
 // serialization
-QDataStream& operator <<( QDataStream& stream, const Parameter_Indicator& indicator )
+QDataStream& operator <<( QDataStream& stream, const Parameter_Indicator& parameter_Indicator )
 {
-	return stream << indicator.id << indicator.tab_Index << indicator.full_Name << indicator.whats_This;
+	return stream << parameter_Indicator.id << parameter_Indicator.tab_Index << parameter_Indicator.full_Name << parameter_Indicator.whats_This << parameter_Indicator.exist;
 }
-QDataStream& operator >>( QDataStream& stream,		 Parameter_Indicator& indicator )
+QDataStream& operator >>( QDataStream& stream,		 Parameter_Indicator& parameter_Indicator )
 {
-	return stream >> indicator.id >> indicator.tab_Index >> indicator.full_Name >> indicator.whats_This;
+	return stream >> parameter_Indicator.id >> parameter_Indicator.tab_Index >> parameter_Indicator.full_Name >> parameter_Indicator.whats_This >> parameter_Indicator.exist;
 }
 
 QDataStream& operator <<( QDataStream& stream, const Int_Independent& int_Independent )
@@ -41,11 +41,11 @@ QDataStream& operator >>( QDataStream& stream,		 Independent& independent )
 
 QDataStream& operator <<( QDataStream& stream, const Coupled& coupled )
 {
-	return stream << coupled.is_Coupled << coupled.has_Master << coupled.master << coupled.function_Type << coupled.has_Slaves << coupled.slaves;
+	return stream << coupled.is_Coupled << coupled.master << coupled.function_Type << coupled.slaves;
 }
 QDataStream& operator >>( QDataStream& stream,		 Coupled& coupled )
 {
-	return stream >> coupled.is_Coupled >> coupled.has_Master >> coupled.master >> coupled.function_Type >> coupled.has_Slaves >> coupled.slaves;
+	return stream >> coupled.is_Coupled >> coupled.master >> coupled.function_Type >> coupled.slaves;
 }
 
 QDataStream& operator <<( QDataStream& stream, const Fit& fit )

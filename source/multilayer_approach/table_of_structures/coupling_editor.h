@@ -17,12 +17,13 @@ public:
 	void create_Master_Box();
 		void remove_Master();
 		void load_Master();
-		void save_Master();
+		void save_External_Master();
 	void create_Slave_Box();
 		void remove_Slave(int index_Pressed);
 		void add_Slave(int index_Pressed);
 		void load_Slaves();
-		void save_Slaves();
+		void save_External_Slaves();
+		void clear_Nonexisting_Slaves();
 	void refresh_Reload_Coupled(QString refresh_Reload, QWidget* widget);
 
 	void enable_Getting_Parameter(QWidget* old, QWidget* now, QLabel* label, QLineEdit* line_Edit);
@@ -49,7 +50,7 @@ public:
 			QVector<QWidget*> slave_Widget_Vec;
 			QVector<QLabel*> slave_Label_Vec;
 			QVector<QLineEdit*> slave_Line_Edit_Vec;
-			QVector<Parameter_Indicator> loaded_Slaves;
+			QVector<Parameter_Indicator> old_Slaves;
 
 	QPushButton* done_Button;
 
