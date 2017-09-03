@@ -19,12 +19,16 @@ void Coupling_Editor::closeEvent(QCloseEvent *)
 	// save data
 	{
 		// clear for having correct number of slaves
-//		clear_Nonexisting_Slaves();
+		clear_Nonexisting_Slaves();
 
 		{
+			qInfo() << "saved" << coupling_Parameter.coupled.slaves.size() << "slaves";
+			qInfo() << "saved" << int(coupling_Parameter.coupled.master.exist) << "master";
+			qInfo() << "";
 			QVariant var;
 			var.setValue( coupling_Parameter );
 			coupling_Widget->setProperty(parameter_Property,var);
+			refresh_Reload_Coupled(refresh_Property, coupling_Widget);
 		}
 
 		// external master parameter
@@ -206,10 +210,9 @@ void Coupling_Editor::create_Slave_Box()
 
 void Coupling_Editor::remove_Slave(int index_Pressed)
 {
+	coupling_Parameter.coupled.slaves[index_Pressed].exist = false;
 	slave_Label_Vec[index_Pressed]->setText(no_Slave_Text);
-
-//	QWidget* slave_To_Remove = search_Widget_By_Id(coupling_Parameter.coupled.slaves[index_Pressed]);
-
+	slave_Widget_Vec[index_Pressed] = NULL;
 }
 
 void Coupling_Editor::add_Slave(int index_Pressed)
@@ -283,8 +286,6 @@ void Coupling_Editor::load_Slaves()
 	}
 //	qInfo() << "final counter =" << counter;
 
-//	loaded_Slaves = coupling_Parameter.coupled.slaves;
-
 	refresh_Reload_Coupled(refresh_Property, coupling_Widget);
 }
 
@@ -299,7 +300,7 @@ void Coupling_Editor::save_External_Slaves()
 		// search in actual base
 		for(Parameter_Indicator& slave : coupling_Parameter.coupled.slaves)
 		{
-			if(slave.id == id)
+			if(slave.exist && slave.id == id)
 				keep=true;
 		}
 
