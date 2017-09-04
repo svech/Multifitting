@@ -348,6 +348,7 @@ void Coupling_Editor::clear_Nonexisting_Slaves()
 
 void Coupling_Editor::refresh_Reload_Coupled(QString refresh_Reload, QWidget* widget)
 {
+	// has copy in "Table_Of_Structures"
 	if(!widget) qInfo() << "Coupling_Editor::refresh_Reload_Coupled : null widget";
 	QVariant var;
 

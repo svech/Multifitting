@@ -25,6 +25,8 @@ public:
         void add_Tabs();
 		void create_Table(My_Table_Widget* new_Table, int tab_Index);
 		void read_Trees();
+		void revise_All_Parameters();
+		void refresh_Reload_Coupled(QString refresh_Reload, QWidget* widget, Parameter& parameter);
 
 	// for material only
 	void create_Combo_Elements(My_Table_Widget* table, int current_Row, int start_Column, QTreeWidgetItem* structure_Item, QString item_Type_String);
@@ -113,6 +115,7 @@ public:
 	QTabWidget* multilayer_Tabs;
 
 	QString item_Type_String;
+	QVector<int> loaded_Parameters;
 
 	QMap<QComboBox*,QTreeWidgetItem*> elements_Map;
 	QMap<QLineEdit*,QTreeWidgetItem*> line_Edits_Map;	

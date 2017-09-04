@@ -31,7 +31,6 @@ public:
 
 	QWidget* search_Widget_By_Id(int id);
 
-
 	QWidget* coupling_Widget;
 	Parameter coupling_Parameter;
 	QTabWidget* main_Tabs;
