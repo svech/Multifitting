@@ -2,13 +2,14 @@
 #define COUPLING_EDITOR_H
 
 #include "global/settings.h"
-#include "my_table_widget.h"
+//#include "my_table_widget.h"
+#include "multilayer_approach/table_of_structures.h"
 
 class Coupling_Editor : public QDialog
 {
 	Q_OBJECT
 public:
-	explicit Coupling_Editor(QWidget* coupling_Widget, QMap<QLineEdit*,QTreeWidgetItem*>& line_Edits_Map, QMap<QWidget*,QTreeWidgetItem*>& coupled_Widgets_Map, QTabWidget* main_Tabs, QWidget *parent = 0);
+	explicit Coupling_Editor(QWidget* coupling_Widget, QMap<QWidget*,QTreeWidgetItem*>& coupled_Widgets_Map, QTabWidget* main_Tabs, QWidget *parent = 0);
 
 	void closeEvent(QCloseEvent*);
 	void set_Window_Geometry();
@@ -56,7 +57,6 @@ public:
 	QString no_Master_Text = ".........<no master>.........";
 	QString no_Slave_Text  = ".........<no slave>..........";
 
-	QMap<QLineEdit*,QTreeWidgetItem*>& line_Edits_Map;
 	QMap<QWidget*,QTreeWidgetItem*>& coupled_Widgets_Map;
 };
 

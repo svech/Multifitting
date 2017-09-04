@@ -1,7 +1,6 @@
 #include "my_table_widget.h"
 
-My_Table_Widget::My_Table_Widget(int rows, int columns, QMap<QLineEdit*,QTreeWidgetItem*>& line_Edits_Map, QMap<QWidget*,QTreeWidgetItem*>& coupled_Widgets_Map, QTabWidget* main_Tabs, QWidget *parent) :
-	line_Edits_Map(line_Edits_Map),
+My_Table_Widget::My_Table_Widget(int rows, int columns, QMap<QWidget*,QTreeWidgetItem*>& coupled_Widgets_Map, QTabWidget* main_Tabs, QWidget *parent) :
 	coupled_Widgets_Map(coupled_Widgets_Map),
 	main_Tabs(main_Tabs),
 	QTableWidget(parent)
@@ -35,7 +34,7 @@ void My_Table_Widget::contextMenuEvent(QContextMenuEvent *event)
 
 void My_Table_Widget::open_Coupling_Editor(QWidget* coupling_Widget)
 {
-	Coupling_Editor* new_Coupling_Editor = new Coupling_Editor(coupling_Widget, line_Edits_Map, coupled_Widgets_Map, main_Tabs, this);
+	Coupling_Editor* new_Coupling_Editor = new Coupling_Editor(coupling_Widget, coupled_Widgets_Map, main_Tabs, this);
 //		new_Coupling_Editor->setModal(true);
 		new_Coupling_Editor->show();
 }

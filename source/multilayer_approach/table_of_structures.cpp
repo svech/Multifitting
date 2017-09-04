@@ -71,7 +71,7 @@ void Table_Of_Structures::add_Tabs()
 	read_Trees();
 	for(int tab_Index=0; tab_Index<multilayer_Tabs->count(); ++tab_Index)
 	{
-		My_Table_Widget* new_Table = new My_Table_Widget(basic_Row_Number, basic_Column_Number, line_Edits_Map,	coupled_Widgets_Map, main_Tabs, main_Tabs);
+		My_Table_Widget* new_Table = new My_Table_Widget(basic_Row_Number, basic_Column_Number, coupled_Widgets_Map, main_Tabs, main_Tabs);
 		list_Of_Tables.append(new_Table);
 
 		create_Table(new_Table, tab_Index);
@@ -472,7 +472,7 @@ void Table_Of_Structures::revise_All_Parameters()
 			for(int column=0; column<table->columnCount(); column++)
 			{
 				QWidget* widget = table->cellWidget(row,column);
-				if(widget)
+				if(widget && coupled_Widgets_Map.contains(widget))
 				{
 					Parameter parameter = widget->property(parameter_Property).value<Parameter>();
 
@@ -485,238 +485,247 @@ void Table_Of_Structures::revise_All_Parameters()
 						parameter.coupled.master = empty_Indicator;
 
 					// check slaves
-					for(Parameter_Indicator& slave : parameter.coupled.slaves)
+					for(int slave_Index=parameter.coupled.slaves.size()-1; slave_Index>=0; slave_Index--)
 					{
-						if(loaded_Parameters.indexOf(slave.id) == -1)
-							slave = empty_Indicator;
+						if(loaded_Parameters.indexOf(parameter.coupled.slaves[slave_Index].id) == -1)
+							parameter.coupled.slaves.remove(slave_Index);
 					}
 
-					refresh_Reload_Coupled(refresh_Property, widget, parameter);
+					refresh_Reload_Core(refresh_Property, widget, parameter, coupled_Widgets_Map);
+
+					if(loaded_Parameters.indexOf(parameter.indicator.id) != -1)
+					{
+						QLineEdit* param_Line_Edit = coupled_Id_LineEdits_Map.value(parameter.indicator.id);
+						if(param_Line_Edit)
+						{
+//							if()
+							param_Line_Edit->setStyleSheet("QLineEdit { background: rgb(0, 255, 255); selection-background-color: rgb(233, 99, 0); }");
+						}
+					}
 				}
 			}
 		}
 	}
 }
 
-void Table_Of_Structures::refresh_Reload_Coupled(QString refresh_Reload, QWidget *widget, Parameter& parameter)
+void Table_Of_Structures::refresh_Reload_Core(QString refresh_Reload, QWidget *widget, Parameter& parameter, QMap<QWidget*,QTreeWidgetItem*>& coup_Widgets_Map)
 {
-	// has copy in "Coupling_Editor"
 	QVariant var;
 
-//	// get access to tree item
-	QTreeWidgetItem* structure_Item = coupled_Widgets_Map.value(widget);
+	// get access to tree item
+	parameter = widget->property(parameter_Property).value<Parameter>();
+	QTreeWidgetItem* structure_Item = coup_Widgets_Map.value(widget);
 	QStringList item_Type_List = structure_Item->whatsThis(DEFAULT_COLUMN).split(item_Type_Delimiter,QString::SkipEmptyParts);
-//	QString item_Type_String = item_Type_List[0];
-//	QString whats_This = parameter.indicator.whats_This;
-//	QVariant data = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole);
+	QString item_Type_String = item_Type_List[0];
+	QString whats_This = parameter.indicator.whats_This;
+	QVariant data = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole);
 
-//	if(item_Type_String == whats_This_Ambient)
-//	{
-//		Ambient ambient = data.value<Ambient>();
-//		if(whats_This == whats_This_Composition)
-//		{
-//			for(int i=0; i<ambient.composition.size(); ++i)
-//			if(ambient.composition[i].composition.indicator.id == parameter.indicator.id)
-//			{
-//				if(refresh_Reload == reload_Property)	parameter.coupled = ambient.composition[i].composition.coupled;
-//				if(refresh_Reload == refresh_Property)	ambient.composition[i].composition.coupled = parameter.coupled;
-//				break;
-//			}
-//		}
-//		if(whats_This == whats_This_Absolute_Density)
-//		{
-//			if(refresh_Reload == reload_Property)	parameter.coupled = ambient.absolute_Density.coupled;
-//			if(refresh_Reload == refresh_Property)	ambient.absolute_Density.coupled = parameter.coupled;
-//		}
-//		if(whats_This == whats_This_Relative_Density)
-//		{
-//			if(refresh_Reload == reload_Property)	parameter.coupled = ambient.relative_Density.coupled;
-//			if(refresh_Reload == refresh_Property)	ambient.relative_Density.coupled = parameter.coupled;
-//		}
-//		var.setValue( ambient );
-//	}
-//	if(item_Type_String == whats_This_Layer)
-//	{
-//		Layer layer = data.value<Layer>();
-//		if(whats_This == whats_This_Composition)
-//		{
-//			for(int i=0; i<layer.composition.size(); ++i)
-//			if(layer.composition[i].composition.indicator.id == parameter.indicator.id)
-//			{
-//				if(refresh_Reload == reload_Property)	parameter.coupled = layer.composition[i].composition.coupled;
-//				if(refresh_Reload == refresh_Property)	layer.composition[i].composition.coupled = parameter.coupled;
-//				break;
-//			}
-//		}
-//		if(whats_This == whats_This_Interlayer_Composition)
-//		{
-//			for(int i=0; i<layer.interlayer_Composition.size(); ++i)
-//			if(layer.interlayer_Composition[i].interlayer.indicator.id == parameter.indicator.id)
-//			{
-//				if(refresh_Reload == reload_Property)	parameter.coupled = layer.interlayer_Composition[i].interlayer.coupled;
-//				if(refresh_Reload == refresh_Property)	layer.interlayer_Composition[i].interlayer.coupled = parameter.coupled;
-//				break;
-//			}
-//		}
-//		if(whats_This == whats_This_Interlayer_My_Sigma)
-//		{
-//			for(int i=0; i<layer.interlayer_Composition.size(); ++i)
-//			if(layer.interlayer_Composition[i].my_Sigma.indicator.id == parameter.indicator.id)
-//			{
-//				if(refresh_Reload == reload_Property)	parameter.coupled = layer.interlayer_Composition[i].my_Sigma.coupled;
-//				if(refresh_Reload == refresh_Property)	layer.interlayer_Composition[i].my_Sigma.coupled = parameter.coupled;
-//				break;
-//			}
-//		}
-//		if(whats_This == whats_This_Absolute_Density)
-//		{
-//			if(refresh_Reload == reload_Property)	parameter.coupled = layer.absolute_Density.coupled;
-//			if(refresh_Reload == refresh_Property)	layer.absolute_Density.coupled = parameter.coupled;
-//		}
-//		if(whats_This == whats_This_Relative_Density)
-//		{
-//			if(refresh_Reload == reload_Property)	parameter.coupled = layer.relative_Density.coupled;
-//			if(refresh_Reload == refresh_Property)	layer.relative_Density.coupled = parameter.coupled;
-//		}
-//		if(whats_This == whats_This_Thickness)
-//		{
-//			if(refresh_Reload == reload_Property)	parameter.coupled = layer.thickness.coupled;
-//			if(refresh_Reload == refresh_Property)	layer.thickness.coupled = parameter.coupled;
-//		}
-//		if(whats_This == whats_This_Sigma)
-//		{
-//			if(refresh_Reload == reload_Property)	parameter.coupled = layer.sigma.coupled;
-//			if(refresh_Reload == refresh_Property)	layer.sigma.coupled = parameter.coupled;
-//		}
+	if(item_Type_String == whats_This_Ambient)
+	{
+		Ambient ambient = data.value<Ambient>();
+		if(whats_This == whats_This_Composition)
+		{
+			for(int i=0; i<ambient.composition.size(); ++i)
+			if(ambient.composition[i].composition.indicator.id == parameter.indicator.id)
+			{
+//				qInfo() << "FOUND " << whats_This << " " << i;
+				if(refresh_Reload == reload_Property)	parameter.coupled = ambient.composition[i].composition.coupled;
+				if(refresh_Reload == refresh_Property)	ambient.composition[i].composition.coupled = parameter.coupled;
+				break;
+			}
+		}
+		if(whats_This == whats_This_Absolute_Density)
+		{
+			if(refresh_Reload == reload_Property)	parameter.coupled = ambient.absolute_Density.coupled;
+			if(refresh_Reload == refresh_Property)	ambient.absolute_Density.coupled = parameter.coupled;
+		}
+		if(whats_This == whats_This_Relative_Density)
+		{
+			if(refresh_Reload == reload_Property)	parameter.coupled = ambient.relative_Density.coupled;
+			if(refresh_Reload == refresh_Property)	ambient.relative_Density.coupled = parameter.coupled;
+		}
+		var.setValue( ambient );
+	}
+	if(item_Type_String == whats_This_Layer)
+	{
+		Layer layer = data.value<Layer>();
+		if(whats_This == whats_This_Composition)
+		{
+			for(int i=0; i<layer.composition.size(); ++i)
+			if(layer.composition[i].composition.indicator.id == parameter.indicator.id)
+			{
+				if(refresh_Reload == reload_Property)	parameter.coupled = layer.composition[i].composition.coupled;
+				if(refresh_Reload == refresh_Property)	layer.composition[i].composition.coupled = parameter.coupled;
+				break;
+			}
+		}
+		if(whats_This == whats_This_Interlayer_Composition)
+		{
+			for(int i=0; i<layer.interlayer_Composition.size(); ++i)
+			if(layer.interlayer_Composition[i].interlayer.indicator.id == parameter.indicator.id)
+			{
+				if(refresh_Reload == reload_Property)	parameter.coupled = layer.interlayer_Composition[i].interlayer.coupled;
+				if(refresh_Reload == refresh_Property)	layer.interlayer_Composition[i].interlayer.coupled = parameter.coupled;
+				break;
+			}
+		}
+		if(whats_This == whats_This_Interlayer_My_Sigma)
+		{
+			for(int i=0; i<layer.interlayer_Composition.size(); ++i)
+			if(layer.interlayer_Composition[i].my_Sigma.indicator.id == parameter.indicator.id)
+			{
+				if(refresh_Reload == reload_Property)	parameter.coupled = layer.interlayer_Composition[i].my_Sigma.coupled;
+				if(refresh_Reload == refresh_Property)	layer.interlayer_Composition[i].my_Sigma.coupled = parameter.coupled;
+				break;
+			}
+		}
+		if(whats_This == whats_This_Absolute_Density)
+		{
+			if(refresh_Reload == reload_Property)	parameter.coupled = layer.absolute_Density.coupled;
+			if(refresh_Reload == refresh_Property)	layer.absolute_Density.coupled = parameter.coupled;
+		}
+		if(whats_This == whats_This_Relative_Density)
+		{
+			if(refresh_Reload == reload_Property)	parameter.coupled = layer.relative_Density.coupled;
+			if(refresh_Reload == refresh_Property)	layer.relative_Density.coupled = parameter.coupled;
+		}
+		if(whats_This == whats_This_Thickness)
+		{
+			if(refresh_Reload == reload_Property)	parameter.coupled = layer.thickness.coupled;
+			if(refresh_Reload == refresh_Property)	layer.thickness.coupled = parameter.coupled;
+		}
+		if(whats_This == whats_This_Sigma)
+		{
+			if(refresh_Reload == reload_Property)	parameter.coupled = layer.sigma.coupled;
+			if(refresh_Reload == refresh_Property)	layer.sigma.coupled = parameter.coupled;
+		}
 
-//		if(whats_This == whats_This_Thickness_Drift_Line_Value)
-//		{
-//			if(refresh_Reload == reload_Property)	parameter.coupled = layer.thickness_Drift.drift_Line_Value.coupled;
-//			if(refresh_Reload == refresh_Property)	layer.thickness_Drift.drift_Line_Value.coupled = parameter.coupled;
-//		}
-//		if(whats_This == whats_This_Thickness_Drift_Rand_Rms)
-//		{
-//			if(refresh_Reload == reload_Property)	parameter.coupled = layer.thickness_Drift.drift_Rand_Rms.coupled;
-//			if(refresh_Reload == refresh_Property)	layer.thickness_Drift.drift_Rand_Rms.coupled = parameter.coupled;
-//		}
-//		if(whats_This == whats_This_Thickness_Drift_Sine_Amplitude)
-//		{
-//			if(refresh_Reload == reload_Property)	parameter.coupled = layer.thickness_Drift.drift_Sine_Amplitude.coupled;
-//			if(refresh_Reload == refresh_Property)	layer.thickness_Drift.drift_Sine_Amplitude.coupled = parameter.coupled;
-//		}
-//		if(whats_This == whats_This_Thickness_Drift_Sine_Frequency)
-//		{
-//			if(refresh_Reload == reload_Property)	parameter.coupled = layer.thickness_Drift.drift_Sine_Frequency.coupled;
-//			if(refresh_Reload == refresh_Property)	layer.thickness_Drift.drift_Sine_Frequency.coupled = parameter.coupled;
-//		}
-//		if(whats_This == whats_This_Thickness_Drift_Sine_Phase)
-//		{
-//			if(refresh_Reload == reload_Property)	parameter.coupled = layer.thickness_Drift.drift_Sine_Phase.coupled;
-//			if(refresh_Reload == refresh_Property)	layer.thickness_Drift.drift_Sine_Phase.coupled = parameter.coupled;
-//		}
+		if(whats_This == whats_This_Thickness_Drift_Line_Value)
+		{
+			if(refresh_Reload == reload_Property)	parameter.coupled = layer.thickness_Drift.drift_Line_Value.coupled;
+			if(refresh_Reload == refresh_Property)	layer.thickness_Drift.drift_Line_Value.coupled = parameter.coupled;
+		}
+		if(whats_This == whats_This_Thickness_Drift_Rand_Rms)
+		{
+			if(refresh_Reload == reload_Property)	parameter.coupled = layer.thickness_Drift.drift_Rand_Rms.coupled;
+			if(refresh_Reload == refresh_Property)	layer.thickness_Drift.drift_Rand_Rms.coupled = parameter.coupled;
+		}
+		if(whats_This == whats_This_Thickness_Drift_Sine_Amplitude)
+		{
+			if(refresh_Reload == reload_Property)	parameter.coupled = layer.thickness_Drift.drift_Sine_Amplitude.coupled;
+			if(refresh_Reload == refresh_Property)	layer.thickness_Drift.drift_Sine_Amplitude.coupled = parameter.coupled;
+		}
+		if(whats_This == whats_This_Thickness_Drift_Sine_Frequency)
+		{
+			if(refresh_Reload == reload_Property)	parameter.coupled = layer.thickness_Drift.drift_Sine_Frequency.coupled;
+			if(refresh_Reload == refresh_Property)	layer.thickness_Drift.drift_Sine_Frequency.coupled = parameter.coupled;
+		}
+		if(whats_This == whats_This_Thickness_Drift_Sine_Phase)
+		{
+			if(refresh_Reload == reload_Property)	parameter.coupled = layer.thickness_Drift.drift_Sine_Phase.coupled;
+			if(refresh_Reload == refresh_Property)	layer.thickness_Drift.drift_Sine_Phase.coupled = parameter.coupled;
+		}
 
-//		if(whats_This == whats_This_Sigma_Drift_Line_Value)
-//		{
-//			if(refresh_Reload == reload_Property)	parameter.coupled = layer.sigma_Drift.drift_Line_Value.coupled;
-//			if(refresh_Reload == refresh_Property)	layer.sigma_Drift.drift_Line_Value.coupled = parameter.coupled;
-//		}
-//		if(whats_This == whats_This_Sigma_Drift_Rand_Rms)
-//		{
-//			if(refresh_Reload == reload_Property)	parameter.coupled = layer.sigma_Drift.drift_Rand_Rms.coupled;
-//			if(refresh_Reload == refresh_Property)	layer.sigma_Drift.drift_Rand_Rms.coupled = parameter.coupled;
-//		}
-//		if(whats_This == whats_This_Sigma_Drift_Sine_Amplitude)
-//		{
-//			if(refresh_Reload == reload_Property)	parameter.coupled = layer.sigma_Drift.drift_Sine_Amplitude.coupled;
-//			if(refresh_Reload == refresh_Property)	layer.sigma_Drift.drift_Sine_Amplitude.coupled = parameter.coupled;
-//		}
-//		if(whats_This == whats_This_Sigma_Drift_Sine_Frequency)
-//		{
-//			if(refresh_Reload == reload_Property)	parameter.coupled = layer.sigma_Drift.drift_Sine_Frequency.coupled;
-//			if(refresh_Reload == refresh_Property)	layer.sigma_Drift.drift_Sine_Frequency.coupled = parameter.coupled;
-//		}
-//		if(whats_This == whats_This_Sigma_Drift_Sine_Phase)
-//		{
-//			if(refresh_Reload == reload_Property)	parameter.coupled = layer.sigma_Drift.drift_Sine_Phase.coupled;
-//			if(refresh_Reload == refresh_Property)	layer.sigma_Drift.drift_Sine_Phase.coupled = parameter.coupled;
-//		}
-//		var.setValue( layer );
-//	}
-//	if(item_Type_String == whats_This_Substrate)
-//	{
-//		Substrate substrate = data.value<Substrate>();
-//		if(whats_This == whats_This_Composition)
-//		{
-//			for(int i=0; i<substrate.composition.size(); ++i)
-//			if(substrate.composition[i].composition.indicator.id == parameter.indicator.id)
-//			{
-//				if(refresh_Reload == reload_Property)	parameter.coupled = substrate.composition[i].composition.coupled;
-//				if(refresh_Reload == refresh_Property)	substrate.composition[i].composition.coupled = parameter.coupled;
-//				break;
-//			}
-//		}
-//		if(whats_This == whats_This_Interlayer_Composition)
-//		{
-//			for(int i=0; i<substrate.interlayer_Composition.size(); ++i)
-//			if(substrate.interlayer_Composition[i].interlayer.indicator.id == parameter.indicator.id)
-//			{
-//				if(refresh_Reload == reload_Property)	parameter.coupled = substrate.interlayer_Composition[i].interlayer.coupled;
-//				if(refresh_Reload == refresh_Property)	substrate.interlayer_Composition[i].interlayer.coupled = parameter.coupled;
-//				break;
-//			}
-//		}
-//		if(whats_This == whats_This_Interlayer_My_Sigma)
-//		{
-//			for(int i=0; i<substrate.interlayer_Composition.size(); ++i)
-//			if(substrate.interlayer_Composition[i].my_Sigma.indicator.id == parameter.indicator.id)
-//			{
-//				if(refresh_Reload == reload_Property)	parameter.coupled = substrate.interlayer_Composition[i].my_Sigma.coupled;
-//				if(refresh_Reload == refresh_Property)	substrate.interlayer_Composition[i].my_Sigma.coupled = parameter.coupled;
-//				break;
-//			}
-//		}
-//		if(whats_This == whats_This_Absolute_Density)
-//		{
-//			if(refresh_Reload == reload_Property)	parameter.coupled = substrate.absolute_Density.coupled;
-//			if(refresh_Reload == refresh_Property)	substrate.absolute_Density.coupled = parameter.coupled;
-//		}
-//		if(whats_This == whats_This_Relative_Density)
-//		{
-//			if(refresh_Reload == reload_Property)	parameter.coupled = substrate.relative_Density.coupled;
-//			if(refresh_Reload == refresh_Property)	substrate.relative_Density.coupled = parameter.coupled;
-//		}
-//		if(whats_This == whats_This_Sigma)
-//		{
-//			if(refresh_Reload == reload_Property)	parameter.coupled = substrate.sigma.coupled;
-//			if(refresh_Reload == refresh_Property)	substrate.sigma.coupled = parameter.coupled;
-//		}
-//		var.setValue( substrate );
-//	}
-//	if(item_Type_String == whats_This_Multilayer)
-//	{
-//		Stack_Content stack_Content = data.value<Stack_Content>();
-//		if(whats_This == whats_This_Period)
-//		{
-//			if(refresh_Reload == reload_Property)	parameter.coupled = stack_Content.period.coupled;
-//			if(refresh_Reload == refresh_Property)	stack_Content.period.coupled = parameter.coupled;
-//		}
-//		if(whats_This == whats_This_Gamma)
-//		{
-//			if(refresh_Reload == reload_Property)	parameter.coupled = stack_Content.gamma.coupled;
-//			if(refresh_Reload == refresh_Property)	stack_Content.gamma.coupled = parameter.coupled;
-//		}
-//		var.setValue( stack_Content );
-//	}
+		if(whats_This == whats_This_Sigma_Drift_Line_Value)
+		{
+			if(refresh_Reload == reload_Property)	parameter.coupled = layer.sigma_Drift.drift_Line_Value.coupled;
+			if(refresh_Reload == refresh_Property)	layer.sigma_Drift.drift_Line_Value.coupled = parameter.coupled;
+		}
+		if(whats_This == whats_This_Sigma_Drift_Rand_Rms)
+		{
+			if(refresh_Reload == reload_Property)	parameter.coupled = layer.sigma_Drift.drift_Rand_Rms.coupled;
+			if(refresh_Reload == refresh_Property)	layer.sigma_Drift.drift_Rand_Rms.coupled = parameter.coupled;
+		}
+		if(whats_This == whats_This_Sigma_Drift_Sine_Amplitude)
+		{
+			if(refresh_Reload == reload_Property)	parameter.coupled = layer.sigma_Drift.drift_Sine_Amplitude.coupled;
+			if(refresh_Reload == refresh_Property)	layer.sigma_Drift.drift_Sine_Amplitude.coupled = parameter.coupled;
+		}
+		if(whats_This == whats_This_Sigma_Drift_Sine_Frequency)
+		{
+			if(refresh_Reload == reload_Property)	parameter.coupled = layer.sigma_Drift.drift_Sine_Frequency.coupled;
+			if(refresh_Reload == refresh_Property)	layer.sigma_Drift.drift_Sine_Frequency.coupled = parameter.coupled;
+		}
+		if(whats_This == whats_This_Sigma_Drift_Sine_Phase)
+		{
+			if(refresh_Reload == reload_Property)	parameter.coupled = layer.sigma_Drift.drift_Sine_Phase.coupled;
+			if(refresh_Reload == refresh_Property)	layer.sigma_Drift.drift_Sine_Phase.coupled = parameter.coupled;
+		}
+		var.setValue( layer );
+	}
+	if(item_Type_String == whats_This_Substrate)
+	{
+		Substrate substrate = data.value<Substrate>();
+		if(whats_This == whats_This_Composition)
+		{
+			for(int i=0; i<substrate.composition.size(); ++i)
+			if(substrate.composition[i].composition.indicator.id == parameter.indicator.id)
+			{
+				if(refresh_Reload == reload_Property)	parameter.coupled = substrate.composition[i].composition.coupled;
+				if(refresh_Reload == refresh_Property)	substrate.composition[i].composition.coupled = parameter.coupled;
+				break;
+			}
+		}
+		if(whats_This == whats_This_Interlayer_Composition)
+		{
+			for(int i=0; i<substrate.interlayer_Composition.size(); ++i)
+			if(substrate.interlayer_Composition[i].interlayer.indicator.id == parameter.indicator.id)
+			{
+				if(refresh_Reload == reload_Property)	parameter.coupled = substrate.interlayer_Composition[i].interlayer.coupled;
+				if(refresh_Reload == refresh_Property)	substrate.interlayer_Composition[i].interlayer.coupled = parameter.coupled;
+				break;
+			}
+		}
+		if(whats_This == whats_This_Interlayer_My_Sigma)
+		{
+			for(int i=0; i<substrate.interlayer_Composition.size(); ++i)
+			if(substrate.interlayer_Composition[i].my_Sigma.indicator.id == parameter.indicator.id)
+			{
+				if(refresh_Reload == reload_Property)	parameter.coupled = substrate.interlayer_Composition[i].my_Sigma.coupled;
+				if(refresh_Reload == refresh_Property)	substrate.interlayer_Composition[i].my_Sigma.coupled = parameter.coupled;
+				break;
+			}
+		}
+		if(whats_This == whats_This_Absolute_Density)
+		{
+			if(refresh_Reload == reload_Property)	parameter.coupled = substrate.absolute_Density.coupled;
+			if(refresh_Reload == refresh_Property)	substrate.absolute_Density.coupled = parameter.coupled;
+		}
+		if(whats_This == whats_This_Relative_Density)
+		{
+			if(refresh_Reload == reload_Property)	parameter.coupled = substrate.relative_Density.coupled;
+			if(refresh_Reload == refresh_Property)	substrate.relative_Density.coupled = parameter.coupled;
+		}
+		if(whats_This == whats_This_Sigma)
+		{
+			if(refresh_Reload == reload_Property)	parameter.coupled = substrate.sigma.coupled;
+			if(refresh_Reload == refresh_Property)	substrate.sigma.coupled = parameter.coupled;
+		}
+		var.setValue( substrate );
+	}
+	if(item_Type_String == whats_This_Multilayer)
+	{
+		Stack_Content stack_Content = data.value<Stack_Content>();
+		if(whats_This == whats_This_Period)
+		{
+			if(refresh_Reload == reload_Property)	parameter.coupled = stack_Content.period.coupled;
+			if(refresh_Reload == refresh_Property)	stack_Content.period.coupled = parameter.coupled;
+		}
+		if(whats_This == whats_This_Gamma)
+		{
+			if(refresh_Reload == reload_Property)	parameter.coupled = stack_Content.gamma.coupled;
+			if(refresh_Reload == refresh_Property)	stack_Content.gamma.coupled = parameter.coupled;
+		}
+		var.setValue( stack_Content );
+	}
 
-//	// refreshing
-//	if(refresh_Reload == refresh_Property)
-//	{
-//		structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
-//		var.setValue(parameter);
-//		widget->setProperty(parameter_Property, var);
-//	}
-
-	qInfo() << "refresh_Reload_Coupled";
+	// refreshing
+	if(refresh_Reload == refresh_Property)
+	{
+		structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+		var.setValue(parameter);
+		widget->setProperty(parameter_Property, var);
+	}
 }
 
 void Table_Of_Structures::add_Columns(My_Table_Widget* table, int add_After)
@@ -898,16 +907,15 @@ void Table_Of_Structures::create_Stoich(My_Table_Widget* table, int current_Row,
 		all_Widgets_To_Reload.append(line_Edit);
 
 		connect(line_Edit, &QLineEdit::textEdited, this, [=]{resize_Line_Edit(table); });
-		//		connect(line_Edit, SIGNAL(textEdited(QString)), this, SLOT(resize_Line_Edit(QString)));     old variant
 
-		// create item
+		// create item (set LineEdits_Map)
 		table->setCellWidget(current_Row, current_Column, line_Edit);
 		line_Edits_Map.insert(line_Edit, structure_Item);
+		coupled_Id_LineEdits_Map.insert(composition[composition_Index].composition.indicator.id,line_Edit);
 
 		connect(line_Edit, &QLineEdit::textEdited, this, [=]{refresh_Stoich(); });
-		//      connect(line_Edit, SIGNAL(textEdited(QString)), this, SLOT(refresh_Stoich(QString))); old version
 
-		//        line_Edit->textEdited(line_Edit->text());
+//        line_Edit->textEdited(line_Edit->text());
 		current_Column+=TABLE_COLUMN_ELEMENTS_SHIFT;
 	}
 }
@@ -1027,7 +1035,7 @@ void Table_Of_Structures::create_Material(My_Table_Widget* table, int current_Ro
 	connect(material_Line_Edit, &QLineEdit::textEdited, this, [=]{resize_Line_Edit(table); });
 
 	table->setCellWidget(current_Row, current_Column, material_Line_Edit);
-	line_Edits_Map.insert(material_Line_Edit, structure_Item);
+	line_Edits_Map.insert(material_Line_Edit, structure_Item);	
 	connect(material_Line_Edit, &QLineEdit::textEdited, this, [=]{refresh_Material(); });
 	connect(material_Line_Edit, SIGNAL(editingFinished()), this, SLOT(check_Material()));
 	//	material_Line_Edit->textEdited(material_Line_Edit->text());
@@ -1255,19 +1263,16 @@ void Table_Of_Structures::create_Line_Edit(My_Table_Widget* table, int current_R
 	all_Widgets_To_Reload.append(line_Edit);
 
 	connect(line_Edit, &QLineEdit::textEdited, this, [=]{resize_Line_Edit(table); });
-	//	connect(line_Edit, SIGNAL(textEdited(QString)), this, SLOT(resize_Line_Edit(QString))); old variant
 
-	// create item
+	// create item (set LineEdits_Map)
 	table->setCellWidget(current_Row, current_Column, line_Edit);
 	line_Edits_Map.insert(line_Edit, structure_Item);
+	coupled_Id_LineEdits_Map.insert(parameter.indicator.id,line_Edit);
 
 	connect(line_Edit, &QLineEdit::textEdited, this, [=]{refresh_Parameter(table); });
-	//  connect(line_Edit, SIGNAL(textEdited(QString)), this, SLOT(refresh_Parameter(QString))); old version
-
 	connect(line_Edit, &QLineEdit::editingFinished, this, [=]{refresh_Parameter(table); });
-	//	connect(line_Edit, SIGNAL(editingFinished()), this, SLOT(refresh_Parameter())); old version
 
-	//    line_Edit->textEdited(line_Edit->text());
+//    line_Edit->textEdited(line_Edit->text());
 }
 
 void Table_Of_Structures::create_Check_Box_Fit(My_Table_Widget* table, int current_Row, int current_Column, QTreeWidgetItem* structure_Item, QString item_Type_String, int tab_Index, QString whats_This, int r_S, int r_F, int c_S, int c_F)
@@ -1486,16 +1491,15 @@ void Table_Of_Structures::create_Weigts_Interlayer(My_Table_Widget* table, int c
 		all_Widgets_To_Reload.append(line_Edit);
 
 		connect(line_Edit, &QLineEdit::textEdited, this, [=]{resize_Line_Edit(table); });
-		//		connect(line_Edit, SIGNAL(textEdited(QString)), this, SLOT(resize_Line_Edit(QString))); old version
 
-		// create item
+		// create item (set LineEdits_Map)
 		table->setCellWidget(current_Row, current_Column, line_Edit);
 		line_Edits_Map.insert(line_Edit, structure_Item);
+		coupled_Id_LineEdits_Map.insert(interlayer_Composition[interlayer_Index].interlayer.indicator.id,line_Edit);
 
 		connect(line_Edit, &QLineEdit::textEdited, this, [=]{refresh_Weigts_Interlayer(); });
-		//		connect(line_Edit, SIGNAL(textEdited(QString)), this, SLOT(refresh_Weigts_Interlayer(QString))); old version
 
-		//		line_Edit->textEdited(line_Edit->text());
+//		line_Edit->textEdited(line_Edit->text());
 
 		current_Column+=TABLE_COLUMN_INTERLAYERS_SHIFT;
 	}
@@ -1622,14 +1626,13 @@ void Table_Of_Structures::create_MySigma_Interlayer(My_Table_Widget* table, int 
 		all_Widgets_To_Reload.append(line_Edit);
 
 		connect(line_Edit, &QLineEdit::textEdited, this, [=]{resize_Line_Edit(table); });
-//		connect(line_Edit, SIGNAL(textEdited(QString)), this, SLOT(resize_Line_Edit(QString))); old version
 
-		// create item
+		// create item (set LineEdits_Map)
 		table->setCellWidget(current_Row, current_Column, line_Edit);
 		line_Edits_Map.insert(line_Edit, structure_Item);
+		coupled_Id_LineEdits_Map.insert(interlayer_Composition[interlayer_Index].my_Sigma.indicator.id,line_Edit);
 
 		connect(line_Edit, &QLineEdit::textEdited, this, [=]{refresh_MySigma_Interlayer(); });
-//		connect(line_Edit, SIGNAL(textEdited(QString)), this, SLOT(refresh_MySigma_Interlayer(QString))); old version
 
 //		line_Edit->textEdited(line_Edit->text());
 

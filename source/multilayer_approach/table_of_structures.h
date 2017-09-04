@@ -6,6 +6,7 @@
 #include "table_of_structures/my_table_widget.h"
 
 class Structure_Tree;
+class My_Table_Widget;
 
 class Table_Of_Structures : public QWidget
 {
@@ -26,7 +27,7 @@ public:
 		void create_Table(My_Table_Widget* new_Table, int tab_Index);
 		void read_Trees();
 		void revise_All_Parameters();
-		void refresh_Reload_Coupled(QString refresh_Reload, QWidget* widget, Parameter& parameter);
+		static void refresh_Reload_Core(QString refresh_Reload, QWidget* widget, Parameter& parameter, QMap<QWidget*,QTreeWidgetItem*>& coup_Widgets_Map);
 
 	// for material only
 	void create_Combo_Elements(My_Table_Widget* table, int current_Row, int start_Column, QTreeWidgetItem* structure_Item, QString item_Type_String);
@@ -120,6 +121,7 @@ public:
 	QMap<QComboBox*,QTreeWidgetItem*> elements_Map;
 	QMap<QLineEdit*,QTreeWidgetItem*> line_Edits_Map;	
 		QMap<QWidget*,QTreeWidgetItem*> coupled_Widgets_Map;
+		QMap<int,QLineEdit*> coupled_Id_LineEdits_Map;
 	QMap<QCheckBox*,QTreeWidgetItem*> check_Boxes_Map;
 	QList<QWidget*> all_Widgets_To_Reload;
 };
