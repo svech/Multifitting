@@ -8,7 +8,7 @@ class Measurement
 public:
 	Measurement();
 
-	// angle
+	// angle qqq
 	Parameter probe_Angle;
 	QVector<double>  cos2;
 	QVector<double>  angle;
