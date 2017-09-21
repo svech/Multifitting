@@ -19,7 +19,7 @@ struct Data_Element
 	QTreeWidget* local_Item_Tree;
 	T* the_Class;
 	tree<Node> calc_Tree;
-	Measurement measurement;
+	Data data;
 	QString active_Whats_This;
 
 	Unwrapped_Reflection* unwrapped_Reflection;

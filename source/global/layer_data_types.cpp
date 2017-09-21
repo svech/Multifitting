@@ -4,50 +4,349 @@
 
 #include "layer_data_types.h"
 
-Measurement::Measurement() //-V730
+Data::Data(QString item_Type_Passed)
 {
-	// angle
-	probe_Angle.independent.is_Independent = true;
-	probe_Angle.independent.min = default_min_angle;
-	probe_Angle.independent.max = default_max_angle;
-	probe_Angle.independent.num_Points = default_num_angular_points;
-	probe_Angle.value = default_angle_value;
+	if(item_Type_Passed != "empty")
+	{
+		if( (item_Type_Passed != item_Type_Measurement) &&
+			(item_Type_Passed != item_Type_Ambient) &&
+			(item_Type_Passed != item_Type_Layer) &&
+			(item_Type_Passed != item_Type_Substrate) &&
+			(item_Type_Passed != item_Type_Multilayer) )
+		{
+			qInfo() << "\n\nData::Data : wrong item_Type\n\n";
+		} else
+		{
+			item_Type = item_Type_Passed;
+		}
+	} else
+	{
+		qInfo() << "Data::Data : empty call";
+	}
 
-	angle_Type = Angle_Type::Grazing();
-	angle_Value = 90;
+	id = Global_Definitions::random_Id();
 
-	angular_Resolution.value = default_angular_resolution;
-	angular_Resolution.independent.min = angular_Resolution.value;
-	angular_Resolution.independent.max = angular_Resolution.value;
-	angular_Resolution.independent.num_Points = 1;
-	angle_Type = default_angle_type;
+	qInfo() << "Created:" << item_Type << id;
 
-	// wavelength
-	wavelength.independent.is_Independent = true;
-	wavelength.independent.min = default_min_wavelength;
-	wavelength.independent.max = default_max_wavelength;
-	wavelength.independent.num_Points = default_num_spectral_points;
-	wavelength.value = default_wavelength_value;
+	// Measurement
+	{
+		// angle
+		{
+			probe_Angle.independent.is_Independent = true;
+			probe_Angle.independent.min = default_min_angle;
+			probe_Angle.independent.max = default_max_angle;
+			probe_Angle.independent.num_Points = default_num_angular_points;
+			probe_Angle.value = default_angle_value;
+			probe_Angle.indicator.whats_This = whats_This_Angle;
 
-	lambda_Value = 1.54056;
+			angle_Type = angle_Type_Grazing;
+			angle_Value = 90;
 
-	spectral_Resolution.value = default_spectral_resolution;
-	spectral_Resolution.independent.min = spectral_Resolution.value;
-	spectral_Resolution.independent.max = spectral_Resolution.value;
-	spectral_Resolution.independent.num_Points = 1;
+			angular_Resolution.value = default_angular_resolution;
+			angular_Resolution.independent.min = angular_Resolution.value;
+			angular_Resolution.independent.max = angular_Resolution.value;
+			angular_Resolution.independent.num_Points = 1;
+			angle_Type = default_angle_type;
+		}
+		// wavelength
+		{
+			wavelength.independent.is_Independent = true;
+			wavelength.independent.min = default_min_wavelength;
+			wavelength.independent.max = default_max_wavelength;
+			wavelength.independent.num_Points = default_num_spectral_points;
+			wavelength.value = default_wavelength_value;
+			wavelength.indicator.whats_This = whats_This_Wavelength;
 
-	polarization.value = default_polarization;
-	polarization.independent.min = polarization.value;
-	polarization.independent.max = polarization.value;
-	polarization.independent.num_Points = 1;
+			lambda_Value = 1.54056;
 
-	polarization_Sensitivity.value = default_polarization_sensitivity;
-	polarization_Sensitivity.independent.min = polarization_Sensitivity.value;
-	polarization_Sensitivity.independent.max = polarization_Sensitivity.value;
-	polarization_Sensitivity.independent.num_Points = 1;
+			spectral_Resolution.value = default_spectral_resolution;
+			spectral_Resolution.independent.min = spectral_Resolution.value;
+			spectral_Resolution.independent.max = spectral_Resolution.value;
+			spectral_Resolution.independent.num_Points = 1;
+
+			polarization.value = default_polarization;
+			polarization.independent.min = polarization.value;
+			polarization.independent.max = polarization.value;
+			polarization.independent.num_Points = 1;
+
+			polarization_Sensitivity.value = default_polarization_sensitivity;
+			polarization_Sensitivity.independent.min = polarization_Sensitivity.value;
+			polarization_Sensitivity.independent.max = polarization_Sensitivity.value;
+			polarization_Sensitivity.independent.num_Points = 1;
+		}
+	}
+
+	// Ambient, Layer, Substrate
+	{
+		// material
+		{
+			if(item_Type == item_Type_Ambient)		material = ambient_default_material;
+			if(item_Type == item_Type_Layer)		material = layer_default_material;
+			if(item_Type == item_Type_Substrate)	material = substrate_default_material;
+
+			approved_Material = material;
+		}
+		// absolute density
+		{
+			if(item_Type == item_Type_Ambient)		absolute_Density.value =   ambient_default_absolute_density;
+			if(item_Type == item_Type_Layer)		absolute_Density.value =     layer_default_absolute_density;
+			if(item_Type == item_Type_Substrate)	absolute_Density.value = substrate_default_absolute_density;
+			absolute_Density.fit.is_Fitable = false;
+			absolute_Density.fit.min = absolute_Density.value*(1-dispersion);
+			absolute_Density.fit.max = absolute_Density.value*(1+dispersion);
+			absolute_Density.indicator.whats_This = whats_This_Absolute_Density;
+		}
+		// relative density
+		{
+			if(item_Type == item_Type_Ambient)		relative_Density.value =   ambient_default_relative_density;
+			if(item_Type == item_Type_Layer)		relative_Density.value =     layer_default_relative_density;
+			if(item_Type == item_Type_Substrate)	relative_Density.value = substrate_default_relative_density;
+			relative_Density.fit.is_Fitable = false;
+			relative_Density.fit.min = relative_Density.value*(1-dispersion);
+			relative_Density.fit.max = relative_Density.value*(1+dispersion);
+			relative_Density.indicator.whats_This = whats_This_Relative_Density;
+		}
+		// permittivity
+		{
+			if(item_Type == item_Type_Ambient)		permittivity.value =   ambient_default_permittivity;
+			if(item_Type == item_Type_Layer)		permittivity.value =     layer_default_permittivity;
+			if(item_Type == item_Type_Substrate)	permittivity.value = substrate_default_permittivity;
+			permittivity.fit.is_Fitable = false;
+			permittivity.fit.min = permittivity.value*(1-dispersion);
+			permittivity.fit.max = permittivity.value*(1+dispersion);
+			permittivity.indicator.whats_This = whats_This_Permittivity;
+		}
+		// absorption
+		{
+			if(item_Type == item_Type_Ambient)		absorption.value =   ambient_default_absorption;
+			if(item_Type == item_Type_Layer)		absorption.value =     layer_default_absorption;
+			if(item_Type == item_Type_Substrate)	absorption.value = substrate_default_absorption;
+			absorption.fit.is_Fitable = false;
+			absorption.fit.min = absorption.value*(1-dispersion);
+			absorption.fit.max = absorption.value*(1+dispersion);
+			absorption.indicator.whats_This = whats_This_Absorption;
+		}
+		// composed material
+		{
+			if(item_Type == item_Type_Ambient)		composed_Material =   ambient_default_composed;
+			if(item_Type == item_Type_Layer)		composed_Material =     layer_default_composed;
+			if(item_Type == item_Type_Substrate)	composed_Material = substrate_default_composed;
+		}
+	}
+
+	// Layer, Substrate
+	{
+		// sigma
+		{
+			if(item_Type == item_Type_Layer)		sigma.value =     layer_default_sigma;
+			if(item_Type == item_Type_Substrate)	sigma.value = substrate_default_sigma;
+			sigma.fit.is_Fitable = false;
+			sigma.fit.min = sigma_Dispersion_Min*sigma.value;
+			sigma.fit.max = sigma_Dispersion_Max*sigma.value;
+			sigma.indicator.whats_This = whats_This_Sigma;
+		}
+		// interlayer composition
+		{
+			interlayer_Composition.clear();
+			interlayer_Composition.resize(transition_Layer_Functions_Size);
+			for(int i=0; i<interlayer_Composition.size(); ++i)
+			{
+				if(i==0)	{interlayer_Composition[i].enabled=true; }
+				else 		{interlayer_Composition[i].enabled=false;}
+				{
+					interlayer_Composition[i].interlayer.value=1;
+					interlayer_Composition[i].interlayer.fit.is_Fitable = false;
+					interlayer_Composition[i].interlayer.fit.min = 0;
+					interlayer_Composition[i].interlayer.fit.max = 1;
+				}
+				{
+					interlayer_Composition[i].my_Sigma.value=0;
+					interlayer_Composition[i].my_Sigma.fit.is_Fitable = false;
+					interlayer_Composition[i].my_Sigma.fit.min = sigma_Dispersion_Min*interlayer_Composition[i].my_Sigma.value;
+					interlayer_Composition[i].my_Sigma.fit.max = sigma_Dispersion_Max*interlayer_Composition[i].my_Sigma.value;
+				}
+			}
+		}
+	}
+
+	// Layer
+	{
+		// thickness
+		{
+			thickness.value	= layer_default_thickness;
+			thickness.fit.is_Fitable = false;
+			thickness.fit.min = thickness.value*(1-dispersion);
+			thickness.fit.max = thickness.value*(1+dispersion);
+			thickness.indicator.whats_This = whats_This_Thickness;
+		}
+		// thickness drift
+		{
+			thickness_Drift.is_Drift_Line = false;
+			thickness_Drift.is_Drift_Sine = false;
+			thickness_Drift.is_Drift_Rand = false;
+			{
+				thickness_Drift.drift_Line_Value.value = 0;
+				thickness_Drift.drift_Line_Value.fit.min = -thickness_Drift.drift_Line_Value.value*2;
+				thickness_Drift.drift_Line_Value.fit.max =  thickness_Drift.drift_Line_Value.value*2;
+				thickness_Drift.drift_Line_Value.indicator.whats_This = whats_This_Thickness_Drift_Line_Value;
+			}
+			{
+				thickness_Drift.drift_Rand_Rms.value = 0;
+				thickness_Drift.drift_Rand_Rms.fit.min = 0;
+				thickness_Drift.drift_Rand_Rms.fit.max = thickness_Drift.drift_Rand_Rms.value*2;
+				thickness_Drift.drift_Rand_Rms.indicator.whats_This = whats_This_Thickness_Drift_Rand_Rms;
+			}
+			{
+				thickness_Drift.drift_Sine_Amplitude.value = 0;
+				thickness_Drift.drift_Sine_Amplitude.fit.min = 0;
+				thickness_Drift.drift_Sine_Amplitude.fit.max = thickness_Drift.drift_Sine_Amplitude.value*2;
+				thickness_Drift.drift_Sine_Amplitude.indicator.whats_This = whats_This_Thickness_Drift_Sine_Amplitude;
+			}
+			{
+				thickness_Drift.drift_Sine_Frequency.value = 0.333333333333333333333;
+				thickness_Drift.drift_Sine_Frequency.fit.min = thickness_Drift.drift_Sine_Frequency.value*(1-dispersion);
+				thickness_Drift.drift_Sine_Frequency.fit.max = thickness_Drift.drift_Sine_Frequency.value*(1+dispersion);
+				thickness_Drift.drift_Sine_Frequency.indicator.whats_This = whats_This_Thickness_Drift_Sine_Frequency;
+			}
+			{
+				thickness_Drift.drift_Sine_Phase.value = 0;
+				thickness_Drift.drift_Sine_Phase.fit.min = 0;
+				thickness_Drift.drift_Sine_Phase.fit.max = 1;
+				thickness_Drift.drift_Sine_Phase.indicator.whats_This = whats_This_Thickness_Drift_Sine_Phase;
+			}
+		}
+		// sigma drift
+		{
+			sigma_Drift.is_Drift_Line = false;
+			sigma_Drift.is_Drift_Sine = false;
+			sigma_Drift.is_Drift_Rand = false;
+			{
+				sigma_Drift.drift_Line_Value.value = 0;
+				sigma_Drift.drift_Line_Value.fit.min = -thickness_Drift.drift_Line_Value.value*2;
+				sigma_Drift.drift_Line_Value.fit.max =  thickness_Drift.drift_Line_Value.value*2;
+				sigma_Drift.drift_Line_Value.indicator.whats_This = whats_This_Sigma_Drift_Line_Value;
+			}
+			{
+				sigma_Drift.drift_Rand_Rms.value = 0;
+				sigma_Drift.drift_Rand_Rms.fit.min = 0;
+				sigma_Drift.drift_Rand_Rms.fit.max = thickness_Drift.drift_Rand_Rms.value*2;
+				sigma_Drift.drift_Rand_Rms.indicator.whats_This = whats_This_Sigma_Drift_Rand_Rms;
+			}
+			{
+				sigma_Drift.drift_Sine_Amplitude.value = 0;
+				sigma_Drift.drift_Sine_Amplitude.fit.min = 0;
+				sigma_Drift.drift_Sine_Amplitude.fit.max = thickness_Drift.drift_Sine_Amplitude.value*2;
+				sigma_Drift.drift_Sine_Amplitude.indicator.whats_This = whats_This_Sigma_Drift_Sine_Amplitude;
+			}
+			{
+				sigma_Drift.drift_Sine_Frequency.value = 0.333333333333333333333;
+				sigma_Drift.drift_Sine_Frequency.fit.min = thickness_Drift.drift_Sine_Frequency.value*(1-dispersion);
+				sigma_Drift.drift_Sine_Frequency.fit.max = thickness_Drift.drift_Sine_Frequency.value*(1+dispersion);
+				sigma_Drift.drift_Sine_Frequency.indicator.whats_This = whats_This_Sigma_Drift_Sine_Frequency;
+			}
+			{
+				sigma_Drift.drift_Sine_Phase.value = 0;
+				sigma_Drift.drift_Sine_Phase.fit.min = 0;
+				sigma_Drift.drift_Sine_Phase.fit.max = 1;
+				sigma_Drift.drift_Sine_Phase.indicator.whats_This = whats_This_Sigma_Drift_Sine_Phase;
+			}
+		}
+	}
+
+	// Multilayer
+	{
+		// num repetition
+		{
+			num_Repetition.value = stack_default_number_of_repetition;
+		}
+		// period
+		{
+			period.value = stack_default_period;
+			period.fit.is_Fitable = false;
+			period.fit.min = period.value*(1-dispersion);
+			period.fit.max = period.value*(1+dispersion);
+			period.indicator.whats_This = whats_This_Period;
+
+		}
+		// gamma
+		{
+			gamma.value	= stack_default_gamma;
+			gamma.fit.is_Fitable = false;
+			gamma.fit.min = 0;
+			gamma.fit.max = 1;
+			gamma.indicator.whats_This = whats_This_Gamma;
+		}
+	}
 }
 
-void Measurement::calc_Measured_cos2_k()
+void Data::reset_All_IDs()
+{
+	id = Global_Definitions::random_Id();
+	///---------------------------------------------
+	// Measurement
+	//---------------------------------------------
+		// angle
+		probe_Angle				.indicator.id = Global_Definitions::random_Id();
+		angular_Resolution		.indicator.id = Global_Definitions::random_Id();
+
+		// wavelength
+		wavelength				.indicator.id = Global_Definitions::random_Id();
+		spectral_Resolution		.indicator.id = Global_Definitions::random_Id();
+		polarization			.indicator.id = Global_Definitions::random_Id();
+		polarization_Sensitivity.indicator.id = Global_Definitions::random_Id();
+	///---------------------------------------------
+	///---------------------------------------------
+	// Ambient, Layer, Substrate
+	//---------------------------------------------
+		relative_Density.indicator.id = Global_Definitions::random_Id();
+		absolute_Density.indicator.id = Global_Definitions::random_Id();
+
+		permittivity	.indicator.id = Global_Definitions::random_Id();
+		absorption		.indicator.id = Global_Definitions::random_Id();
+
+		// material composition
+		for(auto& stoich : composition)
+		{
+			stoich.composition.indicator.id = Global_Definitions::random_Id();
+		}
+	///---------------------------------------------
+	///---------------------------------------------
+	// Layer, Substrate
+	//---------------------------------------------
+		sigma.indicator.id = Global_Definitions::random_Id();
+		for(Interlayer& inter : interlayer_Composition)
+		{
+			inter.interlayer.indicator.id = Global_Definitions::random_Id();
+			inter.my_Sigma	.indicator.id = Global_Definitions::random_Id();
+		}
+	///---------------------------------------------
+	///---------------------------------------------
+	// Layer
+	//---------------------------------------------
+		thickness.indicator.id = Global_Definitions::random_Id();
+
+		// thickness drift
+		thickness_Drift.drift_Line_Value	.indicator.id = Global_Definitions::random_Id();
+		thickness_Drift.drift_Rand_Rms		.indicator.id = Global_Definitions::random_Id();
+		thickness_Drift.drift_Sine_Amplitude.indicator.id = Global_Definitions::random_Id();
+		thickness_Drift.drift_Sine_Frequency.indicator.id = Global_Definitions::random_Id();
+		thickness_Drift.drift_Sine_Phase	.indicator.id = Global_Definitions::random_Id();
+
+		// sigma drift
+		sigma_Drift.drift_Line_Value		.indicator.id = Global_Definitions::random_Id();
+		sigma_Drift.drift_Rand_Rms			.indicator.id = Global_Definitions::random_Id();
+		sigma_Drift.drift_Sine_Amplitude	.indicator.id = Global_Definitions::random_Id();
+		sigma_Drift.drift_Sine_Frequency	.indicator.id = Global_Definitions::random_Id();
+		sigma_Drift.drift_Sine_Phase		.indicator.id = Global_Definitions::random_Id();
+	///---------------------------------------------
+	///---------------------------------------------
+	// Multilayer
+	//---------------------------------------------
+		period.indicator.id = Global_Definitions::random_Id();
+		gamma .indicator.id = Global_Definitions::random_Id();
+}
+
+void Data::calc_Measured_cos2_k()
 {
 	// cos2
 	angle_Value = probe_Angle.value;
@@ -70,7 +369,7 @@ void Measurement::calc_Measured_cos2_k()
 	}
 }
 
-void Measurement::calc_Independent_cos2_k()
+void Data::calc_Independent_cos2_k()
 {
 	// cos2
 	angle_Value = probe_Angle.value;
@@ -117,381 +416,40 @@ void Measurement::calc_Independent_cos2_k()
 	}
 }
 
-Ambient::Ambient()
-{
-	material				= ambient_default_material;
-	approved_Material		= material;
-	{
-		absolute_Density.value			= ambient_default_absolute_density;
-		absolute_Density.fit.is_Fitable = false;
-		absolute_Density.fit.min = absolute_Density.value*(1-dispersion);
-		absolute_Density.fit.max = absolute_Density.value*(1+dispersion);
-		absolute_Density.indicator.whats_This = whats_This_Absolute_Density;
-	}
-	{
-		relative_Density.value			= ambient_default_relative_density;
-		relative_Density.fit.is_Fitable = false;
-		relative_Density.fit.min = relative_Density.value*(1-dispersion);
-		relative_Density.fit.max = relative_Density.value*(1+dispersion);
-		relative_Density.indicator.whats_This = whats_This_Relative_Density;
-	}
-	{
-		permittivity.value		= ambient_default_permittivity;
-		permittivity.indicator.whats_This = whats_This_Permittivity;
-	}
-	{
-		absorption.value		= ambient_default_absorption;
-		absorption.indicator.whats_This = whats_This_Absorption;
-	}
-	composed_Material		= ambient_default_composed;
-}
-
-Substrate::Substrate()
-{
-	material				= substrate_default_material;
-	approved_Material		= material;
-	{
-		absolute_Density.value			= substrate_default_absolute_density;
-		absolute_Density.fit.is_Fitable = false;
-		absolute_Density.fit.min = absolute_Density.value*(1-dispersion);
-		absolute_Density.fit.max = absolute_Density.value*(1+dispersion);
-		absolute_Density.indicator.whats_This = whats_This_Absolute_Density;
-	}
-	{
-		relative_Density.value			= substrate_default_relative_density;
-		relative_Density.fit.is_Fitable = false;
-		relative_Density.fit.min = relative_Density.value*(1-dispersion);
-		relative_Density.fit.max = relative_Density.value*(1+dispersion);
-		relative_Density.indicator.whats_This = whats_This_Relative_Density;
-	}
-	{
-		permittivity.value		= substrate_default_permittivity;
-		permittivity.indicator.whats_This = whats_This_Permittivity;
-	}
-	{
-		absorption.value		= substrate_default_absorption;
-		absorption.indicator.whats_This = whats_This_Absorption;
-	}
-	composed_Material		= substrate_default_composed;
-	{
-		sigma.value			= substrate_default_sigma;
-		sigma.fit.is_Fitable = false;
-		sigma.fit.min = sigma_Dispersion_Min*sigma.value;
-		sigma.fit.max = sigma_Dispersion_Max*sigma.value;
-		sigma.indicator.whats_This = whats_This_Sigma;
-	}
-
-	interlayer_Composition.clear();
-	interlayer_Composition.resize(int(transition_Layer_Functions_Size));
-
-	// interlayers
-	for(int i=0; i<interlayer_Composition.size(); ++i)
-	{
-		if(i==0)	interlayer_Composition[i].enabled=true;
-		else 		interlayer_Composition[i].enabled=false;
-		{
-			interlayer_Composition[i].interlayer.value=1;
-			interlayer_Composition[i].interlayer.fit.is_Fitable = false;
-			interlayer_Composition[i].interlayer.fit.min = 0;
-			interlayer_Composition[i].interlayer.fit.max = 1;
-		}
-		{
-			interlayer_Composition[i].my_Sigma.value=0;
-			interlayer_Composition[i].my_Sigma.fit.is_Fitable = false;
-			interlayer_Composition[i].my_Sigma.fit.min = sigma_Dispersion_Min*interlayer_Composition[i].my_Sigma.value;
-			interlayer_Composition[i].my_Sigma.fit.max = sigma_Dispersion_Max*interlayer_Composition[i].my_Sigma.value;
-		}
-	}
-}
-
-Extreme_Layer::Extreme_Layer() //-V730
-{
-	material				= layer_default_material;
-	approved_Material		= material;
-	{
-		absolute_Density.value			= layer_default_absolute_density;
-		absolute_Density.fit.is_Fitable = false;
-		absolute_Density.fit.min = absolute_Density.value*(1-dispersion);
-		absolute_Density.fit.max = absolute_Density.value*(1+dispersion);
-		absolute_Density.indicator.whats_This = whats_This_Absolute_Density;
-	}
-	{
-		relative_Density.value			= layer_default_relative_density;
-		relative_Density.fit.is_Fitable = false;
-		relative_Density.fit.min = relative_Density.value*(1-dispersion);
-		relative_Density.fit.max = relative_Density.value*(1+dispersion);
-		relative_Density.indicator.whats_This = whats_This_Relative_Density;
-	}
-	{
-		permittivity.value		= layer_default_permittivity;
-		permittivity.indicator.whats_This = whats_This_Permittivity;
-	}
-	{
-		absorption.value		= layer_default_absorption;
-		absorption.indicator.whats_This = whats_This_Absorption;
-	}
-	composed_Material		= layer_default_composed;
-	{
-		sigma.value			= layer_default_sigma;
-		sigma.fit.is_Fitable = false;
-		sigma.fit.min = sigma_Dispersion_Min*sigma.value;
-		sigma.fit.max = sigma_Dispersion_Max*sigma.value;
-		sigma.indicator.whats_This = whats_This_Sigma;
-	}
-	{
-		thickness.value			= layer_default_thickness;
-		thickness.fit.is_Fitable = false;
-		thickness.fit.min = thickness.value*(1-dispersion);
-		thickness.fit.max = thickness.value*(1+dispersion);
-		thickness.indicator.whats_This = whats_This_Thickness;
-	}
-
-	interlayer_Composition.clear();
-	interlayer_Composition.resize(int(transition_Layer_Functions_Size));
-
-	// interlayers
-	for(int i=0; i<interlayer_Composition.size(); ++i)
-	{
-		if(i==0)	interlayer_Composition[i].enabled=true;
-		else 		interlayer_Composition[i].enabled=false;
-		{
-			interlayer_Composition[i].interlayer.value=1;
-			interlayer_Composition[i].interlayer.fit.is_Fitable = false;
-			interlayer_Composition[i].interlayer.fit.min = 0;
-			interlayer_Composition[i].interlayer.fit.max = 1;
-		}
-		{
-			interlayer_Composition[i].my_Sigma.value=0;
-			interlayer_Composition[i].my_Sigma.fit.is_Fitable = false;
-			interlayer_Composition[i].my_Sigma.fit.min = sigma_Dispersion_Min*interlayer_Composition[i].my_Sigma.value;
-			interlayer_Composition[i].my_Sigma.fit.max = sigma_Dispersion_Max*interlayer_Composition[i].my_Sigma.value;
-		}
-	}
-}
-
-Layer::Layer()
-{
-	material				= layer_default_material;
-	approved_Material		= material;
-	{
-		absolute_Density.value			= layer_default_absolute_density;
-		absolute_Density.fit.is_Fitable = false;
-		absolute_Density.fit.min = absolute_Density.value*(1-dispersion);
-		absolute_Density.fit.max = absolute_Density.value*(1+dispersion);
-		absolute_Density.indicator.whats_This = whats_This_Absolute_Density;
-	}
-	{
-		relative_Density.value			= layer_default_relative_density;
-		relative_Density.fit.is_Fitable = false;
-		relative_Density.fit.min = relative_Density.value*(1-dispersion);
-		relative_Density.fit.max = relative_Density.value*(1+dispersion);
-		relative_Density.indicator.whats_This = whats_This_Relative_Density;
-	}
-	{
-		permittivity.value		= layer_default_permittivity;
-		permittivity.indicator.whats_This = whats_This_Permittivity;
-	}
-	{
-		absorption.value		= layer_default_absorption;
-		absorption.indicator.whats_This = whats_This_Absorption;
-	}
-	composed_Material		= layer_default_composed;
-	{
-		sigma.value			= layer_default_sigma;
-		sigma.fit.is_Fitable = false;
-		sigma.fit.min = sigma_Dispersion_Min*sigma.value;
-		sigma.fit.max = sigma_Dispersion_Max*sigma.value;
-		sigma.indicator.whats_This = whats_This_Sigma;
-	}
-	{
-		thickness.value			= layer_default_thickness;
-		thickness.fit.is_Fitable = false;
-		thickness.fit.min = thickness.value*(1-dispersion);
-		thickness.fit.max = thickness.value*(1+dispersion);
-		thickness.indicator.whats_This = whats_This_Thickness;
-	}
-
-	interlayer_Composition.clear();
-	interlayer_Composition.resize(int(transition_Layer_Functions_Size));
-
-	// interlayers
-	for(int i=0; i<interlayer_Composition.size(); ++i)
-	{
-		if(i==0)	interlayer_Composition[i].enabled=true;
-		else 		interlayer_Composition[i].enabled=false;
-		{
-			interlayer_Composition[i].interlayer.value=1;
-			interlayer_Composition[i].interlayer.fit.is_Fitable = false;
-			interlayer_Composition[i].interlayer.fit.min = 0;
-			interlayer_Composition[i].interlayer.fit.max = 1;
-		}
-		{
-			interlayer_Composition[i].my_Sigma.value=0;
-			interlayer_Composition[i].my_Sigma.fit.is_Fitable = false;
-			interlayer_Composition[i].my_Sigma.fit.min = sigma_Dispersion_Min*interlayer_Composition[i].my_Sigma.value;
-			interlayer_Composition[i].my_Sigma.fit.max = sigma_Dispersion_Max*interlayer_Composition[i].my_Sigma.value;
-		}
-	}
-
-	// thickness drift
-	thickness_Drift.is_Drift_Line = false;
-	thickness_Drift.is_Drift_Sine = false;
-	thickness_Drift.is_Drift_Rand = false;
-	{
-		thickness_Drift.drift_Line_Value.value = 0;
-		thickness_Drift.drift_Line_Value.fit.min = -thickness_Drift.drift_Line_Value.value*2;
-		thickness_Drift.drift_Line_Value.fit.max =  thickness_Drift.drift_Line_Value.value*2;
-		thickness_Drift.drift_Line_Value.indicator.whats_This = whats_This_Thickness_Drift_Line_Value;
-	}
-	{
-		thickness_Drift.drift_Rand_Rms.value = 0;
-		thickness_Drift.drift_Rand_Rms.fit.min = 0;
-		thickness_Drift.drift_Rand_Rms.fit.max = thickness_Drift.drift_Rand_Rms.value*2;
-		thickness_Drift.drift_Rand_Rms.indicator.whats_This = whats_This_Thickness_Drift_Rand_Rms;
-	}
-	{
-		thickness_Drift.drift_Sine_Amplitude.value = 0;
-		thickness_Drift.drift_Sine_Amplitude.fit.min = 0;
-		thickness_Drift.drift_Sine_Amplitude.fit.max = thickness_Drift.drift_Sine_Amplitude.value*2;
-		thickness_Drift.drift_Sine_Amplitude.indicator.whats_This = whats_This_Thickness_Drift_Sine_Amplitude;
-	}
-	{
-		thickness_Drift.drift_Sine_Frequency.value = 0.333333333333333333333;
-		thickness_Drift.drift_Sine_Frequency.fit.min = thickness_Drift.drift_Sine_Frequency.value*(1-dispersion);
-		thickness_Drift.drift_Sine_Frequency.fit.max = thickness_Drift.drift_Sine_Frequency.value*(1+dispersion);
-		thickness_Drift.drift_Sine_Frequency.indicator.whats_This = whats_This_Thickness_Drift_Sine_Frequency;
-	}
-	{
-		thickness_Drift.drift_Sine_Phase.value = 0;
-		thickness_Drift.drift_Sine_Phase.fit.min = 0;
-		thickness_Drift.drift_Sine_Phase.fit.max = 1;
-		thickness_Drift.drift_Sine_Phase.indicator.whats_This = whats_This_Thickness_Drift_Sine_Phase;
-	}
-
-	// sigma drift
-	sigma_Drift.is_Drift_Line = false;
-	sigma_Drift.is_Drift_Sine = false;
-	sigma_Drift.is_Drift_Rand = false;
-	{
-		sigma_Drift.drift_Line_Value.value = 0;
-		sigma_Drift.drift_Line_Value.fit.min = -thickness_Drift.drift_Line_Value.value*2;
-		sigma_Drift.drift_Line_Value.fit.max =  thickness_Drift.drift_Line_Value.value*2;
-		sigma_Drift.drift_Line_Value.indicator.whats_This = whats_This_Sigma_Drift_Line_Value;
-	}
-	{
-		sigma_Drift.drift_Rand_Rms.value = 0;
-		sigma_Drift.drift_Rand_Rms.fit.min = 0;
-		sigma_Drift.drift_Rand_Rms.fit.max = thickness_Drift.drift_Rand_Rms.value*2;
-		sigma_Drift.drift_Rand_Rms.indicator.whats_This = whats_This_Sigma_Drift_Rand_Rms;
-	}
-	{
-		sigma_Drift.drift_Sine_Amplitude.value = 0;
-		sigma_Drift.drift_Sine_Amplitude.fit.min = 0;
-		sigma_Drift.drift_Sine_Amplitude.fit.max = thickness_Drift.drift_Sine_Amplitude.value*2;
-		sigma_Drift.drift_Sine_Amplitude.indicator.whats_This = whats_This_Sigma_Drift_Sine_Amplitude;
-	}
-	{
-		sigma_Drift.drift_Sine_Frequency.value = 0.333333333333333333333;
-		sigma_Drift.drift_Sine_Frequency.fit.min = thickness_Drift.drift_Sine_Frequency.value*(1-dispersion);
-		sigma_Drift.drift_Sine_Frequency.fit.max = thickness_Drift.drift_Sine_Frequency.value*(1+dispersion);
-		sigma_Drift.drift_Sine_Frequency.indicator.whats_This = whats_This_Sigma_Drift_Sine_Frequency;
-	}
-	{
-		sigma_Drift.drift_Sine_Phase.value = 0;
-		sigma_Drift.drift_Sine_Phase.fit.min = 0;
-		sigma_Drift.drift_Sine_Phase.fit.max = 1;
-		sigma_Drift.drift_Sine_Phase.indicator.whats_This = whats_This_Sigma_Drift_Sine_Phase;
-	}
-}
-
-Stack_Content::Stack_Content()
-{
-	num_Repetition.value= stack_default_number_of_repetition;
-	{
-		period.value	= stack_default_period;
-		period.fit.is_Fitable = false;
-		period.fit.min = period.value*(1-dispersion);
-		period.fit.max = period.value*(1+dispersion);
-		period.indicator.whats_This = whats_This_Period;
-	}
-	{
-		gamma.value		= stack_default_gamma;
-		gamma.fit.is_Fitable = false;
-		gamma.fit.min = 0;
-		gamma.fit.max = 1;
-		gamma.indicator.whats_This = whats_This_Gamma;
-	}
-}
-
 // serialization
 
 /// measurement
-QDataStream& operator <<( QDataStream& stream, const Measurement& measurement )
+QDataStream& operator <<( QDataStream& stream, const Data& data )
 {
-	return stream	<< measurement.probe_Angle << measurement.cos2 << measurement.angle << measurement.cos2_Value << measurement.angle_Value << measurement.angular_Resolution << measurement.angle_Type
-					<< measurement.wavelength << measurement.k << measurement.lambda << measurement.k_Value << measurement.lambda_Value << measurement.spectral_Resolution << measurement.polarization << measurement.polarization_Sensitivity;
+	return stream
+				<< data.item_Type << data.id
+			// Measurement
+				<< data.probe_Angle << data.cos2 << data.angle << data.cos2_Value << data.angle_Value << data.angular_Resolution << data.angle_Type
+				<< data.wavelength << data.k << data.lambda << data.k_Value << data.lambda_Value << data.spectral_Resolution << data.polarization << data.polarization_Sensitivity
+			// Ambient, Layer, Substrate
+				<< data.composed_Material << data.material << data.approved_Material << data.absolute_Density << data.relative_Density
+				<< data.separate_Optical_Constants << data.permittivity << data.absorption << data.composition
+			// Layer, Substrate
+				<< data.use_PSD << data.common_Sigma << data.sigma << data.interlayer_Composition
+			// Layer
+				<< data.layer_Index << data.has_Parent << data.thickness << data.thickness_Drift << data.sigma_Drift
+			// Multilayer
+				<< data.first_Layer_Index << data.last_Layer_Index << data.num_Repetition << data.period << data.gamma;
 }
-QDataStream& operator >>( QDataStream& stream,		 Measurement& measurement )
+QDataStream& operator >>( QDataStream& stream,		 Data& data )
 {
-	return stream	>> measurement.probe_Angle >> measurement.cos2 >> measurement.angle >> measurement.cos2_Value >> measurement.angle_Value >> measurement.angular_Resolution >> measurement.angle_Type
-					>> measurement.wavelength >> measurement.k >> measurement.lambda >> measurement.k_Value >> measurement.lambda_Value >> measurement.spectral_Resolution >> measurement.polarization >> measurement.polarization_Sensitivity;
-}
-/// ambient
-QDataStream& operator <<( QDataStream& stream, const Ambient& ambient )
-{
-	return stream	<< ambient.composed_Material << ambient.material << ambient.approved_Material << ambient.absolute_Density << ambient.relative_Density << ambient.separate_Optical_Constants << ambient.permittivity << ambient.absorption	<< ambient.composition;
-}
-QDataStream& operator >>( QDataStream& stream,		 Ambient& ambient )
-{
-	return stream	>> ambient.composed_Material >> ambient.material >> ambient.approved_Material >> ambient.absolute_Density >> ambient.relative_Density >> ambient.separate_Optical_Constants >> ambient.permittivity >> ambient.absorption	>> ambient.composition;
-}
-/// substrate
-QDataStream& operator <<( QDataStream& stream, const Substrate& substrate )
-{
-	return stream	<< substrate.composed_Material << substrate.material << substrate.approved_Material << substrate.absolute_Density << substrate.relative_Density << substrate.separate_Optical_Constants << substrate.permittivity << substrate.absorption	<< substrate.composition
-					<< substrate.use_PSD << substrate.sigma << substrate.interlayer_Composition;
-}
-QDataStream& operator >>( QDataStream& stream,		 Substrate& substrate )
-{
-	return stream	>> substrate.composed_Material >> substrate.material >> substrate.approved_Material >> substrate.absolute_Density >> substrate.relative_Density >> substrate.separate_Optical_Constants >> substrate.permittivity >> substrate.absorption	>> substrate.composition
-					>> substrate.use_PSD >> substrate.sigma >> substrate.interlayer_Composition;
-}
-/// extreme_Layer
-QDataStream& operator <<( QDataStream& stream, const Extreme_Layer& extreme_Layer )
-{
-	return stream	<< extreme_Layer.composed_Material << extreme_Layer.material << extreme_Layer.approved_Material << extreme_Layer.absolute_Density << extreme_Layer.relative_Density << extreme_Layer.separate_Optical_Constants <<extreme_Layer.permittivity << extreme_Layer.absorption	<< extreme_Layer.composition
-					<< extreme_Layer.use_PSD << extreme_Layer.sigma << extreme_Layer.interlayer_Composition
-					<< extreme_Layer.layer_Index << extreme_Layer.thickness;
-}
-QDataStream& operator >>( QDataStream& stream,	     Extreme_Layer& extreme_Layer )
-{
-	return stream	>> extreme_Layer.composed_Material >> extreme_Layer.material >> extreme_Layer.approved_Material >> extreme_Layer.absolute_Density >> extreme_Layer.relative_Density >> extreme_Layer.separate_Optical_Constants >> extreme_Layer.permittivity >> extreme_Layer.absorption	>> extreme_Layer.composition
-					>> extreme_Layer.use_PSD >> extreme_Layer.sigma >> extreme_Layer.interlayer_Composition
-					>> extreme_Layer.layer_Index >> extreme_Layer.thickness;
-}
-/// layer
-QDataStream& operator <<( QDataStream& stream, const Layer& layer )
-{
-	return stream	<< layer.composed_Material << layer.material << layer.approved_Material << layer.absolute_Density << layer.relative_Density << layer.separate_Optical_Constants << layer.permittivity << layer.absorption	<< layer.composition
-					<< layer.use_PSD << layer.sigma << layer.interlayer_Composition
-					<< layer.layer_Index << layer.thickness
-					<< layer.thickness_Drift << layer.sigma_Drift
-					<< layer.if_First << layer. First	<< layer. if_Last << layer. Last;
-}
-QDataStream& operator >>( QDataStream& stream,		 Layer& layer )
-{
-	return stream	>> layer.composed_Material >> layer.material >> layer.approved_Material >> layer.absolute_Density >> layer.relative_Density >> layer.separate_Optical_Constants >> layer.permittivity >> layer.absorption	>> layer.composition
-					>> layer.use_PSD >> layer.sigma >> layer.interlayer_Composition
-					>> layer.layer_Index >> layer.thickness
-					>> layer.thickness_Drift >> layer.sigma_Drift
-					>> layer.if_First >> layer. First	>> layer. if_Last >> layer. Last;
-}
-/// stack_Content
-QDataStream& operator <<( QDataStream& stream, const Stack_Content& stack_Content )
-{
-	return stream	<<  stack_Content.num_Repetition << stack_Content.period << stack_Content.gamma;
-}
-QDataStream& operator >>( QDataStream& stream,		 Stack_Content& stack_Content )
-{
-	return stream	>>  stack_Content.num_Repetition >> stack_Content.period >> stack_Content.gamma;
+	return stream
+				>> data.item_Type >> data.id
+			// Measurement
+				>> data.probe_Angle >> data.cos2 >> data.angle >> data.cos2_Value >> data.angle_Value >> data.angular_Resolution >> data.angle_Type
+				>> data.wavelength >> data.k >> data.lambda >> data.k_Value >> data.lambda_Value >> data.spectral_Resolution >> data.polarization >> data.polarization_Sensitivity
+			// Ambient, Layer, Substrate
+				>> data.composed_Material >> data.material >> data.approved_Material >> data.absolute_Density >> data.relative_Density
+				>> data.separate_Optical_Constants >> data.permittivity >> data.absorption >> data.composition
+			// Layer, Substrate
+				>> data.use_PSD >> data.common_Sigma >> data.sigma >> data.interlayer_Composition
+			// Layer
+				>> data.layer_Index >> data.has_Parent >> data.thickness >> data.thickness_Drift >> data.sigma_Drift
+			// Multilayer
+				>> data.first_Layer_Index >> data.last_Layer_Index >> data.num_Repetition >> data.period >> data.gamma;
 }

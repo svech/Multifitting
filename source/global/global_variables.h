@@ -27,10 +27,19 @@ extern QStringList tril;
 
 // measured curves
 extern QStringList argument_Types;
+enum argument_Types_Enum    { Grazing_angle, Incident_angle, Wavelength_Energy };
+
 extern QStringList value_Function;
+enum value_Function_Enum    { Reflectance,   Transmittance,  Absorptance	   };
+
 extern QStringList value_R_Mode;
+enum value_R_Mode_Enum		{ R,  R_Phi,     r_Re_Im,        r_Abs_Phi         };
+
 extern QStringList value_T_Mode;
+enum value_T_Mode_Enum		{ T };
+
 extern QStringList value_A_Mode;
+enum value_A_Mode_Enum		{ A };
 // -----------------------------------------------------------------------------------------
 
 // units
@@ -39,6 +48,7 @@ extern QStringList length_Units_List;		extern QMap<QString, double> length_Coeff
 extern QStringList angle_Units_List;		extern QMap<QString, double> angle_Coefficients_Map;		extern QMap<QString, QString> angle_Units_Legend_Map;
 extern QStringList density_Units_List;
 extern QStringList opt_Const_Units_List;
+extern QStringList drift_Units_List;
 
 // -----------------------------------------------------------------------------------------
 

@@ -43,30 +43,20 @@ void Launcher::create_Main_Layout()
 
 void Launcher::create_Menu()
 {
-	Menu* menu = new Menu(Window_Type::Launcher(), this);
+	Menu* menu = new Menu(window_Type_Launcher, this);
 		main_Layout->setMenuBar(menu->menu_Bar);
 }
 
 void Launcher::create_Buttons()
 {
-	// Multilayer button
+	// Multilayer_Approach button
 	{
 		multilayer_Approach_Launch_Button = new QPushButton("Multilayer",this);
 			multilayer_Approach_Launch_Button->setEnabled(true);
 			multilayer_Approach_Launch_Button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 
-		connect(multilayer_Approach_Launch_Button, SIGNAL(clicked()), this, SLOT(add_Multilayer_Approach_Instance()));
+		connect(multilayer_Approach_Launch_Button, &QPushButton::clicked, this, &Launcher::add_Multilayer_Approach_Instance);
 		main_Layout->addWidget(multilayer_Approach_Launch_Button);
-
-	}
-	// Freeform button
-	{
-		freeform_Approach_Launch_Button	 = new QPushButton("Freeform",this);
-			freeform_Approach_Launch_Button->setEnabled(false);			 // TODO enabled
-			freeform_Approach_Launch_Button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-
-		connect(freeform_Approach_Launch_Button,   SIGNAL(clicked()), this, SLOT(add_Freeform_Approach_Instance()));
-		main_Layout->addWidget(freeform_Approach_Launch_Button);
 	}
 }
 
@@ -84,36 +74,15 @@ void Launcher::add_Multilayer_Approach_Instance()
 		multilayer_Approach->show();
 		multilayer_Approach_List.append(multilayer_Approach);
 
-		connect(multilayer_Approach, SIGNAL(closed()),  this, SLOT(multilayer_Approach_Closed()));				// if closed, delete from list
-//		connect(multilayer_Approach, SIGNAL(refresh()), this, SLOT(refresh_All_Multilayer_Approach_View()));
+		connect(multilayer_Approach, &Multilayer_Approach::closed,  this, &Launcher::multilayer_Approach_Closed);				// if closed, delete from list
+//		connect(multilayer_Approach, &Multilayer_Approach::refresh, this, &Launcher::refresh_All_Multilayer_Approach_View);
 }
 
 void Launcher::multilayer_Approach_Closed()
 {
-	for(int i=0; i<multilayer_Approach_List.size(); ++i)
+	for(int i=multilayer_Approach_List.size()-1; i>=0; --i)
 	{
 		if(multilayer_Approach_List[i] == sender())
 			multilayer_Approach_List.removeAt(i);
 	}
 }
-
-void Launcher::add_Freeform_Approach_Instance()
-{
-	// TODO freeform approach
-}
-
-void Launcher::freeform_Approach_Closed()
-{
-	// TODO
-}
-
-//void Launcher::refresh_All_Multilayer_Approach_View()
-//{
-//	qInfo() << "launcher resreshing and saving";
-//	for(int i=0; i<multilayer_Approach_List.size(); ++i)
-//	{
-//		if(multilayer_Approach_List[i]!=sender())
-//			multilayer_Approach_List[i]->refresh_All_Multilayers_View();
-//	}
-//	Settings::save_All_Settings();
-//}

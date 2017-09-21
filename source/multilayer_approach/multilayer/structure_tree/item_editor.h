@@ -9,22 +9,20 @@ class Item_Editor : public QDialog
 {
 	Q_OBJECT
 	Q_INVOKABLE void adjustSize()							{ QWidget::adjustSize(); }
-	Q_INVOKABLE void moreElementsClicked()					{ Item_Editor::more_Elements_Clicked(true); }
+//	Q_INVOKABLE void moreElementsClicked()					{ Item_Editor::more_Elements_Clicked(); }
 public:
 	explicit Item_Editor(QList<Item_Editor*>& list_Editors, QTreeWidgetItem* item, QWidget *parent = 0);
 
 signals:
-//	void refresh();
+////	void refresh();
 	void closed();
 	void item_Data_Edited();
-private slots:
-	void emit_Item_Data_Edited();
 
 public:
 	QTreeWidgetItem* item;
 	QList<Item_Editor*> list_Editors;
-private:
-	Item_Type item_Type;
+	Data data;
+
 
 	// state variables
 	bool material_Done = false;
@@ -32,14 +30,13 @@ private:
 	bool sigma_Done = false;
 	bool stack_Done = false;
 
-private:
 	void closeEvent(QCloseEvent* event);
 	void create_Main_Layout();
 		void create_Menu();
 		void make_Ambient_Editor();
 			void make_Materials_Group_Box();
-public:		void initial_Radio_Check(bool temp_bool);
-private:void make_Layer_Editor();
+			void initial_Radio_Check();
+		void make_Layer_Editor();
 			void make_Thickness_Group_Box();
 		void make_Multilayer_Editor();
 			void make_Multilayer_Group_Box();
@@ -47,41 +44,40 @@ private:void make_Layer_Editor();
 			void make_Sigma_Group_Box();
 	void set_Window_Geometry();
 
-public slots:
-	void show_All();
+	void reload_And_Show_All();
+	void show_All();	
 	void show_Material();
 	void show_Density();
 	void show_Thickness();
 	void show_Sigma_Start(bool at_Start=false);
-    void show_Sigma(bool b);
+	void show_Sigma(bool b);
 	void show_Stack_Parameters();
-	void show_Interlayers();
+	void show_Interlayers(QObject* my_Sender = NULL);
 
-private slots:
-	void done_Slot();
+	void emit_Item_Data_Edited();
+
 	void resize_Line_Edit(QString text, QLineEdit* line_Edit = NULL);
 	void browse_Material();
-    void depth_Grading(bool);
-    void sigma_Grading(bool);
-	void filename_Radio_Toggled(bool temp_bool);
-	void composition_Radio_Toggled(bool temp_bool);
-	void more_Elements_Clicked(bool);
-	void read_Elements_From_Item(bool temp_bool);
+	void depth_Grading();
+	void sigma_Grading();
+	void filename_Radio_Toggled();
+	void composition_Radio_Toggled();
+	void more_Elements_Clicked();
+	void read_Elements_From_Item();
 	void read_Interlayers_From_Item();
-	void fewer_Elements_Clicked(bool);
-	void interlayer_Check(int);
+	void fewer_Elements_Clicked();
+	void interlayer_Check();
 	void norm_Interlayer_Composition();
+
 	void refresh_Material();
 	void refresh_Data();
-	void refresh_Stack_Data();
-	void fast_Refresh_Stack(QString);
+	void fast_Refresh_Stack();
 
 	void change_Child_Layers_Thickness(QTreeWidgetItem* multilayer_Item, double factor);
-	void change_Stack_Gamma(const Stack_Content& stack_Content);
+	void change_Stack_Gamma();
 		void reset_Layer_Thickness(QTreeWidgetItem* layer_Item, double new_Thickness);
 		void reset_Multilayer_Thickness(QTreeWidgetItem* multilayer_Item, double new_Thickness);
 
-private:
 	QString absolute_Density_Label = "Density [g/cm" + Cube_Sym + "]:";
 	QString relative_Density_Label = "Relative Density:";
 	QString atoms = "atoms of";
@@ -95,7 +91,6 @@ private:
 	QString sigma_Label_3 = Sigma_Sym + "[";
 	QString sigma_Weight = "weight:";
 
-private:
 	QVBoxLayout* main_Layout;
 		QGroupBox* material_Group_Box;
 			QLineEdit* material_Line_Edit;

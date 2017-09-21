@@ -48,38 +48,73 @@ void Structure_Toolbar::create_Toolbar()
 
 	toolbar->setIconSize(add_Layer.size());
 
-	connect(toolbar->actions()[0],  SIGNAL(triggered(bool)), this, SLOT(add_Layer(bool)));
-	connect(toolbar->actions()[1],  SIGNAL(triggered(bool)), this, SLOT(add_Multilayer(bool)));
-	connect(toolbar->actions()[2],  SIGNAL(triggered(bool)), this, SLOT(add_Substrate(bool)));
-	connect(toolbar->actions()[3],  SIGNAL(triggered(bool)), this, SLOT(edit(bool)));
-	connect(toolbar->actions()[4],  SIGNAL(triggered(bool)), this, SLOT(remove(bool)));
-	connect(toolbar->actions()[5],  SIGNAL(triggered(bool)), this, SLOT(cut(bool)));
-	connect(toolbar->actions()[6],  SIGNAL(triggered(bool)), this, SLOT(copy(bool)));
-	connect(toolbar->actions()[7],  SIGNAL(triggered(bool)), this, SLOT(paste(bool)));
-	connect(toolbar->actions()[8],  SIGNAL(triggered(bool)), this, SLOT(move_Up(bool)));
-	connect(toolbar->actions()[9],  SIGNAL(triggered(bool)), this, SLOT(move_Down(bool)));
-	connect(toolbar->actions()[10], SIGNAL(triggered(bool)), this, SLOT(group(bool)));
-	connect(toolbar->actions()[11], SIGNAL(triggered(bool)), this, SLOT(ungroup(bool)));
-	connect(toolbar->actions()[12], SIGNAL(triggered(bool)), this, SLOT(thickness_Plot(bool)));
-	connect(toolbar->actions()[13], SIGNAL(triggered(bool)), this, SLOT(sigma_Plot(bool)));
-	connect(toolbar->actions()[14], SIGNAL(triggered(bool)), this, SLOT(destroy(bool)));
+	connect(toolbar->actions()[0],  &QAction::triggered, this, &Structure_Toolbar::add_Layer);
+	connect(toolbar->actions()[1],  &QAction::triggered, this, &Structure_Toolbar::add_Multilayer);
+	connect(toolbar->actions()[2],  &QAction::triggered, this, &Structure_Toolbar::add_Substrate);
+	connect(toolbar->actions()[3],  &QAction::triggered, this, &Structure_Toolbar::edit);
+	connect(toolbar->actions()[4],  &QAction::triggered, this, &Structure_Toolbar::remove);
+	connect(toolbar->actions()[5],  &QAction::triggered, this, &Structure_Toolbar::cut);
+	connect(toolbar->actions()[6],  &QAction::triggered, this, &Structure_Toolbar::copy);
+	connect(toolbar->actions()[7],  &QAction::triggered, this, &Structure_Toolbar::paste);
+	connect(toolbar->actions()[8],  &QAction::triggered, this, &Structure_Toolbar::move_Up);
+	connect(toolbar->actions()[9],  &QAction::triggered, this, &Structure_Toolbar::move_Down);
+	connect(toolbar->actions()[10], &QAction::triggered, this, &Structure_Toolbar::group);
+	connect(toolbar->actions()[11], &QAction::triggered, this, &Structure_Toolbar::ungroup);
+	connect(toolbar->actions()[12], &QAction::triggered, this, &Structure_Toolbar::thickness_Plot);
+	connect(toolbar->actions()[13], &QAction::triggered, this, &Structure_Toolbar::sigma_Plot);
+	connect(toolbar->actions()[14], &QAction::triggered, this, &Structure_Toolbar::destroy);
 
 	if_Selected();
 }
 
-void Structure_Toolbar::add_Layer(bool)
+void Structure_Toolbar::change_IDs_Of_Subtree(QTreeWidgetItem* item)
 {
-	QTreeWidgetItem* new_Layer = new QTreeWidgetItem;
-	// setting data to new layerItem
+	// parent
+	Data data = item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+	data.reset_All_IDs();
+	QVariant var; var.setValue( data );
+	item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+
+	// children
+	for(int i=0; i<item->childCount(); i++)
+	{
+		change_IDs_Of_Subtree(item->child(i));
+	}
+}
+
+void Structure_Toolbar::add_Ambient()
+{
+	// item
+	QTreeWidgetItem* new_Ambient = new QTreeWidgetItem;
+
+	// data
 	QVariant var;
-	Layer layer;
+	Data ambient(item_Type_Ambient);
+	var.setValue( ambient );
+	new_Ambient->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+
+	structure_Tree->tree->addTopLevelItem(new_Ambient);
+	structure_Tree->set_Structure_Item_Text(new_Ambient);
+
+//	refresh_Toolbar(); // doesn't work here. I dont know why
+}
+
+void Structure_Toolbar::add_Layer()
+{
+	// item
+	QTreeWidgetItem* new_Layer = new QTreeWidgetItem;
+
+	// data
+	QVariant var;
+	Data layer(item_Type_Layer);
 	var.setValue( layer );
 	new_Layer->setData(DEFAULT_COLUMN, Qt::UserRole, var);
 
+	buffered_Copy_Type = copy_Type_Cut;
 	add_Buffered_Layer(new_Layer);
 }
 
-void Structure_Toolbar::add_Multilayer(bool)
+void Structure_Toolbar::add_Multilayer()
 {
 	int num_Children = 0;
 
@@ -97,174 +132,149 @@ void Structure_Toolbar::add_Multilayer(bool)
 	if(!ok_Number)
 	{
 		QMessageBox::warning(this, "Warning", text + " is not a integer number");
-		add_Multilayer(true);
+		add_Multilayer();
 	} else
 	if (text.toInt()<2)
 	{
 		QMessageBox::warning(this, "Warning", "There should be at least 2 layers");
-		add_Multilayer(true);
+		add_Multilayer();
 	}
 	if(num_Children<2) return;
 
+	// item
 	QTreeWidgetItem* new_Multilayer = new QTreeWidgetItem;
 
-	// set unique id
-	int id = rand()*RAND_SHIFT+rand();
-	new_Multilayer->setStatusTip(DEFAULT_COLUMN, QString::number(id));
-
+	// children
 	QList<QTreeWidgetItem*> new_Child_Layers;
 	for(int i=0; i<num_Children; i++)
 	{
+		// item
 		QTreeWidgetItem* new_Child_Layer = new QTreeWidgetItem;
 
-		// set unique id
-		int id = rand()*RAND_SHIFT+rand();
-		new_Child_Layer->setStatusTip(DEFAULT_COLUMN, QString::number(id));
-
-		new_Child_Layers << new_Child_Layer;
-
-		Layer layer;
+		// data
+		Data layer(item_Type_Layer);
 		QVariant var;
 		var.setValue( layer );
 		new_Child_Layer->setData(DEFAULT_COLUMN, Qt::UserRole, var);
-
-		structure_Tree->set_Structure_Item_Text(new_Child_Layer);
+		new_Child_Layers << new_Child_Layer;
 	}
 	new_Multilayer->addChildren(new_Child_Layers);
-	Stack_Content stack_Content;
+
+	// data
+	Data multilayer(item_Type_Multilayer);
 	QVariant var;
-	var.setValue( stack_Content );
+	var.setValue( multilayer );
 	new_Multilayer->setData(DEFAULT_COLUMN, Qt::UserRole, var);
 
-	// if no selected items
-	if(structure_Tree->tree->selectedItems().isEmpty())
-	{
-		// if there is no substrate
-		if(structure_Tree->tree->topLevelItem(structure_Tree->tree->topLevelItemCount()-1)->whatsThis(DEFAULT_COLUMN)!=whats_This_Substrate)
-		{
-			structure_Tree->tree->addTopLevelItem(new_Multilayer);
-		} else
-		{
-			structure_Tree->tree->insertTopLevelItem(structure_Tree->tree->topLevelItemCount()-1,new_Multilayer);
-		}
-	} else
-	{
-		// if selected item is top-level
-		if(!structure_Tree->tree->currentItem()->parent())
-		{
-			int position = structure_Tree->tree->indexOfTopLevelItem(structure_Tree->tree->currentItem());
-
-			// place multilayers before substrate
-			if(  (structure_Tree->tree->topLevelItem(structure_Tree->tree->topLevelItemCount()-1)->whatsThis(DEFAULT_COLUMN)!=whats_This_Substrate)
-			   ||(position != (structure_Tree->tree->topLevelItemCount()-1)))
-			{
-				structure_Tree->tree->insertTopLevelItem(position+1, new_Multilayer);
-			} else
-			{
-				structure_Tree->tree->insertTopLevelItem(position, new_Multilayer);
-			}
-		} else
-		{
-			int position = structure_Tree->tree->currentIndex().row();
-			structure_Tree->tree->currentItem()->parent()->insertChild(position+1,new_Multilayer);
-		}
-	}
-
-	structure_Tree->set_Structure_Item_Text(new_Multilayer);
-	refresh_Toolbar();
+	buffered_Copy_Type = copy_Type_Cut;
+	add_Buffered_Layer(new_Multilayer);
 }
 
-void Structure_Toolbar::add_Substrate(bool)
+void Structure_Toolbar::add_Substrate()
 {
+	// item
 	QTreeWidgetItem* new_Substrate = new QTreeWidgetItem;
-		new_Substrate->setWhatsThis(DEFAULT_COLUMN, whats_This_Substrate);
 
-	// set unique id
-	int id = rand()*RAND_SHIFT+rand();
-	new_Substrate->setStatusTip(DEFAULT_COLUMN, QString::number(id));
-
+	// data
+	QVariant var;
+	Data data(item_Type_Substrate);
+	var.setValue( data );
+	new_Substrate->setData(DEFAULT_COLUMN, Qt::UserRole, var);
 
 	structure_Tree->tree->addTopLevelItem(new_Substrate);
-	structure_Tree->set_Structure_Item_Text(new_Substrate);
-	toolbar->actions()[2]->setDisabled(true);
 
+	toolbar->actions()[2]->setDisabled(true);
 	refresh_Toolbar();
 }
 
-void Structure_Toolbar::edit(bool)
+void Structure_Toolbar::edit()
 {
-	structure_Tree->if_DoubleClicked(structure_Tree->tree->currentItem(), DEFAULT_COLUMN);
+	structure_Tree->if_DoubleClicked();
 }
 
-void Structure_Toolbar::remove(bool)
+void Structure_Toolbar::remove()
 {
 	QTreeWidgetItem* current = structure_Tree->tree->currentItem();
-	// TODO show item name before removal
+	Data data = current->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+
+	// if parent multilayer has 2 childs
 	if((current->parent())&&(current->parent()->childCount()==2))
 	{
-		QMessageBox::StandardButton reply = QMessageBox::question(this,"Removal", "Multilayer " + current->parent()->whatsThis(DEFAULT_COLUMN)+" will be disbanded.\nContinue?", QMessageBox::Yes|QMessageBox::No, QMessageBox::No);
+		QString multilayer_Text = current->parent()->text(DEFAULT_COLUMN).split(", N")[0];
+		QMessageBox::StandardButton reply = QMessageBox::question(this,"Removal", multilayer_Text + " will be disbanded.\nContinue?", QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
 		if (reply == QMessageBox::Yes)
 		{
 			QTreeWidgetItem* parent = current->parent();
 			delete current;
 
-			QTreeWidgetItem* survived_Child_Copy = new QTreeWidgetItem();
-			*survived_Child_Copy = *parent->child(0);
+			QTreeWidgetItem* survived_Child = new QTreeWidgetItem;
+			*survived_Child = *parent->child(0);
 
 			// if multilayer is already nested
 			if(parent->parent())
 			{
 				int parent_Position = parent->parent()->indexOfChild(parent);
-				parent->parent()->insertChild(parent_Position, survived_Child_Copy);
+				parent->parent()->insertChild(parent_Position, survived_Child);
 				delete parent;
 			} else
 			{
 				int parent_Position = structure_Tree->tree->indexOfTopLevelItem(parent);
-				structure_Tree->tree->insertTopLevelItem(parent_Position, survived_Child_Copy);
+				structure_Tree->tree->insertTopLevelItem(parent_Position, survived_Child);
 				delete parent;
 			}
 		}
 	} else
-	if(current->whatsThis(DEFAULT_COLUMN) != whats_This_Ambient)
+	// if ambient
+	if(data.item_Type == item_Type_Ambient)
 	{
-		QMessageBox::StandardButton reply = QMessageBox::question(this,"Removal", "Really remove " + current->whatsThis(DEFAULT_COLUMN)+"?", QMessageBox::Yes|QMessageBox::No, QMessageBox::No);
-		if (reply == QMessageBox::Yes)
-		{
-			if(current->whatsThis(DEFAULT_COLUMN) == whats_This_Substrate)
-			{
-				toolbar->actions()[2]->setDisabled(false);		// add_Substrate
-			}
-			delete current;
-		}
-	} else
-	{
-		QMessageBox::StandardButton reply = QMessageBox::question(this,"Removal", "Really reset ambient?", QMessageBox::Yes|QMessageBox::No, QMessageBox::No);
+		QMessageBox::StandardButton reply = QMessageBox::question(this,"Removal", "Really reset ambient?", QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
 		if (reply == QMessageBox::Yes)
 		{
 			QVariant var;
 
-			Ambient ambient;
+			Data ambient(item_Type_Ambient);
 			var.setValue( ambient );
 			current->setData(DEFAULT_COLUMN, Qt::UserRole, var);
-
-//			// set new id
-//			int id = rand()*RAND_SHIFT+rand();
-//			current->setStatusTip(DEFAULT_COLUMN, QString::number(id));
+		}
+	} else
+	// if layer
+	if(data.item_Type == item_Type_Layer)
+	{
+		QMessageBox::StandardButton reply = QMessageBox::question(this,"Removal", "Really remove layer " + QString::number(data.layer_Index) + "?", QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
+		if (reply == QMessageBox::Yes)	delete current;
+	} else
+	// if multilayer
+	if(data.item_Type == item_Type_Multilayer)
+	{
+		QString multilayer_Text = current->text(DEFAULT_COLUMN).split(", N")[0];
+		QMessageBox::StandardButton reply = QMessageBox::question(this,"Removal", "Really remove " + multilayer_Text + "?", QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
+		if (reply == QMessageBox::Yes)	delete current;
+	} else
+	if(data.item_Type == item_Type_Substrate)
+	{
+		QMessageBox::StandardButton reply = QMessageBox::question(this,"Removal", "Really remove substrate?", QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
+		if (reply == QMessageBox::Yes)
+		{
+			toolbar->actions()[2]->setDisabled(false);		// add_Substrate button
+			delete current;
 		}
 	}
 
 	refresh_Toolbar();
 }
 
-void Structure_Toolbar::cut(bool)
+void Structure_Toolbar::cut()
 {
 	QTreeWidgetItem* current = structure_Tree->tree->currentItem();
+	buffered_Copy_Type = copy_Type_Cut;
 	buffered = structure_Tree->tree->currentItem()->clone();
+	Data data = current->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
 
-	// TODO show item name before cut
+	// if parent multilayer has 2 childs
 	if((current->parent())&&(current->parent()->childCount()==2))
 	{
-		QMessageBox::StandardButton reply = QMessageBox::question(this,"Cut", "Multilayer " + current->parent()->whatsThis(DEFAULT_COLUMN)+" will be disbanded.\nContinue?", QMessageBox::Yes|QMessageBox::No, QMessageBox::No);
+		QString multilayer_Text = current->parent()->text(DEFAULT_COLUMN).split(", N")[0];
+		QMessageBox::StandardButton reply = QMessageBox::question(this,"Cut", multilayer_Text + " will be disbanded.\nContinue?", QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
 		if (reply == QMessageBox::Yes)
 		{
 			QTreeWidgetItem* parent = current->parent();
@@ -287,32 +297,36 @@ void Structure_Toolbar::cut(bool)
 			}
 		}
 	} else
+	// if layer
+	if(data.item_Type == item_Type_Layer)
 	{
-		QMessageBox::StandardButton reply = QMessageBox::question(this,"Cut", "Really cut " + current->whatsThis(DEFAULT_COLUMN)+"?", QMessageBox::Yes|QMessageBox::No, QMessageBox::No);
-		if (reply == QMessageBox::Yes)
-		{
-			if(current->whatsThis(DEFAULT_COLUMN) == whats_This_Substrate)
-			{
-				toolbar->actions()[2]->setDisabled(false);
-			}
-			delete current;
-		}
+			QMessageBox::StandardButton reply = QMessageBox::question(this,"Removal", "Really cut layer " + QString::number(data.layer_Index) + "?", QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
+			if (reply == QMessageBox::Yes) delete current;
+	} else
+	// if multilayer
+	if(data.item_Type == item_Type_Multilayer)
+	{
+		QString multilayer_Text = current->text(DEFAULT_COLUMN).split(", N")[0];
+		QMessageBox::StandardButton reply = QMessageBox::question(this,"Removal", "Really cut " + multilayer_Text + "?", QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
+		if (reply == QMessageBox::Yes)	delete current;
 	}
 	refresh_Toolbar();
 }
 
-void Structure_Toolbar::copy(bool)
+void Structure_Toolbar::copy()
 {
+	buffered_Copy_Type = copy_Type_Copy;
 	buffered = structure_Tree->tree->currentItem()->clone();
 	refresh_Toolbar();
 }
 
-void Structure_Toolbar::paste(bool)
+void Structure_Toolbar::paste()
 {
 	add_Buffered_Layer(buffered);
+	buffered_Copy_Type = copy_Type_Copy;	 // next copies should have changed IDs
 }
 
-void Structure_Toolbar::move_Up(bool)
+void Structure_Toolbar::move_Up()
 {
 	int position = structure_Tree->tree->currentIndex().row();
 	QTreeWidgetItem* parent = structure_Tree->tree->currentItem()->parent();
@@ -331,7 +345,7 @@ void Structure_Toolbar::move_Up(bool)
 	refresh_Toolbar();
 }
 
-void Structure_Toolbar::move_Down(bool)
+void Structure_Toolbar::move_Down()
 {
 	int position = structure_Tree->tree->currentIndex().row();
 	QTreeWidgetItem* parent = structure_Tree->tree->currentItem()->parent();
@@ -350,7 +364,7 @@ void Structure_Toolbar::move_Down(bool)
 	refresh_Toolbar();
 }
 
-void Structure_Toolbar::group(bool)
+void Structure_Toolbar::group()
 {
 	// TODO group_toolbutton
 	qInfo() << "group is not implemented";
@@ -358,15 +372,15 @@ void Structure_Toolbar::group(bool)
 	refresh_Toolbar();
 }
 
-void Structure_Toolbar::ungroup(bool)
+void Structure_Toolbar::ungroup()
 {
 	QTreeWidgetItem* current = structure_Tree->tree->currentItem();
 	int position = structure_Tree->tree->currentIndex().row();
 
-	// deep copy of children
 	QList<QTreeWidgetItem*> child_List;
 	for(int i=0; i<current->childCount(); i++)
 	{
+		// deep copy of children
 		child_List.append(current->child(i)->clone());
 	}
 
@@ -384,25 +398,25 @@ void Structure_Toolbar::ungroup(bool)
 	refresh_Toolbar();
 }
 
-void Structure_Toolbar::thickness_Plot(bool)
+void Structure_Toolbar::thickness_Plot()
 {
 	// TODO thickness_Plot_toolbutton
 	qInfo() << "thickness_Plot is not implemented";
 }
 
-void Structure_Toolbar::sigma_Plot(bool)
+void Structure_Toolbar::sigma_Plot()
 {
 	// TODO sigma_Plot_toolbutton
 	qInfo() << "sigma_Plot is not implemented";
 }
 
-void Structure_Toolbar::destroy(bool)
+void Structure_Toolbar::destroy()
 {
-	QMessageBox::StandardButton reply = QMessageBox::question(this,"Removal", "Remove substrate and all layers?", QMessageBox::Yes|QMessageBox::No, QMessageBox::No);
+	QMessageBox::StandardButton reply = QMessageBox::question(this,"Removal", "Remove substrate and all layers?", QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
 	if (reply == QMessageBox::Yes)
 	{
 		structure_Tree->tree->clear();
-		add_Layer(true);
+		add_Ambient();
 		toolbar->actions()[2]->setDisabled(false);		// add_Substrate
 		refresh_Toolbar();
 	}
@@ -433,7 +447,7 @@ void Structure_Toolbar::if_Selected()
 		toolbar->actions()[13]->setDisabled(true);		 // sigma_Plot
 	} else
 	{
-		bool if_Substrate = structure_Tree->tree->currentItem()->whatsThis(DEFAULT_COLUMN)==whats_This_Substrate;
+		bool if_Substrate = (structure_Tree->tree->currentItem()->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>().item_Type) == item_Type_Substrate;
 
 		toolbar->actions()[3]->setDisabled(false);		 // edit
 		toolbar->actions()[4]->setDisabled(false);		 // remove
@@ -485,7 +499,7 @@ void Structure_Toolbar::if_Selected()
 				toolbar->actions()[6]->setDisabled(false);	// copy
 
 				// if next is not substrate
-				if(structure_Tree->tree->topLevelItem(position+1)->whatsThis(DEFAULT_COLUMN)!=whats_This_Substrate)
+				if(structure_Tree->tree->topLevelItem(position+1)->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>().item_Type!=item_Type_Substrate)
 				{
 					toolbar->actions()[9]->setDisabled(false);	// move_Down
 				}
@@ -539,35 +553,28 @@ void Structure_Toolbar::refresh_Toolbar()
 
 void Structure_Toolbar::add_Buffered_Layer(QTreeWidgetItem* new_Layer_Passed)
 {
-	// copy of new_Layer
-	QTreeWidgetItem* new_Layer = new QTreeWidgetItem;
-	new_Layer = new_Layer_Passed->clone(); //-V519
+	QTreeWidgetItem* new_Layer = new_Layer_Passed->clone();
 
-	// set unique id
-	int id = rand()*RAND_SHIFT+rand();
-	new_Layer->setStatusTip(DEFAULT_COLUMN, QString::number(id));
-
-	// if no structure_Tree->tree at all (at the beginning)
-	if(structure_Tree->tree->topLevelItemCount()==0)
+	// need to change IDs
+	if(buffered_Copy_Type == copy_Type_Copy)
 	{
-		QVariant var;
-		Ambient ambient;
-		var.setValue( ambient );
-		new_Layer->setData(DEFAULT_COLUMN, Qt::UserRole, var);
-		new_Layer->setWhatsThis(DEFAULT_COLUMN,whats_This_Ambient);
-		structure_Tree->tree->addTopLevelItem(new_Layer);
-	} else
+		change_IDs_Of_Subtree(new_Layer);
+	}
+
+	// if we have some items in tree
+	int last_Top_Index = structure_Tree->tree->topLevelItemCount()-1;
+	if(last_Top_Index>=0)
 	{
 		// if no selected items
 		if(structure_Tree->tree->selectedItems().isEmpty())
 		{
 			// if there is no substrate
-			if(structure_Tree->tree->topLevelItem(structure_Tree->tree->topLevelItemCount()-1)->whatsThis(DEFAULT_COLUMN)!=whats_This_Substrate)
+			if(structure_Tree->tree->topLevelItem(last_Top_Index)->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>().item_Type!=item_Type_Substrate)
 			{
 				structure_Tree->tree->addTopLevelItem(new_Layer);
 			} else
 			{
-				structure_Tree->tree->insertTopLevelItem(structure_Tree->tree->topLevelItemCount()-1,new_Layer);
+				structure_Tree->tree->insertTopLevelItem(last_Top_Index,new_Layer);
 			}
 		} else
 		{
@@ -577,8 +584,8 @@ void Structure_Toolbar::add_Buffered_Layer(QTreeWidgetItem* new_Layer_Passed)
 				int position = structure_Tree->tree->indexOfTopLevelItem(structure_Tree->tree->currentItem());
 
 				// place layers before substrate
-				if(  (structure_Tree->tree->topLevelItem(structure_Tree->tree->topLevelItemCount()-1)->whatsThis(DEFAULT_COLUMN)!=whats_This_Substrate)
-				   ||(position != (structure_Tree->tree->topLevelItemCount()-1)))
+				if(  (structure_Tree->tree->topLevelItem(last_Top_Index)->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>().item_Type!=item_Type_Substrate)
+				   ||(position != last_Top_Index))
 				{
 					structure_Tree->tree->insertTopLevelItem(position+1, new_Layer);
 				} else
@@ -592,8 +599,6 @@ void Structure_Toolbar::add_Buffered_Layer(QTreeWidgetItem* new_Layer_Passed)
 			}
 		}
 	}
-
-	structure_Tree->set_Structure_Item_Text(new_Layer);
 
 	refresh_Toolbar();
 }

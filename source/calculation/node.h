@@ -17,11 +17,7 @@ public:
 	QString whats_This;
 	QStringList whats_This_List;
 
-	Measurement measurement;
-	Ambient ambient;
-	Layer layer;
-	Stack_Content stack_Content;
-	Substrate substrate;
+	Data data;
 
 	/// ------------------------------------------------
 
@@ -46,7 +42,7 @@ public:
 
 	/// ------------------------------------------------
 
-	Ambient common_Data;
+	Data common_Data;
 	double sigma;
 	bool common_Sigma;	// not used yet
 	vector<Interlayer> boundary_Interlayer_Composition;

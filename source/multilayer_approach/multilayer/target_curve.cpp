@@ -7,20 +7,21 @@
 Target_Curve::Target_Curve(QLabel* description_Label, QTreeWidget* real_Struct_Tree, QWidget *parent) :
 	description_Label(description_Label),
 	real_Struct_Tree(real_Struct_Tree),
+	data(item_Type_Measurement),
 	QWidget(parent)
 {
 	curve.argument_Type = whats_This_Angle;		// angular curve
-	curve.angle_Type = Angle_Type::Grazing()/*default_angle_type*/;
-	curve.angular_Units = angle_Units_List[0]/*angle_units*/;
+	curve.angle_Type = angle_Type_Grazing/*default_angle_type*/	;
+	curve.angular_Units = angle_Units_List[0]/*angle_units*/	;
 	curve.spectral_Units = wavelength_Units_List[0]/*wavelength_units*/;
-	curve.value_Function = value_Function[0];	// reflectivity
-	curve.value_Mode = value_R_Mode[0];			// R
+	curve.value_Function = value_Function[Reflectance];
+	curve.value_Mode = value_R_Mode[R];			// R
 
 	curve.arg_Offset = -0.01; curve.arg_Factor = 0.52;
 	curve.val_Offset = 0.2;   curve.val_Factor = 1.034;
 
-	measurement.calc_Measured_cos2_k();
-	struct_Tree_Copy = new QTreeWidget(this);
+	data.calc_Measured_cos2_k();
+//	struct_Tree_Copy = new QTreeWidget(this);
 }
 
 Target_Curve::~Target_Curve()
@@ -74,7 +75,7 @@ void Target_Curve::import_Data(QString filename)
 
 			/// value
 
-			if(curve.value_Mode == value_R_Mode[0] || curve.value_Mode == value_T_Mode[0] || curve.value_Mode == value_A_Mode[0])	// R , T , A
+			if(curve.value_Mode == value_R_Mode[R] || curve.value_Mode == value_T_Mode[T] || curve.value_Mode == value_A_Mode[A])	// R , T , A
 			{
 				if(numbers.size()<=number_Index) throw "val_1 | " + main_Exception_Text;
 				double temp_Number = QString(numbers[number_Index]).toDouble();
@@ -83,7 +84,8 @@ void Target_Curve::import_Data(QString filename)
 				Value val;
 				val.val_1 = temp_Number;
 				curve.values.push_back(val);
-			} else																													// R+phi ; r, Re+Im ; |r|+phi
+			} else
+			if(curve.value_Mode == value_R_Mode[R_Phi] || curve.value_Mode == value_R_Mode[r_Re_Im] || curve.value_Mode == value_R_Mode[r_Abs_Phi])	// R+phi ; r, Re+Im ; |r|+phi
 			{
 				if(numbers.size()<=number_Index) throw "val_1 | " + main_Exception_Text;
 				double temp_Number_1 = QString(numbers[number_Index]).toDouble();
@@ -110,13 +112,13 @@ void Target_Curve::import_Data(QString filename)
 
 void Target_Curve::fill_Measurement_With_Data()
 {
-	if(curve.argument_Type == whats_This_Angle)	// angular
+	if(curve.argument_Type == whats_This_Angle)			// angular
 	{
-		measurement.angle = curve.argument;
+		data.angle = curve.argument;
 	} else
 	if(curve.argument_Type == whats_This_Wavelength)	// spectral
 	{
-		measurement.lambda = curve.argument;
+		data.lambda = curve.argument;
 	}
 }
 
@@ -126,26 +128,28 @@ void Target_Curve::fill_Measurement_With_Data()
 //	renew_Struct_Tree_Copy();
 //}
 
-void Target_Curve::renew_Struct_Tree_Copy()
-{
-	struct_Tree_Copy->clear();
-	struct_Tree_Copy->hide();					// can be used for debugging
-	for(int i=0; i<real_Struct_Tree->topLevelItemCount(); i++)
-	{
-		struct_Tree_Copy->addTopLevelItem(real_Struct_Tree->topLevelItem(i)->clone());	// the data are also copied here (check?)
-	}
+//void Target_Curve::renew_Struct_Tree_Copy()
+//{
+//	struct_Tree_Copy->clear();
+//	struct_Tree_Copy->hide();					// can be used for debugging
+//	for(int i=0; i<real_Struct_Tree->topLevelItemCount(); i++)
+//	{
+//		struct_Tree_Copy->addTopLevelItem(real_Struct_Tree->topLevelItem(i)->clone());	// the data are also copied here (check?)
+//	}
 
-	// add "measurement" item to the top
-	QTreeWidgetItem* new_Measurement_Item = new QTreeWidgetItem;
-	// set unique id to measurenent // NOT USED
-	int id = rand()*RAND_SHIFT+rand();
-	new_Measurement_Item->setStatusTip(DEFAULT_COLUMN, QString::number(id));
+//	// add "measurement" item to the top
+//	QTreeWidgetItem* new_Measurement_Item = new QTreeWidgetItem;
 
-	QVariant var; var.setValue(measurement);
-	new_Measurement_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
-	new_Measurement_Item->setWhatsThis(DEFAULT_COLUMN, whats_This_Measurement);
-	struct_Tree_Copy->insertTopLevelItem(0, new_Measurement_Item);
-}
+//	// set unique id to measurenent // NOT USED
+////	int id = rand()*RAND_SHIFT+rand();
+////	new_Measurement_Item->setStatusTip(DEFAULT_COLUMN, QString::number(id));
+
+//	QVariant var;
+//	var.setValue(data);
+//	new_Measurement_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+////	new_Measurement_Item->setWhatsThis(DEFAULT_COLUMN, item_Type_Measurement);
+//	struct_Tree_Copy->insertTopLevelItem(0, new_Measurement_Item);
+//}
 
 void Target_Curve::set_Text_To_Label()
 {
@@ -155,11 +159,13 @@ void Target_Curve::set_Text_To_Label()
 // serialization
 QDataStream& operator <<( QDataStream& stream, const Target_Curve* target_Curve )
 {
-	return stream	<< target_Curve->curve << target_Curve->measurement << target_Curve->filename << target_Curve->filepath << target_Curve->loaded_And_Ready
-					<< target_Curve->lines_List << target_Curve->arg_Units << target_Curve->at_Fixed << target_Curve->arg_Type_For_Label << target_Curve->label_Text;
+	return stream	<< target_Curve->curve << target_Curve->data << target_Curve->filename << target_Curve->filepath << target_Curve->loaded_And_Ready
+					<< target_Curve->lines_List << target_Curve->arg_Units << target_Curve->at_Fixed << target_Curve->arg_Type_For_Label << target_Curve->label_Text
+	;
 }
 QDataStream& operator >>(QDataStream& stream,		 Target_Curve* target_Curve )
 {
-	return stream	>> target_Curve->curve >> target_Curve->measurement >> target_Curve->filename >> target_Curve->filepath >> target_Curve->loaded_And_Ready
-					>> target_Curve->lines_List >> target_Curve->arg_Units >> target_Curve->at_Fixed >> target_Curve->arg_Type_For_Label >> target_Curve->label_Text;
+	return stream	>> target_Curve->curve >> target_Curve->data >> target_Curve->filename >> target_Curve->filepath >> target_Curve->loaded_And_Ready
+					>> target_Curve->lines_List >> target_Curve->arg_Units >> target_Curve->at_Fixed >> target_Curve->arg_Type_For_Label >> target_Curve->label_Text
+	;
 }

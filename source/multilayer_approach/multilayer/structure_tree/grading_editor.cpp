@@ -8,6 +8,7 @@ Grading_Editor::Grading_Editor(QTreeWidgetItem* item, QString drift_Name, QWidge
     item(item),
 	default_Min_Line_Size(100),
 	drift_Name(drift_Name),
+	layer(item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>()),
     QDialog(parent)
 {
     create_Main_Layout();
@@ -23,44 +24,17 @@ void Grading_Editor::emit_Grading_Edited()
 	emit grading_Edited();
 }
 
-void Grading_Editor::refresh_Data_Bool(bool)
-{
-    refresh_Data();
-}
-
-void Grading_Editor::refresh_Data(QString)
+void Grading_Editor::refresh_Data()
 {
     drift.is_Drift_Line = line_Group_Box->isChecked();
     drift.is_Drift_Sine = sine_Group_Box->isChecked();
     drift.is_Drift_Rand = rand_Group_Box->isChecked();
 
-	{
-		drift.drift_Line_Value.value = line_Value_Line->text().toDouble();
-//		drift.drift_Line_Value.fit.min = -drift.drift_Line_Value.value*2;
-//		drift.drift_Line_Value.fit.max =  drift.drift_Line_Value.value*2;
-	}
-	{
-		drift.drift_Sine_Amplitude.value = sine_Amplitude_Line->text().toDouble();
-//		drift.drift_Sine_Amplitude.fit.min = 0;
-//		drift.drift_Sine_Amplitude.fit.max = drift.drift_Sine_Amplitude.value*2;
-	}
-	{
-		drift.drift_Sine_Frequency.value = sine_Frequency_Line->text().toDouble();
-//		drift.drift_Sine_Frequency.fit.min = drift.drift_Sine_Frequency.value*(1-dispersion);
-//		drift.drift_Sine_Frequency.fit.max = drift.drift_Sine_Frequency.value*(1+dispersion);
-	}
-	{
-		drift.drift_Sine_Phase.value = sine_Phase_Line->text().toDouble();
-//		drift.drift_Sine_Phase.fit.min = 0;
-//		drift.drift_Sine_Phase.fit.max = 1;
-	}
-	{
-		drift.drift_Rand_Rms.value = rand_Rms_Line->text().toDouble();
-//		drift.drift_Rand_Rms.fit.min = 0;
-//		drift.drift_Rand_Rms.fit.max = drift.drift_Rand_Rms.value*2;
-	}
-
-    Layer layer = item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>();
+	drift.drift_Line_Value.value = line_Value_Line->text().toDouble();
+	drift.drift_Sine_Amplitude.value = sine_Amplitude_Line->text().toDouble();
+	drift.drift_Sine_Frequency.value = sine_Frequency_Line->text().toDouble();
+	drift.drift_Sine_Phase.value = sine_Phase_Line->text().toDouble();
+	drift.drift_Rand_Rms.value = rand_Rms_Line->text().toDouble();
 
     if(drift_Name==whats_This_Thickness) { layer.thickness_Drift = drift;}
     if(drift_Name==whats_This_Sigma)     { layer.sigma_Drift = drift;    }
@@ -87,7 +61,7 @@ void Grading_Editor::create_Main_Layout()
         done_Button->setDefault(true);
 	main_Layout->addWidget(done_Button,0,Qt::AlignCenter);
 
-    connect(done_Button, SIGNAL(clicked()), this, SLOT(close()));
+	connect(done_Button, &QPushButton::clicked, this, &Grading_Editor::close);
 }
 
 void Grading_Editor::create_Interface()
@@ -128,21 +102,19 @@ void Grading_Editor::create_Interface()
 
 	read_Drift_From_Item();
 
-    connect(line_Group_Box,     SIGNAL(toggled(bool)), this, SLOT(refresh_Data_Bool(bool)));
-    connect(sine_Group_Box,     SIGNAL(toggled(bool)), this, SLOT(refresh_Data_Bool(bool)));
-    connect(rand_Group_Box,     SIGNAL(toggled(bool)), this, SLOT(refresh_Data_Bool(bool)));
+	connect(line_Group_Box,     &QGroupBox::toggled, this, [=]{refresh_Data();});
+	connect(sine_Group_Box,     &QGroupBox::toggled, this, [=]{refresh_Data();});
+	connect(rand_Group_Box,     &QGroupBox::toggled, this, [=]{refresh_Data();});
 
-    connect(line_Value_Line,    SIGNAL(textEdited(QString)), this, SLOT(refresh_Data(QString)));
-    connect(sine_Amplitude_Line,SIGNAL(textEdited(QString)), this, SLOT(refresh_Data(QString)));
-    connect(sine_Frequency_Line,SIGNAL(textEdited(QString)), this, SLOT(refresh_Data(QString)));
-    connect(sine_Phase_Line,    SIGNAL(textEdited(QString)), this, SLOT(refresh_Data(QString)));
-    connect(rand_Rms_Line,      SIGNAL(textEdited(QString)), this, SLOT(refresh_Data(QString)));
+	connect(line_Value_Line,    &QLineEdit::textEdited, this, [=]{refresh_Data();});
+	connect(sine_Amplitude_Line,&QLineEdit::textEdited, this, [=]{refresh_Data();});
+	connect(sine_Frequency_Line,&QLineEdit::textEdited, this, [=]{refresh_Data();});
+	connect(sine_Phase_Line,    &QLineEdit::textEdited, this, [=]{refresh_Data();});
+	connect(rand_Rms_Line,      &QLineEdit::textEdited, this, [=]{refresh_Data();});
 }
 
 void Grading_Editor::read_Drift_From_Item()
 {
-	Layer layer = item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>();
-
     if(drift_Name==whats_This_Thickness) { drift = layer.thickness_Drift;}
 	if(drift_Name==whats_This_Sigma)     { drift = layer.sigma_Drift;    }
 

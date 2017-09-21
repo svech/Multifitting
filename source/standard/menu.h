@@ -14,20 +14,20 @@ class Menu : public QWidget
 public:
 	explicit Menu(QString window_Type, QWidget* parent = 0);
 
-private:
+signals:
+	void refresh();
+
+public:
 	QString window_Type;
 	Independent_Variables_Editor* independent_Variables_Editor;
-    Item_Editor* item_Editor;
-    QObject* my_Parent;
+	Item_Editor* item_Editor;
+	QObject* my_Parent;
 
 	// state variables
 	QString precision_Menu_Thumb_Edit;
 	QString precision_Menu_Title;
 
-signals:
-	void refresh();
 
-private:
 	void add_Menu_Points();
 		void create_File_Menu();
 		void create_Calculate_Menu();
@@ -40,11 +40,11 @@ private:
 		void create_Item_Units_Menu();
 		void create_Item_Precision_Menu();
 
-        void create_Table_Units_Menu();
-        void create_Table_Precision_Menu();
+		void create_Table_Units_Menu();
+		void create_Table_Precision_Menu();
 
-// menu actions
-private slots:
+//// menu actions
+
 	void menu_Focus();
 	void thumb_Edit_Focus();
 
@@ -82,7 +82,6 @@ private slots:
 	void set_Thumbnail_Wavelength_Precision();
 	void set_Line_Edit_Wavelength_Precision();
 
-public:	
 	QMenuBar* menu_Bar;
 		QMenu* file_Menu;
 		QMenu* calculate_Menu;

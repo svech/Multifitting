@@ -12,43 +12,39 @@ public:
 
 signals:
 	void refresh_Multilayer();
-private slots:
-	void refresh_All();
 
-private:
+public:
 	void create_Struct_Tree_Copy();
 	void create_Main_Layout();
 	void create_Independent_Variables_List();
 	void create_Independent_Variables_Toolbar();
 
-public slots:
 	void remove_Independent_Variable(QListWidgetItem* item);
 
-private slots:
-	void add_Independent_Variable(bool);
-	void cause_Editing_Independent_Variable(bool);
+	void add_Independent_Variable();
+	void cause_Editing_Independent_Variable();
 	void edit_Independent_Variable(QListWidgetItem* list_Item);
-	void remove_Current_Independent_Variable(bool);
+	void remove_Current_Independent_Variable();
 	void refresh_Independent_State_All();
 
 	void if_Selected();
 
-public:
 	void reset_Independent_Variables_Structure();
 	void clear_Structure_Copy();
 	void clear_Unused_Independent_List();
 	void refresh_Text();
 
-public:
-	QMap<QString, QListWidgetItem*>* independent_Variables_List_Map;	// independent whatsThis and corresponding items in ListWidget
+	QTreeWidgetItem* measurement_Item;
+	Data measurement;
+
+	QMap<int, QListWidgetItem*>* independent_Variables_List_Map;		// independent IDs and corresponding items in ListWidget
 	QTreeWidget* struct_Tree_Copy;										// modified copy of real tree to be plotted
 	QTreeWidget* real_Struct_Tree;										// real tree itself
 
-private:
-		QFrame* independent_Frame;
+	QFrame* independent_Frame;
 		QVBoxLayout* independent_Frame_Layout;
-public:		QListWidget* independent_Variables_List;
-private:		QToolBar* independent_Variables_Toolbar;
+			QListWidget* independent_Variables_List;
+				QToolBar* independent_Variables_Toolbar;
 };
 
 #endif // INDEPENDENT_VARIABLES_H

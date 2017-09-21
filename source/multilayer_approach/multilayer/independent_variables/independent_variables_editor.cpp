@@ -3,12 +3,15 @@
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
 #include "independent_variables_editor.h"
+#include "multilayer_approach/multilayer/variable_selection.h"
 
-Independent_Variables_Editor::Independent_Variables_Editor(QTreeWidgetItem* structure_Item, QListWidgetItem* item, QListWidget* variables_List, QWidget *parent) :
-	QDialog(parent),
+Independent_Variables_Editor::Independent_Variables_Editor(QTreeWidgetItem* structure_Item, QListWidgetItem* list_Item, QListWidget* variables_List, QWidget *parent) :
 	structure_Item(structure_Item),
-	item(item),
-	variables_List(variables_List)
+	list_Item(list_Item),
+	variables_List(variables_List),
+	indicator(list_Item->data(Qt::UserRole).value<Independent_Indicator>()),
+	struct_Data(structure_Item->data(DEFAULT_COLUMN,Qt::UserRole).value<Data>()),
+	QDialog(parent)
 {
 	create_Main_Layout();
 
@@ -34,11 +37,10 @@ void Independent_Variables_Editor::create_Main_Layout()
 	create_Standard_Interface();
 		main_Layout->addWidget(group_Box);
 
-	QStringList whats_This_List = item->whatsThis().split(whats_This_Delimiter,QString::SkipEmptyParts);
 	// if angle
-	if(whats_This_List.last() == whats_This_Angle)		create_Angle_Interface();
+	if(indicator.parameter_Whats_This == whats_This_Angle)		create_Angle_Interface();
 	// if wavelength
-	if(whats_This_List.last() == whats_This_Wavelength)	create_Wavelength_Interface();
+	if(indicator.parameter_Whats_This == whats_This_Wavelength)	create_Wavelength_Interface();
 
 	done_Button = new QPushButton("Done");
 		done_Button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
@@ -46,14 +48,16 @@ void Independent_Variables_Editor::create_Main_Layout()
 		done_Button->setDefault(true);
 	main_Layout->addWidget(done_Button,0,Qt::AlignCenter);
 
-	connect(done_Button,	   SIGNAL(clicked()), this, SLOT(close()));
+	connect(done_Button, &QPushButton::clicked, this, &Independent_Variables_Editor::close);
+
+	refresh_Show_Data(show_Data);
 }
 
 void Independent_Variables_Editor::create_Menu()
 {
-	Menu* menu = new Menu(Window_Type::Independent_Variables_Editor(), this);
+	Menu* menu = new Menu(window_Type_Independent_Variables_Editor, this);
 	main_Layout->setMenuBar(menu->menu_Bar);
-	connect(menu, SIGNAL(refresh()), this, SLOT(refresh_All()));
+	connect(menu, &Menu::refresh, this, &Independent_Variables_Editor::refresh_All);
 }
 
 void Independent_Variables_Editor::create_Standard_Interface()
@@ -73,37 +77,51 @@ void Independent_Variables_Editor::create_Standard_Interface()
 			layout->setAlignment(Qt::AlignLeft);
 		group_Box_Layout->addLayout(layout);
 
-		num_Points = new QLineEdit;
-			num_Points->setFixedWidth(30);
-			num_Points->setProperty(min_Size_Property, 30);
-			num_Points->setValidator(new QIntValidator(1, MAX_INTEGER, this));
-		layout->addWidget(num_Points);
+		{
+			num_Points = new QLineEdit;
+				num_Points->setFixedWidth(30);
+				num_Points->setProperty(min_Size_Property, 30);
+				num_Points->setValidator(new QIntValidator(1, MAX_INTEGER, this));
+			layout->addWidget(num_Points);
+		}
+		{
+			val_Label = new QLabel(value_Text);
+			layout->addWidget(val_Label);
 
-		from_Label = new QLabel(from_Many);
-		layout->addWidget(from_Label);
+			val_Edit = new QLineEdit;
+				val_Edit->setFixedWidth(40);
+				val_Edit->setProperty(min_Size_Property, 40);
+				val_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION, this));
+			layout->addWidget(val_Edit);
+		}
+		{
+			from_Label = new QLabel(from_Text);
+			layout->addWidget(from_Label);
 
-		min = new QLineEdit;
-			min->setFixedWidth(40);
-			min->setProperty(min_Size_Property, 40);
-			min->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION, this));
-		layout->addWidget(min);
+			min_Edit = new QLineEdit;
+				min_Edit->setFixedWidth(40);
+				min_Edit->setProperty(min_Size_Property, 40);
+				min_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION, this));
+			layout->addWidget(min_Edit);
+		}
+		{
+			to_Label = new QLabel(to_Text);
+				to_Label->setSizePolicy(sp_retain);
+			layout->addWidget(to_Label);
 
-		to_Label = new QLabel(to);
-			to_Label->setSizePolicy(sp_retain);
-		layout->addWidget(to_Label);
-
-		max = new QLineEdit;
-			max->setFixedWidth(40);
-			max->setProperty(min_Size_Property, 40);
-			max->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION, this));
-			max->setSizePolicy(sp_retain);
-		layout->addWidget(max);
+			max_Edit = new QLineEdit;
+				max_Edit->setFixedWidth(40);
+				max_Edit->setProperty(min_Size_Property, 40);
+				max_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION, this));
+				max_Edit->setSizePolicy(sp_retain);
+			layout->addWidget(max_Edit);
+		}
 
 		units_Label = new QLabel(units);
 			units_Label->setSizePolicy(sp_retain);
 		layout->addWidget(units_Label);
 
-		step_Label = new QLabel(step);
+		step_Label = new QLabel(step_Text);
 			step_Label->setSizePolicy(sp_retain);
 		layout->addWidget(step_Label);
 
@@ -120,24 +138,23 @@ void Independent_Variables_Editor::create_Standard_Interface()
 		layout->addWidget(step_Units_Label);
 
 		active_Check_Box = new QCheckBox("Active");
-			show_Active_Check_Box();
 		layout->addWidget(active_Check_Box);
 
 
 		connect(num_Points, SIGNAL(textEdited(QString)), this, SLOT(resize_Line_Edit(QString)));
-		connect(min,		SIGNAL(textEdited(QString)), this, SLOT(resize_Line_Edit(QString)));
-		connect(max,		SIGNAL(textEdited(QString)), this, SLOT(resize_Line_Edit(QString)));
+		connect(val_Edit,	SIGNAL(textEdited(QString)), this, SLOT(resize_Line_Edit(QString)));
+		connect(min_Edit,	SIGNAL(textEdited(QString)), this, SLOT(resize_Line_Edit(QString)));
+		connect(max_Edit,	SIGNAL(textEdited(QString)), this, SLOT(resize_Line_Edit(QString)));
+
+		connect(num_Points, &QLineEdit::textEdited, [=]{refresh_Show_Data();});
+		connect(val_Edit,	&QLineEdit::textEdited, [=]{refresh_Show_Data();});
+		connect(min_Edit,	&QLineEdit::textEdited, [=]{refresh_Show_Data();});
+		connect(max_Edit,	&QLineEdit::textEdited, [=]{refresh_Show_Data();});
+
 		connect(step_Edit,	SIGNAL(textEdited(QString)), this, SLOT(resize_Line_Edit(QString)));
 
-		connect(num_Points, &QLineEdit::textEdited, [=]{refresh_Special_Line_Edit();});
-
-		connect(num_Points, &QLineEdit::textEdited, [=]{refresh_Data();});
-		connect(min,		&QLineEdit::textEdited, [=]{refresh_Data();});
-		connect(max,		&QLineEdit::textEdited, [=]{refresh_Data();});
-
-		connect(active_Check_Box, SIGNAL(toggled(bool)), this, SLOT(activate_Variable(bool)));
+		connect(active_Check_Box, &QCheckBox::toggled, this, &Independent_Variables_Editor::activate_Variable);
 	}
-	refresh_Show_Data(show_Data);
 }
 
 void Independent_Variables_Editor::create_Angle_Interface()
@@ -165,10 +182,7 @@ void Independent_Variables_Editor::create_Angle_Interface()
 	layout->addWidget(angle_Units_Label);
 
 	connect(angular_Resolution_Edit, SIGNAL(textEdited(QString)), this, SLOT(resize_Line_Edit(QString)));
-	connect(angular_Resolution_Edit, &QLineEdit::textEdited, [=]{refresh_Data();});
-
-	angle_Done = true;
-	refresh_Show_Data(show_Data);
+	connect(angular_Resolution_Edit, &QLineEdit::textEdited, [=]{refresh_Show_Data();});
 }
 
 void Independent_Variables_Editor::create_Wavelength_Interface()
@@ -191,10 +205,6 @@ void Independent_Variables_Editor::create_Wavelength_Interface()
 			spectral_Resolution_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION, this));
 			spectral_Resolution_Edit->setSizePolicy(sp_retain);
 		up_Layout->addWidget(spectral_Resolution_Edit);
-
-		wavelength_Units_Label = new QLabel(units);
-			wavelength_Units_Label->setSizePolicy(sp_retain);
-		up_Layout->addWidget(wavelength_Units_Label);
 	}
 	{
 		QHBoxLayout* down_Layout = new QHBoxLayout;
@@ -225,16 +235,13 @@ void Independent_Variables_Editor::create_Wavelength_Interface()
 	}
 
 	connect(spectral_Resolution_Edit, SIGNAL(textEdited(QString)), this, SLOT(resize_Line_Edit(QString)));
-	connect(spectral_Resolution_Edit, &QLineEdit::textEdited, [=]{refresh_Data();});
+	connect(spectral_Resolution_Edit, &QLineEdit::textEdited, [=]{refresh_Show_Data();});
 
 	connect(polarization_Edit, SIGNAL(textEdited(QString)), this, SLOT(resize_Line_Edit(QString)));
-	connect(polarization_Edit, &QLineEdit::textEdited, [=]{refresh_Data();});
+	connect(polarization_Edit, &QLineEdit::textEdited, [=]{refresh_Show_Data();});
 
 	connect(analyzer_Edit, SIGNAL(textEdited(QString)), this, SLOT(resize_Line_Edit(QString)));
-	connect(analyzer_Edit, &QLineEdit::textEdited, [=]{refresh_Data();});
-
-	wavelength_Done = true;
-	refresh_Show_Data(show_Data);
+	connect(analyzer_Edit, &QLineEdit::textEdited, [=]{refresh_Show_Data();});
 }
 
 void Independent_Variables_Editor::set_Window_Geometry()
@@ -261,1527 +268,525 @@ void Independent_Variables_Editor::resize_Line_Edit(QString text, QLineEdit* lin
 	}
 }
 
-void Independent_Variables_Editor::refresh_Special_Line_Edit()
+void Independent_Variables_Editor::show_Hide_Elements()
 {
-	QString whats_This = item->whatsThis();
-	QStringList whats_This_List = whats_This.split(whats_This_Delimiter,QString::SkipEmptyParts);
-
-	// if angle
-	if(angle_Done)
-	if(whats_This_List[1] == whats_This_Angle)
-	{
-		Measurement measurement = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Measurement>();
-		double coeff = angle_Coefficients_Map.value(angle_units);
-
-		angular_Resolution_Edit->setText(QString::number(measurement.angular_Resolution.value/coeff,line_edit_double_format,line_edit_angle_precision));
-	}
-
-	// if wavelength
-	if(wavelength_Done)
-	if(whats_This_List[1] == whats_This_Wavelength)
-	{
-		Measurement measurement = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Measurement>();
-		double coeff = wavelength_Coefficients_Map.value(wavelength_units);
-
-		spectral_Resolution_Edit->setText(QString::number(measurement.spectral_Resolution.value/coeff,line_edit_double_format,line_edit_wavelength_precision));
-	}
-}
-
-void Independent_Variables_Editor::show_Hide_Elements(int points, bool show)
-{
-	if(show)
-	{
-		num_Points->textEdited(num_Points->text());
-		min->textEdited(min->text());
-		max->textEdited(max->text());
-		step_Edit->textEdited(step_Edit->text());
-	}
+	int points = num_Points->text().toInt();
 
 	if(points == 1)
 	{
-		max->hide();
-		units_Label->hide();
-		step_Edit->hide();
-		step_Label->hide();
-		step_Units_Label->hide();
+		val_Label->show();
+		val_Edit->show();
 
-		from_Label->setText(from_One);
+		from_Label->hide();
+		min_Edit->hide();
+
 		to_Label->setText(units);
-	}
-	else
-	{
-		max->show();
-		units_Label->show();
-		step_Edit->show();
-		step_Label->show();
-		step_Units_Label->show();
+		max_Edit->hide();
 
-		from_Label->setText(from_Many);
-		to_Label->setText(to);
+		units_Label->hide();
+
+		step_Label->hide();
+		step_Edit->hide();
+		step_Units_Label->hide();
+	} else
+	if(points > 1)
+	{
+		val_Label->hide();
+		val_Edit->hide();
+
+		from_Label->show();
+		min_Edit->show();
+
+		to_Label->setText(to_Text);
+		to_Label->show();
+		max_Edit->show();
+
+		units_Label->show();
 		units_Label->setText(units+" ;");
+
+		step_Label->show();
+		step_Edit->show();
+		step_Units_Label->show();
 	}
 	QMetaObject::invokeMethod(this, "adjustSize", Qt::QueuedConnection);
-}
-
-void Independent_Variables_Editor::refresh_Data()
-{
-	refresh_Show_Data();
 }
 
 void Independent_Variables_Editor::refresh_Show_Data(bool show)
 {
 	// PARAMETER
 
-	QString whats_This = item->whatsThis();
-	QStringList whats_This_List = whats_This.split(whats_This_Delimiter,QString::SkipEmptyParts);
-	QStringList whats_This_List_Type = whats_This_List[1].split(item_Type_Delimiter,QString::SkipEmptyParts);
-	QVariant var;
+	qInfo() << struct_Data.item_Type<< "refresh_Show_Data" << indicator.parameter_Whats_This << globalcounter++ << show;
+	int line_edit_precision = line_edit_density_precision;
+	int thumbnail_precision = thumbnail_density_precision;
+	double coeff = 1; // should be 1 by default!
+	Parameter* param_Pointer = NULL;
 
-	int wtl_index = 2;
-
-	// if ambient
-	if(whats_This_List_Type[0] == whats_This_Ambient)
+	/// optical constants
+	if(indicator.parameter_Whats_This == whats_This_Absolute_Density)
 	{
-		Ambient ambient = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Ambient>();
-
-		/// optical constants
-
-		// ambient absolute density
-		if(whats_This_List[wtl_index] == whats_This_Absolute_Density)
-		{
-			name = ambient.material + " (ambient) " + whats_This_List[wtl_index] + ", " + Rho_Sym;
-			group_Box->setTitle(name);
-			units = density_units;
-			units_Label->setText(units);
-			step_Units_Label->setText(units);
-
-			// show data
-			if(show)
-			{
-				num_Points->setText(QString::number(ambient.absolute_Density.independent.num_Points));
-				if(ambient.absolute_Density.independent.num_Points == 1)
-					min->setText(	QString::number(ambient.absolute_Density.value,line_edit_double_format,line_edit_density_precision));
-				else
-					min->setText(	QString::number(ambient.absolute_Density.independent.min,line_edit_double_format,line_edit_density_precision));
-				max->setText(		QString::number(ambient.absolute_Density.independent.max,line_edit_double_format,line_edit_density_precision));
-			} else
-			// refresh data
-			{
-				if(num_Points->text().toInt()<1)
-				{
-					num_Points->setText(QString::number(ambient.absolute_Density.independent.num_Points));
-					num_Points->textEdited(num_Points->text());
-				} else
-				{
-					ambient.absolute_Density.independent.num_Points = num_Points->text().toInt();
-					if(ambient.absolute_Density.independent.num_Points == 1)
-						ambient.absolute_Density.value = min->text().toDouble();
-					else
-						ambient.absolute_Density.independent.min = min->text().toDouble();
-					ambient.absolute_Density.independent.max = max->text().toDouble();
-
-					if(ambient.absolute_Density.independent.num_Points == 1)
-						item->setText(name + " [" + QString::number(ambient.absolute_Density.value,thumbnail_double_format,thumbnail_density_precision) + " " + units + end_Bracket);
-					else
-						item->setText(name + " [" + QString::number(ambient.absolute_Density.independent.num_Points) + " values: " +
-									  QString::number(ambient.absolute_Density.independent.min,thumbnail_double_format,thumbnail_density_precision) + " - " +
-									  QString::number(ambient.absolute_Density.independent.max,thumbnail_double_format,thumbnail_density_precision) + " " + units + end_Bracket);
-				}
-			}
-			if(num_Points->text().toInt()>1)
-			{
-				step_Edit->setText(QString::number((ambient.absolute_Density.independent.max-ambient.absolute_Density.independent.min)/(ambient.absolute_Density.independent.num_Points-1),line_edit_double_format,line_edit_density_precision));
-				step_Edit->textEdited(step_Edit->text());
-			}
-			show_Hide_Elements(ambient.absolute_Density.independent.num_Points, show);
-		}
-		// ambient relative density
-		if(whats_This_List[wtl_index] == whats_This_Relative_Density)
-		{
-			name = ambient.material + " (ambient) " + whats_This_List[wtl_index] + ", " + Rho_Sym;
-			group_Box->setTitle(name);
-			units = "";
-			units_Label->setText(units);
-			step_Units_Label->setText(units);
-
-			// show data
-			if(show)
-			{
-				num_Points->setText(QString::number(ambient.relative_Density.independent.num_Points));
-				if(ambient.relative_Density.independent.num_Points == 1)
-					min->setText(	QString::number(ambient.relative_Density.value,line_edit_double_format,line_edit_density_precision));
-				else
-					min->setText(	QString::number(ambient.relative_Density.independent.min,line_edit_double_format,line_edit_density_precision));
-				max->setText(		QString::number(ambient.relative_Density.independent.max,line_edit_double_format,line_edit_density_precision));
-			} else
-			// refresh data
-			{
-				if(num_Points->text().toInt()<1)
-				{
-					num_Points->setText(QString::number(ambient.relative_Density.independent.num_Points));
-					num_Points->textEdited(num_Points->text());
-				} else
-				{
-					ambient.relative_Density.independent.num_Points = num_Points->text().toInt();
-					if(ambient.relative_Density.independent.num_Points == 1)
-						ambient.relative_Density.value = min->text().toDouble();
-					else
-						ambient.relative_Density.independent.min = min->text().toDouble();
-					ambient.relative_Density.independent.max = max->text().toDouble();
-
-					if(ambient.relative_Density.independent.num_Points == 1)
-						item->setText(name + " [" + QString::number(ambient.relative_Density.value,thumbnail_double_format,thumbnail_density_precision) + end_Bracket);
-					else
-						item->setText(name + " [" + QString::number(ambient.relative_Density.independent.num_Points) + " values: " +
-									  QString::number(ambient.relative_Density.independent.min,thumbnail_double_format,thumbnail_density_precision) + " - " +
-									  QString::number(ambient.relative_Density.independent.max,thumbnail_double_format,thumbnail_density_precision) + end_Bracket);
-				}
-			}
-			if(num_Points->text().toInt()>1)
-			{
-				step_Edit->setText(QString::number((ambient.relative_Density.independent.max-ambient.relative_Density.independent.min)/(ambient.relative_Density.independent.num_Points-1),line_edit_double_format,line_edit_density_precision));
-				step_Edit->textEdited(step_Edit->text());
-			}
-			show_Hide_Elements(ambient.relative_Density.independent.num_Points, show);
-		}
-		// ambient permittivity
-		if(whats_This_List[wtl_index] == whats_This_Permittivity)
-		{
-			min->setValidator(new QDoubleValidator(-MAX_DOUBLE, MAX_DOUBLE, MAX_PRECISION, this));
-			max->setValidator(new QDoubleValidator(-MAX_DOUBLE, MAX_DOUBLE, MAX_PRECISION, this));
-
-			name = ambient.material + " (ambient) " + whats_This_List[wtl_index] + ", " + "1-" + Epsilon_Sym;
-			group_Box->setTitle(name);
-			units = opt_const_units;
-			units_Label->setText(units);
-			step_Units_Label->setText(units);
-
-			// show data
-			if(show)
-			{
-				num_Points->setText(QString::number(ambient.permittivity.independent.num_Points));
-				if(ambient.permittivity.independent.num_Points == 1)
-					min->setText(	QString::number(ambient.permittivity.value,line_edit_double_format,line_edit_permittivity_precision));
-				else
-					min->setText(	QString::number(ambient.permittivity.independent.min,line_edit_double_format,line_edit_permittivity_precision));
-				max->setText(		QString::number(ambient.permittivity.independent.max,line_edit_double_format,line_edit_permittivity_precision));
-			} else
-			// refresh data
-			{
-				if(num_Points->text().toInt()<1)
-				{
-					num_Points->setText(QString::number(ambient.permittivity.independent.num_Points));
-					num_Points->textEdited(num_Points->text());
-				} else
-				{
-					ambient.permittivity.independent.num_Points = num_Points->text().toInt();
-					if(ambient.permittivity.independent.num_Points == 1)
-						ambient.permittivity.value = min->text().toDouble();
-					else
-						ambient.permittivity.independent.min = min->text().toDouble();
-					ambient.permittivity.independent.max = max->text().toDouble();
-
-					if(ambient.permittivity.independent.num_Points == 1)
-						item->setText(name + " [" + QString::number(ambient.permittivity.value,thumbnail_double_format,thumbnail_permittivity_precision) + " " + units + end_Bracket);
-					else
-						item->setText(name + " [" + QString::number(ambient.permittivity.independent.num_Points) + " values: " +
-									  QString::number(ambient.permittivity.independent.min,thumbnail_double_format,thumbnail_permittivity_precision) + " - " +
-									  QString::number(ambient.permittivity.independent.max,thumbnail_double_format,thumbnail_permittivity_precision) + " " + units + end_Bracket);
-				}
-			}
-			if(num_Points->text().toInt()>1)
-			{
-				step_Edit->setText(QString::number((ambient.permittivity.independent.max-ambient.permittivity.independent.min)/(ambient.permittivity.independent.num_Points-1),line_edit_double_format,line_edit_permittivity_precision));
-				step_Edit->textEdited(step_Edit->text());
-			}
-			show_Hide_Elements(ambient.permittivity.independent.num_Points, show);
-		}
-		// ambient absorption
-		if(whats_This_List[wtl_index] == whats_This_Absorption)
-		{
-			name = ambient.material + " (ambient) " + whats_This_List[wtl_index] + ", " + Cappa_Sym;
-			group_Box->setTitle(whats_This_List_Type[0] + " Absorption, " + Cappa_Sym);
-			units = opt_const_units;
-			units_Label->setText(units);
-			step_Units_Label->setText(units);
-
-			// show data
-			if(show)
-			{
-				num_Points->setText(QString::number(ambient.absorption.independent.num_Points));
-				if(ambient.absorption.independent.num_Points == 1)
-					min->setText(	QString::number(ambient.absorption.value,line_edit_double_format,line_edit_absorption_precision));
-				else
-					min->setText(	QString::number(ambient.absorption.independent.min,line_edit_double_format,line_edit_absorption_precision));
-				max->setText(		QString::number(ambient.absorption.independent.max,line_edit_double_format,line_edit_absorption_precision));
-			} else
-			// refresh data
-			{
-				if(num_Points->text().toInt()<1)
-				{
-					num_Points->setText(QString::number(ambient.absorption.independent.num_Points));
-					num_Points->textEdited(num_Points->text());
-				} else
-				{
-					ambient.absorption.independent.num_Points = num_Points->text().toInt();
-					if(ambient.absorption.independent.num_Points == 1)
-						ambient.absorption.value = min->text().toDouble();
-					else
-						ambient.absorption.independent.min = min->text().toDouble();
-					ambient.absorption.independent.max = max->text().toDouble();
-
-					if(ambient.absorption.independent.num_Points == 1)
-						item->setText(name + " [" + QString::number(ambient.absorption.value,thumbnail_double_format,thumbnail_absorption_precision) + " " + units + end_Bracket);
-					else
-						item->setText(name + " [" + QString::number(ambient.absorption.independent.num_Points) + " values: " +
-									  QString::number(ambient.absorption.independent.min,thumbnail_double_format,thumbnail_absorption_precision) + " - " +
-									  QString::number(ambient.absorption.independent.max,thumbnail_double_format,thumbnail_absorption_precision) + " " + units + end_Bracket);
-				}
-			}
-			if(num_Points->text().toInt()>1)
-			{
-				step_Edit->setText(QString::number((ambient.absorption.independent.max-ambient.absorption.independent.min)/(ambient.absorption.independent.num_Points-1),line_edit_double_format,line_edit_absorption_precision));
-				step_Edit->textEdited(step_Edit->text());
-			}
-			show_Hide_Elements(ambient.absorption.independent.num_Points, show);
-		}
-		//ambient composition
-		if(whats_This_List[wtl_index] == whats_This_Composition)
-		{
-			int index = QString(whats_This_List[wtl_index+1]).toInt();
-			name = ambient.material + " (ambient) " + ambient.composition[index].type + " " + whats_This_List[wtl_index] + ", " + Zeta_Sym + "_" + ambient.composition[index].type;
-			group_Box->setTitle(name);
-			units = "";
-			units_Label->setText(units);
-			step_Units_Label->setText(units);
-
-			// show data
-			if(show)
-			{
-				num_Points->setText(QString::number(ambient.composition[index].composition.independent.num_Points));
-				if(ambient.composition[index].composition.independent.num_Points == 1)
-					min->setText(	QString::number(ambient.composition[index].composition.value,line_edit_double_format,line_edit_composition_precision));
-				else
-					min->setText(	QString::number(ambient.composition[index].composition.independent.min,line_edit_double_format,line_edit_composition_precision));
-				max->setText(		QString::number(ambient.composition[index].composition.independent.max,line_edit_double_format,line_edit_composition_precision));
-			} else
-			// refresh data
-			{
-				if(num_Points->text().toInt()<1)
-				{
-					num_Points->setText(QString::number(ambient.composition[index].composition.independent.num_Points));
-					num_Points->textEdited(num_Points->text());
-				} else
-				{
-					ambient.composition[index].composition.independent.num_Points = num_Points->text().toInt();
-					if(ambient.composition[index].composition.independent.num_Points == 1)
-						ambient.composition[index].composition.value = min->text().toDouble();
-					else
-						ambient.composition[index].composition.independent.min = min->text().toDouble();
-					ambient.composition[index].composition.independent.max = max->text().toDouble();
-
-					if(ambient.composition[index].composition.independent.num_Points == 1)
-						item->setText(name + " [" + QString::number(ambient.composition[index].composition.value,thumbnail_double_format,thumbnail_composition_precision) + end_Bracket);
-					else
-						item->setText(name + " [" + QString::number(ambient.composition[index].composition.independent.num_Points) + " values: " +
-									  QString::number(ambient.composition[index].composition.independent.min,thumbnail_double_format,thumbnail_composition_precision) + " - " +
-									  QString::number(ambient.composition[index].composition.independent.max,thumbnail_double_format,thumbnail_composition_precision) + end_Bracket);
-				}
-			}
-			if(num_Points->text().toInt()>1)
-			{
-				step_Edit->setText(QString::number((ambient.composition[index].composition.independent.max-ambient.composition[index].composition.independent.min)/(ambient.composition[index].composition.independent.num_Points-1),line_edit_double_format,line_edit_composition_precision));
-				step_Edit->textEdited(step_Edit->text());
-			}
-			show_Hide_Elements(ambient.composition[index].composition.independent.num_Points, show);
-		}
-
-		var.setValue(ambient);
-		structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+		param_Pointer = &struct_Data.absolute_Density;
+		line_edit_precision = line_edit_density_precision;
+		thumbnail_precision = thumbnail_density_precision;
+		units = " " + density_units;
 	}
-	// if layer
-	if(whats_This_List_Type[0] == whats_This_Layer)
+	if(indicator.parameter_Whats_This == whats_This_Relative_Density)
 	{
-		Layer layer = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>();
-
-		/// optical constants
-
-		// layer absolute density
-		if(whats_This_List[wtl_index] == whats_This_Absolute_Density)
-		{
-			name = layer.material + " (layer " +  QString::number(layer.layer_Index) + ") " + whats_This_List[wtl_index] + ", " + Rho_Sym;
-			group_Box->setTitle(name);
-			units = density_units;
-			units_Label->setText(units);
-			step_Units_Label->setText(units);
-
-			// show data
-			if(show)
-			{
-				num_Points->setText(QString::number(layer.absolute_Density.independent.num_Points));
-				if(layer.absolute_Density.independent.num_Points == 1)
-					min->setText(	QString::number(layer.absolute_Density.value,line_edit_double_format,line_edit_density_precision));
-				else
-					min->setText(	QString::number(layer.absolute_Density.independent.min,line_edit_double_format,line_edit_density_precision));
-				max->setText(		QString::number(layer.absolute_Density.independent.max,line_edit_double_format,line_edit_density_precision));
-			} else
-			// refresh data
-			{
-				if(num_Points->text().toInt()<1)
-				{
-					num_Points->setText(QString::number(layer.absolute_Density.independent.num_Points));
-					num_Points->textEdited(num_Points->text());
-				} else
-				{
-					layer.absolute_Density.independent.num_Points = num_Points->text().toInt();
-					if(layer.absolute_Density.independent.num_Points == 1)
-						layer.absolute_Density.value = min->text().toDouble();
-					else
-						layer.absolute_Density.independent.min = min->text().toDouble();
-					layer.absolute_Density.independent.max = max->text().toDouble();
-
-					if(layer.absolute_Density.independent.num_Points == 1)
-						item->setText(name + " [" + QString::number(layer.absolute_Density.value,thumbnail_double_format,thumbnail_density_precision) + " " + units + end_Bracket);
-					else
-						item->setText(name + " [" + QString::number(layer.absolute_Density.independent.num_Points) + " values: " +
-									  QString::number(layer.absolute_Density.independent.min,thumbnail_double_format,thumbnail_density_precision) + " - " +
-									  QString::number(layer.absolute_Density.independent.max,thumbnail_double_format,thumbnail_density_precision) + " " + units + end_Bracket);
-				}
-			}
-			if(num_Points->text().toInt()>1)
-			{
-				step_Edit->setText(QString::number((layer.absolute_Density.independent.max-layer.absolute_Density.independent.min)/(layer.absolute_Density.independent.num_Points-1),line_edit_double_format,line_edit_density_precision));
-				step_Edit->textEdited(step_Edit->text());
-			}
-			show_Hide_Elements(layer.absolute_Density.independent.num_Points, show);
-		}
-		// layer relative density
-		if(whats_This_List[wtl_index] == whats_This_Relative_Density)
-		{
-			name = layer.material + " (layer " +  QString::number(layer.layer_Index) + ") " + whats_This_List[wtl_index] + ", " + Rho_Sym;
-			group_Box->setTitle(name);
-			units = "";
-			units_Label->setText(units);
-			step_Units_Label->setText(units);
-
-			// show data
-			if(show)
-			{
-				num_Points->setText(QString::number(layer.relative_Density.independent.num_Points));
-				if(layer.relative_Density.independent.num_Points == 1)
-					min->setText(	QString::number(layer.relative_Density.value,line_edit_double_format,line_edit_density_precision));
-				else
-					min->setText(	QString::number(layer.relative_Density.independent.min,line_edit_double_format,line_edit_density_precision));
-				max->setText(		QString::number(layer.relative_Density.independent.max,line_edit_double_format,line_edit_density_precision));
-			} else
-			// refresh data
-			{
-				if(num_Points->text().toInt()<1)
-				{
-					num_Points->setText(QString::number(layer.relative_Density.independent.num_Points));
-					num_Points->textEdited(num_Points->text());
-				} else
-				{
-					layer.relative_Density.independent.num_Points = num_Points->text().toInt();
-					if(layer.relative_Density.independent.num_Points == 1)
-						layer.relative_Density.value = min->text().toDouble();
-					else
-						layer.relative_Density.independent.min = min->text().toDouble();
-					layer.relative_Density.independent.max = max->text().toDouble();
-
-					if(layer.relative_Density.independent.num_Points == 1)
-						item->setText(name + " [" + QString::number(layer.relative_Density.value,thumbnail_double_format,thumbnail_density_precision) + end_Bracket);
-					else
-						item->setText(name + " [" + QString::number(layer.relative_Density.independent.num_Points) + " values: " +
-									  QString::number(layer.relative_Density.independent.min,thumbnail_double_format,thumbnail_density_precision) + " - " +
-									  QString::number(layer.relative_Density.independent.max,thumbnail_double_format,thumbnail_density_precision) + end_Bracket);
-				}
-			}
-			if(num_Points->text().toInt()>1)
-			{
-				step_Edit->setText(QString::number((layer.relative_Density.independent.max-layer.relative_Density.independent.min)/(layer.relative_Density.independent.num_Points-1),line_edit_double_format,line_edit_density_precision));
-				step_Edit->textEdited(step_Edit->text());
-			}
-			show_Hide_Elements(layer.relative_Density.independent.num_Points, show);
-		}
-		// layer permittivity
-		if(whats_This_List[wtl_index] == whats_This_Permittivity)
-		{
-			min->setValidator(new QDoubleValidator(-MAX_DOUBLE, MAX_DOUBLE, MAX_PRECISION, this));
-			max->setValidator(new QDoubleValidator(-MAX_DOUBLE, MAX_DOUBLE, MAX_PRECISION, this));
-
-			name = layer.material + " (layer " +  QString::number(layer.layer_Index) + ") " + whats_This_List[wtl_index] + ", " + "1-" + Epsilon_Sym;
-			group_Box->setTitle(name);
-			units = opt_const_units;
-			units_Label->setText(units);
-			step_Units_Label->setText(units);
-
-			// show data
-			if(show)
-			{
-				num_Points->setText(QString::number(layer.permittivity.independent.num_Points));
-				if(layer.permittivity.independent.num_Points == 1)
-					min->setText(	QString::number(layer.permittivity.value,line_edit_double_format,line_edit_permittivity_precision));
-				else
-					min->setText(	QString::number(layer.permittivity.independent.min,line_edit_double_format,line_edit_permittivity_precision));
-				max->setText(		QString::number(layer.permittivity.independent.max,line_edit_double_format,line_edit_permittivity_precision));
-			} else
-			// refresh data
-			{
-				if(num_Points->text().toInt()<1)
-				{
-					num_Points->setText(QString::number(layer.permittivity.independent.num_Points));
-					num_Points->textEdited(num_Points->text());
-				} else
-				{
-					layer.permittivity.independent.num_Points = num_Points->text().toInt();
-					if(layer.permittivity.independent.num_Points == 1)
-						layer.permittivity.value = min->text().toDouble();
-					else
-						layer.permittivity.independent.min = min->text().toDouble();
-					layer.permittivity.independent.max = max->text().toDouble();
-
-					if(layer.permittivity.independent.num_Points == 1)
-						item->setText(name + " [" + QString::number(layer.permittivity.value,thumbnail_double_format,thumbnail_permittivity_precision) + " " + units + end_Bracket);
-					else
-						item->setText(name + " [" + QString::number(layer.permittivity.independent.num_Points) + " values: " +
-									  QString::number(layer.permittivity.independent.min,thumbnail_double_format,thumbnail_permittivity_precision) + " - " +
-									  QString::number(layer.permittivity.independent.max,thumbnail_double_format,thumbnail_permittivity_precision) + " " + units + end_Bracket);
-				}
-			}
-			if(num_Points->text().toInt()>1)
-			{
-				step_Edit->setText(QString::number((layer.permittivity.independent.max-layer.permittivity.independent.min)/(layer.permittivity.independent.num_Points-1),line_edit_double_format,line_edit_permittivity_precision));
-				step_Edit->textEdited(step_Edit->text());
-			}
-			show_Hide_Elements(layer.permittivity.independent.num_Points, show);
-		}
-		// layer absorption
-		if(whats_This_List[wtl_index] == whats_This_Absorption)
-		{
-			name = layer.material + " (layer " +  QString::number(layer.layer_Index) + ") " + whats_This_List[wtl_index] + ", " + Cappa_Sym;
-			group_Box->setTitle(name);
-			units = opt_const_units;
-			units_Label->setText(units);
-			step_Units_Label->setText(units);
-
-			// show data
-			if(show)
-			{
-				num_Points->setText(QString::number(layer.absorption.independent.num_Points));
-				if(layer.absorption.independent.num_Points == 1)
-					min->setText(	QString::number(layer.absorption.value,line_edit_double_format,line_edit_absorption_precision));
-				else
-					min->setText(	QString::number(layer.absorption.independent.min,line_edit_double_format,line_edit_absorption_precision));
-				max->setText(		QString::number(layer.absorption.independent.max,line_edit_double_format,line_edit_absorption_precision));
-			} else
-			// refresh data
-			{
-				if(num_Points->text().toInt()<1)
-				{
-					num_Points->setText(QString::number(layer.absorption.independent.num_Points));
-					num_Points->textEdited(num_Points->text());
-				} else
-				{
-					layer.absorption.independent.num_Points = num_Points->text().toInt();
-					if(layer.absorption.independent.num_Points == 1)
-						layer.absorption.value = min->text().toDouble();
-					else
-						layer.absorption.independent.min = min->text().toDouble();
-					layer.absorption.independent.max = max->text().toDouble();
-
-					if(layer.absorption.independent.num_Points == 1)
-						item->setText(name + " [" + QString::number(layer.absorption.value,thumbnail_double_format,thumbnail_absorption_precision) + " " + units + end_Bracket);
-					else
-						item->setText(name + " [" + QString::number(layer.absorption.independent.num_Points) + " values: " +
-									  QString::number(layer.absorption.independent.min,thumbnail_double_format,thumbnail_absorption_precision) + " - " +
-									  QString::number(layer.absorption.independent.max,thumbnail_double_format,thumbnail_absorption_precision) + " " + units + end_Bracket);
-				}
-			}
-			if(num_Points->text().toInt()>1)
-			{
-				step_Edit->setText(QString::number((layer.absorption.independent.max-layer.absorption.independent.min)/(layer.absorption.independent.num_Points-1),line_edit_double_format,line_edit_absorption_precision));
-				step_Edit->textEdited(step_Edit->text());
-			}
-			show_Hide_Elements(layer.absorption.independent.num_Points, show);
-		}
-		// layer composition
-		if(whats_This_List[wtl_index] == whats_This_Composition)
-		{
-			int index = QString(whats_This_List[wtl_index+1]).toInt();
-			name = layer.material + " (layer " +  QString::number(layer.layer_Index) + ") " + layer.composition[index].type + " " + whats_This_List[wtl_index] + ", " + Zeta_Sym + "_" + layer.composition[index].type;
-			group_Box->setTitle(name);
-			units = "";
-			units_Label->setText(units);
-			step_Units_Label->setText(units);
-
-			// show data
-			if(show)
-			{
-				num_Points->setText(QString::number(layer.composition[index].composition.independent.num_Points));
-				if(layer.composition[index].composition.independent.num_Points == 1)
-					min->setText(	QString::number(layer.composition[index].composition.value,line_edit_double_format,line_edit_composition_precision));
-				else
-					min->setText(	QString::number(layer.composition[index].composition.independent.min,line_edit_double_format,line_edit_composition_precision));
-				max->setText(		QString::number(layer.composition[index].composition.independent.max,line_edit_double_format,line_edit_composition_precision));
-			} else
-			// refresh data
-			{
-				if(num_Points->text().toInt()<1)
-				{
-					num_Points->setText(QString::number(layer.composition[index].composition.independent.num_Points));
-					num_Points->textEdited(num_Points->text());
-				} else
-				{
-					layer.composition[index].composition.independent.num_Points = num_Points->text().toInt();
-					if(layer.composition[index].composition.independent.num_Points == 1)
-						layer.composition[index].composition.value = min->text().toDouble();
-					else
-						layer.composition[index].composition.independent.min = min->text().toDouble();
-					layer.composition[index].composition.independent.max = max->text().toDouble();
-
-					if(layer.composition[index].composition.independent.num_Points == 1)
-						item->setText(name + " [" + QString::number(layer.composition[index].composition.value,thumbnail_double_format,thumbnail_composition_precision) + end_Bracket);
-					else
-						item->setText(name + " [" + QString::number(layer.composition[index].composition.independent.num_Points) + " values: " +
-									  QString::number(layer.composition[index].composition.independent.min,thumbnail_double_format,thumbnail_composition_precision) + " - " +
-									  QString::number(layer.composition[index].composition.independent.max,thumbnail_double_format,thumbnail_composition_precision) + end_Bracket);
-				}
-			}
-			if(num_Points->text().toInt()>1)
-			{
-				step_Edit->setText(QString::number((layer.composition[index].composition.independent.max-layer.composition[index].composition.independent.min)/(layer.composition[index].composition.independent.num_Points-1),line_edit_double_format,line_edit_composition_precision));
-				step_Edit->textEdited(step_Edit->text());
-			}
-			show_Hide_Elements(layer.composition[index].composition.independent.num_Points, show);
-		}
-
-		/// thickness parameters
-
-		// layer thickness
-		if(whats_This_List[wtl_index] == whats_This_Thickness)
-		{
-			double coeff = length_Coefficients_Map.value(length_units);
-
-			name = layer.material + " (layer " +  QString::number(layer.layer_Index) + ") " + whats_This_List[wtl_index] + ", z";
-			group_Box->setTitle(name);
-			units = length_units;
-			units_Label->setText(units);
-			step_Units_Label->setText(units);
-
-			// show data
-			if(show)
-			{
-				num_Points->setText(QString::number(layer.thickness.independent.num_Points));
-				if(layer.thickness.independent.num_Points == 1)
-					min->setText(	QString::number(layer.thickness.value/coeff,line_edit_double_format,line_edit_thickness_precision));
-				else
-					min->setText(	QString::number(layer.thickness.independent.min/coeff,line_edit_double_format,line_edit_thickness_precision));
-				max->setText(		QString::number(layer.thickness.independent.max/coeff,line_edit_double_format,line_edit_thickness_precision));
-			} else
-			// refresh data
-			{
-				if(num_Points->text().toInt()<1)
-				{
-					num_Points->setText(QString::number(layer.thickness.independent.num_Points));
-					num_Points->textEdited(num_Points->text());
-				} else
-				{
-					layer.thickness.independent.num_Points = num_Points->text().toInt();
-					if(layer.thickness.independent.num_Points == 1)
-						layer.thickness.value = min->text().toDouble()*coeff;
-					else
-						layer.thickness.independent.min = min->text().toDouble()*coeff;
-					layer.thickness.independent.max = max->text().toDouble()*coeff;
-
-					if(layer.thickness.independent.num_Points == 1)
-						item->setText(name + " [" + QString::number(layer.thickness.value/coeff,thumbnail_double_format,thumbnail_thickness_precision) + " " + units + end_Bracket);
-					else
-						item->setText(name + " [" + QString::number(layer.thickness.independent.num_Points) + " values: " +
-									  QString::number(layer.thickness.independent.min/coeff,thumbnail_double_format,thumbnail_thickness_precision) + " - " +
-									  QString::number(layer.thickness.independent.max/coeff,thumbnail_double_format,thumbnail_thickness_precision) + " " + units + end_Bracket);
-				}
-			}
-			if(num_Points->text().toInt()>1)
-			{
-				step_Edit->setText(QString::number((layer.thickness.independent.max-layer.thickness.independent.min)/(layer.thickness.independent.num_Points-1)/coeff,line_edit_double_format,line_edit_thickness_precision));
-				step_Edit->textEdited(step_Edit->text());
-			}
-			show_Hide_Elements(layer.thickness.independent.num_Points, show);
-		}
-
-		/// interface parameters
-
-		// layer sigma
-		if(whats_This_List[wtl_index] == whats_This_Sigma)
-		{
-			double coeff = length_Coefficients_Map.value(length_units);
-
-			name = layer.material + " (layer " +  QString::number(layer.layer_Index) + ") " + "Roughness/Diffuseness, " + Sigma_Sym;
-			group_Box->setTitle(name);
-			units = length_units;
-			units_Label->setText(units);
-			step_Units_Label->setText(units);
-
-			// show data
-			if(show)
-			{
-				num_Points->setText(QString::number(layer.sigma.independent.num_Points));
-				if(layer.sigma.independent.num_Points == 1)
-					min->setText(	QString::number(layer.sigma.value/coeff,line_edit_double_format,line_edit_sigma_precision));
-				else
-					min->setText(	QString::number(layer.sigma.independent.min/coeff,line_edit_double_format,line_edit_sigma_precision));
-				max->setText(		QString::number(layer.sigma.independent.max/coeff,line_edit_double_format,line_edit_sigma_precision));
-			} else
-			// refresh data
-			{
-				if(num_Points->text().toInt()<1)
-				{
-					num_Points->setText(QString::number(layer.sigma.independent.num_Points));
-					num_Points->textEdited(num_Points->text());
-				} else
-				{
-					layer.sigma.independent.num_Points = num_Points->text().toInt();
-					if(layer.sigma.independent.num_Points == 1)
-						layer.sigma.value = min->text().toDouble()*coeff;
-					else
-						layer.sigma.independent.min = min->text().toDouble()*coeff;
-					layer.sigma.independent.max = max->text().toDouble()*coeff;
-
-					if(layer.sigma.independent.num_Points == 1)
-						item->setText(name + " [" + QString::number(layer.sigma.value/coeff,thumbnail_double_format,thumbnail_sigma_precision) + " " + units + end_Bracket);
-					else
-						item->setText(name + " [" + QString::number(layer.sigma.independent.num_Points) + " values: " +
-									  QString::number(layer.sigma.independent.min/coeff,thumbnail_double_format,thumbnail_sigma_precision) + " - " +
-									  QString::number(layer.sigma.independent.max/coeff,thumbnail_double_format,thumbnail_sigma_precision) + " " + units + end_Bracket);
-				}
-			}
-			if(num_Points->text().toInt()>1)
-			{
-				step_Edit->setText(QString::number((layer.sigma.independent.max-layer.sigma.independent.min)/(layer.sigma.independent.num_Points-1)/coeff,line_edit_double_format,line_edit_sigma_precision));
-				step_Edit->textEdited(step_Edit->text());
-			}
-			show_Hide_Elements(layer.sigma.independent.num_Points, show);
-		}
-		// layer interlayer composition (if enabled and >=2 elements)
-		if(whats_This_List[wtl_index] == whats_This_Interlayer_Composition)
-		{
-			int index = QString(whats_This_List.last()).toInt();
-			name = layer.material + " (layer " +  QString::number(layer.layer_Index) + ") " + "Interlayer Composition, " + transition_Layer_Functions[index];
-			group_Box->setTitle(name);
-			units = "";
-			units_Label->setText(units);
-			step_Units_Label->setText(units);
-
-			// show data
-			if(show)
-			{
-				num_Points->setText(QString::number(layer.interlayer_Composition[index].interlayer.independent.num_Points));
-				if(layer.interlayer_Composition[index].interlayer.independent.num_Points == 1)
-					min->setText(	QString::number(layer.interlayer_Composition[index].interlayer.value,line_edit_double_format,line_edit_interlayer_precision));
-				else
-					min->setText(	QString::number(layer.interlayer_Composition[index].interlayer.independent.min,line_edit_double_format,line_edit_interlayer_precision));
-				max->setText(		QString::number(layer.interlayer_Composition[index].interlayer.independent.max,line_edit_double_format,line_edit_interlayer_precision));
-			} else
-			// refresh data
-			{
-				if(num_Points->text().toInt()<1)
-				{
-					num_Points->setText(QString::number(layer.interlayer_Composition[index].interlayer.independent.num_Points));
-					num_Points->textEdited(num_Points->text());
-				} else
-				{
-					layer.interlayer_Composition[index].interlayer.independent.num_Points = num_Points->text().toInt();
-					if(layer.interlayer_Composition[index].interlayer.independent.num_Points == 1)
-						layer.interlayer_Composition[index].interlayer.value = min->text().toDouble();
-					else
-						layer.interlayer_Composition[index].interlayer.independent.min = min->text().toDouble();
-					layer.interlayer_Composition[index].interlayer.independent.max = max->text().toDouble();
-
-					if(layer.interlayer_Composition[index].interlayer.independent.num_Points == 1)
-						item->setText(name + " [" + QString::number(layer.interlayer_Composition[index].interlayer.value,thumbnail_double_format,thumbnail_interlayer_precision) + end_Bracket);
-					else
-						item->setText(name + " [" + QString::number(layer.interlayer_Composition[index].interlayer.independent.num_Points) + " values: " +
-									  QString::number(layer.interlayer_Composition[index].interlayer.independent.min,thumbnail_double_format,thumbnail_interlayer_precision) + " - " +
-									  QString::number(layer.interlayer_Composition[index].interlayer.independent.max,thumbnail_double_format,thumbnail_interlayer_precision) + end_Bracket);
-				}
-			}
-			if(num_Points->text().toInt()>1)
-			{
-				step_Edit->setText(QString::number((layer.interlayer_Composition[index].interlayer.independent.max-layer.interlayer_Composition[index].interlayer.independent.min)/(layer.interlayer_Composition[index].interlayer.independent.num_Points-1),line_edit_double_format,line_edit_interlayer_precision));
-				step_Edit->textEdited(step_Edit->text());
-			}
-			show_Hide_Elements(layer.interlayer_Composition[index].interlayer.independent.num_Points, show);
-		}
-
-		var.setValue(layer);
-		structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+		param_Pointer = &struct_Data.relative_Density;
+		line_edit_precision = line_edit_density_precision;
+		thumbnail_precision = thumbnail_density_precision;
+		units = "" ;
 	}
-	// if multilayer
-	if(whats_This_List_Type[0] == whats_This_Multilayer)
+	if(indicator.parameter_Whats_This == whats_This_Permittivity)
 	{
-		Stack_Content stack_Content = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Stack_Content>();
+		val_Edit->setValidator(new QDoubleValidator(-MAX_DOUBLE, MAX_DOUBLE, MAX_PRECISION, this));
+		min_Edit->setValidator(new QDoubleValidator(-MAX_DOUBLE, MAX_DOUBLE, MAX_PRECISION, this));
+		max_Edit->setValidator(new QDoubleValidator(-MAX_DOUBLE, MAX_DOUBLE, MAX_PRECISION, this));
 
-		// multilayer num_repetitions
-		if(whats_This_List[wtl_index] == whats_This_Num_Repetitions)
-		{			
-			name = whats_This_List[wtl_index-1] + " Number of repetitions, N";
-			group_Box->setTitle(name);
-			units = "";
-			units_Label->setText(units);
-			step_Units_Label->setText(units);
-
-			min->setValidator(new QIntValidator(0, MAX_INTEGER, this));
-			max->setValidator(new QIntValidator(1, MAX_INTEGER, this));
-
-			// show data
-			if(show)
-			{
-				num_Points->setText(QString::number(stack_Content.num_Repetition.num_steps));
-				if(stack_Content.num_Repetition.num_steps == 1)
-					min->setText(	QString::number(stack_Content.num_Repetition.value));
-				else
-					min->setText(	QString::number(stack_Content.num_Repetition.start));
-				max->setText(		QString::number(stack_Content.num_Repetition.step));
-			} else
-			// refresh data
-			{
-				if(num_Points->text().toInt()<1)
-				{
-					num_Points->setText(QString::number(stack_Content.num_Repetition.num_steps));
-					num_Points->textEdited(num_Points->text());
-				} else
-				if(max->text().toInt()<1)
-				{
-					max->setText(QString::number(stack_Content.num_Repetition.step));
-					max->textEdited(max->text());
-				} else
-				{
-					stack_Content.num_Repetition.num_steps = num_Points->text().toInt();
-					if(stack_Content.num_Repetition.num_steps == 1)
-						stack_Content.num_Repetition.value = min->text().toDouble();
-					else
-						stack_Content.num_Repetition.start = min->text().toDouble();
-					stack_Content.num_Repetition.step  = max->text().toDouble();
-
-					if(stack_Content.num_Repetition.num_steps == 1)
-					{
-						item->setText(name + " [" + QString::number(stack_Content.num_Repetition.value) + end_Bracket);
-					}
-					else
-						item->setText(name + " [" + QString::number(stack_Content.num_Repetition.num_steps) + " values: " +
-									  QString::number(stack_Content.num_Repetition.start) + " - " +
-									  QString::number(stack_Content.num_Repetition.start + stack_Content.num_Repetition.step*stack_Content.num_Repetition.num_steps) + end_Bracket);
-				}
-			}
-			show_Hide_Elements(stack_Content.num_Repetition.num_steps, show);
-			if(stack_Content.num_Repetition.num_steps > 1)
-			{
-				from_Label->setText("values; start:");
-				to_Label->setText(" step size:");
-				step_Edit->hide();
-				step_Label->hide();
-				units_Label->hide();
-			}
-		}
-		// multilayer period
-		if(whats_This_List[wtl_index] == whats_This_Period)
-		{
-			double coeff = length_Coefficients_Map.value(length_units);
-
-			name = whats_This_List[wtl_index-1] + " " + whats_This_List[wtl_index] + ", d";
-			group_Box->setTitle(name);
-			units = length_units;
-			units_Label->setText(units);
-			step_Units_Label->setText(units);
-
-			// show data
-			if(show)
-			{
-				num_Points->setText(QString::number(stack_Content.period.independent.num_Points));
-				if(stack_Content.period.independent.num_Points == 1)
-					min->setText(	QString::number(stack_Content.period.value/coeff,line_edit_double_format,line_edit_period_precision));
-				else
-					min->setText(	QString::number(stack_Content.period.independent.min/coeff,line_edit_double_format,line_edit_period_precision));
-				max->setText(		QString::number(stack_Content.period.independent.max/coeff,line_edit_double_format,line_edit_period_precision));
-			} else
-			// refresh data
-			{
-				if(num_Points->text().toInt()<1)
-				{
-					num_Points->setText(QString::number(stack_Content.period.independent.num_Points));
-					num_Points->textEdited(num_Points->text());
-				} else
-				{
-					stack_Content.period.independent.num_Points = num_Points->text().toInt();
-					if(stack_Content.period.independent.num_Points == 1)
-						stack_Content.period.value = min->text().toDouble()*coeff;
-					else
-						stack_Content.period.independent.min = min->text().toDouble()*coeff;
-					stack_Content.period.independent.max = max->text().toDouble()*coeff;
-
-					if(stack_Content.period.independent.num_Points == 1)
-						item->setText(name + " [" + QString::number(stack_Content.period.value/coeff,thumbnail_double_format,thumbnail_period_precision) + " " + units + end_Bracket);
-					else
-						item->setText(name + " [" + QString::number(stack_Content.period.independent.num_Points) + " values: " +
-									  QString::number(stack_Content.period.independent.min/coeff,thumbnail_double_format,thumbnail_period_precision) + " - " +
-									  QString::number(stack_Content.period.independent.max/coeff,thumbnail_double_format,thumbnail_period_precision) + " " + units + end_Bracket);
-				}
-			}
-			if(num_Points->text().toInt()>1)
-			{
-				step_Edit->setText(QString::number((stack_Content.period.independent.max-stack_Content.period.independent.min)/(stack_Content.period.independent.num_Points-1)/coeff,line_edit_double_format,line_edit_period_precision));
-				step_Edit->textEdited(step_Edit->text());
-			}
-			show_Hide_Elements(stack_Content.period.independent.num_Points, show);
-		}
-		// multilayer gamma
-		if(whats_This_List[wtl_index] == whats_This_Gamma)
-		{
-			name = whats_This_List[wtl_index-1] + " Thickness Ratio, " + Gamma_Sym;
-			group_Box->setTitle(name);
-			units = "";
-			units_Label->setText(units);
-			step_Units_Label->setText(units);
-
-			// show data
-			if(show)
-			{
-				num_Points->setText(QString::number(stack_Content.gamma.independent.num_Points));
-				if(stack_Content.gamma.independent.num_Points == 1)
-					min->setText(	QString::number(stack_Content.gamma.value,line_edit_double_format,line_edit_gamma_precision));
-				else
-					min->setText(	QString::number(stack_Content.gamma.independent.min,line_edit_double_format,line_edit_gamma_precision));
-				max->setText(		QString::number(stack_Content.gamma.independent.max,line_edit_double_format,line_edit_gamma_precision));
-			} else
-			// refresh data
-			{
-				if(num_Points->text().toInt()<1)
-				{
-					num_Points->setText(QString::number(stack_Content.gamma.independent.num_Points));
-					num_Points->textEdited(num_Points->text());
-				} else
-				if(min->text().toDouble()>1)
-				{
-					if(stack_Content.gamma.independent.num_Points == 1)
-						min->setText(QString::number(stack_Content.gamma.value,line_edit_double_format,line_edit_gamma_precision));
-					else
-						min->setText(QString::number(stack_Content.gamma.independent.min,line_edit_double_format,line_edit_gamma_precision));
-					min->textEdited(min->text());
-				} else
-				if(max->text().toDouble()>1)
-				{
-					max->setText(QString::number(stack_Content.gamma.independent.max,line_edit_double_format,line_edit_gamma_precision));
-					max->textEdited(max->text());
-				} else
-				{
-					stack_Content.gamma.independent.num_Points = num_Points->text().toInt();
-					if(stack_Content.gamma.independent.num_Points == 1)
-						stack_Content.gamma.value = min->text().toDouble();
-					else
-						stack_Content.gamma.independent.min = min->text().toDouble();
-					stack_Content.gamma.independent.max = max->text().toDouble();
-
-					if(stack_Content.gamma.independent.num_Points == 1)
-						item->setText(name + " [" + QString::number(stack_Content.gamma.value,thumbnail_double_format,thumbnail_gamma_precision) + end_Bracket);
-					else
-						item->setText(name + " [" + QString::number(stack_Content.gamma.independent.num_Points) + " values: " +
-									  QString::number(stack_Content.gamma.independent.min,thumbnail_double_format,thumbnail_gamma_precision) + " - " +
-									  QString::number(stack_Content.gamma.independent.max,thumbnail_double_format,thumbnail_gamma_precision) + end_Bracket);
-				}
-			}
-			if(num_Points->text().toInt()>1)
-			{
-				step_Edit->setText(QString::number((stack_Content.gamma.independent.max-stack_Content.gamma.independent.min)/(stack_Content.gamma.independent.num_Points-1),line_edit_double_format,line_edit_gamma_precision));
-				step_Edit->textEdited(step_Edit->text());
-			}
-			show_Hide_Elements(stack_Content.gamma.independent.num_Points, show);
-		}
-
-		var.setValue(stack_Content);
-		structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+		param_Pointer = &struct_Data.permittivity;
+		line_edit_precision = line_edit_permittivity_precision;
+		thumbnail_precision = thumbnail_permittivity_precision;
+		units = " " + opt_const_units;
 	}
-	// if substrate
-	if(whats_This_List_Type[0] == whats_This_Substrate)
+	if(indicator.parameter_Whats_This == whats_This_Absorption)
 	{
-		Substrate substrate = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Substrate>();
-
-		/// optical constants
-
-		// substrate absolute density
-		if(whats_This_List[wtl_index] == whats_This_Absolute_Density)
-		{
-			name = substrate.material + " (substrate) " + whats_This_List[wtl_index] + ", " + Rho_Sym;
-			group_Box->setTitle(name);
-			units = density_units;
-			units_Label->setText(units);
-			step_Units_Label->setText(units);
-
-			// show data
-			if(show)
-			{
-				num_Points->setText(QString::number(substrate.absolute_Density.independent.num_Points));
-				if(substrate.absolute_Density.independent.num_Points == 1)
-					min->setText(	QString::number(substrate.absolute_Density.value,line_edit_double_format,line_edit_density_precision));
-				else
-					min->setText(	QString::number(substrate.absolute_Density.independent.min,line_edit_double_format,line_edit_density_precision));
-				max->setText(		QString::number(substrate.absolute_Density.independent.max,line_edit_double_format,line_edit_density_precision));
-			} else
-			// refresh data
-			{
-				if(num_Points->text().toInt()<1)
-				{
-					num_Points->setText(QString::number(substrate.absolute_Density.independent.num_Points));
-					num_Points->textEdited(num_Points->text());
-				} else
-				{
-					substrate.absolute_Density.independent.num_Points = num_Points->text().toInt();
-					if(substrate.absolute_Density.independent.num_Points == 1)
-						substrate.absolute_Density.value = min->text().toDouble();
-					else
-						substrate.absolute_Density.independent.min = min->text().toDouble();
-					substrate.absolute_Density.independent.max = max->text().toDouble();
-
-					if(substrate.absolute_Density.independent.num_Points == 1)
-						item->setText(name + " [" + QString::number(substrate.absolute_Density.value,thumbnail_double_format,thumbnail_density_precision) + " " + units + end_Bracket);
-					else
-						item->setText(name + " [" + QString::number(substrate.absolute_Density.independent.num_Points) + " values: " +
-									  QString::number(substrate.absolute_Density.independent.min,thumbnail_double_format,thumbnail_density_precision) + " - " +
-									  QString::number(substrate.absolute_Density.independent.max,thumbnail_double_format,thumbnail_density_precision) + " " + units + end_Bracket);
-				}
-			}
-			if(num_Points->text().toInt()>1)
-			{
-				step_Edit->setText(QString::number((substrate.absolute_Density.independent.max-substrate.absolute_Density.independent.min)/(substrate.absolute_Density.independent.num_Points-1),line_edit_double_format,line_edit_density_precision));
-				step_Edit->textEdited(step_Edit->text());
-			}
-			show_Hide_Elements(substrate.absolute_Density.independent.num_Points, show);
-		}
-		// substrate relative density
-		if(whats_This_List[wtl_index] == whats_This_Relative_Density)
-		{
-			name = substrate.material + " (substrate) " + whats_This_List[wtl_index] + ", " + Rho_Sym;
-			group_Box->setTitle(name);
-			units = "";
-			units_Label->setText(units);
-			step_Units_Label->setText(units);
-
-			// show data
-			if(show)
-			{
-				num_Points->setText(QString::number(substrate.relative_Density.independent.num_Points));
-				if(substrate.relative_Density.independent.num_Points == 1)
-					min->setText(	QString::number(substrate.relative_Density.value,line_edit_double_format,line_edit_density_precision));
-				else
-					min->setText(	QString::number(substrate.relative_Density.independent.min,line_edit_double_format,line_edit_density_precision));
-				max->setText(		QString::number(substrate.relative_Density.independent.max,line_edit_double_format,line_edit_density_precision));
-			} else
-			// refresh data
-			{
-				if(num_Points->text().toInt()<1)
-				{
-					num_Points->setText(QString::number(substrate.relative_Density.independent.num_Points));
-					num_Points->textEdited(num_Points->text());
-				} else
-				{
-					substrate.relative_Density.independent.num_Points = num_Points->text().toInt();
-					if(substrate.relative_Density.independent.num_Points == 1)
-						substrate.relative_Density.value = min->text().toDouble();
-					else
-						substrate.relative_Density.independent.min = min->text().toDouble();
-					substrate.relative_Density.independent.max = max->text().toDouble();
-
-					if(substrate.relative_Density.independent.num_Points == 1)
-						item->setText(name + " [" + QString::number(substrate.relative_Density.value,thumbnail_double_format,thumbnail_density_precision) + end_Bracket);
-					else
-						item->setText(name + " [" + QString::number(substrate.relative_Density.independent.num_Points) + " values: " +
-									  QString::number(substrate.relative_Density.independent.min,thumbnail_double_format,thumbnail_density_precision) + " - " +
-									  QString::number(substrate.relative_Density.independent.max,thumbnail_double_format,thumbnail_density_precision) + end_Bracket);
-				}
-			}
-			if(num_Points->text().toInt()>1)
-			{
-				step_Edit->setText(QString::number((substrate.relative_Density.independent.max-substrate.relative_Density.independent.min)/(substrate.relative_Density.independent.num_Points-1),line_edit_double_format,line_edit_density_precision));
-				step_Edit->textEdited(step_Edit->text());
-			}
-			show_Hide_Elements(substrate.relative_Density.independent.num_Points, show);
-		}
-		// substrate permittivity
-		if(whats_This_List[wtl_index] == whats_This_Permittivity)
-		{
-			min->setValidator(new QDoubleValidator(-MAX_DOUBLE, MAX_DOUBLE, MAX_PRECISION, this));
-			max->setValidator(new QDoubleValidator(-MAX_DOUBLE, MAX_DOUBLE, MAX_PRECISION, this));
-
-			name = substrate.material + " (substrate) " + whats_This_List[wtl_index] + ", " + "1-" + Epsilon_Sym;
-			group_Box->setTitle(name);
-			units = opt_const_units;
-			units_Label->setText(units);
-			step_Units_Label->setText(units);
-
-			// show data
-			if(show)
-			{
-				num_Points->setText(QString::number(substrate.permittivity.independent.num_Points));
-				if(substrate.permittivity.independent.num_Points == 1)
-					min->setText(	QString::number(substrate.permittivity.value,line_edit_double_format,line_edit_permittivity_precision));
-				else
-					min->setText(	QString::number(substrate.permittivity.independent.min,line_edit_double_format,line_edit_permittivity_precision));
-				max->setText(		QString::number(substrate.permittivity.independent.max,line_edit_double_format,line_edit_permittivity_precision));
-			} else
-			// refresh data
-			{
-				if(num_Points->text().toInt()<1)
-				{
-					num_Points->setText(QString::number(substrate.permittivity.independent.num_Points));
-					num_Points->textEdited(num_Points->text());
-				} else
-				{
-					substrate.permittivity.independent.num_Points = num_Points->text().toInt();
-					if(substrate.permittivity.independent.num_Points == 1)
-						substrate.permittivity.value = min->text().toDouble();
-					else
-						substrate.permittivity.independent.min = min->text().toDouble();
-					substrate.permittivity.independent.max = max->text().toDouble();
-
-					if(substrate.permittivity.independent.num_Points == 1)
-						item->setText(name + " [" + QString::number(substrate.permittivity.value,thumbnail_double_format,thumbnail_permittivity_precision) + " " + units + end_Bracket);
-					else
-						item->setText(name + " [" + QString::number(substrate.permittivity.independent.num_Points) + " values: " +
-									  QString::number(substrate.permittivity.independent.min,thumbnail_double_format,thumbnail_permittivity_precision) + " - " +
-									  QString::number(substrate.permittivity.independent.max,thumbnail_double_format,thumbnail_permittivity_precision) + " " + units + end_Bracket);
-				}
-			}
-			if(num_Points->text().toInt()>1)
-			{
-				step_Edit->setText(QString::number((substrate.permittivity.independent.max-substrate.permittivity.independent.min)/(substrate.permittivity.independent.num_Points-1),line_edit_double_format,line_edit_permittivity_precision));
-				step_Edit->textEdited(step_Edit->text());
-			}
-			show_Hide_Elements(substrate.permittivity.independent.num_Points, show);
-		}
-		// substrate absorption
-		if(whats_This_List[wtl_index] == whats_This_Absorption)
-		{
-			name = substrate.material + " (substrate) " + whats_This_List[wtl_index] + ", " + Cappa_Sym;
-			group_Box->setTitle(name);
-			units = opt_const_units;
-			units_Label->setText(units);
-			step_Units_Label->setText(units);
-
-			// show data
-			if(show)
-			{
-				num_Points->setText(QString::number(substrate.absorption.independent.num_Points));
-				if(substrate.absorption.independent.num_Points == 1)
-					min->setText(	QString::number(substrate.absorption.value,line_edit_double_format,line_edit_absorption_precision));
-				else
-					min->setText(	QString::number(substrate.absorption.independent.min,line_edit_double_format,line_edit_absorption_precision));
-				max->setText(		QString::number(substrate.absorption.independent.max,line_edit_double_format,line_edit_absorption_precision));
-			} else
-			// refresh data
-			{
-				if(num_Points->text().toInt()<1)
-				{
-					num_Points->setText(QString::number(substrate.absorption.independent.num_Points));
-					num_Points->textEdited(num_Points->text());
-				} else
-				{
-					substrate.absorption.independent.num_Points = num_Points->text().toInt();
-					if(substrate.absorption.independent.num_Points == 1)
-						substrate.absorption.value = min->text().toDouble();
-					else
-						substrate.absorption.independent.min = min->text().toDouble();
-					substrate.absorption.independent.max = max->text().toDouble();
-
-					if(substrate.absorption.independent.num_Points == 1)
-						item->setText(name + " [" + QString::number(substrate.absorption.value,thumbnail_double_format,thumbnail_absorption_precision) + " " + units + end_Bracket);
-					else
-						item->setText(name + " [" + QString::number(substrate.absorption.independent.num_Points) + " values: " +
-									  QString::number(substrate.absorption.independent.min,thumbnail_double_format,thumbnail_absorption_precision) + " - " +
-									  QString::number(substrate.absorption.independent.max,thumbnail_double_format,thumbnail_absorption_precision) + " " + units + end_Bracket);
-				}
-			}
-			if(num_Points->text().toInt()>1)
-			{
-				step_Edit->setText(QString::number((substrate.absorption.independent.max-substrate.absorption.independent.min)/(substrate.absorption.independent.num_Points-1),line_edit_double_format,line_edit_absorption_precision));
-				step_Edit->textEdited(step_Edit->text());
-			}
-			show_Hide_Elements(substrate.absorption.independent.num_Points, show);
-		}
-		// substrate composition
-		if(whats_This_List[wtl_index] == whats_This_Composition)
-		{
-			int index = QString(whats_This_List[wtl_index+1]).toInt();
-			name = substrate.material + " (substrate) " + substrate.composition[index].type + " " + whats_This_List[wtl_index] + ", " + Zeta_Sym;
-			group_Box->setTitle(name);
-			units = "";
-			units_Label->setText(units);
-			step_Units_Label->setText(units);
-
-			// show data
-			if(show)
-			{
-				num_Points->setText(QString::number(substrate.composition[index].composition.independent.num_Points));
-				if(substrate.composition[index].composition.independent.num_Points == 1)
-					min->setText(	QString::number(substrate.composition[index].composition.value,line_edit_double_format,line_edit_composition_precision));
-				else
-					min->setText(	QString::number(substrate.composition[index].composition.independent.min,line_edit_double_format,line_edit_composition_precision));
-				max->setText(		QString::number(substrate.composition[index].composition.independent.max,line_edit_double_format,line_edit_composition_precision));
-			} else
-			// refresh data
-			{
-				if(num_Points->text().toInt()<1)
-				{
-					num_Points->setText(QString::number(substrate.composition[index].composition.independent.num_Points));
-					num_Points->textEdited(num_Points->text());
-				} else
-				{
-					substrate.composition[index].composition.independent.num_Points = num_Points->text().toInt();
-					if(substrate.composition[index].composition.independent.num_Points == 1)
-						substrate.composition[index].composition.value = min->text().toDouble();
-					else
-						substrate.composition[index].composition.independent.min = min->text().toDouble();
-					substrate.composition[index].composition.independent.max = max->text().toDouble();
-
-					if(substrate.composition[index].composition.independent.num_Points == 1)
-						item->setText(name + " [" + QString::number(substrate.composition[index].composition.value,thumbnail_double_format,thumbnail_composition_precision) + end_Bracket);
-					else
-						item->setText(name + " [" + QString::number(substrate.composition[index].composition.independent.num_Points) + " values: " +
-									  QString::number(substrate.composition[index].composition.independent.min,thumbnail_double_format,thumbnail_composition_precision) + " - " +
-									  QString::number(substrate.composition[index].composition.independent.max,thumbnail_double_format,thumbnail_composition_precision) + end_Bracket);
-				}
-			}
-			if(num_Points->text().toInt()>1)
-			{
-				step_Edit->setText(QString::number((substrate.composition[index].composition.independent.max-substrate.composition[index].composition.independent.min)/(substrate.composition[index].composition.independent.num_Points-1),line_edit_double_format,line_edit_composition_precision));
-				step_Edit->textEdited(step_Edit->text());
-			}
-			show_Hide_Elements(substrate.composition[index].composition.independent.num_Points, show);
-		}
-
-		/// interface parameters
-
-		// substrate sigma
-		if(whats_This_List[wtl_index] == whats_This_Sigma)
-		{
-			double coeff = length_Coefficients_Map.value(length_units);
-
-			name = substrate.material + " (substrate) " + "Roughness/Diffuseness, " + Sigma_Sym;
-			group_Box->setTitle(name);
-			units = length_units;
-			units_Label->setText(units);
-			step_Units_Label->setText(units);
-
-			// show data
-			if(show)
-			{
-				num_Points->setText(QString::number(substrate.sigma.independent.num_Points));
-				if(substrate.sigma.independent.num_Points == 1)
-					min->setText(	QString::number(substrate.sigma.value/coeff,line_edit_double_format,line_edit_sigma_precision));
-				else
-					min->setText(	QString::number(substrate.sigma.independent.min/coeff,line_edit_double_format,line_edit_sigma_precision));
-				max->setText(		QString::number(substrate.sigma.independent.max/coeff,line_edit_double_format,line_edit_sigma_precision));
-			} else
-			// refresh data
-			{
-				if(num_Points->text().toInt()<1)
-				{
-					num_Points->setText(QString::number(substrate.sigma.independent.num_Points));
-					num_Points->textEdited(num_Points->text());
-				} else
-				{
-					substrate.sigma.independent.num_Points = num_Points->text().toInt();
-					if(substrate.sigma.independent.num_Points == 1)
-						substrate.sigma.value = min->text().toDouble()*coeff;
-					else
-						substrate.sigma.independent.min = min->text().toDouble()*coeff;
-					substrate.sigma.independent.max = max->text().toDouble()*coeff;
-
-					if(substrate.sigma.independent.num_Points == 1)
-						item->setText(name + " [" + QString::number(substrate.sigma.value/coeff,thumbnail_double_format,thumbnail_sigma_precision) + " " + units + end_Bracket);
-					else
-						item->setText(name + " [" + QString::number(substrate.sigma.independent.num_Points) + " values: " +
-									  QString::number(substrate.sigma.independent.min/coeff,thumbnail_double_format,thumbnail_sigma_precision) + " - " +
-									  QString::number(substrate.sigma.independent.max/coeff,thumbnail_double_format,thumbnail_sigma_precision) + " " + units + end_Bracket);
-				}
-			}
-			if(num_Points->text().toInt()>1)
-			{
-				step_Edit->setText(QString::number((substrate.sigma.independent.max-substrate.sigma.independent.min)/(substrate.sigma.independent.num_Points-1)/coeff,line_edit_double_format,line_edit_sigma_precision));
-				step_Edit->textEdited(step_Edit->text());
-			}
-			show_Hide_Elements(substrate.sigma.independent.num_Points, show);
-		}
-		// substrate interlayer composition (if enabled and >=2 elements)
-		if(whats_This_List[wtl_index] == whats_This_Interlayer_Composition)
-		{
-			int index = QString(whats_This_List.last()).toInt();
-			name = substrate.material + " (substrate) " + "Interlayer Composition, " + transition_Layer_Functions[index];
-			group_Box->setTitle(name);
-			units = "";
-			units_Label->setText(units);
-			step_Units_Label->setText(units);
-
-			// show data
-			if(show)
-			{
-				num_Points->setText(QString::number(substrate.interlayer_Composition[index].interlayer.independent.num_Points));
-				if(substrate.interlayer_Composition[index].interlayer.independent.num_Points == 1)
-					min->setText(	QString::number(substrate.interlayer_Composition[index].interlayer.value,line_edit_double_format,line_edit_interlayer_precision));
-				else
-					min->setText(	QString::number(substrate.interlayer_Composition[index].interlayer.independent.min,line_edit_double_format,line_edit_interlayer_precision));
-				max->setText(		QString::number(substrate.interlayer_Composition[index].interlayer.independent.max,line_edit_double_format,line_edit_interlayer_precision));
-			} else
-			// refresh data
-			{
-				if(num_Points->text().toInt()<1)
-				{
-					num_Points->setText(QString::number(substrate.interlayer_Composition[index].interlayer.independent.num_Points));
-					num_Points->textEdited(num_Points->text());
-				} else
-				{
-					substrate.interlayer_Composition[index].interlayer.independent.num_Points = num_Points->text().toInt();
-					if(substrate.interlayer_Composition[index].interlayer.independent.num_Points == 1)
-						substrate.interlayer_Composition[index].interlayer.value = min->text().toDouble();
-					else
-						substrate.interlayer_Composition[index].interlayer.independent.min = min->text().toDouble();
-					substrate.interlayer_Composition[index].interlayer.independent.max = max->text().toDouble();
-
-					if(substrate.interlayer_Composition[index].interlayer.independent.num_Points == 1)
-						item->setText(name + " [" + QString::number(substrate.interlayer_Composition[index].interlayer.value,thumbnail_double_format,thumbnail_interlayer_precision) + end_Bracket);
-					else
-						item->setText(name + " [" + QString::number(substrate.interlayer_Composition[index].interlayer.independent.num_Points) + " values: " +
-									  QString::number(substrate.interlayer_Composition[index].interlayer.independent.min,thumbnail_double_format,thumbnail_interlayer_precision) + " - " +
-									  QString::number(substrate.interlayer_Composition[index].interlayer.independent.max,thumbnail_double_format,thumbnail_interlayer_precision) + end_Bracket);
-				}
-			}
-			if(num_Points->text().toInt()>1)
-			{
-				step_Edit->setText(QString::number((substrate.interlayer_Composition[index].interlayer.independent.max-substrate.interlayer_Composition[index].interlayer.independent.min)/(substrate.interlayer_Composition[index].interlayer.independent.num_Points-1),line_edit_double_format,line_edit_interlayer_precision));
-				step_Edit->textEdited(step_Edit->text());
-			}
-			show_Hide_Elements(substrate.interlayer_Composition[index].interlayer.independent.num_Points, show);
-		}
-
-		var.setValue(substrate);
-		structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+		param_Pointer = &struct_Data.absorption;
+		line_edit_precision = line_edit_absorption_precision;
+		thumbnail_precision = thumbnail_absorption_precision;
+		units = " " + opt_const_units;
 	}
-	// if measurement
-	if(whats_This_List_Type[0] == whats_This_Measurement)
+	if(indicator.parameter_Whats_This == whats_This_Composition)
 	{
-		Measurement measurement = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Measurement>();
+		param_Pointer = &struct_Data.composition[indicator.index].composition;
+		line_edit_precision = line_edit_composition_precision;
+		thumbnail_precision = thumbnail_composition_precision;
+		units = "";
+	}
+	/// thickness parameters
+	if(indicator.parameter_Whats_This == whats_This_Thickness)
+	{
+		param_Pointer = &struct_Data.thickness;
+		line_edit_precision = line_edit_thickness_precision;
+		thumbnail_precision = thumbnail_thickness_precision;
+		units = " " + length_units;
+		coeff = length_Coefficients_Map.value(length_units);
+	}
+	if(indicator.parameter_Whats_This == whats_This_Thickness_Drift_Line_Value)
+	{
+		param_Pointer = &struct_Data.thickness_Drift.drift_Line_Value;
+		line_edit_precision = line_edit_drift_precision;
+		thumbnail_precision = thumbnail_drift_precision;
+		units = " " + length_units;
+	}
+	if(indicator.parameter_Whats_This == whats_This_Thickness_Drift_Rand_Rms)
+	{
+		param_Pointer = &struct_Data.thickness_Drift.drift_Rand_Rms;
+		line_edit_precision = line_edit_drift_precision;
+		thumbnail_precision = thumbnail_drift_precision;
+		units = " " + length_units;
+	}
+	if(indicator.parameter_Whats_This == whats_This_Thickness_Drift_Sine_Amplitude)
+	{
+		param_Pointer = &struct_Data.thickness_Drift.drift_Sine_Amplitude;
+		line_edit_precision = line_edit_drift_precision;
+		thumbnail_precision = thumbnail_drift_precision;
+		units = " " + length_units;
+	}
+	if(indicator.parameter_Whats_This == whats_This_Thickness_Drift_Sine_Frequency)
+	{
+		param_Pointer = &struct_Data.thickness_Drift.drift_Sine_Frequency;
+		line_edit_precision = line_edit_drift_precision;
+		thumbnail_precision = thumbnail_drift_precision;
+		units = " " + length_units;
+	}
+	if(indicator.parameter_Whats_This == whats_This_Thickness_Drift_Sine_Phase)
+	{
+		param_Pointer = &struct_Data.thickness_Drift.drift_Sine_Phase;
+		line_edit_precision = line_edit_drift_precision;
+		thumbnail_precision = thumbnail_drift_precision;
+		units = " " + length_units;
+	}
+	/// interface parameters
+	if(indicator.parameter_Whats_This == whats_This_Sigma)
+	{
+		param_Pointer = &struct_Data.sigma;
+		line_edit_precision = line_edit_sigma_precision;
+		thumbnail_precision = thumbnail_sigma_precision;
+		units = " " + length_units;
+		coeff = length_Coefficients_Map.value(length_units);
+	}
+	if(indicator.parameter_Whats_This == whats_This_Interlayer_Composition)
+	{
+		param_Pointer = &struct_Data.interlayer_Composition[indicator.index].interlayer;
+		line_edit_precision = line_edit_interlayer_precision;
+		thumbnail_precision = thumbnail_interlayer_precision;
+		units = "";
+	}
+	if(indicator.parameter_Whats_This == whats_This_Interlayer_My_Sigma)
+	{
+		param_Pointer = &struct_Data.interlayer_Composition[indicator.index].my_Sigma;
+		line_edit_precision = line_edit_sigma_precision;
+		thumbnail_precision = thumbnail_sigma_precision;
+		units = " " + length_units;
+		coeff = length_Coefficients_Map.value(length_units);
+	}
+	if(indicator.parameter_Whats_This == whats_This_Sigma_Drift_Line_Value)
+	{
+		param_Pointer = &struct_Data.sigma_Drift.drift_Line_Value;
+		line_edit_precision = line_edit_drift_precision;
+		thumbnail_precision = thumbnail_drift_precision;
+		units = "";
+	}
+	if(indicator.parameter_Whats_This == whats_This_Sigma_Drift_Rand_Rms)
+	{
+		param_Pointer = &struct_Data.sigma_Drift.drift_Rand_Rms;
+		line_edit_precision = line_edit_drift_precision;
+		thumbnail_precision = thumbnail_drift_precision;
+		units = "";
+	}
+	if(indicator.parameter_Whats_This == whats_This_Sigma_Drift_Sine_Amplitude)
+	{
+		param_Pointer = &struct_Data.sigma_Drift.drift_Sine_Amplitude;
+		line_edit_precision = line_edit_drift_precision;
+		thumbnail_precision = thumbnail_drift_precision;
+		units = "";
+	}
+	if(indicator.parameter_Whats_This == whats_This_Sigma_Drift_Sine_Frequency)
+	{
+		param_Pointer = &struct_Data.sigma_Drift.drift_Sine_Frequency;
+		line_edit_precision = line_edit_drift_precision;
+		thumbnail_precision = thumbnail_drift_precision;
+		units = "";
+	}
+	if(indicator.parameter_Whats_This == whats_This_Sigma_Drift_Sine_Phase)
+	{
+		param_Pointer = &struct_Data.sigma_Drift.drift_Sine_Phase;
+		line_edit_precision = line_edit_drift_precision;
+		thumbnail_precision = thumbnail_drift_precision;
+		units = "";
+	}
+	/// stack parameters (without num_Repetitions)
+	if(indicator.parameter_Whats_This == whats_This_Num_Repetitions)
+	{
+		param_Pointer = NULL;
+	}
+	if(indicator.parameter_Whats_This == whats_This_Period)
+	{
+		param_Pointer = &struct_Data.period;
+		line_edit_precision = line_edit_period_precision;
+		thumbnail_precision = thumbnail_period_precision;
+		units = " " + length_units;
+		coeff = length_Coefficients_Map.value(length_units);
+	}
+	if(indicator.parameter_Whats_This == whats_This_Gamma)
+	{
+		param_Pointer = &struct_Data.gamma;
+		line_edit_precision = line_edit_gamma_precision;
+		thumbnail_precision = thumbnail_gamma_precision;
+		units = "";
+	}
+	/// measurement parameters
+	if(indicator.parameter_Whats_This == whats_This_Angle)
+	{
+		param_Pointer = &struct_Data.probe_Angle;
+		line_edit_precision = line_edit_angle_precision;
+		thumbnail_precision = thumbnail_angle_precision;
+		units = angle_units;
+		coeff = angle_Coefficients_Map.value(angle_units);
+	}
+	if(indicator.parameter_Whats_This == whats_This_Wavelength)
+	{
+		param_Pointer = NULL;
+	}
 
-		// if angle
-		if(angle_Done)
-		if(whats_This_List[wtl_index] == whats_This_Angle)
+	if(param_Pointer)
+	{
+		Parameter& parameter = (*param_Pointer);
+		name = Variable_Selection::variable_Name(struct_Data, indicator.parameter_Whats_This, indicator.index);
+		group_Box->setTitle(name);
+
+		units_Label->setText(units);
+		step_Units_Label->setText(units);
+
+		if(indicator.parameter_Whats_This == whats_This_Angle)
 		{
-			double coeff = angle_Coefficients_Map.value(angle_units);
-
-			name = measurement.angle_Type + " angle, " + Theta_Sym;
-			group_Box->setTitle(name);
-			units = angle_units;
-			units_Label->setText(units);
-			step_Units_Label->setText(units);
 			angle_Units_Label->setText(units);
-			// show data
-			if(show)
-			{
-				num_Points->setText(QString::number(measurement.probe_Angle.independent.num_Points));
-				if(measurement.probe_Angle.independent.num_Points == 1)
-					min->setText(	QString::number(measurement.probe_Angle.value/coeff,line_edit_double_format,line_edit_angle_precision));
-				else
-					min->setText(	QString::number(measurement.probe_Angle.independent.min/coeff,line_edit_double_format,line_edit_angle_precision));
-				max->setText(		QString::number(measurement.probe_Angle.independent.max/coeff,line_edit_double_format,line_edit_angle_precision));
-
-//				if(measurement.probe_Angle.independent.num_Points >= MIN_ANGULAR_RESOLUTION_POINTS)
-					angular_Resolution_Edit->setText(QString::number(measurement.angular_Resolution.value/coeff,line_edit_double_format,line_edit_angle_precision));
-			} else
-			// refresh data
-			{
-				if(num_Points->text().toInt()<1)
-				{
-					num_Points->setText(QString::number(measurement.probe_Angle.independent.num_Points));
-					num_Points->textEdited(num_Points->text());
-				} else
-				if(min->text().toDouble()*coeff>90.+3*pow(10.,-line_edit_angle_precision+1))
-				{
-					if(measurement.probe_Angle.independent.num_Points == 1)
-						min->setText(QString::number(measurement.probe_Angle.value/coeff,line_edit_double_format,line_edit_angle_precision));
-					else
-						min->setText(QString::number(measurement.probe_Angle.independent.min/coeff,line_edit_double_format,line_edit_angle_precision));
-					min->textEdited(min->text());
-				} else
-				if(max->text().toDouble()*coeff>90.+3*pow(10.,-line_edit_angle_precision+1))
-				{
-					max->setText(QString::number(measurement.probe_Angle.independent.max/coeff,line_edit_double_format,line_edit_angle_precision));
-					max->textEdited(max->text());
-				} else
-				{
-					measurement.probe_Angle.independent.num_Points = num_Points->text().toInt();
-					if(measurement.probe_Angle.independent.num_Points == 1)
-						measurement.probe_Angle.value = min->text().toDouble()*coeff;
-					else
-						measurement.probe_Angle.independent.min = min->text().toDouble()*coeff;
-					measurement.probe_Angle.independent.max = max->text().toDouble()*coeff;
-
-					if(measurement.probe_Angle.independent.num_Points == 1)
-						item->setText(name + " [" + QString::number(measurement.probe_Angle.value/coeff,thumbnail_double_format,thumbnail_angle_precision) + units + end_Bracket);
-					else
-						item->setText(name + " [" + QString::number(measurement.probe_Angle.independent.num_Points) + " values: " +
-									  QString::number(measurement.probe_Angle.independent.min/coeff,thumbnail_double_format,thumbnail_angle_precision) + " - " +
-									  QString::number(measurement.probe_Angle.independent.max/coeff,thumbnail_double_format,thumbnail_angle_precision)  + units + end_Bracket);
-
-					if(measurement.probe_Angle.independent.num_Points >= MIN_ANGULAR_RESOLUTION_POINTS)
-						measurement.angular_Resolution.value = angular_Resolution_Edit->text().toDouble()*coeff;
-					// TODO decide reset to default or not
-	//				else
-	//					measurement.angular_Resolution.value = default_angular_resolution*coeff;
-				}
-			}
-			if(num_Points->text().toInt()>1)
-			{
-				step_Edit->setText(QString::number((measurement.probe_Angle.independent.max-measurement.probe_Angle.independent.min)/(measurement.probe_Angle.independent.num_Points-1)/coeff,line_edit_double_format,line_edit_angle_precision));
-				step_Edit->textEdited(step_Edit->text());
-			}
-			show_Hide_Elements(measurement.probe_Angle.independent.num_Points, show);
-			show_Hide_Angular_Elements(measurement.probe_Angle.independent.num_Points, show);
-
-			var.setValue(measurement);
-			structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
 		}
 
-		// if wavelength
-		if(wavelength_Done)
-		if(whats_This_List[wtl_index] == whats_This_Wavelength)
+		// show data
+		if(show)
 		{
-			double coeff = wavelength_Coefficients_Map.value(wavelength_units);
+			num_Points->setText(QString::number(parameter.independent.num_Points));
+			val_Edit->setText(	QString::number(parameter.value/coeff,			line_edit_double_format,line_edit_precision));
+			min_Edit->setText(	QString::number(parameter.independent.min/coeff,line_edit_double_format,line_edit_precision));
+			max_Edit->setText(	QString::number(parameter.independent.max/coeff,line_edit_double_format,line_edit_precision));
 
-			name = Global_Variables::wavelength_Energy_Name(wavelength_units);
-			group_Box->setTitle(name);
-			units = wavelength_units;
-			units_Label->setText(units);
-			step_Units_Label->setText(units);
-			wavelength_Units_Label->setText(units);
-			spectral_Resolution_Label->setText("Spectral Resolution, " + Delta_Big_Sym + name[name.size()-1]);
+			resize_Line_Edit(num_Points->text(),num_Points);
+			resize_Line_Edit(val_Edit->text(),val_Edit);
+			resize_Line_Edit(min_Edit->text(),min_Edit);
+			resize_Line_Edit(max_Edit->text(),max_Edit);
 
-			// show data
-			if(show)
+			if(indicator.parameter_Whats_This == whats_This_Angle)
 			{
-				num_Points->setText(QString::number(measurement.wavelength.independent.num_Points));
-				if(measurement.wavelength.independent.num_Points == 1)
-					min->setText(	QString::number(Global_Variables::wavelength_Energy(wavelength_units,measurement.wavelength.value)/coeff,line_edit_double_format,line_edit_wavelength_precision));
-				else
-					min->setText(	QString::number(Global_Variables::wavelength_Energy(wavelength_units,measurement.wavelength.independent.min)/coeff,line_edit_double_format,line_edit_wavelength_precision));
-				max->setText(		QString::number(Global_Variables::wavelength_Energy(wavelength_units,measurement.wavelength.independent.max)/coeff,line_edit_double_format,line_edit_wavelength_precision));
+				angular_Resolution_Edit->setText(QString::number(struct_Data.angular_Resolution.value/coeff,line_edit_double_format,line_edit_angle_precision));
+				resize_Line_Edit(angular_Resolution_Edit->text(),angular_Resolution_Edit);
+			}
 
-				polarization_Edit->setText(QString::number(measurement.polarization.value/coeff,line_edit_double_format,line_edit_wavelength_precision));
-				polarization_Edit->textEdited(polarization_Edit->text());
-				analyzer_Edit->setText(QString::number(measurement.polarization_Sensitivity.value/coeff,line_edit_double_format,line_edit_wavelength_precision));
-				analyzer_Edit->textEdited(analyzer_Edit->text());
-
-//				if(measurement.wavelength.independent.num_Points >= MIN_SPECTRAL_RESOLUTION_POINTS)
-					spectral_Resolution_Edit->setText(QString::number(measurement.spectral_Resolution.value/coeff,line_edit_double_format,line_edit_wavelength_precision));
-			} else
-			// refresh data
+		} else
+		// refresh data
+		{
+			if(num_Points->text().toInt()<1)
 			{
-				if(num_Points->text().toInt()<1)
+				num_Points->setText(QString::number(parameter.independent.num_Points));
+				resize_Line_Edit(num_Points->text(),num_Points);
+			}
+			// special cases
+			if(indicator.parameter_Whats_This == whats_This_Gamma)
+			{
+				if(val_Edit->text().toDouble()>1)
 				{
-					num_Points->setText(QString::number(measurement.wavelength.independent.num_Points));
-					num_Points->textEdited(num_Points->text());
+					val_Edit->setText(QString::number(parameter.value,line_edit_double_format,line_edit_gamma_precision));
+					resize_Line_Edit(val_Edit->text(),val_Edit);
 				}
-				// don't uncomment
-	/*			else
-				if(min->text().toDouble()==0)
+				if(min_Edit->text().toDouble()>1)
 				{
-					if(measurement.wavelength.independent.num_Points == 1)
-						min->setText(QString::number(Global_Variables::wavelength_Energy(wavelength_units,measurement.wavelength.value)/coeff,line_edit_double_format,line_edit_wavelength_precision));
-					else
-						min->setText(QString::number(Global_Variables::wavelength_Energy(wavelength_units,measurement.wavelength.independent.min)/coeff,line_edit_double_format,line_edit_wavelength_precision));
-					min->textEdited(min->text());
-				} else
-				if(max->text().toDouble()==0)
+					min_Edit->setText(QString::number(parameter.independent.min,line_edit_double_format,line_edit_gamma_precision));
+					resize_Line_Edit(min_Edit->text(),min_Edit);
+				}
+				if(max_Edit->text().toDouble()>1)
 				{
-					max->setText(QString::number(Global_Variables::wavelength_Energy(wavelength_units,measurement.wavelength.independent.max)/coeff,line_edit_double_format,line_edit_wavelength_precision));
-					max->textEdited(max->text());
-				} else*/
-				if(polarization_Edit->text().toDouble()>1)
-				{
-					polarization_Edit->setText(QString::number(measurement.polarization.value,line_edit_double_format,line_edit_wavelength_precision));
-					polarization_Edit->textEdited(polarization_Edit->text());
-				} else
-				if(polarization_Edit->text().toDouble()<-1)
-				{
-					polarization_Edit->setText(QString::number(measurement.polarization.value,line_edit_double_format,line_edit_wavelength_precision));
-					polarization_Edit->textEdited(polarization_Edit->text());
-				} else
-				{
-					measurement.wavelength.independent.num_Points = num_Points->text().toInt();
-					if(measurement.wavelength.independent.num_Points == 1)
-						measurement.wavelength.value = Global_Variables::wavelength_Energy(wavelength_units,min->text().toDouble()*coeff);
-					else
-						measurement.wavelength.independent.min = Global_Variables::wavelength_Energy(wavelength_units,min->text().toDouble()*coeff);
-					measurement.wavelength.independent.max = Global_Variables::wavelength_Energy(wavelength_units,max->text().toDouble()*coeff);
-
-					measurement.polarization.value = polarization_Edit->text().toDouble();
-					measurement.polarization_Sensitivity.value = analyzer_Edit->text().toDouble();
-
-					if(measurement.wavelength.independent.num_Points == 1)
-						item->setText(name + " [" + QString::number(Global_Variables::wavelength_Energy(wavelength_units,measurement.wavelength.value)/coeff,thumbnail_double_format,thumbnail_wavelength_precision) + " " + units + end_Bracket);
-					else
-						item->setText(name + " [" + QString::number(measurement.wavelength.independent.num_Points) + " values: " +
-									  QString::number(Global_Variables::wavelength_Energy(wavelength_units,measurement.wavelength.independent.min)/coeff,thumbnail_double_format,thumbnail_wavelength_precision) + " - " +
-									  QString::number(Global_Variables::wavelength_Energy(wavelength_units,measurement.wavelength.independent.max)/coeff,thumbnail_double_format,thumbnail_wavelength_precision)  + " " + units + end_Bracket);
-
-					if(measurement.wavelength.independent.num_Points >= MIN_SPECTRAL_RESOLUTION_POINTS)
-						measurement.spectral_Resolution.value = spectral_Resolution_Edit->text().toDouble()*coeff;
-					// TODO decide reset to default or not
-	//				else
-	//					measurement.spectral_Resolution.value = default_spectral_resolution*coeff;
+					max_Edit->setText(QString::number(parameter.independent.max,line_edit_double_format,line_edit_gamma_precision));
+					resize_Line_Edit(max_Edit->text(),max_Edit);
 				}
 			}
-			if(num_Points->text().toInt()>1)
+			if(indicator.parameter_Whats_This == whats_This_Angle)
 			{
-				step_Edit->setText(QString::number((Global_Variables::wavelength_Energy(wavelength_units,measurement.wavelength.independent.max)-Global_Variables::wavelength_Energy(wavelength_units,measurement.wavelength.independent.min))/(measurement.wavelength.independent.num_Points-1)/coeff,line_edit_double_format,line_edit_wavelength_precision));
-				step_Edit->textEdited(step_Edit->text());
-			}
-			show_Hide_Elements(measurement.wavelength.independent.num_Points, show);
-			show_Hide_Spectral_Elements(measurement.wavelength.independent.num_Points, show);
+				if(val_Edit->text().toDouble()*coeff>90.+3*pow(10.,-line_edit_angle_precision+1))
+				{
+					val_Edit->setText(QString::number(parameter.value/coeff,line_edit_double_format,line_edit_angle_precision));
+					resize_Line_Edit(val_Edit->text(),val_Edit);
+				}
+				if(min_Edit->text().toDouble()*coeff>90.+3*pow(10.,-line_edit_angle_precision+1))
+				{
+					min_Edit->setText(QString::number(parameter.independent.min/coeff,line_edit_double_format,line_edit_angle_precision));
+					resize_Line_Edit(min_Edit->text(),min_Edit);
+				}
+				if(max_Edit->text().toDouble()*coeff>90.+3*pow(10.,-line_edit_angle_precision+1))
+				{
+					max_Edit->setText(QString::number(parameter.independent.max/coeff,line_edit_double_format,line_edit_angle_precision));
+					resize_Line_Edit(max_Edit->text(),max_Edit);
+				}
 
-			var.setValue(measurement);
-			structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+				if(parameter.independent.num_Points >= MIN_ANGULAR_RESOLUTION_POINTS)
+					struct_Data.angular_Resolution.value = angular_Resolution_Edit->text().toDouble()*coeff;
+			}
+
+			parameter.independent.num_Points = num_Points->text().toInt();
+			parameter.value			  = val_Edit->text().toDouble()*coeff;
+			parameter.independent.min = min_Edit->text().toDouble()*coeff;
+			parameter.independent.max = max_Edit->text().toDouble()*coeff;
+
+			QVariant var; var.setValue(struct_Data);
+			structure_Item->setData(DEFAULT_COLUMN,Qt::UserRole,var);
 		}
+		if(parameter.independent.num_Points == 1)
+			list_Item->setText(name + " [" +QString::number(parameter.value/coeff,thumbnail_double_format,thumbnail_precision) + units + end_Bracket_Text);
+		else
+			list_Item->setText(name + " [" +QString::number(parameter.independent.num_Points) + " values: " +
+											QString::number(parameter.independent.min/coeff,thumbnail_double_format,thumbnail_precision) + " - " +
+											QString::number(parameter.independent.max/coeff,thumbnail_double_format,thumbnail_precision) + units + end_Bracket_Text);
+		if(parameter.independent.num_Points>1)
+		{
+			step_Edit->setText(QString::number((parameter.independent.max-parameter.independent.min)/(parameter.independent.num_Points-1)/coeff,line_edit_double_format,line_edit_precision));
+			resize_Line_Edit(step_Edit->text(),step_Edit);
+		}
+		show_Hide_Elements();
+		if(indicator.parameter_Whats_This == whats_This_Angle)	show_Hide_Angular_Elements();
+	}
+
+	// special cases
+	if(indicator.parameter_Whats_This == whats_This_Num_Repetitions)
+	{
+		name = Variable_Selection::variable_Name(struct_Data, indicator.parameter_Whats_This, indicator.index);
+		group_Box->setTitle(name);
+
+		units_Label->setText(units);
+		step_Units_Label->setText(units);
+
+		val_Edit->setValidator(new QIntValidator(0, MAX_INTEGER, this));
+		min_Edit->setValidator(new QIntValidator(0, MAX_INTEGER, this));
+		max_Edit->setValidator(new QIntValidator(1, MAX_INTEGER, this));
+
+		// show data
+		if(show)
+		{
+			num_Points->setText(QString::number(struct_Data.num_Repetition.num_Steps));
+			val_Edit->setText(	QString::number(struct_Data.num_Repetition.value));
+			min_Edit->setText(	QString::number(struct_Data.num_Repetition.start));
+			max_Edit->setText(	QString::number(struct_Data.num_Repetition.step));
+
+			resize_Line_Edit(num_Points->text(),num_Points);
+			resize_Line_Edit(val_Edit->text(),val_Edit);
+			resize_Line_Edit(min_Edit->text(),min_Edit);
+			resize_Line_Edit(max_Edit->text(),max_Edit);
+		} else
+		// refresh data
+		{
+			if(num_Points->text().toInt()<1)
+			{
+				num_Points->setText(QString::number(struct_Data.num_Repetition.num_Steps));
+				resize_Line_Edit(num_Points->text(),num_Points);
+			}
+			if(max_Edit->text().toInt()<1)
+			{
+				max_Edit->setText(QString::number(struct_Data.num_Repetition.step));
+				resize_Line_Edit(max_Edit->text(),max_Edit);
+			}
+
+			struct_Data.num_Repetition.num_Steps = num_Points->text().toInt();
+			struct_Data.num_Repetition.value	 =   val_Edit->text().toInt();
+			struct_Data.num_Repetition.start	 =   min_Edit->text().toInt();
+			struct_Data.num_Repetition.step		 =   max_Edit->text().toInt();
+
+			QVariant var; var.setValue(struct_Data);
+			structure_Item->setData(DEFAULT_COLUMN,Qt::UserRole,var);
+		}
+		if(struct_Data.num_Repetition.num_Steps == 1)
+			list_Item->setText(name + " [" +QString::number(struct_Data.num_Repetition.value) + end_Bracket_Text);
+		else
+			list_Item->setText(name + " [" +QString::number(struct_Data.num_Repetition.num_Steps) + " values: " +
+											QString::number(struct_Data.num_Repetition.start) + " - " +
+											QString::number(struct_Data.num_Repetition.start + struct_Data.num_Repetition.step*struct_Data.num_Repetition.num_Steps) + end_Bracket_Text);
+		if(struct_Data.num_Repetition.num_Steps > 1)
+		{
+			from_Label->setText("values; start:");
+			to_Label->setText(" step size:");
+		}
+		step_Edit->hide();
+		step_Label->hide();
+		step_Edit->hide();
+		units_Label->hide();
+		active_Check_Box->hide();
+		show_Hide_Elements();
+	}
+	if(indicator.parameter_Whats_This == whats_This_Wavelength)
+	{
+		units = " " + wavelength_units;
+		coeff = wavelength_Coefficients_Map.value(wavelength_units);
+
+		name = Variable_Selection::variable_Name(struct_Data, indicator.parameter_Whats_This, indicator.index);
+		group_Box->setTitle(name);
+
+		units_Label->setText(units);
+		step_Units_Label->setText(units);
+		spectral_Resolution_Label->setText("Spectral Resolution, " + Delta_Big_Sym + name[name.size()-1]);
+
+		// show data
+		if(show)
+		{
+			num_Points->setText(QString::number(struct_Data.wavelength.independent.num_Points));
+			val_Edit->setText(	QString::number(Global_Variables::wavelength_Energy(wavelength_units,struct_Data.wavelength.value)/coeff,line_edit_double_format,line_edit_wavelength_precision));
+			min_Edit->setText(	QString::number(Global_Variables::wavelength_Energy(wavelength_units,struct_Data.wavelength.independent.min)/coeff,line_edit_double_format,line_edit_wavelength_precision));
+			max_Edit->setText(	QString::number(Global_Variables::wavelength_Energy(wavelength_units,struct_Data.wavelength.independent.max)/coeff,line_edit_double_format,line_edit_wavelength_precision));
+
+			resize_Line_Edit(num_Points->text(),num_Points);
+			resize_Line_Edit(val_Edit->text(),val_Edit);
+			resize_Line_Edit(min_Edit->text(),min_Edit);
+			resize_Line_Edit(max_Edit->text(),max_Edit);
+
+
+			spectral_Resolution_Edit->setText(QString::number(struct_Data.spectral_Resolution.value,line_edit_double_format,line_edit_wavelength_precision));
+			polarization_Edit->setText(QString::number(struct_Data.polarization.value/coeff,line_edit_double_format,line_edit_wavelength_precision));
+			analyzer_Edit->setText(QString::number(struct_Data.polarization_Sensitivity.value/coeff,line_edit_double_format,line_edit_wavelength_precision));
+
+			resize_Line_Edit(spectral_Resolution_Edit->text(),spectral_Resolution_Edit);
+			resize_Line_Edit(polarization_Edit->text(),polarization_Edit);
+			resize_Line_Edit(analyzer_Edit->text(),analyzer_Edit);
+
+		} else
+		// refresh data
+		{
+			if(num_Points->text().toInt()<1)
+			{
+				num_Points->setText(QString::number(struct_Data.wavelength.independent.num_Points));
+				resize_Line_Edit(num_Points->text(),num_Points);
+			}
+			// no check for zero wavelength
+			if(polarization_Edit->text().toDouble()>1 || polarization_Edit->text().toDouble()<-1)
+			{
+				polarization_Edit->setText(QString::number(struct_Data.polarization.value,line_edit_double_format,line_edit_wavelength_precision));
+				resize_Line_Edit(polarization_Edit->text(),polarization_Edit);
+			}
+
+			struct_Data.wavelength.independent.num_Points = num_Points->text().toInt();
+			struct_Data.wavelength.value		   = Global_Variables::wavelength_Energy(wavelength_units,val_Edit->text().toDouble()*coeff);
+			struct_Data.wavelength.independent.min = Global_Variables::wavelength_Energy(wavelength_units,min_Edit->text().toDouble()*coeff);
+			struct_Data.wavelength.independent.max = Global_Variables::wavelength_Energy(wavelength_units,max_Edit->text().toDouble()*coeff);
+
+			struct_Data.polarization.value = polarization_Edit->text().toDouble();
+			struct_Data.polarization_Sensitivity.value = analyzer_Edit->text().toDouble();
+
+			if(struct_Data.wavelength.independent.num_Points >= MIN_SPECTRAL_RESOLUTION_POINTS)
+				struct_Data.spectral_Resolution.value = spectral_Resolution_Edit->text().toDouble();
+
+			QVariant var; var.setValue(struct_Data);
+			structure_Item->setData(DEFAULT_COLUMN,Qt::UserRole,var);
+		}
+		if(struct_Data.wavelength.independent.num_Points == 1)
+			list_Item->setText(name + " [" +QString::number(Global_Variables::wavelength_Energy(wavelength_units,struct_Data.wavelength.value)/coeff,thumbnail_double_format,thumbnail_wavelength_precision) + units + end_Bracket_Text);
+		else
+			list_Item->setText(name + " [" +QString::number(struct_Data.wavelength.independent.num_Points) + " values: " +
+											QString::number(Global_Variables::wavelength_Energy(wavelength_units,struct_Data.wavelength.independent.min)/coeff,thumbnail_double_format,thumbnail_wavelength_precision) + " - " +
+											QString::number(Global_Variables::wavelength_Energy(wavelength_units,struct_Data.wavelength.independent.max)/coeff/coeff,thumbnail_double_format,thumbnail_wavelength_precision) + units + end_Bracket_Text);
+
+		if(struct_Data.wavelength.independent.num_Points>1)
+		{
+			step_Edit->setText(QString::number((Global_Variables::wavelength_Energy(wavelength_units,struct_Data.wavelength.independent.max)-
+												Global_Variables::wavelength_Energy(wavelength_units,struct_Data.wavelength.independent.min))/
+											   (struct_Data.wavelength.independent.num_Points-1)/coeff,line_edit_double_format,line_edit_wavelength_precision));
+			resize_Line_Edit(step_Edit->text(),step_Edit);
+		}
+		show_Hide_Elements();
+		show_Hide_Spectral_Elements();
 	}
 
 	show_Active_Check_Box();
 }
 
-void Independent_Variables_Editor::activate_Variable(bool)
+void Independent_Variables_Editor::activate_Variable()
 {
+	QVariant var;
+
 	// all to passive
 	for(int i = 0; i < variables_List->count(); ++i)
 	{
-		variables_List->item(i)->setData(Qt::UserRole, false);
+		// set inactive
+		Independent_Indicator temp_Ind = variables_List->item(i)->data(Qt::UserRole).value<Independent_Indicator>();
+		temp_Ind.is_Active = false;
+		var.setValue(temp_Ind);
+		variables_List->item(i)->setData(Qt::UserRole, var);
+
+		// change text
 		QString current_Item_Text = variables_List->item(i)->text();
 		QStringList item_Text_List = current_Item_Text.split(active, QString::SkipEmptyParts);
 		variables_List->item(i)->setText(item_Text_List[0]);
 	}
 	// this to active
-	item->setData(Qt::UserRole, true);
-	item->setText(item->text() + active);
+	indicator.is_Active = true;
+	var.setValue(indicator);
+	list_Item->setData(Qt::UserRole, var);
+	list_Item->setText(list_Item->text() + active);
 	active_Check_Box->setDisabled(active_Check_Box->isChecked());
 }
 
 void Independent_Variables_Editor::show_Active_Check_Box()
 {
-	active_Check_Box->setChecked(item->data(Qt::UserRole).toBool());
-	if(item->data(Qt::UserRole).toBool()) activate_Variable(true);
+	active_Check_Box->setChecked(indicator.is_Active);
+	if(indicator.is_Active) activate_Variable();
 }
 
-void Independent_Variables_Editor::show_Hide_Angular_Elements(int points, bool show)
+void Independent_Variables_Editor::show_Hide_Angular_Elements()
 {
-	if(show)
-	{
-		angular_Resolution_Edit->textEdited(angular_Resolution_Edit->text());
-	}
+	int points = num_Points->text().toInt();
 
 	if(points < MIN_ANGULAR_RESOLUTION_POINTS)
 	{
@@ -1798,24 +803,19 @@ void Independent_Variables_Editor::show_Hide_Angular_Elements(int points, bool s
 	QMetaObject::invokeMethod(this, "adjustSize", Qt::QueuedConnection);
 }
 
-void Independent_Variables_Editor::show_Hide_Spectral_Elements(int points, bool show)
+void Independent_Variables_Editor::show_Hide_Spectral_Elements()
 {
-	if(show)
-	{
-		spectral_Resolution_Edit->textEdited(spectral_Resolution_Edit->text());
-	}
+	int points = num_Points->text().toInt();
 
 	if(points < MIN_ANGULAR_RESOLUTION_POINTS)
 	{
 		spectral_Resolution_Label->hide();
 		spectral_Resolution_Edit->hide();
-		wavelength_Units_Label->hide();
 	}
 	else
 	{
 		spectral_Resolution_Label->show();
 		spectral_Resolution_Edit->show();
-		wavelength_Units_Label->show();
 	}
 	QMetaObject::invokeMethod(this, "adjustSize", Qt::QueuedConnection);
 }

@@ -3,38 +3,18 @@
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
 #include "variable_selection.h"
+#include "independent_variables/independent_variables_editor.h"
 
-Variable_Selection::Variable_Selection(QTreeWidget* struct_Tree_Copy, QMap<QString, QListWidgetItem*>* variables_List_Map, QListWidget* variables_List, Variable_Type type, QWidget *parent) :
-	QDialog(parent),
+Variable_Selection::Variable_Selection(QTreeWidget* struct_Tree_Copy, QMap<int, QListWidgetItem*>* variables_List_Map, QListWidget* variables_List, QWidget *parent) :
 	struct_Tree_Copy(struct_Tree_Copy),
 	variables_List(variables_List),
 	variables_List_Map(variables_List_Map),
-	type(type)
+	QDialog(parent)
 {
 	create_Window();
-	if(type==Variable_Type::Independent)
-	{
-		setWindowTitle("Choose independent variable");
-		fill_Variables_List();
-	}
-	if(type==Variable_Type::Coupled)
-	{
-		setWindowTitle("Choose coupled parameter");
-		// TODO
-	}
-	if(type==Variable_Type::Fitted)
-	{
-		setWindowTitle("Choose fitting parameter");
-		// TODO
-	}
-	if(type==Variable_Type::Optimized)
-	{
-		setWindowTitle("Choose optimization parameter");
-		// TODO
-	}
-
-	adjustSize();
-//	setFixedSize(size());
+	setWindowTitle("Choose independent variable");
+	fill_Variables_List();
+	set_Geometry();
 	setAttribute(Qt::WA_DeleteOnClose);
 }
 
@@ -81,8 +61,15 @@ void Variable_Selection::create_Window()
 		ver_layout->addWidget(hor_Frame);
 		ver_layout->addWidget(but_Frame);
 
-	connect(cancel_Button, SIGNAL(clicked()), this, SLOT(close()));
-	connect(ok_Button    , SIGNAL(clicked()), this, SLOT(add_Variable()));
+	connect(cancel_Button, &QPushButton::clicked, this, &Variable_Selection::close);
+	connect(ok_Button    , &QPushButton::clicked, this, &Variable_Selection::add_Variable);
+}
+
+void Variable_Selection::set_Geometry()
+{
+//	adjustSize();
+	resize(nonfiltered_Parameters->sizeHintForColumn(0) + 40,400);
+//	setFixedSize(size());
 }
 
 void Variable_Selection::fill_Variables_List()
@@ -95,16 +82,41 @@ void Variable_Selection::fill_Variables_List()
 	QTreeWidgetItemIterator it(struct_Tree_Copy);
 	while (*it)
 	{
-		QTreeWidgetItem* item = *it;
-		QString whats_This = item->whatsThis(DEFAULT_COLUMN);
-		QStringList whats_This_List_Type = whats_This.split(item_Type_Delimiter,QString::SkipEmptyParts);
+		QTreeWidgetItem* struct_Item = *it;
 
-		refresh_Independent_State_Of_Struct_Tree_Copy_Item(item);
+		refresh_Independent_State_Of_Struct_Tree_Copy_Item(struct_Item);
 
-		if(whats_This_List_Type[0] == whats_This_Ambient)	 fill_Ambient_Variables(item);		else
-		if(whats_This_List_Type[0] == whats_This_Layer)		 fill_Layer_Variables(item);		else
-		if(whats_This_List_Type[0] == whats_This_Multilayer) fill_Multilayer_Variables(item);	else
-		if(whats_This_List_Type[0] == whats_This_Substrate)	 fill_Substrate_Variables(item);
+		Data struct_Data = struct_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+
+		// PARAMETER
+
+		/// optical constants
+		add_Parameter				(struct_Item, whats_This_Absolute_Density);
+		add_Parameter				(struct_Item, whats_This_Relative_Density);
+		add_Parameter				(struct_Item, whats_This_Permittivity);
+		add_Parameter				(struct_Item, whats_This_Absorption);
+		add_Composition				(struct_Item);
+		/// thickness parameters
+		add_Parameter				(struct_Item, whats_This_Thickness);
+		add_Parameter				(struct_Item, whats_This_Thickness_Drift_Line_Value);
+		add_Parameter				(struct_Item, whats_This_Thickness_Drift_Rand_Rms);
+		add_Parameter				(struct_Item, whats_This_Thickness_Drift_Sine_Amplitude);
+		add_Parameter				(struct_Item, whats_This_Thickness_Drift_Sine_Frequency);
+		add_Parameter				(struct_Item, whats_This_Thickness_Drift_Sine_Phase);
+		/// interface parameters
+		add_Parameter				(struct_Item, whats_This_Sigma);
+		add_Interlayer_Composition	(struct_Item);
+		add_Interlayer_My_Sigma		(struct_Item);
+		add_Parameter				(struct_Item, whats_This_Sigma_Drift_Line_Value);
+		add_Parameter				(struct_Item, whats_This_Sigma_Drift_Rand_Rms);
+		add_Parameter				(struct_Item, whats_This_Sigma_Drift_Sine_Amplitude);
+		add_Parameter				(struct_Item, whats_This_Sigma_Drift_Sine_Frequency);
+		add_Parameter				(struct_Item, whats_This_Sigma_Drift_Sine_Phase);
+		/// stack parameters
+		add_Num_repetitions			(struct_Item);
+		add_Parameter				(struct_Item, whats_This_Period);
+		add_Parameter				(struct_Item, whats_This_Gamma);
+
 		++it;
 	}
 
@@ -128,591 +140,414 @@ void Variable_Selection::fill_Variables_List()
 	filtered_Parameters_Pages->addWidget(thickness_Parameters);
 	map_Of_Parameters_Lists.insert(filters_Combo_Box->itemText(filters_Combo_Box->count()-1), thickness_Parameters);
 
-	connect(nonfiltered_Parameters, SIGNAL(itemDoubleClicked(QListWidgetItem*)), this, SLOT(add_Variable()));
-	connect(optical_Constants_List,	SIGNAL(itemDoubleClicked(QListWidgetItem*)), this, SLOT(add_Variable()));
-	connect(interface_Parameters,	SIGNAL(itemDoubleClicked(QListWidgetItem*)), this, SLOT(add_Variable()));
-	connect(thickness_Parameters,	SIGNAL(itemDoubleClicked(QListWidgetItem*)), this, SLOT(add_Variable()));
+	connect(nonfiltered_Parameters, &QListWidget::itemDoubleClicked, this, [=]{add_Variable();});
+	connect(optical_Constants_List,	&QListWidget::itemDoubleClicked, this, [=]{add_Variable();});
+	connect(interface_Parameters,	&QListWidget::itemDoubleClicked, this, [=]{add_Variable();});
+	connect(thickness_Parameters,	&QListWidget::itemDoubleClicked, this, [=]{add_Variable();});
 
-	connect(filters_Combo_Box, SIGNAL(currentIndexChanged(int)), this, SLOT(filter_Change(int)));
+	connect(filters_Combo_Box, SIGNAL(currentIndexChanged(int)), this, SLOT(filter_Change(int))); // don't change! it will be broken!
 }
 
-void Variable_Selection::fill_Ambient_Variables(QTreeWidgetItem* item)
+void Variable_Selection::add_Parameter(QTreeWidgetItem* struct_Item, QString whats_This)
 {
 	// PARAMETER
 
-	/// optical constants
-	add_Absolute_Density(item, whats_This_Ambient);
-	add_Relative_Density(item, whats_This_Ambient);
-	add_Permittivity	(item, whats_This_Ambient);
-	add_Absorption		(item, whats_This_Ambient);
-	add_Composition		(item, whats_This_Ambient);
-}
+	// no vectors here (interlayer composition, my_Sigma, composition etc) and no Num_Repetitons here
+	Data struct_Data = struct_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
 
-void Variable_Selection::fill_Layer_Variables(QTreeWidgetItem* item)
-{
-	// PARAMETER
+	QListWidget* filtered_Parameters = NULL;
+	Parameter parameter;
+	bool additional_Condition = false;
 
 	/// optical constants
-	add_Absolute_Density		(item, whats_This_Layer);
-	add_Relative_Density		(item, whats_This_Layer);
-	add_Permittivity			(item, whats_This_Layer);
-	add_Absorption				(item, whats_This_Layer);
-	add_Composition				(item, whats_This_Layer);
+	if(	struct_Data.item_Type == item_Type_Ambient	||
+		struct_Data.item_Type == item_Type_Layer	||
+		struct_Data.item_Type == item_Type_Substrate )
+	{
+		if(whats_This == whats_This_Absolute_Density)
+		{
+			parameter = struct_Data.absolute_Density;
+			filtered_Parameters = optical_Constants_List;
+
+			// if not Vacuum and not arbitrary optical constants and if composed_Material
+			additional_Condition =	struct_Data.material!="Vacuum" &&
+									struct_Data.separate_Optical_Constants != TRIL_TRUE &&
+									struct_Data.composed_Material;
+		}
+		if(whats_This == whats_This_Relative_Density)
+		{
+			parameter = struct_Data.relative_Density;
+			filtered_Parameters = optical_Constants_List;
+
+			// if not Vacuum and not arbitrary optical constants and if NOT composed_Material
+			additional_Condition =	struct_Data.material!="Vacuum" &&
+									struct_Data.separate_Optical_Constants != TRIL_TRUE &&
+									!struct_Data.composed_Material;
+		}
+		if(whats_This == whats_This_Permittivity)
+		{
+			parameter = struct_Data.permittivity;
+			filtered_Parameters = optical_Constants_List;
+
+			// if not Vacuum and not specified material
+			additional_Condition =	struct_Data.material!="Vacuum" &&
+									struct_Data.separate_Optical_Constants != TRIL_FALSE;
+		}
+		if(whats_This == whats_This_Absorption)
+		{
+			parameter = struct_Data.absorption;
+			filtered_Parameters = optical_Constants_List;
+
+			// if not Vacuum and not specified material
+			additional_Condition =	struct_Data.material!="Vacuum" &&
+									struct_Data.separate_Optical_Constants != TRIL_FALSE;
+		}
+	}
+
 	/// thickness parameters
-	add_Thickness				(item, whats_This_Layer);
+	if(	struct_Data.item_Type == item_Type_Layer )
+	{
+		if(whats_This == whats_This_Thickness)
+		{
+			parameter = struct_Data.thickness;
+			filtered_Parameters = thickness_Parameters;
+
+			// if parent's stack parameters are not independent
+			additional_Condition = true;
+			iterate_Over_Parents(struct_Item, additional_Condition);
+		}
+		if(whats_This == whats_This_Thickness_Drift_Line_Value)
+		{
+			parameter = struct_Data.thickness_Drift.drift_Line_Value;
+			filtered_Parameters = thickness_Parameters;
+
+			// if has parent
+			additional_Condition = bool(struct_Item->parent());
+		}
+		if(whats_This == whats_This_Thickness_Drift_Rand_Rms)
+		{
+			parameter = struct_Data.thickness_Drift.drift_Rand_Rms;
+			filtered_Parameters = thickness_Parameters;
+
+			// if has parent
+			additional_Condition = bool(struct_Item->parent());
+		}
+		if(whats_This == whats_This_Thickness_Drift_Sine_Amplitude)
+		{
+			parameter = struct_Data.thickness_Drift.drift_Sine_Amplitude;
+			filtered_Parameters = thickness_Parameters;
+
+			// if has parent
+			additional_Condition = bool(struct_Item->parent());
+		}
+		if(whats_This == whats_This_Thickness_Drift_Sine_Frequency)
+		{
+			parameter = struct_Data.thickness_Drift.drift_Sine_Frequency;
+			filtered_Parameters = thickness_Parameters;
+
+			// if has parent
+			additional_Condition = bool(struct_Item->parent());
+		}
+		if(whats_This == whats_This_Thickness_Drift_Sine_Phase)
+		{
+			parameter = struct_Data.thickness_Drift.drift_Sine_Phase;
+			filtered_Parameters = thickness_Parameters;
+
+			// if has parent
+			additional_Condition = bool(struct_Item->parent());
+		}
+	}
+
 	/// interface parameters
-	add_Sigma					(item, whats_This_Layer);
-	add_Interlayer_Composition	(item, whats_This_Layer);
-}
-
-void Variable_Selection::fill_Multilayer_Variables(QTreeWidgetItem* item)
-{
-	// PARAMETER
-
-	add_Num_repetitions	(item, whats_This_Multilayer);
-	add_Period			(item, whats_This_Multilayer);
-	add_Gamma			(item, whats_This_Multilayer);
-}
-
-void Variable_Selection::fill_Substrate_Variables(QTreeWidgetItem* item)
-{
-	// PARAMETER
-
-	/// optical constants
-	add_Absolute_Density		(item, whats_This_Substrate);
-	add_Relative_Density		(item, whats_This_Substrate);
-	add_Permittivity			(item, whats_This_Substrate);
-	add_Absorption				(item, whats_This_Substrate);
-	add_Composition				(item, whats_This_Substrate);
-	/// interface parameters
-	add_Sigma					(item, whats_This_Substrate);
-	add_Interlayer_Composition	(item, whats_This_Substrate);
-}
-
-// adding parameters one by one
-
-void Variable_Selection::add_Absolute_Density(QTreeWidgetItem* item, QString whats_This_Type)
-{
-	// PARAMETER
-
-	QString material, brackets;
-	QString separate_Optical_Constants;
-	bool is_True_Condition=true, composed_Material=false;
-
-	if(whats_This_Type == whats_This_Ambient)
+	if(	struct_Data.item_Type == item_Type_Layer ||
+		struct_Data.item_Type == item_Type_Substrate  )
 	{
-		Ambient ambient = item->data(DEFAULT_COLUMN, Qt::UserRole).value<Ambient>();
-		material = ambient.material;
-		brackets = "(ambient)";
-		separate_Optical_Constants = ambient.separate_Optical_Constants;
-		composed_Material = ambient.composed_Material;
-
-		if(type==Variable_Type::Independent)	is_True_Condition = ambient.absolute_Density.independent.is_Independent;
-		if(type==Variable_Type::Coupled)		is_True_Condition = ambient.absolute_Density.coupled.	 is_Coupled;
-		if(type==Variable_Type::Fitted)			is_True_Condition = ambient.absolute_Density.fit.		 is_Fitable;
-		if(type==Variable_Type::Optimized)		is_True_Condition = ambient.absolute_Density.optimize.	 is_Optimizable;
-	} else
-	if(whats_This_Type == whats_This_Layer)
-	{
-		Layer layer = item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>();
-		material = layer.material;
-		brackets = "(layer " + QString::number(layer.layer_Index) + ")";
-		separate_Optical_Constants = layer.separate_Optical_Constants;
-		composed_Material = layer.composed_Material;
-
-		if(type==Variable_Type::Independent)	is_True_Condition = layer.absolute_Density.independent.is_Independent;
-		if(type==Variable_Type::Coupled)		is_True_Condition = layer.absolute_Density.coupled.	   is_Coupled;
-		if(type==Variable_Type::Fitted)			is_True_Condition = layer.absolute_Density.fit.		   is_Fitable;
-		if(type==Variable_Type::Optimized)		is_True_Condition = layer.absolute_Density.optimize.   is_Optimizable;
-	} else
-	if(whats_This_Type == whats_This_Substrate)
-	{
-		Substrate substrate = item->data(DEFAULT_COLUMN, Qt::UserRole).value<Substrate>();
-		material = substrate.material;
-		brackets = "(substrate)";
-		separate_Optical_Constants = substrate.separate_Optical_Constants;
-		composed_Material = substrate.composed_Material;
-
-		if(type==Variable_Type::Independent)	is_True_Condition = substrate.absolute_Density.independent.is_Independent;
-		if(type==Variable_Type::Coupled)		is_True_Condition = substrate.absolute_Density.coupled.	   is_Coupled;
-		if(type==Variable_Type::Fitted)			is_True_Condition = substrate.absolute_Density.fit.		   is_Fitable;
-		if(type==Variable_Type::Optimized)		is_True_Condition = substrate.absolute_Density.optimize.   is_Optimizable;
-	} else return;
-
-	// item density (if not Vacuum and not arbitrary optical constants and if composed_Material)
-	if((material!="Vacuum") && (separate_Optical_Constants != TRIL_TRUE))
-	if(composed_Material == true)
-	{
-		QListWidgetItem* item_Density = new QListWidgetItem;
-		QString whats_This = item->statusTip(DEFAULT_COLUMN) + whats_This_Delimiter + item->whatsThis(DEFAULT_COLUMN) + whats_This_Delimiter + whats_This_Absolute_Density;
-		item_Density->setWhatsThis(whats_This);
-		item_Density->setText(material + " " + brackets + " Density, " + Rho_Sym);
-
-		if(!is_True_Condition)
-		if(!variables_List_Map->contains(whats_This))
+		if(whats_This == whats_This_Sigma)
 		{
-			nonfiltered_Parameters->addItem(item_Density);
-			optical_Constants_List->addItem(item_Density->clone());
+			parameter = struct_Data.sigma;
+			filtered_Parameters = interface_Parameters;
+
+			// if we have some interlayers and sigma is common
+			for(const Interlayer& inter : struct_Data.interlayer_Composition)
+				if(inter.enabled) additional_Condition = true;
+			additional_Condition = additional_Condition && struct_Data.common_Sigma;
+		}
+		if(whats_This == whats_This_Sigma_Drift_Line_Value)
+		{
+			parameter = struct_Data.sigma_Drift.drift_Line_Value;
+			filtered_Parameters = interface_Parameters;
+
+			// if has parent
+			additional_Condition = bool(struct_Item->parent());
+		}
+		if(whats_This == whats_This_Sigma_Drift_Rand_Rms)
+		{
+			parameter = struct_Data.sigma_Drift.drift_Rand_Rms;
+			filtered_Parameters = interface_Parameters;
+
+			// if has parent
+			additional_Condition = bool(struct_Item->parent());
+		}
+		if(whats_This == whats_This_Sigma_Drift_Sine_Amplitude)
+		{
+			parameter = struct_Data.sigma_Drift.drift_Sine_Amplitude;
+			filtered_Parameters = interface_Parameters;
+
+			// if has parent
+			additional_Condition = bool(struct_Item->parent());
+		}
+		if(whats_This == whats_This_Sigma_Drift_Sine_Frequency)
+		{
+			parameter = struct_Data.sigma_Drift.drift_Sine_Frequency;
+			filtered_Parameters = interface_Parameters;
+
+			// if has parent
+			additional_Condition = bool(struct_Item->parent());
+		}
+		if(whats_This == whats_This_Sigma_Drift_Sine_Phase)
+		{
+			parameter = struct_Data.sigma_Drift.drift_Sine_Phase;
+			filtered_Parameters = interface_Parameters;
+
+			// if has parent
+			additional_Condition = bool(struct_Item->parent());
+		}
+	}
+
+	/// stack parameters
+	if(	struct_Data.item_Type == item_Type_Multilayer )
+	{
+		if(whats_This == whats_This_Period)
+		{
+			parameter = struct_Data.period;
+			filtered_Parameters = thickness_Parameters;
+
+			// if parent stacks are not independent and children don't have independent thicknesses or periods or num_Repetitions
+			additional_Condition = true;
+			iterate_Over_Parents (struct_Item, additional_Condition);
+			iterate_Over_Children(struct_Item, additional_Condition);
+		}
+		if(whats_This == whats_This_Gamma)
+		{
+			parameter = struct_Data.gamma;
+			filtered_Parameters = thickness_Parameters;
+
+			// if have 2 children and children don't have independent thicknesses or periods or num_Repetitions
+			additional_Condition = true;
+			iterate_Over_Children(struct_Item, additional_Condition);
+			additional_Condition = additional_Condition && (struct_Item->childCount()==2);
+		}
+	}
+
+	if(filtered_Parameters)
+	{
+		QListWidgetItem* list_Item = new QListWidgetItem;
+
+		Independent_Indicator item_Indicator;
+		item_Indicator.item_Id			   = struct_Data.id;
+		item_Indicator.item_Type		   = struct_Data.item_Type;
+		item_Indicator.parameter_Id		   = parameter.indicator.id;
+		item_Indicator.parameter_Whats_This= parameter.indicator.whats_This;
+		item_Indicator.is_Active		   = false;
+
+		QVariant var; var.setValue(item_Indicator);
+		list_Item->setData(Qt::UserRole,var);
+		list_Item->setText(variable_Name(struct_Data, parameter.indicator.whats_This));
+
+		if(!parameter.independent.is_Independent && additional_Condition)
+		if(!variables_List_Map->contains(parameter.indicator.id))
+		{
+			nonfiltered_Parameters->addItem(list_Item);
+			filtered_Parameters->addItem(list_Item->clone());
 		}
 	}
 }
 
-void Variable_Selection::add_Relative_Density(QTreeWidgetItem* item, QString whats_This_Type)
+//// adding special parameters
+
+void Variable_Selection::add_Composition(QTreeWidgetItem* struct_Item)
 {
 	// PARAMETER
 
-	QString material, brackets;
-	QString separate_Optical_Constants;
-	bool is_True_Condition=true, composed_Material=false;
-
-	if(whats_This_Type == whats_This_Ambient)
+	Data struct_Data = struct_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+	if(	struct_Data.item_Type != item_Type_Ambient &&
+		struct_Data.item_Type != item_Type_Layer &&
+		struct_Data.item_Type != item_Type_Substrate)
 	{
-		Ambient ambient = item->data(DEFAULT_COLUMN, Qt::UserRole).value<Ambient>();
-		material = ambient.material;
-		brackets = "(ambient)";
-		separate_Optical_Constants = ambient.separate_Optical_Constants;
-		composed_Material = ambient.composed_Material;
-
-		if(type==Variable_Type::Independent)	is_True_Condition = ambient.relative_Density.independent.is_Independent;
-		if(type==Variable_Type::Coupled)		is_True_Condition = ambient.relative_Density.coupled.	 is_Coupled;
-		if(type==Variable_Type::Fitted)			is_True_Condition = ambient.relative_Density.fit.		 is_Fitable;
-		if(type==Variable_Type::Optimized)		is_True_Condition = ambient.relative_Density.optimize.	 is_Optimizable;
-	} else
-	if(whats_This_Type == whats_This_Layer)
-	{
-		Layer layer = item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>();
-		material = layer.material;
-		brackets = "(layer " + QString::number(layer.layer_Index) + ")";
-		separate_Optical_Constants = layer.separate_Optical_Constants;
-		composed_Material = layer.composed_Material;
-
-		if(type==Variable_Type::Independent)	is_True_Condition = layer.relative_Density.independent.is_Independent;
-		if(type==Variable_Type::Coupled)		is_True_Condition = layer.relative_Density.coupled.	   is_Coupled;
-		if(type==Variable_Type::Fitted)			is_True_Condition = layer.relative_Density.fit.		   is_Fitable;
-		if(type==Variable_Type::Optimized)		is_True_Condition = layer.relative_Density.optimize.   is_Optimizable;
-	} else
-	if(whats_This_Type == whats_This_Substrate)
-	{
-		Substrate substrate = item->data(DEFAULT_COLUMN, Qt::UserRole).value<Substrate>();
-		material = substrate.material;
-		brackets = "(substrate)";
-		separate_Optical_Constants = substrate.separate_Optical_Constants;
-		composed_Material = substrate.composed_Material;
-
-		if(type==Variable_Type::Independent)	is_True_Condition = substrate.relative_Density.independent.is_Independent;
-		if(type==Variable_Type::Coupled)		is_True_Condition = substrate.relative_Density.coupled.	   is_Coupled;
-		if(type==Variable_Type::Fitted)			is_True_Condition = substrate.relative_Density.fit.		   is_Fitable;
-		if(type==Variable_Type::Optimized)		is_True_Condition = substrate.relative_Density.optimize.   is_Optimizable;
-	} else return;
-
-	// item density (if not Vacuum and not arbitrary optical constants and NOT composed_Material)
-	if((material!="Vacuum") && (separate_Optical_Constants != TRIL_TRUE))
-	if(composed_Material == false)
-	{
-		QListWidgetItem* item_Density = new QListWidgetItem;
-		QString whats_This = item->statusTip(DEFAULT_COLUMN) + whats_This_Delimiter + item->whatsThis(DEFAULT_COLUMN) + whats_This_Delimiter + whats_This_Relative_Density;
-		item_Density->setWhatsThis(whats_This);
-		item_Density->setText(material + " " + brackets + " Relative Density, " + Rho_Sym);
-
-		if(!is_True_Condition)
-		if(!variables_List_Map->contains(whats_This))
-		{
-			nonfiltered_Parameters->addItem(item_Density);
-			optical_Constants_List->addItem(item_Density->clone());
-		}
+		return;
 	}
-}
-
-void Variable_Selection::add_Permittivity(QTreeWidgetItem* item, QString whats_This_Type)
-{
-	// PARAMETER
-
-	QString material, brackets;
-	QString separate_Optical_Constants;
-	bool is_True_Condition=true;//, composed_Material;
-
-	if(whats_This_Type == whats_This_Ambient)
-	{
-		Ambient ambient = item->data(DEFAULT_COLUMN, Qt::UserRole).value<Ambient>();
-		material = ambient.material;
-		brackets = "(ambient)";
-		separate_Optical_Constants = ambient.separate_Optical_Constants;
-//		composed_Material = ambient.composed_Material;
-
-		if(type==Variable_Type::Independent)	is_True_Condition = ambient.permittivity.independent.is_Independent;
-		if(type==Variable_Type::Coupled)		is_True_Condition = ambient.permittivity.coupled.	is_Coupled;
-		if(type==Variable_Type::Fitted)			is_True_Condition = ambient.permittivity.fit.		is_Fitable;
-		if(type==Variable_Type::Optimized)		is_True_Condition = ambient.permittivity.optimize.	is_Optimizable;
-	} else
-	if(whats_This_Type == whats_This_Layer)
-	{
-		Layer layer = item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>();
-		material = layer.material;
-		brackets = "(layer " + QString::number(layer.layer_Index) + ")";
-		separate_Optical_Constants = layer.separate_Optical_Constants;
-//		composed_Material = layer.composed_Material;
-
-		if(type==Variable_Type::Independent)	is_True_Condition = layer.permittivity.independent.is_Independent;
-		if(type==Variable_Type::Coupled)		is_True_Condition = layer.permittivity.coupled.	   is_Coupled;
-		if(type==Variable_Type::Fitted)			is_True_Condition = layer.permittivity.fit.		   is_Fitable;
-		if(type==Variable_Type::Optimized)		is_True_Condition = layer.permittivity.optimize.   is_Optimizable;
-	} else
-	if(whats_This_Type == whats_This_Substrate)
-	{
-		Substrate substrate = item->data(DEFAULT_COLUMN, Qt::UserRole).value<Substrate>();
-		material = substrate.material;
-		brackets = "(substrate)";
-		separate_Optical_Constants = substrate.separate_Optical_Constants;
-//		composed_Material = substrate.composed_Material;
-
-		if(type==Variable_Type::Independent)	is_True_Condition = substrate.permittivity.independent.is_Independent;
-		if(type==Variable_Type::Coupled)		is_True_Condition = substrate.permittivity.coupled.	   is_Coupled;
-		if(type==Variable_Type::Fitted)			is_True_Condition = substrate.permittivity.fit.		   is_Fitable;
-		if(type==Variable_Type::Optimized)		is_True_Condition = substrate.permittivity.optimize.   is_Optimizable;
-	} else return;
-
-	// item permittivity (if not Vacuum, not specified and not composed material)
-	if((material!="Vacuum") && (separate_Optical_Constants != TRIL_FALSE) /*&& (composed_Material == false)*/)
-	{
-		QListWidgetItem* item_Permittivity = new QListWidgetItem;
-		QString whats_This = item->statusTip(DEFAULT_COLUMN) + whats_This_Delimiter + item->whatsThis(DEFAULT_COLUMN) + whats_This_Delimiter + whats_This_Permittivity;
-
-		item_Permittivity->setWhatsThis(whats_This);
-		item_Permittivity->setText(material + " " + brackets + " Permittivity, 1-" + Epsilon_Sym);
-
-		if(!is_True_Condition)
-		if(!variables_List_Map->contains(whats_This))
-		{
-			nonfiltered_Parameters->addItem(item_Permittivity);
-			optical_Constants_List->addItem(item_Permittivity->clone());
-		}
-	}
-}
-
-void Variable_Selection::add_Absorption(QTreeWidgetItem* item, QString whats_This_Type)
-{
-	// PARAMETER
-
-	QString material, brackets;
-	QString separate_Optical_Constants;
-	bool is_True_Condition=true;//, composed_Material;
-
-	if(whats_This_Type == whats_This_Ambient)
-	{
-		Ambient ambient = item->data(DEFAULT_COLUMN, Qt::UserRole).value<Ambient>();
-		material = ambient.material;
-		brackets = "(ambient)";
-		separate_Optical_Constants = ambient.separate_Optical_Constants;
-//		composed_Material = ambient.composed_Material;
-
-		if(type==Variable_Type::Independent)	is_True_Condition = ambient.absorption.independent.is_Independent;
-		if(type==Variable_Type::Coupled)		is_True_Condition = ambient.absorption.coupled.	is_Coupled;
-		if(type==Variable_Type::Fitted)			is_True_Condition = ambient.absorption.fit.		is_Fitable;
-		if(type==Variable_Type::Optimized)		is_True_Condition = ambient.absorption.optimize.	is_Optimizable;
-	} else
-	if(whats_This_Type == whats_This_Layer)
-	{
-		Layer layer = item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>();
-		material = layer.material;
-		brackets = "(layer " + QString::number(layer.layer_Index) + ")";
-		separate_Optical_Constants = layer.separate_Optical_Constants;
-//		composed_Material = layer.composed_Material;
-
-		if(type==Variable_Type::Independent)	is_True_Condition = layer.absorption.independent.is_Independent;
-		if(type==Variable_Type::Coupled)		is_True_Condition = layer.absorption.coupled.	   is_Coupled;
-		if(type==Variable_Type::Fitted)			is_True_Condition = layer.absorption.fit.		   is_Fitable;
-		if(type==Variable_Type::Optimized)		is_True_Condition = layer.absorption.optimize.   is_Optimizable;
-	} else
-	if(whats_This_Type == whats_This_Substrate)
-	{
-		Substrate substrate = item->data(DEFAULT_COLUMN, Qt::UserRole).value<Substrate>();
-		material = substrate.material;
-		brackets = "(substrate)";
-		separate_Optical_Constants = substrate.separate_Optical_Constants;
-//		composed_Material = substrate.composed_Material;
-
-		if(type==Variable_Type::Independent)	is_True_Condition = substrate.absorption.independent.is_Independent;
-		if(type==Variable_Type::Coupled)		is_True_Condition = substrate.absorption.coupled.	   is_Coupled;
-		if(type==Variable_Type::Fitted)			is_True_Condition = substrate.absorption.fit.		   is_Fitable;
-		if(type==Variable_Type::Optimized)		is_True_Condition = substrate.absorption.optimize.   is_Optimizable;
-	} else return;
-
-	// item absorption (if not Vacuum, not specified and not composed material)
-	if((material!="Vacuum") && (separate_Optical_Constants != TRIL_FALSE) /*&& (composed_Material == false)*/)
-	{
-		QListWidgetItem* item_Absorption = new QListWidgetItem;
-		QString whats_This = item->statusTip(DEFAULT_COLUMN) + whats_This_Delimiter + item->whatsThis(DEFAULT_COLUMN) + whats_This_Delimiter + whats_This_Absorption;
-
-		item_Absorption->setWhatsThis(whats_This);
-		item_Absorption->setText(material + " " + brackets + " Absorption, " + Cappa_Sym);
-
-		if(!is_True_Condition)
-		if(!variables_List_Map->contains(whats_This))
-		{
-			nonfiltered_Parameters->addItem(item_Absorption);
-			optical_Constants_List->addItem(item_Absorption->clone());
-		}
-	}
-}
-
-void Variable_Selection::add_Composition(QTreeWidgetItem* item, QString whats_This_Type)
-{
-	// PARAMETER
-
-	QString material, brackets;
-	bool composed_Material;
-	QVector<bool> is_True_Condition;
-	QStringList composition_type;
-	int composition_Size;
-
-	if(whats_This_Type == whats_This_Ambient)
-	{
-		Ambient ambient = item->data(DEFAULT_COLUMN, Qt::UserRole).value<Ambient>();
-		material = ambient.material;
-		brackets = "(ambient)";
-		composed_Material = ambient.composed_Material;
-		composition_Size = ambient.composition.size();
-		for(int i=0; i<composition_Size; i++)	{composition_type.append(ambient.composition[i].type);}
-
-		if(type==Variable_Type::Independent)	for(int i=0; i<composition_Size; i++) {is_True_Condition.append(ambient.composition[i].composition.independent.is_Independent);}
-		if(type==Variable_Type::Coupled)		for(int i=0; i<composition_Size; i++) {is_True_Condition.append(ambient.composition[i].composition.coupled.	   is_Coupled	 );}
-		if(type==Variable_Type::Fitted)			for(int i=0; i<composition_Size; i++) {is_True_Condition.append(ambient.composition[i].composition.fit.		   is_Fitable	 );}
-		if(type==Variable_Type::Optimized)		for(int i=0; i<composition_Size; i++) {is_True_Condition.append(ambient.composition[i].composition.optimize.   is_Optimizable);}
-	} else
-	if(whats_This_Type == whats_This_Layer)
-	{
-		Layer layer = item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>();
-		material = layer.material;
-		brackets = "(layer " + QString::number(layer.layer_Index) + ")";
-		composed_Material = layer.composed_Material;
-		composition_Size = layer.composition.size();
-		for(int i=0; i<composition_Size; i++)	{composition_type.append(layer.composition[i].type);}
-
-		if(type==Variable_Type::Independent)	for(int i=0; i<composition_Size; i++) {is_True_Condition.append(layer.composition[i].composition.independent.is_Independent);}
-		if(type==Variable_Type::Coupled)		for(int i=0; i<composition_Size; i++) {is_True_Condition.append(layer.composition[i].composition.coupled.	 is_Coupled	   );}
-		if(type==Variable_Type::Fitted)			for(int i=0; i<composition_Size; i++) {is_True_Condition.append(layer.composition[i].composition.fit.		 is_Fitable	   );}
-		if(type==Variable_Type::Optimized)		for(int i=0; i<composition_Size; i++) {is_True_Condition.append(layer.composition[i].composition.optimize.	 is_Optimizable);}
-	} else
-	if(whats_This_Type == whats_This_Substrate)
-	{
-		Substrate substrate = item->data(DEFAULT_COLUMN, Qt::UserRole).value<Substrate>();
-		material = substrate.material;
-		brackets = "(substrate)";
-		composed_Material = substrate.composed_Material;
-		composition_Size = substrate.composition.size();
-		for(int i=0; i<composition_Size; i++)	{composition_type.append(substrate.composition[i].type);}
-
-		if(type==Variable_Type::Independent)	for(int i=0; i<composition_Size; i++) {is_True_Condition.append(substrate.composition[i].composition.independent.is_Independent);}
-		if(type==Variable_Type::Coupled)		for(int i=0; i<composition_Size; i++) {is_True_Condition.append(substrate.composition[i].composition.coupled.	 is_Coupled	   );}
-		if(type==Variable_Type::Fitted)			for(int i=0; i<composition_Size; i++) {is_True_Condition.append(substrate.composition[i].composition.fit.		 is_Fitable	   );}
-		if(type==Variable_Type::Optimized)		for(int i=0; i<composition_Size; i++) {is_True_Condition.append(substrate.composition[i].composition.optimize.	 is_Optimizable);}
-	} else return;
 
 	// item composition (if composed and >=2 elements)
-	if(composed_Material == true && composition_Size>=2)
+	if(struct_Data.composed_Material == true && struct_Data.composition.size()>=2)
 	{
-		for(int i=0; i<composition_Size; i++)
+		int index = 0;
+		for(const Stoichiometry& stoich : struct_Data.composition)
 		{
-			QListWidgetItem* item_Composition = new QListWidgetItem;
-			QString whats_This = item->statusTip(DEFAULT_COLUMN) + whats_This_Delimiter + item->whatsThis(DEFAULT_COLUMN) + whats_This_Delimiter + whats_This_Composition + whats_This_Delimiter + QString::number(i);
-			item_Composition->setWhatsThis(whats_This);
-			item_Composition->setText(material + " " + brackets + " " + composition_type[i] + " Composition, " + Zeta_Sym + "_" + composition_type[i]);
+			Parameter parameter = stoich.composition;
+			bool is_Independent = parameter.independent.is_Independent;
 
-			if(!is_True_Condition[i])
-			if(!variables_List_Map->contains(whats_This))
+			QListWidgetItem* item_Composition = new QListWidgetItem;
+
+			Independent_Indicator composition_Indicator;
+			composition_Indicator.item_Id			  = struct_Data.id;
+			composition_Indicator.item_Type		      = struct_Data.item_Type;
+			composition_Indicator.parameter_Id		  = parameter.indicator.id;
+			composition_Indicator.parameter_Whats_This= parameter.indicator.whats_This;
+			composition_Indicator.is_Active			  = false;
+			composition_Indicator.index				  = index;
+
+			QVariant var; var.setValue(composition_Indicator);
+			item_Composition->setData(Qt::UserRole,var);
+			item_Composition->setText(variable_Name(struct_Data, parameter.indicator.whats_This, index));
+
+			if(!is_Independent)
+			if(!variables_List_Map->contains(parameter.indicator.id))
 			{
 				nonfiltered_Parameters->addItem(item_Composition);
 				optical_Constants_List->addItem(item_Composition->clone());
 			}
+			index++;
 		}
 	}
 }
 
-void Variable_Selection::add_Thickness(QTreeWidgetItem* item, QString whats_This_Type)
+void Variable_Selection::add_Interlayer_Composition(QTreeWidgetItem* struct_Item)
 {
 	// PARAMETER
 
-	QString material, brackets;
-	bool is_True_Condition=true;
-
-	if(whats_This_Type == whats_This_Layer)
+	Data struct_Data = struct_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+	if(	struct_Data.item_Type != item_Type_Layer &&
+		struct_Data.item_Type != item_Type_Substrate )
 	{
-		Layer layer = item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>();
-		material = layer.material;
-		brackets = "(layer " + QString::number(layer.layer_Index) + ")";
-
-		if(type==Variable_Type::Independent)	is_True_Condition = layer.thickness.independent.is_Independent;
-		if(type==Variable_Type::Coupled)		is_True_Condition = layer.thickness.coupled.	  is_Coupled;
-		if(type==Variable_Type::Fitted)			is_True_Condition = layer.thickness.fit.		  is_Fitable;
-		if(type==Variable_Type::Optimized)		is_True_Condition = layer.thickness.optimize.	  is_Optimizable;
-	} else return;
-
-	// layer thickness (if parent's stack parameters are not independent)
-	bool thickness_Condition = true;
-	iterate_Over_Parents(item, thickness_Condition);
-	if(thickness_Condition)
-	{
-		QListWidgetItem* item_Thickness = new QListWidgetItem;
-		QString whats_This = item->statusTip(DEFAULT_COLUMN) + whats_This_Delimiter + item->whatsThis(DEFAULT_COLUMN) + whats_This_Delimiter + whats_This_Thickness;
-		item_Thickness->setWhatsThis(whats_This);
-		item_Thickness->setText(material + " " + brackets + " Thickness, z");
-
-		if(!is_True_Condition)
-		if(!variables_List_Map->contains(whats_This))
-		{
-			nonfiltered_Parameters->addItem(item_Thickness);
-			thickness_Parameters->addItem(item_Thickness->clone());
-		}
+		return;
 	}
-}
 
-void Variable_Selection::add_Sigma(QTreeWidgetItem* item, QString whats_This_Type)
-{
-	// PARAMETER
-
-	QString material, brackets;
-	QVector<bool> interlayer_Composition_Enabled;
-	bool is_True_Condition=true;
-	int interlayer_Composition_Size;
-
-	if(whats_This_Type == whats_This_Layer)
-	{
-		Layer layer = item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>();
-		material = layer.material;
-		brackets = "(layer " + QString::number(layer.layer_Index) + ")";
-		interlayer_Composition_Size = layer.interlayer_Composition.size();
-		for(int i=0; i<interlayer_Composition_Size; i++)	{interlayer_Composition_Enabled.append(layer.interlayer_Composition[i].enabled);}
-
-		if(type==Variable_Type::Independent)	is_True_Condition = layer.sigma.independent.is_Independent;
-		if(type==Variable_Type::Coupled)		is_True_Condition = layer.sigma.coupled.	is_Coupled;
-		if(type==Variable_Type::Fitted)			is_True_Condition = layer.sigma.fit.		is_Fitable;
-		if(type==Variable_Type::Optimized)		is_True_Condition = layer.sigma.optimize.	is_Optimizable;
-	} else
-	if(whats_This_Type == whats_This_Substrate)
-	{
-		Substrate substrate = item->data(DEFAULT_COLUMN, Qt::UserRole).value<Substrate>();
-		material = substrate.material;
-		brackets = "(substrate)";
-		interlayer_Composition_Size = substrate.interlayer_Composition.size();
-		for(int i=0; i<interlayer_Composition_Size; i++)	{interlayer_Composition_Enabled.append(substrate.interlayer_Composition[i].enabled);}
-
-		if(type==Variable_Type::Independent)	is_True_Condition = substrate.sigma.independent.is_Independent;
-		if(type==Variable_Type::Coupled)		is_True_Condition = substrate.sigma.coupled.	is_Coupled;
-		if(type==Variable_Type::Fitted)			is_True_Condition = substrate.sigma.fit.		is_Fitable;
-		if(type==Variable_Type::Optimized)		is_True_Condition = substrate.sigma.optimize.	is_Optimizable;
-	} else return;
-
-	// item sigma (if >=1 interlayers)
 	int interlayers_Counter=0;
-	for(int i=0; i<interlayer_Composition_Size; i++)
+	for(const Interlayer& inter : struct_Data.interlayer_Composition)
 	{
-		if(interlayer_Composition_Enabled[i]) ++interlayers_Counter;
+		if(inter.enabled) interlayers_Counter++;
 	}
-	if(interlayers_Counter>=1)
-	{
-		QListWidgetItem* item_Sigma = new QListWidgetItem;
-		QString whats_This = item->statusTip(DEFAULT_COLUMN) + whats_This_Delimiter + item->whatsThis(DEFAULT_COLUMN) + whats_This_Delimiter + whats_This_Sigma;
 
-		item_Sigma->setWhatsThis(whats_This);
-		item_Sigma->setText(material + " " + brackets + " Roughness/Diffuseness, " + Sigma_Sym);
+	int transition_Layer_Index=0;
 
-		if(!is_True_Condition)
-		if(!variables_List_Map->contains(whats_This))
-		{
-			nonfiltered_Parameters->addItem(item_Sigma);
-			interface_Parameters->addItem(item_Sigma->clone());
-		}
-	}
-}
-
-void Variable_Selection::add_Interlayer_Composition(QTreeWidgetItem* item, QString whats_This_Type)
-{
-	// PARAMETER
-
-	QString material, brackets;
-	QVector<bool> interlayer_Composition_Enabled, interlayer_Composition_Independent;
-//	bool is_True_Condition;
-	int interlayer_Composition_Size;
-
-	if(whats_This_Type == whats_This_Layer)
-	{
-		Layer layer = item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>();
-		material = layer.material;
-		brackets = "(layer " + QString::number(layer.layer_Index) + ")";
-		interlayer_Composition_Size = layer.interlayer_Composition.size();
-		for(int i=0; i<interlayer_Composition_Size; i++)	{interlayer_Composition_Enabled.append(layer.interlayer_Composition[i].enabled);}
-		for(int i=0; i<interlayer_Composition_Size; i++)	{interlayer_Composition_Independent.append(layer.interlayer_Composition[i].interlayer.independent.is_Independent);}
-
-//		if(type==Variable_Type::Independent)	is_True_Condition = layer.sigma.independent.is_Independent;
-//		if(type==Variable_Type::Coupled)		is_True_Condition = layer.sigma.coupled.	is_Coupled;
-//		if(type==Variable_Type::Fitted)			is_True_Condition = layer.sigma.fit.		is_Fitable;
-//		if(type==Variable_Type::Optimized)		is_True_Condition = layer.sigma.optimize.	is_Optimizable;
-	} else
-	if(whats_This_Type == whats_This_Substrate)
-	{
-		Substrate substrate = item->data(DEFAULT_COLUMN, Qt::UserRole).value<Substrate>();
-		material = substrate.material;
-		brackets = "(substrate)";
-		interlayer_Composition_Size = substrate.interlayer_Composition.size();
-		for(int i=0; i<interlayer_Composition_Size; i++)	{interlayer_Composition_Enabled.append(substrate.interlayer_Composition[i].enabled);}
-		for(int i=0; i<interlayer_Composition_Size; i++)	{interlayer_Composition_Independent.append(substrate.interlayer_Composition[i].interlayer.independent.is_Independent);}
-
-//		if(type==Variable_Type::Independent)	is_True_Condition = substrate.sigma.independent.is_Independent;
-//		if(type==Variable_Type::Coupled)		is_True_Condition = substrate.sigma.coupled.	is_Coupled;
-//		if(type==Variable_Type::Fitted)			is_True_Condition = substrate.sigma.fit.		is_Fitable;
-//		if(type==Variable_Type::Optimized)		is_True_Condition = substrate.sigma.optimize.	is_Optimizable;
-	} else return;
-
-	// item interlayer composition (if enabled and >=2 interlayers)
-	int interlayers_Counter=0;
-	for(int i=0; i<interlayer_Composition_Size; i++)
-	{
-		if(interlayer_Composition_Enabled[i]) ++interlayers_Counter;
-	}
+	// if >=2 interlayers
 	if(interlayers_Counter>=2)
+	for(const Interlayer& inter : struct_Data.interlayer_Composition)
 	{
-		for(int i=0; i<interlayer_Composition_Size; i++)
-		{
-			QListWidgetItem* item_Composition = new QListWidgetItem;
-			QString whats_This = item->statusTip(DEFAULT_COLUMN) + whats_This_Delimiter + item->whatsThis(DEFAULT_COLUMN) + whats_This_Delimiter + whats_This_Interlayer_Composition + whats_This_Delimiter + QString::number(i);
-			item_Composition->setWhatsThis(whats_This);
-			item_Composition->setText(material + " " + brackets + " Interlayer Composition, " + transition_Layer_Functions[i]);
+		Parameter parameter = inter.interlayer;
+		bool is_Independent = parameter.independent.is_Independent;
+		bool interlayer_Enabled = inter.enabled;
 
-			if(interlayer_Composition_Enabled[i])
-			if(!interlayer_Composition_Independent[i])
-			if(!variables_List_Map->contains(whats_This))
-			{
-				nonfiltered_Parameters->addItem(item_Composition);
-				interface_Parameters->addItem(item_Composition->clone());
-			}
+		// if enabled
+		QListWidgetItem* item_Composition = new QListWidgetItem;
+
+		Independent_Indicator composition_Indicator;
+		composition_Indicator.item_Id			  = struct_Data.id;
+		composition_Indicator.item_Type		      = struct_Data.item_Type;
+		composition_Indicator.parameter_Id		  = parameter.indicator.id;
+		composition_Indicator.parameter_Whats_This= parameter.indicator.whats_This;
+		composition_Indicator.is_Active			  = false;
+		composition_Indicator.index				  = transition_Layer_Index;
+
+		QVariant var; var.setValue(composition_Indicator);
+		item_Composition->setData(Qt::UserRole,var);
+		item_Composition->setText(variable_Name(struct_Data, parameter.indicator.whats_This, transition_Layer_Index));
+
+		if(!is_Independent && interlayer_Enabled)
+		if(!variables_List_Map->contains(parameter.indicator.id))
+		{
+			nonfiltered_Parameters->addItem(item_Composition);
+			interface_Parameters->addItem(item_Composition->clone());
 		}
+		transition_Layer_Index++;
 	}
 }
 
-void Variable_Selection::add_Num_repetitions(QTreeWidgetItem* item, QString whats_This_Type)
+void Variable_Selection::add_Interlayer_My_Sigma(QTreeWidgetItem* struct_Item)
 {
 	// PARAMETER
 
-	bool is_True_Condition;
-	if(whats_This_Type == whats_This_Multilayer)
+	Data struct_Data = struct_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+	if(	struct_Data.item_Type != item_Type_Layer &&
+		struct_Data.item_Type != item_Type_Substrate )
 	{
-		Stack_Content stack_Content = item->data(DEFAULT_COLUMN, Qt::UserRole).value<Stack_Content>();
-		if(type==Variable_Type::Independent)	is_True_Condition = stack_Content.num_Repetition.is_Independent;
-		else return;
-	} else return;
+		return;
+	}
 
-	// stack_Content num_Repetition (if parent's stack parameters are not independent)
-	bool thickness_Condition = true;
-	iterate_Over_Parents(item, thickness_Condition);
-	if(thickness_Condition)
+	int interlayers_Counter=0;
+	for(const Interlayer& inter : struct_Data.interlayer_Composition)
+	{
+		if(inter.enabled) interlayers_Counter++;
+	}
+
+	int transition_Layer_Index=0;
+
+	// if >=2 interlayers and sigma is NOT common
+	if(interlayers_Counter>=2 && !struct_Data.common_Sigma)
+	for(const Interlayer& inter : struct_Data.interlayer_Composition)
+	{
+		Parameter parameter = inter.my_Sigma;
+		bool is_Independent = parameter.independent.is_Independent;
+		bool interlayer_Enabled = inter.enabled;
+
+		// if enabled
+		QListWidgetItem* item_Composition = new QListWidgetItem;
+
+		Independent_Indicator composition_Indicator;
+		composition_Indicator.item_Id			  = struct_Data.id;
+		composition_Indicator.item_Type		      = struct_Data.item_Type;
+		composition_Indicator.parameter_Id		  = parameter.indicator.id;
+		composition_Indicator.parameter_Whats_This= parameter.indicator.whats_This;
+		composition_Indicator.is_Active			  = false;
+		composition_Indicator.index				  = transition_Layer_Index;
+
+		QVariant var; var.setValue(composition_Indicator);
+		item_Composition->setData(Qt::UserRole,var);
+		item_Composition->setText(variable_Name(struct_Data, parameter.indicator.whats_This, transition_Layer_Index));
+
+		if(!is_Independent && interlayer_Enabled)
+		if(!variables_List_Map->contains(parameter.indicator.id))
+		{
+			nonfiltered_Parameters->addItem(item_Composition);
+			interface_Parameters->addItem(item_Composition->clone());
+		}
+		transition_Layer_Index++;
+	}
+}
+
+void Variable_Selection::add_Num_repetitions(QTreeWidgetItem* struct_Item)
+{
+	// PARAMETER
+
+	Data struct_Data = struct_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+	if(	struct_Data.item_Type != item_Type_Multilayer )
+	{
+		return;
+	}
+
+	Int_Independent int_Ind = struct_Data.num_Repetition;
+	bool is_Independent = int_Ind.is_Independent;
+
+	// if parent's stack parameters are not independent
+	bool parent_Condition = true;
+	iterate_Over_Parents(struct_Item, parent_Condition);
+	if(parent_Condition)
 	{
 		QListWidgetItem* item_Num_Repetition = new QListWidgetItem;
-		QString whats_This = item->statusTip(DEFAULT_COLUMN) + whats_This_Delimiter + item->whatsThis(DEFAULT_COLUMN) + whats_This_Delimiter + whats_This_Num_Repetitions;
-		item_Num_Repetition->setWhatsThis(whats_This);
-		item_Num_Repetition->setText(item->whatsThis(DEFAULT_COLUMN) + " Number of repetitions, N");
 
-		if(!is_True_Condition)
-		if(!variables_List_Map->contains(whats_This))
+		Independent_Indicator num_Repetition_Indicator;
+		num_Repetition_Indicator.item_Type			 = item_Type_Multilayer;
+		num_Repetition_Indicator.item_Id			 = struct_Data.id;
+		num_Repetition_Indicator.parameter_Id		 = int_Ind.id;
+		num_Repetition_Indicator.parameter_Whats_This= int_Ind.whats_This;
+		num_Repetition_Indicator.is_Active			 = false;
+
+		QVariant var; var.setValue(num_Repetition_Indicator);
+		item_Num_Repetition->setData(Qt::UserRole,var);
+		item_Num_Repetition->setText(variable_Name(struct_Data, int_Ind.whats_This));
+
+		if(!is_Independent)
+		if(!variables_List_Map->contains(int_Ind.id))
 		{
 			nonfiltered_Parameters->addItem(item_Num_Repetition);
 			thickness_Parameters->addItem(item_Num_Repetition->clone());
@@ -720,143 +555,106 @@ void Variable_Selection::add_Num_repetitions(QTreeWidgetItem* item, QString what
 	}
 }
 
-void Variable_Selection::add_Period(QTreeWidgetItem* item, QString whats_This_Type)
+QString Variable_Selection::variable_Name(const Data& struct_Data, QString whats_This, int index)
 {
 	// PARAMETER
 
-	bool is_True_Condition=true;
-	if(whats_This_Type == whats_This_Multilayer)
-	{
-		Stack_Content stack_Content = item->data(DEFAULT_COLUMN, Qt::UserRole).value<Stack_Content>();
-		if(type==Variable_Type::Independent)	is_True_Condition = stack_Content.period.independent.is_Independent;
-		if(type==Variable_Type::Coupled)		is_True_Condition = stack_Content.period.coupled.	 is_Coupled;
-		if(type==Variable_Type::Fitted)			is_True_Condition = stack_Content.period.fit.		 is_Fitable;
-		if(type==Variable_Type::Optimized)		is_True_Condition = stack_Content.period.optimize.	 is_Optimizable;
-	} else return;
+	QString text = "variable_Name", brackets;
 
-	// stack_Content period (if parent stacks are not independent and children don't have independent thicknesses or periods or num_Repetitions)
-	bool thickness_Condition = true;
-	iterate_Over_Parents (item, thickness_Condition);
-	iterate_Over_Children(item, thickness_Condition);
-	if(thickness_Condition)
-	{
-		QListWidgetItem* item_Period = new QListWidgetItem;
-		QString whats_This = item->statusTip(DEFAULT_COLUMN) + whats_This_Delimiter + item->whatsThis(DEFAULT_COLUMN) + whats_This_Delimiter + whats_This_Period;
-		item_Period->setWhatsThis(whats_This);
-		item_Period->setText(item->whatsThis(DEFAULT_COLUMN) + " Period, d");
+	if(struct_Data.item_Type == item_Type_Ambient)		brackets = "(ambient)";
+	if(struct_Data.item_Type == item_Type_Layer)		brackets = "(layer " + QString::number(struct_Data.layer_Index) + ")";
+	if(struct_Data.item_Type == item_Type_Substrate)	brackets = "(substrate)";
+	if(struct_Data.item_Type == item_Type_Multilayer)	brackets = "Multilayer, (" + QString::number(struct_Data.first_Layer_Index) + " - " + QString::number(struct_Data.last_Layer_Index) + ")";
+	if(struct_Data.item_Type == item_Type_Measurement)	brackets = "()";
 
-		if(!is_True_Condition)
-		if(!variables_List_Map->contains(whats_This))
-		{
-			nonfiltered_Parameters->addItem(item_Period);
-			thickness_Parameters->addItem(item_Period->clone());
-		}
+	/// optical constants
+	if(	struct_Data.item_Type == item_Type_Ambient	||
+		struct_Data.item_Type == item_Type_Layer	||
+		struct_Data.item_Type == item_Type_Substrate )
+	{
+		if(whats_This == whats_This_Absolute_Density)				text = struct_Data.material + " " + brackets + " Density, " + Rho_Sym;
+		if(whats_This == whats_This_Relative_Density)				text = struct_Data.material + " " + brackets + " Relative Density, " + Rho_Sym;
+		if(whats_This == whats_This_Permittivity)					text = struct_Data.material + " " + brackets + " Permittivity, 1-" + Epsilon_Sym;
+		if(whats_This == whats_This_Absorption)						text = struct_Data.material + " " + brackets + " Absorption, " + Cappa_Sym;
+		if(whats_This == whats_This_Composition && index>=0)		text = struct_Data.material + " " + brackets + " " + struct_Data.composition[index].type + " Composition, " + Zeta_Sym + "_" + struct_Data.composition[index].type;
 	}
+
+	/// thickness parameters
+	if(	struct_Data.item_Type == item_Type_Layer )
+	{
+		if(whats_This == whats_This_Thickness)						text = struct_Data.material + " " + brackets + " Thickness, z";
+		if(whats_This == whats_This_Thickness_Drift_Line_Value)		text = struct_Data.material + " " + brackets + " Thickness Linear Drift, dz";
+		if(whats_This == whats_This_Thickness_Drift_Rand_Rms)		text = struct_Data.material + " " + brackets + " Thickness Random Drift, dz";
+		if(whats_This == whats_This_Thickness_Drift_Sine_Amplitude)	text = struct_Data.material + " " + brackets + " Thickness Sine Drift : Amplitude, dz";
+		if(whats_This == whats_This_Thickness_Drift_Sine_Frequency)	text = struct_Data.material + " " + brackets + " Thickness Sine Drift : Frequency, " + Nu_Sym;
+		if(whats_This == whats_This_Thickness_Drift_Sine_Phase)		text = struct_Data.material + " " + brackets + " Thickness Sine Drift : Phase, " + Phi_Sym;
+	}
+
+	/// interface parameters
+	if(	struct_Data.item_Type == item_Type_Layer ||
+		struct_Data.item_Type == item_Type_Substrate  )
+	{
+		if(whats_This == whats_This_Sigma)							text = struct_Data.material + " " + brackets + " Roughness/Diffuseness, " + Sigma_Sym;
+		if(whats_This == whats_This_Sigma_Drift_Line_Value)			text = struct_Data.material + " " + brackets + " Roughness/Diffuseness Linear Drift, d" + Sigma_Sym;
+		if(whats_This == whats_This_Sigma_Drift_Rand_Rms)			text = struct_Data.material + " " + brackets + " Roughness/Diffuseness Random Drift, d" + Sigma_Sym;
+		if(whats_This == whats_This_Sigma_Drift_Sine_Amplitude)		text = struct_Data.material + " " + brackets + " Roughness/Diffuseness Sine Drift : Amplitude, d" + Sigma_Sym;
+		if(whats_This == whats_This_Sigma_Drift_Sine_Frequency)		text = struct_Data.material + " " + brackets + " Roughness/Diffuseness Sine Drift : Frequency, " + Nu_Sym;
+		if(whats_This == whats_This_Sigma_Drift_Sine_Phase)			text = struct_Data.material + " " + brackets + " Roughness/Diffuseness Sine Drift : Phase, " + Phi_Sym;
+		if(whats_This == whats_This_Interlayer_Composition)			text = struct_Data.material + " " + brackets + " Interlayer Composition, " + transition_Layer_Functions[index];
+		if(whats_This == whats_This_Interlayer_My_Sigma)			text = struct_Data.material + " " + brackets + " Individual Roughness/Diffuseness, " + Sigma_Sym + "_" + transition_Layer_Functions[index];
+	}
+
+	/// stack parameters
+	if(	struct_Data.item_Type == item_Type_Multilayer )
+	{
+		if(whats_This == whats_This_Num_Repetitions)				text = brackets + " Number of repetitions, N";
+		if(whats_This == whats_This_Period)							text = brackets + " Period, d";
+		if(whats_This == whats_This_Gamma)							text = brackets + " Thickness Ratio, " + Gamma_Sym;
+	}
+
+	/// measurement parameters
+	if(	struct_Data.item_Type == item_Type_Measurement )
+	{
+		if(whats_This == whats_This_Angle)							text = struct_Data.angle_Type + " angle, " + Theta_Sym;
+		if(whats_This == whats_This_Wavelength)						text = Global_Variables::wavelength_Energy_Name(wavelength_units);
+	}
+
+	return text;
 }
 
-void Variable_Selection::add_Gamma(QTreeWidgetItem* item, QString whats_This_Type)
+void Variable_Selection::refresh_Independent_State_Of_Struct_Tree_Copy_Item(QTreeWidgetItem* struct_Item)
 {
 	// PARAMETER
 
-	bool is_True_Condition=true;
-	if(whats_This_Type == whats_This_Multilayer)
-	{
-		Stack_Content stack_Content = item->data(DEFAULT_COLUMN, Qt::UserRole).value<Stack_Content>();
-		if(type==Variable_Type::Independent)	is_True_Condition = stack_Content.gamma.independent.is_Independent;
-		if(type==Variable_Type::Coupled)		is_True_Condition = stack_Content.gamma.coupled.	is_Coupled;
-		if(type==Variable_Type::Fitted)			is_True_Condition = stack_Content.gamma.fit.		is_Fitable;
-		if(type==Variable_Type::Optimized)		is_True_Condition = stack_Content.gamma.optimize.	is_Optimizable;
-	} else return;
+	Data struct_Data = struct_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
 
-	// stack_Content gamma (if have 2 children and children don't have independent thicknesses or periods or num_Repetitions)
-	bool thickness_Condition = true;
-	iterate_Over_Children(item, thickness_Condition);
-	if(item->childCount()==2 && thickness_Condition)
+	if(	struct_Data.item_Type == item_Type_Ambient ||
+		struct_Data.item_Type == item_Type_Layer ||
+		struct_Data.item_Type == item_Type_Substrate)
 	{
-		QListWidgetItem* item_Gamma = new QListWidgetItem;
-		QString whats_This = item->statusTip(DEFAULT_COLUMN) + whats_This_Delimiter + item->whatsThis(DEFAULT_COLUMN) + whats_This_Delimiter + whats_This_Gamma;
-		item_Gamma->setWhatsThis(whats_This);
-		item_Gamma->setText(item->whatsThis(DEFAULT_COLUMN) + " Thickness Ratio, " + Gamma_Sym);
+		if( struct_Data.absolute_Density.independent.is_Independent == true ) {struct_Data.separate_Optical_Constants = TRIL_FALSE;} else
+		if( struct_Data.relative_Density.independent.is_Independent == true ) {struct_Data.separate_Optical_Constants = TRIL_FALSE;} else
+		if( struct_Data.permittivity.	 independent.is_Independent == true ) {struct_Data.separate_Optical_Constants = TRIL_TRUE;}  else
+		if( struct_Data.absorption.		 independent.is_Independent == true ) {struct_Data.separate_Optical_Constants = TRIL_TRUE;}  else
+																			  {struct_Data.separate_Optical_Constants = TRIL_NOT_DEFINED;}
 
-		if(!is_True_Condition)
-		if(!variables_List_Map->contains(whats_This))
-		{
-			nonfiltered_Parameters->addItem(item_Gamma);
-			thickness_Parameters->addItem(item_Gamma->clone());
-		}
+		QVariant var;
+		var.setValue(struct_Data);
+		struct_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
 	}
 }
 
-void Variable_Selection::refresh_Independent_State_Of_Struct_Tree_Copy_Item(QTreeWidgetItem* structure_Item)
-{
-	// PARAMETER
-
-	QVariant var;
-	QString whats_This = structure_Item->whatsThis(DEFAULT_COLUMN);
-	QStringList whats_This_List_Type = whats_This.split(item_Type_Delimiter,QString::SkipEmptyParts);
-
-	if(whats_This_List_Type[0] == whats_This_Ambient)
-	{
-		Ambient ambient = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Ambient>();
-
-		if( ambient.absolute_Density.independent.is_Independent == true ) {ambient.separate_Optical_Constants = TRIL_FALSE;} else
-		if( ambient.relative_Density.independent.is_Independent == true ) {ambient.separate_Optical_Constants = TRIL_FALSE;} else
-		if( ambient.permittivity.	 independent.is_Independent == true ) {ambient.separate_Optical_Constants = TRIL_TRUE;}  else
-		if( ambient.absorption.		 independent.is_Independent == true ) {ambient.separate_Optical_Constants = TRIL_TRUE;}  else
-
-		   {ambient.separate_Optical_Constants = TRIL_NOT_DEFINED;}
-
-		var.setValue(ambient);
-		structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
-	}
-	if(whats_This_List_Type[0] == whats_This_Layer)
-	{
-		Layer layer = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>();
-
-		if( layer.absolute_Density.independent.is_Independent == true ) {layer.separate_Optical_Constants = TRIL_FALSE;} else
-		if( layer.relative_Density.independent.is_Independent == true ) {layer.separate_Optical_Constants = TRIL_FALSE;} else
-		if( layer.permittivity.	   independent.is_Independent == true ) {layer.separate_Optical_Constants = TRIL_TRUE;}  else
-		if( layer.absorption.	   independent.is_Independent == true ) {layer.separate_Optical_Constants = TRIL_TRUE;}  else
-
-		   {layer.separate_Optical_Constants = TRIL_NOT_DEFINED;}
-
-		var.setValue(layer);
-		structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
-	}
-	if(whats_This_List_Type[0] == whats_This_Multilayer)
-	{
-	}
-	if(whats_This_List_Type[0] == whats_This_Substrate)
-	{
-		Substrate substrate = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Substrate>();
-
-		if( substrate.absolute_Density.independent.is_Independent == true ) {substrate.separate_Optical_Constants = TRIL_FALSE;} else
-		if( substrate.relative_Density.independent.is_Independent == true ) {substrate.separate_Optical_Constants = TRIL_FALSE;} else
-		if( substrate.permittivity.	   independent.is_Independent == true ) {substrate.separate_Optical_Constants = TRIL_TRUE;}  else
-		if( substrate.absorption.	   independent.is_Independent == true ) {substrate.separate_Optical_Constants = TRIL_TRUE;}  else
-
-		   {substrate.separate_Optical_Constants = TRIL_NOT_DEFINED;}
-
-		var.setValue(substrate);
-		structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
-	}
-}
-
-// -------------------------------------------
+//// -------------------------------------------
 
 void Variable_Selection::add_Variable_Item(QListWidgetItem* new_Item)
 {
 	// PARAMETER
 
-	new_Item->setData(Qt::UserRole, false);	// adding "passive" status
+	Independent_Indicator new_Data = new_Item->data(Qt::UserRole).value<Independent_Indicator>();
 
-	variables_List_Map->insert(new_Item->whatsThis(), new_Item);
+	variables_List_Map->insert(new_Data.parameter_Id, new_Item);
 	variables_List->addItem(new_Item);
 
-	// sorting
-	QString whats_This = new_Item->whatsThis();
-	QStringList whats_This_List = whats_This.split(whats_This_Delimiter,QString::SkipEmptyParts);
-	QStringList whats_This_List_Type = whats_This_List[1].split(item_Type_Delimiter,QString::SkipEmptyParts);
 	QVariant var;
 
 	// item search
@@ -865,308 +663,64 @@ void Variable_Selection::add_Variable_Item(QListWidgetItem* new_Item)
 	while (*it)
 	{
 		structure_Item = *it;
-		if(structure_Item->statusTip(DEFAULT_COLUMN) == whats_This_List[0])
+		if(structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>().id == new_Data.item_Id)
 			break;
 		++it;
 	}
 
-	// if ambient
-	if(whats_This_List_Type[0] == whats_This_Ambient)
+	Data struct_Data = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+	Parameter* parameter;
+
+	/// optical constants
+	if(new_Data.parameter_Whats_This == whats_This_Absolute_Density)				parameter = &struct_Data.absolute_Density;
+	if(new_Data.parameter_Whats_This == whats_This_Relative_Density)				parameter = &struct_Data.relative_Density;
+	if(new_Data.parameter_Whats_This == whats_This_Permittivity)					parameter = &struct_Data.permittivity;
+	if(new_Data.parameter_Whats_This == whats_This_Absorption)						parameter = &struct_Data.absorption;
+	if(new_Data.parameter_Whats_This == whats_This_Composition)						parameter = &struct_Data.composition[new_Data.index].composition;
+	/// thickness parameters
+	if(new_Data.parameter_Whats_This == whats_This_Thickness)						parameter = &struct_Data.thickness;
+	// thickness drift
+	if(new_Data.parameter_Whats_This == whats_This_Thickness_Drift_Line_Value)		parameter = &struct_Data.thickness_Drift.drift_Line_Value;
+	if(new_Data.parameter_Whats_This == whats_This_Thickness_Drift_Rand_Rms)		parameter = &struct_Data.thickness_Drift.drift_Rand_Rms;
+	if(new_Data.parameter_Whats_This == whats_This_Thickness_Drift_Sine_Amplitude)	parameter = &struct_Data.thickness_Drift.drift_Sine_Amplitude;
+	if(new_Data.parameter_Whats_This == whats_This_Thickness_Drift_Sine_Frequency)	parameter = &struct_Data.thickness_Drift.drift_Sine_Frequency;
+	if(new_Data.parameter_Whats_This == whats_This_Thickness_Drift_Sine_Phase)		parameter = &struct_Data.thickness_Drift.drift_Sine_Phase;
+
+	/// interface parameters
+	if(new_Data.parameter_Whats_This == whats_This_Sigma)							parameter = &struct_Data.sigma;
+	if(new_Data.parameter_Whats_This == whats_This_Interlayer_Composition)			parameter = &struct_Data.interlayer_Composition[new_Data.index].interlayer;
+	if(new_Data.parameter_Whats_This == whats_This_Interlayer_My_Sigma)				parameter = &struct_Data.interlayer_Composition[new_Data.index].my_Sigma;
+	// sigma drift
+	if(new_Data.parameter_Whats_This == whats_This_Sigma_Drift_Line_Value)			parameter = &struct_Data.sigma_Drift.drift_Line_Value;
+	if(new_Data.parameter_Whats_This == whats_This_Sigma_Drift_Rand_Rms)			parameter = &struct_Data.sigma_Drift.drift_Rand_Rms;
+	if(new_Data.parameter_Whats_This == whats_This_Sigma_Drift_Sine_Amplitude)		parameter = &struct_Data.sigma_Drift.drift_Sine_Amplitude;
+	if(new_Data.parameter_Whats_This == whats_This_Sigma_Drift_Sine_Frequency)		parameter = &struct_Data.sigma_Drift.drift_Sine_Frequency;
+	if(new_Data.parameter_Whats_This == whats_This_Sigma_Drift_Sine_Phase)			parameter = &struct_Data.sigma_Drift.drift_Sine_Phase;
+	/// stack parameters
+	if(new_Data.parameter_Whats_This == whats_This_Num_Repetitions)
 	{
-		Ambient ambient = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Ambient>();
+		struct_Data.num_Repetition.is_Independent = true;
+		struct_Data.num_Repetition.num_Steps = 1;
+		struct_Data.num_Repetition.start = struct_Data.num_Repetition.value;
+		struct_Data.num_Repetition.step = 1;
+	}
+	if(new_Data.parameter_Whats_This == whats_This_Period)							parameter = &struct_Data.period;
+	if(new_Data.parameter_Whats_This == whats_This_Gamma)							parameter = &struct_Data.gamma;
 
-		/// optical constants
+	// change
+	{
+		(*parameter).independent.is_Independent = true;
+		(*parameter).independent.num_Points = 1;
+		(*parameter).independent.min = (*parameter).value;
+		(*parameter).independent.max = (*parameter).value;
 
-		// ambient absolute density
-		if(whats_This_List[2] == whats_This_Absolute_Density)
-		{
-			ambient.absolute_Density.independent.is_Independent = true;
-			ambient.absolute_Density.independent.num_Points = 1;
-			ambient.absolute_Density.independent.min = ambient.absolute_Density.value;
-			ambient.absolute_Density.independent.max = ambient.absolute_Density.value;
-
-			new_Item->setText(new_Item->text() + " [" + QString::number(ambient.absolute_Density.value,thumbnail_double_format,thumbnail_density_precision) + " " + density_units + "]");
-		}
-		// ambient relative density
-		if(whats_This_List[2] == whats_This_Relative_Density)
-		{
-			ambient.relative_Density.independent.is_Independent = true;
-			ambient.relative_Density.independent.num_Points = 1;
-			ambient.relative_Density.independent.min = ambient.relative_Density.value;
-			ambient.relative_Density.independent.max = ambient.relative_Density.value;
-
-			new_Item->setText(new_Item->text() + " [" + QString::number(ambient.relative_Density.value,thumbnail_double_format,thumbnail_density_precision) + "]");
-		}
-		// ambient permittivity
-		if(whats_This_List[2] == whats_This_Permittivity)
-		{
-			ambient.permittivity.independent.is_Independent = true;
-			ambient.permittivity.independent.num_Points = 1;
-			ambient.permittivity.independent.min = ambient.permittivity.value;
-			ambient.permittivity.independent.max = ambient.permittivity.value;
-
-			new_Item->setText(new_Item->text() + " [" + QString::number(ambient.permittivity.value,thumbnail_double_format,thumbnail_permittivity_precision) + " " + opt_const_units + "]");
-		}
-		// ambient absorption
-		if(whats_This_List[2] == whats_This_Absorption)
-		{
-			ambient.absorption.independent.is_Independent = true;
-			ambient.absorption.independent.num_Points = 1;
-			ambient.absorption.independent.min = ambient.absorption.value;
-			ambient.absorption.independent.max = ambient.absorption.value;
-
-			new_Item->setText(new_Item->text() + " [" + QString::number(ambient.absorption.value,thumbnail_double_format,thumbnail_absorption_precision) + " " + opt_const_units + "]");
-		}
-		//ambient composition
-		if(whats_This_List[2] == whats_This_Composition)
-		{
-			int index = QString(whats_This_List[2]).toInt();
-			ambient.composition[index].composition.independent.is_Independent = true;
-			ambient.composition[index].composition.independent.num_Points = 1;
-			ambient.composition[index].composition.independent.min = ambient.composition[index].composition.value;
-			ambient.composition[index].composition.independent.max = ambient.composition[index].composition.value;
-
-			new_Item->setText(new_Item->text() + " [" + QString::number(ambient.composition[index].composition.value,thumbnail_double_format,thumbnail_composition_precision) + "]");
-		}
-
-		var.setValue(ambient);
-		structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
 	}
 
-	// if layer
-	if(whats_This_List_Type[0] == whats_This_Layer)
-	{
-		Layer layer = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>();
+	var.setValue(struct_Data);
+	structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
 
-		/// optical constants
-
-		// layer absolute density
-		if(whats_This_List[2] == whats_This_Absolute_Density)
-		{
-			layer.absolute_Density.independent.is_Independent = true;
-			layer.absolute_Density.independent.num_Points = 1;
-			layer.absolute_Density.independent.min = layer.absolute_Density.value;
-			layer.absolute_Density.independent.max = layer.absolute_Density.value;
-
-			new_Item->setText(new_Item->text() + " [" + QString::number(layer.absolute_Density.value,thumbnail_double_format,thumbnail_density_precision) + " " + density_units + "]");
-		}
-		// layer relative density
-		if(whats_This_List[2] == whats_This_Relative_Density)
-		{
-			layer.relative_Density.independent.is_Independent = true;
-			layer.relative_Density.independent.num_Points = 1;
-			layer.relative_Density.independent.min = layer.relative_Density.value;
-			layer.relative_Density.independent.max = layer.relative_Density.value;
-
-			new_Item->setText(new_Item->text() + " [" + QString::number(layer.relative_Density.value,thumbnail_double_format,thumbnail_density_precision) + "]");
-		}
-		// layer permittivity
-		if(whats_This_List[2] == whats_This_Permittivity)
-		{
-			layer.permittivity.independent.is_Independent = true;
-			layer.permittivity.independent.num_Points = 1;
-			layer.permittivity.independent.min = layer.permittivity.value;
-			layer.permittivity.independent.max = layer.permittivity.value;
-
-			new_Item->setText(new_Item->text() + " [" + QString::number(layer.permittivity.value,thumbnail_double_format,thumbnail_permittivity_precision) + " " + opt_const_units + "]");
-		}
-		// layer absorption
-		if(whats_This_List[2] == whats_This_Absorption)
-		{
-			layer.absorption.independent.is_Independent = true;
-			layer.absorption.independent.num_Points = 1;
-			layer.absorption.independent.min = layer.absorption.value;
-			layer.absorption.independent.max = layer.absorption.value;
-
-			new_Item->setText(new_Item->text() + " [" + QString::number(layer.absorption.value,thumbnail_double_format,thumbnail_absorption_precision) + " " + opt_const_units + "]");
-		}
-		// layer composition
-		if(whats_This_List[2] == whats_This_Composition)
-		{
-			int index = QString(whats_This_List[2]).toInt();
-			layer.composition[index].composition.independent.is_Independent = true;
-			layer.composition[index].composition.independent.num_Points = 1;
-			layer.composition[index].composition.independent.min = layer.composition[index].composition.value;
-			layer.composition[index].composition.independent.max = layer.composition[index].composition.value;
-
-			new_Item->setText(new_Item->text() + " [" + QString::number(layer.composition[index].composition.value,thumbnail_double_format,thumbnail_composition_precision) + "]");
-		}
-
-		/// thickness parameters
-
-		// layer thickness
-		if(whats_This_List[2] == whats_This_Thickness)
-		{
-			double coeff = length_Coefficients_Map.value(length_units);
-
-			layer.thickness.independent.is_Independent = true;
-			layer.thickness.independent.num_Points = 1;
-			layer.thickness.independent.min = layer.thickness.value;
-			layer.thickness.independent.max = layer.thickness.value;
-
-			new_Item->setText(new_Item->text() + " [" + QString::number(layer.thickness.value/coeff,thumbnail_double_format,thumbnail_thickness_precision) + " " + length_units + "]");
-		}
-
-		/// interface parameters
-
-		// layer sigma
-		if(whats_This_List[2] == whats_This_Sigma)
-		{
-			double coeff = length_Coefficients_Map.value(length_units);
-
-			layer.sigma.independent.is_Independent = true;
-			layer.sigma.independent.num_Points = 1;
-			layer.sigma.independent.min = layer.sigma.value;
-			layer.sigma.independent.max = layer.sigma.value;
-
-			new_Item->setText(new_Item->text() + " [" + QString::number(layer.sigma.value/coeff,thumbnail_double_format,thumbnail_sigma_precision) + " " + length_units + "]");
-		}
-		// layer interlayer composition (if enabled and >=2 elements)
-		if(whats_This_List[2] == whats_This_Interlayer_Composition)
-		{
-			int index = QString(whats_This_List.last()).toInt();
-			layer.interlayer_Composition[index].interlayer.independent.is_Independent = true;
-			layer.interlayer_Composition[index].interlayer.independent.num_Points = 1;
-			layer.interlayer_Composition[index].interlayer.independent.min = layer.interlayer_Composition[index].interlayer.value;
-			layer.interlayer_Composition[index].interlayer.independent.max = layer.interlayer_Composition[index].interlayer.value;
-
-			new_Item->setText(new_Item->text() + " [" + QString::number(layer.interlayer_Composition[index].interlayer.value,thumbnail_double_format,thumbnail_interlayer_precision) + "]");
-		}
-
-		var.setValue(layer);
-		structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
-	}
-
-	// if multilayer
-	if(whats_This_List_Type[0] == whats_This_Multilayer)
-	{
-		Stack_Content stack_Content = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Stack_Content>();
-
-		// multilayer num_repetitions
-		if(whats_This_List[2] == whats_This_Num_Repetitions)
-		{
-			stack_Content.num_Repetition.is_Independent = true;
-			stack_Content.num_Repetition.num_steps = 1;
-			stack_Content.num_Repetition.start = stack_Content.num_Repetition.value;
-			stack_Content.num_Repetition.step = 1;
-
-			new_Item->setText(new_Item->text() + " [" + QString::number(stack_Content.num_Repetition.value) + "]");
-		}
-		// multilayer period
-		if(whats_This_List[2] == whats_This_Period)
-		{
-			double coeff = length_Coefficients_Map.value(length_units);
-
-			stack_Content.period.independent.is_Independent = true;
-			stack_Content.period.independent.num_Points = 1;
-			stack_Content.period.independent.min = stack_Content.period.value;
-			stack_Content.period.independent.max = stack_Content.period.value;
-
-			new_Item->setText(new_Item->text() + " [" + QString::number(stack_Content.period.value/coeff,thumbnail_double_format,thumbnail_period_precision) + " " + length_units + "]");
-		}
-		// multilayer gamma
-		if(whats_This_List[2] == whats_This_Gamma)
-		{
-			stack_Content.gamma.independent.is_Independent = true;
-			stack_Content.gamma.independent.num_Points = 1;
-			stack_Content.gamma.independent.min = stack_Content.gamma.value;
-			stack_Content.gamma.independent.max = stack_Content.gamma.value;
-
-			new_Item->setText(new_Item->text() + " [" + QString::number(stack_Content.gamma.value,thumbnail_double_format,thumbnail_gamma_precision) + "]");
-		}
-
-		var.setValue(stack_Content);
-		structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
-	}
-
-	// if substrate
-	if(whats_This_List_Type[0] == whats_This_Substrate)
-	{
-		Substrate substrate = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Substrate>();
-
-		/// optical constants
-
-		// substrate absolute density
-		if(whats_This_List[2] == whats_This_Absolute_Density)
-		{
-			substrate.absolute_Density.independent.is_Independent = true;
-			substrate.absolute_Density.independent.num_Points = 1;
-			substrate.absolute_Density.independent.min = substrate.absolute_Density.value;
-			substrate.absolute_Density.independent.max = substrate.absolute_Density.value;
-
-			new_Item->setText(new_Item->text() + " [" + QString::number(substrate.absolute_Density.value,thumbnail_double_format,thumbnail_density_precision) + " " + density_units + "]");
-		}
-		// substrate relative density
-		if(whats_This_List[2] == whats_This_Relative_Density)
-		{
-			substrate.relative_Density.independent.is_Independent = true;
-			substrate.relative_Density.independent.num_Points = 1;
-			substrate.relative_Density.independent.min = substrate.relative_Density.value;
-			substrate.relative_Density.independent.max = substrate.relative_Density.value;
-
-			new_Item->setText(new_Item->text() + " [" + QString::number(substrate.relative_Density.value,thumbnail_double_format,thumbnail_density_precision) + "]");
-		}
-		// substrate permittivity
-		if(whats_This_List[2] == whats_This_Permittivity)
-		{
-			substrate.permittivity.independent.is_Independent = true;
-			substrate.permittivity.independent.num_Points = 1;
-			substrate.permittivity.independent.min = substrate.permittivity.value;
-			substrate.permittivity.independent.max = substrate.permittivity.value;
-
-			new_Item->setText(new_Item->text() + " [" + QString::number(substrate.permittivity.value,thumbnail_double_format,thumbnail_permittivity_precision) + " " + opt_const_units + "]");
-		}
-		// substrate absorption
-		if(whats_This_List[2] == whats_This_Absorption)
-		{
-			substrate.absorption.independent.is_Independent = true;
-			substrate.absorption.independent.num_Points = 1;
-			substrate.absorption.independent.min = substrate.absorption.value;
-			substrate.absorption.independent.max = substrate.absorption.value;
-
-			new_Item->setText(new_Item->text() + " [" + QString::number(substrate.absorption.value,thumbnail_double_format,thumbnail_absorption_precision) + " " + opt_const_units + "]");
-		}
-		// substrate composition
-		if(whats_This_List[2] == whats_This_Composition)
-		{
-			int index = QString(whats_This_List[2]).toInt();
-			substrate.composition[index].composition.independent.is_Independent = true;
-			substrate.composition[index].composition.independent.num_Points = 1;
-			substrate.composition[index].composition.independent.min = substrate.composition[index].composition.value;
-			substrate.composition[index].composition.independent.max = substrate.composition[index].composition.value;
-
-			new_Item->setText(new_Item->text() + " [" + QString::number(substrate.composition[index].composition.value,thumbnail_double_format,thumbnail_composition_precision) + "]");
-		}
-
-		/// interface parameters
-
-		// substrate sigma
-		if(whats_This_List[2] == whats_This_Sigma)
-		{
-			double coeff = length_Coefficients_Map.value(length_units);
-
-			substrate.sigma.independent.is_Independent = true;
-			substrate.sigma.independent.num_Points = 1;
-			substrate.sigma.independent.min = substrate.sigma.value;
-			substrate.sigma.independent.max = substrate.sigma.value;
-
-			new_Item->setText(new_Item->text() + " [" + QString::number(substrate.sigma.value/coeff,thumbnail_double_format,thumbnail_sigma_precision) + " " + length_units + "]");
-		}
-		// substrate interlayer composition (if enabled and >=2 elements)
-		if(whats_This_List[2] == whats_This_Interlayer_Composition)
-		{
-			int index = QString(whats_This_List.last()).toInt();
-			substrate.interlayer_Composition[index].interlayer.independent.is_Independent = true;
-			substrate.interlayer_Composition[index].interlayer.independent.num_Points = 1;
-			substrate.interlayer_Composition[index].interlayer.independent.min = substrate.interlayer_Composition[index].interlayer.value;
-			substrate.interlayer_Composition[index].interlayer.independent.max = substrate.interlayer_Composition[index].interlayer.value;
-
-			new_Item->setText(new_Item->text() + " [" + QString::number(substrate.interlayer_Composition[index].interlayer.value,thumbnail_double_format,thumbnail_interlayer_precision) + "]");
-		}
-
-		var.setValue(substrate);
-		structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
-	}
+	Independent_Variables_Editor* editor = new Independent_Variables_Editor(structure_Item, new_Item, variables_List);
+		editor->close();
 }
 
 void Variable_Selection::add_Variable()
@@ -1186,8 +740,6 @@ void Variable_Selection::filter_Change(int index)
 
 void Variable_Selection::iterate_Over_Children(QTreeWidgetItem* this_Stack, bool& thickness_Condition)
 {
-	Stack_Content stack_Content;
-	Layer layer;
 	QTreeWidgetItem* baby;
 
 	for(int i=0; i<this_Stack->childCount(); ++i)
@@ -1197,31 +749,30 @@ void Variable_Selection::iterate_Over_Children(QTreeWidgetItem* this_Stack, bool
 		// if layer
 		if(baby->childCount()==0)
 		{
-			layer = baby->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>();
+			Data layer = baby->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
 			thickness_Condition = thickness_Condition && !layer.thickness.independent.is_Independent;
 		}
 
 		// if multilayer
 		if(baby->childCount()>0)
 		{
-			stack_Content = baby->data(DEFAULT_COLUMN, Qt::UserRole).value<Stack_Content>();
+			Data stack_Content = baby->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
 			thickness_Condition = thickness_Condition && (!stack_Content.period.independent.is_Independent && !stack_Content.num_Repetition.is_Independent);
 			iterate_Over_Children(baby, thickness_Condition);
 		}
 	}
 }
 
-void Variable_Selection::iterate_Over_Parents(QTreeWidgetItem* this_Item, bool& thickness_Condition)
+void Variable_Selection::iterate_Over_Parents(QTreeWidgetItem* this_Item, bool& parent_Condition)
 {
-	if(this_Item->parent())
+	QTreeWidgetItem* parent = this_Item->parent();
+	if(parent)
 	{
-		Stack_Content stack_Content;
-		QTreeWidgetItem* parent = this_Item->parent();
 		while(parent)
 		{
-			stack_Content = parent->data(DEFAULT_COLUMN, Qt::UserRole).value<Stack_Content>();
+			Data stack_Content = parent->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
 			//											  if                 false						  and		                false
-			thickness_Condition = thickness_Condition && (!stack_Content.gamma.independent.is_Independent && !stack_Content.period.independent.is_Independent);
+			parent_Condition = parent_Condition && (!stack_Content.gamma.independent.is_Independent && !stack_Content.period.independent.is_Independent);
 			parent = parent->parent();
 		}
 	}

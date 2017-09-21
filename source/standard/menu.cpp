@@ -20,14 +20,14 @@ void Menu::add_Menu_Points()
 		create_File_Menu();
 			menu_Bar->addMenu(file_Menu);
 	}
-	if(window_Type == Window_Type::Multilayer_Approach())
+	if(window_Type == window_Type_Multilayer_Approach)
 	{
 		create_Calculate_Menu();
 			menu_Bar->addMenu(calculate_Menu);
 		create_Optical_Constants_Menu();
 			menu_Bar->addMenu(optical_Constants_Menu);
 	}
-	if(window_Type == Window_Type::Independent_Variables_Editor())
+	if(window_Type == window_Type_Independent_Variables_Editor)
 	{
 		independent_Variables_Editor = qobject_cast<Independent_Variables_Editor*>(my_Parent);
 
@@ -36,7 +36,7 @@ void Menu::add_Menu_Points()
 		create_Independent_Precision_Menu();
 			menu_Bar->addMenu(precision_Menu);
 	}
-	if(window_Type == Window_Type::Item_Editor())
+	if(window_Type == window_Type_Item_Editor)
 	{
 		item_Editor = qobject_cast<Item_Editor*>(my_Parent);
 
@@ -45,17 +45,17 @@ void Menu::add_Menu_Points()
 		create_Item_Precision_Menu();
 			menu_Bar->addMenu(precision_Menu);
 	}
-    if(window_Type == Window_Type::Table())
-    {
+	if(window_Type == window_Type_Table)
+	{
 		create_Calculate_Menu();
 			menu_Bar->addMenu(calculate_Menu);
 		create_Table_Units_Menu();
-            menu_Bar->addMenu(units_Menu);
-        create_Table_Precision_Menu();
-            menu_Bar->addMenu(precision_Menu);
-    }
-	if(window_Type == Window_Type::Launcher() ||
-	   window_Type == Window_Type::Multilayer_Approach())
+			menu_Bar->addMenu(units_Menu);
+		create_Table_Precision_Menu();
+			menu_Bar->addMenu(precision_Menu);
+	}
+	if(window_Type == window_Type_Launcher ||
+	   window_Type == window_Type_Multilayer_Approach)
 	{
 		create_Help_Menu();
 			menu_Bar->addMenu(help_Menu);
@@ -67,34 +67,34 @@ void Menu::create_File_Menu()
 	file_Menu = new QMenu("File", this);
 	{
 
-		if(window_Type == Window_Type::Multilayer_Approach())
+		if(window_Type == window_Type_Multilayer_Approach)
 		{
-			QAction* act_Open = new QAction("Open...", this);			
+			QAction* act_Open = new QAction("Open...", this);
 			act_Open->setShortcut(Qt::Key_O | Qt::CTRL);
-			connect(act_Open, SIGNAL(triggered()), my_Parent, SLOT(open()));
+			connect(act_Open, &QAction::triggered, my_Parent, [=]{qobject_cast<Multilayer_Approach*>(my_Parent)->open();});
 			file_Menu->addAction(act_Open);
 
 			QAction* act_Save = new QAction("Save...", this);
 			act_Save->setShortcut(Qt::Key_S | Qt::CTRL);
 			file_Menu->addAction(act_Save);
-			connect(act_Save, SIGNAL(triggered()), my_Parent, SLOT(save()));
+			connect(act_Save, &QAction::triggered, my_Parent, [=]{qobject_cast<Multilayer_Approach*>(my_Parent)->save();});
 
 			QAction* act_Open_Launcher = new QAction("Open Launcher", this);
-			connect(act_Open_Launcher, SIGNAL(triggered()), my_Parent, SLOT(open_Launcher()));
+			connect(act_Open_Launcher, &QAction::triggered, my_Parent, [=]{qobject_cast<Multilayer_Approach*>(my_Parent)->open_Launcher();});
 			file_Menu->addAction(act_Open_Launcher);
 		}
 
-		QAction* act_Quit = new QAction("Done", this);		
+		QAction* act_Quit = new QAction("Done", this);
 		act_Quit->setShortcut(Qt::Key_D | Qt::CTRL);
-		connect(act_Quit, SIGNAL(triggered()), my_Parent, SLOT(close()));		
+		connect(act_Quit, &QAction::triggered, my_Parent, [=]{qobject_cast<QWidget*>(my_Parent)->close();});
 		file_Menu->addAction(act_Quit);
 
-		if(window_Type == Window_Type::Launcher() ||
-		   window_Type == Window_Type::Multilayer_Approach())
+		if(window_Type == window_Type_Launcher ||
+		   window_Type == window_Type_Multilayer_Approach)
 		{
 			act_Quit->setText("Close all");
 			act_Quit->setShortcut(Qt::Key_Q | Qt::CTRL);
-			connect(act_Quit, SIGNAL(triggered()), qApp, SLOT(quit()));
+			connect(act_Quit, &QAction::triggered, qApp, &QApplication::quit);
 		}
 	}
 }
@@ -105,14 +105,14 @@ void Menu::create_Calculate_Menu()
 
 	QAction* act_Specular = new QAction("Specular optical functions/fields", this);
 	act_Specular->setShortcut(Qt::Key_C | Qt::CTRL | Qt::SHIFT);
-	if(window_Type == Window_Type::Table())
+	if(window_Type == window_Type_Table)
 	{
 		Table_Of_Structures* table_Of_Structures = qobject_cast<Table_Of_Structures*>(my_Parent);
-		connect(act_Specular, SIGNAL(triggered()), table_Of_Structures->multilayer_Tabs->parent(), SLOT(calc_Reflection()));
+		connect(act_Specular, &QAction::triggered, table_Of_Structures->multilayer_Tabs->parent(), [=]{qobject_cast<Multilayer_Approach*>(table_Of_Structures->multilayer_Tabs->parent())->calc_Reflection();});
 	}
-	if(window_Type == Window_Type::Multilayer_Approach())
+	if(window_Type == window_Type_Multilayer_Approach)
 	{
-		connect(act_Specular, SIGNAL(triggered()), my_Parent, SLOT(calc_Reflection()));
+		connect(act_Specular, &QAction::triggered, my_Parent, [=]{qobject_cast<Multilayer_Approach*>(my_Parent)->calc_Reflection();});
 	}
 	calculate_Menu->addAction(act_Specular);
 }
@@ -122,7 +122,7 @@ void Menu::create_Optical_Constants_Menu()
 	optical_Constants_Menu = new QMenu("Optical Constants", this);
 
 	QAction* act_optical_Constants = new QAction("Reload optical constants", this);
-	connect(act_optical_Constants, SIGNAL(triggered()), my_Parent, SLOT(reload_Optical_Constants()));
+	connect(act_optical_Constants, &QAction::triggered, my_Parent, [=]{qobject_cast<Multilayer_Approach*>(my_Parent)->reload_Optical_Constants();});
 	optical_Constants_Menu->addAction(act_optical_Constants);
 }
 
@@ -130,27 +130,26 @@ void Menu::create_Independent_Units_Menu()
 {
 	// PARAMETER
 
+	QString whats_This= independent_Variables_Editor->list_Item->data(Qt::UserRole).value<Independent_Indicator>().parameter_Whats_This;
+
 	units_Menu = new QMenu("Units", this);
 
-	QString whats_This = independent_Variables_Editor->item->whatsThis();
-	QStringList whats_This_List = whats_This.split(whats_This_Delimiter,QString::SkipEmptyParts);
-
 	// if density, permittivity, absorption, composition, num_repetitions, or gamma
-	if((whats_This_List[2] == whats_This_Absolute_Density)		 ||
-	   (whats_This_List[2] == whats_This_Relative_Density)		 ||
-	   (whats_This_List[2] == whats_This_Permittivity)			 ||
-	   (whats_This_List[2] == whats_This_Absorption)			 ||
-	   (whats_This_List[2] == whats_This_Composition)			 ||
-	   (whats_This_List[2] == whats_This_Interlayer_Composition) ||
-	   (whats_This_List[2] == whats_This_Num_Repetitions)		 ||
-	   (whats_This_List[2] == whats_This_Gamma))
+	if((whats_This == whats_This_Absolute_Density)		 ||
+	   (whats_This == whats_This_Relative_Density)		 ||
+	   (whats_This == whats_This_Permittivity)			 ||
+	   (whats_This == whats_This_Absorption)			 ||
+	   (whats_This == whats_This_Composition)			 ||
+	   (whats_This == whats_This_Interlayer_Composition) ||
+	   (whats_This == whats_This_Num_Repetitions)		 ||
+	   (whats_This == whats_This_Gamma))
 	{
 		units_Menu->setDisabled(true);
 	}
 	// if thickness, sigma or period
-	if((whats_This_List[2] == whats_This_Thickness) ||
-	   (whats_This_List[2] == whats_This_Sigma)	    ||
-	   (whats_This_List[2] == whats_This_Period))
+	if((whats_This == whats_This_Thickness) ||
+	   (whats_This == whats_This_Sigma)	    ||
+	   (whats_This == whats_This_Period))
 	{
 		QActionGroup* group_Act_Unit = new QActionGroup(this);
 			group_Act_Unit->setExclusive(true);
@@ -166,11 +165,11 @@ void Menu::create_Independent_Units_Menu()
 
 			units_Menu->addAction(act_Unit);
 
-			connect(act_Unit, SIGNAL(triggered()), this, SLOT(set_Length_Unit()));
+			connect(act_Unit, &QAction::triggered, this, &Menu::set_Length_Unit);
 		}
 	}
 	// if angle
-	if(whats_This_List[2] == whats_This_Angle)
+	if(whats_This == whats_This_Angle)
 	{
 		QActionGroup* group_Act_Angle = new QActionGroup(this);
 			group_Act_Angle->setExclusive(true);
@@ -178,8 +177,8 @@ void Menu::create_Independent_Units_Menu()
 		// Grazing & Incidence
 		for(int index=0; index<angle_Units_List.size(); index++)
 		{
-			QAction* act_Grazing   = new QAction(angle_Units_Legend_Map.value(angle_Units_List[index]) + ", " + Angle_Type::Grazing(),   this);
-			QAction* act_Incidence = new QAction(angle_Units_Legend_Map.value(angle_Units_List[index]) + ", " + Angle_Type::Incidence(), this);
+			QAction* act_Grazing   = new QAction(angle_Units_Legend_Map.value(angle_Units_List[index]) + ", " + angle_Type_Grazing,   this);
+			QAction* act_Incidence = new QAction(angle_Units_Legend_Map.value(angle_Units_List[index]) + ", " + angle_Type_Incidence, this);
 				act_Grazing->setProperty  (index_Property, index);
 				act_Incidence->setProperty(index_Property, index);
 
@@ -191,20 +190,20 @@ void Menu::create_Independent_Units_Menu()
 
 				if(angle_Units_List[index] == angle_units)
 				{
-					Measurement measurement = independent_Variables_Editor->structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Measurement>();
-					if(measurement.angle_Type == Angle_Type::Grazing())		act_Grazing->setChecked(true);
-					if(measurement.angle_Type == Angle_Type::Incidence())	act_Incidence->setChecked(true);
+					Data measurement = independent_Variables_Editor->structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+					if(measurement.angle_Type == angle_Type_Grazing)	act_Grazing->setChecked(true);
+					if(measurement.angle_Type == angle_Type_Incidence)	act_Incidence->setChecked(true);
 				}
 
 			units_Menu->addAction(act_Grazing);
 			units_Menu->addAction(act_Incidence);
 
-			connect(act_Grazing,   SIGNAL(triggered()), this, SLOT(set_Grazing_Unit()));
-			connect(act_Incidence, SIGNAL(triggered()), this, SLOT(set_Incidence_Unit()));
+			connect(act_Grazing,   &QAction::triggered, this, &Menu::set_Grazing_Unit);
+			connect(act_Incidence, &QAction::triggered, this, &Menu::set_Incidence_Unit);
 		}
 	}
 	// if wavelength
-	if(whats_This_List[2] == whats_This_Wavelength)
+	if(whats_This == whats_This_Wavelength)
 	{
 		QActionGroup* group_Act_Unit = new QActionGroup(this);
 			group_Act_Unit->setExclusive(true);
@@ -220,7 +219,7 @@ void Menu::create_Independent_Units_Menu()
 
 			units_Menu->addAction(act_Unit);
 
-			connect(act_Unit, SIGNAL(triggered()), this, SLOT(set_Wavelength_Unit()));
+			connect(act_Unit,  &QAction::triggered, this, &Menu::set_Wavelength_Unit);
 		}
 	}
 }
@@ -229,8 +228,7 @@ void Menu::create_Independent_Precision_Menu()
 {
 	// PARAMETER
 
-	QString whats_This = independent_Variables_Editor->item->whatsThis();
-	QStringList whats_This_List = whats_This.split(whats_This_Delimiter,QString::SkipEmptyParts);
+	QString whats_This= independent_Variables_Editor->list_Item->data(Qt::UserRole).value<Independent_Indicator>().parameter_Whats_This;
 
 	precision_Menu = new QMenu("Precision", this);
 
@@ -260,109 +258,109 @@ void Menu::create_Independent_Precision_Menu()
 			menu_Edit->addAction(precision_Edit);
 
 		// if density
-		if((whats_This_List[2] == whats_This_Absolute_Density) ||
-		   (whats_This_List[2] == whats_This_Relative_Density))
+		if((whats_This == whats_This_Absolute_Density) ||
+		   (whats_This == whats_This_Relative_Density))
 		{
 			if(index == thumbnail_density_precision) precision_Thumb->setChecked(true);
 			if(index == line_edit_density_precision) precision_Edit->setChecked(true);
 
-			connect(precision_Thumb,SIGNAL(triggered()), this, SLOT(set_Thumbnail_Density_Precision()));
-			connect(precision_Edit, SIGNAL(triggered()), this, SLOT(set_Line_Edit_Density_Precision()));
+			connect(precision_Thumb,&QAction::triggered, this, &Menu::set_Thumbnail_Density_Precision);
+			connect(precision_Edit, &QAction::triggered, this, &Menu::set_Line_Edit_Density_Precision);
 		}
 		// if permittivity
-		if(whats_This_List[2] == whats_This_Permittivity)
+		if(whats_This == whats_This_Permittivity)
 		{
 			if(index == thumbnail_permittivity_precision) precision_Thumb->setChecked(true);
 			if(index == line_edit_permittivity_precision) precision_Edit->setChecked(true);
 
-			connect(precision_Thumb,SIGNAL(triggered()), this, SLOT(set_Thumbnail_Permittivity_Precision()));
-			connect(precision_Edit, SIGNAL(triggered()), this, SLOT(set_Line_Edit_Permittivity_Precision()));
+			connect(precision_Thumb,&QAction::triggered, this, &Menu::set_Thumbnail_Permittivity_Precision);
+			connect(precision_Edit, &QAction::triggered, this, &Menu::set_Line_Edit_Permittivity_Precision);
 		}
 		// if absorption
-		if(whats_This_List[2] == whats_This_Absorption)
+		if(whats_This == whats_This_Absorption)
 		{
 			if(index == thumbnail_absorption_precision) precision_Thumb->setChecked(true);
 			if(index == line_edit_absorption_precision) precision_Edit->setChecked(true);
 
-			connect(precision_Thumb,SIGNAL(triggered()), this, SLOT(set_Thumbnail_Absorption_Precision()));
-			connect(precision_Edit, SIGNAL(triggered()), this, SLOT(set_Line_Edit_Absorption_Precision()));
+			connect(precision_Thumb,&QAction::triggered, this, &Menu::set_Thumbnail_Absorption_Precision);
+			connect(precision_Edit, &QAction::triggered, this, &Menu::set_Line_Edit_Absorption_Precision);
 		}
 		// if composition
-		if(whats_This_List[2] == whats_This_Composition)
+		if(whats_This == whats_This_Composition)
 		{
 			if(index == thumbnail_composition_precision) precision_Thumb->setChecked(true);
 			if(index == line_edit_composition_precision) precision_Edit->setChecked(true);
 
-			connect(precision_Thumb,SIGNAL(triggered()), this, SLOT(set_Thumbnail_Composition_Precision()));
-			connect(precision_Edit, SIGNAL(triggered()), this, SLOT(set_Line_Edit_Composition_Precision()));
+			connect(precision_Thumb,&QAction::triggered, this, &Menu::set_Thumbnail_Composition_Precision);
+			connect(precision_Edit, &QAction::triggered, this, &Menu::set_Line_Edit_Composition_Precision);
 		}
 		// if thickness
-		if(whats_This_List[2] == whats_This_Thickness)
+		if(whats_This == whats_This_Thickness)
 		{
 			if(index == thumbnail_thickness_precision) precision_Thumb->setChecked(true);
 			if(index == line_edit_thickness_precision) precision_Edit->setChecked(true);
 
-			connect(precision_Thumb,SIGNAL(triggered()), this, SLOT(set_Thumbnail_Thickness_Precision()));
-			connect(precision_Edit, SIGNAL(triggered()), this, SLOT(set_Line_Edit_Thickness_Precision()));
+			connect(precision_Thumb,&QAction::triggered, this, &Menu::set_Thumbnail_Thickness_Precision);
+			connect(precision_Edit, &QAction::triggered, this, &Menu::set_Line_Edit_Thickness_Precision);
 		}
 		// if sigma
-		if(whats_This_List[2] == whats_This_Sigma)
+		if(whats_This == whats_This_Sigma)
 		{
 			if(index == thumbnail_sigma_precision) precision_Thumb->setChecked(true);
 			if(index == line_edit_sigma_precision) precision_Edit->setChecked(true);
 
-			connect(precision_Thumb,SIGNAL(triggered()), this, SLOT(set_Thumbnail_Sigma_Precision()));
-			connect(precision_Edit, SIGNAL(triggered()), this, SLOT(set_Line_Edit_Sigma_Precision()));
+			connect(precision_Thumb,&QAction::triggered, this, &Menu::set_Thumbnail_Sigma_Precision);
+			connect(precision_Edit, &QAction::triggered, this, &Menu::set_Line_Edit_Sigma_Precision);
 		}
 		// if interlayer composition
-		if(whats_This_List[2] == whats_This_Interlayer_Composition)
+		if(whats_This == whats_This_Interlayer_Composition)
 		{
 			if(index == thumbnail_interlayer_precision) precision_Thumb->setChecked(true);
 			if(index == line_edit_interlayer_precision) precision_Edit->setChecked(true);
 
-			connect(precision_Thumb,SIGNAL(triggered()), this, SLOT(set_Thumbnail_Interlayer_Precision()));
-			connect(precision_Edit, SIGNAL(triggered()), this, SLOT(set_Line_Edit_Interlayer_Precision()));
+			connect(precision_Thumb,&QAction::triggered, this, &Menu::set_Thumbnail_Interlayer_Precision);
+			connect(precision_Edit, &QAction::triggered, this, &Menu::set_Line_Edit_Interlayer_Precision);
 		}
 		// multilayer num_repetitions
-		if(whats_This_List[2] == whats_This_Num_Repetitions)
+		if(whats_This == whats_This_Num_Repetitions)
 		{
 			precision_Menu->setDisabled(true);
 		}
 		// multilayer period
-		if(whats_This_List[2] == whats_This_Period)
+		if(whats_This == whats_This_Period)
 		{
 			if(index == thumbnail_period_precision) precision_Thumb->setChecked(true);
 			if(index == line_edit_period_precision) precision_Edit->setChecked(true);
 
-			connect(precision_Thumb,SIGNAL(triggered()), this, SLOT(set_Thumbnail_Period_Precision()));
-			connect(precision_Edit, SIGNAL(triggered()), this, SLOT(set_Line_Edit_Period_Precision()));
+			connect(precision_Thumb,&QAction::triggered, this, &Menu::set_Thumbnail_Period_Precision);
+			connect(precision_Edit, &QAction::triggered, this, &Menu::set_Line_Edit_Period_Precision);
 		}
 		// multilayer gamma
-		if(whats_This_List[2] == whats_This_Gamma)
+		if(whats_This == whats_This_Gamma)
 		{
 			if(index == thumbnail_gamma_precision) precision_Thumb->setChecked(true);
 			if(index == line_edit_gamma_precision) precision_Edit->setChecked(true);
 
-			connect(precision_Thumb,SIGNAL(triggered()), this, SLOT(set_Thumbnail_Gamma_Precision()));
-			connect(precision_Edit, SIGNAL(triggered()), this, SLOT(set_Line_Edit_Gamma_Precision()));
+			connect(precision_Thumb,&QAction::triggered, this, &Menu::set_Thumbnail_Gamma_Precision);
+			connect(precision_Edit, &QAction::triggered, this, &Menu::set_Line_Edit_Gamma_Precision);
 		}
 		// if angle
-		if(whats_This_List[2] == whats_This_Angle)
+		if(whats_This == whats_This_Angle)
 		{
 			if(index == thumbnail_angle_precision) precision_Thumb->setChecked(true);
 			if(index == line_edit_angle_precision) precision_Edit->setChecked(true);
 
-			connect(precision_Thumb,SIGNAL(triggered()), this, SLOT(set_Thumbnail_Angle_Precision()));
-			connect(precision_Edit, SIGNAL(triggered()), this, SLOT(set_Line_Edit_Angle_Precision()));
+			connect(precision_Thumb,&QAction::triggered, this, &Menu::set_Thumbnail_Angle_Precision);
+			connect(precision_Edit, &QAction::triggered, this, &Menu::set_Line_Edit_Angle_Precision);
 		}
 		// if wavelength
-		if(whats_This_List[2] == whats_This_Wavelength)
+		if(whats_This == whats_This_Wavelength)
 		{
 			if(index == thumbnail_wavelength_precision) precision_Thumb->setChecked(true);
 			if(index == line_edit_wavelength_precision) precision_Edit->setChecked(true);
 
-			connect(precision_Thumb,SIGNAL(triggered()), this, SLOT(set_Thumbnail_Wavelength_Precision()));
-			connect(precision_Edit, SIGNAL(triggered()), this, SLOT(set_Line_Edit_Wavelength_Precision()));
+			connect(precision_Thumb,&QAction::triggered, this, &Menu::set_Thumbnail_Wavelength_Precision);
+			connect(precision_Edit, &QAction::triggered, this, &Menu::set_Line_Edit_Wavelength_Precision);
 		}
 	}
 }
@@ -371,12 +369,11 @@ void Menu::create_Item_Units_Menu()
 {
 	// PARAMETER
 
-	QString whats_This = item_Editor->item->whatsThis(DEFAULT_COLUMN);
-	QStringList whats_This_List = whats_This.split(item_Type_Delimiter,QString::SkipEmptyParts);
+	QString item_Type = item_Editor->item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>().item_Type;
 
-	units_Menu = new QMenu("Units", this);	
+	units_Menu = new QMenu("Units", this);
 
-	if(whats_This_List[0] == whats_This_Ambient)
+	if(item_Type == item_Type_Ambient)
 		units_Menu->setDisabled(true);
 
 	menu_Length_Units = new QMenu("Lengths", this);
@@ -396,7 +393,7 @@ void Menu::create_Item_Units_Menu()
 			menu_Length_Units->addAction(act_Unit);
 			units_Menu->addMenu(menu_Length_Units);
 
-			connect(act_Unit, SIGNAL(triggered()), this, SLOT(set_Length_Unit()));
+			connect(act_Unit, &QAction::triggered, this, &Menu::set_Length_Unit);
 		}
 	}
 }
@@ -405,8 +402,7 @@ void Menu::create_Item_Precision_Menu()
 {
 	// PARAMETER
 
-	QString whats_This = item_Editor->item->whatsThis(DEFAULT_COLUMN);
-	QStringList whats_This_List = whats_This.split(item_Type_Delimiter,QString::SkipEmptyParts);
+	QString item_Type = item_Editor->item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>().item_Type;
 
 	precision_Menu = new QMenu("Precision", this);
 
@@ -418,45 +414,45 @@ void Menu::create_Item_Precision_Menu()
 	menu_Thumb  = new QMenu("Thumbnail precision", this);
 	menu_Edit   = new QMenu("Operating precision", this);
 
-	if(whats_This_List[0] == whats_This_Ambient ||
-	   whats_This_List[0] == whats_This_Layer   ||
-	   whats_This_List[0] == whats_This_Substrate)
+	if(item_Type == item_Type_Ambient ||
+	   item_Type == item_Type_Layer   ||
+	   item_Type == item_Type_Substrate)
 	{
 		precision_Menu->addMenu(menu_Density);
 			menu_Density->addMenu(menu_Thumb);
 			menu_Density->addMenu(menu_Edit);
 	}
-	if(whats_This_List[0] == whats_This_Multilayer ||
-	   whats_This_List[0] == whats_This_Layer	   ||
-	   whats_This_List[0] == whats_This_Substrate)
+	if(item_Type == item_Type_Multilayer ||
+	   item_Type == item_Type_Layer	   ||
+	   item_Type == item_Type_Substrate)
 	{
 		precision_Menu->addMenu(menu_Lengths);
 			menu_Lengths->addMenu(menu_Thumb);
 			menu_Lengths->addMenu(menu_Edit);
 	}
-	if(whats_This_List[0] == whats_This_Ambient ||
-	   whats_This_List[0] == whats_This_Layer   ||
-	   whats_This_List[0] == whats_This_Substrate)
+	if(item_Type == item_Type_Ambient ||
+	   item_Type == item_Type_Layer   ||
+	   item_Type == item_Type_Substrate)
 	{
 		precision_Menu->addMenu(menu_Composition);
 			//menu_Composition->addMenu(menu_Thumb);
 			menu_Composition->addMenu(menu_Edit);
 	}
-	if(whats_This_List[0] == whats_This_Layer   ||
-	   whats_This_List[0] == whats_This_Substrate)
+	if(item_Type == item_Type_Layer   ||
+	   item_Type == item_Type_Substrate)
 	{
 		precision_Menu->addMenu(menu_Interlayer);
 			//menu_Interlayer->addMenu(menu_Thumb);
 			menu_Interlayer->addMenu(menu_Edit);
 	}
 
-	connect(menu_Density,	 SIGNAL(aboutToShow()), this, SLOT(menu_Focus()));
-	connect(menu_Lengths,	 SIGNAL(aboutToShow()), this, SLOT(menu_Focus()));
-	connect(menu_Composition,SIGNAL(aboutToShow()), this, SLOT(menu_Focus()));
-	connect(menu_Interlayer, SIGNAL(aboutToShow()), this, SLOT(menu_Focus()));
+	connect(menu_Density,	 &QMenu::aboutToShow, this, &Menu::menu_Focus);//set_Length_Unit);
+	connect(menu_Lengths,	 &QMenu::aboutToShow, this, &Menu::menu_Focus);
+	connect(menu_Composition,&QMenu::aboutToShow, this, &Menu::menu_Focus);
+	connect(menu_Interlayer, &QMenu::aboutToShow, this, &Menu::menu_Focus);
 
-	connect(menu_Thumb,		 SIGNAL(aboutToShow()), this, SLOT(thumb_Edit_Focus()));
-	connect(menu_Edit,		 SIGNAL(aboutToShow()), this, SLOT(thumb_Edit_Focus()));
+	connect(menu_Thumb,		 &QMenu::aboutToShow, this, &Menu::thumb_Edit_Focus);
+	connect(menu_Edit,		 &QMenu::aboutToShow, this, &Menu::thumb_Edit_Focus);
 
 	QActionGroup* group_Precision_Thumb = new QActionGroup(this);
 	QActionGroup* group_Precision_Edit  = new QActionGroup(this);
@@ -478,105 +474,104 @@ void Menu::create_Item_Precision_Menu()
 			menu_Thumb->addAction(precision_Thumb);
 			menu_Edit->addAction(precision_Edit);
 
-		connect(precision_Thumb,SIGNAL(triggered()), this, SLOT(activate_Item_Thumbnail_Precision()));
-		connect(precision_Edit, SIGNAL(triggered()), this, SLOT(activate_Item_Line_Edit_Precision()));
-    }
+		connect(precision_Thumb, &QAction::triggered, this, &Menu::activate_Item_Thumbnail_Precision);
+		connect(precision_Edit,  &QAction::triggered, this, &Menu::activate_Item_Line_Edit_Precision);
+	}
 }
 
 void Menu::create_Table_Units_Menu()
 {
-    // PARAMETER
+	// PARAMETER
 
-    units_Menu = new QMenu("Units", this);
+	units_Menu = new QMenu("Units", this);
+	menu_Length_Units = new QMenu("Lengths", this);
+	{
+		QActionGroup* group_Act_Unit = new QActionGroup(this);
+			group_Act_Unit->setExclusive(true);
 
-    menu_Length_Units = new QMenu("Lengths", this);
-    {
-        QActionGroup* group_Act_Unit = new QActionGroup(this);
-            group_Act_Unit->setExclusive(true);
+		for(int index=0; index<length_Units_List.size(); index++)
+		{
+			QAction* act_Unit = new QAction(length_Units_List[index], this);
+				act_Unit->setProperty(index_Property, index);
+				act_Unit->setCheckable(true);
+				act_Unit->setActionGroup(group_Act_Unit);
 
-        for(int index=0; index<length_Units_List.size(); index++)
-        {
-            QAction* act_Unit = new QAction(length_Units_List[index], this);
-                act_Unit->setProperty(index_Property, index);
-                act_Unit->setCheckable(true);
-                act_Unit->setActionGroup(group_Act_Unit);
+				if(length_Units_List[index] == length_units) act_Unit->setChecked(true);
 
-                if(length_Units_List[index] == length_units) act_Unit->setChecked(true);
+			menu_Length_Units->addAction(act_Unit);
+			units_Menu->addMenu(menu_Length_Units);
 
-            menu_Length_Units->addAction(act_Unit);
-            units_Menu->addMenu(menu_Length_Units);
-
-            connect(act_Unit, SIGNAL(triggered()), this, SLOT(set_Length_Unit()));
-        }
-    }
+			connect(act_Unit,  &QAction::triggered, this, &Menu::set_Length_Unit);
+		}
+	}
 }
 
 void Menu::create_Table_Precision_Menu()
 {
-    // PARAMETER
+	// PARAMETER
 
-    precision_Menu = new QMenu("Precision", this);
+	precision_Menu = new QMenu("Precision", this);
 
-    menu_Density	 = new QMenu("Density", this);
-    menu_Lengths	 = new QMenu("Lengths", this);
-    menu_Composition = new QMenu("Atomic Composition", this);
-    menu_Interlayer  = new QMenu("Interlayer Composition", this);
+	menu_Density	 = new QMenu("Density", this);
+	menu_Lengths	 = new QMenu("Lengths", this);
+	menu_Composition = new QMenu("Atomic Composition", this);
+	menu_Interlayer  = new QMenu("Interlayer Composition", this);
 
-    menu_Thumb  = new QMenu("Thumbnail precision", this);
-    menu_Edit   = new QMenu("Operating precision", this);
+	menu_Thumb  = new QMenu("Thumbnail precision", this);
+	menu_Edit   = new QMenu("Operating precision", this);
 
-    {
-        precision_Menu->addMenu(menu_Density);
-            menu_Density->addMenu(menu_Thumb);
-            menu_Density->addMenu(menu_Edit);
-    }
-    {
-        precision_Menu->addMenu(menu_Lengths);
-            menu_Lengths->addMenu(menu_Thumb);
-            menu_Lengths->addMenu(menu_Edit);
-    }
-    {
-        precision_Menu->addMenu(menu_Composition);
-            //menu_Composition->addMenu(menu_Thumb);
-            menu_Composition->addMenu(menu_Edit);
-    }
-    {
-        precision_Menu->addMenu(menu_Interlayer);
-            //menu_Interlayer->addMenu(menu_Thumb);
-            menu_Interlayer->addMenu(menu_Edit);
-    }
+	{
+		precision_Menu->addMenu(menu_Density);
+			menu_Density->addMenu(menu_Thumb);
+			menu_Density->addMenu(menu_Edit);
+	}
+	{
+		precision_Menu->addMenu(menu_Lengths);
+			menu_Lengths->addMenu(menu_Thumb);
+			menu_Lengths->addMenu(menu_Edit);
+	}
+	{
+		precision_Menu->addMenu(menu_Composition);
+			//menu_Composition->addMenu(menu_Thumb);
+			menu_Composition->addMenu(menu_Edit);
+	}
+	{
+		precision_Menu->addMenu(menu_Interlayer);
+			//menu_Interlayer->addMenu(menu_Thumb);
+			menu_Interlayer->addMenu(menu_Edit);
+	}
 
-    connect(menu_Density,	 SIGNAL(aboutToShow()), this, SLOT(menu_Focus()));
-    connect(menu_Lengths,	 SIGNAL(aboutToShow()), this, SLOT(menu_Focus()));
-    connect(menu_Composition,SIGNAL(aboutToShow()), this, SLOT(menu_Focus()));
-    connect(menu_Interlayer, SIGNAL(aboutToShow()), this, SLOT(menu_Focus()));
+	connect(menu_Density,	 &QMenu::aboutToShow, this, &Menu::menu_Focus);
+	connect(menu_Lengths,	 &QMenu::aboutToShow, this, &Menu::menu_Focus);
+	connect(menu_Composition,&QMenu::aboutToShow, this, &Menu::menu_Focus);
+	connect(menu_Interlayer, &QMenu::aboutToShow, this, &Menu::menu_Focus);
 
-    connect(menu_Thumb,		 SIGNAL(aboutToShow()), this, SLOT(thumb_Edit_Focus()));
-    connect(menu_Edit,		 SIGNAL(aboutToShow()), this, SLOT(thumb_Edit_Focus()));
+	connect(menu_Thumb,		 &QMenu::aboutToShow, this, &Menu::thumb_Edit_Focus);
+	connect(menu_Edit,		 &QMenu::aboutToShow, this, &Menu::thumb_Edit_Focus);
 
-    QActionGroup* group_Precision_Thumb = new QActionGroup(this);
-    QActionGroup* group_Precision_Edit  = new QActionGroup(this);
-        group_Precision_Thumb->setExclusive(true);
-        group_Precision_Edit->setExclusive(true);
+	QActionGroup* group_Precision_Thumb = new QActionGroup(this);
+	QActionGroup* group_Precision_Edit  = new QActionGroup(this);
+		group_Precision_Thumb->setExclusive(true);
+		group_Precision_Edit->setExclusive(true);
 
-    for(int index=0; index<MAX_PRECISION_USED; index++)
-    {
-        QAction* precision_Thumb  = new QAction(QString::number(index), menu_Thumb);
-        QAction* precision_Edit   = new QAction(QString::number(index), menu_Edit);
-            precision_Thumb->setProperty(index_Property, index);
-            precision_Edit->setProperty(index_Property, index);
+	for(int index=0; index<MAX_PRECISION_USED; index++)
+	{
+		QAction* precision_Thumb  = new QAction(QString::number(index), menu_Thumb);
+		QAction* precision_Edit   = new QAction(QString::number(index), menu_Edit);
+			precision_Thumb->setProperty(index_Property, index);
+			precision_Edit->setProperty(index_Property, index);
 
-            precision_Thumb->setCheckable(true);
-            precision_Edit->setCheckable(true);
-            precision_Thumb->setActionGroup(group_Precision_Thumb);
-            precision_Edit->setActionGroup(group_Precision_Edit);
+			precision_Thumb->setCheckable(true);
+			precision_Edit->setCheckable(true);
+			precision_Thumb->setActionGroup(group_Precision_Thumb);
+			precision_Edit->setActionGroup(group_Precision_Edit);
 
-            menu_Thumb->addAction(precision_Thumb);
-            menu_Edit->addAction(precision_Edit);
+			menu_Thumb->addAction(precision_Thumb);
+			menu_Edit->addAction(precision_Edit);
 
-        connect(precision_Thumb,SIGNAL(triggered()), this, SLOT(activate_Item_Thumbnail_Precision()));
-        connect(precision_Edit, SIGNAL(triggered()), this, SLOT(activate_Item_Line_Edit_Precision()));
-    }
+		connect(precision_Thumb,&QAction::triggered, this, &Menu::activate_Item_Thumbnail_Precision);
+		connect(precision_Edit, &QAction::triggered, this, &Menu::activate_Item_Line_Edit_Precision);
+	}
 }
 
 void Menu::menu_Focus()
@@ -623,16 +618,16 @@ void Menu::create_Help_Menu()
 	{
 		QAction* act_Documentation = new QAction("Multifitting.pdf", this);
 		help_Menu->addAction(act_Documentation);
-		connect(act_Documentation, SIGNAL(triggered()), this, SLOT(open_Documentation()));
+		connect(act_Documentation, &QAction::triggered, this, &Menu::open_Documentation);
 	}
 	{
 		QAction* act_About = new QAction("About Multifitting",this);
 		help_Menu->addAction(act_About);
-		connect(act_About, SIGNAL(triggered()), this, SLOT(open_About()));
+		connect(act_About, &QAction::triggered, this, &Menu::open_About);
 	}
 }
 
-// menu actions
+//// menu actions
 
 void Menu::open_Documentation()
 {
@@ -647,11 +642,11 @@ void Menu::open_About()
 
 void Menu::set_Grazing_Unit()
 {
-	Measurement measurement = independent_Variables_Editor->structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Measurement>();
+	Data measurement = independent_Variables_Editor->structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
 	int index = sender()->property(index_Property).toInt();
 	//-------------------------------------------------
 	angle_units				= angle_Units_List[index];
-	measurement.angle_Type	= Angle_Type::Grazing();
+	measurement.angle_Type	= angle_Type_Grazing;
 	//-------------------------------------------------
 	QVariant var; var.setValue(measurement);
 	independent_Variables_Editor->structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
@@ -660,11 +655,11 @@ void Menu::set_Grazing_Unit()
 
 void Menu::set_Incidence_Unit()
 {
-	Measurement measurement = independent_Variables_Editor->structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Measurement>();
+	Data measurement = independent_Variables_Editor->structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
 	int index = sender()->property(index_Property).toInt();
 	//-------------------------------------------------
 	angle_units				= angle_Units_List[index];
-	measurement.angle_Type	= Angle_Type::Incidence();
+	measurement.angle_Type	= angle_Type_Incidence;
 	//-------------------------------------------------
 	QVariant var; var.setValue(measurement);
 	independent_Variables_Editor->structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
@@ -677,7 +672,7 @@ void Menu::set_Wavelength_Unit()
 	//-------------------------------------------------
 	wavelength_units = wavelength_Units_List[index];
 	//-------------------------------------------------
-	emit refresh();	
+	emit refresh();
 }
 
 void Menu::set_Length_Unit()
@@ -725,7 +720,7 @@ void Menu::activate_Item_Line_Edit_Precision()
 	if(menu_Interlayer->title() == precision_Menu_Title)	set_Line_Edit_Interlayer_Precision();
 }
 
-// precisions
+//// precisions
 
 void Menu::set_Thumbnail_Density_Precision()
 {

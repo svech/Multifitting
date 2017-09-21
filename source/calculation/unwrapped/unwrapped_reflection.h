@@ -7,7 +7,7 @@ class Unwrapped_Reflection
 {
 public:
 	Unwrapped_Reflection();
-	Unwrapped_Reflection(Unwrapped_Structure* unwrapped_Structure, int num_Media, QString active_Whats_This, const Measurement& measurement, bool depth_Grading, bool sigma_Grading);
+	Unwrapped_Reflection(Unwrapped_Structure* unwrapped_Structure, int num_Media, QString active_Whats_This, const Data& data, bool depth_Grading, bool sigma_Grading);
 
 	int num_Threads;
 	int num_Layers;
@@ -21,7 +21,7 @@ public:
 
 	QString active_Whats_This;
 	Unwrapped_Structure* unwrapped_Structure;
-	Measurement measurement;
+	Data data;
 
 	vector<vector<double>> r_Fresnel_s_RE;		//	[thread][boundary]
 	vector<vector<double>> r_Fresnel_s_IM;		//	[thread][boundary]
@@ -56,9 +56,9 @@ public:
 	vector<double> R_p;
 	vector<double> R;
 
-	void fill_Specular_Values            (const Measurement& measurement, int thread_Index, int point_Index);
-	void calc_Specular_1_Point_1_Thread  (const Measurement& measurement, int thread_Index, int point_Index);
-	void calc_Specular_nMin_nMax_1_Thread(const Measurement& measurement, int n_Min, int n_Max, int thread_Index);
+	void fill_Specular_Values            (const Data& data, int thread_Index, int point_Index);
+	void calc_Specular_1_Point_1_Thread  (const Data& data, int thread_Index, int point_Index);
+	void calc_Specular_nMin_nMax_1_Thread(const Data& data, int n_Min, int n_Max, int thread_Index);
 	void calc_Specular();
 };
 

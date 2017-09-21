@@ -10,7 +10,7 @@ Unwrapped_Reflection::Unwrapped_Reflection() //-V730
 
 }
 
-Unwrapped_Reflection::Unwrapped_Reflection(Unwrapped_Structure* unwrapped_Structure, int num_Media, QString active_Whats_This, const Measurement& measurement, bool depth_Grading, bool sigma_Grading):
+Unwrapped_Reflection::Unwrapped_Reflection(Unwrapped_Structure* unwrapped_Structure, int num_Media, QString active_Whats_This, Data& data, bool depth_Grading, bool sigma_Grading):
 	num_Threads		(reflectivity_Calc_Threads),
 	num_Layers		(num_Media-2),
 	num_Boundaries	(num_Media-1),
@@ -18,7 +18,7 @@ Unwrapped_Reflection::Unwrapped_Reflection(Unwrapped_Structure* unwrapped_Struct
 	max_Depth		(unwrapped_Structure->max_Depth),
 	active_Whats_This(active_Whats_This),
 	unwrapped_Structure(unwrapped_Structure),
-	measurement(measurement),
+data(data),
 	depth_Grading(depth_Grading),
 	sigma_Grading(sigma_Grading),
 

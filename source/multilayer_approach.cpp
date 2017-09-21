@@ -23,7 +23,7 @@ void Multilayer_Approach::closeEvent(QCloseEvent* event)
 {
 	// TODO
 	qApp->quit();
-    event->accept();
+	event->accept();
 	emit closed();
 }
 
@@ -38,7 +38,7 @@ void Multilayer_Approach::create_Main_Layout()
 
 void Multilayer_Approach::create_Menu()
 {
-	menu = new Menu(Window_Type::Multilayer_Approach(), this);
+	menu = new Menu(window_Type_Multilayer_Approach, this);
 		main_Layout->setMenuBar(menu->menu_Bar);
 }
 
@@ -55,10 +55,10 @@ void Multilayer_Approach::create_Multilayer_Tabs()
 	multilayer_Tabs->setCornerWidget(add_Tab_Corner_Button);
 	main_Layout->addWidget(multilayer_Tabs);
 
-	connect(add_Tab_Corner_Button,  SIGNAL(clicked()),		  this, SLOT(add_Multilayer()));
-	connect(multilayer_Tabs, SIGNAL(tabCloseRequested(int)),  this, SLOT(remove_Multilayer(int)));
-	connect(multilayer_Tabs, SIGNAL(currentChanged(int)),	  this, SLOT(change_Tab_Color(int)));
-	connect(multilayer_Tabs, SIGNAL(tabBarDoubleClicked(int)),this, SLOT(rename_Multilayer(int)));
+	connect(add_Tab_Corner_Button,  &QToolButton::clicked,			 this, &Multilayer_Approach::add_Multilayer);
+	connect(multilayer_Tabs,		&QTabWidget::tabCloseRequested,  this, &Multilayer_Approach::remove_Multilayer);
+	connect(multilayer_Tabs,		&QTabWidget::currentChanged,	 this, &Multilayer_Approach::change_Tab_Color);
+	connect(multilayer_Tabs,		&QTabWidget::tabBarDoubleClicked,this, &Multilayer_Approach::rename_Multilayer);
 
 	add_Multilayer();
 }
@@ -70,14 +70,12 @@ void Multilayer_Approach::set_Window_Geometry()
 	setGeometry(multilayer_x_corner,multilayer_y_corner,multilayer_width,multilayer_height);
 }
 
-// slots
-
 void Multilayer_Approach::add_Multilayer()
 {
 	Multilayer* new_Multilayer = new Multilayer(this, this);
 		new_Multilayer->setContentsMargins(-8,-10,-8,-10);
 
-	connect(new_Multilayer, SIGNAL(refresh_All_Multilayers()),	this,SLOT(refresh_All_Multilayers_View()));
+	connect(new_Multilayer, &Multilayer::refresh_All_Multilayers, this, &Multilayer_Approach::refresh_All_Multilayers_View);
 
 	multilayer_Tabs->addTab(new_Multilayer, default_multilayer_tab_name);
 	multilayer_Tabs->setTabText(multilayer_Tabs->count()-1, default_multilayer_tab_name + QString::number(multilayer_Tabs->count()));
@@ -91,7 +89,9 @@ void Multilayer_Approach::add_Multilayer()
 
 void Multilayer_Approach::remove_Multilayer(int index)
 {
-	QMessageBox::StandardButton reply = QMessageBox::question(this,"Removal", "Multilayer \"" + multilayer_Tabs->tabBar()->tabText(index) + "\" will be removed.\nContinue?", QMessageBox::Yes|QMessageBox::No, QMessageBox::No);
+	QMessageBox::StandardButton reply = QMessageBox::question(this,"Removal",
+															  "Multilayer \"" + multilayer_Tabs->tabBar()->tabText(index) + "\" will be removed.\nContinue?",
+															  QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
 	if (reply == QMessageBox::Yes)
 	{
 		delete multilayer_Tabs->widget(index);
@@ -123,7 +123,7 @@ void Multilayer_Approach::rename_Multilayer(int tab_Index)
 		multilayer_Tabs->setTabText(tab_Index, text);
 }
 
-void Multilayer_Approach::open_Table_Of_Structures(bool)
+void Multilayer_Approach::open_Table_Of_Structures()
 {
 	// TODO
 	if(!runned_Tables_Of_Structures.contains(table_Key))
@@ -133,12 +133,12 @@ void Multilayer_Approach::open_Table_Of_Structures(bool)
 			table_Of_Structures->setWindowFlags(Qt::Window);
 			table_Of_Structures->show();
 
-        connect(table_Of_Structures, SIGNAL(data_Edited()), this, SLOT(refresh_All_Multilayers_View()));
+		connect(table_Of_Structures, &Table_Of_Structures::data_Edited, this, &Multilayer_Approach::refresh_All_Multilayers_View);
 
 		for(int i=0; i<multilayer_Tabs->count(); ++i)
 		{
 			Multilayer* multilayer = qobject_cast<Multilayer*>(multilayer_Tabs->widget(i));
-            connect(multilayer, SIGNAL(refresh_All_Multilayers()), table_Of_Structures, SLOT(reload_All_Widgets()));
+			connect(multilayer, &Multilayer::refresh_All_Multilayers, table_Of_Structures, [=]{table_Of_Structures->reload_All_Widgets();});
 		}
 	} else
 	{
@@ -160,255 +160,255 @@ void Multilayer_Approach::refresh_All_Multilayers_View()
 
 void Multilayer_Approach::open()
 {
-	// TODO
-	QFile file("save.fit");
-	file.open(QIODevice::ReadOnly);
-	QDataStream in(&file);
-	int num_Multilayers;
-	in >> num_Multilayers;
+//	// TODO
+//	QFile file("save.fit");
+//	file.open(QIODevice::ReadOnly);
+//	QDataStream in(&file);
+//	int num_Multilayers;
+//	in >> num_Multilayers;
 
-	for(int i=0; i<multilayer_Tabs->count(); ++i)
-	{
-		delete multilayer_Tabs->widget(i);
-	}
-	multilayer_Tabs->clear();
+//	for(int i=0; i<multilayer_Tabs->count(); ++i)
+//	{
+//		delete multilayer_Tabs->widget(i);
+//	}
+//	multilayer_Tabs->clear();
 
-	for(int i=0; i<num_Multilayers; ++i)
-	{		
-		// add new multilayer
-		add_Multilayer();
+//	for(int i=0; i<num_Multilayers; ++i)
+//	{
+//		// add new multilayer
+//		add_Multilayer();
 
-		Multilayer* multilayer = qobject_cast<Multilayer*>(multilayer_Tabs->widget(i));
+//		Multilayer* multilayer = qobject_cast<Multilayer*>(multilayer_Tabs->widget(i));
 
-		// set tab name
-		QString multilayer_tab_name;
-		in >> multilayer_tab_name;
-		multilayer_Tabs->setTabText(multilayer_Tabs->count()-1, multilayer_tab_name);
+//		// set tab name
+//		QString multilayer_tab_name;
+//		in >> multilayer_tab_name;
+//		multilayer_Tabs->setTabText(multilayer_Tabs->count()-1, multilayer_tab_name);
 
-		// load tree
-		Global_Variables::deserialize_Tree(in, multilayer->structure_Tree->tree);
+//		// load tree
+//		Global_Variables::deserialize_Tree(in, multilayer->structure_Tree->tree);
 
-		// save active tab
-		int current_Index;
-		in >> current_Index;
-		multilayer->variables_Tabs->setCurrentIndex(current_Index);
+//		// save active tab
+//		int current_Index;
+//		in >> current_Index;
+//		multilayer->variables_Tabs->setCurrentIndex(current_Index);
 
-		// load dependent checkboxes state
-		bool is_Checked;
+//		// load dependent checkboxes state
+//		bool is_Checked;
 
-		/// standard
-			// reflectance
-			in >> is_Checked;
-			multilayer->reflect_Functions->setChecked(is_Checked);
-			// transmittance
-			in >> is_Checked;
-			multilayer->transmit_Functions->setChecked(is_Checked);
-			// transmittance
-			in >> is_Checked;
-			multilayer->transmit_Functions->setChecked(is_Checked);
-		/// field
-			// field intensity
-			in >> is_Checked;
-			multilayer->field_Intensity->setChecked(is_Checked);
-			// joule absorption
-			in >> is_Checked;
-			multilayer->joule_Absorption->setChecked(is_Checked);
-		/// user
-			in >> is_Checked;
-			multilayer->user_Supplied_Functions_Check->setChecked(is_Checked);
-			QString user_Text;
-			in >> user_Text;
-			multilayer->user_Supplied_Functions->setText(user_Text);
+//		/// standard
+//			// reflectance
+//			in >> is_Checked;
+//			multilayer->reflect_Functions->setChecked(is_Checked);
+//			// transmittance
+//			in >> is_Checked;
+//			multilayer->transmit_Functions->setChecked(is_Checked);
+//			// transmittance
+//			in >> is_Checked;
+//			multilayer->transmit_Functions->setChecked(is_Checked);
+//		/// field
+//			// field intensity
+//			in >> is_Checked;
+//			multilayer->field_Intensity->setChecked(is_Checked);
+//			// joule absorption
+//			in >> is_Checked;
+//			multilayer->joule_Absorption->setChecked(is_Checked);
+//		/// user
+//			in >> is_Checked;
+//			multilayer->user_Supplied_Functions_Check->setChecked(is_Checked);
+//			QString user_Text;
+//			in >> user_Text;
+//			multilayer->user_Supplied_Functions->setText(user_Text);
 
-		// load number of independent tabs
-		int num_Independent;
-		in >> num_Independent;
+//		// load number of independent tabs
+//		int num_Independent;
+//		in >> num_Independent;
 
-		for(int i=0; i<multilayer->independent_Variables_Plot_Tabs->count(); ++i)
-		{
-			delete multilayer->independent_Variables_Vector[i];
-			delete multilayer->independent_Variables_Plot_Tabs->widget(i);
-		}
-		multilayer->independent_Variables_Vector.clear();
-		multilayer->independent_Variables_Plot_Tabs->clear();
+//		for(int i=0; i<multilayer->independent_Variables_Plot_Tabs->count(); ++i)
+//		{
+//			delete multilayer->independent_Variables_Vector[i];
+//			delete multilayer->independent_Variables_Plot_Tabs->widget(i);
+//		}
+//		multilayer->independent_Variables_Vector.clear();
+//		multilayer->independent_Variables_Plot_Tabs->clear();
 
-		// load independent tabs
-		for(int i=0; i<num_Independent; ++i)
-		{
-			multilayer->add_Independent_Variables_Tab();
-			Independent_Variables* independent = qobject_cast<Independent_Variables*>(multilayer->independent_Variables_Plot_Tabs->widget(i));
+//		// load independent tabs
+//		for(int i=0; i<num_Independent; ++i)
+//		{
+//			multilayer->add_Independent_Variables_Tab();
+//			Independent_Variables* independent = qobject_cast<Independent_Variables*>(multilayer->independent_Variables_Plot_Tabs->widget(i));
 
-			// load plot name
-			QString tab_Text;
-			in >> tab_Text;
-			multilayer->independent_Variables_Plot_Tabs->setTabText(i, tab_Text);
+//			// load plot name
+//			QString tab_Text;
+//			in >> tab_Text;
+//			multilayer->independent_Variables_Plot_Tabs->setTabText(i, tab_Text);
 
-			// load real tree
-			independent->real_Struct_Tree = multilayer->structure_Tree->tree;
+//			// load real tree
+//			independent->real_Struct_Tree = multilayer->structure_Tree->tree;
 
-			// load plot tree
-			Global_Variables::deserialize_Tree(in, independent->struct_Tree_Copy);
+//			// load plot tree
+//			Global_Variables::deserialize_Tree(in, independent->struct_Tree_Copy);
 
-			// load variables list
-			Global_Variables::deserialize_Variables_List(in, independent->independent_Variables_List);
-		}
+//			// load variables list
+//			Global_Variables::deserialize_Variables_List(in, independent->independent_Variables_List);
+//		}
 
-		// load number of measured curves/frames
-		int num_Measured;
-		in >> num_Measured;
+//		// load number of measured curves/frames
+//		int num_Measured;
+//		in >> num_Measured;
 
-		// clear existing data
-		for(int i=0; i<multilayer->data_Measured_Data_Frame_Vector.size(); ++i)
-		{
-			delete multilayer->measured_Data_Vector[i];
-			delete multilayer->data_Measured_Data_Frame_Vector[i];
-		}
-		multilayer->measured_Data_Vector.clear();
-		multilayer->data_Measured_Data_Frame_Vector.clear();
+//		// clear existing data
+//		for(int i=0; i<multilayer->data_Measured_Data_Frame_Vector.size(); ++i)
+//		{
+//			delete multilayer->measured_Data_Vector[i];
+//			delete multilayer->data_Measured_Data_Frame_Vector[i];
+//		}
+//		multilayer->measured_Data_Vector.clear();
+//		multilayer->data_Measured_Data_Frame_Vector.clear();
 
-		// load measured data
-		for(int i=0; i<num_Measured; ++i)
-		{
-			// create default target
-			multilayer->add_Target_Curve(i, MEASURED);
+//		// load measured data
+//		for(int i=0; i<num_Measured; ++i)
+//		{
+//			// create default target
+//			multilayer->add_Target_Curve(i);
 
-			// work with it
-			Target_Curve* target_Curve = multilayer->measured_Data_Vector[i];
+//			// work with it
+//			Target_Curve* target_Curve = multilayer->measured_Data_Vector[i];
 
-			// load main data
-			in >> target_Curve;
-			target_Curve->set_Text_To_Label();
-		}
+//			// load main data
+//			in >> target_Curve;
+//			target_Curve->set_Text_To_Label();
+//		}
 
-		// load number of target curves/frames
-		int num_Target;
-		in >> num_Target;
+//		// load number of target curves/frames
+//		int num_Target;
+//		in >> num_Target;
 
-		// clear existing data
-		for(int i=0; i<multilayer->data_Target_Profile_Frame_Vector.size(); ++i)
-		{
-			delete multilayer->target_Profiles_Vector[i];
-			delete multilayer->data_Target_Profile_Frame_Vector[i];
-		}
-		multilayer->target_Profiles_Vector.clear();
-		multilayer->data_Target_Profile_Frame_Vector.clear();
+//		// clear existing data
+//		for(int i=0; i<multilayer->data_Target_Profile_Frame_Vector.size(); ++i)
+//		{
+//			delete multilayer->target_Profiles_Vector[i];
+//			delete multilayer->data_Target_Profile_Frame_Vector[i];
+//		}
+//		multilayer->target_Profiles_Vector.clear();
+//		multilayer->data_Target_Profile_Frame_Vector.clear();
 
-		// load target profile
-		for(int i=0; i<num_Target; ++i)
-		{
-			// create default target
-			multilayer->add_Target_Curve(i, OPTIMIZE);
+//		// load target profile
+//		for(int i=0; i<num_Target; ++i)
+//		{
+//			// create default target
+//			multilayer->add_Target_Curve(i);
 
-			// work with it
-			Target_Curve* target_Curve = multilayer->target_Profiles_Vector[i];
+//			// work with it
+//			Target_Curve* target_Curve = multilayer->target_Profiles_Vector[i];
 
-			// load main data
-			in >> target_Curve;
-			target_Curve->set_Text_To_Label();
-		}
+//			// load main data
+//			in >> target_Curve;
+//			target_Curve->set_Text_To_Label();
+//		}
 
-		multilayer->refresh_Structure_And_Independent();
+//		multilayer->refresh_Structure_And_Independent();
 
-		// disable adding substrate if it already exists
-		QStringList whats_This_List = multilayer->structure_Tree->tree->topLevelItem(multilayer->structure_Tree->tree->topLevelItemCount()-1)->whatsThis(DEFAULT_COLUMN).split(item_Type_Delimiter,QString::SkipEmptyParts);
-		if(whats_This_List[0] == whats_This_Substrate)
-			multilayer->structure_Tree->structure_Toolbar->toolbar->actions()[2]->setDisabled(true);
-	}
-	file.close();
+//		// disable adding substrate if it already exists
+//		QStringList whats_This_List = multilayer->structure_Tree->tree->topLevelItem(multilayer->structure_Tree->tree->topLevelItemCount()-1)->whatsThis(DEFAULT_COLUMN).split(item_Type_Delimiter,QString::SkipEmptyParts);
+//		if(whats_This_List[0] == whats_This_Substrate)
+//			multilayer->structure_Tree->structure_Toolbar->toolbar->actions()[2]->setDisabled(true);
+//	}
+//	file.close();
 }
 
 void Multilayer_Approach::save()
 {
-	// TODO
-	QFile file("save.fit");
-	file.open(QIODevice::WriteOnly);
-	QDataStream out(&file);
+//	// TODO
+//	QFile file("save.fit");
+//	file.open(QIODevice::WriteOnly);
+//	QDataStream out(&file);
 
-	// save number of multilayers
-	out << multilayer_Tabs->count();
+//	// save number of multilayers
+//	out << multilayer_Tabs->count();
 
-	for(int i=0; i<multilayer_Tabs->count(); ++i)
-	{
-		Multilayer* multilayer = qobject_cast<Multilayer*>(multilayer_Tabs->widget(i));
+//	for(int i=0; i<multilayer_Tabs->count(); ++i)
+//	{
+//		Multilayer* multilayer = qobject_cast<Multilayer*>(multilayer_Tabs->widget(i));
 
-		// save tab name
-		out << multilayer_Tabs->tabText(i);
+//		// save tab name
+//		out << multilayer_Tabs->tabText(i);
 
-		// save tree
-		Global_Variables::serialize_Tree(out, multilayer->structure_Tree->tree);
+//		// save tree
+//		Global_Variables::serialize_Tree(out, multilayer->structure_Tree->tree);
 
-		// save active tab
-		out << multilayer->variables_Tabs->currentIndex();
+//		// save active tab
+//		out << multilayer->variables_Tabs->currentIndex();
 
-		// save dependent checkboxes state
-		// specular
-		/// standard
-			// reflectance
-			out <<  multilayer->reflect_Functions->isChecked();
-			// transmittance
-			out <<  multilayer->transmit_Functions->isChecked();
-			// absorptance
-			out <<  multilayer->absorp_Functions->isChecked();
-		/// field
-			// field intensity
-			out <<  multilayer->field_Intensity->isChecked();
-			// joule absorption
-			out <<  multilayer->joule_Absorption->isChecked();
-		/// user
-			out <<  multilayer->user_Supplied_Functions_Check->isChecked();
-			out <<  multilayer->user_Supplied_Functions->text();
+//		// save dependent checkboxes state
+//		// specular
+//		/// standard
+//			// reflectance
+//			out <<  multilayer->reflect_Functions->isChecked();
+//			// transmittance
+//			out <<  multilayer->transmit_Functions->isChecked();
+//			// absorptance
+//			out <<  multilayer->absorp_Functions->isChecked();
+//		/// field
+//			// field intensity
+//			out <<  multilayer->field_Intensity->isChecked();
+//			// joule absorption
+//			out <<  multilayer->joule_Absorption->isChecked();
+//		/// user
+//			out <<  multilayer->user_Supplied_Functions_Check->isChecked();
+//			out <<  multilayer->user_Supplied_Functions->text();
 
-		// save number of independent tabs
-		out << multilayer->independent_Variables_Plot_Tabs->count();
+//		// save number of independent tabs
+//		out << multilayer->independent_Variables_Plot_Tabs->count();
 
-		// save independent tabs
-		for(int i=0; i<multilayer->independent_Variables_Plot_Tabs->count(); ++i)
-		{
-			Independent_Variables* independent = qobject_cast<Independent_Variables*>(multilayer->independent_Variables_Plot_Tabs->widget(i));
+//		// save independent tabs
+//		for(int i=0; i<multilayer->independent_Variables_Plot_Tabs->count(); ++i)
+//		{
+//			Independent_Variables* independent = qobject_cast<Independent_Variables*>(multilayer->independent_Variables_Plot_Tabs->widget(i));
 
-			// save plot name
-			out << multilayer->independent_Variables_Plot_Tabs->tabText(i);
+//			// save plot name
+//			out << multilayer->independent_Variables_Plot_Tabs->tabText(i);
 
-			// save plot tree
-			Global_Variables::serialize_Tree(out, independent->struct_Tree_Copy);
+//			// save plot tree
+//			Global_Variables::serialize_Tree(out, independent->struct_Tree_Copy);
 
-			// save variables list
-			Global_Variables::serialize_Variables_List(out, independent->independent_Variables_List);
-		}
+//			// save variables list
+//			Global_Variables::serialize_Variables_List(out, independent->independent_Variables_List);
+//		}
 
-		// save number of measured curves/frames
-		out << multilayer->measured_Data_Vector.size();
+//		// save number of measured curves/frames
+//		out << multilayer->measured_Data_Vector.size();
 
-		// save measured data
-		for(int i=0; i<multilayer->measured_Data_Vector.size(); ++i)
-		{
-			Target_Curve* target_Curve = multilayer->measured_Data_Vector[i];
-			out << target_Curve;
-		}
+//		// save measured data
+//		for(int i=0; i<multilayer->measured_Data_Vector.size(); ++i)
+//		{
+//			Target_Curve* target_Curve = multilayer->measured_Data_Vector[i];
+//			out << target_Curve;
+//		}
 
-		// save number of target curves/frames
-		out << multilayer->target_Profiles_Vector.size();
+//		// save number of target curves/frames
+//		out << multilayer->target_Profiles_Vector.size();
 
-		// save target profile
-		for(int i=0; i<multilayer->target_Profiles_Vector.size(); ++i)
-		{
-			Target_Curve* target_Curve = multilayer->target_Profiles_Vector[i];
-			out << target_Curve;
-		}
-	}
-	file.close();
+//		// save target profile
+//		for(int i=0; i<multilayer->target_Profiles_Vector.size(); ++i)
+//		{
+//			Target_Curve* target_Curve = multilayer->target_Profiles_Vector[i];
+//			out << target_Curve;
+//		}
+//	}
+//	file.close();
 }
 
 void Multilayer_Approach::calc_Reflection()
 {
 	// TODO
 	qInfo() << "\n\n------------------------------------------------------------\ncalc specular functions...\n-------------------------------------------------------\n";
-	Main_Calculation_Module* main_Calculation_Module = new Main_Calculation_Module(multilayer_Tabs);
-	connect(main_Calculation_Module, SIGNAL(critical(QString)),    this, SLOT(catch_Critical(QString)));
-	connect(main_Calculation_Module, SIGNAL(warning(QString)),     this, SLOT(catch_Warning(QString)));
-	connect(main_Calculation_Module, SIGNAL(information(QString)), this, SLOT(catch_Information(QString)));
-	main_Calculation_Module->run_All();
-	delete main_Calculation_Module;
+//	Main_Calculation_Module* main_Calculation_Module = new Main_Calculation_Module(multilayer_Tabs);
+//	connect(main_Calculation_Module, &Main_Calculation_Module::critical),    this, &Multilayer_Approach::catch_Critical);
+//	connect(main_Calculation_Module, &Main_Calculation_Module::warning),     this, &Multilayer_Approach::catch_Warning);
+//	connect(main_Calculation_Module, &Main_Calculation_Module::information), this, &Multilayer_Approach::catch_Information);
+//	main_Calculation_Module->run_All();
+//	delete main_Calculation_Module;
 }
 
 void Multilayer_Approach::reload_Optical_Constants()

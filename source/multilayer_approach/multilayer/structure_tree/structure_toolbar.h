@@ -14,35 +14,34 @@ public:
 signals:
 	void refresh_Str_And_Independ_signal();
 
-public slots:
+public:
 	void add_Buffered_Layer(QTreeWidgetItem* new_Layer_Passed);
-	void add_Layer		(bool);
-	void add_Multilayer	(bool);
-	void add_Substrate	(bool);
-	void edit			(bool);
-	void remove			(bool);
-	void cut			(bool);
-	void copy			(bool);
-	void paste			(bool);
-	void move_Up		(bool);
-	void move_Down		(bool);
-	void group			(bool);
-	void ungroup		(bool);
-	void thickness_Plot	(bool);
-	void sigma_Plot		(bool);
-	void destroy		(bool);
+	void add_Ambient	();
+	void add_Layer		();
+	void add_Multilayer	();
+	void add_Substrate	();
+	void edit			();
+	void remove			();
+	void cut			();
+	void copy			();
+	void paste			();
+	void move_Up		();
+	void move_Down		();
+	void group			();
+	void ungroup		();
+	void thickness_Plot	();
+	void sigma_Plot		();
+	void destroy		();
 
 	void if_Selected();
 	void refresh_Toolbar();
 
-private:
 	void create_Toolbar();
+	void change_IDs_Of_Subtree(QTreeWidgetItem* item);
 
-private:
 	QTreeWidgetItem* buffered=NULL;
+	QString buffered_Copy_Type = copy_Type_Cut;
 	Structure_Tree* structure_Tree;
-
-public:
 	QToolBar* toolbar;
 };
 

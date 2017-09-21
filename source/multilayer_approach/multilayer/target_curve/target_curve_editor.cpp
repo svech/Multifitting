@@ -36,7 +36,6 @@ void Target_Curve_Editor::read_Data_File(QString filepath)
 		if(target_Curve->loaded_And_Ready)
 		{
 			target_Curve->fill_Measurement_With_Data();
-//			target_Curve->create_Struct_Tree_Copy();	// useless
 		}
 	} else
 	{
@@ -56,7 +55,7 @@ void Target_Curve_Editor::show_Description_Label()
 			target_Curve->arg_Units = target_Curve->curve.angular_Units;
 
 			double coeff = wavelength_Coefficients_Map.value(target_Curve->curve.spectral_Units);
-			target_Curve->at_Fixed = QString::number(Global_Variables::wavelength_Energy(target_Curve->curve.spectral_Units,target_Curve->measurement.wavelength.value)/coeff, thumbnail_double_format, thumbnail_wavelength_precision)+" "+target_Curve->curve.spectral_Units;
+			target_Curve->at_Fixed = QString::number(Global_Variables::wavelength_Energy(target_Curve->curve.spectral_Units,target_Curve->data.wavelength.value)/coeff, thumbnail_double_format, thumbnail_wavelength_precision)+" "+target_Curve->curve.spectral_Units;
 		}
 		if(target_Curve->curve.argument_Type == whats_This_Wavelength)
 		{
@@ -64,7 +63,7 @@ void Target_Curve_Editor::show_Description_Label()
 			target_Curve->arg_Units = target_Curve->curve.spectral_Units;
 
 			double coeff = angle_Coefficients_Map.value(target_Curve->curve.angular_Units);
-			target_Curve->at_Fixed = QString::number(target_Curve->measurement.probe_Angle.value/coeff, thumbnail_double_format, thumbnail_angle_precision)+" "+target_Curve->curve.angular_Units;
+			target_Curve->at_Fixed = QString::number(target_Curve->data.probe_Angle.value/coeff, thumbnail_double_format, thumbnail_angle_precision)+" "+target_Curve->curve.angular_Units;
 		}
 
 		target_Curve->label_Text =
@@ -100,7 +99,7 @@ void Target_Curve_Editor::fill_Arg_Units_ComboBox(QString arg_Type)
 	arg_Units_ComboBox->clear();
 	at_Fixed_Units_ComboBox->clear();
 
-	if(arg_Type == argument_Types[0] || arg_Type == argument_Types[1])	// grazing of incidence angle
+	if(arg_Type == argument_Types[Grazing_angle] || arg_Type == argument_Types[Incident_angle])	// grazing of incidence angle
 	{
 		arg_Units_ComboBox->addItems(angle_Units_List);
 		arg_Units_ComboBox->setCurrentIndex(arg_Units_ComboBox->findText(target_Curve->curve.angular_Units));
@@ -121,9 +120,9 @@ void Target_Curve_Editor::fill_Arg_Units_ComboBox(QString arg_Type)
 		}
 
 		double coeff = wavelength_Coefficients_Map.value(target_Curve->curve.spectral_Units);		// spectral units
-		at_Fixed_LineEdit->setText(QString::number(Global_Variables::wavelength_Energy(target_Curve->curve.spectral_Units,target_Curve->measurement.wavelength.value)/coeff, line_edit_double_format, line_edit_wavelength_precision));
+		at_Fixed_LineEdit->setText(QString::number(Global_Variables::wavelength_Energy(target_Curve->curve.spectral_Units,target_Curve->data.wavelength.value)/coeff, line_edit_double_format, line_edit_wavelength_precision));
 	}
-	if(arg_Type == argument_Types[2])									// wavelength or energy
+	if(arg_Type == argument_Types[Wavelength_Energy])									// wavelength or energy
 	{
 		arg_Units_ComboBox->addItems(wavelength_Units_List);
 		arg_Units_ComboBox->setCurrentIndex(arg_Units_ComboBox->findText(target_Curve->curve.spectral_Units));
@@ -144,7 +143,7 @@ void Target_Curve_Editor::fill_Arg_Units_ComboBox(QString arg_Type)
 		angular_Units_Label->setText(at_Fixed_Units_ComboBox->currentText().split(", ")[0]);
 
 		double coeff = angle_Coefficients_Map.value(target_Curve->curve.angular_Units);				// angular units
-		at_Fixed_LineEdit->setText(QString::number(target_Curve->measurement.probe_Angle.value/coeff, line_edit_double_format, line_edit_angle_precision));
+		at_Fixed_LineEdit->setText(QString::number(target_Curve->data.probe_Angle.value/coeff, line_edit_double_format, line_edit_angle_precision));
 	}
 	arg_Units_ComboBox->blockSignals(false);
 	at_Fixed_Units_ComboBox->blockSignals(false);
@@ -157,15 +156,15 @@ void Target_Curve_Editor::fill_Val_Modes_ComboBox(QString val_Mode)
 	val_Mode_ComboBox->blockSignals(true);
 	val_Mode_ComboBox->clear();
 
-	if(val_Mode == value_Function[0])	// reflectance
+	if(val_Mode == value_Function[Reflectance])	// reflectance
 	{
 		val_Mode_ComboBox->addItems(value_R_Mode);
 	}
-	if(val_Mode == value_Function[1])	// transmittance
+	if(val_Mode == value_Function[Transmittance])	// transmittance
 	{
 		val_Mode_ComboBox->addItems(value_T_Mode);
 	}
-	if(val_Mode == value_Function[2])	// absorptance
+	if(val_Mode == value_Function[Absorptance])	// absorptance
 	{
 		val_Mode_ComboBox->addItems(value_A_Mode);
 	}
@@ -178,7 +177,7 @@ void Target_Curve_Editor::fill_Val_Modes_ComboBox(QString val_Mode)
 
 void Target_Curve_Editor::change_Arg_Units_ComboBox(QString arg_Units)
 {
-	if(arg_Type_ComboBox->currentText() == argument_Types[0] || arg_Type_ComboBox->currentText() == argument_Types[1])	// grazing or incidence angle
+	if(arg_Type_ComboBox->currentText() == argument_Types[Grazing_angle] || arg_Type_ComboBox->currentText() == argument_Types[Incident_angle])	// grazing or incidence angle
 	{
 		angular_Units_Label->setText(arg_Units);
 	}
@@ -186,7 +185,7 @@ void Target_Curve_Editor::change_Arg_Units_ComboBox(QString arg_Units)
 
 void Target_Curve_Editor::change_At_Fixed_Units_ComboBox(QString fixed_Units)
 {
-	if(arg_Type_ComboBox->currentText() == argument_Types[2])	// wavelength/energy
+	if(arg_Type_ComboBox->currentText() == argument_Types[Wavelength_Energy])	// wavelength/energy
 	{
 		angular_Units_Label->setText(fixed_Units.split(", ")[0]);
 	}
@@ -415,15 +414,15 @@ void Target_Curve_Editor::create_Data_GroupBox()
 
 	// at the end!
 	// argument line
-	connect(arg_Type_ComboBox, &QComboBox::currentTextChanged, this, &Target_Curve_Editor::refresh_Argument_Type);
+	connect(arg_Type_ComboBox,	&QComboBox::currentTextChanged, this, &Target_Curve_Editor::refresh_Argument_Type);
 	connect(arg_Units_ComboBox, &QComboBox::currentTextChanged, this, &Target_Curve_Editor::refresh_Argument_Units);
 	connect(arg_Units_ComboBox, &QComboBox::currentTextChanged, this, &Target_Curve_Editor::show_Angular_Resolution);
 	connect(arg_Offset_SpinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, &Target_Curve_Editor::refresh_Offsets);
 	connect(arg_Factor_SpinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, &Target_Curve_Editor::refresh_Factors);
 
 	// value line
-	connect(val_Function_ComboBox, &QComboBox::currentTextChanged, this, &Target_Curve_Editor::refresh_Value_Type );
-	connect(val_Mode_ComboBox, &QComboBox::currentTextChanged, this, &Target_Curve_Editor::refresh_Value_Mode);
+	connect(val_Function_ComboBox,	&QComboBox::currentTextChanged, this, &Target_Curve_Editor::refresh_Value_Type );
+	connect(val_Mode_ComboBox,		&QComboBox::currentTextChanged, this, &Target_Curve_Editor::refresh_Value_Mode);
 	connect(val_Offset_SpinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, &Target_Curve_Editor::refresh_Offsets);
 	connect(val_Factor_SpinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, &Target_Curve_Editor::refresh_Factors);
 
@@ -432,11 +431,11 @@ void Target_Curve_Editor::create_Data_GroupBox()
 	connect(at_Fixed_Units_ComboBox, &QComboBox::currentTextChanged, this, &Target_Curve_Editor::show_Unit_Dependent_Data);
 	connect(at_Fixed_LineEdit, &QLineEdit::textEdited, this, &Target_Curve_Editor::refresh_At_Fixed_Value);
 
-	connect(polarization_LineEdit, &QLineEdit::textEdited, this, &Target_Curve_Editor::refresh_Polarization);
-	connect(polarization_Sensitivity_LineEdit, &QLineEdit::textEdited, this, &Target_Curve_Editor::refresh_Polarization);
+	connect(polarization_LineEdit,				&QLineEdit::textEdited, this, &Target_Curve_Editor::refresh_Polarization);
+	connect(polarization_Sensitivity_LineEdit,	&QLineEdit::textEdited, this, &Target_Curve_Editor::refresh_Polarization);
 
-	connect(spectral_Resolution_LineEdit, &QLineEdit::textEdited, this, &Target_Curve_Editor::refresh_Spectral_Resolution);
-	connect(angular_Resolution_LineEdit, &QLineEdit::textEdited, this, &Target_Curve_Editor::refresh_Angular_Resolution);
+	connect(spectral_Resolution_LineEdit,	&QLineEdit::textEdited, this, &Target_Curve_Editor::refresh_Spectral_Resolution);
+	connect(angular_Resolution_LineEdit,	&QLineEdit::textEdited, this, &Target_Curve_Editor::refresh_Angular_Resolution);
 }
 
 void Target_Curve_Editor::create_Buttons()
@@ -544,14 +543,14 @@ void Target_Curve_Editor::show_Curve_Data()
 	{
 		if(target_Curve->curve.argument_Type == whats_This_Angle)
 		{
-			if(target_Curve->curve.angle_Type == Angle_Type::Grazing())
-				arg_Type_ComboBox->setCurrentIndex(arg_Type_ComboBox->findText(argument_Types[0]));	// Grazing angle
-			if(target_Curve->curve.angle_Type == Angle_Type::Incidence())
-				arg_Type_ComboBox->setCurrentIndex(arg_Type_ComboBox->findText(argument_Types[1]));	// Incidence angle
+			if(target_Curve->curve.angle_Type == angle_Type_Grazing)
+				arg_Type_ComboBox->setCurrentIndex(arg_Type_ComboBox->findText(argument_Types[Grazing_angle]));	// Grazing angle
+			if(target_Curve->curve.angle_Type == angle_Type_Incidence)
+				arg_Type_ComboBox->setCurrentIndex(arg_Type_ComboBox->findText(argument_Types[Incident_angle]));	// Incidence angle
 		} else
 		if(target_Curve->curve.argument_Type == whats_This_Wavelength)
 		{
-			arg_Type_ComboBox->setCurrentIndex(arg_Type_ComboBox->findText(argument_Types[2]));		// Wavelength/energy
+			arg_Type_ComboBox->setCurrentIndex(arg_Type_ComboBox->findText(argument_Types[Wavelength_Energy]));		// Wavelength/energy
 		}
 	}
 
@@ -598,9 +597,9 @@ void Target_Curve_Editor::show_Measurement_Data()
 		at_Fixed_Units_ComboBox->setCurrentIndex(at_Fixed_Units_ComboBox->findText(target_Curve->curve.angular_Units+", "+target_Curve->curve.angle_Type));
 	}
 
-	polarization_LineEdit->setText(QString::number(target_Curve->measurement.polarization.value, line_edit_double_format, line_edit_wavelength_precision));
-	polarization_Sensitivity_LineEdit->setText(QString::number(target_Curve->measurement.polarization_Sensitivity.value, line_edit_double_format, line_edit_wavelength_precision));
-	spectral_Resolution_LineEdit->setText(QString::number(target_Curve->measurement.spectral_Resolution.value, line_edit_double_format, line_edit_wavelength_precision));
+	polarization_LineEdit->setText(QString::number(target_Curve->data.polarization.value, line_edit_double_format, line_edit_wavelength_precision));
+	polarization_Sensitivity_LineEdit->setText(QString::number(target_Curve->data.polarization_Sensitivity.value, line_edit_double_format, line_edit_wavelength_precision));
+	spectral_Resolution_LineEdit->setText(QString::number(target_Curve->data.spectral_Resolution.value, line_edit_double_format, line_edit_wavelength_precision));
 
 	show_Unit_Dependent_Data();
 
@@ -617,12 +616,12 @@ void Target_Curve_Editor::show_Unit_Dependent_Data()
 	if(target_Curve->curve.argument_Type == whats_This_Angle)
 	{
 		double coeff = wavelength_Coefficients_Map.value(target_Curve->curve.spectral_Units);		// spectral units
-		at_Fixed_LineEdit->setText(QString::number(Global_Variables::wavelength_Energy(target_Curve->curve.spectral_Units,target_Curve->measurement.wavelength.value)/coeff, line_edit_double_format, line_edit_wavelength_precision));
+		at_Fixed_LineEdit->setText(QString::number(Global_Variables::wavelength_Energy(target_Curve->curve.spectral_Units,target_Curve->data.wavelength.value)/coeff, line_edit_double_format, line_edit_wavelength_precision));
 	}
 	if(target_Curve->curve.argument_Type == whats_This_Wavelength)
 	{
 		double coeff = angle_Coefficients_Map.value(target_Curve->curve.angular_Units);				// angular units
-		at_Fixed_LineEdit->setText(QString::number(target_Curve->measurement.probe_Angle.value/coeff, line_edit_double_format, line_edit_angle_precision));
+		at_Fixed_LineEdit->setText(QString::number(target_Curve->data.probe_Angle.value/coeff, line_edit_double_format, line_edit_angle_precision));
 	}
 
 	show_Angular_Resolution();
@@ -632,7 +631,7 @@ void Target_Curve_Editor::show_Unit_Dependent_Data()
 void Target_Curve_Editor::show_Angular_Resolution()
 {
 	double coeff = angle_Coefficients_Map.value(target_Curve->curve.angular_Units);
-	angular_Resolution_LineEdit->setText(QString::number(target_Curve->measurement.angular_Resolution.value/coeff, line_edit_double_format, line_edit_angle_precision));
+	angular_Resolution_LineEdit->setText(QString::number(target_Curve->data.angular_Resolution.value/coeff, line_edit_double_format, line_edit_angle_precision));
 	resize_Line_Edit(angular_Resolution_LineEdit);
 }
 
@@ -655,19 +654,19 @@ void Target_Curve_Editor::refresh_Filepath(QString filepath)
 
 void Target_Curve_Editor::refresh_Argument_Type()
 {
-	if(arg_Type_ComboBox->currentText() == argument_Types[0])	// Grazing angle
+	if(arg_Type_ComboBox->currentText() == argument_Types[Grazing_angle])	// Grazing angle
 	{
 		target_Curve->curve.argument_Type = whats_This_Angle;
-		target_Curve->curve.angle_Type = Angle_Type::Grazing();
-		target_Curve->measurement.angle_Type = target_Curve->curve.angle_Type;
+		target_Curve->curve.angle_Type = angle_Type_Grazing;
+		target_Curve->data.angle_Type = target_Curve->curve.angle_Type;
 	} else
-	if(arg_Type_ComboBox->currentText() == argument_Types[1])	// Incident angle
+	if(arg_Type_ComboBox->currentText() == argument_Types[Incident_angle])	// Incident angle
 	{
 		target_Curve->curve.argument_Type = whats_This_Angle;
-		target_Curve->curve.angle_Type = Angle_Type::Incidence();
-		target_Curve->measurement.angle_Type = target_Curve->curve.angle_Type;
+		target_Curve->curve.angle_Type = angle_Type_Incidence;
+		target_Curve->data.angle_Type = target_Curve->curve.angle_Type;
 	} else
-	if(arg_Type_ComboBox->currentText() == argument_Types[2])	// Wavelength/energy
+	if(arg_Type_ComboBox->currentText() == argument_Types[Wavelength_Energy])	// Wavelength/energy
 	{
 		target_Curve->curve.argument_Type = whats_This_Wavelength;
 	}
@@ -682,9 +681,9 @@ void Target_Curve_Editor::refresh_Value_Type()
 
 void Target_Curve_Editor::refresh_Argument_Units()
 {
-	if(arg_Type_ComboBox->currentText() == argument_Types[0] || arg_Type_ComboBox->currentText() == argument_Types[1])	// angle
+	if(arg_Type_ComboBox->currentText() == argument_Types[Grazing_angle] || arg_Type_ComboBox->currentText() == argument_Types[Incident_angle])	// angle
 		target_Curve->curve.angular_Units = arg_Units_ComboBox->currentText();
-	if(arg_Type_ComboBox->currentText() == argument_Types[2])							// Wavelength/energy
+	if(arg_Type_ComboBox->currentText() == argument_Types[Wavelength_Energy])							// Wavelength/energy
 		target_Curve->curve.spectral_Units = arg_Units_ComboBox->currentText();
 	show_Description_Label();
 }
@@ -697,20 +696,22 @@ void Target_Curve_Editor::refresh_Value_Mode()
 void Target_Curve_Editor::refresh_At_Fixed_Value()
 {
 	QString local_Unit = at_Fixed_Units_ComboBox->currentText().split(", ")[0];
-	if(arg_Type_ComboBox->currentText() == argument_Types[0] || arg_Type_ComboBox->currentText() == argument_Types[1])	// angle
+	if(arg_Type_ComboBox->currentText() == argument_Types[Grazing_angle] || arg_Type_ComboBox->currentText() == argument_Types[Incident_angle])	// angle
 	{
 		double coeff = wavelength_Coefficients_Map.value(local_Unit);		// spectral units
-		target_Curve->measurement.wavelength.value = Global_Variables::wavelength_Energy(local_Unit, at_Fixed_LineEdit->text().toDouble()*coeff);
+		target_Curve->data.wavelength.value = Global_Variables::wavelength_Energy(local_Unit, at_Fixed_LineEdit->text().toDouble()*coeff);
 	} else
-	if(arg_Type_ComboBox->currentText() == argument_Types[2])															// Wavelength/energy
+	if(arg_Type_ComboBox->currentText() == argument_Types[Wavelength_Energy])															// Wavelength/energy
 	{
 		double coeff = angle_Coefficients_Map.value(local_Unit);			// angular units
+
+		// be ready to have a bug next line!
 		if(at_Fixed_LineEdit->text().toDouble()*coeff<=90)//.+3*pow(10.,-line_edit_angle_precision+1))	// be ready to have a bug!
 		{
-			target_Curve->measurement.probe_Angle.value = at_Fixed_LineEdit->text().toDouble()*coeff;
+			target_Curve->data.probe_Angle.value = at_Fixed_LineEdit->text().toDouble()*coeff;
 		} else
 		{
-			at_Fixed_LineEdit->setText(QString::number(target_Curve->measurement.probe_Angle.value/coeff, line_edit_double_format, line_edit_angle_precision));
+			at_Fixed_LineEdit->setText(QString::number(target_Curve->data.probe_Angle.value/coeff, line_edit_double_format, line_edit_angle_precision));
 		}
 	}
 	show_Description_Label();
@@ -718,15 +719,15 @@ void Target_Curve_Editor::refresh_At_Fixed_Value()
 
 void Target_Curve_Editor::refresh_At_Fixed_Units()
 {
-	if(arg_Type_ComboBox->currentText() == argument_Types[0] || arg_Type_ComboBox->currentText() == argument_Types[1])	// angle
+	if(arg_Type_ComboBox->currentText() == argument_Types[Grazing_angle] || arg_Type_ComboBox->currentText() == argument_Types[Incident_angle])	// angle
 	{
 		target_Curve->curve.spectral_Units = at_Fixed_Units_ComboBox->currentText();
 	} else
-	if(arg_Type_ComboBox->currentText() == argument_Types[2])	// Wavelength/energy
+	if(arg_Type_ComboBox->currentText() == argument_Types[Wavelength_Energy])	// Wavelength/energy
 	{
 		target_Curve->curve.angular_Units = at_Fixed_Units_ComboBox->currentText().split(", ")[0];
 		target_Curve->curve.angle_Type = at_Fixed_Units_ComboBox->currentText().split(", ")[1];
-		target_Curve->measurement.angle_Type = target_Curve->curve.angle_Type;
+		target_Curve->data.angle_Type = target_Curve->curve.angle_Type;
 	}
 	show_Description_Label();
 }
@@ -748,21 +749,21 @@ void Target_Curve_Editor::refresh_Polarization()
 {
 	// polarization
 	if(abs(polarization_LineEdit->text().toDouble())<=1)
-		target_Curve->measurement.polarization.value = polarization_LineEdit->text().toDouble();
+		target_Curve->data.polarization.value = polarization_LineEdit->text().toDouble();
 	else
-		polarization_LineEdit->setText(QString::number(target_Curve->measurement.polarization.value, line_edit_double_format, line_edit_wavelength_precision));
+		polarization_LineEdit->setText(QString::number(target_Curve->data.polarization.value, line_edit_double_format, line_edit_wavelength_precision));
 
 	// polarization sensitivity
-	target_Curve->measurement.polarization_Sensitivity.value = polarization_Sensitivity_LineEdit->text().toDouble();
+	target_Curve->data.polarization_Sensitivity.value = polarization_Sensitivity_LineEdit->text().toDouble();
 }
 
 void Target_Curve_Editor::refresh_Spectral_Resolution()
 {
-	target_Curve->measurement.spectral_Resolution.value = spectral_Resolution_LineEdit->text().toDouble();
+	target_Curve->data.spectral_Resolution.value = spectral_Resolution_LineEdit->text().toDouble();
 }
 
 void Target_Curve_Editor::refresh_Angular_Resolution()
 {
 	double coeff = angle_Coefficients_Map.value(target_Curve->curve.angular_Units);
-	target_Curve->measurement.angular_Resolution.value = angular_Resolution_LineEdit->text().toDouble()*coeff;
+	target_Curve->data.angular_Resolution.value = angular_Resolution_LineEdit->text().toDouble()*coeff;
 }

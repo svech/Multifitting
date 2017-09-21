@@ -10,8 +10,39 @@ Global_Definitions::Global_Definitions()
 
 }
 
+QVector<int> used_IDs;
+
+int Global_Definitions::random_Id()
+{
+	int id = 0;
+	bool contains = false;
+	do
+	{
+		id = rand()*RAND_SHIFT+rand();
+		if(used_IDs.contains(id))
+		{
+			qInfo() << "id "<<id<<"repeated. regenerating";
+			contains = true;
+		} else
+		{
+			used_IDs.append(id);
+		}
+	} while (contains);
+	return id;
+}
+
 // -----------------------------------------------------------------------------------------
 // serialization
+
+QDataStream& operator <<( QDataStream& stream, const Independent_Indicator& independent_Indicator )
+{
+	return stream << independent_Indicator.item_Id << independent_Indicator.parameter_Id << independent_Indicator.item_Type << independent_Indicator.parameter_Whats_This << independent_Indicator.index << independent_Indicator.is_Active;
+}
+QDataStream& operator >>( QDataStream& stream,		 Independent_Indicator& independent_Indicator )
+{
+	return stream >> independent_Indicator.item_Id >> independent_Indicator.parameter_Id >> independent_Indicator.item_Type >> independent_Indicator.parameter_Whats_This >> independent_Indicator.index >> independent_Indicator.is_Active;
+}
+
 QDataStream& operator <<( QDataStream& stream, const Parameter_Indicator& parameter_Indicator )
 {
 	return stream << parameter_Indicator.id << parameter_Indicator.tab_Index << parameter_Indicator.full_Name << parameter_Indicator.whats_This << parameter_Indicator.exist;
@@ -23,11 +54,11 @@ QDataStream& operator >>( QDataStream& stream,		 Parameter_Indicator& parameter_
 
 QDataStream& operator <<( QDataStream& stream, const Int_Independent& int_Independent )
 {
-	return stream << int_Independent.value << int_Independent.is_Independent << int_Independent.start << int_Independent.step << int_Independent.num_steps;
+	return stream << int_Independent.value << int_Independent.is_Independent << int_Independent.start << int_Independent.step << int_Independent.num_Steps << int_Independent.id << int_Independent.whats_This;
 }
 QDataStream& operator >>( QDataStream& stream,		 Int_Independent& int_Independent )
 {
-	return stream >> int_Independent.value >> int_Independent.is_Independent >> int_Independent.start >> int_Independent.step >> int_Independent.num_steps;
+	return stream >> int_Independent.value >> int_Independent.is_Independent >> int_Independent.start >> int_Independent.step >> int_Independent.num_Steps >> int_Independent.id >> int_Independent.whats_This;
 }
 
 QDataStream& operator <<( QDataStream& stream, const Independent& independent )
@@ -41,11 +72,11 @@ QDataStream& operator >>( QDataStream& stream,		 Independent& independent )
 
 QDataStream& operator <<( QDataStream& stream, const Coupled& coupled )
 {
-	return stream << coupled.is_Coupled << coupled.master << coupled.function_Type << coupled.slaves;
+	return stream << coupled.is_Coupled << coupled.master << coupled.slaves;
 }
 QDataStream& operator >>( QDataStream& stream,		 Coupled& coupled )
 {
-	return stream >> coupled.is_Coupled >> coupled.master >> coupled.function_Type >> coupled.slaves;
+	return stream >> coupled.is_Coupled >> coupled.master >> coupled.slaves;
 }
 
 QDataStream& operator <<( QDataStream& stream, const Fit& fit )
@@ -57,22 +88,13 @@ QDataStream& operator >>( QDataStream& stream,		 Fit& fit )
 	return stream >> fit.is_Fitable >> fit.min_Bounded >> fit.min >> fit.max_Bounded >> fit.max;
 }
 
-QDataStream& operator <<( QDataStream& stream, const Optimize& optimize )
-{
-	return stream << optimize.is_Optimizable << optimize.min_Bounded << optimize.min << optimize.max_Bounded << optimize.max;
-}
-QDataStream& operator >>( QDataStream& stream,		 Optimize& optimize )
-{
-	return stream >> optimize.is_Optimizable >> optimize.min_Bounded >> optimize.min >> optimize.max_Bounded >> optimize.max;
-}
-
 QDataStream& operator <<( QDataStream& stream, const Parameter& parameter )
 {
-	return stream << parameter.value << parameter.independent << parameter.coupled << parameter.fit << parameter.optimize << parameter.indicator;
+	return stream << parameter.value << parameter.independent << parameter.coupled << parameter.fit << parameter.indicator;
 }
 QDataStream& operator >>( QDataStream& stream,		 Parameter& parameter )
 {
-	return stream >> parameter.value >> parameter.independent >> parameter.coupled >> parameter.fit >> parameter.optimize >> parameter.indicator;
+	return stream >> parameter.value >> parameter.independent >> parameter.coupled >> parameter.fit >> parameter.indicator;
 }
 
 QDataStream& operator <<( QDataStream& stream, const Stoichiometry& stoichiometry )
@@ -139,7 +161,7 @@ void Point::read_Row(QTextStream& input, bool if_Factors)
 	}
 }
 
-void Material_Data::read_Material(QString& filename) //-V688
+void Material_Data::read_Material(QString& filename)
 {
 	// TODO
 	QFile file(nk_Path + filename);

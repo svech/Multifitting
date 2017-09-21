@@ -11,15 +11,13 @@ public:
 
 signals:
 	void grading_Edited();
-private slots:
-	void emit_Grading_Edited();
-    void refresh_Data(QString q = "nothing");
-    void refresh_Data_Bool(bool);
 
-private:
+public:
+	void emit_Grading_Edited();
+	void refresh_Data();
+
     void create_Main_Layout();
-        void create_Menu();
-        void create_Interface();
+		void create_Interface();
             void read_Drift_From_Item();
     void set_Window_Geometry();
 
@@ -27,8 +25,8 @@ private:
 	int default_Min_Line_Size;
 	QString drift_Name;
     Drift drift;
+	Data layer;
 
-private:
     QVBoxLayout* main_Layout;
 		QGroupBox* line_Group_Box;
 			QGridLayout* line_GB_Layout;

@@ -98,6 +98,7 @@ int line_edit_composition_precision	;
 int line_edit_thickness_precision	;
 int line_edit_sigma_precision		;
 int line_edit_interlayer_precision	;
+int line_edit_drift_precision		;
 int line_edit_period_precision		;
 int line_edit_gamma_precision		;
 
@@ -112,6 +113,7 @@ int thumbnail_composition_precision	;
 int thumbnail_thickness_precision	;
 int thumbnail_sigma_precision		;
 int thumbnail_interlayer_precision	;
+int thumbnail_drift_precision		;
 int thumbnail_period_precision		;
 int thumbnail_gamma_precision		;
 
@@ -145,6 +147,7 @@ QString length_units;
 QString angle_units;
 QString density_units;
 QString opt_const_units;
+QString drift_units;
 
 // -----------------------------------------------------------------------------------------
 
@@ -372,8 +375,9 @@ void Settings::read_Precisions(bool reset_to_default)
 			line_edit_composition_precision	= precision_Values.value( "line_edit_composition_precision",	4 ).toInt();
 			line_edit_thickness_precision	= precision_Values.value( "line_edit_thickness_precision",		4 ).toInt();
 			line_edit_sigma_precision		= precision_Values.value( "line_edit_sigma_precision",			3 ).toInt();	// = thickness precision
-			line_edit_interlayer_precision	= precision_Values.value( "line_edit_interlayer_precision",		4 ).toInt();
-			line_edit_period_precision		= precision_Values.value( "line_edit_period_precision",			4 ).toInt();	// = thickness precision
+			line_edit_interlayer_precision	= precision_Values.value( "line_edit_interlayer_precision",		3 ).toInt();
+			line_edit_drift_precision		= precision_Values.value( "line_edit_drift_precision",			3 ).toInt();
+			line_edit_period_precision		= precision_Values.value( "line_edit_period_precision",			5 ).toInt();	// = thickness precision
 			line_edit_gamma_precision		= precision_Values.value( "line_edit_gamma_precision",			9 ).toInt();	// = thickness precision
 		precision_Values.endGroup();
 		precision_Values.beginGroup( Thumbnail );
@@ -383,10 +387,11 @@ void Settings::read_Precisions(bool reset_to_default)
 			thumbnail_density_precision		= precision_Values.value( "thumbnail_density_precision",		3 ).toInt();
 			thumbnail_permittivity_precision= precision_Values.value( "thumbnail_permittivity_precision",	3 ).toInt();
 			thumbnail_absorption_precision	= precision_Values.value( "thumbnail_absorption_precision",		3 ).toInt();
-			thumbnail_composition_precision = precision_Values.value( "thumbnail_composition_precision",	6 ).toInt();
+			thumbnail_composition_precision = precision_Values.value( "thumbnail_composition_precision",	3 ).toInt();
 			thumbnail_thickness_precision	= precision_Values.value( "thumbnail_thickness_precision",		3 ).toInt();
 			thumbnail_sigma_precision		= precision_Values.value( "thumbnail_sigma_precision",			3 ).toInt();	// = thickness precision
 			thumbnail_interlayer_precision	= precision_Values.value( "thumbnail_interlayer_precision",		3 ).toInt();
+			thumbnail_drift_precision		= precision_Values.value( "thumbnail_drift_precision",			3 ).toInt();
 			thumbnail_period_precision		= precision_Values.value( "thumbnail_period_precision",			3 ).toInt();	// = thickness precision
 			thumbnail_gamma_precision		= precision_Values.value( "thumbnail_gamma_precision",			3 ).toInt();	// = thickness precision
 		precision_Values.endGroup();
@@ -414,6 +419,7 @@ void Settings::save_Precisions()
 			precision_Values.setValue( "line_edit_thickness_precision",		line_edit_thickness_precision		);
 			precision_Values.setValue( "line_edit_sigma_precision",			line_edit_sigma_precision			);
 			precision_Values.setValue( "line_edit_interlayer_precision",	line_edit_interlayer_precision		);
+			precision_Values.setValue( "line_edit_drift_precision",			line_edit_drift_precision			);
 			precision_Values.setValue( "line_edit_period_precision",		line_edit_period_precision			);
 			precision_Values.setValue( "line_edit_gamma_precision",			line_edit_gamma_precision			);
 		precision_Values.endGroup();
@@ -428,6 +434,7 @@ void Settings::save_Precisions()
 			precision_Values.setValue( "thumbnail_thickness_precision",		thumbnail_thickness_precision		);
 			precision_Values.setValue( "thumbnail_sigma_precision",			thumbnail_sigma_precision			);
 			precision_Values.setValue( "thumbnail_interlayer_precision",	thumbnail_interlayer_precision		);
+			precision_Values.setValue( "thumbnail_drift_precision",			thumbnail_drift_precision			);
 			precision_Values.setValue( "thumbnail_period_precision",		thumbnail_period_precision			);
 			precision_Values.setValue( "thumbnail_gamma_precision",			thumbnail_gamma_precision			);
 		precision_Values.endGroup();
@@ -454,7 +461,7 @@ void Settings::read_Parameters_Default_Values(bool reset_to_default)
 		default_wavelength_value		 = parameters_Default_Values.value( "default_wavelength_value",			1.54056 ).toDouble();
 		default_min_wavelength			 = parameters_Default_Values.value( "default_min_wavelength",			100		).toDouble();
 		default_max_wavelength			 = parameters_Default_Values.value( "default_max_wavelength",			180		).toDouble();
-		default_angle_type				 = parameters_Default_Values.value( "default_angle_type",				Angle_Type::Grazing() ).toString();
+		default_angle_type				 = parameters_Default_Values.value( "default_angle_type",				angle_Type_Grazing).toString();
 		default_angular_resolution		 = parameters_Default_Values.value( "default_angular_resolution",		0.009	).toDouble();
 		default_polarization			 = parameters_Default_Values.value( "default_polarization",				0		).toDouble();
 		default_spectral_resolution		 = parameters_Default_Values.value( "default_spectral_resolution",		0.001	).toDouble();
@@ -498,6 +505,7 @@ void Settings::read_Units(bool reset_to_default)
 		angle_units				= units.value( "angle_units",		angle_Units_List	 .first() ).toString();
 		density_units			= units.value( "density_units",		density_Units_List   .first() ).toString();
 		opt_const_units			= units.value( "opt_const_units",	opt_Const_Units_List .first() ).toString();
+		drift_units				= units.value( "drift_units",		drift_Units_List .first() ).toString();
 	units.endGroup();
 }
 
@@ -512,6 +520,7 @@ void Settings::save_Units()
 		units.setValue( "angle_units",		angle_units		);
 		units.setValue( "density_units",	density_units   );
 		units.setValue( "opt_const_units",	opt_const_units	);
+		units.setValue( "drift_units",		drift_units		);
 	units.endGroup();
 }
 

@@ -109,11 +109,11 @@ QStringList transition_Layer_Functions	{"erf","lin","exp","tanh","sin","step"}; 
 QStringList tril						{TRIL_TRUE, TRIL_FALSE, TRIL_NOT_DEFINED};
 
 // measured curves
-QStringList argument_Types				{"Grazing angle","Incident angle","Wavelength/Energy"};
-QStringList value_Function				{"Reflectance","Transmittance","Absorptance"};
-QStringList value_R_Mode				{"R","R+"+Phi_Sym,"r, Re+Im","r, |r|+"+Phi_Sym};
-QStringList value_T_Mode				{"T"};
-QStringList value_A_Mode				{"A"};
+QStringList argument_Types				{"Grazing angle","Incident angle","Wavelength/Energy"}; // change enum!
+QStringList value_Function				{"Reflectance","Transmittance","Absorptance"};			// change enum!
+QStringList value_R_Mode				{"R","R+"+Phi_Sym,"r, Re+Im","r, |r|+"+Phi_Sym};		// change enum!
+QStringList value_T_Mode				{"T"};													// change enum!
+QStringList value_A_Mode				{"A"};													// change enum!
 
 // -----------------------------------------------------------------------------------------
 
@@ -141,6 +141,9 @@ QStringList density_Units_List				{"g/cm" + Cube_Sym};
 
 // optical constants
 QStringList opt_Const_Units_List			{"% of nominal"};
+
+// drift
+QStringList drift_Units_List				{"% per period"};
 
 // -----------------------------------------------------------------------------------------
 
@@ -180,7 +183,6 @@ void Global_Variables::serialize_Tree(QDataStream &out, QTreeWidget* tree)
 	while(*it)
 	{
 		QTreeWidgetItem* item = *it;
-		QStringList whats_This_List = item->whatsThis(DEFAULT_COLUMN).split(item_Type_Delimiter,QString::SkipEmptyParts);
 
 		// whatsThis
 		out << item->whatsThis(DEFAULT_COLUMN);
@@ -188,11 +190,8 @@ void Global_Variables::serialize_Tree(QDataStream &out, QTreeWidget* tree)
 		// id
 		out << item->statusTip(DEFAULT_COLUMN);
 
-		if(whats_This_List[0] == whats_This_Measurement) out << item->data(DEFAULT_COLUMN, Qt::UserRole).value<Measurement>();
-		if(whats_This_List[0] == whats_This_Ambient)	 out << item->data(DEFAULT_COLUMN, Qt::UserRole).value<Ambient>();
-		if(whats_This_List[0] == whats_This_Layer)		 out << item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>();
-		if(whats_This_List[0] == whats_This_Multilayer)	 out << item->data(DEFAULT_COLUMN, Qt::UserRole).value<Stack_Content>();
-		if(whats_This_List[0] == whats_This_Substrate)	 out << item->data(DEFAULT_COLUMN, Qt::UserRole).value<Substrate>();
+		// data
+		out << item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
 
 
 		// parent's whatsThis
@@ -235,13 +234,13 @@ void Global_Variables::deserialize_Tree(QDataStream& in, QTreeWidget* tree)
 		item->setStatusTip(DEFAULT_COLUMN, id);
 
 		// data
-		QStringList whats_This_List = whatsThis.split(item_Type_Delimiter,QString::SkipEmptyParts);
-		QVariant var;
-		if(whats_This_List[0] == whats_This_Measurement){Measurement	measurement;	in >> measurement;	var.setValue(measurement);	item->setData(DEFAULT_COLUMN, Qt::UserRole, var);}
-		if(whats_This_List[0] == whats_This_Ambient)	{Ambient		ambient;		in >> ambient;		var.setValue(ambient);		item->setData(DEFAULT_COLUMN, Qt::UserRole, var);}
-		if(whats_This_List[0] == whats_This_Layer)		{Layer			layer;			in >> layer;		var.setValue(layer);		item->setData(DEFAULT_COLUMN, Qt::UserRole, var);}
-		if(whats_This_List[0] == whats_This_Multilayer)	{Stack_Content	stack_Content;	in >> stack_Content;var.setValue(stack_Content);item->setData(DEFAULT_COLUMN, Qt::UserRole, var);}
-		if(whats_This_List[0] == whats_This_Substrate)	{Substrate		substrate;		in >> substrate;	var.setValue(substrate);	item->setData(DEFAULT_COLUMN, Qt::UserRole, var);}
+		{
+			QVariant var;
+			Data data;
+			in >> data;
+			var.setValue(data);
+			item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+		}
 
 		// parent's whatsThis
 		QString whatsThis_Parent;
@@ -269,9 +268,6 @@ void Global_Variables::serialize_Variables_List(QDataStream& out, QListWidget* l
 	{
 		QListWidgetItem* temp_Item = list->item(i);
 
-		// save whatsThis
-		out << temp_Item->whatsThis();
-
 		// save text
 		out << temp_Item->text();
 
@@ -292,11 +288,6 @@ void Global_Variables::deserialize_Variables_List(QDataStream& in, QListWidget* 
 	{
 		QListWidgetItem* new_Item = new QListWidgetItem;
 		list->insertItem(i,new_Item);
-
-		// load whatsThis
-		QString whats_This;
-		in >> whats_This;
-		new_Item->setWhatsThis(whats_This);
 
 		// load text
 		QString text;
@@ -400,3 +391,5 @@ int Global_Variables::get_Tree_Depth(QTreeWidgetItem* item)
 	}
 	return depth;
 }
+
+

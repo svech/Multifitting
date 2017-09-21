@@ -19,7 +19,7 @@ public:
 signals:
 	void refresh_All_Multilayers();
 
-private:
+public:
 	void create_Main_Layout();
 		void create_Structure_Frame();
 		void create_Variables_Frame();
@@ -28,32 +28,18 @@ private:
 					void create_Specular_Functions();
 					void create_Nonspecular_Functions();
 				void create_Independent_Variables_Tabs();
-
-				void create_Structure_Table();
-
-//				void create_Coupled_Parameters_List();
-//				void create_Coupled_Parameters_Toolbar();
-
-//				void create_Fitting_Parameters_List();
-//				void create_Fitting_Parameters_Toolbar();
-
-//				void create_Optimization_Parameters_List();
-//				void create_Optimization_Parameters_Toolbar();
 		void create_Data_Frame();
 
-public slots:
 	void add_Independent_Variables_Tab();
 	void change_Tab_Independent_Variables_Tab_Color(int index);
 	void remove_Independent_Variables_Tab(int index);
 	void rename_Independent_Variables_Tab(int tab_Index);
 
-public slots:
 	void refresh_Structure_And_Independent(QObject* my_Sender = NULL);
-
-	void add_Target_Curve   (int index_Pressed, QString target_Curve_Type);
-	void remove_Target_Curve(int index_Pressed, QString target_Curve_Type);
+	void add_Target_Curve   (int index_Pressed);
+	void remove_Target_Curve(int index_Pressed);
 	void open_Import_Window(Target_Curve* target_Curve);
-public:
+
 	Multilayer_Approach* multilayer_Approach;
 
 	QVBoxLayout* main_Layout;
@@ -85,19 +71,13 @@ public:
 
 		QFrame* data_Frame;
 			QVBoxLayout* data_Frame_Layout;
-
-//int measured_Counter = 0;
-//int target_Counter = 0;
-
-				QGroupBox* data_Measured_Data_Group_Box;
-					QVBoxLayout* layout_Measured_Data_With_Frame_Vector;
-						QVector<QFrame*> data_Measured_Data_Frame_Vector;
-						QVector<Target_Curve*> measured_Data_Vector;
-
 				QGroupBox* data_Target_Profile_Group_Box;
 					QVBoxLayout* layout_Target_Profile_With_Frame_Vector;
 						QVector<QFrame*> data_Target_Profile_Frame_Vector;
 						QVector<Target_Curve*> target_Profiles_Vector;
+
+						//int target_Counter = 0;
+
 };
 
 #endif // MULTILAYER_H

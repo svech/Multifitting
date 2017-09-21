@@ -27,7 +27,7 @@ void Multilayer::create_Structure_Frame()
 		struct_Frame_Layout->setSpacing(0);
 
 	struct_Frame = new QFrame;
-        struct_Frame->setContentsMargins(-7,-3,-7,-10);
+		struct_Frame->setContentsMargins(-7,-3,-7,-10);
 		struct_Frame->setLayout(struct_Frame_Layout);
 
 	structure_Tree = new Structure_Tree(this, this);
@@ -81,7 +81,7 @@ void Multilayer::create_Variables_Tabs()
 		frame->setContentsMargins(0,-5,0,-8);
 		variables_Tabs->addTab(frame, "Structure Table");
 
-		connect(structure_Table_Button, SIGNAL(clicked(bool)), multilayer_Approach, SLOT(open_Table_Of_Structures(bool)));
+		connect(structure_Table_Button, &QPushButton::clicked, multilayer_Approach, &Multilayer_Approach::open_Table_Of_Structures);
 	}
 
 	variables_Tabs->setSizePolicy(QSizePolicy::Preferred,QSizePolicy::Fixed);
@@ -166,10 +166,10 @@ void Multilayer::create_Independent_Variables_Tabs()
 		independent_Variables_Corner_Button->setFont(tmp_Qf);
 		independent_Variables_Plot_Tabs->setCornerWidget(independent_Variables_Corner_Button);
 
-	connect(independent_Variables_Corner_Button,SIGNAL(clicked()),				 this, SLOT(add_Independent_Variables_Tab()));
-	connect(independent_Variables_Plot_Tabs,	SIGNAL(currentChanged(int)),	 this, SLOT(change_Tab_Independent_Variables_Tab_Color(int)));
-	connect(independent_Variables_Plot_Tabs,	SIGNAL(tabCloseRequested(int)),  this, SLOT(remove_Independent_Variables_Tab(int)));
-	connect(independent_Variables_Plot_Tabs,	SIGNAL(tabBarDoubleClicked(int)),this, SLOT(rename_Independent_Variables_Tab(int)));
+	connect(independent_Variables_Corner_Button,&QToolButton::clicked,			 this, &Multilayer::add_Independent_Variables_Tab);
+	connect(independent_Variables_Plot_Tabs,	&QTabWidget::currentChanged,	 this, &Multilayer::change_Tab_Independent_Variables_Tab_Color);
+	connect(independent_Variables_Plot_Tabs,	&QTabWidget::tabCloseRequested,  this, &Multilayer::remove_Independent_Variables_Tab);
+	connect(independent_Variables_Plot_Tabs,	&QTabWidget::tabBarDoubleClicked,this, &Multilayer::rename_Independent_Variables_Tab);
 
 	add_Independent_Variables_Tab();
 }
@@ -183,26 +183,16 @@ void Multilayer::create_Data_Frame()
 	data_Frame_Layout = new QVBoxLayout(data_Frame);
 		data_Frame_Layout->setSpacing(0);
 
-	data_Measured_Data_Group_Box = new QGroupBox("Measured Data");
-	data_Target_Profile_Group_Box= new QGroupBox("Target Profile");
-
-	data_Frame_Layout->addWidget(data_Measured_Data_Group_Box);
+	data_Target_Profile_Group_Box= new QGroupBox("Target Curve");
 	data_Frame_Layout->addWidget(data_Target_Profile_Group_Box);
-
-	layout_Measured_Data_With_Frame_Vector = new QVBoxLayout(data_Measured_Data_Group_Box);
 	layout_Target_Profile_With_Frame_Vector= new QVBoxLayout(data_Target_Profile_Group_Box);
-
-	layout_Measured_Data_With_Frame_Vector->setSpacing(0);
 	layout_Target_Profile_With_Frame_Vector->setSpacing(0);
-
-	layout_Measured_Data_With_Frame_Vector->setMargin(0);
 	layout_Target_Profile_With_Frame_Vector->setMargin(0);
 
-	add_Target_Curve(0, MEASURED);
-	add_Target_Curve(0, OPTIMIZE);
+	add_Target_Curve(0);
 }
 
-// --------------------------------------------------------------------------------------
+//// --------------------------------------------------------------------------------------
 
 void Multilayer::add_Independent_Variables_Tab()
 {
@@ -211,7 +201,7 @@ void Multilayer::add_Independent_Variables_Tab()
 
 	independent_Variables_Vector.append(new_Independent);
 
-	connect(new_Independent, SIGNAL(refresh_Multilayer()), this, SLOT(refresh_Structure_And_Independent()));
+	connect(new_Independent, &Independent_Variables::refresh_Multilayer, this, [=]{refresh_Structure_And_Independent();});
 
 	// add new tab
 	independent_Variables_Plot_Tabs->addTab(new_Independent, default_independent_variable_tab_name);
@@ -242,7 +232,7 @@ void Multilayer::change_Tab_Independent_Variables_Tab_Color(int index)
 
 void Multilayer::remove_Independent_Variables_Tab(int index)
 {
-	QMessageBox::StandardButton reply = QMessageBox::question(this,"Removal", "Variables tab \"" + independent_Variables_Plot_Tabs->tabBar()->tabText(index) + "\" will be removed.\nContinue?", QMessageBox::Yes|QMessageBox::No, QMessageBox::No);
+	QMessageBox::StandardButton reply = QMessageBox::question(this,"Removal", "Variables tab \"" + independent_Variables_Plot_Tabs->tabBar()->tabText(index) + "\" will be removed.\nContinue?", QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
 	if (reply == QMessageBox::Yes)
 	{
 		independent_Variables_Vector.remove(index);
@@ -277,18 +267,16 @@ void Multilayer::refresh_Structure_And_Independent(QObject* my_Sender)
 	if(!my_Sender) emit refresh_All_Multilayers();
 }
 
-// --------------------------------------------------------------------------------------
+//// --------------------------------------------------------------------------------------
 
-void Multilayer::add_Target_Curve(int index_Pressed, QString target_Curve_Type)
+void Multilayer::add_Target_Curve(int index_Pressed)
 {
 	// window resizing
-	if( (target_Curve_Type == MEASURED && !data_Measured_Data_Frame_Vector.isEmpty()) ||
-		(target_Curve_Type == OPTIMIZE && !data_Target_Profile_Frame_Vector.isEmpty())		)
+	if(!data_Target_Profile_Frame_Vector.isEmpty())
 	{
 		struct_Frame->setFixedSize(struct_Frame->size());
 		QWidget::window()->resize(QWidget::window()->width(),QWidget::window()->height() + multilayer_height_additive);
 	}
-
 
 	QPushButton* new_Import_Button = new QPushButton("Import");
 	QLabel* new_Description_Label  = new QLabel("<no description>");
@@ -298,19 +286,8 @@ void Multilayer::add_Target_Curve(int index_Pressed, QString target_Curve_Type)
 	QFrame* new_Frame = new QFrame;
 	Target_Curve* new_Target_Curve = new Target_Curve(new_Description_Label, structure_Tree->tree);
 
-	if(target_Curve_Type == MEASURED)
-	{
-		data_Measured_Data_Frame_Vector.insert(index_Pressed, new_Frame);
-		measured_Data_Vector.insert(index_Pressed, new_Target_Curve);
-	} else
-	if(target_Curve_Type == OPTIMIZE)
-	{
-		data_Target_Profile_Frame_Vector.insert(index_Pressed,new_Frame);
-		target_Profiles_Vector.insert(index_Pressed, new_Target_Curve);
-	} else
-	{
-		QMessageBox::information(this, "Multilayer::add_Target_Curve", "target_Curve_Type should be \"MEASURED\" or \"OPTIMIZE\"");
-	}
+	data_Target_Profile_Frame_Vector.insert(index_Pressed,new_Frame);
+	target_Profiles_Vector.insert(index_Pressed, new_Target_Curve);
 
 	QHBoxLayout* new_Frame_Layout = new QHBoxLayout(new_Frame);
 	new_Frame_Layout->setMargin(0);
@@ -319,8 +296,7 @@ void Multilayer::add_Target_Curve(int index_Pressed, QString target_Curve_Type)
 	left_Layout->setSpacing(10);
 	right_Layout->setSpacing(0);
 
-//	if(target_Curve_Type == MEASURED) {new_Description_Label->setText(new_Description_Label->text() + " " + QString::number(measured_Counter)); measured_Counter++;} else
-//	if(target_Curve_Type == OPTIMIZE) {new_Description_Label->setText(new_Description_Label->text() + " " + QString::number(target_Counter));   target_Counter++; }
+//	{new_Description_Label->setText(new_Description_Label->text() + " " + QString::number(target_Counter));   target_Counter++; }
 
 	new_Import_Button->		setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 	new_Description_Label->	setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
@@ -336,21 +312,11 @@ void Multilayer::add_Target_Curve(int index_Pressed, QString target_Curve_Type)
 
 	new_Frame->setLayout(new_Frame_Layout);
 
-	if(target_Curve_Type == MEASURED) layout_Measured_Data_With_Frame_Vector->insertWidget(index_Pressed,new_Frame); else
-	if(target_Curve_Type == OPTIMIZE) layout_Target_Profile_With_Frame_Vector->insertWidget(index_Pressed,new_Frame);
+	layout_Target_Profile_With_Frame_Vector->insertWidget(index_Pressed,new_Frame);
 
-	connect(new_Import_Button,    &QPushButton::clicked, this, [=]{ open_Import_Window(new_Target_Curve); });
-
-	if(target_Curve_Type == MEASURED)
-	{
-		connect(new_Add_Button,    &QPushButton::clicked, this, [=]{ add_Target_Curve   (data_Measured_Data_Frame_Vector.indexOf(new_Frame)+1, target_Curve_Type); });
-		connect(new_Remove_Button, &QPushButton::clicked, this, [=]{ remove_Target_Curve(data_Measured_Data_Frame_Vector.indexOf(new_Frame),   target_Curve_Type); });
-	} else
-	if(target_Curve_Type == OPTIMIZE)
-	{
-		connect(new_Add_Button,    &QPushButton::clicked, this, [=]{ add_Target_Curve   (data_Target_Profile_Frame_Vector.indexOf(new_Frame)+1, target_Curve_Type); });
-		connect(new_Remove_Button, &QPushButton::clicked, this, [=]{ remove_Target_Curve(data_Target_Profile_Frame_Vector.indexOf(new_Frame),   target_Curve_Type); });
-	}
+	connect(new_Import_Button, &QPushButton::clicked, this, [=]{ open_Import_Window (new_Target_Curve); });
+	connect(new_Add_Button,    &QPushButton::clicked, this, [=]{ add_Target_Curve   (data_Target_Profile_Frame_Vector.indexOf(new_Frame)+1); });
+	connect(new_Remove_Button, &QPushButton::clicked, this, [=]{ remove_Target_Curve(data_Target_Profile_Frame_Vector.indexOf(new_Frame)  ); });
 
 	// hiding add button
 //	QPushButton* add_Button;
@@ -361,39 +327,24 @@ void Multilayer::add_Target_Curve(int index_Pressed, QString target_Curve_Type)
 //	}
 }
 
-void Multilayer::remove_Target_Curve(int index_Pressed, QString target_Curve_Type)
+void Multilayer::remove_Target_Curve(int index_Pressed)
 {
-	if(target_Curve_Type == MEASURED)
-	{
-		// delete frame
-		delete data_Measured_Data_Frame_Vector[index_Pressed];
-		data_Measured_Data_Frame_Vector.removeAt(index_Pressed);
+	// delete frame
+	delete data_Target_Profile_Frame_Vector[index_Pressed];
+	data_Target_Profile_Frame_Vector.removeAt(index_Pressed);
 
-		// delete data
-		delete measured_Data_Vector[index_Pressed];
-		measured_Data_Vector.removeAt(index_Pressed);
-	} else
-	if(target_Curve_Type == OPTIMIZE)
-	{
-		// delete frame
-		delete data_Target_Profile_Frame_Vector[index_Pressed];
-		data_Target_Profile_Frame_Vector.removeAt(index_Pressed);
-
-		// delete data
-		delete target_Profiles_Vector[index_Pressed];
-		target_Profiles_Vector.removeAt(index_Pressed);
-	}
+	// delete data
+	delete target_Profiles_Vector[index_Pressed];
+	target_Profiles_Vector.removeAt(index_Pressed);
 
 	// window resizing
-	if( (target_Curve_Type == MEASURED && !data_Measured_Data_Frame_Vector.isEmpty())  ||
-		(target_Curve_Type == OPTIMIZE && !data_Target_Profile_Frame_Vector.isEmpty()) )
+	if( !data_Target_Profile_Frame_Vector.isEmpty() )
 	{
 		struct_Frame->setFixedSize(struct_Frame->size());
 		QWidget::window()->resize(QWidget::window()->width(),QWidget::window()->height() - multilayer_height_additive);
 	}
 
-	if(target_Curve_Type == MEASURED && data_Measured_Data_Frame_Vector.isEmpty())	add_Target_Curve(0, MEASURED);
-	if(target_Curve_Type == OPTIMIZE && data_Target_Profile_Frame_Vector.isEmpty())	add_Target_Curve(0, OPTIMIZE);
+	if(data_Target_Profile_Frame_Vector.isEmpty())	add_Target_Curve(0);
 }
 
 void Multilayer::open_Import_Window(Target_Curve* target_Curve)
@@ -402,7 +353,5 @@ void Multilayer::open_Import_Window(Target_Curve* target_Curve)
 		new_Target_Curve_Editor->setParent(this);
 		new_Target_Curve_Editor->setWindowFlags(Qt::Window);
 		new_Target_Curve_Editor->show();
-
-//	connect(depth_Grading, SIGNAL(grading_Edited()), this, SLOT(emit_Item_Data_Edited()));
 }
 

@@ -132,11 +132,11 @@ using namespace std;
 #define item_Type_Delimiter  " "
 
 // whatsThis : treeWidgetItem types
-#define whats_This_Measurement	 "Measurement"
-#define whats_This_Ambient		 "Ambient"
-#define whats_This_Layer		 "Layer"
-#define whats_This_Multilayer	 "Multilayer"
-#define whats_This_Substrate	 "Substrate"
+#define item_Type_Measurement	 "Measurement"
+#define item_Type_Ambient		 "Ambient"
+#define item_Type_Layer		 "Layer"
+#define item_Type_Multilayer	 "Multilayer"
+#define item_Type_Substrate	 "Substrate"
 
 // whatsThis : specialized additions
 #define whats_This_Angle					"Angle"
@@ -150,7 +150,7 @@ using namespace std;
 #define whats_This_Sigma					"Sigma"
 #define whats_This_Interlayer_Composition	"Interlayer Composition"
 #define whats_This_Interlayer_My_Sigma		"Interlayer My Sigma"
-#define whats_This_Num_Repetitions			"Num_Repetitions"
+#define whats_This_Num_Repetitions			"Num Repetitions"
 #define whats_This_Period					"Period"
 #define whats_This_Gamma					"Gamma"
 
@@ -170,14 +170,25 @@ using namespace std;
 #define whats_This_Sigma_Drift_Sine_Frequency		"Sigma Drift Sine Frequency"
 #define whats_This_Sigma_Drift_Sine_Phase			"Sigma Drift Sine Phase"
 
+// window types
+#define window_Type_Launcher						"Launcher"
+#define window_Type_Multilayer_Approach				"Multilayer Approach"
+#define window_Type_Independent_Variables_Editor	"Independent Variable Editor"
+#define window_Type_Item_Editor						"Item Editor"
+#define window_Type_Table							"Table"
+
+// angle types
+#define angle_Type_Grazing		"Grazing"
+#define angle_Type_Incidence	"Incidence"
+
 // value types
 #define VAL				"value"
 #define MIN				"min value"
 #define MAX				"max value"
 
-// master/slave keywords
-//#define MASTER			"master"
-//#define SLAVE			"slave"
+// insert items with or without changing IDs
+#define copy_Type_Copy	"copy"
+#define copy_Type_Cut	"cut"
 
 // -----------------------------------------------------------------------------------------
 
@@ -219,18 +230,8 @@ using namespace std;
 // keys
 #define table_Key	"table_Of_Structures"
 
-// target curves
-#define MEASURED	"MEASURED"
-#define OPTIMIZE	"OPTIMIZE"
 // independent curves
 #define INDEPENDENT	"INDEPENDENT"
-
-// -----------------------------------------------------------------------------------------
-
-// enums
-enum class Item_Type			{Ambient, Layer, Substrate, Stack_Content};
-enum class Variable_Type		{Independent, Coupled, Fitted, Optimized};
-enum       Transitional_Layer	{ Erf , Lin , Exp , Tanh , Sin , Step};
 
 // -----------------------------------------------------------------------------------------
 
@@ -244,32 +245,53 @@ enum       Transitional_Layer	{ Erf , Lin , Exp , Tanh , Sin , Step};
 #endif
 // -----------------------------------------------------------------------------------------
 
+extern QVector<int> used_IDs;
+
+class Global_Definitions
+{
+public:
+	Global_Definitions();
+	static int random_Id();
+};
+
+// -----------------------------------------------------------------------------------------
+
 // simple types					renew corresponding serialization operators!
+struct Independent_Indicator	{int item_Id = 0; int parameter_Id = 0; QString item_Type; QString parameter_Whats_This; int index = -1; bool is_Active = false;};
 struct Parameter_Indicator		{int id = 0; QString whats_This;								// once and for all
 								 int tab_Index = -1; QString full_Name; bool exist = false;};	// can be changed!
 
-struct Int_Independent			{int value; bool is_Independent=false;	int start; int step; int num_steps;};
-struct Independent				{bool is_Independent = false;	double min; double max; int num_Points;};
+struct Int_Independent			{int value; bool is_Independent=false;	int start = 1; int step = 1; int num_Steps = 3; int id = 0; QString whats_This;
+								 Int_Independent()
+								 {
+									id = Global_Definitions::random_Id();	// create unique id
+									whats_This = whats_This_Num_Repetitions;
+								 }
+								};
+struct Independent				{bool is_Independent = false; double min; double max; int num_Points;};
 
 struct Coupled					{bool is_Coupled = false;
-								 Parameter_Indicator master; QString function_Type = "default"; double function(double argument){ return argument;}
+								 Parameter_Indicator master; // QString function_Type = "default"; double function(double argument){ return argument;}
 								 QVector<Parameter_Indicator> slaves;};
 
-struct Fit						{bool is_Fitable	 = false;	bool min_Bounded; double min; bool max_Bounded; double max;};
-struct Optimize					{bool is_Optimizable = false;	bool min_Bounded; double min; bool max_Bounded; double max;};
+struct Fit						{bool is_Fitable = false; bool min_Bounded; double min; bool max_Bounded; double max;};
 
-struct Parameter				{double value; Independent independent; Coupled coupled; Fit fit; Optimize optimize;
+struct Parameter				{double value; Independent independent; Coupled coupled; Fit fit;
 								 Parameter_Indicator indicator;
 								 Parameter()
 								 {
-									indicator.id = rand()*RAND_SHIFT+rand();	// create unique id
+									indicator.id = Global_Definitions::random_Id();	// create unique id
 								 }};
 Q_DECLARE_METATYPE( Parameter )
+Q_DECLARE_METATYPE( Independent_Indicator )
 
 struct Stoichiometry			{Parameter composition; QString type;
 								 Stoichiometry()
 								 {
 									composition.indicator.whats_This = whats_This_Composition;
+									composition.independent.min = 0;
+									composition.independent.max = 1;
+									composition.independent.num_Points = 1;
 								 }
 								};
 struct Interlayer				{Parameter interlayer; Parameter my_Sigma; bool enabled;
@@ -289,16 +311,6 @@ struct Point					{double lambda; double re;  double im; void read_Row(QTextStrea
 struct Material_Data			{QString substance; QString filename; QVector<Point> material_Data; void read_Material(QString& filename);};
 struct Element_Data				{QString element;					  QVector<Point> element_Data;  void read_Element (QString& filename);};
 
-struct Window_Type				{static QString Launcher()					  { return "Launcher"  ;}
-								 static QString Multilayer_Approach()		  { return "Multilayer_Approach";}
-								 static QString Independent_Variables_Editor(){ return "Independent_Variable_Editor";}
-                                 static QString Item_Editor()				  { return "Item_Editor";}
-                                 static QString Table()                       { return "Table";}
-                                };
-
-struct Angle_Type				{static QString Grazing()		 { return "Grazing"  ;}
-								 static QString Incidence()		 { return "Incidence";}
-								};
 
 // measured/target data types
 struct Value					{double val_1; double val_2; /*double sigma_1; double sigma_2;*/};
@@ -319,6 +331,9 @@ struct Curve					{QVector<double> argument;
 
 // serialization
 
+QDataStream& operator <<( QDataStream& stream, const Independent_Indicator& independent_Indicator );
+QDataStream& operator >>( QDataStream& stream,		 Independent_Indicator& independent_Indicator );
+
 QDataStream& operator <<( QDataStream& stream, const Parameter_Indicator& parameter_Indicator );
 QDataStream& operator >>( QDataStream& stream,		 Parameter_Indicator& parameter_Indicator );
 
@@ -333,9 +348,6 @@ QDataStream& operator >>( QDataStream& stream,		 Coupled& coupled );
 
 QDataStream& operator <<( QDataStream& stream, const Fit& fit );
 QDataStream& operator >>( QDataStream& stream,		 Fit& fit );
-
-QDataStream& operator <<( QDataStream& stream, const Optimize& optimize );
-QDataStream& operator >>( QDataStream& stream,		 Optimize& optimize );
 
 QDataStream& operator <<( QDataStream& stream, const Parameter& parameter );
 QDataStream& operator >>( QDataStream& stream,		 Parameter& parameter );
@@ -356,28 +368,22 @@ QDataStream& operator <<( QDataStream& stream, const Curve& curve );
 QDataStream& operator >>( QDataStream& stream,		 Curve& curve );
 // -----------------------------------------------------------------------------------------
 
-class Global_Definitions
-{
-public:
-	Global_Definitions();
-};
-
-template <typename T>
-void print_Vector	(QString name, vector<T>& vec, int transpose)	// output
-{
-	if(vec.size()==0) return;
-	if(transpose==0)
-	{
-		cout<<name.toStdString()<<"[0.."<<vec.size()-1<<"] = "; //-V128
-		for(auto i=0; i<vec.size(); ++i) //-V104
-			cout<<vec[i]<<"\t";
-	} else
-	for(auto i=0; i<vec.size(); ++i) //-V104
-	{
-		cout<<name.toStdString()<<"["<<i<<"] = ";
-		cout<<vec[i]<<endl;
-	}
-	cout<<endl;
-}
+//template <typename T>
+//void print_Vector	(QString name, vector<T>& vec, int transpose)	// output
+//{
+//	if(vec.size()==0) return;
+//	if(transpose==0)
+//	{
+//		cout<<name.toStdString()<<"[0.."<<vec.size()-1<<"] = "; //-V128
+//		for(auto i=0; i<vec.size(); ++i) //-V104
+//			cout<<vec[i]<<"\t";
+//	} else
+//	for(auto i=0; i<vec.size(); ++i) //-V104
+//	{
+//		cout<<name.toStdString()<<"["<<i<<"] = ";
+//		cout<<vec[i]<<endl;
+//	}
+//	cout<<endl;
+//}
 
 #endif // GLOBAL_DEFINITIONS_H

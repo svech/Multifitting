@@ -98,6 +98,7 @@ extern int line_edit_composition_precision	;
 extern int line_edit_thickness_precision	;
 extern int line_edit_sigma_precision		;
 extern int line_edit_interlayer_precision	;
+extern int line_edit_drift_precision		;
 extern int line_edit_period_precision		;
 extern int line_edit_gamma_precision		;
 
@@ -112,6 +113,7 @@ extern int thumbnail_composition_precision	;
 extern int thumbnail_thickness_precision	;
 extern int thumbnail_sigma_precision		;
 extern int thumbnail_interlayer_precision	;
+extern int thumbnail_drift_precision		;
 extern int thumbnail_period_precision		;
 extern int thumbnail_gamma_precision		;
 
@@ -145,6 +147,8 @@ extern QString length_units;
 extern QString angle_units;
 extern QString density_units;
 extern QString opt_const_units;
+extern QString drift_units;
+
 
 // -----------------------------------------------------------------------------------------
 
