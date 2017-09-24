@@ -168,6 +168,13 @@ void Multilayer_Approach::open()
 	// clear existing tabs
 	for(int i=0; i<multilayer_Tabs->count(); ++i)
 	{
+		// for not growing in size
+		Multilayer* multilayer = qobject_cast<Multilayer*>(multilayer_Tabs->widget(i));
+		for(int i=multilayer->data_Target_Profile_Frame_Vector.size()-1; i>=0; --i)
+		{
+			multilayer->remove_Target_Curve(i,true);
+		}
+
 		delete multilayer_Tabs->widget(i);
 	}
 	multilayer_Tabs->clear();
@@ -268,13 +275,10 @@ void Multilayer_Approach::open()
 		/// target
 		{
 			// clear existing targets
-			for(int i=0; i<multilayer->data_Target_Profile_Frame_Vector.size(); ++i)
+			for(int i=multilayer->data_Target_Profile_Frame_Vector.size()-1; i>=0; --i)
 			{
-				delete multilayer->target_Profiles_Vector[i];
-				delete multilayer->data_Target_Profile_Frame_Vector[i];
+				multilayer->remove_Target_Curve(i,true);
 			}
-			multilayer->target_Profiles_Vector.clear();
-			multilayer->data_Target_Profile_Frame_Vector.clear();
 
 			// load number of target curves/frames
 			int num_Target;
@@ -296,12 +300,12 @@ void Multilayer_Approach::open()
 		}
 
 		// refresh all
-		multilayer->refresh_Structure_And_Independent();
+		multilayer->structure_Tree->structure_Toolbar->refresh_Toolbar();
 
-//		// disable adding substrate if it already exists
-//		QStringList whats_This_List = multilayer->structure_Tree->tree->topLevelItem(multilayer->structure_Tree->tree->topLevelItemCount()-1)->whatsThis(DEFAULT_COLUMN).split(item_Type_Delimiter,QString::SkipEmptyParts);
-//		if(whats_This_List[0] == whats_This_Substrate)
-//			multilayer->structure_Tree->structure_Toolbar->toolbar->actions()[2]->setDisabled(true);
+		// disable adding substrate if it already exists
+		QString item_Type = multilayer->structure_Tree->tree->topLevelItem(multilayer->structure_Tree->tree->topLevelItemCount()-1)->data(DEFAULT_COLUMN,Qt::UserRole).value<Data>().item_Type;
+		if(item_Type == item_Type_Substrate)
+			multilayer->structure_Tree->structure_Toolbar->toolbar->actions()[2]->setDisabled(true);
 	}
 
 	// load index of active multilayer tab

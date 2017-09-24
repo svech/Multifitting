@@ -324,7 +324,7 @@ void Multilayer::add_Target_Curve(int index_Pressed)
 //	}
 }
 
-void Multilayer::remove_Target_Curve(int index_Pressed)
+void Multilayer::remove_Target_Curve(int index_Pressed, bool clean)
 {
 	// delete frame
 	delete data_Target_Profile_Frame_Vector[index_Pressed];
@@ -341,7 +341,7 @@ void Multilayer::remove_Target_Curve(int index_Pressed)
 		QWidget::window()->resize(QWidget::window()->width(),QWidget::window()->height() - multilayer_height_additive);
 	}
 
-	if(data_Target_Profile_Frame_Vector.isEmpty())	add_Target_Curve(0);
+	if(data_Target_Profile_Frame_Vector.isEmpty() && !clean)	add_Target_Curve(0);
 }
 
 void Multilayer::open_Import_Window(Target_Curve* target_Curve)
