@@ -199,8 +199,6 @@ void Multilayer::add_Independent_Variables_Tab()
 	Independent_Variables* new_Independent = new Independent_Variables(structure_Tree->tree, this);
 		new_Independent->setContentsMargins(-8,-10,-8,-10);
 
-	independent_Variables_Vector.append(new_Independent);
-
 	connect(new_Independent, &Independent_Variables::refresh_Multilayer, this, [=]{refresh_Structure_And_Independent();});
 
 	// add new tab
@@ -235,7 +233,6 @@ void Multilayer::remove_Independent_Variables_Tab(int index)
 	QMessageBox::StandardButton reply = QMessageBox::question(this,"Removal", "Variables tab \"" + independent_Variables_Plot_Tabs->tabBar()->tabText(index) + "\" will be removed.\nContinue?", QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
 	if (reply == QMessageBox::Yes)
 	{
-		independent_Variables_Vector.remove(index);
 		delete independent_Variables_Plot_Tabs->widget(index);
 		if(independent_Variables_Plot_Tabs->count()==0) add_Independent_Variables_Tab();
 	}

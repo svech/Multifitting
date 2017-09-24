@@ -9,7 +9,7 @@ public:
 	Data(QString item_Type_Passed = "empty");
 
 	void reset_All_IDs();
-	QString item_Type;
+	QString	item_Type;
 	int id = 0;
 	///---------------------------------------------
 	// Measurement

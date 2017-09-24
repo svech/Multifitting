@@ -168,7 +168,7 @@ void Global_Variables::create_Sorted_Elements_Map()
 
 void Global_Variables::serialize_Tree(QDataStream &out, QTreeWidget* tree)
 {
-	// count
+	// save number of items in tree
 	int num_Items=0;
 	QTreeWidgetItemIterator it0(tree);
 	while(*it0)
@@ -178,25 +178,18 @@ void Global_Variables::serialize_Tree(QDataStream &out, QTreeWidget* tree)
 	}
 	out << num_Items;
 
-	// write
+	// save tree
 	QTreeWidgetItemIterator it(tree);
 	while(*it)
 	{
 		QTreeWidgetItem* item = *it;
 
-		// whatsThis
-		out << item->whatsThis(DEFAULT_COLUMN);
-
-		// id
-		out << item->statusTip(DEFAULT_COLUMN);
-
-		// data
+		// save data
 		out << item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
 
-
-		// parent's whatsThis
+		// save parent's id as string
 		if(item->parent())
-			out << item->parent()->whatsThis(DEFAULT_COLUMN);
+			out << QString::number(item->parent()->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>().id);
 		else
 			out << QString(NOPARENT);
 		++it;
@@ -205,55 +198,43 @@ void Global_Variables::serialize_Tree(QDataStream &out, QTreeWidget* tree)
 
 void Global_Variables::deserialize_Tree(QDataStream& in, QTreeWidget* tree)
 {
-	// count
+	// clear tree
+	tree->clear();
+
+	// load number of items in tree
 	int num_Items=0;
 	in >> num_Items;
 
-	tree->clear();
+	// load tree
 	QVector<QTreeWidgetItem*> item_Vec;
-	QStringList whatsThis_Parent_List;
-
+	QStringList id_Parent_List;
 	QMap<QString, QTreeWidgetItem*> tree_Map;
-
 	tree_Map.insert(NOPARENT, tree->invisibleRootItem());
 	for(int i=0; i<num_Items; ++i)
 	{
 		// create item
 		QTreeWidgetItem* item = new QTreeWidgetItem;
 
-		// read
+		// load data
+		QVariant var;
+		Data data;
+		in >> data;
+		var.setValue(data);
+		item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
 
-		// whatsThis
-		QString whatsThis;
-		in >> whatsThis;
-		item->setWhatsThis(DEFAULT_COLUMN,whatsThis);
+		// load parent's id
+		QString id_Parent;
+		in >> id_Parent;
 
-		// id
-		QString id;
-		in >> id;
-		item->setStatusTip(DEFAULT_COLUMN, id);
-
-		// data
-		{
-			QVariant var;
-			Data data;
-			in >> data;
-			var.setValue(data);
-			item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
-		}
-
-		// parent's whatsThis
-		QString whatsThis_Parent;
-		in >> whatsThis_Parent;
-
-		tree_Map.insert(whatsThis, item);
+		tree_Map.insert(QString::number(data.id), item);
 		item_Vec.append(item);
-		whatsThis_Parent_List.append(whatsThis_Parent);
+		id_Parent_List.append(id_Parent);
 	}
 
+	// set hierarchy
 	for(int i=0; i<item_Vec.size(); ++i)
 	{
-		tree_Map.value(whatsThis_Parent_List[i])->addChild(item_Vec[i]);
+		tree_Map.value(id_Parent_List[i])->addChild(item_Vec[i]);
 	}
 
 	tree->expandAll();
@@ -271,33 +252,35 @@ void Global_Variables::serialize_Variables_List(QDataStream& out, QListWidget* l
 		// save text
 		out << temp_Item->text();
 
-		// save active
-		out << temp_Item->data(Qt::UserRole).toBool();
+		// save data
+		out << temp_Item->data(Qt::UserRole).value<Independent_Indicator>();
 	}
 }
 
 void Global_Variables::deserialize_Variables_List(QDataStream& in, QListWidget* list)
 {
+	list->clear();
+
 	// load number of items
 	int num_Items;
 	in >> num_Items;
 
-	list->clear();
-
 	for(int i=0; i<num_Items; ++i)
 	{
 		QListWidgetItem* new_Item = new QListWidgetItem;
-		list->insertItem(i,new_Item);
+		list->addItem(new_Item);
 
 		// load text
 		QString text;
 		in >> text;
 		new_Item->setText(text);
 
-		// load active
-		bool is_Active;
-		in >> is_Active;
-		new_Item->setData(Qt::UserRole,is_Active);
+		// load data
+		Independent_Indicator indicator;
+		in >> indicator;
+		QVariant var;
+		var.setValue(indicator);
+		new_Item->setData(Qt::UserRole,var);
 	}
 }
 

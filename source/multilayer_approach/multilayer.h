@@ -65,7 +65,6 @@ public:
 						QVBoxLayout* nonspecular_Functions_Layout;
 					QTabWidget* independent_Variables_Plot_Tabs;
 						QToolButton* independent_Variables_Corner_Button;
-						QVector<Independent_Variables*> independent_Variables_Vector;
 
 					QPushButton* structure_Table_Button;
 
