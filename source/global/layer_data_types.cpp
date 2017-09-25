@@ -6,6 +6,8 @@
 
 Data::Data(QString item_Type_Passed)
 {
+	id = Global_Definitions::random_Id();
+
 	if(item_Type_Passed != "empty")
 	{
 		if( (item_Type_Passed != item_Type_Measurement) &&
@@ -19,14 +21,11 @@ Data::Data(QString item_Type_Passed)
 		{
 			item_Type = item_Type_Passed;
 		}
+		qInfo() << "Created:" << item_Type << id;
 	} else
 	{
-		qInfo() << "Data::Data : empty call";
+		qInfo() << "Data::Data : empty call" << id;
 	}
-
-	id = Global_Definitions::random_Id();
-
-	qInfo() << "Created:" << item_Type << id;
 
 	// Measurement
 	{

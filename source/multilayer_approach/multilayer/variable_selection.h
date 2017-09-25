@@ -44,8 +44,6 @@ public:
 		void add_Interlayer_My_Sigma	(QTreeWidgetItem* struct_Item);
 		void add_Num_repetitions		(QTreeWidgetItem* struct_Item);
 
-
-	static QString variable_Name(const Data& struct_Data, QString whats_This, int index=-1);
 	static void refresh_Independent_State_Of_Struct_Tree_Copy_Item(QTreeWidgetItem* structure_Item);
 	void add_Variable_Item(QListWidgetItem* new_Item);
 	void add_Variable();

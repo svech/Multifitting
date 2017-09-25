@@ -202,10 +202,13 @@ using namespace std;
 
 #define num_Chemic_Element_Property "num_Chemic_Element"
 #define interlayer_Index_Property	"interlayer_Index"
-#define item_Type_Property			"item_Type"
+//#define item_Type_Property			"item_Type"
+#define tab_Index_Property			"tab_Index"
 #define row_Property				"row"
 #define column_Property				"column"
+#define text_Property				"text"
 #define whats_This_Property			"whats_This"
+#define item_Type_Property			"item_Type"
 #define value_Type_Property			"value_Type"
 #define parameter_Property			"parameter"
 

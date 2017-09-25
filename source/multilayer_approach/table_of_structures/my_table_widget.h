@@ -8,9 +8,11 @@ class My_Table_Widget : public QTableWidget
 {
 	Q_OBJECT
 public:
-	My_Table_Widget(int rows, int columns,
+	My_Table_Widget(int rows,
+					int columns,
 					QMap<QWidget*,QTreeWidgetItem*>& coupled_Widgets_Map,
-					QTabWidget* main_Tabs, QWidget *parent = Q_NULLPTR);
+					QTabWidget* main_Tabs,
+					QWidget *parent = Q_NULLPTR);
 
 	QTabWidget* main_Tabs;
 	QMap<QWidget*,QTreeWidgetItem*>& coupled_Widgets_Map;

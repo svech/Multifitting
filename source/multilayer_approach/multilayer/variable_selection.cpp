@@ -352,7 +352,7 @@ void Variable_Selection::add_Parameter(QTreeWidgetItem* struct_Item, QString wha
 
 		QVariant var; var.setValue(item_Indicator);
 		list_Item->setData(Qt::UserRole,var);
-		list_Item->setText(variable_Name(struct_Data, parameter.indicator.whats_This));
+		list_Item->setText(Global_Variables::independent_Variable_Name(struct_Data, parameter.indicator.whats_This));
 
 		if(!parameter.independent.is_Independent && additional_Condition)
 		if(!variables_List_Map->contains(parameter.indicator.id))
@@ -398,7 +398,7 @@ void Variable_Selection::add_Composition(QTreeWidgetItem* struct_Item)
 
 			QVariant var; var.setValue(composition_Indicator);
 			item_Composition->setData(Qt::UserRole,var);
-			item_Composition->setText(variable_Name(struct_Data, parameter.indicator.whats_This, index));
+			item_Composition->setText(Global_Variables::independent_Variable_Name(struct_Data, parameter.indicator.whats_This, index));
 
 			if(!is_Independent)
 			if(!variables_List_Map->contains(parameter.indicator.id))
@@ -451,7 +451,7 @@ void Variable_Selection::add_Interlayer_Composition(QTreeWidgetItem* struct_Item
 
 		QVariant var; var.setValue(composition_Indicator);
 		item_Composition->setData(Qt::UserRole,var);
-		item_Composition->setText(variable_Name(struct_Data, parameter.indicator.whats_This, transition_Layer_Index));
+		item_Composition->setText(Global_Variables::independent_Variable_Name(struct_Data, parameter.indicator.whats_This, transition_Layer_Index));
 
 		if(!is_Independent && interlayer_Enabled)
 		if(!variables_List_Map->contains(parameter.indicator.id))
@@ -503,7 +503,7 @@ void Variable_Selection::add_Interlayer_My_Sigma(QTreeWidgetItem* struct_Item)
 
 		QVariant var; var.setValue(composition_Indicator);
 		item_Composition->setData(Qt::UserRole,var);
-		item_Composition->setText(variable_Name(struct_Data, parameter.indicator.whats_This, transition_Layer_Index));
+		item_Composition->setText(Global_Variables::independent_Variable_Name(struct_Data, parameter.indicator.whats_This, transition_Layer_Index));
 
 		if(!is_Independent && interlayer_Enabled)
 		if(!variables_List_Map->contains(parameter.indicator.id))
@@ -544,7 +544,7 @@ void Variable_Selection::add_Num_repetitions(QTreeWidgetItem* struct_Item)
 
 		QVariant var; var.setValue(num_Repetition_Indicator);
 		item_Num_Repetition->setData(Qt::UserRole,var);
-		item_Num_Repetition->setText(variable_Name(struct_Data, int_Ind.whats_This));
+		item_Num_Repetition->setText(Global_Variables::independent_Variable_Name(struct_Data, int_Ind.whats_This));
 
 		if(!is_Independent)
 		if(!variables_List_Map->contains(int_Ind.id))
@@ -553,73 +553,6 @@ void Variable_Selection::add_Num_repetitions(QTreeWidgetItem* struct_Item)
 			thickness_Parameters->addItem(item_Num_Repetition->clone());
 		}
 	}
-}
-
-QString Variable_Selection::variable_Name(const Data& struct_Data, QString whats_This, int index)
-{
-	// PARAMETER
-
-	QString text = "variable_Name", brackets;
-
-	if(struct_Data.item_Type == item_Type_Ambient)		brackets = "(ambient)";
-	if(struct_Data.item_Type == item_Type_Layer)		brackets = "(layer " + QString::number(struct_Data.layer_Index) + ")";
-	if(struct_Data.item_Type == item_Type_Substrate)	brackets = "(substrate)";
-	if(struct_Data.item_Type == item_Type_Multilayer)	brackets = "Multilayer, (" + QString::number(struct_Data.first_Layer_Index) + " - " + QString::number(struct_Data.last_Layer_Index) + ")";
-	if(struct_Data.item_Type == item_Type_Measurement)	brackets = "()";
-
-	/// optical constants
-	if(	struct_Data.item_Type == item_Type_Ambient	||
-		struct_Data.item_Type == item_Type_Layer	||
-		struct_Data.item_Type == item_Type_Substrate )
-	{
-		if(whats_This == whats_This_Absolute_Density)				text = struct_Data.material + " " + brackets + " Density, " + Rho_Sym;
-		if(whats_This == whats_This_Relative_Density)				text = struct_Data.material + " " + brackets + " Relative Density, " + Rho_Sym;
-		if(whats_This == whats_This_Permittivity)					text = struct_Data.material + " " + brackets + " Permittivity, 1-" + Epsilon_Sym;
-		if(whats_This == whats_This_Absorption)						text = struct_Data.material + " " + brackets + " Absorption, " + Cappa_Sym;
-		if(whats_This == whats_This_Composition && index>=0)		text = struct_Data.material + " " + brackets + " " + struct_Data.composition[index].type + " Composition, " + Zeta_Sym + "_" + struct_Data.composition[index].type;
-	}
-
-	/// thickness parameters
-	if(	struct_Data.item_Type == item_Type_Layer )
-	{
-		if(whats_This == whats_This_Thickness)						text = struct_Data.material + " " + brackets + " Thickness, z";
-		if(whats_This == whats_This_Thickness_Drift_Line_Value)		text = struct_Data.material + " " + brackets + " Thickness Linear Drift, dz";
-		if(whats_This == whats_This_Thickness_Drift_Rand_Rms)		text = struct_Data.material + " " + brackets + " Thickness Random Drift, dz";
-		if(whats_This == whats_This_Thickness_Drift_Sine_Amplitude)	text = struct_Data.material + " " + brackets + " Thickness Sine Drift : Amplitude, dz";
-		if(whats_This == whats_This_Thickness_Drift_Sine_Frequency)	text = struct_Data.material + " " + brackets + " Thickness Sine Drift : Frequency, " + Nu_Sym;
-		if(whats_This == whats_This_Thickness_Drift_Sine_Phase)		text = struct_Data.material + " " + brackets + " Thickness Sine Drift : Phase, " + Phi_Sym;
-	}
-
-	/// interface parameters
-	if(	struct_Data.item_Type == item_Type_Layer ||
-		struct_Data.item_Type == item_Type_Substrate  )
-	{
-		if(whats_This == whats_This_Sigma)							text = struct_Data.material + " " + brackets + " Roughness/Diffuseness, " + Sigma_Sym;
-		if(whats_This == whats_This_Sigma_Drift_Line_Value)			text = struct_Data.material + " " + brackets + " Roughness/Diffuseness Linear Drift, d" + Sigma_Sym;
-		if(whats_This == whats_This_Sigma_Drift_Rand_Rms)			text = struct_Data.material + " " + brackets + " Roughness/Diffuseness Random Drift, d" + Sigma_Sym;
-		if(whats_This == whats_This_Sigma_Drift_Sine_Amplitude)		text = struct_Data.material + " " + brackets + " Roughness/Diffuseness Sine Drift : Amplitude, d" + Sigma_Sym;
-		if(whats_This == whats_This_Sigma_Drift_Sine_Frequency)		text = struct_Data.material + " " + brackets + " Roughness/Diffuseness Sine Drift : Frequency, " + Nu_Sym;
-		if(whats_This == whats_This_Sigma_Drift_Sine_Phase)			text = struct_Data.material + " " + brackets + " Roughness/Diffuseness Sine Drift : Phase, " + Phi_Sym;
-		if(whats_This == whats_This_Interlayer_Composition)			text = struct_Data.material + " " + brackets + " Interlayer Composition, " + transition_Layer_Functions[index];
-		if(whats_This == whats_This_Interlayer_My_Sigma)			text = struct_Data.material + " " + brackets + " Individual Roughness/Diffuseness, " + Sigma_Sym + "_" + transition_Layer_Functions[index];
-	}
-
-	/// stack parameters
-	if(	struct_Data.item_Type == item_Type_Multilayer )
-	{
-		if(whats_This == whats_This_Num_Repetitions)				text = brackets + " Number of repetitions, N";
-		if(whats_This == whats_This_Period)							text = brackets + " Period, d";
-		if(whats_This == whats_This_Gamma)							text = brackets + " Thickness Ratio, " + Gamma_Sym;
-	}
-
-	/// measurement parameters
-	if(	struct_Data.item_Type == item_Type_Measurement )
-	{
-		if(whats_This == whats_This_Angle)							text = struct_Data.angle_Type + " angle, " + Theta_Sym;
-		if(whats_This == whats_This_Wavelength)						text = Global_Variables::wavelength_Energy_Name(wavelength_units);
-	}
-
-	return text;
 }
 
 void Variable_Selection::refresh_Independent_State_Of_Struct_Tree_Copy_Item(QTreeWidgetItem* struct_Item)

@@ -391,7 +391,7 @@ void Settings::read_Precisions(bool reset_to_default)
 			thumbnail_thickness_precision	= precision_Values.value( "thumbnail_thickness_precision",		3 ).toInt();
 			thumbnail_sigma_precision		= precision_Values.value( "thumbnail_sigma_precision",			3 ).toInt();	// = thickness precision
 			thumbnail_interlayer_precision	= precision_Values.value( "thumbnail_interlayer_precision",		3 ).toInt();
-			thumbnail_drift_precision		= precision_Values.value( "thumbnail_drift_precision",			3 ).toInt();
+			thumbnail_drift_precision		= precision_Values.value( "thumbnail_drift_precision",			4 ).toInt();
 			thumbnail_period_precision		= precision_Values.value( "thumbnail_period_precision",			3 ).toInt();	// = thickness precision
 			thumbnail_gamma_precision		= precision_Values.value( "thumbnail_gamma_precision",			3 ).toInt();	// = thickness precision
 		precision_Values.endGroup();

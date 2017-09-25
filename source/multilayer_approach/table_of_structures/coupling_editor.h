@@ -2,7 +2,7 @@
 #define COUPLING_EDITOR_H
 
 #include "global/settings.h"
-//#include "my_table_widget.h"
+#include "my_table_widget.h"
 #include "multilayer_approach/table_of_structures.h"
 
 class Coupling_Editor : public QDialog
@@ -11,26 +11,26 @@ class Coupling_Editor : public QDialog
 public:
 	explicit Coupling_Editor(QWidget* coupling_Widget, QMap<QWidget*,QTreeWidgetItem*>& coupled_Widgets_Map, QTabWidget* main_Tabs, QWidget *parent = 0);
 
-	void closeEvent(QCloseEvent*);
-	void set_Window_Geometry();
-	void create_Main_Layout();
+//	void closeEvent(QCloseEvent*);
+//	void set_Window_Geometry();
+//	void create_Main_Layout();
 
-	void create_Master_Box();
-		void remove_Master();
-		void load_Master();
-		void save_External_Master();
-	void create_Slave_Box();
-		void remove_Slave(int index_Pressed);
-		void add_Slave(int index_Pressed);
-		void load_Slaves();
-		void save_External_Slaves();
-		void clear_Nonexisting_Slaves();
-	void refresh_Reload_Coupled(QString refresh_Reload, QWidget* widget);
+//	void create_Master_Box();
+//		void remove_Master();
+//		void load_Master();
+//		void save_External_Master();
+//	void create_Slave_Box();
+//		void remove_Slave(int index_Pressed);
+//		void add_Slave(int index_Pressed);
+//		void load_Slaves();
+//		void save_External_Slaves();
+//		void clear_Nonexisting_Slaves();
+//	void refresh_Reload_Coupled(QString refresh_Reload, QWidget* widget);
 
-	void enable_Getting_Parameter(QWidget* old, QWidget* now, QLabel* label, QLineEdit* line_Edit);
-	void get_Parameter(QLabel* label);
+//	void enable_Getting_Parameter(QWidget* old, QWidget* now, QLabel* label, QLineEdit* line_Edit);
+//	void get_Parameter(QLabel* label);
 
-	QWidget* search_Widget_By_Id(int id);
+//	QWidget* search_Widget_By_Id(int id);
 
 	QWidget* coupling_Widget;
 	Parameter coupling_Parameter;

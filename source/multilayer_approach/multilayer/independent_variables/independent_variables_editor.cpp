@@ -501,7 +501,7 @@ void Independent_Variables_Editor::refresh_Show_Data(bool show)
 	if(param_Pointer)
 	{
 		Parameter& parameter = (*param_Pointer);
-		name = Variable_Selection::variable_Name(struct_Data, indicator.parameter_Whats_This, indicator.index);
+		name = Global_Variables::independent_Variable_Name(struct_Data, indicator.parameter_Whats_This, indicator.index);
 		group_Box->setTitle(name);
 
 		units_Label->setText(units);
@@ -606,7 +606,7 @@ void Independent_Variables_Editor::refresh_Show_Data(bool show)
 	// special cases
 	if(indicator.parameter_Whats_This == whats_This_Num_Repetitions)
 	{
-		name = Variable_Selection::variable_Name(struct_Data, indicator.parameter_Whats_This, indicator.index);
+		name = Global_Variables::independent_Variable_Name(struct_Data, indicator.parameter_Whats_This, indicator.index);
 		group_Box->setTitle(name);
 
 		units_Label->setText(units);
@@ -673,7 +673,7 @@ void Independent_Variables_Editor::refresh_Show_Data(bool show)
 		units = " " + wavelength_units;
 		coeff = wavelength_Coefficients_Map.value(wavelength_units);
 
-		name = Variable_Selection::variable_Name(struct_Data, indicator.parameter_Whats_This, indicator.index);
+		name = Global_Variables::independent_Variable_Name(struct_Data, indicator.parameter_Whats_This, indicator.index);
 		group_Box->setTitle(name);
 
 		units_Label->setText(units);

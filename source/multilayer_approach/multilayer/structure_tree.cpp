@@ -278,7 +278,7 @@ void Structure_Tree::set_Structure_Item_Text(QTreeWidgetItem* item)
 		{
 			if(data.composed_Material)	density_Text = QString::number(data.absolute_Density.value,thumbnail_double_format,thumbnail_density_precision) + density_units;
 			else						density_Text = QString::number(data.relative_Density.value,thumbnail_double_format,thumbnail_density_precision);
-			item->setText(DEFAULT_COLUMN, "ambient: " + data.material + ", " + Rho_Sym + "=" + density_Text);
+			item->setText(DEFAULT_COLUMN, Global_Variables::structure_Item_Name(data) + ", " + Rho_Sym + "=" + density_Text);
 		}
 	} else
 	{
@@ -293,7 +293,7 @@ void Structure_Tree::set_Structure_Item_Text(QTreeWidgetItem* item)
 		{
 			if(data.composed_Material)	density_Text = QString::number(data.absolute_Density.value,thumbnail_double_format,thumbnail_density_precision) + density_units;
 			else						density_Text = QString::number(data.relative_Density.value,thumbnail_double_format,thumbnail_density_precision);
-			item->setText(DEFAULT_COLUMN, data.material + " substrate" + ", " + Rho_Sym + "=" + density_Text);
+			item->setText(DEFAULT_COLUMN, Global_Variables::structure_Item_Name(data) + ", " + Rho_Sym + "=" + density_Text);
 
 			if(data.sigma.value>0)
 			{
@@ -305,8 +305,7 @@ void Structure_Tree::set_Structure_Item_Text(QTreeWidgetItem* item)
 			// if multilayer
 			if(item->childCount()>0)
 			{
-				item->setText(DEFAULT_COLUMN, "Multilayer, (" + QString::number(data.first_Layer_Index) + " - " + QString::number(data.last_Layer_Index)
-							  + "), N=" + QString::number(data.num_Repetition.value)
+				item->setText(DEFAULT_COLUMN, Global_Variables::structure_Item_Name(data) + ", N=" + QString::number(data.num_Repetition.value)
 							  + ", d="  + QString::number(data.period.value/length_Coeff,thumbnail_double_format,thumbnail_period_precision) + length_units);
 
 				if(item->childCount()==2 && abs(data.period.value)>DBL_EPSILON)
@@ -322,7 +321,7 @@ void Structure_Tree::set_Structure_Item_Text(QTreeWidgetItem* item)
 				if(data.composed_Material)	density_Text = QString::number(data.absolute_Density.value,thumbnail_double_format,thumbnail_density_precision) + density_units;
 				else						density_Text = QString::number(data.relative_Density.value,thumbnail_double_format,thumbnail_density_precision);
 
-				item->setText(DEFAULT_COLUMN, data.material + " layer (" + QString::number(data.layer_Index) + ")"+ thickness_Text + ", " + Rho_Sym + "=" + density_Text);
+				item->setText(DEFAULT_COLUMN, Global_Variables::structure_Item_Name(data) + thickness_Text + ", " + Rho_Sym + "=" + density_Text);
 
 				if(data.sigma.value>0)
 				{

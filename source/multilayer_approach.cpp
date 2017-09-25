@@ -169,11 +169,11 @@ void Multilayer_Approach::open()
 	for(int i=0; i<multilayer_Tabs->count(); ++i)
 	{
 		// for not growing in size
-		Multilayer* multilayer = qobject_cast<Multilayer*>(multilayer_Tabs->widget(i));
-		for(int i=multilayer->data_Target_Profile_Frame_Vector.size()-1; i>=0; --i)
-		{
-			multilayer->remove_Target_Curve(i,true);
-		}
+//		Multilayer* multilayer = qobject_cast<Multilayer*>(multilayer_Tabs->widget(i));
+//		for(int i=multilayer->data_Target_Profile_Frame_Vector.size()-1; i>=0; --i)
+//		{
+//			multilayer->remove_Target_Curve(i,true);
+//		}
 
 		delete multilayer_Tabs->widget(i);
 	}
