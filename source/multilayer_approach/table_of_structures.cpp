@@ -57,7 +57,7 @@ void Table_Of_Structures::create_Menu()
 {
 	Menu* menu = new Menu(window_Type_Table,this);
 	main_Layout->setMenuBar(menu->menu_Bar);
-	connect(menu, SIGNAL(refresh()), this, SLOT(reload_All_Widgets()));
+	connect(menu, &Menu::refresh, this, [=]{reload_All_Widgets();});
 	connect(menu, &Menu::refresh, this, &Table_Of_Structures::emit_Data_Edited);
 }
 
@@ -65,6 +65,13 @@ void Table_Of_Structures::create_Tabs()
 {
 	main_Tabs = new QTabWidget(this);
 	main_Tabs->setMovable(false);
+
+	connect(main_Tabs,	&QTabWidget::currentChanged,
+	[=](int index)
+	{
+		main_Tabs->tabBar()->setTabTextColor(index,Qt::black);
+		reload_All_Widgets();
+	});
 }
 
 void Table_Of_Structures::add_Tabs()
@@ -80,8 +87,7 @@ void Table_Of_Structures::add_Tabs()
 		main_Tabs->addTab(new_Table, multilayer_Tabs->tabText(tab_Index));
 	}
 	table_Is_Created = true;
-//	reload_All_Widgets();
-//	reload_All_Widgets();
+	reload_All_Widgets();
 }
 
 void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index)
@@ -150,6 +156,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 
 			// print item name
 			new_Table->setItem(current_Row,current_Column, new QTableWidgetItem(Global_Variables::structure_Item_Name(struct_Data)));
+			new_Table->item(current_Row,current_Column)->setWhatsThis(struct_Data.item_Type);
 			new_Table->item(current_Row,current_Column)->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEnabled);
 
 			current_Column = max_Depth+1;
@@ -422,14 +429,10 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 		}
 		new_Table->insertRow(new_Table->rowCount());
 	}
-//	span_Structure_Headers(new_Table);
-//	span_Structure_Items(new_Table);
+	span_Structure_Headers(new_Table);
+	span_Structure_Items(new_Table);
 	new_Table->resizeColumnsToContents();
 	new_Table->resizeRowsToContents();
-
-//	// fit initial size of columns
-//	for(int i=0; i<new_Table->columnCount(); ++i)
-//		fit_Column(new_Table, new_Table->columnWidth(i), i);
 }
 
 void Table_Of_Structures::read_Trees()
@@ -734,65 +737,66 @@ Parameter& Table_Of_Structures::get_Parameter(Data& struct_Data, QString whats_T
 {
 	// PARAMETER
 
-	if(whats_This == whats_This_Absolute_Density)				{return struct_Data.absolute_Density;						precision = line_edit_density_precision;	coeff = 1;}
-	if(whats_This == whats_This_Relative_Density)				{return struct_Data.relative_Density;						precision = line_edit_density_precision;	coeff = 1;}
-	if(whats_This == whats_This_Thickness)						{return struct_Data.thickness;								precision = line_edit_thickness_precision;	coeff = length_Coefficients_Map.value(length_units);}
-	if(whats_This == whats_This_Sigma)							{return struct_Data.sigma;									precision = line_edit_sigma_precision;		coeff = length_Coefficients_Map.value(length_units);}
+	if(whats_This == whats_This_Absolute_Density)				{precision = line_edit_density_precision;	coeff = 1;												return struct_Data.absolute_Density;}
+	if(whats_This == whats_This_Relative_Density)				{precision = line_edit_density_precision;	coeff = 1;												return struct_Data.relative_Density;}
+	if(whats_This == whats_This_Thickness)						{precision = line_edit_thickness_precision;	coeff = length_Coefficients_Map.value(length_units);	return struct_Data.thickness;	}
+	if(whats_This == whats_This_Sigma)							{precision = line_edit_sigma_precision;		coeff = length_Coefficients_Map.value(length_units);	return struct_Data.sigma;}
 
-	if(whats_This == whats_This_Thickness_Drift_Line_Value)		{return struct_Data.thickness_Drift.drift_Line_Value;		precision = line_edit_thickness_precision;	coeff = 1;}
-	if(whats_This == whats_This_Thickness_Drift_Rand_Rms)		{return struct_Data.thickness_Drift.drift_Rand_Rms;			precision = line_edit_thickness_precision;	coeff = 1;}
-	if(whats_This == whats_This_Thickness_Drift_Sine_Amplitude)	{return struct_Data.thickness_Drift.drift_Sine_Amplitude;	precision = line_edit_thickness_precision;	coeff = 1;}
-	if(whats_This == whats_This_Thickness_Drift_Sine_Frequency)	{return struct_Data.thickness_Drift.drift_Sine_Frequency;	precision = line_edit_thickness_precision;	coeff = 1;}
-	if(whats_This == whats_This_Thickness_Drift_Sine_Phase)		{return struct_Data.thickness_Drift.drift_Sine_Phase;		precision = line_edit_thickness_precision;	coeff = 1;}
+	if(whats_This == whats_This_Thickness_Drift_Line_Value)		{precision = line_edit_thickness_precision;	coeff = 1;												return struct_Data.thickness_Drift.drift_Line_Value;}
+	if(whats_This == whats_This_Thickness_Drift_Rand_Rms)		{precision = line_edit_thickness_precision;	coeff = 1;												return struct_Data.thickness_Drift.drift_Rand_Rms;}
+	if(whats_This == whats_This_Thickness_Drift_Sine_Amplitude)	{precision = line_edit_thickness_precision;	coeff = 1;												return struct_Data.thickness_Drift.drift_Sine_Amplitude;}
+	if(whats_This == whats_This_Thickness_Drift_Sine_Frequency)	{precision = line_edit_thickness_precision;	coeff = 1;												return struct_Data.thickness_Drift.drift_Sine_Frequency;}
+	if(whats_This == whats_This_Thickness_Drift_Sine_Phase)		{precision = line_edit_thickness_precision;	coeff = 1;												return struct_Data.thickness_Drift.drift_Sine_Phase;}
 
-	if(whats_This == whats_This_Sigma_Drift_Line_Value)			{return struct_Data.sigma_Drift.drift_Line_Value;			precision = line_edit_sigma_precision;		coeff = 1;}
-	if(whats_This == whats_This_Sigma_Drift_Rand_Rms)			{return struct_Data.sigma_Drift.drift_Rand_Rms;				precision = line_edit_sigma_precision;		coeff = 1;}
-	if(whats_This == whats_This_Sigma_Drift_Sine_Amplitude)		{return struct_Data.sigma_Drift.drift_Sine_Amplitude;		precision = line_edit_sigma_precision;		coeff = 1;}
-	if(whats_This == whats_This_Sigma_Drift_Sine_Frequency)		{return struct_Data.sigma_Drift.drift_Sine_Frequency;		precision = line_edit_sigma_precision;		coeff = 1;}
-	if(whats_This == whats_This_Sigma_Drift_Sine_Phase)			{return struct_Data.sigma_Drift.drift_Sine_Phase;			precision = line_edit_sigma_precision;		coeff = 1;}
+	if(whats_This == whats_This_Sigma_Drift_Line_Value)			{precision = line_edit_sigma_precision;		coeff = 1;												return struct_Data.sigma_Drift.drift_Line_Value;}
+	if(whats_This == whats_This_Sigma_Drift_Rand_Rms)			{precision = line_edit_sigma_precision;		coeff = 1;												return struct_Data.sigma_Drift.drift_Rand_Rms;}
+	if(whats_This == whats_This_Sigma_Drift_Sine_Amplitude)		{precision = line_edit_sigma_precision;		coeff = 1;												return struct_Data.sigma_Drift.drift_Sine_Amplitude;}
+	if(whats_This == whats_This_Sigma_Drift_Sine_Frequency)		{precision = line_edit_sigma_precision;		coeff = 1;												return struct_Data.sigma_Drift.drift_Sine_Frequency;}
+	if(whats_This == whats_This_Sigma_Drift_Sine_Phase)			{precision = line_edit_sigma_precision;		coeff = 1;												return struct_Data.sigma_Drift.drift_Sine_Phase;}
 
-	if(whats_This == whats_This_Period)							{return struct_Data.period;									precision = line_edit_period_precision;		coeff = length_Coefficients_Map.value(length_units);}
-	if(whats_This == whats_This_Gamma)							{return struct_Data.gamma;									precision = line_edit_gamma_precision;		coeff = 1;}
+	if(whats_This == whats_This_Period)							{precision = line_edit_period_precision;	coeff = length_Coefficients_Map.value(length_units);	return struct_Data.period;	}
+	if(whats_This == whats_This_Gamma)							{precision = line_edit_gamma_precision;		coeff = 1;												return struct_Data.gamma;}
 
 	Parameter* parameter = new Parameter;
 	parameter->indicator.id=0;
 	precision = 1; coeff = 1;
+
 	return *parameter;
 }
 
-//void Table_Of_Structures::span_Structure_Headers(My_Table_Widget* table)
-//{
-//	for(int struct_Index=0; struct_Index<rows_List_To_Span.size(); ++struct_Index)
-//	{
-//		table->setSpan(rows_List_To_Span[struct_Index],0,1,table->columnCount());
-//	}
-//}
+void Table_Of_Structures::span_Structure_Headers(My_Table_Widget* table)
+{
+	for(int struct_Index=0; struct_Index<rows_List_To_Span.size(); ++struct_Index)
+	{
+		table->setSpan(rows_List_To_Span[struct_Index],0,1,table->columnCount());
+	}
+}
 
-//void Table_Of_Structures::span_Structure_Items(My_Table_Widget* table)
-//{
-//	for(int row_Index=0; row_Index<table->rowCount(); ++row_Index)
-//	{
-//		for(int col_Index=0; col_Index<table->columnCount(); ++col_Index)
-//		{
-//			if(table->item(row_Index,col_Index))
-//			{
-//				QStringList wtf_List = table->item(row_Index,col_Index)->text().split(item_Type_Delimiter,QString::SkipEmptyParts);
-//				if(	   wtf_List[0] == whats_This_Ambient
-//					   || wtf_List[0] == whats_This_Layer
-//					   || wtf_List[0] == whats_This_Substrate )
-//				{
-//					table->setSpan(row_Index,col_Index,5,1);
-//					//					if(wtf_List[0] != whats_This_Ambient) colorize_Row(row_Index-1);
-//				}
-//				if( wtf_List[0] == whats_This_Multilayer )
-//				{
-//					table->setSpan(row_Index,col_Index,2,1);
-//					//					colorize_Row(row_Index-1);
-//				}
-//			}
-//		}
-//	}
-//}
+void Table_Of_Structures::span_Structure_Items(My_Table_Widget* table)
+{
+	for(int row_Index=0; row_Index<table->rowCount(); ++row_Index)
+	{
+		for(int col_Index=0; col_Index<table->columnCount(); ++col_Index)
+		{
+			if(table->item(row_Index,col_Index))
+			{
+				QString item_Type = table->item(row_Index,col_Index)->whatsThis();
+				if(		item_Type == item_Type_Ambient	||
+				        item_Type == item_Type_Layer	||
+				        item_Type == item_Type_Substrate )
+				{
+					table->setSpan(row_Index,col_Index,5,1);
+//					if(item_Type != item_Type_Ambient) colorize_Row(row_Index-1);
+				}
+				if( item_Type == item_Type_Multilayer )
+				{
+					table->setSpan(row_Index,col_Index,2,1);
+//					colorize_Row(row_Index-1);
+				}
+			}
+		}
+	}
+}
 
 void Table_Of_Structures::fit_Column(My_Table_Widget* table, int start_Width, int current_Column)
 {
@@ -1072,7 +1076,6 @@ void Table_Of_Structures::create_Check_Box_Label(My_Table_Widget* table, int tab
 	check_Box->setProperty(relative_Columns_To_Disable_Finish_Property, c_F);
 
 	check_Box->setProperty(whats_This_Property, whats_This);
-	check_Box->setProperty(text_Property, text);
 	check_Boxes_Map.insert(check_Box, structure_Item);
 
 	// for reloading
@@ -1118,6 +1121,7 @@ void Table_Of_Structures::create_Line_Edit(My_Table_Widget* table, int tab_Index
 	int precision = 4;
 	char format = line_edit_short_double_format;
 	double value = -2017;
+	double coeff = 1;
 	int id = 0;
 
 	Data struct_Data = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
@@ -1132,12 +1136,12 @@ void Table_Of_Structures::create_Line_Edit(My_Table_Widget* table, int tab_Index
 		id = 0;
 	} else
 	{
-		Parameter& parameter = get_Parameter(struct_Data, whats_This, precision);
+		Parameter& parameter = get_Parameter(struct_Data, whats_This, precision, coeff);
 		if(val_Type == VAL)	{	value = parameter.value;	format = line_edit_double_format;		}
 		if(val_Type == MIN)	{	value = parameter.fit.min;	format = line_edit_short_double_format;	}
 		if(val_Type == MAX)	{	value = parameter.fit.max;	format = line_edit_short_double_format;	}
 
-		text_Value = QString::number(value, format, precision);
+		text_Value = QString::number(value/coeff, format, precision);
 		validator = new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION);
 		id = parameter.indicator.id;
 	}
@@ -1676,7 +1680,6 @@ void Table_Of_Structures::refresh_Check_Box_Header(bool)
 	QCheckBox* check_Box = qobject_cast<QCheckBox*>(QObject::sender());
 	QTreeWidgetItem* structure_Item = check_Boxes_Map.value(check_Box);
 	QString whats_This = check_Box->property(whats_This_Property).toString();
-	QString text = check_Box->property(text_Property).toString();
 
 	// for reloading
 	bool reload = check_Box->property(reload_Property).toBool();
@@ -1696,7 +1699,7 @@ void Table_Of_Structures::refresh_Check_Box_Header(bool)
 		if(whats_This == whats_This_Sigma)
 		{
 			check_Box->setChecked(struct_Data.common_Sigma);
-			check_Box->setText(text);
+			check_Box->setText(Sigma_Sym+" ["+length_units+"]");
 		}
 		return;
 	}
@@ -2227,40 +2230,42 @@ void Table_Of_Structures::resize_Line_Edit(My_Table_Widget* table, QLineEdit* li
 
 void Table_Of_Structures::reload_All_Widgets(QObject* sender)
 {
-//	if(table_Is_Created)
-//	{
-////        qInfo() << "reload_All_Widgets " << ++temp_Counter;
-//		for(int i=0; i<all_Widgets_To_Reload.size(); ++i)
-//		{
-//			if(all_Widgets_To_Reload[i] != sender)
-//			{
-//				all_Widgets_To_Reload[i]->setProperty(reload_Property, true);
+	if(table_Is_Created)
+	{
+		int current_Tab_Index = main_Tabs->currentIndex();
+		qInfo() << "reload_All_Widgets " << ++temp_Counter << "tab " << current_Tab_Index;
+		for(int i=0; i<all_Widgets_To_Reload[current_Tab_Index].size(); ++i)
+		{
+			if(all_Widgets_To_Reload[current_Tab_Index][i] != sender)
+			{
+				all_Widgets_To_Reload[current_Tab_Index][i]->setProperty(reload_Property, true);
 
-//				QLabel*        label = qobject_cast<QLabel*>   (all_Widgets_To_Reload[i]);
-//				QCheckBox* check_Box = qobject_cast<QCheckBox*>(all_Widgets_To_Reload[i]);
-//				QLineEdit* line_Edit = qobject_cast<QLineEdit*>(all_Widgets_To_Reload[i]);
-//				QComboBox* combo_Box = qobject_cast<QComboBox*>(all_Widgets_To_Reload[i]);
+				QLabel*        label = qobject_cast<QLabel*>   (all_Widgets_To_Reload[current_Tab_Index][i]);
+				QCheckBox* check_Box = qobject_cast<QCheckBox*>(all_Widgets_To_Reload[current_Tab_Index][i]);
+				QLineEdit* line_Edit = qobject_cast<QLineEdit*>(all_Widgets_To_Reload[current_Tab_Index][i]);
+				QComboBox* combo_Box = qobject_cast<QComboBox*>(all_Widgets_To_Reload[current_Tab_Index][i]);
 
-//				if(label)
-//				{
-//					label->windowTitleChanged("temp");
-//				}
-//				if(check_Box)
-//				{
-//					check_Box->toggled(false);
-//				}
-//				if(line_Edit)
-//				{
-//					line_Edit->textEdited("temp");			//
-//					line_Edit->textEdited("temp");			// repeated intentionally!
-//				}
-//				if(combo_Box)
-//				{
-//					combo_Box->currentTextChanged("temp");
-//				}
+				if(label)
+				{
+					label->windowTitleChanged("temp");
+				}
+				if(check_Box)
+				{
+					check_Box->toggled(false);				//
+					check_Box->toggled(false);				// repeated intentionally!
+				}
+				if(line_Edit)
+				{
+					line_Edit->textEdited("temp");			//
+					line_Edit->textEdited("temp");			// repeated intentionally!
+				}
+				if(combo_Box)
+				{
+					combo_Box->currentTextChanged("temp");
+				}
 
-//				all_Widgets_To_Reload[i]->setProperty(reload_Property, false);
-//			}
-//		}
-//	}
+				all_Widgets_To_Reload[current_Tab_Index][i]->setProperty(reload_Property, false);
+			}
+		}
+	}
 }

@@ -125,7 +125,6 @@ void Multilayer_Approach::rename_Multilayer(int tab_Index)
 
 void Multilayer_Approach::open_Table_Of_Structures()
 {
-	// TODO
 	if(!runned_Tables_Of_Structures.contains(table_Key))
 	{
 		table_Of_Structures = new Table_Of_Structures(&runned_Tables_Of_Structures, multilayer_Tabs);

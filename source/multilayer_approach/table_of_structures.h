@@ -55,20 +55,16 @@ public:
 	void create_MySigma_Interlayer				(My_Table_Widget* table, int tab_Index, int current_Row, int start_Column, QTreeWidgetItem* structure_Item);
 
 	// general
-//	void span_Structure_Headers(My_Table_Widget* table);
-//	void span_Structure_Items(My_Table_Widget* table);
+	void span_Structure_Headers(My_Table_Widget* table);
+	void span_Structure_Items(My_Table_Widget* table);
 	void fit_Column(My_Table_Widget* table, int start_Width, int current_Column);
 	void add_Columns(My_Table_Widget* table, int add_After);
 
 	Parameter& get_Parameter(Data& struct_Data, QString whats_This)
 	{
 		int dev_Null_Int;
-		return get_Parameter(      struct_Data,         whats_This, dev_Null_Int);
-	}
-	Parameter& get_Parameter(Data& struct_Data, QString whats_This, int& precision)
-	{
 		double dev_Null_Double;
-		return get_Parameter(      struct_Data,         whats_This,      precision, dev_Null_Double);
+		return get_Parameter(      struct_Data,         whats_This, dev_Null_Int,   dev_Null_Double);
 	}
 	Parameter& get_Parameter(Data& struct_Data, QString whats_This, int& precision, double& coeff);
 
@@ -111,7 +107,7 @@ public slots:
 	void reload_All_Widgets(QObject* sender = NULL);
 
 public:
-//    int temp_Counter = 0;       // TEMPORARY
+	int temp_Counter = 0;       // TEMPORARY
 //    int temp_Counter_1 = 0;     // TEMPORARY
 	bool table_Is_Created = false;
 	int basic_Row_Number = 0;
