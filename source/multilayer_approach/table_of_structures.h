@@ -99,16 +99,17 @@ public:
 
 	// general
 	void cells_On_Off    (My_Table_Widget* table);
-	void cells_On_Off_2  (My_Table_Widget* table);
+	void cells_On_Off_2  (My_Table_Widget* table, QTreeWidgetItem* structure_Item);
 	void resize_Line_Edit(My_Table_Widget* table, QLineEdit* line_Edit = NULL);
 	void emit_Data_Edited();
 
 public slots:
 	void reload_All_Widgets(QObject* sender = NULL);
+	void reload_Related_Widgets(QObject* sender = NULL);
 
 public:
 	int temp_Counter = 0;       // TEMPORARY
-//    int temp_Counter_1 = 0;     // TEMPORARY
+	int temp_Counter_1 = 0;     // TEMPORARY
 	bool table_Is_Created = false;
 	int basic_Row_Number = 0;
 	int basic_Column_Number = 1;
@@ -131,6 +132,7 @@ public:
 	QMap<QCheckBox*,QTreeWidgetItem*> check_Boxes_Map;
 
 	QList<QList<QWidget*>> all_Widgets_To_Reload;
+	QMultiMap<int, QWidget*> reload_Show_Dependence_Map;
 };
 
 #endif // TABLE_OF_STRUCTURES_H

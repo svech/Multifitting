@@ -121,6 +121,7 @@ using namespace std;
 #define TABLE_COLUMN_INTERLAYERS_SHIFT 1	// current_Column += TABLE_COLUMN_INTERLAYERS_SHIFT
 
 #define MIN_FORMULA_WIDTH_LINE_EDIT 80		// master/slave width for dependance formula
+#define id_Of_Thicknesses 2017				// used fore refresh/reload of corresponding line_Edits
 
 // -----------------------------------------------------------------------------------------
 
@@ -202,13 +203,13 @@ using namespace std;
 
 #define num_Chemic_Element_Property "num_Chemic_Element"
 #define interlayer_Index_Property	"interlayer_Index"
-//#define item_Type_Property			"item_Type"
 #define tab_Index_Property			"tab_Index"
 #define row_Property				"row"
 #define column_Property				"column"
 #define text_Property				"text"
 #define whats_This_Property			"whats_This"
 #define item_Type_Property			"item_Type"
+//#define id_Property					"id"
 #define value_Type_Property			"value_Type"
 #define parameter_Property			"parameter"
 

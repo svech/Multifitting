@@ -47,7 +47,7 @@ void Table_Of_Structures::create_Main_Layout()
 	create_Tabs();
 	main_Layout->addWidget(main_Tabs);
 	//	resize(800,550);
-	resize(1120,750);
+	resize(1000,750);
 	add_Tabs();
 
 //	revise_All_Parameters();
@@ -782,8 +782,8 @@ void Table_Of_Structures::span_Structure_Items(My_Table_Widget* table)
 			{
 				QString item_Type = table->item(row_Index,col_Index)->whatsThis();
 				if(		item_Type == item_Type_Ambient	||
-				        item_Type == item_Type_Layer	||
-				        item_Type == item_Type_Substrate )
+						item_Type == item_Type_Layer	||
+						item_Type == item_Type_Substrate )
 				{
 					table->setSpan(row_Index,col_Index,5,1);
 //					if(item_Type != item_Type_Ambient) colorize_Row(row_Index-1);
@@ -880,6 +880,7 @@ void Table_Of_Structures::create_Stoich(My_Table_Widget* table, int tab_Index, i
 		line_Edit->setProperty(reload_Property, false);
 		line_Edit->setProperty(tab_Index_Property,tab_Index);
 		all_Widgets_To_Reload[tab_Index].append(line_Edit);
+		reload_Show_Dependence_Map.insertMulti(comp.indicator.id,line_Edit);
 
 		connect(line_Edit, &QLineEdit::textEdited, this, [=]{resize_Line_Edit(table); });
 
@@ -890,7 +891,6 @@ void Table_Of_Structures::create_Stoich(My_Table_Widget* table, int tab_Index, i
 
 		connect(line_Edit, &QLineEdit::textEdited, this, &Table_Of_Structures::refresh_Stoich);
 
-//		line_Edit->textEdited(line_Edit->text());
 		current_Column+=TABLE_COLUMN_ELEMENTS_SHIFT;
 	}
 }
@@ -915,6 +915,7 @@ void Table_Of_Structures::create_Stoich_Check_Box_Fit(My_Table_Widget* table, in
 
 	for(int composition_Index=0; composition_Index<composition.size(); ++composition_Index)
 	{
+		Parameter& comp = composition[composition_Index].composition;
 		// create check_Box
 		QCheckBox* check_Box = new QCheckBox("fit");
 
@@ -941,24 +942,25 @@ void Table_Of_Structures::create_Stoich_Check_Box_Fit(My_Table_Widget* table, in
 		check_Box->setProperty(reload_Property, false);
 		check_Box->setProperty(tab_Index_Property, tab_Index);
 		all_Widgets_To_Reload[tab_Index].append(check_Box);
+		reload_Show_Dependence_Map.insertMulti(comp.indicator.id, check_Box);
 
 		// create item
 		table->setCellWidget(current_Row, current_Column, back_Widget);
 		check_Boxes_Map.insert(check_Box, structure_Item);
 		connect(check_Box, &QCheckBox::toggled, this, &Table_Of_Structures::refresh_Fit_Element);
 		connect(check_Box, &QCheckBox::toggled, this, [=]{cells_On_Off(table); });
-		check_Box->setChecked(composition[composition_Index].composition.fit.is_Fitable);
+		check_Box->setChecked(comp.fit.is_Fitable);
 
+		// set parameter id to BACK widget
 		{
-			// set parameter id to BACK widget
-			composition[composition_Index].composition.indicator.tab_Index = tab_Index;
-			composition[composition_Index].composition.indicator.full_Name = "full_Name";//structure_Item->whatsThis(DEFAULT_COLUMN) + " " + composition[composition_Index].type + " composition";
+			comp.indicator.tab_Index = tab_Index;
+			comp.indicator.full_Name = "full_Name";//structure_Item->whatsThis(DEFAULT_COLUMN) + " " + composition[composition_Index].type + " composition";
 			QVariant var;
 			var.setValue( composition[composition_Index].composition );
 			back_Widget->setProperty(parameter_Property,var);
 //			back_Widget->setWhatsThis(structure_Item->whatsThis(DEFAULT_COLUMN));
 			coupled_Widgets_Map.insert(back_Widget,structure_Item);
-			loaded_Parameters.append(composition[composition_Index].composition.indicator.id);
+			loaded_Parameters.append(comp.indicator.id);
 		}
 
 		current_Column+=TABLE_COLUMN_ELEMENTS_SHIFT;
@@ -972,7 +974,6 @@ void Table_Of_Structures::create_Stoich_Check_Box_Fit(My_Table_Widget* table, in
 			check_Box->setProperty(relative_Columns_To_Disable_Finish_Property, 0);
 
 			check_Box->setChecked(false);
-//			check_Box->toggled(false);
 		}
 	}
 }
@@ -989,9 +990,10 @@ void Table_Of_Structures::create_Material(My_Table_Widget* table, int tab_Index,
 	material_Line_Edit->setProperty(column_Property, current_Column);
 
 	// for reloading
-	material_Line_Edit->setProperty(reload_Property, false);
-	material_Line_Edit->setProperty(tab_Index_Property, tab_Index);
-	all_Widgets_To_Reload[tab_Index].append(material_Line_Edit);
+	/// no need for reloading
+//	material_Line_Edit->setProperty(reload_Property, false);
+//	material_Line_Edit->setProperty(tab_Index_Property, tab_Index);
+//	all_Widgets_To_Reload[tab_Index].append(material_Line_Edit);
 
 	connect(material_Line_Edit, &QLineEdit::textEdited, this, [=]{resize_Line_Edit(table); });
 
@@ -999,7 +1001,6 @@ void Table_Of_Structures::create_Material(My_Table_Widget* table, int tab_Index,
 	line_Edits_Map.insert(material_Line_Edit, structure_Item);
 	connect(material_Line_Edit, &QLineEdit::textEdited, this, &Table_Of_Structures::refresh_Material);
 	connect(material_Line_Edit, &QLineEdit::editingFinished, this, &Table_Of_Structures::check_Material);
-//	material_Line_Edit->textEdited(material_Line_Edit->text());
 }
 
 void Table_Of_Structures::create_Browse_Button(My_Table_Widget* table, int current_Row, int start_Column)
@@ -1021,9 +1022,9 @@ void Table_Of_Structures::create_Label(My_Table_Widget* table, int tab_Index, in
 
 	Data struct_Data = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
 
+	// set parameter id to widget
+	Parameter& parameter = get_Parameter(struct_Data, whats_This);
 	{
-		// set parameter id to widget
-		Parameter& parameter = get_Parameter(struct_Data, whats_This);
 		if(parameter.indicator.id!=0)
 		{
 			parameter.indicator.tab_Index = tab_Index;
@@ -1043,6 +1044,7 @@ void Table_Of_Structures::create_Label(My_Table_Widget* table, int tab_Index, in
 	label->setProperty(item_Type_Property, struct_Data.item_Type);
 	label->setProperty(whats_This_Property, whats_This);
 	all_Widgets_To_Reload[tab_Index].append(label);
+	reload_Show_Dependence_Map.insertMulti(parameter.indicator.id,label);
 
 	connect(label, &QLabel::windowTitleChanged, this, &Table_Of_Structures::refresh_Header);
 }
@@ -1052,20 +1054,61 @@ void Table_Of_Structures::create_Check_Box_Label(My_Table_Widget* table, int tab
 	// PARAMETER
 
 	bool bool_Check = false;
+	int id = 0;
+	QCheckBox* check_Box = new QCheckBox(text);
+
 	Data struct_Data = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
 	{
-		if(whats_This == whats_This_Thickness_Drift_Line_Value)	bool_Check = struct_Data.thickness_Drift.is_Drift_Line;
-		if(whats_This == whats_This_Thickness_Drift_Rand_Rms)	bool_Check = struct_Data.thickness_Drift.is_Drift_Rand;
-		if(whats_This == whats_This_Thickness_Drift_Sine)		bool_Check = struct_Data.thickness_Drift.is_Drift_Sine;
+		if(whats_This == whats_This_Thickness_Drift_Line_Value)
+		{
+			bool_Check = struct_Data.thickness_Drift.is_Drift_Line;
+			id = struct_Data.thickness_Drift.drift_Line_Value.indicator.id;
+		}
+		if(whats_This == whats_This_Thickness_Drift_Rand_Rms)
+		{
+			bool_Check = struct_Data.thickness_Drift.is_Drift_Rand;
+			id = struct_Data.thickness_Drift.drift_Rand_Rms.indicator.id;
+		}
+		if(whats_This == whats_This_Thickness_Drift_Sine)
+		{
+			bool_Check = struct_Data.thickness_Drift.is_Drift_Sine;
+			id = struct_Data.thickness_Drift.drift_Sine_Amplitude.indicator.id;
+			int id_2 = struct_Data.thickness_Drift.drift_Sine_Frequency.indicator.id;
+			int id_3 = struct_Data.thickness_Drift.drift_Sine_Phase.indicator.id;
+			reload_Show_Dependence_Map.insertMulti(id_2,check_Box);
+			reload_Show_Dependence_Map.insertMulti(id_3,check_Box);
+		}
 
-		if(whats_This == whats_This_Sigma_Drift_Line_Value)		bool_Check = struct_Data.sigma_Drift.is_Drift_Line;
-		if(whats_This == whats_This_Sigma_Drift_Rand_Rms)		bool_Check = struct_Data.sigma_Drift.is_Drift_Rand;
-		if(whats_This == whats_This_Sigma_Drift_Sine)			bool_Check = struct_Data.sigma_Drift.is_Drift_Sine;
+		if(whats_This == whats_This_Sigma_Drift_Line_Value)
+		{
+			bool_Check = struct_Data.sigma_Drift.is_Drift_Line;
+			id = struct_Data.sigma_Drift.drift_Line_Value.indicator.id;
+		}
+		if(whats_This == whats_This_Sigma_Drift_Rand_Rms)
+		{
+			bool_Check = struct_Data.sigma_Drift.is_Drift_Rand;
+			id = struct_Data.sigma_Drift.drift_Rand_Rms.indicator.id;
+		}
+		if(whats_This == whats_This_Sigma_Drift_Sine)
+		{
+			bool_Check = struct_Data.sigma_Drift.is_Drift_Sine;
+			id = struct_Data.sigma_Drift.drift_Sine_Amplitude.indicator.id;
+			int id_2 = struct_Data.sigma_Drift.drift_Sine_Frequency.indicator.id;
+			int id_3 = struct_Data.sigma_Drift.drift_Sine_Phase.indicator.id;
+			reload_Show_Dependence_Map.insertMulti(id_2,check_Box);
+			reload_Show_Dependence_Map.insertMulti(id_3,check_Box);
+		}
 
-		if(whats_This == whats_This_Sigma)						bool_Check = struct_Data.common_Sigma;
+		if(whats_This == whats_This_Sigma)
+		{
+			bool_Check = struct_Data.common_Sigma;
+			id = struct_Data.sigma.indicator.id;
+			for(Interlayer& interlayer : struct_Data.interlayer_Composition)
+			{
+				reload_Show_Dependence_Map.insertMulti(interlayer.my_Sigma.indicator.id,check_Box);
+			}
+		}
 	}
-
-	QCheckBox* check_Box = new QCheckBox(text);
 
 	// enable/disable function
 	check_Box->setProperty(row_Property, current_Row);
@@ -1082,11 +1125,11 @@ void Table_Of_Structures::create_Check_Box_Label(My_Table_Widget* table, int tab
 	check_Box->setProperty(reload_Property, false);
 	check_Box->setProperty(tab_Index_Property, tab_Index);
 	all_Widgets_To_Reload[tab_Index].append(check_Box);
+	reload_Show_Dependence_Map.insertMulti(id,check_Box);
 
 	check_Box->setChecked(bool_Check);
 	connect(check_Box, &QCheckBox::toggled, this, [=]{cells_On_Off(table); });
 	connect(check_Box, &QCheckBox::toggled, this, &Table_Of_Structures::refresh_Check_Box_Header);
-//  check_Box->toggled(false);
 
 	// alignment
 	QWidget* back_Widget = new QWidget;
@@ -1128,12 +1171,16 @@ void Table_Of_Structures::create_Line_Edit(My_Table_Widget* table, int tab_Index
 	QString text_Value = "-2017";
 	QValidator* validator = NULL;
 
+	// create lineedit
+	QLineEdit* line_Edit = new QLineEdit;
+
 	if(whats_This == whats_This_Num_Repetitions)
 	{
 		value = struct_Data.num_Repetition.value;
 		text_Value = QString::number(value);
 		validator = new QIntValidator(0, MAX_INTEGER);
-		id = 0;
+		id = struct_Data.num_Repetition.id;
+		reload_Show_Dependence_Map.insertMulti(id_Of_Thicknesses,line_Edit);
 	} else
 	{
 		Parameter& parameter = get_Parameter(struct_Data, whats_This, precision, coeff);
@@ -1144,10 +1191,24 @@ void Table_Of_Structures::create_Line_Edit(My_Table_Widget* table, int tab_Index
 		text_Value = QString::number(value/coeff, format, precision);
 		validator = new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION);
 		id = parameter.indicator.id;
+
+		if(	whats_This == whats_This_Thickness	||
+		    whats_This == whats_This_Period		||
+		    whats_This == whats_This_Gamma		)
+		{
+			reload_Show_Dependence_Map.insertMulti(id_Of_Thicknesses,line_Edit);
+		}
+
+		if(	whats_This == whats_This_Sigma )
+		{
+			for(Interlayer& interlayer : struct_Data.interlayer_Composition)
+			{
+				reload_Show_Dependence_Map.insertMulti(interlayer.my_Sigma.indicator.id,line_Edit);
+			}
+		}
 	}
 
-	// create lineedit
-	QLineEdit* line_Edit = new QLineEdit(text_Value);
+	line_Edit->setText(text_Value);
 	line_Edit->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT);
 	line_Edit->setValidator(validator);
 
@@ -1160,6 +1221,7 @@ void Table_Of_Structures::create_Line_Edit(My_Table_Widget* table, int tab_Index
 	line_Edit->setProperty(reload_Property, false);
 	line_Edit->setProperty(tab_Index_Property, tab_Index);
 	all_Widgets_To_Reload[tab_Index].append(line_Edit);
+	reload_Show_Dependence_Map.insertMulti(id,line_Edit);
 
 	connect(line_Edit, &QLineEdit::textEdited, this, [=]{resize_Line_Edit(table); });
 
@@ -1170,8 +1232,6 @@ void Table_Of_Structures::create_Line_Edit(My_Table_Widget* table, int tab_Index
 
 	connect(line_Edit, &QLineEdit::textEdited,		this, [=]{refresh_Parameter(table); });
 	connect(line_Edit, &QLineEdit::editingFinished, this, [=]{refresh_Parameter(table); });
-
-//	line_Edit->textEdited(line_Edit->text());
 }
 
 void Table_Of_Structures::create_Check_Box_Fit(My_Table_Widget* table, int tab_Index, int current_Row, int current_Column, QTreeWidgetItem* structure_Item, QString whats_This, int r_S, int r_F, int c_S, int c_F)
@@ -1206,6 +1266,7 @@ void Table_Of_Structures::create_Check_Box_Fit(My_Table_Widget* table, int tab_I
 	check_Box->setProperty(reload_Property, false);
 	check_Box->setProperty(tab_Index_Property, tab_Index);
 	all_Widgets_To_Reload[tab_Index].append(check_Box);
+	reload_Show_Dependence_Map.insertMulti(parameter.indicator.id,check_Box);
 
 	// create item
 	table->setCellWidget(current_Row, current_Column, back_Widget);
@@ -1234,17 +1295,18 @@ void Table_Of_Structures::create_Check_Box_Fit(My_Table_Widget* table, int tab_I
 	connect(check_Box, &QCheckBox::toggled, this, [=]{cells_On_Off(table); });
 
 	check_Box->setChecked(parameter.fit.is_Fitable);
-	//	check_Box->toggled(false);
 }
 
 //// for interlayers
 void Table_Of_Structures::create_Check_Box_Label_Interlayer(My_Table_Widget* table, int tab_Index, int current_Row, int start_Column, QTreeWidgetItem* structure_Item)
 {
-	QVector<Interlayer> interlayer_Composition = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>().interlayer_Composition;
+	Data struct_Data = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+	QVector<Interlayer>& interlayer_Composition = struct_Data.interlayer_Composition;
 
 	int current_Column = start_Column;
 	for(int interlayer_Index=0; interlayer_Index<interlayer_Composition.size(); ++interlayer_Index)
 	{
+		Interlayer& inter_Comp = interlayer_Composition[interlayer_Index];
 		QCheckBox* check_Box = new QCheckBox(transition_Layer_Functions[interlayer_Index]);
 
 		// enable/disable function
@@ -1270,13 +1332,14 @@ void Table_Of_Structures::create_Check_Box_Label_Interlayer(My_Table_Widget* tab
 		check_Box->setProperty(reload_Property, false);
 		check_Box->setProperty(tab_Index_Property, tab_Index);
 		all_Widgets_To_Reload[tab_Index].append(check_Box);
+		reload_Show_Dependence_Map.insertMulti(struct_Data.sigma.indicator.id,check_Box);
+//		reload_Show_Dependence_Map.insertMulti(inter_Comp.my_Sigma.indicator.id,check_Box);
 
-		check_Box->setChecked(interlayer_Composition[interlayer_Index].enabled);
+		check_Box->setChecked(inter_Comp.enabled);
 
-		connect(check_Box, &QCheckBox::toggled, this, [=]{cells_On_Off(table); });
-		connect(check_Box, &QCheckBox::toggled, this, [=]{cells_On_Off_2(table); });
 		connect(check_Box, &QCheckBox::toggled, this, &Table_Of_Structures::refresh_Check_Box_Label_Interlayer);
-//		check_Box->toggled(false);
+		connect(check_Box, &QCheckBox::toggled, this, [=]{cells_On_Off(table); });
+		connect(check_Box, &QCheckBox::toggled, this, [=]{cells_On_Off_2(table, structure_Item); });
 
 		// alignment
 		QWidget* back_Widget = new QWidget;
@@ -1289,13 +1352,13 @@ void Table_Of_Structures::create_Check_Box_Label_Interlayer(My_Table_Widget* tab
 		// set parameter id to BACK widget
 		{
 			QVariant var;
-			interlayer_Composition[interlayer_Index].interlayer.indicator.tab_Index = tab_Index;
-			interlayer_Composition[interlayer_Index].interlayer.indicator.full_Name = "full_Name";//structure_Item->whatsThis(DEFAULT_COLUMN) + " " + "Weight "+transition_Layer_Functions[interlayer_Index];
-			var.setValue( interlayer_Composition[interlayer_Index].interlayer );
+			inter_Comp.interlayer.indicator.tab_Index = tab_Index;
+			inter_Comp.interlayer.indicator.full_Name = "full_Name";//structure_Item->whatsThis(DEFAULT_COLUMN) + " " + "Weight "+transition_Layer_Functions[interlayer_Index];
+			var.setValue( inter_Comp.interlayer );
 			back_Widget->setProperty(parameter_Property,var);
 //			back_Widget->setWhatsThis(structure_Item->whatsThis(DEFAULT_COLUMN));
 			coupled_Widgets_Map.insert(back_Widget,structure_Item);
-			loaded_Parameters.append(interlayer_Composition[interlayer_Index].interlayer.indicator.id);
+			loaded_Parameters.append(inter_Comp.interlayer.indicator.id);
 		}
 
 		back_Widget->setStyleSheet("background-color: lightblue");
@@ -1307,7 +1370,8 @@ void Table_Of_Structures::create_Check_Box_Label_Interlayer(My_Table_Widget* tab
 
 void Table_Of_Structures::create_Weigts_Interlayer(My_Table_Widget* table, int tab_Index, int current_Row, int start_Column, QTreeWidgetItem* structure_Item, QString val_Type)
 {
-	QVector<Interlayer> interlayer_Composition = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>().interlayer_Composition;
+	Data struct_Data = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+	QVector<Interlayer>& interlayer_Composition = struct_Data.interlayer_Composition;
 
 	int current_Column = start_Column;
 	double value = -2017;
@@ -1315,9 +1379,11 @@ void Table_Of_Structures::create_Weigts_Interlayer(My_Table_Widget* table, int t
 
 	for(int interlayer_Index=0; interlayer_Index<interlayer_Composition.size(); ++interlayer_Index)
 	{
-		if(val_Type == VAL)	value = interlayer_Composition[interlayer_Index].interlayer.value;
-		if(val_Type == MIN)	value = interlayer_Composition[interlayer_Index].interlayer.fit.min;
-		if(val_Type == MAX)	value = interlayer_Composition[interlayer_Index].interlayer.fit.max;
+		Interlayer& inter_Comp = interlayer_Composition[interlayer_Index];
+
+		if(val_Type == VAL)	value = inter_Comp.interlayer.value;
+		if(val_Type == MIN)	value = inter_Comp.interlayer.fit.min;
+		if(val_Type == MAX)	value = inter_Comp.interlayer.fit.max;
 
 		QString text_Value = QString::number(value, format, line_edit_interlayer_precision);
 
@@ -1334,17 +1400,16 @@ void Table_Of_Structures::create_Weigts_Interlayer(My_Table_Widget* table, int t
 		line_Edit->setProperty(reload_Property, false);
 		line_Edit->setProperty(tab_Index_Property, tab_Index);
 		all_Widgets_To_Reload[tab_Index].append(line_Edit);
+		reload_Show_Dependence_Map.insertMulti(struct_Data.sigma.indicator.id,line_Edit);
 
 		connect(line_Edit, &QLineEdit::textEdited, this, [=]{resize_Line_Edit(table); });
 
 		// create item (set LineEdits_Map)
 		table->setCellWidget(current_Row, current_Column, line_Edit);
 		line_Edits_Map.insert(line_Edit, structure_Item);
-		coupled_Id_LineEdits_Map.insert(interlayer_Composition[interlayer_Index].interlayer.indicator.id,line_Edit);
+		coupled_Id_LineEdits_Map.insert(inter_Comp.interlayer.indicator.id,line_Edit);
 
 		connect(line_Edit, &QLineEdit::textEdited, this, &Table_Of_Structures::refresh_Weigts_Interlayer);
-
-//		line_Edit->textEdited(line_Edit->text());
 
 		current_Column+=TABLE_COLUMN_INTERLAYERS_SHIFT;
 	}
@@ -1352,14 +1417,16 @@ void Table_Of_Structures::create_Weigts_Interlayer(My_Table_Widget* table, int t
 
 void Table_Of_Structures::create_Weights_Check_Box_Fit_Interlayer(My_Table_Widget* table, int tab_Index, int current_Row, int start_Column, QTreeWidgetItem* structure_Item)
 {
-	QVector<Interlayer> interlayer_Composition = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>().interlayer_Composition;
+	Data struct_Data = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+	QVector<Interlayer>& interlayer_Composition = struct_Data.interlayer_Composition;
 
 	int current_Column = start_Column;
 
 	for(int interlayer_Index=0; interlayer_Index<interlayer_Composition.size(); ++interlayer_Index)
 	{
-		QCheckBox* check_Box = new QCheckBox("fit");
+		Interlayer& inter_Comp = interlayer_Composition[interlayer_Index];
 
+		QCheckBox* check_Box = new QCheckBox("fit");
 		check_Box->setProperty(interlayer_Index_Property, interlayer_Index);
 		check_Boxes_Map.insert(check_Box, structure_Item);
 
@@ -1368,10 +1435,9 @@ void Table_Of_Structures::create_Weights_Check_Box_Fit_Interlayer(My_Table_Widge
 		check_Box->setProperty(tab_Index_Property, tab_Index);
 		all_Widgets_To_Reload[tab_Index].append(check_Box);
 
-		check_Box->setChecked(interlayer_Composition[interlayer_Index].interlayer.fit.is_Fitable);
+		check_Box->setChecked(inter_Comp.interlayer.fit.is_Fitable);
 
 		connect(check_Box, &QCheckBox::toggled, this, &Table_Of_Structures::refresh_Weights_Check_Box_Fit_Interlayer);
-//		check_Box->toggled(false);
 
 		// alignment
 		QWidget* back_Widget = new QWidget;
@@ -1385,13 +1451,13 @@ void Table_Of_Structures::create_Weights_Check_Box_Fit_Interlayer(My_Table_Widge
 		///	unused for non-duplicating parameter
 		{
 //			QVariant var;
-//			interlayer_Composition[interlayer_Index].interlayer.indicator.tab_Index = tab_Index;
-//			interlayer_Composition[interlayer_Index].interlayer.indicator.full_Name = "full_Name";//structure_Item->whatsThis(DEFAULT_COLUMN) + " " + "Weight "+transition_Layer_Functions[interlayer_Index];
+//			inter_Comp.indicator.tab_Index = tab_Index;
+//			inter_Comp.indicator.full_Name = "full_Name";//structure_Item->whatsThis(DEFAULT_COLUMN) + " " + "Weight "+transition_Layer_Functions[interlayer_Index];
 //			var.setValue( interlayer_Composition[interlayer_Index].interlayer );
 //			back_Widget->setProperty(parameter_Property,var);
 //			//back_Widget->setWhatsThis(structure_Item->whatsThis(DEFAULT_COLUMN));
 //			coupled_Widgets_Map.insert(back_Widget,structure_Item);
-//			loaded_Parameters.append(interlayer_Composition[interlayer_Index].interlayer.indicator.id);
+//			loaded_Parameters.append(inter_Comp.indicator.id);
 		}
 
 		table->setCellWidget(current_Row, current_Column, back_Widget);
@@ -1431,14 +1497,17 @@ void Table_Of_Structures::create_MySigma_Labels_Interlayer(My_Table_Widget* tabl
 
 void Table_Of_Structures::create_MySigma_Interlayer(My_Table_Widget* table, int tab_Index, int current_Row, int start_Column, QTreeWidgetItem* structure_Item)
 {
-	QVector<Interlayer> interlayer_Composition = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>().interlayer_Composition;
+	Data struct_Data = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+	QVector<Interlayer>& interlayer_Composition = struct_Data.interlayer_Composition;
 
 	int current_Column = start_Column;
 	double value;
 
 	for(int interlayer_Index=0; interlayer_Index<interlayer_Composition.size(); ++interlayer_Index)
 	{
-		value = interlayer_Composition[interlayer_Index].my_Sigma.value;
+		Parameter& sigma_Comp = interlayer_Composition[interlayer_Index].my_Sigma;
+
+		value = sigma_Comp.value;
 
 		QString text_Value = QString::number(value, line_edit_double_format, line_edit_sigma_precision);
 
@@ -1454,17 +1523,16 @@ void Table_Of_Structures::create_MySigma_Interlayer(My_Table_Widget* table, int 
 		line_Edit->setProperty(reload_Property, false);
 		line_Edit->setProperty(tab_Index_Property, tab_Index);
 		all_Widgets_To_Reload[tab_Index].append(line_Edit);
+		reload_Show_Dependence_Map.insertMulti(sigma_Comp.indicator.id, line_Edit);
 
 		connect(line_Edit, &QLineEdit::textEdited, this, [=]{resize_Line_Edit(table); });
 
 		// create item (set LineEdits_Map)
 		table->setCellWidget(current_Row, current_Column, line_Edit);
 		line_Edits_Map.insert(line_Edit, structure_Item);
-		coupled_Id_LineEdits_Map.insert(interlayer_Composition[interlayer_Index].my_Sigma.indicator.id,line_Edit);
+		coupled_Id_LineEdits_Map.insert(sigma_Comp.indicator.id,line_Edit);
 
 		connect(line_Edit, &QLineEdit::textEdited, this, &Table_Of_Structures::refresh_MySigma_Interlayer);
-
-//		line_Edit->textEdited(line_Edit->text());
 
 		current_Column+=TABLE_COLUMN_INTERLAYERS_SHIFT;
 	}
@@ -1486,19 +1554,19 @@ void Table_Of_Structures::refresh_Element(QString)
 
 	if(reload)
 	{
-	combo_Box->setCurrentIndex(combo_Box->findText(struct_Data.composition[composition_Index].type));
-	return;
+		combo_Box->setCurrentIndex(combo_Box->findText(struct_Data.composition[composition_Index].type));
+		return;
 	}
 	{
-	struct_Data.composition[composition_Index].type = combo_Box->currentText();
-	struct_Data.material = material_From_Composition(struct_Data.composition);
-	QVariant var;
-	var.setValue( struct_Data );
-	structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+		struct_Data.composition[composition_Index].type = combo_Box->currentText();
+		struct_Data.material = material_From_Composition(struct_Data.composition);
+		QVariant var;
+		var.setValue( struct_Data );
+		structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
 	}
 	{
-	emit_Data_Edited();
-	reload_All_Widgets(QObject::sender());
+		emit_Data_Edited();
+//		reload_All_Widgets(QObject::sender());
 	}
 }
 
@@ -1519,27 +1587,28 @@ void Table_Of_Structures::refresh_Stoich(QString)
 	Parameter& comp = struct_Data.composition[composition_Index].composition;
 	if(reload)
 	{
-	if(value_Type == VAL)	line_Edit->setText(QString::number(comp.value,   format, precision));
-	if(value_Type == MIN)	line_Edit->setText(QString::number(comp.fit.min, format, precision));
-	if(value_Type == MAX)	line_Edit->setText(QString::number(comp.fit.max, format, precision));
+		if(value_Type == VAL)	line_Edit->setText(QString::number(comp.value,   format, precision));
+		if(value_Type == MIN)	line_Edit->setText(QString::number(comp.fit.min, format, precision));
+		if(value_Type == MAX)	line_Edit->setText(QString::number(comp.fit.max, format, precision));
 
-	return;
+		return;
 	}
 	// if refresh
 	{
-	if(value_Type == VAL)	comp.value   = line_Edit->text().toDouble();
-	if(value_Type == MIN)	comp.fit.min = line_Edit->text().toDouble();
-	if(value_Type == MAX)	comp.fit.max = line_Edit->text().toDouble();
+		if(value_Type == VAL)	comp.value   = line_Edit->text().toDouble();
+		if(value_Type == MIN)	comp.fit.min = line_Edit->text().toDouble();
+		if(value_Type == MAX)	comp.fit.max = line_Edit->text().toDouble();
 
-	struct_Data.material = material_From_Composition(struct_Data.composition);
-	QVariant var;
-	var.setValue( struct_Data );
+		struct_Data.material = material_From_Composition(struct_Data.composition);
+		QVariant var;
+		var.setValue( struct_Data );
 
-	structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+		structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
 	}
 	{
-	emit_Data_Edited();
-	reload_All_Widgets(QObject::sender());
+		emit_Data_Edited();
+		reload_Related_Widgets(QObject::sender());
+//		reload_All_Widgets(QObject::sender());
 	}
 }
 
@@ -1567,7 +1636,8 @@ void Table_Of_Structures::refresh_Fit_Element(bool)
 	}
 	{
 		emit_Data_Edited();
-		reload_All_Widgets(QObject::sender());
+		reload_Related_Widgets(QObject::sender());
+//		reload_All_Widgets(QObject::sender());
 	}
 }
 
@@ -1594,7 +1664,7 @@ void Table_Of_Structures::refresh_Material(QString)
 	}
 	{
 		emit_Data_Edited();
-		reload_All_Widgets(QObject::sender());
+//		reload_All_Widgets(QObject::sender());
 	}
 }
 
@@ -1628,7 +1698,8 @@ void Table_Of_Structures::check_Material()
 	}
 	{
 		emit_Data_Edited();
-		reload_All_Widgets(QObject::sender());
+		reload_Related_Widgets(QObject::sender());
+//		reload_All_Widgets(QObject::sender());
 	}
 }
 
@@ -1721,28 +1792,29 @@ void Table_Of_Structures::refresh_Check_Box_Header(bool)
 	}
 	{
 		emit_Data_Edited();
-		reload_All_Widgets(QObject::sender());
+		reload_Related_Widgets(QObject::sender());
+//		reload_All_Widgets(QObject::sender());
 	}
 }
 
 void Table_Of_Structures::change_Child_Layers_Thickness(QTreeWidgetItem* multilayer_Item, double factor)
 {
 	QVariant var;
-	for(int i=0; i<multilayer_Item->childCount(); ++i)
+	Data struct_Data = multilayer_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+	if(struct_Data.item_Type == item_Type_Multilayer)
 	{
-		// if layer
-		if(multilayer_Item->child(i)->childCount()==0)
-		{
-			Data layer = multilayer_Item->child(i)->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
-			layer.thickness.value = layer.thickness.value*factor;
-			var.setValue( layer );
-			multilayer_Item->child(i)->setData(DEFAULT_COLUMN, Qt::UserRole, var);
-		} else
-			// if multilayer
+		struct_Data.period.value *= factor;
+		for(int i=0; i<multilayer_Item->childCount(); ++i)
 		{
 			change_Child_Layers_Thickness(multilayer_Item->child(i), factor);
 		}
+	} else
+	if(struct_Data.item_Type == item_Type_Layer)
+	{
+		struct_Data.thickness.value *= factor;
 	}
+	var.setValue( struct_Data );
+	multilayer_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
 }
 
 void Table_Of_Structures::reset_Multilayer_Thickness(QTreeWidgetItem* multilayer_Item, double new_Thickness)
@@ -1754,6 +1826,7 @@ void Table_Of_Structures::reset_Multilayer_Thickness(QTreeWidgetItem* multilayer
 		factor = new_Thickness/(  stack_Content.period.value*stack_Content.num_Repetition.value  );
 		change_Child_Layers_Thickness(multilayer_Item, factor);
 	}
+	stack_Content = multilayer_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
 }
 
 void Table_Of_Structures::reset_Layer_Thickness(QTreeWidgetItem* layer_Item, double new_Thickness)
@@ -1769,6 +1842,7 @@ void Table_Of_Structures::change_Stack_Gamma(QTreeWidgetItem* structure_Item, do
 {
 	QVariant var;
 	Data stack_Content = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+	stack_Content.gamma.value = new_Gamma_Value;
 	int i=0;
 	{
 		double new_Thickness = stack_Content.period.value*new_Gamma_Value;
@@ -1780,6 +1854,7 @@ void Table_Of_Structures::change_Stack_Gamma(QTreeWidgetItem* structure_Item, do
 		{
 			reset_Multilayer_Thickness(structure_Item->child(i), new_Thickness);
 		}
+		stack_Content = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
 	}
 	i=1;
 	{
@@ -1910,7 +1985,8 @@ void Table_Of_Structures::refresh_Parameter(My_Table_Widget* table)
 						if(	qApp->focusWidget() != line_Edit
 						    || (abs(new_Value) > DBL_EPSILON && abs(new_Value-1) > DBL_EPSILON) )
 						{
-							if( abs(struct_Data.period.value) > DBL_EPSILON )	change_Stack_Gamma(structure_Item, new_Value);
+							if( abs(struct_Data.period.value) > DBL_EPSILON )
+								change_Stack_Gamma(structure_Item, new_Value);
 						}
 					}
 				}
@@ -1950,7 +2026,8 @@ void Table_Of_Structures::refresh_Parameter(My_Table_Widget* table)
 		structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
 
 		emit_Data_Edited();
-		reload_All_Widgets(QObject::sender());
+		reload_Related_Widgets(QObject::sender());
+//		reload_All_Widgets(QObject::sender());
 	}
 }
 
@@ -1990,7 +2067,8 @@ void Table_Of_Structures::refresh_Fit_Parameter(bool)
 	}
 	{
 		emit_Data_Edited();
-		reload_All_Widgets(QObject::sender());
+		reload_Related_Widgets(QObject::sender());
+//		reload_All_Widgets(QObject::sender());
 	}
 }
 
@@ -2026,7 +2104,8 @@ void Table_Of_Structures::refresh_Check_Box_Label_Interlayer(bool)
 	}
 	{
 		emit_Data_Edited();
-		reload_All_Widgets(QObject::sender());
+		reload_Related_Widgets(QObject::sender());
+//		reload_All_Widgets(QObject::sender());
 	}
 }
 
@@ -2067,7 +2146,8 @@ void Table_Of_Structures::refresh_Weigts_Interlayer(QString)
 	}
 	{
 		emit_Data_Edited();
-		reload_All_Widgets(QObject::sender());
+		reload_Related_Widgets(QObject::sender());
+//		reload_All_Widgets(QObject::sender());
 	}
 }
 
@@ -2097,7 +2177,8 @@ void Table_Of_Structures::refresh_Weights_Check_Box_Fit_Interlayer(bool)
 	}
 	{
 		emit_Data_Edited();
-		reload_All_Widgets(QObject::sender());
+		reload_Related_Widgets(QObject::sender());
+//		reload_All_Widgets(QObject::sender());
 	}
 }
 
@@ -2135,7 +2216,8 @@ void Table_Of_Structures::refresh_MySigma_Interlayer(QString)
 	}
 	{
 		emit_Data_Edited();
-		reload_All_Widgets(QObject::sender());
+		reload_Related_Widgets(QObject::sender());
+//		reload_All_Widgets(QObject::sender());
 	}
 }
 
@@ -2160,7 +2242,7 @@ double Table_Of_Structures::recalculate_Sigma_From_Individuals(QVector<Interlaye
 //// general
 void Table_Of_Structures::cells_On_Off(My_Table_Widget* table)
 {
-	    QCheckBox* check_Box = qobject_cast<QCheckBox*>(QObject::sender());
+	QCheckBox* check_Box = qobject_cast<QCheckBox*>(QObject::sender());
 
 	int current_Row = check_Box->property(row_Property).toInt();
 	int current_Column = check_Box->property(column_Property).toInt();
@@ -2171,24 +2253,25 @@ void Table_Of_Structures::cells_On_Off(My_Table_Widget* table)
 	int column_Finish = check_Box->property(relative_Columns_To_Disable_Finish_Property).toInt();
 
 	for(int row=row_Start; row<=row_Finish; ++row)
-		    for(int col=column_Start; col<=column_Finish; ++col)
+		for(int col=column_Start; col<=column_Finish; ++col)
 		{
-				QWidget* widget = table->cellWidget(current_Row+row,current_Column+col);
+			QWidget* widget = table->cellWidget(current_Row+row,current_Column+col);
 			if(widget)
 			{
-				    widget->setDisabled(!check_Box->isChecked());
+				widget->setDisabled(!check_Box->isChecked());
 
 				if(!check_Box->isChecked())
-					    widget->setStyleSheet("border: 0px solid grey");
+					widget->setStyleSheet("border: 0px solid grey");
 				else
-					    widget->setStyleSheet("border: 1px solid grey");
+					widget->setStyleSheet("border: 1px solid grey");
 			}
 		}
 }
 
-void Table_Of_Structures::cells_On_Off_2(My_Table_Widget* table)
+void Table_Of_Structures::cells_On_Off_2(My_Table_Widget* table, QTreeWidgetItem* structure_Item)
 {
 	QCheckBox* check_Box = qobject_cast<QCheckBox*>(QObject::sender());
+	Data struct_Data = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
 
 	int current_Row = check_Box->property(row_Property).toInt();
 	int current_Column = check_Box->property(column_Property).toInt();
@@ -2202,9 +2285,10 @@ void Table_Of_Structures::cells_On_Off_2(My_Table_Widget* table)
 		for(int col=column_Start; col<=column_Finish; ++col)
 		{
 			QWidget* widget = table->cellWidget(current_Row+row,current_Column+col);
+
 			if(widget)
 			{
-				widget->setDisabled(!check_Box->isChecked());
+				widget->setDisabled(!check_Box->isChecked() || struct_Data.common_Sigma);
 
 				if(!check_Box->isChecked())
 					widget->setStyleSheet("border: 0px solid red");
@@ -2265,6 +2349,49 @@ void Table_Of_Structures::reload_All_Widgets(QObject* sender)
 				}
 
 				all_Widgets_To_Reload[current_Tab_Index][i]->setProperty(reload_Property, false);
+			}
+		}
+	}
+}
+
+void Table_Of_Structures::reload_Related_Widgets(QObject* sender)
+{
+	if(table_Is_Created)
+	{
+		qInfo() << "reload_Related_Widgets " << ++temp_Counter_1;
+		for(int key : reload_Show_Dependence_Map.keys(qobject_cast<QWidget*>(sender)))
+		{
+			for(QWidget* related: reload_Show_Dependence_Map.values(key))
+			{
+				if(related != sender)
+				{
+					related->setProperty(reload_Property, true);
+
+					QLabel*        label = qobject_cast<QLabel*>   (related);
+					QCheckBox* check_Box = qobject_cast<QCheckBox*>(related);
+					QLineEdit* line_Edit = qobject_cast<QLineEdit*>(related);
+					QComboBox* combo_Box = qobject_cast<QComboBox*>(related);
+
+					if(label)
+					{
+						label->windowTitleChanged("temp");
+					}
+					if(check_Box)
+					{
+						check_Box->toggled(false);
+					}
+					if(line_Edit)
+					{
+						line_Edit->textEdited("temp");
+						line_Edit->textEdited("temp");
+					}
+					if(combo_Box)
+					{
+						combo_Box->currentTextChanged("temp");
+					}
+
+					related->setProperty(reload_Property, false);
+				}
 			}
 		}
 	}
