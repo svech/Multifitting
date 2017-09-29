@@ -72,8 +72,8 @@ public:
 	static int get_Item_Depth(QTreeWidgetItem* item);
 	static int get_Number_Of_Items(QTreeWidget* tree);
 	static int get_Tree_Depth(QTreeWidgetItem* item);
-	static QString independent_Variable_Name(const Data& struct_Data, QString whats_This, int index = -1);
 	static QString structure_Item_Name(const Data& struct_Data);
+	static QString parameter_Name(const Data& struct_Data, QString whats_This, int index = -1);
 };
 
 #endif // GLOBAL_VARIABLES_H

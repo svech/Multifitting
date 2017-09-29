@@ -127,17 +127,18 @@ using namespace std;
 
 #define active "     Active"
 #define	stop_Calculation "stop_Calculation"
+#define fit_Text "fit"
 
 // whatsThis : delimiters
 #define whats_This_Delimiter ";"
 #define item_Type_Delimiter  " "
 
 // whatsThis : treeWidgetItem types
-#define item_Type_Measurement	 "Measurement"
-#define item_Type_Ambient		 "Ambient"
-#define item_Type_Layer		 "Layer"
-#define item_Type_Multilayer	 "Multilayer"
-#define item_Type_Substrate	 "Substrate"
+#define item_Type_Measurement	"Measurement"
+#define item_Type_Ambient		"Ambient"
+#define item_Type_Layer			"Layer"
+#define item_Type_Multilayer	"Multilayer"
+#define item_Type_Substrate		"Substrate"
 
 // whatsThis : specialized additions
 #define whats_This_Angle					"Angle"
@@ -209,9 +210,9 @@ using namespace std;
 #define text_Property				"text"
 #define whats_This_Property			"whats_This"
 #define item_Type_Property			"item_Type"
-//#define id_Property					"id"
 #define value_Type_Property			"value_Type"
 #define parameter_Property			"parameter"
+#define coupling_Editor_Property	"coupling_Editor"
 
 #define reload_Property		"reload"
 #define refresh_Property	"refresh"

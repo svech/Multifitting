@@ -27,15 +27,15 @@ public:
 		void create_Table(My_Table_Widget* new_Table, int tab_Index);
 		void read_Trees();
 //		void revise_All_Parameters();
-//		static void refresh_Reload_Core(QString refresh_Reload, QWidget* widget, Parameter& parameter, QMap<QWidget*,QTreeWidgetItem*>& coup_Widgets_Map);
+		static void refresh_Reload_Core(QString refresh_Reload, QWidget* widget, Parameter& parameter, QMap<QWidget*,QTreeWidgetItem*>& coup_Widgets_Map);
 
 	// for material only
 	QString material_From_Composition(const QList<Stoichiometry>& composition);
-	void create_Combo_Elements		(My_Table_Widget* table, int tab_Index, int current_Row, int start_Column, QTreeWidgetItem* structure_Item);
+	void create_Combo_Elements		(My_Table_Widget* table, int,			int current_Row, int start_Column, QTreeWidgetItem* structure_Item);
 	void create_Stoich				(My_Table_Widget* table, int tab_Index, int current_Row, int start_Column, QTreeWidgetItem* structure_Item, QString val_Type);
 	void create_Stoich_Check_Box_Fit(My_Table_Widget* table, int tab_Index, int current_Row, int start_Column, QTreeWidgetItem* structure_Item, int r_S, int r_F, int c_S, int c_F);
 
-	void create_Material			(My_Table_Widget* table, int tab_Index, int current_Row, int current_Column, QTreeWidgetItem* structure_Item);
+	void create_Material			(My_Table_Widget* table, int,			int current_Row, int current_Column, QTreeWidgetItem* structure_Item);
 	void create_Browse_Button		(My_Table_Widget* table,				int current_Row, int start_Column);
 
 	// for several parameters
@@ -60,13 +60,13 @@ public:
 	void fit_Column(My_Table_Widget* table, int start_Width, int current_Column);
 	void add_Columns(My_Table_Widget* table, int add_After);
 
-	Parameter& get_Parameter(Data& struct_Data, QString whats_This)
+	static Parameter& get_Parameter(Data& struct_Data, QString whats_This)
 	{
 		int dev_Null_Int;
 		double dev_Null_Double;
 		return get_Parameter(      struct_Data,         whats_This, dev_Null_Int,   dev_Null_Double);
 	}
-	Parameter& get_Parameter(Data& struct_Data, QString whats_This, int& precision, double& coeff);
+	static Parameter& get_Parameter(Data& struct_Data, QString whats_This, int& precision, double& coeff);
 
 	// for material only
 	void refresh_Element(QString);
@@ -115,7 +115,6 @@ public:
 	int basic_Column_Number = 1;
 
 	QTabWidget* main_Tabs;
-//	QList<My_Table_Widget*> list_Of_Tables;
 	QList<Structure_Tree*> list_Of_Trees;
 
 	QList<int> rows_List_To_Span;
@@ -123,14 +122,17 @@ public:
 	QMap<QString, Table_Of_Structures*>* runned_Tables_Of_Structures;
 	QTabWidget* multilayer_Tabs;
 
-	QVector<int> loaded_Parameters;
+//	QVector<int> loaded_Parameters;
 
 	QMap<QComboBox*,QTreeWidgetItem*> elements_Map;
 	QMap<QLineEdit*,QTreeWidgetItem*> line_Edits_Map;
-		QMap<QWidget*,QTreeWidgetItem*> coupled_Widgets_Map;
-		QMap<int,QLineEdit*> coupled_Id_LineEdits_Map;
 	QMap<QCheckBox*,QTreeWidgetItem*> check_Boxes_Map;
 
+	// coupling
+	QMap<QWidget*,QTreeWidgetItem*> coupled_Widget_Item;
+	QMap<int, QWidget*>				coupled_Widget_Id;
+
+	// refresh/reload
 	QList<QList<QWidget*>> all_Widgets_To_Reload;
 	QMultiMap<int, QWidget*> reload_Show_Dependence_Map;
 };

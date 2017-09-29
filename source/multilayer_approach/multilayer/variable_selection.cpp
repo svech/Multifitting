@@ -352,7 +352,7 @@ void Variable_Selection::add_Parameter(QTreeWidgetItem* struct_Item, QString wha
 
 		QVariant var; var.setValue(item_Indicator);
 		list_Item->setData(Qt::UserRole,var);
-		list_Item->setText(Global_Variables::independent_Variable_Name(struct_Data, parameter.indicator.whats_This));
+		list_Item->setText(Global_Variables::parameter_Name(struct_Data, parameter.indicator.whats_This));
 
 		if(!parameter.independent.is_Independent && additional_Condition)
 		if(!variables_List_Map->contains(parameter.indicator.id))
@@ -398,7 +398,7 @@ void Variable_Selection::add_Composition(QTreeWidgetItem* struct_Item)
 
 			QVariant var; var.setValue(composition_Indicator);
 			item_Composition->setData(Qt::UserRole,var);
-			item_Composition->setText(Global_Variables::independent_Variable_Name(struct_Data, parameter.indicator.whats_This, index));
+			item_Composition->setText(Global_Variables::parameter_Name(struct_Data, parameter.indicator.whats_This, index));
 
 			if(!is_Independent)
 			if(!variables_List_Map->contains(parameter.indicator.id))
@@ -451,7 +451,7 @@ void Variable_Selection::add_Interlayer_Composition(QTreeWidgetItem* struct_Item
 
 		QVariant var; var.setValue(composition_Indicator);
 		item_Composition->setData(Qt::UserRole,var);
-		item_Composition->setText(Global_Variables::independent_Variable_Name(struct_Data, parameter.indicator.whats_This, transition_Layer_Index));
+		item_Composition->setText(Global_Variables::parameter_Name(struct_Data, parameter.indicator.whats_This, transition_Layer_Index));
 
 		if(!is_Independent && interlayer_Enabled)
 		if(!variables_List_Map->contains(parameter.indicator.id))
@@ -503,7 +503,7 @@ void Variable_Selection::add_Interlayer_My_Sigma(QTreeWidgetItem* struct_Item)
 
 		QVariant var; var.setValue(composition_Indicator);
 		item_Composition->setData(Qt::UserRole,var);
-		item_Composition->setText(Global_Variables::independent_Variable_Name(struct_Data, parameter.indicator.whats_This, transition_Layer_Index));
+		item_Composition->setText(Global_Variables::parameter_Name(struct_Data, parameter.indicator.whats_This, transition_Layer_Index));
 
 		if(!is_Independent && interlayer_Enabled)
 		if(!variables_List_Map->contains(parameter.indicator.id))
@@ -544,7 +544,7 @@ void Variable_Selection::add_Num_repetitions(QTreeWidgetItem* struct_Item)
 
 		QVariant var; var.setValue(num_Repetition_Indicator);
 		item_Num_Repetition->setData(Qt::UserRole,var);
-		item_Num_Repetition->setText(Global_Variables::independent_Variable_Name(struct_Data, int_Ind.whats_This));
+		item_Num_Repetition->setText(Global_Variables::parameter_Name(struct_Data, int_Ind.whats_This));
 
 		if(!is_Independent)
 		if(!variables_List_Map->contains(int_Ind.id))

@@ -70,6 +70,11 @@ void Table_Of_Structures::create_Tabs()
 	[=](int index)
 	{
 		main_Tabs->tabBar()->setTabTextColor(index,Qt::black);
+
+		for(int i = 0; i<main_Tabs->tabBar()->count(); i++)
+		{
+			if(i!=index)main_Tabs->tabBar()->setTabTextColor(i,Qt::gray);
+		}
 		reload_All_Widgets();
 	});
 }
@@ -79,13 +84,17 @@ void Table_Of_Structures::add_Tabs()
 	read_Trees();
 	for(int tab_Index=0; tab_Index<multilayer_Tabs->count(); ++tab_Index)
 	{
-		My_Table_Widget* new_Table = new My_Table_Widget(basic_Row_Number, basic_Column_Number, coupled_Widgets_Map, main_Tabs, main_Tabs);
-//		list_Of_Tables.append(new_Table);
+		My_Table_Widget* new_Table = new My_Table_Widget(basic_Row_Number, basic_Column_Number, coupled_Widget_Item, coupled_Widget_Id, main_Tabs, main_Tabs);
 		all_Widgets_To_Reload.append(QList<QWidget*>());
 
 		create_Table(new_Table, tab_Index);
 		main_Tabs->addTab(new_Table, multilayer_Tabs->tabText(tab_Index));
 	}
+	for(int i = 0; i<main_Tabs->tabBar()->count(); i++)
+	{
+		if(i!=main_Tabs->currentIndex()) main_Tabs->tabBar()->setTabTextColor(i,Qt::gray);
+	}
+
 	table_Is_Created = true;
 	reload_All_Widgets();
 }
@@ -505,225 +514,84 @@ void Table_Of_Structures::read_Trees()
 //	}
 //}
 
-//void Table_Of_Structures::refresh_Reload_Core(QString refresh_Reload, QWidget *widget, Parameter& parameter, QMap<QWidget*,QTreeWidgetItem*>& coup_Widgets_Map)
-//{
-//	QVariant var;
+void Table_Of_Structures::refresh_Reload_Core(QString refresh_Reload, QWidget* widget, Parameter& parameter, QMap<QWidget*,QTreeWidgetItem*>& coup_Widgets_Map)
+{
+	// PARAMETER
 
-//	// get access to tree item
-//	parameter = widget->property(parameter_Property).value<Parameter>();
-//	QTreeWidgetItem* structure_Item = coup_Widgets_Map.value(widget);
-//	QStringList item_Type_List = structure_Item->whatsThis(DEFAULT_COLUMN).split(item_Type_Delimiter,QString::SkipEmptyParts);
-//	QString item_Type_String = item_Type_List[0];
-//	QString whats_This = parameter.indicator.whats_This;
-//	QVariant data = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole);
+	// this function saves parameter to structure tree and wadget and load parameter from widget
 
-//	if(item_Type_String == whats_This_Ambient)
-//	{
-//		Ambient ambient = data.value<Ambient>();
-//		if(whats_This == whats_This_Composition)
-//		{
-//			for(int i=0; i<ambient.composition.size(); ++i)
-//			if(ambient.composition[i].composition.indicator.id == parameter.indicator.id)
-//			{
-////				qInfo() << "FOUND " << whats_This << " " << i;
-//				if(refresh_Reload == reload_Property)	parameter.coupled = ambient.composition[i].composition.coupled;
-//				if(refresh_Reload == refresh_Property)	ambient.composition[i].composition.coupled = parameter.coupled;
-//				break;
-//			}
-//		}
-//		if(whats_This == whats_This_Absolute_Density)
-//		{
-//			if(refresh_Reload == reload_Property)	parameter.coupled = ambient.absolute_Density.coupled;
-//			if(refresh_Reload == refresh_Property)	ambient.absolute_Density.coupled = parameter.coupled;
-//		}
-//		if(whats_This == whats_This_Relative_Density)
-//		{
-//			if(refresh_Reload == reload_Property)	parameter.coupled = ambient.relative_Density.coupled;
-//			if(refresh_Reload == refresh_Property)	ambient.relative_Density.coupled = parameter.coupled;
-//		}
-//		var.setValue( ambient );
-//	}
-//	if(item_Type_String == whats_This_Layer)
-//	{
-//		Layer layer = data.value<Layer>();
-//		if(whats_This == whats_This_Composition)
-//		{
-//			for(int i=0; i<layer.composition.size(); ++i)
-//			if(layer.composition[i].composition.indicator.id == parameter.indicator.id)
-//			{
-//				if(refresh_Reload == reload_Property)	parameter.coupled = layer.composition[i].composition.coupled;
-//				if(refresh_Reload == refresh_Property)	layer.composition[i].composition.coupled = parameter.coupled;
-//				break;
-//			}
-//		}
-//		if(whats_This == whats_This_Interlayer_Composition)
-//		{
-//			for(int i=0; i<layer.interlayer_Composition.size(); ++i)
-//			if(layer.interlayer_Composition[i].interlayer.indicator.id == parameter.indicator.id)
-//			{
-//				if(refresh_Reload == reload_Property)	parameter.coupled = layer.interlayer_Composition[i].interlayer.coupled;
-//				if(refresh_Reload == refresh_Property)	layer.interlayer_Composition[i].interlayer.coupled = parameter.coupled;
-//				break;
-//			}
-//		}
-//		if(whats_This == whats_This_Interlayer_My_Sigma)
-//		{
-//			for(int i=0; i<layer.interlayer_Composition.size(); ++i)
-//			if(layer.interlayer_Composition[i].my_Sigma.indicator.id == parameter.indicator.id)
-//			{
-//				if(refresh_Reload == reload_Property)	parameter.coupled = layer.interlayer_Composition[i].my_Sigma.coupled;
-//				if(refresh_Reload == refresh_Property)	layer.interlayer_Composition[i].my_Sigma.coupled = parameter.coupled;
-//				break;
-//			}
-//		}
-//		if(whats_This == whats_This_Absolute_Density)
-//		{
-//			if(refresh_Reload == reload_Property)	parameter.coupled = layer.absolute_Density.coupled;
-//			if(refresh_Reload == refresh_Property)	layer.absolute_Density.coupled = parameter.coupled;
-//		}
-//		if(whats_This == whats_This_Relative_Density)
-//		{
-//			if(refresh_Reload == reload_Property)	parameter.coupled = layer.relative_Density.coupled;
-//			if(refresh_Reload == refresh_Property)	layer.relative_Density.coupled = parameter.coupled;
-//		}
-//		if(whats_This == whats_This_Thickness)
-//		{
-//			if(refresh_Reload == reload_Property)	parameter.coupled = layer.thickness.coupled;
-//			if(refresh_Reload == refresh_Property)	layer.thickness.coupled = parameter.coupled;
-//		}
-//		if(whats_This == whats_This_Sigma)
-//		{
-//			if(refresh_Reload == reload_Property)	parameter.coupled = layer.sigma.coupled;
-//			if(refresh_Reload == refresh_Property)	layer.sigma.coupled = parameter.coupled;
-//		}
+	if(refresh_Reload == reload_Property)
+	{
+		parameter = widget->property(parameter_Property).value<Parameter>();
+	}
+	if(refresh_Reload == refresh_Property)
+	{
+		QTreeWidgetItem* structure_Item = coup_Widgets_Map.value(widget);
+		QString whats_This = parameter.indicator.whats_This;
+		Data struct_Data = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+		QVariant var;
 
-//		if(whats_This == whats_This_Thickness_Drift_Line_Value)
-//		{
-//			if(refresh_Reload == reload_Property)	parameter.coupled = layer.thickness_Drift.drift_Line_Value.coupled;
-//			if(refresh_Reload == refresh_Property)	layer.thickness_Drift.drift_Line_Value.coupled = parameter.coupled;
-//		}
-//		if(whats_This == whats_This_Thickness_Drift_Rand_Rms)
-//		{
-//			if(refresh_Reload == reload_Property)	parameter.coupled = layer.thickness_Drift.drift_Rand_Rms.coupled;
-//			if(refresh_Reload == refresh_Property)	layer.thickness_Drift.drift_Rand_Rms.coupled = parameter.coupled;
-//		}
-//		if(whats_This == whats_This_Thickness_Drift_Sine_Amplitude)
-//		{
-//			if(refresh_Reload == reload_Property)	parameter.coupled = layer.thickness_Drift.drift_Sine_Amplitude.coupled;
-//			if(refresh_Reload == refresh_Property)	layer.thickness_Drift.drift_Sine_Amplitude.coupled = parameter.coupled;
-//		}
-//		if(whats_This == whats_This_Thickness_Drift_Sine_Frequency)
-//		{
-//			if(refresh_Reload == reload_Property)	parameter.coupled = layer.thickness_Drift.drift_Sine_Frequency.coupled;
-//			if(refresh_Reload == refresh_Property)	layer.thickness_Drift.drift_Sine_Frequency.coupled = parameter.coupled;
-//		}
-//		if(whats_This == whats_This_Thickness_Drift_Sine_Phase)
-//		{
-//			if(refresh_Reload == reload_Property)	parameter.coupled = layer.thickness_Drift.drift_Sine_Phase.coupled;
-//			if(refresh_Reload == refresh_Property)	layer.thickness_Drift.drift_Sine_Phase.coupled = parameter.coupled;
-//		}
+		if(whats_This == whats_This_Composition)
+		{
+			for(Stoichiometry& comp : struct_Data.composition)
+			{
+				if(comp.composition.indicator.id == parameter.indicator.id)
+					comp.composition = parameter;
+			}
+		} else
+		if(whats_This == whats_This_Interlayer_Composition)
+		{
+			for(Interlayer& inter : struct_Data.interlayer_Composition)
+			{
+				if(inter.interlayer.indicator.id == parameter.indicator.id)
+					inter.interlayer = parameter;
+			}
+		} else
+		if(whats_This == whats_This_Interlayer_My_Sigma)
+		{
+			for(Interlayer& inter : struct_Data.interlayer_Composition)
+			{
+				if(inter.my_Sigma.indicator.id == parameter.indicator.id)
+					inter.my_Sigma = parameter;
+			}
+		} else
+		{
+			Parameter& struct_Parameter = get_Parameter(struct_Data, whats_This);
+			struct_Parameter = parameter;
+		}
 
-//		if(whats_This == whats_This_Sigma_Drift_Line_Value)
-//		{
-//			if(refresh_Reload == reload_Property)	parameter.coupled = layer.sigma_Drift.drift_Line_Value.coupled;
-//			if(refresh_Reload == refresh_Property)	layer.sigma_Drift.drift_Line_Value.coupled = parameter.coupled;
-//		}
-//		if(whats_This == whats_This_Sigma_Drift_Rand_Rms)
-//		{
-//			if(refresh_Reload == reload_Property)	parameter.coupled = layer.sigma_Drift.drift_Rand_Rms.coupled;
-//			if(refresh_Reload == refresh_Property)	layer.sigma_Drift.drift_Rand_Rms.coupled = parameter.coupled;
-//		}
-//		if(whats_This == whats_This_Sigma_Drift_Sine_Amplitude)
-//		{
-//			if(refresh_Reload == reload_Property)	parameter.coupled = layer.sigma_Drift.drift_Sine_Amplitude.coupled;
-//			if(refresh_Reload == refresh_Property)	layer.sigma_Drift.drift_Sine_Amplitude.coupled = parameter.coupled;
-//		}
-//		if(whats_This == whats_This_Sigma_Drift_Sine_Frequency)
-//		{
-//			if(refresh_Reload == reload_Property)	parameter.coupled = layer.sigma_Drift.drift_Sine_Frequency.coupled;
-//			if(refresh_Reload == refresh_Property)	layer.sigma_Drift.drift_Sine_Frequency.coupled = parameter.coupled;
-//		}
-//		if(whats_This == whats_This_Sigma_Drift_Sine_Phase)
-//		{
-//			if(refresh_Reload == reload_Property)	parameter.coupled = layer.sigma_Drift.drift_Sine_Phase.coupled;
-//			if(refresh_Reload == refresh_Property)	layer.sigma_Drift.drift_Sine_Phase.coupled = parameter.coupled;
-//		}
-//		var.setValue( layer );
-//	}
-//	if(item_Type_String == whats_This_Substrate)
-//	{
-//		Substrate substrate = data.value<Substrate>();
-//		if(whats_This == whats_This_Composition)
-//		{
-//			for(int i=0; i<substrate.composition.size(); ++i)
-//			if(substrate.composition[i].composition.indicator.id == parameter.indicator.id)
-//			{
-//				if(refresh_Reload == reload_Property)	parameter.coupled = substrate.composition[i].composition.coupled;
-//				if(refresh_Reload == refresh_Property)	substrate.composition[i].composition.coupled = parameter.coupled;
-//				break;
-//			}
-//		}
-//		if(whats_This == whats_This_Interlayer_Composition)
-//		{
-//			for(int i=0; i<substrate.interlayer_Composition.size(); ++i)
-//			if(substrate.interlayer_Composition[i].interlayer.indicator.id == parameter.indicator.id)
-//			{
-//				if(refresh_Reload == reload_Property)	parameter.coupled = substrate.interlayer_Composition[i].interlayer.coupled;
-//				if(refresh_Reload == refresh_Property)	substrate.interlayer_Composition[i].interlayer.coupled = parameter.coupled;
-//				break;
-//			}
-//		}
-//		if(whats_This == whats_This_Interlayer_My_Sigma)
-//		{
-//			for(int i=0; i<substrate.interlayer_Composition.size(); ++i)
-//			if(substrate.interlayer_Composition[i].my_Sigma.indicator.id == parameter.indicator.id)
-//			{
-//				if(refresh_Reload == reload_Property)	parameter.coupled = substrate.interlayer_Composition[i].my_Sigma.coupled;
-//				if(refresh_Reload == refresh_Property)	substrate.interlayer_Composition[i].my_Sigma.coupled = parameter.coupled;
-//				break;
-//			}
-//		}
-//		if(whats_This == whats_This_Absolute_Density)
-//		{
-//			if(refresh_Reload == reload_Property)	parameter.coupled = substrate.absolute_Density.coupled;
-//			if(refresh_Reload == refresh_Property)	substrate.absolute_Density.coupled = parameter.coupled;
-//		}
-//		if(whats_This == whats_This_Relative_Density)
-//		{
-//			if(refresh_Reload == reload_Property)	parameter.coupled = substrate.relative_Density.coupled;
-//			if(refresh_Reload == refresh_Property)	substrate.relative_Density.coupled = parameter.coupled;
-//		}
-//		if(whats_This == whats_This_Sigma)
-//		{
-//			if(refresh_Reload == reload_Property)	parameter.coupled = substrate.sigma.coupled;
-//			if(refresh_Reload == refresh_Property)	substrate.sigma.coupled = parameter.coupled;
-//		}
-//		var.setValue( substrate );
-//	}
-//	if(item_Type_String == whats_This_Multilayer)
-//	{
-//		Stack_Content stack_Content = data.value<Stack_Content>();
-//		if(whats_This == whats_This_Period)
-//		{
-//			if(refresh_Reload == reload_Property)	parameter.coupled = stack_Content.period.coupled;
-//			if(refresh_Reload == refresh_Property)	stack_Content.period.coupled = parameter.coupled;
-//		}
-//		if(whats_This == whats_This_Gamma)
-//		{
-//			if(refresh_Reload == reload_Property)	parameter.coupled = stack_Content.gamma.coupled;
-//			if(refresh_Reload == refresh_Property)	stack_Content.gamma.coupled = parameter.coupled;
-//		}
-//		var.setValue( stack_Content );
-//	}
+		// refresh tree
+		var.setValue(struct_Data);
+		structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
 
-//	// refreshing
-//	if(refresh_Reload == refresh_Property)
-//	{
-//		structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
-//		var.setValue(parameter);
-//		widget->setProperty(parameter_Property, var);
-//	}
-//}
+		// refresh widget
+		var.setValue(parameter);
+		widget->setProperty(parameter_Property, var);
+	}
+
+	/// colorize dependence
+	{
+		// has no dependencies
+		if(!parameter.coupled.master.exist && parameter.coupled.slaves.size()==0)
+		{
+			if(widget->property(fit_Text).toString() == fit_Text)
+				widget->setStyleSheet("background-color: white");
+			else
+				widget->setStyleSheet("background-color: lightblue");
+		}
+		// has master only
+		if(parameter.coupled.master.exist && parameter.coupled.slaves.size()==0)
+			widget->setStyleSheet("QWidget { background: rgb(255, 50, 50); }");
+
+		// has slaves only
+		if(!parameter.coupled.master.exist && parameter.coupled.slaves.size()>0)
+			widget->setStyleSheet("QWidget { background: rgb(50, 255, 50); }");
+
+		// has both
+		if(parameter.coupled.master.exist && parameter.coupled.slaves.size()>0)
+			widget->setStyleSheet("QWidget { background: rgb(255, 255, 50); }");
+	}
+}
 
 void Table_Of_Structures::add_Columns(My_Table_Widget* table, int add_After)
 {
@@ -757,6 +625,7 @@ Parameter& Table_Of_Structures::get_Parameter(Data& struct_Data, QString whats_T
 	if(whats_This == whats_This_Period)							{precision = line_edit_period_precision;	coeff = length_Coefficients_Map.value(length_units);	return struct_Data.period;	}
 	if(whats_This == whats_This_Gamma)							{precision = line_edit_gamma_precision;		coeff = 1;												return struct_Data.gamma;}
 
+//	qInfo() << "get_Parameter cant find parameter " << whats_This <<"";
 	Parameter* parameter = new Parameter;
 	parameter->indicator.id=0;
 	precision = 1; coeff = 1;
@@ -818,7 +687,7 @@ void Table_Of_Structures::fit_Column(My_Table_Widget* table, int start_Width, in
 //// creation
 
 //// for material only
-void Table_Of_Structures::create_Combo_Elements(My_Table_Widget* table, int tab_Index, int current_Row, int start_Column, QTreeWidgetItem* structure_Item)
+void Table_Of_Structures::create_Combo_Elements(My_Table_Widget* table, int, int current_Row, int start_Column, QTreeWidgetItem* structure_Item)
 {
 	QList<Stoichiometry> composition = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>().composition;
 
@@ -887,7 +756,6 @@ void Table_Of_Structures::create_Stoich(My_Table_Widget* table, int tab_Index, i
 		//	create item (set LineEdits_Map)
 		table->setCellWidget(current_Row, current_Column, line_Edit);
 		line_Edits_Map.insert(line_Edit, structure_Item);
-		coupled_Id_LineEdits_Map.insert(comp.indicator.id,line_Edit);
 
 		connect(line_Edit, &QLineEdit::textEdited, this, &Table_Of_Structures::refresh_Stoich);
 
@@ -909,7 +777,8 @@ QString Table_Of_Structures::material_From_Composition(const QList<Stoichiometry
 
 void Table_Of_Structures::create_Stoich_Check_Box_Fit(My_Table_Widget* table, int tab_Index, int current_Row, int start_Column, QTreeWidgetItem* structure_Item, int r_S, int r_F, int c_S, int c_F)
 {
-	QList<Stoichiometry> composition = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>().composition;
+	Data struct_Data = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+	QList<Stoichiometry>& composition = struct_Data.composition;
 
 	int current_Column = start_Column;
 
@@ -954,13 +823,17 @@ void Table_Of_Structures::create_Stoich_Check_Box_Fit(My_Table_Widget* table, in
 		// set parameter id to BACK widget
 		{
 			comp.indicator.tab_Index = tab_Index;
-			comp.indicator.full_Name = "full_Name";//structure_Item->whatsThis(DEFAULT_COLUMN) + " " + composition[composition_Index].type + " composition";
-			QVariant var;
-			var.setValue( composition[composition_Index].composition );
-			back_Widget->setProperty(parameter_Property,var);
-//			back_Widget->setWhatsThis(structure_Item->whatsThis(DEFAULT_COLUMN));
-			coupled_Widgets_Map.insert(back_Widget,structure_Item);
-			loaded_Parameters.append(comp.indicator.id);
+			comp.indicator.full_Name = Global_Variables::parameter_Name(struct_Data, whats_This_Composition, composition_Index);
+
+			back_Widget->setProperty(coupling_Editor_Property, true);
+			back_Widget->setProperty(fit_Text, fit_Text); // need to know what the widget is
+			coupled_Widget_Item.insert(back_Widget,structure_Item);
+			coupled_Widget_Id.insert(comp.indicator.id,back_Widget);
+			reload_Show_Dependence_Map.insertMulti(comp.indicator.id, back_Widget);
+//			loaded_Parameters.append(comp.indicator.id);
+
+			// save to widget and structure tree
+			refresh_Reload_Core(refresh_Property, back_Widget, comp, coupled_Widget_Item);
 		}
 
 		current_Column+=TABLE_COLUMN_ELEMENTS_SHIFT;
@@ -978,7 +851,7 @@ void Table_Of_Structures::create_Stoich_Check_Box_Fit(My_Table_Widget* table, in
 	}
 }
 
-void Table_Of_Structures::create_Material(My_Table_Widget* table, int tab_Index, int current_Row, int current_Column, QTreeWidgetItem* structure_Item)
+void Table_Of_Structures::create_Material(My_Table_Widget* table, int, int current_Row, int current_Column, QTreeWidgetItem* structure_Item)
 {
 	QString material = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>().material;
 
@@ -1016,7 +889,6 @@ void Table_Of_Structures::create_Browse_Button(My_Table_Widget* table, int curre
 void Table_Of_Structures::create_Label(My_Table_Widget* table, int tab_Index, int current_Row, int current_Column, QTreeWidgetItem* structure_Item, QString whats_This, QString text)
 {
 	QLabel* label = new QLabel(text);
-	label->setStyleSheet("background-color: lightblue");
 	label->setAlignment(Qt::AlignCenter);
 	table->setCellWidget(current_Row, current_Column, label);
 
@@ -1024,18 +896,18 @@ void Table_Of_Structures::create_Label(My_Table_Widget* table, int tab_Index, in
 
 	// set parameter id to widget
 	Parameter& parameter = get_Parameter(struct_Data, whats_This);
+	if(parameter.indicator.id!=0)
 	{
-		if(parameter.indicator.id!=0)
-		{
-			parameter.indicator.tab_Index = tab_Index;
-			parameter.indicator.full_Name = "full_Name";//structure_Item->whatsThis(DEFAULT_COLUMN) + " " + whats_This;
-			QVariant var;
-			var.setValue( parameter );
-			label->setProperty(parameter_Property,var);
-//			label->setWhatsThis(structure_Item->whatsThis(DEFAULT_COLUMN));
-			coupled_Widgets_Map.insert(label,structure_Item);
-			loaded_Parameters.append(parameter.indicator.id);
-		}
+		parameter.indicator.tab_Index = tab_Index;
+		parameter.indicator.full_Name = Global_Variables::parameter_Name(struct_Data, whats_This);
+
+		label->setProperty(coupling_Editor_Property, true);
+		coupled_Widget_Item.insert(label,structure_Item);
+		coupled_Widget_Id.insert(parameter.indicator.id,label);
+//		loaded_Parameters.append(parameter.indicator.id);
+
+		// save to widget and structure tree
+		refresh_Reload_Core(refresh_Property, label, parameter, coupled_Widget_Item);
 	}
 
 	// for reloading
@@ -1143,17 +1015,18 @@ void Table_Of_Structures::create_Check_Box_Label(My_Table_Widget* table, int tab
 	Parameter& parameter = get_Parameter(struct_Data, whats_This);
 	if(parameter.indicator.id!=0)
 	{
-		QVariant var;
 		parameter.indicator.tab_Index = tab_Index;
-		parameter.indicator.full_Name = "full_Name";//structure_Item->whatsThis(DEFAULT_COLUMN) + " " + whats_This;
-		var.setValue( parameter );
-		back_Widget->setProperty(parameter_Property,var);
-//		back_Widget->setWhatsThis(structure_Item->whatsThis(DEFAULT_COLUMN));
-		coupled_Widgets_Map.insert(back_Widget,structure_Item);
-		loaded_Parameters.append(parameter.indicator.id);
+		parameter.indicator.full_Name = Global_Variables::parameter_Name(struct_Data, whats_This);
+
+		back_Widget->setProperty(coupling_Editor_Property, true);
+		coupled_Widget_Item.insert(back_Widget,structure_Item);
+		coupled_Widget_Id.insert(parameter.indicator.id,back_Widget);
+//		loaded_Parameters.append(parameter.indicator.id);
+
+		// save to widget and structure tree
+		refresh_Reload_Core(refresh_Property, back_Widget, parameter, coupled_Widget_Item);
 	}
 
-	back_Widget->setStyleSheet("background-color: lightblue");
 	table->setCellWidget(current_Row, current_Column, back_Widget);
 }
 
@@ -1228,7 +1101,6 @@ void Table_Of_Structures::create_Line_Edit(My_Table_Widget* table, int tab_Index
 	// create item (set LineEdits_Map)
 	table->setCellWidget(current_Row, current_Column, line_Edit);
 	line_Edits_Map.insert(line_Edit, structure_Item);
-	coupled_Id_LineEdits_Map.insert(id,line_Edit);
 
 	connect(line_Edit, &QLineEdit::textEdited,		this, [=]{refresh_Parameter(table); });
 	connect(line_Edit, &QLineEdit::editingFinished, this, [=]{refresh_Parameter(table); });
@@ -1242,7 +1114,7 @@ void Table_Of_Structures::create_Check_Box_Fit(My_Table_Widget* table, int tab_I
 	Parameter& parameter = get_Parameter(struct_Data, whats_This);
 
 	// create check_Box
-	QCheckBox* check_Box = new QCheckBox("fit");
+	QCheckBox* check_Box = new QCheckBox(fit_Text);
 
 	// alignment
 	QWidget* back_Widget = new QWidget;
@@ -1262,12 +1134,6 @@ void Table_Of_Structures::create_Check_Box_Fit(My_Table_Widget* table, int tab_I
 	check_Box->setProperty(relative_Columns_To_Disable_Start_Property, c_S);
 	check_Box->setProperty(relative_Columns_To_Disable_Finish_Property, c_F);
 
-	// for reloading
-	check_Box->setProperty(reload_Property, false);
-	check_Box->setProperty(tab_Index_Property, tab_Index);
-	all_Widgets_To_Reload[tab_Index].append(check_Box);
-	reload_Show_Dependence_Map.insertMulti(parameter.indicator.id,check_Box);
-
 	// create item
 	table->setCellWidget(current_Row, current_Column, back_Widget);
 	check_Boxes_Map.insert(check_Box, structure_Item);
@@ -1281,15 +1147,24 @@ void Table_Of_Structures::create_Check_Box_Fit(My_Table_Widget* table, int tab_I
 	    whats_This == whats_This_Sigma_Drift_Sine_Frequency		||
 	    whats_This == whats_This_Sigma_Drift_Sine_Phase			)
 	{
-		QVariant var;
 		parameter.indicator.tab_Index = tab_Index;
-		parameter.indicator.full_Name = "full_Name";//structure_Item->whatsThis(DEFAULT_COLUMN) + " " + whats_This;
-		var.setValue( parameter );
-		back_Widget->setProperty(parameter_Property,var);
-//		back_Widget->setWhatsThis(structure_Item->whatsThis(DEFAULT_COLUMN));
-		coupled_Widgets_Map.insert(back_Widget,structure_Item);
-		loaded_Parameters.append(parameter.indicator.id);
+		parameter.indicator.full_Name = Global_Variables::parameter_Name(struct_Data, whats_This);
+
+		back_Widget->setProperty(coupling_Editor_Property, true);
+		back_Widget->setProperty(fit_Text, fit_Text); // need to know what the widget is
+		coupled_Widget_Item.insert(back_Widget,structure_Item);
+		coupled_Widget_Id.insert(parameter.indicator.id,back_Widget);
+//		loaded_Parameters.append(parameter.indicator.id);
+
+		// save to widget and structure tree
+		refresh_Reload_Core(refresh_Property, back_Widget, parameter, coupled_Widget_Item);
 	}
+
+	// for reloading
+	check_Box->setProperty(reload_Property, false);
+	check_Box->setProperty(tab_Index_Property, tab_Index);
+	all_Widgets_To_Reload[tab_Index].append(check_Box);
+	reload_Show_Dependence_Map.insertMulti(parameter.indicator.id,check_Box);
 
 	connect(check_Box, &QCheckBox::toggled, this, &Table_Of_Structures::refresh_Fit_Parameter);
 	connect(check_Box, &QCheckBox::toggled, this, [=]{cells_On_Off(table); });
@@ -1351,17 +1226,18 @@ void Table_Of_Structures::create_Check_Box_Label_Interlayer(My_Table_Widget* tab
 
 		// set parameter id to BACK widget
 		{
-			QVariant var;
 			inter_Comp.interlayer.indicator.tab_Index = tab_Index;
-			inter_Comp.interlayer.indicator.full_Name = "full_Name";//structure_Item->whatsThis(DEFAULT_COLUMN) + " " + "Weight "+transition_Layer_Functions[interlayer_Index];
-			var.setValue( inter_Comp.interlayer );
-			back_Widget->setProperty(parameter_Property,var);
-//			back_Widget->setWhatsThis(structure_Item->whatsThis(DEFAULT_COLUMN));
-			coupled_Widgets_Map.insert(back_Widget,structure_Item);
-			loaded_Parameters.append(inter_Comp.interlayer.indicator.id);
+			inter_Comp.interlayer.indicator.full_Name = Global_Variables::parameter_Name(struct_Data, whats_This_Interlayer_Composition, interlayer_Index);
+
+			back_Widget->setProperty(coupling_Editor_Property, true);
+			coupled_Widget_Item.insert(back_Widget,structure_Item);
+			coupled_Widget_Id.insert(inter_Comp.interlayer.indicator.id,back_Widget);
+//			loaded_Parameters.append(inter_Comp.interlayer.indicator.id);
+
+			// save to widget and structure tree
+			refresh_Reload_Core(refresh_Property, back_Widget, inter_Comp.interlayer, coupled_Widget_Item);
 		}
 
-		back_Widget->setStyleSheet("background-color: lightblue");
 		table->setCellWidget(current_Row, current_Column, back_Widget);
 
 		current_Column+=TABLE_COLUMN_INTERLAYERS_SHIFT;
@@ -1407,7 +1283,6 @@ void Table_Of_Structures::create_Weigts_Interlayer(My_Table_Widget* table, int t
 		// create item (set LineEdits_Map)
 		table->setCellWidget(current_Row, current_Column, line_Edit);
 		line_Edits_Map.insert(line_Edit, structure_Item);
-		coupled_Id_LineEdits_Map.insert(inter_Comp.interlayer.indicator.id,line_Edit);
 
 		connect(line_Edit, &QLineEdit::textEdited, this, &Table_Of_Structures::refresh_Weigts_Interlayer);
 
@@ -1447,19 +1322,6 @@ void Table_Of_Structures::create_Weights_Check_Box_Fit_Interlayer(My_Table_Widge
 		back_Layout->setContentsMargins(0,0,0,0);
 		back_Layout->setAlignment(Qt::AlignCenter);
 
-		// set parameter id to BACK widget
-		///	unused for non-duplicating parameter
-		{
-//			QVariant var;
-//			inter_Comp.indicator.tab_Index = tab_Index;
-//			inter_Comp.indicator.full_Name = "full_Name";//structure_Item->whatsThis(DEFAULT_COLUMN) + " " + "Weight "+transition_Layer_Functions[interlayer_Index];
-//			var.setValue( interlayer_Composition[interlayer_Index].interlayer );
-//			back_Widget->setProperty(parameter_Property,var);
-//			//back_Widget->setWhatsThis(structure_Item->whatsThis(DEFAULT_COLUMN));
-//			coupled_Widgets_Map.insert(back_Widget,structure_Item);
-//			loaded_Parameters.append(inter_Comp.indicator.id);
-		}
-
 		table->setCellWidget(current_Row, current_Column, back_Widget);
 
 		current_Column+=TABLE_COLUMN_ELEMENTS_SHIFT;
@@ -1468,25 +1330,29 @@ void Table_Of_Structures::create_Weights_Check_Box_Fit_Interlayer(My_Table_Widge
 
 void Table_Of_Structures::create_MySigma_Labels_Interlayer(My_Table_Widget* table, int tab_Index, int current_Row, int start_Column, QTreeWidgetItem* structure_Item)
 {
-	QVector<Interlayer> interlayer_Composition = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>().interlayer_Composition;
+	Data struct_Data = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+	QVector<Interlayer>& interlayer_Composition = struct_Data.interlayer_Composition;
 
 	int current_Column = start_Column;
 	for(int interlayer_Index=0; interlayer_Index<interlayer_Composition.size(); ++interlayer_Index)
 	{
+		Parameter& my_Sigma = interlayer_Composition[interlayer_Index].my_Sigma;
+
 		QLabel* label = new QLabel(Sigma_Sym+" "+transition_Layer_Functions[interlayer_Index]);
-		label->setStyleSheet("background-color: lightblue");
 		label->setAlignment(Qt::AlignCenter);
 
 		// set parameter id to widget
 		{
-			QVariant var;
-			interlayer_Composition[interlayer_Index].my_Sigma.indicator.tab_Index = tab_Index;
-			interlayer_Composition[interlayer_Index].my_Sigma.indicator.full_Name = "full_Name";//structure_Item->whatsThis(DEFAULT_COLUMN) + " " + "Sigma "+transition_Layer_Functions[interlayer_Index];
-			var.setValue( interlayer_Composition[interlayer_Index].my_Sigma );
-			label->setProperty(parameter_Property,var);
-//			label->setWhatsThis(structure_Item->whatsThis(DEFAULT_COLUMN));
-			coupled_Widgets_Map.insert(label,structure_Item);
-			loaded_Parameters.append(interlayer_Composition[interlayer_Index].my_Sigma.indicator.id);
+			my_Sigma.indicator.tab_Index = tab_Index;
+			my_Sigma.indicator.full_Name = Global_Variables::parameter_Name(struct_Data, whats_This_Interlayer_My_Sigma, interlayer_Index);
+
+			label->setProperty(coupling_Editor_Property, true);
+			coupled_Widget_Item.insert(label,structure_Item);
+			coupled_Widget_Id.insert(my_Sigma.indicator.id,label);
+//			loaded_Parameters.append(my_Sigma.indicator.id);
+
+			// save to widget and structure tree
+			refresh_Reload_Core(refresh_Property, label, my_Sigma, coupled_Widget_Item);
 		}
 
 		table->setCellWidget(current_Row, current_Column, label);
@@ -1530,7 +1396,6 @@ void Table_Of_Structures::create_MySigma_Interlayer(My_Table_Widget* table, int 
 		// create item (set LineEdits_Map)
 		table->setCellWidget(current_Row, current_Column, line_Edit);
 		line_Edits_Map.insert(line_Edit, structure_Item);
-		coupled_Id_LineEdits_Map.insert(sigma_Comp.indicator.id,line_Edit);
 
 		connect(line_Edit, &QLineEdit::textEdited, this, &Table_Of_Structures::refresh_MySigma_Interlayer);
 
@@ -1551,18 +1416,25 @@ void Table_Of_Structures::refresh_Element(QString)
 	bool reload = combo_Box->property(reload_Property).toBool();
 
 	Data struct_Data = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
-
+	Stoichiometry& comp = struct_Data.composition[composition_Index];
 	if(reload)
 	{
-		combo_Box->setCurrentIndex(combo_Box->findText(struct_Data.composition[composition_Index].type));
+		combo_Box->setCurrentIndex(combo_Box->findText(comp.type));
 		return;
 	}
 	{
-		struct_Data.composition[composition_Index].type = combo_Box->currentText();
+		comp.type = combo_Box->currentText();
 		struct_Data.material = material_From_Composition(struct_Data.composition);
+
 		QVariant var;
 		var.setValue( struct_Data );
 		structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+
+		// full name update
+		QWidget* back_Widget = reload_Show_Dependence_Map.value(comp.composition.indicator.id);
+		comp.composition.indicator.full_Name = Global_Variables::parameter_Name(struct_Data, whats_This_Composition, composition_Index);
+		var.setValue( comp.composition );
+		back_Widget->setProperty(parameter_Property,var);
 	}
 	{
 		emit_Data_Edited();
@@ -1602,8 +1474,13 @@ void Table_Of_Structures::refresh_Stoich(QString)
 		struct_Data.material = material_From_Composition(struct_Data.composition);
 		QVariant var;
 		var.setValue( struct_Data );
-
 		structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+
+		// full name update
+		QWidget* back_Widget = reload_Show_Dependence_Map.value(comp.indicator.id);
+		comp.indicator.full_Name = Global_Variables::parameter_Name(struct_Data, whats_This_Composition, composition_Index);
+		var.setValue( comp );
+		back_Widget->setProperty(parameter_Property,var);
 	}
 	{
 		emit_Data_Edited();

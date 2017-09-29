@@ -21,7 +21,7 @@ Data::Data(QString item_Type_Passed)
 		{
 			item_Type = item_Type_Passed;
 		}
-		qInfo() << "Created:" << item_Type << id;
+//		qInfo() << "Created:" << item_Type << id;
 	} else
 	{
 		qInfo() << "Data::Data : empty call" << id;

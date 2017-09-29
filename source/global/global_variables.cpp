@@ -375,7 +375,23 @@ int Global_Variables::get_Tree_Depth(QTreeWidgetItem* item)
 	return depth;
 }
 
-QString Global_Variables::independent_Variable_Name(const Data &struct_Data, QString whats_This, int index)
+QString Global_Variables::structure_Item_Name(const Data& struct_Data)
+{
+	// PARAMETER
+
+	QString text = "item_Name";
+
+	if(struct_Data.item_Type == item_Type_Ambient)		text = "ambient: " + struct_Data.material;
+	if(struct_Data.item_Type == item_Type_Layer)		text = struct_Data.material + " layer (" + QString::number(struct_Data.layer_Index) + ")";
+	if(struct_Data.item_Type == item_Type_Substrate)	text = struct_Data.material + " substrate";
+	if(struct_Data.item_Type == item_Type_Multilayer)	text = "Multilayer (" + QString::number(struct_Data.first_Layer_Index) +
+																		" - " + QString::number(struct_Data.last_Layer_Index) + ")";
+	if(struct_Data.item_Type == item_Type_Measurement)	text = "Measurement";
+
+	return text;
+}
+
+QString Global_Variables::parameter_Name(const Data &struct_Data, QString whats_This, int index)
 {
 	// PARAMETER
 
@@ -384,13 +400,15 @@ QString Global_Variables::independent_Variable_Name(const Data &struct_Data, QSt
 	if(struct_Data.item_Type == item_Type_Ambient)		brackets = "(ambient)";
 	if(struct_Data.item_Type == item_Type_Layer)		brackets = "(layer " + QString::number(struct_Data.layer_Index) + ")";
 	if(struct_Data.item_Type == item_Type_Substrate)	brackets = "(substrate)";
-	if(struct_Data.item_Type == item_Type_Multilayer)	brackets = "Multilayer (" + QString::number(struct_Data.first_Layer_Index) + " - " + QString::number(struct_Data.last_Layer_Index) + ")";
-	if(struct_Data.item_Type == item_Type_Measurement)	brackets = "()";
+	if(struct_Data.item_Type == item_Type_Multilayer)	brackets = "Multilayer (" + QString::number(struct_Data.first_Layer_Index) + " - " +
+																					QString::number(struct_Data.last_Layer_Index) + ")";
+	if(struct_Data.item_Type == item_Type_Measurement)	brackets = "(measurement)";
+
 
 	/// optical constants
 	if(	struct_Data.item_Type == item_Type_Ambient	||
-			struct_Data.item_Type == item_Type_Layer	||
-			struct_Data.item_Type == item_Type_Substrate )
+		struct_Data.item_Type == item_Type_Layer	||
+		struct_Data.item_Type == item_Type_Substrate )
 	{
 		if(whats_This == whats_This_Absolute_Density)				text = struct_Data.material + " " + brackets + " Density, " + Rho_Sym;
 		if(whats_This == whats_This_Relative_Density)				text = struct_Data.material + " " + brackets + " Relative Density, " + Rho_Sym;
@@ -438,21 +456,6 @@ QString Global_Variables::independent_Variable_Name(const Data &struct_Data, QSt
 		if(whats_This == whats_This_Angle)							text = struct_Data.angle_Type + " angle, " + Theta_Sym;
 		if(whats_This == whats_This_Wavelength)						text = Global_Variables::wavelength_Energy_Name(wavelength_units);
 	}
-
-	return text;
-}
-
-QString Global_Variables::structure_Item_Name(const Data& struct_Data)
-{
-	// PARAMETER
-
-	QString text = "item_Name";
-
-	if(struct_Data.item_Type == item_Type_Ambient)		text = "ambient: " + struct_Data.material;
-	if(struct_Data.item_Type == item_Type_Layer)		text = struct_Data.material + " layer (" + QString::number(struct_Data.layer_Index) + ")";
-	if(struct_Data.item_Type == item_Type_Substrate)	text = struct_Data.material + " substrate";
-	if(struct_Data.item_Type == item_Type_Multilayer)	text = "Multilayer (" + QString::number(struct_Data.first_Layer_Index) +
-																		" - " + QString::number(struct_Data.last_Layer_Index) + ")";
 
 	return text;
 }

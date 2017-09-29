@@ -1,7 +1,13 @@
 #include "my_table_widget.h"
 
-My_Table_Widget::My_Table_Widget(int rows, int columns, QMap<QWidget*,QTreeWidgetItem*>& coupled_Widgets_Map, QTabWidget* main_Tabs, QWidget *parent) :
-	coupled_Widgets_Map(coupled_Widgets_Map),
+My_Table_Widget::My_Table_Widget(int rows,
+								 int columns,
+								 QMap<QWidget*,QTreeWidgetItem*>& coupled_Widgets_Item,
+								 QMap<int, QWidget*>& coupled_Widgets_Id,
+								 QTabWidget* main_Tabs,
+								 QWidget *parent) :
+	coupled_Widgets_Item(coupled_Widgets_Item),
+	coupled_Widgets_Id(coupled_Widgets_Id),
 	main_Tabs(main_Tabs),
 	QTableWidget(parent)
 {
@@ -17,7 +23,7 @@ void My_Table_Widget::contextMenuEvent(QContextMenuEvent *event)
 	QWidget* widget = cellWidget(row,column);
 
 	if(widget)
-	if(!widget->whatsThis().isEmpty())
+	if(widget->property(coupling_Editor_Property).toBool())
 	{
 		Parameter parameter = widget->property(parameter_Property).value<Parameter>();
 //		qInfo() << "parameter id = " << parameter.indicator.id << "\n" << main_Tabs->tabText(parameter.indicator.tab_Index) << " " << parameter.indicator.full_Name << endl;
@@ -34,7 +40,7 @@ void My_Table_Widget::contextMenuEvent(QContextMenuEvent *event)
 
 void My_Table_Widget::open_Coupling_Editor(QWidget* coupling_Widget)
 {
-	Coupling_Editor* new_Coupling_Editor = new Coupling_Editor(coupling_Widget, coupled_Widgets_Map, main_Tabs, this);
+	Coupling_Editor* new_Coupling_Editor = new Coupling_Editor(coupling_Widget, coupled_Widgets_Item,coupled_Widgets_Id, main_Tabs, this);
 //		new_Coupling_Editor->setModal(true);
 		new_Coupling_Editor->show();
 }
