@@ -827,6 +827,7 @@ void Table_Of_Structures::create_Stoich_Check_Box_Fit(My_Table_Widget* table, in
 
 			back_Widget->setProperty(coupling_Editor_Property, true);
 			back_Widget->setProperty(fit_Text, fit_Text); // need to know what the widget is
+			all_Widgets_To_Reload[tab_Index].append(back_Widget);
 			coupled_Widget_Item.insert(back_Widget,structure_Item);
 			coupled_Widget_Id.insert(comp.indicator.id,back_Widget);
 			reload_Show_Dependence_Map.insertMulti(comp.indicator.id, back_Widget);
@@ -1019,6 +1020,7 @@ void Table_Of_Structures::create_Check_Box_Label(My_Table_Widget* table, int tab
 		parameter.indicator.full_Name = Global_Variables::parameter_Name(struct_Data, whats_This);
 
 		back_Widget->setProperty(coupling_Editor_Property, true);
+		all_Widgets_To_Reload[tab_Index].append(back_Widget);
 		coupled_Widget_Item.insert(back_Widget,structure_Item);
 		coupled_Widget_Id.insert(parameter.indicator.id,back_Widget);
 //		loaded_Parameters.append(parameter.indicator.id);
@@ -1153,6 +1155,7 @@ void Table_Of_Structures::create_Check_Box_Fit(My_Table_Widget* table, int tab_I
 		back_Widget->setProperty(coupling_Editor_Property, true);
 		back_Widget->setProperty(fit_Text, fit_Text); // need to know what the widget is
 		coupled_Widget_Item.insert(back_Widget,structure_Item);
+		all_Widgets_To_Reload[tab_Index].append(back_Widget);
 		coupled_Widget_Id.insert(parameter.indicator.id,back_Widget);
 //		loaded_Parameters.append(parameter.indicator.id);
 
@@ -1230,6 +1233,7 @@ void Table_Of_Structures::create_Check_Box_Label_Interlayer(My_Table_Widget* tab
 			inter_Comp.interlayer.indicator.full_Name = Global_Variables::parameter_Name(struct_Data, whats_This_Interlayer_Composition, interlayer_Index);
 
 			back_Widget->setProperty(coupling_Editor_Property, true);
+			all_Widgets_To_Reload[tab_Index].append(back_Widget);
 			coupled_Widget_Item.insert(back_Widget,structure_Item);
 			coupled_Widget_Id.insert(inter_Comp.interlayer.indicator.id,back_Widget);
 //			loaded_Parameters.append(inter_Comp.interlayer.indicator.id);
@@ -2194,17 +2198,32 @@ void Table_Of_Structures::reload_All_Widgets(QObject* sender)
 	if(table_Is_Created)
 	{
 		int current_Tab_Index = main_Tabs->currentIndex();
-		qInfo() << "reload_All_Widgets " << ++temp_Counter << "tab " << current_Tab_Index;
+//		qInfo() << "reload_All_Widgets " << ++temp_Counter << "tab " << current_Tab_Index;
 		for(int i=0; i<all_Widgets_To_Reload[current_Tab_Index].size(); ++i)
 		{
-			if(all_Widgets_To_Reload[current_Tab_Index][i] != sender)
+			QWidget* widget_To_Reload = all_Widgets_To_Reload[current_Tab_Index][i];
+			if(widget_To_Reload != sender)
 			{
-				all_Widgets_To_Reload[current_Tab_Index][i]->setProperty(reload_Property, true);
+				// reload color
+				if(widget_To_Reload->property(coupling_Editor_Property).toBool())
+				{
+					Parameter parameter = widget_To_Reload->property(parameter_Property).value<Parameter>();
 
-				QLabel*        label = qobject_cast<QLabel*>   (all_Widgets_To_Reload[current_Tab_Index][i]);
-				QCheckBox* check_Box = qobject_cast<QCheckBox*>(all_Widgets_To_Reload[current_Tab_Index][i]);
-				QLineEdit* line_Edit = qobject_cast<QLineEdit*>(all_Widgets_To_Reload[current_Tab_Index][i]);
-				QComboBox* combo_Box = qobject_cast<QComboBox*>(all_Widgets_To_Reload[current_Tab_Index][i]);
+					// if had some dependences
+					if(parameter.coupled.master.exist || parameter.coupled.slaves.size()>0)
+					{
+						Coupling_Editor* new_Coupling_Editor = new Coupling_Editor(widget_To_Reload, coupled_Widget_Item, coupled_Widget_Id, main_Tabs, this);
+							new_Coupling_Editor->hide();
+							new_Coupling_Editor->close();
+					}
+				}
+
+				widget_To_Reload->setProperty(reload_Property, true);
+
+				QLabel*        label = qobject_cast<QLabel*>   (widget_To_Reload);
+				QCheckBox* check_Box = qobject_cast<QCheckBox*>(widget_To_Reload);
+				QLineEdit* line_Edit = qobject_cast<QLineEdit*>(widget_To_Reload);
+				QComboBox* combo_Box = qobject_cast<QComboBox*>(widget_To_Reload);
 
 				if(label)
 				{
@@ -2225,7 +2244,7 @@ void Table_Of_Structures::reload_All_Widgets(QObject* sender)
 					combo_Box->currentTextChanged("temp");
 				}
 
-				all_Widgets_To_Reload[current_Tab_Index][i]->setProperty(reload_Property, false);
+				widget_To_Reload->setProperty(reload_Property, false);
 			}
 		}
 	}
@@ -2235,7 +2254,7 @@ void Table_Of_Structures::reload_Related_Widgets(QObject* sender)
 {
 	if(table_Is_Created)
 	{
-		qInfo() << "reload_Related_Widgets " << ++temp_Counter_1;
+//		qInfo() << "reload_Related_Widgets " << ++temp_Counter_1;
 		for(int key : reload_Show_Dependence_Map.keys(qobject_cast<QWidget*>(sender)))
 		{
 			for(QWidget* related: reload_Show_Dependence_Map.values(key))

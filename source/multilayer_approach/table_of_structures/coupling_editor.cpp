@@ -34,9 +34,9 @@ void Coupling_Editor::closeEvent(QCloseEvent *)
 		// save external slaves
 		save_External_Slaves();
 
-		qInfo() << "saved" <<     coupling_Parameter.coupled.slaves.size() << "slaves";
-		qInfo() << "saved" << int(coupling_Parameter.coupled.master.exist) << "master";
-		qInfo() << "";
+//		qInfo() << "saved" <<     coupling_Parameter.coupled.slaves.size() << "slaves";
+//		qInfo() << "saved" << int(coupling_Parameter.coupled.master.exist) << "master";
+//		qInfo() << "";
 	}
 
 	// enable context menu
@@ -148,9 +148,8 @@ void Coupling_Editor::load_Master()
 			{
 				master_Widget = old_Master_Widget;
 				master_Label->setText("<"+main_Tabs->tabText(old_Master_Parameter.indicator.tab_Index)+"> "+old_Master_Parameter.indicator.full_Name);
-//				master_Line_Edit
 				loaded = true;
-				qInfo() << "loaded 1 master";
+//				qInfo() << "loaded 1 master";
 			}
 		}
 	}
@@ -159,8 +158,7 @@ void Coupling_Editor::load_Master()
 		master_Widget = NULL;
 		coupling_Parameter.coupled.master.exist = false;
 		master_Label->setText(no_Master_Text);
-//		master_Line_Edit
-		qInfo() << "loaded 0 masters";
+//		qInfo() << "loaded 0 masters";
 	}
 }
 
@@ -183,7 +181,7 @@ void Coupling_Editor::save_External_Master()
 		// save old master
 		refresh_Reload_Coupled(refresh_Property, old_Master_Parameter, old_Master_Widget);
 
-		qInfo() << "old master " << old_Master_Parameter.indicator.full_Name << " removed me from slaves. Now " << old_Master_Parameter.coupled.slaves.size() << "slaves";
+//		qInfo() << "old master " << old_Master_Parameter.indicator.full_Name << " removed me from slaves. Now " << old_Master_Parameter.coupled.slaves.size() << "slaves";
 	}
 
 	// add me to current master
@@ -207,7 +205,7 @@ void Coupling_Editor::save_External_Master()
 			// save master
 			refresh_Reload_Coupled(refresh_Property, master_Parameter, master_Widget);
 
-			qInfo() << "master " << master_Parameter.indicator.full_Name << " added me as slave. Now " << master_Parameter.coupled.slaves.size() << "slaves";
+//			qInfo() << "master " << master_Parameter.indicator.full_Name << " added me as slave. Now " << master_Parameter.coupled.slaves.size() << "slaves";
 		}
 	}
 }
@@ -291,7 +289,6 @@ void Coupling_Editor::load_Slaves()
 
 				slave_Label_Vec[counter]->setText("<"+main_Tabs->tabText(old_Slave_Parameter.indicator.tab_Index)+"> "+old_Slave_Parameter.indicator.full_Name);
 				slave_Widget_Vec[counter] = old_Slave_Widget;
-//				slave_Line_Edit_Vec[counter]
 				coupling_Parameter.coupled.slaves[counter] = old_Slave_Parameter.indicator;
 				coupling_Parameter.coupled.slaves[counter].exist = true;
 
@@ -299,7 +296,7 @@ void Coupling_Editor::load_Slaves()
 			}
 		}
 	}
-	qInfo() << "loaded" << coupling_Parameter.coupled.slaves.size() << " of " << old_Slaves.size() << "slaves";
+//	qInfo() << "loaded" << counter << " of " << old_Slaves.size() << "slaves";
 
 	/// do we need it here?
 //	refresh_Reload_Coupled(refresh_Property, coupling_Widget);
@@ -346,7 +343,7 @@ void Coupling_Editor::save_External_Slaves()
 
 			// save slave
 			refresh_Reload_Coupled(refresh_Property, slave_Parameter, slave_Widget);
-			qInfo() << "slave " << slave_Parameter.indicator.full_Name << " added me as master";
+//			qInfo() << "slave " << slave_Parameter.indicator.full_Name << " added me as master";
 		}
 	}
 }
