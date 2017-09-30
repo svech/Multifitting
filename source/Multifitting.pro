@@ -13,7 +13,9 @@ TARGET = Multifitting
 TEMPLATE = app
 
 win32 {
-   	INCLUDEPATH +=  "C:/Program Files (x86)/C++ libraries" \
+#    QMAKE_CXXFLAGS += -bigobj
+
+    INCLUDEPATH +=  "C:/Program Files (x86)/C++ libraries" \
               		"C:/Program Files (x86)/C++ libraries/GSL 2.1/include" \
                 	"C:/Program Files (x86)/C++ libraries/eigen 3.3.1"
 
@@ -41,12 +43,12 @@ SOURCES += main.cpp\
 	multilayer_approach/multilayer/independent_variables.cpp \
 	multilayer_approach/multilayer/independent_variables/independent_variables_editor.cpp \
 	multilayer_approach/multilayer/variable_selection.cpp \
-#    	main_calculation_module.cpp \
+#   main_calculation_module.cpp \
 #	calculation/calculation_tree.cpp \
-#    	calculation/node.cpp \
+#   calculation/node.cpp \
 	calculation/optical_constants.cpp \
-#    	calculation/unwrapped/unwrapped_reflection.cpp \
-#    	calculation/unwrapped/unwrapped_structure.cpp \
+#   calculation/unwrapped/unwrapped_reflection.cpp \
+#   calculation/unwrapped/unwrapped_structure.cpp \
 	multilayer_approach/table_of_structures.cpp \
 	multilayer_approach/multilayer/target_curve.cpp \
 	multilayer_approach/multilayer/target_curve/target_curve_editor.cpp \

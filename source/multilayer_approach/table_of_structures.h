@@ -122,8 +122,6 @@ public:
 	QMap<QString, Table_Of_Structures*>* runned_Tables_Of_Structures;
 	QTabWidget* multilayer_Tabs;
 
-//	QVector<int> loaded_Parameters;
-
 	QMap<QComboBox*,QTreeWidgetItem*> elements_Map;
 	QMap<QLineEdit*,QTreeWidgetItem*> line_Edits_Map;
 	QMap<QCheckBox*,QTreeWidgetItem*> check_Boxes_Map;

@@ -12,7 +12,7 @@ Coupling_Editor::Coupling_Editor(QWidget* coupling_Widget,
 	main_Tabs(main_Tabs),
 	QDialog(parent)
 {
-	setWindowTitle("<"+main_Tabs->tabText(coupling_Parameter.indicator.tab_Index)+"> "+coupling_Parameter.indicator.full_Name+" "+QString::number(coupling_Parameter.indicator.id));
+	setWindowTitle("<"+main_Tabs->tabText(coupling_Parameter.indicator.tab_Index)+"> "+coupling_Parameter.indicator.full_Name/*+" "+QString::number(coupling_Parameter.indicator.id)*/);
 	create_Main_Layout();
 	set_Window_Geometry();
 	setAttribute(Qt::WA_DeleteOnClose);
@@ -58,10 +58,6 @@ void Coupling_Editor::create_Main_Layout()
 	main_Layout = new QVBoxLayout(this);
 	main_Layout->setSpacing(0);
 	main_Layout->setContentsMargins(4,0,4,0);
-
-	// load my widget from tree
-	/// do we need it? we just loaded
-//	refresh_Reload_Coupled(reload_Property, coupling_Widget);
 
 	create_Master_Box();
 		main_Layout->addWidget(master_Group_Box);
@@ -297,9 +293,6 @@ void Coupling_Editor::load_Slaves()
 		}
 	}
 //	qInfo() << "loaded" << counter << " of " << old_Slaves.size() << "slaves";
-
-	/// do we need it here?
-//	refresh_Reload_Coupled(refresh_Property, coupling_Widget);
 }
 
 void Coupling_Editor::save_External_Slaves()
@@ -431,12 +424,7 @@ void Coupling_Editor::get_Parameter(QLabel* label)
 				label->setText("<"+main_Tabs->tabText(parameter.indicator.tab_Index)+"> "+parameter.indicator.full_Name/* + " " + QString::number(parameter.indicator.id)*/);
 			}
 		}
-
-		// save my state
-		/// do we need it here?
-//		refresh_Reload_Coupled(refresh_Property, coupling_Widget);
-
-		qInfo() << "parameter id = " << parameter.indicator.id << "\n" << main_Tabs->tabText(parameter.indicator.tab_Index) << " " << parameter.indicator.full_Name << endl;
+//		qInfo() << "parameter id = " << parameter.indicator.id << "\n" << main_Tabs->tabText(parameter.indicator.tab_Index) << " " << parameter.indicator.full_Name << endl;
 	}
 }
 

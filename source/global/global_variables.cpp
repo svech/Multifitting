@@ -2,6 +2,7 @@
 
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
+#include "exprtk.hpp"
 #include "global_variables.h"
 
 // -----------------------------------------------------------------------------------------
@@ -458,4 +459,27 @@ QString Global_Variables::parameter_Name(const Data &struct_Data, QString whats_
 	}
 
 	return text;
+}
+
+bool Global_Variables::expression_Is_Valid(QString expression_string)
+{
+	exprtk::parser<double> parser;
+	exprtk::expression<double> expression;
+
+	return parser.compile(expression_string.toStdString(),expression);
+}
+
+double Global_Variables::calculate_From_Master_Value(QString expression_string, double master_Value)
+{
+	exprtk::symbol_table<double> symbol_table;
+	symbol_table.add_variable("X", master_Value);
+	symbol_table.add_constants();
+
+	exprtk::expression<double> expression;
+	expression.register_symbol_table(symbol_table);
+
+	exprtk::parser<double> parser;
+	parser.compile(expression_string.toStdString(), expression);
+
+	return expression.value();
 }

@@ -49,8 +49,6 @@ void Table_Of_Structures::create_Main_Layout()
 	//	resize(800,550);
 	resize(1000,750);
 	add_Tabs();
-
-//	revise_All_Parameters();
 }
 
 void Table_Of_Structures::create_Menu()
@@ -466,54 +464,6 @@ void Table_Of_Structures::read_Trees()
 	multilayer_Approach->menu->setDisabled(true);
 }
 
-//void Table_Of_Structures::revise_All_Parameters()
-//{
-//	for(int tab_Index=0; tab_Index<main_Tabs->count(); ++tab_Index)
-//	{
-//		My_Table_Widget* table = qobject_cast<My_Table_Widget*>(main_Tabs->widget(tab_Index));
-
-//		// search over sheet
-//		for(int row=0; row<table->rowCount(); row++)
-//		{
-//			for(int column=0; column<table->columnCount(); column++)
-//			{
-//				QWidget* widget = table->cellWidget(row,column);
-//				if(widget && coupled_Widgets_Map.contains(widget))
-//				{
-//					Parameter parameter = widget->property(parameter_Property).value<Parameter>();
-
-//					Parameter_Indicator empty_Indicator;
-
-//					// checks anyway, if it marked as "exist" or not
-
-//					// check master
-//					if(loaded_Parameters.indexOf(parameter.coupled.master.id) == -1)
-//						parameter.coupled.master = empty_Indicator;
-
-//					// check slaves
-//					for(int slave_Index=parameter.coupled.slaves.size()-1; slave_Index>=0; slave_Index--)
-//					{
-//						if(loaded_Parameters.indexOf(parameter.coupled.slaves[slave_Index].id) == -1)
-//							parameter.coupled.slaves.remove(slave_Index);
-//					}
-
-//					refresh_Reload_Core(refresh_Property, widget, parameter, coupled_Widgets_Map);
-
-//					if(loaded_Parameters.indexOf(parameter.indicator.id) != -1)
-//					{
-//						QLineEdit* param_Line_Edit = coupled_Id_LineEdits_Map.value(parameter.indicator.id);
-//						if(param_Line_Edit)
-//						{
-////							if()
-//							param_Line_Edit->setStyleSheet("QLineEdit { background: rgb(0, 255, 255); selection-background-color: rgb(233, 99, 0); }");
-//						}
-//					}
-//				}
-//			}
-//		}
-//	}
-//}
-
 void Table_Of_Structures::refresh_Reload_Core(QString refresh_Reload, QWidget* widget, Parameter& parameter, QMap<QWidget*,QTreeWidgetItem*>& coup_Widgets_Map)
 {
 	// PARAMETER
@@ -655,12 +605,10 @@ void Table_Of_Structures::span_Structure_Items(My_Table_Widget* table)
 						item_Type == item_Type_Substrate )
 				{
 					table->setSpan(row_Index,col_Index,5,1);
-//					if(item_Type != item_Type_Ambient) colorize_Row(row_Index-1);
 				}
 				if( item_Type == item_Type_Multilayer )
 				{
 					table->setSpan(row_Index,col_Index,2,1);
-//					colorize_Row(row_Index-1);
 				}
 			}
 		}
@@ -703,12 +651,6 @@ void Table_Of_Structures::create_Combo_Elements(My_Table_Widget* table, int, int
 
 		// number of element is here
 		elements->setProperty(num_Chemic_Element_Property, composition_Index);
-
-		// for reloading
-		///	 no need to reload it
-//		elements->setProperty(reload_Property, false);
-//		elements->setProperty(tab_Index_Property, tab_Index);
-//		all_Widgets_To_Reload[tab_Index].append(elements);
 
 		// create item
 		table->setCellWidget(current_Row, current_Column, elements);
@@ -831,7 +773,6 @@ void Table_Of_Structures::create_Stoich_Check_Box_Fit(My_Table_Widget* table, in
 			coupled_Widget_Item.insert(back_Widget,structure_Item);
 			coupled_Widget_Id.insert(comp.indicator.id,back_Widget);
 			reload_Show_Dependence_Map.insertMulti(comp.indicator.id, back_Widget);
-//			loaded_Parameters.append(comp.indicator.id);
 
 			// save to widget and structure tree
 			refresh_Reload_Core(refresh_Property, back_Widget, comp, coupled_Widget_Item);
@@ -862,12 +803,6 @@ void Table_Of_Structures::create_Material(My_Table_Widget* table, int, int curre
 	material_Line_Edit->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT);
 	material_Line_Edit->setProperty(min_Size_Property, material_Line_Edit->width());
 	material_Line_Edit->setProperty(column_Property, current_Column);
-
-	// for reloading
-	/// no need for reloading
-//	material_Line_Edit->setProperty(reload_Property, false);
-//	material_Line_Edit->setProperty(tab_Index_Property, tab_Index);
-//	all_Widgets_To_Reload[tab_Index].append(material_Line_Edit);
 
 	connect(material_Line_Edit, &QLineEdit::textEdited, this, [=]{resize_Line_Edit(table); });
 
@@ -905,7 +840,6 @@ void Table_Of_Structures::create_Label(My_Table_Widget* table, int tab_Index, in
 		label->setProperty(coupling_Editor_Property, true);
 		coupled_Widget_Item.insert(label,structure_Item);
 		coupled_Widget_Id.insert(parameter.indicator.id,label);
-//		loaded_Parameters.append(parameter.indicator.id);
 
 		// save to widget and structure tree
 		refresh_Reload_Core(refresh_Property, label, parameter, coupled_Widget_Item);
@@ -1023,7 +957,6 @@ void Table_Of_Structures::create_Check_Box_Label(My_Table_Widget* table, int tab
 		all_Widgets_To_Reload[tab_Index].append(back_Widget);
 		coupled_Widget_Item.insert(back_Widget,structure_Item);
 		coupled_Widget_Id.insert(parameter.indicator.id,back_Widget);
-//		loaded_Parameters.append(parameter.indicator.id);
 
 		// save to widget and structure tree
 		refresh_Reload_Core(refresh_Property, back_Widget, parameter, coupled_Widget_Item);
@@ -1157,7 +1090,6 @@ void Table_Of_Structures::create_Check_Box_Fit(My_Table_Widget* table, int tab_I
 		coupled_Widget_Item.insert(back_Widget,structure_Item);
 		all_Widgets_To_Reload[tab_Index].append(back_Widget);
 		coupled_Widget_Id.insert(parameter.indicator.id,back_Widget);
-//		loaded_Parameters.append(parameter.indicator.id);
 
 		// save to widget and structure tree
 		refresh_Reload_Core(refresh_Property, back_Widget, parameter, coupled_Widget_Item);
@@ -1211,7 +1143,6 @@ void Table_Of_Structures::create_Check_Box_Label_Interlayer(My_Table_Widget* tab
 		check_Box->setProperty(tab_Index_Property, tab_Index);
 		all_Widgets_To_Reload[tab_Index].append(check_Box);
 		reload_Show_Dependence_Map.insertMulti(struct_Data.sigma.indicator.id,check_Box);
-//		reload_Show_Dependence_Map.insertMulti(inter_Comp.my_Sigma.indicator.id,check_Box);
 
 		check_Box->setChecked(inter_Comp.enabled);
 
@@ -1236,7 +1167,6 @@ void Table_Of_Structures::create_Check_Box_Label_Interlayer(My_Table_Widget* tab
 			all_Widgets_To_Reload[tab_Index].append(back_Widget);
 			coupled_Widget_Item.insert(back_Widget,structure_Item);
 			coupled_Widget_Id.insert(inter_Comp.interlayer.indicator.id,back_Widget);
-//			loaded_Parameters.append(inter_Comp.interlayer.indicator.id);
 
 			// save to widget and structure tree
 			refresh_Reload_Core(refresh_Property, back_Widget, inter_Comp.interlayer, coupled_Widget_Item);
@@ -1353,7 +1283,6 @@ void Table_Of_Structures::create_MySigma_Labels_Interlayer(My_Table_Widget* tabl
 			label->setProperty(coupling_Editor_Property, true);
 			coupled_Widget_Item.insert(label,structure_Item);
 			coupled_Widget_Id.insert(my_Sigma.indicator.id,label);
-//			loaded_Parameters.append(my_Sigma.indicator.id);
 
 			// save to widget and structure tree
 			refresh_Reload_Core(refresh_Property, label, my_Sigma, coupled_Widget_Item);
@@ -1442,7 +1371,6 @@ void Table_Of_Structures::refresh_Element(QString)
 	}
 	{
 		emit_Data_Edited();
-//		reload_All_Widgets(QObject::sender());
 	}
 }
 
@@ -1489,7 +1417,6 @@ void Table_Of_Structures::refresh_Stoich(QString)
 	{
 		emit_Data_Edited();
 		reload_Related_Widgets(QObject::sender());
-//		reload_All_Widgets(QObject::sender());
 	}
 }
 
@@ -1518,7 +1445,6 @@ void Table_Of_Structures::refresh_Fit_Element(bool)
 	{
 		emit_Data_Edited();
 		reload_Related_Widgets(QObject::sender());
-//		reload_All_Widgets(QObject::sender());
 	}
 }
 
@@ -1545,7 +1471,6 @@ void Table_Of_Structures::refresh_Material(QString)
 	}
 	{
 		emit_Data_Edited();
-//		reload_All_Widgets(QObject::sender());
 	}
 }
 
@@ -1580,7 +1505,6 @@ void Table_Of_Structures::check_Material()
 	{
 		emit_Data_Edited();
 		reload_Related_Widgets(QObject::sender());
-//		reload_All_Widgets(QObject::sender());
 	}
 }
 
@@ -1674,7 +1598,6 @@ void Table_Of_Structures::refresh_Check_Box_Header(bool)
 	{
 		emit_Data_Edited();
 		reload_Related_Widgets(QObject::sender());
-//		reload_All_Widgets(QObject::sender());
 	}
 }
 
@@ -1908,7 +1831,6 @@ void Table_Of_Structures::refresh_Parameter(My_Table_Widget* table)
 
 		emit_Data_Edited();
 		reload_Related_Widgets(QObject::sender());
-//		reload_All_Widgets(QObject::sender());
 	}
 }
 
@@ -1949,7 +1871,6 @@ void Table_Of_Structures::refresh_Fit_Parameter(bool)
 	{
 		emit_Data_Edited();
 		reload_Related_Widgets(QObject::sender());
-//		reload_All_Widgets(QObject::sender());
 	}
 }
 
@@ -1986,7 +1907,6 @@ void Table_Of_Structures::refresh_Check_Box_Label_Interlayer(bool)
 	{
 		emit_Data_Edited();
 		reload_Related_Widgets(QObject::sender());
-//		reload_All_Widgets(QObject::sender());
 	}
 }
 
@@ -2028,7 +1948,6 @@ void Table_Of_Structures::refresh_Weigts_Interlayer(QString)
 	{
 		emit_Data_Edited();
 		reload_Related_Widgets(QObject::sender());
-//		reload_All_Widgets(QObject::sender());
 	}
 }
 
@@ -2059,7 +1978,6 @@ void Table_Of_Structures::refresh_Weights_Check_Box_Fit_Interlayer(bool)
 	{
 		emit_Data_Edited();
 		reload_Related_Widgets(QObject::sender());
-//		reload_All_Widgets(QObject::sender());
 	}
 }
 
@@ -2098,7 +2016,6 @@ void Table_Of_Structures::refresh_MySigma_Interlayer(QString)
 	{
 		emit_Data_Edited();
 		reload_Related_Widgets(QObject::sender());
-//		reload_All_Widgets(QObject::sender());
 	}
 }
 
