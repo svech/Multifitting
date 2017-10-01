@@ -128,6 +128,7 @@ using namespace std;
 #define active "     Active"
 #define	stop_Calculation "stop_Calculation"
 #define fit_Text "fit"
+#define expression_Variable_Char "x"
 
 // whatsThis : delimiters
 #define whats_This_Delimiter ";"
@@ -201,6 +202,7 @@ using namespace std;
 #define TRIL_FALSE			"False"
 #define TRIL_NOT_DEFINED	"NotDefined"
 #define NOPARENT			"No parents"
+#define previous_Expression_Property "previous_Expression"
 
 #define num_Chemic_Element_Property "num_Chemic_Element"
 #define interlayer_Index_Property	"interlayer_Index"
@@ -264,7 +266,8 @@ public:
 // simple types					renew corresponding serialization operators!
 struct Independent_Indicator	{int item_Id = 0; int parameter_Id = 0; QString item_Type; QString parameter_Whats_This; int index = -1; bool is_Active = false;};
 struct Parameter_Indicator		{int id = 0; QString whats_This;								// once and for all
-								 int tab_Index = -1; QString full_Name; bool exist = false;};	// can be changed!
+								 int tab_Index = -1; QString full_Name;			// can be changed
+								 QString expression = expression_Variable_Char; bool exist = false;};	// for master/slave dependencies
 
 struct Int_Independent			{int value; bool is_Independent=false;	int start = 1; int step = 1; int num_Steps = 3; int id = 0; QString whats_This;
 								 Int_Independent()
@@ -276,7 +279,7 @@ struct Int_Independent			{int value; bool is_Independent=false;	int start = 1; i
 struct Independent				{bool is_Independent = false; double min; double max; int num_Points;};
 
 struct Coupled					{bool is_Coupled = false;
-								 Parameter_Indicator master; // QString function_Type = "default"; double function(double argument){ return argument;}
+								 Parameter_Indicator master;
 								 QVector<Parameter_Indicator> slaves;};
 
 struct Fit						{bool is_Fitable = false; bool min_Bounded; double min; bool max_Bounded; double max;};

@@ -30,6 +30,7 @@ public:
 		void save_External_Slaves();
 		void clear_Nonexisting_Slaves();
 	void refresh_Reload_Coupled(QString refresh_Reload, Parameter& parameter, QWidget* widget);
+	void check_Expression();
 
 	void enable_Getting_Parameter(QWidget* old, QWidget* now, QLabel* label, QLineEdit* line_Edit);
 	void get_Parameter(QLabel* label);

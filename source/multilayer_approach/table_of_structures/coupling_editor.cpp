@@ -92,8 +92,9 @@ void Coupling_Editor::create_Master_Box()
 	master_Label = new QLabel(no_Master_Text);
 		group_Box_Layout->addWidget(master_Label);
 
-	master_Line_Edit = new QLineEdit("1");
+	master_Line_Edit = new QLineEdit(coupling_Parameter.coupled.master.expression);
 		master_Line_Edit->setMinimumWidth(MIN_FORMULA_WIDTH_LINE_EDIT);
+		master_Line_Edit->setProperty(previous_Expression_Property,master_Line_Edit->text());
 		group_Box_Layout->addWidget(master_Line_Edit);
 
 	QHBoxLayout* button_Layout = new QHBoxLayout;
@@ -109,6 +110,7 @@ void Coupling_Editor::create_Master_Box()
 			{
 				enable_Getting_Parameter(old, now, master_Label, master_Line_Edit);
 			});
+	connect(master_Line_Edit, &QLineEdit::editingFinished, this, &Coupling_Editor::check_Expression);
 
 	load_Master();
 }
@@ -190,19 +192,22 @@ void Coupling_Editor::save_External_Master()
 			if(master_Slave.id == coupling_Parameter.indicator.id)
 			{
 				already_Contains = true;
+				master_Slave.expression = coupling_Parameter.coupled.master.expression;
 				break;
 			}
 		}
 		if(!already_Contains)
 		{
 			coupling_Parameter.indicator.exist = true; // i should exist as Master's slave
+			coupling_Parameter.indicator.expression = coupling_Parameter.coupled.master.expression;
 			master_Parameter.coupled.slaves.append(coupling_Parameter.indicator);
-
-			// save master
-			refresh_Reload_Coupled(refresh_Property, master_Parameter, master_Widget);
-
-//			qInfo() << "master " << master_Parameter.indicator.full_Name << " added me as slave. Now " << master_Parameter.coupled.slaves.size() << "slaves";
 		}
+
+
+		// save master
+		refresh_Reload_Coupled(refresh_Property, master_Parameter, master_Widget);
+
+//		qInfo() << "master " << master_Parameter.indicator.full_Name << " added me as slave. Now " << master_Parameter.coupled.slaves.size() << "slaves";
 	}
 }
 
@@ -240,9 +245,10 @@ void Coupling_Editor::add_Slave(int index_Pressed)
 		frame_Layout->addWidget(slave_Label);
 		slave_Label_Vec.insert(index_Pressed, slave_Label);
 
-	QLineEdit* slave_Line_Edit = new QLineEdit("1");
+	QLineEdit* slave_Line_Edit = new QLineEdit(coupling_Parameter.coupled.slaves[index_Pressed].expression);
 		slave_Line_Edit->setMinimumWidth(MIN_FORMULA_WIDTH_LINE_EDIT);
 		frame_Layout->addWidget(slave_Line_Edit);
+		slave_Line_Edit->setProperty(previous_Expression_Property,slave_Line_Edit->text());
 		slave_Line_Edit_Vec.insert(index_Pressed, slave_Line_Edit);
 
 	QHBoxLayout* button_Layout = new QHBoxLayout;
@@ -257,6 +263,7 @@ void Coupling_Editor::add_Slave(int index_Pressed)
 
 	connect(remove_Slave_Button, &QPushButton::clicked, this, [=]{ remove_Slave(slave_Label_Vec.indexOf(slave_Label)); });
 	connect(add_Slave_Button,	 &QPushButton::clicked, this, [=]{ add_Slave   (slave_Label_Vec.indexOf(slave_Label)+1); });
+	connect(slave_Line_Edit,	 &QLineEdit::editingFinished, this, &Coupling_Editor::check_Expression);
 
 	connect(qApp, &QApplication::focusChanged, this, [=](QWidget* old, QWidget* now){enable_Getting_Parameter(old, now, slave_Label, slave_Line_Edit);});
 }
@@ -287,6 +294,8 @@ void Coupling_Editor::load_Slaves()
 				slave_Widget_Vec[counter] = old_Slave_Widget;
 				coupling_Parameter.coupled.slaves[counter] = old_Slave_Parameter.indicator;
 				coupling_Parameter.coupled.slaves[counter].exist = true;
+				coupling_Parameter.coupled.slaves[counter].expression = old_Slave_Parameter.coupled.master.expression;
+				slave_Line_Edit_Vec[counter]->setText(coupling_Parameter.coupled.slaves[counter].expression);
 
 				counter++;
 			}
@@ -325,6 +334,7 @@ void Coupling_Editor::save_External_Slaves()
 		}
 	}
 
+	int index=0;
 	// current slaves add me as master
 	for(QWidget* slave_Widget : slave_Widget_Vec)
 	{
@@ -333,11 +343,13 @@ void Coupling_Editor::save_External_Slaves()
 			Parameter slave_Parameter = slave_Widget->property(parameter_Property).value<Parameter>();
 			slave_Parameter.coupled.master = coupling_Parameter.indicator;
 			slave_Parameter.coupled.master.exist = true;
+			slave_Parameter.coupled.master.expression = coupling_Parameter.coupled.slaves[index].expression;
 
 			// save slave
 			refresh_Reload_Coupled(refresh_Property, slave_Parameter, slave_Widget);
 //			qInfo() << "slave " << slave_Parameter.indicator.full_Name << " added me as master";
 		}
+		index++;
 	}
 }
 
@@ -361,6 +373,29 @@ void Coupling_Editor::refresh_Reload_Coupled(QString refresh_Reload, Parameter& 
 
 	// refresh and reload directly from structure tree
 	Table_Of_Structures::refresh_Reload_Core(refresh_Reload, widget, parameter, coupled_Widgets_Item);
+}
+
+void Coupling_Editor::check_Expression()
+{
+	QLineEdit* line_Edit = qobject_cast<QLineEdit*>(sender());
+	QString expression = line_Edit->text();
+
+	if(!Global_Variables::expression_Is_Valid(expression))
+	{
+		QMessageBox::information(this, "Wrong expression", "Expression has wrong syntax");
+		line_Edit->setText(line_Edit->property(previous_Expression_Property).toString());
+	} else
+	{
+		if(line_Edit == master_Line_Edit)
+		{
+			coupling_Parameter.coupled.master.expression = expression;
+		} else
+		{
+			int index = slave_Line_Edit_Vec.indexOf(line_Edit);
+			coupling_Parameter.coupled.slaves[index].expression = expression;
+		}
+		line_Edit->setProperty(previous_Expression_Property, expression);
+	}
 }
 
 void Coupling_Editor::enable_Getting_Parameter(QWidget* old, QWidget* now, QLabel* label, QLineEdit* line_Edit)
@@ -394,8 +429,10 @@ void Coupling_Editor::get_Parameter(QLabel* label)
 		if(label == master_Label)
 		{
 			// slave's side (ME)
+			QString expression = coupling_Parameter.coupled.master.expression;
 			coupling_Parameter.coupled.master = parameter.indicator;
 			coupling_Parameter.coupled.master.exist = true;
+			coupling_Parameter.coupled.master.expression = expression;
 
 			// master's side
 			master_Widget = widget;					// remember widget. data will be saved at close.
@@ -419,8 +456,12 @@ void Coupling_Editor::get_Parameter(QLabel* label)
 				slave_Widget_Vec[index] = widget;		// remember widget. data will be saved at close.
 
 				// master's side (ME)
+
+				QString expression = coupling_Parameter.coupled.slaves[index].expression;
 				coupling_Parameter.coupled.slaves[index] = parameter.indicator;
 				coupling_Parameter.coupled.slaves[index].exist = true;
+				coupling_Parameter.coupled.slaves[index].expression = expression;
+
 				label->setText("<"+main_Tabs->tabText(parameter.indicator.tab_Index)+"> "+parameter.indicator.full_Name/* + " " + QString::number(parameter.indicator.id)*/);
 			}
 		}

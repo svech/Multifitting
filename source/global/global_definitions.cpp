@@ -45,11 +45,11 @@ QDataStream& operator >>( QDataStream& stream,		 Independent_Indicator& independ
 
 QDataStream& operator <<( QDataStream& stream, const Parameter_Indicator& parameter_Indicator )
 {
-	return stream << parameter_Indicator.id << parameter_Indicator.tab_Index << parameter_Indicator.full_Name << parameter_Indicator.whats_This << parameter_Indicator.exist;
+	return stream << parameter_Indicator.id << parameter_Indicator.tab_Index << parameter_Indicator.full_Name << parameter_Indicator.whats_This << parameter_Indicator.expression << parameter_Indicator.exist;
 }
 QDataStream& operator >>( QDataStream& stream,		 Parameter_Indicator& parameter_Indicator )
 {
-	return stream >> parameter_Indicator.id >> parameter_Indicator.tab_Index >> parameter_Indicator.full_Name >> parameter_Indicator.whats_This >> parameter_Indicator.exist;
+	return stream >> parameter_Indicator.id >> parameter_Indicator.tab_Index >> parameter_Indicator.full_Name >> parameter_Indicator.whats_This >> parameter_Indicator.expression >> parameter_Indicator.exist;
 }
 
 QDataStream& operator <<( QDataStream& stream, const Int_Independent& int_Independent )

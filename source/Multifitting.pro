@@ -13,7 +13,7 @@ TARGET = Multifitting
 TEMPLATE = app
 
 win32 {
-#    QMAKE_CXXFLAGS += -bigobj
+    QMAKE_CXXFLAGS += -bigobj
 
     INCLUDEPATH +=  "C:/Program Files (x86)/C++ libraries" \
               		"C:/Program Files (x86)/C++ libraries/GSL 2.1/include" \
