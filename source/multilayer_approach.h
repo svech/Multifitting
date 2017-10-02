@@ -19,7 +19,6 @@ public:
 
 signals:
 	void closed();
-//	void refresh_Table_Of_Structures(QObject*);
 
 public:
 	void open_Launcher();

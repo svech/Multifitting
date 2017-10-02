@@ -843,6 +843,9 @@ void Table_Of_Structures::create_Label(My_Table_Widget* table, int tab_Index, in
 
 		// save to widget and structure tree
 		refresh_Reload_Core(refresh_Property, label, parameter, coupled_Widget_Item);
+	} else
+	{
+		label->setStyleSheet("background-color: lightblue");
 	}
 
 	// for reloading
@@ -960,6 +963,9 @@ void Table_Of_Structures::create_Check_Box_Label(My_Table_Widget* table, int tab
 
 		// save to widget and structure tree
 		refresh_Reload_Core(refresh_Property, back_Widget, parameter, coupled_Widget_Item);
+	} else
+	{
+		back_Widget->setStyleSheet("background-color: lightblue");
 	}
 
 	table->setCellWidget(current_Row, current_Column, back_Widget);

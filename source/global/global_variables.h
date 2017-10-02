@@ -5,13 +5,7 @@
 #include "global/layer_data_types.h"
 #include "calculation/optical_constants.h"
 
-class Measurement;
-class Ambient;
-class Substrate;
-class Layer;
-class Stack_Content;
 class Optical_Constants;
-
 class Data;
 // -----------------------------------------------------------------------------------------
 

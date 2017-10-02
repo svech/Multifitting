@@ -126,7 +126,7 @@ using namespace std;
 // -----------------------------------------------------------------------------------------
 
 #define active "     Active"
-#define	stop_Calculation "stop_Calculation"
+//#define	stop_Calculation "stop_Calculation"
 #define fit_Text "fit"
 #define expression_Variable_Char "x"
 
@@ -237,8 +237,9 @@ using namespace std;
 // keys
 #define table_Key	"table_Of_Structures"
 
-// independent curves
+// curves types
 #define INDEPENDENT	"INDEPENDENT"
+#define TARGET		"TARGET"
 
 // -----------------------------------------------------------------------------------------
 

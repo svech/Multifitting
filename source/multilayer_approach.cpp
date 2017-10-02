@@ -406,19 +406,19 @@ void Multilayer_Approach::save()
 void Multilayer_Approach::calc_Reflection()
 {
 	// TODO
-	qInfo() << "\n\n------------------------------------------------------------\ncalc specular functions...\n-------------------------------------------------------\n";
-//	Main_Calculation_Module* main_Calculation_Module = new Main_Calculation_Module(multilayer_Tabs);
-//	connect(main_Calculation_Module, &Main_Calculation_Module::critical),    this, &Multilayer_Approach::catch_Critical);
-//	connect(main_Calculation_Module, &Main_Calculation_Module::warning),     this, &Multilayer_Approach::catch_Warning);
-//	connect(main_Calculation_Module, &Main_Calculation_Module::information), this, &Multilayer_Approach::catch_Information);
-//	main_Calculation_Module->run_All();
-//	delete main_Calculation_Module;
+	qInfo() << "\n\n--------------------------------------------------------\ncalc specular functions... \n-------------------------------------------------------\n";
+	Main_Calculation_Module* main_Calculation_Module = new Main_Calculation_Module(multilayer_Tabs);
+	connect(main_Calculation_Module, &Main_Calculation_Module::critical,    this, &Multilayer_Approach::catch_Critical);
+	connect(main_Calculation_Module, &Main_Calculation_Module::warning,     this, &Multilayer_Approach::catch_Warning);
+	connect(main_Calculation_Module, &Main_Calculation_Module::information, this, &Multilayer_Approach::catch_Information);
+	main_Calculation_Module->run_All();
+	delete main_Calculation_Module;
 }
 
 void Multilayer_Approach::reload_Optical_Constants()
 {
 	// TODO
-	qInfo() << "\n\n------------------------------------------------------------\nreload optical constants...\n-------------------------------------------------------\n";
+	qInfo() << "\n\n--------------------------------------------------------\nreload optical constants...\n-------------------------------------------------------\n";
 	optical_Constants->reload();
 }
 

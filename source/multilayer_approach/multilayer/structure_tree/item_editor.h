@@ -21,7 +21,7 @@ signals:
 public:
 	QTreeWidgetItem* item;
 	QList<Item_Editor*> list_Editors;
-	Data data;
+	Data struct_Data;
 
 
 	// state variables

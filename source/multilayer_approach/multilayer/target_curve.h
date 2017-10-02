@@ -12,16 +12,15 @@ public:
 
 	QLabel* description_Label;
 	QTreeWidget* real_Struct_Tree;
-//	QTreeWidget* struct_Tree_Copy;
+//	QTreeWidget* struct_Tree_Copy; // need for calculations
 
 	void import_Data(QString filename);
 	void fill_Measurement_With_Data();
-//	void create_Struct_Tree_Copy();
 //	void renew_Struct_Tree_Copy();
 	void set_Text_To_Label();
 
 	Curve curve;
-	Data data;
+	Data measurement;
 
 	QString filename;	// should be empty
 	QString filepath;	// should be empty

@@ -5,71 +5,48 @@
 #include "calculation_tree.h"
 #include <iostream>
 
-Calculation_Tree::Calculation_Tree(QVector<Independent_Variables*>& independent_Variables_Vector, QVector<Target_Curve*>& measured_Data_Vector, QVector<Target_Curve*>& target_Profiles_Vector): //-V730
-	independent(independent_Variables_Vector.size())
-{
-	int counter=0;
-	for(int i=0; i<measured_Data_Vector.size(); ++i)	if(measured_Data_Vector[i]->loaded_And_Ready) ++counter;
-	measured.resize(counter);
-
-	counter=0;
-	for(int i=0; i<target_Profiles_Vector.size(); ++i)	if(target_Profiles_Vector[i]->loaded_And_Ready) ++counter;
-	target.resize(counter);
-
-
-	// initialization of vectors
+Calculation_Tree::Calculation_Tree(QTabWidget* independent_Variables_Plot_Tabs, QVector<Target_Curve*>& target_Profiles_Vector, QTreeWidget* real_Struct_Tree):
+	independent(independent_Variables_Plot_Tabs->count()),
+	real_Struct_Tree(real_Struct_Tree)
+{	
+	// initialization of independent vector
 	for(int i=0; i<independent.size(); ++i)
 	{
-		independent[i].the_Class = independent_Variables_Vector[i];
-		independent[i].whats_This = INDEPENDENT;
+		independent[i].the_Class = qobject_cast<Independent_Variables*>(independent_Variables_Plot_Tabs->widget(i));
+		independent[i].curve_Class = INDEPENDENT;
 	}
-	for(int i=0; i<measured.size(); ++i)
-	{
-		measured[i].the_Class = measured_Data_Vector[i];
-		measured[i].the_Class->renew_Struct_Tree_Copy();
-		measured[i].whats_This = MEASURED;
-	}
-	for(int i=0; i<target.size(); ++i)
-	{
-		target[i].the_Class = target_Profiles_Vector[i];
-		target[i].the_Class->renew_Struct_Tree_Copy();
-		target[i].whats_This = OPTIMIZE;
-	}
-}
 
-Calculation_Tree::~Calculation_Tree()
-{
-    for(int i=0; i<independent.size(); ++i)
-    {
-        delete independent[i].local_Item_Tree;
-        delete independent[i].unwrapped_Reflection;
-        delete independent[i].unwrapped_Structure;
-    }
-    for(int i=0; i<measured.size(); ++i)
-    {
-        delete measured[i].local_Item_Tree;
-        delete measured[i].unwrapped_Reflection;
-        delete measured[i].unwrapped_Structure;
-    }
-    for(int i=0; i<target.size(); ++i)
-    {
-        delete target[i].local_Item_Tree;
-        delete target[i].unwrapped_Reflection;
-        delete target[i].unwrapped_Structure;
-    }
+	// find size of target profiles vector
+	{
+		int counter=0;
+		for(int i=0; i<target_Profiles_Vector.size(); ++i)
+			if(target_Profiles_Vector[i]->loaded_And_Ready) ++counter;
+		target.resize(counter);
+	}
+	// initialization of target vector
+	int counter=0;
+	for(int i=0; i<target_Profiles_Vector.size(); ++i)
+	{
+		if(target_Profiles_Vector[i]->loaded_And_Ready)
+		{
+			target[counter].the_Class = target_Profiles_Vector[i];
+			target[counter].curve_Class = TARGET;
+			target[counter].active_Item_Type = item_Type_Measurement;
+			++counter;
+		}
+	}
 }
 
 void Calculation_Tree::run_All()
 {
-	qInfo() << "\nCalculation_Tree::run_All : independent.size() = " << independent.size();
-	qInfo() << "Calculation_Tree::run_All : measured.size() = " << measured.size();
-	qInfo() << "Calculation_Tree::run_All : target.size() = " << target.size();
-	if(independent.size()+measured.size()+target.size()>0)
+	qInfo() << "";
+	qInfo() << "Calculation_Tree::run_All : independent.size() =" << independent.size();
+	qInfo() << "Calculation_Tree::run_All : target.size()      =" << target.size();
+	if(independent.size()+target.size()>0)
 	{
 		create_Rand_Generator();
-		create_All_Local_Item_Trees();
 		check_If_Graded();
-		max_Depth = Global_Variables::get_Tree_Depth(one_Local_Item_Tree->invisibleRootItem());	// unstratified depth
+		max_Depth = Global_Variables::get_Tree_Depth(real_Struct_Tree->invisibleRootItem());	// unstratified depth
 		fill_All_Calc_Trees();																	// here we have trees of "Node"
 		calculate_Intermediate_Values();
 	} else
@@ -80,58 +57,26 @@ void Calculation_Tree::run_All()
 
 void Calculation_Tree::create_Rand_Generator()
 {
-	const gsl_rng_type * T;
-	T = gsl_rng_default;
-	r = gsl_rng_alloc (T);
+	const gsl_rng_type* rng_Type;
+	rng_Type = gsl_rng_default;
+	r = gsl_rng_alloc (rng_Type);
 
 	auto now = std::chrono::system_clock::now();
 	gsl_rng_set(r,std::chrono::duration_cast<std::chrono::microseconds>(now.time_since_epoch()).count());
 }
 
-template <typename T>
-void Calculation_Tree::create_1_Kind_of_Local_Item_Tree(QVector<Data_Element<T>>& data_Element_Vec)
-{
-	// independent trees
-	for(int index=0; index<data_Element_Vec.size(); ++index)
-	{
-		QTreeWidget* local_Item_Tree = new QTreeWidget;
-		for(int i=0; i<data_Element_Vec[index].the_Class->struct_Tree_Copy->topLevelItemCount(); ++i)
-		{
-			local_Item_Tree->addTopLevelItem(data_Element_Vec[index].the_Class->struct_Tree_Copy->topLevelItem(i)->clone()); // this is local
-		}
-		data_Element_Vec[index].local_Item_Tree = local_Item_Tree;
-	}
-}
-template void Calculation_Tree::create_1_Kind_of_Local_Item_Tree<Independent_Variables>(QVector<Data_Element<Independent_Variables>>&);
-template void Calculation_Tree::create_1_Kind_of_Local_Item_Tree<Target_Curve>		   (QVector<Data_Element<Target_Curve>>&);
-
-void Calculation_Tree::create_All_Local_Item_Trees()
-{
-	create_1_Kind_of_Local_Item_Tree(independent);
-	create_1_Kind_of_Local_Item_Tree(measured);
-	create_1_Kind_of_Local_Item_Tree(target);
-
-	// choose one existing item tree for analysis
-	if(independent.size()>0) one_Local_Item_Tree = independent[0].local_Item_Tree;	else
-	if(measured.size()>0)	 one_Local_Item_Tree = measured[0].local_Item_Tree;	else
-	if(target.size()>0)		 one_Local_Item_Tree = target[0].local_Item_Tree;
-}
-
 void Calculation_Tree::check_If_Graded()
 {
 	QTreeWidgetItem* structure_Item;
-	QTreeWidgetItemIterator it(one_Local_Item_Tree);
+	QTreeWidgetItemIterator it(real_Struct_Tree);
 	while (*it)
 	{
 		structure_Item = *it;
 
-		QString whats_This = structure_Item->whatsThis(DEFAULT_COLUMN);
-		QStringList whats_This_List = whats_This.split(item_Type_Delimiter,QString::SkipEmptyParts);
+		Data layer = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
 
-		if(whats_This_List[0] == whats_This_Layer)
+		if(layer.item_Type == item_Type_Layer)
 		{
-			Layer layer = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Layer>();
-
 			if(layer.thickness_Drift.is_Drift_Line) depth_Grading = true;
 			if(layer.thickness_Drift.is_Drift_Sine) depth_Grading = true;
 			if(layer.thickness_Drift.is_Drift_Rand) depth_Grading = true;
@@ -144,74 +89,64 @@ void Calculation_Tree::check_If_Graded()
 	}
 }
 
-template <typename T>
-void Calculation_Tree::fill_1_Kind_of_Calc_Trees(QVector<Data_Element<T>>& data_Element_Vec)
+void Calculation_Tree::fill_Tree_From_Skratch(tree<Node> &calc_Tree)
 {
-	// for each plot
-	for(int index=0; index<data_Element_Vec.size(); ++index)
+	Node empty_Top_Node;
+	calc_Tree.insert(calc_Tree.begin(), empty_Top_Node);	// according to the tree.hh API
+
+	fill_Tree(calc_Tree.begin(), calc_Tree, real_Struct_Tree->invisibleRootItem());
+
+	// if no substrate then add it equal to ambient
+	Data last_Struct_Data = real_Struct_Tree->topLevelItem(real_Struct_Tree->topLevelItemCount()-1)->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+	if(last_Struct_Data.item_Type != item_Type_Substrate)
 	{
-		Node empty_Top_Node;
-		data_Element_Vec[index].calc_Tree.insert(data_Element_Vec[index].calc_Tree.begin(), empty_Top_Node);	// according to the tree.hh API
+		QTreeWidgetItem substrate_Item;
 
-		fill_Tree(data_Element_Vec[index].calc_Tree.begin(), data_Element_Vec[index].calc_Tree, data_Element_Vec[index].local_Item_Tree->invisibleRootItem());
+		// the first is the ambient in real tree
+		Data substrate = real_Struct_Tree->topLevelItem(0)->data(DEFAULT_COLUMN, Qt::UserRole).template value<Data>();
 
-		// if no set substrate then the second ambient
-		if(data_Element_Vec[index].local_Item_Tree->topLevelItem(data_Element_Vec[index].local_Item_Tree->topLevelItemCount()-1)->whatsThis(DEFAULT_COLUMN) != whats_This_Substrate)
-		{
-			QTreeWidgetItem substrate_Item;
-			substrate_Item.setWhatsThis(DEFAULT_COLUMN, whats_This_Substrate);
+		// change id
+		substrate.reset_All_IDs();
 
-            Ambient ambient = data_Element_Vec[index].local_Item_Tree->topLevelItem(1)->data(DEFAULT_COLUMN, Qt::UserRole).template value<Ambient>();
-			Substrate substrate;
+		// set data
+		QVariant var; var.setValue( substrate );
+		substrate_Item.setData(DEFAULT_COLUMN, Qt::UserRole, var);
 
-			// ambient inheritance
-			substrate.composed_Material				= ambient.composed_Material;
-			substrate.material						= ambient.material;
-			substrate.absolute_Density				= ambient.absolute_Density;
-			substrate.relative_Density				= ambient.relative_Density;
-			substrate.separate_Optical_Constants	= ambient.separate_Optical_Constants;
-			substrate.permittivity					= ambient.permittivity;
-			substrate.absorption					= ambient.absorption;
-			substrate.composition					= ambient.composition;
+		// create node
+		Node substrate_Node(&substrate_Item);
 
-			// substrate' fields
-			substrate.use_PSD = false;
-			substrate.sigma.value = 0;
-
-			// set data
-			QVariant var; var.setValue( substrate );
-			substrate_Item.setData(DEFAULT_COLUMN, Qt::UserRole, var);
-
-			// create node
-			Node substrate_Node(&substrate_Item);
-
-			// add node
-			data_Element_Vec[index].calc_Tree.append_child(data_Element_Vec[index].calc_Tree.begin(), substrate_Node);
-		}
+		// add node
+		calc_Tree.append_child(data_Element.calc_Tree.begin(), substrate_Node);
 	}
-}
-template void Calculation_Tree::fill_1_Kind_of_Calc_Trees<Independent_Variables>(QVector<Data_Element<Independent_Variables>>&);
-template void Calculation_Tree::fill_1_Kind_of_Calc_Trees<Target_Curve>			(QVector<Data_Element<Target_Curve>>&);
-
-void Calculation_Tree::fill_All_Calc_Trees()
-{
-	fill_1_Kind_of_Calc_Trees(independent);
-	fill_1_Kind_of_Calc_Trees(measured);
-	fill_1_Kind_of_Calc_Trees(target);
 }
 
 void Calculation_Tree::fill_Tree(const tree<Node>::iterator& parent, tree<Node>& calc_Tree, QTreeWidgetItem* item)
 {
 	for(int i=0; i<item->childCount(); ++i)
-    {
-        Node temp_Node(item->child(i));
+	{
+		Node temp_Node(item->child(i));
 		calc_Tree.append_child(parent, temp_Node);	// Multilayer items are also here
 
-        if(item->child(i)->childCount()>0)
-        {
+		if(item->child(i)->childCount()>0)
+		{
 			fill_Tree(calc_Tree.child(parent,i), calc_Tree, item->child(i));
-        }
-    }
+		}
+	}
+}
+
+void Calculation_Tree::fill_All_Calc_Trees()
+{
+	// for independent
+	for(Data_Element<Independent_Variables>& data_Element : independent)
+		fill_Tree_From_Skratch(data_Element.calc_Tree);
+
+	// for target
+	///--------------------------------------------------------------------
+	/// here is the entry point for fitting
+	fill_Tree_From_Skratch(real_Calc_Tree);
+	///--------------------------------------------------------------------
+	for(Data_Element<Target_Curve>& data_Element : target)
+		data_Element.calc_Tree = real_Calc_Tree;
 }
 
 void Calculation_Tree::statify_Calc_Tree_Iteration(const tree<Node>::iterator& parent, int depth, QVector<tree<Node>::iterator>& chosen_Nodes)
@@ -223,9 +158,7 @@ void Calculation_Tree::statify_Calc_Tree_Iteration(const tree<Node>::iterator& p
 
 		if(tree<Node>::depth(child) == depth)
 		{
-			QStringList whats_This_List = child.node->data.whats_This.split(item_Type_Delimiter,QString::SkipEmptyParts);
-
-			if(whats_This_List[0] == whats_This_Multilayer)
+			if(child.node->data.item_Type == item_Type_Multilayer)
 			{
 				chosen_Nodes.append(child);
 			}
@@ -250,14 +183,14 @@ void Calculation_Tree::statify_Calc_Tree(tree<Node>& calc_Tree)
 			tree<Node>::iterator chosen_Child = chosen_Nodes[vec_Index];
 
 			// if 0 periods
-			if(chosen_Child.node->data.stack_Content.num_Repetition.value == 0)
+			if(chosen_Child.node->data.struct_Data.num_Repetition.value == 0)
 			{
 				// delete
 				calc_Tree.erase(chosen_Child);
 			} else
 
 			// if 1 period
-			if(chosen_Child.node->data.stack_Content.num_Repetition.value == 1)
+			if(chosen_Child.node->data.struct_Data.num_Repetition.value == 1)
 			{
 				for(unsigned child_Index=0; child_Index<chosen_Child.number_of_children(); ++child_Index)
 				{
@@ -270,7 +203,7 @@ void Calculation_Tree::statify_Calc_Tree(tree<Node>& calc_Tree)
 			} else
 
 			// if 2 periods
-			if(chosen_Child.node->data.stack_Content.num_Repetition.value == 2)
+			if(chosen_Child.node->data.struct_Data.num_Repetition.value == 2)
 			{
 				tree<Node>::iterator next = chosen_Child;
 				for(unsigned child_Index=0; child_Index<chosen_Child.number_of_children(); ++child_Index)
@@ -285,7 +218,7 @@ void Calculation_Tree::statify_Calc_Tree(tree<Node>& calc_Tree)
 			} else
 
 			// if >=3 periods
-			if(chosen_Child.node->data.stack_Content.num_Repetition.value >= 3)
+			if(chosen_Child.node->data.struct_Data.num_Repetition.value >= 3)
 			{
 				tree<Node>::iterator next = chosen_Child;
 				for(unsigned child_Index=0; child_Index<chosen_Child.number_of_children(); ++child_Index)
@@ -294,96 +227,87 @@ void Calculation_Tree::statify_Calc_Tree(tree<Node>& calc_Tree)
 					next = calc_Tree.insert_subtree_after(next, tree<Node>::child(chosen_Child,child_Index));
 				}
 				// change data
-				chosen_Child.node->data.stack_Content.num_Repetition.value -= 2;
+				chosen_Child.node->data.struct_Data.num_Repetition.value -= 2;
 			}
 		}
 	}
 }
 
-template <typename T>
-void Calculation_Tree::calculate_Intermediate_Values_For_1_Kind(QVector<Data_Element<T>>& data_Element_Vec)
+template <typename Type>
+void Calculation_Tree::calculate_Intermediate_Values_For_1_Kind(QVector<Data_Element<Type>>& data_Element_Vec)
 {
 	// for each plot
-	for(int index=0; index<data_Element_Vec.size(); ++index)
+	for(Data_Element<Type>& data_Element : data_Element_Vec)
 	{
-		// for independent only
-		if(data_Element_Vec[index].whats_This == INDEPENDENT)
+		// preliminary "measurement" calculation for each tree
+		tree<Node>::iterator measurement_Iter = find_Node_By_Item_Id(data_Element.calc_Tree.begin(), item_Type_Measurement, data_Element.calc_Tree);
+		// ....................................................................
+		// emergency case
+		if (measurement_Iter.node->data.stop_Calculation) { qInfo() << "stop_Calculation"; return; }
+		// ....................................................................
+		// calculation of wavenumbers and cos squares
+		if(data_Element.curve_Class == INDEPENDENT)	measurement_Iter.node->data.measurement.calc_Independent_cos2_k(); else
+		if(data_Element.curve_Class == TARGET)		measurement_Iter.node->data.measurement.calc_Measured_cos2_k();
+		data_Element.measurement = measurement_Iter.node->data.measurement;
+
+		// find active node
+		if(data_Element.curve_Class == INDEPENDENT)
 		{
-			Independent_Variables* object = qobject_cast<Independent_Variables*>(data_Element_Vec[index].the_Class);
-			// find whatsThis of active item
+			Independent_Variables* object = qobject_cast<Independent_Variables*>(data_Element.the_Class);
+
+			// find whats_This of active item
 			for(int item_Index=0; item_Index<object->independent_Variables_List->count(); ++item_Index)
 			{
 				QListWidgetItem* list_Item = object->independent_Variables_List->item(item_Index);
+				Independent_Indicator item_Indicator = list_Item->data(Qt::UserRole).value<Independent_Indicator>();
 
 				// if active
-				if(list_Item->data(Qt::UserRole).toBool())
+				if(item_Indicator.is_Active)
 				{
-					QStringList whats_This_List = list_Item->whatsThis().split(whats_This_Delimiter,QString::SkipEmptyParts);
-					whats_This_List.removeFirst();
-					QString good_Whats_This = whats_This_List.join(whats_This_Delimiter);
-
-					data_Element_Vec[index].active_Whats_This = good_Whats_This;
+					data_Element.active_Item_Id				= item_Indicator.item_Id;
+					data_Element.active_Item_Type			= item_Indicator.item_Type;
+					data_Element.active_Parameter_Whats_This= item_Indicator.parameter_Whats_This;
 				}
 			}
 		} else
+		if(data_Element.curve_Class == TARGET)
 		{
-			data_Element_Vec[index].active_Whats_This = QString(whats_This_Measurement)+whats_This_Delimiter+qobject_cast<Target_Curve*>(data_Element_Vec[index].the_Class)->curve.argument_Type;
+			Target_Curve* target_Curve = qobject_cast<Target_Curve*>(data_Element.the_Class);
+
+			// only measurement can be active here
+			data_Element.active_Item_Id = target_Curve->measurement.id;
+			data_Element.active_Item_Type = item_Type_Measurement;
+			data_Element.active_Parameter_Whats_This = target_Curve->curve.argument_Type;
 		}
-
-		// preliminary "measurement" calculation for each tree
-		tree<Node>::iterator measurement_Iter = find_Node(data_Element_Vec[index].calc_Tree.begin(), whats_This_Measurement, data_Element_Vec[index].calc_Tree);
-
-		// ....................................................................
-		// emergency case
-		if (measurement_Iter.node->data.whats_This == stop_Calculation) return;
-		// ....................................................................
-
-		// calculation of wavenumbers and cos squares
-		if(data_Element_Vec[index].whats_This == INDEPENDENT)
-		{
-			measurement_Iter.node->data.measurement.calc_Independent_cos2_k();
-		} else
-		{
-			measurement_Iter.node->data.measurement.calc_Measured_cos2_k();
-		}
-		data_Element_Vec[index].measurement = measurement_Iter.node->data.measurement;
 
 		// find corresponding node for active variable
-		QStringList active_Whats_This_List = data_Element_Vec[index].active_Whats_This.split(whats_This_Delimiter,QString::SkipEmptyParts);
-		tree<Node>::iterator active_Iter = find_Node(data_Element_Vec[index].calc_Tree.begin(), active_Whats_This_List[0], data_Element_Vec[index].calc_Tree);
-
+		tree<Node>::iterator active_Iter = find_Node_By_Item_Id(data_Element.calc_Tree.begin(), data_Element.active_Item_Type, data_Element.calc_Tree);
 		// ....................................................................
 		// emergency case
-		if (active_Iter.node->data.whats_This == stop_Calculation) return;
+		if (measurement_Iter.node->data.stop_Calculation) { qInfo() << "stop_Calculation"; return; }
 		// ....................................................................
-
-
 		// if measurement is not active, create tree for each plot point
-		if(active_Iter.node->data.whats_This != whats_This_Measurement)
+		if(data_Element.active_Item_Type != item_Type_Measurement)
 		{
 			// TODO
-
 		} else
-		// 1 tree for 1 plot
+		if(data_Element.active_Item_Type == item_Type_Measurement)
 		{
-			QStringList active_Whats_This_List = data_Element_Vec[index].active_Whats_This.split(whats_This_Delimiter,QString::SkipEmptyParts);
-			qInfo() << active_Whats_This_List[1] << endl;
-
 			auto start = std::chrono::system_clock::now();
-			statify_Calc_Tree(data_Element_Vec[index].calc_Tree);
-			calculate_Intermediate_Values_1_Tree(data_Element_Vec[index].calc_Tree.begin(), active_Iter, data_Element_Vec[index].active_Whats_This, data_Element_Vec[index].calc_Tree);
+			statify_Calc_Tree(data_Element.calc_Tree);
+			calculate_Intermediate_Values_1_Tree(data_Element.calc_Tree, active_Iter, data_Element.active_Parameter_Whats_This);
 			auto end = std::chrono::system_clock::now();
 			auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
 			qInfo() << "Intermediate: "<< elapsed.count()/1000000. << " seconds" << endl;
 
 			start = std::chrono::system_clock::now();
-			calculate_Unwrapped_Structure(active_Iter, data_Element_Vec[index].active_Whats_This, data_Element_Vec[index].calc_Tree, data_Element_Vec[index].unwrapped_Structure);
+			calculate_Unwrapped_Structure(data_Element.calc_Tree, active_Iter, data_Element.active_Parameter_Whats_This, data_Element.unwrapped_Structure);
 			end = std::chrono::system_clock::now();
 			elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
 			qInfo() << "Unwrap: "<< elapsed.count()/1000000. << " seconds" << endl;
 
 			start = std::chrono::system_clock::now();
-			calculate_Unwrapped_Reflectivity(data_Element_Vec[index].active_Whats_This, data_Element_Vec[index].measurement, data_Element_Vec[index].unwrapped_Structure, data_Element_Vec[index].unwrapped_Reflection);
+			calculate_Unwrapped_Reflectivity(data_Element.active_Parameter_Whats_This, data_Element.measurement, data_Element.unwrapped_Structure, data_Element.unwrapped_Reflection);
 			end = std::chrono::system_clock::now();
 			elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
 			qInfo() << "Unwrap Reflect: "<< elapsed.count()/1000000. << " seconds" << endl;
@@ -399,12 +323,13 @@ template void Calculation_Tree::calculate_Intermediate_Values_For_1_Kind<Target_
 void Calculation_Tree::calculate_Intermediate_Values()
 {
 	calculate_Intermediate_Values_For_1_Kind(independent);
-	calculate_Intermediate_Values_For_1_Kind(measured);
 	calculate_Intermediate_Values_For_1_Kind(target);
 }
 
-void Calculation_Tree::calculate_Intermediate_Values_1_Tree(const tree<Node>::iterator& parent, const tree<Node>::iterator& active_Iter, QString active_Whats_This, tree<Node>& calc_Tree, Node* above_Node)
+void Calculation_Tree::calculate_Intermediate_Values_1_Tree(tree<Node>& calc_Tree, const tree<Node>::iterator& active_Iter, QString active_Parameter_Whats_This, Node* above_Node)
 {
+	const tree<Node>::iterator& parent = calc_Tree.begin();
+
 	// iterate over tree
 	for(unsigned i=0; i<parent.number_of_children(); ++i)
 	{
@@ -429,40 +354,39 @@ void Calculation_Tree::calculate_Intermediate_Values_1_Tree(const tree<Node>::it
 	}
 }
 
-tree<Node>::iterator Calculation_Tree::find_Node(const tree<Node>::iterator& parent, QString active_Whats_This, tree<Node>& calc_Tree)
+tree<Node>::iterator Calculation_Tree::find_Node_By_Item_Id(const tree<Node>::iterator& parent, int active_Item_Id, tree<Node>& calc_Tree)
 {
 	for(unsigned i=0; i<parent.number_of_children(); ++i)
 	{
 		tree<Node>::post_order_iterator child = calc_Tree.child(parent,i);
-		QStringList whats_This_List = child.node->data.whats_This_List;
 
-		if(child.node->data.whats_This == active_Whats_This)
+		if(child.node->data.struct_Data.id == active_Item_Id)
 		{
 			return calc_Tree.child(parent,i);
 		} else
-		if(whats_This_List[0] == whats_This_Multilayer)
+		if(child.node->data.struct_Data.item_Type == item_Type_Multilayer)
 		{
-			return find_Node(child, active_Whats_This, calc_Tree);
+			return find_Node_By_Item_Id(child, active_Item_Id, calc_Tree);
 		}
 	}
 	// error handling
 	{
-		emit critical("Calculation_Tree::find_Node\nerror: node \"" + active_Whats_This + "\"not found");
-		parent.node->data.whats_This = stop_Calculation;
+		emit critical("Calculation_Tree::find_Node\nerror: node \"" + QString::number(active_Item_Id) + "\"not found");
+		parent.node->data.stop_Calcuation = true;
 	}
 	return parent;
 }
 
-void Calculation_Tree::calculate_Unwrapped_Structure(const tree<Node>::iterator& active_Iter, QString active_Whats_This, tree<Node>& calc_Tree, Unwrapped_Structure*& unwrapped_Structure_Vec_Element)
+void Calculation_Tree::calculate_Unwrapped_Structure(tree<Node>& calc_Tree, const tree<Node>::iterator& active_Iter, QString active_Parameter_Whats_This, Unwrapped_Structure*& unwrapped_Structure_Vec_Element)
 {
 	num_Media = get_Total_Num_Layers(calc_Tree.begin(), calc_Tree);
-	Unwrapped_Structure*   new_Unwrapped_Structure  = new Unwrapped_Structure (&calc_Tree, active_Iter, active_Whats_This, num_Media, max_Depth, depth_Grading, sigma_Grading, r);
+	Unwrapped_Structure*   new_Unwrapped_Structure  = new Unwrapped_Structure (&calc_Tree, active_Iter, active_Parameter_Whats_This, num_Media, max_Depth, depth_Grading, sigma_Grading, r);
 	unwrapped_Structure_Vec_Element = new_Unwrapped_Structure;
 }
 
-void Calculation_Tree::calculate_Unwrapped_Reflectivity(QString active_Whats_This, Measurement& measurement, Unwrapped_Structure* unwrapped_Structure_Vec_Element, Unwrapped_Reflection*& unwrapped_Reflection_Vec_Element)
+void Calculation_Tree::calculate_Unwrapped_Reflectivity(QString active_Parameter_Whats_This, Measurement& measurement, Unwrapped_Structure* unwrapped_Structure_Vec_Element, Unwrapped_Reflection*& unwrapped_Reflection_Vec_Element)
 {
-	Unwrapped_Reflection*  new_Unwrapped_Reflection = new Unwrapped_Reflection(unwrapped_Structure_Vec_Element, num_Media, active_Whats_This, measurement, depth_Grading, sigma_Grading);
+	Unwrapped_Reflection*  new_Unwrapped_Reflection = new Unwrapped_Reflection(unwrapped_Structure_Vec_Element, num_Media, active_Parameter_Whats_This, measurement, depth_Grading, sigma_Grading);
 	unwrapped_Reflection_Vec_Element = new_Unwrapped_Reflection;
 
 	auto start = std::chrono::system_clock::now();
@@ -480,8 +404,8 @@ void Calculation_Tree::calculate_Unwrapped_Reflectivity(QString active_Whats_Thi
 	cout << "--------------------------------\n";
 }
 
-template <typename T>
-void Calculation_Tree::print_Reflect_To_File(Data_Element<T>& data_Element, int index)
+template <typename Type>
+void Calculation_Tree::print_Reflect_To_File(Data_Element<Type>& data_Element, int index)
 {
 	QString first_Name;
 	if(data_Element.whats_This == INDEPENDENT)	first_Name = "calc_independent";

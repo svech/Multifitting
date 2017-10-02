@@ -207,8 +207,7 @@ void Structure_Toolbar::remove()
 			QTreeWidgetItem* parent = current->parent();
 			delete current;
 
-			QTreeWidgetItem* survived_Child = new QTreeWidgetItem;
-			*survived_Child = *parent->child(0);
+			QTreeWidgetItem* survived_Child = parent->child(0)->clone();
 
 			// if multilayer is already nested
 			if(parent->parent())

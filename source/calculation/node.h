@@ -14,10 +14,8 @@ public:
 
 	int calculate_Intermediate_Points(const tree<Node>::iterator& active_Iter, Node* above_Node, QString active_Whats_This, QString& warning_Text, bool depth_Grading, bool sigma_Grading);
 
-	QString whats_This;
-	QStringList whats_This_List;
-
-	Data data;
+	Data struct_Data;
+	bool stop_Calcuation = false;
 
 	/// ------------------------------------------------
 
