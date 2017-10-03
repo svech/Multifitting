@@ -9,7 +9,7 @@ Unwrapped_Structure::Unwrapped_Structure() //-V730
 
 }
 
-Unwrapped_Structure::Unwrapped_Structure(tree<Node>* calc_Tree, const tree<Node>::iterator& active_Iter, QString active_Whats_This, int num_Media, int max_Depth, bool depth_Grading, bool sigma_Grading, gsl_rng* r):
+Unwrapped_Structure::Unwrapped_Structure(const tree<Node>& calc_Tree, const tree<Node>::iterator& active_Iter, QString active_Whats_This, int num_Media, int max_Depth, bool depth_Grading, bool sigma_Grading, gsl_rng* r):
 	calc_Tree		(calc_Tree),
 	num_Threads		(epsilon_Partial_Fill_Threads),
 	num_Media		(num_Media),

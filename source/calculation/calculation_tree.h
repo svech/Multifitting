@@ -31,6 +31,7 @@ struct Data_Element
 
 	// active
 	QString active_Item_Type;
+	QString active_Item_Id;
 	QString active_Parameter_Whats_This;
 };
 
@@ -50,24 +51,25 @@ public:
 	void create_Rand_Generator();
 	void check_If_Graded();
 
-	void fill_Tree_From_Skratch(tree<Node>& calc_Tree);
+	void fill_Tree_From_Scratch(tree<Node>& calc_Tree, QTreeWidget* item_Tree, QString class_Type);
 	void fill_Tree(const tree<Node>::iterator& parent, tree<Node>& calc_Tree, QTreeWidgetItem* item);
+	void fill_All_Calc_Trees();
 
 //	void statify_Item_Tree();
     void statify_Calc_Tree_Iteration(const tree<Node>::iterator& parent, int depth, QVector<tree<Node>::iterator>& chosen_Iters);
 	void statify_Calc_Tree(tree<Node>& calc_Tree);
 
 	template <typename Type>
-	void calculate_Intermediate_Values_For_1_Kind(QVector<Data_Element<Type>>& data_Element_Vec);
-	void calculate_Intermediate_Values();
+	void calculate_1_Kind(QVector<Data_Element<Type>>& data_Element_Vec);
+	void calculate();
 
-	void calculate_Intermediate_Values_1_Tree(tree<Node>& calc_Tree, const tree<Node>::iterator& active_Iter, QString active_Parameter_Whats_This, Node* above_Node = NULL);
+	void calculate_Intermediate_Values_1_Tree(tree<Node>& calc_Tree, const Data& measurement, QString active_Parameter_Whats_This, const tree<Node>::iterator& parent, Node* above_Node = NULL);
 	tree<Node>::iterator find_Node_By_Item_Id(const tree<Node>::iterator& parent, int active_Item_Id, tree<Node>& calc_Tree);
 
-	void calculate_Unwrapped_Structure(tree<Node>& calc_Tree, const tree<Node>::iterator& active_Iter, QString active_Parameter_Whats_This, Unwrapped_Structure*& unwrapped_Structure_Vec_Element);
+	void calculate_Unwrapped_Structure(tree<Node>& calc_Tree, const Data& measurement, QString active_Parameter_Whats_This, Unwrapped_Structure*& unwrapped_Structure_Vec_Element);
 	void calculate_Unwrapped_Reflectivity(QString active_Parameter_Whats_This, Data& measurement, Unwrapped_Structure* unwrapped_Structure_Vec_Element, Unwrapped_Reflection*& unwrapped_Reflection_Vec_Element);
 
-	int get_Total_Num_Layers(const tree<Node>::iterator& parent, tree<Node>& calc_Tree);
+	int get_Total_Num_Layers(const tree<Node>::iterator& parent, const tree<Node>& calc_Tree);
 
 	template <typename Type>
 	void print_Reflect_To_File(Data_Element<Type>& data_Element, int index);

@@ -7,7 +7,7 @@ class Unwrapped_Reflection
 {
 public:
 	Unwrapped_Reflection();
-	Unwrapped_Reflection(Unwrapped_Structure* unwrapped_Structure, int num_Media, QString active_Whats_This, const Data& data, bool depth_Grading, bool sigma_Grading);
+	Unwrapped_Reflection(Unwrapped_Structure* unwrapped_Structure, int num_Media, QString active_Whats_This, const Data& measurement, bool depth_Grading, bool sigma_Grading);
 
 	int num_Threads;
 	int num_Layers;
