@@ -315,7 +315,6 @@ void Independent_Variables_Editor::refresh_Show_Data(bool show)
 {
 	// PARAMETER
 
-	qInfo() << struct_Data.item_Type<< "refresh_Show_Data" << indicator.parameter_Whats_This << globalcounter++ << show;
 	int line_edit_precision = line_edit_density_precision;
 	int thumbnail_precision = thumbnail_density_precision;
 	double coeff = 1; // should be 1 by default!

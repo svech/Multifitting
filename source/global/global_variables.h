@@ -16,6 +16,8 @@ extern QMap<QString, double> sorted_Elements;
 
 // lists of types
 extern QStringList transition_Layer_Functions; extern int transition_Layer_Functions_Size;
+enum transitional_Function_Types_Enum    { Erf, Lin, Exp, Tanh, Sin, Step };
+
 //extern QStringList thickness_Drift_Functions;  extern size_t thickness_Drift_Functions_Size;
 //extern QStringList drift_Models;
 extern QStringList tril;

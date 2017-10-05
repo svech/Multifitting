@@ -24,7 +24,7 @@ struct Data_Element
 	QString curve_Class;			// INDEPENDENT or TARGET
 	Type* the_Class;
 
-	tree<Node> calc_Tree;
+	tree<Node> calc_Tree; // each tree creates somehow 2 nodes at creation
 
 	Unwrapped_Reflection* unwrapped_Reflection;
 	Unwrapped_Structure*  unwrapped_Structure;
@@ -40,7 +40,7 @@ class Calculation_Tree: public QObject
 	Q_OBJECT
 public:
 	Calculation_Tree(QTabWidget* independent_Variables_Plot_Tabs, QVector<Target_Curve*>& target_Profiles_Vector, QTreeWidget* real_Struct_Tree);
-	~Calculation_Tree();
+
 signals:
 	void critical   (QString critical_Text);
 	void warning    (QString warning_Text);
@@ -56,7 +56,7 @@ public:
 	void fill_All_Calc_Trees();
 
 //	void statify_Item_Tree();
-    void statify_Calc_Tree_Iteration(const tree<Node>::iterator& parent, int depth, QVector<tree<Node>::iterator>& chosen_Iters);
+	void statify_Calc_Tree_Iteration(const tree<Node>::iterator& parent, int depth, QVector<tree<Node>::iterator>& chosen_Iters);
 	void statify_Calc_Tree(tree<Node>& calc_Tree);
 
 	template <typename Type>
@@ -67,7 +67,7 @@ public:
 	tree<Node>::iterator find_Node_By_Item_Id(const tree<Node>::iterator& parent, int active_Item_Id, tree<Node>& calc_Tree);
 
 	void calculate_Unwrapped_Structure(tree<Node>& calc_Tree, const Data& measurement, QString active_Parameter_Whats_This, Unwrapped_Structure*& unwrapped_Structure_Vec_Element);
-	void calculate_Unwrapped_Reflectivity(QString active_Parameter_Whats_This, Data& measurement, Unwrapped_Structure* unwrapped_Structure_Vec_Element, Unwrapped_Reflection*& unwrapped_Reflection_Vec_Element);
+	void calculate_Unwrapped_Reflectivity(const Data& measurement, QString active_Parameter_Whats_This, Unwrapped_Structure* unwrapped_Structure_Vec_Element, Unwrapped_Reflection*& unwrapped_Reflection_Vec_Element);
 
 	int get_Total_Num_Layers(const tree<Node>::iterator& parent, const tree<Node>& calc_Tree);
 
@@ -81,7 +81,7 @@ public:
 	gsl_rng* r;
 
 	QTreeWidget* real_Struct_Tree;
-	tree<Node>   real_Calc_Tree; // common preliminary tree for TARGET calculations for
+	tree<Node>   real_Calc_Tree; // common preliminary tree for TARGET calculations for // each tree creates somehow 2 nodes at creation
 
 	bool depth_Grading = false;
 	bool sigma_Grading = false;

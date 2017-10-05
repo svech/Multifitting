@@ -831,6 +831,7 @@ void Item_Editor::depth_Grading()
 		depth_Grading->show();
 
 	connect(depth_Grading, &Grading_Editor::grading_Edited, this, &Item_Editor::emit_Item_Data_Edited);
+	connect(depth_Grading, &Grading_Editor::grading_Edited, this, &Item_Editor::reload_And_Show_All);
 }
 
 void Item_Editor::sigma_Grading()
@@ -842,6 +843,7 @@ void Item_Editor::sigma_Grading()
 		sigma_Grading->show();
 
 	connect(sigma_Grading, &Grading_Editor::grading_Edited, this, &Item_Editor::emit_Item_Data_Edited);
+	connect(sigma_Grading, &Grading_Editor::grading_Edited, this, &Item_Editor::reload_And_Show_All);
 }
 
 void Item_Editor::interlayer_Check()

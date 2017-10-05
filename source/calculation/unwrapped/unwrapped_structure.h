@@ -10,8 +10,7 @@
 class Unwrapped_Structure
 {
 public:
-	Unwrapped_Structure();
-	Unwrapped_Structure(const tree<Node>& calc_Tree, const tree<Node>::iterator& active_Iter, QString active_Whats_This, int num_Media, int max_Depth, bool depth_Grading, bool sigma_Grading, gsl_rng * r);
+	Unwrapped_Structure(const tree<Node>& calc_Tree, const Data& measurement, QString active_Parameter_Whats_This, int num_Media, int max_Depth, bool depth_Grading, bool sigma_Grading, gsl_rng* r);
 
 	gsl_rng * r;
 
@@ -24,7 +23,7 @@ public:
 	bool depth_Grading;
 	bool sigma_Grading;
 
-	tree<Node>& calc_Tree;
+	const tree<Node>& calc_Tree;
 
 	vector<complex<double>> epsilon;								//	[media]
 	vector<double> epsilon_RE;										//	[media]

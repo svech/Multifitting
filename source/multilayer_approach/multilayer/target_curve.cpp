@@ -7,7 +7,7 @@
 Target_Curve::Target_Curve(QLabel* description_Label, QTreeWidget* real_Struct_Tree, QWidget *parent) :
 	description_Label(description_Label),
 	real_Struct_Tree(real_Struct_Tree),
-	struct_Tree_Copy(new QTreeWidget(this)),
+//	struct_Tree_Copy(new QTreeWidget(this)),
 	measurement(item_Type_Measurement),
 	QWidget(parent)
 {
@@ -23,8 +23,8 @@ Target_Curve::Target_Curve(QLabel* description_Label, QTreeWidget* real_Struct_T
 
 //	measurement.calc_Measured_cos2_k(); // we do it in calc_Tree
 
-	struct_Tree_Copy->clear();
-	struct_Tree_Copy->hide();
+//	struct_Tree_Copy->clear();
+//	struct_Tree_Copy->hide();
 }
 
 Target_Curve::~Target_Curve()

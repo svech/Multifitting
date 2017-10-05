@@ -12,7 +12,7 @@ public:
 	Node();
 	Node(QTreeWidgetItem* item);
 
-	int calculate_Intermediate_Points(const tree<Node>::iterator& active_Iter, Node* above_Node, QString active_Whats_This, QString& warning_Text, bool depth_Grading, bool sigma_Grading);
+	int calculate_Intermediate_Points(const Data& measurement, Node* above_Node, QString active_Parameter_Whats_This, QString& warning_Text, bool depth_Grading, bool sigma_Grading);
 
 	Data struct_Data;
 	bool stop_Calcuation = false;
@@ -40,7 +40,7 @@ public:
 
 	/// ------------------------------------------------
 
-	Data common_Data;
+//	Data common_Data;
 	double sigma;
 	bool common_Sigma;	// not used yet
 	vector<Interlayer> boundary_Interlayer_Composition;

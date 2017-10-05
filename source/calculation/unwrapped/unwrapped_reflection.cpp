@@ -5,20 +5,15 @@
 #include "unwrapped_reflection.h"
 #include "iostream"
 
-Unwrapped_Reflection::Unwrapped_Reflection() //-V730
-{
-
-}
-
-Unwrapped_Reflection::Unwrapped_Reflection(Unwrapped_Structure* unwrapped_Structure, int num_Media, QString active_Whats_This, Data& measurement, bool depth_Grading, bool sigma_Grading):
+Unwrapped_Reflection::Unwrapped_Reflection(Unwrapped_Structure* unwrapped_Structure, int num_Media, QString active_Parameter_Whats_This, const Data& measurement, bool depth_Grading, bool sigma_Grading):
 	num_Threads		(reflectivity_Calc_Threads),
 	num_Layers		(num_Media-2),
 	num_Boundaries	(num_Media-1),
 	num_Media		(num_Media),
 	max_Depth		(unwrapped_Structure->max_Depth),
-	active_Whats_This(active_Whats_This),
+	active_Parameter_Whats_This(active_Parameter_Whats_This),
 	unwrapped_Structure(unwrapped_Structure),
-data(data),
+	measurement(measurement),
 	depth_Grading(depth_Grading),
 	sigma_Grading(sigma_Grading),
 
@@ -37,13 +32,11 @@ data(data),
 
 	weak_Factor  (num_Threads,vector<double>(num_Boundaries))
 {
-	QStringList active_Whats_This_List = active_Whats_This.split(whats_This_Delimiter,QString::SkipEmptyParts);
-
-	if(active_Whats_This_List[1] == whats_This_Angle)
+	if(active_Parameter_Whats_This == whats_This_Angle)
 	{
 		num_Points = measurement.cos2.size();
 	}
-	if(active_Whats_This_List[1] == whats_This_Wavelength)
+	if(active_Parameter_Whats_This == whats_This_Wavelength)
 	{
 		num_Points = measurement.lambda.size();
 	}
@@ -60,15 +53,14 @@ int Unwrapped_Reflection::fill_s__Max_Depth_2(const tree<Node>::iterator& parent
 	for(unsigned child_Index=0; child_Index<parent.number_of_children(); ++child_Index)
 	{
 		tree<Node>::post_order_iterator child = tree<Node>::child(parent,child_Index);
-		QStringList whats_This_List = child.node->data.whats_This_List;
 
-		if(whats_This_List[0] == whats_This_Ambient)
+		if(child.node->data.struct_Data.item_Type == item_Type_Ambient)
 		{
 			hi_RE[thread_Index][media_Index] = child.node->data.hi_RE[point_Index];
 			hi_IM[thread_Index][media_Index] = child.node->data.hi_IM[point_Index];
 			++media_Index;
 		} else
-		if(whats_This_List[0] == whats_This_Layer)
+		if(child.node->data.struct_Data.item_Type == item_Type_Layer)
 		{
 			hi_RE         [thread_Index][media_Index  ] = child.node->data.hi_RE[point_Index];
 			hi_IM         [thread_Index][media_Index  ] = child.node->data.hi_IM[point_Index];
@@ -78,7 +70,7 @@ int Unwrapped_Reflection::fill_s__Max_Depth_2(const tree<Node>::iterator& parent
 			exponenta_IM  [thread_Index][media_Index-1] = child.node->data.exponenta_IM[point_Index];
 			++media_Index;
 		} else
-		if(whats_This_List[0] == whats_This_Substrate )
+		if(child.node->data.struct_Data.item_Type == item_Type_Substrate )
 		{
 			hi_RE         [thread_Index][media_Index  ] = child.node->data.hi_RE[point_Index];
 			hi_IM         [thread_Index][media_Index  ] = child.node->data.hi_IM[point_Index];
@@ -86,9 +78,9 @@ int Unwrapped_Reflection::fill_s__Max_Depth_2(const tree<Node>::iterator& parent
 			r_Fresnel_s_IM[thread_Index][media_Index-1] = child.node->data.Fresnel_s_IM[point_Index] * child.node->data.weak_Factor[point_Index];
 			++media_Index;
 		} else
-		if(whats_This_List[0] == whats_This_Multilayer)
+		if(child.node->data.struct_Data.item_Type == item_Type_Multilayer)
 		{
-			for(int period_Index=0; period_Index<child.node->data.stack_Content.num_Repetition.value; ++period_Index)
+			for(int period_Index=0; period_Index<child.node->data.struct_Data.num_Repetition.value; ++period_Index)
 			{
 				for(unsigned grandchild_Index=0; grandchild_Index<child.number_of_children(); ++grandchild_Index)
 				{
@@ -111,15 +103,14 @@ int Unwrapped_Reflection::fill_p__Max_Depth_2(const tree<Node>::iterator& parent
 	for(unsigned child_Index=0; child_Index<parent.number_of_children(); ++child_Index)
 	{
 		tree<Node>::post_order_iterator child = tree<Node>::child(parent,child_Index);
-		QStringList whats_This_List = child.node->data.whats_This_List;
 
-		if(whats_This_List[0] == whats_This_Ambient)
+		if(child.node->data.struct_Data.item_Type == item_Type_Ambient)
 		{
 			hi_RE[thread_Index][media_Index] = child.node->data.hi_RE[point_Index];
 			hi_IM[thread_Index][media_Index] = child.node->data.hi_IM[point_Index];
 			++media_Index;
 		} else
-		if(whats_This_List[0] == whats_This_Layer)
+		if(child.node->data.struct_Data.item_Type == item_Type_Layer)
 		{
 			hi_RE         [thread_Index][media_Index  ] = child.node->data.hi_RE[point_Index];
 			hi_IM         [thread_Index][media_Index  ] = child.node->data.hi_IM[point_Index];
@@ -129,7 +120,7 @@ int Unwrapped_Reflection::fill_p__Max_Depth_2(const tree<Node>::iterator& parent
 			exponenta_IM  [thread_Index][media_Index-1] = child.node->data.exponenta_IM[point_Index];
 			++media_Index;
 		} else
-		if(whats_This_List[0] == whats_This_Substrate )
+		if(child.node->data.struct_Data.item_Type == item_Type_Substrate )
 		{
 			hi_RE         [thread_Index][media_Index  ] = child.node->data.hi_RE[point_Index];
 			hi_IM         [thread_Index][media_Index  ] = child.node->data.hi_IM[point_Index];
@@ -137,9 +128,9 @@ int Unwrapped_Reflection::fill_p__Max_Depth_2(const tree<Node>::iterator& parent
 			r_Fresnel_p_IM[thread_Index][media_Index-1] = child.node->data.Fresnel_p_IM[point_Index] * child.node->data.weak_Factor[point_Index];
 			++media_Index;
 		} else
-		if(whats_This_List[0] == whats_This_Multilayer)
+		if(child.node->data.struct_Data.item_Type == item_Type_Multilayer)
 		{
-			for(int period_Index=0; period_Index<child.node->data.stack_Content.num_Repetition.value; ++period_Index)
+			for(int period_Index=0; period_Index<child.node->data.struct_Data.num_Repetition.value; ++period_Index)
 			{
 				for(unsigned grandchild_Index=0; grandchild_Index<child.number_of_children(); ++grandchild_Index)
 				{
@@ -162,15 +153,14 @@ int Unwrapped_Reflection::fill_sp_Max_Depth_2(const tree<Node>::iterator& parent
 	for(unsigned child_Index=0; child_Index<parent.number_of_children(); ++child_Index)
 	{
 		tree<Node>::post_order_iterator child = tree<Node>::child(parent,child_Index);
-		QStringList whats_This_List = child.node->data.whats_This_List;
 
-		if(whats_This_List[0] == whats_This_Ambient)
+		if(child.node->data.struct_Data.item_Type == item_Type_Ambient)
 		{
 			hi_RE[thread_Index][media_Index] = child.node->data.hi_RE[point_Index];
 			hi_IM[thread_Index][media_Index] = child.node->data.hi_IM[point_Index];
 			++media_Index;
 		} else
-		if(whats_This_List[0] == whats_This_Layer)
+		if(child.node->data.struct_Data.item_Type == item_Type_Layer)
 		{
 			hi_RE         [thread_Index][media_Index  ] = child.node->data.hi_RE[point_Index];
 			hi_IM         [thread_Index][media_Index  ] = child.node->data.hi_IM[point_Index];
@@ -182,7 +172,7 @@ int Unwrapped_Reflection::fill_sp_Max_Depth_2(const tree<Node>::iterator& parent
 			exponenta_IM  [thread_Index][media_Index-1] = child.node->data.exponenta_IM[point_Index];
 			++media_Index;
 		} else
-		if(whats_This_List[0] == whats_This_Substrate )
+		if(child.node->data.struct_Data.item_Type == item_Type_Substrate )
 		{
 			hi_RE         [thread_Index][media_Index  ] = child.node->data.hi_RE[point_Index];
 			hi_IM         [thread_Index][media_Index  ] = child.node->data.hi_IM[point_Index];
@@ -192,9 +182,9 @@ int Unwrapped_Reflection::fill_sp_Max_Depth_2(const tree<Node>::iterator& parent
 			r_Fresnel_p_IM[thread_Index][media_Index-1] = child.node->data.Fresnel_p_IM[point_Index] * child.node->data.weak_Factor[point_Index];
 			++media_Index;
 		} else
-		if(whats_This_List[0] == whats_This_Multilayer)
+		if(child.node->data.struct_Data.item_Type == item_Type_Multilayer)
 		{
-			for(int period_Index=0; period_Index<child.node->data.stack_Content.num_Repetition.value; ++period_Index)
+			for(int period_Index=0; period_Index<child.node->data.struct_Data.num_Repetition.value; ++period_Index)
 			{
 				for(unsigned grandchild_Index=0; grandchild_Index<child.number_of_children(); ++grandchild_Index)
 				{
@@ -467,22 +457,23 @@ void Unwrapped_Reflection::multifly_Fresnel_And_Weak_Factor(double polarization,
 	}
 }
 
-void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(const Measurement& measurement, int thread_Index, int point_Index) //-V688
+void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(const Data& measurement, int thread_Index, int point_Index)
 {
 //	auto start = std::chrono::system_clock::now();
+	// PARAMETER
 
 	if( max_Depth <= 2 )
 	{
 		if( abs(measurement.polarization.value - 1) < DBL_EPSILON )			// s-polarization only
 		{
-			fill_s__Max_Depth_2(unwrapped_Structure->calc_Tree->begin(), thread_Index, point_Index);
+			fill_s__Max_Depth_2(unwrapped_Structure->calc_Tree.begin(), thread_Index, point_Index);
 		} else
 		if( abs(measurement.polarization.value + 1) < DBL_EPSILON )			// p-polarization only
 		{
-			fill_p__Max_Depth_2(unwrapped_Structure->calc_Tree->begin(), thread_Index, point_Index);
+			fill_p__Max_Depth_2(unwrapped_Structure->calc_Tree.begin(), thread_Index, point_Index);
 		} else																// both polarizations
 		{
-			fill_sp_Max_Depth_2(unwrapped_Structure->calc_Tree->begin(), thread_Index, point_Index);
+			fill_sp_Max_Depth_2(unwrapped_Structure->calc_Tree.begin(), thread_Index, point_Index);
 		}
 
 		// if we have some grading
@@ -497,9 +488,7 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(const Measurement& mea
 		}
 	} else
 	{
-		QStringList active_Whats_This_List = active_Whats_This.split(whats_This_Delimiter,QString::SkipEmptyParts);
-
-		if(active_Whats_This_List[1] == whats_This_Angle)
+		if(active_Parameter_Whats_This == whats_This_Angle)
 		{
 			calc_Hi(measurement.k_Value, measurement.cos2[point_Index], unwrapped_Structure->epsilon_RE, unwrapped_Structure->epsilon_IM, thread_Index);
 			calc_Weak_Factor(thread_Index);
@@ -509,7 +498,7 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(const Measurement& mea
 														 unwrapped_Structure->epsilon_NORM,
 																							thread_Index);
 		}
-		if(active_Whats_This_List[1] == whats_This_Wavelength)
+		if(active_Parameter_Whats_This == whats_This_Wavelength)
 		{
 			calc_Hi(measurement.k[point_Index], measurement.cos2_Value, unwrapped_Structure->epsilon_Dependent_RE[point_Index], unwrapped_Structure->epsilon_Dependent_IM[point_Index], thread_Index);
 			calc_Weak_Factor(thread_Index);
@@ -532,7 +521,7 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(const Measurement& mea
 //	qInfo() << "Local  : "<< elapseD.count()/1000. << " seconds";
 }
 
-void Unwrapped_Reflection::fill_Specular_Values(const Measurement& measurement, int thread_Index, int point_Index) //-V688
+void Unwrapped_Reflection::fill_Specular_Values(const Data& measurement, int thread_Index, int point_Index)
 {
 	double s_Weight = (1. + measurement.polarization.value) / 2.;
 	double p_Weight = (1. - measurement.polarization.value) / 2.;
@@ -546,7 +535,7 @@ void Unwrapped_Reflection::fill_Specular_Values(const Measurement& measurement, 
 	if(R[point_Index]!=R[point_Index]) {R[point_Index]=1;}
 }
 
-void Unwrapped_Reflection::calc_Specular_nMin_nMax_1_Thread(const Measurement& measurement, int n_Min, int n_Max, int thread_Index) //-V688
+void Unwrapped_Reflection::calc_Specular_nMin_nMax_1_Thread(const Data& measurement, int n_Min, int n_Max, int thread_Index)
 {
 	for(int point_Index = n_Min; point_Index<n_Max; ++point_Index)
 	{
