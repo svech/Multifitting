@@ -7,13 +7,13 @@
 
 Node::Node()
 {
-	qInfo() << "empty NODE";
+//	qInfo() << "empty NODE";
 }
 
 Node::Node(QTreeWidgetItem* item):
 	struct_Data(item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>())
 {
-	qInfo() << "NODE" << struct_Data.item_Type;
+//	qInfo() << "NODE" << struct_Data.item_Type;
 }
 
 int Node::calculate_Intermediate_Points(const Data& measurement, Node* above_Node, QString active_Parameter_Whats_This, QString& warning_Text, bool depth_Grading, bool sigma_Grading)
@@ -293,12 +293,12 @@ int Node::calculate_Intermediate_Points(const Data& measurement, Node* above_Nod
 
 				// if >=1 interlayer is turned on
 				bool is_Norm = false;
-				for(int func_Index=0; func_Index<transition_Layer_Functions_Size; ++func_Index)
+				for(const Interlayer& inter : struct_Data.interlayer_Composition)
 				{
-					is_Norm = is_Norm || boundary_Interlayer_Composition[func_Index].enabled;
+					is_Norm = is_Norm || inter.enabled;
 				}
 
-				if( is_Norm && (abs(sigma) > DBL_EPSILON) && (!sigma_Grading) )
+				if( is_Norm && (abs(struct_Data.sigma.value) > DBL_EPSILON) && (!sigma_Grading) )
 				{
 					// temp variables
 					double a = M_PI/sqrt(M_PI*M_PI - 8.);
@@ -316,79 +316,79 @@ int Node::calculate_Intermediate_Points(const Data& measurement, Node* above_Nod
 
 					//-------------------------------------------------------------------------------
 					// erf interlayer
-					if(boundary_Interlayer_Composition[Erf].enabled)
+					if(struct_Data.interlayer_Composition[Erf].enabled)
 					{
-						norm += boundary_Interlayer_Composition[Erf].interlayer.value;
-						my_Sigma = boundary_Interlayer_Composition[Erf].my_Sigma.value;
+						norm += struct_Data.interlayer_Composition[Erf].interlayer.value;
+						my_Sigma = struct_Data.interlayer_Composition[Erf].my_Sigma.value;
 						for(int i=0; i<num_Points; ++i)
 						{
 							factor = exp( - 2 * s[i] * s[i] * my_Sigma * my_Sigma );
-							weak_Factor[i] += boundary_Interlayer_Composition[Erf].interlayer.value * factor;
+							weak_Factor[i] += struct_Data.interlayer_Composition[Erf].interlayer.value * factor;
 						}
 					}
 					//-------------------------------------------------------------------------------
 					// lin interlayer
-					if(boundary_Interlayer_Composition[Lin].enabled)
+					if(struct_Data.interlayer_Composition[Lin].enabled)
 					{
-						norm += boundary_Interlayer_Composition[Lin].interlayer.value;
-						my_Sigma = boundary_Interlayer_Composition[Lin].my_Sigma.value;
+						norm += struct_Data.interlayer_Composition[Lin].interlayer.value;
+						my_Sigma = struct_Data.interlayer_Composition[Lin].my_Sigma.value;
 						for(int i=0; i<num_Points; ++i)
 						{
 							x = sqrt(3.) * 2 * s[i] * my_Sigma;
 							factor = sin(x) / (x);
-							weak_Factor[i] += boundary_Interlayer_Composition[Lin].interlayer.value * factor;
+							weak_Factor[i] += struct_Data.interlayer_Composition[Lin].interlayer.value * factor;
 						}
 					}
 					//-------------------------------------------------------------------------------
 					// exp interlayer
-					if(boundary_Interlayer_Composition[Exp].enabled)
+					if(struct_Data.interlayer_Composition[Exp].enabled)
 					{
-						norm += boundary_Interlayer_Composition[Exp].interlayer.value;
-						my_Sigma = boundary_Interlayer_Composition[Exp].my_Sigma.value;
+						norm += struct_Data.interlayer_Composition[Exp].interlayer.value;
+						my_Sigma = struct_Data.interlayer_Composition[Exp].my_Sigma.value;
 						for(int i=0; i<num_Points; ++i)
 						{
 							x = 2 * pow(s[i] * my_Sigma, 2);
 							factor = 1. / (1. + x);
-							weak_Factor[i] += boundary_Interlayer_Composition[Exp].interlayer.value * factor;
+							weak_Factor[i] += struct_Data.interlayer_Composition[Exp].interlayer.value * factor;
 						}
 					}
 					//-------------------------------------------------------------------------------
 					// tanh interlayer
-					if(boundary_Interlayer_Composition[Tanh].enabled)
+					if(struct_Data.interlayer_Composition[Tanh].enabled)
 					{
-						norm += boundary_Interlayer_Composition[Tanh].interlayer.value;
-						my_Sigma = boundary_Interlayer_Composition[Tanh].my_Sigma.value;
+						norm += struct_Data.interlayer_Composition[Tanh].interlayer.value;
+						my_Sigma = struct_Data.interlayer_Composition[Tanh].my_Sigma.value;
 						for(int i=0; i<num_Points; ++i)
 						{
 							x = 2 * sqrt(3.) * s[i] * my_Sigma;
 							factor = x / sinh(x);
-							weak_Factor[i] += boundary_Interlayer_Composition[Tanh].interlayer.value * factor;
+							weak_Factor[i] += struct_Data.interlayer_Composition[Tanh].interlayer.value * factor;
 						}
 					}
 					//-------------------------------------------------------------------------------
 					// sin interlayer
-					if(boundary_Interlayer_Composition[Sin].enabled)
+					if(struct_Data.interlayer_Composition[Sin].enabled)
 					{
-						norm += boundary_Interlayer_Composition[Sin].interlayer.value;
-						my_Sigma = boundary_Interlayer_Composition[Sin].my_Sigma.value;
+						norm += struct_Data.interlayer_Composition[Sin].interlayer.value;
+						my_Sigma = struct_Data.interlayer_Composition[Sin].my_Sigma.value;
 						for(int i=0; i<num_Points; ++i)
 						{
 							x = 2 * a * my_Sigma * s[i] - M_PI_2;
 							y = x + M_PI;
 							factor = M_PI_4 * (sin(x)/x + sin(y)/y);
-							weak_Factor[i] += boundary_Interlayer_Composition[Sin].interlayer.value * factor;
+							weak_Factor[i] += struct_Data.interlayer_Composition[Sin].interlayer.value * factor;
 						}
 					}
 					//-------------------------------------------------------------------------------
 					// step interlayer
-					if(boundary_Interlayer_Composition[Step].enabled)
+					if(struct_Data.interlayer_Composition[Step].enabled)
 					{
-						norm += boundary_Interlayer_Composition[Step].interlayer.value;
-						my_Sigma = boundary_Interlayer_Composition[Step].my_Sigma.value;
+						norm += struct_Data.interlayer_Composition[Step].interlayer.value;
+						my_Sigma = struct_Data.interlayer_Composition[Step].my_Sigma.value;
 						for(int i=0; i<num_Points; ++i)
 						{
 							factor = cos(2 * s[i] * my_Sigma);
-							weak_Factor[i] += boundary_Interlayer_Composition[Step].interlayer.value * factor;
+							weak_Factor[i] += struct_Data.interlayer_Composition[Step].interlayer.value * factor;
 						}
 					}
 					//-------------------------------------------------------------------------------
@@ -437,8 +437,8 @@ int Node::calculate_Intermediate_Points(const Data& measurement, Node* above_Nod
 				{
 					for(int i=0; i<num_Points; ++i)
 					{
-						re = -2.*hi_IM[i]*thickness;
-						im =  2.*hi_RE[i]*thickness;
+						re = -2.*hi_IM[i]*struct_Data.thickness.value;
+						im =  2.*hi_RE[i]*struct_Data.thickness.value;
 						ere = exp(re);
 
 						exponenta_RE[i] = ere*cos(im);

@@ -304,25 +304,25 @@ void Calculation_Tree::calculate_1_Kind(QVector<Data_Element<Type>>& data_Elemen
 		} else
 		if(data_Element.active_Item_Type == item_Type_Measurement)
 		{
-//			auto start = std::chrono::system_clock::now();
+			auto start = std::chrono::system_clock::now();
 			calculate_Intermediate_Values_1_Tree(data_Element.calc_Tree, data_Element.the_Class->measurement, data_Element.active_Parameter_Whats_This, data_Element.calc_Tree.begin());
-//			auto end = std::chrono::system_clock::now();
-//			auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-//			qInfo() << "Intermediate: "<< elapsed.count()/1000000. << " seconds" << endl;
+			auto end = std::chrono::system_clock::now();
+			auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+			qInfo() << "Intermediate: "<< elapsed.count()/1000000. << " seconds" << endl;
 
-////			start = std::chrono::system_clock::now();
-//			calculate_Unwrapped_Structure		(data_Element.calc_Tree, data_Element.the_Class->measurement, data_Element.active_Parameter_Whats_This, data_Element.unwrapped_Structure);
-////			end = std::chrono::system_clock::now();
-////			elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-////			qInfo() << "Unwrap: "<< elapsed.count()/1000000. << " seconds" << endl;
+			start = std::chrono::system_clock::now();
+			calculate_Unwrapped_Structure		(data_Element.calc_Tree, data_Element.the_Class->measurement, data_Element.active_Parameter_Whats_This, data_Element.unwrapped_Structure);
+			end = std::chrono::system_clock::now();
+			elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+			qInfo() << "Unwrap: "<< elapsed.count()/1000000. << " seconds" << endl;
 
-////			start = std::chrono::system_clock::now();
-//			calculate_Unwrapped_Reflectivity	(						 data_Element.the_Class->measurement, data_Element.active_Parameter_Whats_This, data_Element.unwrapped_Structure, data_Element.unwrapped_Reflection);
-////			end = std::chrono::system_clock::now();
-////			elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-////			qInfo() << "Unwrap Reflect: "<< elapsed.count()/1000000. << " seconds" << endl;
+			start = std::chrono::system_clock::now();
+			calculate_Unwrapped_Reflectivity	(						 data_Element.the_Class->measurement, data_Element.active_Parameter_Whats_This, data_Element.unwrapped_Structure, data_Element.unwrapped_Reflection);
+			end = std::chrono::system_clock::now();
+			elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+			qInfo() << "Unwrap Reflect: "<< elapsed.count()/1000000. << " seconds" << endl;
 
-//			print_Reflect_To_File(data_Element,plot_Counter);
+			print_Reflect_To_File(data_Element,plot_Counter);
 		}
 		plot_Counter++;
 	}

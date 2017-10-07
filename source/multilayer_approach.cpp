@@ -256,6 +256,9 @@ void Multilayer_Approach::open()
 				in >> tab_Text;
 				multilayer->independent_Variables_Plot_Tabs->setTabText(i, tab_Text);
 
+				// load main data
+				in >> independent;
+
 				// load real tree
 				independent->real_Struct_Tree = multilayer->structure_Tree->tree;
 
@@ -370,6 +373,9 @@ void Multilayer_Approach::save()
 
 				// save plot name
 				out << multilayer->independent_Variables_Plot_Tabs->tabText(i);
+
+				// save main data
+				out << independent;
 
 				// save plot tree
 				Global_Variables::serialize_Tree(out, independent->struct_Tree_Copy);

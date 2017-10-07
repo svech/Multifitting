@@ -47,4 +47,7 @@ public:
 				QToolBar* independent_Variables_Toolbar;
 };
 
+QDataStream& operator <<( QDataStream& stream, const Independent_Variables* independent_Variables );
+QDataStream& operator >>( QDataStream& stream,	     Independent_Variables* independent_Variables );
+
 #endif // INDEPENDENT_VARIABLES_H

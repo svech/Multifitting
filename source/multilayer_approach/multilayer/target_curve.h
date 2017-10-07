@@ -8,7 +8,6 @@ class Target_Curve : public QWidget
 	Q_OBJECT
 public:
 	explicit Target_Curve(QLabel* description_Label, QTreeWidget* real_Struct_Tree, QWidget *parent = 0);
-	~Target_Curve();
 
 	QLabel* description_Label;
 	QTreeWidget* real_Struct_Tree;

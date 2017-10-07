@@ -27,10 +27,6 @@ Target_Curve::Target_Curve(QLabel* description_Label, QTreeWidget* real_Struct_T
 //	struct_Tree_Copy->hide();
 }
 
-Target_Curve::~Target_Curve()
-{
-}
-
 void Target_Curve::import_Data(QString filename)
 {
 	QRegExp delims("\\ |\\,|\\:|\\t|\\;|\\{|\\}");

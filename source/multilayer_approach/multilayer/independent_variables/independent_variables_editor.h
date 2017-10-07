@@ -12,6 +12,7 @@ public:
 
 signals:
 	void refresh_Multilayer();
+	void refresh_Measurement();
 
 public:
 	void refresh_All();

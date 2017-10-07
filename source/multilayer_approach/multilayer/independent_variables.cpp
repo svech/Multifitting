@@ -26,7 +26,7 @@ void Independent_Variables::create_Struct_Tree_Copy()
 
 	// add "measurement" item to the top
 	measurement_Item = new QTreeWidgetItem;
-	QVariant var; var.setValue(measurement);	
+	QVariant var; var.setValue(measurement);
 	measurement_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
 	struct_Tree_Copy->insertTopLevelItem(0, measurement_Item);
 }
@@ -173,6 +173,7 @@ void Independent_Variables::edit_Independent_Variable(QListWidgetItem* list_Item
 		editor->show();
 
 	connect(editor, &Independent_Variables_Editor::refresh_Multilayer, this, [=]{emit refresh_Multilayer();});
+	connect(editor, &Independent_Variables_Editor::refresh_Measurement, this, [=]{measurement = structure_Item->data(DEFAULT_COLUMN,Qt::UserRole).value<Data>();});
 }
 
 void Independent_Variables::remove_Current_Independent_Variable()
@@ -492,4 +493,14 @@ void Independent_Variables::refresh_Text()
 		Independent_Variables_Editor* editor = new Independent_Variables_Editor(struct_Tree_Copy_item, temp_List_Item, independent_Variables_List);
 			editor->close();
 	}
+}
+
+// serialization
+QDataStream& operator <<( QDataStream& stream, const Independent_Variables* independent_Variables )
+{
+	return stream	<< independent_Variables->measurement;
+}
+QDataStream& operator >>(QDataStream& stream,		 Independent_Variables* independent_Variables )
+{
+	return stream	>> independent_Variables->measurement;
 }

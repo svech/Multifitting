@@ -749,6 +749,9 @@ void Independent_Variables_Editor::refresh_Show_Data(bool show)
 	}
 
 	show_Active_Check_Box();
+
+	// refresh internal measurement of Independent_Variables
+	if(struct_Data.item_Type == item_Type_Measurement) emit refresh_Measurement();
 }
 
 void Independent_Variables_Editor::activate_Variable()
