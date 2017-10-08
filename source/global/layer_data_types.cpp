@@ -24,7 +24,7 @@ Data::Data(QString item_Type_Passed)
 //		qInfo() << "Created:" << item_Type << id;
 	} else
 	{
-		qInfo() << "Data::Data : empty call" << id;
+//		qInfo() << "Data::Data : empty call" << id;
 	}
 
 	// Measurement

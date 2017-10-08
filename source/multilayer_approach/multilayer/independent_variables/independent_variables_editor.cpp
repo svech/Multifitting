@@ -140,6 +140,14 @@ void Independent_Variables_Editor::create_Standard_Interface()
 		active_Check_Box = new QCheckBox("Active");
 		layout->addWidget(active_Check_Box);
 
+		// temporary
+		if(struct_Data.item_Type != item_Type_Measurement)
+		{
+			active_Check_Box->hide();
+//			num_Points->setReadOnly(true);
+			num_Points->setDisabled(true);
+		}
+
 
 		connect(num_Points, SIGNAL(textEdited(QString)), this, SLOT(resize_Line_Edit(QString)));
 		connect(val_Edit,	SIGNAL(textEdited(QString)), this, SLOT(resize_Line_Edit(QString)));

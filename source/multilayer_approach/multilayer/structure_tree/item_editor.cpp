@@ -69,6 +69,7 @@ void Item_Editor::create_Main_Layout()
 	connect(done_Button, &QPushButton::clicked, this, &Item_Editor::close);
 
 	main_Layout->setContentsMargins(4,0,4,0);
+
 }
 
 void Item_Editor::create_Menu()
@@ -522,7 +523,7 @@ void Item_Editor::more_Elements_Clicked()
 void Item_Editor::read_Elements_From_Item()
 {
 	// clear all previous widgets
-	for(int i=0; i<element_Frame_Vec.size(); ++i)
+	for(int i=element_Frame_Vec.size(); i>=0; --i)
 		delete element_Frame_Vec[i];
 
 	// reading data
@@ -931,21 +932,22 @@ void Item_Editor::refresh_Data()
 	if(material_Done)
 	if(struct_Data.item_Type == item_Type_Ambient || struct_Data.item_Type == item_Type_Layer || struct_Data.item_Type == item_Type_Substrate)
 	{
-		if(struct_Data.composed_Material)
-		{
-			struct_Data.absolute_Density.value = density_Line_Edit->text().toDouble();
-		} else
+		if(!struct_Data.composed_Material)
 		{
 			struct_Data.relative_Density.value = density_Line_Edit->text().toDouble();
-		}
-		for(int i=0; i<struct_Data.composition.size(); ++i)
+		} else
 		{
-			struct_Data.composition[i].composition.value = composition_Line_Edit_Vec[i]->text().toDouble();
-			struct_Data.composition[i].composition.fit.min = struct_Data.composition[i].composition.value*(1-dispersion);
-			struct_Data.composition[i].composition.fit.max = struct_Data.composition[i].composition.value*(1+dispersion);
+			struct_Data.absolute_Density.value = density_Line_Edit->text().toDouble();
 
-			struct_Data.composition[i].type = composition_Combo_Box_Vec[i]->currentText();
-			composition_At_Weight_Vec[i]->setText(AtWt + QString::number(sorted_Elements.value(composition_Combo_Box_Vec[i]->currentText()),thumbnail_double_format,at_weight_precision) + ")");
+			for(int i=0; i<struct_Data.composition.size(); ++i)
+			{
+				struct_Data.composition[i].composition.value = composition_Line_Edit_Vec[i]->text().toDouble();
+				struct_Data.composition[i].composition.fit.min = struct_Data.composition[i].composition.value*(1-dispersion);
+				struct_Data.composition[i].composition.fit.max = struct_Data.composition[i].composition.value*(1+dispersion);
+
+				struct_Data.composition[i].type = composition_Combo_Box_Vec[i]->currentText();
+				composition_At_Weight_Vec[i]->setText(AtWt + QString::number(sorted_Elements.value(composition_Combo_Box_Vec[i]->currentText()),thumbnail_double_format,at_weight_precision) + ")");
+			}
 		}
 	}
 

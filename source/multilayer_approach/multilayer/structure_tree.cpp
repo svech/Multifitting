@@ -46,22 +46,22 @@ void Structure_Tree::refresh__StructureTree__Data_and_Text()
 	//	refresh__StructureTree__Data_and_Text();
 	//	QMetaObject::invokeMethod(this, "refreshStructureTreeDataAndText", Qt::QueuedConnection);
 
-	qInfo() << "refresh__StructureTree__Data_and_Text";
+//	qInfo() << "refresh__StructureTree__Data_and_Text";
 	iterate_Over_Layers();
 	iterate_Over_Multilayers();
 
 
-	// temporary. delete it
-	qInfo() << "";
-	QTreeWidgetItem* structure_Item = NULL;
-	QTreeWidgetItemIterator it(tree);
-	while (*it)
-	{
-		structure_Item = *it;
-		Data data = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
-		qInfo() << "       :" << data.item_Type << data.id;
-		++it;
-	}	qInfo() << "";
+	/// temporary. delete it
+//	qInfo() << "";
+//	QTreeWidgetItem* structure_Item = NULL;
+//	QTreeWidgetItemIterator it(tree);
+//	while (*it)
+//	{
+//		structure_Item = *it;
+//		Data data = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+//		qInfo() << "       :" << data.item_Type << data.id;
+//		++it;
+//	}	qInfo() << "";
 }
 
 void Structure_Tree::iterate_Over_Layers(QTreeWidgetItem* item)
