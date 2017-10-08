@@ -323,8 +323,8 @@ struct Element_Data				{QString element;					  QVector<Point> element_Data;  voi
 
 // measured/target data types
 struct Value					{double val_1; double val_2; /*double sigma_1; double sigma_2;*/};
-struct Curve					{QVector<double> argument;
-								 QVector<Value> values;
+struct Curve					{QVector<double> argument; QVector<double> shifted_Argument;
+								 QVector<Value> values;	   QVector<Value> shifted_Values;
 								 double arg_Offset = 0; double arg_Factor = 1;
 								 double val_Offset = 0; double val_Factor = 1;
 								 QString argument_Type;

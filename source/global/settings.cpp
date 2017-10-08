@@ -505,7 +505,7 @@ void Settings::read_Units(bool reset_to_default)
 		angle_units				= units.value( "angle_units",		angle_Units_List	 .first() ).toString();
 		density_units			= units.value( "density_units",		density_Units_List   .first() ).toString();
 		opt_const_units			= units.value( "opt_const_units",	opt_Const_Units_List .first() ).toString();
-		drift_units				= units.value( "drift_units",		drift_Units_List .first() ).toString();
+		drift_units				= units.value( "drift_units",		drift_Units_List     .first() ).toString();
 	units.endGroup();
 }
 

@@ -11,11 +11,9 @@ public:
 
 	QLabel* description_Label;
 	QTreeWidget* real_Struct_Tree;
-//	QTreeWidget* struct_Tree_Copy; // need for calculations
 
 	void import_Data(QString filename);
 	void fill_Measurement_With_Data();
-//	void renew_Struct_Tree_Copy();
 	void set_Text_To_Label();
 
 	Curve curve;
@@ -29,6 +27,7 @@ public:
 	QStringList lines_List;
 	QString arg_Units;
 	QString at_Fixed;
+	QString ang_Type_For_Label_At_Fixed;
 	QString arg_Type_For_Label;
 
 	QString label_Text = "<no description>";

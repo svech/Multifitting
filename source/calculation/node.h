@@ -39,15 +39,6 @@ public:
 	vector<double> weak_Factor;
 
 	/// ------------------------------------------------
-
-//	Data common_Data;
-//	double sigma;
-//	bool common_Sigma;	// not used yet
-//	vector<Interlayer> boundary_Interlayer_Composition;
-//	double thickness;
-
-//	Drift thickness_Drift;
-//	Drift sigma_Drift;
 };
 
 #endif // NODE_H

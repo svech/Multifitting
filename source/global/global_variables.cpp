@@ -105,8 +105,6 @@ QMap<QString, double> sorted_Elements;
 
 // lists of types
 QStringList transition_Layer_Functions	{"erf","lin","exp","tanh","sin","step"}; int transition_Layer_Functions_Size = int(transition_Layer_Functions.size());
-//QStringList thickness_Drift_Functions	{"no grading","linear","parabolic","sinusoidal"}; size_t thickness_Drift_Functions_Size = thickness_Drift_Functions.size();
-//QStringList drift_Models				{"no_drift","lin_sin","par_sin","hyp_sin","exp_sin","log_sin"};
 QStringList tril						{TRIL_TRUE, TRIL_FALSE, TRIL_NOT_DEFINED};
 
 // measured curves
@@ -120,19 +118,19 @@ QStringList value_A_Mode				{"A"};													// change enum!
 
 // units
 
-// length
-QStringList   wavelength_Units_List				{Angstrom_Sym,"nm",Mu_Sym + "m","eV","keV"};
-QList<double> wavelength_Coefficients_List		{1.           ,1E1 ,1E4         ,1.   ,1E3  };
+// wavelength
+QStringList   wavelength_Units_List				{Angstrom_Sym,"nm",Mu_Sym + "m","eV","keV"};	// change enum!
+QList<double> wavelength_Coefficients_List		{1.           ,1E1,1E4         ,1.  ,1E3  };
 QMap<QString, double>  wavelength_Coefficients_Map;
 
 // length
-QStringList   length_Units_List					{Angstrom_Sym,"nm",Mu_Sym + "m"};
-QList<double> length_Coefficients_List			{1.           ,1E1 ,1E4         };
+QStringList   length_Units_List					{Angstrom_Sym,"nm",Mu_Sym + "m"};				// change enum!
+QList<double> length_Coefficients_List			{1.           ,1E1,1E4         };
 QMap<QString, double>  length_Coefficients_Map;
 
 // angle
-QStringList   angle_Units_List				{Degree_Sym,Prime_Sym   ,Double_Prime_Sym," rad"   ," mrad"   };
-QStringList   angle_Units_Legend_List		{"degree"  ,"arc minute","arc second"    ,"radian","mrad"   };
+QStringList   angle_Units_List				{Degree_Sym,Prime_Sym   ,Double_Prime_Sym," rad"   ," mrad"  }; // change enum!
+QStringList   angle_Units_Legend_List		{"degree"  ,"arc minute","arc second"    ,"radian" ,"mrad"   };
 QList<double> angle_Coefficients_List		{1.		   ,1./60       ,1./3600         ,180./M_PI,0.18/M_PI};
 QMap<QString, double>  angle_Coefficients_Map;
 QMap<QString, QString> angle_Units_Legend_Map;

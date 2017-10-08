@@ -32,11 +32,7 @@ void Target_Curve_Editor::read_Data_File(QString filepath)
 	if(is_File_Exists)
 	{
 		target_Curve->import_Data(filepath);
-
-		if(target_Curve->loaded_And_Ready)
-		{
-			target_Curve->fill_Measurement_With_Data();
-		}
+		target_Curve->fill_Measurement_With_Data();
 	} else
 	{
 		target_Curve->loaded_And_Ready = false;
@@ -49,9 +45,13 @@ void Target_Curve_Editor::show_Description_Label()
 {
 	if(target_Curve->loaded_And_Ready)
 	{
+		if(target_Curve->curve.angle_Type == angle_Type_Grazing)   target_Curve->ang_Type_For_Label_At_Fixed="(gr)";
+		if(target_Curve->curve.angle_Type == angle_Type_Incidence) target_Curve->ang_Type_For_Label_At_Fixed="(in)";
+
 		if(target_Curve->curve.argument_Type == whats_This_Angle)
 		{
-			target_Curve->arg_Type_For_Label = "Angular";
+			target_Curve->arg_Type_For_Label = "Angular "+target_Curve->ang_Type_For_Label_At_Fixed;
+
 			target_Curve->arg_Units = target_Curve->curve.angular_Units;
 
 			double coeff = wavelength_Coefficients_Map.value(target_Curve->curve.spectral_Units);
@@ -64,12 +64,13 @@ void Target_Curve_Editor::show_Description_Label()
 
 			double coeff = angle_Coefficients_Map.value(target_Curve->curve.angular_Units);
 			target_Curve->at_Fixed = QString::number(target_Curve->measurement.probe_Angle.value/coeff, thumbnail_double_format, thumbnail_angle_precision)+" "+target_Curve->curve.angular_Units;
+			target_Curve->at_Fixed = target_Curve->ang_Type_For_Label_At_Fixed + " " + target_Curve->at_Fixed;
 		}
 
 		target_Curve->label_Text =
 					target_Curve->arg_Type_For_Label + "; " +
 					target_Curve->curve.value_Mode + "; " +
-					QString::number(target_Curve->curve.argument.first()) + "-" + QString::number(target_Curve->curve.argument.last()) + " " + target_Curve->arg_Units + "; " +
+					QString::number(target_Curve->curve.shifted_Argument.first()) + "-" + QString::number(target_Curve->curve.shifted_Argument.last()) + " " + target_Curve->arg_Units + "; " +
 					"at " + target_Curve->at_Fixed;
 	} else
 	{
@@ -109,9 +110,9 @@ void Target_Curve_Editor::fill_Arg_Units_ComboBox(QString arg_Type)
 
 		angular_Units_Label->setText(arg_Units_ComboBox->currentText());
 
-		if(	target_Curve->curve.spectral_Units == wavelength_Units_List[0] ||
-			target_Curve->curve.spectral_Units == wavelength_Units_List[1] ||
-			target_Curve->curve.spectral_Units == wavelength_Units_List[2] )
+		if(	target_Curve->curve.spectral_Units == wavelength_Units_List[angstrom] ||
+			target_Curve->curve.spectral_Units == wavelength_Units_List[nm]		  ||
+			target_Curve->curve.spectral_Units == wavelength_Units_List[mcm]	   )
 		{
 			at_Fixed_Label->setText("At fixed wavelength:");
 		} else
@@ -429,6 +430,7 @@ void Target_Curve_Editor::create_Data_GroupBox()
 	// measurement
 	connect(at_Fixed_Units_ComboBox, &QComboBox::currentTextChanged, this, &Target_Curve_Editor::refresh_At_Fixed_Units);
 	connect(at_Fixed_Units_ComboBox, &QComboBox::currentTextChanged, this, &Target_Curve_Editor::show_Unit_Dependent_Data);
+
 	connect(at_Fixed_LineEdit, &QLineEdit::textEdited, this, &Target_Curve_Editor::refresh_At_Fixed_Value);
 
 	connect(polarization_LineEdit,				&QLineEdit::textEdited, this, &Target_Curve_Editor::refresh_Polarization);
@@ -736,12 +738,15 @@ void Target_Curve_Editor::refresh_Offsets()
 {
 	target_Curve->curve.arg_Offset = arg_Offset_SpinBox->value();
 	target_Curve->curve.val_Offset = val_Offset_SpinBox->value();
+	target_Curve->fill_Measurement_With_Data();
+	show_Description_Label();
 }
 
 void Target_Curve_Editor::refresh_Factors()
 {
 	target_Curve->curve.arg_Factor = arg_Factor_SpinBox->value();
 	target_Curve->curve.val_Factor = val_Factor_SpinBox->value();
+	target_Curve->fill_Measurement_With_Data();
 	show_Description_Label();
 }
 

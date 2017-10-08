@@ -17,9 +17,6 @@ extern QMap<QString, double> sorted_Elements;
 // lists of types
 extern QStringList transition_Layer_Functions; extern int transition_Layer_Functions_Size;
 enum transitional_Function_Types_Enum    { Erf, Lin, Exp, Tanh, Sin, Step };
-
-//extern QStringList thickness_Drift_Functions;  extern size_t thickness_Drift_Functions_Size;
-//extern QStringList drift_Models;
 extern QStringList tril;
 
 // measured curves
@@ -41,8 +38,12 @@ enum value_A_Mode_Enum		{ A };
 
 // units
 extern QStringList wavelength_Units_List;	extern QMap<QString, double> wavelength_Coefficients_Map;
+enum wavelength_Units_List_Enum		{ angstrom, nm, mcm, eV, keV };
+
 extern QStringList length_Units_List;		extern QMap<QString, double> length_Coefficients_Map;
 extern QStringList angle_Units_List;		extern QMap<QString, double> angle_Coefficients_Map;		extern QMap<QString, QString> angle_Units_Legend_Map;
+enum wangle_Units_List_Enum {degree, minute, second, radian, mrad};
+
 extern QStringList density_Units_List;
 extern QStringList opt_Const_Units_List;
 extern QStringList drift_Units_List;

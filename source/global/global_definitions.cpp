@@ -137,12 +137,12 @@ QDataStream& operator >>( QDataStream& stream,		 Value& value )
 
 QDataStream& operator <<( QDataStream& stream, const Curve& curve )
 {
-	return stream << curve.argument << curve.values << curve.arg_Offset << curve.arg_Factor << curve.val_Offset << curve.val_Factor
+	return stream << curve.argument << curve.shifted_Argument << curve.values << curve.shifted_Values << curve.arg_Offset << curve.arg_Factor << curve.val_Offset << curve.val_Factor
 				  << curve.argument_Type << curve.angle_Type << curve.angular_Units << curve.spectral_Units << curve.value_Function << curve.value_Mode;
 }
 QDataStream& operator >>( QDataStream& stream,		 Curve& curve )
 {
-	return stream >> curve.argument >> curve.values >> curve.arg_Offset >> curve.arg_Factor >> curve.val_Offset >> curve.val_Factor
+	return stream >> curve.argument >> curve.shifted_Argument >> curve.values >> curve.shifted_Values >> curve.arg_Offset >> curve.arg_Factor >> curve.val_Offset >> curve.val_Factor
 				  >> curve.argument_Type >> curve.angle_Type >> curve.angular_Units >> curve.spectral_Units >> curve.value_Function >> curve.value_Mode;
 }
 

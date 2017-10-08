@@ -7,24 +7,18 @@
 Target_Curve::Target_Curve(QLabel* description_Label, QTreeWidget* real_Struct_Tree, QWidget *parent) :
 	description_Label(description_Label),
 	real_Struct_Tree(real_Struct_Tree),
-//	struct_Tree_Copy(new QTreeWidget(this)),
 	measurement(item_Type_Measurement),
 	QWidget(parent)
 {
 	curve.argument_Type = whats_This_Angle;		// angular curve
 	curve.angle_Type = angle_Type_Grazing/*default_angle_type*/	;
-	curve.angular_Units = angle_Units_List[0]/*angle_units*/	;
-	curve.spectral_Units = wavelength_Units_List[0]/*wavelength_units*/;
+	curve.angular_Units = angle_Units_List[degree]/*angle_units*/	;
+	curve.spectral_Units = wavelength_Units_List[angstrom]/*wavelength_units*/;
 	curve.value_Function = value_Function[Reflectance];
 	curve.value_Mode = value_R_Mode[R];			// R
 
-	curve.arg_Offset = -0.01; curve.arg_Factor = 0.52;
-	curve.val_Offset = 0.2;   curve.val_Factor = 1.034;
-
-//	measurement.calc_Measured_cos2_k(); // we do it in calc_Tree
-
-//	struct_Tree_Copy->clear();
-//	struct_Tree_Copy->hide();
+//	curve.arg_Offset = 0; curve.arg_Factor = 1;
+//	curve.val_Offset = 0; curve.val_Factor = 1;
 }
 
 void Target_Curve::import_Data(QString filename)
@@ -111,32 +105,24 @@ void Target_Curve::import_Data(QString filename)
 
 void Target_Curve::fill_Measurement_With_Data()
 {
-	if(curve.argument_Type == whats_This_Angle)			// angular
+	if(loaded_And_Ready)
 	{
-		measurement.angle = curve.argument;
-	} else
-	if(curve.argument_Type == whats_This_Wavelength)	// spectral
-	{
-		measurement.lambda = curve.argument;
+		// argument shift
+		curve.shifted_Argument = curve.argument;
+		for(int i=0; i<curve.argument.size(); ++i)
+			curve.shifted_Argument[i] = curve.argument[i]*curve.arg_Factor+curve.arg_Offset;
+
+		// measurement filling
+		if(curve.argument_Type == whats_This_Angle)			// angular
+		{
+			measurement.angle = curve.shifted_Argument;
+		} else
+		if(curve.argument_Type == whats_This_Wavelength)	// spectral
+		{
+			measurement.lambda = curve.shifted_Argument;
+		}
 	}
 }
-
-//void Target_Curve::renew_Struct_Tree_Copy()
-//{
-//	struct_Tree_Copy->clear();
-//	for(int i=0; i<real_Struct_Tree->topLevelItemCount(); i++)
-//	{
-//		struct_Tree_Copy->addTopLevelItem(real_Struct_Tree->topLevelItem(i)->clone());	// the data are also copied here
-//	}
-
-//	// add "measurement" item to the top
-//	QTreeWidgetItem* new_Measurement_Item = new QTreeWidgetItem;
-
-//	QVariant var;
-//	var.setValue(measurement);
-//	new_Measurement_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
-//	struct_Tree_Copy->insertTopLevelItem(0, new_Measurement_Item);
-//}
 
 void Target_Curve::set_Text_To_Label()
 {
@@ -147,12 +133,12 @@ void Target_Curve::set_Text_To_Label()
 QDataStream& operator <<( QDataStream& stream, const Target_Curve* target_Curve )
 {
 	return stream	<< target_Curve->curve << target_Curve->measurement << target_Curve->filename << target_Curve->filepath << target_Curve->loaded_And_Ready
-					<< target_Curve->lines_List << target_Curve->arg_Units << target_Curve->at_Fixed << target_Curve->arg_Type_For_Label << target_Curve->label_Text
+					<< target_Curve->lines_List << target_Curve->arg_Units << target_Curve->at_Fixed << target_Curve->arg_Type_For_Label << target_Curve->ang_Type_For_Label_At_Fixed << target_Curve->label_Text
 	;
 }
 QDataStream& operator >>(QDataStream& stream,		 Target_Curve* target_Curve )
 {
 	return stream	>> target_Curve->curve >> target_Curve->measurement >> target_Curve->filename >> target_Curve->filepath >> target_Curve->loaded_And_Ready
-					>> target_Curve->lines_List >> target_Curve->arg_Units >> target_Curve->at_Fixed >> target_Curve->arg_Type_For_Label >> target_Curve->label_Text
+					>> target_Curve->lines_List >> target_Curve->arg_Units >> target_Curve->at_Fixed >> target_Curve->arg_Type_For_Label >> target_Curve->ang_Type_For_Label_At_Fixed >> target_Curve->label_Text
 	;
 }
