@@ -204,33 +204,6 @@ void Multilayer_Approach::open()
 			int current_Variable_Tab_Index;
 			in >> current_Variable_Tab_Index;
 			multilayer->variables_Tabs->setCurrentIndex(current_Variable_Tab_Index);
-
-			// load dependent checkboxes state
-			bool is_Checked;
-
-			/// standard
-				// reflectance
-				in >> is_Checked;
-				multilayer->reflect_Functions->setChecked(is_Checked);
-				// transmittance
-				in >> is_Checked;
-				multilayer->transmit_Functions->setChecked(is_Checked);
-				// absorptance
-				in >> is_Checked;
-				multilayer->absorp_Functions->setChecked(is_Checked);
-			/// field
-				// field intensity
-				in >> is_Checked;
-				multilayer->field_Intensity->setChecked(is_Checked);
-				// joule absorption
-				in >> is_Checked;
-				multilayer->joule_Absorption->setChecked(is_Checked);
-			/// user
-				in >> is_Checked;
-				multilayer->user_Supplied_Functions_Check->setChecked(is_Checked);
-				QString user_Text;
-				in >> user_Text;
-				multilayer->user_Supplied_Functions->setText(user_Text);
 		}
 		/// independent
 		{
@@ -342,24 +315,6 @@ void Multilayer_Approach::save()
 		{
 			// save index of active variables tab
 			out << multilayer->variables_Tabs->currentIndex();
-
-			// save dependent checkboxes state
-			// specular
-			/// standard
-				// reflectance
-				out <<  multilayer->reflect_Functions->isChecked();
-				// transmittance
-				out <<  multilayer->transmit_Functions->isChecked();
-				// absorptance
-				out <<  multilayer->absorp_Functions->isChecked();
-			/// field
-				// field intensity
-				out <<  multilayer->field_Intensity->isChecked();
-				// joule absorption
-				out <<  multilayer->joule_Absorption->isChecked();
-			/// user
-				out <<  multilayer->user_Supplied_Functions_Check->isChecked();
-				out <<  multilayer->user_Supplied_Functions->text();
 		}
 		/// independent
 		{
@@ -411,8 +366,10 @@ void Multilayer_Approach::save()
 
 void Multilayer_Approach::calc_Reflection()
 {
-	// TODOdododododada
-	qInfo() << "\n\n--------------------------------------------------------\ncalc specular functions... \n-------------------------------------------------------\n";
+	// TODO
+	qInfo() << "\n\n-------------------------------------------------------"
+				 "\ncalc specular functions..."
+				 "\n-------------------------------------------------------\n";
 	Main_Calculation_Module* main_Calculation_Module = new Main_Calculation_Module(multilayer_Tabs);
 	connect(main_Calculation_Module, &Main_Calculation_Module::critical,    this, &Multilayer_Approach::catch_Critical);
 	connect(main_Calculation_Module, &Main_Calculation_Module::warning,     this, &Multilayer_Approach::catch_Warning);
@@ -424,7 +381,9 @@ void Multilayer_Approach::calc_Reflection()
 void Multilayer_Approach::reload_Optical_Constants()
 {
 	// TODO
-	qInfo() << "\n\n--------------------------------------------------------\nreload optical constants...\n-------------------------------------------------------\n";
+	qInfo() << "\n\n-------------------------------------------------------"
+				 "\nreload optical constants..."
+				 "\n-------------------------------------------------------\n";
 	optical_Constants->reload();
 }
 

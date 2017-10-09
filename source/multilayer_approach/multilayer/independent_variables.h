@@ -3,6 +3,7 @@
 
 #include "independent_variables/independent_variables_editor.h"
 #include "variable_selection.h"
+#include "independent_variables/independent_calc_function_selection.h"
 
 class Independent_Variables : public QWidget
 {
@@ -22,9 +23,10 @@ public:
 	void remove_Independent_Variable(QListWidgetItem* item);
 
 	void add_Independent_Variable();
-	void cause_Editing_Independent_Variable();
-	void edit_Independent_Variable(QListWidgetItem* list_Item);
-	void remove_Current_Independent_Variable();
+		void cause_Editing_Independent_Variable();
+		void edit_Independent_Variable(QListWidgetItem* list_Item);
+		void remove_Current_Independent_Variable();
+		void choose_Independent_Calc_Function();
 	void refresh_Independent_State_All();
 
 	void if_Selected();
@@ -36,6 +38,8 @@ public:
 
 	QTreeWidgetItem* measurement_Item;
 	Data measurement;
+
+	QString calc_Functions;
 
 	QMap<int, QListWidgetItem*>* independent_Variables_List_Map;		// independent IDs and corresponding items in ListWidget
 	QTreeWidget* struct_Tree_Copy;										// modified copy of real tree to be plotted

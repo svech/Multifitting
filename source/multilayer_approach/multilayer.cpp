@@ -51,16 +51,6 @@ void Multilayer::create_Variables_Tabs()
 {
 	variables_Tabs = new QTabWidget(this);
 
-	create_Dependent_Variables_Tabs();
-	{
-		QFrame* frame = new QFrame;
-		QVBoxLayout* layout = new QVBoxLayout;
-		layout->addWidget(dependent_Variables_Tabs);
-		frame->setLayout(layout);
-		frame->setContentsMargins(0,-5,0,-8);
-		variables_Tabs->addTab(frame, "Dependent Variables");
-	}
-
 	create_Independent_Variables_Tabs();
 	{
 		QFrame* frame = new QFrame;
@@ -85,73 +75,6 @@ void Multilayer::create_Variables_Tabs()
 	}
 
 	variables_Tabs->setSizePolicy(QSizePolicy::Preferred,QSizePolicy::Fixed);
-}
-
-void Multilayer::create_Dependent_Variables_Tabs()
-{
-	dependent_Variables_Tabs = new QTabWidget(this);
-
-	specular_Functions_Layout = new QVBoxLayout;
-		specular_Functions_Layout->setSpacing(0);
-	create_Specular_Functions();
-		specular_Functions_Layout->addWidget(standard_Functions_Group_Box);
-		specular_Functions_Layout->addWidget(field_Functions_Group_Box);
-		specular_Functions_Layout->addWidget(user_Functions_Group_Box);
-
-	QFrame* specular_Frame = new QFrame(this);
-		specular_Frame->setContentsMargins(-5,-5,-5,-9);
-		specular_Frame->setLayout(specular_Functions_Layout);
-	dependent_Variables_Tabs->addTab(specular_Frame, "Specular Optical Functions");
-
-	// TODO non-specular functions
-	nonspecular_Functions_Layout = new QVBoxLayout;
-		nonspecular_Functions_Layout->setSpacing(0);
-	create_Nonspecular_Functions();
-//		nonspecular_Functions_Layout->addWidget(nonspecular_Group_Box);
-	QFrame* nonspecular_Frame = new QFrame(this);
-//		nonspecular_Frame->setContentsMargins(-5,-5,-5,-9);
-		nonspecular_Frame->setLayout(nonspecular_Functions_Layout);
-	dependent_Variables_Tabs->addTab(nonspecular_Frame, "Scattering Functions");
-}
-
-void Multilayer::create_Specular_Functions()
-{
-	standard_Functions_Group_Box = new QGroupBox("Standard Functions", this);
-		standard_Functions_Group_Box->setContentsMargins(0,8,0,-4);
-
-	QHBoxLayout* standard_Functions_Layout = new QHBoxLayout(standard_Functions_Group_Box);
-		standard_Functions_Layout->setAlignment(Qt::AlignLeft);
-		reflect_Functions = new QCheckBox("Reflectance", this);
-			standard_Functions_Layout->addWidget(reflect_Functions);
-		transmit_Functions = new QCheckBox("Transmittance", this);
-			standard_Functions_Layout->addWidget(transmit_Functions);
-		absorp_Functions = new QCheckBox("Absorptance", this);
-			standard_Functions_Layout->addWidget(absorp_Functions);
-
-	field_Functions_Group_Box = new QGroupBox("Field Functions", this);
-		field_Functions_Group_Box->setContentsMargins(0,8,0,-4);
-
-	QHBoxLayout* field_Functions_Layout = new QHBoxLayout(field_Functions_Group_Box);
-		field_Functions_Layout->setAlignment(Qt::AlignLeft);
-		field_Intensity = new QCheckBox("Intensity", this);
-			field_Functions_Layout->addWidget(field_Intensity);
-		joule_Absorption= new QCheckBox("Joule Absorption", this);
-			field_Functions_Layout->addWidget(joule_Absorption);
-
-	user_Functions_Group_Box = new QGroupBox("User-defined Functions");
-		user_Functions_Group_Box->setContentsMargins(0,8,0,-4);
-
-	QHBoxLayout* user_Functions_Layout = new QHBoxLayout(user_Functions_Group_Box);
-		user_Functions_Layout->setAlignment(Qt::AlignLeft);
-		user_Supplied_Functions_Check = new QCheckBox(this);
-			user_Functions_Layout->addWidget(user_Supplied_Functions_Check);
-		user_Supplied_Functions = new QLineEdit(this);
-			user_Functions_Layout->addWidget(user_Supplied_Functions);
-}
-
-void Multilayer::create_Nonspecular_Functions()
-{
-	// TODO nonspecular functions
 }
 
 void Multilayer::create_Independent_Variables_Tabs()
@@ -271,7 +194,7 @@ void Multilayer::add_Target_Curve(int index_Pressed)
 	// window resizing
 	if(!data_Target_Profile_Frame_Vector.isEmpty())
 	{
-		struct_Frame->setFixedSize(struct_Frame->size());
+//		struct_Frame->setFixedSize(struct_Frame->size());
 		QWidget::window()->resize(QWidget::window()->width(),QWidget::window()->height() + multilayer_height_additive);
 	}
 

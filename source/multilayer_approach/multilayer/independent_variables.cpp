@@ -112,18 +112,21 @@ void Independent_Variables::create_Independent_Variables_Toolbar()
 	QPixmap new_Variable	(icon_path + "new.bmp");
 	QPixmap edit			(icon_path + "roi.bmp");
 	QPixmap remove			(icon_path + "delete.bmp");
+	QPixmap function		(icon_path + "plot.bmp");
 
 	independent_Variables_Toolbar = new QToolBar;
 
 	independent_Variables_Toolbar->addAction(QIcon(new_Variable),	"Add Independent Variable");// 0
 	independent_Variables_Toolbar->addAction(QIcon(edit),			"Edit");					// 1
 	independent_Variables_Toolbar->addAction(QIcon(remove),			"Remove");					// 2
+	independent_Variables_Toolbar->addAction(QIcon(function),		"Functions");				// 3
 
 	independent_Variables_Toolbar->setIconSize(new_Variable.size());
 
 	connect(independent_Variables_Toolbar->actions()[0], &QAction::triggered, this, &Independent_Variables::add_Independent_Variable);
 	connect(independent_Variables_Toolbar->actions()[1], &QAction::triggered, this, &Independent_Variables::cause_Editing_Independent_Variable);
 	connect(independent_Variables_Toolbar->actions()[2], &QAction::triggered, this, &Independent_Variables::remove_Current_Independent_Variable);
+	connect(independent_Variables_Toolbar->actions()[3], &QAction::triggered, this, &Independent_Variables::choose_Independent_Calc_Function);
 
 	if_Selected();
 }
@@ -179,6 +182,14 @@ void Independent_Variables::edit_Independent_Variable(QListWidgetItem* list_Item
 void Independent_Variables::remove_Current_Independent_Variable()
 {
 	remove_Independent_Variable(independent_Variables_List->currentItem());
+}
+
+void Independent_Variables::choose_Independent_Calc_Function()
+{
+	Independent_Calc_Function_Selection* new_Independent_Calc_Function_Selection = new Independent_Calc_Function_Selection(this,this);
+		new_Independent_Calc_Function_Selection->setModal(true);
+		new_Independent_Calc_Function_Selection->setWindowFlags(Qt::Window);
+		new_Independent_Calc_Function_Selection->show();
 }
 
 void Independent_Variables::remove_Independent_Variable(QListWidgetItem* list_Item)
@@ -498,9 +509,9 @@ void Independent_Variables::refresh_Text()
 // serialization
 QDataStream& operator <<( QDataStream& stream, const Independent_Variables* independent_Variables )
 {
-	return stream	<< independent_Variables->measurement;
+	return stream	<< independent_Variables->measurement << independent_Variables->calc_Functions;
 }
 QDataStream& operator >>(QDataStream& stream,		 Independent_Variables* independent_Variables )
 {
-	return stream	>> independent_Variables->measurement;
+	return stream	>> independent_Variables->measurement >> independent_Variables->calc_Functions;
 }

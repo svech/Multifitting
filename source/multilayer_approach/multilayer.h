@@ -24,9 +24,6 @@ public:
 		void create_Structure_Frame();
 		void create_Variables_Frame();
 			void create_Variables_Tabs();
-				void create_Dependent_Variables_Tabs();
-					void create_Specular_Functions();
-					void create_Nonspecular_Functions();
 				void create_Independent_Variables_Tabs();
 		void create_Data_Frame();
 
@@ -50,19 +47,6 @@ public:
 		QFrame* variables_Frame;
 			QVBoxLayout* variables_Frame_Layout;
 				QTabWidget*	variables_Tabs;
-					QTabWidget*	dependent_Variables_Tabs;
-						QVBoxLayout* specular_Functions_Layout;
-							QGroupBox* standard_Functions_Group_Box;
-								QCheckBox* reflect_Functions;
-								QCheckBox* transmit_Functions;
-								QCheckBox* absorp_Functions;
-							QGroupBox* field_Functions_Group_Box;
-								QCheckBox* field_Intensity;
-								QCheckBox* joule_Absorption;
-							QGroupBox* user_Functions_Group_Box;
-								QCheckBox* user_Supplied_Functions_Check;
-								QLineEdit* user_Supplied_Functions;
-						QVBoxLayout* nonspecular_Functions_Layout;
 					QTabWidget* independent_Variables_Plot_Tabs;
 						QToolButton* independent_Variables_Corner_Button;
 
