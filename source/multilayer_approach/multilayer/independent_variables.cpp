@@ -3,6 +3,7 @@
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
 #include "independent_variables.h"
+#include "independent_variables/independent_calc_function_selection.h"
 
 Independent_Variables::Independent_Variables(QTreeWidget* real_Struct_Tree, QWidget *parent) :
 	QWidget(parent),
@@ -506,12 +507,24 @@ void Independent_Variables::refresh_Text()
 	}
 }
 
+QString Independent_Variables::enlarge_Tab_Name()
+{
+	QString suffix = "  ";
+	if(calc_Functions.check_Reflectance)	suffix = suffix+symbol_R+",";
+	if(calc_Functions.check_Transmittance)  suffix = suffix+symbol_T+",";
+	if(calc_Functions.check_Absorptance)	suffix = suffix+symbol_A+",";
+	if(calc_Functions.check_Field)			suffix = suffix+symbol_F+",";
+	if(calc_Functions.check_Joule)			suffix = suffix+symbol_J+",";
+	if(calc_Functions.check_User)			suffix = suffix+symbol_U+",";
+	return suffix.remove(-1,1);
+}
+
 // serialization
 QDataStream& operator <<( QDataStream& stream, const Independent_Variables* independent_Variables )
 {
-	return stream	<< independent_Variables->measurement << independent_Variables->calc_Functions;
+	return stream	<< independent_Variables->measurement << independent_Variables->calc_Functions << independent_Variables->tab_Name;
 }
 QDataStream& operator >>(QDataStream& stream,		 Independent_Variables* independent_Variables )
 {
-	return stream	>> independent_Variables->measurement >> independent_Variables->calc_Functions;
+	return stream	>> independent_Variables->measurement >> independent_Variables->calc_Functions >> independent_Variables->tab_Name;
 }

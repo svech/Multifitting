@@ -1,9 +1,7 @@
 #ifndef INDEPENDENT_CALC_FUNCTION_SELECTION_H
 #define INDEPENDENT_CALC_FUNCTION_SELECTION_H
 
-#include "multilayer_approach/multilayer/independent_variables.h"
-
-class Independent_Variables;
+#include "multilayer_approach/multilayer.h"
 
 class Independent_Calc_Function_Selection : public QDialog
 {
@@ -12,6 +10,7 @@ public:
 	explicit Independent_Calc_Function_Selection(Independent_Variables* independent_Variables, QWidget *parent = nullptr);
 
 public:
+	void closeEvent(QCloseEvent *event);
 	void create_Main_Layout();
 	void set_Window_Geometry();
 
@@ -30,6 +29,8 @@ public:
 		QGroupBox* user_Functions_Group_Box;
 			QCheckBox* user_Supplied_Functions_Check;
 			QLineEdit* user_Supplied_Functions;
+
+	QPushButton* done_Button;
 };
 
 #endif // INDEPENDENT_CALC_FUNCTION_SELECTION_H

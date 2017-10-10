@@ -380,7 +380,7 @@ void Coupling_Editor::check_Expression()
 	QLineEdit* line_Edit = qobject_cast<QLineEdit*>(sender());
 	QString expression = line_Edit->text();
 
-	if(!Global_Variables::expression_Is_Valid(expression))
+	if(!Global_Variables::expression_Is_Valid(expression, QStringList(expression_Master_Slave_Variable)))
 	{
 		QMessageBox::information(this, "Wrong expression", "Expression has wrong syntax");
 		line_Edit->setText(line_Edit->property(previous_Expression_Property).toString());

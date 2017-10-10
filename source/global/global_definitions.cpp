@@ -126,6 +126,18 @@ QDataStream& operator >>( QDataStream& stream,		 Drift& drift )
 				  >> drift.drift_Line_Value >> drift.drift_Rand_Rms >> drift.drift_Sine_Amplitude >> drift.drift_Sine_Frequency >> drift.drift_Sine_Phase;
 }
 
+QDataStream& operator <<( QDataStream& stream, const Calc_Functions& calc_Functions )
+{
+	return stream << calc_Functions.check_Reflectance << calc_Functions.check_Transmittance << calc_Functions.check_Absorptance
+				  << calc_Functions.check_Field		  << calc_Functions.check_Joule			<< calc_Functions.check_User << calc_Functions.user_Functions;
+}
+QDataStream& operator >>( QDataStream& stream,		 Calc_Functions& calc_Functions )
+{
+	return stream >> calc_Functions.check_Reflectance >> calc_Functions.check_Transmittance >> calc_Functions.check_Absorptance
+				  >> calc_Functions.check_Field		  >> calc_Functions.check_Joule			>> calc_Functions.check_User >> calc_Functions.user_Functions;
+}
+
+
 QDataStream& operator <<( QDataStream& stream, const Value& value )
 {
 	return stream << value.val_1 << value.val_2;

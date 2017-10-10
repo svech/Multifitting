@@ -126,7 +126,8 @@ void Multilayer::add_Independent_Variables_Tab()
 
 	// add new tab
 	independent_Variables_Plot_Tabs->addTab(new_Independent, default_independent_variable_tab_name);
-	independent_Variables_Plot_Tabs->setTabText(independent_Variables_Plot_Tabs->count()-1, default_independent_variable_tab_name+QString::number(independent_Variables_Plot_Tabs->count()));
+	new_Independent->tab_Name = default_independent_variable_tab_name+QString::number(independent_Variables_Plot_Tabs->count());
+	independent_Variables_Plot_Tabs->setTabText(independent_Variables_Plot_Tabs->count()-1, new_Independent->tab_Name);
 
 	if(independent_Variables_Plot_Tabs->count()>1)
 	{
@@ -164,9 +165,14 @@ void Multilayer::remove_Independent_Variables_Tab(int index)
 void Multilayer::rename_Independent_Variables_Tab(int tab_Index)
 {
 	bool ok;
-	QString text = QInputDialog::getText(this, "Rename plot", "New name", QLineEdit::Normal, independent_Variables_Plot_Tabs->tabText(tab_Index), &ok);
+	Independent_Variables* independent = qobject_cast<Independent_Variables*>(independent_Variables_Plot_Tabs->widget(tab_Index));
+
+	QString text = QInputDialog::getText(this, "Rename plot", "New name", QLineEdit::Normal, independent->tab_Name, &ok);
 	if (ok && !text.isEmpty())
-		independent_Variables_Plot_Tabs->setTabText(tab_Index, text);
+	{
+		independent->tab_Name = text;
+		independent_Variables_Plot_Tabs->setTabText(tab_Index, independent->tab_Name + independent->enlarge_Tab_Name());
+	}
 }
 
 void Multilayer::refresh_Structure_And_Independent(QObject* my_Sender)

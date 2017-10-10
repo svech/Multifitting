@@ -459,11 +459,12 @@ QString Global_Variables::parameter_Name(const Data &struct_Data, QString whats_
 	return text;
 }
 
-bool Global_Variables::expression_Is_Valid(QString expression_String)
+bool Global_Variables::expression_Is_Valid(QString expression_String, QStringList expression_Variable)
 {
 	double temp_Argument = 1;
 	exprtk::symbol_table<double> symbol_table;
-	symbol_table.add_variable(expression_Variable_Char, temp_Argument);
+	for(QString& expr_Var : expression_Variable)
+		symbol_table.add_variable(expr_Var.toStdString(), temp_Argument);
 	symbol_table.add_constants();
 
 	exprtk::expression<double> expression;
@@ -476,7 +477,7 @@ bool Global_Variables::expression_Is_Valid(QString expression_String)
 double Global_Variables::calculate_From_Master_Value(QString expression_String, double master_Value)
 {
 	exprtk::symbol_table<double> symbol_table;
-	symbol_table.add_variable(expression_Variable_Char, master_Value);
+	symbol_table.add_variable(expression_Master_Slave_Variable, master_Value);
 	symbol_table.add_constants();
 
 	exprtk::expression<double> expression;

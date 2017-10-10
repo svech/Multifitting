@@ -128,7 +128,13 @@ using namespace std;
 #define active "     Active"
 //#define	stop_Calculation "stop_Calculation"
 #define fit_Text "fit"
-#define expression_Variable_Char "x"
+#define expression_Master_Slave_Variable "x"
+#define symbol_R "R"
+#define symbol_T "T"
+#define symbol_A "A"
+#define symbol_F "F"
+#define symbol_J "J"
+#define symbol_U "U"
 
 // whatsThis : delimiters
 #define whats_This_Delimiter ";"
@@ -268,7 +274,7 @@ public:
 struct Independent_Indicator	{int item_Id = 0; int parameter_Id = 0; QString item_Type; QString parameter_Whats_This; int index = -1; bool is_Active = false;};
 struct Parameter_Indicator		{int id = 0; QString whats_This;								// once and for all
 								 int tab_Index = -1; QString full_Name;			// can be changed
-								 QString expression = expression_Variable_Char; bool exist = false;};	// for master/slave dependencies
+								 QString expression = expression_Master_Slave_Variable; bool exist = false;};	// for master/slave dependencies
 
 struct Int_Independent			{int value; bool is_Independent=false;	int start = 1; int step = 1; int num_Steps = 3; int id = 0; QString whats_This;
 								 Int_Independent()
@@ -320,6 +326,15 @@ struct Point					{double lambda; double re;  double im; void read_Row(QTextStrea
 struct Material_Data			{QString substance; QString filename; QVector<Point> material_Data; void read_Material(QString& filename);};
 struct Element_Data				{QString element;					  QVector<Point> element_Data;  void read_Element (QString& filename);};
 
+// independent calculation functions
+struct Calc_Functions			{bool check_Reflectance = false;
+								 bool check_Transmittance = false;
+								 bool check_Absorptance = false;
+								 bool check_Field = false;
+								 bool check_Joule = false;
+								 bool check_User = false;
+								 QString user_Functions = "R+T; cos(A)*R^3-sqrt(J) ; pow(F, log(root(3,5)))";
+								};
 
 // measured/target data types
 struct Value					{double val_1; double val_2; /*double sigma_1; double sigma_2;*/};
@@ -369,6 +384,9 @@ QDataStream& operator >>( QDataStream& stream,		 Interlayer& interlayer );
 
 QDataStream& operator <<( QDataStream& stream, const Drift& drift );
 QDataStream& operator >>( QDataStream& stream,		 Drift& drift );
+
+QDataStream& operator <<( QDataStream& stream, const Calc_Functions& calc_Functions );
+QDataStream& operator >>( QDataStream& stream,		 Calc_Functions& calc_Functions );
 
 QDataStream& operator <<( QDataStream& stream, const Value& value );
 QDataStream& operator >>( QDataStream& stream,		 Value& value );
