@@ -327,7 +327,8 @@ struct Material_Data			{QString substance; QString filename; QVector<Point> mate
 struct Element_Data				{QString element;					  QVector<Point> element_Data;  void read_Element (QString& filename);};
 
 // independent calculation functions
-struct Calc_Functions			{bool check_Reflectance = false;
+struct Calc_Functions			{bool check_Enabled = true;
+								 bool check_Reflectance = true;
 								 bool check_Transmittance = false;
 								 bool check_Absorptance = false;
 								 bool check_Field = false;

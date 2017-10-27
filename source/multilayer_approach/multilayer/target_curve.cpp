@@ -132,13 +132,13 @@ void Target_Curve::set_Text_To_Label()
 // serialization
 QDataStream& operator <<( QDataStream& stream, const Target_Curve* target_Curve )
 {
-	return stream	<< target_Curve->curve << target_Curve->measurement << target_Curve->filename << target_Curve->filepath << target_Curve->loaded_And_Ready
+	return stream	<< target_Curve->curve << target_Curve->measurement << target_Curve->filename << target_Curve->filepath << target_Curve->loaded_And_Ready << target_Curve->calc << target_Curve->fit
 					<< target_Curve->lines_List << target_Curve->arg_Units << target_Curve->at_Fixed << target_Curve->arg_Type_For_Label << target_Curve->ang_Type_For_Label_At_Fixed << target_Curve->label_Text
 	;
 }
 QDataStream& operator >>(QDataStream& stream,		 Target_Curve* target_Curve )
 {
-	return stream	>> target_Curve->curve >> target_Curve->measurement >> target_Curve->filename >> target_Curve->filepath >> target_Curve->loaded_And_Ready
+	return stream	>> target_Curve->curve >> target_Curve->measurement >> target_Curve->filename >> target_Curve->filepath >> target_Curve->loaded_And_Ready >> target_Curve->calc >> target_Curve->fit
 					>> target_Curve->lines_List >> target_Curve->arg_Units >> target_Curve->at_Fixed >> target_Curve->arg_Type_For_Label >> target_Curve->ang_Type_For_Label_At_Fixed >> target_Curve->label_Text
 	;
 }

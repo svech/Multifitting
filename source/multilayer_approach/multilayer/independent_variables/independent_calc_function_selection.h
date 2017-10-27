@@ -19,16 +19,18 @@ public:
 	Independent_Variables* independent_Variables;
 
 	QVBoxLayout* main_Layout;
-		QGroupBox* standard_Functions_Group_Box;
-			QCheckBox* reflect_Functions;
-			QCheckBox* transmit_Functions;
-			QCheckBox* absorp_Functions;
-		QGroupBox* field_Functions_Group_Box;
-			QCheckBox* field_Intensity;
-			QCheckBox* joule_Absorption;
-		QGroupBox* user_Functions_Group_Box;
-			QCheckBox* user_Supplied_Functions_Check;
-			QLineEdit* user_Supplied_Functions;
+		QGroupBox* global_Group_Box;
+			QVBoxLayout* global_Layout;
+				QGroupBox* standard_Functions_Group_Box;
+					QCheckBox* reflect_Functions;
+					QCheckBox* transmit_Functions;
+					QCheckBox* absorp_Functions;
+				QGroupBox* field_Functions_Group_Box;
+					QCheckBox* field_Intensity;
+					QCheckBox* joule_Absorption;
+				QGroupBox* user_Functions_Group_Box;
+					QCheckBox* user_Supplied_Functions_Check;
+					QLineEdit* user_Supplied_Functions;
 
 	QPushButton* done_Button;
 };

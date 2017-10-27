@@ -31,15 +31,31 @@ void Independent_Calc_Function_Selection::create_Main_Layout()
 {
 	main_Layout = new QVBoxLayout(this);
 	main_Layout->setSpacing(0);
-	main_Layout->setContentsMargins(4,0,4,0);
+	main_Layout->setContentsMargins(4,4,4,0);
 
+	{
+		global_Group_Box = new QGroupBox("Enable", this);
+			global_Group_Box->setCheckable(true);
+			global_Group_Box->setObjectName("global_Group_Box");
+			global_Group_Box->setStyleSheet("QGroupBox#global_Group_Box { border-radius: 2px;  border: 1px solid gray; margin-top: 2ex;}"
+														"QGroupBox::title    { subcontrol-origin: margin;	 left: 9px; padding: 0 0px 0 1px;}");
+			global_Group_Box->setChecked(independent_Variables->calc_Functions.check_Enabled);
+		main_Layout->addWidget(global_Group_Box);
+
+		global_Layout = new QVBoxLayout;
+		global_Layout->setSpacing(0);
+		global_Layout->setContentsMargins(4,4,4,4);
+		global_Group_Box->setLayout(global_Layout);
+
+		connect(global_Group_Box,  &QGroupBox::toggled, this, &Independent_Calc_Function_Selection::refresh_calc_Functions);
+	}
 	{
 		standard_Functions_Group_Box = new QGroupBox("Standard Functions", this);
 			standard_Functions_Group_Box->setContentsMargins(0,8,0,-4);
 			standard_Functions_Group_Box->setObjectName("standard_Functions_Group_Box");
 			standard_Functions_Group_Box->setStyleSheet("QGroupBox#standard_Functions_Group_Box { border-radius: 2px;  border: 1px solid gray; margin-top: 2ex;}"
 														"QGroupBox::title    { subcontrol-origin: margin;	 left: 9px; padding: 0 0px 0 1px;}");
-		main_Layout->addWidget(standard_Functions_Group_Box);
+		global_Layout->addWidget(standard_Functions_Group_Box);
 
 		QHBoxLayout* standard_Functions_Layout = new QHBoxLayout(standard_Functions_Group_Box);
 			standard_Functions_Layout->setAlignment(Qt::AlignLeft);
@@ -63,11 +79,11 @@ void Independent_Calc_Function_Selection::create_Main_Layout()
 			field_Functions_Group_Box->setObjectName("field_Functions_Group_Box");
 			field_Functions_Group_Box->setStyleSheet("QGroupBox#field_Functions_Group_Box { border-radius: 2px;  border: 1px solid gray; margin-top: 2ex;}"
 													 "QGroupBox::title    { subcontrol-origin: margin;	 left: 9px; padding: 0 0px 0 1px;}");
-		main_Layout->addWidget(field_Functions_Group_Box);
+		global_Layout->addWidget(field_Functions_Group_Box);
 
 		QHBoxLayout* field_Functions_Layout = new QHBoxLayout(field_Functions_Group_Box);
 			field_Functions_Layout->setAlignment(Qt::AlignLeft);
-			field_Intensity = new QCheckBox("Intensity", this);
+			field_Intensity = new QCheckBox("Field Intensity", this);
 				field_Functions_Layout->addWidget(field_Intensity);
 				field_Intensity->setChecked(independent_Variables->calc_Functions.check_Field);
 			joule_Absorption= new QCheckBox("Joule Absorption", this);
@@ -83,7 +99,7 @@ void Independent_Calc_Function_Selection::create_Main_Layout()
 			user_Functions_Group_Box->setObjectName("user_Functions_Group_Box");
 			user_Functions_Group_Box->setStyleSheet("QGroupBox#user_Functions_Group_Box { border-radius: 2px;  border: 1px solid gray; margin-top: 2ex;}"
 													"QGroupBox::title    { subcontrol-origin: margin;	 left: 9px; padding: 0 0px 0 1px;}");
-		main_Layout->addWidget(user_Functions_Group_Box);
+		global_Layout->addWidget(user_Functions_Group_Box);
 
 		QHBoxLayout* user_Functions_Layout = new QHBoxLayout(user_Functions_Group_Box);
 			user_Functions_Layout->setAlignment(Qt::AlignLeft);
@@ -116,6 +132,8 @@ void Independent_Calc_Function_Selection::set_Window_Geometry()
 
 void Independent_Calc_Function_Selection::refresh_calc_Functions(bool)
 {
+	independent_Variables->calc_Functions.check_Enabled = global_Group_Box->isChecked();
+
 	independent_Variables->calc_Functions.check_Reflectance = reflect_Functions->isChecked();
 	independent_Variables->calc_Functions.check_Transmittance = transmit_Functions->isChecked();
 	independent_Variables->calc_Functions.check_Absorptance = absorp_Functions->isChecked();

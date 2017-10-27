@@ -127,7 +127,7 @@ void Multilayer::add_Independent_Variables_Tab()
 	// add new tab
 	independent_Variables_Plot_Tabs->addTab(new_Independent, default_independent_variable_tab_name);
 	new_Independent->tab_Name = default_independent_variable_tab_name+QString::number(independent_Variables_Plot_Tabs->count());
-	independent_Variables_Plot_Tabs->setTabText(independent_Variables_Plot_Tabs->count()-1, new_Independent->tab_Name);
+	independent_Variables_Plot_Tabs->setTabText(independent_Variables_Plot_Tabs->count()-1, new_Independent->tab_Name + new_Independent->enlarge_Tab_Name());
 
 	if(independent_Variables_Plot_Tabs->count()>1)
 	{

@@ -35,16 +35,10 @@ struct Data_Element
 	QString active_Parameter_Whats_This;
 };
 
-class Calculation_Tree: public QObject
+class Calculation_Tree
 {
-	Q_OBJECT
 public:
 	Calculation_Tree(QTabWidget* independent_Variables_Plot_Tabs, QVector<Target_Curve*>& target_Profiles_Vector, QTreeWidget* real_Struct_Tree);
-
-signals:
-	void critical   (QString critical_Text);
-	void warning    (QString warning_Text);
-	void information(QString information_Text);
 
 public:
 	void run_All();

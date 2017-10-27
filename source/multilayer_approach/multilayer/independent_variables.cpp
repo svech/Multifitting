@@ -509,14 +509,20 @@ void Independent_Variables::refresh_Text()
 
 QString Independent_Variables::enlarge_Tab_Name()
 {
-	QString suffix = "  ";
-	if(calc_Functions.check_Reflectance)	suffix = suffix+symbol_R+",";
-	if(calc_Functions.check_Transmittance)  suffix = suffix+symbol_T+",";
-	if(calc_Functions.check_Absorptance)	suffix = suffix+symbol_A+",";
-	if(calc_Functions.check_Field)			suffix = suffix+symbol_F+",";
-	if(calc_Functions.check_Joule)			suffix = suffix+symbol_J+",";
-	if(calc_Functions.check_User)			suffix = suffix+symbol_U+",";
-	return suffix.remove(-1,1);
+	if(calc_Functions.check_Enabled)
+	{
+		QString suffix = "  ";
+		if(calc_Functions.check_Reflectance)	suffix = suffix+symbol_R+",";
+		if(calc_Functions.check_Transmittance)  suffix = suffix+symbol_T+",";
+		if(calc_Functions.check_Absorptance)	suffix = suffix+symbol_A+",";
+		if(calc_Functions.check_Field)			suffix = suffix+symbol_F+",";
+		if(calc_Functions.check_Joule)			suffix = suffix+symbol_J+",";
+		if(calc_Functions.check_User)			suffix = suffix+symbol_U+",";
+		return suffix.remove(-1,1);
+	} else
+	{
+		return "";
+	}
 }
 
 // serialization

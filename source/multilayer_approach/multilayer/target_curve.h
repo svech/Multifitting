@@ -24,6 +24,9 @@ public:
 
 	bool loaded_And_Ready = false;
 
+	bool calc = true;
+	bool fit = true;
+
 	QStringList lines_List;
 	QString arg_Units;
 	QString at_Fixed;

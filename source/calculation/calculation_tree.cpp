@@ -6,35 +6,49 @@
 #include <iostream>
 
 Calculation_Tree::Calculation_Tree(QTabWidget* independent_Variables_Plot_Tabs, QVector<Target_Curve*>& target_Profiles_Vector, QTreeWidget* real_Struct_Tree):
-	independent(independent_Variables_Plot_Tabs->count()),
 	real_Struct_Tree(real_Struct_Tree)
 {	
-	// initialization of independent vector
-	for(int i=0; i<independent.size(); ++i)
+	// initialization independent vector
 	{
-		independent[i].the_Class = qobject_cast<Independent_Variables*>(independent_Variables_Plot_Tabs->widget(i));
-		independent[i].curve_Class = INDEPENDENT;
-	}
-
-	// find size of target profiles vector
-	{
-		int counter=0;
-		for(int i=0; i<target_Profiles_Vector.size(); ++i)
-			if(target_Profiles_Vector[i]->loaded_And_Ready) ++counter;
-		target.resize(counter);
-	}
-	// initialization of target vector
-	int counter=0;
-	for(int i=0; i<target_Profiles_Vector.size(); ++i)
-	{
-		if(target_Profiles_Vector[i]->loaded_And_Ready)
+		for(int i=0; i<independent_Variables_Plot_Tabs->count(); ++i)
 		{
-			target[counter].the_Class = target_Profiles_Vector[i];
-			target[counter].curve_Class = TARGET;
-			target[counter].active_Item_Type = item_Type_Measurement;
-			++counter;
+			Independent_Variables* independent_Variables = qobject_cast<Independent_Variables*>(independent_Variables_Plot_Tabs->widget(i));
+			if( independent_Variables->calc_Functions.check_Enabled	)
+			if(	independent_Variables->calc_Functions.check_Reflectance		||
+				independent_Variables->calc_Functions.check_Transmittance	||
+				independent_Variables->calc_Functions.check_Absorptance		||
+				independent_Variables->calc_Functions.check_Field			||
+				independent_Variables->calc_Functions.check_Joule			||
+				independent_Variables->calc_Functions.check_User )
+			{
+				Data_Element<Independent_Variables> data_Element;
+				independent.append(data_Element);
+
+				independent[i].the_Class = independent_Variables;
+				independent[i].curve_Class = INDEPENDENT;
+			}
 		}
 	}
+
+	// initialization target profiles vector
+	{
+		for(int i=0; i<target_Profiles_Vector.size(); ++i)
+		{
+			if(target_Profiles_Vector[i]->loaded_And_Ready)
+			{
+				Data_Element<Target_Curve> data_Element;
+				target.append(data_Element);
+
+				target[i].the_Class = target_Profiles_Vector[i];
+				target[i].curve_Class = TARGET;
+				target[i].active_Item_Type = item_Type_Measurement;
+			}
+		}
+	}
+
+	create_Rand_Generator();
+	check_If_Graded();
+	max_Depth = Global_Variables::get_Tree_Depth(real_Struct_Tree->invisibleRootItem());	// unstratified depth
 }
 
 void Calculation_Tree::run_All()
@@ -44,9 +58,6 @@ void Calculation_Tree::run_All()
 	qInfo() << "Calculation_Tree::run_All : target.size()      =" << target.size();
 	if(independent.size()+target.size()>0)
 	{
-		create_Rand_Generator();
-		check_If_Graded();
-		max_Depth = Global_Variables::get_Tree_Depth(real_Struct_Tree->invisibleRootItem());	// unstratified depth
 		fill_All_Calc_Trees();																	// here we have trees of "Node"
 		calculate();
 	} else
@@ -347,7 +358,7 @@ void Calculation_Tree::calculate_Intermediate_Values_1_Tree(tree<Node>& calc_Tre
 		int status = child.node->data.calculate_Intermediate_Points(measurement, above_Node, active_Parameter_Whats_This, warning_Text, depth_Grading, sigma_Grading);
 		if(status!=0)
 		{
-			emit warning(warning_Text);
+			QMessageBox::warning(0, "Warning", warning_Text);
 			return;
 		}
 		if(child.node->data.struct_Data.item_Type != item_Type_Multilayer)
@@ -377,7 +388,7 @@ tree<Node>::iterator Calculation_Tree::find_Node_By_Item_Id(const tree<Node>::it
 	}
 	// error handling
 	{
-		emit critical("Calculation_Tree::find_Node\nerror: node \"" + QString::number(active_Item_Id) + "\"not found");
+		QMessageBox::critical(0, "Error", "Calculation_Tree::find_Node\nerror: node \"" + QString::number(active_Item_Id) + "\"not found");
 		parent.node->data.stop_Calcuation = true;
 	}
 	return parent;

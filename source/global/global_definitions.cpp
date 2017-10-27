@@ -128,13 +128,13 @@ QDataStream& operator >>( QDataStream& stream,		 Drift& drift )
 
 QDataStream& operator <<( QDataStream& stream, const Calc_Functions& calc_Functions )
 {
-	return stream << calc_Functions.check_Reflectance << calc_Functions.check_Transmittance << calc_Functions.check_Absorptance
-				  << calc_Functions.check_Field		  << calc_Functions.check_Joule			<< calc_Functions.check_User << calc_Functions.user_Functions;
+	return stream << calc_Functions.check_Enabled << calc_Functions.check_Reflectance << calc_Functions.check_Transmittance << calc_Functions.check_Absorptance
+				  << calc_Functions.check_Field	  << calc_Functions.check_Joule		  << calc_Functions.check_User			<< calc_Functions.user_Functions;
 }
 QDataStream& operator >>( QDataStream& stream,		 Calc_Functions& calc_Functions )
 {
-	return stream >> calc_Functions.check_Reflectance >> calc_Functions.check_Transmittance >> calc_Functions.check_Absorptance
-				  >> calc_Functions.check_Field		  >> calc_Functions.check_Joule			>> calc_Functions.check_User >> calc_Functions.user_Functions;
+	return stream >> calc_Functions.check_Enabled >> calc_Functions.check_Reflectance >> calc_Functions.check_Transmittance >> calc_Functions.check_Absorptance
+				  >> calc_Functions.check_Field	  >> calc_Functions.check_Joule		  >> calc_Functions.check_User			>> calc_Functions.user_Functions;
 }
 
 
