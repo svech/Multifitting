@@ -59,13 +59,13 @@ void Independent_Calc_Function_Selection::create_Main_Layout()
 
 		QHBoxLayout* standard_Functions_Layout = new QHBoxLayout(standard_Functions_Group_Box);
 			standard_Functions_Layout->setAlignment(Qt::AlignLeft);
-			reflect_Functions = new QCheckBox("Reflectance", this);
+			reflect_Functions = new QCheckBox(reflectance_Function, this);
 				standard_Functions_Layout->addWidget(reflect_Functions);
 				reflect_Functions->setChecked(independent_Variables->calc_Functions.check_Reflectance);
-			transmit_Functions = new QCheckBox("Transmittance", this);
+			transmit_Functions = new QCheckBox(transmittance_Function, this);
 				standard_Functions_Layout->addWidget(transmit_Functions);
 				transmit_Functions->setChecked(independent_Variables->calc_Functions.check_Transmittance);
-			absorp_Functions = new QCheckBox("Absorptance", this);
+			absorp_Functions = new QCheckBox(absorptance_Function, this);
 				standard_Functions_Layout->addWidget(absorp_Functions);
 				absorp_Functions->setChecked(independent_Variables->calc_Functions.check_Absorptance);
 
@@ -83,10 +83,10 @@ void Independent_Calc_Function_Selection::create_Main_Layout()
 
 		QHBoxLayout* field_Functions_Layout = new QHBoxLayout(field_Functions_Group_Box);
 			field_Functions_Layout->setAlignment(Qt::AlignLeft);
-			field_Intensity = new QCheckBox("Field Intensity", this);
+			field_Intensity = new QCheckBox(intensity_Function, this);
 				field_Functions_Layout->addWidget(field_Intensity);
 				field_Intensity->setChecked(independent_Variables->calc_Functions.check_Field);
-			joule_Absorption= new QCheckBox("Joule Absorption", this);
+			joule_Absorption= new QCheckBox(joule_Function, this);
 				field_Functions_Layout->addWidget(joule_Absorption);
 				joule_Absorption->setChecked(independent_Variables->calc_Functions.check_Joule);
 
@@ -94,7 +94,7 @@ void Independent_Calc_Function_Selection::create_Main_Layout()
 		connect(joule_Absorption, &QCheckBox::toggled, this, &Independent_Calc_Function_Selection::refresh_calc_Functions);
 	}
 	{
-		user_Functions_Group_Box = new QGroupBox("User-defined Functions");
+		user_Functions_Group_Box = new QGroupBox(user_Function);
 			user_Functions_Group_Box->setContentsMargins(0,8,0,-4);
 			user_Functions_Group_Box->setObjectName("user_Functions_Group_Box");
 			user_Functions_Group_Box->setStyleSheet("QGroupBox#user_Functions_Group_Box { border-radius: 2px;  border: 1px solid gray; margin-top: 2ex;}"

@@ -129,11 +129,19 @@ using namespace std;
 //#define	stop_Calculation "stop_Calculation"
 #define fit_Text "fit"
 #define expression_Master_Slave_Variable "x"
+
+// calc functions
+#define reflectance_Function	"Reflectance"
 #define symbol_R "R"
+#define transmittance_Function	"Transmittance"
 #define symbol_T "T"
+#define absorptance_Function	"Absorptance"
 #define symbol_A "A"
+#define intensity_Function		"Field Intensity"
 #define symbol_F "F"
+#define joule_Function			"Joule Absorption"
 #define symbol_J "J"
+#define user_Function			""
 #define symbol_U "U"
 
 // whatsThis : delimiters
@@ -241,7 +249,8 @@ using namespace std;
 #define relative_Columns_To_Disable_Finish_Property_2	"relative_Columns_To_Disable_Finish_2"
 
 // keys
-#define table_Key	"table_Of_Structures"
+#define table_Key			"table_Of_Structures"
+#define calc_Settings_Key	"calc_Settings_Key"
 
 // curves types
 #define INDEPENDENT	"INDEPENDENT"

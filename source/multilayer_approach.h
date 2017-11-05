@@ -6,10 +6,12 @@
 #include "multilayer_approach/multilayer.h"
 #include "main_calculation_module.h"
 #include "multilayer_approach/table_of_structures.h"
+#include "calculation/calculation_settings.h"
 
 class Launcher;
 class Multilayer;
 class Table_Of_Structures;
+class Calculation_Settings;
 
 class Multilayer_Approach : public QWidget
 {
@@ -28,6 +30,7 @@ public:
 	void calc_Reflection();
 	void reload_Optical_Constants();
 	void open_Table_Of_Structures();
+	void open_Calculation_Settings();
 
 	void closeEvent(QCloseEvent *event);
 	void create_Main_Layout();
@@ -50,8 +53,12 @@ public:
 	QHBoxLayout* main_Layout;
 		QTabWidget*	multilayer_Tabs;
 		QToolButton* add_Tab_Corner_Button;
-		QMap<QString, Table_Of_Structures*> runned_Tables_Of_Structures;
+
+		QMap<QString, Table_Of_Structures*>  runned_Tables_Of_Structures;
 		Table_Of_Structures* table_Of_Structures;
+
+		QMap<QString, Calculation_Settings*> runned_Calculation_Settings;
+		Calculation_Settings* calculation_Settings;
 };
 
 #endif // MULTILAYER_APPROACH_H

@@ -145,6 +145,28 @@ void Multilayer_Approach::open_Table_Of_Structures()
 	}
 }
 
+void Multilayer_Approach::open_Calculation_Settings()
+{
+	if(!runned_Calculation_Settings.contains(calc_Settings_Key))
+	{
+		calculation_Settings = new Calculation_Settings(&runned_Calculation_Settings, multilayer_Tabs);
+		runned_Calculation_Settings.insert(calc_Settings_Key, calculation_Settings);
+			calculation_Settings->setWindowFlags(Qt::Window);
+			calculation_Settings->show();
+
+//		connect(table_Of_Structures, &Table_Of_Structures::data_Edited, this, &Multilayer_Approach::refresh_All_Multilayers_View);
+
+//		for(int i=0; i<multilayer_Tabs->count(); ++i)
+//		{
+//			Multilayer* multilayer = qobject_cast<Multilayer*>(multilayer_Tabs->widget(i));
+//			connect(multilayer, &Multilayer::refresh_All_Multilayers, table_Of_Structures, [=]{table_Of_Structures->reload_All_Widgets();});
+//		}
+	} else
+	{
+		runned_Calculation_Settings.value(calc_Settings_Key)->activateWindow();
+	}
+}
+
 void Multilayer_Approach::refresh_All_Multilayers_View()
 {
 	for(int i=0; i<multilayer_Tabs->count(); ++i)
@@ -246,6 +268,9 @@ void Multilayer_Approach::open()
 			int current_Independent_Tab_Index;
 			in >> current_Independent_Tab_Index;
 			multilayer->independent_Variables_Plot_Tabs->setCurrentIndex(current_Independent_Tab_Index);
+
+			// load calc property for independent plots
+			in >> multilayer->enable_Calc_Independent_Curves;
 		}
 		/// target
 		{
@@ -272,6 +297,9 @@ void Multilayer_Approach::open()
 				in >> target_Curve;
 				target_Curve->set_Text_To_Label();
 			}
+
+			// load calc property for target plots
+			in >> multilayer->enable_Calc_Target_Curves;
 		}
 
 		// refresh all
@@ -341,6 +369,9 @@ void Multilayer_Approach::save()
 
 			// save index of active independent tab
 			out << multilayer->independent_Variables_Plot_Tabs->currentIndex();
+
+			// save calc property for independent plots
+			out << multilayer->enable_Calc_Independent_Curves;
 		}
 		/// target
 		{
@@ -355,6 +386,9 @@ void Multilayer_Approach::save()
 				// save main data
 				out << target_Curve;
 			}
+
+			// save calc property for target plots
+			out << multilayer->enable_Calc_Target_Curves;
 		}
 	}
 

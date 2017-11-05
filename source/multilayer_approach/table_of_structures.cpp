@@ -12,7 +12,6 @@ Table_Of_Structures::Table_Of_Structures(QMap<QString, Table_Of_Structures*>* ru
 {
 	setWindowTitle("Table Of Structures");
 	create_Main_Layout();
-
 	setAttribute(Qt::WA_DeleteOnClose);
 }
 
