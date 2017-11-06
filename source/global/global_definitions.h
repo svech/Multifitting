@@ -129,6 +129,7 @@ using namespace std;
 //#define	stop_Calculation "stop_Calculation"
 #define fit_Text "fit"
 #define expression_Master_Slave_Variable "x"
+#define fit_Function_Variable "x"
 
 // calc functions
 #define reflectance_Function	"Reflectance"
@@ -360,6 +361,12 @@ struct Curve					{QVector<double> argument; QVector<double> shifted_Argument;
 								 QString value_Function;
 								 QString value_Mode;
 								 };
+struct Fit_Params				{bool calc = true;
+								 bool fit = true;
+								 bool norm = true;
+								 double weight = 1;
+								 QString fit_Function = "log(x+1E-5)";
+								};
 
 // -----------------------------------------------------------------------------------------
 
@@ -403,6 +410,9 @@ QDataStream& operator >>( QDataStream& stream,		 Value& value );
 
 QDataStream& operator <<( QDataStream& stream, const Curve& curve );
 QDataStream& operator >>( QDataStream& stream,		 Curve& curve );
+
+QDataStream& operator <<( QDataStream& stream, const Fit_Params& fit_Params );
+QDataStream& operator >>( QDataStream& stream,		 Fit_Params& fit_Params );
 // -----------------------------------------------------------------------------------------
 
 //template <typename T>

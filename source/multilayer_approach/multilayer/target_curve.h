@@ -17,15 +17,13 @@ public:
 	void set_Text_To_Label();
 
 	Curve curve;
+	Fit_Params fit_Params;
 	Data measurement;
 
 	QString filename;	// should be empty
 	QString filepath;	// should be empty
 
 	bool loaded_And_Ready = false;
-
-	bool calc = true;
-	bool fit = true;
 
 	QStringList lines_List;
 	QString arg_Units;

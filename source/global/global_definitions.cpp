@@ -158,6 +158,14 @@ QDataStream& operator >>( QDataStream& stream,		 Curve& curve )
 				  >> curve.argument_Type >> curve.angle_Type >> curve.angular_Units >> curve.spectral_Units >> curve.value_Function >> curve.value_Mode;
 }
 
+QDataStream& operator <<( QDataStream& stream, const Fit_Params& fit_Params )
+{
+	return stream << fit_Params.calc << fit_Params.fit << fit_Params.norm  << fit_Params.weight << fit_Params.fit_Function;
+}
+QDataStream& operator >>( QDataStream& stream,		 Fit_Params& fit_Params )
+{
+	return stream >> fit_Params.calc >> fit_Params.fit >> fit_Params.norm  >> fit_Params.weight >> fit_Params.fit_Function;
+}
 // optical constants
 
 void Point::read_Row(QTextStream& input, bool if_Factors)

@@ -139,8 +139,43 @@ void Calculation_Settings::load_Target_Parameters(int tab_Index)
 							  "QGroupBox::title   { subcontrol-origin: margin;   left: 9px; padding: 0 0px 0 1px;}");
 			frame_Layout->addWidget(box);
 
-			box->setChecked(multilayer->target_Profiles_Vector[target_Index]->calc);
-			connect(box,  &QGroupBox::toggled, this, [=]{ multilayer->target_Profiles_Vector[target_Index]->calc = box->isChecked(); });
+			box->setChecked(multilayer->target_Profiles_Vector[target_Index]->fit_Params.calc);
+			connect(box,  &QGroupBox::toggled, this, [=]{ multilayer->target_Profiles_Vector[target_Index]->fit_Params.calc = box->isChecked(); });
+
+			QVBoxLayout* box_Layout = new QVBoxLayout(box);
+
+			// content
+			{
+				QCheckBox* fit = new QCheckBox("Fit");
+					box_Layout->addWidget(fit);
+					fit->setChecked(multilayer->target_Profiles_Vector[target_Index]->fit_Params.fit);
+				connect(fit,  &QCheckBox::toggled, this, [=]{ multilayer->target_Profiles_Vector[target_Index]->fit_Params.fit = fit->isChecked(); });
+
+				QLineEdit* weight_Line_Edit = new QLineEdit(QString::number(multilayer->target_Profiles_Vector[target_Index]->fit_Params.weight));
+					weight_Line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION, this));
+					box_Layout->addWidget(weight_Line_Edit);
+				connect(weight_Line_Edit,  &QLineEdit::textEdited, this, [=]{ multilayer->target_Profiles_Vector[target_Index]->fit_Params.weight = weight_Line_Edit->text().toDouble(); });
+
+				QCheckBox* norm = new QCheckBox("Divide by N");
+					box_Layout->addWidget(norm);
+					norm->setChecked(multilayer->target_Profiles_Vector[target_Index]->fit_Params.norm);
+				connect(norm,  &QCheckBox::toggled, this, [=]{ multilayer->target_Profiles_Vector[target_Index]->fit_Params.norm = norm->isChecked(); });
+
+				QLineEdit* fit_Function_Line_Edit = new QLineEdit(multilayer->target_Profiles_Vector[target_Index]->fit_Params.fit_Function);
+					box_Layout->addWidget(fit_Function_Line_Edit);
+				connect(fit_Function_Line_Edit,  &QLineEdit::editingFinished, this, [=]
+				{
+					QStringList var_List = {fit_Function_Variable};
+					if(Global_Variables::expression_Is_Valid(fit_Function_Line_Edit->text(), var_List) || fit_Function_Line_Edit->text().isEmpty())
+					{
+						multilayer->target_Profiles_Vector[target_Index]->fit_Params.fit_Function = fit_Function_Line_Edit->text();
+					} else
+					{
+						fit_Function_Line_Edit->setText(multilayer->target_Profiles_Vector[target_Index]->fit_Params.fit_Function);
+						QMessageBox::information(this, "Wrong expression", "Expression has wrong syntax");
+					}
+				});
+			}
 		}
 	}
 }
