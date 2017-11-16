@@ -21,11 +21,10 @@ Calculation_Tree::Calculation_Tree(QTabWidget* independent_Variables_Plot_Tabs, 
 				independent_Variables->calc_Functions.check_Joule			||
 				independent_Variables->calc_Functions.check_User )
 			{
-				Data_Element<Independent_Variables> data_Element;
-				independent.append(data_Element);
+				independent.resize(independent.size()+1);
 
-				independent[i].the_Class = independent_Variables;
-				independent[i].curve_Class = INDEPENDENT;
+				independent.last().the_Class = independent_Variables;
+				independent.last().curve_Class = INDEPENDENT;
 			}
 		}
 	}
@@ -36,12 +35,11 @@ Calculation_Tree::Calculation_Tree(QTabWidget* independent_Variables_Plot_Tabs, 
 		{
 			if(target_Profiles_Vector[i]->loaded_And_Ready)
 			{
-				Data_Element<Target_Curve> data_Element;
-				target.append(data_Element);
+				target.resize(target.size()+1);
 
-				target[i].the_Class = target_Profiles_Vector[i];
-				target[i].curve_Class = TARGET;
-				target[i].active_Item_Type = item_Type_Measurement;
+				target.last().the_Class = target_Profiles_Vector[i];
+				target.last().curve_Class = TARGET;
+				target.last().active_Item_Type = item_Type_Measurement;
 			}
 		}
 	}
@@ -51,20 +49,20 @@ Calculation_Tree::Calculation_Tree(QTabWidget* independent_Variables_Plot_Tabs, 
 	max_Depth = Global_Variables::get_Tree_Depth(real_Struct_Tree->invisibleRootItem());	// unstratified depth
 }
 
-void Calculation_Tree::run_All()
-{
-	qInfo() << "";
-	qInfo() << "Calculation_Tree::run_All : independent.size() =" << independent.size();
-	qInfo() << "Calculation_Tree::run_All : target.size()      =" << target.size();
-	if(independent.size()+target.size()>0)
-	{
-		fill_All_Calc_Trees();																	// here we have trees of "Node"
-		calculate();
-	} else
-	{
-		qInfo() << "Calculation_Tree::run_All  :  no data for calculation";
-	}
-}
+//void Calculation_Tree::run_All()
+//{
+//	qInfo() << "";
+//	qInfo() << "Calculation_Tree::run_All : independent.size() =" << independent.size();
+//	qInfo() << "Calculation_Tree::run_All : target.size()      =" << target.size();
+//	if(independent.size()+target.size()>0)
+//	{
+//		fill_All_Calc_Trees();																	// here we have trees of "Node"
+//		calculate();
+//	} else
+//	{
+//		qInfo() << "Calculation_Tree::run_All  :  no data for calculation";
+//	}
+//}
 
 void Calculation_Tree::create_Rand_Generator()
 {

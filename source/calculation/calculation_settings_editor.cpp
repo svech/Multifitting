@@ -1,6 +1,6 @@
 #include "calculation_settings.h"
 
-Calculation_Settings::Calculation_Settings(QMap<QString, Calculation_Settings*>* runned_Calculation_Settings, QTabWidget* multilayer_Tabs, QWidget* parent) :
+Calculation_Settings_Editor::Calculation_Settings_Editor(QMap<QString, Calculation_Settings_Editor*>* runned_Calculation_Settings, QTabWidget* multilayer_Tabs, QWidget* parent) :
 	runned_Calculation_Settings(runned_Calculation_Settings),
 	multilayer_Tabs(multilayer_Tabs),
 	QWidget(parent)
@@ -10,13 +10,13 @@ Calculation_Settings::Calculation_Settings(QMap<QString, Calculation_Settings*>*
 	setAttribute(Qt::WA_DeleteOnClose);
 }
 
-void Calculation_Settings::closeEvent(QCloseEvent* event)
+void Calculation_Settings_Editor::closeEvent(QCloseEvent* event)
 {
 	runned_Calculation_Settings->remove(calc_Settings_Key);
 	event->accept();
 }
 
-void Calculation_Settings::create_Main_Layout()
+void Calculation_Settings_Editor::create_Main_Layout()
 {
 	main_Layout = new QVBoxLayout(this);
 	main_Layout->setSpacing(0);
@@ -29,16 +29,36 @@ void Calculation_Settings::create_Main_Layout()
 	adjustSize();
 	add_Tabs();
 
-	done_Button = new QPushButton("Done");
-		done_Button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-			done_Button->setFocus();
-		done_Button->setDefault(true);
-	main_Layout->addWidget(done_Button,0,Qt::AlignCenter);
+	QHBoxLayout* button_Layout = new QHBoxLayout;
+		button_Layout->setAlignment(Qt::AlignCenter);
+		button_Layout->setSpacing(54);
+	{
+		done_Button = new QPushButton("Done");
+			done_Button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+				done_Button->setFocus();
+			done_Button->setDefault(true);
+		button_Layout->addWidget(done_Button);
+	}
+	{
+		global_Norm_Button = new QPushButton("Calculate Weights");
+			global_Norm_Button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+				global_Norm_Button->setFocus();
+			global_Norm_Button->setDefault(true);
+		button_Layout->addWidget(global_Norm_Button);
+	}
+	{
+		optimization_Method_Button = new QPushButton("Fitting Method");
+			optimization_Method_Button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+				optimization_Method_Button->setFocus();
+			optimization_Method_Button->setDefault(true);
+		button_Layout->addWidget(optimization_Method_Button);
+	}
+	main_Layout->addLayout(button_Layout);
 
-	connect(done_Button, &QPushButton::clicked, this, &Calculation_Settings::close);
+	connect(done_Button, &QPushButton::clicked, this, &Calculation_Settings_Editor::close);
 }
 
-void Calculation_Settings::create_Tabs()
+void Calculation_Settings_Editor::create_Tabs()
 {
 	main_Tabs = new QTabWidget(this);
 	main_Tabs->setMovable(false);
@@ -56,7 +76,7 @@ void Calculation_Settings::create_Tabs()
 	});
 }
 
-void Calculation_Settings::add_Tabs()
+void Calculation_Settings_Editor::add_Tabs()
 {
 //	read_Trees();
 	for(int tab_Index=0; tab_Index<multilayer_Tabs->count(); ++tab_Index)
@@ -76,7 +96,7 @@ void Calculation_Settings::add_Tabs()
 //	reload_All_Widgets();
 }
 
-void Calculation_Settings::create_Tab_Content(QWidget* new_Widget, int tab_Index)
+void Calculation_Settings_Editor::create_Tab_Content(QWidget* new_Widget, int tab_Index)
 {
 	QVBoxLayout* tab_Layout = new QVBoxLayout(new_Widget);
 
@@ -114,7 +134,7 @@ void Calculation_Settings::create_Tab_Content(QWidget* new_Widget, int tab_Index
 	}
 }
 
-void Calculation_Settings::load_Target_Parameters(int tab_Index)
+void Calculation_Settings_Editor::load_Target_Parameters(int tab_Index)
 {
 	Multilayer* multilayer = qobject_cast<Multilayer*>(multilayer_Tabs->widget(tab_Index));
 	target_Group_Box_Vec[tab_Index]->setChecked(multilayer->enable_Calc_Target_Curves);
@@ -151,18 +171,30 @@ void Calculation_Settings::load_Target_Parameters(int tab_Index)
 					fit->setChecked(multilayer->target_Profiles_Vector[target_Index]->fit_Params.fit);
 				connect(fit,  &QCheckBox::toggled, this, [=]{ multilayer->target_Profiles_Vector[target_Index]->fit_Params.fit = fit->isChecked(); });
 
+				QLabel* weight_Label = new QLabel("Weight");
 				QLineEdit* weight_Line_Edit = new QLineEdit(QString::number(multilayer->target_Profiles_Vector[target_Index]->fit_Params.weight));
 					weight_Line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION, this));
-					box_Layout->addWidget(weight_Line_Edit);
+
+				QHBoxLayout* weight_Layout = new QHBoxLayout;
+					weight_Layout->addWidget(weight_Label);
+					weight_Layout->addWidget(weight_Line_Edit);
+
+				box_Layout->addLayout(weight_Layout);
 				connect(weight_Line_Edit,  &QLineEdit::textEdited, this, [=]{ multilayer->target_Profiles_Vector[target_Index]->fit_Params.weight = weight_Line_Edit->text().toDouble(); });
 
 				QCheckBox* norm = new QCheckBox("Divide by N");
 					box_Layout->addWidget(norm);
-					norm->setChecked(multilayer->target_Profiles_Vector[target_Index]->fit_Params.norm);
+				norm->setChecked(multilayer->target_Profiles_Vector[target_Index]->fit_Params.norm);
 				connect(norm,  &QCheckBox::toggled, this, [=]{ multilayer->target_Profiles_Vector[target_Index]->fit_Params.norm = norm->isChecked(); });
 
+				QLabel* function_Label = new QLabel("Function");
 				QLineEdit* fit_Function_Line_Edit = new QLineEdit(multilayer->target_Profiles_Vector[target_Index]->fit_Params.fit_Function);
-					box_Layout->addWidget(fit_Function_Line_Edit);
+
+				QHBoxLayout* function_Layout = new QHBoxLayout;
+					function_Layout->addWidget(function_Label);
+					function_Layout->addWidget(fit_Function_Line_Edit);
+
+				box_Layout->addLayout(function_Layout);
 				connect(fit_Function_Line_Edit,  &QLineEdit::editingFinished, this, [=]
 				{
 					QStringList var_List = {fit_Function_Variable};
@@ -180,7 +212,7 @@ void Calculation_Settings::load_Target_Parameters(int tab_Index)
 	}
 }
 
-void Calculation_Settings::load_Independent_Parameters(int tab_Index)
+void Calculation_Settings_Editor::load_Independent_Parameters(int tab_Index)
 {
 	Multilayer* multilayer = qobject_cast<Multilayer*>(multilayer_Tabs->widget(tab_Index));
 
@@ -282,7 +314,7 @@ void Calculation_Settings::load_Independent_Parameters(int tab_Index)
 	}
 }
 
-void Calculation_Settings::refresh_Independent_Calc_Properties(int tab_Index, int independent_Index, QGroupBox* box)
+void Calculation_Settings_Editor::refresh_Independent_Calc_Properties(int tab_Index, int independent_Index, QGroupBox* box)
 {
 	Multilayer* multilayer = qobject_cast<Multilayer*>(multilayer_Tabs->widget(tab_Index));
 	Independent_Variables* independent_Variables = qobject_cast<Independent_Variables*>(multilayer->independent_Variables_Plot_Tabs->widget(independent_Index));

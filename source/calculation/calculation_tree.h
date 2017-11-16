@@ -41,7 +41,7 @@ public:
 	Calculation_Tree(QTabWidget* independent_Variables_Plot_Tabs, QVector<Target_Curve*>& target_Profiles_Vector, QTreeWidget* real_Struct_Tree);
 
 public:
-	void run_All();
+//	void run_All();
 	void create_Rand_Generator();
 	void check_If_Graded();
 

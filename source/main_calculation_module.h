@@ -18,7 +18,6 @@ public:
 
 	void single_Calculation();
 
-	void run_All();
 };
 
 #endif // MAIN_CALCULATION_MODULE_H

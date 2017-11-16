@@ -147,10 +147,10 @@ void Multilayer_Approach::open_Table_Of_Structures()
 
 void Multilayer_Approach::open_Calculation_Settings()
 {
-	if(!runned_Calculation_Settings.contains(calc_Settings_Key))
+	if(!runned_Calculation_Settings_Editor.contains(calc_Settings_Key))
 	{
-		calculation_Settings = new Calculation_Settings(&runned_Calculation_Settings, multilayer_Tabs);
-		runned_Calculation_Settings.insert(calc_Settings_Key, calculation_Settings);
+		calculation_Settings = new Calculation_Settings_Editor(&runned_Calculation_Settings_Editor, multilayer_Tabs);
+		runned_Calculation_Settings_Editor.insert(calc_Settings_Key, calculation_Settings);
 			calculation_Settings->setWindowFlags(Qt::Window);
 			calculation_Settings->show();
 
@@ -163,7 +163,7 @@ void Multilayer_Approach::open_Calculation_Settings()
 //		}
 	} else
 	{
-		runned_Calculation_Settings.value(calc_Settings_Key)->activateWindow();
+		runned_Calculation_Settings_Editor.value(calc_Settings_Key)->activateWindow();
 	}
 }
 
@@ -405,7 +405,7 @@ void Multilayer_Approach::calc_Reflection()
 				 "\ncalc specular functions..."
 				 "\n-------------------------------------------------------\n";
 	Main_Calculation_Module* main_Calculation_Module = new Main_Calculation_Module(multilayer_Tabs);
-	main_Calculation_Module->run_All();
+	main_Calculation_Module->single_Calculation();
 	delete main_Calculation_Module;
 }
 

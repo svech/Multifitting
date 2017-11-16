@@ -11,7 +11,7 @@
 class Launcher;
 class Multilayer;
 class Table_Of_Structures;
-class Calculation_Settings;
+class Calculation_Settings_Editor;
 
 class Multilayer_Approach : public QWidget
 {
@@ -57,8 +57,8 @@ public:
 		QMap<QString, Table_Of_Structures*>  runned_Tables_Of_Structures;
 		Table_Of_Structures* table_Of_Structures;
 
-		QMap<QString, Calculation_Settings*> runned_Calculation_Settings;
-		Calculation_Settings* calculation_Settings;
+		QMap<QString, Calculation_Settings_Editor*> runned_Calculation_Settings_Editor;
+		Calculation_Settings_Editor* calculation_Settings;
 };
 
 #endif // MULTILAYER_APPROACH_H
