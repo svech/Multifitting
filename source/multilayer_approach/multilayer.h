@@ -59,8 +59,8 @@ public:
 						QVector<QFrame*> data_Target_Profile_Frame_Vector;
 						QVector<Target_Curve*> target_Profiles_Vector;
 
-		bool enable_Calc_Target_Curves = true;
-		bool enable_Calc_Independent_Curves = true;
+	bool enable_Calc_Target_Curves = true;
+	bool enable_Calc_Independent_Curves = true;
 };
 
 #endif // MULTILAYER_H

@@ -41,7 +41,6 @@ public:
 	Calculation_Tree(QTabWidget* independent_Variables_Plot_Tabs, QVector<Target_Curve*>& target_Profiles_Vector, QTreeWidget* real_Struct_Tree);
 
 public:
-//	void run_All();
 	void create_Rand_Generator();
 	void check_If_Graded();
 
@@ -64,9 +63,6 @@ public:
 	void calculate_Unwrapped_Reflectivity(const Data& measurement, QString active_Parameter_Whats_This, Unwrapped_Structure* unwrapped_Structure_Vec_Element, Unwrapped_Reflection*& unwrapped_Reflection_Vec_Element);
 
 	int get_Total_Num_Layers(const tree<Node>::iterator& parent, const tree<Node>& calc_Tree);
-
-	template <typename Type>
-	void print_Reflect_To_File(Data_Element<Type>& data_Element, int index);
 
 	void print_Tree(const tree<Node>::iterator& parent, tree<Node>& calc_Tree);
 	void print_Flat_list(QList<Node> flat_List);

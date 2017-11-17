@@ -49,21 +49,6 @@ Calculation_Tree::Calculation_Tree(QTabWidget* independent_Variables_Plot_Tabs, 
 	max_Depth = Global_Variables::get_Tree_Depth(real_Struct_Tree->invisibleRootItem());	// unstratified depth
 }
 
-//void Calculation_Tree::run_All()
-//{
-//	qInfo() << "";
-//	qInfo() << "Calculation_Tree::run_All : independent.size() =" << independent.size();
-//	qInfo() << "Calculation_Tree::run_All : target.size()      =" << target.size();
-//	if(independent.size()+target.size()>0)
-//	{
-//		fill_All_Calc_Trees();																	// here we have trees of "Node"
-//		calculate();
-//	} else
-//	{
-//		qInfo() << "Calculation_Tree::run_All  :  no data for calculation";
-//	}
-//}
-
 void Calculation_Tree::create_Rand_Generator()
 {
 	const gsl_rng_type* rng_Type;
@@ -330,8 +315,6 @@ void Calculation_Tree::calculate_1_Kind(QVector<Data_Element<Type>>& data_Elemen
 			end = std::chrono::system_clock::now();
 			elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
 			qInfo() << "Unwrap Reflect: "<< elapsed.count()/1000000. << " seconds" << endl;
-
-			print_Reflect_To_File(data_Element,plot_Counter);
 		}
 		plot_Counter++;
 	}
@@ -418,43 +401,6 @@ void Calculation_Tree::calculate_Unwrapped_Reflectivity(				    const Data& meas
 	cout << "R_p     [" << 0 << "] = " << unwrapped_Reflection_Vec_Element->R_p[0] << endl;
 	cout << "--------------------------------\n";
 }
-
-template <typename Type>
-void Calculation_Tree::print_Reflect_To_File(Data_Element<Type>& data_Element, int index)
-{
-	QString first_Name;
-	if(data_Element.curve_Class == INDEPENDENT)	first_Name = "calc_independent";
-	if(data_Element.curve_Class == TARGET)		first_Name = "calc_target";
-
-	int num_Points = 0;
-	QVector<double> arg;
-	if(data_Element.active_Parameter_Whats_This == whats_This_Angle )
-	{
-		num_Points = data_Element.the_Class->measurement.angle.size();
-		arg = data_Element.the_Class->measurement.angle;
-	}
-	if(data_Element.active_Parameter_Whats_This == whats_This_Wavelength )
-	{
-		num_Points = data_Element.the_Class->measurement.lambda.size();
-		arg = data_Element.the_Class->measurement.lambda;
-	}
-
-	QString name = first_Name+"_"+QString::number(index)+".txt";
-	QFile file(name);
-	if (file.open(QIODevice::WriteOnly))
-	{
-		QTextStream out(&file);
-		for(auto i=0; i<num_Points; ++i)
-		{
-			out << "\t" << QString::number(arg[i],'f',4)
-				<< "\t" << QString::number(data_Element.unwrapped_Reflection->R[i],'e',6)
-				<< endl;
-		}
-	file.close();
-	} else{QTextStream(stderr) << "Calculation_Tree::print_Reflect_To_File  :  Can't write file " + name << endl;	exit(EXIT_FAILURE);}
-}
-template void Calculation_Tree::print_Reflect_To_File<Independent_Variables>(Data_Element<Independent_Variables>&, int);
-template void Calculation_Tree::print_Reflect_To_File<Target_Curve>		    (Data_Element<Target_Curve>&, int);
 
 int Calculation_Tree::get_Total_Num_Layers(const tree<Node>::iterator& parent, const tree<Node>& calc_Tree)
 {
