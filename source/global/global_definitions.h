@@ -286,7 +286,7 @@ struct Parameter_Indicator		{int id = 0; QString whats_This;								// once and 
 								 int tab_Index = -1; QString full_Name;			// can be changed
 								 QString expression = expression_Master_Slave_Variable; bool exist = false;};	// for master/slave dependencies
 
-struct Int_Independent			{int value; bool is_Independent=false;	int start = 1; int step = 1; int num_Steps = 3; int id = 0; QString whats_This;
+struct Int_Independent			{int value=1; bool is_Independent=false;	int start = 1; int step = 1; int num_Steps = 3; int id = 0; QString whats_This;
 								 Int_Independent()
 								 {
 									id = Global_Definitions::random_Id();	// create unique id

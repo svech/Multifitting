@@ -22,12 +22,71 @@ void Main_Calculation_Module::single_Calculation()
 {
 	for(int tab_Index=0; tab_Index<multilayers.size(); ++tab_Index)
 	{
-		// preparing trees
 		if( multilayers[tab_Index]->enable_Calc_Independent_Curves ||
 			multilayers[tab_Index]->enable_Calc_Target_Curves )
 		{
-			calculation_Trees[tab_Index]->fill_All_Calc_Trees();
+			calculation_Trees[tab_Index]->fill_Independent_Calc_Trees();
+			calculation_Trees[tab_Index]->fill_Target_Calc_Trees();
 			calculation_Trees[tab_Index]->calculate();
+		}
+	}
+}
+
+void Main_Calculation_Module::fitting()
+{
+	fitables.clear_All();
+
+	for(int tab_Index=0; tab_Index<multilayers.size(); ++tab_Index)
+	{
+		if( multilayers[tab_Index]->enable_Calc_Target_Curves )
+		if( calculation_Trees[tab_Index]->target.size()>0)
+		{
+			// prepare real_Calc_Tree
+			calculation_Trees[tab_Index]->fill_Tree_From_Scratch(calculation_Trees[tab_Index]->real_Calc_Tree, calculation_Trees[tab_Index]->real_Struct_Tree, TARGET);
+
+			calc_Tree_Iteration(calculation_Trees[tab_Index]->real_Calc_Tree.begin());
+//			for(Target_Curve* target_Profile : multilayers[tab_Index]->target_Profiles_Vector)
+//			{
+//				if(target_Profile->fit_Params.fit)
+//				{
+
+//				}
+//			}
+		}
+	}
+}
+
+void Main_Calculation_Module::find_Fittable_Parameters(Data& struct_Data)
+{
+	struct_Data.fill_Potentially_Fitable_Parameters_Vector();
+	for(Parameter* parameter : struct_Data.potentially_Fitable_Parameters)
+	{
+		// for my_Sigmas
+		if(parameter->indicator.whats_This == whats_This_Interlayer_My_Sigma &&	!struct_Data.common_Sigma)
+			parameter->fit.is_Fitable = struct_Data.sigma.fit.is_Fitable;
+
+		// fitable and has no master
+		if(parameter->fit.is_Fitable && !parameter->coupled.master.exist)
+		{
+			qInfo() << parameter->indicator.whats_This << "is fitable";
+		}
+	}
+}
+
+void Main_Calculation_Module::calc_Tree_Iteration(const tree<Node>::iterator& parent)
+{
+	// iterate over tree
+	for(unsigned i=0; i<parent.number_of_children(); ++i)
+	{
+		tree<Node>::pre_order_iterator child = tree<Node>::child(parent,i);
+
+		Data& struct_Data = child.node->data.struct_Data;
+//		qInfo() << struct_Data.item_Type << ", depth = " << tree<Node>::depth(child);
+		find_Fittable_Parameters(struct_Data);
+
+		if(child.number_of_children()>0)
+		{
+			calc_Tree_Iteration(child);
 		}
 	}
 }

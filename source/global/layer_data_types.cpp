@@ -415,6 +415,106 @@ void Data::calc_Independent_cos2_k()
 	}
 }
 
+void Data::fill_Potentially_Fitable_Parameters_Vector()
+{
+	potentially_Fitable_Parameters.clear();
+
+	///---------------------------------------------
+	// Measurement
+	//---------------------------------------------
+		// angle
+		potentially_Fitable_Parameters.push_back(&probe_Angle);
+		potentially_Fitable_Parameters.push_back(&angular_Resolution);
+
+		// wavelength
+		potentially_Fitable_Parameters.push_back(&wavelength);
+		potentially_Fitable_Parameters.push_back(&spectral_Resolution);
+		potentially_Fitable_Parameters.push_back(&polarization);
+		potentially_Fitable_Parameters.push_back(&polarization_Sensitivity);
+
+	///---------------------------------------------
+	///---------------------------------------------
+	// Ambient, Layer, Substrate
+	//---------------------------------------------
+		if(!composed_Material)
+			potentially_Fitable_Parameters.push_back(&relative_Density);
+		else
+			potentially_Fitable_Parameters.push_back(&absolute_Density);
+
+		// tabular material
+//		all_Parameters.push_back(&permittivity);
+//		all_Parameters.push_back(&absorption);
+
+		// material composition
+		if(composition.size()>1 && composed_Material)
+		{
+			for(Stoichiometry& stoichiometry : composition)
+			{
+				potentially_Fitable_Parameters.push_back(&stoichiometry.composition);
+			}
+		}
+	///---------------------------------------------
+	///---------------------------------------------
+	// Layer, Substrate
+	//---------------------------------------------
+		int enabled_Counter=0;
+		for(Interlayer& interlayer : interlayer_Composition)
+		{
+			if(interlayer.enabled)
+			{
+				++enabled_Counter;
+				potentially_Fitable_Parameters.push_back(&interlayer.interlayer);
+
+				if(!common_Sigma)
+					potentially_Fitable_Parameters.push_back(&interlayer.my_Sigma);
+			}
+		}
+
+		if(common_Sigma && enabled_Counter>0)
+			potentially_Fitable_Parameters.push_back(&sigma);
+
+	///---------------------------------------------
+	///---------------------------------------------
+	// Layer
+	//---------------------------------------------
+		potentially_Fitable_Parameters.push_back(&thickness);
+
+		// thickness drift
+		if(thickness_Drift.is_Drift_Line)
+			potentially_Fitable_Parameters.push_back(&thickness_Drift.drift_Line_Value);
+
+		if(thickness_Drift.is_Drift_Sine)
+		{
+			potentially_Fitable_Parameters.push_back(&thickness_Drift.drift_Sine_Amplitude);
+			potentially_Fitable_Parameters.push_back(&thickness_Drift.drift_Sine_Frequency);
+			potentially_Fitable_Parameters.push_back(&thickness_Drift.drift_Sine_Phase);
+		}
+
+		if(thickness_Drift.is_Drift_Rand)
+			potentially_Fitable_Parameters.push_back(&thickness_Drift.drift_Rand_Rms);
+
+		// sigma drift
+		if(sigma_Drift.is_Drift_Line)
+			potentially_Fitable_Parameters.push_back(&sigma_Drift.drift_Line_Value);
+
+		if(sigma_Drift.is_Drift_Sine)
+		{
+			potentially_Fitable_Parameters.push_back(&sigma_Drift.drift_Sine_Amplitude);
+			potentially_Fitable_Parameters.push_back(&sigma_Drift.drift_Sine_Frequency);
+			potentially_Fitable_Parameters.push_back(&sigma_Drift.drift_Sine_Phase);
+		}
+
+		if(sigma_Drift.is_Drift_Rand)
+			potentially_Fitable_Parameters.push_back(&sigma_Drift.drift_Rand_Rms);
+
+	///---------------------------------------------
+	///---------------------------------------------
+	// Multilayer
+	//---------------------------------------------
+		potentially_Fitable_Parameters.push_back(&period);
+		potentially_Fitable_Parameters.push_back(&gamma);
+}
+
 // serialization
 
 /// measurement

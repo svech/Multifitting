@@ -324,7 +324,7 @@ void Coupling_Editor::save_External_Slaves()
 		{
 			QWidget* deprecated_Widget = coupled_Widgets_Id.value(id);
 			if(deprecated_Widget)
-			{
+			{				
 				Parameter deprecated_Parameter = deprecated_Widget->property(parameter_Property).value<Parameter>();
 				deprecated_Parameter.coupled.master.exist = false;
 

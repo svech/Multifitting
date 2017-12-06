@@ -28,6 +28,7 @@ public:
 	void open();
 	void save();
 	void calc_Reflection();
+	void start_Fitting();
 	void reload_Optical_Constants();
 	void open_Table_Of_Structures();
 	void open_Calculation_Settings();

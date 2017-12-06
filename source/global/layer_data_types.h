@@ -83,6 +83,8 @@ public:
 		Parameter gamma;
 	///---------------------------------------------
 
+	vector<Parameter*> potentially_Fitable_Parameters;
+	void fill_Potentially_Fitable_Parameters_Vector();
 };
 
 QDataStream& operator <<( QDataStream& stream, const Data& data );

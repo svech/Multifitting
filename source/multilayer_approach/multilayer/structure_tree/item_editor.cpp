@@ -1034,7 +1034,7 @@ void Item_Editor::refresh_Data()
 				{
 					double factor = struct_Data.period.value / init_Period;
 					change_Child_Layers_Thickness(item, factor);
-					init_Period = struct_Data.period.value;
+//					init_Period = struct_Data.period.value; // never used
 				}
 			}
 		}

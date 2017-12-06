@@ -181,6 +181,13 @@ void Multilayer_Approach::refresh_All_Multilayers_View()
 
 void Multilayer_Approach::open()
 {
+	// close table of structures
+	bool reopen = runned_Tables_Of_Structures.contains(table_Key);
+	if(reopen)
+	{
+		runned_Tables_Of_Structures.value(table_Key)->close();
+	}
+
 	// TODO
 	QFile file("save.fit");
 	file.open(QIODevice::ReadOnly);
@@ -317,6 +324,12 @@ void Multilayer_Approach::open()
 	multilayer_Tabs->setCurrentIndex(multilayer_Tab_Index);
 
 	file.close();
+
+	// reopen table of structures
+	if(reopen)
+	{
+		open_Table_Of_Structures();
+	}
 }
 
 void Multilayer_Approach::save()
@@ -407,6 +420,18 @@ void Multilayer_Approach::calc_Reflection()
 	Main_Calculation_Module* main_Calculation_Module = new Main_Calculation_Module(multilayer_Tabs);
 	main_Calculation_Module->single_Calculation();
 	main_Calculation_Module->print_Calculated_To_File();
+	delete main_Calculation_Module;
+}
+
+void Multilayer_Approach::start_Fitting()
+{
+	// TODO
+	qInfo() << "\n\n-------------------------------------------------------"
+				 "\nfitting..."
+				 "\n-------------------------------------------------------\n";
+	Main_Calculation_Module* main_Calculation_Module = new Main_Calculation_Module(multilayer_Tabs);
+	main_Calculation_Module->fitting();
+//	main_Calculation_Module->print_Calculated_To_File();
 	delete main_Calculation_Module;
 }
 

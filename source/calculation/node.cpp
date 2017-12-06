@@ -305,7 +305,7 @@ int Node::calculate_Intermediate_Points(const Data& measurement, Node* above_Nod
 					double factor, x, y;
 
 					double norm = 0;
-					double my_Sigma = 0;
+					double my_Sigma = struct_Data.sigma.value;	// by default, otherwise we change it
 					vector<double> s (num_Points);
 
 					for(int i=0; i<num_Points; ++i)
@@ -319,7 +319,8 @@ int Node::calculate_Intermediate_Points(const Data& measurement, Node* above_Nod
 					if(struct_Data.interlayer_Composition[Erf].enabled)
 					{
 						norm += struct_Data.interlayer_Composition[Erf].interlayer.value;
-						my_Sigma = struct_Data.interlayer_Composition[Erf].my_Sigma.value;
+						if(!struct_Data.common_Sigma)
+							my_Sigma = struct_Data.interlayer_Composition[Erf].my_Sigma.value;
 						for(int i=0; i<num_Points; ++i)
 						{
 							factor = exp( - 2 * s[i] * s[i] * my_Sigma * my_Sigma );
@@ -331,7 +332,8 @@ int Node::calculate_Intermediate_Points(const Data& measurement, Node* above_Nod
 					if(struct_Data.interlayer_Composition[Lin].enabled)
 					{
 						norm += struct_Data.interlayer_Composition[Lin].interlayer.value;
-						my_Sigma = struct_Data.interlayer_Composition[Lin].my_Sigma.value;
+						if(!struct_Data.common_Sigma)
+							my_Sigma = struct_Data.interlayer_Composition[Lin].my_Sigma.value;
 						for(int i=0; i<num_Points; ++i)
 						{
 							x = sqrt(3.) * 2 * s[i] * my_Sigma;
@@ -344,7 +346,8 @@ int Node::calculate_Intermediate_Points(const Data& measurement, Node* above_Nod
 					if(struct_Data.interlayer_Composition[Exp].enabled)
 					{
 						norm += struct_Data.interlayer_Composition[Exp].interlayer.value;
-						my_Sigma = struct_Data.interlayer_Composition[Exp].my_Sigma.value;
+						if(!struct_Data.common_Sigma)
+							my_Sigma = struct_Data.interlayer_Composition[Exp].my_Sigma.value;
 						for(int i=0; i<num_Points; ++i)
 						{
 							x = 2 * pow(s[i] * my_Sigma, 2);
@@ -357,7 +360,8 @@ int Node::calculate_Intermediate_Points(const Data& measurement, Node* above_Nod
 					if(struct_Data.interlayer_Composition[Tanh].enabled)
 					{
 						norm += struct_Data.interlayer_Composition[Tanh].interlayer.value;
-						my_Sigma = struct_Data.interlayer_Composition[Tanh].my_Sigma.value;
+						if(!struct_Data.common_Sigma)
+							my_Sigma = struct_Data.interlayer_Composition[Tanh].my_Sigma.value;
 						for(int i=0; i<num_Points; ++i)
 						{
 							x = 2 * sqrt(3.) * s[i] * my_Sigma;
@@ -370,7 +374,8 @@ int Node::calculate_Intermediate_Points(const Data& measurement, Node* above_Nod
 					if(struct_Data.interlayer_Composition[Sin].enabled)
 					{
 						norm += struct_Data.interlayer_Composition[Sin].interlayer.value;
-						my_Sigma = struct_Data.interlayer_Composition[Sin].my_Sigma.value;
+						if(!struct_Data.common_Sigma)
+							my_Sigma = struct_Data.interlayer_Composition[Sin].my_Sigma.value;
 						for(int i=0; i<num_Points; ++i)
 						{
 							x = 2 * a * my_Sigma * s[i] - M_PI_2;
@@ -384,7 +389,8 @@ int Node::calculate_Intermediate_Points(const Data& measurement, Node* above_Nod
 					if(struct_Data.interlayer_Composition[Step].enabled)
 					{
 						norm += struct_Data.interlayer_Composition[Step].interlayer.value;
-						my_Sigma = struct_Data.interlayer_Composition[Step].my_Sigma.value;
+						if(!struct_Data.common_Sigma)
+							my_Sigma = struct_Data.interlayer_Composition[Step].my_Sigma.value;
 						for(int i=0; i<num_Points; ++i)
 						{
 							factor = cos(2 * s[i] * my_Sigma);

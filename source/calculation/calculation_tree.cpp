@@ -132,7 +132,7 @@ void Calculation_Tree::fill_Tree(const tree<Node>::iterator& parent, tree<Node>&
 	}
 }
 
-void Calculation_Tree::fill_All_Calc_Trees()
+void Calculation_Tree::fill_Independent_Calc_Trees()
 {
 	// for independent
 	for(Data_Element<Independent_Variables>& data_Element : independent)
@@ -143,7 +143,10 @@ void Calculation_Tree::fill_All_Calc_Trees()
 		// remove measurement
 		data_Element.calc_Tree.erase(data_Element.calc_Tree.child(data_Element.calc_Tree.begin(),0));
 	}
+}
 
+void Calculation_Tree::fill_Target_Calc_Trees()
+{
 	// for target
 	if(target.size()>0)
 	{
@@ -247,7 +250,6 @@ template <typename Type>
 void Calculation_Tree::calculate_1_Kind(QVector<Data_Element<Type>>& data_Element_Vec)
 {
 	// for each plot
-	int plot_Counter=0;
 	for(Data_Element<Type>& data_Element : data_Element_Vec)
 	{
 		// calculation of wavenumbers and cos squares
@@ -316,7 +318,6 @@ void Calculation_Tree::calculate_1_Kind(QVector<Data_Element<Type>>& data_Elemen
 			elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
 			qInfo() << "Unwrap Reflect: "<< elapsed.count()/1000000. << " seconds" << endl;
 		}
-		plot_Counter++;
 	}
 }
 template void Calculation_Tree::calculate_1_Kind<Independent_Variables>(QVector<Data_Element<Independent_Variables>>&);

@@ -7,6 +7,30 @@
 
 class Multilayer;
 
+struct Fitables
+{
+	vector<QString> fit_Names;				// names of parameters to be fitted
+	vector<QString>	fit_Whats_This;			// whats_This of parameters to be fitted
+	vector<int>		fit_IDs;				// ID of parameters to be fitted
+	vector<double>	fit_Value;				// unparametrized
+	vector<double>	fit_Min;				// unparametrized
+	vector<double>	fit_Max;				// unparametrized
+	vector<double>	fit_Value_Parametrized;	// unbounded parametrized variables
+	vector<double*> fit_Value_Pointers;		// poiners to real parameters
+
+	void clear_All()
+	{
+		fit_Names.clear();
+		fit_Whats_This.clear();
+		fit_IDs.clear();
+		fit_Value.clear();
+		fit_Min.clear();
+		fit_Max.clear();
+		fit_Value_Parametrized.clear();
+		fit_Value_Pointers.clear();
+	}
+};
+
 class Main_Calculation_Module: public QObject
 {
 	Q_OBJECT
@@ -17,11 +41,16 @@ public:
 	QVector<Multilayer*> multilayers;
 	QVector<Calculation_Tree*> calculation_Trees;
 
+	Fitables fitables;
+
 	void single_Calculation();
-	void print_Calculated_To_File();
+	void fitting();
+	void find_Fittable_Parameters(Data& struct_Data);
+	void calc_Tree_Iteration(const tree<Node>::iterator& parent);
 
 	template <typename Type>
 	void print_Reflect_To_File(Data_Element<Type>& data_Element, QString struct_Name, int index);
+	void print_Calculated_To_File();
 };
 
 #endif // MAIN_CALCULATION_MODULE_H

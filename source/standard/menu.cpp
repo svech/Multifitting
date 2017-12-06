@@ -106,20 +106,26 @@ void Menu::create_Calculate_Menu()
 	QAction* act_Specular = new QAction("Specular optical functions/fields", this);
 	act_Specular->setShortcut(Qt::Key_C | Qt::CTRL | Qt::SHIFT);
 
+	QAction* act_Fitting = new QAction("Start fitting", this);
+	act_Fitting->setShortcut(Qt::Key_F | Qt::CTRL | Qt::SHIFT);
+
 	QAction* act_Calc_Settings = new QAction("Calculation settings", this);
 
 	if(window_Type == window_Type_Table)
 	{
 		Table_Of_Structures* table_Of_Structures = qobject_cast<Table_Of_Structures*>(my_Parent);
 		connect(act_Specular,	   &QAction::triggered, table_Of_Structures->multilayer_Tabs->parent(), [=]{qobject_cast<Multilayer_Approach*>(table_Of_Structures->multilayer_Tabs->parent())->calc_Reflection();});
+		connect(act_Fitting,	   &QAction::triggered, table_Of_Structures->multilayer_Tabs->parent(), [=]{qobject_cast<Multilayer_Approach*>(table_Of_Structures->multilayer_Tabs->parent())->start_Fitting();});
 		connect(act_Calc_Settings, &QAction::triggered, table_Of_Structures->multilayer_Tabs->parent(), [=]{qobject_cast<Multilayer_Approach*>(table_Of_Structures->multilayer_Tabs->parent())->open_Calculation_Settings();});
 	}
 	if(window_Type == window_Type_Multilayer_Approach)
 	{
 		connect(act_Specular,	   &QAction::triggered, my_Parent, [=]{qobject_cast<Multilayer_Approach*>(my_Parent)->calc_Reflection();});
+		connect(act_Fitting,	   &QAction::triggered, my_Parent, [=]{qobject_cast<Multilayer_Approach*>(my_Parent)->start_Fitting();});
 		connect(act_Calc_Settings, &QAction::triggered, my_Parent, [=]{qobject_cast<Multilayer_Approach*>(my_Parent)->open_Calculation_Settings();});
 	}
 	calculate_Menu->addAction(act_Specular);
+	calculate_Menu->addAction(act_Fitting);
 	calculate_Menu->addAction(act_Calc_Settings);
 }
 

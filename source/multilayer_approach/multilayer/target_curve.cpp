@@ -94,7 +94,7 @@ void Target_Curve::import_Data(QString filename)
 			}
 			loaded_And_Ready = true;
 		}
-		catch(QString exception)
+		catch(QString& exception)
 		{
 			loaded_And_Ready = false;
 			QMessageBox::information(this, "Target_Curve::import_Data", exception);
