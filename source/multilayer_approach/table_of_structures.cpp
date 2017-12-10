@@ -482,8 +482,6 @@ void Table_Of_Structures::refresh_Reload_Core(QString refresh_Reload, QWidget* w
 		Data struct_Data = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
 		QVariant var;
 
-		qInfo() << whats_This;
-
 		if(whats_This == whats_This_Composition)
 		{
 			for(Stoichiometry& comp : struct_Data.composition)
@@ -497,11 +495,7 @@ void Table_Of_Structures::refresh_Reload_Core(QString refresh_Reload, QWidget* w
 			for(Interlayer& inter : struct_Data.interlayer_Composition)
 			{
 				if(inter.interlayer.indicator.id == parameter.indicator.id)
-				{
-					qInfo() << parameter.indicator.id << "old" << inter.interlayer.indicator.whats_This << inter.interlayer.coupled.master.exist << inter.interlayer.fit.is_Fitable;
 					inter.interlayer = parameter;
-					qInfo() << parameter.indicator.id << "new" << inter.interlayer.indicator.whats_This << inter.interlayer.coupled.master.exist << inter.interlayer.fit.is_Fitable;
-				}
 			}
 		} else
 		if(whats_This == whats_This_Interlayer_My_Sigma)
@@ -513,20 +507,13 @@ void Table_Of_Structures::refresh_Reload_Core(QString refresh_Reload, QWidget* w
 			}
 		} else
 		{
-			qInfo() << "new" << parameter.indicator.whats_This << parameter.coupled.master.exist << parameter.fit.is_Fitable;
 			Parameter& struct_Parameter = get_Parameter(struct_Data, whats_This);
-			qInfo() << "old" << struct_Parameter.indicator.whats_This << struct_Parameter.coupled.master.exist << struct_Parameter.fit.is_Fitable;
 			struct_Parameter = parameter;
 		}
 
 		// refresh tree
 		var.setValue(struct_Data);
 		structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
-
-		qInfo() << "reload type = " << structure_Item << struct_Data.item_Type;
-
-//		Parameter& struct_Parameter = get_Parameter(struct_Data, whats_This);
-//		qInfo() << "renewed" << struct_Parameter.indicator.whats_This << struct_Parameter.coupled.master.exist << struct_Parameter.fit.is_Fitable;
 
 		// refresh widget
 		var.setValue(parameter);
@@ -1275,14 +1262,6 @@ void Table_Of_Structures::create_Weights_Check_Box_Fit_Interlayer(My_Table_Widge
 		back_Layout->setSpacing(0);
 		back_Layout->setContentsMargins(0,0,0,0);
 		back_Layout->setAlignment(Qt::AlignCenter);
-
-		{
-			back_Widget->setProperty(fit_Text, fit_Text); // need to know what the widget is
-			coupled_Widget_Item.insert(back_Widget,structure_Item);
-			coupled_Widget_Id.insert(inter_Comp.interlayer.indicator.id,back_Widget);
-			// save to widget and structure tree
-			refresh_Reload_Core(refresh_Property, back_Widget, inter_Comp.interlayer, coupled_Widget_Item);
-		}
 
 		table->setCellWidget(current_Row, current_Column, back_Widget);
 
