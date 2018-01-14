@@ -257,6 +257,9 @@ using namespace std;
 #define INDEPENDENT	"INDEPENDENT"
 #define TARGET		"TARGET"
 
+// from boundaries to parametrization
+#define noparam		"no parametrization"
+#define triangle	"triangle"
 // -----------------------------------------------------------------------------------------
 
 // calculation

@@ -94,8 +94,6 @@ void Table_Of_Structures::add_Tabs()
 
 	table_Is_Created = true;
 	reload_All_Widgets();
-
-	qInfo() << "\n\n------------------------------------------------\n";
 }
 
 void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index)

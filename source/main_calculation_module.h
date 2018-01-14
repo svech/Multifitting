@@ -43,10 +43,16 @@ public:
 
 	Fitables fitables;
 
+	QString parametrization_Type = triangle;
+
 	void single_Calculation();
 	void fitting();
-	void find_Fittable_Parameters(Data& struct_Data);
 	void calc_Tree_Iteration(const tree<Node>::iterator& parent);
+	void find_Fittable_Parameters(Data& struct_Data);
+
+	double triangle_Wave(double x);
+	double parametrize  (double value,                      double min, double max);
+	double unparametrize(double parametrized_Shifted_Value, double min, double max);
 
 	template <typename Type>
 	void print_Reflect_To_File(Data_Element<Type>& data_Element, QString struct_Name, int index);

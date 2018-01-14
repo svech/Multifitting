@@ -44,14 +44,33 @@ void Main_Calculation_Module::fitting()
 			// prepare real_Calc_Tree
 			calculation_Trees[tab_Index]->fill_Tree_From_Scratch(calculation_Trees[tab_Index]->real_Calc_Tree, calculation_Trees[tab_Index]->real_Struct_Tree, TARGET);
 
+			// find fitables over tree
 			calc_Tree_Iteration(calculation_Trees[tab_Index]->real_Calc_Tree.begin());
-//			for(Target_Curve* target_Profile : multilayers[tab_Index]->target_Profiles_Vector)
-//			{
-//				if(target_Profile->fit_Params.fit)
-//				{
 
-//				}
-//			}
+			for(Target_Curve* target_Profile : multilayers[tab_Index]->target_Profiles_Vector)
+			{
+				if(target_Profile->fit_Params.calc)
+				if(target_Profile->fit_Params.fit)
+				{
+					qInfo() << "yes";
+				}
+			}
+		}
+	}
+}
+
+void Main_Calculation_Module::calc_Tree_Iteration(const tree<Node>::iterator& parent)
+{
+	// iterate over tree
+	for(unsigned i=0; i<parent.number_of_children(); ++i)
+	{
+		tree<Node>::pre_order_iterator child = tree<Node>::child(parent,i);
+		Data& struct_Data = child.node->data.struct_Data;
+		find_Fittable_Parameters(struct_Data);
+
+		if(child.number_of_children()>0)
+		{
+			calc_Tree_Iteration(child);
 		}
 	}
 }
@@ -68,26 +87,54 @@ void Main_Calculation_Module::find_Fittable_Parameters(Data& struct_Data)
 		// fitable and has no master
 		if(parameter->fit.is_Fitable && !parameter->coupled.master.exist)
 		{
-			qInfo() << parameter->indicator.whats_This << "is fitable";
+			qInfo() << parameter->indicator.whats_This << "is fitable, val =" << parameter->value;
+
+			fitables.fit_Names				.push_back(parameter->indicator.full_Name);
+			fitables.fit_Whats_This			.push_back(parameter->indicator.whats_This);
+			fitables.fit_IDs				.push_back(parameter->indicator.id);
+			fitables.fit_Value				.push_back(parameter->value);
+			fitables.fit_Min				.push_back(parameter->fit.min);
+			fitables.fit_Max				.push_back(parameter->fit.max);
+			fitables.fit_Value_Parametrized	.push_back(parametrize(parameter->value, parameter->fit.min, parameter->fit.max));
+			fitables.fit_Value_Pointers		.push_back(&parameter->value);
 		}
 	}
 }
 
-void Main_Calculation_Module::calc_Tree_Iteration(const tree<Node>::iterator& parent)
+double Main_Calculation_Module::triangle_Wave(double x)
 {
-	// iterate over tree
-	for(unsigned i=0; i<parent.number_of_children(); ++i)
+	return abs(x - 2*floor((x + 1)/2));
+}
+
+double Main_Calculation_Module::parametrize(double value, double min, double max)
+{
+	if(parametrization_Type == noparam)
 	{
-		tree<Node>::pre_order_iterator child = tree<Node>::child(parent,i);
+		return value;
+	} else
+	if(parametrization_Type == triangle)
+	{
+		return (value - min) / (max - min);
+	} else
+	{
+		qInfo() << "Main_Calculation_Module::parametrize : wrong type";
+		return value;
+	}
+}
 
-		Data& struct_Data = child.node->data.struct_Data;
-//		qInfo() << struct_Data.item_Type << ", depth = " << tree<Node>::depth(child);
-		find_Fittable_Parameters(struct_Data);
-
-		if(child.number_of_children()>0)
-		{
-			calc_Tree_Iteration(child);
-		}
+double Main_Calculation_Module::unparametrize(double parametrized_Shifted_Value, double min, double max)
+{
+	if(parametrization_Type == noparam)
+	{
+		return parametrized_Shifted_Value;
+	} else
+	if(parametrization_Type == triangle)
+	{
+		return triangle_Wave(parametrized_Shifted_Value) * (max - min) + min;
+	} else
+	{
+		qInfo() << "Main_Calculation_Module::unparametrize : wrong type";
+		return parametrized_Shifted_Value;
 	}
 }
 
