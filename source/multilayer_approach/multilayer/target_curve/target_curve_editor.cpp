@@ -4,19 +4,20 @@
 
 #include "target_curve_editor.h"
 
-Target_Curve_Editor::Target_Curve_Editor(Target_Curve* target_Curve, QWidget *parent) :
+Target_Curve_Editor::Target_Curve_Editor(Target_Curve* target_Curve, Multilayer* multilayer, QWidget *parent) :
 	target_Curve(target_Curve),
+	multilayer_Parent(multilayer),
 	QDialog(parent)
 {
 	create_Main_Layout();
-
 	setWindowTitle("Import Data");
 	set_Window_Geometry();
 	setAttribute(Qt::WA_DeleteOnClose);
 }
 
 void Target_Curve_Editor::closeEvent(QCloseEvent *event)
-{
+{	
+	multilayer_Parent->runned_Target_Curve_Editors.remove(multilayer_Parent->runned_Target_Curve_Editors.key(this));
 	event->accept();
 }
 

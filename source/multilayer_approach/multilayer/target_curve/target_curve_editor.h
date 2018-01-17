@@ -3,15 +3,18 @@
 
 #include "global/layer_data_types.h"
 #include "multilayer_approach/multilayer/target_curve.h"
+#include "multilayer_approach/multilayer.h"
 
 class Target_Curve_Editor : public QDialog
 {
 	Q_OBJECT
 	Q_INVOKABLE void adjustSize()							{ QWidget::adjustSize(); }
 public:
-	explicit Target_Curve_Editor(Target_Curve* target_Curve, QWidget *parent = 0);
+	explicit Target_Curve_Editor(Target_Curve* target_Curve, Multilayer* multilayer, QWidget *parent = 0);
 
 	Target_Curve* target_Curve;
+	Multilayer* multilayer_Parent;
+
 private:
 	void closeEvent(QCloseEvent *event);
 	void create_Main_Layout();

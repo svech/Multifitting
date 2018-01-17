@@ -194,6 +194,7 @@ using namespace std;
 #define window_Type_Independent_Variables_Editor	"Independent Variable Editor"
 #define window_Type_Item_Editor						"Item Editor"
 #define window_Type_Table							"Table"
+#define window_Type_Calculation_Settings_Editor		"Calculation Settings Editor"
 
 // angle types
 #define angle_Type_Grazing		"Grazing"

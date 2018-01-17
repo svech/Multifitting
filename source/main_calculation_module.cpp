@@ -22,12 +22,21 @@ void Main_Calculation_Module::single_Calculation()
 {
 	for(int tab_Index=0; tab_Index<multilayers.size(); ++tab_Index)
 	{
-		if( multilayers[tab_Index]->enable_Calc_Independent_Curves ||
-			multilayers[tab_Index]->enable_Calc_Target_Curves )
+		if( multilayers[tab_Index]->enable_Calc_Independent_Curves )
 		{
-			calculation_Trees[tab_Index]->fill_Independent_Calc_Trees();
+			calculation_Trees[tab_Index]->fill_Independent_Calc_Trees();			
+			for(Data_Element<Independent_Variables>& independent_Element : calculation_Trees[tab_Index]->independent)
+			{
+				calculation_Trees[tab_Index]->calculate_1_Kind(independent_Element);
+			}
+		}
+		if( multilayers[tab_Index]->enable_Calc_Target_Curves )
+		{
 			calculation_Trees[tab_Index]->fill_Target_Calc_Trees();
-			calculation_Trees[tab_Index]->calculate();
+			for(Data_Element<Target_Curve>& target_Element : calculation_Trees[tab_Index]->target)
+			{
+				calculation_Trees[tab_Index]->calculate_1_Kind(target_Element);
+			}
 		}
 	}
 }
@@ -47,12 +56,19 @@ void Main_Calculation_Module::fitting()
 			// find fitables over tree
 			calc_Tree_Iteration(calculation_Trees[tab_Index]->real_Calc_Tree.begin());
 
-			for(Target_Curve* target_Profile : multilayers[tab_Index]->target_Profiles_Vector)
+			for(Data_Element<Target_Curve>& target_Element : calculation_Trees[tab_Index]->target)
 			{
-				if(target_Profile->fit_Params.calc)
-				if(target_Profile->fit_Params.fit)
+				// loaded_And_ready and fit_Params.calc values have been already checked in Calculation_Tree constructor
+				if(target_Element.the_Class->fit_Params.fit)
 				{
-					qInfo() << "yes";
+					// replication of real_Calc_Tree for each target
+					target_Element.calc_Tree = calculation_Trees[tab_Index]->real_Calc_Tree;
+					calculation_Trees[tab_Index]->statify_Calc_Tree(target_Element.calc_Tree);
+
+
+//					calculation_Trees[tab_Index]->calculate_1_Kind(target_Element);
+
+					qInfo() << "yes" << target_Element.curve_Class;
 				}
 			}
 		}
@@ -89,12 +105,14 @@ void Main_Calculation_Module::find_Fittable_Parameters(Data& struct_Data)
 		{
 			qInfo() << parameter->indicator.whats_This << "is fitable, val =" << parameter->value;
 
+			// fixed
 			fitables.fit_Names				.push_back(parameter->indicator.full_Name);
 			fitables.fit_Whats_This			.push_back(parameter->indicator.whats_This);
 			fitables.fit_IDs				.push_back(parameter->indicator.id);
-			fitables.fit_Value				.push_back(parameter->value);
 			fitables.fit_Min				.push_back(parameter->fit.min);
 			fitables.fit_Max				.push_back(parameter->fit.max);
+
+			// changeable
 			fitables.fit_Value_Parametrized	.push_back(parametrize(parameter->value, parameter->fit.min, parameter->fit.max));
 			fitables.fit_Value_Pointers		.push_back(&parameter->value);
 		}

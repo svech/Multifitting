@@ -21,6 +21,8 @@ signals:
 
 public:
 	void create_Main_Layout();
+		void lock_Mainwindow_Interface();
+		void unlock_Mainwindow_Interface();
 		void create_Menu();
 		void create_Tabs();
 		void add_Tabs();

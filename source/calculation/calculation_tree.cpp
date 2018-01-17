@@ -34,6 +34,7 @@ Calculation_Tree::Calculation_Tree(QTabWidget* independent_Variables_Plot_Tabs, 
 		for(int i=0; i<target_Profiles_Vector.size(); ++i)
 		{
 			if(target_Profiles_Vector[i]->loaded_And_Ready)
+			if(target_Profiles_Vector[i]->fit_Params.calc)
 			{
 				target.resize(target.size()+1);
 
@@ -150,10 +151,13 @@ void Calculation_Tree::fill_Target_Calc_Trees()
 	// for target
 	if(target.size()>0)
 	{
+		// fill one "common" real_Calc_Tree for the multilayer
 		///--------------------------------------------------------------------
 		/// here is the entry point for fitting
 		fill_Tree_From_Scratch(real_Calc_Tree, real_Struct_Tree, TARGET);
 		///--------------------------------------------------------------------
+
+		// replication of real_Calc_Tree for each target
 		for(Data_Element<Target_Curve>& data_Element : target)
 		{
 			data_Element.calc_Tree = real_Calc_Tree;
@@ -246,88 +250,78 @@ void Calculation_Tree::statify_Calc_Tree(tree<Node>& calc_Tree)
 	}
 }
 
-template <typename Type>
-void Calculation_Tree::calculate_1_Kind(QVector<Data_Element<Type>>& data_Element_Vec)
+template<typename Type>
+void Calculation_Tree::calculate_1_Kind(Data_Element<Type>& data_Element)
 {
-	// for each plot
-	for(Data_Element<Type>& data_Element : data_Element_Vec)
+	// calculation of wavenumbers and cos squares
+	if(data_Element.curve_Class == INDEPENDENT)	data_Element.the_Class->measurement.calc_Independent_cos2_k(); else
+	if(data_Element.curve_Class == TARGET)		data_Element.the_Class->measurement.calc_Measured_cos2_k();
+
+	// find active node
+	if(data_Element.curve_Class == INDEPENDENT)
 	{
-		// calculation of wavenumbers and cos squares
-		if(data_Element.curve_Class == INDEPENDENT)	data_Element.the_Class->measurement.calc_Independent_cos2_k(); else
-		if(data_Element.curve_Class == TARGET)		data_Element.the_Class->measurement.calc_Measured_cos2_k();
+		Independent_Variables* object = qobject_cast<Independent_Variables*>(data_Element.the_Class);
 
-		// find active node
-		if(data_Element.curve_Class == INDEPENDENT)
+		// find whats_This of active item
+		for(int item_Index=0; item_Index<object->independent_Variables_List->count(); ++item_Index)
 		{
-			Independent_Variables* object = qobject_cast<Independent_Variables*>(data_Element.the_Class);
+			QListWidgetItem* list_Item = object->independent_Variables_List->item(item_Index);
+			Independent_Indicator item_Indicator = list_Item->data(Qt::UserRole).value<Independent_Indicator>();
 
-			// find whats_This of active item
-			for(int item_Index=0; item_Index<object->independent_Variables_List->count(); ++item_Index)
+			// if active
+			if(item_Indicator.is_Active)
 			{
-				QListWidgetItem* list_Item = object->independent_Variables_List->item(item_Index);
-				Independent_Indicator item_Indicator = list_Item->data(Qt::UserRole).value<Independent_Indicator>();
-
-				// if active
-				if(item_Indicator.is_Active)
-				{
-					data_Element.active_Item_Type			 = item_Indicator.item_Type;
-					data_Element.active_Item_Id				 = item_Indicator.item_Id;
-					data_Element.active_Parameter_Whats_This = item_Indicator.parameter_Whats_This;
-				}
+				data_Element.active_Item_Type			 = item_Indicator.item_Type;
+				data_Element.active_Item_Id				 = item_Indicator.item_Id;
+				data_Element.active_Parameter_Whats_This = item_Indicator.parameter_Whats_This;
 			}
-		} else
-		if(data_Element.curve_Class == TARGET)
-		{
-			Target_Curve* target_Curve = qobject_cast<Target_Curve*>(data_Element.the_Class);
-
-			// only measurement can be active here
-			data_Element.active_Item_Type			 = item_Type_Measurement;
-			data_Element.active_Item_Id				 = target_Curve->measurement.id;
-			data_Element.active_Parameter_Whats_This = target_Curve->curve.argument_Type;
 		}
+	} else
+	if(data_Element.curve_Class == TARGET)
+	{
+		Target_Curve* target_Curve = qobject_cast<Target_Curve*>(data_Element.the_Class);
 
-		// find corresponding node for active variable
+		// only measurement can be active here
+		data_Element.active_Item_Type			 = item_Type_Measurement;
+		data_Element.active_Item_Id				 = target_Curve->measurement.id;
+		data_Element.active_Parameter_Whats_This = target_Curve->curve.argument_Type;
+	}
+
+	// find corresponding node for active variable
 //		tree<Node>::iterator active_Iter = find_Node_By_Item_Id(data_Element.calc_Tree.begin(), data_Element.active_Item_Id, data_Element.calc_Tree);
-		// ....................................................................
-		// emergency case
+	// ....................................................................
+	// emergency case
 //		if (active_Iter.node->data.stop_Calculation) { qInfo() << "stop_Calculation"; return; }
-		// ....................................................................
-		// if measurement is not active, create tree for each plot point
-		if(data_Element.active_Item_Type != item_Type_Measurement)
-		{
-			// TODO
-			qInfo() << "Active" << data_Element.active_Item_Type;
-		} else
-		if(data_Element.active_Item_Type == item_Type_Measurement)
-		{
-			auto start = std::chrono::system_clock::now();
-			calculate_Intermediate_Values_1_Tree(data_Element.calc_Tree, data_Element.the_Class->measurement, data_Element.active_Parameter_Whats_This, data_Element.calc_Tree.begin());
-			auto end = std::chrono::system_clock::now();
-			auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-			qInfo() << "Intermediate: "<< elapsed.count()/1000000. << " seconds" << endl;
+	// ....................................................................
+	// if measurement is not active, create tree for each plot point
+	if(data_Element.active_Item_Type != item_Type_Measurement)
+	{
+		// TODO
+		qInfo() << "Active" << data_Element.active_Item_Type;
+	} else
+	if(data_Element.active_Item_Type == item_Type_Measurement)
+	{
+		auto start = std::chrono::system_clock::now();
+		calculate_Intermediate_Values_1_Tree(data_Element.calc_Tree, data_Element.the_Class->measurement, data_Element.active_Parameter_Whats_This, data_Element.calc_Tree.begin());
+		auto end = std::chrono::system_clock::now();
+		auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+		qInfo() << "Intermediate: "<< elapsed.count()/1000000. << " seconds" << endl;
 
-			start = std::chrono::system_clock::now();
-			calculate_Unwrapped_Structure		(data_Element.calc_Tree, data_Element.the_Class->measurement, data_Element.active_Parameter_Whats_This, data_Element.unwrapped_Structure);
-			end = std::chrono::system_clock::now();
-			elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-			qInfo() << "Unwrap: "<< elapsed.count()/1000000. << " seconds" << endl;
+		start = std::chrono::system_clock::now();
+		calculate_Unwrapped_Structure		(data_Element.calc_Tree, data_Element.the_Class->measurement, data_Element.active_Parameter_Whats_This, data_Element.unwrapped_Structure);
+		end = std::chrono::system_clock::now();
+		elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+		qInfo() << "Unwrap: "<< elapsed.count()/1000000. << " seconds" << endl;
 
-			start = std::chrono::system_clock::now();
-			calculate_Unwrapped_Reflectivity	(						 data_Element.the_Class->measurement, data_Element.active_Parameter_Whats_This, data_Element.unwrapped_Structure, data_Element.unwrapped_Reflection);
-			end = std::chrono::system_clock::now();
-			elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-			qInfo() << "Unwrap Reflect: "<< elapsed.count()/1000000. << " seconds" << endl;
-		}
+		start = std::chrono::system_clock::now();
+		calculate_Unwrapped_Reflectivity	(						 data_Element.the_Class->measurement, data_Element.active_Parameter_Whats_This, data_Element.unwrapped_Structure, data_Element.unwrapped_Reflection);
+		end = std::chrono::system_clock::now();
+		elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+		qInfo() << "Unwrap Reflect: "<< elapsed.count()/1000000. << " seconds" << endl;
 	}
 }
-template void Calculation_Tree::calculate_1_Kind<Independent_Variables>(QVector<Data_Element<Independent_Variables>>&);
-template void Calculation_Tree::calculate_1_Kind<Target_Curve>		   (QVector<Data_Element<Target_Curve>>&);
-
-void Calculation_Tree::calculate()
-{
-	calculate_1_Kind(independent);
-	calculate_1_Kind(target);
-}
+template void Calculation_Tree::calculate_1_Kind<Independent_Variables>(Data_Element<Independent_Variables>&);
+template void Calculation_Tree::calculate_1_Kind<Target_Curve>		   (Data_Element<Target_Curve>&);
 
 void Calculation_Tree::calculate_Intermediate_Values_1_Tree(tree<Node>& calc_Tree, const Data& measurement, QString active_Parameter_Whats_This, const tree<Node>::iterator& parent, Node* above_Node)
 {

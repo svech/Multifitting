@@ -6,7 +6,7 @@
 #include "multilayer_approach/multilayer.h"
 #include "main_calculation_module.h"
 #include "multilayer_approach/table_of_structures.h"
-#include "calculation/calculation_settings.h"
+#include "calculation/calculation_settings_editor.h"
 
 class Launcher;
 class Multilayer;

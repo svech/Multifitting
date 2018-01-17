@@ -182,10 +182,17 @@ void Multilayer_Approach::refresh_All_Multilayers_View()
 void Multilayer_Approach::open()
 {
 	// close table of structures
-	bool reopen = runned_Tables_Of_Structures.contains(table_Key);
-	if(reopen)
+	bool reopen_Table = runned_Tables_Of_Structures.contains(table_Key);
+	if(reopen_Table)
 	{
 		runned_Tables_Of_Structures.value(table_Key)->close();
+	}
+
+	// close table of structures
+	bool reopen_Calc_Settings = runned_Calculation_Settings_Editor.contains(calc_Settings_Key);
+	if(reopen_Calc_Settings)
+	{
+		runned_Calculation_Settings_Editor.value(calc_Settings_Key)->close();
 	}
 
 	// TODO
@@ -326,9 +333,15 @@ void Multilayer_Approach::open()
 	file.close();
 
 	// reopen table of structures
-	if(reopen)
+	if(reopen_Table)
 	{
 		open_Table_Of_Structures();
+	}
+
+	// reopen calculation settings
+	if(reopen_Calc_Settings)
+	{
+		open_Calculation_Settings();
 	}
 }
 

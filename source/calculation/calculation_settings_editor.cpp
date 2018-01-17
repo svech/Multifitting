@@ -1,4 +1,4 @@
-#include "calculation_settings.h"
+#include "calculation_settings_editor.h"
 
 Calculation_Settings_Editor::Calculation_Settings_Editor(QMap<QString, Calculation_Settings_Editor*>* runned_Calculation_Settings, QTabWidget* multilayer_Tabs, QWidget* parent) :
 	runned_Calculation_Settings(runned_Calculation_Settings),
@@ -13,6 +13,7 @@ Calculation_Settings_Editor::Calculation_Settings_Editor(QMap<QString, Calculati
 void Calculation_Settings_Editor::closeEvent(QCloseEvent* event)
 {
 	runned_Calculation_Settings->remove(calc_Settings_Key);
+	unlock_Mainwindow_Interface();
 	event->accept();
 }
 
@@ -22,7 +23,8 @@ void Calculation_Settings_Editor::create_Main_Layout()
 	main_Layout->setSpacing(0);
 	main_Layout->setContentsMargins(4,4,4,0);
 
-//	create_Menu();
+	lock_Mainwindow_Interface();
+	create_Menu();
 	create_Tabs();
 	main_Layout->addWidget(main_Tabs);
 
@@ -58,6 +60,12 @@ void Calculation_Settings_Editor::create_Main_Layout()
 	connect(done_Button, &QPushButton::clicked, this, &Calculation_Settings_Editor::close);
 }
 
+void Calculation_Settings_Editor::create_Menu()
+{
+	Menu* menu = new Menu(window_Type_Calculation_Settings_Editor,this);
+	main_Layout->setMenuBar(menu->menu_Bar);
+}
+
 void Calculation_Settings_Editor::create_Tabs()
 {
 	main_Tabs = new QTabWidget(this);
@@ -72,17 +80,78 @@ void Calculation_Settings_Editor::create_Tabs()
 		{
 			if(i!=index)main_Tabs->tabBar()->setTabTextColor(i,Qt::gray);
 		}
-//		reload_All_Widgets();
 	});
+}
+
+void Calculation_Settings_Editor::lock_Mainwindow_Interface()
+{
+	// lock part of mainwindow functionality
+	for(int i=0; i<multilayer_Tabs->count(); ++i)
+	{
+		Multilayer* multilayer = qobject_cast<Multilayer*>(multilayer_Tabs->widget(i));
+		multilayer->structure_Tree->structure_Toolbar->toolbar->setDisabled(true);
+		multilayer_Tabs->tabBar()->tabButton(i, QTabBar::RightSide)->setDisabled(true);
+
+		// independent tabs
+		for(int i=0; i<multilayer->independent_Variables_Plot_Tabs->count(); ++i)
+		{
+			Independent_Variables* independent_Variables = qobject_cast<Independent_Variables*>(multilayer->independent_Variables_Plot_Tabs->widget(i));
+			independent_Variables->independent_Variables_Toolbar->setDisabled(true);
+
+			multilayer->independent_Variables_Plot_Tabs->tabBar()->tabButton(i, QTabBar::RightSide)->setDisabled(true);
+		}
+		multilayer->independent_Variables_Plot_Tabs->setMovable(false);
+		multilayer->independent_Variables_Corner_Button->setDisabled(true);
+
+		// close target editors
+		for(Target_Curve_Editor* target_Curve_Editor : multilayer->runned_Target_Curve_Editors.values())
+		{
+			target_Curve_Editor->close();
+		}
+		// target buttons
+		for(QFrame* frame : multilayer->data_Target_Profile_Frame_Vector)
+		{
+			frame->setDisabled(true);
+		}
+
+	}
+	multilayer_Tabs->cornerWidget()->setDisabled(true);
+}
+
+void Calculation_Settings_Editor::unlock_Mainwindow_Interface()
+{
+	// unlock mainwindow functionality
+	multilayer_Tabs->cornerWidget()->setDisabled(false);
+	for(int i=0; i<multilayer_Tabs->count(); ++i)
+	{
+		Multilayer* multilayer = qobject_cast<Multilayer*>(multilayer_Tabs->widget(i));
+		multilayer->structure_Tree->structure_Toolbar->toolbar->setDisabled(false);
+		multilayer_Tabs->tabBar()->tabButton(i, QTabBar::RightSide)->setEnabled(true);
+
+		// independent tabs
+		for(int i=0; i<multilayer->independent_Variables_Plot_Tabs->count(); ++i)
+		{
+			Independent_Variables* independent_Variables = qobject_cast<Independent_Variables*>(multilayer->independent_Variables_Plot_Tabs->widget(i));
+			independent_Variables->independent_Variables_Toolbar->setDisabled(false);
+
+			multilayer->independent_Variables_Plot_Tabs->tabBar()->tabButton(i, QTabBar::RightSide)->setDisabled(false);
+		}
+		multilayer->independent_Variables_Plot_Tabs->setMovable(true);
+		multilayer->independent_Variables_Corner_Button->setDisabled(false);
+
+		// target buttons
+		for(QFrame* frame : multilayer->data_Target_Profile_Frame_Vector)
+		{
+			frame->setDisabled(false);
+		}
+	}
 }
 
 void Calculation_Settings_Editor::add_Tabs()
 {
-//	read_Trees();
 	for(int tab_Index=0; tab_Index<multilayer_Tabs->count(); ++tab_Index)
 	{
 		QWidget* new_Widget = new QWidget;
-//		all_Widgets_To_Reload.append(QList<QWidget*>());
 
 		create_Tab_Content(new_Widget, tab_Index);
 		main_Tabs->addTab(new_Widget, multilayer_Tabs->tabText(tab_Index));
@@ -91,9 +160,6 @@ void Calculation_Settings_Editor::add_Tabs()
 	{
 		if(i!=main_Tabs->currentIndex()) main_Tabs->tabBar()->setTabTextColor(i,Qt::gray);
 	}
-
-//	table_Is_Created = true;
-//	reload_All_Widgets();
 }
 
 void Calculation_Settings_Editor::create_Tab_Content(QWidget* new_Widget, int tab_Index)

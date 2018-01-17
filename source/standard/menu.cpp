@@ -16,6 +16,7 @@ Menu::Menu(QString window_Type, QWidget *parent):
 
 void Menu::add_Menu_Points()
 {
+	// for all
 	{
 		create_File_Menu();
 			menu_Bar->addMenu(file_Menu);
@@ -54,6 +55,11 @@ void Menu::add_Menu_Points()
 		create_Table_Precision_Menu();
 			menu_Bar->addMenu(precision_Menu);
 	}
+	if(window_Type == window_Type_Calculation_Settings_Editor)
+	{
+		create_Calculate_Menu();
+			menu_Bar->addMenu(calculate_Menu);
+	}
 	if(window_Type == window_Type_Launcher ||
 	   window_Type == window_Type_Multilayer_Approach)
 	{
@@ -66,7 +72,6 @@ void Menu::create_File_Menu()
 {
 	file_Menu = new QMenu("File", this);
 	{
-
 		if(window_Type == window_Type_Multilayer_Approach)
 		{
 			QAction* act_Open = new QAction("Open...", this);
@@ -84,17 +89,53 @@ void Menu::create_File_Menu()
 			file_Menu->addAction(act_Open_Launcher);
 		}
 
-		QAction* act_Quit = new QAction("Done", this);
-		act_Quit->setShortcut(Qt::Key_D | Qt::CTRL);
-		connect(act_Quit, &QAction::triggered, my_Parent, [=]{qobject_cast<QWidget*>(my_Parent)->close();});
-		file_Menu->addAction(act_Quit);
+		if(window_Type == window_Type_Table)
+		{
+			Multilayer_Approach* multilayer_Approach = qobject_cast<Multilayer_Approach*>(qobject_cast<Table_Of_Structures*>(my_Parent)->multilayer_Tabs->parent());
+
+			QAction* act_Open = new QAction("Open...", this);
+			act_Open->setShortcut(Qt::Key_O | Qt::CTRL);
+			connect(act_Open, &QAction::triggered, my_Parent, [=]{multilayer_Approach->open();});
+			file_Menu->addAction(act_Open);
+
+			QAction* act_Save = new QAction("Save...", this);
+			act_Save->setShortcut(Qt::Key_S | Qt::CTRL);
+			file_Menu->addAction(act_Save);
+			connect(act_Save, &QAction::triggered, my_Parent, [=]{multilayer_Approach->save();});
+
+			QAction* act_Quit = new QAction("Done", this);
+			act_Quit->setShortcut(Qt::Key_D | Qt::CTRL);
+			connect(act_Quit, &QAction::triggered, my_Parent, [=]{qobject_cast<QWidget*>(my_Parent)->close();});
+			file_Menu->addAction(act_Quit);
+		}
+
+		if(window_Type == window_Type_Calculation_Settings_Editor)
+		{
+			Multilayer_Approach* multilayer_Approach = qobject_cast<Multilayer_Approach*>(qobject_cast<Calculation_Settings_Editor*>(my_Parent)->multilayer_Tabs->parent());
+
+			QAction* act_Open = new QAction("Open...", this);
+			act_Open->setShortcut(Qt::Key_O | Qt::CTRL);
+			connect(act_Open, &QAction::triggered, my_Parent, [=]{multilayer_Approach->open();});
+			file_Menu->addAction(act_Open);
+
+			QAction* act_Save = new QAction("Save...", this);
+			act_Save->setShortcut(Qt::Key_S | Qt::CTRL);
+			file_Menu->addAction(act_Save);
+			connect(act_Save, &QAction::triggered, my_Parent, [=]{multilayer_Approach->save();});
+
+			QAction* act_Quit = new QAction("Done", this);
+			act_Quit->setShortcut(Qt::Key_D | Qt::CTRL);
+			connect(act_Quit, &QAction::triggered, my_Parent, [=]{qobject_cast<QWidget*>(my_Parent)->close();});
+			file_Menu->addAction(act_Quit);
+		}
 
 		if(window_Type == window_Type_Launcher ||
 		   window_Type == window_Type_Multilayer_Approach)
 		{
-			act_Quit->setText("Close all");
+			QAction* act_Quit = new QAction("Close all",this);
 			act_Quit->setShortcut(Qt::Key_Q | Qt::CTRL);
 			connect(act_Quit, &QAction::triggered, qApp, &QApplication::quit);
+			file_Menu->addAction(act_Quit);
 		}
 	}
 }
@@ -111,22 +152,36 @@ void Menu::create_Calculate_Menu()
 
 	QAction* act_Calc_Settings = new QAction("Calculation settings", this);
 
+	if(window_Type == window_Type_Multilayer_Approach)
+	{
+		connect(act_Specular,	   &QAction::triggered, my_Parent, [=]{qobject_cast<Multilayer_Approach*>(my_Parent)->calc_Reflection();});
+		connect(act_Fitting,	   &QAction::triggered, my_Parent, [=]{qobject_cast<Multilayer_Approach*>(my_Parent)->start_Fitting();});
+		connect(act_Calc_Settings, &QAction::triggered, my_Parent, [=]{qobject_cast<Multilayer_Approach*>(my_Parent)->open_Calculation_Settings();});
+
+		calculate_Menu->addAction(act_Specular);
+		calculate_Menu->addAction(act_Fitting);
+		calculate_Menu->addAction(act_Calc_Settings);
+	}
 	if(window_Type == window_Type_Table)
 	{
 		Table_Of_Structures* table_Of_Structures = qobject_cast<Table_Of_Structures*>(my_Parent);
 		connect(act_Specular,	   &QAction::triggered, table_Of_Structures->multilayer_Tabs->parent(), [=]{qobject_cast<Multilayer_Approach*>(table_Of_Structures->multilayer_Tabs->parent())->calc_Reflection();});
 		connect(act_Fitting,	   &QAction::triggered, table_Of_Structures->multilayer_Tabs->parent(), [=]{qobject_cast<Multilayer_Approach*>(table_Of_Structures->multilayer_Tabs->parent())->start_Fitting();});
 		connect(act_Calc_Settings, &QAction::triggered, table_Of_Structures->multilayer_Tabs->parent(), [=]{qobject_cast<Multilayer_Approach*>(table_Of_Structures->multilayer_Tabs->parent())->open_Calculation_Settings();});
+
+		calculate_Menu->addAction(act_Specular);
+		calculate_Menu->addAction(act_Fitting);
+		calculate_Menu->addAction(act_Calc_Settings);
 	}
-	if(window_Type == window_Type_Multilayer_Approach)
+	if(window_Type == window_Type_Calculation_Settings_Editor)
 	{
-		connect(act_Specular,	   &QAction::triggered, my_Parent, [=]{qobject_cast<Multilayer_Approach*>(my_Parent)->calc_Reflection();});
-		connect(act_Fitting,	   &QAction::triggered, my_Parent, [=]{qobject_cast<Multilayer_Approach*>(my_Parent)->start_Fitting();});
-		connect(act_Calc_Settings, &QAction::triggered, my_Parent, [=]{qobject_cast<Multilayer_Approach*>(my_Parent)->open_Calculation_Settings();});
+		Calculation_Settings_Editor* calculation_Settings_Editor = qobject_cast<Calculation_Settings_Editor*>(my_Parent);
+		connect(act_Specular,	   &QAction::triggered, calculation_Settings_Editor->multilayer_Tabs->parent(), [=]{qobject_cast<Multilayer_Approach*>(calculation_Settings_Editor->multilayer_Tabs->parent())->calc_Reflection();});
+		connect(act_Fitting,	   &QAction::triggered, calculation_Settings_Editor->multilayer_Tabs->parent(), [=]{qobject_cast<Multilayer_Approach*>(calculation_Settings_Editor->multilayer_Tabs->parent())->start_Fitting();});
+
+		calculate_Menu->addAction(act_Specular);
+		calculate_Menu->addAction(act_Fitting);
 	}
-	calculate_Menu->addAction(act_Specular);
-	calculate_Menu->addAction(act_Fitting);
-	calculate_Menu->addAction(act_Calc_Settings);
 }
 
 void Menu::create_Optical_Constants_Menu()

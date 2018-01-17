@@ -18,18 +18,7 @@ Table_Of_Structures::Table_Of_Structures(QMap<QString, Table_Of_Structures*>* ru
 void Table_Of_Structures::closeEvent(QCloseEvent* event)
 {
 	runned_Tables_Of_Structures->remove(table_Key);
-
-	Multilayer_Approach* multilayer_Approach = qobject_cast<Multilayer_Approach*>(multilayer_Tabs->parent());
-	multilayer_Approach->menu->setDisabled(false);
-
-	multilayer_Tabs->setMovable(true);
-	multilayer_Tabs->cornerWidget()->setDisabled(false);
-	for(int i=0; i<multilayer_Tabs->count(); ++i)
-	{
-		list_Of_Trees[i]->structure_Toolbar->toolbar->setDisabled(false);
-		list_Of_Trees[i]->tree->blockSignals(false);
-		multilayer_Tabs->tabBar()->tabButton(i, QTabBar::RightSide)->setEnabled(true);
-	}
+	unlock_Mainwindow_Interface();
 	event->accept();
 }
 
@@ -42,12 +31,48 @@ void Table_Of_Structures::create_Main_Layout()
 {
 	main_Layout = new QHBoxLayout(this);
 	main_Layout->setContentsMargins(0,0,0,0);
+
+	lock_Mainwindow_Interface();
 	create_Menu();
 	create_Tabs();
 	main_Layout->addWidget(main_Tabs);
 	//	resize(800,550);
-	resize(1500,750);
+	resize(1050,750);
 	add_Tabs();
+}
+
+void Table_Of_Structures::lock_Mainwindow_Interface()
+{
+	// lock part of mainwindow functionality
+	for(int i=0; i<multilayer_Tabs->count(); ++i)
+	{
+		Structure_Tree* old_Structure_Tree = qobject_cast<Multilayer*>(multilayer_Tabs->widget(i))->structure_Tree;
+
+		// closing editors
+		for(Item_Editor* editor : old_Structure_Tree->list_Editors)	editor->close();
+
+		// disabling main interface
+		old_Structure_Tree->structure_Toolbar->toolbar->setDisabled(true);
+		old_Structure_Tree->tree->blockSignals(true);
+		multilayer_Tabs->tabBar()->tabButton(i, QTabBar::RightSide)->setDisabled(true);
+	}
+	multilayer_Tabs->cornerWidget()->setDisabled(true);
+	multilayer_Tabs->setMovable(false);
+}
+
+void Table_Of_Structures::unlock_Mainwindow_Interface()
+{
+	// unlock mainwindow functionality
+
+	multilayer_Tabs->setMovable(true);
+	multilayer_Tabs->cornerWidget()->setDisabled(false);
+	for(int i=0; i<multilayer_Tabs->count(); ++i)
+	{
+		list_Of_Trees[i]->structure_Toolbar->toolbar->setDisabled(false);
+		list_Of_Trees[i]->tree->blockSignals(false);
+		multilayer_Tabs->tabBar()->tabButton(i, QTabBar::RightSide)->setEnabled(true);
+	}
+
 }
 
 void Table_Of_Structures::create_Menu()
@@ -447,20 +472,7 @@ void Table_Of_Structures::read_Trees()
 	{
 		Structure_Tree* old_Structure_Tree = qobject_cast<Multilayer*>(multilayer_Tabs->widget(i))->structure_Tree;
 		list_Of_Trees.append(old_Structure_Tree);
-
-		// closing editors
-		for(Item_Editor* editor : old_Structure_Tree->list_Editors)	editor->close();
-
-		// disabling main interface
-		old_Structure_Tree->structure_Toolbar->toolbar->setDisabled(true);
-		old_Structure_Tree->tree->blockSignals(true);
-		multilayer_Tabs->tabBar()->tabButton(i, QTabBar::RightSide)->setDisabled(true);
 	}
-	multilayer_Tabs->cornerWidget()->setDisabled(true);
-	multilayer_Tabs->setMovable(false);
-
-	Multilayer_Approach* multilayer_Approach = qobject_cast<Multilayer_Approach*>(multilayer_Tabs->parent());
-	multilayer_Approach->menu->setDisabled(true);
 }
 
 void Table_Of_Structures::refresh_Reload_Core(QString refresh_Reload, QWidget* widget, Parameter& parameter, QMap<QWidget*,QTreeWidgetItem*>& coup_Widgets_Map)

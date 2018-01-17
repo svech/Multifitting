@@ -85,5 +85,5 @@ HEADERS  +=	launcher.h \
             multilayer_approach/table_of_structures/my_table_widget.h \
             multilayer_approach/table_of_structures/coupling_editor.h \
     multilayer_approach/multilayer/independent_variables/independent_calc_function_selection.h \
-    calculation/calculation_settings.h \
-    calculation/fitting_method_editor.h
+    calculation/fitting_method_editor.h \
+    calculation/calculation_settings_editor.h

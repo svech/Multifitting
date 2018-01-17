@@ -54,8 +54,7 @@ public:
 	void statify_Calc_Tree(tree<Node>& calc_Tree);
 
 	template <typename Type>
-	void calculate_1_Kind(QVector<Data_Element<Type>>& data_Element_Vec);
-	void calculate();
+	void calculate_1_Kind(Data_Element<Type>& data_Element);
 
 	void calculate_Intermediate_Values_1_Tree(tree<Node>& calc_Tree, const Data& measurement, QString active_Parameter_Whats_This, const tree<Node>::iterator& parent, Node* above_Node = NULL);
 	tree<Node>::iterator find_Node_By_Item_Id(const tree<Node>::iterator& parent, int active_Item_Id, tree<Node>& calc_Tree);

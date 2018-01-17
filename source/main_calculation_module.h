@@ -12,9 +12,8 @@ struct Fitables
 	vector<QString> fit_Names;				// names of parameters to be fitted
 	vector<QString>	fit_Whats_This;			// whats_This of parameters to be fitted
 	vector<int>		fit_IDs;				// ID of parameters to be fitted
-	vector<double>	fit_Value;				// unparametrized
-	vector<double>	fit_Min;				// unparametrized
-	vector<double>	fit_Max;				// unparametrized
+	vector<double>	fit_Min;				// min boundary
+	vector<double>	fit_Max;				// max boundary
 	vector<double>	fit_Value_Parametrized;	// unbounded parametrized variables
 	vector<double*> fit_Value_Pointers;		// poiners to real parameters
 
@@ -23,7 +22,6 @@ struct Fitables
 		fit_Names.clear();
 		fit_Whats_This.clear();
 		fit_IDs.clear();
-		fit_Value.clear();
 		fit_Min.clear();
 		fit_Max.clear();
 		fit_Value_Parametrized.clear();

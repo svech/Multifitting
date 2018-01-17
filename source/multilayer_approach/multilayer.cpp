@@ -275,9 +275,17 @@ void Multilayer::remove_Target_Curve(int index_Pressed, bool clean)
 
 void Multilayer::open_Import_Window(Target_Curve* target_Curve)
 {
-	Target_Curve_Editor* new_Target_Curve_Editor = new Target_Curve_Editor(target_Curve, this);
-		new_Target_Curve_Editor->setParent(this);
-		new_Target_Curve_Editor->setWindowFlags(Qt::Window);
-		new_Target_Curve_Editor->show();
+	if(runned_Target_Curve_Editors.contains(target_Curve))
+	{
+		runned_Target_Curve_Editors.value(target_Curve)->activateWindow();
+	}
+	if(!runned_Target_Curve_Editors.contains(target_Curve))
+	{
+		Target_Curve_Editor* new_Target_Curve_Editor = new Target_Curve_Editor(target_Curve, this);
+			new_Target_Curve_Editor->setWindowFlags(Qt::Window);
+			new_Target_Curve_Editor->show();
+
+		runned_Target_Curve_Editors.insert(target_Curve, new_Target_Curve_Editor);
+	}
 }
 

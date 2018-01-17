@@ -9,6 +9,7 @@
 
 class Structure_Tree;
 class Multilayer_Approach;
+class Target_Curve_Editor;
 
 class Multilayer : public QWidget
 {
@@ -58,6 +59,7 @@ public:
 					QVBoxLayout* layout_Target_Profile_With_Frame_Vector;
 						QVector<QFrame*> data_Target_Profile_Frame_Vector;
 						QVector<Target_Curve*> target_Profiles_Vector;
+						QMap<Target_Curve*, Target_Curve_Editor*> runned_Target_Curve_Editors;
 
 	bool enable_Calc_Target_Curves = true;
 	bool enable_Calc_Independent_Curves = true;
