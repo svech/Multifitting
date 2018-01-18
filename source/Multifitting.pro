@@ -56,7 +56,8 @@ SOURCES +=	main.cpp\
             multilayer_approach/table_of_structures/coupling_editor.cpp \
 multilayer_approach/multilayer/independent_variables/independent_calc_function_selection.cpp \
 calculation/fitting_method_editor.cpp \
-calculation/calculation_settings_editor.cpp
+calculation/calculation_settings_editor.cpp \
+    calculation/fitting_gsl.cpp
 
 HEADERS  +=	launcher.h \
             global/global_definitions.h \
@@ -86,4 +87,5 @@ HEADERS  +=	launcher.h \
             multilayer_approach/table_of_structures/coupling_editor.h \
     multilayer_approach/multilayer/independent_variables/independent_calc_function_selection.h \
     calculation/fitting_method_editor.h \
-    calculation/calculation_settings_editor.h
+    calculation/calculation_settings_editor.h \
+    calculation/fitting_gsl.h

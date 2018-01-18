@@ -153,14 +153,6 @@ void Multilayer_Approach::open_Calculation_Settings()
 		runned_Calculation_Settings_Editor.insert(calc_Settings_Key, calculation_Settings);
 			calculation_Settings->setWindowFlags(Qt::Window);
 			calculation_Settings->show();
-
-//		connect(table_Of_Structures, &Table_Of_Structures::data_Edited, this, &Multilayer_Approach::refresh_All_Multilayers_View);
-
-//		for(int i=0; i<multilayer_Tabs->count(); ++i)
-//		{
-//			Multilayer* multilayer = qobject_cast<Multilayer*>(multilayer_Tabs->widget(i));
-//			connect(multilayer, &Multilayer::refresh_All_Multilayers, table_Of_Structures, [=]{table_Of_Structures->reload_All_Widgets();});
-//		}
 	} else
 	{
 		runned_Calculation_Settings_Editor.value(calc_Settings_Key)->activateWindow();

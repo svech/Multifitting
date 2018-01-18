@@ -65,13 +65,19 @@ void Multilayer::create_Variables_Tabs()
 	{
 		QFrame* frame = new QFrame;
 		QVBoxLayout* layout = new QVBoxLayout;
-		structure_Table_Button = new QPushButton("Open structure table");
-		layout->addWidget(structure_Table_Button);
+			layout->setAlignment(Qt::AlignVCenter);
+		structure_Table_Button = new QPushButton("Structure table");
+			layout->addWidget(structure_Table_Button);
+
+		calculation_Settings_Button = new QPushButton("Calculation settings");
+			layout->addWidget(calculation_Settings_Button);
+
 		frame->setLayout(layout);
 		frame->setContentsMargins(0,-5,0,-8);
-		variables_Tabs->addTab(frame, "Structure Table");
+		variables_Tabs->addTab(frame, "Main Tools");
 
-		connect(structure_Table_Button, &QPushButton::clicked, multilayer_Approach, &Multilayer_Approach::open_Table_Of_Structures);
+		connect(structure_Table_Button,		 &QPushButton::clicked, multilayer_Approach, &Multilayer_Approach::open_Table_Of_Structures);
+		connect(calculation_Settings_Button, &QPushButton::clicked, multilayer_Approach, &Multilayer_Approach::open_Calculation_Settings);
 	}
 
 	variables_Tabs->setSizePolicy(QSizePolicy::Preferred,QSizePolicy::Fixed);

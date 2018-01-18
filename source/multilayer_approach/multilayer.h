@@ -52,6 +52,7 @@ public:
 						QToolButton* independent_Variables_Corner_Button;
 
 					QPushButton* structure_Table_Button;
+					QPushButton* calculation_Settings_Button;
 
 		QFrame* data_Frame;
 			QVBoxLayout* data_Frame_Layout;

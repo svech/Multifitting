@@ -4,6 +4,7 @@
 #include "global/layer_data_types.h"
 #include "calculation/calculation_tree.h"
 #include "multilayer_approach/multilayer.h"
+#include "calculation/fitting_gsl.h"
 
 class Multilayer;
 

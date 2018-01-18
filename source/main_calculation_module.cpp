@@ -45,6 +45,7 @@ void Main_Calculation_Module::fitting()
 {
 	fitables.clear_All();
 
+	// create calc tree and fitables;
 	for(int tab_Index=0; tab_Index<multilayers.size(); ++tab_Index)
 	{
 		if( multilayers[tab_Index]->enable_Calc_Target_Curves )
@@ -56,24 +57,29 @@ void Main_Calculation_Module::fitting()
 			// find fitables over tree
 			calc_Tree_Iteration(calculation_Trees[tab_Index]->real_Calc_Tree.begin());
 
-			for(Data_Element<Target_Curve>& target_Element : calculation_Trees[tab_Index]->target)
-			{
-				// loaded_And_ready and fit_Params.calc values have been already checked in Calculation_Tree constructor
-				if(target_Element.the_Class->fit_Params.fit)
-				{
-					// replication of real_Calc_Tree for each target
-					target_Element.calc_Tree = calculation_Trees[tab_Index]->real_Calc_Tree;
-					calculation_Trees[tab_Index]->statify_Calc_Tree(target_Element.calc_Tree);
+			/// fitting from here
+//			for(Data_Element<Target_Curve>& target_Element : calculation_Trees[tab_Index]->target)
+//			{
+//				// loaded_And_ready and fit_Params.calc values have been already checked in Calculation_Tree constructor
+//				if(target_Element.the_Class->fit_Params.fit)
+//				{
+//					// replication of real_Calc_Tree for each target
+//					target_Element.calc_Tree = calculation_Trees[tab_Index]->real_Calc_Tree;
+//					calculation_Trees[tab_Index]->statify_Calc_Tree(target_Element.calc_Tree);
 
-
+//					// calculation
 //					calculation_Trees[tab_Index]->calculate_1_Kind(target_Element);
 
-					qInfo() << "yes" << target_Element.curve_Class;
-				}
-			}
+//					qInfo() << "yes" << target_Element.curve_Class;
+//					qInfo() << "R =" << target_Element.unwrapped_Reflection->R[0];
+//				}
+//			}
 		}
+
+		Fitting_GSL::fitting_GSL();
 	}
 }
+
 
 void Main_Calculation_Module::calc_Tree_Iteration(const tree<Node>::iterator& parent)
 {
