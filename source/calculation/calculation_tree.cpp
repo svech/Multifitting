@@ -301,23 +301,23 @@ void Calculation_Tree::calculate_1_Kind(Data_Element<Type>& data_Element)
 	} else
 	if(data_Element.active_Item_Type == item_Type_Measurement)
 	{
-		auto start = std::chrono::system_clock::now();
+//		auto start = std::chrono::system_clock::now();
 		calculate_Intermediate_Values_1_Tree(data_Element.calc_Tree, data_Element.the_Class->measurement, data_Element.active_Parameter_Whats_This, data_Element.calc_Tree.begin());
-		auto end = std::chrono::system_clock::now();
-		auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-		qInfo() << "Intermediate: "<< elapsed.count()/1000000. << " seconds" << endl;
+//		auto end = std::chrono::system_clock::now();
+//		auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+//		qInfo() << "Intermediate: "<< elapsed.count()/1000000. << " seconds" << endl;
 
-		start = std::chrono::system_clock::now();
+//		start = std::chrono::system_clock::now();
 		calculate_Unwrapped_Structure		(data_Element.calc_Tree, data_Element.the_Class->measurement, data_Element.active_Parameter_Whats_This, data_Element.unwrapped_Structure);
-		end = std::chrono::system_clock::now();
-		elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-		qInfo() << "Unwrap: "<< elapsed.count()/1000000. << " seconds" << endl;
+//		end = std::chrono::system_clock::now();
+//		elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+//		qInfo() << "Unwrap: "<< elapsed.count()/1000000. << " seconds" << endl;
 
-		start = std::chrono::system_clock::now();
+//		start = std::chrono::system_clock::now();
 		calculate_Unwrapped_Reflectivity	(						 data_Element.the_Class->measurement, data_Element.active_Parameter_Whats_This, data_Element.unwrapped_Structure, data_Element.unwrapped_Reflection);
-		end = std::chrono::system_clock::now();
-		elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-		qInfo() << "Unwrap Reflect: "<< elapsed.count()/1000000. << " seconds" << endl;
+//		end = std::chrono::system_clock::now();
+//		elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+//		qInfo() << "Unwrap Reflect: "<< elapsed.count()/1000000. << " seconds" << endl;
 	}
 }
 template void Calculation_Tree::calculate_1_Kind<Independent_Variables>(Data_Element<Independent_Variables>&);
@@ -382,19 +382,19 @@ void Calculation_Tree::calculate_Unwrapped_Reflectivity(				    const Data& meas
 	Unwrapped_Reflection*  new_Unwrapped_Reflection = new Unwrapped_Reflection(unwrapped_Structure_Vec_Element, num_Media, active_Parameter_Whats_This, measurement, depth_Grading, sigma_Grading);
 	unwrapped_Reflection_Vec_Element = new_Unwrapped_Reflection;
 
-	auto start = std::chrono::system_clock::now();
+//	auto start = std::chrono::system_clock::now();
 	unwrapped_Reflection_Vec_Element->calc_Specular();
-	auto end = std::chrono::system_clock::now();
-	auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+//	auto end = std::chrono::system_clock::now();
+//	auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
 
-	qInfo() << "Bare Reflectivity:      "<< elapsed.count()/1000. << " seconds" << endl;
+//	qInfo() << "Bare Reflectivity:      "<< elapsed.count()/1000. << " seconds" << endl;
 
-	cout << "r_s     [" << 0 << "] = " << unwrapped_Reflection_Vec_Element->r_s[0] << endl;
-	cout << "r_p     [" << 0 << "] = " << unwrapped_Reflection_Vec_Element->r_p[0] << endl;
+//	cout << "r_s     [" << 0 << "] = " << unwrapped_Reflection_Vec_Element->r_s[0] << endl;
+//	cout << "r_p     [" << 0 << "] = " << unwrapped_Reflection_Vec_Element->r_p[0] << endl;
 
-	cout << "R_s     [" << 0 << "] = " << unwrapped_Reflection_Vec_Element->R_s[0] << endl;
-	cout << "R_p     [" << 0 << "] = " << unwrapped_Reflection_Vec_Element->R_p[0] << endl;
-	cout << "--------------------------------\n";
+//	cout << "R_s     [" << 0 << "] = " << unwrapped_Reflection_Vec_Element->R_s[0] << endl;
+//	cout << "R_p     [" << 0 << "] = " << unwrapped_Reflection_Vec_Element->R_p[0] << endl;
+//	cout << "--------------------------------\n";
 }
 
 int Calculation_Tree::get_Total_Num_Layers(const tree<Node>::iterator& parent, const tree<Node>& calc_Tree)

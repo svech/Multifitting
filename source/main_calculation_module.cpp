@@ -44,42 +44,41 @@ void Main_Calculation_Module::single_Calculation()
 void Main_Calculation_Module::fitting()
 {
 	fitables.clear_All();
+	rejected_Fitables.clear_All();
 
 	// create calc tree and fitables;
 	for(int tab_Index=0; tab_Index<multilayers.size(); ++tab_Index)
 	{
 		if( multilayers[tab_Index]->enable_Calc_Target_Curves )
-		if( calculation_Trees[tab_Index]->target.size()>0)
+		if( calculation_Trees[tab_Index]->target.size()>0 )
 		{
 			// prepare real_Calc_Tree
 			calculation_Trees[tab_Index]->fill_Tree_From_Scratch(calculation_Trees[tab_Index]->real_Calc_Tree, calculation_Trees[tab_Index]->real_Struct_Tree, TARGET);
 
 			// find fitables over tree
 			calc_Tree_Iteration(calculation_Trees[tab_Index]->real_Calc_Tree.begin());
-
-			/// fitting from here
-//			for(Data_Element<Target_Curve>& target_Element : calculation_Trees[tab_Index]->target)
-//			{
-//				// loaded_And_ready and fit_Params.calc values have been already checked in Calculation_Tree constructor
-//				if(target_Element.the_Class->fit_Params.fit)
-//				{
-//					// replication of real_Calc_Tree for each target
-//					target_Element.calc_Tree = calculation_Trees[tab_Index]->real_Calc_Tree;
-//					calculation_Trees[tab_Index]->statify_Calc_Tree(target_Element.calc_Tree);
-
-//					// calculation
-//					calculation_Trees[tab_Index]->calculate_1_Kind(target_Element);
-
-//					qInfo() << "yes" << target_Element.curve_Class;
-//					qInfo() << "R =" << target_Element.unwrapped_Reflection->R[0];
-//				}
-//			}
 		}
-
-		Fitting_GSL::fitting_GSL();
 	}
-}
 
+	// warning
+	if(rejected_Fitables.fit_Names.size()>0)
+	{
+		QStringList rejected_List = QStringList::fromVector(QVector<QString>::fromStdVector(rejected_Fitables.fit_Names));
+		QString rejected = rejected_List.join("\n");
+		QMessageBox::information(NULL, "Bad fitables",
+													   "min>=max for the following fitables:\n\n" +
+													   rejected +
+													   "\n\n They won't be fitted");
+	}
+
+	/// fitting from here
+	if( fitables.fit_Value_Pointers.size()>0 )
+	{
+		Fitting_GSL fitting_GSL(this);
+		fitting_GSL.fit();
+	}
+
+}
 
 void Main_Calculation_Module::calc_Tree_Iteration(const tree<Node>::iterator& parent)
 {
@@ -109,18 +108,24 @@ void Main_Calculation_Module::find_Fittable_Parameters(Data& struct_Data)
 		// fitable and has no master
 		if(parameter->fit.is_Fitable && !parameter->coupled.master.exist)
 		{
-			qInfo() << parameter->indicator.whats_This << "is fitable, val =" << parameter->value;
+			if(parameter->fit.min<parameter->fit.max)
+			{
+				// fixed
+				fitables.fit_Struct_Names 		.push_back(multilayer_Tabs->tabText(parameter->indicator.tab_Index));
+				fitables.fit_Names				.push_back(parameter->indicator.full_Name);
+				fitables.fit_Whats_This			.push_back(parameter->indicator.whats_This);
+				fitables.fit_IDs				.push_back(parameter->indicator.id);
+				fitables.fit_Min				.push_back(parameter->fit.min);
+				fitables.fit_Max				.push_back(parameter->fit.max);
 
-			// fixed
-			fitables.fit_Names				.push_back(parameter->indicator.full_Name);
-			fitables.fit_Whats_This			.push_back(parameter->indicator.whats_This);
-			fitables.fit_IDs				.push_back(parameter->indicator.id);
-			fitables.fit_Min				.push_back(parameter->fit.min);
-			fitables.fit_Max				.push_back(parameter->fit.max);
+				// changeable
+				fitables.fit_Value_Parametrized	.push_back(parametrize(parameter->value, parameter->fit.min, parameter->fit.max));
+				fitables.fit_Value_Pointers		.push_back(&parameter->value);
 
-			// changeable
-			fitables.fit_Value_Parametrized	.push_back(parametrize(parameter->value, parameter->fit.min, parameter->fit.max));
-			fitables.fit_Value_Pointers		.push_back(&parameter->value);
+			} else
+			{
+				rejected_Fitables.fit_Names		.push_back("  " + Medium_BlackCircle_Sym + "  <" + multilayer_Tabs->tabText(parameter->indicator.tab_Index) + "> " + parameter->indicator.full_Name);
+			}
 		}
 	}
 }
@@ -207,7 +212,7 @@ void Main_Calculation_Module::print_Reflect_To_File(Data_Element<Type>& data_Ele
 		for(auto i=0; i<num_Points; ++i)
 		{
 			out << "\t" << QString::number(arg[i],'f',4)
-				<< "\t" << QString::number(data_Element.unwrapped_Reflection->R[i],'e',6)
+				<< "\t" << QString::number(data_Element.unwrapped_Reflection->R[i],'e',15)
 				<< endl;
 		}
 	file.close();

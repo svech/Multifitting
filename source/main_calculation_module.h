@@ -8,28 +8,6 @@
 
 class Multilayer;
 
-struct Fitables
-{
-	vector<QString> fit_Names;				// names of parameters to be fitted
-	vector<QString>	fit_Whats_This;			// whats_This of parameters to be fitted
-	vector<int>		fit_IDs;				// ID of parameters to be fitted
-	vector<double>	fit_Min;				// min boundary
-	vector<double>	fit_Max;				// max boundary
-	vector<double>	fit_Value_Parametrized;	// unbounded parametrized variables
-	vector<double*> fit_Value_Pointers;		// poiners to real parameters
-
-	void clear_All()
-	{
-		fit_Names.clear();
-		fit_Whats_This.clear();
-		fit_IDs.clear();
-		fit_Min.clear();
-		fit_Max.clear();
-		fit_Value_Parametrized.clear();
-		fit_Value_Pointers.clear();
-	}
-};
-
 class Main_Calculation_Module: public QObject
 {
 	Q_OBJECT
@@ -41,6 +19,7 @@ public:
 	QVector<Calculation_Tree*> calculation_Trees;
 
 	Fitables fitables;
+	Fitables rejected_Fitables;
 
 	QString parametrization_Type = triangle;
 

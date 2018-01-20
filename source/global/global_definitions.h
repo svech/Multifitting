@@ -80,27 +80,28 @@ using namespace std;
 // -----------------------------------------------------------------------------------------
 
 // symbols
-#define space				" "
-#define Angstrom_Sym		QString(QChar(0x212B))
-#define Rho_Sym				QString(QChar(0x03C1))
-#define Cube_Sym			QString(QChar(0x00B3))
-#define Minus_One_Sym		QString(QChar(0x207B))+QString(QChar(0x00B9))
-#define Sigma_Sym			QString(QChar(0x03C3))
-#define Gamma_Sym			QString(QChar(0x03B3))
-#define Epsilon_Sym			QString(QChar(0x03B5))
-#define Cappa_Sym			QString(QChar(0x03F0))
-#define Alpha_Sym			QString(QChar(0x03B1))
-#define Zeta_Sym			QString(QChar(0x03B6))
-#define Theta_Sym			QString(QChar(0x03B8))
-#define Lambda_Sym			QString(QChar(0x03BB))
-#define Degree_Sym			QString(QChar(0x00B0))
-#define Delta_Big_Sym		QString(QChar(0x0394))
-#define Mu_Sym				QString(QChar(0x03BC))
-#define Pi_Sym				QString(QChar(0x03C0))
-#define Nu_Sym				QString(QChar(0x03BD))
-#define Phi_Sym				QString(QChar(0x03C6))
-#define Prime_Sym			QString(QChar(0x2032))
-#define Double_Prime_Sym	QString(QChar(0x2033))
+#define space					" "
+#define Angstrom_Sym			QString(QChar(0x212B))
+#define Rho_Sym					QString(QChar(0x03C1))
+#define Cube_Sym				QString(QChar(0x00B3))
+#define Minus_One_Sym			QString(QChar(0x207B))+QString(QChar(0x00B9))
+#define Sigma_Sym				QString(QChar(0x03C3))
+#define Gamma_Sym				QString(QChar(0x03B3))
+#define Epsilon_Sym				QString(QChar(0x03B5))
+#define Cappa_Sym				QString(QChar(0x03F0))
+#define Alpha_Sym				QString(QChar(0x03B1))
+#define Zeta_Sym				QString(QChar(0x03B6))
+#define Theta_Sym				QString(QChar(0x03B8))
+#define Lambda_Sym				QString(QChar(0x03BB))
+#define Degree_Sym				QString(QChar(0x00B0))
+#define Delta_Big_Sym			QString(QChar(0x0394))
+#define Mu_Sym					QString(QChar(0x03BC))
+#define Pi_Sym					QString(QChar(0x03C0))
+#define Nu_Sym					QString(QChar(0x03BD))
+#define Phi_Sym					QString(QChar(0x03C6))
+#define Prime_Sym				QString(QChar(0x2032))
+#define Double_Prime_Sym		QString(QChar(0x2033))
+#define Medium_BlackCircle_Sym	QString(QChar(0x26AB))
 
 // -----------------------------------------------------------------------------------------
 
@@ -371,7 +372,30 @@ struct Fit_Params				{bool calc = true;
 								 double weight = 1;
 								 QString fit_Function = "log(x+1E-5)";
 								};
+struct Fitables
+								{	vector<QString> fit_Struct_Names;		// names of structures
+									vector<QString> fit_Names;				// names of parameters to be fitted
+									vector<QString>	fit_Whats_This;			// whats_This of parameters to be fitted
+									vector<int>		fit_IDs;				// ID of parameters to be fitted
+									vector<double>	fit_Min;				// min boundary
+									vector<double>	fit_Max;				// max boundary
 
+									// changeable
+									vector<double>	fit_Value_Parametrized;	// unbounded parametrized variables
+									vector<double*> fit_Value_Pointers;		// poiners to real parameters
+
+									void clear_All()
+									{
+										fit_Names.clear();
+										fit_Whats_This.clear();
+										fit_IDs.clear();
+										fit_Min.clear();
+										fit_Max.clear();
+
+										fit_Value_Parametrized.clear();
+										fit_Value_Pointers.clear();
+									}
+								};
 // -----------------------------------------------------------------------------------------
 
 // serialization
