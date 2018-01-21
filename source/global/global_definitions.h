@@ -262,6 +262,11 @@ using namespace std;
 // from boundaries to parametrization
 #define noparam		"no parametrization"
 #define triangle	"triangle"
+
+// calculation modes
+#define CALCULATION	"CALCULATION"
+#define FITTING		"FITTING"
+
 // -----------------------------------------------------------------------------------------
 
 // calculation

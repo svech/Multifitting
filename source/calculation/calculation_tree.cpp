@@ -5,10 +5,12 @@
 #include "calculation_tree.h"
 #include <iostream>
 
-Calculation_Tree::Calculation_Tree(QTabWidget* independent_Variables_Plot_Tabs, QVector<Target_Curve*>& target_Profiles_Vector, QTreeWidget* real_Struct_Tree):
-	real_Struct_Tree(real_Struct_Tree)
+Calculation_Tree::Calculation_Tree(QTabWidget* independent_Variables_Plot_Tabs, QVector<Target_Curve*>& target_Profiles_Vector, QTreeWidget* real_Struct_Tree, QString calc_Mode):
+	real_Struct_Tree(real_Struct_Tree),
+	calc_Mode(calc_Mode)
 {	
 	// initialization independent vector
+	if(calc_Mode==CALCULATION)
 	{
 		for(int i=0; i<independent_Variables_Plot_Tabs->count(); ++i)
 		{
@@ -35,6 +37,7 @@ Calculation_Tree::Calculation_Tree(QTabWidget* independent_Variables_Plot_Tabs, 
 		{
 			if(target_Profiles_Vector[i]->loaded_And_Ready)
 			if(target_Profiles_Vector[i]->fit_Params.calc)
+			if(calc_Mode==CALCULATION || target_Profiles_Vector[i]->fit_Params.fit)	// check fit value only if FITTING mode (otherwise CALCULATION is enough)
 			{
 				target.resize(target.size()+1);
 

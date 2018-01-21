@@ -12,9 +12,10 @@ class Main_Calculation_Module: public QObject
 {
 	Q_OBJECT
 public:
-	Main_Calculation_Module(QTabWidget*	multilayer_Tabs);
+	Main_Calculation_Module(QTabWidget*	multilayer_Tabs, QString calc_Mode);
 
 	QTabWidget* multilayer_Tabs;
+	QString calc_Mode;
 	QVector<Multilayer*> multilayers;
 	QVector<Calculation_Tree*> calculation_Trees;
 
@@ -22,9 +23,11 @@ public:
 	Fitables rejected_Fitables;
 
 	QString parametrization_Type = triangle;
+	QVector<Parameter*> bad_Sigmas;
 
 	void single_Calculation();
 	void fitting();
+	bool check_Zero_Sigma();
 	void calc_Tree_Iteration(const tree<Node>::iterator& parent);
 	void find_Fittable_Parameters(Data& struct_Data);
 

@@ -27,12 +27,8 @@ size_t Fitting_GSL::num_Residual_Points()
 		// over target curves
 		for(Data_Element<Target_Curve>& target_Element : calculation_Tree->target)
 		{
-			// loaded_And_ready and fit_Params.calc values have been already checked in Calculation_Tree constructor
-			if(target_Element.the_Class->fit_Params.fit)
-			{
-				// over points
-				residual_Points += target_Element.the_Class->curve.values.size();
-			}
+			// over points
+			residual_Points += target_Element.the_Class->curve.values.size();
 		}
 	}
 	return residual_Points;
@@ -40,6 +36,7 @@ size_t Fitting_GSL::num_Residual_Points()
 
 void Fitting_GSL::callback(const size_t iter, void* bare_Params, const gsl_multifit_nlinear_workspace* w)
 {
+	w=w;
 	Params* params = ((struct Params*)bare_Params);
 
 	// print out current location
@@ -84,6 +81,7 @@ void Fitting_GSL::fit()
 	fdf.p = p;
 	fdf.params = &params;
 
+	// storage for the output data
 	int info;
 	double chisq_Init, chisq_Final;
 
@@ -93,12 +91,9 @@ void Fitting_GSL::fit()
 	// calc initial cost
 	gsl_blas_ddot(f, f, &chisq_Init);
 
-
 	auto start = std::chrono::system_clock::now();
-
-	// iterate until convergence
-	gsl_multifit_nlinear_driver(max_iter, xtol, gtol, ftol,	callback, &params, &info, work);
-
+		// iterate until convergence
+		gsl_multifit_nlinear_driver(max_iter, xtol, gtol, ftol,	callback, &params, &info, work);
 	auto end = std::chrono::system_clock::now();
 	auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
 	qInfo() << "Fit  : "<< elapsed.count()/1000. << " seconds\n";
@@ -107,12 +102,12 @@ void Fitting_GSL::fit()
 	gsl_blas_ddot(f, f, &chisq_Final);
 
 	// print summary
-	printf("METHOD        = %s\n", gsl_multifit_nlinear_trs_name(work));
-	printf("NITER         = %zu\n", gsl_multifit_nlinear_niter(work));
-	printf("NFEV          = %zu\n", fdf.nevalf);
-	printf("initial cost  = %.12e\n", chisq_Init);
-	printf("final cost    = %.12e\n", chisq_Final);
-	printf("final x       = (%.12e)\n\n", gsl_vector_get(x, 0));
+	printf("method              : %s\n", gsl_multifit_nlinear_trs_name(work));
+	printf("NITER               = %zu\n", gsl_multifit_nlinear_niter(work));
+	printf("NFEV                = %zu\n", fdf.nevalf);
+	printf("initial cost        = %.12e\n", chisq_Init);
+	printf("final cost          = %.12e\n", chisq_Final);
+	printf("reason for stopping : %s\n", (info == 1) ? "small step size" : "small gradient");
 	printf("\n");
 
 	gsl_multifit_nlinear_free(work);
@@ -141,19 +136,15 @@ int Fitting_GSL::calc_Residual(const gsl_vector* x, void* bare_Params, gsl_vecto
 		// over target curves
 		for(Data_Element<Target_Curve>& target_Element : calculation_Tree->target)
 		{
-			// loaded_And_ready and fit_Params.calc values have been already checked in Calculation_Tree constructor
-			if(target_Element.the_Class->fit_Params.fit)
-			{
-				// replication of real_Calc_Tree for each target
-				target_Element.calc_Tree = calculation_Tree->real_Calc_Tree;
-				calculation_Tree->statify_Calc_Tree(target_Element.calc_Tree);
+			// replication of real_Calc_Tree for each target
+			target_Element.calc_Tree = calculation_Tree->real_Calc_Tree;
+			calculation_Tree->statify_Calc_Tree(target_Element.calc_Tree);
 
-				// calculation
-				calculation_Tree->calculate_1_Kind(target_Element);
+			// calculation
+			calculation_Tree->calculate_1_Kind(target_Element);
 
-				// fill residual
-				fill_Residual(residual_Index, target_Element, f);
-			}
+			// fill residual
+			fill_Residual(residual_Index, target_Element, f);
 		}
 	}
 

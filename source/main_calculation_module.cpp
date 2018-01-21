@@ -4,22 +4,30 @@
 
 #include "main_calculation_module.h"
 
-Main_Calculation_Module::Main_Calculation_Module(QTabWidget* multilayer_Tabs):
+Main_Calculation_Module::Main_Calculation_Module(QTabWidget* multilayer_Tabs, QString calc_Mode):
 	multilayers		 (multilayer_Tabs->count()),
 	calculation_Trees(multilayer_Tabs->count()),
-	multilayer_Tabs	 (multilayer_Tabs)
+	multilayer_Tabs	 (multilayer_Tabs),
+	calc_Mode		 (calc_Mode)
 {
 	for(int tab_Index=0; tab_Index<multilayer_Tabs->count(); ++tab_Index)
 	{
 		multilayers[tab_Index] = qobject_cast<Multilayer*>(multilayer_Tabs->widget(tab_Index));
 		calculation_Trees[tab_Index] = new Calculation_Tree(multilayers[tab_Index]->independent_Variables_Plot_Tabs,
 															multilayers[tab_Index]->target_Profiles_Vector,
-															multilayers[tab_Index]->structure_Tree->tree);
+															multilayers[tab_Index]->structure_Tree->tree,
+															calc_Mode);
 	}
 }
 
 void Main_Calculation_Module::single_Calculation()
 {
+	if(calc_Mode!=CALCULATION)
+	{
+		qInfo() << "Main_Calculation_Module::single_Calculation  :  wrong calc_Mode";
+		return;
+	}
+
 	for(int tab_Index=0; tab_Index<multilayers.size(); ++tab_Index)
 	{
 		if( multilayers[tab_Index]->enable_Calc_Independent_Curves )
@@ -39,10 +47,18 @@ void Main_Calculation_Module::single_Calculation()
 			}
 		}
 	}
+	print_Calculated_To_File();
 }
 
 void Main_Calculation_Module::fitting()
 {
+	if(calc_Mode!=FITTING)
+	{
+		qInfo() << "Main_Calculation_Module::fitting  :  wrong calc_Mode";
+		return;
+	}
+
+	bad_Sigmas.clear();
 	fitables.clear_All();
 	rejected_Fitables.clear_All();
 
@@ -57,6 +73,13 @@ void Main_Calculation_Module::fitting()
 
 			// find fitables over tree
 			calc_Tree_Iteration(calculation_Trees[tab_Index]->real_Calc_Tree.begin());
+
+			// TODO crutch. error whan start sigma-fit from sigma value 0
+			if(check_Zero_Sigma())
+			{
+				QMessageBox::information(NULL, "Bad value", "Sigma start value is too small.\nChange it.");
+				return;
+			}
 		}
 	}
 
@@ -76,8 +99,21 @@ void Main_Calculation_Module::fitting()
 	{
 		Fitting_GSL fitting_GSL(this);
 		fitting_GSL.fit();
+		print_Calculated_To_File();
 	}
+}
 
+bool Main_Calculation_Module::check_Zero_Sigma()
+{
+	// TODO crutch. error whan start sigma-fit from sigma value 0
+	for(int i=0; i<bad_Sigmas.size(); ++i)
+	{
+		if(bad_Sigmas[i]->value<0.1)
+		{
+			return true;
+		}
+	}
+	return false;
 }
 
 void Main_Calculation_Module::calc_Tree_Iteration(const tree<Node>::iterator& parent)
@@ -123,6 +159,12 @@ void Main_Calculation_Module::find_Fittable_Parameters(Data& struct_Data)
 				fitables.fit_Value_Parametrized	.push_back(parametrize(parameter->value, parameter->fit.min, parameter->fit.max));
 				fitables.fit_Value_Pointers		.push_back(&parameter->value);
 
+				// TODO crutch. error whan start sigma-fit from sigma value 0
+				if(parameter->indicator.whats_This == whats_This_Interlayer_My_Sigma || parameter->indicator.whats_This == whats_This_Sigma)
+				if(!bad_Sigmas.contains(&struct_Data.sigma))
+				{
+					bad_Sigmas.append(&struct_Data.sigma);
+				}
 			} else
 			{
 				rejected_Fitables.fit_Names		.push_back("  " + Medium_BlackCircle_Sym + "  <" + multilayer_Tabs->tabText(parameter->indicator.tab_Index) + "> " + parameter->indicator.full_Name);
@@ -173,14 +215,20 @@ void Main_Calculation_Module::print_Calculated_To_File()
 	for(int tab_Index=0; tab_Index<multilayers.size(); ++tab_Index)
 	{
 		int counter = 0;
-		for(Data_Element<Independent_Variables>& independent : calculation_Trees[tab_Index]->independent)
+		if( multilayers[tab_Index]->enable_Calc_Independent_Curves )
 		{
-			print_Reflect_To_File(independent, multilayer_Tabs->tabText(tab_Index), counter++);
+			for(Data_Element<Independent_Variables>& independent : calculation_Trees[tab_Index]->independent)
+			{
+				print_Reflect_To_File(independent, multilayer_Tabs->tabText(tab_Index), counter++);
+			}
 		}
 		counter = 0;
-		for(Data_Element<Target_Curve>& target : calculation_Trees[tab_Index]->target)
+		if( multilayers[tab_Index]->enable_Calc_Target_Curves )
 		{
-			print_Reflect_To_File(target, multilayer_Tabs->tabText(tab_Index), counter++);
+			for(Data_Element<Target_Curve>& target : calculation_Trees[tab_Index]->target)
+			{
+				print_Reflect_To_File(target, multilayer_Tabs->tabText(tab_Index), counter++);
+			}
 		}
 	}
 }

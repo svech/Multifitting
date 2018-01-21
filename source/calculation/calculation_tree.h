@@ -38,7 +38,7 @@ struct Data_Element
 class Calculation_Tree
 {
 public:
-	Calculation_Tree(QTabWidget* independent_Variables_Plot_Tabs, QVector<Target_Curve*>& target_Profiles_Vector, QTreeWidget* real_Struct_Tree);
+	Calculation_Tree(QTabWidget* independent_Variables_Plot_Tabs, QVector<Target_Curve*>& target_Profiles_Vector, QTreeWidget* real_Struct_Tree, QString calc_Mode);
 
 public:
 	void create_Rand_Generator();
@@ -70,6 +70,7 @@ public:
 
 	gsl_rng* r;
 
+	QString calc_Mode;
 	QTreeWidget* real_Struct_Tree;
 	tree<Node>   real_Calc_Tree; // common preliminary tree for TARGET calculations for // each tree creates somehow 2 nodes at creation
 
