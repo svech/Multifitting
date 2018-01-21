@@ -42,23 +42,8 @@ void Fitting_GSL::callback(const size_t iter, void* bare_Params, const gsl_multi
 {
 	Params* params = ((struct Params*)bare_Params);
 
-	// temporary, for comparison
-	gsl_vector* x = gsl_multifit_nlinear_position(w);
-
 	// print out current location
-//	printf("iter %zu :", iter);
-//	for(size_t i=0; i<params->fitables.fit_Value_Pointers.size(); ++i)
-//	{
-//		printf("%f ", params->fitables.fit_Value_Parametrized[i]);
-//	}
-//	printf("\n");
 	printf("iter %zu :", iter);
-	for(size_t i=0; i<x->size; ++i)
-	{
-		printf("%f ", gsl_vector_get(x, i));
-	}
-	printf("\n");
-	printf("     %zu :", iter);
 	for(size_t i=0; i<params->fitables.fit_Value_Pointers.size(); ++i)
 	{
 		printf("%f ", *params->fitables.fit_Value_Pointers[i]);
@@ -71,9 +56,9 @@ void Fitting_GSL::fit()
 	const size_t n = num_Residual_Points();
 	const size_t p = fitables.fit_Value_Pointers.size();
 	const size_t max_iter = 200;
-	const double xtol = 1.0e-12;
-	const double gtol = 1.0e-12;
-	const double ftol = 1.0e-12;
+	const double xtol = 1.0e-8;
+	const double gtol = 1.0e-8;
+	const double ftol = 1.0e-8;
 
 	Params params {	main_Calculation_Module, calculation_Trees, fitables };
 	const gsl_multifit_nlinear_type* T = gsl_multifit_nlinear_trust;
@@ -108,8 +93,15 @@ void Fitting_GSL::fit()
 	// calc initial cost
 	gsl_blas_ddot(f, f, &chisq_Init);
 
+
+	auto start = std::chrono::system_clock::now();
+
 	// iterate until convergence
 	gsl_multifit_nlinear_driver(max_iter, xtol, gtol, ftol,	callback, &params, &info, work);
+
+	auto end = std::chrono::system_clock::now();
+	auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+	qInfo() << "Fit  : "<< elapsed.count()/1000. << " seconds\n";
 
 	// store final cost
 	gsl_blas_ddot(f, f, &chisq_Final);
@@ -187,7 +179,7 @@ void Fitting_GSL::fill_Residual(int& residual_Index, Data_Element<Target_Curve>&
 	{
 		for( ; residual_Index<target_Element.the_Class->curve.values.size(); ++residual_Index)
 		{
-			double fi = target_Element.the_Class->curve.values[residual_Index].val_1 - target_Element.unwrapped_Reflection->R[residual_Index];
+			double fi = log(target_Element.the_Class->curve.values[residual_Index].val_1+1e-11) - log(target_Element.unwrapped_Reflection->R[residual_Index]+1e-11);
 			gsl_vector_set(f, residual_Index, fi);
 		}
 	} else

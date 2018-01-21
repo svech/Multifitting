@@ -436,7 +436,7 @@ void Multilayer_Approach::start_Fitting()
 				 "\n-------------------------------------------------------\n";
 	Main_Calculation_Module* main_Calculation_Module = new Main_Calculation_Module(multilayer_Tabs);
 	main_Calculation_Module->fitting();
-//	main_Calculation_Module->print_Calculated_To_File();
+	main_Calculation_Module->print_Calculated_To_File();
 	delete main_Calculation_Module;
 }
 

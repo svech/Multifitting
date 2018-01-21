@@ -108,6 +108,7 @@ void Main_Calculation_Module::find_Fittable_Parameters(Data& struct_Data)
 		// fitable and has no master
 		if(parameter->fit.is_Fitable && !parameter->coupled.master.exist)
 		{
+			// if boundaries are good
 			if(parameter->fit.min<parameter->fit.max)
 			{
 				// fixed

@@ -237,7 +237,7 @@ void Unwrapped_Reflection::calc_Weak_Factor(int thread_Index)
 		}
 
 		weak_Factor[thread_Index][i] = 0;
-		if(is_Norm && (abs(unwrapped_Structure->sigma[i]) > DBL_EPSILON)) //-V674
+		if(is_Norm && (abs(unwrapped_Structure->sigma[i]) > DBL_MIN)) //-V674
 		{
 			norm = 0;
 			s = sqrt(hi_RE[thread_Index][i+1]*hi_RE[thread_Index][i]);
@@ -331,7 +331,7 @@ void Unwrapped_Reflection::calc_Fresnel(double polarization, const vector<double
 		temp_Fre_Denom_IM = hi_IM[thread_Index][i] + hi_IM[thread_Index][i+1];
 		temp_Fre_Denom_SQARE = temp_Fre_Denom_RE*temp_Fre_Denom_RE + temp_Fre_Denom_IM*temp_Fre_Denom_IM;
 
-		if ( abs(temp_Fre_Denom_SQARE) > DBL_EPSILON )
+		if ( abs(temp_Fre_Denom_SQARE) > DBL_MIN )
 		{
 			temp_Fre_Numer_RE = hi_RE[thread_Index][i] - hi_RE[thread_Index][i+1];
 			temp_Fre_Numer_IM = hi_IM[thread_Index][i] - hi_IM[thread_Index][i+1];
@@ -360,7 +360,7 @@ void Unwrapped_Reflection::calc_Fresnel(double polarization, const vector<double
 		temp_Fre_Denom_IM = temp_1_IM + temp_2_IM;
 		temp_Fre_Denom_SQARE = temp_Fre_Denom_RE*temp_Fre_Denom_RE + temp_Fre_Denom_IM*temp_Fre_Denom_IM;
 
-		if ( abs(temp_Fre_Denom_SQARE) > DBL_EPSILON )
+		if ( abs(temp_Fre_Denom_SQARE) > DBL_MIN )
 		{
 			temp_Fre_Numer_RE = temp_1_RE - temp_2_RE;
 			temp_Fre_Numer_IM = temp_1_IM - temp_2_IM;

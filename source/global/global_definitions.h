@@ -270,7 +270,11 @@ using namespace std;
 #define Q 4.484891E-30
 
 #ifndef DBL_EPSILON
-#define DBL_EPSILON 2.2204460492503131e-16
+#define DBL_EPSILON numeric_limits<double>::epsilon()
+#endif
+
+#ifndef DBL_MIN
+#define DBL_MIN numeric_limits<double>::min()
 #endif
 // -----------------------------------------------------------------------------------------
 

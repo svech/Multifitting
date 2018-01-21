@@ -5,6 +5,7 @@
 #include "node.h"
 #include <iostream>
 
+
 Node::Node()
 {
 //	qInfo() << "empty NODE";
@@ -233,7 +234,7 @@ int Node::calculate_Intermediate_Points(const Data& measurement, Node* above_Nod
 						temp_Fre_Denom_IM = hi_IM[i] + above_Node->hi_IM[i];
 						temp_Fre_Denom_SQARE = temp_Fre_Denom_RE*temp_Fre_Denom_RE + temp_Fre_Denom_IM*temp_Fre_Denom_IM;
 
-						if ( abs(temp_Fre_Denom_SQARE) > DBL_EPSILON)
+						if ( abs(temp_Fre_Denom_SQARE) > DBL_MIN)
 						{
 							temp_Fre_Numer_RE = hi_RE[i] - above_Node->hi_RE[i];
 							temp_Fre_Numer_IM = hi_IM[i] - above_Node->hi_IM[i];
@@ -264,7 +265,7 @@ int Node::calculate_Intermediate_Points(const Data& measurement, Node* above_Nod
 						temp_Fre_Denom_IM = temp_1_IM + temp_2_IM;
 						temp_Fre_Denom_SQARE = temp_Fre_Denom_RE*temp_Fre_Denom_RE + temp_Fre_Denom_IM*temp_Fre_Denom_IM;
 
-						if ( abs(temp_Fre_Denom_SQARE) > DBL_EPSILON )
+						if ( abs(temp_Fre_Denom_SQARE) > DBL_MIN )
 						{
 							temp_Fre_Numer_RE = temp_1_RE - temp_2_RE;
 							temp_Fre_Numer_IM = temp_1_IM - temp_2_IM;
@@ -295,14 +296,14 @@ int Node::calculate_Intermediate_Points(const Data& measurement, Node* above_Nod
 				bool is_Norm = false;
 				for(const Interlayer& inter : struct_Data.interlayer_Composition)
 				{
-					is_Norm = is_Norm || inter.enabled;
+					is_Norm = is_Norm || (inter.enabled && (inter.interlayer.value > DBL_MIN) && (inter.my_Sigma.value > DBL_MIN));
 				}
 
-				if( is_Norm && (abs(struct_Data.sigma.value) > DBL_EPSILON) && (!sigma_Grading) )
+				if( is_Norm && (abs(struct_Data.sigma.value) > DBL_MIN) && (!sigma_Grading) )
 				{
 					// temp variables
 					double a = M_PI/sqrt(M_PI*M_PI - 8.);
-					double factor, x, y;
+					double factor, x, y, six, siy;
 
 					double norm = 0;
 					double my_Sigma = struct_Data.sigma.value;	// by default, otherwise we change it
@@ -316,7 +317,9 @@ int Node::calculate_Intermediate_Points(const Data& measurement, Node* above_Nod
 
 					//-------------------------------------------------------------------------------
 					// erf interlayer
-					if(struct_Data.interlayer_Composition[Erf].enabled)
+					if(struct_Data.interlayer_Composition[Erf].enabled)					
+					if(struct_Data.interlayer_Composition[Erf].interlayer.value > DBL_MIN)
+					if(struct_Data.interlayer_Composition[Erf].my_Sigma.value > DBL_MIN)
 					{
 						norm += struct_Data.interlayer_Composition[Erf].interlayer.value;
 						if(!struct_Data.common_Sigma)
@@ -330,6 +333,8 @@ int Node::calculate_Intermediate_Points(const Data& measurement, Node* above_Nod
 					//-------------------------------------------------------------------------------
 					// lin interlayer
 					if(struct_Data.interlayer_Composition[Lin].enabled)
+					if(struct_Data.interlayer_Composition[Lin].interlayer.value > DBL_MIN)
+					if(struct_Data.interlayer_Composition[Lin].my_Sigma.value > DBL_MIN)
 					{
 						norm += struct_Data.interlayer_Composition[Lin].interlayer.value;
 						if(!struct_Data.common_Sigma)
@@ -344,6 +349,8 @@ int Node::calculate_Intermediate_Points(const Data& measurement, Node* above_Nod
 					//-------------------------------------------------------------------------------
 					// exp interlayer
 					if(struct_Data.interlayer_Composition[Exp].enabled)
+					if(struct_Data.interlayer_Composition[Exp].interlayer.value > DBL_MIN)
+					if(struct_Data.interlayer_Composition[Exp].my_Sigma.value > DBL_MIN)
 					{
 						norm += struct_Data.interlayer_Composition[Exp].interlayer.value;
 						if(!struct_Data.common_Sigma)
@@ -358,6 +365,8 @@ int Node::calculate_Intermediate_Points(const Data& measurement, Node* above_Nod
 					//-------------------------------------------------------------------------------
 					// tanh interlayer
 					if(struct_Data.interlayer_Composition[Tanh].enabled)
+					if(struct_Data.interlayer_Composition[Tanh].interlayer.value > DBL_MIN)
+					if(struct_Data.interlayer_Composition[Tanh].my_Sigma.value > DBL_MIN)
 					{
 						norm += struct_Data.interlayer_Composition[Tanh].interlayer.value;
 						if(!struct_Data.common_Sigma)
@@ -372,6 +381,8 @@ int Node::calculate_Intermediate_Points(const Data& measurement, Node* above_Nod
 					//-------------------------------------------------------------------------------
 					// sin interlayer
 					if(struct_Data.interlayer_Composition[Sin].enabled)
+					if(struct_Data.interlayer_Composition[Sin].interlayer.value > DBL_MIN)
+					if(struct_Data.interlayer_Composition[Sin].my_Sigma.value > DBL_MIN)
 					{
 						norm += struct_Data.interlayer_Composition[Sin].interlayer.value;
 						if(!struct_Data.common_Sigma)
@@ -380,13 +391,19 @@ int Node::calculate_Intermediate_Points(const Data& measurement, Node* above_Nod
 						{
 							x = 2 * a * my_Sigma * s[i] - M_PI_2;
 							y = x + M_PI;
-							factor = M_PI_4 * (sin(x)/x + sin(y)/y);
+
+							if(abs(x)>DBL_MIN) six = sin(x)/x; else six = 1;
+							if(abs(y)>DBL_MIN) siy = sin(y)/y; else siy = 1;
+
+							factor = M_PI_4 * (six + siy);
 							weak_Factor[i] += struct_Data.interlayer_Composition[Sin].interlayer.value * factor;
 						}
 					}
 					//-------------------------------------------------------------------------------
 					// step interlayer
 					if(struct_Data.interlayer_Composition[Step].enabled)
+					if(struct_Data.interlayer_Composition[Step].interlayer.value > DBL_MIN)
+					if(struct_Data.interlayer_Composition[Step].my_Sigma.value > DBL_MIN)
 					{
 						norm += struct_Data.interlayer_Composition[Step].interlayer.value;
 						if(!struct_Data.common_Sigma)
@@ -400,7 +417,7 @@ int Node::calculate_Intermediate_Points(const Data& measurement, Node* above_Nod
 					//-------------------------------------------------------------------------------
 					// normalization
 					{
-						if( norm > 0 )
+						if( abs(norm) > DBL_MIN )
 						for(int i=0; i<num_Points; ++i)
 						{
 							weak_Factor[i] /= norm;
