@@ -6,7 +6,7 @@
 
 Data::Data(QString item_Type_Passed)
 {
-	id = Global_Definitions::random_Id();
+	id = Global_Definitions::generate_Id();
 
 	if(item_Type_Passed != "empty")
 	{
@@ -141,7 +141,7 @@ Data::Data(QString item_Type_Passed)
 			if(item_Type == item_Type_Substrate)	sigma.value = substrate_default_sigma;
 			sigma.fit.is_Fitable = false;
 			sigma.fit.min = sigma_Dispersion_Min*sigma.value;
-			sigma.fit.max = sigma_Dispersion_Max*sigma.value;
+			sigma.fit.max = max(sigma_Dispersion_Max*sigma.value, 20.);
 			sigma.indicator.whats_This = whats_This_Sigma;
 		}
 		// interlayer composition
@@ -175,7 +175,7 @@ Data::Data(QString item_Type_Passed)
 			thickness.value	= layer_default_thickness;
 			thickness.fit.is_Fitable = false;
 			thickness.fit.min = thickness.value*(1-dispersion);
-			thickness.fit.max = thickness.value*(1+dispersion);
+			thickness.fit.max = thickness.value*(2+dispersion);
 			thickness.indicator.whats_This = whats_This_Thickness;
 		}
 		// thickness drift
@@ -280,69 +280,69 @@ Data::Data(QString item_Type_Passed)
 
 void Data::reset_All_IDs()
 {
-	id = Global_Definitions::random_Id();
+	id = Global_Definitions::generate_Id();
 	///---------------------------------------------
 	// Measurement
 	//---------------------------------------------
 		// angle
-		probe_Angle				.indicator.id = Global_Definitions::random_Id();
-		angular_Resolution		.indicator.id = Global_Definitions::random_Id();
+		probe_Angle				.indicator.id = Global_Definitions::generate_Id();
+		angular_Resolution		.indicator.id = Global_Definitions::generate_Id();
 
 		// wavelength
-		wavelength				.indicator.id = Global_Definitions::random_Id();
-		spectral_Resolution		.indicator.id = Global_Definitions::random_Id();
-		polarization			.indicator.id = Global_Definitions::random_Id();
-		polarization_Sensitivity.indicator.id = Global_Definitions::random_Id();
+		wavelength				.indicator.id = Global_Definitions::generate_Id();
+		spectral_Resolution		.indicator.id = Global_Definitions::generate_Id();
+		polarization			.indicator.id = Global_Definitions::generate_Id();
+		polarization_Sensitivity.indicator.id = Global_Definitions::generate_Id();
 	///---------------------------------------------
 	///---------------------------------------------
 	// Ambient, Layer, Substrate
 	//---------------------------------------------
-		relative_Density.indicator.id = Global_Definitions::random_Id();
-		absolute_Density.indicator.id = Global_Definitions::random_Id();
+		relative_Density.indicator.id = Global_Definitions::generate_Id();
+		absolute_Density.indicator.id = Global_Definitions::generate_Id();
 
-		permittivity	.indicator.id = Global_Definitions::random_Id();
-		absorption		.indicator.id = Global_Definitions::random_Id();
+		permittivity	.indicator.id = Global_Definitions::generate_Id();
+		absorption		.indicator.id = Global_Definitions::generate_Id();
 
 		// material composition
 		for(auto& stoich : composition)
 		{
-			stoich.composition.indicator.id = Global_Definitions::random_Id();
+			stoich.composition.indicator.id = Global_Definitions::generate_Id();
 		}
 	///---------------------------------------------
 	///---------------------------------------------
 	// Layer, Substrate
 	//---------------------------------------------
-		sigma.indicator.id = Global_Definitions::random_Id();
+		sigma.indicator.id = Global_Definitions::generate_Id();
 		for(Interlayer& inter : interlayer_Composition)
 		{
-			inter.interlayer.indicator.id = Global_Definitions::random_Id();
-			inter.my_Sigma	.indicator.id = Global_Definitions::random_Id();
+			inter.interlayer.indicator.id = Global_Definitions::generate_Id();
+			inter.my_Sigma	.indicator.id = Global_Definitions::generate_Id();
 		}
 	///---------------------------------------------
 	///---------------------------------------------
 	// Layer
 	//---------------------------------------------
-		thickness.indicator.id = Global_Definitions::random_Id();
+		thickness.indicator.id = Global_Definitions::generate_Id();
 
 		// thickness drift
-		thickness_Drift.drift_Line_Value	.indicator.id = Global_Definitions::random_Id();
-		thickness_Drift.drift_Rand_Rms		.indicator.id = Global_Definitions::random_Id();
-		thickness_Drift.drift_Sine_Amplitude.indicator.id = Global_Definitions::random_Id();
-		thickness_Drift.drift_Sine_Frequency.indicator.id = Global_Definitions::random_Id();
-		thickness_Drift.drift_Sine_Phase	.indicator.id = Global_Definitions::random_Id();
+		thickness_Drift.drift_Line_Value	.indicator.id = Global_Definitions::generate_Id();
+		thickness_Drift.drift_Rand_Rms		.indicator.id = Global_Definitions::generate_Id();
+		thickness_Drift.drift_Sine_Amplitude.indicator.id = Global_Definitions::generate_Id();
+		thickness_Drift.drift_Sine_Frequency.indicator.id = Global_Definitions::generate_Id();
+		thickness_Drift.drift_Sine_Phase	.indicator.id = Global_Definitions::generate_Id();
 
 		// sigma drift
-		sigma_Drift.drift_Line_Value		.indicator.id = Global_Definitions::random_Id();
-		sigma_Drift.drift_Rand_Rms			.indicator.id = Global_Definitions::random_Id();
-		sigma_Drift.drift_Sine_Amplitude	.indicator.id = Global_Definitions::random_Id();
-		sigma_Drift.drift_Sine_Frequency	.indicator.id = Global_Definitions::random_Id();
-		sigma_Drift.drift_Sine_Phase		.indicator.id = Global_Definitions::random_Id();
+		sigma_Drift.drift_Line_Value		.indicator.id = Global_Definitions::generate_Id();
+		sigma_Drift.drift_Rand_Rms			.indicator.id = Global_Definitions::generate_Id();
+		sigma_Drift.drift_Sine_Amplitude	.indicator.id = Global_Definitions::generate_Id();
+		sigma_Drift.drift_Sine_Frequency	.indicator.id = Global_Definitions::generate_Id();
+		sigma_Drift.drift_Sine_Phase		.indicator.id = Global_Definitions::generate_Id();
 	///---------------------------------------------
 	///---------------------------------------------
 	// Multilayer
 	//---------------------------------------------
-		period.indicator.id = Global_Definitions::random_Id();
-		gamma .indicator.id = Global_Definitions::random_Id();
+		period.indicator.id = Global_Definitions::generate_Id();
+		gamma .indicator.id = Global_Definitions::generate_Id();
 }
 
 void Data::calc_Measured_cos2_k()

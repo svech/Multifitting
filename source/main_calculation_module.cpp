@@ -58,7 +58,7 @@ void Main_Calculation_Module::fitting()
 		return;
 	}
 
-	bad_Sigmas.clear();
+	rejected_Sigmas.clear_All();
 	fitables.clear_All();
 	rejected_Fitables.clear_All();
 
@@ -75,9 +75,13 @@ void Main_Calculation_Module::fitting()
 			calc_Tree_Iteration(calculation_Trees[tab_Index]->real_Calc_Tree.begin());
 
 			// TODO crutch. error whan start sigma-fit from sigma value 0
-			if(check_Zero_Sigma())
+			if(rejected_Sigmas.fit_IDs.size()>0)
 			{
-				QMessageBox::information(NULL, "Bad value", "Sigma start value is too small.\nChange it.");
+				QStringList rejected_List = QStringList::fromVector(QVector<QString>::fromStdVector(rejected_Sigmas.fit_Names));
+				QString rejected = rejected_List.join("\n");
+				QMessageBox::information(NULL, "Bad value", "Sigma start values are too small in:\n\n" +
+															rejected +
+															"\n\nChange them");
 				return;
 			}
 		}
@@ -88,51 +92,45 @@ void Main_Calculation_Module::fitting()
 	{
 		QStringList rejected_List = QStringList::fromVector(QVector<QString>::fromStdVector(rejected_Fitables.fit_Names));
 		QString rejected = rejected_List.join("\n");
-		QMessageBox::information(NULL, "Bad fitables",
-													   "min>=max for the following fitables:\n\n" +
+		QMessageBox::information(NULL, "Bad fitables", "min>=max for the following fitables:\n\n" +
 													   rejected +
-													   "\n\n They won't be fitted");
+													   "\n\nThey won't be fitted");
+		return;
 	}
 
 	/// fitting from here
 	if( fitables.fit_Value_Pointers.size()>0 )
 	{
 		Fitting_GSL fitting_GSL(this);
-		fitting_GSL.fit();
-		print_Calculated_To_File();
+//		fitting_GSL.fit();
+//		print_Calculated_To_File();
 	}
 }
 
-bool Main_Calculation_Module::check_Zero_Sigma()
-{
-	// TODO crutch. error whan start sigma-fit from sigma value 0
-	for(int i=0; i<bad_Sigmas.size(); ++i)
-	{
-		if(bad_Sigmas[i]->value<0.1)
-		{
-			return true;
-		}
-	}
-	return false;
-}
-
-void Main_Calculation_Module::calc_Tree_Iteration(const tree<Node>::iterator& parent)
+void Main_Calculation_Module::calc_Tree_Iteration(const tree<Node>::iterator& parent, bool fitables_Period_Gamma)
 {
 	// iterate over tree
 	for(unsigned i=0; i<parent.number_of_children(); ++i)
 	{
 		tree<Node>::pre_order_iterator child = tree<Node>::child(parent,i);
 		Data& struct_Data = child.node->data.struct_Data;
-		find_Fittable_Parameters(struct_Data);
 
-		if(child.number_of_children()>0)
+		find_Fittable_Parameters(struct_Data, fitables_Period_Gamma);
+
+//		qInfo() << struct_Data.item_Type;
+		// check if period or gamma are fitables
+		if(struct_Data.item_Type == item_Type_Multilayer)
 		{
-			calc_Tree_Iteration(child);
+			if(struct_Data.period.fit.is_Fitable || (struct_Data.gamma.fit.is_Fitable && child.number_of_children() == 2))
+			{
+				fitables_Period_Gamma = true;
+			}
+			calc_Tree_Iteration(child, fitables_Period_Gamma);
 		}
 	}
 }
 
-void Main_Calculation_Module::find_Fittable_Parameters(Data& struct_Data)
+void Main_Calculation_Module::find_Fittable_Parameters(Data& struct_Data, bool fitables_Period_Gamma)
 {
 	struct_Data.fill_Potentially_Fitable_Parameters_Vector();
 	for(Parameter* parameter : struct_Data.potentially_Fitable_Parameters)
@@ -147,6 +145,7 @@ void Main_Calculation_Module::find_Fittable_Parameters(Data& struct_Data)
 			// if boundaries are good
 			if(parameter->fit.min<parameter->fit.max)
 			{
+				qInfo() << "\t" <<parameter->indicator.full_Name;
 				// fixed
 				fitables.fit_Struct_Names 		.push_back(multilayer_Tabs->tabText(parameter->indicator.tab_Index));
 				fitables.fit_Names				.push_back(parameter->indicator.full_Name);
@@ -159,15 +158,17 @@ void Main_Calculation_Module::find_Fittable_Parameters(Data& struct_Data)
 				fitables.fit_Value_Parametrized	.push_back(parametrize(parameter->value, parameter->fit.min, parameter->fit.max));
 				fitables.fit_Value_Pointers		.push_back(&parameter->value);
 
-				// TODO crutch. error whan start sigma-fit from sigma value 0
+				// TODO crutch. error whan start sigma-fit from sigma value 0 (now min = 0.1)
 				if(parameter->indicator.whats_This == whats_This_Interlayer_My_Sigma || parameter->indicator.whats_This == whats_This_Sigma)
-				if(!bad_Sigmas.contains(&struct_Data.sigma))
+				if(struct_Data.sigma.value < 0.1)
+				if(!rejected_Sigmas.fit_IDs.contains(struct_Data.sigma.indicator.id))
 				{
-					bad_Sigmas.append(&struct_Data.sigma);
+					rejected_Sigmas.fit_IDs.push_back(struct_Data.sigma.indicator.id);
+					rejected_Sigmas.fit_Names.push_back("  " + Medium_BlackCircle_Sym + "  <" + multilayer_Tabs->tabText(struct_Data.sigma.indicator.tab_Index) + "> " + struct_Data.sigma.indicator.full_Name);
 				}
 			} else
 			{
-				rejected_Fitables.fit_Names		.push_back("  " + Medium_BlackCircle_Sym + "  <" + multilayer_Tabs->tabText(parameter->indicator.tab_Index) + "> " + parameter->indicator.full_Name);
+				rejected_Fitables.fit_Names.push_back("  " + Medium_BlackCircle_Sym + "  <" + multilayer_Tabs->tabText(parameter->indicator.tab_Index) + "> " + parameter->indicator.full_Name);
 			}
 		}
 	}
@@ -265,7 +266,12 @@ void Main_Calculation_Module::print_Reflect_To_File(Data_Element<Type>& data_Ele
 				<< endl;
 		}
 	file.close();
-	} else{QTextStream(stderr) << "Calculation_Tree::print_Reflect_To_File  :  Can't write file " + name << endl;	exit(EXIT_FAILURE);}
+	} else
+	{
+		qInfo() << "Calculation_Tree::print_Reflect_To_File  :  Can't write file " + name;
+		QMessageBox::critical(NULL, "Calculation_Tree::print_Reflect_To_File()", "Can't write file " + name);
+		exit(EXIT_FAILURE);
+	}
 }
 template void Main_Calculation_Module::print_Reflect_To_File<Independent_Variables>(Data_Element<Independent_Variables>&, QString, int);
 template void Main_Calculation_Module::print_Reflect_To_File<Target_Curve>		   (Data_Element<Target_Curve>&, QString, int);

@@ -173,6 +173,15 @@ void Multilayer_Approach::refresh_All_Multilayers_View()
 
 void Multilayer_Approach::open()
 {
+	// TODO
+	QFile file("save.fit");
+	if(!file.open(QIODevice::ReadOnly))
+	{
+		QMessageBox::information(NULL, "File not found", "Nothing to open");
+		return;
+	}
+	QDataStream in(&file);
+
 	// close table of structures
 	bool reopen_Table = runned_Tables_Of_Structures.contains(table_Key);
 	if(reopen_Table)
@@ -186,11 +195,6 @@ void Multilayer_Approach::open()
 	{
 		runned_Calculation_Settings_Editor.value(calc_Settings_Key)->close();
 	}
-
-	// TODO
-	QFile file("save.fit");
-	file.open(QIODevice::ReadOnly);
-	QDataStream in(&file);
 
 	// clear existing tabs
 	for(int i=0; i<multilayer_Tabs->count(); ++i)

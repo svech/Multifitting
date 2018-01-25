@@ -309,7 +309,7 @@ void Coupling_Editor::save_External_Slaves()
 	// ex-slaves remove me from their master place
 	for(Parameter_Indicator& old_Slave : old_Slaves)
 	{
-		int id = old_Slave.id;
+		unsigned long long int id = old_Slave.id;
 		bool keep = false;
 
 		// search in actual base

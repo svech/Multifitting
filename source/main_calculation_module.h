@@ -21,15 +21,14 @@ public:
 
 	Fitables fitables;
 	Fitables rejected_Fitables;
+	Fitables rejected_Sigmas;
 
 	QString parametrization_Type = triangle;
-	QVector<Parameter*> bad_Sigmas;
 
 	void single_Calculation();
 	void fitting();
-	bool check_Zero_Sigma();
-	void calc_Tree_Iteration(const tree<Node>::iterator& parent);
-	void find_Fittable_Parameters(Data& struct_Data);
+	void calc_Tree_Iteration(const tree<Node>::iterator& parent, bool fitables_Period_Gamma = false);
+	void find_Fittable_Parameters(Data& struct_Data, bool fitables_Period_Gamma);
 
 	double triangle_Wave(double x);
 	double parametrize  (double value,                      double min, double max);

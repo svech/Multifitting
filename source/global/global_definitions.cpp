@@ -10,25 +10,21 @@ Global_Definitions::Global_Definitions()
 
 }
 
-QVector<int> used_IDs;
+unsigned long long int previous_ID = 10; // zero is reserved ID
 
-int Global_Definitions::random_Id()
+unsigned long long Global_Definitions::generate_Id()
 {
-	int id = 0;
-	bool contains = false;
-	do
+	unsigned long long int current_ID = previous_ID+1;
+
+	if(current_ID < previous_ID)
 	{
-		id = rand()*RAND_SHIFT+rand();
-		if(used_IDs.contains(id))
-		{
-			qInfo() << "id "<<id<<"repeated. regenerating";
-			contains = true;
-		} else
-		{
-			used_IDs.append(id);
-		}
-	} while (contains);
-	return id;
+		// should never appear
+		qInfo() << "Global_Definitions::generate_Id()  :  Out of ID range!";
+		QMessageBox::critical(NULL, "Global_Definitions::generate_Id()", "Out of ID range!");
+		exit(EXIT_FAILURE);
+	}
+	++previous_ID;
+	return current_ID;
 }
 
 // -----------------------------------------------------------------------------------------

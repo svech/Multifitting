@@ -219,7 +219,7 @@ void Calculation_Tree::statify_Calc_Tree(tree<Node>& calc_Tree)
 				// delete
 				calc_Tree.erase(chosen_Child);
 				// not delete
-//				chosen_Child.node->data.stack_Content.num_Repetition.value = 0;
+//				chosen_Child.node->data.struct_Data.num_Repetition.value = 0;
 			} else
 
 			// if 2 periods
@@ -300,7 +300,7 @@ void Calculation_Tree::calculate_1_Kind(Data_Element<Type>& data_Element)
 	if(data_Element.active_Item_Type != item_Type_Measurement)
 	{
 		// TODO
-		qInfo() << "Active" << data_Element.active_Item_Type;
+		qInfo() << "Calculation_Tree::calculate_1_Kind  :  Active" << data_Element.active_Item_Type;
 	} else
 	if(data_Element.active_Item_Type == item_Type_Measurement)
 	{

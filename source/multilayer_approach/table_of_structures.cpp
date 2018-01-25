@@ -37,7 +37,7 @@ void Table_Of_Structures::create_Main_Layout()
 	create_Tabs();
 	main_Layout->addWidget(main_Tabs);
 	//	resize(800,550);
-	resize(1050,750);
+	resize(830,750);
 	add_Tabs();
 }
 

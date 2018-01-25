@@ -1,15 +1,5 @@
 #include "fitting_gsl.h"
 
-QTextStream& operator <<( QTextStream& stream, const gsl_vector* gsl_vec )
-{
-	for(size_t i=0; i<gsl_vec->size; ++i)
-	{
-		stream << gsl_vector_get(gsl_vec, i);
-	}
-	return stream;
-}
-
-
 Fitting_GSL::Fitting_GSL(Main_Calculation_Module* main_Calculation_Module):
 	main_Calculation_Module(main_Calculation_Module),
 	calculation_Trees(main_Calculation_Module->calculation_Trees),
@@ -105,8 +95,8 @@ void Fitting_GSL::fit()
 	printf("method              : %s\n", gsl_multifit_nlinear_trs_name(work));
 	printf("NITER               = %zu\n", gsl_multifit_nlinear_niter(work));
 	printf("NFEV                = %zu\n", fdf.nevalf);
-	printf("initial cost        = %.12e\n", chisq_Init);
-	printf("final cost          = %.12e\n", chisq_Final);
+	printf("initial cost        = %g\n", chisq_Init);
+	printf("final cost          = %g\n", chisq_Final);
 	printf("reason for stopping : %s\n", (info == 1) ? "small step size" : "small gradient");
 	printf("\n");
 
@@ -171,6 +161,7 @@ void Fitting_GSL::fill_Residual(int& residual_Index, Data_Element<Target_Curve>&
 		for( ; residual_Index<target_Element.the_Class->curve.values.size(); ++residual_Index)
 		{
 			double fi = log(target_Element.the_Class->curve.values[residual_Index].val_1+1e-11) - log(target_Element.unwrapped_Reflection->R[residual_Index]+1e-11);
+//			double fi = log(target_Element.the_Class->curve.values[residual_Index].val_1+1e-8) - log(target_Element.unwrapped_Reflection->R[residual_Index]+1e-8);
 			gsl_vector_set(f, residual_Index, fi);
 		}
 	} else
@@ -204,13 +195,4 @@ void Fitting_GSL::fill_Residual(int& residual_Index, Data_Element<Target_Curve>&
 	{
 		qInfo() << "Fitting_GSL::fill_Residual  :  sorry, A is not ready";
 	}
-}
-
-void Fitting_GSL::print_gsl_Vector(gsl_vector* f)
-{
-	for(size_t i=0; i<f->size; ++i)
-	{
-		printf("%f  ", gsl_vector_get(f, i));
-	}
-	printf("\n");
 }
