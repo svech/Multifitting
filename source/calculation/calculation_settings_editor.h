@@ -33,6 +33,8 @@ public:
 		QVector<QGroupBox*> independent_Group_Box_Vec;
 			QVector<QFrame*> independent_Frame_Vec;
 
+	QVector<QLineEdit*> different_Lines; // for editingFinished calling from menu
+
 	QPushButton* global_Norm_Button;
 	QPushButton* optimization_Method_Button;
 	QPushButton* done_Button;

@@ -232,47 +232,53 @@ void Calculation_Settings_Editor::load_Target_Parameters(int tab_Index)
 
 			// content
 			{
-				QCheckBox* fit = new QCheckBox("Fit");
-					box_Layout->addWidget(fit);
-					fit->setChecked(multilayer->target_Profiles_Vector[target_Index]->fit_Params.fit);
-				connect(fit,  &QCheckBox::toggled, this, [=]{ multilayer->target_Profiles_Vector[target_Index]->fit_Params.fit = fit->isChecked(); });
-
-				QLabel* weight_Label = new QLabel("Weight");
-				QLineEdit* weight_Line_Edit = new QLineEdit(QString::number(multilayer->target_Profiles_Vector[target_Index]->fit_Params.weight));
-					weight_Line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION, this));
-
-				QHBoxLayout* weight_Layout = new QHBoxLayout;
-					weight_Layout->addWidget(weight_Label);
-					weight_Layout->addWidget(weight_Line_Edit);
-
-				box_Layout->addLayout(weight_Layout);
-				connect(weight_Line_Edit,  &QLineEdit::textEdited, this, [=]{ multilayer->target_Profiles_Vector[target_Index]->fit_Params.weight = weight_Line_Edit->text().toDouble(); });
-
-				QCheckBox* norm = new QCheckBox("Divide by N");
-					box_Layout->addWidget(norm);
-				norm->setChecked(multilayer->target_Profiles_Vector[target_Index]->fit_Params.norm);
-				connect(norm,  &QCheckBox::toggled, this, [=]{ multilayer->target_Profiles_Vector[target_Index]->fit_Params.norm = norm->isChecked(); });
-
-				QLabel* function_Label = new QLabel("Function");
-				QLineEdit* fit_Function_Line_Edit = new QLineEdit(multilayer->target_Profiles_Vector[target_Index]->fit_Params.fit_Function);
-
-				QHBoxLayout* function_Layout = new QHBoxLayout;
-					function_Layout->addWidget(function_Label);
-					function_Layout->addWidget(fit_Function_Line_Edit);
-
-				box_Layout->addLayout(function_Layout);
-				connect(fit_Function_Line_Edit,  &QLineEdit::editingFinished, this, [=]
 				{
-					QStringList var_List = {fit_Function_Variable};
-					if(Global_Variables::expression_Is_Valid(fit_Function_Line_Edit->text(), var_List) || fit_Function_Line_Edit->text().isEmpty())
+					QCheckBox* fit = new QCheckBox("Fit");
+						box_Layout->addWidget(fit);
+						fit->setChecked(multilayer->target_Profiles_Vector[target_Index]->fit_Params.fit);
+					connect(fit,  &QCheckBox::toggled, this, [=]{ multilayer->target_Profiles_Vector[target_Index]->fit_Params.fit = fit->isChecked(); });
+
+					QLabel* weight_Label = new QLabel("Weight");
+					QLineEdit* weight_Line_Edit = new QLineEdit(QString::number(multilayer->target_Profiles_Vector[target_Index]->fit_Params.weight));
+						weight_Line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION, this));
+
+					QHBoxLayout* weight_Layout = new QHBoxLayout;
+						weight_Layout->addWidget(weight_Label);
+						weight_Layout->addWidget(weight_Line_Edit);
+
+					box_Layout->addLayout(weight_Layout);
+					connect(weight_Line_Edit,  &QLineEdit::textEdited, this, [=]{ multilayer->target_Profiles_Vector[target_Index]->fit_Params.weight = weight_Line_Edit->text().toDouble(); });
+					different_Lines.append(weight_Line_Edit);
+				}
+				{
+					QCheckBox* norm = new QCheckBox("Divide by N");
+						box_Layout->addWidget(norm);
+					norm->setChecked(multilayer->target_Profiles_Vector[target_Index]->fit_Params.norm);
+					connect(norm,  &QCheckBox::toggled, this, [=]{ multilayer->target_Profiles_Vector[target_Index]->fit_Params.norm = norm->isChecked(); });
+				}
+				{
+					QLabel* function_Label = new QLabel("Function");
+					QLineEdit* fit_Function_Line_Edit = new QLineEdit(multilayer->target_Profiles_Vector[target_Index]->fit_Params.fit_Function);
+
+					QHBoxLayout* function_Layout = new QHBoxLayout;
+						function_Layout->addWidget(function_Label);
+						function_Layout->addWidget(fit_Function_Line_Edit);
+
+					box_Layout->addLayout(function_Layout);
+					connect(fit_Function_Line_Edit,  &QLineEdit::editingFinished, this, [=]
 					{
-						multilayer->target_Profiles_Vector[target_Index]->fit_Params.fit_Function = fit_Function_Line_Edit->text();
-					} else
-					{
-						fit_Function_Line_Edit->setText(multilayer->target_Profiles_Vector[target_Index]->fit_Params.fit_Function);
-						QMessageBox::information(this, "Wrong expression", "Expression has wrong syntax");
-					}
-				});
+						QStringList var_List = {fit_Function_Variable};
+						if(Global_Variables::expression_Is_Valid(fit_Function_Line_Edit->text(), var_List) || fit_Function_Line_Edit->text().isEmpty())
+						{
+							multilayer->target_Profiles_Vector[target_Index]->fit_Params.fit_Function = fit_Function_Line_Edit->text();
+						} else
+						{
+							fit_Function_Line_Edit->setText(multilayer->target_Profiles_Vector[target_Index]->fit_Params.fit_Function);
+							QMessageBox::information(this, "Wrong expression", "Expression has wrong syntax");
+						}
+					});
+					different_Lines.append(fit_Function_Line_Edit);
+				}
 			}
 		}
 	}
@@ -375,6 +381,7 @@ void Calculation_Settings_Editor::load_Independent_Parameters(int tab_Index)
 
 				connect(user_Supplied_Functions_Check,  &QCheckBox::toggled,		 this, [=]{ refresh_Independent_Calc_Properties(tab_Index, independent_Index, box); user_Supplied_Functions->setEnabled(independent_Variables->calc_Functions.check_User);});
 				connect(user_Supplied_Functions,		&QLineEdit::editingFinished, this, [=]{ refresh_Independent_Calc_Properties(tab_Index, independent_Index, box); });
+				different_Lines.append(user_Supplied_Functions);
 			}
 		}
 	}

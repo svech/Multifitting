@@ -4,7 +4,6 @@
 #include "global/layer_data_types.h"
 #include "multilayer_approach/multilayer/independent_variables.h"
 #include "multilayer_approach/multilayer/target_curve.h"
-#include "tree.hh"
 
 class Node
 {

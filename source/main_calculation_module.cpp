@@ -60,7 +60,9 @@ void Main_Calculation_Module::fitting()
 
 	rejected_Sigmas.clear_All();
 	fitables.clear_All();
-	rejected_Fitables.clear_All();
+	rejected_Min_Max.clear_All();
+	rejected_Thicknesses_and_Periods.clear_All();
+	rejected_Periods.clear_All();
 
 	// create calc tree and fitables;
 	for(int tab_Index=0; tab_Index<multilayers.size(); ++tab_Index)
@@ -73,38 +75,68 @@ void Main_Calculation_Module::fitting()
 
 			// find fitables over tree
 			calc_Tree_Iteration(calculation_Trees[tab_Index]->real_Calc_Tree.begin());
-
-			// TODO crutch. error whan start sigma-fit from sigma value 0
-			if(rejected_Sigmas.fit_IDs.size()>0)
-			{
-				QStringList rejected_List = QStringList::fromVector(QVector<QString>::fromStdVector(rejected_Sigmas.fit_Names));
-				QString rejected = rejected_List.join("\n");
-				QMessageBox::information(NULL, "Bad value", "Sigma start values are too small in:\n\n" +
-															rejected +
-															"\n\nChange them");
-				return;
-			}
 		}
 	}
 
-	// warning
-	if(rejected_Fitables.fit_Names.size()>0)
-	{
-		QStringList rejected_List = QStringList::fromVector(QVector<QString>::fromStdVector(rejected_Fitables.fit_Names));
-		QString rejected = rejected_List.join("\n");
-		QMessageBox::information(NULL, "Bad fitables", "min>=max for the following fitables:\n\n" +
-													   rejected +
-													   "\n\nThey won't be fitted");
-		return;
-	}
+	/// rejection
+	if(reject()) return;
 
 	/// fitting from here
 	if( fitables.fit_Value_Pointers.size()>0 )
 	{
 		Fitting_GSL fitting_GSL(this);
-//		fitting_GSL.fit();
-//		print_Calculated_To_File();
+		fitting_GSL.fit();
+		print_Calculated_To_File();
 	}
+}
+
+bool Main_Calculation_Module::reject()
+{
+	// sigma value is close to zero
+	if(rejected_Sigmas.fit_IDs.size()>0)
+	{
+		QStringList rejected_List = QStringList::fromVector(QVector<QString>::fromStdVector(rejected_Sigmas.fit_Names));
+		QString rejected = rejected_List.join("\n");
+		QMessageBox::information(NULL, "Bad fitables", "Sigma start values are too small in:\n\n" +
+													   rejected +
+													   "\n\nChange them");
+		return true;
+	}
+
+	// internal thicknesses and periods if overlying period or gamma are fitables
+	if(rejected_Thicknesses_and_Periods.fit_Names.size()>0)
+	{
+		QStringList rejected_List = QStringList::fromVector(QVector<QString>::fromStdVector(rejected_Thicknesses_and_Periods.fit_Names));
+		QString rejected = rejected_List.join("\n");
+		QMessageBox::information(NULL, "Bad fitables", "Thicknesses and periods can't be fitted independently\nif overlying period or gamma are fitables:\n\n" +
+													   rejected +
+													   "\n\nRecheck fitables");
+		return true;
+	}
+
+	// internal thicknesses and periods if overlying period or gamma are fitables
+	if(rejected_Periods.fit_Names.size()>0)
+	{
+		QStringList rejected_List = QStringList::fromVector(QVector<QString>::fromStdVector(rejected_Periods.fit_Names));
+		QString rejected = rejected_List.join("\n");
+		QMessageBox::information(NULL, "Bad fitables", "Zero period values are not allowed for fitting:\n\n" +
+													   rejected +
+													   "\n\nIncrease them");
+		return true;
+	}
+
+	// min>=max
+	if(rejected_Min_Max.fit_Names.size()>0)
+	{
+		QStringList rejected_List = QStringList::fromVector(QVector<QString>::fromStdVector(rejected_Min_Max.fit_Names));
+		QString rejected = rejected_List.join("\n");
+		QMessageBox::information(NULL, "Bad fitables", "min>=max for the following fitables:\n\n" +
+													   rejected +
+													   "\n\nThey won't be fitted");
+		return true;
+	}
+
+	return false;
 }
 
 void Main_Calculation_Module::calc_Tree_Iteration(const tree<Node>::iterator& parent, bool fitables_Period_Gamma)
@@ -115,9 +147,8 @@ void Main_Calculation_Module::calc_Tree_Iteration(const tree<Node>::iterator& pa
 		tree<Node>::pre_order_iterator child = tree<Node>::child(parent,i);
 		Data& struct_Data = child.node->data.struct_Data;
 
-		find_Fittable_Parameters(struct_Data, fitables_Period_Gamma);
+		find_Fittable_Parameters(struct_Data, child, fitables_Period_Gamma);
 
-//		qInfo() << struct_Data.item_Type;
 		// check if period or gamma are fitables
 		if(struct_Data.item_Type == item_Type_Multilayer)
 		{
@@ -130,7 +161,7 @@ void Main_Calculation_Module::calc_Tree_Iteration(const tree<Node>::iterator& pa
 	}
 }
 
-void Main_Calculation_Module::find_Fittable_Parameters(Data& struct_Data, bool fitables_Period_Gamma)
+void Main_Calculation_Module::find_Fittable_Parameters(Data& struct_Data, const tree<Node>::iterator& parent, bool fitables_Period_Gamma)
 {
 	struct_Data.fill_Potentially_Fitable_Parameters_Vector();
 	for(Parameter* parameter : struct_Data.potentially_Fitable_Parameters)
@@ -142,33 +173,55 @@ void Main_Calculation_Module::find_Fittable_Parameters(Data& struct_Data, bool f
 		// fitable and has no master
 		if(parameter->fit.is_Fitable && !parameter->coupled.master.exist)
 		{
-			// if boundaries are good
-			if(parameter->fit.min<parameter->fit.max)
-			{
-				qInfo() << "\t" <<parameter->indicator.full_Name;
-				// fixed
-				fitables.fit_Struct_Names 		.push_back(multilayer_Tabs->tabText(parameter->indicator.tab_Index));
-				fitables.fit_Names				.push_back(parameter->indicator.full_Name);
-				fitables.fit_Whats_This			.push_back(parameter->indicator.whats_This);
-				fitables.fit_IDs				.push_back(parameter->indicator.id);
-				fitables.fit_Min				.push_back(parameter->fit.min);
-				fitables.fit_Max				.push_back(parameter->fit.max);
+			// fixed
+			fitables.fit_Struct_Names 		.push_back(multilayer_Tabs->tabText(parameter->indicator.tab_Index));
+			fitables.fit_Names				.push_back(parameter->indicator.full_Name);
+			fitables.fit_Whats_This			.push_back(parameter->indicator.whats_This);
+			fitables.fit_IDs				.push_back(parameter->indicator.id);
+			fitables.fit_Min				.push_back(parameter->fit.min);
+			fitables.fit_Max				.push_back(parameter->fit.max);
 
-				// changeable
-				fitables.fit_Value_Parametrized	.push_back(parametrize(parameter->value, parameter->fit.min, parameter->fit.max));
-				fitables.fit_Value_Pointers		.push_back(&parameter->value);
+			// changeable
+			fitables.fit_Value_Parametrized	.push_back(parametrize(parameter->value, parameter->fit.min, parameter->fit.max));
+			fitables.fit_Value_Pointers		.push_back(&parameter->value);
 
-				// TODO crutch. error whan start sigma-fit from sigma value 0 (now min = 0.1)
-				if(parameter->indicator.whats_This == whats_This_Interlayer_My_Sigma || parameter->indicator.whats_This == whats_This_Sigma)
-				if(struct_Data.sigma.value < 0.1)
-				if(!rejected_Sigmas.fit_IDs.contains(struct_Data.sigma.indicator.id))
-				{
-					rejected_Sigmas.fit_IDs.push_back(struct_Data.sigma.indicator.id);
-					rejected_Sigmas.fit_Names.push_back("  " + Medium_BlackCircle_Sym + "  <" + multilayer_Tabs->tabText(struct_Data.sigma.indicator.tab_Index) + "> " + struct_Data.sigma.indicator.full_Name);
-				}
-			} else
+			// for period and gamma only
+			if(parameter->indicator.whats_This == whats_This_Period || parameter->indicator.whats_This == whats_This_Gamma)
 			{
-				rejected_Fitables.fit_Names.push_back("  " + Medium_BlackCircle_Sym + "  <" + multilayer_Tabs->tabText(parameter->indicator.tab_Index) + "> " + parameter->indicator.full_Name);
+				fitables.fit_Parent_Iterators.push_back(parent);
+			}
+
+			/// for rejection
+
+			QString total_Name = "  " + Medium_BlackCircle_Sym + "  <" + multilayer_Tabs->tabText(parameter->indicator.tab_Index) + "> " + parameter->indicator.full_Name;
+
+			// sigma value is close to zero
+			if(parameter->indicator.whats_This == whats_This_Interlayer_My_Sigma || parameter->indicator.whats_This == whats_This_Sigma)
+			if(struct_Data.sigma.value < 0.1)
+			if(!rejected_Sigmas.fit_IDs.contains(struct_Data.sigma.indicator.id))
+			{
+				rejected_Sigmas.fit_IDs.push_back(struct_Data.sigma.indicator.id);
+				rejected_Sigmas.fit_Names.push_back("  " + Medium_BlackCircle_Sym + "  <" + multilayer_Tabs->tabText(struct_Data.sigma.indicator.tab_Index) + "> " + struct_Data.sigma.indicator.full_Name);
+			}
+
+			// forbid fitting internal thicknesses and periods if overlying period or gamma are fitables
+			if(fitables_Period_Gamma)
+			if(parameter->indicator.whats_This == whats_This_Thickness || parameter->indicator.whats_This == whats_This_Period)
+			{
+				rejected_Thicknesses_and_Periods.fit_Names.push_back(total_Name);
+			}
+
+			// period value == 0
+			if(parameter->indicator.whats_This == whats_This_Period)
+			if(abs(parameter->value) < DBL_MIN)
+			{
+				rejected_Periods.fit_Names.push_back(total_Name);
+			}
+
+			// min>=max
+			if(parameter->fit.min>=parameter->fit.max)
+			{
+				rejected_Min_Max.fit_Names.push_back(total_Name);
 			}
 		}
 	}
@@ -190,7 +243,8 @@ double Main_Calculation_Module::parametrize(double value, double min, double max
 		return (value - min) / (max - min);
 	} else
 	{
-		qInfo() << "Main_Calculation_Module::parametrize : wrong type";
+		qInfo() << "Main_Calculation_Module::parametrize : wrong parametrization_Type";
+		QMessageBox::warning(NULL, "Main_Calculation_Module::parametrize", "Wrong parametrization_Type");
 		return value;
 	}
 }
@@ -206,7 +260,8 @@ double Main_Calculation_Module::unparametrize(double parametrized_Shifted_Value,
 		return triangle_Wave(parametrized_Shifted_Value) * (max - min) + min;
 	} else
 	{
-		qInfo() << "Main_Calculation_Module::unparametrize : wrong type";
+		qInfo() << "Main_Calculation_Module::unparametrize : wrong parametrization_Type";
+		QMessageBox::warning(NULL, "Main_Calculation_Module::unparametrize", "Wrong parametrization_Type");
 		return parametrized_Shifted_Value;
 	}
 }
@@ -269,7 +324,7 @@ void Main_Calculation_Module::print_Reflect_To_File(Data_Element<Type>& data_Ele
 	} else
 	{
 		qInfo() << "Calculation_Tree::print_Reflect_To_File  :  Can't write file " + name;
-		QMessageBox::critical(NULL, "Calculation_Tree::print_Reflect_To_File()", "Can't write file " + name);
+		QMessageBox::critical(NULL, "Calculation_Tree::print_Reflect_To_File", "Can't write file " + name);
 		exit(EXIT_FAILURE);
 	}
 }

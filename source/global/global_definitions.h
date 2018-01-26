@@ -4,12 +4,16 @@
 #include <QtWidgets>
 #include <vector>
 #include <complex>
+#include "tree.hh"
+#include "exprtk.hpp"
 
 #ifdef __linux__
 	#include <iostream>
 #endif
 
 using namespace std;
+
+class Node;
 
 // -----------------------------------------------------------------------------------------
 
@@ -130,6 +134,8 @@ using namespace std;
 //#define	stop_Calculation "stop_Calculation"
 #define fit_Text "fit"
 #define expression_Master_Slave_Variable "x"
+
+#define fit_Function_Separator ";"
 #define fit_Function_Variable "x"
 
 // calc functions
@@ -379,7 +385,10 @@ struct Fit_Params				{bool calc = true;
 								 bool fit = true;
 								 bool norm = true;
 								 double weight = 1;
-								 QString fit_Function = "log(x+1E-5)";
+
+								 QString fit_Function = "log(x+1E-5); sin(x/2)";
+								 double expression_Argument;							// not to store
+								 QVector<exprtk::expression<double>> expression_Vec;	// not to store
 								};
 struct Fitables
 								{	vector<QString> fit_Struct_Names;		// names of structures
@@ -392,6 +401,7 @@ struct Fitables
 									// changeable
 									vector<double>	fit_Value_Parametrized;	// unbounded parametrized variables
 									vector<double*> fit_Value_Pointers;		// poiners to real parameters
+									vector<tree<Node>::iterator> fit_Parent_Iterators;
 
 									void clear_All()
 									{

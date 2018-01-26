@@ -83,7 +83,7 @@ void Fitting_GSL::fit()
 
 	auto start = std::chrono::system_clock::now();
 		// iterate until convergence
-		gsl_multifit_nlinear_driver(max_iter, xtol, gtol, ftol,	callback, &params, &info, work);
+//		gsl_multifit_nlinear_driver(max_iter, xtol, gtol, ftol,	callback, &params, &info, work);
 	auto end = std::chrono::system_clock::now();
 	auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
 	qInfo() << "Fit  : "<< elapsed.count()/1000. << " seconds\n";
@@ -103,6 +103,78 @@ void Fitting_GSL::fit()
 	gsl_multifit_nlinear_free(work);
 }
 
+void Fitting_GSL::period_Subtree_Iteration(const tree<Node>::iterator& parent, double coeff)
+{
+	for(unsigned i=0; i<parent.number_of_children(); ++i)
+	{
+		tree<Node>::pre_order_iterator child = tree<Node>::child(parent,i);
+		Data& struct_Data = child.node->data.struct_Data;
+
+		if(abs(coeff)>DBL_MIN) // Do we need it?
+		{
+			if(struct_Data.item_Type == item_Type_Layer)
+			{
+				struct_Data.thickness.value *= coeff;
+			} else
+			if(struct_Data.item_Type == item_Type_Multilayer)
+			{
+				struct_Data.period.value *= coeff;
+				period_Subtree_Iteration(child, coeff);
+			}
+		}
+	}
+}
+
+void Fitting_GSL::gamma_Subtree_Iteration(const tree<Node>::iterator& parent, double old_Value)
+{
+	Data& gamma_Multilayer_Data = parent.node->data.struct_Data;
+	double old_First_Thickness = gamma_Multilayer_Data.period.value * old_Value;
+	double new_First_Thickness = gamma_Multilayer_Data.period.value * gamma_Multilayer_Data.gamma.value;
+
+	unsigned i=0;
+	{
+		tree<Node>::pre_order_iterator child = tree<Node>::child(parent,i);
+		Data& child_Data = child.node->data.struct_Data;
+
+		if(child_Data.item_Type == item_Type_Layer)
+		{
+			child_Data.thickness.value = new_First_Thickness;
+		} else
+		if(child_Data.item_Type == item_Type_Multilayer)
+		{
+			if(abs(old_First_Thickness) > DBL_MIN)
+			{
+				double coeff = new_First_Thickness/old_First_Thickness;
+				child_Data.period.value *= coeff;
+				period_Subtree_Iteration(child, coeff);
+			}
+		}
+	}
+
+	double old_Second_Thickness = gamma_Multilayer_Data.period.value - old_First_Thickness;
+	double new_Second_Thickness = gamma_Multilayer_Data.period.value - new_First_Thickness;
+
+	i=1;
+	{
+		tree<Node>::pre_order_iterator child = tree<Node>::child(parent,i);
+		Data& child_Data = child.node->data.struct_Data;
+
+		if(child_Data.item_Type == item_Type_Layer)
+		{
+			child_Data.thickness.value = new_Second_Thickness;
+		} else
+		if(child_Data.item_Type == item_Type_Multilayer)
+		{
+			if(abs(old_Second_Thickness) > DBL_MIN)
+			{
+				double coeff = new_Second_Thickness/old_Second_Thickness;
+				child_Data.period.value *= coeff;
+				period_Subtree_Iteration(child, coeff);
+			}
+		}
+	}
+}
+
 int Fitting_GSL::calc_Residual(const gsl_vector* x, void* bare_Params, gsl_vector* f)
 {
 	Params* params = ((struct Params*)bare_Params);
@@ -110,10 +182,22 @@ int Fitting_GSL::calc_Residual(const gsl_vector* x, void* bare_Params, gsl_vecto
 	// change value of real fitables
 	for(size_t i=0; i<params->fitables.fit_Value_Pointers.size(); ++i)
 	{
-		*params->fitables.fit_Value_Pointers[i]=params->main_Calculation_Module->unparametrize(
-																								gsl_vector_get(x, i),
+		double old_Value = *params->fitables.fit_Value_Pointers[i];
+		*params->fitables.fit_Value_Pointers[i]=params->main_Calculation_Module->unparametrize(	gsl_vector_get(x, i),
 																								params->fitables.fit_Min[i],
 																								params->fitables.fit_Max[i]);
+		double new_Value = *params->fitables.fit_Value_Pointers[i];
+
+		// special cases
+		if(params->fitables.fit_Whats_This[i] == whats_This_Period)
+		{
+			double coeff = new_Value/old_Value;
+			period_Subtree_Iteration(params->fitables.fit_Parent_Iterators[i], coeff);
+		} else
+		if(params->fitables.fit_Whats_This[i] == whats_This_Gamma)
+		{
+			gamma_Subtree_Iteration(params->fitables.fit_Parent_Iterators[i], old_Value);
+		}
 	}
 
 	/// now all real_Calc_Tree are changed; we can replicate and stratify them
@@ -150,8 +234,30 @@ void Fitting_GSL::init_Position(gsl_vector* x)
 	}
 }
 
+void Fitting_GSL::create_Expressions_for_Residual(Data_Element<Target_Curve>& target_Element)
+{
+	double& argument = target_Element.the_Class->fit_Params.expression_Argument;
+	QStringList expressions = target_Element.the_Class->fit_Params.fit_Function.split(fit_Function_Separator, QString::SkipEmptyParts);
+
+	target_Element.the_Class->fit_Params.expression_Vec.clear();
+	for(QString& expr : expressions)
+	{
+		if(!expr.split(" ", QString::SkipEmptyParts).empty())
+		{
+			target_Element.the_Class->fit_Params.expression_Vec.append(Global_Variables::create_Expression_From_Argument(expr, fit_Function_Variable, argument));
+		}
+	}
+}
+
 void Fitting_GSL::fill_Residual(int& residual_Index, Data_Element<Target_Curve>& target_Element, gsl_vector* f)
 {
+	create_Expressions_for_Residual(target_Element);
+
+	for(int i=0; i<target_Element.the_Class->fit_Params.expression_Vec.size(); ++i)
+	{
+		target_Element.the_Class->fit_Params.expression_Argument = 1;
+	}
+
 	/// -------------------------------------------------------------------------------
 	/// reflectance
 	/// -------------------------------------------------------------------------------

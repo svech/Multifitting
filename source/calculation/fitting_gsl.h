@@ -26,13 +26,12 @@ public:
 	size_t num_Residual_Points();
 	static void callback(const size_t iter, void* bare_Params, const gsl_multifit_nlinear_workspace* w);
 	void fit();
+	static void period_Subtree_Iteration(const tree<Node>::iterator& parent, double coeff);
+	static void gamma_Subtree_Iteration(const tree<Node>::iterator& parent, double old_Value);
 	static int calc_Residual(const gsl_vector* x, void* bare_Params, gsl_vector* f);
 	void init_Position(gsl_vector* x);
+	static void create_Expressions_for_Residual(Data_Element<Target_Curve>& target_Element);
 	static void fill_Residual(int& residual_Index, Data_Element<Target_Curve>& target_Element, gsl_vector* f);
-
-	void print_gsl_Vector(gsl_vector* f);
 };
-
-
 
 #endif // FITTING_GSL_H

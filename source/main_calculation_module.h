@@ -20,15 +20,18 @@ public:
 	QVector<Calculation_Tree*> calculation_Trees;
 
 	Fitables fitables;
-	Fitables rejected_Fitables;
+	Fitables rejected_Min_Max;
 	Fitables rejected_Sigmas;
+	Fitables rejected_Thicknesses_and_Periods;
+	Fitables rejected_Periods;
 
 	QString parametrization_Type = triangle;
 
 	void single_Calculation();
 	void fitting();
+	bool reject();
 	void calc_Tree_Iteration(const tree<Node>::iterator& parent, bool fitables_Period_Gamma = false);
-	void find_Fittable_Parameters(Data& struct_Data, bool fitables_Period_Gamma);
+	void find_Fittable_Parameters(Data& struct_Data, const tree<Node>::iterator& parent, bool fitables_Period_Gamma);
 
 	double triangle_Wave(double x);
 	double parametrize  (double value,                      double min, double max);

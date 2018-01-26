@@ -71,8 +71,8 @@ public:
 	static int get_Tree_Depth(QTreeWidgetItem* item);
 	static QString structure_Item_Name(const Data& struct_Data);
 	static QString parameter_Name(const Data& struct_Data, QString whats_This, int index = -1);
-	static bool  expression_Is_Valid(QString expression_String, QStringList expression_Variable);
-	static double calculate_From_Master_Value(QString expression_String, double master_Value);
+	static bool expression_Is_Valid(QString expression_String, QStringList expression_Variables);
+	static exprtk::expression<double> create_Expression_From_Argument(QString expression_String, QString expression_Variable, double& expression_Argument);
 };
 
 #endif // GLOBAL_VARIABLES_H

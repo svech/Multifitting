@@ -2,7 +2,6 @@
 
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
-#include "exprtk.hpp"
 #include "global_variables.h"
 
 // -----------------------------------------------------------------------------------------
@@ -459,12 +458,14 @@ QString Global_Variables::parameter_Name(const Data &struct_Data, QString whats_
 	return text;
 }
 
-bool Global_Variables::expression_Is_Valid(QString expression_String, QStringList expression_Variable)
+bool Global_Variables::expression_Is_Valid(QString expression_String, QStringList expression_Variables)
 {
 	double temp_Argument = 1;
 	exprtk::symbol_table<double> symbol_table;
-	for(QString& expr_Var : expression_Variable)
+	for(QString& expr_Var : expression_Variables)
+	{
 		symbol_table.add_variable(expr_Var.toStdString(), temp_Argument);
+	}
 	symbol_table.add_constants();
 
 	exprtk::expression<double> expression;
@@ -474,10 +475,10 @@ bool Global_Variables::expression_Is_Valid(QString expression_String, QStringLis
 	return parser.compile(expression_String.toStdString(), expression);
 }
 
-double Global_Variables::calculate_From_Master_Value(QString expression_String, double master_Value)
+exprtk::expression<double> Global_Variables::create_Expression_From_Argument(QString expression_String, QString expression_Variable, double& expression_Argument)
 {
 	exprtk::symbol_table<double> symbol_table;
-	symbol_table.add_variable(expression_Master_Slave_Variable, master_Value);
+	symbol_table.add_variable(expression_Variable.toStdString(), expression_Argument);
 	symbol_table.add_constants();
 
 	exprtk::expression<double> expression;
@@ -486,5 +487,5 @@ double Global_Variables::calculate_From_Master_Value(QString expression_String, 
 	exprtk::parser<double> parser;
 	parser.compile(expression_String.toStdString(), expression);
 
-	return expression.value();
+	return expression;
 }
