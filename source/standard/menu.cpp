@@ -111,21 +111,34 @@ void Menu::create_File_Menu()
 
 		if(window_Type == window_Type_Calculation_Settings_Editor)
 		{
-			Multilayer_Approach* multilayer_Approach = qobject_cast<Multilayer_Approach*>(qobject_cast<Calculation_Settings_Editor*>(my_Parent)->multilayer_Tabs->parent());
+			Calculation_Settings_Editor* calculation_Settings_Editor = qobject_cast<Calculation_Settings_Editor*>(my_Parent);
+			Multilayer_Approach* multilayer_Approach = qobject_cast<Multilayer_Approach*>(calculation_Settings_Editor->multilayer_Tabs->parent());
 
 			QAction* act_Open = new QAction("Open...", this);
 			act_Open->setShortcut(Qt::Key_O | Qt::CTRL);
-			connect(act_Open, &QAction::triggered, my_Parent, [=]{multilayer_Approach->open();});
+			connect(act_Open, &QAction::triggered, my_Parent, [=]
+			{
+				for(QLineEdit* line_Edit : calculation_Settings_Editor->different_Lines) { line_Edit->editingFinished(); }
+				multilayer_Approach->open();
+			});
 			file_Menu->addAction(act_Open);
 
 			QAction* act_Save = new QAction("Save...", this);
 			act_Save->setShortcut(Qt::Key_S | Qt::CTRL);
 			file_Menu->addAction(act_Save);
-			connect(act_Save, &QAction::triggered, my_Parent, [=]{multilayer_Approach->save();});
+			connect(act_Save, &QAction::triggered, my_Parent, [=]
+			{
+				for(QLineEdit* line_Edit : calculation_Settings_Editor->different_Lines) { line_Edit->editingFinished(); }
+				multilayer_Approach->save();
+			});
 
 			QAction* act_Quit = new QAction("Done", this);
 			act_Quit->setShortcut(Qt::Key_D | Qt::CTRL);
-			connect(act_Quit, &QAction::triggered, my_Parent, [=]{qobject_cast<QWidget*>(my_Parent)->close();});
+			connect(act_Quit, &QAction::triggered, my_Parent, [=]
+			{
+				for(QLineEdit* line_Edit : calculation_Settings_Editor->different_Lines) { line_Edit->editingFinished(); }
+				qobject_cast<QWidget*>(my_Parent)->close();
+			});
 			file_Menu->addAction(act_Quit);
 		}
 

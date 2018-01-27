@@ -48,9 +48,18 @@ Calculation_Tree::Calculation_Tree(QTabWidget* independent_Variables_Plot_Tabs, 
 		}
 	}
 
+	prepare_Residual_Expressions();
 	create_Rand_Generator();
 	check_If_Graded();
 	max_Depth = Global_Variables::get_Tree_Depth(real_Struct_Tree->invisibleRootItem());	// unstratified depth
+}
+
+void Calculation_Tree::prepare_Residual_Expressions()
+{
+	for(Data_Element<Target_Curve>& target_Element : target)
+	{
+		target_Element.the_Class->fit_Params.create_Expressions_for_Residual();
+	}
 }
 
 void Calculation_Tree::create_Rand_Generator()

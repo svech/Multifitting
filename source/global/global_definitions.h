@@ -389,8 +389,9 @@ struct Fit_Params				{bool calc = true;
 								 bool fit = true;
 								 bool norm = true;
 								 double weight = 1;
-
+								 double weight_Sqrt = 1;
 								 QString fit_Function = "log(x+1E-5); sin(x/2)";
+
 								 double expression_Argument;							// not to store
 								 QVector<exprtk::expression<double>> expression_Vec;	// not to store
 

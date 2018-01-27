@@ -247,7 +247,11 @@ void Calculation_Settings_Editor::load_Target_Parameters(int tab_Index)
 						weight_Layout->addWidget(weight_Line_Edit);
 
 					box_Layout->addLayout(weight_Layout);
-					connect(weight_Line_Edit,  &QLineEdit::textEdited, this, [=]{ multilayer->target_Profiles_Vector[target_Index]->fit_Params.weight = weight_Line_Edit->text().toDouble(); });
+					connect(weight_Line_Edit,  &QLineEdit::textEdited, this, [=]
+					{
+						multilayer->target_Profiles_Vector[target_Index]->fit_Params.weight      =      weight_Line_Edit->text().toDouble();
+						multilayer->target_Profiles_Vector[target_Index]->fit_Params.weight_Sqrt = sqrt(weight_Line_Edit->text().toDouble());
+					});
 					different_Lines.append(weight_Line_Edit);
 				}
 				{

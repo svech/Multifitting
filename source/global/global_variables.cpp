@@ -474,18 +474,3 @@ bool Global_Variables::expression_Is_Valid(QString expression_String, QStringLis
 	exprtk::parser<double> parser;
 	return parser.compile(expression_String.toStdString(), expression);
 }
-
-exprtk::expression<double> Global_Variables::create_Expression_From_Argument(QString expression_String, QString expression_Variable, double& expression_Argument)
-{
-	exprtk::symbol_table<double> symbol_table;
-	symbol_table.add_variable(expression_Variable.toStdString(), expression_Argument);
-	symbol_table.add_constants();
-
-	exprtk::expression<double> expression;
-	expression.register_symbol_table(symbol_table);
-
-	exprtk::parser<double> parser;
-	parser.compile(expression_String.toStdString(), expression);
-
-	return expression;
-}

@@ -40,6 +40,9 @@ void Fitting_GSL::callback(const size_t iter, void* bare_Params, const gsl_multi
 
 void Fitting_GSL::fit()
 {
+	// if expression contains necessary number of functions
+	if(check_Residual_Expression()) return;
+
 	const size_t n = num_Residual_Points();
 	const size_t p = fitables.fit_Value_Pointers.size();
 	const size_t max_iter = 200;
@@ -83,7 +86,7 @@ void Fitting_GSL::fit()
 
 	auto start = std::chrono::system_clock::now();
 		// iterate until convergence
-//		gsl_multifit_nlinear_driver(max_iter, xtol, gtol, ftol,	callback, &params, &info, work);
+		gsl_multifit_nlinear_driver(max_iter, xtol, gtol, ftol,	callback, &params, &info, work);
 	auto end = std::chrono::system_clock::now();
 	auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
 	qInfo() << "Fit  : "<< elapsed.count()/1000. << " seconds\n";
@@ -202,7 +205,7 @@ int Fitting_GSL::calc_Residual(const gsl_vector* x, void* bare_Params, gsl_vecto
 
 	/// now all real_Calc_Tree are changed; we can replicate and stratify them
 
-	int residual_Index=0;
+	int residual_Shift=0;
 
 	// over multilayers
 	for(Calculation_Tree* calculation_Tree : params->calculation_Trees)
@@ -218,7 +221,7 @@ int Fitting_GSL::calc_Residual(const gsl_vector* x, void* bare_Params, gsl_vecto
 			calculation_Tree->calculate_1_Kind(target_Element);
 
 			// fill residual
-			fill_Residual(residual_Index, target_Element, f);
+			fill_Residual(residual_Shift, target_Element, f);
 		}
 	}
 
@@ -234,38 +237,50 @@ void Fitting_GSL::init_Position(gsl_vector* x)
 	}
 }
 
-void Fitting_GSL::fill_Residual(int& residual_Index, Data_Element<Target_Curve>& target_Element, gsl_vector* f)
+void Fitting_GSL::fill_Residual(int& residual_Shift, Data_Element<Target_Curve>& target_Element, gsl_vector* f)
 {
-	qInfo()<< "\nFitting_GSL::fill_Residual\n";
-	target_Element.the_Class->fit_Params.expression_Argument = 1;
+	Target_Curve* target_Curve = target_Element.the_Class;
+	double fi_1, fi_2, factor;
+	int N = target_Curve->curve.values.size();
+	double N_sqrt = sqrt(double(N));
 
-	for(int i=0; i<target_Element.the_Class->fit_Params.expression_Vec.size(); ++i)
-	{
-		qInfo() << "val" << i << "=" << target_Element.the_Class->fit_Params.expression_Vec[i].value();
-	}
 
 	/// -------------------------------------------------------------------------------
 	/// reflectance
 	/// -------------------------------------------------------------------------------
 
-	if(target_Element.the_Class->curve.value_Mode == value_R_Mode[R] )				// R
+	if(target_Curve->curve.value_Mode == value_R_Mode[R] )				// R
 	{
-		for( ; residual_Index<target_Element.the_Class->curve.values.size(); ++residual_Index)
+		for(int point_Index=0; point_Index<N; ++point_Index)
 		{
-			double fi = log(target_Element.the_Class->curve.values[residual_Index].val_1+1e-11) - log(target_Element.unwrapped_Reflection->R[residual_Index]+1e-11);
-//			double fi = log(target_Element.the_Class->curve.values[residual_Index].val_1+1e-8) - log(target_Element.unwrapped_Reflection->R[residual_Index]+1e-8);
-			gsl_vector_set(f, residual_Index, fi);
+			// calculate with expression
+			{
+				target_Curve->fit_Params.expression_Argument = target_Curve->curve.values[point_Index].val_1;
+				fi_1 = target_Curve->fit_Params.expression_Vec[0].value();
+			}
+			{
+				target_Curve->fit_Params.expression_Argument = target_Element.unwrapped_Reflection->R[point_Index];
+				fi_2 = target_Curve->fit_Params.expression_Vec[0].value();
+			}
+
+			// weight
+			factor = target_Curve->fit_Params.weight_Sqrt;
+			if(target_Curve->fit_Params.norm) { factor /= N_sqrt; }
+
+			// fill
+			gsl_vector_set(f, residual_Shift+point_Index, factor*(fi_1-fi_2));
 		}
+		residual_Shift += N;
 	} else
-	if(target_Element.the_Class->curve.value_Mode == value_R_Mode[R_Phi] )			// R+phi
+	if(target_Curve->curve.value_Mode == value_R_Mode[R_Phi] )			// R+phi
 	{
 		qInfo() << "Fitting_GSL::fill_Residual  :  sorry, R_Phi is not ready";
 	} else
-	if(target_Element.the_Class->curve.value_Mode == value_R_Mode[r_Re_Im] )		// r, Re+Im
+	if(target_Curve->curve.value_Mode == value_R_Mode[r_Re_Im] )		// r, Re+Im
 	{
 		qInfo() << "Fitting_GSL::fill_Residual  :  sorry, r_Re_Im is not ready";
 	} else
-	if(target_Element.the_Class->curve.value_Mode == value_R_Mode[r_Abs_Phi] )		// |r|+phi
+	if(target_Curve->curve.value_Mode == value_R_Mode[r_Abs_Phi] )		// |r|+phi
 	{
 		qInfo() << "Fitting_GSL::fill_Residual  :  sorry, r_Abs_Phi is not ready";
 	} else
@@ -274,7 +289,7 @@ void Fitting_GSL::fill_Residual(int& residual_Index, Data_Element<Target_Curve>&
 	/// transmittance
 	/// -------------------------------------------------------------------------------
 
-	if(target_Element.the_Class->curve.value_Mode == value_T_Mode[T] )				// T
+	if(target_Curve->curve.value_Mode == value_T_Mode[T] )				// T
 	{
 		qInfo() << "Fitting_GSL::fill_Residual  :  sorry, T is not ready";
 	} else
@@ -283,8 +298,73 @@ void Fitting_GSL::fill_Residual(int& residual_Index, Data_Element<Target_Curve>&
 	/// absorptance
 	/// -------------------------------------------------------------------------------
 
-	if(target_Element.the_Class->curve.value_Mode == value_A_Mode[A] )				// A
+	if(target_Curve->curve.value_Mode == value_A_Mode[A] )				// A
 	{
 		qInfo() << "Fitting_GSL::fill_Residual  :  sorry, A is not ready";
 	}
+}
+
+bool Fitting_GSL::check_Residual_Expression()
+{
+	// over multilayers
+	for(int tree_Index=0; tree_Index<calculation_Trees.size(); tree_Index++)
+	{
+		// over target curves
+		for(int target_Element_Index=0; target_Element_Index<calculation_Trees[tree_Index]->target.size(); target_Element_Index++)
+		{
+			Target_Curve* target_Curve = calculation_Trees[tree_Index]->target[target_Element_Index].the_Class;
+			QString struct_Name = "  " + Medium_BlackCircle_Sym + "  <" + main_Calculation_Module->multilayer_Tabs->tabText(tree_Index) + "> ";
+
+			/// -------------------------------------------------------------------------------
+			/// weights
+			/// -------------------------------------------------------------------------------
+
+			if(abs(target_Curve->fit_Params.weight) < DBL_MIN)
+			{
+				QMessageBox::information(NULL,"Bad weight", "Weight coefficient in\n\n" +
+															struct_Name + ", measured curve #" + QString::number(target_Element_Index+1) +
+															"\n\nshould be positive");
+				return true;
+			}
+
+			/// -------------------------------------------------------------------------------
+			/// 1 value
+			/// -------------------------------------------------------------------------------
+
+			if(target_Curve->curve.value_Mode == value_R_Mode[R] || 			// R
+			   target_Curve->curve.value_Mode == value_T_Mode[T] || 			// T
+			   target_Curve->curve.value_Mode == value_A_Mode[A] )				// A
+			{
+				if(target_Curve->fit_Params.expression_Vec.size() < 1)
+				{
+					QMessageBox::information(NULL,"Bad expression", "Residual function\n\n\"" +
+																	target_Curve->fit_Params.fit_Function +
+																	"\"\n\nin\n\n" +
+																	struct_Name + ", measured curve #" + QString::number(target_Element_Index+1) +
+																	"\n\nshould contains >=1 expression, separated by \"" + fit_Function_Separator + "\"");
+					return true;
+				}
+			}
+
+			/// -------------------------------------------------------------------------------
+			/// 2 values
+			/// -------------------------------------------------------------------------------
+
+			if(target_Curve->curve.value_Mode == value_R_Mode[R_Phi]     || 	// R+phi
+			   target_Curve->curve.value_Mode == value_R_Mode[r_Re_Im]   || 	// r, Re+Im
+			   target_Curve->curve.value_Mode == value_R_Mode[r_Abs_Phi] )		// |r|+phi
+			{
+				if(target_Curve->fit_Params.expression_Vec.size() < 2)
+				{
+					QMessageBox::information(NULL,"Bad expression", "Residual function\n\n\"" +
+																	target_Curve->fit_Params.fit_Function +
+																	"\"\n\nin\n\n" +
+																	struct_Name + ", measured curve #" + QString::number(target_Element_Index+1) +
+																	"\n\nshould contains >=1 expression, separated by \"" + fit_Function_Separator + "\"");
+					return true;
+				}
+			}
+		}
+	}
+	return false;
 }

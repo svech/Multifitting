@@ -75,9 +75,6 @@ void Main_Calculation_Module::fitting()
 
 			// find fitables over tree
 			calc_Tree_Iteration(calculation_Trees[tab_Index]->real_Calc_Tree.begin());
-
-			// prepare expressions for calculation residual
-			prepare_Residual_Expressions(calculation_Trees[tab_Index]);
 		}
 	}
 
@@ -161,14 +158,6 @@ void Main_Calculation_Module::calc_Tree_Iteration(const tree<Node>::iterator& pa
 			}
 			calc_Tree_Iteration(child, fitables_Period_Gamma);
 		}
-	}
-}
-
-void Main_Calculation_Module::prepare_Residual_Expressions(Calculation_Tree* calculation_Tree)
-{
-	for(Data_Element<Target_Curve>& target_Element : calculation_Tree->target)
-	{
-		target_Element.the_Class->fit_Params.create_Expressions_for_Residual();
 	}
 }
 
