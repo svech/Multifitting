@@ -234,28 +234,14 @@ void Fitting_GSL::init_Position(gsl_vector* x)
 	}
 }
 
-void Fitting_GSL::create_Expressions_for_Residual(Data_Element<Target_Curve>& target_Element)
-{
-	double& argument = target_Element.the_Class->fit_Params.expression_Argument;
-	QStringList expressions = target_Element.the_Class->fit_Params.fit_Function.split(fit_Function_Separator, QString::SkipEmptyParts);
-
-	target_Element.the_Class->fit_Params.expression_Vec.clear();
-	for(QString& expr : expressions)
-	{
-		if(!expr.split(" ", QString::SkipEmptyParts).empty())
-		{
-			target_Element.the_Class->fit_Params.expression_Vec.append(Global_Variables::create_Expression_From_Argument(expr, fit_Function_Variable, argument));
-		}
-	}
-}
-
 void Fitting_GSL::fill_Residual(int& residual_Index, Data_Element<Target_Curve>& target_Element, gsl_vector* f)
 {
-	create_Expressions_for_Residual(target_Element);
+	qInfo()<< "\nFitting_GSL::fill_Residual\n";
+	target_Element.the_Class->fit_Params.expression_Argument = 1;
 
 	for(int i=0; i<target_Element.the_Class->fit_Params.expression_Vec.size(); ++i)
 	{
-		target_Element.the_Class->fit_Params.expression_Argument = 1;
+		qInfo() << "val" << i << "=" << target_Element.the_Class->fit_Params.expression_Vec[i].value();
 	}
 
 	/// -------------------------------------------------------------------------------

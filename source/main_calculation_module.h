@@ -31,6 +31,7 @@ public:
 	void fitting();
 	bool reject();
 	void calc_Tree_Iteration(const tree<Node>::iterator& parent, bool fitables_Period_Gamma = false);
+	void prepare_Residual_Expressions(Calculation_Tree* calculation_Tree);
 	void find_Fittable_Parameters(Data& struct_Data, const tree<Node>::iterator& parent, bool fitables_Period_Gamma);
 
 	double triangle_Wave(double x);

@@ -284,6 +284,10 @@ class Node;
 #define DBL_EPSILON numeric_limits<double>::epsilon()
 #endif
 
+#ifndef DBL_MAX
+#define DBL_MAX numeric_limits<double>::max()
+#endif
+
 #ifndef DBL_MIN
 #define DBL_MIN numeric_limits<double>::min()
 #endif
@@ -389,6 +393,28 @@ struct Fit_Params				{bool calc = true;
 								 QString fit_Function = "log(x+1E-5); sin(x/2)";
 								 double expression_Argument;							// not to store
 								 QVector<exprtk::expression<double>> expression_Vec;	// not to store
+
+								 void create_Expressions_for_Residual()
+								 {
+									expression_Vec.clear();
+
+									exprtk::parser<double> parser;
+									exprtk::symbol_table<double> symbol_table;
+									symbol_table.add_variable(fit_Function_Variable, expression_Argument);
+									symbol_table.add_constants();
+
+									QVector<QString> bare_String_Expressions = fit_Function.split(fit_Function_Separator, QString::SkipEmptyParts).toVector();
+									for(int i=0; i<bare_String_Expressions.size(); ++i)
+									{
+										if(!bare_String_Expressions[i].split(" ", QString::SkipEmptyParts).empty())
+										{
+											exprtk::expression<double> new_Expression;
+											expression_Vec.append(new_Expression);
+											expression_Vec[i].register_symbol_table(symbol_table);
+											parser.compile(bare_String_Expressions[i].toStdString(), expression_Vec[i]);
+										}
+									}
+								 }
 								};
 struct Fitables
 								{	vector<QString> fit_Struct_Names;		// names of structures

@@ -1016,7 +1016,13 @@ void Table_Of_Structures::create_Line_Edit(My_Table_Widget* table, int tab_Index
 		if(val_Type == MAX)	{	value = parameter.fit.max;	format = line_edit_short_double_format;	}
 
 		text_Value = QString::number(value/coeff, format, precision);
-		validator = new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION);
+		if(whats_This == whats_This_Thickness_Drift_Line_Value)
+		{
+			validator = new QDoubleValidator(-MAX_DOUBLE, MAX_DOUBLE, MAX_PRECISION);
+		} else
+		{
+			validator = new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION);
+		}
 		id = parameter.indicator.id;
 
 		if(	whats_This == whats_This_Thickness	||

@@ -1,7 +1,6 @@
 #ifndef CALCULATION_TREE_H
 #define CALCULATION_TREE_H
 
-#include "tree.hh"
 #include "global/layer_data_types.h"
 #include "node.h"
 #include "unwrapped/unwrapped_reflection.h"
