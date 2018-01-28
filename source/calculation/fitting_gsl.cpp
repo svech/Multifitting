@@ -196,6 +196,7 @@ int Fitting_GSL::calc_Residual(const gsl_vector* x, void* bare_Params, gsl_vecto
 		{
 			double coeff = new_Value/old_Value;
 			period_Subtree_Iteration(params->fitables.fit_Parent_Iterators[i], coeff);
+
 		} else
 		if(params->fitables.fit_Whats_This[i] == whats_This_Gamma)
 		{

@@ -58,8 +58,8 @@ void Main_Calculation_Module::fitting()
 		return;
 	}
 
-	rejected_Sigmas.clear_All();
 	fitables.clear_All();
+	rejected_Sigmas.clear_All();
 	rejected_Min_Max.clear_All();
 	rejected_Thicknesses_and_Periods.clear_All();
 	rejected_Periods.clear_All();
@@ -185,11 +185,8 @@ void Main_Calculation_Module::find_Fittable_Parameters(Data& struct_Data, const 
 			fitables.fit_Value_Parametrized	.push_back(parametrize(parameter->value, parameter->fit.min, parameter->fit.max));
 			fitables.fit_Value_Pointers		.push_back(&parameter->value);
 
-			// for period and gamma only
-			if(parameter->indicator.whats_This == whats_This_Period || parameter->indicator.whats_This == whats_This_Gamma)
-			{
-				fitables.fit_Parent_Iterators.push_back(parent);
-			}
+			// used for period and gamma only, but should be filled for all for the length purpose!
+			fitables.fit_Parent_Iterators.push_back(parent);
 
 			/// for rejection
 
