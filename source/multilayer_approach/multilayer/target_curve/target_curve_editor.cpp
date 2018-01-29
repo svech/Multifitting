@@ -270,7 +270,7 @@ void Target_Curve_Editor::create_Data_GroupBox()
 			arg_Offset_SpinBox->setRange(-MAX_DOUBLE, MAX_DOUBLE);
 			arg_Offset_SpinBox->setDecimals(5);
 			arg_Offset_SpinBox->setSingleStep(0.0001);
-			arg_Offset_SpinBox->setFixedWidth(65);
+			arg_Offset_SpinBox->setFixedWidth(50);
 			arg_Offset_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
 //			arg_Offset_Spinbox->setProperty(min_Size_Property, arg_Offset_Spinbox->width());
 
@@ -284,7 +284,7 @@ void Target_Curve_Editor::create_Data_GroupBox()
 			arg_Factor_SpinBox->setRange(0, MAX_DOUBLE);
 			arg_Factor_SpinBox->setDecimals(5);
 			arg_Factor_SpinBox->setSingleStep(0.0001);
-			arg_Factor_SpinBox->setFixedWidth(65);
+			arg_Factor_SpinBox->setFixedWidth(50);
 			arg_Factor_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
 //			arg_Factor_LineEdit->setProperty(min_Size_Property, arg_Factor_LineEdit->width());
 
@@ -323,7 +323,7 @@ void Target_Curve_Editor::create_Data_GroupBox()
 			val_Offset_SpinBox->setRange(-MAX_DOUBLE, MAX_DOUBLE);
 			val_Offset_SpinBox->setDecimals(5);
 			val_Offset_SpinBox->setSingleStep(0.0001);
-			val_Offset_SpinBox->setFixedWidth(65);
+			val_Offset_SpinBox->setFixedWidth(50);
 			val_Offset_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
 //			val_Offset_LineEdit->setProperty(min_Size_Property, val_Offset_LineEdit->width());
 //			connect(val_Offset_LineEdit, &QLineEdit::textEdited, this, &Target_Curve_Editor::resize_Line_Edit );
@@ -338,7 +338,7 @@ void Target_Curve_Editor::create_Data_GroupBox()
 			val_Factor_SpinBox->setRange(0, MAX_DOUBLE);
 			val_Factor_SpinBox->setDecimals(5);
 			val_Factor_SpinBox->setSingleStep(0.0001);
-			val_Factor_SpinBox->setFixedWidth(65);
+			val_Factor_SpinBox->setFixedWidth(50);
 			val_Factor_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
 //			val_Factor_LineEdit->setProperty(min_Size_Property, val_Factor_LineEdit->width());
 //			connect(val_Factor_LineEdit, &QLineEdit::textEdited, this, &Target_Curve_Editor::resize_Line_Edit );

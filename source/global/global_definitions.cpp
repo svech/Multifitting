@@ -10,11 +10,11 @@ Global_Definitions::Global_Definitions()
 
 }
 
-unsigned long long int previous_ID = 10; // zero is reserved ID
+unsigned long long previous_ID = 10; // zero is reserved ID
 
 unsigned long long Global_Definitions::generate_Id()
 {
-	unsigned long long int current_ID = previous_ID+1;
+	unsigned long long current_ID = previous_ID+1;
 
 	if(current_ID < previous_ID)
 	{
@@ -32,20 +32,20 @@ unsigned long long Global_Definitions::generate_Id()
 
 QDataStream& operator <<( QDataStream& stream, const Independent_Indicator& independent_Indicator )
 {
-	return stream << independent_Indicator.item_Id << independent_Indicator.parameter_Id << independent_Indicator.item_Type << independent_Indicator.parameter_Whats_This << independent_Indicator.index << independent_Indicator.is_Active;
+	return stream << independent_Indicator.item_Id << independent_Indicator.id << independent_Indicator.item_Type << independent_Indicator.parameter_Whats_This << independent_Indicator.index << independent_Indicator.is_Active;
 }
 QDataStream& operator >>( QDataStream& stream,		 Independent_Indicator& independent_Indicator )
 {
-	return stream >> independent_Indicator.item_Id >> independent_Indicator.parameter_Id >> independent_Indicator.item_Type >> independent_Indicator.parameter_Whats_This >> independent_Indicator.index >> independent_Indicator.is_Active;
+	return stream >> independent_Indicator.item_Id >> independent_Indicator.id >> independent_Indicator.item_Type >> independent_Indicator.parameter_Whats_This >> independent_Indicator.index >> independent_Indicator.is_Active;
 }
 
 QDataStream& operator <<( QDataStream& stream, const Parameter_Indicator& parameter_Indicator )
 {
-	return stream << parameter_Indicator.id << parameter_Indicator.tab_Index << parameter_Indicator.full_Name << parameter_Indicator.whats_This << parameter_Indicator.expression << parameter_Indicator.exist;
+	return stream << parameter_Indicator.id << parameter_Indicator.item_Id << parameter_Indicator.tab_Index << parameter_Indicator.full_Name << parameter_Indicator.whats_This << parameter_Indicator.expression << parameter_Indicator.exist;
 }
 QDataStream& operator >>( QDataStream& stream,		 Parameter_Indicator& parameter_Indicator )
 {
-	return stream >> parameter_Indicator.id >> parameter_Indicator.tab_Index >> parameter_Indicator.full_Name >> parameter_Indicator.whats_This >> parameter_Indicator.expression >> parameter_Indicator.exist;
+	return stream >> parameter_Indicator.id >> parameter_Indicator.item_Id >> parameter_Indicator.tab_Index >> parameter_Indicator.full_Name >> parameter_Indicator.whats_This >> parameter_Indicator.expression >> parameter_Indicator.exist;
 }
 
 QDataStream& operator <<( QDataStream& stream, const Int_Independent& int_Independent )

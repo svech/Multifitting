@@ -12,7 +12,7 @@ Independent_Variables::Independent_Variables(QTreeWidget* real_Struct_Tree, QWid
 {
 	create_Struct_Tree_Copy();
 	create_Main_Layout();
-	independent_Variables_List_Map = new QMap<int, QListWidgetItem*>;
+	independent_Variables_List_Map = new QMap<unsigned long long int, QListWidgetItem*>;
 }
 
 void Independent_Variables::create_Struct_Tree_Copy()
@@ -70,7 +70,7 @@ void Independent_Variables::create_Independent_Variables_List()
 		Independent_Indicator angle_Indicator;
 		angle_Indicator.item_Id				 = measurement.id;
 		angle_Indicator.item_Type			 = measurement.item_Type;
-		angle_Indicator.parameter_Id		 = measurement.probe_Angle.indicator.id;
+		angle_Indicator.id		 = measurement.probe_Angle.indicator.id;
 		angle_Indicator.parameter_Whats_This = measurement.probe_Angle.indicator.whats_This;
 		angle_Indicator.is_Active = true;					// adding "active" status
 
@@ -91,7 +91,7 @@ void Independent_Variables::create_Independent_Variables_List()
 		Independent_Indicator wavelength_Indicator;
 		wavelength_Indicator.item_Id			  = measurement.id;
 		wavelength_Indicator.item_Type			  = measurement.item_Type;
-		wavelength_Indicator.parameter_Id		  = measurement.wavelength.indicator.id;
+		wavelength_Indicator.id		  = measurement.wavelength.indicator.id;
 		wavelength_Indicator.parameter_Whats_This = measurement.wavelength.indicator.whats_This;
 		wavelength_Indicator.is_Active = false;
 
@@ -273,7 +273,7 @@ void Independent_Variables::remove_Independent_Variable(QListWidgetItem* list_It
 		copy_Structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
 
 		Variable_Selection::refresh_Independent_State_Of_Struct_Tree_Copy_Item(copy_Structure_Item);
-		independent_Variables_List_Map->remove(indicator.parameter_Id);
+		independent_Variables_List_Map->remove(indicator.id);
 		delete list_Item;
 	}
 }

@@ -10,7 +10,7 @@ public:
 
 	void reset_All_IDs();
 	QString	item_Type;
-	int id = 0;
+	unsigned long long id = 0;
 	///---------------------------------------------
 	// Measurement
 	//---------------------------------------------

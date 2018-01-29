@@ -3,18 +3,20 @@
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
 #include "calculation_tree.h"
+#include "multilayer_approach/multilayer.h"
 #include <iostream>
 
-Calculation_Tree::Calculation_Tree(QTabWidget* independent_Variables_Plot_Tabs, QVector<Target_Curve*>& target_Profiles_Vector, QTreeWidget* real_Struct_Tree, QString calc_Mode):
-	real_Struct_Tree(real_Struct_Tree),
+Calculation_Tree::Calculation_Tree(Multilayer* multilayer, QString calc_Mode):
+	real_Struct_Tree(multilayer->structure_Tree->tree),
 	calc_Mode(calc_Mode)
 {	
 	// initialization independent vector
 	if(calc_Mode==CALCULATION)
 	{
-		for(int i=0; i<independent_Variables_Plot_Tabs->count(); ++i)
+		if(multilayer->enable_Calc_Independent_Curves)
+		for(int i=0; i<multilayer->independent_Variables_Plot_Tabs->count(); ++i)
 		{
-			Independent_Variables* independent_Variables = qobject_cast<Independent_Variables*>(independent_Variables_Plot_Tabs->widget(i));
+			Independent_Variables* independent_Variables = qobject_cast<Independent_Variables*>(multilayer->independent_Variables_Plot_Tabs->widget(i));
 			if( independent_Variables->calc_Functions.check_Enabled	)
 			if(	independent_Variables->calc_Functions.check_Reflectance		||
 				independent_Variables->calc_Functions.check_Transmittance	||
@@ -33,15 +35,16 @@ Calculation_Tree::Calculation_Tree(QTabWidget* independent_Variables_Plot_Tabs, 
 
 	// initialization target profiles vector
 	{
-		for(int i=0; i<target_Profiles_Vector.size(); ++i)
+		if( multilayer->enable_Calc_Target_Curves )
+		for(int i=0; i<multilayer->target_Profiles_Vector.size(); ++i)
 		{
-			if(target_Profiles_Vector[i]->loaded_And_Ready)
-			if(target_Profiles_Vector[i]->fit_Params.calc)
-			if(calc_Mode==CALCULATION || target_Profiles_Vector[i]->fit_Params.fit)	// check fit value only if FITTING mode (otherwise CALCULATION is enough)
+			if(multilayer->target_Profiles_Vector[i]->loaded_And_Ready)
+			if(multilayer->target_Profiles_Vector[i]->fit_Params.calc)
+			if(calc_Mode==CALCULATION || multilayer->target_Profiles_Vector[i]->fit_Params.fit)	// check fit value only if FITTING mode (otherwise CALCULATION is enough)
 			{
 				target.resize(target.size()+1);
 
-				target.last().the_Class = target_Profiles_Vector[i];
+				target.last().the_Class = multilayer->target_Profiles_Vector[i];
 				target.last().curve_Class = TARGET;
 				target.last().active_Item_Type = item_Type_Measurement;
 			}
@@ -359,7 +362,7 @@ void Calculation_Tree::calculate_Intermediate_Values_1_Tree(tree<Node>& calc_Tre
 	}
 }
 
-tree<Node>::iterator Calculation_Tree::find_Node_By_Item_Id(const tree<Node>::iterator& parent, int active_Item_Id, tree<Node>& calc_Tree)
+tree<Node>::iterator Calculation_Tree::find_Node_By_Item_Id(const tree<Node>::iterator& parent, unsigned long long active_Item_Id, tree<Node>& calc_Tree)
 {
 	for(unsigned i=0; i<parent.number_of_children(); ++i)
 	{

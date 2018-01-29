@@ -50,6 +50,7 @@ void Coupling_Editor::closeEvent(QCloseEvent *)
 void Coupling_Editor::set_Window_Geometry()
 {
 	adjustSize();
+//	setFixedHeight(height());
 //	setFixedSize(size());
 }
 
@@ -261,7 +262,7 @@ void Coupling_Editor::add_Slave(int index_Pressed)
 	QPushButton* add_Slave_Button = new QPushButton("Add");
 		button_Layout->addWidget(add_Slave_Button,0,Qt::AlignRight);
 
-	connect(remove_Slave_Button, &QPushButton::clicked, this, [=]{ remove_Slave(slave_Label_Vec.indexOf(slave_Label)); });
+	connect(remove_Slave_Button, &QPushButton::clicked, this, [=]{ remove_Slave(slave_Label_Vec.indexOf(slave_Label));   });
 	connect(add_Slave_Button,	 &QPushButton::clicked, this, [=]{ add_Slave   (slave_Label_Vec.indexOf(slave_Label)+1); });
 	connect(slave_Line_Edit,	 &QLineEdit::editingFinished, this, &Coupling_Editor::check_Expression);
 

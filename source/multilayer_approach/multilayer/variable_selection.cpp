@@ -5,7 +5,7 @@
 #include "variable_selection.h"
 #include "independent_variables/independent_variables_editor.h"
 
-Variable_Selection::Variable_Selection(QTreeWidget* struct_Tree_Copy, QMap<int, QListWidgetItem*>* variables_List_Map, QListWidget* variables_List, QWidget *parent) :
+Variable_Selection::Variable_Selection(QTreeWidget* struct_Tree_Copy, QMap<unsigned long long, QListWidgetItem*>* variables_List_Map, QListWidget* variables_List, QWidget *parent) :
 	struct_Tree_Copy(struct_Tree_Copy),
 	variables_List(variables_List),
 	variables_List_Map(variables_List_Map),
@@ -346,7 +346,7 @@ void Variable_Selection::add_Parameter(QTreeWidgetItem* struct_Item, QString wha
 		Independent_Indicator item_Indicator;
 		item_Indicator.item_Id			   = struct_Data.id;
 		item_Indicator.item_Type		   = struct_Data.item_Type;
-		item_Indicator.parameter_Id		   = parameter.indicator.id;
+		item_Indicator.id		   = parameter.indicator.id;
 		item_Indicator.parameter_Whats_This= parameter.indicator.whats_This;
 		item_Indicator.is_Active		   = false;
 
@@ -389,12 +389,12 @@ void Variable_Selection::add_Composition(QTreeWidgetItem* struct_Item)
 			QListWidgetItem* item_Composition = new QListWidgetItem;
 
 			Independent_Indicator composition_Indicator;
-			composition_Indicator.item_Id			  = struct_Data.id;
-			composition_Indicator.item_Type		      = struct_Data.item_Type;
-			composition_Indicator.parameter_Id		  = parameter.indicator.id;
-			composition_Indicator.parameter_Whats_This= parameter.indicator.whats_This;
-			composition_Indicator.is_Active			  = false;
-			composition_Indicator.index				  = index;
+			composition_Indicator.item_Id			   = struct_Data.id;
+			composition_Indicator.item_Type		       = struct_Data.item_Type;
+			composition_Indicator.id				   = parameter.indicator.id;
+			composition_Indicator.parameter_Whats_This = parameter.indicator.whats_This;
+			composition_Indicator.is_Active			   = false;
+			composition_Indicator.index				   = index;
 
 			QVariant var; var.setValue(composition_Indicator);
 			item_Composition->setData(Qt::UserRole,var);
@@ -444,7 +444,7 @@ void Variable_Selection::add_Interlayer_Composition(QTreeWidgetItem* struct_Item
 		Independent_Indicator composition_Indicator;
 		composition_Indicator.item_Id			  = struct_Data.id;
 		composition_Indicator.item_Type		      = struct_Data.item_Type;
-		composition_Indicator.parameter_Id		  = parameter.indicator.id;
+		composition_Indicator.id		  = parameter.indicator.id;
 		composition_Indicator.parameter_Whats_This= parameter.indicator.whats_This;
 		composition_Indicator.is_Active			  = false;
 		composition_Indicator.index				  = transition_Layer_Index;
@@ -494,12 +494,12 @@ void Variable_Selection::add_Interlayer_My_Sigma(QTreeWidgetItem* struct_Item)
 		QListWidgetItem* item_Composition = new QListWidgetItem;
 
 		Independent_Indicator composition_Indicator;
-		composition_Indicator.item_Id			  = struct_Data.id;
-		composition_Indicator.item_Type		      = struct_Data.item_Type;
-		composition_Indicator.parameter_Id		  = parameter.indicator.id;
-		composition_Indicator.parameter_Whats_This= parameter.indicator.whats_This;
-		composition_Indicator.is_Active			  = false;
-		composition_Indicator.index				  = transition_Layer_Index;
+		composition_Indicator.item_Id			   = struct_Data.id;
+		composition_Indicator.item_Type		       = struct_Data.item_Type;
+		composition_Indicator.id				   = parameter.indicator.id;
+		composition_Indicator.parameter_Whats_This = parameter.indicator.whats_This;
+		composition_Indicator.is_Active			   = false;
+		composition_Indicator.index				   = transition_Layer_Index;
 
 		QVariant var; var.setValue(composition_Indicator);
 		item_Composition->setData(Qt::UserRole,var);
@@ -538,7 +538,7 @@ void Variable_Selection::add_Num_repetitions(QTreeWidgetItem* struct_Item)
 		Independent_Indicator num_Repetition_Indicator;
 		num_Repetition_Indicator.item_Type			 = item_Type_Multilayer;
 		num_Repetition_Indicator.item_Id			 = struct_Data.id;
-		num_Repetition_Indicator.parameter_Id		 = int_Ind.id;
+		num_Repetition_Indicator.id		 = int_Ind.id;
 		num_Repetition_Indicator.parameter_Whats_This= int_Ind.whats_This;
 		num_Repetition_Indicator.is_Active			 = false;
 
@@ -585,7 +585,7 @@ void Variable_Selection::add_Variable_Item(QListWidgetItem* new_Item)
 
 	Independent_Indicator new_Data = new_Item->data(Qt::UserRole).value<Independent_Indicator>();
 
-	variables_List_Map->insert(new_Data.parameter_Id, new_Item);
+	variables_List_Map->insert(new_Data.id, new_Item);
 	variables_List->addItem(new_Item);
 
 	QVariant var;

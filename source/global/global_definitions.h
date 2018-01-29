@@ -5,7 +5,7 @@
 #include <vector>
 #include <complex>
 #include "tree.hh"
-#include "exprtk.hpp"
+//#include "exprtk.hpp"
 
 #ifdef __linux__
 	#include <iostream>
@@ -165,7 +165,11 @@ class Node;
 
 // whatsThis : specialized additions
 #define whats_This_Angle					"Angle"
+#define whats_This_Angular_Resolution		"Angular_Resolution"
 #define whats_This_Wavelength				"Wavelength"
+#define whats_This_Spectral_Resolution		"Spectral_Resolution"
+#define whats_This_Polarization				"Polarization"
+#define whats_This_Polarization_Sensitivity	"Polarization_Sensitivity"
 #define whats_This_Absolute_Density			"Absolute Density"
 #define whats_This_Relative_Density			"Relative Density"
 #define whats_This_Permittivity				"Permittivity"
@@ -305,12 +309,12 @@ public:
 // -----------------------------------------------------------------------------------------
 
 // simple types					renew corresponding serialization operators!
-struct Independent_Indicator	{int item_Id = 0; int parameter_Id = 0; QString item_Type; QString parameter_Whats_This; int index = -1; bool is_Active = false;};
-struct Parameter_Indicator		{unsigned long long int id = 0; QString whats_This;								// once and for all
-								 int tab_Index = -1; QString full_Name;			// can be changed
-								 QString expression = expression_Master_Slave_Variable; bool exist = false;};	// for master/slave dependencies
+struct Independent_Indicator	{unsigned long long id = 0; unsigned long long item_Id = 0; QString item_Type; QString parameter_Whats_This; int index = -1; bool is_Active = false;};
+struct Parameter_Indicator		{unsigned long long id = 0; unsigned long long item_Id = 0;	QString whats_This;		// once and for all
+								 int tab_Index = -1; QString full_Name;												// can be changed
+								 QString expression = expression_Master_Slave_Variable; bool exist = false;};		// for master/slave dependencies
 
-struct Int_Independent			{int value=1; bool is_Independent=false;	int start = 1; int step = 1; int num_Steps = 3; int id = 0; QString whats_This;
+struct Int_Independent			{int value=1; bool is_Independent=false;	int start = 1; int step = 1; int num_Steps = 3; unsigned long long id = 0; QString whats_This;
 								 Int_Independent()
 								 {
 									id = Global_Definitions::generate_Id();	// create unique id
@@ -319,9 +323,13 @@ struct Int_Independent			{int value=1; bool is_Independent=false;	int start = 1;
 								};
 struct Independent				{bool is_Independent = false; double min; double max; int num_Points;};
 
+struct Parameter;
 struct Coupled					{bool is_Coupled = false;
 								 Parameter_Indicator master;
-								 QVector<Parameter_Indicator> slaves;};
+								 QVector<Parameter_Indicator> slaves;
+
+								 QVector<Parameter*> slave_Value_Pointers;		// not to store
+								};
 
 struct Fit						{bool is_Fitable = false; bool min_Bounded; double min; bool max_Bounded; double max;};
 
@@ -384,7 +392,7 @@ struct Curve					{QVector<double> argument; QVector<double> shifted_Argument;
 
 								 QString value_Function;
 								 QString value_Mode;
-								 };
+								};
 struct Fit_Params				{bool calc = true;
 								 bool fit = true;
 								 bool norm = true;
@@ -393,32 +401,33 @@ struct Fit_Params				{bool calc = true;
 								 QString fit_Function = "log(x+1E-5); sin(x/2)";
 
 								 double expression_Argument;							// not to store
-								 QVector<exprtk::expression<double>> expression_Vec;	// not to store
+//								 QVector<exprtk::expression<double>> expression_Vec;	// not to store
+								 QVector<QString> expression_Vec;	// TODO exprtk
 
 								 void create_Expressions_for_Residual()
 								 {
 									expression_Vec.clear();
-
-									exprtk::parser<double> parser;
-									exprtk::symbol_table<double> symbol_table;
-									symbol_table.add_variable(fit_Function_Variable, expression_Argument);
-									symbol_table.add_constants();
+									// TODO exprtk
+//									exprtk::parser<double> parser;
+//									exprtk::symbol_table<double> symbol_table;
+//									symbol_table.add_variable(fit_Function_Variable, expression_Argument);
+//									symbol_table.add_constants();
 
 									QVector<QString> bare_String_Expressions = fit_Function.split(fit_Function_Separator, QString::SkipEmptyParts).toVector();
 									for(int i=0; i<bare_String_Expressions.size(); ++i)
 									{
 										if(!bare_String_Expressions[i].split(" ", QString::SkipEmptyParts).empty())
 										{
-											exprtk::expression<double> new_Expression;
+//											exprtk::expression<double> new_Expression;
+											QString new_Expression;
 											expression_Vec.append(new_Expression);
-											expression_Vec[i].register_symbol_table(symbol_table);
-											parser.compile(bare_String_Expressions[i].toStdString(), expression_Vec[i]);
+//											expression_Vec[i].register_symbol_table(symbol_table);
+//											parser.compile(bare_String_Expressions[i].toStdString(), expression_Vec[i]);
 										}
 									}
 								 }
 								};
-struct Fitables
-								{	vector<QString> fit_Struct_Names;		// names of structures
+struct Fitables					{	vector<QString> fit_Struct_Names;		// names of structures
 									vector<QString> fit_Names;				// names of parameters to be fitted
 									vector<QString>	fit_Whats_This;			// whats_This of parameters to be fitted
 									QVector<unsigned long long int>	fit_IDs;// ID of parameters to be fitted
@@ -429,6 +438,7 @@ struct Fitables
 									vector<double>	fit_Value_Parametrized;	// unbounded parametrized variables
 									vector<double*> fit_Value_Pointers;		// poiners to real parameters
 									vector<tree<Node>::iterator> fit_Parent_Iterators;
+									vector<Coupled*> fit_Coupled_Pointers;
 
 									void clear_All()
 									{

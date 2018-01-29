@@ -13,10 +13,7 @@ Main_Calculation_Module::Main_Calculation_Module(QTabWidget* multilayer_Tabs, QS
 	for(int tab_Index=0; tab_Index<multilayer_Tabs->count(); ++tab_Index)
 	{
 		multilayers[tab_Index] = qobject_cast<Multilayer*>(multilayer_Tabs->widget(tab_Index));
-		calculation_Trees[tab_Index] = new Calculation_Tree(multilayers[tab_Index]->independent_Variables_Plot_Tabs,
-															multilayers[tab_Index]->target_Profiles_Vector,
-															multilayers[tab_Index]->structure_Tree->tree,
-															calc_Mode);
+		calculation_Trees[tab_Index] = new Calculation_Tree(multilayers[tab_Index], calc_Mode);
 	}
 }
 
@@ -30,21 +27,15 @@ void Main_Calculation_Module::single_Calculation()
 
 	for(int tab_Index=0; tab_Index<multilayers.size(); ++tab_Index)
 	{
-		if( multilayers[tab_Index]->enable_Calc_Independent_Curves )
+		calculation_Trees[tab_Index]->fill_Independent_Calc_Trees();
+		for(Data_Element<Independent_Variables>& independent_Element : calculation_Trees[tab_Index]->independent)
 		{
-			calculation_Trees[tab_Index]->fill_Independent_Calc_Trees();			
-			for(Data_Element<Independent_Variables>& independent_Element : calculation_Trees[tab_Index]->independent)
-			{
-				calculation_Trees[tab_Index]->calculate_1_Kind(independent_Element);
-			}
+			calculation_Trees[tab_Index]->calculate_1_Kind(independent_Element);
 		}
-		if( multilayers[tab_Index]->enable_Calc_Target_Curves )
+		calculation_Trees[tab_Index]->fill_Target_Calc_Trees();
+		for(Data_Element<Target_Curve>& target_Element : calculation_Trees[tab_Index]->target)
 		{
-			calculation_Trees[tab_Index]->fill_Target_Calc_Trees();
-			for(Data_Element<Target_Curve>& target_Element : calculation_Trees[tab_Index]->target)
-			{
-				calculation_Trees[tab_Index]->calculate_1_Kind(target_Element);
-			}
+			calculation_Trees[tab_Index]->calculate_1_Kind(target_Element);
 		}
 	}
 	print_Calculated_To_File();
@@ -64,18 +55,23 @@ void Main_Calculation_Module::fitting()
 	rejected_Thicknesses_and_Periods.clear_All();
 	rejected_Periods.clear_All();
 
-	// create calc tree and fitables;
+	/// create calc tree and fitables;
 	for(int tab_Index=0; tab_Index<multilayers.size(); ++tab_Index)
 	{
-		if( multilayers[tab_Index]->enable_Calc_Target_Curves )
+		// prepare real_Calc_Tree  (for all multilayers!)
+		calculation_Trees[tab_Index]->fill_Tree_From_Scratch(calculation_Trees[tab_Index]->real_Calc_Tree, calculation_Trees[tab_Index]->real_Struct_Tree, TARGET);
+
 		if( calculation_Trees[tab_Index]->target.size()>0 )
 		{
-			// prepare real_Calc_Tree
-			calculation_Trees[tab_Index]->fill_Tree_From_Scratch(calculation_Trees[tab_Index]->real_Calc_Tree, calculation_Trees[tab_Index]->real_Struct_Tree, TARGET);
-
 			// find fitables over tree
 			calc_Tree_Iteration(calculation_Trees[tab_Index]->real_Calc_Tree.begin());
 		}
+	}
+
+	/// fill pointers to slaves, starting from top-masters
+	for(Coupled* coupled : fitables.fit_Coupled_Pointers)
+	{
+		slaves_Vector_Iteration(coupled);
 	}
 
 	/// rejection
@@ -183,10 +179,9 @@ void Main_Calculation_Module::find_Fittable_Parameters(Data& struct_Data, const 
 
 			// changeable
 			fitables.fit_Value_Parametrized	.push_back(parametrize(parameter->value, parameter->fit.min, parameter->fit.max));
-			fitables.fit_Value_Pointers		.push_back(&parameter->value);
-
-			// used for period and gamma only, but should be filled for all for the length purpose!
-			fitables.fit_Parent_Iterators.push_back(parent);
+			fitables.fit_Value_Pointers		.push_back(&parameter->value);			
+			fitables.fit_Parent_Iterators	.push_back(parent);					// used for period and gamma only, but should be filled for all for the length purpose!
+			fitables.fit_Coupled_Pointers	.push_back(&parameter->coupled);	// used for top-masters only, but should be filled for all for the length purpose!
 
 			/// for rejection
 
@@ -220,6 +215,58 @@ void Main_Calculation_Module::find_Fittable_Parameters(Data& struct_Data, const 
 			{
 				rejected_Min_Max.fit_Names.push_back(total_Name);
 			}
+		}
+	}
+}
+
+void Main_Calculation_Module::slaves_Vector_Iteration(Coupled* coupled)
+{
+	coupled->slave_Value_Pointers.clear();
+	for(Parameter_Indicator& slave_Parameter_Indicator : coupled->slaves)
+	{
+		Parameter* slave = find_Slave_Pointer_by_Id(slave_Parameter_Indicator);
+
+		// check
+		if(slave == NULL)
+		{
+			qInfo() << "Main_Calculation_Module::slaves_Vector_Iteration  : " << slave_Parameter_Indicator.full_Name << "not found\n";
+			QMessageBox::critical(NULL, "Main_Calculation_Module::slaves_Vector_Iteration", slave_Parameter_Indicator.full_Name + "\n\nnot found");
+			exit(EXIT_FAILURE);
+		} else
+		{
+			coupled->slave_Value_Pointers.append(slave);
+			slaves_Vector_Iteration(&slave->coupled);
+		}
+	}
+}
+
+Parameter* Main_Calculation_Module::find_Slave_Pointer_by_Id(const Parameter_Indicator& slave_Parameter_Indicator)
+{
+	Parameter* pointer = NULL;
+	for(int tab_Index=0; tab_Index<multilayers.size(); ++tab_Index)
+	{
+		find_Slave_Pointer_Calc_Tree_Iteration(calculation_Trees[tab_Index]->real_Calc_Tree.begin(), slave_Parameter_Indicator, pointer);
+		if(pointer != NULL) return pointer;
+	}
+	return pointer;
+}
+
+void Main_Calculation_Module::find_Slave_Pointer_Calc_Tree_Iteration(const tree<Node>::iterator& parent, const Parameter_Indicator& slave_Parameter_Indicator, Parameter*& pointer)
+{
+	// iterate over tree
+	for(unsigned i=0; i<parent.number_of_children(); ++i)
+	{
+		tree<Node>::pre_order_iterator child = tree<Node>::child(parent,i);
+		Data& struct_Data = child.node->data.struct_Data;
+
+		if(struct_Data.id == slave_Parameter_Indicator.item_Id)
+		{
+			pointer = Global_Variables::get_Parameter_From_Struct_Item_by_Id(struct_Data, slave_Parameter_Indicator.id);
+		}
+
+		if(struct_Data.item_Type == item_Type_Multilayer)
+		{
+			find_Slave_Pointer_Calc_Tree_Iteration(child, slave_Parameter_Indicator, pointer);
 		}
 	}
 }

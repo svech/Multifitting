@@ -460,17 +460,64 @@ QString Global_Variables::parameter_Name(const Data &struct_Data, QString whats_
 
 bool Global_Variables::expression_Is_Valid(QString expression_String, QStringList expression_Variables)
 {
-	double temp_Argument = 1;
-	exprtk::symbol_table<double> symbol_table;
-	for(QString& expr_Var : expression_Variables)
+//	double temp_Argument = 1;
+//	exprtk::symbol_table<double> symbol_table;
+//	for(QString& expr_Var : expression_Variables)
+//	{
+//		symbol_table.add_variable(expr_Var.toStdString(), temp_Argument);
+//	}
+//	symbol_table.add_constants();
+
+//	exprtk::expression<double> expression;
+//	expression.register_symbol_table(symbol_table);
+
+//	exprtk::parser<double> parser;
+//	return parser.compile(expression_String.toStdString(), expression);
+	return true; // TODO exprtk
+}
+
+Parameter* Global_Variables::get_Parameter_From_Struct_Item_by_Id(Data& struct_Data, unsigned long long id)
+{
+	// PARAMETER
+
+	// measurement
+	if(id == struct_Data.probe_Angle.indicator.id)								return &struct_Data.probe_Angle;
+	if(id == struct_Data.angular_Resolution.indicator.id)						return &struct_Data.angular_Resolution;
+	if(id == struct_Data.wavelength.indicator.id)								return &struct_Data.wavelength;
+	if(id == struct_Data.spectral_Resolution.indicator.id)						return &struct_Data.spectral_Resolution;
+	if(id == struct_Data.polarization.indicator.id)								return &struct_Data.polarization;
+	if(id == struct_Data.polarization_Sensitivity.indicator.id)					return &struct_Data.polarization_Sensitivity;
+
+	// optical properties
+	if(id == struct_Data.absolute_Density.indicator.id)							return &struct_Data.absolute_Density;
+	if(id == struct_Data.relative_Density.indicator.id)							return &struct_Data.relative_Density;
+	if(id == struct_Data.permittivity.indicator.id)								return &struct_Data.permittivity;
+	if(id == struct_Data.absorption.indicator.id)								return &struct_Data.absorption;
+
+	// interface
+	if(id == struct_Data.sigma.indicator.id)									return &struct_Data.sigma;
+	for(int i=0; i<transition_Layer_Functions_Size; ++i)
 	{
-		symbol_table.add_variable(expr_Var.toStdString(), temp_Argument);
+		if(id == struct_Data.interlayer_Composition[i].interlayer.indicator.id)	return &struct_Data.interlayer_Composition[i].interlayer;
+		if(id == struct_Data.interlayer_Composition[i].my_Sigma.indicator.id)	return &struct_Data.interlayer_Composition[i].my_Sigma;
 	}
-	symbol_table.add_constants();
+	if(id == struct_Data.sigma_Drift.drift_Line_Value.indicator.id)				return &struct_Data.sigma_Drift.drift_Line_Value;
+	if(id == struct_Data.sigma_Drift.drift_Rand_Rms.indicator.id)				return &struct_Data.sigma_Drift.drift_Rand_Rms;
+	if(id == struct_Data.sigma_Drift.drift_Sine_Amplitude.indicator.id)			return &struct_Data.sigma_Drift.drift_Sine_Amplitude;
+	if(id == struct_Data.sigma_Drift.drift_Sine_Frequency.indicator.id)			return &struct_Data.sigma_Drift.drift_Sine_Frequency;
+	if(id == struct_Data.sigma_Drift.drift_Sine_Phase.indicator.id)				return &struct_Data.sigma_Drift.drift_Sine_Phase;
 
-	exprtk::expression<double> expression;
-	expression.register_symbol_table(symbol_table);
+	// thickness
+	if(id == struct_Data.thickness.indicator.id)								return &struct_Data.thickness;
+	if(id == struct_Data.thickness_Drift.drift_Line_Value.indicator.id)			return &struct_Data.thickness_Drift.drift_Line_Value;
+	if(id == struct_Data.thickness_Drift.drift_Rand_Rms.indicator.id)			return &struct_Data.thickness_Drift.drift_Rand_Rms;
+	if(id == struct_Data.thickness_Drift.drift_Sine_Amplitude.indicator.id)		return &struct_Data.thickness_Drift.drift_Sine_Amplitude;
+	if(id == struct_Data.thickness_Drift.drift_Sine_Frequency.indicator.id)		return &struct_Data.thickness_Drift.drift_Sine_Frequency;
+	if(id == struct_Data.thickness_Drift.drift_Sine_Phase.indicator.id)			return &struct_Data.thickness_Drift.drift_Sine_Phase;
 
-	exprtk::parser<double> parser;
-	return parser.compile(expression_String.toStdString(), expression);
+	// multilayer
+	if(id == struct_Data.period.indicator.id)									return &struct_Data.period;
+	if(id == struct_Data.gamma.indicator.id)									return &struct_Data.gamma;
+
+	return NULL;
 }

@@ -31,13 +31,15 @@ Data::Data(QString item_Type_Passed)
 	{
 		// angle
 		{
+			probe_Angle.value = default_angle_value;
 			probe_Angle.independent.is_Independent = true;
 			probe_Angle.independent.min = default_min_angle;
 			probe_Angle.independent.max = default_max_angle;
 			probe_Angle.independent.num_Points = default_num_angular_points;
-			probe_Angle.value = default_angle_value;
 			probe_Angle.indicator.whats_This = whats_This_Angle;
+			probe_Angle.indicator.item_Id = id;
 
+			// TODO temporary
 			angle_Type = angle_Type_Grazing;
 			angle_Value = 90;
 
@@ -45,6 +47,8 @@ Data::Data(QString item_Type_Passed)
 			angular_Resolution.independent.min = angular_Resolution.value;
 			angular_Resolution.independent.max = angular_Resolution.value;
 			angular_Resolution.independent.num_Points = 1;
+			angular_Resolution.indicator.whats_This = whats_This_Angular_Resolution;
+			angular_Resolution.indicator.item_Id = id;
 			angle_Type = default_angle_type;
 		}
 		// wavelength
@@ -55,23 +59,31 @@ Data::Data(QString item_Type_Passed)
 			wavelength.independent.num_Points = default_num_spectral_points;
 			wavelength.value = default_wavelength_value;
 			wavelength.indicator.whats_This = whats_This_Wavelength;
+			wavelength.indicator.item_Id = id;
 
+			// TODO temporary
 			lambda_Value = 1.54056;
 
 			spectral_Resolution.value = default_spectral_resolution;
 			spectral_Resolution.independent.min = spectral_Resolution.value;
 			spectral_Resolution.independent.max = spectral_Resolution.value;
 			spectral_Resolution.independent.num_Points = 1;
+			spectral_Resolution.indicator.whats_This = whats_This_Spectral_Resolution;
+			spectral_Resolution.indicator.item_Id = id;
 
 			polarization.value = default_polarization;
 			polarization.independent.min = polarization.value;
 			polarization.independent.max = polarization.value;
 			polarization.independent.num_Points = 1;
+			polarization.indicator.whats_This = whats_This_Polarization;
+			polarization.indicator.item_Id = id;
 
 			polarization_Sensitivity.value = default_polarization_sensitivity;
 			polarization_Sensitivity.independent.min = polarization_Sensitivity.value;
 			polarization_Sensitivity.independent.max = polarization_Sensitivity.value;
 			polarization_Sensitivity.independent.num_Points = 1;
+			polarization_Sensitivity.indicator.whats_This = whats_This_Polarization_Sensitivity;
+			polarization_Sensitivity.indicator.item_Id = id;
 		}
 	}
 
@@ -94,6 +106,7 @@ Data::Data(QString item_Type_Passed)
 			absolute_Density.fit.min = absolute_Density.value*(1-dispersion);
 			absolute_Density.fit.max = absolute_Density.value*(1+dispersion);
 			absolute_Density.indicator.whats_This = whats_This_Absolute_Density;
+			absolute_Density.indicator.item_Id = id;
 		}
 		// relative density
 		{
@@ -104,6 +117,7 @@ Data::Data(QString item_Type_Passed)
 			relative_Density.fit.min = relative_Density.value*(1-dispersion);
 			relative_Density.fit.max = relative_Density.value*(1+dispersion);
 			relative_Density.indicator.whats_This = whats_This_Relative_Density;
+			relative_Density.indicator.item_Id = id;
 		}
 		// permittivity
 		{
@@ -114,6 +128,7 @@ Data::Data(QString item_Type_Passed)
 			permittivity.fit.min = permittivity.value*(1-dispersion);
 			permittivity.fit.max = permittivity.value*(1+dispersion);
 			permittivity.indicator.whats_This = whats_This_Permittivity;
+			permittivity.indicator.item_Id = id;
 		}
 		// absorption
 		{
@@ -124,6 +139,7 @@ Data::Data(QString item_Type_Passed)
 			absorption.fit.min = absorption.value*(1-dispersion);
 			absorption.fit.max = absorption.value*(1+dispersion);
 			absorption.indicator.whats_This = whats_This_Absorption;
+			absorption.indicator.item_Id = id;
 		}
 		// composed material
 		{
@@ -143,6 +159,7 @@ Data::Data(QString item_Type_Passed)
 			sigma.fit.min = sigma_Dispersion_Min*sigma.value;
 			sigma.fit.max = max(sigma_Dispersion_Max*sigma.value, 20.);
 			sigma.indicator.whats_This = whats_This_Sigma;
+			sigma.indicator.item_Id = id;
 		}
 		// interlayer composition
 		{
@@ -157,12 +174,14 @@ Data::Data(QString item_Type_Passed)
 					interlayer_Composition[i].interlayer.fit.is_Fitable = false;
 					interlayer_Composition[i].interlayer.fit.min = 0;
 					interlayer_Composition[i].interlayer.fit.max = 1;
+					interlayer_Composition[i].interlayer.indicator.item_Id = id;
 				}
 				{
 					interlayer_Composition[i].my_Sigma.value=0;
 					interlayer_Composition[i].my_Sigma.fit.is_Fitable = false;
 					interlayer_Composition[i].my_Sigma.fit.min = sigma_Dispersion_Min*interlayer_Composition[i].my_Sigma.value;
 					interlayer_Composition[i].my_Sigma.fit.max = sigma_Dispersion_Max*interlayer_Composition[i].my_Sigma.value;
+					interlayer_Composition[i].my_Sigma.indicator.item_Id = id;
 				}
 			}
 		}
@@ -177,6 +196,7 @@ Data::Data(QString item_Type_Passed)
 			thickness.fit.min = thickness.value*(1-dispersion);
 			thickness.fit.max = thickness.value*(2+dispersion);
 			thickness.indicator.whats_This = whats_This_Thickness;
+			thickness.indicator.item_Id = id;
 		}
 		// thickness drift
 		{
@@ -188,30 +208,35 @@ Data::Data(QString item_Type_Passed)
 				thickness_Drift.drift_Line_Value.fit.min = -thickness_Drift.drift_Line_Value.value*2;
 				thickness_Drift.drift_Line_Value.fit.max =  thickness_Drift.drift_Line_Value.value*2;
 				thickness_Drift.drift_Line_Value.indicator.whats_This = whats_This_Thickness_Drift_Line_Value;
+				thickness_Drift.drift_Line_Value.indicator.item_Id = id;
 			}
 			{
 				thickness_Drift.drift_Rand_Rms.value = 0;
 				thickness_Drift.drift_Rand_Rms.fit.min = 0;
 				thickness_Drift.drift_Rand_Rms.fit.max = thickness_Drift.drift_Rand_Rms.value*2;
 				thickness_Drift.drift_Rand_Rms.indicator.whats_This = whats_This_Thickness_Drift_Rand_Rms;
+				thickness_Drift.drift_Rand_Rms.indicator.item_Id = id;
 			}
 			{
 				thickness_Drift.drift_Sine_Amplitude.value = 0;
 				thickness_Drift.drift_Sine_Amplitude.fit.min = 0;
 				thickness_Drift.drift_Sine_Amplitude.fit.max = thickness_Drift.drift_Sine_Amplitude.value*2;
 				thickness_Drift.drift_Sine_Amplitude.indicator.whats_This = whats_This_Thickness_Drift_Sine_Amplitude;
+				thickness_Drift.drift_Sine_Amplitude.indicator.item_Id = id;
 			}
 			{
 				thickness_Drift.drift_Sine_Frequency.value = 0.333333333333333333333;
 				thickness_Drift.drift_Sine_Frequency.fit.min = thickness_Drift.drift_Sine_Frequency.value*(1-dispersion);
 				thickness_Drift.drift_Sine_Frequency.fit.max = thickness_Drift.drift_Sine_Frequency.value*(1+dispersion);
 				thickness_Drift.drift_Sine_Frequency.indicator.whats_This = whats_This_Thickness_Drift_Sine_Frequency;
+				thickness_Drift.drift_Sine_Frequency.indicator.item_Id = id;
 			}
 			{
 				thickness_Drift.drift_Sine_Phase.value = 0;
 				thickness_Drift.drift_Sine_Phase.fit.min = 0;
 				thickness_Drift.drift_Sine_Phase.fit.max = 1;
 				thickness_Drift.drift_Sine_Phase.indicator.whats_This = whats_This_Thickness_Drift_Sine_Phase;
+				thickness_Drift.drift_Sine_Phase.indicator.item_Id = id;
 			}
 		}
 		// sigma drift
@@ -224,30 +249,35 @@ Data::Data(QString item_Type_Passed)
 				sigma_Drift.drift_Line_Value.fit.min = -thickness_Drift.drift_Line_Value.value*2;
 				sigma_Drift.drift_Line_Value.fit.max =  thickness_Drift.drift_Line_Value.value*2;
 				sigma_Drift.drift_Line_Value.indicator.whats_This = whats_This_Sigma_Drift_Line_Value;
+				sigma_Drift.drift_Line_Value.indicator.item_Id = id;
 			}
 			{
 				sigma_Drift.drift_Rand_Rms.value = 0;
 				sigma_Drift.drift_Rand_Rms.fit.min = 0;
 				sigma_Drift.drift_Rand_Rms.fit.max = thickness_Drift.drift_Rand_Rms.value*2;
 				sigma_Drift.drift_Rand_Rms.indicator.whats_This = whats_This_Sigma_Drift_Rand_Rms;
+				sigma_Drift.drift_Rand_Rms.indicator.item_Id = id;
 			}
 			{
 				sigma_Drift.drift_Sine_Amplitude.value = 0;
 				sigma_Drift.drift_Sine_Amplitude.fit.min = 0;
 				sigma_Drift.drift_Sine_Amplitude.fit.max = thickness_Drift.drift_Sine_Amplitude.value*2;
 				sigma_Drift.drift_Sine_Amplitude.indicator.whats_This = whats_This_Sigma_Drift_Sine_Amplitude;
+				sigma_Drift.drift_Sine_Amplitude.indicator.item_Id = id;
 			}
 			{
 				sigma_Drift.drift_Sine_Frequency.value = 0.333333333333333333333;
 				sigma_Drift.drift_Sine_Frequency.fit.min = thickness_Drift.drift_Sine_Frequency.value*(1-dispersion);
 				sigma_Drift.drift_Sine_Frequency.fit.max = thickness_Drift.drift_Sine_Frequency.value*(1+dispersion);
 				sigma_Drift.drift_Sine_Frequency.indicator.whats_This = whats_This_Sigma_Drift_Sine_Frequency;
+				sigma_Drift.drift_Sine_Frequency.indicator.item_Id = id;
 			}
 			{
 				sigma_Drift.drift_Sine_Phase.value = 0;
 				sigma_Drift.drift_Sine_Phase.fit.min = 0;
 				sigma_Drift.drift_Sine_Phase.fit.max = 1;
 				sigma_Drift.drift_Sine_Phase.indicator.whats_This = whats_This_Sigma_Drift_Sine_Phase;
+				sigma_Drift.drift_Sine_Phase.indicator.item_Id = id;
 			}
 		}
 	}
@@ -265,7 +295,7 @@ Data::Data(QString item_Type_Passed)
 			period.fit.min = period.value*(1-dispersion);
 			period.fit.max = period.value*(1+dispersion);
 			period.indicator.whats_This = whats_This_Period;
-
+			period.indicator.item_Id = id;
 		}
 		// gamma
 		{
@@ -274,6 +304,7 @@ Data::Data(QString item_Type_Passed)
 			gamma.fit.min = 0;
 			gamma.fit.max = 1;
 			gamma.indicator.whats_This = whats_This_Gamma;
+			gamma.indicator.item_Id = id;
 		}
 	}
 }
@@ -285,64 +316,64 @@ void Data::reset_All_IDs()
 	// Measurement
 	//---------------------------------------------
 		// angle
-		probe_Angle				.indicator.id = Global_Definitions::generate_Id();
-		angular_Resolution		.indicator.id = Global_Definitions::generate_Id();
+		probe_Angle				.indicator.id = Global_Definitions::generate_Id(); probe_Angle			.indicator.item_Id = id;
+		angular_Resolution		.indicator.id = Global_Definitions::generate_Id(); angular_Resolution	.indicator.item_Id = id;
 
 		// wavelength
-		wavelength				.indicator.id = Global_Definitions::generate_Id();
-		spectral_Resolution		.indicator.id = Global_Definitions::generate_Id();
-		polarization			.indicator.id = Global_Definitions::generate_Id();
-		polarization_Sensitivity.indicator.id = Global_Definitions::generate_Id();
+		wavelength				.indicator.id = Global_Definitions::generate_Id(); wavelength				.indicator.item_Id = id;
+		spectral_Resolution		.indicator.id = Global_Definitions::generate_Id(); spectral_Resolution		.indicator.item_Id = id;
+		polarization			.indicator.id = Global_Definitions::generate_Id(); polarization				.indicator.item_Id = id;
+		polarization_Sensitivity.indicator.id = Global_Definitions::generate_Id(); polarization_Sensitivity	.indicator.item_Id = id;
 	///---------------------------------------------
 	///---------------------------------------------
 	// Ambient, Layer, Substrate
 	//---------------------------------------------
-		relative_Density.indicator.id = Global_Definitions::generate_Id();
-		absolute_Density.indicator.id = Global_Definitions::generate_Id();
+		relative_Density.indicator.id = Global_Definitions::generate_Id(); relative_Density	.indicator.item_Id = id;
+		absolute_Density.indicator.id = Global_Definitions::generate_Id(); absolute_Density	.indicator.item_Id = id;
 
-		permittivity	.indicator.id = Global_Definitions::generate_Id();
-		absorption		.indicator.id = Global_Definitions::generate_Id();
+		permittivity	.indicator.id = Global_Definitions::generate_Id(); permittivity		.indicator.item_Id = id;
+		absorption		.indicator.id = Global_Definitions::generate_Id(); absorption		.indicator.item_Id = id;
 
 		// material composition
 		for(auto& stoich : composition)
 		{
-			stoich.composition.indicator.id = Global_Definitions::generate_Id();
+			stoich.composition.indicator.id = Global_Definitions::generate_Id(); stoich.composition.indicator.item_Id = id;
 		}
 	///---------------------------------------------
 	///---------------------------------------------
 	// Layer, Substrate
 	//---------------------------------------------
-		sigma.indicator.id = Global_Definitions::generate_Id();
+		sigma.indicator.id = Global_Definitions::generate_Id(); sigma.indicator.item_Id = id;
 		for(Interlayer& inter : interlayer_Composition)
 		{
-			inter.interlayer.indicator.id = Global_Definitions::generate_Id();
-			inter.my_Sigma	.indicator.id = Global_Definitions::generate_Id();
+			inter.interlayer.indicator.id = Global_Definitions::generate_Id(); inter.interlayer	.indicator.item_Id = id;
+			inter.my_Sigma	.indicator.id = Global_Definitions::generate_Id(); inter.my_Sigma	.indicator.item_Id = id;
 		}
 	///---------------------------------------------
 	///---------------------------------------------
 	// Layer
 	//---------------------------------------------
-		thickness.indicator.id = Global_Definitions::generate_Id();
+		thickness.indicator.id = Global_Definitions::generate_Id(); thickness.indicator.item_Id = id;
 
 		// thickness drift
-		thickness_Drift.drift_Line_Value	.indicator.id = Global_Definitions::generate_Id();
-		thickness_Drift.drift_Rand_Rms		.indicator.id = Global_Definitions::generate_Id();
-		thickness_Drift.drift_Sine_Amplitude.indicator.id = Global_Definitions::generate_Id();
-		thickness_Drift.drift_Sine_Frequency.indicator.id = Global_Definitions::generate_Id();
-		thickness_Drift.drift_Sine_Phase	.indicator.id = Global_Definitions::generate_Id();
+		thickness_Drift.drift_Line_Value	.indicator.id = Global_Definitions::generate_Id(); thickness_Drift.drift_Line_Value		.indicator.item_Id = id;
+		thickness_Drift.drift_Rand_Rms		.indicator.id = Global_Definitions::generate_Id(); thickness_Drift.drift_Rand_Rms		.indicator.item_Id = id;
+		thickness_Drift.drift_Sine_Amplitude.indicator.id = Global_Definitions::generate_Id(); thickness_Drift.drift_Sine_Amplitude	.indicator.item_Id = id;
+		thickness_Drift.drift_Sine_Frequency.indicator.id = Global_Definitions::generate_Id(); thickness_Drift.drift_Sine_Frequency	.indicator.item_Id = id;
+		thickness_Drift.drift_Sine_Phase	.indicator.id = Global_Definitions::generate_Id(); thickness_Drift.drift_Sine_Phase		.indicator.item_Id = id;
 
 		// sigma drift
-		sigma_Drift.drift_Line_Value		.indicator.id = Global_Definitions::generate_Id();
-		sigma_Drift.drift_Rand_Rms			.indicator.id = Global_Definitions::generate_Id();
-		sigma_Drift.drift_Sine_Amplitude	.indicator.id = Global_Definitions::generate_Id();
-		sigma_Drift.drift_Sine_Frequency	.indicator.id = Global_Definitions::generate_Id();
-		sigma_Drift.drift_Sine_Phase		.indicator.id = Global_Definitions::generate_Id();
+		sigma_Drift.drift_Line_Value		.indicator.id = Global_Definitions::generate_Id(); sigma_Drift.drift_Line_Value		.indicator.item_Id = id;
+		sigma_Drift.drift_Rand_Rms			.indicator.id = Global_Definitions::generate_Id(); sigma_Drift.drift_Rand_Rms		.indicator.item_Id = id;
+		sigma_Drift.drift_Sine_Amplitude	.indicator.id = Global_Definitions::generate_Id(); sigma_Drift.drift_Sine_Amplitude	.indicator.item_Id = id;
+		sigma_Drift.drift_Sine_Frequency	.indicator.id = Global_Definitions::generate_Id(); sigma_Drift.drift_Sine_Frequency	.indicator.item_Id = id;
+		sigma_Drift.drift_Sine_Phase		.indicator.id = Global_Definitions::generate_Id(); sigma_Drift.drift_Sine_Phase		.indicator.item_Id = id;
 	///---------------------------------------------
 	///---------------------------------------------
 	// Multilayer
 	//---------------------------------------------
-		period.indicator.id = Global_Definitions::generate_Id();
-		gamma .indicator.id = Global_Definitions::generate_Id();
+		period.indicator.id = Global_Definitions::generate_Id(); period	.indicator.item_Id = id;
+		gamma .indicator.id = Global_Definitions::generate_Id(); gamma	.indicator.item_Id = id;
 }
 
 void Data::calc_Measured_cos2_k()

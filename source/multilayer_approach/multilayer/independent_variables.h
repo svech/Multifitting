@@ -43,7 +43,7 @@ public:
 
 	Calc_Functions calc_Functions;
 
-	QMap<int, QListWidgetItem*>* independent_Variables_List_Map;		// independent IDs and corresponding items in ListWidget
+	QMap<unsigned long long int, QListWidgetItem*>* independent_Variables_List_Map;		// independent IDs and corresponding items in ListWidget
 	QTreeWidget* struct_Tree_Copy;										// modified copy of real tree to be plotted
 	QTreeWidget* real_Struct_Tree;										// real tree itself
 

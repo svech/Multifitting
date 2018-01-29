@@ -32,6 +32,10 @@ public:
 	bool reject();
 	void calc_Tree_Iteration(const tree<Node>::iterator& parent, bool fitables_Period_Gamma = false);
 	void find_Fittable_Parameters(Data& struct_Data, const tree<Node>::iterator& parent, bool fitables_Period_Gamma);
+	void slaves_Vector_Iteration(Coupled* coupled);
+
+	Parameter* find_Slave_Pointer_by_Id(const Parameter_Indicator& slave_Parameter_Indicator);
+	void find_Slave_Pointer_Calc_Tree_Iteration(const tree<Node>::iterator& parent, const Parameter_Indicator& slave_Parameter_Indicator, Parameter* &pointer);
 
 	double triangle_Wave(double x);
 	double parametrize  (double value,                      double min, double max);

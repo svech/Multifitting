@@ -34,10 +34,12 @@ struct Data_Element
 	QString active_Parameter_Whats_This;
 };
 
+class Multilayer;
+
 class Calculation_Tree
 {
 public:
-	Calculation_Tree(QTabWidget* independent_Variables_Plot_Tabs, QVector<Target_Curve*>& target_Profiles_Vector, QTreeWidget* real_Struct_Tree, QString calc_Mode);
+	Calculation_Tree(Multilayer* multilayer, QString calc_Mode);
 
 public:
 	void prepare_Residual_Expressions();
@@ -57,7 +59,7 @@ public:
 	void calculate_1_Kind(Data_Element<Type>& data_Element);
 
 	void calculate_Intermediate_Values_1_Tree(tree<Node>& calc_Tree, const Data& measurement, QString active_Parameter_Whats_This, const tree<Node>::iterator& parent, Node* above_Node = NULL);
-	tree<Node>::iterator find_Node_By_Item_Id(const tree<Node>::iterator& parent, int active_Item_Id, tree<Node>& calc_Tree);
+	tree<Node>::iterator find_Node_By_Item_Id(const tree<Node>::iterator& parent, unsigned long long active_Item_Id, tree<Node>& calc_Tree);
 
 	void calculate_Unwrapped_Structure(tree<Node>& calc_Tree, const Data& measurement, QString active_Parameter_Whats_This, Unwrapped_Structure*& unwrapped_Structure_Vec_Element);
 	void calculate_Unwrapped_Reflectivity(const Data& measurement, QString active_Parameter_Whats_This, Unwrapped_Structure* unwrapped_Structure_Vec_Element, Unwrapped_Reflection*& unwrapped_Reflection_Vec_Element);

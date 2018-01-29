@@ -72,6 +72,7 @@ public:
 	static QString structure_Item_Name(const Data& struct_Data);
 	static QString parameter_Name(const Data& struct_Data, QString whats_This, int index = -1);
 	static bool expression_Is_Valid(QString expression_String, QStringList expression_Variables);
+	static Parameter* get_Parameter_From_Struct_Item_by_Id(Data& struct_Data, unsigned long long id);
 };
 
 #endif // GLOBAL_VARIABLES_H

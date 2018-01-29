@@ -12,10 +12,10 @@ size_t Fitting_GSL::num_Residual_Points()
 {
 	size_t residual_Points = 0;
 	// over multilayers
-	for(Calculation_Tree* calculation_Tree : calculation_Trees)
+	for(int tab_Index=0; tab_Index<calculation_Trees.size(); ++tab_Index)
 	{
 		// over target curves
-		for(Data_Element<Target_Curve>& target_Element : calculation_Tree->target)
+		for(Data_Element<Target_Curve>& target_Element : calculation_Trees[tab_Index]->target)
 		{
 			// over points
 			residual_Points += target_Element.the_Class->curve.values.size();
@@ -209,17 +209,17 @@ int Fitting_GSL::calc_Residual(const gsl_vector* x, void* bare_Params, gsl_vecto
 	int residual_Shift=0;
 
 	// over multilayers
-	for(Calculation_Tree* calculation_Tree : params->calculation_Trees)
+	for(int tab_Index=0; tab_Index<params->calculation_Trees.size(); ++tab_Index)
 	{
 		// over target curves
-		for(Data_Element<Target_Curve>& target_Element : calculation_Tree->target)
+		for(Data_Element<Target_Curve>& target_Element : params->calculation_Trees[tab_Index]->target)
 		{
 			// replication of real_Calc_Tree for each target
-			target_Element.calc_Tree = calculation_Tree->real_Calc_Tree;
-			calculation_Tree->statify_Calc_Tree(target_Element.calc_Tree);
+			target_Element.calc_Tree = params->calculation_Trees[tab_Index]->real_Calc_Tree;
+			params->calculation_Trees[tab_Index]->statify_Calc_Tree(target_Element.calc_Tree);
 
 			// calculation
-			calculation_Tree->calculate_1_Kind(target_Element);
+			params->calculation_Trees[tab_Index]->calculate_1_Kind(target_Element);
 
 			// fill residual
 			fill_Residual(residual_Shift, target_Element, f);
@@ -245,7 +245,6 @@ void Fitting_GSL::fill_Residual(int& residual_Shift, Data_Element<Target_Curve>&
 	int N = target_Curve->curve.values.size();
 	double N_sqrt = sqrt(double(N));
 
-
 	/// -------------------------------------------------------------------------------
 	/// reflectance
 	/// -------------------------------------------------------------------------------
@@ -255,13 +254,15 @@ void Fitting_GSL::fill_Residual(int& residual_Shift, Data_Element<Target_Curve>&
 		for(int point_Index=0; point_Index<N; ++point_Index)
 		{
 			// calculate with expression
-			{
-				target_Curve->fit_Params.expression_Argument = target_Curve->curve.values[point_Index].val_1;
-				fi_1 = target_Curve->fit_Params.expression_Vec[0].value();
+			{				
+//				target_Curve->fit_Params.expression_Argument = target_Curve->curve.values[point_Index].val_1;
+//				fi_1 = target_Curve->fit_Params.expression_Vec[0].value();
+				fi_1 = target_Curve->curve.values[point_Index].val_1;		// TODO exprtk
 			}
 			{
-				target_Curve->fit_Params.expression_Argument = target_Element.unwrapped_Reflection->R[point_Index];
-				fi_2 = target_Curve->fit_Params.expression_Vec[0].value();
+//				target_Curve->fit_Params.expression_Argument = target_Element.unwrapped_Reflection->R[point_Index];
+//				fi_2 = target_Curve->fit_Params.expression_Vec[0].value();
+				fi_2 = target_Element.unwrapped_Reflection->R[point_Index];	// TODO exprtk
 			}
 
 			// weight
@@ -308,13 +309,13 @@ void Fitting_GSL::fill_Residual(int& residual_Shift, Data_Element<Target_Curve>&
 bool Fitting_GSL::check_Residual_Expression()
 {
 	// over multilayers
-	for(int tree_Index=0; tree_Index<calculation_Trees.size(); tree_Index++)
+	for(int tab_Index=0; tab_Index<calculation_Trees.size(); tab_Index++)
 	{
 		// over target curves
-		for(int target_Element_Index=0; target_Element_Index<calculation_Trees[tree_Index]->target.size(); target_Element_Index++)
+		for(int target_Element_Index=0; target_Element_Index<calculation_Trees[tab_Index]->target.size(); target_Element_Index++)
 		{
-			Target_Curve* target_Curve = calculation_Trees[tree_Index]->target[target_Element_Index].the_Class;
-			QString struct_Name = "  " + Medium_BlackCircle_Sym + "  <" + main_Calculation_Module->multilayer_Tabs->tabText(tree_Index) + "> ";
+			Target_Curve* target_Curve = calculation_Trees[tab_Index]->target[target_Element_Index].the_Class;
+			QString struct_Name = "  " + Medium_BlackCircle_Sym + "  <" + main_Calculation_Module->multilayer_Tabs->tabText(tab_Index) + "> ";
 
 			/// -------------------------------------------------------------------------------
 			/// weights
