@@ -328,7 +328,7 @@ struct Coupled					{bool is_Coupled = false;
 								 Parameter_Indicator master;
 								 QVector<Parameter_Indicator> slaves;
 
-								 QVector<Parameter*> slave_Value_Pointers;		// not to store
+								 QVector<Parameter*> slave_Pointers;		// not to store
 								};
 
 struct Fit						{bool is_Fitable = false; bool min_Bounded; double min; bool max_Bounded; double max;};
@@ -380,7 +380,7 @@ struct Calc_Functions			{bool check_Enabled = true;
 								};
 
 // measured/target data types
-struct Value					{double val_1; double val_2; /*double sigma_1; double sigma_2;*/};
+struct Value					{double val_1; double val_2; /*double val_3; double val_4;*/};
 struct Curve					{QVector<double> argument; QVector<double> shifted_Argument;
 								 QVector<Value> values;	   QVector<Value> shifted_Values;
 								 double arg_Offset = 0; double arg_Factor = 1;
@@ -429,27 +429,22 @@ struct Fit_Params				{bool calc = true;
 								};
 struct Fitables					{	vector<QString> fit_Struct_Names;		// names of structures
 									vector<QString> fit_Names;				// names of parameters to be fitted
-									vector<QString>	fit_Whats_This;			// whats_This of parameters to be fitted
 									QVector<unsigned long long int>	fit_IDs;// ID of parameters to be fitted
-									vector<double>	fit_Min;				// min boundary
-									vector<double>	fit_Max;				// max boundary
 
 									// changeable
+									vector<Parameter*> fit_Parameters;		//
 									vector<double>	fit_Value_Parametrized;	// unbounded parametrized variables
-									vector<double*> fit_Value_Pointers;		// poiners to real parameters
 									vector<tree<Node>::iterator> fit_Parent_Iterators;
-									vector<Coupled*> fit_Coupled_Pointers;
 
 									void clear_All()
 									{
+										fit_Struct_Names.clear();
 										fit_Names.clear();
-										fit_Whats_This.clear();
 										fit_IDs.clear();
-										fit_Min.clear();
-										fit_Max.clear();
 
+										fit_Parameters.clear();
 										fit_Value_Parametrized.clear();
-										fit_Value_Pointers.clear();
+										fit_Parent_Iterators.clear();
 									}
 								};
 // -----------------------------------------------------------------------------------------

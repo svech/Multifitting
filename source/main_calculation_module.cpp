@@ -68,17 +68,17 @@ void Main_Calculation_Module::fitting()
 		}
 	}
 
-	/// fill pointers to slaves, starting from top-masters
-	for(Coupled* coupled : fitables.fit_Coupled_Pointers)
+	/// fill pointers to slaves, starting from fitable top-masters
+	for(Parameter* parameter : fitables.fit_Parameters)
 	{
-		slaves_Vector_Iteration(coupled);
+		slaves_Vector_Iteration(&parameter->coupled);
 	}
 
 	/// rejection
 	if(reject()) return;
 
 	/// fitting from here
-	if( fitables.fit_Value_Pointers.size()>0 )
+	if( fitables.fit_Parameters.size()>0 )
 	{
 		Fitting_GSL fitting_GSL(this);
 		fitting_GSL.fit();
@@ -172,16 +172,17 @@ void Main_Calculation_Module::find_Fittable_Parameters(Data& struct_Data, const 
 			// fixed
 			fitables.fit_Struct_Names 		.push_back(multilayer_Tabs->tabText(parameter->indicator.tab_Index));
 			fitables.fit_Names				.push_back(parameter->indicator.full_Name);
-			fitables.fit_Whats_This			.push_back(parameter->indicator.whats_This);
+//			fitables.fit_Whats_This			.push_back(parameter->indicator.whats_This);
 			fitables.fit_IDs				.push_back(parameter->indicator.id);
-			fitables.fit_Min				.push_back(parameter->fit.min);
-			fitables.fit_Max				.push_back(parameter->fit.max);
+//			fitables.fit_Min				.push_back(parameter->fit.min);
+//			fitables.fit_Max				.push_back(parameter->fit.max);
 
 			// changeable
+			fitables.fit_Parameters			.push_back(parameter);
 			fitables.fit_Value_Parametrized	.push_back(parametrize(parameter->value, parameter->fit.min, parameter->fit.max));
-			fitables.fit_Value_Pointers		.push_back(&parameter->value);			
+//			fitables.fit_Value_Pointers		.push_back(&parameter->value);
 			fitables.fit_Parent_Iterators	.push_back(parent);					// used for period and gamma only, but should be filled for all for the length purpose!
-			fitables.fit_Coupled_Pointers	.push_back(&parameter->coupled);	// used for top-masters only, but should be filled for all for the length purpose!
+//			fitables.fit_Coupled_Pointers	.push_back(&parameter->coupled);	// used for top-masters only, but should be filled for all for the length purpose!
 
 			/// for rejection
 
@@ -221,7 +222,7 @@ void Main_Calculation_Module::find_Fittable_Parameters(Data& struct_Data, const 
 
 void Main_Calculation_Module::slaves_Vector_Iteration(Coupled* coupled)
 {
-	coupled->slave_Value_Pointers.clear();
+	coupled->slave_Pointers.clear();
 	for(Parameter_Indicator& slave_Parameter_Indicator : coupled->slaves)
 	{
 		Parameter* slave = find_Slave_Pointer_by_Id(slave_Parameter_Indicator);
@@ -234,7 +235,7 @@ void Main_Calculation_Module::slaves_Vector_Iteration(Coupled* coupled)
 			exit(EXIT_FAILURE);
 		} else
 		{
-			coupled->slave_Value_Pointers.append(slave);
+			coupled->slave_Pointers.append(slave);
 			slaves_Vector_Iteration(&slave->coupled);
 		}
 	}

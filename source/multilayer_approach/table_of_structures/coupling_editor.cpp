@@ -356,11 +356,28 @@ void Coupling_Editor::save_External_Slaves()
 
 void Coupling_Editor::clear_Nonexisting_Slaves()
 {
+	int index_To_Remove = -2018;
+
 	// remove onn-ral parameter indicators from the list
-	for(int i=coupling_Parameter.coupled.slaves.size()-1; i>=0; --i)
+	for(int i=0; i<coupling_Parameter.coupled.slaves.size(); ++i)
 	{
 		if(!coupling_Parameter.coupled.slaves[i].exist)
-			coupling_Parameter.coupled.slaves.remove(i);
+		{
+			index_To_Remove=i;
+			break;
+		}
+	}
+
+	if(index_To_Remove<0)
+	{
+		return;
+	} else
+	{
+		coupling_Parameter.coupled.slaves.remove(index_To_Remove);
+		slave_Widget_Vec.remove(index_To_Remove);
+		slave_Label_Vec.remove(index_To_Remove);
+		slave_Line_Edit_Vec.remove(index_To_Remove);
+		clear_Nonexisting_Slaves();
 	}
 }
 
@@ -369,6 +386,7 @@ void Coupling_Editor::refresh_Reload_Coupled(QString refresh_Reload, Parameter& 
 	if(!widget)
 	{
 		qInfo() << "Coupling_Editor::refresh_Reload_Coupled : null widget";
+		QMessageBox::critical(NULL, "Coupling_Editor::refresh_Reload_Coupled", "null widget");
 		return;
 	}
 
@@ -423,6 +441,9 @@ void Coupling_Editor::get_Parameter(QLabel* label)
 	if(widget->property(coupling_Editor_Property).toBool())
 	{
 		Parameter parameter = widget->property(parameter_Property).value<Parameter>();
+
+		// period and gamma can't be connected
+		if(parameter.indicator.whats_This == whats_This_Period || parameter.indicator.whats_This == whats_This_Gamma) return;
 
 		// Name and tab are reloading inside the Parameter at Table opening, so they will be corrected after changing the structure and tab order from outside.
 

@@ -488,38 +488,12 @@ void Table_Of_Structures::refresh_Reload_Core(QString refresh_Reload, QWidget* w
 	if(refresh_Reload == refresh_Property)
 	{
 		QTreeWidgetItem* structure_Item = coup_Widgets_Map.value(widget);
-		QString whats_This = parameter.indicator.whats_This;
 		Data struct_Data = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
-		QVariant var;
 
-		if(whats_This == whats_This_Composition)
-		{
-			for(Stoichiometry& comp : struct_Data.composition)
-			{
-				if(comp.composition.indicator.id == parameter.indicator.id)
-					comp.composition = parameter;
-			}
-		} else
-		if(whats_This == whats_This_Interlayer_Composition)
-		{
-			for(Interlayer& inter : struct_Data.interlayer_Composition)
-			{
-				if(inter.interlayer.indicator.id == parameter.indicator.id)
-					inter.interlayer = parameter;
-			}
-		} else
-		if(whats_This == whats_This_Interlayer_My_Sigma)
-		{
-			for(Interlayer& inter : struct_Data.interlayer_Composition)
-			{
-				if(inter.my_Sigma.indicator.id == parameter.indicator.id)
-					inter.my_Sigma = parameter;
-			}
-		} else
-		{
-			Parameter& struct_Parameter = get_Parameter(struct_Data, whats_This);
-			struct_Parameter = parameter;
-		}
+		Parameter& struct_Parameter = *Global_Variables::get_Parameter_From_Struct_Item_by_Id(struct_Data, parameter.indicator.id);
+		struct_Parameter = parameter;
+
+		QVariant var;
 
 		// refresh tree
 		var.setValue(struct_Data);
@@ -2178,19 +2152,21 @@ void Table_Of_Structures::reload_All_Widgets(QObject* sender)
 			QWidget* widget_To_Reload = all_Widgets_To_Reload[current_Tab_Index][i];
 			if(widget_To_Reload != sender)
 			{
-				// reload color
-				if(widget_To_Reload->property(coupling_Editor_Property).toBool())
-				{
-					Parameter parameter = widget_To_Reload->property(parameter_Property).value<Parameter>();
+				// reload color (do we need it??)
+//				if(widget_To_Reload->property(coupling_Editor_Property).toBool())
+//				{
+//					Parameter parameter = widget_To_Reload->property(parameter_Property).value<Parameter>();
 
-					// if had some dependences
-					if(parameter.coupled.master.exist || parameter.coupled.slaves.size()>0)
-					{
-						Coupling_Editor* new_Coupling_Editor = new Coupling_Editor(widget_To_Reload, coupled_Widget_Item, coupled_Widget_Id, main_Tabs, this);
-						new_Coupling_Editor->hide();
-						new_Coupling_Editor->close();
-					}
-				}
+//					// if had some dependences
+//					if(parameter.coupled.master.exist || parameter.coupled.slaves.size()>0)
+//					{
+//						qInfo() << "reload_All_Widgets";
+//						Coupling_Editor* new_Coupling_Editor = new Coupling_Editor(widget_To_Reload, coupled_Widget_Item, coupled_Widget_Id, main_Tabs, this);
+//						new_Coupling_Editor->hide();
+//						new_Coupling_Editor->close();
+						// may cause problem with table->setContextMenuPolicy after closing
+//					}
+//				}
 
 				widget_To_Reload->setProperty(reload_Property, true);
 

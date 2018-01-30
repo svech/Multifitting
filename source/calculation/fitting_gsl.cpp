@@ -31,9 +31,9 @@ void Fitting_GSL::callback(const size_t iter, void* bare_Params, const gsl_multi
 
 	// print out current location
 	printf("iter %zu :", iter);
-	for(size_t i=0; i<params->fitables.fit_Value_Pointers.size(); ++i)
+	for(size_t i=0; i<params->fitables.fit_Parameters.size(); ++i)
 	{
-		printf("%f ", *params->fitables.fit_Value_Pointers[i]);
+		printf("%f ", params->fitables.fit_Parameters[i]->value);
 	}
 	printf("\n\n");
 }
@@ -44,7 +44,7 @@ void Fitting_GSL::fit()
 	if(check_Residual_Expression()) return;
 
 	const size_t n = num_Residual_Points();
-	const size_t p = fitables.fit_Value_Pointers.size();
+	const size_t p = fitables.fit_Parameters.size();
 	const size_t max_iter = 200;
 	const double xtol = 1.0e-8;
 	const double gtol = 1.0e-8;
@@ -178,30 +178,43 @@ void Fitting_GSL::gamma_Subtree_Iteration(const tree<Node>::iterator& parent, do
 	}
 }
 
+void Fitting_GSL::slaves_Recalculation(Parameter* parameter)
+{
+	for(Parameter* slave_Pointer : parameter->coupled.slave_Pointers)
+	{
+		// TODO exprtk
+		slave_Pointer->value = parameter->value;
+		slaves_Recalculation(slave_Pointer);
+	}
+}
+
 int Fitting_GSL::calc_Residual(const gsl_vector* x, void* bare_Params, gsl_vector* f)
 {
 	Params* params = ((struct Params*)bare_Params);
 
 	// change value of real fitables
-	for(size_t i=0; i<params->fitables.fit_Value_Pointers.size(); ++i)
+	for(size_t i=0; i<params->fitables.fit_Parameters.size(); ++i)
 	{
-		double old_Value = *params->fitables.fit_Value_Pointers[i];
-		*params->fitables.fit_Value_Pointers[i]=params->main_Calculation_Module->unparametrize(	gsl_vector_get(x, i),
-																								params->fitables.fit_Min[i],
-																								params->fitables.fit_Max[i]);
-		double new_Value = *params->fitables.fit_Value_Pointers[i];
+		double old_Value = params->fitables.fit_Parameters[i]->value;
+		params->fitables.fit_Parameters[i]->value = params->main_Calculation_Module->unparametrize(	gsl_vector_get(x, i),
+																									params->fitables.fit_Parameters[i]->fit.min,
+																									params->fitables.fit_Parameters[i]->fit.max);
+		double new_Value = params->fitables.fit_Parameters[i]->value;
 
-		// special cases
-		if(params->fitables.fit_Whats_This[i] == whats_This_Period)
+		// recalculate underlying tree if period or gamma
+		if(params->fitables.fit_Parameters[i]->indicator.whats_This == whats_This_Period)
 		{
 			double coeff = new_Value/old_Value;
 			period_Subtree_Iteration(params->fitables.fit_Parent_Iterators[i], coeff);
 
 		} else
-		if(params->fitables.fit_Whats_This[i] == whats_This_Gamma)
+		if(params->fitables.fit_Parameters[i]->indicator.whats_This == whats_This_Gamma)
 		{
 			gamma_Subtree_Iteration(params->fitables.fit_Parent_Iterators[i], old_Value);
 		}
+
+		// recalculate underlying slaves
+		slaves_Recalculation(params->fitables.fit_Parameters[i]);
 	}
 
 	/// now all real_Calc_Tree are changed; we can replicate and stratify them
@@ -232,7 +245,7 @@ int Fitting_GSL::calc_Residual(const gsl_vector* x, void* bare_Params, gsl_vecto
 void Fitting_GSL::init_Position(gsl_vector* x)
 {
 	// change value of real fitables
-	for(size_t i=0; i<fitables.fit_Value_Pointers.size(); ++i)
+	for(size_t i=0; i<fitables.fit_Parameters.size(); ++i)
 	{
 		gsl_vector_set(x, i, fitables.fit_Value_Parametrized[i]);
 	}

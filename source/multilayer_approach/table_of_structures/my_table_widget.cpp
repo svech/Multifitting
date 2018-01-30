@@ -28,6 +28,9 @@ void My_Table_Widget::contextMenuEvent(QContextMenuEvent *event)
 		Parameter parameter = widget->property(parameter_Property).value<Parameter>();
 //		qInfo() << "parameter id = " << parameter.indicator.id << "\n" << main_Tabs->tabText(parameter.indicator.tab_Index) << " " << parameter.indicator.full_Name << endl;
 
+		// period and gamma can't be connected
+		if(parameter.indicator.whats_This == whats_This_Period || parameter.indicator.whats_This == whats_This_Gamma) return;
+
 		QMenu menu;
 		QAction my_Name_Action(parameter.indicator.full_Name);
 		menu.addAction(&my_Name_Action);

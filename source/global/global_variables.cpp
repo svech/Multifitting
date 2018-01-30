@@ -493,6 +493,10 @@ Parameter* Global_Variables::get_Parameter_From_Struct_Item_by_Id(Data& struct_D
 	if(id == struct_Data.relative_Density.indicator.id)							return &struct_Data.relative_Density;
 	if(id == struct_Data.permittivity.indicator.id)								return &struct_Data.permittivity;
 	if(id == struct_Data.absorption.indicator.id)								return &struct_Data.absorption;
+	for(int i=0; i<struct_Data.composition.size(); ++i)
+	{
+		if(id == struct_Data.composition[i].composition.indicator.id)			return &struct_Data.composition[i].composition;
+	}
 
 	// interface
 	if(id == struct_Data.sigma.indicator.id)									return &struct_Data.sigma;
