@@ -196,7 +196,7 @@ void Multilayer::refresh_Structure_And_Independent(QObject* my_Sender)
 	}
 
 	// refresh other multilayers
-	if(!my_Sender) emit refresh_All_Multilayers();
+	if(!my_Sender) {emit refresh_All_Multilayers();}
 }
 
 //// --------------------------------------------------------------------------------------

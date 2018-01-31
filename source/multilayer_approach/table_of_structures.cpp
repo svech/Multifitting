@@ -2146,27 +2146,25 @@ void Table_Of_Structures::reload_All_Widgets(QObject* sender)
 	if(table_Is_Created)
 	{
 		int current_Tab_Index = main_Tabs->currentIndex();
-		//		qInfo() << "reload_All_Widgets " << ++temp_Counter << "tab " << current_Tab_Index;
+//		qInfo() << "reload_All_Widgets " << ++temp_Counter << "tab " << current_Tab_Index;
 		for(int i=0; i<all_Widgets_To_Reload[current_Tab_Index].size(); ++i)
 		{
 			QWidget* widget_To_Reload = all_Widgets_To_Reload[current_Tab_Index][i];
 			if(widget_To_Reload != sender)
 			{
-				// reload color (do we need it??)
-//				if(widget_To_Reload->property(coupling_Editor_Property).toBool())
-//				{
-//					Parameter parameter = widget_To_Reload->property(parameter_Property).value<Parameter>();
+				// reload color
+				if(widget_To_Reload->property(coupling_Editor_Property).toBool())
+				{
+					Parameter parameter = widget_To_Reload->property(parameter_Property).value<Parameter>();
 
-//					// if had some dependences
-//					if(parameter.coupled.master.exist || parameter.coupled.slaves.size()>0)
-//					{
-//						qInfo() << "reload_All_Widgets";
-//						Coupling_Editor* new_Coupling_Editor = new Coupling_Editor(widget_To_Reload, coupled_Widget_Item, coupled_Widget_Id, main_Tabs, this);
-//						new_Coupling_Editor->hide();
-//						new_Coupling_Editor->close();
-						// may cause problem with table->setContextMenuPolicy after closing
-//					}
-//				}
+					// if had some dependences
+					if(parameter.coupled.master.exist || parameter.coupled.slaves.size()>0)
+					{
+						Coupling_Editor* new_Coupling_Editor = new Coupling_Editor(widget_To_Reload, coupled_Widget_Item, coupled_Widget_Id, main_Tabs, true, this);
+						new_Coupling_Editor->hide();
+						new_Coupling_Editor->close();
+					}
+				}
 
 				widget_To_Reload->setProperty(reload_Property, true);
 

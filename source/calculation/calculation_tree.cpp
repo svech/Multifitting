@@ -104,7 +104,7 @@ void Calculation_Tree::fill_Tree_From_Scratch(tree<Node>& calc_Tree, QTreeWidget
 	Node empty_Top_Node;
 	calc_Tree.insert(calc_Tree.begin(), empty_Top_Node);	// according to the tree.hh API
 
-	fill_Tree(calc_Tree.begin(), calc_Tree, item_Tree->invisibleRootItem());
+	fill_Calc_Tree_From_Item_Tree(calc_Tree.begin(), calc_Tree, item_Tree->invisibleRootItem());
 
 	// if no substrate then add it equal to ambient
 	Data last_Struct_Data = item_Tree->topLevelItem(item_Tree->topLevelItemCount()-1)->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
@@ -134,7 +134,7 @@ void Calculation_Tree::fill_Tree_From_Scratch(tree<Node>& calc_Tree, QTreeWidget
 	}
 }
 
-void Calculation_Tree::fill_Tree(const tree<Node>::iterator& parent, tree<Node>& calc_Tree, QTreeWidgetItem* item)
+void Calculation_Tree::fill_Calc_Tree_From_Item_Tree(const tree<Node>::iterator& parent, tree<Node>& calc_Tree, QTreeWidgetItem* item)
 {
 	for(int i=0; i<item->childCount(); ++i)
 	{
@@ -143,7 +143,7 @@ void Calculation_Tree::fill_Tree(const tree<Node>::iterator& parent, tree<Node>&
 
 		if(item->child(i)->childCount()>0)
 		{
-			fill_Tree(calc_Tree.child(parent,i), calc_Tree, item->child(i));
+			fill_Calc_Tree_From_Item_Tree(calc_Tree.child(parent,i), calc_Tree, item->child(i));
 		}
 	}
 }
@@ -177,6 +177,22 @@ void Calculation_Tree::fill_Target_Calc_Trees()
 		{
 			data_Element.calc_Tree = real_Calc_Tree;
 			statify_Calc_Tree(data_Element.calc_Tree);
+		}
+	}
+}
+
+void Calculation_Tree::renew_Item_Tree_From_Calc_Tree(const tree<Node>::iterator& parent, tree<Node>& calc_Tree, QTreeWidgetItem* item)
+{
+	for(int i=0; i<item->childCount(); ++i)
+	{
+		tree<Node>::pre_order_iterator child = tree<Node>::child(parent,i);
+
+		QVariant var; var.setValue( child.node->data.struct_Data );
+		item->child(i)->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+
+		if(item->child(i)->childCount()>0)
+		{
+			renew_Item_Tree_From_Calc_Tree(calc_Tree.child(parent,i), calc_Tree, item->child(i));
 		}
 	}
 }

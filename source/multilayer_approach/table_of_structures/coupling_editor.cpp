@@ -4,12 +4,14 @@ Coupling_Editor::Coupling_Editor(QWidget* coupling_Widget,
 								 QMap<QWidget*,QTreeWidgetItem*>& coupled_Widgets_Item,
 								 QMap<int, QWidget*>& coupled_Widgets_Id,
 								 QTabWidget* main_Tabs,
+								 bool not_Change_Context_Menu,
 								 QWidget* parent):
 	coupled_Widgets_Item(coupled_Widgets_Item),
 	coupled_Widgets_Id(coupled_Widgets_Id),
 	coupling_Widget(coupling_Widget),
 	coupling_Parameter(coupling_Widget->property(parameter_Property).value<Parameter>()),
 	main_Tabs(main_Tabs),
+	not_Change_Context_Menu(not_Change_Context_Menu),
 	QDialog(parent)
 {
 	setWindowTitle("<"+main_Tabs->tabText(coupling_Parameter.indicator.tab_Index)+"> "+coupling_Parameter.indicator.full_Name/*+" "+QString::number(coupling_Parameter.indicator.id)*/);
@@ -40,6 +42,7 @@ void Coupling_Editor::closeEvent(QCloseEvent *)
 	}
 
 	// enable context menu
+	if(!not_Change_Context_Menu)
 	for(int tab_Index=0; tab_Index<main_Tabs->count(); ++tab_Index)
 	{
 		My_Table_Widget* table = qobject_cast<My_Table_Widget*>(main_Tabs->widget(tab_Index));
@@ -74,6 +77,7 @@ void Coupling_Editor::create_Main_Layout()
 	connect(done_Button, &QPushButton::clicked, this, &Coupling_Editor::close);
 
 	// disable context menu
+	if(!not_Change_Context_Menu)
 	for(int tab_Index=0; tab_Index<main_Tabs->count(); ++tab_Index)
 	{
 		My_Table_Widget* table = qobject_cast<My_Table_Widget*>(main_Tabs->widget(tab_Index));

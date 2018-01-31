@@ -47,9 +47,11 @@ public:
 	void check_If_Graded();
 
 	void fill_Tree_From_Scratch(tree<Node>& calc_Tree, QTreeWidget* item_Tree, QString class_Type);
-	void fill_Tree(const tree<Node>::iterator& parent, tree<Node>& calc_Tree, QTreeWidgetItem* item);
+	void fill_Calc_Tree_From_Item_Tree(const tree<Node>::iterator& parent, tree<Node>& calc_Tree, QTreeWidgetItem* item);
 	void fill_Independent_Calc_Trees();
 	void fill_Target_Calc_Trees();
+
+	void renew_Item_Tree_From_Calc_Tree(const tree<Node>::iterator& parent, tree<Node>& calc_Tree, QTreeWidgetItem* item);
 
 //	void statify_Item_Tree();
 	void statify_Calc_Tree_Iteration(const tree<Node>::iterator& parent, int depth, QVector<tree<Node>::iterator>& chosen_Iters);

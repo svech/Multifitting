@@ -426,7 +426,7 @@ void Multilayer_Approach::calc_Reflection()
 	qInfo() << "\n\n-------------------------------------------------------"
 				 "\ncalc specular functions..."
 				 "\n-------------------------------------------------------\n";
-	Main_Calculation_Module* main_Calculation_Module = new Main_Calculation_Module(multilayer_Tabs, CALCULATION);
+	Main_Calculation_Module* main_Calculation_Module = new Main_Calculation_Module(this, CALCULATION);
 	main_Calculation_Module->single_Calculation();
 	delete main_Calculation_Module;
 }
@@ -437,7 +437,7 @@ void Multilayer_Approach::start_Fitting()
 	qInfo() << "\n\n-------------------------------------------------------"
 				 "\nfitting..."
 				 "\n-------------------------------------------------------\n";
-	Main_Calculation_Module* main_Calculation_Module = new Main_Calculation_Module(multilayer_Tabs, FITTING);
+	Main_Calculation_Module* main_Calculation_Module = new Main_Calculation_Module(this, FITTING);
 	main_Calculation_Module->fitting();
 	delete main_Calculation_Module;
 }

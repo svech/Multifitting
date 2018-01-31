@@ -4,11 +4,12 @@
 
 #include "main_calculation_module.h"
 
-Main_Calculation_Module::Main_Calculation_Module(QTabWidget* multilayer_Tabs, QString calc_Mode):
-	multilayers		 (multilayer_Tabs->count()),
-	calculation_Trees(multilayer_Tabs->count()),
-	multilayer_Tabs	 (multilayer_Tabs),
-	calc_Mode		 (calc_Mode)
+Main_Calculation_Module::Main_Calculation_Module(Multilayer_Approach* multilayer_Approach, QString calc_Mode):
+	multilayer_Approach	(multilayer_Approach),
+	multilayer_Tabs		(multilayer_Approach->multilayer_Tabs),
+	multilayers			(multilayer_Tabs->count()),
+	calculation_Trees	(multilayer_Tabs->count()),
+	calc_Mode			(calc_Mode)
 {
 	for(int tab_Index=0; tab_Index<multilayer_Tabs->count(); ++tab_Index)
 	{
@@ -83,6 +84,26 @@ void Main_Calculation_Module::fitting()
 		Fitting_GSL fitting_GSL(this);
 		fitting_GSL.fit();
 		print_Calculated_To_File();
+	}
+
+	// replace the initial parameters
+	QMessageBox::StandardButton reply = QMessageBox::question(NULL,"Replace", "Fitting is done.\nDo you want to replace the parameters?",
+															  QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
+	if (reply == QMessageBox::Yes)
+	{
+		renew_Item_Trees();
+		multilayer_Approach->refresh_All_Multilayers_View();
+		multilayer_Approach->table_Of_Structures->reload_All_Widgets();
+	}
+}
+
+void Main_Calculation_Module::renew_Item_Trees()
+{
+	for(Calculation_Tree* calculation_Tree : calculation_Trees)
+	{
+		calculation_Tree->renew_Item_Tree_From_Calc_Tree(calculation_Tree->real_Calc_Tree.begin(),
+														 calculation_Tree->real_Calc_Tree,
+														 calculation_Tree->real_Struct_Tree->invisibleRootItem());
 	}
 }
 
@@ -172,17 +193,12 @@ void Main_Calculation_Module::find_Fittable_Parameters(Data& struct_Data, const 
 			// fixed
 			fitables.fit_Struct_Names 		.push_back(multilayer_Tabs->tabText(parameter->indicator.tab_Index));
 			fitables.fit_Names				.push_back(parameter->indicator.full_Name);
-//			fitables.fit_Whats_This			.push_back(parameter->indicator.whats_This);
 			fitables.fit_IDs				.push_back(parameter->indicator.id);
-//			fitables.fit_Min				.push_back(parameter->fit.min);
-//			fitables.fit_Max				.push_back(parameter->fit.max);
 
 			// changeable
 			fitables.fit_Parameters			.push_back(parameter);
 			fitables.fit_Value_Parametrized	.push_back(parametrize(parameter->value, parameter->fit.min, parameter->fit.max));
-//			fitables.fit_Value_Pointers		.push_back(&parameter->value);
 			fitables.fit_Parent_Iterators	.push_back(parent);					// used for period and gamma only, but should be filled for all for the length purpose!
-//			fitables.fit_Coupled_Pointers	.push_back(&parameter->coupled);	// used for top-masters only, but should be filled for all for the length purpose!
 
 			/// for rejection
 

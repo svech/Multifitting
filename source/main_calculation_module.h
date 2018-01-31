@@ -4,16 +4,19 @@
 #include "global/layer_data_types.h"
 #include "calculation/calculation_tree.h"
 #include "multilayer_approach/multilayer.h"
+#include "multilayer_approach.h"
 #include "calculation/fitting_gsl.h"
 
 class Multilayer;
+class Multilayer_Approach;
 
 class Main_Calculation_Module: public QObject
 {
 	Q_OBJECT
 public:
-	Main_Calculation_Module(QTabWidget*	multilayer_Tabs, QString calc_Mode);
+	Main_Calculation_Module(Multilayer_Approach* multilayer_Approach, QString calc_Mode);
 
+	Multilayer_Approach* multilayer_Approach;
 	QTabWidget* multilayer_Tabs;
 	QString calc_Mode;
 	QVector<Multilayer*> multilayers;
@@ -29,6 +32,7 @@ public:
 
 	void single_Calculation();
 	void fitting();
+	void renew_Item_Trees();
 	bool reject();
 	void calc_Tree_Iteration(const tree<Node>::iterator& parent, bool fitables_Period_Gamma = false);
 	void find_Fittable_Parameters(Data& struct_Data, const tree<Node>::iterator& parent, bool fitables_Period_Gamma);

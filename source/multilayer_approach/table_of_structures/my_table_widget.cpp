@@ -43,7 +43,7 @@ void My_Table_Widget::contextMenuEvent(QContextMenuEvent *event)
 
 void My_Table_Widget::open_Coupling_Editor(QWidget* coupling_Widget)
 {
-	Coupling_Editor* new_Coupling_Editor = new Coupling_Editor(coupling_Widget, coupled_Widgets_Item,coupled_Widgets_Id, main_Tabs, this);
+	Coupling_Editor* new_Coupling_Editor = new Coupling_Editor(coupling_Widget, coupled_Widgets_Item,coupled_Widgets_Id, main_Tabs, false, this);
 		new_Coupling_Editor->show();
 }
 
