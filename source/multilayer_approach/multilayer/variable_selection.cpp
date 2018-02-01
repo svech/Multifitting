@@ -5,7 +5,7 @@
 #include "variable_selection.h"
 #include "independent_variables/independent_variables_editor.h"
 
-Variable_Selection::Variable_Selection(QTreeWidget* struct_Tree_Copy, QMap<unsigned long long, QListWidgetItem*>* variables_List_Map, QListWidget* variables_List, QWidget *parent) :
+Variable_Selection::Variable_Selection(QTreeWidget* struct_Tree_Copy, QMap<id_Type, QListWidgetItem*>* variables_List_Map, QListWidget* variables_List, QWidget *parent) :
 	struct_Tree_Copy(struct_Tree_Copy),
 	variables_List(variables_List),
 	variables_List_Map(variables_List_Map),
@@ -346,7 +346,7 @@ void Variable_Selection::add_Parameter(QTreeWidgetItem* struct_Item, QString wha
 		Independent_Indicator item_Indicator;
 		item_Indicator.item_Id			   = struct_Data.id;
 		item_Indicator.item_Type		   = struct_Data.item_Type;
-		item_Indicator.id		   = parameter.indicator.id;
+		item_Indicator.id				   = parameter.indicator.id;
 		item_Indicator.parameter_Whats_This= parameter.indicator.whats_This;
 		item_Indicator.is_Active		   = false;
 

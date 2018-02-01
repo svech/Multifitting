@@ -15,6 +15,9 @@ Structure_Tree::Structure_Tree(Multilayer* multilayer, QWidget *parent) :
 void Structure_Tree::create_Tree()
 {
 	tree = new QTreeWidget(this);
+	id_Type tree_Id = Global_Definitions::generate_Id();
+	tree->setProperty(id_Property, tree_Id);
+
 		tree->setColumnCount(1);
 		tree->header()->close();
 		tree->expandAll();

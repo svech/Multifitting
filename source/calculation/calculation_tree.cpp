@@ -378,7 +378,7 @@ void Calculation_Tree::calculate_Intermediate_Values_1_Tree(tree<Node>& calc_Tre
 	}
 }
 
-tree<Node>::iterator Calculation_Tree::find_Node_By_Item_Id(const tree<Node>::iterator& parent, unsigned long long active_Item_Id, tree<Node>& calc_Tree)
+tree<Node>::iterator Calculation_Tree::find_Node_By_Item_Id(const tree<Node>::iterator& parent, id_Type active_Item_Id, tree<Node>& calc_Tree)
 {
 	for(unsigned i=0; i<parent.number_of_children(); ++i)
 	{

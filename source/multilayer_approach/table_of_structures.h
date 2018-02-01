@@ -108,6 +108,8 @@ public:
 public slots:
 	void reload_All_Widgets(QObject* sender = NULL);
 	void reload_Related_Widgets(QObject* sender = NULL);
+	void reload_Master(Parameter& coupling_Parameter);
+	void reload_Slaves(Parameter& coupling_Parameter);
 
 public:
 	int temp_Counter = 0;       // TEMPORARY
@@ -130,11 +132,11 @@ public:
 
 	// coupling
 	QMap<QWidget*,QTreeWidgetItem*> coupled_Widget_Item;
-	QMap<int, QWidget*>				coupled_Widget_Id;
+	QMap<id_Type, QWidget*>			coupled_Widget_Id;
 
 	// refresh/reload
 	QList<QList<QWidget*>> all_Widgets_To_Reload;
-	QMultiMap<int, QWidget*> reload_Show_Dependence_Map;
+	QMultiMap<id_Type, QWidget*> reload_Show_Dependence_Map;
 };
 
 #endif // TABLE_OF_STRUCTURES_H

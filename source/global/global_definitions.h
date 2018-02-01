@@ -131,7 +131,6 @@ class Node;
 // -----------------------------------------------------------------------------------------
 
 #define active "     Active"
-//#define	stop_Calculation "stop_Calculation"
 #define fit_Text "fit"
 #define expression_Master_Slave_Variable "x"
 
@@ -223,6 +222,7 @@ class Node;
 // -----------------------------------------------------------------------------------------
 
 // properties
+#define id_Property			"id"
 #define min_Size_Property	"min_Size"
 #define index_Property		"index"
 #define TRIL_TRUE			"True"
@@ -264,6 +264,7 @@ class Node;
 // keys
 #define table_Key			"table_Of_Structures"
 #define calc_Settings_Key	"calc_Settings_Key"
+#define fits_Selector_Key	"fits_Selector_Key"
 
 // curves types
 #define INDEPENDENT	"INDEPENDENT"
@@ -297,24 +298,26 @@ class Node;
 #endif
 // -----------------------------------------------------------------------------------------
 
-extern unsigned long long int previous_ID;
+typedef unsigned long long id_Type ;
+extern id_Type previous_ID;
 
 class Global_Definitions
 {
 public:
 	Global_Definitions();
-	static unsigned long long int generate_Id();
+	static id_Type generate_Id();
 };
 
 // -----------------------------------------------------------------------------------------
 
 // simple types					renew corresponding serialization operators!
-struct Independent_Indicator	{unsigned long long id = 0; unsigned long long item_Id = 0; QString item_Type; QString parameter_Whats_This; int index = -1; bool is_Active = false;};
-struct Parameter_Indicator		{unsigned long long id = 0; unsigned long long item_Id = 0;	QString whats_This;		// once and for all
+struct Independent_Indicator	{id_Type id = 0; id_Type item_Id = 0; QString item_Type; QString parameter_Whats_This; int index = -1; bool is_Active = false;};
+struct Parameter_Indicator		{id_Type id = 0; id_Type item_Id = 0;	QString whats_This;		// once and for all
 								 int tab_Index = -1; QString full_Name;												// can be changed
 								 QString expression = expression_Master_Slave_Variable; bool exist = false;};		// for master/slave dependencies
 
-struct Int_Independent			{int value=1; bool is_Independent=false;	int start = 1; int step = 1; int num_Steps = 3; unsigned long long id = 0; QString whats_This;
+struct Int_Independent			{int value=1; bool is_Independent=false;	int start = 1; int step = 1; int num_Steps = 3;
+								 id_Type id = 0; QString whats_This;
 								 Int_Independent()
 								 {
 									id = Global_Definitions::generate_Id();	// create unique id
@@ -429,7 +432,7 @@ struct Fit_Params				{bool calc = true;
 								};
 struct Fitables					{	vector<QString> fit_Struct_Names;		// names of structures
 									vector<QString> fit_Names;				// names of parameters to be fitted
-									QVector<unsigned long long int>	fit_IDs;// ID of parameters to be fitted
+									QVector<id_Type>	fit_IDs;// ID of parameters to be fitted
 
 									// changeable
 									vector<Parameter*> fit_Parameters;		//
@@ -447,6 +450,11 @@ struct Fitables					{	vector<QString> fit_Struct_Names;		// names of structures
 										fit_Parent_Iterators.clear();
 									}
 								};
+
+struct Fitted_Structure			{	QString name;
+									QVector<QTreeWidget*> fitted_Trees;
+								};
+
 // -----------------------------------------------------------------------------------------
 
 // serialization

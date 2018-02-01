@@ -166,6 +166,9 @@ void Global_Variables::create_Sorted_Elements_Map()
 
 void Global_Variables::serialize_Tree(QDataStream &out, QTreeWidget* tree)
 {
+	// save tree id
+	out << qvariant_cast<id_Type>(tree->property(id_Property));
+
 	// save number of items in tree
 	int num_Items=0;
 	QTreeWidgetItemIterator it0(tree);
@@ -198,6 +201,11 @@ void Global_Variables::deserialize_Tree(QDataStream& in, QTreeWidget* tree)
 {
 	// clear tree
 	tree->clear();
+
+	// load tree id
+	id_Type tree_Id = 0;
+	in >> tree_Id;
+	tree->setProperty(id_Property, tree_Id);
 
 	// load number of items in tree
 	int num_Items=0;
@@ -476,7 +484,7 @@ bool Global_Variables::expression_Is_Valid(QString expression_String, QStringLis
 	return true; // TODO exprtk
 }
 
-Parameter* Global_Variables::get_Parameter_From_Struct_Item_by_Id(Data& struct_Data, unsigned long long id)
+Parameter* Global_Variables::get_Parameter_From_Struct_Item_by_Id(Data& struct_Data, id_Type id)
 {
 	// PARAMETER
 

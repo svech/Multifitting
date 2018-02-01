@@ -1015,6 +1015,15 @@ void Table_Of_Structures::create_Line_Edit(My_Table_Widget* table, int tab_Index
 		}
 	}
 
+#ifdef _WIN32
+	QFont font(line_Edit->font());
+	font.setPointSize(8.25);
+	font.setFamily("MS Shell Dlg 2");
+	line_Edit->setFont(font);
+#endif
+#ifdef __linux__
+#endif
+
 	line_Edit->setText(text_Value);
 	line_Edit->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT);
 	line_Edit->setValidator(validator);
@@ -2145,6 +2154,7 @@ void Table_Of_Structures::reload_All_Widgets(QObject* sender)
 {
 	if(table_Is_Created)
 	{
+		// reloading for widgets on current tab
 		int current_Tab_Index = main_Tabs->currentIndex();
 //		qInfo() << "reload_All_Widgets " << ++temp_Counter << "tab " << current_Tab_Index;
 		for(int i=0; i<all_Widgets_To_Reload[current_Tab_Index].size(); ++i)
@@ -2152,18 +2162,21 @@ void Table_Of_Structures::reload_All_Widgets(QObject* sender)
 			QWidget* widget_To_Reload = all_Widgets_To_Reload[current_Tab_Index][i];
 			if(widget_To_Reload != sender)
 			{
-				// reload color
+				// reload masters, slaves and colors
 				if(widget_To_Reload->property(coupling_Editor_Property).toBool())
 				{
 					Parameter parameter = widget_To_Reload->property(parameter_Property).value<Parameter>();
 
-					// if had some dependences
-					if(parameter.coupled.master.exist || parameter.coupled.slaves.size()>0)
-					{
-						Coupling_Editor* new_Coupling_Editor = new Coupling_Editor(widget_To_Reload, coupled_Widget_Item, coupled_Widget_Id, main_Tabs, true, this);
-						new_Coupling_Editor->hide();
-						new_Coupling_Editor->close();
-					}
+					// reloading masters and slaves
+					reload_Master(parameter);
+					reload_Slaves(parameter);
+
+					// save masters and slaves
+					QVariant var; var.setValue( parameter );
+					widget_To_Reload->setProperty(parameter_Property,var);
+
+					// recolorize
+					refresh_Reload_Core(reload_Property, widget_To_Reload, parameter, coupled_Widget_Item);
 				}
 
 				widget_To_Reload->setProperty(reload_Property, true);
@@ -2236,6 +2249,67 @@ void Table_Of_Structures::reload_Related_Widgets(QObject* sender)
 
 					related->setProperty(reload_Property, false);
 				}
+			}
+		}
+	}
+}
+
+void Table_Of_Structures::reload_Master(Parameter& coupling_Parameter)
+{
+	// almost code duplication with Coupling_Editor::load_Master
+
+	bool loaded = false;
+	// now check if had master
+	if(coupling_Parameter.coupled.master.exist)
+	{
+		QWidget* old_Master_Widget = coupled_Widget_Id.value(coupling_Parameter.coupled.master.id); // old_Master_Widget is set only here
+
+		// if old master widget still exists
+		if(old_Master_Widget)
+		{
+			Parameter old_Master_Parameter = old_Master_Widget->property(parameter_Property).value<Parameter>();
+
+			bool have = false;
+			for(Parameter_Indicator& slave_Of_Old_Master : old_Master_Parameter.coupled.slaves)
+			{
+				if(slave_Of_Old_Master.id == coupling_Parameter.indicator.id)
+					have = true;
+			}
+
+			if(have)
+			{
+				loaded = true;
+			}
+		}
+	}
+	if(!loaded)
+	{
+		coupling_Parameter.coupled.master.exist = false;
+	}
+}
+
+void Table_Of_Structures::reload_Slaves(Parameter& coupling_Parameter)
+{
+	// almost code duplication with Coupling_Editor::load_Slaves
+
+	// make copy of slaves
+	QVector<Parameter_Indicator> old_Slaves = coupling_Parameter.coupled.slaves; // old slaves are set only here
+	coupling_Parameter.coupled.slaves.clear();
+
+	for(Parameter_Indicator& old_Slave : old_Slaves)
+	{
+		QWidget* old_Slave_Widget = coupled_Widget_Id.value(old_Slave.id);
+
+		// if old slave widget still exists
+		if(old_Slave_Widget)
+		{
+			Parameter old_Slave_Parameter = old_Slave_Widget->property(parameter_Property).value<Parameter>();
+			if( old_Slave_Parameter.coupled.master.exist &&
+				old_Slave_Parameter.coupled.master.id == coupling_Parameter.indicator.id)
+			{
+				coupling_Parameter.coupled.slaves.append(old_Slave_Parameter.indicator);
+				coupling_Parameter.coupled.slaves.last().exist = true;
+				coupling_Parameter.coupled.slaves.last().expression = old_Slave_Parameter.coupled.master.expression;
 			}
 		}
 	}

@@ -84,16 +84,30 @@ void Main_Calculation_Module::fitting()
 		Fitting_GSL fitting_GSL(this);
 		fitting_GSL.fit();
 		print_Calculated_To_File();
-	}
 
-	// replace the initial parameters
-	QMessageBox::StandardButton reply = QMessageBox::question(NULL,"Replace", "Fitting is done.\nDo you want to replace the parameters?",
-															  QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
-	if (reply == QMessageBox::Yes)
-	{
-		renew_Item_Trees();
-		multilayer_Approach->refresh_All_Multilayers_View();
-		multilayer_Approach->table_Of_Structures->reload_All_Widgets();
+		// replace the initial parameters
+		QMessageBox::StandardButton reply = QMessageBox::question(NULL,"Replace", "Fitting is done.\nDo you want to replace the parameters?",
+																  QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
+		if (reply == QMessageBox::Yes)
+		{
+			// refresh trees
+			renew_Item_Trees();
+			multilayer_Approach->refresh_All_Multilayers_View();
+
+			// refresh table
+			if(multilayer_Approach->runned_Tables_Of_Structures.contains(table_Key))
+			{
+				multilayer_Approach->table_Of_Structures->reload_All_Widgets();
+			}
+
+			// save new trees
+			QVector<QTreeWidget*> fitted_Trees(multilayers.size());
+			for(int tab_Index=0; tab_Index<multilayers.size(); ++tab_Index)
+			{
+				fitted_Trees[tab_Index] = calculation_Trees[tab_Index]->real_Struct_Tree;
+			}
+			multilayer_Approach->add_Fitted_Structure(fitted_Trees);
+		}
 	}
 }
 

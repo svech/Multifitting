@@ -11,9 +11,8 @@ class Coupling_Editor : public QDialog
 public:
 	explicit Coupling_Editor(QWidget* coupling_Widget,
 							 QMap<QWidget*,QTreeWidgetItem*>& coupled_Widgets_Item,
-							 QMap<int, QWidget*>& coupled_Widgets_Id,
+							 QMap<id_Type, QWidget*>& coupled_Widgets_Id,
 							 QTabWidget* main_Tabs,
-							 bool not_Change_Context_Menu = false,
 							 QWidget *parent = 0);
 
 	void closeEvent(QCloseEvent*);
@@ -36,7 +35,6 @@ public:
 	void enable_Getting_Parameter(QWidget* old, QWidget* now, QLabel* label, QLineEdit* line_Edit);
 	void get_Parameter(QLabel* label);
 
-	bool not_Change_Context_Menu;
 	QWidget* coupling_Widget;
 	Parameter coupling_Parameter;
 	QTabWidget* main_Tabs;
@@ -63,7 +61,7 @@ public:
 	QString no_Slave_Text  = ".........<no slave>..........";
 
 	QMap<QWidget*,QTreeWidgetItem*>& coupled_Widgets_Item;
-	QMap<int, QWidget*>& coupled_Widgets_Id;
+	QMap<id_Type, QWidget*>& coupled_Widgets_Id;
 };
 
 #endif // COUPLING_EDITOR_H

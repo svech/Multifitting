@@ -123,6 +123,44 @@ void Multilayer_Approach::rename_Multilayer(int tab_Index)
 		multilayer_Tabs->setTabText(tab_Index, text);
 }
 
+void Multilayer_Approach::add_Fitted_Structure(QVector<QTreeWidget*>& fitted_Trees_for_Copying)
+{
+	// new instance for storing
+	Fitted_Structure new_Fitted_Structure;
+
+	// copy trees
+	new_Fitted_Structure.fitted_Trees.resize(fitted_Trees_for_Copying.size());
+	new_Fitted_Structure.fitted_Trees.fill(new QTreeWidget(this));
+
+	for(int tab_Index=0; tab_Index<fitted_Trees_for_Copying.size(); ++tab_Index)
+	{
+		QTreeWidget* copy = new_Fitted_Structure.fitted_Trees[tab_Index];
+		QTreeWidget* old  = fitted_Trees_for_Copying[tab_Index];
+
+		// copy id
+		id_Type id = qvariant_cast<id_Type>(old->property(id_Property));
+		copy->setProperty(id_Property, id);
+
+		// copy tree with data
+		for(int child_Index=0; child_Index<fitted_Trees_for_Copying[tab_Index]->topLevelItemCount(); ++child_Index)
+		{
+			copy->addTopLevelItem(old->topLevelItem(child_Index)->clone());
+		}
+	}
+
+	// generate name
+	QDateTime date_Time = QDateTime::currentDateTime();
+	new_Fitted_Structure.name = "# " + QString::number(fitted_Structures.size()+1) + " fit  ||  " + date_Time.toString("dd.MM.yyyy  ||  hh:mm:ss");
+
+	// put new instance to storage
+	fitted_Structures.append(new_Fitted_Structure);
+
+	if(runned_Fits_Selectors.contains(fits_Selector_Key))
+	{
+		fits_Selector->add_Item(new_Fitted_Structure);
+	}
+}
+
 void Multilayer_Approach::open_Table_Of_Structures()
 {
 	if(!runned_Tables_Of_Structures.contains(table_Key))
@@ -156,6 +194,20 @@ void Multilayer_Approach::open_Calculation_Settings()
 	} else
 	{
 		runned_Calculation_Settings_Editor.value(calc_Settings_Key)->activateWindow();
+	}
+}
+
+void Multilayer_Approach::open_Fits_Selector()
+{
+	if(!runned_Fits_Selectors.contains(fits_Selector_Key))
+	{
+		fits_Selector = new Fits_Selector(this);
+		runned_Fits_Selectors.insert(fits_Selector_Key, fits_Selector);
+			fits_Selector->setWindowFlags(Qt::Window);
+			fits_Selector->show();
+	} else
+	{
+		runned_Fits_Selectors.value(fits_Selector_Key)->activateWindow();
 	}
 }
 
@@ -195,6 +247,9 @@ void Multilayer_Approach::open()
 	{
 		runned_Calculation_Settings_Editor.value(calc_Settings_Key)->close();
 	}
+
+	// read previous id
+	in >> previous_ID;
 
 	// clear existing tabs
 	for(int i=0; i<multilayer_Tabs->count(); ++i)
@@ -348,6 +403,10 @@ void Multilayer_Approach::save()
 	file.open(QIODevice::WriteOnly);
 	QDataStream out(&file);
 
+	// save previous id
+	++previous_ID;
+	out << previous_ID;
+
 	// save number of multilayer tabs
 	out << multilayer_Tabs->count();
 
@@ -358,7 +417,7 @@ void Multilayer_Approach::save()
 		// save tab name
 		out << multilayer_Tabs->tabText(i);
 
-		// save tree
+		// save tree		
 		Global_Variables::serialize_Tree(out, multilayer->structure_Tree->tree);
 
 		/// variables

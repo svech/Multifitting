@@ -11,14 +11,14 @@ public:
 	My_Table_Widget(int rows,
 					int columns,
 					QMap<QWidget*,QTreeWidgetItem*>& coupled_Widgets_Item,
-					QMap<int, QWidget*>& coupled_Widgets_Id,
+					QMap<id_Type, QWidget*>& coupled_Widgets_Id,
 					QTabWidget* main_Tabs,
 					QWidget *parent = Q_NULLPTR);
 
 	QTabWidget* main_Tabs;
 
 	QMap<QWidget*,QTreeWidgetItem*>& coupled_Widgets_Item;
-	QMap<int, QWidget*>& coupled_Widgets_Id;
+	QMap<id_Type, QWidget*>& coupled_Widgets_Id;
 
 	void contextMenuEvent(QContextMenuEvent *event);
 	void open_Coupling_Editor(QWidget *coupling_Widget);

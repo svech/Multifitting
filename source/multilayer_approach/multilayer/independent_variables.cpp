@@ -12,7 +12,7 @@ Independent_Variables::Independent_Variables(QTreeWidget* real_Struct_Tree, QWid
 {
 	create_Struct_Tree_Copy();
 	create_Main_Layout();
-	independent_Variables_List_Map = new QMap<unsigned long long int, QListWidgetItem*>;
+	independent_Variables_List_Map = new QMap<id_Type, QListWidgetItem*>;
 }
 
 void Independent_Variables::create_Struct_Tree_Copy()

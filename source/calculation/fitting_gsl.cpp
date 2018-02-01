@@ -91,6 +91,8 @@ void Fitting_GSL::fit()
 	auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
 	qInfo() << "Fit  : "<< elapsed.count()/1000. << " seconds\n";
 
+	qInfo() << "previous_ID =" << previous_ID << endl;
+
 	// store final cost
 	gsl_blas_ddot(f, f, &chisq_Final);
 

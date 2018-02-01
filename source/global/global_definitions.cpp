@@ -10,11 +10,11 @@ Global_Definitions::Global_Definitions()
 
 }
 
-unsigned long long previous_ID = 10; // zero is reserved ID
+id_Type previous_ID = 10; // zero is reserved ID
 
-unsigned long long Global_Definitions::generate_Id()
+id_Type Global_Definitions::generate_Id()
 {
-	unsigned long long current_ID = previous_ID+1;
+	id_Type current_ID = previous_ID+1;
 
 	if(current_ID < previous_ID)
 	{

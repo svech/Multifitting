@@ -3,7 +3,7 @@
 My_Table_Widget::My_Table_Widget(int rows,
 								 int columns,
 								 QMap<QWidget*,QTreeWidgetItem*>& coupled_Widgets_Item,
-								 QMap<int, QWidget*>& coupled_Widgets_Id,
+								 QMap<id_Type, QWidget*>& coupled_Widgets_Id,
 								 QTabWidget* main_Tabs,
 								 QWidget *parent) :
 	coupled_Widgets_Item(coupled_Widgets_Item),
@@ -43,7 +43,7 @@ void My_Table_Widget::contextMenuEvent(QContextMenuEvent *event)
 
 void My_Table_Widget::open_Coupling_Editor(QWidget* coupling_Widget)
 {
-	Coupling_Editor* new_Coupling_Editor = new Coupling_Editor(coupling_Widget, coupled_Widgets_Item,coupled_Widgets_Id, main_Tabs, false, this);
+	Coupling_Editor* new_Coupling_Editor = new Coupling_Editor(coupling_Widget, coupled_Widgets_Item,coupled_Widgets_Id, main_Tabs, this);
 		new_Coupling_Editor->show();
 }
 

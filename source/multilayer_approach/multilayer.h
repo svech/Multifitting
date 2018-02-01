@@ -53,6 +53,7 @@ public:
 
 					QPushButton* structure_Table_Button;
 					QPushButton* calculation_Settings_Button;
+					QPushButton* fits_Selector_Button;
 
 		QFrame* data_Frame;
 			QVBoxLayout* data_Frame_Layout;

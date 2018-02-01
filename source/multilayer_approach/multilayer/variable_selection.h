@@ -7,7 +7,7 @@ class Variable_Selection : public QDialog
 {
 	Q_OBJECT
 public:
-	explicit Variable_Selection(QTreeWidget* struct_Tree_Copy, QMap<unsigned long long, QListWidgetItem*>* variables_List_Map, QListWidget* variables_List, QWidget *parent = 0);
+	explicit Variable_Selection(QTreeWidget* struct_Tree_Copy, QMap<id_Type, QListWidgetItem*>* variables_List_Map, QListWidget* variables_List, QWidget *parent = 0);
 
 signals:
 	void closed();
@@ -15,7 +15,7 @@ signals:
 public:
 	QTreeWidget* struct_Tree_Copy;
 	QListWidget* variables_List;
-	QMap<unsigned long long, QListWidgetItem*>* variables_List_Map;
+	QMap<id_Type, QListWidgetItem*>* variables_List_Map;
 
 	QStackedWidget* filtered_Parameters_Pages;
 		QMap<QString,QListWidget*> map_Of_Parameters_Lists;
