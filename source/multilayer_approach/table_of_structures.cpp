@@ -2156,7 +2156,6 @@ void Table_Of_Structures::reload_All_Widgets(QObject* sender)
 	{
 		// reloading for widgets on current tab
 		int current_Tab_Index = main_Tabs->currentIndex();
-//		qInfo() << "reload_All_Widgets " << ++temp_Counter << "tab " << current_Tab_Index;
 		for(int i=0; i<all_Widgets_To_Reload[current_Tab_Index].size(); ++i)
 		{
 			QWidget* widget_To_Reload = all_Widgets_To_Reload[current_Tab_Index][i];

@@ -12,9 +12,13 @@ public:
 
 	void closeEvent(QCloseEvent* event);
 	void create_Main_Layout();
+	void set_Window_Geometry();
 	void create_List();
 	void load_Data();
 	void add_Item(Fitted_Structure& fitted_Structure);
+	void clear_Fits();
+	void delete_Items();
+	void open_Fit();
 
 	Multilayer_Approach* multilayer_Approach;
 	QMap<QString, Fits_Selector*>& runned_Fits_Selectors;
@@ -26,6 +30,8 @@ public:
 		QVector<Fitted_Structure>& fitted_Structures;
 
 		QPushButton* done_Button;
+		QPushButton* clear_Button;
+//		QPushButton* save_Button;
 
 };
 

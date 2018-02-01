@@ -69,6 +69,7 @@ public:
 		QMap<QString, Fits_Selector*>  runned_Fits_Selectors;
 		Fits_Selector* fits_Selector;
 		QVector<Fitted_Structure> fitted_Structures;
+		id_Type fits_Positive_Counter = 0;
 };
 
 #endif // MULTILAYER_APPROACH_H

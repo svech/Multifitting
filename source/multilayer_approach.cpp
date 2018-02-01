@@ -130,19 +130,21 @@ void Multilayer_Approach::add_Fitted_Structure(QVector<QTreeWidget*>& fitted_Tre
 
 	// copy trees
 	new_Fitted_Structure.fitted_Trees.resize(fitted_Trees_for_Copying.size());
-	new_Fitted_Structure.fitted_Trees.fill(new QTreeWidget(this));
 
 	for(int tab_Index=0; tab_Index<fitted_Trees_for_Copying.size(); ++tab_Index)
 	{
 		QTreeWidget* copy = new_Fitted_Structure.fitted_Trees[tab_Index];
 		QTreeWidget* old  = fitted_Trees_for_Copying[tab_Index];
 
+		copy = new QTreeWidget(this);
+		copy->clear();
+
 		// copy id
 		id_Type id = qvariant_cast<id_Type>(old->property(id_Property));
 		copy->setProperty(id_Property, id);
 
 		// copy tree with data
-		for(int child_Index=0; child_Index<fitted_Trees_for_Copying[tab_Index]->topLevelItemCount(); ++child_Index)
+		for(int child_Index=0; child_Index<old->topLevelItemCount(); ++child_Index)
 		{
 			copy->addTopLevelItem(old->topLevelItem(child_Index)->clone());
 		}
@@ -150,7 +152,7 @@ void Multilayer_Approach::add_Fitted_Structure(QVector<QTreeWidget*>& fitted_Tre
 
 	// generate name
 	QDateTime date_Time = QDateTime::currentDateTime();
-	new_Fitted_Structure.name = "# " + QString::number(fitted_Structures.size()+1) + " fit  ||  " + date_Time.toString("dd.MM.yyyy  ||  hh:mm:ss");
+	new_Fitted_Structure.name = "# " + QString::number(++fits_Positive_Counter) + " fit  ||  " + date_Time.toString("dd.MM.yyyy  ||  hh:mm:ss");
 
 	// put new instance to storage
 	fitted_Structures.append(new_Fitted_Structure);
@@ -246,6 +248,13 @@ void Multilayer_Approach::open()
 	if(reopen_Calc_Settings)
 	{
 		runned_Calculation_Settings_Editor.value(calc_Settings_Key)->close();
+	}
+
+	// close fits selector
+	bool reopen_Fits_Selector = runned_Fits_Selectors.contains(fits_Selector_Key);
+	if(reopen_Fits_Selector)
+	{
+		runned_Fits_Selectors.value(fits_Selector_Key)->close();
 	}
 
 	// read previous id
@@ -381,6 +390,42 @@ void Multilayer_Approach::open()
 	in >> multilayer_Tab_Index;
 	multilayer_Tabs->setCurrentIndex(multilayer_Tab_Index);
 
+	/// load fits
+	{
+		// load counter
+		in >> fits_Positive_Counter;
+
+		// load number of fitted structures
+		int num_Fit_Struc = 0;
+		in >> num_Fit_Struc;
+
+		// clear existing fitted_Structures
+		fitted_Structures.clear();
+		fitted_Structures.resize(num_Fit_Struc);
+
+		// load fitted structures
+		for(Fitted_Structure& fitted_Structure : fitted_Structures)
+		{
+			// load name
+			in >> fitted_Structure.name;
+
+			// load number of structure trees
+			int num_Trees = 0;
+			in >> num_Trees;
+
+			// clear existing trees and create empty trees
+			fitted_Structure.fitted_Trees.clear();
+			fitted_Structure.fitted_Trees.resize(num_Trees);
+			fitted_Structure.fitted_Trees.fill(new QTreeWidget(this));
+
+			// load structure trees
+			for(QTreeWidget* tree : fitted_Structure.fitted_Trees)
+			{
+				Global_Variables::deserialize_Tree(in, tree);
+			}
+		}
+	}
+
 	file.close();
 
 	// reopen table of structures
@@ -393,6 +438,12 @@ void Multilayer_Approach::open()
 	if(reopen_Calc_Settings)
 	{
 		open_Calculation_Settings();
+	}
+
+	// reopen fits selector
+	if(reopen_Fits_Selector)
+	{
+		open_Fits_Selector();
 	}
 }
 
@@ -460,11 +511,8 @@ void Multilayer_Approach::save()
 			out << multilayer->target_Profiles_Vector.size();
 
 			// save target profiles
-			for(int i=0; i<multilayer->target_Profiles_Vector.size(); ++i)
+			for(Target_Curve* target_Curve : multilayer->target_Profiles_Vector)
 			{
-				Target_Curve* target_Curve = multilayer->target_Profiles_Vector[i];
-
-				// save main data
 				out << target_Curve;
 			}
 
@@ -475,6 +523,31 @@ void Multilayer_Approach::save()
 
 	// save index of active multilayer tab
 	out << multilayer_Tabs->currentIndex();
+
+	/// save fits
+	{
+		// save counter
+		out << fits_Positive_Counter;
+
+		// save number of fitted structures
+		out << fitted_Structures.size();
+
+		// save fitted structures
+		for(Fitted_Structure& fitted_Structure : fitted_Structures)
+		{
+			// save name
+			out << fitted_Structure.name;
+
+			// save number of structure trees
+			out << fitted_Structure.fitted_Trees.size();
+
+			// save structure trees
+			for(QTreeWidget* tree : fitted_Structure.fitted_Trees)
+			{
+				Global_Variables::serialize_Tree(out, tree);
+			}
+		}
+	}
 
 	file.close();
 }
