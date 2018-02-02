@@ -7,6 +7,7 @@ Calculation_Settings_Editor::Calculation_Settings_Editor(QMap<QString, Calculati
 {
 	setWindowTitle("Calculation Settings");
 	create_Main_Layout();
+	set_Window_Geometry();
 	setAttribute(Qt::WA_DeleteOnClose);
 }
 
@@ -16,6 +17,12 @@ void Calculation_Settings_Editor::closeEvent(QCloseEvent* event)
 	unlock_Mainwindow_Interface();
 	event->accept();
 }
+
+void Calculation_Settings_Editor::set_Window_Geometry()
+{
+	setGeometry(0,525,width(),height());
+}
+
 
 void Calculation_Settings_Editor::create_Main_Layout()
 {

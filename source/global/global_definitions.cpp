@@ -162,6 +162,16 @@ QDataStream& operator >>( QDataStream& stream,		 Fit_Params& fit_Params )
 {
 	return stream >> fit_Params.calc >> fit_Params.fit >> fit_Params.norm  >> fit_Params.weight >> fit_Params.fit_Function;
 }
+
+// -----------------------------------------------------------------------------------------
+
+bool operator ==( const Parameter_Indicator& parameter_Indicator_Left, const Parameter_Indicator& parameter_Indicator_Right )
+{
+	return	(parameter_Indicator_Left.id		 == parameter_Indicator_Right.id		) &&
+			(parameter_Indicator_Left.item_Id	 == parameter_Indicator_Right.item_Id	) &&
+			(parameter_Indicator_Left.whats_This == parameter_Indicator_Right.whats_This);
+}
+
 // optical constants
 
 void Point::read_Row(QTextStream& input, bool if_Factors)

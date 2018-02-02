@@ -96,6 +96,8 @@ void Multilayer_Approach::remove_Multilayer(int index)
 	{
 		delete multilayer_Tabs->widget(index);
 		if(multilayer_Tabs->count()==0) add_Multilayer();
+
+		refresh_Parameters_Connection_Over_Trees();
 	}
 }
 
@@ -120,10 +122,12 @@ void Multilayer_Approach::rename_Multilayer(int tab_Index)
 	bool ok;
 	QString text = QInputDialog::getText(this, "Rename structure", "New name", QLineEdit::Normal, multilayer_Tabs->tabText(tab_Index), &ok);
 	if (ok && !text.isEmpty())
+	{
 		multilayer_Tabs->setTabText(tab_Index, text);
+	}
 }
 
-void Multilayer_Approach::add_Fitted_Structure(QVector<QTreeWidget*>& fitted_Trees_for_Copying)
+void Multilayer_Approach::add_Fitted_Structure(QVector<QTreeWidget*>& fitted_Trees_for_Copying, QString name_Modificator)
 {
 	// new instance for storing
 	Fitted_Structure new_Fitted_Structure;
@@ -133,11 +137,9 @@ void Multilayer_Approach::add_Fitted_Structure(QVector<QTreeWidget*>& fitted_Tre
 
 	for(int tab_Index=0; tab_Index<fitted_Trees_for_Copying.size(); ++tab_Index)
 	{
+		new_Fitted_Structure.fitted_Trees[tab_Index] = new QTreeWidget(this);
 		QTreeWidget* copy = new_Fitted_Structure.fitted_Trees[tab_Index];
 		QTreeWidget* old  = fitted_Trees_for_Copying[tab_Index];
-
-		copy = new QTreeWidget(this);
-		copy->clear();
 
 		// copy id
 		id_Type id = qvariant_cast<id_Type>(old->property(id_Property));
@@ -152,7 +154,10 @@ void Multilayer_Approach::add_Fitted_Structure(QVector<QTreeWidget*>& fitted_Tre
 
 	// generate name
 	QDateTime date_Time = QDateTime::currentDateTime();
-	new_Fitted_Structure.name = "# " + QString::number(++fits_Positive_Counter) + " fit  ||  " + date_Time.toString("dd.MM.yyyy  ||  hh:mm:ss");
+	if( name_Modificator == current_State )	{
+		new_Fitted_Structure.name = "# " + QString::number(++fits_Positive_Counter) + " state ||  "    + date_Time.toString("dd.MM.yyyy  ||  hh:mm:ss");	}
+	if( name_Modificator == fitted_State )	{
+		new_Fitted_Structure.name = "# " + QString::number(++fits_Positive_Counter) + " fit ||  " + date_Time.toString("dd.MM.yyyy  ||  hh:mm:ss");	}
 
 	// put new instance to storage
 	fitted_Structures.append(new_Fitted_Structure);
@@ -161,6 +166,29 @@ void Multilayer_Approach::add_Fitted_Structure(QVector<QTreeWidget*>& fitted_Tre
 	{
 		fits_Selector->add_Item(new_Fitted_Structure);
 	}
+}
+
+void Multilayer_Approach::refresh_Parameters_Connection_Over_Trees()
+{
+	// TODO
+//	for(int tab_Index=0; tab_Index<multilayer_Tabs->count(); ++tab_Index)
+//	{
+//		Multilayer* multilayer = qobject_cast<Multilayer*>(multilayer_Tabs->widget(i));
+//		QTreeWidget* struct_Tree = multilayer->structure_Tree->tree;
+
+//		// iterate over tree
+//		QTreeWidgetItemIterator it(struct_Tree);
+//		while (*it)
+//		{
+//			QTreeWidgetItem* structure_Item = *it;
+
+//			Data struct_Data = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+
+
+//			++it;
+//		}
+
+//	}
 }
 
 void Multilayer_Approach::open_Table_Of_Structures()
@@ -416,12 +444,12 @@ void Multilayer_Approach::open()
 			// clear existing trees and create empty trees
 			fitted_Structure.fitted_Trees.clear();
 			fitted_Structure.fitted_Trees.resize(num_Trees);
-			fitted_Structure.fitted_Trees.fill(new QTreeWidget(this));
 
 			// load structure trees
-			for(QTreeWidget* tree : fitted_Structure.fitted_Trees)
+			for(int tree_Index=0;  tree_Index<num_Trees; ++tree_Index)
 			{
-				Global_Variables::deserialize_Tree(in, tree);
+				fitted_Structure.fitted_Trees[tree_Index] = new QTreeWidget(this);
+				Global_Variables::deserialize_Tree(in, fitted_Structure.fitted_Trees[tree_Index]);
 			}
 		}
 	}
@@ -542,9 +570,9 @@ void Multilayer_Approach::save()
 			out << fitted_Structure.fitted_Trees.size();
 
 			// save structure trees
-			for(QTreeWidget* tree : fitted_Structure.fitted_Trees)
+			for(QTreeWidget* treee : fitted_Structure.fitted_Trees)
 			{
-				Global_Variables::serialize_Tree(out, tree);
+				Global_Variables::serialize_Tree(out, treee);
 			}
 		}
 	}

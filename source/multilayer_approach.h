@@ -52,7 +52,8 @@ public:
 	void catch_Warning    (QString warning_Text);
 	void catch_Information(QString information_Text);
 
-	void add_Fitted_Structure(QVector<QTreeWidget*>& fitted_Trees_for_Copying);
+	void add_Fitted_Structure(QVector<QTreeWidget*>& fitted_Trees_for_Copying, QString name_Modificator);
+	void refresh_Parameters_Connection_Over_Trees();
 
 	Menu* menu;
 	Launcher* launcher;					// "parent"

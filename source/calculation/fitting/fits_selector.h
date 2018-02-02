@@ -17,7 +17,9 @@ public:
 	void load_Data();
 	void add_Item(Fitted_Structure& fitted_Structure);
 	void clear_Fits();
+	void save_Trees();
 	void delete_Items();
+	void rename_Item();
 	void open_Fit();
 
 	Multilayer_Approach* multilayer_Approach;
@@ -31,7 +33,7 @@ public:
 
 		QPushButton* done_Button;
 		QPushButton* clear_Button;
-//		QPushButton* save_Button;
+		QPushButton* save_Button;
 
 };
 

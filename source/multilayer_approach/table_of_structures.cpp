@@ -12,6 +12,7 @@ Table_Of_Structures::Table_Of_Structures(QMap<QString, Table_Of_Structures*>* ru
 {
 	setWindowTitle("Table Of Structures");
 	create_Main_Layout();
+	set_Window_Geometry();
 	setAttribute(Qt::WA_DeleteOnClose);
 }
 
@@ -36,9 +37,14 @@ void Table_Of_Structures::create_Main_Layout()
 	create_Menu();
 	create_Tabs();
 	main_Layout->addWidget(main_Tabs);
-	//	resize(800,550);
-	resize(830,750);
+
 	add_Tabs();
+}
+
+void Table_Of_Structures::set_Window_Geometry()
+{
+//	resize(800,550);
+	setGeometry(500,200,830,750);
 }
 
 void Table_Of_Structures::lock_Mainwindow_Interface()

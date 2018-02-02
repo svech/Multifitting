@@ -278,6 +278,10 @@ class Node;
 #define CALCULATION	"CALCULATION"
 #define FITTING		"FITTING"
 
+// name modificators
+#define current_State "current_State"
+#define fitted_State "fitted_State"
+
 // -----------------------------------------------------------------------------------------
 
 // calculation
@@ -501,6 +505,8 @@ QDataStream& operator >>( QDataStream& stream,		 Curve& curve );
 QDataStream& operator <<( QDataStream& stream, const Fit_Params& fit_Params );
 QDataStream& operator >>( QDataStream& stream,		 Fit_Params& fit_Params );
 // -----------------------------------------------------------------------------------------
+
+bool operator ==( const Parameter_Indicator& parameter_Indicator_Left, const Parameter_Indicator& parameter_Indicator_Right );
 
 //template <typename T>
 //void print_Vector	(QString name, vector<T>& vec, int transpose)	// output

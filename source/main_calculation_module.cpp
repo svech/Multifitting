@@ -97,7 +97,10 @@ void Main_Calculation_Module::fitting()
 			// refresh table
 			if(multilayer_Approach->runned_Tables_Of_Structures.contains(table_Key))
 			{
-				multilayer_Approach->table_Of_Structures->reload_All_Widgets();
+				int active_Tab = multilayer_Approach->table_Of_Structures->main_Tabs->currentIndex();
+				multilayer_Approach->table_Of_Structures->close();
+				multilayer_Approach->open_Table_Of_Structures();
+				multilayer_Approach->table_Of_Structures->main_Tabs->setCurrentIndex(active_Tab);
 			}
 
 			// save new trees
@@ -106,7 +109,7 @@ void Main_Calculation_Module::fitting()
 			{
 				fitted_Trees[tab_Index] = calculation_Trees[tab_Index]->real_Struct_Tree;
 			}
-			multilayer_Approach->add_Fitted_Structure(fitted_Trees);
+			multilayer_Approach->add_Fitted_Structure(fitted_Trees, fitted_State);
 		}
 	}
 }
@@ -260,9 +263,13 @@ void Main_Calculation_Module::slaves_Vector_Iteration(Coupled* coupled)
 		// check
 		if(slave == NULL)
 		{
-			qInfo() << "Main_Calculation_Module::slaves_Vector_Iteration  : " << slave_Parameter_Indicator.full_Name << "not found\n";
-			QMessageBox::critical(NULL, "Main_Calculation_Module::slaves_Vector_Iteration", slave_Parameter_Indicator.full_Name + "\n\nnot found");
-			exit(EXIT_FAILURE);
+			// TODO
+//			qInfo() << "Main_Calculation_Module::slaves_Vector_Iteration  : " << slave_Parameter_Indicator.full_Name << "not found\n";
+//			QMessageBox::critical(NULL, "Main_Calculation_Module::slaves_Vector_Iteration", slave_Parameter_Indicator.full_Name + "\n\nnot found");
+//			exit(EXIT_FAILURE);
+
+			// good way is refresh_Parameters_Connection_Over_Trees() in Multilayer_Approach. Not sure.
+			coupled->slaves.removeAll(slave_Parameter_Indicator);
 		} else
 		{
 			coupled->slave_Pointers.append(slave);

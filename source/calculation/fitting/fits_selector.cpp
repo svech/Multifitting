@@ -29,10 +29,10 @@ void Fits_Selector::create_Main_Layout()
 	{
 		QHBoxLayout* button_Layout = new QHBoxLayout;
 			button_Layout->setAlignment(Qt::AlignCenter);
-			button_Layout->setSpacing(40);
+			button_Layout->setSpacing(20);
 
 		done_Button = new QPushButton("Done");
-			done_Button->setMaximumWidth(65);
+			done_Button->setMaximumWidth(60);
 			done_Button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 			done_Button->setFocus();
 			done_Button->setDefault(true);
@@ -40,25 +40,44 @@ void Fits_Selector::create_Main_Layout()
 		button_Layout->addWidget(done_Button);
 
 		clear_Button = new QPushButton("Clear");
-			clear_Button->setMaximumWidth(65);
+			clear_Button->setMaximumWidth(60);
 			clear_Button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 		button_Layout->addWidget(clear_Button);
 
-//		save_Button = new QPushButton("Save");
-//			save_Button->setMaximumWidth(65);
-//			save_Button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-//		button_Layout->addWidget(save_Button);
+		save_Button = new QPushButton("Save");
+			save_Button->setMaximumWidth(60);
+			save_Button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+		button_Layout->addWidget(save_Button);
 
 		main_Layout->addLayout(button_Layout);
 
 		connect(done_Button,  &QPushButton::clicked, this, &Fits_Selector::close);
 		connect(clear_Button, &QPushButton::clicked, this, &Fits_Selector::clear_Fits);
+		connect(save_Button,  &QPushButton::clicked, this, &Fits_Selector::save_Trees);
+	}
+
+	// shortcuts
+	{
+		QShortcut* save_Shortcut			= new QShortcut(QKeySequence(Qt::Key_S | Qt::CTRL), this);
+		QShortcut* open_Shortcut			= new QShortcut(QKeySequence(Qt::Key_O | Qt::CTRL), this);
+		QShortcut* fit_Shortcut				= new QShortcut(QKeySequence(Qt::Key_F | Qt::CTRL | Qt::SHIFT), this);
+		QShortcut* calc_Specular_Shortcut	= new QShortcut(QKeySequence(Qt::Key_C | Qt::CTRL | Qt::SHIFT), this);
+
+		connect(save_Shortcut,			&QShortcut::activated, this, [=]{ multilayer_Approach->save();			  });
+		connect(open_Shortcut,			&QShortcut::activated, this, [=]{ multilayer_Approach->open();			  });
+		connect(fit_Shortcut,			&QShortcut::activated, this, [=]{ multilayer_Approach->start_Fitting();	  });
+		connect(calc_Specular_Shortcut, &QShortcut::activated, this, [=]{ multilayer_Approach->calc_Reflection(); });
 	}
 }
 
 void Fits_Selector::set_Window_Geometry()
 {
-	setFixedWidth(270);
+#ifdef _WIN32
+	setGeometry(0,0,235,height());
+#endif
+#ifdef __linux__
+	setGeometry(0,0,235,height());
+#endif
 }
 
 void Fits_Selector::create_List()
@@ -67,8 +86,12 @@ void Fits_Selector::create_List()
 //		fits_List->setSelectionMode(QAbstractItemView::ExtendedSelection);
 	main_Layout->addWidget(fits_List);
 
-	QShortcut* shortcut = new QShortcut(QKeySequence(Qt::Key_Delete), fits_List);
-	connect(shortcut, &QShortcut::activated, this, &Fits_Selector::delete_Items);
+	QShortcut* delete_Shortcut = new QShortcut(QKeySequence(Qt::Key_Delete), fits_List);
+	QShortcut* rename_Shortcut = new QShortcut(QKeySequence(Qt::Key_F2), fits_List);
+
+	connect(delete_Shortcut, &QShortcut::activated, this, &Fits_Selector::delete_Items);
+	connect(rename_Shortcut, &QShortcut::activated, this, &Fits_Selector::rename_Item);
+
 	connect(fits_List, &QListWidget::doubleClicked, this, &Fits_Selector::open_Fit);
 }
 
@@ -93,6 +116,18 @@ void Fits_Selector::clear_Fits()
 	fitted_Structures.clear();
 }
 
+void Fits_Selector::save_Trees()
+{
+	QVector<QTreeWidget*> current_Trees(multilayer_Approach->multilayer_Tabs->count());
+
+	for(int tab_Index=0; tab_Index<multilayer_Approach->multilayer_Tabs->count(); ++tab_Index)
+	{
+		Multilayer* multilayer = qobject_cast<Multilayer*>(multilayer_Approach->multilayer_Tabs->widget(tab_Index));
+		current_Trees[tab_Index] = multilayer->structure_Tree->tree;
+	}
+	multilayer_Approach->add_Fitted_Structure(current_Trees, current_State);
+}
+
 void Fits_Selector::delete_Items()
 {
 	for(QListWidgetItem* item : fits_List->selectedItems())
@@ -102,12 +137,22 @@ void Fits_Selector::delete_Items()
 	}
 }
 
+void Fits_Selector::rename_Item()
+{
+	bool ok;
+	QString text = QInputDialog::getText(this, "Rename fit", "New name", QLineEdit::Normal, fits_List->currentItem()->text(), &ok);
+	if (ok && !text.isEmpty())
+	{
+		fits_List->currentItem()->setText(text);
+		fitted_Structures[fits_List->currentRow()].name=text;
+	}
+}
+
 void Fits_Selector::open_Fit()
 {
 	bool opened = false;
 	int index = fits_List->currentRow();
 
-	qInfo() << "\n";
 	for(int tab_Index=0; tab_Index<multilayer_Approach->multilayer_Tabs->count(); ++tab_Index)
 	{
 		Multilayer* multilayer = qobject_cast<Multilayer*>(multilayer_Approach->multilayer_Tabs->widget(tab_Index));
@@ -115,15 +160,12 @@ void Fits_Selector::open_Fit()
 		id_Type struct_Tree_Id = qvariant_cast<id_Type>(struct_Tree->property(id_Property));
 
 		// look for appropriate tree
-		qInfo() << tab_Index<<"size =" << fitted_Structures[index].fitted_Trees.size();
 		for(QTreeWidget* loaded_Tree : fitted_Structures[index].fitted_Trees)
 		{
 			id_Type loaded_Tree_Id = qvariant_cast<id_Type>(loaded_Tree->property(id_Property));
 
-			qInfo() << "loaded_Tree_Id " << loaded_Tree_Id << " ; struct_Tree_Id "<<struct_Tree_Id;
 			if(loaded_Tree_Id == struct_Tree_Id)
 			{
-				qInfo() << "loaded " << fitted_Structures[index].name;
 				struct_Tree->clear();
 				for(int child_Index=0; child_Index<loaded_Tree->topLevelItemCount(); ++child_Index)
 				{
@@ -139,8 +181,10 @@ void Fits_Selector::open_Fit()
 	if(opened)
 	if(multilayer_Approach->runned_Tables_Of_Structures.contains(table_Key))
 	{
-		multilayer_Approach->runned_Tables_Of_Structures.value(table_Key)->close();
+		int active_Tab = multilayer_Approach->table_Of_Structures->main_Tabs->currentIndex();
+		multilayer_Approach->table_Of_Structures->close();
 		multilayer_Approach->open_Table_Of_Structures();
+		multilayer_Approach->table_Of_Structures->main_Tabs->setCurrentIndex(active_Tab);
 	}
 
 	// refresh view
