@@ -63,8 +63,8 @@ void Fits_Selector::create_Main_Layout()
 		QShortcut* fit_Shortcut				= new QShortcut(QKeySequence(Qt::Key_F | Qt::CTRL | Qt::SHIFT), this);
 		QShortcut* calc_Specular_Shortcut	= new QShortcut(QKeySequence(Qt::Key_C | Qt::CTRL | Qt::SHIFT), this);
 
-		connect(save_Shortcut,			&QShortcut::activated, this, [=]{ multilayer_Approach->save();			  });
-		connect(open_Shortcut,			&QShortcut::activated, this, [=]{ multilayer_Approach->open();			  });
+		connect(save_Shortcut,			&QShortcut::activated, this, [=]{ multilayer_Approach->save(default_File);});
+		connect(open_Shortcut,			&QShortcut::activated, this, [=]{ multilayer_Approach->open(default_File);});
 		connect(fit_Shortcut,			&QShortcut::activated, this, [=]{ multilayer_Approach->start_Fitting();	  });
 		connect(calc_Specular_Shortcut, &QShortcut::activated, this, [=]{ multilayer_Approach->calc_Reflection(); });
 	}
@@ -76,7 +76,7 @@ void Fits_Selector::set_Window_Geometry()
 	setGeometry(0,0,235,height());
 #endif
 #ifdef __linux__
-	setGeometry(0,0,235,height());
+	setGeometry(0,0,235,multilayer_height);
 #endif
 }
 

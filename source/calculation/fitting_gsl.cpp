@@ -180,13 +180,19 @@ void Fitting_GSL::gamma_Subtree_Iteration(const tree<Node>::iterator& parent, do
 	}
 }
 
-void Fitting_GSL::slaves_Recalculation(Parameter* parameter)
+void Fitting_GSL::slaves_Recalculation(Parameter* master)
 {
-	for(Parameter* slave_Pointer : parameter->coupled.slave_Pointers)
+	for(int slave_Index=0; slave_Index<master->coupled.slaves.size(); ++slave_Index)
 	{
-		// TODO exprtk
-		slave_Pointer->value = parameter->value;
-		slaves_Recalculation(slave_Pointer);
+		Parameter_Indicator& slave_Parameter_Indicator = master->coupled.slaves[slave_Index];
+		Parameter* slave = master->coupled.slave_Pointers[slave_Index];
+#ifdef EXPRTK
+		slave_Parameter_Indicator.expression_Argument = master->value;
+		slave->value = slave_Parameter_Indicator.expression_Exprtk.value();
+#else
+		slave->value = master->value;
+#endif
+		slaves_Recalculation(slave);
 	}
 }
 
@@ -270,14 +276,20 @@ void Fitting_GSL::fill_Residual(int& residual_Shift, Data_Element<Target_Curve>&
 		{
 			// calculate with expression
 			{				
-//				target_Curve->fit_Params.expression_Argument = target_Curve->curve.values[point_Index].val_1;
-//				fi_1 = target_Curve->fit_Params.expression_Vec[0].value();
-				fi_1 = target_Curve->curve.values[point_Index].val_1;		// TODO exprtk
+#ifdef EXPRTK
+				target_Curve->fit_Params.expression_Argument = target_Curve->curve.values[point_Index].val_1;
+				fi_1 = target_Curve->fit_Params.expression_Vec[0].value();
+#else
+				fi_1 = target_Curve->curve.values[point_Index].val_1;
+#endif
 			}
 			{
-//				target_Curve->fit_Params.expression_Argument = target_Element.unwrapped_Reflection->R[point_Index];
-//				fi_2 = target_Curve->fit_Params.expression_Vec[0].value();
-				fi_2 = target_Element.unwrapped_Reflection->R[point_Index];	// TODO exprtk
+#ifdef EXPRTK
+				target_Curve->fit_Params.expression_Argument = target_Element.unwrapped_Reflection->R[point_Index];
+				fi_2 = target_Curve->fit_Params.expression_Vec[0].value();
+#else
+				fi_2 = target_Element.unwrapped_Reflection->R[point_Index];
+#endif
 			}
 
 			// weight

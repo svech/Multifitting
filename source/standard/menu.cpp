@@ -76,13 +76,13 @@ void Menu::create_File_Menu()
 		{
 			QAction* act_Open = new QAction("Open...", this);
 			act_Open->setShortcut(Qt::Key_O | Qt::CTRL);
-			connect(act_Open, &QAction::triggered, my_Parent, [=]{qobject_cast<Multilayer_Approach*>(my_Parent)->open();});
+			connect(act_Open, &QAction::triggered, my_Parent, [=]{qobject_cast<Multilayer_Approach*>(my_Parent)->open(default_File);});
 			file_Menu->addAction(act_Open);
 
 			QAction* act_Save = new QAction("Save...", this);
 			act_Save->setShortcut(Qt::Key_S | Qt::CTRL);
 			file_Menu->addAction(act_Save);
-			connect(act_Save, &QAction::triggered, my_Parent, [=]{qobject_cast<Multilayer_Approach*>(my_Parent)->save();});
+			connect(act_Save, &QAction::triggered, my_Parent, [=]{qobject_cast<Multilayer_Approach*>(my_Parent)->save(default_File);});
 
 			QAction* act_Open_Launcher = new QAction("Open Launcher", this);
 			connect(act_Open_Launcher, &QAction::triggered, my_Parent, [=]{qobject_cast<Multilayer_Approach*>(my_Parent)->open_Launcher();});
@@ -95,13 +95,13 @@ void Menu::create_File_Menu()
 
 			QAction* act_Open = new QAction("Open...", this);
 			act_Open->setShortcut(Qt::Key_O | Qt::CTRL);
-			connect(act_Open, &QAction::triggered, my_Parent, [=]{multilayer_Approach->open();});
+			connect(act_Open, &QAction::triggered, my_Parent, [=]{multilayer_Approach->open(default_File);});
 			file_Menu->addAction(act_Open);
 
 			QAction* act_Save = new QAction("Save...", this);
 			act_Save->setShortcut(Qt::Key_S | Qt::CTRL);
 			file_Menu->addAction(act_Save);
-			connect(act_Save, &QAction::triggered, my_Parent, [=]{multilayer_Approach->save();});
+			connect(act_Save, &QAction::triggered, my_Parent, [=]{multilayer_Approach->save(default_File);});
 
 			QAction* act_Quit = new QAction("Done", this);
 			act_Quit->setShortcut(Qt::Key_D | Qt::CTRL);
@@ -119,7 +119,7 @@ void Menu::create_File_Menu()
 			connect(act_Open, &QAction::triggered, my_Parent, [=]
 			{
 				for(QLineEdit* line_Edit : calculation_Settings_Editor->different_Lines) { line_Edit->editingFinished(); }
-				multilayer_Approach->open();
+				multilayer_Approach->open(default_File);
 			});
 			file_Menu->addAction(act_Open);
 
@@ -129,7 +129,7 @@ void Menu::create_File_Menu()
 			connect(act_Save, &QAction::triggered, my_Parent, [=]
 			{
 				for(QLineEdit* line_Edit : calculation_Settings_Editor->different_Lines) { line_Edit->editingFinished(); }
-				multilayer_Approach->save();
+				multilayer_Approach->save(default_File);
 			});
 
 			QAction* act_Quit = new QAction("Done", this);

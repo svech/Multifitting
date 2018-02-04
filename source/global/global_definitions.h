@@ -5,7 +5,12 @@
 #include <vector>
 #include <complex>
 #include "tree.hh"
-//#include "exprtk.hpp"
+
+//#define EXPRTK
+
+#ifdef EXPRTK
+	#include "exprtk.hpp"
+#endif
 
 #ifdef __linux__
 	#include <iostream>
@@ -16,6 +21,10 @@ using namespace std;
 class Node;
 
 // -----------------------------------------------------------------------------------------
+
+#define control_String	"Multifitting"
+#define default_File	"save.fit"
+#define file_Extension	"fit"
 
 // settings
 
@@ -318,7 +327,12 @@ public:
 struct Independent_Indicator	{id_Type id = 0; id_Type item_Id = 0; QString item_Type; QString parameter_Whats_This; int index = -1; bool is_Active = false;};
 struct Parameter_Indicator		{id_Type id = 0; id_Type item_Id = 0;	QString whats_This;		// once and for all
 								 int tab_Index = -1; QString full_Name;												// can be changed
-								 QString expression = expression_Master_Slave_Variable; bool exist = false;};		// for master/slave dependencies
+								 QString expression = expression_Master_Slave_Variable; bool exist = false;
+							#ifdef EXPRTK
+								 double expression_Argument;						// not to store
+								 exprtk::expression<double> expression_Exprtk;		// not to store
+							#endif
+								};		// for master/slave dependencies
 
 struct Int_Independent			{int value=1; bool is_Independent=false;	int start = 1; int step = 1; int num_Steps = 3;
 								 id_Type id = 0; QString whats_This;
@@ -408,35 +422,46 @@ struct Fit_Params				{bool calc = true;
 								 QString fit_Function = "log(x+1E-5); sin(x/2)";
 
 								 double expression_Argument;							// not to store
-//								 QVector<exprtk::expression<double>> expression_Vec;	// not to store
-								 QVector<QString> expression_Vec;	// TODO exprtk
+
+							#ifdef EXPRTK
+								 QVector<exprtk::expression<double>> expression_Vec;	// not to store
+							#else
+								 QVector<QString> expression_Vec;						// not to store
+							#endif
 
 								 void create_Expressions_for_Residual()
 								 {
 									expression_Vec.clear();
-									// TODO exprtk
-//									exprtk::parser<double> parser;
-//									exprtk::symbol_table<double> symbol_table;
-//									symbol_table.add_variable(fit_Function_Variable, expression_Argument);
-//									symbol_table.add_constants();
+
+							#ifdef EXPRTK
+									exprtk::parser<double> parser;
+									exprtk::symbol_table<double> symbol_table;
+									symbol_table.add_variable(fit_Function_Variable, expression_Argument);
+									symbol_table.add_constants();
+							#endif
 
 									QVector<QString> bare_String_Expressions = fit_Function.split(fit_Function_Separator, QString::SkipEmptyParts).toVector();
 									for(int i=0; i<bare_String_Expressions.size(); ++i)
 									{
 										if(!bare_String_Expressions[i].split(" ", QString::SkipEmptyParts).empty())
 										{
-//											exprtk::expression<double> new_Expression;
+							#ifdef EXPRTK
+											exprtk::expression<double> new_Expression;
+							#else
 											QString new_Expression;
+							#endif
 											expression_Vec.append(new_Expression);
-//											expression_Vec[i].register_symbol_table(symbol_table);
-//											parser.compile(bare_String_Expressions[i].toStdString(), expression_Vec[i]);
+							#ifdef EXPRTK
+											expression_Vec[i].register_symbol_table(symbol_table);
+											parser.compile(bare_String_Expressions[i].toStdString(), expression_Vec[i]);
+							#endif
 										}
 									}
 								 }
 								};
 struct Fitables					{	vector<QString> fit_Struct_Names;		// names of structures
 									vector<QString> fit_Names;				// names of parameters to be fitted
-									QVector<id_Type>	fit_IDs;// ID of parameters to be fitted
+									QVector<id_Type>fit_IDs;				// ID of parameters to be fitted
 
 									// changeable
 									vector<Parameter*> fit_Parameters;		//

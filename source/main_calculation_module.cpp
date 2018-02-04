@@ -72,7 +72,13 @@ void Main_Calculation_Module::fitting()
 	/// fill pointers to slaves, starting from fitable top-masters
 	for(Parameter* parameter : fitables.fit_Parameters)
 	{
-		slaves_Vector_Iteration(&parameter->coupled);
+		slaves_Pointer_Iteration(&parameter->coupled);
+	}
+
+	/// prepare expressions for slaves, starting from fitable top-masters
+	for(Parameter* parameter : fitables.fit_Parameters)
+	{
+		slaves_Expression_Iteration(&parameter->coupled);
 	}
 
 	/// rejection
@@ -253,7 +259,7 @@ void Main_Calculation_Module::find_Fittable_Parameters(Data& struct_Data, const 
 	}
 }
 
-void Main_Calculation_Module::slaves_Vector_Iteration(Coupled* coupled)
+void Main_Calculation_Module::slaves_Pointer_Iteration(Coupled* coupled)
 {
 	coupled->slave_Pointers.clear();
 	for(Parameter_Indicator& slave_Parameter_Indicator : coupled->slaves)
@@ -273,9 +279,38 @@ void Main_Calculation_Module::slaves_Vector_Iteration(Coupled* coupled)
 		} else
 		{
 			coupled->slave_Pointers.append(slave);
-			slaves_Vector_Iteration(&slave->coupled);
+			slaves_Pointer_Iteration(&slave->coupled);
 		}
 	}
+}
+
+void Main_Calculation_Module::slaves_Expression_Iteration(Coupled *coupled)
+{
+	if(coupled->slaves.size() != coupled->slave_Pointers.size())
+	{
+		qInfo() << "Main_Calculation_Module::slaves_Expression_Iteration  :  slaves.size() != slave_Pointers.size()";
+		exit(EXIT_FAILURE);
+	}
+#ifdef EXPRTK
+	for(int slave_Index=0; slave_Index<coupled->slaves.size(); ++slave_Index)
+	{
+		Parameter_Indicator& slave_Parameter_Indicator = coupled->slaves[slave_Index];
+		Parameter* slave = coupled->slave_Pointers[slave_Index];
+
+		exprtk::parser<double> parser;
+		exprtk::symbol_table<double> symbol_table;
+		symbol_table.add_variable(expression_Master_Slave_Variable, slave_Parameter_Indicator.expression_Argument);
+		symbol_table.add_constants();
+
+		exprtk::expression<double> expression_Exprtk;
+		slave_Parameter_Indicator.expression_Exprtk = expression_Exprtk;
+
+		slave_Parameter_Indicator.expression_Exprtk.register_symbol_table(symbol_table);
+		parser.compile(slave_Parameter_Indicator.expression.toStdString(), slave_Parameter_Indicator.expression_Exprtk);
+
+		slaves_Expression_Iteration(&slave->coupled);
+	}
+#endif
 }
 
 Parameter* Main_Calculation_Module::find_Slave_Pointer_by_Id(const Parameter_Indicator& slave_Parameter_Indicator)

@@ -27,8 +27,8 @@ signals:
 public:
 	void open_Launcher();
 	void refresh_All_Multilayers_View();
-	void open();
-	void save();
+	void open(QString filename);
+	void save(QString filename);
 	void calc_Reflection();
 	void start_Fitting();
 	void reload_Optical_Constants();
@@ -37,6 +37,8 @@ public:
 	void open_Fits_Selector();
 
 	void closeEvent(QCloseEvent *event);
+	void dragEnterEvent(QDragEnterEvent* event);
+	void dropEvent(QDropEvent* event);
 	void create_Main_Layout();
 		void create_Menu();
 		void create_Multilayer_Tabs();

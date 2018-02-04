@@ -190,7 +190,7 @@ void Settings::read_Gui_Settings(bool reset_to_default)
 		multilayer_min_width		= gui_Settings.value( "multilayer_min_width",		300 ).toInt();
 		multilayer_min_height		= gui_Settings.value( "multilayer_min_height",		100 ).toInt();
 		multilayer_width			= gui_Settings.value( "multilayer_width",			531 ).toInt();
-		multilayer_height			= gui_Settings.value( "multilayer_height",			480 ).toInt();
+		multilayer_height			= gui_Settings.value( "multilayer_height",			470 ).toInt();
 		multilayer_height_additive	= gui_Settings.value( "multilayer_height_additive",	23  ).toInt();
 	gui_Settings.endGroup();
 

@@ -15,8 +15,9 @@ public:
 	Target_Curve* target_Curve;
 	Multilayer* multilayer_Parent;
 
-private:
 	void closeEvent(QCloseEvent *event);
+	void dragEnterEvent(QDragEnterEvent* event);
+	void dropEvent(QDropEvent* event);
 	void create_Main_Layout();
 		void create_Filepath_GroupBox();
 		void create_Data_GroupBox();
@@ -57,7 +58,7 @@ private:
 	void refresh_Angular_Resolution();
 
 	bool is_File_Exists = false;
-private:
+
 	QVBoxLayout* main_Layout;
 		QGroupBox* filepath_GroupBox;
 			QComboBox* filepath_ComboBox;

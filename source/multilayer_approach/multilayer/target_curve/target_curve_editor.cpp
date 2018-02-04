@@ -13,12 +13,40 @@ Target_Curve_Editor::Target_Curve_Editor(Target_Curve* target_Curve, Multilayer*
 	setWindowTitle("Import Data");
 	set_Window_Geometry();
 	setAttribute(Qt::WA_DeleteOnClose);
+	setAcceptDrops(true);
 }
 
 void Target_Curve_Editor::closeEvent(QCloseEvent *event)
 {	
 	multilayer_Parent->runned_Target_Curve_Editors.remove(multilayer_Parent->runned_Target_Curve_Editors.key(this));
 	event->accept();
+}
+
+void Target_Curve_Editor::dragEnterEvent(QDragEnterEvent* event)
+{
+	if (event->mimeData()->hasUrls())
+	{
+		event->acceptProposedAction();
+	}
+}
+
+void Target_Curve_Editor::dropEvent(QDropEvent* event)
+{
+	int counter = 0;
+	foreach (const QUrl &url, event->mimeData()->urls())
+	{
+		if(counter==0)
+		{
+			QString fileName = url.toLocalFile();
+			if (filepath_ComboBox->findText(fileName) == -1)
+			{
+				filepath_ComboBox->addItem(fileName);
+			}
+			filepath_ComboBox->setCurrentIndex(filepath_ComboBox->findText(fileName));
+			read_Data_File(fileName);
+		}
+		++counter;
+	}
 }
 
 void Target_Curve_Editor::set_Window_Geometry()
@@ -88,7 +116,9 @@ void Target_Curve_Editor::browse_Data_File()
 	if (!directory.isEmpty())
 	{
 		if (filepath_ComboBox->findText(directory) == -1)
+		{
 			filepath_ComboBox->addItem(directory);
+		}
 		filepath_ComboBox->setCurrentIndex(filepath_ComboBox->findText(directory));
 		filepath_ComboBox->lineEdit()->returnPressed();
 	}

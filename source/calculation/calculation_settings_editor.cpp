@@ -44,27 +44,30 @@ void Calculation_Settings_Editor::create_Main_Layout()
 	{
 		done_Button = new QPushButton("Done");
 			done_Button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-				done_Button->setFocus();
+			done_Button->setFocus();
 			done_Button->setDefault(true);
 		button_Layout->addWidget(done_Button);
 	}
 	{
 		global_Norm_Button = new QPushButton("Calculate Weights");
 			global_Norm_Button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-				global_Norm_Button->setFocus();
+			global_Norm_Button->setFocus();
 			global_Norm_Button->setDefault(true);
 		button_Layout->addWidget(global_Norm_Button);
 	}
 	{
 		optimization_Method_Button = new QPushButton("Fitting Method");
 			optimization_Method_Button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-				optimization_Method_Button->setFocus();
+			optimization_Method_Button->setFocus();
 			optimization_Method_Button->setDefault(true);
 		button_Layout->addWidget(optimization_Method_Button);
 	}
 	main_Layout->addLayout(button_Layout);
 
+	// TODO
 	connect(done_Button, &QPushButton::clicked, this, &Calculation_Settings_Editor::close);
+	global_Norm_Button->setDisabled(true);
+	optimization_Method_Button->setDisabled(true);
 }
 
 void Calculation_Settings_Editor::create_Menu()

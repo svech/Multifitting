@@ -468,20 +468,23 @@ QString Global_Variables::parameter_Name(const Data &struct_Data, QString whats_
 
 bool Global_Variables::expression_Is_Valid(QString expression_String, QStringList expression_Variables)
 {
-//	double temp_Argument = 1;
-//	exprtk::symbol_table<double> symbol_table;
-//	for(QString& expr_Var : expression_Variables)
-//	{
-//		symbol_table.add_variable(expr_Var.toStdString(), temp_Argument);
-//	}
-//	symbol_table.add_constants();
+#ifdef EXPRTK
+	double temp_Argument = 1;
+	exprtk::symbol_table<double> symbol_table;
+	for(QString& expr_Var : expression_Variables)
+	{
+		symbol_table.add_variable(expr_Var.toStdString(), temp_Argument);
+	}
+	symbol_table.add_constants();
 
-//	exprtk::expression<double> expression;
-//	expression.register_symbol_table(symbol_table);
+	exprtk::expression<double> expression;
+	expression.register_symbol_table(symbol_table);
 
-//	exprtk::parser<double> parser;
-//	return parser.compile(expression_String.toStdString(), expression);
-	return true; // TODO exprtk
+	exprtk::parser<double> parser;
+	return parser.compile(expression_String.toStdString(), expression);
+#else
+	return true;
+#endif
 }
 
 Parameter* Global_Variables::get_Parameter_From_Struct_Item_by_Id(Data& struct_Data, id_Type id)

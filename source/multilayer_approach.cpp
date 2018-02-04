@@ -12,6 +12,7 @@ Multilayer_Approach::Multilayer_Approach(Launcher* launcher, QWidget *parent) :
 	create_Main_Layout();
 	set_Window_Geometry();
 	setAttribute(Qt::WA_DeleteOnClose);
+	setAcceptDrops(true);
 }
 
 void Multilayer_Approach::open_Launcher()
@@ -26,6 +27,7 @@ void Multilayer_Approach::closeEvent(QCloseEvent* event)
 	event->accept();
 	emit closed();
 }
+
 
 void Multilayer_Approach::create_Main_Layout()
 {
@@ -253,16 +255,65 @@ void Multilayer_Approach::refresh_All_Multilayers_View()
 	}
 }
 
-void Multilayer_Approach::open()
+void Multilayer_Approach::dragEnterEvent(QDragEnterEvent* event)
+{
+	if (event->mimeData()->hasUrls())
+	{
+		event->acceptProposedAction();
+	}
+}
+
+void Multilayer_Approach::dropEvent(QDropEvent* event)
+{
+	int counter = 0;
+	foreach (const QUrl &url, event->mimeData()->urls())
+	{
+		if(counter==0)
+		{
+			QString fileName = url.toLocalFile();
+			QRegExp delims("\\/|\\\\");
+			QStringList file_Name_Parts = fileName.split(delims,QString::SkipEmptyParts);
+			QMessageBox::StandardButton reply = QMessageBox::question(NULL,"Open", "Open file " + file_Name_Parts.last() + " ?", QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
+			if (reply == QMessageBox::Yes)
+			{
+				open(fileName);
+			}
+		}
+		++counter;
+	}
+}
+
+void Multilayer_Approach::open(QString filename)
 {
 	// TODO
-	QFile file("save.fit");
+
+	// check extension
+	QFileInfo file_Info(filename);
+	if(file_Info.suffix() != file_Extension)
+	{
+		QMessageBox::information(NULL, "Wrong file type", "Only \"." + QString(file_Extension) + "\" files can be opened");
+		return;
+	}
+
+	// check filepath
+	QFile file(filename);
 	if(!file.open(QIODevice::ReadOnly))
 	{
 		QMessageBox::information(NULL, "File not found", "Nothing to open");
 		return;
 	}
 	QDataStream in(&file);
+
+	// check control string
+	QString control = "";
+	in >> control;
+	if(control!=control_String)
+	{
+		QMessageBox::information(NULL, "General Failor", "Can't read your data");
+		file.close();
+		return;
+	}
+
 
 	// close table of structures
 	bool reopen_Table = runned_Tables_Of_Structures.contains(table_Key);
@@ -410,7 +461,9 @@ void Multilayer_Approach::open()
 		// disable adding substrate if it already exists
 		QString item_Type = multilayer->structure_Tree->tree->topLevelItem(multilayer->structure_Tree->tree->topLevelItemCount()-1)->data(DEFAULT_COLUMN,Qt::UserRole).value<Data>().item_Type;
 		if(item_Type == item_Type_Substrate)
+		{
 			multilayer->structure_Tree->structure_Toolbar->toolbar->actions()[2]->setDisabled(true);
+		}
 	}
 
 	// load index of active multilayer tab
@@ -475,12 +528,15 @@ void Multilayer_Approach::open()
 	}
 }
 
-void Multilayer_Approach::save()
+void Multilayer_Approach::save(QString filename)
 {
 	// TODO
-	QFile file("save.fit");
+	QFile file(filename);
 	file.open(QIODevice::WriteOnly);
 	QDataStream out(&file);
+
+	// save control string
+	out << QString(control_String);
 
 	// save previous id
 	++previous_ID;
