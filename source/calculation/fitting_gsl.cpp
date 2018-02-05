@@ -186,9 +186,21 @@ void Fitting_GSL::slaves_Recalculation(Parameter* master)
 	{
 		Parameter_Indicator& slave_Parameter_Indicator = master->coupled.slaves[slave_Index];
 		Parameter* slave = master->coupled.slave_Pointers[slave_Index];
+
 #ifdef EXPRTK
-		slave_Parameter_Indicator.expression_Argument = master->value;
-		slave->value = slave_Parameter_Indicator.expression_Exprtk.value();
+		double expression_Argument;
+		exprtk::parser<double> parser;
+		exprtk::symbol_table<double> symbol_table;
+		exprtk::expression<double> expression_Exprtk;
+
+		symbol_table.add_variable(expression_Master_Slave_Variable, expression_Argument);
+		symbol_table.add_constants();
+
+		expression_Exprtk.register_symbol_table(symbol_table);
+		parser.compile(slave_Parameter_Indicator.expression.toStdString(), expression_Exprtk);
+
+		expression_Argument = master->value;
+		slave->value = expression_Exprtk.value();
 #else
 		slave->value = master->value;
 #endif
@@ -233,6 +245,8 @@ int Fitting_GSL::calc_Residual(const gsl_vector* x, void* bare_Params, gsl_vecto
 	for(int tab_Index=0; tab_Index<params->calculation_Trees.size(); ++tab_Index)
 	{
 		// over target curves
+
+		// if use reference Data_Element<Target_Curve>& then addresses of slaves are changing!!! WTF?
 		for(Data_Element<Target_Curve>& target_Element : params->calculation_Trees[tab_Index]->target)
 		{
 			// replication of real_Calc_Tree for each target
@@ -246,7 +260,6 @@ int Fitting_GSL::calc_Residual(const gsl_vector* x, void* bare_Params, gsl_vecto
 			fill_Residual(residual_Shift, target_Element, f);
 		}
 	}
-
 	return GSL_SUCCESS;
 }
 

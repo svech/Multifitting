@@ -173,31 +173,21 @@ void Multilayer_Approach::add_Fitted_Structure(QVector<QTreeWidget*>& fitted_Tre
 void Multilayer_Approach::refresh_Parameters_Connection_Over_Trees()
 {
 	// TODO
-//	for(int tab_Index=0; tab_Index<multilayer_Tabs->count(); ++tab_Index)
-//	{
-//		Multilayer* multilayer = qobject_cast<Multilayer*>(multilayer_Tabs->widget(i));
-//		QTreeWidget* struct_Tree = multilayer->structure_Tree->tree;
-
-//		// iterate over tree
-//		QTreeWidgetItemIterator it(struct_Tree);
-//		while (*it)
-//		{
-//			QTreeWidgetItem* structure_Item = *it;
-
-//			Data struct_Data = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
-
-
-//			++it;
-//		}
-
-//	}
+//	qInfo() << "refresh_Parameters_Connection_Over_Trees";
+//	open_Table_Of_Structures();
+//	table_Of_Structures->reload_All_Widgets();
+//	table_Of_Structures->close();
+//	table_Of_Structures = new Table_Of_Structures(this);
+//		table_Of_Structures->hide();
+//		table_Of_Structures->r
+//	table_Of_Structures->close();
 }
 
 void Multilayer_Approach::open_Table_Of_Structures()
 {
 	if(!runned_Tables_Of_Structures.contains(table_Key))
 	{
-		table_Of_Structures = new Table_Of_Structures(&runned_Tables_Of_Structures, multilayer_Tabs);
+		table_Of_Structures = new Table_Of_Structures(this);
 		runned_Tables_Of_Structures.insert(table_Key, table_Of_Structures);
 			table_Of_Structures->setWindowFlags(Qt::Window);
 			table_Of_Structures->show();
@@ -219,7 +209,7 @@ void Multilayer_Approach::open_Calculation_Settings()
 {
 	if(!runned_Calculation_Settings_Editor.contains(calc_Settings_Key))
 	{
-		calculation_Settings = new Calculation_Settings_Editor(&runned_Calculation_Settings_Editor, multilayer_Tabs);
+		calculation_Settings = new Calculation_Settings_Editor(this);
 		runned_Calculation_Settings_Editor.insert(calc_Settings_Key, calculation_Settings);
 			calculation_Settings->setWindowFlags(Qt::Window);
 			calculation_Settings->show();

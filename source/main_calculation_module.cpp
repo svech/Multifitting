@@ -72,14 +72,15 @@ void Main_Calculation_Module::fitting()
 	/// fill pointers to slaves, starting from fitable top-masters
 	for(Parameter* parameter : fitables.fit_Parameters)
 	{
-		slaves_Pointer_Iteration(&parameter->coupled);
+		slaves_Pointer_Iteration(parameter);
 	}
 
-	/// prepare expressions for slaves, starting from fitable top-masters
-	for(Parameter* parameter : fitables.fit_Parameters)
-	{
-		slaves_Expression_Iteration(&parameter->coupled);
-	}
+	// not used
+//	/// prepare expressions for slaves, starting from fitable top-masters
+//	for(Parameter* parameter : fitables.fit_Parameters)
+//	{
+//		slaves_Expression_Iteration(parameter);
+//	}
 
 	/// rejection
 	if(reject()) return;
@@ -259,10 +260,10 @@ void Main_Calculation_Module::find_Fittable_Parameters(Data& struct_Data, const 
 	}
 }
 
-void Main_Calculation_Module::slaves_Pointer_Iteration(Coupled* coupled)
+void Main_Calculation_Module::slaves_Pointer_Iteration(Parameter* master)
 {
-	coupled->slave_Pointers.clear();
-	for(Parameter_Indicator& slave_Parameter_Indicator : coupled->slaves)
+	master->coupled.slave_Pointers.clear();
+	for(Parameter_Indicator& slave_Parameter_Indicator : master->coupled.slaves)
 	{
 		Parameter* slave = find_Slave_Pointer_by_Id(slave_Parameter_Indicator);
 
@@ -270,47 +271,36 @@ void Main_Calculation_Module::slaves_Pointer_Iteration(Coupled* coupled)
 		if(slave == NULL)
 		{
 			// TODO
-//			qInfo() << "Main_Calculation_Module::slaves_Vector_Iteration  : " << slave_Parameter_Indicator.full_Name << "not found\n";
 //			QMessageBox::critical(NULL, "Main_Calculation_Module::slaves_Vector_Iteration", slave_Parameter_Indicator.full_Name + "\n\nnot found");
 //			exit(EXIT_FAILURE);
 
 			// good way is refresh_Parameters_Connection_Over_Trees() in Multilayer_Approach. Not sure.
-			coupled->slaves.removeAll(slave_Parameter_Indicator);
+			master->coupled.slaves.removeAll(slave_Parameter_Indicator);
 		} else
 		{
-			coupled->slave_Pointers.append(slave);
-			slaves_Pointer_Iteration(&slave->coupled);
+			master->coupled.slave_Pointers.append(slave);
+			slaves_Pointer_Iteration(slave);
 		}
 	}
 }
 
-void Main_Calculation_Module::slaves_Expression_Iteration(Coupled *coupled)
+void Main_Calculation_Module::slaves_Expression_Iteration(Parameter* master)
 {
-	if(coupled->slaves.size() != coupled->slave_Pointers.size())
-	{
-		qInfo() << "Main_Calculation_Module::slaves_Expression_Iteration  :  slaves.size() != slave_Pointers.size()";
-		exit(EXIT_FAILURE);
-	}
-#ifdef EXPRTK
-	for(int slave_Index=0; slave_Index<coupled->slaves.size(); ++slave_Index)
-	{
-		Parameter_Indicator& slave_Parameter_Indicator = coupled->slaves[slave_Index];
-		Parameter* slave = coupled->slave_Pointers[slave_Index];
+//	if(master->coupled.slaves.size() != master->coupled.slave_Pointers.size())
+//	{
+//		QMessageBox::critical(NULL, "Main_Calculation_Module::slaves_Expression_Iteration", "slaves.size() != slave_Pointers.size()");
+//		exit(EXIT_FAILURE);
+//	}
+//	for(int slave_Index=0; slave_Index<master->coupled.slaves.size(); ++slave_Index)
+//	{
+//		Parameter_Indicator& slave_Parameter_Indicator = master->coupled.slaves[slave_Index];
+//		Parameter* slave = master->coupled.slave_Pointers[slave_Index];
 
-		exprtk::parser<double> parser;
-		exprtk::symbol_table<double> symbol_table;
-		symbol_table.add_variable(expression_Master_Slave_Variable, slave_Parameter_Indicator.expression_Argument);
-		symbol_table.add_constants();
-
-		exprtk::expression<double> expression_Exprtk;
-		slave_Parameter_Indicator.expression_Exprtk = expression_Exprtk;
-
-		slave_Parameter_Indicator.expression_Exprtk.register_symbol_table(symbol_table);
-		parser.compile(slave_Parameter_Indicator.expression.toStdString(), slave_Parameter_Indicator.expression_Exprtk);
-
-		slaves_Expression_Iteration(&slave->coupled);
-	}
-#endif
+//#ifdef EXPRTK
+////		slave_Parameter_Indicator.create_Expression();
+//#endif
+//		slaves_Expression_Iteration(slave);
+//	}
 }
 
 Parameter* Main_Calculation_Module::find_Slave_Pointer_by_Id(const Parameter_Indicator& slave_Parameter_Indicator)

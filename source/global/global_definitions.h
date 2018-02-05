@@ -325,14 +325,10 @@ public:
 
 // simple types					renew corresponding serialization operators!
 struct Independent_Indicator	{id_Type id = 0; id_Type item_Id = 0; QString item_Type; QString parameter_Whats_This; int index = -1; bool is_Active = false;};
-struct Parameter_Indicator		{id_Type id = 0; id_Type item_Id = 0;	QString whats_This;		// once and for all
+struct Parameter_Indicator		{id_Type id = 0; id_Type item_Id = 0; QString whats_This;		// once and for all
 								 int tab_Index = -1; QString full_Name;												// can be changed
 								 QString expression = expression_Master_Slave_Variable; bool exist = false;
-							#ifdef EXPRTK
-								 double expression_Argument;						// not to store
-								 exprtk::expression<double> expression_Exprtk;		// not to store
-							#endif
-								};		// for master/slave dependencies
+								};
 
 struct Int_Independent			{int value=1; bool is_Independent=false;	int start = 1; int step = 1; int num_Steps = 3;
 								 id_Type id = 0; QString whats_This;

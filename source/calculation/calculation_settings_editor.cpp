@@ -1,8 +1,10 @@
 #include "calculation_settings_editor.h"
 
-Calculation_Settings_Editor::Calculation_Settings_Editor(QMap<QString, Calculation_Settings_Editor*>* runned_Calculation_Settings, QTabWidget* multilayer_Tabs, QWidget* parent) :
-	runned_Calculation_Settings(runned_Calculation_Settings),
-	multilayer_Tabs(multilayer_Tabs),
+Calculation_Settings_Editor::Calculation_Settings_Editor(Multilayer_Approach* multilayer_Approach, QWidget* parent) :
+	multilayer_Approach(multilayer_Approach),
+	runned_Tables_Of_Structures(multilayer_Approach->runned_Tables_Of_Structures),
+	runned_Calculation_Settings_Editor(multilayer_Approach->runned_Calculation_Settings_Editor),
+	multilayer_Tabs(multilayer_Approach->multilayer_Tabs),
 	QWidget(parent)
 {
 	setWindowTitle("Calculation Settings");
@@ -13,7 +15,7 @@ Calculation_Settings_Editor::Calculation_Settings_Editor(QMap<QString, Calculati
 
 void Calculation_Settings_Editor::closeEvent(QCloseEvent* event)
 {
-	runned_Calculation_Settings->remove(calc_Settings_Key);
+	runned_Calculation_Settings_Editor.remove(calc_Settings_Key);
 	unlock_Mainwindow_Interface();
 	event->accept();
 }
@@ -126,17 +128,26 @@ void Calculation_Settings_Editor::lock_Mainwindow_Interface()
 
 	}
 	multilayer_Tabs->cornerWidget()->setDisabled(true);
+	multilayer_Tabs->setMovable(false);
 }
 
 void Calculation_Settings_Editor::unlock_Mainwindow_Interface()
 {
 	// unlock mainwindow functionality
-	multilayer_Tabs->cornerWidget()->setDisabled(false);
+	if(!runned_Tables_Of_Structures.contains(table_Key) && !runned_Calculation_Settings_Editor.contains(calc_Settings_Key))
+	{
+		multilayer_Tabs->setMovable(true);
+		multilayer_Tabs->cornerWidget()->setDisabled(false);
+	}
 	for(int i=0; i<multilayer_Tabs->count(); ++i)
 	{
 		Multilayer* multilayer = qobject_cast<Multilayer*>(multilayer_Tabs->widget(i));
-		multilayer->structure_Tree->structure_Toolbar->toolbar->setDisabled(false);
-		multilayer_Tabs->tabBar()->tabButton(i, QTabBar::RightSide)->setEnabled(true);
+
+		if(!runned_Tables_Of_Structures.contains(table_Key) && !runned_Calculation_Settings_Editor.contains(calc_Settings_Key))
+		{
+			multilayer->structure_Tree->structure_Toolbar->toolbar->setDisabled(false);
+			multilayer_Tabs->tabBar()->tabButton(i, QTabBar::RightSide)->setEnabled(true);
+		}
 
 		// independent tabs
 		for(int i=0; i<multilayer->independent_Variables_Plot_Tabs->count(); ++i)

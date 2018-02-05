@@ -4,16 +4,18 @@
 #include "global/settings.h"
 #include "multilayer/structure_tree.h"
 #include "table_of_structures/my_table_widget.h"
+#include "calculation/calculation_settings_editor.h"
 
 class Structure_Tree;
 class My_Table_Widget;
+class Calculation_Settings_Editor;
 
 class Table_Of_Structures : public QWidget
 {
 	Q_OBJECT
 	void closeEvent(QCloseEvent* event);
 public:
-	explicit Table_Of_Structures(QMap<QString, Table_Of_Structures*>* runned_Tables_Of_Structures, QTabWidget* multilayer_Tabs, QWidget *parent = 0);
+	explicit Table_Of_Structures(Multilayer_Approach* multilayer_Approach, QWidget* parent = 0);
 
 signals:
 //	void closed();
@@ -109,6 +111,7 @@ public:
 public slots:
 	void reload_All_Widgets(QObject* sender = NULL);
 	void reload_Related_Widgets(QObject* sender = NULL);
+	void reload_Masters_Slaves_And_Colors(QWidget* widget);
 	void reload_Master(Parameter& coupling_Parameter);
 	void reload_Slaves(Parameter& coupling_Parameter);
 
@@ -121,11 +124,14 @@ public:
 
 	QTabWidget* main_Tabs;
 	QList<Structure_Tree*> list_Of_Trees;
-
 	QList<int> rows_List_To_Span;
-	QHBoxLayout* main_Layout;
-	QMap<QString, Table_Of_Structures*>* runned_Tables_Of_Structures;
+
+	Multilayer_Approach* multilayer_Approach;
+	QMap<QString, Table_Of_Structures*>& runned_Tables_Of_Structures;
+	QMap<QString, Calculation_Settings_Editor*>& runned_Calculation_Settings_Editor;
 	QTabWidget* multilayer_Tabs;
+
+	QHBoxLayout* main_Layout;
 
 	QMap<QComboBox*,QTreeWidgetItem*> elements_Map;
 	QMap<QLineEdit*,QTreeWidgetItem*> line_Edits_Map;

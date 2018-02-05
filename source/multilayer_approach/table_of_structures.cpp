@@ -5,9 +5,11 @@
 #include "table_of_structures.h"
 #include "algorithm"
 
-Table_Of_Structures::Table_Of_Structures(QMap<QString, Table_Of_Structures*>* runned_Tables_Of_Structures, QTabWidget* multilayer_Tabs, QWidget *parent) :
-	runned_Tables_Of_Structures(runned_Tables_Of_Structures),
-	multilayer_Tabs(multilayer_Tabs),
+Table_Of_Structures::Table_Of_Structures(Multilayer_Approach* multilayer_Approach, QWidget *parent) :
+	multilayer_Approach(multilayer_Approach),
+	runned_Tables_Of_Structures(multilayer_Approach->runned_Tables_Of_Structures),
+	runned_Calculation_Settings_Editor(multilayer_Approach->runned_Calculation_Settings_Editor),
+	multilayer_Tabs(multilayer_Approach->multilayer_Tabs),
 	QWidget(parent)
 {
 	setWindowTitle("Table Of Structures");
@@ -18,7 +20,7 @@ Table_Of_Structures::Table_Of_Structures(QMap<QString, Table_Of_Structures*>* ru
 
 void Table_Of_Structures::closeEvent(QCloseEvent* event)
 {
-	runned_Tables_Of_Structures->remove(table_Key);
+	runned_Tables_Of_Structures.remove(table_Key);
 	unlock_Mainwindow_Interface();
 	event->accept();
 }
@@ -69,16 +71,21 @@ void Table_Of_Structures::lock_Mainwindow_Interface()
 void Table_Of_Structures::unlock_Mainwindow_Interface()
 {
 	// unlock mainwindow functionality
-
-	multilayer_Tabs->setMovable(true);
-	multilayer_Tabs->cornerWidget()->setDisabled(false);
+	if(!runned_Tables_Of_Structures.contains(table_Key) && !runned_Calculation_Settings_Editor.contains(calc_Settings_Key))
+	{
+		multilayer_Tabs->setMovable(true);
+		multilayer_Tabs->cornerWidget()->setDisabled(false);
+	}
 	for(int i=0; i<multilayer_Tabs->count(); ++i)
 	{
 		list_Of_Trees[i]->structure_Toolbar->toolbar->setDisabled(false);
 		list_Of_Trees[i]->tree->blockSignals(false);
-		multilayer_Tabs->tabBar()->tabButton(i, QTabBar::RightSide)->setEnabled(true);
-	}
 
+		if(!runned_Tables_Of_Structures.contains(table_Key) && !runned_Calculation_Settings_Editor.contains(calc_Settings_Key))
+		{
+			multilayer_Tabs->tabBar()->tabButton(i, QTabBar::RightSide)->setEnabled(true);
+		}
+	}
 }
 
 void Table_Of_Structures::create_Menu()
@@ -2167,22 +2174,7 @@ void Table_Of_Structures::reload_All_Widgets(QObject* sender)
 			QWidget* widget_To_Reload = all_Widgets_To_Reload[current_Tab_Index][i];
 			if(widget_To_Reload != sender)
 			{
-				// reload masters, slaves and colors
-				if(widget_To_Reload->property(coupling_Editor_Property).toBool())
-				{
-					Parameter parameter = widget_To_Reload->property(parameter_Property).value<Parameter>();
-
-					// reloading masters and slaves
-					reload_Master(parameter);
-					reload_Slaves(parameter);
-
-					// save masters and slaves
-					QVariant var; var.setValue( parameter );
-					widget_To_Reload->setProperty(parameter_Property,var);
-
-					// recolorize
-					refresh_Reload_Core(reload_Property, widget_To_Reload, parameter, coupled_Widget_Item);
-				}
+				reload_Masters_Slaves_And_Colors(widget_To_Reload);
 
 				widget_To_Reload->setProperty(reload_Property, true);
 
@@ -2227,6 +2219,8 @@ void Table_Of_Structures::reload_Related_Widgets(QObject* sender)
 			{
 				if(related != sender)
 				{
+					reload_Masters_Slaves_And_Colors(related);
+
 					related->setProperty(reload_Property, true);
 
 					QLabel*        label = qobject_cast<QLabel*>   (related);
@@ -2256,6 +2250,25 @@ void Table_Of_Structures::reload_Related_Widgets(QObject* sender)
 				}
 			}
 		}
+	}
+}
+
+void Table_Of_Structures::reload_Masters_Slaves_And_Colors(QWidget* widget)
+{
+	if(widget->property(coupling_Editor_Property).toBool())
+	{
+		Parameter parameter = widget->property(parameter_Property).value<Parameter>();
+
+		// reloading masters and slaves
+		reload_Master(parameter);
+		reload_Slaves(parameter);
+
+		// save masters and slaves
+		QVariant var; var.setValue( parameter );
+		widget->setProperty(parameter_Property,var);
+
+		// recolorize
+		refresh_Reload_Core(reload_Property, widget, parameter, coupled_Widget_Item);
 	}
 }
 
