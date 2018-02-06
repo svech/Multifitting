@@ -39,6 +39,12 @@ public:
 	void slaves_Pointer_Iteration(Parameter* master);
 	void slaves_Expression_Iteration(Parameter* master);
 
+#ifdef EXPRTK
+	QMap<int, int> slaves_Expression_Map;  // <parameter ID ; vector index>
+	QVector<exprtk::expression<double>> expression_Vec;
+	QVector<double> argument_Vec;
+#endif
+
 	Parameter* find_Slave_Pointer_by_Id(const Parameter_Indicator& slave_Parameter_Indicator);
 	void find_Slave_Pointer_Calc_Tree_Iteration(const tree<Node>::iterator& parent, const Parameter_Indicator& slave_Parameter_Indicator, Parameter* &pointer);
 

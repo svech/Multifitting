@@ -76,12 +76,15 @@ void Main_Calculation_Module::fitting()
 	}
 
 	// not used
-//	/// prepare expressions for slaves, starting from fitable top-masters
+	/// prepare expressions for slaves, starting from fitable top-masters
+//	EXPRTK
+//	expression_Vec.clear();
+//	argument_Vec.clear();
+//	slaves_Expression_Map.clear();
 //	for(Parameter* parameter : fitables.fit_Parameters)
 //	{
 //		slaves_Expression_Iteration(parameter);
 //	}
-
 	/// rejection
 	if(reject()) return;
 
@@ -286,21 +289,34 @@ void Main_Calculation_Module::slaves_Pointer_Iteration(Parameter* master)
 
 void Main_Calculation_Module::slaves_Expression_Iteration(Parameter* master)
 {
-//	if(master->coupled.slaves.size() != master->coupled.slave_Pointers.size())
-//	{
-//		QMessageBox::critical(NULL, "Main_Calculation_Module::slaves_Expression_Iteration", "slaves.size() != slave_Pointers.size()");
-//		exit(EXIT_FAILURE);
-//	}
-//	for(int slave_Index=0; slave_Index<master->coupled.slaves.size(); ++slave_Index)
-//	{
-//		Parameter_Indicator& slave_Parameter_Indicator = master->coupled.slaves[slave_Index];
-//		Parameter* slave = master->coupled.slave_Pointers[slave_Index];
+	if(master->coupled.slaves.size() != master->coupled.slave_Pointers.size())
+	{
+		QMessageBox::critical(NULL, "Main_Calculation_Module::slaves_Expression_Iteration", "slaves.size() != slave_Pointers.size()");
+		exit(EXIT_FAILURE);
+	}
+	for(int slave_Index=0; slave_Index<master->coupled.slaves.size(); ++slave_Index)
+	{
+		Parameter_Indicator& slave_Parameter_Indicator = master->coupled.slaves[slave_Index];
+		Parameter* slave = master->coupled.slave_Pointers[slave_Index];
 
 //#ifdef EXPRTK
-////		slave_Parameter_Indicator.create_Expression();
+//		double expression_Argument;
+//		exprtk::parser<double> parser;
+//		exprtk::symbol_table<double> symbol_table;
+//		exprtk::expression<double> expression_Exprtk;
+
+//		expression_Vec.append(expression_Exprtk);
+//		argument_Vec.append(expression_Argument);
+//		slaves_Expression_Map.insert(slave->indicator.id, expression_Vec.size()-1);
+
+//		symbol_table.add_variable(expression_Master_Slave_Variable, argument_Vec.last());
+//		symbol_table.add_constants();
+
+//		expression_Exprtk.register_symbol_table(symbol_table);
+//		parser.compile(slave_Parameter_Indicator.expression.toStdString(), expression_Vec.last());
 //#endif
-//		slaves_Expression_Iteration(slave);
-//	}
+		slaves_Expression_Iteration(slave);
+	}
 }
 
 Parameter* Main_Calculation_Module::find_Slave_Pointer_by_Id(const Parameter_Indicator& slave_Parameter_Indicator)

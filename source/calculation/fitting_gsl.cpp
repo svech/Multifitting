@@ -180,7 +180,7 @@ void Fitting_GSL::gamma_Subtree_Iteration(const tree<Node>::iterator& parent, do
 	}
 }
 
-void Fitting_GSL::slaves_Recalculation(Parameter* master)
+void Fitting_GSL::slaves_Recalculation(Parameter* master, Params* params)
 {
 	for(int slave_Index=0; slave_Index<master->coupled.slaves.size(); ++slave_Index)
 	{
@@ -199,12 +199,13 @@ void Fitting_GSL::slaves_Recalculation(Parameter* master)
 		expression_Exprtk.register_symbol_table(symbol_table);
 		parser.compile(slave_Parameter_Indicator.expression.toStdString(), expression_Exprtk);
 
-		expression_Argument = master->value;
-		slave->value = expression_Exprtk.value();
+//		int index = params->main_Calculation_Module->slaves_Expression_Map.value(slave->indicator.id);
+//		params->main_Calculation_Module->argument_Vec[index] = master->value;
+//		slave->value = params->main_Calculation_Module->expression_Vec[index].value();
 #else
 		slave->value = master->value;
 #endif
-		slaves_Recalculation(slave);
+		slaves_Recalculation(slave, params);
 	}
 }
 
@@ -234,7 +235,7 @@ int Fitting_GSL::calc_Residual(const gsl_vector* x, void* bare_Params, gsl_vecto
 		}
 
 		// recalculate underlying slaves
-		slaves_Recalculation(params->fitables.fit_Parameters[i]);
+		slaves_Recalculation(params->fitables.fit_Parameters[i], params);
 	}
 
 	/// now all real_Calc_Tree are changed; we can replicate and stratify them
