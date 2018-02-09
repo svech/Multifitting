@@ -10,8 +10,8 @@ class Coupling_Editor : public QDialog
 	Q_OBJECT
 public:
 	explicit Coupling_Editor(QWidget* coupling_Widget,
-							 QMap<QWidget*,QTreeWidgetItem*>& coupled_Widgets_Item,
-							 QMap<id_Type, QWidget*>& coupled_Widgets_Id,
+							 QMap<QWidget*, QTreeWidgetItem*>& coupled_Back_Widget_and_Struct_Item,
+							 QMap<QWidget*, id_Type>&		   coupled_Back_Widget_and_Id,
 							 QTabWidget* main_Tabs,
 							 QWidget *parent = 0);
 
@@ -60,8 +60,8 @@ public:
 	QString no_Master_Text = ".........<no master>.........";
 	QString no_Slave_Text  = ".........<no slave>..........";
 
-	QMap<QWidget*,QTreeWidgetItem*>& coupled_Widgets_Item;
-	QMap<id_Type, QWidget*>& coupled_Widgets_Id;
+	QMap<QWidget*, QTreeWidgetItem*>& coupled_Back_Widget_and_Struct_Item;
+	QMap<QWidget*, id_Type>&		  coupled_Back_Widget_and_Id;
 };
 
 #endif // COUPLING_EDITOR_H

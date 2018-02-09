@@ -135,7 +135,7 @@ class Node;
 #define TABLE_COLUMN_INTERLAYERS_SHIFT 1	// current_Column += TABLE_COLUMN_INTERLAYERS_SHIFT
 
 #define MIN_FORMULA_WIDTH_LINE_EDIT 80		// master/slave width for dependance formula
-#define id_Of_Thicknesses 2017				// used fore refresh/reload of corresponding line_Edits
+#define id_Of_Thicknesses 9					// used fore refresh/reload of corresponding line_Edits
 
 // -----------------------------------------------------------------------------------------
 
@@ -252,8 +252,9 @@ class Node;
 #define parameter_Property			"parameter"
 #define coupling_Editor_Property	"coupling_Editor"
 
-#define reload_Property		"reload"
 #define refresh_Property	"refresh"
+#define reload_Property		"reload"
+#define colorize_Property	"colorize"
 //#define table_Index_Property "table_Index"
 //#define master_Reload_Property "master_Reload"
 //#define slave_Reload_Property  "slave_Reload"

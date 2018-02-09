@@ -2,12 +2,12 @@
 
 My_Table_Widget::My_Table_Widget(int rows,
 								 int columns,
-								 QMap<QWidget*,QTreeWidgetItem*>& coupled_Widgets_Item,
-								 QMap<id_Type, QWidget*>& coupled_Widgets_Id,
+								 QMap<QWidget*, QTreeWidgetItem*>& coupled_Back_Widget_and_Struct_Item,
+								 QMap<QWidget*, id_Type>&		   coupled_Back_Widget_and_Id,
 								 QTabWidget* main_Tabs,
 								 QWidget *parent) :
-	coupled_Widgets_Item(coupled_Widgets_Item),
-	coupled_Widgets_Id(coupled_Widgets_Id),
+	coupled_Back_Widget_and_Struct_Item(coupled_Back_Widget_and_Struct_Item),
+	coupled_Back_Widget_and_Id(coupled_Back_Widget_and_Id),
 	main_Tabs(main_Tabs),
 	QTableWidget(parent)
 {
@@ -35,7 +35,7 @@ void My_Table_Widget::contextMenuEvent(QContextMenuEvent *event)
 		QAction my_Name_Action(parameter.indicator.full_Name);
 		menu.addAction(&my_Name_Action);
 
-		connect(&my_Name_Action, &QAction::triggered, [=]{ open_Coupling_Editor(widget);});
+//		connect(&my_Name_Action, &QAction::triggered, [=]{ open_Coupling_Editor(widget);});
 
 		menu.exec(event->globalPos());
 	}
@@ -43,7 +43,7 @@ void My_Table_Widget::contextMenuEvent(QContextMenuEvent *event)
 
 void My_Table_Widget::open_Coupling_Editor(QWidget* coupling_Widget)
 {
-	Coupling_Editor* new_Coupling_Editor = new Coupling_Editor(coupling_Widget, coupled_Widgets_Item,coupled_Widgets_Id, main_Tabs, this);
+	Coupling_Editor* new_Coupling_Editor = new Coupling_Editor(coupling_Widget, coupled_Back_Widget_and_Struct_Item, coupled_Back_Widget_and_Id, main_Tabs, this);
 		new_Coupling_Editor->show();
 }
 

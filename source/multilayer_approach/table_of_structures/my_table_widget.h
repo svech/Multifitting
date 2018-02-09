@@ -10,15 +10,15 @@ class My_Table_Widget : public QTableWidget
 public:
 	My_Table_Widget(int rows,
 					int columns,
-					QMap<QWidget*,QTreeWidgetItem*>& coupled_Widgets_Item,
-					QMap<id_Type, QWidget*>& coupled_Widgets_Id,
+					QMap<QWidget*, QTreeWidgetItem*>& coupled_Back_Widget_and_Struct_Item,
+					QMap<QWidget*, id_Type>&		  coupled_Back_Widget_and_Id,
 					QTabWidget* main_Tabs,
-					QWidget *parent = Q_NULLPTR);
+					QWidget* parent = Q_NULLPTR);
 
 	QTabWidget* main_Tabs;
 
-	QMap<QWidget*,QTreeWidgetItem*>& coupled_Widgets_Item;
-	QMap<id_Type, QWidget*>& coupled_Widgets_Id;
+	QMap<QWidget*, QTreeWidgetItem*>& coupled_Back_Widget_and_Struct_Item;
+	QMap<QWidget*, id_Type>&		  coupled_Back_Widget_and_Id;
 
 	void contextMenuEvent(QContextMenuEvent *event);
 	void open_Coupling_Editor(QWidget *coupling_Widget);

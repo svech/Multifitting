@@ -294,10 +294,10 @@ void Main_Calculation_Module::slaves_Expression_Iteration(Parameter* master)
 		QMessageBox::critical(NULL, "Main_Calculation_Module::slaves_Expression_Iteration", "slaves.size() != slave_Pointers.size()");
 		exit(EXIT_FAILURE);
 	}
-	for(int slave_Index=0; slave_Index<master->coupled.slaves.size(); ++slave_Index)
-	{
-		Parameter_Indicator& slave_Parameter_Indicator = master->coupled.slaves[slave_Index];
-		Parameter* slave = master->coupled.slave_Pointers[slave_Index];
+//	for(int slave_Index=0; slave_Index<master->coupled.slaves.size(); ++slave_Index)
+//	{
+//		Parameter_Indicator& slave_Parameter_Indicator = master->coupled.slaves[slave_Index];
+//		Parameter* slave = master->coupled.slave_Pointers[slave_Index];
 
 //#ifdef EXPRTK
 //		double expression_Argument;
@@ -315,8 +315,8 @@ void Main_Calculation_Module::slaves_Expression_Iteration(Parameter* master)
 //		expression_Exprtk.register_symbol_table(symbol_table);
 //		parser.compile(slave_Parameter_Indicator.expression.toStdString(), expression_Vec.last());
 //#endif
-		slaves_Expression_Iteration(slave);
-	}
+//		slaves_Expression_Iteration(slave);
+//	}
 }
 
 Parameter* Main_Calculation_Module::find_Slave_Pointer_by_Id(const Parameter_Indicator& slave_Parameter_Indicator)

@@ -436,7 +436,7 @@ QString Global_Variables::parameter_Name(const Data &struct_Data, QString whats_
 
 	/// interface parameters
 	if(	struct_Data.item_Type == item_Type_Layer ||
-			struct_Data.item_Type == item_Type_Substrate  )
+		struct_Data.item_Type == item_Type_Substrate  )
 	{
 		if(whats_This == whats_This_Sigma)							text = struct_Data.material + " " + brackets + " Roughness/Diffuseness, " + Sigma_Sym;
 		if(whats_This == whats_This_Sigma_Drift_Line_Value)			text = struct_Data.material + " " + brackets + " Roughness/Diffuseness Linear Drift, d" + Sigma_Sym;
@@ -444,6 +444,7 @@ QString Global_Variables::parameter_Name(const Data &struct_Data, QString whats_
 		if(whats_This == whats_This_Sigma_Drift_Sine_Amplitude)		text = struct_Data.material + " " + brackets + " Roughness/Diffuseness Sine Drift : Amplitude, d" + Sigma_Sym;
 		if(whats_This == whats_This_Sigma_Drift_Sine_Frequency)		text = struct_Data.material + " " + brackets + " Roughness/Diffuseness Sine Drift : Frequency, " + Nu_Sym;
 		if(whats_This == whats_This_Sigma_Drift_Sine_Phase)			text = struct_Data.material + " " + brackets + " Roughness/Diffuseness Sine Drift : Phase, " + Phi_Sym;
+
 		if(whats_This == whats_This_Interlayer_Composition)			text = struct_Data.material + " " + brackets + " Interlayer Composition, " + transition_Layer_Functions[index];
 		if(whats_This == whats_This_Interlayer_My_Sigma)			text = struct_Data.material + " " + brackets + " Individual Roughness/Diffuseness, " + Sigma_Sym + "_" + transition_Layer_Functions[index];
 	}
@@ -459,8 +460,12 @@ QString Global_Variables::parameter_Name(const Data &struct_Data, QString whats_
 	/// measurement parameters
 	if(	struct_Data.item_Type == item_Type_Measurement )
 	{
-		if(whats_This == whats_This_Angle)							text = struct_Data.angle_Type + " angle, " + Theta_Sym;
+		if(whats_This == whats_This_Angle)							text = struct_Data.angle_Type + " angle, " + Theta_Sym;		
+		if(whats_This == whats_This_Angular_Resolution)				text = "Angular resolution, " + Delta_Big_Sym + Theta_Sym;
 		if(whats_This == whats_This_Wavelength)						text = Global_Variables::wavelength_Energy_Name(wavelength_units);
+		if(whats_This == whats_This_Spectral_Resolution)			text = "Spectral resolution" + Delta_Big_Sym + "E/E";
+		if(whats_This == whats_This_Polarization)					text = "Polarization";
+		if(whats_This == whats_This_Polarization_Sensitivity)		text = "Polarization sensitivity";
 	}
 
 	return text;

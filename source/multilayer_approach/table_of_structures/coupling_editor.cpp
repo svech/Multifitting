@@ -1,12 +1,12 @@
 #include "coupling_editor.h"
 
 Coupling_Editor::Coupling_Editor(QWidget* coupling_Widget,
-								 QMap<QWidget*,QTreeWidgetItem*>& coupled_Widgets_Item,
-								 QMap<id_Type, QWidget*>& coupled_Widgets_Id,
+								 QMap<QWidget*, QTreeWidgetItem*>& coupled_Back_Widget_and_Struct_Item,
+								 QMap<QWidget*, id_Type>&		   coupled_Back_Widget_and_Id,
 								 QTabWidget* main_Tabs,
 								 QWidget* parent):
-	coupled_Widgets_Item(coupled_Widgets_Item),
-	coupled_Widgets_Id(coupled_Widgets_Id),
+	coupled_Back_Widget_and_Struct_Item(coupled_Back_Widget_and_Struct_Item),
+	coupled_Back_Widget_and_Id(coupled_Back_Widget_and_Id),
 	coupling_Widget(coupling_Widget),
 	coupling_Parameter(coupling_Widget->property(parameter_Property).value<Parameter>()),
 	main_Tabs(main_Tabs),
@@ -129,7 +129,7 @@ void Coupling_Editor::load_Master()
 	// now check if had master
 	if(coupling_Parameter.coupled.master.exist)
 	{
-		old_Master_Widget = coupled_Widgets_Id.value(coupling_Parameter.coupled.master.id); // old_Master_Widget is set only here
+		old_Master_Widget = coupled_Back_Widget_and_Id.key(coupling_Parameter.coupled.master.id); // old_Master_Widget is set only here
 
 		// if old master widget still exists
 		if(old_Master_Widget)
@@ -279,7 +279,7 @@ void Coupling_Editor::load_Slaves()
 
 	for(Parameter_Indicator& old_Slave : old_Slaves)
 	{
-		QWidget* old_Slave_Widget = coupled_Widgets_Id.value(old_Slave.id);
+		QWidget* old_Slave_Widget = coupled_Back_Widget_and_Id.key(old_Slave.id);
 
 		// if old slave widget still exists
 		if(old_Slave_Widget)
@@ -323,7 +323,7 @@ void Coupling_Editor::save_External_Slaves()
 		// if not found, mark and remove from list
 		if(!keep)
 		{
-			QWidget* deprecated_Widget = coupled_Widgets_Id.value(id);
+			QWidget* deprecated_Widget = coupled_Back_Widget_and_Id.key(id);
 			if(deprecated_Widget)
 			{				
 				Parameter deprecated_Parameter = deprecated_Widget->property(parameter_Property).value<Parameter>();
@@ -391,7 +391,7 @@ void Coupling_Editor::refresh_Reload_Coupled(QString refresh_Reload, Parameter& 
 	}
 
 	// refresh and reload directly from structure tree
-	Table_Of_Structures::refresh_Reload_Core(refresh_Reload, widget, parameter, coupled_Widgets_Item);
+//	Table_Of_Structures::refresh_Reload_Colorize(refresh_Reload, widget, parameter, coupled_Back_Widget_and_Struct_Item);
 }
 
 void Coupling_Editor::check_Expression()

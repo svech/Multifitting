@@ -31,17 +31,16 @@ public:
 		void add_Tabs();
 		void create_Table(My_Table_Widget* new_Table, int tab_Index);
 		void read_Trees();
-//		void revise_All_Parameters();
-		static void refresh_Reload_Core(QString refresh_Reload, QWidget* widget, Parameter& parameter, QMap<QWidget*,QTreeWidgetItem*>& coup_Widgets_Map);
+		void refresh_Reload_Colorize(QString refresh_Reload, QWidget* back_Widget, Parameter* parameter);
 
 	// for material only
 	QString material_From_Composition(const QList<Stoichiometry>& composition);
 	void create_Combo_Elements		(My_Table_Widget* table, int,			int current_Row, int start_Column, QTreeWidgetItem* structure_Item);
-	void create_Stoich				(My_Table_Widget* table, int tab_Index, int current_Row, int start_Column, QTreeWidgetItem* structure_Item, QString val_Type);
+	void create_Stoich_Line_Edit	(My_Table_Widget* table, int tab_Index, int current_Row, int start_Column, QTreeWidgetItem* structure_Item, QString val_Type);
 	void create_Stoich_Check_Box_Fit(My_Table_Widget* table, int tab_Index, int current_Row, int start_Column, QTreeWidgetItem* structure_Item, int r_S, int r_F, int c_S, int c_F);
 
-	void create_Material			(My_Table_Widget* table, int,			int current_Row, int current_Column, QTreeWidgetItem* structure_Item);
-	void create_Browse_Button		(My_Table_Widget* table,				int current_Row, int start_Column);
+	void create_Material_Line_Edit	(My_Table_Widget* table, int,			int current_Row, int current_Column, QTreeWidgetItem* structure_Item);
+	void create_Browse_Button		(My_Table_Widget* table,				int current_Row, int start_Column, int material_LineEdit_Row, int material_LineEdit_Column);
 
 	// for several parameters
 	void create_Label				(My_Table_Widget* table, int tab_Index, int current_Row, int current_Column, QTreeWidgetItem* structure_Item, QString whats_This, QString text);
@@ -57,7 +56,7 @@ public:
 	void create_Weights_Check_Box_Fit_Interlayer(My_Table_Widget* table, int tab_Index, int current_Row, int start_Column, QTreeWidgetItem* structure_Item);
 
 	void create_MySigma_Labels_Interlayer		(My_Table_Widget* table, int tab_Index, int current_Row, int start_Column, QTreeWidgetItem* structure_Item);
-	void create_MySigma_Interlayer				(My_Table_Widget* table, int tab_Index, int current_Row, int start_Column, QTreeWidgetItem* structure_Item);
+	void create_MySigma_Line_Edits_Interlayer	(My_Table_Widget* table, int tab_Index, int current_Row, int start_Column, QTreeWidgetItem* structure_Item);
 
 	// general
 	void span_Structure_Headers(My_Table_Widget* table);
@@ -80,7 +79,7 @@ public:
 
 	void refresh_Material(QString);
 	void check_Material();
-	void browse_Material(bool);
+	void browse_Material(QLineEdit* material_Line_Edit);
 
 	// for several parameters
 	void refresh_Header(QString);
@@ -138,12 +137,12 @@ public:
 	QMap<QCheckBox*,QTreeWidgetItem*> check_Boxes_Map;
 
 	// coupling
-	QMap<QWidget*,QTreeWidgetItem*> coupled_Widget_Item;
-	QMap<id_Type, QWidget*>			coupled_Widget_Id;
+	QMap<QWidget*, QTreeWidgetItem*> coupled_Back_Widget_and_Struct_Item;
+	QMap<QWidget*, id_Type>			 coupled_Back_Widget_and_Id;
 
 	// refresh/reload
-	QList<QList<QWidget*>> all_Widgets_To_Reload;
-	QMultiMap<id_Type, QWidget*> reload_Show_Dependence_Map;
+	QList<QList<QWidget*>>			all_Widgets_To_Reload;
+	QMultiMap<QWidget*, id_Type>	reload_Show_Dependence_Map;
 };
 
 #endif // TABLE_OF_STRUCTURES_H
