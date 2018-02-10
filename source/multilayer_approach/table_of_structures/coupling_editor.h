@@ -5,14 +5,14 @@
 #include "my_table_widget.h"
 #include "multilayer_approach/table_of_structures.h"
 
+class Table_Of_Structures;
+
 class Coupling_Editor : public QDialog
 {
 	Q_OBJECT
 public:
-	explicit Coupling_Editor(QWidget* coupling_Widget,
-							 QMap<QWidget*, QTreeWidgetItem*>& coupled_Back_Widget_and_Struct_Item,
-							 QMap<QWidget*, id_Type>&		   coupled_Back_Widget_and_Id,
-							 QTabWidget* main_Tabs,
+	explicit Coupling_Editor(QWidget* coupled_Widget,
+							 Table_Of_Structures* table_Of_Structures,
 							 QWidget *parent = 0);
 
 	void closeEvent(QCloseEvent*);
@@ -29,15 +29,20 @@ public:
 		void load_Slaves();
 		void save_External_Slaves();
 		void clear_Nonexisting_Slaves();
-	void refresh_Reload_Coupled(QString refresh_Reload, Parameter& parameter, QWidget* widget);
 	void check_Expression();
 
 	void enable_Getting_Parameter(QWidget* old, QWidget* now, QLabel* label, QLineEdit* line_Edit);
 	void get_Parameter(QLabel* label);
 
-	QWidget* coupling_Widget;
-	Parameter coupling_Parameter;
-	QTabWidget* main_Tabs;
+
+	id_Type coupled_Id;
+	QTreeWidgetItem* struct_Item;
+	Data struct_Data;
+	Parameter* coupled_Parameter;
+
+	QWidget* coupled_Widget;
+	Table_Of_Structures* table_Of_Structures;
+
 	QVBoxLayout* main_Layout;
 
 	QGroupBox* master_Group_Box;
@@ -59,9 +64,6 @@ public:
 
 	QString no_Master_Text = ".........<no master>.........";
 	QString no_Slave_Text  = ".........<no slave>..........";
-
-	QMap<QWidget*, QTreeWidgetItem*>& coupled_Back_Widget_and_Struct_Item;
-	QMap<QWidget*, id_Type>&		  coupled_Back_Widget_and_Id;
 };
 
 #endif // COUPLING_EDITOR_H

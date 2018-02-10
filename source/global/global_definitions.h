@@ -249,8 +249,8 @@ class Node;
 #define whats_This_Property			"whats_This"
 #define item_Type_Property			"item_Type"
 #define value_Type_Property			"value_Type"
-#define parameter_Property			"parameter"
 #define coupling_Editor_Property	"coupling_Editor"
+//#define parameter_Property			"parameter"
 
 #define refresh_Property	"refresh"
 #define reload_Property		"reload"

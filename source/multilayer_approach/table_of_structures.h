@@ -110,9 +110,6 @@ public:
 public slots:
 	void reload_All_Widgets(QObject* sender = NULL);
 	void reload_Related_Widgets(QObject* sender = NULL);
-	void reload_Masters_Slaves_And_Colors(QWidget* widget);
-	void reload_Master(Parameter& coupling_Parameter);
-	void reload_Slaves(Parameter& coupling_Parameter);
 
 public:
 	int temp_Counter = 0;       // TEMPORARY

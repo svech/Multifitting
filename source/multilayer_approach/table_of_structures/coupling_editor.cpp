@@ -1,18 +1,18 @@
 #include "coupling_editor.h"
 
 Coupling_Editor::Coupling_Editor(QWidget* coupling_Widget,
-								 QMap<QWidget*, QTreeWidgetItem*>& coupled_Back_Widget_and_Struct_Item,
-								 QMap<QWidget*, id_Type>&		   coupled_Back_Widget_and_Id,
-								 QTabWidget* main_Tabs,
+								 Table_Of_Structures* table_Of_Structures,
 								 QWidget* parent):
-	coupled_Back_Widget_and_Struct_Item(coupled_Back_Widget_and_Struct_Item),
-	coupled_Back_Widget_and_Id(coupled_Back_Widget_and_Id),
-	coupling_Widget(coupling_Widget),
-	coupling_Parameter(coupling_Widget->property(parameter_Property).value<Parameter>()),
-	main_Tabs(main_Tabs),
+	coupled_Widget(coupling_Widget),
+	table_Of_Structures(table_Of_Structures),
 	QDialog(parent)
 {
-	setWindowTitle("<"+main_Tabs->tabText(coupling_Parameter.indicator.tab_Index)+"> "+coupling_Parameter.indicator.full_Name/*+" "+QString::number(coupling_Parameter.indicator.id)*/);
+	coupled_Id = table_Of_Structures->coupled_Back_Widget_and_Id.value(coupling_Widget);
+	struct_Item = table_Of_Structures->coupled_Back_Widget_and_Struct_Item.value(coupling_Widget);
+	struct_Data = struct_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+	coupled_Parameter = Global_Variables::get_Parameter_From_Struct_Item_by_Id(struct_Data, coupled_Id);
+
+	setWindowTitle("<"+table_Of_Structures->main_Tabs->tabText(coupled_Parameter->indicator.tab_Index)+"> "+coupled_Parameter->indicator.full_Name/*+" "+QString::number(coupling_Parameter.indicator.id)*/);
 	create_Main_Layout();
 	set_Window_Geometry();
 	setAttribute(Qt::WA_DeleteOnClose);
@@ -26,7 +26,7 @@ void Coupling_Editor::closeEvent(QCloseEvent *)
 		clear_Nonexisting_Slaves();
 
 		// save myself
-		refresh_Reload_Coupled(refresh_Property, coupling_Parameter, coupling_Widget);
+		table_Of_Structures->refresh_Reload_Colorize(refresh_Property, coupled_Widget, coupled_Parameter);
 
 		// save external master
 		save_External_Master();
@@ -40,9 +40,9 @@ void Coupling_Editor::closeEvent(QCloseEvent *)
 	}
 
 	// enable context menu
-	for(int tab_Index=0; tab_Index<main_Tabs->count(); ++tab_Index)
+	for(int tab_Index=0; tab_Index<table_Of_Structures->main_Tabs->count(); ++tab_Index)
 	{
-		My_Table_Widget* table = qobject_cast<My_Table_Widget*>(main_Tabs->widget(tab_Index));
+		My_Table_Widget* table = qobject_cast<My_Table_Widget*>(table_Of_Structures->main_Tabs->widget(tab_Index));
 		table->setContextMenuPolicy(Qt::DefaultContextMenu);
 	}
 }
@@ -74,9 +74,9 @@ void Coupling_Editor::create_Main_Layout()
 	connect(done_Button, &QPushButton::clicked, this, &Coupling_Editor::close);
 
 	// disable context menu
-	for(int tab_Index=0; tab_Index<main_Tabs->count(); ++tab_Index)
+	for(int tab_Index=0; tab_Index<table_Of_Structures->main_Tabs->count(); ++tab_Index)
 	{
-		My_Table_Widget* table = qobject_cast<My_Table_Widget*>(main_Tabs->widget(tab_Index));
+		My_Table_Widget* table = qobject_cast<My_Table_Widget*>(table_Of_Structures->main_Tabs->widget(tab_Index));
 		table->setContextMenuPolicy(Qt::CustomContextMenu);
 	}
 }
@@ -93,7 +93,7 @@ void Coupling_Editor::create_Master_Box()
 	master_Label = new QLabel(no_Master_Text);
 		group_Box_Layout->addWidget(master_Label);
 
-	master_Line_Edit = new QLineEdit(coupling_Parameter.coupled.master.expression);
+	master_Line_Edit = new QLineEdit(coupled_Parameter->coupled.master.expression);
 		master_Line_Edit->setMinimumWidth(MIN_FORMULA_WIDTH_LINE_EDIT);
 		master_Line_Edit->setProperty(previous_Expression_Property,master_Line_Edit->text());
 		group_Box_Layout->addWidget(master_Line_Edit);
@@ -118,7 +118,7 @@ void Coupling_Editor::create_Master_Box()
 
 void Coupling_Editor::remove_Master()
 {
-	coupling_Parameter.coupled.master.exist = false;
+	coupled_Parameter->coupled.master.exist = false;
 	master_Label->setText(no_Master_Text);
 	master_Widget = NULL;
 }
@@ -126,27 +126,33 @@ void Coupling_Editor::remove_Master()
 void Coupling_Editor::load_Master()
 {
 	bool loaded = false;
+
 	// now check if had master
-	if(coupling_Parameter.coupled.master.exist)
+	if(coupled_Parameter->coupled.master.exist)
 	{
-		old_Master_Widget = coupled_Back_Widget_and_Id.key(coupling_Parameter.coupled.master.id); // old_Master_Widget is set only here
+		old_Master_Widget = table_Of_Structures->coupled_Back_Widget_and_Id.key(coupled_Parameter->coupled.master.id); // old_Master_Widget is set only here
 
 		// if old master widget still exists
 		if(old_Master_Widget)
 		{
-			Parameter old_Master_Parameter = old_Master_Widget->property(parameter_Property).value<Parameter>();
+			id_Type old_Master_Id = coupled_Parameter->coupled.master.id;
+			QTreeWidgetItem* old_Master_Struct_Item = table_Of_Structures->coupled_Back_Widget_and_Struct_Item.value(old_Master_Widget);
+			Data old_Master_Struct_Data = old_Master_Struct_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+			Parameter* old_Master_Parameter = Global_Variables::get_Parameter_From_Struct_Item_by_Id(old_Master_Struct_Data, old_Master_Id);
 
 			bool have = false;
-			for(Parameter_Indicator& slave_Of_Old_Master : old_Master_Parameter.coupled.slaves)
+			for(Parameter_Indicator& slave_Of_Old_Master : old_Master_Parameter->coupled.slaves)
 			{
-				if(slave_Of_Old_Master.id == coupling_Parameter.indicator.id)
+				if(slave_Of_Old_Master.id == coupled_Parameter->indicator.id)
+				{
 					have = true;
+				}
 			}
 
 			if(have)
 			{
 				master_Widget = old_Master_Widget;
-				master_Label->setText("<"+main_Tabs->tabText(old_Master_Parameter.indicator.tab_Index)+"> "+old_Master_Parameter.indicator.full_Name);
+				master_Label->setText("<"+table_Of_Structures->main_Tabs->tabText(old_Master_Parameter->indicator.tab_Index)+"> "+old_Master_Parameter->indicator.full_Name);
 				loaded = true;
 //				qInfo() << "loaded 1 master";
 			}
@@ -155,7 +161,7 @@ void Coupling_Editor::load_Master()
 	if(!loaded)
 	{
 		master_Widget = NULL;
-		coupling_Parameter.coupled.master.exist = false;
+		coupled_Parameter->coupled.master.exist = false;
 		master_Label->setText(no_Master_Text);
 //		qInfo() << "loaded 0 masters";
 	}
@@ -168,18 +174,21 @@ void Coupling_Editor::save_External_Master()
 	   old_Master_Widget != master_Widget) // compare widgets. Be careful!
 	{
 		// if master widget exists (it should be always true)
-		Parameter old_Master_Parameter = old_Master_Widget->property(parameter_Property).value<Parameter>();
-		for(int old_Index=old_Master_Parameter.coupled.slaves.size()-1; old_Index>=0; old_Index--)
+		id_Type old_Master_Id = table_Of_Structures->coupled_Back_Widget_and_Id.value(old_Master_Widget);
+		QTreeWidgetItem* old_Master_Struct_Item = table_Of_Structures->coupled_Back_Widget_and_Struct_Item.value(old_Master_Widget);
+		Data old_Master_Struct_Data = old_Master_Struct_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+		Parameter* old_Master_Parameter = Global_Variables::get_Parameter_From_Struct_Item_by_Id(old_Master_Struct_Data, old_Master_Id);
+
+		for(int old_Index=old_Master_Parameter->coupled.slaves.size()-1; old_Index>=0; old_Index--)
 		{
-			if(old_Master_Parameter.coupled.slaves[old_Index].id == coupling_Parameter.indicator.id)
+			if(old_Master_Parameter->coupled.slaves[old_Index].id == coupled_Parameter->indicator.id)
 			{
-				old_Master_Parameter.coupled.slaves.remove(old_Index);
+				old_Master_Parameter->coupled.slaves.remove(old_Index);
 			}
 		}
 
 		// save old master
-		refresh_Reload_Coupled(refresh_Property, old_Master_Parameter, old_Master_Widget);
-
+		table_Of_Structures->refresh_Reload_Colorize(refresh_Property, old_Master_Widget, old_Master_Parameter);
 //		qInfo() << "old master " << old_Master_Parameter.indicator.full_Name << " removed me from slaves. Now " << old_Master_Parameter.coupled.slaves.size() << "slaves";
 	}
 
@@ -187,27 +196,30 @@ void Coupling_Editor::save_External_Master()
 	if(master_Widget)
 	{
 		bool already_Contains = false;
-		Parameter master_Parameter = master_Widget->property(parameter_Property).value<Parameter>();
-		for(Parameter_Indicator& master_Slave : master_Parameter.coupled.slaves)
+		id_Type master_Id = table_Of_Structures->coupled_Back_Widget_and_Id.value(master_Widget);
+		QTreeWidgetItem* master_Struct_Item = table_Of_Structures->coupled_Back_Widget_and_Struct_Item.value(master_Widget);
+		Data master_Struct_Data = master_Struct_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+		Parameter* master_Parameter = Global_Variables::get_Parameter_From_Struct_Item_by_Id(master_Struct_Data, master_Id);
+
+		for(Parameter_Indicator& master_Slave : master_Parameter->coupled.slaves)
 		{
-			if(master_Slave.id == coupling_Parameter.indicator.id)
+			if(master_Slave.id == coupled_Parameter->indicator.id)
 			{
 				already_Contains = true;
-				master_Slave.expression = coupling_Parameter.coupled.master.expression;
+				master_Slave.expression = coupled_Parameter->coupled.master.expression;
 				break;
 			}
 		}
 		if(!already_Contains)
 		{
-			coupling_Parameter.indicator.exist = true; // i should exist as Master's slave
-			coupling_Parameter.indicator.expression = coupling_Parameter.coupled.master.expression;
-			master_Parameter.coupled.slaves.append(coupling_Parameter.indicator);
+			coupled_Parameter->indicator.exist = true; // i should exist as Master's slave
+			coupled_Parameter->indicator.expression = coupled_Parameter->coupled.master.expression;
+			master_Parameter->coupled.slaves.append(coupled_Parameter->indicator);
 		}
 
 
-		// save master
-		refresh_Reload_Coupled(refresh_Property, master_Parameter, master_Widget);
-
+		// save current master
+		table_Of_Structures->refresh_Reload_Colorize(refresh_Property, master_Widget, master_Parameter);
 //		qInfo() << "master " << master_Parameter.indicator.full_Name << " added me as slave. Now " << master_Parameter.coupled.slaves.size() << "slaves";
 	}
 }
@@ -226,7 +238,7 @@ void Coupling_Editor::create_Slave_Box()
 
 void Coupling_Editor::remove_Slave(int index_Pressed)
 {
-	coupling_Parameter.coupled.slaves[index_Pressed].exist = false;
+	coupled_Parameter->coupled.slaves[index_Pressed].exist = false;
 	slave_Label_Vec[index_Pressed]->setText(no_Slave_Text);
 	slave_Widget_Vec[index_Pressed] = NULL;
 }
@@ -234,7 +246,7 @@ void Coupling_Editor::remove_Slave(int index_Pressed)
 void Coupling_Editor::add_Slave(int index_Pressed)
 {
 	Parameter_Indicator slave_Indicator;
-		coupling_Parameter.coupled.slaves.insert(index_Pressed, slave_Indicator);
+		coupled_Parameter->coupled.slaves.insert(index_Pressed, slave_Indicator);
 
 	QHBoxLayout* frame_Layout = new QHBoxLayout;
 		slave_Group_Box_Layout->insertLayout(index_Pressed, frame_Layout);
@@ -246,7 +258,7 @@ void Coupling_Editor::add_Slave(int index_Pressed)
 		frame_Layout->addWidget(slave_Label);
 		slave_Label_Vec.insert(index_Pressed, slave_Label);
 
-	QLineEdit* slave_Line_Edit = new QLineEdit(coupling_Parameter.coupled.slaves[index_Pressed].expression);
+	QLineEdit* slave_Line_Edit = new QLineEdit(coupled_Parameter->coupled.slaves[index_Pressed].expression);
 		slave_Line_Edit->setMinimumWidth(MIN_FORMULA_WIDTH_LINE_EDIT);
 		frame_Layout->addWidget(slave_Line_Edit);
 		slave_Line_Edit->setProperty(previous_Expression_Property,slave_Line_Edit->text());
@@ -266,37 +278,47 @@ void Coupling_Editor::add_Slave(int index_Pressed)
 	connect(add_Slave_Button,	 &QPushButton::clicked, this, [=]{ add_Slave   (slave_Label_Vec.indexOf(slave_Label)+1); });
 	connect(slave_Line_Edit,	 &QLineEdit::editingFinished, this, &Coupling_Editor::check_Expression);
 
-	connect(qApp, &QApplication::focusChanged, this, [=](QWidget* old, QWidget* now){enable_Getting_Parameter(old, now, slave_Label, slave_Line_Edit);});
+	connect(qApp, &QApplication::focusChanged, this, [=]
+			(QWidget* old, QWidget* now)
+			{
+				enable_Getting_Parameter(old, now, slave_Label, slave_Line_Edit);
+			});
 }
 
 void Coupling_Editor::load_Slaves()
 {
 	// make copy of slaves
-	old_Slaves = coupling_Parameter.coupled.slaves; // old slaves are set only here
-	coupling_Parameter.coupled.slaves.clear();
+	old_Slaves = coupled_Parameter->coupled.slaves; // old slaves are set only here
+	coupled_Parameter->coupled.slaves.clear();
 	add_Slave(0);
 	int counter = 0;
 
 	for(Parameter_Indicator& old_Slave : old_Slaves)
 	{
-		QWidget* old_Slave_Widget = coupled_Back_Widget_and_Id.key(old_Slave.id);
+		QWidget* old_Slave_Widget = table_Of_Structures->coupled_Back_Widget_and_Id.key(old_Slave.id);
 
 		// if old slave widget still exists
 		if(old_Slave_Widget)
 		{
-			Parameter old_Slave_Parameter = old_Slave_Widget->property(parameter_Property).value<Parameter>();
-			if( old_Slave_Parameter.coupled.master.exist &&
-				old_Slave_Parameter.coupled.master.id == coupling_Parameter.indicator.id)
+			id_Type old_Slave_Id = old_Slave.id;
+			QTreeWidgetItem* old_Slave_Struct_Item = table_Of_Structures->coupled_Back_Widget_and_Struct_Item.value(old_Slave_Widget);
+			Data old_Slave_Struct_Data = old_Slave_Struct_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+			Parameter* old_Slave_Parameter = Global_Variables::get_Parameter_From_Struct_Item_by_Id(old_Slave_Struct_Data, old_Slave_Id);
+
+			if( old_Slave_Parameter->coupled.master.exist &&
+				old_Slave_Parameter->coupled.master.id == coupled_Parameter->indicator.id)
 			{
 				if(counter>=slave_Label_Vec.size())
+				{
 					add_Slave(counter);
+				}
 
-				slave_Label_Vec[counter]->setText("<"+main_Tabs->tabText(old_Slave_Parameter.indicator.tab_Index)+"> "+old_Slave_Parameter.indicator.full_Name);
+				slave_Label_Vec[counter]->setText("<"+table_Of_Structures->main_Tabs->tabText(old_Slave_Parameter->indicator.tab_Index)+"> "+old_Slave_Parameter->indicator.full_Name);
 				slave_Widget_Vec[counter] = old_Slave_Widget;
-				coupling_Parameter.coupled.slaves[counter] = old_Slave_Parameter.indicator;
-				coupling_Parameter.coupled.slaves[counter].exist = true;
-				coupling_Parameter.coupled.slaves[counter].expression = old_Slave_Parameter.coupled.master.expression;
-				slave_Line_Edit_Vec[counter]->setText(coupling_Parameter.coupled.slaves[counter].expression);
+				coupled_Parameter->coupled.slaves[counter] = old_Slave_Parameter->indicator;
+				coupled_Parameter->coupled.slaves[counter].exist = true;
+				coupled_Parameter->coupled.slaves[counter].expression = old_Slave_Parameter->coupled.master.expression;
+				slave_Line_Edit_Vec[counter]->setText(coupled_Parameter->coupled.slaves[counter].expression);
 
 				counter++;
 			}
@@ -310,27 +332,33 @@ void Coupling_Editor::save_External_Slaves()
 	// ex-slaves remove me from their master place
 	for(Parameter_Indicator& old_Slave : old_Slaves)
 	{
-		id_Type id = old_Slave.id;
+		id_Type old_Slave_Id = old_Slave.id;
 		bool keep = false;
 
 		// search in actual base
-		for(Parameter_Indicator& slave : coupling_Parameter.coupled.slaves)
+		for(Parameter_Indicator& slave : coupled_Parameter->coupled.slaves)
 		{
-			if(slave.exist && (slave.id == id))
+			if(slave.exist && (slave.id == old_Slave_Id))
+			{
 				keep = true;
+			}
 		}
 
 		// if not found, mark and remove from list
 		if(!keep)
 		{
-			QWidget* deprecated_Widget = coupled_Back_Widget_and_Id.key(id);
+			QWidget* deprecated_Widget = table_Of_Structures->coupled_Back_Widget_and_Id.key(old_Slave_Id);
 			if(deprecated_Widget)
 			{				
-				Parameter deprecated_Parameter = deprecated_Widget->property(parameter_Property).value<Parameter>();
-				deprecated_Parameter.coupled.master.exist = false;
+				id_Type deprecated_Id = old_Slave_Id;
+				QTreeWidgetItem* deprecated_Struct_Item = table_Of_Structures->coupled_Back_Widget_and_Struct_Item.value(deprecated_Widget);
+				Data deprecated_Struct_Data = deprecated_Struct_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+				Parameter* deprecated_Parameter = Global_Variables::get_Parameter_From_Struct_Item_by_Id(deprecated_Struct_Data, deprecated_Id);
+
+				deprecated_Parameter->coupled.master.exist = false;
 
 				// save old slave
-				refresh_Reload_Coupled(refresh_Property, deprecated_Parameter, deprecated_Widget);
+				table_Of_Structures->refresh_Reload_Colorize(refresh_Property, deprecated_Widget, deprecated_Parameter);
 			}
 		}
 	}
@@ -341,13 +369,17 @@ void Coupling_Editor::save_External_Slaves()
 	{
 		if(slave_Widget)
 		{
-			Parameter slave_Parameter = slave_Widget->property(parameter_Property).value<Parameter>();
-			slave_Parameter.coupled.master = coupling_Parameter.indicator;
-			slave_Parameter.coupled.master.exist = true;
-			slave_Parameter.coupled.master.expression = coupling_Parameter.coupled.slaves[index].expression;
+			id_Type slave_Id = coupled_Parameter->coupled.slaves[index].id;
+			QTreeWidgetItem* slave_Struct_Item = table_Of_Structures->coupled_Back_Widget_and_Struct_Item.value(slave_Widget);
+			Data slave_Struct_Data = slave_Struct_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+			Parameter* slave_Parameter = Global_Variables::get_Parameter_From_Struct_Item_by_Id(slave_Struct_Data, slave_Id);
+
+			slave_Parameter->coupled.master = coupled_Parameter->indicator;
+			slave_Parameter->coupled.master.exist = true;
+			slave_Parameter->coupled.master.expression = coupled_Parameter->coupled.slaves[index].expression;
 
 			// save slave
-			refresh_Reload_Coupled(refresh_Property, slave_Parameter, slave_Widget);
+			table_Of_Structures->refresh_Reload_Colorize(refresh_Property, slave_Widget, slave_Parameter);
 //			qInfo() << "slave " << slave_Parameter.indicator.full_Name << " added me as master";
 		}
 		index++;
@@ -358,10 +390,10 @@ void Coupling_Editor::clear_Nonexisting_Slaves()
 {
 	int index_To_Remove = -2018;
 
-	// remove onn-ral parameter indicators from the list
-	for(int i=0; i<coupling_Parameter.coupled.slaves.size(); ++i)
+	// remove empty parameter indicators from the list
+	for(int i=0; i<coupled_Parameter->coupled.slaves.size(); ++i)
 	{
-		if(!coupling_Parameter.coupled.slaves[i].exist)
+		if(!coupled_Parameter->coupled.slaves[i].exist)
 		{
 			index_To_Remove=i;
 			break;
@@ -373,25 +405,12 @@ void Coupling_Editor::clear_Nonexisting_Slaves()
 		return;
 	} else
 	{
-		coupling_Parameter.coupled.slaves.remove(index_To_Remove);
+		coupled_Parameter->coupled.slaves.remove(index_To_Remove);
 		slave_Widget_Vec.remove(index_To_Remove);
 		slave_Label_Vec.remove(index_To_Remove);
 		slave_Line_Edit_Vec.remove(index_To_Remove);
 		clear_Nonexisting_Slaves();
 	}
-}
-
-void Coupling_Editor::refresh_Reload_Coupled(QString refresh_Reload, Parameter& parameter, QWidget* widget)
-{
-	if(!widget)
-	{
-		qInfo() << "Coupling_Editor::refresh_Reload_Coupled : null widget";
-		QMessageBox::critical(NULL, "Coupling_Editor::refresh_Reload_Coupled", "null widget");
-		return;
-	}
-
-	// refresh and reload directly from structure tree
-//	Table_Of_Structures::refresh_Reload_Colorize(refresh_Reload, widget, parameter, coupled_Back_Widget_and_Struct_Item);
 }
 
 void Coupling_Editor::check_Expression()
@@ -407,11 +426,11 @@ void Coupling_Editor::check_Expression()
 	{
 		if(line_Edit == master_Line_Edit)
 		{
-			coupling_Parameter.coupled.master.expression = expression;
+			coupled_Parameter->coupled.master.expression = expression;
 		} else
 		{
 			int index = slave_Line_Edit_Vec.indexOf(line_Edit);
-			coupling_Parameter.coupled.slaves[index].expression = expression;
+			coupled_Parameter->coupled.slaves[index].expression = expression;
 		}
 		line_Edit->setProperty(previous_Expression_Property, expression);
 	}
@@ -423,9 +442,9 @@ void Coupling_Editor::enable_Getting_Parameter(QWidget* old, QWidget* now, QLabe
 	if( line_Edit != qobject_cast<QLineEdit*>(old) &&
 		line_Edit == qobject_cast<QLineEdit*>(now) )
 	{
-		for(int tab_Index=0; tab_Index<main_Tabs->count(); ++tab_Index)
+		for(int tab_Index=0; tab_Index<table_Of_Structures->main_Tabs->count(); ++tab_Index)
 		{
-			My_Table_Widget* table = qobject_cast<My_Table_Widget*>(main_Tabs->widget(tab_Index));
+			My_Table_Widget* table = qobject_cast<My_Table_Widget*>(table_Of_Structures->main_Tabs->widget(tab_Index));
 			disconnect(table, &My_Table_Widget::customContextMenuRequested, this, nullptr);
 			   connect(table, &My_Table_Widget::customContextMenuRequested, this, [=]{ get_Parameter(label); });
 		}
@@ -440,10 +459,16 @@ void Coupling_Editor::get_Parameter(QLabel* label)
 	if(widget)
 	if(widget->property(coupling_Editor_Property).toBool())
 	{
-		Parameter parameter = widget->property(parameter_Property).value<Parameter>();
+		id_Type widget_Id = table_Of_Structures->coupled_Back_Widget_and_Id.value(widget);
+		QTreeWidgetItem* widget_Struct_Item = table_Of_Structures->coupled_Back_Widget_and_Struct_Item.value(widget);
+		Data widget_Struct_Data = widget_Struct_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+		Parameter* widget_Parameter = Global_Variables::get_Parameter_From_Struct_Item_by_Id(widget_Struct_Data, widget_Id);
 
 		// period and gamma can't be connected
-		if(parameter.indicator.whats_This == whats_This_Period || parameter.indicator.whats_This == whats_This_Gamma) return;
+		if(widget_Parameter->indicator.whats_This == whats_This_Period || widget_Parameter->indicator.whats_This == whats_This_Gamma) return;
+
+		// can't connect itself
+		if(widget_Id == coupled_Parameter->indicator.id) return;
 
 		// Name and tab are reloading inside the Parameter at Table opening, so they will be corrected after changing the structure and tab order from outside.
 
@@ -451,23 +476,25 @@ void Coupling_Editor::get_Parameter(QLabel* label)
 		if(label == master_Label)
 		{
 			// slave's side (ME)
-			QString expression = coupling_Parameter.coupled.master.expression;
-			coupling_Parameter.coupled.master = parameter.indicator;
-			coupling_Parameter.coupled.master.exist = true;
-			coupling_Parameter.coupled.master.expression = expression;
+			QString expression = coupled_Parameter->coupled.master.expression;
+			coupled_Parameter->coupled.master = widget_Parameter->indicator;
+			coupled_Parameter->coupled.master.exist = true;
+			coupled_Parameter->coupled.master.expression = expression;
 
 			// master's side
 			master_Widget = widget;					// remember widget. data will be saved at close.
-			label->setText("<"+main_Tabs->tabText(parameter.indicator.tab_Index)+"> "+parameter.indicator.full_Name/* + " " + QString::number(parameter.indicator.id)*/);
+			label->setText("<"+table_Of_Structures->main_Tabs->tabText(widget_Parameter->indicator.tab_Index)+"> "+widget_Parameter->indicator.full_Name/* + " " + QString::number(parameter.indicator.id)*/);
 		} else
 		// set slave
 		{
 			// look for this slave in our slaves
 			bool have = false;
-			for(Parameter_Indicator& slave : coupling_Parameter.coupled.slaves)
+			for(Parameter_Indicator& slave : coupled_Parameter->coupled.slaves)
 			{
-				if(slave.id == parameter.indicator.id)
+				if(slave.id == widget_Parameter->indicator.id)
+				{
 					have = true;
+				}
 			}
 
 			// if we dont have such slave
@@ -478,13 +505,12 @@ void Coupling_Editor::get_Parameter(QLabel* label)
 				slave_Widget_Vec[index] = widget;		// remember widget. data will be saved at close.
 
 				// master's side (ME)
+				QString expression = coupled_Parameter->coupled.slaves[index].expression;
+				coupled_Parameter->coupled.slaves[index] = widget_Parameter->indicator;
+				coupled_Parameter->coupled.slaves[index].exist = true;
+				coupled_Parameter->coupled.slaves[index].expression = expression;
 
-				QString expression = coupling_Parameter.coupled.slaves[index].expression;
-				coupling_Parameter.coupled.slaves[index] = parameter.indicator;
-				coupling_Parameter.coupled.slaves[index].exist = true;
-				coupling_Parameter.coupled.slaves[index].expression = expression;
-
-				label->setText("<"+main_Tabs->tabText(parameter.indicator.tab_Index)+"> "+parameter.indicator.full_Name/* + " " + QString::number(parameter.indicator.id)*/);
+				label->setText("<"+table_Of_Structures->main_Tabs->tabText(widget_Parameter->indicator.tab_Index)+"> "+widget_Parameter->indicator.full_Name/* + " " + QString::number(parameter.indicator.id)*/);
 			}
 		}
 //		qInfo() << "parameter id = " << parameter.indicator.id << "\n" << main_Tabs->tabText(parameter.indicator.tab_Index) << " " << parameter.indicator.full_Name << endl;

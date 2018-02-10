@@ -119,7 +119,7 @@ void Table_Of_Structures::add_Tabs()
 	read_Trees();
 	for(int tab_Index=0; tab_Index<multilayer_Tabs->count(); ++tab_Index)
 	{
-		My_Table_Widget* new_Table = new My_Table_Widget(basic_Row_Number, basic_Column_Number, coupled_Back_Widget_and_Struct_Item, coupled_Back_Widget_and_Id, main_Tabs, main_Tabs);
+		My_Table_Widget* new_Table = new My_Table_Widget(basic_Row_Number, basic_Column_Number, this);
 		all_Widgets_To_Reload.append(QList<QWidget*>());
 
 		create_Table(new_Table, tab_Index);
@@ -491,6 +491,12 @@ void Table_Of_Structures::read_Trees()
 void Table_Of_Structures::refresh_Reload_Colorize(QString refresh_Reload, QWidget* back_Widget, Parameter* parameter)
 {
 	// PARAMETER
+
+	if(!back_Widget)
+	{
+		QMessageBox::critical(NULL, "Table_Of_Structures::refresh_Reload_Colorize", "null back_Widget");
+		return;
+	}
 
 	// this function saves parameter to and load parameter from structure tree
 
@@ -1606,7 +1612,7 @@ void Table_Of_Structures::browse_Material(QLineEdit* material_Line_Edit)
 {
 	// TODO
 	qInfo() << "browse...";
-	material_Line_Edit;
+	material_Line_Edit=material_Line_Edit;
 	//    QString directory = QDir::toNativeSeparators(QFileDialog::getOpenFileName(this, "Find File", nk_Path, "Optical constants " + QString(nk_Filter) + ";;All files (*.*)"));
 
 	//    if (!directory.isEmpty())
@@ -2243,21 +2249,23 @@ void Table_Of_Structures::reload_All_Widgets(QObject* sender)
 			QWidget* widget_To_Reload = all_Widgets_To_Reload[current_Tab_Index][i];
 			if(widget_To_Reload != sender)
 			{
-				//		reload_Masters_Slaves_And_Colors(widget_To_Reload);
+				// TODO
+				// reload dependences and color
+				if(widget_To_Reload->property(coupling_Editor_Property).toBool())
+				{
+					id_Type id = coupled_Back_Widget_and_Id.value(widget_To_Reload);
+					QTreeWidgetItem* struct_Item = coupled_Back_Widget_and_Struct_Item.value(widget_To_Reload);
+					Data struct_Data = struct_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+					Parameter* parameter = Global_Variables::get_Parameter_From_Struct_Item_by_Id(struct_Data, id);
 
-				// reload color
-				//		if(widget_To_Reload->property(coupling_Editor_Property).toBool())
-				//		{
-				//		    Parameter parameter = widget_To_Reload->property(parameter_Property).value<Parameter>();
-
-				//		    // if had some dependences
-				//		    if(parameter.coupled.master.exist || parameter.coupled.slaves.size()>0)
-				//		    {
-				//			Coupling_Editor* new_Coupling_Editor = new Coupling_Editor(widget_To_Reload, coupled_Widget_Item, coupled_Widget_Id, main_Tabs, this);
-				//			new_Coupling_Editor->hide();
-				//			new_Coupling_Editor->close();
-				//		    }
-				//		}
+					// if had some dependences
+					if(parameter->coupled.master.exist || parameter->coupled.slaves.size()>0)
+					{
+						Coupling_Editor* new_Coupling_Editor = new Coupling_Editor(widget_To_Reload, this, this);
+							new_Coupling_Editor->hide();
+							new_Coupling_Editor->close();
+					}
+				}
 
 				widget_To_Reload->setProperty(reload_Property, true);
 
@@ -2302,8 +2310,6 @@ void Table_Of_Structures::reload_Related_Widgets(QObject* sender)
 			{
 				if(related != sender)
 				{
-//					reload_Masters_Slaves_And_Colors(related);
-
 					related->setProperty(reload_Property, true);
 
 					QLabel*        label = qobject_cast<QLabel*>   (related);
@@ -2331,86 +2337,6 @@ void Table_Of_Structures::reload_Related_Widgets(QObject* sender)
 
 					related->setProperty(reload_Property, false);
 				}
-			}
-		}
-	}
-}
-
-void Table_Of_Structures::reload_Masters_Slaves_And_Colors(QWidget* widget)
-{
-	if(widget->property(coupling_Editor_Property).toBool())
-	{
-		Parameter parameter = widget->property(parameter_Property).value<Parameter>();
-
-		// reloading masters and slaves
-		reload_Master(parameter);
-		reload_Slaves(parameter);
-
-		// save masters and slaves
-		QVariant var; var.setValue( parameter );
-		widget->setProperty(parameter_Property,var);
-
-		// recolorize
-//		refresh_Reload_Colorize(reload_Property, widget, parameter, coupled_Back_Widget_and_Struct_Item);
-	}
-}
-
-void Table_Of_Structures::reload_Master(Parameter& coupling_Parameter)
-{
-	// almost code duplication with Coupling_Editor::load_Master
-
-	bool loaded = false;
-	// now check if had master
-	if(coupling_Parameter.coupled.master.exist)
-	{
-		QWidget* old_Master_Widget = coupled_Back_Widget_and_Id.key(coupling_Parameter.coupled.master.id); // old_Master_Widget is set only here
-
-		// if old master widget still exists
-		if(old_Master_Widget)
-		{
-			Parameter old_Master_Parameter = old_Master_Widget->property(parameter_Property).value<Parameter>();
-
-			bool have = false;
-			for(Parameter_Indicator& slave_Of_Old_Master : old_Master_Parameter.coupled.slaves)
-			{
-				if(slave_Of_Old_Master.id == coupling_Parameter.indicator.id)
-					have = true;
-			}
-
-			if(have)
-			{
-				loaded = true;
-			}
-		}
-	}
-	if(!loaded)
-	{
-		coupling_Parameter.coupled.master.exist = false;
-	}
-}
-
-void Table_Of_Structures::reload_Slaves(Parameter& coupling_Parameter)
-{
-	// almost code duplication with Coupling_Editor::load_Slaves
-
-	// make copy of slaves
-	QVector<Parameter_Indicator> old_Slaves = coupling_Parameter.coupled.slaves; // old slaves are set only here
-	coupling_Parameter.coupled.slaves.clear();
-
-	for(Parameter_Indicator& old_Slave : old_Slaves)
-	{
-		QWidget* old_Slave_Widget = coupled_Back_Widget_and_Id.key(old_Slave.id);
-
-		// if old slave widget still exists
-		if(old_Slave_Widget)
-		{
-			Parameter old_Slave_Parameter = old_Slave_Widget->property(parameter_Property).value<Parameter>();
-			if( old_Slave_Parameter.coupled.master.exist &&
-					old_Slave_Parameter.coupled.master.id == coupling_Parameter.indicator.id)
-			{
-				coupling_Parameter.coupled.slaves.append(old_Slave_Parameter.indicator);
-				coupling_Parameter.coupled.slaves.last().exist = true;
-				coupling_Parameter.coupled.slaves.last().expression = old_Slave_Parameter.coupled.master.expression;
 			}
 		}
 	}
