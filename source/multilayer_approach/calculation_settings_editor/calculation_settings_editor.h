@@ -27,8 +27,6 @@ public:
 	void refresh_Independent_Calc_Properties(int tab_Index, int independent_Index, QGroupBox* box);
 
 	Multilayer_Approach* multilayer_Approach;
-	QMap<QString, Table_Of_Structures*>& runned_Tables_Of_Structures;
-	QMap<QString, Calculation_Settings_Editor*>& runned_Calculation_Settings_Editor;
 	QTabWidget* multilayer_Tabs;
 
 	QVBoxLayout* main_Layout;

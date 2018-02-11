@@ -36,6 +36,7 @@ void Multilayer_Approach::create_Main_Layout()
 
 	create_Menu();
 	create_Multilayer_Tabs();
+	create_Fitting_Settings();
 }
 
 void Multilayer_Approach::create_Menu()
@@ -63,6 +64,11 @@ void Multilayer_Approach::create_Multilayer_Tabs()
 	connect(multilayer_Tabs,		&QTabWidget::tabBarDoubleClicked,this, &Multilayer_Approach::rename_Multilayer);
 
 	add_Multilayer();
+}
+
+void Multilayer_Approach::create_Fitting_Settings()
+{
+	fitting_Settings = new Fitting_Settings;
 }
 
 void Multilayer_Approach::set_Window_Geometry()

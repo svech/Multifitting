@@ -2,8 +2,6 @@
 
 Calculation_Settings_Editor::Calculation_Settings_Editor(Multilayer_Approach* multilayer_Approach, QWidget* parent) :
 	multilayer_Approach(multilayer_Approach),
-	runned_Tables_Of_Structures(multilayer_Approach->runned_Tables_Of_Structures),
-	runned_Calculation_Settings_Editor(multilayer_Approach->runned_Calculation_Settings_Editor),
 	multilayer_Tabs(multilayer_Approach->multilayer_Tabs),
 	QWidget(parent)
 {
@@ -15,7 +13,7 @@ Calculation_Settings_Editor::Calculation_Settings_Editor(Multilayer_Approach* mu
 
 void Calculation_Settings_Editor::closeEvent(QCloseEvent* event)
 {
-	runned_Calculation_Settings_Editor.remove(calc_Settings_Key);
+	multilayer_Approach->runned_Calculation_Settings_Editor.remove(calc_Settings_Key);
 	unlock_Mainwindow_Interface();
 	event->accept();
 }
@@ -134,7 +132,7 @@ void Calculation_Settings_Editor::lock_Mainwindow_Interface()
 void Calculation_Settings_Editor::unlock_Mainwindow_Interface()
 {
 	// unlock mainwindow functionality
-	if(!runned_Tables_Of_Structures.contains(table_Key) && !runned_Calculation_Settings_Editor.contains(calc_Settings_Key))
+	if(!multilayer_Approach->runned_Tables_Of_Structures.contains(table_Key) && !multilayer_Approach->runned_Calculation_Settings_Editor.contains(calc_Settings_Key))
 	{
 		multilayer_Tabs->setMovable(true);
 		multilayer_Tabs->cornerWidget()->setDisabled(false);
@@ -143,7 +141,7 @@ void Calculation_Settings_Editor::unlock_Mainwindow_Interface()
 	{
 		Multilayer* multilayer = qobject_cast<Multilayer*>(multilayer_Tabs->widget(i));
 
-		if(!runned_Tables_Of_Structures.contains(table_Key) && !runned_Calculation_Settings_Editor.contains(calc_Settings_Key))
+		if(!multilayer_Approach->runned_Tables_Of_Structures.contains(table_Key) && !multilayer_Approach->runned_Calculation_Settings_Editor.contains(calc_Settings_Key))
 		{
 			multilayer->structure_Tree->structure_Toolbar->toolbar->setDisabled(false);
 			multilayer_Tabs->tabBar()->tabButton(i, QTabBar::RightSide)->setEnabled(true);

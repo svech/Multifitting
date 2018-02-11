@@ -39,7 +39,7 @@ public:
 	void create_Stoich_Line_Edit	(My_Table_Widget* table, int tab_Index, int current_Row, int start_Column, QTreeWidgetItem* structure_Item, QString val_Type);
 	void create_Stoich_Check_Box_Fit(My_Table_Widget* table, int tab_Index, int current_Row, int start_Column, QTreeWidgetItem* structure_Item, int r_S, int r_F, int c_S, int c_F);
 
-	void create_Material_Line_Edit	(My_Table_Widget* table, int,			int current_Row, int current_Column, QTreeWidgetItem* structure_Item);
+	void create_Material_Line_Edit	(My_Table_Widget* table, int tab_Index,	int current_Row, int current_Column, QTreeWidgetItem* structure_Item);
 	void create_Browse_Button		(My_Table_Widget* table,				int current_Row, int start_Column, int material_LineEdit_Row, int material_LineEdit_Column);
 
 	// for several parameters

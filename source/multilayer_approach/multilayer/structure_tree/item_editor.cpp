@@ -819,8 +819,12 @@ void Item_Editor::resize_Line_Edit(QString text, QLineEdit* line_Edit)
 
 void Item_Editor::browse_Material()
 {
-	// TODO
-	qInfo() << "browse...";
+	QFileInfo filename = QDir::toNativeSeparators(QFileDialog::getOpenFileName(this, "Find File", nk_Path, "Optical constants " + QString(nk_Filter) + ";;All files (*.*)"));
+	if (!filename.completeBaseName().isEmpty())
+	{
+		material_Line_Edit->setText(filename.completeBaseName());
+		material_Line_Edit->textEdited(material_Line_Edit->text());
+	}
 }
 
 void Item_Editor::depth_Grading()

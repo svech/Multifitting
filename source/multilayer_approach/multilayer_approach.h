@@ -8,7 +8,7 @@
 #include "multilayer_approach/table_of_structures/table_of_structures.h"
 #include "multilayer_approach/fits_selector/fits_selector.h"
 #include "multilayer_approach/calculation_settings_editor/calculation_settings_editor.h"
-#include "multilayer_approach/fitting_settings_editor/fitting_settings_editor.h"
+#include "multilayer_approach/fitting_settings/fitting_settings_editor.h"
 
 class Launcher;
 class Multilayer;
@@ -16,6 +16,7 @@ class Table_Of_Structures;
 class Fits_Selector;
 class Calculation_Settings_Editor;
 class Fitting_Settings_Editor;
+class Fitting_Settings;
 
 class Multilayer_Approach : public QWidget
 {
@@ -45,6 +46,7 @@ public:
 	void create_Main_Layout();
 		void create_Menu();
 		void create_Multilayer_Tabs();
+		void create_Fitting_Settings();
 	void set_Window_Geometry();
 
 
@@ -78,6 +80,7 @@ public:
 
 		QMap<QString, Fitting_Settings_Editor*> runned_Fitting_Settings_Editor;
 		Fitting_Settings_Editor* fitting_Settings_Editor;
+		Fitting_Settings* fitting_Settings;
 };
 
 #endif // MULTILAYER_APPROACH_H

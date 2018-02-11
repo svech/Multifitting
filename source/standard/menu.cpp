@@ -55,7 +55,8 @@ void Menu::add_Menu_Points()
 		create_Table_Precision_Menu();
 			menu_Bar->addMenu(precision_Menu);
 	}
-	if(window_Type == window_Type_Calculation_Settings_Editor)
+	if(window_Type == window_Type_Calculation_Settings_Editor ||
+	   window_Type == window_Type_Fitting_Settings_Editor	   )
 	{
 		create_Calculate_Menu();
 			menu_Bar->addMenu(calculate_Menu);
@@ -189,15 +190,30 @@ void Menu::create_Calculate_Menu()
 	if(window_Type == window_Type_Calculation_Settings_Editor)
 	{
 		Calculation_Settings_Editor* calculation_Settings_Editor = qobject_cast<Calculation_Settings_Editor*>(my_Parent);
-		connect(act_Specular,	   &QAction::triggered, calculation_Settings_Editor->multilayer_Tabs->parent(), [=]
+		connect(act_Specular,	   &QAction::triggered, calculation_Settings_Editor->multilayer_Approach, [=]
 		{
 			for(QLineEdit* line_Edit : calculation_Settings_Editor->different_Lines) { line_Edit->editingFinished(); }
-			qobject_cast<Multilayer_Approach*>(calculation_Settings_Editor->multilayer_Tabs->parent())->calc_Reflection();
+			calculation_Settings_Editor->multilayer_Approach->calc_Reflection();
 		});
-		connect(act_Fitting,	   &QAction::triggered, calculation_Settings_Editor->multilayer_Tabs->parent(), [=]
+		connect(act_Fitting,	   &QAction::triggered, calculation_Settings_Editor->multilayer_Approach, [=]
 		{
 			for(QLineEdit* line_Edit : calculation_Settings_Editor->different_Lines) { line_Edit->editingFinished(); }
-			qobject_cast<Multilayer_Approach*>(calculation_Settings_Editor->multilayer_Tabs->parent())->start_Fitting();
+			calculation_Settings_Editor->multilayer_Approach->start_Fitting();
+		});
+
+		calculate_Menu->addAction(act_Specular);
+		calculate_Menu->addAction(act_Fitting);
+	}
+	if(window_Type == window_Type_Fitting_Settings_Editor)
+	{
+		Fitting_Settings_Editor* fitting_Settings_Editor = qobject_cast<Fitting_Settings_Editor*>(my_Parent);
+		connect(act_Specular,	   &QAction::triggered, fitting_Settings_Editor->multilayer_Approach, [=]
+		{
+			fitting_Settings_Editor->multilayer_Approach->calc_Reflection();
+		});
+		connect(act_Fitting,	   &QAction::triggered, fitting_Settings_Editor->multilayer_Approach, [=]
+		{
+			fitting_Settings_Editor->multilayer_Approach->start_Fitting();
 		});
 
 		calculate_Menu->addAction(act_Specular);

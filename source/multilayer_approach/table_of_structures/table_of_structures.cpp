@@ -222,12 +222,12 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 					create_Stoich_Line_Edit	    (new_Table, tab_Index, current_Row+4, current_Column, structure_Item, MAX);
 
 					// it should be created last
-					create_Stoich_Check_Box_Fit	    (new_Table, tab_Index, current_Row+2, current_Column, structure_Item, 1, 2, 0, 0);
+					create_Stoich_Check_Box_Fit	(new_Table, tab_Index, current_Row+2, current_Column, structure_Item, 1, 2, 0, 0);
 				}
 				else
 				{
-					create_Material_Line_Edit	    (new_Table, tab_Index, current_Row,   current_Column, structure_Item);
-					create_Browse_Button	    (new_Table,		  current_Row+1, current_Column, current_Row, current_Column);
+					create_Material_Line_Edit	(new_Table, tab_Index,	current_Row,   current_Column, structure_Item);
+					create_Browse_Button	    (new_Table,	current_Row+1, current_Column, current_Row, current_Column);
 				}
 			}
 			current_Column += (max_Number_Of_Elements+1);
@@ -825,7 +825,7 @@ void Table_Of_Structures::create_Stoich_Check_Box_Fit(My_Table_Widget* table, in
 	}
 }
 
-void Table_Of_Structures::create_Material_Line_Edit(My_Table_Widget* table, int, int current_Row, int current_Column, QTreeWidgetItem* structure_Item)
+void Table_Of_Structures::create_Material_Line_Edit(My_Table_Widget* table, int tab_Index, int current_Row, int current_Column, QTreeWidgetItem* structure_Item)
 {
 	QString material = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>().material;
 
@@ -838,6 +838,7 @@ void Table_Of_Structures::create_Material_Line_Edit(My_Table_Widget* table, int,
 
 	// storage
 	line_Edits_Map.insert(material_Line_Edit, structure_Item);
+	all_Widgets_To_Reload[tab_Index].append(material_Line_Edit);
 
 	// add widget to table
 	table->setCellWidget(current_Row, current_Column, material_Line_Edit);
@@ -849,9 +850,7 @@ void Table_Of_Structures::create_Material_Line_Edit(My_Table_Widget* table, int,
 
 void Table_Of_Structures::create_Browse_Button(My_Table_Widget* table, int current_Row, int start_Column, int material_LineEdit_Row, int material_LineEdit_Column)
 {
-	// TODO
 	QPushButton* browse_Button = new QPushButton("Browse");
-	browse_Button->setDisabled(true);
 	browse_Button->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT);
 	table->setCellWidget(current_Row, start_Column, browse_Button);
 
@@ -1610,15 +1609,12 @@ void Table_Of_Structures::check_Material()
 
 void Table_Of_Structures::browse_Material(QLineEdit* material_Line_Edit)
 {
-	// TODO
-	qInfo() << "browse...";
-	material_Line_Edit=material_Line_Edit;
-	//    QString directory = QDir::toNativeSeparators(QFileDialog::getOpenFileName(this, "Find File", nk_Path, "Optical constants " + QString(nk_Filter) + ";;All files (*.*)"));
-
-	//    if (!directory.isEmpty())
-	//    {
-	//	material_Line_Edit->setText(directory);
-	//    }
+	QFileInfo filename = QDir::toNativeSeparators(QFileDialog::getOpenFileName(this, "Find File", nk_Path, "Optical constants " + QString(nk_Filter) + ";;All files (*.*)"));
+	if (!filename.completeBaseName().isEmpty() || filename.completeSuffix() == nk_Ext)
+	{
+		material_Line_Edit->setText(filename.completeBaseName());
+		material_Line_Edit->editingFinished();
+	}
 }
 
 void Table_Of_Structures::refresh_Header(QString)
