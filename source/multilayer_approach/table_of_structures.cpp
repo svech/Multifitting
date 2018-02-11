@@ -2249,7 +2249,6 @@ void Table_Of_Structures::reload_All_Widgets(QObject* sender)
 			QWidget* widget_To_Reload = all_Widgets_To_Reload[current_Tab_Index][i];
 			if(widget_To_Reload != sender)
 			{
-				// TODO
 				// reload dependences and color
 				if(widget_To_Reload->property(coupling_Editor_Property).toBool())
 				{
@@ -2262,7 +2261,6 @@ void Table_Of_Structures::reload_All_Widgets(QObject* sender)
 					if(parameter->coupled.master.exist || parameter->coupled.slaves.size()>0)
 					{
 						Coupling_Editor* new_Coupling_Editor = new Coupling_Editor(widget_To_Reload, this, this);
-							new_Coupling_Editor->hide();
 							new_Coupling_Editor->close();
 					}
 				}

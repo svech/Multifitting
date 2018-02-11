@@ -378,7 +378,7 @@ void Settings::read_Precisions(bool reset_to_default)
 			line_edit_interlayer_precision	= precision_Values.value( "line_edit_interlayer_precision",		3 ).toInt();
 			line_edit_drift_precision		= precision_Values.value( "line_edit_drift_precision",			3 ).toInt();
 			line_edit_period_precision		= precision_Values.value( "line_edit_period_precision",			4 ).toInt();	// = thickness precision
-			line_edit_gamma_precision		= precision_Values.value( "line_edit_gamma_precision",			9 ).toInt();	// = thickness precision
+			line_edit_gamma_precision		= precision_Values.value( "line_edit_gamma_precision",			8 ).toInt();	// = thickness precision
 		precision_Values.endGroup();
 		precision_Values.beginGroup( Thumbnail );
 			thumbnail_double_format	    = qvariant_cast<char>(precision_Values.value( "thumbnail_double_format",'f'));

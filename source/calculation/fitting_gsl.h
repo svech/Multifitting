@@ -30,7 +30,7 @@ public:
 	static void gamma_Subtree_Iteration(const tree<Node>::iterator& parent, double old_Value);
 	static void slaves_Recalculation(Parameter* master, Params* params);
 	static int calc_Residual(const gsl_vector* x, void* bare_Params, gsl_vector* f);
-	void init_Position(gsl_vector* x);
+	void init_Position(gsl_vector* x, Params* params);
 	static void fill_Residual(int& residual_Shift, Data_Element<Target_Curve>& target_Element, gsl_vector* f);
 	bool check_Residual_Expression();
 };

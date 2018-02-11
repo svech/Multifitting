@@ -45,7 +45,7 @@ void Fitting_GSL::fit()
 
 	const size_t n = num_Residual_Points();
 	const size_t p = fitables.fit_Parameters.size();
-	const size_t max_iter = 200;
+	const size_t max_iter = 400;
 	const double xtol = 1.0e-8;
 	const double gtol = 1.0e-8;
 	const double ftol = 1.0e-8;
@@ -64,7 +64,7 @@ void Fitting_GSL::fit()
 
 	gsl_vector* f = gsl_multifit_nlinear_residual(work);
 	gsl_vector* x = gsl_multifit_nlinear_position(work);
-	init_Position(x);
+	init_Position(x, &params);
 
 	gsl_multifit_nlinear_fdf fdf;
 	fdf.f = &calc_Residual;
@@ -188,20 +188,21 @@ void Fitting_GSL::slaves_Recalculation(Parameter* master, Params* params)
 		Parameter* slave = master->coupled.slave_Pointers[slave_Index];
 
 #ifdef EXPRTK
-		double expression_Argument;
-		exprtk::parser<double> parser;
-		exprtk::symbol_table<double> symbol_table;
-		exprtk::expression<double> expression_Exprtk;
+		// local parsing. not used
+//		exprtk::parser<double> parser;
+//		exprtk::symbol_table<double> symbol_table;
+//		exprtk::expression<double> expression_Exprtk;
 
-		symbol_table.add_variable(expression_Master_Slave_Variable, expression_Argument);
-		symbol_table.add_constants();
+//		symbol_table.add_variable(expression_Master_Slave_Variable, master->value);
+//		symbol_table.add_constants();
 
-		expression_Exprtk.register_symbol_table(symbol_table);
-		parser.compile(slave_Parameter_Indicator.expression.toStdString(), expression_Exprtk);
+//		expression_Exprtk.register_symbol_table(symbol_table);
+//		parser.compile(slave_Parameter_Indicator.expression.toStdString(), expression_Exprtk);
+//		slave->value = expression_Exprtk.value();
 
-//		int index = params->main_Calculation_Module->slaves_Expression_Map.value(slave->indicator.id);
-//		params->main_Calculation_Module->argument_Vec[index] = master->value;
-//		slave->value = params->main_Calculation_Module->expression_Vec[index].value();
+		int index = params->main_Calculation_Module->slaves_Expression_Map.value(slave->indicator.id);
+		params->main_Calculation_Module->argument_Vec[index] = master->value;
+		slave->value = params->main_Calculation_Module->expression_Vec[index].value();
 #else
 		slave->value = master->value;
 #endif
@@ -264,11 +265,20 @@ int Fitting_GSL::calc_Residual(const gsl_vector* x, void* bare_Params, gsl_vecto
 	return GSL_SUCCESS;
 }
 
-void Fitting_GSL::init_Position(gsl_vector* x)
+void Fitting_GSL::init_Position(gsl_vector* x, Params* params)
 {
+	// change value of slaves
+	for(size_t i=0; i<fitables.fit_Parameters.size(); ++i)
+	{
+		slaves_Recalculation(fitables.fit_Parameters[i], params);
+	}
+
 	// change value of real fitables
 	for(size_t i=0; i<fitables.fit_Parameters.size(); ++i)
 	{
+		fitables.fit_Value_Parametrized[i] = main_Calculation_Module->parametrize(fitables.fit_Parameters[i]->value,
+																				  fitables.fit_Parameters[i]->fit.min,
+																				  fitables.fit_Parameters[i]->fit.max);
 		gsl_vector_set(x, i, fitables.fit_Value_Parametrized[i]);
 	}
 }

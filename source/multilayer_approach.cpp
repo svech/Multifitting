@@ -98,8 +98,6 @@ void Multilayer_Approach::remove_Multilayer(int index)
 	{
 		delete multilayer_Tabs->widget(index);
 		if(multilayer_Tabs->count()==0) add_Multilayer();
-
-		refresh_Parameters_Connection_Over_Trees();
 	}
 }
 
@@ -168,19 +166,6 @@ void Multilayer_Approach::add_Fitted_Structure(QVector<QTreeWidget*>& fitted_Tre
 	{
 		fits_Selector->add_Item(new_Fitted_Structure);
 	}
-}
-
-void Multilayer_Approach::refresh_Parameters_Connection_Over_Trees()
-{
-	// TODO
-//	qInfo() << "refresh_Parameters_Connection_Over_Trees";
-//	open_Table_Of_Structures();
-//	table_Of_Structures->reload_All_Widgets();
-//	table_Of_Structures->close();
-//	table_Of_Structures = new Table_Of_Structures(this);
-//		table_Of_Structures->hide();
-//		table_Of_Structures->r
-//	table_Of_Structures->close();
 }
 
 void Multilayer_Approach::open_Table_Of_Structures()

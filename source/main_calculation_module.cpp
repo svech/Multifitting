@@ -50,6 +50,13 @@ void Main_Calculation_Module::fitting()
 		return;
 	}
 
+	// reload dependences
+	if(!multilayer_Approach->runned_Tables_Of_Structures.contains(table_Key))
+	{
+		multilayer_Approach->table_Of_Structures = new Table_Of_Structures(multilayer_Approach);
+		multilayer_Approach->table_Of_Structures->close();
+	}
+
 	fitables.clear_All();
 	rejected_Sigmas.clear_All();
 	rejected_Min_Max.clear_All();
@@ -77,14 +84,16 @@ void Main_Calculation_Module::fitting()
 
 	// not used
 	/// prepare expressions for slaves, starting from fitable top-masters
-//	EXPRTK
-//	expression_Vec.clear();
-//	argument_Vec.clear();
-//	slaves_Expression_Map.clear();
-//	for(Parameter* parameter : fitables.fit_Parameters)
-//	{
-//		slaves_Expression_Iteration(parameter);
-//	}
+#ifdef EXPRTK
+	expression_Vec.clear();
+	argument_Vec.clear();
+	slaves_Expression_Map.clear();
+	for(Parameter* parameter : fitables.fit_Parameters)
+	{
+		slaves_Expression_Iteration(parameter);
+	}
+#endif
+
 	/// rejection
 	if(reject()) return;
 
@@ -224,7 +233,7 @@ void Main_Calculation_Module::find_Fittable_Parameters(Data& struct_Data, const 
 
 			// changeable
 			fitables.fit_Parameters			.push_back(parameter);
-			fitables.fit_Value_Parametrized	.push_back(parametrize(parameter->value, parameter->fit.min, parameter->fit.max));
+			fitables.fit_Value_Parametrized	.push_back(parametrize(parameter->value, parameter->fit.min, parameter->fit.max)); // will be recalculated at solver initialization
 			fitables.fit_Parent_Iterators	.push_back(parent);					// used for period and gamma only, but should be filled for all for the length purpose!
 
 			/// for rejection
@@ -294,29 +303,27 @@ void Main_Calculation_Module::slaves_Expression_Iteration(Parameter* master)
 		QMessageBox::critical(NULL, "Main_Calculation_Module::slaves_Expression_Iteration", "slaves.size() != slave_Pointers.size()");
 		exit(EXIT_FAILURE);
 	}
-//	for(int slave_Index=0; slave_Index<master->coupled.slaves.size(); ++slave_Index)
-//	{
-//		Parameter_Indicator& slave_Parameter_Indicator = master->coupled.slaves[slave_Index];
-//		Parameter* slave = master->coupled.slave_Pointers[slave_Index];
+	for(int slave_Index=0; slave_Index<master->coupled.slaves.size(); ++slave_Index)
+	{
+		Parameter_Indicator& slave_Parameter_Indicator = master->coupled.slaves[slave_Index];
+		Parameter* slave = master->coupled.slave_Pointers[slave_Index];
 
-//#ifdef EXPRTK
-//		double expression_Argument;
-//		exprtk::parser<double> parser;
-//		exprtk::symbol_table<double> symbol_table;
-//		exprtk::expression<double> expression_Exprtk;
+#ifdef EXPRTK
+		exprtk::parser<double> parser;
+		exprtk::symbol_table<double> symbol_table;
 
-//		expression_Vec.append(expression_Exprtk);
-//		argument_Vec.append(expression_Argument);
-//		slaves_Expression_Map.insert(slave->indicator.id, expression_Vec.size()-1);
+		expression_Vec.append(exprtk::expression<double>());
+		argument_Vec.append(master->value);
+		slaves_Expression_Map.insert(slave->indicator.id, expression_Vec.size()-1);
 
-//		symbol_table.add_variable(expression_Master_Slave_Variable, argument_Vec.last());
-//		symbol_table.add_constants();
+		symbol_table.add_variable(expression_Master_Slave_Variable, argument_Vec.last());
+		symbol_table.add_constants();
 
-//		expression_Exprtk.register_symbol_table(symbol_table);
-//		parser.compile(slave_Parameter_Indicator.expression.toStdString(), expression_Vec.last());
-//#endif
-//		slaves_Expression_Iteration(slave);
-//	}
+		expression_Vec.last().register_symbol_table(symbol_table);
+		parser.compile(slave_Parameter_Indicator.expression.toStdString(), expression_Vec.last());
+#endif
+		slaves_Expression_Iteration(slave);
+	}
 }
 
 Parameter* Main_Calculation_Module::find_Slave_Pointer_by_Id(const Parameter_Indicator& slave_Parameter_Indicator)

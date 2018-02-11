@@ -40,7 +40,7 @@ public:
 	void slaves_Expression_Iteration(Parameter* master);
 
 #ifdef EXPRTK
-	QMap<int, int> slaves_Expression_Map;  // <parameter ID ; vector index>
+	QMap<id_Type, int> slaves_Expression_Map;  // <parameter ID ; vector index>
 	QVector<exprtk::expression<double>> expression_Vec;
 	QVector<double> argument_Vec;
 #endif
