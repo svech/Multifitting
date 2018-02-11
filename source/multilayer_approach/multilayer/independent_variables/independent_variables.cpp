@@ -3,7 +3,7 @@
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
 #include "independent_variables.h"
-#include "independent_variables/independent_calc_function_selection.h"
+#include "independent_calc_function_selection.h"
 
 Independent_Variables::Independent_Variables(QTreeWidget* real_Struct_Tree, QWidget *parent) :
 	QWidget(parent),

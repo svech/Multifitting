@@ -3,7 +3,7 @@
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
 #include "menu.h"
-#include "multilayer_approach/table_of_structures.h"
+#include "multilayer_approach/table_of_structures/table_of_structures.h"
 
 Menu::Menu(QString window_Type, QWidget *parent):
 	window_Type(window_Type),

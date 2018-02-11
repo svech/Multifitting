@@ -273,8 +273,9 @@ class Node;
 
 // keys
 #define table_Key			"table_Of_Structures"
-#define calc_Settings_Key	"calc_Settings_Key"
 #define fits_Selector_Key	"fits_Selector_Key"
+#define calc_Settings_Key	"calc_Settings_Key"
+#define fit_Settings_Key	"fit_Settings_Key"
 
 // curves types
 #define INDEPENDENT	"INDEPENDENT"

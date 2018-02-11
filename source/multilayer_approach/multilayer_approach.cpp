@@ -186,21 +186,7 @@ void Multilayer_Approach::open_Table_Of_Structures()
 		}
 	} else
 	{
-		runned_Tables_Of_Structures.value(table_Key)->activateWindow();
-	}
-}
-
-void Multilayer_Approach::open_Calculation_Settings()
-{
-	if(!runned_Calculation_Settings_Editor.contains(calc_Settings_Key))
-	{
-		calculation_Settings = new Calculation_Settings_Editor(this);
-		runned_Calculation_Settings_Editor.insert(calc_Settings_Key, calculation_Settings);
-			calculation_Settings->setWindowFlags(Qt::Window);
-			calculation_Settings->show();
-	} else
-	{
-		runned_Calculation_Settings_Editor.value(calc_Settings_Key)->activateWindow();
+		table_Of_Structures->activateWindow();
 	}
 }
 
@@ -214,7 +200,35 @@ void Multilayer_Approach::open_Fits_Selector()
 			fits_Selector->show();
 	} else
 	{
-		runned_Fits_Selectors.value(fits_Selector_Key)->activateWindow();
+		fits_Selector->activateWindow();
+	}
+}
+
+void Multilayer_Approach::open_Calculation_Settings()
+{
+	if(!runned_Calculation_Settings_Editor.contains(calc_Settings_Key))
+	{
+		calculation_Settings_Editor = new Calculation_Settings_Editor(this);
+		runned_Calculation_Settings_Editor.insert(calc_Settings_Key, calculation_Settings_Editor);
+			calculation_Settings_Editor->setWindowFlags(Qt::Window);
+			calculation_Settings_Editor->show();
+	} else
+	{
+		calculation_Settings_Editor->activateWindow();
+	}
+}
+
+void Multilayer_Approach::open_Fitting_Settings()
+{
+	if(!runned_Fitting_Settings_Editor.contains(fit_Settings_Key))
+	{
+		fitting_Settings_Editor = new Fitting_Settings_Editor(this);
+		runned_Fitting_Settings_Editor.insert(fit_Settings_Key, fitting_Settings_Editor);
+			fitting_Settings_Editor->setWindowFlags(Qt::Window);
+			fitting_Settings_Editor->show();
+	} else
+	{
+		fitting_Settings_Editor->activateWindow();
 	}
 }
 

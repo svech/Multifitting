@@ -2,8 +2,8 @@
 #define TARGET_CURVE_EDITOR_H
 
 #include "global/layer_data_types.h"
-#include "multilayer_approach/multilayer/target_curve.h"
-#include "multilayer_approach/multilayer.h"
+#include "multilayer_approach/multilayer/target_curve/target_curve.h"
+#include "multilayer_approach/multilayer/multilayer.h"
 
 class Target_Curve_Editor : public QDialog
 {

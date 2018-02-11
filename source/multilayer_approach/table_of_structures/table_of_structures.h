@@ -2,9 +2,9 @@
 #define TABLE_OF_STRUCTURES_H
 
 #include "global/settings.h"
-#include "multilayer/structure_tree.h"
-#include "table_of_structures/my_table_widget.h"
-#include "calculation/calculation_settings_editor.h"
+#include "multilayer_approach/multilayer/structure_tree/structure_tree.h"
+#include "multilayer_approach/table_of_structures/my_table_widget.h"
+#include "multilayer_approach/calculation_settings_editor/calculation_settings_editor.h"
 
 class Structure_Tree;
 class My_Table_Widget;

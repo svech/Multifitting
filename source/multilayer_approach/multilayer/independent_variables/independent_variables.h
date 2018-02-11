@@ -1,7 +1,7 @@
 #ifndef INDEPENDENT_VARIABLES_H
 #define INDEPENDENT_VARIABLES_H
 
-#include "independent_variables/independent_variables_editor.h"
+#include "multilayer_approach/multilayer/independent_variables/independent_variables_editor.h"
 #include "variable_selection.h"
 
 class Independent_Variables : public QWidget

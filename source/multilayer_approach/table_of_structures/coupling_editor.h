@@ -3,7 +3,7 @@
 
 #include "global/settings.h"
 #include "my_table_widget.h"
-#include "multilayer_approach/table_of_structures.h"
+#include "multilayer_approach/table_of_structures/table_of_structures.h"
 
 class Table_Of_Structures;
 

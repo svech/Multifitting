@@ -1,7 +1,7 @@
 #ifndef INDEPENDENT_CALC_FUNCTION_SELECTION_H
 #define INDEPENDENT_CALC_FUNCTION_SELECTION_H
 
-#include "multilayer_approach/multilayer.h"
+#include "multilayer_approach/multilayer/multilayer.h"
 
 class Independent_Calc_Function_Selection : public QDialog
 {

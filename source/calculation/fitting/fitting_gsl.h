@@ -1,7 +1,7 @@
 #ifndef FITTING_GSL_H
 #define FITTING_GSL_H
 
-#include "main_calculation_module.h"
+#include "calculation/main_calculation_module.h"
 #include <gsl/gsl_blas.h>
 #include <gsl/gsl_multifit_nlinear.h>
 

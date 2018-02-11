@@ -3,17 +3,19 @@
 
 #include "launcher.h"
 #include "standard/menu.h"
-#include "multilayer_approach/multilayer.h"
-#include "main_calculation_module.h"
-#include "multilayer_approach/table_of_structures.h"
-#include "calculation/fitting/fits_selector.h"
-#include "calculation/calculation_settings_editor.h"
+#include "multilayer_approach/multilayer/multilayer.h"
+#include "calculation/main_calculation_module.h"
+#include "multilayer_approach/table_of_structures/table_of_structures.h"
+#include "multilayer_approach/fits_selector/fits_selector.h"
+#include "multilayer_approach/calculation_settings_editor/calculation_settings_editor.h"
+#include "multilayer_approach/fitting_settings_editor/fitting_settings_editor.h"
 
 class Launcher;
 class Multilayer;
 class Table_Of_Structures;
-class Calculation_Settings_Editor;
 class Fits_Selector;
+class Calculation_Settings_Editor;
+class Fitting_Settings_Editor;
 
 class Multilayer_Approach : public QWidget
 {
@@ -33,8 +35,9 @@ public:
 	void start_Fitting();
 	void reload_Optical_Constants();
 	void open_Table_Of_Structures();
-	void open_Calculation_Settings();
 	void open_Fits_Selector();
+	void open_Calculation_Settings();
+	void open_Fitting_Settings();
 
 	void closeEvent(QCloseEvent *event);
 	void dragEnterEvent(QDragEnterEvent* event);
@@ -65,13 +68,16 @@ public:
 		QMap<QString, Table_Of_Structures*>  runned_Tables_Of_Structures;
 		Table_Of_Structures* table_Of_Structures;
 
-		QMap<QString, Calculation_Settings_Editor*> runned_Calculation_Settings_Editor;
-		Calculation_Settings_Editor* calculation_Settings;
-
 		QMap<QString, Fits_Selector*>  runned_Fits_Selectors;
 		Fits_Selector* fits_Selector;
 		QVector<Fitted_Structure> fitted_Structures;
 		id_Type fits_Positive_Counter = 0;
+
+		QMap<QString, Calculation_Settings_Editor*> runned_Calculation_Settings_Editor;
+		Calculation_Settings_Editor* calculation_Settings_Editor;
+
+		QMap<QString, Fitting_Settings_Editor*> runned_Fitting_Settings_Editor;
+		Fitting_Settings_Editor* fitting_Settings_Editor;
 };
 
 #endif // MULTILAYER_APPROACH_H

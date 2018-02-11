@@ -58,18 +58,18 @@ void Calculation_Settings_Editor::create_Main_Layout()
 		button_Layout->addWidget(global_Norm_Button);
 	}
 	{
-		optimization_Method_Button = new QPushButton("Fitting Method");
-			optimization_Method_Button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-			optimization_Method_Button->setFocus();
-			optimization_Method_Button->setDefault(true);
-		button_Layout->addWidget(optimization_Method_Button);
+		fitting_Settings_Button = new QPushButton("Fitting Settings");
+			fitting_Settings_Button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+			fitting_Settings_Button->setFocus();
+			fitting_Settings_Button->setDefault(true);
+		button_Layout->addWidget(fitting_Settings_Button);
 	}
 	main_Layout->addLayout(button_Layout);
 
 	// TODO
-	connect(done_Button, &QPushButton::clicked, this, &Calculation_Settings_Editor::close);
+	connect(done_Button,			 &QPushButton::clicked, this, &Calculation_Settings_Editor::close);
 	global_Norm_Button->setDisabled(true);
-	optimization_Method_Button->setDisabled(true);
+	connect(fitting_Settings_Button, &QPushButton::clicked, multilayer_Approach, &Multilayer_Approach::open_Fitting_Settings);
 }
 
 void Calculation_Settings_Editor::create_Menu()

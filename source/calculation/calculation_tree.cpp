@@ -3,7 +3,7 @@
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
 #include "calculation_tree.h"
-#include "multilayer_approach/multilayer.h"
+#include "multilayer_approach/multilayer/multilayer.h"
 #include <iostream>
 
 Calculation_Tree::Calculation_Tree(Multilayer* multilayer, QString calc_Mode):

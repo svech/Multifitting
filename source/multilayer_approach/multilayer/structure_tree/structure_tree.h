@@ -2,9 +2,9 @@
 #define STRUCTURE_TREE_H
 
 #include "global/layer_data_types.h"
-#include "structure_tree/item_editor.h"
-#include "structure_tree/structure_toolbar.h"
-#include "multilayer_approach/multilayer.h"
+#include "multilayer_approach/multilayer/structure_tree/item_editor.h"
+#include "multilayer_approach/multilayer/structure_tree/structure_toolbar.h"
+#include "multilayer_approach/multilayer/multilayer.h"
 
 class Multilayer;
 class Structure_Toolbar;

@@ -2,7 +2,7 @@
 #define FITS_SELECTOR_H
 
 #include "global/settings.h"
-#include "multilayer_approach.h"
+#include "multilayer_approach/multilayer_approach.h"
 
 class Fits_Selector : public QWidget
 {

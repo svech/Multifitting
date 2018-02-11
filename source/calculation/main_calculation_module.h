@@ -3,9 +3,9 @@
 
 #include "global/layer_data_types.h"
 #include "calculation/calculation_tree.h"
-#include "multilayer_approach/multilayer.h"
-#include "multilayer_approach.h"
-#include "calculation/fitting_gsl.h"
+#include "multilayer_approach/multilayer/multilayer.h"
+#include "multilayer_approach/multilayer_approach.h"
+#include "calculation/fitting/fitting_gsl.h"
 
 class Multilayer;
 class Multilayer_Approach;

@@ -70,19 +70,23 @@ void Multilayer::create_Variables_Tabs()
 		structure_Table_Button = new QPushButton("Structure table");
 			layout->addWidget(structure_Table_Button);
 
+		fits_Selector_Button = new QPushButton("Fits selector");
+			layout->addWidget(fits_Selector_Button);
+
 		calculation_Settings_Button = new QPushButton("Calculation settings");
 			layout->addWidget(calculation_Settings_Button);
 
-		fits_Selector_Button = new QPushButton("Fits selector");
-			layout->addWidget(fits_Selector_Button);
+		fitting_Settings_Button = new QPushButton("Fitting settings");
+			layout->addWidget(fitting_Settings_Button);
 
 		frame->setLayout(layout);
 		frame->setContentsMargins(0,-5,0,-8);
 		variables_Tabs->addTab(frame, "Main Tools");
 
 		connect(structure_Table_Button,		 &QPushButton::clicked, multilayer_Approach, &Multilayer_Approach::open_Table_Of_Structures);
-		connect(calculation_Settings_Button, &QPushButton::clicked, multilayer_Approach, &Multilayer_Approach::open_Calculation_Settings);
 		connect(fits_Selector_Button,		 &QPushButton::clicked, multilayer_Approach, &Multilayer_Approach::open_Fits_Selector);
+		connect(calculation_Settings_Button, &QPushButton::clicked, multilayer_Approach, &Multilayer_Approach::open_Calculation_Settings);
+		connect(fitting_Settings_Button,	 &QPushButton::clicked, multilayer_Approach, &Multilayer_Approach::open_Fitting_Settings);
 	}
 
 	variables_Tabs->setSizePolicy(QSizePolicy::Preferred,QSizePolicy::Fixed);

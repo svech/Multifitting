@@ -1,11 +1,11 @@
 #ifndef MULTILAYER_H
 #define MULTILAYER_H
 
-#include "multilayer_approach.h"
-#include "multilayer/structure_tree.h"
-#include "multilayer/independent_variables.h"
-#include "multilayer/target_curve.h"
-#include "multilayer/target_curve/target_curve_editor.h"
+#include "multilayer_approach/multilayer_approach.h"
+#include "multilayer_approach/multilayer/structure_tree/structure_tree.h"
+#include "multilayer_approach/multilayer/independent_variables/independent_variables.h"
+#include "multilayer_approach/multilayer/target_curve/target_curve.h"
+#include "multilayer_approach/multilayer/target_curve/target_curve_editor.h"
 
 class Structure_Tree;
 class Multilayer_Approach;
@@ -52,8 +52,9 @@ public:
 						QToolButton* independent_Variables_Corner_Button;
 
 					QPushButton* structure_Table_Button;
-					QPushButton* calculation_Settings_Button;
 					QPushButton* fits_Selector_Button;
+					QPushButton* calculation_Settings_Button;
+					QPushButton* fitting_Settings_Button;
 
 		QFrame* data_Frame;
 			QVBoxLayout* data_Frame_Layout;

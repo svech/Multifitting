@@ -1,7 +1,7 @@
 #ifndef STRUCTURE_TOOLBAR_H
 #define STRUCTURE_TOOLBAR_H
 
-#include "../structure_tree.h"
+#include "multilayer_approach/multilayer/structure_tree/structure_tree.h"
 
 class Structure_Tree;
 

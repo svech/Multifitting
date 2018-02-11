@@ -3,7 +3,7 @@
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
 #include "variable_selection.h"
-#include "independent_variables/independent_variables_editor.h"
+#include "multilayer_approach/multilayer/independent_variables/independent_variables_editor.h"
 
 Variable_Selection::Variable_Selection(QTreeWidget* struct_Tree_Copy, QMap<id_Type, QListWidgetItem*>* variables_List_Map, QListWidget* variables_List, QWidget *parent) :
 	struct_Tree_Copy(struct_Tree_Copy),

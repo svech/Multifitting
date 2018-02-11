@@ -3,7 +3,7 @@
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
 #include "independent_variables_editor.h"
-#include "multilayer_approach/multilayer/variable_selection.h"
+#include "multilayer_approach/multilayer/independent_variables/variable_selection.h"
 
 Independent_Variables_Editor::Independent_Variables_Editor(QTreeWidgetItem* structure_Item, QListWidgetItem* list_Item, QListWidget* variables_List, QWidget *parent) :
 	structure_Item(structure_Item),
