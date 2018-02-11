@@ -22,7 +22,7 @@ void Main_Calculation_Module::single_Calculation()
 {
 	if(calc_Mode!=CALCULATION)
 	{
-		qInfo() << "Main_Calculation_Module::single_Calculation  :  wrong calc_Mode";
+		QMessageBox::critical(NULL, "Main_Calculation_Module::single_Calculation", "wrong calc_Mode");
 		return;
 	}
 
@@ -46,7 +46,7 @@ void Main_Calculation_Module::fitting()
 {
 	if(calc_Mode!=FITTING)
 	{
-		qInfo() << "Main_Calculation_Module::fitting  :  wrong calc_Mode";
+		QMessageBox::critical(NULL, "Main_Calculation_Module::fitting", "wrong calc_Mode");
 		return;
 	}
 
