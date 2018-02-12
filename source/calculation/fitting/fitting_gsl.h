@@ -17,15 +17,16 @@ struct Params
 class Fitting_GSL
 {
 public:
-	Fitting_GSL(Main_Calculation_Module* main_Calculation_Module);
+	Fitting_GSL(Multilayer_Approach* multilayer_Approach, Main_Calculation_Module* main_Calculation_Module);
 
+	Multilayer_Approach* multilayer_Approach;
 	Main_Calculation_Module* main_Calculation_Module;
 	QVector<Calculation_Tree*>& calculation_Trees;
 	Fitables& fitables;
 
 	size_t num_Residual_Points();
 	static void callback(const size_t iter, void* bare_Params, const gsl_multifit_nlinear_workspace* w);
-	void fit();
+	bool fit();
 	static void period_Subtree_Iteration(const tree<Node>::iterator& parent, double coeff);
 	static void gamma_Subtree_Iteration(const tree<Node>::iterator& parent, double old_Value);
 	static void slaves_Recalculation(Parameter* master, Params* params);

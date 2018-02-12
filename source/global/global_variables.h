@@ -34,6 +34,46 @@ enum value_T_Mode_Enum		{ T };
 
 extern QStringList value_A_Mode;
 enum value_A_Mode_Enum		{ A };
+
+// optimization methods
+extern QString GSL_Group;
+extern QStringList GSL_Methods;
+enum GSL_Methods_Enum		{Levenberg_Marquardt,
+							 Levenberg_Marquardt_with_Geodesic_Acceleration,
+							 Dogleg,
+							 Double_Dogleg,
+							 Two_Dimensional_Subspace,
+
+							 Fletcher_Reeves_Conjugate_Gradient,
+							 Polak_Ribiere_Conjugate_Gradient,
+							 Broyden_Fletcher_Goldfarb_Shanno_BFGS,
+							 Broyden_Fletcher_Goldfarb_Shanno_BFGS_2,
+							 Steepest_Descent,
+
+							 Nelder_Mead_Simplex,
+							 Nelder_Mead_Simplex_2,
+							 Nelder_Mead_Simplex_2_Randomized
+							};
+
+// GSL solvers
+extern QStringList GSL_Solvers;
+enum GSL_Solvers_Enum		{QR_decomposition,
+							 Cholesky_decomposition,
+							 Singular_value_decomposition
+							};
+
+// GSL scaling
+extern QStringList GSL_Scales;
+enum GSL_Scales_Enum		{More,
+							 Levenberg,
+							 Marquardt
+							};
+
+// GSL finite differences
+extern QStringList GSL_Fdtype;
+enum GSL_Fdtype_Enum		{Forward,
+							 Central
+							};
 // -----------------------------------------------------------------------------------------
 
 // units

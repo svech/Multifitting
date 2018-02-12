@@ -113,6 +113,42 @@ QStringList value_R_Mode				{"R","R+"+Phi_Sym,"r, Re+Im","r, |r|+"+Phi_Sym};		//
 QStringList value_T_Mode				{"T"};													// change enum!
 QStringList value_A_Mode				{"A"};													// change enum!
 
+// optimization methods
+QString GSL_Group = "GSL library";
+QStringList GSL_Methods				{"Levenberg-Marquardt",
+									 "Levenberg-Marquardt with Geodesic Acceleration",
+									 "Dogleg",
+									 "Double Dogleg",
+									 "Two Dimensional Subspace",
+
+									 "Fletcher-Reeves Conjugate Gradient",
+									 "Polak-Ribiere Conjugate Gradient",
+									 "Broyden-Fletcher-Goldfarb-Shanno : BFGS",
+									 "Broyden-Fletcher-Goldfarb-Shanno : BFGS-2",
+									 "Steepest Descent",
+
+									 "Nelder-Mead Simplex",
+									 "Nelder-Mead Simplex-2",
+									 "Nelder-Mead Simplex-2 Randomized"
+									}; // change enum!
+
+// GSL solvers
+QStringList GSL_Solvers			{"QR decomposition",
+								 "Cholesky decomposition",
+								 "Singular value decomposition"
+								}; // change enum!
+
+// GSL scaling
+QStringList GSL_Scales			{"More",
+								 "Levenberg",
+								 "Marquardt"
+								}; // change enum!
+
+// GSL finite differences
+QStringList GSL_Fdtype			{"Forward",
+								 "Central"
+								}; // change enum!
+
 // -----------------------------------------------------------------------------------------
 
 // units

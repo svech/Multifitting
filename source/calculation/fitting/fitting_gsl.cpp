@@ -1,6 +1,7 @@
 #include "fitting_gsl.h"
 
-Fitting_GSL::Fitting_GSL(Main_Calculation_Module* main_Calculation_Module):
+Fitting_GSL::Fitting_GSL(Multilayer_Approach* multilayer_Approach, Main_Calculation_Module* main_Calculation_Module):
+	multilayer_Approach(multilayer_Approach),
 	main_Calculation_Module(main_Calculation_Module),
 	calculation_Trees(main_Calculation_Module->calculation_Trees),
 	fitables(main_Calculation_Module->fitables)
@@ -38,28 +39,40 @@ void Fitting_GSL::callback(const size_t iter, void* bare_Params, const gsl_multi
 	printf("\n\n");
 }
 
-void Fitting_GSL::fit()
+bool Fitting_GSL::fit()
 {
 	// if expression contains necessary number of functions
-	if(check_Residual_Expression()) return;
+	if(check_Residual_Expression()) return false;
 
 	const size_t n = num_Residual_Points();
 	const size_t p = fitables.fit_Parameters.size();
-	const size_t max_iter = 400;
-	const double xtol = 1.0e-8;
-	const double gtol = 1.0e-8;
-	const double ftol = 1.0e-8;
+	const size_t max_iter = multilayer_Approach->fitting_Settings->max_Iter;
+	const double xtol = multilayer_Approach->fitting_Settings->x_Tolerance;
+	const double gtol = multilayer_Approach->fitting_Settings->g_Tolerance;
+	const double ftol = multilayer_Approach->fitting_Settings->f_Tolerance;
 
 	Params params {	main_Calculation_Module, calculation_Trees, fitables };
-	const gsl_multifit_nlinear_type* T = gsl_multifit_nlinear_trust;
 	gsl_multifit_nlinear_parameters fdf_params = gsl_multifit_nlinear_default_parameters();
 
-	fdf_params.trs = gsl_multifit_nlinear_trs_lm;
-//	fdf_params.trs = gsl_multifit_nlinear_trs_lmaccel;
-//	fdf_params.trs = gsl_multifit_nlinear_trs_dogleg;
-//	fdf_params.trs = gsl_multifit_nlinear_trs_ddogleg;
-//	fdf_params.trs = gsl_multifit_nlinear_trs_subspace2D;
+	if(multilayer_Approach->fitting_Settings->current_Method == GSL_Methods[Levenberg_Marquardt])
+	{	fdf_params.trs = gsl_multifit_nlinear_trs_lm;		};
+	if(multilayer_Approach->fitting_Settings->current_Method == GSL_Methods[Levenberg_Marquardt_with_Geodesic_Acceleration])
+	{	fdf_params.trs = gsl_multifit_nlinear_trs_lmaccel;	}
+	if(multilayer_Approach->fitting_Settings->current_Method == GSL_Methods[Dogleg])
+	{	fdf_params.trs = gsl_multifit_nlinear_trs_dogleg;	}
+	if(multilayer_Approach->fitting_Settings->current_Method == GSL_Methods[Double_Dogleg])
+	{	fdf_params.trs = gsl_multifit_nlinear_trs_ddogleg;	}
+	if(multilayer_Approach->fitting_Settings->current_Method == GSL_Methods[Two_Dimensional_Subspace])
+	{
+		if(p<2)
+		{
+			QMessageBox::information(NULL,"Insufficient number of parameters", "Method\n\"Two Dimensional Subspace\"\nrequires at least 2 fitables");
+			return false;
+		}
+		fdf_params.trs = gsl_multifit_nlinear_trs_subspace2D;
+	}
 
+	const gsl_multifit_nlinear_type* T = gsl_multifit_nlinear_trust;
 	gsl_multifit_nlinear_workspace* work = gsl_multifit_nlinear_alloc(T, &fdf_params, n, p);
 
 	gsl_vector* f = gsl_multifit_nlinear_residual(work);
@@ -97,15 +110,17 @@ void Fitting_GSL::fit()
 	gsl_blas_ddot(f, f, &chisq_Final);
 
 	// print summary
-	printf("method              : %s\n", gsl_multifit_nlinear_trs_name(work));
+	printf("method              : %s\n",  gsl_multifit_nlinear_trs_name(work));
 	printf("NITER               = %zu\n", gsl_multifit_nlinear_niter(work));
 	printf("NFEV                = %zu\n", fdf.nevalf);
-	printf("initial cost        = %g\n", chisq_Init);
-	printf("final cost          = %g\n", chisq_Final);
-	printf("reason for stopping : %s\n", (info == 1) ? "small step size" : "small gradient");
+	printf("initial cost        = %g\n",  chisq_Init);
+	printf("final cost          = %g\n",  chisq_Final);
+	printf("reason for stopping : %s\n",  (info == 1) ? "small step size" : "small gradient");
 	printf("\n");
 
 	gsl_multifit_nlinear_free(work);
+
+	return true;
 }
 
 void Fitting_GSL::period_Subtree_Iteration(const tree<Node>::iterator& parent, double coeff)

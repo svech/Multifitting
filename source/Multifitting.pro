@@ -61,7 +61,8 @@ SOURCES += \
     launcher.cpp \
 	main.cpp \
 	multilayer_approach/fitting_settings/fitting_settings_editor.cpp \
-	multilayer_approach/fitting_settings/fitting_settings.cpp
+	multilayer_approach/fitting_settings/fitting_settings.cpp \
+    standard/spoiler.cpp
 
 HEADERS += \
     calculation/fitting/fitting_gsl.h \
@@ -95,4 +96,5 @@ HEADERS += \
     standard/menu.h \
 	launcher.h \
 	multilayer_approach/fitting_settings/fitting_settings_editor.h \
-	multilayer_approach/fitting_settings/fitting_settings.h
+	multilayer_approach/fitting_settings/fitting_settings.h \
+    standard/spoiler.h
