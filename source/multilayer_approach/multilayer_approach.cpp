@@ -1,7 +1,3 @@
-// This is a personal academic project. Dear PVS-Studio, please check it.
-
-// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
-
 #include "multilayer_approach.h"
 
 Multilayer_Approach::Multilayer_Approach(Launcher* launcher, QWidget *parent) :
@@ -339,7 +335,7 @@ void Multilayer_Approach::open(QString filename)
 	{
 		// for not growing in size
 //		Multilayer* multilayer = qobject_cast<Multilayer*>(multilayer_Tabs->widget(i));
-//		for(int i=multilayer->data_Target_Profile_Frame_Vector.size()-1; i>=0; --i)
+//		for(int i=multilayer->data_Target_Profile_Frame_Vector->size()-1; i>=0; --i)
 //		{
 //			multilayer->remove_Target_Curve(i,true);
 //		}
@@ -449,6 +445,15 @@ void Multilayer_Approach::open(QString filename)
 			// load calc property for target plots
 			in >> multilayer->enable_Calc_Target_Curves;
 		}
+		/// fitting settings
+		{
+			in >> fitting_Settings;
+		}
+
+		// load min_max values for fitting
+		in >> multilayer->min_Max_Density;
+		in >> multilayer->min_Max_Thickness;
+		in >> multilayer->min_Max_Sigma;
 
 		// refresh all
 		multilayer->structure_Tree->structure_Toolbar->refresh_Toolbar();
@@ -597,7 +602,17 @@ void Multilayer_Approach::save(QString filename)
 
 			// save calc property for target plots
 			out << multilayer->enable_Calc_Target_Curves;
+
 		}
+		/// fitting settings
+		{
+			out << fitting_Settings;
+		}
+
+		// save min_max values for fitting
+		out << multilayer->min_Max_Density;
+		out << multilayer->min_Max_Thickness;
+		out << multilayer->min_Max_Sigma;
 	}
 
 	// save index of active multilayer tab
@@ -635,7 +650,7 @@ void Multilayer_Approach::calc_Reflection()
 {
 	// TODO
 	qInfo() << "\n\n-------------------------------------------------------"
-				 "\ncalc specular functions..."
+				 "\ncalc specular functions"
 				 "\n-------------------------------------------------------\n";
 	Main_Calculation_Module* main_Calculation_Module = new Main_Calculation_Module(this, CALCULATION);
 	main_Calculation_Module->single_Calculation();
@@ -646,7 +661,7 @@ void Multilayer_Approach::start_Fitting()
 {
 	// TODO
 	qInfo() << "\n\n-------------------------------------------------------"
-				 "\nfitting..."
+				 "\nfitting"
 				 "\n-------------------------------------------------------\n";
 	Main_Calculation_Module* main_Calculation_Module = new Main_Calculation_Module(this, FITTING);
 	main_Calculation_Module->fitting();
@@ -657,7 +672,7 @@ void Multilayer_Approach::reload_Optical_Constants()
 {
 	// TODO
 	qInfo() << "\n\n-------------------------------------------------------"
-				 "\nreload optical constants..."
+				 "\nreload optical constants"
 				 "\n-------------------------------------------------------\n";
 	optical_Constants->reload();
 }

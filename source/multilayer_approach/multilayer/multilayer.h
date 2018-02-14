@@ -66,6 +66,10 @@ public:
 
 	bool enable_Calc_Target_Curves = true;
 	bool enable_Calc_Independent_Curves = true;
+
+	double min_Max_Density = 10;
+	double min_Max_Thickness = 10;
+	double min_Max_Sigma = 10;
 };
 
 #endif // MULTILAYER_H

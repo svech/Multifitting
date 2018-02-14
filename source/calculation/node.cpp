@@ -317,7 +317,7 @@ int Node::calculate_Intermediate_Points(const Data& measurement, Node* above_Nod
 
 					//-------------------------------------------------------------------------------
 					// erf interlayer
-					if(struct_Data.interlayer_Composition[Erf].enabled)					
+					if(struct_Data.interlayer_Composition[Erf].enabled)
 					if(struct_Data.interlayer_Composition[Erf].interlayer.value > DBL_MIN)
 					if(struct_Data.interlayer_Composition[Erf].my_Sigma.value > DBL_MIN)
 					{

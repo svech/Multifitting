@@ -1,6 +1,6 @@
 // This is a personal academic project. Dear PVS-Studio, please check it.
 
-// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www->viva64->com
 
 #include "independent_variables.h"
 #include "independent_calc_function_selection.h"
@@ -70,7 +70,7 @@ void Independent_Variables::create_Independent_Variables_List()
 		Independent_Indicator angle_Indicator;
 		angle_Indicator.item_Id				 = measurement.id;
 		angle_Indicator.item_Type			 = measurement.item_Type;
-		angle_Indicator.id		 = measurement.probe_Angle.indicator.id;
+		angle_Indicator.id					 = measurement.probe_Angle.indicator.id;
 		angle_Indicator.parameter_Whats_This = measurement.probe_Angle.indicator.whats_This;
 		angle_Indicator.is_Active = true;					// adding "active" status
 
@@ -91,7 +91,7 @@ void Independent_Variables::create_Independent_Variables_List()
 		Independent_Indicator wavelength_Indicator;
 		wavelength_Indicator.item_Id			  = measurement.id;
 		wavelength_Indicator.item_Type			  = measurement.item_Type;
-		wavelength_Indicator.id		  = measurement.wavelength.indicator.id;
+		wavelength_Indicator.id					  = measurement.wavelength.indicator.id;
 		wavelength_Indicator.parameter_Whats_This = measurement.wavelength.indicator.whats_This;
 		wavelength_Indicator.is_Active = false;
 
@@ -356,9 +356,9 @@ void Independent_Variables::reset_Independent_Variables_Structure()
 				new_Copy.sigma.independent			  = old_Copy.sigma.independent;
 
 				// composition is not inherited
-//				for(int i=0; i<nmin(new_Copy.composition.size(),old_Copy.composition.size()); ++i)
+//				for(int i=0; i<nmin(new_Copy.composition->size(),old_Copy.composition->size()); ++i)
 //				{
-//					new_Copy.composition[i].composition.independent = old_Copy.composition[i].composition.independent;
+//					new_Copy.composition[i]->composition.independent = old_Copy.composition[i]->composition.independent;
 //				}
 				for(int i=0; i<new_Copy.interlayer_Composition.size(); ++i)
 				{

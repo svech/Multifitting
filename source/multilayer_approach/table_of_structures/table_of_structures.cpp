@@ -1,7 +1,3 @@
-// This is a personal academic project. Dear PVS-Studio, please check it.
-
-// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
-
 #include "table_of_structures.h"
 #include "algorithm"
 
@@ -141,12 +137,11 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 	rows_List_To_Span.clear();
 	{
 		// header for each structure
+		QFont font_Header;
+		font_Header.setBold(true);
+
 		new_Table->insertRow(new_Table->rowCount());
 		int current_Row = new_Table->rowCount()-1;
-		rows_List_To_Span.append(current_Row);
-		new_Table->setItem(current_Row,0, new QTableWidgetItem(multilayer_Tabs->tabText(tab_Index)));
-		new_Table->item   (current_Row,0)->setTextAlignment(Qt::AlignCenter);
-		new_Table->item   (current_Row,0)->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEnabled);
 
 		// structure display
 		int max_Depth = Global_Variables::get_Tree_Depth(list_Of_Trees[tab_Index]->tree->invisibleRootItem());
@@ -162,13 +157,60 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 				structure_Item=*it;
 				Data struct_Data = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
 				if( struct_Data.item_Type == item_Type_Ambient  ||
-						struct_Data.item_Type == item_Type_Layer    ||
-						struct_Data.item_Type == item_Type_Substrate )
+					struct_Data.item_Type == item_Type_Layer    ||
+					struct_Data.item_Type == item_Type_Substrate )
 				{
 					max_Number_Of_Elements = max(struct_Data.composition.size(),max_Number_Of_Elements);
 				}
 				++it;
 			}
+		}
+
+		// place for min_max buttons
+		{
+			rows_List_To_Span.append(current_Row);
+			new_Table->setItem(current_Row,0, new QTableWidgetItem("Set min/max"));
+			new_Table->item   (current_Row,0)->setTextAlignment(Qt::AlignCenter);
+			new_Table->item   (current_Row,0)->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEnabled);
+			new_Table->item   (current_Row,0)->setFont(font_Header);
+
+			new_Table->insertRow(new_Table->rowCount());
+			new_Table->insertRow(new_Table->rowCount());
+
+			current_Row = new_Table->rowCount()-2;
+
+			new_Table->insertRow(new_Table->rowCount());
+			new_Table->insertRow(new_Table->rowCount());
+
+			add_Columns(new_Table, max_Depth + max_Number_Of_Elements+2);
+			current_Column = max_Depth + max_Number_Of_Elements+2;
+
+			// density min/max
+			create_Min_Max_Label	(new_Table,			   current_Row,   current_Column, Rho_Sym+", "+Plus_Minus_Sym+"%");
+			create_Min_Max_Button	(new_Table, tab_Index, current_Row+1, current_Column, whats_This_Density);
+			create_Min_Max_Spin_Box	(new_Table, tab_Index, current_Row+2, current_Column, whats_This_Density);
+			current_Column += 2;
+
+			// thickness min/max
+			create_Min_Max_Label	(new_Table,			   current_Row,   current_Column, "z/d, "+Plus_Minus_Sym+"%");
+			create_Min_Max_Button	(new_Table, tab_Index, current_Row+1, current_Column, whats_This_Thickness);
+			create_Min_Max_Spin_Box	(new_Table, tab_Index, current_Row+2, current_Column, whats_This_Thickness);
+			current_Column += 2;
+
+			// sigma min/max
+			create_Min_Max_Label	(new_Table,			   current_Row,   current_Column, Sigma_Sym+", "+Plus_Minus_Sym+"%");
+			create_Min_Max_Button	(new_Table, tab_Index, current_Row+1, current_Column, whats_This_Sigma);
+			create_Min_Max_Spin_Box	(new_Table, tab_Index, current_Row+2, current_Column, whats_This_Sigma);
+		}
+
+		// structure name
+		{
+			current_Row = new_Table->rowCount()-1;
+			rows_List_To_Span.append(current_Row);
+			new_Table->setItem(current_Row,0, new QTableWidgetItem(multilayer_Tabs->tabText(tab_Index)));
+			new_Table->item   (current_Row,0)->setTextAlignment(Qt::AlignCenter);
+			new_Table->item   (current_Row,0)->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEnabled);
+			new_Table->item   (current_Row,0)->setFont(font_Header);
 		}
 
 		QTreeWidgetItem* structure_Item;
@@ -183,13 +225,13 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 			new_Table->insertRow(new_Table->rowCount());
 			new_Table->insertRow(new_Table->rowCount());
 
-			current_Row = new_Table->rowCount()-2;
+			current_Row = new_Table->rowCount()-3;
 
 			Data struct_Data = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
 
 			if( struct_Data.item_Type == item_Type_Ambient  ||
-					struct_Data.item_Type == item_Type_Layer    ||
-					struct_Data.item_Type == item_Type_Substrate )
+				struct_Data.item_Type == item_Type_Layer    ||
+				struct_Data.item_Type == item_Type_Substrate )
 			{
 				new_Table->insertRow(new_Table->rowCount());
 				new_Table->insertRow(new_Table->rowCount());
@@ -211,8 +253,8 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 
 			// material
 			if( struct_Data.item_Type == item_Type_Ambient  ||
-					struct_Data.item_Type == item_Type_Layer    ||
-					struct_Data.item_Type == item_Type_Substrate )
+				struct_Data.item_Type == item_Type_Layer    ||
+				struct_Data.item_Type == item_Type_Substrate )
 			{
 				if(struct_Data.composed_Material)
 				{
@@ -226,7 +268,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 				}
 				else
 				{
-					create_Material_Line_Edit	(new_Table, tab_Index,	current_Row,   current_Column, structure_Item);
+					create_Material_Line_Edit	(new_Table, tab_Index, current_Row,   current_Column, structure_Item);
 					create_Browse_Button	    (new_Table,	current_Row+1, current_Column, current_Row, current_Column);
 				}
 			}
@@ -259,7 +301,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 				{
 					whats_This = whats_This_Gamma;
 					add_Columns		(new_Table, current_Column+5);
-					create_Label	(new_Table, tab_Index, current_Row,   current_Column,   structure_Item, whats_This, Gamma_Sym);
+					create_Label		(new_Table, tab_Index, current_Row,   current_Column,   structure_Item, whats_This, Gamma_Sym);
 					create_Line_Edit	(new_Table, tab_Index, current_Row+1, current_Column,   structure_Item, whats_This, VAL);
 					create_Line_Edit	(new_Table, tab_Index, current_Row+1, current_Column+2, structure_Item, whats_This, MIN);
 					create_Line_Edit	(new_Table, tab_Index, current_Row+1, current_Column+3, structure_Item, whats_This, MAX);
@@ -562,29 +604,29 @@ Parameter& Table_Of_Structures::get_Parameter(Data& struct_Data, QString whats_T
 	// PARAMETER
 
 	// measurement
-	if(whats_This == whats_This_Angle)				{precision = line_edit_angle_precision;		coeff = 1;						return struct_Data.probe_Angle;				}
-	if(whats_This == whats_This_Angular_Resolution)		{precision = line_edit_angle_precision;		coeff = 1;						return struct_Data.angular_Resolution;			}
-	if(whats_This == whats_This_Wavelength)			{precision = line_edit_wavelength_precision;	coeff = 1;						return struct_Data.wavelength;				}
-	if(whats_This == whats_This_Spectral_Resolution)		{precision = line_edit_wavelength_precision;	coeff = 1;						return struct_Data.spectral_Resolution;			}
-	if(whats_This == whats_This_Polarization)			{precision = 3;					coeff = 1;						return struct_Data.polarization;			}
-	if(whats_This == whats_This_Polarization_Sensitivity)	{precision = 3;					coeff = 1;						return struct_Data.polarization_Sensitivity;		}
+	if(whats_This == whats_This_Angle)						{precision = line_edit_angle_precision;		coeff = 1;						return struct_Data.probe_Angle;				}
+	if(whats_This == whats_This_Angular_Resolution)			{precision = line_edit_angle_precision;		coeff = 1;						return struct_Data.angular_Resolution;			}
+	if(whats_This == whats_This_Wavelength)					{precision = line_edit_wavelength_precision;coeff = 1;						return struct_Data.wavelength;				}
+	if(whats_This == whats_This_Spectral_Resolution)		{precision = line_edit_wavelength_precision;coeff = 1;						return struct_Data.spectral_Resolution;			}
+	if(whats_This == whats_This_Polarization)				{precision = 3;								coeff = 1;						return struct_Data.polarization;			}
+	if(whats_This == whats_This_Polarization_Sensitivity)	{precision = 3;								coeff = 1;						return struct_Data.polarization_Sensitivity;		}
 
 	// optical properties
-	if(whats_This == whats_This_Absolute_Density)		{precision = line_edit_density_precision;	coeff = 1;						return struct_Data.absolute_Density;			}
-	if(whats_This == whats_This_Relative_Density)		{precision = line_edit_density_precision;	coeff = 1;						return struct_Data.relative_Density;			}
-	if(whats_This == whats_This_Permittivity)			{precision = line_edit_density_precision;	coeff = 1;						return struct_Data.permittivity;			}
-	if(whats_This == whats_This_Absorption)			{precision = line_edit_density_precision;	coeff = 1;						return struct_Data.absorption;				}
+	if(whats_This == whats_This_Absolute_Density)			{precision = line_edit_density_precision;	coeff = 1;						return struct_Data.absolute_Density;			}
+	if(whats_This == whats_This_Relative_Density)			{precision = line_edit_density_precision;	coeff = 1;						return struct_Data.relative_Density;			}
+	if(whats_This == whats_This_Permittivity)				{precision = line_edit_density_precision;	coeff = 1;						return struct_Data.permittivity;			}
+	if(whats_This == whats_This_Absorption)					{precision = line_edit_density_precision;	coeff = 1;						return struct_Data.absorption;				}
 
 	// thickness
-	if(whats_This == whats_This_Thickness)			{precision = line_edit_thickness_precision;	coeff = length_Coefficients_Map.value(length_units);	return struct_Data.thickness;				}
-	if(whats_This == whats_This_Thickness_Drift_Line_Value)	{precision = line_edit_thickness_precision;	coeff = 1;						return struct_Data.thickness_Drift.drift_Line_Value;	}
-	if(whats_This == whats_This_Thickness_Drift_Rand_Rms)	{precision = line_edit_thickness_precision;	coeff = 1;						return struct_Data.thickness_Drift.drift_Rand_Rms;	}
+	if(whats_This == whats_This_Thickness)						{precision = line_edit_thickness_precision;	coeff = length_Coefficients_Map.value(length_units);	return struct_Data.thickness;				}
+	if(whats_This == whats_This_Thickness_Drift_Line_Value)		{precision = line_edit_thickness_precision;	coeff = 1;						return struct_Data.thickness_Drift.drift_Line_Value;	}
+	if(whats_This == whats_This_Thickness_Drift_Rand_Rms)		{precision = line_edit_thickness_precision;	coeff = 1;						return struct_Data.thickness_Drift.drift_Rand_Rms;	}
 	if(whats_This == whats_This_Thickness_Drift_Sine_Amplitude)	{precision = line_edit_thickness_precision;	coeff = 1;						return struct_Data.thickness_Drift.drift_Sine_Amplitude;}
 	if(whats_This == whats_This_Thickness_Drift_Sine_Frequency)	{precision = line_edit_thickness_precision;	coeff = 1;						return struct_Data.thickness_Drift.drift_Sine_Frequency;}
-	if(whats_This == whats_This_Thickness_Drift_Sine_Phase)	{precision = line_edit_thickness_precision;	coeff = 1;						return struct_Data.thickness_Drift.drift_Sine_Phase;	}
+	if(whats_This == whats_This_Thickness_Drift_Sine_Phase)		{precision = line_edit_thickness_precision;	coeff = 1;						return struct_Data.thickness_Drift.drift_Sine_Phase;	}
 
 	// interface
-	if(whats_This == whats_This_Sigma)				{precision = line_edit_sigma_precision;		coeff = length_Coefficients_Map.value(length_units);	return struct_Data.sigma;				}
+	if(whats_This == whats_This_Sigma)						{precision = line_edit_sigma_precision;		coeff = length_Coefficients_Map.value(length_units);	return struct_Data.sigma;				}
 	if(whats_This == whats_This_Sigma_Drift_Line_Value)		{precision = line_edit_sigma_precision;		coeff = 1;						return struct_Data.sigma_Drift.drift_Line_Value;	}
 	if(whats_This == whats_This_Sigma_Drift_Rand_Rms)		{precision = line_edit_sigma_precision;		coeff = 1;						return struct_Data.sigma_Drift.drift_Rand_Rms;		}
 	if(whats_This == whats_This_Sigma_Drift_Sine_Amplitude)	{precision = line_edit_sigma_precision;		coeff = 1;						return struct_Data.sigma_Drift.drift_Sine_Amplitude;	}
@@ -592,8 +634,8 @@ Parameter& Table_Of_Structures::get_Parameter(Data& struct_Data, QString whats_T
 	if(whats_This == whats_This_Sigma_Drift_Sine_Phase)		{precision = line_edit_sigma_precision;		coeff = 1;						return struct_Data.sigma_Drift.drift_Sine_Phase;	}
 
 	// multilayer
-	if(whats_This == whats_This_Period)				{precision = line_edit_period_precision;	coeff = length_Coefficients_Map.value(length_units);	return struct_Data.period;				}
-	if(whats_This == whats_This_Gamma)				{precision = line_edit_gamma_precision;		coeff = 1;						return struct_Data.gamma;				}
+	if(whats_This == whats_This_Period)						{precision = line_edit_period_precision;	coeff = length_Coefficients_Map.value(length_units);	return struct_Data.period;				}
+	if(whats_This == whats_This_Gamma)						{precision = line_edit_gamma_precision;		coeff = 1;						return struct_Data.gamma;				}
 
 	//	qInfo() << "get_Parameter cant find parameter " << whats_This <<"";
 	Parameter* parameter = new Parameter;
@@ -695,13 +737,13 @@ void Table_Of_Structures::create_Stoich_Line_Edit(My_Table_Widget* table, int ta
 	for(int composition_Index=0; composition_Index<composition.size(); ++composition_Index)
 	{
 		Parameter& comp = composition[composition_Index].composition;
-		if(val_Type == VAL)	{value = comp.value;	format = line_edit_short_double_format;}
+		if(val_Type == VAL)	{value = comp.value;		format = line_edit_short_double_format;}
 		if(val_Type == MIN)	{value = comp.fit.min;	format = line_edit_short_double_format;}
 		if(val_Type == MAX)	{value = comp.fit.max;	format = line_edit_short_double_format;}
 
 		// create lineedit
 		QLineEdit* line_Edit = new QLineEdit(QString::number(value, format, line_edit_composition_precision));
-		line_Edit->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT);
+		line_Edit->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT_SHORT);
 
 		// number of element is here
 		line_Edit->setProperty(num_Chemic_Element_Property, composition_Index);
@@ -715,7 +757,7 @@ void Table_Of_Structures::create_Stoich_Line_Edit(My_Table_Widget* table, int ta
 		line_Edit->setProperty(tab_Index_Property,tab_Index);
 
 		// storage
-		line_Edits_Map.			   insert      (line_Edit, structure_Item);
+		line_Edits_Map.		       insert      (line_Edit, structure_Item);
 		reload_Show_Dependence_Map.insertMulti (line_Edit, comp.indicator.id);
 		all_Widgets_To_Reload[tab_Index].append(line_Edit);
 
@@ -735,8 +777,10 @@ QString Table_Of_Structures::material_From_Composition(const QList<Stoichiometry
 	for(int i=0; i<composition.size(); ++i)
 	{
 		text += composition[i].type;
-		if( abs(composition[i].composition.value - 1.) > DBL_EPSILON )
+		if( abs(composition[i].composition.value - 1) > DBL_EPSILON )
+		{
 			text += QString::number(composition[i].composition.value, line_edit_short_double_format, thumbnail_composition_precision);
+		}
 	}
 	return text;
 }
@@ -832,7 +876,7 @@ void Table_Of_Structures::create_Material_Line_Edit(My_Table_Widget* table, int 
 	add_Columns(table, current_Column+1);
 
 	QLineEdit* material_Line_Edit = new QLineEdit(material);
-	material_Line_Edit->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT);
+	material_Line_Edit->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT_LONG);
 	material_Line_Edit->setProperty(min_Size_Property, material_Line_Edit->width());
 	material_Line_Edit->setProperty(column_Property, current_Column);
 
@@ -850,8 +894,7 @@ void Table_Of_Structures::create_Material_Line_Edit(My_Table_Widget* table, int 
 
 void Table_Of_Structures::create_Browse_Button(My_Table_Widget* table, int current_Row, int start_Column, int material_LineEdit_Row, int material_LineEdit_Column)
 {
-	QPushButton* browse_Button = new QPushButton("Browse");
-	browse_Button->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT);
+	QPushButton* browse_Button = new QPushButton("Browse...");
 	table->setCellWidget(current_Row, start_Column, browse_Button);
 
 	QLineEdit* material_Line_Edit = qobject_cast<QLineEdit*>(table->cellWidget(material_LineEdit_Row,material_LineEdit_Column));
@@ -1093,7 +1136,7 @@ void Table_Of_Structures::create_Line_Edit(My_Table_Widget* table, int tab_Index
 #endif
 
 	line_Edit->setText(text_Value);
-	line_Edit->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT);
+	line_Edit->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT_LONG);
 	line_Edit->setValidator(validator);
 
 	line_Edit->setProperty(min_Size_Property, line_Edit->width());
@@ -1288,7 +1331,7 @@ void Table_Of_Structures::create_Weigts_Interlayer(My_Table_Widget* table, int t
 		QString text_Value = QString::number(value, format, line_edit_interlayer_precision);
 
 		QLineEdit* line_Edit = new QLineEdit(text_Value);
-		line_Edit->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT);
+		line_Edit->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT_SHORT);
 		line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION));
 
 		line_Edit->setProperty(interlayer_Index_Property, interlayer_Index);
@@ -1406,7 +1449,7 @@ void Table_Of_Structures::create_MySigma_Line_Edits_Interlayer(My_Table_Widget* 
 		QString text_Value = QString::number(sigma_Comp.value, line_edit_double_format, line_edit_sigma_precision);
 
 		QLineEdit* line_Edit = new QLineEdit(text_Value);
-		line_Edit->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT);
+		line_Edit->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT_SHORT);
 
 		line_Edit->setProperty(interlayer_Index_Property, interlayer_Index);
 		line_Edit->setProperty(min_Size_Property, line_Edit->width());
@@ -1430,6 +1473,143 @@ void Table_Of_Structures::create_MySigma_Line_Edits_Interlayer(My_Table_Widget* 
 
 		current_Column+=TABLE_COLUMN_INTERLAYERS_SHIFT;
 	}
+}
+
+void Table_Of_Structures::create_Min_Max_Label(My_Table_Widget* table, int current_Row, int current_Column, QString text)
+{
+	add_Columns(table,current_Column);
+
+	QLabel* label = new QLabel(text);
+	label->setAlignment(Qt::AlignCenter);
+	label->setStyleSheet("background-color: lightblue");
+
+	// add widget to table
+	table->setCellWidget(current_Row, current_Column, label);
+}
+
+void Table_Of_Structures::create_Min_Max_Button(My_Table_Widget* table, int tab_Index, int current_Row, int current_Column, QString whats_This)
+{
+	add_Columns(table,current_Column);
+
+	QPushButton* min_Max_Button = new QPushButton("Reset");
+	table->setCellWidget(current_Row, current_Column, min_Max_Button);
+
+	Multilayer* multilayer = qobject_cast<Multilayer*>(multilayer_Tabs->widget(tab_Index));
+	connect(min_Max_Button, &QPushButton::clicked, this, [=]
+	{
+		QTreeWidgetItem* structure_Item;
+		QTreeWidgetItemIterator it(list_Of_Trees[tab_Index]->tree);
+		while (*it)
+		{
+			structure_Item=*it;
+			Data struct_Data = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+
+			if( struct_Data.item_Type == item_Type_Ambient  ||
+				struct_Data.item_Type == item_Type_Layer    ||
+				struct_Data.item_Type == item_Type_Substrate )
+			{
+				if(whats_This == whats_This_Density)
+				{
+					if(struct_Data.absolute_Density.fit.is_Fitable)
+					{
+						struct_Data.absolute_Density.fit.min = struct_Data.absolute_Density.value*(100-multilayer->min_Max_Density)/100;
+						struct_Data.absolute_Density.fit.max = struct_Data.absolute_Density.value*(100+multilayer->min_Max_Density)/100;
+					}
+					if(struct_Data.relative_Density.fit.is_Fitable)
+					{
+						struct_Data.relative_Density.fit.min = struct_Data.relative_Density.value*(100-multilayer->min_Max_Density)/100;
+						struct_Data.relative_Density.fit.max = struct_Data.relative_Density.value*(100+multilayer->min_Max_Density)/100;
+					}
+				}
+			}
+			if( struct_Data.item_Type == item_Type_Layer)
+			{
+				if(whats_This == whats_This_Thickness)
+				{
+					if(struct_Data.thickness.fit.is_Fitable)
+					{
+						struct_Data.thickness.fit.min = struct_Data.thickness.value*(100-multilayer->min_Max_Thickness)/100;
+						struct_Data.thickness.fit.max = struct_Data.thickness.value*(100+multilayer->min_Max_Thickness)/100;
+					}
+				}
+			}
+			if( struct_Data.item_Type == item_Type_Multilayer)
+			{
+				if(whats_This == whats_This_Thickness) // It is correct! NOT whats_This_Period, but thickness!
+				{
+					if(struct_Data.period.fit.is_Fitable)
+					{
+						struct_Data.period.fit.min = struct_Data.period.value*(100-multilayer->min_Max_Thickness)/100;
+						struct_Data.period.fit.max = struct_Data.period.value*(100+multilayer->min_Max_Thickness)/100;
+					}
+				}
+			}
+			if( struct_Data.item_Type == item_Type_Layer    ||
+				struct_Data.item_Type == item_Type_Substrate )
+			{
+				if(whats_This == whats_This_Sigma)
+				{
+					if(struct_Data.sigma.fit.is_Fitable)
+					{
+						struct_Data.sigma.fit.min = struct_Data.sigma.value*(100-multilayer->min_Max_Sigma)/100;
+						struct_Data.sigma.fit.max = struct_Data.sigma.value*(100+multilayer->min_Max_Sigma)/100;
+					}
+				}
+			}
+
+			QVariant var;
+			var.setValue( struct_Data );
+			structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+
+			++it;
+		}
+
+		reload_All_Widgets();
+	});
+}
+
+void Table_Of_Structures::create_Min_Max_Spin_Box(My_Table_Widget* table, int tab_Index,  int current_Row, int current_Column, QString whats_This)
+{
+	// PARAMETER
+
+	add_Columns(table,current_Column);
+	Multilayer* multilayer = qobject_cast<Multilayer*>(multilayer_Tabs->widget(tab_Index));
+
+	QDoubleSpinBox* spin_Box = new QDoubleSpinBox;
+		spin_Box->setAccelerated(true);
+		if(whats_This == whats_This_Density)
+		{
+			spin_Box->setValue(multilayer->min_Max_Density);
+		}
+		if(whats_This == whats_This_Thickness)
+		{
+			spin_Box->setValue(multilayer->min_Max_Thickness);
+		}
+		if(whats_This == whats_This_Sigma)
+		{
+			spin_Box->setValue(multilayer->min_Max_Sigma);
+		}
+		spin_Box->setRange(0, 100);
+		spin_Box->setDecimals(3);
+		spin_Box->setSingleStep(1);
+		spin_Box->setButtonSymbols(QAbstractSpinBox::NoButtons);
+
+	table->setCellWidget(current_Row, current_Column, spin_Box);
+	connect(spin_Box, static_cast<void(QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, [=]
+	{
+		if(whats_This == whats_This_Density)
+		{
+			multilayer->min_Max_Density = spin_Box->value();
+		}
+		if(whats_This == whats_This_Thickness)
+		{
+			multilayer->min_Max_Thickness = spin_Box->value();
+		}
+		if(whats_This == whats_This_Sigma)
+		{
+			multilayer->min_Max_Sigma = spin_Box->value();
+		}
+	});
 }
 
 //// refresh
@@ -1609,7 +1789,7 @@ void Table_Of_Structures::check_Material()
 
 void Table_Of_Structures::browse_Material(QLineEdit* material_Line_Edit)
 {
-	QFileInfo filename = QDir::toNativeSeparators(QFileDialog::getOpenFileName(this, "Find File", nk_Path, "Optical constants " + QString(nk_Filter) + ";;All files (*.*)"));
+	QFileInfo filename = QDir::toNativeSeparators(QFileDialog::getOpenFileName(this, "Find File", nk_Path, "Optical constants " + QString(nk_Filter) + ";;All files (*->*)"));
 	if (!filename.completeBaseName().isEmpty() || filename.completeSuffix() == nk_Ext)
 	{
 		material_Line_Edit->setText(filename.completeBaseName());

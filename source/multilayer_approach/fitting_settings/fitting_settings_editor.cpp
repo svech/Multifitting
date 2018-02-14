@@ -26,6 +26,7 @@ void Fitting_Settings_Editor::create_Main_Layout()
 
 	create_Menu();
 	create_Metods();
+	create_Pages();
 	create_Main_Params_Group_Box();
 	create_AdditionalParams_Group_Box();
 
@@ -68,7 +69,7 @@ void Fitting_Settings_Editor::create_Metods()
 		indices_Vec.append(methods_Combo_Box->count()-1);
 
 		QFont font(methods_Combo_Box->font());
-//		font.setPointSize(8.25);
+//		font.setPointSize(8->25);
 //		font.setFamily("MS Shell Dlg 2");
 //		font.setItalic(true);
 		font.setBold(true);
@@ -131,7 +132,7 @@ void Fitting_Settings_Editor::create_Metods()
 	methods_Combo_Box->setMaxVisibleItems(methods_Combo_Box->count());
 	methods_Combo_Box->setCurrentIndex(methods_Combo_Box->findText(spacer + fitting_Settings->current_Method));
 	methods_Combo_Box->adjustSize();
-	methods_Combo_Box->setFixedWidth(methods_Combo_Box->width()+80);
+	methods_Combo_Box->setFixedWidth(methods_Combo_Box->width()+90);
 
 	methods_Label = new QLabel("Fitting Algorithm");
 
@@ -145,6 +146,18 @@ void Fitting_Settings_Editor::create_Metods()
 		main_Layout->addLayout(methods_Layout);
 }
 
+void Fitting_Settings_Editor::create_Pages()
+{
+	pages_Stack = new QStackedWidget;
+	main_Layout->addWidget(pages_Stack);
+
+	page = new QWidget;
+		page->setContentsMargins(-5,-5,-5,-5);
+
+	page_Layout = new QVBoxLayout(page);
+	pages_Stack->addWidget(page);
+}
+
 void Fitting_Settings_Editor::create_Main_Params_Group_Box()
 {
 	{
@@ -152,7 +165,7 @@ void Fitting_Settings_Editor::create_Main_Params_Group_Box()
 			fit_Params_Group_Box->setObjectName("fit_Params_Group_Box");
 			fit_Params_Group_Box->setStyleSheet("QGroupBox#fit_Params_Group_Box { border-radius: 2px;  border: 1px solid gray; margin-top: 2ex;}"
 															"QGroupBox::title   { subcontrol-origin: margin;   left: 9px; padding: 0 0px 0 1px;}");
-		main_Layout->addWidget(fit_Params_Group_Box);
+		page_Layout->addWidget(fit_Params_Group_Box);
 		fit_Params_Group_Box_Layout = new QGridLayout(fit_Params_Group_Box);
 	}
 
@@ -183,7 +196,6 @@ void Fitting_Settings_Editor::create_Main_Params_Group_Box()
 		fit_Params_Group_Box_Layout->addWidget(f_Tolerance_Label,	 3,0,1,1);
 		fit_Params_Group_Box_Layout->addWidget(f_Tolerance_Line_Edit,3,1,1,1);
 
-
 		connect(max_Iter_Line_Edit,	   &QLineEdit::textChanged, fitting_Settings, [=]{fitting_Settings->max_Iter    = max_Iter_Line_Edit->   text().toInt();	});
 		connect(x_Tolerance_Line_Edit, &QLineEdit::textChanged, fitting_Settings, [=]{fitting_Settings->x_Tolerance = x_Tolerance_Line_Edit->text().toDouble();	});
 		connect(g_Tolerance_Line_Edit, &QLineEdit::textChanged, fitting_Settings, [=]{fitting_Settings->g_Tolerance = g_Tolerance_Line_Edit->text().toDouble();	});
@@ -202,41 +214,44 @@ void Fitting_Settings_Editor::create_AdditionalParams_Group_Box()
 	}
 	// for GSL TRS
 	{
-		scale_Label = new QLabel("Scaling method");
+		scale_Label = new QLabel("Scaling method (default Mor"+More_Sym+")");
 		scale_Combo_Box = new QComboBox;
 			scale_Combo_Box->addItem(GSL_Scales[More]);
 			scale_Combo_Box->addItem(GSL_Scales[Levenberg]);
 			scale_Combo_Box->addItem(GSL_Scales[Marquardt]);
+			scale_Combo_Box->setCurrentIndex(scale_Combo_Box->findText(fitting_Settings->current_Scale));
 
-		solver_Label = new QLabel("Solver method");
+		solver_Label = new QLabel("Solver method (default QR decomposition)");
 		solver_Combo_Box = new QComboBox;
 			solver_Combo_Box->addItem(GSL_Solvers[QR_decomposition]);
 			solver_Combo_Box->addItem(GSL_Solvers[Cholesky_decomposition]);
 			solver_Combo_Box->addItem(GSL_Solvers[Singular_value_decomposition]);
+			solver_Combo_Box->setCurrentIndex(solver_Combo_Box->findText(fitting_Settings->current_Solver));
 
-		fdtype_Label = new QLabel("Finite difference method");
+		fdtype_Label = new QLabel("Finite difference method (default Forward)");
 		fdtype_Combo_Box = new QComboBox;
 			fdtype_Combo_Box->addItem(GSL_Fdtype[Forward]);
 			fdtype_Combo_Box->addItem(GSL_Fdtype[Central]);
+			fdtype_Combo_Box->setCurrentIndex(fdtype_Combo_Box->findText(fitting_Settings->current_Fdtype));
 
-		factor_up_Label = new QLabel("Factor for increasing trust radius");
-		factor_up_Line_Edit = new QLineEdit(QString::number(fitting_Settings->f_Tolerance));
+		factor_up_Label = new QLabel("Factor for increasing trust radius (default 3)");
+		factor_up_Line_Edit = new QLineEdit(QString::number(fitting_Settings->factor_Up));
 			factor_up_Line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION));
 
-		factor_down_Label = new QLabel("Factor for decreasing trust radius");
-		factor_down_Line_Edit = new QLineEdit(QString::number(fitting_Settings->f_Tolerance));
+		factor_down_Label = new QLabel("Factor for decreasing trust radius (default 2)");
+		factor_down_Line_Edit = new QLineEdit(QString::number(fitting_Settings->factor_Down));
 			factor_down_Line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION));
 
-		avmax_Label = new QLabel("Max allowed |a|/|v|");
-		avmax_Line_Edit = new QLineEdit(QString::number(fitting_Settings->f_Tolerance));
+		avmax_Label = new QLabel("Max allowed |a|/|v| (default 0.75)");
+		avmax_Line_Edit = new QLineEdit(QString::number(fitting_Settings->avmax));
 			avmax_Line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION));
 
-		h_df_Label = new QLabel("Step size for finite difference Jacobian");
-		h_df_Line_Edit = new QLineEdit(QString::number(fitting_Settings->f_Tolerance));
+		h_df_Label = new QLabel("Step size for finite difference J (default ~1.5e-8)");
+		h_df_Line_Edit = new QLineEdit(QString::number(fitting_Settings->h_df));
 			h_df_Line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION));
 
-		h_fvv_Label = new QLabel("Step size for finite difference fvv");
-		h_fvv_Line_Edit = new QLineEdit(QString::number(fitting_Settings->f_Tolerance));
+		h_fvv_Label = new QLabel("Step size for finite difference fvv (default 0.02)");
+		h_fvv_Line_Edit = new QLineEdit(QString::number(fitting_Settings->h_fvv));
 			h_fvv_Line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION));
 
 
@@ -258,6 +273,16 @@ void Fitting_Settings_Editor::create_AdditionalParams_Group_Box()
 		additional_Params_Group_Box_Layout->addWidget(h_df_Line_Edit,	6,1,1,1);
 		additional_Params_Group_Box_Layout->addWidget(h_fvv_Label,		7,0,1,1);
 		additional_Params_Group_Box_Layout->addWidget(h_fvv_Line_Edit,	7,1,1,1);
+
+		connect(scale_Combo_Box,  static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), [=]{fitting_Settings->current_Scale  = scale_Combo_Box->currentText(); });
+		connect(solver_Combo_Box, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), [=]{fitting_Settings->current_Solver = solver_Combo_Box->currentText();});
+		connect(fdtype_Combo_Box, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), [=]{fitting_Settings->current_Fdtype = fdtype_Combo_Box->currentText();});
+
+		connect(factor_up_Line_Edit,   &QLineEdit::textChanged, [=]{fitting_Settings->factor_Up		= factor_up_Line_Edit->text().toDouble();	});
+		connect(factor_down_Line_Edit, &QLineEdit::textChanged, [=]{fitting_Settings->factor_Down	= factor_down_Line_Edit->text().toDouble();	});
+		connect(avmax_Line_Edit,	   &QLineEdit::textChanged, [=]{fitting_Settings->avmax			= avmax_Line_Edit->text().toDouble();		});
+		connect(h_df_Line_Edit,		   &QLineEdit::textChanged, [=]{fitting_Settings->h_df			= h_df_Line_Edit->text().toDouble();		});
+		connect(h_fvv_Line_Edit,	   &QLineEdit::textChanged, [=]{fitting_Settings->h_fvv			= h_fvv_Line_Edit->text().toDouble();		});
 	}
 	{
 		// create spoiler
@@ -266,7 +291,7 @@ void Fitting_Settings_Editor::create_AdditionalParams_Group_Box()
 		Spoiler* spoiler = new Spoiler("Additional parameters", 5, this);
 			spoiler->setContentsMargins(-9,0,-9,-0);
 			spoiler->setContentLayout(*frame_Layout);
-		main_Layout->addWidget(spoiler);
+		page_Layout->addWidget(spoiler);
 	}
 }
 

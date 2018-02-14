@@ -19,7 +19,6 @@ id_Type Global_Definitions::generate_Id()
 	if(current_ID < previous_ID)
 	{
 		// should never appear
-		qInfo() << "Global_Definitions::generate_Id()  :  Out of ID range!";
 		QMessageBox::critical(NULL, "Global_Definitions::generate_Id()", "Out of ID range!");
 		exit(EXIT_FAILURE);
 	}
@@ -225,7 +224,7 @@ void Element_Data::read_Element(QString& filename)
 			QTextStream temp_Stream(&temp_Line);
 			new_f1f2_Point.read_Row(temp_Stream, true);
 			if(new_f1f2_Point.re>-8888)
-			if(element_Data.size()==0 || (new_f1f2_Point.lambda > element_Data.last().lambda))
+			if(element_Data.size()==0 || (new_f1f2_Point.lambda < element_Data.last().lambda))
 			{
 				element_Data.prepend(new_f1f2_Point);
 			}

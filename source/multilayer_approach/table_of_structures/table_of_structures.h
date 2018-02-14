@@ -58,6 +58,11 @@ public:
 	void create_MySigma_Labels_Interlayer		(My_Table_Widget* table, int tab_Index, int current_Row, int start_Column, QTreeWidgetItem* structure_Item);
 	void create_MySigma_Line_Edits_Interlayer	(My_Table_Widget* table, int tab_Index, int current_Row, int start_Column, QTreeWidgetItem* structure_Item);
 
+	// min/max
+	void create_Min_Max_Label	 (My_Table_Widget* table,				 int current_Row, int current_Column, QString text);
+	void create_Min_Max_Button	 (My_Table_Widget* table, int tab_Index, int current_Row, int current_Column, QString whats_This);
+	void create_Min_Max_Spin_Box (My_Table_Widget* table, int tab_Index, int current_Row, int current_Column, QString whats_This);
+
 	// general
 	void span_Structure_Headers(My_Table_Widget* table);
 	void span_Structure_Items(My_Table_Widget* table);

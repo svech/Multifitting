@@ -1,7 +1,3 @@
-// This is a personal academic project. Dear PVS-Studio, please check it.
-
-// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
-
 #include "target_curve_editor.h"
 
 Target_Curve_Editor::Target_Curve_Editor(Target_Curve* target_Curve, Multilayer* multilayer, QWidget *parent) :
@@ -74,6 +70,7 @@ void Target_Curve_Editor::show_Description_Label()
 {
 	if(target_Curve->loaded_And_Ready)
 	{
+		QString spacer;
 		if(target_Curve->curve.angle_Type == angle_Type_Grazing)   target_Curve->ang_Type_For_Label_At_Fixed="(gr)";
 		if(target_Curve->curve.angle_Type == angle_Type_Incidence) target_Curve->ang_Type_For_Label_At_Fixed="(in)";
 
@@ -85,6 +82,7 @@ void Target_Curve_Editor::show_Description_Label()
 
 			double coeff = wavelength_Coefficients_Map.value(target_Curve->curve.spectral_Units);
 			target_Curve->at_Fixed = QString::number(Global_Variables::wavelength_Energy(target_Curve->curve.spectral_Units,target_Curve->measurement.wavelength.value)/coeff, thumbnail_double_format, thumbnail_wavelength_precision)+" "+target_Curve->curve.spectral_Units;
+			spacer = "";
 		}
 		if(target_Curve->curve.argument_Type == whats_This_Wavelength)
 		{
@@ -94,12 +92,13 @@ void Target_Curve_Editor::show_Description_Label()
 			double coeff = angle_Coefficients_Map.value(target_Curve->curve.angular_Units);
 			target_Curve->at_Fixed = QString::number(target_Curve->measurement.probe_Angle.value/coeff, thumbnail_double_format, thumbnail_angle_precision)+" "+target_Curve->curve.angular_Units;
 			target_Curve->at_Fixed = target_Curve->ang_Type_For_Label_At_Fixed + " " + target_Curve->at_Fixed;
+			spacer = " ";
 		}
 
 		target_Curve->label_Text =
 					target_Curve->arg_Type_For_Label + "; " +
 					target_Curve->curve.value_Mode + "; " +
-					QString::number(target_Curve->curve.shifted_Argument.first()) + "-" + QString::number(target_Curve->curve.shifted_Argument.last()) + " " + target_Curve->arg_Units + "; " +
+					QString::number(target_Curve->curve.shifted_Argument.first()) + "-" + QString::number(target_Curve->curve.shifted_Argument.last()) + spacer + target_Curve->arg_Units + "; " +
 					"at " + target_Curve->at_Fixed;
 	} else
 	{
@@ -111,7 +110,7 @@ void Target_Curve_Editor::show_Description_Label()
 
 void Target_Curve_Editor::browse_Data_File()
 {
-	QString directory = QDir::toNativeSeparators(QFileDialog::getOpenFileName(this, "Find File", filepath_ComboBox->lineEdit()->text(), "Text data (*.txt *.dat *.xy);;All files (*.*)"));
+	QString directory = QDir::toNativeSeparators(QFileDialog::getOpenFileName(this, "Find File", filepath_ComboBox->lineEdit()->text(), "Text data (*->txt *->dat *->xy);;All files (*->*)"));
 
 	if (!directory.isEmpty())
 	{
@@ -746,7 +745,7 @@ void Target_Curve_Editor::refresh_At_Fixed_Value()
 		double coeff = angle_Coefficients_Map.value(local_Unit);			// angular units
 
 		// be ready to have a bug next line!
-		if(at_Fixed_LineEdit->text().toDouble()*coeff<=90)//.+3*pow(10.,-line_edit_angle_precision+1))	// be ready to have a bug!
+		if(at_Fixed_LineEdit->text().toDouble()*coeff<=90)//->+3*pow(10->,-line_edit_angle_precision+1))	// be ready to have a bug!
 		{
 			target_Curve->measurement.probe_Angle.value = at_Fixed_LineEdit->text().toDouble()*coeff;
 		} else

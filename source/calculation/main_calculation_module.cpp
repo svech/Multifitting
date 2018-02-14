@@ -314,8 +314,8 @@ void Main_Calculation_Module::slaves_Expression_Iteration(Parameter* master)
 		exprtk::symbol_table<double> symbol_table;
 
 		expression_Vec.append(exprtk::expression<double>());
-		argument_Vec.append(master->value);
-		slaves_Expression_Map.insert(slave->indicator.id, expression_Vec.size()-1);
+		argument_Vec.append(master.value);
+		slaves_Expression_Map.insert(slave.indicator.id, expression_Vec.size()-1);
 
 		symbol_table.add_variable(expression_Master_Slave_Variable, argument_Vec.last());
 		symbol_table.add_constants();

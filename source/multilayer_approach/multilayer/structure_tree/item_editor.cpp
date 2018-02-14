@@ -1,7 +1,3 @@
-// This is a personal academic project. Dear PVS-Studio, please check it.
-
-// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
-
 #include "item_editor.h"
 
 Item_Editor::Item_Editor(QList<Item_Editor*>& list_Editors, QTreeWidgetItem* item, QWidget *parent) :
@@ -819,7 +815,7 @@ void Item_Editor::resize_Line_Edit(QString text, QLineEdit* line_Edit)
 
 void Item_Editor::browse_Material()
 {
-	QFileInfo filename = QDir::toNativeSeparators(QFileDialog::getOpenFileName(this, "Find File", nk_Path, "Optical constants " + QString(nk_Filter) + ";;All files (*.*)"));
+	QFileInfo filename = QDir::toNativeSeparators(QFileDialog::getOpenFileName(this, "Find File", nk_Path, "Optical constants " + QString(nk_Filter) + ";;All files (*->*)"));
 	if (!filename.completeBaseName().isEmpty())
 	{
 		material_Line_Edit->setText(filename.completeBaseName());
@@ -1064,7 +1060,7 @@ void Item_Editor::fast_Refresh_Stack()
 			{
 				if( abs(gamma_Line_Edit->text().toDouble()) > DBL_MIN || abs(struct_Data.gamma.value) < DBL_MIN )
 				{
-					if( abs(gamma_Line_Edit->text().toDouble() - 1.) > DBL_EPSILON || abs(struct_Data.gamma.value - 1) < DBL_EPSILON )
+					if( abs(gamma_Line_Edit->text().toDouble() - 1) > DBL_EPSILON || abs(struct_Data.gamma.value - 1) < DBL_EPSILON )
 					{
 						refresh_Data();
 					}

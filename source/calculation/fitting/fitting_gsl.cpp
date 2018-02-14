@@ -46,30 +46,66 @@ bool Fitting_GSL::fit()
 
 	const size_t n = num_Residual_Points();
 	const size_t p = fitables.fit_Parameters.size();
-	const size_t max_iter = multilayer_Approach->fitting_Settings->max_Iter;
-	const double xtol = multilayer_Approach->fitting_Settings->x_Tolerance;
-	const double gtol = multilayer_Approach->fitting_Settings->g_Tolerance;
-	const double ftol = multilayer_Approach->fitting_Settings->f_Tolerance;
 
 	Params params {	main_Calculation_Module, calculation_Trees, fitables };
 	gsl_multifit_nlinear_parameters fdf_params = gsl_multifit_nlinear_default_parameters();
 
-	if(multilayer_Approach->fitting_Settings->current_Method == GSL_Methods[Levenberg_Marquardt])
-	{	fdf_params.trs = gsl_multifit_nlinear_trs_lm;		};
-	if(multilayer_Approach->fitting_Settings->current_Method == GSL_Methods[Levenberg_Marquardt_with_Geodesic_Acceleration])
-	{	fdf_params.trs = gsl_multifit_nlinear_trs_lmaccel;	}
-	if(multilayer_Approach->fitting_Settings->current_Method == GSL_Methods[Dogleg])
-	{	fdf_params.trs = gsl_multifit_nlinear_trs_dogleg;	}
-	if(multilayer_Approach->fitting_Settings->current_Method == GSL_Methods[Double_Dogleg])
-	{	fdf_params.trs = gsl_multifit_nlinear_trs_ddogleg;	}
-	if(multilayer_Approach->fitting_Settings->current_Method == GSL_Methods[Two_Dimensional_Subspace])
+	/// reading parameters
+
+	// read main parameters
+	const size_t max_iter = multilayer_Approach->fitting_Settings->max_Iter;
+	const double xtol = multilayer_Approach->fitting_Settings->x_Tolerance;
+	const double gtol = multilayer_Approach->fitting_Settings->g_Tolerance;
+	const double ftol = multilayer_Approach->fitting_Settings->f_Tolerance;
 	{
-		if(p<2)
+		// read method
+		if(multilayer_Approach->fitting_Settings->current_Method == GSL_Methods[Levenberg_Marquardt])
+		{	fdf_params.trs = gsl_multifit_nlinear_trs_lm;		};
+		if(multilayer_Approach->fitting_Settings->current_Method == GSL_Methods[Levenberg_Marquardt_with_Geodesic_Acceleration])
+		{	fdf_params.trs = gsl_multifit_nlinear_trs_lmaccel;	}
+		if(multilayer_Approach->fitting_Settings->current_Method == GSL_Methods[Dogleg])
+		{	fdf_params.trs = gsl_multifit_nlinear_trs_dogleg;	}
+		if(multilayer_Approach->fitting_Settings->current_Method == GSL_Methods[Double_Dogleg])
+		{	fdf_params.trs = gsl_multifit_nlinear_trs_ddogleg;	}
+		if(multilayer_Approach->fitting_Settings->current_Method == GSL_Methods[Two_Dimensional_Subspace])
 		{
-			QMessageBox::information(NULL,"Insufficient number of parameters", "Method\n\"Two Dimensional Subspace\"\nrequires at least 2 fitables");
-			return false;
+			if(p<2)
+			{
+				QMessageBox::information(NULL,"Insufficient number of parameters", "Method\n\"Two Dimensional Subspace\"\nrequires at least 2 fitables");
+				return false;
+			}
+			fdf_params.trs = gsl_multifit_nlinear_trs_subspace2D;
 		}
-		fdf_params.trs = gsl_multifit_nlinear_trs_subspace2D;
+
+		/// read additional parameters
+		// read scaling strategy
+		if(multilayer_Approach->fitting_Settings->current_Scale == GSL_Scales[More])
+		{	fdf_params.scale = gsl_multifit_nlinear_scale_more;			};
+		if(multilayer_Approach->fitting_Settings->current_Scale == GSL_Scales[Levenberg])
+		{	fdf_params.scale = gsl_multifit_nlinear_scale_levenberg;	};
+		if(multilayer_Approach->fitting_Settings->current_Scale == GSL_Scales[Marquardt])
+		{	fdf_params.scale = gsl_multifit_nlinear_scale_marquardt;	};
+
+		// read linear solver
+		if(multilayer_Approach->fitting_Settings->current_Solver == GSL_Solvers[QR_decomposition])
+		{	fdf_params.solver = gsl_multifit_nlinear_solver_qr;			};
+		if(multilayer_Approach->fitting_Settings->current_Solver == GSL_Solvers[Cholesky_decomposition])
+		{	fdf_params.solver = gsl_multifit_nlinear_solver_cholesky;	};
+		if(multilayer_Approach->fitting_Settings->current_Solver == GSL_Solvers[Singular_value_decomposition])
+		{	fdf_params.solver = gsl_multifit_nlinear_solver_svd;		};
+
+		// read fdtype
+		if(multilayer_Approach->fitting_Settings->current_Fdtype == GSL_Fdtype[Forward])
+		{	fdf_params.fdtype = GSL_MULTIFIT_NLINEAR_FWDIFF;			};
+		if(multilayer_Approach->fitting_Settings->current_Fdtype == GSL_Fdtype[Central])
+		{	fdf_params.fdtype = GSL_MULTIFIT_NLINEAR_CTRDIFF;			};
+
+		// read numerical params
+		fdf_params.factor_up = multilayer_Approach->fitting_Settings->factor_Up;
+		fdf_params.factor_down = multilayer_Approach->fitting_Settings->factor_Down;
+		fdf_params.avmax = multilayer_Approach->fitting_Settings->avmax;
+		fdf_params.h_df = multilayer_Approach->fitting_Settings->h_df;
+		fdf_params.h_fvv = multilayer_Approach->fitting_Settings->h_fvv;
 	}
 
 	const gsl_multifit_nlinear_type* T = gsl_multifit_nlinear_trust;
@@ -262,6 +298,7 @@ int Fitting_GSL::calc_Residual(const gsl_vector* x, void* bare_Params, gsl_vecto
 	for(int tab_Index=0; tab_Index<params->calculation_Trees.size(); ++tab_Index)
 	{
 		// over target curves
+		int target_Index = 0;
 
 		// if use reference Data_Element<Target_Curve>& then addresses of slaves are changing!!! WTF?
 		for(Data_Element<Target_Curve>& target_Element : params->calculation_Trees[tab_Index]->target)
@@ -274,10 +311,22 @@ int Fitting_GSL::calc_Residual(const gsl_vector* x, void* bare_Params, gsl_vecto
 			params->calculation_Trees[tab_Index]->calculate_1_Kind(target_Element);
 
 			// fill residual
-			fill_Residual(residual_Shift, target_Element, f);
+			fill_Residual(residual_Shift, target_Element, f, target_Index);
+			target_Index++;
 		}
 	}
 	return GSL_SUCCESS;
+}
+
+double func(double argument, int index)
+{
+	if(index == 0)
+	{
+		return log(argument+1E-4);
+	} else
+	{
+		return argument;
+	}
 }
 
 void Fitting_GSL::init_Position(gsl_vector* x, Params* params)
@@ -298,7 +347,7 @@ void Fitting_GSL::init_Position(gsl_vector* x, Params* params)
 	}
 }
 
-void Fitting_GSL::fill_Residual(int& residual_Shift, Data_Element<Target_Curve>& target_Element, gsl_vector* f)
+void Fitting_GSL::fill_Residual(int& residual_Shift, Data_Element<Target_Curve>& target_Element, gsl_vector* f, int index)
 {
 	Target_Curve* target_Curve = target_Element.the_Class;
 	double fi_1, fi_2, factor;
@@ -319,7 +368,7 @@ void Fitting_GSL::fill_Residual(int& residual_Shift, Data_Element<Target_Curve>&
 				target_Curve->fit_Params.expression_Argument = target_Curve->curve.values[point_Index].val_1;
 				fi_1 = target_Curve->fit_Params.expression_Vec[0].value();
 #else
-				fi_1 = target_Curve->curve.values[point_Index].val_1;
+				fi_1 = func(target_Curve->curve.values[point_Index].val_1, index);
 #endif
 			}
 			{
@@ -327,7 +376,7 @@ void Fitting_GSL::fill_Residual(int& residual_Shift, Data_Element<Target_Curve>&
 				target_Curve->fit_Params.expression_Argument = target_Element.unwrapped_Reflection->R[point_Index];
 				fi_2 = target_Curve->fit_Params.expression_Vec[0].value();
 #else
-				fi_2 = target_Element.unwrapped_Reflection->R[point_Index];
+				fi_2 = func(target_Element.unwrapped_Reflection->R[point_Index], index);
 #endif
 			}
 

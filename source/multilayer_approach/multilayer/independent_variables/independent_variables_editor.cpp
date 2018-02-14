@@ -1,7 +1,3 @@
-// This is a personal academic project. Dear PVS-Studio, please check it.
-
-// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
-
 #include "independent_variables_editor.h"
 #include "multilayer_approach/multilayer/independent_variables/variable_selection.h"
 

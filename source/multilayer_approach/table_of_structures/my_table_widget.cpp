@@ -26,7 +26,7 @@ void My_Table_Widget::contextMenuEvent(QContextMenuEvent *event)
 		Data struct_Data = struct_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
 		Parameter* parameter = Global_Variables::get_Parameter_From_Struct_Item_by_Id(struct_Data, id);
 
-//		qInfo() << "parameter id = " << parameter.indicator.id << "\n" << main_Tabs->tabText(parameter.indicator.tab_Index) << " " << parameter.indicator.full_Name << endl;
+//		qInfo() << "parameter id = " << parameter->indicator->id << "\n" << main_Tabs->tabText(parameter->indicator->tab_Index) << " " << parameter->indicator->full_Name << endl;
 
 		// period and gamma can't be connected
 		if(parameter->indicator.whats_This == whats_This_Period || parameter->indicator.whats_This == whats_This_Gamma) return;

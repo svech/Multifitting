@@ -12,7 +12,7 @@ Coupling_Editor::Coupling_Editor(QWidget* coupling_Widget,
 	struct_Data = struct_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
 	coupled_Parameter = Global_Variables::get_Parameter_From_Struct_Item_by_Id(struct_Data, coupled_Id);
 
-	setWindowTitle("<"+table_Of_Structures->main_Tabs->tabText(coupled_Parameter->indicator.tab_Index)+"> "+coupled_Parameter->indicator.full_Name/*+" "+QString::number(coupling_Parameter.indicator.id)*/);
+	setWindowTitle("<"+table_Of_Structures->main_Tabs->tabText(coupled_Parameter->indicator.tab_Index)+"> "+coupled_Parameter->indicator.full_Name/*+" "+QString::number(coupling_Parameter->indicator.id)*/);
 	create_Main_Layout();
 	set_Window_Geometry();
 	setAttribute(Qt::WA_DeleteOnClose);
@@ -34,8 +34,8 @@ void Coupling_Editor::closeEvent(QCloseEvent *)
 		// save external slaves
 		save_External_Slaves();
 
-//		qInfo() << "saved" <<     coupling_Parameter.coupled.slaves.size() << "slaves";
-//		qInfo() << "saved" << int(coupling_Parameter.coupled.master.exist) << "master";
+//		qInfo() << "saved" <<     coupling_Parameter->coupled.slaves.size() << "slaves";
+//		qInfo() << "saved" << int(coupling_Parameter->coupled.master.exist) << "master";
 //		qInfo() << "";
 	}
 
@@ -189,7 +189,7 @@ void Coupling_Editor::save_External_Master()
 
 		// save old master
 		table_Of_Structures->refresh_Reload_Colorize(refresh_Property, old_Master_Widget, old_Master_Parameter);
-//		qInfo() << "old master " << old_Master_Parameter.indicator.full_Name << " removed me from slaves. Now " << old_Master_Parameter.coupled.slaves.size() << "slaves";
+//		qInfo() << "old master " << old_Master_Parameter->indicator.full_Name << " removed me from slaves. Now " << old_Master_Parameter->coupled.slaves.size() << "slaves";
 	}
 
 	// add me to current master
@@ -220,7 +220,7 @@ void Coupling_Editor::save_External_Master()
 
 		// save current master
 		table_Of_Structures->refresh_Reload_Colorize(refresh_Property, master_Widget, master_Parameter);
-//		qInfo() << "master " << master_Parameter.indicator.full_Name << " added me as slave. Now " << master_Parameter.coupled.slaves.size() << "slaves";
+//		qInfo() << "master " << master_Parameter->indicator.full_Name << " added me as slave. Now " << master_Parameter->coupled.slaves.size() << "slaves";
 	}
 }
 
@@ -324,7 +324,7 @@ void Coupling_Editor::load_Slaves()
 			}
 		}
 	}
-//	qInfo() << "loaded" << counter << " of " << old_Slaves.size() << "slaves";
+//	qInfo() << "loaded" << counter << " of " << old_Slaves->size() << "slaves";
 }
 
 void Coupling_Editor::save_External_Slaves()
@@ -380,7 +380,7 @@ void Coupling_Editor::save_External_Slaves()
 
 			// save slave
 			table_Of_Structures->refresh_Reload_Colorize(refresh_Property, slave_Widget, slave_Parameter);
-//			qInfo() << "slave " << slave_Parameter.indicator.full_Name << " added me as master";
+//			qInfo() << "slave " << slave_Parameter->indicator.full_Name << " added me as master";
 		}
 		index++;
 	}
@@ -482,8 +482,8 @@ void Coupling_Editor::get_Parameter(QLabel* label)
 			coupled_Parameter->coupled.master.expression = expression;
 
 			// master's side
-			master_Widget = widget;					// remember widget. data will be saved at close.
-			label->setText("<"+table_Of_Structures->main_Tabs->tabText(widget_Parameter->indicator.tab_Index)+"> "+widget_Parameter->indicator.full_Name/* + " " + QString::number(parameter.indicator.id)*/);
+			master_Widget = widget;					// remember widget. data will be saved at close->
+			label->setText("<"+table_Of_Structures->main_Tabs->tabText(widget_Parameter->indicator.tab_Index)+"> "+widget_Parameter->indicator.full_Name/* + " " + QString::number(parameter->indicator.id)*/);
 		} else
 		// set slave
 		{
@@ -510,10 +510,10 @@ void Coupling_Editor::get_Parameter(QLabel* label)
 				coupled_Parameter->coupled.slaves[index].exist = true;
 				coupled_Parameter->coupled.slaves[index].expression = expression;
 
-				label->setText("<"+table_Of_Structures->main_Tabs->tabText(widget_Parameter->indicator.tab_Index)+"> "+widget_Parameter->indicator.full_Name/* + " " + QString::number(parameter.indicator.id)*/);
+				label->setText("<"+table_Of_Structures->main_Tabs->tabText(widget_Parameter->indicator.tab_Index)+"> "+widget_Parameter->indicator.full_Name/* + " " + QString::number(parameter->indicator.id)*/);
 			}
 		}
-//		qInfo() << "parameter id = " << parameter.indicator.id << "\n" << main_Tabs->tabText(parameter.indicator.tab_Index) << " " << parameter.indicator.full_Name << endl;
+//		qInfo() << "parameter id = " << parameter->indicator.id << "\n" << main_Tabs->tabText(parameter->indicator.tab_Index) << " " << parameter->indicator.full_Name << endl;
 	}
 }
 

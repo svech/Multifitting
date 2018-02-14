@@ -115,6 +115,8 @@ class Node;
 #define Prime_Sym				QString(QChar(0x2032))
 #define Double_Prime_Sym		QString(QChar(0x2033))
 #define Medium_BlackCircle_Sym	QString(QChar(0x26AB))
+#define Plus_Minus_Sym			QString(QChar(0x00B1))
+#define More_Sym				QString(QChar(0x00E9))
 
 // -----------------------------------------------------------------------------------------
 
@@ -130,7 +132,8 @@ class Node;
 #define PERMANENT_INDEPENDENT 2				// angle and wavelength items in list
 #define MAX_PRECISION_USED 10				// tthumbnail and lineedit precisions
 #define RAND_SHIFT	100000					// rand * RAND_SHIFT + rand
-#define TABLE_FIX_WIDTH_LINE_EDIT 50		// qLineEdit->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT)
+#define TABLE_FIX_WIDTH_LINE_EDIT_SHORT 55	// qLineEdit.setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT)
+#define TABLE_FIX_WIDTH_LINE_EDIT_LONG 55	// qLineEdit.setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT)
 #define TABLE_COLUMN_ELEMENTS_SHIFT 1		// current_Column += TABLE_COLUMN_ELEMENTS_SHIFT
 #define TABLE_COLUMN_INTERLAYERS_SHIFT 1	// current_Column += TABLE_COLUMN_INTERLAYERS_SHIFT
 
@@ -191,21 +194,25 @@ class Node;
 #define whats_This_Period					"Period"
 #define whats_This_Gamma					"Gamma"
 
+#define whats_This_Density					"Density"
+
 // whatsThis : thickness drifts
 #define whats_This_Thickness_Drift_Line_Value		"Thickness Drift Lin Value"
 #define whats_This_Thickness_Drift_Rand_Rms			"Thickness Drift Rand Rms"
-#define whats_This_Thickness_Drift_Sine				"Thickness Drift Sine"
 #define whats_This_Thickness_Drift_Sine_Amplitude	"Thickness Drift Sine Amplitude"
 #define whats_This_Thickness_Drift_Sine_Frequency	"Thickness Drift Sine Frequency"
 #define whats_This_Thickness_Drift_Sine_Phase		"Thickness Drift Sine Phase"
 
+#define whats_This_Thickness_Drift_Sine				"Thickness Drift Sine"
+
 // whatsThis : sigma drifts
 #define whats_This_Sigma_Drift_Line_Value			"Sigma Drift Lin Value"
 #define whats_This_Sigma_Drift_Rand_Rms				"Sigma Drift Rand Rms"
-#define whats_This_Sigma_Drift_Sine					"Sigma Drift Sine"
 #define whats_This_Sigma_Drift_Sine_Amplitude		"Sigma Drift Sine Amplitude"
 #define whats_This_Sigma_Drift_Sine_Frequency		"Sigma Drift Sine Frequency"
 #define whats_This_Sigma_Drift_Sine_Phase			"Sigma Drift Sine Phase"
+
+#define whats_This_Sigma_Drift_Sine					"Sigma Drift Sine"
 
 // window types
 #define window_Type_Launcher						"Launcher"

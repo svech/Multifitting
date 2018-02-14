@@ -62,9 +62,9 @@ Unwrapped_Structure::Unwrapped_Structure(const tree<Node>& calc_Tree, const Data
 		boundary_Interlayer_Composition.resize(num_Boundaries, vector<Interlayer>(transition_Layer_Functions_Size));
 		thickness.resize(num_Layers);
 
-		fill_Epsilon_Max_Depth_2	(calc_Tree->begin());
-		fill_Sigma_Max_Depth_2		(calc_Tree->begin());
-		fill_Thickness_Max_Depth_2	(calc_Tree->begin());
+		fill_Epsilon_Max_Depth_2	(calc_Tree.begin());
+		fill_Sigma_Max_Depth_2		(calc_Tree.begin());
+		fill_Thickness_Max_Depth_2	(calc_Tree.begin());
 	}*/
 }
 

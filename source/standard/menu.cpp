@@ -1,7 +1,3 @@
-// This is a personal academic project. Dear PVS-Studio, please check it.
-
-// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
-
 #include "menu.h"
 #include "multilayer_approach/table_of_structures/table_of_structures.h"
 
@@ -720,7 +716,7 @@ void Menu::create_Help_Menu()
 {
 	help_Menu = new QMenu("Help",this);
 	{
-		QAction* act_Documentation = new QAction("Multifitting.pdf", this);
+		QAction* act_Documentation = new QAction("Multifitting->pdf", this);
 		help_Menu->addAction(act_Documentation);
 		connect(act_Documentation, &QAction::triggered, this, &Menu::open_Documentation);
 	}

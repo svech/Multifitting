@@ -1,7 +1,3 @@
-// This is a personal academic project. Dear PVS-Studio, please check it.
-
-// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
-
 #include "multilayer.h"
 
 Multilayer::Multilayer(Multilayer_Approach* multilayer_Approach, QWidget *parent) :
@@ -169,7 +165,8 @@ void Multilayer::change_Tab_Independent_Variables_Tab_Color(int index)
 
 void Multilayer::remove_Independent_Variables_Tab(int index)
 {
-	QMessageBox::StandardButton reply = QMessageBox::question(this,"Removal", "Variables tab \"" + independent_Variables_Plot_Tabs->tabBar()->tabText(index) + "\" will be removed.\nContinue?", QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
+	QMessageBox::StandardButton reply = QMessageBox::question(this,"Removal", "Variables tab \"" + independent_Variables_Plot_Tabs->tabBar()->tabText(index)
+															  + "\" will be removed.\nContinue?", QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
 	if (reply == QMessageBox::Yes)
 	{
 		delete independent_Variables_Plot_Tabs->widget(index);
@@ -261,10 +258,10 @@ void Multilayer::add_Target_Curve(int index_Pressed)
 
 	// hiding add button
 //	QPushButton* add_Button;
-//	if(data_Measured_Data_Frame_Vector.size()>1)
+//	if(data_Measured_Data_Frame_Vector->size()>1)
 //	{
-//		add_Button = data_Measured_Data_Frame_Vector[data_Measured_Data_Frame_Vector.size()-2]->findChild<QPushButton*>(new_Add_Button->objectName());
-//		add_Button->hide();
+//		add_Button = data_Measured_Data_Frame_Vector[data_Measured_Data_Frame_Vector->size()-2]->findChild<QPushButton*>(new_Add_Button->objectName());
+//		add_Button.hide();
 //	}
 }
 

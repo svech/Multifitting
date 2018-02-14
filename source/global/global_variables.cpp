@@ -139,7 +139,7 @@ QStringList GSL_Solvers			{"QR decomposition",
 								}; // change enum!
 
 // GSL scaling
-QStringList GSL_Scales			{"More",
+QStringList GSL_Scales			{"Mor"+More_Sym,
 								 "Levenberg",
 								 "Marquardt"
 								}; // change enum!
@@ -496,7 +496,7 @@ QString Global_Variables::parameter_Name(const Data &struct_Data, QString whats_
 	/// measurement parameters
 	if(	struct_Data.item_Type == item_Type_Measurement )
 	{
-		if(whats_This == whats_This_Angle)							text = struct_Data.angle_Type + " angle, " + Theta_Sym;		
+		if(whats_This == whats_This_Angle)							text = struct_Data.angle_Type + " angle, " + Theta_Sym;
 		if(whats_This == whats_This_Angular_Resolution)				text = "Angular resolution, " + Delta_Big_Sym + Theta_Sym;
 		if(whats_This == whats_This_Wavelength)						text = Global_Variables::wavelength_Energy_Name(wavelength_units);
 		if(whats_This == whats_This_Spectral_Resolution)			text = "Spectral resolution" + Delta_Big_Sym + "E/E";
