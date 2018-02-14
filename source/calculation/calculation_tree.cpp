@@ -1,7 +1,3 @@
-// This is a personal academic project. Dear PVS-Studio, please check it.
-
-// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
-
 #include "calculation_tree.h"
 #include "multilayer_approach/multilayer/multilayer.h"
 #include <iostream>
@@ -322,7 +318,7 @@ void Calculation_Tree::calculate_1_Kind(Data_Element<Type>& data_Element)
 //		tree<Node>::iterator active_Iter = find_Node_By_Item_Id(data_Element.calc_Tree.begin(), data_Element.active_Item_Id, data_Element.calc_Tree);
 	// ....................................................................
 	// emergency case
-//		if (active_Iter.node.data.stop_Calculation) { qInfo() << "stop_Calculation"; return; }
+//		if (active_Iter.node->data.stop_Calculation) { qInfo() << "stop_Calculation"; return; }
 	// ....................................................................
 	// if measurement is not active, create tree for each plot point
 	if(data_Element.active_Item_Type != item_Type_Measurement)
@@ -420,11 +416,11 @@ void Calculation_Tree::calculate_Unwrapped_Reflectivity(				    const Data& meas
 
 //	qInfo() << "Bare Reflectivity:      "<< elapsed.count()/1000. << " seconds" << endl;
 
-//	cout << "r_s     [" << 0 << "] = " << unwrapped_Reflection_Vec_Element.r_s[0] << endl;
-//	cout << "r_p     [" << 0 << "] = " << unwrapped_Reflection_Vec_Element.r_p[0] << endl;
+//	cout << "r_s     [" << 0 << "] = " << unwrapped_Reflection_Vec_Element->r_s[0] << endl;
+//	cout << "r_p     [" << 0 << "] = " << unwrapped_Reflection_Vec_Element->r_p[0] << endl;
 
-//	cout << "R_s     [" << 0 << "] = " << unwrapped_Reflection_Vec_Element.R_s[0] << endl;
-//	cout << "R_p     [" << 0 << "] = " << unwrapped_Reflection_Vec_Element.R_p[0] << endl;
+//	cout << "R_s     [" << 0 << "] = " << unwrapped_Reflection_Vec_Element->R_s[0] << endl;
+//	cout << "R_p     [" << 0 << "] = " << unwrapped_Reflection_Vec_Element->R_p[0] << endl;
 //	cout << "--------------------------------\n";
 }
 

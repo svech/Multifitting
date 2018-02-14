@@ -97,8 +97,7 @@ void Table_Of_Structures::create_Tabs()
 	main_Tabs = new QTabWidget(this);
 	main_Tabs->setMovable(false);
 
-	connect(main_Tabs,	&QTabWidget::currentChanged,
-			[=](int index)
+	connect(main_Tabs,	&QTabWidget::currentChanged, [=](int index)
 	{
 		main_Tabs->tabBar()->setTabTextColor(index,Qt::black);
 
@@ -147,6 +146,9 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 		int max_Depth = Global_Variables::get_Tree_Depth(list_Of_Trees[tab_Index]->tree->invisibleRootItem());
 		int depth, current_Column;
 
+		bool has_Layers=false;
+		bool has_Boundaries=false;
+
 		// calculate max_Number_Of_Elements for tabulation
 		int max_Number_Of_Elements=1;
 		{
@@ -156,6 +158,12 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 			{
 				structure_Item=*it;
 				Data struct_Data = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+
+				// for min/max buttons
+				if(struct_Data.item_Type == item_Type_Layer)		{has_Layers = true;}
+				if(struct_Data.item_Type == item_Type_Layer    ||
+				   struct_Data.item_Type == item_Type_Substrate )	{has_Boundaries = true;}
+
 				if( struct_Data.item_Type == item_Type_Ambient  ||
 					struct_Data.item_Type == item_Type_Layer    ||
 					struct_Data.item_Type == item_Type_Substrate )
@@ -192,15 +200,21 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 			current_Column += 2;
 
 			// thickness min/max
-			create_Min_Max_Label	(new_Table,			   current_Row,   current_Column, "z/d, "+Plus_Minus_Sym+"%");
-			create_Min_Max_Button	(new_Table, tab_Index, current_Row+1, current_Column, whats_This_Thickness);
-			create_Min_Max_Spin_Box	(new_Table, tab_Index, current_Row+2, current_Column, whats_This_Thickness);
+			if(has_Layers)
+			{
+				create_Min_Max_Label	(new_Table,			   current_Row,   current_Column, "z/d, "+Plus_Minus_Sym+"%");
+				create_Min_Max_Button	(new_Table, tab_Index, current_Row+1, current_Column, whats_This_Thickness);
+				create_Min_Max_Spin_Box	(new_Table, tab_Index, current_Row+2, current_Column, whats_This_Thickness);
+			}
 			current_Column += 2;
 
 			// sigma min/max
-			create_Min_Max_Label	(new_Table,			   current_Row,   current_Column, Sigma_Sym+", "+Plus_Minus_Sym+"%");
-			create_Min_Max_Button	(new_Table, tab_Index, current_Row+1, current_Column, whats_This_Sigma);
-			create_Min_Max_Spin_Box	(new_Table, tab_Index, current_Row+2, current_Column, whats_This_Sigma);
+			if(has_Boundaries)
+			{
+				create_Min_Max_Label	(new_Table,			   current_Row,   current_Column, Sigma_Sym+", "+Plus_Minus_Sym+"%");
+				create_Min_Max_Button	(new_Table, tab_Index, current_Row+1, current_Column, whats_This_Sigma);
+				create_Min_Max_Spin_Box	(new_Table, tab_Index, current_Row+2, current_Column, whats_This_Sigma);
+			}
 		}
 
 		// structure name
@@ -1563,7 +1577,6 @@ void Table_Of_Structures::create_Min_Max_Button(My_Table_Widget* table, int tab_
 
 			++it;
 		}
-
 		reload_All_Widgets();
 	});
 }

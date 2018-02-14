@@ -258,10 +258,10 @@ void Multilayer::add_Target_Curve(int index_Pressed)
 
 	// hiding add button
 //	QPushButton* add_Button;
-//	if(data_Measured_Data_Frame_Vector->size()>1)
+//	if(data_Measured_Data_Frame_Vector.size()>1)
 //	{
-//		add_Button = data_Measured_Data_Frame_Vector[data_Measured_Data_Frame_Vector->size()-2]->findChild<QPushButton*>(new_Add_Button->objectName());
-//		add_Button.hide();
+//		add_Button = data_Measured_Data_Frame_Vector[data_Measured_Data_Frame_Vector.size()-2]->findChild<QPushButton*>(new_Add_Button->objectName());
+//		add_Button->hide();
 //	}
 }
 

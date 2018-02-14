@@ -12,7 +12,7 @@ public:
 	QLabel* description_Label;
 	QTreeWidget* real_Struct_Tree;
 
-	void import_Data(QString filename);
+	void import_Data(QString bare_Filename);
 	void fill_Measurement_With_Data();
 	void set_Text_To_Label();
 

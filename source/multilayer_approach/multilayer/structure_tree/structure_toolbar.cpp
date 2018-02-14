@@ -11,6 +11,7 @@ void Structure_Toolbar::create_Toolbar()
 {
 	QPixmap add_Layer		(icon_path + "add_layer.bmp");
 	QPixmap add_Multilayer  (icon_path + "add_multilayer.bmp");
+	QPixmap add_Aperiodic	(icon_path + "taj.bmp");
 	QPixmap add_Substrate	(icon_path + "add_substrate.bmp");
 	QPixmap edit			(icon_path + "roi.bmp");
 	QPixmap remove			(icon_path + "delete.bmp");
@@ -28,37 +29,39 @@ void Structure_Toolbar::create_Toolbar()
 	toolbar = new QToolBar;
 	toolbar->addAction(QIcon(add_Layer),		"Add Layer");						// 0
 	toolbar->addAction(QIcon(add_Multilayer),	"Add Multilayer");					// 1
-	toolbar->addAction(QIcon(add_Substrate),	"Add Substrate");					// 2
-	toolbar->addAction(QIcon(edit),				"Edit");							// 3
-	toolbar->addAction(QIcon(remove),			"Remove");							// 4
-	toolbar->addAction(QIcon(cut),				"Cut");								// 5
-	toolbar->addAction(QIcon(copy),				"Copy");							// 6
-	toolbar->addAction(QIcon(paste),			"Paste");							// 7
-	toolbar->addAction(QIcon(move_Up),			"Move Up");							// 8
-	toolbar->addAction(QIcon(move_Down),		"Move Down");						// 9
-	toolbar->addAction(QIcon(group),			"Group");							// 10
-	toolbar->addAction(QIcon(ungroup),			"Ungroup");							// 11
-	toolbar->addAction(QIcon(thickness_Plot),	"Plot Layer Thickness Profile");	// 12
-	toolbar->addAction(QIcon(sigma_Plot),		"Plot Interface Width Profile");	// 13
-	toolbar->addAction(QIcon(destroy),			"Remove Substrate and All Layers");	// 14
+	toolbar->addAction(QIcon(add_Aperiodic),	"Add Aperiodic Multilayer");		// 2
+	toolbar->addAction(QIcon(add_Substrate),	"Add Substrate");					// 3
+	toolbar->addAction(QIcon(edit),				"Edit");							// 4
+	toolbar->addAction(QIcon(remove),			"Remove");							// 5
+	toolbar->addAction(QIcon(cut),				"Cut");								// 6
+	toolbar->addAction(QIcon(copy),				"Copy");							// 7
+	toolbar->addAction(QIcon(paste),			"Paste");							// 8
+	toolbar->addAction(QIcon(move_Up),			"Move Up");							// 9
+	toolbar->addAction(QIcon(move_Down),		"Move Down");						// 0
+	toolbar->addAction(QIcon(group),			"Group");							// 11
+	toolbar->addAction(QIcon(ungroup),			"Ungroup");							// 12
+	toolbar->addAction(QIcon(thickness_Plot),	"Plot Layer Thickness Profile");	// 13
+	toolbar->addAction(QIcon(sigma_Plot),		"Plot Interface Width Profile");	// 14
+	toolbar->addAction(QIcon(destroy),			"Remove Substrate and All Layers");	// 15
 
 	toolbar->setIconSize(add_Layer.size());
 
-	connect(toolbar->actions()[0],  &QAction::triggered, this, &Structure_Toolbar::add_Layer);
-	connect(toolbar->actions()[1],  &QAction::triggered, this, &Structure_Toolbar::add_Multilayer);
-	connect(toolbar->actions()[2],  &QAction::triggered, this, &Structure_Toolbar::add_Substrate);
-	connect(toolbar->actions()[3],  &QAction::triggered, this, &Structure_Toolbar::edit);
-	connect(toolbar->actions()[4],  &QAction::triggered, this, &Structure_Toolbar::remove);
-	connect(toolbar->actions()[5],  &QAction::triggered, this, &Structure_Toolbar::cut);
-	connect(toolbar->actions()[6],  &QAction::triggered, this, &Structure_Toolbar::copy);
-	connect(toolbar->actions()[7],  &QAction::triggered, this, &Structure_Toolbar::paste);
-	connect(toolbar->actions()[8],  &QAction::triggered, this, &Structure_Toolbar::move_Up);
-	connect(toolbar->actions()[9],  &QAction::triggered, this, &Structure_Toolbar::move_Down);
-	connect(toolbar->actions()[10], &QAction::triggered, this, &Structure_Toolbar::group);
-	connect(toolbar->actions()[11], &QAction::triggered, this, &Structure_Toolbar::ungroup);
-	connect(toolbar->actions()[12], &QAction::triggered, this, &Structure_Toolbar::thickness_Plot);
-	connect(toolbar->actions()[13], &QAction::triggered, this, &Structure_Toolbar::sigma_Plot);
-	connect(toolbar->actions()[14], &QAction::triggered, this, &Structure_Toolbar::destroy);
+	connect(toolbar->actions()[Add_Layer],		&QAction::triggered, this, &Structure_Toolbar::add_Layer);
+	connect(toolbar->actions()[Add_Multilayer], &QAction::triggered, this, &Structure_Toolbar::add_Multilayer);
+	connect(toolbar->actions()[Add_Aperiodic],  &QAction::triggered, this, &Structure_Toolbar::add_Aperiodic);
+	connect(toolbar->actions()[Add_Substrate],  &QAction::triggered, this, &Structure_Toolbar::add_Substrate);
+	connect(toolbar->actions()[Edit],			&QAction::triggered, this, &Structure_Toolbar::edit);
+	connect(toolbar->actions()[Remove],			&QAction::triggered, this, &Structure_Toolbar::remove);
+	connect(toolbar->actions()[Cut],			&QAction::triggered, this, &Structure_Toolbar::cut);
+	connect(toolbar->actions()[Copy],			&QAction::triggered, this, &Structure_Toolbar::copy);
+	connect(toolbar->actions()[Paste],			&QAction::triggered, this, &Structure_Toolbar::paste);
+	connect(toolbar->actions()[Move_Up],		&QAction::triggered, this, &Structure_Toolbar::move_Up);
+	connect(toolbar->actions()[Move_Down],		&QAction::triggered, this, &Structure_Toolbar::move_Down);
+	connect(toolbar->actions()[Group],			&QAction::triggered, this, &Structure_Toolbar::group);
+	connect(toolbar->actions()[Ungroup],		&QAction::triggered, this, &Structure_Toolbar::ungroup);
+	connect(toolbar->actions()[Thickness_Plot], &QAction::triggered, this, &Structure_Toolbar::thickness_Plot);
+	connect(toolbar->actions()[Sigma_Plot],		&QAction::triggered, this, &Structure_Toolbar::sigma_Plot);
+	connect(toolbar->actions()[Destroy],		&QAction::triggered, this, &Structure_Toolbar::destroy);
 
 	if_Selected();
 }
@@ -166,6 +169,25 @@ void Structure_Toolbar::add_Multilayer()
 	add_Buffered_Layer(new_Multilayer);
 }
 
+void Structure_Toolbar::add_Aperiodic()
+{
+	// TODO
+
+	// imd-styled file
+	QFileInfo filename = QDir::toNativeSeparators(QFileDialog::getOpenFileName(this, "Find File", QDir::currentPath(), "Thicknesses " + QString("*.txt") + ";;All files (*.*)"));
+	if (!filename.completeBaseName().isEmpty())
+	{
+		qInfo() << filename.completeBaseName();
+//		material_Line_Edit->setText(filename.completeBaseName());
+//		material_Line_Edit->textEdited(material_Line_Edit->text());
+	}
+
+	for(int layer_Index=0; layer_Index<10; ++layer_Index)
+	{
+		add_Layer();
+	}
+}
+
 void Structure_Toolbar::add_Substrate()
 {
 	// item
@@ -179,7 +201,7 @@ void Structure_Toolbar::add_Substrate()
 
 	structure_Tree->tree->addTopLevelItem(new_Substrate);
 
-	toolbar->actions()[2]->setDisabled(true);
+	toolbar->actions()[Add_Substrate]->setDisabled(true);
 	refresh_Toolbar();
 }
 
@@ -250,7 +272,7 @@ void Structure_Toolbar::remove()
 		QMessageBox::StandardButton reply = QMessageBox::question(this,"Removal", "Really remove substrate?", QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
 		if (reply == QMessageBox::Yes)
 		{
-			toolbar->actions()[2]->setDisabled(false);		// add_Substrate button
+			toolbar->actions()[Add_Substrate]->setDisabled(false);		// add_Substrate button
 			delete current;
 		}
 	}
@@ -412,7 +434,7 @@ void Structure_Toolbar::destroy()
 	{
 		structure_Tree->tree->clear();
 		add_Ambient();
-		toolbar->actions()[2]->setDisabled(false);		// add_Substrate
+		toolbar->actions()[Add_Substrate]->setDisabled(false);		// add_Substrate
 		refresh_Toolbar();
 	}
 }
@@ -421,36 +443,36 @@ void Structure_Toolbar::if_Selected()
 {
 	if(buffered!=NULL)
 	{
-		toolbar->actions()[7]->setDisabled(false);		 // paste
+		toolbar->actions()[Paste]->setDisabled(false);			// paste
 	} else
 	{
-		toolbar->actions()[7]->setDisabled(true);		 // paste
+		toolbar->actions()[Paste]->setDisabled(true);			// paste
 	}
 
-	toolbar->actions()[11]->setDisabled(true);			 // ungroup
+	toolbar->actions()[Ungroup]->setDisabled(true);				// ungroup
 
 	if(structure_Tree->tree->selectedItems().isEmpty())
 	{
-		toolbar->actions()[3]->setDisabled(true);		 // edit
-		toolbar->actions()[4]->setDisabled(true);		 // remove
-		toolbar->actions()[5]->setDisabled(true);		 // cut
-		toolbar->actions()[6]->setDisabled(true);		 // copy
-		toolbar->actions()[8]->setDisabled(true);		 // move_Up
-		toolbar->actions()[9]->setDisabled(true);		 // move_Down
-		toolbar->actions()[10]->setDisabled(true);		 // group
-		toolbar->actions()[12]->setDisabled(true);		 // thickness_Plot
-		toolbar->actions()[13]->setDisabled(true);		 // sigma_Plot
+		toolbar->actions()[Edit]->setDisabled(true);			// edit
+		toolbar->actions()[Remove]->setDisabled(true);			// remove
+		toolbar->actions()[Cut]->setDisabled(true);				// cut
+		toolbar->actions()[Copy]->setDisabled(true);			// copy
+		toolbar->actions()[Move_Up]->setDisabled(true);			// move_Up
+		toolbar->actions()[Move_Down]->setDisabled(true);		// move_Down
+		toolbar->actions()[Group]->setDisabled(true);			// group
+		toolbar->actions()[Thickness_Plot]->setDisabled(true);	// thickness_Plot
+		toolbar->actions()[Sigma_Plot]->setDisabled(true);		// sigma_Plot
 	} else
 	{
 		bool if_Substrate = (structure_Tree->tree->currentItem()->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>().item_Type) == item_Type_Substrate;
 
-		toolbar->actions()[3]->setDisabled(false);		 // edit
-		toolbar->actions()[4]->setDisabled(false);		 // remove
+		toolbar->actions()[Edit]->setDisabled(false);			// edit
+		toolbar->actions()[Remove]->setDisabled(false);			// remove
 
 		// if multilayer
 		if(structure_Tree->tree->currentItem()->childCount()>0)
 		{
-			toolbar->actions()[11]->setDisabled(false);		 // ungroup
+			toolbar->actions()[Ungroup]->setDisabled(false);	// ungroup
 		}
 
 		int position = structure_Tree->tree->currentIndex().row();
@@ -459,74 +481,74 @@ void Structure_Toolbar::if_Selected()
 		// if nested
 		if(parent)
 		{
-			toolbar->actions()[5]->setDisabled(false);		 // cut
-			toolbar->actions()[6]->setDisabled(false);		 // copy
+			toolbar->actions()[Cut]->setDisabled(false);			// cut
+			toolbar->actions()[Copy]->setDisabled(false);			// copy
 
 			if(position == 0)
 			{
-				toolbar->actions()[8]->setDisabled(true);	// move_Up
-				toolbar->actions()[9]->setDisabled(false);	// move_Down
+				toolbar->actions()[Move_Up]->setDisabled(true);		// move_Up
+				toolbar->actions()[Move_Down]->setDisabled(false);	// move_Down
 			} else
 			if(position == (parent->childCount()-1))
 			{
-				toolbar->actions()[8]->setDisabled(false);	// move_Up
-				toolbar->actions()[9]->setDisabled(true);	// move_Down
+				toolbar->actions()[Move_Up]->setDisabled(false);	// move_Up
+				toolbar->actions()[Move_Down]->setDisabled(true);	// move_Down
 			} else
 			{
-				toolbar->actions()[8]->setDisabled(false);	// move_Up
-				toolbar->actions()[9]->setDisabled(false);	// move_Down
+				toolbar->actions()[Move_Up]->setDisabled(false);	// move_Up
+				toolbar->actions()[Move_Down]->setDisabled(false);	// move_Down
 			}
 		} else
 		{
 			// if ambient
 			if(position == 0)
 			{
-				toolbar->actions()[5]->setDisabled(true);	// cut
-				toolbar->actions()[6]->setDisabled(true);	// copy
-				toolbar->actions()[8]->setDisabled(true);	// move_Up
-				toolbar->actions()[9]->setDisabled(true);	// move_Down
-				toolbar->actions()[10]->setDisabled(true);	// group
+				toolbar->actions()[Cut]->setDisabled(true);			// cut
+				toolbar->actions()[Copy]->setDisabled(true);		// copy
+				toolbar->actions()[Move_Up]->setDisabled(true);		// move_Up
+				toolbar->actions()[Move_Down]->setDisabled(true);	// move_Down
+				toolbar->actions()[Group]->setDisabled(true);		// group
 			} else
 			// if not at end
 			if(position<structure_Tree->tree->topLevelItemCount()-1)
 			{
-				toolbar->actions()[5]->setDisabled(false);	// cut
-				toolbar->actions()[6]->setDisabled(false);	// copy
+				toolbar->actions()[Cut]->setDisabled(false);		// cut
+				toolbar->actions()[Copy]->setDisabled(false);		// copy
 
 				// if next is not substrate
 				if(structure_Tree->tree->topLevelItem(position+1)->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>().item_Type!=item_Type_Substrate)
 				{
-					toolbar->actions()[9]->setDisabled(false);	// move_Down
+					toolbar->actions()[Move_Down]->setDisabled(false);	// move_Down
 				}
 				// if second
 				if(position == 1)
 				{
-					toolbar->actions()[8]->setDisabled(true);	// move_Up
+					toolbar->actions()[Move_Up]->setDisabled(true);	// move_Up
 				} else
 				{
-					toolbar->actions()[8]->setDisabled(false);	// move_Up
+					toolbar->actions()[Move_Up]->setDisabled(false);// move_Up
 				}
 			} else
 			{ // if at end
 				if(if_Substrate)
 				{
-					toolbar->actions()[5]->setDisabled(true);	// cut
-					toolbar->actions()[6]->setDisabled(true);	// copy
-					toolbar->actions()[8]->setDisabled(true);	// move_Up
+					toolbar->actions()[Cut]->setDisabled(true);		// cut
+					toolbar->actions()[Copy]->setDisabled(true);	// copy
+					toolbar->actions()[Move_Up]->setDisabled(true);	// move_Up
 				} else
 				{
 					// if second
 					if(position == 1)
 					{
-						toolbar->actions()[8]->setDisabled(true);	// move_Up
+						toolbar->actions()[Move_Up]->setDisabled(true);	// move_Up
 					} else
 					{
-						toolbar->actions()[8]->setDisabled(false);	// move_Up
+						toolbar->actions()[Move_Up]->setDisabled(false);	// move_Up
 					}
-					toolbar->actions()[5]->setDisabled(false);	// cut
-					toolbar->actions()[6]->setDisabled(false);	// copy
+					toolbar->actions()[Cut]->setDisabled(false);	// cut
+					toolbar->actions()[Copy]->setDisabled(false);	// copy
 				}
-				toolbar->actions()[9]->setDisabled(true);	// move_Down
+				toolbar->actions()[Move_Down]->setDisabled(true);	// move_Down
 			}
 		}
 	}

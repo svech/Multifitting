@@ -716,7 +716,7 @@ void Menu::create_Help_Menu()
 {
 	help_Menu = new QMenu("Help",this);
 	{
-		QAction* act_Documentation = new QAction("Multifitting->pdf", this);
+		QAction* act_Documentation = new QAction("Multifitting.pdf", this);
 		help_Menu->addAction(act_Documentation);
 		connect(act_Documentation, &QAction::triggered, this, &Menu::open_Documentation);
 	}

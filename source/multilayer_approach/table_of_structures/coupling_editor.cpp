@@ -12,7 +12,7 @@ Coupling_Editor::Coupling_Editor(QWidget* coupling_Widget,
 	struct_Data = struct_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
 	coupled_Parameter = Global_Variables::get_Parameter_From_Struct_Item_by_Id(struct_Data, coupled_Id);
 
-	setWindowTitle("<"+table_Of_Structures->main_Tabs->tabText(coupled_Parameter->indicator.tab_Index)+"> "+coupled_Parameter->indicator.full_Name/*+" "+QString::number(coupling_Parameter->indicator.id)*/);
+	setWindowTitle("<"+table_Of_Structures->main_Tabs->tabText(coupled_Parameter->indicator.tab_Index)+"> "+coupled_Parameter->indicator.full_Name/*+" "+QString::number(coupling_Parameter.indicator.id)*/);
 	create_Main_Layout();
 	set_Window_Geometry();
 	setAttribute(Qt::WA_DeleteOnClose);

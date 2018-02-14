@@ -8,6 +8,8 @@
 class Optical_Constants;
 class Data;
 // -----------------------------------------------------------------------------------------
+// delimiters for file parsing
+extern QRegExp delimiters;
 
 // tabulated chemical elements
 extern QStringList		element_Name;
@@ -18,6 +20,30 @@ extern QMap<QString, double> sorted_Elements;
 extern QStringList transition_Layer_Functions; extern int transition_Layer_Functions_Size;
 enum transitional_Function_Types_Enum    { Erf, Lin, Exp, Tanh, Sin, Step };
 extern QStringList tril;
+
+// multilayer toolbar
+enum multilayer_Toolbar_Enum    { Add_Layer,
+								  Add_Multilayer,
+								  Add_Aperiodic,
+								  Add_Substrate,
+								  Edit,
+								  Remove,
+								  Cut,
+								  Copy,
+								  Paste,
+								  Move_Up,
+								  Move_Down,
+								  Group,
+								  Ungroup,
+								  Thickness_Plot,
+								  Sigma_Plot,
+								  Destroy };
+
+// independent variables toolbar
+enum independent_Toolbar_Enum   { New_Variable_Independent,
+								  Edit_Independent,
+								  Remove_Independent,
+								  Function_Independent };
 
 // measured curves
 extern QStringList argument_Types;

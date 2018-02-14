@@ -19,6 +19,7 @@ public:
 	void add_Ambient	();
 	void add_Layer		();
 	void add_Multilayer	();
+	void add_Aperiodic	();
 	void add_Substrate	();
 	void edit			();
 	void remove			();

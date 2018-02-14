@@ -261,13 +261,11 @@ void Multilayer_Approach::dropEvent(QDropEvent* event)
 	{
 		if(counter==0)
 		{
-			QString fileName = url.toLocalFile();
-			QRegExp delims("\\/|\\\\");
-			QStringList file_Name_Parts = fileName.split(delims,QString::SkipEmptyParts);
-			QMessageBox::StandardButton reply = QMessageBox::question(NULL,"Open", "Open file " + file_Name_Parts.last() + " ?", QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
+			QFileInfo filename = url.toLocalFile();
+			QMessageBox::StandardButton reply = QMessageBox::question(NULL,"Open", "Open file " + filename.fileName() + " ?", QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
 			if (reply == QMessageBox::Yes)
 			{
-				open(fileName);
+				open(filename.absoluteFilePath());
 			}
 		}
 		++counter;
@@ -335,7 +333,7 @@ void Multilayer_Approach::open(QString filename)
 	{
 		// for not growing in size
 //		Multilayer* multilayer = qobject_cast<Multilayer*>(multilayer_Tabs->widget(i));
-//		for(int i=multilayer->data_Target_Profile_Frame_Vector->size()-1; i>=0; --i)
+//		for(int i=multilayer->data_Target_Profile_Frame_Vector.size()-1; i>=0; --i)
 //		{
 //			multilayer->remove_Target_Curve(i,true);
 //		}
@@ -462,7 +460,7 @@ void Multilayer_Approach::open(QString filename)
 		QString item_Type = multilayer->structure_Tree->tree->topLevelItem(multilayer->structure_Tree->tree->topLevelItemCount()-1)->data(DEFAULT_COLUMN,Qt::UserRole).value<Data>().item_Type;
 		if(item_Type == item_Type_Substrate)
 		{
-			multilayer->structure_Tree->structure_Toolbar->toolbar->actions()[2]->setDisabled(true);
+			multilayer->structure_Tree->structure_Toolbar->toolbar->actions()[Add_Substrate]->setDisabled(true);
 		}
 	}
 
@@ -650,7 +648,7 @@ void Multilayer_Approach::calc_Reflection()
 {
 	// TODO
 	qInfo() << "\n\n-------------------------------------------------------"
-				 "\ncalc specular functions"
+				 "\ncalc specular functions..."
 				 "\n-------------------------------------------------------\n";
 	Main_Calculation_Module* main_Calculation_Module = new Main_Calculation_Module(this, CALCULATION);
 	main_Calculation_Module->single_Calculation();
@@ -661,7 +659,7 @@ void Multilayer_Approach::start_Fitting()
 {
 	// TODO
 	qInfo() << "\n\n-------------------------------------------------------"
-				 "\nfitting"
+				 "\nfitting..."
 				 "\n-------------------------------------------------------\n";
 	Main_Calculation_Module* main_Calculation_Module = new Main_Calculation_Module(this, FITTING);
 	main_Calculation_Module->fitting();
@@ -672,7 +670,7 @@ void Multilayer_Approach::reload_Optical_Constants()
 {
 	// TODO
 	qInfo() << "\n\n-------------------------------------------------------"
-				 "\nreload optical constants"
+				 "\nreload optical constants..."
 				 "\n-------------------------------------------------------\n";
 	optical_Constants->reload();
 }

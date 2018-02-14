@@ -110,7 +110,7 @@ void Target_Curve_Editor::show_Description_Label()
 
 void Target_Curve_Editor::browse_Data_File()
 {
-	QString directory = QDir::toNativeSeparators(QFileDialog::getOpenFileName(this, "Find File", filepath_ComboBox->lineEdit()->text(), "Text data (*->txt *->dat *->xy);;All files (*->*)"));
+	QString directory = QDir::toNativeSeparators(QFileDialog::getOpenFileName(this, "Find File", filepath_ComboBox->lineEdit()->text(), "Text data (*.txt *.dat *.xy);;All files (*.*)"));
 
 	if (!directory.isEmpty())
 	{
@@ -745,7 +745,7 @@ void Target_Curve_Editor::refresh_At_Fixed_Value()
 		double coeff = angle_Coefficients_Map.value(local_Unit);			// angular units
 
 		// be ready to have a bug next line!
-		if(at_Fixed_LineEdit->text().toDouble()*coeff<=90)//->+3*pow(10->,-line_edit_angle_precision+1))	// be ready to have a bug!
+		if(at_Fixed_LineEdit->text().toDouble()*coeff<=90)//.+3*pow(10.,-line_edit_angle_precision+1))	// be ready to have a bug!
 		{
 			target_Curve->measurement.probe_Angle.value = at_Fixed_LineEdit->text().toDouble()*coeff;
 		} else

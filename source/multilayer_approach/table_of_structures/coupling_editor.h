@@ -62,8 +62,8 @@ public:
 
 	QPushButton* done_Button;
 
-	QString no_Master_Text = "..........<no master>..........";
-	QString no_Slave_Text  = "...........<no slave>..........";
+	QString no_Master_Text = ".........<no master>.........";
+	QString no_Slave_Text  = ".........<no slave>..........";
 };
 
 #endif // COUPLING_EDITOR_H

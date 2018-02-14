@@ -1,7 +1,3 @@
-// This is a personal academic project. Dear PVS-Studio, please check it.
-
-// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www->viva64->com
-
 #include "independent_variables.h"
 #include "independent_calc_function_selection.h"
 
@@ -124,10 +120,10 @@ void Independent_Variables::create_Independent_Variables_Toolbar()
 
 	independent_Variables_Toolbar->setIconSize(new_Variable.size());
 
-	connect(independent_Variables_Toolbar->actions()[0], &QAction::triggered, this, &Independent_Variables::add_Independent_Variable);
-	connect(independent_Variables_Toolbar->actions()[1], &QAction::triggered, this, &Independent_Variables::cause_Editing_Independent_Variable);
-	connect(independent_Variables_Toolbar->actions()[2], &QAction::triggered, this, &Independent_Variables::remove_Current_Independent_Variable);
-	connect(independent_Variables_Toolbar->actions()[3], &QAction::triggered, this, &Independent_Variables::choose_Independent_Calc_Function);
+	connect(independent_Variables_Toolbar->actions()[New_Variable_Independent], &QAction::triggered, this, &Independent_Variables::add_Independent_Variable);
+	connect(independent_Variables_Toolbar->actions()[Edit_Independent],			&QAction::triggered, this, &Independent_Variables::cause_Editing_Independent_Variable);
+	connect(independent_Variables_Toolbar->actions()[Remove_Independent],		&QAction::triggered, this, &Independent_Variables::remove_Current_Independent_Variable);
+	connect(independent_Variables_Toolbar->actions()[Function_Independent],		&QAction::triggered, this, &Independent_Variables::choose_Independent_Calc_Function);
 
 	if_Selected();
 }
@@ -282,17 +278,17 @@ void Independent_Variables::if_Selected()
 {
 	if(independent_Variables_List->selectedItems().isEmpty())
 	{
-		independent_Variables_Toolbar->actions()[1]->setDisabled(true);		 // edit
-		independent_Variables_Toolbar->actions()[2]->setDisabled(true);		 // remove
+		independent_Variables_Toolbar->actions()[Edit_Independent]->setDisabled(true);			// edit
+		independent_Variables_Toolbar->actions()[Remove_Independent]->setDisabled(true);		// remove
 	} else
 	{
-		independent_Variables_Toolbar->actions()[1]->setDisabled(false);	 // edit
-		if(independent_Variables_List->currentIndex().row()<PERMANENT_INDEPENDENT)	// make angle and wavelength nonremovable
+		independent_Variables_Toolbar->actions()[Edit_Independent]->setDisabled(false);			// edit
+		if(independent_Variables_List->currentIndex().row()<PERMANENT_INDEPENDENT)				// make angle and wavelength nonremovable
 		{
-			independent_Variables_Toolbar->actions()[2]->setDisabled(true);	 // remove
+			independent_Variables_Toolbar->actions()[Remove_Independent]->setDisabled(true);	// remove
 		} else
 		{
-			independent_Variables_Toolbar->actions()[2]->setDisabled(false); // remove
+			independent_Variables_Toolbar->actions()[Remove_Independent]->setDisabled(false);	// remove
 		}
 	}
 }
@@ -356,9 +352,9 @@ void Independent_Variables::reset_Independent_Variables_Structure()
 				new_Copy.sigma.independent			  = old_Copy.sigma.independent;
 
 				// composition is not inherited
-//				for(int i=0; i<nmin(new_Copy.composition->size(),old_Copy.composition->size()); ++i)
+//				for(int i=0; i<nmin(new_Copy.composition.size(),old_Copy.composition.size()); ++i)
 //				{
-//					new_Copy.composition[i]->composition.independent = old_Copy.composition[i]->composition.independent;
+//					new_Copy.composition[i].composition.independent = old_Copy.composition[i].composition.independent;
 //				}
 				for(int i=0; i<new_Copy.interlayer_Composition.size(); ++i)
 				{

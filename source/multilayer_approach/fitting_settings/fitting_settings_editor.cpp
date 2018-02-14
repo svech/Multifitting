@@ -69,7 +69,7 @@ void Fitting_Settings_Editor::create_Metods()
 		indices_Vec.append(methods_Combo_Box->count()-1);
 
 		QFont font(methods_Combo_Box->font());
-//		font.setPointSize(8->25);
+//		font.setPointSize(8.25);
 //		font.setFamily("MS Shell Dlg 2");
 //		font.setItalic(true);
 		font.setBold(true);

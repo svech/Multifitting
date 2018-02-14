@@ -17,14 +17,12 @@ Target_Curve::Target_Curve(QLabel* description_Label, QTreeWidget* real_Struct_T
 //	curve.val_Offset = 0; curve.val_Factor = 1;
 }
 
-void Target_Curve::import_Data(QString filename)
+void Target_Curve::import_Data(QString bare_Filename)
 {
-	QRegExp delims("\\ |\\,|\\:|\\t|\\;|\\{|\\}");
-	QRegExp name_Delims("\\/|\\\\");
+	QFileInfo filename = bare_Filename;
 
 	/// reading data
-	QFile input_File(filename);
-	QStringList file_Name_Parts = input_File.fileName().split(name_Delims,QString::SkipEmptyParts);
+	QFile input_File(filename.absoluteFilePath());
 	QString temp_Line = "not empty now";
 
 	if (input_File.open(QIODevice::ReadOnly))
@@ -40,18 +38,18 @@ void Target_Curve::import_Data(QString filename)
 	} else
 	{
 		loaded_And_Ready = false;
-		QMessageBox::information(this, "Target_Curve::import_Data", "Can't read file filename \"" + file_Name_Parts.last() + "\"");
+		QMessageBox::information(this, "Target_Curve::import_Data", "Can't read file filename \"" + filename.fileName() + "\"");
 		return;
 	}
 
 	/// parsing data
 	curve.argument.clear();
 	curve.values.clear();
-	QString main_Exception_Text = "short data in \"" + file_Name_Parts.last() + "\"";
+	QString main_Exception_Text = "short data in \"" + filename.fileName() + "\"";
 	for(int line_Index=0; line_Index<lines_List.size(); ++line_Index)
 	{
 		temp_Line = lines_List[line_Index];
-		QStringList numbers = temp_Line.split(delims,QString::SkipEmptyParts);
+		QStringList numbers = temp_Line.split(delimiters,QString::SkipEmptyParts);
 		int number_Index = 0;
 
 		if( temp_Line[0]!=';' && temp_Line[0]!='#' && numbers.size()>0)
