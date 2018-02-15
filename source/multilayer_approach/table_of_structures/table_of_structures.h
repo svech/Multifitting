@@ -115,6 +115,7 @@ public:
 public slots:
 	void reload_All_Widgets(QObject* sender = NULL);
 	void reload_Related_Widgets(QObject* sender = NULL);
+	void reload_Min_Max_Line_Edits(QString whats_This);
 
 public:
 	int temp_Counter = 0;       // TEMPORARY
@@ -137,6 +138,10 @@ public:
 	QMap<QComboBox*,QTreeWidgetItem*> elements_Map;
 	QMap<QLineEdit*,QTreeWidgetItem*> line_Edits_Map;
 	QMap<QCheckBox*,QTreeWidgetItem*> check_Boxes_Map;
+
+	QList<QList<QLineEdit*>> min_Max_Density_Line_Edits_List;
+	QList<QList<QLineEdit*>> min_Max_Thickness_Line_Edits_List;
+	QList<QList<QLineEdit*>> min_Max_Sigma_Line_Edits_List;
 
 	// coupling
 	QMap<QWidget*, QTreeWidgetItem*> coupled_Back_Widget_and_Struct_Item;

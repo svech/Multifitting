@@ -172,19 +172,106 @@ void Structure_Toolbar::add_Multilayer()
 void Structure_Toolbar::add_Aperiodic()
 {
 	// TODO
+	bool loaded = false;
+	QStringList lines_List;
+
+	QVector<QString> materials;
+	QVector<double> thicknesses;
 
 	// imd-styled file
-	QFileInfo filename = QDir::toNativeSeparators(QFileDialog::getOpenFileName(this, "Find File", QDir::currentPath(), "Thicknesses " + QString("*.txt") + ";;All files (*.*)"));
+	QFileInfo filename = QDir::toNativeSeparators(QFileDialog::getOpenFileName(this, "Find Aperiodic Multulayer", QDir::currentPath(), "Thicknesses " + QString("*.txt") + ";;All files (*.*)"));
 	if (!filename.completeBaseName().isEmpty())
 	{
-		qInfo() << filename.completeBaseName();
-//		material_Line_Edit->setText(filename.completeBaseName());
-//		material_Line_Edit->textEdited(material_Line_Edit->text());
-	}
+		/// reading data
+		QFile input_File(filename.absoluteFilePath());
+		QString temp_Line = "not empty now";
 
-	for(int layer_Index=0; layer_Index<10; ++layer_Index)
+		if (input_File.open(QIODevice::ReadOnly))
+		{
+			QTextStream input_Stream(&input_File);
+			while ( !input_Stream.atEnd() )
+			{
+				temp_Line=input_Stream.readLine();
+				lines_List.append(temp_Line);
+			}
+			input_File.close();
+			loaded = true;
+		} else
+		{
+			QMessageBox::information(this, "Error", "Can't open file filename \"" + filename.fileName() + "\"");
+			return;
+		}
+	}
+	if(loaded)
 	{
-		add_Layer();
+		/// parsing data
+		for(int line_Index=0; line_Index<lines_List.size(); ++line_Index)
+		{
+			QString temp_Line = lines_List[line_Index];
+			QStringList words = temp_Line.split(delimiters,QString::SkipEmptyParts);
+			if(temp_Line[0]!=';' && temp_Line[0]!='#' && words.size()>0)
+			{
+				bool size_Format = false;
+				bool int_Format = false;
+				bool double_Format = false;
+
+				if(words.size()>=3)
+				{
+					size_Format = true;
+					QString(words[0]).toInt(&int_Format);
+					QString(words[2]).toDouble(&double_Format);
+				}
+				if(!int_Format || !double_Format || !size_Format)
+				{
+					QMessageBox::information(NULL, "Bad format", "Row " + QString::number(line_Index) + " has wrong format.\n\nData should be IMD-styled:\n <period index>  <material>  <thickness>");
+					return;
+				}
+
+				materials.append(words[1]);
+				thicknesses.append(QString(words[2]).toDouble());
+			}
+		}
+		for(int layer_Index=0; layer_Index<materials.size(); ++layer_Index)
+		{
+			Data layer(item_Type_Layer);
+			layer.material = materials[layer_Index];
+			layer.thickness.value = thicknesses[layer_Index];
+
+			// TODO temporary
+			int counter = 0;
+			layer.sigma.value = 8;
+			for(Interlayer& inter : layer.interlayer_Composition)
+			{
+				inter.my_Sigma.value = layer.sigma.value;
+
+				if( counter==Lin )	{ inter.enabled = true;  }
+				else				{ inter.enabled = false; }
+
+				counter++;
+			}
+
+			if(!layer.composed_Material)
+			{
+				if(optical_Constants->material_Map.contains(layer.material + nk_Ext))
+				{
+					layer.approved_Material = layer.material;
+				} else
+				{
+					QMessageBox::information(this, "Wrong material", "Material \"" + layer.material + "\" not found");
+					layer.material = layer.approved_Material;
+				}
+			}
+
+			// save data
+			QTreeWidgetItem* new_Layer = new QTreeWidgetItem;
+			QVariant var;
+			var.setValue( layer );
+			new_Layer->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+
+			// insert to structure
+			buffered_Copy_Type = copy_Type_Cut;
+			add_Buffered_Layer(new_Layer);
+		}
 	}
 }
 

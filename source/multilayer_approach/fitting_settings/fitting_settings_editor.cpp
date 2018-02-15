@@ -54,7 +54,7 @@ void Fitting_Settings_Editor::set_Window_Geometry()
 
 void Fitting_Settings_Editor::create_Menu()
 {
-	Menu* menu = new Menu(window_Type_Fitting_Settings_Editor,this);
+	Menu* menu = new Menu(window_Type_Fitting_Settings_Editor, this);
 	main_Layout->setMenuBar(menu->menu_Bar);
 }
 

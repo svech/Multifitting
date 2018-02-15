@@ -13,6 +13,7 @@ class Menu : public QWidget
 	Q_OBJECT
 public:
 	explicit Menu(QString window_Type, QWidget* parent = 0);
+	~Menu();
 
 signals:
 	void refresh();

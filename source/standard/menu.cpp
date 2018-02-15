@@ -10,6 +10,10 @@ Menu::Menu(QString window_Type, QWidget *parent):
 	add_Menu_Points();
 }
 
+Menu::~Menu()
+{
+}
+
 void Menu::add_Menu_Points()
 {
 	// for all

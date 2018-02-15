@@ -14,7 +14,11 @@ Target_Curve::Target_Curve(QLabel* description_Label, QTreeWidget* real_Struct_T
 	curve.value_Mode = value_R_Mode[R];			// R
 
 //	curve.arg_Offset = 0; curve.arg_Factor = 1;
-//	curve.val_Offset = 0; curve.val_Factor = 1;
+	//	curve.val_Offset = 0; curve.val_Factor = 1;
+}
+
+Target_Curve::~Target_Curve()
+{
 }
 
 void Target_Curve::import_Data(QString bare_Filename)

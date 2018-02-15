@@ -47,6 +47,13 @@ bool Fitting_GSL::fit()
 	const size_t n = num_Residual_Points();
 	const size_t p = fitables.fit_Parameters.size();
 
+	if(n<p)
+	{
+		QMessageBox::information(NULL,"Insufficient number of points", "# of fitables: " + QString::number(p) + "\n# of points: " + QString::number(n) + "\n\nShould be f>p");
+		return false;
+	}
+
+
 	Params params {	main_Calculation_Module, calculation_Trees, fitables };
 	gsl_multifit_nlinear_parameters fdf_params = gsl_multifit_nlinear_default_parameters();
 

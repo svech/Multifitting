@@ -664,6 +664,10 @@ void Multilayer_Approach::start_Fitting()
 	Main_Calculation_Module* main_Calculation_Module = new Main_Calculation_Module(this, FITTING);
 	main_Calculation_Module->fitting();
 	delete main_Calculation_Module;
+
+	main_Calculation_Module = new Main_Calculation_Module(this, CALCULATION);
+	main_Calculation_Module->single_Calculation();
+	delete main_Calculation_Module;
 }
 
 void Multilayer_Approach::reload_Optical_Constants()

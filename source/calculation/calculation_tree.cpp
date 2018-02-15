@@ -53,6 +53,10 @@ Calculation_Tree::Calculation_Tree(Multilayer* multilayer, QString calc_Mode):
 	max_Depth = Global_Variables::get_Tree_Depth(real_Struct_Tree->invisibleRootItem());	// unstratified depth
 }
 
+Calculation_Tree::~Calculation_Tree()
+{
+}
+
 void Calculation_Tree::prepare_Residual_Expressions()
 {
 	for(Data_Element<Target_Curve>& target_Element : target)
@@ -399,6 +403,7 @@ tree<Node>::iterator Calculation_Tree::find_Node_By_Item_Id(const tree<Node>::it
 
 void Calculation_Tree::calculate_Unwrapped_Structure(tree<Node>& calc_Tree, const Data& measurement, QString active_Parameter_Whats_This, Unwrapped_Structure*& unwrapped_Structure_Vec_Element)
 {
+	delete unwrapped_Structure_Vec_Element;
 	num_Media = get_Total_Num_Layers(calc_Tree.begin(), calc_Tree);
 	Unwrapped_Structure*   new_Unwrapped_Structure  = new Unwrapped_Structure (calc_Tree, measurement, active_Parameter_Whats_This, num_Media, max_Depth, depth_Grading, sigma_Grading, r);
 	unwrapped_Structure_Vec_Element = new_Unwrapped_Structure;
@@ -406,6 +411,7 @@ void Calculation_Tree::calculate_Unwrapped_Structure(tree<Node>& calc_Tree, cons
 
 void Calculation_Tree::calculate_Unwrapped_Reflectivity(				    const Data& measurement, QString active_Parameter_Whats_This, Unwrapped_Structure* unwrapped_Structure_Vec_Element, Unwrapped_Reflection*& unwrapped_Reflection_Vec_Element)
 {
+	delete unwrapped_Reflection_Vec_Element;
 	Unwrapped_Reflection*  new_Unwrapped_Reflection = new Unwrapped_Reflection(unwrapped_Structure_Vec_Element, num_Media, active_Parameter_Whats_This, measurement, depth_Grading, sigma_Grading);
 	unwrapped_Reflection_Vec_Element = new_Unwrapped_Reflection;
 

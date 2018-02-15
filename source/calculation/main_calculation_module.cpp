@@ -5,12 +5,21 @@ Main_Calculation_Module::Main_Calculation_Module(Multilayer_Approach* multilayer
 	multilayer_Tabs		(multilayer_Approach->multilayer_Tabs),
 	multilayers			(multilayer_Tabs->count()),
 	calculation_Trees	(multilayer_Tabs->count()),
+//	vec(int(1.311e8)),
 	calc_Mode			(calc_Mode)
 {
 	for(int tab_Index=0; tab_Index<multilayer_Tabs->count(); ++tab_Index)
 	{
 		multilayers[tab_Index] = qobject_cast<Multilayer*>(multilayer_Tabs->widget(tab_Index));
 		calculation_Trees[tab_Index] = new Calculation_Tree(multilayers[tab_Index], calc_Mode);
+	}
+}
+
+Main_Calculation_Module::~Main_Calculation_Module()
+{
+	for(Calculation_Tree* calculation_Tree : calculation_Trees)
+	{
+		delete calculation_Tree;
 	}
 }
 

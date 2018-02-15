@@ -9,6 +9,7 @@ class Independent_Variables : public QWidget
 	Q_OBJECT
 public:
 	explicit Independent_Variables(QTreeWidget* real_Struct_Tree, QWidget *parent = 0);
+	~Independent_Variables();
 
 signals:
 	void refresh_Multilayer();

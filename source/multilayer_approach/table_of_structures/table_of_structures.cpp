@@ -117,6 +117,10 @@ void Table_Of_Structures::add_Tabs()
 		My_Table_Widget* new_Table = new My_Table_Widget(basic_Row_Number, basic_Column_Number, this);
 		all_Widgets_To_Reload.append(QList<QWidget*>());
 
+		min_Max_Density_Line_Edits_List.append(QList<QLineEdit*>());
+		min_Max_Thickness_Line_Edits_List.append(QList<QLineEdit*>());
+		min_Max_Sigma_Line_Edits_List.append(QList<QLineEdit*>());
+
 		create_Table(new_Table, tab_Index);
 		main_Tabs->addTab(new_Table, multilayer_Tabs->tabText(tab_Index));
 	}
@@ -1167,6 +1171,23 @@ void Table_Of_Structures::create_Line_Edit(My_Table_Widget* table, int tab_Index
 	reload_Show_Dependence_Map.insertMulti (line_Edit, id);
 	all_Widgets_To_Reload[tab_Index].append(line_Edit);
 
+	// storage for fast min/max refreshing
+	if( val_Type == MIN || val_Type == MAX )
+	{
+		if( whats_This == whats_This_Absolute_Density || whats_This == whats_This_Relative_Density )
+		{
+			min_Max_Density_Line_Edits_List[tab_Index].append(line_Edit);
+		}
+		if( whats_This == whats_This_Thickness || whats_This == whats_This_Period )
+		{
+			min_Max_Thickness_Line_Edits_List[tab_Index].append(line_Edit);
+		}
+		if( whats_This == whats_This_Sigma )
+		{
+			min_Max_Sigma_Line_Edits_List[tab_Index].append(line_Edit);
+		}
+	}
+
 	// create item (set LineEdits_Map)
 	table->setCellWidget(current_Row, current_Column, line_Edit);
 
@@ -1577,7 +1598,7 @@ void Table_Of_Structures::create_Min_Max_Button(My_Table_Widget* table, int tab_
 
 			++it;
 		}
-		reload_All_Widgets();
+		reload_Min_Max_Line_Edits(whats_This);
 	});
 }
 
@@ -1802,7 +1823,7 @@ void Table_Of_Structures::check_Material()
 
 void Table_Of_Structures::browse_Material(QLineEdit* material_Line_Edit)
 {
-	QFileInfo filename = QDir::toNativeSeparators(QFileDialog::getOpenFileName(this, "Find File", nk_Path, "Optical constants " + QString(nk_Filter) + ";;All files (*->*)"));
+	QFileInfo filename = QDir::toNativeSeparators(QFileDialog::getOpenFileName(this, "Find Material", nk_Path, "Optical constants " + QString(nk_Filter) + ";;All files (*->*)"));
 	if (!filename.completeBaseName().isEmpty() || filename.completeSuffix() == nk_Ext)
 	{
 		material_Line_Edit->setText(filename.completeBaseName());
@@ -2526,5 +2547,24 @@ void Table_Of_Structures::reload_Related_Widgets(QObject* sender)
 				}
 			}
 		}
+	}
+}
+
+void Table_Of_Structures::reload_Min_Max_Line_Edits(QString whats_This)
+{
+	// reloading for widgets on current tab
+	int current_Tab_Index = main_Tabs->currentIndex();
+
+	QList<QLineEdit*>* list_Pointer;
+
+	if( whats_This == whats_This_Density )		list_Pointer = &min_Max_Density_Line_Edits_List[current_Tab_Index];
+	if( whats_This == whats_This_Thickness )	list_Pointer = &min_Max_Thickness_Line_Edits_List[current_Tab_Index];
+	if( whats_This == whats_This_Sigma )		list_Pointer = &min_Max_Sigma_Line_Edits_List[current_Tab_Index];
+
+	for(QLineEdit* line_Edit : *list_Pointer)
+	{
+		line_Edit->setProperty(reload_Property, true);
+		line_Edit->textEdited("temp");
+		line_Edit->setProperty(reload_Property, false);
 	}
 }

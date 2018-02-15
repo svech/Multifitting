@@ -11,6 +11,10 @@ Independent_Variables::Independent_Variables(QTreeWidget* real_Struct_Tree, QWid
 	independent_Variables_List_Map = new QMap<id_Type, QListWidgetItem*>;
 }
 
+Independent_Variables::~Independent_Variables()
+{
+}
+
 void Independent_Variables::create_Struct_Tree_Copy()
 {
 	// creates hidden copy of main structure for plotting

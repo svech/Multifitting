@@ -110,7 +110,7 @@ void Target_Curve_Editor::show_Description_Label()
 
 void Target_Curve_Editor::browse_Data_File()
 {
-	QString directory = QDir::toNativeSeparators(QFileDialog::getOpenFileName(this, "Find File", filepath_ComboBox->lineEdit()->text(), "Text data (*.txt *.dat *.xy);;All files (*.*)"));
+	QString directory = QDir::toNativeSeparators(QFileDialog::getOpenFileName(this, "Find Measured Curve", filepath_ComboBox->lineEdit()->text(), "Text data (*.txt *.dat *.xy);;All files (*.*)"));
 
 	if (!directory.isEmpty())
 	{

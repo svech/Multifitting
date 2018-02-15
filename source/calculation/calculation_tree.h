@@ -40,6 +40,7 @@ class Calculation_Tree
 {
 public:
 	Calculation_Tree(Multilayer* multilayer, QString calc_Mode);
+	~Calculation_Tree();
 
 public:
 	void prepare_Residual_Expressions();
