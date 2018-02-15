@@ -16,6 +16,10 @@ Independent_Variables_Editor::Independent_Variables_Editor(QTreeWidgetItem* stru
 	setAttribute(Qt::WA_DeleteOnClose);
 }
 
+Independent_Variables_Editor::~Independent_Variables_Editor()
+{
+}
+
 void Independent_Variables_Editor::refresh_All()
 {
 	refresh_Show_Data(show_Data);

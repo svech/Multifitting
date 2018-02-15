@@ -11,6 +11,10 @@ Multilayer_Approach::Multilayer_Approach(Launcher* launcher, QWidget *parent) :
 	setAcceptDrops(true);
 }
 
+Multilayer_Approach::~Multilayer_Approach()
+{
+}
+
 void Multilayer_Approach::open_Launcher()
 {
 	launcher->show();

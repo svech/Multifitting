@@ -111,6 +111,7 @@ void Structure_Toolbar::add_Layer()
 
 	buffered_Copy_Type = copy_Type_Cut;
 	add_Buffered_Layer(new_Layer);
+	delete new_Layer;
 }
 
 void Structure_Toolbar::add_Multilayer()
@@ -167,6 +168,7 @@ void Structure_Toolbar::add_Multilayer()
 
 	buffered_Copy_Type = copy_Type_Cut;
 	add_Buffered_Layer(new_Multilayer);
+	delete new_Multilayer;
 }
 
 void Structure_Toolbar::add_Aperiodic()
@@ -271,6 +273,7 @@ void Structure_Toolbar::add_Aperiodic()
 			// insert to structure
 			buffered_Copy_Type = copy_Type_Cut;
 			add_Buffered_Layer(new_Layer);
+			delete new_Layer;
 		}
 	}
 }

@@ -9,6 +9,7 @@ class Independent_Variables_Editor : public QDialog
 	Q_INVOKABLE void adjustSize() { QWidget::adjustSize(); }
 public:
 	explicit Independent_Variables_Editor(QTreeWidgetItem* structure_Item, QListWidgetItem* list_Item, QListWidget* variables_List, QWidget *parent = 0);
+	~Independent_Variables_Editor();
 
 signals:
 	void refresh_Multilayer();

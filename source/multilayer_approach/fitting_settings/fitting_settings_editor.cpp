@@ -173,19 +173,19 @@ void Fitting_Settings_Editor::create_Main_Params_Group_Box()
 	{
 		max_Iter_Label = new QLabel("Max number of iterations");
 		max_Iter_Line_Edit = new QLineEdit(QString::number(fitting_Settings->max_Iter));
-			max_Iter_Line_Edit->setValidator(new QIntValidator(0, MAX_INTEGER));
+			max_Iter_Line_Edit->setValidator(new QIntValidator(0, MAX_INTEGER, this));
 
 		x_Tolerance_Label = new QLabel("Parameters tolerance");
 		x_Tolerance_Line_Edit = new QLineEdit(QString::number(fitting_Settings->x_Tolerance));
-			x_Tolerance_Line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION));
+			x_Tolerance_Line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION, this));
 
 		g_Tolerance_Label = new QLabel("Gradient tolerance");
 		g_Tolerance_Line_Edit = new QLineEdit(QString::number(fitting_Settings->g_Tolerance));
-			g_Tolerance_Line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION));
+			g_Tolerance_Line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION, this));
 
 		f_Tolerance_Label = new QLabel("Residual tolerance");
 		f_Tolerance_Line_Edit = new QLineEdit(QString::number(fitting_Settings->f_Tolerance));
-			f_Tolerance_Line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION));
+			f_Tolerance_Line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION, this));
 
 		fit_Params_Group_Box_Layout->addWidget(max_Iter_Label,		 0,0,1,1);
 		fit_Params_Group_Box_Layout->addWidget(max_Iter_Line_Edit,	 0,1,1,1);
@@ -236,23 +236,23 @@ void Fitting_Settings_Editor::create_AdditionalParams_Group_Box()
 
 		factor_up_Label = new QLabel("Factor for increasing trust radius (default 3)");
 		factor_up_Line_Edit = new QLineEdit(QString::number(fitting_Settings->factor_Up));
-			factor_up_Line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION));
+			factor_up_Line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION, this));
 
 		factor_down_Label = new QLabel("Factor for decreasing trust radius (default 2)");
 		factor_down_Line_Edit = new QLineEdit(QString::number(fitting_Settings->factor_Down));
-			factor_down_Line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION));
+			factor_down_Line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION, this));
 
 		avmax_Label = new QLabel("Max allowed |a|/|v| (default 0.75)");
 		avmax_Line_Edit = new QLineEdit(QString::number(fitting_Settings->avmax));
-			avmax_Line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION));
+			avmax_Line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION, this));
 
 		h_df_Label = new QLabel("Step size for finite difference J (default ~1.5e-8)");
 		h_df_Line_Edit = new QLineEdit(QString::number(fitting_Settings->h_df));
-			h_df_Line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION));
+			h_df_Line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION, this));
 
 		h_fvv_Label = new QLabel("Step size for finite difference fvv (default 0.02)");
 		h_fvv_Line_Edit = new QLineEdit(QString::number(fitting_Settings->h_fvv));
-			h_fvv_Line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION));
+			h_fvv_Line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION, this));
 
 
 		additional_Params_Group_Box_Layout->addWidget(scale_Label,		0,0,1,1);

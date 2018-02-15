@@ -768,7 +768,7 @@ void Table_Of_Structures::create_Stoich_Line_Edit(My_Table_Widget* table, int ta
 		line_Edit->setProperty(min_Size_Property, line_Edit->width());
 		line_Edit->setProperty(column_Property, current_Column);
 		line_Edit->setProperty(value_Type_Property, val_Type);
-		line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION));
+		line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION, this));
 
 		// for reloading
 		line_Edit->setProperty(reload_Property, false);
@@ -1107,7 +1107,7 @@ void Table_Of_Structures::create_Line_Edit(My_Table_Widget* table, int tab_Index
 	{
 		value = struct_Data.num_Repetition.value;
 		text_Value = QString::number(value);
-		validator = new QIntValidator(0, MAX_INTEGER);
+		validator = new QIntValidator(0, MAX_INTEGER, this);
 		id = struct_Data.num_Repetition.id;
 		reload_Show_Dependence_Map.insertMulti(line_Edit, id_Of_Thicknesses);
 	} else
@@ -1121,10 +1121,10 @@ void Table_Of_Structures::create_Line_Edit(My_Table_Widget* table, int tab_Index
 		if(	whats_This == whats_This_Thickness_Drift_Line_Value ||
 			whats_This == whats_This_Sigma_Drift_Line_Value	)
 		{
-			validator = new QDoubleValidator(-MAX_DOUBLE, MAX_DOUBLE, MAX_PRECISION);
+			validator = new QDoubleValidator(-MAX_DOUBLE, MAX_DOUBLE, MAX_PRECISION, this);
 		} else
 		{
-			validator = new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION);
+			validator = new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION, this);
 		}
 		id = parameter.indicator.id;
 
@@ -1367,7 +1367,7 @@ void Table_Of_Structures::create_Weigts_Interlayer(My_Table_Widget* table, int t
 
 		QLineEdit* line_Edit = new QLineEdit(text_Value);
 		line_Edit->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT_SHORT);
-		line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION));
+		line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION, this));
 
 		line_Edit->setProperty(interlayer_Index_Property, interlayer_Index);
 		line_Edit->setProperty(min_Size_Property, line_Edit->width());
@@ -1489,7 +1489,7 @@ void Table_Of_Structures::create_MySigma_Line_Edits_Interlayer(My_Table_Widget* 
 		line_Edit->setProperty(interlayer_Index_Property, interlayer_Index);
 		line_Edit->setProperty(min_Size_Property, line_Edit->width());
 		line_Edit->setProperty(column_Property, current_Column);
-		line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION));
+		line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION, this));
 
 		// for reloading
 		line_Edit->setProperty(reload_Property, false);

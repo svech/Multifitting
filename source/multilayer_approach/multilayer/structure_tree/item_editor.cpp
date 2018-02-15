@@ -136,7 +136,7 @@ void Item_Editor::make_Materials_Group_Box()
 		density_Line_Edit = new QLineEdit;
 			density_Line_Edit->setFixedWidth(50);
 			density_Line_Edit->setProperty(min_Size_Property, density_Line_Edit->width());
-			density_Line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION));
+			density_Line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION, this));
 			layout->addWidget(density_Line_Edit);
 			show_Density();
 
@@ -212,7 +212,7 @@ void Item_Editor::make_Thickness_Group_Box()
 		thickness_Line_Edit = new QLineEdit;
 			thickness_Line_Edit->setFixedWidth(50);
 			thickness_Line_Edit->setProperty(min_Size_Property, thickness_Line_Edit->width());
-			thickness_Line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION));
+			thickness_Line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION, this));
 			layout->addWidget(thickness_Line_Edit);
 		thickness_Group_Box_Layout->addLayout(layout);
 
@@ -249,7 +249,7 @@ void Item_Editor::make_Multilayer_Group_Box()
 		repetitions_Line_Edit = new QLineEdit;
 			repetitions_Line_Edit->setFixedWidth(50);
 			repetitions_Line_Edit->setProperty(min_Size_Property, repetitions_Line_Edit->width());
-			repetitions_Line_Edit->setValidator(new QIntValidator(0, MAX_INTEGER));
+			repetitions_Line_Edit->setValidator(new QIntValidator(0, MAX_INTEGER, this));
 			layout->addWidget(repetitions_Line_Edit);
 
 		multilayer_Group_Box_Layout->addLayout(layout);
@@ -262,7 +262,7 @@ void Item_Editor::make_Multilayer_Group_Box()
 		period_Line_Edit = new QLineEdit;
 			period_Line_Edit->setFixedWidth(50);
 			period_Line_Edit->setProperty(min_Size_Property, period_Line_Edit->width());
-			period_Line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION));
+			period_Line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION, this));
 			layout->addWidget(period_Line_Edit);
 
 		multilayer_Group_Box_Layout->addLayout(layout);
@@ -274,7 +274,7 @@ void Item_Editor::make_Multilayer_Group_Box()
 		gamma_Line_Edit = new QLineEdit;
 			gamma_Line_Edit->setFixedWidth(50);
 			gamma_Line_Edit->setProperty(min_Size_Property, gamma_Line_Edit->width());
-			gamma_Line_Edit->setValidator(new QDoubleValidator(0, 1, MAX_PRECISION));
+			gamma_Line_Edit->setValidator(new QDoubleValidator(0, 1, MAX_PRECISION, this));
 
 		if(item->childCount()==2)
 		{
@@ -316,7 +316,7 @@ void Item_Editor::make_Sigma_Group_Box()
 		sigma_Line_Edit = new QLineEdit;
 			sigma_Line_Edit->setFixedWidth(50);
 			sigma_Line_Edit->setProperty(min_Size_Property, sigma_Line_Edit->width());
-			sigma_Line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION));
+			sigma_Line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION, this));
 			layout->addWidget(sigma_Line_Edit,0,Qt::AlignLeft);
 			show_Sigma_Start(true);
 
@@ -450,7 +450,7 @@ void Item_Editor::more_Elements_Clicked()
 	QLineEdit* line_Edit = new QLineEdit;
 		line_Edit->setFixedWidth(50);
 		line_Edit->setProperty(min_Size_Property, line_Edit->width());
-		line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION));
+		line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION, this));
 	QLabel*    label = new QLabel(atoms);
 	QComboBox* elements = new QComboBox;		elements->addItems(sorted_Elements.keys());
 	QLabel*	  at_Weight = new QLabel;
@@ -537,7 +537,7 @@ void Item_Editor::read_Elements_From_Item()
 		QLineEdit* line_Edit = new QLineEdit;
 				   line_Edit->setFixedWidth(50);
 				   line_Edit->setProperty(min_Size_Property, line_Edit->width());
-				   line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION));
+				   line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION, this));
 		QLabel*    label = new QLabel(atoms);
 		QComboBox* elements = new QComboBox;		elements->addItems(sorted_Elements.keys());
 		QLabel*	  at_Weight = new QLabel;
@@ -615,11 +615,11 @@ void Item_Editor::read_Interlayers_From_Item()
 			QLineEdit* comp_Line_Edit = new QLineEdit;
 				comp_Line_Edit->setFixedWidth(41);
 //				comp_Line_Edit->setProperty(min_Size_Property, line_Edit->width());
-				comp_Line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION));
+				comp_Line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION, this));
 			QLineEdit* my_Sigma_Line_Edit = new QLineEdit;
 				my_Sigma_Line_Edit->setFixedWidth(41);
 //				my_Sigma_Line_Edit->setProperty(min_Size_Property, line_Edit->width());
-				my_Sigma_Line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION));
+				my_Sigma_Line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION, this));
 
 //			connect(comp_Line_Edit,		&QLineEdit::textEdited,	this, [&](QString s){resize_Line_Edit(s);}); // better not use
 //			connect(my_Sigma_Line_Edit, &QLineEdit::textEdited,	this, [&](QString s){resize_Line_Edit(s);}); // better not use

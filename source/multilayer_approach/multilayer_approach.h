@@ -23,6 +23,7 @@ class Multilayer_Approach : public QWidget
 	Q_OBJECT
 public:
 	explicit Multilayer_Approach(Launcher* launcher, QWidget *parent = 0);
+	~Multilayer_Approach();
 
 signals:
 	void closed();

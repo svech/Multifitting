@@ -7,6 +7,10 @@ Multilayer::Multilayer(Multilayer_Approach* multilayer_Approach, QWidget *parent
 	create_Main_Layout();
 }
 
+Multilayer::~Multilayer()
+{
+}
+
 void Multilayer::create_Main_Layout()
 {
 	main_Layout = new QVBoxLayout(this);

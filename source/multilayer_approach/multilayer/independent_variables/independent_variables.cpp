@@ -504,6 +504,7 @@ void Independent_Variables::refresh_Text()
 
 		Independent_Variables_Editor* editor = new Independent_Variables_Editor(struct_Tree_Copy_item, temp_List_Item, independent_Variables_List);
 			editor->close();
+		delete editor;
 	}
 }
 

@@ -23,7 +23,6 @@ void Calculation_Settings_Editor::set_Window_Geometry()
 	setGeometry(0,525,width(),height());
 }
 
-
 void Calculation_Settings_Editor::create_Main_Layout()
 {
 	main_Layout = new QVBoxLayout(this);
@@ -99,7 +98,7 @@ void Calculation_Settings_Editor::lock_Mainwindow_Interface()
 	for(int i=0; i<multilayer_Tabs->count(); ++i)
 	{
 		Multilayer* multilayer = qobject_cast<Multilayer*>(multilayer_Tabs->widget(i));
-		multilayer->structure_Tree->structure_Toolbar->toolbar->setDisabled(true);
+//		multilayer->structure_Tree->structure_Toolbar->toolbar->setDisabled(true);
 		multilayer_Tabs->tabBar()->tabButton(i, QTabBar::RightSide)->setDisabled(true);
 
 		// independent tabs
@@ -143,7 +142,7 @@ void Calculation_Settings_Editor::unlock_Mainwindow_Interface()
 
 		if(!multilayer_Approach->runned_Tables_Of_Structures.contains(table_Key) && !multilayer_Approach->runned_Calculation_Settings_Editor.contains(calc_Settings_Key))
 		{
-			multilayer->structure_Tree->structure_Toolbar->toolbar->setDisabled(false);
+//			multilayer->structure_Tree->structure_Toolbar->toolbar->setDisabled(false);
 			multilayer_Tabs->tabBar()->tabButton(i, QTabBar::RightSide)->setEnabled(true);
 		}
 
