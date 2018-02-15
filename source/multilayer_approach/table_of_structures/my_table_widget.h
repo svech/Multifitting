@@ -14,6 +14,7 @@ public:
 					int columns,
 					Table_Of_Structures* table_Of_Structures,
 					QWidget* parent = Q_NULLPTR);
+	~My_Table_Widget();
 
 	Table_Of_Structures* table_Of_Structures;
 

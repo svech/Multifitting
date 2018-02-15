@@ -19,6 +19,7 @@ void Table_Of_Structures::closeEvent(QCloseEvent* event)
 	runned_Tables_Of_Structures.remove(table_Key);
 	unlock_Mainwindow_Interface();
 	event->accept();
+	delete this;
 }
 
 void Table_Of_Structures::emit_Data_Edited()
@@ -114,7 +115,7 @@ void Table_Of_Structures::add_Tabs()
 	read_Trees();
 	for(int tab_Index=0; tab_Index<multilayer_Tabs->count(); ++tab_Index)
 	{
-		My_Table_Widget* new_Table = new My_Table_Widget(basic_Row_Number, basic_Column_Number, this);
+		My_Table_Widget* new_Table = new My_Table_Widget(basic_Row_Number, basic_Column_Number, this, this);
 		all_Widgets_To_Reload.append(QList<QWidget*>());
 
 		min_Max_Density_Line_Edits_List.append(QList<QLineEdit*>());

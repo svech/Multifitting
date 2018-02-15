@@ -178,7 +178,7 @@ void Multilayer_Approach::open_Table_Of_Structures()
 {
 	if(!runned_Tables_Of_Structures.contains(table_Key))
 	{
-		table_Of_Structures = new Table_Of_Structures(this);
+		table_Of_Structures = new Table_Of_Structures(this, this);
 		runned_Tables_Of_Structures.insert(table_Key, table_Of_Structures);
 			table_Of_Structures->setWindowFlags(Qt::Window);
 			table_Of_Structures->show();

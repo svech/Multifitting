@@ -7,8 +7,13 @@ My_Table_Widget::My_Table_Widget(int rows,
 	table_Of_Structures(table_Of_Structures),
 	QTableWidget(parent)
 {
+	setAttribute(Qt::WA_DeleteOnClose);
 	for(int i=0; i<rows; ++i)		insertRow(i);
 	for(int i=0; i<columns; ++i)	insertColumn(i);
+}
+
+My_Table_Widget::~My_Table_Widget()
+{
 }
 
 void My_Table_Widget::contextMenuEvent(QContextMenuEvent *event)
