@@ -498,9 +498,15 @@ QString Global_Variables::parameter_Name(const Data &struct_Data, QString whats_
 		if(whats_This == whats_This_Angle)							text = struct_Data.angle_Type + " angle, " + Theta_Sym;
 		if(whats_This == whats_This_Angular_Resolution)				text = "Angular resolution, " + Delta_Big_Sym + Theta_Sym;
 		if(whats_This == whats_This_Wavelength)						text = Global_Variables::wavelength_Energy_Name(wavelength_units);
-		if(whats_This == whats_This_Spectral_Resolution)			text = "Spectral resolution" + Delta_Big_Sym + "E/E";
+		if(whats_This == whats_This_Spectral_Resolution)			text = "Spectral resolution, " + Delta_Big_Sym + "E/E";
 		if(whats_This == whats_This_Polarization)					text = "Polarization";
 		if(whats_This == whats_This_Polarization_Sensitivity)		text = "Polarization sensitivity";
+
+		if(whats_This == whats_This_Background)						text = "Background";
+		if(whats_This == whats_This_Beam_Size)						text = "Beam width";
+		if(whats_This == whats_This_Beam_Profile_Spreading)			text = "Beam spreading";
+		if(whats_This == whats_This_Sample_Size)					text = "Sample size";
+		if(whats_This == whats_This_Sample_Shift)					text = "Sample shift";
 	}
 
 	return text;
@@ -538,6 +544,12 @@ Parameter* Global_Variables::get_Parameter_From_Struct_Item_by_Id(Data& struct_D
 	if(id == struct_Data.spectral_Resolution.indicator.id)						return &struct_Data.spectral_Resolution;
 	if(id == struct_Data.polarization.indicator.id)								return &struct_Data.polarization;
 	if(id == struct_Data.polarization_Sensitivity.indicator.id)					return &struct_Data.polarization_Sensitivity;
+	if(id == struct_Data.background.indicator.id)								return &struct_Data.background;
+
+	if(id == struct_Data.beam_Size.indicator.id)								return &struct_Data.beam_Size;
+	if(id == struct_Data.beam_Profile_Spreading.indicator.id)					return &struct_Data.beam_Profile_Spreading;
+	if(id == struct_Data.sample_Size.indicator.id)								return &struct_Data.sample_Size;
+	if(id == struct_Data.sample_Shift.indicator.id)								return &struct_Data.sample_Shift;
 
 	// optical properties
 	if(id == struct_Data.absolute_Density.indicator.id)							return &struct_Data.absolute_Density;
@@ -573,6 +585,53 @@ Parameter* Global_Variables::get_Parameter_From_Struct_Item_by_Id(Data& struct_D
 	// multilayer
 	if(id == struct_Data.period.indicator.id)									return &struct_Data.period;
 	if(id == struct_Data.gamma.indicator.id)									return &struct_Data.gamma;
+
+	return NULL;
+}
+
+Parameter* Global_Variables::get_Parameter_From_Struct_Item_by_Whats_This(Data &struct_Data, QString whats_This)
+{
+	// PARAMETER
+
+	// measurement
+	if(whats_This == whats_This_Angle)							return &struct_Data.probe_Angle;
+	if(whats_This == whats_This_Angular_Resolution)				return &struct_Data.angular_Resolution;
+	if(whats_This == whats_This_Wavelength)						return &struct_Data.wavelength;
+	if(whats_This == whats_This_Spectral_Resolution)			return &struct_Data.spectral_Resolution;
+	if(whats_This == whats_This_Polarization)					return &struct_Data.polarization;
+	if(whats_This == whats_This_Polarization_Sensitivity)		return &struct_Data.polarization_Sensitivity;
+	if(whats_This == whats_This_Background)						return &struct_Data.background;
+
+	if(whats_This == whats_This_Beam_Size)						return &struct_Data.beam_Size;
+	if(whats_This == whats_This_Beam_Profile_Spreading)			return &struct_Data.beam_Profile_Spreading;
+	if(whats_This == whats_This_Sample_Size)					return &struct_Data.sample_Size;
+	if(whats_This == whats_This_Sample_Shift)					return &struct_Data.sample_Shift;
+
+	// optical properties
+	if(whats_This == whats_This_Absolute_Density)				return &struct_Data.absolute_Density;
+	if(whats_This == whats_This_Relative_Density)				return &struct_Data.relative_Density;
+	if(whats_This == whats_This_Permittivity)					return &struct_Data.permittivity;
+	if(whats_This == whats_This_Absorption)						return &struct_Data.absorption;
+
+	// interface
+	if(whats_This == whats_This_Sigma)							return &struct_Data.sigma;
+	if(whats_This == whats_This_Sigma_Drift_Line_Value)			return &struct_Data.sigma_Drift.drift_Line_Value;
+	if(whats_This == whats_This_Sigma_Drift_Rand_Rms)			return &struct_Data.sigma_Drift.drift_Rand_Rms;
+	if(whats_This == whats_This_Sigma_Drift_Sine_Amplitude)		return &struct_Data.sigma_Drift.drift_Sine_Amplitude;
+	if(whats_This == whats_This_Sigma_Drift_Sine_Frequency)		return &struct_Data.sigma_Drift.drift_Sine_Frequency;
+	if(whats_This == whats_This_Sigma_Drift_Sine_Phase)			return &struct_Data.sigma_Drift.drift_Sine_Phase;
+
+	// thickness
+	if(whats_This == whats_This_Thickness)						return &struct_Data.thickness;
+	if(whats_This == whats_This_Thickness_Drift_Line_Value)		return &struct_Data.thickness_Drift.drift_Line_Value;
+	if(whats_This == whats_This_Thickness_Drift_Rand_Rms)		return &struct_Data.thickness_Drift.drift_Rand_Rms;
+	if(whats_This == whats_This_Thickness_Drift_Sine_Amplitude)	return &struct_Data.thickness_Drift.drift_Sine_Amplitude;
+	if(whats_This == whats_This_Thickness_Drift_Sine_Frequency)	return &struct_Data.thickness_Drift.drift_Sine_Frequency;
+	if(whats_This == whats_This_Thickness_Drift_Sine_Phase)		return &struct_Data.thickness_Drift.drift_Sine_Phase;
+
+	// multilayer
+	if(whats_This == whats_This_Period)							return &struct_Data.period;
+	if(whats_This == whats_This_Gamma)							return &struct_Data.gamma;
 
 	return NULL;
 }

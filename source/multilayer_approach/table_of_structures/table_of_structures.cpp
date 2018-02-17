@@ -623,26 +623,32 @@ Parameter& Table_Of_Structures::get_Parameter(Data& struct_Data, QString whats_T
 	// PARAMETER
 
 	// measurement
-	if(whats_This == whats_This_Angle)						{precision = line_edit_angle_precision;		coeff = 1;						return struct_Data.probe_Angle;				}
+	if(whats_This == whats_This_Angle)						{precision = line_edit_angle_precision;		coeff = 1;						return struct_Data.probe_Angle;					}
 	if(whats_This == whats_This_Angular_Resolution)			{precision = line_edit_angle_precision;		coeff = 1;						return struct_Data.angular_Resolution;			}
-	if(whats_This == whats_This_Wavelength)					{precision = line_edit_wavelength_precision;coeff = 1;						return struct_Data.wavelength;				}
+	if(whats_This == whats_This_Wavelength)					{precision = line_edit_wavelength_precision;coeff = 1;						return struct_Data.wavelength;					}
 	if(whats_This == whats_This_Spectral_Resolution)		{precision = line_edit_wavelength_precision;coeff = 1;						return struct_Data.spectral_Resolution;			}
-	if(whats_This == whats_This_Polarization)				{precision = 3;								coeff = 1;						return struct_Data.polarization;			}
-	if(whats_This == whats_This_Polarization_Sensitivity)	{precision = 3;								coeff = 1;						return struct_Data.polarization_Sensitivity;		}
+	if(whats_This == whats_This_Polarization)				{precision = 3;								coeff = 1;						return struct_Data.polarization;				}
+	if(whats_This == whats_This_Polarization_Sensitivity)	{precision = 3;								coeff = 1;						return struct_Data.polarization_Sensitivity;	}
+	if(whats_This == whats_This_Background)					{precision = 3;								coeff = 1;						return struct_Data.background;					}
+
+	if(whats_This == whats_This_Beam_Size)					{precision = 3;								coeff = 1;						return struct_Data.beam_Size;					}
+	if(whats_This == whats_This_Beam_Profile_Spreading)		{precision = 3;								coeff = 1;						return struct_Data.beam_Profile_Spreading;		}
+	if(whats_This == whats_This_Sample_Size)				{precision = 3;								coeff = 1;						return struct_Data.sample_Size;					}
+	if(whats_This == whats_This_Sample_Shift)				{precision = 3;								coeff = 1;						return struct_Data.sample_Shift;				}
 
 	// optical properties
 	if(whats_This == whats_This_Absolute_Density)			{precision = line_edit_density_precision;	coeff = 1;						return struct_Data.absolute_Density;			}
 	if(whats_This == whats_This_Relative_Density)			{precision = line_edit_density_precision;	coeff = 1;						return struct_Data.relative_Density;			}
-	if(whats_This == whats_This_Permittivity)				{precision = line_edit_density_precision;	coeff = 1;						return struct_Data.permittivity;			}
-	if(whats_This == whats_This_Absorption)					{precision = line_edit_density_precision;	coeff = 1;						return struct_Data.absorption;				}
+	if(whats_This == whats_This_Permittivity)				{precision = line_edit_density_precision;	coeff = 1;						return struct_Data.permittivity;				}
+	if(whats_This == whats_This_Absorption)					{precision = line_edit_density_precision;	coeff = 1;						return struct_Data.absorption;					}
 
 	// thickness
 	if(whats_This == whats_This_Thickness)						{precision = line_edit_thickness_precision;	coeff = length_Coefficients_Map.value(length_units);	return struct_Data.thickness;				}
-	if(whats_This == whats_This_Thickness_Drift_Line_Value)		{precision = line_edit_thickness_precision;	coeff = 1;						return struct_Data.thickness_Drift.drift_Line_Value;	}
-	if(whats_This == whats_This_Thickness_Drift_Rand_Rms)		{precision = line_edit_thickness_precision;	coeff = 1;						return struct_Data.thickness_Drift.drift_Rand_Rms;	}
-	if(whats_This == whats_This_Thickness_Drift_Sine_Amplitude)	{precision = line_edit_thickness_precision;	coeff = 1;						return struct_Data.thickness_Drift.drift_Sine_Amplitude;}
-	if(whats_This == whats_This_Thickness_Drift_Sine_Frequency)	{precision = line_edit_thickness_precision;	coeff = 1;						return struct_Data.thickness_Drift.drift_Sine_Frequency;}
-	if(whats_This == whats_This_Thickness_Drift_Sine_Phase)		{precision = line_edit_thickness_precision;	coeff = 1;						return struct_Data.thickness_Drift.drift_Sine_Phase;	}
+	if(whats_This == whats_This_Thickness_Drift_Line_Value)		{precision = line_edit_thickness_precision;	coeff = 1;					return struct_Data.thickness_Drift.drift_Line_Value;	}
+	if(whats_This == whats_This_Thickness_Drift_Rand_Rms)		{precision = line_edit_thickness_precision;	coeff = 1;					return struct_Data.thickness_Drift.drift_Rand_Rms;	}
+	if(whats_This == whats_This_Thickness_Drift_Sine_Amplitude)	{precision = line_edit_thickness_precision;	coeff = 1;					return struct_Data.thickness_Drift.drift_Sine_Amplitude;}
+	if(whats_This == whats_This_Thickness_Drift_Sine_Frequency)	{precision = line_edit_thickness_precision;	coeff = 1;					return struct_Data.thickness_Drift.drift_Sine_Frequency;}
+	if(whats_This == whats_This_Thickness_Drift_Sine_Phase)		{precision = line_edit_thickness_precision;	coeff = 1;					return struct_Data.thickness_Drift.drift_Sine_Phase;	}
 
 	// interface
 	if(whats_This == whats_This_Sigma)						{precision = line_edit_sigma_precision;		coeff = length_Coefficients_Map.value(length_units);	return struct_Data.sigma;				}

@@ -48,10 +48,8 @@ public:
 	QTreeWidget* struct_Tree_Copy;										// modified copy of real tree to be plotted
 	QTreeWidget* real_Struct_Tree;										// real tree itself
 
-	QFrame* independent_Frame;
-		QVBoxLayout* independent_Frame_Layout;
-			QListWidget* independent_Variables_List;
-				QToolBar* independent_Variables_Toolbar;
+	QListWidget* independent_Variables_List;
+	QToolBar* independent_Variables_Toolbar;
 };
 
 QDataStream& operator <<( QDataStream& stream, const Independent_Variables* independent_Variables );

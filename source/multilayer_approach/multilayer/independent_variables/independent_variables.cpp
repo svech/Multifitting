@@ -37,19 +37,11 @@ void Independent_Variables::create_Main_Layout()
 	QVBoxLayout* main_Layout = new QVBoxLayout(this);
 		main_Layout->setSpacing(0);
 
-	independent_Frame_Layout = new QVBoxLayout;
-		independent_Frame_Layout->setSpacing(0);
-
-	independent_Frame = new QFrame;
-		independent_Frame->setContentsMargins(-7,-3,-7,-10);
-		independent_Frame->setLayout(independent_Frame_Layout);
-	main_Layout->addWidget(independent_Frame);
-
 	create_Independent_Variables_List();
-		independent_Frame_Layout->addWidget(independent_Variables_List);
+		main_Layout->addWidget(independent_Variables_List);
 
 	create_Independent_Variables_Toolbar();
-		independent_Frame_Layout->addWidget(independent_Variables_Toolbar);
+		main_Layout->addWidget(independent_Variables_Toolbar);
 }
 
 void Independent_Variables::create_Independent_Variables_List()
@@ -104,7 +96,6 @@ void Independent_Variables::create_Independent_Variables_List()
 		Independent_Variables_Editor* editor = new Independent_Variables_Editor(measurement_Item, wavelength_List_Item, independent_Variables_List);
 			editor->close();
 	}
-
 	connect(independent_Variables_List, &QListWidget::itemDoubleClicked, this, &Independent_Variables::edit_Independent_Variable);
 }
 

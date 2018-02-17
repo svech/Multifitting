@@ -13,8 +13,8 @@ Target_Curve::Target_Curve(QLabel* description_Label, QTreeWidget* real_Struct_T
 	curve.value_Function = value_Function[Reflectance];
 	curve.value_Mode = value_R_Mode[R];			// R
 
-//	curve.arg_Offset = 0; curve.arg_Factor = 1;
-	//	curve.val_Offset = 0; curve.val_Factor = 1;
+	curve.arg_Offset = 0; curve.arg_Factor = 1;
+	curve.val_Offset = 0; curve.val_Factor = 1;
 }
 
 Target_Curve::~Target_Curve()
@@ -91,6 +91,9 @@ void Target_Curve::import_Data(QString bare_Filename)
 				val.val_1 = temp_Number_1;
 				val.val_2 = temp_Number_2;
 				curve.values.push_back(val);
+			} else
+			{
+				throw "wrong curve.value_Mode=" + curve.value_Mode + main_Exception_Text;
 			}
 			loaded_And_Ready = true;
 		}
@@ -98,8 +101,14 @@ void Target_Curve::import_Data(QString bare_Filename)
 		{
 			loaded_And_Ready = false;
 			QMessageBox::information(this, "Target_Curve::import_Data", exception);
-			break;
+			return;
 		}
+	}
+	if(	curve.argument.size()!=curve.values.size() )
+	{
+		QMessageBox::critical(NULL, "Target_Curve::import_Data", "curve.argument.size()!=curve.values.size()");
+		loaded_And_Ready = false;
+		return;
 	}
 }
 
@@ -108,18 +117,41 @@ void Target_Curve::fill_Measurement_With_Data()
 	if(loaded_And_Ready)
 	{
 		// argument shift
-		curve.shifted_Argument = curve.argument;
+		// shift has the same units as data
+		curve.shifted_Argument.resize(curve.argument.size());
+		curve.shifted_Values.reserve(curve.argument.size());
 		for(int i=0; i<curve.argument.size(); ++i)
-			curve.shifted_Argument[i] = curve.argument[i]*curve.arg_Factor+curve.arg_Offset;
+		{
+			curve.shifted_Argument[i]     = curve.argument[i]    *curve.arg_Factor+curve.arg_Offset;
+			curve.shifted_Values[i].val_1 = curve.values[i].val_1*curve.val_Factor+curve.val_Offset;
+			// shift only first
+//			curve.shifted_Values[i].val_2 = curve.values[i].val_2*curve.val_Factor+curve.val_Offset;
+		}
 
 		// measurement filling
 		if(curve.argument_Type == whats_This_Angle)			// angular
 		{
-			measurement.angle = curve.shifted_Argument;
+			double coeff = angle_Coefficients_Map.value(curve.angular_Units);
+			measurement.angle.resize(curve.shifted_Argument.size());
+			for(int i=0; i<curve.shifted_Argument.size(); ++i)
+			{
+				measurement.angle[i] = curve.shifted_Argument[i]*coeff;
+			}
+//			qInfo() << "min ="<<measurement.angle.first() << "; max" << measurement.angle.last();
 		} else
 		if(curve.argument_Type == whats_This_Wavelength)	// spectral
 		{
-			measurement.lambda = curve.shifted_Argument;
+			double coeff = wavelength_Coefficients_Map.value(curve.spectral_Units);
+			measurement.lambda.resize(curve.shifted_Argument.size());
+			for(int i=0; i<curve.shifted_Argument.size(); ++i)
+			{
+				measurement.lambda[i] = Global_Variables::wavelength_Energy(curve.spectral_Units,curve.shifted_Argument[i]*coeff);
+			}
+//			qInfo() << "min ="<<measurement.lambda.first() << "; max" << measurement.lambda.last();
+		} else
+		{
+			QMessageBox::critical(NULL, "Target_Curve::fill_Measurement_With_Data", "wrong curve.argument_Type="+curve.argument_Type);
+			return;
 		}
 	}
 }

@@ -685,7 +685,7 @@ void Independent_Variables_Editor::refresh_Show_Data(bool show)
 
 		units_Label->setText(units);
 		step_Units_Label->setText(units);
-		spectral_Resolution_Label->setText("Spectral Resolution, " + Delta_Big_Sym + name[name.size()-1]);
+		spectral_Resolution_Label->setText(Global_Variables::parameter_Name(struct_Data, whats_This_Spectral_Resolution, indicator.index));
 
 		// show data
 		if(show)
@@ -699,7 +699,6 @@ void Independent_Variables_Editor::refresh_Show_Data(bool show)
 			resize_Line_Edit(val_Edit->text(),val_Edit);
 			resize_Line_Edit(min_Edit->text(),min_Edit);
 			resize_Line_Edit(max_Edit->text(),max_Edit);
-
 
 			spectral_Resolution_Edit->setText(QString::number(struct_Data.spectral_Resolution.value,line_edit_double_format,line_edit_wavelength_precision));
 			polarization_Edit->setText(QString::number(struct_Data.polarization.value/coeff,line_edit_double_format,line_edit_wavelength_precision));

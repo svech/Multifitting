@@ -32,6 +32,13 @@ public:
 		Parameter spectral_Resolution;
 		Parameter polarization;
 		Parameter polarization_Sensitivity;
+		Parameter background;
+
+		// geometry
+		Parameter beam_Size;
+		Parameter beam_Profile_Spreading;
+		Parameter sample_Size;
+		Parameter sample_Shift;
 
 		void calc_Measured_cos2_k();
 		void calc_Independent_cos2_k();

@@ -101,6 +101,8 @@ extern int line_edit_interlayer_precision	;
 extern int line_edit_drift_precision		;
 extern int line_edit_period_precision		;
 extern int line_edit_gamma_precision		;
+extern int line_edit_sample_size_precision	;
+extern int line_edit_background_precision	;
 
 // thumbnail
 extern char thumbnail_double_format			;
@@ -116,6 +118,8 @@ extern int thumbnail_interlayer_precision	;
 extern int thumbnail_drift_precision		;
 extern int thumbnail_period_precision		;
 extern int thumbnail_gamma_precision		;
+extern int thumbnail_sample_size_precision	;
+extern int thumbnail_background_precision	;
 
 // other
 extern int at_weight_precision				;

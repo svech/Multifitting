@@ -600,51 +600,21 @@ void Variable_Selection::add_Variable_Item(QListWidgetItem* new_Item)
 	}
 
 	Data struct_Data = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
-	Parameter* parameter;
 
-	/// optical constants
-	if(new_Data.parameter_Whats_This == whats_This_Absolute_Density)				parameter = &struct_Data.absolute_Density;
-	if(new_Data.parameter_Whats_This == whats_This_Relative_Density)				parameter = &struct_Data.relative_Density;
-	if(new_Data.parameter_Whats_This == whats_This_Permittivity)					parameter = &struct_Data.permittivity;
-	if(new_Data.parameter_Whats_This == whats_This_Absorption)						parameter = &struct_Data.absorption;
-	if(new_Data.parameter_Whats_This == whats_This_Composition)						parameter = &struct_Data.composition[new_Data.index].composition;
-	/// thickness parameters
-	if(new_Data.parameter_Whats_This == whats_This_Thickness)						parameter = &struct_Data.thickness;
-	// thickness drift
-	if(new_Data.parameter_Whats_This == whats_This_Thickness_Drift_Line_Value)		parameter = &struct_Data.thickness_Drift.drift_Line_Value;
-	if(new_Data.parameter_Whats_This == whats_This_Thickness_Drift_Rand_Rms)		parameter = &struct_Data.thickness_Drift.drift_Rand_Rms;
-	if(new_Data.parameter_Whats_This == whats_This_Thickness_Drift_Sine_Amplitude)	parameter = &struct_Data.thickness_Drift.drift_Sine_Amplitude;
-	if(new_Data.parameter_Whats_This == whats_This_Thickness_Drift_Sine_Frequency)	parameter = &struct_Data.thickness_Drift.drift_Sine_Frequency;
-	if(new_Data.parameter_Whats_This == whats_This_Thickness_Drift_Sine_Phase)		parameter = &struct_Data.thickness_Drift.drift_Sine_Phase;
-
-	/// interface parameters
-	if(new_Data.parameter_Whats_This == whats_This_Sigma)							parameter = &struct_Data.sigma;
-	if(new_Data.parameter_Whats_This == whats_This_Interlayer_Composition)			parameter = &struct_Data.interlayer_Composition[new_Data.index].interlayer;
-	if(new_Data.parameter_Whats_This == whats_This_Interlayer_My_Sigma)				parameter = &struct_Data.interlayer_Composition[new_Data.index].my_Sigma;
-	// sigma drift
-	if(new_Data.parameter_Whats_This == whats_This_Sigma_Drift_Line_Value)			parameter = &struct_Data.sigma_Drift.drift_Line_Value;
-	if(new_Data.parameter_Whats_This == whats_This_Sigma_Drift_Rand_Rms)			parameter = &struct_Data.sigma_Drift.drift_Rand_Rms;
-	if(new_Data.parameter_Whats_This == whats_This_Sigma_Drift_Sine_Amplitude)		parameter = &struct_Data.sigma_Drift.drift_Sine_Amplitude;
-	if(new_Data.parameter_Whats_This == whats_This_Sigma_Drift_Sine_Frequency)		parameter = &struct_Data.sigma_Drift.drift_Sine_Frequency;
-	if(new_Data.parameter_Whats_This == whats_This_Sigma_Drift_Sine_Phase)			parameter = &struct_Data.sigma_Drift.drift_Sine_Phase;
-	/// stack parameters
+	// change
 	if(new_Data.parameter_Whats_This == whats_This_Num_Repetitions)
 	{
 		struct_Data.num_Repetition.is_Independent = true;
 		struct_Data.num_Repetition.num_Steps = 1;
 		struct_Data.num_Repetition.start = struct_Data.num_Repetition.value;
 		struct_Data.num_Repetition.step = 1;
-	}
-	if(new_Data.parameter_Whats_This == whats_This_Period)							parameter = &struct_Data.period;
-	if(new_Data.parameter_Whats_This == whats_This_Gamma)							parameter = &struct_Data.gamma;
-
-	// change
+	} else
 	{
+		Parameter* parameter = Global_Variables::get_Parameter_From_Struct_Item_by_Whats_This(struct_Data, new_Data.parameter_Whats_This);
 		(*parameter).independent.is_Independent = true;
 		(*parameter).independent.num_Points = 1;
 		(*parameter).independent.min = (*parameter).value;
 		(*parameter).independent.max = (*parameter).value;
-
 	}
 
 	var.setValue(struct_Data);

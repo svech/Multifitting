@@ -25,26 +25,21 @@ void Multilayer::create_Structure_Frame()
 {
 	struct_Frame_Layout = new QVBoxLayout;
 		struct_Frame_Layout->setSpacing(0);
-
-	struct_Frame = new QFrame;
-		struct_Frame->setContentsMargins(-7,-3,-7,-10);
-		struct_Frame->setLayout(struct_Frame_Layout);
+	main_Layout->addLayout(struct_Frame_Layout);
 
 	structure_Tree = new Structure_Tree(this, this);
-	main_Layout->addWidget(struct_Frame);
+	struct_Frame_Layout->addWidget(structure_Tree->tree);
+	struct_Frame_Layout->addWidget(structure_Tree->structure_Toolbar->toolbar);
 }
 
 void Multilayer::create_Variables_Frame()
 {
-	variables_Frame = new QFrame;
-		variables_Frame->setContentsMargins(-7,-8,-9,-10);
-	main_Layout->addWidget(variables_Frame);
-
-	variables_Frame_Layout = new QVBoxLayout(variables_Frame);
+	variables_Frame_Layout = new QVBoxLayout;
 		variables_Frame_Layout->setSpacing(0);
+	main_Layout->addLayout(variables_Frame_Layout);
 
 	create_Variables_Tabs();
-		variables_Frame_Layout->addWidget(variables_Tabs);
+	variables_Frame_Layout->addWidget(variables_Tabs);
 }
 
 void Multilayer::create_Variables_Tabs()
@@ -53,17 +48,17 @@ void Multilayer::create_Variables_Tabs()
 
 	create_Independent_Variables_Tabs();
 	{
-		QFrame* frame = new QFrame;
-		QVBoxLayout* layout = new QVBoxLayout;
-		layout->addWidget(independent_Variables_Plot_Tabs);
-		layout->setSpacing(0);
-		frame->setLayout(layout);
-		frame->setContentsMargins(0,-5,0,-8);
-		variables_Tabs->addTab(frame, "Independent Variables");
+//		QFrame* frame = new QFrame;
+//		QVBoxLayout* layout = new QVBoxLayout;
+//		layout->addWidget(independent_Variables_Plot_Tabs);
+//		layout->setSpacing(0);
+//		frame->setLayout(layout);
+//		frame->setContentsMargins(0,-5,0,-8);
+//		variables_Tabs->addTab(frame, "Independent Variables");
+		variables_Tabs->addTab(independent_Variables_Plot_Tabs, "Independent Variables");
 	}
-
 	{
-		QFrame* frame = new QFrame;
+		QWidget* frame = new QWidget;
 		QVBoxLayout* layout = new QVBoxLayout;
 			layout->setAlignment(Qt::AlignVCenter);
 
@@ -89,7 +84,7 @@ void Multilayer::create_Variables_Tabs()
 		connect(fitting_Settings_Button,	 &QPushButton::clicked, multilayer_Approach, &Multilayer_Approach::open_Fitting_Settings);
 	}
 
-	variables_Tabs->setSizePolicy(QSizePolicy::Preferred,QSizePolicy::Fixed);
+//	variables_Tabs->setSizePolicy(QSizePolicy::Preferred,QSizePolicy::Fixed);
 }
 
 void Multilayer::create_Independent_Variables_Tabs()
@@ -114,16 +109,13 @@ void Multilayer::create_Independent_Variables_Tabs()
 
 void Multilayer::create_Data_Frame()
 {
-	data_Frame = new QFrame;
-		data_Frame->setContentsMargins(-8,-8,-8,-7);
-	main_Layout->addWidget(data_Frame);
-
-	data_Frame_Layout = new QVBoxLayout(data_Frame);
+	data_Frame_Layout = new QVBoxLayout;
 		data_Frame_Layout->setSpacing(0);
+	main_Layout->addLayout(data_Frame_Layout);
 
-	data_Target_Profile_Group_Box= new QGroupBox("Target Curve");
+	data_Target_Profile_Group_Box = new QGroupBox("Target Curve");
 	data_Frame_Layout->addWidget(data_Target_Profile_Group_Box);
-	layout_Target_Profile_With_Frame_Vector= new QVBoxLayout(data_Target_Profile_Group_Box);
+	layout_Target_Profile_With_Frame_Vector = new QVBoxLayout(data_Target_Profile_Group_Box);
 	layout_Target_Profile_With_Frame_Vector->setSpacing(0);
 	layout_Target_Profile_With_Frame_Vector->setMargin(0);
 
@@ -216,7 +208,8 @@ void Multilayer::add_Target_Curve(int index_Pressed)
 	// window resizing
 	if(!data_Target_Profile_Frame_Vector.isEmpty())
 	{
-//		struct_Frame->setFixedSize(struct_Frame->size());
+		data_Target_Profile_Group_Box->adjustSize();
+		data_Target_Profile_Group_Box->setFixedHeight(data_Target_Profile_Group_Box->height() + multilayer_height_additive);
 		QWidget::window()->resize(QWidget::window()->width(),QWidget::window()->height() + multilayer_height_additive);
 	}
 
@@ -282,7 +275,8 @@ void Multilayer::remove_Target_Curve(int index_Pressed, bool clean)
 	// window resizing
 	if( !data_Target_Profile_Frame_Vector.isEmpty() )
 	{
-		struct_Frame->setFixedSize(struct_Frame->size());
+		data_Target_Profile_Group_Box->adjustSize();
+		data_Target_Profile_Group_Box->setFixedHeight(data_Target_Profile_Group_Box->height() - multilayer_height_additive);
 		QWidget::window()->resize(QWidget::window()->width(),QWidget::window()->height() - multilayer_height_additive);
 	}
 

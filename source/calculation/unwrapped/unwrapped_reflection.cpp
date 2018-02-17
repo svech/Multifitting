@@ -42,6 +42,7 @@ Unwrapped_Reflection::Unwrapped_Reflection(Unwrapped_Structure* unwrapped_Struct
 	R_s.resize(num_Points);
 	R_p.resize(num_Points);
 	R  .resize(num_Points);
+	R_Instrumental.resize(num_Points);
 }
 
 int Unwrapped_Reflection::fill_s__Max_Depth_2(const tree<Node>::iterator& parent, int thread_Index, int point_Index, int media_Index)
@@ -563,4 +564,13 @@ void Unwrapped_Reflection::calc_Specular()
 		if (workers[thread_Index].joinable()) workers[thread_Index].join();	// присоединение потоков
 	}
 	/// ----------------------------------------------------------------------------------------------------------------------
+	// postprocessing
+	if(active_Parameter_Whats_This == whats_This_Angle)
+	{
+		measurement.angular_Resolution;
+		
+	}
+	if(active_Parameter_Whats_This == whats_This_Wavelength)
+	{
+	}
 }

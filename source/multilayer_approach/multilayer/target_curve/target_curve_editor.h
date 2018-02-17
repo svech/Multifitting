@@ -95,6 +95,8 @@ public:
 			QLabel* angular_Resolution_Label;
 			QLineEdit* angular_Resolution_LineEdit;
 			QLabel* angular_Units_Label;
+			QLabel* background_Label;
+			QLineEdit* background_LineEdit;
 
 		QLabel* data_Indicator_Label;
 		QPushButton* close_Button;

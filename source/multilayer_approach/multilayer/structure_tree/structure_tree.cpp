@@ -18,7 +18,6 @@ void Structure_Tree::create_Tree()
 		tree->header()->close();
 		tree->expandAll();
 		tree->setExpandsOnDoubleClick(false);
-	multilayer->struct_Frame_Layout->addWidget(tree);
 
 	connect(tree, &QTreeWidget::itemDoubleClicked, this, &Structure_Tree::if_DoubleClicked);
 }
@@ -26,7 +25,6 @@ void Structure_Tree::create_Tree()
 void Structure_Tree::create_Toolbar()
 {
 	structure_Toolbar = new Structure_Toolbar(this, this);
-		multilayer->struct_Frame_Layout->addWidget(structure_Toolbar->toolbar);
 
 	connect(tree, &QTreeWidget::itemSelectionChanged, structure_Toolbar, &Structure_Toolbar::if_Selected);
 	structure_Toolbar->add_Ambient();

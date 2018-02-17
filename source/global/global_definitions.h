@@ -194,6 +194,12 @@ class Node;
 #define whats_This_Period					"Period"
 #define whats_This_Gamma					"Gamma"
 
+#define whats_This_Background				"Background"
+#define whats_This_Beam_Size				"Beam_Size"
+#define whats_This_Beam_Profile_Spreading	"Beam_Profile_Spreading"
+#define whats_This_Sample_Size				"Sample_Size"
+#define whats_This_Sample_Shift				"Sample_Shift"
+
 #define whats_This_Density					"Density"
 
 // whatsThis : thickness drifts

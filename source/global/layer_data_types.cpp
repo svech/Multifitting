@@ -80,6 +80,43 @@ Data::Data(QString item_Type_Passed)
 			polarization_Sensitivity.independent.num_Points = 1;
 			polarization_Sensitivity.indicator.whats_This = whats_This_Polarization_Sensitivity;
 			polarization_Sensitivity.indicator.item_Id = id;
+
+			background.value = 0;
+			background.independent.min = background.value;
+			background.independent.max = background.value;
+			background.independent.num_Points = 1;
+			background.indicator.whats_This = whats_This_Background;
+			background.indicator.item_Id = id;
+		}
+		// geometry
+		{
+			beam_Size.value = 0;
+			beam_Size.independent.min = beam_Size.value;
+			beam_Size.independent.max = beam_Size.value;
+			beam_Size.independent.num_Points = 1;
+			beam_Size.indicator.whats_This = whats_This_Beam_Size;
+			beam_Size.indicator.item_Id = id;
+
+			beam_Profile_Spreading.value = 2.0;
+			beam_Profile_Spreading.independent.min = 1.5;
+			beam_Profile_Spreading.independent.max = 3;
+			beam_Profile_Spreading.independent.num_Points = 1;
+			beam_Profile_Spreading.indicator.whats_This = whats_This_Beam_Profile_Spreading;
+			beam_Profile_Spreading.indicator.item_Id = id;
+
+			sample_Size.value = 25;
+			sample_Size.independent.min = 20;
+			sample_Size.independent.max = 30;
+			sample_Size.independent.num_Points = 1;
+			sample_Size.indicator.whats_This = whats_This_Sample_Size;
+			sample_Size.indicator.item_Id = id;
+
+			sample_Shift.value = 0;
+			sample_Shift.independent.min = 0;
+			sample_Shift.independent.max = 10;
+			sample_Shift.independent.num_Points = 1;
+			sample_Shift.indicator.whats_This = whats_This_Sample_Shift;
+			sample_Shift.indicator.item_Id = id;
 		}
 	}
 
@@ -320,6 +357,13 @@ void Data::reset_All_IDs()
 		spectral_Resolution		.indicator.id = Global_Definitions::generate_Id(); spectral_Resolution		.indicator.item_Id = id;
 		polarization			.indicator.id = Global_Definitions::generate_Id(); polarization				.indicator.item_Id = id;
 		polarization_Sensitivity.indicator.id = Global_Definitions::generate_Id(); polarization_Sensitivity	.indicator.item_Id = id;
+		background				.indicator.id = Global_Definitions::generate_Id(); background				.indicator.item_Id = id;
+
+		// geometry
+		beam_Size				.indicator.id = Global_Definitions::generate_Id(); beam_Size				.indicator.item_Id = id;
+		beam_Profile_Spreading	.indicator.id = Global_Definitions::generate_Id(); beam_Profile_Spreading	.indicator.item_Id = id;
+		sample_Size				.indicator.id = Global_Definitions::generate_Id(); sample_Size				.indicator.item_Id = id;
+		sample_Shift			.indicator.id = Global_Definitions::generate_Id(); sample_Shift				.indicator.item_Id = id;
 	///---------------------------------------------
 	///---------------------------------------------
 	// Ambient, Layer, Substrate
@@ -458,7 +502,13 @@ void Data::fill_Potentially_Fitable_Parameters_Vector()
 		potentially_Fitable_Parameters.push_back(&spectral_Resolution);
 		potentially_Fitable_Parameters.push_back(&polarization);
 		potentially_Fitable_Parameters.push_back(&polarization_Sensitivity);
+		potentially_Fitable_Parameters.push_back(&background);
 
+		// geometry
+		potentially_Fitable_Parameters.push_back(&beam_Size);
+		potentially_Fitable_Parameters.push_back(&beam_Profile_Spreading);
+		potentially_Fitable_Parameters.push_back(&sample_Size);
+		potentially_Fitable_Parameters.push_back(&sample_Shift);
 	///---------------------------------------------
 	///---------------------------------------------
 	// Ambient, Layer, Substrate
@@ -551,7 +601,8 @@ QDataStream& operator <<( QDataStream& stream, const Data& data )
 				<< data.item_Type << data.id
 			// Measurement
 				<< data.probe_Angle << data.cos2 << data.angle << data.cos2_Value << data.angle_Value << data.angular_Resolution << data.angle_Type
-				<< data.wavelength << data.k << data.lambda << data.k_Value << data.lambda_Value << data.spectral_Resolution << data.polarization << data.polarization_Sensitivity
+				<< data.wavelength << data.k << data.lambda << data.k_Value << data.lambda_Value << data.spectral_Resolution << data.polarization << data.polarization_Sensitivity << data.background
+				<< data.beam_Size << data.beam_Profile_Spreading << data.sample_Size  << data.sample_Shift
 			// Ambient, Layer, Substrate
 				<< data.composed_Material << data.material << data.approved_Material << data.absolute_Density << data.relative_Density
 				<< data.separate_Optical_Constants << data.permittivity << data.absorption << data.composition
@@ -568,7 +619,8 @@ QDataStream& operator >>( QDataStream& stream,		 Data& data )
 				>> data.item_Type >> data.id
 			// Measurement
 				>> data.probe_Angle >> data.cos2 >> data.angle >> data.cos2_Value >> data.angle_Value >> data.angular_Resolution >> data.angle_Type
-				>> data.wavelength >> data.k >> data.lambda >> data.k_Value >> data.lambda_Value >> data.spectral_Resolution >> data.polarization >> data.polarization_Sensitivity
+				>> data.wavelength >> data.k >> data.lambda >> data.k_Value >> data.lambda_Value >> data.spectral_Resolution >> data.polarization >> data.polarization_Sensitivity >> data.background
+				>> data.beam_Size >> data.beam_Profile_Spreading >> data.sample_Size  >> data.sample_Shift
 			// Ambient, Layer, Substrate
 				>> data.composed_Material >> data.material >> data.approved_Material >> data.absolute_Density >> data.relative_Density
 				>> data.separate_Optical_Constants >> data.permittivity >> data.absorption >> data.composition

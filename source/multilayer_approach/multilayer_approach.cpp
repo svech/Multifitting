@@ -81,7 +81,7 @@ void Multilayer_Approach::set_Window_Geometry()
 void Multilayer_Approach::add_Multilayer()
 {
 	Multilayer* new_Multilayer = new Multilayer(this, this);
-		new_Multilayer->setContentsMargins(-8,-10,-8,-10);
+		new_Multilayer->setContentsMargins(-80,-10,-80,-10);
 
 	connect(new_Multilayer, &Multilayer::refresh_All_Multilayers, this, &Multilayer_Approach::refresh_All_Multilayers_View);
 

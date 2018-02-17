@@ -42,28 +42,25 @@ public:
 	Multilayer_Approach* multilayer_Approach;
 
 	QVBoxLayout* main_Layout;
-		QFrame* struct_Frame;
-			QVBoxLayout* struct_Frame_Layout;
-				Structure_Tree* structure_Tree;
+		QVBoxLayout* struct_Frame_Layout;
+			Structure_Tree* structure_Tree;
 
-		QFrame* variables_Frame;
-			QVBoxLayout* variables_Frame_Layout;
-				QTabWidget*	variables_Tabs;
-					QTabWidget* independent_Variables_Plot_Tabs;
-						QToolButton* independent_Variables_Corner_Button;
+		QVBoxLayout* variables_Frame_Layout;
+			QTabWidget*	variables_Tabs;
+				QTabWidget* independent_Variables_Plot_Tabs;
+					QToolButton* independent_Variables_Corner_Button;
 
-					QPushButton* structure_Table_Button;
-					QPushButton* fits_Selector_Button;
-					QPushButton* calculation_Settings_Button;
-					QPushButton* fitting_Settings_Button;
+				QPushButton* structure_Table_Button;
+				QPushButton* fits_Selector_Button;
+				QPushButton* calculation_Settings_Button;
+				QPushButton* fitting_Settings_Button;
 
-		QFrame* data_Frame;
-			QVBoxLayout* data_Frame_Layout;
-				QGroupBox* data_Target_Profile_Group_Box;
-					QVBoxLayout* layout_Target_Profile_With_Frame_Vector;
-						QVector<QFrame*> data_Target_Profile_Frame_Vector;
-						QVector<Target_Curve*> target_Profiles_Vector;
-						QMap<Target_Curve*, Target_Curve_Editor*> runned_Target_Curve_Editors;
+		QVBoxLayout* data_Frame_Layout;
+			QGroupBox* data_Target_Profile_Group_Box;
+				QVBoxLayout* layout_Target_Profile_With_Frame_Vector;
+					QVector<QFrame*> data_Target_Profile_Frame_Vector;
+					QVector<Target_Curve*> target_Profiles_Vector;
+					QMap<Target_Curve*, Target_Curve_Editor*> runned_Target_Curve_Editors;
 
 	bool enable_Calc_Target_Curves = true;
 	bool enable_Calc_Independent_Curves = true;

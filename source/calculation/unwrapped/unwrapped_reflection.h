@@ -54,6 +54,7 @@ public:
 	vector<double> R_s;
 	vector<double> R_p;
 	vector<double> R;
+	vector<double> R_Instrumental;
 
 	void fill_Specular_Values            (const Data& measurement, int thread_Index, int point_Index);
 	void calc_Specular_1_Point_1_Thread  (const Data& measurement, int thread_Index, int point_Index);
