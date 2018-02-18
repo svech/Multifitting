@@ -629,12 +629,12 @@ Parameter& Table_Of_Structures::get_Parameter(Data& struct_Data, QString whats_T
 	if(whats_This == whats_This_Spectral_Resolution)		{precision = line_edit_wavelength_precision;coeff = 1;						return struct_Data.spectral_Resolution;			}
 	if(whats_This == whats_This_Polarization)				{precision = 3;								coeff = 1;						return struct_Data.polarization;				}
 	if(whats_This == whats_This_Polarization_Sensitivity)	{precision = 3;								coeff = 1;						return struct_Data.polarization_Sensitivity;	}
-	if(whats_This == whats_This_Background)					{precision = 3;								coeff = 1;						return struct_Data.background;					}
+	if(whats_This == whats_This_Background)					{precision = line_edit_background_precision;coeff = 1;						return struct_Data.background;					}
 
-	if(whats_This == whats_This_Beam_Size)					{precision = 3;								coeff = 1;						return struct_Data.beam_Size;					}
-	if(whats_This == whats_This_Beam_Profile_Spreading)		{precision = 3;								coeff = 1;						return struct_Data.beam_Profile_Spreading;		}
-	if(whats_This == whats_This_Sample_Size)				{precision = 3;								coeff = 1;						return struct_Data.sample_Size;					}
-	if(whats_This == whats_This_Sample_Shift)				{precision = 3;								coeff = 1;						return struct_Data.sample_Shift;				}
+	if(whats_This == whats_This_Beam_Size)					{precision = line_edit_beam_size_precision;	coeff = 1;						return struct_Data.beam_Size;					}
+	if(whats_This == whats_This_Beam_Profile_Spreading)		{precision = line_edit_beam_size_precision;	coeff = 1;						return struct_Data.beam_Profile_Spreading;		}
+	if(whats_This == whats_This_Sample_Size)				{precision = line_edit_sample_size_precision;coeff = 1;						return struct_Data.sample_Size;					}
+	if(whats_This == whats_This_Sample_Shift)				{precision = line_edit_sample_size_precision;coeff = 1;						return struct_Data.sample_Shift;				}
 
 	// optical properties
 	if(whats_This == whats_This_Absolute_Density)			{precision = line_edit_density_precision;	coeff = 1;						return struct_Data.absolute_Density;			}

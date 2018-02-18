@@ -329,6 +329,17 @@ void Multilayer_Approach::open(QString filename)
 		runned_Fits_Selectors.value(fits_Selector_Key)->close();
 	}
 
+	// close target editors
+	for(int i=0; i<multilayer_Tabs->count(); ++i)
+	{
+		Multilayer* multilayer = qobject_cast<Multilayer*>(multilayer_Tabs->widget(i));
+		for(Target_Curve_Editor* target_Curve_Editor : multilayer->runned_Target_Curve_Editors.values())
+		{
+			target_Curve_Editor->close();
+		}
+	}
+
+
 	// read previous id
 	in >> previous_ID;
 

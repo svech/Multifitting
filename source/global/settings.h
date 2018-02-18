@@ -91,6 +91,7 @@ extern char line_edit_double_format			;
 extern char line_edit_short_double_format	;
 extern int line_edit_angle_precision		;
 extern int line_edit_wavelength_precision	;
+extern int line_edit_polarization_precision	;
 extern int line_edit_density_precision		;
 extern int line_edit_permittivity_precision	;
 extern int line_edit_absorption_precision	;
@@ -102,12 +103,14 @@ extern int line_edit_drift_precision		;
 extern int line_edit_period_precision		;
 extern int line_edit_gamma_precision		;
 extern int line_edit_sample_size_precision	;
+extern int line_edit_beam_size_precision	;
 extern int line_edit_background_precision	;
 
 // thumbnail
 extern char thumbnail_double_format			;
 extern int thumbnail_angle_precision		;
 extern int thumbnail_wavelength_precision	;
+extern int thumbnail_polarization_precision	;
 extern int thumbnail_density_precision		;
 extern int thumbnail_permittivity_precision	;
 extern int thumbnail_absorption_precision	;
@@ -119,6 +122,7 @@ extern int thumbnail_drift_precision		;
 extern int thumbnail_period_precision		;
 extern int thumbnail_gamma_precision		;
 extern int thumbnail_sample_size_precision	;
+extern int thumbnail_beam_size_precision	;
 extern int thumbnail_background_precision	;
 
 // other

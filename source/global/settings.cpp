@@ -87,6 +87,7 @@ char line_edit_double_format		;
 char line_edit_short_double_format	;
 int line_edit_angle_precision		;
 int line_edit_wavelength_precision	;
+int line_edit_polarization_precision;
 int line_edit_density_precision		;
 int line_edit_permittivity_precision;
 int line_edit_absorption_precision	;
@@ -98,12 +99,14 @@ int line_edit_drift_precision		;
 int line_edit_period_precision		;
 int line_edit_gamma_precision		;
 int line_edit_sample_size_precision	;
+int line_edit_beam_size_precision	;
 int line_edit_background_precision	;
 
 // thumbnail
 char thumbnail_double_format		;
 int thumbnail_angle_precision		;
 int thumbnail_wavelength_precision	;
+int thumbnail_polarization_precision;
 int thumbnail_density_precision		;
 int thumbnail_permittivity_precision;
 int thumbnail_absorption_precision	;
@@ -115,6 +118,7 @@ int thumbnail_drift_precision		;
 int thumbnail_period_precision		;
 int thumbnail_gamma_precision		;
 int thumbnail_sample_size_precision	;
+int thumbnail_beam_size_precision	;
 int thumbnail_background_precision	;
 
 // other
@@ -369,7 +373,9 @@ void Settings::read_Precisions(bool reset_to_default)
 			line_edit_short_double_format = qvariant_cast<char>(precision_Values.value( "line_edit_short_double_format",'g'));
 			line_edit_angle_precision		= precision_Values.value( "line_edit_angle_precision",			5 ).toInt();
 			line_edit_wavelength_precision	= precision_Values.value( "line_edit_wavelength_precision",		6 ).toInt();
-			line_edit_background_precision	= precision_Values.value( "line_edit_background_precision",		2 ).toInt();
+			line_edit_polarization_precision= precision_Values.value( "line_edit_polarization_precision",	3 ).toInt();
+			line_edit_background_precision	= precision_Values.value( "line_edit_background_precision",		3 ).toInt();
+			line_edit_beam_size_precision	= precision_Values.value( "line_edit_beam_size_precision",		4 ).toInt();
 			line_edit_sample_size_precision	= precision_Values.value( "line_edit_sample_size_precision",	2 ).toInt();
 			line_edit_density_precision		= precision_Values.value( "line_edit_density_precision",		4 ).toInt();
 			line_edit_permittivity_precision= precision_Values.value( "line_edit_permittivity_precision",	4 ).toInt();
@@ -386,7 +392,9 @@ void Settings::read_Precisions(bool reset_to_default)
 			thumbnail_double_format	    = qvariant_cast<char>(precision_Values.value( "thumbnail_double_format",'f'));
 			thumbnail_angle_precision		= precision_Values.value( "thumbnail_angle_precision",			3 ).toInt();
 			thumbnail_wavelength_precision	= precision_Values.value( "thumbnail_wavelength_precision",		3 ).toInt();
-			thumbnail_background_precision	= precision_Values.value( "thumbnail_background_precision",		2 ).toInt();
+			thumbnail_polarization_precision= precision_Values.value( "thumbnail_polarization_precision",	3 ).toInt();
+			thumbnail_background_precision	= precision_Values.value( "thumbnail_background_precision",		3 ).toInt();
+			thumbnail_beam_size_precision	= precision_Values.value( "thumbnail_beam_size_precision",		3 ).toInt();
 			thumbnail_sample_size_precision	= precision_Values.value( "thumbnail_sample_size_precision",	2 ).toInt();
 			thumbnail_density_precision		= precision_Values.value( "thumbnail_density_precision",		3 ).toInt();
 			thumbnail_permittivity_precision= precision_Values.value( "thumbnail_permittivity_precision",	3 ).toInt();
@@ -469,7 +477,7 @@ void Settings::read_Parameters_Default_Values(bool reset_to_default)
 		default_angular_resolution		 = parameters_Default_Values.value( "default_angular_resolution",		0.009	).toDouble();
 		default_polarization			 = parameters_Default_Values.value( "default_polarization",				0		).toDouble();
 		default_spectral_resolution		 = parameters_Default_Values.value( "default_spectral_resolution",		0.001	).toDouble();
-		default_polarization_sensitivity = parameters_Default_Values.value( "default_polarization_sensitivity",	0		).toDouble();
+		default_polarization_sensitivity = parameters_Default_Values.value( "default_polarization_sensitivity",	1		).toDouble();
 	parameters_Default_Values.endGroup();
 }
 

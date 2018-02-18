@@ -108,12 +108,15 @@ enum wavelength_Units_List_Enum		{ angstrom, nm, mcm, eV, keV };
 
 extern QStringList length_Units_List;		extern QMap<QString, double> length_Coefficients_Map;
 extern QStringList angle_Units_List;		extern QMap<QString, double> angle_Coefficients_Map;		extern QMap<QString, QString> angle_Units_Legend_Map;
-enum wangle_Units_List_Enum {degree, minute, second, radian, mrad};
+enum angle_Units_List_Enum {degree, minute, second, radian, mrad};
 
 extern QStringList density_Units_List;
 extern QStringList opt_Const_Units_List;
 extern QStringList drift_Units_List;
 
+// size units
+extern QStringList size_Units_List;
+enum size_Units_List_Enum {mm};
 // -----------------------------------------------------------------------------------------
 
 extern Optical_Constants* optical_Constants;

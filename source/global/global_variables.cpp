@@ -178,6 +178,9 @@ QStringList opt_Const_Units_List			{"% of nominal"};
 // drift
 QStringList drift_Units_List				{"% per period"};
 
+// size units
+QStringList size_Units_List					{"mm"};				// change enum!
+
 // -----------------------------------------------------------------------------------------
 
 Optical_Constants* optical_Constants;

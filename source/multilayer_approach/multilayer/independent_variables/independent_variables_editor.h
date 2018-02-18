@@ -71,13 +71,24 @@ public:
 				QLabel* angular_Resolution_Label;
 				QLineEdit* angular_Resolution_Edit;
 				QLabel* angle_Units_Label;
+				QLabel* beam_Size_Label;
+				QLineEdit* beam_Size_LineEdit;
+				QLabel* beam_Size_Units_Label;
+				QLabel* sample_Size_Label;
+				QLineEdit* sample_Size_LineEdit;
+				QLabel* sample_Size_Units_Label;
+				QLabel* beam_Profile_Spreading_Label;
+				QLineEdit* beam_Profile_Spreading_LineEdit;
+				QLabel* sample_Shift_Label;
+				QLineEdit* sample_Shift_LineEdit;
+				QLabel* sample_Shift_Units_Label;
 
 				QLabel* spectral_Resolution_Label;
 				QLineEdit* spectral_Resolution_Edit;
 				QLabel* polarization_Label;
 				QLineEdit* polarization_Edit;
-				QLabel* analyzer_Label;
-				QLineEdit* analyzer_Edit;
+				QLabel* background_Label;
+				QLineEdit* background_Edit;
 
 		QPushButton* done_Button;
 };

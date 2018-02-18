@@ -54,8 +54,8 @@ public:
 	void refresh_Offsets();
 	void refresh_Factors();
 	void refresh_Polarization();
-	void refresh_Spectral_Resolution();
-	void refresh_Angular_Resolution();
+	void refresh_Resolution();
+	void refresh_Measurement_Geometry();
 
 	bool is_File_Exists = false;
 
@@ -88,15 +88,27 @@ public:
 			QComboBox* at_Fixed_Units_ComboBox;
 			QLabel* polarization_Label;
 			QLineEdit* polarization_LineEdit;
-			QLabel* polarization_Sensitivity_Label;
-			QLineEdit* polarization_Sensitivity_LineEdit;
 			QLabel* spectral_Resolution_Label;
 			QLineEdit* spectral_Resolution_LineEdit;
+//			QLabel* polarization_Sensitivity_Label;
+//			QLineEdit* polarization_Sensitivity_LineEdit;
+			QLabel* background_Label;
+			QLineEdit* background_LineEdit;
 			QLabel* angular_Resolution_Label;
 			QLineEdit* angular_Resolution_LineEdit;
 			QLabel* angular_Units_Label;
-			QLabel* background_Label;
-			QLineEdit* background_LineEdit;
+
+			QLabel* beam_Size_Label;
+			QLineEdit* beam_Size_LineEdit;
+			QLabel* beam_Size_Units_Label;
+			QLabel* sample_Size_Label;
+			QLineEdit* sample_Size_LineEdit;
+			QLabel* sample_Size_Units_Label;
+			QLabel* beam_Profile_Spreading_Label;
+			QLineEdit* beam_Profile_Spreading_LineEdit;
+			QLabel* sample_Shift_Label;
+			QLineEdit* sample_Shift_LineEdit;
+			QLabel* sample_Shift_Units_Label;
 
 		QLabel* data_Indicator_Label;
 		QPushButton* close_Button;
