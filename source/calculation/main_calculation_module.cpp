@@ -452,7 +452,8 @@ void Main_Calculation_Module::print_Reflect_To_File(Data_Element<Type>& data_Ele
 		for(auto i=0; i<num_Points; ++i)
 		{
 			out << "\t" << QString::number(arg[i],'f',4)
-				<< "\t" << QString::number(data_Element.unwrapped_Reflection->R[i],'e',15)
+//				<< "\t" << QString::number(data_Element.unwrapped_Reflection->R[i],'e',15)
+				<< "\t" << QString::number(data_Element.unwrapped_Reflection->R_Instrumental[i],'e',15)
 				<< endl;
 		}
 	file.close();

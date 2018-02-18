@@ -468,7 +468,7 @@ void Settings::read_Parameters_Default_Values(bool reset_to_default)
 		default_num_angular_points		 = parameters_Default_Values.value( "default_num_angular_points",		1		).toInt();
 		default_num_spectral_points		 = parameters_Default_Values.value( "default_num_spectral_points",		1		).toInt();
 		default_angle_value				 = parameters_Default_Values.value( "default_angle_value",				88		).toDouble();
-		default_min_angle				 = parameters_Default_Values.value( "default_min_angle",				1		).toDouble();
+		default_min_angle				 = parameters_Default_Values.value( "default_min_angle",				0		).toDouble();
 		default_max_angle				 = parameters_Default_Values.value( "default_max_angle",				7		).toDouble();
 		default_wavelength_value		 = parameters_Default_Values.value( "default_wavelength_value",			1.54056 ).toDouble();
 		default_min_wavelength			 = parameters_Default_Values.value( "default_min_wavelength",			100		).toDouble();

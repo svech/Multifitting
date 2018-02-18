@@ -383,7 +383,8 @@ void Fitting_GSL::fill_Residual(int& residual_Shift, Data_Element<Target_Curve>&
 				target_Curve->fit_Params.expression_Argument = target_Element.unwrapped_Reflection->R[point_Index];
 				fi_2 = target_Curve->fit_Params.expression_Vec[0].value();
 #else
-				fi_2 = func(target_Element.unwrapped_Reflection->R[point_Index], index);
+//				fi_2 = func(target_Element.unwrapped_Reflection->R[point_Index], index);
+				fi_2 = func(target_Element.unwrapped_Reflection->R_Instrumental[point_Index], index);
 #endif
 			}
 

@@ -2,6 +2,7 @@
 #define UNWRAPPED_REFLECTION_H
 
 #include "unwrapped_structure.h"
+#include "gsl/gsl_integration.h"
 
 class Unwrapped_Reflection
 {
@@ -60,6 +61,10 @@ public:
 	void calc_Specular_1_Point_1_Thread  (const Data& measurement, int thread_Index, int point_Index);
 	void calc_Specular_nMin_nMax_1_Thread(const Data& measurement, int n_Min, int n_Max, int thread_Index);
 	void calc_Specular();
+
+	void interpolate_R(int res_Points, const QVector<double> &argument, const QVector<double>& resolution);
+	void size_Effect(double angle, double& denominator, double& instrumental_Factor, int key, const double epsabs,
+					 const double epsrel, size_t limit, gsl_integration_workspace* w, gsl_function* F);
 };
 
 #endif // UNWRAPPED_REFLECTION_H
