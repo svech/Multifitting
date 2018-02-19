@@ -632,7 +632,7 @@ void Unwrapped_Reflection::calc_Specular()
 			// instrumental function
 			if(measurement.beam_Size.value>DBL_EPSILON)
 			{
-				for(size_t point_Index=0; point_Index<R.size(); ++point_Index)
+				for(int point_Index=0; point_Index<R.size(); ++point_Index)
 				{
 					size_Effect(measurement.angle[point_Index], denominator, instrumental_Factor, key, epsabs, epsrel, limit, w, &F);
 					R_Instrumental[point_Index] *= instrumental_Factor;
@@ -683,7 +683,7 @@ void Unwrapped_Reflection::interpolate_R(int res_Points, const QVector<double>& 
 
 	gsl_spline_init(Spline, argument.data(), R.data(), R.size());
 
-	for(size_t point_Index=0; point_Index<R.size(); ++point_Index)
+	for(int point_Index=0; point_Index<R.size(); ++point_Index)
 	{
 		double delta = resolution[point_Index]/res_Points; // spectral resolution is not constant in absolute values
 

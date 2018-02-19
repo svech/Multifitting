@@ -5,7 +5,7 @@
 #include "calculation/calculation_tree.h"
 #include "multilayer_approach/multilayer/multilayer.h"
 #include "multilayer_approach/multilayer_approach.h"
-#include "calculation/fitting/fitting_gsl.h"
+#include "calculation/fitting/fitting.h"
 
 class Multilayer;
 class Multilayer_Approach;

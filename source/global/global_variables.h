@@ -61,24 +61,30 @@ enum value_T_Mode_Enum		{ T };
 extern QStringList value_A_Mode;
 enum value_A_Mode_Enum		{ A };
 
-// optimization methods
+/// -------------------------------------------------------------------------
+/// GSL
+/// -------------------------------------------------------------------------
+// GSL optimization methods
 extern QString GSL_Group;
 extern QStringList GSL_Methods;
-enum GSL_Methods_Enum		{Levenberg_Marquardt,
-							 Levenberg_Marquardt_with_Geodesic_Acceleration,
-							 Dogleg,
-							 Double_Dogleg,
-							 Two_Dimensional_Subspace,
+enum GSL_Methods_Enum	{	/* Nonlinear Least-Squares Fitting */
+							Levenberg_Marquardt,
+							Levenberg_Marquardt_with_Geodesic_Acceleration,
+							Dogleg,
+							Double_Dogleg,
+							Two_Dimensional_Subspace,
 
-							 Fletcher_Reeves_Conjugate_Gradient,
-							 Polak_Ribiere_Conjugate_Gradient,
-							 Broyden_Fletcher_Goldfarb_Shanno_BFGS,
-							 Broyden_Fletcher_Goldfarb_Shanno_BFGS_2,
-							 Steepest_Descent,
+							/* Multidimensional Minimization (derivative) */
+							Fletcher_Reeves_Conjugate_Gradient,
+							Polak_Ribiere_Conjugate_Gradient,
+							Broyden_Fletcher_Goldfarb_Shanno_BFGS,
+							Broyden_Fletcher_Goldfarb_Shanno_BFGS_2,
+							Steepest_Descent,
 
-							 Nelder_Mead_Simplex,
-							 Nelder_Mead_Simplex_2,
-							 Nelder_Mead_Simplex_2_Randomized
+							/* Multidimensional Minimization (derivative-free) */
+							Nelder_Mead_Simplex,
+							Nelder_Mead_Simplex_2,
+							Nelder_Mead_Simplex_2_Randomized
 							};
 
 // GSL solvers
@@ -100,6 +106,46 @@ extern QStringList GSL_Fdtype;
 enum GSL_Fdtype_Enum		{Forward,
 							 Central
 							};
+
+/// -------------------------------------------------------------------------
+/// SwarmOps
+/// -------------------------------------------------------------------------
+// SO optimization methods
+extern QString SO_Group;
+extern QStringList SO_Methods;
+enum SO_Methods_Enum	{	/* Mesh Iteration. */
+							Mesh_Iteration,
+
+							/* Random Sampling */
+							Random_Sampling_Uniform,
+
+							/* Gradient-Based Optimization */
+							Gradient_Descent,
+							Gradient_Emancipated_Descent,
+
+							/* Local Sampling */
+							Hill_Climber,
+							Simulated_Annealing,
+							Pattern_Search,
+							Local_Unimodal_Sampling,
+
+							/* Swarm-Based Optimization, DE and variants */
+							Differential_Evolution,
+							Differential_Evolution_Suite,
+							DE_with_Temporal_Parameters,
+							Jan_Differential_Evolution,
+							Evolution_by_Lingering_Global_Best,
+							More_Yo_yos_Doing_Global_optimization,
+
+							/* Swarm-Based Optimization, PSO and variants */
+							Particle_Swarm_Optimization,
+							Forever_Accumulating_Evolution,
+							Many_Optimizing_Liaisons,
+
+							/* Compound Methods */
+							Layered_and_Interleaved_CoEvolution
+							};
+
 // -----------------------------------------------------------------------------------------
 
 // units

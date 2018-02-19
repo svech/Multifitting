@@ -303,6 +303,75 @@ void Structure_Toolbar::add_Aperiodic()
 			add_Buffered_Layer(new_Layer);
 			delete new_Layer;
 		}
+
+		// TODO temporary
+		/// set dependences
+
+		// top layers
+		QVector<QTreeWidgetItem*> top_Layer(3);
+		QVector<Data> top_Layer_Data(top_Layer.size());
+		qInfo() << "top layers:";
+		for(int i=0; i<top_Layer.size(); ++i)
+		{
+			top_Layer[i] = structure_Tree->tree->topLevelItem(i+1);
+			top_Layer_Data[i] = top_Layer[i]->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+			qInfo() << top_Layer_Data[i].material;
+
+			top_Layer_Data[i].thickness.fit.is_Fitable = true;
+			top_Layer_Data[i].sigma.fit.is_Fitable = true;
+		}
+
+		QTreeWidgetItem* structure_Item;
+		QTreeWidgetItemIterator it(structure_Tree->tree);
+		while (*it)
+		{
+			structure_Item=*it;
+			Data struct_Data = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+
+			if(struct_Data.item_Type == item_Type_Layer)
+			{
+				struct_Data.thickness.fit.is_Fitable = true;
+				for(int i=0; i<top_Layer.size(); ++i)
+				{
+					// sigma
+					if(struct_Data.material == top_Layer_Data[i].material && struct_Data.id != top_Layer_Data[i].id)
+					{
+						// add slave
+						struct_Data.sigma.indicator.exist = true;
+						top_Layer_Data[i].sigma.coupled.slaves.append(struct_Data.sigma.indicator);
+
+						// add master
+						top_Layer_Data[i].sigma.indicator.exist = true;
+						struct_Data.sigma.coupled.master = top_Layer_Data[i].sigma.indicator;
+					}
+
+					// thickness
+					if(struct_Data.material == top_Layer_Data[i].material && struct_Data.id != top_Layer_Data[i].id &&
+					   abs(struct_Data.thickness.value - top_Layer_Data[i].thickness.value) < DBL_EPSILON)
+					{
+						// add slave
+						struct_Data.thickness.indicator.exist = true;
+						top_Layer_Data[i].thickness.coupled.slaves.append(struct_Data.thickness.indicator);
+
+						// add master
+						top_Layer_Data[i].thickness.indicator.exist = true;
+						struct_Data.thickness.coupled.master = top_Layer_Data[i].thickness.indicator;
+					}
+				}
+			}
+
+			QVariant var;
+			var.setValue( struct_Data );
+			structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+			++it;
+		}
+
+		QVariant var;
+		for(int i=0; i<top_Layer.size(); ++i)
+		{
+			var.setValue( top_Layer_Data[i] );
+			top_Layer[i]->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+		}
 	}
 }
 

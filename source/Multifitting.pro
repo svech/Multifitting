@@ -16,15 +16,21 @@ win32 {
 QMAKE_CXXFLAGS += -bigobj
 
 INCLUDEPATH +=	"C:/Program Files (x86)/C++ libraries" \
-				"C:/Program Files (x86)/C++ libraries/GSL 2.4 Bruot/include" \
-				"C:/Program Files (x86)/C++ libraries/eigen 3.3.1"
+		"C:/Program Files (x86)/C++ libraries/GSL 2.4 Bruot/include" \
+#		"C:/Program Files (x86)/C++ libraries/eigen 3.3.1" \
+		"C:/Program Files (x86)/C++ libraries/SwarmOps/include" \
+		"C:/Program Files (x86)/C++ libraries/RandomOps/include"
+
 
 LIBS += "C:/Program Files (x86)/C++ libraries/GSL 2.4 Bruot/lib/gsl/cblas.lib" \
-		"C:/Program Files (x86)/C++ libraries/GSL 2.4 Bruot/lib/gsl/gsl.lib"
-
+		"C:/Program Files (x86)/C++ libraries/GSL 2.4 Bruot/lib/gsl/gsl.lib" \
+		"C:/Program Files (x86)/C++ libraries/SwarmOps/SwarmOps.lib" \
+		"C:/Program Files (x86)/C++ libraries/RandomOps/RandomOps.lib"
 }
 unix {
-LIBS += -lgsl -lgslcblas
+LIBS += -lgsl -lgslcblas \
+		-lRandomOps -lSwarmOps
+
 QMAKE_CXXFLAGS += -Wno-reorder
 }
 
@@ -62,7 +68,9 @@ SOURCES += \
 	main.cpp \
 	multilayer_approach/fitting_settings/fitting_settings_editor.cpp \
 	multilayer_approach/fitting_settings/fitting_settings.cpp \
-    standard/spoiler.cpp
+    standard/spoiler.cpp \
+    calculation/fitting/fitting.cpp \
+    calculation/fitting/fitting_swarmops.cpp
 
 HEADERS += \
     calculation/fitting/fitting_gsl.h \
@@ -97,4 +105,6 @@ HEADERS += \
 	launcher.h \
 	multilayer_approach/fitting_settings/fitting_settings_editor.h \
 	multilayer_approach/fitting_settings/fitting_settings.h \
-    standard/spoiler.h
+    standard/spoiler.h \
+    calculation/fitting/fitting.h \
+    calculation/fitting/fitting_swarmops.h

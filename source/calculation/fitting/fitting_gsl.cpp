@@ -9,22 +9,6 @@ Fitting_GSL::Fitting_GSL(Multilayer_Approach* multilayer_Approach, Main_Calculat
 
 }
 
-size_t Fitting_GSL::num_Residual_Points()
-{
-	size_t residual_Points = 0;
-	// over multilayers
-	for(int tab_Index=0; tab_Index<calculation_Trees.size(); ++tab_Index)
-	{
-		// over target curves
-		for(Data_Element<Target_Curve>& target_Element : calculation_Trees[tab_Index]->target)
-		{
-			// over points
-			residual_Points += target_Element.the_Class->curve.values.size();
-		}
-	}
-	return residual_Points;
-}
-
 void Fitting_GSL::callback(const size_t iter, void* bare_Params, const gsl_multifit_nlinear_workspace* w)
 {
 	w=w;
@@ -166,107 +150,6 @@ bool Fitting_GSL::fit()
 	return true;
 }
 
-void Fitting_GSL::period_Subtree_Iteration(const tree<Node>::iterator& parent, double coeff)
-{
-	for(unsigned i=0; i<parent.number_of_children(); ++i)
-	{
-		tree<Node>::pre_order_iterator child = tree<Node>::child(parent,i);
-		Data& struct_Data = child.node->data.struct_Data;
-
-		if(abs(coeff)>DBL_MIN) // Do we need it?
-		{
-			if(struct_Data.item_Type == item_Type_Layer)
-			{
-				struct_Data.thickness.value *= coeff;
-			} else
-			if(struct_Data.item_Type == item_Type_Multilayer)
-			{
-				struct_Data.period.value *= coeff;
-				period_Subtree_Iteration(child, coeff);
-			}
-		}
-	}
-}
-
-void Fitting_GSL::gamma_Subtree_Iteration(const tree<Node>::iterator& parent, double old_Value)
-{
-	Data& gamma_Multilayer_Data = parent.node->data.struct_Data;
-	double old_First_Thickness = gamma_Multilayer_Data.period.value * old_Value;
-	double new_First_Thickness = gamma_Multilayer_Data.period.value * gamma_Multilayer_Data.gamma.value;
-
-	unsigned i=0;
-	{
-		tree<Node>::pre_order_iterator child = tree<Node>::child(parent,i);
-		Data& child_Data = child.node->data.struct_Data;
-
-		if(child_Data.item_Type == item_Type_Layer)
-		{
-			child_Data.thickness.value = new_First_Thickness;
-		} else
-		if(child_Data.item_Type == item_Type_Multilayer)
-		{
-			if(abs(old_First_Thickness) > DBL_MIN)
-			{
-				double coeff = new_First_Thickness/old_First_Thickness;
-				child_Data.period.value *= coeff;
-				period_Subtree_Iteration(child, coeff);
-			}
-		}
-	}
-
-	double old_Second_Thickness = gamma_Multilayer_Data.period.value - old_First_Thickness;
-	double new_Second_Thickness = gamma_Multilayer_Data.period.value - new_First_Thickness;
-
-	i=1;
-	{
-		tree<Node>::pre_order_iterator child = tree<Node>::child(parent,i);
-		Data& child_Data = child.node->data.struct_Data;
-
-		if(child_Data.item_Type == item_Type_Layer)
-		{
-			child_Data.thickness.value = new_Second_Thickness;
-		} else
-		if(child_Data.item_Type == item_Type_Multilayer)
-		{
-			if(abs(old_Second_Thickness) > DBL_MIN)
-			{
-				double coeff = new_Second_Thickness/old_Second_Thickness;
-				child_Data.period.value *= coeff;
-				period_Subtree_Iteration(child, coeff);
-			}
-		}
-	}
-}
-
-void Fitting_GSL::slaves_Recalculation(Parameter* master, Params* params)
-{
-	for(int slave_Index=0; slave_Index<master->coupled.slaves.size(); ++slave_Index)
-	{
-		Parameter_Indicator& slave_Parameter_Indicator = master->coupled.slaves[slave_Index];
-		Parameter* slave = master->coupled.slave_Pointers[slave_Index];
-
-#ifdef EXPRTK
-		// local parsing. not used
-//		exprtk::parser<double> parser;
-//		exprtk::symbol_table<double> symbol_table;
-//		exprtk::expression<double> expression_Exprtk;
-
-//		symbol_table.add_variable(expression_Master_Slave_Variable, master->value);
-//		symbol_table.add_constants();
-
-//		expression_Exprtk.register_symbol_table(symbol_table);
-//		parser.compile(slave_Parameter_Indicator.expression.toStdString(), expression_Exprtk);
-//		slave->value = expression_Exprtk.value();
-
-		int index = params->main_Calculation_Module->slaves_Expression_Map.value(slave->indicator.id);
-		params->main_Calculation_Module->argument_Vec[index] = master->value;
-		slave->value = params->main_Calculation_Module->expression_Vec[index].value();
-#else
-		slave->value = master->value;
-#endif
-		slaves_Recalculation(slave, params);
-	}
-}
 
 int Fitting_GSL::calc_Residual(const gsl_vector* x, void* bare_Params, gsl_vector* f)
 {
@@ -325,18 +208,7 @@ int Fitting_GSL::calc_Residual(const gsl_vector* x, void* bare_Params, gsl_vecto
 	return GSL_SUCCESS;
 }
 
-double func(double argument, int index)
-{
-	if(index == 0)
-	{
-		return log(argument+1E-4);
-	} else
-	{
-		return argument;
-	}
-}
-
-void Fitting_GSL::init_Position(gsl_vector* x, Params* params)
+void Fitting_GSL::init_Position(gsl_vector* x, Fitting_Params *params)
 {
 	// change value of slaves
 	for(size_t i=0; i<fitables.fit_Parameters.size(); ++i)

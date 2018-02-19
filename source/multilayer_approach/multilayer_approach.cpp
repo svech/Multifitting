@@ -539,6 +539,8 @@ void Multilayer_Approach::open(QString filename)
 	{
 		open_Fits_Selector();
 	}
+
+	qInfo() << "opened";
 }
 
 void Multilayer_Approach::save(QString filename)
@@ -657,6 +659,8 @@ void Multilayer_Approach::save(QString filename)
 	}
 
 	file.close();
+
+	qInfo() << "saved";
 }
 
 void Multilayer_Approach::calc_Reflection()

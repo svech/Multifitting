@@ -90,7 +90,7 @@ Data::Data(QString item_Type_Passed)
 		}
 		// geometry
 		{
-			beam_Size.value = 0;
+			beam_Size.value = 0.055;
 			beam_Size.independent.min = beam_Size.value;
 			beam_Size.independent.max = beam_Size.value;
 			beam_Size.independent.num_Points = 1;

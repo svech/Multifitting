@@ -104,8 +104,8 @@ void Main_Calculation_Module::fitting()
 	/// fitting from here
 	if( fitables.fit_Parameters.size()>0 )
 	{
-		Fitting_GSL fitting_GSL(multilayer_Approach, this);
-		bool go = fitting_GSL.fit();
+		Fitting fitting_Instance(multilayer_Approach, this);
+		bool go = fitting_Instance.fit();
 		if(!go) return;
 		print_Calculated_To_File();
 

@@ -112,23 +112,29 @@ QStringList value_R_Mode				{"R","R+"+Phi_Sym,"r, Re+Im","r, |r|+"+Phi_Sym};		//
 QStringList value_T_Mode				{"T"};													// change enum!
 QStringList value_A_Mode				{"A"};													// change enum!
 
-// optimization methods
+/// -------------------------------------------------------------------------
+/// GSL
+/// -------------------------------------------------------------------------
+// GSL optimization methods
 QString GSL_Group = "GSL library";
-QStringList GSL_Methods				{"Levenberg-Marquardt",
-									 "Levenberg-Marquardt with Geodesic Acceleration",
-									 "Dogleg",
-									 "Double Dogleg",
-									 "Two Dimensional Subspace",
+QStringList GSL_Methods			{	/* Nonlinear Least-Squares Fitting */
+									"Levenberg-Marquardt",
+									"Levenberg-Marquardt with Geodesic Acceleration",
+									"Dogleg",
+									"Double Dogleg",
+									"Two Dimensional Subspace",
 
-									 "Fletcher-Reeves Conjugate Gradient",
-									 "Polak-Ribiere Conjugate Gradient",
-									 "Broyden-Fletcher-Goldfarb-Shanno : BFGS",
-									 "Broyden-Fletcher-Goldfarb-Shanno : BFGS-2",
-									 "Steepest Descent",
+									/* Multidimensional Minimization (derivative) */
+									"Fletcher-Reeves Conjugate Gradient",
+									"Polak-Ribiere Conjugate Gradient",
+									"Broyden-Fletcher-Goldfarb-Shanno : BFGS",
+									"Broyden-Fletcher-Goldfarb-Shanno : BFGS-2",
+									"Steepest Descent",
 
-									 "Nelder-Mead Simplex",
-									 "Nelder-Mead Simplex-2",
-									 "Nelder-Mead Simplex-2 Randomized"
+									/* Multidimensional Minimization (derivative-free) */
+									"Nelder-Mead Simplex",
+									"Nelder-Mead Simplex-2",
+									"Nelder-Mead Simplex-2 Randomized"
 									}; // change enum!
 
 // GSL solvers
@@ -148,6 +154,43 @@ QStringList GSL_Fdtype			{"Forward",
 								 "Central"
 								}; // change enum!
 
+/// -------------------------------------------------------------------------
+/// SwarmOps
+/// -------------------------------------------------------------------------
+// SO optimization methods
+QString SO_Group = "SwarmOps library";
+QStringList SO_Methods = { /* Mesh Iteration. */
+						   "Mesh iteration",
+
+						   /* Random Sampling */
+						   "Random Sampling (Uniform)",
+
+						   /* Gradient-Based Optimization */
+						   "Gradient Descent",
+						   "Gradient Emancipated Descent",
+
+						   /* Local Sampling */
+						   "Hill-Climber",
+						   "Simulated Annealing",
+						   "Pattern Search",
+						   "Local Unimodal Sampling",
+
+						   /* Swarm-Based Optimization, DE and variants */
+						   "Differential Evolution",
+						   "Differential Evolution Suite",
+						   "DE with Temporal Parameters",
+						   "Jan. Differential Evolution",
+						   "Evolution by Lingering Global Best",
+						   "More Yo-yos doing Global optimization",
+
+						   /* Swarm-Based Optimization, PSO and variants */
+						   "Particle Swarm Optimization",
+						   "Forever Accumulating Evolution",
+						   "Many Optimizing Liaisons",
+
+						   /* Compound Methods */
+						   "Layered and Interleaved Co-Evolution"
+						}; // change enum!
 // -----------------------------------------------------------------------------------------
 
 // units

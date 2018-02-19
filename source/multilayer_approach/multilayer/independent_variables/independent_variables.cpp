@@ -35,6 +35,10 @@ void Independent_Variables::create_Struct_Tree_Copy()
 void Independent_Variables::create_Main_Layout()
 {
 	QVBoxLayout* main_Layout = new QVBoxLayout(this);
+
+#ifndef __linux__
+	main_Layout->setContentsMargins(10,10,10,8);
+#endif
 		main_Layout->setSpacing(0);
 
 	create_Independent_Variables_List();
@@ -46,7 +50,7 @@ void Independent_Variables::create_Main_Layout()
 
 void Independent_Variables::create_Independent_Variables_List()
 {
-	independent_Variables_List = new QListWidget(this);
+	independent_Variables_List = new QListWidget;
 		independent_Variables_List->setSizeAdjustPolicy(QListWidget::AdjustToContents);
 
 	QSizePolicy sp_Retain = independent_Variables_List->sizePolicy();

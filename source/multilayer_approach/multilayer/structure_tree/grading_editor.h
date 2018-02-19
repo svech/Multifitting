@@ -16,7 +16,7 @@ public:
 	void emit_Grading_Edited();
 	void refresh_Data();
 
-    void create_Main_Layout();
+	void create_Main_Layout();
 		void create_Interface();
             void read_Drift_From_Item();
     void set_Window_Geometry();
