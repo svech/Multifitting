@@ -5,6 +5,7 @@ Fitting_Settings::Fitting_Settings(QWidget* parent) :
 	QWidget(parent)
 {
 	current_Method = GSL_Methods[Levenberg_Marquardt];
+//	current_Method = SO_Methods[Differential_Evolution];
 
 	/// for GSL TRS
 	// main
