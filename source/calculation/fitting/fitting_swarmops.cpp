@@ -29,18 +29,6 @@ SO_TFitness Fitting_SwarmOps::calc_Residual(const SO_TElm* x,  void* context, co
 {
 	Fitting_Params* params = ((struct Fitting_Params*)context);
 
-//	// initial position at start (before or after first calculation?)
-//	if(params->first_Init)
-//	{
-//		if(params->counter == 0)
-//		{
-//			for(size_t i=0; i<params->p; ++i)
-//			{
-//				x[i] = gsl_vector_get(params->x, i);
-//			}
-//		}
-//	}
-
 	// fill x
 	for(size_t i=0; i<params->p; ++i)
 	{

@@ -28,7 +28,7 @@ LIBS += "C:/Program Files (x86)/C++ libraries/GSL 2.4 Bruot/lib/gsl/cblas.lib" \
 		"C:/Program Files (x86)/C++ libraries/RandomOps/RandomOps.lib"
 }
 unix {
-LIBS += -lgsl -lgslcblas -lRandomOps -lSwarmOps
+LIBS += -lgsl -lgslcblas -lSwarmRandOps
 
 QMAKE_CXXFLAGS += -Wno-reorder
 }
@@ -36,7 +36,6 @@ QMAKE_CXXFLAGS += -Wno-reorder
 SOURCES += \
 	launcher.cpp \
 	main.cpp \
-	standard/spoiler.cpp \
 	calculation/fitting/fitting.cpp \
 	calculation/fitting/fitting_swarmops.cpp \
 	calculation/fitting/fitting_gsl.cpp \
@@ -69,7 +68,9 @@ SOURCES += \
     multilayer_approach/table_of_structures/my_table_widget.cpp \
     multilayer_approach/table_of_structures/table_of_structures.cpp \
     multilayer_approach/multilayer_approach.cpp \
-    standard/menu.cpp \
+	standard/menu.cpp \
+	standard/spoiler.cpp
+
 
 HEADERS += \
 	launcher.h \
