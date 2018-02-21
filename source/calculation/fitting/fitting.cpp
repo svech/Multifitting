@@ -19,8 +19,7 @@ Fitting::Fitting(Multilayer_Approach* multilayer_Approach, Main_Calculation_Modu
 		   x,
 
 		   // for SwarmOps
-		   0,
-		   true
+		   0
 		   })
 {
 	f = gsl_vector_calloc(n);
@@ -328,16 +327,16 @@ bool Fitting::fit()
 	initialize_Position();
 	// --------------------------------------------------------------------------------
 
-//	// GSL
-//	if(	GSL_Methods.contains(multilayer_Approach->fitting_Settings->current_Method) )
-//	{
-//		qInfo() << "GSL " << multilayer_Approach->fitting_Settings->current_Method << "optimization";
-//		Fitting_GSL fitting_GSL(this);
-//		return fitting_GSL.fit();
-//	}
+	// GSL
+	if(	GSL_Methods.contains(multilayer_Approach->fitting_Settings->current_Method) )
+	{
+		qInfo() << "GSL " << multilayer_Approach->fitting_Settings->current_Method << "optimization";
+		Fitting_GSL fitting_GSL(this);
+		return fitting_GSL.fit();
+	}
 
-//	// SO
-//	if(	SO_Methods.contains(multilayer_Approach->fitting_Settings->current_Method) )
+	// SO
+	if(	SO_Methods.contains(multilayer_Approach->fitting_Settings->current_Method) )
 	{
 		qInfo() << "SO " << multilayer_Approach->fitting_Settings->current_Method << "optimization";
 		Fitting_SwarmOps fitting_SwarmOps(this);

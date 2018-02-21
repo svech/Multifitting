@@ -27,6 +27,14 @@ public:
 	double avmax;
 	double h_df;
 	double h_fvv;
+
+	/// for SwarmOps
+	// main
+	int num_Runs;
+	int max_Evaluations;
+	int max_Eval_Factor;
+	bool max_Eval_Check;
+
 };
 
 // serialization

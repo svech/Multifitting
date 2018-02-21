@@ -28,14 +28,18 @@ LIBS += "C:/Program Files (x86)/C++ libraries/GSL 2.4 Bruot/lib/gsl/cblas.lib" \
 		"C:/Program Files (x86)/C++ libraries/RandomOps/RandomOps.lib"
 }
 unix {
-LIBS += -lgsl -lgslcblas \
-		-lRandomOps -lSwarmOps
+LIBS += -lgsl -lgslcblas -lRandomOps -lSwarmOps
 
 QMAKE_CXXFLAGS += -Wno-reorder
 }
 
 SOURCES += \
-    calculation/fitting/fitting_gsl.cpp \
+	launcher.cpp \
+	main.cpp \
+	standard/spoiler.cpp \
+	calculation/fitting/fitting.cpp \
+	calculation/fitting/fitting_swarmops.cpp \
+	calculation/fitting/fitting_gsl.cpp \
     calculation/unwrapped/unwrapped_reflection.cpp \
     calculation/unwrapped/unwrapped_structure.cpp \
     calculation/calculation_tree.cpp \
@@ -46,9 +50,11 @@ SOURCES += \
     global/global_variables.cpp \
     global/layer_data_types.cpp \
 	global/settings.cpp \
+	multilayer_approach/fitting_settings/fitting_settings_editor.cpp \
+	multilayer_approach/fitting_settings/fitting_settings.cpp \
+	multilayer_approach/fits_selector/fits_selector.cpp \
 	multilayer_approach/calculation_settings_editor/calculation_settings_editor.cpp \
-    multilayer_approach/fits_selector/fits_selector.cpp \
-    multilayer_approach/multilayer/independent_variables/independent_calc_function_selection.cpp \
+	multilayer_approach/multilayer/independent_variables/independent_calc_function_selection.cpp \
     multilayer_approach/multilayer/independent_variables/independent_variables.cpp \
     multilayer_approach/multilayer/independent_variables/independent_variables_editor.cpp \
     multilayer_approach/multilayer/independent_variables/variable_selection.cpp \
@@ -64,16 +70,9 @@ SOURCES += \
     multilayer_approach/table_of_structures/table_of_structures.cpp \
     multilayer_approach/multilayer_approach.cpp \
     standard/menu.cpp \
-    launcher.cpp \
-	main.cpp \
-	multilayer_approach/fitting_settings/fitting_settings_editor.cpp \
-	multilayer_approach/fitting_settings/fitting_settings.cpp \
-    standard/spoiler.cpp \
-    calculation/fitting/fitting.cpp \
-    calculation/fitting/fitting_swarmops.cpp
 
 HEADERS += \
-    calculation/fitting/fitting_gsl.h \
+	launcher.h \
     calculation/unwrapped/unwrapped_reflection.h \
     calculation/unwrapped/unwrapped_structure.h \
     calculation/calculation_tree.h \
@@ -84,9 +83,14 @@ HEADERS += \
     global/global_variables.h \
     global/layer_data_types.h \
     global/settings.h \
+	calculation/fitting/fitting.h \
+	calculation/fitting/fitting_swarmops.h \
+	calculation/fitting/fitting_gsl.h \
+	multilayer_approach/fits_selector/fits_selector.h \
+	multilayer_approach/fitting_settings/fitting_settings_editor.h \
+	multilayer_approach/fitting_settings/fitting_settings.h \
 	multilayer_approach/calculation_settings_editor/calculation_settings_editor.h \
-    multilayer_approach/fits_selector/fits_selector.h \
-    multilayer_approach/multilayer/independent_variables/independent_calc_function_selection.h \
+	multilayer_approach/multilayer/independent_variables/independent_calc_function_selection.h \
     multilayer_approach/multilayer/independent_variables/independent_variables.h \
     multilayer_approach/multilayer/independent_variables/independent_variables_editor.h \
     multilayer_approach/multilayer/independent_variables/variable_selection.h \
@@ -102,9 +106,4 @@ HEADERS += \
     multilayer_approach/table_of_structures/table_of_structures.h \
     multilayer_approach/multilayer_approach.h \
     standard/menu.h \
-	launcher.h \
-	multilayer_approach/fitting_settings/fitting_settings_editor.h \
-	multilayer_approach/fitting_settings/fitting_settings.h \
-    standard/spoiler.h \
-    calculation/fitting/fitting.h \
-    calculation/fitting/fitting_swarmops.h
+	standard/spoiler.h

@@ -38,46 +38,31 @@ bool Fitting_GSL::fit()
 	const double ftol = multilayer_Approach->fitting_Settings->f_Tolerance;
 	{
 		// read method
-		if(multilayer_Approach->fitting_Settings->current_Method == GSL_Methods[Levenberg_Marquardt])
-		{	fdf_params.trs = gsl_multifit_nlinear_trs_lm;		};
-		if(multilayer_Approach->fitting_Settings->current_Method == GSL_Methods[Levenberg_Marquardt_with_Geodesic_Acceleration])
-		{	fdf_params.trs = gsl_multifit_nlinear_trs_lmaccel;	}
-		if(multilayer_Approach->fitting_Settings->current_Method == GSL_Methods[Dogleg])
-		{	fdf_params.trs = gsl_multifit_nlinear_trs_dogleg;	}
-		if(multilayer_Approach->fitting_Settings->current_Method == GSL_Methods[Double_Dogleg])
-		{	fdf_params.trs = gsl_multifit_nlinear_trs_ddogleg;	}
-		if(multilayer_Approach->fitting_Settings->current_Method == GSL_Methods[Two_Dimensional_Subspace])
-		{
+		if(multilayer_Approach->fitting_Settings->current_Method == GSL_Methods[Two_Dimensional_Subspace])						{
 			if(params->p<2)
 			{
 				QMessageBox::information(NULL,"Insufficient number of parameters", "Method\n\"Two Dimensional Subspace\"\nrequires at least 2 fitables");
 				return false;
-			}
-			fdf_params.trs = gsl_multifit_nlinear_trs_subspace2D;
-		}
+			}																														fdf_params.trs = gsl_multifit_nlinear_trs_subspace2D;	}
+		if(multilayer_Approach->fitting_Settings->current_Method == GSL_Methods[Levenberg_Marquardt])							{	fdf_params.trs = gsl_multifit_nlinear_trs_lm;			};
+		if(multilayer_Approach->fitting_Settings->current_Method == GSL_Methods[Levenberg_Marquardt_with_Geodesic_Acceleration]){	fdf_params.trs = gsl_multifit_nlinear_trs_lmaccel;		}
+		if(multilayer_Approach->fitting_Settings->current_Method == GSL_Methods[Dogleg])										{	fdf_params.trs = gsl_multifit_nlinear_trs_dogleg;		}
+		if(multilayer_Approach->fitting_Settings->current_Method == GSL_Methods[Double_Dogleg])									{	fdf_params.trs = gsl_multifit_nlinear_trs_ddogleg;		}
 
 		/// read additional parameters
 		// read scaling strategy
-		if(multilayer_Approach->fitting_Settings->current_Scale == GSL_Scales[More])
-		{	fdf_params.scale = gsl_multifit_nlinear_scale_more;			};
-		if(multilayer_Approach->fitting_Settings->current_Scale == GSL_Scales[Levenberg])
-		{	fdf_params.scale = gsl_multifit_nlinear_scale_levenberg;	};
-		if(multilayer_Approach->fitting_Settings->current_Scale == GSL_Scales[Marquardt])
-		{	fdf_params.scale = gsl_multifit_nlinear_scale_marquardt;	};
+		if(multilayer_Approach->fitting_Settings->current_Scale == GSL_Scales[More])			{	fdf_params.scale = gsl_multifit_nlinear_scale_more;			};
+		if(multilayer_Approach->fitting_Settings->current_Scale == GSL_Scales[Levenberg])		{	fdf_params.scale = gsl_multifit_nlinear_scale_levenberg;	};
+		if(multilayer_Approach->fitting_Settings->current_Scale == GSL_Scales[Marquardt])		{	fdf_params.scale = gsl_multifit_nlinear_scale_marquardt;	};
 
 		// read linear solver
-		if(multilayer_Approach->fitting_Settings->current_Solver == GSL_Solvers[QR_decomposition])
-		{	fdf_params.solver = gsl_multifit_nlinear_solver_qr;			};
-		if(multilayer_Approach->fitting_Settings->current_Solver == GSL_Solvers[Cholesky_decomposition])
-		{	fdf_params.solver = gsl_multifit_nlinear_solver_cholesky;	};
-		if(multilayer_Approach->fitting_Settings->current_Solver == GSL_Solvers[Singular_value_decomposition])
-		{	fdf_params.solver = gsl_multifit_nlinear_solver_svd;		};
+		if(multilayer_Approach->fitting_Settings->current_Solver == GSL_Solvers[QR_decomposition])				{	fdf_params.solver = gsl_multifit_nlinear_solver_qr;			};
+		if(multilayer_Approach->fitting_Settings->current_Solver == GSL_Solvers[Cholesky_decomposition])		{	fdf_params.solver = gsl_multifit_nlinear_solver_cholesky;	};
+		if(multilayer_Approach->fitting_Settings->current_Solver == GSL_Solvers[Singular_value_decomposition])	{	fdf_params.solver = gsl_multifit_nlinear_solver_svd;		};
 
 		// read fdtype
-		if(multilayer_Approach->fitting_Settings->current_Fdtype == GSL_Fdtype[Forward])
-		{	fdf_params.fdtype = GSL_MULTIFIT_NLINEAR_FWDIFF;			};
-		if(multilayer_Approach->fitting_Settings->current_Fdtype == GSL_Fdtype[Central])
-		{	fdf_params.fdtype = GSL_MULTIFIT_NLINEAR_CTRDIFF;			};
+		if(multilayer_Approach->fitting_Settings->current_Fdtype == GSL_Fdtype[Forward])		{	fdf_params.fdtype = GSL_MULTIFIT_NLINEAR_FWDIFF;			};
+		if(multilayer_Approach->fitting_Settings->current_Fdtype == GSL_Fdtype[Central])		{	fdf_params.fdtype = GSL_MULTIFIT_NLINEAR_CTRDIFF;			};
 
 		// read numerical params
 		fdf_params.factor_up = multilayer_Approach->fitting_Settings->factor_Up;
@@ -118,7 +103,6 @@ bool Fitting_GSL::fit()
 	auto end = std::chrono::system_clock::now();
 	auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
 	qInfo() << "Fit  : "<< elapsed.count()/1000. << " seconds\n";
-
 	qInfo() << "previous_ID =" << previous_ID << endl;
 
 	// calc final cost

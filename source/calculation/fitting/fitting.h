@@ -22,7 +22,6 @@ struct Fitting_Params
 
 	// for SwarmOps
 	size_t counter;
-	bool first_Init;
 };
 
 class Fitting
