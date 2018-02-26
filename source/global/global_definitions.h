@@ -117,6 +117,7 @@ class Node;
 #define Medium_BlackCircle_Sym	QString(QChar(0x26AB))
 #define Plus_Minus_Sym			QString(QChar(0x00B1))
 #define More_Sym				QString(QChar(0x00E9))
+#define Proportional_Sym		QString(QChar(0x221D))
 
 // -----------------------------------------------------------------------------------------
 
@@ -287,10 +288,11 @@ class Node;
 #define relative_Columns_To_Disable_Finish_Property_2	"relative_Columns_To_Disable_Finish_2"
 
 // keys
-#define table_Key			"table_Of_Structures"
-#define fits_Selector_Key	"fits_Selector_Key"
-#define calc_Settings_Key	"calc_Settings_Key"
-#define fit_Settings_Key	"fit_Settings_Key"
+#define multilayer_Approach_Key	"multilayer_Approach_Key"
+#define table_Key				"table_Of_Structures"
+#define fits_Selector_Key		"fits_Selector_Key"
+#define calc_Settings_Key		"calc_Settings_Key"
+#define fit_Settings_Key		"fit_Settings_Key"
 
 // curves types
 #define INDEPENDENT	"INDEPENDENT"

@@ -27,10 +27,9 @@ struct Fitting_Params
 class Fitting
 {
 public:
-	Fitting(Multilayer_Approach* multilayer_Approach, Main_Calculation_Module* main_Calculation_Module);
+	Fitting(Main_Calculation_Module* main_Calculation_Module);
 	~Fitting();
 
-	Multilayer_Approach* multilayer_Approach;
 	Main_Calculation_Module* main_Calculation_Module;
 	QVector<Calculation_Tree*>& calculation_Trees;
 	Fitables& fitables;

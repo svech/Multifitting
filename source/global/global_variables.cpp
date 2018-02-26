@@ -1,4 +1,8 @@
 #include "global_variables.h"
+#include "multilayer_approach/multilayer_approach.h"
+
+// global access to multilayer_Approach
+Multilayer_Approach* global_Multilayer_Approach;
 
 // -----------------------------------------------------------------------------------------
 
@@ -166,8 +170,8 @@ QStringList SO_Methods = { /* Mesh Iteration. */
 						   "Random Sampling (Uniform)",
 
 						   /* Gradient-Based Optimization */
-						   "Gradient Descent",
-						   "Gradient Emancipated Descent",
+//						   "Gradient Descent",
+//						   "Gradient Emancipated Descent",
 
 						   /* Local Sampling */
 						   "Hill-Climber",

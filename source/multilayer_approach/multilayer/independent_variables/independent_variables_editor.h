@@ -18,6 +18,7 @@ signals:
 public:
 	void refresh_All();
 	void create_Main_Layout();
+		void create_Shortcuts();
 		void create_Menu();
 		void create_Standard_Interface();
 		void create_Angle_Interface();

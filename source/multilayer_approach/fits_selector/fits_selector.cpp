@@ -1,9 +1,8 @@
 #include "fits_selector.h"
 
-Fits_Selector::Fits_Selector(Multilayer_Approach* multilayer_Approach, QWidget* parent) :
-	multilayer_Approach(multilayer_Approach),
-	fitted_Structures(multilayer_Approach->fitted_Structures),
-	runned_Fits_Selectors(multilayer_Approach->runned_Fits_Selectors),
+Fits_Selector::Fits_Selector(QWidget* parent) :
+	fitted_Structures(global_Multilayer_Approach->fitted_Structures),
+	runned_Fits_Selectors(global_Multilayer_Approach->runned_Fits_Selectors),
 	QWidget(parent)
 {
 	setWindowTitle("Fits Selector");
@@ -63,10 +62,10 @@ void Fits_Selector::create_Main_Layout()
 		QShortcut* fit_Shortcut				= new QShortcut(QKeySequence(Qt::Key_F | Qt::CTRL | Qt::SHIFT), this);
 		QShortcut* calc_Specular_Shortcut	= new QShortcut(QKeySequence(Qt::Key_C | Qt::CTRL | Qt::SHIFT), this);
 
-		connect(save_Shortcut,			&QShortcut::activated, this, [=]{ multilayer_Approach->save(default_File);});
-		connect(open_Shortcut,			&QShortcut::activated, this, [=]{ multilayer_Approach->open(default_File);});
-		connect(fit_Shortcut,			&QShortcut::activated, this, [=]{ multilayer_Approach->start_Fitting();	  });
-		connect(calc_Specular_Shortcut, &QShortcut::activated, this, [=]{ multilayer_Approach->calc_Reflection(); });
+		connect(save_Shortcut,			&QShortcut::activated, this, [=]{ global_Multilayer_Approach->save(default_File);});
+		connect(open_Shortcut,			&QShortcut::activated, this, [=]{ global_Multilayer_Approach->open(default_File);});
+		connect(fit_Shortcut,			&QShortcut::activated, this, [=]{ global_Multilayer_Approach->start_Fitting();	  });
+		connect(calc_Specular_Shortcut, &QShortcut::activated, this, [=]{ global_Multilayer_Approach->calc_Reflection(); });
 	}
 }
 
@@ -118,14 +117,14 @@ void Fits_Selector::clear_Fits()
 
 void Fits_Selector::save_Trees()
 {
-	QVector<QTreeWidget*> current_Trees(multilayer_Approach->multilayer_Tabs->count());
+	QVector<QTreeWidget*> current_Trees(global_Multilayer_Approach->multilayer_Tabs->count());
 
-	for(int tab_Index=0; tab_Index<multilayer_Approach->multilayer_Tabs->count(); ++tab_Index)
+	for(int tab_Index=0; tab_Index<global_Multilayer_Approach->multilayer_Tabs->count(); ++tab_Index)
 	{
-		Multilayer* multilayer = qobject_cast<Multilayer*>(multilayer_Approach->multilayer_Tabs->widget(tab_Index));
+		Multilayer* multilayer = qobject_cast<Multilayer*>(global_Multilayer_Approach->multilayer_Tabs->widget(tab_Index));
 		current_Trees[tab_Index] = multilayer->structure_Tree->tree;
 	}
-	multilayer_Approach->add_Fitted_Structure(current_Trees, current_State);
+	global_Multilayer_Approach->add_Fitted_Structure(current_Trees, current_State);
 }
 
 void Fits_Selector::delete_Items()
@@ -153,9 +152,9 @@ void Fits_Selector::open_Fit()
 	bool opened = false;
 	int index = fits_List->currentRow();
 
-	for(int tab_Index=0; tab_Index<multilayer_Approach->multilayer_Tabs->count(); ++tab_Index)
+	for(int tab_Index=0; tab_Index<global_Multilayer_Approach->multilayer_Tabs->count(); ++tab_Index)
 	{
-		Multilayer* multilayer = qobject_cast<Multilayer*>(multilayer_Approach->multilayer_Tabs->widget(tab_Index));
+		Multilayer* multilayer = qobject_cast<Multilayer*>(global_Multilayer_Approach->multilayer_Tabs->widget(tab_Index));
 		QTreeWidget* struct_Tree = multilayer->structure_Tree->tree;
 		id_Type struct_Tree_Id = qvariant_cast<id_Type>(struct_Tree->property(id_Property));
 
@@ -179,14 +178,14 @@ void Fits_Selector::open_Fit()
 
 	// refresh table
 	if(opened)
-	if(multilayer_Approach->runned_Tables_Of_Structures.contains(table_Key))
+	if(global_Multilayer_Approach->runned_Tables_Of_Structures.contains(table_Key))
 	{
-		int active_Tab = multilayer_Approach->table_Of_Structures->main_Tabs->currentIndex();
-		multilayer_Approach->table_Of_Structures->close();
-		multilayer_Approach->open_Table_Of_Structures();
-		multilayer_Approach->table_Of_Structures->main_Tabs->setCurrentIndex(active_Tab);
+		int active_Tab = global_Multilayer_Approach->table_Of_Structures->main_Tabs->currentIndex();
+		global_Multilayer_Approach->table_Of_Structures->close();
+		global_Multilayer_Approach->open_Table_Of_Structures();
+		global_Multilayer_Approach->table_Of_Structures->main_Tabs->setCurrentIndex(active_Tab);
 	}
 
 	// refresh view
-	multilayer_Approach->refresh_All_Multilayers_View();
+	global_Multilayer_Approach->refresh_All_Multilayers_View();
 }

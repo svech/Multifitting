@@ -1,7 +1,6 @@
 #include "fitting_gsl.h"
 
 Fitting_GSL::Fitting_GSL(Fitting* fitting):
-	multilayer_Approach(fitting->multilayer_Approach),
 	main_Calculation_Module(fitting->main_Calculation_Module),
 	calculation_Trees(fitting->main_Calculation_Module->calculation_Trees),
 	fitables(fitting->main_Calculation_Module->fitables),
@@ -32,44 +31,44 @@ bool Fitting_GSL::fit()
 	/// reading parameters
 
 	// read main parameters
-	const size_t max_iter = multilayer_Approach->fitting_Settings->max_Iter;
-	const double xtol = multilayer_Approach->fitting_Settings->x_Tolerance;
-	const double gtol = multilayer_Approach->fitting_Settings->g_Tolerance;
-	const double ftol = multilayer_Approach->fitting_Settings->f_Tolerance;
+	const size_t max_iter = global_Multilayer_Approach->fitting_Settings->max_Iter;
+	const double xtol = global_Multilayer_Approach->fitting_Settings->x_Tolerance;
+	const double gtol = global_Multilayer_Approach->fitting_Settings->g_Tolerance;
+	const double ftol = global_Multilayer_Approach->fitting_Settings->f_Tolerance;
 	{
 		// read method
-		if(multilayer_Approach->fitting_Settings->current_Method == GSL_Methods[Two_Dimensional_Subspace])						{
+		if(global_Multilayer_Approach->fitting_Settings->current_Method == GSL_Methods[Two_Dimensional_Subspace])						{
 			if(params->p<2)
 			{
 				QMessageBox::information(NULL,"Insufficient number of parameters", "Method\n\"Two Dimensional Subspace\"\nrequires at least 2 fitables");
 				return false;
 			}																														fdf_params.trs = gsl_multifit_nlinear_trs_subspace2D;	}
-		if(multilayer_Approach->fitting_Settings->current_Method == GSL_Methods[Levenberg_Marquardt])							{	fdf_params.trs = gsl_multifit_nlinear_trs_lm;			};
-		if(multilayer_Approach->fitting_Settings->current_Method == GSL_Methods[Levenberg_Marquardt_with_Geodesic_Acceleration]){	fdf_params.trs = gsl_multifit_nlinear_trs_lmaccel;		}
-		if(multilayer_Approach->fitting_Settings->current_Method == GSL_Methods[Dogleg])										{	fdf_params.trs = gsl_multifit_nlinear_trs_dogleg;		}
-		if(multilayer_Approach->fitting_Settings->current_Method == GSL_Methods[Double_Dogleg])									{	fdf_params.trs = gsl_multifit_nlinear_trs_ddogleg;		}
+		if(global_Multilayer_Approach->fitting_Settings->current_Method == GSL_Methods[Levenberg_Marquardt])							{	fdf_params.trs = gsl_multifit_nlinear_trs_lm;			};
+		if(global_Multilayer_Approach->fitting_Settings->current_Method == GSL_Methods[Levenberg_Marquardt_with_Geodesic_Acceleration]){	fdf_params.trs = gsl_multifit_nlinear_trs_lmaccel;		}
+		if(global_Multilayer_Approach->fitting_Settings->current_Method == GSL_Methods[Dogleg])										{	fdf_params.trs = gsl_multifit_nlinear_trs_dogleg;		}
+		if(global_Multilayer_Approach->fitting_Settings->current_Method == GSL_Methods[Double_Dogleg])									{	fdf_params.trs = gsl_multifit_nlinear_trs_ddogleg;		}
 
 		/// read additional parameters
 		// read scaling strategy
-		if(multilayer_Approach->fitting_Settings->current_Scale == GSL_Scales[More])			{	fdf_params.scale = gsl_multifit_nlinear_scale_more;			};
-		if(multilayer_Approach->fitting_Settings->current_Scale == GSL_Scales[Levenberg])		{	fdf_params.scale = gsl_multifit_nlinear_scale_levenberg;	};
-		if(multilayer_Approach->fitting_Settings->current_Scale == GSL_Scales[Marquardt])		{	fdf_params.scale = gsl_multifit_nlinear_scale_marquardt;	};
+		if(global_Multilayer_Approach->fitting_Settings->current_Scale == GSL_Scales[More])			{	fdf_params.scale = gsl_multifit_nlinear_scale_more;			};
+		if(global_Multilayer_Approach->fitting_Settings->current_Scale == GSL_Scales[Levenberg])		{	fdf_params.scale = gsl_multifit_nlinear_scale_levenberg;	};
+		if(global_Multilayer_Approach->fitting_Settings->current_Scale == GSL_Scales[Marquardt])		{	fdf_params.scale = gsl_multifit_nlinear_scale_marquardt;	};
 
 		// read linear solver
-		if(multilayer_Approach->fitting_Settings->current_Solver == GSL_Solvers[QR_decomposition])				{	fdf_params.solver = gsl_multifit_nlinear_solver_qr;			};
-		if(multilayer_Approach->fitting_Settings->current_Solver == GSL_Solvers[Cholesky_decomposition])		{	fdf_params.solver = gsl_multifit_nlinear_solver_cholesky;	};
-		if(multilayer_Approach->fitting_Settings->current_Solver == GSL_Solvers[Singular_value_decomposition])	{	fdf_params.solver = gsl_multifit_nlinear_solver_svd;		};
+		if(global_Multilayer_Approach->fitting_Settings->current_Solver == GSL_Solvers[QR_decomposition])				{	fdf_params.solver = gsl_multifit_nlinear_solver_qr;			};
+		if(global_Multilayer_Approach->fitting_Settings->current_Solver == GSL_Solvers[Cholesky_decomposition])		{	fdf_params.solver = gsl_multifit_nlinear_solver_cholesky;	};
+		if(global_Multilayer_Approach->fitting_Settings->current_Solver == GSL_Solvers[Singular_value_decomposition])	{	fdf_params.solver = gsl_multifit_nlinear_solver_svd;		};
 
 		// read fdtype
-		if(multilayer_Approach->fitting_Settings->current_Fdtype == GSL_Fdtype[Forward])		{	fdf_params.fdtype = GSL_MULTIFIT_NLINEAR_FWDIFF;			};
-		if(multilayer_Approach->fitting_Settings->current_Fdtype == GSL_Fdtype[Central])		{	fdf_params.fdtype = GSL_MULTIFIT_NLINEAR_CTRDIFF;			};
+		if(global_Multilayer_Approach->fitting_Settings->current_Fdtype == GSL_Fdtype[Forward])		{	fdf_params.fdtype = GSL_MULTIFIT_NLINEAR_FWDIFF;			};
+		if(global_Multilayer_Approach->fitting_Settings->current_Fdtype == GSL_Fdtype[Central])		{	fdf_params.fdtype = GSL_MULTIFIT_NLINEAR_CTRDIFF;			};
 
 		// read numerical params
-		fdf_params.factor_up = multilayer_Approach->fitting_Settings->factor_Up;
-		fdf_params.factor_down = multilayer_Approach->fitting_Settings->factor_Down;
-		fdf_params.avmax = multilayer_Approach->fitting_Settings->avmax;
-		fdf_params.h_df = multilayer_Approach->fitting_Settings->h_df;
-		fdf_params.h_fvv = multilayer_Approach->fitting_Settings->h_fvv;
+		fdf_params.factor_up = global_Multilayer_Approach->fitting_Settings->factor_Up;
+		fdf_params.factor_down = global_Multilayer_Approach->fitting_Settings->factor_Down;
+		fdf_params.avmax = global_Multilayer_Approach->fitting_Settings->avmax;
+		fdf_params.h_df = global_Multilayer_Approach->fitting_Settings->h_df;
+		fdf_params.h_fvv = global_Multilayer_Approach->fitting_Settings->h_fvv;
 	}
 
 	const gsl_multifit_nlinear_type* T = gsl_multifit_nlinear_trust;

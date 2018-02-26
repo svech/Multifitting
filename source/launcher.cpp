@@ -51,7 +51,7 @@ void Launcher::create_Buttons()
 			multilayer_Approach_Launch_Button->setEnabled(true);
 			multilayer_Approach_Launch_Button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 
-		connect(multilayer_Approach_Launch_Button, &QPushButton::clicked, this, &Launcher::add_Multilayer_Approach_Instance);
+		connect(multilayer_Approach_Launch_Button, &QPushButton::clicked, this, &Launcher::open_Multilayer_Approach);
 		main_Layout->addWidget(multilayer_Approach_Launch_Button);
 	}
 }
@@ -63,22 +63,19 @@ void Launcher::set_Window_Geometry()
 	setGeometry(launcher_x_corner, launcher_x_corner, 0, 0);
 }
 
-void Launcher::add_Multilayer_Approach_Instance()
+void Launcher::open_Multilayer_Approach()
 {
-	Multilayer_Approach* multilayer_Approach = new Multilayer_Approach(this);	// Launcher is not a parent! Multilayer instances are completely independent
-		multilayer_Approach->setWindowFlags(Qt::Window);
-		multilayer_Approach->show();
-		multilayer_Approach_List.append(multilayer_Approach);
-
-		connect(multilayer_Approach, &Multilayer_Approach::closed,  this, &Launcher::multilayer_Approach_Closed);				// if closed, delete from list
-//		connect(multilayer_Approach, &Multilayer_Approach::refresh, this, &Launcher::refresh_All_Multilayer_Approach_View);
-}
-
-void Launcher::multilayer_Approach_Closed()
-{
-	for(int i=multilayer_Approach_List.size()-1; i>=0; --i)
+	if(!runned_Multilayer_Approaches.contains(multilayer_Approach_Key))
 	{
-		if(multilayer_Approach_List[i] == sender())
-			multilayer_Approach_List.removeAt(i);
+		global_Multilayer_Approach = new Multilayer_Approach(this);	// Launcher is not a parent!
+		global_Multilayer_Approach->create_Menu();
+			global_Multilayer_Approach->setWindowFlags(Qt::Window);
+			global_Multilayer_Approach->show();
+		runned_Multilayer_Approaches.insert(multilayer_Approach_Key, global_Multilayer_Approach);
+
+	} else
+	{
+		global_Multilayer_Approach->activateWindow();
 	}
 }
+

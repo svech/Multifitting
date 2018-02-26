@@ -1,7 +1,6 @@
 #include "fitting.h"
 
-Fitting::Fitting(Multilayer_Approach* multilayer_Approach, Main_Calculation_Module* main_Calculation_Module):
-	multilayer_Approach(multilayer_Approach),
+Fitting::Fitting(Main_Calculation_Module* main_Calculation_Module):
 
 	main_Calculation_Module(main_Calculation_Module),
 	calculation_Trees(main_Calculation_Module->calculation_Trees),
@@ -328,17 +327,17 @@ bool Fitting::fit()
 	// --------------------------------------------------------------------------------
 
 	// GSL
-	if(	GSL_Methods.contains(multilayer_Approach->fitting_Settings->current_Method) )
+	if(	GSL_Methods.contains(global_Multilayer_Approach->fitting_Settings->current_Method) )
 	{
-		qInfo() << "GSL " << multilayer_Approach->fitting_Settings->current_Method << "optimization";
+		qInfo() << "GSL " << global_Multilayer_Approach->fitting_Settings->current_Method << "optimization";
 		Fitting_GSL fitting_GSL(this);
 		return fitting_GSL.fit();
 	}
 
 	// SO
-	if(	SO_Methods.contains(multilayer_Approach->fitting_Settings->current_Method) )
+	if(	SO_Methods.contains(global_Multilayer_Approach->fitting_Settings->current_Method) )
 	{
-		qInfo() << "SO " << multilayer_Approach->fitting_Settings->current_Method << "optimization";
+		qInfo() << "SO " << global_Multilayer_Approach->fitting_Settings->current_Method << "optimization";
 		Fitting_SwarmOps fitting_SwarmOps(this);
 		return fitting_SwarmOps.fit();
 	}

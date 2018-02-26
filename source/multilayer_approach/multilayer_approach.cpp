@@ -23,6 +23,7 @@ void Multilayer_Approach::open_Launcher()
 void Multilayer_Approach::closeEvent(QCloseEvent* event)
 {
 	// TODO
+	launcher->runned_Multilayer_Approaches.remove(multilayer_Approach_Key);
 	qApp->quit();
 	event->accept();
 	emit closed();
@@ -34,7 +35,6 @@ void Multilayer_Approach::create_Main_Layout()
 	main_Layout = new QHBoxLayout(this);
 		main_Layout->setContentsMargins(4,3,2,3);
 
-	create_Menu();
 	create_Multilayer_Tabs();
 	create_Fitting_Settings();
 }
@@ -80,7 +80,7 @@ void Multilayer_Approach::set_Window_Geometry()
 
 void Multilayer_Approach::add_Multilayer()
 {
-	Multilayer* new_Multilayer = new Multilayer(this, this);
+	Multilayer* new_Multilayer = new Multilayer(this);
 		new_Multilayer->setContentsMargins(-80,-10,-80,-10);
 
 	connect(new_Multilayer, &Multilayer::refresh_All_Multilayers, this, &Multilayer_Approach::refresh_All_Multilayers_View);
@@ -178,7 +178,7 @@ void Multilayer_Approach::open_Table_Of_Structures()
 {
 	if(!runned_Tables_Of_Structures.contains(table_Key))
 	{
-		table_Of_Structures = new Table_Of_Structures(this, this);
+		table_Of_Structures = new Table_Of_Structures(this);
 		runned_Tables_Of_Structures.insert(table_Key, table_Of_Structures);
 			table_Of_Structures->setWindowFlags(Qt::Window);
 			table_Of_Structures->show();
@@ -669,7 +669,7 @@ void Multilayer_Approach::calc_Reflection()
 	qInfo() << "\n\n-------------------------------------------------------"
 				 "\ncalc specular functions..."
 				 "\n-------------------------------------------------------\n";
-	Main_Calculation_Module* main_Calculation_Module = new Main_Calculation_Module(this, CALCULATION);
+	Main_Calculation_Module* main_Calculation_Module = new Main_Calculation_Module(CALCULATION);
 	main_Calculation_Module->single_Calculation();
 	delete main_Calculation_Module;
 }
@@ -680,11 +680,11 @@ void Multilayer_Approach::start_Fitting()
 	qInfo() << "\n\n-------------------------------------------------------"
 				 "\nfitting..."
 				 "\n-------------------------------------------------------\n";
-	Main_Calculation_Module* main_Calculation_Module = new Main_Calculation_Module(this, FITTING);
+	Main_Calculation_Module* main_Calculation_Module = new Main_Calculation_Module(FITTING);
 	main_Calculation_Module->fitting();
 	delete main_Calculation_Module;
 
-	main_Calculation_Module = new Main_Calculation_Module(this, CALCULATION);
+	main_Calculation_Module = new Main_Calculation_Module(CALCULATION);
 	main_Calculation_Module->single_Calculation();
 	delete main_Calculation_Module;
 }

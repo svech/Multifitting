@@ -4,7 +4,10 @@
 Fitting_Settings::Fitting_Settings(QWidget* parent) :
 	QWidget(parent)
 {
+	// common
 	current_Method = SO_Methods[Differential_Evolution];
+	num_Runs = 1;
+	randomized_Start = false;
 
 	/// for GSL TRS
 	// main
@@ -34,7 +37,7 @@ Fitting_Settings::Fitting_Settings(QWidget* parent) :
 // serialization
 QDataStream& operator <<( QDataStream& stream, const Fitting_Settings* fitting_Settings )
 {
-	return stream << fitting_Settings->current_Method
+	return stream << fitting_Settings->current_Method << fitting_Settings->num_Runs << fitting_Settings->randomized_Start
 
 	/// GSL TRS
 	// main
@@ -45,11 +48,11 @@ QDataStream& operator <<( QDataStream& stream, const Fitting_Settings* fitting_S
 
 	/// SwarmOps
 	// main
-	<< fitting_Settings->num_Runs << fitting_Settings->max_Evaluations << fitting_Settings->max_Eval_Factor << fitting_Settings->max_Eval_Check ;
+	<< fitting_Settings->max_Evaluations << fitting_Settings->max_Eval_Factor << fitting_Settings->max_Eval_Check ;
 }
 QDataStream& operator >>( QDataStream& stream,		  Fitting_Settings* fitting_Settings )
 {
-	return stream >> fitting_Settings->current_Method
+	return stream >> fitting_Settings->current_Method >> fitting_Settings->num_Runs >> fitting_Settings->randomized_Start
 
 	/// GSL TRS
 	// main
@@ -60,5 +63,5 @@ QDataStream& operator >>( QDataStream& stream,		  Fitting_Settings* fitting_Sett
 
 	/// SwarmOps
 	// main
-	>> fitting_Settings->num_Runs >> fitting_Settings->max_Evaluations >> fitting_Settings->max_Eval_Factor >> fitting_Settings->max_Eval_Check ;
+	>> fitting_Settings->max_Evaluations >> fitting_Settings->max_Eval_Factor >> fitting_Settings->max_Eval_Check ;
 }

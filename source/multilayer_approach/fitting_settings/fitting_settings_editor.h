@@ -8,7 +8,7 @@ class Fitting_Settings_Editor : public QWidget
 {
 	Q_OBJECT
 public:
-	explicit Fitting_Settings_Editor(Multilayer_Approach* multilayer_Approach, QWidget* parent = nullptr);
+	explicit Fitting_Settings_Editor(QWidget* parent = nullptr);
 
 	void closeEvent(QCloseEvent* event);
 	void create_Main_Layout();
@@ -21,7 +21,6 @@ public:
 	void create_SO_Main_Params_Group_Box();
 	void create_SO_AdditionalParams_Group_Box();
 
-	Multilayer_Approach* multilayer_Approach;
 	Fitting_Settings* fitting_Settings;
 
 	QVBoxLayout* main_Layout;
@@ -39,23 +38,27 @@ public:
 							QGridLayout* GSL_Fit_Params_Group_Box_Layout;
 
 				// for GSL TRS
-					QLabel* max_Iter_Label;	   QLineEdit* max_Iter_Line_Edit;
-					QLabel* x_Tolerance_Label; QLineEdit* x_Tolerance_Line_Edit;
-					QLabel* g_Tolerance_Label; QLineEdit* g_Tolerance_Line_Edit;
-					QLabel* f_Tolerance_Label; QLineEdit* f_Tolerance_Line_Edit;
+					QCheckBox* GSL_randomized_Start_Check_Box;
+					QLabel* GSL_num_Runs_Label;			QLineEdit* GSL_num_Runs_Line_Edit;
+					QLabel* GSL_max_Iter_Label;			QLineEdit* GSL_max_Iter_Line_Edit;
+					QLabel* GSL_common_Tolerance_Label;QLineEdit* GSL_common_Tolerance_Line_Edit;
 
 				QGroupBox* GSL_Additional_Params_Group_Box;
 					QGridLayout* GSL_Additional_Params_Group_Box_Layout;
 
 				// for GSL TRS
-					QLabel* scale_Label;		QComboBox* scale_Combo_Box;
-					QLabel* solver_Label;		QComboBox* solver_Combo_Box;
-					QLabel* fdtype_Label;		QComboBox* fdtype_Combo_Box;
-					QLabel* factor_up_Label;	QLineEdit* factor_up_Line_Edit;
-					QLabel* factor_down_Label;	QLineEdit* factor_down_Line_Edit;
-					QLabel* avmax_Label;		QLineEdit* avmax_Line_Edit;
-					QLabel* h_df_Label;			QLineEdit* h_df_Line_Edit;
-					QLabel* h_fvv_Label;		QLineEdit* h_fvv_Line_Edit;
+					QLabel* GSL_x_Tolerance_Label;	QLineEdit* GSL_x_Tolerance_Line_Edit;
+					QLabel* GSL_g_Tolerance_Label;	QLineEdit* GSL_g_Tolerance_Line_Edit;
+					QLabel* GSL_f_Tolerance_Label;	QLineEdit* GSL_f_Tolerance_Line_Edit;
+
+					QLabel* GSL_scale_Label;		QComboBox* GSL_scale_Combo_Box;
+					QLabel* GSL_solver_Label;		QComboBox* GSL_solver_Combo_Box;
+					QLabel* GSL_fdtype_Label;		QComboBox* GSL_fdtype_Combo_Box;
+					QLabel* GSL_factor_up_Label;	QLineEdit* GSL_factor_up_Line_Edit;
+					QLabel* GSL_factor_down_Label;	QLineEdit* GSL_factor_down_Line_Edit;
+					QLabel* GSL_avmax_Label;		QLineEdit* GSL_avmax_Line_Edit;
+					QLabel* GSL_h_df_Label;			QLineEdit* GSL_h_df_Line_Edit;
+					QLabel* GSL_h_fvv_Label;		QLineEdit* GSL_h_fvv_Line_Edit;
 
 				/// SwarmOps
 				QWidget* SO_Page;
@@ -64,10 +67,10 @@ public:
 							QGridLayout* SO_Fit_Params_Group_Box_Layout;
 
 				// for SwarmOps
-					QLabel* num_Runs_Label;			QLineEdit* num_Runs_Line_Edit;
-					QLabel* max_Evaluations_Label;	QLineEdit* max_Evaluations_Line_Edit;
-					QLabel* max_Eval_Factor_Label;	QLineEdit* max_Eval_Factor_Line_Edit;
-					QCheckBox* max_Eval_Check_Box;
+					QCheckBox* SO_randomized_Start_Check_Box;
+					QLabel* SO_num_Runs_Label;			QLineEdit* SO_num_Runs_Line_Edit;
+					QLabel* SO_max_Evaluations_Label;	QLineEdit* SO_max_Evaluations_Line_Edit;
+					QCheckBox* SO_max_Eval_Check_Box;	QLineEdit* SO_max_Eval_Factor_Line_Edit;
 
 				QGroupBox* SO_Additional_Params_Group_Box;
 					QGridLayout* SO_Additional_Params_Group_Box_Layout;

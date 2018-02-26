@@ -12,21 +12,15 @@ class Launcher : public QWidget
 public:
 	Launcher(QWidget *parent = 0);
 
-private:
 	void closeEvent(QCloseEvent *event);
 	void create_Main_Layout();
 		void create_Menu();
 		void create_Buttons();
 	void set_Window_Geometry();
+	void open_Multilayer_Approach();
 
-private slots:
-	void add_Multilayer_Approach_Instance();
-	void multilayer_Approach_Closed();
+	QMap<QString, Multilayer_Approach*> runned_Multilayer_Approaches;
 
-public:
-	QList<Multilayer_Approach*> multilayer_Approach_List;
-
-private:
 	QHBoxLayout* main_Layout;
 		QPushButton* multilayer_Approach_Launch_Button;
 };

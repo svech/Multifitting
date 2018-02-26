@@ -241,10 +241,10 @@ void Target_Curve_Editor::create_Main_Layout()
 		QShortcut* fit_Shortcut				= new QShortcut(QKeySequence(Qt::Key_F | Qt::CTRL | Qt::SHIFT), this);
 		QShortcut* calc_Specular_Shortcut	= new QShortcut(QKeySequence(Qt::Key_C | Qt::CTRL | Qt::SHIFT), this);
 
-		connect(save_Shortcut,			&QShortcut::activated, this, [=]{ multilayer_Parent->multilayer_Approach->save(default_File);});
-		connect(open_Shortcut,			&QShortcut::activated, this, [=]{ multilayer_Parent->multilayer_Approach->open(default_File);});
-		connect(fit_Shortcut,			&QShortcut::activated, this, [=]{ multilayer_Parent->multilayer_Approach->start_Fitting();	  });
-		connect(calc_Specular_Shortcut, &QShortcut::activated, this, [=]{ multilayer_Parent->multilayer_Approach->calc_Reflection(); });
+		connect(save_Shortcut,			&QShortcut::activated, this, [=]{ global_Multilayer_Approach->save(default_File);});
+		connect(open_Shortcut,			&QShortcut::activated, this, [=]{ global_Multilayer_Approach->open(default_File);});
+		connect(fit_Shortcut,			&QShortcut::activated, this, [=]{ global_Multilayer_Approach->start_Fitting();	  });
+		connect(calc_Specular_Shortcut, &QShortcut::activated, this, [=]{ global_Multilayer_Approach->calc_Reflection(); });
 	}
 }
 

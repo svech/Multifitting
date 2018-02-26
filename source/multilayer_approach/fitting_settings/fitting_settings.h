@@ -9,7 +9,10 @@ class Fitting_Settings: public QWidget
 public:
 	explicit Fitting_Settings(QWidget *parent = nullptr);
 
+	// common
 	QString current_Method;
+	int num_Runs;
+	bool randomized_Start;
 
 	/// for GSL TRS
 	// main
@@ -30,7 +33,6 @@ public:
 
 	/// for SwarmOps
 	// main
-	int num_Runs;
 	int max_Evaluations;
 	int max_Eval_Factor;
 	bool max_Eval_Check;

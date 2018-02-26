@@ -7,7 +7,10 @@
 
 class Optical_Constants;
 class Data;
+class Multilayer_Approach;
 // -----------------------------------------------------------------------------------------
+extern Multilayer_Approach* global_Multilayer_Approach;
+
 // delimiters for file parsing
 extern QRegExp delimiters;
 
@@ -120,8 +123,8 @@ enum SO_Methods_Enum	{	/* Mesh Iteration. */
 							Random_Sampling_Uniform,
 
 							/* Gradient-Based Optimization */
-							Gradient_Descent,
-							Gradient_Emancipated_Descent,
+//							Gradient_Descent,
+//							Gradient_Emancipated_Descent,
 
 							/* Local Sampling */
 							Hill_Climber,

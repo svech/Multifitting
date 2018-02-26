@@ -1,9 +1,8 @@
 #include "fitting_settings_editor.h"
 #include "standard/spoiler.h"
 
-Fitting_Settings_Editor::Fitting_Settings_Editor(Multilayer_Approach* multilayer_Approach, QWidget* parent) :
-	multilayer_Approach(multilayer_Approach),
-	fitting_Settings(multilayer_Approach->fitting_Settings),
+Fitting_Settings_Editor::Fitting_Settings_Editor(QWidget* parent) :
+	fitting_Settings(global_Multilayer_Approach->fitting_Settings),
 	QWidget(parent)
 {
 	setWindowTitle("Fitting Settings");
@@ -14,7 +13,7 @@ Fitting_Settings_Editor::Fitting_Settings_Editor(Multilayer_Approach* multilayer
 
 void Fitting_Settings_Editor::closeEvent(QCloseEvent *event)
 {
-	multilayer_Approach->runned_Fitting_Settings_Editor.remove(fit_Settings_Key);
+	global_Multilayer_Approach->runned_Fitting_Settings_Editor.remove(fit_Settings_Key);
 	event->accept();
 }
 
@@ -146,8 +145,8 @@ void Fitting_Settings_Editor::create_Metods()
 	{
 		methods_Combo_Box->addItem(spacer + SO_Methods[Mesh_Iteration]						 );
 		methods_Combo_Box->addItem(spacer + SO_Methods[Random_Sampling_Uniform]				 );
-		methods_Combo_Box->addItem(spacer + SO_Methods[Gradient_Descent]					 );
-		methods_Combo_Box->addItem(spacer + SO_Methods[Gradient_Emancipated_Descent]		 );
+//		methods_Combo_Box->addItem(spacer + SO_Methods[Gradient_Descent]					 );
+//		methods_Combo_Box->addItem(spacer + SO_Methods[Gradient_Emancipated_Descent]		 );
 		methods_Combo_Box->addItem(spacer + SO_Methods[Hill_Climber]						 );
 		methods_Combo_Box->addItem(spacer + SO_Methods[Simulated_Annealing]					 );
 		methods_Combo_Box->addItem(spacer + SO_Methods[Pattern_Search]						 );
@@ -237,35 +236,46 @@ void Fitting_Settings_Editor::create_GSL_Main_Params_Group_Box()
 
 	// for GSL TRS
 	{
-		max_Iter_Label = new QLabel("Max number of iterations");
-		max_Iter_Line_Edit = new QLineEdit(QString::number(fitting_Settings->max_Iter));
-			max_Iter_Line_Edit->setValidator(new QIntValidator(0, MAX_INTEGER, this));
+		GSL_randomized_Start_Check_Box = new QCheckBox("Randomized start",this);
+			GSL_randomized_Start_Check_Box->setChecked(fitting_Settings->randomized_Start);
 
-		x_Tolerance_Label = new QLabel("Parameters tolerance");
-		x_Tolerance_Line_Edit = new QLineEdit(QString::number(fitting_Settings->x_Tolerance));
-			x_Tolerance_Line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION, this));
+		GSL_num_Runs_Label = new QLabel("Number of runs");
+			GSL_num_Runs_Label->setEnabled(fitting_Settings->randomized_Start);
+		GSL_num_Runs_Line_Edit = new QLineEdit(QString::number(fitting_Settings->num_Runs));
+			GSL_num_Runs_Line_Edit->setValidator(new QIntValidator(0, MAX_INTEGER, this));
+			GSL_num_Runs_Line_Edit->setEnabled(fitting_Settings->randomized_Start);
 
-		g_Tolerance_Label = new QLabel("Gradient tolerance");
-		g_Tolerance_Line_Edit = new QLineEdit(QString::number(fitting_Settings->g_Tolerance));
-			g_Tolerance_Line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION, this));
+		GSL_max_Iter_Label = new QLabel("Max number of iterations");
+		GSL_max_Iter_Line_Edit = new QLineEdit(QString::number(fitting_Settings->max_Iter));
+			GSL_max_Iter_Line_Edit->setValidator(new QIntValidator(0, MAX_INTEGER, this));
 
-		f_Tolerance_Label = new QLabel("Residual tolerance");
-		f_Tolerance_Line_Edit = new QLineEdit(QString::number(fitting_Settings->f_Tolerance));
-			f_Tolerance_Line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION, this));
+		GSL_common_Tolerance_Label = new QLabel("General tolerance");
+		GSL_common_Tolerance_Line_Edit = new QLineEdit(QString::number(fitting_Settings->x_Tolerance));
+			GSL_common_Tolerance_Line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION, this));
 
-		GSL_Fit_Params_Group_Box_Layout->addWidget(max_Iter_Label,		 0,0,1,1);
-		GSL_Fit_Params_Group_Box_Layout->addWidget(max_Iter_Line_Edit,	 0,1,1,1);
-		GSL_Fit_Params_Group_Box_Layout->addWidget(x_Tolerance_Label,	 1,0,1,1);
-		GSL_Fit_Params_Group_Box_Layout->addWidget(x_Tolerance_Line_Edit,1,1,1,1);
-		GSL_Fit_Params_Group_Box_Layout->addWidget(g_Tolerance_Label,	 2,0,1,1);
-		GSL_Fit_Params_Group_Box_Layout->addWidget(g_Tolerance_Line_Edit,2,1,1,1);
-		GSL_Fit_Params_Group_Box_Layout->addWidget(f_Tolerance_Label,	 3,0,1,1);
-		GSL_Fit_Params_Group_Box_Layout->addWidget(f_Tolerance_Line_Edit,3,1,1,1);
 
-		connect(max_Iter_Line_Edit,	   &QLineEdit::textChanged, fitting_Settings, [=]{fitting_Settings->max_Iter    = max_Iter_Line_Edit->   text().toInt();	});
-		connect(x_Tolerance_Line_Edit, &QLineEdit::textChanged, fitting_Settings, [=]{fitting_Settings->x_Tolerance = x_Tolerance_Line_Edit->text().toDouble();	});
-		connect(g_Tolerance_Line_Edit, &QLineEdit::textChanged, fitting_Settings, [=]{fitting_Settings->g_Tolerance = g_Tolerance_Line_Edit->text().toDouble();	});
-		connect(f_Tolerance_Line_Edit, &QLineEdit::textChanged, fitting_Settings, [=]{fitting_Settings->f_Tolerance = f_Tolerance_Line_Edit->text().toDouble();	});
+		GSL_Fit_Params_Group_Box_Layout->addWidget(GSL_randomized_Start_Check_Box,	0,0,1,2);
+		GSL_Fit_Params_Group_Box_Layout->addWidget(GSL_num_Runs_Label,				1,0,1,1);
+		GSL_Fit_Params_Group_Box_Layout->addWidget(GSL_num_Runs_Line_Edit,			1,1,1,1);
+		GSL_Fit_Params_Group_Box_Layout->addWidget(GSL_max_Iter_Label,				2,0,1,1);
+		GSL_Fit_Params_Group_Box_Layout->addWidget(GSL_max_Iter_Line_Edit,			2,1,1,1);
+		GSL_Fit_Params_Group_Box_Layout->addWidget(GSL_common_Tolerance_Label,		3,0,1,1);
+		GSL_Fit_Params_Group_Box_Layout->addWidget(GSL_common_Tolerance_Line_Edit,	3,1,1,1);
+
+		connect(GSL_randomized_Start_Check_Box,	&QCheckBox::toggled,	 fitting_Settings, [=]
+		{
+			fitting_Settings->randomized_Start = GSL_randomized_Start_Check_Box->isChecked();
+			GSL_num_Runs_Label->setEnabled(fitting_Settings->randomized_Start);
+			GSL_num_Runs_Line_Edit->setEnabled(fitting_Settings->randomized_Start);
+		});
+		connect(GSL_num_Runs_Line_Edit,			&QLineEdit::textChanged, fitting_Settings, [=]{fitting_Settings->num_Runs = GSL_num_Runs_Line_Edit->text().toInt();	});
+		connect(GSL_max_Iter_Line_Edit,			&QLineEdit::textChanged, fitting_Settings, [=]{fitting_Settings->max_Iter = GSL_max_Iter_Line_Edit->text().toInt();	});
+		connect(GSL_common_Tolerance_Line_Edit, &QLineEdit::textChanged, fitting_Settings, [=]
+		{
+			fitting_Settings->x_Tolerance = GSL_common_Tolerance_Line_Edit->text().toDouble();
+			fitting_Settings->f_Tolerance = fitting_Settings->x_Tolerance;
+			fitting_Settings->g_Tolerance = fitting_Settings->x_Tolerance;
+		});
 	}
 }
 
@@ -279,75 +289,100 @@ void Fitting_Settings_Editor::create_GSL_AdditionalParams_Group_Box()
 		GSL_Additional_Params_Group_Box_Layout = new QGridLayout(GSL_Additional_Params_Group_Box);
 	}
 	{
-		scale_Label = new QLabel("Scaling method (default Mor"+More_Sym+")");
-		scale_Combo_Box = new QComboBox;
-			scale_Combo_Box->addItem(GSL_Scales[More]);
-			scale_Combo_Box->addItem(GSL_Scales[Levenberg]);
-			scale_Combo_Box->addItem(GSL_Scales[Marquardt]);
-			scale_Combo_Box->setCurrentIndex(scale_Combo_Box->findText(fitting_Settings->current_Scale));
+		GSL_x_Tolerance_Label = new QLabel("Parameters tolerance");
+		GSL_x_Tolerance_Line_Edit = new QLineEdit(QString::number(fitting_Settings->x_Tolerance));
+			GSL_x_Tolerance_Line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION, this));
 
-		solver_Label = new QLabel("Solver method (default QR decomposition)");
-		solver_Combo_Box = new QComboBox;
-			solver_Combo_Box->addItem(GSL_Solvers[QR_decomposition]);
-			solver_Combo_Box->addItem(GSL_Solvers[Cholesky_decomposition]);
-			solver_Combo_Box->addItem(GSL_Solvers[Singular_value_decomposition]);
-			solver_Combo_Box->setCurrentIndex(solver_Combo_Box->findText(fitting_Settings->current_Solver));
+		GSL_g_Tolerance_Label = new QLabel("Gradient tolerance");
+		GSL_g_Tolerance_Line_Edit = new QLineEdit(QString::number(fitting_Settings->g_Tolerance));
+			GSL_g_Tolerance_Line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION, this));
 
-		fdtype_Label = new QLabel("Finite difference method (default Forward)");
-		fdtype_Combo_Box = new QComboBox;
-			fdtype_Combo_Box->addItem(GSL_Fdtype[Forward]);
-			fdtype_Combo_Box->addItem(GSL_Fdtype[Central]);
-			fdtype_Combo_Box->setCurrentIndex(fdtype_Combo_Box->findText(fitting_Settings->current_Fdtype));
-
-		factor_up_Label = new QLabel("Factor for increasing trust radius (default 3)");
-		factor_up_Line_Edit = new QLineEdit(QString::number(fitting_Settings->factor_Up));
-			factor_up_Line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION, this));
-
-		factor_down_Label = new QLabel("Factor for decreasing trust radius (default 2)");
-		factor_down_Line_Edit = new QLineEdit(QString::number(fitting_Settings->factor_Down));
-			factor_down_Line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION, this));
-
-		avmax_Label = new QLabel("Max allowed |a|/|v| (default 0.75)");
-		avmax_Line_Edit = new QLineEdit(QString::number(fitting_Settings->avmax));
-			avmax_Line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION, this));
-
-		h_df_Label = new QLabel("Step size for finite difference J (default ~1.5e-8)");
-		h_df_Line_Edit = new QLineEdit(QString::number(fitting_Settings->h_df));
-			h_df_Line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION, this));
-
-		h_fvv_Label = new QLabel("Step size for finite difference fvv (default 0.02)");
-		h_fvv_Line_Edit = new QLineEdit(QString::number(fitting_Settings->h_fvv));
-			h_fvv_Line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION, this));
+		GSL_f_Tolerance_Label = new QLabel("Residual tolerance");
+		GSL_f_Tolerance_Line_Edit = new QLineEdit(QString::number(fitting_Settings->f_Tolerance));
+			GSL_f_Tolerance_Line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION, this));
 
 
-		GSL_Additional_Params_Group_Box_Layout->addWidget(scale_Label,		0,0,1,1);
-		GSL_Additional_Params_Group_Box_Layout->addWidget(scale_Combo_Box,	0,1,1,1);
-		GSL_Additional_Params_Group_Box_Layout->addWidget(solver_Label,		1,0,1,1);
-		GSL_Additional_Params_Group_Box_Layout->addWidget(solver_Combo_Box,	1,1,1,1);
-		GSL_Additional_Params_Group_Box_Layout->addWidget(fdtype_Label,		2,0,1,1);
-		GSL_Additional_Params_Group_Box_Layout->addWidget(fdtype_Combo_Box,	2,1,1,1);
 
-		GSL_Additional_Params_Group_Box_Layout->addWidget(factor_up_Label,		3,0,1,1);
-		GSL_Additional_Params_Group_Box_Layout->addWidget(factor_up_Line_Edit,	3,1,1,1);
-		GSL_Additional_Params_Group_Box_Layout->addWidget(factor_down_Label,	4,0,1,1);
-		GSL_Additional_Params_Group_Box_Layout->addWidget(factor_down_Line_Edit,4,1,1,1);
+		GSL_scale_Label = new QLabel("Scaling method (default Mor"+More_Sym+")");
+		GSL_scale_Combo_Box = new QComboBox;
+			GSL_scale_Combo_Box->addItem(GSL_Scales[More]);
+			GSL_scale_Combo_Box->addItem(GSL_Scales[Levenberg]);
+			GSL_scale_Combo_Box->addItem(GSL_Scales[Marquardt]);
+			GSL_scale_Combo_Box->setCurrentIndex(GSL_scale_Combo_Box->findText(fitting_Settings->current_Scale));
 
-		GSL_Additional_Params_Group_Box_Layout->addWidget(avmax_Label,		5,0,1,1);
-		GSL_Additional_Params_Group_Box_Layout->addWidget(avmax_Line_Edit,	5,1,1,1);
-		GSL_Additional_Params_Group_Box_Layout->addWidget(h_df_Label,		6,0,1,1);
-		GSL_Additional_Params_Group_Box_Layout->addWidget(h_df_Line_Edit,	6,1,1,1);
-		GSL_Additional_Params_Group_Box_Layout->addWidget(h_fvv_Label,		7,0,1,1);
-		GSL_Additional_Params_Group_Box_Layout->addWidget(h_fvv_Line_Edit,	7,1,1,1);
+		GSL_solver_Label = new QLabel("Solver method (default QR decomposition)");
+		GSL_solver_Combo_Box = new QComboBox;
+			GSL_solver_Combo_Box->addItem(GSL_Solvers[QR_decomposition]);
+			GSL_solver_Combo_Box->addItem(GSL_Solvers[Cholesky_decomposition]);
+			GSL_solver_Combo_Box->addItem(GSL_Solvers[Singular_value_decomposition]);
+			GSL_solver_Combo_Box->setCurrentIndex(GSL_solver_Combo_Box->findText(fitting_Settings->current_Solver));
 
-		connect(scale_Combo_Box,  static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), [=]{fitting_Settings->current_Scale  = scale_Combo_Box->currentText(); });
-		connect(solver_Combo_Box, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), [=]{fitting_Settings->current_Solver = solver_Combo_Box->currentText();});
-		connect(fdtype_Combo_Box, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), [=]{fitting_Settings->current_Fdtype = fdtype_Combo_Box->currentText();});
+		GSL_fdtype_Label = new QLabel("Finite difference method (default Forward)");
+		GSL_fdtype_Combo_Box = new QComboBox;
+			GSL_fdtype_Combo_Box->addItem(GSL_Fdtype[Forward]);
+			GSL_fdtype_Combo_Box->addItem(GSL_Fdtype[Central]);
+			GSL_fdtype_Combo_Box->setCurrentIndex(GSL_fdtype_Combo_Box->findText(fitting_Settings->current_Fdtype));
 
-		connect(factor_up_Line_Edit,   &QLineEdit::textChanged, [=]{fitting_Settings->factor_Up		= factor_up_Line_Edit->text().toDouble();	});
-		connect(factor_down_Line_Edit, &QLineEdit::textChanged, [=]{fitting_Settings->factor_Down	= factor_down_Line_Edit->text().toDouble();	});
-		connect(avmax_Line_Edit,	   &QLineEdit::textChanged, [=]{fitting_Settings->avmax			= avmax_Line_Edit->text().toDouble();		});
-		connect(h_df_Line_Edit,		   &QLineEdit::textChanged, [=]{fitting_Settings->h_df			= h_df_Line_Edit->text().toDouble();		});
-		connect(h_fvv_Line_Edit,	   &QLineEdit::textChanged, [=]{fitting_Settings->h_fvv			= h_fvv_Line_Edit->text().toDouble();		});
+		GSL_factor_up_Label = new QLabel("Factor for increasing trust radius (default 3)");
+		GSL_factor_up_Line_Edit = new QLineEdit(QString::number(fitting_Settings->factor_Up));
+			GSL_factor_up_Line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION, this));
+
+		GSL_factor_down_Label = new QLabel("Factor for decreasing trust radius (default 2)");
+		GSL_factor_down_Line_Edit = new QLineEdit(QString::number(fitting_Settings->factor_Down));
+			GSL_factor_down_Line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION, this));
+
+		GSL_avmax_Label = new QLabel("Max allowed |a|/|v| (default 0.75)");
+		GSL_avmax_Line_Edit = new QLineEdit(QString::number(fitting_Settings->avmax));
+			GSL_avmax_Line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION, this));
+
+		GSL_h_df_Label = new QLabel("Step size for finite difference J (default ~1.5e-8)");
+		GSL_h_df_Line_Edit = new QLineEdit(QString::number(fitting_Settings->h_df));
+			GSL_h_df_Line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION, this));
+
+		GSL_h_fvv_Label = new QLabel("Step size for finite difference fvv (default 0.02)");
+		GSL_h_fvv_Line_Edit = new QLineEdit(QString::number(fitting_Settings->h_fvv));
+			GSL_h_fvv_Line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION, this));
+
+		int p=0;
+		GSL_Additional_Params_Group_Box_Layout->addWidget(GSL_x_Tolerance_Label,	p+0,0,1,1);
+		GSL_Additional_Params_Group_Box_Layout->addWidget(GSL_x_Tolerance_Line_Edit,p+0,1,1,2);
+		GSL_Additional_Params_Group_Box_Layout->addWidget(GSL_g_Tolerance_Label,	p+1,0,1,1);
+		GSL_Additional_Params_Group_Box_Layout->addWidget(GSL_g_Tolerance_Line_Edit,p+1,1,1,2);
+		GSL_Additional_Params_Group_Box_Layout->addWidget(GSL_f_Tolerance_Label,	p+2,0,1,1);
+		GSL_Additional_Params_Group_Box_Layout->addWidget(GSL_f_Tolerance_Line_Edit,p+2,1,1,2);
+		p+=3;
+		GSL_Additional_Params_Group_Box_Layout->addWidget(GSL_scale_Label,			p+0,0,1,1);
+		GSL_Additional_Params_Group_Box_Layout->addWidget(GSL_scale_Combo_Box,		p+0,1,1,1);
+		GSL_Additional_Params_Group_Box_Layout->addWidget(GSL_solver_Label,			p+1,0,1,1);
+		GSL_Additional_Params_Group_Box_Layout->addWidget(GSL_solver_Combo_Box,		p+1,1,1,1);
+		GSL_Additional_Params_Group_Box_Layout->addWidget(GSL_fdtype_Label,			p+2,0,1,1);
+		GSL_Additional_Params_Group_Box_Layout->addWidget(GSL_fdtype_Combo_Box,		p+2,1,1,1);
+		p+=3;
+		GSL_Additional_Params_Group_Box_Layout->addWidget(GSL_factor_up_Label,		p+0,0,1,1);
+		GSL_Additional_Params_Group_Box_Layout->addWidget(GSL_factor_up_Line_Edit,	p+0,1,1,1);
+		GSL_Additional_Params_Group_Box_Layout->addWidget(GSL_factor_down_Label,	p+1,0,1,1);
+		GSL_Additional_Params_Group_Box_Layout->addWidget(GSL_factor_down_Line_Edit,p+1,1,1,1);
+		p+=2;
+		GSL_Additional_Params_Group_Box_Layout->addWidget(GSL_avmax_Label,			p+0,0,1,1);
+		GSL_Additional_Params_Group_Box_Layout->addWidget(GSL_avmax_Line_Edit,		p+0,1,1,1);
+		GSL_Additional_Params_Group_Box_Layout->addWidget(GSL_h_df_Label,			p+1,0,1,1);
+		GSL_Additional_Params_Group_Box_Layout->addWidget(GSL_h_df_Line_Edit,		p+1,1,1,1);
+		GSL_Additional_Params_Group_Box_Layout->addWidget(GSL_h_fvv_Label,			p+2,0,1,1);
+		GSL_Additional_Params_Group_Box_Layout->addWidget(GSL_h_fvv_Line_Edit,		p+2,1,1,1);
+
+		connect(GSL_x_Tolerance_Line_Edit, &QLineEdit::textChanged, fitting_Settings, [=]{fitting_Settings->x_Tolerance = GSL_x_Tolerance_Line_Edit->text().toDouble();	});
+		connect(GSL_g_Tolerance_Line_Edit, &QLineEdit::textChanged, fitting_Settings, [=]{fitting_Settings->g_Tolerance = GSL_g_Tolerance_Line_Edit->text().toDouble();	});
+		connect(GSL_f_Tolerance_Line_Edit, &QLineEdit::textChanged, fitting_Settings, [=]{fitting_Settings->f_Tolerance = GSL_f_Tolerance_Line_Edit->text().toDouble();	});
+
+		connect(GSL_scale_Combo_Box,  static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), [=]{fitting_Settings->current_Scale  = GSL_scale_Combo_Box->currentText(); });
+		connect(GSL_solver_Combo_Box, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), [=]{fitting_Settings->current_Solver = GSL_solver_Combo_Box->currentText();});
+		connect(GSL_fdtype_Combo_Box, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), [=]{fitting_Settings->current_Fdtype = GSL_fdtype_Combo_Box->currentText();});
+
+		connect(GSL_factor_up_Line_Edit,   &QLineEdit::textChanged, [=]{fitting_Settings->factor_Up		= GSL_factor_up_Line_Edit->text().toDouble();	});
+		connect(GSL_factor_down_Line_Edit, &QLineEdit::textChanged, [=]{fitting_Settings->factor_Down	= GSL_factor_down_Line_Edit->text().toDouble();	});
+		connect(GSL_avmax_Line_Edit,	   &QLineEdit::textChanged, [=]{fitting_Settings->avmax			= GSL_avmax_Line_Edit->text().toDouble();		});
+		connect(GSL_h_df_Line_Edit,		   &QLineEdit::textChanged, [=]{fitting_Settings->h_df			= GSL_h_df_Line_Edit->text().toDouble();		});
+		connect(GSL_h_fvv_Line_Edit,	   &QLineEdit::textChanged, [=]{fitting_Settings->h_fvv			= GSL_h_fvv_Line_Edit->text().toDouble();		});
 	}
 	{
 		// create spoiler
@@ -371,41 +406,51 @@ void Fitting_Settings_Editor::create_SO_Main_Params_Group_Box()
 		SO_Fit_Params_Group_Box_Layout = new QGridLayout(SO_Fit_Params_Group_Box);
 	}
 	{
-		num_Runs_Label = new QLabel("Number of runs");
-		num_Runs_Line_Edit = new QLineEdit(QString::number(fitting_Settings->num_Runs));
-			num_Runs_Line_Edit->setValidator(new QIntValidator(0, MAX_INTEGER, this));
+		SO_randomized_Start_Check_Box = new QCheckBox("Randomized start",this);
+			SO_randomized_Start_Check_Box->setChecked(fitting_Settings->randomized_Start);
 
-		max_Evaluations_Label = new QLabel("Max number of evaluations");
-		max_Evaluations_Line_Edit = new QLineEdit(QString::number(fitting_Settings->max_Evaluations));
-			max_Evaluations_Line_Edit->setValidator(new QIntValidator(0, MAX_INTEGER, this));
-			max_Evaluations_Line_Edit->setDisabled(fitting_Settings->max_Eval_Check);
+		SO_num_Runs_Label = new QLabel("Number of runs");
+			SO_num_Runs_Label->setEnabled(fitting_Settings->randomized_Start);
+		SO_num_Runs_Line_Edit = new QLineEdit(QString::number(fitting_Settings->num_Runs));
+			SO_num_Runs_Line_Edit->setValidator(new QIntValidator(0, MAX_INTEGER, this));
+			SO_num_Runs_Line_Edit->setEnabled(fitting_Settings->randomized_Start);
+
+		SO_max_Evaluations_Label = new QLabel("Max number of evaluations");
+			SO_max_Evaluations_Label->setDisabled(fitting_Settings->max_Eval_Check);
+		SO_max_Evaluations_Line_Edit = new QLineEdit(QString::number(fitting_Settings->max_Evaluations));
+			SO_max_Evaluations_Line_Edit->setValidator(new QIntValidator(0, MAX_INTEGER, this));
+			SO_max_Evaluations_Line_Edit->setDisabled(fitting_Settings->max_Eval_Check);
+
+		SO_max_Eval_Check_Box = new QCheckBox("Num. evals "+Proportional_Sym+" num. params",this);
+			SO_max_Eval_Check_Box->setChecked(fitting_Settings->max_Eval_Check);
+		SO_max_Eval_Factor_Line_Edit = new QLineEdit(QString::number(fitting_Settings->max_Eval_Factor));
+			SO_max_Eval_Factor_Line_Edit->setValidator(new QIntValidator(0, MAX_INTEGER, this));
+			SO_max_Eval_Factor_Line_Edit->setEnabled(fitting_Settings->max_Eval_Check);
 
 
-		max_Eval_Check_Box = new QCheckBox(this);
-			max_Eval_Check_Box->setChecked(fitting_Settings->max_Eval_Check);
-		max_Eval_Factor_Label = new QLabel("~ number of parameters");
-		max_Eval_Factor_Line_Edit = new QLineEdit(QString::number(fitting_Settings->max_Eval_Factor));
-			max_Eval_Factor_Line_Edit->setValidator(new QIntValidator(0, MAX_INTEGER, this));
-			max_Eval_Factor_Line_Edit->setEnabled(fitting_Settings->max_Eval_Check);
+		SO_Fit_Params_Group_Box_Layout->addWidget(SO_randomized_Start_Check_Box,	0,0,1,1);
+		SO_Fit_Params_Group_Box_Layout->addWidget(SO_num_Runs_Label,				1,0,1,1);
+		SO_Fit_Params_Group_Box_Layout->addWidget(SO_num_Runs_Line_Edit,			1,1,1,1);
+		SO_Fit_Params_Group_Box_Layout->addWidget(SO_max_Evaluations_Label,			2,0,1,1);
+		SO_Fit_Params_Group_Box_Layout->addWidget(SO_max_Evaluations_Line_Edit,		2,1,1,1);
+		SO_Fit_Params_Group_Box_Layout->addWidget(SO_max_Eval_Check_Box,			3,0,1,1);
+		SO_Fit_Params_Group_Box_Layout->addWidget(SO_max_Eval_Factor_Line_Edit,		3,1,1,1);
 
-
-
-		SO_Fit_Params_Group_Box_Layout->addWidget(num_Runs_Label,				0,0,1,2);
-		SO_Fit_Params_Group_Box_Layout->addWidget(num_Runs_Line_Edit,			0,2,1,1);
-		SO_Fit_Params_Group_Box_Layout->addWidget(max_Evaluations_Label,		1,0,1,2);
-		SO_Fit_Params_Group_Box_Layout->addWidget(max_Evaluations_Line_Edit,	1,2,1,1);
-		SO_Fit_Params_Group_Box_Layout->addWidget(max_Eval_Check_Box,			2,0,1,1);
-		SO_Fit_Params_Group_Box_Layout->addWidget(max_Eval_Factor_Label,		2,1,1,1);
-		SO_Fit_Params_Group_Box_Layout->addWidget(max_Eval_Factor_Line_Edit,	2,2,1,1);
-
-		connect(num_Runs_Line_Edit,		   &QLineEdit::textChanged, fitting_Settings, [=]{fitting_Settings->num_Runs		= num_Runs_Line_Edit->		 text().toInt();});
-		connect(max_Evaluations_Line_Edit, &QLineEdit::textChanged, fitting_Settings, [=]{fitting_Settings->max_Evaluations = max_Evaluations_Line_Edit->text().toInt();});
-		connect(max_Eval_Factor_Line_Edit, &QLineEdit::textChanged, fitting_Settings, [=]{fitting_Settings->max_Eval_Factor = max_Eval_Factor_Line_Edit->text().toInt();});
-		connect(max_Eval_Check_Box,		   &QCheckBox::toggled,		fitting_Settings, [=]
+		connect(SO_randomized_Start_Check_Box,&QCheckBox::toggled,	   fitting_Settings, [=]
 		{
-			fitting_Settings->max_Eval_Check = max_Eval_Check_Box->isChecked();
-			max_Evaluations_Line_Edit->setDisabled(fitting_Settings->max_Eval_Check);
-			max_Eval_Factor_Line_Edit->setEnabled(fitting_Settings->max_Eval_Check);
+			fitting_Settings->randomized_Start = SO_randomized_Start_Check_Box->isChecked();
+			SO_num_Runs_Label->setEnabled(fitting_Settings->randomized_Start);
+			SO_num_Runs_Line_Edit->setEnabled(fitting_Settings->randomized_Start);
+		});
+		connect(SO_num_Runs_Line_Edit,		  &QLineEdit::textChanged, fitting_Settings, [=]{fitting_Settings->num_Runs		   = SO_num_Runs_Line_Edit->	   text().toInt();});
+		connect(SO_max_Evaluations_Line_Edit, &QLineEdit::textChanged, fitting_Settings, [=]{fitting_Settings->max_Evaluations = SO_max_Evaluations_Line_Edit->text().toInt();});
+		connect(SO_max_Eval_Factor_Line_Edit, &QLineEdit::textChanged, fitting_Settings, [=]{fitting_Settings->max_Eval_Factor = SO_max_Eval_Factor_Line_Edit->text().toInt();});
+		connect(SO_max_Eval_Check_Box,		  &QCheckBox::toggled,	   fitting_Settings, [=]
+		{
+			fitting_Settings->max_Eval_Check = SO_max_Eval_Check_Box->isChecked();
+			SO_max_Evaluations_Label->setDisabled(fitting_Settings->max_Eval_Check);
+			SO_max_Evaluations_Line_Edit->setDisabled(fitting_Settings->max_Eval_Check);
+			SO_max_Eval_Factor_Line_Edit->setEnabled(fitting_Settings->max_Eval_Check);
 		});
 	}
 }

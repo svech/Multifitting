@@ -14,10 +14,9 @@ class Main_Calculation_Module: public QObject
 {
 	Q_OBJECT
 public:
-	Main_Calculation_Module(Multilayer_Approach* multilayer_Approach, QString calc_Mode);
+	Main_Calculation_Module(QString calc_Mode);
 	~Main_Calculation_Module();
 
-	Multilayer_Approach* multilayer_Approach;
 	QTabWidget* multilayer_Tabs;
 	QString calc_Mode;
 	QVector<Multilayer*> multilayers;

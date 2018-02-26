@@ -8,7 +8,7 @@ class Fits_Selector : public QWidget
 {
 	Q_OBJECT
 public:
-	explicit Fits_Selector(Multilayer_Approach* multilayer_Approach, QWidget* parent = nullptr);
+	explicit Fits_Selector(QWidget* parent = nullptr);
 
 	void closeEvent(QCloseEvent* event);
 	void create_Main_Layout();
@@ -22,7 +22,6 @@ public:
 	void rename_Item();
 	void open_Fit();
 
-	Multilayer_Approach* multilayer_Approach;
 	QMap<QString, Fits_Selector*>& runned_Fits_Selectors;
 
 	QVBoxLayout* main_Layout;

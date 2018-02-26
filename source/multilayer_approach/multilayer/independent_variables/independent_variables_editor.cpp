@@ -1,5 +1,6 @@
 #include "independent_variables_editor.h"
 #include "multilayer_approach/multilayer/independent_variables/variable_selection.h"
+#include "multilayer_approach/multilayer_approach.h"
 
 Independent_Variables_Editor::Independent_Variables_Editor(QTreeWidgetItem* structure_Item, QListWidgetItem* list_Item, QListWidget* variables_List, QWidget *parent) :
 	structure_Item(structure_Item),
@@ -32,8 +33,8 @@ void Independent_Variables_Editor::create_Main_Layout()
 	main_Layout->setSpacing(0);
 	main_Layout->setContentsMargins(4,0,4,0);
 
+	create_Shortcuts();
 	create_Menu();
-
 	create_Standard_Interface();
 		main_Layout->addWidget(group_Box);
 
@@ -51,6 +52,22 @@ void Independent_Variables_Editor::create_Main_Layout()
 	connect(done_Button, &QPushButton::clicked, this, &Independent_Variables_Editor::close);
 
 	refresh_Show_Data(show_Data);
+}
+
+void Independent_Variables_Editor::create_Shortcuts()
+{
+	// shortcuts
+	{
+		QShortcut* save_Shortcut			= new QShortcut(QKeySequence(Qt::Key_S | Qt::CTRL), this);
+		QShortcut* open_Shortcut			= new QShortcut(QKeySequence(Qt::Key_O | Qt::CTRL), this);
+		QShortcut* fit_Shortcut				= new QShortcut(QKeySequence(Qt::Key_F | Qt::CTRL | Qt::SHIFT), this);
+		QShortcut* calc_Specular_Shortcut	= new QShortcut(QKeySequence(Qt::Key_C | Qt::CTRL | Qt::SHIFT), this);
+
+		connect(save_Shortcut,			&QShortcut::activated, this, [=]{ global_Multilayer_Approach->save(default_File);});
+		connect(open_Shortcut,			&QShortcut::activated, this, [=]{ global_Multilayer_Approach->open(default_File);});
+		connect(fit_Shortcut,			&QShortcut::activated, this, [=]{ global_Multilayer_Approach->start_Fitting();	  });
+		connect(calc_Specular_Shortcut, &QShortcut::activated, this, [=]{ global_Multilayer_Approach->calc_Reflection(); });
+	}
 }
 
 void Independent_Variables_Editor::create_Menu()

@@ -1,8 +1,7 @@
 #include "main_calculation_module.h"
 
-Main_Calculation_Module::Main_Calculation_Module(Multilayer_Approach* multilayer_Approach, QString calc_Mode):
-	multilayer_Approach	(multilayer_Approach),
-	multilayer_Tabs		(multilayer_Approach->multilayer_Tabs),
+Main_Calculation_Module::Main_Calculation_Module(QString calc_Mode):
+	multilayer_Tabs		(global_Multilayer_Approach->multilayer_Tabs),
 	multilayers			(multilayer_Tabs->count()),
 	calculation_Trees	(multilayer_Tabs->count()),
 	calc_Mode			(calc_Mode)
@@ -55,10 +54,10 @@ void Main_Calculation_Module::fitting()
 	}
 
 	// reload dependences
-	if(!multilayer_Approach->runned_Tables_Of_Structures.contains(table_Key))
+	if(!global_Multilayer_Approach->runned_Tables_Of_Structures.contains(table_Key))
 	{
-		multilayer_Approach->table_Of_Structures = new Table_Of_Structures(multilayer_Approach);
-		multilayer_Approach->table_Of_Structures->close();
+		global_Multilayer_Approach->table_Of_Structures = new Table_Of_Structures(global_Multilayer_Approach);
+		global_Multilayer_Approach->table_Of_Structures->close();
 	}
 
 	fitables.clear_All();
@@ -104,7 +103,7 @@ void Main_Calculation_Module::fitting()
 	/// fitting from here
 	if( fitables.fit_Parameters.size()>0 )
 	{
-		Fitting fitting_Instance(multilayer_Approach, this);
+		Fitting fitting_Instance(this);
 		bool go = fitting_Instance.fit();
 		if(!go) return;
 		print_Calculated_To_File();
@@ -116,15 +115,15 @@ void Main_Calculation_Module::fitting()
 		{
 			// refresh trees
 			renew_Item_Trees();
-			multilayer_Approach->refresh_All_Multilayers_View();
+			global_Multilayer_Approach->refresh_All_Multilayers_View();
 
 			// refresh table
-			if(multilayer_Approach->runned_Tables_Of_Structures.contains(table_Key))
+			if(global_Multilayer_Approach->runned_Tables_Of_Structures.contains(table_Key))
 			{
-				int active_Tab = multilayer_Approach->table_Of_Structures->main_Tabs->currentIndex();
-				multilayer_Approach->table_Of_Structures->close();
-				multilayer_Approach->open_Table_Of_Structures();
-				multilayer_Approach->table_Of_Structures->main_Tabs->setCurrentIndex(active_Tab);
+				int active_Tab = global_Multilayer_Approach->table_Of_Structures->main_Tabs->currentIndex();
+				global_Multilayer_Approach->table_Of_Structures->close();
+				global_Multilayer_Approach->open_Table_Of_Structures();
+				global_Multilayer_Approach->table_Of_Structures->main_Tabs->setCurrentIndex(active_Tab);
 			}
 
 			// save new trees
@@ -133,7 +132,7 @@ void Main_Calculation_Module::fitting()
 			{
 				fitted_Trees[tab_Index] = calculation_Trees[tab_Index]->real_Struct_Tree;
 			}
-			multilayer_Approach->add_Fitted_Structure(fitted_Trees, fitted_State);
+			global_Multilayer_Approach->add_Fitted_Structure(fitted_Trees, fitted_State);
 		}
 	}
 }

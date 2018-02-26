@@ -15,7 +15,7 @@ class Multilayer : public QWidget
 {
 	Q_OBJECT
 public:	
-	explicit Multilayer(Multilayer_Approach* multilayer_Approach, QWidget *parent = 0);
+	explicit Multilayer(QWidget *parent = 0);
 	~Multilayer();
 
 signals:
@@ -39,8 +39,7 @@ public:
 	void remove_Target_Curve(int index_Pressed, bool clean = false);
 	void open_Import_Window(Target_Curve* target_Curve);
 
-	Multilayer_Approach* multilayer_Approach;
-
+	QWidget* parent;
 	QVBoxLayout* main_Layout;
 		QVBoxLayout* struct_Frame_Layout;
 			Structure_Tree* structure_Tree;

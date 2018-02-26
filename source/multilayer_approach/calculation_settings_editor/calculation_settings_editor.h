@@ -4,13 +4,13 @@
 #include "global/layer_data_types.h"
 #include "multilayer_approach/multilayer/multilayer.h"
 
-class Table_Of_Structures;
+//class Table_Of_Structures;
 
 class Calculation_Settings_Editor : public QWidget
 {
 	Q_OBJECT
 public:
-	explicit Calculation_Settings_Editor(Multilayer_Approach* multilayer_Approach, QWidget *parent = nullptr);
+	explicit Calculation_Settings_Editor(QWidget *parent = nullptr);
 
 	void closeEvent(QCloseEvent* event);
 	void create_Main_Layout();
@@ -26,7 +26,6 @@ public:
 
 	void refresh_Independent_Calc_Properties(int tab_Index, int independent_Index, QGroupBox* box);
 
-	Multilayer_Approach* multilayer_Approach;
 	QTabWidget* multilayer_Tabs;
 
 	QVBoxLayout* main_Layout;

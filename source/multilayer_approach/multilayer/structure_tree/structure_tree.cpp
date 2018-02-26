@@ -94,12 +94,34 @@ void Structure_Tree::refresh_If_Layer(QTreeWidgetItem* this_Item)
 			different_Layers_Counter++;
 			data.layer_Index = different_Layers_Counter;
 			if(this_Item->parent())
+			{
 				data.has_Parent = true;
-			else
+			} else
+			{
 				data.has_Parent = false;
-			QVariant var; var.setValue( data );
-			this_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+			}
 		}
+
+		// remove depth and sigma grading if independent layer
+		bool no_Good_Parent = !this_Item->parent();
+		if(this_Item->parent())
+		{
+			Data parent_Data = this_Item->parent()->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+			no_Good_Parent = no_Good_Parent && (parent_Data.item_Type != item_Type_Multilayer);
+		}
+		if(no_Good_Parent)
+		{
+			data.thickness_Drift.is_Drift_Line = false;
+			data.thickness_Drift.is_Drift_Rand = false;
+			data.thickness_Drift.is_Drift_Sine = false;
+
+			data.sigma_Drift.is_Drift_Line = false;
+			data.sigma_Drift.is_Drift_Rand = false;
+			data.sigma_Drift.is_Drift_Sine = false;
+		}
+
+		QVariant var; var.setValue( data );
+		this_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
 		set_Structure_Item_Text(this_Item);
 	} else
 	// if multilayer, go deeper

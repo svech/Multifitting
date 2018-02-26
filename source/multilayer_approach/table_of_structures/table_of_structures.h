@@ -15,7 +15,7 @@ class Table_Of_Structures : public QWidget
 	Q_OBJECT
 	void closeEvent(QCloseEvent* event);
 public:
-	explicit Table_Of_Structures(Multilayer_Approach* multilayer_Approach, QWidget* parent = 0);
+	explicit Table_Of_Structures(QWidget* parent = 0);
 
 signals:
 //	void closed();
@@ -128,7 +128,6 @@ public:
 	QList<Structure_Tree*> list_Of_Trees;
 	QList<int> rows_List_To_Span;
 
-	Multilayer_Approach* multilayer_Approach;
 	QMap<QString, Table_Of_Structures*>& runned_Tables_Of_Structures;
 	QMap<QString, Calculation_Settings_Editor*>& runned_Calculation_Settings_Editor;
 	QTabWidget* multilayer_Tabs;

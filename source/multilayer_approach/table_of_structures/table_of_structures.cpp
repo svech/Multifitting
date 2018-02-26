@@ -1,11 +1,10 @@
 #include "table_of_structures.h"
 #include "algorithm"
 
-Table_Of_Structures::Table_Of_Structures(Multilayer_Approach* multilayer_Approach, QWidget *parent) :
-	multilayer_Approach(multilayer_Approach),
-	runned_Tables_Of_Structures(multilayer_Approach->runned_Tables_Of_Structures),
-	runned_Calculation_Settings_Editor(multilayer_Approach->runned_Calculation_Settings_Editor),
-	multilayer_Tabs(multilayer_Approach->multilayer_Tabs),
+Table_Of_Structures::Table_Of_Structures(QWidget *parent) :
+	runned_Tables_Of_Structures(global_Multilayer_Approach->runned_Tables_Of_Structures),
+	runned_Calculation_Settings_Editor(global_Multilayer_Approach->runned_Calculation_Settings_Editor),
+	multilayer_Tabs(global_Multilayer_Approach->multilayer_Tabs),
 	QWidget(parent)
 {
 	setWindowTitle("Table Of Structures");
