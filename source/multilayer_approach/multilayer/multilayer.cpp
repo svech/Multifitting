@@ -84,14 +84,14 @@ void Multilayer::create_Variables_Tabs()
 		structure_Table_Button = new QPushButton("Structure table");
 			layout->addWidget(structure_Table_Button);
 
-		fits_Selector_Button = new QPushButton("Fits selector");
-			layout->addWidget(fits_Selector_Button);
+		fitting_Settings_Button = new QPushButton("Fitting settings");
+			layout->addWidget(fitting_Settings_Button);
 
 		calculation_Settings_Button = new QPushButton("Calculation settings");
 			layout->addWidget(calculation_Settings_Button);
 
-		fitting_Settings_Button = new QPushButton("Fitting settings");
-			layout->addWidget(fitting_Settings_Button);
+		fits_Selector_Button = new QPushButton("Fits selector");
+			layout->addWidget(fits_Selector_Button);
 
 		frame->setLayout(layout);
 		frame->setContentsMargins(0,-5,0,-8);

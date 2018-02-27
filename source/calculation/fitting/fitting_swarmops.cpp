@@ -7,6 +7,7 @@ Fitting_SwarmOps::Fitting_SwarmOps(Fitting* fitting):
 	fitting(fitting),
 	params(&fitting->params)
 {
+
 }
 
 void Fitting_SwarmOps::callback(Fitting_Params* params, SO_TFitness residual)
@@ -39,14 +40,13 @@ SO_TFitness Fitting_SwarmOps::calc_Residual(const SO_TElm* x,  void* context, co
 	Fitting::calc_Residual(params->x, params, params->f);
 
 	// calc residual
-	SO_TFitness residual=-2018;
-	gsl_blas_ddot(params->f, params->f, &residual);
+	gsl_blas_ddot(params->f, params->f, &params->final_Residual);
 
 	// print state	
-	callback(params, residual);
+	callback(params, params->final_Residual);
 	params->counter++;
 
-	return residual;
+	return params->final_Residual;
 }
 
 bool Fitting_SwarmOps::fit()
@@ -58,19 +58,12 @@ bool Fitting_SwarmOps::fit()
 
 	// read main parameters
 	size_t kMethodId = SO_kMethodDE;	// default value
-	size_t kNumRuns = 1;				// default value
-	if(global_Multilayer_Approach->fitting_Settings->randomized_Start)
-	{
-		kNumRuns = global_Multilayer_Approach->fitting_Settings->num_Runs;
-	}
 	const SO_TDim kDim = params->p;
 	size_t kNumIterations = global_Multilayer_Approach->fitting_Settings->max_Evaluations;
 	if(global_Multilayer_Approach->fitting_Settings->max_Eval_Check)
 	{
 		kNumIterations = global_Multilayer_Approach->fitting_Settings->max_Eval_Factor*kDim;
 	}
-//	const char* kTraceFilename = "FitnessTrace.txt";
-
 	{
 		// read method
 		if(global_Multilayer_Approach->fitting_Settings->current_Method == SO_Methods[Mesh_Iteration])						{	kMethodId = SO_kMethodMESH;		}
@@ -98,14 +91,13 @@ bool Fitting_SwarmOps::fit()
 
 	// calc init residual
 	Fitting::calc_Residual(params->x, params, params->f);
-	double residual=-2018;
-	gsl_blas_ddot(params->f, params->f, &residual);
+	gsl_blas_ddot(params->f, params->f, &params->init_Residual);
 
 	auto start = std::chrono::system_clock::now();
 	struct SO_Results res = SO_OptimizePar(
 			  SO_kMethodDefaultParameters[kMethodId],			/* Behavioural parameters for optimization method. */
 			  kMethodId,										/* Optimization method. */
-			  kNumRuns,											/* Number of optimization runs. */
+			  1,												/* Number of optimization runs. */
 			  kNumIterations,									/* Number of iterations per run. */
 			  NULL,												/* Additional optimization settings. */
 			  calc_Residual,									/* Optimization problem (aka. fitness function). */
@@ -116,44 +108,66 @@ bool Fitting_SwarmOps::fit()
 			  upperBound.data(),								/* Upper initialization bounder. */
 			  lowerBound.data(),								/* Lower search-space boundary. */
 			  upperBound.data(),								/* Upper search-space boundary. */
-			  NULL/*kTraceFilename*/);							/* Fitness trace filename (null-pointer for no trace). */
+			  NULL);											/* Fitness trace filename (null-pointer for no trace). */
 
 	auto end = std::chrono::system_clock::now();
 	auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
 	qInfo() << "\nFit  : "<< elapsed.count()/1000. << " seconds\n";
 	qInfo() << "previous_ID =" << previous_ID << endl;
 
-	printf("Fitness average:  %g\n", res.stat.fitnessAvg);
-	printf("Fitness std.dev.: %g\n", res.stat.fitnessStdDev);
-	printf("Best fitness:	  %g\n", res.best.fitness);
-	printf("\n");
-	printf("Initial     |f| = %g\n", residual);
+//	printf("Fitness average:  %g\n", res.stat.fitnessAvg);
+//	printf("Fitness std.dev.: %g\n", res.stat.fitnessStdDev);
+//	printf("Best fitness:	  %g\n", res.best.fitness);
+//	printf("\n");
+
+	params->final_Residual = res.best.fitness;
+	if(!global_Multilayer_Approach->fitting_Settings->randomized_Start)
+	{
+		printf("Initial     |f| = %g\n", params->init_Residual);
+
+		// compare with previous solution
+		double* final_State_Parametrized;
+		if(params->init_Residual<res.best.fitness)
+		{
+			printf("-Keep previous solution-\n\n");
+			final_State_Parametrized = params->fitables.fit_Value_Parametrized.data();
+		}  else
+		{
+			final_State_Parametrized = res.best.x;
+		}
+
+		// replace parameters
+		for(size_t i=0; i<params->p; ++i)
+		{
+			// actualize params->x
+			gsl_vector_set(params->x, i, final_State_Parametrized[i]);
+
+			// unpapametrize
+			res.best.x[i] = params->main_Calculation_Module->unparametrize(	final_State_Parametrized[i],
+																			params->fitables.fit_Parameters[i]->fit.min,
+																			params->fitables.fit_Parameters[i]->fit.max);
+			params->fitables.fit_Parameters[i]->value = res.best.x[i];
+		}
+	} else
+	// if randomized start
+	{
+		// replace parameters
+		for(size_t i=0; i<params->p; ++i)
+		{
+			// actualize params->x
+			gsl_vector_set(params->x, i, res.best.x[i]);
+
+			// unpapametrize
+			res.best.x[i] = params->main_Calculation_Module->unparametrize(	res.best.x[i],
+																			params->fitables.fit_Parameters[i]->fit.min,
+																			params->fitables.fit_Parameters[i]->fit.max);
+		}
+	}
+
 	printf("Final       |f| = %g\n", res.best.fitness);
-	printf("\n");
-
-	// compare with previous solution
-	double* final_State_Parametrized;
-	if(residual<res.best.fitness)
-	{
-		printf("-Keep previous solution-\n\n");
-		final_State_Parametrized = params->fitables.fit_Value_Parametrized.data();
-	}  else
-	{
-		final_State_Parametrized = res.best.x;
-	}
-
-	// replace parameters
-	for(size_t i=0; i<params->p; ++i)
-	{
-		res.best.x[i] = params->main_Calculation_Module->unparametrize(	final_State_Parametrized[i],
-																		params->fitables.fit_Parameters[i]->fit.min,
-																		params->fitables.fit_Parameters[i]->fit.max);
-		params->fitables.fit_Parameters[i]->value = res.best.x[i];
-	}
-
 	printf("Best solution:   ");
 	SO_PrintVector(res.best.x, res.best.dim);
-	printf("\n");
+	printf("\n\n");
 
 	SO_FreeResults(&res);
 	return true;

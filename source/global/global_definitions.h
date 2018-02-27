@@ -22,9 +22,10 @@ class Node;
 
 // -----------------------------------------------------------------------------------------
 
-#define control_String	"Multifitting"
-#define default_File	"save.fit"
-#define file_Extension	"fit"
+#define control_String				"Multifitting"
+#define default_File				"save.fit"
+#define default_Fit_Statictics_File	"fits.txt"
+#define file_Extension				"fit"
 
 // settings
 

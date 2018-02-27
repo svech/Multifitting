@@ -20,6 +20,9 @@ struct Fitting_Params
 	const size_t n;
 	gsl_vector* x;
 
+	double init_Residual;
+	double final_Residual;
+
 	// for SwarmOps
 	size_t counter;
 };
@@ -39,6 +42,7 @@ public:
 	gsl_vector* f;
 	gsl_vector* x;
 	Fitting_Params params;
+	QVector<int> widths;
 
 	static double func(double argument, int index);
 	size_t num_Residual_Points();
@@ -48,8 +52,11 @@ public:
 	static void calc_Residual(const gsl_vector* x, Fitting_Params* params, gsl_vector* f);
 	static void fill_Residual(int& residual_Shift, Data_Element<Target_Curve>& target_Element, gsl_vector* f, int index);
 	void initialize_Position();
+	void randomize_Position();
+	bool run_Fitting();
 	bool fit();
 
+	void add_Fit_To_File(const gsl_vector* x, double residual, QString filename, int run);
 	bool check_Residual_Expression();
 };
 

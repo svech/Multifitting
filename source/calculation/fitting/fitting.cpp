@@ -17,6 +17,9 @@ Fitting::Fitting(Main_Calculation_Module* main_Calculation_Module):
 		   n,
 		   x,
 
+		   -2018,
+		   -2018,
+
 		   // for SwarmOps
 		   0
 		   })
@@ -35,10 +38,10 @@ Fitting::~Fitting()
 
 double Fitting::func(double argument, int index)
 {
-//	if(index == 0)
-//	{
-//		return log(argument+1E-4);
-//	} else
+	if(index == 0)
+	{
+		return log(argument+1E-4);
+	} else
 	{
 		return argument;
 	}
@@ -296,12 +299,6 @@ void Fitting::fill_Residual(int& residual_Shift, Data_Element<Target_Curve>& tar
 
 void Fitting::initialize_Position()
 {
-	// set value of slaves
-	for(size_t i=0; i<fitables.fit_Parameters.size(); ++i)
-	{
-		Fitting::slaves_Recalculation(fitables.fit_Parameters[i], &params);
-	}
-
 	// set value of real fitables
 	for(size_t i=0; i<fitables.fit_Parameters.size(); ++i)
 	{
@@ -310,22 +307,35 @@ void Fitting::initialize_Position()
 																				  fitables.fit_Parameters[i]->fit.max);
 		gsl_vector_set(x, i, fitables.fit_Value_Parametrized[i]);
 	}
+
+	// initialize residual
+	calc_Residual(params.x, &params, params.f);
+	gsl_blas_ddot(params.f, params.f, &params.init_Residual);
 }
 
-bool Fitting::fit()
+void Fitting::randomize_Position()
 {
-	if(check_Residual_Expression()) return false;
+	const gsl_rng_type* T = gsl_rng_default;
+	gsl_rng* r = gsl_rng_alloc (T);
+	gsl_rng_env_setup();
+	auto now = chrono::system_clock::now();
+	auto now_ns = chrono::time_point_cast<chrono::nanoseconds>(now);
+	auto value = now_ns.time_since_epoch();
+	long duration = value.count();
+	gsl_rng_set(r, duration);
 
-	// --------------------------------------------------------------------------------
-	if(n<=p)
+	// set random value of real fitables
+	for(size_t i=0; i<fitables.fit_Parameters.size(); ++i)
 	{
-		QMessageBox::information(NULL,"Insufficient number of points", "# of fitables: " + QString::number(p) + "\n# of points: " + QString::number(n) + "\n\nShould be f<p");
-		return false;
+		fitables.fit_Value_Parametrized[i] = gsl_rng_uniform(r);
+		gsl_vector_set(x, i, fitables.fit_Value_Parametrized[i]);
 	}
-	// --------------------------------------------------------------------------------
-	initialize_Position();
-	// --------------------------------------------------------------------------------
 
+	gsl_rng_free (r);
+}
+
+bool Fitting::run_Fitting()
+{
 	// GSL
 	if(	GSL_Methods.contains(global_Multilayer_Approach->fitting_Settings->current_Method) )
 	{
@@ -341,8 +351,123 @@ bool Fitting::fit()
 		Fitting_SwarmOps fitting_SwarmOps(this);
 		return fitting_SwarmOps.fit();
 	}
-
 	return false;
+}
+
+bool Fitting::fit()
+{
+	if(check_Residual_Expression()) return false;
+
+	// --------------------------------------------------------------------------------
+	if(n<=p)
+	{
+		QMessageBox::information(NULL,"Insufficient number of points", "# of fitables: " + QString::number(p) + "\n# of points: " + QString::number(n) + "\n\nShould be f<p");
+		return false;
+	}
+	// --------------------------------------------------------------------------------
+	initialize_Position();
+	bool fit_Return = false;
+	// single fit
+	if(!global_Multilayer_Approach->fitting_Settings->randomized_Start)
+	{
+//		add_Fit_To_File(params.x, params.init_Residual, default_Fit_Statictics_File, 0);
+		fit_Return = run_Fitting();
+//		add_Fit_To_File(params.x, params.final_Residual, default_Fit_Statictics_File, 1);
+	} else
+	// randomized fit
+	{
+		add_Fit_To_File(params.x, params.init_Residual, default_Fit_Statictics_File, 0);
+		for(int run=1; run<=global_Multilayer_Approach->fitting_Settings->num_Runs; run++)
+		{
+			randomize_Position();
+			fit_Return = run_Fitting();
+			add_Fit_To_File(params.x, params.final_Residual, default_Fit_Statictics_File, run);
+		}
+	}
+	// --------------------------------------------------------------------------------
+
+	return fit_Return;
+}
+
+void Fitting::add_Fit_To_File(const gsl_vector* x, double residual, QString filename, int run)
+{
+	QFile file(filename);
+	if(file.open(QIODevice::WriteOnly | QIODevice::Append))
+	{
+		QTextStream out(&file);
+		out.setFieldAlignment(QTextStream::AlignLeft);
+		QString current_String;
+		int index=0;
+		int spacer = 5;
+
+		if(run==0)
+		{
+			if(out.pos()!=0)
+			{
+				out << qSetFieldWidth(0) <<endl;
+			}
+			QDateTime date_Time = QDateTime::currentDateTime();
+			out << date_Time.toString("< dd.MM.yyyy | hh:mm:ss >") << qSetFieldWidth(0) <<endl;
+
+			widths.clear();
+			//------------------------------------------------------
+			current_String = "run";
+			widths.append(current_String.length()+spacer);
+			out << qSetFieldWidth(widths[index]) << current_String;
+			index++;
+
+			current_String = "residual";
+			widths.append(current_String.length()+spacer);
+			out << qSetFieldWidth(widths[index]) << current_String;
+			index++;
+			//------------------------------------------------------
+			out.setFieldWidth(35);
+			for(int param_Index=0; param_Index<params.p; ++param_Index)
+			{
+				//------------------------------------------------------
+				current_String = params.fitables.fit_Names[param_Index];
+				widths.append(current_String.length()+spacer);
+				out << qSetFieldWidth(widths[index]) << current_String;
+				index++;
+				//------------------------------------------------------
+			}
+			//------------------------------------------------------
+			out << qSetFieldWidth(0) <<endl;
+			//------------------------------------------------------
+		}
+		//------------------------------------------------------
+		index=0;
+
+		current_String = QString::number(run);
+		out << qSetFieldWidth(widths[index]) << current_String;
+		index++;
+
+		current_String = QString::number(residual,'e',3);
+		out << qSetFieldWidth(widths[index]) << current_String;
+		index++;
+
+		//------------------------------------------------------
+		for(int param_Index=0; param_Index<params.p; ++param_Index)
+		{
+			double unparametrized = params.main_Calculation_Module->unparametrize(	gsl_vector_get(x, param_Index),
+																					params.fitables.fit_Parameters[param_Index]->fit.min,
+																					params.fitables.fit_Parameters[param_Index]->fit.max);
+			//------------------------------------------------------
+			current_String = QString::number(unparametrized,'f',4);
+			out << qSetFieldWidth(widths[index]) << current_String;
+			index++;
+			//------------------------------------------------------
+		}
+		//------------------------------------------------------
+		out << qSetFieldWidth(0) <<endl;
+		//------------------------------------------------------
+
+	file.close();
+	} else
+	{
+		QMessageBox::critical(NULL, "Fitting::add_Fit_To_File", "Can't write file " + filename);
+		exit(EXIT_FAILURE);
+	}
 }
 
 bool Fitting::check_Residual_Expression()

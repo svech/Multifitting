@@ -41,8 +41,8 @@ void Table_Of_Structures::create_Main_Layout()
 
 void Table_Of_Structures::set_Window_Geometry()
 {
-	//	resize(800,550);
-	setGeometry(500,200,830,750);
+//	resize(800,550);
+	setGeometry(500,200,960,700);
 }
 
 void Table_Of_Structures::lock_Mainwindow_Interface()
@@ -403,6 +403,8 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 				create_MySigma_Line_Edits_Interlayer	(new_Table, tab_Index, current_Row+4, current_Column, structure_Item);
 			}
 			current_Column += (1+transition_Layer_Functions_Size);
+			///--------------------------------------------------------------------------------------------
+			/// DRIFTS
 			///--------------------------------------------------------------------------------------------
 
 			// thickness linear drift

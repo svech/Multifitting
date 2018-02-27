@@ -38,25 +38,25 @@ bool Fitting_GSL::fit()
 	{
 		// read method
 		if(global_Multilayer_Approach->fitting_Settings->current_Method == GSL_Methods[Two_Dimensional_Subspace])						{
-			if(params->p<2)
-			{
-				QMessageBox::information(NULL,"Insufficient number of parameters", "Method\n\"Two Dimensional Subspace\"\nrequires at least 2 fitables");
-				return false;
-			}																														fdf_params.trs = gsl_multifit_nlinear_trs_subspace2D;	}
-		if(global_Multilayer_Approach->fitting_Settings->current_Method == GSL_Methods[Levenberg_Marquardt])							{	fdf_params.trs = gsl_multifit_nlinear_trs_lm;			};
-		if(global_Multilayer_Approach->fitting_Settings->current_Method == GSL_Methods[Levenberg_Marquardt_with_Geodesic_Acceleration]){	fdf_params.trs = gsl_multifit_nlinear_trs_lmaccel;		}
-		if(global_Multilayer_Approach->fitting_Settings->current_Method == GSL_Methods[Dogleg])										{	fdf_params.trs = gsl_multifit_nlinear_trs_dogleg;		}
+		if(params->p<2)
+		{
+			QMessageBox::information(NULL,"Insufficient number of parameters", "Method\n\"Two Dimensional Subspace\"\nrequires at least 2 fitables");
+			return false;
+		}																																	fdf_params.trs = gsl_multifit_nlinear_trs_subspace2D;	}
+		if(global_Multilayer_Approach->fitting_Settings->current_Method == GSL_Methods[Levenberg_Marquardt])							{	fdf_params.trs = gsl_multifit_nlinear_trs_lm;			}
+		if(global_Multilayer_Approach->fitting_Settings->current_Method == GSL_Methods[Levenberg_Marquardt_with_Geodesic_Acceleration])	{	fdf_params.trs = gsl_multifit_nlinear_trs_lmaccel;		}
+		if(global_Multilayer_Approach->fitting_Settings->current_Method == GSL_Methods[Dogleg])											{	fdf_params.trs = gsl_multifit_nlinear_trs_dogleg;		}
 		if(global_Multilayer_Approach->fitting_Settings->current_Method == GSL_Methods[Double_Dogleg])									{	fdf_params.trs = gsl_multifit_nlinear_trs_ddogleg;		}
 
 		/// read additional parameters
 		// read scaling strategy
-		if(global_Multilayer_Approach->fitting_Settings->current_Scale == GSL_Scales[More])			{	fdf_params.scale = gsl_multifit_nlinear_scale_more;			};
+		if(global_Multilayer_Approach->fitting_Settings->current_Scale == GSL_Scales[More])				{	fdf_params.scale = gsl_multifit_nlinear_scale_more;			};
 		if(global_Multilayer_Approach->fitting_Settings->current_Scale == GSL_Scales[Levenberg])		{	fdf_params.scale = gsl_multifit_nlinear_scale_levenberg;	};
 		if(global_Multilayer_Approach->fitting_Settings->current_Scale == GSL_Scales[Marquardt])		{	fdf_params.scale = gsl_multifit_nlinear_scale_marquardt;	};
 
 		// read linear solver
 		if(global_Multilayer_Approach->fitting_Settings->current_Solver == GSL_Solvers[QR_decomposition])				{	fdf_params.solver = gsl_multifit_nlinear_solver_qr;			};
-		if(global_Multilayer_Approach->fitting_Settings->current_Solver == GSL_Solvers[Cholesky_decomposition])		{	fdf_params.solver = gsl_multifit_nlinear_solver_cholesky;	};
+		if(global_Multilayer_Approach->fitting_Settings->current_Solver == GSL_Solvers[Cholesky_decomposition])			{	fdf_params.solver = gsl_multifit_nlinear_solver_cholesky;	};
 		if(global_Multilayer_Approach->fitting_Settings->current_Solver == GSL_Solvers[Singular_value_decomposition])	{	fdf_params.solver = gsl_multifit_nlinear_solver_svd;		};
 
 		// read fdtype
@@ -88,13 +88,12 @@ bool Fitting_GSL::fit()
 
 	// storage for the output data
 	int info;
-	double chisq_Init, chisq_Final;
 
 	// initialize solver
 	gsl_multifit_nlinear_init(x, &fdf, work);
 
 	// calc initial cost
-	gsl_blas_ddot(f, f, &chisq_Init);
+	gsl_blas_ddot(f, f, &params->init_Residual);
 
 	auto start = std::chrono::system_clock::now();
 		// iterate until convergence
@@ -105,16 +104,19 @@ bool Fitting_GSL::fit()
 	qInfo() << "previous_ID =" << previous_ID << endl;
 
 	// calc final cost
-	gsl_blas_ddot(f, f, &chisq_Final);
+	gsl_blas_ddot(f, f, &params->final_Residual);
 
 	// print summary
 	printf("method              : %s\n",  gsl_multifit_nlinear_trs_name(work));
 	printf("NITER               = %zu\n", gsl_multifit_nlinear_niter(work));
 	printf("NFEV                = %zu\n", fdf.nevalf);
-	printf("initial cost        = %g\n",  chisq_Init);
-	printf("final cost          = %g\n",  chisq_Final);
+	printf("initial cost        = %g\n",  params->init_Residual);
+	printf("final cost          = %g\n",  params->final_Residual);
 	printf("reason for stopping : %s\n",  (info == 1) ? "small step size" : "small gradient");
 	printf("\n");
+
+	// actualize params->x
+	gsl_vector_memcpy(params->x, x);
 
 	gsl_multifit_nlinear_free(work);
 

@@ -68,10 +68,10 @@ public:
 		QTabWidget*	multilayer_Tabs;
 		QToolButton* add_Tab_Corner_Button;
 
-		QMap<QString, Table_Of_Structures*>  runned_Tables_Of_Structures;
+		QMap<QString, Table_Of_Structures*> runned_Tables_Of_Structures;
 		Table_Of_Structures* table_Of_Structures;
 
-		QMap<QString, Fits_Selector*>  runned_Fits_Selectors;
+		QMap<QString, Fits_Selector*> runned_Fits_Selectors;
 		Fits_Selector* fits_Selector;
 		QVector<Fitted_Structure> fitted_Structures;
 		id_Type fits_Positive_Counter = 0;

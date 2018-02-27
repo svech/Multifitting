@@ -24,6 +24,7 @@ void Fitting_Settings_Editor::create_Main_Layout()
 	main_Layout->setContentsMargins(4,4,4,0);
 
 	create_Menu();
+	create_Shortcuts();
 	create_Metods();
 	create_Pages();
 	create_GSL_Main_Params_Group_Box();
@@ -44,6 +45,7 @@ void Fitting_Settings_Editor::create_Main_Layout()
 		main_Layout->addLayout(button_Layout);
 	}
 	methods_Combo_Box->currentIndexChanged(methods_Combo_Box->currentIndex());
+	interface_Created = true;
 }
 
 void Fitting_Settings_Editor::set_Window_Geometry()
@@ -57,6 +59,22 @@ void Fitting_Settings_Editor::create_Menu()
 {
 	Menu* menu = new Menu(window_Type_Fitting_Settings_Editor, this);
 	main_Layout->setMenuBar(menu->menu_Bar);
+}
+
+void Fitting_Settings_Editor::create_Shortcuts()
+{
+	// shortcuts
+	{
+		QShortcut* save_Shortcut			= new QShortcut(QKeySequence(Qt::Key_S | Qt::CTRL), this);
+		QShortcut* open_Shortcut			= new QShortcut(QKeySequence(Qt::Key_O | Qt::CTRL), this);
+//		QShortcut* fit_Shortcut				= new QShortcut(QKeySequence(Qt::Key_F | Qt::CTRL | Qt::SHIFT), this);
+//		QShortcut* calc_Specular_Shortcut	= new QShortcut(QKeySequence(Qt::Key_C | Qt::CTRL | Qt::SHIFT), this);
+
+		connect(save_Shortcut,			&QShortcut::activated, this, [=]{ global_Multilayer_Approach->save(default_File);});
+		connect(open_Shortcut,			&QShortcut::activated, this, [=]{ global_Multilayer_Approach->open(default_File);});
+//		connect(fit_Shortcut,			&QShortcut::activated, this, [=]{ global_Multilayer_Approach->start_Fitting();	  });
+//		connect(calc_Specular_Shortcut, &QShortcut::activated, this, [=]{ global_Multilayer_Approach->calc_Reflection(); });
+	}
 }
 
 void Fitting_Settings_Editor::create_Metods()
@@ -194,6 +212,13 @@ void Fitting_Settings_Editor::create_Metods()
 		// TODO temporary
 		if(	GSL_Methods.contains(fitting_Settings->current_Method) && GSL_Page)	pages_Stack->setCurrentWidget(GSL_Page);
 		if(	SO_Methods. contains(fitting_Settings->current_Method) && SO_Page )	pages_Stack->setCurrentWidget(SO_Page);
+
+		// reload interface state
+		if(interface_Created)
+		{
+			GSL_randomized_Start_Check_Box->setChecked(fitting_Settings->randomized_Start);
+			SO_randomized_Start_Check_Box->setChecked(fitting_Settings->randomized_Start);
+		}
 	});
 }
 

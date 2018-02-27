@@ -21,7 +21,6 @@ INCLUDEPATH +=	"C:/Program Files (x86)/C++ libraries" \
 		"C:/Program Files (x86)/C++ libraries/SwarmOps/include" \
 		"C:/Program Files (x86)/C++ libraries/RandomOps/include"
 
-
 LIBS += "C:/Program Files (x86)/C++ libraries/GSL 2.4 Bruot/lib/gsl/cblas.lib" \
 		"C:/Program Files (x86)/C++ libraries/GSL 2.4 Bruot/lib/gsl/gsl.lib" \
 		"C:/Program Files (x86)/C++ libraries/SwarmOps/SwarmOps.lib" \
