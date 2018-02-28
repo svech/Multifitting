@@ -9,6 +9,7 @@ public:
 	Data(QString item_Type_Passed = "empty");
 
 	void reset_All_IDs();
+	QString	parent_Item_Type;
 	QString	item_Type;
 	id_Type id = 0;
 	///---------------------------------------------
@@ -80,7 +81,7 @@ public:
 		Drift sigma_Drift;
 	///---------------------------------------------
 	///---------------------------------------------
-	// Multilayer
+	// Multilayer, Aperiodic
 	//---------------------------------------------
 		int first_Layer_Index = -1;
 		int last_Layer_Index = -1;

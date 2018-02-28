@@ -408,7 +408,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 			///--------------------------------------------------------------------------------------------
 
 			// thickness linear drift
-			if(struct_Data.item_Type == item_Type_Layer && depth >=2)
+			if(struct_Data.item_Type == item_Type_Layer && struct_Data.parent_Item_Type == item_Type_Multilayer)
 			{
 				QString whats_This = whats_This_Thickness_Drift_Line_Value;
 				add_Columns(new_Table, current_Column+1);
@@ -424,7 +424,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 			///--------------------------------------------------------------------------------------------
 
 			// thickness random drift
-			if(struct_Data.item_Type == item_Type_Layer && depth >=2)
+			if(struct_Data.item_Type == item_Type_Layer && struct_Data.parent_Item_Type == item_Type_Multilayer)
 			{
 				QString whats_This = whats_This_Thickness_Drift_Rand_Rms;
 				add_Columns(new_Table, current_Column+1);
@@ -440,7 +440,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 			///--------------------------------------------------------------------------------------------
 
 			// thickness sine drift
-			if(struct_Data.item_Type == item_Type_Layer && depth >=2)
+			if(struct_Data.item_Type == item_Type_Layer && struct_Data.parent_Item_Type == item_Type_Multilayer)
 			{
 				add_Columns(new_Table, current_Column+3);
 
@@ -470,7 +470,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 			///--------------------------------------------------------------------------------------------
 
 			// sigma linear drift
-			if(struct_Data.item_Type == item_Type_Layer && depth >=2)
+			if(struct_Data.item_Type == item_Type_Layer && struct_Data.parent_Item_Type == item_Type_Multilayer)
 			{
 				QString whats_This = whats_This_Sigma_Drift_Line_Value;
 				add_Columns(new_Table, current_Column+1);
@@ -486,7 +486,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 			///--------------------------------------------------------------------------------------------
 
 			// sigma random drift
-			if(struct_Data.item_Type == item_Type_Layer && depth >=2)
+			if(struct_Data.item_Type == item_Type_Layer && struct_Data.parent_Item_Type == item_Type_Multilayer)
 			{
 				QString whats_This = whats_This_Sigma_Drift_Rand_Rms;
 				add_Columns(new_Table, current_Column+1);
@@ -502,7 +502,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 			///--------------------------------------------------------------------------------------------
 
 			// sigma sine drift
-			if(struct_Data.item_Type == item_Type_Layer && depth >=2)
+			if(struct_Data.item_Type == item_Type_Layer && struct_Data.parent_Item_Type == item_Type_Multilayer)
 			{
 				add_Columns(new_Table, current_Column+3);
 
@@ -2462,6 +2462,8 @@ void Table_Of_Structures::reload_All_Widgets(QObject* sender)
 	{
 		// reloading for widgets on current tab
 		int current_Tab_Index = main_Tabs->currentIndex();
+//		qInfo() << "all_Widgets_To_Reload[current_Tab_Index].size() " << all_Widgets_To_Reload[current_Tab_Index].size();
+
 		for(int i=0; i<all_Widgets_To_Reload[current_Tab_Index].size(); ++i)
 		{
 			QWidget* widget_To_Reload = all_Widgets_To_Reload[current_Tab_Index][i];
@@ -2519,7 +2521,7 @@ void Table_Of_Structures::reload_Related_Widgets(QObject* sender)
 {
 	if(table_Is_Created)
 	{
-		//	qInfo() << "reload_Related_Widgets " << ++temp_Counter_1;
+//			qInfo() << "reload_Related_Widgets " << ++temp_Counter_1;
 		for(id_Type id : reload_Show_Dependence_Map.values(qobject_cast<QWidget*>(sender)))
 		{
 			for(QWidget* related: reload_Show_Dependence_Map.keys(id))

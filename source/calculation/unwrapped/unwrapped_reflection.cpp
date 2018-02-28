@@ -531,7 +531,7 @@ void Unwrapped_Reflection::fill_Specular_Values(const Data& measurement, int thr
 	R  [point_Index] = s_Weight * R_s[point_Index] + p_Weight * R_p[point_Index];
 	if(R[point_Index]!=R[point_Index])
 	{
-		R[point_Index]=1;		// NaN to 1. Be careful!
+		R[point_Index]=2;		// NaN to 2. Be careful!
 		qInfo() << "Unwrapped_Reflection::fill_Specular_Values  :  R = NaN";
 	}
 }

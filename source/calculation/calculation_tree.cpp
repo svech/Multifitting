@@ -112,7 +112,7 @@ void Calculation_Tree::fill_Tree_From_Scratch(tree<Node>& calc_Tree, QTreeWidget
 	{
 		QTreeWidgetItem substrate_Item;
 
-		// the first (0) is the ambient in real tree, (1) in independent copy // WARNING !
+		// the first (0) is the ambient in real tree, (1) is the ambient in independent copy // WARNING !
 		int ambient_Index_In_Item_Tree = -1;
 		if(curve_Class == INDEPENDENT) ambient_Index_In_Item_Tree = 1;
 		if(curve_Class == TARGET)	   ambient_Index_In_Item_Tree = 0;
@@ -139,7 +139,7 @@ void Calculation_Tree::fill_Calc_Tree_From_Item_Tree(const tree<Node>::iterator&
 	for(int i=0; i<item->childCount(); ++i)
 	{
 		Node temp_Node(item->child(i));
-		calc_Tree.append_child(parent, temp_Node);	// Multilayer items are also here
+		calc_Tree.append_child(parent, temp_Node);	// Multilayer and Aperiodic items are also here
 
 		if(item->child(i)->childCount()>0)
 		{
@@ -206,7 +206,8 @@ void Calculation_Tree::statify_Calc_Tree_Iteration(const tree<Node>::iterator& p
 
 		if(tree<Node>::depth(child) == depth)
 		{
-			if(child.node->data.struct_Data.item_Type == item_Type_Multilayer)
+			if(child.node->data.struct_Data.item_Type == item_Type_Multilayer ||
+			   child.node->data.struct_Data.item_Type == item_Type_Aperiodic  )
 			{
 				chosen_Nodes.append(child);
 			}
@@ -237,7 +238,7 @@ void Calculation_Tree::statify_Calc_Tree(tree<Node>& calc_Tree)
 				calc_Tree.erase(chosen_Child);
 			} else
 
-			// if 1 period
+			// if 1 period (also case of Aperiodic structure, aperiodic becomes flat here)
 			if(chosen_Child.node->data.struct_Data.num_Repetition.value == 1)
 			{
 				for(unsigned child_Index=0; child_Index<chosen_Child.number_of_children(); ++child_Index)
@@ -368,7 +369,8 @@ void Calculation_Tree::calculate_Intermediate_Values_1_Tree(tree<Node>& calc_Tre
 			QMessageBox::warning(0, "Warning", warning_Text);
 			return;
 		}
-		if(child.node->data.struct_Data.item_Type != item_Type_Multilayer)
+		if(child.node->data.struct_Data.item_Type != item_Type_Multilayer ||
+		   child.node->data.struct_Data.item_Type != item_Type_Aperiodic  )
 		{
 			above_Node = &child.node->data;
 		} else
@@ -388,7 +390,8 @@ tree<Node>::iterator Calculation_Tree::find_Node_By_Item_Id(const tree<Node>::it
 		{
 			return calc_Tree.child(parent,i);
 		} else
-		if(child.node->data.struct_Data.item_Type == item_Type_Multilayer)
+		if(child.node->data.struct_Data.item_Type == item_Type_Multilayer ||
+		   child.node->data.struct_Data.item_Type == item_Type_Aperiodic   )
 		{
 			return find_Node_By_Item_Id(child, active_Item_Id, calc_Tree);
 		}
@@ -448,62 +451,69 @@ int Calculation_Tree::get_Total_Num_Layers(const tree<Node>::iterator& parent, c
 		{
 			num_Media_Local += child.node->data.struct_Data.num_Repetition.value * get_Total_Num_Layers(child, calc_Tree);
 		}
+
+		if(child.node->data.struct_Data.item_Type == item_Type_Aperiodic)
+		{
+			num_Media_Local += get_Total_Num_Layers(child, calc_Tree);
+		}
 	}
 	return num_Media_Local;
 }
 
-void Calculation_Tree::print_Tree(const tree<Node>::iterator& parent, tree<Node>& calc_Tree)
-{
-	for(unsigned i=0; i<parent.number_of_children(); ++i)
-	{
-		tree<Node>::post_order_iterator child = calc_Tree.child(parent,i);
+//void Calculation_Tree::print_Tree(const tree<Node>::iterator& parent, tree<Node>& calc_Tree)
+//{
+//	for(unsigned i=0; i<parent.number_of_children(); ++i)
+//	{
+//		tree<Node>::post_order_iterator child = calc_Tree.child(parent,i);
 
-		{
-			std::cout << "node :  depth : " << calc_Tree.depth(child) << "   ";
-			for(int y=0; y<calc_Tree.depth(child)-1; y++)
-			{	std::cout << "\t";}
-			std::cout << child.node->data.struct_Data.item_Type.toStdString();
-			if(child.node->data.struct_Data.item_Type == item_Type_Multilayer)
-			{	std::cout << " : " << child.node->data.struct_Data.num_Repetition.value;	}
-			std::cout << std::endl;
-		}
+//		{
+//			std::cout << "node :  depth : " << calc_Tree.depth(child) << "   ";
+//			for(int y=0; y<calc_Tree.depth(child)-1; y++)
+//			{	std::cout << "\t";}
+//			std::cout << child.node->data.struct_Data.item_Type.toStdString();
+//			if(child.node->data.struct_Data.item_Type == item_Type_Multilayer)
+//			{	std::cout << " : " << child.node->data.struct_Data.num_Repetition.value;	}
+//			std::cout << std::endl;
+//		}
 
-		if(child.node->data.struct_Data.item_Type  == item_Type_Multilayer)
-		{
-			print_Tree(child, calc_Tree);
-		}
-	}
-}
+//		if(child.node->data.struct_Data.item_Type  == item_Type_Multilayer ||
+//		   child.node->data.struct_Data.item_Type == item_Type_Aperiodic   )
+//		{
+//			print_Tree(child, calc_Tree);
+//		}
+//	}
+//}
 
-void Calculation_Tree::print_Flat_list(QList<Node> flat_List)
-{
-	for(int i=0; i<flat_List.size(); ++i)
-	{
-		std::cout << "list : \t\t" << flat_List[i].struct_Data.item_Type.toStdString() << std::endl;
-	}
-}
+//void Calculation_Tree::print_Flat_list(QList<Node> flat_List)
+//{
+//	for(int i=0; i<flat_List.size(); ++i)
+//	{
+//		std::cout << "list : \t\t" << flat_List[i].struct_Data.item_Type.toStdString() << std::endl;
+//	}
+//}
 
-void Calculation_Tree::print_Item_Tree(QTreeWidgetItem* item)
-{
-	for(int i=0; i<item->childCount(); ++i)
-	{
-		QTreeWidgetItem* child = item->child(i);
+//void Calculation_Tree::print_Item_Tree(QTreeWidgetItem* item)
+//{
+//	for(int i=0; i<item->childCount(); ++i)
+//	{
+//		QTreeWidgetItem* child = item->child(i);
 
-		Data struct_Data = child->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+//		Data struct_Data = child->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
 
-		{
-			std::cout << "item :  depth : " << Global_Variables::get_Item_Depth(child) << "   ";
-			for(int y=0; y<Global_Variables::get_Item_Depth(child)-1; y++)
-			{	std::cout << "\t";}
-			std::cout << child->whatsThis(DEFAULT_COLUMN).toStdString();
-			if(struct_Data.item_Type == item_Type_Multilayer)
-			{	std::cout << " : " << child->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>().num_Repetition.value;	}
-			std::cout << std::endl;
-		}
+//		{
+//			std::cout << "item :  depth : " << Global_Variables::get_Item_Depth(child) << "   ";
+//			for(int y=0; y<Global_Variables::get_Item_Depth(child)-1; y++)
+//			{	std::cout << "\t";}
+//			std::cout << child->whatsThis(DEFAULT_COLUMN).toStdString();
+//			if(struct_Data.item_Type == item_Type_Multilayer)
+//			{	std::cout << " : " << child->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>().num_Repetition.value;	}
+//			std::cout << std::endl;
+//		}
 
-		if(struct_Data.item_Type == item_Type_Multilayer)
-		{
-			print_Item_Tree(child);
-		}
-	}
-}
+//		if(struct_Data.item_Type == item_Type_Multilayer ||
+//		   struct_Data.item_Type == item_Type_Aperiodic  )
+//		{
+//			print_Item_Tree(child);
+//		}
+//	}
+//}

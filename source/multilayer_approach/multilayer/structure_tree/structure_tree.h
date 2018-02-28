@@ -27,6 +27,7 @@ public:
 
 	void refresh__StructureTree__Data_and_Text();
 	void set_Structure_Item_Text(QTreeWidgetItem* item);
+	void set_Item_Parent_Type(QTreeWidgetItem* item);
 
 	void iterate_Over_Layers(QTreeWidgetItem* item = NULL);
 		void refresh_If_Layer(QTreeWidgetItem* this_Item);

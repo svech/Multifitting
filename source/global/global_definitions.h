@@ -175,6 +175,7 @@ class Node;
 #define item_Type_Ambient		"Ambient"
 #define item_Type_Layer			"Layer"
 #define item_Type_Multilayer	"Multilayer"
+#define item_Type_Aperiodic		"Aperiodic"
 #define item_Type_Substrate		"Substrate"
 
 // whatsThis : specialized additions
@@ -366,6 +367,12 @@ struct Coupled					{bool is_Coupled = false;
 								 QVector<Parameter_Indicator> slaves;
 
 								 QVector<Parameter*> slave_Pointers;		// not to store
+								 void clear_Coupled()
+								 {
+									 slaves.clear();
+									 Parameter_Indicator new_Parameter_Indicator;
+									 master = new_Parameter_Indicator;
+								 }
 								};
 
 struct Fit						{bool is_Fitable = false; bool min_Bounded; double min; bool max_Bounded; double max;};

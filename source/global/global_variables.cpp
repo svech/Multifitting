@@ -463,6 +463,7 @@ int Global_Variables::get_Tree_Depth(QTreeWidgetItem* item)
 		}
 		depth=1+*(std::minmax_element(child_Depth.begin(),child_Depth.end()).second);
 	}
+	qInfo() << "depth =" << depth;
 	return depth;
 }
 
@@ -476,6 +477,8 @@ QString Global_Variables::structure_Item_Name(const Data& struct_Data)
 	if(struct_Data.item_Type == item_Type_Layer)		text = struct_Data.material + " layer (" + QString::number(struct_Data.layer_Index) + ")";
 	if(struct_Data.item_Type == item_Type_Substrate)	text = struct_Data.material + " substrate";
 	if(struct_Data.item_Type == item_Type_Multilayer)	text = "Multilayer (" + QString::number(struct_Data.first_Layer_Index) +
+																		" - " + QString::number(struct_Data.last_Layer_Index) + ")";
+	if(struct_Data.item_Type == item_Type_Aperiodic)	text = "Aperiodic ("  + QString::number(struct_Data.first_Layer_Index) +
 																		" - " + QString::number(struct_Data.last_Layer_Index) + ")";
 	if(struct_Data.item_Type == item_Type_Measurement)	text = "Measurement";
 
@@ -491,8 +494,10 @@ QString Global_Variables::parameter_Name(const Data &struct_Data, QString whats_
 	if(struct_Data.item_Type == item_Type_Ambient)		brackets = "(ambient)";
 	if(struct_Data.item_Type == item_Type_Layer)		brackets = "(layer " + QString::number(struct_Data.layer_Index) + ")";
 	if(struct_Data.item_Type == item_Type_Substrate)	brackets = "(substrate)";
-	if(struct_Data.item_Type == item_Type_Multilayer)	brackets = "Multilayer (" + QString::number(struct_Data.first_Layer_Index) + " - " +
-																					QString::number(struct_Data.last_Layer_Index) + ")";
+	if(struct_Data.item_Type == item_Type_Multilayer)	brackets = "Multilayer (" + QString::number(struct_Data.first_Layer_Index) +
+																			" - " +	QString::number(struct_Data.last_Layer_Index) + ")";
+	if(struct_Data.item_Type == item_Type_Aperiodic)	brackets = "Aperiodic ("  + QString::number(struct_Data.first_Layer_Index) +
+																			" - " + QString::number(struct_Data.last_Layer_Index) + ")";
 	if(struct_Data.item_Type == item_Type_Measurement)	brackets = "(measurement)";
 
 
@@ -540,6 +545,10 @@ QString Global_Variables::parameter_Name(const Data &struct_Data, QString whats_
 		if(whats_This == whats_This_Num_Repetitions)				text = brackets + " Number of repetitions, N";
 		if(whats_This == whats_This_Period)							text = brackets + " Period, d";
 		if(whats_This == whats_This_Gamma)							text = brackets + " Thickness Ratio, " + Gamma_Sym;
+	}
+	if(	struct_Data.item_Type == item_Type_Aperiodic )
+	{
+
 	}
 
 	/// measurement parameters

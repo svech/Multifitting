@@ -73,7 +73,7 @@ void Structure_Tree::iterate_Over_Layers(QTreeWidgetItem* item)
 			refresh_If_Layer(tree->topLevelItem(i));
 		}
 	} else
-	// over child multilayer
+	// over child multilayer/aperiodic
 	{
 		for(int i=0; i<item->childCount(); i++)
 		{
@@ -85,7 +85,7 @@ void Structure_Tree::iterate_Over_Layers(QTreeWidgetItem* item)
 void Structure_Tree::refresh_If_Layer(QTreeWidgetItem* this_Item)
 {
 	Data data = this_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
-	// if not multilayer
+	// if not multilayer/aperiodic
 	if(this_Item->childCount()==0)
 	{
 		// assign number if layer
@@ -107,7 +107,7 @@ void Structure_Tree::refresh_If_Layer(QTreeWidgetItem* this_Item)
 		if(this_Item->parent())
 		{
 			Data parent_Data = this_Item->parent()->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
-			no_Good_Parent = no_Good_Parent && (parent_Data.item_Type != item_Type_Multilayer);
+			no_Good_Parent = (parent_Data.item_Type != item_Type_Multilayer);
 		}
 		if(no_Good_Parent)
 		{
@@ -123,6 +123,7 @@ void Structure_Tree::refresh_If_Layer(QTreeWidgetItem* this_Item)
 		QVariant var; var.setValue( data );
 		this_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
 		set_Structure_Item_Text(this_Item);
+		set_Item_Parent_Type(this_Item);
 	} else
 	// if multilayer, go deeper
 	{
@@ -151,7 +152,7 @@ void Structure_Tree::iterate_Over_Multilayers(QTreeWidgetItem* item)
 
 void Structure_Tree::refresh_If_Multilayer(QTreeWidgetItem* this_Item)
 {
-	// if multilayer
+	// if multilayer/aperiodic
 	if(this_Item->childCount()>0)
 	{
 		// find and save first and last layers
@@ -160,10 +161,14 @@ void Structure_Tree::refresh_If_Multilayer(QTreeWidgetItem* this_Item)
 		find_Last_Layer(this_Item, last);
 
 		// find and save period and gamma
-		find_Period_And_Gamma(this_Item);
-		iterate_Over_Multilayers(this_Item);
+		// check if periodic multilayer inside functions
+		{
+			find_Period_And_Gamma(this_Item);
+			iterate_Over_Multilayers(this_Item);
+		}
 
 		set_Structure_Item_Text(this_Item);
+		set_Item_Parent_Type(this_Item);
 	}
 }
 
@@ -257,6 +262,9 @@ void Structure_Tree::find_Period_And_Gamma(QTreeWidgetItem* this_Item)
 
 void Structure_Tree::if_DoubleClicked()
 {
+	const Data data = tree->currentItem()->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+	if(data.item_Type == item_Type_Aperiodic) return;
+
 	if(runned_Editors.contains(tree->currentItem()))
 	{
 		if(runned_Editors.value(tree->currentItem())->isVisible())
@@ -287,7 +295,7 @@ void Structure_Tree::set_Structure_Item_Text(QTreeWidgetItem* item)
 {
 	double length_Coeff = length_Coefficients_Map.value(length_units);
 
-	Data data = item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+	const Data data = item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
 	QString density_Text;
 
 	// if ambient
@@ -303,8 +311,8 @@ void Structure_Tree::set_Structure_Item_Text(QTreeWidgetItem* item)
 	{
 		// average sigma
 		QString temp_Sigma_Sym;
-		if(data.common_Sigma)	temp_Sigma_Sym =     Sigma_Sym;
-		else					temp_Sigma_Sym = "<"+Sigma_Sym+">";
+		if(data.common_Sigma)	{temp_Sigma_Sym =     Sigma_Sym;	}
+		else					{temp_Sigma_Sym = "<"+Sigma_Sym+">";}
 
 
 		// if substrate
@@ -321,24 +329,31 @@ void Structure_Tree::set_Structure_Item_Text(QTreeWidgetItem* item)
 			}
 		} else
 		{
-			// if multilayer
+			// if multilayer/aperiodic
 			if(item->childCount()>0)
 			{
-				item->setText(DEFAULT_COLUMN, Global_Variables::structure_Item_Name(data) + ", N=" + QString::number(data.num_Repetition.value)
-							  + ", d="  + QString::number(data.period.value/length_Coeff,thumbnail_double_format,thumbnail_period_precision) + length_units);
-
-				if(item->childCount()==2 && abs(data.period.value)>DBL_EPSILON)
+				if(data.item_Type == item_Type_Multilayer)
 				{
-					item->setText(DEFAULT_COLUMN, item->text(DEFAULT_COLUMN) + ", " + Gamma_Sym + "=" +
-								  QString::number(data.gamma.value,thumbnail_double_format,thumbnail_gamma_precision));
+					item->setText(DEFAULT_COLUMN, Global_Variables::structure_Item_Name(data) + ", N=" + QString::number(data.num_Repetition.value)
+								  + ", d="  + QString::number(data.period.value/length_Coeff,thumbnail_double_format,thumbnail_period_precision) + length_units);
+
+					if(item->childCount()==2 && abs(data.period.value)>DBL_EPSILON)
+					{
+						item->setText(DEFAULT_COLUMN, item->text(DEFAULT_COLUMN) + ", " + Gamma_Sym + "=" +
+									  QString::number(data.gamma.value,thumbnail_double_format,thumbnail_gamma_precision));
+					}
+				} else
+				if(data.item_Type == item_Type_Aperiodic)
+				{
+					item->setText(DEFAULT_COLUMN, Global_Variables::structure_Item_Name(data));
 				}
 			} else
 			// if layer
 			{
 				QString thickness_Text = ", z=" +  QString::number(data.thickness.value/length_Coeff,thumbnail_double_format,thumbnail_thickness_precision) + length_units;
 
-				if(data.composed_Material)	density_Text = QString::number(data.absolute_Density.value,thumbnail_double_format,thumbnail_density_precision) + density_units;
-				else						density_Text = QString::number(data.relative_Density.value,thumbnail_double_format,thumbnail_density_precision);
+				if(data.composed_Material)	{density_Text = QString::number(data.absolute_Density.value,thumbnail_double_format,thumbnail_density_precision) + density_units;	}
+				else						{density_Text = QString::number(data.relative_Density.value,thumbnail_double_format,thumbnail_density_precision);					}
 
 				item->setText(DEFAULT_COLUMN, Global_Variables::structure_Item_Name(data) + thickness_Text + ", " + Rho_Sym + "=" + density_Text);
 
@@ -350,7 +365,9 @@ void Structure_Tree::set_Structure_Item_Text(QTreeWidgetItem* item)
 					// show sigma drift
 					Drift sigma_Drift = data.sigma_Drift;
 					if(sigma_Drift.is_Drift_Line || sigma_Drift.is_Drift_Sine || sigma_Drift.is_Drift_Rand)
+					{
 						item->setText(DEFAULT_COLUMN, item->text(DEFAULT_COLUMN) + " || d" + Sigma_Sym + " = on");
+					}
 				}
 
 				// reflect thickness drift
@@ -368,6 +385,22 @@ void Structure_Tree::set_Structure_Item_Text(QTreeWidgetItem* item)
 			}
 		}
 	}
+}
+
+void Structure_Tree::set_Item_Parent_Type(QTreeWidgetItem *item)
+{
+	Data data = item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+
+	if(item->parent())
+	{
+		Data parent_Data = item->parent()->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+		data.parent_Item_Type = parent_Data.item_Type;
+	} else
+	{
+		data.parent_Item_Type = NOPARENT;
+	}
+	QVariant var; var.setValue(data);
+	item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
 }
 
 void Structure_Tree::editor_Close()

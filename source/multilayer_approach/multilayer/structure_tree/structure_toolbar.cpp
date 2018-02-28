@@ -94,7 +94,7 @@ void Structure_Toolbar::add_Ambient()
 
 	structure_Tree->tree->addTopLevelItem(new_Ambient);
 	structure_Tree->set_Structure_Item_Text(new_Ambient);
-
+	structure_Tree->set_Item_Parent_Type(new_Ambient);
 //	refresh_Toolbar(); // doesn't work here. I dont know why
 }
 
@@ -179,6 +179,10 @@ void Structure_Toolbar::add_Aperiodic()
 
 	QVector<QString> materials;
 	QVector<double> thicknesses;
+	QList<QTreeWidgetItem*> new_Child_Layers;
+
+	// create aperiodic item
+	QTreeWidgetItem* new_Aperiodic = new QTreeWidgetItem;
 
 	// imd-styled file
 	QFileInfo filename = QDir::toNativeSeparators(QFileDialog::getOpenFileName(this, "Find Aperiodic Multulayer", QDir::currentPath(), "Thicknesses " + QString("*.txt") + ";;All files (*.*)"));
@@ -298,11 +302,23 @@ void Structure_Toolbar::add_Aperiodic()
 			var.setValue( layer );
 			new_Layer->setData(DEFAULT_COLUMN, Qt::UserRole, var);
 
-			// insert to structure
-			buffered_Copy_Type = copy_Type_Cut;
-			add_Buffered_Layer(new_Layer);
-			delete new_Layer;
+			new_Child_Layers << new_Layer;
 		}
+
+		// insert child layers
+		new_Aperiodic->addChildren(new_Child_Layers);
+
+		Data aperiodic(item_Type_Aperiodic);
+		aperiodic.num_Repetition.value = 1;
+		QVariant var;
+		var.setValue( aperiodic );
+		new_Aperiodic->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+
+		// insert aperiodic item to tree
+		buffered_Copy_Type = copy_Type_Cut;
+		add_Buffered_Layer(new_Aperiodic);
+		delete new_Aperiodic;
+		new_Aperiodic = structure_Tree->tree->topLevelItem(structure_Tree->tree->topLevelItemCount()-1);
 
 		// TODO temporary
 		/// set dependences
@@ -313,7 +329,7 @@ void Structure_Toolbar::add_Aperiodic()
 		qInfo() << "top layers:";
 		for(int i=0; i<top_Layer.size(); ++i)
 		{
-			top_Layer[i] = structure_Tree->tree->topLevelItem(i+1);
+			top_Layer[i] = new_Aperiodic->child(i);
 			top_Layer_Data[i] = top_Layer[i]->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
 			qInfo() << top_Layer_Data[i].material;
 
@@ -363,12 +379,13 @@ void Structure_Toolbar::add_Aperiodic()
 			QVariant var;
 			var.setValue( struct_Data );
 			structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+
 			++it;
 		}
 
-		QVariant var;
 		for(int i=0; i<top_Layer.size(); ++i)
 		{
+			QVariant var;
 			var.setValue( top_Layer_Data[i] );
 			top_Layer[i]->setData(DEFAULT_COLUMN, Qt::UserRole, var);
 		}
@@ -402,8 +419,10 @@ void Structure_Toolbar::remove()
 	QTreeWidgetItem* current = structure_Tree->tree->currentItem();
 	Data data = current->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
 
-	// if parent multilayer has 2 childs
-	if((current->parent())&&(current->parent()->childCount()==2))
+	// if parent periodic multilayer has 2 childs
+	if(current->parent())
+	if(current->parent()->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>().item_Type == item_Type_Multilayer)
+	if(current->parent()->childCount()==2)
 	{
 		QString multilayer_Text = current->parent()->text(DEFAULT_COLUMN).split(", N")[0];
 		QMessageBox::StandardButton reply = QMessageBox::question(this,"Removal", multilayer_Text + " will be disbanded.\nContinue?", QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
@@ -427,7 +446,7 @@ void Structure_Toolbar::remove()
 				delete parent;
 			}
 		}
-	} else
+	}
 	// if ambient
 	if(data.item_Type == item_Type_Ambient)
 	{
@@ -454,6 +473,13 @@ void Structure_Toolbar::remove()
 		QMessageBox::StandardButton reply = QMessageBox::question(this,"Removal", "Really remove " + multilayer_Text + "?", QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
 		if (reply == QMessageBox::Yes)	delete current;
 	} else
+	// if aperiodic
+	if(data.item_Type == item_Type_Aperiodic)
+	{
+		QString aperiodic_Text = current->text(DEFAULT_COLUMN);
+		QMessageBox::StandardButton reply = QMessageBox::question(this,"Removal", "Really remove " + aperiodic_Text + "?", QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
+		if (reply == QMessageBox::Yes)	delete current;
+	} else
 	if(data.item_Type == item_Type_Substrate)
 	{
 		QMessageBox::StandardButton reply = QMessageBox::question(this,"Removal", "Really remove substrate?", QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
@@ -474,8 +500,10 @@ void Structure_Toolbar::cut()
 	buffered = structure_Tree->tree->currentItem()->clone();
 	Data data = current->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
 
-	// if parent multilayer has 2 childs
-	if((current->parent())&&(current->parent()->childCount()==2))
+	// if parent periodic multilayer has 2 childs
+	if(current->parent())
+	if(current->parent()->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>().item_Type == item_Type_Multilayer)
+	if(current->parent()->childCount()==2)
 	{
 		QString multilayer_Text = current->parent()->text(DEFAULT_COLUMN).split(", N")[0];
 		QMessageBox::StandardButton reply = QMessageBox::question(this,"Cut", multilayer_Text + " will be disbanded.\nContinue?", QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
@@ -500,7 +528,7 @@ void Structure_Toolbar::cut()
 				delete parent;
 			}
 		}
-	} else
+	}
 	// if layer
 	if(data.item_Type == item_Type_Layer)
 	{
@@ -512,6 +540,13 @@ void Structure_Toolbar::cut()
 	{
 		QString multilayer_Text = current->text(DEFAULT_COLUMN).split(", N")[0];
 		QMessageBox::StandardButton reply = QMessageBox::question(this,"Removal", "Really cut " + multilayer_Text + "?", QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
+		if (reply == QMessageBox::Yes)	delete current;
+	} else
+	// if aperiodic
+	if(data.item_Type == item_Type_Aperiodic)
+	{
+		QString aperiodic_Text = current->text(DEFAULT_COLUMN);
+		QMessageBox::StandardButton reply = QMessageBox::question(this,"Removal", "Really cut " + aperiodic_Text + "?", QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
 		if (reply == QMessageBox::Yes)	delete current;
 	}
 	refresh_Toolbar();
