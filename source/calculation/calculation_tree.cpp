@@ -318,7 +318,6 @@ void Calculation_Tree::calculate_1_Kind(Data_Element<Type>& data_Element)
 		data_Element.active_Item_Id				 = target_Curve->measurement.id;
 		data_Element.active_Parameter_Whats_This = target_Curve->curve.argument_Type;
 	}
-
 	// find corresponding node for active variable
 //		tree<Node>::iterator active_Iter = find_Node_By_Item_Id(data_Element.calc_Tree.begin(), data_Element.active_Item_Id, data_Element.calc_Tree);
 	// ....................................................................
@@ -369,7 +368,7 @@ void Calculation_Tree::calculate_Intermediate_Values_1_Tree(tree<Node>& calc_Tre
 			QMessageBox::warning(0, "Warning", warning_Text);
 			return;
 		}
-		if(child.node->data.struct_Data.item_Type != item_Type_Multilayer ||
+		if(child.node->data.struct_Data.item_Type != item_Type_Multilayer &&
 		   child.node->data.struct_Data.item_Type != item_Type_Aperiodic  )
 		{
 			above_Node = &child.node->data;
@@ -460,29 +459,29 @@ int Calculation_Tree::get_Total_Num_Layers(const tree<Node>::iterator& parent, c
 	return num_Media_Local;
 }
 
-//void Calculation_Tree::print_Tree(const tree<Node>::iterator& parent, tree<Node>& calc_Tree)
-//{
-//	for(unsigned i=0; i<parent.number_of_children(); ++i)
-//	{
-//		tree<Node>::post_order_iterator child = calc_Tree.child(parent,i);
+void Calculation_Tree::print_Tree(const tree<Node>::iterator& parent, tree<Node>& calc_Tree)
+{
+	for(unsigned i=0; i<parent.number_of_children(); ++i)
+	{
+		tree<Node>::post_order_iterator child = calc_Tree.child(parent,i);
 
-//		{
-//			std::cout << "node :  depth : " << calc_Tree.depth(child) << "   ";
-//			for(int y=0; y<calc_Tree.depth(child)-1; y++)
-//			{	std::cout << "\t";}
-//			std::cout << child.node->data.struct_Data.item_Type.toStdString();
-//			if(child.node->data.struct_Data.item_Type == item_Type_Multilayer)
-//			{	std::cout << " : " << child.node->data.struct_Data.num_Repetition.value;	}
-//			std::cout << std::endl;
-//		}
+		{
+			std::cout << "node :  depth : " << calc_Tree.depth(child) << "   ";
+			for(int y=0; y<calc_Tree.depth(child)-1; y++)
+			{	std::cout << "\t";}
+			std::cout << child.node->data.struct_Data.item_Type.toStdString();
+			if(child.node->data.struct_Data.item_Type == item_Type_Multilayer)
+			{	std::cout << " : " << child.node->data.struct_Data.num_Repetition.value;	}
+			std::cout << std::endl;
+		}
 
-//		if(child.node->data.struct_Data.item_Type  == item_Type_Multilayer ||
-//		   child.node->data.struct_Data.item_Type == item_Type_Aperiodic   )
-//		{
-//			print_Tree(child, calc_Tree);
-//		}
-//	}
-//}
+		if(child.node->data.struct_Data.item_Type  == item_Type_Multilayer ||
+		   child.node->data.struct_Data.item_Type == item_Type_Aperiodic   )
+		{
+			print_Tree(child, calc_Tree);
+		}
+	}
+}
 
 //void Calculation_Tree::print_Flat_list(QList<Node> flat_List)
 //{

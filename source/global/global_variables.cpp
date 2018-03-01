@@ -463,7 +463,6 @@ int Global_Variables::get_Tree_Depth(QTreeWidgetItem* item)
 		}
 		depth=1+*(std::minmax_element(child_Depth.begin(),child_Depth.end()).second);
 	}
-	qInfo() << "depth =" << depth;
 	return depth;
 }
 

@@ -69,7 +69,7 @@ public:
 
 	int get_Total_Num_Layers(const tree<Node>::iterator& parent, const tree<Node>& calc_Tree);
 
-//	void print_Tree(const tree<Node>::iterator& parent, tree<Node>& calc_Tree);
+	void print_Tree(const tree<Node>::iterator& parent, tree<Node>& calc_Tree);
 //	void print_Flat_list(QList<Node> flat_List);
 //	void print_Item_Tree(QTreeWidgetItem* item);
 

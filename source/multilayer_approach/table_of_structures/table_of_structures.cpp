@@ -332,8 +332,8 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 
 			// density
 			if( struct_Data.item_Type == item_Type_Ambient  ||
-					struct_Data.item_Type == item_Type_Layer    ||
-					struct_Data.item_Type == item_Type_Substrate )
+				struct_Data.item_Type == item_Type_Layer    ||
+				struct_Data.item_Type == item_Type_Substrate )
 			{
 				QString whats_This;
 				add_Columns(new_Table, current_Column+1);
@@ -372,7 +372,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 
 			// common sigma
 			if( struct_Data.item_Type == item_Type_Layer    ||
-					struct_Data.item_Type == item_Type_Substrate )
+				struct_Data.item_Type == item_Type_Substrate )
 			{
 				QString whats_This = whats_This_Sigma;
 				add_Columns(new_Table, current_Column+1);
@@ -389,7 +389,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 
 			// interlayers: weights and sigmas
 			if( struct_Data.item_Type == item_Type_Layer    ||
-					struct_Data.item_Type == item_Type_Substrate )
+				struct_Data.item_Type == item_Type_Substrate )
 			{
 				add_Columns(new_Table, current_Column+transition_Layer_Functions_Size);
 
