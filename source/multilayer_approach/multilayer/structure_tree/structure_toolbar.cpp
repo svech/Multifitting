@@ -247,41 +247,41 @@ void Structure_Toolbar::add_Aperiodic()
 			if(layer.material == "Al")
 			{
 //				layer.thickness.value = layer.thickness.value*0.92;
-				layer.sigma.value = 10.45;
-				layer.interlayer_Composition[Erf].interlayer.value  = 0;
+				layer.sigma.value = 5;//10.45;
+				layer.interlayer_Composition[Erf].interlayer.value  = 1;
 				layer.interlayer_Composition[Lin].interlayer.value  = 1;
-				layer.interlayer_Composition[Exp].interlayer.value  = 0;
-				layer.interlayer_Composition[Tanh].interlayer.value = 0;
-				layer.interlayer_Composition[Sin].interlayer.value  = 0;
-				layer.interlayer_Composition[Step].interlayer.value = 0;
+				layer.interlayer_Composition[Exp].interlayer.value  = 1;
+				layer.interlayer_Composition[Tanh].interlayer.value = 1;
+				layer.interlayer_Composition[Sin].interlayer.value  = 1;
+				layer.interlayer_Composition[Step].interlayer.value = 1;
 			}
 			if(layer.material == "Si")
 			{
 //				layer.thickness.value = layer.thickness.value*0.875;
-				layer.sigma.value = 13.5;
-				layer.interlayer_Composition[Erf].interlayer.value  = 0;
+				layer.sigma.value = 5;//13.5;
+				layer.interlayer_Composition[Erf].interlayer.value  = 1;
 				layer.interlayer_Composition[Lin].interlayer.value  = 1;
-				layer.interlayer_Composition[Exp].interlayer.value  = 0.0;
-				layer.interlayer_Composition[Tanh].interlayer.value = 0;
-				layer.interlayer_Composition[Sin].interlayer.value  = 0;
-				layer.interlayer_Composition[Step].interlayer.value = 0.0;
+				layer.interlayer_Composition[Exp].interlayer.value  = 1;
+				layer.interlayer_Composition[Tanh].interlayer.value = 1;
+				layer.interlayer_Composition[Sin].interlayer.value  = 1;
+				layer.interlayer_Composition[Step].interlayer.value = 1;
 			}
 			if(layer.material == "Zr")
 			{
 //				layer.relative_Density.value=0.97;
 //				layer.thickness.value = layer.thickness.value*1.15;
-				layer.sigma.value = 6;
-				layer.interlayer_Composition[Erf].interlayer.value  = 0;
-				layer.interlayer_Composition[Lin].interlayer.value  = 1.0;
-				layer.interlayer_Composition[Exp].interlayer.value  = 0.0;
-				layer.interlayer_Composition[Tanh].interlayer.value = 0;
-				layer.interlayer_Composition[Sin].interlayer.value  = 0;
-				layer.interlayer_Composition[Step].interlayer.value = 0.0;
+				layer.sigma.value = 5;//6;
+				layer.interlayer_Composition[Erf].interlayer.value  = 1;
+				layer.interlayer_Composition[Lin].interlayer.value  = 1;
+				layer.interlayer_Composition[Exp].interlayer.value  = 1;
+				layer.interlayer_Composition[Tanh].interlayer.value = 1;
+				layer.interlayer_Composition[Sin].interlayer.value  = 1;
+				layer.interlayer_Composition[Step].interlayer.value = 1;
 			}
 			for(Interlayer& inter : layer.interlayer_Composition)
 			{
 				inter.my_Sigma.value = layer.sigma.value;
-				inter.enabled = true;
+//				inter.enabled = true;
 			}
 
 			if(!layer.composed_Material)
@@ -316,9 +316,8 @@ void Structure_Toolbar::add_Aperiodic()
 
 		// insert aperiodic item to tree
 		buffered_Copy_Type = copy_Type_Cut;
-		add_Buffered_Layer(new_Aperiodic);
+		QTreeWidgetItem* item_Aperiodic = add_Buffered_Layer(new_Aperiodic);
 		delete new_Aperiodic;
-		new_Aperiodic = structure_Tree->tree->topLevelItem(structure_Tree->tree->topLevelItemCount()-1);
 
 		// TODO temporary
 		/// set dependences
@@ -329,7 +328,7 @@ void Structure_Toolbar::add_Aperiodic()
 		qInfo() << "top layers:";
 		for(int i=0; i<top_Layer.size(); ++i)
 		{
-			top_Layer[i] = new_Aperiodic->child(i);
+			top_Layer[i] = item_Aperiodic->child(i);
 			top_Layer_Data[i] = top_Layer[i]->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
 			qInfo() << top_Layer_Data[i].material;
 
@@ -790,7 +789,7 @@ void Structure_Toolbar::refresh_Toolbar()
 	emit refresh_Str_And_Independ_signal();
 }
 
-void Structure_Toolbar::add_Buffered_Layer(QTreeWidgetItem* new_Layer_Passed)
+QTreeWidgetItem* Structure_Toolbar::add_Buffered_Layer(QTreeWidgetItem* new_Layer_Passed)
 {
 	QTreeWidgetItem* new_Layer = new_Layer_Passed->clone();
 
@@ -840,4 +839,5 @@ void Structure_Toolbar::add_Buffered_Layer(QTreeWidgetItem* new_Layer_Passed)
 	}
 
 	refresh_Toolbar();
+	return new_Layer;
 }

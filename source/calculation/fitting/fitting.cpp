@@ -40,7 +40,7 @@ double Fitting::func(double argument, int index)
 {
 	if(index == 0)
 	{
-		return log(argument+1E-4);
+		return log(argument+1E-5);
 	} else
 	{
 		return argument;

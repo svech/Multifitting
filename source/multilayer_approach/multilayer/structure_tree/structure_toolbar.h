@@ -15,7 +15,7 @@ signals:
 	void refresh_Str_And_Independ_signal();
 
 public:
-	void add_Buffered_Layer(QTreeWidgetItem* new_Layer_Passed);
+	QTreeWidgetItem* add_Buffered_Layer(QTreeWidgetItem* new_Layer_Passed);
 	void add_Ambient	();
 	void add_Layer		();
 	void add_Multilayer	();

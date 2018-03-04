@@ -207,7 +207,8 @@ void Main_Calculation_Module::calc_Tree_Iteration(const tree<Node>::iterator& pa
 		find_Fittable_Parameters(struct_Data, child, fitables_Period_Gamma);
 
 		// check if period or gamma are fitables
-		if(struct_Data.item_Type == item_Type_Multilayer)
+		if(struct_Data.item_Type == item_Type_Multilayer ||
+		   struct_Data.item_Type == item_Type_Aperiodic	 )
 		{
 			if(struct_Data.period.fit.is_Fitable || (struct_Data.gamma.fit.is_Fitable && child.number_of_children() == 2))
 			{
@@ -354,7 +355,8 @@ void Main_Calculation_Module::find_Slave_Pointer_Calc_Tree_Iteration(const tree<
 			pointer = Global_Variables::get_Parameter_From_Struct_Item_by_Id(struct_Data, slave_Parameter_Indicator.id);
 		}
 
-		if(struct_Data.item_Type == item_Type_Multilayer)
+		if(struct_Data.item_Type == item_Type_Multilayer ||
+		   struct_Data.item_Type == item_Type_Aperiodic	 )
 		{
 			find_Slave_Pointer_Calc_Tree_Iteration(child, slave_Parameter_Indicator, pointer);
 		}

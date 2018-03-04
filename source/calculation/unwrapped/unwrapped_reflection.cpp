@@ -664,6 +664,12 @@ void Unwrapped_Reflection::calc_Specular()
 					R_Instrumental[point_Index] *= instrumental_Factor;
 				}
 			}
+
+			// any way
+			for(int point_Index=0; point_Index<R.size(); ++point_Index)
+			{
+				R_Instrumental[point_Index] += measurement.background.value;
+			}
 		}
 		if(active_Parameter_Whats_This == whats_This_Wavelength)
 		{
@@ -691,10 +697,12 @@ void Unwrapped_Reflection::calc_Specular()
 				instrumental_Factor = 1;
 			}
 
+			// any way
 			// substitute
 			for(size_t point_Index=0; point_Index<R.size(); ++point_Index)
 			{
 				R_Instrumental[point_Index] *= instrumental_Factor;
+				R_Instrumental[point_Index] += measurement.background.value;
 			}
 		}
 		gsl_integration_workspace_free(w);
