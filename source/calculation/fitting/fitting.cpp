@@ -139,11 +139,11 @@ void Fitting::slaves_Recalculation(Parameter* master, Fitting_Params* params)
 {
 	for(int slave_Index=0; slave_Index<master->coupled.slaves.size(); ++slave_Index)
 	{
-		Parameter_Indicator& slave_Parameter_Indicator = master->coupled.slaves[slave_Index];
+//		Parameter_Indicator& slave_Parameter_Indicator = master->coupled.slaves[slave_Index];
 		Parameter* slave = master->coupled.slave_Pointers[slave_Index];
 
 #ifdef EXPRTK
-		// local parsing. not used
+		// local parsing. not used, slowler
 //		exprtk::parser<double> parser;
 //		exprtk::symbol_table<double> symbol_table;
 //		exprtk::expression<double> expression_Exprtk;
@@ -156,7 +156,8 @@ void Fitting::slaves_Recalculation(Parameter* master, Fitting_Params* params)
 //		slave->value = expression_Exprtk.value();
 
 		int index = params->main_Calculation_Module->slaves_Expression_Map.value(slave->indicator.id);
-		params->main_Calculation_Module->argument_Vec[index] = master->value;
+		// argument changes automatically
+//		*params->main_Calculation_Module->argument_Vec[index] = master->value;
 		slave->value = params->main_Calculation_Module->expression_Vec[index].value();
 #else
 		slave->value = master->value;

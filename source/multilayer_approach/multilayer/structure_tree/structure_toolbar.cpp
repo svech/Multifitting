@@ -247,7 +247,7 @@ void Structure_Toolbar::add_Aperiodic()
 			if(layer.material == "Al")
 			{
 //				layer.thickness.value = layer.thickness.value*0.92;
-				layer.sigma.value = 5;//10.45;
+				layer.sigma.value = 10.45;
 				layer.interlayer_Composition[Erf].interlayer.value  = 1;
 				layer.interlayer_Composition[Lin].interlayer.value  = 1;
 				layer.interlayer_Composition[Exp].interlayer.value  = 1;
@@ -258,7 +258,7 @@ void Structure_Toolbar::add_Aperiodic()
 			if(layer.material == "Si")
 			{
 //				layer.thickness.value = layer.thickness.value*0.875;
-				layer.sigma.value = 5;//13.5;
+				layer.sigma.value = 13.5;
 				layer.interlayer_Composition[Erf].interlayer.value  = 1;
 				layer.interlayer_Composition[Lin].interlayer.value  = 1;
 				layer.interlayer_Composition[Exp].interlayer.value  = 1;
@@ -270,7 +270,7 @@ void Structure_Toolbar::add_Aperiodic()
 			{
 //				layer.relative_Density.value=0.97;
 //				layer.thickness.value = layer.thickness.value*1.15;
-				layer.sigma.value = 5;//6;
+				layer.sigma.value = 6;
 				layer.interlayer_Composition[Erf].interlayer.value  = 1;
 				layer.interlayer_Composition[Lin].interlayer.value  = 1;
 				layer.interlayer_Composition[Exp].interlayer.value  = 1;

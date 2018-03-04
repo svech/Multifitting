@@ -42,7 +42,7 @@ public:
 #ifdef EXPRTK
 	QMap<id_Type, int> slaves_Expression_Map;  // <parameter ID ; vector index>
 	QVector<exprtk::expression<double>> expression_Vec;
-	QVector<double> argument_Vec;
+	QVector<double*> argument_Vec;
 #endif
 
 	Parameter* find_Slave_Pointer_by_Id(const Parameter_Indicator& slave_Parameter_Indicator);
