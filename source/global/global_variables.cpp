@@ -693,3 +693,12 @@ Parameter* Global_Variables::get_Parameter_From_Struct_Item_by_Whats_This(Data &
 
 	return NULL;
 }
+
+void Global_Variables::copy_Tree(const QTreeWidget* from_Tree, QTreeWidget* to_Tree)
+{
+	to_Tree->clear();
+	for(int i=0; i<from_Tree->topLevelItemCount(); i++)
+	{
+		to_Tree->addTopLevelItem(from_Tree->topLevelItem(i)->clone());	// the data are also copied here
+	}
+}

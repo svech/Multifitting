@@ -1,10 +1,11 @@
 #include "main_calculation_module.h"
 
 Main_Calculation_Module::Main_Calculation_Module(QString calc_Mode):
-	multilayer_Tabs		(global_Multilayer_Approach->multilayer_Tabs),
-	multilayers			(multilayer_Tabs->count()),
-	calculation_Trees	(multilayer_Tabs->count()),
-	calc_Mode			(calc_Mode)
+	multilayer_Tabs			(global_Multilayer_Approach->multilayer_Tabs),
+	multilayers				(multilayer_Tabs->count()),
+	calculation_Trees		(multilayer_Tabs->count()),
+	copy_Real_Struct_Trees	(multilayer_Tabs->count()),
+	calc_Mode				(calc_Mode)
 {
 	for(int tab_Index=0; tab_Index<multilayer_Tabs->count(); ++tab_Index)
 	{
@@ -19,6 +20,10 @@ Main_Calculation_Module::~Main_Calculation_Module()
 	{
 		delete calculation_Tree;
 	}
+//	for(QTreeWidget* copy_Real_Struct_Tree : copy_Real_Struct_Trees)
+//	{
+//		copy_Real_Struct_Tree->clear();
+//	}
 }
 
 void Main_Calculation_Module::single_Calculation()
@@ -60,6 +65,7 @@ void Main_Calculation_Module::fitting()
 		global_Multilayer_Approach->table_Of_Structures->close();
 	}
 
+	save_Init_State_Trees();
 	fitables.clear_All();
 	rejected_Sigmas.clear_All();
 	rejected_Min_Max.clear_All();
@@ -113,8 +119,14 @@ void Main_Calculation_Module::fitting()
 																  QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
 		if (reply == QMessageBox::Yes)
 		{
-			// refresh trees
-			renew_Item_Trees();
+			// for single fitting
+			if(!global_Multilayer_Approach->fitting_Settings->randomized_Start)
+			{
+				renew_Item_Trees();
+				add_Fit(fitted_State);
+			}
+
+			// it also refreshs Independent tree copies
 			global_Multilayer_Approach->refresh_All_Multilayers_View();
 
 			// refresh table
@@ -125,15 +137,28 @@ void Main_Calculation_Module::fitting()
 				global_Multilayer_Approach->open_Table_Of_Structures();
 				global_Multilayer_Approach->table_Of_Structures->main_Tabs->setCurrentIndex(active_Tab);
 			}
-
-			// save new trees
-			QVector<QTreeWidget*> fitted_Trees(multilayers.size());
-			for(int tab_Index=0; tab_Index<multilayers.size(); ++tab_Index)
-			{
-				fitted_Trees[tab_Index] = calculation_Trees[tab_Index]->real_Struct_Tree;
-			}
-			global_Multilayer_Approach->add_Fitted_Structure(fitted_Trees, fitted_State);
+		} else
+		{
+			load_Init_State_Trees();
 		}
+	}
+}
+
+void Main_Calculation_Module::save_Init_State_Trees()
+{
+	for(int tree_Index=0; tree_Index<calculation_Trees.size(); ++tree_Index)
+	{
+		copy_Real_Struct_Trees[tree_Index] = new QTreeWidget(this);
+		Global_Variables::copy_Tree(calculation_Trees[tree_Index]->real_Struct_Tree, copy_Real_Struct_Trees[tree_Index]);
+	}
+}
+
+void Main_Calculation_Module::load_Init_State_Trees()
+{
+	for(int tree_Index=0; tree_Index<calculation_Trees.size(); ++tree_Index)
+	{
+		Global_Variables::copy_Tree(copy_Real_Struct_Trees[tree_Index], calculation_Trees[tree_Index]->real_Struct_Tree);
+		calculation_Trees[tree_Index]->real_Struct_Tree->expandAll();
 	}
 }
 
@@ -424,6 +449,17 @@ void Main_Calculation_Module::print_Calculated_To_File()
 			}
 		}
 	}
+}
+
+void Main_Calculation_Module::add_Fit(QString name_Modificator, int run)
+{
+	// save new trees
+	QVector<QTreeWidget*> fitted_Trees(multilayers.size());
+	for(int tab_Index=0; tab_Index<multilayers.size(); ++tab_Index)
+	{
+		fitted_Trees[tab_Index] = calculation_Trees[tab_Index]->real_Struct_Tree;
+	}
+	global_Multilayer_Approach->add_Fitted_Structure(fitted_Trees, name_Modificator, run);
 }
 
 template <typename Type>

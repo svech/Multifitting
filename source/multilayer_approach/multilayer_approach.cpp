@@ -133,7 +133,7 @@ void Multilayer_Approach::rename_Multilayer(int tab_Index)
 	}
 }
 
-void Multilayer_Approach::add_Fitted_Structure(QVector<QTreeWidget*>& fitted_Trees_for_Copying, QString name_Modificator)
+void Multilayer_Approach::add_Fitted_Structure(QVector<QTreeWidget*>& fitted_Trees_for_Copying, QString name_Modificator, int run)
 {
 	// new instance for storing
 	Fitted_Structure new_Fitted_Structure;
@@ -161,9 +161,11 @@ void Multilayer_Approach::add_Fitted_Structure(QVector<QTreeWidget*>& fitted_Tre
 	// generate name
 	QDateTime date_Time = QDateTime::currentDateTime();
 	if( name_Modificator == current_State )	{
-		new_Fitted_Structure.name = "# " + QString::number(++fits_Positive_Counter) + " state ||  "    + date_Time.toString("dd.MM.yyyy  ||  hh:mm:ss");	}
+		new_Fitted_Structure.name = "# " + QString::number(++fits_Positive_Counter) + " state ||  "                                + date_Time.toString("dd.MM.yyyy  ||  hh:mm:ss");	}
 	if( name_Modificator == fitted_State )	{
-		new_Fitted_Structure.name = "# " + QString::number(++fits_Positive_Counter) + " fit ||  " + date_Time.toString("dd.MM.yyyy  ||  hh:mm:ss");	}
+		new_Fitted_Structure.name = "# " + QString::number(++fits_Positive_Counter) + " fit ||  "                                  + date_Time.toString("dd.MM.yyyy  ||  hh:mm:ss");	}
+	if( name_Modificator == fit_Run_State )	{
+		new_Fitted_Structure.name = "# " + QString::number(++fits_Positive_Counter) + " fit run " + QString::number(run) + " ||  " + date_Time.toString("dd.MM.yyyy  ||  hh:mm:ss");	}
 
 	// put new instance to storage
 	fitted_Structures.append(new_Fitted_Structure);

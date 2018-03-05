@@ -372,16 +372,21 @@ bool Fitting::fit()
 	if(!global_Multilayer_Approach->fitting_Settings->randomized_Start)
 	{
 //		add_Fit_To_File(params.x, params.init_Residual, default_Fit_Statictics_File, 0);
+		main_Calculation_Module->add_Fit(fitted_State);
 		fit_Return = run_Fitting();
 //		add_Fit_To_File(params.x, params.final_Residual, default_Fit_Statictics_File, 1);
 	} else
 	// randomized fit
 	{
+		// save trees to fit
+		main_Calculation_Module->add_Fit(fit_Run_State, 0);
 		add_Fit_To_File(params.x, params.init_Residual, default_Fit_Statictics_File, 0);
 		for(int run=1; run<=global_Multilayer_Approach->fitting_Settings->num_Runs; run++)
 		{
 			randomize_Position();
 			fit_Return = run_Fitting();
+			main_Calculation_Module->renew_Item_Trees();
+			main_Calculation_Module->add_Fit(fit_Run_State, run);
 			add_Fit_To_File(params.x, params.final_Residual, default_Fit_Statictics_File, run);
 		}
 	}

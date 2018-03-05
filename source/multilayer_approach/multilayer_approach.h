@@ -60,7 +60,7 @@ public:
 	void catch_Warning    (QString warning_Text);
 	void catch_Information(QString information_Text);
 
-	void add_Fitted_Structure(QVector<QTreeWidget*>& fitted_Trees_for_Copying, QString name_Modificator);
+	void add_Fitted_Structure(QVector<QTreeWidget*>& fitted_Trees_for_Copying, QString name_Modificator, int run=0);
 
 	Menu* menu;
 	Launcher* launcher;					// "parent"

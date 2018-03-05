@@ -192,6 +192,8 @@ public:
 	static bool expression_Is_Valid(QString expression_String, QStringList expression_Variables);
 	static Parameter* get_Parameter_From_Struct_Item_by_Id		  (Data& struct_Data, id_Type id);
 	static Parameter* get_Parameter_From_Struct_Item_by_Whats_This(Data& struct_Data, QString whats_This);
+
+	static void copy_Tree(const QTreeWidget* from_Tree, QTreeWidget* to_Tree);
 };
 
 #endif // GLOBAL_VARIABLES_H

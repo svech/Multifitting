@@ -10,7 +10,7 @@
 class Multilayer;
 class Multilayer_Approach;
 
-class Main_Calculation_Module: public QObject
+class Main_Calculation_Module: public QWidget
 {
 	Q_OBJECT
 public:
@@ -21,6 +21,7 @@ public:
 	QString calc_Mode;
 	QVector<Multilayer*> multilayers;
 	QVector<Calculation_Tree*> calculation_Trees;
+	QVector<QTreeWidget*> copy_Real_Struct_Trees;
 
 	Fitables fitables;
 	Fitables rejected_Min_Max;
@@ -32,6 +33,8 @@ public:
 
 	void single_Calculation();
 	void fitting();
+	void save_Init_State_Trees();
+	void load_Init_State_Trees();
 	void renew_Item_Trees();
 	bool reject();
 	void calc_Tree_Iteration(const tree<Node>::iterator& parent, bool fitables_Period_Gamma = false);
@@ -55,6 +58,8 @@ public:
 	template <typename Type>
 	void print_Reflect_To_File(Data_Element<Type>& data_Element, QString struct_Name, int index);
 	void print_Calculated_To_File();
+
+	void add_Fit(QString name_Modificator, int run=0);
 };
 
 #endif // MAIN_CALCULATION_MODULE_H

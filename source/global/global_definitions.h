@@ -309,8 +309,9 @@ class Node;
 #define FITTING		"FITTING"
 
 // name modificators
-#define current_State "current_State"
-#define fitted_State "fitted_State"
+#define current_State	"current_State"
+#define fitted_State	"fitted_State"
+#define fit_Run_State	"fit_Run_State"
 
 // -----------------------------------------------------------------------------------------
 
