@@ -35,7 +35,7 @@ public:
 	void rename_Independent_Variables_Tab(int tab_Index);
 
 	void refresh_Structure_And_Independent(QObject* my_Sender = NULL);
-	void add_Target_Curve   (int index_Pressed);
+	void add_Target_Curve   (int index_Pressed, bool opening = false);
 	void remove_Target_Curve(int index_Pressed, bool clean = false);
 	void open_Import_Window(Target_Curve* target_Curve);
 

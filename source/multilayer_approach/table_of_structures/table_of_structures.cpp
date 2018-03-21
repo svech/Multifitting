@@ -1915,7 +1915,7 @@ void Table_Of_Structures::refresh_Check_Box_Header(bool)
 		if(whats_This == whats_This_Sigma_Drift_Rand_Rms  )	struct_Data.sigma_Drift.is_Drift_Rand = check_Box->isChecked();
 		if(whats_This == whats_This_Sigma_Drift_Sine	  )	struct_Data.sigma_Drift.is_Drift_Sine = check_Box->isChecked();
 
-		if(whats_This == whats_This_Sigma)			struct_Data.common_Sigma = check_Box->isChecked();
+		if(whats_This == whats_This_Sigma)					struct_Data.common_Sigma = check_Box->isChecked();
 
 		QVariant var;
 		var.setValue( struct_Data );
@@ -2426,6 +2426,7 @@ void Table_Of_Structures::cells_On_Off_2(My_Table_Widget* table, QTreeWidgetItem
 	int column_Finish = check_Box->property(relative_Columns_To_Disable_Finish_Property_2).toInt();
 
 	for(int row=row_Start; row<=row_Finish; ++row)
+	{
 		for(int col=column_Start; col<=column_Finish; ++col)
 		{
 			QWidget* widget = table->cellWidget(current_Row+row,current_Column+col);
@@ -2440,6 +2441,7 @@ void Table_Of_Structures::cells_On_Off_2(My_Table_Widget* table, QTreeWidgetItem
 					widget->setStyleSheet("border: 1px solid grey");
 			}
 		}
+	}
 }
 
 void Table_Of_Structures::resize_Line_Edit(My_Table_Widget* table, QLineEdit* line_Edit)
@@ -2480,8 +2482,9 @@ void Table_Of_Structures::reload_All_Widgets(QObject* sender)
 					// if had some dependences
 					if(parameter->coupled.master.exist || parameter->coupled.slaves.size()>0)
 					{
-						Coupling_Editor* new_Coupling_Editor = new Coupling_Editor(widget_To_Reload, this, this);
-							new_Coupling_Editor->close();
+						// TODO fix it
+//						Coupling_Editor* new_Coupling_Editor = new Coupling_Editor(widget_To_Reload, this, this);
+//							new_Coupling_Editor->close();
 					}
 				}
 

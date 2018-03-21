@@ -244,40 +244,40 @@ void Structure_Toolbar::add_Aperiodic()
 			layer.thickness.value = thicknesses[layer_Index];
 
 			// TODO temporary
-			if(layer.material == "Al")
+			if(layer.material == "Mo")
 			{
 //				layer.thickness.value = layer.thickness.value*0.92;
-				layer.sigma.value = 10.45;
+				layer.sigma.value = 5;
 				layer.interlayer_Composition[Erf].interlayer.value  = 1;
-				layer.interlayer_Composition[Lin].interlayer.value  = 1;
-				layer.interlayer_Composition[Exp].interlayer.value  = 1;
-				layer.interlayer_Composition[Tanh].interlayer.value = 1;
-				layer.interlayer_Composition[Sin].interlayer.value  = 1;
-				layer.interlayer_Composition[Step].interlayer.value = 1;
+				layer.interlayer_Composition[Lin].interlayer.value  = 0;
+				layer.interlayer_Composition[Exp].interlayer.value  = 0;
+				layer.interlayer_Composition[Tanh].interlayer.value = 0;
+				layer.interlayer_Composition[Sin].interlayer.value  = 0;
+				layer.interlayer_Composition[Step].interlayer.value = 0;
 			}
 			if(layer.material == "Si")
 			{
 //				layer.thickness.value = layer.thickness.value*0.875;
-				layer.sigma.value = 13.5;
-				layer.interlayer_Composition[Erf].interlayer.value  = 1;
-				layer.interlayer_Composition[Lin].interlayer.value  = 1;
-				layer.interlayer_Composition[Exp].interlayer.value  = 1;
-				layer.interlayer_Composition[Tanh].interlayer.value = 1;
-				layer.interlayer_Composition[Sin].interlayer.value  = 1;
-				layer.interlayer_Composition[Step].interlayer.value = 1;
-			}
-			if(layer.material == "Zr")
-			{
-//				layer.relative_Density.value=0.97;
-//				layer.thickness.value = layer.thickness.value*1.15;
 				layer.sigma.value = 6;
 				layer.interlayer_Composition[Erf].interlayer.value  = 1;
-				layer.interlayer_Composition[Lin].interlayer.value  = 1;
-				layer.interlayer_Composition[Exp].interlayer.value  = 1;
-				layer.interlayer_Composition[Tanh].interlayer.value = 1;
-				layer.interlayer_Composition[Sin].interlayer.value  = 1;
-				layer.interlayer_Composition[Step].interlayer.value = 1;
+				layer.interlayer_Composition[Lin].interlayer.value  = 0;
+				layer.interlayer_Composition[Exp].interlayer.value  = 0;
+				layer.interlayer_Composition[Tanh].interlayer.value = 0;
+				layer.interlayer_Composition[Sin].interlayer.value  = 0;
+				layer.interlayer_Composition[Step].interlayer.value = 0;
 			}
+//			if(layer.material == "Zr")
+//			{
+////				layer.relative_Density.value=0.97;
+////				layer.thickness.value = layer.thickness.value*1.15;
+//				layer.sigma.value = 6;
+//				layer.interlayer_Composition[Erf].interlayer.value  = 1;
+//				layer.interlayer_Composition[Lin].interlayer.value  = 1;
+//				layer.interlayer_Composition[Exp].interlayer.value  = 1;
+//				layer.interlayer_Composition[Tanh].interlayer.value = 1;
+//				layer.interlayer_Composition[Sin].interlayer.value  = 1;
+//				layer.interlayer_Composition[Step].interlayer.value = 1;
+//			}
 			for(Interlayer& inter : layer.interlayer_Composition)
 			{
 				inter.my_Sigma.value = layer.sigma.value;
@@ -323,7 +323,7 @@ void Structure_Toolbar::add_Aperiodic()
 		/// set dependences
 
 		// top layers
-		QVector<QTreeWidgetItem*> top_Layer(3);
+		QVector<QTreeWidgetItem*> top_Layer(2);
 		QVector<Data> top_Layer_Data(top_Layer.size());
 		qInfo() << "top layers:";
 		for(int i=0; i<top_Layer.size(); ++i)

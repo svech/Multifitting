@@ -72,7 +72,7 @@ void Fits_Selector::create_Main_Layout()
 void Fits_Selector::set_Window_Geometry()
 {
 #ifdef _WIN32
-	setGeometry(0,0,235,height());
+	setGeometry(0,31,235,multilayer_height);
 #endif
 #ifdef __linux__
 	setGeometry(0,0,235,multilayer_height);

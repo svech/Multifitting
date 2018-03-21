@@ -447,7 +447,7 @@ void Multilayer_Approach::open(QString filename)
 			for(int i=0; i<num_Target; ++i)
 			{
 				// create default target
-				multilayer->add_Target_Curve(i);
+				multilayer->add_Target_Curve(i, true);
 
 				// work with it
 				Target_Curve* target_Curve = multilayer->target_Profiles_Vector[i];

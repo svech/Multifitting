@@ -26,14 +26,14 @@ void Multilayer::create_Structure_Frame()
 	struct_Frame_Layout = new QVBoxLayout;
 		struct_Frame_Layout->setSpacing(0);
 
-#ifndef __linux__
-	QFrame* frame = new QFrame;
-		frame->setContentsMargins(65,-8,65,-10);
-		frame->setLayout(struct_Frame_Layout);
-	main_Layout->addWidget(frame);
-#else
+//#ifndef __linux__
+//	QFrame* frame = new QFrame;
+//		frame->setContentsMargins(65,-8,65,-10);
+//		frame->setLayout(struct_Frame_Layout);
+//	main_Layout->addWidget(frame);
+//#else
 	main_Layout->addLayout(struct_Frame_Layout);
-#endif
+//#endif
 
 	structure_Tree = new Structure_Tree(this, this);
 	struct_Frame_Layout->addWidget(structure_Tree->tree);
@@ -45,14 +45,14 @@ void Multilayer::create_Variables_Frame()
 	variables_Frame_Layout = new QVBoxLayout;
 		variables_Frame_Layout->setSpacing(0);
 
-#ifndef __linux__
-	QFrame* frame = new QFrame;
-		frame->setContentsMargins(65,-8,65,-10);
-		frame->setLayout(variables_Frame_Layout);
-	main_Layout->addWidget(frame);
-#else
+//#ifndef __linux__
+//	QFrame* frame = new QFrame;
+//		frame->setContentsMargins(65,-8,65,-10);
+//		frame->setLayout(variables_Frame_Layout);
+//	main_Layout->addWidget(frame);
+//#else
 	main_Layout->addLayout(variables_Frame_Layout);
-#endif
+//#endif
 
 	create_Variables_Tabs();
 	variables_Frame_Layout->addWidget(variables_Tabs);
@@ -64,17 +64,17 @@ void Multilayer::create_Variables_Tabs()
 
 	create_Independent_Variables_Tabs();
 	{
-#ifndef __linux__
-		QFrame* frame = new QFrame;
-		QVBoxLayout* layout = new QVBoxLayout;
-		layout->addWidget(independent_Variables_Plot_Tabs);
-		layout->setSpacing(0);
-		frame->setLayout(layout);
-		frame->setContentsMargins(0,-5,0,-8);
-		variables_Tabs->addTab(frame, "Independent Variables");
-#else
+//#ifndef __linux__
+//		QFrame* frame = new QFrame;
+//		QVBoxLayout* layout = new QVBoxLayout;
+//		layout->addWidget(independent_Variables_Plot_Tabs);
+//		layout->setSpacing(0);
+//		frame->setLayout(layout);
+//		frame->setContentsMargins(0,-5,0,-8);
+//		variables_Tabs->addTab(frame, "Independent Variables");
+//#else
 		variables_Tabs->addTab(independent_Variables_Plot_Tabs, "Independent Variables");
-#endif
+//#endif
 	}
 	{
 		QWidget* frame = new QWidget;
@@ -132,14 +132,14 @@ void Multilayer::create_Data_Frame()
 	data_Frame_Layout = new QVBoxLayout;
 		data_Frame_Layout->setSpacing(0);
 
-#ifndef __linux__
-	QFrame* frame = new QFrame;
-		frame->setContentsMargins(65,-8,65,-10);
-		frame->setLayout(data_Frame_Layout);
-	main_Layout->addWidget(frame);
-#else
+//#ifndef __linux__
+//	QFrame* frame = new QFrame;
+//		frame->setContentsMargins(65,-8,65,-10);
+//		frame->setLayout(data_Frame_Layout);
+//	main_Layout->addWidget(frame);
+//#else
 	main_Layout->addLayout(data_Frame_Layout);
-#endif
+//#endif
 
 	data_Target_Profile_Group_Box = new QGroupBox("Target Curve");
 	data_Frame_Layout->addWidget(data_Target_Profile_Group_Box);
@@ -231,7 +231,7 @@ void Multilayer::refresh_Structure_And_Independent(QObject* my_Sender)
 
 //// --------------------------------------------------------------------------------------
 
-void Multilayer::add_Target_Curve(int index_Pressed)
+void Multilayer::add_Target_Curve(int index_Pressed, bool opening)
 {
 	// window resizing
 	if(!data_Target_Profile_Frame_Vector.isEmpty())
@@ -239,8 +239,11 @@ void Multilayer::add_Target_Curve(int index_Pressed)
 #ifdef __linux__
 		data_Target_Profile_Group_Box->adjustSize();
 #endif
-		data_Target_Profile_Group_Box->setFixedHeight(data_Target_Profile_Group_Box->height() + multilayer_height_additive);
-		QWidget::window()->resize(QWidget::window()->width(),QWidget::window()->height() + multilayer_height_additive);
+		if(!opening)
+		{
+			data_Target_Profile_Group_Box->setFixedHeight(data_Target_Profile_Group_Box->height() + multilayer_height_additive);
+			QWidget::window()->resize(QWidget::window()->width(),QWidget::window()->height() + multilayer_height_additive);
+		}
 	}
 
 	QPushButton* new_Import_Button = new QPushButton("Import");

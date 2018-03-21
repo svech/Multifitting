@@ -34,7 +34,6 @@ public:
 	void enable_Getting_Parameter(QWidget* old, QWidget* now, QLabel* label, QLineEdit* line_Edit);
 	void get_Parameter(QLabel* label);
 
-
 	id_Type coupled_Id;
 	QTreeWidgetItem* struct_Item;
 	Data struct_Data;

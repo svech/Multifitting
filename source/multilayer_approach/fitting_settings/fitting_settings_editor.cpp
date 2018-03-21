@@ -51,7 +51,12 @@ void Fitting_Settings_Editor::create_Main_Layout()
 void Fitting_Settings_Editor::set_Window_Geometry()
 {
 	adjustSize();
-	setGeometry(430,498,width(),height());
+#ifdef _WIN32
+	setGeometry(768,31,width(),height());
+#endif
+#ifdef __linux__
+	setGeometry(768,0,width(),height());
+#endif
 	setFixedSize(size());
 }
 

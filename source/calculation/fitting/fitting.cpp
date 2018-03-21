@@ -38,10 +38,10 @@ Fitting::~Fitting()
 
 double Fitting::func(double argument, int index)
 {
-	if(index == 0)
-	{
-		return log(argument+1E-5);
-	} else
+//	if(index == 0)
+//	{
+//		return log(argument+1E-5);
+//	} else
 	{
 		return argument;
 	}
@@ -143,7 +143,7 @@ void Fitting::slaves_Recalculation(Parameter* master, Fitting_Params* params)
 		Parameter* slave = master->coupled.slave_Pointers[slave_Index];
 
 #ifdef EXPRTK
-		// local parsing. not used, slowler
+		// local parsing. not used, slower
 //		exprtk::parser<double> parser;
 //		exprtk::symbol_table<double> symbol_table;
 //		exprtk::expression<double> expression_Exprtk;

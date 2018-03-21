@@ -189,7 +189,7 @@ void Settings::read_Gui_Settings(bool reset_to_default)
 
 	// multilayer window geometry
 	gui_Settings.beginGroup( Multilayer_Window_Geometry );
-		multilayer_x_corner			= gui_Settings.value( "multilayer_x_corner",		250 ).toInt();
+		multilayer_x_corner			= gui_Settings.value( "multilayer_x_corner",		228 ).toInt();
 		multilayer_y_corner			= gui_Settings.value( "multilayer_y_corner",		0   ).toInt();
 		multilayer_min_width		= gui_Settings.value( "multilayer_min_width",		300 ).toInt();
 		multilayer_min_height		= gui_Settings.value( "multilayer_min_height",		100 ).toInt();

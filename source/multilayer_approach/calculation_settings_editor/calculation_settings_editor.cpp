@@ -19,7 +19,7 @@ void Calculation_Settings_Editor::closeEvent(QCloseEvent* event)
 
 void Calculation_Settings_Editor::set_Window_Geometry()
 {
-	setGeometry(0,525,width(),height());
+	setGeometry(0,532,width(),height());
 }
 
 void Calculation_Settings_Editor::create_Main_Layout()

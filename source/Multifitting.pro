@@ -19,12 +19,14 @@ INCLUDEPATH +=	"C:/Program Files (x86)/C++ libraries" \
 		"C:/Program Files (x86)/C++ libraries/GSL 2.4 Bruot/include" \
 #		"C:/Program Files (x86)/C++ libraries/eigen 3.3.1" \
 		"C:/Program Files (x86)/C++ libraries/SwarmOps/include" \
-		"C:/Program Files (x86)/C++ libraries/RandomOps/include"
+        "C:/Program Files (x86)/C++ libraries/RandomOps/include" \
+        "C:/Program Files (x86)/C++ libraries/QCustomPlot 2.0.0"
 
 LIBS += "C:/Program Files (x86)/C++ libraries/GSL 2.4 Bruot/lib/gsl/cblas.lib" \
 		"C:/Program Files (x86)/C++ libraries/GSL 2.4 Bruot/lib/gsl/gsl.lib" \
 		"C:/Program Files (x86)/C++ libraries/SwarmOps/SwarmOps.lib" \
-		"C:/Program Files (x86)/C++ libraries/RandomOps/RandomOps.lib"
+        "C:/Program Files (x86)/C++ libraries/RandomOps/RandomOps.lib" \
+        "C:/Program Files (x86)/C++ libraries/QCustomPlot 2.0.0/qcustomplot2.lib"
 }
 unix {
 LIBS += -lgsl -lgslcblas -lSwarmRandOps
@@ -68,7 +70,8 @@ SOURCES += \
     multilayer_approach/table_of_structures/table_of_structures.cpp \
     multilayer_approach/multilayer_approach.cpp \
 	standard/menu.cpp \
-	standard/spoiler.cpp
+	standard/spoiler.cpp \
+    multilayer_approach/multilayer/target_curve/target_curve_plot.cpp
 
 
 HEADERS += \
@@ -106,4 +109,5 @@ HEADERS += \
     multilayer_approach/table_of_structures/table_of_structures.h \
     multilayer_approach/multilayer_approach.h \
     standard/menu.h \
-	standard/spoiler.h
+	standard/spoiler.h \
+    multilayer_approach/multilayer/target_curve/target_curve_plot.h
