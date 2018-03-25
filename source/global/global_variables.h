@@ -56,6 +56,8 @@ extern QStringList value_Function;
 enum value_Function_Enum    { Reflectance,   Transmittance,  Absorptance	   };
 
 extern QStringList value_R_Mode;
+extern QStringList value_R_Mode_Label_1;
+extern QStringList value_R_Mode_Label_2;
 enum value_R_Mode_Enum		{ R,  R_Phi,     r_Re_Im,        r_Abs_Phi         };
 
 extern QStringList value_T_Mode;

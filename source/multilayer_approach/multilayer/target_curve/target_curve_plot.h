@@ -1,17 +1,29 @@
 #ifndef TARGET_CURVE_PLOT_H
 #define TARGET_CURVE_PLOT_H
 
-#include <QWidget>
+#include "target_curve.h"
+#include "qcustomplot.h"
 
 class Target_Curve_Plot : public QWidget
 {
 	Q_OBJECT
 public:
-	explicit Target_Curve_Plot(QWidget *parent = nullptr);
+	explicit Target_Curve_Plot(Target_Curve* target_Curve, QWidget *parent = nullptr);
 
-signals:
+	void create_Plot_Frame_And_Scale();
+	void plot_Data(bool fast = false);
+	void refresh_Labels();
 
-public slots:
+	Target_Curve* target_Curve;
+	QCustomPlot* custom_Plot;
+
+	QString val_Type_Label;
+	QString val_Mode_Label_1;
+	QString val_Mode_Label_2;
+
+	QString argument_Type_Label;
+	QString argument_Label;
+
 };
 
 #endif // TARGET_CURVE_PLOT_H

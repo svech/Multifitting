@@ -4,6 +4,7 @@
 #include "global/layer_data_types.h"
 #include "multilayer_approach/multilayer/target_curve/target_curve.h"
 #include "multilayer_approach/multilayer/multilayer.h"
+#include "target_curve_plot.h"
 
 class Target_Curve_Editor : public QDialog
 {
@@ -19,6 +20,8 @@ public:
 	void dragEnterEvent(QDragEnterEvent* event);
 	void dropEvent(QDropEvent* event);
 	void create_Main_Layout();
+		void create_Plot();
+		void create_Plot_Options_GroupBox();
 		void create_Filepath_GroupBox();
 		void create_Data_GroupBox();
 		void create_Buttons();
@@ -60,6 +63,12 @@ public:
 	bool is_File_Exists = false;
 
 	QVBoxLayout* main_Layout;
+		Target_Curve_Plot* target_Curve_Plot;
+		QWidget* bottom_Part_Widget;
+		QVBoxLayout* bottom_Part_Layout;
+
+		QGroupBox* plot_Options_GroupBox;
+
 		QGroupBox* filepath_GroupBox;
 			QComboBox* filepath_ComboBox;
 			QPushButton* browse_Button;

@@ -94,7 +94,7 @@ class Node;
 // -----------------------------------------------------------------------------------------
 
 // symbols
-#define space					" "
+#define space_Sym				" "
 #define Angstrom_Sym			QString(QChar(0x212B))
 #define Rho_Sym					QString(QChar(0x03C1))
 #define Cube_Sym				QString(QChar(0x00B3))
@@ -241,6 +241,10 @@ class Node;
 #define VAL				"value"
 #define MIN				"min value"
 #define MAX				"max value"
+
+// plot scales
+#define lin_Scale		"lin"
+#define log_Scale		"value"
 
 // insert items with or without changing IDs
 #define copy_Type_Copy	"copy"

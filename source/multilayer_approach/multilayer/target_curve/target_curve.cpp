@@ -125,7 +125,7 @@ void Target_Curve::fill_Measurement_With_Data()
 			curve.shifted_Argument[i]     = curve.argument[i]    *curve.arg_Factor+curve.arg_Offset;
 			curve.shifted_Values[i].val_1 = curve.values[i].val_1*curve.val_Factor+curve.val_Offset;
 			// shift only first
-//			curve.shifted_Values[i].val_2 = curve.values[i].val_2*curve.val_Factor+curve.val_Offset;
+			curve.shifted_Values[i].val_2 = curve.values[i].val_2;//*curve.val_Factor+curve.val_Offset;
 		}
 
 		// measurement filling
@@ -164,13 +164,13 @@ void Target_Curve::set_Text_To_Label()
 // serialization
 QDataStream& operator <<( QDataStream& stream, const Target_Curve* target_Curve )
 {
-	return stream	<< target_Curve->curve << target_Curve->fit_Params << target_Curve->measurement << target_Curve->filename << target_Curve->filepath << target_Curve->loaded_And_Ready
+	return stream	<< target_Curve->curve << target_Curve->fit_Params << target_Curve->measurement << target_Curve->filename << target_Curve->filepath << target_Curve->loaded_And_Ready << target_Curve->plot_Scale
 					<< target_Curve->lines_List << target_Curve->arg_Units << target_Curve->at_Fixed << target_Curve->arg_Type_For_Label << target_Curve->ang_Type_For_Label_At_Fixed << target_Curve->label_Text
 	;
 }
 QDataStream& operator >>(QDataStream& stream,		 Target_Curve* target_Curve )
 {
-	return stream	>> target_Curve->curve >> target_Curve->fit_Params >> target_Curve->measurement >> target_Curve->filename >> target_Curve->filepath >> target_Curve->loaded_And_Ready
+	return stream	>> target_Curve->curve >> target_Curve->fit_Params >> target_Curve->measurement >> target_Curve->filename >> target_Curve->filepath >> target_Curve->loaded_And_Ready >> target_Curve->plot_Scale
 					>> target_Curve->lines_List >> target_Curve->arg_Units >> target_Curve->at_Fixed >> target_Curve->arg_Type_For_Label >> target_Curve->ang_Type_For_Label_At_Fixed >> target_Curve->label_Text
 	;
 }

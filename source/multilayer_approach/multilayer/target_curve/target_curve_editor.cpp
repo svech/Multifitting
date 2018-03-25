@@ -48,7 +48,7 @@ void Target_Curve_Editor::dropEvent(QDropEvent* event)
 void Target_Curve_Editor::set_Window_Geometry()
 {
 	QMetaObject::invokeMethod(this, "adjustSize", Qt::QueuedConnection);
-	main_Layout->layout()->setSizeConstraint( QLayout::SetFixedSize );
+//	main_Layout->layout()->setSizeConstraint( QLayout::SetFixedSize );
 }
 
 void Target_Curve_Editor::read_Data_File(QString filepath)
@@ -64,6 +64,9 @@ void Target_Curve_Editor::read_Data_File(QString filepath)
 	}
 
 	show_Description_Label();
+
+	// refresh plot
+	target_Curve_Plot->plot_Data();
 }
 
 void Target_Curve_Editor::show_Description_Label()
@@ -225,14 +228,28 @@ void Target_Curve_Editor::change_At_Fixed_Units_ComboBox(QString fixed_Units)
 void Target_Curve_Editor::create_Main_Layout()
 {
 	main_Layout = new QVBoxLayout(this);
+//	main_Layout->setAlignment(Qt::AlignBottom);
 	main_Layout->setContentsMargins(4,10,4,0);
 	main_Layout->setSpacing(0);
 
+	bottom_Part_Widget = new QWidget;
+	bottom_Part_Layout = new QVBoxLayout(bottom_Part_Widget);
+	bottom_Part_Layout->setAlignment(Qt::AlignBottom);
+	bottom_Part_Layout->setSpacing(0);
+	bottom_Part_Widget->setFixedHeight(330);
+
+	create_Plot();
+		main_Layout->addWidget(target_Curve_Plot->custom_Plot);
+	create_Plot_Options_GroupBox();
+		bottom_Part_Layout->addWidget(plot_Options_GroupBox);
 	create_Filepath_GroupBox();
-		main_Layout->addWidget(filepath_GroupBox);
+		bottom_Part_Layout->addWidget(filepath_GroupBox);
 	create_Data_GroupBox();
-		main_Layout->addWidget(data_GroupBox);
+		bottom_Part_Layout->addWidget(data_GroupBox);
 	create_Buttons();
+
+	target_Curve_Plot->custom_Plot->replot();
+	main_Layout->addWidget(bottom_Part_Widget);
 
 	// shortcuts
 	{
@@ -245,6 +262,58 @@ void Target_Curve_Editor::create_Main_Layout()
 		connect(open_Shortcut,			&QShortcut::activated, this, [=]{ global_Multilayer_Approach->open(default_File);});
 		connect(fit_Shortcut,			&QShortcut::activated, this, [=]{ global_Multilayer_Approach->start_Fitting();	  });
 		connect(calc_Specular_Shortcut, &QShortcut::activated, this, [=]{ global_Multilayer_Approach->calc_Reflection(); });
+	}
+}
+
+void Target_Curve_Editor::create_Plot()
+{
+	target_Curve_Plot = new Target_Curve_Plot(target_Curve, this);
+}
+
+void Target_Curve_Editor::create_Plot_Options_GroupBox()
+{
+	plot_Options_GroupBox = new QGroupBox("Plot options");
+	QVBoxLayout* plot_Options_GroupBox_Layout = new QVBoxLayout(plot_Options_GroupBox);
+
+	// first row
+	{
+		QLabel* scale_Label = new QLabel("Scale: ");
+
+		QRadioButton* lin_Radio_Button = new QRadioButton("Lin");
+		connect(lin_Radio_Button, &QRadioButton::toggled, this, [=]
+		{
+			if(lin_Radio_Button->isChecked())	{target_Curve->plot_Scale = lin_Scale;}
+			target_Curve_Plot->plot_Data();
+		});
+		connect(lin_Radio_Button, &QRadioButton::clicked, lin_Radio_Button, &QRadioButton::toggled);
+
+		if(target_Curve->plot_Scale == lin_Scale)
+		{
+			lin_Radio_Button->setChecked(true);
+			lin_Radio_Button->toggled(true);
+		}
+
+		QRadioButton* log_Radio_Button = new QRadioButton("Log");
+		connect(log_Radio_Button, &QRadioButton::toggled, this, [=]
+		{
+			if(log_Radio_Button->isChecked())	{target_Curve->plot_Scale = log_Scale;}
+			target_Curve_Plot->plot_Data();
+		});
+		connect(log_Radio_Button, &QRadioButton::clicked, log_Radio_Button, &QRadioButton::toggled);
+
+		if(target_Curve->plot_Scale == log_Scale)
+		{
+			log_Radio_Button->setChecked(true);
+			log_Radio_Button->toggled(true);
+		}
+
+		QHBoxLayout* radio_Button_Layout = new QHBoxLayout;
+		radio_Button_Layout->setAlignment(Qt::AlignLeft);
+		radio_Button_Layout->addWidget(scale_Label);
+		radio_Button_Layout->addWidget(lin_Radio_Button);
+		radio_Button_Layout->addWidget(log_Radio_Button);
+
+		plot_Options_GroupBox_Layout->addLayout(radio_Button_Layout);
 	}
 }
 
@@ -594,7 +663,7 @@ void Target_Curve_Editor::create_Buttons()
 		button_Layout->addWidget(read_Data_Button,0,Qt::AlignCenter);
 	}
 
-	main_Layout->addLayout(button_Layout);
+	bottom_Part_Layout->addLayout(button_Layout);
 }
 
 void Target_Curve_Editor::resize_Line_Edit(QLineEdit* line_Edit)
@@ -631,7 +700,7 @@ void Target_Curve_Editor::resize_ComboBox(QLineEdit* line_Edit)
 		line_Edit->setFixedWidth(line_Edit->property(min_Size_Property).toInt());
 		comboBox->setFixedWidth(line_Edit->width()+QLINEEDIT_TO_QCOMBOBOX_DIFFERENCE);
 	}
-	QMetaObject::invokeMethod(this, "adjustSize", Qt::QueuedConnection);
+//	QMetaObject::invokeMethod(this, "adjustSize", Qt::QueuedConnection);
 }
 
 void Target_Curve_Editor::show_All()
@@ -811,12 +880,14 @@ void Target_Curve_Editor::refresh_Argument_Type()
 	}
 	target_Curve->fill_Measurement_With_Data();
 	show_Description_Label();
+	target_Curve_Plot->refresh_Labels();
 }
 
 void Target_Curve_Editor::refresh_Value_Type()
 {
 	target_Curve->curve.value_Function = val_Function_ComboBox->currentText();
 	show_Description_Label();
+	target_Curve_Plot->refresh_Labels();
 }
 
 void Target_Curve_Editor::refresh_Argument_Units()
@@ -831,11 +902,13 @@ void Target_Curve_Editor::refresh_Argument_Units()
 	}
 	target_Curve->fill_Measurement_With_Data();
 	show_Description_Label();
+	target_Curve_Plot->refresh_Labels();
 }
 
 void Target_Curve_Editor::refresh_Value_Mode()
 {
 	target_Curve->curve.value_Mode = val_Mode_ComboBox->currentText();
+	target_Curve_Plot->refresh_Labels();
 }
 
 void Target_Curve_Editor::refresh_At_Fixed_Value()
@@ -875,6 +948,7 @@ void Target_Curve_Editor::refresh_At_Fixed_Units()
 		target_Curve->measurement.angle_Type = target_Curve->curve.angle_Type;
 	}
 	show_Description_Label();
+	target_Curve_Plot->refresh_Labels();
 }
 
 void Target_Curve_Editor::refresh_Offsets()
@@ -883,6 +957,7 @@ void Target_Curve_Editor::refresh_Offsets()
 	target_Curve->curve.val_Offset = val_Offset_SpinBox->value();
 	target_Curve->fill_Measurement_With_Data();
 	show_Description_Label();
+	target_Curve_Plot->plot_Data(true);
 }
 
 void Target_Curve_Editor::refresh_Factors()
@@ -891,6 +966,7 @@ void Target_Curve_Editor::refresh_Factors()
 	target_Curve->curve.val_Factor = val_Factor_SpinBox->value();
 	target_Curve->fill_Measurement_With_Data();
 	show_Description_Label();
+	target_Curve_Plot->plot_Data(true);
 }
 
 void Target_Curve_Editor::refresh_Polarization()

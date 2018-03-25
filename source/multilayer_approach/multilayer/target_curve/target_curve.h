@@ -25,6 +25,7 @@ public:
 	QString filepath;	// should be empty
 
 	bool loaded_And_Ready = false;
+	QString plot_Scale = lin_Scale;
 
 	QStringList lines_List;
 	QString arg_Units;
