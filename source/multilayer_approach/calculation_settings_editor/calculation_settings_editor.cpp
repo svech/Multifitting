@@ -31,7 +31,7 @@ void Calculation_Settings_Editor::create_Main_Layout()
 	lock_Mainwindow_Interface();
 	create_Menu();
 	create_Tabs();
-	main_Layout->addWidget(main_Tabs);
+		main_Layout->addWidget(main_Tabs);
 
 	adjustSize();
 	add_Tabs();

@@ -198,6 +198,26 @@ void Multilayer_Approach::open_Table_Of_Structures()
 	}
 }
 
+void Multilayer_Approach::open_Optical_Graphs()
+{
+	if(!runned_Optical_Graphs.contains(optical_Graphs_Key))
+	{
+		optical_Graphs = new Optical_Graphs(this);
+		runned_Optical_Graphs.insert(optical_Graphs_Key, optical_Graphs);
+			optical_Graphs->setWindowFlags(Qt::Window);
+			optical_Graphs->show();
+
+//		for(int i=0; i<multilayer_Tabs->count(); ++i)
+//		{
+//			Multilayer* multilayer = qobject_cast<Multilayer*>(multilayer_Tabs->widget(i));
+//			connect(multilayer, &Multilayer::refresh_All_Multilayers, table_Of_Structures, [=]{table_Of_Structures->reload_All_Widgets();});
+//		}
+	} else
+	{
+		optical_Graphs->activateWindow();
+	}
+}
+
 void Multilayer_Approach::open_Fits_Selector()
 {
 	if(!runned_Fits_Selectors.contains(fits_Selector_Key))

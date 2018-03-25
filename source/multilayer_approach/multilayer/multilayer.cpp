@@ -84,6 +84,9 @@ void Multilayer::create_Variables_Tabs()
 		structure_Table_Button = new QPushButton("Structure table");
 			layout->addWidget(structure_Table_Button);
 
+		optical_Graphs_Button = new QPushButton("Graphs");
+			layout->addWidget(optical_Graphs_Button);
+
 		fitting_Settings_Button = new QPushButton("Fitting settings");
 			layout->addWidget(fitting_Settings_Button);
 
@@ -99,6 +102,7 @@ void Multilayer::create_Variables_Tabs()
 
 		Multilayer_Approach* parent_Multilayer_Approach = qobject_cast<Multilayer_Approach*>(parent);
 		connect(structure_Table_Button,		 &QPushButton::clicked, parent_Multilayer_Approach, &Multilayer_Approach::open_Table_Of_Structures);
+		connect(optical_Graphs_Button,		 &QPushButton::clicked, parent_Multilayer_Approach, &Multilayer_Approach::open_Optical_Graphs);
 		connect(fits_Selector_Button,		 &QPushButton::clicked, parent_Multilayer_Approach, &Multilayer_Approach::open_Fits_Selector);
 		connect(calculation_Settings_Button, &QPushButton::clicked, parent_Multilayer_Approach, &Multilayer_Approach::open_Calculation_Settings);
 		connect(fitting_Settings_Button,	 &QPushButton::clicked, parent_Multilayer_Approach, &Multilayer_Approach::open_Fitting_Settings);

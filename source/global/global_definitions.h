@@ -295,7 +295,8 @@ class Node;
 
 // keys
 #define multilayer_Approach_Key	"multilayer_Approach_Key"
-#define table_Key				"table_Of_Structures"
+#define table_Key				"table_Of_Structures_Key"
+#define optical_Graphs_Key		"optical_Graphs_Key"
 #define fits_Selector_Key		"fits_Selector_Key"
 #define calc_Settings_Key		"calc_Settings_Key"
 #define fit_Settings_Key		"fit_Settings_Key"

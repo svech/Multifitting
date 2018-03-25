@@ -50,6 +50,7 @@ public:
 					QToolButton* independent_Variables_Corner_Button;
 
 				QPushButton* structure_Table_Button;
+				QPushButton* optical_Graphs_Button;
 				QPushButton* fits_Selector_Button;
 				QPushButton* calculation_Settings_Button;
 				QPushButton* fitting_Settings_Button;
