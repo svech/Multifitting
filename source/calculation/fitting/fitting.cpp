@@ -266,17 +266,9 @@ void Fitting::fill_Residual(int& residual_Shift, Data_Element<Target_Curve>& tar
 		}
 		residual_Shift += N;
 	} else
-	if(target_Curve->curve.value_Mode == value_R_Mode[R_Phi] )			// R+phi
+	if(target_Curve->curve.value_Mode == value_R_Mode[R_Phi] )
 	{
 		qInfo() << "Fitting::fill_Residual  :  sorry, R_Phi is not ready";
-	} else
-	if(target_Curve->curve.value_Mode == value_R_Mode[r_Re_Im] )		// r, Re+Im
-	{
-		qInfo() << "Fitting::fill_Residual  :  sorry, r_Re_Im is not ready";
-	} else
-	if(target_Curve->curve.value_Mode == value_R_Mode[r_Abs_Phi] )		// |r|+phi
-	{
-		qInfo() << "Fitting::fill_Residual  :  sorry, r_Abs_Phi is not ready";
 	} else
 
 	/// -------------------------------------------------------------------------------
@@ -522,9 +514,7 @@ bool Fitting::check_Residual_Expression()
 			/// 2 values
 			/// -------------------------------------------------------------------------------
 
-			if(target_Curve->curve.value_Mode == value_R_Mode[R_Phi]     || 	// R+phi
-			   target_Curve->curve.value_Mode == value_R_Mode[r_Re_Im]   || 	// r, Re+Im
-			   target_Curve->curve.value_Mode == value_R_Mode[r_Abs_Phi] )		// |r|+phi
+			if(target_Curve->curve.value_Mode == value_R_Mode[R_Phi] )
 			{
 				if(target_Curve->fit_Params.expression_Vec.size() < 2)
 				{

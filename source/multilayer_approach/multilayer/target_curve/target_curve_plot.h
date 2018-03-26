@@ -2,7 +2,6 @@
 #define TARGET_CURVE_PLOT_H
 
 #include "target_curve.h"
-#include "qcustomplot.h"
 
 class Target_Curve_Plot : public QWidget
 {

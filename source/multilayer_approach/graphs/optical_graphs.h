@@ -2,7 +2,7 @@
 #define OPTICAL_GRAPHS_H
 
 #include "multilayer_approach/multilayer_approach.h"
-#include "qcustomplot.h"
+#include "curve_plot.h"
 
 class Multilayer_Approach;
 
@@ -22,7 +22,7 @@ public:
 	QVBoxLayout* main_Layout;
 
 	QTabWidget* main_Tabs;
-		QVector<QGroupBox*> measured_GroupBox_Vec;
+		QVector<QGroupBox*> target_GroupBox_Vec;
 		QVector<QSplitter*> splitter_Vec;
 		QVector<QGroupBox*> independent_GroupBox_Vec;
 };

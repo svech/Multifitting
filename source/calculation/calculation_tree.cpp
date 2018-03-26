@@ -14,12 +14,7 @@ Calculation_Tree::Calculation_Tree(Multilayer* multilayer, QString calc_Mode):
 		{
 			Independent_Variables* independent_Variables = qobject_cast<Independent_Variables*>(multilayer->independent_Variables_Plot_Tabs->widget(i));
 			if( independent_Variables->calc_Functions.check_Enabled	)
-			if(	independent_Variables->calc_Functions.check_Reflectance		||
-				independent_Variables->calc_Functions.check_Transmittance	||
-				independent_Variables->calc_Functions.check_Absorptance		||
-				independent_Variables->calc_Functions.check_Field			||
-				independent_Variables->calc_Functions.check_Joule			||
-				independent_Variables->calc_Functions.check_User )
+			if(	independent_Variables->calc_Functions.if_Something_Enabled() )
 			{
 				independent.resize(independent.size()+1);
 
@@ -345,7 +340,7 @@ void Calculation_Tree::calculate_1_Kind(Data_Element<Type>& data_Element)
 //		qInfo() << "Unwrap: "<< elapsed.count()/1000000. << " seconds" << endl;
 
 //		start = std::chrono::system_clock::now();
-		calculate_Unwrapped_Reflectivity	(						 data_Element.the_Class->measurement, data_Element.active_Parameter_Whats_This, data_Element.unwrapped_Structure, data_Element.unwrapped_Reflection);
+		calculate_Unwrapped_Reflectivity	(data_Element.the_Class->calculated_Values, data_Element.the_Class->measurement, data_Element.active_Parameter_Whats_This, data_Element.unwrapped_Structure, data_Element.unwrapped_Reflection);
 //		end = std::chrono::system_clock::now();
 //		elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
 //		qInfo() << "Unwrap Reflect: "<< elapsed.count()/1000000. << " seconds" << endl;
@@ -411,7 +406,7 @@ void Calculation_Tree::calculate_Unwrapped_Structure(tree<Node>& calc_Tree, cons
 	unwrapped_Structure_Vec_Element = new_Unwrapped_Structure;
 }
 
-void Calculation_Tree::calculate_Unwrapped_Reflectivity(				    const Data& measurement, QString active_Parameter_Whats_This, Unwrapped_Structure* unwrapped_Structure_Vec_Element, Unwrapped_Reflection*& unwrapped_Reflection_Vec_Element)
+void Calculation_Tree::calculate_Unwrapped_Reflectivity(Calculated_Values& calculated_Values, const Data& measurement, QString active_Parameter_Whats_This, Unwrapped_Structure* unwrapped_Structure_Vec_Element, Unwrapped_Reflection*& unwrapped_Reflection_Vec_Element)
 {
 	delete unwrapped_Reflection_Vec_Element;
 	Unwrapped_Reflection*  new_Unwrapped_Reflection = new Unwrapped_Reflection(unwrapped_Structure_Vec_Element, num_Media, active_Parameter_Whats_This, measurement, depth_Grading, sigma_Grading);
@@ -421,6 +416,12 @@ void Calculation_Tree::calculate_Unwrapped_Reflectivity(				    const Data& meas
 	unwrapped_Reflection_Vec_Element->calc_Specular();
 //	auto end = std::chrono::system_clock::now();
 //	auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+
+	// make a copy for plotting
+	calculated_Values.R.fromStdVector(unwrapped_Reflection_Vec_Element->R_Instrumental);
+	if(abs(measurement.polarization.value-1)<DBL_EPSILON)	{ calculated_Values.Phi = QVector<double>::fromStdVector(unwrapped_Reflection_Vec_Element->Phi_s); } else
+	if(abs(measurement.polarization.value+1)<DBL_EPSILON)	{ calculated_Values.Phi = QVector<double>::fromStdVector(unwrapped_Reflection_Vec_Element->Phi_p);	} else
+															{ calculated_Values.Phi.clear(); }
 
 //	qInfo() << "Bare Reflectivity:      "<< elapsed.count()/1000. << " seconds" << endl;
 

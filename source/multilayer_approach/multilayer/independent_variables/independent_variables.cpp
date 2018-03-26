@@ -524,9 +524,11 @@ QString Independent_Variables::enlarge_Tab_Name()
 // serialization
 QDataStream& operator <<( QDataStream& stream, const Independent_Variables* independent_Variables )
 {
-	return stream	<< independent_Variables->measurement << independent_Variables->calc_Functions << independent_Variables->tab_Name;
+	return stream	<< independent_Variables->measurement << independent_Variables->calc_Functions << independent_Variables->calculated_Values
+					<< independent_Variables->tab_Name << independent_Variables->plot_Options;
 }
 QDataStream& operator >>(QDataStream& stream,		 Independent_Variables* independent_Variables )
 {
-	return stream	>> independent_Variables->measurement >> independent_Variables->calc_Functions >> independent_Variables->tab_Name;
+	return stream	>> independent_Variables->measurement >> independent_Variables->calc_Functions >> independent_Variables->calculated_Values
+					>> independent_Variables->tab_Name >> independent_Variables->plot_Options;
 }

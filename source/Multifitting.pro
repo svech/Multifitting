@@ -72,7 +72,8 @@ SOURCES += \
 	standard/menu.cpp \
 	standard/spoiler.cpp \
     multilayer_approach/multilayer/target_curve/target_curve_plot.cpp \
-    multilayer_approach/graphs/optical_graphs.cpp
+    multilayer_approach/graphs/optical_graphs.cpp \
+    multilayer_approach/graphs/curve_plot.cpp
 
 
 HEADERS += \
@@ -112,4 +113,5 @@ HEADERS += \
     standard/menu.h \
 	standard/spoiler.h \
     multilayer_approach/multilayer/target_curve/target_curve_plot.h \
-    multilayer_approach/graphs/optical_graphs.h
+    multilayer_approach/graphs/optical_graphs.h \
+    multilayer_approach/graphs/curve_plot.h

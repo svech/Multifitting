@@ -22,7 +22,7 @@ void Target_Curve_Plot::create_Plot_Frame_And_Scale()
 		custom_Plot->yAxis->grid()->setPen(pen);
 		custom_Plot->xAxis->grid()->setPen(pen);
 
-		if(target_Curve->plot_Scale == log_Scale)
+		if(target_Curve->plot_Options.scale == log_Scale)
 		{
 			custom_Plot->yAxis ->setScaleType(QCPAxis::stLogarithmic);
 
@@ -35,8 +35,7 @@ void Target_Curve_Plot::create_Plot_Frame_And_Scale()
 
 			if(	target_Curve->curve.value_Mode == value_R_Mode[R] ||
 				target_Curve->curve.value_Mode == value_T_Mode[T] ||
-				target_Curve->curve.value_Mode == value_A_Mode[A] ||
-				target_Curve->curve.value_Mode == value_R_Mode[r_Re_Im]	)
+				target_Curve->curve.value_Mode == value_A_Mode[A] )
 			{
 				custom_Plot->yAxis2->setScaleType(QCPAxis::stLogarithmic);
 				custom_Plot->yAxis2->setTicker(logTicker);
@@ -44,8 +43,7 @@ void Target_Curve_Plot::create_Plot_Frame_And_Scale()
 				custom_Plot->yAxis2->setNumberPrecision(0); // makes sure "1*10^4" is displayed only as "10^4"
 				custom_Plot->yAxis2->setRange(1e-5, 1e0);
 			}
-			if(	target_Curve->curve.value_Mode == value_R_Mode[R_Phi] ||
-				target_Curve->curve.value_Mode == value_R_Mode[r_Abs_Phi])
+			if(	target_Curve->curve.value_Mode == value_R_Mode[R_Phi] )
 			{
 				QSharedPointer<QCPAxisTicker> linTicker(new QCPAxisTicker);
 				custom_Plot->yAxis2->setScaleType(QCPAxis::stLinear);
@@ -55,7 +53,7 @@ void Target_Curve_Plot::create_Plot_Frame_And_Scale()
 				custom_Plot->yAxis2->setRange(0, 1);
 			}
 		}
-		if(target_Curve->plot_Scale == lin_Scale)
+		if(target_Curve->plot_Options.scale == lin_Scale)
 		{
 			custom_Plot->yAxis ->setScaleType(QCPAxis::stLinear);
 			custom_Plot->yAxis2->setScaleType(QCPAxis::stLinear);
@@ -88,9 +86,7 @@ void Target_Curve_Plot::create_Plot_Frame_And_Scale()
 			connect(custom_Plot->xAxis, SIGNAL(rangeChanged(QCPRange)), custom_Plot->xAxis2, SLOT(setRange(QCPRange)));
 			connect(custom_Plot->yAxis, SIGNAL(rangeChanged(QCPRange)), custom_Plot->yAxis2, SLOT(setRange(QCPRange)));
 		}
-		if(	target_Curve->curve.value_Mode == value_R_Mode[R_Phi] ||
-			target_Curve->curve.value_Mode == value_R_Mode[r_Re_Im] ||
-			target_Curve->curve.value_Mode == value_R_Mode[r_Abs_Phi])
+		if(	target_Curve->curve.value_Mode == value_R_Mode[R_Phi] )
 		{
 			connect   (custom_Plot->xAxis, SIGNAL(rangeChanged(QCPRange)), custom_Plot->xAxis2, SLOT(setRange(QCPRange)));
 			disconnect(custom_Plot->yAxis, SIGNAL(rangeChanged(QCPRange)), custom_Plot->yAxis2, SLOT(setRange(QCPRange)));
@@ -119,8 +115,8 @@ void Target_Curve_Plot::plot_Data(bool fast)
 				data_To_Plot[i].key = target_Curve->curve.shifted_Argument[i];
 				data_To_Plot[i].value = target_Curve->curve.shifted_Values[i].val_1;
 
-				if(max<data_To_Plot[i].value && (target_Curve->plot_Scale == lin_Scale || data_To_Plot[i].value > DBL_MIN)) {max=data_To_Plot[i].value;}
-				if(min>data_To_Plot[i].value && (target_Curve->plot_Scale == lin_Scale || data_To_Plot[i].value > DBL_MIN)) {min=data_To_Plot[i].value;}
+				if(max<data_To_Plot[i].value && (target_Curve->plot_Options.scale == lin_Scale || data_To_Plot[i].value > DBL_MIN)) {max=data_To_Plot[i].value;}
+				if(min>data_To_Plot[i].value && (target_Curve->plot_Options.scale == lin_Scale || data_To_Plot[i].value > DBL_MIN)) {min=data_To_Plot[i].value;}
 			}
 
 			if(!fast)
@@ -130,9 +126,12 @@ void Target_Curve_Plot::plot_Data(bool fast)
 					custom_Plot->clearGraphs();
 					custom_Plot->addGraph();
 				}
-				custom_Plot->graph(0)->setPen(QPen(Qt::red,1));
-				custom_Plot->graph(0)->setBrush(QBrush(QColor(255, 0, 0, 15)));
-				custom_Plot->graph(0)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle, 5));
+				custom_Plot->graph(0)->setPen(QPen(target_Curve->plot_Options.color,target_Curve->plot_Options.thickness));
+//				custom_Plot->graph(0)->setBrush(QBrush(target_Curve->plot_Options.color));
+				QCPScatterStyle scatter_Style;
+				scatter_Style.setShape(QCPScatterStyle::ScatterShape(target_Curve->plot_Options.scatter_Shape));
+				scatter_Style.setSize(target_Curve->plot_Options.scatter_Size);
+				custom_Plot->graph(0)->setScatterStyle(scatter_Style);
 			}
 
 			custom_Plot->graph(0)->data()->set(data_To_Plot);
@@ -142,9 +141,7 @@ void Target_Curve_Plot::plot_Data(bool fast)
 		}
 
 		// second graph
-		if(	target_Curve->curve.value_Mode == value_R_Mode[R_Phi] ||
-			target_Curve->curve.value_Mode == value_R_Mode[r_Re_Im] ||
-			target_Curve->curve.value_Mode == value_R_Mode[r_Abs_Phi])
+		if(	target_Curve->curve.value_Mode == value_R_Mode[R_Phi] )
 		{
 			QVector<QCPGraphData> data_To_Plot(data_Count);
 			double min = DBL_MAX;
@@ -164,9 +161,12 @@ void Target_Curve_Plot::plot_Data(bool fast)
 				{
 					custom_Plot->addGraph(custom_Plot->xAxis2, custom_Plot->yAxis2);
 				}
-				custom_Plot->graph(1)->setPen(QPen(Qt::blue,1));
-//				custom_Plot->graph(1)->setBrush(QBrush(QColor(0, 255, 0, 15)));
-				custom_Plot->graph(1)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle, 5));
+				custom_Plot->graph(1)->setPen(QPen(target_Curve->plot_Options.color_Second,target_Curve->plot_Options.thickness_Second));
+//				custom_Plot->graph(1)->setBrush(QBrush(target_Curve->plot_Options.colorsdfd));
+				QCPScatterStyle scatter_Style_Second;
+				scatter_Style_Second.setShape(QCPScatterStyle::ScatterShape(target_Curve->plot_Options.scatter_Shape_Second));
+				scatter_Style_Second.setSize(target_Curve->plot_Options.scatter_Size_Second);
+				custom_Plot->graph(1)->setScatterStyle(scatter_Style_Second);
 			}
 
 			custom_Plot->graph(1)->data()->set(data_To_Plot);
@@ -193,16 +193,6 @@ void Target_Curve_Plot::refresh_Labels()
 		if( target_Curve->curve.value_Mode == value_R_Mode[R_Phi] )	{
 			val_Mode_Label_1 = value_R_Mode_Label_1[R_Phi];
 			val_Mode_Label_2 = value_R_Mode_Label_2[R_Phi];
-			show_Second_Label = true;
-		}
-		if( target_Curve->curve.value_Mode == value_R_Mode[r_Re_Im] )	{
-			val_Mode_Label_1 = value_R_Mode_Label_1[r_Re_Im];
-			val_Mode_Label_2 = value_R_Mode_Label_2[r_Re_Im];
-			show_Second_Label = true;
-		}
-		if( target_Curve->curve.value_Mode == value_R_Mode[r_Abs_Phi] )	{
-			val_Mode_Label_1 = value_R_Mode_Label_1[r_Abs_Phi];
-			val_Mode_Label_2 = value_R_Mode_Label_2[r_Abs_Phi];
 			show_Second_Label = true;
 		}
 		if( target_Curve->curve.value_Mode == value_T_Mode[T] )	{val_Mode_Label_1 = value_T_Mode[T];}
@@ -246,10 +236,10 @@ void Target_Curve_Plot::refresh_Labels()
 		if(show_Second_Label)
 		{
 			custom_Plot->yAxis2->setLabel(val_Mode_Label_2);
-			custom_Plot->yAxis2->setLabelColor(Qt::blue);
-			custom_Plot->yAxis2->setTickLabelColor(Qt::blue);
-			custom_Plot->yAxis->setLabelColor(Qt::red);
-			custom_Plot->yAxis->setTickLabelColor(Qt::red);
+			custom_Plot->yAxis2->setLabelColor(target_Curve->plot_Options.color_Second);
+			custom_Plot->yAxis2->setTickLabelColor(target_Curve->plot_Options.color_Second);
+			custom_Plot->yAxis->setLabelColor(target_Curve->plot_Options.color);
+			custom_Plot->yAxis->setTickLabelColor(target_Curve->plot_Options.color);
 		}
 		else
 		{

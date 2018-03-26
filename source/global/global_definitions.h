@@ -5,6 +5,7 @@
 #include <vector>
 #include <complex>
 #include "tree.hh"
+#include "qcustomplot.h"
 
 //#define EXPRTK
 
@@ -418,6 +419,37 @@ struct Point					{double lambda; double re;  double im; void read_Row(QTextStrea
 struct Material_Data			{QString substance; QString filename; QVector<Point> material_Data; void read_Material(QString& filename);};
 struct Element_Data				{QString element;					  QVector<Point> element_Data;  void read_Element (QString& filename);};
 
+// curve plot options
+struct Plot_Options				{QString scale = lin_Scale;
+								 QColor color = QColor(255, 0, 0);
+								 int scatter_Shape = QCPScatterStyle::ssCircle;
+								 double scatter_Size = 5;
+								 double thickness = 1;
+
+								 QString scale_Second = lin_Scale;
+								 QColor color_Second = QColor(0, 0, 255);
+								 int scatter_Shape_Second = QCPScatterStyle::ssDiamond;
+								 double scatter_Size_Second = 5;
+								 double thickness_Second = 1;
+								};
+
+// calculated functions for plotting
+struct Calculated_Values	    {QVector<double> R;
+								 QVector<double> Phi;
+
+								 QVector<double> T;
+								 QVector<double> A;
+
+								 void clear_All()
+								 {
+									 R.clear();
+									 Phi.clear();
+
+									 T.clear();
+									 A.clear();
+								 }
+								};
+
 // independent calculation functions
 struct Calc_Functions			{bool check_Enabled = true;
 								 bool check_Reflectance = true;
@@ -427,6 +459,22 @@ struct Calc_Functions			{bool check_Enabled = true;
 								 bool check_Joule = false;
 								 bool check_User = false;
 								 QString user_Functions = "R+T; cos(A)*R^3-sqrt(J) ; pow(F, log(root(3,5)))";
+
+								 bool if_Something_Enabled()
+								 {
+									 if( check_Reflectance	||
+										 check_Transmittance||
+										 check_Absorptance	||
+										 check_Field		||
+										 check_Joule		||
+										 check_User			)
+									 {
+										 return true;
+									 } else
+									 {
+										return false;
+									 }
+								 }
 								};
 
 // measured/target data types
@@ -547,8 +595,14 @@ QDataStream& operator >>( QDataStream& stream,		 Interlayer& interlayer );
 QDataStream& operator <<( QDataStream& stream, const Drift& drift );
 QDataStream& operator >>( QDataStream& stream,		 Drift& drift );
 
+QDataStream& operator <<( QDataStream& stream, const Calculated_Values& calculated_Values );
+QDataStream& operator >>( QDataStream& stream,		 Calculated_Values& calculated_Values );
+
 QDataStream& operator <<( QDataStream& stream, const Calc_Functions& calc_Functions );
 QDataStream& operator >>( QDataStream& stream,		 Calc_Functions& calc_Functions );
+
+QDataStream& operator <<( QDataStream& stream, const Plot_Options& plot_Options );
+QDataStream& operator >>( QDataStream& stream,		 Plot_Options& plot_Options );
 
 QDataStream& operator <<( QDataStream& stream, const Value& value );
 QDataStream& operator >>( QDataStream& stream,		 Value& value );

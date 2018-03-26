@@ -117,6 +117,30 @@ QDataStream& operator >>( QDataStream& stream,		 Drift& drift )
 				  >> drift.drift_Line_Value >> drift.drift_Rand_Rms >> drift.drift_Sine_Amplitude >> drift.drift_Sine_Frequency >> drift.drift_Sine_Phase;
 }
 
+QDataStream& operator <<( QDataStream& stream, const Plot_Options& plot_Options )
+{
+	return stream << plot_Options.scale        << plot_Options.color        << plot_Options.scatter_Shape	     << plot_Options.scatter_Size        << plot_Options.thickness
+				  << plot_Options.scale_Second << plot_Options.color_Second << plot_Options.scatter_Shape_Second << plot_Options.scatter_Size_Second << plot_Options.thickness_Second;
+}
+QDataStream& operator >>( QDataStream& stream,		 Plot_Options& plot_Options )
+{
+	return stream >> plot_Options.scale        >> plot_Options.color        >> plot_Options.scatter_Shape        >> plot_Options.scatter_Size        >> plot_Options.thickness
+				  >> plot_Options.scale_Second >> plot_Options.color_Second >> plot_Options.scatter_Shape_Second >> plot_Options.scatter_Size_Second >> plot_Options.thickness_Second;
+}
+
+QDataStream& operator <<( QDataStream& stream, const Calculated_Values& calculated_Values )
+{
+	return stream << calculated_Values.R << calculated_Values.Phi
+				  << calculated_Values.T
+				  << calculated_Values.A;
+}
+QDataStream& operator >>( QDataStream& stream,		 Calculated_Values& calculated_Values )
+{
+	return stream >> calculated_Values.R >> calculated_Values.Phi
+				  >> calculated_Values.T
+				  >> calculated_Values.A;
+}
+
 QDataStream& operator <<( QDataStream& stream, const Calc_Functions& calc_Functions )
 {
 	return stream << calc_Functions.check_Enabled << calc_Functions.check_Reflectance << calc_Functions.check_Transmittance << calc_Functions.check_Absorptance

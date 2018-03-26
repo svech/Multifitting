@@ -78,7 +78,7 @@ void Target_Curve::import_Data(QString bare_Filename)
 				val.val_1 = temp_Number;
 				curve.values.push_back(val);
 			} else
-			if(curve.value_Mode == value_R_Mode[R_Phi] || curve.value_Mode == value_R_Mode[r_Re_Im] || curve.value_Mode == value_R_Mode[r_Abs_Phi])	// R+phi ; r, Re+Im ; |r|+phi
+			if(curve.value_Mode == value_R_Mode[R_Phi] )	// R+phi
 			{
 				if(numbers.size()<=number_Index) throw "val_1 | " + main_Exception_Text;
 				double temp_Number_1 = QString(numbers[number_Index]).toDouble();
@@ -164,13 +164,16 @@ void Target_Curve::set_Text_To_Label()
 // serialization
 QDataStream& operator <<( QDataStream& stream, const Target_Curve* target_Curve )
 {
-	return stream	<< target_Curve->curve << target_Curve->fit_Params << target_Curve->measurement << target_Curve->filename << target_Curve->filepath << target_Curve->loaded_And_Ready << target_Curve->plot_Scale
+	return stream	<< target_Curve->curve << target_Curve->fit_Params << target_Curve->measurement << target_Curve->filename
+					<< target_Curve->filepath << target_Curve->loaded_And_Ready << target_Curve->plot_Options << target_Curve->calculated_Values
+
 					<< target_Curve->lines_List << target_Curve->arg_Units << target_Curve->at_Fixed << target_Curve->arg_Type_For_Label << target_Curve->ang_Type_For_Label_At_Fixed << target_Curve->label_Text
 	;
 }
 QDataStream& operator >>(QDataStream& stream,		 Target_Curve* target_Curve )
 {
-	return stream	>> target_Curve->curve >> target_Curve->fit_Params >> target_Curve->measurement >> target_Curve->filename >> target_Curve->filepath >> target_Curve->loaded_And_Ready >> target_Curve->plot_Scale
+	return stream	>> target_Curve->curve >> target_Curve->fit_Params >> target_Curve->measurement >> target_Curve->filename
+					>> target_Curve->filepath >> target_Curve->loaded_And_Ready >> target_Curve->plot_Options >> target_Curve->calculated_Values
 					>> target_Curve->lines_List >> target_Curve->arg_Units >> target_Curve->at_Fixed >> target_Curve->arg_Type_For_Label >> target_Curve->ang_Type_For_Label_At_Fixed >> target_Curve->label_Text
 	;
 }

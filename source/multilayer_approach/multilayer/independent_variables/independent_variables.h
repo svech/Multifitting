@@ -41,8 +41,10 @@ public:
 
 	QTreeWidgetItem* measurement_Item;
 	Data measurement;
+	Calculated_Values calculated_Values;
 
 	Calc_Functions calc_Functions;
+	Plot_Options plot_Options;
 
 	QMap<id_Type, QListWidgetItem*>* independent_Variables_List_Map;		// independent IDs and corresponding items in ListWidget
 	QTreeWidget* struct_Tree_Copy;										// modified copy of real tree to be plotted

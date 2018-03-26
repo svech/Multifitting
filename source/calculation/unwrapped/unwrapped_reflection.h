@@ -52,6 +52,8 @@ public:
 
 	vector<complex<double>> r_s;
 	vector<complex<double>> r_p;
+	vector<double> Phi_s;
+	vector<double> Phi_p;
 	vector<double> R_s;
 	vector<double> R_p;
 	vector<double> R;

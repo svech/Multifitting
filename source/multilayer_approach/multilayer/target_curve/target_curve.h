@@ -20,12 +20,13 @@ public:
 	Curve curve;
 	Fit_Params fit_Params;
 	Data measurement;
+	Calculated_Values calculated_Values;
 
 	QString filename;	// should be empty
 	QString filepath;	// should be empty
 
 	bool loaded_And_Ready = false;
-	QString plot_Scale = lin_Scale;
+	Plot_Options plot_Options;
 
 	QStringList lines_List;
 	QString arg_Units;
