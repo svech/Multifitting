@@ -122,5 +122,5 @@ void Optical_Graphs::create_Tab_Content(QWidget* new_Widget, int tab_Index)
 
 void Optical_Graphs::set_Window_Geometry()
 {
-	setGeometry(400,400,600,500);
+	setGeometry(400,300,700,500);
 }

@@ -10,11 +10,17 @@ public:
 	explicit Curve_Plot(Target_Curve* target_Curve, Independent_Variables* independent_Variables, QString curve_Class, QWidget *parent = nullptr);
 
 	void create_Main_Layout();
+	void create_Plot_Frame_And_Scale();
 	void create_Options();
 
 	QString curve_Class;
 	Target_Curve* target_Curve;
 	Independent_Variables* independent_Variables;
+
+	// common fields
+	Data* measurement;
+	Calculated_Values* calculated_Values;
+	Plot_Options* plot_Options;
 
 	QVBoxLayout* main_Layout;
 		QCustomPlot* custom_Plot;
@@ -27,6 +33,8 @@ public:
 
 				QPushButton*	colors_Button;
 				QComboBox*		symbol_ComboBox;
+
+				QLabel* thickness_Label;
 				QDoubleSpinBox* thickness_Spin;
 
 };
