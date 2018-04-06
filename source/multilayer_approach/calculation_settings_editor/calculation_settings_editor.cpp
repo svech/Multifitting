@@ -1,8 +1,10 @@
+// This is an open source non-commercial project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include "calculation_settings_editor.h"
 
 Calculation_Settings_Editor::Calculation_Settings_Editor(QWidget* parent) :
 	multilayer_Tabs(global_Multilayer_Approach->multilayer_Tabs),
-	QWidget(parent)
+	QWidget(parent) // nullptr!
 {
 	setWindowTitle("Calculation Settings");
 	create_Main_Layout();
@@ -25,8 +27,8 @@ void Calculation_Settings_Editor::set_Window_Geometry()
 void Calculation_Settings_Editor::create_Main_Layout()
 {
 	main_Layout = new QVBoxLayout(this);
-	main_Layout->setSpacing(0);
-	main_Layout->setContentsMargins(4,4,4,0);
+		main_Layout->setSpacing(0);
+		main_Layout->setContentsMargins(0,0,0,0);
 
 	lock_Mainwindow_Interface();
 	create_Menu();
@@ -182,6 +184,8 @@ void Calculation_Settings_Editor::add_Tabs()
 void Calculation_Settings_Editor::create_Tab_Content(QWidget* new_Widget, int tab_Index)
 {
 	QVBoxLayout* tab_Layout = new QVBoxLayout(new_Widget);
+		tab_Layout->setSpacing(5);
+		tab_Layout->setContentsMargins(2,2,2,2);
 
 	{
 		QGroupBox* target_Group_Box = new QGroupBox("Measured", this);
@@ -223,29 +227,27 @@ void Calculation_Settings_Editor::load_Target_Parameters(int tab_Index)
 	target_Group_Box_Vec[tab_Index]->setChecked(multilayer->enable_Calc_Target_Curves);
 	connect(target_Group_Box_Vec[tab_Index],  &QGroupBox::toggled, this, [=]{ multilayer->enable_Calc_Target_Curves = target_Group_Box_Vec[tab_Index]->isChecked(); });
 
-	QHBoxLayout* box_Layout = new QHBoxLayout(target_Group_Box_Vec[tab_Index]);
+	QHBoxLayout* multilayer_Box_Layout = new QHBoxLayout(target_Group_Box_Vec[tab_Index]);
+		multilayer_Box_Layout->setSpacing(20);
+		multilayer_Box_Layout->setContentsMargins(7,14,7,7);
 
 	for(int target_Index=0; target_Index<multilayer->target_Profiles_Vector.size(); ++target_Index)
 	{
 		if(multilayer->target_Profiles_Vector[target_Index]->loaded_And_Ready)
 		{
-			QFrame* frame = new QFrame;
-			target_Frame_Vec.append(frame);
-			box_Layout->addWidget(frame);
-
-			QVBoxLayout* frame_Layout = new QVBoxLayout(frame);
-
 			QGroupBox* box = new QGroupBox(multilayer->target_Profiles_Vector[target_Index]->label_Text);
 				box->setCheckable(true);
 				box->setObjectName("box");
 				box->setStyleSheet("QGroupBox#box { border-radius: 2px;  border: 1px solid gray; margin-top: 2ex;}"
 							  "QGroupBox::title   { subcontrol-origin: margin;   left: 9px; padding: 0 0px 0 1px;}");
-			frame_Layout->addWidget(box);
+			multilayer_Box_Layout->addWidget(box);
 
 			box->setChecked(multilayer->target_Profiles_Vector[target_Index]->fit_Params.calc);
 			connect(box,  &QGroupBox::toggled, this, [=]{ multilayer->target_Profiles_Vector[target_Index]->fit_Params.calc = box->isChecked(); });
 
 			QVBoxLayout* box_Layout = new QVBoxLayout(box);
+				box_Layout->setSpacing(5);
+				box_Layout->setContentsMargins(5,10,5,5);
 
 			// content
 			{
@@ -312,35 +314,31 @@ void Calculation_Settings_Editor::load_Independent_Parameters(int tab_Index)
 	independent_Group_Box_Vec[tab_Index]->setChecked(multilayer->enable_Calc_Independent_Curves);
 	connect(independent_Group_Box_Vec[tab_Index],  &QGroupBox::toggled, this, [=]{ multilayer->enable_Calc_Independent_Curves = independent_Group_Box_Vec[tab_Index]->isChecked(); });
 
-	QHBoxLayout* box_Layout = new QHBoxLayout(independent_Group_Box_Vec[tab_Index]);
+	QHBoxLayout* multilayer_Box_Layout = new QHBoxLayout(independent_Group_Box_Vec[tab_Index]);
+		multilayer_Box_Layout->setSpacing(20);
+		multilayer_Box_Layout->setContentsMargins(7,14,7,7);
 
 	for(int independent_Index=0; independent_Index<multilayer->independent_Variables_Plot_Tabs->count(); ++independent_Index)
 	{
 		Independent_Variables* independent_Variables = qobject_cast<Independent_Variables*>(multilayer->independent_Variables_Plot_Tabs->widget(independent_Index));
-
-		QFrame* frame = new QFrame;
-		independent_Frame_Vec.append(frame);
-		box_Layout->addWidget(frame);
-
-		QVBoxLayout* frame_Layout = new QVBoxLayout(frame);
 
 		QGroupBox* box = new QGroupBox(multilayer->independent_Variables_Plot_Tabs->tabText(independent_Index));
 			box->setCheckable(true);
 			box->setObjectName("box");
 			box->setStyleSheet("QGroupBox#box { border-radius: 2px;  border: 1px solid gray; margin-top: 2ex;}"
 						  "QGroupBox::title   { subcontrol-origin: margin;   left: 9px; padding: 0 0px 0 1px;}");
-		frame_Layout->addWidget(box);
+		multilayer_Box_Layout->addWidget(box);
 
 		box->setChecked(independent_Variables->calc_Functions.check_Enabled);
 		connect(box,  &QGroupBox::toggled, this, [=]{ refresh_Independent_Calc_Properties(tab_Index, independent_Index, box); });
 
 		QVBoxLayout* box_Layout = new QVBoxLayout(box);
-
+			box_Layout->setSpacing(5);
+			box_Layout->setContentsMargins(5,10,5,5);
 		// content
 		{
 			{
 				QGroupBox* standard_Functions_Group_Box = new QGroupBox("Standard Functions");
-					standard_Functions_Group_Box->setContentsMargins(0,8,0,-4);
 					standard_Functions_Group_Box->setObjectName("standard_Functions_Group_Box");
 					standard_Functions_Group_Box->setStyleSheet("QGroupBox#standard_Functions_Group_Box { border-radius: 2px;  border: 1px solid gray; margin-top: 2ex;}"
 																"QGroupBox::title    { subcontrol-origin: margin;	 left: 9px; padding: 0 0px 0 1px;}");
@@ -364,7 +362,6 @@ void Calculation_Settings_Editor::load_Independent_Parameters(int tab_Index)
 			}
 			{
 				QGroupBox* field_Functions_Group_Box = new QGroupBox("Field Functions");
-					field_Functions_Group_Box->setContentsMargins(0,8,0,-4);
 					field_Functions_Group_Box->setObjectName("field_Functions_Group_Box");
 					field_Functions_Group_Box->setStyleSheet("QGroupBox#field_Functions_Group_Box { border-radius: 2px;  border: 1px solid gray; margin-top: 2ex;}"
 															 "QGroupBox::title    { subcontrol-origin: margin;	 left: 9px; padding: 0 0px 0 1px;}");
@@ -384,7 +381,6 @@ void Calculation_Settings_Editor::load_Independent_Parameters(int tab_Index)
 			}
 			{
 				QGroupBox* user_Functions_Group_Box = new QGroupBox("User-defined Functions");
-					user_Functions_Group_Box->setContentsMargins(0,8,0,-4);
 					user_Functions_Group_Box->setObjectName("user_Functions_Group_Box");
 					user_Functions_Group_Box->setStyleSheet("QGroupBox#user_Functions_Group_Box { border-radius: 2px;  border: 1px solid gray; margin-top: 2ex;}"
 															"QGroupBox::title    { subcontrol-origin: margin;	 left: 9px; padding: 0 0px 0 1px;}");

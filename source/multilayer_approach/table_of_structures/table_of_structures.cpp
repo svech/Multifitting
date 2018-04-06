@@ -1,3 +1,5 @@
+// This is an open source non-commercial project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include "table_of_structures.h"
 #include "algorithm"
 
@@ -5,7 +7,7 @@ Table_Of_Structures::Table_Of_Structures(QWidget *parent) :
 	runned_Tables_Of_Structures(global_Multilayer_Approach->runned_Tables_Of_Structures),
 	runned_Calculation_Settings_Editor(global_Multilayer_Approach->runned_Calculation_Settings_Editor),
 	multilayer_Tabs(global_Multilayer_Approach->multilayer_Tabs),
-	QWidget(parent)
+	QWidget(parent) // nullptr!
 {
 	setWindowTitle("Table Of Structures");
 	create_Main_Layout();
@@ -42,7 +44,7 @@ void Table_Of_Structures::create_Main_Layout()
 void Table_Of_Structures::set_Window_Geometry()
 {
 //	resize(800,550);
-	setGeometry(500,200,960,700);
+	setGeometry(500,200,1050,700);
 }
 
 void Table_Of_Structures::lock_Mainwindow_Interface()
@@ -556,7 +558,7 @@ void Table_Of_Structures::refresh_Reload_Colorize(QString refresh_Reload, QWidge
 
 	if(!back_Widget)
 	{
-		QMessageBox::critical(NULL, "Table_Of_Structures::refresh_Reload_Colorize", "null back_Widget");
+		QMessageBox::critical(nullptr, "Table_Of_Structures::refresh_Reload_Colorize", "null back_Widget");
 		return;
 	}
 
@@ -1106,7 +1108,7 @@ void Table_Of_Structures::create_Line_Edit(My_Table_Widget* table, int tab_Index
 
 	Data struct_Data = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
 	QString text_Value = "-2017";
-	QValidator* validator = NULL;
+	QValidator* validator = nullptr;
 
 	// create lineedit
 	QLineEdit* line_Edit = new QLineEdit;
@@ -2013,7 +2015,7 @@ void Table_Of_Structures::refresh_Parameter(My_Table_Widget* table)
 	QString value_Type = line_Edit->property(value_Type_Property).toString();
 	QString whats_This = line_Edit->property(whats_This_Property).toString();
 
-	char min_Max_Format = line_edit_short_double_format;
+	char min_Max_Format = line_edit_short_double_format;	
 	int precision = 4;
 	double coeff = 1;
 
@@ -2482,9 +2484,8 @@ void Table_Of_Structures::reload_All_Widgets(QObject* sender)
 					// if had some dependences
 					if(parameter->coupled.master.exist || parameter->coupled.slaves.size()>0)
 					{
-						// TODO fix it
-//						Coupling_Editor* new_Coupling_Editor = new Coupling_Editor(widget_To_Reload, this, this);
-//							new_Coupling_Editor->close();
+						Coupling_Editor* new_Coupling_Editor = new Coupling_Editor(widget_To_Reload, this, nullptr); // last nullptr is essential for menu disabling!
+							new_Coupling_Editor->close();
 					}
 				}
 

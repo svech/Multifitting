@@ -109,12 +109,12 @@ public:
 	// general
 	void cells_On_Off    (My_Table_Widget* table);
 	void cells_On_Off_2  (My_Table_Widget* table, QTreeWidgetItem* structure_Item);
-	void resize_Line_Edit(My_Table_Widget* table, QLineEdit* line_Edit = NULL);
+	void resize_Line_Edit(My_Table_Widget* table, QLineEdit* line_Edit = nullptr);
 	void emit_Data_Edited();
 
 public slots:
-	void reload_All_Widgets(QObject* sender = NULL);
-	void reload_Related_Widgets(QObject* sender = NULL);
+	void reload_All_Widgets(QObject* sender = nullptr);
+	void reload_Related_Widgets(QObject* sender = nullptr);
 	void reload_Min_Max_Line_Edits(QString whats_This);
 
 public:

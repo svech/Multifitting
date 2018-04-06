@@ -1,3 +1,5 @@
+// This is an open source non-commercial project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include "multilayer.h"
 
 Multilayer::Multilayer(QWidget *parent) :
@@ -15,47 +17,45 @@ void Multilayer::create_Main_Layout()
 {
 	main_Layout = new QVBoxLayout(this);
 		main_Layout->setSpacing(0);
+		main_Layout->setContentsMargins(4,4,4,4);
 
+	create_Splitter();
 	create_Structure_Frame();
 	create_Variables_Frame();
 	create_Data_Frame();
 }
 
+void Multilayer::create_Splitter()
+{
+	multilayer_Splitter = new QSplitter;
+	multilayer_Splitter->setOrientation(Qt::Vertical);
+	multilayer_Splitter->setStyleSheet("QSplitter::handle{border: 0px none; background: none;}");
+	main_Layout->addWidget(multilayer_Splitter);
+
+	top_Widget_Split = new QWidget;
+	top_Widget_Layout = new QVBoxLayout(top_Widget_Split);
+		top_Widget_Layout->setSpacing(0);
+		top_Widget_Layout->setContentsMargins(0,0,0,0);
+	multilayer_Splitter->addWidget(top_Widget_Split);
+
+	bottom_Widget_Split = new QWidget;
+	bottom_Widget_Layout = new QVBoxLayout(bottom_Widget_Split);
+		bottom_Widget_Layout->setSpacing(0);
+		bottom_Widget_Layout->setContentsMargins(0,0,0,0);
+	multilayer_Splitter->addWidget(bottom_Widget_Split);
+}
+
 void Multilayer::create_Structure_Frame()
 {
-	struct_Frame_Layout = new QVBoxLayout;
-		struct_Frame_Layout->setSpacing(0);
-
-//#ifndef __linux__
-//	QFrame* frame = new QFrame;
-//		frame->setContentsMargins(65,-8,65,-10);
-//		frame->setLayout(struct_Frame_Layout);
-//	main_Layout->addWidget(frame);
-//#else
-	main_Layout->addLayout(struct_Frame_Layout);
-//#endif
-
 	structure_Tree = new Structure_Tree(this, this);
-	struct_Frame_Layout->addWidget(structure_Tree->tree);
-	struct_Frame_Layout->addWidget(structure_Tree->structure_Toolbar->toolbar);
+	top_Widget_Layout->addWidget(structure_Tree->tree);
+	top_Widget_Layout->addWidget(structure_Tree->structure_Toolbar->toolbar);
 }
 
 void Multilayer::create_Variables_Frame()
 {
-	variables_Frame_Layout = new QVBoxLayout;
-		variables_Frame_Layout->setSpacing(0);
-
-//#ifndef __linux__
-//	QFrame* frame = new QFrame;
-//		frame->setContentsMargins(65,-8,65,-10);
-//		frame->setLayout(variables_Frame_Layout);
-//	main_Layout->addWidget(frame);
-//#else
-	main_Layout->addLayout(variables_Frame_Layout);
-//#endif
-
 	create_Variables_Tabs();
-	variables_Frame_Layout->addWidget(variables_Tabs);
+	bottom_Widget_Layout->addWidget(variables_Tabs);
 }
 
 void Multilayer::create_Variables_Tabs()
@@ -64,17 +64,7 @@ void Multilayer::create_Variables_Tabs()
 
 	create_Independent_Variables_Tabs();
 	{
-//#ifndef __linux__
-//		QFrame* frame = new QFrame;
-//		QVBoxLayout* layout = new QVBoxLayout;
-//		layout->addWidget(independent_Variables_Plot_Tabs);
-//		layout->setSpacing(0);
-//		frame->setLayout(layout);
-//		frame->setContentsMargins(0,-5,0,-8);
-//		variables_Tabs->addTab(frame, "Independent Variables");
-//#else
 		variables_Tabs->addTab(independent_Variables_Plot_Tabs, "Independent Variables");
-//#endif
 	}
 	{
 		QWidget* frame = new QWidget;
@@ -97,7 +87,7 @@ void Multilayer::create_Variables_Tabs()
 			layout->addWidget(fits_Selector_Button);
 
 		frame->setLayout(layout);
-		frame->setContentsMargins(0,-5,0,-8);
+		frame->setContentsMargins(0,0,0,0);
 		variables_Tabs->addTab(frame, "Main Tools");
 
 		Multilayer_Approach* parent_Multilayer_Approach = qobject_cast<Multilayer_Approach*>(parent);
@@ -107,8 +97,6 @@ void Multilayer::create_Variables_Tabs()
 		connect(calculation_Settings_Button, &QPushButton::clicked, parent_Multilayer_Approach, &Multilayer_Approach::open_Calculation_Settings);
 		connect(fitting_Settings_Button,	 &QPushButton::clicked, parent_Multilayer_Approach, &Multilayer_Approach::open_Fitting_Settings);
 	}
-
-//	variables_Tabs->setSizePolicy(QSizePolicy::Preferred,QSizePolicy::Fixed);
 }
 
 void Multilayer::create_Independent_Variables_Tabs()
@@ -133,20 +121,9 @@ void Multilayer::create_Independent_Variables_Tabs()
 
 void Multilayer::create_Data_Frame()
 {
-	data_Frame_Layout = new QVBoxLayout;
-		data_Frame_Layout->setSpacing(0);
-
-//#ifndef __linux__
-//	QFrame* frame = new QFrame;
-//		frame->setContentsMargins(65,-8,65,-10);
-//		frame->setLayout(data_Frame_Layout);
-//	main_Layout->addWidget(frame);
-//#else
-	main_Layout->addLayout(data_Frame_Layout);
-//#endif
-
 	data_Target_Profile_Group_Box = new QGroupBox("Target Curve");
-	data_Frame_Layout->addWidget(data_Target_Profile_Group_Box);
+	bottom_Widget_Layout->addWidget(data_Target_Profile_Group_Box);
+
 	layout_Target_Profile_With_Frame_Vector = new QVBoxLayout(data_Target_Profile_Group_Box);
 	layout_Target_Profile_With_Frame_Vector->setSpacing(0);
 	layout_Target_Profile_With_Frame_Vector->setMargin(0);

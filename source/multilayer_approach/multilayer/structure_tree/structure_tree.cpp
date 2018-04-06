@@ -1,3 +1,5 @@
+// This is an open source non-commercial project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include "structure_tree.h"
 
 Structure_Tree::Structure_Tree(Multilayer* multilayer, QWidget *parent) :
@@ -50,7 +52,7 @@ void Structure_Tree::refresh__StructureTree__Data_and_Text()
 
 	/// temporary. delete it
 //	qInfo() << "";
-//	QTreeWidgetItem* structure_Item = NULL;
+//	QTreeWidgetItem* structure_Item = nullptr;
 //	QTreeWidgetItemIterator it(tree);
 //	while (*it)
 //	{
@@ -64,7 +66,7 @@ void Structure_Tree::refresh__StructureTree__Data_and_Text()
 void Structure_Tree::iterate_Over_Layers(QTreeWidgetItem* item)
 {
 	// over main tree
-	if(item==NULL)
+	if(item==nullptr)
 	{
 		// set counter to zero
 		different_Layers_Counter=0;
@@ -134,7 +136,7 @@ void Structure_Tree::refresh_If_Layer(QTreeWidgetItem* this_Item)
 void Structure_Tree::iterate_Over_Multilayers(QTreeWidgetItem* item)
 {
 	// over main tree
-	if(item==NULL)
+	if(item==nullptr)
 	{
 		for(int i=0; i<tree->topLevelItemCount(); i++)
 		{

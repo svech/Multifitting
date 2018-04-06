@@ -1,5 +1,14 @@
+// This is an open source non-commercial project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include "global_variables.h"
 #include "multilayer_approach/multilayer_approach.h"
+
+// version from save file
+int loaded_Version_Major = -1;
+int loaded_Version_Minor = -1;
+int loaded_Version_Build = -1;
+
+bool lambda_Out_Of_Range = false;
 
 // global access to multilayer_Approach
 Multilayer_Approach* global_Multilayer_Approach;
@@ -434,7 +443,7 @@ void Global_Variables::fill_Units_Maps()
 int Global_Variables::get_Item_Depth(QTreeWidgetItem* item)
 {
 	int depth = 0;
-	while(item!=NULL)
+	while(item!=nullptr)
 	{
 	  item = item->parent();
 	  ++depth;
@@ -647,7 +656,7 @@ Parameter* Global_Variables::get_Parameter_From_Struct_Item_by_Id(Data& struct_D
 	if(id == struct_Data.period.indicator.id)									return &struct_Data.period;
 	if(id == struct_Data.gamma.indicator.id)									return &struct_Data.gamma;
 
-	return NULL;
+	return nullptr;
 }
 
 Parameter* Global_Variables::get_Parameter_From_Struct_Item_by_Whats_This(Data &struct_Data, QString whats_This)
@@ -694,7 +703,7 @@ Parameter* Global_Variables::get_Parameter_From_Struct_Item_by_Whats_This(Data &
 	if(whats_This == whats_This_Period)							return &struct_Data.period;
 	if(whats_This == whats_This_Gamma)							return &struct_Data.gamma;
 
-	return NULL;
+	return nullptr;
 }
 
 void Global_Variables::copy_Tree(const QTreeWidget* from_Tree, QTreeWidget* to_Tree)

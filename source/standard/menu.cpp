@@ -1,3 +1,5 @@
+// This is an open source non-commercial project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include "menu.h"
 #include "multilayer_approach/table_of_structures/table_of_structures.h"
 
@@ -730,7 +732,13 @@ void Menu::open_Documentation()
 void Menu::open_About()
 {
 	// TODO
-	QMessageBox::about(this,"About","-Say something\n-Something");
+	QMessageBox about_Box;
+//	about_Box.setTextFormat(Qt::RichText);
+//	about_Box.setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::LinksAccessibleByMouse);
+	about_Box.information(this,  "About","Multifitting v.1.7.0\n\n"
+								 "Mikhail Svechnikov\n"
+								 "svechnikovmv@gmail.com\n"
+								 "2018");
 }
 
 void Menu::set_Grazing_Unit()

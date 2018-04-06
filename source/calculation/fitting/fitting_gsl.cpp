@@ -1,3 +1,5 @@
+// This is an open source non-commercial project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include "fitting_gsl.h"
 
 Fitting_GSL::Fitting_GSL(Fitting* fitting):
@@ -12,7 +14,7 @@ Fitting_GSL::Fitting_GSL(Fitting* fitting):
 
 void Fitting_GSL::callback(const size_t iter, void* bare_Params, const gsl_multifit_nlinear_workspace* w)
 {
-	w=w;
+	w;
 	Fitting_Params* params = ((struct Fitting_Params*)bare_Params);
 
 	// print out current location
@@ -40,7 +42,7 @@ bool Fitting_GSL::fit()
 		if(global_Multilayer_Approach->fitting_Settings->current_Method == GSL_Methods[Two_Dimensional_Subspace])						{
 		if(params->p<2)
 		{
-			QMessageBox::information(NULL,"Insufficient number of parameters", "Method\n\"Two Dimensional Subspace\"\nrequires at least 2 fitables");
+			QMessageBox::information(nullptr,"Insufficient number of parameters", "Method\n\"Two Dimensional Subspace\"\nrequires at least 2 fitables");
 			return false;
 		}																																	fdf_params.trs = gsl_multifit_nlinear_trs_subspace2D;	}
 		if(global_Multilayer_Approach->fitting_Settings->current_Method == GSL_Methods[Levenberg_Marquardt])							{	fdf_params.trs = gsl_multifit_nlinear_trs_lm;			}
@@ -80,8 +82,8 @@ bool Fitting_GSL::fit()
 
 	gsl_multifit_nlinear_fdf fdf;
 		fdf.f = &calc_Residual;
-		fdf.df = NULL;
-		fdf.fvv = NULL;
+		fdf.df = nullptr;
+		fdf.fvv = nullptr;
 		fdf.n = params->n;
 		fdf.p = params->p;
 		fdf.params = params;

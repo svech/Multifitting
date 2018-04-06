@@ -1,0 +1,17 @@
+// suppress memleak and exceptNew errors in the file src/file1.cpp
+// variableScope:src/file1.cpp
+// exceptNew:src/file1.cpp
+
+// using suppression list
+// --suppressions-list=suppressions.txt src/
+
+// [error id]:[filename]:[line]
+// [error id]:[filename2]
+// [error id]
+
+// start here
+// arguments IPM RAS Windows: -j 4 --inline-suppr --language=c++ --suppressions-list=C:/Users/1/Documents/Qt/Multifitting/cppcheck-suppressions-list.txt
+variableScope
+unusedStructMember
+uninitMemberVar
+functionConst

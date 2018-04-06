@@ -23,6 +23,7 @@ signals:
 
 public:
 	void create_Main_Layout();
+		void create_Splitter();
 		void create_Structure_Frame();
 		void create_Variables_Frame();
 			void create_Variables_Tabs();
@@ -34,33 +35,35 @@ public:
 	void remove_Independent_Variables_Tab(int index);
 	void rename_Independent_Variables_Tab(int tab_Index);
 
-	void refresh_Structure_And_Independent(QObject* my_Sender = NULL);
+	void refresh_Structure_And_Independent(QObject* my_Sender = nullptr);
 	void add_Target_Curve   (int index_Pressed, bool opening = false);
 	void remove_Target_Curve(int index_Pressed, bool clean = false);
 	void open_Import_Window(Target_Curve* target_Curve);
 
 	QWidget* parent;
 	QVBoxLayout* main_Layout;
-		QVBoxLayout* struct_Frame_Layout;
-			Structure_Tree* structure_Tree;
+		QSplitter* multilayer_Splitter;
+		QWidget* top_Widget_Split;
+			QVBoxLayout* top_Widget_Layout;
+				Structure_Tree* structure_Tree;
 
-		QVBoxLayout* variables_Frame_Layout;
-			QTabWidget*	variables_Tabs;
-				QTabWidget* independent_Variables_Plot_Tabs;
-					QToolButton* independent_Variables_Corner_Button;
+		QWidget* bottom_Widget_Split;
+			QVBoxLayout* bottom_Widget_Layout;
+				QTabWidget*	variables_Tabs;
+					QTabWidget* independent_Variables_Plot_Tabs;
+						QToolButton* independent_Variables_Corner_Button;
 
-				QPushButton* structure_Table_Button;
-				QPushButton* optical_Graphs_Button;
-				QPushButton* fits_Selector_Button;
-				QPushButton* calculation_Settings_Button;
-				QPushButton* fitting_Settings_Button;
+					QPushButton* structure_Table_Button;
+					QPushButton* optical_Graphs_Button;
+					QPushButton* fits_Selector_Button;
+					QPushButton* calculation_Settings_Button;
+					QPushButton* fitting_Settings_Button;
 
-		QVBoxLayout* data_Frame_Layout;
-			QGroupBox* data_Target_Profile_Group_Box;
-				QVBoxLayout* layout_Target_Profile_With_Frame_Vector;
-					QVector<QFrame*> data_Target_Profile_Frame_Vector;
-					QVector<Target_Curve*> target_Profiles_Vector;
-					QMap<Target_Curve*, Target_Curve_Editor*> runned_Target_Curve_Editors;
+				QGroupBox* data_Target_Profile_Group_Box;
+					QVBoxLayout* layout_Target_Profile_With_Frame_Vector;
+						QVector<QFrame*> data_Target_Profile_Frame_Vector;
+						QVector<Target_Curve*> target_Profiles_Vector;
+						QMap<Target_Curve*, Target_Curve_Editor*> runned_Target_Curve_Editors;
 
 	bool enable_Calc_Target_Curves = true;
 	bool enable_Calc_Independent_Curves = true;

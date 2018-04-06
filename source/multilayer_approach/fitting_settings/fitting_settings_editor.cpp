@@ -1,9 +1,11 @@
+// This is an open source non-commercial project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include "fitting_settings_editor.h"
 #include "standard/spoiler.h"
 
 Fitting_Settings_Editor::Fitting_Settings_Editor(QWidget* parent) :
 	fitting_Settings(global_Multilayer_Approach->fitting_Settings),
-	QWidget(parent)
+	QWidget(parent) // nullptr!
 {
 	setWindowTitle("Fitting Settings");
 	create_Main_Layout();
@@ -235,20 +237,20 @@ void Fitting_Settings_Editor::create_Pages()
 	// GSL
 	{
 		GSL_Page = new QWidget(this);
-			GSL_Page->setContentsMargins(-5,-5,-5,-5);
 
 		GSL_Page_Layout = new QVBoxLayout(GSL_Page);
 			GSL_Page_Layout->setAlignment(Qt::AlignTop);
+			GSL_Page_Layout->setContentsMargins(0,0,0,0);
 		pages_Stack->addWidget(GSL_Page);
 	}
 
 	// SO
 	{
 		SO_Page = new QWidget(this);
-			SO_Page->setContentsMargins(-5,-5,-5,-5);
 
 		SO_Page_Layout = new QVBoxLayout(SO_Page);
 			SO_Page_Layout->setAlignment(Qt::AlignTop);
+			SO_Page_Layout->setContentsMargins(0,0,0,0);
 		pages_Stack->addWidget(SO_Page);
 	}
 }
@@ -417,9 +419,9 @@ void Fitting_Settings_Editor::create_GSL_AdditionalParams_Group_Box()
 	{
 		// create spoiler
 		QVBoxLayout* frame_Layout = new QVBoxLayout;
-		frame_Layout->addWidget(GSL_Additional_Params_Group_Box);
+			frame_Layout->setContentsMargins(0,0,0,0);
+			frame_Layout->addWidget(GSL_Additional_Params_Group_Box);
 		Spoiler* spoiler = new Spoiler("Additional parameters", 5, this);
-			spoiler->setContentsMargins(-9,0,-9,-0);
 			spoiler->setContentLayout(*frame_Layout);
 		GSL_Page_Layout->addWidget(spoiler);
 	}

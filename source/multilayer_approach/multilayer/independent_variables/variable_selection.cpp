@@ -1,3 +1,5 @@
+// This is an open source non-commercial project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include "variable_selection.h"
 #include "multilayer_approach/multilayer/independent_variables/independent_variables_editor.h"
 
@@ -34,24 +36,26 @@ void Variable_Selection::create_Window()
 		ok_Button->setDefault(true);
 
 	QFrame* hor_Frame = new QFrame;
-		hor_Frame->setContentsMargins(0,-8,0,-10);
 		hor_Frame->adjustSize();
 	QHBoxLayout* hor_Layout = new QHBoxLayout(hor_Frame);
+		hor_Layout->setContentsMargins(0,0,0,0);
 		hor_Layout->setSpacing(3);
 		hor_Layout->addWidget(filters_Label);
 		hor_Layout->addWidget(filters_Combo_Box);
 		hor_Layout->setAlignment(Qt::AlignCenter);
 
 	QFrame* but_Frame = new QFrame;
-		but_Frame->setContentsMargins(0,-8,0,-10);
 		but_Frame->adjustSize();
 	QHBoxLayout* but_Layout = new QHBoxLayout(but_Frame);
+		but_Layout->setContentsMargins(0,0,0,0);
 		but_Layout->setSpacing(6);
 		but_Layout->setAlignment(Qt::AlignCenter);
 		but_Layout->addWidget(cancel_Button);
 		but_Layout->addWidget(ok_Button);
 
 	QVBoxLayout* ver_layout = new QVBoxLayout(this);
+		ver_layout->setSpacing(4);
+		ver_layout->setContentsMargins(4,4,4,4);
 		ver_layout->setAlignment(Qt::AlignCenter);
 		ver_layout->addWidget(filtered_Parameters_Pages);
 		ver_layout->addWidget(hor_Frame);
@@ -151,7 +155,7 @@ void Variable_Selection::add_Parameter(QTreeWidgetItem* struct_Item, QString wha
 	// no vectors here (interlayer composition, my_Sigma, composition etc) and no Num_Repetitons here
 	Data struct_Data = struct_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
 
-	QListWidget* filtered_Parameters = NULL;
+	QListWidget* filtered_Parameters = nullptr;
 	Parameter parameter;
 	bool additional_Condition = false;
 
@@ -589,7 +593,7 @@ void Variable_Selection::add_Variable_Item(QListWidgetItem* new_Item)
 	QVariant var;
 
 	// item search
-	QTreeWidgetItem* structure_Item = NULL;
+	QTreeWidgetItem* structure_Item = nullptr;
 	QTreeWidgetItemIterator it(struct_Tree_Copy);
 	while (*it)
 	{

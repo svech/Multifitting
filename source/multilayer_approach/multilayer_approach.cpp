@@ -1,3 +1,5 @@
+// This is an open source non-commercial project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include "multilayer_approach.h"
 
 Multilayer_Approach::Multilayer_Approach(Launcher* launcher, QWidget *parent) :
@@ -180,7 +182,7 @@ void Multilayer_Approach::open_Table_Of_Structures()
 {
 	if(!runned_Tables_Of_Structures.contains(table_Key))
 	{
-		table_Of_Structures = new Table_Of_Structures(this);
+		table_Of_Structures = new Table_Of_Structures;//(this);
 		runned_Tables_Of_Structures.insert(table_Key, table_Of_Structures);
 			table_Of_Structures->setWindowFlags(Qt::Window);
 			table_Of_Structures->show();
@@ -202,7 +204,7 @@ void Multilayer_Approach::open_Optical_Graphs()
 {
 	if(!runned_Optical_Graphs.contains(optical_Graphs_Key))
 	{
-		optical_Graphs = new Optical_Graphs(this);
+		optical_Graphs = new Optical_Graphs;//(this);
 		runned_Optical_Graphs.insert(optical_Graphs_Key, optical_Graphs);
 			optical_Graphs->setWindowFlags(Qt::Window);
 			optical_Graphs->show();
@@ -222,7 +224,7 @@ void Multilayer_Approach::open_Fits_Selector()
 {
 	if(!runned_Fits_Selectors.contains(fits_Selector_Key))
 	{
-		fits_Selector = new Fits_Selector(this);
+		fits_Selector = new Fits_Selector;//(this);
 		runned_Fits_Selectors.insert(fits_Selector_Key, fits_Selector);
 			fits_Selector->setWindowFlags(Qt::Window);
 			fits_Selector->show();
@@ -236,7 +238,7 @@ void Multilayer_Approach::open_Calculation_Settings()
 {
 	if(!runned_Calculation_Settings_Editor.contains(calc_Settings_Key))
 	{
-		calculation_Settings_Editor = new Calculation_Settings_Editor(this);
+		calculation_Settings_Editor = new Calculation_Settings_Editor;//(this);
 		runned_Calculation_Settings_Editor.insert(calc_Settings_Key, calculation_Settings_Editor);
 			calculation_Settings_Editor->setWindowFlags(Qt::Window);
 			calculation_Settings_Editor->show();
@@ -250,7 +252,7 @@ void Multilayer_Approach::open_Fitting_Settings()
 {
 	if(!runned_Fitting_Settings_Editor.contains(fit_Settings_Key))
 	{
-		fitting_Settings_Editor = new Fitting_Settings_Editor(this);
+		fitting_Settings_Editor = new Fitting_Settings_Editor;//(this);
 		runned_Fitting_Settings_Editor.insert(fit_Settings_Key, fitting_Settings_Editor);
 			fitting_Settings_Editor->setWindowFlags(Qt::Window);
 			fitting_Settings_Editor->show();
@@ -288,7 +290,7 @@ void Multilayer_Approach::dropEvent(QDropEvent* event)
 		if(counter==0)
 		{
 			QFileInfo filename = url.toLocalFile();
-			QMessageBox::StandardButton reply = QMessageBox::question(NULL,"Open", "Open file " + filename.fileName() + " ?", QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
+			QMessageBox::StandardButton reply = QMessageBox::question(nullptr,"Open", "Open file " + filename.fileName() + " ?", QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
 			if (reply == QMessageBox::Yes)
 			{
 				open(filename.absoluteFilePath());
@@ -301,12 +303,13 @@ void Multilayer_Approach::dropEvent(QDropEvent* event)
 void Multilayer_Approach::open(QString filename)
 {
 	// TODO
+	int max_Num_Targets=0;
 
 	// check extension
 	QFileInfo file_Info(filename);
 	if(file_Info.suffix() != file_Extension)
 	{
-		QMessageBox::information(NULL, "Wrong file type", "Only \"." + QString(file_Extension) + "\" files can be opened");
+		QMessageBox::information(nullptr, "Wrong file type", "Only \"." + QString(file_Extension) + "\" files can be opened");
 		return;
 	}
 
@@ -314,7 +317,7 @@ void Multilayer_Approach::open(QString filename)
 	QFile file(filename);
 	if(!file.open(QIODevice::ReadOnly))
 	{
-		QMessageBox::information(NULL, "File not found", "Nothing to open");
+		QMessageBox::information(nullptr, "File not found", "Nothing to open");
 		return;
 	}
 	QDataStream in(&file);
@@ -324,11 +327,41 @@ void Multilayer_Approach::open(QString filename)
 	in >> control;
 	if(control!=control_String)
 	{
-		QMessageBox::information(NULL, "General Failor", "Can't read your data");
+		QMessageBox::information(nullptr, "General Failor", "Can't read your data");
 		file.close();
 		return;
 	}
 
+	// read version
+	in >> loaded_Version_Major;
+	in >> loaded_Version_Minor;
+	in >> loaded_Version_Build;
+
+	if((loaded_Version_Major <VERSION_MAJOR) ||
+	   (loaded_Version_Major==VERSION_MAJOR) && (loaded_Version_Minor <VERSION_MINOR) ||
+	   (loaded_Version_Major==VERSION_MAJOR) && (loaded_Version_Minor==VERSION_MINOR) && (loaded_Version_Build<VERSION_BUILD) )
+	{
+		QMessageBox::StandardButton reply = QMessageBox::warning(this,"Opening old file","Do you want to open file,\ncreated by v."
+							 + QString::number(loaded_Version_Major) + "."
+							 + QString::number(loaded_Version_Minor) + "."
+							 + QString::number(loaded_Version_Build) + " in v."
+							 + QString::number(VERSION_MAJOR) + "."
+							 + QString::number(VERSION_MINOR) + "."
+							 + QString::number(VERSION_BUILD) + "?", QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
+		if (reply == QMessageBox::No) return;
+	}
+	if((loaded_Version_Major >VERSION_MAJOR) ||
+	   (loaded_Version_Major==VERSION_MAJOR) && (loaded_Version_Minor >VERSION_MINOR) ||
+	   (loaded_Version_Major==VERSION_MAJOR) && (loaded_Version_Minor==VERSION_MINOR) && (loaded_Version_Build>VERSION_BUILD) )
+	{
+		QMessageBox::warning(this,"Opening old file","File, created by newer version "
+							 + QString::number(loaded_Version_Major) + "."
+							 + QString::number(loaded_Version_Minor) + "."
+							 + QString::number(loaded_Version_Build) + "\ncan't be opened in "
+							 + QString::number(VERSION_MAJOR) + "."
+							 + QString::number(VERSION_MINOR) + "."
+							 + QString::number(VERSION_BUILD));
+	}
 
 	// close table of structures
 	bool reopen_Table = runned_Tables_Of_Structures.contains(table_Key);
@@ -360,7 +393,6 @@ void Multilayer_Approach::open(QString filename)
 			target_Curve_Editor->close();
 		}
 	}
-
 
 	// read previous id
 	in >> previous_ID;
@@ -463,6 +495,9 @@ void Multilayer_Approach::open(QString filename)
 			int num_Target;
 			in >> num_Target;
 
+			// for window resizing
+			if(num_Target>max_Num_Targets) max_Num_Targets=num_Target;
+
 			// load target profiles
 			for(int i=0; i<num_Target; ++i)
 			{
@@ -541,8 +576,13 @@ void Multilayer_Approach::open(QString filename)
 			}
 		}
 	}
-
 	file.close();
+
+	// resizing
+	if(max_Num_Targets>=2 && height()<=multilayer_height)
+	{
+		resize(width(), multilayer_height + (max_Num_Targets-1)*multilayer_height_additive);
+	}
 
 	// reopen table of structures
 	if(reopen_Table)
@@ -574,6 +614,11 @@ void Multilayer_Approach::save(QString filename)
 
 	// save control string
 	out << QString(control_String);
+
+	// save version
+	out << VERSION_MAJOR;
+	out << VERSION_MINOR;
+	out << VERSION_BUILD;
 
 	// save previous id
 	++previous_ID;
@@ -705,6 +750,8 @@ void Multilayer_Approach::start_Fitting()
 	Main_Calculation_Module* main_Calculation_Module = new Main_Calculation_Module(FITTING);
 	main_Calculation_Module->fitting();
 	delete main_Calculation_Module;
+
+	if(lambda_Out_Of_Range) return;
 
 	main_Calculation_Module = new Main_Calculation_Module(CALCULATION);
 	main_Calculation_Module->single_Calculation();

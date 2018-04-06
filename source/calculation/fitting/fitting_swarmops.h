@@ -14,7 +14,7 @@ class Fitting;
 class Fitting_SwarmOps
 {
 public:
-	Fitting_SwarmOps(Fitting* fitting);
+	explicit Fitting_SwarmOps(Fitting* fitting);
 
 	Main_Calculation_Module* main_Calculation_Module;
 	QVector<Calculation_Tree*>& calculation_Trees;

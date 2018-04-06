@@ -1,3 +1,5 @@
+// This is an open source non-commercial project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include "fitting_swarmops.h"
 
 Fitting_SwarmOps::Fitting_SwarmOps(Fitting* fitting):
@@ -99,16 +101,16 @@ bool Fitting_SwarmOps::fit()
 			  kMethodId,										/* Optimization method. */
 			  1,												/* Number of optimization runs. */
 			  kNumIterations,									/* Number of iterations per run. */
-			  NULL,												/* Additional optimization settings. */
+			  nullptr,												/* Additional optimization settings. */
 			  calc_Residual,									/* Optimization problem (aka. fitness function). */
-			  NULL,												/* Gradient for optimization problem. */
+			  nullptr,												/* Gradient for optimization problem. */
 			  params,											/* Context for optimization problem. */
 			  kDim,												/* Dimensionality for optimization problem. */
 			  lowerBound.data(),								/* Lower initialization boundary. */
 			  upperBound.data(),								/* Upper initialization bounder. */
 			  lowerBound.data(),								/* Lower search-space boundary. */
 			  upperBound.data(),								/* Upper search-space boundary. */
-			  NULL);											/* Fitness trace filename (null-pointer for no trace). */
+			  nullptr);											/* Fitness trace filename (null-pointer for no trace). */
 
 	auto end = std::chrono::system_clock::now();
 	auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);

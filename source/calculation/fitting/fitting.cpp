@@ -1,3 +1,5 @@
+// This is an open source non-commercial project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include "fitting.h"
 
 Fitting::Fitting(Main_Calculation_Module* main_Calculation_Module):
@@ -38,10 +40,10 @@ Fitting::~Fitting()
 
 double Fitting::func(double argument, int index)
 {
-//	if(index == 0)
-//	{
-//		return log(argument+1E-5);
-//	} else
+	if(index == 0)
+	{
+		return log(argument+2E-5);
+	} else
 	{
 		return argument;
 	}
@@ -354,7 +356,7 @@ bool Fitting::fit()
 	// --------------------------------------------------------------------------------
 	if(n<=p)
 	{
-		QMessageBox::information(NULL,"Insufficient number of points", "# of fitables: " + QString::number(p) + "\n# of points: " + QString::number(n) + "\n\nShould be f<p");
+		QMessageBox::information(nullptr,"Insufficient number of points", "# of fitables: " + QString::number(p) + "\n# of points: " + QString::number(n) + "\n\nShould be f<p");
 		return false;
 	}
 	// --------------------------------------------------------------------------------
@@ -463,7 +465,7 @@ void Fitting::add_Fit_To_File(const gsl_vector* x, double residual, QString file
 	file.close();
 	} else
 	{
-		QMessageBox::critical(NULL, "Fitting::add_Fit_To_File", "Can't write file " + filename);
+		QMessageBox::critical(nullptr, "Fitting::add_Fit_To_File", "Can't write file " + filename);
 		exit(EXIT_FAILURE);
 	}
 }
@@ -485,7 +487,7 @@ bool Fitting::check_Residual_Expression()
 
 			if(abs(target_Curve->fit_Params.weight) < DBL_MIN)
 			{
-				QMessageBox::information(NULL,"Bad weight", "Weight coefficient in\n\n" +
+				QMessageBox::information(nullptr,"Bad weight", "Weight coefficient in\n\n" +
 															struct_Name + ", measured curve #" + QString::number(target_Element_Index+1) +
 															"\n\nshould be positive");
 				return true;
@@ -501,7 +503,7 @@ bool Fitting::check_Residual_Expression()
 			{
 				if(target_Curve->fit_Params.expression_Vec.size() < 1)
 				{
-					QMessageBox::information(NULL,"Bad expression", "Residual function\n\n\"" +
+					QMessageBox::information(nullptr,"Bad expression", "Residual function\n\n\"" +
 																	target_Curve->fit_Params.fit_Function +
 																	"\"\n\nin\n\n" +
 																	struct_Name + ", measured curve #" + QString::number(target_Element_Index+1) +
@@ -518,7 +520,7 @@ bool Fitting::check_Residual_Expression()
 			{
 				if(target_Curve->fit_Params.expression_Vec.size() < 2)
 				{
-					QMessageBox::information(NULL,"Bad expression", "Residual function\n\n\"" +
+					QMessageBox::information(nullptr,"Bad expression", "Residual function\n\n\"" +
 																	target_Curve->fit_Params.fit_Function +
 																	"\"\n\nin\n\n" +
 																	struct_Name + ", measured curve #" + QString::number(target_Element_Index+1) +

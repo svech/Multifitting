@@ -9,6 +9,12 @@ class Optical_Constants;
 class Data;
 class Multilayer_Approach;
 // -----------------------------------------------------------------------------------------
+extern int loaded_Version_Major;
+extern int loaded_Version_Minor;
+extern int loaded_Version_Build;
+
+extern bool lambda_Out_Of_Range;
+
 extern Multilayer_Approach* global_Multilayer_Approach;
 
 // delimiters for file parsing

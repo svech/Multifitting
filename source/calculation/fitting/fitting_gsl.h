@@ -12,7 +12,7 @@ class Main_Calculation_Module;
 class Fitting_GSL
 {
 public:
-	Fitting_GSL(Fitting* fitting);
+	explicit Fitting_GSL(Fitting* fitting);
 
 	Main_Calculation_Module* main_Calculation_Module;
 	QVector<Calculation_Tree*>& calculation_Trees;

@@ -1,3 +1,5 @@
+// This is an open source non-commercial project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include "global_definitions.h"
 #include "global_variables.h"
 
@@ -6,7 +8,7 @@ Global_Definitions::Global_Definitions()
 
 }
 
-id_Type previous_ID = 10; // zero is reserved ID
+id_Type previous_ID = 100; // zero is reserved ID
 
 id_Type Global_Definitions::generate_Id()
 {
@@ -15,7 +17,7 @@ id_Type Global_Definitions::generate_Id()
 	if(current_ID < previous_ID)
 	{
 		// should never appear
-		QMessageBox::critical(NULL, "Global_Definitions::generate_Id()", "Out of ID range!");
+		QMessageBox::critical(nullptr, "Global_Definitions::generate_Id()", "Out of ID range!");
 		exit(EXIT_FAILURE);
 	}
 	++previous_ID;

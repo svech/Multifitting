@@ -45,8 +45,8 @@ public:
 	QVBoxLayout* main_Layout;
 
 	QGroupBox* master_Group_Box;
-		QWidget* master_Widget = NULL;
-		QWidget* old_Master_Widget = NULL;
+		QWidget* master_Widget = nullptr;
+		QWidget* old_Master_Widget = nullptr;
 		QLabel* master_Label;
 		QLineEdit* master_Line_Edit;
 

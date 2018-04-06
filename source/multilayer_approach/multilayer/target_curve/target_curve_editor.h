@@ -37,8 +37,8 @@ public:
 	void change_Arg_Units_ComboBox(QString arg_Units);
 	void change_At_Fixed_Units_ComboBox(QString fixed_Units);
 
-	void resize_Line_Edit(QLineEdit* line_Edit = NULL);
-	void resize_ComboBox(QLineEdit* line_Edit = NULL);
+	void resize_Line_Edit(QLineEdit* line_Edit = nullptr);
+	void resize_ComboBox(QLineEdit* line_Edit = nullptr);
 
 	void show_All();
 		void show_Filepath();

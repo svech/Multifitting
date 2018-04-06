@@ -1,3 +1,5 @@
+// This is an open source non-commercial project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include "target_curve_editor.h"
 
 Target_Curve_Editor::Target_Curve_Editor(Target_Curve* target_Curve, Multilayer* multilayer, QWidget *parent) :
@@ -228,15 +230,14 @@ void Target_Curve_Editor::change_At_Fixed_Units_ComboBox(QString fixed_Units)
 void Target_Curve_Editor::create_Main_Layout()
 {
 	main_Layout = new QVBoxLayout(this);
-//	main_Layout->setAlignment(Qt::AlignBottom);
-	main_Layout->setContentsMargins(4,10,4,0);
-	main_Layout->setSpacing(0);
+		main_Layout->setContentsMargins(4,4,4,0);
+		main_Layout->setSpacing(0);
 
 	bottom_Part_Widget = new QWidget;
 	bottom_Part_Layout = new QVBoxLayout(bottom_Part_Widget);
-	bottom_Part_Layout->setAlignment(Qt::AlignBottom);
-	bottom_Part_Layout->setSpacing(0);
-	bottom_Part_Widget->setFixedHeight(330);
+		bottom_Part_Layout->setContentsMargins(0,0,0,0);
+		bottom_Part_Layout->setSpacing(0);
+	bottom_Part_Widget->setFixedHeight(305);
 
 	create_Plot();
 		main_Layout->addWidget(target_Curve_Plot->custom_Plot);

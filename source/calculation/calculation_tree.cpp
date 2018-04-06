@@ -329,6 +329,7 @@ void Calculation_Tree::calculate_1_Kind(Data_Element<Type>& data_Element)
 	{
 //		auto start = std::chrono::system_clock::now();
 		calculate_Intermediate_Values_1_Tree(data_Element.calc_Tree, data_Element.the_Class->measurement, data_Element.active_Parameter_Whats_This, data_Element.calc_Tree.begin());
+		if(lambda_Out_Of_Range) return;
 //		auto end = std::chrono::system_clock::now();
 //		auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
 //		qInfo() << "Intermediate: "<< elapsed.count()/1000000. << " seconds" << endl;
@@ -356,13 +357,8 @@ void Calculation_Tree::calculate_Intermediate_Values_1_Tree(tree<Node>& calc_Tre
 	{
 		tree<Node>::post_order_iterator child = calc_Tree.child(parent,i);
 
-		QString warning_Text;
-		int status = child.node->data.calculate_Intermediate_Points(measurement, above_Node, active_Parameter_Whats_This, warning_Text, depth_Grading, sigma_Grading);
-		if(status!=0)
-		{
-			QMessageBox::warning(0, "Warning", warning_Text);
-			return;
-		}
+		child.node->data.calculate_Intermediate_Points(measurement, above_Node, active_Parameter_Whats_This, depth_Grading, sigma_Grading);
+
 		if(child.node->data.struct_Data.item_Type != item_Type_Multilayer &&
 		   child.node->data.struct_Data.item_Type != item_Type_Aperiodic  )
 		{

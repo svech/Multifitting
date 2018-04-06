@@ -14,14 +14,14 @@ class Main_Calculation_Module: public QWidget
 {
 	Q_OBJECT
 public:
-	Main_Calculation_Module(QString calc_Mode);
+	explicit Main_Calculation_Module(QString calc_Mode);
 	~Main_Calculation_Module();
 
 	QTabWidget* multilayer_Tabs;
-	QString calc_Mode;
 	QVector<Multilayer*> multilayers;
 	QVector<Calculation_Tree*> calculation_Trees;
 	QVector<QTreeWidget*> copy_Real_Struct_Trees;
+	QString calc_Mode;
 
 	Fitables fitables;
 	Fitables rejected_Min_Max;

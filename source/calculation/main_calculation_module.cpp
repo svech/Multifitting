@@ -1,3 +1,5 @@
+// This is an open source non-commercial project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include "main_calculation_module.h"
 
 Main_Calculation_Module::Main_Calculation_Module(QString calc_Mode):
@@ -7,6 +9,7 @@ Main_Calculation_Module::Main_Calculation_Module(QString calc_Mode):
 	copy_Real_Struct_Trees	(multilayer_Tabs->count()),
 	calc_Mode				(calc_Mode)
 {
+	lambda_Out_Of_Range = false;
 	for(int tab_Index=0; tab_Index<multilayer_Tabs->count(); ++tab_Index)
 	{
 		multilayers[tab_Index] = qobject_cast<Multilayer*>(multilayer_Tabs->widget(tab_Index));
@@ -30,7 +33,7 @@ void Main_Calculation_Module::single_Calculation()
 {
 	if(calc_Mode!=CALCULATION)
 	{
-		QMessageBox::critical(NULL, "Main_Calculation_Module::single_Calculation", "wrong calc_Mode");
+		QMessageBox::critical(nullptr, "Main_Calculation_Module::single_Calculation", "wrong calc_Mode");
 		return;
 	}
 
@@ -40,11 +43,13 @@ void Main_Calculation_Module::single_Calculation()
 		for(Data_Element<Independent_Variables>& independent_Element : calculation_Trees[tab_Index]->independent)
 		{
 			calculation_Trees[tab_Index]->calculate_1_Kind(independent_Element);
+			if(lambda_Out_Of_Range) return;
 		}
 		calculation_Trees[tab_Index]->fill_Target_Calc_Trees();
 		for(Data_Element<Target_Curve>& target_Element : calculation_Trees[tab_Index]->target)
 		{
 			calculation_Trees[tab_Index]->calculate_1_Kind(target_Element);
+			if(lambda_Out_Of_Range) return;
 		}
 	}
 	print_Calculated_To_File();
@@ -54,14 +59,14 @@ void Main_Calculation_Module::fitting()
 {
 	if(calc_Mode!=FITTING)
 	{
-		QMessageBox::critical(NULL, "Main_Calculation_Module::fitting", "wrong calc_Mode");
+		QMessageBox::critical(nullptr, "Main_Calculation_Module::fitting", "wrong calc_Mode");
 		return;
 	}
 
 	// reload dependences
 	if(!global_Multilayer_Approach->runned_Tables_Of_Structures.contains(table_Key))
 	{
-		global_Multilayer_Approach->table_Of_Structures = new Table_Of_Structures(global_Multilayer_Approach);
+		global_Multilayer_Approach->table_Of_Structures = new Table_Of_Structures;//(global_Multilayer_Approach);
 		global_Multilayer_Approach->table_Of_Structures->close();
 	}
 
@@ -71,6 +76,17 @@ void Main_Calculation_Module::fitting()
 	rejected_Min_Max.clear_All();
 	rejected_Thicknesses_and_Periods.clear_All();
 	rejected_Periods.clear_All();
+
+	// cheking for lambda_Out_Of_Range
+	for(int tab_Index=0; tab_Index<multilayers.size(); ++tab_Index)
+	{
+		calculation_Trees[tab_Index]->fill_Target_Calc_Trees();
+		for(Data_Element<Target_Curve>& target_Element : calculation_Trees[tab_Index]->target)
+		{
+			calculation_Trees[tab_Index]->calculate_1_Kind(target_Element);
+			if(lambda_Out_Of_Range)	return;
+		}
+	}
 
 	/// create calc tree and fitables;
 	for(int tab_Index=0; tab_Index<multilayers.size(); ++tab_Index)
@@ -115,7 +131,7 @@ void Main_Calculation_Module::fitting()
 		print_Calculated_To_File();
 
 		// replace the initial parameters
-		QMessageBox::StandardButton reply = QMessageBox::question(NULL,"Replace", "Fitting is done.\nDo you want to replace the parameters?",
+		QMessageBox::StandardButton reply = QMessageBox::question(nullptr,"Replace", "Fitting is done.\nDo you want to replace the parameters?",
 																  QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
 		if (reply == QMessageBox::Yes)
 		{
@@ -179,7 +195,7 @@ bool Main_Calculation_Module::reject()
 	{
 		QStringList rejected_List = QStringList::fromVector(QVector<QString>::fromStdVector(rejected_Sigmas.fit_Names));
 		QString rejected = rejected_List.join("\n");
-		QMessageBox::information(NULL, "Bad fitables", "Sigma start values are too small in:\n\n" +
+		QMessageBox::information(nullptr, "Bad fitables", "Sigma start values are too small in:\n\n" +
 													   rejected +
 													   "\n\nChange them");
 		return true;
@@ -190,7 +206,7 @@ bool Main_Calculation_Module::reject()
 	{
 		QStringList rejected_List = QStringList::fromVector(QVector<QString>::fromStdVector(rejected_Thicknesses_and_Periods.fit_Names));
 		QString rejected = rejected_List.join("\n");
-		QMessageBox::information(NULL, "Bad fitables", "Thicknesses and periods can't be fitted independently\nif overlying period or gamma are fitables:\n\n" +
+		QMessageBox::information(nullptr, "Bad fitables", "Thicknesses and periods can't be fitted independently\nif overlying period or gamma are fitables:\n\n" +
 													   rejected +
 													   "\n\nRecheck fitables");
 		return true;
@@ -201,7 +217,7 @@ bool Main_Calculation_Module::reject()
 	{
 		QStringList rejected_List = QStringList::fromVector(QVector<QString>::fromStdVector(rejected_Periods.fit_Names));
 		QString rejected = rejected_List.join("\n");
-		QMessageBox::information(NULL, "Bad fitables", "Zero period values are not allowed for fitting:\n\n" +
+		QMessageBox::information(nullptr, "Bad fitables", "Zero period values are not allowed for fitting:\n\n" +
 													   rejected +
 													   "\n\nIncrease them");
 		return true;
@@ -212,7 +228,7 @@ bool Main_Calculation_Module::reject()
 	{
 		QStringList rejected_List = QStringList::fromVector(QVector<QString>::fromStdVector(rejected_Min_Max.fit_Names));
 		QString rejected = rejected_List.join("\n");
-		QMessageBox::information(NULL, "Bad fitables", "min>=max for the following fitables:\n\n" +
+		QMessageBox::information(nullptr, "Bad fitables", "min>=max for the following fitables:\n\n" +
 													   rejected +
 													   "\n\nThey won't be fitted");
 		return true;
@@ -310,10 +326,10 @@ void Main_Calculation_Module::slaves_Pointer_Iteration(Parameter* master)
 		Parameter* slave = find_Slave_Pointer_by_Id(slave_Parameter_Indicator);
 
 		// check
-		if(slave == NULL)
+		if(slave == nullptr)
 		{
 			// TODO
-//			QMessageBox::critical(NULL, "Main_Calculation_Module::slaves_Vector_Iteration", slave_Parameter_Indicator.full_Name + "\n\nnot found");
+//			QMessageBox::critical(nullptr, "Main_Calculation_Module::slaves_Vector_Iteration", slave_Parameter_Indicator.full_Name + "\n\nnot found");
 //			exit(EXIT_FAILURE);
 
 			// good way is refresh_Parameters_Connection_Over_Trees() in Multilayer_Approach. Not sure.
@@ -330,7 +346,7 @@ void Main_Calculation_Module::slaves_Expression_Iteration(Parameter* master)
 {
 	if(master->coupled.slaves.size() != master->coupled.slave_Pointers.size())
 	{
-		QMessageBox::critical(NULL, "Main_Calculation_Module::slaves_Expression_Iteration", "slaves.size() != slave_Pointers.size()");
+		QMessageBox::critical(nullptr, "Main_Calculation_Module::slaves_Expression_Iteration", "slaves.size() != slave_Pointers.size()");
 		exit(EXIT_FAILURE);
 	}
 	for(int slave_Index=0; slave_Index<master->coupled.slaves.size(); ++slave_Index)
@@ -359,11 +375,11 @@ void Main_Calculation_Module::slaves_Expression_Iteration(Parameter* master)
 
 Parameter* Main_Calculation_Module::find_Slave_Pointer_by_Id(const Parameter_Indicator& slave_Parameter_Indicator)
 {
-	Parameter* pointer = NULL;
+	Parameter* pointer = nullptr;
 	for(int tab_Index=0; tab_Index<multilayers.size(); ++tab_Index)
 	{
 		find_Slave_Pointer_Calc_Tree_Iteration(calculation_Trees[tab_Index]->real_Calc_Tree.begin(), slave_Parameter_Indicator, pointer);
-		if(pointer != NULL) return pointer;
+		if(pointer != nullptr) return pointer;
 	}
 	return pointer;
 }
@@ -406,7 +422,7 @@ double Main_Calculation_Module::parametrize(double value, double min, double max
 	} else
 	{
 		qInfo() << "Main_Calculation_Module::parametrize : wrong parametrization_Type";
-		QMessageBox::warning(NULL, "Main_Calculation_Module::parametrize", "Wrong parametrization_Type");
+		QMessageBox::warning(nullptr, "Main_Calculation_Module::parametrize", "Wrong parametrization_Type");
 		return value;
 	}
 }
@@ -423,7 +439,7 @@ double Main_Calculation_Module::unparametrize(double parametrized_Shifted_Value,
 	} else
 	{
 		qInfo() << "Main_Calculation_Module::unparametrize : wrong parametrization_Type";
-		QMessageBox::warning(NULL, "Main_Calculation_Module::unparametrize", "Wrong parametrization_Type");
+		QMessageBox::warning(nullptr, "Main_Calculation_Module::unparametrize", "Wrong parametrization_Type");
 		return parametrized_Shifted_Value;
 	}
 }
@@ -498,7 +514,7 @@ void Main_Calculation_Module::print_Reflect_To_File(Data_Element<Type>& data_Ele
 	} else
 	{
 		qInfo() << "Calculation_Tree::print_Reflect_To_File  :  Can't write file " + name;
-		QMessageBox::critical(NULL, "Calculation_Tree::print_Reflect_To_File", "Can't write file " + name);
+		QMessageBox::critical(nullptr, "Calculation_Tree::print_Reflect_To_File", "Can't write file " + name);
 		exit(EXIT_FAILURE);
 	}
 }

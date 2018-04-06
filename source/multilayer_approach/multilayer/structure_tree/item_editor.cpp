@@ -1,8 +1,10 @@
+// This is an open source non-commercial project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include "item_editor.h"
 
 Item_Editor::Item_Editor(QList<Item_Editor*>& list_Editors, QTreeWidgetItem* item, QWidget *parent) :
-	list_Editors(list_Editors),
 	item(item),
+	list_Editors(list_Editors),
 	struct_Data(item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>()),
 	QDialog(parent)
 {
@@ -47,7 +49,8 @@ void Item_Editor::closeEvent(QCloseEvent* event)
 void Item_Editor::create_Main_Layout()
 {
 	main_Layout = new QVBoxLayout(this);
-	main_Layout->setSpacing(0);
+		main_Layout->setSpacing(0);
+		main_Layout->setContentsMargins(3,0,3,0);
 
 	create_Menu();
 
@@ -58,14 +61,11 @@ void Item_Editor::create_Main_Layout()
 
 	done_Button = new QPushButton("Done");
 		done_Button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-		main_Layout->addWidget(done_Button,0,Qt::AlignCenter);
 		done_Button->setFocus();
 		done_Button->setDefault(true);
+	main_Layout->addWidget(done_Button,0,Qt::AlignCenter);
 
 	connect(done_Button, &QPushButton::clicked, this, &Item_Editor::close);
-
-	main_Layout->setContentsMargins(4,0,4,0);
-
 }
 
 void Item_Editor::create_Menu()
@@ -113,6 +113,8 @@ void Item_Editor::make_Materials_Group_Box()
 	material_Group_Box->setObjectName("material_Group_Box");
 	material_Group_Box->setStyleSheet("QGroupBox#material_Group_Box { border-radius: 2px;  border: 1px solid gray;}");
 	QVBoxLayout* material_Group_Box_Layout = new QVBoxLayout(material_Group_Box);
+		material_Group_Box_Layout->setSpacing(7);
+		material_Group_Box_Layout->setContentsMargins(8,8,8,5);
 
 	// materials
 	{
@@ -164,18 +166,23 @@ void Item_Editor::make_Materials_Group_Box()
 	// more/fewer elements buttons
 	{
 		composition_Frame = new QFrame;
-		composition_Frame->setContentsMargins(-5,-5,-5,-10);
 		QVBoxLayout* composition_Layout = new QVBoxLayout(composition_Frame);
+			composition_Layout->setSpacing(5);
+			composition_Layout->setContentsMargins(0,0,0,0);
+
 		composition_Group_Box = new QGroupBox("Composition");
 		composition_Group_Box->setObjectName("composition_Group_Box");
 		composition_Group_Box->setStyleSheet("QGroupBox#composition_Group_Box { border-radius: 2px;  border: 1px solid gray; margin-top: 2ex;} "
 											 "QGroupBox::title { subcontrol-origin: margin;	 left: 4px; padding: 0 0px 0 1px;}");
 
 		composition_Layout_With_Elements_Vector = new QVBoxLayout(composition_Group_Box);
-		QFrame* buttons_Frame = new QFrame;
-		buttons_Frame->setContentsMargins(-5,-10,-5,-9);
-		QHBoxLayout* buttons_Layout = new QHBoxLayout(buttons_Frame);
-			buttons_Layout->setSpacing(0); buttons_Layout->setAlignment(Qt::AlignLeft);
+			composition_Layout_With_Elements_Vector->setSpacing(7);
+			composition_Layout_With_Elements_Vector->setContentsMargins(8,10,8,8);
+
+		QHBoxLayout* buttons_Layout = new QHBoxLayout;
+			buttons_Layout->setSpacing(0);
+			buttons_Layout->setAlignment(Qt::AlignLeft);
+
 		more_Elements  = new QPushButton(" More elements ");
 			more_Elements->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 			buttons_Layout->addWidget(more_Elements);
@@ -184,7 +191,7 @@ void Item_Editor::make_Materials_Group_Box()
 			buttons_Layout->addWidget(fewer_Elements);
 
 		composition_Layout->addWidget(composition_Group_Box);
-		composition_Layout->addWidget(buttons_Frame);
+		composition_Layout->addLayout(buttons_Layout);
 		material_Group_Box_Layout->addWidget(composition_Frame);
 
 		connect(more_Elements,  &QPushButton::clicked, this, [=]{more_Elements_Clicked();});
@@ -303,13 +310,15 @@ void Item_Editor::make_Sigma_Group_Box()
 	sigma_Group_Box->setObjectName("sigma_Group_Box");
 	sigma_Group_Box->setStyleSheet("QGroupBox#sigma_Group_Box { border-radius: 2px;  border: 1px solid gray;}");
 	QGridLayout* sigma_Group_Box_Layout = new QGridLayout(sigma_Group_Box);
+		sigma_Group_Box_Layout->setSpacing(13);
+		sigma_Group_Box_Layout->setContentsMargins(13,10,10,10);
 
 	// sigma
 	{
 		QFrame* frame= new QFrame;
-		frame->setContentsMargins(-6,-7,-6,-7);
 		QHBoxLayout* layout = new QHBoxLayout(frame);
-		layout->setAlignment(Qt::AlignLeft);
+			layout->setContentsMargins(0,0,0,0);
+			layout->setAlignment(Qt::AlignLeft);
 		roughness_Label = new QLabel(sigma_Label_1 + length_units + sigma_Label_2);
 			layout->addWidget(roughness_Label,0,Qt::AlignLeft);
 
@@ -336,8 +345,9 @@ void Item_Editor::make_Sigma_Group_Box()
 	// interlayer functions
 	{
 		interlayer_Composition_Frame = new QFrame;
-		interlayer_Composition_Frame->setContentsMargins(-5,-5,-5,-9);
 		QVBoxLayout* interlayer_Composition_Layout = new QVBoxLayout(interlayer_Composition_Frame);
+			interlayer_Composition_Layout->setSpacing(0);
+			interlayer_Composition_Layout->setContentsMargins(0,0,0,0);
 			interlayer_Composition_Layout->setAlignment(Qt::AlignLeft);
 			QHBoxLayout* sigma_PSD_Layout = new QHBoxLayout;
 		interlayer_Composition_Group_Box = new QGroupBox("Interlayer Composition");
@@ -349,10 +359,11 @@ void Item_Editor::make_Sigma_Group_Box()
 			sigma_PSD_Layout->addWidget(interlayer_Composition_Group_Box);
 
 		QFrame* PSD_Frame = new QFrame;
-		PSD_Frame->setContentsMargins(-5,-5,-5,-9);
 		QVBoxLayout* PSD_Layout = new QVBoxLayout(PSD_Frame);
-		PSD_Check_Box				= new QCheckBox("Use PSD");
-		individual_Sigma_Check_Box	= new QCheckBox("Use many " + Sigma_Sym);
+			PSD_Layout->setContentsMargins(10,0,0,0);
+		PSD_Check_Box = new QCheckBox("Use PSD");
+			PSD_Check_Box->setDisabled(true);
+		individual_Sigma_Check_Box = new QCheckBox("Use many " + Sigma_Sym);
 			PSD_Layout->addWidget(PSD_Check_Box);
 			PSD_Layout->addWidget(individual_Sigma_Check_Box);
 		sigma_PSD_Layout->addWidget(PSD_Frame);
@@ -490,15 +501,15 @@ void Item_Editor::more_Elements_Clicked()
 
 	// placing ui elements
 	QFrame* element_Frame = new QFrame;
-	element_Frame_Vec.append(element_Frame);
-	element_Frame->setContentsMargins(-9,-9,-9,-9);
 	QHBoxLayout* hor_Layout = new QHBoxLayout(element_Frame);
-		hor_Layout->setSpacing(4);
+		hor_Layout->setSpacing(5);
+		hor_Layout->setAlignment(Qt::AlignLeft);
+		hor_Layout->setContentsMargins(0,0,0,0);
 		hor_Layout->addWidget(line_Edit);
 		hor_Layout->addWidget(label);
 		hor_Layout->addWidget(elements);
 		hor_Layout->addWidget(at_Weight);
-	composition_Layout_With_Elements_Vector->setSpacing(0);
+	element_Frame_Vec.append(element_Frame);
 	composition_Layout_With_Elements_Vector->addWidget(element_Frame,0,Qt::AlignLeft);
 
 	show_Material();
@@ -519,8 +530,11 @@ void Item_Editor::more_Elements_Clicked()
 void Item_Editor::read_Elements_From_Item()
 {
 	// clear all previous widgets
-	for(int i=element_Frame_Vec.size(); i>=0; --i)
-		delete element_Frame_Vec[i];
+	for(auto element_Frame : element_Frame_Vec)
+	{
+		delete element_Frame;
+	}
+	element_Frame_Vec.clear();
 
 	// reading data
 	composition_Line_Edit_Vec.resize(struct_Data.composition.size());
@@ -559,15 +573,15 @@ void Item_Editor::read_Elements_From_Item()
 
 		// placing ui elements
 		QFrame* element_Frame = new QFrame;
-		element_Frame_Vec[i] = element_Frame;
-		element_Frame->setContentsMargins(-9,-9,-9,-9);
 		QHBoxLayout*hor_Layout = new QHBoxLayout(element_Frame);
-					hor_Layout->setSpacing(4);
+					hor_Layout->setSpacing(5);
+					hor_Layout->setAlignment(Qt::AlignLeft);
+					hor_Layout->setContentsMargins(0,0,0,0);
 					hor_Layout->addWidget(line_Edit);
 					hor_Layout->addWidget(label);
 					hor_Layout->addWidget(elements);
 					hor_Layout->addWidget(at_Weight);
-		composition_Layout_With_Elements_Vector->setSpacing(0);
+		element_Frame_Vec[i] = element_Frame;
 		composition_Layout_With_Elements_Vector->addWidget(element_Frame,0,Qt::AlignLeft);
 	}
 
@@ -797,7 +811,7 @@ void Item_Editor::show_Interlayers(QObject* my_Sender)
 
 void Item_Editor::resize_Line_Edit(QString text, QLineEdit* line_Edit)
 {
-	if(line_Edit == NULL) line_Edit = qobject_cast<QLineEdit*>(QObject::sender());
+	if(line_Edit == nullptr) line_Edit = qobject_cast<QLineEdit*>(QObject::sender());
 
 	text = line_Edit->text();
 	QFontMetrics fm = line_Edit->fontMetrics();

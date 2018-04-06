@@ -1,3 +1,5 @@
+// This is an open source non-commercial project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include "fitting_settings.h"
 #include "gsl/gsl_machine.h"
 
@@ -28,7 +30,6 @@ Fitting_Settings::Fitting_Settings(QWidget* parent) :
 
 	/// for SwarmOps
 	// main
-	num_Runs=1;
 	max_Evaluations=1000;
 	max_Eval_Factor=250;
 	max_Eval_Check=false;

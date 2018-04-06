@@ -1,3 +1,5 @@
+// This is an open source non-commercial project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include "grading_editor.h"
 
 Grading_Editor::Grading_Editor(QTreeWidgetItem* item, QString drift_Name, QWidget *parent):
@@ -44,7 +46,8 @@ void Grading_Editor::refresh_Data()
 void Grading_Editor::create_Main_Layout()
 {
     main_Layout = new QVBoxLayout(this);
-	main_Layout->setContentsMargins(4,10,4,0);
+		main_Layout->setContentsMargins(4,6,4,0);
+		main_Layout->setSpacing(8);
 
     create_Interface();
 		main_Layout->addWidget(line_Group_Box);
@@ -71,6 +74,7 @@ void Grading_Editor::create_Interface()
 			line_Group_Box->setCheckable(true);
 
 		line_GB_Layout = new QGridLayout(line_Group_Box);
+			line_GB_Layout->setContentsMargins(10,15,10,10);
 			line_GB_Layout->setAlignment(Qt::AlignLeft);
 	}
 	// sine
@@ -82,6 +86,7 @@ void Grading_Editor::create_Interface()
 			sine_Group_Box->setCheckable(true);
 
 		sine_GB_Layout = new QGridLayout(sine_Group_Box);
+			sine_GB_Layout->setContentsMargins(10,15,10,10);
 			sine_GB_Layout->setAlignment(Qt::AlignLeft);
 	}
 	// random
@@ -93,6 +98,7 @@ void Grading_Editor::create_Interface()
 			rand_Group_Box->setCheckable(true);
 
 		rand_GB_Layout = new QGridLayout(rand_Group_Box);
+			rand_GB_Layout->setContentsMargins(10,15,10,10);
 			rand_GB_Layout->setAlignment(Qt::AlignLeft);
 	}
 

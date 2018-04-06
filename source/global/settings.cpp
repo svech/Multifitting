@@ -1,3 +1,5 @@
+// This is an open source non-commercial project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include "settings.h"
 
 // -----------------------------------------------------------------------------------------
@@ -193,8 +195,8 @@ void Settings::read_Gui_Settings(bool reset_to_default)
 		multilayer_y_corner			= gui_Settings.value( "multilayer_y_corner",		0   ).toInt();
 		multilayer_min_width		= gui_Settings.value( "multilayer_min_width",		300 ).toInt();
 		multilayer_min_height		= gui_Settings.value( "multilayer_min_height",		100 ).toInt();
-		multilayer_width			= gui_Settings.value( "multilayer_width",			531 ).toInt();
-		multilayer_height			= gui_Settings.value( "multilayer_height",			480 ).toInt();
+		multilayer_width			= gui_Settings.value( "multilayer_width",			450 ).toInt();
+		multilayer_height			= gui_Settings.value( "multilayer_height",			450 ).toInt();
 		multilayer_height_additive	= gui_Settings.value( "multilayer_height_additive",	23  ).toInt();
 	gui_Settings.endGroup();
 
@@ -467,7 +469,7 @@ void Settings::read_Parameters_Default_Values(bool reset_to_default)
 	parameters_Default_Values.beginGroup( Independent_Values );
 		default_num_angular_points		 = parameters_Default_Values.value( "default_num_angular_points",		1		).toInt();
 		default_num_spectral_points		 = parameters_Default_Values.value( "default_num_spectral_points",		1		).toInt();
-		default_angle_value				 = parameters_Default_Values.value( "default_angle_value",				89		).toDouble();
+		default_angle_value				 = parameters_Default_Values.value( "default_angle_value",				90		).toDouble();
 		default_min_angle				 = parameters_Default_Values.value( "default_min_angle",				0		).toDouble();
 		default_max_angle				 = parameters_Default_Values.value( "default_max_angle",				7		).toDouble();
 		default_wavelength_value		 = parameters_Default_Values.value( "default_wavelength_value",			1.54056 ).toDouble();

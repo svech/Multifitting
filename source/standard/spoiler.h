@@ -12,8 +12,8 @@ private:
 	QFrame headerLine;
 	QParallelAnimationGroup toggleAnimation;
 	QScrollArea contentArea;
-	int animationDuration{300};
 	QWidget* parent;
+	int animationDuration;
 public:
 	explicit Spoiler(const QString & title = "", const int animationDuration = 300, QWidget *parent = 0);
 	void setContentLayout(QLayout & contentLayout);

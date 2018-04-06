@@ -23,15 +23,15 @@ public:
 
 	void if_DoubleClicked();
 	void editor_Close();
-	void editors_Edit(QObject* sender = NULL);
+	void editors_Edit(QObject* sender = nullptr);
 
 	void refresh__StructureTree__Data_and_Text();
 	void set_Structure_Item_Text(QTreeWidgetItem* item);
 	void set_Item_Parent_Type(QTreeWidgetItem* item);
 
-	void iterate_Over_Layers(QTreeWidgetItem* item = NULL);
+	void iterate_Over_Layers(QTreeWidgetItem* item = nullptr);
 		void refresh_If_Layer(QTreeWidgetItem* this_Item);
-	void iterate_Over_Multilayers(QTreeWidgetItem* item = NULL);
+	void iterate_Over_Multilayers(QTreeWidgetItem* item = nullptr);
 		void refresh_If_Multilayer(QTreeWidgetItem* this_Item);
 			void find_First_Layer(QTreeWidgetItem* this_Item, int& first);
 			void find_Last_Layer(QTreeWidgetItem* this_Item, int& last);

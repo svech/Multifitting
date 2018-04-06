@@ -32,7 +32,7 @@ public:
 	void create_Window();
 	void set_Geometry();
 	void iterate_Over_Children(QTreeWidgetItem* this_Stack, bool& thickness_Condition);
-	void iterate_Over_Parents(QTreeWidgetItem* this_Item, bool& thickness_Condition);
+	void iterate_Over_Parents(QTreeWidgetItem* this_Item, bool& parent_Condition);
 
 	// independent variables
 	void fill_Variables_List();
@@ -44,7 +44,7 @@ public:
 		void add_Interlayer_My_Sigma	(QTreeWidgetItem* struct_Item);
 		void add_Num_repetitions		(QTreeWidgetItem* struct_Item);
 
-	static void refresh_Independent_State_Of_Struct_Tree_Copy_Item(QTreeWidgetItem* structure_Item);
+	static void refresh_Independent_State_Of_Struct_Tree_Copy_Item(QTreeWidgetItem* struct_Item);
 	void add_Variable_Item(QListWidgetItem* new_Item);
 	void add_Variable();
 

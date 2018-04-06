@@ -1,3 +1,5 @@
+// This is an open source non-commercial project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include "independent_variables.h"
 #include "independent_calc_function_selection.h"
 
@@ -35,11 +37,11 @@ void Independent_Variables::create_Struct_Tree_Copy()
 void Independent_Variables::create_Main_Layout()
 {
 	QVBoxLayout* main_Layout = new QVBoxLayout(this);
-
-#ifndef __linux__
-	main_Layout->setContentsMargins(10,10,10,8);
-#endif
 		main_Layout->setSpacing(0);
+		main_Layout->setContentsMargins(5,5,5,0);
+//#ifndef __linux__
+//	main_Layout->setContentsMargins(10,10,10,8);
+//#endif
 
 	create_Independent_Variables_List();
 		main_Layout->addWidget(independent_Variables_List);
@@ -148,7 +150,7 @@ void Independent_Variables::edit_Independent_Variable(QListWidgetItem* list_Item
 	// item search by id
 	Independent_Indicator indicator = list_Item->data(Qt::UserRole).value<Independent_Indicator>();
 
-	QTreeWidgetItem* structure_Item = NULL;
+	QTreeWidgetItem* structure_Item = nullptr;
 	QTreeWidgetItemIterator it(struct_Tree_Copy);
 	while (*it)
 	{
@@ -159,20 +161,22 @@ void Independent_Variables::edit_Independent_Variable(QListWidgetItem* list_Item
 		}
 		++it;
 	}
-	if(structure_Item == NULL)
+	if(structure_Item == nullptr)
 	{
-		qInfo() << "Independent_Variables::edit_Independent_Variable : can't find structure_Item in tree copy";
+		QMessageBox::critical(nullptr, "Independent_Variables::edit_Independent_Variable", "Can't find structure_Item in tree copy");
+		exit(EXIT_FAILURE);
+	} else
+	{
+		// editing itself
+		Independent_Variables_Editor* editor = new Independent_Variables_Editor(structure_Item, list_Item, independent_Variables_List);
+			editor->setParent(this);
+			editor->setModal(true);
+			editor->setWindowFlags(Qt::Window);
+			editor->show();
+
+		connect(editor, &Independent_Variables_Editor::refresh_Multilayer, this, [=]{emit refresh_Multilayer();});
+		connect(editor, &Independent_Variables_Editor::refresh_Measurement, this, [=]{measurement = structure_Item->data(DEFAULT_COLUMN,Qt::UserRole).value<Data>();});
 	}
-
-	// editing itself
-	Independent_Variables_Editor* editor = new Independent_Variables_Editor(structure_Item, list_Item, independent_Variables_List);
-		editor->setParent(this);
-		editor->setModal(true);
-		editor->setWindowFlags(Qt::Window);
-		editor->show();
-
-	connect(editor, &Independent_Variables_Editor::refresh_Multilayer, this, [=]{emit refresh_Multilayer();});
-	connect(editor, &Independent_Variables_Editor::refresh_Measurement, this, [=]{measurement = structure_Item->data(DEFAULT_COLUMN,Qt::UserRole).value<Data>();});
 }
 
 void Independent_Variables::remove_Current_Independent_Variable()
@@ -211,7 +215,7 @@ void Independent_Variables::remove_Independent_Variable(QListWidgetItem* list_It
 		}
 
 		// item search in copy
-		QTreeWidgetItem* copy_Structure_Item = NULL;
+		QTreeWidgetItem* copy_Structure_Item = nullptr;
 		QTreeWidgetItemIterator it(struct_Tree_Copy);
 		while (*it)
 		{
@@ -221,7 +225,7 @@ void Independent_Variables::remove_Independent_Variable(QListWidgetItem* list_It
 			++it;
 		}
 		// item search in original tree
-		QTreeWidgetItem* real_Structure_Item = NULL;
+		QTreeWidgetItem* real_Structure_Item = nullptr;
 		QTreeWidgetItemIterator real_It(real_Struct_Tree);
 		while (*real_It)
 		{
@@ -316,7 +320,7 @@ void Independent_Variables::reset_Independent_Variables_Structure()
 
 	// search for previously existing items
 	QVariant var;
-	QTreeWidgetItem* new_Copy_Item = NULL;
+	QTreeWidgetItem* new_Copy_Item = nullptr;
 	QTreeWidgetItemIterator new_It(struct_Tree_Copy);
 	while (*new_It)
 	{
@@ -487,7 +491,7 @@ void Independent_Variables::refresh_Text()
 	for(int i=0; i<independent_Variables_List->count(); ++i)
 	{
 		QListWidgetItem* temp_List_Item = independent_Variables_List->item(i);
-		QTreeWidgetItem* struct_Tree_Copy_item = NULL;
+		QTreeWidgetItem* struct_Tree_Copy_item = nullptr;
 		QTreeWidgetItemIterator it(struct_Tree_Copy);
 		while (*it)
 		{

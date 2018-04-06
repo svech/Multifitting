@@ -1,3 +1,5 @@
+// This is an open source non-commercial project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include "layer_data_types.h"
 
 Data::Data(QString item_Type_Passed)
@@ -37,10 +39,6 @@ Data::Data(QString item_Type_Passed)
 			probe_Angle.indicator.whats_This = whats_This_Angle;
 			probe_Angle.indicator.item_Id = id;
 
-			// TODO temporary
-			angle_Type = angle_Type_Grazing;
-			angle_Value = 90;
-
 			angular_Resolution.value = default_angular_resolution;
 			angular_Resolution.independent.min = angular_Resolution.value;
 			angular_Resolution.independent.max = angular_Resolution.value;
@@ -58,9 +56,6 @@ Data::Data(QString item_Type_Passed)
 			wavelength.value = default_wavelength_value;
 			wavelength.indicator.whats_This = whats_This_Wavelength;
 			wavelength.indicator.item_Id = id;
-
-			// TODO temporary
-			lambda_Value = 1.54056;
 
 			spectral_Resolution.value = default_spectral_resolution;
 			spectral_Resolution.independent.min = spectral_Resolution.value;

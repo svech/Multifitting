@@ -7,6 +7,10 @@
 #include "tree.hh"
 #include "qcustomplot.h"
 
+#define VERSION_MAJOR 1
+#define VERSION_MINOR 7
+#define VERSION_BUILD 0
+
 //#define EXPRTK
 
 #ifdef EXPRTK
@@ -24,7 +28,7 @@ class Node;
 // -----------------------------------------------------------------------------------------
 
 #define control_String				"Multifitting"
-#define default_File				"save.fit"
+#define default_File				"save_v."+QString::number(VERSION_MAJOR)+"."+QString::number(VERSION_MINOR)+"."+QString::number(VERSION_BUILD)+".fit"
 #define default_Fit_Statictics_File	"fits.txt"
 #define file_Extension				"fit"
 
@@ -460,6 +464,7 @@ struct Calc_Functions			{bool check_Enabled = true;
 								 bool check_User = false;
 								 QString user_Functions = "R+T; cos(A)*R^3-sqrt(J) ; pow(F, log(root(3,5)))";
 
+								 // cppcheck-suppress functionConst
 								 bool if_Something_Enabled()
 								 {
 									 if( check_Reflectance	||

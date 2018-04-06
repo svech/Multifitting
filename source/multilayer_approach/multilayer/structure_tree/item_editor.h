@@ -52,11 +52,11 @@ public:
 	void show_Sigma_Start(bool at_Start=false);
 	void show_Sigma(bool b);
 	void show_Stack_Parameters();
-	void show_Interlayers(QObject* my_Sender = NULL);
+	void show_Interlayers(QObject* my_Sender = nullptr);
 
 	void emit_Item_Data_Edited();
 
-	void resize_Line_Edit(QString text, QLineEdit* line_Edit = NULL);
+	void resize_Line_Edit(QString text, QLineEdit* line_Edit = nullptr);
 	void browse_Material();
 	void depth_Grading();
 	void sigma_Grading();

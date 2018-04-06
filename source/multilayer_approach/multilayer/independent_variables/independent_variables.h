@@ -20,7 +20,7 @@ public:
 	void create_Independent_Variables_List();
 	void create_Independent_Variables_Toolbar();
 
-	void remove_Independent_Variable(QListWidgetItem* item);
+	void remove_Independent_Variable(QListWidgetItem* list_Item);
 
 	void add_Independent_Variable();
 		void cause_Editing_Independent_Variable();

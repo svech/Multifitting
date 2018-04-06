@@ -1,3 +1,5 @@
+// This is an open source non-commercial project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include "independent_variables_editor.h"
 #include "multilayer_approach/multilayer/independent_variables/variable_selection.h"
 #include "multilayer_approach/multilayer_approach.h"
@@ -30,8 +32,8 @@ void Independent_Variables_Editor::refresh_All()
 void Independent_Variables_Editor::create_Main_Layout()
 {
 	main_Layout = new QVBoxLayout(this);
-	main_Layout->setSpacing(0);
-	main_Layout->setContentsMargins(4,0,4,0);
+		main_Layout->setSpacing(0);
+		main_Layout->setContentsMargins(4,0,4,0);
 
 	create_Shortcuts();
 	create_Menu();
@@ -356,7 +358,7 @@ void Independent_Variables_Editor::set_Window_Geometry()
 
 void Independent_Variables_Editor::resize_Line_Edit(QString text, QLineEdit* line_Edit)
 {
-	if(line_Edit == NULL) line_Edit = qobject_cast<QLineEdit*>(QObject::sender());
+	if(line_Edit == nullptr) line_Edit = qobject_cast<QLineEdit*>(QObject::sender());
 
 	text = line_Edit->text();
 	QFontMetrics fm = line_Edit->fontMetrics();
@@ -422,7 +424,7 @@ void Independent_Variables_Editor::refresh_Show_Data(bool show)
 	int line_edit_precision = line_edit_density_precision;
 	int thumbnail_precision = thumbnail_density_precision;
 	double coeff = 1; // should be 1 by default!
-	Parameter* param_Pointer = NULL;
+	Parameter* param_Pointer = nullptr;
 
 	/// optical constants
 	if(indicator.parameter_Whats_This == whats_This_Absolute_Density)
@@ -570,7 +572,7 @@ void Independent_Variables_Editor::refresh_Show_Data(bool show)
 	/// stack parameters (without num_Repetitions)
 	if(indicator.parameter_Whats_This == whats_This_Num_Repetitions)
 	{
-		param_Pointer = NULL;
+		param_Pointer = nullptr;
 	}
 	if(indicator.parameter_Whats_This == whats_This_Period)
 	{
@@ -598,7 +600,7 @@ void Independent_Variables_Editor::refresh_Show_Data(bool show)
 	}
 	if(indicator.parameter_Whats_This == whats_This_Wavelength)
 	{
-		param_Pointer = NULL;
+		param_Pointer = nullptr;
 	}
 
 	if(param_Pointer)

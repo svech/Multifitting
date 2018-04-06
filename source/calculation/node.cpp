@@ -13,7 +13,7 @@ Node::Node(QTreeWidgetItem* item):
 //	qInfo() << "NODE" << struct_Data.item_Type;
 }
 
-int Node::calculate_Intermediate_Points(const Data& measurement, Node* above_Node, QString active_Parameter_Whats_This, QString& warning_Text, bool depth_Grading, bool sigma_Grading)
+void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_Node, QString active_Parameter_Whats_This, bool depth_Grading, bool sigma_Grading)
 {
 	// PARAMETER
 	if(active_Parameter_Whats_This == whats_This_Angle ||
@@ -60,15 +60,13 @@ int Node::calculate_Intermediate_Points(const Data& measurement, Node* above_Nod
 				{
 					Material_Data temp_Material_Data = optical_Constants->material_Map.value(struct_Data.material + nk_Ext);
 					QVector<complex<double>> n;
-					int status = optical_Constants->interpolation_Epsilon(temp_Material_Data.material_Data, spectral_Points, n, warning_Text, struct_Data.material);
-					if(status!=0){return status;}
+					optical_Constants->interpolation_Epsilon(temp_Material_Data.material_Data, spectral_Points, n, struct_Data.material);
 					delta_Epsilon_Ang = 1. - n.first()*n.first();
 				} else
 				// compile from elements
 				{
 					QVector<complex<double>> temp_Epsilon;
-					int status = optical_Constants->make_Epsilon_From_Factors(struct_Data.composition, struct_Data.absolute_Density.value, spectral_Points, temp_Epsilon, warning_Text);
-					if(status!=0){return status;}
+					optical_Constants->make_Epsilon_From_Factors(struct_Data.composition, struct_Data.absolute_Density.value, spectral_Points, temp_Epsilon);
 					delta_Epsilon_Ang = 1. - temp_Epsilon.first();
 				}
 
@@ -131,8 +129,7 @@ int Node::calculate_Intermediate_Points(const Data& measurement, Node* above_Nod
 				{
 					Material_Data temp_Material_Data = optical_Constants->material_Map.value(struct_Data.material + nk_Ext);
 					QVector<complex<double>> n;
-					int status = optical_Constants->interpolation_Epsilon(temp_Material_Data.material_Data, spectral_Points, n, warning_Text, struct_Data.material);
-					if(status!=0){return status;}
+					optical_Constants->interpolation_Epsilon(temp_Material_Data.material_Data, spectral_Points, n, struct_Data.material);
 
 					for(int point_Index = 0; point_Index<num_Points; ++point_Index)
 					{
@@ -142,8 +139,7 @@ int Node::calculate_Intermediate_Points(const Data& measurement, Node* above_Nod
 				// compile from elements
 				{
 					QVector<complex<double>> temp_Epsilon;
-					int status = optical_Constants->make_Epsilon_From_Factors(struct_Data.composition, struct_Data.absolute_Density.value, spectral_Points, temp_Epsilon, warning_Text);
-					if(status!=0){return status;}
+					optical_Constants->make_Epsilon_From_Factors(struct_Data.composition, struct_Data.absolute_Density.value, spectral_Points, temp_Epsilon);
 
 					for(int point_Index = 0; point_Index<num_Points; ++point_Index)
 					{
@@ -473,5 +469,4 @@ int Node::calculate_Intermediate_Points(const Data& measurement, Node* above_Nod
 			}
 		}
 	}
-	return 0;
 }

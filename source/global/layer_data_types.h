@@ -6,7 +6,7 @@
 class Data
 {
 public:
-	Data(QString item_Type_Passed = "empty");
+	explicit Data(QString item_Type_Passed = "empty");
 
 	void reset_All_IDs();
 	QString	parent_Item_Type;

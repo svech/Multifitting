@@ -1,8 +1,12 @@
+// This is an open source non-commercial project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include "launcher.h"
 
 Launcher::Launcher(QWidget *parent) :
 	QWidget(parent)
 {
+	printf("\nMultifitting version %d.%d.%d\n\n", VERSION_MAJOR, VERSION_MINOR, VERSION_BUILD);
+
 	// seed randomizator
 	clock_t t = clock();
 	srand(t);

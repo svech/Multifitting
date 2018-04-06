@@ -30,7 +30,7 @@ struct Fitting_Params
 class Fitting
 {
 public:
-	Fitting(Main_Calculation_Module* main_Calculation_Module);
+	explicit Fitting(Main_Calculation_Module* main_Calculation_Module);
 	~Fitting();
 
 	Main_Calculation_Module* main_Calculation_Module;

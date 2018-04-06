@@ -1,3 +1,5 @@
+// This is an open source non-commercial project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include "curve_plot.h"
 
 Curve_Plot::Curve_Plot(Target_Curve* target_Curve, Independent_Variables* independent_Variables, QString curve_Class, QWidget* parent) :
@@ -8,27 +10,27 @@ Curve_Plot::Curve_Plot(Target_Curve* target_Curve, Independent_Variables* indepe
 {
 	// if target
 	if(curve_Class == TARGET)
-	if(target_Curve)
+	if(target_Curve) // if passed pointer!=nullptr
 	{
 		measurement = &target_Curve->measurement;
 		calculated_Values = &target_Curve->calculated_Values;
 		plot_Options = &target_Curve->plot_Options;
 	} else
 	{
-		QMessageBox::critical(NULL, "Curve_Plot::Curve_Plot", "target_Curve is NULL");
+		QMessageBox::critical(nullptr, "Curve_Plot::Curve_Plot", "target_Curve is nullptr");
 		exit(EXIT_FAILURE);
 	}
 
 	// if inndependent
 	if(curve_Class == INDEPENDENT)
-	if(independent_Variables)
+	if(independent_Variables) // if passed pointer!=nullptr
 	{
 		measurement = &independent_Variables->measurement;
 		calculated_Values = &independent_Variables->calculated_Values;
 		plot_Options = &independent_Variables->plot_Options;
 	} else
 	{
-		QMessageBox::critical(NULL, "Curve_Plot::Curve_Plot", "independent_Variables is NULL");
+		QMessageBox::critical(nullptr, "Curve_Plot::Curve_Plot", "independent_Variables is nullptr");
 		exit(EXIT_FAILURE);
 	}
 

@@ -1,9 +1,11 @@
+// This is an open source non-commercial project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include "fits_selector.h"
 
 Fits_Selector::Fits_Selector(QWidget* parent) :
-	fitted_Structures(global_Multilayer_Approach->fitted_Structures),
 	runned_Fits_Selectors(global_Multilayer_Approach->runned_Fits_Selectors),
-	QWidget(parent)
+	fitted_Structures(global_Multilayer_Approach->fitted_Structures),
+	QWidget(parent) // nullptr!
 {
 	setWindowTitle("Fits Selector");
 	create_Main_Layout();
@@ -21,7 +23,7 @@ void Fits_Selector::create_Main_Layout()
 {
 	main_Layout = new QVBoxLayout(this);
 	main_Layout->setSpacing(0);
-	main_Layout->setContentsMargins(4,4,4,0);
+	main_Layout->setContentsMargins(0,0,0,0);
 
 	create_List();
 	load_Data();

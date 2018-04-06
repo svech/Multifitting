@@ -31,9 +31,7 @@ public:
 	QVBoxLayout* main_Layout;
 	QTabWidget* main_Tabs;
 		QVector<QGroupBox*> target_Group_Box_Vec;
-			QVector<QFrame*> target_Frame_Vec;
 		QVector<QGroupBox*> independent_Group_Box_Vec;
-			QVector<QFrame*> independent_Frame_Vec;
 
 	QVector<QLineEdit*> different_Lines; // for editingFinished calling from menu
 

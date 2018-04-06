@@ -10,7 +10,7 @@ class Launcher : public QWidget
 {
 	Q_OBJECT
 public:
-	Launcher(QWidget *parent = 0);
+	explicit Launcher(QWidget *parent = 0);
 
 	void closeEvent(QCloseEvent *event);
 	void create_Main_Layout();

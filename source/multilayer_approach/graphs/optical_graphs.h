@@ -23,7 +23,6 @@ public:
 
 	QTabWidget* main_Tabs;
 		QVector<QGroupBox*> target_GroupBox_Vec;
-		QVector<QSplitter*> splitter_Vec;
 		QVector<QGroupBox*> independent_GroupBox_Vec;
 };
 

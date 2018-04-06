@@ -1,16 +1,18 @@
+// This is an open source non-commercial project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include "unwrapped_structure.h"
 
 Unwrapped_Structure::Unwrapped_Structure(const tree<Node>& calc_Tree, const Data& measurement, QString active_Parameter_Whats_This, int num_Media, int max_Depth, bool depth_Grading, bool sigma_Grading, gsl_rng* r):
-	calc_Tree		(calc_Tree),
+	r(r),
 	num_Threads		(epsilon_Partial_Fill_Threads),
 	num_Media		(num_Media),
 	num_Boundaries	(num_Media - 1),
 	num_Layers		(num_Media - 2),
 	max_Depth		(max_Depth),
 	depth_Grading	(depth_Grading),
-	sigma_Grading	(sigma_Grading),
-	r(r)
-{	
+	sigma_Grading	(sigma_Grading),	
+	calc_Tree		(calc_Tree)
+{
 	// recalculate all if depth is big
 	if( max_Depth > 2 )
 	{		

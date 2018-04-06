@@ -23,15 +23,15 @@ INCLUDEPATH +=	"C:/Program Files (x86)/C++ libraries" \
         "C:/Program Files (x86)/C++ libraries/QCustomPlot 2.0.0"
 
 LIBS += "C:/Program Files (x86)/C++ libraries/GSL 2.4 Bruot/lib/gsl/cblas.lib" \
-		"C:/Program Files (x86)/C++ libraries/GSL 2.4 Bruot/lib/gsl/gsl.lib" \
-		"C:/Program Files (x86)/C++ libraries/SwarmOps/SwarmOps.lib" \
+	"C:/Program Files (x86)/C++ libraries/GSL 2.4 Bruot/lib/gsl/gsl.lib" \
+	"C:/Program Files (x86)/C++ libraries/SwarmOps/SwarmOps.lib" \
         "C:/Program Files (x86)/C++ libraries/RandomOps/RandomOps.lib" \
         "C:/Program Files (x86)/C++ libraries/QCustomPlot 2.0.0/qcustomplot2.lib"
 }
 unix {
-LIBS += -lgsl -lgslcblas -lSwarmRandOps
+    LIBS += -lgsl -lgslcblas -lSwarmRandOps
 
-QMAKE_CXXFLAGS += -Wno-reorder
+    QMAKE_CXXFLAGS += -Wno-reorder
 }
 
 SOURCES += \
@@ -115,3 +115,13 @@ HEADERS += \
     multilayer_approach/multilayer/target_curve/target_curve_plot.h \
     multilayer_approach/graphs/optical_graphs.h \
     multilayer_approach/graphs/curve_plot.h
+
+DISTFILES += \
+    ../cppcheck-suppressions-list.txt
+
+# add PVS-studio checker
+pvs_studio.target = pvs
+pvs_studio.output = true
+pvs_studio.cxxflags = -std=c++11
+pvs_studio.sources = $${SOURCES}
+include(../PVS-Studio.pri)

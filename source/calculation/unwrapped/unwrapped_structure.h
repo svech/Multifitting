@@ -16,8 +16,8 @@ public:
 
 	int num_Threads;
 	int num_Media;
-	int num_Layers;
 	int num_Boundaries;
+	int num_Layers;
 	int max_Depth;
 
 	bool depth_Grading;

@@ -1,3 +1,5 @@
+// This is an open source non-commercial project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include "target_curve.h"
 
 Target_Curve::Target_Curve(QLabel* description_Label, QTreeWidget* real_Struct_Tree, QWidget *parent) :
@@ -106,7 +108,7 @@ void Target_Curve::import_Data(QString bare_Filename)
 	}
 	if(	curve.argument.size()!=curve.values.size() )
 	{
-		QMessageBox::critical(NULL, "Target_Curve::import_Data", "curve.argument.size()!=curve.values.size()");
+		QMessageBox::critical(nullptr, "Target_Curve::import_Data", "curve.argument.size()!=curve.values.size()");
 		loaded_And_Ready = false;
 		return;
 	}
@@ -119,7 +121,7 @@ void Target_Curve::fill_Measurement_With_Data()
 		// argument shift
 		// shift has the same units as data
 		curve.shifted_Argument.resize(curve.argument.size());
-		curve.shifted_Values.reserve(curve.argument.size());
+		curve.shifted_Values.resize(curve.argument.size());
 		for(int i=0; i<curve.argument.size(); ++i)
 		{
 			curve.shifted_Argument[i]     = curve.argument[i]    *curve.arg_Factor+curve.arg_Offset;
@@ -150,7 +152,7 @@ void Target_Curve::fill_Measurement_With_Data()
 //			qInfo() << "min ="<<measurement.lambda.first() << "; max" << measurement.lambda.last();
 		} else
 		{
-			QMessageBox::critical(NULL, "Target_Curve::fill_Measurement_With_Data", "wrong curve.argument_Type="+curve.argument_Type);
+			QMessageBox::critical(nullptr, "Target_Curve::fill_Measurement_With_Data", "wrong curve.argument_Type="+curve.argument_Type);
 			return;
 		}
 	}

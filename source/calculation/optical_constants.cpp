@@ -158,7 +158,7 @@ void Optical_Constants::read_All_Elements()
 	}
 }
 
-int Optical_Constants::interpolation_Epsilon(QVector<Point>& input_Values, QVector<double>& spectral_Points, QVector<complex<double>>& output_Values, QString& error_Text, QString material)
+void Optical_Constants::interpolation_Epsilon(QVector<Point>& input_Values, QVector<double>& spectral_Points, QVector<complex<double>>& output_Values, QString material)
 {
 	const gsl_interp_type *interp_type = gsl_interp_steffen;
 
@@ -191,28 +191,29 @@ int Optical_Constants::interpolation_Epsilon(QVector<Point>& input_Values, QVect
 		if((spectral_Points[l] <= lambda.first()) ||
 		   (spectral_Points[l] >= lambda.last()))
 		{
-			error_Text = wavelength_Energy + " is out of range for " + material + ".\nAcceptable range is " + QString::number(Global_Variables::wavelength_Energy(wavelength_units,lambda.first())/coeff)
-																								   + " - " +  QString::number(Global_Variables::wavelength_Energy(wavelength_units,lambda.last() )/coeff)
-																								   + " " + wavelength_units;
-			gsl_spline_free(spline_Re);
-			gsl_spline_free(spline_Im);
-			gsl_interp_accel_free(acc_Re);
-			gsl_interp_accel_free(acc_Im);
-
-			return 1;
+			if(!lambda_Out_Of_Range)
+			{
+				QString warning_Text = wavelength_Energy + " is out of range for " + material + ".\nAcceptable range is " + QString::number(Global_Variables::wavelength_Energy(wavelength_units,lambda.first())/coeff)
+																												  + " - " + QString::number(Global_Variables::wavelength_Energy(wavelength_units,lambda.last() )/coeff)
+																													+ " " + wavelength_units;
+				QMessageBox::warning(nullptr, "Optical constants", warning_Text);
+				lambda_Out_Of_Range = true;
+			}
+			if(spectral_Points[l] <= lambda.first()) output_Values[l] = complex<double>(gsl_spline_eval(spline_Re, lambda.first(), acc_Re), gsl_spline_eval(spline_Im, lambda.first(), acc_Im));
+			if(spectral_Points[l] >= lambda.last() ) output_Values[l] = complex<double>(gsl_spline_eval(spline_Re, lambda.last(),  acc_Re), gsl_spline_eval(spline_Im, lambda.last(),  acc_Im));
+		} else
+		{
+			output_Values[l] = complex<double>(gsl_spline_eval(spline_Re, spectral_Points[l], acc_Re), gsl_spline_eval(spline_Im, spectral_Points[l], acc_Im));
 		}
-		output_Values[l] = complex<double>(gsl_spline_eval(spline_Re, spectral_Points[l], acc_Re), gsl_spline_eval(spline_Im, spectral_Points[l], acc_Im));
 	}
 
 	gsl_spline_free(spline_Re);
 	gsl_spline_free(spline_Im);
 	gsl_interp_accel_free(acc_Re);
 	gsl_interp_accel_free(acc_Im);
-
-	return 0;
 }
 
-int Optical_Constants::make_Epsilon_From_Factors(QList<Stoichiometry>& composition, double density, QVector<double>& spectral_Points, QVector<complex<double>>& epsilon, QString& error_Text)
+void Optical_Constants::make_Epsilon_From_Factors(QList<Stoichiometry>& composition, double density, QVector<double>& spectral_Points, QVector<complex<double>>& epsilon)
 {
 	double denominator = 0;	// sum of stoich and masses
 
@@ -235,11 +236,7 @@ int Optical_Constants::make_Epsilon_From_Factors(QList<Stoichiometry>& compositi
 		Element_Data temp_Element_Data = element_Map.value(element + ff_Ext);
 
 		element_Concentration[element_Index] = compound_Concentration * composition[element_Index].composition.value;
-		int interpolation_Status = interpolation_Epsilon(temp_Element_Data.element_Data, spectral_Points, interpolated, error_Text, element);
-		if(interpolation_Status!=0)
-		{
-			return interpolation_Status;
-		}
+		interpolation_Epsilon(temp_Element_Data.element_Data, spectral_Points, interpolated, element);
 
 		for(int point_Index=0; point_Index<spectral_Points.size(); ++point_Index)
 		{
@@ -252,6 +249,4 @@ int Optical_Constants::make_Epsilon_From_Factors(QList<Stoichiometry>& compositi
 	{
 		epsilon[point_Index] = conj(n[point_Index]*n[point_Index]);
 	}
-
-	return 0;
 }

@@ -1,3 +1,5 @@
+// This is an open source non-commercial project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include <QPropertyAnimation>
 #include "spoiler.h"
 
@@ -16,7 +18,7 @@ Spoiler::Spoiler(const QString & title, const int animationDuration, QWidget *pa
 	headerLine.setFrameShadow(QFrame::Sunken);
 	headerLine.setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
 
-	contentArea.setStyleSheet("QScrollArea { background-color: white; border: none; }");
+	contentArea.setStyleSheet("QScrollArea { border: none; }");//("QScrollArea { background-color: white; border: none; }");
 	contentArea.setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
 	// start out collapsed
 	contentArea.setMaximumHeight(0);

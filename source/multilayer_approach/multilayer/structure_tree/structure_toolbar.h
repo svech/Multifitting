@@ -40,7 +40,7 @@ public:
 	void create_Toolbar();
 	void change_IDs_Of_Subtree(QTreeWidgetItem* item);
 
-	QTreeWidgetItem* buffered=NULL;
+	QTreeWidgetItem* buffered=nullptr;
 	QString buffered_Copy_Type = copy_Type_Cut;
 	Structure_Tree* structure_Tree;
 	QToolBar* toolbar;

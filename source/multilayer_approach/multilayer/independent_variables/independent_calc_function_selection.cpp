@@ -1,3 +1,5 @@
+// This is an open source non-commercial project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include "independent_calc_function_selection.h"
 
 Independent_Calc_Function_Selection::Independent_Calc_Function_Selection(Independent_Variables* independent_Variables, QWidget *parent) :
@@ -30,8 +32,8 @@ void Independent_Calc_Function_Selection::closeEvent(QCloseEvent *event)
 void Independent_Calc_Function_Selection::create_Main_Layout()
 {
 	main_Layout = new QVBoxLayout(this);
-	main_Layout->setSpacing(0);
-	main_Layout->setContentsMargins(4,4,4,0);
+		main_Layout->setSpacing(0);
+		main_Layout->setContentsMargins(4,4,4,0);
 
 	{
 		global_Group_Box = new QGroupBox("Enable", this);
@@ -44,7 +46,7 @@ void Independent_Calc_Function_Selection::create_Main_Layout()
 
 		global_Layout = new QVBoxLayout;
 		global_Layout->setSpacing(0);
-		global_Layout->setContentsMargins(4,4,4,4);
+		global_Layout->setContentsMargins(4,10,4,4);
 		global_Group_Box->setLayout(global_Layout);
 
 		connect(global_Group_Box,  &QGroupBox::toggled, this, &Independent_Calc_Function_Selection::refresh_calc_Functions);
@@ -119,7 +121,9 @@ void Independent_Calc_Function_Selection::create_Main_Layout()
 		done_Button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 		done_Button->setFocus();
 		done_Button->setDefault(true);
-	main_Layout->addWidget(done_Button,0,Qt::AlignCenter);
+	QHBoxLayout* done_Button_Layout = new QHBoxLayout;
+		done_Button_Layout->addWidget(done_Button);
+		main_Layout->addLayout(done_Button_Layout);
 
 	connect(done_Button, &QPushButton::clicked, this, &Independent_Calc_Function_Selection::close);
 }

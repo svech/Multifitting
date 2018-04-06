@@ -1,3 +1,5 @@
+// This is an open source non-commercial project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include "structure_toolbar.h"
 
 Structure_Toolbar::Structure_Toolbar(Structure_Tree* structure_Tree, QWidget *parent) :
@@ -229,7 +231,7 @@ void Structure_Toolbar::add_Aperiodic()
 				}
 				if(!int_Format || !double_Format || !size_Format)
 				{
-					QMessageBox::information(NULL, "Bad format", "Row " + QString::number(line_Index) + " has wrong format.\n\nData should be IMD-styled:\n <period index>  <material>  <thickness>");
+					QMessageBox::information(nullptr, "Bad format", "Row " + QString::number(line_Index) + " has wrong format.\n\nData should be IMD-styled:\n <period index>  <material>  <thickness>");
 					return;
 				}
 
@@ -463,6 +465,7 @@ void Structure_Toolbar::remove()
 	if(data.item_Type == item_Type_Layer)
 	{
 		QMessageBox::StandardButton reply = QMessageBox::question(this,"Removal", "Really remove layer " + QString::number(data.layer_Index) + "?", QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
+		// cppcheck-suppress doubleFree
 		if (reply == QMessageBox::Yes)	delete current;
 	} else
 	// if multilayer
@@ -485,6 +488,7 @@ void Structure_Toolbar::remove()
 		if (reply == QMessageBox::Yes)
 		{
 			toolbar->actions()[Add_Substrate]->setDisabled(false);		// add_Substrate button
+			// cppcheck-suppress doubleFree
 			delete current;
 		}
 	}
@@ -532,6 +536,7 @@ void Structure_Toolbar::cut()
 	if(data.item_Type == item_Type_Layer)
 	{
 			QMessageBox::StandardButton reply = QMessageBox::question(this,"Removal", "Really cut layer " + QString::number(data.layer_Index) + "?", QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
+			// cppcheck-suppress doubleFree
 			if (reply == QMessageBox::Yes) delete current;
 	} else
 	// if multilayer
@@ -662,7 +667,7 @@ void Structure_Toolbar::destroy()
 
 void Structure_Toolbar::if_Selected()
 {
-	if(buffered!=NULL)
+	if(buffered!=nullptr)
 	{
 		toolbar->actions()[Paste]->setDisabled(false);			// paste
 	} else

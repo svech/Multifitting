@@ -1,14 +1,16 @@
+// This is an open source non-commercial project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include "coupling_editor.h"
 
-Coupling_Editor::Coupling_Editor(QWidget* coupling_Widget,
+Coupling_Editor::Coupling_Editor(QWidget* coupled_Widget,
 								 Table_Of_Structures* table_Of_Structures,
 								 QWidget* parent):
-	coupled_Widget(coupling_Widget),
+	coupled_Widget(coupled_Widget),
 	table_Of_Structures(table_Of_Structures),
 	QDialog(parent)
 {
-	coupled_Id = table_Of_Structures->coupled_Back_Widget_and_Id.value(coupling_Widget);
-	struct_Item = table_Of_Structures->coupled_Back_Widget_and_Struct_Item.value(coupling_Widget);
+	coupled_Id = table_Of_Structures->coupled_Back_Widget_and_Id.value(coupled_Widget);
+	struct_Item = table_Of_Structures->coupled_Back_Widget_and_Struct_Item.value(coupled_Widget);
 	struct_Data = struct_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
 	coupled_Parameter = Global_Variables::get_Parameter_From_Struct_Item_by_Id(struct_Data, coupled_Id);
 
@@ -40,6 +42,7 @@ void Coupling_Editor::closeEvent(QCloseEvent *)
 	}
 
 	// enable context menu
+	if(parent()!=nullptr)
 	for(int tab_Index=0; tab_Index<table_Of_Structures->main_Tabs->count(); ++tab_Index)
 	{
 		My_Table_Widget* table = qobject_cast<My_Table_Widget*>(table_Of_Structures->main_Tabs->widget(tab_Index));
@@ -74,6 +77,7 @@ void Coupling_Editor::create_Main_Layout()
 	connect(done_Button, &QPushButton::clicked, this, &Coupling_Editor::close);
 
 	// disable context menu
+	if(parent()!=nullptr)
 	for(int tab_Index=0; tab_Index<table_Of_Structures->main_Tabs->count(); ++tab_Index)
 	{
 		My_Table_Widget* table = qobject_cast<My_Table_Widget*>(table_Of_Structures->main_Tabs->widget(tab_Index));
@@ -120,7 +124,7 @@ void Coupling_Editor::remove_Master()
 {
 	coupled_Parameter->coupled.master.exist = false;
 	master_Label->setText(no_Master_Text);
-	master_Widget = NULL;
+	master_Widget = nullptr;
 }
 
 void Coupling_Editor::load_Master()
@@ -160,7 +164,7 @@ void Coupling_Editor::load_Master()
 	}
 	if(!loaded)
 	{
-		master_Widget = NULL;
+		master_Widget = nullptr;
 		coupled_Parameter->coupled.master.exist = false;
 		master_Label->setText(no_Master_Text);
 //		qInfo() << "loaded 0 masters";
@@ -240,7 +244,7 @@ void Coupling_Editor::remove_Slave(int index_Pressed)
 {
 	coupled_Parameter->coupled.slaves[index_Pressed].exist = false;
 	slave_Label_Vec[index_Pressed]->setText(no_Slave_Text);
-	slave_Widget_Vec[index_Pressed] = NULL;
+	slave_Widget_Vec[index_Pressed] = nullptr;
 }
 
 void Coupling_Editor::add_Slave(int index_Pressed)
@@ -251,7 +255,7 @@ void Coupling_Editor::add_Slave(int index_Pressed)
 	QHBoxLayout* frame_Layout = new QHBoxLayout;
 		slave_Group_Box_Layout->insertLayout(index_Pressed, frame_Layout);
 
-	QWidget* slave_Widget = NULL;
+	QWidget* slave_Widget = nullptr;
 		slave_Widget_Vec.insert(index_Pressed, slave_Widget);
 
 	QLabel* slave_Label = new QLabel(no_Slave_Text);

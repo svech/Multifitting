@@ -1,3 +1,5 @@
+// This is an open source non-commercial project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include "unwrapped_reflection.h"
 #include "iostream"
 
@@ -7,11 +9,11 @@ Unwrapped_Reflection::Unwrapped_Reflection(Unwrapped_Structure* unwrapped_Struct
 	num_Boundaries	(num_Media-1),
 	num_Media		(num_Media),
 	max_Depth		(unwrapped_Structure->max_Depth),
+	depth_Grading	(depth_Grading),
+	sigma_Grading	(sigma_Grading),
 	active_Parameter_Whats_This(active_Parameter_Whats_This),
 	unwrapped_Structure(unwrapped_Structure),
 	measurement(measurement),
-	depth_Grading(depth_Grading),
-	sigma_Grading(sigma_Grading),
 
 	r_Fresnel_s_RE(num_Threads,vector<double>(num_Boundaries)),
 	r_Fresnel_s_IM(num_Threads,vector<double>(num_Boundaries)),
@@ -585,7 +587,7 @@ struct integration_Params_Beam
 
 double beam_Func(double z, void* params)
 {
-	integration_Params_Beam* iPB=(integration_Params_Beam*)params;
+	integration_Params_Beam* iPB = reinterpret_cast<integration_Params_Beam*>(params);
 
 	double aConst = 2.*pow(1.-1./sqrt(2.),1./iPB->beam_Profile_Spreading);
 	if((z>(-iPB->beam_Size/aConst) ) &&	(z< (iPB->beam_Size/aConst)))
