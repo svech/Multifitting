@@ -23,13 +23,13 @@ INCLUDEPATH +=	"C:/Program Files (x86)/C++ libraries" \
         "C:/Program Files (x86)/C++ libraries/QCustomPlot 2.0.0"
 
 LIBS += "C:/Program Files (x86)/C++ libraries/GSL 2.4 Bruot/lib/gsl/cblas.lib" \
-	"C:/Program Files (x86)/C++ libraries/GSL 2.4 Bruot/lib/gsl/gsl.lib" \
-	"C:/Program Files (x86)/C++ libraries/SwarmOps/SwarmOps.lib" \
+		"C:/Program Files (x86)/C++ libraries/GSL 2.4 Bruot/lib/gsl/gsl.lib" \
+		"C:/Program Files (x86)/C++ libraries/SwarmOps/SwarmOps.lib" \
         "C:/Program Files (x86)/C++ libraries/RandomOps/RandomOps.lib" \
         "C:/Program Files (x86)/C++ libraries/QCustomPlot 2.0.0/qcustomplot2.lib"
 }
 unix {
-    LIBS += -lgsl -lgslcblas -lSwarmRandOps
+	LIBS += -lgsl -lgslcblas -lSwarmRandOps -lqcustomplot
 
     QMAKE_CXXFLAGS += -Wno-reorder
 }

@@ -237,7 +237,10 @@ void Target_Curve_Editor::create_Main_Layout()
 	bottom_Part_Layout = new QVBoxLayout(bottom_Part_Widget);
 		bottom_Part_Layout->setContentsMargins(0,0,0,0);
 		bottom_Part_Layout->setSpacing(0);
-	bottom_Part_Widget->setFixedHeight(305);
+		bottom_Part_Widget->setFixedHeight(305);
+#ifdef __linux__
+		bottom_Part_Widget->setFixedHeight(345);
+#endif
 
 	create_Plot();
 		main_Layout->addWidget(target_Curve_Plot->custom_Plot);
@@ -274,6 +277,10 @@ void Target_Curve_Editor::create_Plot()
 void Target_Curve_Editor::create_Plot_Options_GroupBox()
 {
 	plot_Options_GroupBox = new QGroupBox("Plot options");
+#ifdef __linux__
+		plot_Options_GroupBox->setStyleSheet("QGroupBox{ border-radius: 2px;  border: 1px solid silver; margin-top: 2ex;}"
+											 "QGroupBox::title   { subcontrol-origin: margin;   top: 6px; left: 9px; padding: 0 0px 0 1px;}");
+#endif
 	QVBoxLayout* plot_Options_GroupBox_Layout = new QVBoxLayout(plot_Options_GroupBox);
 
 	// first row
@@ -321,6 +328,10 @@ void Target_Curve_Editor::create_Plot_Options_GroupBox()
 void Target_Curve_Editor::create_Filepath_GroupBox()
 {
 	filepath_GroupBox = new QGroupBox("File path");
+#ifdef __linux__
+		filepath_GroupBox->setStyleSheet("QGroupBox{ border-radius: 2px;  border: 1px solid silver; margin-top: 2ex;}"
+										 "QGroupBox::title   { subcontrol-origin: margin;   top: 6px; left: 9px; padding: 0 0px 0 1px;}");
+#endif
 	QVBoxLayout* filepath_GroupBox_Layout = new QVBoxLayout(filepath_GroupBox);
 
 	// first row
@@ -348,7 +359,10 @@ void Target_Curve_Editor::create_Filepath_GroupBox()
 void Target_Curve_Editor::create_Data_GroupBox()
 {
 	data_GroupBox = new QGroupBox("Data", this);
-	data_GroupBox->setContentsMargins(0,8,0,-4);
+#ifdef __linux__
+		data_GroupBox->setStyleSheet("QGroupBox{ border-radius: 2px;  border: 1px solid silver; margin-top: 2ex;}"
+									 "QGroupBox::title   { subcontrol-origin: margin;   top: 6px; left: 9px; padding: 0 0px 0 1px;}");
+#endif
 	QVBoxLayout* data_GroupBox_Layout = new QVBoxLayout(data_GroupBox);
 
 	// argument
