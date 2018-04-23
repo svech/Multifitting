@@ -33,6 +33,7 @@ public:
 
 	/// for SwarmOps
 	// main
+	bool initialize_By_Current_State;
 	int max_Evaluations;
 	int max_Eval_Factor;
 	bool max_Eval_Check;

@@ -14,6 +14,7 @@ Calculation_Settings_Editor::Calculation_Settings_Editor(QWidget* parent) :
 
 void Calculation_Settings_Editor::closeEvent(QCloseEvent* event)
 {
+	write_Window_Geometry();
 	global_Multilayer_Approach->runned_Calculation_Settings_Editor.remove(calc_Settings_Key);
 	unlock_Mainwindow_Interface();
 	event->accept();
@@ -21,7 +22,19 @@ void Calculation_Settings_Editor::closeEvent(QCloseEvent* event)
 
 void Calculation_Settings_Editor::set_Window_Geometry()
 {
-	setGeometry(0,532,width(),height());
+	setGeometry(calculation_settings_x_corner,calculation_settings_y_corner,calculation_settings_width,calculation_settings_height);
+}
+
+void Calculation_Settings_Editor::write_Window_Geometry()
+{
+	if(!isMaximized())
+	{
+		calculation_settings_x_corner = geometry().x()-WINDOW_BOUNDARY_SHIFT_X;
+		calculation_settings_y_corner = geometry().y()-WINDOW_BOUNDARY_SHIFT_Y;
+
+		calculation_settings_width  = geometry().width();
+		calculation_settings_height = geometry().height();
+	}
 }
 
 void Calculation_Settings_Editor::create_Main_Layout()
@@ -238,8 +251,8 @@ void Calculation_Settings_Editor::load_Target_Parameters(int tab_Index)
 			QGroupBox* box = new QGroupBox(multilayer->target_Profiles_Vector[target_Index]->label_Text);
 				box->setCheckable(true);
 				box->setObjectName("box");
-				box->setStyleSheet("QGroupBox#box { border-radius: 2px;  border: 1px solid gray; margin-top: 2ex;}"
-							  "QGroupBox::title   { subcontrol-origin: margin;   left: 9px; padding: 0 0px 0 1px;}");
+				box->setStyleSheet("QGroupBox#box { border-radius: 2px; border: 1px solid gray; margin-top: 2ex;}"
+								"QGroupBox::title { subcontrol-origin: margin;  left: 9px; padding: 0 0px 0 1px;}");
 			multilayer_Box_Layout->addWidget(box);
 
 			box->setChecked(multilayer->target_Profiles_Vector[target_Index]->fit_Params.calc);

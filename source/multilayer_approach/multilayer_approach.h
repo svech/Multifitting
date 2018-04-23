@@ -51,8 +51,9 @@ public:
 		void create_Menu();
 		void create_Multilayer_Tabs();
 		void create_Fitting_Settings();
-	void set_Window_Geometry();
-
+	void set_Window_Geometry();	
+	void write_Window_Geometry();
+	void fast_Hide_Windows();
 
 	void add_Multilayer();
 	void remove_Multilayer(int index);

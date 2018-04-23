@@ -30,6 +30,7 @@ Fitting_Settings::Fitting_Settings(QWidget* parent) :
 
 	/// for SwarmOps
 	// main
+	initialize_By_Current_State = true;
 	max_Evaluations=1000;
 	max_Eval_Factor=250;
 	max_Eval_Check=false;
@@ -49,20 +50,25 @@ QDataStream& operator <<( QDataStream& stream, const Fitting_Settings* fitting_S
 
 	/// SwarmOps
 	// main
+	<< fitting_Settings->initialize_By_Current_State	// since 1.7.1
 	<< fitting_Settings->max_Evaluations << fitting_Settings->max_Eval_Factor << fitting_Settings->max_Eval_Check ;
 }
 QDataStream& operator >>( QDataStream& stream,		  Fitting_Settings* fitting_Settings )
 {
-	return stream >> fitting_Settings->current_Method >> fitting_Settings->num_Runs >> fitting_Settings->randomized_Start
+	stream >> fitting_Settings->current_Method >> fitting_Settings->num_Runs >> fitting_Settings->randomized_Start;
 
 	/// GSL TRS
 	// main
-	>> fitting_Settings->max_Iter >> fitting_Settings->x_Tolerance >> fitting_Settings->g_Tolerance >> fitting_Settings->f_Tolerance
+	stream >> fitting_Settings->max_Iter >> fitting_Settings->x_Tolerance >> fitting_Settings->g_Tolerance >> fitting_Settings->f_Tolerance
 	// additional
-	>> fitting_Settings->current_Scale >> fitting_Settings->current_Solver >> fitting_Settings->current_Fdtype
-	>> fitting_Settings->factor_Up >> fitting_Settings->factor_Down >> fitting_Settings->avmax >> fitting_Settings->h_df >> fitting_Settings->h_fvv
+		   >> fitting_Settings->current_Scale >> fitting_Settings->current_Solver >> fitting_Settings->current_Fdtype
+		   >> fitting_Settings->factor_Up >> fitting_Settings->factor_Down >> fitting_Settings->avmax >> fitting_Settings->h_df >> fitting_Settings->h_fvv;
 
 	/// SwarmOps
 	// main
-	>> fitting_Settings->max_Evaluations >> fitting_Settings->max_Eval_Factor >> fitting_Settings->max_Eval_Check ;
+	if(loaded_Version_Major>=1 &&
+	   loaded_Version_Minor>=7 &&
+	   loaded_Version_Build>=1)	{stream >> fitting_Settings->initialize_By_Current_State; }	// since 1.7.1
+	stream >> fitting_Settings->max_Evaluations >> fitting_Settings->max_Eval_Factor >> fitting_Settings->max_Eval_Check ;
+	return stream;
 }

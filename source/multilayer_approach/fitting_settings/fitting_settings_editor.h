@@ -13,6 +13,7 @@ public:
 	void closeEvent(QCloseEvent* event);
 	void create_Main_Layout();
 	void set_Window_Geometry();
+	void write_Window_Geometry();
 	void create_Menu();
 	void create_Shortcuts();
 	void create_Metods();
@@ -69,7 +70,7 @@ public:
 							QGridLayout* SO_Fit_Params_Group_Box_Layout;
 
 				// for SwarmOps
-					QCheckBox* SO_randomized_Start_Check_Box;
+					QCheckBox* SO_randomized_Start_Check_Box;	QCheckBox* SO_initialize_By_Current_Check_Box;
 					QLabel* SO_num_Runs_Label;			QLineEdit* SO_num_Runs_Line_Edit;
 					QLabel* SO_max_Evaluations_Label;	QLineEdit* SO_max_Evaluations_Line_Edit;
 					QCheckBox* SO_max_Eval_Check_Box;	QLineEdit* SO_max_Eval_Factor_Line_Edit;

@@ -289,7 +289,7 @@ void Multilayer::remove_Target_Curve(int index_Pressed, bool clean)
 	// window resizing
 	if( !data_Target_Profile_Frame_Vector.isEmpty() )
 	{
-		data_Target_Profile_Group_Box->adjustSize();
+//		data_Target_Profile_Group_Box->adjustSize();
 		data_Target_Profile_Group_Box->setFixedHeight(data_Target_Profile_Group_Box->height() - multilayer_height_additive);
 		QWidget::window()->resize(QWidget::window()->width(),QWidget::window()->height() - multilayer_height_additive);
 	}

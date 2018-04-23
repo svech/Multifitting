@@ -23,14 +23,22 @@ void Fitting_SwarmOps::callback(Fitting_Params* params, SO_TFitness residual)
 			printf("%f ", params->fitables.fit_Parameters[i]->value);
 		}
 		printf("\t|f|=%g", residual);
+
 		printf("\n\n");
 	}
 }
 
-SO_TFitness Fitting_SwarmOps::calc_Residual(const SO_TElm* x,  void* context, const SO_TFitness fitnessLimit)
+SO_TFitness Fitting_SwarmOps::calc_Residual(SO_TElm* x,  void* context, SO_TFitness fitnessLimit)
 {
 	fitnessLimit;
 	Fitting_Params* params = ((struct Fitting_Params*)context);
+
+	// first point is the initial
+	if(global_Multilayer_Approach->fitting_Settings->initialize_By_Current_State && params->counter == 0)
+	for(size_t i=0; i<params->p; ++i)
+	{
+		x[i]  = params->fitables.fit_Value_Parametrized[i];
+	}
 
 	// fill x
 	for(size_t i=0; i<params->p; ++i)
@@ -144,11 +152,11 @@ bool Fitting_SwarmOps::fit()
 			// actualize params->x
 			gsl_vector_set(params->x, i, final_State_Parametrized[i]);
 
-			// unpapametrize
+			// unparametrize
 			res.best.x[i] = params->main_Calculation_Module->unparametrize(	final_State_Parametrized[i],
 																			params->fitables.fit_Parameters[i]->fit.min,
 																			params->fitables.fit_Parameters[i]->fit.max);
-			params->fitables.fit_Parameters[i]->value = res.best.x[i];
+//			params->fitables.fit_Parameters[i]->value = res.best.x[i];
 		}
 	} else
 	// if randomized start
@@ -159,12 +167,22 @@ bool Fitting_SwarmOps::fit()
 			// actualize params->x
 			gsl_vector_set(params->x, i, res.best.x[i]);
 
-			// unpapametrize
+			// unparametrize
 			res.best.x[i] = params->main_Calculation_Module->unparametrize(	res.best.x[i],
 																			params->fitables.fit_Parameters[i]->fit.min,
 																			params->fitables.fit_Parameters[i]->fit.max);
 		}
 	}
+	// replace parameters
+	for(size_t i=0; i<params->p; ++i)
+	{
+		double old_Value = params->fitables.fit_Parameters[i]->value;
+		params->fitables.fit_Parameters[i]->value = res.best.x[i];
+		double new_Value = params->fitables.fit_Parameters[i]->value;
+
+		Fitting::change_Real_Fitables_and_Dependent(params, old_Value, new_Value, i);
+	}
+
 
 	printf("Final       |f| = %g\n", res.best.fitness);
 	printf("Best solution:   ");

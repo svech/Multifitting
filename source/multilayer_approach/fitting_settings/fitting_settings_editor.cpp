@@ -15,6 +15,7 @@ Fitting_Settings_Editor::Fitting_Settings_Editor(QWidget* parent) :
 
 void Fitting_Settings_Editor::closeEvent(QCloseEvent *event)
 {
+	write_Window_Geometry();
 	global_Multilayer_Approach->runned_Fitting_Settings_Editor.remove(fit_Settings_Key);
 	event->accept();
 }
@@ -52,14 +53,23 @@ void Fitting_Settings_Editor::create_Main_Layout()
 
 void Fitting_Settings_Editor::set_Window_Geometry()
 {
+	setGeometry(fitting_settings_x_corner,fitting_settings_y_corner,width(),height());
 	adjustSize();
-#ifdef _WIN32
-	setGeometry(768,31,width(),height());
-#endif
-#ifdef __linux__
-	setGeometry(768,0,width(),height());
-#endif
+//#ifdef _WIN32
+//#endif
+//#ifdef __linux__
+//	setGeometry(768,0,width(),height());
+//#endif
 	setFixedSize(size());
+}
+
+void Fitting_Settings_Editor::write_Window_Geometry()
+{
+	if(!isMaximized())
+	{
+		fitting_settings_x_corner = geometry().x()-WINDOW_BOUNDARY_SHIFT_X;
+		fitting_settings_y_corner = geometry().y()-WINDOW_BOUNDARY_SHIFT_Y;
+	}
 }
 
 void Fitting_Settings_Editor::create_Menu()
@@ -225,6 +235,7 @@ void Fitting_Settings_Editor::create_Metods()
 		{
 			GSL_randomized_Start_Check_Box->setChecked(fitting_Settings->randomized_Start);
 			SO_randomized_Start_Check_Box->setChecked(fitting_Settings->randomized_Start);
+			SO_initialize_By_Current_Check_Box->setChecked(fitting_Settings->initialize_By_Current_State);
 		}
 	});
 }
@@ -441,6 +452,9 @@ void Fitting_Settings_Editor::create_SO_Main_Params_Group_Box()
 		SO_randomized_Start_Check_Box = new QCheckBox("Randomized start",this);
 			SO_randomized_Start_Check_Box->setChecked(fitting_Settings->randomized_Start);
 
+		SO_initialize_By_Current_Check_Box = new QCheckBox("Initialize by current state",this);
+			SO_initialize_By_Current_Check_Box->setChecked(fitting_Settings->initialize_By_Current_State);
+
 		SO_num_Runs_Label = new QLabel("Number of runs");
 			SO_num_Runs_Label->setEnabled(fitting_Settings->randomized_Start);
 		SO_num_Runs_Line_Edit = new QLineEdit(QString::number(fitting_Settings->num_Runs));
@@ -459,20 +473,24 @@ void Fitting_Settings_Editor::create_SO_Main_Params_Group_Box()
 			SO_max_Eval_Factor_Line_Edit->setValidator(new QIntValidator(0, MAX_INTEGER, this));
 			SO_max_Eval_Factor_Line_Edit->setEnabled(fitting_Settings->max_Eval_Check);
 
-
-		SO_Fit_Params_Group_Box_Layout->addWidget(SO_randomized_Start_Check_Box,	0,0,1,1);
-		SO_Fit_Params_Group_Box_Layout->addWidget(SO_num_Runs_Label,				1,0,1,1);
-		SO_Fit_Params_Group_Box_Layout->addWidget(SO_num_Runs_Line_Edit,			1,1,1,1);
-		SO_Fit_Params_Group_Box_Layout->addWidget(SO_max_Evaluations_Label,			2,0,1,1);
-		SO_Fit_Params_Group_Box_Layout->addWidget(SO_max_Evaluations_Line_Edit,		2,1,1,1);
-		SO_Fit_Params_Group_Box_Layout->addWidget(SO_max_Eval_Check_Box,			3,0,1,1);
-		SO_Fit_Params_Group_Box_Layout->addWidget(SO_max_Eval_Factor_Line_Edit,		3,1,1,1);
+		SO_Fit_Params_Group_Box_Layout->addWidget(SO_randomized_Start_Check_Box,		0,0,1,1);
+		SO_Fit_Params_Group_Box_Layout->addWidget(SO_initialize_By_Current_Check_Box,	0,1,1,1);
+		SO_Fit_Params_Group_Box_Layout->addWidget(SO_num_Runs_Label,					1,0,1,1);
+		SO_Fit_Params_Group_Box_Layout->addWidget(SO_num_Runs_Line_Edit,				1,1,1,1);
+		SO_Fit_Params_Group_Box_Layout->addWidget(SO_max_Evaluations_Label,				2,0,1,1);
+		SO_Fit_Params_Group_Box_Layout->addWidget(SO_max_Evaluations_Line_Edit,			2,1,1,1);
+		SO_Fit_Params_Group_Box_Layout->addWidget(SO_max_Eval_Check_Box,				3,0,1,1);
+		SO_Fit_Params_Group_Box_Layout->addWidget(SO_max_Eval_Factor_Line_Edit,			3,1,1,1);
 
 		connect(SO_randomized_Start_Check_Box,&QCheckBox::toggled,	   fitting_Settings, [=]
 		{
 			fitting_Settings->randomized_Start = SO_randomized_Start_Check_Box->isChecked();
 			SO_num_Runs_Label->setEnabled(fitting_Settings->randomized_Start);
 			SO_num_Runs_Line_Edit->setEnabled(fitting_Settings->randomized_Start);
+		});
+		connect(SO_initialize_By_Current_Check_Box,&QCheckBox::toggled,	   fitting_Settings, [=]
+		{
+			fitting_Settings->initialize_By_Current_State = SO_initialize_By_Current_Check_Box->isChecked();
 		});
 		connect(SO_num_Runs_Line_Edit,		  &QLineEdit::textChanged, fitting_Settings, [=]{fitting_Settings->num_Runs		   = SO_num_Runs_Line_Edit->	   text().toInt();});
 		connect(SO_max_Evaluations_Line_Edit, &QLineEdit::textChanged, fitting_Settings, [=]{fitting_Settings->max_Evaluations = SO_max_Evaluations_Line_Edit->text().toInt();});

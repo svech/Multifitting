@@ -13,6 +13,7 @@ public:
 	void closeEvent(QCloseEvent* event);
 	void create_Main_Layout();
 	void set_Window_Geometry();
+	void write_Window_Geometry();
 	void create_List();
 	void load_Data();
 	void add_Item(Fitted_Structure& fitted_Structure);

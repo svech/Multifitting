@@ -15,6 +15,7 @@ Fits_Selector::Fits_Selector(QWidget* parent) :
 
 void Fits_Selector::closeEvent(QCloseEvent* event)
 {
+	write_Window_Geometry();
 	runned_Fits_Selectors.remove(fits_Selector_Key);
 	event->accept();
 }
@@ -73,12 +74,24 @@ void Fits_Selector::create_Main_Layout()
 
 void Fits_Selector::set_Window_Geometry()
 {
-#ifdef _WIN32
-	setGeometry(0,31,235,multilayer_height);
-#endif
-#ifdef __linux__
-	setGeometry(0,0,235,multilayer_height);
-#endif
+//#ifdef _WIN32
+	setGeometry(fits_selector_settings_x_corner,fits_selector_settings_y_corner,fits_selector_settings_width,fits_selector_settings_height);
+//#endif
+//#ifdef __linux__
+//	setGeometry(0,0,235,multilayer_height);
+//#endif
+}
+
+void Fits_Selector::write_Window_Geometry()
+{
+	if(!isMaximized())
+	{
+		fits_selector_settings_x_corner = geometry().x()-WINDOW_BOUNDARY_SHIFT_X;
+		fits_selector_settings_y_corner = geometry().y()-WINDOW_BOUNDARY_SHIFT_Y;
+
+		fits_selector_settings_width  = geometry().width();
+		fits_selector_settings_height = geometry().height();
+	}
 }
 
 void Fits_Selector::create_List()

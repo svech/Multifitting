@@ -18,6 +18,7 @@ public:
 	void add_Tabs();
 	void create_Tab_Content(QWidget* new_Widget, int tab_Index);
 	void set_Window_Geometry();
+	void write_Window_Geometry();
 
 	QVBoxLayout* main_Layout;
 

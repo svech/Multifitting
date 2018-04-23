@@ -167,12 +167,20 @@ QDataStream& operator >>( QDataStream& stream,		 Value& value )
 QDataStream& operator <<( QDataStream& stream, const Curve& curve )
 {
 	return stream << curve.argument << curve.shifted_Argument << curve.values << curve.shifted_Values << curve.arg_Offset << curve.arg_Factor << curve.val_Offset << curve.val_Factor
+				  << curve.beam_Intensity	// since 1.7.1
+
 				  << curve.argument_Type << curve.angle_Type << curve.angular_Units << curve.spectral_Units << curve.value_Function << curve.value_Mode;
 }
 QDataStream& operator >>( QDataStream& stream,		 Curve& curve )
 {
-	return stream >> curve.argument >> curve.shifted_Argument >> curve.values >> curve.shifted_Values >> curve.arg_Offset >> curve.arg_Factor >> curve.val_Offset >> curve.val_Factor
-				  >> curve.argument_Type >> curve.angle_Type >> curve.angular_Units >> curve.spectral_Units >> curve.value_Function >> curve.value_Mode;
+	stream  >> curve.argument >> curve.shifted_Argument >> curve.values >> curve.shifted_Values >> curve.arg_Offset >> curve.arg_Factor >> curve.val_Offset >> curve.val_Factor;
+	if( loaded_Version_Major>=1 &&
+		loaded_Version_Minor>=7 &&
+		loaded_Version_Build>=1)
+	{stream >> curve.beam_Intensity; }	// since 1.7.1
+
+	stream  >> curve.argument_Type >> curve.angle_Type >> curve.angular_Units >> curve.spectral_Units >> curve.value_Function >> curve.value_Mode;
+	return stream;
 }
 
 QDataStream& operator <<( QDataStream& stream, const Fit_Params& fit_Params )

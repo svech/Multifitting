@@ -24,6 +24,34 @@ extern int multilayer_width;
 extern int multilayer_height;
 extern int multilayer_height_additive;
 
+// structure table window geometry
+extern int structure_table_x_corner;
+extern int structure_table_y_corner;
+extern int structure_table_width;
+extern int structure_table_height;
+
+// graphs window geometry
+extern int graphs_x_corner;
+extern int graphs_y_corner;
+extern int graphs_width;
+extern int graphs_height;
+
+// fitting settings window geometry
+extern int fitting_settings_x_corner;
+extern int fitting_settings_y_corner;
+
+// calculation settings window geometry
+extern int calculation_settings_x_corner;
+extern int calculation_settings_y_corner;
+extern int calculation_settings_width;
+extern int calculation_settings_height;
+
+// fits selector window geometry
+extern int fits_selector_settings_x_corner;
+extern int fits_selector_settings_y_corner;
+extern int fits_selector_settings_width;
+extern int fits_selector_settings_height;
+
 // tab names
 extern QString default_multilayer_tab_name;
 extern QString default_independent_variable_tab_name;

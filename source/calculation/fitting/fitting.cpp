@@ -42,7 +42,7 @@ double Fitting::func(double argument, int index)
 {
 	if(index == 0)
 	{
-		return log(argument+2E-5);
+		return log(argument+1E-5);
 	} else
 	{
 		return argument;
@@ -181,21 +181,7 @@ void Fitting::calc_Residual(const gsl_vector* x, Fitting_Params* params, gsl_vec
 																									params->fitables.fit_Parameters[i]->fit.min,
 																									params->fitables.fit_Parameters[i]->fit.max);
 		double new_Value = params->fitables.fit_Parameters[i]->value;
-
-		// recalculate underlying tree if period or gamma
-		if(params->fitables.fit_Parameters[i]->indicator.whats_This == whats_This_Period)
-		{
-			double coeff = new_Value/old_Value;
-			Fitting::period_Subtree_Iteration(params->fitables.fit_Parent_Iterators[i], coeff);
-
-		} else
-		if(params->fitables.fit_Parameters[i]->indicator.whats_This == whats_This_Gamma)
-		{
-			Fitting::gamma_Subtree_Iteration(params->fitables.fit_Parent_Iterators[i], old_Value);
-		}
-
-		// recalculate underlying slaves
-		Fitting::slaves_Recalculation(params->fitables.fit_Parameters[i], params);
+		change_Real_Fitables_and_Dependent(params, old_Value, new_Value, i);
 	}
 
 	/// now all real_Calc_Tree are changed; we can replicate and stratify them
@@ -223,6 +209,24 @@ void Fitting::calc_Residual(const gsl_vector* x, Fitting_Params* params, gsl_vec
 			target_Index++;
 		}
 	}
+}
+
+void Fitting::change_Real_Fitables_and_Dependent(Fitting_Params* params, double old_Value, double new_Value, size_t i)
+{
+	// recalculate underlying tree if period or gamma
+	if(params->fitables.fit_Parameters[i]->indicator.whats_This == whats_This_Period)
+	{
+		double coeff = new_Value/old_Value;
+		Fitting::period_Subtree_Iteration(params->fitables.fit_Parent_Iterators[i], coeff);
+
+	} else
+	if(params->fitables.fit_Parameters[i]->indicator.whats_This == whats_This_Gamma)
+	{
+		Fitting::gamma_Subtree_Iteration(params->fitables.fit_Parent_Iterators[i], old_Value);
+	}
+
+	// recalculate underlying slaves
+	Fitting::slaves_Recalculation(params->fitables.fit_Parameters[i], params);
 }
 
 void Fitting::fill_Residual(int& residual_Shift, Data_Element<Target_Curve>& target_Element, gsl_vector* f, int index)

@@ -24,13 +24,16 @@ void Multilayer_Approach::open_Launcher()
 
 void Multilayer_Approach::closeEvent(QCloseEvent* event)
 {
+	fast_Hide_Windows();
+	launcher->runned_Multilayer_Approaches.remove(multilayer_Approach_Key);	
+	write_Window_Geometry();
+	Settings::save_All_Settings();
+
 	// TODO
-	launcher->runned_Multilayer_Approaches.remove(multilayer_Approach_Key);
 	qApp->quit();
 	event->accept();
 	emit closed();
 }
-
 
 void Multilayer_Approach::create_Main_Layout()
 {
@@ -78,6 +81,38 @@ void Multilayer_Approach::set_Window_Geometry()
 	setMinimumWidth(multilayer_min_width);
 	setMinimumHeight(multilayer_min_height);
 	setGeometry(multilayer_x_corner,multilayer_y_corner,multilayer_width,multilayer_height);
+}
+
+void Multilayer_Approach::write_Window_Geometry()
+{
+	if(!isMaximized())
+	{
+		multilayer_x_corner = geometry().x()-WINDOW_BOUNDARY_SHIFT_X;
+		multilayer_y_corner = geometry().y()-WINDOW_BOUNDARY_SHIFT_Y;
+
+		multilayer_width  = geometry().width();
+		multilayer_height = geometry().height();
+	}
+}
+
+void Multilayer_Approach::fast_Hide_Windows()
+{
+	hide();
+	if(runned_Tables_Of_Structures.contains(table_Key))	{
+		table_Of_Structures->close();
+	}
+	if(runned_Optical_Graphs.contains(optical_Graphs_Key))	{
+		optical_Graphs->close();
+	}
+	if(runned_Fits_Selectors.contains(fits_Selector_Key))	{
+		fits_Selector->close();
+	}
+	if(runned_Calculation_Settings_Editor.contains(calc_Settings_Key))	{
+		calculation_Settings_Editor->close();
+	}
+	if(runned_Fitting_Settings_Editor.contains(fit_Settings_Key))	{
+		fitting_Settings_Editor->close();
+	}
 }
 
 void Multilayer_Approach::add_Multilayer()
@@ -370,11 +405,18 @@ void Multilayer_Approach::open(QString filename)
 		runned_Tables_Of_Structures.value(table_Key)->close();
 	}
 
-	// close table of structures
+	// close calculation settings
 	bool reopen_Calc_Settings = runned_Calculation_Settings_Editor.contains(calc_Settings_Key);
 	if(reopen_Calc_Settings)
 	{
 		runned_Calculation_Settings_Editor.value(calc_Settings_Key)->close();
+	}
+
+	// close fitting settings
+	bool reopen_Fit_Settings = runned_Fitting_Settings_Editor.contains(fit_Settings_Key);
+	if(reopen_Fit_Settings)
+	{
+		runned_Fitting_Settings_Editor.value(fit_Settings_Key)->close();
 	}
 
 	// close fits selector
@@ -594,6 +636,12 @@ void Multilayer_Approach::open(QString filename)
 	if(reopen_Calc_Settings)
 	{
 		open_Calculation_Settings();
+	}
+
+	// reopen fitting settings
+	if(reopen_Fit_Settings)
+	{
+		open_Fitting_Settings();
 	}
 
 	// reopen fits selector

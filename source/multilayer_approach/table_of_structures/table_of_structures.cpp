@@ -17,6 +17,7 @@ Table_Of_Structures::Table_Of_Structures(QWidget *parent) :
 
 void Table_Of_Structures::closeEvent(QCloseEvent* event)
 {
+	write_Window_Geometry();
 	runned_Tables_Of_Structures.remove(table_Key);
 	unlock_Mainwindow_Interface();
 	event->accept();
@@ -43,8 +44,19 @@ void Table_Of_Structures::create_Main_Layout()
 
 void Table_Of_Structures::set_Window_Geometry()
 {
-//	resize(800,550);
-	setGeometry(500,200,1050,700);
+	setGeometry(structure_table_x_corner,structure_table_y_corner,structure_table_width,structure_table_height);
+}
+
+void Table_Of_Structures::write_Window_Geometry()
+{
+	if(!isMaximized())
+	{
+		structure_table_x_corner = geometry().x()-WINDOW_BOUNDARY_SHIFT_X;
+		structure_table_y_corner = geometry().y()-WINDOW_BOUNDARY_SHIFT_Y;
+
+		structure_table_width  = geometry().width();
+		structure_table_height = geometry().height();
+	}
 }
 
 void Table_Of_Structures::lock_Mainwindow_Interface()

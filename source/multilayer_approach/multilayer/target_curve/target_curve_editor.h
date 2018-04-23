@@ -56,6 +56,7 @@ public:
 	void refresh_At_Fixed_Units();
 	void refresh_Offsets();
 	void refresh_Factors();
+	void refresh_Beam_Intensity();
 	void refresh_Polarization();
 	void refresh_Resolution();
 	void refresh_Measurement_Geometry();
@@ -91,6 +92,8 @@ public:
 			QDoubleSpinBox* val_Offset_SpinBox;
 			QLabel* val_Factor_Label;
 			QDoubleSpinBox* val_Factor_SpinBox;
+			QLabel* beam_Intensity_Label;
+			QLineEdit* beam_Intensity_LineEdit;
 
 			QLabel* at_Fixed_Label;
 			QLineEdit* at_Fixed_LineEdit;

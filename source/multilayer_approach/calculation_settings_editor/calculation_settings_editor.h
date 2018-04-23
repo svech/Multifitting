@@ -15,6 +15,7 @@ public:
 	void closeEvent(QCloseEvent* event);
 	void create_Main_Layout();
 	void set_Window_Geometry();
+	void write_Window_Geometry();
 	void create_Menu();
 	void create_Tabs();
 	void lock_Mainwindow_Interface();

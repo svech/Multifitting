@@ -11,8 +11,8 @@ Launcher::Launcher(QWidget *parent) :
 	clock_t t = clock();
 	srand(t);
 
-	Settings::read_All_Settings(true);
-	Settings::save_All_Settings();
+	Settings::read_All_Settings(/*true*/);
+//	Settings::save_All_Settings();
 	Global_Variables::fill_Units_Maps();
 
 	// read optical constants database

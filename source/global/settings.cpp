@@ -22,6 +22,34 @@ int multilayer_width;
 int multilayer_height;
 int multilayer_height_additive;
 
+// structure table window geometry
+int structure_table_x_corner;
+int structure_table_y_corner;
+int structure_table_width;
+int structure_table_height;
+
+// graphs window geometry
+int graphs_x_corner;
+int graphs_y_corner;
+int graphs_width;
+int graphs_height;
+
+// fitting settings window geometry
+int fitting_settings_x_corner;
+int fitting_settings_y_corner;
+
+// calculation settings window geometry
+int calculation_settings_x_corner;
+int calculation_settings_y_corner;
+int calculation_settings_width;
+int calculation_settings_height;
+
+// fits selector window geometry
+int fits_selector_settings_x_corner;
+int fits_selector_settings_y_corner;
+int fits_selector_settings_width;
+int fits_selector_settings_height;
+
 // tab names
 QString default_multilayer_tab_name;
 QString default_independent_variable_tab_name;
@@ -200,6 +228,44 @@ void Settings::read_Gui_Settings(bool reset_to_default)
 		multilayer_height_additive	= gui_Settings.value( "multilayer_height_additive",	23  ).toInt();
 	gui_Settings.endGroup();
 
+	// structure table window geometry
+	gui_Settings.beginGroup( Structure_Table_Window_Geometry );
+		structure_table_x_corner	= gui_Settings.value( "structure_table_x_corner",	500 ).toInt();
+		structure_table_y_corner	= gui_Settings.value( "structure_table_y_corner",	200 ).toInt();
+		structure_table_width		= gui_Settings.value( "structure_table_width",		1050 ).toInt();
+		structure_table_height		= gui_Settings.value( "structure_table_height",		700 ).toInt();
+	gui_Settings.endGroup();
+
+	// graphs window geometry
+	gui_Settings.beginGroup( Graphs_Window_Geometry );
+		graphs_x_corner		= gui_Settings.value( "graphs_x_corner",	400 ).toInt();
+		graphs_y_corner		= gui_Settings.value( "graphs_y_corner",	300 ).toInt();
+		graphs_width		= gui_Settings.value( "graphs_width",		700 ).toInt();
+		graphs_height		= gui_Settings.value( "graphs_height",		500 ).toInt();
+	gui_Settings.endGroup();
+
+	// fitting settings window geometry
+	gui_Settings.beginGroup( Fitting_Settings_Window_Geometry );
+		fitting_settings_x_corner	= gui_Settings.value( "fitting_settings_x_corner",	768 ).toInt();
+		fitting_settings_y_corner	= gui_Settings.value( "fitting_settings_y_corner",	0	).toInt();
+	gui_Settings.endGroup();
+
+	// calculation settings window geometry
+	gui_Settings.beginGroup( Calculation_Settings_Window_Geometry );
+		calculation_settings_x_corner	= gui_Settings.value( "calculation_settings_x_corner",	0 ).toInt();
+		calculation_settings_y_corner	= gui_Settings.value( "calculation_settings_y_corner",	532 ).toInt();
+		calculation_settings_width		= gui_Settings.value( "calculation_settings_width",		70 ).toInt();
+		calculation_settings_height		= gui_Settings.value( "calculation_settings_height",	50 ).toInt();
+	gui_Settings.endGroup();
+
+	// fits selector window geometry
+	gui_Settings.beginGroup( Fits_Selector_Window_Geometry );
+		fits_selector_settings_x_corner	= gui_Settings.value( "fits_selector_settings_x_corner",	0 ).toInt();
+		fits_selector_settings_y_corner	= gui_Settings.value( "fits_selector_settings_y_corner",	31 ).toInt();
+		fits_selector_settings_width	= gui_Settings.value( "fits_selector_settings_width",		235 ).toInt();
+		fits_selector_settings_height	= gui_Settings.value( "fits_selector_settings_height",		multilayer_height ).toInt();
+	gui_Settings.endGroup();
+
 	// tab names
 	gui_Settings.beginGroup( Multilayer_Tabs );
 		default_multilayer_tab_name			  = gui_Settings.value( "default_multilayer_tab_name",			 "Struct_" ).toString();
@@ -236,6 +302,44 @@ void Settings::save_Gui_Settings()
 		gui_Settings.setValue( "multilayer_width",				multilayer_width );
 		gui_Settings.setValue( "multilayer_height",				multilayer_height );
 		gui_Settings.setValue( "multilayer_height_additive",	multilayer_height_additive );
+	gui_Settings.endGroup();
+
+	// structure table window geometry
+	gui_Settings.beginGroup( Structure_Table_Window_Geometry );
+		gui_Settings.setValue( "structure_table_x_corner",		structure_table_x_corner );
+		gui_Settings.setValue( "structure_table_y_corner",		structure_table_y_corner );
+		gui_Settings.setValue( "structure_table_width",			structure_table_width );
+		gui_Settings.setValue( "structure_table_height",		structure_table_height );
+	gui_Settings.endGroup();
+
+	// graphs window geometry
+	gui_Settings.beginGroup( Graphs_Window_Geometry );
+		gui_Settings.setValue( "graphs_x_corner",		graphs_x_corner );
+		gui_Settings.setValue( "graphs_y_corner",		graphs_y_corner );
+		gui_Settings.setValue( "graphs_width",			graphs_width );
+		gui_Settings.setValue( "graphs_height",			graphs_height );
+	gui_Settings.endGroup();
+
+	// fitting settings window geometry
+	gui_Settings.beginGroup( Fitting_Settings_Window_Geometry );
+		gui_Settings.setValue( "fitting_settings_x_corner",		fitting_settings_x_corner );
+		gui_Settings.setValue( "fitting_settings_y_corner",		fitting_settings_y_corner );
+	gui_Settings.endGroup();
+
+	// calculation settings window geometry
+	gui_Settings.beginGroup( Calculation_Settings_Window_Geometry );
+		gui_Settings.setValue( "calculation_settings_x_corner",		calculation_settings_x_corner );
+		gui_Settings.setValue( "calculation_settings_y_corner",		calculation_settings_y_corner );
+		gui_Settings.setValue( "calculation_settings_width",		calculation_settings_width );
+		gui_Settings.setValue( "calculation_settings_height",		calculation_settings_height );
+	gui_Settings.endGroup();
+
+	// fits selector window geometry
+	gui_Settings.beginGroup( Fits_Selector_Window_Geometry );
+		gui_Settings.setValue( "fits_selector_settings_x_corner",	fits_selector_settings_x_corner );
+		gui_Settings.setValue( "fits_selector_settings_y_corner",	fits_selector_settings_y_corner );
+		gui_Settings.setValue( "fits_selector_settings_width",		fits_selector_settings_width );
+		gui_Settings.setValue( "fits_selector_settings_height",		fits_selector_settings_height );
 	gui_Settings.endGroup();
 
 	// multilayer tab name

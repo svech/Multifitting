@@ -9,7 +9,7 @@
 
 #define VERSION_MAJOR 1
 #define VERSION_MINOR 7
-#define VERSION_BUILD 0
+#define VERSION_BUILD 1
 
 //#define EXPRTK
 
@@ -44,11 +44,18 @@ class Node;
 // gui
 #define Gui_Settings_Path Pre_Path + "settings/gui.ini"
 
-	#define Application_Style			"Application_Style"
-	#define Launcher_Geometry			"Launcher_Geometry"
-	#define Multilayer_Window_Geometry	"Multilayer_Window_Geometry"
-	#define Multilayer_Tabs				"Multilayer_Tabs"
-	#define Resource_Paths				"Resource_Paths"
+	#define Application_Style					"Application_Style"
+
+	#define Launcher_Geometry						"Launcher_Geometry"
+	#define Multilayer_Window_Geometry				"Multilayer_Window_Geometry"
+	#define Structure_Table_Window_Geometry			"Structure_Table_Window_Geometry"
+	#define Graphs_Window_Geometry					"Graphs_Window_Geometry"
+	#define Fitting_Settings_Window_Geometry		"Fitting_Settings_Window_Geometry"
+	#define Calculation_Settings_Window_Geometry	"Calculation_Settings_Window_Geometry"
+	#define Fits_Selector_Window_Geometry			"Fits_Selector_Window_Geometry"
+
+	#define Multilayer_Tabs						"Multilayer_Tabs"
+	#define Resource_Paths						"Resource_Paths"
 
 // structure default values
 #define Structure_Default_Values_Path Pre_Path + "settings/structure_default_values.ini"
@@ -147,6 +154,9 @@ class Node;
 #define id_Of_Thicknesses 9					// used fore refresh/reload of corresponding line_Edits
 #define TARGET_LINE_EDIT_WIDTH 65			// for target_Curve_Editor
 #define INDEPENDENT_LINE_EDIT_WIDTH 50		// for independent_Variables_Editor
+
+#define WINDOW_BOUNDARY_SHIFT_X 8			// shift in window position
+#define WINDOW_BOUNDARY_SHIFT_Y 30			// shift in window position
 
 // -----------------------------------------------------------------------------------------
 
@@ -487,7 +497,7 @@ struct Value					{double val_1; double val_2; /*double val_3; double val_4;*/};
 struct Curve					{QVector<double> argument; QVector<double> shifted_Argument;
 								 QVector<Value> values;	   QVector<Value> shifted_Values;
 								 double arg_Offset = 0; double arg_Factor = 1;
-								 double val_Offset = 0; double val_Factor = 1;
+								 double val_Offset = 0; double val_Factor = 1; double beam_Intensity = 1;
 								 QString argument_Type;
 								 QString angle_Type;
 								 QString angular_Units;

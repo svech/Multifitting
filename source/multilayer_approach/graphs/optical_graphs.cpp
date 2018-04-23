@@ -13,6 +13,7 @@ Optical_Graphs::Optical_Graphs(QWidget* parent) :
 
 void Optical_Graphs::closeEvent(QCloseEvent* event)
 {
+	write_Window_Geometry();
 	global_Multilayer_Approach->runned_Optical_Graphs.remove(optical_Graphs_Key);
 	event->accept();
 }
@@ -134,5 +135,17 @@ void Optical_Graphs::create_Tab_Content(QWidget* new_Widget, int tab_Index)
 
 void Optical_Graphs::set_Window_Geometry()
 {
-	setGeometry(400,300,700,500);
+	setGeometry(graphs_x_corner,graphs_y_corner,graphs_width,graphs_height);
+}
+
+void Optical_Graphs::write_Window_Geometry()
+{
+	if(!isMaximized())
+	{
+		graphs_x_corner = geometry().x()-WINDOW_BOUNDARY_SHIFT_X;
+		graphs_y_corner = geometry().y()-WINDOW_BOUNDARY_SHIFT_Y;
+
+		graphs_width  = geometry().width();
+		graphs_height = geometry().height();
+	}
 }

@@ -118,14 +118,17 @@ void Target_Curve::fill_Measurement_With_Data()
 {
 	if(loaded_And_Ready)
 	{
+		// check zero intensity
+		if(abs(curve.beam_Intensity)<=DBL_EPSILON) curve.beam_Intensity = 1;
+
 		// argument shift
 		// shift has the same units as data
 		curve.shifted_Argument.resize(curve.argument.size());
 		curve.shifted_Values.resize(curve.argument.size());
 		for(int i=0; i<curve.argument.size(); ++i)
 		{
-			curve.shifted_Argument[i]     = curve.argument[i]    *curve.arg_Factor+curve.arg_Offset;
-			curve.shifted_Values[i].val_1 = curve.values[i].val_1*curve.val_Factor+curve.val_Offset;
+			curve.shifted_Argument[i]     = curve.argument[i]                         *curve.arg_Factor+curve.arg_Offset;
+			curve.shifted_Values[i].val_1 = curve.values[i].val_1/curve.beam_Intensity*curve.val_Factor+curve.val_Offset;
 			// shift only first
 			curve.shifted_Values[i].val_2 = curve.values[i].val_2;//*curve.val_Factor+curve.val_Offset;
 		}

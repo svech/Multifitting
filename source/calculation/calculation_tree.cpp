@@ -3,8 +3,8 @@
 #include <iostream>
 
 Calculation_Tree::Calculation_Tree(Multilayer* multilayer, QString calc_Mode):
-	real_Struct_Tree(multilayer->structure_Tree->tree),
-	calc_Mode(calc_Mode)
+	calc_Mode(calc_Mode),
+	real_Struct_Tree(multilayer->structure_Tree->tree)
 {	
 	// initialization independent vector
 	if(calc_Mode==CALCULATION)

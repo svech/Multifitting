@@ -186,7 +186,7 @@ Data::Data(QString item_Type_Passed)
 			if(item_Type == item_Type_Layer)		sigma.value =     layer_default_sigma;
 			if(item_Type == item_Type_Substrate)	sigma.value = substrate_default_sigma;
 			sigma.fit.is_Fitable = false;
-			sigma.fit.min = sigma_Dispersion_Min*sigma.value;
+			sigma.fit.min = 1;//sigma_Dispersion_Min*sigma.value;
 			sigma.fit.max = max(sigma_Dispersion_Max*sigma.value, 20.);
 			sigma.indicator.whats_This = whats_This_Sigma;
 			sigma.indicator.item_Id = id;
