@@ -34,6 +34,7 @@ public:
 	void sigma_Plot		();
 	void destroy		();
 
+	bool ask_Parent_Multilayer();
 	void if_Selected();
 	void refresh_Toolbar();
 

@@ -2393,8 +2393,9 @@ double Table_Of_Structures::recalculate_Sigma_From_Individuals(QVector<Interlaye
 			temp_Sigma_Square += pow(interlayer.my_Sigma.value,2) * interlayer.interlayer.value;
 		}
 	}
-	if(sum!=0)    return sqrt(temp_Sigma_Square/sum);
-	else          return 0;
+
+	if(abs(sum)<DBL_EPSILON) sum = DBL_EPSILON;
+	return sqrt(temp_Sigma_Square/sum);
 }
 
 //// general

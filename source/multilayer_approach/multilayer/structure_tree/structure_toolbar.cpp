@@ -415,10 +415,9 @@ void Structure_Toolbar::edit()
 	structure_Tree->if_DoubleClicked();
 }
 
-void Structure_Toolbar::remove()
+bool Structure_Toolbar::ask_Parent_Multilayer()
 {
 	QTreeWidgetItem* current = structure_Tree->tree->currentItem();
-	Data data = current->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
 
 	// if parent periodic multilayer has 2 childs
 	if(current->parent())
@@ -446,8 +445,17 @@ void Structure_Toolbar::remove()
 				structure_Tree->tree->insertTopLevelItem(parent_Position, survived_Child);
 				delete parent;
 			}
+			return true;
 		}
 	}
+	return false;
+}
+
+void Structure_Toolbar::remove()
+{
+	QTreeWidgetItem* current = structure_Tree->tree->currentItem();
+	Data data = current->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+
 	// if ambient
 	if(data.item_Type == item_Type_Ambient)
 	{
@@ -466,21 +474,30 @@ void Structure_Toolbar::remove()
 	{
 		QMessageBox::StandardButton reply = QMessageBox::question(this,"Removal", "Really remove layer " + QString::number(data.layer_Index) + "?", QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
 		// cppcheck-suppress doubleFree
-		if (reply == QMessageBox::Yes)	delete current;
+		if (reply == QMessageBox::Yes)
+		{
+			ask_Parent_Multilayer();
+		}
 	} else
 	// if multilayer
 	if(data.item_Type == item_Type_Multilayer)
 	{
 		QString multilayer_Text = current->text(DEFAULT_COLUMN).split(", N")[0];
 		QMessageBox::StandardButton reply = QMessageBox::question(this,"Removal", "Really remove " + multilayer_Text + "?", QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
-		if (reply == QMessageBox::Yes)	delete current;
+		if (reply == QMessageBox::Yes)
+		{
+			ask_Parent_Multilayer();
+		}
 	} else
 	// if aperiodic
 	if(data.item_Type == item_Type_Aperiodic)
 	{
 		QString aperiodic_Text = current->text(DEFAULT_COLUMN);
 		QMessageBox::StandardButton reply = QMessageBox::question(this,"Removal", "Really remove " + aperiodic_Text + "?", QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
-		if (reply == QMessageBox::Yes)	delete current;
+		if (reply == QMessageBox::Yes)
+		{
+			ask_Parent_Multilayer();
+		}
 	} else
 	if(data.item_Type == item_Type_Substrate)
 	{

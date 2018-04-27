@@ -983,6 +983,7 @@ void Item_Editor::refresh_Data()
 				sum+=struct_Data.interlayer_Composition[i].interlayer.value;
 			}
 		}
+		if(abs(sum)<DBL_EPSILON) sum = DBL_EPSILON;
 
 		if(struct_Data.common_Sigma)
 		{

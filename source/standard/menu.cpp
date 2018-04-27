@@ -735,7 +735,8 @@ void Menu::open_About()
 	QMessageBox about_Box;
 //	about_Box.setTextFormat(Qt::RichText);
 //	about_Box.setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::LinksAccessibleByMouse);
-	about_Box.information(this,  "About","Multifitting v.1.7.0\n\n"
+
+	about_Box.information(this,  "About","Multifitting v."+QString::number(VERSION_MAJOR)+"."+QString::number(VERSION_MINOR)+"."+QString::number(VERSION_BUILD)+"\n\n"
 								 "Mikhail Svechnikov\n"
 								 "svechnikovmv@gmail.com\n"
 								 "2018");
