@@ -520,56 +520,33 @@ void Structure_Toolbar::cut()
 	buffered = structure_Tree->tree->currentItem()->clone();
 	Data data = current->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
 
-	// if parent periodic multilayer has 2 childs
-	if(current->parent())
-	if(current->parent()->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>().item_Type == item_Type_Multilayer)
-	if(current->parent()->childCount()==2)
-	{
-		QString multilayer_Text = current->parent()->text(DEFAULT_COLUMN).split(", N")[0];
-		QMessageBox::StandardButton reply = QMessageBox::question(this,"Cut", multilayer_Text + " will be disbanded.\nContinue?", QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
-		if (reply == QMessageBox::Yes)
-		{
-			QTreeWidgetItem* parent = current->parent();
-			delete current;
+	QMessageBox::StandardButton reply = QMessageBox::No;
 
-			QTreeWidgetItem* survived_Child_Copy = new QTreeWidgetItem;
-			*survived_Child_Copy = *parent->child(0);
-
-			// if multilayer is already nested
-			if(parent->parent())
-			{
-				int parent_Position = parent->parent()->indexOfChild(parent);
-				parent->parent()->insertChild(parent_Position, survived_Child_Copy);
-				delete parent;
-			} else
-			{
-				int parent_Position = structure_Tree->tree->indexOfTopLevelItem(parent);
-				structure_Tree->tree->insertTopLevelItem(parent_Position, survived_Child_Copy);
-				delete parent;
-			}
-		}
-	}
 	// if layer
 	if(data.item_Type == item_Type_Layer)
 	{
-			QMessageBox::StandardButton reply = QMessageBox::question(this,"Removal", "Really cut layer " + QString::number(data.layer_Index) + "?", QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
-			// cppcheck-suppress doubleFree
-			if (reply == QMessageBox::Yes) delete current;
+		reply = QMessageBox::question(this,"Removal", "Really cut layer " + QString::number(data.layer_Index) + "?", QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
+
 	} else
 	// if multilayer
 	if(data.item_Type == item_Type_Multilayer)
 	{
 		QString multilayer_Text = current->text(DEFAULT_COLUMN).split(", N")[0];
-		QMessageBox::StandardButton reply = QMessageBox::question(this,"Removal", "Really cut " + multilayer_Text + "?", QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
-		if (reply == QMessageBox::Yes)	delete current;
+		reply = QMessageBox::question(this,"Removal", "Really cut " + multilayer_Text + "?", QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
 	} else
 	// if aperiodic
 	if(data.item_Type == item_Type_Aperiodic)
 	{
 		QString aperiodic_Text = current->text(DEFAULT_COLUMN);
-		QMessageBox::StandardButton reply = QMessageBox::question(this,"Removal", "Really cut " + aperiodic_Text + "?", QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
-		if (reply == QMessageBox::Yes)	delete current;
+		reply = QMessageBox::question(this,"Removal", "Really cut " + aperiodic_Text + "?", QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
 	}
+
+	// cppcheck-suppress doubleFree
+	if (reply == QMessageBox::Yes)
+	{
+		ask_Parent_Multilayer();
+	}
+
 	refresh_Toolbar();
 }
 
