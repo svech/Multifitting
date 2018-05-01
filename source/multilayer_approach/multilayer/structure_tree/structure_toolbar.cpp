@@ -544,7 +544,7 @@ void Structure_Toolbar::cut()
 	// cppcheck-suppress doubleFree
 	if (reply == QMessageBox::Yes)
 	{
-		ask_Parent_Multilayer();
+		ask_Parent_Multilayer(); // dfgdsfgdfgsfgsfg
 	}
 
 	refresh_Toolbar();
