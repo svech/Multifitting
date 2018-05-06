@@ -476,7 +476,7 @@ void Structure_Toolbar::remove()
 		// cppcheck-suppress doubleFree
 		if (reply == QMessageBox::Yes)
 		{
-			ask_Parent_Multilayer();
+			if(!ask_Parent_Multilayer()) delete current;
 		}
 	} else
 	// if multilayer
@@ -486,7 +486,7 @@ void Structure_Toolbar::remove()
 		QMessageBox::StandardButton reply = QMessageBox::question(this,"Removal", "Really remove " + multilayer_Text + "?", QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
 		if (reply == QMessageBox::Yes)
 		{
-			ask_Parent_Multilayer();
+			if(!ask_Parent_Multilayer()) delete current;
 		}
 	} else
 	// if aperiodic
@@ -496,7 +496,7 @@ void Structure_Toolbar::remove()
 		QMessageBox::StandardButton reply = QMessageBox::question(this,"Removal", "Really remove " + aperiodic_Text + "?", QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
 		if (reply == QMessageBox::Yes)
 		{
-			ask_Parent_Multilayer();
+			if(!ask_Parent_Multilayer()) delete current;
 		}
 	} else
 	if(data.item_Type == item_Type_Substrate)
@@ -544,7 +544,7 @@ void Structure_Toolbar::cut()
 	// cppcheck-suppress doubleFree
 	if (reply == QMessageBox::Yes)
 	{
-		ask_Parent_Multilayer(); // dfgdsfgdfgsfgsfg
+		if(!ask_Parent_Multilayer()) delete current;
 	}
 
 	refresh_Toolbar();

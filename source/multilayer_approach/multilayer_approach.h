@@ -39,7 +39,7 @@ public:
 	void start_Fitting();
 	void reload_Optical_Constants();
 	void open_Table_Of_Structures();
-	void open_Optical_Graphs();
+	void open_Optical_Graphs(QString keep_Splitter = "");
 	void open_Fits_Selector();
 	void open_Calculation_Settings();
 	void open_Fitting_Settings();
@@ -77,6 +77,9 @@ public:
 
 		QMap<QString, Optical_Graphs*> runned_Optical_Graphs;
 		Optical_Graphs* optical_Graphs;
+		QVector<QByteArray> target_Independent_Splitter_Position_Vec;
+		QVector<QByteArray> target_Splitter_Position_Vec;
+		QVector<QByteArray> independent_Splitter_Position_Vec;
 
 		QMap<QString, Fits_Selector*> runned_Fits_Selectors;
 		Fits_Selector* fits_Selector;

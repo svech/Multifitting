@@ -552,8 +552,8 @@ void Unwrapped_Reflection::fill_Specular_Values(const Data& measurement, int thr
 	r_s[point_Index] = complex<double>(r_Local_s_RE[thread_Index][0], r_Local_s_IM[thread_Index][0]);
 	r_p[point_Index] = complex<double>(r_Local_p_RE[thread_Index][0], r_Local_p_IM[thread_Index][0]);
 
-	Phi_s[point_Index] = arg(r_s[point_Index])*180./M_PI;
-	Phi_p[point_Index] = arg(r_p[point_Index])*180./M_PI;
+	Phi_s[point_Index] = -arg(r_s[point_Index])*180./M_PI;
+	Phi_p[point_Index] = -arg(r_p[point_Index])*180./M_PI;
 
 	R_s[point_Index] = pow(abs(r_s[point_Index]),2);
 	R_p[point_Index] = pow(abs(r_p[point_Index]),2);

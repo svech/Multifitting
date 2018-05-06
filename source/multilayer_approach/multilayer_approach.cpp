@@ -235,11 +235,11 @@ void Multilayer_Approach::open_Table_Of_Structures()
 	}
 }
 
-void Multilayer_Approach::open_Optical_Graphs()
-{
+void Multilayer_Approach::open_Optical_Graphs(QString keep_Splitter)
+{	
 	if(!runned_Optical_Graphs.contains(optical_Graphs_Key))
 	{
-		optical_Graphs = new Optical_Graphs;//(this);
+		optical_Graphs = new Optical_Graphs(keep_Splitter);//(this);
 		runned_Optical_Graphs.insert(optical_Graphs_Key, optical_Graphs);
 			optical_Graphs->setWindowFlags(Qt::Window);
 			optical_Graphs->show();
@@ -372,9 +372,9 @@ void Multilayer_Approach::open(QString filename)
 	in >> loaded_Version_Minor;
 	in >> loaded_Version_Build;
 
-	if((loaded_Version_Major <VERSION_MAJOR) ||
-	   (loaded_Version_Major==VERSION_MAJOR) && (loaded_Version_Minor <VERSION_MINOR) ||
-	   (loaded_Version_Major==VERSION_MAJOR) && (loaded_Version_Minor==VERSION_MINOR) && (loaded_Version_Build<VERSION_BUILD) )
+	if( (loaded_Version_Major <VERSION_MAJOR) ||
+	   ((loaded_Version_Major==VERSION_MAJOR) && (loaded_Version_Minor <VERSION_MINOR)) ||
+	   ((loaded_Version_Major==VERSION_MAJOR) && (loaded_Version_Minor==VERSION_MINOR) && (loaded_Version_Build<VERSION_BUILD)) )
 	{
 		QMessageBox::StandardButton reply = QMessageBox::warning(this,"Opening old file","Do you want to open file,\ncreated by v."
 							 + QString::number(loaded_Version_Major) + "."
@@ -385,9 +385,9 @@ void Multilayer_Approach::open(QString filename)
 							 + QString::number(VERSION_BUILD) + "?", QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
 		if (reply == QMessageBox::No) return;
 	}
-	if((loaded_Version_Major >VERSION_MAJOR) ||
-	   (loaded_Version_Major==VERSION_MAJOR) && (loaded_Version_Minor >VERSION_MINOR) ||
-	   (loaded_Version_Major==VERSION_MAJOR) && (loaded_Version_Minor==VERSION_MINOR) && (loaded_Version_Build>VERSION_BUILD) )
+	if( (loaded_Version_Major >VERSION_MAJOR) ||
+	   ((loaded_Version_Major==VERSION_MAJOR) && (loaded_Version_Minor >VERSION_MINOR)) ||
+	   ((loaded_Version_Major==VERSION_MAJOR) && (loaded_Version_Minor==VERSION_MINOR) && (loaded_Version_Build>VERSION_BUILD)) )
 	{
 		QMessageBox::warning(this,"Opening old file","File, created by newer version "
 							 + QString::number(loaded_Version_Major) + "."
@@ -410,6 +410,13 @@ void Multilayer_Approach::open(QString filename)
 	if(reopen_Calc_Settings)
 	{
 		runned_Calculation_Settings_Editor.value(calc_Settings_Key)->close();
+	}
+
+	// close graphs
+	bool reopen_Graphs = runned_Optical_Graphs.contains(optical_Graphs_Key);
+	if(reopen_Graphs)
+	{
+		runned_Optical_Graphs.value(optical_Graphs_Key)->close();
 	}
 
 	// close fitting settings
@@ -623,7 +630,7 @@ void Multilayer_Approach::open(QString filename)
 	// resizing
 	if(max_Num_Targets>=2 && height()<=multilayer_height)
 	{
-		resize(width(), multilayer_height + (max_Num_Targets-1)*multilayer_height_additive);
+		resize(width(), multilayer_height /*+ (max_Num_Targets-1)*multilayer_height_additive*/);
 	}
 
 	// reopen table of structures
@@ -636,6 +643,12 @@ void Multilayer_Approach::open(QString filename)
 	if(reopen_Calc_Settings)
 	{
 		open_Calculation_Settings();
+	}
+
+	// reopen table of structures
+	if(reopen_Graphs)
+	{
+		open_Optical_Graphs();
 	}
 
 	// reopen fitting settings

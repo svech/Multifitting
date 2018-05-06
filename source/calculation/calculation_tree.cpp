@@ -414,7 +414,7 @@ void Calculation_Tree::calculate_Unwrapped_Reflectivity(Calculated_Values& calcu
 //	auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
 
 	// make a copy for plotting
-	calculated_Values.R.fromStdVector(unwrapped_Reflection_Vec_Element->R_Instrumental);
+	calculated_Values.R=QVector<double>::fromStdVector(unwrapped_Reflection_Vec_Element->R_Instrumental);
 	if(abs(measurement.polarization.value-1)<DBL_EPSILON)	{ calculated_Values.Phi = QVector<double>::fromStdVector(unwrapped_Reflection_Vec_Element->Phi_s); } else
 	if(abs(measurement.polarization.value+1)<DBL_EPSILON)	{ calculated_Values.Phi = QVector<double>::fromStdVector(unwrapped_Reflection_Vec_Element->Phi_p);	} else
 															{ calculated_Values.Phi.clear(); }

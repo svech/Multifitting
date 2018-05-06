@@ -18,14 +18,15 @@ public:
 	void write_Window_Geometry();
 	void create_Menu();
 	void create_Tabs();
-	void lock_Mainwindow_Interface();
-	void unlock_Mainwindow_Interface();
+	static void lock_Mainwindow_Interface();
+	static void unlock_Mainwindow_Interface();
 	void add_Tabs();
 		void create_Tab_Content(QWidget* new_Widget, int tab_Index);
 			void load_Target_Parameters(int tab_Index);
 			void load_Independent_Parameters(int tab_Index);
 
 	void refresh_Independent_Calc_Properties(int tab_Index, int independent_Index, QGroupBox* box);
+	static void reopen_Optical_Graphs(QString keep_Splitter = "");
 
 	QTabWidget* multilayer_Tabs;
 

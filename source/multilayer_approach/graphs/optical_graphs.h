@@ -10,7 +10,7 @@ class Optical_Graphs : public QWidget
 {
 	Q_OBJECT
 public:
-	explicit Optical_Graphs(QWidget *parent = nullptr);
+	explicit Optical_Graphs(QString keep_Splitter = "", QWidget *parent = nullptr);
 
 	void closeEvent(QCloseEvent* event);
 	void create_Main_Layout();
@@ -19,12 +19,19 @@ public:
 	void create_Tab_Content(QWidget* new_Widget, int tab_Index);
 	void set_Window_Geometry();
 	void write_Window_Geometry();
+	void lock_Mainwindow_Interface();
+	void unlock_Mainwindow_Interface();
 
+	QString keep_Splitter;
 	QVBoxLayout* main_Layout;
 
 	QTabWidget* main_Tabs;
 		QVector<QGroupBox*> target_GroupBox_Vec;
 		QVector<QGroupBox*> independent_GroupBox_Vec;
+
+	QVector<QSplitter*> target_Independent_Splitter_Vec;
+	QVector<QSplitter*> target_Splitter_Vec;
+	QVector<QSplitter*> independent_Splitter_Vec;
 };
 
 #endif // OPTICAL_GRAPHS_H

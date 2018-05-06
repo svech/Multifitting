@@ -9,7 +9,7 @@
 
 #define VERSION_MAJOR 1
 #define VERSION_MINOR 7
-#define VERSION_BUILD 1
+#define VERSION_BUILD 2
 
 //#define EXPRTK
 
@@ -155,8 +155,15 @@ class Node;
 #define TARGET_LINE_EDIT_WIDTH 65			// for target_Curve_Editor
 #define INDEPENDENT_LINE_EDIT_WIDTH 50		// for independent_Variables_Editor
 
-#define WINDOW_BOUNDARY_SHIFT_X 8			// shift in window position
-#define WINDOW_BOUNDARY_SHIFT_Y 30			// shift in window position
+#ifdef _WIN32
+	#define WINDOW_BOUNDARY_SHIFT_X 8			// shift in window position
+	#define WINDOW_BOUNDARY_SHIFT_Y 30			// shift in window position
+#endif
+#ifdef __linux__
+	#define WINDOW_BOUNDARY_SHIFT_X 1			// shift in window position
+	#define WINDOW_BOUNDARY_SHIFT_Y 27			// shift in window position
+#endif
+
 
 // -----------------------------------------------------------------------------------------
 
@@ -260,6 +267,8 @@ class Node;
 // plot scales
 #define lin_Scale		"lin"
 #define log_Scale		"value"
+#define left			"left"
+#define right			"right"
 
 // insert items with or without changing IDs
 #define copy_Type_Copy	"copy"

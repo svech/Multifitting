@@ -109,11 +109,11 @@ void Calculation_Settings_Editor::create_Tabs()
 void Calculation_Settings_Editor::lock_Mainwindow_Interface()
 {
 	// lock part of mainwindow functionality
-	for(int i=0; i<multilayer_Tabs->count(); ++i)
+	for(int i=0; i<global_Multilayer_Approach->multilayer_Tabs->count(); ++i)
 	{
-		Multilayer* multilayer = qobject_cast<Multilayer*>(multilayer_Tabs->widget(i));
+		Multilayer* multilayer = qobject_cast<Multilayer*>(global_Multilayer_Approach->multilayer_Tabs->widget(i));
 //		multilayer->structure_Tree->structure_Toolbar->toolbar->setDisabled(true);
-		multilayer_Tabs->tabBar()->tabButton(i, QTabBar::RightSide)->setDisabled(true);
+		global_Multilayer_Approach->multilayer_Tabs->tabBar()->tabButton(i, QTabBar::RightSide)->setDisabled(true);
 
 		// independent tabs
 		for(int i=0; i<multilayer->independent_Variables_Plot_Tabs->count(); ++i)
@@ -138,43 +138,59 @@ void Calculation_Settings_Editor::lock_Mainwindow_Interface()
 		}
 
 	}
-	multilayer_Tabs->cornerWidget()->setDisabled(true);
-	multilayer_Tabs->setMovable(false);
+	global_Multilayer_Approach->multilayer_Tabs->cornerWidget()->setDisabled(true);
+	global_Multilayer_Approach->multilayer_Tabs->setMovable(false);
 }
 
 void Calculation_Settings_Editor::unlock_Mainwindow_Interface()
 {
 	// unlock mainwindow functionality
-	if(!global_Multilayer_Approach->runned_Tables_Of_Structures.contains(table_Key) && !global_Multilayer_Approach->runned_Calculation_Settings_Editor.contains(calc_Settings_Key))
-	{
-		multilayer_Tabs->setMovable(true);
-		multilayer_Tabs->cornerWidget()->setDisabled(false);
-	}
-	for(int i=0; i<multilayer_Tabs->count(); ++i)
-	{
-		Multilayer* multilayer = qobject_cast<Multilayer*>(multilayer_Tabs->widget(i));
 
-		if(!global_Multilayer_Approach->runned_Tables_Of_Structures.contains(table_Key) && !global_Multilayer_Approach->runned_Calculation_Settings_Editor.contains(calc_Settings_Key))
+	// moving and adding structure tabs
+	if( !global_Multilayer_Approach->runned_Tables_Of_Structures.contains(table_Key) &&
+		!global_Multilayer_Approach->runned_Calculation_Settings_Editor.contains(calc_Settings_Key) &&
+		!global_Multilayer_Approach->runned_Optical_Graphs.contains(optical_Graphs_Key))
+	{
+		global_Multilayer_Approach->multilayer_Tabs->setMovable(true);
+		global_Multilayer_Approach->multilayer_Tabs->cornerWidget()->setDisabled(false);
+	}
+
+	for(int i=0; i<global_Multilayer_Approach->multilayer_Tabs->count(); ++i)
+	{
+		Multilayer* multilayer = qobject_cast<Multilayer*>(global_Multilayer_Approach->multilayer_Tabs->widget(i));
+
+		// closing structure tabs
+		if( !global_Multilayer_Approach->runned_Tables_Of_Structures.contains(table_Key) &&
+			!global_Multilayer_Approach->runned_Calculation_Settings_Editor.contains(calc_Settings_Key)&&
+			!global_Multilayer_Approach->runned_Optical_Graphs.contains(optical_Graphs_Key))
 		{
 //			multilayer->structure_Tree->structure_Toolbar->toolbar->setDisabled(false);
-			multilayer_Tabs->tabBar()->tabButton(i, QTabBar::RightSide)->setEnabled(true);
+			global_Multilayer_Approach->multilayer_Tabs->tabBar()->tabButton(i, QTabBar::RightSide)->setEnabled(true);
 		}
 
 		// independent tabs
-		for(int i=0; i<multilayer->independent_Variables_Plot_Tabs->count(); ++i)
+		if( !global_Multilayer_Approach->runned_Calculation_Settings_Editor.contains(calc_Settings_Key)&&
+			!global_Multilayer_Approach->runned_Optical_Graphs.contains(optical_Graphs_Key))
 		{
-			Independent_Variables* independent_Variables = qobject_cast<Independent_Variables*>(multilayer->independent_Variables_Plot_Tabs->widget(i));
-			independent_Variables->independent_Variables_Toolbar->setDisabled(false);
+			for(int i=0; i<multilayer->independent_Variables_Plot_Tabs->count(); ++i)
+			{
+				Independent_Variables* independent_Variables = qobject_cast<Independent_Variables*>(multilayer->independent_Variables_Plot_Tabs->widget(i));
+				independent_Variables->independent_Variables_Toolbar->setDisabled(false);
 
-			multilayer->independent_Variables_Plot_Tabs->tabBar()->tabButton(i, QTabBar::RightSide)->setDisabled(false);
+				multilayer->independent_Variables_Plot_Tabs->tabBar()->tabButton(i, QTabBar::RightSide)->setDisabled(false);
+			}
+			multilayer->independent_Variables_Plot_Tabs->setMovable(true);
+			multilayer->independent_Variables_Corner_Button->setDisabled(false);
 		}
-		multilayer->independent_Variables_Plot_Tabs->setMovable(true);
-		multilayer->independent_Variables_Corner_Button->setDisabled(false);
 
 		// target buttons
-		for(QFrame* frame : multilayer->data_Target_Profile_Frame_Vector)
+		if( !global_Multilayer_Approach->runned_Calculation_Settings_Editor.contains(calc_Settings_Key)&&
+			!global_Multilayer_Approach->runned_Optical_Graphs.contains(optical_Graphs_Key))
 		{
-			frame->setDisabled(false);
+			for(QFrame* frame : multilayer->data_Target_Profile_Frame_Vector)
+			{
+				frame->setDisabled(false);
+			}
 		}
 	}
 }
@@ -238,7 +254,11 @@ void Calculation_Settings_Editor::load_Target_Parameters(int tab_Index)
 {
 	Multilayer* multilayer = qobject_cast<Multilayer*>(multilayer_Tabs->widget(tab_Index));
 	target_Group_Box_Vec[tab_Index]->setChecked(multilayer->enable_Calc_Target_Curves);
-	connect(target_Group_Box_Vec[tab_Index],  &QGroupBox::toggled, this, [=]{ multilayer->enable_Calc_Target_Curves = target_Group_Box_Vec[tab_Index]->isChecked(); });
+	connect(target_Group_Box_Vec[tab_Index],  &QGroupBox::toggled, this, [=]{
+		multilayer->enable_Calc_Target_Curves = target_Group_Box_Vec[tab_Index]->isChecked();
+		reopen_Optical_Graphs(TARGET);
+		activateWindow();
+	});
 
 	QHBoxLayout* multilayer_Box_Layout = new QHBoxLayout(target_Group_Box_Vec[tab_Index]);
 		multilayer_Box_Layout->setSpacing(20);
@@ -256,7 +276,11 @@ void Calculation_Settings_Editor::load_Target_Parameters(int tab_Index)
 			multilayer_Box_Layout->addWidget(box);
 
 			box->setChecked(multilayer->target_Profiles_Vector[target_Index]->fit_Params.calc);
-			connect(box,  &QGroupBox::toggled, this, [=]{ multilayer->target_Profiles_Vector[target_Index]->fit_Params.calc = box->isChecked(); });
+			connect(box,  &QGroupBox::toggled, this, [=]{
+				multilayer->target_Profiles_Vector[target_Index]->fit_Params.calc = qobject_cast<QGroupBox*>(sender())->isChecked();
+				reopen_Optical_Graphs(TARGET);
+				activateWindow();
+			});
 
 			QVBoxLayout* box_Layout = new QVBoxLayout(box);
 				box_Layout->setSpacing(5);
@@ -325,7 +349,11 @@ void Calculation_Settings_Editor::load_Independent_Parameters(int tab_Index)
 	Multilayer* multilayer = qobject_cast<Multilayer*>(multilayer_Tabs->widget(tab_Index));
 
 	independent_Group_Box_Vec[tab_Index]->setChecked(multilayer->enable_Calc_Independent_Curves);
-	connect(independent_Group_Box_Vec[tab_Index],  &QGroupBox::toggled, this, [=]{ multilayer->enable_Calc_Independent_Curves = independent_Group_Box_Vec[tab_Index]->isChecked(); });
+	connect(independent_Group_Box_Vec[tab_Index],  &QGroupBox::toggled, this, [=]{
+		multilayer->enable_Calc_Independent_Curves = independent_Group_Box_Vec[tab_Index]->isChecked();
+		reopen_Optical_Graphs(INDEPENDENT);
+		activateWindow();
+	});
 
 	QHBoxLayout* multilayer_Box_Layout = new QHBoxLayout(independent_Group_Box_Vec[tab_Index]);
 		multilayer_Box_Layout->setSpacing(20);
@@ -343,7 +371,11 @@ void Calculation_Settings_Editor::load_Independent_Parameters(int tab_Index)
 		multilayer_Box_Layout->addWidget(box);
 
 		box->setChecked(independent_Variables->calc_Functions.check_Enabled);
-		connect(box,  &QGroupBox::toggled, this, [=]{ refresh_Independent_Calc_Properties(tab_Index, independent_Index, box); });
+		connect(box,  &QGroupBox::toggled, this, [=]{
+			refresh_Independent_Calc_Properties(tab_Index, independent_Index, box);
+			reopen_Optical_Graphs(INDEPENDENT);
+			activateWindow();
+		});
 
 		QVBoxLayout* box_Layout = new QVBoxLayout(box);
 			box_Layout->setSpacing(5);
@@ -434,6 +466,9 @@ void Calculation_Settings_Editor::refresh_Independent_Calc_Properties(int tab_In
 		if(check_Box->text() == intensity_Function)		independent_Variables->calc_Functions.check_Field = check_Box->isChecked();
 		if(check_Box->text() == joule_Function)			independent_Variables->calc_Functions.check_Joule = check_Box->isChecked();
 		if(check_Box->text() == user_Function)			independent_Variables->calc_Functions.check_User = check_Box->isChecked();
+
+		reopen_Optical_Graphs();
+		activateWindow();
 	}
 
 	if(qobject_cast<QLineEdit*>(sender()))
@@ -452,5 +487,17 @@ void Calculation_Settings_Editor::refresh_Independent_Calc_Properties(int tab_In
 
 	multilayer->independent_Variables_Plot_Tabs->setTabText(independent_Index, independent_Variables->tab_Name + independent_Variables->enlarge_Tab_Name());
 	box->setTitle(multilayer->independent_Variables_Plot_Tabs->tabText(independent_Index));
+}
+
+void Calculation_Settings_Editor::reopen_Optical_Graphs(QString keep_Splitter)
+{
+	// refresh graphs (anyway)
+	if(global_Multilayer_Approach->runned_Optical_Graphs.contains(optical_Graphs_Key))
+	{
+		int active_Tab = global_Multilayer_Approach->optical_Graphs->main_Tabs->currentIndex();
+		global_Multilayer_Approach->optical_Graphs->close();
+		global_Multilayer_Approach->open_Optical_Graphs(keep_Splitter);
+		global_Multilayer_Approach->optical_Graphs->main_Tabs->setCurrentIndex(active_Tab);
+	}	
 }
 
