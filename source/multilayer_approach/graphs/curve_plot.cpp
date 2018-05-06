@@ -231,9 +231,6 @@ void Curve_Plot::plot_All_Data()
 	create_Plot_Frame_And_Scale();
 	custom_Plot->clearGraphs();
 
-	if(	argument_Type == whats_This_Angle )		{	argument = measurement->angle;	}
-	if(	argument_Type == whats_This_Wavelength ){	argument = measurement->lambda;	}
-
 	if(curve_Class == TARGET)
 	{
 		// experimental data
@@ -284,6 +281,24 @@ void Curve_Plot::plot_All_Data()
 			calc_Plot_Options.scatter_Size=5;
 			calc_Plot_Options.thickness=2;
 			plot_Data(argument, values, calc_Plot_Options, right);
+		}
+	}
+
+	if(curve_Class == INDEPENDENT)
+	{
+		if(	argument_Type == whats_This_Angle )		{	argument = measurement->angle;	}
+		if(	argument_Type == whats_This_Wavelength ){	argument = measurement->lambda;	}
+
+		if(	independent_Variables->calc_Functions.check_Reflectance) { values=calculated_Values->R; }
+
+		// calculated data
+		{
+			Plot_Options calc_Plot_Options = plot_Options;
+			calc_Plot_Options.color=QColor(0, 0, 255);
+			calc_Plot_Options.scatter_Shape = QCPScatterStyle::ssNone;
+			calc_Plot_Options.scatter_Size=5;
+			calc_Plot_Options.thickness=2;
+			plot_Data(argument, values, calc_Plot_Options, left);
 		}
 	}
 }

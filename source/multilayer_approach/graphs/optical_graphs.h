@@ -5,6 +5,7 @@
 #include "curve_plot.h"
 
 class Multilayer_Approach;
+class Curve_Plot;
 
 class Optical_Graphs : public QWidget
 {
@@ -32,6 +33,7 @@ public:
 	QVector<QSplitter*> target_Independent_Splitter_Vec;
 	QVector<QSplitter*> target_Splitter_Vec;
 	QVector<QSplitter*> independent_Splitter_Vec;
+	QVector<Curve_Plot*> plots;
 };
 
 #endif // OPTICAL_GRAPHS_H

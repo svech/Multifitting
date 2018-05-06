@@ -53,6 +53,16 @@ void Main_Calculation_Module::single_Calculation()
 		}
 	}
 	print_Calculated_To_File();
+
+	// replot graphs
+	if(global_Multilayer_Approach->runned_Optical_Graphs.contains(optical_Graphs_Key))
+	{
+		for(Curve_Plot* curve_Plot : global_Multilayer_Approach->optical_Graphs->plots)
+		{
+			curve_Plot->plot_All_Data();
+//			curve_Plot->custom_Plot->replot();
+		}
+	}
 }
 
 void Main_Calculation_Module::fitting()

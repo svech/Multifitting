@@ -115,6 +115,7 @@ void Optical_Graphs::create_Tab_Content(QWidget* new_Widget, int tab_Index)
 			{
 				Curve_Plot* new_Curve_Plot = new Curve_Plot(target_Curve, nullptr, TARGET, this);
 				target_Splitter->addWidget(new_Curve_Plot);
+				plots.append(new_Curve_Plot);
 			}
 		}
 		target_GroupBox_Vec.append(target_Group_Box);
@@ -147,6 +148,7 @@ void Optical_Graphs::create_Tab_Content(QWidget* new_Widget, int tab_Index)
 			{
 				Curve_Plot* new_Curve_Plot = new Curve_Plot(nullptr, independent_Variables, INDEPENDENT, this);
 				independent_Splitter->addWidget(new_Curve_Plot);
+				plots.append(new_Curve_Plot);
 			}
 		}
 		independent_GroupBox_Vec.append(independent_Group_Box);
