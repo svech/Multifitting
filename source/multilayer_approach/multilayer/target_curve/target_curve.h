@@ -26,7 +26,8 @@ public:
 	QString filepath;	// should be empty
 
 	bool loaded_And_Ready = false;
-	Plot_Options plot_Options;
+	Plot_Options plot_Options_Experimental;
+	Plot_Options plot_Options_Calculated;
 
 	QStringList lines_List;
 	QString arg_Units;

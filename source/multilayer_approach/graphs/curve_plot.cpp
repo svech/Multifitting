@@ -14,7 +14,8 @@ Curve_Plot::Curve_Plot(Target_Curve* target_Curve, Independent_Variables* indepe
 	{		
 		measurement = &target_Curve->measurement;
 		calculated_Values = &target_Curve->calculated_Values;
-		plot_Options = target_Curve->plot_Options;
+		plot_Options_First = &target_Curve->plot_Options_Experimental;
+		plot_Options_Second = &target_Curve->plot_Options_Calculated;
 		argument_Type = target_Curve->curve.argument_Type;
 	} else
 	{
@@ -28,7 +29,8 @@ Curve_Plot::Curve_Plot(Target_Curve* target_Curve, Independent_Variables* indepe
 	{
 		measurement = &independent_Variables->measurement;
 		calculated_Values = &independent_Variables->calculated_Values;
-		plot_Options = independent_Variables->plot_Options;
+		plot_Options_First = &independent_Variables->plot_Options;
+		plot_Options_Second = plot_Options_First;
 
 		// find whats_This of active item
 		for(int item_Index=0; item_Index<independent_Variables->independent_Variables_List->count(); ++item_Index)
@@ -78,7 +80,7 @@ void Curve_Plot::create_Plot_Frame_And_Scale()
 		custom_Plot->yAxis->grid()->setPen(pen);
 		custom_Plot->xAxis->grid()->setPen(pen);
 
-		if(plot_Options.scale == lin_Scale)
+		if(plot_Options_First->scale == lin_Scale)
 		{
 			QSharedPointer<QCPAxisTicker> linTicker(new QCPAxisTicker);
 
@@ -95,7 +97,7 @@ void Curve_Plot::create_Plot_Frame_And_Scale()
 			custom_Plot->yAxis2->setNumberPrecision(4);
 			custom_Plot->yAxis2->setRange(0, 1);
 		}
-		if(plot_Options.scale == log_Scale)
+		if(plot_Options_First->scale == log_Scale)
 		{
 			QSharedPointer<QCPAxisTickerLog> logTicker(new QCPAxisTickerLog);
 
@@ -164,12 +166,15 @@ void Curve_Plot::create_Options()
 		lin_RadioButton = new QRadioButton("Lin");
 		connect(lin_RadioButton, &QRadioButton::toggled, this, [=]
 		{
-			if(lin_RadioButton->isChecked()) { plot_Options.scale = lin_Scale; }
+			if(lin_RadioButton->isChecked())
+			{
+				plot_Options_First->scale = lin_Scale;
+				plot_Options_Second->scale = lin_Scale;
+			}
 			plot_All_Data();
-//			custom_Plot->replot();
 		});
 		connect(lin_RadioButton, &QRadioButton::clicked, lin_RadioButton, &QRadioButton::toggled);
-		if(plot_Options.scale == lin_Scale)
+		if(plot_Options_First->scale == lin_Scale)
 		{
 			lin_RadioButton->setChecked(true);
 			lin_RadioButton->toggled(true);
@@ -178,12 +183,15 @@ void Curve_Plot::create_Options()
 		log_RadioButton = new QRadioButton("Log");
 		connect(log_RadioButton, &QRadioButton::toggled, this, [=]
 		{
-			if(log_RadioButton->isChecked()) { plot_Options.scale = log_Scale; }
+			if(log_RadioButton->isChecked())
+			{
+				plot_Options_First->scale = log_Scale;
+				plot_Options_Second->scale = log_Scale;
+			}
 			plot_All_Data();
-//			custom_Plot->replot();
 		});
 		connect(log_RadioButton, &QRadioButton::clicked, log_RadioButton, &QRadioButton::toggled);
-		if(plot_Options.scale == log_Scale)
+		if(plot_Options_First->scale == log_Scale)
 		{
 			log_RadioButton->setChecked(true);
 			log_RadioButton->toggled(true);
@@ -197,7 +205,7 @@ void Curve_Plot::create_Options()
 		thickness_Label = new QLabel("  Thickness:");
 
 		thickness_Spin = new QDoubleSpinBox;
-		thickness_Spin->setValue(plot_Options.thickness);
+//		thickness_Spin->setValue(plot_Options_First->thickness);
 		thickness_Spin->setButtonSymbols(QAbstractSpinBox::NoButtons);
 		thickness_Spin->setAccelerated(true);
 		thickness_Spin->setRange(0, MAX_DOUBLE);
@@ -233,54 +241,41 @@ void Curve_Plot::plot_All_Data()
 
 	if(curve_Class == TARGET)
 	{
-		// experimental data
 		argument = target_Curve->curve.shifted_Argument;
 		values.resize(target_Curve->curve.shifted_Values.size());
-		for(int i=0; i<target_Curve->curve.shifted_Values.size(); ++i)		{
-			values[i] = target_Curve->curve.shifted_Values[i].val_1;
-		}
-		plot_Data(argument, values, plot_Options, left);
 
-		// phase
+		/// experimental data
+		// first value (R,T,A...)
+		{
+			for(int i=0; i<target_Curve->curve.shifted_Values.size(); ++i)		{
+				values[i] = target_Curve->curve.shifted_Values[i].val_1;
+			}
+			plot_Data(argument, values, *plot_Options_First, left);
+		}
+		// second value (phase)
 		if(target_Curve->curve.value_Mode == value_R_Mode[R_Phi])
 		{
 			for(int i=0; i<target_Curve->curve.shifted_Values.size(); ++i)	{
 				values[i] = target_Curve->curve.shifted_Values[i].val_2;
 			}
-			plot_Options_Second.color = plot_Options.color_Second;
-			plot_Options_Second.scatter_Shape = plot_Options.scatter_Shape_Second;
-			plot_Options_Second.scatter_Size = plot_Options.scatter_Size_Second;
-			plot_Options_Second.thickness = plot_Options.thickness_Second;
-
-			plot_Data(argument, values, plot_Options_Second, right);
+			plot_Data(argument, values, *plot_Options_First, right);
 		}
 
-		if(	target_Curve->curve.value_Mode == value_R_Mode[R] ||
-			target_Curve->curve.value_Mode == value_R_Mode[R_Phi] )	{	values=calculated_Values->R; }
-		if(	target_Curve->curve.value_Mode == value_T_Mode[T] )		{	values=calculated_Values->T; }
-		if(	target_Curve->curve.value_Mode == value_A_Mode[A] )		{	values=calculated_Values->A; }
-
-		// calculated data
+		/// calculated data
+		// first value (R,T,A...)
 		{
-			Plot_Options calc_Plot_Options = plot_Options;
-			calc_Plot_Options.color=QColor(0, 0, 255);
-			calc_Plot_Options.scatter_Shape = QCPScatterStyle::ssNone;
-			calc_Plot_Options.scatter_Size=5;
-			calc_Plot_Options.thickness=2;
-			plot_Data(argument, values, calc_Plot_Options, left);
-		}
+			if(	target_Curve->curve.value_Mode == value_R_Mode[R] ||
+				target_Curve->curve.value_Mode == value_R_Mode[R_Phi] )	{	values = calculated_Values->R; }
+//			if(	target_Curve->curve.value_Mode == value_T_Mode[T] )		{	values = calculated_Values->T; }
+//			if(	target_Curve->curve.value_Mode == value_A_Mode[A] )		{	values = calculated_Values->A; }
 
-		// calculated phase
+			plot_Data(argument, values, *plot_Options_Second, left);
+		}
+		// second value (phase)
 		if(target_Curve->curve.value_Mode == value_R_Mode[R_Phi])
 		{
-			values=calculated_Values->Phi;
-
-			Plot_Options calc_Plot_Options = plot_Options;
-			calc_Plot_Options.color=QColor(0, 255, 0);
-			calc_Plot_Options.scatter_Shape = QCPScatterStyle::ssNone;
-			calc_Plot_Options.scatter_Size=5;
-			calc_Plot_Options.thickness=2;
-			plot_Data(argument, values, calc_Plot_Options, right);
+			values = calculated_Values->Phi;
+			plot_Data(argument, values, *plot_Options_Second, right);
 		}
 	}
 
@@ -291,15 +286,12 @@ void Curve_Plot::plot_All_Data()
 
 		if(	independent_Variables->calc_Functions.check_Reflectance) { values=calculated_Values->R; }
 
-		// calculated data
+		/// calculated data
+		// first value (R,T,A...)
 		{
-			Plot_Options calc_Plot_Options = plot_Options;
-			calc_Plot_Options.color=QColor(0, 0, 255);
-			calc_Plot_Options.scatter_Shape = QCPScatterStyle::ssNone;
-			calc_Plot_Options.scatter_Size=5;
-			calc_Plot_Options.thickness=2;
-			plot_Data(argument, values, calc_Plot_Options, left);
+			plot_Data(argument, values, *plot_Options_First, left);
 		}
+		// no second value up to now
 	}
 }
 
@@ -356,14 +348,21 @@ void Curve_Plot::plot_Data(const QVector<double>& argument, const QVector<double
 		min_Value_Right = min(min_Value_Right, local_Min);
 	}
 
+	// styling
+	QCPScatterStyle scatter_Style;
+	if(left_Right==left)
 	{
-		custom_Plot->graph(graph_Index)->setPen(QPen(plot_Options.color, plot_Options.thickness));
-//		custom_Plot->graph(graph_Index)->setBrush(QBrush(plot_Options->color));
-		QCPScatterStyle scatter_Style;
+		custom_Plot->graph(graph_Index)->setPen(QPen(plot_Options.color, plot_Options.thickness));		
 		scatter_Style.setShape(QCPScatterStyle::ScatterShape(plot_Options.scatter_Shape));
 		scatter_Style.setSize(plot_Options.scatter_Size);
-		custom_Plot->graph(graph_Index)->setScatterStyle(scatter_Style);
 	}
+	if(left_Right==right)
+	{
+		custom_Plot->graph(graph_Index)->setPen(QPen(plot_Options.color_Second, plot_Options.thickness_Second));
+		scatter_Style.setShape(QCPScatterStyle::ScatterShape(plot_Options.scatter_Shape_Second));
+		scatter_Style.setSize(plot_Options.scatter_Size_Second);
+	}
+	custom_Plot->graph(graph_Index)->setScatterStyle(scatter_Style);
 
 	custom_Plot->graph(graph_Index)->data()->set(data_To_Plot);
 	if(left_Right==left)

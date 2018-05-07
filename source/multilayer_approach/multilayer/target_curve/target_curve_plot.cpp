@@ -24,7 +24,7 @@ void Target_Curve_Plot::create_Plot_Frame_And_Scale()
 		custom_Plot->yAxis->grid()->setPen(pen);
 		custom_Plot->xAxis->grid()->setPen(pen);
 
-		if(target_Curve->plot_Options.scale == log_Scale)
+		if(target_Curve->plot_Options_Experimental.scale == log_Scale)
 		{
 			custom_Plot->yAxis ->setScaleType(QCPAxis::stLogarithmic);
 
@@ -55,7 +55,7 @@ void Target_Curve_Plot::create_Plot_Frame_And_Scale()
 				custom_Plot->yAxis2->setRange(0, 1);
 			}
 		}
-		if(target_Curve->plot_Options.scale == lin_Scale)
+		if(target_Curve->plot_Options_Experimental.scale == lin_Scale)
 		{
 			custom_Plot->yAxis ->setScaleType(QCPAxis::stLinear);
 			custom_Plot->yAxis2->setScaleType(QCPAxis::stLinear);
@@ -117,8 +117,8 @@ void Target_Curve_Plot::plot_Data(bool fast)
 				data_To_Plot[i].key = target_Curve->curve.shifted_Argument[i];
 				data_To_Plot[i].value = target_Curve->curve.shifted_Values[i].val_1;
 
-				if(max<data_To_Plot[i].value && (target_Curve->plot_Options.scale == lin_Scale || data_To_Plot[i].value > DBL_MIN)) {max=data_To_Plot[i].value;}
-				if(min>data_To_Plot[i].value && (target_Curve->plot_Options.scale == lin_Scale || data_To_Plot[i].value > DBL_MIN)) {min=data_To_Plot[i].value;}
+				if(max<data_To_Plot[i].value && (target_Curve->plot_Options_Experimental.scale == lin_Scale || data_To_Plot[i].value > DBL_MIN)) {max=data_To_Plot[i].value;}
+				if(min>data_To_Plot[i].value && (target_Curve->plot_Options_Experimental.scale == lin_Scale || data_To_Plot[i].value > DBL_MIN)) {min=data_To_Plot[i].value;}
 			}
 
 			if(!fast)
@@ -128,11 +128,11 @@ void Target_Curve_Plot::plot_Data(bool fast)
 					custom_Plot->clearGraphs();
 					custom_Plot->addGraph();
 				}
-				custom_Plot->graph(0)->setPen(QPen(target_Curve->plot_Options.color,target_Curve->plot_Options.thickness));
+				custom_Plot->graph(0)->setPen(QPen(target_Curve->plot_Options_Experimental.color,target_Curve->plot_Options_Experimental.thickness));
 //				custom_Plot->graph(0)->setBrush(QBrush(target_Curve->plot_Options.color));
 				QCPScatterStyle scatter_Style;
-				scatter_Style.setShape(QCPScatterStyle::ScatterShape(target_Curve->plot_Options.scatter_Shape));
-				scatter_Style.setSize(target_Curve->plot_Options.scatter_Size);
+				scatter_Style.setShape(QCPScatterStyle::ScatterShape(target_Curve->plot_Options_Experimental.scatter_Shape));
+				scatter_Style.setSize(target_Curve->plot_Options_Experimental.scatter_Size);
 				custom_Plot->graph(0)->setScatterStyle(scatter_Style);
 			}
 
@@ -163,11 +163,11 @@ void Target_Curve_Plot::plot_Data(bool fast)
 				{
 					custom_Plot->addGraph(custom_Plot->xAxis2, custom_Plot->yAxis2);
 				}
-				custom_Plot->graph(1)->setPen(QPen(target_Curve->plot_Options.color_Second,target_Curve->plot_Options.thickness_Second));
+				custom_Plot->graph(1)->setPen(QPen(target_Curve->plot_Options_Experimental.color_Second,target_Curve->plot_Options_Experimental.thickness_Second));
 //				custom_Plot->graph(1)->setBrush(QBrush(target_Curve->plot_Options.colorsdfd));
 				QCPScatterStyle scatter_Style_Second;
-				scatter_Style_Second.setShape(QCPScatterStyle::ScatterShape(target_Curve->plot_Options.scatter_Shape_Second));
-				scatter_Style_Second.setSize(target_Curve->plot_Options.scatter_Size_Second);
+				scatter_Style_Second.setShape(QCPScatterStyle::ScatterShape(target_Curve->plot_Options_Experimental.scatter_Shape_Second));
+				scatter_Style_Second.setSize(target_Curve->plot_Options_Experimental.scatter_Size_Second);
 				custom_Plot->graph(1)->setScatterStyle(scatter_Style_Second);
 			}
 
@@ -238,10 +238,10 @@ void Target_Curve_Plot::refresh_Labels()
 		if(show_Second_Label)
 		{
 			custom_Plot->yAxis2->setLabel(val_Mode_Label_2);
-			custom_Plot->yAxis2->setLabelColor(target_Curve->plot_Options.color_Second);
-			custom_Plot->yAxis2->setTickLabelColor(target_Curve->plot_Options.color_Second);
-			custom_Plot->yAxis->setLabelColor(target_Curve->plot_Options.color);
-			custom_Plot->yAxis->setTickLabelColor(target_Curve->plot_Options.color);
+			custom_Plot->yAxis2->setLabelColor(target_Curve->plot_Options_Experimental.color_Second);
+			custom_Plot->yAxis2->setTickLabelColor(target_Curve->plot_Options_Experimental.color_Second);
+			custom_Plot->yAxis->setLabelColor(target_Curve->plot_Options_Experimental.color);
+			custom_Plot->yAxis->setTickLabelColor(target_Curve->plot_Options_Experimental.color);
 		}
 		else
 		{

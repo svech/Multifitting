@@ -29,8 +29,8 @@ public:
 	// common fields
 	Data* measurement;
 	Calculated_Values* calculated_Values;
-	Plot_Options plot_Options;
-	Plot_Options plot_Options_Second;
+	Plot_Options* plot_Options_First;
+	Plot_Options* plot_Options_Second;
 
 	QVBoxLayout* main_Layout;
 		QCustomPlot* custom_Plot;

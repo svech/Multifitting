@@ -11,6 +11,17 @@ Independent_Variables::Independent_Variables(QTreeWidget* real_Struct_Tree, QWid
 	create_Struct_Tree_Copy();
 	create_Main_Layout();
 	independent_Variables_List_Map = new QMap<id_Type, QListWidgetItem*>;
+
+	{
+		plot_Options.color=QColor(0, 0, 255);
+		plot_Options.scatter_Shape = QCPScatterStyle::ssNone;
+		plot_Options.scatter_Size=5;
+		plot_Options.thickness=2;
+
+		plot_Options.scatter_Shape_Second = QCPScatterStyle::ssNone;
+		plot_Options.scatter_Size_Second=5;
+		plot_Options.thickness_Second=2;
+	}
 }
 
 Independent_Variables::~Independent_Variables()

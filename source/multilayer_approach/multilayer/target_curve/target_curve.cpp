@@ -17,6 +17,18 @@ Target_Curve::Target_Curve(QLabel* description_Label, QTreeWidget* real_Struct_T
 
 	curve.arg_Offset = 0; curve.arg_Factor = 1;
 	curve.val_Offset = 0; curve.val_Factor = 1;
+
+	{
+		plot_Options_Calculated.color=QColor(0, 0, 255);
+		plot_Options_Calculated.scatter_Shape = QCPScatterStyle::ssNone;
+		plot_Options_Calculated.scatter_Size=5;
+		plot_Options_Calculated.thickness=2;
+
+		plot_Options_Calculated.color_Second=QColor(0, 255, 0);
+		plot_Options_Calculated.scatter_Shape_Second = QCPScatterStyle::ssNone;
+		plot_Options_Calculated.scatter_Size_Second=5;
+		plot_Options_Calculated.thickness_Second=2;
+	}
 }
 
 Target_Curve::~Target_Curve()
@@ -170,15 +182,23 @@ void Target_Curve::set_Text_To_Label()
 QDataStream& operator <<( QDataStream& stream, const Target_Curve* target_Curve )
 {
 	return stream	<< target_Curve->curve << target_Curve->fit_Params << target_Curve->measurement << target_Curve->filename
-					<< target_Curve->filepath << target_Curve->loaded_And_Ready << target_Curve->plot_Options << target_Curve->calculated_Values
+					<< target_Curve->filepath << target_Curve->loaded_And_Ready	<< target_Curve->plot_Options_Experimental
+					<< target_Curve->plot_Options_Calculated		// since 1.7.4
+					<< target_Curve->calculated_Values
 
 					<< target_Curve->lines_List << target_Curve->arg_Units << target_Curve->at_Fixed << target_Curve->arg_Type_For_Label << target_Curve->ang_Type_For_Label_At_Fixed << target_Curve->label_Text
 	;
 }
 QDataStream& operator >>(QDataStream& stream,		 Target_Curve* target_Curve )
 {
-	return stream	>> target_Curve->curve >> target_Curve->fit_Params >> target_Curve->measurement >> target_Curve->filename
-					>> target_Curve->filepath >> target_Curve->loaded_And_Ready >> target_Curve->plot_Options >> target_Curve->calculated_Values
-					>> target_Curve->lines_List >> target_Curve->arg_Units >> target_Curve->at_Fixed >> target_Curve->arg_Type_For_Label >> target_Curve->ang_Type_For_Label_At_Fixed >> target_Curve->label_Text
-	;
+	stream	>> target_Curve->curve >> target_Curve->fit_Params >> target_Curve->measurement >> target_Curve->filename
+			>> target_Curve->filepath >> target_Curve->loaded_And_Ready	>> target_Curve->plot_Options_Experimental;
+
+	if(loaded_Version_Major>=1 &&
+	   loaded_Version_Minor>=7 &&
+	   loaded_Version_Build>=4)	{stream >> target_Curve->plot_Options_Calculated ; }	// since 1.7.4
+
+	stream  >> target_Curve->calculated_Values
+			>> target_Curve->lines_List >> target_Curve->arg_Units >> target_Curve->at_Fixed >> target_Curve->arg_Type_For_Label >> target_Curve->ang_Type_For_Label_At_Fixed >> target_Curve->label_Text;
+	return stream;
 }

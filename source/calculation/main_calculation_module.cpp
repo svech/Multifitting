@@ -60,7 +60,6 @@ void Main_Calculation_Module::single_Calculation()
 		for(Curve_Plot* curve_Plot : global_Multilayer_Approach->optical_Graphs->plots)
 		{
 			curve_Plot->plot_All_Data();
-//			curve_Plot->custom_Plot->replot();
 		}
 	}
 }

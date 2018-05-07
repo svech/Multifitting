@@ -67,9 +67,11 @@ void Independent_Calc_Function_Selection::create_Main_Layout()
 			transmit_Functions = new QCheckBox(transmittance_Function, this);
 				standard_Functions_Layout->addWidget(transmit_Functions);
 				transmit_Functions->setChecked(independent_Variables->calc_Functions.check_Transmittance);
+/* TODO */		transmit_Functions->setDisabled(true);
 			absorp_Functions = new QCheckBox(absorptance_Function, this);
 				standard_Functions_Layout->addWidget(absorp_Functions);
 				absorp_Functions->setChecked(independent_Variables->calc_Functions.check_Absorptance);
+/* TODO */		absorp_Functions->setDisabled(true);
 
 		connect(reflect_Functions,  &QCheckBox::toggled, this, &Independent_Calc_Function_Selection::refresh_calc_Functions);
 		connect(transmit_Functions, &QCheckBox::toggled, this, &Independent_Calc_Function_Selection::refresh_calc_Functions);
@@ -88,9 +90,11 @@ void Independent_Calc_Function_Selection::create_Main_Layout()
 			field_Intensity = new QCheckBox(intensity_Function, this);
 				field_Functions_Layout->addWidget(field_Intensity);
 				field_Intensity->setChecked(independent_Variables->calc_Functions.check_Field);
+/* TODO */		field_Intensity->setDisabled(true);
 			joule_Absorption= new QCheckBox(joule_Function, this);
 				field_Functions_Layout->addWidget(joule_Absorption);
 				joule_Absorption->setChecked(independent_Variables->calc_Functions.check_Joule);
+/* TODO */		joule_Absorption->setDisabled(true);
 
 		connect(field_Intensity,  &QCheckBox::toggled, this, &Independent_Calc_Function_Selection::refresh_calc_Functions);
 		connect(joule_Absorption, &QCheckBox::toggled, this, &Independent_Calc_Function_Selection::refresh_calc_Functions);
@@ -108,6 +112,7 @@ void Independent_Calc_Function_Selection::create_Main_Layout()
 			user_Supplied_Functions_Check = new QCheckBox(this);
 				user_Functions_Layout->addWidget(user_Supplied_Functions_Check);
 				user_Supplied_Functions_Check->setChecked(independent_Variables->calc_Functions.check_User);
+/* TODO */		user_Supplied_Functions_Check->setDisabled(true);
 			user_Supplied_Functions = new QLineEdit(this);
 				user_Functions_Layout->addWidget(user_Supplied_Functions);
 				user_Supplied_Functions->setText(independent_Variables->calc_Functions.user_Functions);
