@@ -8,7 +8,7 @@ class Independent_Variables_Editor : public QDialog
 	Q_OBJECT
 	Q_INVOKABLE void adjustSize() { QWidget::adjustSize(); }
 public:
-	explicit Independent_Variables_Editor(QTreeWidgetItem* structure_Item, QListWidgetItem* list_Item, QListWidget* variables_List, QWidget *parent = 0);
+	explicit Independent_Variables_Editor(QTreeWidgetItem* structure_Item, QListWidgetItem* list_Item, QListWidget* variables_List, QString& argument_Type, QWidget *parent = 0);
 	~Independent_Variables_Editor();
 
 signals:
@@ -42,6 +42,7 @@ public:
 	QListWidget* variables_List;
 	Independent_Indicator indicator;
 	Data struct_Data;
+	QString& argument_Type;
 
 	bool show_Data = true;
 	QString units = "";

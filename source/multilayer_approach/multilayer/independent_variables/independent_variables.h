@@ -50,6 +50,7 @@ public:
 	QTreeWidget* struct_Tree_Copy;										// modified copy of real tree to be plotted
 	QTreeWidget* real_Struct_Tree;										// real tree itself
 
+	QString argument_Type;
 	QListWidget* independent_Variables_List;
 	QToolBar* independent_Variables_Toolbar;
 };

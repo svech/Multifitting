@@ -15,11 +15,11 @@ Independent_Variables::Independent_Variables(QTreeWidget* real_Struct_Tree, QWid
 	{
 		plot_Options.color=QColor(0, 0, 255);
 		plot_Options.scatter_Shape = QCPScatterStyle::ssNone;
-		plot_Options.scatter_Size=5;
+		plot_Options.scatter_Size=0;
 		plot_Options.thickness=2;
 
 		plot_Options.scatter_Shape_Second = QCPScatterStyle::ssNone;
-		plot_Options.scatter_Size_Second=5;
+		plot_Options.scatter_Size_Second=0;
 		plot_Options.thickness_Second=2;
 	}
 }
@@ -89,7 +89,7 @@ void Independent_Variables::create_Independent_Variables_List()
 		independent_Variables_List->addItem(angle_List_Item);
 
 		// refresh text
-		Independent_Variables_Editor* editor = new Independent_Variables_Editor(measurement_Item, angle_List_Item, independent_Variables_List);
+		Independent_Variables_Editor* editor = new Independent_Variables_Editor(measurement_Item, angle_List_Item, independent_Variables_List, argument_Type);
 			editor->close();
 	}
 
@@ -110,7 +110,7 @@ void Independent_Variables::create_Independent_Variables_List()
 		independent_Variables_List->addItem(wavelength_List_Item);
 
 		// refresh text
-		Independent_Variables_Editor* editor = new Independent_Variables_Editor(measurement_Item, wavelength_List_Item, independent_Variables_List);
+		Independent_Variables_Editor* editor = new Independent_Variables_Editor(measurement_Item, wavelength_List_Item, independent_Variables_List, argument_Type);
 			editor->close();
 	}
 	connect(independent_Variables_List, &QListWidget::itemDoubleClicked, this, &Independent_Variables::edit_Independent_Variable);
@@ -179,7 +179,7 @@ void Independent_Variables::edit_Independent_Variable(QListWidgetItem* list_Item
 	} else
 	{
 		// editing itself
-		Independent_Variables_Editor* editor = new Independent_Variables_Editor(structure_Item, list_Item, independent_Variables_List);
+		Independent_Variables_Editor* editor = new Independent_Variables_Editor(structure_Item, list_Item, independent_Variables_List, argument_Type);
 			editor->setParent(this);
 			editor->setModal(true);
 			editor->setWindowFlags(Qt::Window);
@@ -512,7 +512,7 @@ void Independent_Variables::refresh_Text()
 			++it;
 		}
 
-		Independent_Variables_Editor* editor = new Independent_Variables_Editor(struct_Tree_Copy_item, temp_List_Item, independent_Variables_List);
+		Independent_Variables_Editor* editor = new Independent_Variables_Editor(struct_Tree_Copy_item, temp_List_Item, independent_Variables_List, argument_Type);
 			editor->close();
 		delete editor;
 	}
@@ -540,10 +540,18 @@ QString Independent_Variables::enlarge_Tab_Name()
 QDataStream& operator <<( QDataStream& stream, const Independent_Variables* independent_Variables )
 {
 	return stream	<< independent_Variables->measurement << independent_Variables->calc_Functions << independent_Variables->calculated_Values
-					<< independent_Variables->tab_Name << independent_Variables->plot_Options;
+					<< independent_Variables->tab_Name << independent_Variables->plot_Options
+					<< independent_Variables->argument_Type;		// since 1.7.5
+
 }
 QDataStream& operator >>(QDataStream& stream,		 Independent_Variables* independent_Variables )
 {
-	return stream	>> independent_Variables->measurement >> independent_Variables->calc_Functions >> independent_Variables->calculated_Values
-					>> independent_Variables->tab_Name >> independent_Variables->plot_Options;
+	 stream	>> independent_Variables->measurement >> independent_Variables->calc_Functions >> independent_Variables->calculated_Values
+			>> independent_Variables->tab_Name >> independent_Variables->plot_Options;
+
+	if(loaded_Version_Major>=1 &&
+	   loaded_Version_Minor>=7 &&
+	   loaded_Version_Build>=5)	{stream >> independent_Variables->argument_Type ; }	// since 1.7.5
+
+	 return stream;
 }

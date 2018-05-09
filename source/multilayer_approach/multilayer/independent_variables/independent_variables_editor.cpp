@@ -4,12 +4,13 @@
 #include "multilayer_approach/multilayer/independent_variables/variable_selection.h"
 #include "multilayer_approach/multilayer_approach.h"
 
-Independent_Variables_Editor::Independent_Variables_Editor(QTreeWidgetItem* structure_Item, QListWidgetItem* list_Item, QListWidget* variables_List, QWidget *parent) :
+Independent_Variables_Editor::Independent_Variables_Editor(QTreeWidgetItem* structure_Item, QListWidgetItem* list_Item, QListWidget* variables_List, QString& argument_Type, QWidget *parent) :
 	structure_Item(structure_Item),
 	list_Item(list_Item),
 	variables_List(variables_List),
 	indicator(list_Item->data(Qt::UserRole).value<Independent_Indicator>()),
 	struct_Data(structure_Item->data(DEFAULT_COLUMN,Qt::UserRole).value<Data>()),
+	argument_Type(argument_Type),
 	QDialog(parent)
 {
 	create_Main_Layout();
@@ -897,6 +898,10 @@ void Independent_Variables_Editor::activate_Variable()
 	list_Item->setData(Qt::UserRole, var);
 	list_Item->setText(list_Item->text() + active);
 	active_Check_Box->setDisabled(active_Check_Box->isChecked());
+
+	// for further use
+	Independent_Indicator item_Indicator = list_Item->data(Qt::UserRole).value<Independent_Indicator>();
+	argument_Type = item_Indicator.parameter_Whats_This;
 }
 
 void Independent_Variables_Editor::show_Active_Check_Box()

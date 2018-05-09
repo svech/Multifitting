@@ -624,7 +624,8 @@ void Variable_Selection::add_Variable_Item(QListWidgetItem* new_Item)
 	var.setValue(struct_Data);
 	structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
 
-	Independent_Variables_Editor* editor = new Independent_Variables_Editor(structure_Item, new_Item, variables_List);
+	QString temp_Argument_Type;
+	Independent_Variables_Editor* editor = new Independent_Variables_Editor(structure_Item, new_Item, variables_List, temp_Argument_Type);
 		editor->close();
 }
 

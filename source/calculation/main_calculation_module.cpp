@@ -29,7 +29,7 @@ Main_Calculation_Module::~Main_Calculation_Module()
 //	}
 }
 
-void Main_Calculation_Module::single_Calculation()
+void Main_Calculation_Module::single_Calculation(bool print)
 {
 	if(calc_Mode!=CALCULATION)
 	{
@@ -52,7 +52,7 @@ void Main_Calculation_Module::single_Calculation()
 			if(lambda_Out_Of_Range) return;
 		}
 	}
-	print_Calculated_To_File();
+	if(print) print_Calculated_To_File();
 
 	// replot graphs
 	if(global_Multilayer_Approach->runned_Optical_Graphs.contains(optical_Graphs_Key))

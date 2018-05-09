@@ -189,16 +189,30 @@ void Fits_Selector::open_Fit()
 				opened = true;
 			}
 		}
+
+		// refresh struct_Tree_Copy
+		for(int independent_Index=0; independent_Index<multilayer->independent_Variables_Plot_Tabs->tabBar()->count(); independent_Index++)
+		{
+			Independent_Variables* independent = qobject_cast<Independent_Variables*>(multilayer->independent_Variables_Plot_Tabs->widget(independent_Index));
+			independent->reset_Independent_Variables_Structure();
+		}
 	}
 
 	// refresh table
 	if(opened)
 	if(global_Multilayer_Approach->runned_Tables_Of_Structures.contains(table_Key))
 	{
+
 		int active_Tab = global_Multilayer_Approach->table_Of_Structures->main_Tabs->currentIndex();
 		global_Multilayer_Approach->table_Of_Structures->close();
 		global_Multilayer_Approach->open_Table_Of_Structures();
 		global_Multilayer_Approach->table_Of_Structures->main_Tabs->setCurrentIndex(active_Tab);
+	}
+
+	// recalculate and replot
+	if(opened)
+	{
+		global_Multilayer_Approach->calc_Reflection();
 	}
 
 	// refresh view
