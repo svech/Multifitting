@@ -325,7 +325,7 @@ void Multilayer_Approach::dropEvent(QDropEvent* event)
 		if(counter==0)
 		{
 			QFileInfo filename = url.toLocalFile();
-			QMessageBox::StandardButton reply = QMessageBox::question(nullptr,"Open", "Open file " + filename.fileName() + " ?", QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
+			QMessageBox::StandardButton reply = QMessageBox::question(this,"Open", "Open file " + filename.fileName() + " ?", QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
 			if (reply == QMessageBox::Yes)
 			{
 				open(filename.absoluteFilePath());

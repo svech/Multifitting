@@ -93,14 +93,14 @@ void Curve_Plot::create_Plot_Frame_And_Scale()
 			custom_Plot->yAxis->setTicker(linTicker);
 			custom_Plot->yAxis->setNumberFormat("g");
 			custom_Plot->yAxis->setNumberPrecision(4);
-			custom_Plot->xAxis->setRange(0, 9);
-			custom_Plot->yAxis->setRange(0, 1);
+//			custom_Plot->xAxis->setRange(0, 9);
+//			custom_Plot->yAxis->setRange(0, 1);
 
 			custom_Plot->yAxis2->setScaleType(QCPAxis::stLinear);
 			custom_Plot->yAxis2->setTicker(linTicker);
 			custom_Plot->yAxis2->setNumberFormat("g");
 			custom_Plot->yAxis2->setNumberPrecision(4);
-			custom_Plot->yAxis2->setRange(0, 1);
+//			custom_Plot->yAxis2->setRange(0, 1);
 		}
 		if(plot_Options_First->scale == log_Scale)
 		{
@@ -110,8 +110,8 @@ void Curve_Plot::create_Plot_Frame_And_Scale()
 			custom_Plot->yAxis->setTicker(logTicker);
 			custom_Plot->yAxis->setNumberFormat("eb"); // e = exponential, b = beautiful decimal powers
 			custom_Plot->yAxis->setNumberPrecision(0); // makes sure "1*10^4" is displayed only as "10^4"
-			custom_Plot->xAxis->setRange(0, 9);
-			custom_Plot->yAxis->setRange(1e-5, 1e0);
+//			custom_Plot->xAxis->setRange(0, 9);
+//			custom_Plot->yAxis->setRange(1e-5, 1e0);
 
 //			if(	target_Curve->curve.value_Mode == value_R_Mode[R] ||
 //				target_Curve->curve.value_Mode == value_T_Mode[T] ||
@@ -121,7 +121,7 @@ void Curve_Plot::create_Plot_Frame_And_Scale()
 				custom_Plot->yAxis2->setTicker(logTicker);
 				custom_Plot->yAxis2->setNumberFormat("eb"); // e = exponential, b = beautiful decimal powers
 				custom_Plot->yAxis2->setNumberPrecision(0); // makes sure "1*10^4" is displayed only as "10^4"
-				custom_Plot->yAxis2->setRange(1e-5, 1e0);
+//				custom_Plot->yAxis2->setRange(1e-5, 1e0);
 			}
 //			if(	target_Curve->curve.value_Mode == value_R_Mode[R_Phi] )
 //			{
@@ -200,7 +200,6 @@ void Curve_Plot::create_Options()
 			log_RadioButton->setChecked(true);
 		}
 	}
-	// color button
 	{
 		colors_Button = new QPushButton;
 		colors_Button->setFixedWidth(23);
@@ -239,6 +238,11 @@ void Curve_Plot::create_Options()
 		thickness_Spin->setFixedWidth(35);
 		connect(thickness_Spin, static_cast<void(QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, &Curve_Plot::change_Thickness);
 	}
+	{
+		rescale_Check_Box = new QCheckBox("Rescale");
+		rescale_Check_Box->setChecked(plot_Options_First->rescale);
+		connect(rescale_Check_Box, &QCheckBox::toggled, this, [=]{ plot_Options_First->rescale=rescale_Check_Box->isChecked(); });
+	}
 
 	// layout
 	{
@@ -258,6 +262,8 @@ void Curve_Plot::create_Options()
 
 		options_Layout->addWidget(thickness_Label);
 		options_Layout->addWidget(thickness_Spin);
+
+		options_Layout->addWidget(rescale_Check_Box);
 	}
 
 	options_GroupBox->adjustSize();
@@ -267,9 +273,8 @@ void Curve_Plot::create_Options()
 void Curve_Plot::plot_All_Data()
 {
 	create_Plot_Frame_And_Scale();
-	refresh_Labels();
 	custom_Plot->clearGraphs();
-
+	refresh_Labels();
 
 	if(curve_Class == TARGET)
 	{
@@ -279,7 +284,7 @@ void Curve_Plot::plot_All_Data()
 		/// experimental data
 		// first value (R,T,A...)
 		{
-			for(int i=0; i<target_Curve->curve.shifted_Values.size(); ++i)		{
+			for(int i=0; i<target_Curve->curve.shifted_Values.size(); ++i)	{
 				values[i] = target_Curve->curve.shifted_Values[i].val_1;
 			}
 			plot_Data(argument, values, plot_Options_First, left);
@@ -363,7 +368,6 @@ void Curve_Plot::plot_Data(const QVector<double>& argument, const QVector<double
 
 	for (int i=0; i<argument.size(); ++i)
 	{
-
 		data_To_Plot[i].key = argument[i];
 		data_To_Plot[i].value = values[i];
 
@@ -378,6 +382,7 @@ void Curve_Plot::plot_Data(const QVector<double>& argument, const QVector<double
 			if(local_Min>data_To_Plot[i].value) local_Min=data_To_Plot[i].value;
 		}
 	}
+	custom_Plot->graph(graph_Index)->data()->set(data_To_Plot);
 
 	if(left_Right==left)
 	{
@@ -420,13 +425,14 @@ void Curve_Plot::plot_Data(const QVector<double>& argument, const QVector<double
 					custom_Plot->graph(graph_Index)->pen().color(),
 				max(custom_Plot->graph(graph_Index)->pen().widthF()*2,3.)));
 
-	custom_Plot->graph(graph_Index)->data()->set(data_To_Plot);
-
 	if(left_Right==left)
 	{
-		custom_Plot->xAxis->setRange(argument.first(), argument.last());
-		custom_Plot->yAxis->setRange(min_Value_Left,max_Value_Left);
 		custom_Plot->yAxis2->setLabel("");
+		if(plot_Options_First->rescale)
+		{
+			custom_Plot->yAxis->setRange(min_Value_Left,max_Value_Left);
+			custom_Plot->xAxis->setRange(argument.first(), argument.last());
+		}
 	}
 	if(left_Right==right)
 	{
@@ -438,12 +444,22 @@ void Curve_Plot::plot_Data(const QVector<double>& argument, const QVector<double
 
 		disconnect(custom_Plot->yAxis, SIGNAL(rangeChanged(QCPRange)), custom_Plot->yAxis2, SLOT(setRange(QCPRange)));
 
-		custom_Plot->xAxis2->setRange(argument.first(), argument.last());
-		custom_Plot->yAxis2->setRange(min_Value_Right, max_Value_Right);
 		custom_Plot->yAxis2->setLabel(val_Mode_Label_2);
+
+		if(plot_Options_First->rescale)
+		{
+			custom_Plot->xAxis2->setRange(argument.first(), argument.last());
+			custom_Plot->yAxis2->setRange(min_Value_Right, max_Value_Right);
+		}
 	}
 
 	custom_Plot->replot();
+
+	// reset
+	min_Value_Left = DBL_MAX;
+	max_Value_Left = -DBL_MAX;
+	min_Value_Right = DBL_MAX;
+	max_Value_Right = -DBL_MAX;
 }
 
 void Curve_Plot::refresh_Labels()

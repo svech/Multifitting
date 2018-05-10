@@ -235,6 +235,8 @@ void Multilayer::add_Target_Curve(int index_Pressed, bool opening)
 	QFrame* new_Frame = new QFrame;
 	Target_Curve* new_Target_Curve = new Target_Curve(new_Description_Label, structure_Tree->tree);
 
+	add_Buttons_To_Lock.insert(index_Pressed,new_Add_Button);
+	remove_Buttons_To_Lock.insert(index_Pressed,new_Remove_Button);
 	data_Target_Profile_Frame_Vector.insert(index_Pressed,new_Frame);
 	target_Profiles_Vector.insert(index_Pressed, new_Target_Curve);
 
@@ -281,6 +283,8 @@ void Multilayer::remove_Target_Curve(int index_Pressed, bool clean)
 	// delete frame
 	delete data_Target_Profile_Frame_Vector[index_Pressed];
 	data_Target_Profile_Frame_Vector.removeAt(index_Pressed);
+	add_Buttons_To_Lock.removeAt(index_Pressed);
+	remove_Buttons_To_Lock.removeAt(index_Pressed);
 
 	// delete data
 	delete target_Profiles_Vector[index_Pressed];

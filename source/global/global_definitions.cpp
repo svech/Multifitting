@@ -121,13 +121,22 @@ QDataStream& operator >>( QDataStream& stream,		 Drift& drift )
 
 QDataStream& operator <<( QDataStream& stream, const Plot_Options& plot_Options )
 {
-	return stream << plot_Options.scale        << plot_Options.color        << plot_Options.scatter_Shape	     << plot_Options.scatter_Size        << plot_Options.thickness
+	return stream << plot_Options.scale
+				  << plot_Options.rescale // since 1.7.6
+
+				  << plot_Options.color        << plot_Options.scatter_Shape << plot_Options.scatter_Size        << plot_Options.thickness
 				  << plot_Options.scale_Second << plot_Options.color_Second << plot_Options.scatter_Shape_Second << plot_Options.scatter_Size_Second << plot_Options.thickness_Second;
 }
 QDataStream& operator >>( QDataStream& stream,		 Plot_Options& plot_Options )
 {
-	return stream >> plot_Options.scale        >> plot_Options.color        >> plot_Options.scatter_Shape        >> plot_Options.scatter_Size        >> plot_Options.thickness
-				  >> plot_Options.scale_Second >> plot_Options.color_Second >> plot_Options.scatter_Shape_Second >> plot_Options.scatter_Size_Second >> plot_Options.thickness_Second;
+	stream >> plot_Options.scale;
+	if( loaded_Version_Major>=1 &&
+		loaded_Version_Minor>=7 &&
+		loaded_Version_Build>=6) {stream >> plot_Options.rescale; }	// since 1.7.6
+
+	stream >> plot_Options.color        >> plot_Options.scatter_Shape >> plot_Options.scatter_Size        >> plot_Options.thickness
+		   >> plot_Options.scale_Second >> plot_Options.color_Second >> plot_Options.scatter_Shape_Second >> plot_Options.scatter_Size_Second >> plot_Options.thickness_Second;
+	return stream;
 }
 
 QDataStream& operator <<( QDataStream& stream, const Calculated_Values& calculated_Values )

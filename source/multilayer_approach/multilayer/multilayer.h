@@ -62,6 +62,8 @@ public:
 				QGroupBox* data_Target_Profile_Group_Box;
 					QVBoxLayout* layout_Target_Profile_With_Frame_Vector;
 						QVector<QFrame*> data_Target_Profile_Frame_Vector;
+						QVector<QPushButton*> add_Buttons_To_Lock;
+						QVector<QPushButton*> remove_Buttons_To_Lock;
 						QVector<Target_Curve*> target_Profiles_Vector;
 						QMap<Target_Curve*, Target_Curve_Editor*> runned_Target_Curve_Editors;
 

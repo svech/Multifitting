@@ -9,7 +9,7 @@
 
 #define VERSION_MAJOR 1
 #define VERSION_MINOR 7
-#define VERSION_BUILD 5
+#define VERSION_BUILD 6
 
 //#define EXPRTK
 
@@ -444,6 +444,8 @@ struct Element_Data				{QString element;					  QVector<Point> element_Data;  voi
 
 // curve plot options
 struct Plot_Options				{QString scale = lin_Scale;
+								 bool rescale = true;
+
 								 QColor color = QColor(255, 0, 0);
 								 int scatter_Shape = QCPScatterStyle::ssCircle;
 								 double scatter_Size = 5;

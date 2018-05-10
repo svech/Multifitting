@@ -13,7 +13,7 @@ public:
 	void create_Plot_Frame_And_Scale();
 	void create_Options();
 	void plot_All_Data();
-	void plot_Data(const QVector<double>& argument, const QVector<double>& values, Plot_Options* plot_Options, QString left_Right=left);
+	void plot_Data(const QVector<double>& argument, const QVector<double>& values, Plot_Options* plot_Options, QString left_Right);
 	void refresh_Labels();
 	QCPGraph* get_Selected_Graph();
 	void choose_Graph_Color();
@@ -67,6 +67,8 @@ public:
 
 				QLabel* thickness_Label;
 				QDoubleSpinBox* thickness_Spin;
+
+				QCheckBox* rescale_Check_Box;
 
 	QString val_Type_Label;
 	QString val_Mode_Label_1;

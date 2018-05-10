@@ -132,11 +132,15 @@ void Calculation_Settings_Editor::lock_Mainwindow_Interface()
 			target_Curve_Editor->close();
 		}
 		// target buttons
-		for(QFrame* frame : multilayer->data_Target_Profile_Frame_Vector)
+//		for(QFrame* frame : multilayer->data_Target_Profile_Frame_Vector)
+//		{
+//			frame->setDisabled(true);
+//		}
+		for(int i=0; i<multilayer->data_Target_Profile_Frame_Vector.size(); ++i)
 		{
-			frame->setDisabled(true);
+			multilayer->add_Buttons_To_Lock[i]->setDisabled(true);
+			multilayer->remove_Buttons_To_Lock[i]->setDisabled(true);
 		}
-
 	}
 	global_Multilayer_Approach->multilayer_Tabs->cornerWidget()->setDisabled(true);
 	global_Multilayer_Approach->multilayer_Tabs->setMovable(false);
@@ -187,9 +191,14 @@ void Calculation_Settings_Editor::unlock_Mainwindow_Interface()
 		if( !global_Multilayer_Approach->runned_Calculation_Settings_Editor.contains(calc_Settings_Key)&&
 			!global_Multilayer_Approach->runned_Optical_Graphs.contains(optical_Graphs_Key))
 		{
-			for(QFrame* frame : multilayer->data_Target_Profile_Frame_Vector)
+//			for(QFrame* frame : multilayer->data_Target_Profile_Frame_Vector)
+//			{
+//				frame->setDisabled(false);
+//			}
+			for(int i=0; i<multilayer->data_Target_Profile_Frame_Vector.size(); ++i)
 			{
-				frame->setDisabled(false);
+				multilayer->add_Buttons_To_Lock[i]->setDisabled(false);
+				multilayer->remove_Buttons_To_Lock[i]->setDisabled(false);
 			}
 		}
 	}
