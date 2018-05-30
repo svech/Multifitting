@@ -123,6 +123,11 @@ void Coupling_Editor::create_Master_Box()
 void Coupling_Editor::remove_Master()
 {
 	coupled_Parameter->coupled.master.exist = false;
+
+	// to see empty master
+	coupled_Parameter->coupled.master.id = 0;
+	coupled_Parameter->coupled.master.full_Name = "";
+
 	master_Label->setText(no_Master_Text);
 	master_Widget = nullptr;
 }

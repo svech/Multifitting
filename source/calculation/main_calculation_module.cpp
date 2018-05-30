@@ -330,10 +330,10 @@ void Main_Calculation_Module::find_Fittable_Parameters(Data& struct_Data, const 
 void Main_Calculation_Module::slaves_Pointer_Iteration(Parameter* master)
 {
 	master->coupled.slave_Pointers.clear();
+
 	for(Parameter_Indicator& slave_Parameter_Indicator : master->coupled.slaves)
 	{
 		Parameter* slave = find_Slave_Pointer_by_Id(slave_Parameter_Indicator);
-
 		// check
 		if(slave == nullptr)
 		{
@@ -388,7 +388,10 @@ Parameter* Main_Calculation_Module::find_Slave_Pointer_by_Id(const Parameter_Ind
 	for(int tab_Index=0; tab_Index<multilayers.size(); ++tab_Index)
 	{
 		find_Slave_Pointer_Calc_Tree_Iteration(calculation_Trees[tab_Index]->real_Calc_Tree.begin(), slave_Parameter_Indicator, pointer);
-		if(pointer != nullptr) return pointer;
+		if(pointer != nullptr)
+		{
+			return pointer;
+		}
 	}
 	return pointer;
 }

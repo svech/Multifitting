@@ -814,8 +814,8 @@ void Independent_Variables_Editor::refresh_Show_Data(bool show)
 			resize_Line_Edit(max_Edit->text(),max_Edit);
 
 			spectral_Resolution_Edit->setText(QString::number(struct_Data.spectral_Resolution.value,line_edit_double_format,line_edit_wavelength_precision));
-			polarization_Edit->setText(QString::number(struct_Data.polarization.value/coeff,line_edit_double_format,line_edit_polarization_precision));
-			background_Edit->setText(QString::number(struct_Data.background.value/coeff,line_edit_short_double_format,line_edit_background_precision));
+			polarization_Edit->setText(QString::number(struct_Data.polarization.value,line_edit_double_format,line_edit_polarization_precision));
+			background_Edit->setText(QString::number(struct_Data.background.value,line_edit_short_double_format,line_edit_background_precision));
 
 			resize_Line_Edit(spectral_Resolution_Edit->text(),spectral_Resolution_Edit);
 			resize_Line_Edit(polarization_Edit->text(),polarization_Edit);

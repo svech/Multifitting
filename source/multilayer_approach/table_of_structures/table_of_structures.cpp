@@ -273,9 +273,15 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 			add_Columns(new_Table,depth);
 
 			// print item name
-			new_Table->setItem(current_Row,current_Column, new QTableWidgetItem(Global_Variables::structure_Item_Name(struct_Data)));
+			new_Table->setItem(current_Row,current_Column, new QTableWidgetItem(/*Global_Variables::structure_Item_Name(struct_Data)*/));
 			new_Table->item(current_Row,current_Column)->setWhatsThis(struct_Data.item_Type);
 			new_Table->item(current_Row,current_Column)->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEnabled);
+
+			// make it checkable
+			// DIS
+			QCheckBox* item_CheckBox = new QCheckBox(Global_Variables::structure_Item_Name(struct_Data));
+			new_Table->setCellWidget(current_Row, current_Column, item_CheckBox);
+//			connect(item_CheckBox, &QCheckBox::toggled, this, )
 
 			current_Column = max_Depth+1;
 
@@ -703,14 +709,30 @@ void Table_Of_Structures::span_Structure_Items(My_Table_Widget* table)
 			{
 				QString item_Type = table->item(row_Index,col_Index)->whatsThis();
 				if( item_Type == item_Type_Ambient  ||
-						item_Type == item_Type_Layer    ||
-						item_Type == item_Type_Substrate )
+					item_Type == item_Type_Layer    ||
+					item_Type == item_Type_Substrate )
 				{
-					table->setSpan(row_Index,col_Index,5,1);
+					int rows = 5;
+					table->setSpan(row_Index,col_Index,rows,1);
 				}
 				if( item_Type == item_Type_Multilayer )
 				{
-					table->setSpan(row_Index,col_Index,2,1);
+					int rows = 2;
+					table->setSpan(row_Index,col_Index,rows,1);
+
+					// DIS
+					for(int disable_Row_Index=row_Index  ; disable_Row_Index<row_Index+rows      ; ++disable_Row_Index)
+					for(int disable_Col_Index=col_Index+1; disable_Col_Index<table->columnCount(); ++disable_Col_Index)
+					{
+						QWidget* widget = table->cellWidget(disable_Row_Index, disable_Col_Index);
+						if(widget)
+						{
+							qInfo() << widget;
+							QLineEdit* line_Edit = qobject_cast<QLineEdit*>(widget);
+							if(line_Edit) qInfo() << line_Edit->text();
+							widget->setDisabled(true);
+						}
+					}
 				}
 			}
 		}
@@ -2062,6 +2084,18 @@ void Table_Of_Structures::refresh_Parameter(My_Table_Widget* table)
 					line_Edit->setText(QString::number(parameter.value/coeff, line_edit_double_format, precision));
 					line_Edit->setDisabled(!struct_Data.common_Sigma);
 					line_Edit->setStyleSheet("border: 1px solid grey");
+
+					for(Interlayer& interlayer : struct_Data.interlayer_Composition)
+					{
+						interlayer.my_Sigma.value	= struct_Data.sigma.value;
+						interlayer.my_Sigma.fit.min = struct_Data.sigma.fit.min;
+						interlayer.my_Sigma.fit.max = struct_Data.sigma.fit.max;
+					}
+					{
+						QVariant var;
+						var.setValue( struct_Data );
+						structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+					}
 				} else
 				if(whats_This == whats_This_Gamma)
 				{
@@ -2082,6 +2116,7 @@ void Table_Of_Structures::refresh_Parameter(My_Table_Widget* table)
 			}
 			if(value_Type == MIN)   line_Edit->setText(QString::number(parameter.fit.min/coeff, min_Max_Format,	precision));
 			if(value_Type == MAX)   line_Edit->setText(QString::number(parameter.fit.max/coeff, min_Max_Format,	precision));
+
 			return;
 		}
 		// if refresh

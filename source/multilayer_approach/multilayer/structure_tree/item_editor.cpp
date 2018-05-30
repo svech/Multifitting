@@ -485,6 +485,9 @@ void Item_Editor::more_Elements_Clicked()
 		stoich.type				 = substrate_default_stoichiometry_element;
 	}
 
+	// set item_Id
+	stoich.composition.indicator.item_Id = struct_Data.id;
+
 	// creating ui elements
 	line_Edit->setText(QString::number(stoich.composition.value,line_edit_short_double_format,line_edit_composition_precision));
 	resize_Line_Edit("",line_Edit);
