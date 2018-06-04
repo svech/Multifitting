@@ -40,7 +40,7 @@ void Structure_Toolbar::create_Toolbar()
 	toolbar->addAction(QIcon(paste),			"Paste");							// 8
 	toolbar->addAction(QIcon(move_Up),			"Move Up");							// 9
 	toolbar->addAction(QIcon(move_Down),		"Move Down");						// 0
-	toolbar->addAction(QIcon(group),			"Disable");							// 11
+	toolbar->addAction(QIcon(group),			"Group");							// 11
 	toolbar->addAction(QIcon(ungroup),			"Ungroup");							// 12
 	toolbar->addAction(QIcon(thickness_Plot),	"Plot Layer Thickness Profile");	// 13
 	toolbar->addAction(QIcon(sigma_Plot),		"Plot Interface Width Profile");	// 14
@@ -604,38 +604,7 @@ void Structure_Toolbar::move_Down()
 void Structure_Toolbar::group()
 {
 	// TODO group_toolbutton
-//	qInfo() << "group is not implemented";
-	QTreeWidgetItem* current = structure_Tree->tree->currentItem();
-
-	if(current->isDisabled())
-	// DIS
-	{
-//		QFont font = current->font(DEFAULT_COLUMN);
-//		font.setItalic(false);
-//		current->setFont(DEFAULT_COLUMN,font);
-//		current->setTextColor(DEFAULT_COLUMN, Qt::black);
-		current->setDisabled(false);
-
-//		current->set
-//		for(int i=0; i<current->childCount(); i++)
-//		{
-//			current->child(i)->setDisabled(false);
-//			current->child(i)->setTextColor(DEFAULT_COLUMN, Qt::black);
-//		}
-	} else
-	{
-//		QFont font = current->font(DEFAULT_COLUMN);
-//		font.setItalic(true);
-//		current->setFont(DEFAULT_COLUMN,font);
-//		current->setTextColor(DEFAULT_COLUMN, Qt::gray);
-		current->setDisabled(true);
-//		for(int i=0; i<current->childCount(); i++)
-//		{
-//			current->child(i)->setDisabled(true);
-//			current->child(i)->setTextColor(DEFAULT_COLUMN, Qt::gray);
-//		}
-	}
-
+	qInfo() << "group is not implemented";
 	refresh_Toolbar();
 }
 
@@ -725,13 +694,6 @@ void Structure_Toolbar::if_Selected()
 		if(if_Multilayer)
 		{
 			toolbar->actions()[Ungroup]->setDisabled(false);	// ungroup
-		}
-
-		// DIS
-		if(if_Multilayer || if_Layer || if_Substrate)
-		{
-			// TODO temp
-			toolbar->actions()[Group]->setDisabled(false);		// disable
 		}
 
 		int position = structure_Tree->tree->currentIndex().row();

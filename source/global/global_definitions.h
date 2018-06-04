@@ -9,7 +9,7 @@
 
 #define VERSION_MAJOR 1
 #define VERSION_MINOR 7
-#define VERSION_BUILD 6
+#define VERSION_BUILD 7
 
 //#define EXPRTK
 
@@ -301,6 +301,7 @@ class Node;
 #define refresh_Property	"refresh"
 #define reload_Property		"reload"
 #define colorize_Property	"colorize"
+#define enabled_Property	"enabled"
 //#define table_Index_Property "table_Index"
 //#define master_Reload_Property "master_Reload"
 //#define slave_Reload_Property  "slave_Reload"

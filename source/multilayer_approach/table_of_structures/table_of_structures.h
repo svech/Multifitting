@@ -67,6 +67,12 @@ public:
 	// general
 	void span_Structure_Headers(My_Table_Widget* table);
 	void span_Structure_Items(My_Table_Widget* table);
+
+	void disable_enable_Structure_Items(My_Table_Widget* table);
+	void disable_enable_One_Item(My_Table_Widget* table, QTableWidgetItem* table_Item);
+	void disable_enable_One_Item_Content(My_Table_Widget* table, QTableWidgetItem* table_Item, bool save, bool enable = true);
+	void disable_enable_Multilayers(My_Table_Widget* table, QTreeWidgetItem* parent);
+
 	void fit_Column(My_Table_Widget* table, int start_Width, int current_Column);
 	void add_Columns(My_Table_Widget* table, int add_After);
 
@@ -115,6 +121,7 @@ public:
 
 public slots:
 	void reload_All_Widgets(QObject* sender = nullptr);
+	void reload_One_Widget (QWidget* widget_To_Reload);
 	void reload_Related_Widgets(QObject* sender = nullptr);
 	void reload_Min_Max_Line_Edits(QString whats_This);
 
@@ -150,6 +157,9 @@ public:
 	// refresh/reload
 	QList<QList<QWidget*>>			all_Widgets_To_Reload;
 	QMultiMap<QWidget*, id_Type>	reload_Show_Dependence_Map;
+
+	// disable/enable
+	QMap<QTreeWidgetItem*, QTableWidgetItem*> struct_Table_Map;
 };
 
 #endif // TABLE_OF_STRUCTURES_H

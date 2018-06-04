@@ -102,7 +102,9 @@ void Calculation_Tree::fill_Tree_From_Scratch(tree<Node>& calc_Tree, QTreeWidget
 	fill_Calc_Tree_From_Item_Tree(calc_Tree.begin(), calc_Tree, item_Tree->invisibleRootItem());
 
 	// if no substrate then add it equal to ambient
-	Data last_Struct_Data = item_Tree->topLevelItem(item_Tree->topLevelItemCount()-1)->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+//	Data last_Struct_Data = item_Tree->topLevelItem(item_Tree->topLevelItemCount()-1)->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+	Data last_Struct_Data = calc_Tree.child(calc_Tree.begin(),calc_Tree.begin().number_of_children()-1).node->data.struct_Data;
+
 	if(last_Struct_Data.item_Type != item_Type_Substrate)
 	{
 		QTreeWidgetItem substrate_Item;
@@ -111,7 +113,8 @@ void Calculation_Tree::fill_Tree_From_Scratch(tree<Node>& calc_Tree, QTreeWidget
 		int ambient_Index_In_Item_Tree = -1;
 		if(curve_Class == INDEPENDENT) ambient_Index_In_Item_Tree = 1;
 		if(curve_Class == TARGET)	   ambient_Index_In_Item_Tree = 0;
-		Data substrate = item_Tree->topLevelItem(ambient_Index_In_Item_Tree)->data(DEFAULT_COLUMN, Qt::UserRole).template value<Data>();
+//		Data substrate = item_Tree->topLevelItem(ambient_Index_In_Item_Tree)->data(DEFAULT_COLUMN, Qt::UserRole).template value<Data>();
+		Data substrate = calc_Tree.child(calc_Tree.begin(),ambient_Index_In_Item_Tree).node->data.struct_Data;
 
 		// change id
 		substrate.reset_All_IDs();
@@ -134,11 +137,14 @@ void Calculation_Tree::fill_Calc_Tree_From_Item_Tree(const tree<Node>::iterator&
 	for(int i=0; i<item->childCount(); ++i)
 	{
 		Node temp_Node(item->child(i));
-		calc_Tree.append_child(parent, temp_Node);	// Multilayer and Aperiodic items are also here
-
-		if(item->child(i)->childCount()>0)
+		if(temp_Node.struct_Data.item_Enabled)
 		{
-			fill_Calc_Tree_From_Item_Tree(calc_Tree.child(parent,i), calc_Tree, item->child(i));
+			calc_Tree.append_child(parent, temp_Node);	// Multilayer and Aperiodic items are also here
+
+			if(item->child(i)->childCount()>0)
+			{
+				fill_Calc_Tree_From_Item_Tree(calc_Tree.child(parent,i), calc_Tree, item->child(i));
+			}
 		}
 	}
 }
@@ -178,16 +184,22 @@ void Calculation_Tree::fill_Target_Calc_Trees()
 
 void Calculation_Tree::renew_Item_Tree_From_Calc_Tree(const tree<Node>::iterator& parent, tree<Node>& calc_Tree, QTreeWidgetItem* item)
 {
-	for(int i=0; i<item->childCount(); ++i)
+	int calc_Counter = 0;
+	for(int item_Counter=0; item_Counter<item->childCount(); ++item_Counter)
 	{
-		tree<Node>::pre_order_iterator child = tree<Node>::child(parent,i);
-
-		QVariant var; var.setValue( child.node->data.struct_Data );
-		item->child(i)->setData(DEFAULT_COLUMN, Qt::UserRole, var);
-
-		if(item->child(i)->childCount()>0)
+		Data old_Item_Data = item->child(item_Counter)->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();;
+		if(old_Item_Data.item_Enabled)
 		{
-			renew_Item_Tree_From_Calc_Tree(calc_Tree.child(parent,i), calc_Tree, item->child(i));
+			tree<Node>::pre_order_iterator child = tree<Node>::child(parent,calc_Counter);
+
+			QVariant var; var.setValue( child.node->data.struct_Data );
+			item->child(item_Counter)->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+
+			if(item->child(item_Counter)->childCount()>0)
+			{
+				renew_Item_Tree_From_Calc_Tree(calc_Tree.child(parent,calc_Counter), calc_Tree, item->child(item_Counter));
+			}
+			calc_Counter++;
 		}
 	}
 }
@@ -461,7 +473,6 @@ void Calculation_Tree::print_Tree(const tree<Node>::iterator& parent, tree<Node>
 	for(unsigned i=0; i<parent.number_of_children(); ++i)
 	{
 		tree<Node>::post_order_iterator child = calc_Tree.child(parent,i);
-
 		{
 			std::cout << "node :  depth : " << calc_Tree.depth(child) << "   ";
 			for(int y=0; y<calc_Tree.depth(child)-1; y++)

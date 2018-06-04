@@ -12,6 +12,8 @@ public:
 	QString	parent_Item_Type;
 	QString	item_Type;
 	id_Type id = 0;
+	bool item_Enabled = true;
+
 	///---------------------------------------------
 	// Measurement
 	//---------------------------------------------

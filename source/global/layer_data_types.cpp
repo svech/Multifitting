@@ -594,8 +594,9 @@ void Data::fill_Potentially_Fitable_Parameters_Vector()
 /// measurement
 QDataStream& operator <<( QDataStream& stream, const Data& data )
 {
-	return stream
+	return stream				
 				<< data.parent_Item_Type << data.item_Type << data.id
+				<< data.item_Enabled		// since 1.7.7
 			// Measurement
 				<< data.probe_Angle << data.cos2 << data.angle << data.cos2_Value << data.angle_Value << data.angular_Resolution << data.angle_Type
 				<< data.wavelength << data.k << data.lambda << data.k_Value << data.lambda_Value << data.spectral_Resolution << data.polarization << data.polarization_Sensitivity << data.background
@@ -612,10 +613,13 @@ QDataStream& operator <<( QDataStream& stream, const Data& data )
 }
 QDataStream& operator >>( QDataStream& stream,		 Data& data )
 {
-	return stream
-				>> data.parent_Item_Type >> data.item_Type >> data.id
+	stream		>> data.parent_Item_Type >> data.item_Type >> data.id;
+	if( loaded_Version_Major>=1 &&
+		loaded_Version_Minor>=7 &&
+		loaded_Version_Build>=7) {stream >> data.item_Enabled; }	// since 1.7.7
+
 			// Measurement
-				>> data.probe_Angle >> data.cos2 >> data.angle >> data.cos2_Value >> data.angle_Value >> data.angular_Resolution >> data.angle_Type
+	stream		>> data.probe_Angle >> data.cos2 >> data.angle >> data.cos2_Value >> data.angle_Value >> data.angular_Resolution >> data.angle_Type
 				>> data.wavelength >> data.k >> data.lambda >> data.k_Value >> data.lambda_Value >> data.spectral_Resolution >> data.polarization >> data.polarization_Sensitivity >> data.background
 				>> data.beam_Size >> data.beam_Profile_Spreading >> data.sample_Size  >> data.sample_Shift
 			// Ambient, Layer, Substrate
@@ -627,4 +631,5 @@ QDataStream& operator >>( QDataStream& stream,		 Data& data )
 				>> data.layer_Index >> data.has_Parent >> data.thickness >> data.thickness_Drift >> data.sigma_Drift
 			// Multilayer
 				>> data.first_Layer_Index >> data.last_Layer_Index >> data.num_Repetition >> data.period >> data.gamma;
+	return stream;
 }

@@ -137,6 +137,7 @@ void Table_Of_Structures::add_Tabs()
 
 		create_Table(new_Table, tab_Index);
 		main_Tabs->addTab(new_Table, multilayer_Tabs->tabText(tab_Index));
+		disable_enable_Structure_Items(new_Table);
 	}
 	for(int i = 0; i<main_Tabs->tabBar()->count(); i++)
 	{
@@ -247,6 +248,10 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 
 		QTreeWidgetItem* structure_Item;
 		QTreeWidgetItemIterator it(list_Of_Trees[tab_Index]->tree);
+
+		// skip ambient
+		++it;
+
 		while (*it)
 		{
 			structure_Item = *it;
@@ -273,15 +278,25 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 			add_Columns(new_Table,depth);
 
 			// print item name
-			new_Table->setItem(current_Row,current_Column, new QTableWidgetItem(/*Global_Variables::structure_Item_Name(struct_Data)*/));
-			new_Table->item(current_Row,current_Column)->setWhatsThis(struct_Data.item_Type);
-			new_Table->item(current_Row,current_Column)->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEnabled);
+			QTableWidgetItem* table_Item = new QTableWidgetItem(/*Global_Variables::structure_Item_Name(struct_Data)*/);
+			new_Table->setItem(current_Row,current_Column, table_Item);
+			table_Item->setWhatsThis(struct_Data.item_Type);
+			table_Item->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEnabled);
+			struct_Table_Map.insert(structure_Item, table_Item);
 
 			// make it checkable
-			// DIS
 			QCheckBox* item_CheckBox = new QCheckBox(Global_Variables::structure_Item_Name(struct_Data));
 			new_Table->setCellWidget(current_Row, current_Column, item_CheckBox);
-//			connect(item_CheckBox, &QCheckBox::toggled, this, )
+			item_CheckBox->setChecked(struct_Data.item_Enabled);
+			check_Boxes_Map.insert(item_CheckBox, structure_Item);
+			connect(item_CheckBox, &QCheckBox::toggled, this, [=]
+			{
+				// enable or disable widgets
+				disable_enable_One_Item(new_Table, table_Item);
+
+				// refresh view in main window
+				emit_Data_Edited();
+			});
 
 			current_Column = max_Depth+1;
 
@@ -597,6 +612,7 @@ void Table_Of_Structures::refresh_Reload_Colorize(QString refresh_Reload, QWidge
 			QMessageBox::critical(this, "Table_Of_Structures::refresh_Reload_Colorize", "id != parameter.indicator.id");
 			exit(EXIT_FAILURE);
 		}
+
 		Parameter* struct_Parameter_Pointer = Global_Variables::get_Parameter_From_Struct_Item_by_Id(struct_Data, id);
 
 		*struct_Parameter_Pointer = *parameter;
@@ -617,6 +633,7 @@ void Table_Of_Structures::refresh_Reload_Colorize(QString refresh_Reload, QWidge
 			else
 				back_Widget->setStyleSheet("background-color: lightblue");
 		}
+
 		// has master only
 		if(parameter->coupled.master.exist && parameter->coupled.slaves.size()==0)
 			back_Widget->setStyleSheet("QWidget { background: rgb(255, 50, 50); }");
@@ -719,23 +736,149 @@ void Table_Of_Structures::span_Structure_Items(My_Table_Widget* table)
 				{
 					int rows = 2;
 					table->setSpan(row_Index,col_Index,rows,1);
-
-					// DIS
-					for(int disable_Row_Index=row_Index  ; disable_Row_Index<row_Index+rows      ; ++disable_Row_Index)
-					for(int disable_Col_Index=col_Index+1; disable_Col_Index<table->columnCount(); ++disable_Col_Index)
-					{
-						QWidget* widget = table->cellWidget(disable_Row_Index, disable_Col_Index);
-						if(widget)
-						{
-							qInfo() << widget;
-							QLineEdit* line_Edit = qobject_cast<QLineEdit*>(widget);
-							if(line_Edit) qInfo() << line_Edit->text();
-							widget->setDisabled(true);
-						}
-					}
 				}
 			}
 		}
+	}
+}
+
+void Table_Of_Structures::disable_enable_Structure_Items(My_Table_Widget* table)
+{
+	for(int row_Index=0; row_Index<table->rowCount(); ++row_Index)
+	{
+		for(int col_Index=0; col_Index<table->columnCount(); ++col_Index)
+		{
+			QTableWidgetItem* table_Item = table->item(row_Index,col_Index);
+			if(table_Item)
+			{
+				disable_enable_One_Item(table, table_Item);
+			}
+		}
+	}
+}
+
+void Table_Of_Structures::disable_enable_One_Item(My_Table_Widget* table, QTableWidgetItem* table_Item)
+{
+	int row_Index = table_Item->row();
+	int col_Index = table_Item->column();
+
+	QTreeWidgetItem* struct_Item = struct_Table_Map.key(table_Item);
+	if(struct_Item)
+	{
+		// parental data
+		QTreeWidgetItem* parent = struct_Item->parent();
+		if(parent)
+		{
+			Data parent_Struct_Data = parent->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+			QTableWidgetItem* parent_Table_Item = struct_Table_Map.value(parent);
+			QWidget* parent_Widget = table->cellWidget(parent_Table_Item->row(), parent_Table_Item->column());
+
+			bool enabled = true;
+			// if parent inactive or manually disabled
+			if(!parent_Struct_Data.item_Enabled || !parent_Widget->isEnabled())
+				enabled = false;
+
+			if(enabled)
+			{
+				disable_enable_One_Item_Content(table, table_Item, true);
+			} else
+			{
+				disable_enable_One_Item_Content(table, table_Item, false, false);
+			}
+		} else
+		{
+			disable_enable_One_Item_Content(table, table_Item, true);
+		}
+	}
+
+	QString item_Type = table_Item->whatsThis();
+	if( item_Type == item_Type_Multilayer || item_Type == item_Type_Aperiodic)
+	{
+		QCheckBox* check_Box = qobject_cast<QCheckBox*>(table->cellWidget(row_Index, col_Index));
+		QTreeWidgetItem* structure_Item = check_Boxes_Map.value(check_Box);
+		disable_enable_Multilayers(table, structure_Item);
+	}
+	reload_All_Widgets();
+}
+
+void Table_Of_Structures::disable_enable_One_Item_Content(My_Table_Widget* table, QTableWidgetItem* table_Item, bool save, bool enable)
+{
+	int row_Index = table_Item->row();
+	int col_Index = table_Item->column();
+
+	QString item_Type = table_Item->whatsThis();
+	if( item_Type == item_Type_Layer ||	item_Type == item_Type_Substrate || item_Type == item_Type_Multilayer || item_Type == item_Type_Aperiodic)
+	{
+		QCheckBox* check_Box = qobject_cast<QCheckBox*>(table->cellWidget(row_Index, col_Index));
+		QTreeWidgetItem* structure_Item = check_Boxes_Map.value(check_Box);
+		Data struct_Data = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+
+		if(save)
+		{
+			struct_Data.item_Enabled = check_Box->isChecked();
+			QVariant var;
+			var.setValue( struct_Data );
+			structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+		} else
+		{
+			struct_Data.item_Enabled = enable;
+		}
+
+		int rows = 0;
+		if( item_Type == item_Type_Layer    ||	item_Type == item_Type_Substrate )	rows = 5;
+		if( item_Type == item_Type_Multilayer )										rows = 2;
+
+		for(int disable_Row_Index=row_Index  ; disable_Row_Index<row_Index+rows      ; ++disable_Row_Index)
+		for(int disable_Col_Index=col_Index+1; disable_Col_Index<table->columnCount(); ++disable_Col_Index)
+		{
+			QWidget* widget = table->cellWidget(disable_Row_Index, disable_Col_Index);
+			if(widget)
+			{
+				QLineEdit* line_Edit = qobject_cast<QLineEdit*>(widget);
+
+				if(!struct_Data.item_Enabled)
+				{
+					if(line_Edit) line_Edit->setStyleSheet("border: 0px solid gray");
+					widget->setDisabled(true);
+					widget->setProperty(enabled_Property, false);
+				} else
+				{
+					if(line_Edit) line_Edit->setStyleSheet("border: 1px solid gray");
+					widget->setDisabled(false);
+					widget->setProperty(enabled_Property, true);
+				}
+			}
+		}
+	}
+}
+
+void Table_Of_Structures::disable_enable_Multilayers(My_Table_Widget* table, QTreeWidgetItem* parent)
+{
+	// parental data
+	Data parent_Struct_Data = parent->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+	QTableWidgetItem* parent_Table_Item = struct_Table_Map.value(parent);
+	QWidget* parent_Widget = table->cellWidget(parent_Table_Item->row(), parent_Table_Item->column());
+
+	bool enabled = true;
+	// if inactive or manually disabled
+	if(!parent_Struct_Data.item_Enabled || !parent_Widget->isEnabled())
+		enabled = false;
+
+	// children's data
+	for(int child_Index=0; child_Index<parent->childCount(); ++child_Index)
+	{
+		QTreeWidgetItem* child_Struct_Item = parent->child(child_Index);
+		Data child_Struct_Data = child_Struct_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+		QTableWidgetItem* child_Table_Item = struct_Table_Map.value(child_Struct_Item);
+
+		QWidget* widget = table->cellWidget(child_Table_Item->row(), child_Table_Item->column());
+		widget->setDisabled(!enabled);
+
+		bool child_Enabled = enabled && child_Struct_Data.item_Enabled;
+		disable_enable_One_Item_Content(table, child_Table_Item, false, child_Enabled);
+
+		// go deeper
+		disable_enable_Multilayers(table, child_Struct_Item);
 	}
 }
 
@@ -899,7 +1042,8 @@ void Table_Of_Structures::create_Stoich_Check_Box_Fit(My_Table_Widget* table, in
 		// set up BACK widget
 		{
 			back_Widget->setProperty(coupling_Editor_Property, true);	// for opening Coupling_Editor
-			back_Widget->setProperty(fit_Text, fit_Text);		// for coloring
+			back_Widget->setProperty(fit_Text, fit_Text);				// for coloring
+			all_Widgets_To_Reload[tab_Index].append(back_Widget);
 
 			coupled_Back_Widget_and_Struct_Item.insert(back_Widget, structure_Item);
 			coupled_Back_Widget_and_Id.			insert(back_Widget, comp.indicator.id);
@@ -1112,6 +1256,7 @@ void Table_Of_Structures::create_Check_Box_Label(My_Table_Widget* table, int tab
 	if(parameter.indicator.id!=0)
 	{
 		back_Widget->setProperty(coupling_Editor_Property, true);		// for opening Coupling_Editor
+		all_Widgets_To_Reload[tab_Index].append(back_Widget);
 
 		coupled_Back_Widget_and_Struct_Item.insert(back_Widget, structure_Item);
 		coupled_Back_Widget_and_Id.			insert(back_Widget, parameter.indicator.id);
@@ -1295,6 +1440,7 @@ void Table_Of_Structures::create_Check_Box_Fit(My_Table_Widget* table, int tab_I
 	{
 		back_Widget->setProperty(coupling_Editor_Property, true);		// for opening Coupling_Editor
 		back_Widget->setProperty(fit_Text, fit_Text);					// for coloring
+		all_Widgets_To_Reload[tab_Index].append(back_Widget);
 
 		coupled_Back_Widget_and_Struct_Item.insert(back_Widget, structure_Item);
 		coupled_Back_Widget_and_Id.			insert(back_Widget, parameter.indicator.id);
@@ -1372,6 +1518,7 @@ void Table_Of_Structures::create_Check_Box_Label_Interlayer(My_Table_Widget* tab
 		// set up BACK widget
 		{
 			back_Widget->setProperty(coupling_Editor_Property, true);		// for opening Coupling_Editor
+			all_Widgets_To_Reload[tab_Index].append(back_Widget);
 
 			coupled_Back_Widget_and_Struct_Item.insert(back_Widget, structure_Item);
 			coupled_Back_Widget_and_Id.			insert(back_Widget, inter_Comp.interlayer.indicator.id);
@@ -1496,6 +1643,7 @@ void Table_Of_Structures::create_MySigma_Labels_Interlayer(My_Table_Widget* tabl
 
 		QLabel* label = new QLabel(Sigma_Sym+" "+transition_Layer_Functions[interlayer_Index]);
 		label->setAlignment(Qt::AlignCenter);
+		all_Widgets_To_Reload[tab_Index].append(label);
 
 		// set up BACK widget
 		{
@@ -2521,59 +2669,67 @@ void Table_Of_Structures::reload_All_Widgets(QObject* sender)
 			QWidget* widget_To_Reload = all_Widgets_To_Reload[current_Tab_Index][i];
 			if(widget_To_Reload != sender)
 			{
-				// reload dependences and color
-				if(widget_To_Reload->property(coupling_Editor_Property).toBool())
-				{
-					id_Type id = coupled_Back_Widget_and_Id.value(widget_To_Reload);
-					QTreeWidgetItem* struct_Item = coupled_Back_Widget_and_Struct_Item.value(widget_To_Reload);
-					Data struct_Data = struct_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
-					Parameter* parameter = Global_Variables::get_Parameter_From_Struct_Item_by_Id(struct_Data, id);
-
-					// if had some dependences
-					if(parameter->coupled.master.exist || parameter->coupled.slaves.size()>0)
-					{
-						Coupling_Editor* new_Coupling_Editor = new Coupling_Editor(widget_To_Reload, this, nullptr); // last nullptr is essential for menu disabling!
-							new_Coupling_Editor->close();
-					}
-				}
-
-				widget_To_Reload->setProperty(reload_Property, true);
-
-				QLabel*        label = qobject_cast<QLabel*>   (widget_To_Reload);
-				QCheckBox* check_Box = qobject_cast<QCheckBox*>(widget_To_Reload);
-				QLineEdit* line_Edit = qobject_cast<QLineEdit*>(widget_To_Reload);
-				QComboBox* combo_Box = qobject_cast<QComboBox*>(widget_To_Reload);
-
-				if(label)
-				{
-					label->windowTitleChanged("temp");
-				}
-				if(check_Box)
-				{
-					check_Box->toggled(false);				//
-					check_Box->toggled(false);				// repeated intentionally!
-				}
-				if(line_Edit)
-				{
-					line_Edit->textEdited("temp");			//
-					line_Edit->textEdited("temp");			// repeated intentionally!
-				}
-				if(combo_Box)
-				{
-					combo_Box->currentTextChanged("temp");
-				}
-
-				widget_To_Reload->setProperty(reload_Property, false);
+				reload_One_Widget(widget_To_Reload);
 			}
 		}
 	}
+}
+
+void Table_Of_Structures::reload_One_Widget(QWidget* widget_To_Reload)
+{
+	// reload dependences and color
+	if(widget_To_Reload->property(coupling_Editor_Property).toBool())
+	{
+		id_Type id = coupled_Back_Widget_and_Id.value(widget_To_Reload);
+		QTreeWidgetItem* struct_Item = coupled_Back_Widget_and_Struct_Item.value(widget_To_Reload);
+		Data struct_Data = struct_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+		Parameter* parameter = Global_Variables::get_Parameter_From_Struct_Item_by_Id(struct_Data, id);
+
+		// if had some dependences
+		if(parameter->coupled.master.exist || parameter->coupled.slaves.size()>0)
+		{
+			Coupling_Editor* new_Coupling_Editor = new Coupling_Editor(widget_To_Reload, this, nullptr); // last nullptr is essential for menu disabling!
+				new_Coupling_Editor->close();
+		}
+	}
+
+	// do not reload disabled widgets
+	if(!widget_To_Reload->property(enabled_Property).toBool())	return;
+
+	widget_To_Reload->setProperty(reload_Property, true);
+
+	QLabel*        label = qobject_cast<QLabel*>   (widget_To_Reload);
+	QCheckBox* check_Box = qobject_cast<QCheckBox*>(widget_To_Reload);
+	QLineEdit* line_Edit = qobject_cast<QLineEdit*>(widget_To_Reload);
+	QComboBox* combo_Box = qobject_cast<QComboBox*>(widget_To_Reload);
+
+	if(label)
+	{
+		label->windowTitleChanged("temp");
+	}
+	if(check_Box)
+	{
+		check_Box->toggled(false);				//
+		check_Box->toggled(false);				// repeated intentionally!
+	}
+	if(line_Edit)
+	{
+		line_Edit->textEdited("temp");			//
+		line_Edit->textEdited("temp");			// repeated intentionally!
+	}
+	if(combo_Box)
+	{
+		combo_Box->currentTextChanged("temp");
+	}
+
+	widget_To_Reload->setProperty(reload_Property, false);
 }
 
 void Table_Of_Structures::reload_Related_Widgets(QObject* sender)
 {
 	if(table_Is_Created)
 	{
-//			qInfo() << "reload_Related_Widgets " << ++temp_Counter_1;
+//		qInfo() << "reload_Related_Widgets " << ++temp_Counter_1;
 		for(id_Type id : reload_Show_Dependence_Map.values(qobject_cast<QWidget*>(sender)))
 		{
 			for(QWidget* related: reload_Show_Dependence_Map.keys(id))

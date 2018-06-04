@@ -87,6 +87,11 @@ void Structure_Tree::iterate_Over_Layers(QTreeWidgetItem* item)
 void Structure_Tree::refresh_If_Layer(QTreeWidgetItem* this_Item)
 {
 	Data data = this_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+
+	if(data.item_Enabled) this_Item->setDisabled(false);
+	else				  this_Item->setDisabled(true);
+
+
 	// if not multilayer/aperiodic
 	if(this_Item->childCount()==0)
 	{

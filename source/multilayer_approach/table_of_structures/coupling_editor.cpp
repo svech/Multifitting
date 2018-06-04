@@ -36,8 +36,8 @@ void Coupling_Editor::closeEvent(QCloseEvent *)
 		// save external slaves
 		save_External_Slaves();
 
-//		qInfo() << "saved" <<     coupling_Parameter->coupled.slaves.size() << "slaves";
-//		qInfo() << "saved" << int(coupling_Parameter->coupled.master.exist) << "master";
+//		qInfo() << coupled_Parameter->indicator.full_Name << "saved" <<     coupled_Parameter->coupled.slaves.size() << "slaves";
+//		qInfo() << coupled_Parameter->indicator.full_Name << "saved" << int(coupled_Parameter->coupled.master.exist) << "master\n";
 //		qInfo() << "";
 	}
 
@@ -169,9 +169,7 @@ void Coupling_Editor::load_Master()
 	}
 	if(!loaded)
 	{
-		master_Widget = nullptr;
-		coupled_Parameter->coupled.master.exist = false;
-		master_Label->setText(no_Master_Text);
+		remove_Master();
 //		qInfo() << "loaded 0 masters";
 	}
 }
@@ -179,8 +177,8 @@ void Coupling_Editor::load_Master()
 void Coupling_Editor::save_External_Master()
 {
 	// remove me from previous master (if master was really changed)
-	if(old_Master_Widget &&
-	   old_Master_Widget != master_Widget) // compare widgets. Be careful!
+	if( old_Master_Widget &&
+	   (old_Master_Widget != master_Widget)) // compare widgets. Be careful!
 	{
 		// if master widget exists (it should be always true)
 		id_Type old_Master_Id = table_Of_Structures->coupled_Back_Widget_and_Id.value(old_Master_Widget);
