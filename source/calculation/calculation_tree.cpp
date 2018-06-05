@@ -134,17 +134,20 @@ void Calculation_Tree::fill_Tree_From_Scratch(tree<Node>& calc_Tree, QTreeWidget
 
 void Calculation_Tree::fill_Calc_Tree_From_Item_Tree(const tree<Node>::iterator& parent, tree<Node>& calc_Tree, QTreeWidgetItem* item)
 {
+	int calc_Counter = 0;
 	for(int i=0; i<item->childCount(); ++i)
 	{
 		Node temp_Node(item->child(i));
+
 		if(temp_Node.struct_Data.item_Enabled)
 		{
 			calc_Tree.append_child(parent, temp_Node);	// Multilayer and Aperiodic items are also here
 
 			if(item->child(i)->childCount()>0)
 			{
-				fill_Calc_Tree_From_Item_Tree(calc_Tree.child(parent,i), calc_Tree, item->child(i));
+				fill_Calc_Tree_From_Item_Tree(calc_Tree.child(parent,calc_Counter), calc_Tree, item->child(i));
 			}
+			calc_Counter++;
 		}
 	}
 }
