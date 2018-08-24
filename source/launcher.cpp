@@ -82,6 +82,3 @@ void Launcher::open_Multilayer_Approach()
 		global_Multilayer_Approach->activateWindow();
 	}
 }
-
-// test test test more tests
-// TEST

@@ -19,7 +19,7 @@ win32 {
     INCLUDEPATH +=	"C:/Program Files (x86)/C++ libraries" \
                     "C:/Program Files (x86)/C++ libraries/SwarmOps/include" \
                     "C:/Program Files (x86)/C++ libraries/RandomOps/include" \
-                    "C:/Program Files (x86)/C++ libraries/QCustomPlot 2.0.0"
+                    "C:/Program Files (x86)/C++ libraries/QCustomPlot 2.0.1"
 
 #---MinGW---MinGW---MinGW---MinGW---MinGW---MinGW---MinGW---MinGW---
 # DOESN'T WORK
@@ -68,7 +68,7 @@ win32 {
                     "C:/Program Files (x86)/C++ libraries/SwarmOps/msvc2017_64/SwarmOps.lib" \
                     "C:/Program Files (x86)/C++ libraries/GSL 2.4 Bruot/msvc2015_64/cblas.lib" \
                     "C:/Program Files (x86)/C++ libraries/GSL 2.4 Bruot/msvc2015_64/gsl.lib" \
-                    "C:/Program Files (x86)/C++ libraries/QCustomPlot 2.0.0/qt_5.10.1/msvc2017_64/qcustomplot.lib"
+                    "C:/Program Files (x86)/C++ libraries/QCustomPlot 2.0.1/qt_5.11.1/msvc2017_64/qcustomplot.lib"
         }
     }
 }
