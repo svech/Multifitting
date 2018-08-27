@@ -77,9 +77,11 @@ public:
 
 		QMap<QString, Optical_Graphs*> runned_Optical_Graphs;
 		Optical_Graphs* optical_Graphs;
-		QVector<QByteArray> target_Independent_Splitter_Position_Vec;
-		QVector<QByteArray> target_Splitter_Position_Vec;
-		QVector<QByteArray> independent_Splitter_Position_Vec;
+		QVector<QByteArray>  target_Independent_Splitter_Position_Vec;
+		QVector        <QByteArray>  target_Vertical_Splitter_Position_Vec;
+		QVector<QVector<QByteArray>> target_Horizontal_Splitter_Position_Vec_Vec;
+		QVector        <QByteArray>  independent_Vertical_Splitter_Position_Vec;
+		QVector<QVector<QByteArray>> independent_Horizontal_Splitter_Position_Vec_Vec;
 
 		QMap<QString, Fits_Selector*> runned_Fits_Selectors;
 		Fits_Selector* fits_Selector;

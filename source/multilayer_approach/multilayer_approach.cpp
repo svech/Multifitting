@@ -531,6 +531,12 @@ void Multilayer_Approach::open(QString filename)
 
 			// load calc property for independent plots
 			in >> multilayer->enable_Calc_Independent_Curves;
+
+			// load number of independent graph rows
+			if(loaded_Version_Major>=1 &&
+			   loaded_Version_Minor>=7 &&
+			   loaded_Version_Build>=8)
+			{in >> multilayer->num_Independent_Graph_Rows;}	// since 1.7.8
 		}
 		/// target
 		{
@@ -563,6 +569,12 @@ void Multilayer_Approach::open(QString filename)
 
 			// load calc property for target plots
 			in >> multilayer->enable_Calc_Target_Curves;
+
+			// load number of target graph rows
+			if(loaded_Version_Major>=1 &&
+			   loaded_Version_Minor>=7 &&
+			   loaded_Version_Build>=8)
+			{in >> multilayer->num_Target_Graph_Rows;}	// since 1.7.8
 		}
 		/// fitting settings
 		{
@@ -731,6 +743,9 @@ void Multilayer_Approach::save(QString filename)
 
 			// save calc property for independent plots
 			out << multilayer->enable_Calc_Independent_Curves;
+
+			// save number of independent graph rows
+			out << multilayer->num_Independent_Graph_Rows; // since 1.7.8
 		}
 		/// target
 		{
@@ -746,6 +761,8 @@ void Multilayer_Approach::save(QString filename)
 			// save calc property for target plots
 			out << multilayer->enable_Calc_Target_Curves;
 
+			// save number of target graph rows
+			out << multilayer->num_Target_Graph_Rows; // since 1.7.8
 		}
 		/// fitting settings
 		{

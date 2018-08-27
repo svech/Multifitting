@@ -4,9 +4,11 @@
 
 Optical_Graphs::Optical_Graphs(QString keep_Splitter, QWidget* parent) :
 	keep_Splitter(keep_Splitter),
-	target_Independent_Splitter_Vec(global_Multilayer_Approach->multilayer_Tabs->count()),
-	target_Splitter_Vec			   (global_Multilayer_Approach->multilayer_Tabs->count()),
-	independent_Splitter_Vec	   (global_Multilayer_Approach->multilayer_Tabs->count()),
+	target_Independent_Splitter_Vec        (global_Multilayer_Approach->multilayer_Tabs->count()),
+	target_Vertical_Splitter_Vec		   (global_Multilayer_Approach->multilayer_Tabs->count()),
+	target_Horizontal_Splitter_Vec_Vec	   (global_Multilayer_Approach->multilayer_Tabs->count()),
+	independent_Vertical_Splitter_Vec	   (global_Multilayer_Approach->multilayer_Tabs->count()),
+	independent_Horizontal_Splitter_Vec_Vec(global_Multilayer_Approach->multilayer_Tabs->count()),
 	QWidget(parent) // nullptr!
 {
 	setWindowTitle("Plots");
@@ -24,9 +26,17 @@ void Optical_Graphs::closeEvent(QCloseEvent* event)
 	// save splitters geometry
 	for(int tab_Index=0; tab_Index<global_Multilayer_Approach->multilayer_Tabs->count(); ++tab_Index)
 	{
+		Multilayer* multilayer = qobject_cast<Multilayer*>(global_Multilayer_Approach->multilayer_Tabs->widget(tab_Index));
+
 		global_Multilayer_Approach->target_Independent_Splitter_Position_Vec[tab_Index] = target_Independent_Splitter_Vec[tab_Index]->saveState();
-		global_Multilayer_Approach->target_Splitter_Position_Vec[tab_Index] = target_Splitter_Vec[tab_Index]->saveState();
-		global_Multilayer_Approach->independent_Splitter_Position_Vec[tab_Index] = independent_Splitter_Vec[tab_Index]->saveState();
+		global_Multilayer_Approach->target_Vertical_Splitter_Position_Vec[tab_Index] = target_Vertical_Splitter_Vec[tab_Index]->saveState();
+		for(int row=0; row<multilayer->num_Target_Graph_Rows; row++)			{
+			global_Multilayer_Approach->target_Horizontal_Splitter_Position_Vec_Vec[tab_Index][row] = target_Horizontal_Splitter_Vec_Vec[tab_Index][row]->saveState();
+		}
+		global_Multilayer_Approach->independent_Vertical_Splitter_Position_Vec[tab_Index] = independent_Vertical_Splitter_Vec[tab_Index]->saveState();
+		for(int row=0; row<multilayer->num_Independent_Graph_Rows; row++)		{
+			global_Multilayer_Approach->independent_Horizontal_Splitter_Position_Vec_Vec[tab_Index][row] = independent_Horizontal_Splitter_Vec_Vec[tab_Index][row]->saveState();
+		}
 	}
 
 	event->accept();
@@ -76,6 +86,12 @@ void Optical_Graphs::create_Tabs()
 
 void Optical_Graphs::add_Tabs()
 {
+	global_Multilayer_Approach->target_Independent_Splitter_Position_Vec.resize		   (global_Multilayer_Approach->multilayer_Tabs->count());
+	global_Multilayer_Approach->target_Vertical_Splitter_Position_Vec.resize		   (global_Multilayer_Approach->multilayer_Tabs->count());
+	global_Multilayer_Approach->target_Horizontal_Splitter_Position_Vec_Vec.resize	   (global_Multilayer_Approach->multilayer_Tabs->count());
+	global_Multilayer_Approach->independent_Vertical_Splitter_Position_Vec.resize	   (global_Multilayer_Approach->multilayer_Tabs->count());
+	global_Multilayer_Approach->independent_Horizontal_Splitter_Position_Vec_Vec.resize(global_Multilayer_Approach->multilayer_Tabs->count());
+
 	for(int tab_Index=0; tab_Index<global_Multilayer_Approach->multilayer_Tabs->count(); ++tab_Index)
 	{
 		QWidget* new_Widget = new QWidget;
@@ -113,13 +129,24 @@ void Optical_Graphs::create_Tab_Content(QWidget* new_Widget, int tab_Index)
 		target_Layout->setSpacing(0);
 		target_Layout->setContentsMargins(0,2,0,3);
 
-		QSplitter* target_Splitter = new QSplitter;
-		target_Splitter->setOrientation(Qt::Horizontal);
-		target_Splitter->setHandleWidth(1);
-		target_Splitter->setStyleSheet("QSplitter::handle{border: 0px solid gray; background: gray;}");
-		target_Layout->addWidget(target_Splitter);
-		target_Splitter_Vec[tab_Index] = target_Splitter;
+		QSplitter* target_Vertical_Splitter = new QSplitter;
+		target_Vertical_Splitter->setOrientation(Qt::Vertical);
+		target_Vertical_Splitter->setHandleWidth(1);
+		target_Vertical_Splitter->setStyleSheet("QSplitter::handle{border: 0px solid gray; background: gray;}");
+		target_Layout->addWidget(target_Vertical_Splitter);
+		target_Vertical_Splitter_Vec[tab_Index] = target_Vertical_Splitter;
+		for(int row=0; row<multilayer->num_Target_Graph_Rows; row++)
+		{
+			QSplitter* target_Horizontal_Splitter = new QSplitter;
+			target_Horizontal_Splitter->setOrientation(Qt::Horizontal);
+			target_Horizontal_Splitter->setHandleWidth(1);
+			target_Horizontal_Splitter->setStyleSheet("QSplitter::handle{border: 0px solid gray; background: gray;}");
+			target_Horizontal_Splitter_Vec_Vec[tab_Index][row] = target_Horizontal_Splitter;
+			target_Vertical_Splitter->addWidget(target_Horizontal_Splitter);
+		}
 
+		// fill splitters with graphs
+		int current_Graph = 0;
 		if( multilayer->enable_Calc_Target_Curves )
 		for(Target_Curve* target_Curve : multilayer->target_Profiles_Vector)
 		{
@@ -127,12 +154,18 @@ void Optical_Graphs::create_Tab_Content(QWidget* new_Widget, int tab_Index)
 			if(target_Curve->fit_Params.calc)
 			{
 				Curve_Plot* new_Curve_Plot = new Curve_Plot(target_Curve, nullptr, TARGET, this);
-				target_Splitter->addWidget(new_Curve_Plot);
+
+				int current_Row = current_Graph/multilayer->num_Target_Graph_Rows;
+				qInfo() << "current_Row="<<current_Row;
+				current_Graph++;
+
+				target_Horizontal_Splitter_Vec_Vec[tab_Index][current_Row]->addWidget(new_Curve_Plot);
 				plots.append(new_Curve_Plot);
 			}
 		}
 		target_GroupBox_Vec.append(target_Group_Box);
 	}
+
 	// independent
 	{
 		QGroupBox* independent_Group_Box = new QGroupBox("Independent", this);
@@ -145,13 +178,24 @@ void Optical_Graphs::create_Tab_Content(QWidget* new_Widget, int tab_Index)
 		independent_Layout->setSpacing(0);
 		independent_Layout->setContentsMargins(0,2,0,3);
 
-		QSplitter* independent_Splitter = new QSplitter;
-		independent_Splitter->setOrientation(Qt::Horizontal);
-		independent_Splitter->setHandleWidth(1);
-		independent_Splitter->setStyleSheet("QSplitter::handle{border: 0px solid gray; background: gray;}");
-		independent_Layout->addWidget(independent_Splitter);
-		independent_Splitter_Vec[tab_Index] = independent_Splitter;
+		QSplitter* independent_Vertical_Splitter = new QSplitter;
+		independent_Vertical_Splitter->setOrientation(Qt::Horizontal);
+		independent_Vertical_Splitter->setHandleWidth(1);
+		independent_Vertical_Splitter->setStyleSheet("QSplitter::handle{border: 0px solid gray; background: gray;}");
+		independent_Layout->addWidget(independent_Vertical_Splitter);
+		independent_Vertical_Splitter_Vec[tab_Index] = independent_Vertical_Splitter;
+		for(int row=0; row<multilayer->num_Independent_Graph_Rows; row++)
+		{
+			QSplitter* independent_Horizontal_Splitter = new QSplitter;
+			independent_Horizontal_Splitter->setOrientation(Qt::Horizontal);
+			independent_Horizontal_Splitter->setHandleWidth(1);
+			independent_Horizontal_Splitter->setStyleSheet("QSplitter::handle{border: 0px solid gray; background: gray;}");
+			independent_Horizontal_Splitter_Vec_Vec[tab_Index][row] = independent_Horizontal_Splitter;
+			independent_Vertical_Splitter->addWidget(independent_Horizontal_Splitter);
+		}
 
+		// fill splitters with graphs
+		int current_Graph = 0;
 		if(multilayer->enable_Calc_Independent_Curves)
 		for(int i=0; i<multilayer->independent_Variables_Plot_Tabs->count(); ++i)
 		{
@@ -160,7 +204,11 @@ void Optical_Graphs::create_Tab_Content(QWidget* new_Widget, int tab_Index)
 			if(	independent_Variables->calc_Functions.if_Something_Enabled() )
 			{
 				Curve_Plot* new_Curve_Plot = new Curve_Plot(nullptr, independent_Variables, INDEPENDENT, this);
-				independent_Splitter->addWidget(new_Curve_Plot);
+
+				int current_Row = current_Graph/multilayer->num_Independent_Graph_Rows;
+				current_Graph++;
+
+				independent_Horizontal_Splitter_Vec_Vec[tab_Index][current_Row]->addWidget(new_Curve_Plot);
 				plots.append(new_Curve_Plot);
 			}
 		}
@@ -168,13 +216,35 @@ void Optical_Graphs::create_Tab_Content(QWidget* new_Widget, int tab_Index)
 	}
 
 	// restore splitter positions
-	global_Multilayer_Approach->target_Independent_Splitter_Position_Vec.resize(global_Multilayer_Approach->multilayer_Tabs->count());
-	global_Multilayer_Approach->target_Splitter_Position_Vec.resize(global_Multilayer_Approach->multilayer_Tabs->count());
-	global_Multilayer_Approach->independent_Splitter_Position_Vec.resize(global_Multilayer_Approach->multilayer_Tabs->count());
+//	global_Multilayer_Approach->target_Independent_Splitter_Position_Vec.resize		   (global_Multilayer_Approach->multilayer_Tabs->count());
+//	global_Multilayer_Approach->target_Vertical_Splitter_Position_Vec.resize		   (global_Multilayer_Approach->multilayer_Tabs->count());
+//	global_Multilayer_Approach->target_Horizontal_Splitter_Position_Vec_Vec.resize	   (global_Multilayer_Approach->multilayer_Tabs->count());
+//	global_Multilayer_Approach->independent_Vertical_Splitter_Position_Vec.resize	   (global_Multilayer_Approach->multilayer_Tabs->count());
+//	global_Multilayer_Approach->independent_Horizontal_Splitter_Position_Vec_Vec.resize(global_Multilayer_Approach->multilayer_Tabs->count());
+
+	global_Multilayer_Approach->target_Horizontal_Splitter_Position_Vec_Vec     [tab_Index].resize(multilayer->num_Target_Graph_Rows);
+	global_Multilayer_Approach->independent_Horizontal_Splitter_Position_Vec_Vec[tab_Index].resize(multilayer->num_Independent_Graph_Rows);
+
 	{
-										  target_Independent_Splitter_Vec[tab_Index]->restoreState(global_Multilayer_Approach->target_Independent_Splitter_Position_Vec[tab_Index]);
-		if(keep_Splitter != TARGET)		{ target_Splitter_Vec			 [tab_Index]->restoreState(global_Multilayer_Approach->target_Splitter_Position_Vec			   [tab_Index]);}
-		if(keep_Splitter != INDEPENDENT){ independent_Splitter_Vec		 [tab_Index]->restoreState(global_Multilayer_Approach->independent_Splitter_Position_Vec	   [tab_Index]);}
+										  target_Independent_Splitter_Vec  [tab_Index]->restoreState(global_Multilayer_Approach->target_Independent_Splitter_Position_Vec  [tab_Index]);
+		if(keep_Splitter != TARGET)
+		{
+			target_Vertical_Splitter_Vec[tab_Index]->restoreState(global_Multilayer_Approach->target_Vertical_Splitter_Position_Vec[tab_Index]);
+
+			for(int row=0; row<multilayer->num_Target_Graph_Rows; row++)
+			{
+				target_Horizontal_Splitter_Vec_Vec[tab_Index][row]->restoreState(global_Multilayer_Approach->target_Horizontal_Splitter_Position_Vec_Vec[tab_Index][row]);
+			}
+		}
+		if(keep_Splitter != INDEPENDENT)
+		{
+			independent_Vertical_Splitter_Vec[tab_Index]->restoreState(global_Multilayer_Approach->independent_Vertical_Splitter_Position_Vec[tab_Index]);
+
+			for(int row=0; row<multilayer->num_Independent_Graph_Rows; row++)
+			{
+				independent_Horizontal_Splitter_Vec_Vec[tab_Index][row]->restoreState(global_Multilayer_Approach->independent_Horizontal_Splitter_Position_Vec_Vec[tab_Index][row]);
+			}
+		}
 	}
 }
 

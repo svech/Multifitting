@@ -31,8 +31,10 @@ public:
 		QVector<QGroupBox*> independent_GroupBox_Vec;
 
 	QVector<QSplitter*> target_Independent_Splitter_Vec;
-	QVector<QSplitter*> target_Splitter_Vec;
-	QVector<QSplitter*> independent_Splitter_Vec;
+	QVector        <QSplitter*>  target_Vertical_Splitter_Vec;
+	QVector<QVector<QSplitter*>> target_Horizontal_Splitter_Vec_Vec;
+	QVector        <QSplitter*>  independent_Vertical_Splitter_Vec;
+	QVector<QVector<QSplitter*>> independent_Horizontal_Splitter_Vec_Vec;
 	QVector<Curve_Plot*> plots;
 };
 

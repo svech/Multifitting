@@ -9,7 +9,7 @@
 
 #define VERSION_MAJOR 1
 #define VERSION_MINOR 7
-#define VERSION_BUILD 7
+#define VERSION_BUILD 8
 
 //#define EXPRTK
 
@@ -54,8 +54,10 @@ class Node;
 	#define Calculation_Settings_Window_Geometry	"Calculation_Settings_Window_Geometry"
 	#define Fits_Selector_Window_Geometry			"Fits_Selector_Window_Geometry"
 
-	#define Multilayer_Tabs						"Multilayer_Tabs"
-	#define Resource_Paths						"Resource_Paths"
+	#define Multilayer_Tabs							"Multilayer_Tabs"
+	#define Resource_Paths							"Resource_Paths"
+
+	#define Graphs_Grid								"Graphs_Grid"
 
 // structure default values
 #define Structure_Default_Values_Path Pre_Path + "settings/structure_default_values.ini"
