@@ -67,8 +67,11 @@ public:
 						QVector<Target_Curve*> target_Profiles_Vector;
 						QMap<Target_Curve*, Target_Curve_Editor*> runned_Target_Curve_Editors;
 
-	int num_Target_Graph_Rows;
-	int num_Independent_Graph_Rows;
+	int num_Target_Rows;		// rows in Calculation Settings
+	int num_Independent_Rows;	// rows in Calculation Settings
+
+	int num_Target_Graph_Rows;		// rows in Graphs
+	int num_Independent_Graph_Rows;	// rows in Graphs
 
 	bool enable_Calc_Target_Curves = true;
 	bool enable_Calc_Independent_Curves = true;

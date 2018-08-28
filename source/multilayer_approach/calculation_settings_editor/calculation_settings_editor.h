@@ -12,6 +12,9 @@ class Calculation_Settings_Editor : public QWidget
 public:
 	explicit Calculation_Settings_Editor(QWidget *parent = nullptr);
 
+	void contextMenuEvent(QContextMenuEvent* event);
+	void settings();
+
 	void closeEvent(QCloseEvent* event);
 	void create_Main_Layout();
 	void set_Window_Geometry();

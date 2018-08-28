@@ -4,6 +4,8 @@
 
 Multilayer::Multilayer(QWidget *parent) :
 	parent(parent),
+	num_Target_Rows(1),
+	num_Independent_Rows(1),
 	num_Target_Graph_Rows(1),
 	num_Independent_Graph_Rows(1),
 	QWidget(parent)

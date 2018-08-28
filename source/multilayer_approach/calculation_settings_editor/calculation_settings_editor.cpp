@@ -12,6 +12,94 @@ Calculation_Settings_Editor::Calculation_Settings_Editor(QWidget* parent) :
 	setAttribute(Qt::WA_DeleteOnClose);
 }
 
+void Calculation_Settings_Editor::contextMenuEvent(QContextMenuEvent* event)
+{
+	QMenu menu;
+	QAction settings_Action("Settings");
+	menu.addAction(&settings_Action);
+
+	connect(&settings_Action, &QAction::triggered, this, [=]{ settings();});
+
+	menu.exec(event->globalPos());
+}
+
+void Calculation_Settings_Editor::settings()
+{
+	Multilayer* multilayer = qobject_cast<Multilayer*>(global_Multilayer_Approach->multilayer_Tabs->widget(main_Tabs->currentIndex()));
+
+	QWidget* settings_Window = new QWidget(this);
+		settings_Window->setWindowTitle("Calc Editor Settings");
+		settings_Window->setWindowModality(Qt::ApplicationModal);
+		settings_Window->setAttribute(Qt::WA_DeleteOnClose);
+		settings_Window->setWindowFlags(Qt::Window);
+		settings_Window->show();
+
+	QVBoxLayout* settings_Main_Layout = new QVBoxLayout(settings_Window);
+		settings_Main_Layout->setSpacing(5);
+		settings_Main_Layout->setContentsMargins(5,5,5,5);
+
+	// settings group box
+	QGroupBox* settings_Group_Box = new QGroupBox;
+		settings_Group_Box->setObjectName("settings_Group_Box");
+		settings_Group_Box->setStyleSheet("QGroupBox#settings_Group_Box { border-radius: 2px;  border: 1px solid gray; margin-top: 0ex;}"
+													"QGroupBox::title   { subcontrol-origin: margin;   left: 9px; padding: 0 0px 0 1px;}");
+	settings_Main_Layout->addWidget(settings_Group_Box);
+
+	QGridLayout* settings_Group_Box_Layout = new QGridLayout(settings_Group_Box);
+		settings_Group_Box_Layout->setContentsMargins(5,5,5,5);
+	settings_Main_Layout->addWidget(settings_Group_Box);
+
+	// num target rows
+	QLabel* target_Rows_Label = new QLabel("Number of \"Measured\" rows");
+	QSpinBox* target_Rows_SpinBox = new QSpinBox;
+		target_Rows_SpinBox->setValue(multilayer->num_Target_Rows);
+		target_Rows_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
+		target_Rows_SpinBox->setAccelerated(true);
+		target_Rows_SpinBox->setRange(1, 20);
+		target_Rows_SpinBox->setFixedWidth(25);
+
+	settings_Group_Box_Layout->addWidget(target_Rows_Label,		0,0,1,1);
+	settings_Group_Box_Layout->addWidget(target_Rows_SpinBox,	0,1,1,1);
+
+	// num independent rows
+	QLabel* independent_Rows_Label = new QLabel("Number of \"Independent\" rows");
+	QSpinBox* independent_Rows_SpinBox = new QSpinBox;
+		independent_Rows_SpinBox->setValue(multilayer->num_Independent_Rows);
+		independent_Rows_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
+		independent_Rows_SpinBox->setAccelerated(true);
+		independent_Rows_SpinBox->setRange(1, 20);
+		independent_Rows_SpinBox->setFixedWidth(25);
+
+	settings_Group_Box_Layout->addWidget(independent_Rows_Label,	1,0,1,1);
+	settings_Group_Box_Layout->addWidget(independent_Rows_SpinBox,	1,1,1,1);
+
+	// buttons
+	QHBoxLayout* buttons_Layout = new QHBoxLayout;
+		buttons_Layout->setSpacing(10);
+		buttons_Layout->setContentsMargins(0,0,0,0);
+
+	QPushButton* ok_Button = new QPushButton ("OK");
+	QPushButton* cancel_Button = new QPushButton("Cancel");
+		buttons_Layout->addWidget(ok_Button);
+		buttons_Layout->addWidget(cancel_Button);
+	settings_Main_Layout->addLayout(buttons_Layout);
+
+	connect(cancel_Button,  &QPushButton::clicked, this, [=]{settings_Window->close();});
+	connect(ok_Button,      &QPushButton::clicked, this, [=]
+	{
+		int active_Tab = main_Tabs->currentIndex();
+		close();
+		multilayer->num_Target_Rows = target_Rows_SpinBox->value();
+		multilayer->num_Independent_Rows = independent_Rows_SpinBox->value();
+		global_Multilayer_Approach->open_Calculation_Settings();
+		global_Multilayer_Approach->calculation_Settings_Editor->main_Tabs->setCurrentIndex(active_Tab);
+		settings_Window->close();
+	});
+
+	settings_Window->adjustSize();
+	settings_Window->setFixedSize(settings_Window->size());
+}
+
 void Calculation_Settings_Editor::closeEvent(QCloseEvent* event)
 {
 	write_Window_Geometry();
@@ -262,6 +350,8 @@ void Calculation_Settings_Editor::create_Tab_Content(QWidget* new_Widget, int ta
 void Calculation_Settings_Editor::load_Target_Parameters(int tab_Index)
 {
 	Multilayer* multilayer = qobject_cast<Multilayer*>(multilayer_Tabs->widget(tab_Index));
+
+	// enable/disable target groupbox
 	target_Group_Box_Vec[tab_Index]->setChecked(multilayer->enable_Calc_Target_Curves);
 	connect(target_Group_Box_Vec[tab_Index],  &QGroupBox::toggled, this, [=]{
 		multilayer->enable_Calc_Target_Curves = target_Group_Box_Vec[tab_Index]->isChecked();
@@ -269,88 +359,122 @@ void Calculation_Settings_Editor::load_Target_Parameters(int tab_Index)
 		activateWindow();
 	});
 
-	QHBoxLayout* multilayer_Box_Layout = new QHBoxLayout(target_Group_Box_Vec[tab_Index]);
-		multilayer_Box_Layout->setSpacing(20);
-		multilayer_Box_Layout->setContentsMargins(7,14,7,7);
+	QVBoxLayout* target_Vertical_Box_Layout = new QVBoxLayout(target_Group_Box_Vec[tab_Index]);
+		target_Vertical_Box_Layout->setSpacing(20);
+		target_Vertical_Box_Layout->setContentsMargins(7,14,7,7);
 
-	for(int target_Index=0; target_Index<multilayer->target_Profiles_Vector.size(); ++target_Index)
+	// calculate total number of targets
+	int total_Number_of_Targets = 0;
+	QVector<Target_Curve*> targets;
+
+	for(Target_Curve* target_Curve: multilayer->target_Profiles_Vector)
 	{
-		if(multilayer->target_Profiles_Vector[target_Index]->loaded_And_Ready)
+		if(target_Curve->loaded_And_Ready)
 		{
-			QGroupBox* box = new QGroupBox(multilayer->target_Profiles_Vector[target_Index]->label_Text);
-				box->setCheckable(true);
-				box->setObjectName("box");
-				box->setStyleSheet("QGroupBox#box { border-radius: 2px; border: 1px solid gray; margin-top: 2ex;}"
-								"QGroupBox::title { subcontrol-origin: margin;  left: 9px; padding: 0 0px 0 1px;}");
-			multilayer_Box_Layout->addWidget(box);
-
-			box->setChecked(multilayer->target_Profiles_Vector[target_Index]->fit_Params.calc);
-			connect(box,  &QGroupBox::toggled, this, [=]{
-				multilayer->target_Profiles_Vector[target_Index]->fit_Params.calc = qobject_cast<QGroupBox*>(sender())->isChecked();
-				reopen_Optical_Graphs(TARGET);
-				activateWindow();
-			});
-
-			QVBoxLayout* box_Layout = new QVBoxLayout(box);
-				box_Layout->setSpacing(5);
-				box_Layout->setContentsMargins(5,10,5,5);
-
-			// content
-			{
-				{
-					QCheckBox* fit = new QCheckBox("Fit");
-						box_Layout->addWidget(fit);
-						fit->setChecked(multilayer->target_Profiles_Vector[target_Index]->fit_Params.fit);
-					connect(fit,  &QCheckBox::toggled, this, [=]{ multilayer->target_Profiles_Vector[target_Index]->fit_Params.fit = fit->isChecked(); });
-
-					QLabel* weight_Label = new QLabel("Weight");
-					QLineEdit* weight_Line_Edit = new QLineEdit(QString::number(multilayer->target_Profiles_Vector[target_Index]->fit_Params.weight));
-						weight_Line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION, this));
-
-					QHBoxLayout* weight_Layout = new QHBoxLayout;
-						weight_Layout->addWidget(weight_Label);
-						weight_Layout->addWidget(weight_Line_Edit);
-
-					box_Layout->addLayout(weight_Layout);
-					connect(weight_Line_Edit,  &QLineEdit::textEdited, this, [=]
-					{
-						multilayer->target_Profiles_Vector[target_Index]->fit_Params.weight      =      weight_Line_Edit->text().toDouble();
-						multilayer->target_Profiles_Vector[target_Index]->fit_Params.weight_Sqrt = sqrt(weight_Line_Edit->text().toDouble());
-					});
-					different_Lines.append(weight_Line_Edit);
-				}
-				{
-					QCheckBox* norm = new QCheckBox("Divide by N");
-						box_Layout->addWidget(norm);
-					norm->setChecked(multilayer->target_Profiles_Vector[target_Index]->fit_Params.norm);
-					connect(norm,  &QCheckBox::toggled, this, [=]{ multilayer->target_Profiles_Vector[target_Index]->fit_Params.norm = norm->isChecked(); });
-				}
-				{
-					QLabel* function_Label = new QLabel("Function");
-					QLineEdit* fit_Function_Line_Edit = new QLineEdit(multilayer->target_Profiles_Vector[target_Index]->fit_Params.fit_Function);
-
-					QHBoxLayout* function_Layout = new QHBoxLayout;
-						function_Layout->addWidget(function_Label);
-						function_Layout->addWidget(fit_Function_Line_Edit);
-
-					box_Layout->addLayout(function_Layout);
-					connect(fit_Function_Line_Edit,  &QLineEdit::editingFinished, this, [=]
-					{
-						QStringList var_List = {fit_Function_Variable};
-						if(Global_Variables::expression_Is_Valid(fit_Function_Line_Edit->text(), var_List) || fit_Function_Line_Edit->text().isEmpty())
-						{
-							multilayer->target_Profiles_Vector[target_Index]->fit_Params.fit_Function = fit_Function_Line_Edit->text();
-						} else
-						{
-							fit_Function_Line_Edit->setText(multilayer->target_Profiles_Vector[target_Index]->fit_Params.fit_Function);
-							QMessageBox::information(this, "Wrong expression", "Expression has wrong syntax");
-						}
-					});
-					different_Lines.append(fit_Function_Line_Edit);
-				}
-			}
+			targets.append(target_Curve);
+			total_Number_of_Targets++;
 		}
 	}
+
+	int targets_in_Short_Row = total_Number_of_Targets/multilayer->num_Target_Rows;
+	int additional_Targets = total_Number_of_Targets%multilayer->num_Target_Rows;
+	int first_Long_Row_Index = multilayer->num_Target_Rows-additional_Targets;
+
+	int current_Row = 0;
+	int targets_in_Filled_Rows = 0;
+	int length = -2018;
+
+	QHBoxLayout* horizontal_Layout = new QHBoxLayout;
+
+	int target_Index = 0;
+	for(Target_Curve* target_Curve: targets)
+	{
+		QGroupBox* box = new QGroupBox(target_Curve->label_Text);
+			box->setCheckable(true);
+			box->setObjectName("box");
+			box->setStyleSheet("QGroupBox#box { border-radius: 2px; border: 1px solid gray; margin-top: 2ex;}"
+							"QGroupBox::title { subcontrol-origin: margin;  left: 9px; padding: 0 0px 0 1px;}");
+
+		horizontal_Layout->addWidget(box);
+			horizontal_Layout->setSpacing(20);
+		// switching is here
+		if(current_Row < first_Long_Row_Index) length = targets_in_Short_Row; else length = targets_in_Short_Row + 1;
+		if(target_Index == targets_in_Filled_Rows+length-1)
+		{
+			targets_in_Filled_Rows += length;
+			current_Row++;
+			target_Vertical_Box_Layout->addLayout(horizontal_Layout);
+			horizontal_Layout = new QHBoxLayout; // may be memory leak at the end
+		}
+
+		box->setChecked(target_Curve->fit_Params.calc);
+		connect(box,  &QGroupBox::toggled, this, [=]{
+			target_Curve->fit_Params.calc = qobject_cast<QGroupBox*>(sender())->isChecked();
+			reopen_Optical_Graphs(TARGET);
+			activateWindow();
+		});
+
+		QVBoxLayout* box_Layout = new QVBoxLayout(box);
+			box_Layout->setSpacing(5);
+			box_Layout->setContentsMargins(5,10,5,5);
+
+		// content
+		{
+			{
+				QCheckBox* fit = new QCheckBox("Fit");
+					box_Layout->addWidget(fit);
+					fit->setChecked(target_Curve->fit_Params.fit);
+				connect(fit,  &QCheckBox::toggled, this, [=]{ target_Curve->fit_Params.fit = fit->isChecked(); });
+
+				QLabel* weight_Label = new QLabel("Weight");
+				QLineEdit* weight_Line_Edit = new QLineEdit(QString::number(target_Curve->fit_Params.weight));
+					weight_Line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION, this));
+
+				QHBoxLayout* weight_Layout = new QHBoxLayout;
+					weight_Layout->addWidget(weight_Label);
+					weight_Layout->addWidget(weight_Line_Edit);
+
+				box_Layout->addLayout(weight_Layout);
+				connect(weight_Line_Edit,  &QLineEdit::textEdited, this, [=]
+				{
+					target_Curve->fit_Params.weight      =      weight_Line_Edit->text().toDouble();
+					target_Curve->fit_Params.weight_Sqrt = sqrt(weight_Line_Edit->text().toDouble());
+				});
+				different_Lines.append(weight_Line_Edit);
+			}
+			{
+				QCheckBox* norm = new QCheckBox("Divide by N");
+					box_Layout->addWidget(norm);
+				norm->setChecked(target_Curve->fit_Params.norm);
+				connect(norm,  &QCheckBox::toggled, this, [=]{ target_Curve->fit_Params.norm = norm->isChecked(); });
+			}
+			{
+				QLabel* function_Label = new QLabel("Function");
+				QLineEdit* fit_Function_Line_Edit = new QLineEdit(target_Curve->fit_Params.fit_Function);
+
+				QHBoxLayout* function_Layout = new QHBoxLayout;
+					function_Layout->addWidget(function_Label);
+					function_Layout->addWidget(fit_Function_Line_Edit);
+
+				box_Layout->addLayout(function_Layout);
+				connect(fit_Function_Line_Edit,  &QLineEdit::editingFinished, this, [=]
+				{
+					QStringList var_List = {fit_Function_Variable};
+					if(Global_Variables::expression_Is_Valid(fit_Function_Line_Edit->text(), var_List) || fit_Function_Line_Edit->text().isEmpty())
+					{
+						target_Curve->fit_Params.fit_Function = fit_Function_Line_Edit->text();
+					} else
+					{
+						fit_Function_Line_Edit->setText(target_Curve->fit_Params.fit_Function);
+						QMessageBox::information(this, "Wrong expression", "Expression has wrong syntax");
+					}
+				});
+				different_Lines.append(fit_Function_Line_Edit);
+			}
+		}
+		target_Index++;
+	}
+	if(!horizontal_Layout->parent()) delete horizontal_Layout;
 }
 
 void Calculation_Settings_Editor::load_Independent_Parameters(int tab_Index)
@@ -364,9 +488,22 @@ void Calculation_Settings_Editor::load_Independent_Parameters(int tab_Index)
 		activateWindow();
 	});
 
-	QHBoxLayout* multilayer_Box_Layout = new QHBoxLayout(independent_Group_Box_Vec[tab_Index]);
-		multilayer_Box_Layout->setSpacing(20);
-		multilayer_Box_Layout->setContentsMargins(7,14,7,7);
+	QVBoxLayout* independent_Vertical_Box_Layout = new QVBoxLayout(independent_Group_Box_Vec[tab_Index]);
+		independent_Vertical_Box_Layout->setSpacing(20);
+		independent_Vertical_Box_Layout->setContentsMargins(7,14,7,7);
+
+	// total number of independents
+	int total_Number_of_Independents = multilayer->independent_Variables_Plot_Tabs->count();
+
+	int independents_in_Short_Row = total_Number_of_Independents/multilayer->num_Independent_Rows;
+	int additional_Independents = total_Number_of_Independents%multilayer->num_Independent_Rows;
+	int first_Long_Row_Index = multilayer->num_Independent_Rows-additional_Independents;
+
+	int current_Row = 0;
+	int independents_in_Filled_Rows = 0;
+	int length = -2018;
+
+	QHBoxLayout* horizontal_Layout = new QHBoxLayout;
 
 	for(int independent_Index=0; independent_Index<multilayer->independent_Variables_Plot_Tabs->count(); ++independent_Index)
 	{
@@ -377,7 +514,21 @@ void Calculation_Settings_Editor::load_Independent_Parameters(int tab_Index)
 			box->setObjectName("box");
 			box->setStyleSheet("QGroupBox#box { border-radius: 2px;  border: 1px solid gray; margin-top: 2ex;}"
 						  "QGroupBox::title   { subcontrol-origin: margin;   left: 9px; padding: 0 0px 0 1px;}");
-		multilayer_Box_Layout->addWidget(box);
+
+		horizontal_Layout->addWidget(box);
+			horizontal_Layout->setSpacing(20);
+
+		// switching is here
+		if(current_Row < first_Long_Row_Index) length = independents_in_Short_Row; else length = independents_in_Short_Row + 1;
+
+		if(independent_Index == independents_in_Filled_Rows+length-1)
+		{
+
+			independents_in_Filled_Rows += length;
+			current_Row++;
+			independent_Vertical_Box_Layout->addLayout(horizontal_Layout);
+			horizontal_Layout = new QHBoxLayout; // may be memory leak at the end
+		}
 
 		box->setChecked(independent_Variables->calc_Functions.check_Enabled);
 		connect(box,  &QGroupBox::toggled, this, [=]{
@@ -462,6 +613,7 @@ void Calculation_Settings_Editor::load_Independent_Parameters(int tab_Index)
 			}
 		}
 	}
+	if(!horizontal_Layout->parent()) delete horizontal_Layout;
 }
 
 void Calculation_Settings_Editor::refresh_Independent_Calc_Properties(int tab_Index, int independent_Index, QGroupBox* box)

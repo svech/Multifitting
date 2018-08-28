@@ -57,8 +57,6 @@ class Node;
 	#define Multilayer_Tabs							"Multilayer_Tabs"
 	#define Resource_Paths							"Resource_Paths"
 
-	#define Graphs_Grid								"Graphs_Grid"
-
 // structure default values
 #define Structure_Default_Values_Path Pre_Path + "settings/structure_default_values.ini"
 	#define Structure_Init_Values	"Structure_Init_Values"
@@ -331,6 +329,7 @@ class Node;
 // curves types
 #define INDEPENDENT	"INDEPENDENT"
 #define TARGET		"TARGET"
+#define TARGET_AND_INDEPENDENT "TARGET_AND_INDEPENDENT"
 
 // from boundaries to parametrization
 #define noparam		"no parametrization"

@@ -13,6 +13,9 @@ class Optical_Graphs : public QWidget
 public:
 	explicit Optical_Graphs(QString keep_Splitter = "", QWidget *parent = nullptr);
 
+	void contextMenuEvent(QContextMenuEvent *event);
+	void settings();
+
 	void closeEvent(QCloseEvent* event);
 	void create_Main_Layout();
 	void create_Tabs();
