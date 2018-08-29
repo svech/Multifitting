@@ -3,6 +3,8 @@
 #include "calculation_settings_editor.h"
 
 Calculation_Settings_Editor::Calculation_Settings_Editor(QWidget* parent) :
+	total_Number_of_Targets(0),
+	total_Number_of_Independents(0),
 	multilayer_Tabs(global_Multilayer_Approach->multilayer_Tabs),
 	QWidget(parent) // nullptr!
 {
@@ -55,7 +57,7 @@ void Calculation_Settings_Editor::settings()
 		target_Rows_SpinBox->setValue(multilayer->num_Target_Rows);
 		target_Rows_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
 		target_Rows_SpinBox->setAccelerated(true);
-		target_Rows_SpinBox->setRange(1, 20);
+		target_Rows_SpinBox->setRange(1, total_Number_of_Targets);
 		target_Rows_SpinBox->setFixedWidth(25);
 
 	settings_Group_Box_Layout->addWidget(target_Rows_Label,		0,0,1,1);
@@ -67,7 +69,7 @@ void Calculation_Settings_Editor::settings()
 		independent_Rows_SpinBox->setValue(multilayer->num_Independent_Rows);
 		independent_Rows_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
 		independent_Rows_SpinBox->setAccelerated(true);
-		independent_Rows_SpinBox->setRange(1, 20);
+		independent_Rows_SpinBox->setRange(1, total_Number_of_Independents);
 		independent_Rows_SpinBox->setFixedWidth(25);
 
 	settings_Group_Box_Layout->addWidget(independent_Rows_Label,	1,0,1,1);
@@ -364,7 +366,7 @@ void Calculation_Settings_Editor::load_Target_Parameters(int tab_Index)
 		target_Vertical_Box_Layout->setContentsMargins(7,14,7,7);
 
 	// calculate total number of targets
-	int total_Number_of_Targets = 0;
+	total_Number_of_Targets = 0;
 	QVector<Target_Curve*> targets;
 
 	for(Target_Curve* target_Curve: multilayer->target_Profiles_Vector)
@@ -493,7 +495,7 @@ void Calculation_Settings_Editor::load_Independent_Parameters(int tab_Index)
 		independent_Vertical_Box_Layout->setContentsMargins(7,14,7,7);
 
 	// total number of independents
-	int total_Number_of_Independents = multilayer->independent_Variables_Plot_Tabs->count();
+	total_Number_of_Independents = multilayer->independent_Variables_Plot_Tabs->count();
 
 	int independents_in_Short_Row = total_Number_of_Independents/multilayer->num_Independent_Rows;
 	int additional_Independents = total_Number_of_Independents%multilayer->num_Independent_Rows;

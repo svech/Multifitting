@@ -26,6 +26,9 @@ public:
 	void lock_Mainwindow_Interface();
 	void unlock_Mainwindow_Interface();
 
+	int total_Number_of_Target_Graphs;
+	int total_Number_of_Independent_Graphs;
+
 	QString keep_Splitter;
 	QVBoxLayout* main_Layout;
 

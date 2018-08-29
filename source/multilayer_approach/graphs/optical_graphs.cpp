@@ -3,6 +3,8 @@
 #include "optical_graphs.h"
 
 Optical_Graphs::Optical_Graphs(QString keep_Splitter, QWidget* parent) :
+	total_Number_of_Target_Graphs(0),
+	total_Number_of_Independent_Graphs(0),
 	keep_Splitter(keep_Splitter),
 	target_Independent_Splitter_Vec        (global_Multilayer_Approach->multilayer_Tabs->count()),
 	target_Vertical_Splitter_Vec		   (global_Multilayer_Approach->multilayer_Tabs->count()),
@@ -60,7 +62,7 @@ void Optical_Graphs::settings()
 		target_Rows_SpinBox->setValue(multilayer->num_Target_Graph_Rows);
 		target_Rows_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
 		target_Rows_SpinBox->setAccelerated(true);
-		target_Rows_SpinBox->setRange(1, 20);
+		target_Rows_SpinBox->setRange(1, total_Number_of_Target_Graphs);
 		target_Rows_SpinBox->setFixedWidth(25);
 
 	settings_Group_Box_Layout->addWidget(target_Rows_Label,		0,0,1,1);
@@ -72,7 +74,7 @@ void Optical_Graphs::settings()
 		independent_Rows_SpinBox->setValue(multilayer->num_Independent_Graph_Rows);
 		independent_Rows_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
 		independent_Rows_SpinBox->setAccelerated(true);
-		independent_Rows_SpinBox->setRange(1, 20);
+		independent_Rows_SpinBox->setRange(1, total_Number_of_Independent_Graphs);
 		independent_Rows_SpinBox->setFixedWidth(25);
 
 	settings_Group_Box_Layout->addWidget(independent_Rows_Label,	1,0,1,1);
@@ -208,7 +210,7 @@ void Optical_Graphs::create_Tab_Content(QWidget* new_Widget, int tab_Index)
 	// target
 	{
 		// calculate total number of graphs
-		int total_Number_of_Graphs = 0;
+		total_Number_of_Target_Graphs = 0;
 		QVector<Target_Curve*> target_Profiles_to_Show;
 
 		if( multilayer->enable_Calc_Target_Curves )
@@ -218,7 +220,7 @@ void Optical_Graphs::create_Tab_Content(QWidget* new_Widget, int tab_Index)
 			if(target_Curve->fit_Params.calc)
 			{
 				target_Profiles_to_Show.append(target_Curve);
-				total_Number_of_Graphs++;
+				total_Number_of_Target_Graphs++;
 			}
 		}
 
@@ -251,15 +253,15 @@ void Optical_Graphs::create_Tab_Content(QWidget* new_Widget, int tab_Index)
 		}
 
 		// fill splitters with graphs
-		int graphs_in_Short_Row = total_Number_of_Graphs/multilayer->num_Target_Graph_Rows;
-		int additional_Graphs = total_Number_of_Graphs%multilayer->num_Target_Graph_Rows;
+		int graphs_in_Short_Row = total_Number_of_Target_Graphs/multilayer->num_Target_Graph_Rows;
+		int additional_Graphs = total_Number_of_Target_Graphs%multilayer->num_Target_Graph_Rows;
 		int first_Long_Row_Index = multilayer->num_Target_Graph_Rows-additional_Graphs;
 
 		int current_Row = 0;
 		int graphs_in_Filled_Rows = 0;
 		int length = -2018;
 
-		for(int graph_Index=0; graph_Index<total_Number_of_Graphs; graph_Index++)
+		for(int graph_Index=0; graph_Index<total_Number_of_Target_Graphs; graph_Index++)
 		{
 			Curve_Plot* new_Curve_Plot = new Curve_Plot(target_Profiles_to_Show[graph_Index], nullptr, TARGET, this);
 			plots.append(new_Curve_Plot);
@@ -280,7 +282,7 @@ void Optical_Graphs::create_Tab_Content(QWidget* new_Widget, int tab_Index)
 	// independent
 	{
 		// calculate total number of graphs
-		int total_Number_of_Graphs = 0;
+		total_Number_of_Independent_Graphs = 0;
 		QVector<Independent_Variables*> independent_Profiles_to_Show;
 		if(multilayer->enable_Calc_Independent_Curves)
 		for(int i=0; i<multilayer->independent_Variables_Plot_Tabs->count(); ++i)
@@ -290,7 +292,7 @@ void Optical_Graphs::create_Tab_Content(QWidget* new_Widget, int tab_Index)
 			if(	independent_Variables->calc_Functions.if_Something_Enabled() )
 			{
 				independent_Profiles_to_Show.append(independent_Variables);
-				total_Number_of_Graphs++;
+				total_Number_of_Independent_Graphs++;
 			}
 		}
 
@@ -323,15 +325,15 @@ void Optical_Graphs::create_Tab_Content(QWidget* new_Widget, int tab_Index)
 		}
 
 		// fill splitters with graphs
-		int graphs_in_Short_Row = total_Number_of_Graphs/multilayer->num_Independent_Graph_Rows;
-		int additional_Graphs = total_Number_of_Graphs%multilayer->num_Independent_Graph_Rows;
+		int graphs_in_Short_Row = total_Number_of_Independent_Graphs/multilayer->num_Independent_Graph_Rows;
+		int additional_Graphs = total_Number_of_Independent_Graphs%multilayer->num_Independent_Graph_Rows;
 		int first_Long_Row_Index = multilayer->num_Independent_Graph_Rows-additional_Graphs;
 
 		int current_Row = 0;
 		int graphs_in_Filled_Rows = 0;
 		int length = -2018;
 
-		for(int graph_Index=0; graph_Index<total_Number_of_Graphs; graph_Index++)
+		for(int graph_Index=0; graph_Index<total_Number_of_Independent_Graphs; graph_Index++)
 		{
 			Curve_Plot* new_Curve_Plot = new Curve_Plot(nullptr, independent_Profiles_to_Show[graph_Index], INDEPENDENT, this);
 			plots.append(new_Curve_Plot);

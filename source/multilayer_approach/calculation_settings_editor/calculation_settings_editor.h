@@ -31,6 +31,9 @@ public:
 	void refresh_Independent_Calc_Properties(int tab_Index, int independent_Index, QGroupBox* box);
 	static void reopen_Optical_Graphs(QString keep_Splitter = "");
 
+	int total_Number_of_Targets;
+	int total_Number_of_Independents;
+
 	QTabWidget* multilayer_Tabs;
 
 	QVBoxLayout* main_Layout;
