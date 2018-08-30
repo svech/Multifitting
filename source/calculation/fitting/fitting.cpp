@@ -40,6 +40,7 @@ Fitting::~Fitting()
 
 double Fitting::func(double argument, int index)
 {
+	// TODO
 	if(index == 0)
 	{
 		return log(argument+1E-5);
