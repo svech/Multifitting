@@ -9,7 +9,7 @@
 
 #define VERSION_MAJOR 1
 #define VERSION_MINOR 7
-#define VERSION_BUILD 8
+#define VERSION_BUILD 9
 
 //#define EXPRTK
 
@@ -407,9 +407,11 @@ struct Coupled					{bool is_Coupled = false;
 								 }
 								};
 
-struct Fit						{bool is_Fitable = false; bool min_Bounded; double min; bool max_Bounded; double max;};
+struct Confidence				{bool calc_Conf_Interval = false; double min; double max; int num_Points;};
 
-struct Parameter				{double value; Independent independent; Coupled coupled; Fit fit;
+struct Fit						{bool is_Fitable = false; bool min_Bounded/* still unused */; double min; bool max_Bounded/* still unused */; double max;};
+
+struct Parameter				{double value; Independent independent; Coupled coupled; Confidence confidence; Fit fit;
 								 Parameter_Indicator indicator;
 								 Parameter()
 								 {
@@ -610,6 +612,9 @@ QDataStream& operator >>( QDataStream& stream,		 Coupled& coupled );
 
 QDataStream& operator <<( QDataStream& stream, const Fit& fit );
 QDataStream& operator >>( QDataStream& stream,		 Fit& fit );
+
+QDataStream& operator <<( QDataStream& stream, const Confidence& confidence );
+QDataStream& operator >>( QDataStream& stream,		 Confidence& confidence );
 
 QDataStream& operator <<( QDataStream& stream, const Parameter& parameter );
 QDataStream& operator >>( QDataStream& stream,		 Parameter& parameter );

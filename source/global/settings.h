@@ -69,6 +69,7 @@ extern QString default_Measured_Filename;
 extern double dispersion;			// from [0,1)
 extern double sigma_Dispersion_Min;	// 2
 extern double sigma_Dispersion_Max;	// 2
+extern double default_num_confidence_points;
 
 // Ambient_Values
 extern QString	ambient_default_material;

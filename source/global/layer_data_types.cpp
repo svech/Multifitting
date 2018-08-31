@@ -137,6 +137,11 @@ Data::Data(QString item_Type_Passed)
 			absolute_Density.fit.max = absolute_Density.value*(1+dispersion);
 			absolute_Density.indicator.whats_This = whats_This_Absolute_Density;
 			absolute_Density.indicator.item_Id = id;
+
+			absolute_Density.confidence.calc_Conf_Interval = false;
+			absolute_Density.confidence.min = absolute_Density.fit.min;
+			absolute_Density.confidence.max = absolute_Density.fit.max;
+			absolute_Density.confidence.num_Points = default_num_confidence_points;
 		}
 		// relative density
 		{
@@ -148,6 +153,11 @@ Data::Data(QString item_Type_Passed)
 			relative_Density.fit.max = relative_Density.value*(1+dispersion);
 			relative_Density.indicator.whats_This = whats_This_Relative_Density;
 			relative_Density.indicator.item_Id = id;
+
+			relative_Density.confidence.calc_Conf_Interval = false;
+			relative_Density.confidence.min = relative_Density.fit.min;
+			relative_Density.confidence.max = relative_Density.fit.max;
+			relative_Density.confidence.num_Points = default_num_confidence_points;
 		}
 		// permittivity
 		{
@@ -159,6 +169,11 @@ Data::Data(QString item_Type_Passed)
 			permittivity.fit.max = permittivity.value*(1+dispersion);
 			permittivity.indicator.whats_This = whats_This_Permittivity;
 			permittivity.indicator.item_Id = id;
+
+			permittivity.confidence.calc_Conf_Interval = false;
+			permittivity.confidence.min = permittivity.fit.min;
+			permittivity.confidence.max = permittivity.fit.max;
+			permittivity.confidence.num_Points = default_num_confidence_points;
 		}
 		// absorption
 		{
@@ -170,6 +185,11 @@ Data::Data(QString item_Type_Passed)
 			absorption.fit.max = absorption.value*(1+dispersion);
 			absorption.indicator.whats_This = whats_This_Absorption;
 			absorption.indicator.item_Id = id;
+
+			absorption.confidence.calc_Conf_Interval = false;
+			absorption.confidence.min = absorption.fit.min;
+			absorption.confidence.max = absorption.fit.max;
+			absorption.confidence.num_Points = default_num_confidence_points;
 		}
 		// composed material
 		{
@@ -190,6 +210,11 @@ Data::Data(QString item_Type_Passed)
 			sigma.fit.max = max(sigma_Dispersion_Max*sigma.value, 20.);
 			sigma.indicator.whats_This = whats_This_Sigma;
 			sigma.indicator.item_Id = id;
+
+			sigma.confidence.calc_Conf_Interval = false;
+			sigma.confidence.min = sigma.fit.min;
+			sigma.confidence.max = sigma.fit.max;
+			sigma.confidence.num_Points = default_num_confidence_points;
 		}
 		// interlayer composition
 		{
@@ -205,6 +230,11 @@ Data::Data(QString item_Type_Passed)
 					interlayer_Composition[i].interlayer.fit.min = 0;
 					interlayer_Composition[i].interlayer.fit.max = 1;
 					interlayer_Composition[i].interlayer.indicator.item_Id = id;
+
+					interlayer_Composition[i].interlayer.confidence.calc_Conf_Interval = false;
+					interlayer_Composition[i].interlayer.confidence.min = interlayer_Composition[i].interlayer.fit.min;
+					interlayer_Composition[i].interlayer.confidence.max = interlayer_Composition[i].interlayer.fit.max;
+					interlayer_Composition[i].interlayer.confidence.num_Points = default_num_confidence_points;
 				}
 				{
 					interlayer_Composition[i].my_Sigma.value=0;
@@ -212,6 +242,11 @@ Data::Data(QString item_Type_Passed)
 					interlayer_Composition[i].my_Sigma.fit.min = sigma_Dispersion_Min*interlayer_Composition[i].my_Sigma.value;
 					interlayer_Composition[i].my_Sigma.fit.max = sigma_Dispersion_Max*interlayer_Composition[i].my_Sigma.value;
 					interlayer_Composition[i].my_Sigma.indicator.item_Id = id;
+
+					interlayer_Composition[i].my_Sigma.confidence.calc_Conf_Interval = false;
+					interlayer_Composition[i].my_Sigma.confidence.min = interlayer_Composition[i].my_Sigma.fit.min;
+					interlayer_Composition[i].my_Sigma.confidence.max = interlayer_Composition[i].my_Sigma.fit.max;
+					interlayer_Composition[i].my_Sigma.confidence.num_Points = default_num_confidence_points;
 				}
 			}
 		}
@@ -227,6 +262,11 @@ Data::Data(QString item_Type_Passed)
 			thickness.fit.max = thickness.value*(2+dispersion);
 			thickness.indicator.whats_This = whats_This_Thickness;
 			thickness.indicator.item_Id = id;
+
+			thickness.confidence.calc_Conf_Interval = false;
+			thickness.confidence.min = thickness.fit.min;
+			thickness.confidence.max = thickness.fit.max;
+			thickness.confidence.num_Points = default_num_confidence_points;
 		}
 		// thickness drift
 		{
@@ -239,6 +279,11 @@ Data::Data(QString item_Type_Passed)
 				thickness_Drift.drift_Line_Value.fit.max =  thickness_Drift.drift_Line_Value.value*2;
 				thickness_Drift.drift_Line_Value.indicator.whats_This = whats_This_Thickness_Drift_Line_Value;
 				thickness_Drift.drift_Line_Value.indicator.item_Id = id;
+
+				thickness_Drift.drift_Line_Value.confidence.calc_Conf_Interval = false;
+				thickness_Drift.drift_Line_Value.confidence.min = thickness_Drift.drift_Line_Value.fit.min;
+				thickness_Drift.drift_Line_Value.confidence.max = thickness_Drift.drift_Line_Value.fit.max;
+				thickness_Drift.drift_Line_Value.confidence.num_Points = default_num_confidence_points;
 			}
 			{
 				thickness_Drift.drift_Rand_Rms.value = 0;
@@ -246,6 +291,11 @@ Data::Data(QString item_Type_Passed)
 				thickness_Drift.drift_Rand_Rms.fit.max = thickness_Drift.drift_Rand_Rms.value*2;
 				thickness_Drift.drift_Rand_Rms.indicator.whats_This = whats_This_Thickness_Drift_Rand_Rms;
 				thickness_Drift.drift_Rand_Rms.indicator.item_Id = id;
+
+				thickness_Drift.drift_Rand_Rms.confidence.calc_Conf_Interval = false;
+				thickness_Drift.drift_Rand_Rms.confidence.min = thickness_Drift.drift_Rand_Rms.fit.min;
+				thickness_Drift.drift_Rand_Rms.confidence.max = thickness_Drift.drift_Rand_Rms.fit.max;
+				thickness_Drift.drift_Rand_Rms.confidence.num_Points = default_num_confidence_points;
 			}
 			{
 				thickness_Drift.drift_Sine_Amplitude.value = 0;
@@ -253,6 +303,11 @@ Data::Data(QString item_Type_Passed)
 				thickness_Drift.drift_Sine_Amplitude.fit.max = thickness_Drift.drift_Sine_Amplitude.value*2;
 				thickness_Drift.drift_Sine_Amplitude.indicator.whats_This = whats_This_Thickness_Drift_Sine_Amplitude;
 				thickness_Drift.drift_Sine_Amplitude.indicator.item_Id = id;
+
+				thickness_Drift.drift_Sine_Amplitude.confidence.calc_Conf_Interval = false;
+				thickness_Drift.drift_Sine_Amplitude.confidence.min = thickness_Drift.drift_Sine_Amplitude.fit.min;
+				thickness_Drift.drift_Sine_Amplitude.confidence.max = thickness_Drift.drift_Sine_Amplitude.fit.max;
+				thickness_Drift.drift_Sine_Amplitude.confidence.num_Points = default_num_confidence_points;
 			}
 			{
 				thickness_Drift.drift_Sine_Frequency.value = 0.333333333333333333333;
@@ -260,6 +315,11 @@ Data::Data(QString item_Type_Passed)
 				thickness_Drift.drift_Sine_Frequency.fit.max = thickness_Drift.drift_Sine_Frequency.value*(1+dispersion);
 				thickness_Drift.drift_Sine_Frequency.indicator.whats_This = whats_This_Thickness_Drift_Sine_Frequency;
 				thickness_Drift.drift_Sine_Frequency.indicator.item_Id = id;
+
+				thickness_Drift.drift_Sine_Frequency.confidence.calc_Conf_Interval = false;
+				thickness_Drift.drift_Sine_Frequency.confidence.min = thickness_Drift.drift_Sine_Frequency.fit.min;
+				thickness_Drift.drift_Sine_Frequency.confidence.max = thickness_Drift.drift_Sine_Frequency.fit.max;
+				thickness_Drift.drift_Sine_Frequency.confidence.num_Points = default_num_confidence_points;
 			}
 			{
 				thickness_Drift.drift_Sine_Phase.value = 0;
@@ -267,6 +327,11 @@ Data::Data(QString item_Type_Passed)
 				thickness_Drift.drift_Sine_Phase.fit.max = 1;
 				thickness_Drift.drift_Sine_Phase.indicator.whats_This = whats_This_Thickness_Drift_Sine_Phase;
 				thickness_Drift.drift_Sine_Phase.indicator.item_Id = id;
+
+				thickness_Drift.drift_Sine_Phase.confidence.calc_Conf_Interval = false;
+				thickness_Drift.drift_Sine_Phase.confidence.min = thickness_Drift.drift_Sine_Phase.fit.min;
+				thickness_Drift.drift_Sine_Phase.confidence.max = thickness_Drift.drift_Sine_Phase.fit.max;
+				thickness_Drift.drift_Sine_Phase.confidence.num_Points = default_num_confidence_points;
 			}
 		}
 		// sigma drift
@@ -280,6 +345,11 @@ Data::Data(QString item_Type_Passed)
 				sigma_Drift.drift_Line_Value.fit.max =  thickness_Drift.drift_Line_Value.value*2;
 				sigma_Drift.drift_Line_Value.indicator.whats_This = whats_This_Sigma_Drift_Line_Value;
 				sigma_Drift.drift_Line_Value.indicator.item_Id = id;
+
+				sigma_Drift.drift_Line_Value.confidence.calc_Conf_Interval = false;
+				sigma_Drift.drift_Line_Value.confidence.min = sigma_Drift.drift_Line_Value.fit.min;
+				sigma_Drift.drift_Line_Value.confidence.max = sigma_Drift.drift_Line_Value.fit.max;
+				sigma_Drift.drift_Line_Value.confidence.num_Points = default_num_confidence_points;
 			}
 			{
 				sigma_Drift.drift_Rand_Rms.value = 0;
@@ -287,6 +357,11 @@ Data::Data(QString item_Type_Passed)
 				sigma_Drift.drift_Rand_Rms.fit.max = thickness_Drift.drift_Rand_Rms.value*2;
 				sigma_Drift.drift_Rand_Rms.indicator.whats_This = whats_This_Sigma_Drift_Rand_Rms;
 				sigma_Drift.drift_Rand_Rms.indicator.item_Id = id;
+
+				sigma_Drift.drift_Rand_Rms.confidence.calc_Conf_Interval = false;
+				sigma_Drift.drift_Rand_Rms.confidence.min = sigma_Drift.drift_Rand_Rms.fit.min;
+				sigma_Drift.drift_Rand_Rms.confidence.max = sigma_Drift.drift_Rand_Rms.fit.max;
+				sigma_Drift.drift_Rand_Rms.confidence.num_Points = default_num_confidence_points;
 			}
 			{
 				sigma_Drift.drift_Sine_Amplitude.value = 0;
@@ -294,6 +369,11 @@ Data::Data(QString item_Type_Passed)
 				sigma_Drift.drift_Sine_Amplitude.fit.max = thickness_Drift.drift_Sine_Amplitude.value*2;
 				sigma_Drift.drift_Sine_Amplitude.indicator.whats_This = whats_This_Sigma_Drift_Sine_Amplitude;
 				sigma_Drift.drift_Sine_Amplitude.indicator.item_Id = id;
+
+				sigma_Drift.drift_Sine_Amplitude.confidence.calc_Conf_Interval = false;
+				sigma_Drift.drift_Sine_Amplitude.confidence.min = sigma_Drift.drift_Sine_Amplitude.fit.min;
+				sigma_Drift.drift_Sine_Amplitude.confidence.max = sigma_Drift.drift_Sine_Amplitude.fit.max;
+				sigma_Drift.drift_Sine_Amplitude.confidence.num_Points = default_num_confidence_points;
 			}
 			{
 				sigma_Drift.drift_Sine_Frequency.value = 0.333333333333333333333;
@@ -301,6 +381,11 @@ Data::Data(QString item_Type_Passed)
 				sigma_Drift.drift_Sine_Frequency.fit.max = thickness_Drift.drift_Sine_Frequency.value*(1+dispersion);
 				sigma_Drift.drift_Sine_Frequency.indicator.whats_This = whats_This_Sigma_Drift_Sine_Frequency;
 				sigma_Drift.drift_Sine_Frequency.indicator.item_Id = id;
+
+				sigma_Drift.drift_Sine_Frequency.confidence.calc_Conf_Interval = false;
+				sigma_Drift.drift_Sine_Frequency.confidence.min = sigma_Drift.drift_Sine_Frequency.fit.min;
+				sigma_Drift.drift_Sine_Frequency.confidence.max = sigma_Drift.drift_Sine_Frequency.fit.max;
+				sigma_Drift.drift_Sine_Frequency.confidence.num_Points = default_num_confidence_points;
 			}
 			{
 				sigma_Drift.drift_Sine_Phase.value = 0;
@@ -308,6 +393,11 @@ Data::Data(QString item_Type_Passed)
 				sigma_Drift.drift_Sine_Phase.fit.max = 1;
 				sigma_Drift.drift_Sine_Phase.indicator.whats_This = whats_This_Sigma_Drift_Sine_Phase;
 				sigma_Drift.drift_Sine_Phase.indicator.item_Id = id;
+
+				sigma_Drift.drift_Sine_Phase.confidence.calc_Conf_Interval = false;
+				sigma_Drift.drift_Sine_Phase.confidence.min = sigma_Drift.drift_Sine_Phase.fit.min;
+				sigma_Drift.drift_Sine_Phase.confidence.max = sigma_Drift.drift_Sine_Phase.fit.max;
+				sigma_Drift.drift_Sine_Phase.confidence.num_Points = default_num_confidence_points;
 			}
 		}
 	}
@@ -326,6 +416,11 @@ Data::Data(QString item_Type_Passed)
 			period.fit.max = period.value*(1+dispersion);
 			period.indicator.whats_This = whats_This_Period;
 			period.indicator.item_Id = id;
+
+			period.confidence.calc_Conf_Interval = false;
+			period.confidence.min = period.fit.min;
+			period.confidence.max = period.fit.max;
+			period.confidence.num_Points = default_num_confidence_points;
 		}
 		// gamma
 		{
@@ -335,6 +430,11 @@ Data::Data(QString item_Type_Passed)
 			gamma.fit.max = 1;
 			gamma.indicator.whats_This = whats_This_Gamma;
 			gamma.indicator.item_Id = id;
+
+			gamma.confidence.calc_Conf_Interval = false;
+			gamma.confidence.min = gamma.fit.min;
+			gamma.confidence.max = gamma.fit.max;
+			gamma.confidence.num_Points = default_num_confidence_points;
 		}
 	}
 }

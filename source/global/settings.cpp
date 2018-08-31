@@ -67,6 +67,7 @@ QString default_Measured_Filename;
 double dispersion; // from [0,1)
 double sigma_Dispersion_Min;	// 2
 double sigma_Dispersion_Max;	// 2
+double default_num_confidence_points;
 
 // Ambient_Values
 QString	ambient_default_material;
@@ -367,6 +368,7 @@ void Settings::read_Structure_Default_Values(bool reset_to_default)
 		dispersion = structure_Default_Values.value( "dispersion",	0.5 ).toDouble();
 		sigma_Dispersion_Min = structure_Default_Values.value( "sigma_Dispersion_Min",	0 ).toDouble();
 		sigma_Dispersion_Max = structure_Default_Values.value( "sigma_Dispersion_Max",	2 ).toDouble();
+		default_num_confidence_points = structure_Default_Values.value( "default_num_confidence_points",	30 ).toInt();
 
 			structure_Default_Values.beginGroup( Ambient_Values );
 				ambient_default_material				  = structure_Default_Values.value( "ambient_default_material",				    "Al"	).toString();
@@ -421,6 +423,7 @@ void Settings::save_Structure_Default_Values()
 	structure_Default_Values.setValue( "dispersion", dispersion	);
 	structure_Default_Values.setValue( "sigma_Dispersion_Min", sigma_Dispersion_Min	);
 	structure_Default_Values.setValue( "sigma_Dispersion_Max", sigma_Dispersion_Max	);
+	structure_Default_Values.setValue( "default_num_confidence_points", default_num_confidence_points	);
 
 		structure_Default_Values.beginGroup( Ambient_Values );
 			structure_Default_Values.setValue( "ambient_default_material",					ambient_default_material					);

@@ -961,6 +961,8 @@ void Item_Editor::refresh_Data()
 				struct_Data.composition[i].composition.value = composition_Line_Edit_Vec[i]->text().toDouble();
 				struct_Data.composition[i].composition.fit.min = struct_Data.composition[i].composition.value*(1-dispersion);
 				struct_Data.composition[i].composition.fit.max = struct_Data.composition[i].composition.value*(1+dispersion);
+				struct_Data.composition[i].composition.confidence.min = struct_Data.composition[i].composition.fit.min;
+				struct_Data.composition[i].composition.confidence.max = struct_Data.composition[i].composition.fit.max;
 
 				struct_Data.composition[i].type = composition_Combo_Box_Vec[i]->currentText();
 				composition_At_Weight_Vec[i]->setText(AtWt + QString::number(sorted_Elements.value(composition_Combo_Box_Vec[i]->currentText()),thumbnail_double_format,at_weight_precision) + ")");

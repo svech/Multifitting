@@ -81,13 +81,29 @@ QDataStream& operator >>( QDataStream& stream,		 Fit& fit )
 	return stream >> fit.is_Fitable >> fit.min_Bounded >> fit.min >> fit.max_Bounded >> fit.max;
 }
 
+QDataStream& operator <<( QDataStream& stream, const Confidence& confidence )
+{
+	return stream << confidence.calc_Conf_Interval << confidence.min << confidence.max << confidence.num_Points;
+}
+QDataStream& operator >>( QDataStream& stream,		 Confidence& confidence )
+{
+	return stream >> confidence.calc_Conf_Interval >> confidence.min >> confidence.max >> confidence.num_Points;
+}
+
 QDataStream& operator <<( QDataStream& stream, const Parameter& parameter )
 {
-	return stream << parameter.value << parameter.independent << parameter.coupled << parameter.fit << parameter.indicator;
+	return stream << parameter.value << parameter.independent << parameter.coupled << parameter.fit << parameter.indicator
+				  << parameter.confidence;	// since 1.7.9
 }
 QDataStream& operator >>( QDataStream& stream,		 Parameter& parameter )
 {
-	return stream >> parameter.value >> parameter.independent >> parameter.coupled >> parameter.fit >> parameter.indicator;
+	stream >> parameter.value >> parameter.independent >> parameter.coupled >> parameter.fit >> parameter.indicator;
+	if( loaded_Version_Major>=1 &&
+		loaded_Version_Minor>=7 &&
+		loaded_Version_Build>=9)
+	{stream >> parameter.confidence; }		// since 1.7.9
+
+	return stream;
 }
 
 QDataStream& operator <<( QDataStream& stream, const Stoichiometry& stoichiometry )
