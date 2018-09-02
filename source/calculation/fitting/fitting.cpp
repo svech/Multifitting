@@ -409,7 +409,7 @@ void Fitting::add_Fit_To_File(const gsl_vector* x, double residual, QString file
 		{
 			if(out.pos()!=0)
 			{
-				out << qSetFieldWidth(0) <<endl;
+				out << qSetFieldWidth(0) << endl;
 			}
 			QDateTime date_Time = QDateTime::currentDateTime();
 			out << date_Time.toString("< dd.MM.yyyy | hh:mm:ss >") << qSetFieldWidth(0) <<endl;

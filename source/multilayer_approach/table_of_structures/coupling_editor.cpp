@@ -74,7 +74,7 @@ void Coupling_Editor::create_Main_Layout()
 		done_Button->setDefault(true);
 	main_Layout->addWidget(done_Button,0,Qt::AlignCenter);
 
-	connect(done_Button, &QPushButton::clicked, this, &Coupling_Editor::close);
+	connect ( done_Button, &QPushButton::clicked, this, &Coupling_Editor::close);
 
 	// disable context menu
 	if(parent()!=nullptr)

@@ -645,6 +645,11 @@ void Table_Of_Structures::refresh_Reload_Colorize(QString refresh_Reload, QWidge
 		// has both
 		if(parameter->coupled.master.exist && parameter->coupled.slaves.size()>0)
 			back_Widget->setStyleSheet("QWidget { background: rgb(255, 255, 50); }");
+
+		if(parameter->confidence.calc_Conf_Interval)
+		{
+			back_Widget->setStyleSheet("background-color: violet");
+		}
 	}
 }
 
