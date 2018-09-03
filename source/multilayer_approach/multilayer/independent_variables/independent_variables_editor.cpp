@@ -168,7 +168,6 @@ void Independent_Variables_Editor::create_Standard_Interface()
 			num_Points->setDisabled(true);
 		}
 
-
 		connect(num_Points, &QLineEdit::textEdited, this, [=]{Global_Variables::resize_Line_Edit(num_Points);});
 		connect(val_Edit,	&QLineEdit::textEdited, this, [=]{Global_Variables::resize_Line_Edit(val_Edit);});
 		connect(min_Edit,	&QLineEdit::textEdited, this, [=]{Global_Variables::resize_Line_Edit(min_Edit);});

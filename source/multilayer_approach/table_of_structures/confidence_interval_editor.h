@@ -8,6 +8,7 @@ class Coupling_Editor;
 class Confidence_Interval_Editor : public QWidget
 {
 	Q_OBJECT
+	Q_INVOKABLE void adjustSize() { QWidget::adjustSize(); }
 public:
 	explicit Confidence_Interval_Editor(Coupling_Editor* coupling_Editor, QWidget *parent = nullptr);
 
@@ -15,6 +16,7 @@ public:
 	void set_Window_Geometry();
 	void create_Main_Layout();
 		void create_Group_Box();
+		void refresh_Show_Data();
 
 	Coupling_Editor* coupling_Editor;
 

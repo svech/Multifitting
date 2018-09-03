@@ -58,7 +58,9 @@ void Confidence_Interval_Editor::create_Group_Box()
 
 	// create content
 	groupBox_Layout = new QVBoxLayout(main_GroupBox);
-	groupBox_Layout->setAlignment(Qt::AlignLeft);
+		groupBox_Layout->setAlignment(Qt::AlignLeft);
+		groupBox_Layout->setContentsMargins(5,5,5,5);
+
 	QHBoxLayout* layout = new QHBoxLayout;
 	groupBox_Layout->addLayout(layout);
 	QSizePolicy sp_retain;
@@ -112,10 +114,23 @@ void Confidence_Interval_Editor::create_Group_Box()
 		step_Units_Label->setSizePolicy(sp_retain);
 	layout->addWidget(step_Units_Label);
 
-//	connect(num_Points, &QLineEdit::textEdited, this, SLOT(resize_Line_Edit(QString)));
-//	connect(min_Edit,	SIGNAL(textEdited(QString)), this, SLOT(resize_Line_Edit(QString)));
-//	connect(max_Edit,	SIGNAL(textEdited(QString)), this, SLOT(resize_Line_Edit(QString)));
-//	connect(step_Edit,	SIGNAL(textEdited(QString)), this, SLOT(resize_Line_Edit(QString)));
+//	num_Points->setText(QString::number(coupling_Editor->coupled_Parameter->confidence.num_Points));
+//	min_Edit->setText  (QString::number(coupling_Editor->coupled_Parameter->confidence.min, ));
+//	max_Edit->setText  (QString::number(coupling_Editor->coupled_Parameter->confidence.max));
+
+	connect(num_Points, &QLineEdit::textEdited, this, [=]{Global_Variables::resize_Line_Edit(num_Points);});
+	connect(min_Edit,	&QLineEdit::textEdited, this, [=]{Global_Variables::resize_Line_Edit(min_Edit);});
+	connect(max_Edit,	&QLineEdit::textEdited, this, [=]{Global_Variables::resize_Line_Edit(max_Edit);});
+
+	connect(num_Points, &QLineEdit::textEdited, this, [=]{refresh_Show_Data();});
+	connect(min_Edit,	&QLineEdit::textEdited, this, [=]{refresh_Show_Data();});
+	connect(max_Edit,	&QLineEdit::textEdited, this, [=]{refresh_Show_Data();});
+
+	connect(step_Edit,	&QLineEdit::textEdited, this, [=]{Global_Variables::resize_Line_Edit(step_Edit);});
+}
+
+void Confidence_Interval_Editor::refresh_Show_Data()
+{
 
 }
 
