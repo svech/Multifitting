@@ -4,6 +4,7 @@
 #include "global/settings.h"
 #include "my_table_widget.h"
 #include "multilayer_approach/table_of_structures/table_of_structures.h"
+#include "confidence_interval_editor.h"
 
 class Table_Of_Structures;
 
@@ -34,6 +35,8 @@ public:
 	void enable_Getting_Parameter(QWidget* old, QWidget* now, QLabel* label, QLineEdit* line_Edit);
 	void get_Parameter(QLabel* label);
 
+	void open_Confidence_Interval_Editor();
+
 	id_Type coupled_Id;
 	QTreeWidgetItem* struct_Item;
 	Data struct_Data;
@@ -60,6 +63,7 @@ public:
 			QVector<Parameter_Indicator> old_Slaves;
 
 	QPushButton* done_Button;
+	QPushButton* confidence_Button;
 
 	QString no_Master_Text = ".........<no master>.........";
 	QString no_Slave_Text  = ".........<no slave>..........";

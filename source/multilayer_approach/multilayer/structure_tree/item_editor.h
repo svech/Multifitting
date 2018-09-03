@@ -56,7 +56,7 @@ public:
 
 	void emit_Item_Data_Edited();
 
-	void resize_Line_Edit(QString text, QLineEdit* line_Edit = nullptr);
+//	void resize_Line_Edit(QString text, QLineEdit* line_Edit = nullptr);
 	void browse_Material();
 	void depth_Grading();
 	void sigma_Grading();
@@ -92,6 +92,7 @@ public:
 	QString sigma_Weight = "weight:";
 
 	QVBoxLayout* main_Layout;
+	QHBoxLayout* hor_Layout;
 		QGroupBox* material_Group_Box;
 			QLineEdit* material_Line_Edit;
 			QPushButton* browse_Material_Button;

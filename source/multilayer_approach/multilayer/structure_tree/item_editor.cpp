@@ -34,7 +34,7 @@ void Item_Editor::closeEvent(QCloseEvent* event)
 				QMessageBox::information(this, "Wrong material", "File \"" + struct_Data.material + nk_Ext + "\" not found");
 				struct_Data.material = struct_Data.approved_Material;
 				material_Line_Edit->setText(struct_Data.material);
-				resize_Line_Edit(material_Line_Edit->text(),material_Line_Edit);
+				Global_Variables::resize_Line_Edit(material_Line_Edit);
 			}
 		}
 	}
@@ -52,6 +52,8 @@ void Item_Editor::create_Main_Layout()
 		main_Layout->setSpacing(0);
 		main_Layout->setContentsMargins(3,0,3,0);
 
+	hor_Layout = new QHBoxLayout;
+	main_Layout->addLayout(hor_Layout);
 	create_Menu();
 
 	if(struct_Data.item_Type == item_Type_Ambient)		make_Ambient_Editor();
@@ -78,33 +80,24 @@ void Item_Editor::create_Menu()
 void Item_Editor::make_Ambient_Editor()
 {
 	make_Materials_Group_Box();
-		main_Layout->addWidget(material_Group_Box);
 }
 
 void Item_Editor::make_Layer_Editor()
-{
-	QHBoxLayout* hor_Layout = new QHBoxLayout;
-	make_Materials_Group_Box();
-		hor_Layout->addWidget(material_Group_Box);
+{	
+	make_Materials_Group_Box();		
 	make_Thickness_Group_Box();
-		hor_Layout->addWidget(thickness_Group_Box);
-		main_Layout->addLayout(hor_Layout);
 	make_Sigma_Group_Box();
-		main_Layout->addWidget(sigma_Group_Box);
 }
 
 void Item_Editor::make_Substrate_Editor()
 {
 	make_Materials_Group_Box();
-		main_Layout->addWidget(material_Group_Box);
 	make_Sigma_Group_Box();
-		main_Layout->addWidget(sigma_Group_Box);
 }
 
 void Item_Editor::make_Multilayer_Editor()
 {
 	make_Multilayer_Group_Box();
-		main_Layout->addWidget(multilayer_Group_Box);
 }
 
 void Item_Editor::make_Materials_Group_Box()
@@ -115,37 +108,38 @@ void Item_Editor::make_Materials_Group_Box()
 	QVBoxLayout* material_Group_Box_Layout = new QVBoxLayout(material_Group_Box);
 		material_Group_Box_Layout->setSpacing(7);
 		material_Group_Box_Layout->setContentsMargins(8,8,8,5);
+	hor_Layout->addWidget(material_Group_Box);
 
 	// materials
 	{
 		QHBoxLayout* layout = new QHBoxLayout;
+		material_Group_Box_Layout->addLayout(layout);
+
 		QLabel* material_Label = new QLabel("Material:");
-			layout->addWidget(material_Label);
+		layout->addWidget(material_Label);
 
 		material_Line_Edit = new QLineEdit;
 			material_Line_Edit->setFixedWidth(70);
 			material_Line_Edit->setProperty(min_Size_Property, material_Line_Edit->width());
-			layout->addWidget(material_Line_Edit);
+		layout->addWidget(material_Line_Edit);
 
 		browse_Material_Button = new QPushButton("Browse...");
 		browse_Material_Button->setFixedWidth(60);
-			layout->addWidget(browse_Material_Button);
 			browse_Material_Button->setFocusPolicy(Qt::NoFocus);
+		layout->addWidget(browse_Material_Button);
 
 		density_Label = new QLabel("<no label>");
-			layout->addWidget(density_Label);
+		layout->addWidget(density_Label);
 
 		density_Line_Edit = new QLineEdit;
 			density_Line_Edit->setFixedWidth(50);
 			density_Line_Edit->setProperty(min_Size_Property, density_Line_Edit->width());
 			density_Line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION, this));
-			layout->addWidget(density_Line_Edit);
+		layout->addWidget(density_Line_Edit);
 			show_Density();
 
-		material_Group_Box_Layout->addLayout(layout);
-
-		connect(material_Line_Edit, &QLineEdit::textEdited, this, [&](QString s){resize_Line_Edit(s);});
-		connect(density_Line_Edit,  &QLineEdit::textEdited, this, [&](QString s){resize_Line_Edit(s);});
+		connect(material_Line_Edit, &QLineEdit::textEdited, this, [=]{Global_Variables::resize_Line_Edit(material_Line_Edit);});
+		connect(density_Line_Edit,  &QLineEdit::textEdited, this, [=]{Global_Variables::resize_Line_Edit(density_Line_Edit);});
 
 		connect(material_Line_Edit, &QLineEdit::textEdited, this, [=]{refresh_Material();});
 		connect(density_Line_Edit,	&QLineEdit::textEdited, this, [=]{refresh_Data();});
@@ -155,9 +149,9 @@ void Item_Editor::make_Materials_Group_Box()
 	{
 		QHBoxLayout* layout = new QHBoxLayout;
 		filename_Radio = new QRadioButton("Optical constants file name");
-			layout->addWidget(filename_Radio);
+		layout->addWidget(filename_Radio);
 		composition_Radio = new QRadioButton("Composition of elements");
-			layout->addWidget(composition_Radio);
+		layout->addWidget(composition_Radio);
 		material_Group_Box_Layout->addLayout(layout);
 
 		connect(filename_Radio,    &QRadioButton::clicked, this, &Item_Editor::filename_Radio_Toggled);
@@ -231,9 +225,10 @@ void Item_Editor::make_Thickness_Group_Box()
 			thickness_Group_Box_Layout->addWidget(depth_Grading_Button,0,Qt::AlignRight);
 
 		connect(depth_Grading_Button,&QPushButton::clicked,  this, [=]{depth_Grading();});
-		connect(thickness_Line_Edit, &QLineEdit::textEdited, this, [&](QString s){resize_Line_Edit(s);});
+		connect(thickness_Line_Edit, &QLineEdit::textEdited, this, [=]{Global_Variables::resize_Line_Edit(thickness_Line_Edit);});
 		connect(thickness_Line_Edit, &QLineEdit::textEdited, this, [=]{refresh_Data();});
 	}
+	hor_Layout->addWidget(thickness_Group_Box);
 	{
 		thickness_Done = true;
 		show_Thickness();
@@ -257,20 +252,20 @@ void Item_Editor::make_Multilayer_Group_Box()
 			repetitions_Line_Edit->setFixedWidth(50);
 			repetitions_Line_Edit->setProperty(min_Size_Property, repetitions_Line_Edit->width());
 			repetitions_Line_Edit->setValidator(new QIntValidator(0, MAX_INTEGER, this));
-			layout->addWidget(repetitions_Line_Edit);
+		layout->addWidget(repetitions_Line_Edit);
 
 		multilayer_Group_Box_Layout->addLayout(layout);
 	}
 	{
 		QHBoxLayout* layout = new QHBoxLayout;
 		period_Label = new QLabel(period_Label_1 + length_units + period_Label_2);
-			layout->addWidget(period_Label);
+		layout->addWidget(period_Label);
 
 		period_Line_Edit = new QLineEdit;
 			period_Line_Edit->setFixedWidth(50);
 			period_Line_Edit->setProperty(min_Size_Property, period_Line_Edit->width());
 			period_Line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION, this));
-			layout->addWidget(period_Line_Edit);
+		layout->addWidget(period_Line_Edit);
 
 		multilayer_Group_Box_Layout->addLayout(layout);
 	}
@@ -289,15 +284,18 @@ void Item_Editor::make_Multilayer_Group_Box()
 			layout->addWidget(gamma_Line_Edit);
 
 			multilayer_Group_Box_Layout->addLayout(layout);
+
+			connect(gamma_Line_Edit,		&QLineEdit::textEdited, this, [=]{Global_Variables::resize_Line_Edit(gamma_Line_Edit);});
+			connect(gamma_Line_Edit,		&QLineEdit::textEdited, this, &Item_Editor::fast_Refresh_Stack);
 		}
 	}
-	connect(repetitions_Line_Edit,  &QLineEdit::textEdited, this, [&](QString s){resize_Line_Edit(s);});
-	connect(period_Line_Edit,		&QLineEdit::textEdited, this, [&](QString s){resize_Line_Edit(s);});
-	connect(gamma_Line_Edit,		&QLineEdit::textEdited, this, [&](QString s){resize_Line_Edit(s);});
+	connect(repetitions_Line_Edit,  &QLineEdit::textEdited, this, [=]{Global_Variables::resize_Line_Edit(repetitions_Line_Edit);});
+	connect(period_Line_Edit,		&QLineEdit::textEdited, this, [=]{Global_Variables::resize_Line_Edit(period_Line_Edit);});
 
 	connect(repetitions_Line_Edit,	&QLineEdit::textEdited, this, &Item_Editor::fast_Refresh_Stack);
 	connect(period_Line_Edit,		&QLineEdit::textEdited, this, &Item_Editor::fast_Refresh_Stack);
-	connect(gamma_Line_Edit,		&QLineEdit::textEdited, this, &Item_Editor::fast_Refresh_Stack);
+
+	main_Layout->addWidget(multilayer_Group_Box);
 	{
 		stack_Done = true;
 		show_Stack_Parameters();
@@ -339,7 +337,7 @@ void Item_Editor::make_Sigma_Group_Box()
 			sigma_Group_Box_Layout->addWidget(sigma_Grading_Button,0,Qt::AlignRight);
 
 		connect(sigma_Grading_Button,	&QPushButton::clicked,  this, &Item_Editor::sigma_Grading);
-		connect(sigma_Line_Edit,		&QLineEdit::textEdited, this, [&](QString s){resize_Line_Edit(s);});
+		connect(sigma_Line_Edit,		&QLineEdit::textEdited, this, [=]{Global_Variables::resize_Line_Edit(sigma_Line_Edit);});
 		connect(sigma_Line_Edit,		&QLineEdit::textEdited, this, [=]{refresh_Data();});
 	}
 	// interlayer functions
@@ -374,6 +372,7 @@ void Item_Editor::make_Sigma_Group_Box()
 		interlayer_Composition_Layout->addLayout(sigma_PSD_Layout);
 		sigma_Group_Box_Layout->addWidget(interlayer_Composition_Frame);
 	}
+	main_Layout->addWidget(sigma_Group_Box);
 	{
 		sigma_Done = true;
 		read_Interlayers_From_Item();
@@ -466,7 +465,7 @@ void Item_Editor::more_Elements_Clicked()
 	QComboBox* elements = new QComboBox;		elements->addItems(sorted_Elements.keys());
 	QLabel*	  at_Weight = new QLabel;
 
-	connect(line_Edit, &QLineEdit::textEdited, this, [&](QString s){resize_Line_Edit(s);});
+	connect(line_Edit, &QLineEdit::textEdited, this, [=]{Global_Variables::resize_Line_Edit(line_Edit);});
 
 	// loading settings
 	if(struct_Data.item_Type==item_Type_Ambient)
@@ -490,7 +489,7 @@ void Item_Editor::more_Elements_Clicked()
 
 	// creating ui elements
 	line_Edit->setText(QString::number(stoich.composition.value,line_edit_short_double_format,line_edit_composition_precision));
-	resize_Line_Edit("",line_Edit);
+	Global_Variables::resize_Line_Edit(line_Edit);
 	elements->setCurrentIndex(elements->findText(stoich.type));
 	at_Weight->setText(AtWt + QString::number(sorted_Elements.value(elements->currentText()),thumbnail_double_format,at_weight_precision) + ")");
 
@@ -520,7 +519,7 @@ void Item_Editor::more_Elements_Clicked()
 	{
 		composition_Line_Edit_Vec.first()->setDisabled(true);
 		composition_Line_Edit_Vec.first()->setText(QString::number(1,line_edit_short_double_format,line_edit_composition_precision));
-			resize_Line_Edit("",composition_Line_Edit_Vec.first());
+			Global_Variables::resize_Line_Edit(composition_Line_Edit_Vec.first());
 		fewer_Elements->hide();
 	}
 	if (element_Frame_Vec.size()>=2) {composition_Line_Edit_Vec.first()->setDisabled(false);fewer_Elements->show();}
@@ -559,10 +558,9 @@ void Item_Editor::read_Elements_From_Item()
 		QComboBox* elements = new QComboBox;		elements->addItems(sorted_Elements.keys());
 		QLabel*	  at_Weight = new QLabel;
 
-		connect(line_Edit, &QLineEdit::textEdited, this, [&](QString s){resize_Line_Edit(s);});
+		connect(line_Edit, &QLineEdit::textEdited, this, [=]{Global_Variables::resize_Line_Edit(line_Edit);});
 
 		line_Edit->setText(QString::number(struct_Data.composition[i].composition.value,line_edit_short_double_format,line_edit_composition_precision));
-		resize_Line_Edit("",line_Edit);
 		elements->setCurrentIndex(elements->findText(struct_Data.composition[i].type));
 		at_Weight->setText(AtWt + QString::number(sorted_Elements.value(elements->currentText()),thumbnail_double_format,at_weight_precision) + ")");
 
@@ -586,6 +584,8 @@ void Item_Editor::read_Elements_From_Item()
 					hor_Layout->addWidget(at_Weight);
 		element_Frame_Vec[i] = element_Frame;
 		composition_Layout_With_Elements_Vector->addWidget(element_Frame,0,Qt::AlignLeft);
+
+		Global_Variables::resize_Line_Edit(line_Edit);
 	}
 
 	show_Material();
@@ -593,7 +593,7 @@ void Item_Editor::read_Elements_From_Item()
 	{
 		composition_Line_Edit_Vec.first()->setDisabled(true);
 		composition_Line_Edit_Vec.first()->setText(QString::number(1,line_edit_short_double_format,line_edit_composition_precision));
-			resize_Line_Edit("",composition_Line_Edit_Vec.first());
+			Global_Variables::resize_Line_Edit(composition_Line_Edit_Vec.first());
 		fewer_Elements->hide();
 	}
 	if (element_Frame_Vec.size()>=2) {composition_Line_Edit_Vec.first()->setDisabled(false);fewer_Elements->show();}
@@ -696,7 +696,7 @@ void Item_Editor::fewer_Elements_Clicked()
 	{
 		composition_Line_Edit_Vec.first()->setDisabled(true);
 		composition_Line_Edit_Vec.first()->setText(QString::number(1,line_edit_short_double_format,line_edit_composition_precision));
-			resize_Line_Edit("",composition_Line_Edit_Vec.first());
+			Global_Variables::resize_Line_Edit(composition_Line_Edit_Vec.first());
 		fewer_Elements->hide();
 	}
 }
@@ -718,7 +718,7 @@ void Item_Editor::show_Material()
 		{
 			material_Line_Edit->setText(struct_Data.material);
 		}
-		resize_Line_Edit("",material_Line_Edit);
+		Global_Variables::resize_Line_Edit(material_Line_Edit);
 	}
 }
 
@@ -734,7 +734,7 @@ void Item_Editor::show_Density()
 		{
 			density_Line_Edit->setText(QString::number(struct_Data.relative_Density.value,line_edit_double_format,line_edit_density_precision));
 		}
-		resize_Line_Edit("",density_Line_Edit);
+		Global_Variables::resize_Line_Edit(density_Line_Edit);
 	}
 }
 
@@ -747,7 +747,7 @@ void Item_Editor::show_Thickness()
 		thickness_Label->setText(thickness_Label_1 + length_units + thickness_Label_2);
 
 		thickness_Line_Edit->setText(QString::number(struct_Data.thickness.value/coeff,line_edit_double_format,line_edit_thickness_precision));
-		resize_Line_Edit("",thickness_Line_Edit);
+		Global_Variables::resize_Line_Edit(thickness_Line_Edit);
 	}
 }
 
@@ -768,7 +768,7 @@ void Item_Editor::show_Sigma(bool b)
 	if(struct_Data.item_Type == item_Type_Layer || struct_Data.item_Type == item_Type_Substrate)
 	{
 		show_Sigma_Start(b);
-		resize_Line_Edit("",sigma_Line_Edit);
+		Global_Variables::resize_Line_Edit(sigma_Line_Edit);
 	}
 }
 
@@ -784,9 +784,9 @@ void Item_Editor::show_Stack_Parameters()
 		period_Line_Edit->setText(QString::number(struct_Data.period.value/coeff,line_edit_double_format,line_edit_period_precision));
 		gamma_Line_Edit ->setText(QString::number(struct_Data.gamma.value,line_edit_double_format,line_edit_gamma_precision));
 
-		resize_Line_Edit("",repetitions_Line_Edit);
-		resize_Line_Edit("",period_Line_Edit);
-		resize_Line_Edit("",gamma_Line_Edit);
+		repetitions_Line_Edit->textEdited(repetitions_Line_Edit->text());
+		period_Line_Edit->textEdited(period_Line_Edit->text());
+		gamma_Line_Edit->textEdited(gamma_Line_Edit->text());
 	}
 }
 
@@ -812,23 +812,23 @@ void Item_Editor::show_Interlayers(QObject* my_Sender)
 	}
 }
 
-void Item_Editor::resize_Line_Edit(QString text, QLineEdit* line_Edit)
-{
-	if(line_Edit == nullptr) line_Edit = qobject_cast<QLineEdit*>(QObject::sender());
+//void Item_Editor::resize_Line_Edit(QString text, QLineEdit* line_Edit)
+//{
+//	if(line_Edit == nullptr) line_Edit = qobject_cast<QLineEdit*>(QObject::sender());
 
-	text = line_Edit->text();
-	QFontMetrics fm = line_Edit->fontMetrics();
-	int width = fm.width(text) + QLINEEDIT_RESIZE_MARGIN;
-	if(width>line_Edit->property(min_Size_Property).toInt())
-	{
-		line_Edit->setFixedWidth(width);
-		QMetaObject::invokeMethod(this, "adjustSize", Qt::QueuedConnection);
-	} else
-	{
-		line_Edit->setFixedWidth(line_Edit->property(min_Size_Property).toInt());
-		QMetaObject::invokeMethod(this, "adjustSize", Qt::QueuedConnection);
-	}
-}
+//	text = line_Edit->text();
+//	QFontMetrics fm = line_Edit->fontMetrics();
+//	int width = fm.width(text) + QLINEEDIT_RESIZE_MARGIN;
+//	if(width>line_Edit->property(min_Size_Property).toInt())
+//	{
+//		line_Edit->setFixedWidth(width);
+//		QMetaObject::invokeMethod(this, "adjustSize", Qt::QueuedConnection);
+//	} else
+//	{
+//		line_Edit->setFixedWidth(line_Edit->property(min_Size_Property).toInt());
+//		QMetaObject::invokeMethod(this, "adjustSize", Qt::QueuedConnection);
+//	}
+//}
 
 void Item_Editor::browse_Material()
 {
@@ -1035,7 +1035,7 @@ void Item_Editor::refresh_Data()
 			if(temp_Gamma>1)
 			{
 				gamma_Line_Edit->setText(QString::number(struct_Data.gamma.value));
-				resize_Line_Edit("",gamma_Line_Edit);
+				Global_Variables::resize_Line_Edit(gamma_Line_Edit);
 			} else
 			{
 				struct_Data.gamma.value = gamma_Line_Edit->text().toDouble();

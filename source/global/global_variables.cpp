@@ -659,49 +659,62 @@ Parameter* Global_Variables::get_Parameter_From_Struct_Item_by_Id(Data& struct_D
 	return nullptr;
 }
 
-Parameter* Global_Variables::get_Parameter_From_Struct_Item_by_Whats_This(Data &struct_Data, QString whats_This)
+Parameter* Global_Variables::get_Parameter_From_Struct_Item_by_Whats_This(Data &struct_Data, QString whats_This, int* line_edit_precision, int* thumbnail_precision, QString* units, double* coeff)
 {
 	// PARAMETER
 
-	// measurement
-	if(whats_This == whats_This_Angle)							return &struct_Data.probe_Angle;
-	if(whats_This == whats_This_Angular_Resolution)				return &struct_Data.angular_Resolution;
-	if(whats_This == whats_This_Wavelength)						return &struct_Data.wavelength;
-	if(whats_This == whats_This_Spectral_Resolution)			return &struct_Data.spectral_Resolution;
-	if(whats_This == whats_This_Polarization)					return &struct_Data.polarization;
-	if(whats_This == whats_This_Polarization_Sensitivity)		return &struct_Data.polarization_Sensitivity;
-	if(whats_This == whats_This_Background)						return &struct_Data.background;
+	// if nullpointers
+	int line_edit_precision_LOC;
+	int thumbnail_precision_LOC;
+	QString units_LOC;
+	double coeff_LOC;
+	if(line_edit_precision == nullptr) line_edit_precision = &line_edit_precision_LOC;
+	if(thumbnail_precision == nullptr) thumbnail_precision = &thumbnail_precision_LOC;
+	if(units == nullptr) units = &units_LOC;
+	if(coeff == nullptr) coeff = &coeff_LOC;
 
-	if(whats_This == whats_This_Beam_Size)						return &struct_Data.beam_Size;
-	if(whats_This == whats_This_Beam_Profile_Spreading)			return &struct_Data.beam_Profile_Spreading;
-	if(whats_This == whats_This_Sample_Size)					return &struct_Data.sample_Size;
-	if(whats_This == whats_This_Sample_Shift)					return &struct_Data.sample_Shift;
+	// measurement
+	if(whats_This == whats_This_Angle)							{*line_edit_precision = line_edit_angle_precision;				*thumbnail_precision = thumbnail_angle_precision;				*units = angle_units;			*coeff = angle_Coefficients_Map.value(angle_units);				return &struct_Data.probe_Angle;				}
+	if(whats_This == whats_This_Angular_Resolution)				{*line_edit_precision = line_edit_angle_precision;				*thumbnail_precision = thumbnail_angle_precision;				*units = angle_units;			*coeff = angle_Coefficients_Map.value(angle_units);				return &struct_Data.angular_Resolution;			}
+	if(whats_This == whats_This_Wavelength)						{*line_edit_precision = line_edit_wavelength_precision;			*thumbnail_precision = thumbnail_wavelength_precision;			*units = " " + wavelength_units;*coeff = wavelength_Coefficients_Map.value(wavelength_units);	return &struct_Data.wavelength;					}
+	if(whats_This == whats_This_Spectral_Resolution)			{*line_edit_precision = line_edit_spectral_resolution_precision;*thumbnail_precision = thumbnail_spectral_resolution_precision;	*units = "";					*coeff = 1;														return &struct_Data.spectral_Resolution;		}
+	if(whats_This == whats_This_Polarization)					{*line_edit_precision = line_edit_polarization_precision;		*thumbnail_precision = thumbnail_polarization_precision;		*units = "";					*coeff = 1;														return &struct_Data.polarization;				}
+	if(whats_This == whats_This_Polarization_Sensitivity)		{*line_edit_precision = line_edit_polarization_precision;		*thumbnail_precision = thumbnail_polarization_precision;		*units = "";					*coeff = 1;														return &struct_Data.polarization_Sensitivity;	}
+	if(whats_This == whats_This_Background)						{*line_edit_precision = line_edit_background_precision;			*thumbnail_precision = thumbnail_background_precision;			*units = "";					*coeff = 1;														return &struct_Data.background;					}
+
+	if(whats_This == whats_This_Beam_Size)						{*line_edit_precision = line_edit_beam_size_precision;		*thumbnail_precision = thumbnail_beam_size_precision;	*units = "";	*coeff = 1;	return &struct_Data.beam_Size; }
+	if(whats_This == whats_This_Beam_Profile_Spreading)			{*line_edit_precision = line_edit_beam_size_precision;		*thumbnail_precision = thumbnail_beam_size_precision;	*units = "";	*coeff = 1;	return &struct_Data.beam_Profile_Spreading;}
+	if(whats_This == whats_This_Sample_Size)					{*line_edit_precision = line_edit_sample_size_precision;	*thumbnail_precision = thumbnail_sample_size_precision;	*units = "";	*coeff = 1;	return &struct_Data.sample_Size;}
+	if(whats_This == whats_This_Sample_Shift)					{*line_edit_precision = line_edit_sample_size_precision;	*thumbnail_precision = thumbnail_sample_size_precision;	*units = "";	*coeff = 1;	return &struct_Data.sample_Shift;}
 
 	// optical properties
-	if(whats_This == whats_This_Absolute_Density)				return &struct_Data.absolute_Density;
-	if(whats_This == whats_This_Relative_Density)				return &struct_Data.relative_Density;
-	if(whats_This == whats_This_Permittivity)					return &struct_Data.permittivity;
-	if(whats_This == whats_This_Absorption)						return &struct_Data.absorption;
+	if(whats_This == whats_This_Absolute_Density)				{*line_edit_precision = line_edit_density_precision;		*thumbnail_precision = thumbnail_density_precision;		*units = " " + density_units;	*coeff = 1;	return &struct_Data.absolute_Density;	}
+	if(whats_This == whats_This_Relative_Density)				{*line_edit_precision = line_edit_density_precision;		*thumbnail_precision = thumbnail_density_precision;		*units = "" ;					*coeff = 1;	return &struct_Data.relative_Density;	}
+	if(whats_This == whats_This_Permittivity)					{*line_edit_precision = line_edit_permittivity_precision;	*thumbnail_precision = thumbnail_permittivity_precision;*units = " " + opt_const_units;	*coeff = 1;	return &struct_Data.permittivity;		}
+	if(whats_This == whats_This_Absorption)						{*line_edit_precision = line_edit_absorption_precision;		*thumbnail_precision = thumbnail_absorption_precision;	*units = " " + opt_const_units;	*coeff = 1;	return &struct_Data.absorption;			}
+	if(whats_This == whats_This_Composition)					{*line_edit_precision = line_edit_composition_precision;	*thumbnail_precision = thumbnail_composition_precision;	*units = "";					*coeff = 1;	return nullptr;							}
 
 	// interface
-	if(whats_This == whats_This_Sigma)							return &struct_Data.sigma;
-	if(whats_This == whats_This_Sigma_Drift_Line_Value)			return &struct_Data.sigma_Drift.drift_Line_Value;
-	if(whats_This == whats_This_Sigma_Drift_Rand_Rms)			return &struct_Data.sigma_Drift.drift_Rand_Rms;
-	if(whats_This == whats_This_Sigma_Drift_Sine_Amplitude)		return &struct_Data.sigma_Drift.drift_Sine_Amplitude;
-	if(whats_This == whats_This_Sigma_Drift_Sine_Frequency)		return &struct_Data.sigma_Drift.drift_Sine_Frequency;
-	if(whats_This == whats_This_Sigma_Drift_Sine_Phase)			return &struct_Data.sigma_Drift.drift_Sine_Phase;
+	if(whats_This == whats_This_Sigma)							{*line_edit_precision = line_edit_sigma_precision;			*thumbnail_precision = thumbnail_sigma_precision;		*units = " " + length_units;	*coeff = length_Coefficients_Map.value(length_units);	return &struct_Data.sigma;	}
+	if(whats_This == whats_This_Sigma_Drift_Line_Value)			{*line_edit_precision = line_edit_drift_precision;			*thumbnail_precision = thumbnail_drift_precision;		*units = "";					*coeff = 1; return &struct_Data.sigma_Drift.drift_Line_Value;		}
+	if(whats_This == whats_This_Sigma_Drift_Rand_Rms)			{*line_edit_precision = line_edit_drift_precision;			*thumbnail_precision = thumbnail_drift_precision;		*units = "";					*coeff = 1; return &struct_Data.sigma_Drift.drift_Rand_Rms;			}
+	if(whats_This == whats_This_Sigma_Drift_Sine_Amplitude)		{*line_edit_precision = line_edit_drift_precision;			*thumbnail_precision = thumbnail_drift_precision;		*units = "";					*coeff = 1; return &struct_Data.sigma_Drift.drift_Sine_Amplitude;	}
+	if(whats_This == whats_This_Sigma_Drift_Sine_Frequency)		{*line_edit_precision = line_edit_drift_precision;			*thumbnail_precision = thumbnail_drift_precision;		*units = "";					*coeff = 1; return &struct_Data.sigma_Drift.drift_Sine_Frequency;	}
+	if(whats_This == whats_This_Sigma_Drift_Sine_Phase)			{*line_edit_precision = line_edit_drift_precision;			*thumbnail_precision = thumbnail_drift_precision;		*units = "";					*coeff = 1;	return &struct_Data.sigma_Drift.drift_Sine_Phase;		}
+	if(whats_This == whats_This_Interlayer_Composition)			{*line_edit_precision = line_edit_interlayer_precision;		*thumbnail_precision = thumbnail_interlayer_precision;	*units = "";					*coeff = 1;	return nullptr;											}
+	if(whats_This == whats_This_Interlayer_My_Sigma)			{*line_edit_precision = line_edit_sigma_precision;			*thumbnail_precision = thumbnail_sigma_precision;		*units = " " + length_units;	*coeff = length_Coefficients_Map.value(length_units);	return nullptr;	}
 
 	// thickness
-	if(whats_This == whats_This_Thickness)						return &struct_Data.thickness;
-	if(whats_This == whats_This_Thickness_Drift_Line_Value)		return &struct_Data.thickness_Drift.drift_Line_Value;
-	if(whats_This == whats_This_Thickness_Drift_Rand_Rms)		return &struct_Data.thickness_Drift.drift_Rand_Rms;
-	if(whats_This == whats_This_Thickness_Drift_Sine_Amplitude)	return &struct_Data.thickness_Drift.drift_Sine_Amplitude;
-	if(whats_This == whats_This_Thickness_Drift_Sine_Frequency)	return &struct_Data.thickness_Drift.drift_Sine_Frequency;
-	if(whats_This == whats_This_Thickness_Drift_Sine_Phase)		return &struct_Data.thickness_Drift.drift_Sine_Phase;
+	if(whats_This == whats_This_Thickness)						{*line_edit_precision = line_edit_thickness_precision;		*thumbnail_precision = thumbnail_thickness_precision;	*units = " " + length_units;	*coeff = length_Coefficients_Map.value(length_units);	return &struct_Data.thickness; }
+	if(whats_This == whats_This_Thickness_Drift_Line_Value)		{*line_edit_precision = line_edit_drift_precision;			*thumbnail_precision = thumbnail_drift_precision;		*units = "";					*coeff = 1;	return &struct_Data.thickness_Drift.drift_Line_Value;		}
+	if(whats_This == whats_This_Thickness_Drift_Rand_Rms)		{*line_edit_precision = line_edit_drift_precision;			*thumbnail_precision = thumbnail_drift_precision;		*units = "";					*coeff = 1;	return &struct_Data.thickness_Drift.drift_Rand_Rms;			}
+	if(whats_This == whats_This_Thickness_Drift_Sine_Amplitude)	{*line_edit_precision = line_edit_drift_precision;			*thumbnail_precision = thumbnail_drift_precision;		*units = "";					*coeff = 1;	return &struct_Data.thickness_Drift.drift_Sine_Amplitude;	}
+	if(whats_This == whats_This_Thickness_Drift_Sine_Frequency)	{*line_edit_precision = line_edit_drift_precision;			*thumbnail_precision = thumbnail_drift_precision;		*units = "";					*coeff = 1;	return &struct_Data.thickness_Drift.drift_Sine_Frequency;	}
+	if(whats_This == whats_This_Thickness_Drift_Sine_Phase)		{*line_edit_precision = line_edit_drift_precision;			*thumbnail_precision = thumbnail_drift_precision;		*units = "";					*coeff = 1;	return &struct_Data.thickness_Drift.drift_Sine_Phase;		}
 
 	// multilayer
-	if(whats_This == whats_This_Period)							return &struct_Data.period;
-	if(whats_This == whats_This_Gamma)							return &struct_Data.gamma;
+	if(whats_This == whats_This_Period)							{*line_edit_precision = line_edit_period_precision;			*thumbnail_precision = thumbnail_period_precision;		*units = " " + length_units;	*coeff = length_Coefficients_Map.value(length_units);	return &struct_Data.period; }
+	if(whats_This == whats_This_Gamma)							{*line_edit_precision = line_edit_gamma_precision;			*thumbnail_precision = thumbnail_gamma_precision;		*units = "";					*coeff = 1;	return &struct_Data.gamma; }
 
 	return nullptr;
 }
@@ -713,4 +726,28 @@ void Global_Variables::copy_Tree(const QTreeWidget* from_Tree, QTreeWidget* to_T
 	{
 		to_Tree->addTopLevelItem(from_Tree->topLevelItem(i)->clone());	// the data are also copied here
 	}
+}
+
+void Global_Variables::resize_Line_Edit(QLineEdit* line_Edit, bool adjust_Window)
+{
+	if(line_Edit == nullptr)
+	{
+		qInfo() << "Global_Variables::resize_Line_Edit  :  line_Edit == nullptr";
+		return;
+	}
+
+	QWidget* window = line_Edit->window();
+	QString text = line_Edit->text();
+	QFontMetrics fm = line_Edit->fontMetrics();
+	int width = fm.width(text) + QLINEEDIT_RESIZE_MARGIN;
+	if(width>line_Edit->property(min_Size_Property).toInt())
+	{
+		line_Edit->setFixedWidth(width);
+		if(adjust_Window) QMetaObject::invokeMethod(window, "adjustSize", Qt::QueuedConnection);
+	} else
+	{
+		line_Edit->setFixedWidth(line_Edit->property(min_Size_Property).toInt());
+		if(adjust_Window) QMetaObject::invokeMethod(window, "adjustSize", Qt::QueuedConnection);
+	}
+//	window->adjustSize();
 }

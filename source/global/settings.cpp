@@ -118,6 +118,7 @@ char line_edit_double_format		;
 char line_edit_short_double_format	;
 int line_edit_angle_precision		;
 int line_edit_wavelength_precision	;
+int line_edit_spectral_resolution_precision	;
 int line_edit_polarization_precision;
 int line_edit_density_precision		;
 int line_edit_permittivity_precision;
@@ -137,6 +138,7 @@ int line_edit_background_precision	;
 char thumbnail_double_format		;
 int thumbnail_angle_precision		;
 int thumbnail_wavelength_precision	;
+int thumbnail_spectral_resolution_precision	;
 int thumbnail_polarization_precision;
 int thumbnail_density_precision		;
 int thumbnail_permittivity_precision;
@@ -480,44 +482,46 @@ void Settings::read_Precisions(bool reset_to_default)
 		precision_Values.beginGroup( Line_Edit );
 			line_edit_double_format		  = qvariant_cast<char>(precision_Values.value( "line_edit_double_format",      'f'));
 			line_edit_short_double_format = qvariant_cast<char>(precision_Values.value( "line_edit_short_double_format",'g'));
-			line_edit_angle_precision		= precision_Values.value( "line_edit_angle_precision",			5 ).toInt();
-			line_edit_wavelength_precision	= precision_Values.value( "line_edit_wavelength_precision",		6 ).toInt();
-			line_edit_polarization_precision= precision_Values.value( "line_edit_polarization_precision",	3 ).toInt();
-			line_edit_background_precision	= precision_Values.value( "line_edit_background_precision",		3 ).toInt();
-			line_edit_beam_size_precision	= precision_Values.value( "line_edit_beam_size_precision",		4 ).toInt();
-			line_edit_sample_size_precision	= precision_Values.value( "line_edit_sample_size_precision",	2 ).toInt();
-			line_edit_density_precision		= precision_Values.value( "line_edit_density_precision",		4 ).toInt();
-			line_edit_permittivity_precision= precision_Values.value( "line_edit_permittivity_precision",	4 ).toInt();
-			line_edit_absorption_precision	= precision_Values.value( "line_edit_absorption_precision",		4 ).toInt();
-			line_edit_composition_precision	= precision_Values.value( "line_edit_composition_precision",	4 ).toInt();
-			line_edit_thickness_precision	= precision_Values.value( "line_edit_thickness_precision",		4 ).toInt();
-			line_edit_sigma_precision		= precision_Values.value( "line_edit_sigma_precision",			3 ).toInt();	// = thickness precision
-			line_edit_interlayer_precision	= precision_Values.value( "line_edit_interlayer_precision",		3 ).toInt();
-			line_edit_drift_precision		= precision_Values.value( "line_edit_drift_precision",			3 ).toInt();
-			line_edit_period_precision		= precision_Values.value( "line_edit_period_precision",			4 ).toInt();	// = thickness precision
-			line_edit_gamma_precision		= precision_Values.value( "line_edit_gamma_precision",			8 ).toInt();	// = thickness precision
+			line_edit_angle_precision				= precision_Values.value( "line_edit_angle_precision",				5 ).toInt();
+			line_edit_wavelength_precision			= precision_Values.value( "line_edit_wavelength_precision",			6 ).toInt();
+			line_edit_spectral_resolution_precision	= precision_Values.value( "line_edit_spectral_resolution_precision",2 ).toInt();
+			line_edit_polarization_precision		= precision_Values.value( "line_edit_polarization_precision",		3 ).toInt();
+			line_edit_background_precision			= precision_Values.value( "line_edit_background_precision",			3 ).toInt();
+			line_edit_beam_size_precision			= precision_Values.value( "line_edit_beam_size_precision",			4 ).toInt();
+			line_edit_sample_size_precision			= precision_Values.value( "line_edit_sample_size_precision",		2 ).toInt();
+			line_edit_density_precision				= precision_Values.value( "line_edit_density_precision",			4 ).toInt();
+			line_edit_permittivity_precision		= precision_Values.value( "line_edit_permittivity_precision",		4 ).toInt();
+			line_edit_absorption_precision			= precision_Values.value( "line_edit_absorption_precision",			4 ).toInt();
+			line_edit_composition_precision			= precision_Values.value( "line_edit_composition_precision",		4 ).toInt();
+			line_edit_thickness_precision			= precision_Values.value( "line_edit_thickness_precision",			4 ).toInt();
+			line_edit_sigma_precision				= precision_Values.value( "line_edit_sigma_precision",				3 ).toInt();	// = thickness precision
+			line_edit_interlayer_precision			= precision_Values.value( "line_edit_interlayer_precision",			3 ).toInt();
+			line_edit_drift_precision				= precision_Values.value( "line_edit_drift_precision",				3 ).toInt();
+			line_edit_period_precision				= precision_Values.value( "line_edit_period_precision",				4 ).toInt();	// = thickness precision
+			line_edit_gamma_precision				= precision_Values.value( "line_edit_gamma_precision",				8 ).toInt();	// = thickness precision
 		precision_Values.endGroup();
 		precision_Values.beginGroup( Thumbnail );
 			thumbnail_double_format	    = qvariant_cast<char>(precision_Values.value( "thumbnail_double_format",'f'));
-			thumbnail_angle_precision		= precision_Values.value( "thumbnail_angle_precision",			3 ).toInt();
-			thumbnail_wavelength_precision	= precision_Values.value( "thumbnail_wavelength_precision",		3 ).toInt();
-			thumbnail_polarization_precision= precision_Values.value( "thumbnail_polarization_precision",	3 ).toInt();
-			thumbnail_background_precision	= precision_Values.value( "thumbnail_background_precision",		3 ).toInt();
-			thumbnail_beam_size_precision	= precision_Values.value( "thumbnail_beam_size_precision",		3 ).toInt();
-			thumbnail_sample_size_precision	= precision_Values.value( "thumbnail_sample_size_precision",	2 ).toInt();
-			thumbnail_density_precision		= precision_Values.value( "thumbnail_density_precision",		3 ).toInt();
-			thumbnail_permittivity_precision= precision_Values.value( "thumbnail_permittivity_precision",	3 ).toInt();
-			thumbnail_absorption_precision	= precision_Values.value( "thumbnail_absorption_precision",		3 ).toInt();
-			thumbnail_composition_precision = precision_Values.value( "thumbnail_composition_precision",	3 ).toInt();
-			thumbnail_thickness_precision	= precision_Values.value( "thumbnail_thickness_precision",		3 ).toInt();
-			thumbnail_sigma_precision		= precision_Values.value( "thumbnail_sigma_precision",			3 ).toInt();	// = thickness precision
-			thumbnail_interlayer_precision	= precision_Values.value( "thumbnail_interlayer_precision",		3 ).toInt();
-			thumbnail_drift_precision		= precision_Values.value( "thumbnail_drift_precision",			4 ).toInt();
-			thumbnail_period_precision		= precision_Values.value( "thumbnail_period_precision",			3 ).toInt();	// = thickness precision
-			thumbnail_gamma_precision		= precision_Values.value( "thumbnail_gamma_precision",			3 ).toInt();	// = thickness precision
+			thumbnail_angle_precision				= precision_Values.value( "thumbnail_angle_precision",				3 ).toInt();
+			thumbnail_wavelength_precision			= precision_Values.value( "thumbnail_wavelength_precision",			3 ).toInt();
+			thumbnail_spectral_resolution_precision	= precision_Values.value( "thumbnail_spectral_resolution_precision",2 ).toInt();
+			thumbnail_polarization_precision		= precision_Values.value( "thumbnail_polarization_precision",		3 ).toInt();
+			thumbnail_background_precision			= precision_Values.value( "thumbnail_background_precision",			3 ).toInt();
+			thumbnail_beam_size_precision			= precision_Values.value( "thumbnail_beam_size_precision",			3 ).toInt();
+			thumbnail_sample_size_precision			= precision_Values.value( "thumbnail_sample_size_precision",		2 ).toInt();
+			thumbnail_density_precision				= precision_Values.value( "thumbnail_density_precision",			3 ).toInt();
+			thumbnail_permittivity_precision		= precision_Values.value( "thumbnail_permittivity_precision",		3 ).toInt();
+			thumbnail_absorption_precision			= precision_Values.value( "thumbnail_absorption_precision",			3 ).toInt();
+			thumbnail_composition_precision			= precision_Values.value( "thumbnail_composition_precision",		3 ).toInt();
+			thumbnail_thickness_precision			= precision_Values.value( "thumbnail_thickness_precision",			3 ).toInt();
+			thumbnail_sigma_precision				= precision_Values.value( "thumbnail_sigma_precision",				3 ).toInt();	// = thickness precision
+			thumbnail_interlayer_precision			= precision_Values.value( "thumbnail_interlayer_precision",			3 ).toInt();
+			thumbnail_drift_precision				= precision_Values.value( "thumbnail_drift_precision",				4 ).toInt();
+			thumbnail_period_precision				= precision_Values.value( "thumbnail_period_precision",				3 ).toInt();	// = thickness precision
+			thumbnail_gamma_precision				= precision_Values.value( "thumbnail_gamma_precision",				3 ).toInt();	// = thickness precision
 		precision_Values.endGroup();
 		precision_Values.beginGroup( Other );
-			at_weight_precision				= precision_Values.value( "at_weight_precision",				5 ).toInt();
+			at_weight_precision						= precision_Values.value( "at_weight_precision",				5 ).toInt();
 		precision_Values.endGroup();
 	precision_Values.endGroup();
 }

@@ -425,179 +425,28 @@ void Independent_Variables_Editor::refresh_Show_Data(bool show)
 	int line_edit_precision = line_edit_density_precision;
 	int thumbnail_precision = thumbnail_density_precision;
 	double coeff = 1; // should be 1 by default!
-	Parameter* param_Pointer = nullptr;
+	Parameter* param_Pointer = Global_Variables::get_Parameter_From_Struct_Item_by_Whats_This(
+							   struct_Data,
+							   indicator.parameter_Whats_This,
+							   &line_edit_precision,
+							   &thumbnail_precision,
+							   &units,
+							   &coeff);
 
-	/// optical constants
-	if(indicator.parameter_Whats_This == whats_This_Absolute_Density)
-	{
-		param_Pointer = &struct_Data.absolute_Density;
-		line_edit_precision = line_edit_density_precision;
-		thumbnail_precision = thumbnail_density_precision;
-		units = " " + density_units;
-	}
-	if(indicator.parameter_Whats_This == whats_This_Relative_Density)
-	{
-		param_Pointer = &struct_Data.relative_Density;
-		line_edit_precision = line_edit_density_precision;
-		thumbnail_precision = thumbnail_density_precision;
-		units = "" ;
-	}
+	// special cases
 	if(indicator.parameter_Whats_This == whats_This_Permittivity)
 	{
 		val_Edit->setValidator(new QDoubleValidator(-MAX_DOUBLE, MAX_DOUBLE, MAX_PRECISION, this));
 		min_Edit->setValidator(new QDoubleValidator(-MAX_DOUBLE, MAX_DOUBLE, MAX_PRECISION, this));
 		max_Edit->setValidator(new QDoubleValidator(-MAX_DOUBLE, MAX_DOUBLE, MAX_PRECISION, this));
-
-		param_Pointer = &struct_Data.permittivity;
-		line_edit_precision = line_edit_permittivity_precision;
-		thumbnail_precision = thumbnail_permittivity_precision;
-		units = " " + opt_const_units;
-	}
-	if(indicator.parameter_Whats_This == whats_This_Absorption)
-	{
-		param_Pointer = &struct_Data.absorption;
-		line_edit_precision = line_edit_absorption_precision;
-		thumbnail_precision = thumbnail_absorption_precision;
-		units = " " + opt_const_units;
-	}
-	if(indicator.parameter_Whats_This == whats_This_Composition)
-	{
-		param_Pointer = &struct_Data.composition[indicator.index].composition;
-		line_edit_precision = line_edit_composition_precision;
-		thumbnail_precision = thumbnail_composition_precision;
-		units = "";
-	}
-	/// thickness parameters
-	if(indicator.parameter_Whats_This == whats_This_Thickness)
-	{
-		param_Pointer = &struct_Data.thickness;
-		line_edit_precision = line_edit_thickness_precision;
-		thumbnail_precision = thumbnail_thickness_precision;
-		units = " " + length_units;
-		coeff = length_Coefficients_Map.value(length_units);
-	}
-	if(indicator.parameter_Whats_This == whats_This_Thickness_Drift_Line_Value)
-	{
-		param_Pointer = &struct_Data.thickness_Drift.drift_Line_Value;
-		line_edit_precision = line_edit_drift_precision;
-		thumbnail_precision = thumbnail_drift_precision;
-		units = " " + length_units;
-	}
-	if(indicator.parameter_Whats_This == whats_This_Thickness_Drift_Rand_Rms)
-	{
-		param_Pointer = &struct_Data.thickness_Drift.drift_Rand_Rms;
-		line_edit_precision = line_edit_drift_precision;
-		thumbnail_precision = thumbnail_drift_precision;
-		units = " " + length_units;
-	}
-	if(indicator.parameter_Whats_This == whats_This_Thickness_Drift_Sine_Amplitude)
-	{
-		param_Pointer = &struct_Data.thickness_Drift.drift_Sine_Amplitude;
-		line_edit_precision = line_edit_drift_precision;
-		thumbnail_precision = thumbnail_drift_precision;
-		units = " " + length_units;
-	}
-	if(indicator.parameter_Whats_This == whats_This_Thickness_Drift_Sine_Frequency)
-	{
-		param_Pointer = &struct_Data.thickness_Drift.drift_Sine_Frequency;
-		line_edit_precision = line_edit_drift_precision;
-		thumbnail_precision = thumbnail_drift_precision;
-		units = " " + length_units;
-	}
-	if(indicator.parameter_Whats_This == whats_This_Thickness_Drift_Sine_Phase)
-	{
-		param_Pointer = &struct_Data.thickness_Drift.drift_Sine_Phase;
-		line_edit_precision = line_edit_drift_precision;
-		thumbnail_precision = thumbnail_drift_precision;
-		units = " " + length_units;
-	}
-	/// interface parameters
-	if(indicator.parameter_Whats_This == whats_This_Sigma)
-	{
-		param_Pointer = &struct_Data.sigma;
-		line_edit_precision = line_edit_sigma_precision;
-		thumbnail_precision = thumbnail_sigma_precision;
-		units = " " + length_units;
-		coeff = length_Coefficients_Map.value(length_units);
 	}
 	if(indicator.parameter_Whats_This == whats_This_Interlayer_Composition)
 	{
 		param_Pointer = &struct_Data.interlayer_Composition[indicator.index].interlayer;
-		line_edit_precision = line_edit_interlayer_precision;
-		thumbnail_precision = thumbnail_interlayer_precision;
-		units = "";
 	}
 	if(indicator.parameter_Whats_This == whats_This_Interlayer_My_Sigma)
 	{
 		param_Pointer = &struct_Data.interlayer_Composition[indicator.index].my_Sigma;
-		line_edit_precision = line_edit_sigma_precision;
-		thumbnail_precision = thumbnail_sigma_precision;
-		units = " " + length_units;
-		coeff = length_Coefficients_Map.value(length_units);
-	}
-	if(indicator.parameter_Whats_This == whats_This_Sigma_Drift_Line_Value)
-	{
-		param_Pointer = &struct_Data.sigma_Drift.drift_Line_Value;
-		line_edit_precision = line_edit_drift_precision;
-		thumbnail_precision = thumbnail_drift_precision;
-		units = "";
-	}
-	if(indicator.parameter_Whats_This == whats_This_Sigma_Drift_Rand_Rms)
-	{
-		param_Pointer = &struct_Data.sigma_Drift.drift_Rand_Rms;
-		line_edit_precision = line_edit_drift_precision;
-		thumbnail_precision = thumbnail_drift_precision;
-		units = "";
-	}
-	if(indicator.parameter_Whats_This == whats_This_Sigma_Drift_Sine_Amplitude)
-	{
-		param_Pointer = &struct_Data.sigma_Drift.drift_Sine_Amplitude;
-		line_edit_precision = line_edit_drift_precision;
-		thumbnail_precision = thumbnail_drift_precision;
-		units = "";
-	}
-	if(indicator.parameter_Whats_This == whats_This_Sigma_Drift_Sine_Frequency)
-	{
-		param_Pointer = &struct_Data.sigma_Drift.drift_Sine_Frequency;
-		line_edit_precision = line_edit_drift_precision;
-		thumbnail_precision = thumbnail_drift_precision;
-		units = "";
-	}
-	if(indicator.parameter_Whats_This == whats_This_Sigma_Drift_Sine_Phase)
-	{
-		param_Pointer = &struct_Data.sigma_Drift.drift_Sine_Phase;
-		line_edit_precision = line_edit_drift_precision;
-		thumbnail_precision = thumbnail_drift_precision;
-		units = "";
-	}
-	/// stack parameters (without num_Repetitions)
-	if(indicator.parameter_Whats_This == whats_This_Num_Repetitions)
-	{
-		param_Pointer = nullptr;
-	}
-	if(indicator.parameter_Whats_This == whats_This_Period)
-	{
-		param_Pointer = &struct_Data.period;
-		line_edit_precision = line_edit_period_precision;
-		thumbnail_precision = thumbnail_period_precision;
-		units = " " + length_units;
-		coeff = length_Coefficients_Map.value(length_units);
-	}
-	if(indicator.parameter_Whats_This == whats_This_Gamma)
-	{
-		param_Pointer = &struct_Data.gamma;
-		line_edit_precision = line_edit_gamma_precision;
-		thumbnail_precision = thumbnail_gamma_precision;
-		units = "";
-	}
-	/// measurement parameters
-	if(indicator.parameter_Whats_This == whats_This_Angle)
-	{
-		param_Pointer = &struct_Data.probe_Angle;
-		line_edit_precision = line_edit_angle_precision;
-		thumbnail_precision = thumbnail_angle_precision;
-		units = angle_units;
-		coeff = angle_Coefficients_Map.value(angle_units);
 	}
 	if(indicator.parameter_Whats_This == whats_This_Wavelength)
 	{

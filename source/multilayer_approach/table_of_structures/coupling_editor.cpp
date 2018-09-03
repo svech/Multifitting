@@ -60,21 +60,38 @@ void Coupling_Editor::set_Window_Geometry()
 void Coupling_Editor::create_Main_Layout()
 {
 	main_Layout = new QVBoxLayout(this);
-	main_Layout->setSpacing(0);
-	main_Layout->setContentsMargins(4,0,4,0);
+		main_Layout->setSpacing(0);
+		main_Layout->setContentsMargins(4,0,4,0);
+
+	// buttons
+	QHBoxLayout* button_Layout = new QHBoxLayout;
+		button_Layout->setSpacing(0);
+	button_Layout->setContentsMargins(4,0,4,0);
+	{
+		done_Button = new QPushButton("Done");
+			done_Button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+			done_Button->setFocus();
+			done_Button->setDefault(true);
+		button_Layout->addWidget(done_Button,0,Qt::AlignRight);
+
+		connect ( done_Button,		 &QPushButton::clicked, this, &Coupling_Editor::close);
+	}
+	{
+		confidence_Button = new QPushButton("Confidence Interval");
+			confidence_Button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+			confidence_Button->setToolTip("Should have no master");
+		button_Layout->addWidget(confidence_Button,0,Qt::AlignRight);
+
+		connect ( confidence_Button, &QPushButton::clicked, this, &Coupling_Editor::open_Confidence_Interval_Editor);
+	}
 
 	create_Master_Box();
 		main_Layout->addWidget(master_Group_Box);
 	create_Slave_Box();
 		main_Layout->addWidget(slave_Group_Box);
 
-	done_Button = new QPushButton("Done");
-		done_Button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-		done_Button->setFocus();
-		done_Button->setDefault(true);
-	main_Layout->addWidget(done_Button,0,Qt::AlignCenter);
+	main_Layout->addLayout(button_Layout);
 
-	connect ( done_Button, &QPushButton::clicked, this, &Coupling_Editor::close);
 
 	// disable context menu
 	if(parent()!=nullptr)
@@ -130,6 +147,7 @@ void Coupling_Editor::remove_Master()
 
 	master_Label->setText(no_Master_Text);
 	master_Widget = nullptr;
+	confidence_Button->setEnabled(true);
 }
 
 void Coupling_Editor::load_Master()
@@ -164,6 +182,7 @@ void Coupling_Editor::load_Master()
 				master_Label->setText("<"+table_Of_Structures->main_Tabs->tabText(old_Master_Parameter->indicator.tab_Index)+"> "+old_Master_Parameter->indicator.full_Name);
 				loaded = true;
 //				qInfo() << "loaded 1 master";
+				confidence_Button->setEnabled(false);
 			}
 		}
 	}
@@ -171,6 +190,7 @@ void Coupling_Editor::load_Master()
 	{
 		remove_Master();
 //		qInfo() << "loaded 0 masters";
+		confidence_Button->setEnabled(true);
 	}
 }
 
@@ -384,6 +404,7 @@ void Coupling_Editor::save_External_Slaves()
 			slave_Parameter->coupled.master = coupled_Parameter->indicator;
 			slave_Parameter->coupled.master.exist = true;
 			slave_Parameter->coupled.master.expression = coupled_Parameter->coupled.slaves[index].expression;
+			slave_Parameter->confidence.calc_Conf_Interval = false;
 
 			// save slave
 			table_Of_Structures->refresh_Reload_Colorize(refresh_Property, slave_Widget, slave_Parameter);
@@ -487,10 +508,12 @@ void Coupling_Editor::get_Parameter(QLabel* label)
 			coupled_Parameter->coupled.master = widget_Parameter->indicator;
 			coupled_Parameter->coupled.master.exist = true;
 			coupled_Parameter->coupled.master.expression = expression;
+			coupled_Parameter->confidence.calc_Conf_Interval = false;
 
 			// master's side
 			master_Widget = widget;					// remember widget. data will be saved at close->
 			label->setText("<"+table_Of_Structures->main_Tabs->tabText(widget_Parameter->indicator.tab_Index)+"> "+widget_Parameter->indicator.full_Name/* + " " + QString::number(parameter->indicator.id)*/);
+			confidence_Button->setEnabled(false);
 		} else
 		// set slave
 		{
@@ -522,5 +545,13 @@ void Coupling_Editor::get_Parameter(QLabel* label)
 		}
 //		qInfo() << "parameter id = " << parameter->indicator.id << "\n" << main_Tabs->tabText(parameter->indicator.tab_Index) << " " << parameter->indicator.full_Name << endl;
 	}
+}
+
+void Coupling_Editor::open_Confidence_Interval_Editor()
+{
+	hide();
+	adjustSize();
+	Confidence_Interval_Editor* confidence_Interval_Editor = new Confidence_Interval_Editor(this);
+		confidence_Interval_Editor->show();
 }
 

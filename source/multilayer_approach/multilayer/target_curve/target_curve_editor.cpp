@@ -184,7 +184,7 @@ void Target_Curve_Editor::fill_Arg_Units_ComboBox(QString arg_Type)
 	arg_Units_ComboBox->blockSignals(false);
 	at_Fixed_Units_ComboBox->blockSignals(false);
 
-	resize_Line_Edit(at_Fixed_LineEdit);
+	Global_Variables::resize_Line_Edit(at_Fixed_LineEdit, false);
 }
 
 void Target_Curve_Editor::fill_Val_Modes_ComboBox(QString val_Mode)
@@ -483,7 +483,7 @@ void Target_Curve_Editor::create_Data_GroupBox()
 			beam_Intensity_LineEdit->setFixedWidth(TARGET_LINE_EDIT_WIDTH);
 			beam_Intensity_LineEdit->setProperty(min_Size_Property, TARGET_LINE_EDIT_WIDTH);
 			beam_Intensity_LineEdit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION, this));
-			connect(beam_Intensity_LineEdit, &QLineEdit::textEdited, this, [=]{resize_Line_Edit();} );
+		connect(beam_Intensity_LineEdit, &QLineEdit::textEdited, this, [=]{Global_Variables::resize_Line_Edit(beam_Intensity_LineEdit, false);} );
 		layout->addWidget(beam_Intensity_LineEdit,0,Qt::AlignLeft);
 
 
@@ -503,13 +503,13 @@ void Target_Curve_Editor::create_Data_GroupBox()
 				at_Fixed_LineEdit->setFixedWidth(TARGET_LINE_EDIT_WIDTH);
 				at_Fixed_LineEdit->setProperty(min_Size_Property, TARGET_LINE_EDIT_WIDTH);
 				at_Fixed_LineEdit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION, this));
-				connect(at_Fixed_LineEdit, &QLineEdit::textEdited, this, [=]{resize_Line_Edit();} );
+			connect(at_Fixed_LineEdit, &QLineEdit::textEdited, this, [=]{Global_Variables::resize_Line_Edit(at_Fixed_LineEdit, false);} );
 			layout->addWidget(at_Fixed_LineEdit,0,1,5,1,Qt::AlignLeft);
 			at_Fixed_Units_ComboBox = new QComboBox;
 				at_Fixed_Units_ComboBox->addItems(argument_Types);
 				at_Fixed_Units_ComboBox->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 				at_Fixed_Units_ComboBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
-				connect(at_Fixed_Units_ComboBox, &QComboBox::currentTextChanged, this, &Target_Curve_Editor::change_At_Fixed_Units_ComboBox);
+			connect(at_Fixed_Units_ComboBox, &QComboBox::currentTextChanged, this, &Target_Curve_Editor::change_At_Fixed_Units_ComboBox);
 			layout->addWidget(at_Fixed_Units_ComboBox,0,2,5,1,Qt::AlignLeft);
 		}
 
@@ -521,7 +521,7 @@ void Target_Curve_Editor::create_Data_GroupBox()
 				polarization_LineEdit->setFixedWidth(TARGET_LINE_EDIT_WIDTH);
 				polarization_LineEdit->setProperty(min_Size_Property, TARGET_LINE_EDIT_WIDTH);
 				polarization_LineEdit->setValidator(new QDoubleValidator(-1, 1, MAX_PRECISION, this));
-				connect(polarization_LineEdit, &QLineEdit::textEdited, this, [=]{resize_Line_Edit();} );
+			connect(polarization_LineEdit, &QLineEdit::textEdited, this, [=]{Global_Variables::resize_Line_Edit(polarization_LineEdit, false);} );
 			layout->addWidget(polarization_LineEdit,0,4,Qt::AlignLeft);
 		}
 
@@ -529,11 +529,11 @@ void Target_Curve_Editor::create_Data_GroupBox()
 		{
 			spectral_Resolution_Label = new QLabel(Global_Variables::parameter_Name(target_Curve->measurement, whats_This_Spectral_Resolution, 0));
 			layout->addWidget(spectral_Resolution_Label,0,6,Qt::AlignRight);
-			spectral_Resolution_LineEdit = new QLineEdit(QString::number(target_Curve->measurement.spectral_Resolution.value,line_edit_double_format,line_edit_wavelength_precision));
+			spectral_Resolution_LineEdit = new QLineEdit(QString::number(target_Curve->measurement.spectral_Resolution.value,line_edit_double_format,line_edit_spectral_resolution_precision));
 				spectral_Resolution_LineEdit->setFixedWidth(TARGET_LINE_EDIT_WIDTH);
 				spectral_Resolution_LineEdit->setProperty(min_Size_Property, TARGET_LINE_EDIT_WIDTH);
 				spectral_Resolution_LineEdit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION, this));
-				connect(spectral_Resolution_LineEdit, &QLineEdit::textEdited, this, [=]{resize_Line_Edit();} );
+			connect(spectral_Resolution_LineEdit, &QLineEdit::textEdited, this, [=]{Global_Variables::resize_Line_Edit(spectral_Resolution_LineEdit, false);} );
 			layout->addWidget(spectral_Resolution_LineEdit,0,7,Qt::AlignLeft);
 		}
 
@@ -556,7 +556,7 @@ void Target_Curve_Editor::create_Data_GroupBox()
 				background_LineEdit->setFixedWidth(TARGET_LINE_EDIT_WIDTH);
 				background_LineEdit->setProperty(min_Size_Property, TARGET_LINE_EDIT_WIDTH);
 				background_LineEdit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION, this));
-				connect(background_LineEdit, &QLineEdit::textEdited, this, [=]{resize_Line_Edit();} );
+			connect(background_LineEdit, &QLineEdit::textEdited, this, [=]{Global_Variables::resize_Line_Edit(background_LineEdit, false);} );
 			layout->addWidget(background_LineEdit,1,4,Qt::AlignLeft);
 		}
 
@@ -568,7 +568,7 @@ void Target_Curve_Editor::create_Data_GroupBox()
 				angular_Resolution_LineEdit->setFixedWidth(TARGET_LINE_EDIT_WIDTH);
 				angular_Resolution_LineEdit->setProperty(min_Size_Property, TARGET_LINE_EDIT_WIDTH);
 				angular_Resolution_LineEdit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION, this));
-				connect(angular_Resolution_LineEdit, &QLineEdit::textEdited, this, [=]{resize_Line_Edit();} );
+			connect(angular_Resolution_LineEdit, &QLineEdit::textEdited, this, [=]{Global_Variables::resize_Line_Edit(angular_Resolution_LineEdit, false);} );
 			layout->addWidget(angular_Resolution_LineEdit,1,7,Qt::AlignLeft);
 			angular_Units_Label = new QLabel("<ang unit>");
 			layout->addWidget(angular_Units_Label,1,8,Qt::AlignLeft);
@@ -583,7 +583,7 @@ void Target_Curve_Editor::create_Data_GroupBox()
 				beam_Size_LineEdit->setFixedWidth(TARGET_LINE_EDIT_WIDTH);
 				beam_Size_LineEdit->setProperty(min_Size_Property, TARGET_LINE_EDIT_WIDTH);
 				beam_Size_LineEdit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION, this));
-				connect(beam_Size_LineEdit, &QLineEdit::textEdited, this, [=]{resize_Line_Edit();} );
+			connect(beam_Size_LineEdit, &QLineEdit::textEdited, this, [=]{Global_Variables::resize_Line_Edit(beam_Size_LineEdit, false);} );
 			layout->addWidget(beam_Size_LineEdit,3,4,Qt::AlignLeft);
 			beam_Size_Units_Label = new QLabel(size_Units_List[mm]);
 			layout->addWidget(beam_Size_Units_Label,3,5,Qt::AlignLeft);
@@ -597,7 +597,7 @@ void Target_Curve_Editor::create_Data_GroupBox()
 				sample_Size_LineEdit->setFixedWidth(TARGET_LINE_EDIT_WIDTH);
 				sample_Size_LineEdit->setProperty(min_Size_Property, TARGET_LINE_EDIT_WIDTH);
 				sample_Size_LineEdit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION, this));
-				connect(sample_Size_LineEdit, &QLineEdit::textEdited, this, [=]{resize_Line_Edit();} );
+			connect(sample_Size_LineEdit, &QLineEdit::textEdited, this, [=]{Global_Variables::resize_Line_Edit(sample_Size_LineEdit, false);} );
 			layout->addWidget(sample_Size_LineEdit,3,7,Qt::AlignLeft);
 			sample_Size_Units_Label = new QLabel(size_Units_List[mm]);
 			layout->addWidget(sample_Size_Units_Label,3,8,Qt::AlignLeft);
@@ -611,7 +611,7 @@ void Target_Curve_Editor::create_Data_GroupBox()
 				beam_Profile_Spreading_LineEdit->setFixedWidth(TARGET_LINE_EDIT_WIDTH);
 				beam_Profile_Spreading_LineEdit->setProperty(min_Size_Property, TARGET_LINE_EDIT_WIDTH);
 				beam_Profile_Spreading_LineEdit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION, this));
-				connect(beam_Profile_Spreading_LineEdit, &QLineEdit::textEdited, this, [=]{resize_Line_Edit();} );
+			connect(beam_Profile_Spreading_LineEdit, &QLineEdit::textEdited, this, [=]{Global_Variables::resize_Line_Edit(beam_Profile_Spreading_LineEdit, false);} );
 			layout->addWidget(beam_Profile_Spreading_LineEdit,4,4,Qt::AlignLeft);
 		}
 
@@ -623,7 +623,7 @@ void Target_Curve_Editor::create_Data_GroupBox()
 				sample_Shift_LineEdit->setFixedWidth(TARGET_LINE_EDIT_WIDTH);
 				sample_Shift_LineEdit->setProperty(min_Size_Property, TARGET_LINE_EDIT_WIDTH);
 				sample_Shift_LineEdit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION, this));
-				connect(sample_Shift_LineEdit, &QLineEdit::textEdited, this, [=]{resize_Line_Edit();} );
+			connect(sample_Shift_LineEdit, &QLineEdit::textEdited, this, [=]{Global_Variables::resize_Line_Edit(sample_Shift_LineEdit, false);} );
 			layout->addWidget(sample_Shift_LineEdit,4,7,Qt::AlignLeft);
 			sample_Shift_Units_Label = new QLabel(size_Units_List[mm]);
 			layout->addWidget(sample_Shift_Units_Label,4,8,Qt::AlignLeft);
@@ -698,22 +698,22 @@ void Target_Curve_Editor::create_Buttons()
 	bottom_Part_Layout->addLayout(button_Layout);
 }
 
-void Target_Curve_Editor::resize_Line_Edit(QLineEdit* line_Edit)
-{
-	if(!line_Edit) line_Edit = qobject_cast<QLineEdit*>(QObject::sender());
+//void Target_Curve_Editor::resize_Line_Edit(QLineEdit* line_Edit)
+//{
+//	if(!line_Edit) line_Edit = qobject_cast<QLineEdit*>(QObject::sender());
 
-	QString text = line_Edit->text();
-	QFontMetrics fm = line_Edit->fontMetrics();
-	int width = fm.width(text) + QLINEEDIT_RESIZE_MARGIN;
-	if(width>line_Edit->property(min_Size_Property).toInt())
-	{
-		line_Edit->setFixedWidth(width);
-	} else
-	{
-		line_Edit->setFixedWidth(line_Edit->property(min_Size_Property).toInt());
-	}
-//	QMetaObject::invokeMethod(this, "adjustSize", Qt::QueuedConnection);
-}
+//	QString text = line_Edit->text();
+//	QFontMetrics fm = line_Edit->fontMetrics();
+//	int width = fm.width(text) + QLINEEDIT_RESIZE_MARGIN;
+//	if(width>line_Edit->property(min_Size_Property).toInt())
+//	{
+//		line_Edit->setFixedWidth(width);
+//	} else
+//	{
+//		line_Edit->setFixedWidth(line_Edit->property(min_Size_Property).toInt());
+//	}
+////	QMetaObject::invokeMethod(this, "adjustSize", Qt::QueuedConnection);
+//}
 
 void Target_Curve_Editor::resize_ComboBox(QLineEdit* line_Edit)
 {
@@ -865,14 +865,14 @@ void Target_Curve_Editor::show_Unit_Dependent_Data()
 	}
 
 	show_Angular_Resolution();
-	resize_Line_Edit(at_Fixed_LineEdit);
+	Global_Variables::resize_Line_Edit(at_Fixed_LineEdit, false);
 }
 
 void Target_Curve_Editor::show_Angular_Resolution()
 {
 	double coeff = angle_Coefficients_Map.value(target_Curve->curve.angular_Units);
 	angular_Resolution_LineEdit->setText(QString::number(target_Curve->measurement.angular_Resolution.value/coeff, line_edit_double_format, line_edit_angle_precision));
-	resize_Line_Edit(angular_Resolution_LineEdit);
+	Global_Variables::resize_Line_Edit(angular_Resolution_LineEdit, false);
 }
 
 void Target_Curve_Editor::refresh_Filepath(QString filepath)
