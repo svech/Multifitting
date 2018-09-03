@@ -32,9 +32,6 @@ public:
 	void show_Hide_Angular_Elements();
 	void show_Hide_Spectral_Elements();
 
-public slots:
-	void resize_Line_Edit(QString text, QLineEdit* line_Edit = nullptr);
-
 public:
 	int globalcounter=0;
 	QTreeWidgetItem* structure_Item;

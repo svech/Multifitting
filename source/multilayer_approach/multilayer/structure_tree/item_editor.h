@@ -56,7 +56,6 @@ public:
 
 	void emit_Item_Data_Edited();
 
-//	void resize_Line_Edit(QString text, QLineEdit* line_Edit = nullptr);
 	void browse_Material();
 	void depth_Grading();
 	void sigma_Grading();

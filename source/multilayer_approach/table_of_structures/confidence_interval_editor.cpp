@@ -22,7 +22,7 @@ void Confidence_Interval_Editor::set_Window_Geometry()
 {
 	move(coupling_Editor->pos());
 	adjustSize();
-//	setFixedSize(coupling_Editor->width(),height());
+	setFixedSize(size());
 }
 
 void Confidence_Interval_Editor::create_Main_Layout()
@@ -32,7 +32,6 @@ void Confidence_Interval_Editor::create_Main_Layout()
 		main_Layout->setContentsMargins(4,4,4,0);
 
 	create_Group_Box();
-		main_Layout->addWidget(main_GroupBox);
 
 	{
 		done_Button = new QPushButton("Done");
@@ -55,6 +54,7 @@ void Confidence_Interval_Editor::create_Group_Box()
 		main_GroupBox->setChecked(coupling_Editor->coupled_Parameter->confidence.calc_Conf_Interval);
 
 	connect(main_GroupBox, &QGroupBox::toggled, this, [=]{coupling_Editor->coupled_Parameter->confidence.calc_Conf_Interval = main_GroupBox->isChecked();});
+	main_Layout->addWidget(main_GroupBox);
 
 	// create content
 	groupBox_Layout = new QVBoxLayout(main_GroupBox);

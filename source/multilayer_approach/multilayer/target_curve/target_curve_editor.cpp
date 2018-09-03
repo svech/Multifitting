@@ -698,23 +698,6 @@ void Target_Curve_Editor::create_Buttons()
 	bottom_Part_Layout->addLayout(button_Layout);
 }
 
-//void Target_Curve_Editor::resize_Line_Edit(QLineEdit* line_Edit)
-//{
-//	if(!line_Edit) line_Edit = qobject_cast<QLineEdit*>(QObject::sender());
-
-//	QString text = line_Edit->text();
-//	QFontMetrics fm = line_Edit->fontMetrics();
-//	int width = fm.width(text) + QLINEEDIT_RESIZE_MARGIN;
-//	if(width>line_Edit->property(min_Size_Property).toInt())
-//	{
-//		line_Edit->setFixedWidth(width);
-//	} else
-//	{
-//		line_Edit->setFixedWidth(line_Edit->property(min_Size_Property).toInt());
-//	}
-////	QMetaObject::invokeMethod(this, "adjustSize", Qt::QueuedConnection);
-//}
-
 void Target_Curve_Editor::resize_ComboBox(QLineEdit* line_Edit)
 {
 	if(!line_Edit) line_Edit = qobject_cast<QLineEdit*>(QObject::sender());

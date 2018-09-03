@@ -638,14 +638,14 @@ void Item_Editor::read_Interlayers_From_Item()
 //				my_Sigma_Line_Edit->setProperty(min_Size_Property, line_Edit->width());
 				my_Sigma_Line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION, this));
 
-//			connect(comp_Line_Edit,		&QLineEdit::textEdited,	this, [&](QString s){resize_Line_Edit(s);}); // better not use
-//			connect(my_Sigma_Line_Edit, &QLineEdit::textEdited,	this, [&](QString s){resize_Line_Edit(s);}); // better not use
+//			connect(comp_Line_Edit,		&QLineEdit::textEdited,	this, [=]{Global_Variables::resize_Line_Edit(comp_Line_Edit);}); // better not use
+//			connect(my_Sigma_Line_Edit, &QLineEdit::textEdited,	this, [=]{Global_Variables::resize_Line_Edit(my_Sigma_Line_Edit);}); // better not use
 
 			check_Box->setChecked(struct_Data.interlayer_Composition[i].enabled);
 			comp_Line_Edit->setText(QString::number(struct_Data.interlayer_Composition[i].interlayer.value,line_edit_short_double_format,line_edit_interlayer_precision));
 			my_Sigma_Line_Edit->setText(QString::number(struct_Data.interlayer_Composition[i].my_Sigma.value/coeff,line_edit_short_double_format,line_edit_interlayer_precision));
-//				resize_Line_Edit(comp_Line_Edit);     // better not use
-//				resize_Line_Edit(my_Sigma_Line_Edit); // better not use
+//				Global_Variables::resize_Line_Edit(comp_Line_Edit);     // better not use
+//				Global_Variables::resize_Line_Edit(my_Sigma_Line_Edit); // better not use
 
 			interlayer_Composition_Check_Box_Vec		 [i]=check_Box;
 			interlayer_Composition_Comp_Line_Edit_Vec	 [i]=comp_Line_Edit;
@@ -811,24 +811,6 @@ void Item_Editor::show_Interlayers(QObject* my_Sender)
 		show_Sigma(false);
 	}
 }
-
-//void Item_Editor::resize_Line_Edit(QString text, QLineEdit* line_Edit)
-//{
-//	if(line_Edit == nullptr) line_Edit = qobject_cast<QLineEdit*>(QObject::sender());
-
-//	text = line_Edit->text();
-//	QFontMetrics fm = line_Edit->fontMetrics();
-//	int width = fm.width(text) + QLINEEDIT_RESIZE_MARGIN;
-//	if(width>line_Edit->property(min_Size_Property).toInt())
-//	{
-//		line_Edit->setFixedWidth(width);
-//		QMetaObject::invokeMethod(this, "adjustSize", Qt::QueuedConnection);
-//	} else
-//	{
-//		line_Edit->setFixedWidth(line_Edit->property(min_Size_Property).toInt());
-//		QMetaObject::invokeMethod(this, "adjustSize", Qt::QueuedConnection);
-//	}
-//}
 
 void Item_Editor::browse_Material()
 {

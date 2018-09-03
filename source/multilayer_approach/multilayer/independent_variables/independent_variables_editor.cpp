@@ -169,17 +169,17 @@ void Independent_Variables_Editor::create_Standard_Interface()
 		}
 
 
-		connect(num_Points, SIGNAL(textEdited(QString)), this, SLOT(resize_Line_Edit(QString)));
-		connect(val_Edit,	SIGNAL(textEdited(QString)), this, SLOT(resize_Line_Edit(QString)));
-		connect(min_Edit,	SIGNAL(textEdited(QString)), this, SLOT(resize_Line_Edit(QString)));
-		connect(max_Edit,	SIGNAL(textEdited(QString)), this, SLOT(resize_Line_Edit(QString)));
+		connect(num_Points, &QLineEdit::textEdited, this, [=]{Global_Variables::resize_Line_Edit(num_Points);});
+		connect(val_Edit,	&QLineEdit::textEdited, this, [=]{Global_Variables::resize_Line_Edit(val_Edit);});
+		connect(min_Edit,	&QLineEdit::textEdited, this, [=]{Global_Variables::resize_Line_Edit(min_Edit);});
+		connect(max_Edit,	&QLineEdit::textEdited, this, [=]{Global_Variables::resize_Line_Edit(max_Edit);});
 
 		connect(num_Points, &QLineEdit::textEdited, [=]{refresh_Show_Data();});
 		connect(val_Edit,	&QLineEdit::textEdited, [=]{refresh_Show_Data();});
 		connect(min_Edit,	&QLineEdit::textEdited, [=]{refresh_Show_Data();});
 		connect(max_Edit,	&QLineEdit::textEdited, [=]{refresh_Show_Data();});
 
-		connect(step_Edit,	SIGNAL(textEdited(QString)), this, SLOT(resize_Line_Edit(QString)));
+		connect(step_Edit,	&QLineEdit::textEdited, this, [=]{Global_Variables::resize_Line_Edit(step_Edit);});
 
 		connect(active_Check_Box, &QCheckBox::toggled, this, &Independent_Variables_Editor::activate_Variable);
 	}
@@ -209,7 +209,7 @@ void Independent_Variables_Editor::create_Angle_Interface()
 			angle_Units_Label->setSizePolicy(sp_retain);
 		layout_Ang_Res->addWidget(angle_Units_Label);
 
-		connect(angular_Resolution_Edit, &QLineEdit::textEdited, [=](QString text){resize_Line_Edit(text,angular_Resolution_Edit);} );
+		connect(angular_Resolution_Edit, &QLineEdit::textEdited, this, [=]{Global_Variables::resize_Line_Edit(angular_Resolution_Edit);});
 		connect(angular_Resolution_Edit, &QLineEdit::textEdited, [=]{refresh_Show_Data();});
 	}
 
@@ -229,7 +229,7 @@ void Independent_Variables_Editor::create_Angle_Interface()
 		beam_Size_Units_Label = new QLabel(size_Units_List[mm]);
 		geometry_Layout->addWidget(beam_Size_Units_Label,0,2,Qt::AlignLeft);
 
-		connect(beam_Size_LineEdit, &QLineEdit::textEdited, this, [=](QString text){resize_Line_Edit(text,beam_Size_LineEdit);} );
+		connect(beam_Size_LineEdit, &QLineEdit::textEdited, this, [=]{Global_Variables::resize_Line_Edit(beam_Size_LineEdit);});
 		connect(beam_Size_LineEdit, &QLineEdit::textEdited, [=]{refresh_Show_Data();});
 	}
 
@@ -251,7 +251,7 @@ void Independent_Variables_Editor::create_Angle_Interface()
 		sample_Size_Units_Label = new QLabel(size_Units_List[mm]);
 		geometry_Layout->addWidget(sample_Size_Units_Label,0,6,Qt::AlignLeft);
 
-		connect(sample_Size_LineEdit, &QLineEdit::textEdited, this, [=](QString text){resize_Line_Edit(text,sample_Size_LineEdit);} );
+		connect(sample_Size_LineEdit, &QLineEdit::textEdited, this, [=]{Global_Variables::resize_Line_Edit(sample_Size_LineEdit);});
 		connect(sample_Size_LineEdit, &QLineEdit::textEdited, [=]{refresh_Show_Data();});
 	}
 
@@ -265,7 +265,7 @@ void Independent_Variables_Editor::create_Angle_Interface()
 			beam_Profile_Spreading_LineEdit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION, this));
 		geometry_Layout->addWidget(beam_Profile_Spreading_LineEdit,1,1,Qt::AlignLeft);
 
-		connect(beam_Profile_Spreading_LineEdit, &QLineEdit::textEdited, this, [=](QString text){resize_Line_Edit(text,beam_Profile_Spreading_LineEdit);} );
+		connect(beam_Profile_Spreading_LineEdit, &QLineEdit::textEdited, this, [=]{Global_Variables::resize_Line_Edit(beam_Profile_Spreading_LineEdit);});
 		connect(beam_Profile_Spreading_LineEdit, &QLineEdit::textEdited, [=]{refresh_Show_Data();});
 	}
 
@@ -287,7 +287,7 @@ void Independent_Variables_Editor::create_Angle_Interface()
 		sample_Shift_Units_Label = new QLabel(size_Units_List[mm]);
 		geometry_Layout->addWidget(sample_Shift_Units_Label,1,6,Qt::AlignLeft);
 
-		connect(sample_Shift_LineEdit, &QLineEdit::textEdited, this, [=](QString text){resize_Line_Edit(text,sample_Shift_LineEdit);} );
+		connect(sample_Shift_LineEdit, &QLineEdit::textEdited, this, [=]{Global_Variables::resize_Line_Edit(sample_Shift_LineEdit);});
 		connect(sample_Shift_LineEdit, &QLineEdit::textEdited, [=]{refresh_Show_Data();});
 	}
 }
@@ -341,13 +341,13 @@ void Independent_Variables_Editor::create_Wavelength_Interface()
 		down_Layout->addWidget(background_Edit);
 	}
 
-	connect(spectral_Resolution_Edit, SIGNAL(textEdited(QString)), this, SLOT(resize_Line_Edit(QString)));
+	connect(spectral_Resolution_Edit, &QLineEdit::textEdited, this, [=]{Global_Variables::resize_Line_Edit(spectral_Resolution_Edit);});
 	connect(spectral_Resolution_Edit, &QLineEdit::textEdited, [=]{refresh_Show_Data();});
 
-	connect(polarization_Edit, SIGNAL(textEdited(QString)), this, SLOT(resize_Line_Edit(QString)));
+	connect(polarization_Edit, &QLineEdit::textEdited, this, [=]{Global_Variables::resize_Line_Edit(polarization_Edit);});
 	connect(polarization_Edit, &QLineEdit::textEdited, [=]{refresh_Show_Data();});
 
-	connect(background_Edit, SIGNAL(textEdited(QString)), this, SLOT(resize_Line_Edit(QString)));
+	connect(background_Edit, &QLineEdit::textEdited, this, [=]{Global_Variables::resize_Line_Edit(background_Edit);});
 	connect(background_Edit, &QLineEdit::textEdited, [=]{refresh_Show_Data();});
 }
 
@@ -355,24 +355,6 @@ void Independent_Variables_Editor::set_Window_Geometry()
 {
 	adjustSize();
 	setFixedSize(size());
-}
-
-void Independent_Variables_Editor::resize_Line_Edit(QString text, QLineEdit* line_Edit)
-{
-	if(line_Edit == nullptr) line_Edit = qobject_cast<QLineEdit*>(QObject::sender());
-
-	text = line_Edit->text();
-	QFontMetrics fm = line_Edit->fontMetrics();
-	int width = fm.width(text) + QLINEEDIT_RESIZE_MARGIN;
-	if(width>line_Edit->property(min_Size_Property).toInt())
-	{
-		line_Edit->setFixedWidth(width);
-		QMetaObject::invokeMethod(this, "adjustSize", Qt::QueuedConnection);
-	} else
-	{
-		line_Edit->setFixedWidth(line_Edit->property(min_Size_Property).toInt());
-		QMetaObject::invokeMethod(this, "adjustSize", Qt::QueuedConnection);
-	}
 }
 
 void Independent_Variables_Editor::show_Hide_Elements()
@@ -475,10 +457,10 @@ void Independent_Variables_Editor::refresh_Show_Data(bool show)
 			min_Edit->setText(	QString::number(parameter.independent.min/coeff,line_edit_double_format,line_edit_precision));
 			max_Edit->setText(	QString::number(parameter.independent.max/coeff,line_edit_double_format,line_edit_precision));
 
-			resize_Line_Edit(num_Points->text(),num_Points);
-			resize_Line_Edit(val_Edit->text(),val_Edit);
-			resize_Line_Edit(min_Edit->text(),min_Edit);
-			resize_Line_Edit(max_Edit->text(),max_Edit);
+			Global_Variables::resize_Line_Edit(num_Points);
+			Global_Variables::resize_Line_Edit(val_Edit);
+			Global_Variables::resize_Line_Edit(min_Edit);
+			Global_Variables::resize_Line_Edit(max_Edit);
 
 			if(indicator.parameter_Whats_This == whats_This_Angle)
 			{
@@ -488,11 +470,11 @@ void Independent_Variables_Editor::refresh_Show_Data(bool show)
 				beam_Profile_Spreading_LineEdit->setText(QString::number(struct_Data.beam_Profile_Spreading.value,	line_edit_double_format,line_edit_beam_size_precision));
 				sample_Shift_LineEdit->			 setText(QString::number(struct_Data.sample_Shift.value,			line_edit_double_format,line_edit_sample_size_precision));
 
-				resize_Line_Edit(angular_Resolution_Edit->text(),		 angular_Resolution_Edit);
-				resize_Line_Edit(beam_Size_LineEdit->text(),			 beam_Size_LineEdit);
-				resize_Line_Edit(sample_Size_LineEdit->text(),			 sample_Size_LineEdit);
-				resize_Line_Edit(beam_Profile_Spreading_LineEdit->text(),beam_Profile_Spreading_LineEdit);
-				resize_Line_Edit(sample_Shift_LineEdit->text(),			 sample_Shift_LineEdit);
+				Global_Variables::resize_Line_Edit(angular_Resolution_Edit);
+				Global_Variables::resize_Line_Edit(beam_Size_LineEdit);
+				Global_Variables::resize_Line_Edit(sample_Size_LineEdit);
+				Global_Variables::resize_Line_Edit(beam_Profile_Spreading_LineEdit);
+				Global_Variables::resize_Line_Edit(sample_Shift_LineEdit);
 			}
 		} else
 		// refresh data
@@ -500,7 +482,7 @@ void Independent_Variables_Editor::refresh_Show_Data(bool show)
 			if(num_Points->text().toInt()<1)
 			{
 				num_Points->setText(QString::number(parameter.independent.num_Points));
-				resize_Line_Edit(num_Points->text(),num_Points);
+				Global_Variables::resize_Line_Edit(num_Points);
 			}
 			// special cases
 			if(indicator.parameter_Whats_This == whats_This_Gamma)
@@ -508,17 +490,17 @@ void Independent_Variables_Editor::refresh_Show_Data(bool show)
 				if(val_Edit->text().toDouble()>1)
 				{
 					val_Edit->setText(QString::number(parameter.value,line_edit_double_format,line_edit_gamma_precision));
-					resize_Line_Edit(val_Edit->text(),val_Edit);
+					Global_Variables::resize_Line_Edit(val_Edit);
 				}
 				if(min_Edit->text().toDouble()>1)
 				{
 					min_Edit->setText(QString::number(parameter.independent.min,line_edit_double_format,line_edit_gamma_precision));
-					resize_Line_Edit(min_Edit->text(),min_Edit);
+					Global_Variables::resize_Line_Edit(min_Edit);
 				}
 				if(max_Edit->text().toDouble()>1)
 				{
 					max_Edit->setText(QString::number(parameter.independent.max,line_edit_double_format,line_edit_gamma_precision));
-					resize_Line_Edit(max_Edit->text(),max_Edit);
+					Global_Variables::resize_Line_Edit(max_Edit);
 				}
 			}
 			if(indicator.parameter_Whats_This == whats_This_Angle)
@@ -526,17 +508,17 @@ void Independent_Variables_Editor::refresh_Show_Data(bool show)
 				if(val_Edit->text().toDouble()*coeff>90.+3*pow(10.,-line_edit_angle_precision+1))
 				{
 					val_Edit->setText(QString::number(parameter.value/coeff,line_edit_double_format,line_edit_angle_precision));
-					resize_Line_Edit(val_Edit->text(),val_Edit);
+					Global_Variables::resize_Line_Edit(val_Edit);
 				}
 				if(min_Edit->text().toDouble()*coeff>90.+3*pow(10.,-line_edit_angle_precision+1))
 				{
 					min_Edit->setText(QString::number(parameter.independent.min/coeff,line_edit_double_format,line_edit_angle_precision));
-					resize_Line_Edit(min_Edit->text(),min_Edit);
+					Global_Variables::resize_Line_Edit(min_Edit);
 				}
 				if(max_Edit->text().toDouble()*coeff>90.+3*pow(10.,-line_edit_angle_precision+1))
 				{
 					max_Edit->setText(QString::number(parameter.independent.max/coeff,line_edit_double_format,line_edit_angle_precision));
-					resize_Line_Edit(max_Edit->text(),max_Edit);
+					Global_Variables::resize_Line_Edit(max_Edit);
 				}
 
 				if(parameter.independent.num_Points >= MIN_ANGULAR_RESOLUTION_POINTS)
@@ -566,7 +548,7 @@ void Independent_Variables_Editor::refresh_Show_Data(bool show)
 		if(parameter.independent.num_Points>1)
 		{
 			step_Edit->setText(QString::number((parameter.independent.max-parameter.independent.min)/(parameter.independent.num_Points-1)/coeff,line_edit_double_format,line_edit_precision));
-			resize_Line_Edit(step_Edit->text(),step_Edit);
+			Global_Variables::resize_Line_Edit(step_Edit);
 		}
 		show_Hide_Elements();
 		if(indicator.parameter_Whats_This == whats_This_Angle)	show_Hide_Angular_Elements();
@@ -593,22 +575,22 @@ void Independent_Variables_Editor::refresh_Show_Data(bool show)
 			min_Edit->setText(	QString::number(struct_Data.num_Repetition.start));
 			max_Edit->setText(	QString::number(struct_Data.num_Repetition.step));
 
-			resize_Line_Edit(num_Points->text(),num_Points);
-			resize_Line_Edit(val_Edit->text(),val_Edit);
-			resize_Line_Edit(min_Edit->text(),min_Edit);
-			resize_Line_Edit(max_Edit->text(),max_Edit);
+			Global_Variables::resize_Line_Edit(num_Points);
+			Global_Variables::resize_Line_Edit(val_Edit);
+			Global_Variables::resize_Line_Edit(min_Edit);
+			Global_Variables::resize_Line_Edit(max_Edit);
 		} else
 		// refresh data
 		{
 			if(num_Points->text().toInt()<1)
 			{
 				num_Points->setText(QString::number(struct_Data.num_Repetition.num_Steps));
-				resize_Line_Edit(num_Points->text(),num_Points);
+				Global_Variables::resize_Line_Edit(num_Points);
 			}
 			if(max_Edit->text().toInt()<1)
 			{
 				max_Edit->setText(QString::number(struct_Data.num_Repetition.step));
-				resize_Line_Edit(max_Edit->text(),max_Edit);
+				Global_Variables::resize_Line_Edit(max_Edit);
 			}
 
 			struct_Data.num_Repetition.num_Steps = num_Points->text().toInt();
@@ -657,18 +639,18 @@ void Independent_Variables_Editor::refresh_Show_Data(bool show)
 			min_Edit->setText(	QString::number(Global_Variables::wavelength_Energy(wavelength_units,struct_Data.wavelength.independent.min)/coeff,line_edit_double_format,line_edit_wavelength_precision));
 			max_Edit->setText(	QString::number(Global_Variables::wavelength_Energy(wavelength_units,struct_Data.wavelength.independent.max)/coeff,line_edit_double_format,line_edit_wavelength_precision));
 
-			resize_Line_Edit(num_Points->text(),num_Points);
-			resize_Line_Edit(val_Edit->text(),val_Edit);
-			resize_Line_Edit(min_Edit->text(),min_Edit);
-			resize_Line_Edit(max_Edit->text(),max_Edit);
+			Global_Variables::resize_Line_Edit(num_Points);
+			Global_Variables::resize_Line_Edit(val_Edit);
+			Global_Variables::resize_Line_Edit(min_Edit);
+			Global_Variables::resize_Line_Edit(max_Edit);
 
 			spectral_Resolution_Edit->setText(QString::number(struct_Data.spectral_Resolution.value,line_edit_double_format,line_edit_wavelength_precision));
 			polarization_Edit->setText(QString::number(struct_Data.polarization.value,line_edit_double_format,line_edit_polarization_precision));
 			background_Edit->setText(QString::number(struct_Data.background.value,line_edit_short_double_format,line_edit_background_precision));
 
-			resize_Line_Edit(spectral_Resolution_Edit->text(),spectral_Resolution_Edit);
-			resize_Line_Edit(polarization_Edit->text(),polarization_Edit);
-			resize_Line_Edit(background_Edit->text(),background_Edit);
+			Global_Variables::resize_Line_Edit(spectral_Resolution_Edit);
+			Global_Variables::resize_Line_Edit(polarization_Edit);
+			Global_Variables::resize_Line_Edit(background_Edit);
 
 		} else
 		// refresh data
@@ -676,13 +658,13 @@ void Independent_Variables_Editor::refresh_Show_Data(bool show)
 			if(num_Points->text().toInt()<1)
 			{
 				num_Points->setText(QString::number(struct_Data.wavelength.independent.num_Points));
-				resize_Line_Edit(num_Points->text(),num_Points);
+				Global_Variables::resize_Line_Edit(num_Points);
 			}
 			// no check for zero wavelength
 			if(polarization_Edit->text().toDouble()>1 || polarization_Edit->text().toDouble()<-1)
 			{
 				polarization_Edit->setText(QString::number(struct_Data.polarization.value,line_edit_double_format,line_edit_polarization_precision));
-				resize_Line_Edit(polarization_Edit->text(),polarization_Edit);
+				Global_Variables::resize_Line_Edit(polarization_Edit);
 			}
 
 			struct_Data.wavelength.independent.num_Points = num_Points->text().toInt();
@@ -711,7 +693,7 @@ void Independent_Variables_Editor::refresh_Show_Data(bool show)
 			step_Edit->setText(QString::number((Global_Variables::wavelength_Energy(wavelength_units,struct_Data.wavelength.independent.max)-
 												Global_Variables::wavelength_Energy(wavelength_units,struct_Data.wavelength.independent.min))/
 											   (struct_Data.wavelength.independent.num_Points-1)/coeff,line_edit_double_format,line_edit_wavelength_precision));
-			resize_Line_Edit(step_Edit->text(),step_Edit);
+			Global_Variables::resize_Line_Edit(step_Edit);
 		}
 		show_Hide_Elements();
 		show_Hide_Spectral_Elements();
