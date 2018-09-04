@@ -59,17 +59,19 @@ void Confidence_Interval_Editor::create_Group_Box()
 	// create content
 	groupBox_Layout = new QVBoxLayout(main_GroupBox);
 		groupBox_Layout->setAlignment(Qt::AlignLeft);
-		groupBox_Layout->setContentsMargins(5,5,5,5);
+		groupBox_Layout->setContentsMargins(5,15,5,5);
 
 	QHBoxLayout* layout = new QHBoxLayout;
 	groupBox_Layout->addLayout(layout);
 	QSizePolicy sp_retain;
 	sp_retain.setRetainSizeWhenHidden(true);
-	{
-		num_Points = new QLineEdit;
+	{	
+		num_Points = new QSpinBox;
 			num_Points->setFixedWidth(30);
 			num_Points->setProperty(min_Size_Property, 30);
-			num_Points->setValidator(new QIntValidator(1, MAX_INTEGER, this));
+			num_Points->setRange(MIN_CONFIDENCE_POINTS, MAX_INTEGER);
+			num_Points->setAccelerated(true);
+			num_Points->setButtonSymbols(QAbstractSpinBox::NoButtons);
 		layout->addWidget(num_Points);
 	}
 	{
@@ -114,24 +116,92 @@ void Confidence_Interval_Editor::create_Group_Box()
 		step_Units_Label->setSizePolicy(sp_retain);
 	layout->addWidget(step_Units_Label);
 
-//	num_Points->setText(QString::number(coupling_Editor->coupled_Parameter->confidence.num_Points));
-//	min_Edit->setText  (QString::number(coupling_Editor->coupled_Parameter->confidence.min, ));
-//	max_Edit->setText  (QString::number(coupling_Editor->coupled_Parameter->confidence.max));
+	refresh_Show_Data(true);
 
-	connect(num_Points, &QLineEdit::textEdited, this, [=]{Global_Variables::resize_Line_Edit(num_Points);});
+	connect(num_Points, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, [=]{Global_Variables::resize_Line_Edit(num_Points);});
 	connect(min_Edit,	&QLineEdit::textEdited, this, [=]{Global_Variables::resize_Line_Edit(min_Edit);});
 	connect(max_Edit,	&QLineEdit::textEdited, this, [=]{Global_Variables::resize_Line_Edit(max_Edit);});
+	connect(step_Edit,	&QLineEdit::textEdited, this, [=]{Global_Variables::resize_Line_Edit(step_Edit);});
 
-	connect(num_Points, &QLineEdit::textEdited, this, [=]{refresh_Show_Data();});
+	connect(num_Points, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, [=]{refresh_Show_Data();});
 	connect(min_Edit,	&QLineEdit::textEdited, this, [=]{refresh_Show_Data();});
 	connect(max_Edit,	&QLineEdit::textEdited, this, [=]{refresh_Show_Data();});
-
-	connect(step_Edit,	&QLineEdit::textEdited, this, [=]{Global_Variables::resize_Line_Edit(step_Edit);});
 }
 
-void Confidence_Interval_Editor::refresh_Show_Data()
+void Confidence_Interval_Editor::refresh_Show_Data(bool show)
 {
+	// PARAMETER
 
+	Parameter* parameter = coupling_Editor->coupled_Parameter;
+
+	int line_edit_precision = line_edit_density_precision;
+	int thumbnail_precision = thumbnail_density_precision;
+	double coeff = 1; // should be 1 by default!
+	Global_Variables::get_Parameter_From_Struct_Item_by_Whats_This(
+							   coupling_Editor->struct_Data,
+							   coupling_Editor->coupled_Parameter->indicator.whats_This,
+							   &line_edit_precision,
+							   &thumbnail_precision,
+							   &units,
+							   &coeff);
+
+	// getting index
+	int index = -1;
+	if(parameter->indicator.whats_This == whats_This_Composition ||
+	   parameter->indicator.whats_This == whats_This_Interlayer_Composition ||
+	   parameter->indicator.whats_This == whats_This_Interlayer_My_Sigma )
+	{
+		for(int i=0; i<coupling_Editor->struct_Data.composition.size(); ++i)
+		{
+			if(parameter->indicator.id == coupling_Editor->struct_Data.composition[i].composition.indicator.id) index = i;
+		}
+		for(int i=0; i<transition_Layer_Functions_Size; ++i)
+		{
+			if(parameter->indicator.id == coupling_Editor->struct_Data.interlayer_Composition[i].interlayer.indicator.id)	index = i;
+			if(parameter->indicator.id == coupling_Editor->struct_Data.interlayer_Composition[i].my_Sigma.indicator.id)	index = i;
+		}
+	}
+
+	QString name = Global_Variables::parameter_Name(coupling_Editor->struct_Data, parameter->indicator.whats_This, index);
+	main_GroupBox->setTitle(name);
+
+	units_Label->setText(units);
+	step_Units_Label->setText(units);
+
+	// show data
+	if(show)
+	{
+		num_Points->setValue(parameter->confidence.num_Points);
+		min_Edit->setText(QString::number(parameter->confidence.min/coeff,line_edit_double_format,line_edit_precision));
+		max_Edit->setText(QString::number(parameter->confidence.max/coeff,line_edit_double_format,line_edit_precision));
+
+		Global_Variables::resize_Line_Edit(num_Points);
+		Global_Variables::resize_Line_Edit(min_Edit);
+		Global_Variables::resize_Line_Edit(max_Edit);
+	} else
+	// refresh data
+	{
+		// special cases
+		if(parameter->indicator.whats_This == whats_This_Gamma)
+		{
+			if(min_Edit->text().toDouble()>1)
+			{
+				min_Edit->setText(QString::number(parameter->confidence.min,line_edit_double_format,line_edit_gamma_precision));
+				Global_Variables::resize_Line_Edit(min_Edit);
+			}
+			if(max_Edit->text().toDouble()>1)
+			{
+				max_Edit->setText(QString::number(parameter->confidence.max,line_edit_double_format,line_edit_gamma_precision));
+				Global_Variables::resize_Line_Edit(max_Edit);
+			}
+		}
+
+		parameter->confidence.num_Points = num_Points->text().toInt();
+		parameter->confidence.min = min_Edit->text().toDouble()*coeff;
+		parameter->confidence.max = max_Edit->text().toDouble()*coeff;
+	}
+	step_Edit->setText( QString::number((parameter->confidence.max-parameter->confidence.min)/(parameter->confidence.num_Points-1)/coeff,line_edit_double_format,line_edit_precision));
+	Global_Variables::resize_Line_Edit(step_Edit);
 }
 
 

@@ -1747,15 +1747,15 @@ void Table_Of_Structures::create_Min_Max_Button(My_Table_Widget* table, int tab_
 					{
 						struct_Data.absolute_Density.fit.min = struct_Data.absolute_Density.value*(100-multilayer->min_Max_Density)/100;
 						struct_Data.absolute_Density.fit.max = struct_Data.absolute_Density.value*(100+multilayer->min_Max_Density)/100;
-						struct_Data.absolute_Density.confidence.min = struct_Data.absolute_Density.fit.min;
-						struct_Data.absolute_Density.confidence.max = struct_Data.absolute_Density.fit.max;
+//						struct_Data.absolute_Density.confidence.min = struct_Data.absolute_Density.fit.min;
+//						struct_Data.absolute_Density.confidence.max = struct_Data.absolute_Density.fit.max;
 					}
 					if(struct_Data.relative_Density.fit.is_Fitable)
 					{
 						struct_Data.relative_Density.fit.min = struct_Data.relative_Density.value*(100-multilayer->min_Max_Density)/100;
 						struct_Data.relative_Density.fit.max = struct_Data.relative_Density.value*(100+multilayer->min_Max_Density)/100;
-						struct_Data.relative_Density.confidence.min = struct_Data.relative_Density.fit.min;
-						struct_Data.relative_Density.confidence.max = struct_Data.relative_Density.fit.max;
+//						struct_Data.relative_Density.confidence.min = struct_Data.relative_Density.fit.min;
+//						struct_Data.relative_Density.confidence.max = struct_Data.relative_Density.fit.max;
 					}
 				}
 			}
@@ -1767,8 +1767,8 @@ void Table_Of_Structures::create_Min_Max_Button(My_Table_Widget* table, int tab_
 					{
 						struct_Data.thickness.fit.min = struct_Data.thickness.value*(100-multilayer->min_Max_Thickness)/100;
 						struct_Data.thickness.fit.max = struct_Data.thickness.value*(100+multilayer->min_Max_Thickness)/100;
-						struct_Data.thickness.confidence.min = struct_Data.thickness.fit.min;
-						struct_Data.thickness.confidence.max = struct_Data.thickness.fit.max;
+//						struct_Data.thickness.confidence.min = struct_Data.thickness.fit.min;
+//						struct_Data.thickness.confidence.max = struct_Data.thickness.fit.max;
 					}
 				}
 			}
@@ -1780,8 +1780,8 @@ void Table_Of_Structures::create_Min_Max_Button(My_Table_Widget* table, int tab_
 					{
 						struct_Data.period.fit.min = struct_Data.period.value*(100-multilayer->min_Max_Thickness)/100;
 						struct_Data.period.fit.max = struct_Data.period.value*(100+multilayer->min_Max_Thickness)/100;
-						struct_Data.period.confidence.min = struct_Data.period.fit.min;
-						struct_Data.period.confidence.max = struct_Data.period.fit.max;
+//						struct_Data.period.confidence.min = struct_Data.period.fit.min;
+//						struct_Data.period.confidence.max = struct_Data.period.fit.max;
 					}
 				}
 			}
@@ -1794,8 +1794,8 @@ void Table_Of_Structures::create_Min_Max_Button(My_Table_Widget* table, int tab_
 					{
 						struct_Data.sigma.fit.min = struct_Data.sigma.value*(100-multilayer->min_Max_Sigma)/100;
 						struct_Data.sigma.fit.max = struct_Data.sigma.value*(100+multilayer->min_Max_Sigma)/100;
-						struct_Data.sigma.confidence.min = struct_Data.sigma.fit.min;
-						struct_Data.sigma.confidence.max = struct_Data.sigma.fit.max;
+//						struct_Data.sigma.confidence.min = struct_Data.sigma.fit.min;
+//						struct_Data.sigma.confidence.max = struct_Data.sigma.fit.max;
 					}
 				}
 			}
@@ -1921,8 +1921,8 @@ void Table_Of_Structures::refresh_Stoich(QString)
 	// refresh struct_Tree
 	{
 		if(value_Type == VAL)	 comp.value   = line_Edit->text().toDouble();
-		if(value_Type == MIN)	{comp.fit.min = line_Edit->text().toDouble(); comp.confidence.min = comp.fit.min;}
-		if(value_Type == MAX)	{comp.fit.max = line_Edit->text().toDouble(); comp.confidence.max = comp.fit.max;}
+		if(value_Type == MIN)	{comp.fit.min = line_Edit->text().toDouble(); /*comp.confidence.min = comp.fit.min;*/}
+		if(value_Type == MAX)	{comp.fit.max = line_Edit->text().toDouble(); /*comp.confidence.max = comp.fit.max;*/}
 
 		struct_Data.material = material_From_Composition(struct_Data.composition);
 
@@ -2254,8 +2254,8 @@ void Table_Of_Structures::refresh_Parameter(My_Table_Widget* table)
 						interlayer.my_Sigma.value	= struct_Data.sigma.value;
 						interlayer.my_Sigma.fit.min = struct_Data.sigma.fit.min;
 						interlayer.my_Sigma.fit.max = struct_Data.sigma.fit.max;
-						interlayer.my_Sigma.confidence.min = interlayer.my_Sigma.fit.min;
-						interlayer.my_Sigma.confidence.max = interlayer.my_Sigma.fit.max;
+//						interlayer.my_Sigma.confidence.min = interlayer.my_Sigma.fit.min;
+//						interlayer.my_Sigma.confidence.max = interlayer.my_Sigma.fit.max;
 					}
 					{
 						QVariant var;
@@ -2291,16 +2291,16 @@ void Table_Of_Structures::refresh_Parameter(My_Table_Widget* table)
 			if(whats_This == whats_This_Sigma)
 			{
 				if(value_Type == VAL)	 parameter.value   = line_Edit->text().toDouble()*coeff;
-				if(value_Type == MIN)	{parameter.fit.min = line_Edit->text().toDouble()*coeff; parameter.confidence.min = parameter.fit.min;}
-				if(value_Type == MAX)	{parameter.fit.max = line_Edit->text().toDouble()*coeff; parameter.confidence.max = parameter.fit.max;}
+				if(value_Type == MIN)	{parameter.fit.min = line_Edit->text().toDouble()*coeff; /*parameter.confidence.min = parameter.fit.min;*/}
+				if(value_Type == MAX)	{parameter.fit.max = line_Edit->text().toDouble()*coeff; /*parameter.confidence.max = parameter.fit.max;*/}
 
 				for(Interlayer& interlayer : struct_Data.interlayer_Composition)
 				{
 					interlayer.my_Sigma.value	= struct_Data.sigma.value;
 					interlayer.my_Sigma.fit.min = struct_Data.sigma.fit.min;
 					interlayer.my_Sigma.fit.max = struct_Data.sigma.fit.max;
-					interlayer.my_Sigma.confidence.min = interlayer.my_Sigma.fit.min;
-					interlayer.my_Sigma.confidence.max = interlayer.my_Sigma.fit.max;
+//					interlayer.my_Sigma.confidence.min = interlayer.my_Sigma.fit.min;
+//					interlayer.my_Sigma.confidence.max = interlayer.my_Sigma.fit.max;
 				}
 			} else
 			if(whats_This == whats_This_Period)
@@ -2319,8 +2319,8 @@ void Table_Of_Structures::refresh_Parameter(My_Table_Widget* table)
 						change_Child_Layers_Thickness(structure_Item, factor);
 					}
 				}
-				if(value_Type == MIN)	{parameter.fit.min = line_Edit->text().toDouble()*coeff; parameter.confidence.min = parameter.fit.min;}
-				if(value_Type == MAX)	{parameter.fit.max = line_Edit->text().toDouble()*coeff; parameter.confidence.max = parameter.fit.max;}
+				if(value_Type == MIN)	{parameter.fit.min = line_Edit->text().toDouble()*coeff; /*parameter.confidence.min = parameter.fit.min;*/}
+				if(value_Type == MAX)	{parameter.fit.max = line_Edit->text().toDouble()*coeff; /*parameter.confidence.max = parameter.fit.max;*/}
 			} else
 			if(whats_This == whats_This_Gamma)
 			{
@@ -2353,7 +2353,7 @@ void Table_Of_Structures::refresh_Parameter(My_Table_Widget* table)
 					} else
 					{
 						struct_Data.gamma.fit.min = line_Edit->text().toDouble();
-						struct_Data.gamma.confidence.min = struct_Data.gamma.fit.min;
+//						struct_Data.gamma.confidence.min = struct_Data.gamma.fit.min;
 					}
 				}
 				if(value_Type == MAX)
@@ -2365,14 +2365,14 @@ void Table_Of_Structures::refresh_Parameter(My_Table_Widget* table)
 					} else
 					{
 						struct_Data.gamma.fit.max = line_Edit->text().toDouble();
-						struct_Data.gamma.confidence.max = struct_Data.gamma.fit.max;
+//						struct_Data.gamma.confidence.max = struct_Data.gamma.fit.max;
 					}
 				}
 			} else
 			{
 				if(value_Type == VAL)	 parameter.value   = line_Edit->text().toDouble()*coeff;
-				if(value_Type == MIN)	{parameter.fit.min = line_Edit->text().toDouble()*coeff; parameter.confidence.min = parameter.fit.min;}
-				if(value_Type == MAX)	{parameter.fit.max = line_Edit->text().toDouble()*coeff; parameter.confidence.max = parameter.fit.max;}
+				if(value_Type == MIN)	{parameter.fit.min = line_Edit->text().toDouble()*coeff; /*parameter.confidence.min = parameter.fit.min;*/}
+				if(value_Type == MAX)	{parameter.fit.max = line_Edit->text().toDouble()*coeff; /*parameter.confidence.max = parameter.fit.max;*/}
 			}
 		}
 	}
@@ -2502,8 +2502,8 @@ void Table_Of_Structures::refresh_Weigts_Interlayer(QString)
 				struct_Data.sigma.value = recalculate_Sigma_From_Individuals(struct_Data.interlayer_Composition);
 			}
 		}
-		if(value_Type == MIN)	{interlayer.fit.min = line_Edit->text().toDouble(); interlayer.confidence.min = interlayer.fit.min;}
-		if(value_Type == MAX)	{interlayer.fit.max = line_Edit->text().toDouble(); interlayer.confidence.max = interlayer.fit.max;}
+		if(value_Type == MIN)	{interlayer.fit.min = line_Edit->text().toDouble(); /*interlayer.confidence.min = interlayer.fit.min;*/}
+		if(value_Type == MAX)	{interlayer.fit.max = line_Edit->text().toDouble(); /*interlayer.confidence.max = interlayer.fit.max;*/}
 
 		QVariant var;
 		var.setValue( struct_Data );

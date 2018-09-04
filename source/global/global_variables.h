@@ -202,7 +202,9 @@ public:
 	static Parameter* get_Parameter_From_Struct_Item_by_Whats_This(Data& struct_Data, QString whats_This, int* line_edit_precision = nullptr, int* thumbnail_precision = nullptr, QString* units = nullptr, double* coeff = nullptr);
 
 	static void copy_Tree(const QTreeWidget* from_Tree, QTreeWidget* to_Tree);
-	static void resize_Line_Edit(QLineEdit* line_Edit, bool adjust_Window = true);
+
+	template <typename Type>
+	static void resize_Line_Edit(Type* input_Line_Edit, bool adjust_Window = true);
 };
 
 #endif // GLOBAL_VARIABLES_H

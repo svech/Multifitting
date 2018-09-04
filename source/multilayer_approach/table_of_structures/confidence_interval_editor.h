@@ -16,7 +16,7 @@ public:
 	void set_Window_Geometry();
 	void create_Main_Layout();
 		void create_Group_Box();
-		void refresh_Show_Data();
+		void refresh_Show_Data(bool show = false);
 
 	Coupling_Editor* coupling_Editor;
 
@@ -30,7 +30,7 @@ public:
 	QVBoxLayout* main_Layout;
 		QGroupBox* main_GroupBox;
 			QVBoxLayout* groupBox_Layout;
-				QLineEdit* num_Points;
+				QSpinBox* num_Points;
 				QLabel* from_Label;
 				QLineEdit* min_Edit;
 				QLabel* to_Label;

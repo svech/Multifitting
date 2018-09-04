@@ -659,7 +659,7 @@ Parameter* Global_Variables::get_Parameter_From_Struct_Item_by_Id(Data& struct_D
 	return nullptr;
 }
 
-Parameter* Global_Variables::get_Parameter_From_Struct_Item_by_Whats_This(Data &struct_Data, QString whats_This, int* line_edit_precision, int* thumbnail_precision, QString* units, double* coeff)
+Parameter* Global_Variables::get_Parameter_From_Struct_Item_by_Whats_This(Data& struct_Data, QString whats_This, int* line_edit_precision, int* thumbnail_precision, QString* units, double* coeff)
 {
 	// PARAMETER
 
@@ -728,7 +728,8 @@ void Global_Variables::copy_Tree(const QTreeWidget* from_Tree, QTreeWidget* to_T
 	}
 }
 
-void Global_Variables::resize_Line_Edit(QLineEdit* line_Edit, bool adjust_Window)
+template<typename Type>
+void Global_Variables::resize_Line_Edit(Type* line_Edit, bool adjust_Window)
 {
 	if(line_Edit == nullptr)
 	{
@@ -738,6 +739,7 @@ void Global_Variables::resize_Line_Edit(QLineEdit* line_Edit, bool adjust_Window
 
 	QWidget* window = line_Edit->window();
 	QString text = line_Edit->text();
+
 	QFontMetrics fm = line_Edit->fontMetrics();
 	int width = fm.width(text) + QLINEEDIT_RESIZE_MARGIN;
 	if(width>line_Edit->property(min_Size_Property).toInt())
@@ -751,3 +753,5 @@ void Global_Variables::resize_Line_Edit(QLineEdit* line_Edit, bool adjust_Window
 	}
 //	window->adjustSize();
 }
+template void Global_Variables::resize_Line_Edit<QLineEdit>(QLineEdit*, bool);
+template void Global_Variables::resize_Line_Edit<QSpinBox> (QSpinBox*,  bool);

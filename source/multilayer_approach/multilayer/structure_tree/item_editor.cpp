@@ -483,6 +483,8 @@ void Item_Editor::more_Elements_Clicked()
 		stoich.composition.value = substrate_default_stoichiometry_composition;
 		stoich.type				 = substrate_default_stoichiometry_element;
 	}
+	stoich.composition.confidence.num_Points = default_num_confidence_points;
+	stoich.composition.confidence.calc_Conf_Interval = false;
 
 	// set item_Id
 	stoich.composition.indicator.item_Id = struct_Data.id;
