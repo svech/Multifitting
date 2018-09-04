@@ -2251,7 +2251,10 @@ void Table_Of_Structures::refresh_Parameter(My_Table_Widget* table)
 
 					for(Interlayer& interlayer : struct_Data.interlayer_Composition)
 					{
-						interlayer.my_Sigma.value	= struct_Data.sigma.value;
+						if(struct_Data.common_Sigma)
+						{
+							interlayer.my_Sigma.value = struct_Data.sigma.value;
+						}
 						interlayer.my_Sigma.fit.min = struct_Data.sigma.fit.min;
 						interlayer.my_Sigma.fit.max = struct_Data.sigma.fit.max;
 //						interlayer.my_Sigma.confidence.min = interlayer.my_Sigma.fit.min;
@@ -2296,7 +2299,10 @@ void Table_Of_Structures::refresh_Parameter(My_Table_Widget* table)
 
 				for(Interlayer& interlayer : struct_Data.interlayer_Composition)
 				{
-					interlayer.my_Sigma.value	= struct_Data.sigma.value;
+					if(struct_Data.common_Sigma)
+					{
+						interlayer.my_Sigma.value = struct_Data.sigma.value;
+					}
 					interlayer.my_Sigma.fit.min = struct_Data.sigma.fit.min;
 					interlayer.my_Sigma.fit.max = struct_Data.sigma.fit.max;
 //					interlayer.my_Sigma.confidence.min = interlayer.my_Sigma.fit.min;

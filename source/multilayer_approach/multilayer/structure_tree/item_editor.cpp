@@ -892,16 +892,17 @@ void Item_Editor::norm_Interlayer_Composition()
 		double sum=0;
 		for(int i=0; i<transition_Layer_Functions_Size; ++i)
 		{
-			if(interlayer_Composition_Check_Box_Vec[i]->isChecked() == true)
+			if(interlayer_Composition_Check_Box_Vec[i]->isChecked())
 			{
 				sum+=interlayer_Composition_Comp_Line_Edit_Vec[i]->text().toDouble();
 			}
 		}
 		for(int i=0; i<transition_Layer_Functions_Size; ++i)
 		{
-			if(interlayer_Composition_Check_Box_Vec[i]->isChecked() == true)
+			if(interlayer_Composition_Check_Box_Vec[i]->isChecked())
 			{
 				interlayer_Composition_Comp_Line_Edit_Vec[i]->setText(QString::number(interlayer_Composition_Comp_Line_Edit_Vec[i]->text().toDouble()/sum,line_edit_short_double_format,line_edit_interlayer_precision));
+				struct_Data.interlayer_Composition[i].interlayer.value = interlayer_Composition_Comp_Line_Edit_Vec[i]->text().toDouble();
 			}
 		}
 	}
@@ -972,7 +973,7 @@ void Item_Editor::refresh_Data()
 				sum+=struct_Data.interlayer_Composition[i].interlayer.value;
 			}
 		}
-		if(abs(sum)<DBL_EPSILON) sum = DBL_EPSILON;
+		if(abs(sum)<DBL_EPSILON) {sum = DBL_EPSILON; qInfo() << "Item_Editor::refresh_Data :: abs(sum)<DBL_EPSILON";}
 
 		if(struct_Data.common_Sigma)
 		{

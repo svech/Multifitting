@@ -195,7 +195,45 @@ void Calculation_Tree::renew_Item_Tree_From_Calc_Tree(const tree<Node>::iterator
 		{
 			tree<Node>::pre_order_iterator child = tree<Node>::child(parent,calc_Counter);
 
-			QVariant var; var.setValue( child.node->data.struct_Data );
+			// refesh my_Sigma and interlayers
+			Data& struct_Data = child.node->data.struct_Data;
+			if(struct_Data.item_Type == item_Type_Layer || struct_Data.item_Type == item_Type_Substrate)
+			{
+				double temp_Sigma_Square=0;
+				double sum = 0;
+				for(Interlayer& interlayer : struct_Data.interlayer_Composition)
+				{
+					if(interlayer.enabled)
+					{
+						sum += interlayer.interlayer.value;
+						temp_Sigma_Square += pow(interlayer.my_Sigma.value,2) * interlayer.interlayer.value;
+					}
+				}
+				if(abs(sum)<DBL_EPSILON) {sum = DBL_EPSILON;	qInfo() << "Calculation_Tree::renew_Item_Tree_From_Calc_Tree :: abs(sum)<DBL_EPSILON";}
+
+				// equalize sigma
+				if(struct_Data.common_Sigma)
+				{
+					for(Interlayer& interlayer : struct_Data.interlayer_Composition)
+					{
+						interlayer.my_Sigma.value = struct_Data.sigma.value;
+					}
+				} else
+				{
+					struct_Data.sigma.value = sqrt(temp_Sigma_Square/sum);
+				}
+
+				// norm weights
+				for(Interlayer& interlayer : struct_Data.interlayer_Composition)
+				{
+					if(interlayer.enabled)
+					{
+						interlayer.interlayer.value /= sum;
+					}
+				}
+			}
+
+			QVariant var; var.setValue( /*child.node->data.*/struct_Data );
 			item->child(item_Counter)->setData(DEFAULT_COLUMN, Qt::UserRole, var);
 
 			if(item->child(item_Counter)->childCount()>0)
