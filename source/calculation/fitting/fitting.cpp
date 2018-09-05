@@ -214,7 +214,7 @@ void Fitting::calc_Residual(const gsl_vector* x, Fitting_Params* params, gsl_vec
 
 void Fitting::change_Real_Fitables_and_Dependent(Fitting_Params* params, double old_Value, double new_Value, size_t i)
 {
-	// recalculate underlying tree if period or gamma
+	// recalculate underlying tree if period or gamma is fitable
 	if(params->fitables.fit_Parameters[i]->indicator.whats_This == whats_This_Period)
 	{
 		double coeff = new_Value/old_Value;

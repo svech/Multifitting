@@ -155,6 +155,7 @@ class Node;
 #define TARGET_LINE_EDIT_WIDTH 65			// for target_Curve_Editor
 #define INDEPENDENT_LINE_EDIT_WIDTH 50		// for independent_Variables_Editor
 #define MIN_CONFIDENCE_POINTS	3			// for confidence interval
+#define COLOR_LEGEND_LABEL_WIDTH 100		// for table color legend
 
 #ifdef _WIN32
 	#define WINDOW_BOUNDARY_SHIFT_X 8			// shift in window position
@@ -339,6 +340,7 @@ class Node;
 // calculation modes
 #define CALCULATION	"CALCULATION"
 #define FITTING		"FITTING"
+#define CONFIDENCE	"CONFIDENCE"
 
 // name modificators
 #define current_State	"current_State"

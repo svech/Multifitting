@@ -37,6 +37,7 @@ public:
 	void save(QString filename);
 	void calc_Reflection();
 	void start_Fitting();
+	void calc_Confidence_Intervals();
 	void reload_Optical_Constants();
 	void open_Table_Of_Structures();
 	void open_Optical_Graphs(QString keep_Splitter = "");

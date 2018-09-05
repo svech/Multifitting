@@ -9,6 +9,8 @@ My_Table_Widget::My_Table_Widget(int rows,
 	table_Of_Structures(table_Of_Structures),
 	QTableWidget(parent)
 {
+	horizontalHeader()->setDisabled(true);
+	verticalHeader()->setDisabled(true);
 	setAttribute(Qt::WA_DeleteOnClose);
 	for(int i=0; i<rows; ++i)		insertRow(i);
 	for(int i=0; i<columns; ++i)	insertColumn(i);
@@ -21,7 +23,7 @@ My_Table_Widget::~My_Table_Widget()
 void My_Table_Widget::contextMenuEvent(QContextMenuEvent *event)
 {
 	int row = currentRow();
-	int column = currentColumn();;
+	int column = currentColumn();
 
 	QWidget* back_Widget = cellWidget(row,column);
 
@@ -36,7 +38,7 @@ void My_Table_Widget::contextMenuEvent(QContextMenuEvent *event)
 //		qInfo() << "parameter id = " << parameter->indicator->id << "\n" << main_Tabs->tabText(parameter->indicator->tab_Index) << " " << parameter->indicator->full_Name << endl;
 
 		// period and gamma can't be connected
-		if(parameter->indicator.whats_This == whats_This_Period || parameter->indicator.whats_This == whats_This_Gamma) return;
+//		if(parameter->indicator.whats_This == whats_This_Period || parameter->indicator.whats_This == whats_This_Gamma) return;
 
 		QMenu menu;
 		QAction my_Name_Action(parameter->indicator.full_Name);
@@ -51,7 +53,22 @@ void My_Table_Widget::contextMenuEvent(QContextMenuEvent *event)
 void My_Table_Widget::open_Coupling_Editor(QWidget* coupling_Widget)
 {
 	Coupling_Editor* new_Coupling_Editor = new Coupling_Editor(coupling_Widget, table_Of_Structures, this);
+
+	// special cases
+	id_Type coupled_Id = table_Of_Structures->coupled_Back_Widget_and_Id.value(coupling_Widget);
+	QTreeWidgetItem* struct_Item = table_Of_Structures->coupled_Back_Widget_and_Struct_Item.value(coupling_Widget);
+	Data struct_Data = struct_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+	Parameter* coupled_Parameter = Global_Variables::get_Parameter_From_Struct_Item_by_Id(struct_Data, coupled_Id);
+
+	// period and gamma can't be connected
+	if(coupled_Parameter->indicator.whats_This == whats_This_Gamma || coupled_Parameter->indicator.whats_This == whats_This_Period)
+	{
+		new_Coupling_Editor->open_Confidence_Interval_Editor();
+		new_Coupling_Editor->confidence_Interval_Editor->move(table_Of_Structures->geometry().center());
+	} else
+	{
 		new_Coupling_Editor->show();
+	}
 }
 
 QWidget* My_Table_Widget::get_Cell_Widget()

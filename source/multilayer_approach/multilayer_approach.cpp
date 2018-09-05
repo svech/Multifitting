@@ -838,6 +838,18 @@ void Multilayer_Approach::start_Fitting()
 	delete main_Calculation_Module;
 }
 
+void Multilayer_Approach::calc_Confidence_Intervals()
+{
+	// TODO
+	qInfo() << "\n\n-------------------------------------------------------"
+				 "\ncalc confidence intervals..."
+				 "\n-------------------------------------------------------\n";
+
+	Main_Calculation_Module* main_Calculation_Module = new Main_Calculation_Module(CONFIDENCE);
+	main_Calculation_Module->fitting();
+	delete main_Calculation_Module;
+}
+
 void Multilayer_Approach::reload_Optical_Constants()
 {
 	// TODO

@@ -158,32 +158,23 @@ void Menu::create_Calculate_Menu()
 	calculate_Menu = new QMenu("Calculate", this);
 
 	QAction* act_Specular = new QAction("Specular optical functions/fields", this);
-	act_Specular->setShortcut(Qt::Key_C | Qt::CTRL | Qt::SHIFT);
+		act_Specular->setShortcut(Qt::Key_C | Qt::CTRL | Qt::SHIFT);
 
 	QAction* act_Fitting = new QAction("Start fitting", this);
-	act_Fitting->setShortcut(Qt::Key_F | Qt::CTRL | Qt::SHIFT);
+		act_Fitting->setShortcut(Qt::Key_F | Qt::CTRL | Qt::SHIFT);
 
-	QAction* act_Calc_Settings = new QAction("Calculation settings", this);
+	QAction* act_Confidence = new QAction("Calculate confidence intervals", this);
+		act_Confidence->setShortcut(Qt::Key_A | Qt::CTRL | Qt::SHIFT);
 
-	if(window_Type == window_Type_Multilayer_Approach)
+	if(window_Type == window_Type_Multilayer_Approach || window_Type == window_Type_Table || window_Type == window_Type_Fitting_Settings_Editor)
 	{
-		connect(act_Specular,	   &QAction::triggered, my_Parent, [=]{global_Multilayer_Approach->calc_Reflection();});
-		connect(act_Fitting,	   &QAction::triggered, my_Parent, [=]{global_Multilayer_Approach->start_Fitting();});
-		connect(act_Calc_Settings, &QAction::triggered, my_Parent, [=]{global_Multilayer_Approach->open_Calculation_Settings();});
+		connect(act_Specular,	&QAction::triggered, global_Multilayer_Approach, [=]{global_Multilayer_Approach->calc_Reflection();});
+		connect(act_Fitting,	&QAction::triggered, global_Multilayer_Approach, [=]{global_Multilayer_Approach->start_Fitting();});
+		connect(act_Confidence,	&QAction::triggered, global_Multilayer_Approach, [=]{global_Multilayer_Approach->calc_Confidence_Intervals();});
 
 		calculate_Menu->addAction(act_Specular);
 		calculate_Menu->addAction(act_Fitting);
-		calculate_Menu->addAction(act_Calc_Settings);
-	}
-	if(window_Type == window_Type_Table)
-	{
-		connect(act_Specular,	   &QAction::triggered, global_Multilayer_Approach, [=]{global_Multilayer_Approach->calc_Reflection();});
-		connect(act_Fitting,	   &QAction::triggered, global_Multilayer_Approach, [=]{global_Multilayer_Approach->start_Fitting();});
-		connect(act_Calc_Settings, &QAction::triggered, global_Multilayer_Approach, [=]{global_Multilayer_Approach->open_Calculation_Settings();});
-
-		calculate_Menu->addAction(act_Specular);
-		calculate_Menu->addAction(act_Fitting);
-		calculate_Menu->addAction(act_Calc_Settings);
+		calculate_Menu->addAction(act_Confidence);
 	}
 	if(window_Type == window_Type_Calculation_Settings_Editor)
 	{
@@ -198,17 +189,15 @@ void Menu::create_Calculate_Menu()
 			for(QLineEdit* line_Edit : calculation_Settings_Editor->different_Lines) { line_Edit->editingFinished(); }
 			global_Multilayer_Approach->start_Fitting();
 		});
+		connect(act_Confidence,	   &QAction::triggered, global_Multilayer_Approach, [=]
+		{
+			for(QLineEdit* line_Edit : calculation_Settings_Editor->different_Lines) { line_Edit->editingFinished(); }
+			global_Multilayer_Approach->calc_Confidence_Intervals();
+		});
 
 		calculate_Menu->addAction(act_Specular);
 		calculate_Menu->addAction(act_Fitting);
-	}
-	if(window_Type == window_Type_Fitting_Settings_Editor)
-	{
-		connect(act_Specular,	   &QAction::triggered, global_Multilayer_Approach, [=]	{global_Multilayer_Approach->calc_Reflection();	});
-		connect(act_Fitting,	   &QAction::triggered, global_Multilayer_Approach, [=]	{global_Multilayer_Approach->start_Fitting();	});
-
-		calculate_Menu->addAction(act_Specular);
-		calculate_Menu->addAction(act_Fitting);
+		calculate_Menu->addAction(act_Confidence);
 	}
 }
 

@@ -23,6 +23,7 @@ public:
 	QVector<QTreeWidget*> copy_Real_Struct_Trees;
 	QString calc_Mode;
 
+	Fitables confidentials;
 	Fitables fitables;
 	Fitables rejected_Min_Max;
 	Fitables rejected_Sigmas;
@@ -37,8 +38,8 @@ public:
 	void load_Init_State_Trees();
 	void renew_Item_Trees();
 	bool reject();
-	void calc_Tree_Iteration(const tree<Node>::iterator& parent, bool fitables_Period_Gamma = false);
-	void find_Fittable_Parameters(Data& struct_Data, const tree<Node>::iterator& parent, bool fitables_Period_Gamma);
+	void calc_Tree_Iteration(const tree<Node>::iterator& parent, bool fitables_Period_Gamma = false, bool confidentials_Period_Gamma = false);
+	void find_Fittable_Confidence_Parameters(Data& struct_Data, const tree<Node>::iterator& parent, bool fitables_Period_Gamma, bool confidentials_Period_Gamma);
 	void slaves_Pointer_Iteration(Parameter* master);
 	void slaves_Expression_Iteration(Parameter* master);
 

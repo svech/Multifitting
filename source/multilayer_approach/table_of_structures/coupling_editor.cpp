@@ -82,7 +82,7 @@ void Coupling_Editor::create_Main_Layout()
 			confidence_Button->setToolTip("Should have no master");
 		button_Layout->addWidget(confidence_Button,0,Qt::AlignRight);
 
-		connect ( confidence_Button, &QPushButton::clicked, this, &Coupling_Editor::open_Confidence_Interval_Editor);
+		connect ( confidence_Button, &QPushButton::clicked, this, [=]{open_Confidence_Interval_Editor();});
 	}
 
 	create_Master_Box();
@@ -551,7 +551,7 @@ void Coupling_Editor::open_Confidence_Interval_Editor()
 {
 	hide();
 	adjustSize();
-	Confidence_Interval_Editor* confidence_Interval_Editor = new Confidence_Interval_Editor(this);
+	confidence_Interval_Editor = new Confidence_Interval_Editor(this);
 		confidence_Interval_Editor->show();
 }
 

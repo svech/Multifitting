@@ -7,6 +7,7 @@
 #include "confidence_interval_editor.h"
 
 class Table_Of_Structures;
+class Confidence_Interval_Editor;
 
 class Coupling_Editor : public QDialog
 {
@@ -36,6 +37,8 @@ public:
 	void get_Parameter(QLabel* label);
 
 	void open_Confidence_Interval_Editor();
+
+	Confidence_Interval_Editor* confidence_Interval_Editor;
 
 	id_Type coupled_Id;
 	QTreeWidgetItem* struct_Item;

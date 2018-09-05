@@ -72,7 +72,7 @@ void Main_Calculation_Module::single_Calculation(bool print)
 
 void Main_Calculation_Module::fitting()
 {
-	if(calc_Mode!=FITTING)
+	if(calc_Mode!=FITTING && calc_Mode!=CONFIDENCE)
 	{
 		QMessageBox::critical(nullptr, "Main_Calculation_Module::fitting", "wrong calc_Mode");
 		return;
@@ -86,6 +86,7 @@ void Main_Calculation_Module::fitting()
 	}
 
 	save_Init_State_Trees();
+	confidentials.clear_All();
 	fitables.clear_All();
 	rejected_Sigmas.clear_All();
 	rejected_Min_Max.clear_All();
@@ -103,7 +104,7 @@ void Main_Calculation_Module::fitting()
 		}
 	}
 
-	/// create calc tree and fitables;
+	/// create calc tree, fitables and confidentials;
 	for(int tab_Index=0; tab_Index<multilayers.size(); ++tab_Index)
 	{
 		// prepare real_Calc_Tree  (for all multilayers!)
@@ -252,7 +253,7 @@ bool Main_Calculation_Module::reject()
 	return false;
 }
 
-void Main_Calculation_Module::calc_Tree_Iteration(const tree<Node>::iterator& parent, bool fitables_Period_Gamma)
+void Main_Calculation_Module::calc_Tree_Iteration(const tree<Node>::iterator& parent, bool fitables_Period_Gamma, bool confidentials_Period_Gamma)
 {
 	// iterate over tree
 	for(unsigned i=0; i<parent.number_of_children(); ++i)
@@ -260,22 +261,29 @@ void Main_Calculation_Module::calc_Tree_Iteration(const tree<Node>::iterator& pa
 		tree<Node>::pre_order_iterator child = tree<Node>::child(parent,i);
 		Data& struct_Data = child.node->data.struct_Data;
 
-		find_Fittable_Parameters(struct_Data, child, fitables_Period_Gamma);
+		find_Fittable_Confidence_Parameters(struct_Data, child, fitables_Period_Gamma, confidentials_Period_Gamma);
 
-		// check if period or gamma are fitables
+		// check period and gamma
 		if(struct_Data.item_Type == item_Type_Multilayer ||
 		   struct_Data.item_Type == item_Type_Aperiodic	 )
 		{
+			// check if period or gamma are fitables
 			if(struct_Data.period.fit.is_Fitable || (struct_Data.gamma.fit.is_Fitable && child.number_of_children() == 2))
 			{
 				fitables_Period_Gamma = true;
 			}
-			calc_Tree_Iteration(child, fitables_Period_Gamma);
+
+			// check if period or gamma are confidentials
+			if(struct_Data.period.confidence.calc_Conf_Interval || (struct_Data.gamma.confidence.calc_Conf_Interval && child.number_of_children() == 2))
+			{
+				confidentials_Period_Gamma = true;
+			}
+			calc_Tree_Iteration(child, fitables_Period_Gamma, confidentials_Period_Gamma);
 		}
 	}
 }
 
-void Main_Calculation_Module::find_Fittable_Parameters(Data& struct_Data, const tree<Node>::iterator& parent, bool fitables_Period_Gamma)
+void Main_Calculation_Module::find_Fittable_Confidence_Parameters(Data& struct_Data, const tree<Node>::iterator& parent, bool fitables_Period_Gamma, bool confidentials_Period_Gamma)
 {
 	struct_Data.fill_Potentially_Fitable_Parameters_Vector();
 	for(Parameter* parameter : struct_Data.potentially_Fitable_Parameters)

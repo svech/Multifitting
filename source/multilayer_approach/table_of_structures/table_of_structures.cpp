@@ -212,6 +212,50 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 			add_Columns(new_Table, max_Depth + max_Number_Of_Elements+2);
 			current_Column = max_Depth + max_Number_Of_Elements+2;
 
+			/// color legend
+			{
+				// slave parameter
+				QLabel* slave_Label = new QLabel("pure slave");
+					slave_Label->setAlignment(Qt::AlignCenter);
+					slave_Label->setMinimumWidth(COLOR_LEGEND_LABEL_WIDTH);
+				slave_Label->setStyleSheet("QWidget { background: rgb(255, 50, 50); }");
+				new_Table->setCellWidget(current_Row,0, slave_Label);
+
+				// master and slave parameter
+				QLabel* master_Slave_Label = new QLabel("master/slave");
+					master_Slave_Label->setAlignment(Qt::AlignCenter);
+					master_Slave_Label->setMinimumWidth(COLOR_LEGEND_LABEL_WIDTH);
+				master_Slave_Label->setStyleSheet("QWidget { background: rgb(255, 255, 50); }");
+				new_Table->setCellWidget(current_Row+1,0, master_Slave_Label);
+
+				// master parameter
+				QLabel* master_Label = new QLabel("pure master");
+					master_Label->setAlignment(Qt::AlignCenter);
+				master_Label->setStyleSheet("QWidget { background: rgb(50, 255, 50); }");
+				new_Table->setCellWidget(current_Row+2,0, master_Label);
+
+				// free parameter
+				QLabel* free_Label = new QLabel("free");
+					free_Label->setAlignment(Qt::AlignCenter);
+					free_Label->setMinimumWidth(COLOR_LEGEND_LABEL_WIDTH);
+				free_Label->setStyleSheet("background-color: lightblue");
+				new_Table->setCellWidget(current_Row,1, free_Label);
+
+				// confidence parameter
+				QLabel* confidence_Label = new QLabel("confidence interval");
+					confidence_Label->setAlignment(Qt::AlignCenter);
+					confidence_Label->setMinimumWidth(COLOR_LEGEND_LABEL_WIDTH);
+				confidence_Label->setStyleSheet("background-color: violet");
+				new_Table->setCellWidget(current_Row+1,1, confidence_Label);
+
+				// confidence master parameter
+				QLabel* confidence_Master_Label = new QLabel("master/confidence");
+					confidence_Master_Label->setAlignment(Qt::AlignCenter);
+					confidence_Master_Label->setMinimumWidth(COLOR_LEGEND_LABEL_WIDTH);
+				confidence_Master_Label->setStyleSheet("QWidget { background: rgb(170, 0, 255); }");
+				new_Table->setCellWidget(current_Row+2,1, confidence_Master_Label);
+			}
+
 			// density min/max
 			create_Min_Max_Label	(new_Table,			   current_Row,   current_Column, Rho_Sym+", "+Plus_Minus_Sym+"%");
 			create_Min_Max_Button	(new_Table, tab_Index, current_Row+1, current_Column, whats_This_Density);
@@ -646,11 +690,13 @@ void Table_Of_Structures::refresh_Reload_Colorize(QString refresh_Reload, QWidge
 		if(parameter->coupled.master.exist && parameter->coupled.slaves.size()>0)
 			back_Widget->setStyleSheet("QWidget { background: rgb(255, 255, 50); }");
 
-		// confidence interval. should not have masters!
-		if(parameter->confidence.calc_Conf_Interval)
-		{
+		// confidence interval. if has no slaves
+		if(parameter->confidence.calc_Conf_Interval && parameter->coupled.slaves.size()==0)
 			back_Widget->setStyleSheet("background-color: violet");
-		}
+
+		// confidence interval. if has slaves
+		if(parameter->confidence.calc_Conf_Interval && parameter->coupled.slaves.size()>0)
+			back_Widget->setStyleSheet("QWidget { background: rgb(170, 0, 255); }");
 	}
 }
 
@@ -890,6 +936,7 @@ void Table_Of_Structures::disable_enable_Multilayers(My_Table_Widget* table, QTr
 
 void Table_Of_Structures::fit_Column(My_Table_Widget* table, int start_Width, int current_Column)
 {
+	// fit column
 	int max_Width=start_Width;
 	for(int row=0; row<table->rowCount(); ++row)
 	{
@@ -1088,9 +1135,9 @@ void Table_Of_Structures::create_Material_Line_Edit(My_Table_Widget* table, int 
 	add_Columns(table, current_Column+1);
 
 	QLineEdit* material_Line_Edit = new QLineEdit(material);
-	material_Line_Edit->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT_LONG);
-	material_Line_Edit->setProperty(min_Size_Property, material_Line_Edit->width());
-	material_Line_Edit->setProperty(column_Property, current_Column);
+		material_Line_Edit->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT_LONG);
+		material_Line_Edit->setProperty(min_Size_Property, material_Line_Edit->width());
+		material_Line_Edit->setProperty(column_Property, current_Column);
 
 	// storage
 	line_Edits_Map.insert(material_Line_Edit, structure_Item);
@@ -1107,6 +1154,7 @@ void Table_Of_Structures::create_Material_Line_Edit(My_Table_Widget* table, int 
 void Table_Of_Structures::create_Browse_Button(My_Table_Widget* table, int current_Row, int start_Column, int material_LineEdit_Row, int material_LineEdit_Column)
 {
 	QPushButton* browse_Button = new QPushButton("Browse...");
+		browse_Button->setMinimumWidth(TABLE_FIX_WIDTH_LINE_EDIT_LONG);
 	table->setCellWidget(current_Row, start_Column, browse_Button);
 
 	QLineEdit* material_Line_Edit = qobject_cast<QLineEdit*>(table->cellWidget(material_LineEdit_Row,material_LineEdit_Column));
@@ -1349,7 +1397,7 @@ void Table_Of_Structures::create_Line_Edit(My_Table_Widget* table, int tab_Index
 #endif
 
 	line_Edit->setText(text_Value);
-	line_Edit->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT_LONG);
+	line_Edit->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT_SHORT);
 	line_Edit->setValidator(validator);
 
 	line_Edit->setProperty(min_Size_Property, line_Edit->width());
@@ -1725,6 +1773,7 @@ void Table_Of_Structures::create_Min_Max_Button(My_Table_Widget* table, int tab_
 	add_Columns(table,current_Column);
 
 	QPushButton* min_Max_Button = new QPushButton("Reset");
+		min_Max_Button->setMinimumWidth(TABLE_FIX_WIDTH_LINE_EDIT_SHORT);
 	table->setCellWidget(current_Row, current_Column, min_Max_Button);
 
 	Multilayer* multilayer = qobject_cast<Multilayer*>(multilayer_Tabs->widget(tab_Index));
@@ -1818,6 +1867,8 @@ void Table_Of_Structures::create_Min_Max_Spin_Box(My_Table_Widget* table, int ta
 	Multilayer* multilayer = qobject_cast<Multilayer*>(multilayer_Tabs->widget(tab_Index));
 
 	QDoubleSpinBox* spin_Box = new QDoubleSpinBox;
+		spin_Box->setMinimumWidth(TABLE_FIX_WIDTH_LINE_EDIT_SHORT);
+
 		spin_Box->setAccelerated(true);
 		if(whats_This == whats_This_Density)
 		{
