@@ -235,7 +235,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 				new_Table->setCellWidget(current_Row+2,0, master_Label);
 
 				// free parameter
-				QLabel* free_Label = new QLabel("free");
+				QLabel* free_Label = new QLabel("free parameter");
 					free_Label->setAlignment(Qt::AlignCenter);
 					free_Label->setMinimumWidth(COLOR_LEGEND_LABEL_WIDTH);
 				free_Label->setStyleSheet("background-color: lightblue");

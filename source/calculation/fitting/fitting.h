@@ -13,6 +13,9 @@ struct Fitting_Params
 	Main_Calculation_Module* main_Calculation_Module;
 	QVector<Calculation_Tree*>& calculation_Trees;
 	Fitables& fitables;
+	Fitables& confidentials;
+
+	QString& calc_Mode;
 
 	const size_t p;
 	gsl_vector* f;
@@ -36,6 +39,7 @@ public:
 	Main_Calculation_Module* main_Calculation_Module;
 	QVector<Calculation_Tree*>& calculation_Trees;
 	Fitables& fitables;
+	Fitables& confidentials;
 
 	const size_t n;
 	const size_t p;
@@ -56,6 +60,7 @@ public:
 	void randomize_Position();
 	bool run_Fitting();
 	bool fit();
+	bool confidence(const vector<double>& fitables_Pointers_Value_Backup, size_t confidence_Index);
 
 	void add_Fit_To_File(const gsl_vector* x, double residual, QString filename, int run);
 	bool check_Residual_Expression();

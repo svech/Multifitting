@@ -5,15 +5,18 @@
 Fitting::Fitting(Main_Calculation_Module* main_Calculation_Module):
 
 	main_Calculation_Module(main_Calculation_Module),
-	calculation_Trees(main_Calculation_Module->calculation_Trees),
-	fitables(main_Calculation_Module->fitables),
+	calculation_Trees	(main_Calculation_Module->calculation_Trees),
+	fitables			(main_Calculation_Module->fitables),
+	confidentials		(main_Calculation_Module->confidentials),
 
 	n(num_Residual_Points()),
-	p(fitables.fit_Parameters.size()),
+	p(fitables.param_Pointers.size()),
 
 	params({main_Calculation_Module,
 		   calculation_Trees,
 		   fitables,
+		   confidentials,
+		   main_Calculation_Module->calc_Mode,
 		   p,
 		   f,
 		   n,
@@ -175,13 +178,27 @@ void Fitting::slaves_Recalculation(Parameter* master, Fitting_Params* params)
 void Fitting::calc_Residual(const gsl_vector* x, Fitting_Params* params, gsl_vector* f)
 {
 	// change value of real fitables
-	for(size_t i=0; i<params->fitables.fit_Parameters.size(); ++i)
+	for(size_t i=0; i<params->fitables.param_Pointers.size(); ++i)
 	{
-		double old_Value = params->fitables.fit_Parameters[i]->value;
-		params->fitables.fit_Parameters[i]->value = params->main_Calculation_Module->unparametrize(	gsl_vector_get(x, i),
-																									params->fitables.fit_Parameters[i]->fit.min,
-																									params->fitables.fit_Parameters[i]->fit.max);
-		double new_Value = params->fitables.fit_Parameters[i]->value;
+		double old_Value = params->fitables.param_Pointers[i]->value;
+
+		// refresh
+		params->fitables.param_Pointers[i]->value = params->main_Calculation_Module->unparametrize(	gsl_vector_get(x, i),
+																									params->fitables.param_Pointers[i]->fit.min,
+																									params->fitables.param_Pointers[i]->fit.max);
+		double new_Value = params->fitables.param_Pointers[i]->value;
+		change_Real_Fitables_and_Dependent(params, old_Value, new_Value, i);
+	}
+
+	// change value of slaves of confidentials
+	if(params->calc_Mode == CONFIDENCE)
+	for(size_t i=0; i<params->confidentials.param_Pointers.size(); ++i)
+	{
+		double old_Value = params->confidentials.param_Pointers[i]->value;
+		double new_Value = params->confidentials.values[i];
+
+		// refresh
+		params->confidentials.param_Pointers[i]->value = params->confidentials.values[i];
 		change_Real_Fitables_and_Dependent(params, old_Value, new_Value, i);
 	}
 
@@ -214,20 +231,32 @@ void Fitting::calc_Residual(const gsl_vector* x, Fitting_Params* params, gsl_vec
 
 void Fitting::change_Real_Fitables_and_Dependent(Fitting_Params* params, double old_Value, double new_Value, size_t i)
 {
-	// recalculate underlying tree if period or gamma is fitable
-	if(params->fitables.fit_Parameters[i]->indicator.whats_This == whats_This_Period)
-	{
-		double coeff = new_Value/old_Value;
-		Fitting::period_Subtree_Iteration(params->fitables.fit_Parent_Iterators[i], coeff);
+	double coeff = new_Value/old_Value;
 
+	if(params->calc_Mode == FITTING)
+	{
+		// recalculate underlying tree if period or gamma is fitable
+		if(params->fitables.param_Pointers[i]->indicator.whats_This == whats_This_Period)		{
+			Fitting::period_Subtree_Iteration(params->fitables.parent_Iterators[i], coeff);
+		} else
+		if(params->fitables.param_Pointers[i]->indicator.whats_This == whats_This_Gamma)		{
+			Fitting::gamma_Subtree_Iteration(params->fitables.parent_Iterators[i], old_Value);
+		}
+		// recalculate underlying slaves
+		Fitting::slaves_Recalculation(params->fitables.param_Pointers[i], params);
 	} else
-	if(params->fitables.fit_Parameters[i]->indicator.whats_This == whats_This_Gamma)
+	if(params->calc_Mode == CONFIDENCE)
 	{
-		Fitting::gamma_Subtree_Iteration(params->fitables.fit_Parent_Iterators[i], old_Value);
+		// recalculate underlying tree if period or gamma is confidential
+		if(params->confidentials.param_Pointers[i]->indicator.whats_This == whats_This_Period)		{
+			Fitting::period_Subtree_Iteration(params->confidentials.parent_Iterators[i], coeff);
+		} else
+		if(params->confidentials.param_Pointers[i]->indicator.whats_This == whats_This_Gamma)		{
+			Fitting::gamma_Subtree_Iteration(params->confidentials.parent_Iterators[i], old_Value);
+		}
+		// recalculate underlying slaves
+		Fitting::slaves_Recalculation(params->confidentials.param_Pointers[i], params);
 	}
-
-	// recalculate underlying slaves
-	Fitting::slaves_Recalculation(params->fitables.fit_Parameters[i], params);
 }
 
 void Fitting::fill_Residual(int& residual_Shift, Data_Element<Target_Curve>& target_Element, gsl_vector* f, int index)
@@ -300,12 +329,12 @@ void Fitting::fill_Residual(int& residual_Shift, Data_Element<Target_Curve>& tar
 void Fitting::initialize_Position()
 {
 	// set value of real fitables
-	for(size_t i=0; i<fitables.fit_Parameters.size(); ++i)
+	for(size_t i=0; i<fitables.param_Pointers.size(); ++i)
 	{
-		fitables.fit_Value_Parametrized[i] = main_Calculation_Module->parametrize(fitables.fit_Parameters[i]->value,
-																				  fitables.fit_Parameters[i]->fit.min,
-																				  fitables.fit_Parameters[i]->fit.max);
-		gsl_vector_set(x, i, fitables.fit_Value_Parametrized[i]);
+		fitables.values_Parametrized[i] = main_Calculation_Module->parametrize(fitables.param_Pointers[i]->value,
+																			   fitables.param_Pointers[i]->fit.min,
+																			   fitables.param_Pointers[i]->fit.max);
+		gsl_vector_set(x, i, fitables.values_Parametrized[i]);
 	}
 
 	// initialize residual
@@ -325,10 +354,10 @@ void Fitting::randomize_Position()
 	gsl_rng_set(r, duration);
 
 	// set random value of real fitables
-	for(size_t i=0; i<fitables.fit_Parameters.size(); ++i)
+	for(size_t i=0; i<fitables.param_Pointers.size(); ++i)
 	{
-		fitables.fit_Value_Parametrized[i] = gsl_rng_uniform(r);
-		gsl_vector_set(x, i, fitables.fit_Value_Parametrized[i]);
+		fitables.values_Parametrized[i] = gsl_rng_uniform(r);
+		gsl_vector_set(x, i, fitables.values_Parametrized[i]);
 	}
 
 	gsl_rng_free (r);
@@ -394,6 +423,71 @@ bool Fitting::fit()
 	return fit_Return;
 }
 
+bool Fitting::confidence(const vector<double>& fitables_Pointers_Value_Backup, size_t confidence_Index)
+{
+	if(check_Residual_Expression()) return false;
+
+	// --------------------------------------------------------------------------------
+	if(n<=p)
+	{
+		QMessageBox::information(nullptr,"Insufficient number of points", "# of fitables: " + QString::number(p) + "\n# of points: " + QString::number(n) + "\n\nShould be f<p");
+		return false;
+	}
+	// --------------------------------------------------------------------------------
+
+	bool fit_Return = false;
+	double min     = confidentials.param_Pointers[confidence_Index]->confidence.min;
+	double max     = confidentials.param_Pointers[confidence_Index]->confidence.max;
+	int num_Points = confidentials.param_Pointers[confidence_Index]->confidence.num_Points;
+	double step = (max-min)/(num_Points-1);
+	double& real_Conf_Value = confidentials.values[confidence_Index]; // not pointers! pointers will be renewed in calc_Residual
+
+	// changing value step by step
+	for(real_Conf_Value = min; real_Conf_Value <= max; real_Conf_Value += step)
+	{
+		qInfo() << "real_Conf_Value ="<<real_Conf_Value;
+		initialize_Position();
+
+		// single fit
+		if(fitables.param_Pointers.size()>0)
+		{
+			if(!global_Multilayer_Approach->fitting_Settings->randomized_Start)
+			{
+//				add_Fit_To_File(params.x, params.init_Residual, default_Fit_Statictics_File, 0);
+//				main_Calculation_Module->add_Fit(fitted_State);
+				fit_Return = run_Fitting();
+//				add_Fit_To_File(params.x, params.final_Residual, default_Fit_Statictics_File, 1);
+
+				// reset to initial state
+				for(size_t i=0; i<fitables.param_Pointers.size(); i++)			{
+					fitables.param_Pointers[i]->value = fitables_Pointers_Value_Backup[i];
+				}
+			} else
+			// randomized fit
+			{
+				qInfo() << "randomized confidence intervals";
+				// save trees to fit
+//				main_Calculation_Module->add_Fit(fit_Run_State, 0);
+//				add_Fit_To_File(params.x, params.init_Residual, default_Fit_Statictics_File, 0);
+//				for(int run=1; run<=global_Multilayer_Approach->fitting_Settings->num_Runs; run++)
+//				{
+//					randomize_Position();
+//					fit_Return = run_Fitting();
+//					main_Calculation_Module->renew_Item_Trees();
+//					main_Calculation_Module->add_Fit(fit_Run_State, run);
+//					add_Fit_To_File(params.x, params.final_Residual, default_Fit_Statictics_File, run);
+//				}
+			}
+		} else
+		{
+			params.final_Residual = params.init_Residual;
+		}
+		qInfo() << "real_Conf_Value = " << real_Conf_Value << "~ final_Residual =" << params.final_Residual;
+	}
+	// --------------------------------------------------------------------------------
+	return fit_Return;
+}
+
 void Fitting::add_Fit_To_File(const gsl_vector* x, double residual, QString filename, int run)
 {
 	QFile file(filename);
@@ -430,7 +524,7 @@ void Fitting::add_Fit_To_File(const gsl_vector* x, double residual, QString file
 			for(int param_Index=0; param_Index<params.p; ++param_Index)
 			{
 				//------------------------------------------------------
-				current_String = params.fitables.fit_Names[param_Index];
+				current_String = params.fitables.param_Names[param_Index];
 				widths.append(current_String.length()+spacer);
 				out << qSetFieldWidth(widths[index]) << current_String;
 				index++;
@@ -455,8 +549,8 @@ void Fitting::add_Fit_To_File(const gsl_vector* x, double residual, QString file
 		for(int param_Index=0; param_Index<params.p; ++param_Index)
 		{
 			double unparametrized = params.main_Calculation_Module->unparametrize(	gsl_vector_get(x, param_Index),
-																					params.fitables.fit_Parameters[param_Index]->fit.min,
-																					params.fitables.fit_Parameters[param_Index]->fit.max);
+																					params.fitables.param_Pointers[param_Index]->fit.min,
+																					params.fitables.param_Pointers[param_Index]->fit.max);
 			//------------------------------------------------------
 			current_String = QString::number(unparametrized,'f',4);
 			out << qSetFieldWidth(widths[index]) << current_String;

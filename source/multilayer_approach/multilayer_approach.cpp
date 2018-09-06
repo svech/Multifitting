@@ -828,7 +828,7 @@ void Multilayer_Approach::start_Fitting()
 				 "\nfitting..."
 				 "\n-------------------------------------------------------\n";
 	Main_Calculation_Module* main_Calculation_Module = new Main_Calculation_Module(FITTING);
-	main_Calculation_Module->fitting();
+	main_Calculation_Module->fitting_and_Confidence();
 	delete main_Calculation_Module;
 
 	if(lambda_Out_Of_Range) return;
@@ -846,7 +846,7 @@ void Multilayer_Approach::calc_Confidence_Intervals()
 				 "\n-------------------------------------------------------\n";
 
 	Main_Calculation_Module* main_Calculation_Module = new Main_Calculation_Module(CONFIDENCE);
-	main_Calculation_Module->fitting();
+	main_Calculation_Module->fitting_and_Confidence();
 	delete main_Calculation_Module;
 }
 

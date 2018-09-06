@@ -70,7 +70,7 @@ void Main_Calculation_Module::single_Calculation(bool print)
 	}
 }
 
-void Main_Calculation_Module::fitting()
+void Main_Calculation_Module::fitting_and_Confidence()
 {
 	if(calc_Mode!=FITTING && calc_Mode!=CONFIDENCE)
 	{
@@ -86,12 +86,16 @@ void Main_Calculation_Module::fitting()
 	}
 
 	save_Init_State_Trees();
+
 	confidentials.clear_All();
+	confidentials_Rejected_Thicknesses_and_Periods.clear_All();
+	confidentials_Rejected_Periods.clear_All();
+
 	fitables.clear_All();
-	rejected_Sigmas.clear_All();
-	rejected_Min_Max.clear_All();
-	rejected_Thicknesses_and_Periods.clear_All();
-	rejected_Periods.clear_All();
+	fit_Rejected_Sigmas.clear_All();
+	fit_Rejected_Min_Max.clear_All();
+	fit_Rejected_Thicknesses_and_Periods.clear_All();
+	fit_Rejected_Periods.clear_All();
 
 	// cheking for lambda_Out_Of_Range
 	for(int tab_Index=0; tab_Index<multilayers.size(); ++tab_Index)
@@ -117,9 +121,13 @@ void Main_Calculation_Module::fitting()
 		}
 	}
 
-	/// fill pointers to slaves, starting from fitable top-masters
-	for(Parameter* parameter : fitables.fit_Parameters)
-	{
+	/// fill pointers to slaves
+	// starting from fitable top-masters
+	for(Parameter* parameter : fitables.param_Pointers)	{
+		slaves_Pointer_Iteration(parameter);
+	}	
+	// starting from confidentials
+	for(Parameter* parameter : confidentials.param_Pointers)	{
 		slaves_Pointer_Iteration(parameter);
 	}
 
@@ -129,7 +137,7 @@ void Main_Calculation_Module::fitting()
 	expression_Vec.clear();
 	argument_Vec.clear();
 	slaves_Expression_Map.clear();
-	for(Parameter* parameter : fitables.fit_Parameters)
+	for(Parameter* parameter : fitables.param_Pointers)
 	{
 		slaves_Expression_Iteration(parameter);
 	}
@@ -138,8 +146,11 @@ void Main_Calculation_Module::fitting()
 	/// rejection
 	if(reject()) return;
 
+	/// --------------------------------------------------------------------------------------------------------------
 	/// fitting from here
-	if( fitables.fit_Parameters.size()>0 )
+	/// --------------------------------------------------------------------------------------------------------------
+	if( calc_Mode == FITTING )
+	if( fitables.param_Pointers.size()>0 )
 	{
 		Fitting fitting_Instance(this);
 		bool go = fitting_Instance.fit();
@@ -174,6 +185,81 @@ void Main_Calculation_Module::fitting()
 			global_Multilayer_Approach->table_Of_Structures->main_Tabs->setCurrentIndex(active_Tab);
 		}
 	}
+	/// --------------------------------------------------------------------------------------------------------------
+	/// confidence intervals from here
+	/// --------------------------------------------------------------------------------------------------------------
+	if( calc_Mode == CONFIDENCE )
+	if( confidentials.param_Pointers.size()>0 )
+	{
+		Fitables temp_Full_Fitables = fitables; // save full set, including (possibly) active confidentials
+		for(size_t confidence_Index=0; confidence_Index<confidentials.param_Pointers.size(); ++confidence_Index)
+		{
+			fitables = temp_Full_Fitables;
+
+			// get index of fitable with the same ID
+			int corresponding_Index = fitables.param_IDs.indexOf(confidentials.param_IDs[confidence_Index]);
+
+			// shortening fitables
+			if(corresponding_Index>=0)
+			{
+				fitables.struct_Names.		 erase(fitables.struct_Names.begin() + corresponding_Index);
+				fitables.param_Names.		 erase(fitables.param_Names.begin() + corresponding_Index);
+				fitables.param_IDs.			 remove(corresponding_Index);
+
+				fitables.param_Pointers.	 erase(fitables.param_Pointers.begin() + corresponding_Index);
+				fitables.values_Parametrized.erase(fitables.values_Parametrized.begin() + corresponding_Index);
+				fitables.parent_Iterators.	 erase(fitables.parent_Iterators.begin() + corresponding_Index);
+			}
+
+			// backup for restoring values between fits
+			vector<double> fitables_Pointers_Value_Backup(fitables.param_Pointers.size());
+			for(size_t i=0; i<fitables.param_Pointers.size(); i++)			{
+				fitables_Pointers_Value_Backup[i] = fitables.param_Pointers[i]->value;
+			}
+
+//			if(fitables.param_Pointers.size()>0)
+//			{
+				Fitting fitting_Instance(this);
+				bool go = fitting_Instance.confidence(fitables_Pointers_Value_Backup, confidence_Index);
+				if(!go) return;
+//			} else
+//			{
+//				qInfo() << "fitables is empty";
+//			}
+		}
+
+
+//		print_Calculated_To_File();
+
+//		// replace the initial parameters
+//		QMessageBox::StandardButton reply = QMessageBox::question(nullptr,"Replace", "Fitting is done.\nDo you want to replace the parameters?",
+//																  QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
+//		if (reply == QMessageBox::Yes)
+//		{
+//			// for single fitting
+//			if(!global_Multilayer_Approach->fitting_Settings->randomized_Start)
+//			{
+//				renew_Item_Trees();
+//				add_Fit(fitted_State);
+//			}
+
+//			// it also refreshs Independent tree copies
+//			global_Multilayer_Approach->refresh_All_Multilayers_View();
+//		} else
+//		{
+//			load_Init_State_Trees();
+//		}
+
+//		// refresh table (anyway)
+//		if(global_Multilayer_Approach->runned_Tables_Of_Structures.contains(table_Key))
+//		{
+//			int active_Tab = global_Multilayer_Approach->table_Of_Structures->main_Tabs->currentIndex();
+//			global_Multilayer_Approach->table_Of_Structures->close();
+//			global_Multilayer_Approach->open_Table_Of_Structures();
+//			global_Multilayer_Approach->table_Of_Structures->main_Tabs->setCurrentIndex(active_Tab);
+//		}
+	}
+	/// --------------------------------------------------------------------------------------------------------------
 }
 
 void Main_Calculation_Module::save_Init_State_Trees()
@@ -206,10 +292,12 @@ void Main_Calculation_Module::renew_Item_Trees()
 
 bool Main_Calculation_Module::reject()
 {
+	/// fit reject
+
 	// sigma value is close to zero
-	if(rejected_Sigmas.fit_IDs.size()>0)
+	if(fit_Rejected_Sigmas.param_IDs.size()>0)
 	{
-		QStringList rejected_List = QStringList::fromVector(QVector<QString>::fromStdVector(rejected_Sigmas.fit_Names));
+		QStringList rejected_List = QStringList::fromVector(QVector<QString>::fromStdVector(fit_Rejected_Sigmas.param_Names));
 		QString rejected = rejected_List.join("\n");
 		QMessageBox::information(nullptr, "Bad fitables", "Sigma start values are too small in:\n\n" +
 													   rejected +
@@ -218,9 +306,9 @@ bool Main_Calculation_Module::reject()
 	}
 
 	// internal thicknesses and periods if overlying period or gamma are fitables
-	if(rejected_Thicknesses_and_Periods.fit_Names.size()>0)
+	if(fit_Rejected_Thicknesses_and_Periods.param_Names.size()>0)
 	{
-		QStringList rejected_List = QStringList::fromVector(QVector<QString>::fromStdVector(rejected_Thicknesses_and_Periods.fit_Names));
+		QStringList rejected_List = QStringList::fromVector(QVector<QString>::fromStdVector(fit_Rejected_Thicknesses_and_Periods.param_Names));
 		QString rejected = rejected_List.join("\n");
 		QMessageBox::information(nullptr, "Bad fitables", "Thicknesses and periods can't be fitted independently\nif overlying period or gamma are fitables:\n\n" +
 													   rejected +
@@ -228,10 +316,10 @@ bool Main_Calculation_Module::reject()
 		return true;
 	}
 
-	// internal thicknesses and periods if overlying period or gamma are fitables
-	if(rejected_Periods.fit_Names.size()>0)
+	// period value == 0
+	if(fit_Rejected_Periods.param_Names.size()>0)
 	{
-		QStringList rejected_List = QStringList::fromVector(QVector<QString>::fromStdVector(rejected_Periods.fit_Names));
+		QStringList rejected_List = QStringList::fromVector(QVector<QString>::fromStdVector(fit_Rejected_Periods.param_Names));
 		QString rejected = rejected_List.join("\n");
 		QMessageBox::information(nullptr, "Bad fitables", "Zero period values are not allowed for fitting:\n\n" +
 													   rejected +
@@ -240,13 +328,37 @@ bool Main_Calculation_Module::reject()
 	}
 
 	// min>=max
-	if(rejected_Min_Max.fit_Names.size()>0)
+	if(fit_Rejected_Min_Max.param_Names.size()>0)
 	{
-		QStringList rejected_List = QStringList::fromVector(QVector<QString>::fromStdVector(rejected_Min_Max.fit_Names));
+		QStringList rejected_List = QStringList::fromVector(QVector<QString>::fromStdVector(fit_Rejected_Min_Max.param_Names));
 		QString rejected = rejected_List.join("\n");
 		QMessageBox::information(nullptr, "Bad fitables", "min>=max for the following fitables:\n\n" +
 													   rejected +
 													   "\n\nThey won't be fitted");
+		return true;
+	}
+
+	/// confidence reject
+
+	// fitiing or calculating interval for internal thicknesses and periods if overlying period or gamma are fitables or confidentials
+	if(confidentials_Rejected_Thicknesses_and_Periods.param_Names.size()>0)
+	{
+		QStringList rejected_List = QStringList::fromVector(QVector<QString>::fromStdVector(confidentials_Rejected_Thicknesses_and_Periods.param_Names));
+		QString rejected = rejected_List.join("\n");
+		QMessageBox::information(nullptr, "Bad fitables/confidentials", "Fit or confidence interval calculation is not possible\nfor internal thicknesses and periods if overlying\nperiod or gamma are fitables of confidentials:\n\n" +
+													   rejected +
+													   "\n\nRecheck fitables/confidentials");
+		return true;
+	}
+
+	// one of period values in interval == 0
+	if(confidentials_Rejected_Periods.param_Names.size()>0)
+	{
+		QStringList rejected_List = QStringList::fromVector(QVector<QString>::fromStdVector(confidentials_Rejected_Periods.param_Names));
+		QString rejected = rejected_List.join("\n");
+		QMessageBox::information(nullptr, "Bad confidentials", "Zero period values are not allowed\nfor calculation confidence interval:\n\n" +
+													   rejected +
+													   "\n\nChange min/max");
 		return true;
 	}
 
@@ -292,50 +404,88 @@ void Main_Calculation_Module::find_Fittable_Confidence_Parameters(Data& struct_D
 		if(parameter->indicator.whats_This == whats_This_Interlayer_My_Sigma &&	!struct_Data.common_Sigma)
 			parameter->fit.is_Fitable = struct_Data.sigma.fit.is_Fitable;
 
+		QString total_Name = "  " + Medium_BlackCircle_Sym + "  <" + multilayer_Tabs->tabText(parameter->indicator.tab_Index) + "> " + parameter->indicator.full_Name;
+
 		// fitable and has no master
 		if(parameter->fit.is_Fitable && !parameter->coupled.master.exist)
+//		if(calc_Mode != CONFIDENCE || !parameter->confidence.calc_Conf_Interval) // only 1 confidential should be treated as non-fitable in CONFIDENCE mode at the same time
 		{
 			// fixed
-			fitables.fit_Struct_Names 		.push_back(multilayer_Tabs->tabText(parameter->indicator.tab_Index));
-			fitables.fit_Names				.push_back(parameter->indicator.full_Name);
-			fitables.fit_IDs				.push_back(parameter->indicator.id);
+			fitables.struct_Names 		.push_back(multilayer_Tabs->tabText(parameter->indicator.tab_Index));
+			fitables.param_Names		.push_back(parameter->indicator.full_Name);
+			fitables.param_IDs			.push_back(parameter->indicator.id);
 
 			// changeable
-			fitables.fit_Parameters			.push_back(parameter);
-			fitables.fit_Value_Parametrized	.push_back(parametrize(parameter->value, parameter->fit.min, parameter->fit.max)); // will be recalculated at solver initialization
-			fitables.fit_Parent_Iterators	.push_back(parent);					// used for period and gamma only, but should be filled for all for the length purpose!
+			fitables.param_Pointers		.push_back(parameter);
+			fitables.values_Parametrized.push_back(parametrize(parameter->value, parameter->fit.min, parameter->fit.max)); // will be recalculated at solver initialization
+			fitables.parent_Iterators	.push_back(parent);					// used for period and gamma only, but should be filled for all for the length purpose!
 
 			/// for rejection
-
-			QString total_Name = "  " + Medium_BlackCircle_Sym + "  <" + multilayer_Tabs->tabText(parameter->indicator.tab_Index) + "> " + parameter->indicator.full_Name;
 
 			// sigma value is close to zero
 			if(parameter->indicator.whats_This == whats_This_Interlayer_My_Sigma || parameter->indicator.whats_This == whats_This_Sigma)
 			if(struct_Data.sigma.value < 0.1)
-			if(!rejected_Sigmas.fit_IDs.contains(struct_Data.sigma.indicator.id))
+			if(!fit_Rejected_Sigmas.param_IDs.contains(struct_Data.sigma.indicator.id))
 			{
-				rejected_Sigmas.fit_IDs.push_back(struct_Data.sigma.indicator.id);
-				rejected_Sigmas.fit_Names.push_back("  " + Medium_BlackCircle_Sym + "  <" + multilayer_Tabs->tabText(struct_Data.sigma.indicator.tab_Index) + "> " + struct_Data.sigma.indicator.full_Name);
+				fit_Rejected_Sigmas.param_IDs.push_back(struct_Data.sigma.indicator.id);
+				fit_Rejected_Sigmas.param_Names.push_back("  " + Medium_BlackCircle_Sym + "  <" + multilayer_Tabs->tabText(struct_Data.sigma.indicator.tab_Index) + "> " + struct_Data.sigma.indicator.full_Name);
 			}
 
 			// forbid fitting internal thicknesses and periods if overlying period or gamma are fitables
 			if(fitables_Period_Gamma)
 			if(parameter->indicator.whats_This == whats_This_Thickness || parameter->indicator.whats_This == whats_This_Period)
 			{
-				rejected_Thicknesses_and_Periods.fit_Names.push_back(total_Name);
+				fit_Rejected_Thicknesses_and_Periods.param_Names.push_back(total_Name);
+			}
+
+			// forbid calculating interval for outer period or gamma if inner thickness or period are fitables
+			if(confidentials_Period_Gamma)
+			if(parameter->indicator.whats_This == whats_This_Thickness || parameter->indicator.whats_This == whats_This_Period)
+			{
+				confidentials_Rejected_Thicknesses_and_Periods.param_Names.push_back(total_Name);
 			}
 
 			// period value == 0
 			if(parameter->indicator.whats_This == whats_This_Period)
 			if(abs(parameter->value) < DBL_MIN)
 			{
-				rejected_Periods.fit_Names.push_back(total_Name);
+				fit_Rejected_Periods.param_Names.push_back(total_Name);
 			}
 
 			// min>=max
 			if(parameter->fit.min>=parameter->fit.max)
 			{
-				rejected_Min_Max.fit_Names.push_back(total_Name);
+				fit_Rejected_Min_Max.param_Names.push_back(total_Name);
+			}
+		}
+
+		// confidential
+		if(calc_Mode == CONFIDENCE && parameter->confidence.calc_Conf_Interval)
+		{
+			// fixed
+			confidentials.struct_Names	  .push_back(multilayer_Tabs->tabText(parameter->indicator.tab_Index));
+			confidentials.param_Names	  .push_back(parameter->indicator.full_Name);
+			confidentials.param_IDs		  .push_back(parameter->indicator.id);
+
+			// changeable
+			confidentials.param_Pointers  .push_back(parameter);
+			confidentials.values		  .push_back(parameter->value);
+			confidentials.parent_Iterators.push_back(parent);		// used for period and gamma only, but should be filled for all for the length purpose!
+
+			/// for rejection
+
+			// forbid calculating interval for internal thicknesses and periods if overlying period or gamma are fitables or confidentials
+			if(confidentials_Period_Gamma || fitables_Period_Gamma)
+			if(parameter->indicator.whats_This == whats_This_Thickness || parameter->indicator.whats_This == whats_This_Period)
+			{
+				confidentials_Rejected_Thicknesses_and_Periods.param_Names.push_back(total_Name);
+			}
+
+			// one of period values in interval == 0
+			if(parameter->indicator.whats_This == whats_This_Period)
+			if(abs(parameter->confidence.min) < DBL_MIN || abs(parameter->confidence.max) < DBL_MIN)
+			{
+				confidentials_Rejected_Periods.param_Names.push_back(total_Name);
 			}
 		}
 	}
@@ -343,7 +493,7 @@ void Main_Calculation_Module::find_Fittable_Confidence_Parameters(Data& struct_D
 
 void Main_Calculation_Module::slaves_Pointer_Iteration(Parameter* master)
 {
-	master->coupled.slave_Pointers.clear();
+	master->coupled.slave_Pointers.clear(); // rewrite
 
 	for(Parameter_Indicator& slave_Parameter_Indicator : master->coupled.slaves)
 	{

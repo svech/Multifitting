@@ -24,16 +24,19 @@ public:
 	QString calc_Mode;
 
 	Fitables confidentials;
+	Fitables confidentials_Rejected_Thicknesses_and_Periods;
+	Fitables confidentials_Rejected_Periods;
+
 	Fitables fitables;
-	Fitables rejected_Min_Max;
-	Fitables rejected_Sigmas;
-	Fitables rejected_Thicknesses_and_Periods;
-	Fitables rejected_Periods;
+	Fitables fit_Rejected_Min_Max;
+	Fitables fit_Rejected_Sigmas;
+	Fitables fit_Rejected_Thicknesses_and_Periods;
+	Fitables fit_Rejected_Periods;
 
 	QString parametrization_Type = triangle;
 
 	void single_Calculation(bool print = true);
-	void fitting();
+	void fitting_and_Confidence();
 	void save_Init_State_Trees();
 	void load_Init_State_Trees();
 	void renew_Item_Trees();

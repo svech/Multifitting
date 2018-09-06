@@ -569,24 +569,26 @@ struct Fit_Params				{bool calc = true;
 									}
 								 }
 								};
-struct Fitables					{	vector<QString> fit_Struct_Names;		// names of structures
-									vector<QString> fit_Names;				// names of parameters to be fitted
-									QVector<id_Type>fit_IDs;				// ID of parameters to be fitted
+struct Fitables					{	vector<QString> struct_Names;		// names of structures
+									vector<QString> param_Names;		// names of parameters to be fitted
+									QVector<id_Type>param_IDs;			// ID of parameters to be fitted
 
 									// changeable
-									vector<Parameter*> fit_Parameters;		//
-									vector<double>	fit_Value_Parametrized;	// unbounded parametrized variables
-									vector<tree<Node>::iterator> fit_Parent_Iterators;
+									vector<Parameter*> param_Pointers;
+									vector<double>	values;
+									vector<double>	values_Parametrized;	// unbounded parametrized variables
+									vector<tree<Node>::iterator> parent_Iterators;
 
 									void clear_All()
 									{
-										fit_Struct_Names.clear();
-										fit_Names.clear();
-										fit_IDs.clear();
+										struct_Names.clear();
+										param_Names.clear();
+										param_IDs.clear();
 
-										fit_Parameters.clear();
-										fit_Value_Parametrized.clear();
-										fit_Parent_Iterators.clear();
+										param_Pointers.clear();
+										values.clear();
+										values_Parametrized.clear();
+										parent_Iterators.clear();
 									}
 								};
 

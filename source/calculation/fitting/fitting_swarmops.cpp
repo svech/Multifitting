@@ -18,9 +18,9 @@ void Fitting_SwarmOps::callback(Fitting_Params* params, SO_TFitness residual)
 	if(params->counter%10 == 0)
 	{
 		printf("iter %zu :", params->counter);
-		for(size_t i=0; i<params->fitables.fit_Parameters.size(); ++i)
+		for(size_t i=0; i<params->fitables.param_Pointers.size(); ++i)
 		{
-			printf("%f ", params->fitables.fit_Parameters[i]->value);
+			printf("%f ", params->fitables.param_Pointers[i]->value);
 		}
 		printf("\t|f|=%g", residual);
 
@@ -37,7 +37,7 @@ SO_TFitness Fitting_SwarmOps::calc_Residual(SO_TElm* x,  void* context, SO_TFitn
 	if(global_Multilayer_Approach->fitting_Settings->initialize_By_Current_State && params->counter == 0)
 	for(size_t i=0; i<params->p; ++i)
 	{
-		x[i]  = params->fitables.fit_Value_Parametrized[i];
+		x[i]  = params->fitables.values_Parametrized[i];
 	}
 
 	// fill x
@@ -140,7 +140,7 @@ bool Fitting_SwarmOps::fit()
 		if(params->init_Residual<res.best.fitness)
 		{
 			printf("-Keep previous solution-\n\n");
-			final_State_Parametrized = params->fitables.fit_Value_Parametrized.data();
+			final_State_Parametrized = params->fitables.values_Parametrized.data();
 		}  else
 		{
 			final_State_Parametrized = res.best.x;
@@ -154,9 +154,9 @@ bool Fitting_SwarmOps::fit()
 
 			// unparametrize
 			res.best.x[i] = params->main_Calculation_Module->unparametrize(	final_State_Parametrized[i],
-																			params->fitables.fit_Parameters[i]->fit.min,
-																			params->fitables.fit_Parameters[i]->fit.max);
-//			params->fitables.fit_Parameters[i]->value = res.best.x[i];
+																			params->fitables.param_Pointers[i]->fit.min,
+																			params->fitables.param_Pointers[i]->fit.max);
+//			params->fitables.param_Pointers[i]->value = res.best.x[i];
 		}
 	} else
 	// if randomized start
@@ -169,16 +169,16 @@ bool Fitting_SwarmOps::fit()
 
 			// unparametrize
 			res.best.x[i] = params->main_Calculation_Module->unparametrize(	res.best.x[i],
-																			params->fitables.fit_Parameters[i]->fit.min,
-																			params->fitables.fit_Parameters[i]->fit.max);
+																			params->fitables.param_Pointers[i]->fit.min,
+																			params->fitables.param_Pointers[i]->fit.max);
 		}
 	}
 	// replace parameters
 	for(size_t i=0; i<params->p; ++i)
 	{
-		double old_Value = params->fitables.fit_Parameters[i]->value;
-		params->fitables.fit_Parameters[i]->value = res.best.x[i];
-		double new_Value = params->fitables.fit_Parameters[i]->value;
+		double old_Value = params->fitables.param_Pointers[i]->value;
+		params->fitables.param_Pointers[i]->value = res.best.x[i];
+		double new_Value = params->fitables.param_Pointers[i]->value;
 
 		Fitting::change_Real_Fitables_and_Dependent(params, old_Value, new_Value, i);
 	}

@@ -19,9 +19,9 @@ void Fitting_GSL::callback(const size_t iter, void* bare_Params, const gsl_multi
 
 	// print out current location
 	printf("iter %zu :", iter);
-	for(size_t i=0; i<params->fitables.fit_Parameters.size(); ++i)
+	for(size_t i=0; i<params->fitables.param_Pointers.size(); ++i)
 	{
-		printf("%f ", params->fitables.fit_Parameters[i]->value);
+		printf("%f ", params->fitables.param_Pointers[i]->value);
 	}
 	printf("\n\n");
 }
@@ -137,8 +137,8 @@ int Fitting_GSL::calc_Residual(const gsl_vector* x, void* bare_Params, gsl_vecto
 
 void Fitting_GSL::init_Position(gsl_vector* x)
 {
-	for(size_t i=0; i<fitables.fit_Parameters.size(); ++i)
+	for(size_t i=0; i<fitables.param_Pointers.size(); ++i)
 	{
-		gsl_vector_set(x, i, fitables.fit_Value_Parametrized[i]);
+		gsl_vector_set(x, i, fitables.values_Parametrized[i]);
 	}
 }
