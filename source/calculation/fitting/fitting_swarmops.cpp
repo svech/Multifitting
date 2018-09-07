@@ -180,7 +180,7 @@ bool Fitting_SwarmOps::fit()
 		params->fitables.param_Pointers[i]->value = res.best.x[i];
 		double new_Value = params->fitables.param_Pointers[i]->value;
 
-		Fitting::change_Real_Fitables_and_Dependent(params, old_Value, new_Value, i);
+		Fitting::change_Real_Fitables_and_Dependent(params, old_Value, new_Value, i, FITTING);
 	}
 
 

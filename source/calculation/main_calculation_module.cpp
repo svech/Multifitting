@@ -194,6 +194,7 @@ void Main_Calculation_Module::fitting_and_Confidence()
 		Fitables temp_Full_Fitables = fitables; // save full set, including (possibly) active confidentials
 		for(size_t confidence_Index=0; confidence_Index<confidentials.param_Pointers.size(); ++confidence_Index)
 		{
+			confidentials.param_Pointers[confidence_Index]->confidence.is_Active = true;
 			fitables = temp_Full_Fitables;
 
 			// get index of fitable with the same ID
@@ -211,21 +212,20 @@ void Main_Calculation_Module::fitting_and_Confidence()
 				fitables.parent_Iterators.	 erase(fitables.parent_Iterators.begin() + corresponding_Index);
 			}
 
-			// backup for restoring values between fits
+			// backup for restoring values
 			vector<double> fitables_Pointers_Value_Backup(fitables.param_Pointers.size());
 			for(size_t i=0; i<fitables.param_Pointers.size(); i++)			{
 				fitables_Pointers_Value_Backup[i] = fitables.param_Pointers[i]->value;
 			}
+			vector<double> confidentials_Pointers_Value_Backup(confidentials.param_Pointers.size());
+			for(size_t i=0; i<confidentials.param_Pointers.size(); i++)			{
+				confidentials_Pointers_Value_Backup[i] = confidentials.param_Pointers[i]->value;
+			}
 
-//			if(fitables.param_Pointers.size()>0)
-//			{
-				Fitting fitting_Instance(this);
-				bool go = fitting_Instance.confidence(fitables_Pointers_Value_Backup, confidence_Index);
-				if(!go) return;
-//			} else
-//			{
-//				qInfo() << "fitables is empty";
-//			}
+			Fitting fitting_Instance(this);
+			bool go = fitting_Instance.confidence(fitables_Pointers_Value_Backup, confidentials_Pointers_Value_Backup, confidence_Index);
+			confidentials.param_Pointers[confidence_Index]->confidence.is_Active = false;
+			if(!go) return;
 		}
 
 

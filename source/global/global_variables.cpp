@@ -728,6 +728,19 @@ void Global_Variables::copy_Tree(const QTreeWidget* from_Tree, QTreeWidget* to_T
 	}
 }
 
+bool Global_Variables::check_Loaded_Version(int MAJOR, int MINOR, int BUILD)
+{
+	if( (loaded_Version_Major >MAJOR) ||
+	   ((loaded_Version_Major==MAJOR) && (loaded_Version_Minor >MINOR)) ||
+	   ((loaded_Version_Major==MAJOR) && (loaded_Version_Minor==MINOR) && (loaded_Version_Build>=BUILD)) )
+	{
+		return true;
+	} else
+	{
+		return false;
+	}
+}
+
 template<typename Type>
 void Global_Variables::resize_Line_Edit(Type* line_Edit, bool adjust_Window)
 {

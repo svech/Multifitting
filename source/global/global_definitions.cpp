@@ -83,11 +83,17 @@ QDataStream& operator >>( QDataStream& stream,		 Fit& fit )
 
 QDataStream& operator <<( QDataStream& stream, const Confidence& confidence )
 {
-	return stream << confidence.calc_Conf_Interval << confidence.min << confidence.max << confidence.num_Points;
+	return stream << confidence.calc_Conf_Interval << confidence.min << confidence.max << confidence.num_Points
+				  << confidence.is_Active; // since 1.8.0
 }
 QDataStream& operator >>( QDataStream& stream,		 Confidence& confidence )
 {
-	return stream >> confidence.calc_Conf_Interval >> confidence.min >> confidence.max >> confidence.num_Points;
+	stream >> confidence.calc_Conf_Interval >> confidence.min >> confidence.max >> confidence.num_Points;
+
+	if(Global_Variables::check_Loaded_Version(1,8,0))
+	{stream >> confidence.is_Active;}		// since 1.8.0
+
+	return stream;
 }
 
 QDataStream& operator <<( QDataStream& stream, const Parameter& parameter )
@@ -98,9 +104,8 @@ QDataStream& operator <<( QDataStream& stream, const Parameter& parameter )
 QDataStream& operator >>( QDataStream& stream,		 Parameter& parameter )
 {
 	stream >> parameter.value >> parameter.independent >> parameter.coupled >> parameter.fit >> parameter.indicator;
-	if( loaded_Version_Major>=1 &&
-		loaded_Version_Minor>=7 &&
-		loaded_Version_Build>=9)
+
+	if(Global_Variables::check_Loaded_Version(1,7,9))
 	{stream >> parameter.confidence; }		// since 1.7.9
 
 	return stream;
@@ -146,9 +151,9 @@ QDataStream& operator <<( QDataStream& stream, const Plot_Options& plot_Options 
 QDataStream& operator >>( QDataStream& stream,		 Plot_Options& plot_Options )
 {
 	stream >> plot_Options.scale;
-	if( loaded_Version_Major>=1 &&
-		loaded_Version_Minor>=7 &&
-		loaded_Version_Build>=6) {stream >> plot_Options.rescale; }	// since 1.7.6
+
+	if(Global_Variables::check_Loaded_Version(1,7,6))
+	{stream >> plot_Options.rescale; }	// since 1.7.6
 
 	stream >> plot_Options.color        >> plot_Options.scatter_Shape >> plot_Options.scatter_Size        >> plot_Options.thickness
 		   >> plot_Options.scale_Second >> plot_Options.color_Second >> plot_Options.scatter_Shape_Second >> plot_Options.scatter_Size_Second >> plot_Options.thickness_Second;
@@ -199,9 +204,8 @@ QDataStream& operator <<( QDataStream& stream, const Curve& curve )
 QDataStream& operator >>( QDataStream& stream,		 Curve& curve )
 {
 	stream  >> curve.argument >> curve.shifted_Argument >> curve.values >> curve.shifted_Values >> curve.arg_Offset >> curve.arg_Factor >> curve.val_Offset >> curve.val_Factor;
-	if( loaded_Version_Major>=1 &&
-		loaded_Version_Minor>=7 &&
-		loaded_Version_Build>=1)
+
+	if(Global_Variables::check_Loaded_Version(1,7,1))
 	{stream >> curve.beam_Intensity; }	// since 1.7.1
 
 	stream  >> curve.argument_Type >> curve.angle_Type >> curve.angular_Units >> curve.spectral_Units >> curve.value_Function >> curve.value_Mode;

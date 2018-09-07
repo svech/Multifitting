@@ -8,8 +8,8 @@
 #include "qcustomplot.h"
 
 #define VERSION_MAJOR 1
-#define VERSION_MINOR 7
-#define VERSION_BUILD 9
+#define VERSION_MINOR 8
+#define VERSION_BUILD 0
 
 //#define EXPRTK
 
@@ -27,10 +27,11 @@ class Node;
 
 // -----------------------------------------------------------------------------------------
 
-#define control_String				"Multifitting"
-#define default_File				"save_v."+QString::number(VERSION_MAJOR)+"."+QString::number(VERSION_MINOR)+"."+QString::number(VERSION_BUILD)+".fit"
-#define default_Fit_Statictics_File	"fits.txt"
-#define file_Extension				"fit"
+#define control_String						 "Multifitting"
+#define default_File						 "save_v."+QString::number(VERSION_MAJOR)+"."+QString::number(VERSION_MINOR)+"."+QString::number(VERSION_BUILD)+".fit"
+#define default_Fit_Statictics_File			 "fits.txt"
+#define default_Confidence_Distribution_File "confidence.txt"
+#define file_Extension						 "fit"
 
 // settings
 
@@ -410,7 +411,7 @@ struct Coupled					{bool is_Coupled = false;
 								 }
 								};
 
-struct Confidence				{bool calc_Conf_Interval = false; double min; double max; int num_Points;};
+struct Confidence				{bool calc_Conf_Interval = false; bool is_Active = false; double min; double max; int num_Points;};
 
 struct Fit						{bool is_Fitable = false; bool min_Bounded/* still unused */; double min; bool max_Bounded/* still unused */; double max;};
 

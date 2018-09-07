@@ -37,6 +37,7 @@ public:
 	vector<vector<double>> epsilon_Dependent_NORM;					//	[wavelength][media]
 
 	vector<double> sigma;											//	[boundary]
+	vector<bool> common_Sigma;										//	[boundary]
 	vector<vector<Interlayer>> boundary_Interlayer_Composition;		//  [boundary][function]
 	vector<double> thickness;										//	[layer]
 

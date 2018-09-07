@@ -187,19 +187,22 @@ void Fitting::calc_Residual(const gsl_vector* x, Fitting_Params* params, gsl_vec
 																									params->fitables.param_Pointers[i]->fit.min,
 																									params->fitables.param_Pointers[i]->fit.max);
 		double new_Value = params->fitables.param_Pointers[i]->value;
-		change_Real_Fitables_and_Dependent(params, old_Value, new_Value, i);
+		change_Real_Fitables_and_Dependent(params, old_Value, new_Value, i, FITTING);
 	}
 
-	// change value of slaves of confidentials
-	if(params->calc_Mode == CONFIDENCE)
+	// change value of slaves of ACTIVE confidentials
+	if(params->calc_Mode == CONFIDENCE )
 	for(size_t i=0; i<params->confidentials.param_Pointers.size(); ++i)
 	{
-		double old_Value = params->confidentials.param_Pointers[i]->value;
-		double new_Value = params->confidentials.values[i];
+		if(params->confidentials.param_Pointers[i]->confidence.is_Active)
+		{
+			double old_Value = params->confidentials.param_Pointers[i]->value;
+			double new_Value = params->confidentials.values[i];
 
-		// refresh
-		params->confidentials.param_Pointers[i]->value = params->confidentials.values[i];
-		change_Real_Fitables_and_Dependent(params, old_Value, new_Value, i);
+			// refresh
+			params->confidentials.param_Pointers[i]->value = params->confidentials.values[i];
+			change_Real_Fitables_and_Dependent(params, old_Value, new_Value, i, CONFIDENCE);
+		}
 	}
 
 	/// now all real_Calc_Tree are changed; we can replicate and stratify them
@@ -229,11 +232,11 @@ void Fitting::calc_Residual(const gsl_vector* x, Fitting_Params* params, gsl_vec
 	}
 }
 
-void Fitting::change_Real_Fitables_and_Dependent(Fitting_Params* params, double old_Value, double new_Value, size_t i)
+void Fitting::change_Real_Fitables_and_Dependent(Fitting_Params* params, double old_Value, double new_Value, size_t i, QString fit_Conf)
 {
 	double coeff = new_Value/old_Value;
 
-	if(params->calc_Mode == FITTING)
+	if(fit_Conf == FITTING)
 	{
 		// recalculate underlying tree if period or gamma is fitable
 		if(params->fitables.param_Pointers[i]->indicator.whats_This == whats_This_Period)		{
@@ -245,7 +248,7 @@ void Fitting::change_Real_Fitables_and_Dependent(Fitting_Params* params, double 
 		// recalculate underlying slaves
 		Fitting::slaves_Recalculation(params->fitables.param_Pointers[i], params);
 	} else
-	if(params->calc_Mode == CONFIDENCE)
+	if(fit_Conf == CONFIDENCE)
 	{
 		// recalculate underlying tree if period or gamma is confidential
 		if(params->confidentials.param_Pointers[i]->indicator.whats_This == whats_This_Period)		{
@@ -336,14 +339,15 @@ void Fitting::initialize_Position()
 																			   fitables.param_Pointers[i]->fit.max);
 		gsl_vector_set(x, i, fitables.values_Parametrized[i]);
 	}
-
 	// initialize residual
 	calc_Residual(params.x, &params, params.f);
 	gsl_blas_ddot(params.f, params.f, &params.init_Residual);
 }
 
-void Fitting::randomize_Position()
+void Fitting::randomize_Position(bool randomize)
 {
+	if(!randomize) return;
+
 	const gsl_rng_type* T = gsl_rng_default;
 	gsl_rng* r = gsl_rng_alloc (T);
 	gsl_rng_env_setup();
@@ -411,7 +415,7 @@ bool Fitting::fit()
 		add_Fit_To_File(params.x, params.init_Residual, default_Fit_Statictics_File, 0);
 		for(int run=1; run<=global_Multilayer_Approach->fitting_Settings->num_Runs; run++)
 		{
-			randomize_Position();
+			randomize_Position(run-1); // first without randomization
 			fit_Return = run_Fitting();
 			main_Calculation_Module->renew_Item_Trees();
 			main_Calculation_Module->add_Fit(fit_Run_State, run);
@@ -423,7 +427,7 @@ bool Fitting::fit()
 	return fit_Return;
 }
 
-bool Fitting::confidence(const vector<double>& fitables_Pointers_Value_Backup, size_t confidence_Index)
+bool Fitting::confidence(const vector<double>& fitables_Pointers_Value_Backup, const vector<double>& confidentials_Pointers_Value_Backup, size_t confidence_Index)
 {
 	if(check_Residual_Expression()) return false;
 
@@ -441,49 +445,70 @@ bool Fitting::confidence(const vector<double>& fitables_Pointers_Value_Backup, s
 	int num_Points = confidentials.param_Pointers[confidence_Index]->confidence.num_Points;
 	double step = (max-min)/(num_Points-1);
 	double& real_Conf_Value = confidentials.values[confidence_Index]; // not pointers! pointers will be renewed in calc_Residual
+	int point_Index = 0;
 
 	// changing value step by step
 	for(real_Conf_Value = min; real_Conf_Value <= max; real_Conf_Value += step)
 	{
-		qInfo() << "real_Conf_Value ="<<real_Conf_Value;
 		initialize_Position();
 
+		for(size_t i=0; i<confidentials.param_Pointers.size(); i++)		{
+			qInfo() << confidentials.param_Pointers[i]->value;
+		}qInfo() << "";
+
+		qInfo() << "fitables.param_Pointers.size()"<<fitables.param_Pointers.size();
+		qInfo() << "fitables.param_Names"<<fitables.param_Names;
 		// single fit
 		if(fitables.param_Pointers.size()>0)
 		{
 			if(!global_Multilayer_Approach->fitting_Settings->randomized_Start)
 			{
-//				add_Fit_To_File(params.x, params.init_Residual, default_Fit_Statictics_File, 0);
-//				main_Calculation_Module->add_Fit(fitted_State);
 				fit_Return = run_Fitting();
-//				add_Fit_To_File(params.x, params.final_Residual, default_Fit_Statictics_File, 1);
 
 				// reset to initial state
 				for(size_t i=0; i<fitables.param_Pointers.size(); i++)			{
 					fitables.param_Pointers[i]->value = fitables_Pointers_Value_Backup[i];
 				}
+
+				// write point to file
+				add_Confidence_Distribution_To_File(real_Conf_Value, default_Confidence_Distribution_File, confidence_Index, point_Index, params.final_Residual, nullptr);
 			} else
 			// randomized fit
 			{
-				qInfo() << "randomized confidence intervals";
-				// save trees to fit
-//				main_Calculation_Module->add_Fit(fit_Run_State, 0);
-//				add_Fit_To_File(params.x, params.init_Residual, default_Fit_Statictics_File, 0);
-//				for(int run=1; run<=global_Multilayer_Approach->fitting_Settings->num_Runs; run++)
-//				{
-//					randomize_Position();
-//					fit_Return = run_Fitting();
-//					main_Calculation_Module->renew_Item_Trees();
-//					main_Calculation_Module->add_Fit(fit_Run_State, run);
-//					add_Fit_To_File(params.x, params.final_Residual, default_Fit_Statictics_File, run);
-//				}
+				vector<double> rand_Fit_Residuals(global_Multilayer_Approach->fitting_Settings->num_Runs);
+				for(int rand_Index=0; rand_Index<rand_Fit_Residuals.size(); rand_Index++)
+				{
+					randomize_Position(rand_Index); // first without randomization
+					fit_Return = run_Fitting();
+					rand_Fit_Residuals[rand_Index] = params.final_Residual;
+
+					// reset to initial state
+					for(size_t i=0; i<fitables.param_Pointers.size(); i++)			{
+						fitables.param_Pointers[i]->value = fitables_Pointers_Value_Backup[i];
+					}
+				}
+				// sort residuals
+				sort(rand_Fit_Residuals.begin(), rand_Fit_Residuals.end());
+
+				// take best
+				params.final_Residual = rand_Fit_Residuals.front();
+
+				// write point to file
+				add_Confidence_Distribution_To_File(real_Conf_Value, default_Confidence_Distribution_File, confidence_Index, point_Index, params.final_Residual, &rand_Fit_Residuals);
 			}
 		} else
 		{
+			fit_Return = true;
 			params.final_Residual = params.init_Residual;
+			add_Confidence_Distribution_To_File(real_Conf_Value, default_Confidence_Distribution_File, confidence_Index, point_Index, params.final_Residual, nullptr);
 		}
 		qInfo() << "real_Conf_Value = " << real_Conf_Value << "~ final_Residual =" << params.final_Residual;
+		++point_Index;
 	}
+	// restore current confidential to init value
+	real_Conf_Value = confidentials_Pointers_Value_Backup[confidence_Index];
+	confidentials.param_Pointers[confidence_Index]->value = confidentials_Pointers_Value_Backup[confidence_Index];
+
 	// --------------------------------------------------------------------------------
 	return fit_Return;
 }
@@ -565,6 +590,89 @@ void Fitting::add_Fit_To_File(const gsl_vector* x, double residual, QString file
 	} else
 	{
 		QMessageBox::critical(nullptr, "Fitting::add_Fit_To_File", "Can't write file " + filename);
+		exit(EXIT_FAILURE);
+	}
+}
+
+void Fitting::add_Confidence_Distribution_To_File(double real_Conf_Value, QString filename, size_t confidence_Index, int point_Index, double residual, vector<double>* residuals_Set)
+{
+	QFile file(filename);
+	if(file.open(QIODevice::WriteOnly | QIODevice::Append))
+	{
+		QTextStream out(&file);
+		out.setFieldAlignment(QTextStream::AlignLeft);
+		QString current_String;
+		int index=0;
+		int spacer = 5;
+
+		if(point_Index==0)
+		{
+			if(out.pos()!=0)
+			{
+				out << qSetFieldWidth(0) << endl;
+			}
+			QDateTime date_Time = QDateTime::currentDateTime();
+			out << date_Time.toString("< dd.MM.yyyy | hh:mm:ss >") << qSetFieldWidth(0) <<endl;
+
+			widths.clear();
+			//------------------------------------------------------
+
+			out << "----------------------------------------------------" << qSetFieldWidth(0) <<endl;
+			current_String = confidentials.param_Names[confidence_Index];
+			widths.append(current_String.length()+spacer);
+			out << qSetFieldWidth(widths[index]) << current_String << qSetFieldWidth(0) <<endl;
+			index++;
+			out << "----------------------------------------------------" << qSetFieldWidth(0) <<endl;
+			//------------------------------------------------------
+
+			current_String = "value";
+			widths.append(current_String.length()+spacer);
+			out << qSetFieldWidth(widths[index]) << current_String;
+			index++;
+
+			current_String = "likehood";
+			widths.append(current_String.length()+spacer);
+			out << qSetFieldWidth(widths[index]) << current_String;
+			index++;
+
+			out << qSetFieldWidth(0) <<endl <<endl;
+			//------------------------------------------------------
+
+		}
+		//------------------------------------------------------
+		index=1;
+
+		current_String = QString::number(real_Conf_Value);
+		out << qSetFieldWidth(widths[index]) << current_String;
+		index++;
+
+		current_String = QString::number(residual,'e',3);
+		out << qSetFieldWidth(widths[index]) << current_String;
+		index++;
+		//------------------------------------------------------
+
+		// whole set of values
+		if(residuals_Set != nullptr)
+		{
+			out << qSetFieldWidth(2) <<  "(";
+			for(size_t i=0; i<residuals_Set->size(); ++i)
+			{
+				current_String = QString::number((*residuals_Set)[i],'e',3);
+				out << qSetFieldWidth(0) << current_String;
+				if(i!=residuals_Set->size()-1)
+					out << qSetFieldWidth(3) << "," <<qSetFieldWidth(2) ;
+			}
+			out << qSetFieldWidth(0) <<  ")";
+		}
+
+		//------------------------------------------------------
+		out << qSetFieldWidth(0) <<endl;
+		//------------------------------------------------------
+
+	file.close();
+	} else
+	{
+		QMessageBox::critical(nullptr, "Fitting::add_Confidence_Distribution_To_File", "Can't write file " + filename);
 		exit(EXIT_FAILURE);
 	}
 }

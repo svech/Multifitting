@@ -533,9 +533,7 @@ void Multilayer_Approach::open(QString filename)
 			in >> multilayer->enable_Calc_Independent_Curves;
 
 			// load number of independent graph rows
-			if(loaded_Version_Major>=1 &&
-			   loaded_Version_Minor>=7 &&
-			   loaded_Version_Build>=8)
+			if(Global_Variables::check_Loaded_Version(1,7,8))
 			{in >> multilayer->num_Independent_Graph_Rows;}	// since 1.7.8
 		}
 		/// target
@@ -571,9 +569,7 @@ void Multilayer_Approach::open(QString filename)
 			in >> multilayer->enable_Calc_Target_Curves;
 
 			// load number of target rows
-			if(loaded_Version_Major>=1 &&
-			   loaded_Version_Minor>=7 &&
-			   loaded_Version_Build>=8)
+			if(Global_Variables::check_Loaded_Version(1,7,8))
 			{in >> multilayer->num_Target_Rows;
 			 in >> multilayer->num_Target_Graph_Rows;}	// since 1.7.8
 		}

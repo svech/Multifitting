@@ -549,9 +549,8 @@ QDataStream& operator >>(QDataStream& stream,		 Independent_Variables* independe
 	 stream	>> independent_Variables->measurement >> independent_Variables->calc_Functions >> independent_Variables->calculated_Values
 			>> independent_Variables->tab_Name >> independent_Variables->plot_Options;
 
-	if(loaded_Version_Major>=1 &&
-	   loaded_Version_Minor>=7 &&
-	   loaded_Version_Build>=5)	{stream >> independent_Variables->argument_Type ; }	// since 1.7.5
+	if(Global_Variables::check_Loaded_Version(1,7,5))
+	{stream >> independent_Variables->argument_Type ; }	// since 1.7.5
 
 	 return stream;
 }

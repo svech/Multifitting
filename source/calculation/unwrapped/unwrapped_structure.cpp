@@ -13,8 +13,10 @@ Unwrapped_Structure::Unwrapped_Structure(const tree<Node>& calc_Tree, const Data
 	sigma_Grading	(sigma_Grading),	
 	calc_Tree		(calc_Tree)
 {
+	int depth_Threshold = 2;
+
 	// recalculate all if depth is big
-	if( max_Depth > 2 )
+	if( max_Depth > depth_Threshold )
 	{		
 		// PARAMETER
 		if(active_Parameter_Whats_This == whats_This_Wavelength )
@@ -37,15 +39,16 @@ Unwrapped_Structure::Unwrapped_Structure(const tree<Node>& calc_Tree, const Data
 		}
 	}
 	// recalculate sigmas if depth is big or sigma grading
-	if( (max_Depth > 2) || sigma_Grading )
+	if( (max_Depth > depth_Threshold) || sigma_Grading )
 	{
 		sigma.resize(num_Boundaries);
+		common_Sigma.resize(num_Boundaries);
 		boundary_Interlayer_Composition.resize(num_Boundaries, vector<Interlayer>(transition_Layer_Functions_Size));
 		fill_Sigma		(calc_Tree.begin());
 	}
 
 	// recalculate thicknesses if depth is big or depth grading
-	if( (max_Depth > 2) || depth_Grading )
+	if( (max_Depth > depth_Threshold) || depth_Grading )
 	{
 		thickness.resize(num_Layers);
 		fill_Thickness	(calc_Tree.begin());
@@ -290,31 +293,27 @@ int Unwrapped_Structure::fill_Sigma(const tree<Node>::iterator& parent, int boun
 		if(child.node->data.struct_Data.item_Type == item_Type_Layer)
 		{
 			// TODO extreme layers			
-			sigma[boundary_Index] = child.node->data.struct_Data.sigma.value;
+			sigma       [boundary_Index] = child.node->data.struct_Data.sigma.value;
+			common_Sigma[boundary_Index] = child.node->data.struct_Data.common_Sigma;
 
 			for(int func_Index=0; func_Index<transition_Layer_Functions_Size; ++func_Index)
 			{
-//				if(child.node->data.layer.interlayer_Composition[func_Index].enabled)
-				{
-					boundary_Interlayer_Composition[boundary_Index][func_Index] = child.node->data.struct_Data.interlayer_Composition[func_Index];
+				boundary_Interlayer_Composition[boundary_Index][func_Index] = child.node->data.struct_Data.interlayer_Composition[func_Index];
 
-					// can drift
-					variable_Drift(boundary_Interlayer_Composition[boundary_Index][func_Index].my_Sigma.value, child.node->data.struct_Data.sigma_Drift,	per_Index);
-				}
+				// can drift
+				variable_Drift(boundary_Interlayer_Composition[boundary_Index][func_Index].my_Sigma.value, child.node->data.struct_Data.sigma_Drift,per_Index);
 			}
 			++boundary_Index;
 		}
 		if(child.node->data.struct_Data.item_Type == item_Type_Substrate)
 		{
 			// TODO extreme layers
-			sigma[boundary_Index] = child.node->data.struct_Data.sigma.value;
+			sigma       [boundary_Index] = child.node->data.struct_Data.sigma.value;
+			common_Sigma[boundary_Index] = child.node->data.struct_Data.common_Sigma;
 
 			for(int func_Index=0; func_Index<transition_Layer_Functions_Size; ++func_Index)
 			{
-//				if(child.node->data.substrate.interlayer_Composition[func_Index].enabled)
-				{
-					boundary_Interlayer_Composition[boundary_Index][func_Index] = child.node->data.struct_Data.interlayer_Composition[func_Index];
-				}
+				boundary_Interlayer_Composition[boundary_Index][func_Index] = child.node->data.struct_Data.interlayer_Composition[func_Index];
 			}
 			++boundary_Index;
 		}

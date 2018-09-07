@@ -42,7 +42,7 @@ public:
 
 				// for GSL TRS
 					QCheckBox* GSL_randomized_Start_Check_Box;
-					QLabel* GSL_num_Runs_Label;			QLineEdit* GSL_num_Runs_Line_Edit;
+					QLabel* GSL_num_Runs_Label;			QSpinBox* GSL_num_Runs_Line_Edit;
 					QLabel* GSL_max_Iter_Label;			QLineEdit* GSL_max_Iter_Line_Edit;
 					QLabel* GSL_common_Tolerance_Label;QLineEdit* GSL_common_Tolerance_Line_Edit;
 

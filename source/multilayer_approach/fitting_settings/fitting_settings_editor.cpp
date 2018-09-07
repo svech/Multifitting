@@ -284,8 +284,11 @@ void Fitting_Settings_Editor::create_GSL_Main_Params_Group_Box()
 
 		GSL_num_Runs_Label = new QLabel("Number of runs");
 			GSL_num_Runs_Label->setEnabled(fitting_Settings->randomized_Start);
-		GSL_num_Runs_Line_Edit = new QLineEdit(QString::number(fitting_Settings->num_Runs));
-			GSL_num_Runs_Line_Edit->setValidator(new QIntValidator(0, MAX_INTEGER, this));
+		GSL_num_Runs_Line_Edit = new QSpinBox;
+			GSL_num_Runs_Line_Edit->setValue(fitting_Settings->num_Runs);
+			GSL_num_Runs_Line_Edit->setButtonSymbols(QAbstractSpinBox::NoButtons);
+			GSL_num_Runs_Line_Edit->setAccelerated(true);
+			GSL_num_Runs_Line_Edit->setRange(1, MAX_INTEGER);
 			GSL_num_Runs_Line_Edit->setEnabled(fitting_Settings->randomized_Start);
 
 		GSL_max_Iter_Label = new QLabel("Max number of iterations");
@@ -311,7 +314,7 @@ void Fitting_Settings_Editor::create_GSL_Main_Params_Group_Box()
 			GSL_num_Runs_Label->setEnabled(fitting_Settings->randomized_Start);
 			GSL_num_Runs_Line_Edit->setEnabled(fitting_Settings->randomized_Start);
 		});
-		connect(GSL_num_Runs_Line_Edit,			&QLineEdit::textChanged, fitting_Settings, [=]{fitting_Settings->num_Runs = GSL_num_Runs_Line_Edit->text().toInt();	});
+		connect(GSL_num_Runs_Line_Edit, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), fitting_Settings, [=]{fitting_Settings->num_Runs = GSL_num_Runs_Line_Edit->value();});
 		connect(GSL_max_Iter_Line_Edit,			&QLineEdit::textChanged, fitting_Settings, [=]{fitting_Settings->max_Iter = GSL_max_Iter_Line_Edit->text().toInt();	});
 		connect(GSL_common_Tolerance_Line_Edit, &QLineEdit::textChanged, fitting_Settings, [=]
 		{

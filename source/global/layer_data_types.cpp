@@ -714,9 +714,8 @@ QDataStream& operator <<( QDataStream& stream, const Data& data )
 QDataStream& operator >>( QDataStream& stream,		 Data& data )
 {
 	stream		>> data.parent_Item_Type >> data.item_Type >> data.id;
-	if( loaded_Version_Major>=1 &&
-		loaded_Version_Minor>=7 &&
-		loaded_Version_Build>=7) {stream >> data.item_Enabled; }	// since 1.7.7
+	if(Global_Variables::check_Loaded_Version(1,7,7))
+	{stream >> data.item_Enabled; }	// since 1.7.7
 
 			// Measurement
 	stream		>> data.probe_Angle >> data.cos2 >> data.angle >> data.cos2_Value >> data.angle_Value >> data.angular_Resolution >> data.angle_Type
