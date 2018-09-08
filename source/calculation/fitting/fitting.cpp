@@ -476,7 +476,7 @@ bool Fitting::confidence(const vector<double>& fitables_Pointers_Value_Backup, c
 			// randomized fit
 			{
 				vector<double> rand_Fit_Residuals(global_Multilayer_Approach->fitting_Settings->num_Runs);
-				for(int rand_Index=0; rand_Index<rand_Fit_Residuals.size(); rand_Index++)
+				for(size_t rand_Index=0; rand_Index<rand_Fit_Residuals.size(); rand_Index++)
 				{
 					randomize_Position(rand_Index); // first without randomization
 					fit_Return = run_Fitting();

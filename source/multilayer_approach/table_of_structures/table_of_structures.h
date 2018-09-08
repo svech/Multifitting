@@ -157,6 +157,7 @@ public:
 	// refresh/reload
 	QList<QList<QWidget*>>			all_Widgets_To_Reload;
 	QMultiMap<QWidget*, id_Type>	reload_Show_Dependence_Map;
+	QMap<QCheckBox*,id_Type>		check_Boxes_Fit_Map;
 
 	// disable/enable
 	QMap<QTreeWidgetItem*, QTableWidgetItem*> struct_Table_Map;

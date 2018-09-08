@@ -227,37 +227,6 @@ void Main_Calculation_Module::fitting_and_Confidence()
 			confidentials.param_Pointers[confidence_Index]->confidence.is_Active = false;
 			if(!go) return;
 		}
-
-
-//		print_Calculated_To_File();
-
-//		// replace the initial parameters
-//		QMessageBox::StandardButton reply = QMessageBox::question(nullptr,"Replace", "Fitting is done.\nDo you want to replace the parameters?",
-//																  QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
-//		if (reply == QMessageBox::Yes)
-//		{
-//			// for single fitting
-//			if(!global_Multilayer_Approach->fitting_Settings->randomized_Start)
-//			{
-//				renew_Item_Trees();
-//				add_Fit(fitted_State);
-//			}
-
-//			// it also refreshs Independent tree copies
-//			global_Multilayer_Approach->refresh_All_Multilayers_View();
-//		} else
-//		{
-//			load_Init_State_Trees();
-//		}
-
-//		// refresh table (anyway)
-//		if(global_Multilayer_Approach->runned_Tables_Of_Structures.contains(table_Key))
-//		{
-//			int active_Tab = global_Multilayer_Approach->table_Of_Structures->main_Tabs->currentIndex();
-//			global_Multilayer_Approach->table_Of_Structures->close();
-//			global_Multilayer_Approach->open_Table_Of_Structures();
-//			global_Multilayer_Approach->table_Of_Structures->main_Tabs->setCurrentIndex(active_Tab);
-//		}
 	}
 	/// --------------------------------------------------------------------------------------------------------------
 }
@@ -524,7 +493,9 @@ void Main_Calculation_Module::slaves_Expression_Iteration(Parameter* master)
 	}
 	for(int slave_Index=0; slave_Index<master->coupled.slaves.size(); ++slave_Index)
 	{
+#ifdef EXPRTK
 		Parameter_Indicator& slave_Parameter_Indicator = master->coupled.slaves[slave_Index];
+#endif
 		Parameter* slave = master->coupled.slave_Pointers[slave_Index];
 
 #ifdef EXPRTK

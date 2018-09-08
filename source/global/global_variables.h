@@ -176,6 +176,17 @@ extern QStringList size_Units_List;
 enum size_Units_List_Enum {mm};
 // -----------------------------------------------------------------------------------------
 
+extern QString fit_Color;
+extern QString white_Color;
+extern QString free_Parameter_Color;
+extern QString slave_Parameter_Color;
+extern QString master_Parameter_Color;
+extern QString master_Slave_Parameter_Color;
+extern QString confidence_Parameter_Color;
+extern QString master_Confidence_Parameter_Color;
+
+// -----------------------------------------------------------------------------------------
+
 extern Optical_Constants* optical_Constants;
 
 class Global_Variables

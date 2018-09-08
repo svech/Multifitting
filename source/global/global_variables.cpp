@@ -242,6 +242,16 @@ QStringList size_Units_List					{"mm"};				// change enum!
 
 // -----------------------------------------------------------------------------------------
 
+QString fit_Color							= "QWidget { background: rgb(255, 210, 210); }";
+QString white_Color							= "background-color: white";
+QString free_Parameter_Color				= "background-color: lightblue";
+QString slave_Parameter_Color				= "QWidget { background: rgb(255, 50,  50);  }";
+QString master_Parameter_Color				= "QWidget { background: rgb(50,  255, 50);  }";
+QString master_Slave_Parameter_Color		= "QWidget { background: rgb(255, 255, 50);  }";
+QString confidence_Parameter_Color			= "background-color: violet";
+QString master_Confidence_Parameter_Color	= "QWidget { background: rgb(170, 0,   255); }";
+
+// -----------------------------------------------------------------------------------------
 Optical_Constants* optical_Constants;
 
 Global_Variables::Global_Variables()

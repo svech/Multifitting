@@ -218,41 +218,41 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 				QLabel* slave_Label = new QLabel("pure slave");
 					slave_Label->setAlignment(Qt::AlignCenter);
 					slave_Label->setMinimumWidth(COLOR_LEGEND_LABEL_WIDTH);
-				slave_Label->setStyleSheet("QWidget { background: rgb(255, 50, 50); }");
+				slave_Label->setStyleSheet(slave_Parameter_Color);
 				new_Table->setCellWidget(current_Row,0, slave_Label);
 
 				// master and slave parameter
 				QLabel* master_Slave_Label = new QLabel("master/slave");
 					master_Slave_Label->setAlignment(Qt::AlignCenter);
 					master_Slave_Label->setMinimumWidth(COLOR_LEGEND_LABEL_WIDTH);
-				master_Slave_Label->setStyleSheet("QWidget { background: rgb(255, 255, 50); }");
+				master_Slave_Label->setStyleSheet(master_Parameter_Color);
 				new_Table->setCellWidget(current_Row+1,0, master_Slave_Label);
 
 				// master parameter
 				QLabel* master_Label = new QLabel("pure master");
 					master_Label->setAlignment(Qt::AlignCenter);
-				master_Label->setStyleSheet("QWidget { background: rgb(50, 255, 50); }");
+				master_Label->setStyleSheet(master_Slave_Parameter_Color);
 				new_Table->setCellWidget(current_Row+2,0, master_Label);
 
 				// free parameter
 				QLabel* free_Label = new QLabel("free parameter");
 					free_Label->setAlignment(Qt::AlignCenter);
 					free_Label->setMinimumWidth(COLOR_LEGEND_LABEL_WIDTH);
-				free_Label->setStyleSheet("background-color: lightblue");
+				free_Label->setStyleSheet(free_Parameter_Color);
 				new_Table->setCellWidget(current_Row,1, free_Label);
 
 				// confidence parameter
 				QLabel* confidence_Label = new QLabel("confidence interval");
 					confidence_Label->setAlignment(Qt::AlignCenter);
 					confidence_Label->setMinimumWidth(COLOR_LEGEND_LABEL_WIDTH);
-				confidence_Label->setStyleSheet("background-color: violet");
+				confidence_Label->setStyleSheet(confidence_Parameter_Color);
 				new_Table->setCellWidget(current_Row+1,1, confidence_Label);
 
 				// confidence master parameter
 				QLabel* confidence_Master_Label = new QLabel("master/confidence");
 					confidence_Master_Label->setAlignment(Qt::AlignCenter);
 					confidence_Master_Label->setMinimumWidth(COLOR_LEGEND_LABEL_WIDTH);
-				confidence_Master_Label->setStyleSheet("QWidget { background: rgb(170, 0, 255); }");
+				confidence_Master_Label->setStyleSheet(master_Confidence_Parameter_Color);
 				new_Table->setCellWidget(current_Row+2,1, confidence_Master_Label);
 			}
 
@@ -673,30 +673,40 @@ void Table_Of_Structures::refresh_Reload_Colorize(QString refresh_Reload, QWidge
 		if(!parameter->coupled.master.exist && parameter->coupled.slaves.size()==0)
 		{
 			if(back_Widget->property(fit_Text).toString() == fit_Text)
-				back_Widget->setStyleSheet("background-color: white");
+			{
+				if(parameter->fit.is_Fitable)
+					back_Widget->setStyleSheet(fit_Color);
+				else
+					back_Widget->setStyleSheet(white_Color);
+			}
 			else
-				back_Widget->setStyleSheet("background-color: lightblue");
+				back_Widget->setStyleSheet(free_Parameter_Color);
 		}
 
 		// has master only
 		if(parameter->coupled.master.exist && parameter->coupled.slaves.size()==0)
-			back_Widget->setStyleSheet("QWidget { background: rgb(255, 50, 50); }");
+			back_Widget->setStyleSheet(slave_Parameter_Color);
 
 		// has slaves only
 		if(!parameter->coupled.master.exist && parameter->coupled.slaves.size()>0)
-			back_Widget->setStyleSheet("QWidget { background: rgb(50, 255, 50); }");
+			back_Widget->setStyleSheet(master_Parameter_Color);
 
 		// has both
 		if(parameter->coupled.master.exist && parameter->coupled.slaves.size()>0)
-			back_Widget->setStyleSheet("QWidget { background: rgb(255, 255, 50); }");
+			back_Widget->setStyleSheet(master_Slave_Parameter_Color);
 
 		// confidence interval. if has no slaves
 		if(parameter->confidence.calc_Conf_Interval && parameter->coupled.slaves.size()==0)
-			back_Widget->setStyleSheet("background-color: violet");
+			back_Widget->setStyleSheet(confidence_Parameter_Color);
 
 		// confidence interval. if has slaves
 		if(parameter->confidence.calc_Conf_Interval && parameter->coupled.slaves.size()>0)
-			back_Widget->setStyleSheet("QWidget { background: rgb(170, 0, 255); }");
+			back_Widget->setStyleSheet(master_Confidence_Parameter_Color);
+
+		// colorize fit
+		QCheckBox* fit_Check_Box = check_Boxes_Fit_Map.key(parameter->indicator.id);
+		if(fit_Check_Box)
+			fit_Check_Box->toggled(fit_Check_Box->isChecked());
 	}
 }
 
@@ -1088,6 +1098,7 @@ void Table_Of_Structures::create_Stoich_Check_Box_Fit(My_Table_Widget* table, in
 		check_Box->setProperty(tab_Index_Property, tab_Index);
 
 		// storage
+		check_Boxes_Fit_Map.	   insert	   (check_Box, comp.indicator.id); // here duplicated by reload_Show_Dependence_Map
 		check_Boxes_Map.		   insert      (check_Box, structure_Item);
 		reload_Show_Dependence_Map.insertMulti (check_Box, comp.indicator.id);
 		all_Widgets_To_Reload[tab_Index].append(check_Box);
@@ -1109,7 +1120,28 @@ void Table_Of_Structures::create_Stoich_Check_Box_Fit(My_Table_Widget* table, in
 		table->setCellWidget(current_Row, current_Column, back_Widget);
 
 		connect(check_Box, &QCheckBox::toggled, this, &Table_Of_Structures::refresh_Fit_Element);
-		connect(check_Box, &QCheckBox::toggled, this, [=]{cells_On_Off(table); });
+		connect(check_Box, &QCheckBox::toggled, this, [=]
+		{
+			cells_On_Off(table);
+
+			// colorizing working fits
+			QTreeWidgetItem* item = check_Boxes_Map.value(check_Box);
+			Data data = item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+			Parameter& com = data.composition[composition_Index].composition;
+
+			if( !com.coupled.master.exist &&
+				 com.coupled.slaves.size()==0 &&
+				!com.confidence.calc_Conf_Interval)
+			{
+				if(com.fit.is_Fitable)
+				{
+					back_Widget->setStyleSheet(fit_Color);
+				} else
+				{
+					back_Widget->setStyleSheet(white_Color);
+				}
+			}
+		});
 
 		check_Box->setChecked(comp.fit.is_Fitable);
 
@@ -1479,6 +1511,7 @@ void Table_Of_Structures::create_Check_Box_Fit(My_Table_Widget* table, int tab_I
 	check_Box->setProperty(tab_Index_Property, tab_Index);
 
 	// storage
+	check_Boxes_Fit_Map.	   insert	   (check_Box, parameter.indicator.id);
 	check_Boxes_Map.		   insert	   (check_Box, structure_Item);
 	reload_Show_Dependence_Map.insertMulti (check_Box, parameter.indicator.id);
 	all_Widgets_To_Reload[tab_Index].append(check_Box);
@@ -1507,7 +1540,89 @@ void Table_Of_Structures::create_Check_Box_Fit(My_Table_Widget* table, int tab_I
 	table->setCellWidget(current_Row, current_Column, back_Widget);
 
 	connect(check_Box, &QCheckBox::toggled, this, &Table_Of_Structures::refresh_Fit_Parameter);
-	connect(check_Box, &QCheckBox::toggled, this, [=]{cells_On_Off(table);});
+	connect(check_Box, &QCheckBox::toggled, this, [=]
+	{
+		cells_On_Off(table);
+
+		// colorizing working fits
+		QTreeWidgetItem* item = check_Boxes_Map.value(check_Box);
+		Data data = item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+		Parameter& param = get_Parameter(data, whats_This);
+
+		if(param.fit.is_Fitable && !param.coupled.master.exist)
+		{
+			// for all params
+			if(	(param.indicator.whats_This != whats_This_Thickness_Drift_Line_Value	) &&
+				(param.indicator.whats_This != whats_This_Thickness_Drift_Rand_Rms		) &&
+				(param.indicator.whats_This != whats_This_Thickness_Drift_Sine_Amplitude) &&
+				(param.indicator.whats_This != whats_This_Thickness_Drift_Sine_Frequency) &&
+				(param.indicator.whats_This != whats_This_Thickness_Drift_Sine_Phase	) &&
+
+				(param.indicator.whats_This != whats_This_Sigma_Drift_Line_Value		) &&
+				(param.indicator.whats_This != whats_This_Sigma_Drift_Rand_Rms			) &&
+				(param.indicator.whats_This != whats_This_Sigma_Drift_Sine_Amplitude	) &&
+				(param.indicator.whats_This != whats_This_Sigma_Drift_Sine_Frequency	) &&
+				(param.indicator.whats_This != whats_This_Sigma_Drift_Sine_Phase		)
+			  )
+			{
+				back_Widget->setStyleSheet(fit_Color);
+			} else
+			// special cases
+			{
+				if(	(param.indicator.whats_This == whats_This_Thickness_Drift_Line_Value	&& data.thickness_Drift.is_Drift_Line) ||
+					(param.indicator.whats_This == whats_This_Thickness_Drift_Rand_Rms		&& data.thickness_Drift.is_Drift_Rand) ||
+
+					(param.indicator.whats_This == whats_This_Sigma_Drift_Line_Value		&& data.sigma_Drift.is_Drift_Line)	   ||
+					(param.indicator.whats_This == whats_This_Sigma_Drift_Rand_Rms			&& data.sigma_Drift.is_Drift_Rand)
+				  )
+				{
+					back_Widget->setStyleSheet(fit_Color);
+				} else
+				{
+					if(	(param.indicator.whats_This == whats_This_Thickness_Drift_Sine_Amplitude&& data.thickness_Drift.is_Drift_Sine) ||
+						(param.indicator.whats_This == whats_This_Thickness_Drift_Sine_Frequency&& data.thickness_Drift.is_Drift_Sine) ||
+						(param.indicator.whats_This == whats_This_Thickness_Drift_Sine_Phase	&& data.thickness_Drift.is_Drift_Sine) ||
+
+						(param.indicator.whats_This == whats_This_Sigma_Drift_Sine_Amplitude	&& data.sigma_Drift.is_Drift_Sine) ||
+						(param.indicator.whats_This == whats_This_Sigma_Drift_Sine_Frequency	&& data.sigma_Drift.is_Drift_Sine) ||
+						(param.indicator.whats_This == whats_This_Sigma_Drift_Sine_Phase		&& data.sigma_Drift.is_Drift_Sine)
+					  )
+					{
+						if(	!param.coupled.master.exist &&
+							 param.coupled.slaves.size()==0 &&
+							!param.confidence.calc_Conf_Interval)
+						{
+							back_Widget->setStyleSheet(fit_Color);
+						}
+					} else
+					{
+						if(	!param.coupled.master.exist &&
+							 param.coupled.slaves.size()==0 &&
+							!param.confidence.calc_Conf_Interval)
+						{
+							back_Widget->setStyleSheet(white_Color);
+						}
+					}
+				}
+			}
+		} else
+		{
+			// special cases
+			if(back_Widget->property(fit_Text).toString() == fit_Text)
+			{
+				if(	!param.coupled.master.exist &&
+					 param.coupled.slaves.size()==0 &&
+					!param.confidence.calc_Conf_Interval)
+				{
+					back_Widget->setStyleSheet(white_Color);
+				}
+			} else
+			// all parameters
+			{
+				back_Widget->setStyleSheet(white_Color);
+			}
+		}
+	});
 
 	check_Box->setChecked(parameter.fit.is_Fitable);
 }
@@ -1584,7 +1699,18 @@ void Table_Of_Structures::create_Check_Box_Label_Interlayer(My_Table_Widget* tab
 		table->setCellWidget(current_Row, current_Column, back_Widget);
 
 		connect(check_Box, &QCheckBox::toggled, this, &Table_Of_Structures::refresh_Check_Box_Label_Interlayer);
-		connect(check_Box, &QCheckBox::toggled, this, [=]{cells_On_Off(table); });
+		connect(check_Box, &QCheckBox::toggled, this, [=]
+		{
+			cells_On_Off(table);
+
+			// colorizing working fits
+			QTreeWidgetItem* item = check_Boxes_Map.value(check_Box);
+			Data data = item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+			Interlayer& inter_Com = data.interlayer_Composition[interlayer_Index];
+			QCheckBox* fit_Check = check_Boxes_Fit_Map.key(inter_Com.interlayer.indicator.id);
+			if(fit_Check)
+				fit_Check->toggled(fit_Check->isChecked());
+		});
 		connect(check_Box, &QCheckBox::toggled, this, [=]{cells_On_Off_2(table, structure_Item); });
 
 		current_Column+=TABLE_COLUMN_INTERLAYERS_SHIFT;
@@ -1657,6 +1783,7 @@ void Table_Of_Structures::create_Weights_Check_Box_Fit_Interlayer(My_Table_Widge
 		check_Box->setProperty(tab_Index_Property, tab_Index);
 
 		// storage
+		check_Boxes_Fit_Map.			 insert(check_Box, inter_Comp.interlayer.indicator.id);
 		check_Boxes_Map.				 insert(check_Box, structure_Item);
 		all_Widgets_To_Reload[tab_Index].append(check_Box);
 
@@ -1673,6 +1800,21 @@ void Table_Of_Structures::create_Weights_Check_Box_Fit_Interlayer(My_Table_Widge
 		table->setCellWidget(current_Row, current_Column, back_Widget);
 
 		connect(check_Box, &QCheckBox::toggled, this, &Table_Of_Structures::refresh_Weights_Check_Box_Fit_Interlayer);
+		connect(check_Box, &QCheckBox::toggled, this, [=]
+		{
+			// colorizing working fits
+			QTreeWidgetItem* item = check_Boxes_Map.value(check_Box);
+			Data data = item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+			Interlayer& inter_Com = data.interlayer_Composition[interlayer_Index];
+
+			if(inter_Com.interlayer.fit.is_Fitable && inter_Com.enabled)
+			{
+				back_Widget->setStyleSheet(fit_Color);
+			} else
+			{
+				back_Widget->setStyleSheet(white_Color);
+			}
+		});
 
 		current_Column+=TABLE_COLUMN_ELEMENTS_SHIFT;
 	}
@@ -2828,7 +2970,7 @@ void Table_Of_Structures::reload_Related_Widgets(QObject* sender)
 					}
 					if(check_Box)
 					{
-						check_Box->toggled(false);
+						check_Box->toggled(check_Box->isChecked());
 					}
 					if(line_Edit)
 					{
