@@ -110,8 +110,8 @@ SOURCES += \
     multilayer_approach/multilayer/target_curve/target_curve_editor.cpp \
     multilayer_approach/multilayer/multilayer.cpp \
     multilayer_approach/table_of_structures/coupling_editor.cpp \
-    multilayer_approach/table_of_structures/confidence_interval_editor.cpp \
-    multilayer_approach/table_of_structures/my_table_widget.cpp \
+	multilayer_approach/table_of_structures/confidence_interval_editor.cpp \
+	multilayer_approach/table_of_structures/my_table_widget.cpp \
     multilayer_approach/table_of_structures/table_of_structures.cpp \
     multilayer_approach/multilayer_approach.cpp \
 	standard/menu.cpp \
@@ -152,8 +152,8 @@ HEADERS += \
     multilayer_approach/multilayer/target_curve/target_curve_editor.h \
     multilayer_approach/multilayer/multilayer.h \
     multilayer_approach/table_of_structures/coupling_editor.h \
-    multilayer_approach/table_of_structures/confidence_interval_editor.h \
-    multilayer_approach/table_of_structures/my_table_widget.h \
+	multilayer_approach/table_of_structures/confidence_interval_editor.h \
+	multilayer_approach/table_of_structures/my_table_widget.h \
     multilayer_approach/table_of_structures/table_of_structures.h \
     multilayer_approach/multilayer_approach.h \
     standard/menu.h \

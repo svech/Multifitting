@@ -254,6 +254,13 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 					confidence_Master_Label->setMinimumWidth(COLOR_LEGEND_LABEL_WIDTH);
 				confidence_Master_Label->setStyleSheet(master_Confidence_Parameter_Color);
 				new_Table->setCellWidget(current_Row+2,1, confidence_Master_Label);
+
+				// active fit
+				QLabel* fit_Label = new QLabel("active fit");
+					fit_Label->setAlignment(Qt::AlignCenter);
+					fit_Label->setMinimumWidth(TABLE_FIX_WIDTH_LINE_EDIT_LONG);
+				fit_Label->setStyleSheet(fit_Color);
+				new_Table->setCellWidget(current_Row,2, fit_Label);
 			}
 
 			// density min/max

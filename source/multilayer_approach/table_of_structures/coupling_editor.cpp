@@ -53,15 +53,13 @@ void Coupling_Editor::closeEvent(QCloseEvent *)
 void Coupling_Editor::set_Window_Geometry()
 {
 	adjustSize();
-//	setFixedHeight(height());
-//	setFixedSize(size());
 }
 
 void Coupling_Editor::create_Main_Layout()
 {
 	main_Layout = new QVBoxLayout(this);
 		main_Layout->setSpacing(0);
-		main_Layout->setContentsMargins(4,0,4,0);
+		main_Layout->setContentsMargins(4,4,4,0);
 
 	// buttons
 	QHBoxLayout* button_Layout = new QHBoxLayout;
@@ -76,19 +74,18 @@ void Coupling_Editor::create_Main_Layout()
 
 		connect ( done_Button,		 &QPushButton::clicked, this, &Coupling_Editor::close);
 	}
+
+	create_Confidence_Interval_Box();
+		main_Layout->addWidget(confidence_Interval_Editor);
+
+	// period and gamma can't be connected
+	if(coupled_Parameter->indicator.whats_This != whats_This_Gamma && coupled_Parameter->indicator.whats_This != whats_This_Period)
 	{
-		confidence_Button = new QPushButton("Confidence Interval");
-			confidence_Button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-			confidence_Button->setToolTip("Should have no master");
-		button_Layout->addWidget(confidence_Button,0,Qt::AlignRight);
-
-		connect ( confidence_Button, &QPushButton::clicked, this, [=]{open_Confidence_Interval_Editor();});
+		create_Master_Box();
+			main_Layout->addWidget(master_Group_Box);
+		create_Slave_Box();
+			main_Layout->addWidget(slave_Group_Box);
 	}
-
-	create_Master_Box();
-		main_Layout->addWidget(master_Group_Box);
-	create_Slave_Box();
-		main_Layout->addWidget(slave_Group_Box);
 
 	main_Layout->addLayout(button_Layout);
 
@@ -100,6 +97,11 @@ void Coupling_Editor::create_Main_Layout()
 		My_Table_Widget* table = qobject_cast<My_Table_Widget*>(table_Of_Structures->main_Tabs->widget(tab_Index));
 		table->setContextMenuPolicy(Qt::CustomContextMenu);
 	}
+}
+
+void Coupling_Editor::create_Confidence_Interval_Box()
+{
+	confidence_Interval_Editor = new Confidence_Interval_Editor(this);
 }
 
 void Coupling_Editor::create_Master_Box()
@@ -147,7 +149,7 @@ void Coupling_Editor::remove_Master()
 
 	master_Label->setText(no_Master_Text);
 	master_Widget = nullptr;
-	confidence_Button->setEnabled(true);
+	confidence_Interval_Editor->setEnabled(true);
 }
 
 void Coupling_Editor::load_Master()
@@ -182,7 +184,8 @@ void Coupling_Editor::load_Master()
 				master_Label->setText("<"+table_Of_Structures->main_Tabs->tabText(old_Master_Parameter->indicator.tab_Index)+"> "+old_Master_Parameter->indicator.full_Name);
 				loaded = true;
 //				qInfo() << "loaded 1 master";
-				confidence_Button->setEnabled(false);
+
+				confidence_Interval_Editor->setEnabled(false);
 			}
 		}
 	}
@@ -190,7 +193,7 @@ void Coupling_Editor::load_Master()
 	{
 		remove_Master();
 //		qInfo() << "loaded 0 masters";
-		confidence_Button->setEnabled(true);
+		confidence_Interval_Editor->setEnabled(true);
 	}
 }
 
@@ -401,6 +404,29 @@ void Coupling_Editor::save_External_Slaves()
 			Data slave_Struct_Data = slave_Struct_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
 			Parameter* slave_Parameter = Global_Variables::get_Parameter_From_Struct_Item_by_Id(slave_Struct_Data, slave_Id);
 
+			// old masters on current slaves should remove these slaves from their lists
+			if(slave_Parameter->coupled.master.exist && slave_Parameter->coupled.master.id!=coupled_Parameter->indicator.id)
+			{
+				QWidget* ex_Master_Widget = table_Of_Structures->coupled_Back_Widget_and_Id.key(slave_Parameter->coupled.master.id);
+				if(ex_Master_Widget) // should exist
+				{
+					QTreeWidgetItem* ex_Master_Struct_Item = table_Of_Structures->coupled_Back_Widget_and_Struct_Item.value(ex_Master_Widget);
+					Data ex_Master_Struct_Data = ex_Master_Struct_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+					Parameter* ex_Master_Parameter = Global_Variables::get_Parameter_From_Struct_Item_by_Id(ex_Master_Struct_Data, slave_Parameter->coupled.master.id);
+
+					int my_Index_in_Ex_Master = ex_Master_Parameter->coupled.slaves.indexOf(slave_Parameter->indicator);
+					if(my_Index_in_Ex_Master>=0)
+					{
+						ex_Master_Parameter->coupled.slaves.removeAt(my_Index_in_Ex_Master);
+						table_Of_Structures->refresh_Reload_Colorize(refresh_Property, ex_Master_Widget, ex_Master_Parameter);
+					}
+				} else
+				{
+					QMessageBox::warning(nullptr, "Coupling_Editor::save_External_Slaves", "ex_Master_Widget"+slave_Parameter->coupled.master.full_Name+"dont exist");
+					qInfo() << "Coupling_Editor::save_External_Slaves  :  ex_Master_Widget" << slave_Parameter->coupled.master.full_Name << "dont exist";
+				} // to be sure
+			}
+
 			slave_Parameter->coupled.master = coupled_Parameter->indicator;
 			slave_Parameter->coupled.master.exist = true;
 			slave_Parameter->coupled.master.expression = coupled_Parameter->coupled.slaves[index].expression;
@@ -513,7 +539,7 @@ void Coupling_Editor::get_Parameter(QLabel* label)
 			// master's side
 			master_Widget = widget;					// remember widget. data will be saved at close->
 			label->setText("<"+table_Of_Structures->main_Tabs->tabText(widget_Parameter->indicator.tab_Index)+"> "+widget_Parameter->indicator.full_Name/* + " " + QString::number(parameter->indicator.id)*/);
-			confidence_Button->setEnabled(false);
+			confidence_Interval_Editor->setEnabled(false);
 		} else
 		// set slave
 		{
@@ -546,12 +572,3 @@ void Coupling_Editor::get_Parameter(QLabel* label)
 //		qInfo() << "parameter id = " << parameter->indicator.id << "\n" << main_Tabs->tabText(parameter->indicator.tab_Index) << " " << parameter->indicator.full_Name << endl;
 	}
 }
-
-void Coupling_Editor::open_Confidence_Interval_Editor()
-{
-	hide();
-	adjustSize();
-	confidence_Interval_Editor = new Confidence_Interval_Editor(this);
-		confidence_Interval_Editor->show();
-}
-

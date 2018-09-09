@@ -5,7 +5,7 @@
 
 class Coupling_Editor;
 
-class Confidence_Interval_Editor : public QWidget
+class Confidence_Interval_Editor : public QGroupBox
 {
 	Q_OBJECT
 	Q_INVOKABLE void adjustSize() { QWidget::adjustSize(); }
@@ -13,10 +13,8 @@ public:
 	explicit Confidence_Interval_Editor(Coupling_Editor* coupling_Editor, QWidget *parent = nullptr);
 
 	void closeEvent(QCloseEvent*);
-	void set_Window_Geometry();
-	void create_Main_Layout();
-		void create_Group_Box();
-		void refresh_Show_Data(bool show = false);
+	void create_Content();
+	void refresh_Show_Data(bool show = false);
 
 	Coupling_Editor* coupling_Editor;
 
@@ -27,20 +25,16 @@ public:
 	QString units = "";
 
 
-	QVBoxLayout* main_Layout;
-		QGroupBox* main_GroupBox;
-			QVBoxLayout* groupBox_Layout;
-				QSpinBox* num_Points;
-				QLabel* from_Label;
-				QLineEdit* min_Edit;
-				QLabel* to_Label;
-				QLineEdit* max_Edit;
-				QLabel* units_Label;
-				QLabel* step_Label;
-				QLineEdit* step_Edit;
-				QLabel* step_Units_Label;
-
-	QPushButton* done_Button;
+	QVBoxLayout* groupBox_Layout;
+		QSpinBox* num_Points;
+		QLabel* from_Label;
+		QLineEdit* min_Edit;
+		QLabel* to_Label;
+		QLineEdit* max_Edit;
+		QLabel* units_Label;
+		QLabel* step_Label;
+		QLineEdit* step_Edit;
+		QLabel* step_Units_Label;
 };
 
 #endif // CONFIDENCE_INTERVAL_EDITOR_H

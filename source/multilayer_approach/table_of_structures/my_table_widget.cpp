@@ -53,22 +53,7 @@ void My_Table_Widget::contextMenuEvent(QContextMenuEvent *event)
 void My_Table_Widget::open_Coupling_Editor(QWidget* coupling_Widget)
 {
 	Coupling_Editor* new_Coupling_Editor = new Coupling_Editor(coupling_Widget, table_Of_Structures, this);
-
-	// special cases
-	id_Type coupled_Id = table_Of_Structures->coupled_Back_Widget_and_Id.value(coupling_Widget);
-	QTreeWidgetItem* struct_Item = table_Of_Structures->coupled_Back_Widget_and_Struct_Item.value(coupling_Widget);
-	Data struct_Data = struct_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
-	Parameter* coupled_Parameter = Global_Variables::get_Parameter_From_Struct_Item_by_Id(struct_Data, coupled_Id);
-
-	// period and gamma can't be connected
-	if(coupled_Parameter->indicator.whats_This == whats_This_Gamma || coupled_Parameter->indicator.whats_This == whats_This_Period)
-	{
-		new_Coupling_Editor->open_Confidence_Interval_Editor();
-		new_Coupling_Editor->confidence_Interval_Editor->move(table_Of_Structures->geometry().center());
-	} else
-	{
 		new_Coupling_Editor->show();
-	}
 }
 
 QWidget* My_Table_Widget::get_Cell_Widget()

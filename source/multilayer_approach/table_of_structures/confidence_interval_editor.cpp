@@ -2,15 +2,18 @@
 
 Confidence_Interval_Editor::Confidence_Interval_Editor(Coupling_Editor* coupling_Editor, QWidget *parent) :
 	coupling_Editor(coupling_Editor),
-	QWidget(parent)
+	QGroupBox(parent)
 {
-	create_Main_Layout();
+	setTitle("Calculate Confidence Interval");
+	setCheckable(true);
+	setObjectName("global_Group_Box");
+	setStyleSheet("QGroupBox#global_Group_Box { border-radius: 2px;  border: 1px solid gray; margin-top: 2ex;}"
+						   "QGroupBox::title { subcontrol-origin: margin;	left: 9px; padding: 0 0px 0 1px;}");
 
-	setWindowTitle("Confidence Interval");
-	set_Window_Geometry();
+	setChecked(coupling_Editor->coupled_Parameter->confidence.calc_Conf_Interval);
+	connect(this, &Confidence_Interval_Editor::toggled, this, [=]{coupling_Editor->coupled_Parameter->confidence.calc_Conf_Interval = isChecked();});
 
-	setWindowModality(Qt::ApplicationModal);
-	setAttribute(Qt::WA_DeleteOnClose);
+	create_Content();
 }
 
 void Confidence_Interval_Editor::closeEvent(QCloseEvent*)
@@ -18,48 +21,11 @@ void Confidence_Interval_Editor::closeEvent(QCloseEvent*)
 	coupling_Editor->close();
 }
 
-void Confidence_Interval_Editor::set_Window_Geometry()
+void Confidence_Interval_Editor::create_Content()
 {
-	move(coupling_Editor->pos());
-	adjustSize();
-	setFixedSize(size());
-}
-
-void Confidence_Interval_Editor::create_Main_Layout()
-{
-	main_Layout = new QVBoxLayout(this);
-		main_Layout->setSpacing(0);
-		main_Layout->setContentsMargins(4,4,4,0);
-
-	create_Group_Box();
-
-	{
-		done_Button = new QPushButton("Done");
-			done_Button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-			done_Button->setFocus();
-			done_Button->setDefault(true);
-		main_Layout->addWidget(done_Button,0,Qt::AlignCenter);
-
-		connect(done_Button, &QPushButton::clicked, this, &Independent_Variables_Editor::close);
-	}
-}
-
-void Confidence_Interval_Editor::create_Group_Box()
-{
-	main_GroupBox = new QGroupBox("Calculate Confidence Interval");
-		main_GroupBox->setCheckable(true);
-		main_GroupBox->setObjectName("global_Group_Box");
-		main_GroupBox->setStyleSheet("QGroupBox#global_Group_Box { border-radius: 2px;  border: 1px solid gray; margin-top: 2ex;}"
-											   "QGroupBox::title { subcontrol-origin: margin;	left: 9px; padding: 0 0px 0 1px;}");
-		main_GroupBox->setChecked(coupling_Editor->coupled_Parameter->confidence.calc_Conf_Interval);
-
-	connect(main_GroupBox, &QGroupBox::toggled, this, [=]{coupling_Editor->coupled_Parameter->confidence.calc_Conf_Interval = main_GroupBox->isChecked();});
-	main_Layout->addWidget(main_GroupBox);
-
 	// create content
-	groupBox_Layout = new QVBoxLayout(main_GroupBox);
-		groupBox_Layout->setAlignment(Qt::AlignLeft);
-		groupBox_Layout->setContentsMargins(5,15,5,5);
+	groupBox_Layout = new QVBoxLayout(this);
+		groupBox_Layout->setContentsMargins(5,10,5,5);
 
 	QHBoxLayout* layout = new QHBoxLayout;
 	groupBox_Layout->addLayout(layout);
@@ -72,7 +38,7 @@ void Confidence_Interval_Editor::create_Group_Box()
 			num_Points->setRange(MIN_CONFIDENCE_POINTS, MAX_INTEGER);
 			num_Points->setAccelerated(true);
 			num_Points->setButtonSymbols(QAbstractSpinBox::NoButtons);
-		layout->addWidget(num_Points);
+		layout->addWidget(num_Points,0,Qt::AlignLeft);
 	}
 	{
 		from_Label = new QLabel(from_Text);
@@ -82,27 +48,27 @@ void Confidence_Interval_Editor::create_Group_Box()
 			min_Edit->setFixedWidth(40);
 			min_Edit->setProperty(min_Size_Property, 40);
 			min_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION, this));
-		layout->addWidget(min_Edit);
+		layout->addWidget(min_Edit,0,Qt::AlignLeft);
 	}
 	{
 		to_Label = new QLabel(to_Text);
-		layout->addWidget(to_Label);
+		layout->addWidget(to_Label,0,Qt::AlignLeft);
 
 		max_Edit = new QLineEdit;
 			max_Edit->setFixedWidth(40);
 			max_Edit->setProperty(min_Size_Property, 40);
 			max_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION, this));
 			max_Edit->setSizePolicy(sp_retain);
-		layout->addWidget(max_Edit);
+		layout->addWidget(max_Edit),0,Qt::AlignLeft;
 	}
 
 	units_Label = new QLabel(units);
 		units_Label->setSizePolicy(sp_retain);
-	layout->addWidget(units_Label);
+	layout->addWidget(units_Label,0,Qt::AlignLeft);
 
 	step_Label = new QLabel(step_Text);
 		step_Label->setSizePolicy(sp_retain);
-	layout->addWidget(step_Label);
+	layout->addWidget(step_Label,0,Qt::AlignLeft);
 
 	step_Edit = new QLineEdit;
 		step_Edit->setFixedWidth(40);
@@ -110,11 +76,11 @@ void Confidence_Interval_Editor::create_Group_Box()
 		step_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION, this));
 		step_Edit->setSizePolicy(sp_retain);
 		step_Edit->setReadOnly(true);
-	layout->addWidget(step_Edit);
+	layout->addWidget(step_Edit,0,Qt::AlignLeft);
 
 	step_Units_Label = new QLabel(units);
 		step_Units_Label->setSizePolicy(sp_retain);
-	layout->addWidget(step_Units_Label);
+	layout->addWidget(step_Units_Label,0,Qt::AlignLeft);
 
 	refresh_Show_Data(true);
 
@@ -161,9 +127,6 @@ void Confidence_Interval_Editor::refresh_Show_Data(bool show)
 			if(parameter->indicator.id == coupling_Editor->struct_Data.interlayer_Composition[i].my_Sigma.indicator.id)	index = i;
 		}
 	}
-
-	QString name = Global_Variables::parameter_Name(coupling_Editor->struct_Data, parameter->indicator.whats_This, index);
-	main_GroupBox->setTitle(name);
 
 	units_Label->setText(units);
 	step_Units_Label->setText(units);

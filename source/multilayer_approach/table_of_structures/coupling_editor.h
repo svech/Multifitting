@@ -12,6 +12,7 @@ class Confidence_Interval_Editor;
 class Coupling_Editor : public QDialog
 {
 	Q_OBJECT
+	Q_INVOKABLE void adjustSize() { QWidget::adjustSize(); }
 public:
 	explicit Coupling_Editor(QWidget* coupled_Widget,
 							 Table_Of_Structures* table_Of_Structures,
@@ -21,6 +22,7 @@ public:
 	void set_Window_Geometry();
 	void create_Main_Layout();
 
+	void create_Confidence_Interval_Box();
 	void create_Master_Box();
 		void remove_Master();
 		void load_Master();
@@ -35,8 +37,6 @@ public:
 
 	void enable_Getting_Parameter(QWidget* old, QWidget* now, QLabel* label, QLineEdit* line_Edit);
 	void get_Parameter(QLabel* label);
-
-	void open_Confidence_Interval_Editor();
 
 	Confidence_Interval_Editor* confidence_Interval_Editor;
 
@@ -66,7 +66,6 @@ public:
 			QVector<Parameter_Indicator> old_Slaves;
 
 	QPushButton* done_Button;
-	QPushButton* confidence_Button;
 
 	QString no_Master_Text = ".........<no master>.........";
 	QString no_Slave_Text  = ".........<no slave>..........";
