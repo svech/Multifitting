@@ -302,7 +302,7 @@ void Fitting::fill_Residual(Fitting_Params* params, int& residual_Shift, Data_El
 
 			// fill
 //			gsl_vector_set(f, residual_Shift+point_Index, factor*(fi_1-fi_2));
-			gsl_vector_set(f, residual_Shift+point_Index, factor*(fi_1-fi_2)*sqrt(fi_1*target_Curve->curve.beam_Intensity)	   );
+			gsl_vector_set(f, residual_Shift+point_Index, factor*(fi_1-fi_2)*sqrt(target_Curve->curve.beam_Intensity/fi_2)   );
 		}
 		residual_Shift += N;
 	} else
