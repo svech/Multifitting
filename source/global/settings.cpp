@@ -370,7 +370,7 @@ void Settings::read_Structure_Default_Values(bool reset_to_default)
 		dispersion = structure_Default_Values.value( "dispersion",	0.5 ).toDouble();
 		sigma_Dispersion_Min = structure_Default_Values.value( "sigma_Dispersion_Min",	0 ).toDouble();
 		sigma_Dispersion_Max = structure_Default_Values.value( "sigma_Dispersion_Max",	2 ).toDouble();
-		default_num_confidence_points = structure_Default_Values.value( "default_num_confidence_points",	30 ).toInt();
+		default_num_confidence_points = structure_Default_Values.value( "default_num_confidence_points",	5 ).toInt();
 
 			structure_Default_Values.beginGroup( Ambient_Values );
 				ambient_default_material				  = structure_Default_Values.value( "ambient_default_material",				    "Al"	).toString();

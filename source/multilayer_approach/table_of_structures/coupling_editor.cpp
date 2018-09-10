@@ -70,7 +70,7 @@ void Coupling_Editor::create_Main_Layout()
 			done_Button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 			done_Button->setFocus();
 			done_Button->setDefault(true);
-		button_Layout->addWidget(done_Button,0,Qt::AlignRight);
+		button_Layout->addWidget(done_Button,0,Qt::AlignCenter);
 
 		connect ( done_Button,		 &QPushButton::clicked, this, &Coupling_Editor::close);
 	}
