@@ -134,13 +134,15 @@ void Confidence_Interval_Editor::refresh_Show_Data(bool show)
 	// show data
 	if(show)
 	{
-		num_Points->setValue(parameter->confidence.num_Points);
 		min_Edit->setText(QString::number(parameter->confidence.min/coeff,line_edit_double_format,line_edit_precision));
 		max_Edit->setText(QString::number(parameter->confidence.max/coeff,line_edit_double_format,line_edit_precision));
 
-		Global_Variables::resize_Line_Edit(num_Points);
 		Global_Variables::resize_Line_Edit(min_Edit);
 		Global_Variables::resize_Line_Edit(max_Edit);
+
+		// LAST! causes refresh
+		num_Points->setValue(parameter->confidence.num_Points);
+		Global_Variables::resize_Line_Edit(num_Points);
 	} else
 	// refresh data
 	{
@@ -159,7 +161,7 @@ void Confidence_Interval_Editor::refresh_Show_Data(bool show)
 			}
 		}
 
-		parameter->confidence.num_Points = num_Points->text().toInt();
+		parameter->confidence.num_Points = num_Points->value();
 		parameter->confidence.min = min_Edit->text().toDouble()*coeff;
 		parameter->confidence.max = max_Edit->text().toDouble()*coeff;
 	}

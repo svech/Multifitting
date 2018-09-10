@@ -130,6 +130,7 @@ class Node;
 #define Double_Prime_Sym		QString(QChar(0x2033))
 #define Medium_BlackCircle_Sym	QString(QChar(0x26AB))
 #define Plus_Minus_Sym			QString(QChar(0x00B1))
+#define Minus_Sym				QString(QChar(0x2212))
 #define More_Sym				QString(QChar(0x00E9))
 #define Proportional_Sym		QString(QChar(0x221D))
 

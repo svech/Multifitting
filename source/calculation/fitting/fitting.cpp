@@ -44,10 +44,10 @@ Fitting::~Fitting()
 double Fitting::func(double argument, int index)
 {
 	// TODO
-	if(index == 0)
-	{
-		return log(argument+1E-5);
-	} else
+//	if(index == 0)
+//	{
+//		return log(argument+1E-5);
+//	} else
 	{
 		return argument;
 	}
@@ -226,7 +226,7 @@ void Fitting::calc_Residual(const gsl_vector* x, Fitting_Params* params, gsl_vec
 			params->calculation_Trees[tab_Index]->calculate_1_Kind(target_Element);
 
 			// fill residual
-			fill_Residual(residual_Shift, target_Element, f, target_Index);
+			fill_Residual(params, residual_Shift, target_Element, f, target_Index);
 			target_Index++;
 		}
 	}
@@ -262,12 +262,12 @@ void Fitting::change_Real_Fitables_and_Dependent(Fitting_Params* params, double 
 	}
 }
 
-void Fitting::fill_Residual(int& residual_Shift, Data_Element<Target_Curve>& target_Element, gsl_vector* f, int index)
+void Fitting::fill_Residual(Fitting_Params* params, int& residual_Shift, Data_Element<Target_Curve>& target_Element, gsl_vector* f, int index)
 {
 	Target_Curve* target_Curve = target_Element.the_Class;
 	double fi_1, fi_2, factor;
 	int N = target_Curve->curve.values.size();
-	double N_sqrt = sqrt(double(N));
+	double N_P_sqrt = sqrt(double(N-params->fitables.param_Names.size()));
 
 	/// -------------------------------------------------------------------------------
 	/// reflectance
@@ -298,10 +298,11 @@ void Fitting::fill_Residual(int& residual_Shift, Data_Element<Target_Curve>& tar
 
 			// weight
 			factor = target_Curve->fit_Params.weight_Sqrt;
-			if(target_Curve->fit_Params.norm) { factor /= N_sqrt; }
+			if(target_Curve->fit_Params.norm) { factor /= N_P_sqrt; }
 
 			// fill
-			gsl_vector_set(f, residual_Shift+point_Index, factor*(fi_1-fi_2));
+//			gsl_vector_set(f, residual_Shift+point_Index, factor*(fi_1-fi_2));
+			gsl_vector_set(f, residual_Shift+point_Index, factor*(fi_1-fi_2)*sqrt(fi_1*target_Curve->curve.beam_Intensity)	   );
 		}
 		residual_Shift += N;
 	} else
@@ -448,7 +449,7 @@ bool Fitting::confidence(const vector<double>& fitables_Pointers_Value_Backup, c
 	int point_Index = 0;
 
 	// changing value step by step
-	for(real_Conf_Value = min; real_Conf_Value <= max; real_Conf_Value += step)
+	for(real_Conf_Value = min; real_Conf_Value <= (max+step/2); real_Conf_Value += step)
 	{
 		initialize_Position();
 

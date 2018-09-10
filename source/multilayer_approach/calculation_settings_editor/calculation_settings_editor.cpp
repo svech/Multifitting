@@ -445,7 +445,7 @@ void Calculation_Settings_Editor::load_Target_Parameters(int tab_Index)
 				different_Lines.append(weight_Line_Edit);
 			}
 			{
-				QCheckBox* norm = new QCheckBox("Divide by N");
+				QCheckBox* norm = new QCheckBox("Divide by N-P");
 					box_Layout->addWidget(norm);
 				norm->setChecked(target_Curve->fit_Params.norm);
 				connect(norm,  &QCheckBox::toggled, this, [=]{ target_Curve->fit_Params.norm = norm->isChecked(); });

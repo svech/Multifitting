@@ -98,10 +98,13 @@ void Independent_Variables_Editor::create_Standard_Interface()
 		group_Box_Layout->addLayout(layout);
 
 		{
-			num_Points = new QLineEdit;
+			num_Points = new QSpinBox;
 				num_Points->setFixedWidth(30);
 				num_Points->setProperty(min_Size_Property, 30);
-				num_Points->setValidator(new QIntValidator(1, MAX_INTEGER, this));
+				num_Points->setRange(1, MAX_INTEGER);
+				num_Points->setAccelerated(true);
+				num_Points->setButtonSymbols(QAbstractSpinBox::NoButtons);
+
 			layout->addWidget(num_Points);
 		}
 		{
@@ -168,12 +171,12 @@ void Independent_Variables_Editor::create_Standard_Interface()
 			num_Points->setDisabled(true);
 		}
 
-		connect(num_Points, &QLineEdit::textEdited, this, [=]{Global_Variables::resize_Line_Edit(num_Points);});
+		connect(num_Points, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, [=]{Global_Variables::resize_Line_Edit(num_Points);});
 		connect(val_Edit,	&QLineEdit::textEdited, this, [=]{Global_Variables::resize_Line_Edit(val_Edit);});
 		connect(min_Edit,	&QLineEdit::textEdited, this, [=]{Global_Variables::resize_Line_Edit(min_Edit);});
 		connect(max_Edit,	&QLineEdit::textEdited, this, [=]{Global_Variables::resize_Line_Edit(max_Edit);});
 
-		connect(num_Points, &QLineEdit::textEdited, [=]{refresh_Show_Data();});
+		connect(num_Points, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, [=]{refresh_Show_Data();});
 		connect(val_Edit,	&QLineEdit::textEdited, [=]{refresh_Show_Data();});
 		connect(min_Edit,	&QLineEdit::textEdited, [=]{refresh_Show_Data();});
 		connect(max_Edit,	&QLineEdit::textEdited, [=]{refresh_Show_Data();});
@@ -358,7 +361,7 @@ void Independent_Variables_Editor::set_Window_Geometry()
 
 void Independent_Variables_Editor::show_Hide_Elements()
 {
-	int points = num_Points->text().toInt();
+	int points = num_Points->value();
 
 	if(points == 1)
 	{
@@ -451,12 +454,10 @@ void Independent_Variables_Editor::refresh_Show_Data(bool show)
 		// show data
 		if(show)
 		{
-			num_Points->setText(QString::number(parameter.independent.num_Points));
 			val_Edit->setText(	QString::number(parameter.value/coeff,			line_edit_double_format,line_edit_precision));
 			min_Edit->setText(	QString::number(parameter.independent.min/coeff,line_edit_double_format,line_edit_precision));
 			max_Edit->setText(	QString::number(parameter.independent.max/coeff,line_edit_double_format,line_edit_precision));
 
-			Global_Variables::resize_Line_Edit(num_Points);
 			Global_Variables::resize_Line_Edit(val_Edit);
 			Global_Variables::resize_Line_Edit(min_Edit);
 			Global_Variables::resize_Line_Edit(max_Edit);
@@ -475,14 +476,13 @@ void Independent_Variables_Editor::refresh_Show_Data(bool show)
 				Global_Variables::resize_Line_Edit(beam_Profile_Spreading_LineEdit);
 				Global_Variables::resize_Line_Edit(sample_Shift_LineEdit);
 			}
+
+			// LAST! causes refresh
+			num_Points->setValue(parameter.independent.num_Points);
+			Global_Variables::resize_Line_Edit(num_Points);
 		} else
 		// refresh data
 		{
-			if(num_Points->text().toInt()<1)
-			{
-				num_Points->setText(QString::number(parameter.independent.num_Points));
-				Global_Variables::resize_Line_Edit(num_Points);
-			}
 			// special cases
 			if(indicator.parameter_Whats_This == whats_This_Gamma)
 			{
@@ -510,7 +510,7 @@ void Independent_Variables_Editor::refresh_Show_Data(bool show)
 					Global_Variables::resize_Line_Edit(val_Edit);
 				}
 				if(min_Edit->text().toDouble()*coeff>90.+3*pow(10.,-line_edit_angle_precision+1))
-				{
+				{					
 					min_Edit->setText(QString::number(parameter.independent.min/coeff,line_edit_double_format,line_edit_angle_precision));
 					Global_Variables::resize_Line_Edit(min_Edit);
 				}
@@ -530,7 +530,7 @@ void Independent_Variables_Editor::refresh_Show_Data(bool show)
 				struct_Data.sample_Shift.value			= sample_Shift_LineEdit->text().toDouble();
 			}
 
-			parameter.independent.num_Points = num_Points->text().toInt();
+			parameter.independent.num_Points = num_Points->value();
 			parameter.value			  = val_Edit->text().toDouble()*coeff;
 			parameter.independent.min = min_Edit->text().toDouble()*coeff;
 			parameter.independent.max = max_Edit->text().toDouble()*coeff;
@@ -569,30 +569,27 @@ void Independent_Variables_Editor::refresh_Show_Data(bool show)
 		// show data
 		if(show)
 		{
-			num_Points->setText(QString::number(struct_Data.num_Repetition.num_Steps));
 			val_Edit->setText(	QString::number(struct_Data.num_Repetition.value));
 			min_Edit->setText(	QString::number(struct_Data.num_Repetition.start));
 			max_Edit->setText(	QString::number(struct_Data.num_Repetition.step));
 
-			Global_Variables::resize_Line_Edit(num_Points);
 			Global_Variables::resize_Line_Edit(val_Edit);
 			Global_Variables::resize_Line_Edit(min_Edit);
 			Global_Variables::resize_Line_Edit(max_Edit);
+
+			// LAST! causes refresh
+			num_Points->setValue(struct_Data.num_Repetition.num_Steps);
+			Global_Variables::resize_Line_Edit(num_Points);
 		} else
 		// refresh data
 		{
-			if(num_Points->text().toInt()<1)
-			{
-				num_Points->setText(QString::number(struct_Data.num_Repetition.num_Steps));
-				Global_Variables::resize_Line_Edit(num_Points);
-			}
 			if(max_Edit->text().toInt()<1)
 			{
 				max_Edit->setText(QString::number(struct_Data.num_Repetition.step));
 				Global_Variables::resize_Line_Edit(max_Edit);
 			}
 
-			struct_Data.num_Repetition.num_Steps = num_Points->text().toInt();
+			struct_Data.num_Repetition.num_Steps = num_Points->value();
 			struct_Data.num_Repetition.value	 =   val_Edit->text().toInt();
 			struct_Data.num_Repetition.start	 =   min_Edit->text().toInt();
 			struct_Data.num_Repetition.step		 =   max_Edit->text().toInt();
@@ -633,12 +630,10 @@ void Independent_Variables_Editor::refresh_Show_Data(bool show)
 		// show data
 		if(show)
 		{
-			num_Points->setText(QString::number(struct_Data.wavelength.independent.num_Points));
 			val_Edit->setText(	QString::number(Global_Variables::wavelength_Energy(wavelength_units,struct_Data.wavelength.value)/coeff,line_edit_double_format,line_edit_wavelength_precision));
 			min_Edit->setText(	QString::number(Global_Variables::wavelength_Energy(wavelength_units,struct_Data.wavelength.independent.min)/coeff,line_edit_double_format,line_edit_wavelength_precision));
 			max_Edit->setText(	QString::number(Global_Variables::wavelength_Energy(wavelength_units,struct_Data.wavelength.independent.max)/coeff,line_edit_double_format,line_edit_wavelength_precision));
 
-			Global_Variables::resize_Line_Edit(num_Points);
 			Global_Variables::resize_Line_Edit(val_Edit);
 			Global_Variables::resize_Line_Edit(min_Edit);
 			Global_Variables::resize_Line_Edit(max_Edit);
@@ -651,14 +646,12 @@ void Independent_Variables_Editor::refresh_Show_Data(bool show)
 			Global_Variables::resize_Line_Edit(polarization_Edit);
 			Global_Variables::resize_Line_Edit(background_Edit);
 
+			// LAST! causes refresh
+			num_Points->setValue(struct_Data.wavelength.independent.num_Points);
+			Global_Variables::resize_Line_Edit(num_Points);
 		} else
 		// refresh data
 		{
-			if(num_Points->text().toInt()<1)
-			{
-				num_Points->setText(QString::number(struct_Data.wavelength.independent.num_Points));
-				Global_Variables::resize_Line_Edit(num_Points);
-			}
 			// no check for zero wavelength
 			if(polarization_Edit->text().toDouble()>1 || polarization_Edit->text().toDouble()<-1)
 			{
@@ -666,7 +659,7 @@ void Independent_Variables_Editor::refresh_Show_Data(bool show)
 				Global_Variables::resize_Line_Edit(polarization_Edit);
 			}
 
-			struct_Data.wavelength.independent.num_Points = num_Points->text().toInt();
+			struct_Data.wavelength.independent.num_Points = num_Points->value();
 			struct_Data.wavelength.value		   = Global_Variables::wavelength_Energy(wavelength_units,val_Edit->text().toDouble()*coeff);
 			struct_Data.wavelength.independent.min = Global_Variables::wavelength_Energy(wavelength_units,min_Edit->text().toDouble()*coeff);
 			struct_Data.wavelength.independent.max = Global_Variables::wavelength_Energy(wavelength_units,max_Edit->text().toDouble()*coeff);
@@ -742,7 +735,7 @@ void Independent_Variables_Editor::show_Active_Check_Box()
 
 void Independent_Variables_Editor::show_Hide_Angular_Elements()
 {
-	int points = num_Points->text().toInt();
+	int points = num_Points->value();
 
 	if(points < MIN_ANGULAR_RESOLUTION_POINTS)
 	{
@@ -761,7 +754,7 @@ void Independent_Variables_Editor::show_Hide_Angular_Elements()
 
 void Independent_Variables_Editor::show_Hide_Spectral_Elements()
 {
-	int points = num_Points->text().toInt();
+	int points = num_Points->value();
 
 	if(points < MIN_ANGULAR_RESOLUTION_POINTS)
 	{

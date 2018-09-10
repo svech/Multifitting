@@ -264,7 +264,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 			}
 
 			// density min/max
-			create_Min_Max_Label	(new_Table,			   current_Row,   current_Column, Rho_Sym+", "+Plus_Minus_Sym+"%");
+			create_Min_Max_Label	(new_Table,			   current_Row,   current_Column, Rho_Sym+", "+/*Plus_Minus_Sym*/Minus_Sym+"%");
 			create_Min_Max_Button	(new_Table, tab_Index, current_Row+1, current_Column, whats_This_Density);
 			create_Min_Max_Spin_Box	(new_Table, tab_Index, current_Row+2, current_Column, whats_This_Density);
 			current_Column += 2;
@@ -1944,14 +1944,14 @@ void Table_Of_Structures::create_Min_Max_Button(My_Table_Widget* table, int tab_
 					if(struct_Data.absolute_Density.fit.is_Fitable)
 					{
 						struct_Data.absolute_Density.fit.min = struct_Data.absolute_Density.value*(100-multilayer->min_Max_Density)/100;
-						struct_Data.absolute_Density.fit.max = struct_Data.absolute_Density.value*(100+multilayer->min_Max_Density)/100;
+						struct_Data.absolute_Density.fit.max = struct_Data.absolute_Density.value;//*(100+multilayer->min_Max_Density)/100;
 //						struct_Data.absolute_Density.confidence.min = struct_Data.absolute_Density.fit.min;
 //						struct_Data.absolute_Density.confidence.max = struct_Data.absolute_Density.fit.max;
 					}
 					if(struct_Data.relative_Density.fit.is_Fitable)
 					{
 						struct_Data.relative_Density.fit.min = struct_Data.relative_Density.value*(100-multilayer->min_Max_Density)/100;
-						struct_Data.relative_Density.fit.max = struct_Data.relative_Density.value*(100+multilayer->min_Max_Density)/100;
+						struct_Data.relative_Density.fit.max = struct_Data.relative_Density.value;//*(100+multilayer->min_Max_Density)/100;
 //						struct_Data.relative_Density.confidence.min = struct_Data.relative_Density.fit.min;
 //						struct_Data.relative_Density.confidence.max = struct_Data.relative_Density.fit.max;
 					}

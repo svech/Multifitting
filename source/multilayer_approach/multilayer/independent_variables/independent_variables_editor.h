@@ -54,7 +54,7 @@ public:
 	QVBoxLayout* main_Layout;
 		QGroupBox* group_Box;
 			QVBoxLayout* group_Box_Layout;
-				QLineEdit* num_Points;
+				QSpinBox* num_Points;
 				QLabel* val_Label;
 				QLineEdit* val_Edit;
 				QLabel* from_Label;
