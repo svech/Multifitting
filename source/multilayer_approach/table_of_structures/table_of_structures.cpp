@@ -1814,7 +1814,7 @@ void Table_Of_Structures::create_Weights_Check_Box_Fit_Interlayer(My_Table_Widge
 			Data data = item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
 			Interlayer& inter_Com = data.interlayer_Composition[interlayer_Index];
 
-			if(inter_Com.interlayer.fit.is_Fitable && inter_Com.enabled)
+			if(inter_Com.interlayer.fit.is_Fitable && inter_Com.enabled && !inter_Com.interlayer.coupled.master.exist)
 			{
 				back_Widget->setStyleSheet(fit_Color);
 			} else

@@ -197,7 +197,8 @@ QDataStream& operator >>( QDataStream& stream,		 Value& value )
 QDataStream& operator <<( QDataStream& stream, const Curve& curve )
 {
 	return stream << curve.argument << curve.shifted_Argument << curve.values << curve.shifted_Values << curve.arg_Offset << curve.arg_Factor << curve.val_Offset << curve.val_Factor
-				  << curve.beam_Intensity	// since 1.7.1
+				  << curve.beam_Intensity				// since 1.7.1
+				  << curve. divide_On_Beam_Intensity	// since 1.8.1
 
 				  << curve.argument_Type << curve.angle_Type << curve.angular_Units << curve.spectral_Units << curve.value_Function << curve.value_Mode;
 }
@@ -206,7 +207,10 @@ QDataStream& operator >>( QDataStream& stream,		 Curve& curve )
 	stream  >> curve.argument >> curve.shifted_Argument >> curve.values >> curve.shifted_Values >> curve.arg_Offset >> curve.arg_Factor >> curve.val_Offset >> curve.val_Factor;
 
 	if(Global_Variables::check_Loaded_Version(1,7,1))
-	{stream >> curve.beam_Intensity; }	// since 1.7.1
+	{stream >> curve.beam_Intensity; }				// since 1.7.1
+
+	if(Global_Variables::check_Loaded_Version(1,8,1))
+	{stream >> curve.divide_On_Beam_Intensity; }	// since 1.8.1
 
 	stream  >> curve.argument_Type >> curve.angle_Type >> curve.angular_Units >> curve.spectral_Units >> curve.value_Function >> curve.value_Mode;
 	return stream;
@@ -214,11 +218,17 @@ QDataStream& operator >>( QDataStream& stream,		 Curve& curve )
 
 QDataStream& operator <<( QDataStream& stream, const Fit_Params& fit_Params )
 {
-	return stream << fit_Params.calc << fit_Params.fit << fit_Params.norm  << fit_Params.weight << fit_Params.fit_Function;
+	return stream << fit_Params.calc << fit_Params.fit << fit_Params.norm  << fit_Params.weight << fit_Params.fit_Function
+				  << fit_Params.use_Chi2; // since 1.8.1
 }
 QDataStream& operator >>( QDataStream& stream,		 Fit_Params& fit_Params )
 {
-	return stream >> fit_Params.calc >> fit_Params.fit >> fit_Params.norm  >> fit_Params.weight >> fit_Params.fit_Function;
+	stream >> fit_Params.calc >> fit_Params.fit >> fit_Params.norm  >> fit_Params.weight >> fit_Params.fit_Function;
+
+	if(Global_Variables::check_Loaded_Version(1,8,1))
+	{stream >> fit_Params.use_Chi2; }		// since 1.8.1
+
+	return stream;
 }
 
 // -----------------------------------------------------------------------------------------

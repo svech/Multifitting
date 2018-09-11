@@ -93,6 +93,7 @@ public:
 			QDoubleSpinBox* val_Factor_SpinBox;
 			QLabel* beam_Intensity_Label;
 			QLineEdit* beam_Intensity_LineEdit;
+			QCheckBox* norm_On_Beam_Intensity;
 
 			QLabel* at_Fixed_Label;
 			QLineEdit* at_Fixed_LineEdit;

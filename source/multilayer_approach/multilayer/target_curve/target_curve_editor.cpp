@@ -407,7 +407,6 @@ void Target_Curve_Editor::create_Data_GroupBox()
 			arg_Offset_SpinBox->setFixedWidth(TARGET_LINE_EDIT_WIDTH);
 			arg_Offset_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
 //			arg_Offset_Spinbox->setProperty(min_Size_Property, arg_Offset_Spinbox->width());
-
 		layout->addWidget(arg_Offset_SpinBox,0,Qt::AlignLeft);
 
 		arg_Factor_Label = new QLabel("Scale factor");
@@ -421,8 +420,11 @@ void Target_Curve_Editor::create_Data_GroupBox()
 			arg_Factor_SpinBox->setFixedWidth(TARGET_LINE_EDIT_WIDTH);
 			arg_Factor_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
 //			arg_Factor_LineEdit->setProperty(min_Size_Property, arg_Factor_LineEdit->width());
-
 		layout->addWidget(arg_Factor_SpinBox,0,Qt::AlignLeft);
+
+		norm_On_Beam_Intensity = new QCheckBox("Divide on beam intensity");
+			norm_On_Beam_Intensity->setChecked(target_Curve->curve.divide_On_Beam_Intensity);
+		layout->addWidget(norm_On_Beam_Intensity,0,Qt::AlignLeft);
 
 		data_GroupBox_Layout->addLayout(layout);
 	}
@@ -477,7 +479,7 @@ void Target_Curve_Editor::create_Data_GroupBox()
 //			connect(val_Factor_LineEdit, &QLineEdit::textEdited, this, &Target_Curve_Editor::resize_Line_Edit );
 		layout->addWidget(val_Factor_SpinBox,0,Qt::AlignLeft);
 
-		beam_Intensity_Label = new QLabel("Beam intensity");
+		beam_Intensity_Label = new QLabel("Incident photons per point");
 			layout->addWidget(beam_Intensity_Label,0,Qt::AlignLeft);
 		beam_Intensity_LineEdit = new QLineEdit(QString::number(target_Curve->curve.beam_Intensity/*,line_edit_double_format,line_edit_polarization_precision*/));
 			beam_Intensity_LineEdit->setFixedWidth(TARGET_LINE_EDIT_WIDTH);
@@ -485,7 +487,6 @@ void Target_Curve_Editor::create_Data_GroupBox()
 			beam_Intensity_LineEdit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION, this));
 		connect(beam_Intensity_LineEdit, &QLineEdit::textEdited, this, [=]{Global_Variables::resize_Line_Edit(beam_Intensity_LineEdit, false);} );
 		layout->addWidget(beam_Intensity_LineEdit,0,Qt::AlignLeft);
-
 
 		data_GroupBox_Layout->addLayout(layout);
 	}
@@ -645,6 +646,8 @@ void Target_Curve_Editor::create_Data_GroupBox()
 	connect(arg_Units_ComboBox, &QComboBox::currentTextChanged, this, &Target_Curve_Editor::show_Angular_Resolution);
 	connect(arg_Offset_SpinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, &Target_Curve_Editor::refresh_Offsets);
 	connect(arg_Factor_SpinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, &Target_Curve_Editor::refresh_Factors);
+	connect(norm_On_Beam_Intensity, &QCheckBox::toggled, this, [=]{target_Curve->curve.divide_On_Beam_Intensity = norm_On_Beam_Intensity->isChecked(); });
+	connect(norm_On_Beam_Intensity, &QCheckBox::toggled, this, &Target_Curve_Editor::refresh_Beam_Intensity);
 
 	// value line
 	connect(val_Function_ComboBox,	&QComboBox::currentTextChanged, this, &Target_Curve_Editor::refresh_Value_Type );
@@ -669,7 +672,6 @@ void Target_Curve_Editor::create_Data_GroupBox()
 	connect(beam_Profile_Spreading_LineEdit,&QLineEdit::textEdited, this, &Target_Curve_Editor::refresh_Measurement_Geometry);
 	connect(sample_Size_LineEdit,			&QLineEdit::textEdited, this, &Target_Curve_Editor::refresh_Measurement_Geometry);
 	connect(sample_Shift_LineEdit,			&QLineEdit::textEdited, this, &Target_Curve_Editor::refresh_Measurement_Geometry);
-
 }
 
 void Target_Curve_Editor::create_Buttons()
@@ -990,6 +992,7 @@ void Target_Curve_Editor::refresh_Beam_Intensity()
 	target_Curve->fill_Measurement_With_Data();
 	show_Description_Label();
 	target_Curve_Plot->plot_Data(true);
+
 }
 
 void Target_Curve_Editor::refresh_Polarization()

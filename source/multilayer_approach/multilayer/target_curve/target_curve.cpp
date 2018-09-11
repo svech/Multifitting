@@ -137,10 +137,14 @@ void Target_Curve::fill_Measurement_With_Data()
 		// shift has the same units as data
 		curve.shifted_Argument.resize(curve.argument.size());
 		curve.shifted_Values.resize(curve.argument.size());
+
+		double intensity_Factor = 1;
+		if(curve.divide_On_Beam_Intensity) intensity_Factor = curve.beam_Intensity;
+
 		for(int i=0; i<curve.argument.size(); ++i)
 		{
-			curve.shifted_Argument[i]     = curve.argument[i]                         *curve.arg_Factor+curve.arg_Offset;
-			curve.shifted_Values[i].val_1 = curve.values[i].val_1/curve.beam_Intensity*curve.val_Factor+curve.val_Offset;
+			curve.shifted_Argument[i]     = curve.argument[i]                     *curve.arg_Factor+curve.arg_Offset;
+			curve.shifted_Values[i].val_1 = curve.values[i].val_1/intensity_Factor*curve.val_Factor+curve.val_Offset;
 			// shift only first
 			curve.shifted_Values[i].val_2 = curve.values[i].val_2;//*curve.val_Factor+curve.val_Offset;
 		}

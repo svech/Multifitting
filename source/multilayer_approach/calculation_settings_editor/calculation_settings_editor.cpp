@@ -445,12 +445,12 @@ void Calculation_Settings_Editor::load_Target_Parameters(int tab_Index)
 				different_Lines.append(weight_Line_Edit);
 			}
 			{
-				QCheckBox* norm = new QCheckBox("Divide by N-P");
+				QCheckBox* norm = new QCheckBox("Divide by N");
 					box_Layout->addWidget(norm);
 				norm->setChecked(target_Curve->fit_Params.norm);
 				connect(norm,  &QCheckBox::toggled, this, [=]{ target_Curve->fit_Params.norm = norm->isChecked(); });
-			}
-			{
+
+				// -------------------------------------------------------
 				QLabel* function_Label = new QLabel("Function");
 				QLineEdit* fit_Function_Line_Edit = new QLineEdit(target_Curve->fit_Params.fit_Function);
 
@@ -472,6 +472,19 @@ void Calculation_Settings_Editor::load_Target_Parameters(int tab_Index)
 					}
 				});
 				different_Lines.append(fit_Function_Line_Edit);
+				// -------------------------------------------------------
+
+				QCheckBox* chi2_CheckBox = new QCheckBox("Use "+Chi2_Sym);
+					chi2_CheckBox->setChecked(target_Curve->fit_Params.use_Chi2);function_Layout->addWidget(chi2_CheckBox);
+				connect(chi2_CheckBox,  &QCheckBox::toggled, this, [=]
+				{
+					function_Label->setEnabled(!chi2_CheckBox->isChecked());
+					fit_Function_Line_Edit->setEnabled(!chi2_CheckBox->isChecked());
+					norm->setEnabled(!chi2_CheckBox->isChecked());
+
+					target_Curve->fit_Params.use_Chi2 = chi2_CheckBox->isChecked();
+				});
+				chi2_CheckBox->toggled(chi2_CheckBox->isChecked());
 			}
 		}
 		target_Index++;

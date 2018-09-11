@@ -44,10 +44,10 @@ Fitting::~Fitting()
 double Fitting::func(double argument, int index)
 {
 	// TODO
-//	if(index == 0)
-//	{
-//		return log(argument+1E-5);
-//	} else
+	if(index == 0)
+	{
+		return log(argument+1E-5);
+	} else
 	{
 		return argument;
 	}
@@ -267,7 +267,8 @@ void Fitting::fill_Residual(Fitting_Params* params, int& residual_Shift, Data_El
 	Target_Curve* target_Curve = target_Element.the_Class;
 	double fi_1, fi_2, factor;
 	int N = target_Curve->curve.values.size();
-	double N_P_sqrt = sqrt(double(N-params->fitables.param_Names.size()));
+	double N_sqrt = sqrt(double(N));
+	double n_P_sqrt = sqrt(double(params->n-params->fitables.param_Names.size()));
 
 	/// -------------------------------------------------------------------------------
 	/// reflectance
@@ -275,34 +276,48 @@ void Fitting::fill_Residual(Fitting_Params* params, int& residual_Shift, Data_El
 
 	if(target_Curve->curve.value_Mode == value_R_Mode[R] )				// R
 	{
-		for(int point_Index=0; point_Index<N; ++point_Index)
+		// use_Chi2
+		if(target_Curve->fit_Params.use_Chi2)
 		{
-			// calculate with expression
+			for(int point_Index=0; point_Index<N; ++point_Index)
 			{
-#ifdef EXPRTK
-				target_Curve->fit_Params.expression_Argument = target_Curve->curve.values[point_Index].val_1;
-				fi_1 = target_Curve->fit_Params.expression_Vec[0].value();
-#else
-				fi_1 = func(target_Curve->curve.values[point_Index].val_1, index);
-#endif
+				factor = target_Curve->fit_Params.weight_Sqrt/n_P_sqrt;
+				fi_1 = target_Curve->curve.values[point_Index].val_1;
+				fi_2 = target_Element.unwrapped_Reflection->R_Instrumental[point_Index];
+
+				gsl_vector_set(f, residual_Shift+point_Index, factor*(fi_1-fi_2)*sqrt(target_Curve->curve.beam_Intensity/fi_2)   );
 			}
+		} else
+		// use custom expression
+		{
+			for(int point_Index=0; point_Index<N; ++point_Index)
 			{
+				// calculate with expression
+				{
 #ifdef EXPRTK
-				target_Curve->fit_Params.expression_Argument = target_Element.unwrapped_Reflection->R[point_Index];
-				fi_2 = target_Curve->fit_Params.expression_Vec[0].value();
+					target_Curve->fit_Params.expression_Argument = target_Curve->curve.values[point_Index].val_1;
+					fi_1 = target_Curve->fit_Params.expression_Vec[0].value();
 #else
-//				fi_2 = func(target_Element.unwrapped_Reflection->R[point_Index], index);
-				fi_2 = func(target_Element.unwrapped_Reflection->R_Instrumental[point_Index], index);
+					fi_1 = func(target_Curve->curve.values[point_Index].val_1, index);
 #endif
+				}
+				{
+#ifdef EXPRTK
+					target_Curve->fit_Params.expression_Argument = target_Element.unwrapped_Reflection->R_Instrumental[point_Index];
+					fi_2 = target_Curve->fit_Params.expression_Vec[0].value();
+#else
+//					fi_2 = func(target_Element.unwrapped_Reflection->R[point_Index], index);
+					fi_2 = func(target_Element.unwrapped_Reflection->R_Instrumental[point_Index], index);
+#endif
+				}
+
+				// weight
+				factor = target_Curve->fit_Params.weight_Sqrt;
+				if(target_Curve->fit_Params.norm) { factor /= N_sqrt; }
+
+				// fill
+				gsl_vector_set(f, residual_Shift+point_Index, factor*(fi_1-fi_2));
 			}
-
-			// weight
-			factor = target_Curve->fit_Params.weight_Sqrt;
-			if(target_Curve->fit_Params.norm) { factor /= N_P_sqrt; }
-
-			// fill
-//			gsl_vector_set(f, residual_Shift+point_Index, factor*(fi_1-fi_2));
-			gsl_vector_set(f, residual_Shift+point_Index, factor*(fi_1-fi_2)*sqrt(target_Curve->curve.beam_Intensity/fi_2)   );
 		}
 		residual_Shift += N;
 	} else

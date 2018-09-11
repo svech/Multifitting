@@ -9,7 +9,7 @@
 
 #define VERSION_MAJOR 1
 #define VERSION_MINOR 8
-#define VERSION_BUILD 0
+#define VERSION_BUILD 1
 
 //#define EXPRTK
 
@@ -133,7 +133,7 @@ class Node;
 #define Minus_Sym				QString(QChar(0x2212))
 #define More_Sym				QString(QChar(0x00E9))
 #define Proportional_Sym		QString(QChar(0x221D))
-
+#define Chi2_Sym				QString(QChar(0x03C7))+QString(QChar(0x00B2))
 // -----------------------------------------------------------------------------------------
 
 // magic numbers
@@ -516,7 +516,7 @@ struct Calc_Functions			{bool check_Enabled = true;
 struct Value					{double val_1; double val_2; /*double val_3; double val_4;*/};
 struct Curve					{QVector<double> argument; QVector<double> shifted_Argument;
 								 QVector<Value> values;	   QVector<Value> shifted_Values;
-								 double arg_Offset = 0; double arg_Factor = 1;
+								 double arg_Offset = 0; double arg_Factor = 1; bool divide_On_Beam_Intensity = true;
 								 double val_Offset = 0; double val_Factor = 1; double beam_Intensity = 1;
 								 QString argument_Type;
 								 QString angle_Type;
@@ -532,6 +532,7 @@ struct Fit_Params				{bool calc = true;
 								 double weight = 1;
 								 double weight_Sqrt = 1;
 								 QString fit_Function = "log(x+1E-5); sin(x/2)";
+								 bool use_Chi2 = true;
 
 								 double expression_Argument;							// not to store
 
