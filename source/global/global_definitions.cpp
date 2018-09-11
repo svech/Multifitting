@@ -293,7 +293,7 @@ void Element_Data::read_Element(QString& filename)
 			QTextStream temp_Stream(&temp_Line);
 			new_f1f2_Point.read_Row(temp_Stream, true);
 			if(new_f1f2_Point.re>-8888)
-			if(element_Data.size()==0 || (new_f1f2_Point.lambda < element_Data.last().lambda))
+			if(element_Data.size()==0 || (new_f1f2_Point.lambda < element_Data.first().lambda))
 			{
 				element_Data.prepend(new_f1f2_Point);
 			}
