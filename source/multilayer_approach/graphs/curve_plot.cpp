@@ -69,6 +69,7 @@ void Curve_Plot::create_Main_Layout()
 	});
 
 	colorize_Color_Button();
+	graph_Done = true;
 }
 
 void Curve_Plot::create_Plot_Frame_And_Scale()
@@ -243,6 +244,69 @@ void Curve_Plot::create_Options()
 		rescale_Check_Box->setChecked(plot_Options_First->rescale);
 		connect(rescale_Check_Box, &QCheckBox::toggled, this, [=]{ plot_Options_First->rescale=rescale_Check_Box->isChecked(); });
 	}
+	// max value info
+	{
+		// target
+		if(curve_Class == TARGET)
+		{
+			if(target_Curve->curve.value_Function == value_Function[Reflectance])
+			{
+				if(target_Curve->curve.value_Mode == value_R_Mode[R] || target_Curve->curve.value_Mode == value_R_Mode[R_Phi])
+					max_Value_Title = "| Max R =";
+			} else
+			{
+				if(target_Curve->curve.value_Function == value_Function[Transmittance])
+				{
+					if(target_Curve->curve.value_Mode == value_T_Mode[T])
+						max_Value_Title = "| Max T =";
+				} else
+				{
+					if(target_Curve->curve.value_Function == value_Function[Absorptance])
+					{
+						if(target_Curve->curve.value_Mode == value_A_Mode[A])
+							max_Value_Title = "| Max A =";
+					} else
+					{
+						// none
+						max_Value_Title = "";
+
+					}
+				}
+			}
+		}
+		// independent
+		if(curve_Class == INDEPENDENT)
+		{
+			if( independent_Variables->calc_Functions.check_Reflectance &&
+			   !independent_Variables->calc_Functions.check_Transmittance &&
+			   !independent_Variables->calc_Functions.check_Absorptance)
+			{
+				max_Value_Title = "| Max R =";
+			} else
+			{
+				if(!independent_Variables->calc_Functions.check_Reflectance &&
+				    independent_Variables->calc_Functions.check_Transmittance &&
+				   !independent_Variables->calc_Functions.check_Absorptance)
+				{
+					max_Value_Title = "| Max T =";
+				} else
+				{
+					if(!independent_Variables->calc_Functions.check_Reflectance &&
+					   !independent_Variables->calc_Functions.check_Transmittance &&
+					    independent_Variables->calc_Functions.check_Absorptance)
+					{
+						max_Value_Title = "| Max A =";
+					} else
+					{
+						// none
+						max_Value_Title = "";
+					}
+				}
+			}
+		}
+
+		max_Value_Label = new QLabel;
+	}
 
 	// layout
 	{
@@ -264,6 +328,8 @@ void Curve_Plot::create_Options()
 		options_Layout->addWidget(thickness_Spin);
 
 		options_Layout->addWidget(rescale_Check_Box);
+
+		options_Layout->addWidget(max_Value_Label);
 	}
 
 	options_GroupBox->adjustSize();
@@ -271,7 +337,7 @@ void Curve_Plot::create_Options()
 }
 
 void Curve_Plot::plot_All_Data()
-{
+{	
 	create_Plot_Frame_And_Scale();
 	custom_Plot->clearGraphs();
 	refresh_Labels();
@@ -299,6 +365,12 @@ void Curve_Plot::plot_All_Data()
 		}
 
 		/// calculated data
+		// second value (phase) // placed first for showing max value, not phase
+		if(target_Curve->curve.value_Mode == value_R_Mode[R_Phi])
+		{
+			values = calculated_Values->Phi;
+			plot_Data(argument, values, plot_Options_Second, right);
+		}
 		// first value (R,T,A...)
 		{
 			if(	target_Curve->curve.value_Mode == value_R_Mode[R] ||
@@ -307,12 +379,6 @@ void Curve_Plot::plot_All_Data()
 //			if(	target_Curve->curve.value_Mode == value_A_Mode[A] )		{	values = calculated_Values->A; }
 
 			plot_Data(argument, values, plot_Options_Second, left);
-		}
-		// second value (phase)
-		if(target_Curve->curve.value_Mode == value_R_Mode[R_Phi])
-		{
-			values = calculated_Values->Phi;
-			plot_Data(argument, values, plot_Options_Second, right);
 		}
 	}
 
@@ -345,6 +411,14 @@ void Curve_Plot::plot_All_Data()
 			plot_Data(argument, values, plot_Options_First, left);
 		}
 		// no second value up to now
+	}	
+	// show max value
+	if(graph_Done)
+	{
+		double max_Value = *std::max_element(values.begin(), values.end());
+		int max_Value_Position_Index = values.indexOf(max_Value);
+		double max_Value_Position = argument[max_Value_Position_Index];
+		max_Value_Label->setText(max_Value_Title + " " + QString::number(max_Value,'f',4) + " at " + QString::number(max_Value_Position,'f',4) + " " + argument_Units);
 	}
 }
 
@@ -499,6 +573,11 @@ void Curve_Plot::refresh_Labels()
 			if(*angle_Type == angle_Type_Incidence)	argument_Type_Label = argument_Types[Incident_angle];
 
 			argument_Label = argument_Type_Label + " " + Theta_Sym + ", " + *angular_Units;
+
+			if(graph_Done)
+			{
+				argument_Units = *angular_Units;
+			}
 		}
 		if(*argument_Type == whats_This_Wavelength)
 		{
@@ -512,6 +591,11 @@ void Curve_Plot::refresh_Labels()
 			{
 				argument_Type_Label = QString(argument_Types[Wavelength_Energy]).split("/").last();
 				argument_Label = argument_Type_Label + " E, " + *spectral_Units;
+			}
+
+			if(graph_Done)
+			{
+				argument_Units = *spectral_Units;
 			}
 		}
 	}

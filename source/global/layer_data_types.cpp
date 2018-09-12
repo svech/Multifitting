@@ -273,6 +273,10 @@ Data::Data(QString item_Type_Passed)
 			thickness_Drift.is_Drift_Line = false;
 			thickness_Drift.is_Drift_Sine = false;
 			thickness_Drift.is_Drift_Rand = false;
+
+			thickness_Drift.show_Drift_Line = true;
+			thickness_Drift.show_Drift_Rand = true;
+			thickness_Drift.show_Drift_Sine = false;
 			{
 				thickness_Drift.drift_Line_Value.value = 0;
 				thickness_Drift.drift_Line_Value.fit.min = -thickness_Drift.drift_Line_Value.value*2;
@@ -339,6 +343,10 @@ Data::Data(QString item_Type_Passed)
 			sigma_Drift.is_Drift_Line = false;
 			sigma_Drift.is_Drift_Sine = false;
 			sigma_Drift.is_Drift_Rand = false;
+
+			sigma_Drift.show_Drift_Line = false;
+			sigma_Drift.show_Drift_Rand = false;
+			sigma_Drift.show_Drift_Sine = false;
 			{
 				sigma_Drift.drift_Line_Value.value = 0;
 				sigma_Drift.drift_Line_Value.fit.min = -thickness_Drift.drift_Line_Value.value*2;

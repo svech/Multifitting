@@ -28,6 +28,11 @@ public:
 	Data layer;
 
     QVBoxLayout* main_Layout;
+		QGroupBox* table_Group_Box;
+			QHBoxLayout* table_GB_Layout;
+				QCheckBox* show_Line_CheckBox;
+				QCheckBox* show_Sine_CheckBox;
+				QCheckBox* show_Rand_CheckBox;
 		QGroupBox* line_Group_Box;
 			QGridLayout* line_GB_Layout;
 				QLabel* line_Value_Label; QLineEdit* line_Value_Line;

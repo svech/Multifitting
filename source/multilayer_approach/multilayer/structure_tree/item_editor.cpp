@@ -491,7 +491,6 @@ void Item_Editor::more_Elements_Clicked()
 
 	// creating ui elements
 	line_Edit->setText(QString::number(stoich.composition.value,line_edit_short_double_format,line_edit_composition_precision));
-	Global_Variables::resize_Line_Edit(line_Edit);
 	elements->setCurrentIndex(elements->findText(stoich.type));
 	at_Weight->setText(AtWt + QString::number(sorted_Elements.value(elements->currentText()),thumbnail_double_format,at_weight_precision) + ")");
 
@@ -515,6 +514,8 @@ void Item_Editor::more_Elements_Clicked()
 		hor_Layout->addWidget(at_Weight);
 	element_Frame_Vec.append(element_Frame);
 	composition_Layout_With_Elements_Vector->addWidget(element_Frame,0,Qt::AlignLeft);
+
+	Global_Variables::resize_Line_Edit(line_Edit);
 
 	show_Material();
 	if (element_Frame_Vec.size()==1)

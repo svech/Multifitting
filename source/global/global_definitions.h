@@ -9,7 +9,7 @@
 
 #define VERSION_MAJOR 1
 #define VERSION_MINOR 8
-#define VERSION_BUILD 1
+#define VERSION_BUILD 2
 
 //#define EXPRTK
 
@@ -441,9 +441,9 @@ struct Interlayer				{Parameter interlayer; Parameter my_Sigma; bool enabled;
 									my_Sigma.indicator.whats_This = whats_This_Interlayer_My_Sigma;
 								 }
 								};
-struct Drift					{bool is_Drift_Line;  Parameter drift_Line_Value;
-								 bool is_Drift_Sine;  Parameter drift_Sine_Amplitude; Parameter drift_Sine_Frequency; Parameter drift_Sine_Phase;
-								 bool is_Drift_Rand;  Parameter drift_Rand_Rms;	};
+struct Drift					{bool is_Drift_Line;  bool show_Drift_Line; Parameter drift_Line_Value;
+								 bool is_Drift_Sine;  bool show_Drift_Sine; Parameter drift_Sine_Amplitude; Parameter drift_Sine_Frequency; Parameter drift_Sine_Phase;
+								 bool is_Drift_Rand;  bool show_Drift_Rand; Parameter drift_Rand_Rms;	};
 
 
 // optical constant types

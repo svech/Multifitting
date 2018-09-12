@@ -119,7 +119,8 @@ void Table_Of_Structures::create_Tabs()
 		{
 			if(i!=index)main_Tabs->tabBar()->setTabTextColor(i,Qt::gray);
 		}
-		reload_All_Widgets();
+		// CHECK
+//		reload_All_Widgets();
 	});
 }
 
@@ -145,7 +146,14 @@ void Table_Of_Structures::add_Tabs()
 	}
 
 	table_Is_Created = true;
-	reload_All_Widgets();
+
+	// CHECK
+	for(int tab_Index=0; tab_Index<multilayer_Tabs->count(); ++tab_Index)
+	{
+		main_Tabs->setCurrentIndex(tab_Index);
+		reload_All_Widgets();
+	}
+	main_Tabs->setCurrentIndex(multilayer_Tabs->currentIndex());
 }
 
 void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index)
@@ -494,6 +502,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 			///--------------------------------------------------------------------------------------------
 
 			// thickness linear drift
+			if(struct_Data.thickness_Drift.show_Drift_Line)
 			if(struct_Data.item_Type == item_Type_Layer && struct_Data.parent_Item_Type == item_Type_Multilayer)
 			{
 				QString whats_This = whats_This_Thickness_Drift_Line_Value;
@@ -505,11 +514,12 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 				create_Line_Edit		(new_Table, tab_Index, current_Row+4, current_Column, structure_Item, whats_This, MAX);
 				// last
 				create_Check_Box_Fit	(new_Table, tab_Index, current_Row+2, current_Column, structure_Item, whats_This, 1, 2, 0, 0);
+				current_Column += 1;
 			}
-			current_Column += 1;
 			///--------------------------------------------------------------------------------------------
 
 			// thickness random drift
+			if(struct_Data.thickness_Drift.show_Drift_Rand)
 			if(struct_Data.item_Type == item_Type_Layer && struct_Data.parent_Item_Type == item_Type_Multilayer)
 			{
 				QString whats_This = whats_This_Thickness_Drift_Rand_Rms;
@@ -521,11 +531,12 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 				create_Line_Edit		(new_Table, tab_Index, current_Row+4, current_Column, structure_Item, whats_This, MAX);
 				// last
 				create_Check_Box_Fit	(new_Table, tab_Index, current_Row+2, current_Column, structure_Item, whats_This, 1, 2, 0, 0);
+				current_Column += 1;
 			}
-			current_Column += 1;
 			///--------------------------------------------------------------------------------------------
 
 			// thickness sine drift
+			if(struct_Data.thickness_Drift.show_Drift_Sine)
 			if(struct_Data.item_Type == item_Type_Layer && struct_Data.parent_Item_Type == item_Type_Multilayer)
 			{
 				add_Columns(new_Table, current_Column+3);
@@ -551,11 +562,16 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 				create_Check_Box_Fit	(new_Table, tab_Index, current_Row+2, current_Column+2, structure_Item, whats_This_Thickness_Drift_Sine_Phase,	   1, 2, 0, 0);
 
 				new_Table->setSpan(current_Row,current_Column,1,3);
+				current_Column += 3;
 			}
-			current_Column += 4;
+			if(	struct_Data.thickness_Drift.show_Drift_Line ||
+				struct_Data.thickness_Drift.show_Drift_Rand ||
+				struct_Data.thickness_Drift.show_Drift_Sine )
+			{	current_Column += 1; }
 			///--------------------------------------------------------------------------------------------
 
 			// sigma linear drift
+			if(struct_Data.sigma_Drift.show_Drift_Line)
 			if(struct_Data.item_Type == item_Type_Layer && struct_Data.parent_Item_Type == item_Type_Multilayer)
 			{
 				QString whats_This = whats_This_Sigma_Drift_Line_Value;
@@ -567,11 +583,12 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 				create_Line_Edit		(new_Table, tab_Index, current_Row+4, current_Column, structure_Item, whats_This, MAX);
 				// last
 				create_Check_Box_Fit	(new_Table, tab_Index, current_Row+2, current_Column, structure_Item, whats_This, 1, 2, 0, 0);
+				current_Column += 1;
 			}
-			current_Column += 1;
 			///--------------------------------------------------------------------------------------------
 
 			// sigma random drift
+			if(struct_Data.sigma_Drift.show_Drift_Rand)
 			if(struct_Data.item_Type == item_Type_Layer && struct_Data.parent_Item_Type == item_Type_Multilayer)
 			{
 				QString whats_This = whats_This_Sigma_Drift_Rand_Rms;
@@ -583,11 +600,12 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 				create_Line_Edit		(new_Table, tab_Index, current_Row+4, current_Column, structure_Item, whats_This, MAX);
 				// last
 				create_Check_Box_Fit	(new_Table, tab_Index, current_Row+2, current_Column, structure_Item, whats_This, 1, 2, 0, 0);
+				current_Column += 1;
 			}
-			current_Column += 1;
 			///--------------------------------------------------------------------------------------------
 
 			// sigma sine drift
+			if(struct_Data.sigma_Drift.show_Drift_Sine)
 			if(struct_Data.item_Type == item_Type_Layer && struct_Data.parent_Item_Type == item_Type_Multilayer)
 			{
 				add_Columns(new_Table, current_Column+3);
@@ -613,8 +631,8 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 				create_Check_Box_Fit	(new_Table, tab_Index, current_Row+2, current_Column+2, structure_Item, whats_This_Sigma_Drift_Sine_Phase,	   1, 2, 0, 0);
 
 				new_Table->setSpan(current_Row,current_Column,1,3);
+				current_Column += 4;
 			}
-			current_Column += 4;
 			///--------------------------------------------------------------------------------------------
 
 			++it;
@@ -1716,7 +1734,7 @@ void Table_Of_Structures::create_Check_Box_Label_Interlayer(My_Table_Widget* tab
 			Interlayer& inter_Com = data.interlayer_Composition[interlayer_Index];
 			QCheckBox* fit_Check = check_Boxes_Fit_Map.key(inter_Com.interlayer.indicator.id);
 			if(fit_Check)
-				fit_Check->toggled(fit_Check->isChecked());
+				fit_Check->released();
 		});
 		connect(check_Box, &QCheckBox::toggled, this, [=]{cells_On_Off_2(table, structure_Item); });
 
@@ -1807,7 +1825,7 @@ void Table_Of_Structures::create_Weights_Check_Box_Fit_Interlayer(My_Table_Widge
 		table->setCellWidget(current_Row, current_Column, back_Widget);
 
 		connect(check_Box, &QCheckBox::toggled, this, &Table_Of_Structures::refresh_Weights_Check_Box_Fit_Interlayer);
-		connect(check_Box, &QCheckBox::toggled, this, [=]
+		connect(check_Box, &QCheckBox::released, this, [=]
 		{
 			// colorizing working fits
 			QTreeWidgetItem* item = check_Boxes_Map.value(check_Box);
@@ -2888,6 +2906,7 @@ void Table_Of_Structures::reload_All_Widgets(QObject* sender)
 {
 	if(table_Is_Created)
 	{
+//		qInfo() << "reload_All_Widgets";
 		// reloading for widgets on current tab
 		int current_Tab_Index = main_Tabs->currentIndex();
 //		qInfo() << "all_Widgets_To_Reload[current_Tab_Index].size() " << all_Widgets_To_Reload[current_Tab_Index].size();
@@ -2905,6 +2924,7 @@ void Table_Of_Structures::reload_All_Widgets(QObject* sender)
 
 void Table_Of_Structures::reload_One_Widget(QWidget* widget_To_Reload)
 {
+//	qInfo() << "reload_One_Widget"<<++temp_Counter;
 	// reload dependences and color
 	if(widget_To_Reload->property(coupling_Editor_Property).toBool())
 	{

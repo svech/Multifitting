@@ -132,12 +132,18 @@ QDataStream& operator >>( QDataStream& stream,		 Interlayer& interlayer )
 QDataStream& operator <<( QDataStream& stream, const Drift& drift )
 {
 	return stream << drift.is_Drift_Line << drift.is_Drift_Sine << drift.is_Drift_Rand
-				  << drift.drift_Line_Value << drift.drift_Rand_Rms << drift.drift_Sine_Amplitude << drift.drift_Sine_Frequency << drift.drift_Sine_Phase;
+				  << drift.drift_Line_Value << drift.drift_Rand_Rms << drift.drift_Sine_Amplitude << drift.drift_Sine_Frequency << drift.drift_Sine_Phase
+				  << drift.show_Drift_Line << drift.show_Drift_Rand << drift.show_Drift_Sine; // since 1.8.2
 }
 QDataStream& operator >>( QDataStream& stream,		 Drift& drift )
 {
-	return stream >> drift.is_Drift_Line >> drift.is_Drift_Sine >> drift.is_Drift_Rand
-				  >> drift.drift_Line_Value >> drift.drift_Rand_Rms >> drift.drift_Sine_Amplitude >> drift.drift_Sine_Frequency >> drift.drift_Sine_Phase;
+	stream >> drift.is_Drift_Line >> drift.is_Drift_Sine >> drift.is_Drift_Rand
+		   >> drift.drift_Line_Value >> drift.drift_Rand_Rms >> drift.drift_Sine_Amplitude >> drift.drift_Sine_Frequency >> drift.drift_Sine_Phase;
+
+	if(Global_Variables::check_Loaded_Version(1,8,2))
+	{stream >> drift.show_Drift_Line >> drift.show_Drift_Rand >> drift.show_Drift_Sine; }	// since 1.8.2
+
+	return stream;
 }
 
 QDataStream& operator <<( QDataStream& stream, const Plot_Options& plot_Options )

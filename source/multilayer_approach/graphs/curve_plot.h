@@ -70,6 +70,12 @@ public:
 
 				QCheckBox* rescale_Check_Box;
 
+				QLabel* max_Value_Label;
+				QString max_Value_Title;
+				QString argument_Units;
+
+	bool graph_Done = false;
+
 	QString val_Type_Label;
 	QString val_Mode_Label_1;
 	QString val_Mode_Label_2;

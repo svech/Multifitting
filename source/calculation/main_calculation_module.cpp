@@ -660,8 +660,8 @@ void Main_Calculation_Module::print_Reflect_To_File(Data_Element<Type>& data_Ele
 	file.close();
 	} else
 	{
-		qInfo() << "Calculation_Tree::print_Reflect_To_File  :  Can't write file " + name;
-		QMessageBox::critical(nullptr, "Calculation_Tree::print_Reflect_To_File", "Can't write file " + name);
+		qInfo() << "Main_Calculation_Module::print_Reflect_To_File  :  Can't write file " + name;
+		QMessageBox::critical(nullptr, "Main_Calculation_Module::print_Reflect_To_File", "Can't write file " + name);
 		exit(EXIT_FAILURE);
 	}
 }
