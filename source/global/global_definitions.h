@@ -11,19 +11,18 @@
 #define VERSION_MINOR 8
 #define VERSION_BUILD 2
 
+using namespace std;
+class Node;
+
 //#define EXPRTK
 
 #ifdef EXPRTK
-	#include "exprtk.hpp"
+    #include "exprtk.hpp"
 #endif
 
 #ifdef __linux__
 	#include <iostream>
 #endif
-
-using namespace std;
-
-class Node;
 
 // -----------------------------------------------------------------------------------------
 
@@ -578,7 +577,7 @@ struct Fitables					{	vector<QString> struct_Names;		// names of structures
 
 									// changeable
 									vector<Parameter*> param_Pointers;
-									vector<double>	values;
+                                    vector<double>	values;
 									vector<double>	values_Parametrized;	// unbounded parametrized variables
 									vector<tree<Node>::iterator> parent_Iterators;
 

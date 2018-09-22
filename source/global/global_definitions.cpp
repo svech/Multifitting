@@ -60,7 +60,7 @@ QDataStream& operator <<( QDataStream& stream, const Independent& independent )
 }
 QDataStream& operator >>( QDataStream& stream,		 Independent& independent )
 {
-	return stream >> independent.is_Independent >> independent.min >> independent.max >> independent.num_Points;
+    return stream >> independent.is_Independent >> independent.min >> independent.max >> independent.num_Points;
 }
 
 QDataStream& operator <<( QDataStream& stream, const Coupled& coupled )
