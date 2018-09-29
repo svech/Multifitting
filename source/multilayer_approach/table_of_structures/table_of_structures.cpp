@@ -345,6 +345,10 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 
 			// make it checkable
 			QCheckBox* item_CheckBox = new QCheckBox(Global_Variables::structure_Item_Name(struct_Data));
+			if(struct_Data.item_Type == item_Type_Multilayer)			{
+				item_CheckBox->setProperty(multilayer_Item_Table_CheckBox_Property,multilayer_Item_Table_CheckBox_Property);
+				coupled_Back_Widget_and_Struct_Item.insert(item_CheckBox, structure_Item);
+			}
 			new_Table->setCellWidget(current_Row, current_Column, item_CheckBox);
 			item_CheckBox->setChecked(struct_Data.item_Enabled);
 			check_Boxes_Map.insert(item_CheckBox, structure_Item);

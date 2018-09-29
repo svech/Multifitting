@@ -118,7 +118,8 @@ SOURCES += \
 	standard/spoiler.cpp \
     multilayer_approach/multilayer/target_curve/target_curve_plot.cpp \
     multilayer_approach/graphs/optical_graphs.cpp \
-    multilayer_approach/graphs/curve_plot.cpp
+    multilayer_approach/graphs/curve_plot.cpp \
+    multilayer_approach/table_of_structures/layer_thickness_transfer.cpp
 
 
 HEADERS += \
@@ -160,7 +161,8 @@ HEADERS += \
 	standard/spoiler.h \
     multilayer_approach/multilayer/target_curve/target_curve_plot.h \
     multilayer_approach/graphs/optical_graphs.h \
-    multilayer_approach/graphs/curve_plot.h
+    multilayer_approach/graphs/curve_plot.h \
+    multilayer_approach/table_of_structures/layer_thickness_transfer.h
 
 DISTFILES += \
     ../cppcheck-suppressions-list.txt

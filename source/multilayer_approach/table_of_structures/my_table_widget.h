@@ -3,6 +3,7 @@
 
 #include "global/settings.h"
 #include "coupling_editor.h"
+#include "layer_thickness_transfer.h"
 
 class Table_Of_Structures;
 
@@ -20,6 +21,7 @@ public:
 
 	void contextMenuEvent(QContextMenuEvent *event);
 	void open_Coupling_Editor(QWidget *coupling_Widget);
+	void open_Layer_Thickness_Transfer(QWidget *coupling_Widget);
 
 	QWidget* get_Cell_Widget();
 };

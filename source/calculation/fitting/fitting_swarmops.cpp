@@ -30,7 +30,6 @@ void Fitting_SwarmOps::callback(Fitting_Params* params, SO_TFitness residual)
 
 SO_TFitness Fitting_SwarmOps::calc_Residual(SO_TElm* x,  void* context, SO_TFitness fitnessLimit)
 {
-	fitnessLimit;
 	Fitting_Params* params = ((struct Fitting_Params*)context);
 
 	// first point is the initial

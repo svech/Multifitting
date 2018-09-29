@@ -10,38 +10,42 @@ Curve_Plot::Curve_Plot(Target_Curve* target_Curve, Independent_Variables* indepe
 {
 	// if target
 	if(curve_Class == TARGET)
-	if(target_Curve) // if passed pointer!=nullptr
-	{		
-		measurement = &target_Curve->measurement;
-		calculated_Values = &target_Curve->calculated_Values;
-		plot_Options_First = &target_Curve->plot_Options_Experimental;
-		plot_Options_Second = &target_Curve->plot_Options_Calculated;
-		spectral_Units = &target_Curve->curve.spectral_Units;
-		angle_Type = &target_Curve->curve.angle_Type;
-		angular_Units = &target_Curve->curve.angular_Units;
-		argument_Type = &target_Curve->curve.argument_Type;
-	} else
 	{
-		QMessageBox::critical(nullptr, "Curve_Plot::Curve_Plot", "target_Curve is nullptr");
-		exit(EXIT_FAILURE);
+		if(target_Curve) // if passed pointer!=nullptr
+		{
+			measurement = &target_Curve->measurement;
+			calculated_Values = &target_Curve->calculated_Values;
+			plot_Options_First = &target_Curve->plot_Options_Experimental;
+			plot_Options_Second = &target_Curve->plot_Options_Calculated;
+			spectral_Units = &target_Curve->curve.spectral_Units;
+			angle_Type = &target_Curve->curve.angle_Type;
+			angular_Units = &target_Curve->curve.angular_Units;
+			argument_Type = &target_Curve->curve.argument_Type;
+		} else
+		{
+			QMessageBox::critical(nullptr, "Curve_Plot::Curve_Plot", "target_Curve is nullptr");
+			exit(EXIT_FAILURE);
+		}
 	}
 
 	// if independent
 	if(curve_Class == INDEPENDENT)
-	if(independent_Variables) // if passed pointer!=nullptr
 	{
-		measurement = &independent_Variables->measurement;
-		calculated_Values = &independent_Variables->calculated_Values;
-		plot_Options_First = &independent_Variables->plot_Options;
-		plot_Options_Second = plot_Options_First;
-		spectral_Units = &wavelength_units;
-		angle_Type = &measurement->angle_Type;
-		angular_Units = &angle_units;
-		argument_Type = &independent_Variables->argument_Type;
-	} else
-	{
-		QMessageBox::critical(nullptr, "Curve_Plot::Curve_Plot", "independent_Variables is nullptr");
-		exit(EXIT_FAILURE);
+		if(independent_Variables) // if passed pointer!=nullptr
+		{
+			measurement = &independent_Variables->measurement;
+			calculated_Values = &independent_Variables->calculated_Values;
+			plot_Options_First = &independent_Variables->plot_Options;
+			plot_Options_Second = plot_Options_First;
+			spectral_Units = &wavelength_units;
+			angle_Type = &measurement->angle_Type;
+			angular_Units = &angle_units;
+			argument_Type = &independent_Variables->argument_Type;
+		} else
+		{
+			QMessageBox::critical(nullptr, "Curve_Plot::Curve_Plot", "independent_Variables is nullptr");
+			exit(EXIT_FAILURE);
+		}
 	}
 
 	create_Main_Layout();
