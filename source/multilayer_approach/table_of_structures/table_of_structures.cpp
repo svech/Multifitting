@@ -1536,7 +1536,6 @@ void Table_Of_Structures::create_Check_Box_Fit(My_Table_Widget* table, int tab_I
 	check_Box->setProperty(tab_Index_Property, tab_Index);
 
 	// storage
-	check_Boxes_Fit_Map.	   insert	   (check_Box, parameter.indicator.id);
 	check_Boxes_Map.		   insert	   (check_Box, structure_Item);
 	reload_Show_Dependence_Map.insertMulti (check_Box, parameter.indicator.id);
 	all_Widgets_To_Reload[tab_Index].append(check_Box);
@@ -1553,6 +1552,7 @@ void Table_Of_Structures::create_Check_Box_Fit(My_Table_Widget* table, int tab_I
 		back_Widget->setProperty(coupling_Editor_Property, true);		// for opening Coupling_Editor
 		back_Widget->setProperty(fit_Text, fit_Text);					// for coloring
 		all_Widgets_To_Reload[tab_Index].append(back_Widget);
+		check_Boxes_Fit_Map.	   insert	   (check_Box, parameter.indicator.id);
 
 		coupled_Back_Widget_and_Struct_Item.insert(back_Widget, structure_Item);
 		coupled_Back_Widget_and_Id.			insert(back_Widget, parameter.indicator.id);
@@ -1732,7 +1732,7 @@ void Table_Of_Structures::create_Check_Box_Label_Interlayer(My_Table_Widget* tab
 			QTreeWidgetItem* item = check_Boxes_Map.value(check_Box);
 			Data data = item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
 			Interlayer& inter_Com = data.interlayer_Composition[interlayer_Index];
-			QCheckBox* fit_Check = check_Boxes_Fit_Map.key(inter_Com.interlayer.indicator.id);
+			QCheckBox* fit_Check = check_Boxes_Fit_Map.key(-inter_Com.interlayer.indicator.id);// negaive "id"!
 			if(fit_Check)
 				fit_Check->released();
 		});
@@ -1808,7 +1808,7 @@ void Table_Of_Structures::create_Weights_Check_Box_Fit_Interlayer(My_Table_Widge
 		check_Box->setProperty(tab_Index_Property, tab_Index);
 
 		// storage
-		check_Boxes_Fit_Map.			 insert(check_Box, inter_Comp.interlayer.indicator.id);
+		check_Boxes_Fit_Map.			 insert(check_Box, -inter_Comp.interlayer.indicator.id); // negaive "id"!
 		check_Boxes_Map.				 insert(check_Box, structure_Item);
 		all_Widgets_To_Reload[tab_Index].append(check_Box);
 

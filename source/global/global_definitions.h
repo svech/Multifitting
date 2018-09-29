@@ -368,7 +368,7 @@ class Node;
 #endif
 // -----------------------------------------------------------------------------------------
 
-typedef unsigned long long id_Type ;
+typedef long long id_Type ;
 extern id_Type previous_ID;
 
 class Global_Definitions

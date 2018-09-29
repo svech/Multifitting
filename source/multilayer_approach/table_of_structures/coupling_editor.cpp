@@ -85,6 +85,8 @@ void Coupling_Editor::create_Main_Layout()
 			main_Layout->addWidget(master_Group_Box);
 		create_Slave_Box();
 			main_Layout->addWidget(slave_Group_Box);
+
+		master_Line_Edit->setFocus();
 	}
 
 	main_Layout->addLayout(button_Layout);
