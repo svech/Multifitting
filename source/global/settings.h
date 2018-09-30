@@ -111,6 +111,9 @@ extern int		stack_default_number_of_repetition;
 extern double	stack_default_period;
 extern double	stack_default_gamma;
 
+// Thickness_Values
+extern double	thickness_default_step_value_change;
+
 // -----------------------------------------------------------------------------------------
 
 // precisions
@@ -158,6 +161,7 @@ extern int thumbnail_background_precision	;
 
 // other
 extern int at_weight_precision				;
+extern int thickness_transfer_precision		;
 
 // -----------------------------------------------------------------------------------------
 

@@ -9,7 +9,7 @@
 
 #define VERSION_MAJOR 1
 #define VERSION_MINOR 8
-#define VERSION_BUILD 2
+#define VERSION_BUILD 3
 
 using namespace std;
 class Node;
@@ -64,6 +64,7 @@ class Node;
 		#define Layer_Values		"Layer_Values"
 		#define Substrate_Values	"Substrate_Values"
 		#define Stack_Values		"Stack_Values"
+		#define Thickness_Values	"Thickness_Values"
 
 // precisions
 #define Precisions_Path Pre_Path + "settings/precisions.ini"
@@ -141,7 +142,8 @@ class Node;
 #define MAX_PRECISION 100
 #define MIN_ANGULAR_RESOLUTION_POINTS 5		// minimal number of points necessary for specifying non-zero resolution
 #define MIN_SPECTRAL_RESOLUTION_POINTS 5	// -||-
-#define QLINEEDIT_RESIZE_MARGIN 7			// minimal white space in right side of qlineedit, pixels
+#define QLINEEDIT_RESIZE_MARGIN 8			// minimal white space in right side of qlineedit, pixels
+#define SPINBOX_BUTTONS_RESIZE_MARGIN 17	// minimal white space in right side of qlineedit, pixels
 #define QLINEEDIT_TO_QCOMBOBOX_DIFFERENCE 20// difference between qcombobox size and internal qlineedit, pixels
 #define DEFAULT_COLUMN 0					// as far as we use single-column trees
 #define PERMANENT_INDEPENDENT 2				// angle and wavelength items in list
@@ -300,14 +302,12 @@ class Node;
 #define value_Type_Property				"value_Type"
 #define coupling_Editor_Property		"coupling_Editor"
 #define multilayer_Item_Table_CheckBox_Property	"multilayer_Item_Table_CheckBox"
+#define previous_Value_Property			"previous_Value"
 
 #define refresh_Property	"refresh"
 #define reload_Property		"reload"
 #define colorize_Property	"colorize"
 #define enabled_Property	"enabled"
-//#define table_Index_Property "table_Index"
-//#define master_Reload_Property "master_Reload"
-//#define slave_Reload_Property  "slave_Reload"
 
 // first group
 #define relative_Rows_To_Disable_Start_Property		"relative_Rows_To_Disable_Start"

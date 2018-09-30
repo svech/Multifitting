@@ -73,6 +73,7 @@ void My_Table_Widget::open_Coupling_Editor(QWidget* coupling_Widget)
 
 void My_Table_Widget::open_Layer_Thickness_Transfer(QWidget *coupling_Widget)
 {
+	coupling_Widget->setProperty(multilayer_Item_Table_CheckBox_Property,"");
 	Layer_Thickness_Transfer* new_Layer_Thickness_Transfer = new Layer_Thickness_Transfer(coupling_Widget, table_Of_Structures, this);
 		new_Layer_Thickness_Transfer->show();
 }

@@ -17,6 +17,9 @@ extern bool lambda_Out_Of_Range;
 
 extern Multilayer_Approach* global_Multilayer_Approach;
 
+// locale
+extern QLocale Locale;
+
 // delimiters for file parsing
 extern QRegExp delimiters;
 

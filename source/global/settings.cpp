@@ -109,6 +109,9 @@ int		stack_default_number_of_repetition;
 double	stack_default_period;
 double	stack_default_gamma;
 
+// Thickness_Values
+double	thickness_default_step_value_change;
+
 // -----------------------------------------------------------------------------------------
 
 // precisions
@@ -156,6 +159,7 @@ int thumbnail_background_precision	;
 
 // other
 int at_weight_precision				;
+int thickness_transfer_precision	;
 
 // -----------------------------------------------------------------------------------------
 
@@ -412,6 +416,10 @@ void Settings::read_Structure_Default_Values(bool reset_to_default)
 				stack_default_period				= structure_Default_Values.value( "stack_default_period",				20	).toDouble();
 				stack_default_gamma					= structure_Default_Values.value( "stack_default_gamma",				0.5 ).toDouble();
 			structure_Default_Values.endGroup();
+			structure_Default_Values.beginGroup( Thickness_Values );
+				thickness_default_step_value_change	= structure_Default_Values.value( "thickness_default_step_value_change",0.1 ).toDouble();
+			structure_Default_Values.endGroup();
+
 		structure_Default_Values.endGroup();
 }
 
@@ -466,6 +474,9 @@ void Settings::save_Structure_Default_Values()
 			structure_Default_Values.setValue( "stack_default_number_of_repetition",	stack_default_number_of_repetition	);
 			structure_Default_Values.setValue( "stack_default_period",					stack_default_period				);
 			structure_Default_Values.setValue( "stack_default_gamma",					stack_default_gamma					);
+		structure_Default_Values.endGroup();
+		structure_Default_Values.beginGroup( Thickness_Values );
+			structure_Default_Values.setValue( "thickness_default_step_value_change",	thickness_default_step_value_change	);
 		structure_Default_Values.endGroup();
 	structure_Default_Values.endGroup();
 }
@@ -522,6 +533,7 @@ void Settings::read_Precisions(bool reset_to_default)
 		precision_Values.endGroup();
 		precision_Values.beginGroup( Other );
 			at_weight_precision						= precision_Values.value( "at_weight_precision",				5 ).toInt();
+			thickness_transfer_precision			= precision_Values.value( "thickness_transfer_precision",		4 ).toInt();
 		precision_Values.endGroup();
 	precision_Values.endGroup();
 }
@@ -565,6 +577,7 @@ void Settings::save_Precisions()
 		precision_Values.endGroup();
 		precision_Values.beginGroup( Other );
 			precision_Values.setValue( "at_weight_precision",				at_weight_precision );
+			precision_Values.setValue( "thickness_transfer_precision",		thickness_transfer_precision );
 		precision_Values.endGroup();
 	precision_Values.endGroup();
 }

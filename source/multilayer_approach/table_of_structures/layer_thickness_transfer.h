@@ -2,10 +2,12 @@
 #define LAYER_THICKNESS_TRANSFER_H
 
 #include "table_of_structures.h"
+#include "standard/mydoublespinbox.h"
 
 class Layer_Thickness_Transfer : public QDialog
 {
 	Q_OBJECT
+	Q_INVOKABLE void adjustSize() { QWidget::adjustSize(); }
 public:
 	explicit Layer_Thickness_Transfer(QWidget* item_Widget,
 									  Table_Of_Structures* table_Of_Structures,
@@ -16,16 +18,25 @@ public:
 	void create_Main_Layout();
 	void create_Content_Box();
 	void create_Layer_Lines();
+	void spinBox_Lambda(MyDoubleSpinBox* current_Child_SpinBox, MyDoubleSpinBox* partner_SpinBox);
 
 
 	QWidget* item_Widget;
 	QTreeWidgetItem* struct_Item;
 	Table_Of_Structures* table_Of_Structures;
 	Data struct_Data;
+	double coeff;
+	double step;
+	QString units_Suffix;
+
+	QMap<MyDoubleSpinBox*,id_Type> map_Of_Identicals;
+	QMap<MyDoubleSpinBox*,MyDoubleSpinBox*> map_Of_Partners;
 
 	QVBoxLayout* main_Layout;
 		QGroupBox* content_Group_Box;
 			QVBoxLayout* content_Group_Box_Layout;
+			MyDoubleSpinBox* period_SpinBox;
+			MyDoubleSpinBox* step_SpinBox;
 };
 
 #endif // LAYER_THICKNESS_TRANSFER_H

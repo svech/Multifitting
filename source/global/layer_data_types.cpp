@@ -445,6 +445,10 @@ Data::Data(QString item_Type_Passed)
 			gamma.confidence.num_Points = default_num_confidence_points;
 		}
 	}
+	// Layer, Multilayer, Aperiodic
+	{
+		step_Value_Change = thickness_default_step_value_change;
+	}
 }
 
 void Data::reset_All_IDs()
@@ -717,7 +721,9 @@ QDataStream& operator <<( QDataStream& stream, const Data& data )
 			// Layer
 				<< data.layer_Index << data.has_Parent << data.thickness << data.thickness_Drift << data.sigma_Drift
 			// Multilayer
-				<< data.first_Layer_Index << data.last_Layer_Index << data.num_Repetition << data.period << data.gamma;
+				<< data.first_Layer_Index << data.last_Layer_Index << data.num_Repetition << data.period << data.gamma
+			// Layer, Multilayer, Aperiodic
+				<< data.step_Value_Change; 	// since 1.8.3
 }
 QDataStream& operator >>( QDataStream& stream,		 Data& data )
 {
@@ -738,5 +744,10 @@ QDataStream& operator >>( QDataStream& stream,		 Data& data )
 				>> data.layer_Index >> data.has_Parent >> data.thickness >> data.thickness_Drift >> data.sigma_Drift
 			// Multilayer
 				>> data.first_Layer_Index >> data.last_Layer_Index >> data.num_Repetition >> data.period >> data.gamma;
+
+	// Layer, Multilayer, Aperiodic
+	if(Global_Variables::check_Loaded_Version(1,8,3))
+	{stream >> data.step_Value_Change; }	// since 1.8.3
+
 	return stream;
 }

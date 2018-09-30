@@ -2,6 +2,7 @@
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include "global_variables.h"
 #include "multilayer_approach/multilayer_approach.h"
+#include "standard/mydoublespinbox.h"
 
 // version from save file
 int loaded_Version_Major = -1;
@@ -14,6 +15,9 @@ bool lambda_Out_Of_Range = false;
 Multilayer_Approach* global_Multilayer_Approach;
 
 // -----------------------------------------------------------------------------------------
+
+// locale
+QLocale Locale;
 
 // delimiters for file parsing
 QRegExp delimiters("\\ |\\,|\\:|\\t|\\;|\\{|\\}");
@@ -765,6 +769,15 @@ void Global_Variables::resize_Line_Edit(Type* line_Edit, bool adjust_Window)
 
 	QFontMetrics fm = line_Edit->fontMetrics();
 	int width = fm.width(text) + QLINEEDIT_RESIZE_MARGIN;
+	if(	typeid(Type) == typeid(QSpinBox) ||
+		typeid(Type) == typeid(QDoubleSpinBox) ||
+		typeid(Type) == typeid(MyDoubleSpinBox))
+	{
+		if(qobject_cast<QAbstractSpinBox*>(line_Edit)->buttonSymbols() != QAbstractSpinBox::NoButtons)
+		{
+			width += SPINBOX_BUTTONS_RESIZE_MARGIN;
+		}
+	}
 	if(width>line_Edit->property(min_Size_Property).toInt())
 	{
 		line_Edit->setFixedWidth(width);
@@ -776,5 +789,7 @@ void Global_Variables::resize_Line_Edit(Type* line_Edit, bool adjust_Window)
 	}
 //	window->adjustSize();
 }
-template void Global_Variables::resize_Line_Edit<QLineEdit>(QLineEdit*, bool);
-template void Global_Variables::resize_Line_Edit<QSpinBox> (QSpinBox*,  bool);
+template void Global_Variables::resize_Line_Edit<QLineEdit>		 (QLineEdit*,		bool);
+template void Global_Variables::resize_Line_Edit<QSpinBox>		 (QSpinBox*,		bool);
+template void Global_Variables::resize_Line_Edit<QDoubleSpinBox> (QDoubleSpinBox*,  bool);
+template void Global_Variables::resize_Line_Edit<MyDoubleSpinBox>(MyDoubleSpinBox*, bool);

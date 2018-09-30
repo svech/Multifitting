@@ -119,7 +119,8 @@ SOURCES += \
     multilayer_approach/multilayer/target_curve/target_curve_plot.cpp \
     multilayer_approach/graphs/optical_graphs.cpp \
     multilayer_approach/graphs/curve_plot.cpp \
-    multilayer_approach/table_of_structures/layer_thickness_transfer.cpp
+    multilayer_approach/table_of_structures/layer_thickness_transfer.cpp \
+    standard/mydoublespinbox.cpp
 
 
 HEADERS += \
@@ -162,7 +163,8 @@ HEADERS += \
     multilayer_approach/multilayer/target_curve/target_curve_plot.h \
     multilayer_approach/graphs/optical_graphs.h \
     multilayer_approach/graphs/curve_plot.h \
-    multilayer_approach/table_of_structures/layer_thickness_transfer.h
+    multilayer_approach/table_of_structures/layer_thickness_transfer.h \
+    standard/mydoublespinbox.h
 
 DISTFILES += \
     ../cppcheck-suppressions-list.txt
