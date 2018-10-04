@@ -2500,7 +2500,8 @@ void Table_Of_Structures::refresh_Parameter(My_Table_Widget* table)
 			// parents
 			change_Parent_Period_Gamma_Thickness(structure_Item);
 
-			layer_Thickness_Transfer->lock_Unlock_Thickness_Transfer(structure_Item);
+			if(layer_Thickness_Transfer_Is_Created)
+				layer_Thickness_Transfer->lock_Unlock_Thickness_Transfer(structure_Item);
 		}
 
 	} else
