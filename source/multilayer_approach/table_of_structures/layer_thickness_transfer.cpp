@@ -402,8 +402,34 @@ void Layer_Thickness_Transfer::lock_Unlock_Thickness_Transfer(QTreeWidgetItem* i
 		{
 			for(MyDoubleSpinBox* spinbox : map_Of_Items.keys(item))
 			{
-				spinbox->setDisabled(false);
-				map_Of_Partners.value(spinbox)->setDisabled(false);
+				MyDoubleSpinBox* partner = map_Of_Partners.value(spinbox);
+				QTreeWidgetItem* partner_Item = map_Of_Items.value(partner);
+				const Data partner_Data = partner_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+				if(partner_Data.item_Type == item_Type_Multilayer)
+				{
+					if(partner_Data.num_Repetition.value == 0)
+					{
+						for(MyDoubleSpinBox* spinbox1 : map_Of_Items.keys(partner_Item))
+						{
+							spinbox1->setDisabled(true);
+							map_Of_Partners.value(spinbox1)->setDisabled(true);
+						}
+					} else
+					{
+						for(MyDoubleSpinBox* spinbox1 : map_Of_Items.keys(partner_Item))
+						{
+							spinbox1->setDisabled(false);
+							map_Of_Partners.value(spinbox1)->setDisabled(false);
+						}
+					}
+				} else
+				{
+					for(MyDoubleSpinBox* spinbox1 : map_Of_Items.keys(partner_Item))
+					{
+						spinbox1->setDisabled(false);
+						map_Of_Partners.value(spinbox1)->setDisabled(false);
+					}
+				}
 			}
 		}
 	}
