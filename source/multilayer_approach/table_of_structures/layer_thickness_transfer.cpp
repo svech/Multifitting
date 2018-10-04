@@ -409,26 +409,17 @@ void Layer_Thickness_Transfer::lock_Unlock_Thickness_Transfer(QTreeWidgetItem* i
 				{
 					if(partner_Data.num_Repetition.value == 0)
 					{
-						for(MyDoubleSpinBox* spinbox1 : map_Of_Items.keys(partner_Item))
-						{
-							spinbox1->setDisabled(true);
-							map_Of_Partners.value(spinbox1)->setDisabled(true);
-						}
+						spinbox->setDisabled(true);
+						map_Of_Partners.value(spinbox)->setDisabled(true);
 					} else
 					{
-						for(MyDoubleSpinBox* spinbox1 : map_Of_Items.keys(partner_Item))
-						{
-							spinbox1->setDisabled(false);
-							map_Of_Partners.value(spinbox1)->setDisabled(false);
-						}
+						spinbox->setDisabled(false);
+						map_Of_Partners.value(spinbox)->setDisabled(false);
 					}
 				} else
 				{
-					for(MyDoubleSpinBox* spinbox1 : map_Of_Items.keys(partner_Item))
-					{
-						spinbox1->setDisabled(false);
-						map_Of_Partners.value(spinbox1)->setDisabled(false);
-					}
+					spinbox->setDisabled(false);
+					map_Of_Partners.value(spinbox)->setDisabled(false);
 				}
 			}
 		}
