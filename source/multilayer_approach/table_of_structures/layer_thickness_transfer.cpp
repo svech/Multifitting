@@ -233,6 +233,12 @@ void Layer_Thickness_Transfer::create_Layer_Lines()
 		}
 	}
 
+	// initial lock
+	for(int child_Index = 0; child_Index<struct_Item->childCount()-1; child_Index++)
+	{
+		lock_Unlock_Thickness_Transfer(struct_Item->child(child_Index));
+	}
+
 	// maps filled now
 	for(MyDoubleSpinBox* identical_Current_Child : map_Of_Partners.keys())
 	{
