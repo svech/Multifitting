@@ -2895,12 +2895,7 @@ void Table_Of_Structures::cells_On_Off_2(My_Table_Widget* table, QTreeWidgetItem
 void Table_Of_Structures::resize_Line_Edit(My_Table_Widget* table, QLineEdit* line_Edit)
 {
 	if(!line_Edit) line_Edit = qobject_cast<QLineEdit*>(QObject::sender());
-
-	QString text = line_Edit->text();
-	QFontMetrics fm = line_Edit->fontMetrics();
-	int width = fm.width(text) + QLINEEDIT_RESIZE_MARGIN;
-	if(width<line_Edit->property(min_Size_Property).toInt())	{width=line_Edit->property(min_Size_Property).toInt();}
-	line_Edit->setFixedWidth(width);
+	Global_Variables::resize_Line_Edit(line_Edit);
 
 	int current_Column = line_Edit->property(column_Property).toInt();
 	fit_Column(table, 0, current_Column);

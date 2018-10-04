@@ -19,6 +19,7 @@ public:
 	void create_Content_Box();
 	void create_Layer_Lines();
 	void spinBox_Lambda(MyDoubleSpinBox* current_Child_SpinBox, MyDoubleSpinBox* partner_SpinBox);
+	void refresh_Period();
 
 
 	QWidget* item_Widget;

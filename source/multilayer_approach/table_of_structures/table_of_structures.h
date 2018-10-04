@@ -13,6 +13,7 @@ class Calculation_Settings_Editor;
 class Table_Of_Structures : public QWidget
 {
 	Q_OBJECT
+	Q_INVOKABLE void adjustSize() {  }
 	void closeEvent(QCloseEvent* event);
 public:
 	explicit Table_Of_Structures(QWidget* parent = 0);

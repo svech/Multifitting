@@ -246,6 +246,10 @@ void Layer_Thickness_Transfer::create_Layer_Lines()
 		}
 		period_SpinBox->setProperty(previous_Value_Property,period_SpinBox->value());
 		Global_Variables::resize_Line_Edit(period_SpinBox);
+
+		// refresh
+		struct_Data.period.value = period_SpinBox->value();
+		refresh_Period();
 	});
 }
 
@@ -302,4 +306,14 @@ void Layer_Thickness_Transfer::spinBox_Lambda(MyDoubleSpinBox* current_Child_Spi
 		current_Child_SpinBox->setValue(previous_Current_Child_SpinBox_Value);
 	}
 	Global_Variables::resize_Line_Edit(current_Child_SpinBox);
+}
+
+void Layer_Thickness_Transfer::refresh_Period()
+{
+	// refresh struct tree
+	QWidget* back_Widget = table_Of_Structures->coupled_Back_Widget_and_Id.key(struct_Data.period.indicator.id); // for using in refresh_Reload_Colorize
+
+	table_Of_Structures->refresh_Reload_Colorize(refresh_Property, back_Widget, &struct_Data.period);
+
+	table_Of_Structures->emit_Data_Edited();
 }
