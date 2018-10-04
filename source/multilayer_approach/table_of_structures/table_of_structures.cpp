@@ -347,6 +347,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 			QCheckBox* item_CheckBox = new QCheckBox(Global_Variables::structure_Item_Name(struct_Data));
 			if(struct_Data.item_Type == item_Type_Multilayer)			{
 				item_CheckBox->setProperty(multilayer_Item_Table_CheckBox_Property,multilayer_Item_Table_CheckBox_Property);
+							   setProperty(multilayer_Item_Table_CheckBox_Property,multilayer_Item_Table_CheckBox_Property);
 				coupled_Back_Widget_and_Struct_Item.insert(item_CheckBox, structure_Item);
 			}
 			new_Table->setCellWidget(current_Row, current_Column, item_CheckBox);
@@ -1414,6 +1415,7 @@ void Table_Of_Structures::create_Line_Edit(My_Table_Widget* table, int tab_Index
 		validator = new QIntValidator(0, MAX_INTEGER, this);
 		id = struct_Data.num_Repetition.id;
 		reload_Show_Dependence_Map.insertMulti(line_Edit, id_Of_Thicknesses);
+		line_Edits_ID_Map.insert(line_Edit,id);
 	} else
 	{
 		Parameter& parameter = get_Parameter(struct_Data, whats_This, precision, coeff);
@@ -1431,6 +1433,8 @@ void Table_Of_Structures::create_Line_Edit(My_Table_Widget* table, int tab_Index
 			validator = new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION, this);
 		}
 		id = parameter.indicator.id;
+
+		line_Edits_ID_Map.insert(line_Edit,id);
 
 		if( whats_This == whats_This_Thickness	||
 			whats_This == whats_This_Period		||
@@ -2349,6 +2353,41 @@ void Table_Of_Structures::refresh_Check_Box_Header(bool)
 	}
 }
 
+void Table_Of_Structures::change_Parent_Period_Gamma_Thickness(QTreeWidgetItem* current_Item)
+{
+	// nearest parent
+	QTreeWidgetItem* parent_Item = current_Item->parent();
+	if(parent_Item)
+	{
+		Data parent_Data = parent_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+		double first_Thickness = 0;
+		parent_Data.period.value = 0;
+		for(int i = 0; i<parent_Item->childCount(); i++)
+		{
+			const Data child_Data = parent_Item->child(i)->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+			if(child_Data.item_Type == item_Type_Layer) {
+				parent_Data.period.value += child_Data.thickness.value;
+				if(i==0) first_Thickness = child_Data.thickness.value;
+			}
+			if(child_Data.item_Type == item_Type_Multilayer || child_Data.item_Type == item_Type_Aperiodic) {
+				parent_Data.period.value += child_Data.period.value*child_Data.num_Repetition.value;
+				if(i==0) first_Thickness = child_Data.period.value*child_Data.num_Repetition.value;
+			}
+		}
+		if(parent_Item->childCount() == 2)
+		{
+			parent_Data.gamma.value = first_Thickness/parent_Data.period.value;
+		}
+		QVariant var;
+		var.setValue( parent_Data );
+		parent_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+
+		// further parents
+		if(parent_Item->parent())
+			change_Parent_Period_Gamma_Thickness(parent_Item);
+	}
+}
+
 void Table_Of_Structures::change_Child_Layers_Thickness(QTreeWidgetItem* multilayer_Item, double factor)
 {
 	Data struct_Data = multilayer_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
@@ -2454,6 +2493,14 @@ void Table_Of_Structures::refresh_Parameter(My_Table_Widget* table)
 		// if refresh
 		{
 			if(value_Type == VAL)   struct_Data.num_Repetition.value = line_Edit->text().toInt();
+			QVariant var;
+			var.setValue( struct_Data );
+			structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+
+			// parents
+			change_Parent_Period_Gamma_Thickness(structure_Item);
+
+			layer_Thickness_Transfer->lock_Unlock_Thickness_Transfer(structure_Item);
 		}
 
 	} else
@@ -2531,10 +2578,26 @@ void Table_Of_Structures::refresh_Parameter(My_Table_Widget* table)
 //					interlayer.my_Sigma.confidence.max = interlayer.my_Sigma.fit.max;
 				}
 			} else
+			if(whats_This == whats_This_Thickness)
+			{
+				if(value_Type == VAL)
+				{
+					parameter.value = line_Edit->text().toDouble()*coeff;
+					QVariant var;
+					var.setValue( struct_Data );
+					structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+
+					// parents
+					change_Parent_Period_Gamma_Thickness(structure_Item);
+				}
+				if(value_Type == MIN)	{parameter.fit.min = line_Edit->text().toDouble()*coeff; /*parameter.confidence.min = parameter.fit.min;*/}
+				if(value_Type == MAX)	{parameter.fit.max = line_Edit->text().toDouble()*coeff; /*parameter.confidence.max = parameter.fit.max;*/}
+			} else
 			if(whats_This == whats_This_Period)
 			{
 				if(value_Type == VAL)
 				{
+					// children
 					double new_Period_Value = line_Edit->text().toDouble()*coeff;
 					if(	qApp->focusWidget() != line_Edit ||
 						abs(new_Period_Value) > DBL_EPSILON )
@@ -2546,6 +2609,9 @@ void Table_Of_Structures::refresh_Parameter(My_Table_Widget* table)
 						}
 						change_Child_Layers_Thickness(structure_Item, factor);
 					}
+
+					// parents
+					change_Parent_Period_Gamma_Thickness(structure_Item);
 				}
 				if(value_Type == MIN)	{parameter.fit.min = line_Edit->text().toDouble()*coeff; /*parameter.confidence.min = parameter.fit.min;*/}
 				if(value_Type == MAX)	{parameter.fit.max = line_Edit->text().toDouble()*coeff; /*parameter.confidence.max = parameter.fit.max;*/}
@@ -2609,8 +2675,11 @@ void Table_Of_Structures::refresh_Parameter(My_Table_Widget* table)
 		var.setValue( struct_Data );
 		structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
 
-		emit_Data_Edited();
 		reload_Related_Widgets(QObject::sender());
+		if(layer_Thickness_Transfer_Is_Created && !layer_Thickness_Transfer_Reload_Block)	{
+			layer_Thickness_Transfer->reload();
+		}
+		emit_Data_Edited();
 	}
 }
 

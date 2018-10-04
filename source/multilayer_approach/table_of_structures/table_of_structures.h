@@ -9,6 +9,7 @@
 class Structure_Tree;
 class My_Table_Widget;
 class Calculation_Settings_Editor;
+class Layer_Thickness_Transfer;
 
 class Table_Of_Structures : public QWidget
 {
@@ -97,6 +98,7 @@ public:
 	// for several parameters
 	void refresh_Header(QString);
 	void refresh_Check_Box_Header(bool);
+	void change_Parent_Period_Gamma_Thickness(QTreeWidgetItem* current_Item);
 	void change_Child_Layers_Thickness(QTreeWidgetItem* multilayer_Item, double factor);
 	void reset_Multilayer_Thickness(QTreeWidgetItem* multilayer_Item, double new_Thickness);
 	void reset_Layer_Thickness(QTreeWidgetItem* layer_Item, double new_Thickness);
@@ -130,6 +132,8 @@ public:
 	int temp_Counter = 0;       // TEMPORARY
 	int temp_Counter_1 = 0;     // TEMPORARY
 	bool table_Is_Created = false;
+	bool layer_Thickness_Transfer_Is_Created = false;
+	bool layer_Thickness_Transfer_Reload_Block = false;
 	int basic_Row_Number = 0;
 	int basic_Column_Number = 1;
 
@@ -139,6 +143,7 @@ public:
 
 	QMap<QString, Table_Of_Structures*>& runned_Tables_Of_Structures;
 	QMap<QString, Calculation_Settings_Editor*>& runned_Calculation_Settings_Editor;
+	Layer_Thickness_Transfer* layer_Thickness_Transfer;
 	QTabWidget* multilayer_Tabs;
 
 	QHBoxLayout* main_Layout;
@@ -159,6 +164,7 @@ public:
 	QList<QList<QWidget*>>			all_Widgets_To_Reload;
 	QMultiMap<QWidget*, id_Type>	reload_Show_Dependence_Map;
 	QMap<QCheckBox*,id_Type>		check_Boxes_Fit_Map;
+	QMap<QLineEdit*,id_Type>		line_Edits_ID_Map;
 
 	// disable/enable
 	QMap<QTreeWidgetItem*, QTableWidgetItem*> struct_Table_Map;

@@ -50,8 +50,9 @@ void My_Table_Widget::contextMenuEvent(QContextMenuEvent *event)
 	}
 
 	// menu for in-period exchanges
-	if(back_Widget)
+	if(back_Widget)		
 	if(back_Widget->property(multilayer_Item_Table_CheckBox_Property).toString() == multilayer_Item_Table_CheckBox_Property)
+	if(table_Of_Structures->property(multilayer_Item_Table_CheckBox_Property).toString() == multilayer_Item_Table_CheckBox_Property)
 	{
 		QTreeWidgetItem* struct_Item = table_Of_Structures->coupled_Back_Widget_and_Struct_Item.value(back_Widget);
 		Data struct_Data = struct_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
@@ -73,9 +74,10 @@ void My_Table_Widget::open_Coupling_Editor(QWidget* coupling_Widget)
 
 void My_Table_Widget::open_Layer_Thickness_Transfer(QWidget *coupling_Widget)
 {
-	coupling_Widget->setProperty(multilayer_Item_Table_CheckBox_Property,"");
-	Layer_Thickness_Transfer* new_Layer_Thickness_Transfer = new Layer_Thickness_Transfer(coupling_Widget, table_Of_Structures, this);
-		new_Layer_Thickness_Transfer->show();
+	table_Of_Structures->setProperty(multilayer_Item_Table_CheckBox_Property,"");
+	table_Of_Structures->layer_Thickness_Transfer = new Layer_Thickness_Transfer(coupling_Widget, table_Of_Structures, this);
+		table_Of_Structures->layer_Thickness_Transfer->show();
+	table_Of_Structures->layer_Thickness_Transfer_Is_Created = true;
 }
 
 QWidget* My_Table_Widget::get_Cell_Widget()

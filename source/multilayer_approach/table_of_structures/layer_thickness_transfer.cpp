@@ -16,12 +16,12 @@ Layer_Thickness_Transfer::Layer_Thickness_Transfer(QWidget* item_Widget,
 	create_Main_Layout();
 	set_Window_Geometry();
 	setAttribute(Qt::WA_DeleteOnClose);
-
 }
 
 void Layer_Thickness_Transfer::closeEvent(QCloseEvent *)
 {
-	item_Widget->setProperty(multilayer_Item_Table_CheckBox_Property,multilayer_Item_Table_CheckBox_Property);
+	table_Of_Structures->setProperty(multilayer_Item_Table_CheckBox_Property,multilayer_Item_Table_CheckBox_Property);
+	table_Of_Structures->layer_Thickness_Transfer_Is_Created = false;
 }
 
 void Layer_Thickness_Transfer::set_Window_Geometry()
@@ -52,6 +52,19 @@ void Layer_Thickness_Transfer::create_Main_Layout()
 		connect(done_Button, &QPushButton::clicked, this, &Layer_Thickness_Transfer::close);
 	}
 	main_Layout->addLayout(button_Layout);
+
+	// shortcuts
+	{
+		QShortcut* save_Shortcut			= new QShortcut(QKeySequence(Qt::Key_S | Qt::CTRL), this);
+		QShortcut* open_Shortcut			= new QShortcut(QKeySequence(Qt::Key_O | Qt::CTRL), this);
+		QShortcut* fit_Shortcut				= new QShortcut(QKeySequence(Qt::Key_F | Qt::CTRL | Qt::SHIFT), this);
+		QShortcut* calc_Specular_Shortcut	= new QShortcut(QKeySequence(Qt::Key_C | Qt::CTRL | Qt::SHIFT), this);
+
+		connect(save_Shortcut,			&QShortcut::activated, this, [=]{ global_Multilayer_Approach->save(default_File);});
+		connect(open_Shortcut,			&QShortcut::activated, this, [=]{ global_Multilayer_Approach->open(default_File);});
+		connect(fit_Shortcut,			&QShortcut::activated, this, [=]{ global_Multilayer_Approach->start_Fitting();	  });
+		connect(calc_Specular_Shortcut, &QShortcut::activated, this, [=]{ global_Multilayer_Approach->calc_Reflection(); });
+	}
 }
 
 void Layer_Thickness_Transfer::create_Content_Box()
@@ -78,14 +91,19 @@ void Layer_Thickness_Transfer::create_Content_Box()
 
 		period_SpinBox = new MyDoubleSpinBox;
 			period_SpinBox->setSuffix(units_Suffix);
-			period_SpinBox->setRange(0.1/coeff, MAX_DOUBLE);
+			period_SpinBox->setRange(0.001/coeff, MAX_DOUBLE);
 			period_SpinBox->setValue(struct_Data.period.value/coeff);
 			period_SpinBox->setAccelerated(true);
 			period_SpinBox->setDecimals(thickness_transfer_precision);
 			period_SpinBox->setSingleStep(struct_Data.step_Value_Change/coeff);
 			period_SpinBox->setProperty(previous_Value_Property,period_SpinBox->value());
+//			period_SpinBox->setProperty(item_Type_Property,struct_Data.item_Type);
+			period_SpinBox->setProperty(id_Property,struct_Data.period.indicator.id);
 		period_Layout->addWidget(period_SpinBox);
 		Global_Variables::resize_Line_Edit(period_SpinBox);
+
+		// mapping
+		map_Line_Edit(struct_Data.period.indicator.id,period_SpinBox);
 	}
 
 	// step spinbox
@@ -135,10 +153,11 @@ void Layer_Thickness_Transfer::create_Layer_Lines()
 		QVBoxLayout* current_Child_Group_Box_Layout = new QVBoxLayout(current_Child_Group_Box);
 		content_Group_Box_Layout->addWidget(current_Child_Group_Box);
 
-		double current_Child_Value=-2018;
-		if(current_Child_Data.item_Type == item_Type_Layer)		 current_Child_Value = current_Child_Data.thickness.value;
-		if(current_Child_Data.item_Type == item_Type_Multilayer) current_Child_Value = current_Child_Data.period.value;
-		if(current_Child_Data.item_Type == item_Type_Aperiodic)  current_Child_Value = current_Child_Data.period.value;
+		double current_Child_Min = 0.001;
+		Parameter& current_Child_Parameter = current_Child_Data.thickness;
+		if(current_Child_Data.item_Type == item_Type_Layer)		 { current_Child_Parameter = current_Child_Data.thickness; current_Child_Min = 0; }
+		if(current_Child_Data.item_Type == item_Type_Multilayer) { current_Child_Parameter = current_Child_Data.period;    current_Child_Min = 0.001; }
+		if(current_Child_Data.item_Type == item_Type_Aperiodic)  { current_Child_Parameter = current_Child_Data.period;    current_Child_Min = 0.001; }
 
 		for(int partner_Index = child_Index+1; partner_Index<struct_Item->childCount(); partner_Index++)
 		{
@@ -146,29 +165,35 @@ void Layer_Thickness_Transfer::create_Layer_Lines()
 				child_Partner_Layout->setAlignment(Qt::AlignLeft);
 			current_Child_Group_Box_Layout->addLayout(child_Partner_Layout);
 
-				// partner layer or multilayer or aperiodic
+			// partner layer or multilayer or aperiodic
 			QTreeWidgetItem* partner_Item = struct_Item->child(partner_Index);
 			Data partner_Data = partner_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
 
-			double partner_Value=-2018;
-			if(partner_Data.item_Type == item_Type_Layer)	   partner_Value = partner_Data.thickness.value;
-			if(partner_Data.item_Type == item_Type_Multilayer) partner_Value = partner_Data.period.value;
-			if(partner_Data.item_Type == item_Type_Aperiodic)  partner_Value = partner_Data.period.value;
+			double partner_Min = 0.001;
+			Parameter& partner_Parameter = partner_Data.thickness;
+			if(partner_Data.item_Type == item_Type_Layer)	   { partner_Parameter = partner_Data.thickness; partner_Min = 0; }
+			if(partner_Data.item_Type == item_Type_Multilayer) { partner_Parameter = partner_Data.period;    partner_Min = 0.001;}
+			if(partner_Data.item_Type == item_Type_Aperiodic)  { partner_Parameter = partner_Data.period;    partner_Min = 0.001;}
 
 			QLabel* current_Child_Label = new QLabel(Global_Variables::structure_Item_Name(current_Child_Data));
 			child_Partner_Layout->addWidget(current_Child_Label);
 
 			MyDoubleSpinBox* current_Child_SpinBox = new MyDoubleSpinBox;
 				current_Child_SpinBox->setSuffix(units_Suffix);
-				current_Child_SpinBox->setRange(0, MAX_DOUBLE);
-				current_Child_SpinBox->setValue(current_Child_Value/coeff);
+				current_Child_SpinBox->setRange(current_Child_Min, MAX_DOUBLE);
+				current_Child_SpinBox->setValue(current_Child_Parameter.value/coeff);
 				current_Child_SpinBox->setAccelerated(true);
 				current_Child_SpinBox->setDecimals(thickness_transfer_precision);
 				current_Child_SpinBox->setSingleStep(step);
 				current_Child_SpinBox->setProperty(previous_Value_Property,current_Child_SpinBox->value());
+//				current_Child_SpinBox->setProperty(item_Type_Property,current_Child_Data.item_Type);
+				current_Child_SpinBox->setProperty(id_Property,current_Child_Parameter.indicator.id);
 			child_Partner_Layout->addWidget(current_Child_SpinBox);
 			Global_Variables::resize_Line_Edit(current_Child_SpinBox);
 
+			// mapping
+			map_Line_Edit(current_Child_Parameter.indicator.id,current_Child_SpinBox);
+			map_Of_Items.insert(current_Child_SpinBox,current_Child_Item);
 			map_Of_Identicals.insert(current_Child_SpinBox, current_Child_Data.id);
 
 			QLabel* arrow_Label = new QLabel("<---->");
@@ -176,15 +201,20 @@ void Layer_Thickness_Transfer::create_Layer_Lines()
 
 			MyDoubleSpinBox* partner_SpinBox = new MyDoubleSpinBox;
 				partner_SpinBox->setSuffix(units_Suffix);
-				partner_SpinBox->setRange(0, MAX_DOUBLE);
-				partner_SpinBox->setValue(partner_Value/coeff);
+				partner_SpinBox->setRange(partner_Min, MAX_DOUBLE);
+				partner_SpinBox->setValue(partner_Parameter.value/coeff);
 				partner_SpinBox->setAccelerated(true);
 				partner_SpinBox->setDecimals(thickness_transfer_precision);
 				partner_SpinBox->setSingleStep(step);
 				partner_SpinBox->setProperty(previous_Value_Property,partner_SpinBox->value());
+//				partner_SpinBox->setProperty(item_Type_Property,partner_Data.item_Type);
+				partner_SpinBox->setProperty(id_Property,partner_Parameter.indicator.id);
 			child_Partner_Layout->addWidget(partner_SpinBox);
 			Global_Variables::resize_Line_Edit(partner_SpinBox);
 
+			// mapping
+			map_Line_Edit(partner_Parameter.indicator.id,partner_SpinBox);
+			map_Of_Items.insert(partner_SpinBox,partner_Item);
 			map_Of_Identicals.insert(partner_SpinBox, partner_Data.id);
 
 			QLabel* partner_Label = new QLabel(Global_Variables::structure_Item_Name(partner_Data));
@@ -225,95 +255,157 @@ void Layer_Thickness_Transfer::create_Layer_Lines()
 		double period_Coeff = period_SpinBox->value()/period_SpinBox->property(previous_Value_Property).toDouble();
 
 		// correction of round errors
-		double sum=0;
+		double sum = 0;
+		double n = (1+sqrt(1+4*map_Of_Partners.keys().size()))/2-1;
 
 		for(MyDoubleSpinBox* spinboxes : map_Of_Partners.keys())
 		{
-			spinboxes->disconnect();
+			int N=1;
+			const Data data = map_Of_Items.value(spinboxes)->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+			if(data.item_Type == item_Type_Multilayer) N=data.num_Repetition.value;
+
+			spinboxes->blockSignals(true);
 			spinboxes->setValue(spinboxes->value()*period_Coeff);
-			sum+=spinboxes->value()/2;
+			sum+=spinboxes->value()*N/n;
 		}
 		for(MyDoubleSpinBox* spinboxes : map_Of_Partners.keys())
 		{
 			spinboxes->setValue(spinboxes->value()*period_SpinBox->value()/sum);
 			Global_Variables::resize_Line_Edit(spinboxes);
-			spinboxes->create_Text_Change_Connection();
 			spinboxes->setProperty(previous_Value_Property,spinboxes->value());
-			connect(spinboxes,static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
-			{
-				spinBox_Lambda(spinboxes,map_Of_Partners.value(spinboxes));
-			});
+			spinboxes->blockSignals(false);
 		}
 		period_SpinBox->setProperty(previous_Value_Property,period_SpinBox->value());
 		Global_Variables::resize_Line_Edit(period_SpinBox);
 
 		// refresh
-		struct_Data.period.value = period_SpinBox->value();
-		refresh_Period();
+		refresh(period_SpinBox, line_edit_period_precision);
+
+		// correction of round errors
+		reload();
+
+		// recalculate
+		global_Multilayer_Approach->calc_Reflection(true);
 	});
 }
 
 void Layer_Thickness_Transfer::spinBox_Lambda(MyDoubleSpinBox* current_Child_SpinBox, MyDoubleSpinBox* partner_SpinBox)
 {
+	const Data current_Child_Data = map_Of_Items.value(current_Child_SpinBox)->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+	const Data partner_Data       = map_Of_Items.value(partner_SpinBox)      ->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+
 	double previous_Current_Child_SpinBox_Value = current_Child_SpinBox->property(previous_Value_Property).toDouble();
 	double delta = current_Child_SpinBox->value() - previous_Current_Child_SpinBox_Value;
+	int N = 1;
+	int precision = 8;
+	if(current_Child_Data.item_Type == item_Type_Layer)	     { precision = line_edit_thickness_precision; N = 1; }
+	if(current_Child_Data.item_Type == item_Type_Multilayer) { precision = line_edit_period_precision;    N = current_Child_Data.num_Repetition.value;}
+	if(current_Child_Data.item_Type == item_Type_Aperiodic)  { precision = line_edit_period_precision;    N = 1; }
+
+	current_Child_SpinBox->setDisabled(false);
+	partner_SpinBox->setDisabled(false);
 
 	if(partner_SpinBox->value()-delta >= partner_SpinBox->minimum()*coeff)
 	{
 		// partner
-		partner_SpinBox->disconnect();
-		partner_SpinBox->setValue(partner_SpinBox->value()-delta);
+		partner_SpinBox->blockSignals(true);
+		partner_SpinBox->setValue(partner_SpinBox->value()-delta*N);
+		refresh(partner_SpinBox, precision);
 		Global_Variables::resize_Line_Edit(partner_SpinBox);
-		partner_SpinBox->create_Text_Change_Connection();
 		partner_SpinBox->setProperty(previous_Value_Property,partner_SpinBox->value());
-		connect(partner_SpinBox, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
-		{
-			spinBox_Lambda(partner_SpinBox,current_Child_SpinBox);
-		});
+		partner_SpinBox->blockSignals(false);
 		current_Child_SpinBox->setProperty(previous_Value_Property,current_Child_SpinBox->value());
 
 		// current_Child identicals
 		for(MyDoubleSpinBox* identical_Current_Child : map_Of_Identicals.keys(map_Of_Identicals.value(current_Child_SpinBox)))
 		if(identical_Current_Child!=current_Child_SpinBox)
 		{
-			identical_Current_Child->disconnect();
+			identical_Current_Child->blockSignals(true);
 			identical_Current_Child->setValue(current_Child_SpinBox->value());
 			Global_Variables::resize_Line_Edit(identical_Current_Child);
 			identical_Current_Child->create_Text_Change_Connection();
 			identical_Current_Child->setProperty(previous_Value_Property,identical_Current_Child->value());
-			connect(identical_Current_Child, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
-			{
-				spinBox_Lambda(identical_Current_Child,map_Of_Partners.value(identical_Current_Child));
-			});
+			identical_Current_Child->blockSignals(false);
 		}
 
 		// partner identicals
 		for(MyDoubleSpinBox* identical_Partner : map_Of_Identicals.keys(map_Of_Identicals.value(partner_SpinBox)))
 		if(identical_Partner!=partner_SpinBox)
 		{
-			identical_Partner->disconnect();
+			identical_Partner->blockSignals(true);
 			identical_Partner->setValue(partner_SpinBox->value());
 			Global_Variables::resize_Line_Edit(identical_Partner);
 			identical_Partner->create_Text_Change_Connection();
 			identical_Partner->setProperty(previous_Value_Property,identical_Partner->value());
-			connect(identical_Partner, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
-			{
-				spinBox_Lambda(identical_Partner,map_Of_Partners.key(identical_Partner));
-			});
+			identical_Partner->blockSignals(false);
 		}
 	} else
 	{
 		current_Child_SpinBox->setValue(previous_Current_Child_SpinBox_Value);
 	}
+
+	refresh(current_Child_SpinBox, precision);
 	Global_Variables::resize_Line_Edit(current_Child_SpinBox);
+
+	// recalculate
+	global_Multilayer_Approach->calc_Reflection(true);
 }
 
-void Layer_Thickness_Transfer::refresh_Period()
+void Layer_Thickness_Transfer::refresh(MyDoubleSpinBox* spinbox, int precision)
 {
-	// refresh struct tree
-	QWidget* back_Widget = table_Of_Structures->coupled_Back_Widget_and_Id.key(struct_Data.period.indicator.id); // for using in refresh_Reload_Colorize
-
-	table_Of_Structures->refresh_Reload_Colorize(refresh_Property, back_Widget, &struct_Data.period);
-
-	table_Of_Structures->emit_Data_Edited();
+	QLineEdit* line_Edit = map_Of_Line_Edits.value(spinbox);
+	line_Edit->setText(QString::number(spinbox->value()*coeff/coeff, line_edit_double_format, precision));
+	table_Of_Structures->layer_Thickness_Transfer_Reload_Block = true;
+	line_Edit->textEdited(line_Edit->text());
+	table_Of_Structures->layer_Thickness_Transfer_Reload_Block = false;
 }
+
+void Layer_Thickness_Transfer::map_Line_Edit(id_Type id, MyDoubleSpinBox* spinbox)
+{
+	for(int i=0; i<table_Of_Structures->line_Edits_ID_Map.keys(id).size(); i++)
+	{
+		QLineEdit* line_Edit = table_Of_Structures->line_Edits_ID_Map.keys(id)[i];
+		QString value_Type = line_Edit->property(value_Type_Property).toString();
+		if(value_Type == VAL)
+		{
+			map_Of_Line_Edits.insert(spinbox,line_Edit);
+			break;
+		}
+	}
+}
+
+void Layer_Thickness_Transfer::reload()
+{
+	for(MyDoubleSpinBox* spinbox : map_Of_Line_Edits.keys())
+	{
+		QLineEdit* line_Edit = map_Of_Line_Edits.value(spinbox);
+		spinbox->blockSignals(true);
+		spinbox->setValue(spinbox->valueFromText(line_Edit->text()));
+		spinbox->blockSignals(false);
+		Global_Variables::resize_Line_Edit(spinbox);
+	}
+}
+
+void Layer_Thickness_Transfer::lock_Unlock_Thickness_Transfer(QTreeWidgetItem* item)
+{
+	const Data data = item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+	if(data.item_Type == item_Type_Multilayer)
+	{
+		if(data.num_Repetition.value == 0)
+		{
+			for(MyDoubleSpinBox* spinbox : map_Of_Items.keys(item))
+			{
+				spinbox->setDisabled(true);
+				map_Of_Partners.value(spinbox)->setDisabled(true);
+			}
+		} else
+		{
+			for(MyDoubleSpinBox* spinbox : map_Of_Items.keys(item))
+			{
+				spinbox->setDisabled(false);
+				map_Of_Partners.value(spinbox)->setDisabled(false);
+			}
+		}
+	}
+}
+

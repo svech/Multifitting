@@ -35,7 +35,7 @@ public:
 	void refresh_All_Multilayers_View();
 	void open(QString filename);
 	void save(QString filename);
-	void calc_Reflection();
+	void calc_Reflection(bool silent = false);
 	void start_Fitting();
 	void calc_Confidence_Intervals();
 	void reload_Optical_Constants();

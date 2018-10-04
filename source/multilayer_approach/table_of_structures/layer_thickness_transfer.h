@@ -19,8 +19,10 @@ public:
 	void create_Content_Box();
 	void create_Layer_Lines();
 	void spinBox_Lambda(MyDoubleSpinBox* current_Child_SpinBox, MyDoubleSpinBox* partner_SpinBox);
-	void refresh_Period();
-
+	void refresh(MyDoubleSpinBox* spinbox, int precision);
+	void map_Line_Edit(id_Type id, MyDoubleSpinBox* spinbox);
+	void reload();
+	void lock_Unlock_Thickness_Transfer(QTreeWidgetItem* item);
 
 	QWidget* item_Widget;
 	QTreeWidgetItem* struct_Item;
@@ -32,6 +34,8 @@ public:
 
 	QMap<MyDoubleSpinBox*,id_Type> map_Of_Identicals;
 	QMap<MyDoubleSpinBox*,MyDoubleSpinBox*> map_Of_Partners;
+	QMap<MyDoubleSpinBox*,QLineEdit*> map_Of_Line_Edits;
+	QMap<MyDoubleSpinBox*,QTreeWidgetItem*> map_Of_Items;
 
 	QVBoxLayout* main_Layout;
 		QGroupBox* content_Group_Box;

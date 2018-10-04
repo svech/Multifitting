@@ -35,7 +35,7 @@ public:
 		void refresh_If_Multilayer(QTreeWidgetItem* this_Item);
 			void find_First_Layer(QTreeWidgetItem* this_Item, int& first);
 			void find_Last_Layer(QTreeWidgetItem* this_Item, int& last);
-			void find_Period_And_Gamma(QTreeWidgetItem* this_Item);
+			static void find_Period_And_Gamma(QTreeWidgetItem* this_Item);
 
 	int different_Layers_Counter=0;
 

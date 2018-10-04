@@ -15,8 +15,9 @@ public:
 	virtual QValidator::State validate(QString &input, int &pos) const override;
 	bool isValid(const QString& text) const;
 
-	QLineEdit *myLineEdit() const;
+	QLineEdit* myLineEdit() const;
 	void create_Text_Change_Connection();
+
 };
 
 #endif // MYDOUBLESPINBOX_H
