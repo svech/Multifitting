@@ -826,6 +826,16 @@ void Multilayer_Approach::start_Fitting()
 	qInfo() << "\n\n-------------------------------------------------------"
 				 "\nfitting..."
 				 "\n-------------------------------------------------------\n";
+
+	if(runned_Tables_Of_Structures.contains(table_Key))
+	{
+		if(table_Of_Structures->layer_Thickness_Transfer_Is_Created)
+		{
+			table_Of_Structures->layer_Thickness_Transfer->close();
+		}
+	}
+
+
 	Main_Calculation_Module* main_Calculation_Module = new Main_Calculation_Module(FITTING);
 	main_Calculation_Module->fitting_and_Confidence();
 	delete main_Calculation_Module;
