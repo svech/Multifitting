@@ -22,10 +22,10 @@ void Structure_Toolbar::create_Toolbar()
 	QPixmap paste			(icon_path + "paste.bmp");
 	QPixmap move_Up			(icon_path + "shift_up.bmp");
 	QPixmap move_Down		(icon_path + "shift_down.bmp");
-	QPixmap group			(icon_path + "group.bmp");
+//	QPixmap group			(icon_path + "group.bmp");
 	QPixmap ungroup			(icon_path + "ungroup.bmp");
-	QPixmap thickness_Plot	(icon_path + "zplot.bmp");
-	QPixmap sigma_Plot		(icon_path + "sigmaplot.bmp");
+//	QPixmap thickness_Plot	(icon_path + "zplot.bmp");
+//	QPixmap sigma_Plot		(icon_path + "sigmaplot.bmp");
 	QPixmap destroy			(icon_path + "bomb.bmp");
 
 	toolbar = new QToolBar;
@@ -40,10 +40,10 @@ void Structure_Toolbar::create_Toolbar()
 	toolbar->addAction(QIcon(paste),			"Paste");							// 8
 	toolbar->addAction(QIcon(move_Up),			"Move Up");							// 9
 	toolbar->addAction(QIcon(move_Down),		"Move Down");						// 0
-	toolbar->addAction(QIcon(group),			"Group");							// 11
+//	toolbar->addAction(QIcon(group),			"Group");							// 11
 	toolbar->addAction(QIcon(ungroup),			"Ungroup");							// 12
-	toolbar->addAction(QIcon(thickness_Plot),	"Plot Layer Thickness Profile");	// 13
-	toolbar->addAction(QIcon(sigma_Plot),		"Plot Interface Width Profile");	// 14
+//	toolbar->addAction(QIcon(thickness_Plot),	"Plot Layer Thickness Profile");	// 13
+//	toolbar->addAction(QIcon(sigma_Plot),		"Plot Interface Width Profile");	// 14
 	toolbar->addAction(QIcon(destroy),			"Remove Substrate and All Layers");	// 15
 
 	toolbar->setIconSize(add_Layer.size());
@@ -59,10 +59,10 @@ void Structure_Toolbar::create_Toolbar()
 	connect(toolbar->actions()[Paste],			&QAction::triggered, this, &Structure_Toolbar::paste);
 	connect(toolbar->actions()[Move_Up],		&QAction::triggered, this, &Structure_Toolbar::move_Up);
 	connect(toolbar->actions()[Move_Down],		&QAction::triggered, this, &Structure_Toolbar::move_Down);
-	connect(toolbar->actions()[Group],			&QAction::triggered, this, &Structure_Toolbar::group);
+//	connect(toolbar->actions()[Group],			&QAction::triggered, this, &Structure_Toolbar::group);
 	connect(toolbar->actions()[Ungroup],		&QAction::triggered, this, &Structure_Toolbar::ungroup);
-	connect(toolbar->actions()[Thickness_Plot], &QAction::triggered, this, &Structure_Toolbar::thickness_Plot);
-	connect(toolbar->actions()[Sigma_Plot],		&QAction::triggered, this, &Structure_Toolbar::sigma_Plot);
+//	connect(toolbar->actions()[Thickness_Plot], &QAction::triggered, this, &Structure_Toolbar::thickness_Plot);
+//	connect(toolbar->actions()[Sigma_Plot],		&QAction::triggered, this, &Structure_Toolbar::sigma_Plot);
 	connect(toolbar->actions()[Destroy],		&QAction::triggered, this, &Structure_Toolbar::destroy);
 
 	if_Selected();
@@ -678,9 +678,9 @@ void Structure_Toolbar::if_Selected()
 		toolbar->actions()[Copy]->setDisabled(true);			// copy
 		toolbar->actions()[Move_Up]->setDisabled(true);			// move_Up
 		toolbar->actions()[Move_Down]->setDisabled(true);		// move_Down
-		toolbar->actions()[Group]->setDisabled(true);			// group
-		toolbar->actions()[Thickness_Plot]->setDisabled(true);	// thickness_Plot
-		toolbar->actions()[Sigma_Plot]->setDisabled(true);		// sigma_Plot
+//		toolbar->actions()[Group]->setDisabled(true);			// group
+//		toolbar->actions()[Thickness_Plot]->setDisabled(true);	// thickness_Plot
+//		toolbar->actions()[Sigma_Plot]->setDisabled(true);		// sigma_Plot
 	} else
 	{
 		bool if_Substrate  = (structure_Tree->tree->currentItem()->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>().item_Type) == item_Type_Substrate;
@@ -728,7 +728,7 @@ void Structure_Toolbar::if_Selected()
 				toolbar->actions()[Copy]->setDisabled(true);		// copy
 				toolbar->actions()[Move_Up]->setDisabled(true);		// move_Up
 				toolbar->actions()[Move_Down]->setDisabled(true);	// move_Down
-				toolbar->actions()[Group]->setDisabled(true);		// group
+//				toolbar->actions()[Group]->setDisabled(true);		// group
 			} else
 			// if not at end
 			if(position<structure_Tree->tree->topLevelItemCount()-1)

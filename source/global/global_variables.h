@@ -45,10 +45,10 @@ enum multilayer_Toolbar_Enum    { Add_Layer,
 								  Paste,
 								  Move_Up,
 								  Move_Down,
-								  Group,
+//								  Group,
 								  Ungroup,
-								  Thickness_Plot,
-								  Sigma_Plot,
+//								  Thickness_Plot,
+//								  Sigma_Plot,
 								  Destroy };
 
 // independent variables toolbar

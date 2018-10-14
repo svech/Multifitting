@@ -162,7 +162,7 @@ class Node;
 
 #ifdef _WIN32
 	#define WINDOW_BOUNDARY_SHIFT_X 8			// shift in window position
-	#define WINDOW_BOUNDARY_SHIFT_Y 30			// shift in window position
+	#define WINDOW_BOUNDARY_SHIFT_Y 31			// shift in window position
 #endif
 #ifdef __linux__
 	#define WINDOW_BOUNDARY_SHIFT_X 1			// shift in window position
