@@ -468,9 +468,9 @@ void Calculation_Tree::calculate_Unwrapped_Reflectivity(Calculated_Values& calcu
 // TODO calculated_Values
 	// make a copy for plotting
 	calculated_Values.R=QVector<double>::fromStdVector(unwrapped_Reflection_Vec_Element->R_Instrumental);
-	if(abs(measurement.polarization.value-1)<DBL_EPSILON)	{ calculated_Values.Phi = QVector<double>::fromStdVector(unwrapped_Reflection_Vec_Element->Phi_s); } else
-	if(abs(measurement.polarization.value+1)<DBL_EPSILON)	{ calculated_Values.Phi = QVector<double>::fromStdVector(unwrapped_Reflection_Vec_Element->Phi_p);	} else
-															{ calculated_Values.Phi.clear(); }
+	if(abs(measurement.polarization.value-1)<DBL_EPSILON)	{ calculated_Values.Phi_R = QVector<double>::fromStdVector(unwrapped_Reflection_Vec_Element->Phi_R_s); } else
+	if(abs(measurement.polarization.value+1)<DBL_EPSILON)	{ calculated_Values.Phi_R = QVector<double>::fromStdVector(unwrapped_Reflection_Vec_Element->Phi_R_p);	} else
+															{ calculated_Values.Phi_R.clear(); }
 
 //	qInfo() << "Bare Reflectivity:      "<< elapsed.count()/1000. << " seconds" << endl;
 

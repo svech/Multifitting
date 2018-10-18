@@ -35,7 +35,7 @@ public:
 	vector<vector<double>> hi_IM;				//	[thread][media]
 	vector<vector<double>> exponenta_RE;		//	[thread][layer]
 	vector<vector<double>> exponenta_IM;		//	[thread][layer]
-	vector<vector<double>> weak_Factor;			//	[thread][boundary]
+	vector<vector<double>> weak_Factor_R;			//	[thread][boundary]
 
 	int fill_s__Max_Depth_2(const tree<Node>::iterator& parent, int thread_Index, int point_Index, int media_Index = 0);
 	int fill_p__Max_Depth_2(const tree<Node>::iterator& parent, int thread_Index, int point_Index, int media_Index = 0);
@@ -52,8 +52,8 @@ public:
 
 	vector<complex<double>> r_s;
 	vector<complex<double>> r_p;
-	vector<double> Phi_s;
-	vector<double> Phi_p;
+	vector<double> Phi_R_s;
+	vector<double> Phi_R_p;
 	vector<double> R_s;
 	vector<double> R_p;
 	vector<double> R;

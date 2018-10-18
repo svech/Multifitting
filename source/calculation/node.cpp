@@ -282,7 +282,8 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 			if( struct_Data.item_Type == item_Type_Layer   ||
 				struct_Data.item_Type == item_Type_Substrate )
 			{
-				weak_Factor.resize(num_Points);
+				weak_Factor_R.resize(num_Points);
+				weak_Factor_T.resize(num_Points);
 
 				// if >=1 interlayer is turned on
 				bool is_Norm = false;
@@ -295,16 +296,20 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 				{
 					// temp variables
 					double a = M_PI/sqrt(M_PI*M_PI - 8.);
-					double factor, x, y, six, siy;
+					double factor_r, x_r, y_r, six_r, siy_r;
+					double factor_t, x_t, y_t, six_t, siy_t;
 
 					double norm = 0;
 					double my_Sigma = struct_Data.sigma.value;	// by default, otherwise we change it
-					vector<double> s (num_Points);
+					vector<double> s_r (num_Points);
+					vector<double> s_t (num_Points);
 
 					for(int i=0; i<num_Points; ++i)
 					{
-						weak_Factor[i] = 0;
-						s[i] = sqrt(above_Node->hi_RE[i]*hi_RE[i]);
+						weak_Factor_R[i] = 0;
+						weak_Factor_T[i] = 0;
+						s_r[i] = sqrt(above_Node->hi_RE[i]*hi_RE[i]);
+						s_t[i] =      above_Node->hi_RE[i]-hi_RE[i];
 					}
 
 					//-------------------------------------------------------------------------------
@@ -317,8 +322,13 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 							my_Sigma = struct_Data.interlayer_Composition[Erf].my_Sigma.value;
 						for(int i=0; i<num_Points; ++i)
 						{
-							factor = exp( - 2 * s[i] * s[i] * my_Sigma * my_Sigma );
-							weak_Factor[i] += struct_Data.interlayer_Composition[Erf].interlayer.value * factor;
+							// reftectance
+							factor_r = exp( - s_r[i] * s_r[i] * my_Sigma * my_Sigma * 2 );
+							weak_Factor_R[i] += struct_Data.interlayer_Composition[Erf].interlayer.value * factor_r;
+
+							// transmittance
+							factor_t = exp(   s_t[i] * s_t[i] * my_Sigma * my_Sigma / 2 );
+							weak_Factor_T[i] += struct_Data.interlayer_Composition[Erf].interlayer.value * factor_t;
 						}
 					}
 					//-------------------------------------------------------------------------------
@@ -331,16 +341,24 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 							my_Sigma = struct_Data.interlayer_Composition[Lin].my_Sigma.value;
 						for(int i=0; i<num_Points; ++i)
 						{
-							x = sqrt(3.) * 2 * s[i] * my_Sigma;
-							if(abs(x)>DBL_MIN)
-							{
-								factor = sin(x) / (x);
+							// reftectance
+							x_r = sqrt(3.) * s_r[i] * my_Sigma * 2;
+							if(abs(x_r)>DBL_MIN) {
+								factor_r = sin(x_r) / (x_r);
 							}
-							else
-							{
-								factor = 1;
+							else {
+								factor_r = 1;
 							}
-							weak_Factor[i] += struct_Data.interlayer_Composition[Lin].interlayer.value * factor;
+							weak_Factor_R[i] += struct_Data.interlayer_Composition[Lin].interlayer.value * factor_r;
+
+							// transmittance
+							x_t = sqrt(3.) * s_t[i] * my_Sigma * 1;
+							if(abs(x_t)>DBL_MIN) {
+								factor_t = sin(x_t) / (x_t);
+							} else {
+								factor_t = 1;
+							}
+							weak_Factor_T[i] += struct_Data.interlayer_Composition[Lin].interlayer.value * factor_t;
 						}
 					}
 					//-------------------------------------------------------------------------------
@@ -353,9 +371,15 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 							my_Sigma = struct_Data.interlayer_Composition[Exp].my_Sigma.value;
 						for(int i=0; i<num_Points; ++i)
 						{
-							x = 2 * pow(s[i] * my_Sigma, 2);
-							factor = 1. / (1. + x);
-							weak_Factor[i] += struct_Data.interlayer_Composition[Exp].interlayer.value * factor;
+							// reftectance
+							x_r = pow(s_r[i] * my_Sigma, 2) * 2;
+							factor_r = 1. / (1. + x_r);
+							weak_Factor_R[i] += struct_Data.interlayer_Composition[Exp].interlayer.value * factor_r;
+
+							// transmittance
+							x_t = pow(s_t[i] * my_Sigma, 2) / 2;
+							factor_t = 1. / (1. + x_t);
+							weak_Factor_T[i] += struct_Data.interlayer_Composition[Exp].interlayer.value * factor_t;
 						}
 					}
 					//-------------------------------------------------------------------------------
@@ -368,16 +392,29 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 							my_Sigma = struct_Data.interlayer_Composition[Tanh].my_Sigma.value;
 						for(int i=0; i<num_Points; ++i)
 						{
-							x = 2 * sqrt(3.) * s[i] * my_Sigma;
-							if(abs(x)>DBL_MIN)
+							// reftectance
+							x_r = sqrt(3.) * s_r[i] * my_Sigma * 2;
+							if(abs(x_r)>DBL_MIN)
 							{
-								factor = x / sinh(x);
+								factor_r = x_r / sinh(x_r);
 							}
 							else
 							{
-								factor = 1;
+								factor_r = 1;
 							}
-							weak_Factor[i] += struct_Data.interlayer_Composition[Tanh].interlayer.value * factor;
+							weak_Factor_R[i] += struct_Data.interlayer_Composition[Tanh].interlayer.value * factor_r;
+
+							// transmittance
+							x_t = sqrt(3.) * s_t[i] * my_Sigma * 1;
+							if(abs(x_t)>DBL_MIN)
+							{
+								factor_t = x_t / sinh(x_t);
+							}
+							else
+							{
+								factor_t = 1;
+							}
+							weak_Factor_T[i] += struct_Data.interlayer_Composition[Tanh].interlayer.value * factor_t;
 						}
 					}
 					//-------------------------------------------------------------------------------
@@ -390,14 +427,25 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 							my_Sigma = struct_Data.interlayer_Composition[Sin].my_Sigma.value;
 						for(int i=0; i<num_Points; ++i)
 						{
-							x = 2 * a * my_Sigma * s[i] - M_PI_2;
-							y = x + M_PI;
+							// reftectance
+							x_r = a * my_Sigma * s_r[i] * 2 - M_PI_2;
+							y_r = x_r + M_PI;
 
-							if(abs(x)>DBL_MIN) six = sin(x)/x; else six = 1;
-							if(abs(y)>DBL_MIN) siy = sin(y)/y; else siy = 1;
+							if(abs(x_r)>DBL_MIN) six_r = sin(x_r)/x_r; else six_r = 1;
+							if(abs(y_r)>DBL_MIN) siy_r = sin(y_r)/y_r; else siy_r = 1;
 
-							factor = M_PI_4 * (six + siy);
-							weak_Factor[i] += struct_Data.interlayer_Composition[Sin].interlayer.value * factor;
+							factor_r = M_PI_4 * (six_r + siy_r);
+							weak_Factor_R[i] += struct_Data.interlayer_Composition[Sin].interlayer.value * factor_r;
+
+							// transmittance
+							x_t = a * my_Sigma * s_t[i] * 1 - M_PI_2;
+							y_t = x_t + M_PI;
+
+							if(abs(x_t)>DBL_MIN) six_t = sin(x_t)/x_t; else six_t = 1;
+							if(abs(y_t)>DBL_MIN) siy_t = sin(y_t)/y_t; else siy_t = 1;
+
+							factor_t = M_PI_4 * (six_t + siy_t);
+							weak_Factor_T[i] += struct_Data.interlayer_Composition[Sin].interlayer.value * factor_t;
 						}
 					}
 					//-------------------------------------------------------------------------------
@@ -410,8 +458,13 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 							my_Sigma = struct_Data.interlayer_Composition[Step].my_Sigma.value;
 						for(int i=0; i<num_Points; ++i)
 						{
-							factor = cos(2 * s[i] * my_Sigma);
-							weak_Factor[i] += struct_Data.interlayer_Composition[Step].interlayer.value * factor;
+							// reftectance
+							factor_r = cos(s_r[i] * my_Sigma * 2);
+							weak_Factor_R[i] += struct_Data.interlayer_Composition[Step].interlayer.value * factor_r;
+
+							// transmittance
+							factor_t = cos(s_t[i] * my_Sigma * 1);
+							weak_Factor_R[i] += struct_Data.interlayer_Composition[Step].interlayer.value * factor_t;
 						}
 					}
 					//-------------------------------------------------------------------------------
@@ -420,18 +473,21 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 						if( abs(norm) > DBL_MIN )
 						for(int i=0; i<num_Points; ++i)
 						{
-							weak_Factor[i] /= norm;
+							weak_Factor_R[i] /= norm;
+							weak_Factor_T[i] /= norm;
 						} else
 						for(int i=0; i<num_Points; ++i)
 						{
-							weak_Factor[i] = 1;
+							weak_Factor_R[i] = 1;
+							weak_Factor_T[i] = 1;
 						}
 					}
 				} else
 				{
 					for(int i=0; i<num_Points; ++i)
 					{
-						weak_Factor[i] = 1;
+						weak_Factor_R[i] = 1;
+						weak_Factor_T[i] = 1;
 					}
 				}
 			}

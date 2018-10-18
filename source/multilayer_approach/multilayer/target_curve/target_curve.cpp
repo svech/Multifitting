@@ -134,10 +134,10 @@ void Target_Curve::fill_Measurement_With_Data()
 		if(abs(curve.beam_Intensity)<=DBL_EPSILON) curve.beam_Intensity = 1;
 
 		// preliminary fill calculated data with 0
-		calculated_Values.R.resize(curve.argument.size());	calculated_Values.R.fill(0);
-		calculated_Values.Phi.resize(curve.argument.size());calculated_Values.Phi.fill(0);
-		calculated_Values.T.resize(curve.argument.size());	calculated_Values.T.fill(0);
-		calculated_Values.A.resize(curve.argument.size());	calculated_Values.A.fill(0);
+		calculated_Values.R.	resize(curve.argument.size());	calculated_Values.R.fill(0);
+		calculated_Values.Phi_R.resize(curve.argument.size());	calculated_Values.Phi_R.fill(0);
+		calculated_Values.T.	resize(curve.argument.size());	calculated_Values.T.fill(0);
+		calculated_Values.A.	resize(curve.argument.size());	calculated_Values.A.fill(0);
 
 		// argument shift
 		// shift has the same units as data

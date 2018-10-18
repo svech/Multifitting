@@ -614,6 +614,215 @@ void Main_Calculation_Module::print_Calculated_To_File()
 	}
 }
 
+template <typename Type>
+void Main_Calculation_Module::print_Reflect_To_File(Data_Element<Type>& data_Element, QString struct_Name, int index)
+{
+	QString first_Name;
+	if(data_Element.curve_Class == INDEPENDENT)	first_Name = "calc_" + struct_Name + "_independent";
+	if(data_Element.curve_Class == TARGET)		first_Name = "calc_" + struct_Name + "_target";
+
+	Independent_Variables* independent_Variables = qobject_cast<Independent_Variables*>(data_Element.the_Class);
+	Target_Curve* target_Curve = qobject_cast<Target_Curve*>(data_Element.the_Class);
+
+	//-----------------------------------------------------------------------------------------------------
+	/// which values to print
+	// reflectance
+	bool print_Reflectance = false;
+	if(data_Element.curve_Class == INDEPENDENT)
+	if(independent_Variables->calc_Functions.check_Reflectance)
+		print_Reflectance = true;
+	if(data_Element.curve_Class == TARGET)
+	if(target_Curve->curve.value_Function == value_Function[Reflectance])
+		print_Reflectance = true;
+
+	// transmittance
+	bool print_Transmittance = false;
+	if(data_Element.curve_Class == INDEPENDENT)
+	if(independent_Variables->calc_Functions.check_Transmittance)
+		print_Transmittance = true;
+	if(data_Element.curve_Class == TARGET)
+	if(target_Curve->curve.value_Function == value_Function[Transmittance])
+		print_Transmittance = true;
+
+	// absorptance
+	bool print_Absorptance = false;
+	if(data_Element.curve_Class == INDEPENDENT)
+	if(independent_Variables->calc_Functions.check_Absorptance)
+		print_Absorptance = true;
+	if(data_Element.curve_Class == TARGET)
+	if(target_Curve->curve.value_Function == value_Function[Absorptance])
+		print_Absorptance = true;
+
+	// user function
+	bool print_User = false;
+	if(data_Element.curve_Class == INDEPENDENT)
+	if(independent_Variables->calc_Functions.check_User)
+		print_User = true;
+
+	//-----------------------------------------------------------------------------------------------------
+
+	QVector<double> arg;
+	if(data_Element.active_Parameter_Whats_This == whats_This_Angle )
+	{
+		arg = data_Element.the_Class->measurement.angle;
+	}
+	if(data_Element.active_Parameter_Whats_This == whats_This_Wavelength )
+	{
+		arg = data_Element.the_Class->measurement.lambda;
+	}
+
+	QString name = first_Name+"_"+QString::number(index)+".txt";
+	QFile file(name);
+	if (file.open(QIODevice::WriteOnly))
+	{
+		QTextStream out(&file);
+		out.setFieldAlignment(QTextStream::AlignLeft);
+
+		print_Data(out,
+				   arg,
+				   data_Element.unwrapped_Reflection,
+				   print_Reflectance,
+				   print_Transmittance,
+				   print_Absorptance,
+				   print_User,
+				   data_Element.the_Class->measurement.polarization.value
+				   );
+		file.close();
+	} else
+	{
+		qInfo() << "Main_Calculation_Module::print_Reflect_To_File  :  Can't write file " + name;
+		QMessageBox::critical(nullptr, "Main_Calculation_Module::print_Reflect_To_File", "Can't write file " + name);
+		exit(EXIT_FAILURE);
+	}
+}
+template void Main_Calculation_Module::print_Reflect_To_File<Independent_Variables>(Data_Element<Independent_Variables>&, QString, int);
+template void Main_Calculation_Module::print_Reflect_To_File<Target_Curve>		   (Data_Element<Target_Curve>&,          QString, int);
+
+void Main_Calculation_Module::print_Data(QTextStream &out, QVector<double> &arg, Unwrapped_Reflection* unwrapped_Reflection,
+										bool print_Reflectance,
+										bool print_Transmittance,
+										bool print_Absorptance,
+										bool print_User,
+										double incident_Polarization
+										)
+{
+	// headline
+	QString argument = "argument";
+
+	QString R_mixed  = "R_mixed";
+	QString R_s      = "R_s";
+	QString R_p      = "R_p";
+	QString Phi_R_s  = "Phase_R_s";
+	QString Phi_R_p  = "Phase_R_p";
+
+	QString T_mixed  = "T_mixed";
+	QString T_s      = "T_s";
+	QString T_p      = "T_p";
+	QString Phi_T_s  = "Phase_T_s";
+	QString Phi_T_p  = "Phase_T_p";
+
+	QString A_s      = "A_s";
+	QString A_p      = "A_p";
+
+	QString user     = "user";
+
+
+	int precision_Arg = 4;
+	int precision_R_T_A = 6;
+	int precision_Phi = 4;
+
+	int arg_Shift = 3;
+	int width_Short= 8+precision_Arg;
+	int width_Long = 11+precision_R_T_A;
+
+	///------------------------------------------------------------------------
+	/// headline
+	{	// argument
+		out << qSetFieldWidth(arg_Shift-1) << "";
+		out << qSetFieldWidth(width_Short) << argument  << qSetFieldWidth(width_Long);
+
+		// reflectance
+		if(print_Reflectance)
+		{
+			out << R_mixed;
+			if(incident_Polarization>-1)	out << R_s;
+			if(incident_Polarization< 1)	out << R_p;
+			if(incident_Polarization>-1)	out << Phi_R_s;
+			if(incident_Polarization< 1)	out << Phi_R_p;
+		}
+
+		// transmittance
+		if(print_Transmittance)
+		{
+			out <<T_mixed;
+			if(incident_Polarization>-1)	out << T_s;
+			if(incident_Polarization< 1)	out << T_p;
+			if(incident_Polarization>-1)	out << Phi_T_s;
+			if(incident_Polarization< 1)	out << Phi_T_p;
+		}
+
+		// absorptance
+		if(print_Absorptance)
+		{
+			out << T_mixed;
+			if(incident_Polarization>-1)	out << A_s;
+			if(incident_Polarization< 1)	out << A_p;
+		}
+
+		// user
+		if(print_User)
+		{
+			out << user;
+		}
+		out << qSetFieldWidth(arg_Shift) << endl  << qSetFieldWidth(width_Short);
+	}
+	///------------------------------------------------------------------------
+	/// data
+	{
+		for(auto i=0; i<arg.size(); ++i)
+		{
+			// argument
+			out << qSetFieldWidth(width_Short) << QString::number(arg[i],'f',precision_Arg)  << qSetFieldWidth(width_Long);
+
+			// reflectance
+			if(print_Reflectance)
+			{
+												out << QString::number(unwrapped_Reflection->R_Instrumental[i],'e',precision_R_T_A);
+				if(incident_Polarization>-1)	out << QString::number(unwrapped_Reflection->R_s           [i],'e',precision_R_T_A);
+				if(incident_Polarization< 1)	out << QString::number(unwrapped_Reflection->R_p           [i],'e',precision_R_T_A);
+				if(incident_Polarization>-1)	out << QString::number(unwrapped_Reflection->Phi_R_s       [i],'f',precision_Phi);
+				if(incident_Polarization< 1)	out << QString::number(unwrapped_Reflection->Phi_R_p       [i],'f',precision_Phi);
+			}
+
+			/////////////////////////////////////// TODO ////////////////////////////
+			// transmittance
+			if(print_Transmittance)
+			{
+				out <<T_mixed;
+				if(incident_Polarization>-1)	out << T_s;
+				if(incident_Polarization< 1)	out << T_p;
+				if(incident_Polarization>-1)	out << Phi_T_s;
+				if(incident_Polarization< 1)	out << Phi_T_p;
+			}
+
+			// absorptance
+			if(print_Absorptance)
+			{
+				out << T_mixed;
+				if(incident_Polarization>-1)	out << A_s;
+				if(incident_Polarization< 1)	out << A_p;
+			}
+
+			// user
+			if(print_User)
+			{
+				out << user;
+			}
+			out << qSetFieldWidth(arg_Shift) << endl  << qSetFieldWidth(width_Short);
+		}
+	}
+}
+
 void Main_Calculation_Module::add_Fit(QString name_Modificator, int run)
 {
 	// save new trees
@@ -624,46 +833,3 @@ void Main_Calculation_Module::add_Fit(QString name_Modificator, int run)
 	}
 	global_Multilayer_Approach->add_Fitted_Structure(fitted_Trees, name_Modificator, run);
 }
-
-template <typename Type>
-void Main_Calculation_Module::print_Reflect_To_File(Data_Element<Type>& data_Element, QString struct_Name, int index)
-{
-	QString first_Name;
-	if(data_Element.curve_Class == INDEPENDENT)	first_Name = "calc_" + struct_Name + "_independent";
-	if(data_Element.curve_Class == TARGET)		first_Name = "calc_" + struct_Name + "_target";
-
-	int num_Points = 0;
-	QVector<double> arg;
-	if(data_Element.active_Parameter_Whats_This == whats_This_Angle )
-	{
-		num_Points = data_Element.the_Class->measurement.angle.size();
-		arg = data_Element.the_Class->measurement.angle;
-	}
-	if(data_Element.active_Parameter_Whats_This == whats_This_Wavelength )
-	{
-		num_Points = data_Element.the_Class->measurement.lambda.size();
-		arg = data_Element.the_Class->measurement.lambda;
-	}
-
-	QString name = first_Name+"_"+QString::number(index)+".txt";
-	QFile file(name);
-	if (file.open(QIODevice::WriteOnly))
-	{
-		QTextStream out(&file);
-		for(auto i=0; i<num_Points; ++i)
-		{
-			out << "\t" << QString::number(arg[i],'f',4)
-//				<< "\t" << QString::number(data_Element.unwrapped_Reflection->R[i],'e',15)
-				<< "\t" << QString::number(data_Element.unwrapped_Reflection->R_Instrumental[i],'e',15)
-				<< endl;
-		}
-	file.close();
-	} else
-	{
-		qInfo() << "Main_Calculation_Module::print_Reflect_To_File  :  Can't write file " + name;
-		QMessageBox::critical(nullptr, "Main_Calculation_Module::print_Reflect_To_File", "Can't write file " + name);
-		exit(EXIT_FAILURE);
-	}
-}
-template void Main_Calculation_Module::print_Reflect_To_File<Independent_Variables>(Data_Element<Independent_Variables>&, QString, int);
-template void Main_Calculation_Module::print_Reflect_To_File<Target_Curve>		   (Data_Element<Target_Curve>&, QString, int);

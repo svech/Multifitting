@@ -168,13 +168,13 @@ QDataStream& operator >>( QDataStream& stream,		 Plot_Options& plot_Options )
 
 QDataStream& operator <<( QDataStream& stream, const Calculated_Values& calculated_Values )
 {
-	return stream << calculated_Values.R << calculated_Values.Phi
+	return stream << calculated_Values.R << calculated_Values.Phi_R
 				  << calculated_Values.T
 				  << calculated_Values.A;
 }
 QDataStream& operator >>( QDataStream& stream,		 Calculated_Values& calculated_Values )
 {
-	return stream >> calculated_Values.R >> calculated_Values.Phi
+	return stream >> calculated_Values.R >> calculated_Values.Phi_R
 				  >> calculated_Values.T
 				  >> calculated_Values.A;
 }

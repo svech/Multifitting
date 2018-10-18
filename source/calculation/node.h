@@ -35,7 +35,8 @@ public:
 	vector<double> Fresnel_p_IM;
 	vector<double> exponenta_RE;
 	vector<double> exponenta_IM;
-	vector<double> weak_Factor;
+	vector<double> weak_Factor_R;
+	vector<double> weak_Factor_T;
 
 	/// ------------------------------------------------
 };

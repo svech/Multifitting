@@ -468,7 +468,7 @@ struct Plot_Options				{QString scale = lin_Scale;
 
 // calculated functions for plotting
 struct Calculated_Values	    {QVector<double> R;
-								 QVector<double> Phi;
+								 QVector<double> Phi_R;
 
 								 QVector<double> T;
 								 QVector<double> A;
@@ -476,7 +476,7 @@ struct Calculated_Values	    {QVector<double> R;
 								 void clear_All()
 								 {
 									 R.clear();
-									 Phi.clear();
+									 Phi_R.clear();
 
 									 T.clear();
 									 A.clear();

@@ -62,6 +62,14 @@ public:
 	template <typename Type>
 	void print_Reflect_To_File(Data_Element<Type>& data_Element, QString struct_Name, int index);
 	void print_Calculated_To_File();
+	void print_Data(QTextStream& out,QVector<double>& arg,
+									 Unwrapped_Reflection* unwrapped_Reflection,
+									 bool print_Reflectance,
+									 bool print_Transmittance,
+									 bool print_Absorptance,
+									 bool print_User,
+									 double incident_Polarization
+									 );
 
 	void add_Fit(QString name_Modificator, int run=0);
 };

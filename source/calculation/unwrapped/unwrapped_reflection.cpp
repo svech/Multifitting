@@ -28,7 +28,7 @@ Unwrapped_Reflection::Unwrapped_Reflection(Unwrapped_Structure* unwrapped_Struct
 	exponenta_RE  (num_Threads,vector<double>(num_Boundaries)),
 	exponenta_IM  (num_Threads,vector<double>(num_Boundaries)),
 
-	weak_Factor  (num_Threads,vector<double>(num_Boundaries))
+	weak_Factor_R (num_Threads,vector<double>(num_Boundaries))
 {
 	if(active_Parameter_Whats_This == whats_This_Angle)
 	{
@@ -41,8 +41,8 @@ Unwrapped_Reflection::Unwrapped_Reflection(Unwrapped_Structure* unwrapped_Struct
 
 	r_s.resize(num_Points);
 	r_p.resize(num_Points);
-	Phi_s.resize(num_Points);
-	Phi_p.resize(num_Points);
+	Phi_R_s.resize(num_Points);
+	Phi_R_p.resize(num_Points);
 	R_s.resize(num_Points);
 	R_p.resize(num_Points);
 	R  .resize(num_Points);
@@ -65,8 +65,8 @@ int Unwrapped_Reflection::fill_s__Max_Depth_2(const tree<Node>::iterator& parent
 		{
 			hi_RE         [thread_Index][media_Index  ] = child.node->data.hi_RE[point_Index];
 			hi_IM         [thread_Index][media_Index  ] = child.node->data.hi_IM[point_Index];
-			r_Fresnel_s_RE[thread_Index][media_Index-1] = child.node->data.Fresnel_s_RE[point_Index] * child.node->data.weak_Factor[point_Index];
-			r_Fresnel_s_IM[thread_Index][media_Index-1] = child.node->data.Fresnel_s_IM[point_Index] * child.node->data.weak_Factor[point_Index];
+			r_Fresnel_s_RE[thread_Index][media_Index-1] = child.node->data.Fresnel_s_RE[point_Index] * child.node->data.weak_Factor_R[point_Index];
+			r_Fresnel_s_IM[thread_Index][media_Index-1] = child.node->data.Fresnel_s_IM[point_Index] * child.node->data.weak_Factor_R[point_Index];
 			exponenta_RE  [thread_Index][media_Index-1] = child.node->data.exponenta_RE[point_Index];
 			exponenta_IM  [thread_Index][media_Index-1] = child.node->data.exponenta_IM[point_Index];
 			++media_Index;
@@ -75,8 +75,8 @@ int Unwrapped_Reflection::fill_s__Max_Depth_2(const tree<Node>::iterator& parent
 		{
 			hi_RE         [thread_Index][media_Index  ] = child.node->data.hi_RE[point_Index];
 			hi_IM         [thread_Index][media_Index  ] = child.node->data.hi_IM[point_Index];
-			r_Fresnel_s_RE[thread_Index][media_Index-1] = child.node->data.Fresnel_s_RE[point_Index] * child.node->data.weak_Factor[point_Index];
-			r_Fresnel_s_IM[thread_Index][media_Index-1] = child.node->data.Fresnel_s_IM[point_Index] * child.node->data.weak_Factor[point_Index];
+			r_Fresnel_s_RE[thread_Index][media_Index-1] = child.node->data.Fresnel_s_RE[point_Index] * child.node->data.weak_Factor_R[point_Index];
+			r_Fresnel_s_IM[thread_Index][media_Index-1] = child.node->data.Fresnel_s_IM[point_Index] * child.node->data.weak_Factor_R[point_Index];
 			++media_Index;
 		} else
 		if(child.node->data.struct_Data.item_Type == item_Type_Multilayer)
@@ -88,8 +88,8 @@ int Unwrapped_Reflection::fill_s__Max_Depth_2(const tree<Node>::iterator& parent
 					tree<Node>::post_order_iterator grandchild = tree<Node>::child(child,grandchild_Index);
 					hi_RE         [thread_Index][media_Index  ] = grandchild.node->data.hi_RE[point_Index];
 					hi_IM         [thread_Index][media_Index  ] = grandchild.node->data.hi_IM[point_Index];
-					r_Fresnel_s_RE[thread_Index][media_Index-1] = grandchild.node->data.Fresnel_s_RE[point_Index] * grandchild.node->data.weak_Factor[point_Index];
-					r_Fresnel_s_IM[thread_Index][media_Index-1] = grandchild.node->data.Fresnel_s_IM[point_Index] * grandchild.node->data.weak_Factor[point_Index];
+					r_Fresnel_s_RE[thread_Index][media_Index-1] = grandchild.node->data.Fresnel_s_RE[point_Index] * grandchild.node->data.weak_Factor_R[point_Index];
+					r_Fresnel_s_IM[thread_Index][media_Index-1] = grandchild.node->data.Fresnel_s_IM[point_Index] * grandchild.node->data.weak_Factor_R[point_Index];
 					exponenta_RE  [thread_Index][media_Index-1] = grandchild.node->data.exponenta_RE[point_Index];
 					exponenta_IM  [thread_Index][media_Index-1] = grandchild.node->data.exponenta_IM[point_Index];
 					++media_Index;
@@ -115,8 +115,8 @@ int Unwrapped_Reflection::fill_p__Max_Depth_2(const tree<Node>::iterator& parent
 		{
 			hi_RE         [thread_Index][media_Index  ] = child.node->data.hi_RE[point_Index];
 			hi_IM         [thread_Index][media_Index  ] = child.node->data.hi_IM[point_Index];
-			r_Fresnel_p_RE[thread_Index][media_Index-1] = child.node->data.Fresnel_p_RE[point_Index] * child.node->data.weak_Factor[point_Index];
-			r_Fresnel_p_IM[thread_Index][media_Index-1] = child.node->data.Fresnel_p_IM[point_Index] * child.node->data.weak_Factor[point_Index];
+			r_Fresnel_p_RE[thread_Index][media_Index-1] = child.node->data.Fresnel_p_RE[point_Index] * child.node->data.weak_Factor_R[point_Index];
+			r_Fresnel_p_IM[thread_Index][media_Index-1] = child.node->data.Fresnel_p_IM[point_Index] * child.node->data.weak_Factor_R[point_Index];
 			exponenta_RE  [thread_Index][media_Index-1] = child.node->data.exponenta_RE[point_Index];
 			exponenta_IM  [thread_Index][media_Index-1] = child.node->data.exponenta_IM[point_Index];
 			++media_Index;
@@ -125,8 +125,8 @@ int Unwrapped_Reflection::fill_p__Max_Depth_2(const tree<Node>::iterator& parent
 		{
 			hi_RE         [thread_Index][media_Index  ] = child.node->data.hi_RE[point_Index];
 			hi_IM         [thread_Index][media_Index  ] = child.node->data.hi_IM[point_Index];
-			r_Fresnel_p_RE[thread_Index][media_Index-1] = child.node->data.Fresnel_p_RE[point_Index] * child.node->data.weak_Factor[point_Index];
-			r_Fresnel_p_IM[thread_Index][media_Index-1] = child.node->data.Fresnel_p_IM[point_Index] * child.node->data.weak_Factor[point_Index];
+			r_Fresnel_p_RE[thread_Index][media_Index-1] = child.node->data.Fresnel_p_RE[point_Index] * child.node->data.weak_Factor_R[point_Index];
+			r_Fresnel_p_IM[thread_Index][media_Index-1] = child.node->data.Fresnel_p_IM[point_Index] * child.node->data.weak_Factor_R[point_Index];
 			++media_Index;
 		} else
 		if(child.node->data.struct_Data.item_Type == item_Type_Multilayer)
@@ -138,8 +138,8 @@ int Unwrapped_Reflection::fill_p__Max_Depth_2(const tree<Node>::iterator& parent
 					tree<Node>::post_order_iterator grandchild = tree<Node>::child(child,grandchild_Index);
 					hi_RE         [thread_Index][media_Index  ] = grandchild.node->data.hi_RE[point_Index];
 					hi_IM         [thread_Index][media_Index  ] = grandchild.node->data.hi_IM[point_Index];
-					r_Fresnel_p_RE[thread_Index][media_Index-1] = grandchild.node->data.Fresnel_p_RE[point_Index] * grandchild.node->data.weak_Factor[point_Index];
-					r_Fresnel_p_IM[thread_Index][media_Index-1] = grandchild.node->data.Fresnel_p_IM[point_Index] * grandchild.node->data.weak_Factor[point_Index];
+					r_Fresnel_p_RE[thread_Index][media_Index-1] = grandchild.node->data.Fresnel_p_RE[point_Index] * grandchild.node->data.weak_Factor_R[point_Index];
+					r_Fresnel_p_IM[thread_Index][media_Index-1] = grandchild.node->data.Fresnel_p_IM[point_Index] * grandchild.node->data.weak_Factor_R[point_Index];
 					exponenta_RE  [thread_Index][media_Index-1] = grandchild.node->data.exponenta_RE[point_Index];
 					exponenta_IM  [thread_Index][media_Index-1] = grandchild.node->data.exponenta_IM[point_Index];
 					++media_Index;
@@ -165,10 +165,10 @@ int Unwrapped_Reflection::fill_sp_Max_Depth_2(const tree<Node>::iterator& parent
 		{
 			hi_RE         [thread_Index][media_Index  ] = child.node->data.hi_RE[point_Index];
 			hi_IM         [thread_Index][media_Index  ] = child.node->data.hi_IM[point_Index];
-			r_Fresnel_s_RE[thread_Index][media_Index-1] = child.node->data.Fresnel_s_RE[point_Index] * child.node->data.weak_Factor[point_Index];
-			r_Fresnel_s_IM[thread_Index][media_Index-1] = child.node->data.Fresnel_s_IM[point_Index] * child.node->data.weak_Factor[point_Index];
-			r_Fresnel_p_RE[thread_Index][media_Index-1] = child.node->data.Fresnel_p_RE[point_Index] * child.node->data.weak_Factor[point_Index];
-			r_Fresnel_p_IM[thread_Index][media_Index-1] = child.node->data.Fresnel_p_IM[point_Index] * child.node->data.weak_Factor[point_Index];
+			r_Fresnel_s_RE[thread_Index][media_Index-1] = child.node->data.Fresnel_s_RE[point_Index] * child.node->data.weak_Factor_R[point_Index];
+			r_Fresnel_s_IM[thread_Index][media_Index-1] = child.node->data.Fresnel_s_IM[point_Index] * child.node->data.weak_Factor_R[point_Index];
+			r_Fresnel_p_RE[thread_Index][media_Index-1] = child.node->data.Fresnel_p_RE[point_Index] * child.node->data.weak_Factor_R[point_Index];
+			r_Fresnel_p_IM[thread_Index][media_Index-1] = child.node->data.Fresnel_p_IM[point_Index] * child.node->data.weak_Factor_R[point_Index];
 			exponenta_RE  [thread_Index][media_Index-1] = child.node->data.exponenta_RE[point_Index];
 			exponenta_IM  [thread_Index][media_Index-1] = child.node->data.exponenta_IM[point_Index];
 			++media_Index;
@@ -177,10 +177,10 @@ int Unwrapped_Reflection::fill_sp_Max_Depth_2(const tree<Node>::iterator& parent
 		{
 			hi_RE         [thread_Index][media_Index  ] = child.node->data.hi_RE[point_Index];
 			hi_IM         [thread_Index][media_Index  ] = child.node->data.hi_IM[point_Index];
-			r_Fresnel_s_RE[thread_Index][media_Index-1] = child.node->data.Fresnel_s_RE[point_Index] * child.node->data.weak_Factor[point_Index];
-			r_Fresnel_s_IM[thread_Index][media_Index-1] = child.node->data.Fresnel_s_IM[point_Index] * child.node->data.weak_Factor[point_Index];
-			r_Fresnel_p_RE[thread_Index][media_Index-1] = child.node->data.Fresnel_p_RE[point_Index] * child.node->data.weak_Factor[point_Index];
-			r_Fresnel_p_IM[thread_Index][media_Index-1] = child.node->data.Fresnel_p_IM[point_Index] * child.node->data.weak_Factor[point_Index];
+			r_Fresnel_s_RE[thread_Index][media_Index-1] = child.node->data.Fresnel_s_RE[point_Index] * child.node->data.weak_Factor_R[point_Index];
+			r_Fresnel_s_IM[thread_Index][media_Index-1] = child.node->data.Fresnel_s_IM[point_Index] * child.node->data.weak_Factor_R[point_Index];
+			r_Fresnel_p_RE[thread_Index][media_Index-1] = child.node->data.Fresnel_p_RE[point_Index] * child.node->data.weak_Factor_R[point_Index];
+			r_Fresnel_p_IM[thread_Index][media_Index-1] = child.node->data.Fresnel_p_IM[point_Index] * child.node->data.weak_Factor_R[point_Index];
 			++media_Index;
 		} else
 		if(child.node->data.struct_Data.item_Type == item_Type_Multilayer)
@@ -192,10 +192,10 @@ int Unwrapped_Reflection::fill_sp_Max_Depth_2(const tree<Node>::iterator& parent
 					tree<Node>::post_order_iterator grandchild = tree<Node>::child(child,grandchild_Index);
 					hi_RE         [thread_Index][media_Index  ] = grandchild.node->data.hi_RE[point_Index];
 					hi_IM         [thread_Index][media_Index  ] = grandchild.node->data.hi_IM[point_Index];
-					r_Fresnel_s_RE[thread_Index][media_Index-1] = grandchild.node->data.Fresnel_s_RE[point_Index] * grandchild.node->data.weak_Factor[point_Index];
-					r_Fresnel_s_IM[thread_Index][media_Index-1] = grandchild.node->data.Fresnel_s_IM[point_Index] * grandchild.node->data.weak_Factor[point_Index];
-					r_Fresnel_p_RE[thread_Index][media_Index-1] = grandchild.node->data.Fresnel_p_RE[point_Index] * grandchild.node->data.weak_Factor[point_Index];
-					r_Fresnel_p_IM[thread_Index][media_Index-1] = grandchild.node->data.Fresnel_p_IM[point_Index] * grandchild.node->data.weak_Factor[point_Index];
+					r_Fresnel_s_RE[thread_Index][media_Index-1] = grandchild.node->data.Fresnel_s_RE[point_Index] * grandchild.node->data.weak_Factor_R[point_Index];
+					r_Fresnel_s_IM[thread_Index][media_Index-1] = grandchild.node->data.Fresnel_s_IM[point_Index] * grandchild.node->data.weak_Factor_R[point_Index];
+					r_Fresnel_p_RE[thread_Index][media_Index-1] = grandchild.node->data.Fresnel_p_RE[point_Index] * grandchild.node->data.weak_Factor_R[point_Index];
+					r_Fresnel_p_IM[thread_Index][media_Index-1] = grandchild.node->data.Fresnel_p_IM[point_Index] * grandchild.node->data.weak_Factor_R[point_Index];
 					exponenta_RE  [thread_Index][media_Index-1] = grandchild.node->data.exponenta_RE[point_Index];
 					exponenta_IM  [thread_Index][media_Index-1] = grandchild.node->data.exponenta_IM[point_Index];
 					++media_Index;
@@ -236,7 +236,7 @@ void Unwrapped_Reflection::calc_Weak_Factor(int thread_Index)
 			is_Norm = is_Norm || unwrapped_Structure->boundary_Interlayer_Composition[i][func_Index].enabled;
 		}
 
-		weak_Factor[thread_Index][i] = 0;
+		weak_Factor_R[thread_Index][i] = 0;
 		if(is_Norm && (abs(unwrapped_Structure->sigma[i]) > DBL_MIN)) //-V674
 		{
 			my_Sigma = unwrapped_Structure->sigma[i];	// by default, otherwise we change it
@@ -252,7 +252,7 @@ void Unwrapped_Reflection::calc_Weak_Factor(int thread_Index)
 				if(!unwrapped_Structure->common_Sigma[i])
 					my_Sigma = unwrapped_Structure->boundary_Interlayer_Composition[i][Erf].my_Sigma.value;
 				factor = exp( - 2 * s * s * my_Sigma * my_Sigma);
-				weak_Factor[thread_Index][i] += unwrapped_Structure->boundary_Interlayer_Composition[i][Erf].interlayer.value * factor;
+				weak_Factor_R[thread_Index][i] += unwrapped_Structure->boundary_Interlayer_Composition[i][Erf].interlayer.value * factor;
 			}
 			//-------------------------------------------------------------------------------
 			// lin interlayer
@@ -271,7 +271,7 @@ void Unwrapped_Reflection::calc_Weak_Factor(int thread_Index)
 				{
 					factor = 1;
 				}
-				weak_Factor[thread_Index][i] += unwrapped_Structure->boundary_Interlayer_Composition[i][Lin].interlayer.value * factor;
+				weak_Factor_R[thread_Index][i] += unwrapped_Structure->boundary_Interlayer_Composition[i][Lin].interlayer.value * factor;
 			}
 			//-------------------------------------------------------------------------------
 			// exp interlayer
@@ -283,7 +283,7 @@ void Unwrapped_Reflection::calc_Weak_Factor(int thread_Index)
 					my_Sigma = unwrapped_Structure->boundary_Interlayer_Composition[i][Exp].my_Sigma.value;
 				x = 2 * pow(s * my_Sigma, 2);
 				factor = 1. / (1. + x);
-				weak_Factor[thread_Index][i] += unwrapped_Structure->boundary_Interlayer_Composition[i][Exp].interlayer.value * factor;
+				weak_Factor_R[thread_Index][i] += unwrapped_Structure->boundary_Interlayer_Composition[i][Exp].interlayer.value * factor;
 			}
 			//-------------------------------------------------------------------------------
 			// tanh interlayer
@@ -302,7 +302,7 @@ void Unwrapped_Reflection::calc_Weak_Factor(int thread_Index)
 				{
 					factor = 1;
 				}
-				weak_Factor[thread_Index][i] += unwrapped_Structure->boundary_Interlayer_Composition[i][Tanh].interlayer.value * factor;
+				weak_Factor_R[thread_Index][i] += unwrapped_Structure->boundary_Interlayer_Composition[i][Tanh].interlayer.value * factor;
 			}
 			//-------------------------------------------------------------------------------
 			// sin interlayer
@@ -318,7 +318,7 @@ void Unwrapped_Reflection::calc_Weak_Factor(int thread_Index)
 				if(abs(y)>DBL_MIN) siy = sin(y)/y; else siy = 1;
 
 				factor = M_PI_4 * (six + siy);
-				weak_Factor[thread_Index][i] += unwrapped_Structure->boundary_Interlayer_Composition[i][Sin].interlayer.value * factor;
+				weak_Factor_R[thread_Index][i] += unwrapped_Structure->boundary_Interlayer_Composition[i][Sin].interlayer.value * factor;
 			}
 			//-------------------------------------------------------------------------------
 			// step interlayer
@@ -329,22 +329,22 @@ void Unwrapped_Reflection::calc_Weak_Factor(int thread_Index)
 				if(!unwrapped_Structure->common_Sigma[i])
 					my_Sigma = unwrapped_Structure->boundary_Interlayer_Composition[i][Step].my_Sigma.value;
 				factor = cos(2 * s * my_Sigma);
-				weak_Factor[thread_Index][i] += unwrapped_Structure->boundary_Interlayer_Composition[i][Step].interlayer.value * factor;
+				weak_Factor_R[thread_Index][i] += unwrapped_Structure->boundary_Interlayer_Composition[i][Step].interlayer.value * factor;
 			}
 			//-------------------------------------------------------------------------------
 			// normalization
 			{
 				if( abs(norm) > DBL_MIN )
 				{
-					weak_Factor[thread_Index][i] /= norm;
+					weak_Factor_R[thread_Index][i] /= norm;
 				} else
 				{
-					weak_Factor[thread_Index][i] = 1;
+					weak_Factor_R[thread_Index][i] = 1;
 				}
 			}
 		} else
 		{
-			weak_Factor[thread_Index][i] = 1;
+			weak_Factor_R[thread_Index][i] = 1;
 		}
 	}
 }
@@ -365,9 +365,9 @@ void Unwrapped_Reflection::calc_Fresnel(double polarization, const vector<double
 			temp_Fre_Numer_RE = hi_RE[thread_Index][i] - hi_RE[thread_Index][i+1];
 			temp_Fre_Numer_IM = hi_IM[thread_Index][i] - hi_IM[thread_Index][i+1];
 
-			r_Fresnel_s_RE[thread_Index][i] = weak_Factor[thread_Index][i] / temp_Fre_Denom_SQARE *
+			r_Fresnel_s_RE[thread_Index][i] = weak_Factor_R[thread_Index][i] / temp_Fre_Denom_SQARE *
 											  (temp_Fre_Numer_RE*temp_Fre_Denom_RE + temp_Fre_Numer_IM*temp_Fre_Denom_IM);
-			r_Fresnel_s_IM[thread_Index][i] = weak_Factor[thread_Index][i] / temp_Fre_Denom_SQARE *
+			r_Fresnel_s_IM[thread_Index][i] = weak_Factor_R[thread_Index][i] / temp_Fre_Denom_SQARE *
 											  (temp_Fre_Numer_IM*temp_Fre_Denom_RE - temp_Fre_Numer_RE*temp_Fre_Denom_IM);
 		} else
 		{
@@ -394,9 +394,9 @@ void Unwrapped_Reflection::calc_Fresnel(double polarization, const vector<double
 			temp_Fre_Numer_RE = temp_1_RE - temp_2_RE;
 			temp_Fre_Numer_IM = temp_1_IM - temp_2_IM;
 
-			r_Fresnel_p_RE[thread_Index][i] = weak_Factor[thread_Index][i] / temp_Fre_Denom_SQARE *
+			r_Fresnel_p_RE[thread_Index][i] = weak_Factor_R[thread_Index][i] / temp_Fre_Denom_SQARE *
 											  (temp_Fre_Numer_RE*temp_Fre_Denom_RE + temp_Fre_Numer_IM*temp_Fre_Denom_IM);
-			r_Fresnel_p_IM[thread_Index][i] = weak_Factor[thread_Index][i] / temp_Fre_Denom_SQARE *
+			r_Fresnel_p_IM[thread_Index][i] = weak_Factor_R[thread_Index][i] / temp_Fre_Denom_SQARE *
 											  (temp_Fre_Numer_IM*temp_Fre_Denom_RE - temp_Fre_Numer_RE*temp_Fre_Denom_IM);
 		} else
 		{
@@ -473,16 +473,16 @@ void Unwrapped_Reflection::multifly_Fresnel_And_Weak_Factor(double polarization,
 	if (polarization >-1)
 	for (int i = 0; i < num_Boundaries; ++i)
 	{
-		r_Fresnel_s_RE[thread_Index][i] *= weak_Factor[thread_Index][i];
-		r_Fresnel_s_IM[thread_Index][i] *= weak_Factor[thread_Index][i];
+		r_Fresnel_s_RE[thread_Index][i] *= weak_Factor_R[thread_Index][i];
+		r_Fresnel_s_IM[thread_Index][i] *= weak_Factor_R[thread_Index][i];
 	}
 
 	// p-polarization
 	if (polarization < 1)
 	for (int i = 0; i < num_Boundaries; ++i)
 	{
-		r_Fresnel_p_RE[thread_Index][i] *= weak_Factor[thread_Index][i];
-		r_Fresnel_p_IM[thread_Index][i] *= weak_Factor[thread_Index][i];
+		r_Fresnel_p_RE[thread_Index][i] *= weak_Factor_R[thread_Index][i];
+		r_Fresnel_p_IM[thread_Index][i] *= weak_Factor_R[thread_Index][i];
 	}
 }
 
@@ -558,8 +558,8 @@ void Unwrapped_Reflection::fill_Specular_Values(const Data& measurement, int thr
 	r_s[point_Index] = complex<double>(r_Local_s_RE[thread_Index][0], r_Local_s_IM[thread_Index][0]);
 	r_p[point_Index] = complex<double>(r_Local_p_RE[thread_Index][0], r_Local_p_IM[thread_Index][0]);
 
-	Phi_s[point_Index] = -arg(r_s[point_Index])*180./M_PI;
-	Phi_p[point_Index] = -arg(r_p[point_Index])*180./M_PI;
+	Phi_R_s[point_Index] = -arg(r_s[point_Index])*180./M_PI;
+	Phi_R_p[point_Index] = -arg(r_p[point_Index])*180./M_PI;
 
 	R_s[point_Index] = pow(abs(r_s[point_Index]),2);
 	R_p[point_Index] = pow(abs(r_p[point_Index]),2);

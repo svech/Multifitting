@@ -372,7 +372,7 @@ void Curve_Plot::plot_All_Data()
 		// second value (phase) // placed first for showing max value, not phase
 		if(target_Curve->curve.value_Mode == value_R_Mode[R_Phi])
 		{
-			values = calculated_Values->Phi;
+			values = calculated_Values->Phi_R;
 			plot_Data(argument, values, plot_Options_Second, right);
 		}
 		// first value (R,T,A...)
