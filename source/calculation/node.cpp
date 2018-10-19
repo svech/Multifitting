@@ -13,7 +13,7 @@ Node::Node(QTreeWidgetItem* item):
 //	qInfo() << "NODE" << struct_Data.item_Type;
 }
 
-void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_Node, QString active_Parameter_Whats_This, bool depth_Grading, bool sigma_Grading)
+void Node::calculate_Intermediate_Points(bool calc_Transmission, const Data& measurement, Node* above_Node, QString active_Parameter_Whats_This, bool depth_Grading, bool sigma_Grading)
 {
 	// PARAMETER
 	if(active_Parameter_Whats_This == whats_This_Angle ||
@@ -218,40 +218,56 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 				// s-polarization
 				if (measurement.polarization.value >-1)
 				{
-					Fresnel_s_RE.resize(num_Points);
-					Fresnel_s_IM.resize(num_Points);
+					// reflectance
+					Fresnel_R_s_RE.resize(num_Points);
+					Fresnel_R_s_IM.resize(num_Points);
+					// transmittance
+					Fresnel_T_s_RE.resize(num_Points);
+					Fresnel_T_s_IM.resize(num_Points);
 					for (int i=0; i<num_Points; ++i)
 					{
-						temp_Fre_Denom_RE = hi_RE[i] + above_Node->hi_RE[i];
-						temp_Fre_Denom_IM = hi_IM[i] + above_Node->hi_IM[i];
+						temp_Fre_Denom_RE = above_Node->hi_RE[i] + hi_RE[i];
+						temp_Fre_Denom_IM = above_Node->hi_IM[i] + hi_IM[i];
 						temp_Fre_Denom_SQARE = temp_Fre_Denom_RE*temp_Fre_Denom_RE + temp_Fre_Denom_IM*temp_Fre_Denom_IM;
 
 						if ( abs(temp_Fre_Denom_SQARE) > DBL_MIN)
 						{
-							temp_Fre_Numer_RE = hi_RE[i] - above_Node->hi_RE[i];
-							temp_Fre_Numer_IM = hi_IM[i] - above_Node->hi_IM[i];
+							temp_Fre_Numer_RE = above_Node->hi_RE[i] - hi_RE[i];
+							temp_Fre_Numer_IM = above_Node->hi_IM[i] - hi_IM[i];
 
-							Fresnel_s_RE[i] = -(temp_Fre_Numer_RE*temp_Fre_Denom_RE + temp_Fre_Numer_IM*temp_Fre_Denom_IM) / temp_Fre_Denom_SQARE;
-							Fresnel_s_IM[i] = -(temp_Fre_Numer_IM*temp_Fre_Denom_RE - temp_Fre_Numer_RE*temp_Fre_Denom_IM) / temp_Fre_Denom_SQARE;
+							// reflectance
+							Fresnel_R_s_RE[i] =  (temp_Fre_Numer_RE*temp_Fre_Denom_RE + temp_Fre_Numer_IM*temp_Fre_Denom_IM) / temp_Fre_Denom_SQARE;
+							Fresnel_R_s_IM[i] = -(temp_Fre_Numer_IM*temp_Fre_Denom_RE - temp_Fre_Numer_RE*temp_Fre_Denom_IM) / temp_Fre_Denom_SQARE; // for consistence with IMD
+							// transmittance
+							Fresnel_T_s_RE[i] =  2*(above_Node->hi_RE[i]*temp_Fre_Denom_RE + above_Node->hi_IM[i]*temp_Fre_Denom_IM) / temp_Fre_Denom_SQARE;
+							Fresnel_T_s_IM[i] = -2*(above_Node->hi_IM[i]*temp_Fre_Denom_RE - above_Node->hi_RE[i]*temp_Fre_Denom_IM) / temp_Fre_Denom_SQARE; // for consistence with IMD
 						} else
 						{
-							Fresnel_s_RE[i] = 0;
-							Fresnel_s_IM[i] = 0;
+							// reflectance
+							Fresnel_R_s_RE[i] = 0;
+							Fresnel_R_s_IM[i] = 0;
+							// transmittance
+							Fresnel_T_s_RE[i] = 1;
+							Fresnel_T_s_IM[i] = 1;
 						}
 					}
 				}
 				// p-polarization
 				if (measurement.polarization.value < 1)
 				{
-					Fresnel_p_RE.resize(num_Points);
-					Fresnel_p_IM.resize(num_Points);
+					// reflectance
+					Fresnel_R_p_RE.resize(num_Points);
+					Fresnel_R_p_IM.resize(num_Points);
+					// transmittance
+					Fresnel_T_p_RE.resize(num_Points);
+					Fresnel_T_p_IM.resize(num_Points);
 					for (int i=0; i<num_Points; ++i)
 					{
-						temp_1_RE = (hi_RE[i]*epsilon_RE[i] + hi_IM[i]*epsilon_IM[i]) / epsilon_NORM[i];
-						temp_1_IM = (hi_IM[i]*epsilon_RE[i] - hi_RE[i]*epsilon_IM[i]) / epsilon_NORM[i];
+						temp_1_RE = (above_Node->hi_RE[i]*above_Node->epsilon_RE[i] + above_Node->hi_IM[i]*above_Node->epsilon_IM[i]) / above_Node->epsilon_NORM[i];
+						temp_1_IM = (above_Node->hi_IM[i]*above_Node->epsilon_RE[i] - above_Node->hi_RE[i]*above_Node->epsilon_IM[i]) / above_Node->epsilon_NORM[i];
 
-						temp_2_RE = (above_Node->hi_RE[i]*above_Node->epsilon_RE[i] + above_Node->hi_IM[i]*above_Node->epsilon_IM[i]) / above_Node->epsilon_NORM[i];
-						temp_2_IM = (above_Node->hi_IM[i]*above_Node->epsilon_RE[i] - above_Node->hi_RE[i]*above_Node->epsilon_IM[i]) / above_Node->epsilon_NORM[i];
+						temp_2_RE = (hi_RE[i]*epsilon_RE[i] + hi_IM[i]*epsilon_IM[i]) / epsilon_NORM[i];
+						temp_2_IM = (hi_IM[i]*epsilon_RE[i] - hi_RE[i]*epsilon_IM[i]) / epsilon_NORM[i];
 
 						temp_Fre_Denom_RE = temp_1_RE + temp_2_RE;
 						temp_Fre_Denom_IM = temp_1_IM + temp_2_IM;
@@ -262,13 +278,20 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 							temp_Fre_Numer_RE = temp_1_RE - temp_2_RE;
 							temp_Fre_Numer_IM = temp_1_IM - temp_2_IM;
 
-							Fresnel_p_RE[i] = -(temp_Fre_Numer_RE*temp_Fre_Denom_RE + temp_Fre_Numer_IM*temp_Fre_Denom_IM) / temp_Fre_Denom_SQARE;
-							Fresnel_p_IM[i] = -(temp_Fre_Numer_IM*temp_Fre_Denom_RE - temp_Fre_Numer_RE*temp_Fre_Denom_IM) / temp_Fre_Denom_SQARE ;
-
+							// reflectance
+							Fresnel_R_p_RE[i] = -(temp_Fre_Numer_RE*temp_Fre_Denom_RE + temp_Fre_Numer_IM*temp_Fre_Denom_IM) / temp_Fre_Denom_SQARE;
+							Fresnel_R_p_IM[i] =  (temp_Fre_Numer_IM*temp_Fre_Denom_RE - temp_Fre_Numer_RE*temp_Fre_Denom_IM) / temp_Fre_Denom_SQARE; // for consistence with IMD
+							// transmittance
+							Fresnel_T_p_RE[i] = -2*(temp_1_RE*temp_Fre_Denom_RE + temp_1_IM*temp_Fre_Denom_IM) / temp_Fre_Denom_SQARE;
+							Fresnel_T_p_IM[i] =  2*(temp_1_IM*temp_Fre_Denom_RE - temp_1_RE*temp_Fre_Denom_IM) / temp_Fre_Denom_SQARE; // for consistence with IMD
 						} else
 						{
-							Fresnel_p_RE[i] = 0;
-							Fresnel_p_IM[i] = 0;
+							// reflectance
+							Fresnel_R_p_RE[i] = 0;
+							Fresnel_R_p_IM[i] = 0;
+							// transmittance
+							Fresnel_T_p_RE[i] = 1;
+							Fresnel_T_p_IM[i] = 1;
 						}
 					}
 				}
@@ -304,12 +327,15 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 					vector<double> s_r (num_Points);
 					vector<double> s_t (num_Points);
 
+					// reftectance
 					for(int i=0; i<num_Points; ++i)
-					{
+					{						
 						weak_Factor_R[i] = 0;
-						weak_Factor_T[i] = 0;
 						s_r[i] = sqrt(above_Node->hi_RE[i]*hi_RE[i]);
-						s_t[i] =      above_Node->hi_RE[i]-hi_RE[i];
+
+						// transmittance
+						weak_Factor_T[i] = 0;
+						s_t[i] =     (above_Node->hi_RE[i]-hi_RE[i])/2;
 					}
 
 					//-------------------------------------------------------------------------------
@@ -327,7 +353,7 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 							weak_Factor_R[i] += struct_Data.interlayer_Composition[Erf].interlayer.value * factor_r;
 
 							// transmittance
-							factor_t = exp(   s_t[i] * s_t[i] * my_Sigma * my_Sigma / 2 );
+							factor_t = exp(   s_t[i] * s_t[i] * my_Sigma * my_Sigma * 2 );
 							weak_Factor_T[i] += struct_Data.interlayer_Composition[Erf].interlayer.value * factor_t;
 						}
 					}
@@ -352,7 +378,7 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 							weak_Factor_R[i] += struct_Data.interlayer_Composition[Lin].interlayer.value * factor_r;
 
 							// transmittance
-							x_t = sqrt(3.) * s_t[i] * my_Sigma * 1;
+							x_t = sqrt(3.) * s_t[i] * my_Sigma * 2;
 							if(abs(x_t)>DBL_MIN) {
 								factor_t = sin(x_t) / (x_t);
 							} else {
@@ -377,7 +403,7 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 							weak_Factor_R[i] += struct_Data.interlayer_Composition[Exp].interlayer.value * factor_r;
 
 							// transmittance
-							x_t = pow(s_t[i] * my_Sigma, 2) / 2;
+							x_t = pow(s_t[i] * my_Sigma, 2) * 2;
 							factor_t = 1. / (1. + x_t);
 							weak_Factor_T[i] += struct_Data.interlayer_Composition[Exp].interlayer.value * factor_t;
 						}
@@ -405,7 +431,7 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 							weak_Factor_R[i] += struct_Data.interlayer_Composition[Tanh].interlayer.value * factor_r;
 
 							// transmittance
-							x_t = sqrt(3.) * s_t[i] * my_Sigma * 1;
+							x_t = sqrt(3.) * s_t[i] * my_Sigma * 2;
 							if(abs(x_t)>DBL_MIN)
 							{
 								factor_t = x_t / sinh(x_t);
@@ -438,7 +464,7 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 							weak_Factor_R[i] += struct_Data.interlayer_Composition[Sin].interlayer.value * factor_r;
 
 							// transmittance
-							x_t = a * my_Sigma * s_t[i] * 1 - M_PI_2;
+							x_t = a * my_Sigma * s_t[i] * 2 - M_PI_2;
 							y_t = x_t + M_PI;
 
 							if(abs(x_t)>DBL_MIN) six_t = sin(x_t)/x_t; else six_t = 1;
@@ -463,8 +489,8 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 							weak_Factor_R[i] += struct_Data.interlayer_Composition[Step].interlayer.value * factor_r;
 
 							// transmittance
-							factor_t = cos(s_t[i] * my_Sigma * 1);
-							weak_Factor_R[i] += struct_Data.interlayer_Composition[Step].interlayer.value * factor_t;
+							factor_t = cos(s_t[i] * my_Sigma * 2);
+							weak_Factor_T[i] += struct_Data.interlayer_Composition[Step].interlayer.value * factor_t;
 						}
 					}
 					//-------------------------------------------------------------------------------
@@ -499,27 +525,34 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 			// if depth graded, set exp=1 here and recalculate later
 			if( struct_Data.item_Type == item_Type_Layer)
 			{
-				double re, im, ere;
-				exponenta_RE.resize(num_Points);
-				exponenta_IM.resize(num_Points);
+				double re, im, ere, ere2;
+				exponenta_RE.  resize(num_Points);
+				exponenta_IM.  resize(num_Points);
+				exponenta_2_RE.resize(num_Points);
+				exponenta_2_IM.resize(num_Points);
 
 				if( depth_Grading )
 				{
 					for(int i=0; i<num_Points; ++i)
 					{
-						exponenta_RE[i] = 1;
-						exponenta_IM[i] = 1;
+						exponenta_RE[i]   = 1;
+						exponenta_IM[i]   = 1;
+						exponenta_2_RE[i] = 1;
+						exponenta_2_IM[i] = 1;
 					}
 				} else
 				{
 					for(int i=0; i<num_Points; ++i)
 					{
-						re = -2.*hi_IM[i]*struct_Data.thickness.value;
-						im =  2.*hi_RE[i]*struct_Data.thickness.value;
-						ere = exp(re);
+						re = -hi_IM[i]*struct_Data.thickness.value;
+						im =  hi_RE[i]*struct_Data.thickness.value;
+						ere =  exp(   re);
+						ere2 = exp(2.*re);
 
 						exponenta_RE[i] = ere*cos(im);
 						exponenta_IM[i] = ere*sin(im);
+						exponenta_2_RE[i] = ere2*cos(2.*im);
+						exponenta_2_IM[i] = ere2*sin(2.*im);
 					}
 				}
 			}

@@ -11,7 +11,7 @@ public:
 	Node();
 	explicit Node(QTreeWidgetItem* item);
 
-	void calculate_Intermediate_Points(const Data& measurement, Node* above_Node, QString active_Parameter_Whats_This, bool depth_Grading, bool sigma_Grading);
+	void calculate_Intermediate_Points(bool calc_Transmission, const Data& measurement, Node* above_Node, QString active_Parameter_Whats_This, bool depth_Grading, bool sigma_Grading);
 
 	Data struct_Data;
 	bool stop_Calcuation = false;
@@ -29,12 +29,21 @@ public:
 
 	vector<double> hi_RE;
 	vector<double> hi_IM;
-	vector<double> Fresnel_s_RE;
-	vector<double> Fresnel_s_IM;
-	vector<double> Fresnel_p_RE;
-	vector<double> Fresnel_p_IM;
+
+	vector<double> Fresnel_R_s_RE;
+	vector<double> Fresnel_R_s_IM;
+	vector<double> Fresnel_R_p_RE;
+	vector<double> Fresnel_R_p_IM;
+
+	vector<double> Fresnel_T_s_RE;
+	vector<double> Fresnel_T_s_IM;
+	vector<double> Fresnel_T_p_RE;
+	vector<double> Fresnel_T_p_IM;
+
 	vector<double> exponenta_RE;
 	vector<double> exponenta_IM;
+	vector<double> exponenta_2_RE;
+	vector<double> exponenta_2_IM;
 	vector<double> weak_Factor_R;
 	vector<double> weak_Factor_T;
 

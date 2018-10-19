@@ -333,6 +333,8 @@ void Calculation_Tree::statify_Calc_Tree(tree<Node>& calc_Tree)
 template<typename Type>
 void Calculation_Tree::calculate_1_Kind(Data_Element<Type>& data_Element)
 {
+	bool calc_Transmission = false;
+
 	// calculation of wavenumbers and cos squares
 	if(data_Element.curve_Class == INDEPENDENT)	data_Element.the_Class->measurement.calc_Independent_cos2_k(); else
 	if(data_Element.curve_Class == TARGET)		data_Element.the_Class->measurement.calc_Measured_cos2_k();
@@ -340,12 +342,12 @@ void Calculation_Tree::calculate_1_Kind(Data_Element<Type>& data_Element)
 	// find active node
 	if(data_Element.curve_Class == INDEPENDENT)
 	{
-		Independent_Variables* object = qobject_cast<Independent_Variables*>(data_Element.the_Class);
+		Independent_Variables* independent_Variables = qobject_cast<Independent_Variables*>(data_Element.the_Class);
 
 		// find whats_This of active item
-		for(int item_Index=0; item_Index<object->independent_Variables_List->count(); ++item_Index)
+		for(int item_Index=0; item_Index<independent_Variables->independent_Variables_List->count(); ++item_Index)
 		{
-			QListWidgetItem* list_Item = object->independent_Variables_List->item(item_Index);
+			QListWidgetItem* list_Item = independent_Variables->independent_Variables_List->item(item_Index);
 			Independent_Indicator item_Indicator = list_Item->data(Qt::UserRole).value<Independent_Indicator>();
 
 			// if active
@@ -354,6 +356,15 @@ void Calculation_Tree::calculate_1_Kind(Data_Element<Type>& data_Element)
 				data_Element.active_Item_Type			 = item_Indicator.item_Type;
 				data_Element.active_Item_Id				 = item_Indicator.item_Id;
 				data_Element.active_Parameter_Whats_This = item_Indicator.parameter_Whats_This;
+			}
+
+			if( independent_Variables->calc_Functions.check_Transmittance	||
+				independent_Variables->calc_Functions.check_Absorptance		||
+				independent_Variables->calc_Functions.check_Field			||
+				independent_Variables->calc_Functions.check_Joule			||
+				independent_Variables->calc_Functions.check_User			)
+			{
+				calc_Transmission = true;
 			}
 		}
 	} else
@@ -365,6 +376,12 @@ void Calculation_Tree::calculate_1_Kind(Data_Element<Type>& data_Element)
 		data_Element.active_Item_Type			 = item_Type_Measurement;
 		data_Element.active_Item_Id				 = target_Curve->measurement.id;
 		data_Element.active_Parameter_Whats_This = target_Curve->curve.argument_Type;
+
+		if( target_Curve->curve.value_Function == value_Function[Transmittance] ||
+			target_Curve->curve.value_Function == value_Function[Absorptance] )
+		{
+			calc_Transmission = true;
+		}
 	}
 	// find corresponding node for active variable
 //		tree<Node>::iterator active_Iter = find_Node_By_Item_Id(data_Element.calc_Tree.begin(), data_Element.active_Item_Id, data_Element.calc_Tree);
@@ -380,37 +397,37 @@ void Calculation_Tree::calculate_1_Kind(Data_Element<Type>& data_Element)
 	} else
 	if(data_Element.active_Item_Type == item_Type_Measurement)
 	{
-//		auto start = std::chrono::system_clock::now();
-		calculate_Intermediate_Values_1_Tree(data_Element.calc_Tree, data_Element.the_Class->measurement, data_Element.active_Parameter_Whats_This, data_Element.calc_Tree.begin());
+		auto start = std::chrono::system_clock::now();
+		calculate_Intermediate_Values_1_Tree(calc_Transmission, data_Element.calc_Tree, data_Element.the_Class->measurement, data_Element.active_Parameter_Whats_This, data_Element.calc_Tree.begin());
 		if(lambda_Out_Of_Range) return;
-//		auto end = std::chrono::system_clock::now();
-//		auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-//		qInfo() << "Intermediate: "<< elapsed.count()/1000000. << " seconds" << endl;
+		auto end = std::chrono::system_clock::now();
+		auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+		qInfo() << "Intermediate: "<< elapsed.count()/1000000. << " seconds" << endl;
 
-//		start = std::chrono::system_clock::now();
+		start = std::chrono::system_clock::now();
 		calculate_Unwrapped_Structure		(data_Element.calc_Tree, data_Element.the_Class->measurement, data_Element.active_Parameter_Whats_This, data_Element.unwrapped_Structure);
-//		end = std::chrono::system_clock::now();
-//		elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-//		qInfo() << "Unwrap: "<< elapsed.count()/1000000. << " seconds" << endl;
+		end = std::chrono::system_clock::now();
+		elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+		qInfo() << "Unwrap: "<< elapsed.count()/1000000. << " seconds" << endl;
 
-//		start = std::chrono::system_clock::now();
-		calculate_Unwrapped_Reflectivity	(data_Element.the_Class->calculated_Values, data_Element.the_Class->measurement, data_Element.active_Parameter_Whats_This, data_Element.unwrapped_Structure, data_Element.unwrapped_Reflection);
-//		end = std::chrono::system_clock::now();
-//		elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-//		qInfo() << "Unwrap Reflect: "<< elapsed.count()/1000000. << " seconds" << endl;
+		start = std::chrono::system_clock::now();
+		calculate_Unwrapped_Reflectivity	(calc_Transmission, data_Element.the_Class->calculated_Values, data_Element.the_Class->measurement, data_Element.active_Parameter_Whats_This, data_Element.unwrapped_Structure, data_Element.unwrapped_Reflection);
+		end = std::chrono::system_clock::now();
+		elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+		qInfo() << "Unwrap Reflect: "<< elapsed.count()/1000000. << " seconds" << endl;
 	}
 }
 template void Calculation_Tree::calculate_1_Kind<Independent_Variables>(Data_Element<Independent_Variables>&);
 template void Calculation_Tree::calculate_1_Kind<Target_Curve>		   (Data_Element<Target_Curve>&);
 
-void Calculation_Tree::calculate_Intermediate_Values_1_Tree(tree<Node>& calc_Tree, const Data& measurement, QString active_Parameter_Whats_This, const tree<Node>::iterator& parent, Node* above_Node)
+void Calculation_Tree::calculate_Intermediate_Values_1_Tree(bool calc_Transmission, tree<Node>& calc_Tree, const Data& measurement, QString active_Parameter_Whats_This, const tree<Node>::iterator& parent, Node* above_Node)
 {
 	// iterate over tree
 	for(unsigned i=0; i<parent.number_of_children(); ++i)
 	{
 		tree<Node>::post_order_iterator child = calc_Tree.child(parent,i);
 
-		child.node->data.calculate_Intermediate_Points(measurement, above_Node, active_Parameter_Whats_This, depth_Grading, sigma_Grading);
+		child.node->data.calculate_Intermediate_Points(calc_Transmission, measurement, above_Node, active_Parameter_Whats_This, depth_Grading, sigma_Grading);
 
 		if(child.node->data.struct_Data.item_Type != item_Type_Multilayer &&
 		   child.node->data.struct_Data.item_Type != item_Type_Aperiodic  )
@@ -418,7 +435,7 @@ void Calculation_Tree::calculate_Intermediate_Values_1_Tree(tree<Node>& calc_Tre
 			above_Node = &child.node->data;
 		} else
 		{
-			calculate_Intermediate_Values_1_Tree(calc_Tree, measurement, active_Parameter_Whats_This, child, above_Node);
+			calculate_Intermediate_Values_1_Tree(calc_Transmission, calc_Tree, measurement, active_Parameter_Whats_This, child, above_Node);
 		}
 	}
 }
@@ -455,10 +472,10 @@ void Calculation_Tree::calculate_Unwrapped_Structure(tree<Node>& calc_Tree, cons
 	unwrapped_Structure_Vec_Element = new_Unwrapped_Structure;
 }
 
-void Calculation_Tree::calculate_Unwrapped_Reflectivity(Calculated_Values& calculated_Values, const Data& measurement, QString active_Parameter_Whats_This, Unwrapped_Structure* unwrapped_Structure_Vec_Element, Unwrapped_Reflection*& unwrapped_Reflection_Vec_Element)
+void Calculation_Tree::calculate_Unwrapped_Reflectivity(bool calc_Transmission, Calculated_Values& calculated_Values, const Data& measurement, QString active_Parameter_Whats_This, Unwrapped_Structure* unwrapped_Structure_Vec_Element, Unwrapped_Reflection*& unwrapped_Reflection_Vec_Element)
 {
 	delete unwrapped_Reflection_Vec_Element;
-	Unwrapped_Reflection*  new_Unwrapped_Reflection = new Unwrapped_Reflection(unwrapped_Structure_Vec_Element, num_Media, active_Parameter_Whats_This, measurement, depth_Grading, sigma_Grading);
+	Unwrapped_Reflection*  new_Unwrapped_Reflection = new Unwrapped_Reflection(unwrapped_Structure_Vec_Element, num_Media, active_Parameter_Whats_This, measurement, depth_Grading, sigma_Grading, calc_Transmission);
 	unwrapped_Reflection_Vec_Element = new_Unwrapped_Reflection;
 
 //	auto start = std::chrono::system_clock::now();
@@ -469,7 +486,7 @@ void Calculation_Tree::calculate_Unwrapped_Reflectivity(Calculated_Values& calcu
 	// make a copy for plotting
 	calculated_Values.R=QVector<double>::fromStdVector(unwrapped_Reflection_Vec_Element->R_Instrumental);
 	if(abs(measurement.polarization.value-1)<DBL_EPSILON)	{ calculated_Values.Phi_R = QVector<double>::fromStdVector(unwrapped_Reflection_Vec_Element->Phi_R_s); } else
-	if(abs(measurement.polarization.value+1)<DBL_EPSILON)	{ calculated_Values.Phi_R = QVector<double>::fromStdVector(unwrapped_Reflection_Vec_Element->Phi_R_p);	} else
+	if(abs(measurement.polarization.value+1)<DBL_EPSILON)	{ calculated_Values.Phi_R = QVector<double>::fromStdVector(unwrapped_Reflection_Vec_Element->Phi_R_p); } else
 															{ calculated_Values.Phi_R.clear(); }
 
 //	qInfo() << "Bare Reflectivity:      "<< elapsed.count()/1000. << " seconds" << endl;

@@ -818,7 +818,9 @@ void Main_Calculation_Module::print_Data(QTextStream &out, QVector<double> &arg,
 			{
 				out << user;
 			}
-			out << qSetFieldWidth(arg_Shift) << endl  << qSetFieldWidth(width_Short);
+
+			if(i!=arg.size()-1)
+				out << qSetFieldWidth(arg_Shift) << endl  << qSetFieldWidth(width_Short);
 		}
 	}
 }

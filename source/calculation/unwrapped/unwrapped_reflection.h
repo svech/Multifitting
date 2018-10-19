@@ -7,7 +7,7 @@
 class Unwrapped_Reflection
 {
 public:
-	Unwrapped_Reflection(Unwrapped_Structure* unwrapped_Structure, int num_Media, QString active_Parameter_Whats_This, const Data& measurement, bool depth_Grading, bool sigma_Grading);
+	Unwrapped_Reflection(Unwrapped_Structure* unwrapped_Structure, int num_Media, QString active_Parameter_Whats_This, const Data& measurement, bool depth_Grading, bool sigma_Grading, bool calc_Transmission);
 
 	int num_Threads;
 	int num_Layers;
@@ -18,6 +18,7 @@ public:
 
 	bool depth_Grading;
 	bool sigma_Grading;
+	bool calc_Transmission = false;
 
 	QString active_Parameter_Whats_This;
 	Unwrapped_Structure* unwrapped_Structure;
@@ -31,11 +32,24 @@ public:
 	vector<vector<double>> r_Local_s_IM;		//	[thread][boundary]
 	vector<vector<double>> r_Local_p_RE;		//	[thread][boundary]
 	vector<vector<double>> r_Local_p_IM;		//	[thread][boundary]
+
+	vector<vector<double>> t_Fresnel_s_RE;		//	[thread][boundary]
+	vector<vector<double>> t_Fresnel_s_IM;		//	[thread][boundary]
+	vector<vector<double>> t_Fresnel_p_RE;		//	[thread][boundary]
+	vector<vector<double>> t_Fresnel_p_IM;		//	[thread][boundary]
+	vector<vector<double>> t_Local_s_RE;		//	[thread][boundary]
+	vector<vector<double>> t_Local_s_IM;		//	[thread][boundary]
+	vector<vector<double>> t_Local_p_RE;		//	[thread][boundary]
+	vector<vector<double>> t_Local_p_IM;		//	[thread][boundary]
+
 	vector<vector<double>> hi_RE;				//	[thread][media]
 	vector<vector<double>> hi_IM;				//	[thread][media]
 	vector<vector<double>> exponenta_RE;		//	[thread][layer]
 	vector<vector<double>> exponenta_IM;		//	[thread][layer]
-	vector<vector<double>> weak_Factor_R;			//	[thread][boundary]
+	vector<vector<double>> exponenta_2_RE;		//	[thread][layer]
+	vector<vector<double>> exponenta_2_IM;		//	[thread][layer]
+	vector<vector<double>> weak_Factor_R;		//	[thread][boundary]
+	vector<vector<double>> weak_Factor_T;		//	[thread][boundary]
 
 	int fill_s__Max_Depth_2(const tree<Node>::iterator& parent, int thread_Index, int point_Index, int media_Index = 0);
 	int fill_p__Max_Depth_2(const tree<Node>::iterator& parent, int thread_Index, int point_Index, int media_Index = 0);
