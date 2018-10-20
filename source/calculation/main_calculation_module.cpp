@@ -649,9 +649,6 @@ void Main_Calculation_Module::print_Reflect_To_File(Data_Element<Type>& data_Ele
 	if(data_Element.curve_Class == INDEPENDENT)
 	if(independent_Variables->calc_Functions.check_Absorptance)
 		print_Absorptance = true;
-	if(data_Element.curve_Class == TARGET)
-	if(target_Curve->curve.value_Function == value_Function[Absorptance])
-		print_Absorptance = true;
 
 	// user function
 	bool print_User = false;
@@ -721,6 +718,7 @@ void Main_Calculation_Module::print_Data(QTextStream &out, QVector<double> &arg,
 	QString Phi_T_s  = "Phase_T_s";
 	QString Phi_T_p  = "Phase_T_p";
 
+	QString A_mixed  = "A_mixed";
 	QString A_s      = "A_s";
 	QString A_p      = "A_p";
 
@@ -764,7 +762,7 @@ void Main_Calculation_Module::print_Data(QTextStream &out, QVector<double> &arg,
 		// absorptance
 		if(print_Absorptance)
 		{
-			out << T_mixed;
+											out << A_mixed;
 			if(incident_Polarization>-1)	out << A_s;
 			if(incident_Polarization< 1)	out << A_p;
 		}
@@ -794,25 +792,24 @@ void Main_Calculation_Module::print_Data(QTextStream &out, QVector<double> &arg,
 				if(incident_Polarization< 1)	out << QString::number(unwrapped_Reflection->Phi_R_p       [i],'f',precision_Phi);
 			}
 
-			/////////////////////////////////////// TODO ////////////////////////////
 			// transmittance
 			if(print_Transmittance)
 			{
-				out <<T_mixed;
-				if(incident_Polarization>-1)	out << T_s;
-				if(incident_Polarization< 1)	out << T_p;
-				if(incident_Polarization>-1)	out << Phi_T_s;
-				if(incident_Polarization< 1)	out << Phi_T_p;
+												out << QString::number(unwrapped_Reflection->T_Instrumental[i],'e',precision_R_T_A);
+				if(incident_Polarization>-1)	out << QString::number(unwrapped_Reflection->T_s           [i],'e',precision_R_T_A);
+				if(incident_Polarization< 1)	out << QString::number(unwrapped_Reflection->T_p           [i],'e',precision_R_T_A);
+				if(incident_Polarization>-1)	out << QString::number(unwrapped_Reflection->Phi_T_s       [i],'f',precision_Phi);
+				if(incident_Polarization< 1)	out << QString::number(unwrapped_Reflection->Phi_T_p       [i],'f',precision_Phi);
 			}
 
 			// absorptance
 			if(print_Absorptance)
 			{
-				out << T_mixed;
-				if(incident_Polarization>-1)	out << A_s;
-				if(incident_Polarization< 1)	out << A_p;
-			}
+												out << QString::number(unwrapped_Reflection->A_Instrumental[i],'e',precision_R_T_A);
+				if(incident_Polarization>-1)	out << QString::number(unwrapped_Reflection->A_s           [i],'e',precision_R_T_A);
+				if(incident_Polarization< 1)	out << QString::number(unwrapped_Reflection->A_p           [i],'e',precision_R_T_A);			}
 
+			/////////////////////////////////////// TODO /////////////////////////////////
 			// user
 			if(print_User)
 			{

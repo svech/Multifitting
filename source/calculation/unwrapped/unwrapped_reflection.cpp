@@ -3,7 +3,7 @@
 #include "unwrapped_reflection.h"
 #include "iostream"
 
-Unwrapped_Reflection::Unwrapped_Reflection(Unwrapped_Structure* unwrapped_Structure, int num_Media, QString active_Parameter_Whats_This, const Data& measurement, bool depth_Grading, bool sigma_Grading, bool calc_Transmission):
+Unwrapped_Reflection::Unwrapped_Reflection(Unwrapped_Structure* unwrapped_Structure, int num_Media, QString active_Parameter_Whats_This, const Data& measurement, bool depth_Grading, bool sigma_Grading, Calc_Functions calc_Functions):
 	num_Threads		(reflectivity_Calc_Threads),
 	num_Layers		(num_Media-2),
 	num_Boundaries	(num_Media-1),
@@ -11,7 +11,7 @@ Unwrapped_Reflection::Unwrapped_Reflection(Unwrapped_Structure* unwrapped_Struct
 	max_Depth		(unwrapped_Structure->max_Depth),
 	depth_Grading	(depth_Grading),
 	sigma_Grading	(sigma_Grading),
-	calc_Transmission(calc_Transmission),
+	calc_Functions  (calc_Functions),
 	active_Parameter_Whats_This(active_Parameter_Whats_This),
 	unwrapped_Structure(unwrapped_Structure),
 	measurement(measurement),
@@ -33,6 +33,9 @@ Unwrapped_Reflection::Unwrapped_Reflection(Unwrapped_Structure* unwrapped_Struct
 	t_Local_s_IM  (num_Threads,vector<double>(num_Boundaries)),
 	t_Local_p_RE  (num_Threads,vector<double>(num_Boundaries)),
 	t_Local_p_IM  (num_Threads,vector<double>(num_Boundaries)),
+
+	epsilon_Ambient(num_Threads),
+	epsilon_Substrate(num_Threads),
 
 	hi_RE		  (num_Threads,vector<double>(num_Media)),
 	hi_IM		  (num_Threads,vector<double>(num_Media)),
@@ -61,6 +64,20 @@ Unwrapped_Reflection::Unwrapped_Reflection(Unwrapped_Structure* unwrapped_Struct
 	R_p.resize(num_Points);
 	R  .resize(num_Points);
 	R_Instrumental.resize(num_Points);
+
+	t_s.resize(num_Points);
+	t_p.resize(num_Points);
+	Phi_T_s.resize(num_Points);
+	Phi_T_p.resize(num_Points);
+	T_s.resize(num_Points);
+	T_p.resize(num_Points);
+	T  .resize(num_Points);
+	T_Instrumental.resize(num_Points);
+
+	A_s.resize(num_Points);
+	A_p.resize(num_Points);
+	A  .resize(num_Points);
+	A_Instrumental.resize(num_Points);
 }
 
 int Unwrapped_Reflection::fill_s__Max_Depth_2(const tree<Node>::iterator& parent, int thread_Index, int point_Index, int media_Index)
@@ -70,7 +87,8 @@ int Unwrapped_Reflection::fill_s__Max_Depth_2(const tree<Node>::iterator& parent
 		tree<Node>::post_order_iterator child = tree<Node>::child(parent,child_Index);
 
 		if(child.node->data.struct_Data.item_Type == item_Type_Ambient)
-		{
+		{			
+			epsilon_Ambient[thread_Index] = child.node->data.epsilon[point_Index];
 			hi_RE[thread_Index][media_Index] = child.node->data.hi_RE[point_Index];
 			hi_IM[thread_Index][media_Index] = child.node->data.hi_IM[point_Index];
 			++media_Index;
@@ -91,6 +109,7 @@ int Unwrapped_Reflection::fill_s__Max_Depth_2(const tree<Node>::iterator& parent
 		} else
 		if(child.node->data.struct_Data.item_Type == item_Type_Substrate )
 		{
+			epsilon_Substrate[thread_Index] = child.node->data.epsilon[point_Index];
 			hi_RE         [thread_Index][media_Index  ] = child.node->data.hi_RE[point_Index];
 			hi_IM         [thread_Index][media_Index  ] = child.node->data.hi_IM[point_Index];
 			r_Fresnel_s_RE[thread_Index][media_Index-1] = child.node->data.Fresnel_R_s_RE[point_Index] * child.node->data.weak_Factor_R[point_Index];
@@ -131,6 +150,7 @@ int Unwrapped_Reflection::fill_p__Max_Depth_2(const tree<Node>::iterator& parent
 
 		if(child.node->data.struct_Data.item_Type == item_Type_Ambient)
 		{
+			epsilon_Ambient[thread_Index] = child.node->data.epsilon[point_Index];
 			hi_RE[thread_Index][media_Index] = child.node->data.hi_RE[point_Index];
 			hi_IM[thread_Index][media_Index] = child.node->data.hi_IM[point_Index];
 			++media_Index;
@@ -151,6 +171,7 @@ int Unwrapped_Reflection::fill_p__Max_Depth_2(const tree<Node>::iterator& parent
 		} else
 		if(child.node->data.struct_Data.item_Type == item_Type_Substrate )
 		{
+			epsilon_Substrate[thread_Index] = child.node->data.epsilon[point_Index];
 			hi_RE         [thread_Index][media_Index  ] = child.node->data.hi_RE[point_Index];
 			hi_IM         [thread_Index][media_Index  ] = child.node->data.hi_IM[point_Index];
 			r_Fresnel_p_RE[thread_Index][media_Index-1] = child.node->data.Fresnel_R_p_RE[point_Index] * child.node->data.weak_Factor_R[point_Index];
@@ -191,6 +212,7 @@ int Unwrapped_Reflection::fill_sp_Max_Depth_2(const tree<Node>::iterator& parent
 
 		if(child.node->data.struct_Data.item_Type == item_Type_Ambient)
 		{
+			epsilon_Ambient[thread_Index] = child.node->data.epsilon[point_Index];
 			hi_RE[thread_Index][media_Index] = child.node->data.hi_RE[point_Index];
 			hi_IM[thread_Index][media_Index] = child.node->data.hi_IM[point_Index];
 			++media_Index;
@@ -215,6 +237,7 @@ int Unwrapped_Reflection::fill_sp_Max_Depth_2(const tree<Node>::iterator& parent
 		} else
 		if(child.node->data.struct_Data.item_Type == item_Type_Substrate )
 		{
+			epsilon_Substrate[thread_Index] = child.node->data.epsilon[point_Index];
 			hi_RE         [thread_Index][media_Index  ] = child.node->data.hi_RE[point_Index];
 			hi_IM         [thread_Index][media_Index  ] = child.node->data.hi_IM[point_Index];
 			r_Fresnel_s_RE[thread_Index][media_Index-1] = child.node->data.Fresnel_R_s_RE[point_Index] * child.node->data.weak_Factor_R[point_Index];
@@ -527,47 +550,137 @@ void Unwrapped_Reflection::calc_Exponenta(int thread_Index)
 
 void Unwrapped_Reflection::calc_Local(double polarization, int thread_Index)
 {
-	double loc_Denom_RE, loc_Denom_IM, loc_Denom_SQUARE, temp_RE, temp_IM, loc_Numer_RE, loc_Numer_IM;
+	double loc_Denom_RE, loc_Denom_IM, loc_Denom_SQUARE, temp_R_RE, temp_R_IM, temp_T_RE, temp_T_IM, loc_Numer_R_RE, loc_Numer_R_IM, loc_Numer_T_RE, loc_Numer_T_IM;
 	// s-polarization
 	if (polarization >-1)
 	{
-		r_Local_s_RE[thread_Index].back() = r_Fresnel_s_RE[thread_Index].back();	// last boundary
-		r_Local_s_IM[thread_Index].back() = r_Fresnel_s_IM[thread_Index].back();	// last boundary
-
-		for (int i = num_Layers-1; i >= 0; --i)
+		// reflectance only
+		if( !calc_Functions.check_Transmittance &&
+			!calc_Functions.check_Absorptance	&&
+			!calc_Functions.check_User			&&
+			!calc_Functions.check_Joule			&&
+			!calc_Functions.check_Field )
 		{
-			temp_RE = r_Local_s_RE[thread_Index][i+1]*exponenta_2_RE[thread_Index][i] - r_Local_s_IM[thread_Index][i+1]*exponenta_2_IM[thread_Index][i];
-			temp_IM = r_Local_s_IM[thread_Index][i+1]*exponenta_2_RE[thread_Index][i] + r_Local_s_RE[thread_Index][i+1]*exponenta_2_IM[thread_Index][i];
-			loc_Denom_RE = 1. + (temp_RE*r_Fresnel_s_RE[thread_Index][i] - temp_IM*r_Fresnel_s_IM[thread_Index][i]);
-			loc_Denom_IM =       temp_IM*r_Fresnel_s_RE[thread_Index][i] + temp_RE*r_Fresnel_s_IM[thread_Index][i];
-			loc_Denom_SQUARE = loc_Denom_RE*loc_Denom_RE + loc_Denom_IM*loc_Denom_IM;
+			r_Local_s_RE[thread_Index].back() = r_Fresnel_s_RE[thread_Index].back();	// last boundary
+			r_Local_s_IM[thread_Index].back() = r_Fresnel_s_IM[thread_Index].back();	// last boundary
 
-			loc_Numer_RE = r_Fresnel_s_RE[thread_Index][i] + temp_RE;
-			loc_Numer_IM = r_Fresnel_s_IM[thread_Index][i] + temp_IM;
+			for (int i = num_Layers-1; i >= 0; --i)
+			{
+				temp_R_RE = r_Local_s_RE[thread_Index][i+1]*exponenta_2_RE[thread_Index][i] - r_Local_s_IM[thread_Index][i+1]*exponenta_2_IM[thread_Index][i];
+				temp_R_IM = r_Local_s_IM[thread_Index][i+1]*exponenta_2_RE[thread_Index][i] + r_Local_s_RE[thread_Index][i+1]*exponenta_2_IM[thread_Index][i];
+				loc_Denom_RE = 1. + (temp_R_RE*r_Fresnel_s_RE[thread_Index][i] - temp_R_IM*r_Fresnel_s_IM[thread_Index][i]);
+				loc_Denom_IM =       temp_R_IM*r_Fresnel_s_RE[thread_Index][i] + temp_R_RE*r_Fresnel_s_IM[thread_Index][i];
+				loc_Denom_SQUARE = loc_Denom_RE*loc_Denom_RE + loc_Denom_IM*loc_Denom_IM;
 
-			r_Local_s_RE[thread_Index][i] = (loc_Numer_RE*loc_Denom_RE + loc_Numer_IM*loc_Denom_IM) / loc_Denom_SQUARE;
-			r_Local_s_IM[thread_Index][i] = (loc_Numer_IM*loc_Denom_RE - loc_Numer_RE*loc_Denom_IM) / loc_Denom_SQUARE;
+				loc_Numer_R_RE = r_Fresnel_s_RE[thread_Index][i] + temp_R_RE;
+				loc_Numer_R_IM = r_Fresnel_s_IM[thread_Index][i] + temp_R_IM;
+
+				r_Local_s_RE[thread_Index][i] = (loc_Numer_R_RE*loc_Denom_RE + loc_Numer_R_IM*loc_Denom_IM) / loc_Denom_SQUARE;
+				r_Local_s_IM[thread_Index][i] = (loc_Numer_R_IM*loc_Denom_RE - loc_Numer_R_RE*loc_Denom_IM) / loc_Denom_SQUARE;
+			}
+		}
+		// reflectance and transmittance
+		if( calc_Functions.check_Transmittance ||
+			calc_Functions.check_Absorptance   ||
+			calc_Functions.check_User		   ||
+			calc_Functions.check_Joule		   ||
+			calc_Functions.check_Field )
+		{
+			r_Local_s_RE[thread_Index].back() = r_Fresnel_s_RE[thread_Index].back();	// last boundary
+			r_Local_s_IM[thread_Index].back() = r_Fresnel_s_IM[thread_Index].back();	// last boundary
+			t_Local_s_RE[thread_Index].back() = t_Fresnel_s_RE[thread_Index].back();	// last boundary
+			t_Local_s_IM[thread_Index].back() = t_Fresnel_s_IM[thread_Index].back();	// last boundary
+
+			for (int i = num_Layers-1; i >= 0; --i)
+			{
+				temp_R_RE = r_Local_s_RE[thread_Index][i+1]*exponenta_2_RE[thread_Index][i] - r_Local_s_IM[thread_Index][i+1]*exponenta_2_IM[thread_Index][i];
+				temp_R_IM = r_Local_s_IM[thread_Index][i+1]*exponenta_2_RE[thread_Index][i] + r_Local_s_RE[thread_Index][i+1]*exponenta_2_IM[thread_Index][i];
+
+				temp_T_RE = t_Local_s_RE[thread_Index][i+1]*exponenta_RE[thread_Index][i] - t_Local_s_IM[thread_Index][i+1]*exponenta_IM[thread_Index][i];
+				temp_T_IM = t_Local_s_IM[thread_Index][i+1]*exponenta_RE[thread_Index][i] + t_Local_s_RE[thread_Index][i+1]*exponenta_IM[thread_Index][i];
+
+				loc_Denom_RE = 1. + (temp_R_RE*r_Fresnel_s_RE[thread_Index][i] - temp_R_IM*r_Fresnel_s_IM[thread_Index][i]);
+				loc_Denom_IM =       temp_R_IM*r_Fresnel_s_RE[thread_Index][i] + temp_R_RE*r_Fresnel_s_IM[thread_Index][i];
+				loc_Denom_SQUARE = loc_Denom_RE*loc_Denom_RE + loc_Denom_IM*loc_Denom_IM;
+
+				loc_Numer_R_RE = r_Fresnel_s_RE[thread_Index][i] + temp_R_RE;
+				loc_Numer_R_IM = r_Fresnel_s_IM[thread_Index][i] + temp_R_IM;
+
+				loc_Numer_T_RE = t_Fresnel_s_RE[thread_Index][i]*temp_T_RE - t_Fresnel_s_IM[thread_Index][i]*temp_T_IM;
+				loc_Numer_T_IM = t_Fresnel_s_RE[thread_Index][i]*temp_T_IM + t_Fresnel_s_IM[thread_Index][i]*temp_T_RE;
+
+				r_Local_s_RE[thread_Index][i] = (loc_Numer_R_RE*loc_Denom_RE + loc_Numer_R_IM*loc_Denom_IM) / loc_Denom_SQUARE;
+				r_Local_s_IM[thread_Index][i] = (loc_Numer_R_IM*loc_Denom_RE - loc_Numer_R_RE*loc_Denom_IM) / loc_Denom_SQUARE;
+
+				t_Local_s_RE[thread_Index][i] = (loc_Numer_T_RE*loc_Denom_RE + loc_Numer_T_IM*loc_Denom_IM) / loc_Denom_SQUARE;
+				t_Local_s_IM[thread_Index][i] = (loc_Numer_T_IM*loc_Denom_RE - loc_Numer_T_RE*loc_Denom_IM) / loc_Denom_SQUARE;
+			}
 		}
 	}
 	// p-polarization
 	if (polarization <1)
 	{
-		r_Local_p_RE[thread_Index].back() = r_Fresnel_p_RE[thread_Index].back();	// last boundary
-		r_Local_p_IM[thread_Index].back() = r_Fresnel_p_IM[thread_Index].back();	// last boundary
-
-		for (int i = num_Layers-1; i >= 0; --i)
+		// reflectance only
+		if( !calc_Functions.check_Transmittance &&
+			!calc_Functions.check_Absorptance	&&
+			!calc_Functions.check_User			&&
+			!calc_Functions.check_Joule			&&
+			!calc_Functions.check_Field )
 		{
-			temp_RE = r_Local_p_RE[thread_Index][i+1]*exponenta_2_RE[thread_Index][i] - r_Local_p_IM[thread_Index][i+1]*exponenta_2_IM[thread_Index][i];
-			temp_IM = r_Local_p_IM[thread_Index][i+1]*exponenta_2_RE[thread_Index][i] + r_Local_p_RE[thread_Index][i+1]*exponenta_2_IM[thread_Index][i];
-			loc_Denom_RE = 1. + (temp_RE*r_Fresnel_p_RE[thread_Index][i] - temp_IM*r_Fresnel_p_IM[thread_Index][i]);
-			loc_Denom_IM =       temp_IM*r_Fresnel_p_RE[thread_Index][i] + temp_RE*r_Fresnel_p_IM[thread_Index][i];
-			loc_Denom_SQUARE = loc_Denom_RE*loc_Denom_RE + loc_Denom_IM*loc_Denom_IM;
+			r_Local_p_RE[thread_Index].back() = r_Fresnel_p_RE[thread_Index].back();	// last boundary
+			r_Local_p_IM[thread_Index].back() = r_Fresnel_p_IM[thread_Index].back();	// last boundary
 
-			loc_Numer_RE = r_Fresnel_p_RE[thread_Index][i] + temp_RE;
-			loc_Numer_IM = r_Fresnel_p_IM[thread_Index][i] + temp_IM;
+			for (int i = num_Layers-1; i >= 0; --i)
+			{
+				temp_R_RE = r_Local_p_RE[thread_Index][i+1]*exponenta_2_RE[thread_Index][i] - r_Local_p_IM[thread_Index][i+1]*exponenta_2_IM[thread_Index][i];
+				temp_R_IM = r_Local_p_IM[thread_Index][i+1]*exponenta_2_RE[thread_Index][i] + r_Local_p_RE[thread_Index][i+1]*exponenta_2_IM[thread_Index][i];
+				loc_Denom_RE = 1. + (temp_R_RE*r_Fresnel_p_RE[thread_Index][i] - temp_R_IM*r_Fresnel_p_IM[thread_Index][i]);
+				loc_Denom_IM =       temp_R_IM*r_Fresnel_p_RE[thread_Index][i] + temp_R_RE*r_Fresnel_p_IM[thread_Index][i];
+				loc_Denom_SQUARE = loc_Denom_RE*loc_Denom_RE + loc_Denom_IM*loc_Denom_IM;
 
-			r_Local_p_RE[thread_Index][i] = (loc_Numer_RE*loc_Denom_RE + loc_Numer_IM*loc_Denom_IM) / loc_Denom_SQUARE;
-			r_Local_p_IM[thread_Index][i] = (loc_Numer_IM*loc_Denom_RE - loc_Numer_RE*loc_Denom_IM) / loc_Denom_SQUARE;
+				loc_Numer_R_RE = r_Fresnel_p_RE[thread_Index][i] + temp_R_RE;
+				loc_Numer_R_IM = r_Fresnel_p_IM[thread_Index][i] + temp_R_IM;
+
+				r_Local_p_RE[thread_Index][i] = (loc_Numer_R_RE*loc_Denom_RE + loc_Numer_R_IM*loc_Denom_IM) / loc_Denom_SQUARE;
+				r_Local_p_IM[thread_Index][i] = (loc_Numer_R_IM*loc_Denom_RE - loc_Numer_R_RE*loc_Denom_IM) / loc_Denom_SQUARE;
+			}
+		}
+		// reflectance and transmittance
+		if( calc_Functions.check_Transmittance ||
+			calc_Functions.check_Absorptance   ||
+			calc_Functions.check_User		   ||
+			calc_Functions.check_Joule		   ||
+			calc_Functions.check_Field )
+		{
+			r_Local_p_RE[thread_Index].back() = r_Fresnel_p_RE[thread_Index].back();	// last boundary
+			r_Local_p_IM[thread_Index].back() = r_Fresnel_p_IM[thread_Index].back();	// last boundary
+			t_Local_p_RE[thread_Index].back() = t_Fresnel_p_RE[thread_Index].back();	// last boundary
+			t_Local_p_IM[thread_Index].back() = t_Fresnel_p_IM[thread_Index].back();	// last boundary
+
+			for (int i = num_Layers-1; i >= 0; --i)
+			{
+				temp_R_RE = r_Local_p_RE[thread_Index][i+1]*exponenta_2_RE[thread_Index][i] - r_Local_p_IM[thread_Index][i+1]*exponenta_2_IM[thread_Index][i];
+				temp_R_IM = r_Local_p_IM[thread_Index][i+1]*exponenta_2_RE[thread_Index][i] + r_Local_p_RE[thread_Index][i+1]*exponenta_2_IM[thread_Index][i];
+
+				temp_T_RE = t_Local_p_RE[thread_Index][i+1]*exponenta_RE[thread_Index][i] - t_Local_p_IM[thread_Index][i+1]*exponenta_IM[thread_Index][i];
+				temp_T_IM = t_Local_p_IM[thread_Index][i+1]*exponenta_RE[thread_Index][i] + t_Local_p_RE[thread_Index][i+1]*exponenta_IM[thread_Index][i];
+
+				loc_Denom_RE = 1. + (temp_R_RE*r_Fresnel_p_RE[thread_Index][i] - temp_R_IM*r_Fresnel_p_IM[thread_Index][i]);
+				loc_Denom_IM =       temp_R_IM*r_Fresnel_p_RE[thread_Index][i] + temp_R_RE*r_Fresnel_p_IM[thread_Index][i];
+				loc_Denom_SQUARE = loc_Denom_RE*loc_Denom_RE + loc_Denom_IM*loc_Denom_IM;
+
+				loc_Numer_R_RE = r_Fresnel_p_RE[thread_Index][i] + temp_R_RE;
+				loc_Numer_R_IM = r_Fresnel_p_IM[thread_Index][i] + temp_R_IM;
+
+				loc_Numer_T_RE = t_Fresnel_p_RE[thread_Index][i]*temp_T_RE - t_Fresnel_p_IM[thread_Index][i]*temp_T_IM;
+				loc_Numer_T_IM = t_Fresnel_p_RE[thread_Index][i]*temp_T_IM + t_Fresnel_p_IM[thread_Index][i]*temp_T_RE;
+
+				r_Local_p_RE[thread_Index][i] = (loc_Numer_R_RE*loc_Denom_RE + loc_Numer_R_IM*loc_Denom_IM) / loc_Denom_SQUARE;
+				r_Local_p_IM[thread_Index][i] = (loc_Numer_R_IM*loc_Denom_RE - loc_Numer_R_RE*loc_Denom_IM) / loc_Denom_SQUARE;
+
+				t_Local_p_RE[thread_Index][i] = (loc_Numer_T_RE*loc_Denom_RE + loc_Numer_T_IM*loc_Denom_IM) / loc_Denom_SQUARE;
+				t_Local_p_IM[thread_Index][i] = (loc_Numer_T_IM*loc_Denom_RE - loc_Numer_T_RE*loc_Denom_IM) / loc_Denom_SQUARE;
+			}
 		}
 	}
 }
@@ -578,16 +691,26 @@ void Unwrapped_Reflection::multifly_Fresnel_And_Weak_Factor(double polarization,
 	if (polarization >-1)
 	for (int i = 0; i < num_Boundaries; ++i)
 	{
+		// reflectance
 		r_Fresnel_s_RE[thread_Index][i] *= weak_Factor_R[thread_Index][i];
 		r_Fresnel_s_IM[thread_Index][i] *= weak_Factor_R[thread_Index][i];
+
+		// transmittance
+		t_Fresnel_s_RE[thread_Index][i] *= weak_Factor_T[thread_Index][i];
+		t_Fresnel_s_IM[thread_Index][i] *= weak_Factor_T[thread_Index][i];
 	}
 
 	// p-polarization
 	if (polarization < 1)
 	for (int i = 0; i < num_Boundaries; ++i)
 	{
+		// reflectance
 		r_Fresnel_p_RE[thread_Index][i] *= weak_Factor_R[thread_Index][i];
 		r_Fresnel_p_IM[thread_Index][i] *= weak_Factor_R[thread_Index][i];
+
+		// transmittance
+		t_Fresnel_p_RE[thread_Index][i] *= weak_Factor_T[thread_Index][i];
+		t_Fresnel_p_IM[thread_Index][i] *= weak_Factor_T[thread_Index][i];
 	}
 }
 
@@ -660,22 +783,54 @@ void Unwrapped_Reflection::fill_Specular_Values(const Data& measurement, int thr
 	double s_Weight = (1. + measurement.polarization.value) / 2.;
 	double p_Weight = (1. - measurement.polarization.value) / 2.;
 
+	// reflectance
 	r_s[point_Index] = complex<double>(r_Local_s_RE[thread_Index][0], r_Local_s_IM[thread_Index][0]);
 	r_p[point_Index] = complex<double>(r_Local_p_RE[thread_Index][0], r_Local_p_IM[thread_Index][0]);
 
-	Phi_R_s[point_Index] = -arg(r_s[point_Index])*180./M_PI;
-	Phi_R_p[point_Index] = -arg(r_p[point_Index])*180./M_PI;
+	Phi_R_s[point_Index] = arg(r_s[point_Index])/M_PI*180.;
+	Phi_R_p[point_Index] = arg(r_p[point_Index])/M_PI*180.;
 
 	R_s[point_Index] = pow(abs(r_s[point_Index]),2);
 	R_p[point_Index] = pow(abs(r_p[point_Index]),2);
 	R  [point_Index] = s_Weight * R_s[point_Index] + p_Weight * R_p[point_Index];
-	if(R[point_Index]!=R[point_Index])
+
+	// transmittance
+	t_s[point_Index] = complex<double>(t_Local_s_RE[thread_Index][0], t_Local_s_IM[thread_Index][0]);
+	t_p[point_Index] = complex<double>(t_Local_p_RE[thread_Index][0], t_Local_p_IM[thread_Index][0]);
+
+	Phi_T_s[point_Index] = arg(t_s[point_Index])/M_PI*180.;
+	Phi_T_p[point_Index] = arg(t_p[point_Index])/M_PI*180.;
+
+	complex<double> hi_Ambient   = complex<double>(hi_RE[thread_Index][0],           hi_IM[thread_Index][0]);
+	complex<double> hi_Substrate = complex<double>(hi_RE[thread_Index][num_Media-1], hi_IM[thread_Index][num_Media-1]);
+	double environment_Factor_s = real(hi_Substrate/hi_Ambient);
+	double environment_Factor_p = real(
+										(hi_Substrate/epsilon_Substrate[thread_Index])/
+										(hi_Ambient  /epsilon_Ambient[thread_Index]  ));
+	if(isinf(environment_Factor_s)) environment_Factor_s = 0;
+	if(isinf(environment_Factor_p)) environment_Factor_p = 0;
+
+	T_s[point_Index] = pow(abs(t_s[point_Index]),2)*environment_Factor_s;
+	T_p[point_Index] = pow(abs(t_p[point_Index]),2)*environment_Factor_p;
+	T  [point_Index] = s_Weight * T_s[point_Index] + p_Weight * T_p[point_Index];
+
+	// absorptance
+	A_s[point_Index] = 1.-T_s[point_Index]-R_s[point_Index];
+	A_p[point_Index] = 1.-T_p[point_Index]-R_p[point_Index];
+	A  [point_Index] = s_Weight * A_s[point_Index] + p_Weight * A_p[point_Index];
+
+
+	if(isnan(R[point_Index]) || isnan(T[point_Index]))
 	{
-		R[point_Index]=10000;		// NaN to 10000. Be careful!
-		qInfo() << "Unwrapped_Reflection::fill_Specular_Values  :  R = NaN at point" << point_Index;
+		if(isnan(R[point_Index])) R[point_Index]=10000;		// NaN to 10000. Be careful!
+		if(isnan(T[point_Index])) T[point_Index]=10000;		// NaN to 10000. Be careful!
+		qInfo() << "Unwrapped_Reflection::fill_Specular_Values  :  R_T = NaN at point" << point_Index;
 
 		qInfo() << "r_Local_s_RE" << r_Local_s_RE[thread_Index][0] << "r_Local_s_IM" << r_Local_s_IM[thread_Index][0];
 		qInfo() << "r_Local_p_RE" << r_Local_p_RE[thread_Index][0] << "r_Local_p_IM" << r_Local_p_IM[thread_Index][0];
+		qInfo() << "t_Local_s_RE" << t_Local_s_RE[thread_Index][0] << "t_Local_s_IM" << t_Local_s_IM[thread_Index][0];
+		qInfo() << "t_Local_p_RE" << t_Local_p_RE[thread_Index][0] << "t_Local_p_IM" << t_Local_p_IM[thread_Index][0];
+		qInfo() << "environment_Factor_s" << environment_Factor_s << "environment_Factor_p" << environment_Factor_p;
 		qInfo() << "";
 	}
 }
@@ -715,6 +870,8 @@ double beam_Func(double z, void* params)
 
 void Unwrapped_Reflection::calc_Specular()
 {
+	auto start = std::chrono::system_clock::now();
+
 	/// ----------------------------------------------------------------------------------------------------------------------
 	/// parallelization
 	/// ----------------------------------------------------------------------------------------------------------------------
@@ -735,12 +892,16 @@ void Unwrapped_Reflection::calc_Specular()
 	{
 		if (workers[thread_Index].joinable()) workers[thread_Index].join();	// присоединение потоков
 	}
+	auto end = std::chrono::system_clock::now();
+	auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+	qInfo() << "	parallelization:    "<< elapsed.count()/1000000. << " seconds" << endl;
 	/// ----------------------------------------------------------------------------------------------------------------------
+	start = std::chrono::system_clock::now();
 	// postprocessing
 	{
 		/// effect of beam size
 		///
-			double instrumental_Factor = 1;
+			double instrumental_Factor = 2;
 			double error;
 			int key = GSL_INTEG_GAUSS61;
 			const double epsabs = 1e-3;
@@ -759,21 +920,35 @@ void Unwrapped_Reflection::calc_Specular()
 		if(active_Parameter_Whats_This == whats_This_Angle)
 		{
 			// interpolation
+			auto start1 = std::chrono::system_clock::now();
+
 			if(measurement.angular_Resolution.value>0 && measurement.angle.size()>=MIN_ANGULAR_RESOLUTION_POINTS)
 			{
-				int ang_Res_Points = 40;
+				int ang_Res_Points = 3;
 				QVector<double> ang_Resolution(measurement.angle.size());
 				for(int i=0; i<measurement.angle.size(); ++i)
 				{
 					ang_Resolution[i] = measurement.angular_Resolution.value;
 				}
-				interpolate_R(ang_Res_Points, measurement.angle, ang_Resolution);
+				if( calc_Functions.check_Reflectance)
+					interpolate_Curve(ang_Res_Points, measurement.angle, ang_Resolution, R, R_Instrumental);
+				if( calc_Functions.check_Transmittance)
+					interpolate_Curve(ang_Res_Points, measurement.angle, ang_Resolution, T, T_Instrumental);
+				if( calc_Functions.check_Absorptance)
+					interpolate_Curve(ang_Res_Points, measurement.angle, ang_Resolution, A, A_Instrumental);
 			} else
 			{
 				R_Instrumental = R;
+				T_Instrumental = T;
+				A_Instrumental = A;
 			}
+			end = std::chrono::system_clock::now();
+			elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start1);
+			qInfo() << "	interpolation:      "<< elapsed.count()/1000000. << " seconds" << endl;
 
 			// instrumental function
+			start1 = std::chrono::system_clock::now();
+
 			if(measurement.beam_Size.value>DBL_EPSILON)
 			{
 				for(int point_Index=0; point_Index<R.size(); ++point_Index)
@@ -782,11 +957,16 @@ void Unwrapped_Reflection::calc_Specular()
 					R_Instrumental[point_Index] *= instrumental_Factor;
 				}
 			}
+			end = std::chrono::system_clock::now();
+			elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start1);
+			qInfo() << "	instrumental:       "<< elapsed.count()/1000000. << " seconds" << endl;
 
 			// any way
 			for(int point_Index=0; point_Index<R.size(); ++point_Index)
 			{
 				R_Instrumental[point_Index] += measurement.background.value;
+				T_Instrumental[point_Index] += measurement.background.value;
+//				A_Instrumental[point_Index] += measurement.background.value;
 			}
 		}
 		if(active_Parameter_Whats_This == whats_This_Wavelength)
@@ -794,16 +974,23 @@ void Unwrapped_Reflection::calc_Specular()
 			// interpolation
 			if(measurement.spectral_Resolution.value>0 && measurement.lambda.size()>=MIN_SPECTRAL_RESOLUTION_POINTS)
 			{
-				int spec_Res_Points = 40;
+				int spec_Res_Points = 3;
 				QVector<double> spec_Resolution(measurement.lambda.size());
 				for(int i=0; i<measurement.lambda.size(); ++i)
 				{
 					spec_Resolution[i] = measurement.spectral_Resolution.value*measurement.lambda[i];
 				}
-				interpolate_R(spec_Res_Points, measurement.lambda, spec_Resolution);
+				if( calc_Functions.check_Reflectance)
+					interpolate_Curve(spec_Res_Points, measurement.lambda, spec_Resolution, R, R_Instrumental);
+				if( calc_Functions.check_Transmittance)
+					interpolate_Curve(spec_Res_Points, measurement.lambda, spec_Resolution, T, T_Instrumental);
+				if( calc_Functions.check_Absorptance)
+					interpolate_Curve(spec_Res_Points, measurement.lambda, spec_Resolution, A, A_Instrumental);
 			} else
 			{
 				R_Instrumental = R;
+				T_Instrumental = T;
+				A_Instrumental = A;
 			}
 
 			// instrumental function
@@ -821,25 +1008,31 @@ void Unwrapped_Reflection::calc_Specular()
 			{
 				R_Instrumental[point_Index] *= instrumental_Factor;
 				R_Instrumental[point_Index] += measurement.background.value;
+				T_Instrumental[point_Index] += measurement.background.value;
+//				A_Instrumental[point_Index] += measurement.background.value;
 			}
 		}
 		gsl_integration_workspace_free(w);
 	}
+	end = std::chrono::system_clock::now();
+	elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+	qInfo() << "	postpocessing:      "<< elapsed.count()/1000000. << " seconds" << endl;
 }
 
-void Unwrapped_Reflection::interpolate_R(int res_Points, const QVector<double>& argument, const QVector<double>& resolution)
+void Unwrapped_Reflection::interpolate_Curve(int res_Points, const QVector<double> &argument, const QVector<double>& resolution, vector<double>& input_Curve, vector<double>& output_Curve)
 {
+	// OPTIMIZE
 	const gsl_interp_type* interp_type = gsl_interp_steffen;
 	gsl_interp_accel* Acc = gsl_interp_accel_alloc();
-	gsl_spline* Spline = gsl_spline_alloc(interp_type, R.size());
+	gsl_spline* Spline = gsl_spline_alloc(interp_type, input_Curve.size());
 
-	gsl_spline_init(Spline, argument.data(), R.data(), R.size());
+	gsl_spline_init(Spline, argument.data(), input_Curve.data(), input_Curve.size());
 
-	for(int point_Index=0; point_Index<R.size(); ++point_Index)
+	for(int point_Index=0; point_Index<input_Curve.size(); ++point_Index)
 	{
 		double delta = resolution[point_Index]/res_Points; // spectral resolution is not constant in absolute values
 
-		R_Instrumental[point_Index] = 0;
+		output_Curve[point_Index] = 0;
 		double weight = 0;
 		double weight_Accumulator = 0;
 		for(int i=-3*res_Points; i<3*res_Points; ++i)
@@ -849,10 +1042,10 @@ void Unwrapped_Reflection::interpolate_R(int res_Points, const QVector<double>& 
 			{
 				weight = exp(-pow(i*delta/resolution[point_Index],2));
 				weight_Accumulator += weight;
-				R_Instrumental[point_Index] += weight*gsl_spline_eval(Spline, argument[point_Index]+i*delta, Acc);
+				output_Curve[point_Index] += weight*gsl_spline_eval(Spline, argument[point_Index]+i*delta, Acc);
 			}
 		}
-		R_Instrumental[point_Index] /= weight_Accumulator;
+		output_Curve[point_Index] /= weight_Accumulator;
 	}
 
 	gsl_spline_free(Spline);
@@ -862,6 +1055,7 @@ void Unwrapped_Reflection::interpolate_R(int res_Points, const QVector<double>& 
 void Unwrapped_Reflection::size_Effect(double angle, double& denominator,double& instrumental_Factor, int key, const double epsabs, const double epsrel,
 									   size_t limit, gsl_integration_workspace* w, gsl_function* F)
 {
+	// OPTIMIZE
 	double error;
 	double result = 1;
 	double sin_Grad = sin(M_PI/180*angle);
@@ -869,8 +1063,8 @@ void Unwrapped_Reflection::size_Effect(double angle, double& denominator,double&
 	double max = (measurement.sample_Shift.value+measurement.sample_Size.value/2.)*sin_Grad;
 
 	// if reasonable to integrate
-	if( min>-2*measurement.beam_Size.value ||
-		max< 2*measurement.beam_Size.value )
+	if( min>-1*measurement.beam_Size.value ||
+		max< 1*measurement.beam_Size.value )
 	{
 		gsl_integration_qag(F,min,max,epsabs,epsrel,limit,key,w,&result,&error);
 	} else

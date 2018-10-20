@@ -200,10 +200,6 @@ void Target_Curve_Editor::fill_Val_Modes_ComboBox(QString val_Mode)
 	{
 		val_Mode_ComboBox->addItems(value_T_Mode);
 	}
-	if(val_Mode == value_Function[Absorptance])	// absorptance
-	{
-		val_Mode_ComboBox->addItems(value_A_Mode);
-	}
 	val_Mode_ComboBox->blockSignals(false);
 
 	int index = val_Mode_ComboBox->findText(target_Curve->curve.value_Mode);

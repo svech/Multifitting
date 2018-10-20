@@ -59,7 +59,7 @@ void Confidence_Interval_Editor::create_Content()
 			max_Edit->setProperty(min_Size_Property, 40);
 			max_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION, this));
 			max_Edit->setSizePolicy(sp_retain);
-		layout->addWidget(max_Edit),0,Qt::AlignLeft;
+		layout->addWidget(max_Edit,0,Qt::AlignLeft);
 	}
 
 	units_Label = new QLabel(units);

@@ -333,15 +333,6 @@ void Fitting::fill_Residual(Fitting_Params* params, int& residual_Shift, Data_El
 	if(target_Curve->curve.value_Mode == value_T_Mode[T] )				// T
 	{
 		qInfo() << "Fitting::fill_Residual  :  sorry, T is not ready";
-	} else
-
-	/// -------------------------------------------------------------------------------
-	/// absorptance
-	/// -------------------------------------------------------------------------------
-
-	if(target_Curve->curve.value_Mode == value_A_Mode[A] )				// A
-	{
-		qInfo() << "Fitting::fill_Residual  :  sorry, A is not ready";
 	}
 }
 
@@ -721,8 +712,7 @@ bool Fitting::check_Residual_Expression()
 			/// -------------------------------------------------------------------------------
 
 			if(target_Curve->curve.value_Mode == value_R_Mode[R] || 			// R
-			   target_Curve->curve.value_Mode == value_T_Mode[T] || 			// T
-			   target_Curve->curve.value_Mode == value_A_Mode[A] )				// A
+			   target_Curve->curve.value_Mode == value_T_Mode[T] )				// T
 			{
 				if(target_Curve->fit_Params.expression_Vec.size() < 1)
 				{

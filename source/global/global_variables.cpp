@@ -124,13 +124,11 @@ QStringList tril						{TRIL_TRUE, TRIL_FALSE, TRIL_NOT_DEFINED};
 
 // measured curves
 QStringList argument_Types				{"Grazing angle","Incident angle","Wavelength/Energy"}; // change enum!
-QStringList value_Function				{"Reflectance","Transmittance","Absorptance"};			// change enum!
+QStringList value_Function				{"Reflectance","Transmittance"}				;			// change enum!
 QStringList value_R_Mode				{"R","R+"+Phi_Sym };									// change enum!
 QStringList value_R_Mode_Label_1		{"R","R"          };
 QStringList value_R_Mode_Label_2		{" ","Phase "+Phi_Sym+", "+Degree_Sym };
 QStringList value_T_Mode				{"T"};													// change enum!
-QStringList value_A_Mode				{"A"};													// change enum!
-
 
 /// -------------------------------------------------------------------------
 /// GSL

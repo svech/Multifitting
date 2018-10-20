@@ -265,16 +265,8 @@ void Curve_Plot::create_Options()
 						max_Value_Title = "| Max T =";
 				} else
 				{
-					if(target_Curve->curve.value_Function == value_Function[Absorptance])
-					{
-						if(target_Curve->curve.value_Mode == value_A_Mode[A])
-							max_Value_Title = "| Max A =";
-					} else
-					{
-						// none
-						max_Value_Title = "";
-
-					}
+					// none
+					max_Value_Title = "";
 				}
 			}
 		}
@@ -556,7 +548,6 @@ void Curve_Plot::refresh_Labels()
 			show_Second_Label = true;
 		}
 		if( target_Curve->curve.value_Mode == value_T_Mode[T] )	{val_Mode_Label_1 = value_T_Mode[T];}
-		if( target_Curve->curve.value_Mode == value_A_Mode[A] )	{val_Mode_Label_1 = value_A_Mode[A];}
 	}
 	if(curve_Class == INDEPENDENT)
 	{

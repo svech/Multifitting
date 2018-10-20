@@ -7,7 +7,7 @@
 class Unwrapped_Reflection
 {
 public:
-	Unwrapped_Reflection(Unwrapped_Structure* unwrapped_Structure, int num_Media, QString active_Parameter_Whats_This, const Data& measurement, bool depth_Grading, bool sigma_Grading, bool calc_Transmission);
+	Unwrapped_Reflection(Unwrapped_Structure* unwrapped_Structure, int num_Media, QString active_Parameter_Whats_This, const Data& measurement, bool depth_Grading, bool sigma_Grading, Calc_Functions calc_Functions);
 
 	int num_Threads;
 	int num_Layers;
@@ -18,7 +18,7 @@ public:
 
 	bool depth_Grading;
 	bool sigma_Grading;
-	bool calc_Transmission = false;
+	Calc_Functions calc_Functions;
 
 	QString active_Parameter_Whats_This;
 	Unwrapped_Structure* unwrapped_Structure;
@@ -41,6 +41,9 @@ public:
 	vector<vector<double>> t_Local_s_IM;		//	[thread][boundary]
 	vector<vector<double>> t_Local_p_RE;		//	[thread][boundary]
 	vector<vector<double>> t_Local_p_IM;		//	[thread][boundary]
+
+	vector<complex<double>> epsilon_Ambient;	//	[thread]
+	vector<complex<double>> epsilon_Substrate;	//	[thread]
 
 	vector<vector<double>> hi_RE;				//	[thread][media]
 	vector<vector<double>> hi_IM;				//	[thread][media]
@@ -73,12 +76,26 @@ public:
 	vector<double> R;
 	vector<double> R_Instrumental;
 
+	vector<complex<double>> t_s;
+	vector<complex<double>> t_p;
+	vector<double> Phi_T_s;
+	vector<double> Phi_T_p;
+	vector<double> T_s;
+	vector<double> T_p;
+	vector<double> T;
+	vector<double> T_Instrumental;
+
+	vector<double> A_s;
+	vector<double> A_p;
+	vector<double> A;
+	vector<double> A_Instrumental;
+
 	void fill_Specular_Values            (const Data& measurement, int thread_Index, int point_Index);
 	void calc_Specular_1_Point_1_Thread  (const Data& measurement, int thread_Index, int point_Index);
 	void calc_Specular_nMin_nMax_1_Thread(const Data& measurement, int n_Min, int n_Max, int thread_Index);
 	void calc_Specular();
 
-	void interpolate_R(int res_Points, const QVector<double> &argument, const QVector<double>& resolution);
+	void interpolate_Curve(int res_Points, const QVector<double> &argument, const QVector<double>& resolution, vector<double>& input_Curve, vector<double>& output_Curve);
 	void size_Effect(double angle, double& denominator, double& instrumental_Factor, int key, const double epsabs,
 					 const double epsrel, size_t limit, gsl_integration_workspace* w, gsl_function* F);
 };

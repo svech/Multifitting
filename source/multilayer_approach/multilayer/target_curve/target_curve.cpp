@@ -82,7 +82,7 @@ void Target_Curve::import_Data(QString bare_Filename)
 
 			/// value
 
-			if(curve.value_Mode == value_R_Mode[R] || curve.value_Mode == value_T_Mode[T] || curve.value_Mode == value_A_Mode[A])	// R , T , A
+			if(curve.value_Mode == value_R_Mode[R] || curve.value_Mode == value_T_Mode[T] )	// R , T
 			{
 				if(numbers.size()<=number_Index) throw "val_1 | " + main_Exception_Text;
 				double temp_Number = QString(numbers[number_Index]).toDouble();

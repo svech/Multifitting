@@ -13,7 +13,7 @@ Node::Node(QTreeWidgetItem* item):
 //	qInfo() << "NODE" << struct_Data.item_Type;
 }
 
-void Node::calculate_Intermediate_Points(bool calc_Transmission, const Data& measurement, Node* above_Node, QString active_Parameter_Whats_This, bool depth_Grading, bool sigma_Grading)
+void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_Node, QString active_Parameter_Whats_This, bool depth_Grading, bool sigma_Grading)
 {
 	// PARAMETER
 	if(active_Parameter_Whats_This == whats_This_Angle ||
@@ -236,11 +236,11 @@ void Node::calculate_Intermediate_Points(bool calc_Transmission, const Data& mea
 							temp_Fre_Numer_IM = above_Node->hi_IM[i] - hi_IM[i];
 
 							// reflectance
-							Fresnel_R_s_RE[i] =  (temp_Fre_Numer_RE*temp_Fre_Denom_RE + temp_Fre_Numer_IM*temp_Fre_Denom_IM) / temp_Fre_Denom_SQARE;
-							Fresnel_R_s_IM[i] = -(temp_Fre_Numer_IM*temp_Fre_Denom_RE - temp_Fre_Numer_RE*temp_Fre_Denom_IM) / temp_Fre_Denom_SQARE; // for consistence with IMD
+							Fresnel_R_s_RE[i] = (temp_Fre_Numer_RE*temp_Fre_Denom_RE + temp_Fre_Numer_IM*temp_Fre_Denom_IM) / temp_Fre_Denom_SQARE;
+							Fresnel_R_s_IM[i] = (temp_Fre_Numer_IM*temp_Fre_Denom_RE - temp_Fre_Numer_RE*temp_Fre_Denom_IM) / temp_Fre_Denom_SQARE;
 							// transmittance
-							Fresnel_T_s_RE[i] =  2*(above_Node->hi_RE[i]*temp_Fre_Denom_RE + above_Node->hi_IM[i]*temp_Fre_Denom_IM) / temp_Fre_Denom_SQARE;
-							Fresnel_T_s_IM[i] = -2*(above_Node->hi_IM[i]*temp_Fre_Denom_RE - above_Node->hi_RE[i]*temp_Fre_Denom_IM) / temp_Fre_Denom_SQARE; // for consistence with IMD
+							Fresnel_T_s_RE[i] = 2*(above_Node->hi_RE[i]*temp_Fre_Denom_RE + above_Node->hi_IM[i]*temp_Fre_Denom_IM) / temp_Fre_Denom_SQARE;
+							Fresnel_T_s_IM[i] = 2*(above_Node->hi_IM[i]*temp_Fre_Denom_RE - above_Node->hi_RE[i]*temp_Fre_Denom_IM) / temp_Fre_Denom_SQARE;
 						} else
 						{
 							// reflectance
@@ -252,6 +252,7 @@ void Node::calculate_Intermediate_Points(bool calc_Transmission, const Data& mea
 						}
 					}
 				}
+
 				// p-polarization
 				if (measurement.polarization.value < 1)
 				{
@@ -279,11 +280,11 @@ void Node::calculate_Intermediate_Points(bool calc_Transmission, const Data& mea
 							temp_Fre_Numer_IM = temp_1_IM - temp_2_IM;
 
 							// reflectance
-							Fresnel_R_p_RE[i] = -(temp_Fre_Numer_RE*temp_Fre_Denom_RE + temp_Fre_Numer_IM*temp_Fre_Denom_IM) / temp_Fre_Denom_SQARE;
-							Fresnel_R_p_IM[i] =  (temp_Fre_Numer_IM*temp_Fre_Denom_RE - temp_Fre_Numer_RE*temp_Fre_Denom_IM) / temp_Fre_Denom_SQARE; // for consistence with IMD
+							Fresnel_R_p_RE[i] = (temp_Fre_Numer_RE*temp_Fre_Denom_RE + temp_Fre_Numer_IM*temp_Fre_Denom_IM) / temp_Fre_Denom_SQARE;
+							Fresnel_R_p_IM[i] = (temp_Fre_Numer_IM*temp_Fre_Denom_RE - temp_Fre_Numer_RE*temp_Fre_Denom_IM) / temp_Fre_Denom_SQARE;
 							// transmittance
-							Fresnel_T_p_RE[i] = -2*(temp_1_RE*temp_Fre_Denom_RE + temp_1_IM*temp_Fre_Denom_IM) / temp_Fre_Denom_SQARE;
-							Fresnel_T_p_IM[i] =  2*(temp_1_IM*temp_Fre_Denom_RE - temp_1_RE*temp_Fre_Denom_IM) / temp_Fre_Denom_SQARE; // for consistence with IMD
+							Fresnel_T_p_RE[i] = 2*(temp_1_RE*temp_Fre_Denom_RE + temp_1_IM*temp_Fre_Denom_IM) / temp_Fre_Denom_SQARE;
+							Fresnel_T_p_IM[i] = 2*(temp_1_IM*temp_Fre_Denom_RE - temp_1_RE*temp_Fre_Denom_IM) / temp_Fre_Denom_SQARE;
 						} else
 						{
 							// reflectance

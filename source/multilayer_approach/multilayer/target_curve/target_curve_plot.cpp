@@ -36,8 +36,7 @@ void Target_Curve_Plot::create_Plot_Frame_And_Scale()
 			custom_Plot->yAxis->setRange(1e-5, 1e0);
 
 			if(	target_Curve->curve.value_Mode == value_R_Mode[R] ||
-				target_Curve->curve.value_Mode == value_T_Mode[T] ||
-				target_Curve->curve.value_Mode == value_A_Mode[A] )
+				target_Curve->curve.value_Mode == value_T_Mode[T] )
 			{
 				custom_Plot->yAxis2->setScaleType(QCPAxis::stLogarithmic);
 				custom_Plot->yAxis2->setTicker(logTicker);
@@ -82,8 +81,7 @@ void Target_Curve_Plot::create_Plot_Frame_And_Scale()
 
 		// connect signals so top and right axes move in sync with bottom and left axes:
 		if(	target_Curve->curve.value_Mode == value_R_Mode[R] ||
-			target_Curve->curve.value_Mode == value_T_Mode[T] ||
-			target_Curve->curve.value_Mode == value_A_Mode[A])
+			target_Curve->curve.value_Mode == value_T_Mode[T] )
 		{
 			connect(custom_Plot->xAxis, SIGNAL(rangeChanged(QCPRange)), custom_Plot->xAxis2, SLOT(setRange(QCPRange)));
 			connect(custom_Plot->yAxis, SIGNAL(rangeChanged(QCPRange)), custom_Plot->yAxis2, SLOT(setRange(QCPRange)));
@@ -198,7 +196,6 @@ void Target_Curve_Plot::refresh_Labels()
 			show_Second_Label = true;
 		}
 		if( target_Curve->curve.value_Mode == value_T_Mode[T] )	{val_Mode_Label_1 = value_T_Mode[T];}
-		if( target_Curve->curve.value_Mode == value_A_Mode[A] )	{val_Mode_Label_1 = value_A_Mode[A];}
 	}
 
 	// argument
