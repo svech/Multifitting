@@ -742,7 +742,7 @@ void Main_Calculation_Module::print_Data(QTextStream &out, QVector<double> &arg,
 		// reflectance
 		if(print_Reflectance)
 		{
-			out << R_mixed;
+											out << R_mixed;
 			if(incident_Polarization>-1)	out << R_s;
 			if(incident_Polarization< 1)	out << R_p;
 			if(incident_Polarization>-1)	out << Phi_R_s;
@@ -752,7 +752,7 @@ void Main_Calculation_Module::print_Data(QTextStream &out, QVector<double> &arg,
 		// transmittance
 		if(print_Transmittance)
 		{
-			out <<T_mixed;
+											out <<T_mixed;
 			if(incident_Polarization>-1)	out << T_s;
 			if(incident_Polarization< 1)	out << T_p;
 			if(incident_Polarization>-1)	out << Phi_T_s;

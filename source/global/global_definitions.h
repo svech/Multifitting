@@ -26,6 +26,10 @@ class Node;
 
 // -----------------------------------------------------------------------------------------
 
+#define UNUSED(expr) do { (void)(expr); } while (0)
+
+// -----------------------------------------------------------------------------------------
+
 #define control_String						 "Multifitting"
 #define default_File						 "save_v."+QString::number(VERSION_MAJOR)+"."+QString::number(VERSION_MINOR)+"."+QString::number(VERSION_BUILD)+".fit"
 #define default_Fit_Statictics_File			 "fits.txt"
@@ -149,8 +153,8 @@ class Node;
 #define PERMANENT_INDEPENDENT 2				// angle and wavelength items in list
 #define MAX_PRECISION_USED 10				// tthumbnail and lineedit precisions
 #define RAND_SHIFT	100000					// rand * RAND_SHIFT + rand
-#define TABLE_FIX_WIDTH_LINE_EDIT_SHORT 58	// qLineEdit.setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT)
-#define TABLE_FIX_WIDTH_LINE_EDIT_LONG 58	// qLineEdit.setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT)
+#define TABLE_FIX_WIDTH_LINE_EDIT_SHORT 65  //58	// qLineEdit.setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT)
+#define TABLE_FIX_WIDTH_LINE_EDIT_LONG 65   //58	// qLineEdit.setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT)
 #define TABLE_COLUMN_ELEMENTS_SHIFT 1		// current_Column += TABLE_COLUMN_ELEMENTS_SHIFT
 #define TABLE_COLUMN_INTERLAYERS_SHIFT 1	// current_Column += TABLE_COLUMN_INTERLAYERS_SHIFT
 #define MIN_FORMULA_WIDTH_LINE_EDIT 80		// master/slave width for dependance formula

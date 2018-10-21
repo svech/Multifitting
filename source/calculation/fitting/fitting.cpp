@@ -270,60 +270,20 @@ void Fitting::fill_Residual(Fitting_Params* params, int& residual_Shift, Data_El
 	double N_sqrt = sqrt(double(N));
 	double n_P_sqrt = sqrt(double(params->n-params->fitables.param_Names.size()));
 
+	vector<double> model_Curve(N);
+
 	/// -------------------------------------------------------------------------------
 	/// reflectance
 	/// -------------------------------------------------------------------------------
 
 	if(target_Curve->curve.value_Mode == value_R_Mode[R] )				// R
 	{
-		// use_Chi2
-		if(target_Curve->fit_Params.use_Chi2)
-		{
-			for(int point_Index=0; point_Index<N; ++point_Index)
-			{
-				factor = target_Curve->fit_Params.weight_Sqrt/n_P_sqrt;
-				fi_1 = target_Curve->curve.values[point_Index].val_1;
-				fi_2 = target_Element.unwrapped_Reflection->R_Instrumental[point_Index];
-
-				gsl_vector_set(f, residual_Shift+point_Index, factor*(fi_1-fi_2)*sqrt(target_Curve->curve.beam_Intensity/fi_2)   );
-			}
-		} else
-		// use custom expression
-		{
-			for(int point_Index=0; point_Index<N; ++point_Index)
-			{
-				// calculate with expression
-				{
-#ifdef EXPRTK
-					target_Curve->fit_Params.expression_Argument = target_Curve->curve.values[point_Index].val_1;
-					fi_1 = target_Curve->fit_Params.expression_Vec[0].value();
-#else
-					fi_1 = func(target_Curve->curve.values[point_Index].val_1, index);
-#endif
-				}
-				{
-#ifdef EXPRTK
-					target_Curve->fit_Params.expression_Argument = target_Element.unwrapped_Reflection->R_Instrumental[point_Index];
-					fi_2 = target_Curve->fit_Params.expression_Vec[0].value();
-#else
-//					fi_2 = func(target_Element.unwrapped_Reflection->R[point_Index], index);
-					fi_2 = func(target_Element.unwrapped_Reflection->R_Instrumental[point_Index], index);
-#endif
-				}
-
-				// weight
-				factor = target_Curve->fit_Params.weight_Sqrt;
-				if(target_Curve->fit_Params.norm) { factor /= N_sqrt; }
-
-				// fill
-				gsl_vector_set(f, residual_Shift+point_Index, factor*(fi_1-fi_2));
-			}
-		}
-		residual_Shift += N;
+		model_Curve = target_Element.unwrapped_Reflection->R_Instrumental;
 	} else
 	if(target_Curve->curve.value_Mode == value_R_Mode[R_Phi] )
 	{
 		qInfo() << "Fitting::fill_Residual  :  sorry, R_Phi is not ready";
+		return;
 	} else
 
 	/// -------------------------------------------------------------------------------
@@ -332,8 +292,52 @@ void Fitting::fill_Residual(Fitting_Params* params, int& residual_Shift, Data_El
 
 	if(target_Curve->curve.value_Mode == value_T_Mode[T] )				// T
 	{
-		qInfo() << "Fitting::fill_Residual  :  sorry, T is not ready";
+		model_Curve = target_Element.unwrapped_Reflection->T_Instrumental;
 	}
+
+	// use_Chi2
+	if(target_Curve->fit_Params.use_Chi2)
+	{
+		for(int point_Index=0; point_Index<N; ++point_Index)
+		{
+			factor = target_Curve->fit_Params.weight_Sqrt/n_P_sqrt;
+			fi_1 = target_Curve->curve.values[point_Index].val_1;
+			fi_2 = model_Curve[point_Index];
+
+			gsl_vector_set(f, residual_Shift+point_Index, factor*(fi_1-fi_2)*sqrt(target_Curve->curve.beam_Intensity/fi_2)   );
+		}
+	} else
+	// use custom expression
+	{
+		for(int point_Index=0; point_Index<N; ++point_Index)
+		{
+			// calculate with expression
+			{
+#ifdef EXPRTK
+				target_Curve->fit_Params.expression_Argument = target_Curve->curve.values[point_Index].val_1;
+				fi_1 = target_Curve->fit_Params.expression_Vec[0].value();
+#else
+				fi_1 = func(target_Curve->curve.values[point_Index].val_1, index);
+#endif
+			}
+			{
+#ifdef EXPRTK
+				target_Curve->fit_Params.expression_Argument = model_Curve[point_Index];
+				fi_2 = target_Curve->fit_Params.expression_Vec[0].value();
+#else
+				fi_2 = func(model_Curve[point_Index], index);
+#endif
+			}
+
+			// weight
+			factor = target_Curve->fit_Params.weight_Sqrt;
+			if(target_Curve->fit_Params.norm) { factor /= N_sqrt; }
+
+			// fill
+			gsl_vector_set(f, residual_Shift+point_Index, factor*(fi_1-fi_2));
+		}
+	}
+	residual_Shift += N;
 }
 
 void Fitting::initialize_Position()
@@ -553,7 +557,7 @@ void Fitting::add_Fit_To_File(const gsl_vector* x, double residual, QString file
 			index++;
 			//------------------------------------------------------
 			out.setFieldWidth(35);
-			for(int param_Index=0; param_Index<params.p; ++param_Index)
+			for(size_t param_Index=0; param_Index<params.p; ++param_Index)
 			{
 				//------------------------------------------------------
 				current_String = params.fitables.param_Names[param_Index];

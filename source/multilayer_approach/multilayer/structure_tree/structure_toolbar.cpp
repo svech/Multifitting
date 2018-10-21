@@ -684,7 +684,7 @@ void Structure_Toolbar::if_Selected()
 	} else
 	{
 		bool if_Substrate  = (structure_Tree->tree->currentItem()->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>().item_Type) == item_Type_Substrate;
-		bool if_Layer      = (structure_Tree->tree->currentItem()->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>().item_Type) == item_Type_Layer;
+//		bool if_Layer      = (structure_Tree->tree->currentItem()->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>().item_Type) == item_Type_Layer;
 		bool if_Multilayer = (structure_Tree->tree->currentItem()->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>().item_Type) == item_Type_Multilayer;
 
 		toolbar->actions()[Edit]->setDisabled(false);			// edit

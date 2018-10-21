@@ -390,24 +390,24 @@ void Calculation_Tree::calculate_1_Kind(Data_Element<Type>& data_Element)
 	} else
 	if(data_Element.active_Item_Type == item_Type_Measurement)
 	{
-		auto start = std::chrono::system_clock::now();
+//		auto start = std::chrono::system_clock::now();
 		calculate_Intermediate_Values_1_Tree(data_Element.calc_Tree, data_Element.the_Class->measurement, data_Element.active_Parameter_Whats_This, data_Element.calc_Tree.begin());
 		if(lambda_Out_Of_Range) return;
-		auto end = std::chrono::system_clock::now();
-		auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-		qInfo() << "Intermediate: "<< elapsed.count()/1000000. << " seconds" << endl;
+//		auto end = std::chrono::system_clock::now();
+//		auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+//		qInfo() << "Intermediate: "<< elapsed.count()/1000000. << " seconds" << endl;
 
-		start = std::chrono::system_clock::now();
+//		start = std::chrono::system_clock::now();
 		calculate_Unwrapped_Structure		(data_Element.calc_Tree, data_Element.the_Class->measurement, data_Element.active_Parameter_Whats_This, data_Element.unwrapped_Structure);
-		end = std::chrono::system_clock::now();
-		elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-		qInfo() << "Unwrap: "<< elapsed.count()/1000000. << " seconds" << endl;
+//		end = std::chrono::system_clock::now();
+//		elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+//		qInfo() << "Unwrap: "<< elapsed.count()/1000000. << " seconds" << endl;
 
-		start = std::chrono::system_clock::now();
+//		start = std::chrono::system_clock::now();
 		calculate_Unwrapped_Reflectivity	(calc_Functions, data_Element.the_Class->calculated_Values, data_Element.the_Class->measurement, data_Element.active_Parameter_Whats_This, data_Element.unwrapped_Structure, data_Element.unwrapped_Reflection);
-		end = std::chrono::system_clock::now();
-		elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-		qInfo() << "Unwrap Reflect: "<< elapsed.count()/1000000. << " seconds" << endl;
+//		end = std::chrono::system_clock::now();
+//		elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+//		qInfo() << "Unwrap Reflect: "<< elapsed.count()/1000000. << " seconds" << endl;
 	}
 }
 template void Calculation_Tree::calculate_1_Kind<Independent_Variables>(Data_Element<Independent_Variables>&);
@@ -471,19 +471,23 @@ void Calculation_Tree::calculate_Unwrapped_Reflectivity(Calc_Functions calc_Func
 	Unwrapped_Reflection*  new_Unwrapped_Reflection = new Unwrapped_Reflection(unwrapped_Structure_Vec_Element, num_Media, active_Parameter_Whats_This, measurement, depth_Grading, sigma_Grading, calc_Functions);
 	unwrapped_Reflection_Vec_Element = new_Unwrapped_Reflection;
 
-	auto start = std::chrono::system_clock::now();
+//	auto start = std::chrono::system_clock::now();
 	unwrapped_Reflection_Vec_Element->calc_Specular();
-	auto end = std::chrono::system_clock::now();
-	auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+//	auto end = std::chrono::system_clock::now();
+//	auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+//	qInfo() << "Bare Reflectivity:      "<< elapsed.count()/1000000. << " seconds" << endl;
 
-// TODO calculated_Values
 	// make a copy for plotting
 	calculated_Values.R=QVector<double>::fromStdVector(unwrapped_Reflection_Vec_Element->R_Instrumental);
 	if(abs(measurement.polarization.value-1)<DBL_EPSILON)	{ calculated_Values.Phi_R = QVector<double>::fromStdVector(unwrapped_Reflection_Vec_Element->Phi_R_s); } else
 	if(abs(measurement.polarization.value+1)<DBL_EPSILON)	{ calculated_Values.Phi_R = QVector<double>::fromStdVector(unwrapped_Reflection_Vec_Element->Phi_R_p); } else
 															{ calculated_Values.Phi_R.clear(); }
+	calculated_Values.T=QVector<double>::fromStdVector(unwrapped_Reflection_Vec_Element->T_Instrumental);
+	calculated_Values.A=QVector<double>::fromStdVector(unwrapped_Reflection_Vec_Element->A_Instrumental);
+	// TODO user function
+//	calculated_Values.=QVector<double>::fromStdVector(unwrapped_Reflection_Vec_Element->A_Instrumental);
 
-	qInfo() << "Bare Reflectivity:      "<< elapsed.count()/1000000. << " seconds" << endl;
+
 
 //	cout << "r_s     [" << 0 << "] = " << unwrapped_Reflection_Vec_Element->r_s[0] << endl;
 //	cout << "r_p     [" << 0 << "] = " << unwrapped_Reflection_Vec_Element->r_p[0] << endl;

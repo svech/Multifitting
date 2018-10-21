@@ -809,12 +809,14 @@ void Unwrapped_Reflection::fill_Specular_Values(const Data& measurement, int thr
 										(hi_Ambient  /epsilon_Ambient[thread_Index]  ));
 	if(isinf(environment_Factor_s)) environment_Factor_s = 0;
 	if(isinf(environment_Factor_p)) environment_Factor_p = 0;
+	if(isnan(environment_Factor_s)) environment_Factor_s = 0;
+	if(isnan(environment_Factor_p)) environment_Factor_p = 0;
 
 	T_s[point_Index] = pow(abs(t_s[point_Index]),2)*environment_Factor_s;
 	T_p[point_Index] = pow(abs(t_p[point_Index]),2)*environment_Factor_p;
 	T  [point_Index] = s_Weight * T_s[point_Index] + p_Weight * T_p[point_Index];
 
-	// absorptance
+	// absorptance (without scattering!)
 	A_s[point_Index] = 1.-T_s[point_Index]-R_s[point_Index];
 	A_p[point_Index] = 1.-T_p[point_Index]-R_p[point_Index];
 	A  [point_Index] = s_Weight * A_s[point_Index] + p_Weight * A_p[point_Index];
@@ -822,9 +824,8 @@ void Unwrapped_Reflection::fill_Specular_Values(const Data& measurement, int thr
 
 	if(isnan(R[point_Index]) || isnan(T[point_Index]))
 	{
-		if(isnan(R[point_Index])) R[point_Index]=10000;		// NaN to 10000. Be careful!
-		if(isnan(T[point_Index])) T[point_Index]=10000;		// NaN to 10000. Be careful!
-		qInfo() << "Unwrapped_Reflection::fill_Specular_Values  :  R_T = NaN at point" << point_Index;
+		if(isnan(R[point_Index])) {R[point_Index]=10000; qInfo() << "Unwrapped_Reflection::fill_Specular_Values  :  R = NaN at point" << point_Index;}		// NaN to 10000. Be careful!
+		if(isnan(T[point_Index])) {T[point_Index]=10000; qInfo() << "Unwrapped_Reflection::fill_Specular_Values  :  T = NaN at point" << point_Index;}		// NaN to 10000. Be careful!
 
 		qInfo() << "r_Local_s_RE" << r_Local_s_RE[thread_Index][0] << "r_Local_s_IM" << r_Local_s_IM[thread_Index][0];
 		qInfo() << "r_Local_p_RE" << r_Local_p_RE[thread_Index][0] << "r_Local_p_IM" << r_Local_p_IM[thread_Index][0];
@@ -870,7 +871,7 @@ double beam_Func(double z, void* params)
 
 void Unwrapped_Reflection::calc_Specular()
 {
-	auto start = std::chrono::system_clock::now();
+//	auto start = std::chrono::system_clock::now();
 
 	/// ----------------------------------------------------------------------------------------------------------------------
 	/// parallelization
@@ -892,11 +893,11 @@ void Unwrapped_Reflection::calc_Specular()
 	{
 		if (workers[thread_Index].joinable()) workers[thread_Index].join();	// присоединение потоков
 	}
-	auto end = std::chrono::system_clock::now();
-	auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-	qInfo() << "	parallelization:    "<< elapsed.count()/1000000. << " seconds" << endl;
+//	auto end = std::chrono::system_clock::now();
+//	auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+//	qInfo() << "	parallelization:    "<< elapsed.count()/1000000. << " seconds" << endl;
 	/// ----------------------------------------------------------------------------------------------------------------------
-	start = std::chrono::system_clock::now();
+//	start = std::chrono::system_clock::now();
 	// postprocessing
 	{
 		/// effect of beam size
@@ -920,7 +921,7 @@ void Unwrapped_Reflection::calc_Specular()
 		if(active_Parameter_Whats_This == whats_This_Angle)
 		{
 			// interpolation
-			auto start1 = std::chrono::system_clock::now();
+//			auto start1 = std::chrono::system_clock::now();
 
 			if(measurement.angular_Resolution.value>0 && measurement.angle.size()>=MIN_ANGULAR_RESOLUTION_POINTS)
 			{
@@ -942,27 +943,27 @@ void Unwrapped_Reflection::calc_Specular()
 				T_Instrumental = T;
 				A_Instrumental = A;
 			}
-			end = std::chrono::system_clock::now();
-			elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start1);
-			qInfo() << "	interpolation:      "<< elapsed.count()/1000000. << " seconds" << endl;
+//			end = std::chrono::system_clock::now();
+//			elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start1);
+//			qInfo() << "	interpolation:      "<< elapsed.count()/1000000. << " seconds" << endl;
 
 			// instrumental function
-			start1 = std::chrono::system_clock::now();
+//			start1 = std::chrono::system_clock::now();
 
 			if(measurement.beam_Size.value>DBL_EPSILON)
 			{
-				for(int point_Index=0; point_Index<R.size(); ++point_Index)
+				for(size_t point_Index=0; point_Index<R.size(); ++point_Index)
 				{
 					size_Effect(measurement.angle[point_Index], denominator, instrumental_Factor, key, epsabs, epsrel, limit, w, &F);
 					R_Instrumental[point_Index] *= instrumental_Factor;
 				}
 			}
-			end = std::chrono::system_clock::now();
-			elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start1);
-			qInfo() << "	instrumental:       "<< elapsed.count()/1000000. << " seconds" << endl;
+//			end = std::chrono::system_clock::now();
+//			elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start1);
+//			qInfo() << "	instrumental:       "<< elapsed.count()/1000000. << " seconds" << endl;
 
 			// any way
-			for(int point_Index=0; point_Index<R.size(); ++point_Index)
+			for(size_t point_Index=0; point_Index<R.size(); ++point_Index)
 			{
 				R_Instrumental[point_Index] += measurement.background.value;
 				T_Instrumental[point_Index] += measurement.background.value;
@@ -1014,9 +1015,9 @@ void Unwrapped_Reflection::calc_Specular()
 		}
 		gsl_integration_workspace_free(w);
 	}
-	end = std::chrono::system_clock::now();
-	elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-	qInfo() << "	postpocessing:      "<< elapsed.count()/1000000. << " seconds" << endl;
+//	end = std::chrono::system_clock::now();
+//	elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+//	qInfo() << "	postpocessing:      "<< elapsed.count()/1000000. << " seconds" << endl;
 }
 
 void Unwrapped_Reflection::interpolate_Curve(int res_Points, const QVector<double> &argument, const QVector<double>& resolution, vector<double>& input_Curve, vector<double>& output_Curve)
@@ -1028,7 +1029,7 @@ void Unwrapped_Reflection::interpolate_Curve(int res_Points, const QVector<doubl
 
 	gsl_spline_init(Spline, argument.data(), input_Curve.data(), input_Curve.size());
 
-	for(int point_Index=0; point_Index<input_Curve.size(); ++point_Index)
+	for(size_t point_Index=0; point_Index<input_Curve.size(); ++point_Index)
 	{
 		double delta = resolution[point_Index]/res_Points; // spectral resolution is not constant in absolute values
 

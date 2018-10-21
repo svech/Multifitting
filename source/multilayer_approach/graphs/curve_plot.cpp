@@ -371,8 +371,7 @@ void Curve_Plot::plot_All_Data()
 		{
 			if(	target_Curve->curve.value_Mode == value_R_Mode[R] ||
 				target_Curve->curve.value_Mode == value_R_Mode[R_Phi] )	{	values = calculated_Values->R; }
-//			if(	target_Curve->curve.value_Mode == value_T_Mode[T] )		{	values = calculated_Values->T; }
-//			if(	target_Curve->curve.value_Mode == value_A_Mode[A] )		{	values = calculated_Values->A; }
+			if(	target_Curve->curve.value_Mode == value_T_Mode[T] )		{	values = calculated_Values->T; }
 
 			plot_Data(argument, values, plot_Options_Second, left);
 		}
@@ -383,7 +382,13 @@ void Curve_Plot::plot_All_Data()
 		if(	*argument_Type == whats_This_Angle )	 {	argument = measurement->angle;	}
 		if(	*argument_Type == whats_This_Wavelength ){	argument = measurement->lambda;	}
 
-		if(	independent_Variables->calc_Functions.check_Reflectance) { values=calculated_Values->R; }
+		if(	independent_Variables->calc_Functions.check_Reflectance)   { values = calculated_Values->R; } else
+		if(	independent_Variables->calc_Functions.check_Transmittance) { values = calculated_Values->T; } else
+		if(	independent_Variables->calc_Functions.check_Absorptance)   { values = calculated_Values->A; }
+		// TODO
+//		else
+//		if(	independent_Variables->calc_Functions.check_User) { values=calculated_Valufgh }
+
 
 		/// calculated data
 		// first value (R,T,A...)
