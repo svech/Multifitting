@@ -280,8 +280,8 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 							temp_Fre_Numer_IM = temp_1_IM - temp_2_IM;
 
 							// reflectance
-							Fresnel_R_p_RE[i] = (temp_Fre_Numer_RE*temp_Fre_Denom_RE + temp_Fre_Numer_IM*temp_Fre_Denom_IM) / temp_Fre_Denom_SQARE;
-							Fresnel_R_p_IM[i] = (temp_Fre_Numer_IM*temp_Fre_Denom_RE - temp_Fre_Numer_RE*temp_Fre_Denom_IM) / temp_Fre_Denom_SQARE;
+							Fresnel_R_p_RE[i] =-(temp_Fre_Numer_RE*temp_Fre_Denom_RE + temp_Fre_Numer_IM*temp_Fre_Denom_IM) / temp_Fre_Denom_SQARE; // - sign for p polarization due to vector expressions
+							Fresnel_R_p_IM[i] =-(temp_Fre_Numer_IM*temp_Fre_Denom_RE - temp_Fre_Numer_RE*temp_Fre_Denom_IM) / temp_Fre_Denom_SQARE; // - sign for p polarization due to vector expressions
 							// transmittance
 							Fresnel_T_p_RE[i] = 2*(temp_1_RE*temp_Fre_Denom_RE + temp_1_IM*temp_Fre_Denom_IM) / temp_Fre_Denom_SQARE;
 							Fresnel_T_p_IM[i] = 2*(temp_1_IM*temp_Fre_Denom_RE - temp_1_RE*temp_Fre_Denom_IM) / temp_Fre_Denom_SQARE;
