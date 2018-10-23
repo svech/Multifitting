@@ -540,16 +540,16 @@ void Variable_Selection::add_Num_repetitions(QTreeWidgetItem* struct_Item)
 		Independent_Indicator num_Repetition_Indicator;
 		num_Repetition_Indicator.item_Type			 = item_Type_Multilayer;
 		num_Repetition_Indicator.item_Id			 = struct_Data.id;
-		num_Repetition_Indicator.id					 = int_Ind.id;
-		num_Repetition_Indicator.parameter_Whats_This= int_Ind.whats_This;
+		num_Repetition_Indicator.id					 = int_Ind.parameter.indicator.id;
+		num_Repetition_Indicator.parameter_Whats_This= int_Ind.parameter.indicator.whats_This;
 		num_Repetition_Indicator.is_Active			 = false;
 
 		QVariant var; var.setValue(num_Repetition_Indicator);
 		item_Num_Repetition->setData(Qt::UserRole,var);
-		item_Num_Repetition->setText(Global_Variables::parameter_Name(struct_Data, int_Ind.whats_This));
+		item_Num_Repetition->setText(Global_Variables::parameter_Name(struct_Data, int_Ind.parameter.indicator.whats_This));
 
 		if(!is_Independent)
-		if(!variables_List_Map->contains(int_Ind.id))
+		if(!variables_List_Map->contains(int_Ind.parameter.indicator.id))
 		{
 			nonfiltered_Parameters->addItem(item_Num_Repetition);
 			thickness_Parameters->addItem(item_Num_Repetition->clone());

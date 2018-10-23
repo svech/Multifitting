@@ -9,7 +9,7 @@
 
 #define VERSION_MAJOR 1
 #define VERSION_MINOR 8
-#define VERSION_BUILD 3
+#define VERSION_BUILD 4
 
 using namespace std;
 class Node;
@@ -153,8 +153,10 @@ class Node;
 #define PERMANENT_INDEPENDENT 2				// angle and wavelength items in list
 #define MAX_PRECISION_USED 10				// tthumbnail and lineedit precisions
 #define RAND_SHIFT	100000					// rand * RAND_SHIFT + rand
-#define TABLE_FIX_WIDTH_LINE_EDIT_SHORT 65  //58	// qLineEdit.setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT)
-#define TABLE_FIX_WIDTH_LINE_EDIT_LONG 65   //58	// qLineEdit.setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT)
+#define TABLE_FIX_WIDTH_LINE_EDIT_SHORT   50  // qLineEdit.setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT)
+#define TABLE_FIX_WIDTH_LINE_EDIT_SIGMA   54
+#define TABLE_FIX_WIDTH_LINE_EDIT_DENSITY 57
+#define TABLE_FIX_WIDTH_LINE_EDIT_LONG    64
 #define TABLE_COLUMN_ELEMENTS_SHIFT 1		// current_Column += TABLE_COLUMN_ELEMENTS_SHIFT
 #define TABLE_COLUMN_INTERLAYERS_SHIFT 1	// current_Column += TABLE_COLUMN_INTERLAYERS_SHIFT
 #define MIN_FORMULA_WIDTH_LINE_EDIT 80		// master/slave width for dependance formula
@@ -391,14 +393,6 @@ struct Parameter_Indicator		{id_Type id = 0; id_Type item_Id = 0; QString whats_
 								 QString expression = expression_Master_Slave_Variable; bool exist = false;
 								};
 
-struct Int_Independent			{int value=1; bool is_Independent=false;	int start = 1; int step = 1; int num_Steps = 3;
-								 id_Type id = 0; QString whats_This;
-								 Int_Independent()
-								 {
-									id = Global_Definitions::generate_Id();	// create unique id
-									whats_This = whats_This_Num_Repetitions;
-								 }
-								};
 struct Independent				{bool is_Independent = false; double min; double max; int num_Points;};
 
 struct Parameter;
@@ -425,6 +419,11 @@ struct Parameter				{double value; Independent independent; Coupled coupled; Con
 								 {
 									indicator.id = Global_Definitions::generate_Id();	// create unique id
 								 }};
+
+struct Int_Independent			{int value=1; bool is_Independent=false;	int start = 1; int step = 1; int num_Steps = 3;
+								 Parameter parameter; // double-valued, should be rounded
+								};
+
 Q_DECLARE_METATYPE( Parameter )
 Q_DECLARE_METATYPE( Independent_Indicator )
 

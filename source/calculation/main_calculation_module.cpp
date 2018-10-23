@@ -395,7 +395,7 @@ void Main_Calculation_Module::find_Fittable_Confidence_Parameters(Data& struct_D
 			if(parameter->indicator.whats_This == whats_This_Interlayer_My_Sigma || parameter->indicator.whats_This == whats_This_Sigma)
 			if(struct_Data.sigma.value < 0.1)
 			if(!fit_Rejected_Sigmas.param_IDs.contains(struct_Data.sigma.indicator.id))
-			{
+			{ // qLineEdit.setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT)
 				fit_Rejected_Sigmas.param_IDs.push_back(struct_Data.sigma.indicator.id);
 				fit_Rejected_Sigmas.param_Names.push_back("  " + Medium_BlackCircle_Sym + "  <" + multilayer_Tabs->tabText(struct_Data.sigma.indicator.tab_Index) + "> " + struct_Data.sigma.indicator.full_Name);
 			}
@@ -410,7 +410,7 @@ void Main_Calculation_Module::find_Fittable_Confidence_Parameters(Data& struct_D
 			// forbid calculating interval for outer period or gamma if inner thickness or period are fitables
 			if(confidentials_Period_Gamma)
 			if(parameter->indicator.whats_This == whats_This_Thickness || parameter->indicator.whats_This == whats_This_Period)
-			{
+			{ // qLineEdit.setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT)
 				confidentials_Rejected_Thicknesses_and_Periods.param_Names.push_back(total_Name);
 			}
 

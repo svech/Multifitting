@@ -1197,7 +1197,7 @@ void Table_Of_Structures::create_Material_Line_Edit(My_Table_Widget* table, int 
 	add_Columns(table, current_Column+1);
 
 	QLineEdit* material_Line_Edit = new QLineEdit(material);
-		material_Line_Edit->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT_LONG);
+		material_Line_Edit->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT_SHORT);
 		material_Line_Edit->setProperty(min_Size_Property, material_Line_Edit->width());
 		material_Line_Edit->setProperty(column_Property, current_Column);
 
@@ -1215,8 +1215,8 @@ void Table_Of_Structures::create_Material_Line_Edit(My_Table_Widget* table, int 
 
 void Table_Of_Structures::create_Browse_Button(My_Table_Widget* table, int current_Row, int start_Column, int material_LineEdit_Row, int material_LineEdit_Column)
 {
-	QPushButton* browse_Button = new QPushButton("Browse...");
-		browse_Button->setMinimumWidth(TABLE_FIX_WIDTH_LINE_EDIT_LONG);
+	QPushButton* browse_Button = new QPushButton("Browse");
+		browse_Button->setMinimumWidth(TABLE_FIX_WIDTH_LINE_EDIT_SHORT);
 	table->setCellWidget(current_Row, start_Column, browse_Button);
 
 	QLineEdit* material_Line_Edit = qobject_cast<QLineEdit*>(table->cellWidget(material_LineEdit_Row,material_LineEdit_Column));
@@ -1413,7 +1413,7 @@ void Table_Of_Structures::create_Line_Edit(My_Table_Widget* table, int tab_Index
 		value = struct_Data.num_Repetition.value;
 		text_Value = QString::number(value);
 		validator = new QIntValidator(0, MAX_INTEGER, this);
-		id = struct_Data.num_Repetition.id;
+		id = struct_Data.num_Repetition.parameter.indicator.id;
 		reload_Show_Dependence_Map.insertMulti(line_Edit, id_Of_Thicknesses);
 		line_Edits_ID_Map.insert(line_Edit,id);
 	} else
@@ -1463,6 +1463,18 @@ void Table_Of_Structures::create_Line_Edit(My_Table_Widget* table, int tab_Index
 
 	line_Edit->setText(text_Value);
 	line_Edit->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT_SHORT);
+	if( whats_This == whats_This_Absolute_Density || whats_This == whats_This_Relative_Density || whats_This == whats_This_Num_Repetitions ) line_Edit->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT_DENSITY);
+	if( whats_This == whats_This_Sigma ) line_Edit->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT_SIGMA);
+	if(	whats_This == whats_This_Thickness_Drift_Line_Value     ||
+		whats_This == whats_This_Thickness_Drift_Rand_Rms       ||
+		whats_This == whats_This_Sigma_Drift_Line_Value			||
+		whats_This == whats_This_Sigma_Drift_Rand_Rms)		line_Edit->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT_LONG);
+	if(	whats_This == whats_This_Thickness_Drift_Sine_Amplitude ||
+		whats_This == whats_This_Thickness_Drift_Sine_Frequency ||
+		whats_This == whats_This_Thickness_Drift_Sine_Phase		||
+		whats_This == whats_This_Sigma_Drift_Sine_Amplitude		||
+		whats_This == whats_This_Sigma_Drift_Sine_Frequency		||
+		whats_This == whats_This_Sigma_Drift_Sine_Phase	)		line_Edit->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT_SIGMA);
 	line_Edit->setValidator(validator);
 
 	line_Edit->setProperty(min_Size_Property, line_Edit->width());
