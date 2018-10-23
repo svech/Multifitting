@@ -325,8 +325,9 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 
 			Data struct_Data = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
 
-			if( struct_Data.item_Type == item_Type_Ambient  ||
-				struct_Data.item_Type == item_Type_Layer    ||
+			if( struct_Data.item_Type == item_Type_Multilayer	||
+				struct_Data.item_Type == item_Type_Ambient		||
+				struct_Data.item_Type == item_Type_Layer		||
 				struct_Data.item_Type == item_Type_Substrate )
 			{
 				new_Table->insertRow(new_Table->rowCount());
@@ -397,34 +398,39 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 			{
 				// num repetitions
 				QString whats_This = whats_This_Num_Repetitions;
-				add_Columns		(new_Table, current_Column+5);
+				add_Columns			(new_Table, current_Column+5);
 				create_Label		(new_Table, tab_Index, current_Row,   current_Column, structure_Item, whats_This, "N");
 				create_Line_Edit	(new_Table, tab_Index, current_Row+1, current_Column, structure_Item, whats_This, VAL);
+				create_Line_Edit	(new_Table, tab_Index, current_Row+3, current_Column, structure_Item, whats_This, MIN);
+				create_Line_Edit	(new_Table, tab_Index, current_Row+4, current_Column, structure_Item, whats_This, MAX);
+				// lastcolumn
+				create_Check_Box_Fit(new_Table, tab_Index, current_Row+2, current_Column, structure_Item, whats_This, 1, 2, 0, 0);
 				current_Column += 2;
+
 
 				// period
 				whats_This = whats_This_Period;
-				add_Columns		(new_Table, current_Column+5);
-				create_Label		(new_Table, tab_Index, current_Row,   current_Column,   structure_Item, whats_This, "d ["+length_units+"]");
-				create_Line_Edit	(new_Table, tab_Index, current_Row+1, current_Column,   structure_Item, whats_This, VAL);
-				create_Line_Edit	(new_Table, tab_Index, current_Row+1, current_Column+2, structure_Item, whats_This, MIN);
-				create_Line_Edit	(new_Table, tab_Index, current_Row+1, current_Column+3, structure_Item, whats_This, MAX);
+				add_Columns			(new_Table, current_Column+5);
+				create_Label		(new_Table, tab_Index, current_Row,   current_Column, structure_Item, whats_This, "d ["+length_units+"]");
+				create_Line_Edit	(new_Table, tab_Index, current_Row+1, current_Column, structure_Item, whats_This, VAL);
+				create_Line_Edit	(new_Table, tab_Index, current_Row+3, current_Column, structure_Item, whats_This, MIN);
+				create_Line_Edit	(new_Table, tab_Index, current_Row+4, current_Column, structure_Item, whats_This, MAX);
 				// lastcolumn
-				create_Check_Box_Fit(new_Table, tab_Index, current_Row+1, current_Column+1, structure_Item, whats_This, 0, 0, 1, 2);
-				current_Column += 5;
+				create_Check_Box_Fit(new_Table, tab_Index, current_Row+2, current_Column, structure_Item, whats_This, 1, 2, 0, 0);
+				current_Column += 3;
 
 				// gamma
 				if(structure_Item->childCount()==2)
 				{
 					whats_This = whats_This_Gamma;
-					add_Columns		(new_Table, current_Column+5);
-					create_Label		(new_Table, tab_Index, current_Row,   current_Column,   structure_Item, whats_This, Gamma_Sym);
-					create_Line_Edit	(new_Table, tab_Index, current_Row+1, current_Column,   structure_Item, whats_This, VAL);
-					create_Line_Edit	(new_Table, tab_Index, current_Row+1, current_Column+2, structure_Item, whats_This, MIN);
-					create_Line_Edit	(new_Table, tab_Index, current_Row+1, current_Column+3, structure_Item, whats_This, MAX);
+					add_Columns			(new_Table, current_Column+5);
+					create_Label		(new_Table, tab_Index, current_Row,   current_Column, structure_Item, whats_This, Gamma_Sym);
+					create_Line_Edit	(new_Table, tab_Index, current_Row+1, current_Column, structure_Item, whats_This, VAL);
+					create_Line_Edit	(new_Table, tab_Index, current_Row+3, current_Column, structure_Item, whats_This, MIN);
+					create_Line_Edit	(new_Table, tab_Index, current_Row+4, current_Column, structure_Item, whats_This, MAX);
 					// last
-					create_Check_Box_Fit(new_Table, tab_Index, current_Row+1, current_Column+1, structure_Item, whats_This, 0, 0, 1, 2);
-					current_Column += 5;
+					create_Check_Box_Fit(new_Table, tab_Index, current_Row+2, current_Column, structure_Item, whats_This, 1, 2, 0, 0);
+					current_Column += 2;
 				}
 			}
 			///--------------------------------------------------------------------------------------------
@@ -773,24 +779,25 @@ Parameter& Table_Of_Structures::get_Parameter(Data& struct_Data, QString whats_T
 	if(whats_This == whats_This_Absorption)					{precision = line_edit_density_precision;	coeff = 1;						return struct_Data.absorption;					}
 
 	// thickness
-	if(whats_This == whats_This_Thickness)						{precision = line_edit_thickness_precision;	coeff = length_Coefficients_Map.value(length_units);	return struct_Data.thickness;				}
-	if(whats_This == whats_This_Thickness_Drift_Line_Value)		{precision = line_edit_thickness_precision;	coeff = 1;					return struct_Data.thickness_Drift.drift_Line_Value;	}
-	if(whats_This == whats_This_Thickness_Drift_Rand_Rms)		{precision = line_edit_thickness_precision;	coeff = 1;					return struct_Data.thickness_Drift.drift_Rand_Rms;	}
-	if(whats_This == whats_This_Thickness_Drift_Sine_Amplitude)	{precision = line_edit_thickness_precision;	coeff = 1;					return struct_Data.thickness_Drift.drift_Sine_Amplitude;}
-	if(whats_This == whats_This_Thickness_Drift_Sine_Frequency)	{precision = line_edit_thickness_precision;	coeff = 1;					return struct_Data.thickness_Drift.drift_Sine_Frequency;}
-	if(whats_This == whats_This_Thickness_Drift_Sine_Phase)		{precision = line_edit_thickness_precision;	coeff = 1;					return struct_Data.thickness_Drift.drift_Sine_Phase;	}
+	if(whats_This == whats_This_Thickness)						{precision = line_edit_thickness_precision;	coeff = length_Coefficients_Map.value(length_units);	return struct_Data.thickness;	}
+	if(whats_This == whats_This_Thickness_Drift_Line_Value)		{precision = line_edit_thickness_precision;	coeff = 1;					return struct_Data.thickness_Drift.drift_Line_Value;		}
+	if(whats_This == whats_This_Thickness_Drift_Rand_Rms)		{precision = line_edit_thickness_precision;	coeff = 1;					return struct_Data.thickness_Drift.drift_Rand_Rms;			}
+	if(whats_This == whats_This_Thickness_Drift_Sine_Amplitude)	{precision = line_edit_thickness_precision;	coeff = 1;					return struct_Data.thickness_Drift.drift_Sine_Amplitude;	}
+	if(whats_This == whats_This_Thickness_Drift_Sine_Frequency)	{precision = line_edit_thickness_precision;	coeff = 1;					return struct_Data.thickness_Drift.drift_Sine_Frequency;	}
+	if(whats_This == whats_This_Thickness_Drift_Sine_Phase)		{precision = line_edit_thickness_precision;	coeff = 1;					return struct_Data.thickness_Drift.drift_Sine_Phase;		}
 
 	// interface
-	if(whats_This == whats_This_Sigma)						{precision = line_edit_sigma_precision;		coeff = length_Coefficients_Map.value(length_units);	return struct_Data.sigma;				}
-	if(whats_This == whats_This_Sigma_Drift_Line_Value)		{precision = line_edit_sigma_precision;		coeff = 1;						return struct_Data.sigma_Drift.drift_Line_Value;	}
-	if(whats_This == whats_This_Sigma_Drift_Rand_Rms)		{precision = line_edit_sigma_precision;		coeff = 1;						return struct_Data.sigma_Drift.drift_Rand_Rms;		}
+	if(whats_This == whats_This_Sigma)						{precision = line_edit_sigma_precision;		coeff = length_Coefficients_Map.value(length_units);	return struct_Data.sigma;		}
+	if(whats_This == whats_This_Sigma_Drift_Line_Value)		{precision = line_edit_sigma_precision;		coeff = 1;						return struct_Data.sigma_Drift.drift_Line_Value;		}
+	if(whats_This == whats_This_Sigma_Drift_Rand_Rms)		{precision = line_edit_sigma_precision;		coeff = 1;						return struct_Data.sigma_Drift.drift_Rand_Rms;			}
 	if(whats_This == whats_This_Sigma_Drift_Sine_Amplitude)	{precision = line_edit_sigma_precision;		coeff = 1;						return struct_Data.sigma_Drift.drift_Sine_Amplitude;	}
 	if(whats_This == whats_This_Sigma_Drift_Sine_Frequency)	{precision = line_edit_sigma_precision;		coeff = 1;						return struct_Data.sigma_Drift.drift_Sine_Frequency;	}
-	if(whats_This == whats_This_Sigma_Drift_Sine_Phase)		{precision = line_edit_sigma_precision;		coeff = 1;						return struct_Data.sigma_Drift.drift_Sine_Phase;	}
+	if(whats_This == whats_This_Sigma_Drift_Sine_Phase)		{precision = line_edit_sigma_precision;		coeff = 1;						return struct_Data.sigma_Drift.drift_Sine_Phase;		}
 
 	// multilayer
-	if(whats_This == whats_This_Period)						{precision = line_edit_period_precision;	coeff = length_Coefficients_Map.value(length_units);	return struct_Data.period;				}
-	if(whats_This == whats_This_Gamma)						{precision = line_edit_gamma_precision;		coeff = 1;						return struct_Data.gamma;				}
+	if(whats_This == whats_This_Num_Repetitions)			{precision = 0;								coeff = 1;						return struct_Data.num_Repetition.parameter;			}
+	if(whats_This == whats_This_Period)						{precision = line_edit_period_precision;	coeff = length_Coefficients_Map.value(length_units);	return struct_Data.period;		}
+	if(whats_This == whats_This_Gamma)						{precision = line_edit_gamma_precision;		coeff = 1;												return struct_Data.gamma;		}
 
 	//	qInfo() << "get_Parameter cant find parameter " << whats_This <<"";
 	Parameter* parameter = new Parameter;
@@ -1250,7 +1257,7 @@ void Table_Of_Structures::create_Label(My_Table_Widget* table, int tab_Index, in
 	all_Widgets_To_Reload[tab_Index].append(label);
 
 	// set up BACK widget
-	if(parameter.indicator.id!=0)
+	if(parameter.indicator.id!=0 && whats_This!=whats_This_Num_Repetitions)
 	{
 		label->setProperty(coupling_Editor_Property, true);			// for opening Coupling_Editor
 
@@ -1408,6 +1415,8 @@ void Table_Of_Structures::create_Line_Edit(My_Table_Widget* table, int tab_Index
 	// create lineedit
 	QLineEdit* line_Edit = new QLineEdit;
 
+//	if(whats_This == whats_This_Num_Repetitions) qInfo() << Global_Variables::parameter_Name(struct_Data, whats_This);
+
 	if(whats_This == whats_This_Num_Repetitions)
 	{
 		value = struct_Data.num_Repetition.value;
@@ -1464,7 +1473,7 @@ void Table_Of_Structures::create_Line_Edit(My_Table_Widget* table, int tab_Index
 	line_Edit->setText(text_Value);
 	line_Edit->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT_SHORT);
 	if( whats_This == whats_This_Absolute_Density || whats_This == whats_This_Relative_Density || whats_This == whats_This_Num_Repetitions ) line_Edit->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT_DENSITY);
-	if( whats_This == whats_This_Sigma ) line_Edit->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT_SIGMA);
+	if( whats_This == whats_This_Sigma || whats_This == whats_This_Thickness || whats_This == whats_This_Period) line_Edit->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT_SIGMA);
 	if(	whats_This == whats_This_Thickness_Drift_Line_Value     ||
 		whats_This == whats_This_Thickness_Drift_Rand_Rms       ||
 		whats_This == whats_This_Sigma_Drift_Line_Value			||
@@ -2499,12 +2508,17 @@ void Table_Of_Structures::refresh_Parameter(My_Table_Widget* table)
 	{
 		if(reload)
 		{
-			if(value_Type == VAL)   line_Edit->setText(QString::number(struct_Data.num_Repetition.value));
+			if(value_Type == VAL)   { line_Edit->setText(QString::number(      struct_Data.num_Repetition.value)); struct_Data.num_Repetition.parameter.value = double(struct_Data.num_Repetition.value); }
+			if(value_Type == MIN)     line_Edit->setText(QString::number(round(struct_Data.num_Repetition.parameter.fit.min)));
+			if(value_Type == MAX)     line_Edit->setText(QString::number(round(struct_Data.num_Repetition.parameter.fit.max)));
 			return;
 		}
 		// if refresh
 		{
-			if(value_Type == VAL)   struct_Data.num_Repetition.value = line_Edit->text().toInt();
+			if(value_Type == VAL)   { struct_Data.num_Repetition.value = line_Edit->text().toInt(); struct_Data.num_Repetition.parameter.value = double(struct_Data.num_Repetition.value); }
+			if(value_Type == MIN)	  struct_Data.num_Repetition.parameter.fit.min = line_Edit->text().toDouble();
+			if(value_Type == MAX)	  struct_Data.num_Repetition.parameter.fit.max = line_Edit->text().toDouble();
+
 			QVariant var;
 			var.setValue( struct_Data );
 			structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
@@ -2515,7 +2529,6 @@ void Table_Of_Structures::refresh_Parameter(My_Table_Widget* table)
 			if(layer_Thickness_Transfer_Is_Created)
 				layer_Thickness_Transfer->lock_Unlock_Thickness_Transfer(structure_Item);
 		}
-
 	} else
 	{
 		Parameter& parameter = get_Parameter(struct_Data, whats_This, precision, coeff);

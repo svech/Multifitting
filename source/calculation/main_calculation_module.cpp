@@ -736,7 +736,7 @@ void Main_Calculation_Module::print_Data(QTextStream &out, QVector<double> &arg,
 	///------------------------------------------------------------------------
 	/// headline
 	{	// argument
-		out << qSetFieldWidth(arg_Shift-1) << "";
+		out << qSetFieldWidth(arg_Shift-1) << ";";
 		out << qSetFieldWidth(width_Short) << argument  << qSetFieldWidth(width_Long);
 
 		// reflectance

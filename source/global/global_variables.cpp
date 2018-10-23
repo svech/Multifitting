@@ -569,6 +569,7 @@ QString Global_Variables::parameter_Name(const Data &struct_Data, QString whats_
 		if(whats_This == whats_This_Period)							text = brackets + " Period, d";
 		if(whats_This == whats_This_Gamma)							text = brackets + " Thickness Ratio, " + Gamma_Sym;
 	}
+	// TODO
 	if(	struct_Data.item_Type == item_Type_Aperiodic )
 	{
 
