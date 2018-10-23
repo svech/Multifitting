@@ -967,7 +967,7 @@ void Unwrapped_Reflection::calc_Specular()
 			{
 				R_Instrumental[point_Index] += measurement.background.value;
 				T_Instrumental[point_Index] += measurement.background.value;
-//				A_Instrumental[point_Index] += measurement.background.value;
+				A_Instrumental[point_Index] += measurement.background.value;
 			}
 		}
 		if(active_Parameter_Whats_This == whats_This_Wavelength)
@@ -1010,7 +1010,7 @@ void Unwrapped_Reflection::calc_Specular()
 				R_Instrumental[point_Index] *= instrumental_Factor;
 				R_Instrumental[point_Index] += measurement.background.value;
 				T_Instrumental[point_Index] += measurement.background.value;
-//				A_Instrumental[point_Index] += measurement.background.value;
+				A_Instrumental[point_Index] += measurement.background.value;
 			}
 		}
 		gsl_integration_workspace_free(w);

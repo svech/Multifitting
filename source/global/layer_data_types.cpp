@@ -529,8 +529,8 @@ void Data::reset_All_IDs()
 	// Multilayer, Aperiodic
 	//---------------------------------------------
 		num_Repetition.parameter.indicator.id = Global_Definitions::generate_Id(); num_Repetition.parameter	.indicator.item_Id = id;	num_Repetition.parameter.coupled.clear_Coupled();
-		period.indicator.id = Global_Definitions::generate_Id(); period	.indicator.item_Id = id;	period.coupled.clear_Coupled();
-		gamma .indicator.id = Global_Definitions::generate_Id(); gamma	.indicator.item_Id = id;	gamma. coupled.clear_Coupled();
+		period.indicator.id					  = Global_Definitions::generate_Id(); period	.indicator.item_Id				   = id;	period.coupled.clear_Coupled();
+		gamma .indicator.id					  = Global_Definitions::generate_Id(); gamma	.indicator.item_Id				   = id;	gamma. coupled.clear_Coupled();
 }
 
 void Data::calc_Measured_cos2_k()
@@ -705,6 +705,7 @@ void Data::fill_Potentially_Fitable_Parameters_Vector()
 	///---------------------------------------------
 	// Multilayer
 	//---------------------------------------------
+		potentially_Fitable_Parameters.push_back(&num_Repetition.parameter);
 		potentially_Fitable_Parameters.push_back(&period);
 		potentially_Fitable_Parameters.push_back(&gamma);
 }

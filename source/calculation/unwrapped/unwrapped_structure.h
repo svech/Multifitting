@@ -46,13 +46,12 @@ public:
 //	int fill_Sigma_Max_Depth_2    (const tree<Node>::iterator& parent, int boundary_Index = 0);
 //	int fill_Thickness_Max_Depth_2(const tree<Node>::iterator& parent, int layer_Index = 0);
 
-	void variable_Drift(double& value, Drift& drift, int period_Index);
+	void variable_Drift(double& value, Drift& drift, int period_Index, int num_Repetition);
 
 	int fill_Epsilon		  (const tree<Node>::iterator& parent, int media_Index = 0);
 	int fill_Epsilon_Dependent(const tree<Node>::iterator& parent, int num_Lambda_Points, int media_Index = 0);
 	int fill_Sigma    (const tree<Node>::iterator& parent, int boundary_Index = 0, int per_Index = 0);
-	int fill_Thickness(const tree<Node>::iterator& parent, int layer_Index = 0, int per_Index = 0);
-
+	int fill_Thickness(const tree<Node>::iterator& parent, int layer_Index = 0, int per_Index = 0, int num_Repetition = 1);
 };
 
 #endif // UNWRAPPED_STRUCTURE_H

@@ -56,7 +56,7 @@ QDataStream& operator >>( QDataStream& stream,		 Int_Independent& int_Independen
 	if(Global_Variables::check_Loaded_Version(1,8,4))
 	{stream >> int_Independent.parameter;}		    // since 1.8.4
 	else
-	{QString wtf; id_Type id; stream >> id >> wtf;} // before 1.8.4
+	{stream >> int_Independent.parameter.indicator.id >> int_Independent.parameter.indicator.whats_This;} // before 1.8.4
 
 	return stream;
 }

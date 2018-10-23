@@ -572,11 +572,9 @@ void Calculation_Settings_Editor::load_Independent_Parameters(int tab_Index)
 					QCheckBox* transmit_Functions = new QCheckBox(transmittance_Function);
 						standard_Functions_Layout->addWidget(transmit_Functions);
 						transmit_Functions->setChecked(independent_Variables->calc_Functions.check_Transmittance);
-///* TODO */				transmit_Functions->setDisabled(true);
 					QCheckBox* absorp_Functions = new QCheckBox(absorptance_Function);
 						standard_Functions_Layout->addWidget(absorp_Functions);
 						absorp_Functions->setChecked(independent_Variables->calc_Functions.check_Absorptance);
-///* TODO */				absorp_Functions->setDisabled(true);
 
 				connect(reflect_Functions,  &QCheckBox::toggled, this, [=]{ refresh_Independent_Calc_Properties(tab_Index, independent_Index, box); });
 				connect(transmit_Functions, &QCheckBox::toggled, this, [=]{ refresh_Independent_Calc_Properties(tab_Index, independent_Index, box); });
