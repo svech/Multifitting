@@ -280,14 +280,14 @@ void Calculation_Tree::statify_Calc_Tree(tree<Node>& calc_Tree)
 			tree<Node>::iterator chosen_Child = chosen_Nodes[vec_Index];
 
 			// if 0 periods
-			if(chosen_Child.node->data.struct_Data.num_Repetition.value == 0)
+			if(chosen_Child.node->data.struct_Data.num_Repetition.value() == 0)
 			{
 				// delete
 				calc_Tree.erase(chosen_Child);
 			} else
 
 			// if 1 period (also case of Aperiodic structure, aperiodic becomes flat here)
-			if(chosen_Child.node->data.struct_Data.num_Repetition.value == 1)
+			if(chosen_Child.node->data.struct_Data.num_Repetition.value() == 1)
 			{
 				for(unsigned child_Index=0; child_Index<chosen_Child.number_of_children(); ++child_Index)
 				{
@@ -300,7 +300,7 @@ void Calculation_Tree::statify_Calc_Tree(tree<Node>& calc_Tree)
 			} else
 
 			// if 2 periods
-			if(chosen_Child.node->data.struct_Data.num_Repetition.value == 2)
+			if(chosen_Child.node->data.struct_Data.num_Repetition.value() == 2)
 			{
 				tree<Node>::iterator next = chosen_Child;
 				for(unsigned child_Index=0; child_Index<chosen_Child.number_of_children(); ++child_Index)
@@ -315,7 +315,7 @@ void Calculation_Tree::statify_Calc_Tree(tree<Node>& calc_Tree)
 			} else
 
 			// if >=3 periods
-			if(chosen_Child.node->data.struct_Data.num_Repetition.value >= 3)
+			if(chosen_Child.node->data.struct_Data.num_Repetition.value() >= 3)
 			{
 				tree<Node>::iterator next = chosen_Child;
 				for(unsigned child_Index=0; child_Index<chosen_Child.number_of_children(); ++child_Index)
@@ -324,7 +324,7 @@ void Calculation_Tree::statify_Calc_Tree(tree<Node>& calc_Tree)
 					next = calc_Tree.insert_subtree_after(next, tree<Node>::child(chosen_Child,child_Index));
 				}
 				// change data
-				chosen_Child.node->data.struct_Data.num_Repetition.value -= 2;
+				chosen_Child.node->data.struct_Data.num_Repetition.parameter.value -= 2;
 			}
 		}
 	}
@@ -468,7 +468,7 @@ void Calculation_Tree::calculate_Unwrapped_Structure(tree<Node>& calc_Tree, cons
 void Calculation_Tree::calculate_Unwrapped_Reflectivity(Calc_Functions calc_Functions, Calculated_Values& calculated_Values, const Data& measurement, QString active_Parameter_Whats_This, Unwrapped_Structure* unwrapped_Structure_Vec_Element, Unwrapped_Reflection*& unwrapped_Reflection_Vec_Element)
 {
 	delete unwrapped_Reflection_Vec_Element;
-	Unwrapped_Reflection*  new_Unwrapped_Reflection = new Unwrapped_Reflection(unwrapped_Structure_Vec_Element, num_Media, active_Parameter_Whats_This, measurement, depth_Grading, sigma_Grading, calc_Functions);
+	Unwrapped_Reflection* new_Unwrapped_Reflection = new Unwrapped_Reflection(unwrapped_Structure_Vec_Element, num_Media, active_Parameter_Whats_This, measurement, depth_Grading, sigma_Grading, calc_Functions);
 	unwrapped_Reflection_Vec_Element = new_Unwrapped_Reflection;
 
 //	auto start = std::chrono::system_clock::now();
@@ -513,7 +513,7 @@ int Calculation_Tree::get_Total_Num_Layers(const tree<Node>::iterator& parent, c
 
 		if(child.node->data.struct_Data.item_Type == item_Type_Multilayer)
 		{
-			num_Media_Local += child.node->data.struct_Data.num_Repetition.value * get_Total_Num_Layers(child, calc_Tree);
+			num_Media_Local += child.node->data.struct_Data.num_Repetition.value() * get_Total_Num_Layers(child, calc_Tree);
 		}
 
 		if(child.node->data.struct_Data.item_Type == item_Type_Aperiodic)
@@ -535,7 +535,7 @@ void Calculation_Tree::print_Tree(const tree<Node>::iterator& parent, tree<Node>
 			{	std::cout << "\t";}
 			std::cout << child.node->data.struct_Data.item_Type.toStdString();
 			if(child.node->data.struct_Data.item_Type == item_Type_Multilayer)
-			{	std::cout << " : " << child.node->data.struct_Data.num_Repetition.value;	}
+			{	std::cout << " : " << child.node->data.struct_Data.num_Repetition.value();	}
 			std::cout << std::endl;
 		}
 

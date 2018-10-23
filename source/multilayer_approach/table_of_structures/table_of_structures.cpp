@@ -1419,7 +1419,7 @@ void Table_Of_Structures::create_Line_Edit(My_Table_Widget* table, int tab_Index
 
 	if(whats_This == whats_This_Num_Repetitions)
 	{
-		value = struct_Data.num_Repetition.value;
+		value = struct_Data.num_Repetition.value();
 		text_Value = QString::number(value);
 		validator = new QIntValidator(0, MAX_INTEGER, this);
 		id = struct_Data.num_Repetition.parameter.indicator.id;
@@ -2391,8 +2391,8 @@ void Table_Of_Structures::change_Parent_Period_Gamma_Thickness(QTreeWidgetItem* 
 				if(i==0) first_Thickness = child_Data.thickness.value;
 			}
 			if(child_Data.item_Type == item_Type_Multilayer || child_Data.item_Type == item_Type_Aperiodic) {
-				parent_Data.period.value += child_Data.period.value*child_Data.num_Repetition.value;
-				if(i==0) first_Thickness = child_Data.period.value*child_Data.num_Repetition.value;
+				parent_Data.period.value += child_Data.period.value*child_Data.num_Repetition.value();
+				if(i==0) first_Thickness = child_Data.period.value*child_Data.num_Repetition.value();
 			}
 		}
 		if(parent_Item->childCount() == 2)
@@ -2435,9 +2435,9 @@ void Table_Of_Structures::reset_Multilayer_Thickness(QTreeWidgetItem* multilayer
 {
 	Data stack_Content = multilayer_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
 	double factor=1;
-	if( abs(stack_Content.period.value) > DBL_EPSILON && stack_Content.num_Repetition.value!=0)
+	if( abs(stack_Content.period.value) > DBL_EPSILON && stack_Content.num_Repetition.value()!=0)
 	{
-		factor = new_Thickness/(  stack_Content.period.value*stack_Content.num_Repetition.value  );
+		factor = new_Thickness/(  stack_Content.period.value*stack_Content.num_Repetition.value()  );
 		change_Child_Layers_Thickness(multilayer_Item, factor);
 	}
 	//    stack_Content = multilayer_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
@@ -2508,16 +2508,16 @@ void Table_Of_Structures::refresh_Parameter(My_Table_Widget* table)
 	{
 		if(reload)
 		{
-			if(value_Type == VAL)   { line_Edit->setText(QString::number(      struct_Data.num_Repetition.value)); struct_Data.num_Repetition.parameter.value = double(struct_Data.num_Repetition.value); }
-			if(value_Type == MIN)     line_Edit->setText(QString::number(round(struct_Data.num_Repetition.parameter.fit.min)));
-			if(value_Type == MAX)     line_Edit->setText(QString::number(round(struct_Data.num_Repetition.parameter.fit.max)));
+			if(value_Type == VAL)    line_Edit->setText(QString::number(      struct_Data.num_Repetition.value()));
+			if(value_Type == MIN)    line_Edit->setText(QString::number(round(struct_Data.num_Repetition.parameter.fit.min)));
+			if(value_Type == MAX)    line_Edit->setText(QString::number(round(struct_Data.num_Repetition.parameter.fit.max)));
 			return;
 		}
 		// if refresh
 		{
-			if(value_Type == VAL)   { struct_Data.num_Repetition.value = line_Edit->text().toInt(); struct_Data.num_Repetition.parameter.value = double(struct_Data.num_Repetition.value); }
-			if(value_Type == MIN)	  struct_Data.num_Repetition.parameter.fit.min = line_Edit->text().toDouble();
-			if(value_Type == MAX)	  struct_Data.num_Repetition.parameter.fit.max = line_Edit->text().toDouble();
+			if(value_Type == VAL)   struct_Data.num_Repetition.parameter.value   = line_Edit->text().toDouble();
+			if(value_Type == MIN)	struct_Data.num_Repetition.parameter.fit.min = line_Edit->text().toDouble();
+			if(value_Type == MAX)	struct_Data.num_Repetition.parameter.fit.max = line_Edit->text().toDouble();
 
 			QVariant var;
 			var.setValue( struct_Data );

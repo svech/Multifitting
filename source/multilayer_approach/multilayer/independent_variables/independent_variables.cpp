@@ -383,9 +383,9 @@ void Independent_Variables::reset_Independent_Variables_Structure()
 				new_Copy.sigma_Drift.drift_Sine_Phase.independent		= old_Copy.sigma_Drift.drift_Sine_Phase.independent;
 
 				// renew value of num_Repetition, other things remain old
-				int temp_Value = new_Copy.num_Repetition.value;
+				int temp_Value = new_Copy.num_Repetition.value();
 				new_Copy.num_Repetition       = old_Copy.num_Repetition;
-				new_Copy.num_Repetition.value = temp_Value;
+				new_Copy.num_Repetition.parameter.value = double(temp_Value);
 
 				new_Copy.period.independent	= old_Copy.period.independent;
 				new_Copy.gamma.independent	= old_Copy.gamma.independent;

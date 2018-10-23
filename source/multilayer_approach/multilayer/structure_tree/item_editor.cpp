@@ -783,7 +783,7 @@ void Item_Editor::show_Stack_Parameters()
 		double coeff = length_Coefficients_Map.value(length_units);
 		period_Label->setText(period_Label_1 + length_units + period_Label_2);
 
-		repetitions_Line_Edit->setText(QString::number(struct_Data.num_Repetition.value));
+		repetitions_Line_Edit->setText(QString::number(struct_Data.num_Repetition.value()));
 		period_Line_Edit->setText(QString::number(struct_Data.period.value/coeff,line_edit_double_format,line_edit_period_precision));
 		gamma_Line_Edit ->setText(QString::number(struct_Data.gamma.value,line_edit_double_format,line_edit_gamma_precision));
 
@@ -1013,7 +1013,7 @@ void Item_Editor::refresh_Data()
 		double coeff = length_Coefficients_Map.value(length_units);
 		double init_Period = struct_Data.period.value;
 
-		struct_Data.num_Repetition.value = repetitions_Line_Edit->text().toInt();
+		struct_Data.num_Repetition.parameter.value = repetitions_Line_Edit->text().toDouble();
 		struct_Data.period.value = period_Line_Edit->text().toDouble()*coeff;
 		if(item->childCount()==2)
 		{
@@ -1060,7 +1060,7 @@ void Item_Editor::fast_Refresh_Stack()
 	if(struct_Data.item_Type == item_Type_Multilayer)
 	if( abs(period_Line_Edit->text().toDouble()) > DBL_MIN || abs(struct_Data.period.value) < DBL_MIN )
 	{
-		if(repetitions_Line_Edit->text().toInt()!=0 || struct_Data.num_Repetition.value == 0)
+		if(repetitions_Line_Edit->text().toInt()!=0 || struct_Data.num_Repetition.value() == 0)
 		{
 			if(item->childCount()==2)
 			{
@@ -1140,9 +1140,9 @@ void Item_Editor::reset_Multilayer_Thickness(QTreeWidgetItem* multilayer_Item, d
 {
 	Data stack_Content = multilayer_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
 	double factor=1;
-	if( abs(stack_Content.period.value) > DBL_MIN && stack_Content.num_Repetition.value!=0)
+	if( abs(stack_Content.period.value) > DBL_MIN && stack_Content.num_Repetition.value()!=0)
 	{
-		factor = new_Thickness/(  stack_Content.period.value*stack_Content.num_Repetition.value  );
+		factor = new_Thickness/(  stack_Content.period.value*stack_Content.num_Repetition.value()  );
 		change_Child_Layers_Thickness(multilayer_Item, factor);
 	}
 }

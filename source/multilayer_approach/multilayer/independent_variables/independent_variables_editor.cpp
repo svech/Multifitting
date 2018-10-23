@@ -569,7 +569,7 @@ void Independent_Variables_Editor::refresh_Show_Data(bool show)
 		// show data
 		if(show)
 		{
-			val_Edit->setText(	QString::number(struct_Data.num_Repetition.value));
+			val_Edit->setText(	QString::number(struct_Data.num_Repetition.value()));
 			min_Edit->setText(	QString::number(struct_Data.num_Repetition.start));
 			max_Edit->setText(	QString::number(struct_Data.num_Repetition.step));
 
@@ -589,16 +589,16 @@ void Independent_Variables_Editor::refresh_Show_Data(bool show)
 				Global_Variables::resize_Line_Edit(max_Edit);
 			}
 
-			struct_Data.num_Repetition.num_Steps = num_Points->value();
-			struct_Data.num_Repetition.value	 =   val_Edit->text().toInt();
-			struct_Data.num_Repetition.start	 =   min_Edit->text().toInt();
-			struct_Data.num_Repetition.step		 =   max_Edit->text().toInt();
+			struct_Data.num_Repetition.num_Steps		= num_Points->value();
+			struct_Data.num_Repetition.parameter.value	= val_Edit->text().toDouble();
+			struct_Data.num_Repetition.start			= min_Edit->text().toInt();
+			struct_Data.num_Repetition.step				= max_Edit->text().toInt();
 
 			QVariant var; var.setValue(struct_Data);
 			structure_Item->setData(DEFAULT_COLUMN,Qt::UserRole,var);
 		}
 		if(struct_Data.num_Repetition.num_Steps == 1)
-			list_Item->setText(name + " [" +QString::number(struct_Data.num_Repetition.value) + end_Bracket_Text);
+			list_Item->setText(name + " [" +QString::number(struct_Data.num_Repetition.value()) + end_Bracket_Text);
 		else
 			list_Item->setText(name + " [" +QString::number(struct_Data.num_Repetition.num_Steps) + " values: " +
 											QString::number(struct_Data.num_Repetition.start) + " - " +

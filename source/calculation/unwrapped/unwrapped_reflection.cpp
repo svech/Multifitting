@@ -120,7 +120,7 @@ int Unwrapped_Reflection::fill_s__Max_Depth_2(const tree<Node>::iterator& parent
 		} else
 		if(child.node->data.struct_Data.item_Type == item_Type_Multilayer)
 		{
-			for(int period_Index=0; period_Index<child.node->data.struct_Data.num_Repetition.value; ++period_Index)
+			for(int period_Index=0; period_Index<child.node->data.struct_Data.num_Repetition.value(); ++period_Index)
 			{
 				for(unsigned grandchild_Index=0; grandchild_Index<child.number_of_children(); ++grandchild_Index)
 				{
@@ -182,7 +182,7 @@ int Unwrapped_Reflection::fill_p__Max_Depth_2(const tree<Node>::iterator& parent
 		} else
 		if(child.node->data.struct_Data.item_Type == item_Type_Multilayer)
 		{
-			for(int period_Index=0; period_Index<child.node->data.struct_Data.num_Repetition.value; ++period_Index)
+			for(int period_Index=0; period_Index<child.node->data.struct_Data.num_Repetition.value(); ++period_Index)
 			{
 				for(unsigned grandchild_Index=0; grandchild_Index<child.number_of_children(); ++grandchild_Index)
 				{
@@ -252,7 +252,7 @@ int Unwrapped_Reflection::fill_sp_Max_Depth_2(const tree<Node>::iterator& parent
 		} else
 		if(child.node->data.struct_Data.item_Type == item_Type_Multilayer)
 		{
-			for(int period_Index=0; period_Index<child.node->data.struct_Data.num_Repetition.value; ++period_Index)
+			for(int period_Index=0; period_Index<child.node->data.struct_Data.num_Repetition.value(); ++period_Index)
 			{
 				for(unsigned grandchild_Index=0; grandchild_Index<child.number_of_children(); ++grandchild_Index)
 				{

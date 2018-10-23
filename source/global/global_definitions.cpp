@@ -47,12 +47,14 @@ QDataStream& operator >>( QDataStream& stream,		 Parameter_Indicator& parameter_
 
 QDataStream& operator <<( QDataStream& stream, const Int_Independent& int_Independent )
 {
-	return stream << int_Independent.value << int_Independent.is_Independent << int_Independent.start << int_Independent.step << int_Independent.num_Steps
+	return stream << int_Independent.start << int_Independent.step << int_Independent.num_Steps
 				  << int_Independent.parameter; // since 1.8.4
 }
 QDataStream& operator >>( QDataStream& stream,		 Int_Independent& int_Independent )
 {
-	stream >> int_Independent.value >> int_Independent.is_Independent >> int_Independent.start >> int_Independent.step >> int_Independent.num_Steps;
+	if(!Global_Variables::check_Loaded_Version(1,8,5))
+	{int value; stream >> value >> int_Independent.parameter.independent.is_Independent; int_Independent.parameter.value = double(value);}	// since 1.8.5
+	stream >> int_Independent.start >> int_Independent.step >> int_Independent.num_Steps;
 	if(Global_Variables::check_Loaded_Version(1,8,4))
 	{stream >> int_Independent.parameter;}		    // since 1.8.4
 	else

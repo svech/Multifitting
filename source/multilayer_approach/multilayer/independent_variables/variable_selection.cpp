@@ -528,7 +528,7 @@ void Variable_Selection::add_Num_repetitions(QTreeWidgetItem* struct_Item)
 	}
 
 	Int_Independent int_Ind = struct_Data.num_Repetition;
-	bool is_Independent = int_Ind.is_Independent;
+	bool is_Independent = int_Ind.parameter.independent.is_Independent;
 
 	// if parent's stack parameters are not independent
 	bool parent_Condition = true;
@@ -608,9 +608,9 @@ void Variable_Selection::add_Variable_Item(QListWidgetItem* new_Item)
 	// change
 	if(new_Data.parameter_Whats_This == whats_This_Num_Repetitions)
 	{
-		struct_Data.num_Repetition.is_Independent = true;
+		struct_Data.num_Repetition.parameter.independent.is_Independent = true;
 		struct_Data.num_Repetition.num_Steps = 1;
-		struct_Data.num_Repetition.start = struct_Data.num_Repetition.value;
+		struct_Data.num_Repetition.start = struct_Data.num_Repetition.value();
 		struct_Data.num_Repetition.step = 1;
 	} else
 	{
@@ -663,7 +663,7 @@ void Variable_Selection::iterate_Over_Children(QTreeWidgetItem* this_Stack, bool
 		if(baby->childCount()>0)
 		{
 			Data stack_Content = baby->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
-			thickness_Condition = thickness_Condition && (!stack_Content.period.independent.is_Independent && !stack_Content.num_Repetition.is_Independent);
+			thickness_Condition = thickness_Condition && (!stack_Content.period.independent.is_Independent && !stack_Content.num_Repetition.parameter.independent.is_Independent);
 			iterate_Over_Children(baby, thickness_Condition);
 		}
 	}

@@ -539,7 +539,7 @@ void Curve_Plot::plot_Data(const QVector<double>& argument, const QVector<double
 
 void Curve_Plot::refresh_Labels()
 {
-	bool show_Second_Label = false;
+//	bool show_Second_Label = false;
 
 	// value
 	if(curve_Class == TARGET)
@@ -550,7 +550,7 @@ void Curve_Plot::refresh_Labels()
 		if( target_Curve->curve.value_Mode == value_R_Mode[R_Phi] )	{
 			val_Mode_Label_1 = value_R_Mode_Label_1[R_Phi];
 			val_Mode_Label_2 = value_R_Mode_Label_2[R_Phi];
-			show_Second_Label = true;
+//			show_Second_Label = true;
 		}
 		if( target_Curve->curve.value_Mode == value_T_Mode[T] )	{val_Mode_Label_1 = value_T_Mode[T];}
 	}

@@ -111,22 +111,22 @@ void Confidence_Interval_Editor::refresh_Show_Data(bool show)
 							   &units,
 							   &coeff);
 
-	// getting index
-	int index = -1;
-	if(parameter->indicator.whats_This == whats_This_Composition ||
-	   parameter->indicator.whats_This == whats_This_Interlayer_Composition ||
-	   parameter->indicator.whats_This == whats_This_Interlayer_My_Sigma )
-	{
-		for(int i=0; i<coupling_Editor->struct_Data.composition.size(); ++i)
-		{
-			if(parameter->indicator.id == coupling_Editor->struct_Data.composition[i].composition.indicator.id) index = i;
-		}
-		for(int i=0; i<transition_Layer_Functions_Size; ++i)
-		{
-			if(parameter->indicator.id == coupling_Editor->struct_Data.interlayer_Composition[i].interlayer.indicator.id)	index = i;
-			if(parameter->indicator.id == coupling_Editor->struct_Data.interlayer_Composition[i].my_Sigma.indicator.id)	index = i;
-		}
-	}
+	// getting index // what is this?
+//	int index = -1;
+//	if(parameter->indicator.whats_This == whats_This_Composition ||
+//	   parameter->indicator.whats_This == whats_This_Interlayer_Composition ||
+//	   parameter->indicator.whats_This == whats_This_Interlayer_My_Sigma )
+//	{
+//		for(int i=0; i<coupling_Editor->struct_Data.composition.size(); ++i)
+//		{
+//			if(parameter->indicator.id == coupling_Editor->struct_Data.composition[i].composition.indicator.id) index = i;
+//		}
+//		for(int i=0; i<transition_Layer_Functions_Size; ++i)
+//		{
+//			if(parameter->indicator.id == coupling_Editor->struct_Data.interlayer_Composition[i].interlayer.indicator.id) index = i;
+//			if(parameter->indicator.id == coupling_Editor->struct_Data.interlayer_Composition[i].my_Sigma.indicator.id)	index = i;
+//		}
+//	}
 
 	units_Label->setText(units);
 	step_Units_Label->setText(units);

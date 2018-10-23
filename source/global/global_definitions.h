@@ -9,7 +9,7 @@
 
 #define VERSION_MAJOR 1
 #define VERSION_MINOR 8
-#define VERSION_BUILD 4
+#define VERSION_BUILD 5
 
 using namespace std;
 class Node;
@@ -420,8 +420,12 @@ struct Parameter				{double value; Independent independent; Coupled coupled; Con
 									indicator.id = Global_Definitions::generate_Id();	// create unique id
 								 }};
 
-struct Int_Independent			{int value=1; bool is_Independent=false;	int start = 1; int step = 1; int num_Steps = 3;
+struct Int_Independent			{int start = 1; int step = 1; int num_Steps = 3;
 								 Parameter parameter; // double-valued, should be rounded
+								 int value() const
+								 {
+									 return round(parameter.value);
+								 }
 								};
 
 Q_DECLARE_METATYPE( Parameter )

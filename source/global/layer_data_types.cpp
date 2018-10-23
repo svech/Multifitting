@@ -414,12 +414,12 @@ Data::Data(QString item_Type_Passed)
 	{
 		// num repetition
 		{
-			num_Repetition.value = stack_default_number_of_repetition;
+			num_Repetition.parameter.value = stack_default_number_of_repetition;
 			num_Repetition.parameter.coupled.is_Coupled = false;
 			num_Repetition.parameter.confidence.calc_Conf_Interval = false;
 			num_Repetition.parameter.fit.is_Fitable = false;
-			num_Repetition.parameter.fit.min = num_Repetition.value*(1-dispersion);
-			num_Repetition.parameter.fit.max = num_Repetition.value*(1+dispersion);
+			num_Repetition.parameter.fit.min = num_Repetition.parameter.value*(1-dispersion);
+			num_Repetition.parameter.fit.max = num_Repetition.parameter.value*(1+dispersion);
 			num_Repetition.parameter.indicator.whats_This = whats_This_Num_Repetitions;
 			num_Repetition.parameter.indicator.item_Id = id;
 		}

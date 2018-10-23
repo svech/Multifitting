@@ -311,7 +311,7 @@ void Structure_Toolbar::add_Aperiodic()
 		new_Aperiodic->addChildren(new_Child_Layers);
 
 		Data aperiodic(item_Type_Aperiodic);
-		aperiodic.num_Repetition.value = 1;
+		aperiodic.num_Repetition.parameter.value = 1;
 		QVariant var;
 		var.setValue( aperiodic );
 		new_Aperiodic->setData(DEFAULT_COLUMN, Qt::UserRole, var);

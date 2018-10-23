@@ -243,7 +243,7 @@ int Unwrapped_Structure::fill_Epsilon(const tree<Node>::iterator& parent, int me
 
 		if(child.node->data.struct_Data.item_Type == item_Type_Multilayer)
 		{
-			for(int period_Index=0; period_Index<child.node->data.struct_Data.num_Repetition.value; ++period_Index)
+			for(int period_Index=0; period_Index<child.node->data.struct_Data.num_Repetition.value(); ++period_Index)
 			{
 				media_Index = fill_Epsilon(child, media_Index);
 			}
@@ -276,7 +276,7 @@ int Unwrapped_Structure::fill_Epsilon_Dependent(const tree<Node>::iterator& pare
 
 		if(child.node->data.struct_Data.item_Type == item_Type_Multilayer)
 		{
-			for(int period_Index=0; period_Index<child.node->data.struct_Data.num_Repetition.value; ++period_Index)
+			for(int period_Index=0; period_Index<child.node->data.struct_Data.num_Repetition.value(); ++period_Index)
 			{
 				media_Index = fill_Epsilon_Dependent(child, num_Lambda_Points, media_Index);
 			}
@@ -302,7 +302,7 @@ int Unwrapped_Structure::fill_Sigma(const tree<Node>::iterator& parent, int boun
 				boundary_Interlayer_Composition[boundary_Index][func_Index] = child.node->data.struct_Data.interlayer_Composition[func_Index];
 
 				// can drift
-				variable_Drift(boundary_Interlayer_Composition[boundary_Index][func_Index].my_Sigma.value, child.node->data.struct_Data.sigma_Drift, per_Index, child.node->data.struct_Data.num_Repetition.value);
+				variable_Drift(boundary_Interlayer_Composition[boundary_Index][func_Index].my_Sigma.value, child.node->data.struct_Data.sigma_Drift, per_Index, child.node->data.struct_Data.num_Repetition.value());
 			}
 			++boundary_Index;
 		}
@@ -321,7 +321,7 @@ int Unwrapped_Structure::fill_Sigma(const tree<Node>::iterator& parent, int boun
 
 		if(child.node->data.struct_Data.item_Type == item_Type_Multilayer)
 		{
-			for(int period_Index=0; period_Index<child.node->data.struct_Data.num_Repetition.value; ++period_Index)
+			for(int period_Index=0; period_Index<child.node->data.struct_Data.num_Repetition.value(); ++period_Index)
 			{
 				boundary_Index = fill_Sigma(child, boundary_Index, period_Index);
 			}
@@ -349,9 +349,9 @@ int Unwrapped_Structure::fill_Thickness(const tree<Node>::iterator& parent, int 
 
 		if(child.node->data.struct_Data.item_Type == item_Type_Multilayer)
 		{
-			for(int period_Index=0; period_Index<child.node->data.struct_Data.num_Repetition.value; ++period_Index)
+			for(int period_Index=0; period_Index<child.node->data.struct_Data.num_Repetition.value(); ++period_Index)
 			{
-				layer_Index = fill_Thickness(child, layer_Index, period_Index, child.node->data.struct_Data.num_Repetition.value);
+				layer_Index = fill_Thickness(child, layer_Index, period_Index, child.node->data.struct_Data.num_Repetition.value());
 			}
 		}
 	}

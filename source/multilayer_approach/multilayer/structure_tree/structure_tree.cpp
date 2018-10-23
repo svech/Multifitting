@@ -31,6 +31,31 @@ void Structure_Tree::create_Toolbar()
 	connect(tree, &QTreeWidget::itemSelectionChanged, structure_Toolbar, &Structure_Toolbar::if_Selected);
 	structure_Toolbar->add_Ambient();
 	connect(structure_Toolbar, &Structure_Toolbar::refresh_Str_And_Independ_signal, multilayer, [=]{multilayer->refresh_Structure_And_Independent();});
+
+	// shortcuts
+	{
+		QShortcut* remove_Shortcut = new QShortcut(QKeySequence(Qt::Key_Delete), this);
+		QShortcut* cut_Shortcut    = new QShortcut(QKeySequence(Qt::Key_X | Qt::CTRL), this);
+		QShortcut* copy_Shortcut   = new QShortcut(QKeySequence(Qt::Key_C | Qt::CTRL), this);
+		QShortcut* paste_Shortcut  = new QShortcut(QKeySequence(Qt::Key_V | Qt::CTRL), this);
+
+		connect(remove_Shortcut, &QShortcut::activated, this, [=]	{
+			if(tree->currentItem() && structure_Toolbar->toolbar->isEnabled())
+			{	structure_Toolbar->remove();	}
+		});
+		connect(cut_Shortcut, &QShortcut::activated, this, [=]	{
+			if(tree->currentItem() && structure_Toolbar->toolbar->isEnabled())
+			{	structure_Toolbar->cut();	}
+		});
+		connect(copy_Shortcut, &QShortcut::activated, this, [=]	{
+			if(tree->currentItem() && structure_Toolbar->toolbar->isEnabled())
+			{	structure_Toolbar->copy();	}
+		});
+		connect(paste_Shortcut, &QShortcut::activated, this, [=]	{
+			if(tree->currentItem() && structure_Toolbar->toolbar->isEnabled())
+			{	structure_Toolbar->paste();	}
+		});
+	}
 }
 
 ////-----------------------------------------------------------------------------------
@@ -237,7 +262,7 @@ void Structure_Tree::find_Period_And_Gamma(QTreeWidgetItem* this_Item)
 			// if multilayer, go deeper
 			{
 				find_Period_And_Gamma(this_Item->child(i));
-				period += data_i.period.value * data_i.num_Repetition.value;
+				period += data_i.period.value * data_i.num_Repetition.value();
 			}
 		}
 
@@ -253,7 +278,7 @@ void Structure_Tree::find_Period_And_Gamma(QTreeWidgetItem* this_Item)
 			} else
 			// multilayer
 			{
-				gamma = data_0.period.value*data_0.num_Repetition.value/period;
+				gamma = data_0.period.value*data_0.num_Repetition.value()/period;
 			}
 		}
 
@@ -341,7 +366,7 @@ void Structure_Tree::set_Structure_Item_Text(QTreeWidgetItem* item)
 			{
 				if(data.item_Type == item_Type_Multilayer)
 				{
-					item->setText(DEFAULT_COLUMN, Global_Variables::structure_Item_Name(data) + ", N=" + QString::number(data.num_Repetition.value)
+					item->setText(DEFAULT_COLUMN, Global_Variables::structure_Item_Name(data) + ", N=" + QString::number(data.num_Repetition.value())
 								  + ", d="  + QString::number(data.period.value/length_Coeff,thumbnail_double_format,thumbnail_period_precision) + length_units);
 
 					if(item->childCount()==2 && abs(data.period.value)>DBL_EPSILON)
