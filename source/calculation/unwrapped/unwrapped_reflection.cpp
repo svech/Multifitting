@@ -818,10 +818,14 @@ void Unwrapped_Reflection::fill_Specular_Values(const Data& measurement, int thr
 
 	// absorptance (without scattering!)
 	A_s[point_Index] = 1.-T_s[point_Index]-R_s[point_Index];
-	A_p[point_Index] = 1.-T_p[point_Index]-R_p[point_Index];
-	A  [point_Index] = s_Weight * A_s[point_Index] + p_Weight * A_p[point_Index];
+	A_p[point_Index] = 1.-T_p[point_Index]-R_p[point_Index];		
+	A  [point_Index] = s_Weight * A_s[point_Index] + p_Weight * A_p[point_Index];	
 
+	if(A_s[point_Index] < DBL_MIN) A_s[point_Index] = DBL_MIN;
+	if(A_p[point_Index] < DBL_MIN) A_p[point_Index] = DBL_MIN;
+	if(A  [point_Index] < DBL_MIN) A  [point_Index] = DBL_MIN;
 
+	// NaN
 	if(isnan(R[point_Index]) || isnan(T[point_Index]))
 	{
 		if(isnan(R[point_Index])) {R[point_Index]=10000; qInfo() << "Unwrapped_Reflection::fill_Specular_Values  :  R = NaN at point" << point_Index;}		// NaN to 10000. Be careful!
