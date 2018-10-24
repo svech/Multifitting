@@ -924,8 +924,7 @@ void Table_Of_Structures::disable_enable_One_Item_Content(My_Table_Widget* table
 		}
 
 		int rows = 0;
-		if( item_Type == item_Type_Layer    ||	item_Type == item_Type_Substrate )	rows = 5;
-		if( item_Type == item_Type_Multilayer )										rows = 2;
+		if( item_Type == item_Type_Layer    ||	item_Type == item_Type_Substrate || item_Type == item_Type_Multilayer)	rows = 5;
 
 		for(int disable_Row_Index=row_Index  ; disable_Row_Index<row_Index+rows      ; ++disable_Row_Index)
 		for(int disable_Col_Index=col_Index+1; disable_Col_Index<table->columnCount(); ++disable_Col_Index)

@@ -349,17 +349,19 @@ void Main_Calculation_Module::calc_Tree_Iteration(const tree<Node>::iterator& pa
 		   struct_Data.item_Type == item_Type_Aperiodic	 )
 		{
 			// check if period or gamma are fitables
+			bool local_Fitables_Period_Gamma = fitables_Period_Gamma;
 			if(struct_Data.period.fit.is_Fitable || (struct_Data.gamma.fit.is_Fitable && child.number_of_children() == 2))
 			{
-				fitables_Period_Gamma = true;
+				local_Fitables_Period_Gamma = true;
 			}
 
 			// check if period or gamma are confidentials
+			bool local_Confidentials_Period_Gamma = confidentials_Period_Gamma;
 			if(struct_Data.period.confidence.calc_Conf_Interval || (struct_Data.gamma.confidence.calc_Conf_Interval && child.number_of_children() == 2))
 			{
-				confidentials_Period_Gamma = true;
+				local_Confidentials_Period_Gamma = true;
 			}
-			calc_Tree_Iteration(child, fitables_Period_Gamma, confidentials_Period_Gamma);
+			calc_Tree_Iteration(child, local_Fitables_Period_Gamma, local_Confidentials_Period_Gamma);
 		}
 	}
 }
