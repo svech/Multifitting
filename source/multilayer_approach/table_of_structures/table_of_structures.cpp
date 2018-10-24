@@ -19,6 +19,7 @@ void Table_Of_Structures::closeEvent(QCloseEvent* event)
 {
 	write_Window_Geometry();
 	runned_Tables_Of_Structures.remove(table_Key);
+	for(QLineEdit* material_Line_Edit : material_Line_Edits) { material_Line_Edit->blockSignals(true); check_Material(material_Line_Edit); }
 	unlock_Mainwindow_Interface();
 	event->accept();
 	delete this;
@@ -346,6 +347,8 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 
 			// make it checkable
 			QCheckBox* item_CheckBox = new QCheckBox(Global_Variables::structure_Item_Name(struct_Data));
+				item_CheckBox->setProperty(item_Table_CheckBox_Property,item_Table_CheckBox_Property);
+				item_CheckBox->setProperty(column_Property,current_Column);
 			if(struct_Data.item_Type == item_Type_Multilayer)			{
 				item_CheckBox->setProperty(multilayer_Item_Table_CheckBox_Property,multilayer_Item_Table_CheckBox_Property);
 							   setProperty(multilayer_Item_Table_CheckBox_Property,multilayer_Item_Table_CheckBox_Property);
@@ -833,7 +836,7 @@ void Table_Of_Structures::span_Structure_Items(My_Table_Widget* table)
 				}
 				if( item_Type == item_Type_Multilayer )
 				{
-					int rows = 2;
+					int rows = 5;
 					table->setSpan(row_Index,col_Index,rows,1);
 				}
 			}
@@ -983,19 +986,47 @@ void Table_Of_Structures::disable_enable_Multilayers(My_Table_Widget* table, QTr
 void Table_Of_Structures::fit_Column(My_Table_Widget* table, int start_Width, int current_Column)
 {
 	// fit column
-	int max_Width=start_Width;
-	for(int row=0; row<table->rowCount(); ++row)
+	int max_Width = start_Width;
+	for(int row = 0; row<table->rowCount(); ++row)
 	{
 		QLineEdit* current_Line_Edit = qobject_cast<QLineEdit*>(table->cellWidget(row, current_Column));
+		QCheckBox* current_CheckBox = qobject_cast<QCheckBox*>(table->cellWidget(row, current_Column));
 		if(current_Line_Edit)
-		{
+		{			
 			if(max_Width<current_Line_Edit->width())
 			{
-				max_Width=current_Line_Edit->width()+1;
+				max_Width = current_Line_Edit->width()+1;
+			}
+		} else
+		// for item names
+		if(current_CheckBox)
+		{
+			const QFont& myFont = current_CheckBox->font();
+			QFontMetrics fm(myFont);
+			int check_Box_Width=fm.width(current_CheckBox->text());
+			int shift = 25;
+			int current_Width = 0;
+			if(current_Column<=1) current_Width = max(COLOR_LEGEND_LABEL_WIDTH, check_Box_Width + shift);
+			else                  current_Width = check_Box_Width + shift + 1;
+
+			if(max_Width<current_Width)
+			{
+				max_Width = current_Width + 1;
 			}
 		}
 	}
 	table->setColumnWidth(current_Column,max_Width);
+
+	// fit other line edits
+//	for(int row = 0; row<table->rowCount(); ++row)
+//	{
+//		QLineEdit* current_Line_Edit = qobject_cast<QLineEdit*>(table->cellWidget(row, current_Column));
+//		if(current_Line_Edit)
+//		if(current_Line_Edit != line_Edit)
+//		{
+//			current_Line_Edit->setFixedWidth(max_Width - 1);
+//		}
+//	}
 }
 
 //// creation
@@ -1012,6 +1043,8 @@ void Table_Of_Structures::create_Combo_Elements(My_Table_Widget* table, int, int
 
 		// create combobox
 		QComboBox* elements = new QComboBox;
+		elements->setMinimumWidth(TABLE_FIX_WIDTH_LINE_EDIT_SHORT);
+
 		elements->addItems(sorted_Elements.keys());
 		elements->setCurrentIndex(elements->findText(composition[composition_Index].type));
 
@@ -1024,7 +1057,7 @@ void Table_Of_Structures::create_Combo_Elements(My_Table_Widget* table, int, int
 		// add widget to table
 		table->setCellWidget(current_Row, current_Column, elements);
 
-		connect(elements, &QComboBox::currentTextChanged, this, &Table_Of_Structures::refresh_Element);
+		connect(elements, &QComboBox::currentTextChanged, this, [=](QString str){refresh_Element(table, str);});
 
 		current_Column+=TABLE_COLUMN_ELEMENTS_SHIFT;
 	}
@@ -1069,7 +1102,7 @@ void Table_Of_Structures::create_Stoich_Line_Edit(My_Table_Widget* table, int ta
 		table->setCellWidget(current_Row, current_Column, line_Edit);
 
 		connect(line_Edit, &QLineEdit::textEdited, this, [=]{resize_Line_Edit(table); });
-		connect(line_Edit, &QLineEdit::textEdited, this, &Table_Of_Structures::refresh_Stoich);
+		connect(line_Edit, &QLineEdit::textEdited, this, [=](QString str){refresh_Stoich(table, str);});
 
 		current_Column+=TABLE_COLUMN_ELEMENTS_SHIFT;
 	}
@@ -1208,15 +1241,16 @@ void Table_Of_Structures::create_Material_Line_Edit(My_Table_Widget* table, int 
 		material_Line_Edit->setProperty(column_Property, current_Column);
 
 	// storage
+	material_Line_Edits.append(material_Line_Edit);
 	line_Edits_Map.insert(material_Line_Edit, structure_Item);
 	all_Widgets_To_Reload[tab_Index].append(material_Line_Edit);
 
 	// add widget to table
 	table->setCellWidget(current_Row, current_Column, material_Line_Edit);
 
-	connect(material_Line_Edit, &QLineEdit::textEdited,	     this, [=]{resize_Line_Edit(table); });
-	connect(material_Line_Edit, &QLineEdit::textEdited,	     this, &Table_Of_Structures::refresh_Material);
-	connect(material_Line_Edit, &QLineEdit::editingFinished, this, &Table_Of_Structures::check_Material  );
+	connect(material_Line_Edit, &QLineEdit::textEdited,	     this, [=]{ resize_Line_Edit(table); });
+	connect(material_Line_Edit, &QLineEdit::textEdited,	     this, [=](QString str){ refresh_Material(table, str);} );
+	connect(material_Line_Edit, &QLineEdit::editingFinished, this, [=]{ check_Material();} );
 }
 
 void Table_Of_Structures::create_Browse_Button(My_Table_Widget* table, int current_Row, int start_Column, int material_LineEdit_Row, int material_LineEdit_Column)
@@ -2103,7 +2137,7 @@ void Table_Of_Structures::create_Min_Max_Spin_Box(My_Table_Widget* table, int ta
 //// refresh
 
 //// for material only
-void Table_Of_Structures::refresh_Element(QString)
+void Table_Of_Structures::refresh_Element(My_Table_Widget* table, QString)
 {
 	QComboBox* combo_Box = qobject_cast<QComboBox*>(QObject::sender());
 	QTreeWidgetItem* structure_Item = elements_Map.value(combo_Box);
@@ -2126,6 +2160,15 @@ void Table_Of_Structures::refresh_Element(QString)
 		// state update
 		comp.type = combo_Box->currentText();
 		struct_Data.material = material_From_Composition(struct_Data.composition);
+		for(QCheckBox* item_Check_Box : check_Boxes_Map.keys(structure_Item))
+		{
+			if(item_Check_Box->property(item_Table_CheckBox_Property).toString() == item_Table_CheckBox_Property)
+			{
+				item_Check_Box->setText(Global_Variables::structure_Item_Name(struct_Data));
+				int current_Column = item_Check_Box->property(column_Property).toInt();
+				fit_Column(table, 0, current_Column);
+			}
+		}
 
 		// full name update
 		comp.composition.indicator.full_Name = Global_Variables::parameter_Name(struct_Data, whats_This_Composition, composition_Index);
@@ -2139,7 +2182,7 @@ void Table_Of_Structures::refresh_Element(QString)
 	}
 }
 
-void Table_Of_Structures::refresh_Stoich(QString)
+void Table_Of_Structures::refresh_Stoich(My_Table_Widget* table, QString)
 {
 	QLineEdit* line_Edit = qobject_cast<QLineEdit*>(QObject::sender());
 	QTreeWidgetItem* structure_Item = line_Edits_Map.value(line_Edit);
@@ -2171,6 +2214,15 @@ void Table_Of_Structures::refresh_Stoich(QString)
 		if(value_Type == MAX)	{comp.fit.max = line_Edit->text().toDouble(); /*comp.confidence.max = comp.fit.max;*/}
 
 		struct_Data.material = material_From_Composition(struct_Data.composition);
+		for(QCheckBox* item_Check_Box : check_Boxes_Map.keys(structure_Item))
+		{
+			if(item_Check_Box->property(item_Table_CheckBox_Property).toString() == item_Table_CheckBox_Property)
+			{
+				item_Check_Box->setText(Global_Variables::structure_Item_Name(struct_Data));
+				int current_Column = item_Check_Box->property(column_Property).toInt();
+				fit_Column(table, 0, current_Column);
+			}
+		}
 
 		// full name update
 		comp.indicator.full_Name = Global_Variables::parameter_Name(struct_Data, whats_This_Composition, composition_Index);
@@ -2215,7 +2267,7 @@ void Table_Of_Structures::refresh_Fit_Element(bool)
 	}
 }
 
-void Table_Of_Structures::refresh_Material(QString)
+void Table_Of_Structures::refresh_Material(My_Table_Widget* table, QString)
 {
 	QLineEdit* line_Edit = qobject_cast<QLineEdit*>(QObject::sender());
 	QTreeWidgetItem* structure_Item = line_Edits_Map.value(line_Edit);
@@ -2232,6 +2284,16 @@ void Table_Of_Structures::refresh_Material(QString)
 	}
 	{
 		struct_Data.material = line_Edit->text();
+		for(QCheckBox* item_Check_Box : check_Boxes_Map.keys(structure_Item))
+		{
+			if(item_Check_Box->property(item_Table_CheckBox_Property).toString() == item_Table_CheckBox_Property)
+			{
+				item_Check_Box->setText(Global_Variables::structure_Item_Name(struct_Data));
+				int current_Column = item_Check_Box->property(column_Property).toInt();
+				fit_Column(table, 0, current_Column);
+			}
+		}
+
 		QVariant var;
 		var.setValue( struct_Data );
 		structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
@@ -2241,9 +2303,10 @@ void Table_Of_Structures::refresh_Material(QString)
 	}
 }
 
-void Table_Of_Structures::check_Material()
+void Table_Of_Structures::check_Material(QLineEdit* line_Edit)
 {
-	QLineEdit* line_Edit = qobject_cast<QLineEdit*>(QObject::sender());
+	if(line_Edit == nullptr)
+		line_Edit = qobject_cast<QLineEdit*>(QObject::sender());
 	QTreeWidgetItem* structure_Item = line_Edits_Map.value(line_Edit);
 
 	// no cheking for reloading
@@ -2260,7 +2323,9 @@ void Table_Of_Structures::check_Material()
 			struct_Data.approved_Material = struct_Data.material;
 		} else
 		{
+			line_Edit->blockSignals(true);
 			QMessageBox::information(this, "Wrong material", "File \"" + struct_Data.material + nk_Ext + "\" not found");
+			line_Edit->blockSignals(false);
 			struct_Data.material = struct_Data.approved_Material;
 			line_Edit->setText(struct_Data.material);
 			line_Edit->textEdited(line_Edit->text());

@@ -87,12 +87,12 @@ public:
 	static Parameter& get_Parameter(Data& struct_Data, QString whats_This, int& precision, double& coeff);
 
 	// for material only
-	void refresh_Element(QString);
-	void refresh_Stoich(QString);
+	void refresh_Element(My_Table_Widget *table, QString);
+	void refresh_Stoich(My_Table_Widget* table, QString);
 	void refresh_Fit_Element(bool);
 
-	void refresh_Material(QString);
-	void check_Material();
+	void refresh_Material(My_Table_Widget *table, QString);
+	void check_Material(QLineEdit *line_Edit = nullptr);
 	void browse_Material(QLineEdit* material_Line_Edit);
 
 	// for several parameters
@@ -148,6 +148,7 @@ public:
 
 	QHBoxLayout* main_Layout;
 
+	QList<QLineEdit*> material_Line_Edits;
 	QMap<QComboBox*,QTreeWidgetItem*> elements_Map;
 	QMap<QLineEdit*,QTreeWidgetItem*> line_Edits_Map;
 	QMap<QCheckBox*,QTreeWidgetItem*> check_Boxes_Map;

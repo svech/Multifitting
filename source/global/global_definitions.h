@@ -308,6 +308,7 @@ class Node;
 #define value_Type_Property				"value_Type"
 #define coupling_Editor_Property		"coupling_Editor"
 #define multilayer_Item_Table_CheckBox_Property	"multilayer_Item_Table_CheckBox"
+#define item_Table_CheckBox_Property	"item_Table_CheckBox"
 #define previous_Value_Property			"previous_Value"
 
 #define refresh_Property	"refresh"
