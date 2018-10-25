@@ -5,6 +5,8 @@
 Launcher::Launcher(QWidget *parent) :
 	QWidget(parent)
 {
+	QApplication::setWindowIcon(QIcon(QPixmap(icon_path + "icon.ico")));
+
 	printf("\n%d logical cores\n", QThread::idealThreadCount());
 	printf("\nMultifitting version %d.%d.%d\n\n", VERSION_MAJOR, VERSION_MINOR, VERSION_BUILD);
 

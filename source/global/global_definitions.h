@@ -360,7 +360,7 @@ class Node;
 // calculation
 #define I complex<double>(0,1)
 #define Na 6.022140857E23
-#define Q 4.484891E-30
+#define Q  4.484891E-30
 
 #ifndef DBL_EPSILON
 #define DBL_EPSILON numeric_limits<double>::epsilon()

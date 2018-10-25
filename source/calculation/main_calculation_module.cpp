@@ -192,7 +192,7 @@ void Main_Calculation_Module::fitting_and_Confidence()
 	if( confidentials.param_Pointers.size()>0 )
 	{
 		Fitables temp_Full_Fitables = fitables; // save full set, including (possibly) active confidentials
-		for(size_t confidence_Index=0; confidence_Index<confidentials.param_Pointers.size(); ++confidence_Index)
+		for(uint confidence_Index=0; confidence_Index<confidentials.param_Pointers.size(); ++confidence_Index)
 		{
 			confidentials.param_Pointers[confidence_Index]->confidence.is_Active = true;
 			fitables = temp_Full_Fitables;

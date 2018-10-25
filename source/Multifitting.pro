@@ -78,6 +78,10 @@ unix {
     QMAKE_CXXFLAGS += -Wno-reorder
 }
 
+win32 {
+    RC_ICONS = icon.ico
+}
+
 SOURCES += \
 	launcher.cpp \
 	main.cpp \
