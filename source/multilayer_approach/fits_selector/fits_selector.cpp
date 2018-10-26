@@ -167,6 +167,17 @@ void Fits_Selector::open_Fit()
 	bool opened = false;
 	int index = fits_List->currentRow();
 
+	// close table
+	bool table_Was_Opened = false;
+	int active_Table_Tab = -2018;
+	if(global_Multilayer_Approach->runned_Tables_Of_Structures.contains(table_Key))
+	{
+		table_Was_Opened = true;
+		active_Table_Tab = global_Multilayer_Approach->table_Of_Structures->main_Tabs->currentIndex();
+		global_Multilayer_Approach->table_Of_Structures->close();
+	}
+
+	//
 	for(int tab_Index=0; tab_Index<global_Multilayer_Approach->multilayer_Tabs->count(); ++tab_Index)
 	{
 		Multilayer* multilayer = qobject_cast<Multilayer*>(global_Multilayer_Approach->multilayer_Tabs->widget(tab_Index));
@@ -199,20 +210,20 @@ void Fits_Selector::open_Fit()
 	}
 
 	// refresh table
-	if(opened)
-	if(global_Multilayer_Approach->runned_Tables_Of_Structures.contains(table_Key))
+	if(opened && table_Was_Opened)
 	{
-
-		int active_Tab = global_Multilayer_Approach->table_Of_Structures->main_Tabs->currentIndex();
-		global_Multilayer_Approach->table_Of_Structures->close();
 		global_Multilayer_Approach->open_Table_Of_Structures();
-		global_Multilayer_Approach->table_Of_Structures->main_Tabs->setCurrentIndex(active_Tab);
+		global_Multilayer_Approach->table_Of_Structures->main_Tabs->setCurrentIndex(active_Table_Tab);
 	}
 
 	// recalculate and replot
 	if(opened)
 	{
 		global_Multilayer_Approach->calc_Reflection();
+		if(global_Multilayer_Approach->runned_Optical_Graphs.contains(optical_Graphs_Key))
+		{
+			global_Multilayer_Approach->optical_Graphs->activateWindow();
+		}
 	}
 
 	// refresh view
