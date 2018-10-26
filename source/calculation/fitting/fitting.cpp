@@ -587,8 +587,14 @@ void Fitting::add_Fit_To_File(const gsl_vector* x, double residual, QString file
 			double unparametrized = params.main_Calculation_Module->unparametrize(	gsl_vector_get(x, param_Index),
 																					params.fitables.param_Pointers[param_Index]->fit.min,
 																					params.fitables.param_Pointers[param_Index]->fit.max);
+			if(params.fitables.param_Pointers[param_Index]->indicator.whats_This == whats_This_Num_Repetitions)
+			{
+				current_String = QString::number(round(unparametrized));
+			} else
+			{
+				current_String = QString::number(unparametrized,'f',4);
+			}
 			//------------------------------------------------------
-			current_String = QString::number(unparametrized,'f',4);
 			out << qSetFieldWidth(widths[index]) << current_String;
 			index++;
 			//------------------------------------------------------
