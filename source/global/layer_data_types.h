@@ -96,6 +96,7 @@ public:
 	// Layer, Multilayer, Aperiodic
 	//---------------------------------------------
 		double step_Value_Change;
+		int uniqueness = -1;
 
 	vector<Parameter*> potentially_Fitable_Parameters;
 	void fill_Potentially_Fitable_Parameters_Vector();

@@ -292,25 +292,23 @@ void Structure_Tree::find_Period_And_Gamma(QTreeWidgetItem* this_Item)
 
 ////-----------------------------------------------------------------------------------
 
-void Structure_Tree::if_DoubleClicked()
+void Structure_Tree::if_DoubleClicked(QTreeWidgetItem* item)
 {
-	const Data data = tree->currentItem()->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
-	if(data.item_Type == item_Type_Aperiodic) return;
-
-	if(runned_Editors.contains(tree->currentItem()))
+	if(item == nullptr) item = tree->currentItem();
+	if(runned_Editors.contains(item))
 	{
-		if(runned_Editors.value(tree->currentItem())->isVisible())
+		if(runned_Editors.value(item)->isVisible())
 		{
-			runned_Editors.value(tree->currentItem())->activateWindow();
+			runned_Editors.value(item)->activateWindow();
 		} else
 		{
-			delete runned_Editors.value(tree->currentItem());
-			runned_Editors.remove(tree->currentItem());
+			delete runned_Editors.value(item);
+			runned_Editors.remove(item);
 		}
 	}
-	if(!runned_Editors.contains(tree->currentItem()))
+	if(!runned_Editors.contains(item))
 	{
-		Item_Editor* item_Editor = new Item_Editor(list_Editors, tree->currentItem(), this);
+		Item_Editor* item_Editor = new Item_Editor(list_Editors, item, this, this);
 			item_Editor->setWindowFlags(Qt::Window);
 			item_Editor->show();
 
@@ -319,7 +317,7 @@ void Structure_Tree::if_DoubleClicked()
 
 		list_Editors.append(item_Editor);
 		structure_Toolbar->toolbar->setDisabled(true);
-		runned_Editors.insert(tree->currentItem(),item_Editor);
+		runned_Editors.insert(item,item_Editor);
 	}
 }
 

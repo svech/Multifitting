@@ -21,7 +21,7 @@ public:
 	void create_Tree();
 	void create_Toolbar();
 
-	void if_DoubleClicked();
+	void if_DoubleClicked(QTreeWidgetItem* item = nullptr);
 	void editor_Close();
 	void editors_Edit(QObject* sender = nullptr);
 

@@ -5,13 +5,15 @@
 #include "standard/menu.h"
 #include "grading_editor.h"
 
+class Structure_Tree;
+
 class Item_Editor : public QDialog
 {
 	Q_OBJECT
 	Q_INVOKABLE void adjustSize()							{ QWidget::adjustSize(); }
 //	Q_INVOKABLE void moreElementsClicked()					{ Item_Editor::more_Elements_Clicked(); }
 public:
-	explicit Item_Editor(QList<Item_Editor*>& list_Editors, QTreeWidgetItem* item, QWidget *parent = 0);
+	explicit Item_Editor(QList<Item_Editor*>& list_Editors, QTreeWidgetItem* item, Structure_Tree* structure_Tree, QWidget *parent = 0);
 
 signals:
 ////	void refresh();
@@ -22,7 +24,7 @@ public:
 	QTreeWidgetItem* item;
 	QList<Item_Editor*> list_Editors;
 	Data struct_Data;
-
+	Structure_Tree* structure_Tree;
 
 	// state variables
 	bool material_Done = false;
@@ -40,6 +42,8 @@ public:
 			void make_Thickness_Group_Box();
 		void make_Multilayer_Editor();
 			void make_Multilayer_Group_Box();
+		void make_Aperiodic_Editor();
+			void make_Aperiodic_Group_Box();
 		void make_Substrate_Editor();
 			void make_Sigma_Group_Box();
 	void set_Window_Geometry();
@@ -76,6 +80,10 @@ public:
 	void change_Stack_Gamma();
 		void reset_Layer_Thickness(QTreeWidgetItem* layer_Item, double new_Thickness);
 		void reset_Multilayer_Thickness(QTreeWidgetItem* multilayer_Item, double new_Thickness);
+
+	void make_Aperiodic();
+	void make_Multilayer();
+	QVector<int> calc_Uniqueness();
 
 	QString absolute_Density_Label = "Density [g/cm" + Cube_Sym + "]:";
 	QString relative_Density_Label = "Relative Density:";
@@ -136,6 +144,11 @@ public:
 			QLineEdit* period_Line_Edit;
 			QLabel* gamma_Label;
 			QLineEdit* gamma_Line_Edit;
+			QCheckBox* make_Aperiodic_CheckBox;
+
+		QGroupBox* aperiodic_Group_Box;
+			QCheckBox* make_Multilayer_CheckBox;
+			QMap<QTreeWidgetItem*, int> item_Uniqueness_Map;
 
 		QPushButton* done_Button;
 };

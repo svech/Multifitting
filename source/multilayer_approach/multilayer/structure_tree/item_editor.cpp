@@ -1,11 +1,13 @@
 // This is an open source non-commercial project. Dear PVS-Studio, please check it.
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include "item_editor.h"
+#include "multilayer_approach/multilayer_approach.h"
 
-Item_Editor::Item_Editor(QList<Item_Editor*>& list_Editors, QTreeWidgetItem* item, QWidget *parent) :
+Item_Editor::Item_Editor(QList<Item_Editor*>& list_Editors, QTreeWidgetItem* item, Structure_Tree* structure_Tree, QWidget *parent) :
 	item(item),
 	list_Editors(list_Editors),
 	struct_Data(item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>()),
+	structure_Tree(structure_Tree),
 	QDialog(parent)
 {
 	setWindowTitle(struct_Data.item_Type);
@@ -60,6 +62,7 @@ void Item_Editor::create_Main_Layout()
 	if(struct_Data.item_Type == item_Type_Layer)		make_Layer_Editor();
 	if(struct_Data.item_Type == item_Type_Substrate)	make_Substrate_Editor();
 	if(struct_Data.item_Type == item_Type_Multilayer)	make_Multilayer_Editor();
+	if(struct_Data.item_Type == item_Type_Aperiodic)	make_Aperiodic_Editor();
 
 	done_Button = new QPushButton("Done");
 		done_Button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
@@ -93,11 +96,6 @@ void Item_Editor::make_Substrate_Editor()
 {
 	make_Materials_Group_Box();
 	make_Sigma_Group_Box();
-}
-
-void Item_Editor::make_Multilayer_Editor()
-{
-	make_Multilayer_Group_Box();
 }
 
 void Item_Editor::make_Materials_Group_Box()
@@ -235,11 +233,16 @@ void Item_Editor::make_Thickness_Group_Box()
 	}
 }
 
+void Item_Editor::make_Multilayer_Editor()
+{
+	make_Multilayer_Group_Box();
+}
+
 void Item_Editor::make_Multilayer_Group_Box()
 {
 	multilayer_Group_Box = new QGroupBox;
-	multilayer_Group_Box->setObjectName("multilayer_Group_Box");
-	multilayer_Group_Box->setStyleSheet("QGroupBox#multilayer_Group_Box { border-radius: 2px;  border: 1px solid gray;}");
+		multilayer_Group_Box->setObjectName("multilayer_Group_Box");
+		multilayer_Group_Box->setStyleSheet("QGroupBox#multilayer_Group_Box { border-radius: 2px;  border: 1px solid gray;}");
 
 	QVBoxLayout* multilayer_Group_Box_Layout = new QVBoxLayout(multilayer_Group_Box);
 
@@ -255,6 +258,9 @@ void Item_Editor::make_Multilayer_Group_Box()
 		layout->addWidget(repetitions_Line_Edit);
 
 		multilayer_Group_Box_Layout->addLayout(layout);
+
+		connect(repetitions_Line_Edit,  &QLineEdit::textEdited, this, [=]{Global_Variables::resize_Line_Edit(repetitions_Line_Edit);});
+		connect(repetitions_Line_Edit,	&QLineEdit::textEdited, this, &Item_Editor::fast_Refresh_Stack);
 	}
 	{
 		QHBoxLayout* layout = new QHBoxLayout;
@@ -268,6 +274,9 @@ void Item_Editor::make_Multilayer_Group_Box()
 		layout->addWidget(period_Line_Edit);
 
 		multilayer_Group_Box_Layout->addLayout(layout);
+
+		connect(period_Line_Edit, &QLineEdit::textEdited, this, [=]{Global_Variables::resize_Line_Edit(period_Line_Edit);});
+		connect(period_Line_Edit, &QLineEdit::textEdited, this, &Item_Editor::fast_Refresh_Stack);
 	}
 	{
 		QHBoxLayout* layout = new QHBoxLayout;
@@ -285,20 +294,127 @@ void Item_Editor::make_Multilayer_Group_Box()
 
 			multilayer_Group_Box_Layout->addLayout(layout);
 
-			connect(gamma_Line_Edit,		&QLineEdit::textEdited, this, [=]{Global_Variables::resize_Line_Edit(gamma_Line_Edit);});
-			connect(gamma_Line_Edit,		&QLineEdit::textEdited, this, &Item_Editor::fast_Refresh_Stack);
+			connect(gamma_Line_Edit, &QLineEdit::textEdited, this, [=]{Global_Variables::resize_Line_Edit(gamma_Line_Edit);});
+			connect(gamma_Line_Edit, &QLineEdit::textEdited, this, &Item_Editor::fast_Refresh_Stack);
 		}
 	}
-	connect(repetitions_Line_Edit,  &QLineEdit::textEdited, this, [=]{Global_Variables::resize_Line_Edit(repetitions_Line_Edit);});
-	connect(period_Line_Edit,		&QLineEdit::textEdited, this, [=]{Global_Variables::resize_Line_Edit(period_Line_Edit);});
-
-	connect(repetitions_Line_Edit,	&QLineEdit::textEdited, this, &Item_Editor::fast_Refresh_Stack);
-	connect(period_Line_Edit,		&QLineEdit::textEdited, this, &Item_Editor::fast_Refresh_Stack);
-
 	main_Layout->addWidget(multilayer_Group_Box);
+
+	{
+		QGroupBox* make_Aperiodic_Group_Box = new QGroupBox;
+			make_Aperiodic_Group_Box->setObjectName("make_Aperiodic_Group_Box");
+			make_Aperiodic_Group_Box->setStyleSheet("QGroupBox#make_Aperiodic_Group_Box { border-radius: 2px;  border: 1px solid gray;}");
+
+		QHBoxLayout* layout = new QHBoxLayout(make_Aperiodic_Group_Box);
+		make_Aperiodic_CheckBox = new QCheckBox("Make aperiodic");
+			make_Aperiodic_CheckBox->setChecked(false);
+		layout->addWidget(make_Aperiodic_CheckBox);
+
+		connect(make_Aperiodic_CheckBox, &QCheckBox::released, this, [=]
+		{
+			QMessageBox::StandardButton reply = QMessageBox::question(this,"Make aperiodic", "Are you sure?", QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
+			if (reply == QMessageBox::Yes)
+			{
+				make_Aperiodic();
+			} else
+			{
+				make_Aperiodic_CheckBox->setChecked(false);
+			}
+		});
+		main_Layout->addWidget(make_Aperiodic_Group_Box);
+	}
+
 	{
 		stack_Done = true;
 		show_Stack_Parameters();
+	}
+}
+
+void Item_Editor::make_Aperiodic_Editor()
+{
+	make_Aperiodic_Group_Box();
+}
+
+void Item_Editor::make_Aperiodic_Group_Box()
+{
+	calc_Uniqueness();
+
+	aperiodic_Group_Box = new QGroupBox;
+		aperiodic_Group_Box->setObjectName("aperiodic_Group_Box");
+		aperiodic_Group_Box->setStyleSheet("QGroupBox#aperiodic_Group_Box { border-radius: 2px;  border: 1px solid gray;}");
+
+	QHBoxLayout* aperiodic_Group_Box_Layout = new QHBoxLayout(aperiodic_Group_Box);
+
+	// unique items in aperiodic
+	{
+		QVBoxLayout* layout_Left = new QVBoxLayout;
+		aperiodic_Group_Box_Layout->addLayout(layout_Left);
+
+		QVBoxLayout* layout_Right = new QVBoxLayout;
+		aperiodic_Group_Box_Layout->addLayout(layout_Right);
+
+		QVector<int> used_Uniqueness;
+		int unique_Index = 1;
+		for(int i=0; i<item->childCount(); i++)
+		{
+			QTreeWidgetItem* current_Child_Item = item->child(i);
+			if(!used_Uniqueness.contains(item_Uniqueness_Map.value(current_Child_Item))) // uniqueness of list
+			{
+
+				used_Uniqueness.append(item_Uniqueness_Map.value(current_Child_Item));
+				Data current_Child_Data = current_Child_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+
+				// text
+				QString composed;
+				if(current_Child_Data.item_Type == item_Type_Layer)
+				{
+					if(current_Child_Data.composed_Material) composed = "(composed)";
+					else									 composed = "(tabular)";
+				}
+				QString text =	QString::number(unique_Index++) + ")  " +
+								current_Child_Data.item_Type + "  " +
+								current_Child_Data.material + "  " +
+								composed;
+
+				QHBoxLayout* layout_Right_Row = new QHBoxLayout;
+				layout_Right->addLayout(layout_Right_Row);
+
+				QLabel* unique_Item_Label = new QLabel(text);
+					layout_Left->addWidget(unique_Item_Label);
+				QCheckBox* unique_Item_Connect_Thickness = new QCheckBox("   Relate \"z\"");
+					layout_Right_Row->addWidget(unique_Item_Connect_Thickness);
+				QCheckBox* unique_Item_Connect_Sigma = new QCheckBox("   Relate \""+Sigma_Sym+"\"");
+					layout_Right_Row->addWidget(unique_Item_Connect_Sigma);
+
+//				connect(unique_Item_Connect_Thickness, &QCheckBox::toggled, this, [=]{		});
+//				connect(unique_Item_Connect_Sigma,	   &QCheckBox::toggled, this, [=]{		});
+			}
+		}
+	}
+	main_Layout->addWidget(aperiodic_Group_Box);
+	// make periodic
+	{
+		QGroupBox* make_Multilayer_Group_Box = new QGroupBox;
+			make_Multilayer_Group_Box->setObjectName("make_Multilayer_Group_Box");
+			make_Multilayer_Group_Box->setStyleSheet("QGroupBox#make_Multilayer_Group_Box { border-radius: 2px;  border: 1px solid gray;}");
+
+		QHBoxLayout* layout = new QHBoxLayout(make_Multilayer_Group_Box);
+		make_Multilayer_CheckBox = new QCheckBox("Make periodic");
+			make_Multilayer_CheckBox->setChecked(false);
+		layout->addWidget(make_Multilayer_CheckBox);
+
+		connect(make_Multilayer_CheckBox, &QCheckBox::released, this, [=]
+		{
+			QMessageBox::StandardButton reply = QMessageBox::question(this,"Make periodic", "Are you sure?", QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
+			if (reply == QMessageBox::Yes)
+			{
+				make_Multilayer();
+			} else
+			{
+				make_Multilayer_CheckBox->setChecked(false);
+			}
+		});
+		main_Layout->addWidget(make_Multilayer_Group_Box);
 	}
 }
 
@@ -1145,4 +1261,143 @@ void Item_Editor::reset_Multilayer_Thickness(QTreeWidgetItem* multilayer_Item, d
 		factor = new_Thickness/(  stack_Content.period.value*stack_Content.num_Repetition.value()  );
 		change_Child_Layers_Thickness(multilayer_Item, factor);
 	}
+}
+
+void Item_Editor::make_Aperiodic()
+{
+	// set up aperiodic
+	struct_Data.item_Type = item_Type_Aperiodic;
+	QTreeWidgetItem* new_Layer;
+	int old_Child_Count = item->childCount();
+	for(int n=0; n<struct_Data.num_Repetition.value()-1; n++) // if N==0, still 1 period exists
+	{
+		for(int i=0; i<old_Child_Count; i++)
+		{
+			new_Layer = item->child(i)->clone();
+			structure_Tree->structure_Toolbar->change_IDs_Of_Subtree(new_Layer);
+			item->insertChild(item->childCount(), new_Layer);
+		}
+	}
+
+	// save
+	QVariant var;
+	var.setValue( struct_Data );
+	item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+	if(item->childCount() <= 20)
+	{	item->setExpanded(true);}
+	else
+	{	item->setExpanded(false);}
+	structure_Tree->refresh__StructureTree__Data_and_Text();
+
+	// close old editor
+	close();
+
+	// open new editor
+	structure_Tree->if_DoubleClicked(item);
+}
+
+void Item_Editor::make_Multilayer()
+{
+	QVector<int> uniqueness_Vector = calc_Uniqueness();
+
+	// find period
+	QVector<int> tested_Uniqueness_Vector(uniqueness_Vector.size());
+	QVector<int> possible_Periods;
+	int N=1;
+	int true_Period = uniqueness_Vector.size();
+	for(int period = 2; period<=uniqueness_Vector.size()/2.; period++)
+	{
+		if(uniqueness_Vector.size()%period==0) possible_Periods.append(period);
+	}
+	for(int period : possible_Periods)
+	{
+		N = uniqueness_Vector.size()/period;
+		for(int n = 0; n<N; n++)
+		{
+			for(int i=0; i<period; i++)
+			{
+				tested_Uniqueness_Vector[i+n*period] = uniqueness_Vector[i];
+			}
+		}
+		if(tested_Uniqueness_Vector == uniqueness_Vector)
+		{
+			true_Period = period;
+			goto endlabel;
+		}
+	}
+	endlabel:
+
+	QMessageBox::StandardButton reply = QMessageBox::Yes;
+	if(true_Period == uniqueness_Vector.size())
+	{
+		N=1;
+		reply = QMessageBox::question(this,"Make periodic", "Aperiodic can't be reduced to\nperiodic multilayer with N>1.\nContinue?", QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
+	}
+	if (reply == QMessageBox::Yes)
+	{
+		// remove excess children
+		while(item->childCount()>true_Period)
+		{
+			item->removeChild(item->child(item->childCount()-1));
+		}
+
+		// set up multilayer
+		struct_Data.item_Type = item_Type_Multilayer;
+		struct_Data.num_Repetition.parameter.value = N;
+
+		// save
+		QVariant var;
+		var.setValue( struct_Data );
+		item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+		if(item->childCount() <= 30)
+		{	item->setExpanded(true);}
+		else
+		{	item->setExpanded(false);}
+		structure_Tree->refresh__StructureTree__Data_and_Text();
+
+		// close old editor
+		close();
+
+		// open new editor
+		structure_Tree->if_DoubleClicked(item);	} else
+	{
+		make_Multilayer_CheckBox->setChecked(false);
+		return;
+	}
+}
+
+QVector<int> Item_Editor::calc_Uniqueness()
+{
+	int last_Uniqueness = 0;
+	QMap<QString, int> uniqueness_Map;
+	QVector<int> uniqueness_Vector;
+	QTreeWidgetItem* current_Child_Item;
+	for(int i=0; i<item->childCount(); i++)
+	{
+		current_Child_Item = item->child(i);
+		Data current_Child_Data = current_Child_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+
+		QString current_Characretistic; // we don't distinguish multilayers and aperiodics between themselves
+		if(current_Child_Data.item_Type == item_Type_Layer)      current_Characretistic = current_Child_Data.item_Type + QString::number(current_Child_Data.composed_Material) + current_Child_Data.material;
+		if(current_Child_Data.item_Type == item_Type_Multilayer) current_Characretistic = current_Child_Data.item_Type;
+		if(current_Child_Data.item_Type == item_Type_Aperiodic)  current_Characretistic = current_Child_Data.item_Type;
+
+		if(uniqueness_Map.contains(current_Characretistic))
+		{
+			current_Child_Data.uniqueness = uniqueness_Map.value(current_Characretistic);
+		} else
+		{
+			current_Child_Data.uniqueness = last_Uniqueness;
+			uniqueness_Map.insert(current_Characretistic, last_Uniqueness);
+			last_Uniqueness++;
+		}
+		uniqueness_Vector.append(current_Child_Data.uniqueness);
+		item_Uniqueness_Map.insert(current_Child_Item, current_Child_Data.uniqueness);
+
+		// save
+		QVariant var;
+		var.setValue( current_Child_Data );
+		current_Child_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+	}
+	return uniqueness_Vector;
 }
