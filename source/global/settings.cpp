@@ -377,7 +377,7 @@ void Settings::read_Structure_Default_Values(bool reset_to_default)
 		default_num_confidence_points = structure_Default_Values.value( "default_num_confidence_points",	5 ).toInt();
 
 			structure_Default_Values.beginGroup( Ambient_Values );
-				ambient_default_material				  = structure_Default_Values.value( "ambient_default_material",				    "Al"	).toString();
+				ambient_default_material				  = structure_Default_Values.value( "ambient_default_material",				    Vacuum	).toString();
 				ambient_default_absolute_density		  = structure_Default_Values.value( "ambient_default_absolute_density",			0		).toDouble();
 				ambient_default_relative_density		  = structure_Default_Values.value( "ambient_default_relative_density",			0		).toDouble();
 				ambient_default_permittivity			  = structure_Default_Values.value( "ambient_default_permittivity",				100		).toDouble();

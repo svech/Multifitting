@@ -108,6 +108,8 @@ class Node;
 #define nk_Ext ".nk"
 #define ff_Ext ".ff"
 
+#define Vacuum "Vacuum"
+
 // -----------------------------------------------------------------------------------------
 
 // symbols

@@ -74,6 +74,7 @@ void Optical_Constants::read_All_Materials()
 	QDir nk_Dir(nk_Path);
 	nk_Dir.setNameFilters(QStringList() << nk_Filter);
 	nk_Files_List = nk_Dir.entryList(QDir::Files);
+	nk_Files_List.append(QString(Vacuum)+nk_Ext);
 
 	// ----------------------------------------------------------------------------------------------------------------------
 	// parallelization

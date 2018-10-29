@@ -273,24 +273,44 @@ void Point::read_Row(QTextStream& input, bool if_Factors)
 void Material_Data::read_Material(QString& filename)
 {
 	// TODO
-	QFile file(nk_Path + filename);
-	file.open(QIODevice::ReadOnly);
-	QTextStream input(&file);
-	while(!input.atEnd())
+	if(filename == QString(Vacuum)+nk_Ext)
 	{
-		QString temp_Line = input.readLine();
-		if(temp_Line[0]!=';')
+		// several point for good interpolation
+		for(int i=0; i<=20; i++)
 		{
-			Point new_nk_Point;
-			QTextStream temp_Stream(&temp_Line);
-			new_nk_Point.read_Row(temp_Stream, false);
-			if(material_Data.size()==0 || (new_nk_Point.lambda > material_Data.last().lambda))
+			Point vacuum_nk_Point;
+			vacuum_nk_Point.lambda = i*100;
+			vacuum_nk_Point.re = 1;
+			vacuum_nk_Point.im = 0;
+			material_Data.append(vacuum_nk_Point);
+		}
+		// last very big point
+		Point vacuum_nk_Point;
+			vacuum_nk_Point.lambda = DBL_MAX;
+			vacuum_nk_Point.re = 1;
+			vacuum_nk_Point.im = 0;
+		material_Data.append(vacuum_nk_Point);
+	} else
+	{
+		QFile file(nk_Path + filename);
+		file.open(QIODevice::ReadOnly);
+		QTextStream input(&file);
+		while(!input.atEnd())
+		{
+			QString temp_Line = input.readLine();
+			if(temp_Line[0]!=';')
 			{
-				material_Data.append(new_nk_Point);
+				Point new_nk_Point;
+				QTextStream temp_Stream(&temp_Line);
+				new_nk_Point.read_Row(temp_Stream, false);
+				if(material_Data.size()==0 || (new_nk_Point.lambda > material_Data.last().lambda))
+				{
+					material_Data.append(new_nk_Point);
+				}
 			}
 		}
+		file.close();
 	}
-	file.close();
 }
 
 void Element_Data::read_Element(QString& filename)

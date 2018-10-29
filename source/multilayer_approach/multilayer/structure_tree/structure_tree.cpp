@@ -331,11 +331,14 @@ void Structure_Tree::set_Structure_Item_Text(QTreeWidgetItem* item)
 	// if ambient
 	if(data.item_Type == item_Type_Ambient)
 	{
-		if(data.material!="Vacuum")
+		if(data.material!=Vacuum)
 		{
 			if(data.composed_Material)	density_Text = QString::number(data.absolute_Density.value,thumbnail_double_format,thumbnail_density_precision) + density_units;
 			else						density_Text = QString::number(data.relative_Density.value,thumbnail_double_format,thumbnail_density_precision);
 			item->setText(DEFAULT_COLUMN, Global_Variables::structure_Item_Name(data) + ", " + Rho_Sym + "=" + density_Text);
+		} else
+		{
+			item->setText(DEFAULT_COLUMN, Global_Variables::structure_Item_Name(data));
 		}
 	} else
 	{

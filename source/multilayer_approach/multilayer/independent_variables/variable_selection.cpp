@@ -170,7 +170,7 @@ void Variable_Selection::add_Parameter(QTreeWidgetItem* struct_Item, QString wha
 			filtered_Parameters = optical_Constants_List;
 
 			// if not Vacuum and not arbitrary optical constants and if composed_Material
-			additional_Condition =	struct_Data.material!="Vacuum" &&
+			additional_Condition =	struct_Data.material!=Vacuum &&
 									struct_Data.separate_Optical_Constants != TRIL_TRUE &&
 									struct_Data.composed_Material;
 		}
@@ -180,7 +180,7 @@ void Variable_Selection::add_Parameter(QTreeWidgetItem* struct_Item, QString wha
 			filtered_Parameters = optical_Constants_List;
 
 			// if not Vacuum and not arbitrary optical constants and if NOT composed_Material
-			additional_Condition =	struct_Data.material!="Vacuum" &&
+			additional_Condition =	struct_Data.material!=Vacuum &&
 									struct_Data.separate_Optical_Constants != TRIL_TRUE &&
 									!struct_Data.composed_Material;
 		}
@@ -190,7 +190,7 @@ void Variable_Selection::add_Parameter(QTreeWidgetItem* struct_Item, QString wha
 			filtered_Parameters = optical_Constants_List;
 
 			// if not Vacuum and not specified material
-			additional_Condition =	struct_Data.material!="Vacuum" &&
+			additional_Condition =	struct_Data.material!=Vacuum &&
 									struct_Data.separate_Optical_Constants != TRIL_FALSE;
 		}
 		if(whats_This == whats_This_Absorption)
@@ -199,7 +199,7 @@ void Variable_Selection::add_Parameter(QTreeWidgetItem* struct_Item, QString wha
 			filtered_Parameters = optical_Constants_List;
 
 			// if not Vacuum and not specified material
-			additional_Condition =	struct_Data.material!="Vacuum" &&
+			additional_Condition =	struct_Data.material!=Vacuum &&
 									struct_Data.separate_Optical_Constants != TRIL_FALSE;
 		}
 	}
