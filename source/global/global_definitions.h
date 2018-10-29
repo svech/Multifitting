@@ -607,6 +607,13 @@ struct Fitted_Structure			{	QString name;
 									QVector<QTreeWidget*> fitted_Trees;
 								};
 
+struct Aperiodic_Settings
+								{
+									bool contin = false;
+									QString column_4 = "";
+									QString column_5 = "";
+									int length_Units_Index = 0;
+								};
 // -----------------------------------------------------------------------------------------
 
 // serialization

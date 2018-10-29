@@ -1,6 +1,7 @@
 // This is an open source non-commercial project. Dear PVS-Studio, please check it.
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include "structure_toolbar.h"
+#include "aperiodic_load_setup.h"
 
 Structure_Toolbar::Structure_Toolbar(Structure_Tree* structure_Tree, QWidget *parent) :
 	QWidget(parent),
@@ -176,179 +177,190 @@ void Structure_Toolbar::add_Multilayer()
 void Structure_Toolbar::add_Aperiodic()
 {
 	// TODO
-	bool loaded = false;
-	QStringList lines_List;
-
-	QVector<QString> materials;
-	QVector<double> thicknesses;
-	QList<QTreeWidgetItem*> new_Child_Layers;
-
-	// create aperiodic item
-	QTreeWidgetItem* new_Aperiodic = new QTreeWidgetItem;
-
-	// imd-styled file
-	QFileInfo filename = QDir::toNativeSeparators(QFileDialog::getOpenFileName(this, "Find Aperiodic Multulayer", QDir::currentPath(), "Thicknesses " + QString("*.txt") + ";;All files (*.*)"));
-	if (!filename.completeBaseName().isEmpty())
+	// presettings window
+//	{
+//		Aperiodic_Settings aperiodic_Settings;
+//		Aperiodic_Load_Setup* aperiodic_Load_Setup = new Aperiodic_Load_Setup(aperiodic_Settings, this, this);
+//			aperiodic_Load_Setup->setModal(true);
+//			aperiodic_Load_Setup->setWindowFlags(Qt::Window);
+//			aperiodic_Load_Setup->show();
+//	}
 	{
-		/// reading data
-		QFile input_File(filename.absoluteFilePath());
-		QString temp_Line = "not empty now";
+		bool loaded = false;
+		QStringList lines_List;
 
-		if (input_File.open(QIODevice::ReadOnly))
+		QVector<QString> materials;
+		QVector<double> thicknesses;
+		QList<QTreeWidgetItem*> new_Child_Layers;
+
+		// create aperiodic item
+		QTreeWidgetItem* new_Aperiodic = new QTreeWidgetItem;
+
+		// imd-styled file
+		QFileInfo filename = QDir::toNativeSeparators(QFileDialog::getOpenFileName(this, "Find Aperiodic Multulayer", QDir::currentPath(), "Thicknesses " + QString("*.txt") + ";;All files (*.*)"));
+		if (!filename.completeBaseName().isEmpty())
 		{
-			QTextStream input_Stream(&input_File);
-			while ( !input_Stream.atEnd() )
+			/// reading data
+			QFile input_File(filename.absoluteFilePath());
+			QString temp_Line = "not empty now";
+
+			if (input_File.open(QIODevice::ReadOnly))
 			{
-				temp_Line=input_Stream.readLine();
-				lines_List.append(temp_Line);
-			}
-			input_File.close();
-			loaded = true;
-		} else
-		{
-			QMessageBox::information(this, "Error", "Can't open file filename \"" + filename.fileName() + "\"");
-			return;
-		}
-	}
-	if(loaded)
-	{
-		/// parsing data
-		for(int line_Index=0; line_Index<lines_List.size(); ++line_Index)
-		{
-			QString temp_Line = lines_List[line_Index];
-			QStringList words = temp_Line.split(delimiters,QString::SkipEmptyParts);
-			if(temp_Line[0]!=';' && temp_Line[0]!='#' && words.size()>0)
+				QTextStream input_Stream(&input_File);
+				while ( !input_Stream.atEnd() )
+				{
+					temp_Line=input_Stream.readLine();
+					lines_List.append(temp_Line);
+				}
+				input_File.close();
+				loaded = true;
+			} else
 			{
-				bool size_Format = false;
-				bool int_Format = false;
-				bool double_Format = false;
-
-				if(words.size()>=3)
-				{
-					size_Format = true;
-					QString(words[0]).toInt(&int_Format);
-					QString(words[2]).toDouble(&double_Format);
-				}
-				if(!int_Format || !double_Format || !size_Format)
-				{
-					QMessageBox::information(nullptr, "Bad format", "Row " + QString::number(line_Index) + " has wrong format.\n\nData should be IMD-styled:\n <period index>  <material>  <thickness>");
-					return;
-				}
-
-				materials.append(words[1]);
-				thicknesses.append(QString(words[2]).toDouble());
+				QMessageBox::information(this, "Error", "Can't open file filename \"" + filename.fileName() + "\"");
+				return;
 			}
 		}
-		for(int layer_Index=0; layer_Index<materials.size(); ++layer_Index)
+		if(loaded)
 		{
-			Data layer(item_Type_Layer);
-			layer.material = materials[layer_Index];
-			layer.thickness.value = thicknesses[layer_Index];
-			layer.composed_Material = false;
-
-			if(!layer.composed_Material)
+			/// parsing data
+			for(int line_Index=0; line_Index<lines_List.size(); ++line_Index)
 			{
-				if(optical_Constants->material_Map.contains(layer.material + nk_Ext))
+				QString temp_Line = lines_List[line_Index];
+				QStringList words = temp_Line.split(delimiters,QString::SkipEmptyParts);
+				if(temp_Line[0]!=';' && temp_Line[0]!='#' && words.size()>0)
 				{
-					layer.approved_Material = layer.material;
-				} else
-				{
-					QMessageBox::information(this, "Wrong material", "Material \"" + layer.material + "\" not found");
-					layer.material = layer.approved_Material;
-				}
-			}
+					bool size_Format = false;
+					bool int_Format = false;
+					bool double_Format = false;
 
-			// save data
-			QTreeWidgetItem* new_Layer = new QTreeWidgetItem;
-			QVariant var;
-			var.setValue( layer );
-			new_Layer->setData(DEFAULT_COLUMN, Qt::UserRole, var);
-
-			new_Child_Layers << new_Layer;
-		}
-
-		// insert child layers
-		new_Aperiodic->addChildren(new_Child_Layers);
-
-		Data aperiodic(item_Type_Aperiodic);
-		aperiodic.num_Repetition.parameter.value = 1;
-		QVariant var;
-		var.setValue( aperiodic );
-		new_Aperiodic->setData(DEFAULT_COLUMN, Qt::UserRole, var);
-
-		// insert aperiodic item to tree
-		buffered_Copy_Type = copy_Type_Cut;
-		QTreeWidgetItem* item_Aperiodic = add_Buffered_Layer(new_Aperiodic);
-		delete new_Aperiodic;
-
-		// TODO temporary
-		/// set dependences
-
-		// top layers
-		QVector<QTreeWidgetItem*> top_Layer(2);
-		QVector<Data> top_Layer_Data(top_Layer.size());
-		qInfo() << "top layers:";
-		for(int i=0; i<top_Layer.size(); ++i)
-		{
-			top_Layer[i] = item_Aperiodic->child(i);
-			top_Layer_Data[i] = top_Layer[i]->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
-			qInfo() << top_Layer_Data[i].material;
-
-			top_Layer_Data[i].thickness.fit.is_Fitable = true;
-			top_Layer_Data[i].sigma.fit.is_Fitable = true;
-		}
-
-		QTreeWidgetItem* structure_Item;
-		QTreeWidgetItemIterator it(structure_Tree->tree);
-		while (*it)
-		{
-			structure_Item=*it;
-			Data struct_Data = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
-
-			if(struct_Data.item_Type == item_Type_Layer)
-			{
-				struct_Data.thickness.fit.is_Fitable = true;
-				for(int i=0; i<top_Layer.size(); ++i)
-				{
-					// sigma
-					if(struct_Data.material == top_Layer_Data[i].material && struct_Data.id != top_Layer_Data[i].id)
+					if(words.size()>=3)
 					{
-						// add slave
-						struct_Data.sigma.indicator.exist = true;
-						top_Layer_Data[i].sigma.coupled.slaves.append(struct_Data.sigma.indicator);
-
-						// add master
-						top_Layer_Data[i].sigma.indicator.exist = true;
-						struct_Data.sigma.coupled.master = top_Layer_Data[i].sigma.indicator;
+						size_Format = true;
+						QString(words[0]).toInt(&int_Format);
+						QString(words[2]).toDouble(&double_Format);
+					}
+					if(!int_Format || !double_Format || !size_Format)
+					{
+						QMessageBox::information(nullptr, "Bad format", "Row " + QString::number(line_Index) + " has wrong format.\n\nData should be IMD-styled:\n <period index>  <material>  <thickness>");
+						return;
 					}
 
-					// thickness
-					if(struct_Data.material == top_Layer_Data[i].material && struct_Data.id != top_Layer_Data[i].id &&
-					   abs(struct_Data.thickness.value - top_Layer_Data[i].thickness.value) < DBL_EPSILON)
-					{
-						// add slave
-						struct_Data.thickness.indicator.exist = true;
-						top_Layer_Data[i].thickness.coupled.slaves.append(struct_Data.thickness.indicator);
-
-						// add master
-						top_Layer_Data[i].thickness.indicator.exist = true;
-						struct_Data.thickness.coupled.master = top_Layer_Data[i].thickness.indicator;
-					}
+					materials.append(words[1]);
+					thicknesses.append(QString(words[2]).toDouble());
 				}
 			}
+			for(int layer_Index=0; layer_Index<materials.size(); ++layer_Index)
+			{
+				Data layer(item_Type_Layer);
+				layer.material = materials[layer_Index];
+				layer.thickness.value = thicknesses[layer_Index];
+				layer.composed_Material = false;
 
+				if(!layer.composed_Material)
+				{
+					if(optical_Constants->material_Map.contains(layer.material + nk_Ext))
+					{
+						layer.approved_Material = layer.material;
+					} else
+					{
+						QMessageBox::information(this, "Wrong material", "Material \"" + layer.material + "\" not found");
+						layer.material = layer.approved_Material;
+					}
+				}
+
+				// save data
+				QTreeWidgetItem* new_Layer = new QTreeWidgetItem;
+				QVariant var;
+				var.setValue( layer );
+				new_Layer->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+
+				new_Child_Layers << new_Layer;
+			}
+
+			// insert child layers
+			new_Aperiodic->addChildren(new_Child_Layers);
+
+			Data aperiodic(item_Type_Aperiodic);
+			aperiodic.num_Repetition.parameter.value = 1;
 			QVariant var;
-			var.setValue( struct_Data );
-			structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+			var.setValue( aperiodic );
+			new_Aperiodic->setData(DEFAULT_COLUMN, Qt::UserRole, var);
 
-			++it;
-		}
+			// insert aperiodic item to tree
+			buffered_Copy_Type = copy_Type_Cut;
+			add_Buffered_Layer(new_Aperiodic);
+//			QTreeWidgetItem* item_Aperiodic = add_Buffered_Layer(new_Aperiodic);
+//			delete new_Aperiodic;
 
-		for(int i=0; i<top_Layer.size(); ++i)
-		{
-			QVariant var;
-			var.setValue( top_Layer_Data[i] );
-			top_Layer[i]->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+//			// TODO temporary
+//			/// set dependences
+
+//			// top layers
+//			QVector<QTreeWidgetItem*> top_Layer(2);
+//			QVector<Data> top_Layer_Data(top_Layer.size());
+//			qInfo() << "top layers:";
+//			for(int i=0; i<top_Layer.size(); ++i)
+//			{
+//				top_Layer[i] = item_Aperiodic->child(i);
+//				top_Layer_Data[i] = top_Layer[i]->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+//				qInfo() << top_Layer_Data[i].material;
+
+//				top_Layer_Data[i].thickness.fit.is_Fitable = true;
+//				top_Layer_Data[i].sigma.fit.is_Fitable = true;
+//			}
+
+//			QTreeWidgetItem* structure_Item;
+//			QTreeWidgetItemIterator it(structure_Tree->tree);
+//			while (*it)
+//			{
+//				structure_Item=*it;
+//				Data struct_Data = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+
+//				if(struct_Data.item_Type == item_Type_Layer)
+//				{
+//					struct_Data.thickness.fit.is_Fitable = true;
+//					for(int i=0; i<top_Layer.size(); ++i)
+//					{
+//						// sigma
+//						if(struct_Data.material == top_Layer_Data[i].material && struct_Data.id != top_Layer_Data[i].id)
+//						{
+//							// add slave
+//							struct_Data.sigma.indicator.exist = true;
+//							top_Layer_Data[i].sigma.coupled.slaves.append(struct_Data.sigma.indicator);
+
+//							// add master
+//							top_Layer_Data[i].sigma.indicator.exist = true;
+//							struct_Data.sigma.coupled.master = top_Layer_Data[i].sigma.indicator;
+//						}
+
+//						// thickness
+//						if(struct_Data.material == top_Layer_Data[i].material && struct_Data.id != top_Layer_Data[i].id &&
+//						   abs(struct_Data.thickness.value - top_Layer_Data[i].thickness.value) < DBL_EPSILON)
+//						{
+//							// add slave
+//							struct_Data.thickness.indicator.exist = true;
+//							top_Layer_Data[i].thickness.coupled.slaves.append(struct_Data.thickness.indicator);
+
+//							// add master
+//							top_Layer_Data[i].thickness.indicator.exist = true;
+//							struct_Data.thickness.coupled.master = top_Layer_Data[i].thickness.indicator;
+//						}
+//					}
+//				}
+
+//				QVariant var;
+//				var.setValue( struct_Data );
+//				structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+
+//				++it;
+//			}
+
+//			for(int i=0; i<top_Layer.size(); ++i)
+//			{
+//				QVariant var;
+//				var.setValue( top_Layer_Data[i] );
+//				top_Layer[i]->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+//			}
 		}
 	}
 }

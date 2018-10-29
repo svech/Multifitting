@@ -25,8 +25,11 @@ extern QRegExp delimiters;
 
 // tabulated chemical elements
 extern QStringList		element_Name;
+
 extern QVector<double>	element_Mass;
 extern QMap<QString, double> sorted_Elements;
+extern QVector<double>	element_Density;
+extern QMap<QString, double> sorted_Density;
 
 // lists of types
 extern QStringList transition_Layer_Functions; extern int transition_Layer_Functions_Size;
