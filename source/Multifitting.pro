@@ -125,7 +125,7 @@ SOURCES += \
     multilayer_approach/graphs/curve_plot.cpp \
     multilayer_approach/table_of_structures/layer_thickness_transfer.cpp \
     standard/mydoublespinbox.cpp \
-    aperiodic_load_setup.cpp
+    multilayer_approach/multilayer/structure_tree/aperiodic_load_setup.cpp
 
 
 HEADERS += \
@@ -170,7 +170,7 @@ HEADERS += \
     multilayer_approach/graphs/curve_plot.h \
     multilayer_approach/table_of_structures/layer_thickness_transfer.h \
     standard/mydoublespinbox.h \
-    aperiodic_load_setup.h
+    multilayer_approach/multilayer/structure_tree/aperiodic_load_setup.h
 
 DISTFILES += \
     ../cppcheck-suppressions-list.txt
