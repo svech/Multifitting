@@ -176,21 +176,22 @@ void Structure_Toolbar::add_Multilayer()
 
 void Structure_Toolbar::add_Aperiodic()
 {
-	// TODO
 	// presettings window
-//	{
-//		Aperiodic_Settings aperiodic_Settings;
-//		Aperiodic_Load_Setup* aperiodic_Load_Setup = new Aperiodic_Load_Setup(aperiodic_Settings, this, this);
-//			aperiodic_Load_Setup->setModal(true);
-//			aperiodic_Load_Setup->setWindowFlags(Qt::Window);
-//			aperiodic_Load_Setup->show();
-//	}
+	Aperiodic_Settings aperiodic_Settings;
+		aperiodic_Settings.length_Units = aperiodic_default_units_import;
+	Aperiodic_Load_Setup* aperiodic_Load_Setup = new Aperiodic_Load_Setup(aperiodic_Settings, this, this);
+		aperiodic_Load_Setup->exec();
+	if(!aperiodic_Settings.contin)
+		return;
+
 	{
 		bool loaded = false;
 		QStringList lines_List;
 
 		QVector<QString> materials;
 		QVector<double> thicknesses;
+		QVector<double> sigmas;
+		QVector<double> densities;
 		QList<QTreeWidgetItem*> new_Child_Layers;
 
 		// create aperiodic item
@@ -231,29 +232,57 @@ void Structure_Toolbar::add_Aperiodic()
 				{
 					bool size_Format = false;
 					bool int_Format = false;
-					bool double_Format = false;
+					bool column_3_Double_Format = false;
+					bool column_4_Double_Format = true;
+					bool column_5_Double_Format = true;
 
-					if(words.size()>=3)
+					int good_Size = 3;
+					if(aperiodic_Settings.column_4 != "") {good_Size = 4; column_4_Double_Format = false;}
+					if(aperiodic_Settings.column_5 != "") {good_Size = 5; column_5_Double_Format = false;}
+
+					if(words.size()>=good_Size)
 					{
 						size_Format = true;
 						QString(words[0]).toInt(&int_Format);
-						QString(words[2]).toDouble(&double_Format);
+						QString(words[2]).toDouble(&column_3_Double_Format);
+
+						if(words.size()>=4) QString(words[3]).toDouble(&column_4_Double_Format);
+						if(words.size()>=5) QString(words[4]).toDouble(&column_5_Double_Format);
 					}
-					if(!int_Format || !double_Format || !size_Format)
+					if(!int_Format || !column_3_Double_Format || !column_4_Double_Format || !column_5_Double_Format || !size_Format)
 					{
-						QMessageBox::information(nullptr, "Bad format", "Row " + QString::number(line_Index) + " has wrong format.\n\nData should be IMD-styled:\n <period index>  <material>  <thickness>");
+						QString addition_1 = "";
+						QString addition_2 = "";
+
+						if(aperiodic_Settings.column_4 == whats_This_Sigma)		addition_1 = "  <sigma>";
+						if(aperiodic_Settings.column_4 == whats_This_Density)	addition_1 = "  <density>";
+						if(aperiodic_Settings.column_5 == whats_This_Sigma)		addition_2 = "  <sigma>";
+						if(aperiodic_Settings.column_5 == whats_This_Density)	addition_2 = "  <density>";
+
+						QMessageBox::information(nullptr, "Bad format", "Row " + QString::number(line_Index) + " has wrong format.\n\nData should be IMD-styled:\n <period index>  <material>  <thickness>" + addition_1 + addition_2);
 						return;
 					}
 
 					materials.append(words[1]);
 					thicknesses.append(QString(words[2]).toDouble());
+					if(aperiodic_Settings.column_4 == whats_This_Sigma)		sigmas.   append(QString(words[3]).toDouble());
+					if(aperiodic_Settings.column_4 == whats_This_Density)	densities.append(QString(words[3]).toDouble());
+					if(aperiodic_Settings.column_5 == whats_This_Sigma)		sigmas.   append(QString(words[4]).toDouble());
+					if(aperiodic_Settings.column_5 == whats_This_Density)	densities.append(QString(words[4]).toDouble());
 				}
 			}
 			for(int layer_Index=0; layer_Index<materials.size(); ++layer_Index)
 			{
+				double length_Coeff = length_Coefficients_Map.value(aperiodic_Settings.length_Units);
 				Data layer(item_Type_Layer);
 				layer.material = materials[layer_Index];
-				layer.thickness.value = thicknesses[layer_Index];
+				layer.thickness.value = thicknesses[layer_Index]*length_Coeff;
+
+				if(aperiodic_Settings.column_4 == whats_This_Sigma)		layer.sigma.value = sigmas[layer_Index]*length_Coeff;
+				if(aperiodic_Settings.column_4 == whats_This_Density)	layer.relative_Density.value = densities[layer_Index];
+				if(aperiodic_Settings.column_5 == whats_This_Sigma)		layer.sigma.value = sigmas[layer_Index]*length_Coeff;
+				if(aperiodic_Settings.column_5 == whats_This_Density)	layer.relative_Density.value = densities[layer_Index];
+
 				layer.composed_Material = false;
 
 				if(!layer.composed_Material)
@@ -289,78 +318,6 @@ void Structure_Toolbar::add_Aperiodic()
 			// insert aperiodic item to tree
 			buffered_Copy_Type = copy_Type_Cut;
 			add_Buffered_Layer(new_Aperiodic);
-//			QTreeWidgetItem* item_Aperiodic = add_Buffered_Layer(new_Aperiodic);
-//			delete new_Aperiodic;
-
-//			// TODO temporary
-//			/// set dependences
-
-//			// top layers
-//			QVector<QTreeWidgetItem*> top_Layer(2);
-//			QVector<Data> top_Layer_Data(top_Layer.size());
-//			qInfo() << "top layers:";
-//			for(int i=0; i<top_Layer.size(); ++i)
-//			{
-//				top_Layer[i] = item_Aperiodic->child(i);
-//				top_Layer_Data[i] = top_Layer[i]->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
-//				qInfo() << top_Layer_Data[i].material;
-
-//				top_Layer_Data[i].thickness.fit.is_Fitable = true;
-//				top_Layer_Data[i].sigma.fit.is_Fitable = true;
-//			}
-
-//			QTreeWidgetItem* structure_Item;
-//			QTreeWidgetItemIterator it(structure_Tree->tree);
-//			while (*it)
-//			{
-//				structure_Item=*it;
-//				Data struct_Data = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
-
-//				if(struct_Data.item_Type == item_Type_Layer)
-//				{
-//					struct_Data.thickness.fit.is_Fitable = true;
-//					for(int i=0; i<top_Layer.size(); ++i)
-//					{
-//						// sigma
-//						if(struct_Data.material == top_Layer_Data[i].material && struct_Data.id != top_Layer_Data[i].id)
-//						{
-//							// add slave
-//							struct_Data.sigma.indicator.exist = true;
-//							top_Layer_Data[i].sigma.coupled.slaves.append(struct_Data.sigma.indicator);
-
-//							// add master
-//							top_Layer_Data[i].sigma.indicator.exist = true;
-//							struct_Data.sigma.coupled.master = top_Layer_Data[i].sigma.indicator;
-//						}
-
-//						// thickness
-//						if(struct_Data.material == top_Layer_Data[i].material && struct_Data.id != top_Layer_Data[i].id &&
-//						   abs(struct_Data.thickness.value - top_Layer_Data[i].thickness.value) < DBL_EPSILON)
-//						{
-//							// add slave
-//							struct_Data.thickness.indicator.exist = true;
-//							top_Layer_Data[i].thickness.coupled.slaves.append(struct_Data.thickness.indicator);
-
-//							// add master
-//							top_Layer_Data[i].thickness.indicator.exist = true;
-//							struct_Data.thickness.coupled.master = top_Layer_Data[i].thickness.indicator;
-//						}
-//					}
-//				}
-
-//				QVariant var;
-//				var.setValue( struct_Data );
-//				structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
-
-//				++it;
-//			}
-
-//			for(int i=0; i<top_Layer.size(); ++i)
-//			{
-//				QVariant var;
-//				var.setValue( top_Layer_Data[i] );
-//				top_Layer[i]->setData(DEFAULT_COLUMN, Qt::UserRole, var);
-//			}
 		}
 	}
 }
@@ -658,12 +615,13 @@ void Structure_Toolbar::if_Selected()
 		bool if_Substrate  = (structure_Tree->tree->currentItem()->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>().item_Type) == item_Type_Substrate;
 //		bool if_Layer      = (structure_Tree->tree->currentItem()->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>().item_Type) == item_Type_Layer;
 		bool if_Multilayer = (structure_Tree->tree->currentItem()->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>().item_Type) == item_Type_Multilayer;
+		bool if_Aperiodic  = (structure_Tree->tree->currentItem()->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>().item_Type) == item_Type_Aperiodic;
 
 		toolbar->actions()[Edit]->setDisabled(false);			// edit
 		toolbar->actions()[Remove]->setDisabled(false);			// remove
 
-		// if multilayer
-		if(if_Multilayer)
+		// if multilayer or aperiodic
+		if(if_Multilayer || if_Aperiodic)
 		{
 			toolbar->actions()[Ungroup]->setDisabled(false);	// ungroup
 		}

@@ -9,8 +9,17 @@ class Aperiodic_Load_Setup : public QDialog
 public:
 	explicit Aperiodic_Load_Setup(Aperiodic_Settings& aperiodic_Settings, Structure_Toolbar* structure_Toolbar, QWidget* parent = nullptr);
 
+	void set_Window_Geometry();
+	void create_Main_Layout();
+		void create_GroupBox();
+
 	Aperiodic_Settings& aperiodic_Settings;
 	Structure_Toolbar* structure_Toolbar;
+
+	QVBoxLayout* main_Layout;
+		QGroupBox* main_GroupBox;
+		QPushButton* load_Button;
+		QPushButton* close_Button;
 };
 
 #endif // APERIODIC_LOAD_SETUP_H

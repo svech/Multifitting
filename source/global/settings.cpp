@@ -60,6 +60,11 @@ QString icon_path;
 // measurement default file
 QString default_Measured_Filename;
 
+// aperiodic import default parameters
+bool aperiodic_default_sigma_import;
+bool aperiodic_default_density_import;
+QString aperiodic_default_units_import;
+
 // -----------------------------------------------------------------------------------------
 
 // structure default values
@@ -68,6 +73,7 @@ double dispersion; // from [0,1)
 double sigma_Dispersion_Min;	// 2
 double sigma_Dispersion_Max;	// 2
 double default_num_confidence_points;
+bool auto_density_from_elements;
 
 // Ambient_Values
 QString	ambient_default_material;
@@ -375,6 +381,7 @@ void Settings::read_Structure_Default_Values(bool reset_to_default)
 		sigma_Dispersion_Min = structure_Default_Values.value( "sigma_Dispersion_Min",	0 ).toDouble();
 		sigma_Dispersion_Max = structure_Default_Values.value( "sigma_Dispersion_Max",	2 ).toDouble();
 		default_num_confidence_points = structure_Default_Values.value( "default_num_confidence_points",	5 ).toInt();
+		auto_density_from_elements = structure_Default_Values.value( "auto_density_from_elements",	true ).toBool();
 
 			structure_Default_Values.beginGroup( Ambient_Values );
 				ambient_default_material				  = structure_Default_Values.value( "ambient_default_material",				    Vacuum	).toString();
@@ -434,6 +441,7 @@ void Settings::save_Structure_Default_Values()
 	structure_Default_Values.setValue( "sigma_Dispersion_Min", sigma_Dispersion_Min	);
 	structure_Default_Values.setValue( "sigma_Dispersion_Max", sigma_Dispersion_Max	);
 	structure_Default_Values.setValue( "default_num_confidence_points", default_num_confidence_points	);
+	structure_Default_Values.setValue( "auto_density_from_elements", auto_density_from_elements	);
 
 		structure_Default_Values.beginGroup( Ambient_Values );
 			structure_Default_Values.setValue( "ambient_default_material",					ambient_default_material					);
@@ -697,8 +705,13 @@ void Settings::read_Measurements(bool reset_to_default)
 	QSettings measurements(Measurements_Path + add_reset, QSettings::IniFormat);
 
 	// measurements
-	measurements.beginGroup( Threads );
-		default_Measured_Filename = measurements.value( "default_Measured_Filename",	"measured.txt" ).toString();
+	measurements.beginGroup( Filenames );
+		default_Measured_Filename		 = measurements.value( "default_Measured_Filename",			"measured.txt"			  ).toString();
+	measurements.endGroup();
+	measurements.beginGroup( Aperiodic );
+		aperiodic_default_sigma_import	 = measurements.value( "aperiodic_default_sigma_import",	false					  ).toBool();
+		aperiodic_default_density_import = measurements.value( "aperiodic_default_density_import",	false					  ).toBool();
+		aperiodic_default_units_import	 = measurements.value( "aperiodic_default_units_import",	length_Units_List.first() ).toString();
 	measurements.endGroup();
 }
 
@@ -708,7 +721,12 @@ void Settings::save_Measurements()
 
 	// measurements
 	measurements.beginGroup( Filenames );
-		measurements.setValue( "default_Measured_Filename", default_Measured_Filename );
+		measurements.setValue( "default_Measured_Filename",			default_Measured_Filename		);
+	measurements.endGroup();
+	measurements.beginGroup( Aperiodic );
+		measurements.setValue( "aperiodic_default_sigma_import",	aperiodic_default_sigma_import	);
+		measurements.setValue( "aperiodic_default_density_import",	aperiodic_default_density_import);
+		measurements.setValue( "aperiodic_default_units_import",	aperiodic_default_units_import	);
 	measurements.endGroup();
 }
 

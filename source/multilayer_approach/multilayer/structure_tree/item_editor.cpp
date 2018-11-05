@@ -57,6 +57,7 @@ void Item_Editor::create_Main_Layout()
 	hor_Layout = new QHBoxLayout;
 	main_Layout->addLayout(hor_Layout);
 	create_Menu();
+	create_Shortcuts();
 
 	if(struct_Data.item_Type == item_Type_Ambient)		make_Ambient_Editor();
 	if(struct_Data.item_Type == item_Type_Layer)		make_Layer_Editor();
@@ -78,6 +79,22 @@ void Item_Editor::create_Menu()
 	Menu* menu = new Menu(window_Type_Item_Editor,this);
 	main_Layout->setMenuBar(menu->menu_Bar);
 	connect(menu, &Menu::refresh, this, &Item_Editor::emit_Item_Data_Edited);
+}
+
+void Item_Editor::create_Shortcuts()
+{
+	// shortcuts
+	{
+		QShortcut* save_Shortcut			= new QShortcut(QKeySequence(Qt::Key_S | Qt::CTRL), this);
+		QShortcut* open_Shortcut			= new QShortcut(QKeySequence(Qt::Key_O | Qt::CTRL), this);
+		QShortcut* fit_Shortcut				= new QShortcut(QKeySequence(Qt::Key_F | Qt::CTRL | Qt::SHIFT), this);
+		QShortcut* calc_Specular_Shortcut	= new QShortcut(QKeySequence(Qt::Key_C | Qt::CTRL | Qt::SHIFT), this);
+
+		connect(save_Shortcut,			&QShortcut::activated, this, [=]{ global_Multilayer_Approach->save(default_File);});
+		connect(open_Shortcut,			&QShortcut::activated, this, [=]{ global_Multilayer_Approach->open(default_File);});
+		connect(fit_Shortcut,			&QShortcut::activated, this, [=]{ global_Multilayer_Approach->start_Fitting();	  });
+		connect(calc_Specular_Shortcut, &QShortcut::activated, this, [=]{ global_Multilayer_Approach->calc_Reflection(); });
+	}
 }
 
 void Item_Editor::make_Ambient_Editor()
@@ -342,27 +359,91 @@ void Item_Editor::make_Aperiodic_Group_Box()
 	aperiodic_Group_Box = new QGroupBox;
 		aperiodic_Group_Box->setObjectName("aperiodic_Group_Box");
 		aperiodic_Group_Box->setStyleSheet("QGroupBox#aperiodic_Group_Box { border-radius: 2px;  border: 1px solid gray;}");
+	main_Layout->addWidget(aperiodic_Group_Box);
 
 	QHBoxLayout* aperiodic_Group_Box_Layout = new QHBoxLayout(aperiodic_Group_Box);
 
 	// unique items in aperiodic
 	{
-		QVBoxLayout* layout_Left = new QVBoxLayout;
-		aperiodic_Group_Box_Layout->addLayout(layout_Left);
-
-		QVBoxLayout* layout_Right = new QVBoxLayout;
-		aperiodic_Group_Box_Layout->addLayout(layout_Right);
-
 		QVector<int> used_Uniqueness;
 		int unique_Index = 1;
+
+		// header
+
+		QVBoxLayout* layer_Layout = new QVBoxLayout;
+		aperiodic_Group_Box_Layout->addLayout(layer_Layout);
+		QLabel* layer_Label = new QLabel("Item");
+		layer_Layout->addWidget(layer_Label,0,Qt::AlignCenter);
+
+		QVBoxLayout* relate_Z_Layout = new QVBoxLayout;
+		aperiodic_Group_Box_Layout->addLayout(relate_Z_Layout);
+		QLabel* relate_Z_Label = new QLabel(" Relate \"z\" ");
+		relate_Z_Layout->addWidget(relate_Z_Label);
+
+		QVBoxLayout* fit_Z_Layout = new QVBoxLayout;
+		aperiodic_Group_Box_Layout->addLayout(fit_Z_Layout);
+		QLabel* fit_Z_Label = new QLabel(" Fit \"z\" ");
+		fit_Z_Layout->addWidget(fit_Z_Label,0,Qt::AlignCenter);
+
+		QVBoxLayout* relate_Sigma_Layout = new QVBoxLayout;
+		aperiodic_Group_Box_Layout->addLayout(relate_Sigma_Layout);
+		QLabel* relate_Sigma_Label = new QLabel(" Relate \""+Sigma_Sym+"\" ");
+		relate_Sigma_Layout->addWidget(relate_Sigma_Label,0,Qt::AlignCenter);
+
+		QVBoxLayout* fit_Sigma_Layout = new QVBoxLayout;
+		aperiodic_Group_Box_Layout->addLayout(fit_Sigma_Layout);
+		QLabel* fit_Sigma_Label = new QLabel(" Fit \""+Sigma_Sym+"\" ");
+		fit_Sigma_Layout->addWidget(fit_Sigma_Label,0,Qt::AlignCenter);
+
+		QVBoxLayout* soft_Restriction_Layout = new QVBoxLayout;
+		aperiodic_Group_Box_Layout->addLayout(soft_Restriction_Layout);
+		QLabel* soft_Restriction_Label = new QLabel(" Smooth \"z\": {"+Plus_Minus_Sym+Delta_Big_Sym+", Q}");
+		soft_Restriction_Layout->addWidget(soft_Restriction_Label,0,Qt::AlignCenter);
+
 		for(int i=0; i<item->childCount(); i++)
 		{
 			QTreeWidgetItem* current_Child_Item = item->child(i);
-			if(!used_Uniqueness.contains(item_Uniqueness_Map.value(current_Child_Item))) // uniqueness of list
-			{
+			int current_Child_Uniqueness = item_Uniqueness_Map.value(current_Child_Item);
 
-				used_Uniqueness.append(item_Uniqueness_Map.value(current_Child_Item));
+			if(!used_Uniqueness.contains(current_Child_Uniqueness)) // uniqueness of list
+			{
+				used_Uniqueness.append(current_Child_Uniqueness);
 				Data current_Child_Data = current_Child_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+
+				// initial state
+				bool is_Relate_Thickness = false;
+				bool is_Fit_Thickness = true;
+				bool is_Relate_Sigma = false;
+				bool is_Fit_Sigma = true;
+				for(int k=0; k<item->childCount(); k++)
+				{
+					Data temp_Data = item->child(k)->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+					if(temp_Data.uniqueness == current_Child_Uniqueness)
+					{
+						// relate thickness
+						if(item->child(k) != current_Child_Item)
+						{
+							for(Parameter_Indicator& slave : current_Child_Data.thickness.coupled.slaves)
+							{
+								if(slave.id == temp_Data.thickness.indicator.id) is_Relate_Thickness = true;
+								else											 is_Relate_Thickness = false;
+							}
+
+							// relate sigma
+							for(Parameter_Indicator& slaves : current_Child_Data.sigma.coupled.slaves)
+							{
+								if(slaves == temp_Data.sigma.indicator) is_Relate_Sigma = true;
+								else									is_Relate_Sigma = false;
+							}
+						}
+
+						// fit thickness
+						is_Fit_Thickness = is_Fit_Thickness && temp_Data.thickness.fit.is_Fitable;
+
+						// fit sigma
+						is_Fit_Sigma = is_Fit_Sigma && temp_Data.sigma.fit.is_Fitable;
+					}
+				}
 
 				// text
 				QString composed;
@@ -376,23 +457,130 @@ void Item_Editor::make_Aperiodic_Group_Box()
 								current_Child_Data.material + "  " +
 								composed;
 
-				QHBoxLayout* layout_Right_Row = new QHBoxLayout;
-				layout_Right->addLayout(layout_Right_Row);
-
 				QLabel* unique_Item_Label = new QLabel(text);
-					layout_Left->addWidget(unique_Item_Label);
-				QCheckBox* unique_Item_Connect_Thickness = new QCheckBox("   Relate \"z\"");
-					layout_Right_Row->addWidget(unique_Item_Connect_Thickness);
-				QCheckBox* unique_Item_Connect_Sigma = new QCheckBox("   Relate \""+Sigma_Sym+"\"");
-					layout_Right_Row->addWidget(unique_Item_Connect_Sigma);
+				layer_Layout->addWidget(unique_Item_Label);
 
-//				connect(unique_Item_Connect_Thickness, &QCheckBox::toggled, this, [=]{		});
-//				connect(unique_Item_Connect_Sigma,	   &QCheckBox::toggled, this, [=]{		});
+				QSizePolicy sp_retain;
+					sp_retain.setRetainSizeWhenHidden(true);
+
+				QCheckBox* unique_Item_Connect_Thickness = new QCheckBox;
+					unique_Item_Connect_Thickness->setSizePolicy(sp_retain);
+					unique_Item_Connect_Thickness->setChecked(is_Relate_Thickness);
+				relate_Z_Layout->addWidget(unique_Item_Connect_Thickness,0,Qt::AlignCenter);
+				QCheckBox* unique_Item_Fit_Thickness = new QCheckBox;
+					unique_Item_Fit_Thickness->setSizePolicy(sp_retain);
+					unique_Item_Fit_Thickness->setChecked(is_Fit_Thickness);
+				fit_Z_Layout->addWidget(unique_Item_Fit_Thickness,0,Qt::AlignCenter);
+				QCheckBox* unique_Item_Connect_Sigma = new QCheckBox;
+					unique_Item_Connect_Sigma->setSizePolicy(sp_retain);
+					unique_Item_Connect_Sigma->setChecked(is_Relate_Sigma);
+				relate_Sigma_Layout->addWidget(unique_Item_Connect_Sigma,0,Qt::AlignCenter);
+				QCheckBox* unique_Item_Fit_Sigma = new QCheckBox;
+					unique_Item_Fit_Sigma->setSizePolicy(sp_retain);
+					unique_Item_Fit_Sigma->setChecked(is_Fit_Sigma);
+				fit_Sigma_Layout->addWidget(unique_Item_Fit_Sigma,0,Qt::AlignCenter);
+
+				if(current_Child_Data.item_Type == item_Type_Layer)
+				{
+					connect(unique_Item_Connect_Thickness, &QCheckBox::toggled, this, [=]{unique_Item_Do(relate_Thickness,	current_Child_Uniqueness);});
+					connect(unique_Item_Fit_Thickness,	   &QCheckBox::toggled, this, [=]{unique_Item_Do(fit_Thickness,		current_Child_Uniqueness);});
+					connect(unique_Item_Connect_Sigma,	   &QCheckBox::toggled, this, [=]{unique_Item_Do(relate_Sigma,		current_Child_Uniqueness);});
+					connect(unique_Item_Fit_Sigma,		   &QCheckBox::toggled, this, [=]{unique_Item_Do(fit_Sigma,			current_Child_Uniqueness);});
+				} else
+				{
+					unique_Item_Connect_Thickness->hide();
+					unique_Item_Fit_Thickness->hide();
+					unique_Item_Connect_Sigma->hide();
+					unique_Item_Fit_Sigma->hide();
+				}
+
+				// create additional restrictions
+				{
+					QHBoxLayout* soft_Restriction_Row_Layout = new QHBoxLayout;
+					soft_Restriction_Layout->addLayout(soft_Restriction_Row_Layout);
+
+					QCheckBox* soft_Restriction_CheckBox = new QCheckBox;
+						soft_Restriction_CheckBox->setSizePolicy(sp_retain);
+						soft_Restriction_CheckBox->setChecked(current_Child_Data.use_Soft_Restrictions);
+					soft_Restriction_Row_Layout->addWidget(soft_Restriction_CheckBox);
+
+					QLabel* plus_Minus_Label = new QLabel(Plus_Minus_Sym);
+						plus_Minus_Label->setEnabled(current_Child_Data.use_Soft_Restrictions);
+					soft_Restriction_Row_Layout->addWidget(plus_Minus_Label);
+
+					QSpinBox* soft_Restriction_Threshold_SpinBox = new QSpinBox;
+						soft_Restriction_Threshold_SpinBox->setEnabled(current_Child_Data.use_Soft_Restrictions);
+						soft_Restriction_Threshold_SpinBox->setSuffix("\%");
+						soft_Restriction_Threshold_SpinBox->setRange(0, 100);
+						soft_Restriction_Threshold_SpinBox->setValue(struct_Data.threshold);
+						soft_Restriction_Threshold_SpinBox->setAccelerated(true);
+						soft_Restriction_Threshold_SpinBox->setFixedWidth(45);
+						soft_Restriction_Threshold_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
+					soft_Restriction_Row_Layout->addWidget(soft_Restriction_Threshold_SpinBox);
+
+					QLabel* Q_Label = new QLabel(", Q=");
+						Q_Label->setEnabled(current_Child_Data.use_Soft_Restrictions);
+					soft_Restriction_Row_Layout->addWidget(Q_Label);
+
+					MyDoubleSpinBox* soft_Restriction_Q_SpinBox = new MyDoubleSpinBox;
+						soft_Restriction_Q_SpinBox->setEnabled(current_Child_Data.use_Soft_Restrictions);
+						soft_Restriction_Q_SpinBox->setSuffix("  ");
+						soft_Restriction_Q_SpinBox->setRange(0, MAX_DOUBLE);
+						soft_Restriction_Q_SpinBox->setSingleStep(1);
+						soft_Restriction_Q_SpinBox->setValue(struct_Data.Q_factor);
+						soft_Restriction_Q_SpinBox->setAccelerated(true);
+						soft_Restriction_Q_SpinBox->setDecimals(3);
+						soft_Restriction_Q_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
+					soft_Restriction_Row_Layout->addWidget(soft_Restriction_Q_SpinBox);
+					Global_Variables::resize_Line_Edit(soft_Restriction_Q_SpinBox);
+
+					if(current_Child_Data.item_Type == item_Type_Layer)
+					{
+						connect(soft_Restriction_CheckBox, &QCheckBox::toggled, this, [=]
+						{
+							// TODO for all with same uniqueness
+//							current_Child_Data.use_Soft_Restrictions = soft_Restriction_CheckBox->isChecked();
+//							QVariant var;
+//							var.setValue( current_Child_Data );
+//							current_Child_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+
+							plus_Minus_Label->setEnabled(soft_Restriction_CheckBox->isChecked());
+							soft_Restriction_Threshold_SpinBox->setEnabled(soft_Restriction_CheckBox->isChecked());
+							Q_Label->setEnabled(soft_Restriction_CheckBox->isChecked());
+							soft_Restriction_Q_SpinBox->setEnabled(soft_Restriction_CheckBox->isChecked());
+						});
+						connect(soft_Restriction_Threshold_SpinBox, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, [=]
+						{
+							// TODO for all with same uniqueness
+//							current_Child_Data.threshold = soft_Restriction_Threshold_SpinBox->value();
+//							QVariant var;
+//							var.setValue( current_Child_Data );
+//							current_Child_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+						});
+						connect(soft_Restriction_Q_SpinBox, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
+						{
+							// TODO for all with same uniqueness
+//							current_Child_Data.Q_factor = soft_Restriction_Q_SpinBox->value();
+//							QVariant var;
+//							var.setValue( current_Child_Data );
+//							current_Child_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+
+							Global_Variables::resize_Line_Edit(soft_Restriction_Q_SpinBox);
+						});
+
+					} else
+					{
+						plus_Minus_Label->hide();
+						soft_Restriction_CheckBox->hide();
+						soft_Restriction_Threshold_SpinBox->hide();
+						Q_Label->hide();
+						soft_Restriction_Q_SpinBox->hide();
+					}
+				}
 			}
 		}
 	}
-	main_Layout->addWidget(aperiodic_Group_Box);
-	// make periodic
+	// make periodic and invert
 	{
 		QGroupBox* make_Multilayer_Group_Box = new QGroupBox;
 			make_Multilayer_Group_Box->setObjectName("make_Multilayer_Group_Box");
@@ -402,6 +590,9 @@ void Item_Editor::make_Aperiodic_Group_Box()
 		make_Multilayer_CheckBox = new QCheckBox("Make periodic");
 			make_Multilayer_CheckBox->setChecked(false);
 		layout->addWidget(make_Multilayer_CheckBox);
+		invert_CheckBox = new QCheckBox("Invert order of layers");
+			invert_CheckBox->setChecked(false);
+		layout->addWidget(invert_CheckBox);
 
 		connect(make_Multilayer_CheckBox, &QCheckBox::released, this, [=]
 		{
@@ -414,6 +605,8 @@ void Item_Editor::make_Aperiodic_Group_Box()
 				make_Multilayer_CheckBox->setChecked(false);
 			}
 		});
+		connect(invert_CheckBox, &QCheckBox::toggled, this, &Item_Editor::invert_Aperiodic);
+
 		main_Layout->addWidget(make_Multilayer_Group_Box);
 	}
 }
@@ -529,6 +722,7 @@ void Item_Editor::filename_Radio_Toggled()
 {
 	material_Line_Edit->setReadOnly(false);
 	browse_Material_Button->setEnabled(true);
+	density_Line_Edit->setText(QString::number(struct_Data.relative_Density.value,line_edit_double_format,line_edit_density_precision));
 	density_Label->setText(relative_Density_Label);
 
 	// composition or filename
@@ -545,6 +739,7 @@ void Item_Editor::composition_Radio_Toggled()
 {
 	density_Label->setText(absolute_Density_Label);
 	material_Line_Edit->setReadOnly(true);
+	density_Line_Edit->setText(QString::number(struct_Data.absolute_Density.value,line_edit_double_format,line_edit_density_precision));
 	browse_Material_Button->setEnabled(false);
 
 	// composition or filename
@@ -643,9 +838,9 @@ void Item_Editor::more_Elements_Clicked()
 	}
 	if (element_Frame_Vec.size()>=2) {composition_Line_Edit_Vec.first()->setDisabled(false);fewer_Elements->show();}
 
-	refresh_Data();
-	connect(line_Edit, &QLineEdit::textEdited, this, [=]{refresh_Data();});
-	connect(elements, &QComboBox::currentTextChanged, this, [=]{refresh_Data();});
+	auto_Density_On = true; refresh_Data(); auto_Density_On = false;
+	connect(line_Edit, &QLineEdit::textEdited,        this, [=]{auto_Density_On = true; refresh_Data(); auto_Density_On = false;});
+	connect(elements, &QComboBox::currentTextChanged, this, [=]{auto_Density_On = true; refresh_Data(); auto_Density_On = false; });
 }
 
 void Item_Editor::read_Elements_From_Item()
@@ -688,8 +883,8 @@ void Item_Editor::read_Elements_From_Item()
 		composition_Combo_Box_Vec[i]=elements;
 		composition_At_Weight_Vec[i]=at_Weight;
 
-		connect(line_Edit, &QLineEdit::textEdited,		   this, [=]{refresh_Data();});
-		connect(elements,  &QComboBox::currentTextChanged, this, [=]{refresh_Data();});
+		connect(line_Edit, &QLineEdit::textEdited,		   this, [=]{auto_Density_On = true; refresh_Data(); auto_Density_On = false;});
+		connect(elements,  &QComboBox::currentTextChanged, this, [=]{auto_Density_On = true; refresh_Data(); auto_Density_On = false;});
 
 		// placing ui elements
 		QFrame* element_Frame = new QFrame;
@@ -809,7 +1004,7 @@ void Item_Editor::fewer_Elements_Clicked()
 	delete element_Frame_Vec.last();
 	element_Frame_Vec.removeLast();
 
-	refresh_Data();
+	auto_Density_On = true; refresh_Data(); auto_Density_On = false;
 	show_Material();
 	if (element_Frame_Vec.size()==1)
 	{
@@ -1055,9 +1250,9 @@ void Item_Editor::refresh_Data()
 		{
 			struct_Data.relative_Density.value = density_Line_Edit->text().toDouble();
 		} else
-		{
-			struct_Data.absolute_Density.value = density_Line_Edit->text().toDouble();
-
+		{	
+			double auto_Density = 0;
+			double stoich_Weight = DBL_MIN;
 			for(int i=0; i<struct_Data.composition.size(); ++i)
 			{
 				struct_Data.composition[i].composition.value = composition_Line_Edit_Vec[i]->text().toDouble();
@@ -1068,6 +1263,21 @@ void Item_Editor::refresh_Data()
 
 				struct_Data.composition[i].type = composition_Combo_Box_Vec[i]->currentText();
 				composition_At_Weight_Vec[i]->setText(AtWt + QString::number(sorted_Elements.value(composition_Combo_Box_Vec[i]->currentText()),thumbnail_double_format,at_weight_precision) + ")");
+
+				auto_Density += sorted_Density.value(struct_Data.composition[i].type)*struct_Data.composition[i].composition.value;
+				stoich_Weight += struct_Data.composition[i].composition.value;
+			}
+
+			if(auto_Density_On && auto_density_from_elements)
+			{
+				// automatical density
+				struct_Data.absolute_Density.value = auto_Density/stoich_Weight;
+				density_Line_Edit->setText(QString::number(struct_Data.absolute_Density.value,line_edit_double_format,line_edit_density_precision));
+				Global_Variables::resize_Line_Edit(density_Line_Edit);
+			} else
+			{
+				// previous density
+				struct_Data.absolute_Density.value = density_Line_Edit->text().toDouble();
 			}
 		}
 	}
@@ -1278,6 +1488,9 @@ void Item_Editor::make_Aperiodic()
 			item->insertChild(item->childCount(), new_Layer);
 		}
 	}
+	struct_Data.period.fit.is_Fitable = false;
+	struct_Data.gamma.fit.is_Fitable = false;
+	struct_Data.num_Repetition.parameter.fit.is_Fitable = false;
 
 	// save
 	QVariant var;
@@ -1298,7 +1511,7 @@ void Item_Editor::make_Aperiodic()
 
 void Item_Editor::make_Multilayer()
 {
-	QVector<int> uniqueness_Vector = calc_Uniqueness();
+//	calc_Uniqueness(); // no need
 
 	// find period
 	QVector<int> tested_Uniqueness_Vector(uniqueness_Vector.size());
@@ -1366,12 +1579,23 @@ void Item_Editor::make_Multilayer()
 	}
 }
 
-QVector<int> Item_Editor::calc_Uniqueness()
+void Item_Editor::invert_Aperiodic()
 {
+	for(int i=0; i<item->childCount(); i++)
+	{
+		item->insertChild(item->childCount()-i, item->child(0)->clone());
+		delete item->child(0);
+	}
+	structure_Tree->structure_Toolbar->refresh_Toolbar();
+}
+
+void Item_Editor::calc_Uniqueness()
+{
+	uniqueness_Vector.clear();
 	int last_Uniqueness = 0;
 	QMap<QString, int> uniqueness_Map;
-	QVector<int> uniqueness_Vector;
 	QTreeWidgetItem* current_Child_Item;
+
 	for(int i=0; i<item->childCount(); i++)
 	{
 		current_Child_Item = item->child(i);
@@ -1399,5 +1623,102 @@ QVector<int> Item_Editor::calc_Uniqueness()
 		var.setValue( current_Child_Data );
 		current_Child_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
 	}
-	return uniqueness_Vector;
+}
+
+void Item_Editor::unique_Item_Do(QString action, int uniqueness)
+{
+//	calc_Uniqueness(); // no need
+
+	QCheckBox* sender = qobject_cast<QCheckBox*>(QObject::sender());
+	bool checked = sender->isChecked();
+
+	bool first = true;
+	QTreeWidgetItem* current_Child_Item = nullptr;
+	QTreeWidgetItem* first_Child_Item = nullptr;
+	Data first_Child_Data;
+
+	for(int i=0; i<item->childCount(); i++)
+	{
+		current_Child_Item = item->child(i);
+		Data current_Child_Data = current_Child_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+		if(uniqueness == uniqueness_Vector[i])
+		{
+			if(first)
+			{
+				first_Child_Item = current_Child_Item;
+				first_Child_Data = first_Child_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+			}
+
+			Parameter* current_Child_Parameter = nullptr;
+			Parameter* first_Child_Parameter = nullptr;
+
+			if(action == relate_Thickness || action == fit_Thickness)
+			{
+				current_Child_Parameter = &current_Child_Data.thickness;
+				first_Child_Parameter   = &first_Child_Data.thickness;
+			}
+			if(action == relate_Sigma || action == fit_Sigma)
+			{
+				current_Child_Parameter = &current_Child_Data.sigma;
+				first_Child_Parameter   = &first_Child_Data.sigma;
+			}
+			if(action == relate_Thickness || action == relate_Sigma)
+			if(!first)
+			{
+				if(checked)
+				{
+					// add master to slave
+//					current_Child_Parameter->coupled.is_Coupled = true;
+					current_Child_Parameter->coupled.master = first_Child_Parameter->indicator;
+					current_Child_Parameter->coupled.master.exist = true;
+
+					// add slave to master
+//					first_Child_Parameter->coupled.is_Coupled = true;
+					first_Child_Parameter->coupled.slaves.append(current_Child_Parameter->indicator);
+				} else
+				{
+					// remove master from slave
+//					current_Child_Parameter->coupled.is_Coupled = false;
+					current_Child_Parameter->coupled.master.id = 0;
+					current_Child_Parameter->coupled.master.exist = false;
+					current_Child_Parameter->coupled.slaves.clear();
+
+					// remove slaves from master (many times, but OK)
+//					first_Child_Parameter->coupled.is_Coupled = false;
+					first_Child_Parameter->coupled.master.id = 0;
+					first_Child_Parameter->coupled.master.exist = false;
+					first_Child_Parameter->coupled.slaves.clear();
+				}
+			}
+			if(action == fit_Thickness || action == fit_Sigma)
+			{
+				if(checked)
+				{
+					current_Child_Parameter->fit.is_Fitable = true;
+				} else
+				{
+					current_Child_Parameter->fit.is_Fitable = false;
+				}
+			}
+
+			// save
+			QVariant var;
+			var.setValue( current_Child_Data );
+			current_Child_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+
+			first = false;
+		}
+	}
+	if(!first)
+	{
+		if(action == relate_Thickness || action == relate_Sigma)
+		{
+			QVariant var;
+			var.setValue( first_Child_Data );
+			first_Child_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+		}
+	} else
+	{
+		qInfo() << "Item_Editor::unique_Item_Do  :  first == true";
+	}
 }

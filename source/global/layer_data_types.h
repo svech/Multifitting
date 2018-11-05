@@ -91,12 +91,16 @@ public:
 		Int_Independent num_Repetition;
 		Parameter period;
 		Parameter gamma;
+
+		bool use_Soft_Restrictions = false;
+		int threshold = 0;
+		double Q_factor = 0;
 	///---------------------------------------------
 	///---------------------------------------------
 	// Layer, Multilayer, Aperiodic
 	//---------------------------------------------
 		double step_Value_Change;
-		int uniqueness = -1;
+		int uniqueness;
 
 	vector<Parameter*> potentially_Fitable_Parameters;
 	void fill_Potentially_Fitable_Parameters_Vector();

@@ -733,7 +733,7 @@ QDataStream& operator <<( QDataStream& stream, const Data& data )
 				<< data.first_Layer_Index << data.last_Layer_Index << data.num_Repetition << data.period << data.gamma
 			// Layer, Multilayer, Aperiodic
 				<< data.step_Value_Change 	// since 1.8.3
-				<< data.uniqueness;			// since 1.8.6
+				<< data.use_Soft_Restrictions << data.threshold << data.Q_factor; 	// since 1.8.7
 }
 QDataStream& operator >>( QDataStream& stream,		 Data& data )
 {
@@ -758,8 +758,9 @@ QDataStream& operator >>( QDataStream& stream,		 Data& data )
 	// Layer, Multilayer, Aperiodic
 	if(Global_Variables::check_Loaded_Version(1,8,3))
 	{stream >> data.step_Value_Change; }	// since 1.8.3
-	if(Global_Variables::check_Loaded_Version(1,8,6))
-	{stream >> data.uniqueness; }			// since 1.8.6
+
+	if(Global_Variables::check_Loaded_Version(1,8,7))
+	{stream >> data.use_Soft_Restrictions >> data.threshold >> data.Q_factor; }	// since 1.8.7
 
 	return stream;
 }

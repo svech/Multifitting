@@ -35,6 +35,7 @@ public:
 	void closeEvent(QCloseEvent* event);
 	void create_Main_Layout();
 		void create_Menu();
+		void create_Shortcuts();
 		void make_Ambient_Editor();
 			void make_Materials_Group_Box();
 			void initial_Radio_Check();
@@ -83,7 +84,9 @@ public:
 
 	void make_Aperiodic();
 	void make_Multilayer();
-	QVector<int> calc_Uniqueness();
+	void invert_Aperiodic();
+	void calc_Uniqueness();
+	void unique_Item_Do(QString action, int uniqueness);
 
 	QString absolute_Density_Label = "Density [g/cm" + Cube_Sym + "]:";
 	QString relative_Density_Label = "Relative Density:";
@@ -97,6 +100,8 @@ public:
 	QString sigma_Label_2 = "]:";
 	QString sigma_Label_3 = Sigma_Sym + "[";
 	QString sigma_Weight = "weight:";
+
+	bool auto_Density_On = false;
 
 	QVBoxLayout* main_Layout;
 	QHBoxLayout* hor_Layout;
@@ -148,7 +153,9 @@ public:
 
 		QGroupBox* aperiodic_Group_Box;
 			QCheckBox* make_Multilayer_CheckBox;
+			QCheckBox* invert_CheckBox;
 			QMap<QTreeWidgetItem*, int> item_Uniqueness_Map;
+			QVector<int> uniqueness_Vector;
 
 		QPushButton* done_Button;
 };

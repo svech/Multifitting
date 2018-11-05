@@ -9,7 +9,7 @@
 
 #define VERSION_MAJOR 1
 #define VERSION_MINOR 8
-#define VERSION_BUILD 6
+#define VERSION_BUILD 7
 
 using namespace std;
 class Node;
@@ -94,6 +94,7 @@ class Node;
 // measurements
 #define Measurements_Path Pre_Path + "settings/measurements.ini"
 	#define Filenames "Filenames"
+	#define Aperiodic "Aperiodic"
 
 // -----------------------------------------------------------------------------------------
 
@@ -357,6 +358,12 @@ class Node;
 #define fitted_State	"fitted_State"
 #define fit_Run_State	"fit_Run_State"
 
+// aperiodic
+#define relate_Thickness "relate_Thickness"
+#define fit_Thickness	 "fit_Thickness"
+#define relate_Sigma	 "relate_Sigma"
+#define fit_Sigma		 "fit_Sigma"
+
 // -----------------------------------------------------------------------------------------
 
 // calculation
@@ -612,8 +619,9 @@ struct Aperiodic_Settings
 									bool contin = false;
 									QString column_4 = "";
 									QString column_5 = "";
-									int length_Units_Index = 0;
+									QString length_Units = "";
 								};
+
 // -----------------------------------------------------------------------------------------
 
 // serialization

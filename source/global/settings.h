@@ -62,6 +62,11 @@ extern QString icon_path;
 // measurement default file
 extern QString default_Measured_Filename;
 
+// aperiodic import default parameters
+extern bool aperiodic_default_sigma_import;
+extern bool aperiodic_default_density_import;
+extern QString aperiodic_default_units_import;
+
 // -----------------------------------------------------------------------------------------
 
 // structure default values
@@ -70,6 +75,7 @@ extern double dispersion;			// from [0,1)
 extern double sigma_Dispersion_Min;	// 2
 extern double sigma_Dispersion_Max;	// 2
 extern double default_num_confidence_points;
+extern bool auto_density_from_elements;
 
 // Ambient_Values
 extern QString	ambient_default_material;
