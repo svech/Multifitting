@@ -9,7 +9,7 @@
 
 #define VERSION_MAJOR 1
 #define VERSION_MINOR 8
-#define VERSION_BUILD 7
+#define VERSION_BUILD 8
 
 using namespace std;
 class Node;
@@ -546,7 +546,8 @@ struct Fit_Params				{bool calc = true;
 								 bool norm = true;
 								 double weight = 1;
 								 double weight_Sqrt = 1;
-								 QString fit_Function = "log(x+1E-5); sin(x/2)";
+								 QString fit_Function = "log(x+1E-5)";// "log(x+1E-5); sin(x/2)";
+								 int power = 2;
 								 bool use_Chi2 = true;
 
 								 double expression_Argument;							// not to store

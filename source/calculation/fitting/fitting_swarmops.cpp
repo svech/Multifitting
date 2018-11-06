@@ -109,9 +109,9 @@ bool Fitting_SwarmOps::fit()
 			  kMethodId,										/* Optimization method. */
 			  1,												/* Number of optimization runs. */
 			  kNumIterations,									/* Number of iterations per run. */
-			  nullptr,												/* Additional optimization settings. */
+			  nullptr,											/* Additional optimization settings. */
 			  calc_Residual,									/* Optimization problem (aka. fitness function). */
-			  nullptr,												/* Gradient for optimization problem. */
+			  nullptr,											/* Gradient for optimization problem. */
 			  params,											/* Context for optimization problem. */
 			  kDim,												/* Dimensionality for optimization problem. */
 			  lowerBound.data(),								/* Lower initialization boundary. */

@@ -182,20 +182,20 @@ void Fitting_Settings_Editor::create_Metods()
 		methods_Combo_Box->addItem(spacer + SO_Methods[Random_Sampling_Uniform]				 );
 //		methods_Combo_Box->addItem(spacer + SO_Methods[Gradient_Descent]					 );
 //		methods_Combo_Box->addItem(spacer + SO_Methods[Gradient_Emancipated_Descent]		 );
-		methods_Combo_Box->addItem(spacer + SO_Methods[Hill_Climber]						 );
-		methods_Combo_Box->addItem(spacer + SO_Methods[Simulated_Annealing]					 );
-		methods_Combo_Box->addItem(spacer + SO_Methods[Pattern_Search]						 );
-		methods_Combo_Box->addItem(spacer + SO_Methods[Local_Unimodal_Sampling]				 );
+//		methods_Combo_Box->addItem(spacer + SO_Methods[Hill_Climber]						 );
+//		methods_Combo_Box->addItem(spacer + SO_Methods[Simulated_Annealing]					 );
+//		methods_Combo_Box->addItem(spacer + SO_Methods[Pattern_Search]						 );
+//		methods_Combo_Box->addItem(spacer + SO_Methods[Local_Unimodal_Sampling]				 );
 		methods_Combo_Box->addItem(spacer + SO_Methods[Differential_Evolution]				 );
 		methods_Combo_Box->addItem(spacer + SO_Methods[Differential_Evolution_Suite]		 );
 		methods_Combo_Box->addItem(spacer + SO_Methods[DE_with_Temporal_Parameters]			 );
-		methods_Combo_Box->addItem(spacer + SO_Methods[Jan_Differential_Evolution]			 );
-		methods_Combo_Box->addItem(spacer + SO_Methods[Evolution_by_Lingering_Global_Best]	 );
-		methods_Combo_Box->addItem(spacer + SO_Methods[More_Yo_yos_Doing_Global_optimization]);
-		methods_Combo_Box->addItem(spacer + SO_Methods[Particle_Swarm_Optimization]			 );
-		methods_Combo_Box->addItem(spacer + SO_Methods[Forever_Accumulating_Evolution]		 );
-		methods_Combo_Box->addItem(spacer + SO_Methods[Many_Optimizing_Liaisons]			 );
-		methods_Combo_Box->addItem(spacer + SO_Methods[Layered_and_Interleaved_CoEvolution]	 );
+//		methods_Combo_Box->addItem(spacer + SO_Methods[Jan_Differential_Evolution]			 );
+//		methods_Combo_Box->addItem(spacer + SO_Methods[Evolution_by_Lingering_Global_Best]	 );
+//		methods_Combo_Box->addItem(spacer + SO_Methods[More_Yo_yos_Doing_Global_optimization]);
+//		methods_Combo_Box->addItem(spacer + SO_Methods[Particle_Swarm_Optimization]			 );
+//		methods_Combo_Box->addItem(spacer + SO_Methods[Forever_Accumulating_Evolution]		 );
+//		methods_Combo_Box->addItem(spacer + SO_Methods[Many_Optimizing_Liaisons]			 );
+//		methods_Combo_Box->addItem(spacer + SO_Methods[Layered_and_Interleaved_CoEvolution]	 );
 
 		methods_Combo_Box->insertSeparator(methods_Combo_Box->count());
 	}
@@ -284,16 +284,19 @@ void Fitting_Settings_Editor::create_GSL_Main_Params_Group_Box()
 
 		GSL_num_Runs_Label = new QLabel("Number of runs");
 			GSL_num_Runs_Label->setEnabled(fitting_Settings->randomized_Start);
-		GSL_num_Runs_Line_Edit = new QSpinBox;
-			GSL_num_Runs_Line_Edit->setValue(fitting_Settings->num_Runs);
-			GSL_num_Runs_Line_Edit->setButtonSymbols(QAbstractSpinBox::NoButtons);
-			GSL_num_Runs_Line_Edit->setAccelerated(true);
-			GSL_num_Runs_Line_Edit->setRange(1, MAX_INTEGER);
-			GSL_num_Runs_Line_Edit->setEnabled(fitting_Settings->randomized_Start);
+		GSL_num_Runs_SpinBox = new QSpinBox;
+			GSL_num_Runs_SpinBox->setValue(fitting_Settings->num_Runs);
+			GSL_num_Runs_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
+			GSL_num_Runs_SpinBox->setAccelerated(true);
+			GSL_num_Runs_SpinBox->setRange(1, MAX_INTEGER);
+			GSL_num_Runs_SpinBox->setEnabled(fitting_Settings->randomized_Start);
 
 		GSL_max_Iter_Label = new QLabel("Max number of iterations");
-		GSL_max_Iter_Line_Edit = new QLineEdit(QString::number(fitting_Settings->max_Iter));
-			GSL_max_Iter_Line_Edit->setValidator(new QIntValidator(0, MAX_INTEGER, this));
+		GSL_max_Iter_SpinBox = new QSpinBox;
+			GSL_max_Iter_SpinBox->setValue(fitting_Settings->max_Iter);
+			GSL_max_Iter_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
+			GSL_max_Iter_SpinBox->setAccelerated(true);
+			GSL_max_Iter_SpinBox->setRange(1,MAX_INTEGER);
 
 		GSL_common_Tolerance_Label = new QLabel("General tolerance");
 		GSL_common_Tolerance_Line_Edit = new QLineEdit(QString::number(fitting_Settings->x_Tolerance));
@@ -302,9 +305,9 @@ void Fitting_Settings_Editor::create_GSL_Main_Params_Group_Box()
 
 		GSL_Fit_Params_Group_Box_Layout->addWidget(GSL_randomized_Start_Check_Box,	0,0,1,2);
 		GSL_Fit_Params_Group_Box_Layout->addWidget(GSL_num_Runs_Label,				1,0,1,1);
-		GSL_Fit_Params_Group_Box_Layout->addWidget(GSL_num_Runs_Line_Edit,			1,1,1,1);
+		GSL_Fit_Params_Group_Box_Layout->addWidget(GSL_num_Runs_SpinBox,			1,1,1,1);
 		GSL_Fit_Params_Group_Box_Layout->addWidget(GSL_max_Iter_Label,				2,0,1,1);
-		GSL_Fit_Params_Group_Box_Layout->addWidget(GSL_max_Iter_Line_Edit,			2,1,1,1);
+		GSL_Fit_Params_Group_Box_Layout->addWidget(GSL_max_Iter_SpinBox,			2,1,1,1);
 		GSL_Fit_Params_Group_Box_Layout->addWidget(GSL_common_Tolerance_Label,		3,0,1,1);
 		GSL_Fit_Params_Group_Box_Layout->addWidget(GSL_common_Tolerance_Line_Edit,	3,1,1,1);
 
@@ -312,10 +315,10 @@ void Fitting_Settings_Editor::create_GSL_Main_Params_Group_Box()
 		{
 			fitting_Settings->randomized_Start = GSL_randomized_Start_Check_Box->isChecked();
 			GSL_num_Runs_Label->setEnabled(fitting_Settings->randomized_Start);
-			GSL_num_Runs_Line_Edit->setEnabled(fitting_Settings->randomized_Start);
+			GSL_num_Runs_SpinBox->setEnabled(fitting_Settings->randomized_Start);
 		});
-		connect(GSL_num_Runs_Line_Edit, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), fitting_Settings, [=]{fitting_Settings->num_Runs = GSL_num_Runs_Line_Edit->value();});
-		connect(GSL_max_Iter_Line_Edit,			&QLineEdit::textChanged, fitting_Settings, [=]{fitting_Settings->max_Iter = GSL_max_Iter_Line_Edit->text().toInt();	});
+		connect(GSL_num_Runs_SpinBox, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), fitting_Settings, [=]{fitting_Settings->num_Runs = GSL_num_Runs_SpinBox->value();});
+		connect(GSL_max_Iter_SpinBox, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), fitting_Settings, [=]{fitting_Settings->max_Iter = GSL_max_Iter_SpinBox->value();	});
 		connect(GSL_common_Tolerance_Line_Edit, &QLineEdit::textChanged, fitting_Settings, [=]
 		{
 			fitting_Settings->x_Tolerance = GSL_common_Tolerance_Line_Edit->text().toDouble();
@@ -460,50 +463,59 @@ void Fitting_Settings_Editor::create_SO_Main_Params_Group_Box()
 
 		SO_num_Runs_Label = new QLabel("Number of runs");
 			SO_num_Runs_Label->setEnabled(fitting_Settings->randomized_Start);
-		SO_num_Runs_Line_Edit = new QLineEdit(QString::number(fitting_Settings->num_Runs));
-			SO_num_Runs_Line_Edit->setValidator(new QIntValidator(0, MAX_INTEGER, this));
-			SO_num_Runs_Line_Edit->setEnabled(fitting_Settings->randomized_Start);
+		SO_num_Runs_SpinBox = new QSpinBox;
+			SO_num_Runs_SpinBox->setEnabled(fitting_Settings->randomized_Start);
+			SO_num_Runs_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
+			SO_num_Runs_SpinBox->setAccelerated(true);
+			SO_num_Runs_SpinBox->setValue(fitting_Settings->num_Runs);
+			SO_num_Runs_SpinBox->setRange(1, MAX_INTEGER);
 
 		SO_max_Evaluations_Label = new QLabel("Max number of evaluations");
 			SO_max_Evaluations_Label->setDisabled(fitting_Settings->max_Eval_Check);
-		SO_max_Evaluations_Line_Edit = new QLineEdit(QString::number(fitting_Settings->max_Evaluations));
-			SO_max_Evaluations_Line_Edit->setValidator(new QIntValidator(0, MAX_INTEGER, this));
-			SO_max_Evaluations_Line_Edit->setDisabled(fitting_Settings->max_Eval_Check);
+		SO_max_Evaluations_SpinBox = new QSpinBox;
+			SO_max_Evaluations_SpinBox->setDisabled(fitting_Settings->max_Eval_Check);
+			SO_max_Evaluations_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
+			SO_max_Evaluations_SpinBox->setAccelerated(true);
+			SO_max_Evaluations_SpinBox->setValue(fitting_Settings->max_Evaluations);
+			SO_max_Evaluations_SpinBox->setRange(1, MAX_INTEGER);
 
 		SO_max_Eval_Check_Box = new QCheckBox("Num. evals "+Proportional_Sym+" num. params",this);
 			SO_max_Eval_Check_Box->setChecked(fitting_Settings->max_Eval_Check);
-		SO_max_Eval_Factor_Line_Edit = new QLineEdit(QString::number(fitting_Settings->max_Eval_Factor));
-			SO_max_Eval_Factor_Line_Edit->setValidator(new QIntValidator(0, MAX_INTEGER, this));
-			SO_max_Eval_Factor_Line_Edit->setEnabled(fitting_Settings->max_Eval_Check);
+		SO_max_Eval_Factor_SpinBox = new QSpinBox;
+			SO_max_Eval_Factor_SpinBox->setEnabled(fitting_Settings->max_Eval_Check);
+			SO_max_Eval_Factor_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
+			SO_max_Eval_Factor_SpinBox->setAccelerated(true);
+			SO_max_Eval_Factor_SpinBox->setValue(fitting_Settings->max_Eval_Factor);
+			SO_max_Eval_Factor_SpinBox->setRange(1, MAX_INTEGER);
 
 		SO_Fit_Params_Group_Box_Layout->addWidget(SO_randomized_Start_Check_Box,		0,0,1,1);
 		SO_Fit_Params_Group_Box_Layout->addWidget(SO_initialize_By_Current_Check_Box,	0,1,1,1);
 		SO_Fit_Params_Group_Box_Layout->addWidget(SO_num_Runs_Label,					1,0,1,1);
-		SO_Fit_Params_Group_Box_Layout->addWidget(SO_num_Runs_Line_Edit,				1,1,1,1);
+		SO_Fit_Params_Group_Box_Layout->addWidget(SO_num_Runs_SpinBox,					1,1,1,1);
 		SO_Fit_Params_Group_Box_Layout->addWidget(SO_max_Evaluations_Label,				2,0,1,1);
-		SO_Fit_Params_Group_Box_Layout->addWidget(SO_max_Evaluations_Line_Edit,			2,1,1,1);
+		SO_Fit_Params_Group_Box_Layout->addWidget(SO_max_Evaluations_SpinBox,			2,1,1,1);
 		SO_Fit_Params_Group_Box_Layout->addWidget(SO_max_Eval_Check_Box,				3,0,1,1);
-		SO_Fit_Params_Group_Box_Layout->addWidget(SO_max_Eval_Factor_Line_Edit,			3,1,1,1);
+		SO_Fit_Params_Group_Box_Layout->addWidget(SO_max_Eval_Factor_SpinBox,			3,1,1,1);
 
 		connect(SO_randomized_Start_Check_Box,&QCheckBox::toggled,	   fitting_Settings, [=]
 		{
 			fitting_Settings->randomized_Start = SO_randomized_Start_Check_Box->isChecked();
 			SO_num_Runs_Label->setEnabled(fitting_Settings->randomized_Start);
-			SO_num_Runs_Line_Edit->setEnabled(fitting_Settings->randomized_Start);
+			SO_num_Runs_SpinBox->setEnabled(fitting_Settings->randomized_Start);
 		});
 		connect(SO_initialize_By_Current_Check_Box,&QCheckBox::toggled,	   fitting_Settings, [=]
 		{
 			fitting_Settings->initialize_By_Current_State = SO_initialize_By_Current_Check_Box->isChecked();
 		});
-		connect(SO_num_Runs_Line_Edit,		  &QLineEdit::textChanged, fitting_Settings, [=]{fitting_Settings->num_Runs		   = SO_num_Runs_Line_Edit->	   text().toInt();});
-		connect(SO_max_Evaluations_Line_Edit, &QLineEdit::textChanged, fitting_Settings, [=]{fitting_Settings->max_Evaluations = SO_max_Evaluations_Line_Edit->text().toInt();});
-		connect(SO_max_Eval_Factor_Line_Edit, &QLineEdit::textChanged, fitting_Settings, [=]{fitting_Settings->max_Eval_Factor = SO_max_Eval_Factor_Line_Edit->text().toInt();});
-		connect(SO_max_Eval_Check_Box,		  &QCheckBox::toggled,	   fitting_Settings, [=]
+		connect(SO_num_Runs_SpinBox,		static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), fitting_Settings, [=]{fitting_Settings->num_Runs		  = SO_num_Runs_SpinBox->	    value();});
+		connect(SO_max_Evaluations_SpinBox, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), fitting_Settings, [=]{fitting_Settings->max_Evaluations = SO_max_Evaluations_SpinBox->value();});
+		connect(SO_max_Eval_Factor_SpinBox, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), fitting_Settings, [=]{fitting_Settings->max_Eval_Factor = SO_max_Eval_Factor_SpinBox->value();});
+		connect(SO_max_Eval_Check_Box,		&QCheckBox::toggled,	 fitting_Settings, [=]
 		{
 			fitting_Settings->max_Eval_Check = SO_max_Eval_Check_Box->isChecked();
 			SO_max_Evaluations_Label->setDisabled(fitting_Settings->max_Eval_Check);
-			SO_max_Evaluations_Line_Edit->setDisabled(fitting_Settings->max_Eval_Check);
-			SO_max_Eval_Factor_Line_Edit->setEnabled(fitting_Settings->max_Eval_Check);
+			SO_max_Evaluations_SpinBox->setDisabled(fitting_Settings->max_Eval_Check);
+			SO_max_Eval_Factor_SpinBox->setEnabled(fitting_Settings->max_Eval_Check);
 		});
 	}
 }

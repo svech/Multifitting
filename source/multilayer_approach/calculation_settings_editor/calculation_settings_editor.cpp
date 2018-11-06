@@ -451,7 +451,7 @@ void Calculation_Settings_Editor::load_Target_Parameters(int tab_Index)
 				connect(norm,  &QCheckBox::toggled, this, [=]{ target_Curve->fit_Params.norm = norm->isChecked(); });
 
 				// -------------------------------------------------------
-				QLabel* function_Label = new QLabel("Function");
+				QLabel* function_Label = new QLabel("Function:");
 				QLineEdit* fit_Function_Line_Edit = new QLineEdit(target_Curve->fit_Params.fit_Function);
 
 				QHBoxLayout* function_Layout = new QHBoxLayout;
@@ -474,16 +474,37 @@ void Calculation_Settings_Editor::load_Target_Parameters(int tab_Index)
 				different_Lines.append(fit_Function_Line_Edit);
 				// -------------------------------------------------------
 
+				QLabel* power_Label = new QLabel("Power:");
+				function_Layout->addWidget(power_Label);
+
+				QSpinBox* power_SpinBox = new QSpinBox;
+					power_SpinBox->setRange(1, 42);
+					power_SpinBox->setValue(target_Curve->fit_Params.power);
+					power_SpinBox->setAccelerated(true);
+					power_SpinBox->setFixedWidth(25);
+					power_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
+				function_Layout->addWidget(power_SpinBox);
+				connect(power_SpinBox, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, [=]
+				{
+					target_Curve->fit_Params.power = power_SpinBox->value();
+				});
+				// -------------------------------------------------------
+
 				QCheckBox* chi2_CheckBox = new QCheckBox("Use "+Chi2_Sym);
-					chi2_CheckBox->setChecked(target_Curve->fit_Params.use_Chi2);function_Layout->addWidget(chi2_CheckBox);
+					chi2_CheckBox->setChecked(target_Curve->fit_Params.use_Chi2);
+				function_Layout->addWidget(chi2_CheckBox);
 				connect(chi2_CheckBox,  &QCheckBox::toggled, this, [=]
 				{
+					power_Label->setEnabled(!chi2_CheckBox->isChecked());
+					power_SpinBox->setEnabled(!chi2_CheckBox->isChecked());
 					function_Label->setEnabled(!chi2_CheckBox->isChecked());
 					fit_Function_Line_Edit->setEnabled(!chi2_CheckBox->isChecked());
 					norm->setEnabled(!chi2_CheckBox->isChecked());
 
 					target_Curve->fit_Params.use_Chi2 = chi2_CheckBox->isChecked();
 				});
+
+				// initialize
 				chi2_CheckBox->toggled(chi2_CheckBox->isChecked());
 			}
 		}

@@ -127,7 +127,7 @@ void Main_Calculation_Module::fitting_and_Confidence()
 		slaves_Pointer_Iteration(parameter);
 	}	
 	// starting from confidentials
-	for(Parameter* parameter : confidentials.param_Pointers)	{
+	for(Parameter* parameter : confidentials.param_Pointers) {
 		slaves_Pointer_Iteration(parameter);
 	}
 
@@ -372,7 +372,7 @@ void Main_Calculation_Module::find_Fittable_Confidence_Parameters(Data& struct_D
 	for(Parameter* parameter : struct_Data.potentially_Fitable_Parameters)
 	{
 		// for my_Sigmas
-		if(parameter->indicator.whats_This == whats_This_Interlayer_My_Sigma &&	!struct_Data.common_Sigma)
+		if( parameter->indicator.whats_This == whats_This_Interlayer_My_Sigma && !struct_Data.common_Sigma )
 			parameter->fit.is_Fitable = struct_Data.sigma.fit.is_Fitable;
 
 		QString total_Name = "  " + Medium_BlackCircle_Sym + "  <" + multilayer_Tabs->tabText(parameter->indicator.tab_Index) + "> " + parameter->indicator.full_Name;

@@ -42,8 +42,8 @@ public:
 
 				// for GSL TRS
 					QCheckBox* GSL_randomized_Start_Check_Box;
-					QLabel* GSL_num_Runs_Label;			QSpinBox* GSL_num_Runs_Line_Edit;
-					QLabel* GSL_max_Iter_Label;			QLineEdit* GSL_max_Iter_Line_Edit;
+					QLabel* GSL_num_Runs_Label;			QSpinBox* GSL_num_Runs_SpinBox;
+					QLabel* GSL_max_Iter_Label;			QSpinBox* GSL_max_Iter_SpinBox;
 					QLabel* GSL_common_Tolerance_Label;QLineEdit* GSL_common_Tolerance_Line_Edit;
 
 				QGroupBox* GSL_Additional_Params_Group_Box;
@@ -71,9 +71,9 @@ public:
 
 				// for SwarmOps
 					QCheckBox* SO_randomized_Start_Check_Box;	QCheckBox* SO_initialize_By_Current_Check_Box;
-					QLabel* SO_num_Runs_Label;			QLineEdit* SO_num_Runs_Line_Edit;
-					QLabel* SO_max_Evaluations_Label;	QLineEdit* SO_max_Evaluations_Line_Edit;
-					QCheckBox* SO_max_Eval_Check_Box;	QLineEdit* SO_max_Eval_Factor_Line_Edit;
+					QLabel* SO_num_Runs_Label;			QSpinBox* SO_num_Runs_SpinBox;
+					QLabel* SO_max_Evaluations_Label;	QSpinBox* SO_max_Evaluations_SpinBox;
+					QCheckBox* SO_max_Eval_Check_Box;	QSpinBox* SO_max_Eval_Factor_SpinBox;
 
 				QGroupBox* SO_Additional_Params_Group_Box;
 					QGridLayout* SO_Additional_Params_Group_Box_Layout;

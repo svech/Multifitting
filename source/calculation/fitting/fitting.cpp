@@ -220,7 +220,7 @@ void Fitting::calc_Residual(const gsl_vector* x, Fitting_Params* params, gsl_vec
 		{
 			// replication of real_Calc_Tree for each target
 			target_Element.calc_Tree = params->calculation_Trees[tab_Index]->real_Calc_Tree;
-			params->calculation_Trees[tab_Index]->statify_Calc_Tree(target_Element.calc_Tree);
+			params->calculation_Trees[tab_Index]->stratify_Calc_Tree(target_Element.calc_Tree);
 
 			// calculation
 			params->calculation_Trees[tab_Index]->calculate_1_Kind(target_Element);
@@ -229,6 +229,14 @@ void Fitting::calc_Residual(const gsl_vector* x, Fitting_Params* params, gsl_vec
 			fill_Residual(params, residual_Shift, target_Element, f, target_Index);
 			target_Index++;
 		}
+	}
+
+	// aperiodic addition: difference between layers thicknesses
+	for(int tab_Index=0; tab_Index<params->calculation_Trees.size(); ++tab_Index)
+	{
+		qInfo() << "calc_Residual";
+//		params->main_Calculation_Module->multilayers[0]->structure_Tree->tree
+		params->calculation_Trees[tab_Index]->look_Aperiodic(params->calculation_Trees[tab_Index]->real_Calc_Tree.begin());
 	}
 }
 
@@ -269,6 +277,7 @@ void Fitting::fill_Residual(Fitting_Params* params, int& residual_Shift, Data_El
 	int N = target_Curve->curve.values.size();
 	double N_sqrt = sqrt(double(N));
 	double n_P_sqrt = sqrt(double(params->n-params->fitables.param_Names.size()));
+	double power = target_Curve->fit_Params.power/2.;
 
 	vector<double> model_Curve(N);
 
@@ -334,7 +343,7 @@ void Fitting::fill_Residual(Fitting_Params* params, int& residual_Shift, Data_El
 			if(target_Curve->fit_Params.norm) { factor /= N_sqrt; }
 
 			// fill
-			gsl_vector_set(f, residual_Shift+point_Index, factor*(fi_1-fi_2));
+			gsl_vector_set(f, residual_Shift+point_Index, factor*pow(abs(fi_1-fi_2),power));
 		}
 	}
 	residual_Shift += N;

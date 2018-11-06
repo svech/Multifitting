@@ -234,7 +234,8 @@ QDataStream& operator >>( QDataStream& stream,		 Curve& curve )
 QDataStream& operator <<( QDataStream& stream, const Fit_Params& fit_Params )
 {
 	return stream << fit_Params.calc << fit_Params.fit << fit_Params.norm  << fit_Params.weight << fit_Params.fit_Function
-				  << fit_Params.use_Chi2; // since 1.8.1
+				  << fit_Params.use_Chi2 // since 1.8.1
+				  << fit_Params.power; // since 1.8.8
 }
 QDataStream& operator >>( QDataStream& stream,		 Fit_Params& fit_Params )
 {
@@ -242,6 +243,9 @@ QDataStream& operator >>( QDataStream& stream,		 Fit_Params& fit_Params )
 
 	if(Global_Variables::check_Loaded_Version(1,8,1))
 	{stream >> fit_Params.use_Chi2; }		// since 1.8.1
+
+	if(Global_Variables::check_Loaded_Version(1,8,8))
+	{stream >> fit_Params.power; }		// since 1.8.8
 
 	return stream;
 }

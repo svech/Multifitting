@@ -87,6 +87,7 @@ public:
 	void invert_Aperiodic();
 	void calc_Uniqueness();
 	void unique_Item_Do(QString action, int uniqueness);
+	void soft_Restriction_Save(int current_Uniqueness, bool use_Soft_Restrictions, int threshold, double Q_factor);
 
 	QString absolute_Density_Label = "Density [g/cm" + Cube_Sym + "]:";
 	QString relative_Density_Label = "Relative Density:";

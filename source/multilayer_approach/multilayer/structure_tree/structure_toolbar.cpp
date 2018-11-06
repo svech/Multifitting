@@ -259,7 +259,7 @@ void Structure_Toolbar::add_Aperiodic()
 						if(aperiodic_Settings.column_5 == whats_This_Sigma)		addition_2 = "  <sigma>";
 						if(aperiodic_Settings.column_5 == whats_This_Density)	addition_2 = "  <density>";
 
-						QMessageBox::information(nullptr, "Bad format", "Row " + QString::number(line_Index) + " has wrong format.\n\nData should be IMD-styled:\n <period index>  <material>  <thickness>" + addition_1 + addition_2);
+						QMessageBox::information(nullptr, "Bad format", "Row " + QString::number(line_Index) + " has wrong format.\n\nData should be styled:\n <period index>  <material>  <thickness>" + addition_1 + addition_2);
 						return;
 					}
 

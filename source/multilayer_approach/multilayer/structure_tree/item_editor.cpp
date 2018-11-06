@@ -397,8 +397,8 @@ void Item_Editor::make_Aperiodic_Group_Box()
 
 		QVBoxLayout* soft_Restriction_Layout = new QVBoxLayout;
 		aperiodic_Group_Box_Layout->addLayout(soft_Restriction_Layout);
-		QLabel* soft_Restriction_Label = new QLabel(" Smooth \"z\": {"+Plus_Minus_Sym+Delta_Big_Sym+", Q}");
-		soft_Restriction_Layout->addWidget(soft_Restriction_Label,0,Qt::AlignCenter);
+		QLabel* soft_Restriction_Label = new QLabel("       Smooth \"z\": {"+Plus_Minus_Sym+Delta_Big_Sym+", Q}");
+		soft_Restriction_Layout->addWidget(soft_Restriction_Label,0,Qt::AlignLeft);
 
 		for(int i=0; i<item->childCount(); i++)
 		{
@@ -497,6 +497,7 @@ void Item_Editor::make_Aperiodic_Group_Box()
 				// create additional restrictions
 				{
 					QHBoxLayout* soft_Restriction_Row_Layout = new QHBoxLayout;
+						soft_Restriction_Row_Layout->setAlignment(Qt::AlignLeft);
 					soft_Restriction_Layout->addLayout(soft_Restriction_Row_Layout);
 
 					QCheckBox* soft_Restriction_CheckBox = new QCheckBox;
@@ -510,9 +511,9 @@ void Item_Editor::make_Aperiodic_Group_Box()
 
 					QSpinBox* soft_Restriction_Threshold_SpinBox = new QSpinBox;
 						soft_Restriction_Threshold_SpinBox->setEnabled(current_Child_Data.use_Soft_Restrictions);
-						soft_Restriction_Threshold_SpinBox->setSuffix("\%");
+						soft_Restriction_Threshold_SpinBox->setSuffix("%");
 						soft_Restriction_Threshold_SpinBox->setRange(0, 100);
-						soft_Restriction_Threshold_SpinBox->setValue(struct_Data.threshold);
+						soft_Restriction_Threshold_SpinBox->setValue(current_Child_Data.threshold);
 						soft_Restriction_Threshold_SpinBox->setAccelerated(true);
 						soft_Restriction_Threshold_SpinBox->setFixedWidth(45);
 						soft_Restriction_Threshold_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
@@ -527,7 +528,7 @@ void Item_Editor::make_Aperiodic_Group_Box()
 						soft_Restriction_Q_SpinBox->setSuffix("  ");
 						soft_Restriction_Q_SpinBox->setRange(0, MAX_DOUBLE);
 						soft_Restriction_Q_SpinBox->setSingleStep(1);
-						soft_Restriction_Q_SpinBox->setValue(struct_Data.Q_factor);
+						soft_Restriction_Q_SpinBox->setValue(current_Child_Data.Q_factor);
 						soft_Restriction_Q_SpinBox->setAccelerated(true);
 						soft_Restriction_Q_SpinBox->setDecimals(3);
 						soft_Restriction_Q_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
@@ -538,11 +539,10 @@ void Item_Editor::make_Aperiodic_Group_Box()
 					{
 						connect(soft_Restriction_CheckBox, &QCheckBox::toggled, this, [=]
 						{
-							// TODO for all with same uniqueness
-//							current_Child_Data.use_Soft_Restrictions = soft_Restriction_CheckBox->isChecked();
-//							QVariant var;
-//							var.setValue( current_Child_Data );
-//							current_Child_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+							soft_Restriction_Save(current_Child_Uniqueness,
+												  soft_Restriction_CheckBox->isChecked(),
+												  soft_Restriction_Threshold_SpinBox->value(),
+												  soft_Restriction_Q_SpinBox->value());
 
 							plus_Minus_Label->setEnabled(soft_Restriction_CheckBox->isChecked());
 							soft_Restriction_Threshold_SpinBox->setEnabled(soft_Restriction_CheckBox->isChecked());
@@ -551,19 +551,17 @@ void Item_Editor::make_Aperiodic_Group_Box()
 						});
 						connect(soft_Restriction_Threshold_SpinBox, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, [=]
 						{
-							// TODO for all with same uniqueness
-//							current_Child_Data.threshold = soft_Restriction_Threshold_SpinBox->value();
-//							QVariant var;
-//							var.setValue( current_Child_Data );
-//							current_Child_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+							soft_Restriction_Save(current_Child_Uniqueness,
+												  soft_Restriction_CheckBox->isChecked(),
+												  soft_Restriction_Threshold_SpinBox->value(),
+												  soft_Restriction_Q_SpinBox->value());
 						});
 						connect(soft_Restriction_Q_SpinBox, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
 						{
-							// TODO for all with same uniqueness
-//							current_Child_Data.Q_factor = soft_Restriction_Q_SpinBox->value();
-//							QVariant var;
-//							var.setValue( current_Child_Data );
-//							current_Child_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+							soft_Restriction_Save(current_Child_Uniqueness,
+												  soft_Restriction_CheckBox->isChecked(),
+												  soft_Restriction_Threshold_SpinBox->value(),
+												  soft_Restriction_Q_SpinBox->value());
 
 							Global_Variables::resize_Line_Edit(soft_Restriction_Q_SpinBox);
 						});
@@ -1720,5 +1718,23 @@ void Item_Editor::unique_Item_Do(QString action, int uniqueness)
 	} else
 	{
 		qInfo() << "Item_Editor::unique_Item_Do  :  first == true";
+	}
+}
+
+void Item_Editor::soft_Restriction_Save(int current_Uniqueness, bool use_Soft_Restrictions, int threshold, double Q_factor)
+{
+	for(int k=0; k<item->childCount(); k++)
+	{
+		Data child_Data = item->child(k)->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+		if(child_Data.uniqueness == current_Uniqueness)
+		{
+			child_Data.use_Soft_Restrictions = use_Soft_Restrictions;
+			child_Data.threshold = threshold;
+			child_Data.Q_factor = Q_factor;
+
+			QVariant var;
+			var.setValue( child_Data );
+			item->child(k)->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+		}
 	}
 }

@@ -28,6 +28,9 @@ struct Fitting_Params
 
 	// for SwarmOps
 	size_t counter;
+
+	// for Aperiodic
+	double aperiodic_Addition = 0;
 };
 
 class Fitting
