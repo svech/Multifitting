@@ -19,7 +19,11 @@ void Table_Of_Structures::closeEvent(QCloseEvent* event)
 {
 	write_Window_Geometry();
 	runned_Tables_Of_Structures.remove(table_Key);
-	for(QLineEdit* material_Line_Edit : material_Line_Edits) { material_Line_Edit->blockSignals(true); check_Material(material_Line_Edit); }
+	for(QLineEdit* material_Line_Edit : material_Line_Edits)
+	{
+		material_Line_Edit->blockSignals(true);
+		check_Material(material_Line_Edit);
+	}
 	unlock_Mainwindow_Interface();
 	event->accept();
 	delete this;
@@ -2306,9 +2310,10 @@ void Table_Of_Structures::refresh_Material(My_Table_Widget* table, QString)
 void Table_Of_Structures::check_Material(QLineEdit* line_Edit)
 {
 	if(line_Edit == nullptr)
+	{
 		line_Edit = qobject_cast<QLineEdit*>(QObject::sender());
+	}
 	QTreeWidgetItem* structure_Item = line_Edits_Map.value(line_Edit);
-
 	// no cheking for reloading
 	bool reload = line_Edit->property(reload_Property).toBool();
 	if(reload)

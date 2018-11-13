@@ -232,12 +232,12 @@ void Fitting::calc_Residual(const gsl_vector* x, Fitting_Params* params, gsl_vec
 	}
 
 	// aperiodic addition: difference between layers thicknesses
-	for(int tab_Index=0; tab_Index<params->calculation_Trees.size(); ++tab_Index)
-	{
-		qInfo() << "calc_Residual";
-//		params->main_Calculation_Module->multilayers[0]->structure_Tree->tree
-		params->calculation_Trees[tab_Index]->look_Aperiodic(params->calculation_Trees[tab_Index]->real_Calc_Tree.begin());
-	}
+//	for(int tab_Index=0; tab_Index<params->calculation_Trees.size(); ++tab_Index)
+//	{
+//		qInfo() << "calc_Residual";
+////		params->main_Calculation_Module->multilayers[0]->structure_Tree->tree
+//		params->calculation_Trees[tab_Index]->look_Aperiodic(params->calculation_Trees[tab_Index]->real_Calc_Tree.begin());
+//	}
 }
 
 void Fitting::change_Real_Fitables_and_Dependent(Fitting_Params* params, double old_Value, double new_Value, size_t i, QString fit_Conf)

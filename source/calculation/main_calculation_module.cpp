@@ -153,6 +153,7 @@ void Main_Calculation_Module::fitting_and_Confidence()
 	if( fitables.param_Pointers.size()>0 )
 	{
 		Fitting fitting_Instance(this);
+		bool is_Load_Init_State_Trees = false;
 		bool go = fitting_Instance.fit();
 		if(!go) return;
 		print_Calculated_To_File();
@@ -173,7 +174,7 @@ void Main_Calculation_Module::fitting_and_Confidence()
 			global_Multilayer_Approach->refresh_All_Multilayers_View();
 		} else
 		{
-			load_Init_State_Trees();
+			is_Load_Init_State_Trees = true;
 		}
 
 		// refresh table (anyway)
@@ -181,6 +182,7 @@ void Main_Calculation_Module::fitting_and_Confidence()
 		{
 			int active_Tab = global_Multilayer_Approach->table_Of_Structures->main_Tabs->currentIndex();
 			global_Multilayer_Approach->table_Of_Structures->close();
+			if(is_Load_Init_State_Trees) load_Init_State_Trees();
 			global_Multilayer_Approach->open_Table_Of_Structures();
 			global_Multilayer_Approach->table_Of_Structures->main_Tabs->setCurrentIndex(active_Tab);
 		}
