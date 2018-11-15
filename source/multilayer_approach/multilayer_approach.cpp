@@ -215,9 +215,10 @@ void Multilayer_Approach::add_Fitted_Structure(QVector<QTreeWidget*>& fitted_Tre
 
 void Multilayer_Approach::open_Table_Of_Structures()
 {
+	qInfo() << "01";
 	if(!runned_Tables_Of_Structures.contains(table_Key))
 	{
-		table_Of_Structures = new Table_Of_Structures;//(this);
+		table_Of_Structures = new Table_Of_Structures;
 		runned_Tables_Of_Structures.insert(table_Key, table_Of_Structures);
 			table_Of_Structures->setWindowFlags(Qt::Window);
 			table_Of_Structures->show();
@@ -233,6 +234,7 @@ void Multilayer_Approach::open_Table_Of_Structures()
 	{
 		table_Of_Structures->activateWindow();
 	}
+	qInfo() << "02";
 }
 
 void Multilayer_Approach::open_Optical_Graphs(QString keep_Splitter)

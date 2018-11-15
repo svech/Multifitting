@@ -349,7 +349,7 @@ void Curve_Plot::plot_All_Data()
 			for(int i=0; i<target_Curve->curve.shifted_Values.size(); ++i)	{
 				values[i] = target_Curve->curve.shifted_Values[i].val_1;
 			}
-			plot_Data(argument, values, plot_Options_First, left);
+			plot_Data(argument, values, plot_Options_First, left_Axis);
 		}
 		// second value (phase)
 		if(target_Curve->curve.value_Mode == value_R_Mode[R_Phi])
@@ -357,7 +357,7 @@ void Curve_Plot::plot_All_Data()
 			for(int i=0; i<target_Curve->curve.shifted_Values.size(); ++i)	{
 				values[i] = target_Curve->curve.shifted_Values[i].val_2;
 			}
-			plot_Data(argument, values, plot_Options_First, right);
+			plot_Data(argument, values, plot_Options_First, right_Axis);
 		}
 
 		/// calculated data
@@ -365,7 +365,7 @@ void Curve_Plot::plot_All_Data()
 		if(target_Curve->curve.value_Mode == value_R_Mode[R_Phi])
 		{
 			values = calculated_Values->Phi_R;
-			plot_Data(argument, values, plot_Options_Second, right);
+			plot_Data(argument, values, plot_Options_Second, right_Axis);
 		}
 		// first value (R,T,A...)
 		{
@@ -373,7 +373,7 @@ void Curve_Plot::plot_All_Data()
 				target_Curve->curve.value_Mode == value_R_Mode[R_Phi] )	{	values = calculated_Values->R; }
 			if(	target_Curve->curve.value_Mode == value_T_Mode[T] )		{	values = calculated_Values->T; }
 
-			plot_Data(argument, values, plot_Options_Second, left);
+			plot_Data(argument, values, plot_Options_Second, left_Axis);
 		}
 	}
 
@@ -409,7 +409,7 @@ void Curve_Plot::plot_All_Data()
 				}
 			}
 
-			plot_Data(argument, values, plot_Options_First, left);
+			plot_Data(argument, values, plot_Options_First, left_Axis);
 		}
 		// no second value up to now
 	}	
@@ -425,11 +425,11 @@ void Curve_Plot::plot_All_Data()
 
 void Curve_Plot::plot_Data(const QVector<double>& argument, const QVector<double>& values, Plot_Options* plot_Options, QString left_Right)
 {
-	if(left_Right==left)
+	if(left_Right==left_Axis)
 	{
 		custom_Plot->addGraph();
 	}
-	if(left_Right==right)
+	if(left_Right==right_Axis)
 	{
 		custom_Plot->addGraph(custom_Plot->xAxis2, custom_Plot->yAxis2);
 	}
@@ -446,12 +446,12 @@ void Curve_Plot::plot_Data(const QVector<double>& argument, const QVector<double
 		data_To_Plot[i].key = argument[i];
 		data_To_Plot[i].value = values[i];
 
-		if(left_Right==left)
+		if(left_Right==left_Axis)
 		{
 			if(local_Max<data_To_Plot[i].value && (plot_Options->scale == lin_Scale || data_To_Plot[i].value > DBL_MIN)) {local_Max=data_To_Plot[i].value;}
 			if(local_Min>data_To_Plot[i].value && (plot_Options->scale == lin_Scale || data_To_Plot[i].value > DBL_MIN)) {local_Min=data_To_Plot[i].value;}
 		}
-		if(left_Right==right)
+		if(left_Right==right_Axis)
 		{
 			if(local_Max<data_To_Plot[i].value) local_Max=data_To_Plot[i].value;
 			if(local_Min>data_To_Plot[i].value) local_Min=data_To_Plot[i].value;
@@ -459,7 +459,7 @@ void Curve_Plot::plot_Data(const QVector<double>& argument, const QVector<double
 	}
 	custom_Plot->graph(graph_Index)->data()->set(data_To_Plot);
 
-	if(left_Right==left)
+	if(left_Right==left_Axis)
 	{
 		max_Value_Left = max(max_Value_Left, local_Max);
 		if(plot_Options->scale == log_Scale)
@@ -473,7 +473,7 @@ void Curve_Plot::plot_Data(const QVector<double>& argument, const QVector<double
 			min_Value_Left = min(min_Value_Left, local_Min);
 		}
 	}
-	if(left_Right==right)
+	if(left_Right==right_Axis)
 	{
 		max_Value_Right = max(max_Value_Right, local_Max);
 		min_Value_Right = min(min_Value_Right, local_Min);
@@ -481,13 +481,13 @@ void Curve_Plot::plot_Data(const QVector<double>& argument, const QVector<double
 
 	// styling
 	QCPScatterStyle scatter_Style;
-	if(left_Right==left)
+	if(left_Right==left_Axis)
 	{
 		custom_Plot->graph(graph_Index)->setPen(QPen(plot_Options->color, plot_Options->thickness));
 		scatter_Style.setShape(QCPScatterStyle::ScatterShape(plot_Options->scatter_Shape));
 		scatter_Style.setSize(plot_Options->scatter_Size);
 	}
-	if(left_Right==right)
+	if(left_Right==right_Axis)
 	{
 		custom_Plot->graph(graph_Index)->setPen(QPen(plot_Options->color_Second, plot_Options->thickness_Second));
 		scatter_Style.setShape(QCPScatterStyle::ScatterShape(plot_Options->scatter_Shape_Second));
@@ -500,7 +500,7 @@ void Curve_Plot::plot_Data(const QVector<double>& argument, const QVector<double
 					custom_Plot->graph(graph_Index)->pen().color(),
 				max(custom_Plot->graph(graph_Index)->pen().widthF()*2,3.)));
 
-	if(left_Right==left)
+	if(left_Right==left_Axis)
 	{
 		custom_Plot->yAxis2->setLabel("");
 		if(plot_Options_First->rescale)
@@ -509,7 +509,7 @@ void Curve_Plot::plot_Data(const QVector<double>& argument, const QVector<double
 			custom_Plot->xAxis->setRange(argument.first(), argument.last());
 		}
 	}
-	if(left_Right==right)
+	if(left_Right==right_Axis)
 	{
 		QSharedPointer<QCPAxisTicker> linTicker(new QCPAxisTicker);
 		custom_Plot->yAxis2->setScaleType(QCPAxis::stLinear);
@@ -644,11 +644,11 @@ void Curve_Plot::set_Graph_Color(QCPGraph* graph, QColor color)
 	// renew data in plot_Options
 	Plot_Options* plot_Options = graph_Options_Map.value(graph);
 	QString left_Right = graph_Left_Right_Map.value(graph);
-	if(left_Right==left)
+	if(left_Right==left_Axis)
 	{
 		plot_Options->color = color;
 	}
-	if(left_Right==right)
+	if(left_Right==right_Axis)
 	{
 		plot_Options->color_Second = color;
 	}
@@ -707,11 +707,11 @@ void Curve_Plot::change_Thickness()
 		// renew data in plot_Options
 		Plot_Options* plot_Options = graph_Options_Map.value(graph);
 		QString left_Right = graph_Left_Right_Map.value(graph);
-		if(left_Right==left)
+		if(left_Right==left_Axis)
 		{
 			plot_Options->thickness = new_Width;
 		}
-		if(left_Right==right)
+		if(left_Right==right_Axis)
 		{
 			plot_Options->thickness_Second = new_Width;
 		}
@@ -734,11 +734,11 @@ void Curve_Plot::change_Scatter_Size()
 		// renew data in plot_Options
 		Plot_Options* plot_Options = graph_Options_Map.value(graph);
 		QString left_Right = graph_Left_Right_Map.value(graph);
-		if(left_Right==left)
+		if(left_Right==left_Axis)
 		{
 			plot_Options->scatter_Size = new_Scatter_Size;
 		}
-		if(left_Right==right)
+		if(left_Right==right_Axis)
 		{
 			plot_Options->scatter_Size_Second = new_Scatter_Size;
 		}

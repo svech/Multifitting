@@ -17,7 +17,7 @@ class Table_Of_Structures : public QWidget
 	Q_INVOKABLE void adjustSize() {  }
 	void closeEvent(QCloseEvent* event);
 public:
-	explicit Table_Of_Structures(QWidget* parent = 0);
+	explicit Table_Of_Structures(bool temporary = false, QWidget* parent = 0);
 
 signals:
 //	void closed();
@@ -136,6 +136,7 @@ public:
 	bool layer_Thickness_Transfer_Reload_Block = false;
 	int basic_Row_Number = 0;
 	int basic_Column_Number = 1;
+	bool temporary = false;
 
 	QTabWidget* main_Tabs;
 	QList<Structure_Tree*> list_Of_Trees;

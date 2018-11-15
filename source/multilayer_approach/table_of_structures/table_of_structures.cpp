@@ -3,21 +3,25 @@
 #include "table_of_structures.h"
 #include "algorithm"
 
-Table_Of_Structures::Table_Of_Structures(QWidget *parent) :
+Table_Of_Structures::Table_Of_Structures(bool temporary, QWidget *parent) :
 	runned_Tables_Of_Structures(global_Multilayer_Approach->runned_Tables_Of_Structures),
 	runned_Calculation_Settings_Editor(global_Multilayer_Approach->runned_Calculation_Settings_Editor),
 	multilayer_Tabs(global_Multilayer_Approach->multilayer_Tabs),
+	temporary(temporary),
 	QWidget(parent) // nullptr!
 {
+	qInfo() << 1;
 	setWindowTitle("Table Of Structures");
 	create_Main_Layout();
 	set_Window_Geometry();
 	setAttribute(Qt::WA_DeleteOnClose);
+	qInfo() << 2;
 }
 
 void Table_Of_Structures::closeEvent(QCloseEvent* event)
 {
-	write_Window_Geometry();
+	qInfo() << 3;
+	if(!temporary) write_Window_Geometry();
 	runned_Tables_Of_Structures.remove(table_Key);
 	for(QLineEdit* material_Line_Edit : material_Line_Edits)
 	{
@@ -27,6 +31,7 @@ void Table_Of_Structures::closeEvent(QCloseEvent* event)
 	unlock_Mainwindow_Interface();
 	event->accept();
 	delete this;
+	qInfo() << 4;
 }
 
 void Table_Of_Structures::emit_Data_Edited()

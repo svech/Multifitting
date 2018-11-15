@@ -281,8 +281,8 @@ class Node;
 // plot scales
 #define lin_Scale		"lin"
 #define log_Scale		"value"
-#define left			"left"
-#define right			"right"
+#define left_Axis		"left"
+#define right_Axis		"right"
 
 // insert items with or without changing IDs
 #define copy_Type_Copy	"copy"

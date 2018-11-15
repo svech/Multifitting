@@ -81,7 +81,7 @@ void Main_Calculation_Module::fitting_and_Confidence()
 	// reload dependences
 	if(!global_Multilayer_Approach->runned_Tables_Of_Structures.contains(table_Key))
 	{
-		global_Multilayer_Approach->table_Of_Structures = new Table_Of_Structures;//(global_Multilayer_Approach);
+		global_Multilayer_Approach->table_Of_Structures = new Table_Of_Structures(true);
 		global_Multilayer_Approach->table_Of_Structures->close();
 	}
 
@@ -182,9 +182,14 @@ void Main_Calculation_Module::fitting_and_Confidence()
 		{
 			int active_Tab = global_Multilayer_Approach->table_Of_Structures->main_Tabs->currentIndex();
 			global_Multilayer_Approach->table_Of_Structures->close();
+
 			if(is_Load_Init_State_Trees) load_Init_State_Trees();
+
 			global_Multilayer_Approach->open_Table_Of_Structures();
 			global_Multilayer_Approach->table_Of_Structures->main_Tabs->setCurrentIndex(active_Tab);
+		} else
+		{
+			if(is_Load_Init_State_Trees) load_Init_State_Trees();
 		}
 	}
 	/// --------------------------------------------------------------------------------------------------------------
