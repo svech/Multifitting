@@ -83,26 +83,26 @@ win32 {
 }
 
 SOURCES += \
-	launcher.cpp \
-	main.cpp \
-	calculation/fitting/fitting.cpp \
-	calculation/fitting/fitting_swarmops.cpp \
-	calculation/fitting/fitting_gsl.cpp \
+    launcher.cpp \
+    main.cpp \
+    calculation/fitting/fitting.cpp \
+    calculation/fitting/fitting_swarmops.cpp \
+    calculation/fitting/fitting_gsl.cpp \
     calculation/unwrapped/unwrapped_reflection.cpp \
     calculation/unwrapped/unwrapped_structure.cpp \
     calculation/calculation_tree.cpp \
     calculation/main_calculation_module.cpp \
     calculation/node.cpp \
     calculation/optical_constants.cpp \
-	global/global_definitions.cpp \
+    global/global_definitions.cpp \
     global/global_variables.cpp \
     global/layer_data_types.cpp \
-	global/settings.cpp \
-	multilayer_approach/fitting_settings/fitting_settings_editor.cpp \
-	multilayer_approach/fitting_settings/fitting_settings.cpp \
-	multilayer_approach/fits_selector/fits_selector.cpp \
-	multilayer_approach/calculation_settings_editor/calculation_settings_editor.cpp \
-	multilayer_approach/multilayer/independent_variables/independent_calc_function_selection.cpp \
+    global/settings.cpp \
+    multilayer_approach/fitting_settings/fitting_settings_editor.cpp \
+    multilayer_approach/fitting_settings/fitting_settings.cpp \
+    multilayer_approach/fits_selector/fits_selector.cpp \
+    multilayer_approach/calculation_settings_editor/calculation_settings_editor.cpp \
+    multilayer_approach/multilayer/independent_variables/independent_calc_function_selection.cpp \
     multilayer_approach/multilayer/independent_variables/independent_variables.cpp \
     multilayer_approach/multilayer/independent_variables/independent_variables_editor.cpp \
     multilayer_approach/multilayer/independent_variables/variable_selection.cpp \
@@ -114,12 +114,12 @@ SOURCES += \
     multilayer_approach/multilayer/target_curve/target_curve_editor.cpp \
     multilayer_approach/multilayer/multilayer.cpp \
     multilayer_approach/table_of_structures/coupling_editor.cpp \
-	multilayer_approach/table_of_structures/confidence_interval_editor.cpp \
-	multilayer_approach/table_of_structures/my_table_widget.cpp \
+    multilayer_approach/table_of_structures/confidence_interval_editor.cpp \
+    multilayer_approach/table_of_structures/my_table_widget.cpp \
     multilayer_approach/table_of_structures/table_of_structures.cpp \
     multilayer_approach/multilayer_approach.cpp \
-	standard/menu.cpp \
-	standard/spoiler.cpp \
+    standard/menu.cpp \
+    standard/spoiler.cpp \
     multilayer_approach/multilayer/target_curve/target_curve_plot.cpp \
     multilayer_approach/graphs/optical_graphs.cpp \
     multilayer_approach/graphs/curve_plot.cpp \
@@ -129,7 +129,7 @@ SOURCES += \
 
 
 HEADERS += \
-	launcher.h \
+    launcher.h \
     calculation/unwrapped/unwrapped_reflection.h \
     calculation/unwrapped/unwrapped_structure.h \
     calculation/calculation_tree.h \
@@ -140,14 +140,14 @@ HEADERS += \
     global/global_variables.h \
     global/layer_data_types.h \
     global/settings.h \
-	calculation/fitting/fitting.h \
-	calculation/fitting/fitting_swarmops.h \
-	calculation/fitting/fitting_gsl.h \
-	multilayer_approach/fits_selector/fits_selector.h \
-	multilayer_approach/fitting_settings/fitting_settings_editor.h \
-	multilayer_approach/fitting_settings/fitting_settings.h \
-	multilayer_approach/calculation_settings_editor/calculation_settings_editor.h \
-	multilayer_approach/multilayer/independent_variables/independent_calc_function_selection.h \
+    calculation/fitting/fitting.h \
+    calculation/fitting/fitting_swarmops.h \
+    calculation/fitting/fitting_gsl.h \
+    multilayer_approach/fits_selector/fits_selector.h \
+    multilayer_approach/fitting_settings/fitting_settings_editor.h \
+    multilayer_approach/fitting_settings/fitting_settings.h \
+    multilayer_approach/calculation_settings_editor/calculation_settings_editor.h \
+    multilayer_approach/multilayer/independent_variables/independent_calc_function_selection.h \
     multilayer_approach/multilayer/independent_variables/independent_variables.h \
     multilayer_approach/multilayer/independent_variables/independent_variables_editor.h \
     multilayer_approach/multilayer/independent_variables/variable_selection.h \
@@ -159,12 +159,12 @@ HEADERS += \
     multilayer_approach/multilayer/target_curve/target_curve_editor.h \
     multilayer_approach/multilayer/multilayer.h \
     multilayer_approach/table_of_structures/coupling_editor.h \
-	multilayer_approach/table_of_structures/confidence_interval_editor.h \
-	multilayer_approach/table_of_structures/my_table_widget.h \
+    multilayer_approach/table_of_structures/confidence_interval_editor.h \
+    multilayer_approach/table_of_structures/my_table_widget.h \
     multilayer_approach/table_of_structures/table_of_structures.h \
     multilayer_approach/multilayer_approach.h \
     standard/menu.h \
-	standard/spoiler.h \
+    standard/spoiler.h \
     multilayer_approach/multilayer/target_curve/target_curve_plot.h \
     multilayer_approach/graphs/optical_graphs.h \
     multilayer_approach/graphs/curve_plot.h \

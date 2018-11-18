@@ -10,17 +10,14 @@ Table_Of_Structures::Table_Of_Structures(bool temporary, QWidget *parent) :
 	temporary(temporary),
 	QWidget(parent) // nullptr!
 {
-	qInfo() << 1;
 	setWindowTitle("Table Of Structures");
 	create_Main_Layout();
 	set_Window_Geometry();
 	setAttribute(Qt::WA_DeleteOnClose);
-	qInfo() << 2;
 }
 
 void Table_Of_Structures::closeEvent(QCloseEvent* event)
 {
-	qInfo() << 3;
 	if(!temporary) write_Window_Geometry();
 	runned_Tables_Of_Structures.remove(table_Key);
 	for(QLineEdit* material_Line_Edit : material_Line_Edits)
@@ -30,8 +27,7 @@ void Table_Of_Structures::closeEvent(QCloseEvent* event)
 	}
 	unlock_Mainwindow_Interface();
 	event->accept();
-	delete this;
-	qInfo() << 4;
+//	delete global_Multilayer_Approach->table_Of_Structures;
 }
 
 void Table_Of_Structures::emit_Data_Edited()
