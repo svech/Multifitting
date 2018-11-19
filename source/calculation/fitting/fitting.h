@@ -30,7 +30,7 @@ struct Fitting_Params
 	size_t counter;
 
 	// for Aperiodic
-	double aperiodic_Addition = 0;
+//	double aperiodic_Addition = 0;
 };
 
 class Fitting

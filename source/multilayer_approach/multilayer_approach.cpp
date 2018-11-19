@@ -1,6 +1,7 @@
 // This is an open source non-commercial project. Dear PVS-Studio, please check it.
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include "multilayer_approach.h"
+#include <thread>
 
 Multilayer_Approach::Multilayer_Approach(Launcher* launcher, QWidget *parent) :
 	launcher(launcher),
@@ -835,7 +836,14 @@ void Multilayer_Approach::start_Fitting()
 		}
 	}
 
+	// read in background
+	std::thread worker = std::thread(&Multilayer_Approach::start_Fitting_Thread, this);
+//	worker.detach();
+	worker.join();
+}
 
+void Multilayer_Approach::start_Fitting_Thread()
+{
 	Main_Calculation_Module* main_Calculation_Module = new Main_Calculation_Module(FITTING);
 	main_Calculation_Module->fitting_and_Confidence();
 	delete main_Calculation_Module;
