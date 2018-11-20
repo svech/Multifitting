@@ -419,7 +419,7 @@ void Curve_Plot::plot_All_Data()
 		double max_Value = *std::max_element(values.begin(), values.end());
 		int max_Value_Position_Index = values.indexOf(max_Value);
 		double max_Value_Position = argument[max_Value_Position_Index];
-		max_Value_Label->setText(max_Value_Title + " " + QString::number(max_Value,'f',4) + " at " + QString::number(max_Value_Position,'f',4) + " " + argument_Units);
+		max_Value_Label->setText(max_Value_Title + " " + Locale.toString(max_Value,'f',4) + " at " + Locale.toString(max_Value_Position,'f',4) + " " + argument_Units);
 	}
 }
 

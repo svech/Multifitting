@@ -333,8 +333,8 @@ void Structure_Tree::set_Structure_Item_Text(QTreeWidgetItem* item)
 	{
 		if(data.material!=Vacuum)
 		{
-			if(data.composed_Material)	density_Text = QString::number(data.absolute_Density.value,thumbnail_double_format,thumbnail_density_precision) + density_units;
-			else						density_Text = QString::number(data.relative_Density.value,thumbnail_double_format,thumbnail_density_precision);
+			if(data.composed_Material)	density_Text = Locale.toString(data.absolute_Density.value,thumbnail_double_format,thumbnail_density_precision) + density_units;
+			else						density_Text = Locale.toString(data.relative_Density.value,thumbnail_double_format,thumbnail_density_precision);
 			item->setText(DEFAULT_COLUMN, Global_Variables::structure_Item_Name(data) + ", " + Rho_Sym + "=" + density_Text);
 		} else
 		{
@@ -351,14 +351,14 @@ void Structure_Tree::set_Structure_Item_Text(QTreeWidgetItem* item)
 		// if substrate
 		if(data.item_Type == item_Type_Substrate)
 		{
-			if(data.composed_Material)	density_Text = QString::number(data.absolute_Density.value,thumbnail_double_format,thumbnail_density_precision) + density_units;
-			else						density_Text = QString::number(data.relative_Density.value,thumbnail_double_format,thumbnail_density_precision);
+			if(data.composed_Material)	density_Text = Locale.toString(data.absolute_Density.value,thumbnail_double_format,thumbnail_density_precision) + density_units;
+			else						density_Text = Locale.toString(data.relative_Density.value,thumbnail_double_format,thumbnail_density_precision);
 			item->setText(DEFAULT_COLUMN, Global_Variables::structure_Item_Name(data) + ", " + Rho_Sym + "=" + density_Text);
 
 			if(data.sigma.value>0)
 			{
 				item->setText(DEFAULT_COLUMN, item->text(DEFAULT_COLUMN) + ", " + temp_Sigma_Sym + "=" +
-							  QString::number(data.sigma.value/length_Coeff,thumbnail_double_format,thumbnail_sigma_precision) + length_units);
+							  Locale.toString(data.sigma.value/length_Coeff,thumbnail_double_format,thumbnail_sigma_precision) + length_units);
 			}
 		} else
 		{
@@ -367,13 +367,13 @@ void Structure_Tree::set_Structure_Item_Text(QTreeWidgetItem* item)
 			{
 				if(data.item_Type == item_Type_Multilayer)
 				{
-					item->setText(DEFAULT_COLUMN, Global_Variables::structure_Item_Name(data) + ", N=" + QString::number(data.num_Repetition.value())
-								  + ", d="  + QString::number(data.period.value/length_Coeff,thumbnail_double_format,thumbnail_period_precision) + length_units);
+					item->setText(DEFAULT_COLUMN, Global_Variables::structure_Item_Name(data) + ", N=" + Locale.toString(data.num_Repetition.value())
+								  + ", d="  + Locale.toString(data.period.value/length_Coeff,thumbnail_double_format,thumbnail_period_precision) + length_units);
 
 					if(item->childCount()==2 && abs(data.period.value)>DBL_EPSILON)
 					{
 						item->setText(DEFAULT_COLUMN, item->text(DEFAULT_COLUMN) + ", " + Gamma_Sym + "=" +
-									  QString::number(data.gamma.value,thumbnail_double_format,thumbnail_gamma_precision));
+									  Locale.toString(data.gamma.value,thumbnail_double_format,thumbnail_gamma_precision));
 					}
 				} else
 				if(data.item_Type == item_Type_Aperiodic)
@@ -383,17 +383,17 @@ void Structure_Tree::set_Structure_Item_Text(QTreeWidgetItem* item)
 			} else
 			// if layer
 			{
-				QString thickness_Text = ", z=" +  QString::number(data.thickness.value/length_Coeff,thumbnail_double_format,thumbnail_thickness_precision) + length_units;
+				QString thickness_Text = ", z=" +  Locale.toString(data.thickness.value/length_Coeff,thumbnail_double_format,thumbnail_thickness_precision) + length_units;
 
-				if(data.composed_Material)	{density_Text = QString::number(data.absolute_Density.value,thumbnail_double_format,thumbnail_density_precision) + density_units;	}
-				else						{density_Text = QString::number(data.relative_Density.value,thumbnail_double_format,thumbnail_density_precision);					}
+				if(data.composed_Material)	{density_Text = Locale.toString(data.absolute_Density.value,thumbnail_double_format,thumbnail_density_precision) + density_units;	}
+				else						{density_Text = Locale.toString(data.relative_Density.value,thumbnail_double_format,thumbnail_density_precision);					}
 
 				item->setText(DEFAULT_COLUMN, Global_Variables::structure_Item_Name(data) + thickness_Text + ", " + Rho_Sym + "=" + density_Text);
 
 				if(data.sigma.value>0)
 				{
 					item->setText(DEFAULT_COLUMN, item->text(DEFAULT_COLUMN) + ", " + temp_Sigma_Sym + "=" +
-								  QString::number(data.sigma.value/length_Coeff,thumbnail_double_format,thumbnail_sigma_precision) + length_units);
+								  Locale.toString(data.sigma.value/length_Coeff,thumbnail_double_format,thumbnail_sigma_precision) + length_units);
 
 					// show sigma drift
 					Drift sigma_Drift = data.sigma_Drift;
@@ -407,12 +407,12 @@ void Structure_Tree::set_Structure_Item_Text(QTreeWidgetItem* item)
 				Drift thick_Drift = data.thickness_Drift;
 				QString thick_Drift_Text = "";
 				if(thick_Drift.is_Drift_Line || thick_Drift.is_Drift_Sine || thick_Drift.is_Drift_Rand)
-					thick_Drift_Text += "\n---> dz =";
-				if(thick_Drift.is_Drift_Line) thick_Drift_Text += " {line, " + QString::number(thick_Drift.drift_Line_Value.value,		thumbnail_double_format,thumbnail_drift_precision) + "%}";
-				if(thick_Drift.is_Drift_Sine) thick_Drift_Text += " {sine, " + QString::number(thick_Drift.drift_Sine_Amplitude.value,	thumbnail_double_format,thumbnail_drift_precision) + "%,"
-																			 + QString::number(thick_Drift.drift_Sine_Frequency.value,	thumbnail_double_format,thumbnail_drift_precision) + ","
-																			 + QString::number(thick_Drift.drift_Sine_Phase.value,		thumbnail_double_format,thumbnail_drift_precision) + "}";
-				if(thick_Drift.is_Drift_Rand) thick_Drift_Text += " {rand, " + QString::number(thick_Drift.drift_Rand_Rms.value,		thumbnail_double_format,thumbnail_drift_precision) + "%}";
+				   thick_Drift_Text += "\n---> dz =";
+				if(thick_Drift.is_Drift_Line) thick_Drift_Text += " {line, " + Locale.toString(thick_Drift.drift_Line_Value.value,		thumbnail_double_format,thumbnail_drift_precision) + "%}";
+				if(thick_Drift.is_Drift_Sine) thick_Drift_Text += " {sine, " + Locale.toString(thick_Drift.drift_Sine_Amplitude.value,	thumbnail_double_format,thumbnail_drift_precision) + "%,"
+																			 + Locale.toString(thick_Drift.drift_Sine_Frequency.value,	thumbnail_double_format,thumbnail_drift_precision) + ","
+																			 + Locale.toString(thick_Drift.drift_Sine_Phase.value,		thumbnail_double_format,thumbnail_drift_precision) + "}";
+				if(thick_Drift.is_Drift_Rand) thick_Drift_Text += " {rand, " + Locale.toString(thick_Drift.drift_Rand_Rms.value,		thumbnail_double_format,thumbnail_drift_precision) + "%}";
 
 				item->setText(DEFAULT_COLUMN, item->text(DEFAULT_COLUMN) +  thick_Drift_Text);
 			}

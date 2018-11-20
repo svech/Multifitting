@@ -122,7 +122,7 @@ void Structure_Toolbar::add_Multilayer()
 	int num_Children = 0;
 
 	bool ok, ok_Number;
-	QString text = QInputDialog::getText(this, "Multilayer", "Number of different layers in multilayers stack", QLineEdit::Normal, QString::number(2), &ok);
+	QString text = QInputDialog::getText(this, "Multilayer", "Number of different layers in multilayers stack", QLineEdit::Normal, Locale.toString(2), &ok);
 	text.toInt(&ok_Number);
 	if (ok && ok_Number && (text.toInt()>=2))
 	{
@@ -259,7 +259,7 @@ void Structure_Toolbar::add_Aperiodic()
 						if(aperiodic_Settings.column_5 == whats_This_Sigma)		addition_2 = "  <sigma>";
 						if(aperiodic_Settings.column_5 == whats_This_Density)	addition_2 = "  <density>";
 
-						QMessageBox::information(nullptr, "Bad format", "Row " + QString::number(line_Index) + " has wrong format.\n\nData should be styled:\n <period index>  <material>  <thickness>" + addition_1 + addition_2);
+						QMessageBox::information(nullptr, "Bad format", "Row " + Locale.toString(line_Index) + " has wrong format.\n\nData should be styled:\n <period index>  <material>  <thickness>" + addition_1 + addition_2);
 						return;
 					}
 
@@ -401,7 +401,7 @@ void Structure_Toolbar::remove()
 	// if layer
 	if(data.item_Type == item_Type_Layer)
 	{
-		QMessageBox::StandardButton reply = QMessageBox::question(this,"Removal", "Really remove layer " + QString::number(data.layer_Index) + "?", QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
+		QMessageBox::StandardButton reply = QMessageBox::question(this,"Removal", "Really remove layer " + Locale.toString(data.layer_Index) + "?", QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
 		// cppcheck-suppress doubleFree
 		if (reply == QMessageBox::Yes)
 		{
@@ -454,7 +454,7 @@ void Structure_Toolbar::cut()
 	// if layer
 	if(data.item_Type == item_Type_Layer)
 	{
-		reply = QMessageBox::question(this,"Removal", "Really cut layer " + QString::number(data.layer_Index) + "?", QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
+		reply = QMessageBox::question(this,"Removal", "Really cut layer " + Locale.toString(data.layer_Index) + "?", QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
 
 	} else
 	// if multilayer

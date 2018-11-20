@@ -329,8 +329,8 @@ void Menu::create_Independent_Precision_Menu()
 
 	for(int index=0; index<MAX_PRECISION_USED; index++)
 	{
-		QAction* precision_Thumb  = new QAction(QString::number(index), this);
-		QAction* precision_Edit   = new QAction(QString::number(index), this);
+		QAction* precision_Thumb  = new QAction(Locale.toString(index), this);
+		QAction* precision_Edit   = new QAction(Locale.toString(index), this);
 			precision_Thumb->setProperty(index_Property, index);
 			precision_Edit->setProperty(index_Property, index);
 			precision_Thumb->setCheckable(true);
@@ -545,8 +545,8 @@ void Menu::create_Item_Precision_Menu()
 
 	for(int index=0; index<MAX_PRECISION_USED; index++)
 	{
-		QAction* precision_Thumb  = new QAction(QString::number(index), menu_Thumb);
-		QAction* precision_Edit   = new QAction(QString::number(index), menu_Edit);
+		QAction* precision_Thumb  = new QAction(Locale.toString(index), menu_Thumb);
+		QAction* precision_Edit   = new QAction(Locale.toString(index), menu_Edit);
 			precision_Thumb->setProperty(index_Property, index);
 			precision_Edit->setProperty(index_Property, index);
 
@@ -640,8 +640,8 @@ void Menu::create_Table_Precision_Menu()
 
 	for(int index=0; index<MAX_PRECISION_USED; index++)
 	{
-		QAction* precision_Thumb  = new QAction(QString::number(index), menu_Thumb);
-		QAction* precision_Edit   = new QAction(QString::number(index), menu_Edit);
+		QAction* precision_Thumb  = new QAction(Locale.toString(index), menu_Thumb);
+		QAction* precision_Edit   = new QAction(Locale.toString(index), menu_Edit);
 			precision_Thumb->setProperty(index_Property, index);
 			precision_Edit->setProperty(index_Property, index);
 

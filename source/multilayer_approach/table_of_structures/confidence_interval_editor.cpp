@@ -134,8 +134,8 @@ void Confidence_Interval_Editor::refresh_Show_Data(bool show)
 	// show data
 	if(show)
 	{
-		min_Edit->setText(QString::number(parameter->confidence.min/coeff,line_edit_double_format,line_edit_precision));
-		max_Edit->setText(QString::number(parameter->confidence.max/coeff,line_edit_double_format,line_edit_precision));
+		min_Edit->setText(Locale.toString(parameter->confidence.min/coeff,line_edit_double_format,line_edit_precision));
+		max_Edit->setText(Locale.toString(parameter->confidence.max/coeff,line_edit_double_format,line_edit_precision));
 
 		Global_Variables::resize_Line_Edit(min_Edit);
 		Global_Variables::resize_Line_Edit(max_Edit);
@@ -149,23 +149,23 @@ void Confidence_Interval_Editor::refresh_Show_Data(bool show)
 		// special cases
 		if(parameter->indicator.whats_This == whats_This_Gamma)
 		{
-			if(min_Edit->text().toDouble()>1)
+			if(Locale.toDouble(min_Edit->text())>1)
 			{
-				min_Edit->setText(QString::number(parameter->confidence.min,line_edit_double_format,line_edit_gamma_precision));
+				min_Edit->setText(Locale.toString(parameter->confidence.min,line_edit_double_format,line_edit_gamma_precision));
 				Global_Variables::resize_Line_Edit(min_Edit);
 			}
-			if(max_Edit->text().toDouble()>1)
+			if(Locale.toDouble(max_Edit->text())>1)
 			{
-				max_Edit->setText(QString::number(parameter->confidence.max,line_edit_double_format,line_edit_gamma_precision));
+				max_Edit->setText(Locale.toString(parameter->confidence.max,line_edit_double_format,line_edit_gamma_precision));
 				Global_Variables::resize_Line_Edit(max_Edit);
 			}
 		}
 
 		parameter->confidence.num_Points = num_Points->value();
-		parameter->confidence.min = min_Edit->text().toDouble()*coeff;
-		parameter->confidence.max = max_Edit->text().toDouble()*coeff;
+		parameter->confidence.min = Locale.toDouble(min_Edit->text())*coeff;
+		parameter->confidence.max = Locale.toDouble(max_Edit->text())*coeff;
 	}
-	step_Edit->setText( QString::number((parameter->confidence.max-parameter->confidence.min)/(parameter->confidence.num_Points-1)/coeff,line_edit_double_format,line_edit_precision));
+	step_Edit->setText(Locale.toString((parameter->confidence.max-parameter->confidence.min)/(parameter->confidence.num_Points-1)/coeff,line_edit_double_format,line_edit_precision));
 	Global_Variables::resize_Line_Edit(step_Edit);
 }
 

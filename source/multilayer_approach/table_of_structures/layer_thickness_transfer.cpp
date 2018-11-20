@@ -364,7 +364,7 @@ void Layer_Thickness_Transfer::spinBox_Lambda(MyDoubleSpinBox* current_Child_Spi
 void Layer_Thickness_Transfer::refresh(MyDoubleSpinBox* spinbox, int precision)
 {
 	QLineEdit* line_Edit = map_Of_Line_Edits.value(spinbox);
-	line_Edit->setText(QString::number(spinbox->value()*coeff/coeff, line_edit_double_format, precision));
+	line_Edit->setText(Locale.toString(spinbox->value()*coeff/coeff, line_edit_double_format, precision));
 	table_Of_Structures->layer_Thickness_Transfer_Reload_Block = true;
 	line_Edit->textEdited(line_Edit->text());
 	table_Of_Structures->layer_Thickness_Transfer_Reload_Block = false;

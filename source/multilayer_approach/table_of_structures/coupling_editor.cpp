@@ -14,7 +14,7 @@ Coupling_Editor::Coupling_Editor(QWidget* coupled_Widget,
 	struct_Data = struct_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
 	coupled_Parameter = Global_Variables::get_Parameter_From_Struct_Item_by_Id(struct_Data, coupled_Id);
 
-	setWindowTitle("<"+table_Of_Structures->main_Tabs->tabText(coupled_Parameter->indicator.tab_Index)+"> "+coupled_Parameter->indicator.full_Name/*+" "+QString::number(coupling_Parameter.indicator.id)*/);
+	setWindowTitle("<"+table_Of_Structures->main_Tabs->tabText(coupled_Parameter->indicator.tab_Index)+"> "+coupled_Parameter->indicator.full_Name/*+" "+Locale.toString(coupling_Parameter.indicator.id)*/);
 	create_Main_Layout();
 	set_Window_Geometry();
 	setAttribute(Qt::WA_DeleteOnClose);
@@ -540,7 +540,7 @@ void Coupling_Editor::get_Parameter(QLabel* label)
 
 			// master's side
 			master_Widget = widget;					// remember widget. data will be saved at close->
-			label->setText("<"+table_Of_Structures->main_Tabs->tabText(widget_Parameter->indicator.tab_Index)+"> "+widget_Parameter->indicator.full_Name/* + " " + QString::number(parameter->indicator.id)*/);
+			label->setText("<"+table_Of_Structures->main_Tabs->tabText(widget_Parameter->indicator.tab_Index)+"> "+widget_Parameter->indicator.full_Name/* + " " + Locale.toString(parameter->indicator.id)*/);
 			confidence_Interval_Editor->setEnabled(false);
 		} else
 		// set slave
@@ -568,7 +568,7 @@ void Coupling_Editor::get_Parameter(QLabel* label)
 				coupled_Parameter->coupled.slaves[index].exist = true;
 				coupled_Parameter->coupled.slaves[index].expression = expression;
 
-				label->setText("<"+table_Of_Structures->main_Tabs->tabText(widget_Parameter->indicator.tab_Index)+"> "+widget_Parameter->indicator.full_Name/* + " " + QString::number(parameter->indicator.id)*/);
+				label->setText("<"+table_Of_Structures->main_Tabs->tabText(widget_Parameter->indicator.tab_Index)+"> "+widget_Parameter->indicator.full_Name/* + " " + Locale.toString(parameter->indicator.id)*/);
 			}
 		}
 //		qInfo() << "parameter id = " << parameter->indicator.id << "\n" << main_Tabs->tabText(parameter->indicator.tab_Index) << " " << parameter->indicator.full_Name << endl;

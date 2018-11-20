@@ -429,7 +429,7 @@ void Calculation_Settings_Editor::load_Target_Parameters(int tab_Index)
 				connect(fit,  &QCheckBox::toggled, this, [=]{ target_Curve->fit_Params.fit = fit->isChecked(); });
 
 				QLabel* weight_Label = new QLabel("Weight");
-				QLineEdit* weight_Line_Edit = new QLineEdit(QString::number(target_Curve->fit_Params.weight));
+				QLineEdit* weight_Line_Edit = new QLineEdit(Locale.toString(target_Curve->fit_Params.weight));
 					weight_Line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION, this));
 
 				QHBoxLayout* weight_Layout = new QHBoxLayout;
@@ -439,8 +439,8 @@ void Calculation_Settings_Editor::load_Target_Parameters(int tab_Index)
 				box_Layout->addLayout(weight_Layout);
 				connect(weight_Line_Edit,  &QLineEdit::textEdited, this, [=]
 				{
-					target_Curve->fit_Params.weight      =      weight_Line_Edit->text().toDouble();
-					target_Curve->fit_Params.weight_Sqrt = sqrt(weight_Line_Edit->text().toDouble());
+					target_Curve->fit_Params.weight      =      Locale.toDouble(weight_Line_Edit->text());
+					target_Curve->fit_Params.weight_Sqrt = sqrt(Locale.toDouble(weight_Line_Edit->text()));
 				});
 				different_Lines.append(weight_Line_Edit);
 			}

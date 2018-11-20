@@ -299,7 +299,7 @@ void Fitting_Settings_Editor::create_GSL_Main_Params_Group_Box()
 			GSL_max_Iter_SpinBox->setRange(1,MAX_INTEGER);
 
 		GSL_common_Tolerance_Label = new QLabel("General tolerance");
-		GSL_common_Tolerance_Line_Edit = new QLineEdit(QString::number(fitting_Settings->x_Tolerance));
+		GSL_common_Tolerance_Line_Edit = new QLineEdit(Locale.toString(fitting_Settings->x_Tolerance));
 			GSL_common_Tolerance_Line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION, this));
 
 
@@ -321,7 +321,7 @@ void Fitting_Settings_Editor::create_GSL_Main_Params_Group_Box()
 		connect(GSL_max_Iter_SpinBox, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), fitting_Settings, [=]{fitting_Settings->max_Iter = GSL_max_Iter_SpinBox->value();	});
 		connect(GSL_common_Tolerance_Line_Edit, &QLineEdit::textChanged, fitting_Settings, [=]
 		{
-			fitting_Settings->x_Tolerance = GSL_common_Tolerance_Line_Edit->text().toDouble();
+			fitting_Settings->x_Tolerance = Locale.toDouble(GSL_common_Tolerance_Line_Edit->text());
 			fitting_Settings->f_Tolerance = fitting_Settings->x_Tolerance;
 			fitting_Settings->g_Tolerance = fitting_Settings->x_Tolerance;
 		});
@@ -339,15 +339,15 @@ void Fitting_Settings_Editor::create_GSL_AdditionalParams_Group_Box()
 	}
 	{
 		GSL_x_Tolerance_Label = new QLabel("Parameters tolerance");
-		GSL_x_Tolerance_Line_Edit = new QLineEdit(QString::number(fitting_Settings->x_Tolerance));
+		GSL_x_Tolerance_Line_Edit = new QLineEdit(Locale.toString(fitting_Settings->x_Tolerance));
 			GSL_x_Tolerance_Line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION, this));
 
 		GSL_g_Tolerance_Label = new QLabel("Gradient tolerance");
-		GSL_g_Tolerance_Line_Edit = new QLineEdit(QString::number(fitting_Settings->g_Tolerance));
+		GSL_g_Tolerance_Line_Edit = new QLineEdit(Locale.toString(fitting_Settings->g_Tolerance));
 			GSL_g_Tolerance_Line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION, this));
 
 		GSL_f_Tolerance_Label = new QLabel("Residual tolerance");
-		GSL_f_Tolerance_Line_Edit = new QLineEdit(QString::number(fitting_Settings->f_Tolerance));
+		GSL_f_Tolerance_Line_Edit = new QLineEdit(Locale.toString(fitting_Settings->f_Tolerance));
 			GSL_f_Tolerance_Line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION, this));
 
 
@@ -373,23 +373,23 @@ void Fitting_Settings_Editor::create_GSL_AdditionalParams_Group_Box()
 			GSL_fdtype_Combo_Box->setCurrentIndex(GSL_fdtype_Combo_Box->findText(fitting_Settings->current_Fdtype));
 
 		GSL_factor_up_Label = new QLabel("Factor for increasing trust radius (default 3)");
-		GSL_factor_up_Line_Edit = new QLineEdit(QString::number(fitting_Settings->factor_Up));
+		GSL_factor_up_Line_Edit = new QLineEdit(Locale.toString(fitting_Settings->factor_Up));
 			GSL_factor_up_Line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION, this));
 
 		GSL_factor_down_Label = new QLabel("Factor for decreasing trust radius (default 2)");
-		GSL_factor_down_Line_Edit = new QLineEdit(QString::number(fitting_Settings->factor_Down));
+		GSL_factor_down_Line_Edit = new QLineEdit(Locale.toString(fitting_Settings->factor_Down));
 			GSL_factor_down_Line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION, this));
 
 		GSL_avmax_Label = new QLabel("Max allowed |a|/|v| (default 0.75)");
-		GSL_avmax_Line_Edit = new QLineEdit(QString::number(fitting_Settings->avmax));
+		GSL_avmax_Line_Edit = new QLineEdit(Locale.toString(fitting_Settings->avmax));
 			GSL_avmax_Line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION, this));
 
 		GSL_h_df_Label = new QLabel("Step size for finite difference J (default ~1.5e-8)");
-		GSL_h_df_Line_Edit = new QLineEdit(QString::number(fitting_Settings->h_df));
+		GSL_h_df_Line_Edit = new QLineEdit(Locale.toString(fitting_Settings->h_df));
 			GSL_h_df_Line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION, this));
 
 		GSL_h_fvv_Label = new QLabel("Step size for finite difference fvv (default 0.02)");
-		GSL_h_fvv_Line_Edit = new QLineEdit(QString::number(fitting_Settings->h_fvv));
+		GSL_h_fvv_Line_Edit = new QLineEdit(Locale.toString(fitting_Settings->h_fvv));
 			GSL_h_fvv_Line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION, this));
 
 		int p=0;
@@ -419,19 +419,19 @@ void Fitting_Settings_Editor::create_GSL_AdditionalParams_Group_Box()
 		GSL_Additional_Params_Group_Box_Layout->addWidget(GSL_h_fvv_Label,			p+2,0,1,1);
 		GSL_Additional_Params_Group_Box_Layout->addWidget(GSL_h_fvv_Line_Edit,		p+2,1,1,1);
 
-		connect(GSL_x_Tolerance_Line_Edit, &QLineEdit::textChanged, fitting_Settings, [=]{fitting_Settings->x_Tolerance = GSL_x_Tolerance_Line_Edit->text().toDouble();	});
-		connect(GSL_g_Tolerance_Line_Edit, &QLineEdit::textChanged, fitting_Settings, [=]{fitting_Settings->g_Tolerance = GSL_g_Tolerance_Line_Edit->text().toDouble();	});
-		connect(GSL_f_Tolerance_Line_Edit, &QLineEdit::textChanged, fitting_Settings, [=]{fitting_Settings->f_Tolerance = GSL_f_Tolerance_Line_Edit->text().toDouble();	});
+		connect(GSL_x_Tolerance_Line_Edit, &QLineEdit::textChanged, fitting_Settings, [=]{fitting_Settings->x_Tolerance = Locale.toDouble(GSL_x_Tolerance_Line_Edit->text());	});
+		connect(GSL_g_Tolerance_Line_Edit, &QLineEdit::textChanged, fitting_Settings, [=]{fitting_Settings->g_Tolerance = Locale.toDouble(GSL_g_Tolerance_Line_Edit->text());	});
+		connect(GSL_f_Tolerance_Line_Edit, &QLineEdit::textChanged, fitting_Settings, [=]{fitting_Settings->f_Tolerance = Locale.toDouble(GSL_f_Tolerance_Line_Edit->text());	});
 
 		connect(GSL_scale_Combo_Box,  static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), [=]{fitting_Settings->current_Scale  = GSL_scale_Combo_Box->currentText(); });
 		connect(GSL_solver_Combo_Box, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), [=]{fitting_Settings->current_Solver = GSL_solver_Combo_Box->currentText();});
 		connect(GSL_fdtype_Combo_Box, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), [=]{fitting_Settings->current_Fdtype = GSL_fdtype_Combo_Box->currentText();});
 
-		connect(GSL_factor_up_Line_Edit,   &QLineEdit::textChanged, [=]{fitting_Settings->factor_Up		= GSL_factor_up_Line_Edit->text().toDouble();	});
-		connect(GSL_factor_down_Line_Edit, &QLineEdit::textChanged, [=]{fitting_Settings->factor_Down	= GSL_factor_down_Line_Edit->text().toDouble();	});
-		connect(GSL_avmax_Line_Edit,	   &QLineEdit::textChanged, [=]{fitting_Settings->avmax			= GSL_avmax_Line_Edit->text().toDouble();		});
-		connect(GSL_h_df_Line_Edit,		   &QLineEdit::textChanged, [=]{fitting_Settings->h_df			= GSL_h_df_Line_Edit->text().toDouble();		});
-		connect(GSL_h_fvv_Line_Edit,	   &QLineEdit::textChanged, [=]{fitting_Settings->h_fvv			= GSL_h_fvv_Line_Edit->text().toDouble();		});
+		connect(GSL_factor_up_Line_Edit,   &QLineEdit::textChanged, [=]{fitting_Settings->factor_Up		= Locale.toDouble(GSL_factor_up_Line_Edit->text());	});
+		connect(GSL_factor_down_Line_Edit, &QLineEdit::textChanged, [=]{fitting_Settings->factor_Down	= Locale.toDouble(GSL_factor_down_Line_Edit->text());	});
+		connect(GSL_avmax_Line_Edit,	   &QLineEdit::textChanged, [=]{fitting_Settings->avmax			= Locale.toDouble(GSL_avmax_Line_Edit->text());		});
+		connect(GSL_h_df_Line_Edit,		   &QLineEdit::textChanged, [=]{fitting_Settings->h_df			= Locale.toDouble(GSL_h_df_Line_Edit->text());		});
+		connect(GSL_h_fvv_Line_Edit,	   &QLineEdit::textChanged, [=]{fitting_Settings->h_fvv			= Locale.toDouble(GSL_h_fvv_Line_Edit->text());		});
 	}
 	{
 		// create spoiler

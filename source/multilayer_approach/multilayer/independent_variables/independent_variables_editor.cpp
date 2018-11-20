@@ -201,7 +201,7 @@ void Independent_Variables_Editor::create_Angle_Interface()
 		angular_Resolution_Label = new QLabel(Global_Variables::parameter_Name(struct_Data, whats_This_Angular_Resolution, 0));
 			angular_Resolution_Label->setSizePolicy(sp_retain);
 		layout_Ang_Res->addWidget(angular_Resolution_Label);
-		angular_Resolution_Edit = new QLineEdit(QString::number(struct_Data.angular_Resolution.value,line_edit_double_format,line_edit_angle_precision));
+		angular_Resolution_Edit = new QLineEdit(Locale.toString(struct_Data.angular_Resolution.value,line_edit_double_format,line_edit_angle_precision));
 			angular_Resolution_Edit->setFixedWidth(INDEPENDENT_LINE_EDIT_WIDTH);
 			angular_Resolution_Edit->setProperty(min_Size_Property, INDEPENDENT_LINE_EDIT_WIDTH);
 			angular_Resolution_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION, this));
@@ -223,7 +223,7 @@ void Independent_Variables_Editor::create_Angle_Interface()
 	{
 		beam_Size_Label = new QLabel(Global_Variables::parameter_Name(struct_Data, whats_This_Beam_Size, 0));
 		geometry_Layout->addWidget(beam_Size_Label,0,0,Qt::AlignRight);
-		beam_Size_LineEdit = new QLineEdit(QString::number(struct_Data.beam_Size.value,line_edit_double_format,line_edit_beam_size_precision));
+		beam_Size_LineEdit = new QLineEdit(Locale.toString(struct_Data.beam_Size.value,line_edit_double_format,line_edit_beam_size_precision));
 			beam_Size_LineEdit->setFixedWidth(INDEPENDENT_LINE_EDIT_WIDTH);
 			beam_Size_LineEdit->setProperty(min_Size_Property, INDEPENDENT_LINE_EDIT_WIDTH);
 			beam_Size_LineEdit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION, this));
@@ -245,7 +245,7 @@ void Independent_Variables_Editor::create_Angle_Interface()
 	{
 		sample_Size_Label = new QLabel(Global_Variables::parameter_Name(struct_Data, whats_This_Sample_Size, 0));
 		geometry_Layout->addWidget(sample_Size_Label,0,4,Qt::AlignRight);
-		sample_Size_LineEdit = new QLineEdit(QString::number(struct_Data.sample_Size.value,line_edit_double_format,line_edit_sample_size_precision));
+		sample_Size_LineEdit = new QLineEdit(Locale.toString(struct_Data.sample_Size.value,line_edit_double_format,line_edit_sample_size_precision));
 			sample_Size_LineEdit->setFixedWidth(INDEPENDENT_LINE_EDIT_WIDTH);
 			sample_Size_LineEdit->setProperty(min_Size_Property, INDEPENDENT_LINE_EDIT_WIDTH);
 			sample_Size_LineEdit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION, this));
@@ -261,7 +261,7 @@ void Independent_Variables_Editor::create_Angle_Interface()
 	{
 		beam_Profile_Spreading_Label = new QLabel(Global_Variables::parameter_Name(struct_Data, whats_This_Beam_Profile_Spreading, 0));
 		geometry_Layout->addWidget(beam_Profile_Spreading_Label,1,0,Qt::AlignRight);
-		beam_Profile_Spreading_LineEdit = new QLineEdit(QString::number(struct_Data.beam_Profile_Spreading.value,line_edit_double_format,line_edit_beam_size_precision));
+		beam_Profile_Spreading_LineEdit = new QLineEdit(Locale.toString(struct_Data.beam_Profile_Spreading.value,line_edit_double_format,line_edit_beam_size_precision));
 			beam_Profile_Spreading_LineEdit->setFixedWidth(INDEPENDENT_LINE_EDIT_WIDTH);
 			beam_Profile_Spreading_LineEdit->setProperty(min_Size_Property, INDEPENDENT_LINE_EDIT_WIDTH);
 			beam_Profile_Spreading_LineEdit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION, this));
@@ -281,7 +281,7 @@ void Independent_Variables_Editor::create_Angle_Interface()
 	{
 		sample_Shift_Label = new QLabel(Global_Variables::parameter_Name(struct_Data, whats_This_Sample_Shift, 0));
 		geometry_Layout->addWidget(sample_Shift_Label,1,4,Qt::AlignRight);
-		sample_Shift_LineEdit = new QLineEdit(QString::number(struct_Data.sample_Shift.value,line_edit_double_format,line_edit_sample_size_precision));
+		sample_Shift_LineEdit = new QLineEdit(Locale.toString(struct_Data.sample_Shift.value,line_edit_double_format,line_edit_sample_size_precision));
 			sample_Shift_LineEdit->setFixedWidth(INDEPENDENT_LINE_EDIT_WIDTH);
 			sample_Shift_LineEdit->setProperty(min_Size_Property, INDEPENDENT_LINE_EDIT_WIDTH);
 			sample_Shift_LineEdit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION, this));
@@ -454,9 +454,9 @@ void Independent_Variables_Editor::refresh_Show_Data(bool show)
 		// show data
 		if(show)
 		{
-			val_Edit->setText(	QString::number(parameter.value/coeff,			line_edit_double_format,line_edit_precision));
-			min_Edit->setText(	QString::number(parameter.independent.min/coeff,line_edit_double_format,line_edit_precision));
-			max_Edit->setText(	QString::number(parameter.independent.max/coeff,line_edit_double_format,line_edit_precision));
+			val_Edit->setText(	Locale.toString(parameter.value/coeff,			line_edit_double_format,line_edit_precision));
+			min_Edit->setText(	Locale.toString(parameter.independent.min/coeff,line_edit_double_format,line_edit_precision));
+			max_Edit->setText(	Locale.toString(parameter.independent.max/coeff,line_edit_double_format,line_edit_precision));
 
 			Global_Variables::resize_Line_Edit(val_Edit);
 			Global_Variables::resize_Line_Edit(min_Edit);
@@ -464,11 +464,11 @@ void Independent_Variables_Editor::refresh_Show_Data(bool show)
 
 			if(indicator.parameter_Whats_This == whats_This_Angle)
 			{
-				angular_Resolution_Edit->		 setText(QString::number(struct_Data.angular_Resolution.value/coeff,line_edit_double_format,line_edit_angle_precision));
-				beam_Size_LineEdit->			 setText(QString::number(struct_Data.beam_Size.value,				line_edit_double_format,line_edit_beam_size_precision));
-				sample_Size_LineEdit->			 setText(QString::number(struct_Data.sample_Size.value,				line_edit_double_format,line_edit_sample_size_precision));
-				beam_Profile_Spreading_LineEdit->setText(QString::number(struct_Data.beam_Profile_Spreading.value,	line_edit_double_format,line_edit_beam_size_precision));
-				sample_Shift_LineEdit->			 setText(QString::number(struct_Data.sample_Shift.value,			line_edit_double_format,line_edit_sample_size_precision));
+				angular_Resolution_Edit->		 setText(Locale.toString(struct_Data.angular_Resolution.value/coeff,line_edit_double_format,line_edit_angle_precision));
+				beam_Size_LineEdit->			 setText(Locale.toString(struct_Data.beam_Size.value,				line_edit_double_format,line_edit_beam_size_precision));
+				sample_Size_LineEdit->			 setText(Locale.toString(struct_Data.sample_Size.value,				line_edit_double_format,line_edit_sample_size_precision));
+				beam_Profile_Spreading_LineEdit->setText(Locale.toString(struct_Data.beam_Profile_Spreading.value,	line_edit_double_format,line_edit_beam_size_precision));
+				sample_Shift_LineEdit->			 setText(Locale.toString(struct_Data.sample_Shift.value,			line_edit_double_format,line_edit_sample_size_precision));
 
 				Global_Variables::resize_Line_Edit(angular_Resolution_Edit);
 				Global_Variables::resize_Line_Edit(beam_Size_LineEdit);
@@ -486,67 +486,67 @@ void Independent_Variables_Editor::refresh_Show_Data(bool show)
 			// special cases
 			if(indicator.parameter_Whats_This == whats_This_Gamma)
 			{
-				if(val_Edit->text().toDouble()>1)
+				if(Locale.toDouble(val_Edit->text())>1)
 				{
-					val_Edit->setText(QString::number(parameter.value,line_edit_double_format,line_edit_gamma_precision));
+					val_Edit->setText(Locale.toString(parameter.value,line_edit_double_format,line_edit_gamma_precision));
 					Global_Variables::resize_Line_Edit(val_Edit);
 				}
-				if(min_Edit->text().toDouble()>1)
+				if(Locale.toDouble(min_Edit->text())>1)
 				{
-					min_Edit->setText(QString::number(parameter.independent.min,line_edit_double_format,line_edit_gamma_precision));
+					min_Edit->setText(Locale.toString(parameter.independent.min,line_edit_double_format,line_edit_gamma_precision));
 					Global_Variables::resize_Line_Edit(min_Edit);
 				}
-				if(max_Edit->text().toDouble()>1)
+				if(Locale.toDouble(max_Edit->text())>1)
 				{
-					max_Edit->setText(QString::number(parameter.independent.max,line_edit_double_format,line_edit_gamma_precision));
+					max_Edit->setText(Locale.toString(parameter.independent.max,line_edit_double_format,line_edit_gamma_precision));
 					Global_Variables::resize_Line_Edit(max_Edit);
 				}
 			}
 			if(indicator.parameter_Whats_This == whats_This_Angle)
 			{
-				if(val_Edit->text().toDouble()*coeff>90.+3*pow(10.,-line_edit_angle_precision+1))
+				if(Locale.toDouble(val_Edit->text())*coeff>90.+3*pow(10.,-line_edit_angle_precision+1))
 				{
-					val_Edit->setText(QString::number(parameter.value/coeff,line_edit_double_format,line_edit_angle_precision));
+					val_Edit->setText(Locale.toString(parameter.value/coeff,line_edit_double_format,line_edit_angle_precision));
 					Global_Variables::resize_Line_Edit(val_Edit);
 				}
-				if(min_Edit->text().toDouble()*coeff>90.+3*pow(10.,-line_edit_angle_precision+1))
+				if(Locale.toDouble(min_Edit->text())*coeff>90.+3*pow(10.,-line_edit_angle_precision+1))
 				{					
-					min_Edit->setText(QString::number(parameter.independent.min/coeff,line_edit_double_format,line_edit_angle_precision));
+					min_Edit->setText(Locale.toString(parameter.independent.min/coeff,line_edit_double_format,line_edit_angle_precision));
 					Global_Variables::resize_Line_Edit(min_Edit);
 				}
-				if(max_Edit->text().toDouble()*coeff>90.+3*pow(10.,-line_edit_angle_precision+1))
+				if(Locale.toDouble(max_Edit->text())*coeff>90.+3*pow(10.,-line_edit_angle_precision+1))
 				{
-					max_Edit->setText(QString::number(parameter.independent.max/coeff,line_edit_double_format,line_edit_angle_precision));
+					max_Edit->setText(Locale.toString(parameter.independent.max/coeff,line_edit_double_format,line_edit_angle_precision));
 					Global_Variables::resize_Line_Edit(max_Edit);
 				}
 
 				if(parameter.independent.num_Points >= MIN_ANGULAR_RESOLUTION_POINTS)
 				{
-					struct_Data.angular_Resolution.value = angular_Resolution_Edit->text().toDouble()*coeff;
+					struct_Data.angular_Resolution.value = Locale.toDouble(angular_Resolution_Edit->text())*coeff;
 				}
-				struct_Data.beam_Size.value				= beam_Size_LineEdit->text().toDouble();
-				struct_Data.sample_Size.value			= sample_Size_LineEdit->text().toDouble();
-				struct_Data.beam_Profile_Spreading.value= beam_Profile_Spreading_LineEdit->text().toDouble();
-				struct_Data.sample_Shift.value			= sample_Shift_LineEdit->text().toDouble();
+				struct_Data.beam_Size.value				= Locale.toDouble(beam_Size_LineEdit->text());
+				struct_Data.sample_Size.value			= Locale.toDouble(sample_Size_LineEdit->text());
+				struct_Data.beam_Profile_Spreading.value= Locale.toDouble(beam_Profile_Spreading_LineEdit->text());
+				struct_Data.sample_Shift.value			= Locale.toDouble(sample_Shift_LineEdit->text());
 			}
 
 			parameter.independent.num_Points = num_Points->value();
-			parameter.value			  = val_Edit->text().toDouble()*coeff;
-			parameter.independent.min = min_Edit->text().toDouble()*coeff;
-			parameter.independent.max = max_Edit->text().toDouble()*coeff;
+			parameter.value			  = Locale.toDouble(val_Edit->text())*coeff;
+			parameter.independent.min = Locale.toDouble(min_Edit->text())*coeff;
+			parameter.independent.max = Locale.toDouble(max_Edit->text())*coeff;
 
 			QVariant var; var.setValue(struct_Data);
 			structure_Item->setData(DEFAULT_COLUMN,Qt::UserRole,var);
 		}
 		if(parameter.independent.num_Points == 1)
-			list_Item->setText(name + " [" +QString::number(parameter.value/coeff,thumbnail_double_format,thumbnail_precision) + units + end_Bracket_Text);
+			list_Item->setText(name + " [" +Locale.toString(parameter.value/coeff,thumbnail_double_format,thumbnail_precision) + units + end_Bracket_Text);
 		else
-			list_Item->setText(name + " [" +QString::number(parameter.independent.num_Points) + " values: " +
-											QString::number(parameter.independent.min/coeff,thumbnail_double_format,thumbnail_precision) + " - " +
-											QString::number(parameter.independent.max/coeff,thumbnail_double_format,thumbnail_precision) + units + end_Bracket_Text);
+			list_Item->setText(name + " [" +Locale.toString(parameter.independent.num_Points) + " values: " +
+											Locale.toString(parameter.independent.min/coeff,thumbnail_double_format,thumbnail_precision) + " - " +
+											Locale.toString(parameter.independent.max/coeff,thumbnail_double_format,thumbnail_precision) + units + end_Bracket_Text);
 		if(parameter.independent.num_Points>1)
 		{
-			step_Edit->setText(QString::number((parameter.independent.max-parameter.independent.min)/(parameter.independent.num_Points-1)/coeff,line_edit_double_format,line_edit_precision));
+			step_Edit->setText(Locale.toString((parameter.independent.max-parameter.independent.min)/(parameter.independent.num_Points-1)/coeff,line_edit_double_format,line_edit_precision));
 			Global_Variables::resize_Line_Edit(step_Edit);
 		}
 		show_Hide_Elements();
@@ -569,9 +569,9 @@ void Independent_Variables_Editor::refresh_Show_Data(bool show)
 		// show data
 		if(show)
 		{
-			val_Edit->setText(	QString::number(struct_Data.num_Repetition.value()));
-			min_Edit->setText(	QString::number(struct_Data.num_Repetition.start));
-			max_Edit->setText(	QString::number(struct_Data.num_Repetition.step));
+			val_Edit->setText(	Locale.toString(struct_Data.num_Repetition.value()));
+			min_Edit->setText(	Locale.toString(struct_Data.num_Repetition.start));
+			max_Edit->setText(	Locale.toString(struct_Data.num_Repetition.step));
 
 			Global_Variables::resize_Line_Edit(val_Edit);
 			Global_Variables::resize_Line_Edit(min_Edit);
@@ -583,26 +583,26 @@ void Independent_Variables_Editor::refresh_Show_Data(bool show)
 		} else
 		// refresh data
 		{
-			if(max_Edit->text().toInt()<1)
+			if(Locale.toInt(max_Edit->text())<1)
 			{
-				max_Edit->setText(QString::number(struct_Data.num_Repetition.step));
+				max_Edit->setText(Locale.toString(struct_Data.num_Repetition.step));
 				Global_Variables::resize_Line_Edit(max_Edit);
 			}
 
 			struct_Data.num_Repetition.num_Steps		= num_Points->value();
-			struct_Data.num_Repetition.parameter.value	= val_Edit->text().toDouble();
-			struct_Data.num_Repetition.start			= min_Edit->text().toInt();
-			struct_Data.num_Repetition.step				= max_Edit->text().toInt();
+			struct_Data.num_Repetition.parameter.value	= Locale.toDouble(val_Edit->text());
+			struct_Data.num_Repetition.start			= Locale.toInt   (min_Edit->text());
+			struct_Data.num_Repetition.step				= Locale.toInt   (max_Edit->text());
 
 			QVariant var; var.setValue(struct_Data);
 			structure_Item->setData(DEFAULT_COLUMN,Qt::UserRole,var);
 		}
 		if(struct_Data.num_Repetition.num_Steps == 1)
-			list_Item->setText(name + " [" +QString::number(struct_Data.num_Repetition.value()) + end_Bracket_Text);
+			list_Item->setText(name + " [" +Locale.toString(struct_Data.num_Repetition.value()) + end_Bracket_Text);
 		else
-			list_Item->setText(name + " [" +QString::number(struct_Data.num_Repetition.num_Steps) + " values: " +
-											QString::number(struct_Data.num_Repetition.start) + " - " +
-											QString::number(struct_Data.num_Repetition.start + struct_Data.num_Repetition.step*struct_Data.num_Repetition.num_Steps) + end_Bracket_Text);
+			list_Item->setText(name + " [" +Locale.toString(struct_Data.num_Repetition.num_Steps) + " values: " +
+											Locale.toString(struct_Data.num_Repetition.start) + " - " +
+											Locale.toString(struct_Data.num_Repetition.start + struct_Data.num_Repetition.step*struct_Data.num_Repetition.num_Steps) + end_Bracket_Text);
 		if(struct_Data.num_Repetition.num_Steps > 1)
 		{
 			from_Label->setText("values; start:");
@@ -630,17 +630,17 @@ void Independent_Variables_Editor::refresh_Show_Data(bool show)
 		// show data
 		if(show)
 		{
-			val_Edit->setText(	QString::number(Global_Variables::wavelength_Energy(wavelength_units,struct_Data.wavelength.value)/coeff,line_edit_double_format,line_edit_wavelength_precision));
-			min_Edit->setText(	QString::number(Global_Variables::wavelength_Energy(wavelength_units,struct_Data.wavelength.independent.min)/coeff,line_edit_double_format,line_edit_wavelength_precision));
-			max_Edit->setText(	QString::number(Global_Variables::wavelength_Energy(wavelength_units,struct_Data.wavelength.independent.max)/coeff,line_edit_double_format,line_edit_wavelength_precision));
+			val_Edit->setText(	Locale.toString(Global_Variables::wavelength_Energy(wavelength_units,struct_Data.wavelength.value)/coeff,line_edit_double_format,line_edit_wavelength_precision));
+			min_Edit->setText(	Locale.toString(Global_Variables::wavelength_Energy(wavelength_units,struct_Data.wavelength.independent.min)/coeff,line_edit_double_format,line_edit_wavelength_precision));
+			max_Edit->setText(	Locale.toString(Global_Variables::wavelength_Energy(wavelength_units,struct_Data.wavelength.independent.max)/coeff,line_edit_double_format,line_edit_wavelength_precision));
 
 			Global_Variables::resize_Line_Edit(val_Edit);
 			Global_Variables::resize_Line_Edit(min_Edit);
 			Global_Variables::resize_Line_Edit(max_Edit);
 
-			spectral_Resolution_Edit->setText(QString::number(struct_Data.spectral_Resolution.value,line_edit_double_format,line_edit_wavelength_precision));
-			polarization_Edit->setText(QString::number(struct_Data.polarization.value,line_edit_double_format,line_edit_polarization_precision));
-			background_Edit->setText(QString::number(struct_Data.background.value,line_edit_short_double_format,line_edit_background_precision));
+			spectral_Resolution_Edit->setText(Locale.toString(struct_Data.spectral_Resolution.value,line_edit_double_format,line_edit_wavelength_precision));
+			polarization_Edit->setText(Locale.toString(struct_Data.polarization.value,line_edit_double_format,line_edit_polarization_precision));
+			background_Edit->setText(Locale.toString(struct_Data.background.value,line_edit_short_double_format,line_edit_background_precision));
 
 			Global_Variables::resize_Line_Edit(spectral_Resolution_Edit);
 			Global_Variables::resize_Line_Edit(polarization_Edit);
@@ -653,36 +653,36 @@ void Independent_Variables_Editor::refresh_Show_Data(bool show)
 		// refresh data
 		{
 			// no check for zero wavelength
-			if(polarization_Edit->text().toDouble()>1 || polarization_Edit->text().toDouble()<-1)
+			if(Locale.toDouble(polarization_Edit->text())>1 || Locale.toDouble(polarization_Edit->text())<-1)
 			{
-				polarization_Edit->setText(QString::number(struct_Data.polarization.value,line_edit_double_format,line_edit_polarization_precision));
+				polarization_Edit->setText(Locale.toString(struct_Data.polarization.value,line_edit_double_format,line_edit_polarization_precision));
 				Global_Variables::resize_Line_Edit(polarization_Edit);
 			}
 
 			struct_Data.wavelength.independent.num_Points = num_Points->value();
-			struct_Data.wavelength.value		   = Global_Variables::wavelength_Energy(wavelength_units,val_Edit->text().toDouble()*coeff);
-			struct_Data.wavelength.independent.min = Global_Variables::wavelength_Energy(wavelength_units,min_Edit->text().toDouble()*coeff);
-			struct_Data.wavelength.independent.max = Global_Variables::wavelength_Energy(wavelength_units,max_Edit->text().toDouble()*coeff);
+			struct_Data.wavelength.value		   = Global_Variables::wavelength_Energy(wavelength_units,Locale.toDouble(val_Edit->text())*coeff);
+			struct_Data.wavelength.independent.min = Global_Variables::wavelength_Energy(wavelength_units,Locale.toDouble(min_Edit->text())*coeff);
+			struct_Data.wavelength.independent.max = Global_Variables::wavelength_Energy(wavelength_units,Locale.toDouble(max_Edit->text())*coeff);
 
-			struct_Data.polarization.value = polarization_Edit->text().toDouble();
-			struct_Data.background.value = background_Edit->text().toDouble();
+			struct_Data.polarization.value = Locale.toDouble(polarization_Edit->text());
+			struct_Data.background.value = Locale.toDouble(background_Edit->text());
 
 			if(struct_Data.wavelength.independent.num_Points >= MIN_SPECTRAL_RESOLUTION_POINTS)
-				struct_Data.spectral_Resolution.value = spectral_Resolution_Edit->text().toDouble();
+				struct_Data.spectral_Resolution.value = Locale.toDouble(spectral_Resolution_Edit->text());
 
 			QVariant var; var.setValue(struct_Data);
 			structure_Item->setData(DEFAULT_COLUMN,Qt::UserRole,var);
 		}
 		if(struct_Data.wavelength.independent.num_Points == 1)
-			list_Item->setText(name + " [" +QString::number(Global_Variables::wavelength_Energy(wavelength_units,struct_Data.wavelength.value)/coeff,thumbnail_double_format,thumbnail_wavelength_precision) + units + end_Bracket_Text);
+			list_Item->setText(name + " [" +Locale.toString(Global_Variables::wavelength_Energy(wavelength_units,struct_Data.wavelength.value)/coeff,thumbnail_double_format,thumbnail_wavelength_precision) + units + end_Bracket_Text);
 		else
-			list_Item->setText(name + " [" +QString::number(struct_Data.wavelength.independent.num_Points) + " values: " +
-											QString::number(Global_Variables::wavelength_Energy(wavelength_units,struct_Data.wavelength.independent.min)/coeff,thumbnail_double_format,thumbnail_wavelength_precision) + " - " +
-											QString::number(Global_Variables::wavelength_Energy(wavelength_units,struct_Data.wavelength.independent.max)/coeff/coeff,thumbnail_double_format,thumbnail_wavelength_precision) + units + end_Bracket_Text);
+			list_Item->setText(name + " [" +Locale.toString(struct_Data.wavelength.independent.num_Points) + " values: " +
+											Locale.toString(Global_Variables::wavelength_Energy(wavelength_units,struct_Data.wavelength.independent.min)/coeff,thumbnail_double_format,thumbnail_wavelength_precision) + " - " +
+											Locale.toString(Global_Variables::wavelength_Energy(wavelength_units,struct_Data.wavelength.independent.max)/coeff/coeff,thumbnail_double_format,thumbnail_wavelength_precision) + units + end_Bracket_Text);
 
 		if(struct_Data.wavelength.independent.num_Points>1)
 		{
-			step_Edit->setText(QString::number((Global_Variables::wavelength_Energy(wavelength_units,struct_Data.wavelength.independent.max)-
+			step_Edit->setText(Locale.toString((Global_Variables::wavelength_Energy(wavelength_units,struct_Data.wavelength.independent.max)-
 												Global_Variables::wavelength_Energy(wavelength_units,struct_Data.wavelength.independent.min))/
 											   (struct_Data.wavelength.independent.num_Points-1)/coeff,line_edit_double_format,line_edit_wavelength_precision));
 			Global_Variables::resize_Line_Edit(step_Edit);

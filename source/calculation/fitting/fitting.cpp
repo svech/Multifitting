@@ -414,7 +414,7 @@ bool Fitting::fit()
 	// --------------------------------------------------------------------------------
 	if(n<=p)
 	{
-		QMessageBox::information(nullptr,"Insufficient number of points", "# of fitables: " + QString::number(p) + "\n# of points: " + QString::number(n) + "\n\nShould be f<p");
+		QMessageBox::information(nullptr,"Insufficient number of points", "# of fitables: " + Locale.toString(p) + "\n# of points: " + Locale.toString(n) + "\n\nShould be f<p");
 		return false;
 	}
 	// --------------------------------------------------------------------------------
@@ -454,7 +454,7 @@ bool Fitting::confidence(const vector<double>& fitables_Pointers_Value_Backup, c
 	// --------------------------------------------------------------------------------
 	if(n<=p)
 	{
-		QMessageBox::information(nullptr,"Insufficient number of points", "# of fitables: " + QString::number(p) + "\n# of points: " + QString::number(n) + "\n\nShould be f<p");
+		QMessageBox::information(nullptr,"Insufficient number of points", "# of fitables: " + Locale.toString(p) + "\n# of points: " + Locale.toString(n) + "\n\nShould be f<p");
 		return false;
 	}
 	// --------------------------------------------------------------------------------
@@ -535,6 +535,9 @@ bool Fitting::confidence(const vector<double>& fitables_Pointers_Value_Backup, c
 
 void Fitting::add_Fit_To_File(const gsl_vector* x, double residual, QString filename, int run)
 {
+	// point as decimal separator
+	Locale = QLocale::c();
+
 	QFile file(filename);
 	if(file.open(QIODevice::WriteOnly | QIODevice::Append))
 	{
@@ -582,11 +585,11 @@ void Fitting::add_Fit_To_File(const gsl_vector* x, double residual, QString file
 		//------------------------------------------------------
 		index=0;
 
-		current_String = QString::number(run);
+		current_String = Locale.toString(run);
 		out << qSetFieldWidth(widths[index]) << current_String;
 		index++;
 
-		current_String = QString::number(residual,'e',3);
+		current_String = Locale.toString(residual,'e',3);
 		out << qSetFieldWidth(widths[index]) << current_String;
 		index++;
 
@@ -598,10 +601,10 @@ void Fitting::add_Fit_To_File(const gsl_vector* x, double residual, QString file
 																					params.fitables.param_Pointers[param_Index]->fit.max);
 			if(params.fitables.param_Pointers[param_Index]->indicator.whats_This == whats_This_Num_Repetitions)
 			{
-				current_String = QString::number(round(unparametrized));
+				current_String = Locale.toString(round(unparametrized));
 			} else
 			{
-				current_String = QString::number(unparametrized,'f',4);
+				current_String = Locale.toString(unparametrized,'f',4);
 			}
 			//------------------------------------------------------
 			out << qSetFieldWidth(widths[index]) << current_String;
@@ -618,10 +621,16 @@ void Fitting::add_Fit_To_File(const gsl_vector* x, double residual, QString file
 		QMessageBox::critical(nullptr, "Fitting::add_Fit_To_File", "Can't write file " + filename);
 		exit(EXIT_FAILURE);
 	}
+
+	// back to system locale
+	Locale = QLocale::system();
 }
 
 void Fitting::add_Confidence_Distribution_To_File(double real_Conf_Value, QString filename, size_t confidence_Index, int point_Index, double residual, vector<double>* residuals_Set)
 {
+	// point as decimal separator
+	Locale = QLocale::c();
+
 	QFile file(filename);
 	if(file.open(QIODevice::WriteOnly | QIODevice::Append))
 	{
@@ -668,11 +677,11 @@ void Fitting::add_Confidence_Distribution_To_File(double real_Conf_Value, QStrin
 		//------------------------------------------------------
 		index=1;
 
-		current_String = QString::number(real_Conf_Value);
+		current_String = Locale.toString(real_Conf_Value);
 		out << qSetFieldWidth(widths[index]) << current_String;
 		index++;
 
-		current_String = QString::number(residual,'e',3);
+		current_String = Locale.toString(residual,'e',3);
 		out << qSetFieldWidth(widths[index]) << current_String;
 		index++;
 		//------------------------------------------------------
@@ -683,7 +692,7 @@ void Fitting::add_Confidence_Distribution_To_File(double real_Conf_Value, QStrin
 			out << qSetFieldWidth(2) <<  "(";
 			for(size_t i=0; i<residuals_Set->size(); ++i)
 			{
-				current_String = QString::number((*residuals_Set)[i],'e',3);
+				current_String = Locale.toString((*residuals_Set)[i],'e',3);
 				out << qSetFieldWidth(0) << current_String;
 				if(i!=residuals_Set->size()-1)
 					out << qSetFieldWidth(3) << "," <<qSetFieldWidth(2) ;
@@ -701,6 +710,9 @@ void Fitting::add_Confidence_Distribution_To_File(double real_Conf_Value, QStrin
 		QMessageBox::critical(nullptr, "Fitting::add_Confidence_Distribution_To_File", "Can't write file " + filename);
 		exit(EXIT_FAILURE);
 	}
+
+	// back to system locale
+	Locale = QLocale::system();
 }
 
 bool Fitting::check_Residual_Expression()
@@ -721,7 +733,7 @@ bool Fitting::check_Residual_Expression()
 			if(abs(target_Curve->fit_Params.weight) < DBL_MIN)
 			{
 				QMessageBox::information(nullptr,"Bad weight", "Weight coefficient in\n\n" +
-															struct_Name + ", measured curve #" + QString::number(target_Element_Index+1) +
+															struct_Name + ", measured curve #" + Locale.toString(target_Element_Index+1) +
 															"\n\nshould be positive");
 				return true;
 			}
@@ -738,7 +750,7 @@ bool Fitting::check_Residual_Expression()
 					QMessageBox::information(nullptr,"Bad expression", "Residual function\n\n\"" +
 																	target_Curve->fit_Params.fit_Function +
 																	"\"\n\nin\n\n" +
-																	struct_Name + ", measured curve #" + QString::number(target_Element_Index+1) +
+																	struct_Name + ", measured curve #" + Locale.toString(target_Element_Index+1) +
 																	"\n\nshould contains >=1 expression, separated by \"" + fit_Function_Separator + "\"");
 					return true;
 				}
@@ -755,7 +767,7 @@ bool Fitting::check_Residual_Expression()
 					QMessageBox::information(nullptr,"Bad expression", "Residual function\n\n\"" +
 																	target_Curve->fit_Params.fit_Function +
 																	"\"\n\nin\n\n" +
-																	struct_Name + ", measured curve #" + QString::number(target_Element_Index+1) +
+																	struct_Name + ", measured curve #" + Locale.toString(target_Element_Index+1) +
 																	"\n\nshould contains >=1 expression, separated by \"" + fit_Function_Separator + "\"");
 					return true;
 				}

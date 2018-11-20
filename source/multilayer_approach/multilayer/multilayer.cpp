@@ -146,7 +146,7 @@ void Multilayer::add_Independent_Variables_Tab()
 
 	// add new tab
 	independent_Variables_Plot_Tabs->addTab(new_Independent, default_independent_variable_tab_name);
-	new_Independent->tab_Name = default_independent_variable_tab_name+QString::number(independent_Variables_Plot_Tabs->count());
+	new_Independent->tab_Name = default_independent_variable_tab_name+Locale.toString(independent_Variables_Plot_Tabs->count());
 	independent_Variables_Plot_Tabs->setTabText(independent_Variables_Plot_Tabs->count()-1, new_Independent->tab_Name + new_Independent->enlarge_Tab_Name());
 
 	if(independent_Variables_Plot_Tabs->count()>1)
@@ -251,7 +251,7 @@ void Multilayer::add_Target_Curve(int index_Pressed, bool opening)
 	left_Layout->setSpacing(10);
 	right_Layout->setSpacing(0);
 
-//	{new_Description_Label->setText(new_Description_Label->text() + " " + QString::number(target_Counter));   target_Counter++; }
+//	{new_Description_Label->setText(new_Description_Label->text() + " " + Locale.toString(target_Counter));   target_Counter++; }
 
 	new_Import_Button->		setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 	new_Description_Label->	setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);

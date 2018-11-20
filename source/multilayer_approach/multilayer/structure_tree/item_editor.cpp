@@ -452,7 +452,7 @@ void Item_Editor::make_Aperiodic_Group_Box()
 					if(current_Child_Data.composed_Material) composed = "(composed)";
 					else									 composed = "(tabular)";
 				}
-				QString text =	QString::number(unique_Index++) + ")  " +
+				QString text =	Locale.toString(unique_Index++) + ")  " +
 								current_Child_Data.item_Type + "  " +
 								current_Child_Data.material + "  " +
 								composed;
@@ -720,7 +720,7 @@ void Item_Editor::filename_Radio_Toggled()
 {
 	material_Line_Edit->setReadOnly(false);
 	browse_Material_Button->setEnabled(true);
-	density_Line_Edit->setText(QString::number(struct_Data.relative_Density.value,line_edit_double_format,line_edit_density_precision));
+	density_Line_Edit->setText(Locale.toString(struct_Data.relative_Density.value,line_edit_double_format,line_edit_density_precision));
 	density_Label->setText(relative_Density_Label);
 
 	// composition or filename
@@ -737,7 +737,7 @@ void Item_Editor::composition_Radio_Toggled()
 {
 	density_Label->setText(absolute_Density_Label);
 	material_Line_Edit->setReadOnly(true);
-	density_Line_Edit->setText(QString::number(struct_Data.absolute_Density.value,line_edit_double_format,line_edit_density_precision));
+	density_Line_Edit->setText(Locale.toString(struct_Data.absolute_Density.value,line_edit_double_format,line_edit_density_precision));
 	browse_Material_Button->setEnabled(false);
 
 	// composition or filename
@@ -799,9 +799,9 @@ void Item_Editor::more_Elements_Clicked()
 	stoich.composition.indicator.item_Id = struct_Data.id;
 
 	// creating ui elements
-	line_Edit->setText(QString::number(stoich.composition.value,line_edit_short_double_format,line_edit_composition_precision));
+	line_Edit->setText(Locale.toString(stoich.composition.value,line_edit_short_double_format,line_edit_composition_precision));
 	elements->setCurrentIndex(elements->findText(stoich.type));
-	at_Weight->setText(AtWt + QString::number(sorted_Elements.value(elements->currentText()),thumbnail_double_format,at_weight_precision) + ")");
+	at_Weight->setText(AtWt + Locale.toString(sorted_Elements.value(elements->currentText()),thumbnail_double_format,at_weight_precision) + ")");
 
 	composition_Line_Edit_Vec.append(line_Edit);
 	composition_Label_Vec.append(label);
@@ -830,7 +830,7 @@ void Item_Editor::more_Elements_Clicked()
 	if (element_Frame_Vec.size()==1)
 	{
 		composition_Line_Edit_Vec.first()->setDisabled(true);
-		composition_Line_Edit_Vec.first()->setText(QString::number(1,line_edit_short_double_format,line_edit_composition_precision));
+		composition_Line_Edit_Vec.first()->setText(Locale.toString(1.,line_edit_short_double_format,line_edit_composition_precision));
 			Global_Variables::resize_Line_Edit(composition_Line_Edit_Vec.first());
 		fewer_Elements->hide();
 	}
@@ -872,9 +872,9 @@ void Item_Editor::read_Elements_From_Item()
 
 		connect(line_Edit, &QLineEdit::textEdited, this, [=]{Global_Variables::resize_Line_Edit(line_Edit);});
 
-		line_Edit->setText(QString::number(struct_Data.composition[i].composition.value,line_edit_short_double_format,line_edit_composition_precision));
+		line_Edit->setText(Locale.toString(struct_Data.composition[i].composition.value,line_edit_short_double_format,line_edit_composition_precision));
 		elements->setCurrentIndex(elements->findText(struct_Data.composition[i].type));
-		at_Weight->setText(AtWt + QString::number(sorted_Elements.value(elements->currentText()),thumbnail_double_format,at_weight_precision) + ")");
+		at_Weight->setText(AtWt + Locale.toString(sorted_Elements.value(elements->currentText()),thumbnail_double_format,at_weight_precision) + ")");
 
 		composition_Line_Edit_Vec[i]=line_Edit;
 		composition_Label_Vec	 [i]=label;
@@ -904,7 +904,7 @@ void Item_Editor::read_Elements_From_Item()
 	if (element_Frame_Vec.size()==1)
 	{
 		composition_Line_Edit_Vec.first()->setDisabled(true);
-		composition_Line_Edit_Vec.first()->setText(QString::number(1,line_edit_short_double_format,line_edit_composition_precision));
+		composition_Line_Edit_Vec.first()->setText(Locale.toString(1.,line_edit_short_double_format,line_edit_composition_precision));
 			Global_Variables::resize_Line_Edit(composition_Line_Edit_Vec.first());
 		fewer_Elements->hide();
 	}
@@ -954,8 +954,8 @@ void Item_Editor::read_Interlayers_From_Item()
 //			connect(my_Sigma_Line_Edit, &QLineEdit::textEdited,	this, [=]{Global_Variables::resize_Line_Edit(my_Sigma_Line_Edit);}); // better not use
 
 			check_Box->setChecked(struct_Data.interlayer_Composition[i].enabled);
-			comp_Line_Edit->setText(QString::number(struct_Data.interlayer_Composition[i].interlayer.value,line_edit_short_double_format,line_edit_interlayer_precision));
-			my_Sigma_Line_Edit->setText(QString::number(struct_Data.interlayer_Composition[i].my_Sigma.value/coeff,line_edit_short_double_format,line_edit_interlayer_precision));
+			comp_Line_Edit->setText(Locale.toString(struct_Data.interlayer_Composition[i].interlayer.value,line_edit_short_double_format,line_edit_interlayer_precision));
+			my_Sigma_Line_Edit->setText(Locale.toString(struct_Data.interlayer_Composition[i].my_Sigma.value/coeff,line_edit_short_double_format,line_edit_interlayer_precision));
 //				Global_Variables::resize_Line_Edit(comp_Line_Edit);     // better not use
 //				Global_Variables::resize_Line_Edit(my_Sigma_Line_Edit); // better not use
 
@@ -1007,7 +1007,7 @@ void Item_Editor::fewer_Elements_Clicked()
 	if (element_Frame_Vec.size()==1)
 	{
 		composition_Line_Edit_Vec.first()->setDisabled(true);
-		composition_Line_Edit_Vec.first()->setText(QString::number(1,line_edit_short_double_format,line_edit_composition_precision));
+		composition_Line_Edit_Vec.first()->setText(Locale.toString(1.,line_edit_short_double_format,line_edit_composition_precision));
 			Global_Variables::resize_Line_Edit(composition_Line_Edit_Vec.first());
 		fewer_Elements->hide();
 	}
@@ -1023,8 +1023,8 @@ void Item_Editor::show_Material()
 			for(int i=0; i<struct_Data.composition.size(); ++i)
 			{
 				material_Line_Edit->setText(material_Line_Edit->text() + composition_Combo_Box_Vec[i]->currentText());
-				if( abs(composition_Line_Edit_Vec[i]->text().toDouble() - 1.) > DBL_EPSILON )
-					material_Line_Edit->setText(material_Line_Edit->text() + QString::number(composition_Line_Edit_Vec[i]->text().toDouble(),line_edit_short_double_format,line_edit_composition_precision));
+				if( abs(Locale.toDouble(composition_Line_Edit_Vec[i]->text()) - 1.) > DBL_EPSILON )
+					material_Line_Edit->setText(material_Line_Edit->text() + Locale.toString(Locale.toDouble(composition_Line_Edit_Vec[i]->text()),line_edit_short_double_format,line_edit_composition_precision));
 			}
 		} else
 		{
@@ -1041,10 +1041,10 @@ void Item_Editor::show_Density()
 	{
 		if(struct_Data.composed_Material)
 		{
-			density_Line_Edit->setText(QString::number(struct_Data.absolute_Density.value,line_edit_double_format,line_edit_density_precision));
+			density_Line_Edit->setText(Locale.toString(struct_Data.absolute_Density.value,line_edit_double_format,line_edit_density_precision));
 		} else
 		{
-			density_Line_Edit->setText(QString::number(struct_Data.relative_Density.value,line_edit_double_format,line_edit_density_precision));
+			density_Line_Edit->setText(Locale.toString(struct_Data.relative_Density.value,line_edit_double_format,line_edit_density_precision));
 		}
 		Global_Variables::resize_Line_Edit(density_Line_Edit);
 	}
@@ -1058,7 +1058,7 @@ void Item_Editor::show_Thickness()
 		double coeff = length_Coefficients_Map.value(length_units);
 		thickness_Label->setText(thickness_Label_1 + length_units + thickness_Label_2);
 
-		thickness_Line_Edit->setText(QString::number(struct_Data.thickness.value/coeff,line_edit_double_format,line_edit_thickness_precision));
+		thickness_Line_Edit->setText(Locale.toString(struct_Data.thickness.value/coeff,line_edit_double_format,line_edit_thickness_precision));
 		Global_Variables::resize_Line_Edit(thickness_Line_Edit);
 	}
 }
@@ -1070,7 +1070,7 @@ void Item_Editor::show_Sigma_Start(bool at_Start)
 
 	if(!struct_Data.common_Sigma || at_Start)
 	{
-		sigma_Line_Edit->setText(QString::number(struct_Data.sigma.value/coeff,line_edit_double_format,line_edit_sigma_precision));
+		sigma_Line_Edit->setText(Locale.toString(struct_Data.sigma.value/coeff,line_edit_double_format,line_edit_sigma_precision));
 	}
 }
 
@@ -1092,9 +1092,9 @@ void Item_Editor::show_Stack_Parameters()
 		double coeff = length_Coefficients_Map.value(length_units);
 		period_Label->setText(period_Label_1 + length_units + period_Label_2);
 
-		repetitions_Line_Edit->setText(QString::number(struct_Data.num_Repetition.value()));
-		period_Line_Edit->setText(QString::number(struct_Data.period.value/coeff,line_edit_double_format,line_edit_period_precision));
-		gamma_Line_Edit ->setText(QString::number(struct_Data.gamma.value,line_edit_double_format,line_edit_gamma_precision));
+		repetitions_Line_Edit->setText(Locale.toString(struct_Data.num_Repetition.value()));
+		period_Line_Edit->setText(Locale.toString(struct_Data.period.value/coeff,line_edit_double_format,line_edit_period_precision));
+		gamma_Line_Edit ->setText(Locale.toString(struct_Data.gamma.value,line_edit_double_format,line_edit_gamma_precision));
 
 		repetitions_Line_Edit->textEdited(repetitions_Line_Edit->text());
 		period_Line_Edit->textEdited(period_Line_Edit->text());
@@ -1113,10 +1113,10 @@ void Item_Editor::show_Interlayers(QObject* my_Sender)
 			for(int i=0; i<struct_Data.interlayer_Composition.size(); ++i)
 			{
 				if(interlayer_Composition_Comp_Line_Edit_Vec	 [i]!=my_Sender)
-					interlayer_Composition_Comp_Line_Edit_Vec	 [i]->setText(QString::number(struct_Data.interlayer_Composition[i].interlayer.value,line_edit_short_double_format,line_edit_interlayer_precision));
+					interlayer_Composition_Comp_Line_Edit_Vec	 [i]->setText(Locale.toString(struct_Data.interlayer_Composition[i].interlayer.value,line_edit_short_double_format,line_edit_interlayer_precision));
 
 				if(interlayer_Composition_My_Sigma_Line_Edit_Vec [i]!=my_Sender)
-					interlayer_Composition_My_Sigma_Line_Edit_Vec[i]->setText(QString::number(struct_Data.interlayer_Composition[i].my_Sigma.value/coeff,line_edit_short_double_format,line_edit_sigma_precision));
+					interlayer_Composition_My_Sigma_Line_Edit_Vec[i]->setText(Locale.toString(struct_Data.interlayer_Composition[i].my_Sigma.value/coeff,line_edit_short_double_format,line_edit_sigma_precision));
 			}
 			my_Sigma_Label_Layer->setText(sigma_Label_3 + length_units + sigma_Label_2);
 		}
@@ -1204,15 +1204,15 @@ void Item_Editor::norm_Interlayer_Composition()
 		{
 			if(interlayer_Composition_Check_Box_Vec[i]->isChecked())
 			{
-				sum+=interlayer_Composition_Comp_Line_Edit_Vec[i]->text().toDouble();
+				sum+=Locale.toDouble(interlayer_Composition_Comp_Line_Edit_Vec[i]->text());
 			}
 		}
 		for(int i=0; i<transition_Layer_Functions_Size; ++i)
 		{
 			if(interlayer_Composition_Check_Box_Vec[i]->isChecked())
 			{
-				interlayer_Composition_Comp_Line_Edit_Vec[i]->setText(QString::number(interlayer_Composition_Comp_Line_Edit_Vec[i]->text().toDouble()/sum,line_edit_short_double_format,line_edit_interlayer_precision));
-				struct_Data.interlayer_Composition[i].interlayer.value = interlayer_Composition_Comp_Line_Edit_Vec[i]->text().toDouble();
+				interlayer_Composition_Comp_Line_Edit_Vec[i]->setText(Locale.toString(Locale.toDouble(interlayer_Composition_Comp_Line_Edit_Vec[i]->text())/sum,line_edit_short_double_format,line_edit_interlayer_precision));
+				struct_Data.interlayer_Composition[i].interlayer.value = Locale.toDouble(interlayer_Composition_Comp_Line_Edit_Vec[i]->text());
 			}
 		}
 	}
@@ -1246,21 +1246,21 @@ void Item_Editor::refresh_Data()
 	{
 		if(!struct_Data.composed_Material)
 		{
-			struct_Data.relative_Density.value = density_Line_Edit->text().toDouble();
+			struct_Data.relative_Density.value = Locale.toDouble(density_Line_Edit->text());
 		} else
 		{	
 			double auto_Density = 0;
 			double stoich_Weight = DBL_MIN;
 			for(int i=0; i<struct_Data.composition.size(); ++i)
 			{
-				struct_Data.composition[i].composition.value = composition_Line_Edit_Vec[i]->text().toDouble();
+				struct_Data.composition[i].composition.value = Locale.toDouble(composition_Line_Edit_Vec[i]->text());
 				struct_Data.composition[i].composition.fit.min = struct_Data.composition[i].composition.value*(1-dispersion);
 				struct_Data.composition[i].composition.fit.max = struct_Data.composition[i].composition.value*(1+dispersion);
 				struct_Data.composition[i].composition.confidence.min = struct_Data.composition[i].composition.fit.min;
 				struct_Data.composition[i].composition.confidence.max = struct_Data.composition[i].composition.fit.max;
 
 				struct_Data.composition[i].type = composition_Combo_Box_Vec[i]->currentText();
-				composition_At_Weight_Vec[i]->setText(AtWt + QString::number(sorted_Elements.value(composition_Combo_Box_Vec[i]->currentText()),thumbnail_double_format,at_weight_precision) + ")");
+				composition_At_Weight_Vec[i]->setText(AtWt + Locale.toString(sorted_Elements.value(composition_Combo_Box_Vec[i]->currentText()),thumbnail_double_format,at_weight_precision) + ")");
 
 				auto_Density += sorted_Density.value(struct_Data.composition[i].type)*struct_Data.composition[i].composition.value;
 				stoich_Weight += struct_Data.composition[i].composition.value;
@@ -1270,12 +1270,12 @@ void Item_Editor::refresh_Data()
 			{
 				// automatical density
 				struct_Data.absolute_Density.value = auto_Density/stoich_Weight;
-				density_Line_Edit->setText(QString::number(struct_Data.absolute_Density.value,line_edit_double_format,line_edit_density_precision));
+				density_Line_Edit->setText(Locale.toString(struct_Data.absolute_Density.value,line_edit_double_format,line_edit_density_precision));
 				Global_Variables::resize_Line_Edit(density_Line_Edit);
 			} else
 			{
 				// previous density
-				struct_Data.absolute_Density.value = density_Line_Edit->text().toDouble();
+				struct_Data.absolute_Density.value = Locale.toDouble(density_Line_Edit->text());
 			}
 		}
 	}
@@ -1292,7 +1292,7 @@ void Item_Editor::refresh_Data()
 			struct_Data.interlayer_Composition[i].enabled = interlayer_Composition_Check_Box_Vec[i]->isChecked();
 			if(interlayer_Composition_Check_Box_Vec[i]->isChecked())
 			{
-				struct_Data.interlayer_Composition[i].interlayer.value = interlayer_Composition_Comp_Line_Edit_Vec[i]->text().toDouble();
+				struct_Data.interlayer_Composition[i].interlayer.value = Locale.toDouble(interlayer_Composition_Comp_Line_Edit_Vec[i]->text());
 
 				// sum for normalizing
 				sum+=struct_Data.interlayer_Composition[i].interlayer.value;
@@ -1302,7 +1302,7 @@ void Item_Editor::refresh_Data()
 
 		if(struct_Data.common_Sigma)
 		{
-			struct_Data.sigma.value = sigma_Line_Edit->text().toDouble()*coeff;
+			struct_Data.sigma.value = Locale.toDouble(sigma_Line_Edit->text())*coeff;
 			for(int i=0; i<struct_Data.interlayer_Composition.size(); ++i)
 			{
 				struct_Data.interlayer_Composition[i].my_Sigma.value = struct_Data.sigma.value;
@@ -1313,7 +1313,7 @@ void Item_Editor::refresh_Data()
 			double temp_Sigma_Square=0;
 			for(int i=0; i<struct_Data.interlayer_Composition.size(); ++i)
 			{
-				struct_Data.interlayer_Composition[i].my_Sigma.value = interlayer_Composition_My_Sigma_Line_Edit_Vec[i]->text().toDouble()*coeff;
+				struct_Data.interlayer_Composition[i].my_Sigma.value = Locale.toDouble(interlayer_Composition_My_Sigma_Line_Edit_Vec[i]->text())*coeff;
 				if(interlayer_Composition_Check_Box_Vec[i]->isChecked())
 				{
 					temp_Sigma_Square += pow(struct_Data.interlayer_Composition[i].my_Sigma.value,2) * struct_Data.interlayer_Composition[i].interlayer.value/sum;
@@ -1327,7 +1327,7 @@ void Item_Editor::refresh_Data()
 	if(thickness_Done)
 	if(struct_Data.item_Type == item_Type_Layer)
 	{
-		struct_Data.thickness.value = thickness_Line_Edit->text().toDouble()*coeff;
+		struct_Data.thickness.value = Locale.toDouble(thickness_Line_Edit->text())*coeff;
 	}
 
 	// multilayer
@@ -1337,18 +1337,18 @@ void Item_Editor::refresh_Data()
 		double coeff = length_Coefficients_Map.value(length_units);
 		double init_Period = struct_Data.period.value;
 
-		struct_Data.num_Repetition.parameter.value = repetitions_Line_Edit->text().toDouble();
-		struct_Data.period.value = period_Line_Edit->text().toDouble()*coeff;
+		struct_Data.num_Repetition.parameter.value = Locale.toDouble(repetitions_Line_Edit->text());
+		struct_Data.period.value = Locale.toDouble(period_Line_Edit->text())*coeff;
 		if(item->childCount()==2)
 		{
-			double temp_Gamma = gamma_Line_Edit->text().toDouble();
+			double temp_Gamma = Locale.toDouble(gamma_Line_Edit->text());
 			if(temp_Gamma>1)
 			{
-				gamma_Line_Edit->setText(QString::number(struct_Data.gamma.value));
+				gamma_Line_Edit->setText(Locale.toString(struct_Data.gamma.value));
 				Global_Variables::resize_Line_Edit(gamma_Line_Edit);
 			} else
 			{
-				struct_Data.gamma.value = gamma_Line_Edit->text().toDouble();
+				struct_Data.gamma.value = Locale.toDouble(gamma_Line_Edit->text());
 			}
 		}
 
@@ -1382,15 +1382,15 @@ void Item_Editor::fast_Refresh_Stack()
 {
 	if(stack_Done)
 	if(struct_Data.item_Type == item_Type_Multilayer)
-	if( abs(period_Line_Edit->text().toDouble()) > DBL_MIN || abs(struct_Data.period.value) < DBL_MIN )
+	if( abs(Locale.toDouble(period_Line_Edit->text())) > DBL_MIN || abs(struct_Data.period.value) < DBL_MIN )
 	{
-		if(repetitions_Line_Edit->text().toInt()!=0 || struct_Data.num_Repetition.value() == 0)
+		if(Locale.toInt(repetitions_Line_Edit->text())!=0 || struct_Data.num_Repetition.value() == 0)
 		{
 			if(item->childCount()==2)
 			{
-				if( abs(gamma_Line_Edit->text().toDouble()) > DBL_MIN || abs(struct_Data.gamma.value) < DBL_MIN )
+				if( abs(Locale.toDouble(gamma_Line_Edit->text())) > DBL_MIN || abs(struct_Data.gamma.value) < DBL_MIN )
 				{
-					if( abs(gamma_Line_Edit->text().toDouble() - 1) > DBL_EPSILON || abs(struct_Data.gamma.value - 1) < DBL_EPSILON )
+					if( abs(Locale.toDouble(gamma_Line_Edit->text()) - 1) > DBL_EPSILON || abs(struct_Data.gamma.value - 1) < DBL_EPSILON )
 					{
 						refresh_Data();
 					}
@@ -1600,7 +1600,7 @@ void Item_Editor::calc_Uniqueness()
 		Data current_Child_Data = current_Child_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
 
 		QString current_Characretistic; // we don't distinguish multilayers and aperiodics between themselves
-		if(current_Child_Data.item_Type == item_Type_Layer)      current_Characretistic = current_Child_Data.item_Type + QString::number(current_Child_Data.composed_Material) + current_Child_Data.material;
+		if(current_Child_Data.item_Type == item_Type_Layer)      current_Characretistic = current_Child_Data.item_Type + Locale.toString(current_Child_Data.composed_Material) + current_Child_Data.material;
 		if(current_Child_Data.item_Type == item_Type_Multilayer) current_Characretistic = current_Child_Data.item_Type;
 		if(current_Child_Data.item_Type == item_Type_Aperiodic)  current_Characretistic = current_Child_Data.item_Type;
 

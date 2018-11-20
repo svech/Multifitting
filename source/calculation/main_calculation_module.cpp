@@ -677,7 +677,7 @@ void Main_Calculation_Module::print_Reflect_To_File(Data_Element<Type>& data_Ele
 		arg = data_Element.the_Class->measurement.lambda;
 	}
 
-	QString name = first_Name+"_"+QString::number(index)+".txt";
+	QString name = first_Name+"_"+Locale.toString(index)+".txt";
 	QFile file(name);
 	if (file.open(QIODevice::WriteOnly))
 	{
@@ -712,6 +712,9 @@ void Main_Calculation_Module::print_Data(QTextStream &out, QVector<double> &arg,
 										double incident_Polarization
 										)
 {
+	// point as decimal separator
+	Locale=QLocale::c();
+
 	// headline
 	QString argument = "argument";
 
@@ -786,37 +789,38 @@ void Main_Calculation_Module::print_Data(QTextStream &out, QVector<double> &arg,
 	///------------------------------------------------------------------------
 	/// data
 	{
+
 		for(auto i=0; i<arg.size(); ++i)
 		{
 			// argument
-			out << qSetFieldWidth(width_Short) << QString::number(arg[i],'f',precision_Arg)  << qSetFieldWidth(width_Long);
+			out << qSetFieldWidth(width_Short) << Locale.toString(arg[i],'f',precision_Arg)  << qSetFieldWidth(width_Long);
 
 			// reflectance
 			if(print_Reflectance)
 			{
-												out << QString::number(unwrapped_Reflection->R_Instrumental[i],'e',precision_R_T_A);
-				if(incident_Polarization>-1)	out << QString::number(unwrapped_Reflection->R_s           [i],'e',precision_R_T_A);
-				if(incident_Polarization< 1)	out << QString::number(unwrapped_Reflection->R_p           [i],'e',precision_R_T_A);
-				if(incident_Polarization>-1)	out << QString::number(unwrapped_Reflection->Phi_R_s       [i],'f',precision_Phi);
-				if(incident_Polarization< 1)	out << QString::number(unwrapped_Reflection->Phi_R_p       [i],'f',precision_Phi);
+												out << Locale.toString(unwrapped_Reflection->R_Instrumental[i],'e',precision_R_T_A);
+				if(incident_Polarization>-1)	out << Locale.toString(unwrapped_Reflection->R_s           [i],'e',precision_R_T_A);
+				if(incident_Polarization< 1)	out << Locale.toString(unwrapped_Reflection->R_p           [i],'e',precision_R_T_A);
+				if(incident_Polarization>-1)	out << Locale.toString(unwrapped_Reflection->Phi_R_s       [i],'f',precision_Phi);
+				if(incident_Polarization< 1)	out << Locale.toString(unwrapped_Reflection->Phi_R_p       [i],'f',precision_Phi);
 			}
 
 			// transmittance
 			if(print_Transmittance)
 			{
-												out << QString::number(unwrapped_Reflection->T_Instrumental[i],'e',precision_R_T_A);
-				if(incident_Polarization>-1)	out << QString::number(unwrapped_Reflection->T_s           [i],'e',precision_R_T_A);
-				if(incident_Polarization< 1)	out << QString::number(unwrapped_Reflection->T_p           [i],'e',precision_R_T_A);
-				if(incident_Polarization>-1)	out << QString::number(unwrapped_Reflection->Phi_T_s       [i],'f',precision_Phi);
-				if(incident_Polarization< 1)	out << QString::number(unwrapped_Reflection->Phi_T_p       [i],'f',precision_Phi);
+												out << Locale.toString(unwrapped_Reflection->T_Instrumental[i],'e',precision_R_T_A);
+				if(incident_Polarization>-1)	out << Locale.toString(unwrapped_Reflection->T_s           [i],'e',precision_R_T_A);
+				if(incident_Polarization< 1)	out << Locale.toString(unwrapped_Reflection->T_p           [i],'e',precision_R_T_A);
+				if(incident_Polarization>-1)	out << Locale.toString(unwrapped_Reflection->Phi_T_s       [i],'f',precision_Phi);
+				if(incident_Polarization< 1)	out << Locale.toString(unwrapped_Reflection->Phi_T_p       [i],'f',precision_Phi);
 			}
 
 			// absorptance
 			if(print_Absorptance)
 			{
-												out << QString::number(unwrapped_Reflection->A_Instrumental[i],'e',precision_R_T_A);
-				if(incident_Polarization>-1)	out << QString::number(unwrapped_Reflection->A_s           [i],'e',precision_R_T_A);
-				if(incident_Polarization< 1)	out << QString::number(unwrapped_Reflection->A_p           [i],'e',precision_R_T_A);			}
+												out << Locale.toString(unwrapped_Reflection->A_Instrumental[i],'e',precision_R_T_A);
+				if(incident_Polarization>-1)	out << Locale.toString(unwrapped_Reflection->A_s           [i],'e',precision_R_T_A);
+				if(incident_Polarization< 1)	out << Locale.toString(unwrapped_Reflection->A_p           [i],'e',precision_R_T_A);			}
 
 			/////////////////////////////////////// TODO /////////////////////////////////
 			// user
@@ -829,6 +833,9 @@ void Main_Calculation_Module::print_Data(QTextStream &out, QVector<double> &arg,
 				out << qSetFieldWidth(arg_Shift) << endl  << qSetFieldWidth(width_Short);
 		}
 	}
+
+	// back to system locale
+	Locale = QLocale::system();
 }
 
 void Main_Calculation_Module::add_Fit(QString name_Modificator, int run)

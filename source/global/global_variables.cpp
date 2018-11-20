@@ -593,12 +593,12 @@ QString Global_Variables::structure_Item_Name(const Data& struct_Data)
 	QString text = "item_Name";
 
 	if(struct_Data.item_Type == item_Type_Ambient)		text = "ambient: " + struct_Data.material;
-	if(struct_Data.item_Type == item_Type_Layer)		text = struct_Data.material + " layer (" + QString::number(struct_Data.layer_Index) + ")";
+	if(struct_Data.item_Type == item_Type_Layer)		text = struct_Data.material + " layer (" + Locale.toString(struct_Data.layer_Index) + ")";
 	if(struct_Data.item_Type == item_Type_Substrate)	text = struct_Data.material + " substrate";
-	if(struct_Data.item_Type == item_Type_Multilayer)	text = "Multilayer (" + QString::number(struct_Data.first_Layer_Index) +
-																		" - " + QString::number(struct_Data.last_Layer_Index) + ")";
-	if(struct_Data.item_Type == item_Type_Aperiodic)	text = "Aperiodic ("  + QString::number(struct_Data.first_Layer_Index) +
-																		" - " + QString::number(struct_Data.last_Layer_Index) + ")";
+	if(struct_Data.item_Type == item_Type_Multilayer)	text = "Multilayer (" + Locale.toString(struct_Data.first_Layer_Index) +
+																		" - " + Locale.toString(struct_Data.last_Layer_Index) + ")";
+	if(struct_Data.item_Type == item_Type_Aperiodic)	text = "Aperiodic ("  + Locale.toString(struct_Data.first_Layer_Index) +
+																		" - " + Locale.toString(struct_Data.last_Layer_Index) + ")";
 	if(struct_Data.item_Type == item_Type_Measurement)	text = "Measurement";
 
 	return text;
@@ -611,12 +611,12 @@ QString Global_Variables::parameter_Name(const Data &struct_Data, QString whats_
 	QString text = "variable_Name", brackets;
 
 	if(struct_Data.item_Type == item_Type_Ambient)		brackets = "(ambient)";
-	if(struct_Data.item_Type == item_Type_Layer)		brackets = "(layer " + QString::number(struct_Data.layer_Index) + ")";
+	if(struct_Data.item_Type == item_Type_Layer)		brackets = "(layer " + Locale.toString(struct_Data.layer_Index) + ")";
 	if(struct_Data.item_Type == item_Type_Substrate)	brackets = "(substrate)";
-	if(struct_Data.item_Type == item_Type_Multilayer)	brackets = "Multilayer (" + QString::number(struct_Data.first_Layer_Index) +
-																			" - " +	QString::number(struct_Data.last_Layer_Index) + ")";
-	if(struct_Data.item_Type == item_Type_Aperiodic)	brackets = "Aperiodic ("  + QString::number(struct_Data.first_Layer_Index) +
-																			" - " + QString::number(struct_Data.last_Layer_Index) + ")";
+	if(struct_Data.item_Type == item_Type_Multilayer)	brackets = "Multilayer (" + Locale.toString(struct_Data.first_Layer_Index) +
+																			" - " +	Locale.toString(struct_Data.last_Layer_Index) + ")";
+	if(struct_Data.item_Type == item_Type_Aperiodic)	brackets = "Aperiodic ("  + Locale.toString(struct_Data.first_Layer_Index) +
+																			" - " + Locale.toString(struct_Data.last_Layer_Index) + ")";
 	if(struct_Data.item_Type == item_Type_Measurement)	brackets = "(measurement)";
 
 

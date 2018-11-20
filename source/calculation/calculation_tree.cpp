@@ -477,7 +477,7 @@ tree<Node>::iterator Calculation_Tree::find_Node_By_Item_Id(const tree<Node>::it
 	}
 	// error handling
 	{
-		QMessageBox::critical(0, "Error", "Calculation_Tree::find_Node\nerror: node \"" + QString::number(active_Item_Id) + "\"not found");
+		QMessageBox::critical(0, "Error", "Calculation_Tree::find_Node\nerror: node \"" + Locale.toString(active_Item_Id) + "\"not found");
 		parent.node->data.stop_Calcuation = true;
 	}
 	return parent;

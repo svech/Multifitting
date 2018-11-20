@@ -41,9 +41,9 @@ void Optical_Constants::read_All()
 //	for(int i=temp_Material_Data.material_Data.size()-20; i<temp_Material_Data.material_Data.size(); ++i)
 ////	for(int i=0; i<20; ++i)
 //	{
-//		qInfo() << QString::number(temp_Material_Data.material_Data[i].lambda,'f',9)
-//				<< QString::number(temp_Material_Data.material_Data[i].re,'g',9)
-//				<< QString::number(temp_Material_Data.material_Data[i].im,'g',9) ;
+//		qInfo() << Locale.toString(temp_Material_Data.material_Data[i].lambda,'f',9)
+//				<< Locale.toString(temp_Material_Data.material_Data[i].re,'g',9)
+//				<< Locale.toString(temp_Material_Data.material_Data[i].im,'g',9) ;
 //	}
 
 //	Element_Data temp_Element_Data = element_Map.value("Ag.ff");
@@ -51,9 +51,9 @@ void Optical_Constants::read_All()
 //	for(int i=temp_Element_Data.element_Data.size()-20; i<temp_Element_Data.element_Data.size(); ++i)
 ////	for(int i=0; i<20; ++i)
 //	{
-//		qInfo() << QString::number(temp_Element_Data.element_Data[i].lambda,'f',9)
-//				<< QString::number(temp_Element_Data.element_Data[i].re,'g',9)
-//				<< QString::number(temp_Element_Data.element_Data[i].im,'g',9) ;
+//		qInfo() << Locale.toString(temp_Element_Data.element_Data[i].lambda,'f',9)
+//				<< Locale.toString(temp_Element_Data.element_Data[i].re,'g',9)
+//				<< Locale.toString(temp_Element_Data.element_Data[i].im,'g',9) ;
 //	}
 }
 
@@ -194,8 +194,8 @@ void Optical_Constants::interpolation_Epsilon(QVector<Point>& input_Values, QVec
 		{
 			if(!lambda_Out_Of_Range)
 			{
-				QString warning_Text = wavelength_Energy + " is out of range for " + material + ".\nAcceptable range is " + QString::number(Global_Variables::wavelength_Energy(wavelength_units,lambda.first())/coeff)
-																												  + " - " + QString::number(Global_Variables::wavelength_Energy(wavelength_units,lambda.last() )/coeff)
+				QString warning_Text = wavelength_Energy + " is out of range for " + material + ".\nAcceptable range is " + Locale.toString(Global_Variables::wavelength_Energy(wavelength_units,lambda.first())/coeff)
+																												  + " - " + Locale.toString(Global_Variables::wavelength_Energy(wavelength_units,lambda.last() )/coeff)
 																													+ " " + wavelength_units;
 				QMessageBox::warning(nullptr, "Optical constants", warning_Text);
 				lambda_Out_Of_Range = true;

@@ -32,11 +32,11 @@ void Grading_Editor::refresh_Data()
     drift.show_Drift_Rand = show_Rand_CheckBox->isChecked();
     drift.show_Drift_Sine = show_Sine_CheckBox->isChecked();
 
-	drift.drift_Line_Value.value = line_Value_Line->text().toDouble();
-	drift.drift_Sine_Amplitude.value = sine_Amplitude_Line->text().toDouble();
-	drift.drift_Sine_Frequency.value = sine_Frequency_Line->text().toDouble();
-	drift.drift_Sine_Phase.value = sine_Phase_Line->text().toDouble();
-	drift.drift_Rand_Rms.value = rand_Rms_Line->text().toDouble();
+	drift.drift_Line_Value.value = Locale.toDouble(line_Value_Line->text());
+	drift.drift_Sine_Amplitude.value = Locale.toDouble(sine_Amplitude_Line->text());
+	drift.drift_Sine_Frequency.value = Locale.toDouble(sine_Frequency_Line->text());
+	drift.drift_Sine_Phase.value = Locale.toDouble(sine_Phase_Line->text());
+	drift.drift_Rand_Rms.value = Locale.toDouble(rand_Rms_Line->text());
 
     if(drift_Name==whats_This_Thickness) { layer.thickness_Drift = drift;}
     if(drift_Name==whats_This_Sigma)     { layer.sigma_Drift = drift;    }
@@ -164,7 +164,7 @@ void Grading_Editor::read_Drift_From_Item()
 		line_Value_Line = new QLineEdit(this);
 			line_Value_Line->setFixedWidth(default_Min_Line_Size);
 			line_Value_Line->setProperty(min_Size_Property, default_Min_Line_Size);
-			line_Value_Line->setText(QString::number(drift.drift_Line_Value.value));
+			line_Value_Line->setText(Locale.toString(drift.drift_Line_Value.value));
 
 		line_GB_Layout->addWidget(line_Value_Label, 0,0);
 		line_GB_Layout->addWidget(line_Value_Line,  1,0);
@@ -177,19 +177,19 @@ void Grading_Editor::read_Drift_From_Item()
 		sine_Amplitude_Line = new QLineEdit(this);
 			sine_Amplitude_Line->setFixedWidth(default_Min_Line_Size);
 			sine_Amplitude_Line->setProperty(min_Size_Property, default_Min_Line_Size);
-			sine_Amplitude_Line->setText(QString::number(drift.drift_Sine_Amplitude.value));
+			sine_Amplitude_Line->setText(Locale.toString(drift.drift_Sine_Amplitude.value));
 
 		sine_Frequency_Label = new QLabel("Frequency, period" + Minus_One_Sym,this);
 		sine_Frequency_Line = new QLineEdit(this);
 			sine_Frequency_Line->setFixedWidth(default_Min_Line_Size);
 			sine_Frequency_Line->setProperty(min_Size_Property, default_Min_Line_Size);
-			sine_Frequency_Line->setText(QString::number(drift.drift_Sine_Frequency.value));
+			sine_Frequency_Line->setText(Locale.toString(drift.drift_Sine_Frequency.value));
 
 		sine_Phase_Label = new QLabel("Phase, part of 1",this);
 		sine_Phase_Line = new QLineEdit(this);
 			sine_Phase_Line->setFixedWidth(default_Min_Line_Size);
 			sine_Phase_Line->setProperty(min_Size_Property, default_Min_Line_Size);
-			sine_Phase_Line->setText(QString::number(drift.drift_Sine_Phase.value));
+			sine_Phase_Line->setText(Locale.toString(drift.drift_Sine_Phase.value));
 
 		sine_GB_Layout->addWidget(sine_Amplitude_Label, 0,0);
 		sine_GB_Layout->addWidget(sine_Amplitude_Line,  1,0);
@@ -208,7 +208,7 @@ void Grading_Editor::read_Drift_From_Item()
 		rand_Rms_Line = new QLineEdit(this);
 			rand_Rms_Line->setFixedWidth(default_Min_Line_Size);
 			rand_Rms_Line->setProperty(min_Size_Property, default_Min_Line_Size);
-			rand_Rms_Line->setText(QString::number(drift.drift_Rand_Rms.value));
+			rand_Rms_Line->setText(Locale.toString(drift.drift_Rand_Rms.value));
 
 		rand_GB_Layout->addWidget(rand_Rms_Label, 0,0);
 		rand_GB_Layout->addWidget(rand_Rms_Line,  1,0);

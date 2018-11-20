@@ -1084,7 +1084,7 @@ void Table_Of_Structures::create_Stoich_Line_Edit(My_Table_Widget* table, int ta
 		if(val_Type == MAX)	{value = comp.fit.max;	format = line_edit_short_double_format;}
 
 		// create lineedit
-		QLineEdit* line_Edit = new QLineEdit(QString::number(value, format, line_edit_composition_precision));
+		QLineEdit* line_Edit = new QLineEdit(Locale.toString(value, format, line_edit_composition_precision));
 		line_Edit->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT_SHORT);
 
 		// number of element is here
@@ -1121,7 +1121,7 @@ QString Table_Of_Structures::material_From_Composition(const QList<Stoichiometry
 		text += composition[i].type;
 		if( abs(composition[i].composition.value - 1) > DBL_EPSILON )
 		{
-			text += QString::number(composition[i].composition.value, line_edit_short_double_format, thumbnail_composition_precision);
+			text += Locale.toString(composition[i].composition.value, line_edit_short_double_format, thumbnail_composition_precision);
 		}
 	}
 	return text;
@@ -1458,7 +1458,7 @@ void Table_Of_Structures::create_Line_Edit(My_Table_Widget* table, int tab_Index
 	if(whats_This == whats_This_Num_Repetitions)
 	{
 		value = struct_Data.num_Repetition.value();
-		text_Value = QString::number(value);
+		text_Value = Locale.toString(value);
 		validator = new QIntValidator(0, MAX_INTEGER, this);
 		id = struct_Data.num_Repetition.parameter.indicator.id;
 		reload_Show_Dependence_Map.insertMulti(line_Edit, id_Of_Thicknesses);
@@ -1470,7 +1470,7 @@ void Table_Of_Structures::create_Line_Edit(My_Table_Widget* table, int tab_Index
 		if(val_Type == MIN)	{value = parameter.fit.min;	format = line_edit_short_double_format;	}
 		if(val_Type == MAX)	{value = parameter.fit.max;	format = line_edit_short_double_format;	}
 
-		text_Value = QString::number(value/coeff, format, precision);
+		text_Value = Locale.toString(value/coeff, format, precision);
 		if(	whats_This == whats_This_Thickness_Drift_Line_Value ||
 			whats_This == whats_This_Sigma_Drift_Line_Value	)
 		{
@@ -1826,7 +1826,7 @@ void Table_Of_Structures::create_Weigts_Interlayer(My_Table_Widget* table, int t
 		if(val_Type == MIN)	value = inter_Comp.interlayer.fit.min;
 		if(val_Type == MAX)	value = inter_Comp.interlayer.fit.max;
 
-		QString text_Value = QString::number(value, format, line_edit_interlayer_precision);
+		QString text_Value = Locale.toString(value, format, line_edit_interlayer_precision);
 
 		QLineEdit* line_Edit = new QLineEdit(text_Value);
 		line_Edit->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT_SHORT);
@@ -1961,7 +1961,7 @@ void Table_Of_Structures::create_MySigma_Line_Edits_Interlayer(My_Table_Widget* 
 	{
 		Parameter& sigma_Comp = interlayer_Composition[interlayer_Index].my_Sigma;
 
-		QString text_Value = QString::number(sigma_Comp.value, line_edit_double_format, line_edit_sigma_precision);
+		QString text_Value = Locale.toString(sigma_Comp.value, line_edit_double_format, line_edit_sigma_precision);
 
 		QLineEdit* line_Edit = new QLineEdit(text_Value);
 		line_Edit->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT_SHORT);
@@ -2206,17 +2206,17 @@ void Table_Of_Structures::refresh_Stoich(My_Table_Widget* table, QString)
 	// reload state from struct_Tree
 	if(reload)
 	{
-		if(value_Type == VAL)	line_Edit->setText(QString::number(comp.value,   format, precision));
-		if(value_Type == MIN)	line_Edit->setText(QString::number(comp.fit.min, format, precision));
-		if(value_Type == MAX)	line_Edit->setText(QString::number(comp.fit.max, format, precision));
+		if(value_Type == VAL)	line_Edit->setText(Locale.toString(comp.value,   format, precision));
+		if(value_Type == MIN)	line_Edit->setText(Locale.toString(comp.fit.min, format, precision));
+		if(value_Type == MAX)	line_Edit->setText(Locale.toString(comp.fit.max, format, precision));
 
 		return;
 	}
 	// refresh struct_Tree
 	{
-		if(value_Type == VAL)	 comp.value   = line_Edit->text().toDouble();
-		if(value_Type == MIN)	{comp.fit.min = line_Edit->text().toDouble(); /*comp.confidence.min = comp.fit.min;*/}
-		if(value_Type == MAX)	{comp.fit.max = line_Edit->text().toDouble(); /*comp.confidence.max = comp.fit.max;*/}
+		if(value_Type == VAL)	 comp.value   = Locale.toDouble(line_Edit->text());
+		if(value_Type == MIN)	{comp.fit.min = Locale.toDouble(line_Edit->text()); /*comp.confidence.min = comp.fit.min;*/}
+		if(value_Type == MAX)	{comp.fit.max = Locale.toDouble(line_Edit->text()); /*comp.confidence.max = comp.fit.max;*/}
 
 		struct_Data.material = material_From_Composition(struct_Data.composition);
 		for(QCheckBox* item_Check_Box : check_Boxes_Map.keys(structure_Item))
@@ -2578,16 +2578,16 @@ void Table_Of_Structures::refresh_Parameter(My_Table_Widget* table)
 	{
 		if(reload)
 		{
-			if(value_Type == VAL)    line_Edit->setText(QString::number(      struct_Data.num_Repetition.value()));
-			if(value_Type == MIN)    line_Edit->setText(QString::number(round(struct_Data.num_Repetition.parameter.fit.min)));
-			if(value_Type == MAX)    line_Edit->setText(QString::number(round(struct_Data.num_Repetition.parameter.fit.max)));
+			if(value_Type == VAL)    line_Edit->setText(Locale.toString(      struct_Data.num_Repetition.value()));
+			if(value_Type == MIN)    line_Edit->setText(Locale.toString(round(struct_Data.num_Repetition.parameter.fit.min)));
+			if(value_Type == MAX)    line_Edit->setText(Locale.toString(round(struct_Data.num_Repetition.parameter.fit.max)));
 			return;
 		}
 		// if refresh
 		{
-			if(value_Type == VAL)   struct_Data.num_Repetition.parameter.value   = line_Edit->text().toDouble();
-			if(value_Type == MIN)	struct_Data.num_Repetition.parameter.fit.min = line_Edit->text().toDouble();
-			if(value_Type == MAX)	struct_Data.num_Repetition.parameter.fit.max = line_Edit->text().toDouble();
+			if(value_Type == VAL)   struct_Data.num_Repetition.parameter.value   = Locale.toDouble(line_Edit->text());
+			if(value_Type == MIN)	struct_Data.num_Repetition.parameter.fit.min = Locale.toDouble(line_Edit->text());
+			if(value_Type == MAX)	struct_Data.num_Repetition.parameter.fit.max = Locale.toDouble(line_Edit->text());
 
 			QVariant var;
 			var.setValue( struct_Data );
@@ -2610,7 +2610,7 @@ void Table_Of_Structures::refresh_Parameter(My_Table_Widget* table)
 				// special cases
 				if(whats_This == whats_This_Sigma)
 				{
-					line_Edit->setText(QString::number(parameter.value/coeff, line_edit_double_format, precision));
+					line_Edit->setText(Locale.toString(parameter.value/coeff, line_edit_double_format, precision));
 					line_Edit->setDisabled(!struct_Data.common_Sigma);
 					line_Edit->setStyleSheet("border: 1px solid grey");
 
@@ -2635,7 +2635,7 @@ void Table_Of_Structures::refresh_Parameter(My_Table_Widget* table)
 				{
 					if( abs(struct_Data.period.value) > DBL_EPSILON )
 					{
-						line_Edit->setText(QString::number(struct_Data.gamma.value, min_Max_Format, line_edit_gamma_precision));
+						line_Edit->setText(Locale.toString(struct_Data.gamma.value, min_Max_Format, line_edit_gamma_precision));
 						line_Edit->setDisabled(false);
 						line_Edit->setStyleSheet("border: 1px solid grey");
 					} else
@@ -2645,11 +2645,11 @@ void Table_Of_Structures::refresh_Parameter(My_Table_Widget* table)
 					}
 				} else
 				{
-					line_Edit->setText(QString::number(parameter.value/coeff, line_edit_double_format, precision));
+					line_Edit->setText(Locale.toString(parameter.value/coeff, line_edit_double_format, precision));
 				}
 			}
-			if(value_Type == MIN)   line_Edit->setText(QString::number(parameter.fit.min/coeff, min_Max_Format,	precision));
-			if(value_Type == MAX)   line_Edit->setText(QString::number(parameter.fit.max/coeff, min_Max_Format,	precision));
+			if(value_Type == MIN)   line_Edit->setText(Locale.toString(parameter.fit.min/coeff, min_Max_Format,	precision));
+			if(value_Type == MAX)   line_Edit->setText(Locale.toString(parameter.fit.max/coeff, min_Max_Format,	precision));
 
 			return;
 		}
@@ -2658,9 +2658,9 @@ void Table_Of_Structures::refresh_Parameter(My_Table_Widget* table)
 			// special cases
 			if(whats_This == whats_This_Sigma)
 			{
-				if(value_Type == VAL)	 parameter.value   = line_Edit->text().toDouble()*coeff;
-				if(value_Type == MIN)	{parameter.fit.min = line_Edit->text().toDouble()*coeff; /*parameter.confidence.min = parameter.fit.min;*/}
-				if(value_Type == MAX)	{parameter.fit.max = line_Edit->text().toDouble()*coeff; /*parameter.confidence.max = parameter.fit.max;*/}
+				if(value_Type == VAL)	 parameter.value   = Locale.toDouble(line_Edit->text())*coeff;
+				if(value_Type == MIN)	{parameter.fit.min = Locale.toDouble(line_Edit->text())*coeff; /*parameter.confidence.min = parameter.fit.min;*/}
+				if(value_Type == MAX)	{parameter.fit.max = Locale.toDouble(line_Edit->text())*coeff; /*parameter.confidence.max = parameter.fit.max;*/}
 
 				for(Interlayer& interlayer : struct_Data.interlayer_Composition)
 				{
@@ -2678,7 +2678,7 @@ void Table_Of_Structures::refresh_Parameter(My_Table_Widget* table)
 			{
 				if(value_Type == VAL)
 				{
-					parameter.value = line_Edit->text().toDouble()*coeff;
+					parameter.value = Locale.toDouble(line_Edit->text())*coeff;
 					QVariant var;
 					var.setValue( struct_Data );
 					structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
@@ -2686,15 +2686,15 @@ void Table_Of_Structures::refresh_Parameter(My_Table_Widget* table)
 					// parents
 					change_Parent_Period_Gamma_Thickness(structure_Item);
 				}
-				if(value_Type == MIN)	{parameter.fit.min = line_Edit->text().toDouble()*coeff; /*parameter.confidence.min = parameter.fit.min;*/}
-				if(value_Type == MAX)	{parameter.fit.max = line_Edit->text().toDouble()*coeff; /*parameter.confidence.max = parameter.fit.max;*/}
+				if(value_Type == MIN)	{parameter.fit.min = Locale.toDouble(line_Edit->text())*coeff; /*parameter.confidence.min = parameter.fit.min;*/}
+				if(value_Type == MAX)	{parameter.fit.max = Locale.toDouble(line_Edit->text())*coeff; /*parameter.confidence.max = parameter.fit.max;*/}
 			} else
 			if(whats_This == whats_This_Period)
 			{
 				if(value_Type == VAL)
 				{
 					// children
-					double new_Period_Value = line_Edit->text().toDouble()*coeff;
+					double new_Period_Value = Locale.toDouble(line_Edit->text())*coeff;
 					if(	qApp->focusWidget() != line_Edit ||
 						abs(new_Period_Value) > DBL_EPSILON )
 					{
@@ -2709,18 +2709,18 @@ void Table_Of_Structures::refresh_Parameter(My_Table_Widget* table)
 					// parents
 					change_Parent_Period_Gamma_Thickness(structure_Item);
 				}
-				if(value_Type == MIN)	{parameter.fit.min = line_Edit->text().toDouble()*coeff; /*parameter.confidence.min = parameter.fit.min;*/}
-				if(value_Type == MAX)	{parameter.fit.max = line_Edit->text().toDouble()*coeff; /*parameter.confidence.max = parameter.fit.max;*/}
+				if(value_Type == MIN)	{parameter.fit.min = Locale.toDouble(line_Edit->text())*coeff; /*parameter.confidence.min = parameter.fit.min;*/}
+				if(value_Type == MAX)	{parameter.fit.max = Locale.toDouble(line_Edit->text())*coeff; /*parameter.confidence.max = parameter.fit.max;*/}
 			} else
 			if(whats_This == whats_This_Gamma)
 			{
-				double new_Value = line_Edit->text().toDouble();
+				double new_Value = Locale.toDouble(line_Edit->text());
 
 				if(value_Type == VAL)
 				{
 					if(new_Value>1)
 					{
-						line_Edit->setText(QString::number(struct_Data.gamma.value));
+						line_Edit->setText(Locale.toString(struct_Data.gamma.value));
 						resize_Line_Edit(table, line_Edit);
 					} else
 					{
@@ -2738,11 +2738,11 @@ void Table_Of_Structures::refresh_Parameter(My_Table_Widget* table)
 				{
 					if(new_Value>1)
 					{
-						line_Edit->setText(QString::number(struct_Data.gamma.fit.min));
+						line_Edit->setText(Locale.toString(struct_Data.gamma.fit.min));
 						resize_Line_Edit(table, line_Edit);
 					} else
 					{
-						struct_Data.gamma.fit.min = line_Edit->text().toDouble();
+						struct_Data.gamma.fit.min = Locale.toDouble(line_Edit->text());
 //						struct_Data.gamma.confidence.min = struct_Data.gamma.fit.min;
 					}
 				}
@@ -2750,19 +2750,19 @@ void Table_Of_Structures::refresh_Parameter(My_Table_Widget* table)
 				{
 					if(new_Value>1)
 					{
-						line_Edit->setText(QString::number(struct_Data.gamma.fit.max));
+						line_Edit->setText(Locale.toString(struct_Data.gamma.fit.max));
 						resize_Line_Edit(table, line_Edit);
 					} else
 					{
-						struct_Data.gamma.fit.max = line_Edit->text().toDouble();
+						struct_Data.gamma.fit.max = Locale.toDouble(line_Edit->text());
 //						struct_Data.gamma.confidence.max = struct_Data.gamma.fit.max;
 					}
 				}
 			} else
 			{
-				if(value_Type == VAL)	 parameter.value   = line_Edit->text().toDouble()*coeff;
-				if(value_Type == MIN)	{parameter.fit.min = line_Edit->text().toDouble()*coeff; /*parameter.confidence.min = parameter.fit.min;*/}
-				if(value_Type == MAX)	{parameter.fit.max = line_Edit->text().toDouble()*coeff; /*parameter.confidence.max = parameter.fit.max;*/}
+				if(value_Type == VAL)	 parameter.value   = Locale.toDouble(line_Edit->text())*coeff;
+				if(value_Type == MIN)	{parameter.fit.min = Locale.toDouble(line_Edit->text())*coeff; /*parameter.confidence.min = parameter.fit.min;*/}
+				if(value_Type == MAX)	{parameter.fit.max = Locale.toDouble(line_Edit->text())*coeff; /*parameter.confidence.max = parameter.fit.max;*/}
 			}
 		}
 	}
@@ -2880,23 +2880,23 @@ void Table_Of_Structures::refresh_Weigts_Interlayer(QString)
 
 	if(reload)
 	{
-		if(value_Type == VAL)	line_Edit->setText(QString::number(interlayer.value,   line_edit_short_double_format, line_edit_interlayer_precision));
-		if(value_Type == MIN)	line_Edit->setText(QString::number(interlayer.fit.min, line_edit_short_double_format, line_edit_interlayer_precision));
-		if(value_Type == MAX)	line_Edit->setText(QString::number(interlayer.fit.max, line_edit_short_double_format, line_edit_interlayer_precision));
+		if(value_Type == VAL)	line_Edit->setText(Locale.toString(interlayer.value,   line_edit_short_double_format, line_edit_interlayer_precision));
+		if(value_Type == MIN)	line_Edit->setText(Locale.toString(interlayer.fit.min, line_edit_short_double_format, line_edit_interlayer_precision));
+		if(value_Type == MAX)	line_Edit->setText(Locale.toString(interlayer.fit.max, line_edit_short_double_format, line_edit_interlayer_precision));
 		return;
 	}
 	// if refresh
 	{
 		if(value_Type == VAL)
 		{
-			interlayer.value = line_Edit->text().toDouble();
+			interlayer.value = Locale.toDouble(line_Edit->text());
 			if(!struct_Data.common_Sigma)
 			{
 				struct_Data.sigma.value = recalculate_Sigma_From_Individuals(struct_Data.interlayer_Composition);
 			}
 		}
-		if(value_Type == MIN)	{interlayer.fit.min = line_Edit->text().toDouble(); /*interlayer.confidence.min = interlayer.fit.min;*/}
-		if(value_Type == MAX)	{interlayer.fit.max = line_Edit->text().toDouble(); /*interlayer.confidence.max = interlayer.fit.max;*/}
+		if(value_Type == MIN)	{interlayer.fit.min = Locale.toDouble(line_Edit->text()); /*interlayer.confidence.min = interlayer.fit.min;*/}
+		if(value_Type == MAX)	{interlayer.fit.max = Locale.toDouble(line_Edit->text()); /*interlayer.confidence.max = interlayer.fit.max;*/}
 
 		QVariant var;
 		var.setValue( struct_Data );
@@ -2956,14 +2956,14 @@ void Table_Of_Structures::refresh_MySigma_Interlayer(QString)
 
 	if(reload)
 	{
-		line_Edit->setText(QString::number(interlayer.my_Sigma.value/length_Coeff, line_edit_double_format, line_edit_sigma_precision));
+		line_Edit->setText(Locale.toString(interlayer.my_Sigma.value/length_Coeff, line_edit_double_format, line_edit_sigma_precision));
 		bool disable = struct_Data.common_Sigma || !interlayer.enabled;
 		line_Edit->setDisabled(disable);
 		return;
 	}
 	// if refresh
 	{
-		interlayer.my_Sigma.value = line_Edit->text().toDouble()*length_Coeff;
+		interlayer.my_Sigma.value = Locale.toDouble(line_Edit->text())*length_Coeff;
 		if(!struct_Data.common_Sigma)
 		{
 			struct_Data.sigma.value = recalculate_Sigma_From_Individuals(struct_Data.interlayer_Composition);

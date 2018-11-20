@@ -124,7 +124,7 @@ void Multilayer_Approach::add_Multilayer()
 	connect(new_Multilayer, &Multilayer::refresh_All_Multilayers, this, &Multilayer_Approach::refresh_All_Multilayers_View);
 
 	multilayer_Tabs->addTab(new_Multilayer, default_multilayer_tab_name);
-	multilayer_Tabs->setTabText(multilayer_Tabs->count()-1, default_multilayer_tab_name + QString::number(multilayer_Tabs->count()));
+	multilayer_Tabs->setTabText(multilayer_Tabs->count()-1, default_multilayer_tab_name + Locale.toString(multilayer_Tabs->count()));
 
 	if(multilayer_Tabs->count()>1)
 	{
@@ -199,11 +199,11 @@ void Multilayer_Approach::add_Fitted_Structure(QVector<QTreeWidget*>& fitted_Tre
 	// generate name
 	QDateTime date_Time = QDateTime::currentDateTime();
 	if( name_Modificator == current_State )	{
-		new_Fitted_Structure.name = "# " + QString::number(++fits_Positive_Counter) + " state ||  "                                + date_Time.toString("dd.MM.yyyy  ||  hh:mm:ss");	}
+		new_Fitted_Structure.name = "# " + Locale.toString(++fits_Positive_Counter) + " state ||  "                                + date_Time.toString("dd.MM.yyyy  ||  hh:mm:ss");	}
 	if( name_Modificator == fitted_State )	{
-		new_Fitted_Structure.name = "# " + QString::number(++fits_Positive_Counter) + " fit ||  "                                  + date_Time.toString("dd.MM.yyyy  ||  hh:mm:ss");	}
+		new_Fitted_Structure.name = "# " + Locale.toString(++fits_Positive_Counter) + " fit ||  "                                  + date_Time.toString("dd.MM.yyyy  ||  hh:mm:ss");	}
 	if( name_Modificator == fit_Run_State )	{
-		new_Fitted_Structure.name = "# " + QString::number(++fits_Positive_Counter) + " fit run " + QString::number(run) + " ||  " + date_Time.toString("dd.MM.yyyy  ||  hh:mm:ss");	}
+		new_Fitted_Structure.name = "# " + Locale.toString(++fits_Positive_Counter) + " fit run " + Locale.toString(run) + " ||  " + date_Time.toString("dd.MM.yyyy  ||  hh:mm:ss");	}
 
 	// put new instance to storage
 	fitted_Structures.append(new_Fitted_Structure);
@@ -378,12 +378,12 @@ void Multilayer_Approach::open(QString filename)
 	   ((loaded_Version_Major==VERSION_MAJOR) && (loaded_Version_Minor==VERSION_MINOR) && (loaded_Version_Build<VERSION_BUILD)) )
 	{
 		QMessageBox::StandardButton reply = QMessageBox::warning(this,"Opening old file","Do you want to open file,\ncreated by v."
-							 + QString::number(loaded_Version_Major) + "."
-							 + QString::number(loaded_Version_Minor) + "."
-							 + QString::number(loaded_Version_Build) + " in v."
-							 + QString::number(VERSION_MAJOR) + "."
-							 + QString::number(VERSION_MINOR) + "."
-							 + QString::number(VERSION_BUILD) + "?", QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
+							 + Locale.toString(loaded_Version_Major) + "."
+							 + Locale.toString(loaded_Version_Minor) + "."
+							 + Locale.toString(loaded_Version_Build) + " in v."
+							 + Locale.toString(VERSION_MAJOR) + "."
+							 + Locale.toString(VERSION_MINOR) + "."
+							 + Locale.toString(VERSION_BUILD) + "?", QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
 		if (reply == QMessageBox::No) return;
 	}
 	if( (loaded_Version_Major >VERSION_MAJOR) ||
@@ -391,12 +391,12 @@ void Multilayer_Approach::open(QString filename)
 	   ((loaded_Version_Major==VERSION_MAJOR) && (loaded_Version_Minor==VERSION_MINOR) && (loaded_Version_Build>VERSION_BUILD)) )
 	{
 		QMessageBox::warning(this,"Opening old file","File, created by newer version "
-							 + QString::number(loaded_Version_Major) + "."
-							 + QString::number(loaded_Version_Minor) + "."
-							 + QString::number(loaded_Version_Build) + "\ncan't be opened in "
-							 + QString::number(VERSION_MAJOR) + "."
-							 + QString::number(VERSION_MINOR) + "."
-							 + QString::number(VERSION_BUILD));
+							 + Locale.toString(loaded_Version_Major) + "."
+							 + Locale.toString(loaded_Version_Minor) + "."
+							 + Locale.toString(loaded_Version_Build) + "\ncan't be opened in "
+							 + Locale.toString(VERSION_MAJOR) + "."
+							 + Locale.toString(VERSION_MINOR) + "."
+							 + Locale.toString(VERSION_BUILD));
 	}
 
 	// close table of structures
@@ -836,14 +836,6 @@ void Multilayer_Approach::start_Fitting()
 		}
 	}
 
-	// read in background
-	std::thread worker = std::thread(&Multilayer_Approach::start_Fitting_Thread, this);
-//	worker.detach();
-	worker.join();
-}
-
-void Multilayer_Approach::start_Fitting_Thread()
-{
 	Main_Calculation_Module* main_Calculation_Module = new Main_Calculation_Module(FITTING);
 	main_Calculation_Module->fitting_and_Confidence();
 	delete main_Calculation_Module;
