@@ -69,34 +69,37 @@ void Menu::create_File_Menu()
 {
 	file_Menu = new QMenu("File", this);
 	{
-		if(window_Type == window_Type_Multilayer_Approach)
+		if(window_Type == window_Type_Multilayer_Approach || window_Type == window_Type_Table)
 		{
-			QAction* act_Open = new QAction("Open...", this);
-			act_Open->setShortcut(Qt::Key_O | Qt::CTRL);
-			connect(act_Open, &QAction::triggered, global_Multilayer_Approach, [=]{global_Multilayer_Approach->open(default_File);});
+			QAction* act_Open = new QAction("Open last", this);
+				act_Open->setShortcut(Qt::Key_O | Qt::CTRL);
+			connect(act_Open, &QAction::triggered, global_Multilayer_Approach, [=]{global_Multilayer_Approach->open(last_file);});
 			file_Menu->addAction(act_Open);
 
-			QAction* act_Save = new QAction("Save...", this);
+			QAction* act_Open_As = new QAction("Open", this);
+				act_Open_As->setShortcut(Qt::Key_O | Qt::CTRL | Qt::SHIFT);
+			connect(act_Open_As, &QAction::triggered, global_Multilayer_Approach, [=]{global_Multilayer_Approach->open_As();});
+			file_Menu->addAction(act_Open_As);
+
+			QAction* act_Save = new QAction("Save", this);
 			act_Save->setShortcut(Qt::Key_S | Qt::CTRL);
 			file_Menu->addAction(act_Save);
-			connect(act_Save, &QAction::triggered, global_Multilayer_Approach, [=]{global_Multilayer_Approach->save(default_File);});
+			connect(act_Save, &QAction::triggered, global_Multilayer_Approach, [=]{global_Multilayer_Approach->save(last_file);});
 
+			QAction* act_Save_As = new QAction("Save as", this);
+				act_Save_As->setShortcut(Qt::Key_S | Qt::CTRL | Qt::SHIFT);
+			file_Menu->addAction(act_Save_As);
+			connect(act_Save_As, &QAction::triggered, global_Multilayer_Approach, [=]{global_Multilayer_Approach->save_As();});
+
+		}
+		if(window_Type == window_Type_Multilayer_Approach)
+		{
 			QAction* act_Open_Launcher = new QAction("Open Launcher", this);
 			connect(act_Open_Launcher, &QAction::triggered, global_Multilayer_Approach, [=]{global_Multilayer_Approach->open_Launcher();});
 			file_Menu->addAction(act_Open_Launcher);
 		}
 		if(window_Type == window_Type_Table)
 		{
-			QAction* act_Open = new QAction("Open...", this);
-			act_Open->setShortcut(Qt::Key_O | Qt::CTRL);
-			connect(act_Open, &QAction::triggered, global_Multilayer_Approach, [=]{global_Multilayer_Approach->open(default_File);});
-			file_Menu->addAction(act_Open);
-
-			QAction* act_Save = new QAction("Save...", this);
-			act_Save->setShortcut(Qt::Key_S | Qt::CTRL);
-			file_Menu->addAction(act_Save);
-			connect(act_Save, &QAction::triggered, global_Multilayer_Approach, [=]{global_Multilayer_Approach->save(default_File);});
-
 			QAction* act_Quit = new QAction("Done", this);
 			act_Quit->setShortcut(Qt::Key_D | Qt::CTRL);
 			connect(act_Quit, &QAction::triggered, my_Parent, [=]{qobject_cast<QWidget*>(my_Parent)->close();});

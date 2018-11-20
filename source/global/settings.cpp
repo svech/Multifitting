@@ -57,7 +57,7 @@ QString default_independent_variable_tab_name;
 // paths and names
 QString icon_path;
 QString last_directory;
-QString last_file_name;
+QString last_file;
 
 // measurement default file
 QString default_Measured_Filename;
@@ -224,7 +224,7 @@ void Settings::read_Paths(bool reset_to_default)
 	// save/open path
 	paths_Settings.beginGroup( Last_Paths );
 		last_directory = paths_Settings.value( "last_directory", "" ).toString();
-		last_file_name = paths_Settings.value( "last_file_name", default_File ).toString();
+		last_file = paths_Settings.value( "last_file", default_File ).toString();
 	paths_Settings.endGroup();
 
 	// resource path
@@ -238,9 +238,9 @@ void Settings::save_Paths()
 	QSettings paths_Settings  (Paths_Settings_Path,   QSettings::IniFormat);
 
 	// save/open path
-	paths_Settings.beginGroup( Resource_Paths );
+	paths_Settings.beginGroup( Last_Paths );
 		paths_Settings.setValue( "last_directory", last_directory );
-		paths_Settings.setValue( "last_file_name", last_file_name );
+		paths_Settings.setValue( "last_file", last_file );
 	paths_Settings.endGroup();
 
 	// resource path

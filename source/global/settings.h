@@ -59,7 +59,7 @@ extern QString default_independent_variable_tab_name;
 // paths and names
 extern QString icon_path;
 extern QString last_directory;
-extern QString last_file_name;
+extern QString last_file;
 
 // measurement default file
 extern QString default_Measured_Filename;

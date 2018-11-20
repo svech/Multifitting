@@ -414,7 +414,7 @@ bool Fitting::fit()
 	// --------------------------------------------------------------------------------
 	if(n<=p)
 	{
-		QMessageBox::information(nullptr,"Insufficient number of points", "# of fitables: " + Locale.toString(p) + "\n# of points: " + Locale.toString(n) + "\n\nShould be f<p");
+		QMessageBox::information(nullptr,"Insufficient number of points", "# of fitables: " + Locale.toString(uint(p)) + "\n# of points: " + Locale.toString(uint(n)) + "\n\nShould be f<p");
 		return false;
 	}
 	// --------------------------------------------------------------------------------
@@ -454,7 +454,7 @@ bool Fitting::confidence(const vector<double>& fitables_Pointers_Value_Backup, c
 	// --------------------------------------------------------------------------------
 	if(n<=p)
 	{
-		QMessageBox::information(nullptr,"Insufficient number of points", "# of fitables: " + Locale.toString(p) + "\n# of points: " + Locale.toString(n) + "\n\nShould be f<p");
+		QMessageBox::information(nullptr,"Insufficient number of points", "# of fitables: " + Locale.toString(uint(p)) + "\n# of points: " + Locale.toString(uint(n)) + "\n\nShould be f<p");
 		return false;
 	}
 	// --------------------------------------------------------------------------------

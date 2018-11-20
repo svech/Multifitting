@@ -198,7 +198,7 @@ void Structure_Toolbar::add_Aperiodic()
 		QTreeWidgetItem* new_Aperiodic = new QTreeWidgetItem;
 
 		// imd-styled file
-		QFileInfo filename = QDir::toNativeSeparators(QFileDialog::getOpenFileName(this, "Find Aperiodic Multulayer", QDir::currentPath(), "Thicknesses " + QString("*.txt") + ";;All files (*.*)"));
+		QFileInfo filename = QDir::toNativeSeparators(QFileDialog::getOpenFileName(this, "Find Aperiodic Multulayer", last_directory, "Thicknesses " + QString("*.txt") + ";;All files (*.*)"));
 		if (!filename.completeBaseName().isEmpty())
 		{
 			/// reading data

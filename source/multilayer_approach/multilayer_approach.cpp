@@ -326,10 +326,13 @@ void Multilayer_Approach::dropEvent(QDropEvent* event)
 		if(counter==0)
 		{
 			QFileInfo filename = url.toLocalFile();
-			QMessageBox::StandardButton reply = QMessageBox::question(this,"Open", "Open file " + filename.fileName() + " ?", QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
+			QMessageBox::StandardButton reply = QMessageBox::question(this, "Open", "Open file " + filename.fileName() + " ?", QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
 			if (reply == QMessageBox::Yes)
 			{
-				open(filename.absoluteFilePath());
+				last_file = filename.absoluteFilePath();
+				last_directory = filename.absolutePath();
+
+				open(last_file);
 			}
 		}
 		++counter;
@@ -341,14 +344,6 @@ void Multilayer_Approach::open(QString filename)
 	// TODO
 	int max_Num_Targets=0;
 
-	// check extension
-	QFileInfo file_Info(filename);
-	if(file_Info.suffix() != file_Extension)
-	{
-		QMessageBox::information(nullptr, "Wrong file type", "Only \"." + QString(file_Extension) + "\" files can be opened");
-		return;
-	}
-
 	// check filepath
 	QFile file(filename);
 	if(!file.open(QIODevice::ReadOnly))
@@ -356,6 +351,15 @@ void Multilayer_Approach::open(QString filename)
 		QMessageBox::information(nullptr, "File not found", "Nothing to open");
 		return;
 	}
+
+	// check extension
+	QFileInfo file_Info(filename);
+	if(file_Info.suffix() != file_Extension)
+	{
+		QMessageBox::information(nullptr, "Wrong file type", "\"" + file_Info.fileName() + "\" has wrong type.\nOnly \"." + QString(file_Extension) + "\" files can be opened");
+		return;
+	}
+
 	QDataStream in(&file);
 
 	// check control string
@@ -678,7 +682,14 @@ void Multilayer_Approach::open(QString filename)
 
 void Multilayer_Approach::open_As()
 {
+	QFileInfo filename = QDir::toNativeSeparators(QFileDialog::getOpenFileName(this, "Open saved file", last_directory, "Multifitting files " + QString("*.fit") + ";;All files (*.*)"));
+	if(!filename.completeBaseName().isEmpty())
+	{
+		last_file = filename.absoluteFilePath();
+		last_directory = filename.absolutePath();
 
+		open(last_file);
+	}
 }
 
 void Multilayer_Approach::save(QString filename)
@@ -814,7 +825,31 @@ void Multilayer_Approach::save(QString filename)
 
 void Multilayer_Approach::save_As()
 {
+	QFileInfo filename = QDir::toNativeSeparators(QFileDialog::getSaveFileName(this, "Save as", last_directory, "Multifitting files " + QString("*.fit") + ";;All files (*.*)"));
+	if(!filename.completeBaseName().isEmpty())
+	{
+//		qInfo() << "absoluteDir" << filename.absoluteDir();
+//		qInfo() << "absoluteFilePath" << filename.absoluteFilePath();
+//		qInfo() << "absolutePath" << filename.absolutePath();
+//		qInfo() << "baseName" << filename.baseName();
+//		qInfo() << "birthTime" << filename.birthTime();
+//		qInfo() << "bundleName" << filename.bundleName();
+//		qInfo() << "canonicalFilePath" << filename.canonicalFilePath();
+//		qInfo() << "canonicalPath" << filename.canonicalPath();
+//		qInfo() << "completeBaseName" << filename.completeBaseName();
+//		qInfo() << "fileName" << filename.fileName();
+//		qInfo() << "filePath" << filename.filePath();
+//		qInfo() << "suffix" << filename.suffix();
 
+		QFileInfo filename2;
+		if(filename.suffix() != "fit") { filename2 = QFileInfo(filename.absoluteFilePath()+".fit");	}
+		else						   { filename2 = QFileInfo(filename.absoluteFilePath());		}
+
+		last_file = filename2.absoluteFilePath();
+		last_directory = filename2.absolutePath();
+
+		save(last_file);
+	}
 }
 
 void Multilayer_Approach::calc_Reflection(bool silent)

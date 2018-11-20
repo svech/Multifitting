@@ -863,10 +863,10 @@ void Global_Variables::create_Shortcuts(QWidget* this_Widget)
 		QShortcut* calc_Specular_Shortcut	= new QShortcut(QKeySequence(Qt::Key_C | Qt::CTRL | Qt::SHIFT), this_Widget);
 		QShortcut* calc_Confidence_Shortcut	= new QShortcut(QKeySequence(Qt::Key_A | Qt::CTRL | Qt::SHIFT), this_Widget);
 
-		connect(save_Shortcut,				&QShortcut::activated, this_Widget, [=]{ global_Multilayer_Approach->save(default_File);		 });
-		connect(save_As_Shortcut,			&QShortcut::activated, this_Widget, [=]{ global_Multilayer_Approach->save(default_File);		 });
-		connect(open_Shortcut,				&QShortcut::activated, this_Widget, [=]{ global_Multilayer_Approach->open(default_File);		 });
-		connect(open_As_Shortcut,			&QShortcut::activated, this_Widget, [=]{ global_Multilayer_Approach->open(default_File);		 });
+		connect(save_Shortcut,				&QShortcut::activated, this_Widget, [=]{ global_Multilayer_Approach->save(last_file);			 });
+		connect(save_As_Shortcut,			&QShortcut::activated, this_Widget, [=]{ global_Multilayer_Approach->save_As();					 });
+		connect(open_Shortcut,				&QShortcut::activated, this_Widget, [=]{ global_Multilayer_Approach->open(last_file);			 });
+		connect(open_As_Shortcut,			&QShortcut::activated, this_Widget, [=]{ global_Multilayer_Approach->open_As();					 });
 		connect(fit_Shortcut,				&QShortcut::activated, this_Widget, [=]{ global_Multilayer_Approach->start_Fitting();		     });
 		connect(calc_Specular_Shortcut,		&QShortcut::activated, this_Widget, [=]{ global_Multilayer_Approach->calc_Reflection();			 });
 		connect(calc_Confidence_Shortcut,	&QShortcut::activated, this_Widget, [=]{ global_Multilayer_Approach->calc_Confidence_Intervals();});
