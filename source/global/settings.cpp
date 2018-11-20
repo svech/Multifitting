@@ -394,11 +394,6 @@ void Settings::save_Gui_Settings()
 		gui_Settings.setValue( "default_multilayer_tab_name",			default_multilayer_tab_name );
 		gui_Settings.setValue( "default_independent_variable_tab_name", default_independent_variable_tab_name   );
 	gui_Settings.endGroup();
-
-	// resource path
-	gui_Settings.beginGroup( Resource_Paths );
-		gui_Settings.setValue( "icon_path", icon_path );
-	gui_Settings.endGroup();
 }
 
 void Settings::read_Structure_Default_Values(bool reset_to_default)
