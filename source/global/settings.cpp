@@ -223,7 +223,7 @@ void Settings::read_Paths(bool reset_to_default)
 
 	// save/open path
 	paths_Settings.beginGroup( Last_Paths );
-		last_directory = paths_Settings.value( "last_directory", "" ).toString();
+		last_directory = paths_Settings.value( "last_directory", QDir::currentPath() ).toString();
 		last_file = paths_Settings.value( "last_file", default_File ).toString();
 	paths_Settings.endGroup();
 
