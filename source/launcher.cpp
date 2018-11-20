@@ -10,6 +10,8 @@ Launcher::Launcher(QWidget *parent) :
 	printf("\n%d logical cores\n", QThread::idealThreadCount());
 	printf("\nMultifitting version %d.%d.%d\n\n", VERSION_MAJOR, VERSION_MINOR, VERSION_BUILD);
 
+	Locale.setNumberOptions(QLocale::RejectGroupSeparator);
+
 	// seed randomizator
 	clock_t t = clock();
 	srand(t);

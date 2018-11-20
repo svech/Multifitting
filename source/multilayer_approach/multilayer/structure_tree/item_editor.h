@@ -35,7 +35,6 @@ public:
 	void closeEvent(QCloseEvent* event);
 	void create_Main_Layout();
 		void create_Menu();
-		void create_Shortcuts();
 		void make_Ambient_Editor();
 			void make_Materials_Group_Box();
 			void initial_Radio_Check();

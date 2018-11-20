@@ -54,10 +54,10 @@ void Calculation_Settings_Editor::settings()
 	// num target rows
 	QLabel* target_Rows_Label = new QLabel("Number of \"Measured\" rows");
 	QSpinBox* target_Rows_SpinBox = new QSpinBox;
+		target_Rows_SpinBox->setRange(1, total_Number_of_Targets);
 		target_Rows_SpinBox->setValue(multilayer->num_Target_Rows);
 		target_Rows_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
 		target_Rows_SpinBox->setAccelerated(true);
-		target_Rows_SpinBox->setRange(1, total_Number_of_Targets);
 		target_Rows_SpinBox->setFixedWidth(25);
 
 	settings_Group_Box_Layout->addWidget(target_Rows_Label,		0,0,1,1);
@@ -66,10 +66,10 @@ void Calculation_Settings_Editor::settings()
 	// num independent rows
 	QLabel* independent_Rows_Label = new QLabel("Number of \"Independent\" rows");
 	QSpinBox* independent_Rows_SpinBox = new QSpinBox;
+		independent_Rows_SpinBox->setRange(1, total_Number_of_Independents);
 		independent_Rows_SpinBox->setValue(multilayer->num_Independent_Rows);
 		independent_Rows_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
 		independent_Rows_SpinBox->setAccelerated(true);
-		independent_Rows_SpinBox->setRange(1, total_Number_of_Independents);
 		independent_Rows_SpinBox->setFixedWidth(25);
 
 	settings_Group_Box_Layout->addWidget(independent_Rows_Label,	1,0,1,1);
@@ -134,7 +134,7 @@ void Calculation_Settings_Editor::create_Main_Layout()
 		main_Layout->setContentsMargins(0,0,0,0);
 
 	lock_Mainwindow_Interface();
-	create_Menu();
+	Global_Variables::create_Shortcuts(this);
 	create_Tabs();
 		main_Layout->addWidget(main_Tabs);
 
@@ -158,25 +158,11 @@ void Calculation_Settings_Editor::create_Main_Layout()
 			global_Norm_Button->setDefault(true);
 		button_Layout->addWidget(global_Norm_Button);
 	}
-	{
-		fitting_Settings_Button = new QPushButton("Fitting Settings");
-			fitting_Settings_Button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-			fitting_Settings_Button->setFocus();
-			fitting_Settings_Button->setDefault(true);
-		button_Layout->addWidget(fitting_Settings_Button);
-	}
 	main_Layout->addLayout(button_Layout);
 
 	// TODO
 	connect(done_Button,			 &QPushButton::clicked, this, &Calculation_Settings_Editor::close);
 	global_Norm_Button->setDisabled(true);
-	connect(fitting_Settings_Button, &QPushButton::clicked, global_Multilayer_Approach, &Multilayer_Approach::open_Fitting_Settings);
-}
-
-void Calculation_Settings_Editor::create_Menu()
-{
-	Menu* menu = new Menu(window_Type_Calculation_Settings_Editor,this);
-	main_Layout->setMenuBar(menu->menu_Bar);
 }
 
 void Calculation_Settings_Editor::create_Tabs()

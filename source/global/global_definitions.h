@@ -45,11 +45,14 @@ class Node;
 	#define Pre_Path QString("../")
 #endif
 
+// paths
+#define Paths_Settings_Path Pre_Path + "settings/paths.ini"
+	#define Resource_Paths				"Resource_Paths"
+	#define Last_Paths					"Last_Paths"
+
 // gui
 #define Gui_Settings_Path Pre_Path + "settings/gui.ini"
-
-	#define Application_Style					"Application_Style"
-
+	#define Application_Style						"Application_Style"
 	#define Launcher_Geometry						"Launcher_Geometry"
 	#define Multilayer_Window_Geometry				"Multilayer_Window_Geometry"
 	#define Structure_Table_Window_Geometry			"Structure_Table_Window_Geometry"
@@ -59,7 +62,6 @@ class Node;
 	#define Fits_Selector_Window_Geometry			"Fits_Selector_Window_Geometry"
 
 	#define Multilayer_Tabs							"Multilayer_Tabs"
-	#define Resource_Paths							"Resource_Paths"
 
 // structure default values
 #define Structure_Default_Values_Path Pre_Path + "settings/structure_default_values.ini"

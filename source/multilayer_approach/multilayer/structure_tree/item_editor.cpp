@@ -57,7 +57,7 @@ void Item_Editor::create_Main_Layout()
 	hor_Layout = new QHBoxLayout;
 	main_Layout->addLayout(hor_Layout);
 	create_Menu();
-	create_Shortcuts();
+	Global_Variables::create_Shortcuts(this);
 
 	if(struct_Data.item_Type == item_Type_Ambient)		make_Ambient_Editor();
 	if(struct_Data.item_Type == item_Type_Layer)		make_Layer_Editor();
@@ -79,22 +79,6 @@ void Item_Editor::create_Menu()
 	Menu* menu = new Menu(window_Type_Item_Editor,this);
 	main_Layout->setMenuBar(menu->menu_Bar);
 	connect(menu, &Menu::refresh, this, &Item_Editor::emit_Item_Data_Edited);
-}
-
-void Item_Editor::create_Shortcuts()
-{
-	// shortcuts
-	{
-		QShortcut* save_Shortcut			= new QShortcut(QKeySequence(Qt::Key_S | Qt::CTRL), this);
-		QShortcut* open_Shortcut			= new QShortcut(QKeySequence(Qt::Key_O | Qt::CTRL), this);
-		QShortcut* fit_Shortcut				= new QShortcut(QKeySequence(Qt::Key_F | Qt::CTRL | Qt::SHIFT), this);
-		QShortcut* calc_Specular_Shortcut	= new QShortcut(QKeySequence(Qt::Key_C | Qt::CTRL | Qt::SHIFT), this);
-
-		connect(save_Shortcut,			&QShortcut::activated, this, [=]{ global_Multilayer_Approach->save(default_File);});
-		connect(open_Shortcut,			&QShortcut::activated, this, [=]{ global_Multilayer_Approach->open(default_File);});
-		connect(fit_Shortcut,			&QShortcut::activated, this, [=]{ global_Multilayer_Approach->start_Fitting();	  });
-		connect(calc_Specular_Shortcut, &QShortcut::activated, this, [=]{ global_Multilayer_Approach->calc_Reflection(); });
-	}
 }
 
 void Item_Editor::make_Ambient_Editor()
@@ -510,9 +494,9 @@ void Item_Editor::make_Aperiodic_Group_Box()
 					soft_Restriction_Row_Layout->addWidget(plus_Minus_Label);
 
 					QSpinBox* soft_Restriction_Threshold_SpinBox = new QSpinBox;
+						soft_Restriction_Threshold_SpinBox->setRange(0, 100);
 						soft_Restriction_Threshold_SpinBox->setEnabled(current_Child_Data.use_Soft_Restrictions);
 						soft_Restriction_Threshold_SpinBox->setSuffix("%");
-						soft_Restriction_Threshold_SpinBox->setRange(0, 100);
 						soft_Restriction_Threshold_SpinBox->setValue(current_Child_Data.threshold);
 						soft_Restriction_Threshold_SpinBox->setAccelerated(true);
 						soft_Restriction_Threshold_SpinBox->setFixedWidth(45);

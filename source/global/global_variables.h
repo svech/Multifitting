@@ -192,8 +192,9 @@ extern QString master_Confidence_Parameter_Color;
 
 extern Optical_Constants* optical_Constants;
 
-class Global_Variables
+class Global_Variables : public QObject
 {
+	Q_OBJECT
 public:
 	Global_Variables();
 	static void read_Optical_Constants();
@@ -217,7 +218,7 @@ public:
 
 	static void copy_Tree(const QTreeWidget* from_Tree, QTreeWidget* to_Tree);
 	static bool check_Loaded_Version(int MAJOR, int MINOR, int BUILD);
-
+	static void create_Shortcuts(QWidget* this_Widget);
 
 	template <typename Type>
 	static void resize_Line_Edit(Type* input_Line_Edit, bool adjust_Window = true);

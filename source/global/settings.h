@@ -56,8 +56,10 @@ extern int fits_selector_settings_height;
 extern QString default_multilayer_tab_name;
 extern QString default_independent_variable_tab_name;
 
-// resource path
+// paths and names
 extern QString icon_path;
+extern QString last_directory;
+extern QString last_file_name;
 
 // measurement default file
 extern QString default_Measured_Filename;
@@ -212,6 +214,10 @@ class Settings
 {
 public:
 	Settings();
+
+	// paths
+	static void read_Paths(bool reset_to_default = false);
+	static void save_Paths();
 
 	// gui
 	static void read_Gui_Settings(bool reset_to_default = false);

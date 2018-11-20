@@ -33,9 +33,9 @@ void Confidence_Interval_Editor::create_Content()
 	sp_retain.setRetainSizeWhenHidden(true);
 	{	
 		num_Points = new QSpinBox;
+			num_Points->setRange(MIN_CONFIDENCE_POINTS, MAX_INTEGER);
 			num_Points->setFixedWidth(30);
 			num_Points->setProperty(min_Size_Property, 30);
-			num_Points->setRange(MIN_CONFIDENCE_POINTS, MAX_INTEGER);
 			num_Points->setAccelerated(true);
 			num_Points->setButtonSymbols(QAbstractSpinBox::NoButtons);
 		layout->addWidget(num_Points,0,Qt::AlignLeft);

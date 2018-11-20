@@ -54,8 +54,10 @@ int fits_selector_settings_height;
 QString default_multilayer_tab_name;
 QString default_independent_variable_tab_name;
 
-// resource path
+// paths and names
 QString icon_path;
+QString last_directory;
+QString last_file_name;
 
 // measurement default file
 QString default_Measured_Filename;
@@ -210,6 +212,43 @@ Settings::Settings()
 
 }
 
+void Settings::read_Paths(bool reset_to_default)
+{
+	QString add_reset;
+	if(reset_to_default) add_reset = "wrong_path";
+
+	QSettings paths_Settings(Paths_Settings_Path + add_reset,   QSettings::IniFormat);
+
+	if(reset_to_default) paths_Settings.setPath(paths_Settings.format(),paths_Settings.scope(),"");
+
+	// save/open path
+	paths_Settings.beginGroup( Last_Paths );
+		last_directory = paths_Settings.value( "last_directory", "" ).toString();
+		last_file_name = paths_Settings.value( "last_file_name", default_File ).toString();
+	paths_Settings.endGroup();
+
+	// resource path
+	paths_Settings.beginGroup( Resource_Paths );
+		icon_path = paths_Settings.value( "icon_path", Pre_Path + "icons/" ).toString();
+	paths_Settings.endGroup();
+}
+
+void Settings::save_Paths()
+{
+	QSettings paths_Settings  (Paths_Settings_Path,   QSettings::IniFormat);
+
+	// save/open path
+	paths_Settings.beginGroup( Resource_Paths );
+		paths_Settings.setValue( "last_directory", last_directory );
+		paths_Settings.setValue( "last_file_name", last_file_name );
+	paths_Settings.endGroup();
+
+	// resource path
+	paths_Settings.beginGroup( Resource_Paths );
+		paths_Settings.setValue( "icon_path", icon_path );
+	paths_Settings.endGroup();
+}
+
 void Settings::read_Gui_Settings(bool reset_to_default)
 {
 	QString add_reset;
@@ -283,11 +322,6 @@ void Settings::read_Gui_Settings(bool reset_to_default)
 	gui_Settings.beginGroup( Multilayer_Tabs );
 		default_multilayer_tab_name			  = gui_Settings.value( "default_multilayer_tab_name",			 "Struct_" ).toString();
 		default_independent_variable_tab_name = gui_Settings.value( "default_independent_variable_tab_name", "Plot_"   ).toString();
-	gui_Settings.endGroup();
-
-	// resource path
-	gui_Settings.beginGroup( Resource_Paths );
-		icon_path = gui_Settings.value( "icon_path", Pre_Path + "icons/" ).toString();
 	gui_Settings.endGroup();
 }
 
@@ -734,6 +768,7 @@ void Settings::save_Measurements()
 
 void Settings::read_All_Settings(bool reset_to_default)
 {
+	read_Paths(reset_to_default);
 	read_Gui_Settings(reset_to_default);
 	read_Structure_Default_Values(reset_to_default);
 	read_Precisions(reset_to_default);
@@ -745,6 +780,7 @@ void Settings::read_All_Settings(bool reset_to_default)
 
 void Settings::save_All_Settings()
 {
+	save_Paths();
 	save_Gui_Settings();
 	save_Structure_Default_Values();
 	save_Precisions();

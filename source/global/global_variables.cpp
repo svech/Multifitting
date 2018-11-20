@@ -19,6 +19,7 @@ Multilayer_Approach* global_Multilayer_Approach;
 // locale
 QLocale Locale;
 
+
 // delimiters for file parsing
 QRegExp delimiters("\\ |\\,|\\:|\\t|\\;|\\{|\\}");
 
@@ -847,6 +848,28 @@ bool Global_Variables::check_Loaded_Version(int MAJOR, int MINOR, int BUILD)
 	} else
 	{
 		return false;
+	}
+}
+
+void Global_Variables::create_Shortcuts(QWidget* this_Widget)
+{
+	// shortcuts
+	{
+		QShortcut* save_Shortcut			= new QShortcut(QKeySequence(Qt::Key_S | Qt::CTRL),				this_Widget);
+		QShortcut* save_As_Shortcut			= new QShortcut(QKeySequence(Qt::Key_S | Qt::CTRL | Qt::SHIFT), this_Widget);
+		QShortcut* open_Shortcut			= new QShortcut(QKeySequence(Qt::Key_O | Qt::CTRL),				this_Widget);
+		QShortcut* open_As_Shortcut			= new QShortcut(QKeySequence(Qt::Key_O | Qt::CTRL | Qt::SHIFT), this_Widget);
+		QShortcut* fit_Shortcut				= new QShortcut(QKeySequence(Qt::Key_F | Qt::CTRL | Qt::SHIFT), this_Widget);
+		QShortcut* calc_Specular_Shortcut	= new QShortcut(QKeySequence(Qt::Key_C | Qt::CTRL | Qt::SHIFT), this_Widget);
+		QShortcut* calc_Confidence_Shortcut	= new QShortcut(QKeySequence(Qt::Key_A | Qt::CTRL | Qt::SHIFT), this_Widget);
+
+		connect(save_Shortcut,				&QShortcut::activated, this_Widget, [=]{ global_Multilayer_Approach->save(default_File);		 });
+		connect(save_As_Shortcut,			&QShortcut::activated, this_Widget, [=]{ global_Multilayer_Approach->save(default_File);		 });
+		connect(open_Shortcut,				&QShortcut::activated, this_Widget, [=]{ global_Multilayer_Approach->open(default_File);		 });
+		connect(open_As_Shortcut,			&QShortcut::activated, this_Widget, [=]{ global_Multilayer_Approach->open(default_File);		 });
+		connect(fit_Shortcut,				&QShortcut::activated, this_Widget, [=]{ global_Multilayer_Approach->start_Fitting();		     });
+		connect(calc_Specular_Shortcut,		&QShortcut::activated, this_Widget, [=]{ global_Multilayer_Approach->calc_Reflection();			 });
+		connect(calc_Confidence_Shortcut,	&QShortcut::activated, this_Widget, [=]{ global_Multilayer_Approach->calc_Confidence_Intervals();});
 	}
 }
 

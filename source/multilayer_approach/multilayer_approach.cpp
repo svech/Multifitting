@@ -676,6 +676,11 @@ void Multilayer_Approach::open(QString filename)
 	qInfo() << "opened";
 }
 
+void Multilayer_Approach::open_As()
+{
+
+}
+
 void Multilayer_Approach::save(QString filename)
 {
 	// TODO
@@ -805,6 +810,11 @@ void Multilayer_Approach::save(QString filename)
 	file.close();
 
 	qInfo() << "saved";
+}
+
+void Multilayer_Approach::save_As()
+{
+
 }
 
 void Multilayer_Approach::calc_Reflection(bool silent)

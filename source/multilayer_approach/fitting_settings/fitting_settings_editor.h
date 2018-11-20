@@ -14,8 +14,6 @@ public:
 	void create_Main_Layout();
 	void set_Window_Geometry();
 	void write_Window_Geometry();
-	void create_Menu();
-	void create_Shortcuts();
 	void create_Metods();
 	void create_Pages();
 	void create_GSL_Main_Params_Group_Box();

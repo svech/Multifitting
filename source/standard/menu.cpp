@@ -57,12 +57,6 @@ void Menu::add_Menu_Points()
 		create_Table_Precision_Menu();
 			menu_Bar->addMenu(precision_Menu);
 	}
-	if(window_Type == window_Type_Calculation_Settings_Editor ||
-	   window_Type == window_Type_Fitting_Settings_Editor	   )
-	{
-		create_Calculate_Menu();
-			menu_Bar->addMenu(calculate_Menu);
-	}
 	if(window_Type == window_Type_Launcher ||
 	   window_Type == window_Type_Multilayer_Approach)
 	{
@@ -91,7 +85,6 @@ void Menu::create_File_Menu()
 			connect(act_Open_Launcher, &QAction::triggered, global_Multilayer_Approach, [=]{global_Multilayer_Approach->open_Launcher();});
 			file_Menu->addAction(act_Open_Launcher);
 		}
-
 		if(window_Type == window_Type_Table)
 		{
 			QAction* act_Open = new QAction("Open...", this);
@@ -109,39 +102,6 @@ void Menu::create_File_Menu()
 			connect(act_Quit, &QAction::triggered, my_Parent, [=]{qobject_cast<QWidget*>(my_Parent)->close();});
 			file_Menu->addAction(act_Quit);
 		}
-
-		if(window_Type == window_Type_Calculation_Settings_Editor)
-		{
-			Calculation_Settings_Editor* calculation_Settings_Editor = qobject_cast<Calculation_Settings_Editor*>(my_Parent);
-
-			QAction* act_Open = new QAction("Open...", this);
-			act_Open->setShortcut(Qt::Key_O | Qt::CTRL);
-			connect(act_Open, &QAction::triggered, my_Parent, [=]
-			{
-				for(QLineEdit* line_Edit : calculation_Settings_Editor->different_Lines) { line_Edit->editingFinished(); }
-				global_Multilayer_Approach->open(default_File);
-			});
-			file_Menu->addAction(act_Open);
-
-			QAction* act_Save = new QAction("Save...", this);
-			act_Save->setShortcut(Qt::Key_S | Qt::CTRL);
-			file_Menu->addAction(act_Save);
-			connect(act_Save, &QAction::triggered, my_Parent, [=]
-			{
-				for(QLineEdit* line_Edit : calculation_Settings_Editor->different_Lines) { line_Edit->editingFinished(); }
-				global_Multilayer_Approach->save(default_File);
-			});
-
-			QAction* act_Quit = new QAction("Done", this);
-			act_Quit->setShortcut(Qt::Key_D | Qt::CTRL);
-			connect(act_Quit, &QAction::triggered, my_Parent, [=]
-			{
-				for(QLineEdit* line_Edit : calculation_Settings_Editor->different_Lines) { line_Edit->editingFinished(); }
-				qobject_cast<QWidget*>(my_Parent)->close();
-			});
-			file_Menu->addAction(act_Quit);
-		}
-
 		if(window_Type == window_Type_Launcher ||
 		   window_Type == window_Type_Multilayer_Approach)
 		{
@@ -166,34 +126,11 @@ void Menu::create_Calculate_Menu()
 	QAction* act_Confidence = new QAction("Calculate confidence intervals", this);
 		act_Confidence->setShortcut(Qt::Key_A | Qt::CTRL | Qt::SHIFT);
 
-	if(window_Type == window_Type_Multilayer_Approach || window_Type == window_Type_Table || window_Type == window_Type_Fitting_Settings_Editor)
+	if(window_Type == window_Type_Multilayer_Approach || window_Type == window_Type_Table)
 	{
 		connect(act_Specular,	&QAction::triggered, global_Multilayer_Approach, [=]{global_Multilayer_Approach->calc_Reflection();});
 		connect(act_Fitting,	&QAction::triggered, global_Multilayer_Approach, [=]{global_Multilayer_Approach->start_Fitting();});
 		connect(act_Confidence,	&QAction::triggered, global_Multilayer_Approach, [=]{global_Multilayer_Approach->calc_Confidence_Intervals();});
-
-		calculate_Menu->addAction(act_Specular);
-		calculate_Menu->addAction(act_Fitting);
-		calculate_Menu->addAction(act_Confidence);
-	}
-	if(window_Type == window_Type_Calculation_Settings_Editor)
-	{
-		Calculation_Settings_Editor* calculation_Settings_Editor = qobject_cast<Calculation_Settings_Editor*>(my_Parent);
-		connect(act_Specular,	   &QAction::triggered, global_Multilayer_Approach, [=]
-		{
-			for(QLineEdit* line_Edit : calculation_Settings_Editor->different_Lines) { line_Edit->editingFinished(); }
-			global_Multilayer_Approach->calc_Reflection();
-		});
-		connect(act_Fitting,	   &QAction::triggered, global_Multilayer_Approach, [=]
-		{
-			for(QLineEdit* line_Edit : calculation_Settings_Editor->different_Lines) { line_Edit->editingFinished(); }
-			global_Multilayer_Approach->start_Fitting();
-		});
-		connect(act_Confidence,	   &QAction::triggered, global_Multilayer_Approach, [=]
-		{
-			for(QLineEdit* line_Edit : calculation_Settings_Editor->different_Lines) { line_Edit->editingFinished(); }
-			global_Multilayer_Approach->calc_Confidence_Intervals();
-		});
 
 		calculate_Menu->addAction(act_Specular);
 		calculate_Menu->addAction(act_Fitting);

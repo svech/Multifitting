@@ -26,8 +26,7 @@ void Fitting_Settings_Editor::create_Main_Layout()
 	main_Layout->setSpacing(0);
 	main_Layout->setContentsMargins(4,4,4,0);
 
-	create_Menu();
-	create_Shortcuts();
+	Global_Variables::create_Shortcuts(this);
 	create_Metods();
 	create_Pages();
 	create_GSL_Main_Params_Group_Box();
@@ -69,28 +68,6 @@ void Fitting_Settings_Editor::write_Window_Geometry()
 	{
 		fitting_settings_x_corner = geometry().x()-WINDOW_BOUNDARY_SHIFT_X;
 		fitting_settings_y_corner = geometry().y()-WINDOW_BOUNDARY_SHIFT_Y;
-	}
-}
-
-void Fitting_Settings_Editor::create_Menu()
-{
-	Menu* menu = new Menu(window_Type_Fitting_Settings_Editor, this);
-	main_Layout->setMenuBar(menu->menu_Bar);
-}
-
-void Fitting_Settings_Editor::create_Shortcuts()
-{
-	// shortcuts
-	{
-		QShortcut* save_Shortcut			= new QShortcut(QKeySequence(Qt::Key_S | Qt::CTRL), this);
-		QShortcut* open_Shortcut			= new QShortcut(QKeySequence(Qt::Key_O | Qt::CTRL), this);
-//		QShortcut* fit_Shortcut				= new QShortcut(QKeySequence(Qt::Key_F | Qt::CTRL | Qt::SHIFT), this);
-//		QShortcut* calc_Specular_Shortcut	= new QShortcut(QKeySequence(Qt::Key_C | Qt::CTRL | Qt::SHIFT), this);
-
-		connect(save_Shortcut,			&QShortcut::activated, this, [=]{ global_Multilayer_Approach->save(default_File);});
-		connect(open_Shortcut,			&QShortcut::activated, this, [=]{ global_Multilayer_Approach->open(default_File);});
-//		connect(fit_Shortcut,			&QShortcut::activated, this, [=]{ global_Multilayer_Approach->start_Fitting();	  });
-//		connect(calc_Specular_Shortcut, &QShortcut::activated, this, [=]{ global_Multilayer_Approach->calc_Reflection(); });
 	}
 }
 
@@ -285,23 +262,22 @@ void Fitting_Settings_Editor::create_GSL_Main_Params_Group_Box()
 		GSL_num_Runs_Label = new QLabel("Number of runs");
 			GSL_num_Runs_Label->setEnabled(fitting_Settings->randomized_Start);
 		GSL_num_Runs_SpinBox = new QSpinBox;
+			GSL_num_Runs_SpinBox->setRange(1, MAX_INTEGER);
 			GSL_num_Runs_SpinBox->setValue(fitting_Settings->num_Runs);
 			GSL_num_Runs_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
 			GSL_num_Runs_SpinBox->setAccelerated(true);
-			GSL_num_Runs_SpinBox->setRange(1, MAX_INTEGER);
 			GSL_num_Runs_SpinBox->setEnabled(fitting_Settings->randomized_Start);
 
 		GSL_max_Iter_Label = new QLabel("Max number of iterations");
 		GSL_max_Iter_SpinBox = new QSpinBox;
+			GSL_max_Iter_SpinBox->setRange(1,MAX_INTEGER);
 			GSL_max_Iter_SpinBox->setValue(fitting_Settings->max_Iter);
 			GSL_max_Iter_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
 			GSL_max_Iter_SpinBox->setAccelerated(true);
-			GSL_max_Iter_SpinBox->setRange(1,MAX_INTEGER);
 
 		GSL_common_Tolerance_Label = new QLabel("General tolerance");
 		GSL_common_Tolerance_Line_Edit = new QLineEdit(Locale.toString(fitting_Settings->x_Tolerance));
 			GSL_common_Tolerance_Line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION, this));
-
 
 		GSL_Fit_Params_Group_Box_Layout->addWidget(GSL_randomized_Start_Check_Box,	0,0,1,2);
 		GSL_Fit_Params_Group_Box_Layout->addWidget(GSL_num_Runs_Label,				1,0,1,1);
@@ -318,7 +294,7 @@ void Fitting_Settings_Editor::create_GSL_Main_Params_Group_Box()
 			GSL_num_Runs_SpinBox->setEnabled(fitting_Settings->randomized_Start);
 		});
 		connect(GSL_num_Runs_SpinBox, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), fitting_Settings, [=]{fitting_Settings->num_Runs = GSL_num_Runs_SpinBox->value();});
-		connect(GSL_max_Iter_SpinBox, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), fitting_Settings, [=]{fitting_Settings->max_Iter = GSL_max_Iter_SpinBox->value();	});
+		connect(GSL_max_Iter_SpinBox, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), fitting_Settings, [=]{fitting_Settings->max_Iter = GSL_max_Iter_SpinBox->value();});
 		connect(GSL_common_Tolerance_Line_Edit, &QLineEdit::textChanged, fitting_Settings, [=]
 		{
 			fitting_Settings->x_Tolerance = Locale.toDouble(GSL_common_Tolerance_Line_Edit->text());
@@ -464,29 +440,29 @@ void Fitting_Settings_Editor::create_SO_Main_Params_Group_Box()
 		SO_num_Runs_Label = new QLabel("Number of runs");
 			SO_num_Runs_Label->setEnabled(fitting_Settings->randomized_Start);
 		SO_num_Runs_SpinBox = new QSpinBox;
+			SO_num_Runs_SpinBox->setRange(1, MAX_INTEGER);
 			SO_num_Runs_SpinBox->setEnabled(fitting_Settings->randomized_Start);
 			SO_num_Runs_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
 			SO_num_Runs_SpinBox->setAccelerated(true);
 			SO_num_Runs_SpinBox->setValue(fitting_Settings->num_Runs);
-			SO_num_Runs_SpinBox->setRange(1, MAX_INTEGER);
 
 		SO_max_Evaluations_Label = new QLabel("Max number of evaluations");
 			SO_max_Evaluations_Label->setDisabled(fitting_Settings->max_Eval_Check);
 		SO_max_Evaluations_SpinBox = new QSpinBox;
+			SO_max_Evaluations_SpinBox->setRange(1, MAX_INTEGER);
 			SO_max_Evaluations_SpinBox->setDisabled(fitting_Settings->max_Eval_Check);
 			SO_max_Evaluations_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
 			SO_max_Evaluations_SpinBox->setAccelerated(true);
 			SO_max_Evaluations_SpinBox->setValue(fitting_Settings->max_Evaluations);
-			SO_max_Evaluations_SpinBox->setRange(1, MAX_INTEGER);
 
 		SO_max_Eval_Check_Box = new QCheckBox("Num. evals "+Proportional_Sym+" num. params",this);
 			SO_max_Eval_Check_Box->setChecked(fitting_Settings->max_Eval_Check);
 		SO_max_Eval_Factor_SpinBox = new QSpinBox;
+			SO_max_Eval_Factor_SpinBox->setRange(1, MAX_INTEGER);
 			SO_max_Eval_Factor_SpinBox->setEnabled(fitting_Settings->max_Eval_Check);
 			SO_max_Eval_Factor_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
 			SO_max_Eval_Factor_SpinBox->setAccelerated(true);
 			SO_max_Eval_Factor_SpinBox->setValue(fitting_Settings->max_Eval_Factor);
-			SO_max_Eval_Factor_SpinBox->setRange(1, MAX_INTEGER);
 
 		SO_Fit_Params_Group_Box_Layout->addWidget(SO_randomized_Start_Check_Box,		0,0,1,1);
 		SO_Fit_Params_Group_Box_Layout->addWidget(SO_initialize_By_Current_Check_Box,	0,1,1,1);

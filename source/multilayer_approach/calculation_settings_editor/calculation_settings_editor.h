@@ -19,7 +19,6 @@ public:
 	void create_Main_Layout();
 	void set_Window_Geometry();
 	void write_Window_Geometry();
-	void create_Menu();
 	void create_Tabs();
 	static void lock_Mainwindow_Interface();
 	static void unlock_Mainwindow_Interface();
@@ -45,7 +44,6 @@ public:
 
 	QPushButton* done_Button;
 	QPushButton* global_Norm_Button;
-	QPushButton* fitting_Settings_Button;
 };
 
 #endif // CALCULATION_SETTINGS_H
