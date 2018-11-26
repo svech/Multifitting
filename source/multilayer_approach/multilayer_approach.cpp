@@ -892,6 +892,11 @@ void Multilayer_Approach::start_Fitting()
 	delete main_Calculation_Module;
 }
 
+void Multilayer_Approach::abort_Calculations()
+{
+	fitting_Settings->abort = true;
+}
+
 void Multilayer_Approach::calc_Confidence_Intervals()
 {
 	// TODO

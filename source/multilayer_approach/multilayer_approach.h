@@ -39,6 +39,7 @@ public:
 	void save_As();
 	void calc_Reflection(bool silent = false);
 	void start_Fitting();
+	void abort_Calculations();
 	void calc_Confidence_Intervals();
 	void reload_Optical_Constants();
 	void open_Table_Of_Structures();

@@ -77,6 +77,7 @@ public:
 					QGridLayout* SO_Additional_Params_Group_Box_Layout;
 
 		QPushButton* done_Button;
+		QPushButton* abort_Button;
 };
 
 #endif // FITTING_SETTINGS_EDITOR_H

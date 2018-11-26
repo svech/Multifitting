@@ -15,10 +15,25 @@ Main_Calculation_Module::Main_Calculation_Module(QString calc_Mode):
 		multilayers[tab_Index] = qobject_cast<Multilayer*>(multilayer_Tabs->widget(tab_Index));
 		calculation_Trees[tab_Index] = new Calculation_Tree(multilayers[tab_Index], calc_Mode);
 	}
+
+	// set abort button enabled
+	global_Multilayer_Approach->fitting_Settings->in_Calculation = true;
+	if(global_Multilayer_Approach->runned_Fitting_Settings_Editor.contains(fit_Settings_Key))
+	{
+		global_Multilayer_Approach->fitting_Settings_Editor->abort_Button->setEnabled(global_Multilayer_Approach->fitting_Settings->in_Calculation);
+	}
 }
 
 Main_Calculation_Module::~Main_Calculation_Module()
 {
+	// reset abort state
+	global_Multilayer_Approach->fitting_Settings->abort = false;
+	global_Multilayer_Approach->fitting_Settings->in_Calculation = false;
+	if(global_Multilayer_Approach->runned_Fitting_Settings_Editor.contains(fit_Settings_Key))
+	{
+		global_Multilayer_Approach->fitting_Settings_Editor->abort_Button->setEnabled(global_Multilayer_Approach->fitting_Settings->in_Calculation);
+	}
+
 	for(Calculation_Tree* calculation_Tree : calculation_Trees)
 	{
 		delete calculation_Tree;

@@ -177,6 +177,9 @@ void Fitting::slaves_Recalculation(Parameter* master, Fitting_Params* params)
 
 void Fitting::calc_Residual(const gsl_vector* x, Fitting_Params* params, gsl_vector* f)
 {
+	// make gui responsive
+	QCoreApplication::processEvents();
+
 	// change value of real fitables
 	for(size_t i=0; i<params->fitables.param_Pointers.size(); ++i)
 	{

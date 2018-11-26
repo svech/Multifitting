@@ -38,14 +38,23 @@ void Fitting_Settings_Editor::create_Main_Layout()
 			done_Button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 			done_Button->setFocus();
 			done_Button->setDefault(true);
-			connect(done_Button, &QPushButton::clicked, this, &Fitting_Settings_Editor::close);
+		connect(done_Button, &QPushButton::clicked, this, &Fitting_Settings_Editor::close);
+
+		abort_Button = new QPushButton("Abort calculations");
+			abort_Button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+			abort_Button->setFocus();
+			abort_Button->setDefault(true);
+			abort_Button->setEnabled(fitting_Settings->in_Calculation);
+		connect(abort_Button, &QPushButton::clicked, global_Multilayer_Approach, &Multilayer_Approach::abort_Calculations);
 
 		QHBoxLayout* button_Layout = new QHBoxLayout;
 //			button_Layout->setSpacing(0);
 			button_Layout->addWidget(done_Button);
+			button_Layout->addWidget(abort_Button);
 
 		main_Layout->addLayout(button_Layout);
 	}
+
 	methods_Combo_Box->currentIndexChanged(methods_Combo_Box->currentIndex());
 	interface_Created = true;
 }

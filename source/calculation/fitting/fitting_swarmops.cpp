@@ -2,6 +2,8 @@
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include "fitting_swarmops.h"
 
+jmp_buf bufferA;
+
 Fitting_SwarmOps::Fitting_SwarmOps(Fitting* fitting):
 	main_Calculation_Module(fitting->main_Calculation_Module),
 	calculation_Trees(fitting->main_Calculation_Module->calculation_Trees),
@@ -30,6 +32,11 @@ void Fitting_SwarmOps::callback(Fitting_Params* params, SO_TFitness residual)
 
 SO_TFitness Fitting_SwarmOps::calc_Residual(SO_TElm* x,  void* context, SO_TFitness fitnessLimit)
 {
+	if(global_Multilayer_Approach->fitting_Settings->abort)
+	{
+		longjmp(bufferA, 2018); // not zero! zero means repeating in infinite loop!
+	}
+
 	UNUSED(fitnessLimit);
 	Fitting_Params* params = ((struct Fitting_Params*)context);
 
@@ -51,6 +58,16 @@ SO_TFitness Fitting_SwarmOps::calc_Residual(SO_TElm* x,  void* context, SO_TFitn
 
 	// calc residual
 	gsl_blas_ddot(params->f, params->f, &params->final_Residual);
+
+	// duplicate SO functionality for aborting
+	if(params->final_Residual < params->my_Res.best.fitness )
+	{
+		params->my_Res.best.fitness = params->final_Residual;
+		for(size_t i=0; i<params->p; ++i)
+		{
+			params->my_Res.best.x[i] = x[i];
+		}
+	}
 
 	// print state	
 	callback(params, params->final_Residual);
@@ -103,8 +120,18 @@ bool Fitting_SwarmOps::fit()
 	Fitting::calc_Residual(params->x, params, params->f);
 	gsl_blas_ddot(params->f, params->f, &params->init_Residual);
 
+	// init my_Res for aborting
+	params->my_Res.best.fitness = DBL_MAX;
+	params->my_Res.best.dim = params->p;
+	params->my_Res.best.x = new SO_TElm[params->my_Res.best.dim];
+
+	SO_Results res;
+
 	auto start = std::chrono::system_clock::now();
-	struct SO_Results res = SO_OptimizePar(
+	int repeat = setjmp(bufferA);
+	if(repeat == 0)
+	{
+		res = SO_OptimizePar(
 			  SO_kMethodDefaultParameters[kMethodId],			/* Behavioural parameters for optimization method. */
 			  kMethodId,										/* Optimization method. */
 			  1,												/* Number of optimization runs. */
@@ -119,6 +146,11 @@ bool Fitting_SwarmOps::fit()
 			  lowerBound.data(),								/* Lower search-space boundary. */
 			  upperBound.data(),								/* Upper search-space boundary. */
 			  nullptr);											/* Fitness trace filename (null-pointer for no trace). */
+	} else
+	// if aborted
+	{
+		res = params->my_Res;
+	}
 
 	auto end = std::chrono::system_clock::now();
 	auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
@@ -183,13 +215,13 @@ bool Fitting_SwarmOps::fit()
 		Fitting::change_Real_Fitables_and_Dependent(params, old_Value, new_Value, i, FITTING);
 	}
 
-
 	printf("Final       |f| = %g\n", res.best.fitness);
 	printf("Best solution:   ");
 	SO_PrintVector(res.best.x, res.best.dim);
 	printf("\n\n");
 
 	SO_FreeResults(&res);
+
 	return true;
 }
 

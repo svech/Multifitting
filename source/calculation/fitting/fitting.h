@@ -5,6 +5,8 @@
 #include "calculation/fitting/fitting_gsl.h"
 #include "calculation/fitting/fitting_swarmops.h"
 #include <gsl/gsl_blas.h>
+#include <setjmp.h>
+#include <SwarmOps/Statistics/Results.h>
 
 class Main_Calculation_Module;
 
@@ -28,6 +30,7 @@ struct Fitting_Params
 
 	// for SwarmOps
 	size_t counter;
+	SO_Results my_Res;
 
 	// for Aperiodic
 //	double aperiodic_Addition = 0;

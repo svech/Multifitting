@@ -9,6 +9,10 @@ class Fitting_Settings: public QWidget
 public:
 	explicit Fitting_Settings(QWidget *parent = nullptr);
 
+	// state variables
+	bool abort = false;
+	bool in_Calculation = false;
+
 	// common
 	QString current_Method;
 	int num_Runs;
