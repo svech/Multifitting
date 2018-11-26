@@ -129,15 +129,21 @@ void Menu::create_Calculate_Menu()
 	QAction* act_Confidence = new QAction("Calculate confidence intervals", this);
 		act_Confidence->setShortcut(Qt::Key_A | Qt::CTRL | Qt::SHIFT);
 
+	QAction* act_Abort = new QAction("Abort calculation", this);
+		act_Abort->setShortcut(Qt::Key_Period | Qt::ALT);
+		act_Abort->setProperty(abort_Property,abort_Property);
+
 	if(window_Type == window_Type_Multilayer_Approach || window_Type == window_Type_Table)
 	{
-		connect(act_Specular,	&QAction::triggered, global_Multilayer_Approach, [=]{global_Multilayer_Approach->calc_Reflection();});
-		connect(act_Fitting,	&QAction::triggered, global_Multilayer_Approach, [=]{global_Multilayer_Approach->start_Fitting();});
+		connect(act_Specular,	&QAction::triggered, global_Multilayer_Approach, [=]{global_Multilayer_Approach->calc_Reflection();			 });
+		connect(act_Fitting,	&QAction::triggered, global_Multilayer_Approach, [=]{global_Multilayer_Approach->start_Fitting();			 });
 		connect(act_Confidence,	&QAction::triggered, global_Multilayer_Approach, [=]{global_Multilayer_Approach->calc_Confidence_Intervals();});
+		connect(act_Abort,		&QAction::triggered, global_Multilayer_Approach, [=]{global_Multilayer_Approach->abort_Calculations();		 });
 
 		calculate_Menu->addAction(act_Specular);
 		calculate_Menu->addAction(act_Fitting);
 		calculate_Menu->addAction(act_Confidence);
+		calculate_Menu->addAction(act_Abort);
 	}
 }
 

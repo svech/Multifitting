@@ -138,6 +138,7 @@ public:
 	int basic_Column_Number = 1;
 	bool temporary = false;
 
+	Menu* menu;
 	QTabWidget* main_Tabs;
 	QList<Structure_Tree*> list_Of_Trees;
 	QList<int> rows_List_To_Span;

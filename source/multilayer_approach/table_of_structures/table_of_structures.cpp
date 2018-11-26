@@ -106,10 +106,20 @@ void Table_Of_Structures::unlock_Mainwindow_Interface()
 
 void Table_Of_Structures::create_Menu()
 {
-	Menu* menu = new Menu(window_Type_Table,this);
+	menu = new Menu(window_Type_Table,this);
 	main_Layout->setMenuBar(menu->menu_Bar);
 	connect(menu, &Menu::refresh, this, [=]{reload_All_Widgets();});
 	connect(menu, &Menu::refresh, this, &Table_Of_Structures::emit_Data_Edited);
+
+	if(global_Multilayer_Approach->fitting_Settings->in_Calculation)
+	{
+		for(QAction* action : menu->calculate_Menu->actions())
+		{
+			if(action->property(abort_Property).toString() != abort_Property)		{
+				action->setDisabled(true);
+			}
+		}
+	}
 }
 
 void Table_Of_Structures::create_Tabs()

@@ -2,7 +2,7 @@
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include "fitting_swarmops.h"
 
-jmp_buf bufferA;
+jmp_buf buffer_SO;
 
 Fitting_SwarmOps::Fitting_SwarmOps(Fitting* fitting):
 	main_Calculation_Module(fitting->main_Calculation_Module),
@@ -34,7 +34,7 @@ SO_TFitness Fitting_SwarmOps::calc_Residual(SO_TElm* x,  void* context, SO_TFitn
 {
 	if(global_Multilayer_Approach->fitting_Settings->abort)
 	{
-		longjmp(bufferA, 2018); // not zero! zero means repeating in infinite loop!
+		longjmp(buffer_SO, 2018); // not zero! zero means repeating in infinite loop!
 	}
 
 	UNUSED(fitnessLimit);
@@ -128,7 +128,7 @@ bool Fitting_SwarmOps::fit()
 	SO_Results res;
 
 	auto start = std::chrono::system_clock::now();
-	int repeat = setjmp(bufferA);
+	int repeat = setjmp(buffer_SO);
 	if(repeat == 0)
 	{
 		res = SO_OptimizePar(

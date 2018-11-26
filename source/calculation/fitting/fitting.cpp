@@ -438,11 +438,14 @@ bool Fitting::fit()
 		add_Fit_To_File(params.x, params.init_Residual, default_Fit_Statictics_File, 0);
 		for(int run=1; run<=global_Multilayer_Approach->fitting_Settings->num_Runs; run++)
 		{
-			randomize_Position(run-1); // first without randomization
-			fit_Return = run_Fitting();
-			main_Calculation_Module->renew_Item_Trees();
-			main_Calculation_Module->add_Fit(fit_Run_State, run);
-			add_Fit_To_File(params.x, params.final_Residual, default_Fit_Statictics_File, run);
+			if(!global_Multilayer_Approach->fitting_Settings->abort)
+			{
+				randomize_Position(run-1); // first without randomization
+				fit_Return = run_Fitting();
+				main_Calculation_Module->renew_Item_Trees();
+				main_Calculation_Module->add_Fit(fit_Run_State, run);
+				add_Fit_To_File(params.x, params.final_Residual, default_Fit_Statictics_File, run);
+			}
 		}
 	}
 	// --------------------------------------------------------------------------------
@@ -498,16 +501,20 @@ bool Fitting::confidence(const vector<double>& fitables_Pointers_Value_Backup, c
 			} else
 			// randomized fit
 			{
-				vector<double> rand_Fit_Residuals(global_Multilayer_Approach->fitting_Settings->num_Runs);
+				vector<double> rand_Fit_Residuals;
+					rand_Fit_Residuals.reserve(global_Multilayer_Approach->fitting_Settings->num_Runs);
 				for(size_t rand_Index=0; rand_Index<rand_Fit_Residuals.size(); rand_Index++)
 				{
-					randomize_Position(rand_Index); // first without randomization
-					fit_Return = run_Fitting();
-					rand_Fit_Residuals[rand_Index] = params.final_Residual;
+					if(!global_Multilayer_Approach->fitting_Settings->abort)
+					{
+						randomize_Position(rand_Index); // first without randomization
+						fit_Return = run_Fitting();
+						rand_Fit_Residuals.push_back(params.final_Residual);
 
-					// reset to initial state
-					for(size_t i=0; i<fitables.param_Pointers.size(); i++)			{
-						fitables.param_Pointers[i]->value = fitables_Pointers_Value_Backup[i];
+						// reset to initial state
+						for(size_t i=0; i<fitables.param_Pointers.size(); i++)			{
+							fitables.param_Pointers[i]->value = fitables_Pointers_Value_Backup[i];
+						}
 					}
 				}
 				// sort residuals

@@ -2,6 +2,8 @@
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include "fitting_gsl.h"
 
+jmp_buf buffer_GSL;
+
 Fitting_GSL::Fitting_GSL(Fitting* fitting):
 	main_Calculation_Module(fitting->main_Calculation_Module),
 	calculation_Trees(fitting->main_Calculation_Module->calculation_Trees),
@@ -98,8 +100,14 @@ bool Fitting_GSL::fit()
 	gsl_blas_ddot(f, f, &params->init_Residual);
 
 	auto start = std::chrono::system_clock::now();
+
+	int repeat = setjmp(buffer_GSL);
+	if(repeat == 0)
+	{
 		// iterate until convergence
 		gsl_multifit_nlinear_driver(max_iter, xtol, gtol, ftol,	callback, params, &info, work);
+	}
+
 	auto end = std::chrono::system_clock::now();
 	auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
 	qInfo() << "Fit  : "<< elapsed.count()/1000. << " seconds\n";
@@ -127,6 +135,11 @@ bool Fitting_GSL::fit()
 
 int Fitting_GSL::calc_Residual(const gsl_vector* x, void* bare_Params, gsl_vector* f)
 {
+	if(global_Multilayer_Approach->fitting_Settings->abort)
+	{
+		longjmp(buffer_GSL, 2018); // not zero! zero means repeating in infinite loop!
+	}
+
 	Fitting_Params* params = ((struct Fitting_Params*)bare_Params);
 
 	// calc f

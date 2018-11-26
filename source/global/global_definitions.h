@@ -301,6 +301,7 @@ class Node;
 #define TRIL_NOT_DEFINED	"NotDefined"
 #define NOPARENT			"No parents"
 #define previous_Expression_Property "previous_Expression"
+#define abort_Property		"abort"
 
 #define num_Chemic_Element_Property		"num_Chemic_Element"
 #define interlayer_Index_Property		"interlayer_Index"

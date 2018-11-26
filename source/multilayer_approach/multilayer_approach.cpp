@@ -854,66 +854,127 @@ void Multilayer_Approach::save_As()
 
 void Multilayer_Approach::calc_Reflection(bool silent)
 {
-	// TODO
-	if(!silent)
+	if(!fitting_Settings->in_Calculation)
 	{
-		qInfo() << "\n\n-------------------------------------------------------"
-					 "\ncalc specular functions..."
-					 "\n-------------------------------------------------------\n";
+		// TODO
+		if(!silent)
+		{
+			qInfo() << "\n\n-------------------------------------------------------"
+						 "\ncalc specular functions..."
+						 "\n-------------------------------------------------------\n";
+		}
+		Main_Calculation_Module* main_Calculation_Module = new Main_Calculation_Module(CALCULATION);
+		main_Calculation_Module->single_Calculation();
+		delete main_Calculation_Module;
 	}
-	Main_Calculation_Module* main_Calculation_Module = new Main_Calculation_Module(CALCULATION);
-	main_Calculation_Module->single_Calculation();
-	delete main_Calculation_Module;
 }
 
 void Multilayer_Approach::start_Fitting()
 {
-	// TODO
-	qInfo() << "\n\n-------------------------------------------------------"
-				 "\nfitting..."
-				 "\n-------------------------------------------------------\n";
-
-	if(runned_Tables_Of_Structures.contains(table_Key))
+	if(!fitting_Settings->in_Calculation)
 	{
-		if(table_Of_Structures->layer_Thickness_Transfer_Is_Created)
+		// TODO
+		qInfo() << "\n\n-------------------------------------------------------"
+					 "\nfitting..."
+					 "\n-------------------------------------------------------\n";
+
+		if(runned_Tables_Of_Structures.contains(table_Key))
 		{
-			table_Of_Structures->layer_Thickness_Transfer->close();
+			if(table_Of_Structures->layer_Thickness_Transfer_Is_Created)
+			{
+				table_Of_Structures->layer_Thickness_Transfer->close();
+			}
 		}
+
+		Main_Calculation_Module* main_Calculation_Module = new Main_Calculation_Module(FITTING);
+		main_Calculation_Module->fitting_and_Confidence();
+		delete main_Calculation_Module;
+
+		if(lambda_Out_Of_Range) return;
+
+		main_Calculation_Module = new Main_Calculation_Module(CALCULATION);
+		main_Calculation_Module->single_Calculation();
+		delete main_Calculation_Module;
 	}
-
-	Main_Calculation_Module* main_Calculation_Module = new Main_Calculation_Module(FITTING);
-	main_Calculation_Module->fitting_and_Confidence();
-	delete main_Calculation_Module;
-
-	if(lambda_Out_Of_Range) return;
-
-	main_Calculation_Module = new Main_Calculation_Module(CALCULATION);
-	main_Calculation_Module->single_Calculation();
-	delete main_Calculation_Module;
-}
-
-void Multilayer_Approach::abort_Calculations()
-{
-	fitting_Settings->abort = true;
 }
 
 void Multilayer_Approach::calc_Confidence_Intervals()
 {
-	// TODO
-	qInfo() << "\n\n-------------------------------------------------------"
-				 "\ncalc confidence intervals..."
-				 "\n-------------------------------------------------------\n";
+	if(!fitting_Settings->in_Calculation)
+	{
+		// TODO
+		qInfo() << "\n\n-------------------------------------------------------"
+					 "\ncalc confidence intervals..."
+					 "\n-------------------------------------------------------\n";
 
-	Main_Calculation_Module* main_Calculation_Module = new Main_Calculation_Module(CONFIDENCE);
-	main_Calculation_Module->fitting_and_Confidence();
-	delete main_Calculation_Module;
+		Main_Calculation_Module* main_Calculation_Module = new Main_Calculation_Module(CONFIDENCE);
+		main_Calculation_Module->fitting_and_Confidence();
+		delete main_Calculation_Module;
+	}
+}
+
+void Multilayer_Approach::abort_Calculations()
+{
+	if(fitting_Settings->in_Calculation) {
+		fitting_Settings->abort = true;
+	}
+}
+
+void Multilayer_Approach::calculation_Started()
+{
+	fitting_Settings->in_Calculation = true;
+	if(runned_Fitting_Settings_Editor.contains(fit_Settings_Key))
+	{
+		fitting_Settings_Editor->abort_Button->setEnabled(fitting_Settings->in_Calculation);
+	}
+
+	// menu enabling/disabling
+	for(QAction* action : menu->calculate_Menu->actions())	{
+		if(action->property(abort_Property).toString() != abort_Property)
+		{
+			action->setDisabled(true);
+		}
+	}
+	if(runned_Tables_Of_Structures.contains(table_Key))
+	{
+		for(QAction* action : table_Of_Structures->menu->calculate_Menu->actions())
+		{
+			if(action->property(abort_Property).toString() != abort_Property)		{
+				action->setDisabled(true);
+			}
+		}
+	}
+}
+
+void Multilayer_Approach::calculation_Finished()
+{
+	fitting_Settings->abort = false;
+	fitting_Settings->in_Calculation = false;
+	if(runned_Fitting_Settings_Editor.contains(fit_Settings_Key))
+	{
+		fitting_Settings_Editor->abort_Button->setEnabled(fitting_Settings->in_Calculation);
+	}
+
+	// menu enabling/disabling
+	for(QAction* action : menu->calculate_Menu->actions())	{
+		action->setDisabled(false);
+	}
+	if(runned_Tables_Of_Structures.contains(table_Key))
+	{
+		for(QAction* action : table_Of_Structures->menu->calculate_Menu->actions())	{
+			action->setDisabled(false);
+		}
+	}
 }
 
 void Multilayer_Approach::reload_Optical_Constants()
 {
-	// TODO
-	qInfo() << "\n\n-------------------------------------------------------"
-				 "\nreload optical constants..."
-				 "\n-------------------------------------------------------\n";
-	optical_Constants->reload();
+	if(!fitting_Settings->in_Calculation)
+	{
+		// TODO
+		qInfo() << "\n\n-------------------------------------------------------"
+					 "\nreload optical constants..."
+					 "\n-------------------------------------------------------\n";
+		optical_Constants->reload();
+	}
 }
