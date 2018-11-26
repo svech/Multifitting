@@ -537,12 +537,14 @@ void Data::calc_Measured_cos2_k()
 {
 	// cos2
 	angle_Value = probe_Angle.value;
-	cos2_Value = pow(cos(probe_Angle.value*M_PI/180.),2);
+	if(angle_Type == angle_Type_Grazing)	{ cos2_Value = pow(cos(angle_Value*M_PI/180.),2); }
+	else									{ cos2_Value = pow(sin(angle_Value*M_PI/180.),2); }
 
 	cos2.resize(angle.size());
 	for(int i=0; i<angle.size(); ++i)
 	{
-		cos2[i] = pow(cos(angle[i]*M_PI/180.),2);
+		if(angle_Type == angle_Type_Grazing){ cos2[i] = pow(cos(angle[i]*M_PI/180.),2); }
+		else								{ cos2[i] = pow(sin(angle[i]*M_PI/180.),2); }
 	}
 
 	// k
@@ -560,17 +562,20 @@ void Data::calc_Independent_cos2_k()
 {
 	// cos2
 	angle_Value = probe_Angle.value;
-	cos2_Value = pow(cos(probe_Angle.value*M_PI/180.),2);
+	if(angle_Type == angle_Type_Grazing)	{ cos2_Value = pow(cos(angle_Value*M_PI/180.),2); }
+	else									{ cos2_Value = pow(sin(angle_Value*M_PI/180.),2); }
+
 	angle.resize(probe_Angle.independent.num_Points);
 	cos2.resize(probe_Angle.independent.num_Points);
-
 	if(probe_Angle.independent.num_Points>1)
 	{
 		double angle_Step = (probe_Angle.independent.max - probe_Angle.independent.min) / (probe_Angle.independent.num_Points - 1);
 		double angle_Temp = probe_Angle.independent.min;
 		for(int i=0; i<probe_Angle.independent.num_Points; ++i)
 		{
-			cos2[i] = pow(cos(angle_Temp*M_PI/180.),2);
+			if(angle_Type == angle_Type_Grazing){ cos2[i] = pow(cos(angle_Temp*M_PI/180.),2); }
+			else								{ cos2[i] = pow(sin(angle_Temp*M_PI/180.),2); }
+
 			angle[i] = angle_Temp;
 			angle_Temp += angle_Step;
 		}

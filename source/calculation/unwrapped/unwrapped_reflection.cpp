@@ -1063,7 +1063,10 @@ void Unwrapped_Reflection::size_Effect(double angle, double& denominator,double&
 	// OPTIMIZE
 	double error;
 	double result = 1;
-	double sin_Grad = sin(M_PI/180*angle);
+	double sin_Grad;
+	if(measurement.angle_Type == angle_Type_Grazing)	{ sin_Grad = sin(M_PI/180*angle); }
+	else												{ sin_Grad = cos(M_PI/180*angle); }
+
 	double min = (measurement.sample_Shift.value-measurement.sample_Size.value/2.)*sin_Grad;
 	double max = (measurement.sample_Shift.value+measurement.sample_Size.value/2.)*sin_Grad;
 
