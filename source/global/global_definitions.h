@@ -160,7 +160,7 @@ class Node;
 #define MAX_PRECISION_USED 10				// tthumbnail and lineedit precisions
 #define RAND_SHIFT	100000					// rand * RAND_SHIFT + rand
 #define TABLE_FIX_WIDTH_LINE_EDIT_SHORT   50  // qLineEdit.setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT)
-#define TABLE_FIX_WIDTH_LINE_EDIT_SIGMA   54
+#define TABLE_FIX_WIDTH_LINE_EDIT_SIGMA   56
 #define TABLE_FIX_WIDTH_LINE_EDIT_DENSITY 57
 #define TABLE_FIX_WIDTH_LINE_EDIT_LONG    64
 #define TABLE_COLUMN_ELEMENTS_SHIFT 1		// current_Column += TABLE_COLUMN_ELEMENTS_SHIFT

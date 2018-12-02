@@ -677,8 +677,10 @@ void Multilayer_Approach::open(QString filename)
 		open_Fits_Selector();
 	}
 
-	file_Was_Opened = true;
-	qInfo() << "opened";
+	file_Was_Opened_or_Saved = true;
+	last_file = filename;
+
+	qInfo() << "opened";// << last_file;
 }
 
 void Multilayer_Approach::open_As()
@@ -820,8 +822,10 @@ void Multilayer_Approach::save(QString filename)
 	}
 
 	file.close();
+	file_Was_Opened_or_Saved = true;
+	last_file = filename;
 
-	qInfo() << "saved";
+	qInfo() << "saved";// << last_file;
 }
 
 void Multilayer_Approach::save_As()

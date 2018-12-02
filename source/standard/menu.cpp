@@ -73,7 +73,13 @@ void Menu::create_File_Menu()
 		{
 			QAction* act_Open = new QAction("Open last", this);
 				act_Open->setShortcut(Qt::Key_O | Qt::CTRL);
-			connect(act_Open, &QAction::triggered, global_Multilayer_Approach, [=]{global_Multilayer_Approach->open(last_file);});
+			connect(act_Open, &QAction::triggered, global_Multilayer_Approach, [=]
+			{
+				if(global_Multilayer_Approach->file_Was_Opened_or_Saved)
+					global_Multilayer_Approach->open(last_file);
+				else
+					global_Multilayer_Approach->open(default_File);
+			});
 			file_Menu->addAction(act_Open);
 
 			QAction* act_Open_As = new QAction("Open", this);
@@ -86,7 +92,7 @@ void Menu::create_File_Menu()
 			file_Menu->addAction(act_Save);
 			connect(act_Save, &QAction::triggered, global_Multilayer_Approach, [=]
 			{
-				if(global_Multilayer_Approach->file_Was_Opened)
+				if(global_Multilayer_Approach->file_Was_Opened_or_Saved)
 					global_Multilayer_Approach->save(last_file);
 				else
 					global_Multilayer_Approach->save(default_File);
@@ -754,7 +760,7 @@ void Menu::activate_Item_Line_Edit_Precision()
 	if(menu_Lengths->title() == precision_Menu_Title)	{	set_Line_Edit_Thickness_Precision();
 															set_Line_Edit_Sigma_Precision();
 															set_Line_Edit_Period_Precision();
-															set_Line_Edit_Gamma_Precision();	}
+															/*set_Line_Edit_Gamma_Precision();*/	}
 
 	// composition
 	if(menu_Composition->title() == precision_Menu_Title)	set_Line_Edit_Composition_Precision();

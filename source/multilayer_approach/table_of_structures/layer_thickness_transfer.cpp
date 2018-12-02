@@ -274,7 +274,7 @@ void Layer_Thickness_Transfer::create_Layer_Lines()
 		Global_Variables::resize_Line_Edit(period_SpinBox);
 
 		// refresh
-		refresh(period_SpinBox, line_edit_period_precision);
+		refresh(period_SpinBox);
 
 		// correction of round errors
 		reload();
@@ -293,13 +293,12 @@ void Layer_Thickness_Transfer::spinBox_Lambda(MyDoubleSpinBox* current_Child_Spi
 	double delta = current_Child_SpinBox->value() - previous_Current_Child_SpinBox_Value;
 	double N_current = 1;
 	double N_partner = 1;
-	int precision = 8;
-	if(current_Child_Data.item_Type == item_Type_Layer)	     { precision = line_edit_thickness_precision; N_current = 1; }
-	if(current_Child_Data.item_Type == item_Type_Multilayer) { precision = line_edit_period_precision;    N_current = current_Child_Data.num_Repetition.value();}
-	if(current_Child_Data.item_Type == item_Type_Aperiodic)  { precision = line_edit_period_precision;    N_current = 1; }
-	if(partner_Data.item_Type == item_Type_Layer)			 { precision = line_edit_thickness_precision; N_partner = 1; }
-	if(partner_Data.item_Type == item_Type_Multilayer)		 { precision = line_edit_period_precision;    N_partner = partner_Data.num_Repetition.value();}
-	if(partner_Data.item_Type == item_Type_Aperiodic)		 { precision = line_edit_period_precision;    N_partner = 1; }
+	if(current_Child_Data.item_Type == item_Type_Layer)	     { N_current = 1; }
+	if(current_Child_Data.item_Type == item_Type_Multilayer) { N_current = current_Child_Data.num_Repetition.value();}
+	if(current_Child_Data.item_Type == item_Type_Aperiodic)  { N_current = 1; }
+	if(partner_Data.item_Type == item_Type_Layer)			 { N_partner = 1; }
+	if(partner_Data.item_Type == item_Type_Multilayer)		 { N_partner = partner_Data.num_Repetition.value();}
+	if(partner_Data.item_Type == item_Type_Aperiodic)		 { N_partner = 1; }
 
 	current_Child_SpinBox->setDisabled(false);
 	partner_SpinBox->setDisabled(false);
@@ -309,7 +308,7 @@ void Layer_Thickness_Transfer::spinBox_Lambda(MyDoubleSpinBox* current_Child_Spi
 		// partner
 		partner_SpinBox->blockSignals(true);
 		partner_SpinBox->setValue(partner_SpinBox->value()-delta*N_current/N_partner);
-		refresh(partner_SpinBox, precision);
+		refresh(partner_SpinBox);
 		Global_Variables::resize_Line_Edit(partner_SpinBox);
 		partner_SpinBox->setProperty(previous_Value_Property,partner_SpinBox->value());
 		partner_SpinBox->blockSignals(false);
@@ -343,27 +342,26 @@ void Layer_Thickness_Transfer::spinBox_Lambda(MyDoubleSpinBox* current_Child_Spi
 		current_Child_SpinBox->setValue(previous_Current_Child_SpinBox_Value);
 	}
 
-	refresh(current_Child_SpinBox, precision);
+	refresh(current_Child_SpinBox);
 	Global_Variables::resize_Line_Edit(current_Child_SpinBox);
 
 	// recalculate
 	global_Multilayer_Approach->calc_Reflection(true);
 }
 
-void Layer_Thickness_Transfer::refresh(MyDoubleSpinBox* spinbox, int precision)
+void Layer_Thickness_Transfer::refresh(MyDoubleSpinBox* spinbox)
 {
-	QLineEdit* line_Edit = map_Of_Line_Edits.value(spinbox);
-	line_Edit->setText(Locale.toString(spinbox->value()*coeff/coeff, line_edit_double_format, precision));
+	MyDoubleSpinBox* line_Edit = map_Of_Line_Edits.value(spinbox);
 	table_Of_Structures->layer_Thickness_Transfer_Reload_Block = true;
-	line_Edit->textEdited(line_Edit->text());
+	line_Edit->setValue(spinbox->value());
 	table_Of_Structures->layer_Thickness_Transfer_Reload_Block = false;
 }
 
 void Layer_Thickness_Transfer::map_Line_Edit(id_Type id, MyDoubleSpinBox* spinbox)
 {
-	for(int i=0; i<table_Of_Structures->line_Edits_ID_Map.keys(id).size(); i++)
+	for(int i=0; i<table_Of_Structures->spin_Boxes_ID_Map.keys(id).size(); i++)
 	{
-		QLineEdit* line_Edit = table_Of_Structures->line_Edits_ID_Map.keys(id)[i];
+		MyDoubleSpinBox* line_Edit = table_Of_Structures->spin_Boxes_ID_Map.keys(id)[i];
 		QString value_Type = line_Edit->property(value_Type_Property).toString();
 		if(value_Type == VAL)
 		{
@@ -377,9 +375,9 @@ void Layer_Thickness_Transfer::reload()
 {
 	for(MyDoubleSpinBox* spinbox : map_Of_Line_Edits.keys())
 	{
-		QLineEdit* line_Edit = map_Of_Line_Edits.value(spinbox);
+		MyDoubleSpinBox* line_Edit = map_Of_Line_Edits.value(spinbox);
 		spinbox->blockSignals(true);
-		spinbox->setValue(spinbox->valueFromText(line_Edit->text()));
+		spinbox->setValue(line_Edit->value());
 		spinbox->blockSignals(false);
 		Global_Variables::resize_Line_Edit(spinbox);
 	}

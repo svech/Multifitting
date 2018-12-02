@@ -195,8 +195,8 @@ void Structure_Tree::refresh_If_Multilayer(QTreeWidgetItem* this_Item)
 		// find and save period and gamma
 		// check if periodic multilayer inside functions
 		{
-			find_Period_And_Gamma(this_Item);
 			iterate_Over_Multilayers(this_Item);
+			find_Period_And_Gamma(this_Item);
 		}
 
 		set_Structure_Item_Text(this_Item);

@@ -68,7 +68,7 @@ public:
 	void create_Min_Max_Spin_Box (My_Table_Widget* table, int tab_Index, int current_Row, int current_Column, QString whats_This);
 
 	// step of spinbox
-	void create_Step_Spin_Box	 (My_Table_Widget* table,				 int current_Row, int current_Column, QString whats_This);
+	void create_Step_Spin_Box	 (My_Table_Widget* table, int tab_Index, int current_Row, int current_Column, QString whats_This);
 
 	// spinbox recalculation
 	void spin_Box_Recalculate	 (My_Table_Widget* table,				 int current_Row, int current_Column);
@@ -165,13 +165,9 @@ public:
 	QMap<MyDoubleSpinBox*,QTreeWidgetItem*> spin_Boxes_Map;	// spinBox
 	QMap<QCheckBox*,QTreeWidgetItem*> check_Boxes_Map;
 
-	QList<QList<QLineEdit*>> min_Max_Density_Line_Edits_List;	// lineEdit
-	QList<QList<QLineEdit*>> min_Max_Thickness_Line_Edits_List;	// lineEdit
-	QList<QList<QLineEdit*>> min_Max_Sigma_Line_Edits_List;		// lineEdit
-
-	QList<QList<MyDoubleSpinBox*>> min_Max_Density_Spin_Boxes_List;		// spinBox
-	QList<QList<MyDoubleSpinBox*>> min_Max_Thickness_Spin_Boxes_List;	// spinBox
-	QList<QList<MyDoubleSpinBox*>> min_Max_Sigma_Spin_Boxes_List;		// spinBox
+	QList<QList<MyDoubleSpinBox*>> min_Max_Density_Spin_Boxes_List;
+	QList<QList<MyDoubleSpinBox*>> min_Max_Thickness_Spin_Boxes_List;
+	QList<QList<MyDoubleSpinBox*>> min_Max_Sigma_Spin_Boxes_List;
 
 	// coupling
 	QMap<QWidget*, QTreeWidgetItem*> coupled_Back_Widget_and_Struct_Item;
@@ -181,11 +177,18 @@ public:
 	QList<QList<QWidget*>>			all_Widgets_To_Reload;
 	QMultiMap<QWidget*, id_Type>	reload_Show_Dependence_Map;
 	QMap<QCheckBox*,id_Type>		check_Boxes_Fit_Map;
-	QMap<QLineEdit*,id_Type>		line_Edits_ID_Map;		// lineEdit
-	QMap<MyDoubleSpinBox*,id_Type>	spin_Boxes_ID_Map;		// spinBox
+	QMap<MyDoubleSpinBox*,id_Type>	spin_Boxes_ID_Map;
 
 	// disable/enable
 	QMap<QTreeWidgetItem*, QTableWidgetItem*> struct_Table_Map;
+
+	// steps
+	QList<MyDoubleSpinBox*> composition_Spin_Boxes_List;
+	QList<MyDoubleSpinBox*> density_Spin_Boxes_List;
+	QList<MyDoubleSpinBox*> thickness_Spin_Boxes_List;
+	QList<MyDoubleSpinBox*> gamma_Spin_Boxes_List;
+	QList<MyDoubleSpinBox*> sigma_Spin_Boxes_List;
+	QList<MyDoubleSpinBox*> drift_Spin_Boxes_List;
 };
 
 #endif // TABLE_OF_STRUCTURES_H

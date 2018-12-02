@@ -148,9 +148,9 @@ void Table_Of_Structures::add_Tabs()
 		My_Table_Widget* new_Table = new My_Table_Widget(basic_Row_Number, basic_Column_Number, this, this);
 		all_Widgets_To_Reload.append(QList<QWidget*>());
 
-		min_Max_Density_Line_Edits_List.append(QList<QLineEdit*>());
-		min_Max_Thickness_Line_Edits_List.append(QList<QLineEdit*>());
-		min_Max_Sigma_Line_Edits_List.append(QList<QLineEdit*>());
+		min_Max_Density_Spin_Boxes_List.append(QList<MyDoubleSpinBox*>());
+		min_Max_Thickness_Spin_Boxes_List.append(QList<MyDoubleSpinBox*>());
+		min_Max_Sigma_Spin_Boxes_List.append(QList<MyDoubleSpinBox*>());
 
 		create_Table(new_Table, tab_Index);
 		main_Tabs->addTab(new_Table, multilayer_Tabs->tabText(tab_Index));
@@ -344,45 +344,45 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 			if(max_Number_Of_Elements>=2)
 			{
 				current_Column = max_Depth+1;
-				create_Simple_Label		(new_Table,	current_Row,   current_Column, Zeta_Sym+" step");
-				create_Step_Spin_Box	(new_Table,	current_Row+1, current_Column, whats_This_Composition);
+				create_Simple_Label		(new_Table,				current_Row,   current_Column, Zeta_Sym+" step");
+				create_Step_Spin_Box	(new_Table, tab_Index,	current_Row+1, current_Column, whats_This_Composition);
 			}
 			current_Column = max_Depth + max_Number_Of_Elements+2;
 
 			// density step
-			create_Simple_Label		(new_Table,	current_Row,   current_Column, Rho_Sym+" step");
-			create_Step_Spin_Box	(new_Table,	current_Row+1, current_Column, whats_This_Density);
+			create_Simple_Label		(new_Table,				current_Row,   current_Column, Rho_Sym+" step");
+			create_Step_Spin_Box	(new_Table, tab_Index,	current_Row+1, current_Column, whats_This_Density);
 			current_Column += 2;
 
 			// thickness step
 			if(has_Layers)
 			{
-				create_Simple_Label	(new_Table,	current_Row,   current_Column, "z/d step");
-				create_Step_Spin_Box(new_Table, current_Row+1, current_Column, whats_This_Thickness);
+				create_Simple_Label	(new_Table,			   current_Row,   current_Column, "z/d step");
+				create_Step_Spin_Box(new_Table, tab_Index, current_Row+1, current_Column, whats_This_Thickness);
 			}
 			current_Column += 2;
 
 			// sigma step
 			if(has_Boundaries)
 			{
-				create_Simple_Label	(new_Table,	current_Row,   current_Column, Sigma_Sym + " step");
-				create_Step_Spin_Box(new_Table, current_Row+1, current_Column, whats_This_Sigma);
+				create_Simple_Label	(new_Table,			   current_Row,   current_Column, Sigma_Sym + " step");
+				create_Step_Spin_Box(new_Table, tab_Index, current_Row+1, current_Column, whats_This_Sigma);
 			}
 			current_Column += 1;
 
 			// gamma step
 			if(has_Gamma)
 			{
-				create_Simple_Label	(new_Table,	current_Row,   current_Column, Gamma_Sym + " step");
-				create_Step_Spin_Box(new_Table, current_Row+1, current_Column, whats_This_Gamma);
+				create_Simple_Label	(new_Table,			   current_Row,   current_Column, Gamma_Sym + " step");
+				create_Step_Spin_Box(new_Table, tab_Index, current_Row+1, current_Column, whats_This_Gamma);
 			}
 			current_Column += 8;
 
 			// drift step
 			if(has_Multilayers)
 			{
-				create_Simple_Label	(new_Table,	current_Row,   current_Column, "drift step");
-				create_Step_Spin_Box(new_Table, current_Row+1, current_Column, whats_This_Drift);
+				create_Simple_Label	(new_Table,			   current_Row,   current_Column, "drift step");
+				create_Step_Spin_Box(new_Table, tab_Index, current_Row+1, current_Column, whats_This_Drift);
 			}
 		}
 
@@ -1168,7 +1168,7 @@ void Table_Of_Structures::create_Stoich_Line_Edit(My_Table_Widget* table, int ta
 	for(int composition_Index=0; composition_Index<composition.size(); ++composition_Index)
 	{
 		Parameter& comp = composition[composition_Index].composition;
-		if(val_Type == VAL)	{value = comp.value;		format = line_edit_short_double_format;}
+		if(val_Type == VAL)	{value = comp.value;	format = line_edit_short_double_format;}
 		if(val_Type == MIN)	{value = comp.fit.min;	format = line_edit_short_double_format;}
 		if(val_Type == MAX)	{value = comp.fit.max;	format = line_edit_short_double_format;}
 
@@ -1530,144 +1530,157 @@ void Table_Of_Structures::create_Line_Edit(My_Table_Widget* table, int tab_Index
 	// PARAMETER
 
 	int precision = 4;
-	char format = line_edit_short_double_format;
 	double value = -2017;
 	double coeff = 1;
 	id_Type id = 0;
 
 	Data struct_Data = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
-	QString text_Value = "-2017";
-	QValidator* validator = nullptr;
 
-	// create lineedit
-	QLineEdit* line_Edit = new QLineEdit;
-//	MyDoubleSpinBox* spin_Box = new MyDoubleSpinBox;
-
-//	if(whats_This == whats_This_Num_Repetitions) qInfo() << Global_Variables::parameter_Name(struct_Data, whats_This);
+	// create spinbox
+	MyDoubleSpinBox* spin_Box = new MyDoubleSpinBox;
+		spin_Box->setAccelerated(true);
+		spin_Box->setButtonSymbols(QAbstractSpinBox::NoButtons);
 
 	if(whats_This == whats_This_Num_Repetitions)
 	{
 		value = struct_Data.num_Repetition.value();
-		text_Value = Locale.toString(value);
-		validator = new QIntValidator(0, MAX_INTEGER, this);
-//		spin_Box->setDecimals(0);
-//		spin_Box->setSingleStep(1);
-//		spin_Box->setMinimum(0);
-//		spin_Box->setMaximum(MAX_INTEGER);
+
+		spin_Box->setDecimals(0);
+		spin_Box->setSingleStep(1);
+		spin_Box->setRange(0, MAX_INTEGER);
 
 		id = struct_Data.num_Repetition.parameter.indicator.id;
-		reload_Show_Dependence_Map.insertMulti(line_Edit, id_Of_Thicknesses);
-		line_Edits_ID_Map.insert(line_Edit,id);
-//		reload_Show_Dependence_Map.insertMulti(spin_Box, id_Of_Thicknesses);
-//		spin_Boxes_ID_Map.insert(spin_Box,id);
+		if(val_Type == VAL) reload_Show_Dependence_Map.insertMulti(spin_Box, id_Of_Thicknesses);
+		spin_Boxes_ID_Map.insert(spin_Box,id);
 	} else
 	{
 		Parameter& parameter = get_Parameter(struct_Data, whats_This, precision, coeff);
-		if(val_Type == VAL)	{value = parameter.value;	format = line_edit_double_format;	}
-		if(val_Type == MIN)	{value = parameter.fit.min;	format = line_edit_short_double_format;	}
-		if(val_Type == MAX)	{value = parameter.fit.max;	format = line_edit_short_double_format;	}
+		spin_Box->setDecimals(precision);
+		if(val_Type == VAL)	{value = parameter.value;	/*format = line_edit_double_format;*/	}
+		if(val_Type == MIN)	{value = parameter.fit.min;	/*format = line_edit_short_double_format;*/	}
+		if(val_Type == MAX)	{value = parameter.fit.max;	/*format = line_edit_short_double_format;*/	}
 
-		text_Value = Locale.toString(value/coeff, format, precision);
 		if(	whats_This == whats_This_Thickness_Drift_Line_Value ||
 			whats_This == whats_This_Sigma_Drift_Line_Value	)
 		{
-			validator = new QDoubleValidator(-MAX_DOUBLE, MAX_DOUBLE, MAX_PRECISION, this);
-//			spin_Box->setMinimum(-MAX_DOUBLE);
-//			spin_Box->setMaximum( MAX_DOUBLE);
+			spin_Box->setRange(-MAX_DOUBLE, MAX_DOUBLE);
 		} else
 		{
-			validator = new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION, this);
-//			spin_Box->setMinimum(0);
-//			spin_Box->setMaximum(MAX_DOUBLE);
+			if(whats_This == whats_This_Gamma)
+			{
+				spin_Box->setRange(0, 1);
+			} else
+			{
+				spin_Box->setRange(0, MAX_DOUBLE);
+			}
 		}
 		id = parameter.indicator.id;
 
-		line_Edits_ID_Map.insert(line_Edit,id);
-//		spin_Boxes_ID_Map.insert(spin_Box,id);
+		spin_Boxes_ID_Map.insert(spin_Box,id);
 
 		if( whats_This == whats_This_Thickness	||
 			whats_This == whats_This_Period		||
 			whats_This == whats_This_Gamma		)
 		{
-			reload_Show_Dependence_Map.insertMulti(line_Edit, id_Of_Thicknesses);
-//			reload_Show_Dependence_Map.insertMulti(spin_Box,  id_Of_Thicknesses);
+			if(val_Type == VAL) reload_Show_Dependence_Map.insertMulti(spin_Box,  id_Of_Thicknesses);
 		}
 
 		if( whats_This == whats_This_Sigma )
 		{
 			for(Interlayer& interlayer : struct_Data.interlayer_Composition)
 			{
-				reload_Show_Dependence_Map.insertMulti(line_Edit, interlayer.my_Sigma.indicator.id);
-//				reload_Show_Dependence_Map.insertMulti(spin_Box,  interlayer.my_Sigma.indicator.id);
+				reload_Show_Dependence_Map.insertMulti(spin_Box,  interlayer.my_Sigma.indicator.id);
 			}
 		}
 	}
 
 #ifdef _WIN32
-	QFont font(line_Edit->font());
-//	QFont font(spin_Box->font());
+	QFont font(spin_Box->font());
 	font.setPointSize(8.25);
 	font.setFamily("MS Shell Dlg 2");
-	line_Edit->setFont(font);
-//	spin_Box->setFont(font);
+	spin_Box->setFont(font);
 #endif
 #ifdef __linux__
 #endif
 
-	line_Edit->setText(text_Value);
-	line_Edit->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT_SHORT);
-	if( whats_This == whats_This_Absolute_Density || whats_This == whats_This_Relative_Density || whats_This == whats_This_Num_Repetitions ) line_Edit->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT_DENSITY);
-	if( whats_This == whats_This_Sigma || whats_This == whats_This_Thickness || whats_This == whats_This_Period) line_Edit->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT_SIGMA);
+	spin_Box->setValue(value/coeff);
+	spin_Box->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT_SHORT);
+	if( whats_This == whats_This_Absolute_Density || whats_This == whats_This_Relative_Density || whats_This == whats_This_Num_Repetitions ) spin_Box->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT_DENSITY);
+	if( whats_This == whats_This_Sigma || whats_This == whats_This_Thickness || whats_This == whats_This_Period) spin_Box->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT_SIGMA);
 	if(	whats_This == whats_This_Thickness_Drift_Line_Value     ||
 		whats_This == whats_This_Thickness_Drift_Rand_Rms       ||
 		whats_This == whats_This_Sigma_Drift_Line_Value			||
 		whats_This == whats_This_Sigma_Drift_Rand_Rms			||
-		whats_This == whats_This_Gamma	)						line_Edit->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT_LONG);
+		whats_This == whats_This_Gamma	)						spin_Box->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT_LONG);
 	if(	whats_This == whats_This_Thickness_Drift_Sine_Amplitude ||
 		whats_This == whats_This_Thickness_Drift_Sine_Frequency ||
 		whats_This == whats_This_Thickness_Drift_Sine_Phase		||
 		whats_This == whats_This_Sigma_Drift_Sine_Amplitude		||
 		whats_This == whats_This_Sigma_Drift_Sine_Frequency		||
-		whats_This == whats_This_Sigma_Drift_Sine_Phase	)		line_Edit->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT_SIGMA);
-	line_Edit->setValidator(validator);
+		whats_This == whats_This_Sigma_Drift_Sine_Phase	)		spin_Box->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT_SIGMA);
 
-	line_Edit->setProperty(min_Size_Property, line_Edit->width());
-	line_Edit->setProperty(column_Property, current_Column);
-	line_Edit->setProperty(whats_This_Property, whats_This);
-	line_Edit->setProperty(value_Type_Property, val_Type);
+	spin_Box->setProperty(min_Size_Property, spin_Box->width());
+	spin_Box->setProperty(column_Property, current_Column);
+	spin_Box->setProperty(whats_This_Property, whats_This);
+	spin_Box->setProperty(value_Type_Property, val_Type);
 
 	// for reloading
-	line_Edit->setProperty(reload_Property, false);
-	line_Edit->setProperty(tab_Index_Property, tab_Index);
+	spin_Box->setProperty(reload_Property, false);
+	spin_Box->setProperty(tab_Index_Property, tab_Index);
 
 	// storage
-	line_Edits_Map.			   insert	   (line_Edit, structure_Item);
-	reload_Show_Dependence_Map.insertMulti (line_Edit, id);
-	all_Widgets_To_Reload[tab_Index].append(line_Edit);
+	spin_Boxes_Map.insert(spin_Box, structure_Item);
+	all_Widgets_To_Reload[tab_Index].append(spin_Box);
+	if(val_Type == VAL)
+	{
+		reload_Show_Dependence_Map.insertMulti(spin_Box, id);
+	}
 
 	// storage for fast min/max refreshing
 	if( val_Type == MIN || val_Type == MAX )
 	{
 		if( whats_This == whats_This_Absolute_Density || whats_This == whats_This_Relative_Density )
 		{
-			min_Max_Density_Line_Edits_List[tab_Index].append(line_Edit);
+			min_Max_Density_Spin_Boxes_List[tab_Index].append(spin_Box);
 		}
 		if( whats_This == whats_This_Thickness || whats_This == whats_This_Period )
 		{
-			min_Max_Thickness_Line_Edits_List[tab_Index].append(line_Edit);
+			min_Max_Thickness_Spin_Boxes_List[tab_Index].append(spin_Box);
 		}
 		if( whats_This == whats_This_Sigma )
 		{
-			min_Max_Sigma_Line_Edits_List[tab_Index].append(line_Edit);
+			min_Max_Sigma_Spin_Boxes_List[tab_Index].append(spin_Box);
 		}
 	}
 
 	// create item (set LineEdits_Map)
-	table->setCellWidget(current_Row, current_Column, line_Edit);
+	table->setCellWidget(current_Row, current_Column, spin_Box);
 
-	connect(line_Edit, &QLineEdit::textEdited,	    this, [=]{resize_Line_Edit (table,line_Edit); });
-	connect(line_Edit, &QLineEdit::textEdited,	    this, [=]{refresh_Parameter(table); });
-	connect(line_Edit, &QLineEdit::editingFinished, this, [=]{refresh_Parameter(table); });
+	connect(spin_Box, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged),   this, [=]{resize_Line_Edit (table,spin_Box); });
+	connect(spin_Box, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged),   this, [=]{refresh_Parameter(table); });
+	connect(spin_Box,                                               &MyDoubleSpinBox::editingFinished, this, [=]{refresh_Parameter(table); });
+
+	// steps
+//	if(whats_This == whats_This_Composition)				{ spin_Box->setSingleStep(step_composition); composition_Spin_Boxes_List.append(spin_Box); }
+	if(whats_This == whats_This_Absolute_Density
+	|| whats_This == whats_This_Relative_Density)			{ spin_Box->setSingleStep(step_density);	density_Spin_Boxes_List.append(spin_Box); }
+	if(whats_This == whats_This_Thickness
+	|| whats_This == whats_This_Period)						{ spin_Box->setSingleStep(step_thickness);	thickness_Spin_Boxes_List.append(spin_Box); }
+	if(whats_This == whats_This_Sigma)						{ spin_Box->setSingleStep(step_sigma);		sigma_Spin_Boxes_List.append(spin_Box); }
+	if(whats_This == whats_This_Gamma)						{ spin_Box->setSingleStep(step_gamma);		gamma_Spin_Boxes_List.append(spin_Box); }
+	if(	whats_This == whats_This_Thickness_Drift_Line_Value     ||
+		whats_This == whats_This_Thickness_Drift_Rand_Rms       ||
+		whats_This == whats_This_Thickness_Drift_Sine_Amplitude ||
+		whats_This == whats_This_Sigma_Drift_Line_Value			||
+		whats_This == whats_This_Sigma_Drift_Rand_Rms			||
+		whats_This == whats_This_Sigma_Drift_Sine_Amplitude		)
+	{ spin_Box->setSingleStep(step_drift);		drift_Spin_Boxes_List.append(spin_Box); }
+	if(	whats_This == whats_This_Thickness_Drift_Sine_Frequency ||
+		whats_This == whats_This_Thickness_Drift_Sine_Phase		||
+		whats_This == whats_This_Sigma_Drift_Sine_Frequency		||
+		whats_This == whats_This_Sigma_Drift_Sine_Phase	)
+	{ spin_Box->setSingleStep(0.1);	}
+
 }
 
 void Table_Of_Structures::create_Check_Box_Fit(My_Table_Widget* table, int tab_Index, int current_Row, int current_Column, QTreeWidgetItem* structure_Item, QString whats_This, int r_S, int r_F, int c_S, int c_F)
@@ -2239,11 +2252,9 @@ void Table_Of_Structures::create_Min_Max_Spin_Box(My_Table_Widget* table, int ta
 	});
 }
 
-void Table_Of_Structures::create_Step_Spin_Box(My_Table_Widget* table, int current_Row, int current_Column, QString whats_This)
+void Table_Of_Structures::create_Step_Spin_Box(My_Table_Widget* table, int tab_Index, int current_Row, int current_Column, QString whats_This)
 {
 	// PARAMETER
-
-	double length_Coeff = length_Coefficients_Map.value(length_units);
 
 	add_Columns(table,current_Column);
 
@@ -2252,29 +2263,30 @@ void Table_Of_Structures::create_Step_Spin_Box(My_Table_Widget* table, int curre
 		step_SpinBox->setRange(0, MAX_DOUBLE);
 		step_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
 		step_SpinBox->setAccelerated(true);
-		int min_Width = 0;
-
-		if(whats_This == whats_This_Composition){ step_SpinBox->setValue(step_composition); step_SpinBox->setDecimals(2/*line_edit_composition_precision*/);step_SpinBox->setSingleStep(0.1);				min_Width = TABLE_FIX_WIDTH_LINE_EDIT_SHORT;}
-		if(whats_This == whats_This_Density)	{ step_SpinBox->setValue(step_density);		step_SpinBox->setDecimals(2/*line_edit_density_precision*/);	step_SpinBox->setSingleStep(0.1);				min_Width = TABLE_FIX_WIDTH_LINE_EDIT_DENSITY;}
-		if(whats_This == whats_This_Thickness)	{ step_SpinBox->setValue(step_thickness);	step_SpinBox->setDecimals(2/*line_edit_thickness_precision*/);	step_SpinBox->setSingleStep(0.1/length_Coeff);	min_Width = TABLE_FIX_WIDTH_LINE_EDIT_SIGMA;}
-		if(whats_This == whats_This_Sigma)		{ step_SpinBox->setValue(step_sigma);		step_SpinBox->setDecimals(2/*line_edit_sigma_precision*/);		step_SpinBox->setSingleStep(0.1/length_Coeff);	min_Width = TABLE_FIX_WIDTH_LINE_EDIT_SIGMA;}
-		if(whats_This == whats_This_Gamma)		{ step_SpinBox->setValue(step_gamma);		step_SpinBox->setDecimals(3/*line_edit_gamma_precision*/);		step_SpinBox->setSingleStep(0.01);				min_Width = TABLE_FIX_WIDTH_LINE_EDIT_LONG; step_SpinBox->setRange(0, 0.5);}
-		if(whats_This == whats_This_Drift)		{ step_SpinBox->setValue(step_drift);		step_SpinBox->setDecimals(4/*line_edit_drift_precision*/);		step_SpinBox->setSingleStep(0.001);				min_Width = TABLE_FIX_WIDTH_LINE_EDIT_LONG;}
-
-		step_SpinBox->setFixedWidth(min_Width);
-		step_SpinBox->setProperty(min_Size_Property, step_SpinBox->width());
 		step_SpinBox->setProperty(column_Property,current_Column);
 	table->setCellWidget(current_Row, current_Column, step_SpinBox);
 	Global_Variables::resize_Line_Edit(step_SpinBox);
 
-	connect(step_SpinBox, static_cast<void(QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, [=]
+		int min_Width = 0;
+		if(whats_This == whats_This_Composition){ min_Width = TABLE_FIX_WIDTH_LINE_EDIT_SHORT;}
+		if(whats_This == whats_This_Density)	{ min_Width = TABLE_FIX_WIDTH_LINE_EDIT_DENSITY;}
+		if(whats_This == whats_This_Thickness)	{ min_Width = TABLE_FIX_WIDTH_LINE_EDIT_SIGMA;}
+		if(whats_This == whats_This_Sigma)		{ min_Width = TABLE_FIX_WIDTH_LINE_EDIT_SIGMA;}
+		if(whats_This == whats_This_Gamma)		{ min_Width = TABLE_FIX_WIDTH_LINE_EDIT_LONG; step_SpinBox->setRange(0, 0.5);}
+		if(whats_This == whats_This_Drift)		{ min_Width = TABLE_FIX_WIDTH_LINE_EDIT_LONG;}
+		step_SpinBox->setFixedWidth(min_Width);
+		step_SpinBox->setProperty(min_Size_Property, step_SpinBox->width());
+
+	connect(step_SpinBox, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
 	{
-		if(whats_This == whats_This_Composition){ step_composition = step_SpinBox->value();}
-		if(whats_This == whats_This_Density)	{ step_density = step_SpinBox->value();    }
-		if(whats_This == whats_This_Thickness)	{ step_thickness = step_SpinBox->value();  }
-		if(whats_This == whats_This_Sigma)		{ step_sigma = step_SpinBox->value();      }
-		if(whats_This == whats_This_Gamma)		{ step_gamma = step_SpinBox->value();      }
-		if(whats_This == whats_This_Drift)		{ step_drift = step_SpinBox->value();      }
+		double length_Coeff = length_Coefficients_Map.value(length_units);
+
+		if(whats_This == whats_This_Composition){ step_composition = step_SpinBox->value();				for(MyDoubleSpinBox* spb : composition_Spin_Boxes_List) spb->setSingleStep(step_composition);			}
+		if(whats_This == whats_This_Density)	{ step_density = step_SpinBox->value();					for(MyDoubleSpinBox* spb : density_Spin_Boxes_List)     spb->setSingleStep(step_density);				}
+		if(whats_This == whats_This_Thickness)	{ step_thickness = step_SpinBox->value()*length_Coeff;  for(MyDoubleSpinBox* spb : thickness_Spin_Boxes_List)  spb->setSingleStep(step_thickness/length_Coeff);}
+		if(whats_This == whats_This_Sigma)		{ step_sigma = step_SpinBox->value()*length_Coeff;      for(MyDoubleSpinBox* spb : sigma_Spin_Boxes_List)		spb->setSingleStep(step_sigma/length_Coeff);	}
+		if(whats_This == whats_This_Gamma)		{ step_gamma = step_SpinBox->value();					for(MyDoubleSpinBox* spb : gamma_Spin_Boxes_List)		spb->setSingleStep(step_gamma);					}
+		if(whats_This == whats_This_Drift)		{ step_drift = step_SpinBox->value();					for(MyDoubleSpinBox* spb : drift_Spin_Boxes_List)		spb->setSingleStep(step_drift);					}
 
 		resize_Line_Edit(table, step_SpinBox);
 	});
@@ -2282,13 +2294,22 @@ void Table_Of_Structures::create_Step_Spin_Box(My_Table_Widget* table, int curre
 	// refresh in each table
 	connect(main_Tabs, &QTabWidget::tabBarClicked, this,  [=]
 	{
-		if(whats_This == whats_This_Composition){ step_SpinBox->setValue(step_composition);}
-		if(whats_This == whats_This_Density)	{ step_SpinBox->setValue(step_density);    }
-		if(whats_This == whats_This_Thickness)	{ step_SpinBox->setValue(step_thickness);  }
-		if(whats_This == whats_This_Sigma)		{ step_SpinBox->setValue(step_sigma);      }
-		if(whats_This == whats_This_Gamma)		{ step_SpinBox->setValue(step_gamma);      }
-		if(whats_This == whats_This_Drift)		{ step_SpinBox->setValue(step_drift);      }
+		double length_Coeff = length_Coefficients_Map.value(length_units);
+		int add_Decimals = min(log10(length_Coeff),2.);
+		double min_Step = max(0.1/length_Coeff,0.0001);
+
+		if(whats_This == whats_This_Composition){ step_SpinBox->setValue(step_composition);				step_SpinBox->setDecimals(2);				step_SpinBox->setSingleStep(0.1);		}
+		if(whats_This == whats_This_Density)	{ step_SpinBox->setValue(step_density);					step_SpinBox->setDecimals(2);				step_SpinBox->setSingleStep(0.1);		}
+		if(whats_This == whats_This_Thickness)	{ step_SpinBox->setValue(step_thickness/length_Coeff);	step_SpinBox->setDecimals(2+add_Decimals);	step_SpinBox->setSingleStep(min_Step);	step_SpinBox->setSuffix(" "+length_units);}
+		if(whats_This == whats_This_Sigma)		{ step_SpinBox->setValue(step_sigma/length_Coeff);		step_SpinBox->setDecimals(2+add_Decimals);	step_SpinBox->setSingleStep(min_Step);	step_SpinBox->setSuffix(" "+length_units);}
+		if(whats_This == whats_This_Gamma)		{ step_SpinBox->setValue(step_gamma);					step_SpinBox->setDecimals(3);				step_SpinBox->setSingleStep(0.01);		}
+		if(whats_This == whats_This_Drift)		{ step_SpinBox->setValue(step_drift);					step_SpinBox->setDecimals(4);				step_SpinBox->setSingleStep(0.001);		}
+
+		resize_Line_Edit(table, step_SpinBox);
 	});
+
+	// initialize
+	main_Tabs->tabBarClicked(tab_Index);
 }
 
 void Table_Of_Structures::spin_Box_Recalculate(My_Table_Widget *table, int current_Row, int current_Column)
@@ -2726,17 +2747,16 @@ void Table_Of_Structures::change_Stack_Gamma(QTreeWidgetItem* structure_Item, do
 void Table_Of_Structures::refresh_Parameter(My_Table_Widget* table)
 {
 	// PARAMETER
-	QLineEdit* line_Edit = qobject_cast<QLineEdit*>(QObject::sender());
-	QTreeWidgetItem* structure_Item = line_Edits_Map.value(line_Edit);
-	QString value_Type = line_Edit->property(value_Type_Property).toString();
-	QString whats_This = line_Edit->property(whats_This_Property).toString();
+	MyDoubleSpinBox* spin_Box = qobject_cast<MyDoubleSpinBox*>(QObject::sender());
+	QTreeWidgetItem* structure_Item = spin_Boxes_Map.value(spin_Box);
+	QString value_Type = spin_Box->property(value_Type_Property).toString();
+	QString whats_This = spin_Box->property(whats_This_Property).toString();
 
-	char min_Max_Format = line_edit_short_double_format;	
 	int precision = 4;
 	double coeff = 1;
 
 	// for reloading
-	bool reload = line_Edit->property(reload_Property).toBool();
+	bool reload = spin_Box->property(reload_Property).toBool();
 
 	Data struct_Data = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
 
@@ -2744,16 +2764,18 @@ void Table_Of_Structures::refresh_Parameter(My_Table_Widget* table)
 	{
 		if(reload)
 		{
-			if(value_Type == VAL)    line_Edit->setText(Locale.toString(      struct_Data.num_Repetition.value()));
-			if(value_Type == MIN)    line_Edit->setText(Locale.toString(round(struct_Data.num_Repetition.parameter.fit.min)));
-			if(value_Type == MAX)    line_Edit->setText(Locale.toString(round(struct_Data.num_Repetition.parameter.fit.max)));
+			spin_Box->blockSignals(true);
+			if(value_Type == VAL)    spin_Box->setValue(struct_Data.num_Repetition.value());
+			if(value_Type == MIN)    spin_Box->setValue(round(struct_Data.num_Repetition.parameter.fit.min));
+			if(value_Type == MAX)    spin_Box->setValue(round(struct_Data.num_Repetition.parameter.fit.max));
+			spin_Box->blockSignals(false);
 			return;
 		}
 		// if refresh
 		{
-			if(value_Type == VAL)   struct_Data.num_Repetition.parameter.value   = Locale.toDouble(line_Edit->text());
-			if(value_Type == MIN)	struct_Data.num_Repetition.parameter.fit.min = Locale.toDouble(line_Edit->text());
-			if(value_Type == MAX)	struct_Data.num_Repetition.parameter.fit.max = Locale.toDouble(line_Edit->text());
+			if(value_Type == VAL)   struct_Data.num_Repetition.parameter.value   = spin_Box->value();
+			if(value_Type == MIN)	struct_Data.num_Repetition.parameter.fit.min = spin_Box->value();
+			if(value_Type == MAX)	struct_Data.num_Repetition.parameter.fit.max = spin_Box->value();
 
 			QVariant var;
 			var.setValue( struct_Data );
@@ -2771,14 +2793,17 @@ void Table_Of_Structures::refresh_Parameter(My_Table_Widget* table)
 
 		if(reload)
 		{
+			spin_Box->blockSignals(true);
+			spin_Box->setDecimals(precision);
+
 			if(value_Type == VAL)
 			{
 				// special cases
 				if(whats_This == whats_This_Sigma)
 				{
-					line_Edit->setText(Locale.toString(parameter.value/coeff, line_edit_double_format, precision));
-					line_Edit->setDisabled(!struct_Data.common_Sigma);
-					line_Edit->setStyleSheet("border: 1px solid grey");
+					spin_Box->setValue(parameter.value/coeff);
+					spin_Box->setDisabled(!struct_Data.common_Sigma);
+					spin_Box->setStyleSheet("border: 1px solid grey");
 
 					for(Interlayer& interlayer : struct_Data.interlayer_Composition)
 					{
@@ -2801,22 +2826,23 @@ void Table_Of_Structures::refresh_Parameter(My_Table_Widget* table)
 				{
 					if( abs(struct_Data.period.value) > DBL_EPSILON )
 					{
-						line_Edit->setText(Locale.toString(struct_Data.gamma.value, min_Max_Format, line_edit_gamma_precision));
-						line_Edit->setDisabled(false);
-						line_Edit->setStyleSheet("border: 1px solid grey");
+						spin_Box->setValue(struct_Data.gamma.value);
+						spin_Box->setDisabled(false);
+						spin_Box->setStyleSheet("border: 1px solid grey");
 					} else
 					{
-						line_Edit->setDisabled(true);
-						line_Edit->setStyleSheet("border: 0px solid grey");
+						spin_Box->setDisabled(true);
+						spin_Box->setStyleSheet("border: 0px solid grey");
 					}
 				} else
 				{
-					line_Edit->setText(Locale.toString(parameter.value/coeff, line_edit_double_format, precision));
+					spin_Box->setValue(parameter.value/coeff);
 				}
 			}
-			if(value_Type == MIN)   line_Edit->setText(Locale.toString(parameter.fit.min/coeff, min_Max_Format,	precision));
-			if(value_Type == MAX)   line_Edit->setText(Locale.toString(parameter.fit.max/coeff, min_Max_Format,	precision));
+			if(value_Type == MIN)   spin_Box->setValue(parameter.fit.min/coeff);
+			if(value_Type == MAX)   spin_Box->setValue(parameter.fit.max/coeff);
 
+			spin_Box->blockSignals(false);
 			return;
 		}
 		// if refresh
@@ -2824,9 +2850,9 @@ void Table_Of_Structures::refresh_Parameter(My_Table_Widget* table)
 			// special cases
 			if(whats_This == whats_This_Sigma)
 			{
-				if(value_Type == VAL)	 parameter.value   = Locale.toDouble(line_Edit->text())*coeff;
-				if(value_Type == MIN)	{parameter.fit.min = Locale.toDouble(line_Edit->text())*coeff; /*parameter.confidence.min = parameter.fit.min;*/}
-				if(value_Type == MAX)	{parameter.fit.max = Locale.toDouble(line_Edit->text())*coeff; /*parameter.confidence.max = parameter.fit.max;*/}
+				if(value_Type == VAL)	 parameter.value   = spin_Box->value()*coeff;
+				if(value_Type == MIN)	{parameter.fit.min = spin_Box->value()*coeff; /*parameter.confidence.min = parameter.fit.min;*/}
+				if(value_Type == MAX)	{parameter.fit.max = spin_Box->value()*coeff; /*parameter.confidence.max = parameter.fit.max;*/}
 
 				for(Interlayer& interlayer : struct_Data.interlayer_Composition)
 				{
@@ -2844,7 +2870,7 @@ void Table_Of_Structures::refresh_Parameter(My_Table_Widget* table)
 			{
 				if(value_Type == VAL)
 				{
-					parameter.value = Locale.toDouble(line_Edit->text())*coeff;
+					parameter.value = spin_Box->value()*coeff;
 					QVariant var;
 					var.setValue( struct_Data );
 					structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
@@ -2852,16 +2878,16 @@ void Table_Of_Structures::refresh_Parameter(My_Table_Widget* table)
 					// parents
 					change_Parent_Period_Gamma_Thickness(structure_Item);
 				}
-				if(value_Type == MIN)	{parameter.fit.min = Locale.toDouble(line_Edit->text())*coeff; /*parameter.confidence.min = parameter.fit.min;*/}
-				if(value_Type == MAX)	{parameter.fit.max = Locale.toDouble(line_Edit->text())*coeff; /*parameter.confidence.max = parameter.fit.max;*/}
+				if(value_Type == MIN)	{parameter.fit.min = spin_Box->value()*coeff; /*parameter.confidence.min = parameter.fit.min;*/}
+				if(value_Type == MAX)	{parameter.fit.max = spin_Box->value()*coeff; /*parameter.confidence.max = parameter.fit.max;*/}
 			} else
 			if(whats_This == whats_This_Period)
 			{
 				if(value_Type == VAL)
 				{
 					// children
-					double new_Period_Value = Locale.toDouble(line_Edit->text())*coeff;
-					if(	qApp->focusWidget() != line_Edit ||
+					double new_Period_Value = spin_Box->value()*coeff;
+					if(	qApp->focusWidget() != spin_Box ||
 						abs(new_Period_Value) > DBL_EPSILON )
 					{
 						double factor = 1;
@@ -2875,22 +2901,22 @@ void Table_Of_Structures::refresh_Parameter(My_Table_Widget* table)
 					// parents
 					change_Parent_Period_Gamma_Thickness(structure_Item);
 				}
-				if(value_Type == MIN)	{parameter.fit.min = Locale.toDouble(line_Edit->text())*coeff; /*parameter.confidence.min = parameter.fit.min;*/}
-				if(value_Type == MAX)	{parameter.fit.max = Locale.toDouble(line_Edit->text())*coeff; /*parameter.confidence.max = parameter.fit.max;*/}
+				if(value_Type == MIN)	{parameter.fit.min = spin_Box->value()*coeff; /*parameter.confidence.min = parameter.fit.min;*/}
+				if(value_Type == MAX)	{parameter.fit.max = spin_Box->value()*coeff; /*parameter.confidence.max = parameter.fit.max;*/}
 			} else
 			if(whats_This == whats_This_Gamma)
 			{
-				double new_Value = Locale.toDouble(line_Edit->text());
+				double new_Value = spin_Box->value();
 
 				if(value_Type == VAL)
 				{
 					if(new_Value>1)
 					{
-						line_Edit->setText(Locale.toString(struct_Data.gamma.value));
-						resize_Line_Edit(table, line_Edit);
+						spin_Box->setValue(struct_Data.gamma.value);
+						resize_Line_Edit(table, spin_Box);
 					} else
 					{
-						if( qApp->focusWidget() != line_Edit ||
+						if( qApp->focusWidget() != spin_Box ||
 							(abs(new_Value) > DBL_EPSILON && abs(new_Value-1) > DBL_EPSILON) )
 						{
 							if( abs(struct_Data.period.value) > DBL_EPSILON )
@@ -2904,11 +2930,11 @@ void Table_Of_Structures::refresh_Parameter(My_Table_Widget* table)
 				{
 					if(new_Value>1)
 					{
-						line_Edit->setText(Locale.toString(struct_Data.gamma.fit.min));
-						resize_Line_Edit(table, line_Edit);
+						spin_Box->setValue(struct_Data.gamma.fit.min);
+						resize_Line_Edit(table, spin_Box);
 					} else
 					{
-						struct_Data.gamma.fit.min = Locale.toDouble(line_Edit->text());
+						struct_Data.gamma.fit.min = spin_Box->value();
 //						struct_Data.gamma.confidence.min = struct_Data.gamma.fit.min;
 					}
 				}
@@ -2916,19 +2942,19 @@ void Table_Of_Structures::refresh_Parameter(My_Table_Widget* table)
 				{
 					if(new_Value>1)
 					{
-						line_Edit->setText(Locale.toString(struct_Data.gamma.fit.max));
-						resize_Line_Edit(table, line_Edit);
+						spin_Box->setValue(struct_Data.gamma.fit.max);
+						resize_Line_Edit(table, spin_Box);
 					} else
 					{
-						struct_Data.gamma.fit.max = Locale.toDouble(line_Edit->text());
+						struct_Data.gamma.fit.max = spin_Box->value();
 //						struct_Data.gamma.confidence.max = struct_Data.gamma.fit.max;
 					}
 				}
 			} else
 			{
-				if(value_Type == VAL)	 parameter.value   = Locale.toDouble(line_Edit->text())*coeff;
-				if(value_Type == MIN)	{parameter.fit.min = Locale.toDouble(line_Edit->text())*coeff; /*parameter.confidence.min = parameter.fit.min;*/}
-				if(value_Type == MAX)	{parameter.fit.max = Locale.toDouble(line_Edit->text())*coeff; /*parameter.confidence.max = parameter.fit.max;*/}
+				if(value_Type == VAL)	 parameter.value   = spin_Box->value()*coeff;
+				if(value_Type == MIN)	{parameter.fit.min = spin_Box->value()*coeff; /*parameter.confidence.min = parameter.fit.min;*/}
+				if(value_Type == MAX)	{parameter.fit.max = spin_Box->value()*coeff; /*parameter.confidence.max = parameter.fit.max;*/}
 			}
 		}
 	}
@@ -3244,6 +3270,7 @@ void Table_Of_Structures::reload_All_Widgets(QObject* sender)
 		int current_Tab_Index = main_Tabs->currentIndex();
 //		qInfo() << "all_Widgets_To_Reload[current_Tab_Index].size() " << all_Widgets_To_Reload[current_Tab_Index].size();
 
+		main_Tabs->tabBarClicked(current_Tab_Index);
 		for(int i=0; i<all_Widgets_To_Reload[current_Tab_Index].size(); ++i)
 		{
 			QWidget* widget_To_Reload = all_Widgets_To_Reload[current_Tab_Index][i];
@@ -3279,10 +3306,11 @@ void Table_Of_Structures::reload_One_Widget(QWidget* widget_To_Reload)
 
 	widget_To_Reload->setProperty(reload_Property, true);
 
-	QLabel*        label = qobject_cast<QLabel*>   (widget_To_Reload);
-	QCheckBox* check_Box = qobject_cast<QCheckBox*>(widget_To_Reload);
-	QLineEdit* line_Edit = qobject_cast<QLineEdit*>(widget_To_Reload);
-	QComboBox* combo_Box = qobject_cast<QComboBox*>(widget_To_Reload);
+	QLabel*				label = qobject_cast<QLabel*>		  (widget_To_Reload);
+	QCheckBox*		check_Box = qobject_cast<QCheckBox*>	  (widget_To_Reload);
+	QLineEdit*		line_Edit = qobject_cast<QLineEdit*>	  (widget_To_Reload);
+	MyDoubleSpinBox* spin_Box = qobject_cast<MyDoubleSpinBox*>(widget_To_Reload);
+	QComboBox*		combo_Box = qobject_cast<QComboBox*>	  (widget_To_Reload);
 
 	if(label)
 	{
@@ -3297,6 +3325,11 @@ void Table_Of_Structures::reload_One_Widget(QWidget* widget_To_Reload)
 	{
 		line_Edit->textEdited("temp");			//
 		line_Edit->textEdited("temp");			// repeated intentionally!
+	}
+	if(spin_Box)
+	{
+		spin_Box->valueChanged(spin_Box->value());
+		Global_Variables::resize_Line_Edit(spin_Box);
 	}
 	if(combo_Box)
 	{
@@ -3319,10 +3352,11 @@ void Table_Of_Structures::reload_Related_Widgets(QObject* sender)
 				{
 					related->setProperty(reload_Property, true);
 
-					QLabel*        label = qobject_cast<QLabel*>   (related);
-					QCheckBox* check_Box = qobject_cast<QCheckBox*>(related);
-					QLineEdit* line_Edit = qobject_cast<QLineEdit*>(related);
-					QComboBox* combo_Box = qobject_cast<QComboBox*>(related);
+					QLabel*				label = qobject_cast<QLabel*>		  (related);
+					QCheckBox*		check_Box = qobject_cast<QCheckBox*>	  (related);
+					QLineEdit*		line_Edit = qobject_cast<QLineEdit*>	  (related);
+					MyDoubleSpinBox* spin_Box = qobject_cast<MyDoubleSpinBox*>(related);
+					QComboBox*		combo_Box = qobject_cast<QComboBox*>	  (related);
 
 					if(label)
 					{
@@ -3336,6 +3370,10 @@ void Table_Of_Structures::reload_Related_Widgets(QObject* sender)
 					{
 						line_Edit->textEdited("temp");
 						line_Edit->textEdited("temp");
+					}
+					if(spin_Box)
+					{
+						spin_Box->valueChanged(spin_Box->value());
 					}
 					if(combo_Box)
 					{
@@ -3354,16 +3392,16 @@ void Table_Of_Structures::reload_Min_Max_Line_Edits(QString whats_This)
 	// reloading for widgets on current tab
 	int current_Tab_Index = main_Tabs->currentIndex();
 
-	QList<QLineEdit*>* list_Pointer;
+	QList<MyDoubleSpinBox*>* list_Pointer;
 
-	if( whats_This == whats_This_Density )		list_Pointer = &min_Max_Density_Line_Edits_List[current_Tab_Index];
-	if( whats_This == whats_This_Thickness )	list_Pointer = &min_Max_Thickness_Line_Edits_List[current_Tab_Index];
-	if( whats_This == whats_This_Sigma )		list_Pointer = &min_Max_Sigma_Line_Edits_List[current_Tab_Index];
+	if( whats_This == whats_This_Density )		list_Pointer = &min_Max_Density_Spin_Boxes_List[current_Tab_Index];
+	if( whats_This == whats_This_Thickness )	list_Pointer = &min_Max_Thickness_Spin_Boxes_List[current_Tab_Index];
+	if( whats_This == whats_This_Sigma )		list_Pointer = &min_Max_Sigma_Spin_Boxes_List[current_Tab_Index];
 
-	for(QLineEdit* line_Edit : *list_Pointer)
+	for(MyDoubleSpinBox* spin_Box : *list_Pointer)
 	{
-		line_Edit->setProperty(reload_Property, true);
-		line_Edit->textEdited("temp");
-		line_Edit->setProperty(reload_Property, false);
+		spin_Box->setProperty(reload_Property, true);
+		spin_Box->valueChanged(spin_Box->value());
+		spin_Box->setProperty(reload_Property, false);
 	}
 }
