@@ -72,6 +72,7 @@ public:
 
 	void add_Fitted_Structure(QVector<QTreeWidget*>& fitted_Trees_for_Copying, QString name_Modificator, int run=0);
 
+	bool file_Was_Opened = false;
 	Menu* menu;
 	Launcher* launcher;					// "parent"
 	QHBoxLayout* main_Layout;

@@ -70,7 +70,7 @@ class Node;
 		#define Layer_Values		"Layer_Values"
 		#define Substrate_Values	"Substrate_Values"
 		#define Stack_Values		"Stack_Values"
-		#define Thickness_Values	"Thickness_Values"
+		#define Steps				"Steps"
 
 // precisions
 #define Precisions_Path Pre_Path + "settings/precisions.ini"
@@ -91,7 +91,8 @@ class Node;
 
 // calculations
 #define Calculations_Path Pre_Path + "settings/calculations.ini"
-	#define Threads "Threads"
+	#define Threads		  "Threads"
+	#define Recalculation "Recalculation"
 
 // measurements
 #define Measurements_Path Pre_Path + "settings/measurements.ini"
@@ -252,6 +253,7 @@ class Node;
 #define whats_This_Thickness_Drift_Sine_Phase		"Thickness Drift Sine Phase"
 
 #define whats_This_Thickness_Drift_Sine				"Thickness Drift Sine"
+#define whats_This_Drift							"Drift"
 
 // whatsThis : sigma drifts
 #define whats_This_Sigma_Drift_Line_Value			"Sigma Drift Lin Value"

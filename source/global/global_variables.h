@@ -65,7 +65,7 @@ extern QStringList argument_Types;
 enum argument_Types_Enum    { Grazing_angle, Incident_angle, Wavelength_Energy };
 
 extern QStringList value_Function;
-enum value_Function_Enum    { Reflectance,   Transmittance };
+enum value_Function_Enum    { Reflectance,   Transmittance , Absorptance};
 
 extern QStringList value_R_Mode;
 extern QStringList value_R_Mode_Label_1;
@@ -74,6 +74,9 @@ enum value_R_Mode_Enum		{ R,  R_Phi };
 
 extern QStringList value_T_Mode;
 enum value_T_Mode_Enum		{ T };
+
+extern QStringList value_A_Mode;
+enum value_A_Mode_Enum		{ A };
 
 /// -------------------------------------------------------------------------
 /// GSL

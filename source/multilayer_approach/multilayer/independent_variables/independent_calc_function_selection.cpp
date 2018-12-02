@@ -67,11 +67,9 @@ void Independent_Calc_Function_Selection::create_Main_Layout()
 			transmit_Functions = new QCheckBox(transmittance_Function, this);
 				standard_Functions_Layout->addWidget(transmit_Functions);
 				transmit_Functions->setChecked(independent_Variables->calc_Functions.check_Transmittance);
-/* TODO */		transmit_Functions->setDisabled(true);
 			absorp_Functions = new QCheckBox(absorptance_Function, this);
 				standard_Functions_Layout->addWidget(absorp_Functions);
 				absorp_Functions->setChecked(independent_Variables->calc_Functions.check_Absorptance);
-/* TODO */		absorp_Functions->setDisabled(true);
 
 		connect(reflect_Functions,  &QCheckBox::toggled, this, &Independent_Calc_Function_Selection::refresh_calc_Functions);
 		connect(transmit_Functions, &QCheckBox::toggled, this, &Independent_Calc_Function_Selection::refresh_calc_Functions);

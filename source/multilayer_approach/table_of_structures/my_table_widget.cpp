@@ -11,7 +11,9 @@ My_Table_Widget::My_Table_Widget(int rows,
 {
 	horizontalHeader()->setDisabled(true);
 	verticalHeader()->setDisabled(true);
+	setSelectionMode(QAbstractItemView::NoSelection);
 	setAttribute(Qt::WA_DeleteOnClose);
+
 	for(int i=0; i<rows; ++i)		insertRow(i);
 	for(int i=0; i<columns; ++i)	insertColumn(i);
 }

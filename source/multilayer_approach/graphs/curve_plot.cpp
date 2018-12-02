@@ -273,23 +273,20 @@ void Curve_Plot::create_Options()
 		// independent
 		if(curve_Class == INDEPENDENT)
 		{
-			if( independent_Variables->calc_Functions.check_Reflectance &&
-			   !independent_Variables->calc_Functions.check_Transmittance &&
-			   !independent_Variables->calc_Functions.check_Absorptance)
+			if( independent_Variables->calc_Functions.check_Reflectance )
 			{
 				max_Value_Title = "| Max R =";
 			} else
 			{
 				if(!independent_Variables->calc_Functions.check_Reflectance &&
-				    independent_Variables->calc_Functions.check_Transmittance &&
-				   !independent_Variables->calc_Functions.check_Absorptance)
+					independent_Variables->calc_Functions.check_Transmittance )
 				{
 					max_Value_Title = "| Max T =";
 				} else
 				{
 					if(!independent_Variables->calc_Functions.check_Reflectance &&
 					   !independent_Variables->calc_Functions.check_Transmittance &&
-					    independent_Variables->calc_Functions.check_Absorptance)
+						independent_Variables->calc_Functions.check_Absorptance )
 					{
 						max_Value_Title = "| Max A =";
 					} else
@@ -561,8 +558,19 @@ void Curve_Plot::refresh_Labels()
 			val_Type_Label = value_Function[Reflectance];
 			val_Mode_Label_1 = value_R_Mode_Label_1[R];
 		}
-//		if( independent_Variables->calc_Functions.check_Reectance )	{val_Mode_Label_1 = value_T_Mode[T];}
-//		if( independent_Variables->calc_Functions.check_Refctance )	{val_Mode_Label_1 = value_A_Mode[A];}
+		if( !independent_Variables->calc_Functions.check_Reflectance &&
+			 independent_Variables->calc_Functions.check_Transmittance)
+		{
+			val_Type_Label = value_Function[Transmittance];
+			val_Mode_Label_1 = value_T_Mode[T];
+		}
+		if( !independent_Variables->calc_Functions.check_Reflectance &&
+			!independent_Variables->calc_Functions.check_Transmittance &&
+			 independent_Variables->calc_Functions.check_Absorptance )
+		{
+			val_Type_Label = value_Function[Absorptance];
+			val_Mode_Label_1 = value_A_Mode[A];
+		}
 	}
 
 	// argument

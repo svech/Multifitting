@@ -117,8 +117,14 @@ int		stack_default_number_of_repetition;
 double	stack_default_period;
 double	stack_default_gamma;
 
-// Thickness_Values
-double	thickness_default_step_value_change;
+// steps
+double	step_thickness_transfer;
+double	step_composition;
+double	step_density;
+double	step_sigma;
+double	step_thickness;
+double	step_gamma;
+double	step_drift;
 
 // -----------------------------------------------------------------------------------------
 
@@ -204,6 +210,7 @@ QString drift_units;
 int optical_Constants_Read_Threads;
 int reflectivity_Calc_Threads;
 int epsilon_Partial_Fill_Threads;
+bool recalculate_Spinbox_Table;
 
 // -----------------------------------------------------------------------------------------
 
@@ -452,10 +459,15 @@ void Settings::read_Structure_Default_Values(bool reset_to_default)
 				stack_default_period				= structure_Default_Values.value( "stack_default_period",				20	).toDouble();
 				stack_default_gamma					= structure_Default_Values.value( "stack_default_gamma",				0.5 ).toDouble();
 			structure_Default_Values.endGroup();
-			structure_Default_Values.beginGroup( Thickness_Values );
-				thickness_default_step_value_change	= structure_Default_Values.value( "thickness_default_step_value_change",0.1 ).toDouble();
+			structure_Default_Values.beginGroup( Steps );
+				step_thickness_transfer	= structure_Default_Values.value( "step_thickness_transfer",0.1 ).toDouble();
+				step_composition		= structure_Default_Values.value( "step_composition",		0.1 ).toDouble();
+				step_density			= structure_Default_Values.value( "step_density",			0.1 ).toDouble();
+				step_sigma				= structure_Default_Values.value( "step_sigma",				0.1 ).toDouble();
+				step_thickness			= structure_Default_Values.value( "step_thickness",			0.1 ).toDouble();
+				step_gamma				= structure_Default_Values.value( "step_gamma",				0.01 ).toDouble();
+				step_drift				= structure_Default_Values.value( "step_drift",				0.001 ).toDouble();
 			structure_Default_Values.endGroup();
-
 		structure_Default_Values.endGroup();
 }
 
@@ -512,8 +524,14 @@ void Settings::save_Structure_Default_Values()
 			structure_Default_Values.setValue( "stack_default_period",					stack_default_period				);
 			structure_Default_Values.setValue( "stack_default_gamma",					stack_default_gamma					);
 		structure_Default_Values.endGroup();
-		structure_Default_Values.beginGroup( Thickness_Values );
-			structure_Default_Values.setValue( "thickness_default_step_value_change",	thickness_default_step_value_change	);
+		structure_Default_Values.beginGroup( Steps );
+			structure_Default_Values.setValue( "step_thickness_transfer",	step_thickness_transfer	);
+			structure_Default_Values.setValue( "step_composition",			step_composition		);
+			structure_Default_Values.setValue( "step_density",				step_density			);
+			structure_Default_Values.setValue( "step_sigma",				step_sigma				);
+			structure_Default_Values.setValue( "step_thickness",			step_thickness			);
+			structure_Default_Values.setValue( "step_gamma",				step_gamma				);
+			structure_Default_Values.setValue( "step_drift",				step_drift				);
 		structure_Default_Values.endGroup();
 	structure_Default_Values.endGroup();
 }
@@ -546,7 +564,7 @@ void Settings::read_Precisions(bool reset_to_default)
 			line_edit_interlayer_precision			= precision_Values.value( "line_edit_interlayer_precision",			3 ).toInt();
 			line_edit_drift_precision				= precision_Values.value( "line_edit_drift_precision",				3 ).toInt();
 			line_edit_period_precision				= precision_Values.value( "line_edit_period_precision",				4 ).toInt();	// = thickness precision
-			line_edit_gamma_precision				= precision_Values.value( "line_edit_gamma_precision",				8 ).toInt();	// = thickness precision
+			line_edit_gamma_precision				= precision_Values.value( "line_edit_gamma_precision",				7 ).toInt();	// = thickness precision
 		precision_Values.endGroup();
 		precision_Values.beginGroup( Thumbnail );
 			thumbnail_double_format	    = qvariant_cast<char>(precision_Values.value( "thumbnail_double_format",'f'));
@@ -712,6 +730,9 @@ void Settings::read_Calculations(bool reset_to_default)
 		reflectivity_Calc_Threads	   = calculations.value( "reflectivity_Calc_Threads",		max(QThread::idealThreadCount()-1,1) ).toInt();
 		epsilon_Partial_Fill_Threads   = calculations.value( "epsilon_Partial_Fill_Threads",	max(QThread::idealThreadCount()-1,1) ).toInt();
 	calculations.endGroup();
+	calculations.beginGroup( Recalculation );
+		recalculate_Spinbox_Table	   = calculations.value( "recalculate_Spinbox_Table",		true ).toBool();
+	calculations.endGroup();
 }
 
 void Settings::save_Calculations()
@@ -723,6 +744,9 @@ void Settings::save_Calculations()
 		calculations.setValue( "optical_Constants_Read_Threads", optical_Constants_Read_Threads );
 		calculations.setValue( "reflectivity_Calc_Threads",		 reflectivity_Calc_Threads		);
 		calculations.setValue( "epsilon_Partial_Fill_Threads",	 epsilon_Partial_Fill_Threads	);
+	calculations.endGroup();
+	calculations.beginGroup( Recalculation );
+		calculations.setValue( "recalculate_Spinbox_Table",	 recalculate_Spinbox_Table	);
 	calculations.endGroup();
 }
 

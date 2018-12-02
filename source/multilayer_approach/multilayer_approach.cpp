@@ -677,6 +677,7 @@ void Multilayer_Approach::open(QString filename)
 		open_Fits_Selector();
 	}
 
+	file_Was_Opened = true;
 	qInfo() << "opened";
 }
 
@@ -828,19 +829,6 @@ void Multilayer_Approach::save_As()
 	QFileInfo filename = QDir::toNativeSeparators(QFileDialog::getSaveFileName(this, "Save as", last_directory, "Multifitting files " + QString("*.fit") + ";;All files (*.*)"));
 	if(!filename.completeBaseName().isEmpty())
 	{
-//		qInfo() << "absoluteDir" << filename.absoluteDir();
-//		qInfo() << "absoluteFilePath" << filename.absoluteFilePath();
-//		qInfo() << "absolutePath" << filename.absolutePath();
-//		qInfo() << "baseName" << filename.baseName();
-//		qInfo() << "birthTime" << filename.birthTime();
-//		qInfo() << "bundleName" << filename.bundleName();
-//		qInfo() << "canonicalFilePath" << filename.canonicalFilePath();
-//		qInfo() << "canonicalPath" << filename.canonicalPath();
-//		qInfo() << "completeBaseName" << filename.completeBaseName();
-//		qInfo() << "fileName" << filename.fileName();
-//		qInfo() << "filePath" << filename.filePath();
-//		qInfo() << "suffix" << filename.suffix();
-
 		QFileInfo filename2;
 		if(filename.suffix() != "fit") { filename2 = QFileInfo(filename.absoluteFilePath()+".fit");	}
 		else						   { filename2 = QFileInfo(filename.absoluteFilePath());		}

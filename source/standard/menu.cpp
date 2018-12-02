@@ -84,7 +84,13 @@ void Menu::create_File_Menu()
 			QAction* act_Save = new QAction("Save", this);
 			act_Save->setShortcut(Qt::Key_S | Qt::CTRL);
 			file_Menu->addAction(act_Save);
-			connect(act_Save, &QAction::triggered, global_Multilayer_Approach, [=]{global_Multilayer_Approach->save(last_file);});
+			connect(act_Save, &QAction::triggered, global_Multilayer_Approach, [=]
+			{
+				if(global_Multilayer_Approach->file_Was_Opened)
+					global_Multilayer_Approach->save(last_file);
+				else
+					global_Multilayer_Approach->save(default_File);
+			});
 
 			QAction* act_Save_As = new QAction("Save as", this);
 				act_Save_As->setShortcut(Qt::Key_S | Qt::CTRL | Qt::SHIFT);

@@ -119,8 +119,14 @@ extern int		stack_default_number_of_repetition;
 extern double	stack_default_period;
 extern double	stack_default_gamma;
 
-// Thickness_Values
-extern double	thickness_default_step_value_change;
+// steps
+extern double	step_thickness_transfer;
+extern double	step_composition;
+extern double	step_density;
+extern double	step_sigma;
+extern double	step_thickness;
+extern double	step_gamma;
+extern double	step_drift;
 
 // -----------------------------------------------------------------------------------------
 
@@ -207,6 +213,7 @@ extern QString drift_units;
 extern int optical_Constants_Read_Threads;
 extern int reflectivity_Calc_Threads;
 extern int epsilon_Partial_Fill_Threads;
+extern bool recalculate_Spinbox_Table;
 
 // -----------------------------------------------------------------------------------------
 

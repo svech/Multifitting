@@ -7,6 +7,7 @@
 #include "multilayer_approach/calculation_settings_editor/calculation_settings_editor.h"
 
 class Structure_Tree;
+class MyDoubleSpinBox;
 class My_Table_Widget;
 class Calculation_Settings_Editor;
 class Layer_Thickness_Transfer;
@@ -62,9 +63,15 @@ public:
 	void create_MySigma_Line_Edits_Interlayer	(My_Table_Widget* table, int tab_Index, int current_Row, int start_Column, QTreeWidgetItem* structure_Item);
 
 	// min/max
-	void create_Min_Max_Label	 (My_Table_Widget* table,				 int current_Row, int current_Column, QString text);
+	void create_Simple_Label	 (My_Table_Widget* table,				 int current_Row, int current_Column, QString text);
 	void create_Min_Max_Button	 (My_Table_Widget* table, int tab_Index, int current_Row, int current_Column, QString whats_This);
 	void create_Min_Max_Spin_Box (My_Table_Widget* table, int tab_Index, int current_Row, int current_Column, QString whats_This);
+
+	// step of spinbox
+	void create_Step_Spin_Box	 (My_Table_Widget* table,				 int current_Row, int current_Column, QString whats_This);
+
+	// spinbox recalculation
+	void spin_Box_Recalculate	 (My_Table_Widget* table,				 int current_Row, int current_Column);
 
 	// general
 	void span_Structure_Headers(My_Table_Widget* table);
@@ -119,7 +126,9 @@ public:
 	// general
 	void cells_On_Off    (My_Table_Widget* table);
 	void cells_On_Off_2  (My_Table_Widget* table, QTreeWidgetItem* structure_Item);
-	void resize_Line_Edit(My_Table_Widget* table, QLineEdit* line_Edit = nullptr);
+
+	template <typename Type>
+	void resize_Line_Edit(My_Table_Widget* table, Type* line_Edit = nullptr);
 	void emit_Data_Edited();
 
 public slots:
@@ -152,12 +161,17 @@ public:
 
 	QList<QLineEdit*> material_Line_Edits;
 	QMap<QComboBox*,QTreeWidgetItem*> elements_Map;
-	QMap<QLineEdit*,QTreeWidgetItem*> line_Edits_Map;
+	QMap<QLineEdit*,QTreeWidgetItem*> line_Edits_Map;	// lineEdit
+	QMap<MyDoubleSpinBox*,QTreeWidgetItem*> spin_Boxes_Map;	// spinBox
 	QMap<QCheckBox*,QTreeWidgetItem*> check_Boxes_Map;
 
-	QList<QList<QLineEdit*>> min_Max_Density_Line_Edits_List;
-	QList<QList<QLineEdit*>> min_Max_Thickness_Line_Edits_List;
-	QList<QList<QLineEdit*>> min_Max_Sigma_Line_Edits_List;
+	QList<QList<QLineEdit*>> min_Max_Density_Line_Edits_List;	// lineEdit
+	QList<QList<QLineEdit*>> min_Max_Thickness_Line_Edits_List;	// lineEdit
+	QList<QList<QLineEdit*>> min_Max_Sigma_Line_Edits_List;		// lineEdit
+
+	QList<QList<MyDoubleSpinBox*>> min_Max_Density_Spin_Boxes_List;		// spinBox
+	QList<QList<MyDoubleSpinBox*>> min_Max_Thickness_Spin_Boxes_List;	// spinBox
+	QList<QList<MyDoubleSpinBox*>> min_Max_Sigma_Spin_Boxes_List;		// spinBox
 
 	// coupling
 	QMap<QWidget*, QTreeWidgetItem*> coupled_Back_Widget_and_Struct_Item;
@@ -167,7 +181,8 @@ public:
 	QList<QList<QWidget*>>			all_Widgets_To_Reload;
 	QMultiMap<QWidget*, id_Type>	reload_Show_Dependence_Map;
 	QMap<QCheckBox*,id_Type>		check_Boxes_Fit_Map;
-	QMap<QLineEdit*,id_Type>		line_Edits_ID_Map;
+	QMap<QLineEdit*,id_Type>		line_Edits_ID_Map;		// lineEdit
+	QMap<MyDoubleSpinBox*,id_Type>	spin_Boxes_ID_Map;		// spinBox
 
 	// disable/enable
 	QMap<QTreeWidgetItem*, QTableWidgetItem*> struct_Table_Map;

@@ -110,7 +110,7 @@ void Layer_Thickness_Transfer::create_Content_Box()
 			step_SpinBox->setValue(struct_Data.step_Value_Change/coeff);
 			step_SpinBox->setAccelerated(true);
 			step_SpinBox->setDecimals(2);
-			step_SpinBox->setSingleStep(thickness_default_step_value_change/coeff);
+			step_SpinBox->setSingleStep(step_thickness_transfer/coeff);
 		step_Layout->addWidget(step_SpinBox);
 		Global_Variables::resize_Line_Edit(step_SpinBox);
 

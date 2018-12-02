@@ -454,7 +454,7 @@ Data::Data(QString item_Type_Passed)
 	}
 	// Layer, Multilayer, Aperiodic
 	{
-		step_Value_Change = thickness_default_step_value_change;
+		step_Value_Change = step_thickness_transfer;
 	}
 }
 

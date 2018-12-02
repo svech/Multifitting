@@ -218,11 +218,12 @@ QStringList tril						{TRIL_TRUE, TRIL_FALSE, TRIL_NOT_DEFINED};
 
 // measured curves
 QStringList argument_Types				{"Grazing angle","Incident angle","Wavelength/Energy"}; // change enum!
-QStringList value_Function				{"Reflectance","Transmittance"}				;			// change enum!
+QStringList value_Function				{"Reflectance","Transmittance","Absorptance"};			// change enum!
 QStringList value_R_Mode				{"R","R+"+Phi_Sym };									// change enum!
 QStringList value_R_Mode_Label_1		{"R","R"          };
 QStringList value_R_Mode_Label_2		{" ","Phase "+Phi_Sym+", "+Degree_Sym };
 QStringList value_T_Mode				{"T"};													// change enum!
+QStringList value_A_Mode				{"A"};													// change enum!
 
 /// -------------------------------------------------------------------------
 /// GSL
@@ -864,7 +865,13 @@ void Global_Variables::create_Shortcuts(QWidget* this_Widget)
 		QShortcut* calc_Confidence_Shortcut	= new QShortcut(QKeySequence(Qt::Key_A | Qt::CTRL | Qt::SHIFT), this_Widget);
 		QShortcut* abort_Shortcut			= new QShortcut(QKeySequence(Qt::Key_Period | Qt::ALT),         this_Widget);
 
-		connect(save_Shortcut,				&QShortcut::activated, this_Widget, [=]{ global_Multilayer_Approach->save(last_file);			 });
+		connect(save_Shortcut,				&QShortcut::activated, this_Widget, [=]
+		{
+			if(global_Multilayer_Approach->file_Was_Opened)
+				global_Multilayer_Approach->save(last_file);
+			else
+				global_Multilayer_Approach->save(default_File);
+		});
 		connect(save_As_Shortcut,			&QShortcut::activated, this_Widget, [=]{ global_Multilayer_Approach->save_As();					 });
 		connect(open_Shortcut,				&QShortcut::activated, this_Widget, [=]{ global_Multilayer_Approach->open(last_file);			 });
 		connect(open_As_Shortcut,			&QShortcut::activated, this_Widget, [=]{ global_Multilayer_Approach->open_As();					 });
