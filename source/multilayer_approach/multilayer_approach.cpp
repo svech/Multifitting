@@ -852,7 +852,7 @@ void Multilayer_Approach::calc_Reflection(bool silent)
 		if(!silent)
 		{
 			qInfo() << "\n\n-------------------------------------------------------"
-						 "\ncalc specular functions..."
+						 "\ncalc specular functions..." //<< temp_Counter++ <<
 						 "\n-------------------------------------------------------\n";
 		}
 		Main_Calculation_Module* main_Calculation_Module = new Main_Calculation_Module(CALCULATION);

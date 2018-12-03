@@ -101,6 +101,8 @@ public:
 		QMap<QString, Fitting_Settings_Editor*> runned_Fitting_Settings_Editor;
 		Fitting_Settings_Editor* fitting_Settings_Editor;
 		Fitting_Settings* fitting_Settings;
+
+	int temp_Counter = 0;
 };
 
 #endif // MULTILAYER_APPROACH_H

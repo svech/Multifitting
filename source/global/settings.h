@@ -123,8 +123,9 @@ extern double	stack_default_gamma;
 extern double	step_thickness_transfer;
 extern double	step_composition;
 extern double	step_density;
-extern double	step_sigma;
 extern double	step_thickness;
+extern double	step_sigma;
+extern double	step_interlayer;
 extern double	step_gamma;
 extern double	step_drift;
 

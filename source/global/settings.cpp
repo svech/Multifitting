@@ -121,8 +121,9 @@ double	stack_default_gamma;
 double	step_thickness_transfer;
 double	step_composition;
 double	step_density;
-double	step_sigma;
 double	step_thickness;
+double	step_sigma;
+double	step_interlayer;
 double	step_gamma;
 double	step_drift;
 
@@ -463,8 +464,9 @@ void Settings::read_Structure_Default_Values(bool reset_to_default)
 				step_thickness_transfer	= structure_Default_Values.value( "step_thickness_transfer",0.1 ).toDouble();
 				step_composition		= structure_Default_Values.value( "step_composition",		0.1 ).toDouble();
 				step_density			= structure_Default_Values.value( "step_density",			0.1 ).toDouble();
-				step_sigma				= structure_Default_Values.value( "step_sigma",				0.1 ).toDouble();
 				step_thickness			= structure_Default_Values.value( "step_thickness",			0.1 ).toDouble();
+				step_sigma				= structure_Default_Values.value( "step_sigma",				0.1 ).toDouble();
+				step_interlayer			= structure_Default_Values.value( "step_interlayer",		0.1 ).toDouble();
 				step_gamma				= structure_Default_Values.value( "step_gamma",				0.01 ).toDouble();
 				step_drift				= structure_Default_Values.value( "step_drift",				0.001 ).toDouble();
 			structure_Default_Values.endGroup();
@@ -528,8 +530,9 @@ void Settings::save_Structure_Default_Values()
 			structure_Default_Values.setValue( "step_thickness_transfer",	step_thickness_transfer	);
 			structure_Default_Values.setValue( "step_composition",			step_composition		);
 			structure_Default_Values.setValue( "step_density",				step_density			);
-			structure_Default_Values.setValue( "step_sigma",				step_sigma				);
 			structure_Default_Values.setValue( "step_thickness",			step_thickness			);
+			structure_Default_Values.setValue( "step_sigma",				step_sigma				);
+			structure_Default_Values.setValue( "step_interlayer",			step_interlayer			);
 			structure_Default_Values.setValue( "step_gamma",				step_gamma				);
 			structure_Default_Values.setValue( "step_drift",				step_drift				);
 		structure_Default_Values.endGroup();

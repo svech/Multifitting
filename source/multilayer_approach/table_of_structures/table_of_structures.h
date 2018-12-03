@@ -95,7 +95,7 @@ public:
 
 	// for material only
 	void refresh_Element(My_Table_Widget *table, QString);
-	void refresh_Stoich(My_Table_Widget* table, QString);
+	void refresh_Stoich();
 	void refresh_Fit_Element(bool);
 
 	void refresh_Material(My_Table_Widget *table, QString);
@@ -117,10 +117,10 @@ public:
 
 	// for interlayers
 	void refresh_Check_Box_Label_Interlayer(bool);
-	void refresh_Weigts_Interlayer(QString);
+	void refresh_Weigts_Interlayer();
 	void refresh_Weights_Check_Box_Fit_Interlayer(bool);
 
-	void refresh_MySigma_Interlayer(QString);
+	void refresh_MySigma_Interlayer();
 	double recalculate_Sigma_From_Individuals(QVector<Interlayer>& interlayer_Composition);
 
 	// general
@@ -188,6 +188,7 @@ public:
 	QList<MyDoubleSpinBox*> thickness_Spin_Boxes_List;
 	QList<MyDoubleSpinBox*> gamma_Spin_Boxes_List;
 	QList<MyDoubleSpinBox*> sigma_Spin_Boxes_List;
+	QList<MyDoubleSpinBox*> interlayer_Spin_Boxes_List;
 	QList<MyDoubleSpinBox*> drift_Spin_Boxes_List;
 };
 
