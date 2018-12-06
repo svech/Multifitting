@@ -1,5 +1,7 @@
 #include "mydoublespinbox.h"
 
+const QRegExp good_Symbols = QRegExp("[^0-9"+QString(Locale.decimalPoint())+"\\-]");
+
 MyDoubleSpinBox::MyDoubleSpinBox(QWidget *parent) : QDoubleSpinBox(parent)
 {
 	create_Text_Change_Connection();
@@ -17,7 +19,7 @@ QValidator::State MyDoubleSpinBox::validate(QString &input, int &pos) const
 
 void MyDoubleSpinBox::fixup(QString &input) const
 {
-	input.remove(QRegExp("[^0-9"+QString(Locale.decimalPoint())+"]"));
+	input.remove(good_Symbols);
 	QList<QString> list = input.split(Locale.decimalPoint());
 	if(list.size() > 1)
 	{
@@ -29,7 +31,7 @@ void MyDoubleSpinBox::fixup(QString &input) const
 
 bool MyDoubleSpinBox::isValid(const QString& text) const
 {
-	int idx = text.indexOf(QRegExp("[^0-9"+QString(Locale.decimalPoint())+"]"), 0);
+	int idx = text.indexOf(good_Symbols, 0);
 	if(idx != -1)	{
 		return false;
 	}

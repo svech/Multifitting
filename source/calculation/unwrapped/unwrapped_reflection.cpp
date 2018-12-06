@@ -925,7 +925,7 @@ void Unwrapped_Reflection::calc_Specular()
 		if(active_Parameter_Whats_This == whats_This_Angle)
 		{
 			// interpolation
-//			auto start1 = std::chrono::system_clock::now();
+			auto start1 = std::chrono::system_clock::now();
 
 			if(measurement.angular_Resolution.value>0 && measurement.angle.size()>=MIN_ANGULAR_RESOLUTION_POINTS)
 			{

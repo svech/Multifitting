@@ -39,7 +39,7 @@ win32 {
 #---MSVC---MSVC---MSVC---MSVC---MSVC---MSVC---MSVC---MSVC---MSVC---
         QMAKE_CXXFLAGS += -bigobj
 
-        win32-msvc2015 {
+        win32-msvc2017 {
             equals(QMAKE_TARGET.arch, x86) {
                 message( "It's msvc2015_32" )
                 INCLUDEPATH += "C:/Program Files (x86)/C++ libraries/GSL 2.2 Bruot/include"

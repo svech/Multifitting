@@ -439,7 +439,7 @@ struct Int_Independent			{int start = 1; int step = 1; int num_Steps = 3;
 								 Parameter parameter; // double-valued, should be rounded
 								 int value() const
 								 {
-									 return round(parameter.value);
+									 return int(round(parameter.value));
 								 }
 								};
 

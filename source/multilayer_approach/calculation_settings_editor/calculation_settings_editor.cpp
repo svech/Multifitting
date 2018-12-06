@@ -228,7 +228,7 @@ void Calculation_Settings_Editor::unlock_Mainwindow_Interface()
 
 	// moving and adding structure tabs
 	if( !global_Multilayer_Approach->runned_Tables_Of_Structures.contains(table_Key) &&
-		!global_Multilayer_Approach->runned_Calculation_Settings_Editor.contains(calc_Settings_Key) &&
+		!global_Multilayer_Approach->runned_Calculation_Settings_Editor.contains(calc_Settings_Key)&&
 		!global_Multilayer_Approach->runned_Optical_Graphs.contains(optical_Graphs_Key))
 	{
 		global_Multilayer_Approach->multilayer_Tabs->setMovable(true);
@@ -241,7 +241,6 @@ void Calculation_Settings_Editor::unlock_Mainwindow_Interface()
 
 		// closing structure tabs
 		if( !global_Multilayer_Approach->runned_Tables_Of_Structures.contains(table_Key) &&
-			!global_Multilayer_Approach->runned_Calculation_Settings_Editor.contains(calc_Settings_Key)&&
 			!global_Multilayer_Approach->runned_Optical_Graphs.contains(optical_Graphs_Key))
 		{
 //			multilayer->structure_Tree->structure_Toolbar->toolbar->setDisabled(false);
