@@ -275,13 +275,24 @@ void Structure_Toolbar::add_Aperiodic()
 			{
 				double length_Coeff = length_Coefficients_Map.value(aperiodic_Settings.length_Units);
 				Data layer(item_Type_Layer);
+				layer.common_Sigma = true;
 				layer.material = materials[layer_Index];
 				layer.thickness.value = thicknesses[layer_Index]*length_Coeff;
 
-				if(aperiodic_Settings.column_4 == whats_This_Sigma)		layer.sigma.value = sigmas[layer_Index]*length_Coeff;
-				if(aperiodic_Settings.column_4 == whats_This_Density)	layer.relative_Density.value = densities[layer_Index];
-				if(aperiodic_Settings.column_5 == whats_This_Sigma)		layer.sigma.value = sigmas[layer_Index]*length_Coeff;
-				if(aperiodic_Settings.column_5 == whats_This_Density)	layer.relative_Density.value = densities[layer_Index];
+				if( aperiodic_Settings.column_4 == whats_This_Sigma ||
+					aperiodic_Settings.column_5 == whats_This_Sigma	)
+				{
+					layer.sigma.value = sigmas[layer_Index]*length_Coeff;
+					for(Interlayer& interlayer : layer.interlayer_Composition)
+					{
+						interlayer.my_Sigma.value = layer.sigma.value;
+					}
+				}
+				if( aperiodic_Settings.column_4 == whats_This_Density ||
+					aperiodic_Settings.column_5 == whats_This_Density )
+				{
+					layer.relative_Density.value = densities[layer_Index];
+				}
 
 				layer.composed_Material = false;
 
