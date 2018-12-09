@@ -19,6 +19,7 @@ Launcher::Launcher(QWidget *parent) :
 	Settings::read_All_Settings(/*true*/);
 //	Settings::save_All_Settings();
 	Global_Variables::fill_Units_Maps();
+	workers.resize(reflectivity_Calc_Threads);
 
 	// read optical constants database
 	Global_Variables::read_Optical_Constants();

@@ -3,11 +3,13 @@
 
 #include "unwrapped_structure.h"
 #include "gsl/gsl_integration.h"
+#include "iostream"
 
 class Unwrapped_Reflection
 {
 public:
 	Unwrapped_Reflection(Unwrapped_Structure* unwrapped_Structure, int num_Media, QString active_Parameter_Whats_This, const Data& measurement, bool depth_Grading, bool sigma_Grading, Calc_Functions calc_Functions);
+	~Unwrapped_Reflection();
 
 	int num_Threads;
 	int num_Layers;

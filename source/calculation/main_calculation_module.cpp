@@ -41,6 +41,7 @@ void Main_Calculation_Module::single_Calculation(bool print)
 		return;
 	}
 
+	auto start = std::chrono::system_clock::now();
 	for(int tab_Index=0; tab_Index<multilayers.size(); ++tab_Index)
 	{
 		calculation_Trees[tab_Index]->fill_Independent_Calc_Trees();
@@ -62,6 +63,10 @@ void Main_Calculation_Module::single_Calculation(bool print)
 			if(lambda_Out_Of_Range) return;
 		}
 	}
+	auto end = std::chrono::system_clock::now();
+	auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+	qInfo() << "single_Calculation: "<< elapsed.count()/1000000. << " seconds" << endl;
+
 	if(print) print_Calculated_To_File();
 
 	// replot graphs

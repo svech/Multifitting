@@ -198,7 +198,7 @@ void Structure_Toolbar::add_Aperiodic()
 		QTreeWidgetItem* new_Aperiodic = new QTreeWidgetItem;
 
 		// imd-styled file
-		QFileInfo filename = QDir::toNativeSeparators(QFileDialog::getOpenFileName(this, "Find Aperiodic Multulayer", last_directory, "Thicknesses " + QString("*.txt") + ";;All files (*.*)"));
+		QFileInfo filename = QDir::toNativeSeparators(QFileDialog::getOpenFileName(this, "Find Aperiodic Multulayer", last_data_directory, "Thicknesses " + QString("*.txt") + ";;All files (*.*)"));
 		if (!filename.completeBaseName().isEmpty())
 		{
 			/// reading data
@@ -329,6 +329,8 @@ void Structure_Toolbar::add_Aperiodic()
 			// insert aperiodic item to tree
 			buffered_Copy_Type = copy_Type_Cut;
 			add_Buffered_Layer(new_Aperiodic);
+
+			last_data_directory = filename.absolutePath();
 		}
 	}
 }

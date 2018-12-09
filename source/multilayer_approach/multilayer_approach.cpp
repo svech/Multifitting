@@ -855,15 +855,9 @@ void Multilayer_Approach::calc_Reflection(bool silent)
 						 "\ncalc specular functions..." //<< temp_Counter++ <<
 						 "\n-------------------------------------------------------\n";
 		}
-//		auto start = std::chrono::system_clock::now();
-
 		Main_Calculation_Module* main_Calculation_Module = new Main_Calculation_Module(CALCULATION);
 		main_Calculation_Module->single_Calculation();
 		delete main_Calculation_Module;
-
-//		auto end = std::chrono::system_clock::now();
-//		auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-//		qInfo() << "calc_Reflection: "<< elapsed.count()/1000000. << " seconds" << endl;
 	}
 }
 

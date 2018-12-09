@@ -1,7 +1,6 @@
 // This is an open source non-commercial project. Dear PVS-Studio, please check it.
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include "unwrapped_reflection.h"
-#include "iostream"
 
 Unwrapped_Reflection::Unwrapped_Reflection(Unwrapped_Structure* unwrapped_Structure, int num_Media, QString active_Parameter_Whats_This, const Data& measurement, bool depth_Grading, bool sigma_Grading, Calc_Functions calc_Functions):
 	num_Threads		(reflectivity_Calc_Threads),
@@ -78,6 +77,11 @@ Unwrapped_Reflection::Unwrapped_Reflection(Unwrapped_Structure* unwrapped_Struct
 	A_p.resize(num_Points);
 	A  .resize(num_Points);
 	A_Instrumental.resize(num_Points);
+}
+
+Unwrapped_Reflection::~Unwrapped_Reflection()
+{
+//	qInfo() << "destructor Unwrapped_Reflection";
 }
 
 int Unwrapped_Reflection::fill_s__Max_Depth_2(const tree<Node>::iterator& parent, int thread_Index, int point_Index, int media_Index)
@@ -875,12 +879,11 @@ double beam_Func(double z, void* params)
 
 void Unwrapped_Reflection::calc_Specular()
 {
-//	auto start = std::chrono::system_clock::now();
+	auto start = std::chrono::system_clock::now();
 
 	/// ----------------------------------------------------------------------------------------------------------------------
 	/// parallelization
 	/// ----------------------------------------------------------------------------------------------------------------------
-	vector<thread> workers(num_Threads);
 	int delta_N = num_Points / num_Threads;	// number of points per thread
 
 	for (int thread_Index = 0; thread_Index < num_Threads; ++thread_Index)
@@ -893,15 +896,16 @@ void Unwrapped_Reflection::calc_Specular()
 		}
 		workers[thread_Index] = thread(&Unwrapped_Reflection::calc_Specular_nMin_nMax_1_Thread, this, measurement, n_Min, n_Max, thread_Index);
 	}
+	// join threads
 	for (int thread_Index = 0; thread_Index < num_Threads; ++thread_Index)
 	{
-		if (workers[thread_Index].joinable()) workers[thread_Index].join();	// присоединение потоков
+		if (workers[thread_Index].joinable()) workers[thread_Index].join();
 	}
-//	auto end = std::chrono::system_clock::now();
-//	auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-//	qInfo() << "	parallelization:    "<< elapsed.count()/1000000. << " seconds" << endl;
+	auto end = std::chrono::system_clock::now();
+	auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+	qInfo() << "	parallelization:    "<< elapsed.count()/1000000. << " seconds" << endl;
 	/// ----------------------------------------------------------------------------------------------------------------------
-//	start = std::chrono::system_clock::now();
+	start = std::chrono::system_clock::now();
 	// postprocessing
 	{
 		/// effect of beam size
@@ -918,7 +922,7 @@ void Unwrapped_Reflection::calc_Specular()
 
 			// calculate denominator
 			double denominator=1;
-			gsl_integration_qag(&F,-5*measurement.beam_Size.value, 5*measurement.beam_Size.value,epsabs,epsrel,limit,key,w,&denominator,&error);
+			gsl_integration_qag(&F,-5*measurement.beam_Size.value, 5*measurement.beam_Size.value, epsabs, epsrel, limit, key, w, &denominator, &error);
 
 		/// --------------------------------------------------------------------
 
@@ -947,12 +951,12 @@ void Unwrapped_Reflection::calc_Specular()
 				T_Instrumental = T;
 				A_Instrumental = A;
 			}
-//			end = std::chrono::system_clock::now();
-//			elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start1);
-//			qInfo() << "	interpolation:      "<< elapsed.count()/1000000. << " seconds" << endl;
+			end = std::chrono::system_clock::now();
+			elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start1);
+			qInfo() << "	     interpolation: "<< elapsed.count()/1000000. << " seconds" << endl;
 
 			// instrumental function
-//			start1 = std::chrono::system_clock::now();
+			start1 = std::chrono::system_clock::now();
 
 			if(measurement.beam_Size.value>DBL_EPSILON)
 			{
@@ -962,9 +966,9 @@ void Unwrapped_Reflection::calc_Specular()
 					R_Instrumental[point_Index] *= instrumental_Factor;
 				}
 			}
-//			end = std::chrono::system_clock::now();
-//			elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start1);
-//			qInfo() << "	instrumental:       "<< elapsed.count()/1000000. << " seconds" << endl;
+			end = std::chrono::system_clock::now();
+			elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start1);
+			qInfo() << "	     instrumental:  "<< elapsed.count()/1000000. << " seconds" << endl;
 
 			// any way
 			for(size_t point_Index=0; point_Index<R.size(); ++point_Index)
@@ -1019,9 +1023,9 @@ void Unwrapped_Reflection::calc_Specular()
 		}
 		gsl_integration_workspace_free(w);
 	}
-//	end = std::chrono::system_clock::now();
-//	elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-//	qInfo() << "	postpocessing:      "<< elapsed.count()/1000000. << " seconds" << endl;
+	end = std::chrono::system_clock::now();
+	elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+	qInfo() << "	postpocessing:      "<< elapsed.count()/1000000. << " seconds" << endl;
 }
 
 void Unwrapped_Reflection::interpolate_Curve(int res_Points, const QVector<double> &argument, const QVector<double>& resolution, vector<double>& input_Curve, vector<double>& output_Curve)

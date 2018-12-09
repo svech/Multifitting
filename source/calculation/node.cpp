@@ -190,21 +190,24 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 
 			if(true)
 			{
-				double re, im, phase, mod;
 				hi_RE.resize(num_Points);
 				hi_IM.resize(num_Points);
 
-				for(int i=0; i<num_Points; ++i)
+				Global_Variables::parallel_For(num_Points, reflectivity_Calc_Threads, [&](int n_Min, int n_Max)
 				{
-					re = epsilon_RE[i] - cos2[i];
-					im = epsilon_IM[i];
+					double re, im, phase, mod;
+					for(int i=n_Min; i<n_Max; ++i)
+					{
+						re = epsilon_RE[i] - cos2[i];
+						im = epsilon_IM[i];
 
-					phase = atan2(im, re)/2;
-					mod = k[i]*sqrt(sqrt(re*re + im*im));
+						phase = atan2(im, re)/2;
+						mod = k[i]*sqrt(sqrt(re*re + im*im));
 
-					hi_RE[i] = mod* cos(phase);
-					hi_IM[i] = mod* sin(phase);
-				}
+						hi_RE[i] = mod* cos(phase);
+						hi_IM[i] = mod* sin(phase);
+					}
+				});
 			}
 
 			/// ---------------------------------------------------------------------------------------------------------------

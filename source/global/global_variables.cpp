@@ -16,9 +16,11 @@ Multilayer_Approach* global_Multilayer_Approach;
 
 // -----------------------------------------------------------------------------------------
 
+// calculations
+std::vector<std::thread> workers; // still empty
+
 // locale
 QLocale Locale;
-
 
 // delimiters for file parsing
 QRegExp delimiters("\\ |\\,|\\:|\\t|\\;|\\{|\\}");
@@ -886,6 +888,28 @@ void Global_Variables::create_Shortcuts(QWidget* this_Widget)
 		connect(calc_Confidence_Shortcut,	&QShortcut::activated, this_Widget, [=]{ global_Multilayer_Approach->calc_Confidence_Intervals();});
 		connect(abort_Shortcut,				&QShortcut::activated, this_Widget, [=]{ global_Multilayer_Approach->abort_Calculations();		 });
 	}
+}
+
+void Global_Variables::parallel_For(int num_Points, int num_Threads, const std::function<void(int n_Min, int n_Max)>& lambda)
+{
+	if(num_Threads>workers.size())
+	{
+		qInfo() << "Global_Variables::parallel_For  : num_Threads>workers.size()";
+		exit(EXIT_FAILURE);
+	}
+
+	int delta_N = num_Points / num_Threads;	// number of points per thread
+	for (int thread_Index = 0; thread_Index < num_Threads; ++thread_Index)
+	{
+		int n_Min = thread_Index*delta_N;
+		int n_Max = (thread_Index + 1)*delta_N;
+		if(thread_Index == (num_Threads-1))
+		{
+			n_Max = num_Points;
+		}
+		workers[thread_Index] = std::thread(lambda, n_Min, n_Max);
+	}
+	for(std::thread& worker : workers) { if(worker.joinable()) worker.join(); }
 }
 
 template<typename Type>

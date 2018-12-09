@@ -4,6 +4,7 @@
 #include "global_definitions.h"
 #include "global/layer_data_types.h"
 #include "calculation/optical_constants.h"
+#include <thread>
 
 class Optical_Constants;
 class Data;
@@ -16,6 +17,9 @@ extern int loaded_Version_Build;
 extern bool lambda_Out_Of_Range;
 
 extern Multilayer_Approach* global_Multilayer_Approach;
+
+// calculations
+extern std::vector<std::thread> workers;
 
 // locale
 extern QLocale Locale;
@@ -222,6 +226,8 @@ public:
 	static void copy_Tree(const QTreeWidget* from_Tree, QTreeWidget* to_Tree);
 	static bool check_Loaded_Version(int MAJOR, int MINOR, int BUILD);
 	static void create_Shortcuts(QWidget* this_Widget);
+
+	static void parallel_For(int num_Points, int num_Threads, const std::function<void(int n_Min, int n_Max)> &lambda);
 
 	template <typename Type>
 	static void resize_Line_Edit(Type* input_Line_Edit, bool adjust_Window = true);
