@@ -2,7 +2,7 @@
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include "unwrapped_reflection.h"
 
-Unwrapped_Reflection::Unwrapped_Reflection(Unwrapped_Structure* unwrapped_Structure, int num_Media, QString active_Parameter_Whats_This, const Data& measurement, bool depth_Grading, bool sigma_Grading, Calc_Functions calc_Functions):
+Unwrapped_Reflection::Unwrapped_Reflection(Unwrapped_Structure* unwrapped_Structure, int num_Media, QString active_Parameter_Whats_This, const Data& measurement, bool depth_Grading, bool sigma_Grading, Calc_Functions calc_Functions, QString calc_Mode):
 	num_Threads		(reflectivity_Calc_Threads),
 	num_Layers		(num_Media-2),
 	num_Boundaries	(num_Media-1),
@@ -11,6 +11,7 @@ Unwrapped_Reflection::Unwrapped_Reflection(Unwrapped_Structure* unwrapped_Struct
 	depth_Grading	(depth_Grading),
 	sigma_Grading	(sigma_Grading),
 	calc_Functions  (calc_Functions),
+	calc_Mode		(calc_Mode),
 	active_Parameter_Whats_This(active_Parameter_Whats_This),
 	unwrapped_Structure(unwrapped_Structure),
 	measurement(measurement),
@@ -912,7 +913,7 @@ void Unwrapped_Reflection::calc_Specular()
 		///
 			double instrumental_Factor = 2;
 			double error;
-			int key = GSL_INTEG_GAUSS61;
+			int key = GSL_INTEG_GAUSS15;
 			const double epsabs = 1e-3;
 			const double epsrel = 1e-3;
 			size_t limit = 1000;
