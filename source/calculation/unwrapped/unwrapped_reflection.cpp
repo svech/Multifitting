@@ -854,30 +854,6 @@ void Unwrapped_Reflection::calc_Specular_nMin_nMax_1_Thread(const Data& measurem
 	}
 }
 
-
-struct integration_Params_Beam
-{
-	double beam_Profile_Spreading;
-	double beam_Size;
-};
-
-double beam_Func(double z, void* params)
-{
-	integration_Params_Beam* iPB = reinterpret_cast<integration_Params_Beam*>(params);
-
-	double aConst = 2.*pow(1.-1./sqrt(2.),1./iPB->beam_Profile_Spreading);
-	if((z>(-iPB->beam_Size/aConst) ) &&	(z< (iPB->beam_Size/aConst)))
-	{
-		double output = pow(1.- pow(abs(z)*aConst/iPB->beam_Size,iPB->beam_Profile_Spreading),2);
-		if(output!=output) qInfo()<< "Unwrapped_Reflection::beam_Func  :  NaN";
-		return output;
-	}
-	else
-	{
-		return 0;
-	}
-}
-
 void Unwrapped_Reflection::calc_Specular()
 {
 	auto start = std::chrono::system_clock::now();
@@ -909,32 +885,15 @@ void Unwrapped_Reflection::calc_Specular()
 	start = std::chrono::system_clock::now();
 	// postprocessing
 	{
-		/// effect of beam size
-		///
-			double instrumental_Factor = 2;
-			double error;
-			int key = GSL_INTEG_GAUSS15;
-			const double epsabs = 1e-3;
-			const double epsrel = 1e-3;
-			size_t limit = 1000;
-			gsl_integration_workspace* w = gsl_integration_workspace_alloc (limit);
-			integration_Params_Beam integration_Params = { measurement.beam_Profile_Spreading.value, measurement.beam_Size.value };
-			gsl_function F = { &beam_Func, &integration_Params };
-
-			// calculate denominator
-			double denominator=1;
-			gsl_integration_qag(&F,-5*measurement.beam_Size.value, 5*measurement.beam_Size.value, epsabs, epsrel, limit, key, w, &denominator, &error);
-
-		/// --------------------------------------------------------------------
-
+		auto start1 = std::chrono::system_clock::now();
+		// interpolation
 		if(active_Parameter_Whats_This == whats_This_Angle)
 		{
-			// interpolation
-			auto start1 = std::chrono::system_clock::now();
 
 			if(measurement.angular_Resolution.value>0 && measurement.angle.size()>=MIN_ANGULAR_RESOLUTION_POINTS)
 			{
-				int ang_Res_Points = 3;
+				int ang_Res_Points = max(2.,3*pow(measurement.angular_Resolution.value*100,2));
+					ang_Res_Points = min(30,ang_Res_Points);
 				QVector<double> ang_Resolution(measurement.angle.size());
 				for(int i=0; i<measurement.angle.size(); ++i)
 				{
@@ -952,39 +911,13 @@ void Unwrapped_Reflection::calc_Specular()
 				T_Instrumental = T;
 				A_Instrumental = A;
 			}
-			end = std::chrono::system_clock::now();
-			elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start1);
-			qInfo() << "	     interpolation: "<< elapsed.count()/1000000. << " seconds" << endl;
-
-			// instrumental function
-			start1 = std::chrono::system_clock::now();
-
-			if(measurement.beam_Size.value>DBL_EPSILON)
-			{
-				for(uint point_Index=0; point_Index<R.size(); ++point_Index)
-				{
-					size_Effect(measurement.angle[point_Index], denominator, instrumental_Factor, key, epsabs, epsrel, limit, w, &F);
-					R_Instrumental[point_Index] *= instrumental_Factor;
-				}
-			}
-			end = std::chrono::system_clock::now();
-			elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start1);
-			qInfo() << "	     instrumental:  "<< elapsed.count()/1000000. << " seconds" << endl;
-
-			// any way
-			for(size_t point_Index=0; point_Index<R.size(); ++point_Index)
-			{
-				R_Instrumental[point_Index] += measurement.background.value;
-				T_Instrumental[point_Index] += measurement.background.value;
-				A_Instrumental[point_Index] += measurement.background.value;
-			}
 		}
 		if(active_Parameter_Whats_This == whats_This_Wavelength)
 		{
-			// interpolation
 			if(measurement.spectral_Resolution.value>0 && measurement.lambda.size()>=MIN_SPECTRAL_RESOLUTION_POINTS)
 			{
-				int spec_Res_Points = 3;
+				int spec_Res_Points = max(2.,3*pow(measurement.spectral_Resolution.value*1000,2));
+					spec_Res_Points = min(30,spec_Res_Points);
 				QVector<double> spec_Resolution(measurement.lambda.size());
 				for(int i=0; i<measurement.lambda.size(); ++i)
 				{
@@ -1002,27 +935,26 @@ void Unwrapped_Reflection::calc_Specular()
 				T_Instrumental = T;
 				A_Instrumental = A;
 			}
-
-			// instrumental function
-			if(measurement.beam_Size.value>DBL_EPSILON)
-			{
-				size_Effect(measurement.angle_Value, denominator, instrumental_Factor, key, epsabs, epsrel, limit, w, &F);
-			} else
-			{
-				instrumental_Factor = 1;
-			}
-
-			// any way
-			// substitute
-			for(size_t point_Index=0; point_Index<R.size(); ++point_Index)
-			{
-				R_Instrumental[point_Index] *= instrumental_Factor;
-				R_Instrumental[point_Index] += measurement.background.value;
-				T_Instrumental[point_Index] += measurement.background.value;
-				A_Instrumental[point_Index] += measurement.background.value;
-			}
 		}
-		gsl_integration_workspace_free(w);
+
+		end = std::chrono::system_clock::now();
+		elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start1);
+		qInfo() << "	     interpolation: "<< elapsed.count()/1000000. << " seconds" << endl;
+
+		// instrumental function
+		if(measurement.beam_Size.value>DBL_EPSILON)
+		for(size_t point_Index=0; point_Index<R.size(); ++point_Index)
+		{
+			R_Instrumental[point_Index] *= measurement.instrumental_Factor_Vec[point_Index];
+		}
+
+		// any way
+		for(size_t point_Index=0; point_Index<R.size(); ++point_Index)
+		{
+			R_Instrumental[point_Index] += measurement.background.value;
+			T_Instrumental[point_Index] += measurement.background.value;
+			A_Instrumental[point_Index] += measurement.background.value;
+		}
 	}
 	end = std::chrono::system_clock::now();
 	elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
@@ -1038,62 +970,30 @@ void Unwrapped_Reflection::interpolate_Curve(int res_Points, const QVector<doubl
 
 	gsl_spline_init(Spline, argument.data(), input_Curve.data(), input_Curve.size());
 
-	for(uint point_Index=0; point_Index<input_Curve.size(); ++point_Index)
+	Global_Variables::parallel_For(input_Curve.size(), reflectivity_Calc_Threads, [&](int n_Min, int n_Max)
 	{
-		double delta = resolution[point_Index]/res_Points; // spectral resolution is not constant in absolute values
-
-		output_Curve[point_Index] = 0;
-		double weight = 0;
-		double weight_Accumulator = 0;
-		for(int i=-3*res_Points; i<3*res_Points; ++i)
+		for(int point_Index=n_Min; point_Index<n_Max; ++point_Index)
 		{
-			if((argument[point_Index]+i*delta>argument.first())&&
-			   (argument[point_Index]+i*delta<argument.last()))
+			double delta = resolution[point_Index]/res_Points; // spectral resolution is not constant in absolute values
+
+			output_Curve[point_Index] = 0;
+			double weight, x;
+			double weight_Accumulator = 0;
+			for(int i=-2*res_Points; i<2*res_Points; ++i)
 			{
-				weight = exp(-pow(i*delta/resolution[point_Index],2));
-				weight_Accumulator += weight;
-				output_Curve[point_Index] += weight*gsl_spline_eval(Spline, argument[point_Index]+i*delta, Acc);
+				if((argument[point_Index]+i*delta>argument.first())&&
+				   (argument[point_Index]+i*delta<argument.last()))
+				{
+					x = i/double(res_Points);
+					weight = exp(-pow(x,2));
+					weight_Accumulator += weight;
+					output_Curve[point_Index] += weight*gsl_spline_eval(Spline, argument[point_Index]+i*delta, Acc);
+				}
 			}
+			output_Curve[point_Index] /= weight_Accumulator;
 		}
-		output_Curve[point_Index] /= weight_Accumulator;
-	}
+	});
 
 	gsl_spline_free(Spline);
 	gsl_interp_accel_free(Acc);
-}
-
-void Unwrapped_Reflection::size_Effect(double angle, double& denominator,double& instrumental_Factor, int key, const double epsabs, const double epsrel,
-									   size_t limit, gsl_integration_workspace* w, gsl_function* F)
-{
-	// OPTIMIZE
-	double error;
-	double result = 1;
-	double sin_Grad;
-	if(measurement.angle_Type == angle_Type_Grazing)	{ sin_Grad = sin(M_PI/180*angle); }
-	else												{ sin_Grad = cos(M_PI/180*angle); }
-
-	double min = (measurement.sample_Shift.value-measurement.sample_Size.value/2.)*sin_Grad;
-	double max = (measurement.sample_Shift.value+measurement.sample_Size.value/2.)*sin_Grad;
-
-	// if reasonable to integrate
-	if( min>-1*measurement.beam_Size.value ||
-		max< 1*measurement.beam_Size.value )
-	{
-		gsl_integration_qag(F,min,max,epsabs,epsrel,limit,key,w,&result,&error);
-	} else
-	{
-		result = denominator;
-	}
-
-	// special cases
-	if(sin_Grad < DBL_EPSILON)
-	{
-		result = 0.5*denominator;
-	}
-	if(denominator < DBL_MIN)
-	{
-		result = 1;
-		denominator = 1;
-	}
-	instrumental_Factor = result/denominator;
 }

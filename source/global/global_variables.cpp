@@ -895,6 +895,7 @@ void Global_Variables::parallel_For(int num_Points, int num_Threads, const std::
 	if(num_Threads>workers.size())
 	{
 		qInfo() << "Global_Variables::parallel_For  : num_Threads>workers.size()";
+		QMessageBox::critical(nullptr, "Global_Variables::parallel_For", "num_Threads>workers.size()");
 		exit(EXIT_FAILURE);
 	}
 
@@ -918,6 +919,7 @@ void Global_Variables::resize_Line_Edit(Type* line_Edit, bool adjust_Window)
 	if(line_Edit == nullptr)
 	{
 		qInfo() << "Global_Variables::resize_Line_Edit  :  line_Edit == nullptr";
+		QMessageBox::critical(nullptr, "Global_Variables::resize_Line_Edit", "line_Edit == nullptr");
 		return;
 	}
 

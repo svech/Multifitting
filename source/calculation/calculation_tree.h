@@ -22,6 +22,7 @@ struct Data_Element
 
 	QString curve_Class;			// INDEPENDENT or TARGET
 	Type* the_Class;
+	Calc_Functions calc_Functions;
 
 	tree<Node> calc_Tree; // each tree creates somehow 2 nodes at creation
 
@@ -61,6 +62,8 @@ public:
 	void stratify_Calc_Tree_Iteration(const tree<Node>::iterator& parent, int depth, QVector<tree<Node>::iterator>& chosen_Nodes);
 	void stratify_Calc_Tree(tree<Node>& calc_Tree);
 
+	template <typename Type>
+	void calculate_1_Kind_Preliminary(Data_Element<Type>& data_Element);
 	template <typename Type>
 	void calculate_1_Kind(Data_Element<Type>& data_Element);
 

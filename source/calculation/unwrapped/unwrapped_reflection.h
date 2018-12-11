@@ -99,8 +99,6 @@ public:
 	void calc_Specular();
 
 	void interpolate_Curve(int res_Points, const QVector<double> &argument, const QVector<double>& resolution, vector<double>& input_Curve, vector<double>& output_Curve);
-	void size_Effect(double angle, double& denominator, double& instrumental_Factor, int key, const double epsabs,
-					 const double epsrel, size_t limit, gsl_integration_workspace* w, gsl_function* F);
 };
 
 #endif // UNWRAPPED_REFLECTION_H

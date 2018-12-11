@@ -25,6 +25,8 @@ public:
 		double			 angle_Value;
 		Parameter angular_Resolution;
 		QString	  angle_Type;
+		vector<double>  instrumental_Factor_Vec;	// without saving
+
 
 		// wavelength
 		Parameter wavelength;
@@ -45,6 +47,7 @@ public:
 
 		void calc_Measured_cos2_k();
 		void calc_Independent_cos2_k();
+		void calc_Instrumental_Factor(QString active_Parameter_Whats_This);
 	///---------------------------------------------
 	///---------------------------------------------
 	// Ambient, Layer, Substrate

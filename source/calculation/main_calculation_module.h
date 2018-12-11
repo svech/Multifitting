@@ -35,6 +35,7 @@ public:
 
 	QString parametrization_Type = triangle;
 
+	void preliminary_Calculation();
 	void single_Calculation(bool print = true);
 	void fitting_and_Confidence();
 	void save_Init_State_Trees();

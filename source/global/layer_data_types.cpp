@@ -1,6 +1,7 @@
 // This is an open source non-commercial project. Dear PVS-Studio, please check it.
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include "layer_data_types.h"
+#include "gsl/gsl_integration.h"
 
 Data::Data(QString item_Type_Passed)
 {
@@ -606,6 +607,119 @@ void Data::calc_Independent_cos2_k()
 		lambda[0] = lambda_Value;
 		k[0] = k_Value;
 	}
+}
+
+struct integration_Params_Beam
+{
+	double beam_Profile_Spreading;
+	double beam_Size;
+};
+
+double beam_Func(double z, void* params)
+{
+	integration_Params_Beam* iPB = reinterpret_cast<integration_Params_Beam*>(params);
+
+	double aConst = 2.*pow(1.-1./sqrt(2.),1./iPB->beam_Profile_Spreading);
+	if((z>(-iPB->beam_Size/aConst) ) &&	(z< (iPB->beam_Size/aConst)))
+	{
+		double output = pow(1.- pow(abs(z)*aConst/iPB->beam_Size,iPB->beam_Profile_Spreading),2);
+		if(output!=output) qInfo()<< "Unwrapped_Reflection::beam_Func  :  NaN";
+		return output;
+	}
+	else
+	{
+		return 0;
+	}
+}
+
+void Data::calc_Instrumental_Factor(QString active_Parameter_Whats_This)
+{
+	int num_Points = 0;
+
+	// effect of beam size
+	double error;
+	int key = GSL_INTEG_GAUSS15;
+	const double epsabs = 1e-3;
+	const double epsrel = 1e-3;
+	size_t limit = 1000;
+	gsl_integration_workspace* w = gsl_integration_workspace_alloc (limit);
+	integration_Params_Beam integration_Params = { beam_Profile_Spreading.value, beam_Size.value };
+	gsl_function F = { &beam_Func, &integration_Params };
+
+	// calculate denominator
+	double denominator=1;
+	gsl_integration_qag(&F,-5*beam_Size.value, 5*beam_Size.value, epsabs, epsrel, limit, key, w, &denominator, &error);
+
+	if(active_Parameter_Whats_This == whats_This_Angle)		{ num_Points = cos2.size();	  }
+	if(active_Parameter_Whats_This == whats_This_Wavelength){ num_Points = lambda.size(); }
+	instrumental_Factor_Vec.resize(num_Points, 1);
+
+	// special cases
+	if( (denominator < DBL_MIN) || (beam_Size.value<DBL_EPSILON) )	{return;}
+
+	// calculate factor
+	if(active_Parameter_Whats_This == whats_This_Angle)
+	{
+		double sin_Grad, min, max, result;
+		for(int i=0; i<num_Points; ++i)
+		{
+			sin_Grad = sqrt(1-cos2[i]);
+
+			if(sin_Grad > DBL_EPSILON)
+			{
+				min = (sample_Shift.value-sample_Size.value/2.)*sin_Grad;
+				max = (sample_Shift.value+sample_Size.value/2.)*sin_Grad;
+
+				// if reasonable to integrate
+				if( min>-1*beam_Size.value ||
+					max< 1*beam_Size.value )
+				{
+					gsl_integration_qag(&F,min,max,epsabs,epsrel,limit,key,w,&result,&error);
+				} else
+				{
+					result = denominator;
+				}
+			} else
+			{
+				result = 0.5*denominator;
+			}
+			// fill
+			instrumental_Factor_Vec[i] = result/denominator;
+		}
+	} else
+	if(active_Parameter_Whats_This == whats_This_Wavelength)
+	{
+		double sin_Grad, min, max, result;
+		sin_Grad = sqrt(1-cos2_Value);
+
+		if(sin_Grad > DBL_EPSILON)
+		{
+			min = (sample_Shift.value-sample_Size.value/2.)*sin_Grad;
+			max = (sample_Shift.value+sample_Size.value/2.)*sin_Grad;
+
+			// if reasonable to integrate
+			if( min>-1*beam_Size.value ||
+				max< 1*beam_Size.value )
+			{
+				gsl_integration_qag(&F,min,max,epsabs,epsrel,limit,key,w,&result,&error);
+			} else
+			{
+				result = denominator;
+			}
+		} else
+		{
+			result = 0.5*denominator;
+		}
+		result /= denominator;
+
+		// fill
+		for(int i=0; i<num_Points; ++i)
+		{
+			instrumental_Factor_Vec[i] = result;
+		}
+	}
+
+	gsl_integration_workspace_free(w);
 }
 
 void Data::fill_Potentially_Fitable_Parameters_Vector()

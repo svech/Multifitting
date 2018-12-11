@@ -286,6 +286,9 @@ void Optical_Graphs::create_Tab_Content(QWidget* new_Widget, int tab_Index)
 			}
 		}
 
+		// crutch, from crash because of possible changing of independent number of points
+		if(total_Number_of_Independent_Graphs>0) { global_Multilayer_Approach->calc_Reflection(true);	}
+
 		// prepare box
 		QGroupBox* independent_Group_Box = new QGroupBox("Independent", this);
 			independent_Group_Box->setObjectName("independent_Group_Box");

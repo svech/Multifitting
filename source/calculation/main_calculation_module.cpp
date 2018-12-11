@@ -30,7 +30,24 @@ Main_Calculation_Module::~Main_Calculation_Module()
 //	for(QTreeWidget* copy_Real_Struct_Tree : copy_Real_Struct_Trees)
 //	{
 //		copy_Real_Struct_Tree->clear();
-//	}
+	//	}
+}
+
+void Main_Calculation_Module::preliminary_Calculation()
+{
+	for(int tab_Index=0; tab_Index<multilayers.size(); ++tab_Index)
+	{
+		calculation_Trees[tab_Index]->fill_Independent_Calc_Trees();
+		for(Data_Element<Independent_Variables>& independent_Element : calculation_Trees[tab_Index]->independent)
+		{
+			calculation_Trees[tab_Index]->calculate_1_Kind_Preliminary(independent_Element);
+		}
+		calculation_Trees[tab_Index]->fill_Target_Calc_Trees();
+		for(Data_Element<Target_Curve>& target_Element : calculation_Trees[tab_Index]->target)
+		{
+			calculation_Trees[tab_Index]->calculate_1_Kind_Preliminary(target_Element);
+		}
+	}
 }
 
 void Main_Calculation_Module::single_Calculation(bool print)
@@ -41,7 +58,11 @@ void Main_Calculation_Module::single_Calculation(bool print)
 		return;
 	}
 
+	// prepare cos2 and active_Parameter_Whats_This
+	preliminary_Calculation();
+
 	auto start = std::chrono::system_clock::now();
+
 	for(int tab_Index=0; tab_Index<multilayers.size(); ++tab_Index)
 	{
 		calculation_Trees[tab_Index]->fill_Independent_Calc_Trees();
@@ -86,6 +107,9 @@ void Main_Calculation_Module::fitting_and_Confidence()
 		QMessageBox::critical(nullptr, "Main_Calculation_Module::fitting", "wrong calc_Mode");
 		return;
 	}
+
+	// prepare cos2 and active_Parameter_Whats_This
+	preliminary_Calculation();
 
 	// reload dependences
 	if(!global_Multilayer_Approach->runned_Tables_Of_Structures.contains(table_Key))

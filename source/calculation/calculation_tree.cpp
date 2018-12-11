@@ -356,11 +356,11 @@ void Calculation_Tree::stratify_Calc_Tree(tree<Node>& calc_Tree)
 	}
 }
 
+
 template<typename Type>
-void Calculation_Tree::calculate_1_Kind(Data_Element<Type>& data_Element)
+void Calculation_Tree::calculate_1_Kind_Preliminary(Data_Element<Type>& data_Element)
 {
-	Calc_Functions calc_Functions;
-	calc_Functions.check_Reflectance = true;
+	data_Element.calc_Functions.check_Reflectance = true;
 
 	// calculation of wavenumbers and cos squares
 	if(data_Element.curve_Class == INDEPENDENT)	data_Element.the_Class->measurement.calc_Independent_cos2_k(); else
@@ -385,7 +385,7 @@ void Calculation_Tree::calculate_1_Kind(Data_Element<Type>& data_Element)
 				data_Element.active_Parameter_Whats_This = item_Indicator.parameter_Whats_This;
 			}
 
-			calc_Functions = independent_Variables->calc_Functions;
+			data_Element.calc_Functions = independent_Variables->calc_Functions;
 		}
 	} else
 	if(data_Element.curve_Class == TARGET)
@@ -399,9 +399,20 @@ void Calculation_Tree::calculate_1_Kind(Data_Element<Type>& data_Element)
 
 		if( target_Curve->curve.value_Function == value_Function[Transmittance])
 		{
-			calc_Functions.check_Transmittance = true;
+			data_Element.calc_Functions.check_Transmittance = true;
 		}
 	}
+
+	// calculate instrumental function
+	data_Element.the_Class->measurement.calc_Instrumental_Factor(data_Element.active_Parameter_Whats_This);
+}
+template void Calculation_Tree::calculate_1_Kind_Preliminary<Independent_Variables>(Data_Element<Independent_Variables>&);
+template void Calculation_Tree::calculate_1_Kind_Preliminary<Target_Curve>		   (Data_Element<Target_Curve>&);
+
+template<typename Type>
+void Calculation_Tree::calculate_1_Kind(Data_Element<Type>& data_Element)
+{
+
 	// find corresponding node for active variable
 //		tree<Node>::iterator active_Iter = find_Node_By_Item_Id(data_Element.calc_Tree.begin(), data_Element.active_Item_Id, data_Element.calc_Tree);
 	// ....................................................................
@@ -430,7 +441,7 @@ void Calculation_Tree::calculate_1_Kind(Data_Element<Type>& data_Element)
 		qInfo() << "Unwrap: "<< elapsed.count()/1000000. << " seconds" << endl;
 
 		start = std::chrono::system_clock::now();
-		calculate_Unwrapped_Reflectivity	(calc_Functions, data_Element.the_Class->calculated_Values, data_Element.the_Class->measurement, data_Element.active_Parameter_Whats_This, data_Element.unwrapped_Structure, data_Element.unwrapped_Reflection);
+		calculate_Unwrapped_Reflectivity	(data_Element.calc_Functions, data_Element.the_Class->calculated_Values, data_Element.the_Class->measurement, data_Element.active_Parameter_Whats_This, data_Element.unwrapped_Structure, data_Element.unwrapped_Reflection);
 		end = std::chrono::system_clock::now();
 		elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
 		qInfo() << "Unwrap Reflect: "<< elapsed.count()/1000000. << " seconds" << endl;
