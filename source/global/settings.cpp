@@ -732,9 +732,9 @@ void Settings::read_Calculations(bool reset_to_default)
 
 	// calculations
 	calculations.beginGroup( Threads );
-		optical_Constants_Read_Threads = calculations.value( "optical_Constants_Read_Threads",	max(QThread::idealThreadCount()-1,1) ).toInt();
-		reflectivity_Calc_Threads	   = calculations.value( "reflectivity_Calc_Threads",		max(QThread::idealThreadCount()-1,1) ).toInt();
-		epsilon_Partial_Fill_Threads   = calculations.value( "epsilon_Partial_Fill_Threads",	max(QThread::idealThreadCount()-1,1) ).toInt();
+		optical_Constants_Read_Threads = calculations.value( "optical_Constants_Read_Threads",	max(QThread::idealThreadCount(),1) ).toInt();
+		reflectivity_Calc_Threads	   = calculations.value( "reflectivity_Calc_Threads",		max(QThread::idealThreadCount(),1) ).toInt();
+		epsilon_Partial_Fill_Threads   = calculations.value( "epsilon_Partial_Fill_Threads",	max(QThread::idealThreadCount(),1) ).toInt();
 	calculations.endGroup();
 	calculations.beginGroup( Recalculation );
 		recalculate_Spinbox_Table	   = calculations.value( "recalculate_Spinbox_Table",		true ).toBool();

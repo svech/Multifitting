@@ -450,6 +450,7 @@ void Menu::create_Item_Precision_Menu()
 
 	menu_Density	 = new QMenu("Density", this);
 	menu_Lengths	 = new QMenu("Lengths", this);
+	menu_Gamma	     = new QMenu("Gamma",   this);
 	menu_Composition = new QMenu("Atomic Composition", this);
 	menu_Interlayer  = new QMenu("Interlayer Composition", this);
 
@@ -472,6 +473,13 @@ void Menu::create_Item_Precision_Menu()
 			menu_Lengths->addMenu(menu_Thumb);
 			menu_Lengths->addMenu(menu_Edit);
 	}
+	if(item_Type == item_Type_Multilayer)
+	{
+		precision_Menu->addMenu(menu_Gamma);
+			menu_Gamma->addMenu(menu_Thumb);
+			menu_Gamma->addMenu(menu_Edit);
+	}
+
 	if(item_Type == item_Type_Ambient ||
 	   item_Type == item_Type_Layer   ||
 	   item_Type == item_Type_Substrate)
@@ -490,6 +498,7 @@ void Menu::create_Item_Precision_Menu()
 
 	connect(menu_Density,	 &QMenu::aboutToShow, this, &Menu::menu_Focus);//set_Length_Unit);
 	connect(menu_Lengths,	 &QMenu::aboutToShow, this, &Menu::menu_Focus);
+	connect(menu_Gamma,		 &QMenu::aboutToShow, this, &Menu::menu_Focus);
 	connect(menu_Composition,&QMenu::aboutToShow, this, &Menu::menu_Focus);
 	connect(menu_Interlayer, &QMenu::aboutToShow, this, &Menu::menu_Focus);
 
@@ -556,6 +565,7 @@ void Menu::create_Table_Precision_Menu()
 
 	menu_Density	 = new QMenu("Density", this);
 	menu_Lengths	 = new QMenu("Lengths", this);
+	menu_Gamma		 = new QMenu("Gamma",   this);
 	menu_Composition = new QMenu("Atomic Composition", this);
 	menu_Interlayer  = new QMenu("Interlayer Composition", this);
 
@@ -573,6 +583,11 @@ void Menu::create_Table_Precision_Menu()
 			menu_Lengths->addMenu(menu_Edit);
 	}
 	{
+		precision_Menu->addMenu(menu_Gamma);
+			menu_Gamma->addMenu(menu_Thumb);
+			menu_Gamma->addMenu(menu_Edit);
+	}
+	{
 		precision_Menu->addMenu(menu_Composition);
 			//menu_Composition->addMenu(menu_Thumb);
 			menu_Composition->addMenu(menu_Edit);
@@ -585,6 +600,7 @@ void Menu::create_Table_Precision_Menu()
 
 	connect(menu_Density,	 &QMenu::aboutToShow, this, &Menu::menu_Focus);
 	connect(menu_Lengths,	 &QMenu::aboutToShow, this, &Menu::menu_Focus);
+	connect(menu_Gamma,		 &QMenu::aboutToShow, this, &Menu::menu_Focus);
 	connect(menu_Composition,&QMenu::aboutToShow, this, &Menu::menu_Focus);
 	connect(menu_Interlayer, &QMenu::aboutToShow, this, &Menu::menu_Focus);
 
@@ -637,6 +653,13 @@ void Menu::thumb_Edit_Focus()
 	{
 		if(precision_Menu_Thumb_Edit == menu_Thumb->title()) menu_Thumb->actions()[thumbnail_thickness_precision]->setChecked(true);
 		if(precision_Menu_Thumb_Edit == menu_Edit ->title()) menu_Edit ->actions()[line_edit_thickness_precision]->setChecked(true);
+	}
+
+	// gamma
+	if(menu_Gamma->title() == precision_Menu_Title)
+	{
+		if(precision_Menu_Thumb_Edit == menu_Thumb->title()) menu_Thumb->actions()[thumbnail_gamma_precision]->setChecked(true);
+		if(precision_Menu_Thumb_Edit == menu_Edit ->title()) menu_Edit ->actions()[line_edit_gamma_precision]->setChecked(true);
 	}
 
 	// composition
@@ -741,8 +764,10 @@ void Menu::activate_Item_Thumbnail_Precision()
 	// thickness
 	if(menu_Lengths->title() == precision_Menu_Title)	{	set_Thumbnail_Thickness_Precision();
 															set_Thumbnail_Sigma_Precision();
-															set_Thumbnail_Period_Precision();
-															set_Thumbnail_Gamma_Precision();}
+															set_Thumbnail_Period_Precision();}
+
+	// gamma
+	if(menu_Gamma->title() == precision_Menu_Title)		{	set_Thumbnail_Gamma_Precision();}
 
 	// composition
 	if(menu_Composition->title() == precision_Menu_Title)	set_Thumbnail_Composition_Precision();
@@ -759,8 +784,9 @@ void Menu::activate_Item_Line_Edit_Precision()
 	// thickness
 	if(menu_Lengths->title() == precision_Menu_Title)	{	set_Line_Edit_Thickness_Precision();
 															set_Line_Edit_Sigma_Precision();
-															set_Line_Edit_Period_Precision();
-															/*set_Line_Edit_Gamma_Precision();*/	}
+															set_Line_Edit_Period_Precision(); }
+	// gamma
+	if(menu_Gamma->title() == precision_Menu_Title)		{	set_Line_Edit_Gamma_Precision();	}
 
 	// composition
 	if(menu_Composition->title() == precision_Menu_Title)	set_Line_Edit_Composition_Precision();

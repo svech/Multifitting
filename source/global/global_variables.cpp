@@ -17,7 +17,7 @@ Multilayer_Approach* global_Multilayer_Approach;
 // -----------------------------------------------------------------------------------------
 
 // calculations
-std::vector<std::thread> workers; // still empty
+std::vector<std::thread> global_Workers; // still empty
 
 // locale
 QLocale Locale;
@@ -892,7 +892,7 @@ void Global_Variables::create_Shortcuts(QWidget* this_Widget)
 
 void Global_Variables::parallel_For(int num_Points, int num_Threads, const std::function<void(int n_Min, int n_Max)>& lambda)
 {
-	if(num_Threads>workers.size())
+	if(num_Threads>global_Workers.size())
 	{
 		qInfo() << "Global_Variables::parallel_For  : num_Threads>workers.size()";
 		QMessageBox::critical(nullptr, "Global_Variables::parallel_For", "num_Threads>workers.size()");
@@ -908,9 +908,9 @@ void Global_Variables::parallel_For(int num_Points, int num_Threads, const std::
 		{
 			n_Max = num_Points;
 		}
-		workers[thread_Index] = std::thread(lambda, n_Min, n_Max);
+		global_Workers[thread_Index] = std::thread(lambda, n_Min, n_Max);
 	}
-	for(std::thread& worker : workers) { if(worker.joinable()) worker.join(); }
+	for(std::thread& worker : global_Workers) { if(worker.joinable()) worker.join(); }
 }
 
 template<typename Type>

@@ -19,7 +19,7 @@ extern bool lambda_Out_Of_Range;
 extern Multilayer_Approach* global_Multilayer_Approach;
 
 // calculations
-extern std::vector<std::thread> workers;
+extern std::vector<std::thread> global_Workers;
 
 // locale
 extern QLocale Locale;

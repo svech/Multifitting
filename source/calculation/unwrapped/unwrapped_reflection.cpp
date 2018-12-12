@@ -833,8 +833,8 @@ void Unwrapped_Reflection::fill_Specular_Values(const Data& measurement, int thr
 	// NaN
 	if(isnan(R[point_Index]) || isnan(T[point_Index]))
 	{
-		if(isnan(R[point_Index])) {R[point_Index]=10000; qInfo() << "Unwrapped_Reflection::fill_Specular_Values  :  R = NaN at point" << point_Index;}		// NaN to 10000. Be careful!
-		if(isnan(T[point_Index])) {T[point_Index]=10000; qInfo() << "Unwrapped_Reflection::fill_Specular_Values  :  T = NaN at point" << point_Index;}		// NaN to 10000. Be careful!
+		if(isnan(R[point_Index])) {R[point_Index]=10000; qInfo() << "Unwrapped_Reflection::fill_Specular_Values  :  R = NaN at point" << point_Index; QMessageBox::warning(nullptr, "Unwrapped_Reflection::fill_Specular_Values", "R = NaN");}		// NaN to 10000. Be careful!
+		if(isnan(T[point_Index])) {T[point_Index]=10000; qInfo() << "Unwrapped_Reflection::fill_Specular_Values  :  T = NaN at point" << point_Index; QMessageBox::warning(nullptr, "Unwrapped_Reflection::fill_Specular_Values", "T = NaN");}		// NaN to 10000. Be careful!
 
 		qInfo() << "r_Local_s_RE" << r_Local_s_RE[thread_Index][0] << "r_Local_s_IM" << r_Local_s_IM[thread_Index][0];
 		qInfo() << "r_Local_p_RE" << r_Local_p_RE[thread_Index][0] << "r_Local_p_IM" << r_Local_p_IM[thread_Index][0];
@@ -871,12 +871,12 @@ void Unwrapped_Reflection::calc_Specular()
 		{
 			n_Max = num_Points;
 		}
-		workers[thread_Index] = thread(&Unwrapped_Reflection::calc_Specular_nMin_nMax_1_Thread, this, measurement, n_Min, n_Max, thread_Index);
+		global_Workers[thread_Index] = thread(&Unwrapped_Reflection::calc_Specular_nMin_nMax_1_Thread, this, measurement, n_Min, n_Max, thread_Index);
 	}
 	// join threads
 	for (int thread_Index = 0; thread_Index < num_Threads; ++thread_Index)
 	{
-		if (workers[thread_Index].joinable()) workers[thread_Index].join();
+		if (global_Workers[thread_Index].joinable()) global_Workers[thread_Index].join();
 	}
 	auto end = std::chrono::system_clock::now();
 	auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
@@ -885,7 +885,6 @@ void Unwrapped_Reflection::calc_Specular()
 	start = std::chrono::system_clock::now();
 	// postprocessing
 	{
-		auto start1 = std::chrono::system_clock::now();
 		// interpolation
 		if(active_Parameter_Whats_This == whats_This_Angle)
 		{
@@ -936,10 +935,6 @@ void Unwrapped_Reflection::calc_Specular()
 				A_Instrumental = A;
 			}
 		}
-
-		end = std::chrono::system_clock::now();
-		elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start1);
-		qInfo() << "	     interpolation: "<< elapsed.count()/1000000. << " seconds" << endl;
 
 		// instrumental function
 		if(measurement.beam_Size.value>DBL_EPSILON)

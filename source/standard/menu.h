@@ -93,6 +93,7 @@ public:
 		QMenu* precision_Menu;
 			QMenu* menu_Density;
 			QMenu* menu_Lengths;
+			QMenu* menu_Gamma;
 			QMenu* menu_Composition;
 			QMenu* menu_Interlayer;
 				QMenu* menu_Thumb;
