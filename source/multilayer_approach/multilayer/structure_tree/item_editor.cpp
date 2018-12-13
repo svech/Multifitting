@@ -1473,6 +1473,7 @@ void Item_Editor::make_Aperiodic()
 	struct_Data.period.fit.is_Fitable = false;
 	struct_Data.gamma.fit.is_Fitable = false;
 	struct_Data.num_Repetition.parameter.fit.is_Fitable = false;
+	struct_Data.num_Repetition.parameter.value = 1; // important!
 
 	// save
 	QVariant var;

@@ -46,6 +46,7 @@ Calculation_Tree::Calculation_Tree(Multilayer* multilayer, QString calc_Mode):
 	create_Rand_Generator();
 	check_If_Graded();
 	max_Depth = Global_Variables::get_Tree_Depth(real_Struct_Tree->invisibleRootItem());	// unstratified depth
+	qInfo() << "max_Depth" << max_Depth;
 }
 
 Calculation_Tree::~Calculation_Tree()

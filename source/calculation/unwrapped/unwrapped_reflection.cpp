@@ -123,7 +123,7 @@ int Unwrapped_Reflection::fill_s__Max_Depth_2(const tree<Node>::iterator& parent
 			t_Fresnel_s_IM[thread_Index][media_Index-1] = child.node->data.Fresnel_T_s_IM[point_Index] * child.node->data.weak_Factor_T[point_Index];
 			++media_Index;
 		} else
-		if(child.node->data.struct_Data.item_Type == item_Type_Multilayer)
+		if( child.node->data.struct_Data.item_Type == item_Type_Multilayer)
 		{
 			for(int period_Index=0; period_Index<child.node->data.struct_Data.num_Repetition.value(); ++period_Index)
 			{
@@ -185,7 +185,7 @@ int Unwrapped_Reflection::fill_p__Max_Depth_2(const tree<Node>::iterator& parent
 			t_Fresnel_p_IM[thread_Index][media_Index-1] = child.node->data.Fresnel_T_p_IM[point_Index] * child.node->data.weak_Factor_T[point_Index];
 			++media_Index;
 		} else
-		if(child.node->data.struct_Data.item_Type == item_Type_Multilayer)
+		if( child.node->data.struct_Data.item_Type == item_Type_Multilayer)
 		{
 			for(int period_Index=0; period_Index<child.node->data.struct_Data.num_Repetition.value(); ++period_Index)
 			{
@@ -255,7 +255,7 @@ int Unwrapped_Reflection::fill_sp_Max_Depth_2(const tree<Node>::iterator& parent
 			t_Fresnel_p_IM[thread_Index][media_Index-1] = child.node->data.Fresnel_T_p_IM[point_Index] * child.node->data.weak_Factor_T[point_Index];
 			++media_Index;
 		} else
-		if(child.node->data.struct_Data.item_Type == item_Type_Multilayer)
+		if( child.node->data.struct_Data.item_Type == item_Type_Multilayer)
 		{
 			for(int period_Index=0; period_Index<child.node->data.struct_Data.num_Repetition.value(); ++period_Index)
 			{
@@ -721,7 +721,7 @@ void Unwrapped_Reflection::multifly_Fresnel_And_Weak_Factor(double polarization,
 
 void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(const Data& measurement, int thread_Index, int point_Index)
 {
-//	auto start = std::chrono::system_clock::now();
+	auto start = std::chrono::system_clock::now();
 	// PARAMETER
 
 	if( max_Depth <= 2 )
@@ -771,16 +771,16 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(const Data& measuremen
 																												   thread_Index);
 		}
 	}
-//	auto end = std::chrono::system_clock::now();
-//	auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
-//	qInfo() << "Pre    : "<< elapsed.count()/1000. << " seconds";
+	auto end = std::chrono::system_clock::now();
 
-//	start = std::chrono::system_clock::now();
 	calc_Local(measurement.polarization.value, thread_Index);
 
-//	auto enD = std::chrono::system_clock::now();
-//	auto elapseD = std::chrono::duration_cast<std::chrono::milliseconds>(enD - start);
-//	qInfo() << "Local  : "<< elapseD.count()/1000. << " seconds";
+	auto enD = std::chrono::system_clock::now();
+	auto elapseD = std::chrono::duration_cast<std::chrono::nanoseconds>(enD - end);
+
+	auto elapsed = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start);
+	qInfo() << "Pre    : "<< elapsed.count()/1000000000. << " seconds";
+	qInfo() << "Local  : "<< elapseD.count()/1000000000. << " seconds";
 }
 
 void Unwrapped_Reflection::fill_Specular_Values(const Data& measurement, int thread_Index, int point_Index)
