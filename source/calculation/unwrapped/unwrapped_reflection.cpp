@@ -41,8 +41,8 @@ Unwrapped_Reflection::Unwrapped_Reflection(Unwrapped_Structure* unwrapped_Struct
 	hi_IM		  (num_Threads,vector<double>(num_Media)),
 	exponenta_RE  (num_Threads,vector<double>(num_Boundaries)),
 	exponenta_IM  (num_Threads,vector<double>(num_Boundaries)),
-	exponenta_2_RE  (num_Threads,vector<double>(num_Boundaries)),
-	exponenta_2_IM  (num_Threads,vector<double>(num_Boundaries)),
+	exponenta_2_RE(num_Threads,vector<double>(num_Boundaries)),
+	exponenta_2_IM(num_Threads,vector<double>(num_Boundaries)),
 
 	weak_Factor_R (num_Threads,vector<double>(num_Boundaries)),
 	weak_Factor_T (num_Threads,vector<double>(num_Boundaries))
@@ -82,7 +82,6 @@ Unwrapped_Reflection::Unwrapped_Reflection(Unwrapped_Structure* unwrapped_Struct
 
 Unwrapped_Reflection::~Unwrapped_Reflection()
 {
-//	qInfo() << "destructor Unwrapped_Reflection";
 }
 
 int Unwrapped_Reflection::fill_s__Max_Depth_2(const tree<Node>::iterator& parent, int thread_Index, int point_Index, int media_Index)
@@ -91,13 +90,6 @@ int Unwrapped_Reflection::fill_s__Max_Depth_2(const tree<Node>::iterator& parent
 	{
 		tree<Node>::post_order_iterator child = tree<Node>::child(parent,child_Index);
 
-		if(child.node->data.struct_Data.item_Type == item_Type_Ambient)
-		{			
-			epsilon_Ambient[thread_Index] = child.node->data.epsilon[point_Index];
-			hi_RE[thread_Index][media_Index] = child.node->data.hi_RE[point_Index];
-			hi_IM[thread_Index][media_Index] = child.node->data.hi_IM[point_Index];
-			++media_Index;
-		} else
 		if(child.node->data.struct_Data.item_Type == item_Type_Layer)
 		{
 			hi_RE         [thread_Index][media_Index  ] = child.node->data.hi_RE[point_Index];
@@ -121,6 +113,13 @@ int Unwrapped_Reflection::fill_s__Max_Depth_2(const tree<Node>::iterator& parent
 			r_Fresnel_s_IM[thread_Index][media_Index-1] = child.node->data.Fresnel_R_s_IM[point_Index] * child.node->data.weak_Factor_R[point_Index];
 			t_Fresnel_s_RE[thread_Index][media_Index-1] = child.node->data.Fresnel_T_s_RE[point_Index] * child.node->data.weak_Factor_T[point_Index];
 			t_Fresnel_s_IM[thread_Index][media_Index-1] = child.node->data.Fresnel_T_s_IM[point_Index] * child.node->data.weak_Factor_T[point_Index];
+			++media_Index;
+		} else
+		if(child.node->data.struct_Data.item_Type == item_Type_Ambient)
+		{
+			epsilon_Ambient[thread_Index] = child.node->data.epsilon[point_Index];
+			hi_RE[thread_Index][media_Index] = child.node->data.hi_RE[point_Index];
+			hi_IM[thread_Index][media_Index] = child.node->data.hi_IM[point_Index];
 			++media_Index;
 		} else
 		if( child.node->data.struct_Data.item_Type == item_Type_Multilayer)
@@ -153,13 +152,6 @@ int Unwrapped_Reflection::fill_p__Max_Depth_2(const tree<Node>::iterator& parent
 	{
 		tree<Node>::post_order_iterator child = tree<Node>::child(parent,child_Index);
 
-		if(child.node->data.struct_Data.item_Type == item_Type_Ambient)
-		{
-			epsilon_Ambient[thread_Index] = child.node->data.epsilon[point_Index];
-			hi_RE[thread_Index][media_Index] = child.node->data.hi_RE[point_Index];
-			hi_IM[thread_Index][media_Index] = child.node->data.hi_IM[point_Index];
-			++media_Index;
-		} else
 		if(child.node->data.struct_Data.item_Type == item_Type_Layer)
 		{
 			hi_RE         [thread_Index][media_Index  ] = child.node->data.hi_RE[point_Index];
@@ -183,6 +175,13 @@ int Unwrapped_Reflection::fill_p__Max_Depth_2(const tree<Node>::iterator& parent
 			r_Fresnel_p_IM[thread_Index][media_Index-1] = child.node->data.Fresnel_R_p_IM[point_Index] * child.node->data.weak_Factor_R[point_Index];
 			t_Fresnel_p_RE[thread_Index][media_Index-1] = child.node->data.Fresnel_T_p_RE[point_Index] * child.node->data.weak_Factor_T[point_Index];
 			t_Fresnel_p_IM[thread_Index][media_Index-1] = child.node->data.Fresnel_T_p_IM[point_Index] * child.node->data.weak_Factor_T[point_Index];
+			++media_Index;
+		} else
+		if(child.node->data.struct_Data.item_Type == item_Type_Ambient)
+		{
+			epsilon_Ambient[thread_Index] = child.node->data.epsilon[point_Index];
+			hi_RE[thread_Index][media_Index] = child.node->data.hi_RE[point_Index];
+			hi_IM[thread_Index][media_Index] = child.node->data.hi_IM[point_Index];
 			++media_Index;
 		} else
 		if( child.node->data.struct_Data.item_Type == item_Type_Multilayer)
@@ -215,13 +214,6 @@ int Unwrapped_Reflection::fill_sp_Max_Depth_2(const tree<Node>::iterator& parent
 	{
 		tree<Node>::post_order_iterator child = tree<Node>::child(parent,child_Index);
 
-		if(child.node->data.struct_Data.item_Type == item_Type_Ambient)
-		{
-			epsilon_Ambient[thread_Index] = child.node->data.epsilon[point_Index];
-			hi_RE[thread_Index][media_Index] = child.node->data.hi_RE[point_Index];
-			hi_IM[thread_Index][media_Index] = child.node->data.hi_IM[point_Index];
-			++media_Index;
-		} else
 		if(child.node->data.struct_Data.item_Type == item_Type_Layer)
 		{
 			hi_RE         [thread_Index][media_Index  ] = child.node->data.hi_RE[point_Index];
@@ -253,6 +245,13 @@ int Unwrapped_Reflection::fill_sp_Max_Depth_2(const tree<Node>::iterator& parent
 			t_Fresnel_s_IM[thread_Index][media_Index-1] = child.node->data.Fresnel_T_s_IM[point_Index] * child.node->data.weak_Factor_T[point_Index];
 			t_Fresnel_p_RE[thread_Index][media_Index-1] = child.node->data.Fresnel_T_p_RE[point_Index] * child.node->data.weak_Factor_T[point_Index];
 			t_Fresnel_p_IM[thread_Index][media_Index-1] = child.node->data.Fresnel_T_p_IM[point_Index] * child.node->data.weak_Factor_T[point_Index];
+			++media_Index;
+		} else
+		if(child.node->data.struct_Data.item_Type == item_Type_Ambient)
+		{
+			epsilon_Ambient[thread_Index] = child.node->data.epsilon[point_Index];
+			hi_RE[thread_Index][media_Index] = child.node->data.hi_RE[point_Index];
+			hi_IM[thread_Index][media_Index] = child.node->data.hi_IM[point_Index];
 			++media_Index;
 		} else
 		if( child.node->data.struct_Data.item_Type == item_Type_Multilayer)
@@ -882,7 +881,6 @@ void Unwrapped_Reflection::calc_Specular()
 	auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
 	qInfo() << "	parallelization:    "<< elapsed.count()/1000000. << " seconds" << endl;
 	/// ----------------------------------------------------------------------------------------------------------------------
-	start = std::chrono::system_clock::now();
 	// postprocessing
 	{
 		// interpolation
@@ -951,9 +949,6 @@ void Unwrapped_Reflection::calc_Specular()
 			A_Instrumental[point_Index] += measurement.background.value;
 		}
 	}
-	end = std::chrono::system_clock::now();
-	elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-	qInfo() << "	postpocessing:      "<< elapsed.count()/1000000. << " seconds" << endl;
 }
 
 void Unwrapped_Reflection::interpolate_Curve(int res_Points, const QVector<double> &argument, const QVector<double>& resolution, vector<double>& input_Curve, vector<double>& output_Curve)
