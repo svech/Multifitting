@@ -220,7 +220,7 @@ bool Fitting_SwarmOps::fit()
 	SO_PrintVector(res.best.x, res.best.dim);
 	printf("\n\n");
 
-	SO_FreeResults(&res);
+	if(repeat == 0) SO_FreeResults(&res);
 
 	return true;
 }

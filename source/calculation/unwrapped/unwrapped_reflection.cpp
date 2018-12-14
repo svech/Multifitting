@@ -720,7 +720,7 @@ void Unwrapped_Reflection::multifly_Fresnel_And_Weak_Factor(double polarization,
 
 void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(const Data& measurement, int thread_Index, int point_Index)
 {
-	auto start = std::chrono::system_clock::now();
+//	auto start = std::chrono::system_clock::now();
 	// PARAMETER
 
 	if( max_Depth <= 2 )
@@ -770,16 +770,16 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(const Data& measuremen
 																												   thread_Index);
 		}
 	}
-	auto end = std::chrono::system_clock::now();
+//	auto end = std::chrono::system_clock::now();
 
 	calc_Local(measurement.polarization.value, thread_Index);
 
-	auto enD = std::chrono::system_clock::now();
-	auto elapseD = std::chrono::duration_cast<std::chrono::nanoseconds>(enD - end);
+//	auto enD = std::chrono::system_clock::now();
+//	auto elapseD = std::chrono::duration_cast<std::chrono::nanoseconds>(enD - end);
 
-	auto elapsed = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start);
-	qInfo() << "Pre    : "<< elapsed.count()/1000000000. << " seconds";
-	qInfo() << "Local  : "<< elapseD.count()/1000000000. << " seconds";
+//	auto elapsed = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start);
+//	qInfo() << "Pre    : "<< elapsed.count()/1000000000. << " seconds";
+//	qInfo() << "Local  : "<< elapseD.count()/1000000000. << " seconds";
 }
 
 void Unwrapped_Reflection::fill_Specular_Values(const Data& measurement, int thread_Index, int point_Index)
@@ -855,7 +855,7 @@ void Unwrapped_Reflection::calc_Specular_nMin_nMax_1_Thread(const Data& measurem
 
 void Unwrapped_Reflection::calc_Specular()
 {
-	auto start = std::chrono::system_clock::now();
+//	auto start = std::chrono::system_clock::now();
 
 	/// ----------------------------------------------------------------------------------------------------------------------
 	/// parallelization
@@ -877,9 +877,9 @@ void Unwrapped_Reflection::calc_Specular()
 	{
 		if (global_Workers[thread_Index].joinable()) global_Workers[thread_Index].join();
 	}
-	auto end = std::chrono::system_clock::now();
-	auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-	qInfo() << "	parallelization:    "<< elapsed.count()/1000000. << " seconds" << endl;
+//	auto end = std::chrono::system_clock::now();
+//	auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+//	qInfo() << "	parallelization:    "<< elapsed.count()/1000000. << " seconds" << endl;
 	/// ----------------------------------------------------------------------------------------------------------------------
 	// postprocessing
 	{
@@ -960,9 +960,10 @@ void Unwrapped_Reflection::interpolate_Curve(int res_Points, const QVector<doubl
 
 	gsl_spline_init(Spline, argument.data(), input_Curve.data(), input_Curve.size());
 
-	Global_Variables::parallel_For(input_Curve.size(), reflectivity_Calc_Threads, [&](int n_Min, int n_Max)
-	{
-		for(int point_Index=n_Min; point_Index<n_Max; ++point_Index)
+//	Global_Variables::parallel_For(input_Curve.size(), reflectivity_Calc_Threads, [&](int n_Min, int n_Max)
+//	{
+		for(int point_Index=0; point_Index<input_Curve.size(); ++point_Index)
+//		for(int point_Index=n_Min; point_Index<n_Max; ++point_Index)
 		{
 			double delta = resolution[point_Index]/res_Points; // spectral resolution is not constant in absolute values
 
@@ -982,7 +983,7 @@ void Unwrapped_Reflection::interpolate_Curve(int res_Points, const QVector<doubl
 			}
 			output_Curve[point_Index] /= weight_Accumulator;
 		}
-	});
+//	});
 
 	gsl_spline_free(Spline);
 	gsl_interp_accel_free(Acc);

@@ -61,7 +61,7 @@ void Main_Calculation_Module::single_Calculation(bool print)
 	// prepare cos2 and active_Parameter_Whats_This
 	preliminary_Calculation();
 
-	auto start = std::chrono::system_clock::now();
+//	auto start = std::chrono::system_clock::now();
 
 	for(int tab_Index=0; tab_Index<multilayers.size(); ++tab_Index)
 	{
@@ -84,9 +84,9 @@ void Main_Calculation_Module::single_Calculation(bool print)
 			if(lambda_Out_Of_Range) return;
 		}
 	}
-	auto end = std::chrono::system_clock::now();
-	auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-	qInfo() << "single_Calculation: "<< elapsed.count()/1000000. << " seconds" << endl;
+//	auto end = std::chrono::system_clock::now();
+//	auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+//	qInfo() << "single_Calculation: "<< elapsed.count()/1000000. << " seconds" << endl;
 
 	if(print) print_Calculated_To_File();
 

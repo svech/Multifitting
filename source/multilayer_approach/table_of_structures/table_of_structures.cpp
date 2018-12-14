@@ -16,6 +16,16 @@ Table_Of_Structures::Table_Of_Structures(bool temporary, QWidget *parent) :
 	setAttribute(Qt::WA_DeleteOnClose);
 }
 
+bool Table_Of_Structures::eventFilter(QObject *obj, QEvent *event)
+{
+	UNUSED(obj);
+	if(event->type() == QEvent::Wheel)
+	{
+		return !mouse_Wheel_Spinbox_Table;
+	}
+	return false;
+}
+
 void Table_Of_Structures::closeEvent(QCloseEvent* event)
 {
 	if(!temporary) write_Window_Geometry();
@@ -335,6 +345,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 			// recalculate on spinboxes change
 			{
 				current_Column = 0;
+				spin_Box_Mouse_Wheel	(new_Table, current_Row  , current_Column);
 				spin_Box_Recalculate	(new_Table, current_Row+1, current_Column);
 			}
 
@@ -1187,6 +1198,7 @@ void Table_Of_Structures::create_Stoich_Line_Edit(My_Table_Widget* table, int ta
 			spin_Box->setAccelerated(true);
 			spin_Box->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT_SHORT);
 			spin_Box->setButtonSymbols(QAbstractSpinBox::NoButtons);
+			spin_Box->installEventFilter(this);
 
 		// number of element is here
 		spin_Box->setProperty(num_Chemic_Element_Property, composition_Index);
@@ -1568,6 +1580,7 @@ void Table_Of_Structures::create_Line_Edit(My_Table_Widget* table, int tab_Index
 		spin_Box->setAccelerated(true);
 		spin_Box->setButtonSymbols(QAbstractSpinBox::NoButtons);
 		spin_Box->setRange(-MAX_DOUBLE, MAX_DOUBLE); // by default
+		spin_Box->installEventFilter(this);
 
 	if(whats_This == whats_This_Num_Repetitions)
 	{
@@ -1980,6 +1993,7 @@ void Table_Of_Structures::create_Weigts_Interlayer(My_Table_Widget* table, int t
 			spin_Box->setAccelerated(true);
 			spin_Box->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT_SHORT);
 			spin_Box->setButtonSymbols(QAbstractSpinBox::NoButtons);
+			spin_Box->installEventFilter(this);
 
 		spin_Box->setProperty(interlayer_Index_Property, interlayer_Index);
 		spin_Box->setProperty(min_Size_Property, spin_Box->width());
@@ -2122,6 +2136,7 @@ void Table_Of_Structures::create_MySigma_Line_Edits_Interlayer(My_Table_Widget* 
 			spin_Box->setAccelerated(true);
 			spin_Box->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT_SHORT);
 			spin_Box->setButtonSymbols(QAbstractSpinBox::NoButtons);
+			spin_Box->installEventFilter(this);
 
 		spin_Box->setProperty(interlayer_Index_Property, interlayer_Index);
 		spin_Box->setProperty(min_Size_Property, spin_Box->width());
@@ -2303,6 +2318,8 @@ void Table_Of_Structures::create_Step_Spin_Box(My_Table_Widget* table, int tab_I
 		step_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
 		step_SpinBox->setAccelerated(true);
 		step_SpinBox->setProperty(column_Property,current_Column);
+		step_SpinBox->installEventFilter(this);
+
 	table->setCellWidget(current_Row, current_Column, step_SpinBox);
 	Global_Variables::resize_Line_Edit(step_SpinBox);
 
@@ -2376,6 +2393,31 @@ void Table_Of_Structures::spin_Box_Recalculate(My_Table_Widget *table, int curre
 	{
 		checkbox_Recalculate->setChecked(recalculate_Spinbox_Table);
 		checkbox_Recalculate->toggled(checkbox_Recalculate->isChecked());
+	});
+}
+
+void Table_Of_Structures::spin_Box_Mouse_Wheel(My_Table_Widget *table, int current_Row, int current_Column)
+{
+	add_Columns(table,current_Column);
+
+	QCheckBox* checkbox_Mouse_Wheel = new QCheckBox("Mouse Wheel");
+		checkbox_Mouse_Wheel->setChecked(mouse_Wheel_Spinbox_Table);
+	table->setCellWidget(current_Row, current_Column, checkbox_Mouse_Wheel);
+
+	connect(checkbox_Mouse_Wheel, &QCheckBox::toggled, this, [=]
+	{
+		mouse_Wheel_Spinbox_Table = checkbox_Mouse_Wheel->isChecked();
+		if(mouse_Wheel_Spinbox_Table)
+			checkbox_Mouse_Wheel->setStyleSheet("QWidget { background: rgb(255, 170, 137); }");
+		else
+			checkbox_Mouse_Wheel->setStyleSheet("background-color: white");
+	});
+
+	// refresh in each table
+	connect(main_Tabs, &QTabWidget::tabBarClicked, this, [=]
+	{
+		checkbox_Mouse_Wheel->setChecked(mouse_Wheel_Spinbox_Table);
+		checkbox_Mouse_Wheel->toggled(checkbox_Mouse_Wheel->isChecked());
 	});
 }
 

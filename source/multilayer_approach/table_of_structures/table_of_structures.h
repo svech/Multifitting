@@ -16,6 +16,7 @@ class Table_Of_Structures : public QWidget
 {
 	Q_OBJECT
 	Q_INVOKABLE void adjustSize() {  }
+	bool eventFilter(QObject *obj, QEvent *event);
 	void closeEvent(QCloseEvent* event);
 public:
 	explicit Table_Of_Structures(bool temporary = false, QWidget* parent = 0);
@@ -72,6 +73,7 @@ public:
 
 	// spinbox recalculation
 	void spin_Box_Recalculate	 (My_Table_Widget* table,				 int current_Row, int current_Column);
+	void spin_Box_Mouse_Wheel	 (My_Table_Widget* table,				 int current_Row, int current_Column);
 
 	// general
 	void span_Structure_Headers(My_Table_Widget* table);
