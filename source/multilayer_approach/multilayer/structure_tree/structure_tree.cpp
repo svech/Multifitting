@@ -376,7 +376,8 @@ void Structure_Tree::set_Structure_Item_Text(QTreeWidgetItem* item)
 									  Locale.toString(data.gamma.value,thumbnail_double_format,thumbnail_gamma_precision));
 					}
 				} else
-				if(data.item_Type == item_Type_Aperiodic)
+				if( data.item_Type == item_Type_Regular_Aperiodic ||
+					data.item_Type == item_Type_General_Aperiodic )
 				{
 					item->setText(DEFAULT_COLUMN, Global_Variables::structure_Item_Name(data));
 				}

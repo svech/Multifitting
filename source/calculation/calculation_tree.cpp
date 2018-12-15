@@ -248,22 +248,22 @@ void Calculation_Tree::renew_Item_Tree_From_Calc_Tree(const tree<Node>::iterator
 void Calculation_Tree::look_Aperiodic(const tree<Node>::iterator& parent)
 {
 	// iterate over tree, looking for aperiodics
-	for(unsigned i=0; i<parent.number_of_children(); ++i)
-	{
-		tree<Node>::pre_order_iterator child = tree<Node>::child(parent,i);
+//	for(unsigned i=0; i<parent.number_of_children(); ++i)
+//	{
+//		tree<Node>::pre_order_iterator child = tree<Node>::child(parent,i);
 
-		if(child.node->data.struct_Data.item_Type == item_Type_Aperiodic)
-		{
-			qInfo() << "look_Aperiodic";
-			// calc uniqueness
-			// for each uniqueness find average thickness
-			// for each layer find penalty (if turned on, with threshold and Q)
-		}
-		if(child.number_of_children()>0)
-		{
-			look_Aperiodic(child);
-		}
-	}
+//		if(child.node->data.struct_Data.item_Type == item_Type_Aperiodic)
+//		{
+//			qInfo() << "look_Aperiodic";
+//			// calc uniqueness
+//			// for each uniqueness find average thickness
+//			// for each layer find penalty (if turned on, with threshold and Q)
+//		}
+//		if(child.number_of_children()>0)
+//		{
+//			look_Aperiodic(child);
+//		}
+//	}
 }
 
 void Calculation_Tree::calc_Aperiodic_Uniqueness(const tree<Node>::iterator& parent)
@@ -280,8 +280,9 @@ void Calculation_Tree::stratify_Calc_Tree_Iteration(const tree<Node>::iterator& 
 
 		if(tree<Node>::depth(child) == depth)
 		{
-			if(child.node->data.struct_Data.item_Type == item_Type_Multilayer ||
-			   child.node->data.struct_Data.item_Type == item_Type_Aperiodic  )
+			if( child.node->data.struct_Data.item_Type == item_Type_Multilayer ||
+				child.node->data.struct_Data.item_Type == item_Type_Regular_Aperiodic ||
+				child.node->data.struct_Data.item_Type == item_Type_General_Aperiodic )
 			{
 				chosen_Nodes.append(child);
 			}
@@ -472,8 +473,9 @@ void Calculation_Tree::calculate_Intermediate_Values_1_Tree(tree<Node>& calc_Tre
 
 		child.node->data.calculate_Intermediate_Points(measurement, above_Node, active_Parameter_Whats_This, depth_Grading, sigma_Grading);
 
-		if(child.node->data.struct_Data.item_Type != item_Type_Multilayer &&
-		   child.node->data.struct_Data.item_Type != item_Type_Aperiodic  )
+		if( child.node->data.struct_Data.item_Type != item_Type_Multilayer &&
+			child.node->data.struct_Data.item_Type != item_Type_Regular_Aperiodic &&
+			child.node->data.struct_Data.item_Type != item_Type_General_Aperiodic )
 		{
 			above_Node = &child.node->data;
 		} else
@@ -493,8 +495,9 @@ tree<Node>::iterator Calculation_Tree::find_Node_By_Item_Id(const tree<Node>::it
 		{
 			return calc_Tree.child(parent,i);
 		} else
-		if(child.node->data.struct_Data.item_Type == item_Type_Multilayer ||
-		   child.node->data.struct_Data.item_Type == item_Type_Aperiodic   )
+		if( child.node->data.struct_Data.item_Type == item_Type_Multilayer ||
+			child.node->data.struct_Data.item_Type == item_Type_Regular_Aperiodic ||
+			child.node->data.struct_Data.item_Type == item_Type_General_Aperiodic )
 		{
 			return find_Node_By_Item_Id(child, active_Item_Id, calc_Tree);
 		}
@@ -561,12 +564,13 @@ int Calculation_Tree::get_Total_Num_Layers(const tree<Node>::iterator& parent, c
 			num_Media_Local += 1;
 		}
 
-		if(child.node->data.struct_Data.item_Type == item_Type_Multilayer)
+		if( child.node->data.struct_Data.item_Type == item_Type_Multilayer ||
+			child.node->data.struct_Data.item_Type == item_Type_Regular_Aperiodic)
 		{
 			num_Media_Local += child.node->data.struct_Data.num_Repetition.value() * get_Total_Num_Layers(child, calc_Tree);
 		}
 
-		if(child.node->data.struct_Data.item_Type == item_Type_Aperiodic)
+		if(child.node->data.struct_Data.item_Type == item_Type_General_Aperiodic)
 		{
 			num_Media_Local += get_Total_Num_Layers(child, calc_Tree);
 		}
@@ -589,8 +593,9 @@ void Calculation_Tree::print_Tree(const tree<Node>::iterator& parent, tree<Node>
 			std::cout << std::endl;
 		}
 
-		if(child.node->data.struct_Data.item_Type  == item_Type_Multilayer ||
-		   child.node->data.struct_Data.item_Type == item_Type_Aperiodic   )
+		if( child.node->data.struct_Data.item_Type == item_Type_Multilayer ||
+			child.node->data.struct_Data.item_Type == item_Type_Regular_Aperiodic ||
+			child.node->data.struct_Data.item_Type == item_Type_General_Aperiodic )
 		{
 			print_Tree(child, calc_Tree);
 		}

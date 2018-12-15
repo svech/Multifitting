@@ -856,7 +856,7 @@ void Multilayer_Approach::calc_Reflection(bool silent)
 						 "\n-------------------------------------------------------\n";
 		}
 		Main_Calculation_Module* main_Calculation_Module = new Main_Calculation_Module(CALCULATION);
-		main_Calculation_Module->single_Calculation();
+		main_Calculation_Module->single_Calculation(!silent);
 		delete main_Calculation_Module;
 	}
 }

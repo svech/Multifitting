@@ -59,11 +59,12 @@ void Item_Editor::create_Main_Layout()
 	create_Menu();
 	Global_Variables::create_Shortcuts(this);
 
-	if(struct_Data.item_Type == item_Type_Ambient)		make_Ambient_Editor();
-	if(struct_Data.item_Type == item_Type_Layer)		make_Layer_Editor();
-	if(struct_Data.item_Type == item_Type_Substrate)	make_Substrate_Editor();
-	if(struct_Data.item_Type == item_Type_Multilayer)	make_Multilayer_Editor();
-	if(struct_Data.item_Type == item_Type_Aperiodic)	make_Aperiodic_Editor();
+	if(struct_Data.item_Type == item_Type_Ambient)			make_Ambient_Editor();
+	if(struct_Data.item_Type == item_Type_Layer)			make_Layer_Editor();
+	if(struct_Data.item_Type == item_Type_Substrate)		make_Substrate_Editor();
+	if(struct_Data.item_Type == item_Type_Multilayer)		make_Multilayer_Editor();
+	if(struct_Data.item_Type == item_Type_General_Aperiodic)make_Aperiodic_Editor();
+	if(struct_Data.item_Type == item_Type_Regular_Aperiodic)make_Aperiodic_Editor();
 
 	done_Button = new QPushButton("Done");
 		done_Button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
@@ -316,7 +317,7 @@ void Item_Editor::make_Multilayer_Group_Box()
 			QMessageBox::StandardButton reply = QMessageBox::question(this,"Make aperiodic", "Are you sure?", QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
 			if (reply == QMessageBox::Yes)
 			{
-				make_Aperiodic();
+				make_Regular_Aperiodic();
 			} else
 			{
 				make_Aperiodic_CheckBox->setChecked(false);
@@ -1455,10 +1456,10 @@ void Item_Editor::reset_Multilayer_Thickness(QTreeWidgetItem* multilayer_Item, d
 	}
 }
 
-void Item_Editor::make_Aperiodic()
+void Item_Editor::make_Regular_Aperiodic()
 {
 	// set up aperiodic
-	struct_Data.item_Type = item_Type_Aperiodic;
+	struct_Data.item_Type = item_Type_Regular_Aperiodic;
 	QTreeWidgetItem* new_Layer;
 	int old_Child_Count = item->childCount();
 	for(int n=0; n<struct_Data.num_Repetition.value()-1; n++) // if N==0, still 1 period exists
@@ -1474,6 +1475,8 @@ void Item_Editor::make_Aperiodic()
 	struct_Data.gamma.fit.is_Fitable = false;
 	struct_Data.num_Repetition.parameter.fit.is_Fitable = false;
 	struct_Data.num_Repetition.parameter.value = 1; // important!
+
+	// TODO APERIODIC
 
 	// save
 	QVariant var;
@@ -1585,9 +1588,10 @@ void Item_Editor::calc_Uniqueness()
 		Data current_Child_Data = current_Child_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
 
 		QString current_Characretistic; // we don't distinguish multilayers and aperiodics between themselves
-		if(current_Child_Data.item_Type == item_Type_Layer)      current_Characretistic = current_Child_Data.item_Type + Locale.toString(current_Child_Data.composed_Material) + current_Child_Data.material;
-		if(current_Child_Data.item_Type == item_Type_Multilayer) current_Characretistic = current_Child_Data.item_Type;
-		if(current_Child_Data.item_Type == item_Type_Aperiodic)  current_Characretistic = current_Child_Data.item_Type;
+		if(current_Child_Data.item_Type == item_Type_Layer)				current_Characretistic = current_Child_Data.item_Type + Locale.toString(current_Child_Data.composed_Material) + current_Child_Data.material;
+		if(current_Child_Data.item_Type == item_Type_Multilayer)		current_Characretistic = current_Child_Data.item_Type;
+		if(current_Child_Data.item_Type == item_Type_Regular_Aperiodic) current_Characretistic = current_Child_Data.item_Type;
+		if(current_Child_Data.item_Type == item_Type_General_Aperiodic) current_Characretistic = current_Child_Data.item_Type;
 
 		if(uniqueness_Map.contains(current_Characretistic))
 		{

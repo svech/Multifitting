@@ -162,7 +162,7 @@ void Curve_Plot::create_Plot_Frame_And_Scale()
 //		}
 	}
 
-	custom_Plot->replot();
+//	custom_Plot->replot();
 }
 
 void Curve_Plot::create_Options()
@@ -418,6 +418,7 @@ void Curve_Plot::plot_All_Data()
 		double max_Value_Position = argument[max_Value_Position_Index];
 		max_Value_Label->setText(max_Value_Title + " " + Locale.toString(max_Value,'f',4) + " at " + Locale.toString(max_Value_Position,'f',4) + " " + argument_Units);
 	}
+	custom_Plot->replot();
 }
 
 void Curve_Plot::plot_Data(const QVector<double>& argument, const QVector<double>& values, Plot_Options* plot_Options, QString left_Right)
@@ -524,8 +525,7 @@ void Curve_Plot::plot_Data(const QVector<double>& argument, const QVector<double
 			custom_Plot->yAxis2->setRange(min_Value_Right, max_Value_Right);
 		}
 	}
-
-	custom_Plot->replot();
+//	custom_Plot->replot();
 
 	// reset
 	min_Value_Left = DBL_MAX;
@@ -610,7 +610,7 @@ void Curve_Plot::refresh_Labels()
 	custom_Plot->yAxis->setLabel(val_Type_Label + ", " + val_Mode_Label_1);
 	custom_Plot->xAxis->setLabel(argument_Label);
 
-	custom_Plot->replot();
+//	custom_Plot->replot();
 }
 
 QCPGraph* Curve_Plot::get_Selected_Graph()
@@ -628,7 +628,7 @@ void Curve_Plot::choose_Graph_Color()
 	if(graph!=nullptr)
 	{
 		custom_Plot->deselectAll();
-		custom_Plot->replot();
+//		custom_Plot->replot();
 
 		colorDialog->show();
 		QColor old_Color = graph->pen().color();
@@ -647,7 +647,7 @@ void Curve_Plot::set_Graph_Color(QCPGraph* graph, QColor color)
 	graph->setPen(QPen(color, graph->pen().widthF()));
 	graph->selectionDecorator()->setPen(QPen(color,graph->selectionDecorator()->pen().widthF()));
 	colors_Button->setPalette(color);
-	custom_Plot->replot();
+//	custom_Plot->replot();
 
 	// renew data in plot_Options
 	Plot_Options* plot_Options = graph_Options_Map.value(graph);

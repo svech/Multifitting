@@ -14,7 +14,8 @@ Data::Data(QString item_Type_Passed)
 			(item_Type_Passed != item_Type_Layer) &&
 			(item_Type_Passed != item_Type_Substrate) &&
 			(item_Type_Passed != item_Type_Multilayer) &&
-			(item_Type_Passed != item_Type_Aperiodic) )
+			(item_Type_Passed != item_Type_General_Aperiodic) &&
+			(item_Type_Passed != item_Type_Regular_Aperiodic) )
 		{
 			qInfo() << "\n\nData::Data : wrong item_Type\n\n";
 		} else

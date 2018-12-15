@@ -1003,7 +1003,7 @@ void Table_Of_Structures::disable_enable_One_Item(My_Table_Widget* table, QTable
 	}
 
 	QString item_Type = table_Item->whatsThis();
-	if( item_Type == item_Type_Multilayer || item_Type == item_Type_Aperiodic)
+	if( item_Type == item_Type_Multilayer || item_Type == item_Type_Regular_Aperiodic || item_Type == item_Type_General_Aperiodic)
 	{
 		QCheckBox* check_Box = qobject_cast<QCheckBox*>(table->cellWidget(row_Index, col_Index));
 		QTreeWidgetItem* structure_Item = check_Boxes_Map.value(check_Box);
@@ -1018,7 +1018,7 @@ void Table_Of_Structures::disable_enable_One_Item_Content(My_Table_Widget* table
 	int col_Index = table_Item->column();
 
 	QString item_Type = table_Item->whatsThis();
-	if( item_Type == item_Type_Layer ||	item_Type == item_Type_Substrate || item_Type == item_Type_Multilayer || item_Type == item_Type_Aperiodic)
+	if( item_Type == item_Type_Layer ||	item_Type == item_Type_Substrate || item_Type == item_Type_Multilayer || item_Type == item_Type_Regular_Aperiodic || item_Type == item_Type_General_Aperiodic)
 	{
 		QCheckBox* check_Box = qobject_cast<QCheckBox*>(table->cellWidget(row_Index, col_Index));
 		QTreeWidgetItem* structure_Item = check_Boxes_Map.value(check_Box);
@@ -2522,7 +2522,7 @@ void Table_Of_Structures::refresh_Stoich()
 		reload_Related_Widgets(QObject::sender());
 
 		// recalculation at change
-		if(recalculate_Spinbox_Table && !reload) {global_Multilayer_Approach->calc_Reflection();}
+		if(recalculate_Spinbox_Table && !reload) {global_Multilayer_Approach->calc_Reflection(true);}
 	}
 }
 
@@ -2727,7 +2727,7 @@ void Table_Of_Structures::refresh_Check_Box_Header(bool)
 		reload_Related_Widgets(QObject::sender());
 
 		//	recalculation at change
-		if(recalculate_Spinbox_Table && !reload) {global_Multilayer_Approach->calc_Reflection();}
+		if(recalculate_Spinbox_Table && !reload) {global_Multilayer_Approach->calc_Reflection(true);}
 	}
 }
 
@@ -2747,7 +2747,7 @@ void Table_Of_Structures::change_Parent_Period_Gamma_Thickness(QTreeWidgetItem* 
 				parent_Data.period.value += child_Data.thickness.value;
 				if(i==0) first_Thickness = child_Data.thickness.value;
 			}
-			if(child_Data.item_Type == item_Type_Multilayer || child_Data.item_Type == item_Type_Aperiodic) {
+			if(child_Data.item_Type == item_Type_Multilayer || child_Data.item_Type == item_Type_Regular_Aperiodic || child_Data.item_Type == item_Type_General_Aperiodic) {
 				parent_Data.period.value += child_Data.period.value*child_Data.num_Repetition.value();
 				if(i==0) first_Thickness = child_Data.period.value*child_Data.num_Repetition.value();
 			}
@@ -3070,7 +3070,7 @@ void Table_Of_Structures::refresh_Parameter(My_Table_Widget* table)
 		emit_Data_Edited();
 
 		// recalculation at change
-		if(recalculate_Spinbox_Table && !reload) {global_Multilayer_Approach->calc_Reflection();}
+		if(recalculate_Spinbox_Table && !reload) {global_Multilayer_Approach->calc_Reflection(true);}
 	}
 }
 
@@ -3159,7 +3159,7 @@ void Table_Of_Structures::refresh_Check_Box_Label_Interlayer(bool)
 		reload_Related_Widgets(QObject::sender());
 
 		// recalculation at change
-		if(recalculate_Spinbox_Table && !reload) {global_Multilayer_Approach->calc_Reflection();}
+		if(recalculate_Spinbox_Table && !reload) {global_Multilayer_Approach->calc_Reflection(true);}
 	}
 }
 
@@ -3207,7 +3207,7 @@ void Table_Of_Structures::refresh_Weigts_Interlayer()
 		reload_Related_Widgets(QObject::sender());
 
 		// recalculation at change
-		if(recalculate_Spinbox_Table && !reload) {global_Multilayer_Approach->calc_Reflection();}
+		if(recalculate_Spinbox_Table && !reload) {global_Multilayer_Approach->calc_Reflection(true);}
 	}
 }
 
@@ -3283,7 +3283,7 @@ void Table_Of_Structures::refresh_MySigma_Interlayer()
 		reload_Related_Widgets(QObject::sender());
 
 		// recalculation at change
-		if(recalculate_Spinbox_Table && !reload) {global_Multilayer_Approach->calc_Reflection();}
+		if(recalculate_Spinbox_Table && !reload) {global_Multilayer_Approach->calc_Reflection(true);}
 	}
 }
 

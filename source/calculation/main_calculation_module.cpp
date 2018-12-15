@@ -88,8 +88,6 @@ void Main_Calculation_Module::single_Calculation(bool print)
 //	auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
 //	qInfo() << "single_Calculation: "<< elapsed.count()/1000000. << " seconds" << endl;
 
-	if(print) print_Calculated_To_File();
-
 	// replot graphs
 	if(global_Multilayer_Approach->runned_Optical_Graphs.contains(optical_Graphs_Key))
 	{
@@ -98,6 +96,12 @@ void Main_Calculation_Module::single_Calculation(bool print)
 			curve_Plot->plot_All_Data();
 		}
 	}
+
+//	auto start1 = std::chrono::system_clock::now();
+	if(print) print_Calculated_To_File();
+//	auto end1 = std::chrono::system_clock::now();
+//	auto elapsed1 = std::chrono::duration_cast<std::chrono::microseconds>(end1 - start1);
+//	qInfo() << "print_Calculated_To_File: "<< elapsed1.count()/1000000. << " seconds" << endl;
 }
 
 void Main_Calculation_Module::fitting_and_Confidence()
@@ -385,8 +389,9 @@ void Main_Calculation_Module::calc_Tree_Iteration(const tree<Node>::iterator& pa
 		find_Fittable_Confidence_Parameters(struct_Data, child, fitables_Period_Gamma, confidentials_Period_Gamma);
 
 		// check period and gamma
-		if(struct_Data.item_Type == item_Type_Multilayer ||
-		   struct_Data.item_Type == item_Type_Aperiodic	 )
+		if( struct_Data.item_Type == item_Type_Multilayer ||
+			struct_Data.item_Type == item_Type_Regular_Aperiodic ||
+			struct_Data.item_Type == item_Type_General_Aperiodic )
 		{
 			// check if period or gamma are fitables
 			bool local_Fitables_Period_Gamma = fitables_Period_Gamma;
@@ -586,8 +591,9 @@ void Main_Calculation_Module::find_Slave_Pointer_Calc_Tree_Iteration(const tree<
 			pointer = Global_Variables::get_Parameter_From_Struct_Item_by_Id(struct_Data, slave_Parameter_Indicator.id);
 		}
 
-		if(struct_Data.item_Type == item_Type_Multilayer ||
-		   struct_Data.item_Type == item_Type_Aperiodic	 )
+		if( struct_Data.item_Type == item_Type_Multilayer ||
+			struct_Data.item_Type == item_Type_Regular_Aperiodic ||
+			struct_Data.item_Type == item_Type_General_Aperiodic )
 		{
 			find_Slave_Pointer_Calc_Tree_Iteration(child, slave_Parameter_Indicator, pointer);
 		}

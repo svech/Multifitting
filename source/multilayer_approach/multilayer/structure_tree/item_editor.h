@@ -81,7 +81,7 @@ public:
 		void reset_Layer_Thickness(QTreeWidgetItem* layer_Item, double new_Thickness);
 		void reset_Multilayer_Thickness(QTreeWidgetItem* multilayer_Item, double new_Thickness);
 
-	void make_Aperiodic();
+	void make_Regular_Aperiodic();
 	void make_Multilayer();
 	void invert_Aperiodic();
 	void calc_Uniqueness();

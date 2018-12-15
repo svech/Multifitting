@@ -320,7 +320,7 @@ void Structure_Toolbar::add_Aperiodic()
 			// insert child layers
 			new_Aperiodic->addChildren(new_Child_Layers);
 
-			Data aperiodic(item_Type_Aperiodic);
+			Data aperiodic(item_Type_General_Aperiodic );
 			aperiodic.num_Repetition.parameter.value = 1;
 			QVariant var;
 			var.setValue( aperiodic );
@@ -432,7 +432,8 @@ void Structure_Toolbar::remove()
 		}
 	} else
 	// if aperiodic
-	if(data.item_Type == item_Type_Aperiodic)
+	if( data.item_Type == item_Type_Regular_Aperiodic ||
+		data.item_Type == item_Type_General_Aperiodic )
 	{
 		QString aperiodic_Text = current->text(DEFAULT_COLUMN);
 		QMessageBox::StandardButton reply = QMessageBox::question(this,"Removal", "Really remove " + aperiodic_Text + "?", QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
@@ -477,7 +478,8 @@ void Structure_Toolbar::cut()
 		reply = QMessageBox::question(this,"Removal", "Really cut " + multilayer_Text + "?", QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
 	} else
 	// if aperiodic
-	if(data.item_Type == item_Type_Aperiodic)
+	if( data.item_Type == item_Type_Regular_Aperiodic ||
+		data.item_Type == item_Type_General_Aperiodic )
 	{
 		QString aperiodic_Text = current->text(DEFAULT_COLUMN);
 		reply = QMessageBox::question(this,"Removal", "Really cut " + aperiodic_Text + "?", QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
@@ -625,10 +627,11 @@ void Structure_Toolbar::if_Selected()
 //		toolbar->actions()[Sigma_Plot]->setDisabled(true);		// sigma_Plot
 	} else
 	{
-		bool if_Substrate  = (structure_Tree->tree->currentItem()->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>().item_Type) == item_Type_Substrate;
-//		bool if_Layer      = (structure_Tree->tree->currentItem()->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>().item_Type) == item_Type_Layer;
-		bool if_Multilayer = (structure_Tree->tree->currentItem()->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>().item_Type) == item_Type_Multilayer;
-		bool if_Aperiodic  = (structure_Tree->tree->currentItem()->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>().item_Type) == item_Type_Aperiodic;
+		QString item_Type = (structure_Tree->tree->currentItem()->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>().item_Type);
+		bool if_Substrate  = (item_Type == item_Type_Substrate);
+//		bool if_Layer      = (item_Type == item_Type_Layer);
+		bool if_Multilayer = (item_Type == item_Type_Multilayer);
+		bool if_Aperiodic  = (item_Type == item_Type_Regular_Aperiodic) || (item_Type == item_Type_General_Aperiodic);
 
 		toolbar->actions()[Edit]->setDisabled(false);			// edit
 		toolbar->actions()[Remove]->setDisabled(false);			// remove

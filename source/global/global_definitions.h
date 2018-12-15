@@ -210,20 +210,21 @@ class Node;
 #define item_Type_Delimiter  " "
 
 // whatsThis : treeWidgetItem types
-#define item_Type_Measurement	"Measurement"
-#define item_Type_Ambient		"Ambient"
-#define item_Type_Layer			"Layer"
-#define item_Type_Multilayer	"Multilayer"
-#define item_Type_Aperiodic		"Aperiodic"
-#define item_Type_Substrate		"Substrate"
+#define item_Type_Measurement		"Measurement"
+#define item_Type_Ambient			"Ambient"
+#define item_Type_Layer				"Layer"
+#define item_Type_Multilayer		"Multilayer"
+#define item_Type_Regular_Aperiodic	"Regular Aperiodic"
+#define item_Type_General_Aperiodic	"General Aperiodic"
+#define item_Type_Substrate			"Substrate"
 
 // whatsThis : specialized additions
 #define whats_This_Angle					"Angle"
-#define whats_This_Angular_Resolution		"Angular_Resolution"
+#define whats_This_Angular_Resolution		"Angular Resolution"
 #define whats_This_Wavelength				"Wavelength"
-#define whats_This_Spectral_Resolution		"Spectral_Resolution"
+#define whats_This_Spectral_Resolution		"Spectral Resolution"
 #define whats_This_Polarization				"Polarization"
-#define whats_This_Polarization_Sensitivity	"Polarization_Sensitivity"
+#define whats_This_Polarization_Sensitivity	"Polarization Sensitivity"
 #define whats_This_Absolute_Density			"Absolute Density"
 #define whats_This_Relative_Density			"Relative Density"
 #define whats_This_Permittivity				"Permittivity"
@@ -238,10 +239,10 @@ class Node;
 #define whats_This_Gamma					"Gamma"
 
 #define whats_This_Background				"Background"
-#define whats_This_Beam_Size				"Beam_Size"
-#define whats_This_Beam_Profile_Spreading	"Beam_Profile_Spreading"
-#define whats_This_Sample_Size				"Sample_Size"
-#define whats_This_Sample_Shift				"Sample_Shift"
+#define whats_This_Beam_Size				"Beam Size"
+#define whats_This_Beam_Profile_Spreading	"Beam Profile Spreading"
+#define whats_This_Sample_Size				"Sample Size"
+#define whats_This_Sample_Shift				"Sample Shift"
 
 #define whats_This_Density					"Density"
 
