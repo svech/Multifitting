@@ -962,7 +962,7 @@ void Unwrapped_Reflection::interpolate_Curve(int res_Points, const QVector<doubl
 
 //	Global_Variables::parallel_For(input_Curve.size(), reflectivity_Calc_Threads, [&](int n_Min, int n_Max)
 //	{
-		for(int point_Index=0; point_Index<input_Curve.size(); ++point_Index)
+		for(uint point_Index=0; point_Index<input_Curve.size(); ++point_Index)
 //		for(int point_Index=n_Min; point_Index<n_Max; ++point_Index)
 		{
 			double delta = resolution[point_Index]/res_Points; // spectral resolution is not constant in absolute values

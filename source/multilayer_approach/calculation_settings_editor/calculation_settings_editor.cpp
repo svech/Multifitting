@@ -444,6 +444,7 @@ void Calculation_Settings_Editor::load_Target_Parameters(int tab_Index)
 					function_Layout->addWidget(fit_Function_Line_Edit);
 
 				box_Layout->addLayout(function_Layout);
+
 				connect(fit_Function_Line_Edit,  &QLineEdit::editingFinished, this, [=]
 				{
 					QStringList var_List = {fit_Function_Variable};
@@ -456,7 +457,6 @@ void Calculation_Settings_Editor::load_Target_Parameters(int tab_Index)
 						QMessageBox::information(this, "Wrong expression", "Expression has wrong syntax");
 					}
 				});
-				different_Lines.append(fit_Function_Line_Edit);
 				// -------------------------------------------------------
 
 				QLabel* power_Label = new QLabel("Power:");
@@ -684,6 +684,6 @@ void Calculation_Settings_Editor::reopen_Optical_Graphs(QString keep_Splitter)
 		global_Multilayer_Approach->optical_Graphs->close();
 		global_Multilayer_Approach->open_Optical_Graphs(keep_Splitter);
 		global_Multilayer_Approach->optical_Graphs->main_Tabs->setCurrentIndex(active_Tab);
-	}	
+	}
 }
 

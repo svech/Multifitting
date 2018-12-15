@@ -189,7 +189,7 @@ class Node;
 #define expression_Master_Slave_Variable "x"
 
 #define fit_Function_Separator ";"
-#define fit_Function_Variable "x"
+#define fit_Function_Variable "R"
 
 // calc functions
 #define reflectance_Function	"Reflectance"

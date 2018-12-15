@@ -741,6 +741,9 @@ void Settings::read_Calculations(bool reset_to_default)
 		recalculate_Spinbox_Table	   = calculations.value( "recalculate_Spinbox_Table",		true  ).toBool();
 		mouse_Wheel_Spinbox_Table	   = calculations.value( "mouse_Wheel_Spinbox_Table",		false ).toBool();
 	calculations.endGroup();
+
+	// limit max number of threads
+	reflectivity_Calc_Threads = min(QThread::idealThreadCount(),reflectivity_Calc_Threads);
 }
 
 void Settings::save_Calculations()

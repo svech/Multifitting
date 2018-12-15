@@ -62,7 +62,6 @@ void Main_Calculation_Module::single_Calculation(bool print)
 	preliminary_Calculation();
 
 //	auto start = std::chrono::system_clock::now();
-
 	for(int tab_Index=0; tab_Index<multilayers.size(); ++tab_Index)
 	{
 		calculation_Trees[tab_Index]->fill_Independent_Calc_Trees();
@@ -97,11 +96,14 @@ void Main_Calculation_Module::single_Calculation(bool print)
 		}
 	}
 
-//	auto start1 = std::chrono::system_clock::now();
-	if(print) print_Calculated_To_File();
-//	auto end1 = std::chrono::system_clock::now();
-//	auto elapsed1 = std::chrono::duration_cast<std::chrono::microseconds>(end1 - start1);
-//	qInfo() << "print_Calculated_To_File: "<< elapsed1.count()/1000000. << " seconds" << endl;
+	if(print)
+	{
+//		auto start1 = std::chrono::system_clock::now();
+		print_Calculated_To_File();
+//		auto end1 = std::chrono::system_clock::now();
+//		auto elapsed1 = std::chrono::duration_cast<std::chrono::microseconds>(end1 - start1);
+//		qInfo() << "print_Calculated_To_File: "<< elapsed1.count()/1000000. << " seconds" << endl;
+	}
 }
 
 void Main_Calculation_Module::fitting_and_Confidence()

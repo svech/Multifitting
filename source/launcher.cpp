@@ -7,9 +7,6 @@ Launcher::Launcher(QWidget *parent) :
 {
 	QApplication::setWindowIcon(QIcon(QPixmap(icon_path + "icon.ico")));
 
-	printf("\n%d logical cores\n", QThread::idealThreadCount());
-	printf("\nMultifitting version %d.%d.%d\n\n", VERSION_MAJOR, VERSION_MINOR, VERSION_BUILD);
-
 	Locale.setNumberOptions(QLocale::RejectGroupSeparator);
 
 	// seed randomizator
@@ -20,6 +17,10 @@ Launcher::Launcher(QWidget *parent) :
 //	Settings::save_All_Settings();
 	Global_Variables::fill_Units_Maps();
 	global_Workers.resize(reflectivity_Calc_Threads);
+
+	printf("\n%d logical cores, %d used\n", QThread::idealThreadCount(),reflectivity_Calc_Threads);
+	printf("\nMultifitting version %d.%d.%d\n\n", VERSION_MAJOR, VERSION_MINOR, VERSION_BUILD);
+
 
 	// read optical constants database
 	Global_Variables::read_Optical_Constants();

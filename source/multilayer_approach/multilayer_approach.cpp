@@ -401,6 +401,7 @@ void Multilayer_Approach::open(QString filename)
 							 + Locale.toString(VERSION_MAJOR) + "."
 							 + Locale.toString(VERSION_MINOR) + "."
 							 + Locale.toString(VERSION_BUILD));
+		return;
 	}
 
 	// close table of structures
