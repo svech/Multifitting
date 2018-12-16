@@ -186,7 +186,30 @@ void Independent_Variables::edit_Independent_Variable(QListWidgetItem* list_Item
 			editor->show();
 
 		connect(editor, &Independent_Variables_Editor::refresh_Multilayer, this, [=]{emit refresh_Multilayer();});
-		connect(editor, &Independent_Variables_Editor::refresh_Measurement, this, [=]{measurement = structure_Item->data(DEFAULT_COLUMN,Qt::UserRole).value<Data>();});
+		connect(editor, &Independent_Variables_Editor::refresh_Measurement, this, [=]
+		{
+			// keep previous lambda and angle for plotting without recalculation
+			QVector<double>  cos2 = measurement.cos2;
+			QVector<double> angle = measurement.angle;
+			double	   cos2_Value = measurement.cos2_Value;
+			double	  angle_Value = measurement.angle_Value;
+			QVector<double>      k = measurement.cos2;
+			QVector<double>	lambda = measurement.lambda;
+			double		   k_Value = measurement.k_Value;
+			double	  lambda_Value = measurement.lambda_Value;
+
+			measurement = structure_Item->data(DEFAULT_COLUMN,Qt::UserRole).value<Data>();
+
+			// restore
+			measurement.cos2 = cos2;
+			measurement.angle = angle;
+			measurement.cos2_Value = cos2_Value;
+			measurement.angle_Value = angle_Value;
+			measurement.cos2 = cos2;
+			measurement.lambda = lambda;
+			measurement.k_Value=  k_Value;
+			measurement.lambda_Value = lambda_Value;
+		});
 	}
 }
 

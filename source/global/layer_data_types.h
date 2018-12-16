@@ -95,6 +95,8 @@ public:
 		Parameter period;
 		Parameter gamma;
 
+		// Aperiodic
+		QList<QVector<Data>> regular_Components;
 		bool use_Soft_Restrictions = false;
 		int threshold = 0;
 		double Q_factor = 0;

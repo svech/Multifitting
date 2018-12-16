@@ -402,51 +402,43 @@ void Layer_Thickness_Transfer::reload()
 
 void Layer_Thickness_Transfer::lock_Unlock_Thickness_Transfer(QTreeWidgetItem* item)
 {
-	Data data = item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
-	if(data.item_Type == item_Type_Regular_Aperiodic || data.item_Type == item_Type_General_Aperiodic) {data.num_Repetition.parameter.value = 0;} // aperiodic is locked, this change is not saved
+	Data data = item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();	
 
-	if(data.item_Type == item_Type_Multilayer || data.item_Type == item_Type_Regular_Aperiodic || data.item_Type == item_Type_General_Aperiodic)
+	if( data.item_Type == item_Type_Regular_Aperiodic ||
+		data.item_Type == item_Type_General_Aperiodic)
 	{
-		if(data.item_Type == item_Type_Regular_Aperiodic || data.item_Type == item_Type_General_Aperiodic)
+		data.num_Repetition.parameter.value = 0; // aperiodic is locked, this change is not saved
+		period_SpinBox->setDisabled(true);
+	}
+	if(data.num_Repetition.value() == 0 && data.item_Type != item_Type_Layer)
+	{
+		for(MyDoubleSpinBox* spinbox : map_Of_Items.keys(item))
 		{
-			period_SpinBox->setDisabled(true);
+			spinbox->setDisabled(true);
+			map_Of_Partners.value(spinbox)->setDisabled(true);
 		}
-		if(data.num_Repetition.value() == 0)
+	} else
+	{
+		for(MyDoubleSpinBox* spinbox : map_Of_Items.keys(item))
 		{
-			for(MyDoubleSpinBox* spinbox : map_Of_Items.keys(item))
+			MyDoubleSpinBox* partner = map_Of_Partners.value(spinbox);
+			QTreeWidgetItem* partner_Item = map_Of_Items.value(partner);
+			Data partner_Data = partner_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+
+			if( partner_Data.item_Type == item_Type_Regular_Aperiodic ||
+				partner_Data.item_Type == item_Type_General_Aperiodic)
+			{
+				partner_Data.num_Repetition.parameter.value = 0; // aperiodic is also locked
+				period_SpinBox->setDisabled(true);
+			}
+			if(partner_Data.num_Repetition.value() == 0 && partner_Data.item_Type != item_Type_Layer)
 			{
 				spinbox->setDisabled(true);
 				map_Of_Partners.value(spinbox)->setDisabled(true);
-			}
-		} else
-		{
-			for(MyDoubleSpinBox* spinbox : map_Of_Items.keys(item))
+			} else
 			{
-				MyDoubleSpinBox* partner = map_Of_Partners.value(spinbox);
-				QTreeWidgetItem* partner_Item = map_Of_Items.value(partner);
-				Data partner_Data = partner_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
-				if(data.item_Type == item_Type_Regular_Aperiodic || data.item_Type == item_Type_General_Aperiodic)	 {partner_Data.num_Repetition.parameter.value = 0;} // aperiodic is also locked
-
-				if(partner_Data.item_Type == item_Type_Multilayer || data.item_Type == item_Type_Regular_Aperiodic || data.item_Type == item_Type_General_Aperiodic)
-				{
-					if(data.item_Type == item_Type_Regular_Aperiodic || data.item_Type == item_Type_General_Aperiodic)
-					{
-						period_SpinBox->setDisabled(true);
-					}
-					if(partner_Data.num_Repetition.value() == 0)
-					{
-						spinbox->setDisabled(true);
-						map_Of_Partners.value(spinbox)->setDisabled(true);
-					} else
-					{
-						spinbox->setDisabled(false);
-						map_Of_Partners.value(spinbox)->setDisabled(false);
-					}
-				} else
-				{
-					spinbox->setDisabled(false);
-					map_Of_Partners.value(spinbox)->setDisabled(false);
-				}
+				spinbox->setDisabled(false);
+				map_Of_Partners.value(spinbox)->setDisabled(false);
 			}
 		}
 	}

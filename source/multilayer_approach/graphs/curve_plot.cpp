@@ -386,7 +386,6 @@ void Curve_Plot::plot_All_Data()
 //		else
 //		if(	independent_Variables->calc_Functions.check_User) { values=calculated_Valufgh }
 
-
 		/// calculated data
 		// first value (R,T,A...)
 		{
