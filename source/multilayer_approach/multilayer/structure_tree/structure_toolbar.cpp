@@ -665,8 +665,36 @@ void Structure_Toolbar::if_Selected()
 				toolbar->actions()[Move_Up]->setDisabled(false);	// move_Up
 				toolbar->actions()[Move_Down]->setDisabled(false);	// move_Down
 			}
+
+			// special parents
+			Data parent_Data = parent->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+			if(parent_Data.item_Type == item_Type_Regular_Aperiodic)
+			{
+				toolbar->actions()[Add_Layer]->setDisabled(true);
+				toolbar->actions()[Add_Multilayer]->setDisabled(true);
+				toolbar->actions()[Add_Aperiodic]->setDisabled(true);
+				toolbar->actions()[Remove]->setDisabled(true);
+				toolbar->actions()[Cut]->setDisabled(true);
+				toolbar->actions()[Paste]->setDisabled(true);
+				toolbar->actions()[Move_Up]->setDisabled(true);
+				toolbar->actions()[Move_Down]->setDisabled(true);
+			} else
+			{
+				toolbar->actions()[Add_Layer]->setDisabled(false);
+				toolbar->actions()[Add_Multilayer]->setDisabled(false);
+				toolbar->actions()[Add_Aperiodic]->setDisabled(false);
+				toolbar->actions()[Remove]->setDisabled(false);
+				toolbar->actions()[Paste]->setDisabled(false);
+			}
 		} else
 		{
+			// always accessible if no parents
+			toolbar->actions()[Add_Layer]->setDisabled(false);
+			toolbar->actions()[Add_Multilayer]->setDisabled(false);
+			toolbar->actions()[Add_Aperiodic]->setDisabled(false);
+			toolbar->actions()[Remove]->setDisabled(false);
+			toolbar->actions()[Paste]->setDisabled(false);
+
 			// if ambient
 			if(position == 0)
 			{

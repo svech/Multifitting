@@ -443,6 +443,9 @@ struct Int_Independent			{int start = 1; int step = 1; int num_Steps = 3;
 									 return int(round(parameter.value));
 								 }
 								};
+struct Min_Max					{double thickness_Min = 0; double thickness_Max = 0;
+								 double sigma_Min = 0;     double sigma_Max = 0;
+								};
 
 Q_DECLARE_METATYPE( Parameter )
 Q_DECLARE_METATYPE( Independent_Indicator )
@@ -641,6 +644,9 @@ QDataStream& operator >>( QDataStream& stream,		 Parameter_Indicator& parameter_
 
 QDataStream& operator <<( QDataStream& stream, const Int_Independent& int_Independent );
 QDataStream& operator >>( QDataStream& stream,		 Int_Independent& int_Independent );
+
+QDataStream& operator <<( QDataStream& stream, const Min_Max& min_Max );
+QDataStream& operator >>( QDataStream& stream,		 Min_Max& min_Max );
 
 QDataStream& operator <<( QDataStream& stream, const Independent& independent );
 QDataStream& operator >>( QDataStream& stream,		 Independent& independent );

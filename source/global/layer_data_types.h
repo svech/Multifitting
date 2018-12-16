@@ -3,6 +3,8 @@
 
 #include "global/settings.h"
 
+class Regular_Component;
+
 class Data
 {
 public:
@@ -96,7 +98,8 @@ public:
 		Parameter gamma;
 
 		// Aperiodic
-		QList<QVector<Data>> regular_Components;
+		QList<Regular_Component> regular_Components;
+
 		bool use_Soft_Restrictions = false;
 		int threshold = 0;
 		double Q_factor = 0;
@@ -110,6 +113,29 @@ public:
 	vector<Parameter*> potentially_Fitable_Parameters;
 	void fill_Potentially_Fitable_Parameters_Vector();
 };
+
+struct Regular_Component		{QVector<Data> components;
+								 Min_Max min_Max_Values;
+								 void find_Min_Max_Values()
+								 {
+									 min_Max_Values.thickness_Min = MAX_DOUBLE;
+									 min_Max_Values.thickness_Max = 0;
+									 min_Max_Values.sigma_Min = MAX_DOUBLE;
+									 min_Max_Values.sigma_Max = 0;
+
+									 for(Data& child : components)
+									 {
+										 min_Max_Values.thickness_Min = min(min_Max_Values.thickness_Min, child.thickness.value);
+										 min_Max_Values.thickness_Max = max(min_Max_Values.thickness_Max, child.thickness.value);
+										 min_Max_Values.sigma_Min = min(min_Max_Values.sigma_Min, child.sigma.value);
+										 min_Max_Values.sigma_Max = max(min_Max_Values.sigma_Max, child.sigma.value);
+									 }
+								 }
+								};
+
+QDataStream& operator <<( QDataStream& stream, const Regular_Component& regular_Component );
+QDataStream& operator >>( QDataStream& stream,		 Regular_Component& regular_Component );
+
 
 QDataStream& operator <<( QDataStream& stream, const Data& data );
 QDataStream& operator >>( QDataStream& stream,		 Data& data );

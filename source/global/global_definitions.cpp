@@ -63,6 +63,18 @@ QDataStream& operator >>( QDataStream& stream,		 Int_Independent& int_Independen
 	return stream;
 }
 
+QDataStream& operator <<( QDataStream& stream, const Min_Max& min_Max )
+{
+	return stream << min_Max.thickness_Min << min_Max.thickness_Max << min_Max.sigma_Min << min_Max.sigma_Max;  // since 1.8.11
+}
+QDataStream& operator >>( QDataStream& stream,		 Min_Max& min_Max )
+{
+	if(Global_Variables::check_Loaded_Version(1,8,11))
+	{      stream >> min_Max.thickness_Min >> min_Max.thickness_Max >> min_Max.sigma_Min >> min_Max.sigma_Max;} // since 1.8.11
+
+	return stream;
+}
+
 QDataStream& operator <<( QDataStream& stream, const Independent& independent )
 {
 	return stream << independent.is_Independent << independent.min << independent.max << independent.num_Points;

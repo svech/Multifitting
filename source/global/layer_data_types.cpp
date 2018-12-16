@@ -832,7 +832,19 @@ void Data::fill_Potentially_Fitable_Parameters_Vector()
 
 // serialization
 
-/// measurement
+QDataStream& operator <<( QDataStream& stream, const Regular_Component& regular_Component )
+{
+	return stream
+				<< regular_Component.components << regular_Component.min_Max_Values; // since 1.8.11
+}
+QDataStream& operator >>( QDataStream& stream,		 Regular_Component& regular_Component )
+{
+	if(Global_Variables::check_Loaded_Version(1,8,11))
+	{stream >> regular_Component.components >> regular_Component.min_Max_Values; }	// since 1.8.11
+
+	return stream;
+}
+
 QDataStream& operator <<( QDataStream& stream, const Data& data )
 {
 	return stream				

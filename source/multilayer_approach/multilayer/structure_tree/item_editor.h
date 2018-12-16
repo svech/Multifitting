@@ -42,11 +42,16 @@ public:
 			void make_Thickness_Group_Box();
 		void make_Multilayer_Editor();
 			void make_Multilayer_Group_Box();
-		void make_Aperiodic_Editor();
-			void make_Aperiodic_Group_Box();
+		void make_Genereal_Aperiodic_Editor();
+			void make_Genereal_Aperiodic_Group_Box();
+		void make_Regular_Aperiodic_Editor();
+			void make_Regular_Aperiodic_Group_Box();
 		void make_Substrate_Editor();
 			void make_Sigma_Group_Box();
 	void set_Window_Geometry();
+
+			void unique_Items_In_Aperiodic(QHBoxLayout* aperiodic_Group_Box_Layout);
+			void transformations();
 
 	void reload_And_Show_All();
 	void show_All();	
@@ -81,7 +86,13 @@ public:
 		void reset_Layer_Thickness(QTreeWidgetItem* layer_Item, double new_Thickness);
 		void reset_Multilayer_Thickness(QTreeWidgetItem* multilayer_Item, double new_Thickness);
 
-	void make_Regular_Aperiodic();
+	void multilayer_To_Regular_Aperiodic();
+	void multilayer_Or_Regular_Aperiodic_To_General_Aperiodic();
+	void general_Aperiodic_To_Multilayer_Or_Regular_Aperiodic(QString target_Item_Type);
+	void regular_Aperiodic_To_Multilayer();
+		void multilayer_To_Aperiodic_Subfunction();
+		void to_Regular_Aperiodic_Subfunction();
+
 	void make_Multilayer();
 	void invert_Aperiodic();
 	void calc_Uniqueness();
@@ -149,13 +160,18 @@ public:
 			QLineEdit* period_Line_Edit;
 			QLabel* gamma_Label;
 			QLineEdit* gamma_Line_Edit;
-			QCheckBox* make_Aperiodic_CheckBox;
 
-		QGroupBox* aperiodic_Group_Box;
-			QCheckBox* make_Multilayer_CheckBox;
-			QCheckBox* invert_CheckBox;
+		QGroupBox* general_Aperiodic_Group_Box;
+			QCheckBox* make_Regular_Aperiodic_CheckBox; // in multilayer_Group_Box also
 			QMap<QTreeWidgetItem*, int> item_Uniqueness_Map;
 			QVector<int> uniqueness_Vector;
+
+		QGroupBox* regular_Aperiodic_Group_Box;
+			QCheckBox* make_General_Aperiodic_CheckBox; // in multilayer_Group_Box also
+
+		// both aperiodics
+			QCheckBox* make_Multilayer_CheckBox;
+			QCheckBox* invert_CheckBox;
 
 		QPushButton* done_Button;
 };
