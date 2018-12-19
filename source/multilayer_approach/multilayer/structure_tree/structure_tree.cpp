@@ -104,12 +104,12 @@ void Structure_Tree::iterate_Over_Layers(QTreeWidgetItem* item)
 	{
 		for(int i=0; i<item->childCount(); i++)
 		{
-			refresh_If_Layer(item->child(i));
+			refresh_If_Layer(item->child(i), i);
 		}
 	}
 }
 
-void Structure_Tree::refresh_If_Layer(QTreeWidgetItem* this_Item)
+void Structure_Tree::refresh_If_Layer(QTreeWidgetItem* this_Item, int i)
 {
 	Data data = this_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
 
@@ -154,7 +154,7 @@ void Structure_Tree::refresh_If_Layer(QTreeWidgetItem* this_Item)
 
 		QVariant var; var.setValue( data );
 		this_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
-		set_Structure_Item_Text(this_Item);
+		set_Structure_Item_Text(this_Item, i);
 		set_Item_Parent_Type(this_Item);
 	} else
 	// if multilayer, go deeper
@@ -321,7 +321,7 @@ void Structure_Tree::if_DoubleClicked(QTreeWidgetItem* item)
 	}
 }
 
-void Structure_Tree::set_Structure_Item_Text(QTreeWidgetItem* item)
+void Structure_Tree::set_Structure_Item_Text(QTreeWidgetItem* item, int i)
 {
 	double length_Coeff = length_Coefficients_Map.value(length_units);
 
@@ -384,18 +384,36 @@ void Structure_Tree::set_Structure_Item_Text(QTreeWidgetItem* item)
 			} else
 			// if layer
 			{
-				QString thickness_Text = ", z=" +  Locale.toString(data.thickness.value/length_Coeff,thumbnail_double_format,thumbnail_thickness_precision) + length_units;
+				QString thickness_Text, sigma_Text;
+				if(data.parent_Item_Type == item_Type_Regular_Aperiodic)
+				{
+					Data parent_Data = item->parent()->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+
+					thickness_Text = ", z=<" + Locale.toString(parent_Data.regular_Components[i].min_Max_Values.thickness_Min/length_Coeff,thumbnail_double_format,thumbnail_thickness_precision)
+									   + "-" + Locale.toString(parent_Data.regular_Components[i].min_Max_Values.thickness_Max/length_Coeff,thumbnail_double_format,thumbnail_thickness_precision)
+									   + ">" + length_units;
+
+					if(parent_Data.regular_Components[i].min_Max_Values.sigma_Min>0)
+					{
+						sigma_Text     = ", " + temp_Sigma_Sym + "=<" + Locale.toString(parent_Data.regular_Components[i].min_Max_Values.sigma_Min/length_Coeff,thumbnail_double_format,thumbnail_sigma_precision)
+																+ "-" + Locale.toString(parent_Data.regular_Components[i].min_Max_Values.sigma_Max/length_Coeff,thumbnail_double_format,thumbnail_sigma_precision)
+																+ ">" + length_units;
+					}
+				} else
+				{
+					thickness_Text = ", z=" +  Locale.toString(data.thickness.value/length_Coeff,thumbnail_double_format,thumbnail_thickness_precision) + length_units;
+					if(data.sigma.value>0) { sigma_Text = ", " + temp_Sigma_Sym + "=" + Locale.toString(data.sigma.value/length_Coeff,thumbnail_double_format,thumbnail_sigma_precision) + length_units; }
+				}
 
 				if(data.composed_Material)	{density_Text = Locale.toString(data.absolute_Density.value,thumbnail_double_format,thumbnail_density_precision) + density_units;	}
 				else						{density_Text = Locale.toString(data.relative_Density.value,thumbnail_double_format,thumbnail_density_precision);					}
 
 				item->setText(DEFAULT_COLUMN, Global_Variables::structure_Item_Name(data) + thickness_Text + ", " + Rho_Sym + "=" + density_Text);
 
+
+				item->setText(DEFAULT_COLUMN, item->text(DEFAULT_COLUMN) + sigma_Text);
 				if(data.sigma.value>0)
 				{
-					item->setText(DEFAULT_COLUMN, item->text(DEFAULT_COLUMN) + ", " + temp_Sigma_Sym + "=" +
-								  Locale.toString(data.sigma.value/length_Coeff,thumbnail_double_format,thumbnail_sigma_precision) + length_units);
-
 					// show sigma drift
 					Drift sigma_Drift = data.sigma_Drift;
 					if(sigma_Drift.is_Drift_Line || sigma_Drift.is_Drift_Sine || sigma_Drift.is_Drift_Rand)

@@ -94,7 +94,7 @@ public:
 		void to_Regular_Aperiodic_Subfunction();
 
 	void make_Multilayer();
-	void invert_Aperiodic();
+	void invert_Multilayer(QTreeWidgetItem* multilayer_Item);
 	void calc_Uniqueness();
 	void unique_Item_Do(QString action, int uniqueness);
 	void soft_Restriction_Save(int current_Uniqueness, bool use_Soft_Restrictions, int threshold, double Q_factor);

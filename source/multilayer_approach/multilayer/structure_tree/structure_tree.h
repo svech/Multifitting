@@ -26,11 +26,11 @@ public:
 	void editors_Edit(QObject* sender = nullptr);
 
 	void refresh__StructureTree__Data_and_Text();
-	void set_Structure_Item_Text(QTreeWidgetItem* item);
+	void set_Structure_Item_Text(QTreeWidgetItem* item, int i=0);
 	void set_Item_Parent_Type(QTreeWidgetItem* item);
 
 	void iterate_Over_Layers(QTreeWidgetItem* item = nullptr);
-		void refresh_If_Layer(QTreeWidgetItem* this_Item);
+		void refresh_If_Layer(QTreeWidgetItem* this_Item, int i=0);
 	void iterate_Over_Multilayers(QTreeWidgetItem* item = nullptr);
 		void refresh_If_Multilayer(QTreeWidgetItem* this_Item);
 			void find_First_Layer(QTreeWidgetItem* this_Item, int& first);

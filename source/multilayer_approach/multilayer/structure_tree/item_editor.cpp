@@ -634,13 +634,14 @@ void Item_Editor::transformations()
 	}
 
 	// invert
-	if( struct_Data.item_Type == item_Type_General_Aperiodic ||
+	if( struct_Data.item_Type == item_Type_Multilayer ||
+		struct_Data.item_Type == item_Type_General_Aperiodic ||
 		struct_Data.item_Type == item_Type_Regular_Aperiodic )
 	{
 		invert_CheckBox = new QCheckBox("Invert order of layers");
 			invert_CheckBox->setChecked(false);
 		layout->addWidget(invert_CheckBox);
-		connect(invert_CheckBox, &QCheckBox::toggled, this, &Item_Editor::invert_Aperiodic);
+		connect(invert_CheckBox, &QCheckBox::toggled, this, [=]{invert_Multilayer(item);});
 	}
 
 	main_Layout->addWidget(transformation_Group_Box);
@@ -1519,19 +1520,30 @@ void Item_Editor::multilayer_To_Regular_Aperiodic()
 
 void Item_Editor::multilayer_Or_Regular_Aperiodic_To_General_Aperiodic()
 {
-	struct_Data.item_Type = item_Type_General_Aperiodic;
 	QTreeWidgetItem* new_Layer;
 	int old_Child_Count = item->childCount();
-	for(int n=0; n<struct_Data.num_Repetition.value()-1; n++) // if N==0, still 1 period exists
+	for(int n=1; n<struct_Data.num_Repetition.value(); n++) // if N==0, still 1 period exists
 	{
 		for(int i=0; i<old_Child_Count; i++)
 		{
 			new_Layer = item->child(i)->clone();
+
+			if(	struct_Data.item_Type == item_Type_Regular_Aperiodic)
+			{
+				Data new_Layer_Data = new_Layer->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+				new_Layer_Data.thickness.value = struct_Data.regular_Components[i].components[n].thickness.value;
+				new_Layer_Data.sigma.value     = struct_Data.regular_Components[i].components[n].sigma.value;
+				QVariant var;
+				var.setValue( new_Layer_Data );
+				new_Layer->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+			}
 			structure_Tree->structure_Toolbar->change_IDs_Of_Subtree(new_Layer);
 			item->insertChild(item->childCount(), new_Layer);
 		}
 	}
+	struct_Data.item_Type = item_Type_General_Aperiodic;
 	struct_Data.num_Repetition.parameter.value = 1; // important!
+	struct_Data.regular_Components.clear();
 
 	multilayer_To_Aperiodic_Subfunction();
 }
@@ -1690,15 +1702,20 @@ void Item_Editor::regular_Aperiodic_To_Multilayer()
 	structure_Tree->if_DoubleClicked(item);
 }
 
-void Item_Editor::invert_Aperiodic()
+void Item_Editor::invert_Multilayer(QTreeWidgetItem* multilayer_Item)
 {
-	if( struct_Data.item_Type == item_Type_General_Aperiodic ||
+	if( struct_Data.item_Type == item_Type_Multilayer ||
+		struct_Data.item_Type == item_Type_General_Aperiodic ||
 		struct_Data.item_Type == item_Type_Regular_Aperiodic)
 	{
-		for(int i=0; i<item->childCount(); i++)
+		for(int i=0; i<multilayer_Item->childCount(); i++)
 		{
-			item->insertChild(item->childCount()-i, item->child(0)->clone());
-			delete item->child(0);
+			if(multilayer_Item->child(0)->childCount()>0)
+			{
+				invert_Multilayer(multilayer_Item->child(0));
+			}
+			multilayer_Item->insertChild(multilayer_Item->childCount()-i, multilayer_Item->child(0)->clone());
+			delete multilayer_Item->child(0);
 		}
 	}
 

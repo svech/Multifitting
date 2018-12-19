@@ -503,8 +503,11 @@ void Structure_Toolbar::copy()
 
 void Structure_Toolbar::paste()
 {
-	add_Buffered_Layer(buffered);
-	buffered_Copy_Type = copy_Type_Copy;	 // next copies should have changed IDs
+	if(buffered)
+	{
+		add_Buffered_Layer(buffered);
+		buffered_Copy_Type = copy_Type_Copy;	 // next copies should have changed IDs
+	}
 }
 
 void Structure_Toolbar::move_Up()
@@ -517,6 +520,15 @@ void Structure_Toolbar::move_Up()
 	{
 		QTreeWidgetItem* taken = parent->takeChild(position-1);
 		parent->insertChild(position, taken);
+
+		Data parent_Data = parent->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+		if(parent_Data.item_Type == item_Type_Regular_Aperiodic)
+		{
+			parent_Data.regular_Components.move(position-1,position);
+			QVariant var;
+			var.setValue( parent_Data );
+			parent->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+		}
 	} else
 	{
 		QTreeWidgetItem* taken = structure_Tree->tree->takeTopLevelItem(position-1);
@@ -536,6 +548,15 @@ void Structure_Toolbar::move_Down()
 	{
 		QTreeWidgetItem* taken = parent->takeChild(position+1);
 		parent->insertChild(position, taken);
+
+		Data parent_Data = parent->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+		if(parent_Data.item_Type == item_Type_Regular_Aperiodic)
+		{
+			parent_Data.regular_Components.move(position+1,position);
+			QVariant var;
+			var.setValue( parent_Data );
+			parent->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+		}
 	} else
 	{
 		QTreeWidgetItem* taken = structure_Tree->tree->takeTopLevelItem(position+1);
@@ -604,7 +625,7 @@ void Structure_Toolbar::destroy()
 
 void Structure_Toolbar::if_Selected()
 {
-	if(buffered!=nullptr)
+	if(buffered)
 	{
 		toolbar->actions()[Paste]->setDisabled(false);			// paste
 	} else
@@ -676,15 +697,12 @@ void Structure_Toolbar::if_Selected()
 				toolbar->actions()[Remove]->setDisabled(true);
 				toolbar->actions()[Cut]->setDisabled(true);
 				toolbar->actions()[Paste]->setDisabled(true);
-				toolbar->actions()[Move_Up]->setDisabled(true);
-				toolbar->actions()[Move_Down]->setDisabled(true);
 			} else
 			{
 				toolbar->actions()[Add_Layer]->setDisabled(false);
 				toolbar->actions()[Add_Multilayer]->setDisabled(false);
 				toolbar->actions()[Add_Aperiodic]->setDisabled(false);
 				toolbar->actions()[Remove]->setDisabled(false);
-				toolbar->actions()[Paste]->setDisabled(false);
 			}
 		} else
 		{
@@ -693,7 +711,6 @@ void Structure_Toolbar::if_Selected()
 			toolbar->actions()[Add_Multilayer]->setDisabled(false);
 			toolbar->actions()[Add_Aperiodic]->setDisabled(false);
 			toolbar->actions()[Remove]->setDisabled(false);
-			toolbar->actions()[Paste]->setDisabled(false);
 
 			// if ambient
 			if(position == 0)
