@@ -696,7 +696,15 @@ void Structure_Toolbar::if_Selected()
 				toolbar->actions()[Add_Aperiodic]->setDisabled(true);
 				toolbar->actions()[Remove]->setDisabled(true);
 				toolbar->actions()[Cut]->setDisabled(true);
-				toolbar->actions()[Paste]->setDisabled(true);
+				if(buffered)
+				{
+					QTreeWidgetItem* buffered_Item = buffered->clone();
+					Data buffered_Data = buffered_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+					if(buffered_Data.item_Type != item_Type_Layer)
+					{
+						toolbar->actions()[Paste]->setDisabled(true);
+					}
+				}
 			} else
 			{
 				toolbar->actions()[Add_Layer]->setDisabled(false);
@@ -824,11 +832,44 @@ QTreeWidgetItem* Structure_Toolbar::add_Buffered_Layer(QTreeWidgetItem* new_Laye
 			} else
 			{
 				int position = structure_Tree->tree->currentIndex().row();
-				structure_Tree->tree->currentItem()->parent()->insertChild(position+1,new_Layer);
+				QTreeWidgetItem* parent = structure_Tree->tree->currentItem()->parent();
+				parent->insertChild(position+1,new_Layer);
+
+				Data parent_Data = parent->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+				if(parent_Data.item_Type == item_Type_Regular_Aperiodic)
+				{
+					Data current_Data = new_Layer->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+					Regular_Component new_Regular_Component = parent_Data.regular_Components.first(); // similar to 1st
+						new_Regular_Component.components.fill(current_Data);
+						new_Regular_Component.top_Id = current_Data.id;
+						new_Regular_Component.find_Min_Max_Values();
+					for(Data& inserted_Child : new_Regular_Component.components) { inserted_Child.reset_All_IDs(); }
+					parent_Data.regular_Components.insert(position+1, new_Regular_Component);
+
+					QVariant var;
+					var.setValue( current_Data );
+					new_Layer->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+
+					var.setValue( parent_Data );
+					parent->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+				}
+
+				// temporary visualize
+//				qInfo() << "regular";
+//				for(int i=0; i<parent_Data.regular_Components.size(); ++i)
+//				{
+//					qInfo() << parent_Data.regular_Components[i].top_Id;
+//				}
+//				qInfo() << "\ntree";
+//				for(int i=0; i<parent->childCount(); ++i)
+//				{
+//					Data current_Data = parent->child(i)->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+//					qInfo() << current_Data.id;
+//				}
+//				qInfo() << "\n---------------------------\n";
 			}
 		}
 	}
-
 	refresh_Toolbar();
 	return new_Layer;
 }

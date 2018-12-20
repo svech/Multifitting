@@ -1550,7 +1550,7 @@ void Item_Editor::multilayer_Or_Regular_Aperiodic_To_General_Aperiodic()
 
 void Item_Editor::multilayer_To_Aperiodic_Subfunction()
 {
-	struct_Data.reset_All_IDs();
+//	struct_Data.reset_All_IDs();
 	struct_Data.period.fit.is_Fitable = false;
 	struct_Data.period.coupled.is_Coupled = false;
 	struct_Data.period.confidence.calc_Conf_Interval = false;
@@ -1591,7 +1591,9 @@ void Item_Editor::to_Regular_Aperiodic_Subfunction()
 			Regular_Component new_Regular_Component;
 				new_Regular_Component.components.resize(struct_Data.num_Repetition.value());
 				new_Regular_Component.components.fill(child);
+				new_Regular_Component.top_Id = child.id;
 			for(Data& inserted_Child : new_Regular_Component.components) { inserted_Child.reset_All_IDs(); }
+
 			new_Regular_Component.find_Min_Max_Values();
 			struct_Data.regular_Components.append(new_Regular_Component);
 		}
@@ -1641,7 +1643,7 @@ void Item_Editor::general_Aperiodic_To_Multilayer_Or_Regular_Aperiodic(QString t
 	{
 		N=1;
 		QString word1, word2;
-		if(target_Item_Type == item_Type_Multilayer )		 {word1 = "periodic"; word2 = "periodic multilayer";}
+		if(target_Item_Type == item_Type_Multilayer )		{word1 = "periodic"; word2 = "periodic multilayer";}
 		if(target_Item_Type == item_Type_Regular_Aperiodic) {word1 = "regular aperiodic"; word2 = "regular aperiodic";}
 
 		reply = QMessageBox::question(this,"Make "+word1, "General aperiodic can't be reduced to\n"+word2+" with N>1.\nContinue?", QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
@@ -1664,6 +1666,7 @@ void Item_Editor::general_Aperiodic_To_Multilayer_Or_Regular_Aperiodic(QString t
 		QVariant var;
 		var.setValue( struct_Data );
 		item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+
 		if(item->childCount() <= 30)
 		{	item->setExpanded(true);}
 		else

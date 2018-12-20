@@ -114,7 +114,8 @@ public:
 	void fill_Potentially_Fitable_Parameters_Vector();
 };
 
-struct Regular_Component		{QVector<Data> components;
+struct Regular_Component		{id_Type top_Id;
+								 QVector<Data> components;
 								 Min_Max min_Max_Values;
 								 void find_Min_Max_Values()
 								 {
