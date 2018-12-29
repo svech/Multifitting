@@ -49,6 +49,8 @@ public:
 	void open_Fits_Selector();
 	void open_Calculation_Settings();
 	void open_Fitting_Settings();
+	void lock_Mainwindow_Interface();
+	void unlock_Mainwindow_Interface();
 
 	void closeEvent(QCloseEvent *event);
 	void dragEnterEvent(QDragEnterEvent* event);

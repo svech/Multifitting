@@ -3,7 +3,7 @@
 
 #include "global/settings.h"
 
-class Regular_Component;
+struct Regular_Component;
 
 class Data
 {

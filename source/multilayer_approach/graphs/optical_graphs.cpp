@@ -110,7 +110,7 @@ void Optical_Graphs::settings()
 void Optical_Graphs::closeEvent(QCloseEvent* event)
 {
 	global_Multilayer_Approach->runned_Optical_Graphs.remove(optical_Graphs_Key);
-	unlock_Mainwindow_Interface();
+	global_Multilayer_Approach->unlock_Mainwindow_Interface();
 	write_Window_Geometry();
 
 	// save splitters geometry
@@ -138,7 +138,7 @@ void Optical_Graphs::create_Main_Layout()
 	main_Layout->setSpacing(0);
 	main_Layout->setContentsMargins(0,0,0,0);
 
-	lock_Mainwindow_Interface();
+	global_Multilayer_Approach->lock_Mainwindow_Interface();
 	create_Tabs();
 		main_Layout->addWidget(main_Tabs);
 	add_Tabs();
@@ -387,14 +387,4 @@ void Optical_Graphs::write_Window_Geometry()
 		graphs_width  = geometry().width();
 		graphs_height = geometry().height();
 	}
-}
-
-void Optical_Graphs::lock_Mainwindow_Interface()
-{
-	global_Multilayer_Approach->calculation_Settings_Editor->lock_Mainwindow_Interface();
-}
-
-void Optical_Graphs::unlock_Mainwindow_Interface()
-{
-	global_Multilayer_Approach->calculation_Settings_Editor->unlock_Mainwindow_Interface();
 }

@@ -298,6 +298,57 @@ void Multilayer_Approach::open_Fitting_Settings()
 	}
 }
 
+void Multilayer_Approach::lock_Mainwindow_Interface()
+{
+	for(int i=0; i<multilayer_Tabs->count(); ++i)
+	{
+		Multilayer* multilayer = qobject_cast<Multilayer*>(multilayer_Tabs->widget(i));
+
+		// lock corner button
+		if(runned_Tables_Of_Structures.contains(table_Key) ||
+		   runned_Optical_Graphs.contains(optical_Graphs_Key) ||
+		   runned_Calculation_Settings_Editor.contains(calc_Settings_Key))
+		{
+			multilayer_Tabs->tabBar()->tabButton(i, QTabBar::RightSide)->setDisabled(true);
+		}
+
+		// independent tabs
+		for(int i=0; i<multilayer->independent_Variables_Plot_Tabs->count(); ++i)
+		{
+			Independent_Variables* independent_Variables = qobject_cast<Independent_Variables*>(multilayer->independent_Variables_Plot_Tabs->widget(i));
+			independent_Variables->independent_Variables_Toolbar->setDisabled(true);
+
+			multilayer->independent_Variables_Plot_Tabs->tabBar()->tabButton(i, QTabBar::RightSide)->setDisabled(true);
+		}
+		multilayer->independent_Variables_Plot_Tabs->setMovable(false);
+		multilayer->independent_Variables_Corner_Button->setDisabled(true);
+
+		// close target editors
+		for(Target_Curve_Editor* target_Curve_Editor : multilayer->runned_Target_Curve_Editors.values())
+		{
+			target_Curve_Editor->close();
+		}
+		// target buttons
+//		for(QFrame* frame : multilayer->data_Target_Profile_Frame_Vector)
+//		{
+//			frame->setDisabled(true);
+//		}
+		for(int i=0; i<multilayer->data_Target_Profile_Frame_Vector.size(); ++i)
+		{
+			multilayer->add_Buttons_To_Lock[i]->setDisabled(true);
+			multilayer->remove_Buttons_To_Lock[i]->setDisabled(true);
+		}
+	}
+	global_Multilayer_Approach->multilayer_Tabs->cornerWidget()->setDisabled(true);
+	global_Multilayer_Approach->multilayer_Tabs->setMovable(false);
+
+}
+
+void Multilayer_Approach::unlock_Mainwindow_Interface()
+{
+
+}
+
 void Multilayer_Approach::refresh_All_Multilayers_View()
 {
 	for(int i=0; i<multilayer_Tabs->count(); ++i)

@@ -23,8 +23,6 @@ public:
 	void create_Tab_Content(QWidget* new_Widget, int tab_Index);
 	void set_Window_Geometry();
 	void write_Window_Geometry();
-	void lock_Mainwindow_Interface();
-	void unlock_Mainwindow_Interface();
 
 	int total_Number_of_Target_Graphs;
 	int total_Number_of_Independent_Graphs;
