@@ -20,8 +20,6 @@ public:
 	void set_Window_Geometry();
 	void write_Window_Geometry();
 	void create_Tabs();
-	static void lock_Mainwindow_Interface();
-	static void unlock_Mainwindow_Interface();
 	void add_Tabs();
 		void create_Tab_Content(QWidget* new_Widget, int tab_Index);
 			void load_Target_Parameters(int tab_Index);

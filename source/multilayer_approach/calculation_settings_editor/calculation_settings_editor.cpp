@@ -106,7 +106,7 @@ void Calculation_Settings_Editor::closeEvent(QCloseEvent* event)
 {
 	write_Window_Geometry();
 	global_Multilayer_Approach->runned_Calculation_Settings_Editor.remove(calc_Settings_Key);
-	unlock_Mainwindow_Interface();
+	global_Multilayer_Approach->unlock_Mainwindow_Interface();
 	event->accept();
 }
 
@@ -133,7 +133,7 @@ void Calculation_Settings_Editor::create_Main_Layout()
 		main_Layout->setSpacing(0);
 		main_Layout->setContentsMargins(0,0,0,0);
 
-	lock_Mainwindow_Interface();
+	global_Multilayer_Approach->lock_Mainwindow_Interface();
 	Global_Variables::create_Shortcuts(this);
 	create_Tabs();
 		main_Layout->addWidget(main_Tabs);
@@ -180,103 +180,6 @@ void Calculation_Settings_Editor::create_Tabs()
 			if(i!=index)main_Tabs->tabBar()->setTabTextColor(i,Qt::gray);
 		}
 	});
-}
-
-void Calculation_Settings_Editor::lock_Mainwindow_Interface()
-{
-	// lock part of mainwindow functionality
-	for(int i=0; i<global_Multilayer_Approach->multilayer_Tabs->count(); ++i)
-	{
-		Multilayer* multilayer = qobject_cast<Multilayer*>(global_Multilayer_Approach->multilayer_Tabs->widget(i));
-//		multilayer->structure_Tree->structure_Toolbar->toolbar->setDisabled(true);
-		global_Multilayer_Approach->multilayer_Tabs->tabBar()->tabButton(i, QTabBar::RightSide)->setDisabled(true);
-
-		// independent tabs
-		for(int i=0; i<multilayer->independent_Variables_Plot_Tabs->count(); ++i)
-		{
-			Independent_Variables* independent_Variables = qobject_cast<Independent_Variables*>(multilayer->independent_Variables_Plot_Tabs->widget(i));
-			independent_Variables->independent_Variables_Toolbar->setDisabled(true);
-
-			multilayer->independent_Variables_Plot_Tabs->tabBar()->tabButton(i, QTabBar::RightSide)->setDisabled(true);
-		}
-		multilayer->independent_Variables_Plot_Tabs->setMovable(false);
-		multilayer->independent_Variables_Corner_Button->setDisabled(true);
-
-		// close target editors
-		for(Target_Curve_Editor* target_Curve_Editor : multilayer->runned_Target_Curve_Editors.values())
-		{
-			target_Curve_Editor->close();
-		}
-		// target buttons
-//		for(QFrame* frame : multilayer->data_Target_Profile_Frame_Vector)
-//		{
-//			frame->setDisabled(true);
-//		}
-		for(int i=0; i<multilayer->data_Target_Profile_Frame_Vector.size(); ++i)
-		{
-			multilayer->add_Buttons_To_Lock[i]->setDisabled(true);
-			multilayer->remove_Buttons_To_Lock[i]->setDisabled(true);
-		}
-	}
-	global_Multilayer_Approach->multilayer_Tabs->cornerWidget()->setDisabled(true);
-	global_Multilayer_Approach->multilayer_Tabs->setMovable(false);
-}
-
-void Calculation_Settings_Editor::unlock_Mainwindow_Interface()
-{
-	// unlock mainwindow functionality
-
-	// moving and adding structure tabs
-	if( !global_Multilayer_Approach->runned_Tables_Of_Structures.contains(table_Key) &&
-		!global_Multilayer_Approach->runned_Calculation_Settings_Editor.contains(calc_Settings_Key)&&
-		!global_Multilayer_Approach->runned_Optical_Graphs.contains(optical_Graphs_Key))
-	{
-		global_Multilayer_Approach->multilayer_Tabs->setMovable(true);
-		global_Multilayer_Approach->multilayer_Tabs->cornerWidget()->setDisabled(false);
-	}
-
-	for(int i=0; i<global_Multilayer_Approach->multilayer_Tabs->count(); ++i)
-	{
-		Multilayer* multilayer = qobject_cast<Multilayer*>(global_Multilayer_Approach->multilayer_Tabs->widget(i));
-
-		// closing structure tabs
-		if( !global_Multilayer_Approach->runned_Tables_Of_Structures.contains(table_Key) &&
-			!global_Multilayer_Approach->runned_Optical_Graphs.contains(optical_Graphs_Key))
-		{
-//			multilayer->structure_Tree->structure_Toolbar->toolbar->setDisabled(false);
-			global_Multilayer_Approach->multilayer_Tabs->tabBar()->tabButton(i, QTabBar::RightSide)->setEnabled(true);
-		}
-
-		// independent tabs
-		if( !global_Multilayer_Approach->runned_Calculation_Settings_Editor.contains(calc_Settings_Key)&&
-			!global_Multilayer_Approach->runned_Optical_Graphs.contains(optical_Graphs_Key))
-		{
-			for(int i=0; i<multilayer->independent_Variables_Plot_Tabs->count(); ++i)
-			{
-				Independent_Variables* independent_Variables = qobject_cast<Independent_Variables*>(multilayer->independent_Variables_Plot_Tabs->widget(i));
-				independent_Variables->independent_Variables_Toolbar->setDisabled(false);
-
-				multilayer->independent_Variables_Plot_Tabs->tabBar()->tabButton(i, QTabBar::RightSide)->setDisabled(false);
-			}
-			multilayer->independent_Variables_Plot_Tabs->setMovable(true);
-			multilayer->independent_Variables_Corner_Button->setDisabled(false);
-		}
-
-		// target buttons
-		if( !global_Multilayer_Approach->runned_Calculation_Settings_Editor.contains(calc_Settings_Key)&&
-			!global_Multilayer_Approach->runned_Optical_Graphs.contains(optical_Graphs_Key))
-		{
-//			for(QFrame* frame : multilayer->data_Target_Profile_Frame_Vector)
-//			{
-//				frame->setDisabled(false);
-//			}
-			for(int i=0; i<multilayer->data_Target_Profile_Frame_Vector.size(); ++i)
-			{
-				multilayer->add_Buttons_To_Lock[i]->setDisabled(false);
-				multilayer->remove_Buttons_To_Lock[i]->setDisabled(false);
-			}
-		}
-	}
 }
 
 void Calculation_Settings_Editor::add_Tabs()

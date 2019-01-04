@@ -35,7 +35,7 @@ void Table_Of_Structures::closeEvent(QCloseEvent* event)
 		material_Line_Edit->blockSignals(true);
 		check_Material(material_Line_Edit);
 	}
-	unlock_Mainwindow_Interface();
+	global_Multilayer_Approach->unlock_Mainwindow_Interface();
 	event->accept();
 //	delete global_Multilayer_Approach->table_Of_Structures;
 }
@@ -50,7 +50,7 @@ void Table_Of_Structures::create_Main_Layout()
 	main_Layout = new QHBoxLayout(this);
 	main_Layout->setContentsMargins(0,0,0,0);
 
-	lock_Mainwindow_Interface();
+	global_Multilayer_Approach->lock_Mainwindow_Interface();
 	create_Menu();
 	create_Tabs();
 	main_Layout->addWidget(main_Tabs);
@@ -72,45 +72,6 @@ void Table_Of_Structures::write_Window_Geometry()
 
 		structure_table_width  = geometry().width();
 		structure_table_height = geometry().height();
-	}
-}
-
-void Table_Of_Structures::lock_Mainwindow_Interface()
-{
-	// lock part of mainwindow functionality
-	for(int i=0; i<multilayer_Tabs->count(); ++i)
-	{
-		Structure_Tree* old_Structure_Tree = qobject_cast<Multilayer*>(multilayer_Tabs->widget(i))->structure_Tree;
-
-		// closing editors
-		for(Item_Editor* editor : old_Structure_Tree->list_Editors)	editor->close();
-
-		// disabling main interface
-		old_Structure_Tree->structure_Toolbar->toolbar->setDisabled(true);
-		old_Structure_Tree->tree->blockSignals(true);
-		multilayer_Tabs->tabBar()->tabButton(i, QTabBar::RightSide)->setDisabled(true);
-	}
-	multilayer_Tabs->cornerWidget()->setDisabled(true);
-	multilayer_Tabs->setMovable(false);
-}
-
-void Table_Of_Structures::unlock_Mainwindow_Interface()
-{
-	// unlock mainwindow functionality
-	if(!runned_Tables_Of_Structures.contains(table_Key) && !runned_Calculation_Settings_Editor.contains(calc_Settings_Key))
-	{
-		multilayer_Tabs->setMovable(true);
-		multilayer_Tabs->cornerWidget()->setDisabled(false);
-	}
-	for(int i=0; i<multilayer_Tabs->count(); ++i)
-	{
-		list_Of_Trees[i]->structure_Toolbar->toolbar->setDisabled(false);
-		list_Of_Trees[i]->tree->blockSignals(false);
-
-		if(!runned_Tables_Of_Structures.contains(table_Key) && !runned_Calculation_Settings_Editor.contains(calc_Settings_Key))
-		{
-			multilayer_Tabs->tabBar()->tabButton(i, QTabBar::RightSide)->setEnabled(true);
-		}
 	}
 }
 

@@ -218,8 +218,8 @@ void Multilayer_Approach::open_Table_Of_Structures()
 {
 	if(!runned_Tables_Of_Structures.contains(table_Key))
 	{
-		table_Of_Structures = new Table_Of_Structures;
 		runned_Tables_Of_Structures.insert(table_Key, table_Of_Structures);
+		table_Of_Structures = new Table_Of_Structures;
 			table_Of_Structures->setWindowFlags(Qt::Window);
 			table_Of_Structures->show();
 
@@ -240,8 +240,8 @@ void Multilayer_Approach::open_Optical_Graphs(QString keep_Splitter)
 {	
 	if(!runned_Optical_Graphs.contains(optical_Graphs_Key))
 	{
-		optical_Graphs = new Optical_Graphs(keep_Splitter);//(this);
 		runned_Optical_Graphs.insert(optical_Graphs_Key, optical_Graphs);
+		optical_Graphs = new Optical_Graphs(keep_Splitter);//(this);
 			optical_Graphs->setWindowFlags(Qt::Window);
 			optical_Graphs->show();
 
@@ -260,8 +260,8 @@ void Multilayer_Approach::open_Fits_Selector()
 {
 	if(!runned_Fits_Selectors.contains(fits_Selector_Key))
 	{
-		fits_Selector = new Fits_Selector;//(this);
 		runned_Fits_Selectors.insert(fits_Selector_Key, fits_Selector);
+		fits_Selector = new Fits_Selector;//(this);
 			fits_Selector->setWindowFlags(Qt::Window);
 			fits_Selector->show();
 	} else
@@ -274,8 +274,8 @@ void Multilayer_Approach::open_Calculation_Settings()
 {
 	if(!runned_Calculation_Settings_Editor.contains(calc_Settings_Key))
 	{
-		calculation_Settings_Editor = new Calculation_Settings_Editor;//(this);
 		runned_Calculation_Settings_Editor.insert(calc_Settings_Key, calculation_Settings_Editor);
+		calculation_Settings_Editor = new Calculation_Settings_Editor;//(this);
 			calculation_Settings_Editor->setWindowFlags(Qt::Window);
 			calculation_Settings_Editor->show();
 	} else
@@ -288,8 +288,8 @@ void Multilayer_Approach::open_Fitting_Settings()
 {
 	if(!runned_Fitting_Settings_Editor.contains(fit_Settings_Key))
 	{
-		fitting_Settings_Editor = new Fitting_Settings_Editor;//(this);
 		runned_Fitting_Settings_Editor.insert(fit_Settings_Key, fitting_Settings_Editor);
+		fitting_Settings_Editor = new Fitting_Settings_Editor;//(this);
 			fitting_Settings_Editor->setWindowFlags(Qt::Window);
 			fitting_Settings_Editor->show();
 	} else
@@ -304,49 +304,113 @@ void Multilayer_Approach::lock_Mainwindow_Interface()
 	{
 		Multilayer* multilayer = qobject_cast<Multilayer*>(multilayer_Tabs->widget(i));
 
-		// lock corner button
+		// lock multilayer tabs
 		if(runned_Tables_Of_Structures.contains(table_Key) ||
 		   runned_Optical_Graphs.contains(optical_Graphs_Key) ||
 		   runned_Calculation_Settings_Editor.contains(calc_Settings_Key))
 		{
 			multilayer_Tabs->tabBar()->tabButton(i, QTabBar::RightSide)->setDisabled(true);
+			multilayer_Tabs->setMovable(false);
+			multilayer_Tabs->cornerWidget()->setDisabled(true);
 		}
 
-		// independent tabs
-		for(int i=0; i<multilayer->independent_Variables_Plot_Tabs->count(); ++i)
+		// lock tree
+		if(runned_Tables_Of_Structures.contains(table_Key))
 		{
-			Independent_Variables* independent_Variables = qobject_cast<Independent_Variables*>(multilayer->independent_Variables_Plot_Tabs->widget(i));
-			independent_Variables->independent_Variables_Toolbar->setDisabled(true);
+			// close editors
+			for(Item_Editor* editor : multilayer->structure_Tree->list_Editors)	editor->close();
 
-			multilayer->independent_Variables_Plot_Tabs->tabBar()->tabButton(i, QTabBar::RightSide)->setDisabled(true);
+			multilayer->structure_Tree->structure_Toolbar->toolbar->setDisabled(true);
+			multilayer->structure_Tree->tree->blockSignals(true);
 		}
-		multilayer->independent_Variables_Plot_Tabs->setMovable(false);
-		multilayer->independent_Variables_Corner_Button->setDisabled(true);
+
+		// lock independent tabs
+		if(runned_Optical_Graphs.contains(optical_Graphs_Key) ||
+		   runned_Calculation_Settings_Editor.contains(calc_Settings_Key))
+		{
+			for(int i=0; i<multilayer->independent_Variables_Plot_Tabs->count(); ++i)
+			{
+				Independent_Variables* independent_Variables = qobject_cast<Independent_Variables*>(multilayer->independent_Variables_Plot_Tabs->widget(i));
+				independent_Variables->independent_Variables_Toolbar->setDisabled(true);
+
+				multilayer->independent_Variables_Plot_Tabs->tabBar()->tabButton(i, QTabBar::RightSide)->setDisabled(true);
+			}
+			multilayer->independent_Variables_Plot_Tabs->setMovable(false);
+			multilayer->independent_Variables_Corner_Button->setDisabled(true);
+		}
 
 		// close target editors
-		for(Target_Curve_Editor* target_Curve_Editor : multilayer->runned_Target_Curve_Editors.values())
+		if(runned_Optical_Graphs.contains(optical_Graphs_Key) ||
+		   runned_Calculation_Settings_Editor.contains(calc_Settings_Key))
 		{
-			target_Curve_Editor->close();
+			for(Target_Curve_Editor* target_Curve_Editor : multilayer->runned_Target_Curve_Editors.values())
+			{
+				target_Curve_Editor->close();
+			}
 		}
-		// target buttons
-//		for(QFrame* frame : multilayer->data_Target_Profile_Frame_Vector)
-//		{
-//			frame->setDisabled(true);
-//		}
-		for(int i=0; i<multilayer->data_Target_Profile_Frame_Vector.size(); ++i)
+
+		// lock target buttons
+		if(runned_Optical_Graphs.contains(optical_Graphs_Key) ||
+		   runned_Calculation_Settings_Editor.contains(calc_Settings_Key))
 		{
-			multilayer->add_Buttons_To_Lock[i]->setDisabled(true);
-			multilayer->remove_Buttons_To_Lock[i]->setDisabled(true);
+				for(int i=0; i<multilayer->data_Target_Profile_Frame_Vector.size(); ++i)
+			{
+				multilayer->add_Buttons_To_Lock[i]->setDisabled(true);
+				multilayer->remove_Buttons_To_Lock[i]->setDisabled(true);
+			}
 		}
 	}
-	global_Multilayer_Approach->multilayer_Tabs->cornerWidget()->setDisabled(true);
-	global_Multilayer_Approach->multilayer_Tabs->setMovable(false);
-
 }
 
 void Multilayer_Approach::unlock_Mainwindow_Interface()
 {
+	for(int i=0; i<multilayer_Tabs->count(); ++i)
+	{
+		Multilayer* multilayer = qobject_cast<Multilayer*>(multilayer_Tabs->widget(i));
 
+		// unlock multilayer tabs
+		if(!runned_Tables_Of_Structures.contains(table_Key) &&
+		   !runned_Optical_Graphs.contains(optical_Graphs_Key) &&
+		   !runned_Calculation_Settings_Editor.contains(calc_Settings_Key))
+		{
+			multilayer_Tabs->tabBar()->tabButton(i, QTabBar::RightSide)->setDisabled(false);
+			multilayer_Tabs->setMovable(true);
+			add_Tab_Corner_Button->setDisabled(false);
+		}
+
+		// unlock tree
+		if(!runned_Tables_Of_Structures.contains(table_Key))
+		{
+			multilayer->structure_Tree->structure_Toolbar->toolbar->setDisabled(false);
+			multilayer->structure_Tree->tree->blockSignals(false);
+		}
+
+		// unlock independent tabs
+		if(!runned_Optical_Graphs.contains(optical_Graphs_Key) &&
+		   !runned_Calculation_Settings_Editor.contains(calc_Settings_Key))
+		{
+			for(int i=0; i<multilayer->independent_Variables_Plot_Tabs->count(); ++i)
+			{
+				Independent_Variables* independent_Variables = qobject_cast<Independent_Variables*>(multilayer->independent_Variables_Plot_Tabs->widget(i));
+				independent_Variables->independent_Variables_Toolbar->setDisabled(true);
+
+				multilayer->independent_Variables_Plot_Tabs->tabBar()->tabButton(i, QTabBar::RightSide)->setDisabled(false);
+			}
+			multilayer->independent_Variables_Plot_Tabs->setMovable(true);
+			multilayer->independent_Variables_Corner_Button->setDisabled(false);
+		}
+
+		// unlock target buttons
+		if(!runned_Optical_Graphs.contains(optical_Graphs_Key) &&
+		   !runned_Calculation_Settings_Editor.contains(calc_Settings_Key))
+		{
+				for(int i=0; i<multilayer->data_Target_Profile_Frame_Vector.size(); ++i)
+			{
+				multilayer->add_Buttons_To_Lock[i]->setDisabled(false);
+				multilayer->remove_Buttons_To_Lock[i]->setDisabled(false);
+			}
+		}
+	}
 }
 
 void Multilayer_Approach::refresh_All_Multilayers_View()

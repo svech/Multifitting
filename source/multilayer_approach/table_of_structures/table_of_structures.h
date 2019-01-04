@@ -29,8 +29,6 @@ public:
 	void create_Main_Layout();
 	void set_Window_Geometry();
 	void write_Window_Geometry();
-		void lock_Mainwindow_Interface();
-		void unlock_Mainwindow_Interface();
 		void create_Menu();
 		void create_Tabs();
 		void add_Tabs();
