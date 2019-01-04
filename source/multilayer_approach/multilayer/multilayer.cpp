@@ -200,7 +200,6 @@ void Multilayer::refresh_Structure_And_Independent(QObject* my_Sender)
 {
 	structure_Tree->refresh__StructureTree__Data_and_Text();
 	structure_Tree->editors_Edit(sender());
-
 	for(int i=0; i<independent_Variables_Plot_Tabs->count(); ++i)
 	{
 		Independent_Variables* independent = qobject_cast<Independent_Variables*>(independent_Variables_Plot_Tabs->widget(i));
