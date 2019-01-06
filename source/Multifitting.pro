@@ -12,7 +12,7 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets printsupport
 TARGET = Multifitting
 TEMPLATE = app
 
-message( $$QMAKE_TARGET.arch )
+#message( $$QMAKE_TARGET.arch )
 
 win32 {
 
@@ -113,7 +113,9 @@ SOURCES += \
     multilayer_approach/graphs/curve_plot.cpp \
     multilayer_approach/table_of_structures/layer_thickness_transfer.cpp \
     standard/mydoublespinbox.cpp \
-    multilayer_approach/multilayer/structure_tree/aperiodic_load_setup.cpp
+    multilayer_approach/multilayer/structure_tree/aperiodic_load_setup.cpp \
+    multilayer_approach/multilayer/structure_tree/regular_aperiodic_table.cpp \
+    multilayer_approach/multilayer/structure_tree/regular_aperiodic_table_widget.cpp
 
 
 HEADERS += \
@@ -158,7 +160,9 @@ HEADERS += \
     multilayer_approach/graphs/curve_plot.h \
     multilayer_approach/table_of_structures/layer_thickness_transfer.h \
     standard/mydoublespinbox.h \
-    multilayer_approach/multilayer/structure_tree/aperiodic_load_setup.h
+    multilayer_approach/multilayer/structure_tree/aperiodic_load_setup.h \
+    multilayer_approach/multilayer/structure_tree/regular_aperiodic_table.h \
+    multilayer_approach/multilayer/structure_tree/regular_aperiodic_table_widget.h
 
 DISTFILES += \
     ../cppcheck-suppressions-list.txt

@@ -57,6 +57,14 @@ void Menu::add_Menu_Points()
 		create_Table_Precision_Menu();
 			menu_Bar->addMenu(precision_Menu);
 	}
+	if(window_Type == window_Type_Regular_Aperiodic_Table )
+	{
+		create_Table_Units_Menu();
+			menu_Bar->addMenu(units_Menu);
+		create_Table_Precision_Menu();
+			menu_Bar->addMenu(precision_Menu);
+	}
+
 	if(window_Type == window_Type_Launcher ||
 	   window_Type == window_Type_Multilayer_Approach)
 	{
@@ -465,7 +473,9 @@ void Menu::create_Item_Precision_Menu()
 			menu_Density->addMenu(menu_Thumb);
 			menu_Density->addMenu(menu_Edit);
 	}
-	if(item_Type == item_Type_Multilayer ||
+	if(item_Type == item_Type_Regular_Aperiodic ||
+	   item_Type == item_Type_General_Aperiodic ||
+	   item_Type == item_Type_Multilayer ||
 	   item_Type == item_Type_Layer	   ||
 	   item_Type == item_Type_Substrate)
 	{
@@ -582,16 +592,19 @@ void Menu::create_Table_Precision_Menu()
 			menu_Lengths->addMenu(menu_Thumb);
 			menu_Lengths->addMenu(menu_Edit);
 	}
+	if(window_Type == window_Type_Table )
 	{
 		precision_Menu->addMenu(menu_Gamma);
 			menu_Gamma->addMenu(menu_Thumb);
 			menu_Gamma->addMenu(menu_Edit);
 	}
+	if(window_Type == window_Type_Table )
 	{
 		precision_Menu->addMenu(menu_Composition);
 			//menu_Composition->addMenu(menu_Thumb);
 			menu_Composition->addMenu(menu_Edit);
 	}
+	if(window_Type == window_Type_Table )
 	{
 		precision_Menu->addMenu(menu_Interlayer);
 			//menu_Interlayer->addMenu(menu_Thumb);

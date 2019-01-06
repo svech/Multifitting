@@ -10,6 +10,7 @@
 #include "multilayer_approach/calculation_settings_editor/calculation_settings_editor.h"
 #include "multilayer_approach/fitting_settings/fitting_settings_editor.h"
 #include "multilayer_approach/graphs/optical_graphs.h"
+#include "multilayer_approach/multilayer/structure_tree/regular_aperiodic_table.h"
 
 class Launcher;
 class Multilayer;
@@ -19,6 +20,7 @@ class Calculation_Settings_Editor;
 class Fitting_Settings_Editor;
 class Fitting_Settings;
 class Optical_Graphs;
+class Regular_Aperiodic_Table;
 
 class Multilayer_Approach : public QWidget
 {
@@ -103,6 +105,8 @@ public:
 		QMap<QString, Fitting_Settings_Editor*> runned_Fitting_Settings_Editor;
 		Fitting_Settings_Editor* fitting_Settings_Editor;
 		Fitting_Settings* fitting_Settings;
+
+		QMap<id_Type, Regular_Aperiodic_Table*> runned_Regular_Aperiodic_Tables;
 
 	int temp_Counter = 0;
 };

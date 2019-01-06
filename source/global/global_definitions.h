@@ -56,6 +56,7 @@ class Node;
 	#define Launcher_Geometry						"Launcher_Geometry"
 	#define Multilayer_Window_Geometry				"Multilayer_Window_Geometry"
 	#define Structure_Table_Window_Geometry			"Structure_Table_Window_Geometry"
+	#define Regular_Aperiodic_Table_Window_Geometry	"Regular_Aperiodic_Table_Window_Geometry"
 	#define Graphs_Window_Geometry					"Graphs_Window_Geometry"
 	#define Fitting_Settings_Window_Geometry		"Fitting_Settings_Window_Geometry"
 	#define Calculation_Settings_Window_Geometry	"Calculation_Settings_Window_Geometry"
@@ -165,6 +166,8 @@ class Node;
 #define TABLE_FIX_WIDTH_LINE_EDIT_LONG    64
 #define TABLE_COLUMN_ELEMENTS_SHIFT 1		// current_Column += TABLE_COLUMN_ELEMENTS_SHIFT
 #define TABLE_COLUMN_INTERLAYERS_SHIFT 1	// current_Column += TABLE_COLUMN_INTERLAYERS_SHIFT
+#define APERIODIC_TABLE_THICKNESS_VALUE_WIDTH  80
+#define APERIODIC_TABLE_DENSITY_VALUE_WIDTH    110
 #define MIN_FORMULA_WIDTH_LINE_EDIT 80		// master/slave width for dependance formula
 #define id_Of_Thicknesses 9					// used fore refresh/reload of corresponding line_Edits
 #define TARGET_LINE_EDIT_WIDTH 65			// for target_Curve_Editor
@@ -270,6 +273,7 @@ class Node;
 #define window_Type_Multilayer_Approach				"Multilayer Approach"
 #define window_Type_Independent_Variables_Editor	"Independent Variable Editor"
 #define window_Type_Item_Editor						"Item Editor"
+#define window_Type_Regular_Aperiodic_Table			"Regular_Aperiodic_Table"
 #define window_Type_Table							"Table"
 #define window_Type_Calculation_Settings_Editor		"Calculation Settings Editor"
 #define window_Type_Fitting_Settings_Editor			"Fitting Settings Editor"
@@ -319,6 +323,7 @@ class Node;
 #define multilayer_Item_Table_CheckBox_Property	"multilayer_Item_Table_CheckBox"
 #define item_Table_CheckBox_Property	"item_Table_CheckBox"
 #define previous_Value_Property			"previous_Value"
+#define fit_Column_Property				"fit_Column_Property"
 
 #define refresh_Property	"refresh"
 #define reload_Property		"reload"

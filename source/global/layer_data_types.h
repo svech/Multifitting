@@ -97,9 +97,8 @@ public:
 		Parameter period;
 		Parameter gamma;
 
-		// Aperiodic
+		// regular aperiodic
 		QList<Regular_Component> regular_Components;
-
 		bool use_Soft_Restrictions = false;
 		int threshold = 0;
 		double Q_factor = 0;

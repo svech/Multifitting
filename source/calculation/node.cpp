@@ -192,10 +192,10 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 			{
 				hi_RE.resize(num_Points);
 				hi_IM.resize(num_Points);
+				double re, im, phase, mod;
 
 //				Global_Variables::parallel_For(num_Points, reflectivity_Calc_Threads, [&](int n_Min, int n_Max)
 //				{
-					double re, im, phase, mod;
 //					for(int i=n_Min; i<n_Max; ++i)
 					for(int i=0; i<num_Points; ++i)
 					{

@@ -28,6 +28,12 @@ int structure_table_y_corner;
 int structure_table_width;
 int structure_table_height;
 
+// regular aperiodic table window geometry
+int regular_aperiodic_table_x_corner;
+int regular_aperiodic_table_y_corner;
+int regular_aperiodic_table_width;
+int regular_aperiodic_table_height;
+
 // graphs window geometry
 int graphs_x_corner;
 int graphs_y_corner;
@@ -300,6 +306,14 @@ void Settings::read_Gui_Settings(bool reset_to_default)
 		structure_table_height		= gui_Settings.value( "structure_table_height",		700 ).toInt();
 	gui_Settings.endGroup();
 
+	// regular aperiodic table window geometry
+	gui_Settings.beginGroup( Regular_Aperiodic_Table_Window_Geometry );
+		regular_aperiodic_table_x_corner	= gui_Settings.value( "regular_aperiodic_table_x_corner",	500 ).toInt();
+		regular_aperiodic_table_y_corner	= gui_Settings.value( "regular_aperiodic_table_y_corner",	200 ).toInt();
+		regular_aperiodic_table_width		= gui_Settings.value( "regular_aperiodic_table_width",		350 ).toInt();
+		regular_aperiodic_table_height		= gui_Settings.value( "regular_aperiodic_table_height",		700 ).toInt();
+	gui_Settings.endGroup();
+
 	// graphs window geometry
 	gui_Settings.beginGroup( Graphs_Window_Geometry );
 		graphs_x_corner		= gui_Settings.value( "graphs_x_corner",	400 ).toInt();
@@ -369,6 +383,14 @@ void Settings::save_Gui_Settings()
 		gui_Settings.setValue( "structure_table_y_corner",		structure_table_y_corner );
 		gui_Settings.setValue( "structure_table_width",			structure_table_width );
 		gui_Settings.setValue( "structure_table_height",		structure_table_height );
+	gui_Settings.endGroup();
+
+	// regular aperiodic table window geometry
+	gui_Settings.beginGroup( Regular_Aperiodic_Table_Window_Geometry );
+		gui_Settings.setValue( "regular_aperiodic_table_x_corner",		regular_aperiodic_table_x_corner );
+		gui_Settings.setValue( "regular_aperiodic_table_y_corner",		regular_aperiodic_table_y_corner );
+		gui_Settings.setValue( "regular_aperiodic_table_width",			regular_aperiodic_table_width );
+		gui_Settings.setValue( "regular_aperiodic_table_height",		regular_aperiodic_table_height );
 	gui_Settings.endGroup();
 
 	// graphs window geometry

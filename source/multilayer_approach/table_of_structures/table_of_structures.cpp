@@ -1053,7 +1053,7 @@ void Table_Of_Structures::disable_enable_Multilayers(My_Table_Widget* table, QTr
 	}
 }
 
-void Table_Of_Structures::fit_Column(My_Table_Widget* table, int start_Width, int current_Column)
+void Table_Of_Structures::fit_Column(QTableWidget* table, int start_Width, int current_Column)
 {
 	// fit column
 	int max_Width = start_Width;
@@ -1062,11 +1062,17 @@ void Table_Of_Structures::fit_Column(My_Table_Widget* table, int start_Width, in
 		QLineEdit* current_Line_Edit = qobject_cast<QLineEdit*>(table->cellWidget(row, current_Column));
 		MyDoubleSpinBox* current_Spin_Box = qobject_cast<MyDoubleSpinBox*>(table->cellWidget(row, current_Column));
 		QCheckBox* current_CheckBox = qobject_cast<QCheckBox*>(table->cellWidget(row, current_Column));
-		if(current_Line_Edit || current_Spin_Box)
+
+		QLabel* current_Label = qobject_cast<QLabel*>(table->cellWidget(row, current_Column));
+		bool fit_Labels = false;
+		if(current_Label) fit_Labels = current_Label->property(fit_Column_Property).toBool();
+
+		if(current_Line_Edit || current_Spin_Box || fit_Labels)
 		{			
 			int width = 0;
 			if(current_Line_Edit) width = current_Line_Edit->width();
 			if(current_Spin_Box) width = current_Spin_Box->width();
+			if(fit_Labels) width = current_Label->width();
 			if(max_Width<width)
 			{
 				max_Width = width+1;

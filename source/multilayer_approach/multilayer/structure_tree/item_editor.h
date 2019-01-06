@@ -49,7 +49,6 @@ public:
 		void make_Substrate_Editor();
 			void make_Sigma_Group_Box();
 	void set_Window_Geometry();
-
 			void unique_Items_In_Aperiodic(QHBoxLayout* aperiodic_Group_Box_Layout);
 			void transformations();
 
@@ -174,6 +173,7 @@ public:
 			QCheckBox* invert_CheckBox;
 
 		QPushButton* done_Button;
+		QPushButton* regular_Aperiodic_Table_Button;
 };
 
 #endif // ITEM_EDITOR_H

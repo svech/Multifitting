@@ -2,6 +2,7 @@
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include "item_editor.h"
 #include "multilayer_approach/multilayer_approach.h"
+#include "regular_aperiodic_table.h"
 
 Item_Editor::Item_Editor(QList<Item_Editor*>& list_Editors, QTreeWidgetItem* item, Structure_Tree* structure_Tree, QWidget *parent) :
 	item(item),
@@ -10,7 +11,7 @@ Item_Editor::Item_Editor(QList<Item_Editor*>& list_Editors, QTreeWidgetItem* ite
 	structure_Tree(structure_Tree),
 	QDialog(parent)
 {
-	setWindowTitle(struct_Data.item_Type);
+	setWindowTitle(Global_Variables::structure_Item_Name(struct_Data));
 	create_Main_Layout();
 	set_Window_Geometry();
 }
@@ -66,13 +67,29 @@ void Item_Editor::create_Main_Layout()
 	if(struct_Data.item_Type == item_Type_General_Aperiodic)make_Genereal_Aperiodic_Editor();
 	if(struct_Data.item_Type == item_Type_Regular_Aperiodic)make_Regular_Aperiodic_Editor();
 
+	QHBoxLayout* button_Layout = new QHBoxLayout;
+	main_Layout->addLayout(button_Layout);
+
 	done_Button = new QPushButton("Done");
 		done_Button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 		done_Button->setFocus();
 		done_Button->setDefault(true);
-	main_Layout->addWidget(done_Button,0,Qt::AlignCenter);
+	button_Layout->addWidget(done_Button,0,Qt::AlignCenter);
 
 	connect(done_Button, &QPushButton::clicked, this, &Item_Editor::close);
+
+	if(struct_Data.item_Type == item_Type_Regular_Aperiodic)
+	{
+		regular_Aperiodic_Table_Button = new QPushButton("Layers");
+			regular_Aperiodic_Table_Button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+		button_Layout->addWidget(regular_Aperiodic_Table_Button,0,Qt::AlignCenter);
+		connect(regular_Aperiodic_Table_Button, &QPushButton::clicked, this, [=]
+		{
+			Regular_Aperiodic_Table* regular_Aperiodic_Table = new Regular_Aperiodic_Table(item);
+				regular_Aperiodic_Table->setWindowFlags(Qt::Window);
+				regular_Aperiodic_Table->show();
+		});
+	}
 }
 
 void Item_Editor::create_Menu()
@@ -380,9 +397,12 @@ void Item_Editor::unique_Items_In_Aperiodic(QHBoxLayout* aperiodic_Group_Box_Lay
 	fit_Sigma_Layout->addWidget(fit_Sigma_Label,0,Qt::AlignCenter);
 
 	QVBoxLayout* soft_Restriction_Layout = new QVBoxLayout;
-	aperiodic_Group_Box_Layout->addLayout(soft_Restriction_Layout);
-	QLabel* soft_Restriction_Label = new QLabel("       Smooth \"z\": {"+Plus_Minus_Sym+Delta_Big_Sym+", Q}");
-	soft_Restriction_Layout->addWidget(soft_Restriction_Label,0,Qt::AlignLeft);
+	if(struct_Data.item_Type == item_Type_Regular_Aperiodic)
+	{
+		aperiodic_Group_Box_Layout->addLayout(soft_Restriction_Layout);
+		QLabel* soft_Restriction_Label = new QLabel("       Smooth \"z\": {"+Plus_Minus_Sym+Delta_Big_Sym+", Q}");
+		soft_Restriction_Layout->addWidget(soft_Restriction_Label,0,Qt::AlignLeft);
+	}
 
 	for(int i=0; i<item->childCount(); i++)
 	{
@@ -479,6 +499,7 @@ void Item_Editor::unique_Items_In_Aperiodic(QHBoxLayout* aperiodic_Group_Box_Lay
 			}
 
 			// create additional restrictions
+			if(struct_Data.item_Type == item_Type_Regular_Aperiodic)
 			{
 				QHBoxLayout* soft_Restriction_Row_Layout = new QHBoxLayout;
 					soft_Restriction_Row_Layout->setAlignment(Qt::AlignLeft);

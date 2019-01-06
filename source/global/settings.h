@@ -30,6 +30,12 @@ extern int structure_table_y_corner;
 extern int structure_table_width;
 extern int structure_table_height;
 
+// regular aperiodic table window geometry
+extern int regular_aperiodic_table_x_corner;
+extern int regular_aperiodic_table_y_corner;
+extern int regular_aperiodic_table_width;
+extern int regular_aperiodic_table_height;
+
 // graphs window geometry
 extern int graphs_x_corner;
 extern int graphs_y_corner;

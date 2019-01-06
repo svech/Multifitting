@@ -82,7 +82,7 @@ public:
 	void disable_enable_One_Item_Content(My_Table_Widget* table, QTableWidgetItem* table_Item, bool save, bool enable = true);
 	void disable_enable_Multilayers(My_Table_Widget* table, QTreeWidgetItem* parent);
 
-	void fit_Column(My_Table_Widget* table, int start_Width, int current_Column);
+	static void fit_Column(QTableWidget *table, int start_Width, int current_Column);
 	void add_Columns(My_Table_Widget* table, int add_After);
 
 	static Parameter& get_Parameter(Data& struct_Data, QString whats_This)

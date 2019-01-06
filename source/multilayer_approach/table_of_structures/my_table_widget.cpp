@@ -9,6 +9,8 @@ My_Table_Widget::My_Table_Widget(int rows,
 	table_Of_Structures(table_Of_Structures),
 	QTableWidget(parent)
 {
+	verticalHeader()->setVisible(false);
+	horizontalHeader()->setVisible(false);
 	horizontalHeader()->setDisabled(true);
 	verticalHeader()->setDisabled(true);
 	setSelectionMode(QAbstractItemView::NoSelection);
