@@ -7,7 +7,7 @@ Regular_Aperiodic_Table_Widget::Regular_Aperiodic_Table_Widget(int rows, int col
 	horizontalHeader()->setVisible(false);
 	horizontalHeader()->setDisabled(true);
 	verticalHeader()->setDisabled(true);
-	setSelectionMode(QAbstractItemView::NoSelection);
+//	setSelectionMode(QAbstractItemView::NoSelection);
 	setAttribute(Qt::WA_DeleteOnClose);
 
 	for(int i=0; i<rows; ++i)		insertRow(i);

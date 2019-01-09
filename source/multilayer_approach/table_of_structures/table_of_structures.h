@@ -94,7 +94,7 @@ public:
 	static Parameter& get_Parameter(Data& struct_Data, QString whats_This, int& precision, double& coeff);
 
 	// for material only
-	void refresh_Element(My_Table_Widget *table, QString);
+	void refresh_Element(My_Table_Widget* table, QString);
 	void refresh_Stoich();
 	void refresh_Fit_Element(bool);
 

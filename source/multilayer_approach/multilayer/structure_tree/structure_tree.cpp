@@ -394,16 +394,18 @@ void Structure_Tree::set_Structure_Item_Text(QTreeWidgetItem* item, int i)
 									   + "-" + Locale.toString(parent_Data.regular_Components[i].min_Max_Values.thickness_Max/length_Coeff,thumbnail_double_format,thumbnail_thickness_precision)
 									   + ">" + length_units;
 
-					if(parent_Data.regular_Components[i].min_Max_Values.sigma_Min>0)
+					if(abs(parent_Data.regular_Components[i].min_Max_Values.sigma_Max)>2*DBL_EPSILON)
 					{
 						sigma_Text     = ", " + temp_Sigma_Sym + "=<" + Locale.toString(parent_Data.regular_Components[i].min_Max_Values.sigma_Min/length_Coeff,thumbnail_double_format,thumbnail_sigma_precision)
 																+ "-" + Locale.toString(parent_Data.regular_Components[i].min_Max_Values.sigma_Max/length_Coeff,thumbnail_double_format,thumbnail_sigma_precision)
 																+ ">" + length_units;
+					} else {
+						sigma_Text = "";
 					}
 				} else
 				{
 					thickness_Text = ", z=" +  Locale.toString(data.thickness.value/length_Coeff,thumbnail_double_format,thumbnail_thickness_precision) + length_units;
-					if(data.sigma.value>0) { sigma_Text = ", " + temp_Sigma_Sym + "=" + Locale.toString(data.sigma.value/length_Coeff,thumbnail_double_format,thumbnail_sigma_precision) + length_units; }
+					if(abs(data.sigma.value)>2*DBL_EPSILON) { sigma_Text = ", " + temp_Sigma_Sym + "=" + Locale.toString(data.sigma.value/length_Coeff,thumbnail_double_format,thumbnail_sigma_precision) + length_units; }
 				}
 
 				if(data.composed_Material)	{density_Text = Locale.toString(data.absolute_Density.value,thumbnail_double_format,thumbnail_density_precision) + density_units;	}

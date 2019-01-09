@@ -135,6 +135,8 @@ extern double	step_sigma;
 extern double	step_interlayer;
 extern double	step_gamma;
 extern double	step_drift;
+extern double	step_thickness_aperiodic;
+extern double	step_sigma_aperiodic;
 
 // -----------------------------------------------------------------------------------------
 
@@ -223,6 +225,8 @@ extern int reflectivity_Calc_Threads;
 extern int epsilon_Partial_Fill_Threads;
 extern bool recalculate_Spinbox_Table;
 extern bool mouse_Wheel_Spinbox_Table;
+extern bool aperiodic_Recalculate_Spinbox_Table;
+extern bool aperiodic_Mouse_Wheel_Spinbox_Table;
 
 // -----------------------------------------------------------------------------------------
 

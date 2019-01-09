@@ -85,9 +85,18 @@ void Item_Editor::create_Main_Layout()
 		button_Layout->addWidget(regular_Aperiodic_Table_Button,0,Qt::AlignCenter);
 		connect(regular_Aperiodic_Table_Button, &QPushButton::clicked, this, [=]
 		{
-			Regular_Aperiodic_Table* regular_Aperiodic_Table = new Regular_Aperiodic_Table(item);
-				regular_Aperiodic_Table->setWindowFlags(Qt::Window);
-				regular_Aperiodic_Table->show();
+			if(!global_Multilayer_Approach->runned_Regular_Aperiodic_Tables.contains(struct_Data.id))
+			{
+				Regular_Aperiodic_Table* regular_Aperiodic_Table = new Regular_Aperiodic_Table(item);
+					regular_Aperiodic_Table->setWindowFlags(Qt::Window);
+					regular_Aperiodic_Table->show();
+
+				connect(regular_Aperiodic_Table, &Regular_Aperiodic_Table::regular_Aperiodic_Edited, structure_Tree, &Structure_Tree::refresh__StructureTree__Data_and_Text);
+			} else
+			{
+				global_Multilayer_Approach->runned_Regular_Aperiodic_Tables.value(struct_Data.id)->activateWindow();
+			}
+			close();
 		});
 	}
 }
@@ -1609,6 +1618,7 @@ void Item_Editor::to_Regular_Aperiodic_Subfunction()
 			delete item->child(i);
 		} else
 		{
+			child.common_Sigma = true;
 			Regular_Component new_Regular_Component;
 				new_Regular_Component.components.resize(struct_Data.num_Repetition.value());
 				new_Regular_Component.components.fill(child);

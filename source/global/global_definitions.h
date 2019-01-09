@@ -166,7 +166,7 @@ class Node;
 #define TABLE_FIX_WIDTH_LINE_EDIT_LONG    64
 #define TABLE_COLUMN_ELEMENTS_SHIFT 1		// current_Column += TABLE_COLUMN_ELEMENTS_SHIFT
 #define TABLE_COLUMN_INTERLAYERS_SHIFT 1	// current_Column += TABLE_COLUMN_INTERLAYERS_SHIFT
-#define APERIODIC_TABLE_THICKNESS_VALUE_WIDTH  80
+#define APERIODIC_TABLE_THICKNESS_VALUE_WIDTH  70
 #define APERIODIC_TABLE_DENSITY_VALUE_WIDTH    110
 #define MIN_FORMULA_WIDTH_LINE_EDIT 80		// master/slave width for dependance formula
 #define id_Of_Thicknesses 9					// used fore refresh/reload of corresponding line_Edits

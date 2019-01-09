@@ -1079,19 +1079,24 @@ void Table_Of_Structures::fit_Column(QTableWidget* table, int start_Width, int c
 			}
 		} else
 		// for item names
-		if(current_CheckBox)
 		{
-			const QFont& myFont = current_CheckBox->font();
-			QFontMetrics fm(myFont);
-			int check_Box_Width=fm.width(current_CheckBox->text());
-			int shift = 25;
-			int current_Width = 0;
-			if(current_Column<=1) current_Width = max(COLOR_LEGEND_LABEL_WIDTH, check_Box_Width + shift);
-			else                  current_Width = check_Box_Width + shift + 1;
+			bool not_Fit_CheckBox = false;
+			if(current_CheckBox) not_Fit_CheckBox = current_CheckBox->property(fit_Column_Property).toBool();
 
-			if(max_Width<current_Width)
+			if(current_CheckBox && !not_Fit_CheckBox)
 			{
-				max_Width = current_Width + 1;
+				const QFont& myFont = current_CheckBox->font();
+				QFontMetrics fm(myFont);
+				int check_Box_Width=fm.width(current_CheckBox->text());
+				int shift = 25;
+				int current_Width = 0;
+				if(current_Column<=1) current_Width = max(COLOR_LEGEND_LABEL_WIDTH, check_Box_Width + shift);
+				else                  current_Width = check_Box_Width + shift + 1;
+
+				if(max_Width<current_Width)
+				{
+					max_Width = current_Width + 1;
+				}
 			}
 		}
 	}

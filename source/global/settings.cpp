@@ -133,6 +133,8 @@ double	step_sigma;
 double	step_interlayer;
 double	step_gamma;
 double	step_drift;
+double	step_thickness_aperiodic;
+double	step_sigma_aperiodic;
 
 // -----------------------------------------------------------------------------------------
 
@@ -220,6 +222,8 @@ int reflectivity_Calc_Threads;
 int epsilon_Partial_Fill_Threads;
 bool recalculate_Spinbox_Table;
 bool mouse_Wheel_Spinbox_Table;
+bool aperiodic_Recalculate_Spinbox_Table;
+bool aperiodic_Mouse_Wheel_Spinbox_Table;
 
 // -----------------------------------------------------------------------------------------
 
@@ -494,7 +498,9 @@ void Settings::read_Structure_Default_Values(bool reset_to_default)
 				step_sigma				= structure_Default_Values.value( "step_sigma",				0.1 ).toDouble();
 				step_interlayer			= structure_Default_Values.value( "step_interlayer",		0.1 ).toDouble();
 				step_gamma				= structure_Default_Values.value( "step_gamma",				0.01 ).toDouble();
-				step_drift				= structure_Default_Values.value( "step_drift",				0.001 ).toDouble();
+				step_drift				= structure_Default_Values.value( "step_drift",				0.001).toDouble();
+				step_thickness_aperiodic= structure_Default_Values.value( "step_thickness_aperiodic",0.1 ).toDouble();
+				step_sigma_aperiodic	= structure_Default_Values.value( "step_sigma_aperiodic",	 0.1 ).toDouble();
 			structure_Default_Values.endGroup();
 		structure_Default_Values.endGroup();
 }
@@ -561,6 +567,8 @@ void Settings::save_Structure_Default_Values()
 			structure_Default_Values.setValue( "step_interlayer",			step_interlayer			);
 			structure_Default_Values.setValue( "step_gamma",				step_gamma				);
 			structure_Default_Values.setValue( "step_drift",				step_drift				);
+			structure_Default_Values.setValue( "step_thickness_aperiodic",	step_thickness_aperiodic);
+			structure_Default_Values.setValue( "step_sigma_aperiodic",		step_sigma_aperiodic	);
 		structure_Default_Values.endGroup();
 	structure_Default_Values.endGroup();
 }
@@ -760,8 +768,10 @@ void Settings::read_Calculations(bool reset_to_default)
 		epsilon_Partial_Fill_Threads   = calculations.value( "epsilon_Partial_Fill_Threads",	max(QThread::idealThreadCount(),1) ).toInt();
 	calculations.endGroup();
 	calculations.beginGroup( Recalculation );
-		recalculate_Spinbox_Table	   = calculations.value( "recalculate_Spinbox_Table",		true  ).toBool();
-		mouse_Wheel_Spinbox_Table	   = calculations.value( "mouse_Wheel_Spinbox_Table",		false ).toBool();
+		recalculate_Spinbox_Table			 = calculations.value( "recalculate_Spinbox_Table",				true  ).toBool();
+		mouse_Wheel_Spinbox_Table			 = calculations.value( "mouse_Wheel_Spinbox_Table",				false ).toBool();
+		aperiodic_Recalculate_Spinbox_Table	 = calculations.value( "aperiodic_Recalculate_Spinbox_Table",	false  ).toBool();
+		aperiodic_Mouse_Wheel_Spinbox_Table	 = calculations.value( "aperiodic_Mouse_Wheel_Spinbox_Table",	true ).toBool();
 	calculations.endGroup();
 
 	// limit max number of threads
@@ -781,6 +791,8 @@ void Settings::save_Calculations()
 	calculations.beginGroup( Recalculation );
 		calculations.setValue( "recalculate_Spinbox_Table",	 recalculate_Spinbox_Table	);
 		calculations.setValue( "mouse_Wheel_Spinbox_Table",	 mouse_Wheel_Spinbox_Table	);
+		calculations.setValue( "aperiodic_Recalculate_Spinbox_Table", aperiodic_Recalculate_Spinbox_Table );
+		calculations.setValue( "aperiodic_Mouse_Wheel_Spinbox_Table", aperiodic_Mouse_Wheel_Spinbox_Table );
 	calculations.endGroup();
 }
 
