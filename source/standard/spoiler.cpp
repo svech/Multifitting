@@ -42,7 +42,7 @@ Spoiler::Spoiler(const QString & title, const int animationDuration, QWidget *pa
 		toggleAnimation.start();
 	});
 
-	connect(&toggleAnimation, &QParallelAnimationGroup::finished, [=]
+	connect(&toggleAnimation, &QParallelAnimationGroup::finished, this, [=]
 	{
 		auto contentHeight = contentArea.layout()->sizeHint().height();
 		if(toggleButton.isChecked())

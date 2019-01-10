@@ -161,9 +161,9 @@ void Independent_Variables_Editor::create_Standard_Interface()
 		connect(max_Edit,	&QLineEdit::textEdited, this, [=]{Global_Variables::resize_Line_Edit(max_Edit);});
 
 		connect(num_Points, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, [=]{refresh_Show_Data();});
-		connect(val_Edit,	&QLineEdit::textEdited, [=]{refresh_Show_Data();});
-		connect(min_Edit,	&QLineEdit::textEdited, [=]{refresh_Show_Data();});
-		connect(max_Edit,	&QLineEdit::textEdited, [=]{refresh_Show_Data();});
+		connect(val_Edit,	&QLineEdit::textEdited, this, [=]{refresh_Show_Data();});
+		connect(min_Edit,	&QLineEdit::textEdited, this, [=]{refresh_Show_Data();});
+		connect(max_Edit,	&QLineEdit::textEdited, this, [=]{refresh_Show_Data();});
 
 		connect(step_Edit,	&QLineEdit::textEdited, this, [=]{Global_Variables::resize_Line_Edit(step_Edit);});
 
@@ -196,7 +196,7 @@ void Independent_Variables_Editor::create_Angle_Interface()
 		layout_Ang_Res->addWidget(angle_Units_Label);
 
 		connect(angular_Resolution_Edit, &QLineEdit::textEdited, this, [=]{Global_Variables::resize_Line_Edit(angular_Resolution_Edit);});
-		connect(angular_Resolution_Edit, &QLineEdit::textEdited, [=]{refresh_Show_Data();});
+		connect(angular_Resolution_Edit, &QLineEdit::textEdited, this, [=]{refresh_Show_Data();});
 	}
 
 	QGridLayout* geometry_Layout = new QGridLayout;
@@ -216,7 +216,7 @@ void Independent_Variables_Editor::create_Angle_Interface()
 		geometry_Layout->addWidget(beam_Size_Units_Label,0,2,Qt::AlignLeft);
 
 		connect(beam_Size_LineEdit, &QLineEdit::textEdited, this, [=]{Global_Variables::resize_Line_Edit(beam_Size_LineEdit);});
-		connect(beam_Size_LineEdit, &QLineEdit::textEdited, [=]{refresh_Show_Data();});
+		connect(beam_Size_LineEdit, &QLineEdit::textEdited, this, [=]{refresh_Show_Data();});
 	}
 
 	// spacer
@@ -238,7 +238,7 @@ void Independent_Variables_Editor::create_Angle_Interface()
 		geometry_Layout->addWidget(sample_Size_Units_Label,0,6,Qt::AlignLeft);
 
 		connect(sample_Size_LineEdit, &QLineEdit::textEdited, this, [=]{Global_Variables::resize_Line_Edit(sample_Size_LineEdit);});
-		connect(sample_Size_LineEdit, &QLineEdit::textEdited, [=]{refresh_Show_Data();});
+		connect(sample_Size_LineEdit, &QLineEdit::textEdited, this, [=]{refresh_Show_Data();});
 	}
 
 	// beam spreading
@@ -252,7 +252,7 @@ void Independent_Variables_Editor::create_Angle_Interface()
 		geometry_Layout->addWidget(beam_Profile_Spreading_LineEdit,1,1,Qt::AlignLeft);
 
 		connect(beam_Profile_Spreading_LineEdit, &QLineEdit::textEdited, this, [=]{Global_Variables::resize_Line_Edit(beam_Profile_Spreading_LineEdit);});
-		connect(beam_Profile_Spreading_LineEdit, &QLineEdit::textEdited, [=]{refresh_Show_Data();});
+		connect(beam_Profile_Spreading_LineEdit, &QLineEdit::textEdited, this, [=]{refresh_Show_Data();});
 	}
 
 	// spacer
@@ -274,7 +274,7 @@ void Independent_Variables_Editor::create_Angle_Interface()
 		geometry_Layout->addWidget(sample_Shift_Units_Label,1,6,Qt::AlignLeft);
 
 		connect(sample_Shift_LineEdit, &QLineEdit::textEdited, this, [=]{Global_Variables::resize_Line_Edit(sample_Shift_LineEdit);});
-		connect(sample_Shift_LineEdit, &QLineEdit::textEdited, [=]{refresh_Show_Data();});
+		connect(sample_Shift_LineEdit, &QLineEdit::textEdited, this, [=]{refresh_Show_Data();});
 	}
 }
 
@@ -328,13 +328,13 @@ void Independent_Variables_Editor::create_Wavelength_Interface()
 	}
 
 	connect(spectral_Resolution_Edit, &QLineEdit::textEdited, this, [=]{Global_Variables::resize_Line_Edit(spectral_Resolution_Edit);});
-	connect(spectral_Resolution_Edit, &QLineEdit::textEdited, [=]{refresh_Show_Data();});
+	connect(spectral_Resolution_Edit, &QLineEdit::textEdited, this, [=]{refresh_Show_Data();});
 
 	connect(polarization_Edit, &QLineEdit::textEdited, this, [=]{Global_Variables::resize_Line_Edit(polarization_Edit);});
-	connect(polarization_Edit, &QLineEdit::textEdited, [=]{refresh_Show_Data();});
+	connect(polarization_Edit, &QLineEdit::textEdited, this, [=]{refresh_Show_Data();});
 
 	connect(background_Edit, &QLineEdit::textEdited, this, [=]{Global_Variables::resize_Line_Edit(background_Edit);});
-	connect(background_Edit, &QLineEdit::textEdited, [=]{refresh_Show_Data();});
+	connect(background_Edit, &QLineEdit::textEdited, this, [=]{refresh_Show_Data();});
 }
 
 void Independent_Variables_Editor::set_Window_Geometry()

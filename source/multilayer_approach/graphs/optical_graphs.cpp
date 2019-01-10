@@ -152,7 +152,7 @@ void Optical_Graphs::create_Tabs()
 	main_Tabs = new QTabWidget(this);
 	main_Tabs->setMovable(false);
 
-	connect(main_Tabs,	&QTabWidget::currentChanged,
+	connect(main_Tabs,	&QTabWidget::currentChanged, this,
 	[=](int index)
 	{
 		main_Tabs->tabBar()->setTabTextColor(index,Qt::black);

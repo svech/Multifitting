@@ -192,7 +192,7 @@ void Fitting_Settings_Editor::create_Metods()
 	methods_Combo_Box->setFixedWidth(methods_Combo_Box->width()+90);
 
 	// skip group headers
-	connect(methods_Combo_Box, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), [=]
+	connect(methods_Combo_Box, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, [=]
 	{
 		if(indices_Vec.contains(methods_Combo_Box->currentIndex()))
 		{
@@ -296,15 +296,15 @@ void Fitting_Settings_Editor::create_GSL_Main_Params_Group_Box()
 		GSL_Fit_Params_Group_Box_Layout->addWidget(GSL_common_Tolerance_Label,		3,0,1,1);
 		GSL_Fit_Params_Group_Box_Layout->addWidget(GSL_common_Tolerance_Line_Edit,	3,1,1,1);
 
-		connect(GSL_randomized_Start_Check_Box,	&QCheckBox::toggled,	 fitting_Settings, [=]
+		connect(GSL_randomized_Start_Check_Box,	&QCheckBox::toggled, this, [=]
 		{
 			fitting_Settings->randomized_Start = GSL_randomized_Start_Check_Box->isChecked();
 			GSL_num_Runs_Label->setEnabled(fitting_Settings->randomized_Start);
 			GSL_num_Runs_SpinBox->setEnabled(fitting_Settings->randomized_Start);
 		});
-		connect(GSL_num_Runs_SpinBox, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), fitting_Settings, [=]{fitting_Settings->num_Runs = GSL_num_Runs_SpinBox->value();});
-		connect(GSL_max_Iter_SpinBox, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), fitting_Settings, [=]{fitting_Settings->max_Iter = GSL_max_Iter_SpinBox->value();});
-		connect(GSL_common_Tolerance_Line_Edit, &QLineEdit::textChanged, fitting_Settings, [=]
+		connect(GSL_num_Runs_SpinBox, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, [=]{fitting_Settings->num_Runs = GSL_num_Runs_SpinBox->value();});
+		connect(GSL_max_Iter_SpinBox, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, [=]{fitting_Settings->max_Iter = GSL_max_Iter_SpinBox->value();});
+		connect(GSL_common_Tolerance_Line_Edit, &QLineEdit::textChanged, this, [=]
 		{
 			fitting_Settings->x_Tolerance = Locale.toDouble(GSL_common_Tolerance_Line_Edit->text());
 			fitting_Settings->f_Tolerance = fitting_Settings->x_Tolerance;
@@ -404,19 +404,19 @@ void Fitting_Settings_Editor::create_GSL_AdditionalParams_Group_Box()
 		GSL_Additional_Params_Group_Box_Layout->addWidget(GSL_h_fvv_Label,			p+2,0,1,1);
 		GSL_Additional_Params_Group_Box_Layout->addWidget(GSL_h_fvv_Line_Edit,		p+2,1,1,1);
 
-		connect(GSL_x_Tolerance_Line_Edit, &QLineEdit::textChanged, fitting_Settings, [=]{fitting_Settings->x_Tolerance = Locale.toDouble(GSL_x_Tolerance_Line_Edit->text());	});
-		connect(GSL_g_Tolerance_Line_Edit, &QLineEdit::textChanged, fitting_Settings, [=]{fitting_Settings->g_Tolerance = Locale.toDouble(GSL_g_Tolerance_Line_Edit->text());	});
-		connect(GSL_f_Tolerance_Line_Edit, &QLineEdit::textChanged, fitting_Settings, [=]{fitting_Settings->f_Tolerance = Locale.toDouble(GSL_f_Tolerance_Line_Edit->text());	});
+		connect(GSL_x_Tolerance_Line_Edit, &QLineEdit::textChanged, this, [=]{fitting_Settings->x_Tolerance = Locale.toDouble(GSL_x_Tolerance_Line_Edit->text());	});
+		connect(GSL_g_Tolerance_Line_Edit, &QLineEdit::textChanged, this, [=]{fitting_Settings->g_Tolerance = Locale.toDouble(GSL_g_Tolerance_Line_Edit->text());	});
+		connect(GSL_f_Tolerance_Line_Edit, &QLineEdit::textChanged, this, [=]{fitting_Settings->f_Tolerance = Locale.toDouble(GSL_f_Tolerance_Line_Edit->text());	});
 
-		connect(GSL_scale_Combo_Box,  static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), [=]{fitting_Settings->current_Scale  = GSL_scale_Combo_Box->currentText(); });
-		connect(GSL_solver_Combo_Box, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), [=]{fitting_Settings->current_Solver = GSL_solver_Combo_Box->currentText();});
-		connect(GSL_fdtype_Combo_Box, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), [=]{fitting_Settings->current_Fdtype = GSL_fdtype_Combo_Box->currentText();});
+		connect(GSL_scale_Combo_Box,  static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, [=]{fitting_Settings->current_Scale  = GSL_scale_Combo_Box->currentText(); });
+		connect(GSL_solver_Combo_Box, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, [=]{fitting_Settings->current_Solver = GSL_solver_Combo_Box->currentText();});
+		connect(GSL_fdtype_Combo_Box, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, [=]{fitting_Settings->current_Fdtype = GSL_fdtype_Combo_Box->currentText();});
 
-		connect(GSL_factor_up_Line_Edit,   &QLineEdit::textChanged, [=]{fitting_Settings->factor_Up		= Locale.toDouble(GSL_factor_up_Line_Edit->text());	});
-		connect(GSL_factor_down_Line_Edit, &QLineEdit::textChanged, [=]{fitting_Settings->factor_Down	= Locale.toDouble(GSL_factor_down_Line_Edit->text());	});
-		connect(GSL_avmax_Line_Edit,	   &QLineEdit::textChanged, [=]{fitting_Settings->avmax			= Locale.toDouble(GSL_avmax_Line_Edit->text());		});
-		connect(GSL_h_df_Line_Edit,		   &QLineEdit::textChanged, [=]{fitting_Settings->h_df			= Locale.toDouble(GSL_h_df_Line_Edit->text());		});
-		connect(GSL_h_fvv_Line_Edit,	   &QLineEdit::textChanged, [=]{fitting_Settings->h_fvv			= Locale.toDouble(GSL_h_fvv_Line_Edit->text());		});
+		connect(GSL_factor_up_Line_Edit,   &QLineEdit::textChanged, this, [=]{fitting_Settings->factor_Up	= Locale.toDouble(GSL_factor_up_Line_Edit->text());		});
+		connect(GSL_factor_down_Line_Edit, &QLineEdit::textChanged, this, [=]{fitting_Settings->factor_Down	= Locale.toDouble(GSL_factor_down_Line_Edit->text());	});
+		connect(GSL_avmax_Line_Edit,	   &QLineEdit::textChanged, this, [=]{fitting_Settings->avmax		= Locale.toDouble(GSL_avmax_Line_Edit->text());			});
+		connect(GSL_h_df_Line_Edit,		   &QLineEdit::textChanged, this, [=]{fitting_Settings->h_df		= Locale.toDouble(GSL_h_df_Line_Edit->text());			});
+		connect(GSL_h_fvv_Line_Edit,	   &QLineEdit::textChanged, this, [=]{fitting_Settings->h_fvv		= Locale.toDouble(GSL_h_fvv_Line_Edit->text());			});
 	}
 	{
 		// create spoiler
@@ -482,20 +482,20 @@ void Fitting_Settings_Editor::create_SO_Main_Params_Group_Box()
 		SO_Fit_Params_Group_Box_Layout->addWidget(SO_max_Eval_Check_Box,				3,0,1,1);
 		SO_Fit_Params_Group_Box_Layout->addWidget(SO_max_Eval_Factor_SpinBox,			3,1,1,1);
 
-		connect(SO_randomized_Start_Check_Box,&QCheckBox::toggled,	   fitting_Settings, [=]
+		connect(SO_randomized_Start_Check_Box,&QCheckBox::toggled,	   this, [=]
 		{
 			fitting_Settings->randomized_Start = SO_randomized_Start_Check_Box->isChecked();
 			SO_num_Runs_Label->setEnabled(fitting_Settings->randomized_Start);
 			SO_num_Runs_SpinBox->setEnabled(fitting_Settings->randomized_Start);
 		});
-		connect(SO_initialize_By_Current_Check_Box,&QCheckBox::toggled,	   fitting_Settings, [=]
+		connect(SO_initialize_By_Current_Check_Box,&QCheckBox::toggled,	   this, [=]
 		{
 			fitting_Settings->initialize_By_Current_State = SO_initialize_By_Current_Check_Box->isChecked();
 		});
-		connect(SO_num_Runs_SpinBox,		static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), fitting_Settings, [=]{fitting_Settings->num_Runs		  = SO_num_Runs_SpinBox->	    value();});
-		connect(SO_max_Evaluations_SpinBox, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), fitting_Settings, [=]{fitting_Settings->max_Evaluations = SO_max_Evaluations_SpinBox->value();});
-		connect(SO_max_Eval_Factor_SpinBox, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), fitting_Settings, [=]{fitting_Settings->max_Eval_Factor = SO_max_Eval_Factor_SpinBox->value();});
-		connect(SO_max_Eval_Check_Box,		&QCheckBox::toggled,	 fitting_Settings, [=]
+		connect(SO_num_Runs_SpinBox,		static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, [=]{fitting_Settings->num_Runs		  = SO_num_Runs_SpinBox->	    value();});
+		connect(SO_max_Evaluations_SpinBox, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, [=]{fitting_Settings->max_Evaluations = SO_max_Evaluations_SpinBox->value();});
+		connect(SO_max_Eval_Factor_SpinBox, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, [=]{fitting_Settings->max_Eval_Factor = SO_max_Eval_Factor_SpinBox->value();});
+		connect(SO_max_Eval_Check_Box,		&QCheckBox::toggled,	 this, [=]
 		{
 			fitting_Settings->max_Eval_Check = SO_max_Eval_Check_Box->isChecked();
 			SO_max_Evaluations_Label->setDisabled(fitting_Settings->max_Eval_Check);

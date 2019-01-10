@@ -48,7 +48,7 @@ void My_Table_Widget::contextMenuEvent(QContextMenuEvent *event)
 		QAction my_Name_Action(parameter->indicator.full_Name);
 		menu.addAction(&my_Name_Action);
 
-		connect(&my_Name_Action, &QAction::triggered, [=]{ open_Coupling_Editor(back_Widget);});
+		connect(&my_Name_Action, &QAction::triggered, this, [=]{ open_Coupling_Editor(back_Widget);});
 
 		menu.exec(event->globalPos());
 	}
@@ -65,7 +65,7 @@ void My_Table_Widget::contextMenuEvent(QContextMenuEvent *event)
 		QAction my_Name_Action(Global_Variables::structure_Item_Name(struct_Data));
 		menu.addAction(&my_Name_Action);
 
-		connect(&my_Name_Action, &QAction::triggered, [=]{ open_Layer_Thickness_Transfer(back_Widget);});
+		connect(&my_Name_Action, &QAction::triggered, this, [=]{ open_Layer_Thickness_Transfer(back_Widget);});
 		menu.exec(event->globalPos());
 	}
 }

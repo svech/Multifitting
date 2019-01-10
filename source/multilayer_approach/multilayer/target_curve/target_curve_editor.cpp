@@ -651,7 +651,7 @@ void Target_Curve_Editor::create_Data_GroupBox()
 
 	connect(polarization_LineEdit,				&QLineEdit::textEdited, this, &Target_Curve_Editor::refresh_Polarization);
 //	connect(polarization_Sensitivity_LineEdit,	&QLineEdit::textEdited, this, &Target_Curve_Editor::refresh_Polarization);
-	connect(background_LineEdit,			&QLineEdit::textEdited, [=]{target_Curve->measurement.background.value = Locale.toDouble(background_LineEdit->text());});
+	connect(background_LineEdit,			&QLineEdit::textEdited, this, [=]{target_Curve->measurement.background.value = Locale.toDouble(background_LineEdit->text());});
 	connect(spectral_Resolution_LineEdit,	&QLineEdit::textEdited, this, &Target_Curve_Editor::refresh_Resolution);
 	connect(angular_Resolution_LineEdit,	&QLineEdit::textEdited, this, &Target_Curve_Editor::refresh_Resolution);
 

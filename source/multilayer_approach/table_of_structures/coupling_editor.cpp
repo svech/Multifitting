@@ -310,11 +310,10 @@ void Coupling_Editor::add_Slave(int index_Pressed)
 	connect(add_Slave_Button,	 &QPushButton::clicked, this, [=]{ add_Slave   (slave_Label_Vec.indexOf(slave_Label)+1); });
 	connect(slave_Line_Edit,	 &QLineEdit::editingFinished, this, &Coupling_Editor::check_Expression);
 
-	connect(qApp, &QApplication::focusChanged, this, [=]
-			(QWidget* old, QWidget* now)
-			{
-				enable_Getting_Parameter(old, now, slave_Label, slave_Line_Edit);
-			});
+	connect(qApp, &QApplication::focusChanged, this, [=](QWidget* old, QWidget* now)
+	{
+		enable_Getting_Parameter(old, now, slave_Label, slave_Line_Edit);
+	});
 }
 
 void Coupling_Editor::load_Slaves()

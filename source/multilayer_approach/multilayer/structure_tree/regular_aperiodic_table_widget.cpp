@@ -18,8 +18,8 @@ Regular_Aperiodic_Table_Widget::Regular_Aperiodic_Table_Widget(int rows, int col
 	for(int i=0; i<rowCount(); ++i)
 	{
 		QVariant data = model1->headerData(i, Qt::Vertical);
-		if(i>=1)
-			labels << QString("%1").arg(data.toInt() - 1);
+		if(i>=3)
+			labels << QString("%1").arg(data.toInt() - 3);
 		else {
 			labels << "";
 		}

@@ -13,6 +13,24 @@ Regular_Aperiodic_Table::Regular_Aperiodic_Table(QTreeWidgetItem *item, QWidget 
 	setAttribute(Qt::WA_DeleteOnClose);
 }
 
+void Regular_Aperiodic_Table::keyPressEvent(QKeyEvent* event)
+{
+	if(event->key() == Qt::Key_Shift)
+	{
+		modifier_Key_Still_Pressed = true;
+		modifier_Key_Still_Pressed_Duplicate = true;
+	}
+}
+
+void Regular_Aperiodic_Table::keyReleaseEvent(QKeyEvent *event)
+{
+	if(event->key() == Qt::Key_Shift)
+	{
+		  modifier_Key_Still_Pressed = false;
+		  modifier_Key_Still_Pressed_Duplicate = false;
+	}
+}
+
 bool Regular_Aperiodic_Table::eventFilter(QObject *obj, QEvent *event)
 {
 	UNUSED(obj);
@@ -52,6 +70,14 @@ void Regular_Aperiodic_Table::emit_Regular_Aperiodic_Edited()
 	emit regular_Aperiodic_Edited();
 }
 
+void Regular_Aperiodic_Table::save_And_Emit()
+{
+	QVariant var;
+	var.setValue( regular_Aperiodic_Data );
+	item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+	emit_Regular_Aperiodic_Edited();
+}
+
 void Regular_Aperiodic_Table::create_Main_Layout()
 {
 	main_Layout = new QVBoxLayout(this);
@@ -78,6 +104,7 @@ void Regular_Aperiodic_Table::create_Menu()
 	main_Layout->setMenuBar(menu->menu_Bar);
 	connect(menu, &Menu::refresh, global_Multilayer_Approach, [=]
 	{
+		reload_All_Widgets();
 		global_Multilayer_Approach->refresh_All_Multilayers_View();
 		if(global_Multilayer_Approach->runned_Tables_Of_Structures.contains(table_Key))
 		{
@@ -88,7 +115,7 @@ void Regular_Aperiodic_Table::create_Menu()
 
 void Regular_Aperiodic_Table::create_Table()
 {
-	int num_Rows = item->childCount()*regular_Aperiodic_Data.num_Repetition.value()+1;
+	int num_Rows = item->childCount()*regular_Aperiodic_Data.num_Repetition.value()+3;
 	regular_Table = new Regular_Aperiodic_Table_Widget(num_Rows,6,this);
 	main_Layout->addWidget(regular_Table);
 
@@ -140,9 +167,13 @@ void Regular_Aperiodic_Table::create_Table()
 	// labels
 	create_Simple_Label(current_Row,0," Cell # ");
 	create_Simple_Label(current_Row,1," Material ");
-	create_Simple_Label(current_Row,2," z ["+length_units+"] ");
+	QLabel* thickness_Label = nullptr;
+	create_Simple_Label(current_Row,2," z ["+length_units+"] ", thickness_Label);
+	labels_List.append(thickness_Label);
 	create_Simple_Label(current_Row,3," Fit z ");
-	create_Simple_Label(current_Row,4," "+Sigma_Sym+" ["+length_units+"] ");
+	QLabel* sigma_Label = nullptr;
+	create_Simple_Label(current_Row,4," "+Sigma_Sym+" ["+length_units+"] ", sigma_Label);
+	labels_List.append(sigma_Label);
 	create_Simple_Label(current_Row,5," "+Rho_Sym+" ");
 	current_Row++;
 
@@ -153,7 +184,7 @@ void Regular_Aperiodic_Table::create_Table()
 			int current_Column = 0;
 
 			// cell number
-			QLabel* cell_Label = new QLabel(QString::number(n));
+			QLabel* cell_Label = new QLabel(QString::number(n+1));
 				cell_Label->setProperty(fit_Column_Property, true);
 				cell_Label->setAlignment(Qt::AlignCenter);
 			regular_Table->setCellWidget(current_Row, current_Column, cell_Label);
@@ -181,7 +212,6 @@ void Regular_Aperiodic_Table::create_Table()
 				thickness_Value_Spinbox->setFixedWidth(APERIODIC_TABLE_THICKNESS_VALUE_WIDTH);
 				thickness_Value_Spinbox->setProperty(whats_This_Property, whats_This_Thickness);
 			regular_Table->setCellWidget(current_Row, current_Column, thickness_Value_Spinbox);
-			spinboxes_List.append(thickness_Value_Spinbox);
 			thickness_Spinboxes_List.append(thickness_Value_Spinbox);
 			connect(thickness_Value_Spinbox, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
 			{
@@ -191,6 +221,8 @@ void Regular_Aperiodic_Table::create_Table()
 
 			// thickness fit
 			QCheckBox* thickness_Fit_CheckBox = new QCheckBox;
+				thickness_Fit_CheckBox->setProperty(index_Property, i);
+				thickness_Fit_CheckBox->setChecked(regular_Aperiodic_Data.regular_Components[i].components[n].thickness.fit.is_Fitable);
 			QWidget* back_Widget = new QWidget;
 			QVBoxLayout* back_Layout = new QVBoxLayout(back_Widget);
 				back_Layout->addWidget(thickness_Fit_CheckBox);
@@ -198,7 +230,43 @@ void Regular_Aperiodic_Table::create_Table()
 				back_Layout->setContentsMargins(0,0,0,0);
 				back_Layout->setAlignment(Qt::AlignCenter);
 			regular_Table->setCellWidget(current_Row, current_Column, back_Widget);
-			checkboxes_List.append(thickness_Fit_CheckBox);
+			thickness_Checkboxes_List.append(thickness_Fit_CheckBox);
+			connect(thickness_Fit_CheckBox, &QCheckBox::toggled, this, [=]
+			{
+				if(modifier_Key_Still_Pressed)
+				{
+					// for everybody
+					modifier_Key_Still_Pressed = false;
+					for(QCheckBox* checkBox : thickness_Checkboxes_List)
+					{
+						if(checkBox->property(index_Property).toInt() == i)
+						{
+							checkBox->setChecked(thickness_Fit_CheckBox->isChecked());
+						}
+						if(checkBox == thickness_Fit_CheckBox)
+						{
+							thickness_Fit_CheckBox->toggled(thickness_Fit_CheckBox->isChecked());
+						}
+					}
+					modifier_Key_Still_Pressed = modifier_Key_Still_Pressed_Duplicate;
+
+					save_And_Emit();
+				} else
+				{
+					regular_Aperiodic_Data.regular_Components[i].components[n].thickness.fit.is_Fitable = thickness_Fit_CheckBox->isChecked();
+
+					if(thickness_Fit_CheckBox->isChecked())
+						back_Widget->setStyleSheet(fit_Color);
+					else
+						back_Widget->setStyleSheet(white_Color);
+				}
+
+				if(!modifier_Key_Still_Pressed_Duplicate)
+				{
+					save_And_Emit();
+				}
+			});
+			thickness_Fit_CheckBox->toggled(thickness_Fit_CheckBox->isChecked());
 			current_Column++;
 
 			// sigma value
@@ -213,7 +281,6 @@ void Regular_Aperiodic_Table::create_Table()
 				sigma_Value_Spinbox->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT_SIGMA);
 				sigma_Value_Spinbox->setProperty(whats_This_Property, whats_This_Sigma);
 			regular_Table->setCellWidget(current_Row, current_Column, sigma_Value_Spinbox);
-			spinboxes_List.append(sigma_Value_Spinbox);
 			sigma_Spinboxes_List.append(sigma_Value_Spinbox);
 			connect(sigma_Value_Spinbox, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
 			{
@@ -240,7 +307,7 @@ void Regular_Aperiodic_Table::create_Table()
 				density_Value_Spinbox->setValue(regular_Aperiodic_Data.regular_Components[i].components[n].absolute_Density.value);
 			}
 			regular_Table->setCellWidget(current_Row, current_Column, density_Value_Spinbox);
-			spinboxes_List.append(density_Value_Spinbox);
+			density_Spinboxes_List.append(density_Value_Spinbox);
 			current_Column++;
 
 			current_Row++;
@@ -260,9 +327,9 @@ void Regular_Aperiodic_Table::create_Table()
 	checkbox_Mouse_Wheel->setMinimumWidth(width);
 }
 
-void Regular_Aperiodic_Table::create_Simple_Label(int current_Row, int current_Column, QString text)
+void Regular_Aperiodic_Table::create_Simple_Label(int current_Row, int current_Column, QString text, QLabel* label)
 {
-	QLabel* label = new QLabel(text);
+	label = new QLabel(text);
 		label->setAlignment(Qt::AlignCenter);
 		label->setStyleSheet("background-color: lightblue");
 		label->setProperty(fit_Column_Property, true);
@@ -274,12 +341,14 @@ void Regular_Aperiodic_Table::create_Simple_Label(int current_Row, int current_C
 void Regular_Aperiodic_Table::create_Step_Spin_Box(int current_Row, int current_Column, QString whats_This)
 {
 	MyDoubleSpinBox* step_SpinBox = new MyDoubleSpinBox;
+		step_SpinBox->setDecimals(4);
 		step_SpinBox->setRange(0, MAX_DOUBLE);
 		step_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
 		step_SpinBox->setAccelerated(true);
 		step_SpinBox->setProperty(column_Property,current_Column);
 		step_SpinBox->installEventFilter(this);
 
+	step_Spinboxes_List.append(step_SpinBox);
 	regular_Table->setCellWidget(current_Row, current_Column, step_SpinBox);
 		if(whats_This == whats_This_Thickness)	step_SpinBox->setFixedWidth(APERIODIC_TABLE_THICKNESS_VALUE_WIDTH);
 		if(whats_This == whats_This_Sigma)		step_SpinBox->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT_SIGMA);
@@ -288,19 +357,38 @@ void Regular_Aperiodic_Table::create_Step_Spin_Box(int current_Row, int current_
 	{
 		double length_Coeff = length_Coefficients_Map.value(length_units);
 
+		if(step_SpinBox->property(reload_Property).toBool())
+		{
+			int add_Decimals = min(log10(length_Coeff),2.);
+			double min_Step = max(0.1/length_Coeff,0.0001);
+
+			if(whats_This == whats_This_Thickness)		{ step_SpinBox->setValue(step_thickness_aperiodic/length_Coeff); }
+			if(whats_This == whats_This_Sigma)			{ step_SpinBox->setValue(step_sigma_aperiodic/length_Coeff);	}
+
+			step_SpinBox->setDecimals(2+add_Decimals);
+			step_SpinBox->setSingleStep(min_Step);
+			step_SpinBox->setSuffix(" "+length_units);
+		}
+
 		if(whats_This == whats_This_Thickness)	{ step_thickness_aperiodic = step_SpinBox->value()*length_Coeff;  for(MyDoubleSpinBox* spb : thickness_Spinboxes_List)	spb->setSingleStep(step_thickness_aperiodic/length_Coeff);}
 		if(whats_This == whats_This_Sigma)		{ step_sigma_aperiodic = step_SpinBox->value()*length_Coeff;      for(MyDoubleSpinBox* spb : sigma_Spinboxes_List)		spb->setSingleStep(step_sigma_aperiodic/length_Coeff);	}
 	});
 
-	double length_Coeff = length_Coefficients_Map.value(length_units);
-	int add_Decimals = min(log10(length_Coeff),2.);
-	double min_Step = max(0.1/length_Coeff,0.0001);
-
-	if(whats_This == whats_This_Thickness)		{ step_SpinBox->setValue(step_thickness_aperiodic/length_Coeff);	step_SpinBox->setDecimals(2+add_Decimals);	step_SpinBox->setSingleStep(min_Step);	step_SpinBox->setSuffix(" "+length_units);}
-	if(whats_This == whats_This_Sigma)			{ step_SpinBox->setValue(step_sigma_aperiodic/length_Coeff);		step_SpinBox->setDecimals(2+add_Decimals);	step_SpinBox->setSingleStep(min_Step);	step_SpinBox->setSuffix(" "+length_units);}
-
 	// initialize
+	step_SpinBox->setProperty(reload_Property, true);
 	step_SpinBox->valueChanged(step_SpinBox->value());
+	step_SpinBox->setProperty(reload_Property, false);
+	connect(qApp, &QApplication::focusChanged, this, [=](QWidget* old, QWidget* now)
+	{
+		if(now)
+		{
+			if(now->topLevelWidget()==this)
+			{
+				if(!old)                             step_SpinBox->valueChanged(step_SpinBox->value());
+				else if(old->topLevelWidget()!=this) step_SpinBox->valueChanged(step_SpinBox->value());
+			}
+		}
+	});
 }
 
 void Regular_Aperiodic_Table::refresh_Regular_Component(Data& current_Layer, int i)
@@ -346,13 +434,109 @@ void Regular_Aperiodic_Table::refresh_Regular_Component(Data& current_Layer, int
 		}
 		regular_Aperiodic_Data.regular_Components[i].find_Min_Max_Values();
 	}
-	{
-		QVariant var;
-		var.setValue( regular_Aperiodic_Data );
-		item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
-	}
-	emit_Regular_Aperiodic_Edited();
+	save_And_Emit();
 
 	// recalculation at change
 	if(aperiodic_Recalculate_Spinbox_Table && !reload) {global_Multilayer_Approach->calc_Reflection(true);}
+}
+
+void Regular_Aperiodic_Table::reload_One_Widget(QWidget* widget_To_Reload)
+{
+	widget_To_Reload->setProperty(reload_Property, true);
+
+	QLabel*				label = qobject_cast<QLabel*>		  (widget_To_Reload);
+	QCheckBox*		check_Box = qobject_cast<QCheckBox*>	  (widget_To_Reload);
+	MyDoubleSpinBox* spin_Box = qobject_cast<MyDoubleSpinBox*>(widget_To_Reload);
+
+	if(label)
+	{
+		label->windowTitleChanged(label->text());
+	}
+	if(check_Box)
+	{
+		check_Box->toggled(check_Box->isChecked());
+	}
+	if(spin_Box)
+	{
+		spin_Box->valueChanged(spin_Box->value());
+	}
+
+	widget_To_Reload->setProperty(reload_Property, false);
+}
+
+void Regular_Aperiodic_Table::reload_All_Widgets()
+{
+	QWidget* sender = qobject_cast<QWidget*>(QObject::sender());
+	reload_Labels(sender);
+	reload_Thicknesses(sender);
+	reload_Sigmas(sender);
+	reload_Densities(sender);
+	reload_Steps(sender);
+	reload_Checkboxes(sender);
+}
+
+void Regular_Aperiodic_Table::reload_Labels(QWidget* sender)
+{
+	for(QWidget* widget_To_Reload : labels_List)
+	{
+		if(widget_To_Reload != sender)
+		{
+			reload_One_Widget(widget_To_Reload);
+		}
+	}
+}
+
+void Regular_Aperiodic_Table::reload_Thicknesses(QWidget* sender)
+{
+	for(QWidget* widget_To_Reload : thickness_Spinboxes_List)
+	{
+		if(widget_To_Reload != sender)
+		{
+			reload_One_Widget(widget_To_Reload);
+		}
+	}
+}
+
+void Regular_Aperiodic_Table::reload_Sigmas(QWidget* sender)
+{
+	for(QWidget* widget_To_Reload : sigma_Spinboxes_List)
+	{
+		if(widget_To_Reload != sender)
+		{
+			reload_One_Widget(widget_To_Reload);
+		}
+	}
+}
+
+void Regular_Aperiodic_Table::reload_Densities(QWidget* sender)
+{
+	for(QWidget* widget_To_Reload : density_Spinboxes_List)
+	{
+		if(widget_To_Reload != sender)
+		{
+			reload_One_Widget(widget_To_Reload);
+		}
+	}
+}
+
+void Regular_Aperiodic_Table::reload_Steps(QWidget *sender)
+{
+	for(QWidget* widget_To_Reload : step_Spinboxes_List)
+	{
+		if(widget_To_Reload != sender)
+		{
+			reload_One_Widget(widget_To_Reload);
+		}
+	}
+}
+
+void Regular_Aperiodic_Table::reload_Checkboxes(QWidget* sender)
+{
+	for(QWidget* widget_To_Reload : thickness_Checkboxes_List)
+	{
+		if(widget_To_Reload != sender)
+		{
+			reload_One_Widget(widget_To_Reload);
+		}
+	}
 }
