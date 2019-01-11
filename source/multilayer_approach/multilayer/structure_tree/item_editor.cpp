@@ -525,6 +525,8 @@ void Item_Editor::cell_Items_In_Regular_Aperiodic(QHBoxLayout *aperiodic_Group_B
 	common_Sigma_Layout->addWidget(common_Sigma_Label,0,Qt::AlignCenter);
 
 	QVBoxLayout* soft_Restriction_Layout = new QVBoxLayout;
+		soft_Restriction_Layout->setContentsMargins(0,4,0,0);
+		soft_Restriction_Layout->setSpacing(2);
 	aperiodic_Group_Box_Layout->addLayout(soft_Restriction_Layout);
 	QLabel* soft_Restriction_Label = new QLabel("       Smooth \"z\": {"+Plus_Minus_Sym+Delta_Big_Sym+", Q}");
 	soft_Restriction_Layout->addWidget(soft_Restriction_Label,0,Qt::AlignLeft);
@@ -574,6 +576,7 @@ void Item_Editor::cell_Items_In_Regular_Aperiodic(QHBoxLayout *aperiodic_Group_B
 
 		// create additional restrictions
 		QHBoxLayout* soft_Restriction_Row_Layout = new QHBoxLayout;
+			soft_Restriction_Row_Layout->setContentsMargins(0,3,0,0);
 			soft_Restriction_Row_Layout->setAlignment(Qt::AlignLeft);
 		soft_Restriction_Layout->addLayout(soft_Restriction_Row_Layout);
 
