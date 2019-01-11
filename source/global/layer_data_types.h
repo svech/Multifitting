@@ -99,9 +99,6 @@ public:
 
 		// regular aperiodic
 		QList<Regular_Component> regular_Components;
-		bool use_Soft_Restrictions = false;
-		int threshold = 0;
-		double Q_factor = 0;
 	///---------------------------------------------
 	///---------------------------------------------
 	// Layer, Multilayer, Aperiodic
@@ -116,6 +113,14 @@ public:
 struct Regular_Component		{id_Type top_Id;
 								 QVector<Data> components;
 								 Min_Max min_Max_Values;
+
+								 bool is_Common_Thickness = false;
+								 bool is_Common_Sigma = false;
+
+								 bool use_Soft_Restrictions = false;
+								 int threshold = 0;
+								 double Q_factor = 0;
+
 								 void find_Min_Max_Values()
 								 {
 									 min_Max_Values.thickness_Min = MAX_DOUBLE;

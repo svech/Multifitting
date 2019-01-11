@@ -11,9 +11,12 @@ Item_Editor::Item_Editor(QList<Item_Editor*>& list_Editors, QTreeWidgetItem* ite
 	structure_Tree(structure_Tree),
 	QDialog(parent)
 {
+	qInfo() << "good start";
 	setWindowTitle(Global_Variables::structure_Item_Name(struct_Data));
+	qInfo() << Global_Variables::structure_Item_Name(struct_Data);
 	create_Main_Layout();
 	set_Window_Geometry();
+	qInfo() << "good end";
 }
 
 void Item_Editor::emit_Item_Data_Edited()
@@ -64,7 +67,7 @@ void Item_Editor::create_Main_Layout()
 	if(struct_Data.item_Type == item_Type_Layer)			make_Layer_Editor();
 	if(struct_Data.item_Type == item_Type_Substrate)		make_Substrate_Editor();
 	if(struct_Data.item_Type == item_Type_Multilayer)		make_Multilayer_Editor();
-	if(struct_Data.item_Type == item_Type_General_Aperiodic)make_Genereal_Aperiodic_Editor();
+	if(struct_Data.item_Type == item_Type_General_Aperiodic)make_General_Aperiodic_Editor();
 	if(struct_Data.item_Type == item_Type_Regular_Aperiodic)make_Regular_Aperiodic_Editor();
 
 	QHBoxLayout* button_Layout = new QHBoxLayout;
@@ -335,12 +338,12 @@ void Item_Editor::make_Multilayer_Group_Box()
 	}
 }
 
-void Item_Editor::make_Genereal_Aperiodic_Editor()
+void Item_Editor::make_General_Aperiodic_Editor()
 {
-	make_Genereal_Aperiodic_Group_Box();
+	make_General_Aperiodic_Group_Box();
 }
 
-void Item_Editor::make_Genereal_Aperiodic_Group_Box()
+void Item_Editor::make_General_Aperiodic_Group_Box()
 {
 	general_Aperiodic_Group_Box = new QGroupBox;
 		general_Aperiodic_Group_Box->setObjectName("general_Aperiodic_Group_Box");
@@ -349,7 +352,7 @@ void Item_Editor::make_Genereal_Aperiodic_Group_Box()
 
 	QHBoxLayout* general_Aperiodic_Group_Box_Layout = new QHBoxLayout(general_Aperiodic_Group_Box);
 
-	unique_Items_In_Aperiodic(general_Aperiodic_Group_Box_Layout);
+	unique_Items_In_General_Aperiodic(general_Aperiodic_Group_Box_Layout);
 	transformations();
 }
 
@@ -367,11 +370,11 @@ void Item_Editor::make_Regular_Aperiodic_Group_Box()
 
 	QHBoxLayout* regular_Aperiodic_Group_Box_Layout = new QHBoxLayout(regular_Aperiodic_Group_Box);
 
-	unique_Items_In_Aperiodic(regular_Aperiodic_Group_Box_Layout);
+	cell_Items_In_Regular_Aperiodic(regular_Aperiodic_Group_Box_Layout)	;
 	transformations();
 }
 
-void Item_Editor::unique_Items_In_Aperiodic(QHBoxLayout* aperiodic_Group_Box_Layout)
+void Item_Editor::unique_Items_In_General_Aperiodic(QHBoxLayout* aperiodic_Group_Box_Layout)
 {
 	calc_Uniqueness();
 
@@ -404,14 +407,6 @@ void Item_Editor::unique_Items_In_Aperiodic(QHBoxLayout* aperiodic_Group_Box_Lay
 	aperiodic_Group_Box_Layout->addLayout(fit_Sigma_Layout);
 	QLabel* fit_Sigma_Label = new QLabel(" Fit \""+Sigma_Sym+"\" ");
 	fit_Sigma_Layout->addWidget(fit_Sigma_Label,0,Qt::AlignCenter);
-
-	QVBoxLayout* soft_Restriction_Layout = new QVBoxLayout;
-	if(struct_Data.item_Type == item_Type_Regular_Aperiodic)
-	{
-		aperiodic_Group_Box_Layout->addLayout(soft_Restriction_Layout);
-		QLabel* soft_Restriction_Label = new QLabel("       Smooth \"z\": {"+Plus_Minus_Sym+Delta_Big_Sym+", Q}");
-		soft_Restriction_Layout->addWidget(soft_Restriction_Label,0,Qt::AlignLeft);
-	}
 
 	for(int i=0; i<item->childCount(); i++)
 	{
@@ -506,90 +501,146 @@ void Item_Editor::unique_Items_In_Aperiodic(QHBoxLayout* aperiodic_Group_Box_Lay
 				unique_Item_Connect_Sigma->hide();
 				unique_Item_Fit_Sigma->hide();
 			}
-
-			// create additional restrictions
-			if(struct_Data.item_Type == item_Type_Regular_Aperiodic)
-			{
-				QHBoxLayout* soft_Restriction_Row_Layout = new QHBoxLayout;
-					soft_Restriction_Row_Layout->setAlignment(Qt::AlignLeft);
-				soft_Restriction_Layout->addLayout(soft_Restriction_Row_Layout);
-
-				QCheckBox* soft_Restriction_CheckBox = new QCheckBox;
-					soft_Restriction_CheckBox->setSizePolicy(sp_retain);
-					soft_Restriction_CheckBox->setChecked(current_Child_Data.use_Soft_Restrictions);
-				soft_Restriction_Row_Layout->addWidget(soft_Restriction_CheckBox);
-
-				QLabel* plus_Minus_Label = new QLabel(Plus_Minus_Sym);
-					plus_Minus_Label->setEnabled(current_Child_Data.use_Soft_Restrictions);
-				soft_Restriction_Row_Layout->addWidget(plus_Minus_Label);
-
-				QSpinBox* soft_Restriction_Threshold_SpinBox = new QSpinBox;
-					soft_Restriction_Threshold_SpinBox->setRange(0, 100);
-					soft_Restriction_Threshold_SpinBox->setEnabled(current_Child_Data.use_Soft_Restrictions);
-					soft_Restriction_Threshold_SpinBox->setSuffix("%");
-					soft_Restriction_Threshold_SpinBox->setValue(current_Child_Data.threshold);
-					soft_Restriction_Threshold_SpinBox->setAccelerated(true);
-					soft_Restriction_Threshold_SpinBox->setFixedWidth(45);
-					soft_Restriction_Threshold_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
-				soft_Restriction_Row_Layout->addWidget(soft_Restriction_Threshold_SpinBox);
-
-				QLabel* Q_Label = new QLabel(", Q=");
-					Q_Label->setEnabled(current_Child_Data.use_Soft_Restrictions);
-				soft_Restriction_Row_Layout->addWidget(Q_Label);
-
-				MyDoubleSpinBox* soft_Restriction_Q_SpinBox = new MyDoubleSpinBox;
-					soft_Restriction_Q_SpinBox->setEnabled(current_Child_Data.use_Soft_Restrictions);
-					soft_Restriction_Q_SpinBox->setSuffix("  ");
-					soft_Restriction_Q_SpinBox->setRange(0, MAX_DOUBLE);
-					soft_Restriction_Q_SpinBox->setSingleStep(1);
-					soft_Restriction_Q_SpinBox->setValue(current_Child_Data.Q_factor);
-					soft_Restriction_Q_SpinBox->setAccelerated(true);
-					soft_Restriction_Q_SpinBox->setDecimals(3);
-					soft_Restriction_Q_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
-				soft_Restriction_Row_Layout->addWidget(soft_Restriction_Q_SpinBox);
-				Global_Variables::resize_Line_Edit(soft_Restriction_Q_SpinBox);
-
-				if(current_Child_Data.item_Type == item_Type_Layer)
-				{
-					connect(soft_Restriction_CheckBox, &QCheckBox::toggled, this, [=]
-					{
-						soft_Restriction_Save(current_Child_Uniqueness,
-											  soft_Restriction_CheckBox->isChecked(),
-											  soft_Restriction_Threshold_SpinBox->value(),
-											  soft_Restriction_Q_SpinBox->value());
-
-						plus_Minus_Label->setEnabled(soft_Restriction_CheckBox->isChecked());
-						soft_Restriction_Threshold_SpinBox->setEnabled(soft_Restriction_CheckBox->isChecked());
-						Q_Label->setEnabled(soft_Restriction_CheckBox->isChecked());
-						soft_Restriction_Q_SpinBox->setEnabled(soft_Restriction_CheckBox->isChecked());
-					});
-					connect(soft_Restriction_Threshold_SpinBox, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, [=]
-					{
-						soft_Restriction_Save(current_Child_Uniqueness,
-											  soft_Restriction_CheckBox->isChecked(),
-											  soft_Restriction_Threshold_SpinBox->value(),
-											  soft_Restriction_Q_SpinBox->value());
-					});
-					connect(soft_Restriction_Q_SpinBox, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
-					{
-						soft_Restriction_Save(current_Child_Uniqueness,
-											  soft_Restriction_CheckBox->isChecked(),
-											  soft_Restriction_Threshold_SpinBox->value(),
-											  soft_Restriction_Q_SpinBox->value());
-
-						Global_Variables::resize_Line_Edit(soft_Restriction_Q_SpinBox);
-					});
-
-				} else
-				{
-					plus_Minus_Label->hide();
-					soft_Restriction_CheckBox->hide();
-					soft_Restriction_Threshold_SpinBox->hide();
-					Q_Label->hide();
-					soft_Restriction_Q_SpinBox->hide();
-				}
-			}
 		}
+	}
+}
+
+void Item_Editor::cell_Items_In_Regular_Aperiodic(QHBoxLayout *aperiodic_Group_Box_Layout)
+{
+	// header
+	QVBoxLayout* layer_Layout = new QVBoxLayout;
+	aperiodic_Group_Box_Layout->addLayout(layer_Layout);
+	QLabel* layer_Label = new QLabel("Item");
+	layer_Layout->addWidget(layer_Label,0,Qt::AlignCenter);
+
+	QVBoxLayout* common_Z_Layout = new QVBoxLayout;
+	aperiodic_Group_Box_Layout->addLayout(common_Z_Layout);
+	QLabel* common_Z_Label = new QLabel(" Common \"z\" ");
+	common_Z_Layout->addWidget(common_Z_Label);
+
+	QVBoxLayout* common_Sigma_Layout = new QVBoxLayout;
+	aperiodic_Group_Box_Layout->addLayout(common_Sigma_Layout);
+	QLabel* common_Sigma_Label = new QLabel(" Common \""+Sigma_Sym+"\" ");
+	common_Sigma_Layout->addWidget(common_Sigma_Label,0,Qt::AlignCenter);
+
+	QVBoxLayout* soft_Restriction_Layout = new QVBoxLayout;
+	aperiodic_Group_Box_Layout->addLayout(soft_Restriction_Layout);
+	QLabel* soft_Restriction_Label = new QLabel("       Smooth \"z\": {"+Plus_Minus_Sym+Delta_Big_Sym+", Q}");
+	soft_Restriction_Layout->addWidget(soft_Restriction_Label,0,Qt::AlignLeft);
+
+	for(int i=0; i<item->childCount(); i++)
+	{
+		QTreeWidgetItem* current_Cell_Layer = item->child(i);
+		Data current_Child_Data = current_Cell_Layer->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+
+		// text
+		QString composed;
+		if(current_Child_Data.item_Type == item_Type_Layer)
+		{
+			if(current_Child_Data.composed_Material) composed = "(composed)";
+			else									 composed = "(tabular)";
+		}
+		QString text =	Locale.toString(i+1) + ")  " +
+						current_Child_Data.item_Type + "  " +
+						current_Child_Data.material + "  " +
+						composed;
+
+		QLabel* unique_Item_Label = new QLabel(text);
+		layer_Layout->addWidget(unique_Item_Label);
+
+		QSizePolicy sp_retain;
+			sp_retain.setRetainSizeWhenHidden(true);
+
+		QCheckBox* item_Common_Thickness = new QCheckBox;
+			item_Common_Thickness->setSizePolicy(sp_retain);
+			item_Common_Thickness->setChecked(struct_Data.regular_Components[i].is_Common_Thickness);
+		common_Z_Layout->addWidget(item_Common_Thickness,0,Qt::AlignCenter);
+		QCheckBox* item_Common_Sigma = new QCheckBox;
+			item_Common_Sigma->setSizePolicy(sp_retain);
+			item_Common_Sigma->setChecked(struct_Data.regular_Components[i].is_Common_Sigma);
+		common_Sigma_Layout->addWidget(item_Common_Sigma,0,Qt::AlignCenter);
+
+		connect(item_Common_Thickness, &QCheckBox::toggled, this, [=]
+		{
+			struct_Data.regular_Components[i].is_Common_Thickness = item_Common_Thickness->isChecked();
+			save_Data();
+		});
+		connect(item_Common_Sigma,	   &QCheckBox::toggled, this, [=]
+		{
+			struct_Data.regular_Components[i].is_Common_Sigma = item_Common_Sigma->isChecked();
+			save_Data();
+		});
+
+		// create additional restrictions
+		QHBoxLayout* soft_Restriction_Row_Layout = new QHBoxLayout;
+			soft_Restriction_Row_Layout->setAlignment(Qt::AlignLeft);
+		soft_Restriction_Layout->addLayout(soft_Restriction_Row_Layout);
+
+		QCheckBox* soft_Restriction_CheckBox = new QCheckBox;
+			soft_Restriction_CheckBox->setSizePolicy(sp_retain);
+			soft_Restriction_CheckBox->setChecked(struct_Data.regular_Components[i].use_Soft_Restrictions);
+		soft_Restriction_Row_Layout->addWidget(soft_Restriction_CheckBox);
+
+		QLabel* plus_Minus_Label = new QLabel(Plus_Minus_Sym);
+			plus_Minus_Label->setEnabled(struct_Data.regular_Components[i].use_Soft_Restrictions);
+		soft_Restriction_Row_Layout->addWidget(plus_Minus_Label);
+
+		QSpinBox* soft_Restriction_Threshold_SpinBox = new QSpinBox;
+			soft_Restriction_Threshold_SpinBox->setRange(0, 100);
+			soft_Restriction_Threshold_SpinBox->setEnabled(struct_Data.regular_Components[i].use_Soft_Restrictions);
+			soft_Restriction_Threshold_SpinBox->setSuffix("%");
+			soft_Restriction_Threshold_SpinBox->setValue(struct_Data.regular_Components[i].threshold);
+			soft_Restriction_Threshold_SpinBox->setAccelerated(true);
+			soft_Restriction_Threshold_SpinBox->setFixedWidth(45);
+			soft_Restriction_Threshold_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
+		soft_Restriction_Row_Layout->addWidget(soft_Restriction_Threshold_SpinBox);
+
+		QLabel* Q_Label = new QLabel(", Q=");
+			Q_Label->setEnabled(struct_Data.regular_Components[i].use_Soft_Restrictions);
+		soft_Restriction_Row_Layout->addWidget(Q_Label);
+
+		MyDoubleSpinBox* soft_Restriction_Q_SpinBox = new MyDoubleSpinBox;
+			soft_Restriction_Q_SpinBox->setEnabled(struct_Data.regular_Components[i].use_Soft_Restrictions);
+			soft_Restriction_Q_SpinBox->setSuffix("  ");
+			soft_Restriction_Q_SpinBox->setRange(0, MAX_DOUBLE);
+			soft_Restriction_Q_SpinBox->setSingleStep(1);
+			soft_Restriction_Q_SpinBox->setValue(struct_Data.regular_Components[i].Q_factor);
+			soft_Restriction_Q_SpinBox->setAccelerated(true);
+			soft_Restriction_Q_SpinBox->setDecimals(3);
+			soft_Restriction_Q_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
+		soft_Restriction_Row_Layout->addWidget(soft_Restriction_Q_SpinBox);
+		Global_Variables::resize_Line_Edit(soft_Restriction_Q_SpinBox);
+
+		connect(soft_Restriction_CheckBox, &QCheckBox::toggled, this, [=]
+		{
+			for(int n=0; n<struct_Data.num_Repetition.value(); ++n)
+			{
+				struct_Data.regular_Components[i].use_Soft_Restrictions = soft_Restriction_CheckBox->isChecked();
+			}
+
+			plus_Minus_Label->setEnabled(soft_Restriction_CheckBox->isChecked());
+			soft_Restriction_Threshold_SpinBox->setEnabled(soft_Restriction_CheckBox->isChecked());
+			Q_Label->setEnabled(soft_Restriction_CheckBox->isChecked());
+			soft_Restriction_Q_SpinBox->setEnabled(soft_Restriction_CheckBox->isChecked());
+			save_Data();
+		});
+		connect(soft_Restriction_Threshold_SpinBox, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, [=]
+		{
+			for(int n=0; n<struct_Data.num_Repetition.value(); ++n)
+			{
+				struct_Data.regular_Components[i].threshold = soft_Restriction_Threshold_SpinBox->value();
+			}
+			save_Data();
+		});
+		connect(soft_Restriction_Q_SpinBox, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
+		{
+			for(int n=0; n<struct_Data.num_Repetition.value(); ++n)
+			{
+				struct_Data.regular_Components[i].Q_factor = soft_Restriction_Q_SpinBox->value();
+			}
+			save_Data();
+			Global_Variables::resize_Line_Edit(soft_Restriction_Q_SpinBox);
+		});
 	}
 }
 
@@ -598,6 +649,7 @@ void Item_Editor::transformations()
 	QGroupBox* transformation_Group_Box = new QGroupBox;
 		transformation_Group_Box->setObjectName("transformation_Group_Box");
 		transformation_Group_Box->setStyleSheet("QGroupBox#transformation_Group_Box { border-radius: 2px;  border: 1px solid gray;}");
+	main_Layout->addWidget(transformation_Group_Box);
 	QHBoxLayout* layout = new QHBoxLayout(transformation_Group_Box);
 
 	// make periodic
@@ -609,7 +661,8 @@ void Item_Editor::transformations()
 		layout->addWidget(make_Multilayer_CheckBox);
 		connect(make_Multilayer_CheckBox, &QCheckBox::released, this, [=]
 		{
-			QMessageBox::StandardButton reply = QMessageBox::question(this,"Make periodic", "Are you sure?", QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
+			QMessageBox::StandardButton reply = QMessageBox::Yes;
+//			reply = QMessageBox::question(this,"Make periodic", "Are you sure?", QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
 			if (reply == QMessageBox::Yes)
 			{
 				if( struct_Data.item_Type == item_Type_General_Aperiodic) general_Aperiodic_To_Multilayer_Or_Regular_Aperiodic(item_Type_Multilayer);
@@ -617,27 +670,6 @@ void Item_Editor::transformations()
 			} else
 			{
 				make_Multilayer_CheckBox->setChecked(false);
-			}
-		});
-	}
-
-	// make regular aperiodic
-	if( struct_Data.item_Type == item_Type_Multilayer ||
-		struct_Data.item_Type == item_Type_General_Aperiodic )
-	{
-		make_Regular_Aperiodic_CheckBox = new QCheckBox("Make regular aperiodic");
-			make_Regular_Aperiodic_CheckBox->setChecked(false);
-		layout->addWidget(make_Regular_Aperiodic_CheckBox);
-		connect(make_Regular_Aperiodic_CheckBox, &QCheckBox::released, this, [=]
-		{
-			QMessageBox::StandardButton reply = QMessageBox::question(this,"Make regular aperiodic", "Are you sure?", QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
-			if (reply == QMessageBox::Yes)
-			{
-				if( struct_Data.item_Type == item_Type_Multilayer)		  multilayer_To_Regular_Aperiodic();
-				if( struct_Data.item_Type == item_Type_General_Aperiodic) general_Aperiodic_To_Multilayer_Or_Regular_Aperiodic(item_Type_Regular_Aperiodic);
-			} else
-			{
-				make_Regular_Aperiodic_CheckBox->setChecked(false);
 			}
 		});
 	}
@@ -651,7 +683,8 @@ void Item_Editor::transformations()
 		layout->addWidget(make_General_Aperiodic_CheckBox);
 		connect(make_General_Aperiodic_CheckBox, &QCheckBox::released, this, [=]
 		{
-			QMessageBox::StandardButton reply = QMessageBox::question(this,"Make general aperiodic", "Are you sure?", QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
+			QMessageBox::StandardButton reply = QMessageBox::Yes;
+//			reply = QMessageBox::question(this,"Make general aperiodic", "Are you sure?", QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
 			if (reply == QMessageBox::Yes)
 			{
 				if( struct_Data.item_Type == item_Type_Multilayer)		  multilayer_Or_Regular_Aperiodic_To_General_Aperiodic();
@@ -663,6 +696,30 @@ void Item_Editor::transformations()
 		});
 	}
 
+
+	// make regular aperiodic
+	if( struct_Data.item_Type == item_Type_Multilayer ||
+		struct_Data.item_Type == item_Type_General_Aperiodic )
+	{
+		make_Regular_Aperiodic_CheckBox = new QCheckBox("Make regular aperiodic");
+			make_Regular_Aperiodic_CheckBox->setChecked(false);
+		layout->addWidget(make_Regular_Aperiodic_CheckBox);
+		connect(make_Regular_Aperiodic_CheckBox, &QCheckBox::released, this, [=]
+		{
+			QMessageBox::StandardButton reply = QMessageBox::Yes;
+//			reply = QMessageBox::question(this,"Make regular aperiodic", "Are you sure?", QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
+			if (reply == QMessageBox::Yes)
+			{
+				if( struct_Data.item_Type == item_Type_Multilayer)		  multilayer_To_Regular_Aperiodic();
+				if( struct_Data.item_Type == item_Type_General_Aperiodic) general_Aperiodic_To_Multilayer_Or_Regular_Aperiodic(item_Type_Regular_Aperiodic);
+			} else
+			{
+				make_Regular_Aperiodic_CheckBox->setChecked(false);
+			}
+		});
+	}
+
+
 	// invert
 	if( struct_Data.item_Type == item_Type_Multilayer ||
 		struct_Data.item_Type == item_Type_General_Aperiodic ||
@@ -673,8 +730,6 @@ void Item_Editor::transformations()
 		layout->addWidget(invert_CheckBox);
 		connect(invert_CheckBox, &QCheckBox::toggled, this, [=]{invert_Multilayer(item);});
 	}
-
-	main_Layout->addWidget(transformation_Group_Box);
 }
 
 void Item_Editor::make_Sigma_Group_Box()
@@ -1291,10 +1346,8 @@ void Item_Editor::refresh_Material()
 	if(material_Done)
 	if(struct_Data.item_Type == item_Type_Ambient || struct_Data.item_Type == item_Type_Layer || struct_Data.item_Type == item_Type_Substrate)
 	{
-		QVariant var;
 		struct_Data.material = material_Line_Edit->text();
-		var.setValue( struct_Data );
-		item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+		save_Data();
 
 		if(sender() == material_Line_Edit)
 		{
@@ -1306,7 +1359,6 @@ void Item_Editor::refresh_Material()
 void Item_Editor::refresh_Data()
 {
 	double coeff = length_Coefficients_Map.value(length_units);
-	QVariant var;
 
 	// material
 	if(material_Done)
@@ -1437,9 +1489,7 @@ void Item_Editor::refresh_Data()
 			}
 		}
 	}
-
-	var.setValue( struct_Data );
-	item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+	save_Data();
 
 	show_Material();
 	show_Interlayers(sender());
@@ -1590,9 +1640,7 @@ void Item_Editor::multilayer_To_Aperiodic_Subfunction()
 	struct_Data.num_Repetition.parameter.fit.is_Fitable = false;
 
 	// save
-	QVariant var;
-	var.setValue( struct_Data );
-	item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+	save_Data();
 	if(item->childCount() <= 20)
 	{	item->setExpanded(true);}
 	else
@@ -1677,7 +1725,7 @@ void Item_Editor::general_Aperiodic_To_Multilayer_Or_Regular_Aperiodic(QString t
 		if(target_Item_Type == item_Type_Multilayer )		{word1 = "periodic"; word2 = "periodic multilayer";}
 		if(target_Item_Type == item_Type_Regular_Aperiodic) {word1 = "regular aperiodic"; word2 = "regular aperiodic";}
 
-		reply = QMessageBox::question(this,"Make "+word1, "General aperiodic can't be reduced to\n"+word2+" with N>1.\nContinue?", QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
+//		reply = QMessageBox::question(this,"Make "+word1, "General aperiodic can't be reduced to\n"+word2+" with N>1.\nContinue?", QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
 	}
 	if (reply == QMessageBox::Yes)
 	{
@@ -1694,9 +1742,7 @@ void Item_Editor::general_Aperiodic_To_Multilayer_Or_Regular_Aperiodic(QString t
 		if(target_Item_Type == item_Type_Regular_Aperiodic) to_Regular_Aperiodic_Subfunction();
 
 		// save
-		QVariant var;
-		var.setValue( struct_Data );
-		item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+		save_Data();
 
 		if(item->childCount() <= 30)
 		{	item->setExpanded(true);}
@@ -1711,7 +1757,8 @@ void Item_Editor::general_Aperiodic_To_Multilayer_Or_Regular_Aperiodic(QString t
 		structure_Tree->if_DoubleClicked(item);
 	} else
 	{
-		make_Multilayer_CheckBox->setChecked(false);
+		if(target_Item_Type == item_Type_Multilayer )		make_Multilayer_CheckBox->setChecked(false);
+		if(target_Item_Type == item_Type_Regular_Aperiodic) make_Regular_Aperiodic_CheckBox->setChecked(false);
 		return;
 	}
 }
@@ -1724,9 +1771,7 @@ void Item_Editor::regular_Aperiodic_To_Multilayer()
 	struct_Data.regular_Components.clear();
 
 	// save
-	QVariant var;
-	var.setValue( struct_Data );
-	item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+	save_Data();
 	structure_Tree->refresh__StructureTree__Data_and_Text();
 
 	// close old editor
@@ -1906,20 +1951,9 @@ void Item_Editor::unique_Item_Do(QString action, int uniqueness)
 	}
 }
 
-void Item_Editor::soft_Restriction_Save(int current_Uniqueness, bool use_Soft_Restrictions, int threshold, double Q_factor)
+void Item_Editor::save_Data()
 {
-	for(int k=0; k<item->childCount(); k++)
-	{
-		Data child_Data = item->child(k)->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
-		if(child_Data.uniqueness == current_Uniqueness)
-		{
-			child_Data.use_Soft_Restrictions = use_Soft_Restrictions;
-			child_Data.threshold = threshold;
-			child_Data.Q_factor = Q_factor;
-
-			QVariant var;
-			var.setValue( child_Data );
-			item->child(k)->setData(DEFAULT_COLUMN, Qt::UserRole, var);
-		}
-	}
+	QVariant var;
+	var.setValue( struct_Data );
+	item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
 }

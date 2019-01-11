@@ -42,14 +42,15 @@ public:
 			void make_Thickness_Group_Box();
 		void make_Multilayer_Editor();
 			void make_Multilayer_Group_Box();
-		void make_Genereal_Aperiodic_Editor();
-			void make_Genereal_Aperiodic_Group_Box();
+		void make_General_Aperiodic_Editor();
+			void make_General_Aperiodic_Group_Box();
 		void make_Regular_Aperiodic_Editor();
 			void make_Regular_Aperiodic_Group_Box();
 		void make_Substrate_Editor();
 			void make_Sigma_Group_Box();
 	void set_Window_Geometry();
-			void unique_Items_In_Aperiodic(QHBoxLayout* aperiodic_Group_Box_Layout);
+			void unique_Items_In_General_Aperiodic(QHBoxLayout* aperiodic_Group_Box_Layout);
+			void cell_Items_In_Regular_Aperiodic(QHBoxLayout* aperiodic_Group_Box_Layout);
 			void transformations();
 
 	void reload_And_Show_All();
@@ -96,7 +97,7 @@ public:
 	void invert_Multilayer(QTreeWidgetItem* multilayer_Item);
 	void calc_Uniqueness();
 	void unique_Item_Do(QString action, int uniqueness);
-	void soft_Restriction_Save(int current_Uniqueness, bool use_Soft_Restrictions, int threshold, double Q_factor);
+	void save_Data();
 
 	QString absolute_Density_Label = "Density [g/cm" + Cube_Sym + "]:";
 	QString relative_Density_Label = "Relative Density:";

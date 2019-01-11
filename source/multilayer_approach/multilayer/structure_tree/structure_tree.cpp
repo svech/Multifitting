@@ -21,7 +21,7 @@ void Structure_Tree::create_Tree()
 		tree->expandAll();
 		tree->setExpandsOnDoubleClick(false);
 
-	connect(tree, &QTreeWidget::itemDoubleClicked, this, &Structure_Tree::if_DoubleClicked);
+	connect(tree, &QTreeWidget::itemDoubleClicked, this, [=]{if_DoubleClicked();});
 }
 
 void Structure_Tree::create_Toolbar()
@@ -297,6 +297,7 @@ void Structure_Tree::if_DoubleClicked(QTreeWidgetItem* item)
 	if(item == nullptr) item = tree->currentItem();
 	if(runned_Editors.contains(item))
 	{
+		qInfo() << "runned_Editors.contains";
 		if(runned_Editors.value(item)->isVisible())
 		{
 			runned_Editors.value(item)->activateWindow();
@@ -327,7 +328,6 @@ void Structure_Tree::set_Structure_Item_Text(QTreeWidgetItem* item, int i)
 
 	const Data data = item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
 	QString density_Text;
-
 
 	// if ambient
 	if(data.item_Type == item_Type_Ambient)
@@ -477,12 +477,15 @@ void Structure_Tree::editor_Close()
 
 void Structure_Tree::editors_Edit(QObject* sender)
 {
+	qInfo() << "editors_Edit";
 	// broadcast to other editors
 	for(int i=0; i<list_Editors.size(); ++i)
 	{
 		if(list_Editors[i]!=sender)
 		{
+			qInfo() << "a";
 			list_Editors[i]->reload_And_Show_All();
+			qInfo() << "b";
 		}
 	}
 }

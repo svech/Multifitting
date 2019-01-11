@@ -835,12 +835,16 @@ void Data::fill_Potentially_Fitable_Parameters_Vector()
 QDataStream& operator <<( QDataStream& stream, const Regular_Component& regular_Component )
 {
 	return stream
-				<< regular_Component.top_Id << regular_Component.components << regular_Component.min_Max_Values; // since 1.8.11
+				<< regular_Component.top_Id << regular_Component.components << regular_Component.min_Max_Values
+				<< regular_Component.is_Common_Thickness << regular_Component.is_Common_Sigma
+				<< regular_Component.use_Soft_Restrictions << regular_Component.threshold << regular_Component.Q_factor; // since 1.8.11
 }
 QDataStream& operator >>( QDataStream& stream,		 Regular_Component& regular_Component )
 {
 	if(Global_Variables::check_Loaded_Version(1,8,11))
-	{stream >> regular_Component.top_Id >> regular_Component.components >> regular_Component.min_Max_Values; }	// since 1.8.11
+	{stream >> regular_Component.top_Id >> regular_Component.components >> regular_Component.min_Max_Values
+			>> regular_Component.is_Common_Thickness >> regular_Component.is_Common_Sigma
+			>> regular_Component.use_Soft_Restrictions >> regular_Component.threshold >> regular_Component.Q_factor;}	// since 1.8.11
 
 	return stream;
 }
@@ -865,7 +869,6 @@ QDataStream& operator <<( QDataStream& stream, const Data& data )
 				<< data.first_Layer_Index << data.last_Layer_Index << data.num_Repetition << data.period << data.gamma
 			// Layer, Multilayer, Aperiodic
 				<< data.step_Value_Change 	// since 1.8.3
-				<< data.use_Soft_Restrictions << data.threshold << data.Q_factor 	// since 1.8.7
 				<< data.regular_Components; // since 1.8.11
 }
 QDataStream& operator >>( QDataStream& stream,		 Data& data )
@@ -892,8 +895,11 @@ QDataStream& operator >>( QDataStream& stream,		 Data& data )
 	if(Global_Variables::check_Loaded_Version(1,8,3))
 	{stream >> data.step_Value_Change; }	// since 1.8.3
 
-	if(Global_Variables::check_Loaded_Version(1,8,7))
-	{stream >> data.use_Soft_Restrictions >> data.threshold >> data.Q_factor; }	// since 1.8.7
+	if(Global_Variables::check_Loaded_Version(1,8,7) && !Global_Variables::check_Loaded_Version(1,8,11))
+	{	bool use_Soft_Restrictions;
+		int threshold;
+		double Q_factor;
+		stream >> use_Soft_Restrictions >> threshold >> Q_factor; }	// since 1.8.7
 
 	if(Global_Variables::check_Loaded_Version(1,8,11))
 	{stream >> data.regular_Components; }	// since 1.8.11
