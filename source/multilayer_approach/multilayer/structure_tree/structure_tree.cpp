@@ -297,7 +297,6 @@ void Structure_Tree::if_DoubleClicked(QTreeWidgetItem* item)
 	if(item == nullptr) item = tree->currentItem();
 	if(runned_Editors.contains(item))
 	{
-		qInfo() << "runned_Editors.contains";
 		if(runned_Editors.value(item)->isVisible())
 		{
 			runned_Editors.value(item)->activateWindow();
@@ -313,7 +312,11 @@ void Structure_Tree::if_DoubleClicked(QTreeWidgetItem* item)
 			item_Editor->setWindowFlags(Qt::Window);
 			item_Editor->show();
 
-		connect(item_Editor, &Item_Editor::closed, this, &Structure_Tree::editor_Close);
+		connect(item_Editor, &Item_Editor::closed, this, [=]
+		{
+			runned_Editors.remove(item);
+			editor_Close();
+		});
 		connect(item_Editor, &Item_Editor::item_Data_Edited, multilayer, [=]{multilayer->refresh_Structure_And_Independent();});
 
 		list_Editors.append(item_Editor);
@@ -477,15 +480,12 @@ void Structure_Tree::editor_Close()
 
 void Structure_Tree::editors_Edit(QObject* sender)
 {
-	qInfo() << "editors_Edit";
 	// broadcast to other editors
 	for(int i=0; i<list_Editors.size(); ++i)
 	{
 		if(list_Editors[i]!=sender)
 		{
-			qInfo() << "a";
 			list_Editors[i]->reload_And_Show_All();
-			qInfo() << "b";
 		}
 	}
 }

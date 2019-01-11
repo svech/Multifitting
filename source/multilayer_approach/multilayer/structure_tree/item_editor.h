@@ -14,6 +14,7 @@ class Item_Editor : public QDialog
 //	Q_INVOKABLE void moreElementsClicked()					{ Item_Editor::more_Elements_Clicked(); }
 public:
 	explicit Item_Editor(QList<Item_Editor*>& list_Editors, QTreeWidgetItem* item, Structure_Tree* structure_Tree, QWidget *parent = 0);
+	~Item_Editor();
 
 signals:
 ////	void refresh();

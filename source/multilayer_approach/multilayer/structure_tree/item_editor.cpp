@@ -11,12 +11,13 @@ Item_Editor::Item_Editor(QList<Item_Editor*>& list_Editors, QTreeWidgetItem* ite
 	structure_Tree(structure_Tree),
 	QDialog(parent)
 {
-	qInfo() << "good start";
 	setWindowTitle(Global_Variables::structure_Item_Name(struct_Data));
-	qInfo() << Global_Variables::structure_Item_Name(struct_Data);
 	create_Main_Layout();
 	set_Window_Geometry();
-	qInfo() << "good end";
+}
+
+Item_Editor::~Item_Editor()
+{
 }
 
 void Item_Editor::emit_Item_Data_Edited()
@@ -662,7 +663,7 @@ void Item_Editor::transformations()
 		connect(make_Multilayer_CheckBox, &QCheckBox::released, this, [=]
 		{
 			QMessageBox::StandardButton reply = QMessageBox::Yes;
-//			reply = QMessageBox::question(this,"Make periodic", "Are you sure?", QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
+			reply = QMessageBox::question(this,"Make periodic", "Are you sure?", QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
 			if (reply == QMessageBox::Yes)
 			{
 				if( struct_Data.item_Type == item_Type_General_Aperiodic) general_Aperiodic_To_Multilayer_Or_Regular_Aperiodic(item_Type_Multilayer);
@@ -684,7 +685,7 @@ void Item_Editor::transformations()
 		connect(make_General_Aperiodic_CheckBox, &QCheckBox::released, this, [=]
 		{
 			QMessageBox::StandardButton reply = QMessageBox::Yes;
-//			reply = QMessageBox::question(this,"Make general aperiodic", "Are you sure?", QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
+			reply = QMessageBox::question(this,"Make general aperiodic", "Are you sure?", QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
 			if (reply == QMessageBox::Yes)
 			{
 				if( struct_Data.item_Type == item_Type_Multilayer)		  multilayer_Or_Regular_Aperiodic_To_General_Aperiodic();
@@ -696,7 +697,6 @@ void Item_Editor::transformations()
 		});
 	}
 
-
 	// make regular aperiodic
 	if( struct_Data.item_Type == item_Type_Multilayer ||
 		struct_Data.item_Type == item_Type_General_Aperiodic )
@@ -707,7 +707,7 @@ void Item_Editor::transformations()
 		connect(make_Regular_Aperiodic_CheckBox, &QCheckBox::released, this, [=]
 		{
 			QMessageBox::StandardButton reply = QMessageBox::Yes;
-//			reply = QMessageBox::question(this,"Make regular aperiodic", "Are you sure?", QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
+			reply = QMessageBox::question(this,"Make regular aperiodic", "Are you sure?", QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
 			if (reply == QMessageBox::Yes)
 			{
 				if( struct_Data.item_Type == item_Type_Multilayer)		  multilayer_To_Regular_Aperiodic();
@@ -1725,7 +1725,7 @@ void Item_Editor::general_Aperiodic_To_Multilayer_Or_Regular_Aperiodic(QString t
 		if(target_Item_Type == item_Type_Multilayer )		{word1 = "periodic"; word2 = "periodic multilayer";}
 		if(target_Item_Type == item_Type_Regular_Aperiodic) {word1 = "regular aperiodic"; word2 = "regular aperiodic";}
 
-//		reply = QMessageBox::question(this,"Make "+word1, "General aperiodic can't be reduced to\n"+word2+" with N>1.\nContinue?", QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
+		reply = QMessageBox::question(this,"Make "+word1, "General aperiodic can't be reduced to\n"+word2+" with N>1.\nContinue?", QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
 	}
 	if (reply == QMessageBox::Yes)
 	{
