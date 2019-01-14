@@ -195,6 +195,10 @@ extern QString master_Slave_Parameter_Color;
 extern QString confidence_Parameter_Color;
 extern QString master_Confidence_Parameter_Color;
 
+extern QString common_Thickness_Color;
+extern QString common_Sigma_Color;
+extern QString common_Thickness_and_Sigma_Color;
+
 // -----------------------------------------------------------------------------------------
 
 extern Optical_Constants* optical_Constants;

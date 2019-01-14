@@ -31,26 +31,30 @@ void My_Table_Widget::contextMenuEvent(QContextMenuEvent *event)
 
 	QWidget* back_Widget = cellWidget(row,column);
 
+	// menu for coupling
 	if(back_Widget)
-	if(back_Widget->property(coupling_Editor_Property).toBool())
 	{
-		id_Type id = table_Of_Structures->coupled_Back_Widget_and_Id.value(back_Widget);
-		QTreeWidgetItem* struct_Item = table_Of_Structures->coupled_Back_Widget_and_Struct_Item.value(back_Widget);
-		Data struct_Data = struct_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
-		Parameter* parameter = Global_Variables::get_Parameter_From_Struct_Item_by_Id(struct_Data, id);
+		if(back_Widget->property(coupling_Editor_Property).toBool())
+		{
+			id_Type id = table_Of_Structures->coupled_Back_Widget_and_Id.value(back_Widget);
+			QTreeWidgetItem* struct_Item = table_Of_Structures->coupled_Back_Widget_and_Struct_Item.value(back_Widget);
+			Data struct_Data = struct_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+			Parameter* parameter = Global_Variables::get_Parameter_From_Struct_Item_by_Id(struct_Data, id);
 
-//		qInfo() << "parameter id = " << parameter->indicator->id << "\n" << main_Tabs->tabText(parameter->indicator->tab_Index) << " " << parameter->indicator->full_Name << endl;
+//			qInfo() << "parameter id = " << parameter->indicator->id << "\n" << main_Tabs->tabText(parameter->indicator->tab_Index) << " " << parameter->indicator->full_Name << endl;
 
-		// period and gamma can't be connected
-//		if(parameter->indicator.whats_This == whats_This_Period || parameter->indicator.whats_This == whats_This_Gamma) return;
+			// period and gamma can't be connected
+//			if(parameter->indicator.whats_This == whats_This_Period || parameter->indicator.whats_This == whats_This_Gamma) return;
 
-		QMenu menu;
-		QAction my_Name_Action(parameter->indicator.full_Name);
-		menu.addAction(&my_Name_Action);
+			QMenu menu;
+			QAction my_Name_Action(parameter->indicator.full_Name);
+			menu.addAction(&my_Name_Action);
 
-		connect(&my_Name_Action, &QAction::triggered, this, [=]{ open_Coupling_Editor(back_Widget);});
+			connect(&my_Name_Action, &QAction::triggered, this, [=]{ open_Coupling_Editor(back_Widget);});
 
-		menu.exec(event->globalPos());
+			menu.exec(event->globalPos());
+		}
+
 	}
 
 	// menu for in-period exchanges
@@ -68,6 +72,42 @@ void My_Table_Widget::contextMenuEvent(QContextMenuEvent *event)
 		connect(&my_Name_Action, &QAction::triggered, this, [=]{ open_Layer_Thickness_Transfer(back_Widget);});
 		menu.exec(event->globalPos());
 	}
+
+	// menu for regular aperiodic
+	if(back_Widget)
+	if(back_Widget->property(regular_Aperiodic_Item_Table_CheckBox_Property).toString() == regular_Aperiodic_Item_Table_CheckBox_Property)
+	{
+		QTreeWidgetItem* struct_Item = table_Of_Structures->coupled_Back_Widget_and_Struct_Item.value(back_Widget);
+		Data struct_Data = struct_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+
+		QMenu menu;
+		QAction my_Name_Action(Global_Variables::structure_Item_Name(struct_Data));
+		menu.addAction(&my_Name_Action);
+
+		// look for tab index
+		int tab_Index = 0;
+		bool found = false;
+		QTabWidget* grandpa = qobject_cast<QTabWidget*>(parent()->parent());
+		for(int i=0; i<grandpa->count(); i++)
+		{
+			if(grandpa->widget(i) == this)
+			{
+				found = true;
+				tab_Index = i;
+			}
+		}
+		if(!found)
+		{
+			QMessageBox::critical(nullptr, "My_Table_Widget::contextMenuEvent", "Can't find my_table_widget in table_of_structures");
+			exit(EXIT_FAILURE);
+		}
+
+		connect(&my_Name_Action, &QAction::triggered, this, [=]
+		{
+			global_Multilayer_Approach->open_Regular_Aperiodic_Layers_Table(tab_Index, struct_Item);
+		});
+		menu.exec(event->globalPos());
+	}
 }
 
 void My_Table_Widget::open_Coupling_Editor(QWidget* coupling_Widget)
@@ -81,7 +121,7 @@ void My_Table_Widget::open_Layer_Thickness_Transfer(QWidget *coupling_Widget)
 	table_Of_Structures->setProperty(multilayer_Item_Table_CheckBox_Property,"");
 	table_Of_Structures->layer_Thickness_Transfer = new Layer_Thickness_Transfer(coupling_Widget, table_Of_Structures, this);
 		table_Of_Structures->layer_Thickness_Transfer->show();
-	table_Of_Structures->layer_Thickness_Transfer_Is_Created = true;
+		table_Of_Structures->layer_Thickness_Transfer_Is_Created = true;
 }
 
 QWidget* My_Table_Widget::get_Cell_Widget()

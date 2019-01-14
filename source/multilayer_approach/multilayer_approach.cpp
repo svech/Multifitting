@@ -298,6 +298,24 @@ void Multilayer_Approach::open_Fitting_Settings()
 	}
 }
 
+void Multilayer_Approach::open_Regular_Aperiodic_Layers_Table(int tab_Index, QTreeWidgetItem* item)
+{
+	Multilayer* multilayer = qobject_cast<Multilayer*>(global_Multilayer_Approach->multilayer_Tabs->widget(tab_Index));
+	Data struct_Data = item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+
+	if(!runned_Regular_Aperiodic_Tables.contains(struct_Data.id))
+	{
+		Regular_Aperiodic_Table* regular_Aperiodic_Table = new Regular_Aperiodic_Table(item, multilayer);
+			regular_Aperiodic_Table->setWindowFlags(Qt::Window);
+			regular_Aperiodic_Table->show();
+
+		connect(regular_Aperiodic_Table, &Regular_Aperiodic_Table::regular_Aperiodic_Edited, multilayer->structure_Tree, &Structure_Tree::refresh__StructureTree__Data_and_Text);
+	} else
+	{
+		runned_Regular_Aperiodic_Tables.value(struct_Data.id)->activateWindow();
+	}
+}
+
 void Multilayer_Approach::lock_Mainwindow_Interface()
 {
 	for(int i=0; i<multilayer_Tabs->count(); ++i)

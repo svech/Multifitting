@@ -51,6 +51,7 @@ public:
 	void open_Fits_Selector();
 	void open_Calculation_Settings();
 	void open_Fitting_Settings();
+	void open_Regular_Aperiodic_Layers_Table(int tab_Index, QTreeWidgetItem *item);
 	void lock_Mainwindow_Interface();
 	void unlock_Mainwindow_Interface();
 

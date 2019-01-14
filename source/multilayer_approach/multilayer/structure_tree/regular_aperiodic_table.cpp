@@ -1,7 +1,8 @@
 #include "regular_aperiodic_table.h"
 
-Regular_Aperiodic_Table::Regular_Aperiodic_Table(QTreeWidgetItem *item, QWidget *parent) :
+Regular_Aperiodic_Table::Regular_Aperiodic_Table(QTreeWidgetItem *item, Multilayer* multilayer, QWidget *parent) :
 	item(item),
+	multilayer(multilayer),
 	regular_Aperiodic_Data(item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>()),
 	QDialog(parent) // nullptr!
 {
@@ -11,6 +12,8 @@ Regular_Aperiodic_Table::Regular_Aperiodic_Table(QTreeWidgetItem *item, QWidget 
 	create_Main_Layout();
 	set_Window_Geometry();
 	setAttribute(Qt::WA_DeleteOnClose);
+
+	multilayer->structure_Tree->lock_Tree();
 }
 
 void Regular_Aperiodic_Table::keyPressEvent(QKeyEvent* event)
@@ -45,6 +48,12 @@ void Regular_Aperiodic_Table::closeEvent(QCloseEvent *event)
 {
 	write_Window_Geometry();
 	global_Multilayer_Approach->runned_Regular_Aperiodic_Tables.remove(regular_Aperiodic_Data.id);
+	if(multilayer->structure_Tree->list_Editors.isEmpty() && !global_Multilayer_Approach->runned_Tables_Of_Structures.contains(table_Key))
+	{
+		multilayer->structure_Tree->unlock_Tree();
+	}
+	if(multilayer->structure_Tree->list_Editors.isEmpty() && global_Multilayer_Approach->runned_Regular_Aperiodic_Tables.isEmpty())
+	emit closed();
 	event->accept();
 }
 
@@ -115,11 +124,44 @@ void Regular_Aperiodic_Table::create_Menu()
 
 void Regular_Aperiodic_Table::create_Table()
 {
-	int num_Rows = item->childCount()*regular_Aperiodic_Data.num_Repetition.value()+3;
+	int num_Rows = item->childCount()*regular_Aperiodic_Data.num_Repetition.value()+4;
 	regular_Table = new Regular_Aperiodic_Table_Widget(num_Rows,6,this);
 	main_Layout->addWidget(regular_Table);
 
 	int current_Row = 0;
+
+	/// color legend
+	{
+		// common sigma
+		QLabel* sigma_Label = new QLabel("common "+Sigma_Sym);
+			sigma_Label->setAlignment(Qt::AlignCenter);
+			sigma_Label->setStyleSheet(common_Sigma_Color);
+			sigma_Label->setFixedWidth(90);
+		regular_Table->setCellWidget(current_Row,0, sigma_Label);
+
+		// common thickness
+		QLabel* thickness_Label = new QLabel("common z");
+			thickness_Label->setAlignment(Qt::AlignCenter);
+			thickness_Label->setStyleSheet(common_Thickness_Color);
+			thickness_Label->setFixedWidth(APERIODIC_TABLE_THICKNESS_VALUE_WIDTH);
+		regular_Table->setCellWidget(current_Row,2, thickness_Label);
+
+		// active fit
+		QLabel* fit_Label = new QLabel("active fit");
+			fit_Label->setAlignment(Qt::AlignCenter);
+			fit_Label->setStyleSheet(fit_Color);
+			fit_Label->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT_SIGMA);
+		regular_Table->setCellWidget(current_Row,4, fit_Label);
+
+		// common thickness and sigma
+		QLabel* thickness_Sigma_Label = new QLabel("common z and "+Sigma_Sym);
+			thickness_Sigma_Label->setAlignment(Qt::AlignCenter);
+			thickness_Sigma_Label->setStyleSheet(common_Thickness_and_Sigma_Color);
+			thickness_Sigma_Label->setFixedWidth(APERIODIC_TABLE_DENSITY_VALUE_WIDTH);
+		regular_Table->setCellWidget(current_Row,5, thickness_Sigma_Label);
+
+		current_Row++;
+	}
 
 	// controls
 	/// recalculate
@@ -198,6 +240,7 @@ void Regular_Aperiodic_Table::create_Table()
 				material_Label->setMinimumWidth(55);
 			regular_Table->setCellWidget(current_Row, current_Column, material_Label);
 			labels_List.append(material_Label);
+			material_Labels_List.append(material_Label);
 			current_Column++;
 
 			// thickness value
@@ -325,6 +368,8 @@ void Regular_Aperiodic_Table::create_Table()
 	for(int i=0; i<2; i++) {width += regular_Table->columnWidth(i);}
 	checkbox_Recalculate->setMinimumWidth(width);
 	checkbox_Mouse_Wheel->setMinimumWidth(width);
+
+	colorize_Material();
 }
 
 void Regular_Aperiodic_Table::create_Simple_Label(int current_Row, int current_Column, QString text, QLabel* label)
@@ -391,6 +436,48 @@ void Regular_Aperiodic_Table::create_Step_Spin_Box(int current_Row, int current_
 	});
 }
 
+void Regular_Aperiodic_Table::colorize_Material()
+{
+	regular_Aperiodic_Data = item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+
+	for(int n=0; n<regular_Aperiodic_Data.num_Repetition.value(); ++n)
+	{
+		for(int i=0; i<regular_Aperiodic_Data.regular_Components.size(); ++i)
+		{
+			int position = n*regular_Aperiodic_Data.regular_Components.size() + i;
+			QLabel* material_Label = material_Labels_List[position];
+
+			// no commonness
+			if( !regular_Aperiodic_Data.regular_Components[i].is_Common_Thickness &&
+				!regular_Aperiodic_Data.regular_Components[i].is_Common_Sigma)
+			{
+				material_Label->setStyleSheet(white_Color);
+			}
+
+			// common thickness only
+			if(  regular_Aperiodic_Data.regular_Components[i].is_Common_Thickness &&
+				!regular_Aperiodic_Data.regular_Components[i].is_Common_Sigma)
+			{
+				material_Label->setStyleSheet(common_Thickness_Color);
+			}
+
+			// common sigma only
+			if( !regular_Aperiodic_Data.regular_Components[i].is_Common_Thickness &&
+				 regular_Aperiodic_Data.regular_Components[i].is_Common_Sigma)
+			{
+				material_Label->setStyleSheet(common_Sigma_Color);
+			}
+
+			// common thickness and sigma
+			if( regular_Aperiodic_Data.regular_Components[i].is_Common_Thickness &&
+				regular_Aperiodic_Data.regular_Components[i].is_Common_Sigma)
+			{
+				material_Label->setStyleSheet(common_Thickness_and_Sigma_Color);
+			}
+		}
+	}
+}
+
 void Regular_Aperiodic_Table::refresh_Regular_Component(Data& current_Layer, int i)
 {
 	// PARAMETER
@@ -426,10 +513,42 @@ void Regular_Aperiodic_Table::refresh_Regular_Component(Data& current_Layer, int
 		parameter.value = spin_Box->value()*coeff;
 
 		// special cases
+		if(whats_This == whats_This_Thickness)
+		{
+			if(regular_Aperiodic_Data.regular_Components[i].is_Common_Thickness)
+			{
+				for(int n=0; n<regular_Aperiodic_Data.num_Repetition.value(); ++n)
+				{
+					regular_Aperiodic_Data.regular_Components[i].components[n].thickness.value = parameter.value;
+
+					int position = n*regular_Aperiodic_Data.regular_Components.size() + i;
+					thickness_Spinboxes_List[position]->blockSignals(true);
+					thickness_Spinboxes_List[position]->setValue(parameter.value);
+					thickness_Spinboxes_List[position]->blockSignals(false);
+				}
+			}
+		}
 		if(whats_This == whats_This_Sigma)
 		{
 			for(Interlayer& interlayer : current_Layer.interlayer_Composition)	{
 				interlayer.my_Sigma.value = current_Layer.sigma.value;
+			}
+
+			if(regular_Aperiodic_Data.regular_Components[i].is_Common_Sigma)
+			{
+				for(int n=0; n<regular_Aperiodic_Data.num_Repetition.value(); ++n)
+				{
+					regular_Aperiodic_Data.regular_Components[i].components[n].sigma.value = parameter.value;
+
+					for(Interlayer& interlayer : regular_Aperiodic_Data.regular_Components[i].components[n].interlayer_Composition)	{
+						interlayer.my_Sigma.value = parameter.value;
+					}
+
+					int position = n*regular_Aperiodic_Data.regular_Components.size() + i;
+					sigma_Spinboxes_List[position]->blockSignals(true);
+					sigma_Spinboxes_List[position]->setValue(parameter.value);
+					sigma_Spinboxes_List[position]->blockSignals(false);
+				}
 			}
 		}
 		regular_Aperiodic_Data.regular_Components[i].find_Min_Max_Values();

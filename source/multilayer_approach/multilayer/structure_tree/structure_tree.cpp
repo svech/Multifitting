@@ -21,7 +21,7 @@ void Structure_Tree::create_Tree()
 		tree->expandAll();
 		tree->setExpandsOnDoubleClick(false);
 
-	connect(tree, &QTreeWidget::itemDoubleClicked, this, [=]{if_DoubleClicked();});
+	connect(tree, &QTreeWidget::itemDoubleClicked, this, &Structure_Tree::if_DoubleClicked);
 }
 
 void Structure_Tree::create_Toolbar()
@@ -472,7 +472,7 @@ void Structure_Tree::editor_Close()
 		}
 	}
 
-	if(list_Editors.isEmpty())
+	if(list_Editors.isEmpty() && global_Multilayer_Approach->runned_Regular_Aperiodic_Tables.isEmpty())
 	{
 		structure_Toolbar->toolbar->setDisabled(false);
 	}
@@ -488,4 +488,16 @@ void Structure_Tree::editors_Edit(QObject* sender)
 			list_Editors[i]->reload_And_Show_All();
 		}
 	}
+}
+
+void Structure_Tree::lock_Tree()
+{
+	structure_Toolbar->toolbar->setDisabled(true);
+	tree->blockSignals(true);
+}
+
+void Structure_Tree::unlock_Tree()
+{
+	structure_Toolbar->toolbar->setDisabled(false);
+	tree->blockSignals(false);
 }

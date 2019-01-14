@@ -13,9 +13,11 @@ class Regular_Aperiodic_Table : public QDialog
 	Q_INVOKABLE void adjustSize() {  }
 public:
 	Regular_Aperiodic_Table(QTreeWidgetItem* item,
+							Multilayer* multilayer,
 							QWidget* parent = Q_NULLPTR);
 signals:
 	void regular_Aperiodic_Edited();
+	void closed();
 
 public:
 	void keyPressEvent(QKeyEvent *event);
@@ -27,6 +29,7 @@ public:
 		void create_Table();
 			void create_Simple_Label (int current_Row, int current_Column, QString text, QLabel* label = nullptr);
 			void create_Step_Spin_Box(int current_Row, int current_Column, QString whats_This);
+			void colorize_Material();
 
 	void refresh_Regular_Component(Data &current_Layer, int i);
 	void reload_One_Widget(QWidget* widget_To_Reload);
@@ -47,10 +50,12 @@ public:
 	bool modifier_Key_Still_Pressed_Duplicate = false;
 
 	QTreeWidgetItem* item;
+	Multilayer* multilayer;
 	Data regular_Aperiodic_Data;
 	Regular_Aperiodic_Table_Widget* regular_Table;
 
 	QList<QLabel*> labels_List;
+	QList<QLabel*> material_Labels_List;
 	QList<MyDoubleSpinBox*> thickness_Spinboxes_List;
 	QList<MyDoubleSpinBox*> sigma_Spinboxes_List;
 	QList<MyDoubleSpinBox*> density_Spinboxes_List;

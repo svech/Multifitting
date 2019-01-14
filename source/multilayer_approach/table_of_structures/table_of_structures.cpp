@@ -35,7 +35,7 @@ void Table_Of_Structures::closeEvent(QCloseEvent* event)
 		material_Line_Edit->blockSignals(true);
 		check_Material(material_Line_Edit);
 	}
-	global_Multilayer_Approach->unlock_Mainwindow_Interface();
+	if(global_Multilayer_Approach->runned_Regular_Aperiodic_Tables.isEmpty()) global_Multilayer_Approach->unlock_Mainwindow_Interface();
 	event->accept();
 //	delete global_Multilayer_Approach->table_Of_Structures;
 }
@@ -422,6 +422,10 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 			if(struct_Data.item_Type == item_Type_Multilayer)			{
 				item_CheckBox->setProperty(multilayer_Item_Table_CheckBox_Property,multilayer_Item_Table_CheckBox_Property);
 							   setProperty(multilayer_Item_Table_CheckBox_Property,multilayer_Item_Table_CheckBox_Property);
+				coupled_Back_Widget_and_Struct_Item.insert(item_CheckBox, structure_Item);
+			}
+			if(struct_Data.item_Type == item_Type_Regular_Aperiodic)			{
+				item_CheckBox->setProperty(regular_Aperiodic_Item_Table_CheckBox_Property,regular_Aperiodic_Item_Table_CheckBox_Property);
 				coupled_Back_Widget_and_Struct_Item.insert(item_CheckBox, structure_Item);
 			}
 			new_Table->setCellWidget(current_Row, current_Column, item_CheckBox);

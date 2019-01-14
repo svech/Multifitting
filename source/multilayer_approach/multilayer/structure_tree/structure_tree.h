@@ -24,6 +24,8 @@ public:
 	void if_DoubleClicked(QTreeWidgetItem* item = nullptr);
 	void editor_Close();
 	void editors_Edit(QObject* sender = nullptr);
+	void lock_Tree();
+	void unlock_Tree();
 
 	void refresh__StructureTree__Data_and_Text();
 	void set_Structure_Item_Text(QTreeWidgetItem* item, int i=0);

@@ -26,6 +26,8 @@ public:
 	QList<Item_Editor*> list_Editors;
 	Data struct_Data;
 	Structure_Tree* structure_Tree;
+	int tab_Index = 0;
+
 
 	// state variables
 	bool material_Done = false;
@@ -53,6 +55,8 @@ public:
 			void unique_Items_In_General_Aperiodic(QHBoxLayout* aperiodic_Group_Box_Layout);
 			void cell_Items_In_Regular_Aperiodic(QHBoxLayout* aperiodic_Group_Box_Layout);
 			void transformations();
+			void lock_Interface();
+			void unlock_Interface();
 
 	void reload_And_Show_All();
 	void show_All();	

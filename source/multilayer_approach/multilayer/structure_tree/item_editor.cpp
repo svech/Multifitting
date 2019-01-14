@@ -14,6 +14,24 @@ Item_Editor::Item_Editor(QList<Item_Editor*>& list_Editors, QTreeWidgetItem* ite
 	setWindowTitle(Global_Variables::structure_Item_Name(struct_Data));
 	create_Main_Layout();
 	set_Window_Geometry();
+	structure_Tree->lock_Tree();
+
+	// look for multilayer tab index
+	bool found = false;
+	for(int i=0; i<global_Multilayer_Approach->multilayer_Tabs->count(); ++i)
+	{
+		Multilayer* multilayer = qobject_cast<Multilayer*>(global_Multilayer_Approach->multilayer_Tabs->widget(i));
+		if(multilayer->structure_Tree == structure_Tree)
+		{
+			found = true;
+			tab_Index = i;
+		}
+	}
+	if(!found)
+	{
+		QMessageBox::critical(nullptr, "Item_Editor::Item_Editor", "Can't find structure_Tree in multilayers");
+		exit(EXIT_FAILURE);
+	}
 }
 
 Item_Editor::~Item_Editor()
@@ -46,6 +64,7 @@ void Item_Editor::closeEvent(QCloseEvent* event)
 		}
 	}
 
+	if(!global_Multilayer_Approach->runned_Regular_Aperiodic_Tables.contains(struct_Data.id))	structure_Tree->unlock_Tree();
 	norm_Interlayer_Composition();
 	refresh_Material();
 	refresh_Data();
@@ -89,20 +108,34 @@ void Item_Editor::create_Main_Layout()
 		button_Layout->addWidget(regular_Aperiodic_Table_Button,0,Qt::AlignCenter);
 		connect(regular_Aperiodic_Table_Button, &QPushButton::clicked, this, [=]
 		{
-			if(!global_Multilayer_Approach->runned_Regular_Aperiodic_Tables.contains(struct_Data.id))
-			{
-				Regular_Aperiodic_Table* regular_Aperiodic_Table = new Regular_Aperiodic_Table(item);
-					regular_Aperiodic_Table->setWindowFlags(Qt::Window);
-					regular_Aperiodic_Table->show();
+			global_Multilayer_Approach->open_Regular_Aperiodic_Layers_Table(tab_Index, item);
 
-				connect(regular_Aperiodic_Table, &Regular_Aperiodic_Table::regular_Aperiodic_Edited, structure_Tree, &Structure_Tree::refresh__StructureTree__Data_and_Text);
-			} else
-			{
-				global_Multilayer_Approach->runned_Regular_Aperiodic_Tables.value(struct_Data.id)->activateWindow();
-			}
-			close();
+			lock_Interface();
+			disconnect(global_Multilayer_Approach->runned_Regular_Aperiodic_Tables.value(struct_Data.id), &Regular_Aperiodic_Table::closed, this, &Item_Editor::unlock_Interface);
+			   connect(global_Multilayer_Approach->runned_Regular_Aperiodic_Tables.value(struct_Data.id), &Regular_Aperiodic_Table::closed, this, &Item_Editor::unlock_Interface);
 		});
 	}
+
+	if(global_Multilayer_Approach->runned_Regular_Aperiodic_Tables.contains(struct_Data.id))
+	{
+		lock_Interface();
+		disconnect(global_Multilayer_Approach->runned_Regular_Aperiodic_Tables.value(struct_Data.id), &Regular_Aperiodic_Table::closed, this, &Item_Editor::unlock_Interface);
+		   connect(global_Multilayer_Approach->runned_Regular_Aperiodic_Tables.value(struct_Data.id), &Regular_Aperiodic_Table::closed, this, &Item_Editor::unlock_Interface);
+	}
+}
+
+void Item_Editor::lock_Interface()
+{
+	make_Multilayer_CheckBox->setDisabled(true);
+	make_General_Aperiodic_CheckBox->setDisabled(true);
+	invert_CheckBox->setDisabled(true);
+}
+
+void Item_Editor::unlock_Interface()
+{
+	make_Multilayer_CheckBox->setDisabled(false);
+	make_General_Aperiodic_CheckBox->setDisabled(false);
+	invert_CheckBox->setDisabled(false);
 }
 
 void Item_Editor::create_Menu()
@@ -567,11 +600,23 @@ void Item_Editor::cell_Items_In_Regular_Aperiodic(QHBoxLayout *aperiodic_Group_B
 		{
 			struct_Data.regular_Components[i].is_Common_Thickness = item_Common_Thickness->isChecked();
 			save_Data();
+
+			if(global_Multilayer_Approach->runned_Regular_Aperiodic_Tables.contains(struct_Data.id))			{
+				Regular_Aperiodic_Table* regular_Aperiodic_Table = global_Multilayer_Approach->runned_Regular_Aperiodic_Tables.value(struct_Data.id);
+					regular_Aperiodic_Table->colorize_Material();
+					regular_Aperiodic_Table->thickness_Spinboxes_List[i]->valueChanged(regular_Aperiodic_Table->thickness_Spinboxes_List[i]->value());
+			}
 		});
 		connect(item_Common_Sigma,	   &QCheckBox::toggled, this, [=]
 		{
 			struct_Data.regular_Components[i].is_Common_Sigma = item_Common_Sigma->isChecked();
 			save_Data();
+
+			if(global_Multilayer_Approach->runned_Regular_Aperiodic_Tables.contains(struct_Data.id))			{
+				Regular_Aperiodic_Table* regular_Aperiodic_Table = global_Multilayer_Approach->runned_Regular_Aperiodic_Tables.value(struct_Data.id);
+					regular_Aperiodic_Table->colorize_Material();
+					regular_Aperiodic_Table->sigma_Spinboxes_List[i]->valueChanged(regular_Aperiodic_Table->sigma_Spinboxes_List[i]->value());
+			}
 		});
 
 		// create additional restrictions
@@ -721,7 +766,6 @@ void Item_Editor::transformations()
 			}
 		});
 	}
-
 
 	// invert
 	if( struct_Data.item_Type == item_Type_Multilayer ||
@@ -1807,15 +1851,13 @@ void Item_Editor::invert_Multilayer(QTreeWidgetItem* multilayer_Item)
 
 		// warning, using stl for qtl
 		std::reverse(qList.begin(), qList.end());
-//		for(int k = 0; k < (qList.size()/2); k++) qList.swap(k,qList.size()-(1+k)); incorrect?
-
 		for(int i=0; i<qList.size(); ++i)
 		{
 			std::reverse(qList[i].components.begin(), qList[i].components.end());
-//			for(int k = 0; k < (qList[i].components.size()/2); k++) qList[i].components.swap(k,qList[i].components.size()-(1+k)); incorrect?
 		}
 	}
 
+	save_Data();
 	structure_Tree->structure_Toolbar->refresh_Toolbar();
 }
 

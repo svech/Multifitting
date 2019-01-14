@@ -350,6 +350,10 @@ QString master_Slave_Parameter_Color		= "QWidget { background: rgb(255, 255, 50)
 QString confidence_Parameter_Color			= "background-color: violet";
 QString master_Confidence_Parameter_Color	= "QWidget { background: rgb(170, 0,   255); }";
 
+QString common_Thickness_Color				= "QWidget { background: rgb(231, 255, 165); }";
+QString common_Sigma_Color					= "QWidget { background: rgb(254, 214, 255); }";
+QString common_Thickness_and_Sigma_Color	= "QWidget { background: rgb(67,  224, 225); }";
+
 // -----------------------------------------------------------------------------------------
 Optical_Constants* optical_Constants;
 
