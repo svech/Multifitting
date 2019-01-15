@@ -30,21 +30,24 @@ public:
 			void create_Simple_Label (int current_Row, int current_Column, QString text, QLabel* label = nullptr);
 			void create_Step_Spin_Box(int current_Row, int current_Column, QString whats_This);
 			void colorize_Material();
+			void colorize_Thickness_Fit(QCheckBox* thickness_Fit_CheckBox);
 
 	void refresh_Regular_Component(Data &current_Layer, int i);
+	void refresh_Thickness_Checkboxes(int i, int n);
+	void if_Fit_All(int i);
 	void reload_One_Widget(QWidget* widget_To_Reload);
-	void reload_All_Widgets();
-		void reload_Labels(QWidget* sender);
-		void reload_Thicknesses(QWidget* sender);
-		void reload_Sigmas(QWidget* sender);
-		void reload_Densities(QWidget* sender);
-		void reload_Steps(QWidget* sender);
-		void reload_Checkboxes(QWidget* sender);
+	void reload_All_Widgets(QString identifier = "");
+		void reload_Labels();
+		void reload_Thicknesses();
+		void reload_Sigmas();
+		void reload_Densities();
+		void reload_Steps();
+		void reload_Checkboxes();
 
 	void set_Window_Geometry();
 	void write_Window_Geometry();
 	void emit_Regular_Aperiodic_Edited();
-	void save_And_Emit();
+	void save();
 
 	bool modifier_Key_Still_Pressed = false;
 	bool modifier_Key_Still_Pressed_Duplicate = false;
@@ -61,6 +64,7 @@ public:
 	QList<MyDoubleSpinBox*> density_Spinboxes_List;
 	QList<MyDoubleSpinBox*> step_Spinboxes_List;
 	QList<QCheckBox*> thickness_Checkboxes_List;
+	QMap<QCheckBox*,QWidget*> thickness_Back_Widgets_Map;
 
 	QVBoxLayout* main_Layout;
 };

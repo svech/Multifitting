@@ -56,6 +56,12 @@ void Table_Of_Structures::create_Main_Layout()
 	main_Layout->addWidget(main_Tabs);
 
 	add_Tabs();
+
+	for(Regular_Aperiodic_Table* regular_Aperiodic_Table : global_Multilayer_Approach->runned_Regular_Aperiodic_Tables.values())
+	{
+	   connect(regular_Aperiodic_Table, &Regular_Aperiodic_Table::regular_Aperiodic_Edited, this, &Table_Of_Structures::reload_From_Regular_Aperiodic);
+	   connect(this, &Table_Of_Structures::regular_Layer_Edited, regular_Aperiodic_Table, &Regular_Aperiodic_Table::reload_All_Widgets);
+	}
 }
 
 void Table_Of_Structures::set_Window_Geometry()
@@ -118,6 +124,7 @@ void Table_Of_Structures::add_Tabs()
 	{
 		My_Table_Widget* new_Table = new My_Table_Widget(basic_Row_Number, basic_Column_Number, this, this);
 		all_Widgets_To_Reload.append(QList<QWidget*>());
+		regular_Aperiodic_Widgets_To_Reload.append(QList<QWidget*>());
 
 		min_Max_Density_Spin_Boxes_List.append(QList<MyDoubleSpinBox*>());
 		min_Max_Thickness_Spin_Boxes_List.append(QList<MyDoubleSpinBox*>());
@@ -576,13 +583,19 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 				add_Columns(new_Table, current_Column+transition_Layer_Functions_Size);
 
 				// weights
-				create_Weigts_Interlayer		(new_Table, tab_Index, current_Row+1, current_Column, structure_Item, VAL);
-				create_Check_Box_Label_Interlayer	(new_Table, tab_Index, current_Row,   current_Column, structure_Item);
+				create_Weigts_Interlayer		        (new_Table, tab_Index, current_Row+1, current_Column, structure_Item, VAL);
+				create_Check_Box_Label_Interlayer	    (new_Table, tab_Index, current_Row,   current_Column, structure_Item);
 				create_Weights_Check_Box_Fit_Interlayer (new_Table, tab_Index, current_Row+2, current_Column, structure_Item);
 
 				// sigmas
-				create_MySigma_Labels_Interlayer	(new_Table, tab_Index, current_Row+3, current_Column, structure_Item);
-				create_MySigma_Line_Edits_Interlayer	(new_Table, tab_Index, current_Row+4, current_Column, structure_Item);
+				if(struct_Data.parent_Item_Type == item_Type_Regular_Aperiodic)
+				{
+
+				} else
+				{
+					create_MySigma_Labels_Interlayer	    (new_Table, tab_Index, current_Row+3, current_Column, structure_Item);
+					create_MySigma_Line_Edits_Interlayer	(new_Table, tab_Index, current_Row+4, current_Column, structure_Item);
+				}
 			}
 			current_Column += (1+transition_Layer_Functions_Size);
 			///--------------------------------------------------------------------------------------------
@@ -1533,7 +1546,15 @@ void Table_Of_Structures::create_Check_Box_Label(My_Table_Widget* table, int tab
 		back_Widget->setStyleSheet("background-color: lightblue");
 	}
 
-	connect(check_Box, &QCheckBox::toggled, this, [=]{cells_On_Off(table); });
+	if( struct_Data.parent_Item_Type != item_Type_Regular_Aperiodic )
+	{
+		connect(check_Box, &QCheckBox::toggled, this, [=]{cells_On_Off(table); });
+	}
+	if( struct_Data.parent_Item_Type == item_Type_Regular_Aperiodic && whats_This == whats_This_Sigma)
+	{
+		check_Box->setAttribute(Qt::WA_TransparentForMouseEvents);
+		check_Box->setFocusPolicy(Qt::NoFocus);
+	}
 	connect(check_Box, &QCheckBox::toggled, this, &Table_Of_Structures::refresh_Check_Box_Header);
 
 	table->setCellWidget(current_Row, current_Column, back_Widget);
@@ -1652,6 +1673,12 @@ void Table_Of_Structures::create_Line_Edit(My_Table_Widget* table, int tab_Index
 	{
 		reload_Show_Dependence_Map.insertMulti(spin_Box, id);
 	}
+	if( val_Type == VAL &&
+	   (whats_This == whats_This_Sigma || whats_This == whats_This_Thickness) &&
+		struct_Data.parent_Item_Type == item_Type_Regular_Aperiodic	)
+	{
+		regular_Aperiodic_Widgets_To_Reload[tab_Index].append(spin_Box);
+	}
 
 	// storage for fast min/max refreshing
 	if( val_Type == MIN || val_Type == MAX )
@@ -1743,6 +1770,11 @@ void Table_Of_Structures::create_Check_Box_Fit(My_Table_Widget* table, int tab_I
 	check_Boxes_Map.		   insert	   (check_Box, structure_Item);
 	reload_Show_Dependence_Map.insertMulti (check_Box, parameter.indicator.id);
 	all_Widgets_To_Reload[tab_Index].append(check_Box);
+	if( whats_This == whats_This_Thickness &&
+		struct_Data.parent_Item_Type == item_Type_Regular_Aperiodic	)
+	{
+		regular_Aperiodic_Widgets_To_Reload[tab_Index].append(check_Box);
+	}
 
 	// set up BACK widget
 	if(	whats_This == whats_This_Thickness_Drift_Sine_Amplitude ||
@@ -1771,7 +1803,11 @@ void Table_Of_Structures::create_Check_Box_Fit(My_Table_Widget* table, int tab_I
 	connect(check_Box, &QCheckBox::toggled, this, &Table_Of_Structures::refresh_Fit_Parameter);
 	connect(check_Box, &QCheckBox::toggled, this, [=]
 	{
-		cells_On_Off(table);
+		if( struct_Data.parent_Item_Type != item_Type_Regular_Aperiodic ||
+			whats_This != whats_This_Thickness)
+		{
+			cells_On_Off(table);
+		}
 
 		// colorizing working fits
 		QTreeWidgetItem* item = check_Boxes_Map.value(check_Box);
@@ -1940,8 +1976,10 @@ void Table_Of_Structures::create_Check_Box_Label_Interlayer(My_Table_Widget* tab
 			if(fit_Check)
 				fit_Check->released();
 		});
-		connect(check_Box, &QCheckBox::toggled, this, [=]{cells_On_Off_2(table, structure_Item); });
-
+		if(struct_Data.parent_Item_Type != item_Type_Regular_Aperiodic)
+		{
+			connect(check_Box, &QCheckBox::toggled, this, [=]{cells_On_Off_2(table, structure_Item); });
+		}
 		current_Column+=TABLE_COLUMN_INTERLAYERS_SHIFT;
 	}
 }
@@ -3032,6 +3070,43 @@ void Table_Of_Structures::refresh_Parameter(My_Table_Widget* table)
 				if(value_Type == MIN)	{parameter.fit.min = spin_Box->value()*coeff; /*parameter.confidence.min = parameter.fit.min;*/}
 				if(value_Type == MAX)	{parameter.fit.max = spin_Box->value()*coeff; /*parameter.confidence.max = parameter.fit.max;*/}
 			}
+
+			// regular aperiodic
+			if(struct_Data.parent_Item_Type == item_Type_Regular_Aperiodic)
+			{
+				for(int i=0; i<structure_Item->parent()->childCount(); i++)
+				{
+					if(structure_Item->parent()->child(i)==structure_Item)
+					{
+						Data parent_Data = structure_Item->parent()->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+						for(int n=0; n<parent_Data.num_Repetition.value(); n++)
+						{
+							qInfo() << whats_This;
+							Parameter& regular_Parameter = get_Parameter(parent_Data.regular_Components[i].components[n], whats_This);
+							if(value_Type == VAL)	regular_Parameter.value   = spin_Box->value()*coeff;
+							if(value_Type == MIN)	regular_Parameter.fit.min = spin_Box->value()*coeff;
+							if(value_Type == MAX)	regular_Parameter.fit.max = spin_Box->value()*coeff;
+
+							if(whats_This == whats_This_Sigma)
+							{
+								for(Interlayer& interlayer : parent_Data.regular_Components[i].components[n].interlayer_Composition)
+								{
+									interlayer.my_Sigma.value   = parent_Data.regular_Components[i].components[n].sigma.value;
+									interlayer.my_Sigma.fit.min = parent_Data.regular_Components[i].components[n].sigma.fit.min;
+									interlayer.my_Sigma.fit.max = parent_Data.regular_Components[i].components[n].sigma.fit.max;
+								}
+							}
+						}
+
+						QVariant var;
+						var.setValue( parent_Data );
+						structure_Item->parent()->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+
+						break;
+					}
+				}
+				emit regular_Layer_Edited(whats_This+value_Type);
+			}
 		}
 	}
 	{
@@ -3083,6 +3158,30 @@ void Table_Of_Structures::refresh_Fit_Parameter(bool)
 			}
 		}
 
+		if(struct_Data.parent_Item_Type == item_Type_Regular_Aperiodic)
+		{
+			for(int i=0; i<structure_Item->parent()->childCount(); i++)
+			{
+				if(structure_Item->parent()->child(i)==structure_Item)
+				{
+					Data parent_Data = structure_Item->parent()->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+					for(int n=0; n<parent_Data.num_Repetition.value(); n++)
+					{
+						Parameter& regular_Parameter = get_Parameter(parent_Data.regular_Components[i].components[n], whats_This);
+						regular_Parameter.fit.is_Fitable = check_Box->isChecked();
+					}
+
+					QVariant var;
+					var.setValue( parent_Data );
+					structure_Item->parent()->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+
+					break;
+				}
+			}
+
+			emit regular_Layer_Edited(fit_Thickness);
+		}
+
 		QVariant var;
 		var.setValue( struct_Data );
 		structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
@@ -3090,6 +3189,37 @@ void Table_Of_Structures::refresh_Fit_Parameter(bool)
 	{
 		emit_Data_Edited();
 		reload_Related_Widgets(QObject::sender());
+	}
+}
+
+void Table_Of_Structures::reload_From_Regular_Aperiodic()
+{
+	qInfo() << "reload_From_Regular_Aperiodic";
+
+	if(table_Is_Created)
+	{
+		// reloading for widgets on current tab
+		int current_Tab_Index = main_Tabs->currentIndex();
+
+		for(int i=0; i<regular_Aperiodic_Widgets_To_Reload[current_Tab_Index].size(); ++i)
+		{
+			QWidget* widget_To_Reload = regular_Aperiodic_Widgets_To_Reload[current_Tab_Index][i];
+			widget_To_Reload->setProperty(reload_Property, true);
+
+			QCheckBox*		check_Box = qobject_cast<QCheckBox*>	  (widget_To_Reload);
+			MyDoubleSpinBox* spin_Box = qobject_cast<MyDoubleSpinBox*>(widget_To_Reload);
+
+			if(check_Box)
+			{
+				check_Box->toggled(check_Box->isChecked());
+			}
+			if(spin_Box)
+			{
+				spin_Box->valueChanged(spin_Box->value());
+				Global_Variables::resize_Line_Edit(spin_Box);
+			}
+			widget_To_Reload->setProperty(reload_Property, false);
+		}
 	}
 }
 

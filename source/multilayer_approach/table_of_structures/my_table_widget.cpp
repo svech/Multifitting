@@ -105,7 +105,15 @@ void My_Table_Widget::contextMenuEvent(QContextMenuEvent *event)
 		connect(&my_Name_Action, &QAction::triggered, this, [=]
 		{
 			global_Multilayer_Approach->open_Regular_Aperiodic_Layers_Table(tab_Index, struct_Item);
+			Regular_Aperiodic_Table* regular_Aperiodic_Table = global_Multilayer_Approach->runned_Regular_Aperiodic_Tables.value(struct_Data.id);
+
+			disconnect(regular_Aperiodic_Table, &Regular_Aperiodic_Table::regular_Aperiodic_Edited, table_Of_Structures, &Table_Of_Structures::reload_From_Regular_Aperiodic);
+			   connect(regular_Aperiodic_Table, &Regular_Aperiodic_Table::regular_Aperiodic_Edited, table_Of_Structures, &Table_Of_Structures::reload_From_Regular_Aperiodic);
+
+			disconnect(table_Of_Structures, &Table_Of_Structures::regular_Layer_Edited, regular_Aperiodic_Table, &Regular_Aperiodic_Table::reload_All_Widgets);
+			   connect(table_Of_Structures, &Table_Of_Structures::regular_Layer_Edited, regular_Aperiodic_Table, &Regular_Aperiodic_Table::reload_All_Widgets);
 		});
+
 		menu.exec(event->globalPos());
 	}
 }

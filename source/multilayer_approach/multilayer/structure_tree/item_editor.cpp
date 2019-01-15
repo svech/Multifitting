@@ -109,6 +109,9 @@ void Item_Editor::create_Main_Layout()
 		connect(regular_Aperiodic_Table_Button, &QPushButton::clicked, this, [=]
 		{
 			global_Multilayer_Approach->open_Regular_Aperiodic_Layers_Table(tab_Index, item);
+			Regular_Aperiodic_Table* regular_Aperiodic_Table = global_Multilayer_Approach->runned_Regular_Aperiodic_Tables.value(struct_Data.id);
+			connect(regular_Aperiodic_Table, &Regular_Aperiodic_Table::regular_Aperiodic_Edited,
+					this, [=]{struct_Data=item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();});
 
 			lock_Interface();
 			disconnect(global_Multilayer_Approach->runned_Regular_Aperiodic_Tables.value(struct_Data.id), &Regular_Aperiodic_Table::closed, this, &Item_Editor::unlock_Interface);
@@ -839,6 +842,11 @@ void Item_Editor::make_Sigma_Group_Box()
 		PSD_Check_Box = new QCheckBox("Use PSD");
 			PSD_Check_Box->setDisabled(true);
 		individual_Sigma_Check_Box = new QCheckBox("Use many " + Sigma_Sym);
+		if(item->parent())
+		if(struct_Data.parent_Item_Type == item_Type_Regular_Aperiodic)
+		{
+			individual_Sigma_Check_Box->setDisabled(true);
+		}
 			PSD_Layout->addWidget(PSD_Check_Box);
 			PSD_Layout->addWidget(individual_Sigma_Check_Box);
 		sigma_PSD_Layout->addWidget(PSD_Frame);
@@ -1704,25 +1712,36 @@ void Item_Editor::multilayer_To_Aperiodic_Subfunction()
 void Item_Editor::to_Regular_Aperiodic_Subfunction()
 {
 	struct_Data.regular_Components.clear();
+
+	// clean structure
+	for(int i=0; i<item->childCount(); ++i)
+	{
+		Data child = item->child(i)->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+		if(child.item_Type != item_Type_Layer)
+		{
+			delete item->child(i);
+		}
+	}
+
+	// create regular components
 	for(int i=0; i<item->childCount(); ++i)
 	{
 		Data child = item->child(i)->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
 
-		if(child.item_Type != item_Type_Layer)
-		{
-			delete item->child(i);
-		} else
-		{
-			child.common_Sigma = true;
-			Regular_Component new_Regular_Component;
-				new_Regular_Component.components.resize(struct_Data.num_Repetition.value());
-				new_Regular_Component.components.fill(child);
-				new_Regular_Component.top_Id = child.id;
-			for(Data& inserted_Child : new_Regular_Component.components) { inserted_Child.reset_All_IDs(); }
+		child.common_Sigma = true;
+		Regular_Component new_Regular_Component;
+			new_Regular_Component.components.resize(struct_Data.num_Repetition.value());
+			new_Regular_Component.components.fill(child);
+			new_Regular_Component.top_Id = child.id;
+		for(Data& inserted_Child : new_Regular_Component.components) { inserted_Child.reset_All_IDs(); }
 
-			new_Regular_Component.find_Min_Max_Values();
-			struct_Data.regular_Components.append(new_Regular_Component);
-		}
+		new_Regular_Component.find_Min_Max_Values();
+		struct_Data.regular_Components.append(new_Regular_Component);
+
+		// save changes in children
+		QVariant var;
+		var.setValue( child );
+		item->child(i)->setData(DEFAULT_COLUMN, Qt::UserRole, var);
 	}
 }
 

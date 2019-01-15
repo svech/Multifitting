@@ -79,12 +79,11 @@ void Regular_Aperiodic_Table::emit_Regular_Aperiodic_Edited()
 	emit regular_Aperiodic_Edited();
 }
 
-void Regular_Aperiodic_Table::save_And_Emit()
+void Regular_Aperiodic_Table::save()
 {
 	QVariant var;
 	var.setValue( regular_Aperiodic_Data );
 	item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
-	emit_Regular_Aperiodic_Edited();
 }
 
 void Regular_Aperiodic_Table::create_Main_Layout()
@@ -267,6 +266,7 @@ void Regular_Aperiodic_Table::create_Table()
 				thickness_Fit_CheckBox->setProperty(index_Property, i);
 				thickness_Fit_CheckBox->setChecked(regular_Aperiodic_Data.regular_Components[i].components[n].thickness.fit.is_Fitable);
 			QWidget* back_Widget = new QWidget;
+			thickness_Back_Widgets_Map.insert(thickness_Fit_CheckBox,back_Widget);
 			QVBoxLayout* back_Layout = new QVBoxLayout(back_Widget);
 				back_Layout->addWidget(thickness_Fit_CheckBox);
 				back_Layout->setSpacing(0);
@@ -274,42 +274,11 @@ void Regular_Aperiodic_Table::create_Table()
 				back_Layout->setAlignment(Qt::AlignCenter);
 			regular_Table->setCellWidget(current_Row, current_Column, back_Widget);
 			thickness_Checkboxes_List.append(thickness_Fit_CheckBox);
-			connect(thickness_Fit_CheckBox, &QCheckBox::toggled, this, [=]
-			{
-				if(modifier_Key_Still_Pressed)
-				{
-					// for everybody
-					modifier_Key_Still_Pressed = false;
-					for(QCheckBox* checkBox : thickness_Checkboxes_List)
-					{
-						if(checkBox->property(index_Property).toInt() == i)
-						{
-							checkBox->setChecked(thickness_Fit_CheckBox->isChecked());
-						}
-						if(checkBox == thickness_Fit_CheckBox)
-						{
-							thickness_Fit_CheckBox->toggled(thickness_Fit_CheckBox->isChecked());
-						}
-					}
-					modifier_Key_Still_Pressed = modifier_Key_Still_Pressed_Duplicate;
-
-					save_And_Emit();
-				} else
-				{
-					regular_Aperiodic_Data.regular_Components[i].components[n].thickness.fit.is_Fitable = thickness_Fit_CheckBox->isChecked();
-
-					if(thickness_Fit_CheckBox->isChecked())
-						back_Widget->setStyleSheet(fit_Color);
-					else
-						back_Widget->setStyleSheet(white_Color);
-				}
-
-				if(!modifier_Key_Still_Pressed_Duplicate)
-				{
-					save_And_Emit();
-				}
-			});
+			connect(thickness_Fit_CheckBox, &QCheckBox::toggled, this, [=]{refresh_Thickness_Checkboxes(i, n);});
+			thickness_Fit_CheckBox->setProperty(reload_Property, true);
 			thickness_Fit_CheckBox->toggled(thickness_Fit_CheckBox->isChecked());
+			thickness_Fit_CheckBox->setProperty(reload_Property, false);
+
 			current_Column++;
 
 			// sigma value
@@ -345,12 +314,18 @@ void Regular_Aperiodic_Table::create_Table()
 			{
 				density_Value_Spinbox->setSuffix("  [r.u.]");
 				density_Value_Spinbox->setValue(regular_Aperiodic_Data.regular_Components[i].components[n].relative_Density.value);
+				density_Value_Spinbox->setProperty(whats_This_Property, whats_This_Relative_Density);
 			} else {
 				density_Value_Spinbox->setSuffix("  ["+density_units+"]");
 				density_Value_Spinbox->setValue(regular_Aperiodic_Data.regular_Components[i].components[n].absolute_Density.value);
+				density_Value_Spinbox->setProperty(whats_This_Property, whats_This_Absolute_Density);
 			}
 			regular_Table->setCellWidget(current_Row, current_Column, density_Value_Spinbox);
 			density_Spinboxes_List.append(density_Value_Spinbox);
+			connect(density_Value_Spinbox, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
+			{
+				refresh_Regular_Component(regular_Aperiodic_Data.regular_Components[i].components[n], i);
+			});
 			current_Column++;
 
 			current_Row++;
@@ -478,6 +453,14 @@ void Regular_Aperiodic_Table::colorize_Material()
 	}
 }
 
+void Regular_Aperiodic_Table::colorize_Thickness_Fit(QCheckBox* thickness_Fit_CheckBox)
+{
+	if(thickness_Fit_CheckBox->isChecked())
+		thickness_Back_Widgets_Map.value(thickness_Fit_CheckBox)->setStyleSheet(fit_Color);
+	else
+		thickness_Back_Widgets_Map.value(thickness_Fit_CheckBox)->setStyleSheet(white_Color);
+}
+
 void Regular_Aperiodic_Table::refresh_Regular_Component(Data& current_Layer, int i)
 {
 	// PARAMETER
@@ -499,13 +482,6 @@ void Regular_Aperiodic_Table::refresh_Regular_Component(Data& current_Layer, int
 		spin_Box->setValue(parameter.value/coeff);
 		spin_Box->blockSignals(false);
 
-		// special cases
-		if(whats_This == whats_This_Sigma)
-		{
-			for(Interlayer& interlayer : current_Layer.interlayer_Composition)	{
-				interlayer.my_Sigma.value = current_Layer.sigma.value;
-			}
-		}
 		return;
 	}
 	// if refresh
@@ -526,14 +502,16 @@ void Regular_Aperiodic_Table::refresh_Regular_Component(Data& current_Layer, int
 					thickness_Spinboxes_List[position]->setValue(parameter.value);
 					thickness_Spinboxes_List[position]->blockSignals(false);
 				}
+
+				Data child = item->child(i)->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+				child.thickness.value = parameter.value;
+				QVariant var;
+				var.setValue( child );
+				item->child(i)->setData(DEFAULT_COLUMN, Qt::UserRole, var);
 			}
 		}
 		if(whats_This == whats_This_Sigma)
 		{
-			for(Interlayer& interlayer : current_Layer.interlayer_Composition)	{
-				interlayer.my_Sigma.value = current_Layer.sigma.value;
-			}
-
 			if(regular_Aperiodic_Data.regular_Components[i].is_Common_Sigma)
 			{
 				for(int n=0; n<regular_Aperiodic_Data.num_Repetition.value(); ++n)
@@ -549,16 +527,121 @@ void Regular_Aperiodic_Table::refresh_Regular_Component(Data& current_Layer, int
 					sigma_Spinboxes_List[position]->setValue(parameter.value);
 					sigma_Spinboxes_List[position]->blockSignals(false);
 				}
+
+				Data child = item->child(i)->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+				child.sigma.value = parameter.value;
+				QVariant var;
+				var.setValue( child );
+				item->child(i)->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+			} else
+			{
+				for(Interlayer& interlayer : current_Layer.interlayer_Composition)	{
+					interlayer.my_Sigma.value = current_Layer.sigma.value;
+				}
 			}
 		}
 		regular_Aperiodic_Data.regular_Components[i].find_Min_Max_Values();
+		save();
+		emit_Regular_Aperiodic_Edited();
 	}
-	save_And_Emit();
 
 	// recalculation at change
 	if(aperiodic_Recalculate_Spinbox_Table && !reload) {global_Multilayer_Approach->calc_Reflection(true);}
 }
 
+void Regular_Aperiodic_Table::refresh_Thickness_Checkboxes(int i, int n)
+{
+	QCheckBox* thickness_Fit_CheckBox = qobject_cast<QCheckBox*>(QObject::sender());
+
+	// for reloading
+	bool reload = thickness_Fit_CheckBox->property(reload_Property).toBool();
+
+	if(reload)
+	{
+		thickness_Fit_CheckBox->blockSignals(true);
+		thickness_Fit_CheckBox->setChecked(regular_Aperiodic_Data.regular_Components[i].components[n].thickness.fit.is_Fitable);
+		thickness_Fit_CheckBox->blockSignals(false);
+		colorize_Thickness_Fit(thickness_Fit_CheckBox);
+	} else
+	// refresh
+	{
+		if(!regular_Aperiodic_Data.regular_Components[i].is_Common_Thickness)
+		{
+			if(modifier_Key_Still_Pressed)
+			{
+				// for everybody
+				modifier_Key_Still_Pressed = false;
+				for(QCheckBox* checkBox : thickness_Checkboxes_List)
+				{
+					if(checkBox->property(index_Property).toInt() == i)
+					{
+						checkBox->setChecked(thickness_Fit_CheckBox->isChecked());
+					}
+					if(checkBox == thickness_Fit_CheckBox)
+					{
+						thickness_Fit_CheckBox->toggled(thickness_Fit_CheckBox->isChecked());
+					}
+				}
+				modifier_Key_Still_Pressed = modifier_Key_Still_Pressed_Duplicate;
+
+				save();
+				if_Fit_All(i);
+			} else
+			{
+				regular_Aperiodic_Data.regular_Components[i].components[n].thickness.fit.is_Fitable = thickness_Fit_CheckBox->isChecked();
+				colorize_Thickness_Fit(thickness_Fit_CheckBox);
+			}
+
+			if(!modifier_Key_Still_Pressed_Duplicate)
+			{
+				save();
+				if_Fit_All(i);
+			}
+		} else
+		{
+			// checking
+			for(QCheckBox* checkBox : thickness_Checkboxes_List)
+			{
+				if(checkBox->property(index_Property).toInt() == i)
+				{
+					checkBox->blockSignals(true);
+					checkBox->setChecked(thickness_Fit_CheckBox->isChecked());
+					checkBox->blockSignals(false);
+
+					colorize_Thickness_Fit(checkBox);
+				}
+			}
+
+			// changing data
+			for(int nn=0; nn<regular_Aperiodic_Data.num_Repetition.value(); ++nn)
+			{
+				regular_Aperiodic_Data.regular_Components[i].components[nn].thickness.fit.is_Fitable = thickness_Fit_CheckBox->isChecked();
+			}
+
+			// saving data
+			save();
+			if_Fit_All(i);
+		}
+
+	}
+}
+
+void Regular_Aperiodic_Table::if_Fit_All(int i)
+{
+	bool all_Fit = true;
+	for(int nn=0; nn<regular_Aperiodic_Data.num_Repetition.value(); ++nn)
+	{
+		all_Fit = all_Fit&&regular_Aperiodic_Data.regular_Components[i].components[nn].thickness.fit.is_Fitable;
+	}
+
+	Data child = item->child(i)->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+	child.thickness.fit.is_Fitable = all_Fit;
+	QVariant var;
+	var.setValue( child );
+	item->child(i)->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+
+	emit_Regular_Aperiodic_Edited();
+}
 void Regular_Aperiodic_Table::reload_One_Widget(QWidget* widget_To_Reload)
 {
 	widget_To_Reload->setProperty(reload_Property, true);
@@ -579,83 +662,70 @@ void Regular_Aperiodic_Table::reload_One_Widget(QWidget* widget_To_Reload)
 	{
 		spin_Box->valueChanged(spin_Box->value());
 	}
-
 	widget_To_Reload->setProperty(reload_Property, false);
 }
 
-void Regular_Aperiodic_Table::reload_All_Widgets()
+void Regular_Aperiodic_Table::reload_All_Widgets(QString identifier)
 {
-	QWidget* sender = qobject_cast<QWidget*>(QObject::sender());
-	reload_Labels(sender);
-	reload_Thicknesses(sender);
-	reload_Sigmas(sender);
-	reload_Densities(sender);
-	reload_Steps(sender);
-	reload_Checkboxes(sender);
+	qInfo() << "reload_All_Widgets"<<identifier;
+	regular_Aperiodic_Data = item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+
+	if( identifier == "")											reload_Labels();
+	if( identifier == ""||
+		identifier == QString(whats_This_Thickness)+VAL)			reload_Thicknesses();
+	if( identifier == ""||
+		identifier == QString(whats_This_Sigma)+VAL)				reload_Sigmas();
+	if( identifier == "" ||
+		identifier == QString(whats_This_Absolute_Density)+VAL ||
+		identifier == QString(whats_This_Relative_Density)+VAL)		reload_Densities();
+	if( identifier == "")											reload_Steps();
+	if( identifier == "" || identifier == fit_Thickness)			reload_Checkboxes();
 }
 
-void Regular_Aperiodic_Table::reload_Labels(QWidget* sender)
+void Regular_Aperiodic_Table::reload_Labels()
 {
 	for(QWidget* widget_To_Reload : labels_List)
 	{
-		if(widget_To_Reload != sender)
-		{
-			reload_One_Widget(widget_To_Reload);
-		}
+		reload_One_Widget(widget_To_Reload);
 	}
 }
 
-void Regular_Aperiodic_Table::reload_Thicknesses(QWidget* sender)
+void Regular_Aperiodic_Table::reload_Thicknesses()
 {
 	for(QWidget* widget_To_Reload : thickness_Spinboxes_List)
 	{
-		if(widget_To_Reload != sender)
-		{
-			reload_One_Widget(widget_To_Reload);
-		}
+		reload_One_Widget(widget_To_Reload);
 	}
 }
 
-void Regular_Aperiodic_Table::reload_Sigmas(QWidget* sender)
+void Regular_Aperiodic_Table::reload_Sigmas()
 {
 	for(QWidget* widget_To_Reload : sigma_Spinboxes_List)
 	{
-		if(widget_To_Reload != sender)
-		{
-			reload_One_Widget(widget_To_Reload);
-		}
+		reload_One_Widget(widget_To_Reload);
 	}
 }
 
-void Regular_Aperiodic_Table::reload_Densities(QWidget* sender)
+void Regular_Aperiodic_Table::reload_Densities()
 {
 	for(QWidget* widget_To_Reload : density_Spinboxes_List)
 	{
-		if(widget_To_Reload != sender)
-		{
-			reload_One_Widget(widget_To_Reload);
-		}
+		reload_One_Widget(widget_To_Reload);
 	}
 }
 
-void Regular_Aperiodic_Table::reload_Steps(QWidget *sender)
+void Regular_Aperiodic_Table::reload_Steps()
 {
 	for(QWidget* widget_To_Reload : step_Spinboxes_List)
 	{
-		if(widget_To_Reload != sender)
-		{
-			reload_One_Widget(widget_To_Reload);
-		}
+		reload_One_Widget(widget_To_Reload);
 	}
 }
 
-void Regular_Aperiodic_Table::reload_Checkboxes(QWidget* sender)
+void Regular_Aperiodic_Table::reload_Checkboxes()
 {
 	for(QWidget* widget_To_Reload : thickness_Checkboxes_List)
 	{
-		if(widget_To_Reload != sender)
-		{
-			reload_One_Widget(widget_To_Reload);
-		}
+		reload_One_Widget(widget_To_Reload);
 	}
 }

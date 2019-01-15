@@ -24,6 +24,7 @@ public:
 signals:
 //	void closed();
 	void data_Edited();
+	void regular_Layer_Edited(QString identifier);
 
 public:
 	void create_Main_Layout();
@@ -115,6 +116,8 @@ public:
 	void refresh_Parameter(My_Table_Widget* table);
 	void refresh_Fit_Parameter(bool);
 
+	void reload_From_Regular_Aperiodic();
+
 	// for interlayers
 	void refresh_Check_Box_Label_Interlayer(bool);
 	void refresh_Weigts_Interlayer();
@@ -178,6 +181,9 @@ public:
 	QMultiMap<QWidget*, id_Type>	reload_Show_Dependence_Map;
 	QMap<QCheckBox*,id_Type>		check_Boxes_Fit_Map;
 	QMap<MyDoubleSpinBox*,id_Type>	spin_Boxes_ID_Map;
+
+	// refresh/reload regular aperiodic
+	QList<QList<QWidget*>>			regular_Aperiodic_Widgets_To_Reload;
 
 	// disable/enable
 	QMap<QTreeWidgetItem*, QTableWidgetItem*> struct_Table_Map;
