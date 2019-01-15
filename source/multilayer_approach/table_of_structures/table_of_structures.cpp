@@ -3081,7 +3081,6 @@ void Table_Of_Structures::refresh_Parameter(My_Table_Widget* table)
 						Data parent_Data = structure_Item->parent()->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
 						for(int n=0; n<parent_Data.num_Repetition.value(); n++)
 						{
-							qInfo() << whats_This;
 							Parameter& regular_Parameter = get_Parameter(parent_Data.regular_Components[i].components[n], whats_This);
 							if(value_Type == VAL)	regular_Parameter.value   = spin_Box->value()*coeff;
 							if(value_Type == MIN)	regular_Parameter.fit.min = spin_Box->value()*coeff;
@@ -3204,6 +3203,10 @@ void Table_Of_Structures::reload_From_Regular_Aperiodic()
 		for(int i=0; i<regular_Aperiodic_Widgets_To_Reload[current_Tab_Index].size(); ++i)
 		{
 			QWidget* widget_To_Reload = regular_Aperiodic_Widgets_To_Reload[current_Tab_Index][i];
+
+			// do not reload disabled widgets
+			if(!widget_To_Reload->property(enabled_Property).toBool())	return;
+
 			widget_To_Reload->setProperty(reload_Property, true);
 
 			QCheckBox*		check_Box = qobject_cast<QCheckBox*>	  (widget_To_Reload);

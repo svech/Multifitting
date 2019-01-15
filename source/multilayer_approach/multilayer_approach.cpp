@@ -310,6 +310,7 @@ void Multilayer_Approach::open_Regular_Aperiodic_Layers_Table(int tab_Index, QTr
 			regular_Aperiodic_Table->show();
 
 		connect(regular_Aperiodic_Table, &Regular_Aperiodic_Table::regular_Aperiodic_Edited, multilayer->structure_Tree, &Structure_Tree::refresh__StructureTree__Data_and_Text);
+		connect(regular_Aperiodic_Table, &Regular_Aperiodic_Table::regular_Aperiodic_Edited, this, &Multilayer_Approach::refresh_All_Multilayers_View);
 	} else
 	{
 		runned_Regular_Aperiodic_Tables.value(struct_Data.id)->activateWindow();
