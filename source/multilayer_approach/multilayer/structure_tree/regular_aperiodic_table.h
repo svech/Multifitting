@@ -37,7 +37,8 @@ public:
 	void if_Fit_All(int i);
 	void reload_One_Widget(QWidget* widget_To_Reload);
 	void reload_All_Widgets(QString identifier = "");
-		void reload_Labels();
+		void reload_Auxiliary_Labels();
+		void reload_Material_Labels();
 		void reload_Thicknesses();
 		void reload_Sigmas();
 		void reload_Densities();
@@ -57,7 +58,7 @@ public:
 	Data regular_Aperiodic_Data;
 	Regular_Aperiodic_Table_Widget* regular_Table;
 
-	QList<QLabel*> labels_List;
+	QList<QLabel*> auxiliary_Labels_List;
 	QList<QLabel*> material_Labels_List;
 	QList<MyDoubleSpinBox*> thickness_Spinboxes_List;
 	QList<MyDoubleSpinBox*> sigma_Spinboxes_List;

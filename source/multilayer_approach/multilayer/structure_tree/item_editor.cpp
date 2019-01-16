@@ -564,7 +564,7 @@ void Item_Editor::cell_Items_In_Regular_Aperiodic(QHBoxLayout *aperiodic_Group_B
 		soft_Restriction_Layout->setContentsMargins(0,4,0,0);
 		soft_Restriction_Layout->setSpacing(2);
 	aperiodic_Group_Box_Layout->addLayout(soft_Restriction_Layout);
-	QLabel* soft_Restriction_Label = new QLabel("       Smooth \"z\": {"+Plus_Minus_Sym+Delta_Big_Sym+", Q}");
+	QLabel* soft_Restriction_Label = new QLabel("       Restrict z: {"+Plus_Minus_Sym+Delta_Big_Sym+", Q}");
 	soft_Restriction_Layout->addWidget(soft_Restriction_Label,0,Qt::AlignLeft);
 
 	for(int i=0; i<item->childCount(); i++)

@@ -14,7 +14,13 @@
 using namespace std;
 class Node;
 
+//#define RELEASE
+
 //#define EXPRTK
+
+#ifdef RELEASE
+   #define EXPRTK
+#endif
 
 #ifdef EXPRTK
     #include "exprtk.hpp"
@@ -38,8 +44,12 @@ class Node;
 
 // settings
 
-#ifdef _WIN32
-	#define Pre_Path QString("../../")
+#ifdef _WIN32	
+	#ifdef RELEASE
+	   #define Pre_Path QString("../")
+	#else
+		#define Pre_Path QString("../../")
+	#endif
 #endif
 #ifdef __linux__
 	#define Pre_Path QString("../")
@@ -176,7 +186,7 @@ class Node;
 #define COLOR_LEGEND_LABEL_WIDTH 100		// for table color legend
 
 #ifdef _WIN32
-	#define WINDOW_BOUNDARY_SHIFT_X 8			// shift in window position
+	#define WINDOW_BOUNDARY_SHIFT_X 1			// shift in window position
 	#define WINDOW_BOUNDARY_SHIFT_Y 31			// shift in window position
 #endif
 #ifdef __linux__
@@ -248,6 +258,9 @@ class Node;
 #define whats_This_Sample_Shift				"Sample Shift"
 
 #define whats_This_Density					"Density"
+#define whats_This_Common_Thickness			"Common Thickness"
+#define whats_This_Common_Sigma				"Common Sigma"
+#define whats_This_Restrict_Thickness		"Restrict Thickness"
 
 // whatsThis : thickness drifts
 #define whats_This_Thickness_Drift_Line_Value		"Thickness Drift Lin Value"
@@ -375,6 +388,8 @@ class Node;
 #define fit_Thickness	 "fit_Thickness"
 #define relate_Sigma	 "relate_Sigma"
 #define fit_Sigma		 "fit_Sigma"
+
+#define material_Identifier		 "material"
 
 // -----------------------------------------------------------------------------------------
 

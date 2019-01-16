@@ -114,6 +114,9 @@ void Multilayer_Approach::fast_Hide_Windows()
 	if(runned_Fitting_Settings_Editor.contains(fit_Settings_Key))	{
 		fitting_Settings_Editor->close();
 	}
+	for(Regular_Aperiodic_Table* regular_Aperiodic_Table: runned_Regular_Aperiodic_Tables) {
+		regular_Aperiodic_Table->close();
+	}
 }
 
 void Multilayer_Approach::add_Multilayer()
@@ -223,6 +226,9 @@ void Multilayer_Approach::open_Table_Of_Structures()
 			table_Of_Structures->setWindowFlags(Qt::Window);
 			table_Of_Structures->show();
 
+		runned_Tables_Of_Structures.clear();
+		runned_Tables_Of_Structures.insert(table_Key, table_Of_Structures);
+
 		connect(table_Of_Structures, &Table_Of_Structures::data_Edited, this, &Multilayer_Approach::refresh_All_Multilayers_View);
 
 		for(int i=0; i<multilayer_Tabs->count(); ++i)
@@ -245,6 +251,9 @@ void Multilayer_Approach::open_Optical_Graphs(QString keep_Splitter)
 			optical_Graphs->setWindowFlags(Qt::Window);
 			optical_Graphs->show();
 
+		runned_Optical_Graphs.clear();
+		runned_Optical_Graphs.insert(optical_Graphs_Key, optical_Graphs);
+
 //		for(int i=0; i<multilayer_Tabs->count(); ++i)
 //		{
 //			Multilayer* multilayer = qobject_cast<Multilayer*>(multilayer_Tabs->widget(i));
@@ -264,6 +273,10 @@ void Multilayer_Approach::open_Fits_Selector()
 		fits_Selector = new Fits_Selector;//(this);
 			fits_Selector->setWindowFlags(Qt::Window);
 			fits_Selector->show();
+
+		runned_Fits_Selectors.clear();
+		runned_Fits_Selectors.insert(fits_Selector_Key, fits_Selector);
+
 	} else
 	{
 		fits_Selector->activateWindow();
@@ -278,6 +291,10 @@ void Multilayer_Approach::open_Calculation_Settings()
 		calculation_Settings_Editor = new Calculation_Settings_Editor;//(this);
 			calculation_Settings_Editor->setWindowFlags(Qt::Window);
 			calculation_Settings_Editor->show();
+
+		runned_Calculation_Settings_Editor.clear();
+		runned_Calculation_Settings_Editor.insert(calc_Settings_Key, calculation_Settings_Editor);
+
 	} else
 	{
 		calculation_Settings_Editor->activateWindow();
@@ -292,6 +309,10 @@ void Multilayer_Approach::open_Fitting_Settings()
 		fitting_Settings_Editor = new Fitting_Settings_Editor;//(this);
 			fitting_Settings_Editor->setWindowFlags(Qt::Window);
 			fitting_Settings_Editor->show();
+
+		runned_Fitting_Settings_Editor.clear();
+		runned_Fitting_Settings_Editor.insert(fit_Settings_Key, fitting_Settings_Editor);
+
 	} else
 	{
 		fitting_Settings_Editor->activateWindow();
@@ -571,6 +592,11 @@ void Multilayer_Approach::open(QString filename)
 	if(reopen_Fits_Selector)
 	{
 		runned_Fits_Selectors.value(fits_Selector_Key)->close();
+	}
+
+	// close aperiodic tables
+	for(Regular_Aperiodic_Table* regular_Aperiodic_Table: runned_Regular_Aperiodic_Tables) {
+		regular_Aperiodic_Table->close();
 	}
 
 	// close target editors

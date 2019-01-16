@@ -590,7 +590,10 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 				// sigmas
 				if(struct_Data.parent_Item_Type == item_Type_Regular_Aperiodic)
 				{
-
+					create_Check_Box_Label      (new_Table, tab_Index, current_Row+3, current_Column,  structure_Item, whats_This_Common_Thickness, "common z", -2, -2, -4, -4);
+					create_Check_Box_Label      (new_Table, tab_Index, current_Row+4, current_Column,  structure_Item, whats_This_Common_Sigma, "common "+Sigma_Sym, -3, -3, -2, -2);
+					create_Check_Box_Label      (new_Table, tab_Index, current_Row+3, current_Column+3, structure_Item, whats_This_Restrict_Thickness, "restrict z: {"+Plus_Minus_Sym+Delta_Big_Sym+", Q}", 1, 1, 0, 1);
+					create_Thickness_Restriction(new_Table, tab_Index, current_Row+4, current_Column+3, structure_Item);
 				} else
 				{
 					create_MySigma_Labels_Interlayer	    (new_Table, tab_Index, current_Row+3, current_Column, structure_Item);
@@ -1084,11 +1087,14 @@ void Table_Of_Structures::fit_Column(QTableWidget* table, int start_Width, int c
 		bool fit_Labels = false;
 		if(current_Label) fit_Labels = current_Label->property(fit_Column_Property).toBool();
 
+		bool not_Fit_Spinbox = false;
+		if(current_Spin_Box) not_Fit_Spinbox = current_Spin_Box->property(fit_Column_Property).toBool();
+
 		if(current_Line_Edit || current_Spin_Box || fit_Labels)
 		{			
 			int width = 0;
 			if(current_Line_Edit) width = current_Line_Edit->width();
-			if(current_Spin_Box) width = current_Spin_Box->width();
+			if(current_Spin_Box && !not_Fit_Spinbox) width = current_Spin_Box->width();
 			if(fit_Labels) width = current_Label->width();
 			if(max_Width<width)
 			{
@@ -1500,6 +1506,24 @@ void Table_Of_Structures::create_Check_Box_Label(My_Table_Widget* table, int tab
 				reload_Show_Dependence_Map.insertMulti(check_Box, interlayer.my_Sigma.indicator.id);
 			}
 		}
+
+		if(struct_Data.parent_Item_Type == item_Type_Regular_Aperiodic)
+		{
+			Data parent_Data = structure_Item->parent()->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+			int my_I = -2019;
+			for(int i = 0; i<structure_Item->parent()->childCount(); i++)
+			{
+				if(structure_Item->parent()->child(i)==structure_Item)
+				{
+					my_I = i;
+					check_Box->setProperty(index_Property, i);
+				}
+			}
+
+			if(whats_This == whats_This_Common_Thickness)	{bool_Check = parent_Data.regular_Components[my_I].is_Common_Thickness;}
+			if(whats_This == whats_This_Common_Sigma)		{bool_Check = parent_Data.regular_Components[my_I].is_Common_Sigma;}
+			if(whats_This == whats_This_Restrict_Thickness)	{bool_Check = parent_Data.regular_Components[my_I].use_Soft_Restrictions;}
+		}
 	}
 
 	// enable/disable function
@@ -1546,18 +1570,187 @@ void Table_Of_Structures::create_Check_Box_Label(My_Table_Widget* table, int tab
 		back_Widget->setStyleSheet("background-color: lightblue");
 	}
 
-	if( struct_Data.parent_Item_Type != item_Type_Regular_Aperiodic )
+	connect(check_Box, &QCheckBox::toggled, this, [=]{cells_On_Off(table); });
+
+	if( struct_Data.parent_Item_Type == item_Type_Regular_Aperiodic)
 	{
-		connect(check_Box, &QCheckBox::toggled, this, [=]{cells_On_Off(table); });
+		if( whats_This == whats_This_Sigma)
+		{
+			check_Box->setAttribute(Qt::WA_TransparentForMouseEvents);
+			check_Box->setFocusPolicy(Qt::NoFocus);
+		}
+		if( whats_This == whats_This_Common_Thickness || whats_This == whats_This_Common_Sigma )
+		{
+			table->setSpan(current_Row,current_Column,1,2);
+			back_Widget->setMinimumWidth(2*TABLE_FIX_WIDTH_LINE_EDIT_SHORT+1);
+		}
+		if( whats_This == whats_This_Restrict_Thickness )
+		{
+			table->setSpan(current_Row,current_Column,1,3);
+			back_Widget->setMinimumWidth(3*TABLE_FIX_WIDTH_LINE_EDIT_SHORT+2);
+		}
 	}
-	if( struct_Data.parent_Item_Type == item_Type_Regular_Aperiodic && whats_This == whats_This_Sigma)
-	{
-		check_Box->setAttribute(Qt::WA_TransparentForMouseEvents);
-		check_Box->setFocusPolicy(Qt::NoFocus);
-	}
+
 	connect(check_Box, &QCheckBox::toggled, this, &Table_Of_Structures::refresh_Check_Box_Header);
 
+	check_Box->setProperty(reload_Property,true);
+	check_Box->toggled(check_Box->isChecked());
+	check_Box->setProperty(reload_Property,false);
+
 	table->setCellWidget(current_Row, current_Column, back_Widget);
+}
+
+void Table_Of_Structures::create_Thickness_Restriction(My_Table_Widget *table, int tab_Index, int current_Row, int current_Column, QTreeWidgetItem *structure_Item)
+{
+	Data regular_Aperiodic_Data = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+
+	// threshold
+	QSpinBox* soft_Restriction_Threshold_SpinBox = new QSpinBox;
+		soft_Restriction_Threshold_SpinBox->setRange(0, 100);
+		soft_Restriction_Threshold_SpinBox->setSuffix("%");
+		soft_Restriction_Threshold_SpinBox->setPrefix(Plus_Minus_Sym);
+//		soft_Restriction_Threshold_SpinBox->setValue(struct_Data.regular_Components[i].threshold);
+		soft_Restriction_Threshold_SpinBox->setAccelerated(true);
+		soft_Restriction_Threshold_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
+		soft_Restriction_Threshold_SpinBox->installEventFilter(this);
+	table->setCellWidget(current_Row, current_Column, soft_Restriction_Threshold_SpinBox);
+
+	// Q value
+	MyDoubleSpinBox* soft_Restriction_Q_SpinBox = new MyDoubleSpinBox;
+		soft_Restriction_Q_SpinBox->setPrefix("Q = ");
+		soft_Restriction_Q_SpinBox->setRange(0, MAX_DOUBLE);
+		soft_Restriction_Q_SpinBox->setSingleStep(1);
+//		soft_Restriction_Q_SpinBox->setValue(struct_Data.regular_Components[i].Q_factor);
+		soft_Restriction_Q_SpinBox->setAccelerated(true);
+		soft_Restriction_Q_SpinBox->setDecimals(3);
+		soft_Restriction_Q_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
+		soft_Restriction_Q_SpinBox->installEventFilter(this);
+		soft_Restriction_Q_SpinBox->setProperty(min_Size_Property,2*TABLE_FIX_WIDTH_LINE_EDIT_SHORT+1);
+		soft_Restriction_Q_SpinBox->setProperty(fit_Column_Property,true);
+	table->setSpan(current_Row,current_Column+1,1,2);
+	table->setCellWidget(current_Row, current_Column+1, soft_Restriction_Q_SpinBox);
+	Global_Variables::resize_Line_Edit(soft_Restriction_Q_SpinBox);
+
+//	{
+//		Parameter& parameter = get_Parameter(struct_Data, whats_This, precision, coeff);
+//		spin_Box->setDecimals(precision);
+//		if(val_Type == VAL)	{value = parameter.value;	/*format = line_edit_double_format;*/	}
+//		if(val_Type == MIN)	{value = parameter.fit.min;	/*format = line_edit_short_double_format;*/	}
+//		if(val_Type == MAX)	{value = parameter.fit.max;	/*format = line_edit_short_double_format;*/	}
+
+//		if(	whats_This == whats_This_Thickness_Drift_Line_Value ||
+//			whats_This == whats_This_Sigma_Drift_Line_Value	)
+//		{
+//			spin_Box->setRange(-MAX_DOUBLE, MAX_DOUBLE);
+//		} else
+//		{
+//			if(whats_This == whats_This_Gamma)
+//			{
+//				spin_Box->setRange(0, 1);
+//			} else
+//			{
+//				spin_Box->setRange(0, MAX_DOUBLE);
+//			}
+//		}
+//		id = parameter.indicator.id;
+
+//		spin_Boxes_ID_Map.insert(spin_Box,id);
+
+//		if( whats_This == whats_This_Thickness	||
+//			whats_This == whats_This_Period		||
+//			whats_This == whats_This_Gamma		)
+//		{
+//			if(val_Type == VAL) reload_Show_Dependence_Map.insertMulti(spin_Box,  id_Of_Thicknesses);
+//		}
+
+//		if( whats_This == whats_This_Sigma )
+//		{
+//			for(Interlayer& interlayer : struct_Data.interlayer_Composition)
+//			{
+//				reload_Show_Dependence_Map.insertMulti(spin_Box,  interlayer.my_Sigma.indicator.id);
+//			}
+//		}
+//	}
+
+//#ifdef _WIN32
+//	QFont font(spin_Box->font());
+//	font.setPointSize(8.25);
+//	font.setFamily("MS Shell Dlg 2");
+//	spin_Box->setFont(font);
+//#endif
+//#ifdef __linux__
+//#endif
+
+//	spin_Box->setValue(value/coeff);
+//	spin_Box->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT_SHORT);
+//	if( whats_This == whats_This_Absolute_Density || whats_This == whats_This_Relative_Density || whats_This == whats_This_Num_Repetitions ) spin_Box->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT_DENSITY);
+//	if( whats_This == whats_This_Sigma || whats_This == whats_This_Thickness || whats_This == whats_This_Period) spin_Box->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT_SIGMA);
+//	if(	whats_This == whats_This_Thickness_Drift_Line_Value     ||
+//		whats_This == whats_This_Thickness_Drift_Rand_Rms       ||
+//		whats_This == whats_This_Sigma_Drift_Line_Value			||
+//		whats_This == whats_This_Sigma_Drift_Rand_Rms			||
+//		whats_This == whats_This_Gamma	)						spin_Box->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT_LONG);
+//	if(	whats_This == whats_This_Thickness_Drift_Sine_Amplitude ||
+//		whats_This == whats_This_Thickness_Drift_Sine_Frequency ||
+//		whats_This == whats_This_Thickness_Drift_Sine_Phase		||
+//		whats_This == whats_This_Sigma_Drift_Sine_Amplitude		||
+//		whats_This == whats_This_Sigma_Drift_Sine_Frequency		||
+//		whats_This == whats_This_Sigma_Drift_Sine_Phase	)		spin_Box->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT_SIGMA);
+
+//	spin_Box->setProperty(min_Size_Property, spin_Box->width());
+//	spin_Box->setProperty(column_Property, current_Column);
+//	spin_Box->setProperty(whats_This_Property, whats_This);
+//	spin_Box->setProperty(value_Type_Property, val_Type);
+
+//	// for reloading
+//	spin_Box->setProperty(reload_Property, false);
+//	spin_Box->setProperty(tab_Index_Property, tab_Index);
+
+//	// storage
+//	spin_Boxes_Map.insert(spin_Box, structure_Item);
+//	all_Widgets_To_Reload[tab_Index].append(spin_Box);
+//	if(val_Type == VAL)
+//	{
+//		reload_Show_Dependence_Map.insertMulti(spin_Box, id);
+//	}
+//	if( val_Type == VAL &&
+//	   (whats_This == whats_This_Sigma || whats_This == whats_This_Thickness) &&
+//		struct_Data.parent_Item_Type == item_Type_Regular_Aperiodic	)
+//	{
+//		regular_Aperiodic_Widgets_To_Reload[tab_Index].append(spin_Box);
+//	}
+
+//	// storage for fast min/max refreshing
+//	if( val_Type == MIN || val_Type == MAX )
+//	{
+//		if( whats_This == whats_This_Absolute_Density || whats_This == whats_This_Relative_Density )
+//		{
+//			min_Max_Density_Spin_Boxes_List[tab_Index].append(spin_Box);
+//		}
+//		if( whats_This == whats_This_Thickness || whats_This == whats_This_Period )
+//		{
+//			min_Max_Thickness_Spin_Boxes_List[tab_Index].append(spin_Box);
+//		}
+//		if( whats_This == whats_This_Sigma )
+//		{
+//			min_Max_Sigma_Spin_Boxes_List[tab_Index].append(spin_Box);
+//		}
+//	}
+
+//	// create item (set LineEdits_Map)
+//	table->setCellWidget(current_Row, current_Column, spin_Box);
+
+//	connect(spin_Box, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged),   this, [=]
+//	{
+//		refresh_Parameter(table);
+//		resize_Line_Edit (table,spin_Box);
+//	});
+////	connect(spin_Box, &MyDoubleSpinBox::editingFinished, this, [=]{refresh_Parameter(table); });
+
+//	// steps
+//	if(whats_This == whats_This_Absolute_Density
+
+
 }
 
 //// for all parameters
@@ -1724,7 +1917,6 @@ void Table_Of_Structures::create_Line_Edit(My_Table_Widget* table, int tab_Index
 		whats_This == whats_This_Thickness_Drift_Sine_Phase		||
 		whats_This == whats_This_Sigma_Drift_Sine_Frequency		||
 		whats_This == whats_This_Sigma_Drift_Sine_Phase	)	{ spin_Box->setSingleStep(0.1);	}
-
 }
 
 void Table_Of_Structures::create_Check_Box_Fit(My_Table_Widget* table, int tab_Index, int current_Row, int current_Column, QTreeWidgetItem* structure_Item, QString whats_This, int r_S, int r_F, int c_S, int c_F)
@@ -1915,6 +2107,7 @@ void Table_Of_Structures::create_Check_Box_Label_Interlayer(My_Table_Widget* tab
 		// enable/disable function
 		check_Box->setProperty(row_Property, current_Row);
 		check_Box->setProperty(column_Property, current_Column);
+
 
 		// first group
 		check_Box->setProperty(relative_Rows_To_Disable_Start_Property, 1);
@@ -2474,6 +2667,35 @@ void Table_Of_Structures::refresh_Element(My_Table_Widget* table, QString)
 		// full name update
 		comp.composition.indicator.full_Name = Global_Variables::parameter_Name(struct_Data, whats_This_Composition, composition_Index);
 
+		// regular aperiodic
+		if(struct_Data.parent_Item_Type == item_Type_Regular_Aperiodic)
+		{
+			int my_I = -2019;
+			for(int i=0; i<structure_Item->parent()->childCount(); i++)	{
+				if(structure_Item->parent()->child(i)==structure_Item)	{
+					my_I = i;
+				}
+			}
+
+			Data parent_Data = structure_Item->parent()->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+			for(int n=0; n<parent_Data.num_Repetition.value(); n++)
+			{
+				Data& regular_Data = parent_Data.regular_Components[my_I].components[n];
+				Parameter& regular_Comp = regular_Data.composition[composition_Index].composition;
+				regular_Data.composition[composition_Index].type = combo_Box->currentText();
+				regular_Data.material = material_From_Composition(regular_Data.composition);
+
+				// full name update
+				regular_Comp.indicator.full_Name = Global_Variables::parameter_Name(struct_Data, whats_This_Composition, composition_Index);
+			}
+
+			QVariant var;
+			var.setValue( parent_Data );
+			structure_Item->parent()->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+
+			emit regular_Layer_Edited(material_Identifier);
+		}
+
 		QVariant var;
 		var.setValue( struct_Data );
 		structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
@@ -2527,9 +2749,42 @@ void Table_Of_Structures::refresh_Stoich()
 		// full name update
 		comp.indicator.full_Name = Global_Variables::parameter_Name(struct_Data, whats_This_Composition, composition_Index);
 
+		// regular aperiodic
+		if(struct_Data.parent_Item_Type == item_Type_Regular_Aperiodic)
+		{
+			int my_I = -2019;
+			for(int i=0; i<structure_Item->parent()->childCount(); i++)	{
+				if(structure_Item->parent()->child(i)==structure_Item)	{
+					my_I = i;
+				}
+			}
+
+			Data parent_Data = structure_Item->parent()->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+			for(int n=0; n<parent_Data.num_Repetition.value(); n++)
+			{
+				Data& regular_Data = parent_Data.regular_Components[my_I].components[n];
+				Parameter& regular_Comp = regular_Data.composition[composition_Index].composition;
+				if(value_Type == VAL)	regular_Comp.value   = spin_Box->value();
+				if(value_Type == MIN)	regular_Comp.fit.min = spin_Box->value();
+				if(value_Type == MAX)	regular_Comp.fit.max = spin_Box->value();
+
+				regular_Data.material = material_From_Composition(regular_Data.composition);
+
+				// full name update
+				regular_Comp.indicator.full_Name = Global_Variables::parameter_Name(struct_Data, whats_This_Composition, composition_Index);
+			}
+
+			QVariant var;
+			var.setValue( parent_Data );
+			structure_Item->parent()->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+
+			emit regular_Layer_Edited(material_Identifier);
+		}
+
 		QVariant var;
 		var.setValue( struct_Data );
 		structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+
 	}
 	{
 		emit_Data_Edited();
@@ -2559,6 +2814,32 @@ void Table_Of_Structures::refresh_Fit_Element(bool)
 	// refresh struct_Tree
 	{
 		struct_Data.composition[composition_Index].composition.fit.is_Fitable = check_Box->isChecked();
+
+		// regular aperiodic
+		if(struct_Data.parent_Item_Type == item_Type_Regular_Aperiodic)
+		{
+			int my_I = -2019;
+			for(int i=0; i<structure_Item->parent()->childCount(); i++)	{
+				if(structure_Item->parent()->child(i)==structure_Item)	{
+					my_I = i;
+				}
+			}
+
+			Data parent_Data = structure_Item->parent()->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+			for(int n=0; n<parent_Data.num_Repetition.value(); n++)
+			{
+				Data& regular_Data = parent_Data.regular_Components[my_I].components[n];
+				Parameter& regular_Comp = regular_Data.composition[composition_Index].composition;
+
+				regular_Comp.fit.is_Fitable = check_Box->isChecked();
+			}
+
+			QVariant var;
+			var.setValue( parent_Data );
+			structure_Item->parent()->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+
+			emit regular_Layer_Edited(material_Identifier);
+		}
 
 		QVariant var;
 		var.setValue( struct_Data );
@@ -2595,6 +2876,30 @@ void Table_Of_Structures::refresh_Material(My_Table_Widget* table, QString)
 				int current_Column = item_Check_Box->property(column_Property).toInt();
 				fit_Column(table, 0, current_Column);
 			}
+		}
+
+		// regular aperiodic
+		if(struct_Data.parent_Item_Type == item_Type_Regular_Aperiodic)
+		{
+			int my_I = -2019;
+			for(int i=0; i<structure_Item->parent()->childCount(); i++)	{
+				if(structure_Item->parent()->child(i)==structure_Item)	{
+					my_I = i;
+				}
+			}
+
+			Data parent_Data = structure_Item->parent()->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+			for(int n=0; n<parent_Data.num_Repetition.value(); n++)
+			{
+				Data& regular_Data = parent_Data.regular_Components[my_I].components[n];
+				regular_Data.material = line_Edit->text();
+			}
+
+			QVariant var;
+			var.setValue( parent_Data );
+			structure_Item->parent()->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+
+			emit regular_Layer_Edited(material_Identifier);
 		}
 
 		QVariant var;
@@ -2718,6 +3023,17 @@ void Table_Of_Structures::refresh_Check_Box_Header(bool)
 			check_Box->setChecked(struct_Data.common_Sigma);
 			check_Box->setText(Sigma_Sym+" ["+length_units+"]");
 		}
+
+		if(struct_Data.parent_Item_Type == item_Type_Regular_Aperiodic)
+		{
+			Data parent_Data = structure_Item->parent()->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+			int i = check_Box->property(index_Property).toInt();
+			if(whats_This == whats_This_Common_Thickness)	{check_Box->setChecked(parent_Data.regular_Components[i].is_Common_Thickness);	}
+			if(whats_This == whats_This_Common_Sigma)		{check_Box->setChecked(parent_Data.regular_Components[i].is_Common_Sigma);		}
+			if(whats_This == whats_This_Restrict_Thickness)	{check_Box->setChecked(parent_Data.regular_Components[i].use_Soft_Restrictions);}
+			colorize_Regular_Aperiodic_Check_Box_Header(check_Box);
+		}
+
 		return;
 	}
 	// if refresh
@@ -2732,6 +3048,40 @@ void Table_Of_Structures::refresh_Check_Box_Header(bool)
 
 		if(whats_This == whats_This_Sigma)					struct_Data.common_Sigma = check_Box->isChecked();
 
+		if(struct_Data.parent_Item_Type == item_Type_Regular_Aperiodic)
+		{
+			Data parent_Data = structure_Item->parent()->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+			int i = check_Box->property(index_Property).toInt();
+			if(whats_This == whats_This_Common_Thickness)	{
+				parent_Data.regular_Components[i].is_Common_Thickness   = check_Box->isChecked();
+				if(check_Box->isChecked())
+				{
+					for(int n=0; n<parent_Data.num_Repetition.value(); ++n)
+					{
+						parent_Data.regular_Components[i].components[n].thickness.value = parent_Data.regular_Components[i].components[0].thickness.value;
+					}
+				}
+			}
+			if(whats_This == whats_This_Common_Sigma)		{
+				parent_Data.regular_Components[i].is_Common_Sigma       = check_Box->isChecked();
+				if(check_Box->isChecked())
+				{
+					for(int n=0; n<parent_Data.num_Repetition.value(); ++n)
+					{
+						parent_Data.regular_Components[i].components[n].sigma.value = parent_Data.regular_Components[i].components[0].sigma.value;
+					}
+				}
+			}
+			if(whats_This == whats_This_Restrict_Thickness)	{parent_Data.regular_Components[i].use_Soft_Restrictions = check_Box->isChecked();}
+			colorize_Regular_Aperiodic_Check_Box_Header(check_Box);
+
+			QVariant var;
+			var.setValue( parent_Data );
+			structure_Item->parent()->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+
+			emit regular_Layer_Edited(colorize_Property);
+		}
+
 		QVariant var;
 		var.setValue( struct_Data );
 		structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
@@ -2742,6 +3092,33 @@ void Table_Of_Structures::refresh_Check_Box_Header(bool)
 
 		//	recalculation at change
 		if(recalculate_Spinbox_Table && !reload) {global_Multilayer_Approach->calc_Reflection(true);}
+	}
+}
+
+void Table_Of_Structures::colorize_Regular_Aperiodic_Check_Box_Header(QCheckBox* check_Box)
+{
+	QString whats_This = check_Box->property(whats_This_Property).toString();
+
+	if(whats_This == whats_This_Common_Thickness)
+	{
+		if(check_Box->isChecked())
+			check_Box->parentWidget()->setStyleSheet(common_Thickness_Color);
+		else
+			check_Box->parentWidget()->setStyleSheet(white_Color);
+	}
+	if(whats_This == whats_This_Common_Sigma)
+	{
+		if(check_Box->isChecked())
+			check_Box->parentWidget()->setStyleSheet(common_Sigma_Color);
+		else
+			check_Box->parentWidget()->setStyleSheet(white_Color);
+	}
+	if(whats_This == whats_This_Restrict_Thickness)
+	{
+		if(check_Box->isChecked())
+			check_Box->parentWidget()->setStyleSheet(soft_Restriction_Color);
+		else
+			check_Box->parentWidget()->setStyleSheet(white_Color);
 	}
 }
 
@@ -3205,23 +3582,24 @@ void Table_Of_Structures::reload_From_Regular_Aperiodic()
 			QWidget* widget_To_Reload = regular_Aperiodic_Widgets_To_Reload[current_Tab_Index][i];
 
 			// do not reload disabled widgets
-			if(!widget_To_Reload->property(enabled_Property).toBool())	return;
-
-			widget_To_Reload->setProperty(reload_Property, true);
-
-			QCheckBox*		check_Box = qobject_cast<QCheckBox*>	  (widget_To_Reload);
-			MyDoubleSpinBox* spin_Box = qobject_cast<MyDoubleSpinBox*>(widget_To_Reload);
-
-			if(check_Box)
+			if(widget_To_Reload->property(enabled_Property).toBool())
 			{
-				check_Box->toggled(check_Box->isChecked());
+				widget_To_Reload->setProperty(reload_Property, true);
+
+				QCheckBox*		check_Box = qobject_cast<QCheckBox*>	  (widget_To_Reload);
+				MyDoubleSpinBox* spin_Box = qobject_cast<MyDoubleSpinBox*>(widget_To_Reload);
+
+				if(check_Box)
+				{
+					check_Box->toggled(check_Box->isChecked());
+				}
+				if(spin_Box)
+				{
+					spin_Box->valueChanged(spin_Box->value());
+					Global_Variables::resize_Line_Edit(spin_Box);
+				}
+				widget_To_Reload->setProperty(reload_Property, false);
 			}
-			if(spin_Box)
-			{
-				spin_Box->valueChanged(spin_Box->value());
-				Global_Variables::resize_Line_Edit(spin_Box);
-			}
-			widget_To_Reload->setProperty(reload_Property, false);
 		}
 	}
 }

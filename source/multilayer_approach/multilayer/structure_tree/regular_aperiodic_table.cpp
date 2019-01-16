@@ -210,11 +210,11 @@ void Regular_Aperiodic_Table::create_Table()
 	create_Simple_Label(current_Row,1," Material ");
 	QLabel* thickness_Label = nullptr;
 	create_Simple_Label(current_Row,2," z ["+length_units+"] ", thickness_Label);
-	labels_List.append(thickness_Label);
+	auxiliary_Labels_List.append(thickness_Label);
 	create_Simple_Label(current_Row,3," Fit z ");
 	QLabel* sigma_Label = nullptr;
 	create_Simple_Label(current_Row,4," "+Sigma_Sym+" ["+length_units+"] ", sigma_Label);
-	labels_List.append(sigma_Label);
+	auxiliary_Labels_List.append(sigma_Label);
 	create_Simple_Label(current_Row,5," "+Rho_Sym+" ");
 	current_Row++;
 
@@ -238,8 +238,10 @@ void Regular_Aperiodic_Table::create_Table()
 				material_Label->setAlignment(Qt::AlignCenter);
 				material_Label->setMinimumWidth(55);
 			regular_Table->setCellWidget(current_Row, current_Column, material_Label);
-			labels_List.append(material_Label);
 			material_Labels_List.append(material_Label);
+			connect(material_Label, &QLabel::windowTitleChanged, this, [=]{
+				material_Label->setText(regular_Aperiodic_Data.regular_Components[i].components[n].material);
+			});
 			current_Column++;
 
 			// thickness value
@@ -622,7 +624,6 @@ void Regular_Aperiodic_Table::refresh_Thickness_Checkboxes(int i, int n)
 			save();
 			if_Fit_All(i);
 		}
-
 	}
 }
 
@@ -670,10 +671,15 @@ void Regular_Aperiodic_Table::reload_All_Widgets(QString identifier)
 	qInfo() << "reload_All_Widgets"<<identifier;
 	regular_Aperiodic_Data = item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
 
-	if( identifier == "")											reload_Labels();
-	if( identifier == ""||
-		identifier == QString(whats_This_Thickness)+VAL)			reload_Thicknesses();
-	if( identifier == ""||
+	if( identifier == colorize_Property) colorize_Material();
+
+	if( identifier == "")											reload_Auxiliary_Labels();
+	if( identifier == "" ||
+		identifier == material_Identifier )							reload_Material_Labels();
+	if( identifier == "" ||
+		identifier == QString(whats_This_Thickness)+VAL ||
+		identifier == colorize_Property)							reload_Thicknesses();
+	if( identifier == "" ||
 		identifier == QString(whats_This_Sigma)+VAL)				reload_Sigmas();
 	if( identifier == "" ||
 		identifier == QString(whats_This_Absolute_Density)+VAL ||
@@ -682,9 +688,17 @@ void Regular_Aperiodic_Table::reload_All_Widgets(QString identifier)
 	if( identifier == "" || identifier == fit_Thickness)			reload_Checkboxes();
 }
 
-void Regular_Aperiodic_Table::reload_Labels()
+void Regular_Aperiodic_Table::reload_Auxiliary_Labels()
 {
-	for(QWidget* widget_To_Reload : labels_List)
+	for(QWidget* widget_To_Reload : auxiliary_Labels_List)
+	{
+		reload_One_Widget(widget_To_Reload);
+	}
+}
+
+void Regular_Aperiodic_Table::reload_Material_Labels()
+{
+	for(QWidget* widget_To_Reload : material_Labels_List)
 	{
 		reload_One_Widget(widget_To_Reload);
 	}

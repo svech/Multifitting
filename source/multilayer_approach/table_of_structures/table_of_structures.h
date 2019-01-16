@@ -50,6 +50,9 @@ public:
 	void create_Label				(My_Table_Widget* table, int tab_Index, int current_Row, int current_Column, QTreeWidgetItem* structure_Item, QString whats_This, QString text);
 	void create_Check_Box_Label		(My_Table_Widget* table, int tab_Index, int current_Row, int current_Column, QTreeWidgetItem* structure_Item, QString whats_This, QString text, int r_S, int r_F, int c_S, int c_F);
 
+	// for regular aperiodic
+	void create_Thickness_Restriction(My_Table_Widget* table, int tab_Index, int current_Row, int current_Column, QTreeWidgetItem* structure_Item);
+
 	// for all parameters
 	void create_Line_Edit			(My_Table_Widget* table, int tab_Index, int current_Row, int current_Column, QTreeWidgetItem* structure_Item, QString whats_This, QString val_Type);
 	void create_Check_Box_Fit		(My_Table_Widget* table, int tab_Index, int current_Row, int current_Column, QTreeWidgetItem* structure_Item, QString whats_This, int r_S, int r_F, int c_S, int c_F);
@@ -106,6 +109,7 @@ public:
 	// for several parameters
 	void refresh_Header(QString);
 	void refresh_Check_Box_Header(bool);
+	void colorize_Regular_Aperiodic_Check_Box_Header(QCheckBox* check_Box);
 	void change_Parent_Period_Gamma_Thickness(QTreeWidgetItem* current_Item);
 	void change_Child_Layers_Thickness(QTreeWidgetItem* multilayer_Item, double factor);
 	void reset_Multilayer_Thickness(QTreeWidgetItem* multilayer_Item, double new_Thickness);
@@ -127,8 +131,8 @@ public:
 	double recalculate_Sigma_From_Individuals(QVector<Interlayer>& interlayer_Composition);
 
 	// general
-	void cells_On_Off    (My_Table_Widget* table);
-	void cells_On_Off_2  (My_Table_Widget* table, QTreeWidgetItem* structure_Item);
+	void cells_On_Off		(My_Table_Widget* table);
+	void cells_On_Off_2		(My_Table_Widget* table, QTreeWidgetItem* structure_Item);
 
 	template <typename Type>
 	void resize_Line_Edit(My_Table_Widget* table, Type* line_Edit = nullptr);
