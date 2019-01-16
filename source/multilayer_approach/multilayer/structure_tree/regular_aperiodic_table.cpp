@@ -16,6 +16,10 @@ Regular_Aperiodic_Table::Regular_Aperiodic_Table(QTreeWidgetItem *item, Multilay
 	multilayer->structure_Tree->lock_Tree();
 }
 
+Regular_Aperiodic_Table::~Regular_Aperiodic_Table()
+{
+}
+
 void Regular_Aperiodic_Table::keyPressEvent(QKeyEvent* event)
 {
 	if(event->key() == Qt::Key_Shift)
@@ -46,6 +50,7 @@ bool Regular_Aperiodic_Table::eventFilter(QObject *obj, QEvent *event)
 
 void Regular_Aperiodic_Table::closeEvent(QCloseEvent *event)
 {
+	emit closed();
 	write_Window_Geometry();
 	global_Multilayer_Approach->runned_Regular_Aperiodic_Tables.remove(regular_Aperiodic_Data.id);
 	if(multilayer->structure_Tree->list_Editors.isEmpty() && !global_Multilayer_Approach->runned_Tables_Of_Structures.contains(table_Key))
@@ -53,7 +58,6 @@ void Regular_Aperiodic_Table::closeEvent(QCloseEvent *event)
 		multilayer->structure_Tree->unlock_Tree();
 	}
 	if(multilayer->structure_Tree->list_Editors.isEmpty() && global_Multilayer_Approach->runned_Regular_Aperiodic_Tables.isEmpty())
-	emit closed();
 	event->accept();
 }
 

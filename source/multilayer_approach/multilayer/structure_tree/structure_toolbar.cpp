@@ -839,6 +839,8 @@ QTreeWidgetItem* Structure_Toolbar::add_Buffered_Layer(QTreeWidgetItem* new_Laye
 				if(parent_Data.item_Type == item_Type_Regular_Aperiodic)
 				{
 					Data current_Data = new_Layer->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+					current_Data.prepare_Layer_For_Regular_Component();
+
 					Regular_Component new_Regular_Component = parent_Data.regular_Components.first(); // similar to 1st
 						new_Regular_Component.components.fill(current_Data);
 						new_Regular_Component.top_Id = current_Data.id;
@@ -853,20 +855,6 @@ QTreeWidgetItem* Structure_Toolbar::add_Buffered_Layer(QTreeWidgetItem* new_Laye
 					var.setValue( parent_Data );
 					parent->setData(DEFAULT_COLUMN, Qt::UserRole, var);
 				}
-
-				// temporary visualize
-//				qInfo() << "regular";
-//				for(int i=0; i<parent_Data.regular_Components.size(); ++i)
-//				{
-//					qInfo() << parent_Data.regular_Components[i].top_Id;
-//				}
-//				qInfo() << "\ntree";
-//				for(int i=0; i<parent->childCount(); ++i)
-//				{
-//					Data current_Data = parent->child(i)->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
-//					qInfo() << current_Data.id;
-//				}
-//				qInfo() << "\n---------------------------\n";
 			}
 		}
 	}

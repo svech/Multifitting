@@ -108,6 +108,8 @@ public:
 
 	vector<Parameter*> potentially_Fitable_Parameters;
 	void fill_Potentially_Fitable_Parameters_Vector();
+	void prepare_Layer_For_Regular_Component();
+	void make_Nonfitable(Parameter& parameter);
 };
 
 struct Regular_Component		{id_Type top_Id;

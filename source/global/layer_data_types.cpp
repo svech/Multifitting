@@ -830,6 +830,66 @@ void Data::fill_Potentially_Fitable_Parameters_Vector()
 		potentially_Fitable_Parameters.push_back(&gamma);
 }
 
+void Data::prepare_Layer_For_Regular_Component()
+{
+///---------------------------------------------
+///---------------------------------------------
+// Ambient, Layer, Substrate
+//---------------------------------------------
+	make_Nonfitable(relative_Density);
+	make_Nonfitable(absolute_Density);
+
+	// tabular material
+	make_Nonfitable(permittivity);
+	make_Nonfitable(absorption);
+
+	for(Stoichiometry& comp : composition)	{
+		make_Nonfitable(comp.composition);
+	}
+///---------------------------------------------
+///---------------------------------------------
+// Layer, Substrate
+//---------------------------------------------
+	common_Sigma = true;
+	make_Nonfitable(sigma);
+
+	for(Interlayer& inter : interlayer_Composition)	{
+		make_Nonfitable(inter.interlayer);
+		make_Nonfitable(inter.my_Sigma);
+	}
+///---------------------------------------------
+///---------------------------------------------
+// Layer
+//---------------------------------------------
+	make_Nonfitable(thickness);
+	make_Nonfitable(thickness);
+
+	make_Nonfitable(thickness_Drift.drift_Line_Value);
+	make_Nonfitable(thickness_Drift.drift_Sine_Amplitude);
+	make_Nonfitable(thickness_Drift.drift_Sine_Frequency);
+	make_Nonfitable(thickness_Drift.drift_Sine_Phase);
+	make_Nonfitable(thickness_Drift.drift_Rand_Rms);
+
+	make_Nonfitable(sigma_Drift.drift_Line_Value);
+	make_Nonfitable(sigma_Drift.drift_Sine_Amplitude);
+	make_Nonfitable(sigma_Drift.drift_Sine_Frequency);
+	make_Nonfitable(sigma_Drift.drift_Sine_Phase);
+	make_Nonfitable(sigma_Drift.drift_Rand_Rms);
+///---------------------------------------------
+///---------------------------------------------
+// Multilayer, Aperiodic
+//---------------------------------------------
+	make_Nonfitable(num_Repetition.parameter);
+	make_Nonfitable(period);
+	make_Nonfitable(gamma);
+}
+
+void Data::make_Nonfitable(Parameter &parameter)
+{
+	parameter.fit.is_Fitable = false;
+	parameter.confidence.calc_Conf_Interval = false;
+}
+
 // serialization
 
 QDataStream& operator <<( QDataStream& stream, const Regular_Component& regular_Component )

@@ -115,7 +115,8 @@ void Multilayer_Approach::fast_Hide_Windows()
 		fitting_Settings_Editor->close();
 	}
 	for(Regular_Aperiodic_Table* regular_Aperiodic_Table: runned_Regular_Aperiodic_Tables) {
-		regular_Aperiodic_Table->close();
+		regular_Aperiodic_Table->write_Window_Geometry();
+		regular_Aperiodic_Table->hide();
 	}
 }
 

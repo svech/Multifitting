@@ -11,6 +11,19 @@ Item_Editor::Item_Editor(QList<Item_Editor*>& list_Editors, QTreeWidgetItem* ite
 	structure_Tree(structure_Tree),
 	QDialog(parent)
 {
+	if(struct_Data.parent_Item_Type == item_Type_Regular_Aperiodic)
+	{
+		parent_Data = item->parent()->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+		for(int i=0; i<item->parent()->childCount(); ++i)
+		{
+			if(item->parent()->child(i) == item)
+			{
+				my_I = i;
+				break;
+			}
+		}
+	}
+
 	setWindowTitle(Global_Variables::structure_Item_Name(struct_Data));
 	create_Main_Layout();
 	set_Window_Geometry();
@@ -114,16 +127,8 @@ void Item_Editor::create_Main_Layout()
 					this, [=]{struct_Data=item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();});
 
 			lock_Interface();
-			disconnect(global_Multilayer_Approach->runned_Regular_Aperiodic_Tables.value(struct_Data.id), &Regular_Aperiodic_Table::closed, this, &Item_Editor::unlock_Interface);
-			   connect(global_Multilayer_Approach->runned_Regular_Aperiodic_Tables.value(struct_Data.id), &Regular_Aperiodic_Table::closed, this, &Item_Editor::unlock_Interface);
+			connect(global_Multilayer_Approach->runned_Regular_Aperiodic_Tables.value(struct_Data.id), &Regular_Aperiodic_Table::closed, this, &Item_Editor::unlock_Interface);
 		});
-	}
-
-	if(global_Multilayer_Approach->runned_Regular_Aperiodic_Tables.contains(struct_Data.id))
-	{
-		lock_Interface();
-		disconnect(global_Multilayer_Approach->runned_Regular_Aperiodic_Tables.value(struct_Data.id), &Regular_Aperiodic_Table::closed, this, &Item_Editor::unlock_Interface);
-		   connect(global_Multilayer_Approach->runned_Regular_Aperiodic_Tables.value(struct_Data.id), &Regular_Aperiodic_Table::closed, this, &Item_Editor::unlock_Interface);
 	}
 }
 
@@ -261,6 +266,13 @@ void Item_Editor::make_Materials_Group_Box()
 		material_Done = true;
 		initial_Radio_Check();
 	}
+
+	if(struct_Data.parent_Item_Type == item_Type_Regular_Aperiodic)
+	{
+		material_Line_Edit->setDisabled(true);
+		density_Line_Edit->setDisabled(true);
+		browse_Material_Button->setDisabled(true);
+	}
 }
 
 void Item_Editor::make_Thickness_Group_Box()
@@ -283,14 +295,17 @@ void Item_Editor::make_Thickness_Group_Box()
 			layout->addWidget(thickness_Line_Edit);
 		thickness_Group_Box_Layout->addLayout(layout);
 
-		depth_Grading_Button = new QPushButton(" Depth Grading");
-			depth_Grading_Button->adjustSize();
-			depth_Grading_Button->setFixedSize(depth_Grading_Button->size());
-			depth_Grading_Button->setFocusPolicy(Qt::NoFocus);
 		if(item->parent())
+		if(struct_Data.parent_Item_Type == item_Type_Multilayer)
+		{
+			depth_Grading_Button = new QPushButton(" Depth Grading");
+				depth_Grading_Button->adjustSize();
+				depth_Grading_Button->setFixedSize(depth_Grading_Button->size());
+				depth_Grading_Button->setFocusPolicy(Qt::NoFocus);
 			thickness_Group_Box_Layout->addWidget(depth_Grading_Button,0,Qt::AlignRight);
+			connect(depth_Grading_Button,&QPushButton::clicked,  this, [=]{depth_Grading();});
+		}
 
-		connect(depth_Grading_Button,&QPushButton::clicked,  this, [=]{depth_Grading();});
 		connect(thickness_Line_Edit, &QLineEdit::textEdited, this, [=]{Global_Variables::resize_Line_Edit(thickness_Line_Edit);});
 		connect(thickness_Line_Edit, &QLineEdit::textEdited, this, [=]{refresh_Data();});
 	}
@@ -298,6 +313,11 @@ void Item_Editor::make_Thickness_Group_Box()
 	{
 		thickness_Done = true;
 		show_Thickness();
+	}
+
+	if(struct_Data.parent_Item_Type == item_Type_Regular_Aperiodic)
+	{
+		thickness_Line_Edit->setDisabled(true);
 	}
 }
 
@@ -809,14 +829,17 @@ void Item_Editor::make_Sigma_Group_Box()
 
 		sigma_Group_Box_Layout->addWidget(frame);
 
-		sigma_Grading_Button = new QPushButton(" Sigma Grading");
-			sigma_Grading_Button->adjustSize();
-			sigma_Grading_Button->setFixedSize(sigma_Grading_Button->size());
-			sigma_Grading_Button->setFocusPolicy(Qt::NoFocus);
-		if(item->parent())
+		if(struct_Data.parent_Item_Type == item_Type_Multilayer)
+		{
+			sigma_Grading_Button = new QPushButton(" Sigma Grading");
+				sigma_Grading_Button->adjustSize();
+				sigma_Grading_Button->setFixedSize(sigma_Grading_Button->size());
+				sigma_Grading_Button->setFocusPolicy(Qt::NoFocus);
 			sigma_Group_Box_Layout->addWidget(sigma_Grading_Button,0,Qt::AlignRight);
+			connect(sigma_Grading_Button,	&QPushButton::clicked,  this, &Item_Editor::sigma_Grading);
+		}
+		if(item->parent())
 
-		connect(sigma_Grading_Button,	&QPushButton::clicked,  this, &Item_Editor::sigma_Grading);
 		connect(sigma_Line_Edit,		&QLineEdit::textEdited, this, [=]{Global_Variables::resize_Line_Edit(sigma_Line_Edit);});
 		connect(sigma_Line_Edit,		&QLineEdit::textEdited, this, [=]{refresh_Data();});
 	}
@@ -862,6 +885,12 @@ void Item_Editor::make_Sigma_Group_Box()
 		sigma_Done = true;
 		read_Interlayers_From_Item();
 		show_Sigma(true);
+	}
+
+	if(struct_Data.parent_Item_Type == item_Type_Regular_Aperiodic)
+	{
+		sigma_Line_Edit->setDisabled(true);
+		interlayer_Composition_Group_Box->setDisabled(true);
 	}
 }
 
@@ -909,6 +938,13 @@ void Item_Editor::filename_Radio_Toggled()
 
 	QMetaObject::invokeMethod(this, "adjustSize", Qt::QueuedConnection);
 	QMetaObject::invokeMethod(this, "adjustSize", Qt::QueuedConnection);
+
+	if(struct_Data.parent_Item_Type == item_Type_Regular_Aperiodic)
+	{
+		material_Line_Edit->setDisabled(true);
+		density_Line_Edit->setDisabled(true);
+		browse_Material_Button->setDisabled(true);
+	}
 }
 
 void Item_Editor::composition_Radio_Toggled()
@@ -935,6 +971,13 @@ void Item_Editor::composition_Radio_Toggled()
 
 	QMetaObject::invokeMethod(this, "adjustSize", Qt::QueuedConnection);
 	QMetaObject::invokeMethod(this, "adjustSize", Qt::QueuedConnection);
+
+	if(struct_Data.parent_Item_Type == item_Type_Regular_Aperiodic)
+	{
+		material_Line_Edit->setDisabled(true);
+		density_Line_Edit->setDisabled(true);
+		browse_Material_Button->setDisabled(true);
+	}
 }
 
 void Item_Editor::more_Elements_Clicked()
@@ -1012,11 +1055,27 @@ void Item_Editor::more_Elements_Clicked()
 			Global_Variables::resize_Line_Edit(composition_Line_Edit_Vec.first());
 		fewer_Elements->hide();
 	}
-	if (element_Frame_Vec.size()>=2) {composition_Line_Edit_Vec.first()->setDisabled(false);fewer_Elements->show();}
+	if (element_Frame_Vec.size()>=2) {
+		if(struct_Data.parent_Item_Type != item_Type_Regular_Aperiodic)
+			composition_Line_Edit_Vec.first()->setDisabled(false);
+		fewer_Elements->show();
+	}
 
 	auto_Density_On = true; refresh_Data(); auto_Density_On = false;
 	connect(line_Edit, &QLineEdit::textEdited,        this, [=]{auto_Density_On = true; refresh_Data(); auto_Density_On = false;});
 	connect(elements, &QComboBox::currentTextChanged, this, [=]{auto_Density_On = true; refresh_Data(); auto_Density_On = false; });
+
+	if(struct_Data.parent_Item_Type == item_Type_Regular_Aperiodic)
+	{
+		line_Edit->setDisabled(true);
+		elements->setDisabled(true);
+
+		for(int n=0; n<parent_Data.num_Repetition.value(); n++)
+		{
+			parent_Data.regular_Components[my_I].components[n].composition.append(stoich);
+		}
+		save_Parent_Data();
+	}
 }
 
 void Item_Editor::read_Elements_From_Item()
@@ -1076,6 +1135,12 @@ void Item_Editor::read_Elements_From_Item()
 		composition_Layout_With_Elements_Vector->addWidget(element_Frame,0,Qt::AlignLeft);
 
 		Global_Variables::resize_Line_Edit(line_Edit);
+
+		if(struct_Data.parent_Item_Type == item_Type_Regular_Aperiodic)
+		{
+			line_Edit->setDisabled(true);
+			elements->setDisabled(true);
+		}
 	}
 
 	show_Material();
@@ -1086,7 +1151,12 @@ void Item_Editor::read_Elements_From_Item()
 			Global_Variables::resize_Line_Edit(composition_Line_Edit_Vec.first());
 		fewer_Elements->hide();
 	}
-	if (element_Frame_Vec.size()>=2) {composition_Line_Edit_Vec.first()->setDisabled(false);fewer_Elements->show();}
+	if (element_Frame_Vec.size()>=2)
+	{
+		if(struct_Data.parent_Item_Type != item_Type_Regular_Aperiodic)
+			composition_Line_Edit_Vec.first()->setDisabled(false);
+		fewer_Elements->show();
+	}
 }
 
 void Item_Editor::read_Interlayers_From_Item()
@@ -1184,7 +1254,8 @@ void Item_Editor::fewer_Elements_Clicked()
 	show_Material();
 	if (element_Frame_Vec.size()==1)
 	{
-		composition_Line_Edit_Vec.first()->setDisabled(true);
+		if(struct_Data.parent_Item_Type != item_Type_Regular_Aperiodic)
+			composition_Line_Edit_Vec.first()->setDisabled(true);
 		composition_Line_Edit_Vec.first()->setText(Locale.toString(1.,line_edit_short_double_format,line_edit_composition_precision));
 			Global_Variables::resize_Line_Edit(composition_Line_Edit_Vec.first());
 		fewer_Elements->hide();
@@ -1402,6 +1473,15 @@ void Item_Editor::refresh_Material()
 	if(struct_Data.item_Type == item_Type_Ambient || struct_Data.item_Type == item_Type_Layer || struct_Data.item_Type == item_Type_Substrate)
 	{
 		struct_Data.material = material_Line_Edit->text();
+
+		if(struct_Data.parent_Item_Type == item_Type_Regular_Aperiodic)
+		{
+			for(int n=0; n<parent_Data.num_Repetition.value(); n++)
+			{
+				parent_Data.regular_Components[my_I].components[n].material = material_Line_Edit->text();
+			}
+			save_Parent_Data();
+		}
 		save_Data();
 
 		if(sender() == material_Line_Edit)
@@ -1473,7 +1553,7 @@ void Item_Editor::refresh_Data()
 				sum+=struct_Data.interlayer_Composition[i].interlayer.value;
 			}
 		}
-		if(abs(sum)<DBL_EPSILON) {sum = DBL_EPSILON; qInfo() << "Item_Editor::refresh_Data :: abs(sum)<DBL_EPSILON";}
+		if(abs(sum)<DBL_EPSILON) {sum = DBL_EPSILON; /*qInfo() << "Item_Editor::refresh_Data :: abs(sum)<DBL_EPSILON";*/}
 
 		if(struct_Data.common_Sigma)
 		{
@@ -1727,8 +1807,8 @@ void Item_Editor::to_Regular_Aperiodic_Subfunction()
 	for(int i=0; i<item->childCount(); ++i)
 	{
 		Data child = item->child(i)->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+		child.prepare_Layer_For_Regular_Component();
 
-		child.common_Sigma = true;
 		Regular_Component new_Regular_Component;
 			new_Regular_Component.components.resize(struct_Data.num_Repetition.value());
 			new_Regular_Component.components.fill(child);
@@ -2020,4 +2100,11 @@ void Item_Editor::save_Data()
 	QVariant var;
 	var.setValue( struct_Data );
 	item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+}
+
+void Item_Editor::save_Parent_Data()
+{
+	QVariant var;
+	var.setValue( parent_Data );
+	item->parent()->setData(DEFAULT_COLUMN, Qt::UserRole, var);
 }

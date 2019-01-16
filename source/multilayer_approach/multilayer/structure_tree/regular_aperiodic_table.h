@@ -15,6 +15,7 @@ public:
 	Regular_Aperiodic_Table(QTreeWidgetItem* item,
 							Multilayer* multilayer,
 							QWidget* parent = Q_NULLPTR);
+	~Regular_Aperiodic_Table();
 signals:
 	void regular_Aperiodic_Edited();
 	void closed();

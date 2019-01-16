@@ -1602,14 +1602,22 @@ void Table_Of_Structures::create_Check_Box_Label(My_Table_Widget* table, int tab
 
 void Table_Of_Structures::create_Thickness_Restriction(My_Table_Widget *table, int tab_Index, int current_Row, int current_Column, QTreeWidgetItem *structure_Item)
 {
-	Data regular_Aperiodic_Data = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+	Data regular_Aperiodic_Data = structure_Item->parent()->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+	int my_I = -2019;
+	for(int i = 0; i<structure_Item->parent()->childCount(); i++)
+	{
+		if(structure_Item->parent()->child(i)==structure_Item)
+		{
+			my_I = i;
+		}
+	}
 
 	// threshold
 	QSpinBox* soft_Restriction_Threshold_SpinBox = new QSpinBox;
 		soft_Restriction_Threshold_SpinBox->setRange(0, 100);
 		soft_Restriction_Threshold_SpinBox->setSuffix("%");
 		soft_Restriction_Threshold_SpinBox->setPrefix(Plus_Minus_Sym);
-//		soft_Restriction_Threshold_SpinBox->setValue(struct_Data.regular_Components[i].threshold);
+		soft_Restriction_Threshold_SpinBox->setValue(regular_Aperiodic_Data.regular_Components[my_I].threshold);
 		soft_Restriction_Threshold_SpinBox->setAccelerated(true);
 		soft_Restriction_Threshold_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
 		soft_Restriction_Threshold_SpinBox->installEventFilter(this);
@@ -1620,7 +1628,7 @@ void Table_Of_Structures::create_Thickness_Restriction(My_Table_Widget *table, i
 		soft_Restriction_Q_SpinBox->setPrefix("Q = ");
 		soft_Restriction_Q_SpinBox->setRange(0, MAX_DOUBLE);
 		soft_Restriction_Q_SpinBox->setSingleStep(1);
-//		soft_Restriction_Q_SpinBox->setValue(struct_Data.regular_Components[i].Q_factor);
+		soft_Restriction_Q_SpinBox->setValue(regular_Aperiodic_Data.regular_Components[my_I].Q_factor);
 		soft_Restriction_Q_SpinBox->setAccelerated(true);
 		soft_Restriction_Q_SpinBox->setDecimals(3);
 		soft_Restriction_Q_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
@@ -1631,126 +1639,33 @@ void Table_Of_Structures::create_Thickness_Restriction(My_Table_Widget *table, i
 	table->setCellWidget(current_Row, current_Column+1, soft_Restriction_Q_SpinBox);
 	Global_Variables::resize_Line_Edit(soft_Restriction_Q_SpinBox);
 
-//	{
-//		Parameter& parameter = get_Parameter(struct_Data, whats_This, precision, coeff);
-//		spin_Box->setDecimals(precision);
-//		if(val_Type == VAL)	{value = parameter.value;	/*format = line_edit_double_format;*/	}
-//		if(val_Type == MIN)	{value = parameter.fit.min;	/*format = line_edit_short_double_format;*/	}
-//		if(val_Type == MAX)	{value = parameter.fit.max;	/*format = line_edit_short_double_format;*/	}
+	connect(soft_Restriction_Threshold_SpinBox, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, [=]
+	{
+		Data regular_Aperiodic_Data = structure_Item->parent()->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
 
-//		if(	whats_This == whats_This_Thickness_Drift_Line_Value ||
-//			whats_This == whats_This_Sigma_Drift_Line_Value	)
-//		{
-//			spin_Box->setRange(-MAX_DOUBLE, MAX_DOUBLE);
-//		} else
-//		{
-//			if(whats_This == whats_This_Gamma)
-//			{
-//				spin_Box->setRange(0, 1);
-//			} else
-//			{
-//				spin_Box->setRange(0, MAX_DOUBLE);
-//			}
-//		}
-//		id = parameter.indicator.id;
+		for(int n=0; n<regular_Aperiodic_Data.num_Repetition.value(); ++n)
+		{
+			regular_Aperiodic_Data.regular_Components[my_I].threshold = soft_Restriction_Threshold_SpinBox->value();
+		}
 
-//		spin_Boxes_ID_Map.insert(spin_Box,id);
+		QVariant var;
+		var.setValue( regular_Aperiodic_Data );
+		structure_Item->parent()->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+	});
+	connect(soft_Restriction_Q_SpinBox, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
+	{
+		Data regular_Aperiodic_Data = structure_Item->parent()->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
 
-//		if( whats_This == whats_This_Thickness	||
-//			whats_This == whats_This_Period		||
-//			whats_This == whats_This_Gamma		)
-//		{
-//			if(val_Type == VAL) reload_Show_Dependence_Map.insertMulti(spin_Box,  id_Of_Thicknesses);
-//		}
+		for(int n=0; n<regular_Aperiodic_Data.num_Repetition.value(); ++n)
+		{
+			regular_Aperiodic_Data.regular_Components[my_I].Q_factor = soft_Restriction_Q_SpinBox->value();
+		}
+		Global_Variables::resize_Line_Edit(soft_Restriction_Q_SpinBox);
 
-//		if( whats_This == whats_This_Sigma )
-//		{
-//			for(Interlayer& interlayer : struct_Data.interlayer_Composition)
-//			{
-//				reload_Show_Dependence_Map.insertMulti(spin_Box,  interlayer.my_Sigma.indicator.id);
-//			}
-//		}
-//	}
-
-//#ifdef _WIN32
-//	QFont font(spin_Box->font());
-//	font.setPointSize(8.25);
-//	font.setFamily("MS Shell Dlg 2");
-//	spin_Box->setFont(font);
-//#endif
-//#ifdef __linux__
-//#endif
-
-//	spin_Box->setValue(value/coeff);
-//	spin_Box->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT_SHORT);
-//	if( whats_This == whats_This_Absolute_Density || whats_This == whats_This_Relative_Density || whats_This == whats_This_Num_Repetitions ) spin_Box->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT_DENSITY);
-//	if( whats_This == whats_This_Sigma || whats_This == whats_This_Thickness || whats_This == whats_This_Period) spin_Box->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT_SIGMA);
-//	if(	whats_This == whats_This_Thickness_Drift_Line_Value     ||
-//		whats_This == whats_This_Thickness_Drift_Rand_Rms       ||
-//		whats_This == whats_This_Sigma_Drift_Line_Value			||
-//		whats_This == whats_This_Sigma_Drift_Rand_Rms			||
-//		whats_This == whats_This_Gamma	)						spin_Box->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT_LONG);
-//	if(	whats_This == whats_This_Thickness_Drift_Sine_Amplitude ||
-//		whats_This == whats_This_Thickness_Drift_Sine_Frequency ||
-//		whats_This == whats_This_Thickness_Drift_Sine_Phase		||
-//		whats_This == whats_This_Sigma_Drift_Sine_Amplitude		||
-//		whats_This == whats_This_Sigma_Drift_Sine_Frequency		||
-//		whats_This == whats_This_Sigma_Drift_Sine_Phase	)		spin_Box->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT_SIGMA);
-
-//	spin_Box->setProperty(min_Size_Property, spin_Box->width());
-//	spin_Box->setProperty(column_Property, current_Column);
-//	spin_Box->setProperty(whats_This_Property, whats_This);
-//	spin_Box->setProperty(value_Type_Property, val_Type);
-
-//	// for reloading
-//	spin_Box->setProperty(reload_Property, false);
-//	spin_Box->setProperty(tab_Index_Property, tab_Index);
-
-//	// storage
-//	spin_Boxes_Map.insert(spin_Box, structure_Item);
-//	all_Widgets_To_Reload[tab_Index].append(spin_Box);
-//	if(val_Type == VAL)
-//	{
-//		reload_Show_Dependence_Map.insertMulti(spin_Box, id);
-//	}
-//	if( val_Type == VAL &&
-//	   (whats_This == whats_This_Sigma || whats_This == whats_This_Thickness) &&
-//		struct_Data.parent_Item_Type == item_Type_Regular_Aperiodic	)
-//	{
-//		regular_Aperiodic_Widgets_To_Reload[tab_Index].append(spin_Box);
-//	}
-
-//	// storage for fast min/max refreshing
-//	if( val_Type == MIN || val_Type == MAX )
-//	{
-//		if( whats_This == whats_This_Absolute_Density || whats_This == whats_This_Relative_Density )
-//		{
-//			min_Max_Density_Spin_Boxes_List[tab_Index].append(spin_Box);
-//		}
-//		if( whats_This == whats_This_Thickness || whats_This == whats_This_Period )
-//		{
-//			min_Max_Thickness_Spin_Boxes_List[tab_Index].append(spin_Box);
-//		}
-//		if( whats_This == whats_This_Sigma )
-//		{
-//			min_Max_Sigma_Spin_Boxes_List[tab_Index].append(spin_Box);
-//		}
-//	}
-
-//	// create item (set LineEdits_Map)
-//	table->setCellWidget(current_Row, current_Column, spin_Box);
-
-//	connect(spin_Box, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged),   this, [=]
-//	{
-//		refresh_Parameter(table);
-//		resize_Line_Edit (table,spin_Box);
-//	});
-////	connect(spin_Box, &MyDoubleSpinBox::editingFinished, this, [=]{refresh_Parameter(table); });
-
-//	// steps
-//	if(whats_This == whats_This_Absolute_Density
-
-
+		QVariant var;
+		var.setValue( regular_Aperiodic_Data );
+		structure_Item->parent()->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+	});
 }
 
 //// for all parameters

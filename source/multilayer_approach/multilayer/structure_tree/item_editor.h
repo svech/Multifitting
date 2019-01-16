@@ -25,6 +25,8 @@ public:
 	QTreeWidgetItem* item;
 	QList<Item_Editor*> list_Editors;
 	Data struct_Data;
+	Data parent_Data;
+	int my_I = -2019;
 	Structure_Tree* structure_Tree;
 	int tab_Index = 0;
 
@@ -103,6 +105,7 @@ public:
 	void calc_Uniqueness();
 	void unique_Item_Do(QString action, int uniqueness);
 	void save_Data();
+	void save_Parent_Data();
 
 	QString absolute_Density_Label = "Density [g/cm" + Cube_Sym + "]:";
 	QString relative_Density_Label = "Relative Density:";
