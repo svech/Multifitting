@@ -9,7 +9,7 @@
 
 #define VERSION_MAJOR 1
 #define VERSION_MINOR 8
-#define VERSION_BUILD 11
+#define VERSION_BUILD 12
 
 using namespace std;
 class Node;

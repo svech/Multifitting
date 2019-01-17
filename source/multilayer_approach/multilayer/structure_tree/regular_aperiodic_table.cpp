@@ -167,32 +167,6 @@ void Regular_Aperiodic_Table::create_Table()
 	}
 
 	// controls
-	/// recalculate
-	QCheckBox* checkbox_Recalculate = new QCheckBox("Recalculate");
-		checkbox_Recalculate->setChecked(aperiodic_Recalculate_Spinbox_Table);
-		checkbox_Recalculate->setProperty(fit_Column_Property, true);
-	regular_Table->setCellWidget(current_Row, 0, checkbox_Recalculate);
-	connect(checkbox_Recalculate, &QCheckBox::toggled, this, [=]
-	{
-		aperiodic_Recalculate_Spinbox_Table = checkbox_Recalculate->isChecked();
-		if(aperiodic_Recalculate_Spinbox_Table)
-			checkbox_Recalculate->setStyleSheet("QWidget { background: rgb(245, 228, 158); }");
-		else
-			checkbox_Recalculate->setStyleSheet("background-color: white");
-	});
-	checkbox_Recalculate->toggled(aperiodic_Recalculate_Spinbox_Table);
-
-	/// thickness step label
-	create_Simple_Label(current_Row,2," z step ");
-	/// sigma step label
-	create_Simple_Label(current_Row,4, Sigma_Sym+" step ");
-	current_Row++;
-
-	/// thickness step spinbox
-	create_Step_Spin_Box(current_Row, 2, whats_This_Thickness);
-	/// thickness step spinbox
-	create_Step_Spin_Box(current_Row, 4, whats_This_Sigma);
-
 	/// mouse wheel
 	QCheckBox* checkbox_Mouse_Wheel = new QCheckBox("Mouse Wheel");
 		checkbox_Mouse_Wheel->setChecked(aperiodic_Mouse_Wheel_Spinbox_Table);
@@ -207,6 +181,32 @@ void Regular_Aperiodic_Table::create_Table()
 			checkbox_Mouse_Wheel->setStyleSheet("background-color: white");
 	});
 	checkbox_Mouse_Wheel->toggled(aperiodic_Mouse_Wheel_Spinbox_Table);
+
+	/// thickness step label
+	create_Simple_Label(current_Row,2," z step ");
+	/// sigma step label
+	create_Simple_Label(current_Row,4, Sigma_Sym+" step ");
+	current_Row++;
+
+	/// thickness step spinbox
+	create_Step_Spin_Box(current_Row, 2, whats_This_Thickness);
+	/// thickness step spinbox
+	create_Step_Spin_Box(current_Row, 4, whats_This_Sigma);
+
+	/// recalculate
+	QCheckBox* checkbox_Recalculate = new QCheckBox("Recalculate");
+		checkbox_Recalculate->setChecked(aperiodic_Recalculate_Spinbox_Table);
+		checkbox_Recalculate->setProperty(fit_Column_Property, true);
+	regular_Table->setCellWidget(current_Row, 0, checkbox_Recalculate);
+	connect(checkbox_Recalculate, &QCheckBox::toggled, this, [=]
+	{
+		aperiodic_Recalculate_Spinbox_Table = checkbox_Recalculate->isChecked();
+		if(aperiodic_Recalculate_Spinbox_Table)
+			checkbox_Recalculate->setStyleSheet("QWidget { background: rgb(245, 228, 158); }");
+		else
+			checkbox_Recalculate->setStyleSheet("background-color: white");
+	});
+	checkbox_Recalculate->toggled(aperiodic_Recalculate_Spinbox_Table);
 	current_Row++;
 
 	// labels
@@ -672,7 +672,6 @@ void Regular_Aperiodic_Table::reload_One_Widget(QWidget* widget_To_Reload)
 
 void Regular_Aperiodic_Table::reload_All_Widgets(QString identifier)
 {
-//	qInfo() << "reload_All_Widgets";
 	regular_Aperiodic_Data = item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
 
 	if( identifier == colorize_Property) colorize_Material();

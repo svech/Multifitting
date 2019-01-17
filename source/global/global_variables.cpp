@@ -352,7 +352,7 @@ QString master_Confidence_Parameter_Color	= "QWidget { background: rgb(170, 0,  
 
 QString common_Thickness_Color				= "QWidget { background: rgb(231, 255, 165); }";
 QString common_Sigma_Color					= "QWidget { background: rgb(254, 214, 255); }";
-QString common_Thickness_and_Sigma_Color	= "QWidget { background: rgb(67,  224, 225); }";
+QString common_Thickness_and_Sigma_Color	= "QWidget { background: rgb(143, 255, 225); }";
 QString soft_Restriction_Color				= "QWidget { background: rgb(94,  244, 227); }";
 
 // -----------------------------------------------------------------------------------------

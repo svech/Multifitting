@@ -216,6 +216,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 			current_Row = new_Table->rowCount()-2;
 			new_Table->insertRow(new_Table->rowCount());
 			new_Table->insertRow(new_Table->rowCount());
+			new_Table->insertRow(new_Table->rowCount());
 
 			add_Columns(new_Table, max_Depth + max_Number_Of_Elements+2);
 			current_Column = max_Depth + max_Number_Of_Elements+2;
@@ -247,21 +248,28 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 					free_Label->setAlignment(Qt::AlignCenter);
 					free_Label->setMinimumWidth(COLOR_LEGEND_LABEL_WIDTH);
 				free_Label->setStyleSheet(free_Parameter_Color);
-				new_Table->setCellWidget(current_Row,1, free_Label);
+				new_Table->setCellWidget(current_Row+3,0, free_Label);
 
 				// confidence parameter
 				QLabel* confidence_Label = new QLabel("confidence interval");
 					confidence_Label->setAlignment(Qt::AlignCenter);
 					confidence_Label->setMinimumWidth(COLOR_LEGEND_LABEL_WIDTH);
 				confidence_Label->setStyleSheet(confidence_Parameter_Color);
-				new_Table->setCellWidget(current_Row+1,1, confidence_Label);
+				new_Table->setCellWidget(current_Row,1, confidence_Label);
 
 				// confidence master parameter
 				QLabel* confidence_Master_Label = new QLabel("master/confidence");
 					confidence_Master_Label->setAlignment(Qt::AlignCenter);
 					confidence_Master_Label->setMinimumWidth(COLOR_LEGEND_LABEL_WIDTH);
 				confidence_Master_Label->setStyleSheet(master_Confidence_Parameter_Color);
-				new_Table->setCellWidget(current_Row+2,1, confidence_Master_Label);
+				new_Table->setCellWidget(current_Row+1,1, confidence_Master_Label);
+
+				// z restriction
+				QLabel* restrict_Z_Label = new QLabel("restrict z");
+					restrict_Z_Label->setAlignment(Qt::AlignCenter);
+					restrict_Z_Label->setMinimumWidth(TABLE_FIX_WIDTH_LINE_EDIT_LONG);
+				restrict_Z_Label->setStyleSheet(soft_Restriction_Color);
+				new_Table->setCellWidget(current_Row+2,1, restrict_Z_Label);
 
 				// active fit
 				QLabel* fit_Label = new QLabel("active fit");
@@ -269,6 +277,20 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 					fit_Label->setMinimumWidth(TABLE_FIX_WIDTH_LINE_EDIT_LONG);
 				fit_Label->setStyleSheet(fit_Color);
 				new_Table->setCellWidget(current_Row,2, fit_Label);
+
+				// common z
+				QLabel* common_Z_Label = new QLabel("common z");
+					common_Z_Label->setAlignment(Qt::AlignCenter);
+					common_Z_Label->setMinimumWidth(TABLE_FIX_WIDTH_LINE_EDIT_LONG);
+				common_Z_Label->setStyleSheet(common_Thickness_Color);
+				new_Table->setCellWidget(current_Row+1,2, common_Z_Label);
+
+				// common sigma
+				QLabel* common_Sigma_Label = new QLabel("common "+Sigma_Sym);
+					common_Sigma_Label->setAlignment(Qt::AlignCenter);
+					common_Sigma_Label->setMinimumWidth(TABLE_FIX_WIDTH_LINE_EDIT_LONG);
+				common_Sigma_Label->setStyleSheet(common_Sigma_Color);
+				new_Table->setCellWidget(current_Row+2,2, common_Sigma_Label);
 			}
 
 			// density min/max
@@ -1779,7 +1801,7 @@ void Table_Of_Structures::create_Line_Edit(My_Table_Widget* table, int tab_Index
 	// storage
 	spin_Boxes_Map.insert(spin_Box, structure_Item);
 	all_Widgets_To_Reload[tab_Index].append(spin_Box);
-	if(val_Type == VAL)
+	if(val_Type == VAL && struct_Data.parent_Item_Type != item_Type_Regular_Aperiodic)
 	{
 		reload_Show_Dependence_Map.insertMulti(spin_Box, id);
 	}
@@ -2965,6 +2987,7 @@ void Table_Of_Structures::refresh_Check_Box_Header(bool)
 
 		if(whats_This == whats_This_Sigma)					struct_Data.common_Sigma = check_Box->isChecked();
 
+		// regular aperiodic
 		if(struct_Data.parent_Item_Type == item_Type_Regular_Aperiodic)
 		{
 			Data parent_Data = structure_Item->parent()->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
@@ -2975,7 +2998,7 @@ void Table_Of_Structures::refresh_Check_Box_Header(bool)
 				{
 					for(int n=0; n<parent_Data.num_Repetition.value(); ++n)
 					{
-						parent_Data.regular_Components[i].components[n].thickness.value = parent_Data.regular_Components[i].components[0].thickness.value;
+						parent_Data.regular_Components[i].components[n].thickness.value = struct_Data.thickness.value;
 					}
 				}
 			}
@@ -2985,7 +3008,7 @@ void Table_Of_Structures::refresh_Check_Box_Header(bool)
 				{
 					for(int n=0; n<parent_Data.num_Repetition.value(); ++n)
 					{
-						parent_Data.regular_Components[i].components[n].sigma.value = parent_Data.regular_Components[i].components[0].sigma.value;
+						parent_Data.regular_Components[i].components[n].sigma.value = struct_Data.sigma.value;
 					}
 				}
 			}
@@ -3491,7 +3514,6 @@ void Table_Of_Structures::refresh_Fit_Parameter(bool)
 
 void Table_Of_Structures::reload_From_Regular_Aperiodic()
 {
-//	qInfo() << "reload_From_Regular_Aperiodic";
 	if(table_Is_Created)
 	{
 		// reloading for widgets on current tab
