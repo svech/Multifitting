@@ -82,13 +82,26 @@ void Calculation_Tree::check_If_Graded()
 
 		if(layer.item_Type == item_Type_Layer)
 		{
-			if(layer.thickness_Drift.is_Drift_Line) depth_Grading = true;
-			if(layer.thickness_Drift.is_Drift_Sine) depth_Grading = true;
-			if(layer.thickness_Drift.is_Drift_Rand) depth_Grading = true;
+			Data parent = structure_Item->parent()->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+			if(parent.item_Enabled)
+			{
+				if(parent.item_Type == item_Type_Regular_Aperiodic)
+				{
+					for(int i=0; i<parent.regular_Components.size(); ++i)
+					{
+						if(!parent.regular_Components[i].is_Common_Thickness) depth_Grading = true;
+						if(!parent.regular_Components[i].is_Common_Sigma)		sigma_Grading = true;
+					}
+				}
 
-			if(layer.sigma_Drift.is_Drift_Line) sigma_Grading = true;
-			if(layer.sigma_Drift.is_Drift_Sine) sigma_Grading = true;
-			if(layer.sigma_Drift.is_Drift_Rand) sigma_Grading = true;
+				if(layer.thickness_Drift.is_Drift_Line) depth_Grading = true;
+				if(layer.thickness_Drift.is_Drift_Sine) depth_Grading = true;
+				if(layer.thickness_Drift.is_Drift_Rand) depth_Grading = true;
+
+				if(layer.sigma_Drift.is_Drift_Line) sigma_Grading = true;
+				if(layer.sigma_Drift.is_Drift_Sine) sigma_Grading = true;
+				if(layer.sigma_Drift.is_Drift_Rand) sigma_Grading = true;
+			}
 		}
 		++it;
 	}
@@ -310,10 +323,10 @@ void Calculation_Tree::stratify_Calc_Tree(tree<Node>& calc_Tree)
 			if(chosen_Child.node->data.struct_Data.num_Repetition.value() == 0)
 			{
 				// delete
-				calc_Tree.erase(chosen_Child);
+				calc_Tree.erase(chosen_Child); // not the case of regular aperiodic
 			} else
 
-			// if 1 period (also case of Regular_Aperiodic structure, aperiodic becomes flat here)
+			// if 1 period
 			if(chosen_Child.node->data.struct_Data.num_Repetition.value() == 1)
 			{
 				for(unsigned child_Index=0; child_Index<chosen_Child.number_of_children(); ++child_Index)
@@ -321,7 +334,8 @@ void Calculation_Tree::stratify_Calc_Tree(tree<Node>& calc_Tree)
 					calc_Tree.insert_subtree(chosen_Child, tree<Node>::child(chosen_Child,child_Index));
 				}
 				// delete
-				calc_Tree.erase(chosen_Child);
+				if(chosen_Child.node->data.struct_Data.item_Type != item_Type_Regular_Aperiodic)
+				{calc_Tree.erase(chosen_Child);}
 				// not delete
 //				chosen_Child.node->data.struct_Data.num_Repetition.value = 0;
 			} else
@@ -364,7 +378,8 @@ void Calculation_Tree::stratify_Calc_Tree(tree<Node>& calc_Tree)
 					calc_Tree.insert_subtree     (chosen_Child, tree<Node>::child(chosen_Child,child_Index));
 				}
 				// change data
-				chosen_Child.node->data.struct_Data.num_Repetition.parameter.value -= 1;
+				if(chosen_Child.node->data.struct_Data.item_Type != item_Type_Regular_Aperiodic)
+				{chosen_Child.node->data.struct_Data.num_Repetition.parameter.value -= 1;}
 			}
 		}
 	}
@@ -588,7 +603,9 @@ void Calculation_Tree::print_Tree(const tree<Node>::iterator& parent, tree<Node>
 			for(int y=0; y<calc_Tree.depth(child)-1; y++)
 			{	std::cout << "\t";}
 			std::cout << child.node->data.struct_Data.item_Type.toStdString();
-			if(child.node->data.struct_Data.item_Type == item_Type_Multilayer)
+			if( child.node->data.struct_Data.item_Type == item_Type_Multilayer ||
+				child.node->data.struct_Data.item_Type == item_Type_Regular_Aperiodic ||
+				child.node->data.struct_Data.item_Type == item_Type_General_Aperiodic )
 			{	std::cout << " : " << child.node->data.struct_Data.num_Repetition.value();	}
 			std::cout << std::endl;
 		}

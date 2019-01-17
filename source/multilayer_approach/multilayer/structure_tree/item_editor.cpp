@@ -339,16 +339,18 @@ void Item_Editor::make_Multilayer_Group_Box()
 		QLabel* repetitions_Label = new QLabel("Number of repetitions, N:");
 			layout->addWidget(repetitions_Label);
 
-		repetitions_Line_Edit = new QLineEdit;
+		repetitions_Line_Edit = new QSpinBox;
+			repetitions_Line_Edit->setRange(0, MAX_INTEGER);
+			repetitions_Line_Edit->setButtonSymbols(QAbstractSpinBox::NoButtons);
+			repetitions_Line_Edit->setAccelerated(true);
 			repetitions_Line_Edit->setFixedWidth(50);
 			repetitions_Line_Edit->setProperty(min_Size_Property, repetitions_Line_Edit->width());
-			repetitions_Line_Edit->setValidator(new QIntValidator(0, MAX_INTEGER, this));
 		layout->addWidget(repetitions_Line_Edit);
 
 		multilayer_Group_Box_Layout->addLayout(layout);
 
-		connect(repetitions_Line_Edit,  &QLineEdit::textEdited, this, [=]{Global_Variables::resize_Line_Edit(repetitions_Line_Edit);});
-		connect(repetitions_Line_Edit,	&QLineEdit::textEdited, this, &Item_Editor::fast_Refresh_Stack);
+		connect(repetitions_Line_Edit, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, [=]{Global_Variables::resize_Line_Edit(repetitions_Line_Edit);});
+		connect(repetitions_Line_Edit, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, &Item_Editor::fast_Refresh_Stack);
 	}
 	{
 		QHBoxLayout* layout = new QHBoxLayout;
@@ -1356,11 +1358,10 @@ void Item_Editor::show_Stack_Parameters()
 		double coeff = length_Coefficients_Map.value(length_units);
 		period_Label->setText(period_Label_1 + length_units + period_Label_2);
 
-		repetitions_Line_Edit->setText(Locale.toString(struct_Data.num_Repetition.value()));
+		repetitions_Line_Edit->setValue(struct_Data.num_Repetition.value());
 		period_Line_Edit->setText(Locale.toString(struct_Data.period.value/coeff,line_edit_double_format,line_edit_period_precision));
 		gamma_Line_Edit ->setText(Locale.toString(struct_Data.gamma.value,line_edit_double_format,line_edit_gamma_precision));
 
-		repetitions_Line_Edit->textEdited(repetitions_Line_Edit->text());
 		period_Line_Edit->textEdited(period_Line_Edit->text());
 		gamma_Line_Edit->textEdited(gamma_Line_Edit->text());
 	}

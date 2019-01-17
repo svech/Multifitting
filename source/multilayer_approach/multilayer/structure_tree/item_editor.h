@@ -163,7 +163,7 @@ public:
 			QPushButton* sigma_Grading_Button;
 
 		QGroupBox* multilayer_Group_Box;
-			QLineEdit* repetitions_Line_Edit;
+			QSpinBox* repetitions_Line_Edit;
 			QLabel* period_Label;
 			QLineEdit* period_Line_Edit;
 			QLabel* gamma_Label;
