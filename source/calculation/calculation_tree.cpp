@@ -82,25 +82,28 @@ void Calculation_Tree::check_If_Graded()
 
 		if(layer.item_Type == item_Type_Layer)
 		{
-			Data parent = structure_Item->parent()->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
-			if(parent.item_Enabled)
+			if(structure_Item->parent())
 			{
-				if(parent.item_Type == item_Type_Regular_Aperiodic)
+				Data parent = structure_Item->parent()->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+				if(parent.item_Enabled)
 				{
-					for(int i=0; i<parent.regular_Components.size(); ++i)
+					if(parent.item_Type == item_Type_Regular_Aperiodic)
 					{
-						if(!parent.regular_Components[i].is_Common_Thickness) depth_Grading = true;
-						if(!parent.regular_Components[i].is_Common_Sigma)		sigma_Grading = true;
+						for(int i=0; i<parent.regular_Components.size(); ++i)
+						{
+							if(!parent.regular_Components[i].is_Common_Thickness) depth_Grading = true;
+							if(!parent.regular_Components[i].is_Common_Sigma)		sigma_Grading = true;
+						}
 					}
+
+					if(layer.thickness_Drift.is_Drift_Line) depth_Grading = true;
+					if(layer.thickness_Drift.is_Drift_Sine) depth_Grading = true;
+					if(layer.thickness_Drift.is_Drift_Rand) depth_Grading = true;
+
+					if(layer.sigma_Drift.is_Drift_Line) sigma_Grading = true;
+					if(layer.sigma_Drift.is_Drift_Sine) sigma_Grading = true;
+					if(layer.sigma_Drift.is_Drift_Rand) sigma_Grading = true;
 				}
-
-				if(layer.thickness_Drift.is_Drift_Line) depth_Grading = true;
-				if(layer.thickness_Drift.is_Drift_Sine) depth_Grading = true;
-				if(layer.thickness_Drift.is_Drift_Rand) depth_Grading = true;
-
-				if(layer.sigma_Drift.is_Drift_Line) sigma_Grading = true;
-				if(layer.sigma_Drift.is_Drift_Sine) sigma_Grading = true;
-				if(layer.sigma_Drift.is_Drift_Rand) sigma_Grading = true;
 			}
 		}
 		++it;
