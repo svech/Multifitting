@@ -1651,6 +1651,7 @@ void Table_Of_Structures::create_Thickness_Restriction(My_Table_Widget *table, i
 		QVariant var;
 		var.setValue( regular_Aperiodic_Data );
 		structure_Item->parent()->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+		emit regular_Layer_Edited("especially_wrong"); // to reaload regular aperiodic item without reloading widgets
 	});
 	connect(soft_Restriction_Q_SpinBox, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
 	{
@@ -1665,6 +1666,7 @@ void Table_Of_Structures::create_Thickness_Restriction(My_Table_Widget *table, i
 		QVariant var;
 		var.setValue( regular_Aperiodic_Data );
 		structure_Item->parent()->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+		emit regular_Layer_Edited("especially_wrong"); // to reaload regular aperiodic item without reloading widgets
 	});
 }
 
@@ -2753,7 +2755,7 @@ void Table_Of_Structures::refresh_Fit_Element(bool)
 			var.setValue( parent_Data );
 			structure_Item->parent()->setData(DEFAULT_COLUMN, Qt::UserRole, var);
 
-			emit regular_Layer_Edited(material_Identifier);
+			emit regular_Layer_Edited("especially_wrong"); // to reaload regular aperiodic item without reloading widgets
 		}
 
 		QVariant var;
@@ -3449,6 +3451,7 @@ void Table_Of_Structures::refresh_Fit_Parameter(bool)
 			}
 		}
 
+		// regular aperiodic
 		if(struct_Data.parent_Item_Type == item_Type_Regular_Aperiodic)
 		{
 			for(int i=0; i<structure_Item->parent()->childCount(); i++)
@@ -3470,7 +3473,10 @@ void Table_Of_Structures::refresh_Fit_Parameter(bool)
 				}
 			}
 
-			emit regular_Layer_Edited(fit_Thickness);
+			if(whats_This == whats_This_Thickness)
+				emit regular_Layer_Edited(fit_Thickness);
+			else
+				emit regular_Layer_Edited("especially_wrong"); // to reaload regular aperiodic item without reloading widgets
 		}
 
 		QVariant var;
@@ -3485,8 +3491,7 @@ void Table_Of_Structures::refresh_Fit_Parameter(bool)
 
 void Table_Of_Structures::reload_From_Regular_Aperiodic()
 {
-	qInfo() << "reload_From_Regular_Aperiodic";
-
+//	qInfo() << "reload_From_Regular_Aperiodic";
 	if(table_Is_Created)
 	{
 		// reloading for widgets on current tab
@@ -3545,6 +3550,29 @@ void Table_Of_Structures::refresh_Check_Box_Label_Interlayer(bool)
 			struct_Data.sigma.value = recalculate_Sigma_From_Individuals(struct_Data.interlayer_Composition);
 		}
 
+		// regular aperiodic
+		if(struct_Data.parent_Item_Type == item_Type_Regular_Aperiodic)
+		{
+			for(int i=0; i<structure_Item->parent()->childCount(); i++)
+			{
+				if(structure_Item->parent()->child(i)==structure_Item)
+				{
+					Data parent_Data = structure_Item->parent()->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+					for(int n=0; n<parent_Data.num_Repetition.value(); n++)
+					{
+						parent_Data.regular_Components[i].components[n].interlayer_Composition[interlayer_Index].enabled = check_Box->isChecked();
+					}
+
+					QVariant var;
+					var.setValue( parent_Data );
+					structure_Item->parent()->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+
+					break;
+				}
+			}
+			emit regular_Layer_Edited("especially_wrong"); // to reaload regular aperiodic item without reloading widgets
+		}
+
 		// here we save non-parapetric changes
 
 		QVariant var;
@@ -3600,6 +3628,32 @@ void Table_Of_Structures::refresh_Weigts_Interlayer()
 		if(value_Type == MIN)	{interlayer.fit.min = spin_Box->value(); /*interlayer.confidence.min = interlayer.fit.min;*/}
 		if(value_Type == MAX)	{interlayer.fit.max = spin_Box->value(); /*interlayer.confidence.max = interlayer.fit.max;*/}
 
+		// regular aperiodic
+		if(struct_Data.parent_Item_Type == item_Type_Regular_Aperiodic)
+		{
+			for(int i=0; i<structure_Item->parent()->childCount(); i++)
+			{
+				if(structure_Item->parent()->child(i)==structure_Item)
+				{
+					Data parent_Data = structure_Item->parent()->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+					for(int n=0; n<parent_Data.num_Repetition.value(); n++)
+					{
+						Parameter& regular_Interlayer = parent_Data.regular_Components[i].components[n].interlayer_Composition[interlayer_Index].interlayer;
+						if(value_Type == VAL)	regular_Interlayer.value   = spin_Box->value();
+						if(value_Type == MIN)	regular_Interlayer.fit.min = spin_Box->value();
+						if(value_Type == MAX)	regular_Interlayer.fit.max = spin_Box->value();
+					}
+
+					QVariant var;
+					var.setValue( parent_Data );
+					structure_Item->parent()->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+
+					break;
+				}
+			}
+			emit regular_Layer_Edited("especially_wrong"); // to reaload regular aperiodic item without reloading widgets
+		}
+
 		QVariant var;
 		var.setValue( struct_Data );
 		structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
@@ -3634,6 +3688,30 @@ void Table_Of_Structures::refresh_Weights_Check_Box_Fit_Interlayer(bool)
 	// if refresh
 	{
 		parameter.fit.is_Fitable = check_Box->isChecked();
+
+		// regular aperiodic
+		if(struct_Data.parent_Item_Type == item_Type_Regular_Aperiodic)
+		{
+			for(int i=0; i<structure_Item->parent()->childCount(); i++)
+			{
+				if(structure_Item->parent()->child(i)==structure_Item)
+				{
+					Data parent_Data = structure_Item->parent()->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+					for(int n=0; n<parent_Data.num_Repetition.value(); n++)
+					{
+						Parameter& regular_Parameter = parent_Data.regular_Components[i].components[n].interlayer_Composition[interlayer_Index].interlayer;
+						regular_Parameter.fit.is_Fitable = check_Box->isChecked();
+					}
+
+					QVariant var;
+					var.setValue( parent_Data );
+					structure_Item->parent()->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+
+					break;
+				}
+			}
+			emit regular_Layer_Edited("especially_wrong"); // to reaload regular aperiodic item without reloading widgets
+		}
 
 		QVariant var;
 		var.setValue( struct_Data );

@@ -695,6 +695,11 @@ void Item_Editor::cell_Items_In_Regular_Aperiodic(QHBoxLayout *aperiodic_Group_B
 			Q_Label->setEnabled(soft_Restriction_CheckBox->isChecked());
 			soft_Restriction_Q_SpinBox->setEnabled(soft_Restriction_CheckBox->isChecked());
 			save_Data();
+
+			if(global_Multilayer_Approach->runned_Regular_Aperiodic_Tables.contains(struct_Data.id))			{
+				Regular_Aperiodic_Table* regular_Aperiodic_Table = global_Multilayer_Approach->runned_Regular_Aperiodic_Tables.value(struct_Data.id);
+					regular_Aperiodic_Table->reload_All_Widgets("especially_wrong");
+			}
 		});
 		connect(soft_Restriction_Threshold_SpinBox, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, [=]
 		{
@@ -703,6 +708,11 @@ void Item_Editor::cell_Items_In_Regular_Aperiodic(QHBoxLayout *aperiodic_Group_B
 				struct_Data.regular_Components[i].threshold = soft_Restriction_Threshold_SpinBox->value();
 			}
 			save_Data();
+
+			if(global_Multilayer_Approach->runned_Regular_Aperiodic_Tables.contains(struct_Data.id))			{
+				Regular_Aperiodic_Table* regular_Aperiodic_Table = global_Multilayer_Approach->runned_Regular_Aperiodic_Tables.value(struct_Data.id);
+					regular_Aperiodic_Table->reload_All_Widgets("especially_wrong");
+			}
 		});
 		connect(soft_Restriction_Q_SpinBox, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
 		{
@@ -712,6 +722,11 @@ void Item_Editor::cell_Items_In_Regular_Aperiodic(QHBoxLayout *aperiodic_Group_B
 			}
 			save_Data();
 			Global_Variables::resize_Line_Edit(soft_Restriction_Q_SpinBox);
+
+			if(global_Multilayer_Approach->runned_Regular_Aperiodic_Tables.contains(struct_Data.id))			{
+				Regular_Aperiodic_Table* regular_Aperiodic_Table = global_Multilayer_Approach->runned_Regular_Aperiodic_Tables.value(struct_Data.id);
+					regular_Aperiodic_Table->reload_All_Widgets("especially_wrong");
+			}
 		});
 	}
 }

@@ -224,6 +224,7 @@ void Optical_Constants::make_Epsilon_From_Factors(QList<Stoichiometry>& composit
 		QString element = composition[element_Index].type;
 		denominator += composition[element_Index].composition.value * sorted_Elements.value(element);
 	}
+	if(abs(denominator)<DBL_EPSILON) {denominator = DBL_EPSILON;}
 
 	double compound_Concentration = Na * density / denominator;
 	QVector<double> element_Concentration(composition.size());

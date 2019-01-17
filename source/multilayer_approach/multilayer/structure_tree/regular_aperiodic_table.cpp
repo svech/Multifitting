@@ -672,7 +672,7 @@ void Regular_Aperiodic_Table::reload_One_Widget(QWidget* widget_To_Reload)
 
 void Regular_Aperiodic_Table::reload_All_Widgets(QString identifier)
 {
-	qInfo() << "reload_All_Widgets"<<identifier;
+//	qInfo() << "reload_All_Widgets";
 	regular_Aperiodic_Data = item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
 
 	if( identifier == colorize_Property) colorize_Material();
