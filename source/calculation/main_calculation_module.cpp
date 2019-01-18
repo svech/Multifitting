@@ -67,8 +67,8 @@ void Main_Calculation_Module::single_Calculation(bool print)
 		calculation_Trees[tab_Index]->fill_Independent_Calc_Trees();
 		for(Data_Element<Independent_Variables>& independent_Element : calculation_Trees[tab_Index]->independent)
 		{
-			qInfo() << independent_Element.calc_Tree.begin().number_of_children();
-			calculation_Trees[tab_Index]->print_Tree(independent_Element.calc_Tree.begin(), independent_Element.calc_Tree);
+//			qInfo() << independent_Element.calc_Tree.begin().number_of_children();
+//			calculation_Trees[tab_Index]->print_Tree(independent_Element.calc_Tree.begin(), independent_Element.calc_Tree);
 
 			calculation_Trees[tab_Index]->calculate_1_Kind(independent_Element);
 			if(lambda_Out_Of_Range) return;

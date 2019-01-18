@@ -3100,14 +3100,32 @@ void Table_Of_Structures::change_Parent_Period_Gamma_Thickness(QTreeWidgetItem* 
 void Table_Of_Structures::change_Child_Layers_Thickness(QTreeWidgetItem* multilayer_Item, double factor)
 {
 	Data struct_Data = multilayer_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
-	if(struct_Data.item_Type == item_Type_Multilayer)
+	if( struct_Data.item_Type == item_Type_Multilayer)
 	{
 		struct_Data.period.value *= factor;
 		for(int i=0; i<multilayer_Item->childCount(); ++i)
 		{
 			change_Child_Layers_Thickness(multilayer_Item->child(i), factor);
 		}
-	} else
+	}
+	if( struct_Data.item_Type == item_Type_General_Aperiodic ||
+		struct_Data.item_Type == item_Type_Regular_Aperiodic )
+	{
+		for(int i=0; i<multilayer_Item->childCount(); ++i)
+		{
+			// usual layers and deeper multilayers
+			change_Child_Layers_Thickness(multilayer_Item->child(i), factor);
+
+			if(struct_Data.item_Type == item_Type_Regular_Aperiodic)
+			{
+				for(int n=0; n<struct_Data.num_Repetition.value(); n++)
+				{
+					struct_Data.regular_Components[i].components[n].thickness.value *= factor;
+				}
+				struct_Data.regular_Components[i].find_Min_Max_Values();
+			}
+		}
+	}
 	{
 		if(struct_Data.item_Type == item_Type_Layer)
 		{
@@ -3116,7 +3134,9 @@ void Table_Of_Structures::change_Child_Layers_Thickness(QTreeWidgetItem* multila
 	}
 	QVariant var;
 	var.setValue( struct_Data );
-	multilayer_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+	multilayer_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);	
+
+	emit regular_Layer_Edited(QString(whats_This_Thickness)+VAL);
 }
 
 void Table_Of_Structures::reset_Multilayer_Thickness(QTreeWidgetItem* multilayer_Item, double new_Thickness)

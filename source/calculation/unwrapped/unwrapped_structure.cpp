@@ -19,7 +19,7 @@ Unwrapped_Structure::Unwrapped_Structure(const tree<Node>& calc_Tree, const Data
 	if( max_Depth > depth_Threshold )
 	{		
 		// PARAMETER
-		if(active_Parameter_Whats_This == whats_This_Wavelength )
+		if(active_Parameter_Whats_This == whats_This_Wavelength)
 		{
 			int num_Lambda_Points = measurement.lambda.size();
 
@@ -229,16 +229,20 @@ int Unwrapped_Structure::fill_Epsilon(const tree<Node>::iterator& parent, int me
 	{
 		tree<Node>::post_order_iterator child = tree<Node>::child(parent,child_Index);
 
-		if(child.node->data.struct_Data.item_Type == item_Type_Ambient ||
-		   child.node->data.struct_Data.item_Type == item_Type_Layer   ||
-		   child.node->data.struct_Data.item_Type == item_Type_Substrate )
+		// layers that are not from regular aperiodic
+		if(child.node->data.struct_Data.parent_Item_Type != item_Type_Regular_Aperiodic)
 		{
-			// TODO extreme layers
-				epsilon     [media_Index] = child.node->data.epsilon     .front();
-				epsilon_RE  [media_Index] = child.node->data.epsilon_RE  .front();
-				epsilon_IM  [media_Index] = child.node->data.epsilon_IM  .front();
-				epsilon_NORM[media_Index] = child.node->data.epsilon_NORM.front();
-			++media_Index;
+			if(child.node->data.struct_Data.item_Type == item_Type_Ambient ||
+			   child.node->data.struct_Data.item_Type == item_Type_Layer   ||
+			   child.node->data.struct_Data.item_Type == item_Type_Substrate )
+			{
+				// TODO extreme layers
+					epsilon     [media_Index] = child.node->data.epsilon     .front();
+					epsilon_RE  [media_Index] = child.node->data.epsilon_RE  .front();
+					epsilon_IM  [media_Index] = child.node->data.epsilon_IM  .front();
+					epsilon_NORM[media_Index] = child.node->data.epsilon_NORM.front();
+				++media_Index;
+			}
 		}
 
 		if(child.node->data.struct_Data.item_Type == item_Type_Multilayer)
@@ -246,6 +250,22 @@ int Unwrapped_Structure::fill_Epsilon(const tree<Node>::iterator& parent, int me
 			for(int period_Index=0; period_Index<child.node->data.struct_Data.num_Repetition.value(); ++period_Index)
 			{
 				media_Index = fill_Epsilon(child, media_Index);
+			}
+		}
+
+		if( child.node->data.struct_Data.item_Type == item_Type_Regular_Aperiodic )
+		{
+			for(int period_Index=0; period_Index<child.node->data.struct_Data.num_Repetition.value(); ++period_Index)
+			{
+				for(unsigned grandchild_Index=0; grandchild_Index<child.number_of_children(); ++grandchild_Index)
+				{
+					tree<Node>::post_order_iterator grandchild = tree<Node>::child(child,grandchild_Index);
+					epsilon     [media_Index] = grandchild.node->data.epsilon     .front();
+					epsilon_RE  [media_Index] = grandchild.node->data.epsilon_RE  .front();
+					epsilon_IM  [media_Index] = grandchild.node->data.epsilon_IM  .front();
+					epsilon_NORM[media_Index] = grandchild.node->data.epsilon_NORM.front();
+					++media_Index;
+				}
 			}
 		}
 	}
@@ -259,19 +279,23 @@ int Unwrapped_Structure::fill_Epsilon_Dependent(const tree<Node>::iterator& pare
 	{
 		tree<Node>::post_order_iterator child = tree<Node>::child(parent,child_Index);
 
-		if(child.node->data.struct_Data.item_Type == item_Type_Ambient ||
-		   child.node->data.struct_Data.item_Type == item_Type_Layer   ||
-		   child.node->data.struct_Data.item_Type == item_Type_Substrate )
+		// layers that are not from regular aperiodic
+		if(child.node->data.struct_Data.parent_Item_Type != item_Type_Regular_Aperiodic)
 		{
-			for(int point_Index = 0; point_Index<num_Lambda_Points; ++point_Index)
+			if(child.node->data.struct_Data.item_Type == item_Type_Ambient ||
+			   child.node->data.struct_Data.item_Type == item_Type_Layer   ||
+			   child.node->data.struct_Data.item_Type == item_Type_Substrate )
 			{
-			// TODO extreme layers
-				epsilon_Dependent     [point_Index][media_Index] = child.node->data.epsilon     [point_Index];
-				epsilon_Dependent_RE  [point_Index][media_Index] = child.node->data.epsilon_RE  [point_Index];
-				epsilon_Dependent_IM  [point_Index][media_Index] = child.node->data.epsilon_IM  [point_Index];
-				epsilon_Dependent_NORM[point_Index][media_Index] = child.node->data.epsilon_NORM[point_Index];
+				for(int point_Index = 0; point_Index<num_Lambda_Points; ++point_Index)
+				{
+				// TODO extreme layers
+					epsilon_Dependent     [point_Index][media_Index] = child.node->data.epsilon     [point_Index];
+					epsilon_Dependent_RE  [point_Index][media_Index] = child.node->data.epsilon_RE  [point_Index];
+					epsilon_Dependent_IM  [point_Index][media_Index] = child.node->data.epsilon_IM  [point_Index];
+					epsilon_Dependent_NORM[point_Index][media_Index] = child.node->data.epsilon_NORM[point_Index];
+				}
+				++media_Index;
 			}
-			++media_Index;
 		}
 
 		if(child.node->data.struct_Data.item_Type == item_Type_Multilayer)
@@ -279,6 +303,25 @@ int Unwrapped_Structure::fill_Epsilon_Dependent(const tree<Node>::iterator& pare
 			for(int period_Index=0; period_Index<child.node->data.struct_Data.num_Repetition.value(); ++period_Index)
 			{
 				media_Index = fill_Epsilon_Dependent(child, num_Lambda_Points, media_Index);
+			}
+		}
+
+		if( child.node->data.struct_Data.item_Type == item_Type_Regular_Aperiodic )
+		{
+			for(int period_Index=0; period_Index<child.node->data.struct_Data.num_Repetition.value(); ++period_Index)
+			{
+				for(unsigned grandchild_Index=0; grandchild_Index<child.number_of_children(); ++grandchild_Index)
+				{
+					tree<Node>::post_order_iterator grandchild = tree<Node>::child(child,grandchild_Index);
+					for(int point_Index = 0; point_Index<num_Lambda_Points; ++point_Index)
+					{
+						epsilon_Dependent     [point_Index][media_Index] = grandchild.node->data.epsilon     [point_Index];
+						epsilon_Dependent_RE  [point_Index][media_Index] = grandchild.node->data.epsilon_RE  [point_Index];
+						epsilon_Dependent_IM  [point_Index][media_Index] = grandchild.node->data.epsilon_IM  [point_Index];
+						epsilon_Dependent_NORM[point_Index][media_Index] = grandchild.node->data.epsilon_NORM[point_Index];
+					}
+					++media_Index;
+				}
 			}
 		}
 	}
@@ -291,7 +334,9 @@ int Unwrapped_Structure::fill_Sigma(const tree<Node>::iterator& parent, int boun
 	{
 		tree<Node>::post_order_iterator child = tree<Node>::child(parent,child_Index);
 
-		if(child.node->data.struct_Data.item_Type == item_Type_Layer)
+		// layers that are not from regular aperiodic
+		if( child.node->data.struct_Data.item_Type == item_Type_Layer &&
+			child.node->data.struct_Data.parent_Item_Type != item_Type_Regular_Aperiodic )
 		{
 			// TODO extreme layers			
 			sigma       [boundary_Index] = child.node->data.struct_Data.sigma.value;
@@ -306,7 +351,7 @@ int Unwrapped_Structure::fill_Sigma(const tree<Node>::iterator& parent, int boun
 			}
 			++boundary_Index;
 		}
-		if(child.node->data.struct_Data.item_Type == item_Type_Substrate)
+		if( child.node->data.struct_Data.item_Type == item_Type_Substrate )
 		{
 			// TODO extreme layers
 			sigma       [boundary_Index] = child.node->data.struct_Data.sigma.value;
@@ -319,11 +364,30 @@ int Unwrapped_Structure::fill_Sigma(const tree<Node>::iterator& parent, int boun
 			++boundary_Index;
 		}
 
-		if(child.node->data.struct_Data.item_Type == item_Type_Multilayer)
+		if( child.node->data.struct_Data.item_Type == item_Type_Multilayer )
 		{
 			for(int period_Index=0; period_Index<child.node->data.struct_Data.num_Repetition.value(); ++period_Index)
 			{
 				boundary_Index = fill_Sigma(child, boundary_Index, period_Index);
+			}
+		}
+
+		if( child.node->data.struct_Data.item_Type == item_Type_Regular_Aperiodic )
+		{
+			Data& regular_Aperiodic = child.node->data.struct_Data;
+			for(int period_Index=0; period_Index<regular_Aperiodic.num_Repetition.value(); ++period_Index)
+			{
+				for(int cell_Index=0; cell_Index<regular_Aperiodic.regular_Components.size(); ++cell_Index)
+				{
+					sigma       [boundary_Index] = regular_Aperiodic.regular_Components[cell_Index].components[period_Index].sigma.value;
+					common_Sigma[boundary_Index] = true;
+
+					for(int func_Index=0; func_Index<transition_Layer_Functions_Size; ++func_Index)
+					{
+						boundary_Interlayer_Composition[boundary_Index][func_Index] = regular_Aperiodic.regular_Components[cell_Index].components[period_Index].interlayer_Composition[func_Index];
+					}
+					++boundary_Index;
+				}
 			}
 		}
 	}
@@ -336,7 +400,9 @@ int Unwrapped_Structure::fill_Thickness(const tree<Node>::iterator& parent, int 
 	{
 		tree<Node>::post_order_iterator child = tree<Node>::child(parent,child_Index);
 
-		if(child.node->data.struct_Data.item_Type == item_Type_Layer)
+		// layers that are not from regular aperiodic
+		if( child.node->data.struct_Data.item_Type == item_Type_Layer &&
+			child.node->data.struct_Data.parent_Item_Type != item_Type_Regular_Aperiodic )
 		{
 			// TODO extreme layers
 			thickness[layer_Index] = child.node->data.struct_Data.thickness.value;
@@ -347,11 +413,24 @@ int Unwrapped_Structure::fill_Thickness(const tree<Node>::iterator& parent, int 
 			++layer_Index;
 		}
 
-		if(child.node->data.struct_Data.item_Type == item_Type_Multilayer)
+		if( child.node->data.struct_Data.item_Type == item_Type_Multilayer )
 		{
 			for(int period_Index=0; period_Index<child.node->data.struct_Data.num_Repetition.value(); ++period_Index)
 			{
 				layer_Index = fill_Thickness(child, layer_Index, period_Index, child.node->data.struct_Data.num_Repetition.value());
+			}
+		}
+
+		if( child.node->data.struct_Data.item_Type == item_Type_Regular_Aperiodic )
+		{
+			Data& regular_Aperiodic = child.node->data.struct_Data;
+			for(int period_Index=0; period_Index<regular_Aperiodic.num_Repetition.value(); ++period_Index)
+			{
+				for(int cell_Index=0; cell_Index<regular_Aperiodic.regular_Components.size(); ++cell_Index)
+				{
+					thickness[layer_Index] = regular_Aperiodic.regular_Components[cell_Index].components[period_Index].thickness.value;
+					++layer_Index;
+				}
 			}
 		}
 	}

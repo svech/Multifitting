@@ -842,6 +842,7 @@ QTreeWidgetItem* Structure_Toolbar::add_Buffered_Layer(QTreeWidgetItem* new_Laye
 					current_Data.prepare_Layer_For_Regular_Component();
 
 					Regular_Component new_Regular_Component = parent_Data.regular_Components.first(); // similar to 1st
+						new_Regular_Component.is_Common_Sigma = true;
 						new_Regular_Component.components.fill(current_Data);
 						new_Regular_Component.top_Id = current_Data.id;
 						new_Regular_Component.find_Min_Max_Values();

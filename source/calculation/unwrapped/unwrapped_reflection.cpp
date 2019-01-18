@@ -89,8 +89,9 @@ int Unwrapped_Reflection::fill_s__Max_Depth_2(const tree<Node>::iterator& parent
 	for(unsigned child_Index=0; child_Index<parent.number_of_children(); ++child_Index)
 	{
 		tree<Node>::post_order_iterator child = tree<Node>::child(parent,child_Index);
+		const Data& child_Data = child.node->data.struct_Data;
 
-		if(child.node->data.struct_Data.item_Type == item_Type_Layer)
+		if(child_Data.item_Type == item_Type_Layer)
 		{
 			hi_RE         [thread_Index][media_Index  ] = child.node->data.hi_RE[point_Index];
 			hi_IM         [thread_Index][media_Index  ] = child.node->data.hi_IM[point_Index];
@@ -104,7 +105,7 @@ int Unwrapped_Reflection::fill_s__Max_Depth_2(const tree<Node>::iterator& parent
 			exponenta_2_IM[thread_Index][media_Index-1] = child.node->data.exponenta_2_IM[point_Index];
 			++media_Index;
 		} else
-		if(child.node->data.struct_Data.item_Type == item_Type_Substrate )
+		if(child_Data.item_Type == item_Type_Substrate )
 		{
 			epsilon_Substrate[thread_Index] = child.node->data.epsilon[point_Index];
 			hi_RE         [thread_Index][media_Index  ] = child.node->data.hi_RE[point_Index];
@@ -115,16 +116,21 @@ int Unwrapped_Reflection::fill_s__Max_Depth_2(const tree<Node>::iterator& parent
 			t_Fresnel_s_IM[thread_Index][media_Index-1] = child.node->data.Fresnel_T_s_IM[point_Index] * child.node->data.weak_Factor_T[point_Index];
 			++media_Index;
 		} else
-		if(child.node->data.struct_Data.item_Type == item_Type_Ambient)
+		if(child_Data.item_Type == item_Type_Ambient)
 		{
 			epsilon_Ambient[thread_Index] = child.node->data.epsilon[point_Index];
 			hi_RE[thread_Index][media_Index] = child.node->data.hi_RE[point_Index];
 			hi_IM[thread_Index][media_Index] = child.node->data.hi_IM[point_Index];
 			++media_Index;
 		} else
-		if( child.node->data.struct_Data.item_Type == item_Type_Multilayer)
+		if( child_Data.item_Type == item_Type_Multilayer ||
+			child_Data.item_Type == item_Type_Regular_Aperiodic )
 		{
-			for(int period_Index=0; period_Index<child.node->data.struct_Data.num_Repetition.value(); ++period_Index)
+			int start_Period = 0;
+			if(child_Data.item_Type == item_Type_Regular_Aperiodic) // only slight difference here
+			{	start_Period = 1;	}
+
+			for(int period_Index=start_Period; period_Index<child_Data.num_Repetition.value(); ++period_Index)
 			{
 				for(unsigned grandchild_Index=0; grandchild_Index<child.number_of_children(); ++grandchild_Index)
 				{
@@ -151,8 +157,9 @@ int Unwrapped_Reflection::fill_p__Max_Depth_2(const tree<Node>::iterator& parent
 	for(unsigned child_Index=0; child_Index<parent.number_of_children(); ++child_Index)
 	{
 		tree<Node>::post_order_iterator child = tree<Node>::child(parent,child_Index);
+		const Data& child_Data = child.node->data.struct_Data;
 
-		if(child.node->data.struct_Data.item_Type == item_Type_Layer)
+		if(child_Data.item_Type == item_Type_Layer)
 		{
 			hi_RE         [thread_Index][media_Index  ] = child.node->data.hi_RE[point_Index];
 			hi_IM         [thread_Index][media_Index  ] = child.node->data.hi_IM[point_Index];
@@ -166,7 +173,7 @@ int Unwrapped_Reflection::fill_p__Max_Depth_2(const tree<Node>::iterator& parent
 			exponenta_2_IM[thread_Index][media_Index-1] = child.node->data.exponenta_2_IM[point_Index];
 			++media_Index;
 		} else
-		if(child.node->data.struct_Data.item_Type == item_Type_Substrate )
+		if(child_Data.item_Type == item_Type_Substrate )
 		{
 			epsilon_Substrate[thread_Index] = child.node->data.epsilon[point_Index];
 			hi_RE         [thread_Index][media_Index  ] = child.node->data.hi_RE[point_Index];
@@ -177,16 +184,21 @@ int Unwrapped_Reflection::fill_p__Max_Depth_2(const tree<Node>::iterator& parent
 			t_Fresnel_p_IM[thread_Index][media_Index-1] = child.node->data.Fresnel_T_p_IM[point_Index] * child.node->data.weak_Factor_T[point_Index];
 			++media_Index;
 		} else
-		if(child.node->data.struct_Data.item_Type == item_Type_Ambient)
+		if(child_Data.item_Type == item_Type_Ambient)
 		{
 			epsilon_Ambient[thread_Index] = child.node->data.epsilon[point_Index];
 			hi_RE[thread_Index][media_Index] = child.node->data.hi_RE[point_Index];
 			hi_IM[thread_Index][media_Index] = child.node->data.hi_IM[point_Index];
 			++media_Index;
 		} else
-		if( child.node->data.struct_Data.item_Type == item_Type_Multilayer)
+		if( child_Data.item_Type == item_Type_Multilayer ||
+			child_Data.item_Type == item_Type_Regular_Aperiodic )
 		{
-			for(int period_Index=0; period_Index<child.node->data.struct_Data.num_Repetition.value(); ++period_Index)
+			int start_Period = 0;
+			if(child_Data.item_Type == item_Type_Regular_Aperiodic) // only slight difference here
+			{	start_Period = 1;	}
+
+			for(int period_Index=start_Period; period_Index<child_Data.num_Repetition.value(); ++period_Index)
 			{
 				for(unsigned grandchild_Index=0; grandchild_Index<child.number_of_children(); ++grandchild_Index)
 				{
@@ -213,8 +225,9 @@ int Unwrapped_Reflection::fill_sp_Max_Depth_2(const tree<Node>::iterator& parent
 	for(unsigned child_Index=0; child_Index<parent.number_of_children(); ++child_Index)
 	{
 		tree<Node>::post_order_iterator child = tree<Node>::child(parent,child_Index);
+		const Data& child_Data = child.node->data.struct_Data;
 
-		if(child.node->data.struct_Data.item_Type == item_Type_Layer)
+		if(child_Data.item_Type == item_Type_Layer)
 		{
 			hi_RE         [thread_Index][media_Index  ] = child.node->data.hi_RE[point_Index];
 			hi_IM         [thread_Index][media_Index  ] = child.node->data.hi_IM[point_Index];
@@ -232,7 +245,7 @@ int Unwrapped_Reflection::fill_sp_Max_Depth_2(const tree<Node>::iterator& parent
 			exponenta_2_IM[thread_Index][media_Index-1] = child.node->data.exponenta_2_IM[point_Index];
 			++media_Index;
 		} else
-		if(child.node->data.struct_Data.item_Type == item_Type_Substrate )
+		if(child_Data.item_Type == item_Type_Substrate )
 		{
 			epsilon_Substrate[thread_Index] = child.node->data.epsilon[point_Index];
 			hi_RE         [thread_Index][media_Index  ] = child.node->data.hi_RE[point_Index];
@@ -247,16 +260,21 @@ int Unwrapped_Reflection::fill_sp_Max_Depth_2(const tree<Node>::iterator& parent
 			t_Fresnel_p_IM[thread_Index][media_Index-1] = child.node->data.Fresnel_T_p_IM[point_Index] * child.node->data.weak_Factor_T[point_Index];
 			++media_Index;
 		} else
-		if(child.node->data.struct_Data.item_Type == item_Type_Ambient)
+		if(child_Data.item_Type == item_Type_Ambient)
 		{
 			epsilon_Ambient[thread_Index] = child.node->data.epsilon[point_Index];
 			hi_RE[thread_Index][media_Index] = child.node->data.hi_RE[point_Index];
 			hi_IM[thread_Index][media_Index] = child.node->data.hi_IM[point_Index];
 			++media_Index;
 		} else
-		if( child.node->data.struct_Data.item_Type == item_Type_Multilayer)
+		if( child_Data.item_Type == item_Type_Multilayer ||
+			child_Data.item_Type == item_Type_Regular_Aperiodic )
 		{
-			for(int period_Index=0; period_Index<child.node->data.struct_Data.num_Repetition.value(); ++period_Index)
+			int start_Period = 0;
+			if(child_Data.item_Type == item_Type_Regular_Aperiodic) // only slight difference here
+			{	start_Period = 1;	}
+
+			for(int period_Index=start_Period; period_Index<child_Data.num_Repetition.value(); ++period_Index)
 			{
 				for(unsigned grandchild_Index=0; grandchild_Index<child.number_of_children(); ++grandchild_Index)
 				{
@@ -455,7 +473,7 @@ void Unwrapped_Reflection::calc_Weak_Factor(int thread_Index)
 
 				// transmittance
 				factor_t = cos(2 * s_t * my_Sigma);
-				weak_Factor_R[thread_Index][i] += unwrapped_Structure->boundary_Interlayer_Composition[i][Step].interlayer.value * factor_t;
+				weak_Factor_T[thread_Index][i] += unwrapped_Structure->boundary_Interlayer_Composition[i][Step].interlayer.value * factor_t;
 			}
 			//-------------------------------------------------------------------------------
 			// normalization
@@ -725,6 +743,7 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(const Data& measuremen
 
 	if( max_Depth <= 2 )
 	{
+		// in case of grading, some of these values are temporary and will be recalculated
 		if( abs(measurement.polarization.value - 1) < DBL_EPSILON )			// s-polarization only
 		{
 			fill_s__Max_Depth_2(unwrapped_Structure->calc_Tree.begin(), thread_Index, point_Index);

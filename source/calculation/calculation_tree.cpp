@@ -78,32 +78,31 @@ void Calculation_Tree::check_If_Graded()
 	{
 		structure_Item = *it;
 
-		Data layer = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+		Data struct_Data = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
 
-		if(layer.item_Type == item_Type_Layer)
+		if(struct_Data.item_Type == item_Type_Layer && struct_Data.item_Enabled)
 		{
-			if(structure_Item->parent())
+			if(struct_Data.parent_Item_Type == item_Type_Multilayer)
 			{
-				Data parent = structure_Item->parent()->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
-				if(parent.item_Enabled)
+				Data parent_Data = structure_Item->parent()->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+				if(parent_Data.item_Enabled)
 				{
-					if(parent.item_Type == item_Type_Regular_Aperiodic)
-					{
-						for(int i=0; i<parent.regular_Components.size(); ++i)
-						{
-							if(!parent.regular_Components[i].is_Common_Thickness) depth_Grading = true;
-							if(!parent.regular_Components[i].is_Common_Sigma)		sigma_Grading = true;
-						}
-					}
+					if(struct_Data.thickness_Drift.is_Drift_Line) depth_Grading = true;
+					if(struct_Data.thickness_Drift.is_Drift_Sine) depth_Grading = true;
+					if(struct_Data.thickness_Drift.is_Drift_Rand) depth_Grading = true;
 
-					if(layer.thickness_Drift.is_Drift_Line) depth_Grading = true;
-					if(layer.thickness_Drift.is_Drift_Sine) depth_Grading = true;
-					if(layer.thickness_Drift.is_Drift_Rand) depth_Grading = true;
-
-					if(layer.sigma_Drift.is_Drift_Line) sigma_Grading = true;
-					if(layer.sigma_Drift.is_Drift_Sine) sigma_Grading = true;
-					if(layer.sigma_Drift.is_Drift_Rand) sigma_Grading = true;
+					if(struct_Data.sigma_Drift.is_Drift_Line) sigma_Grading = true;
+					if(struct_Data.sigma_Drift.is_Drift_Sine) sigma_Grading = true;
+					if(struct_Data.sigma_Drift.is_Drift_Rand) sigma_Grading = true;
 				}
+			}
+		}
+		if(struct_Data.item_Type == item_Type_Regular_Aperiodic && struct_Data.item_Enabled)
+		{
+			for(int i=0; i<struct_Data.regular_Components.size(); ++i)
+			{
+				if(!struct_Data.regular_Components[i].is_Common_Thickness) depth_Grading = true;
+				if(!struct_Data.regular_Components[i].is_Common_Sigma)	   sigma_Grading = true;
 			}
 		}
 		++it;
@@ -326,7 +325,8 @@ void Calculation_Tree::stratify_Calc_Tree(tree<Node>& calc_Tree)
 			if(chosen_Child.node->data.struct_Data.num_Repetition.value() == 0)
 			{
 				// delete
-				calc_Tree.erase(chosen_Child); // not the case of regular aperiodic
+				if(chosen_Child.node->data.struct_Data.item_Type != item_Type_Regular_Aperiodic)
+				{calc_Tree.erase(chosen_Child);} // anyway, not the case of regular aperiodic
 			} else
 
 			// if 1 period
@@ -582,12 +582,14 @@ int Calculation_Tree::get_Total_Num_Layers(const tree<Node>::iterator& parent, c
 			num_Media_Local += 1;
 		}
 
-		if( child.node->data.struct_Data.item_Type == item_Type_Multilayer ||
-			child.node->data.struct_Data.item_Type == item_Type_Regular_Aperiodic)
+		if( child.node->data.struct_Data.item_Type == item_Type_Multilayer)
 		{
 			num_Media_Local += child.node->data.struct_Data.num_Repetition.value() * get_Total_Num_Layers(child, calc_Tree);
+		}		
+		if( child.node->data.struct_Data.item_Type == item_Type_Regular_Aperiodic)
+		{
+			num_Media_Local += (child.node->data.struct_Data.num_Repetition.value()-1) * get_Total_Num_Layers(child, calc_Tree);
 		}
-
 		if(child.node->data.struct_Data.item_Type == item_Type_General_Aperiodic)
 		{
 			num_Media_Local += get_Total_Num_Layers(child, calc_Tree);

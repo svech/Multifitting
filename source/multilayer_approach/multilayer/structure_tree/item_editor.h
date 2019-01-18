@@ -27,6 +27,7 @@ public:
 	Data struct_Data;
 	Data parent_Data;
 	int my_I = -2019;
+	bool forbid_Period_Gamma = false;
 	Structure_Tree* structure_Tree;
 	int tab_Index = 0;
 

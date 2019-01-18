@@ -390,6 +390,19 @@ void Item_Editor::make_Multilayer_Group_Box()
 	}
 	main_Layout->addWidget(multilayer_Group_Box);
 
+	// multilayer contents aperiodic
+	forbid_Period_Gamma = false;
+	for(int i=0; i<item->childCount(); ++i)
+	{
+		Data temp_Data = item->child(i)->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+		if(temp_Data.item_Type!=item_Type_Layer && temp_Data.item_Type!=item_Type_Multilayer)
+		{
+			forbid_Period_Gamma = true;
+		}
+	}
+	period_Line_Edit->setDisabled(forbid_Period_Gamma);
+	gamma_Line_Edit->setDisabled(forbid_Period_Gamma);
+
 	transformations();
 	{
 		stack_Done = true;
@@ -741,28 +754,6 @@ void Item_Editor::transformations()
 	main_Layout->addWidget(transformation_Group_Box);
 	QHBoxLayout* layout = new QHBoxLayout(transformation_Group_Box);
 
-	// make periodic
-	if( struct_Data.item_Type == item_Type_General_Aperiodic ||
-		struct_Data.item_Type == item_Type_Regular_Aperiodic )
-	{
-		make_Multilayer_CheckBox = new QCheckBox("Make periodic");
-			make_Multilayer_CheckBox->setChecked(false);
-		layout->addWidget(make_Multilayer_CheckBox);
-		connect(make_Multilayer_CheckBox, &QCheckBox::released, this, [=]
-		{
-			QMessageBox::StandardButton reply = QMessageBox::Yes;
-			reply = QMessageBox::question(this,"Make periodic", "Are you sure?", QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
-			if (reply == QMessageBox::Yes)
-			{
-				if( struct_Data.item_Type == item_Type_General_Aperiodic) general_Aperiodic_To_Multilayer_Or_Regular_Aperiodic(item_Type_Multilayer);
-				if( struct_Data.item_Type == item_Type_Regular_Aperiodic) regular_Aperiodic_To_Multilayer();
-			} else
-			{
-				make_Multilayer_CheckBox->setChecked(false);
-			}
-		});
-	}
-
 	// make general aperiodic
 	if( struct_Data.item_Type == item_Type_Multilayer ||
 		struct_Data.item_Type == item_Type_Regular_Aperiodic )
@@ -781,6 +772,28 @@ void Item_Editor::transformations()
 			} else
 			{
 				make_General_Aperiodic_CheckBox->setChecked(false);
+			}
+		});
+	}
+
+	// make periodic
+	if( struct_Data.item_Type == item_Type_General_Aperiodic ||
+		struct_Data.item_Type == item_Type_Regular_Aperiodic )
+	{
+		make_Multilayer_CheckBox = new QCheckBox("Make periodic");
+			make_Multilayer_CheckBox->setChecked(false);
+		layout->addWidget(make_Multilayer_CheckBox);
+		connect(make_Multilayer_CheckBox, &QCheckBox::released, this, [=]
+		{
+			QMessageBox::StandardButton reply = QMessageBox::Yes;
+			reply = QMessageBox::question(this,"Make periodic", "Are you sure?", QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
+			if (reply == QMessageBox::Yes)
+			{
+				if( struct_Data.item_Type == item_Type_General_Aperiodic) general_Aperiodic_To_Multilayer_Or_Regular_Aperiodic(item_Type_Multilayer);
+				if( struct_Data.item_Type == item_Type_Regular_Aperiodic) regular_Aperiodic_To_Multilayer();
+			} else
+			{
+				make_Multilayer_CheckBox->setChecked(false);
 			}
 		});
 	}
@@ -1362,8 +1375,14 @@ void Item_Editor::show_Stack_Parameters()
 		period_Line_Edit->setText(Locale.toString(struct_Data.period.value/coeff,line_edit_double_format,line_edit_period_precision));
 		gamma_Line_Edit ->setText(Locale.toString(struct_Data.gamma.value,line_edit_double_format,line_edit_gamma_precision));
 
-		period_Line_Edit->textEdited(period_Line_Edit->text());
-		gamma_Line_Edit->textEdited(gamma_Line_Edit->text());
+		if(!forbid_Period_Gamma)
+		{
+			period_Line_Edit->textEdited(period_Line_Edit->text());
+			gamma_Line_Edit->textEdited(gamma_Line_Edit->text());
+		} else {
+			Global_Variables::resize_Line_Edit(period_Line_Edit);
+			Global_Variables::resize_Line_Edit(gamma_Line_Edit);
+		}
 	}
 }
 
@@ -1609,33 +1628,36 @@ void Item_Editor::refresh_Data()
 		double init_Period = struct_Data.period.value;
 
 		struct_Data.num_Repetition.parameter.value = Locale.toDouble(repetitions_Line_Edit->text());
-		struct_Data.period.value = Locale.toDouble(period_Line_Edit->text())*coeff;
-		if(item->childCount()==2)
+		if(!forbid_Period_Gamma)
 		{
-			double temp_Gamma = Locale.toDouble(gamma_Line_Edit->text());
-			if(temp_Gamma>1)
-			{
-				gamma_Line_Edit->setText(Locale.toString(struct_Data.gamma.value));
-				Global_Variables::resize_Line_Edit(gamma_Line_Edit);
-			} else
-			{
-				struct_Data.gamma.value = Locale.toDouble(gamma_Line_Edit->text());
-			}
-		}
-
-		// children of stack
-		if( abs(init_Period) > DBL_MIN )
-		{
+			struct_Data.period.value = Locale.toDouble(period_Line_Edit->text())*coeff;
 			if(item->childCount()==2)
 			{
-				change_Stack_Gamma();
-			} else
-			{
-				if( abs(init_Period) > DBL_MIN )
+				double temp_Gamma = Locale.toDouble(gamma_Line_Edit->text());
+				if(temp_Gamma>1)
 				{
-					double factor = struct_Data.period.value / init_Period;
-					change_Child_Layers_Thickness(item, factor);
-//					init_Period = struct_Data.period.value; // never used
+					gamma_Line_Edit->setText(Locale.toString(struct_Data.gamma.value));
+					Global_Variables::resize_Line_Edit(gamma_Line_Edit);
+				} else
+				{
+					struct_Data.gamma.value = Locale.toDouble(gamma_Line_Edit->text());
+				}
+			}
+
+			// children of stack
+			if( abs(init_Period) > DBL_MIN )
+			{
+				if(item->childCount()==2)
+				{
+					change_Stack_Gamma();
+				} else
+				{
+					if( abs(init_Period) > DBL_MIN )
+					{
+						double factor = struct_Data.period.value / init_Period;
+						change_Child_Layers_Thickness(item, factor);
+	//					init_Period = struct_Data.period.value; // never used
+					}
 				}
 			}
 		}
@@ -1650,7 +1672,7 @@ void Item_Editor::refresh_Data()
 void Item_Editor::fast_Refresh_Stack()
 {
 	if(stack_Done)
-	if(struct_Data.item_Type == item_Type_Multilayer)
+	if(struct_Data.item_Type == item_Type_Multilayer && !forbid_Period_Gamma)
 	if( abs(Locale.toDouble(period_Line_Edit->text())) > DBL_MIN || abs(struct_Data.period.value) < DBL_MIN )
 	{
 		if(Locale.toInt(repetitions_Line_Edit->text())!=0 || struct_Data.num_Repetition.value() == 0)
@@ -1826,12 +1848,12 @@ void Item_Editor::to_Regular_Aperiodic_Subfunction()
 		child.prepare_Layer_For_Regular_Component();
 
 		Regular_Component new_Regular_Component;
+			new_Regular_Component.is_Common_Sigma = true;
 			new_Regular_Component.components.resize(struct_Data.num_Repetition.value());
 			new_Regular_Component.components.fill(child);
 			new_Regular_Component.top_Id = child.id;
+			new_Regular_Component.find_Min_Max_Values();
 		for(Data& inserted_Child : new_Regular_Component.components) { inserted_Child.reset_All_IDs(); }
-
-		new_Regular_Component.find_Min_Max_Values();
 		struct_Data.regular_Components.append(new_Regular_Component);
 
 		// save changes in children
