@@ -59,8 +59,8 @@ void Table_Of_Structures::create_Main_Layout()
 
 	for(Regular_Aperiodic_Table* regular_Aperiodic_Table : global_Multilayer_Approach->runned_Regular_Aperiodic_Tables.values())
 	{
-	   connect(regular_Aperiodic_Table, &Regular_Aperiodic_Table::regular_Aperiodic_Edited, this, &Table_Of_Structures::reload_From_Regular_Aperiodic);
-	   connect(this, &Table_Of_Structures::regular_Layer_Edited, regular_Aperiodic_Table, &Regular_Aperiodic_Table::reload_All_Widgets);
+		connect(regular_Aperiodic_Table, &Regular_Aperiodic_Table::regular_Aperiodic_Edited, this, &Table_Of_Structures::reload_From_Regular_Aperiodic);
+		connect(this, &Table_Of_Structures::regular_Layer_Edited, regular_Aperiodic_Table, &Regular_Aperiodic_Table::reload_All_Widgets);
 	}
 }
 
@@ -3074,13 +3074,28 @@ void Table_Of_Structures::change_Parent_Period_Gamma_Thickness(QTreeWidgetItem* 
 		for(int i = 0; i<parent_Item->childCount(); i++)
 		{
 			const Data child_Data = parent_Item->child(i)->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
-			if(child_Data.item_Type == item_Type_Layer) {
+			if(child_Data.item_Type == item_Type_Layer)
+			{
 				parent_Data.period.value += child_Data.thickness.value;
-				if(i==0) first_Thickness = child_Data.thickness.value;
+				if(i==0) first_Thickness  = child_Data.thickness.value;
 			}
-			if(child_Data.item_Type == item_Type_Multilayer || child_Data.item_Type == item_Type_Regular_Aperiodic || child_Data.item_Type == item_Type_General_Aperiodic) {
+			if(child_Data.item_Type == item_Type_Multilayer || child_Data.item_Type == item_Type_General_Aperiodic)
+			{
 				parent_Data.period.value += child_Data.period.value*child_Data.num_Repetition.value();
-				if(i==0) first_Thickness = child_Data.period.value*child_Data.num_Repetition.value();
+				if(i==0) first_Thickness  = child_Data.period.value*child_Data.num_Repetition.value();
+			}
+			if(child_Data.item_Type == item_Type_Regular_Aperiodic)
+			{
+				double sum = 0;
+				for(int j=0; j<parent_Item->child(i)->childCount(); ++j)
+				{
+					for(int n=0; n<child_Data.num_Repetition.value(); ++n)
+					{
+						sum += child_Data.regular_Components[j].components[n].thickness.value;
+					}
+				}
+				parent_Data.period.value += sum;
+				if(i==0) first_Thickness  = sum;
 			}
 		}
 		if(parent_Item->childCount() == 2)
@@ -3097,26 +3112,16 @@ void Table_Of_Structures::change_Parent_Period_Gamma_Thickness(QTreeWidgetItem* 
 	}
 }
 
-void Table_Of_Structures::change_Child_Layers_Thickness(QTreeWidgetItem* multilayer_Item, double factor)
+void Table_Of_Structures::change_Child_Layers_Thickness(QTreeWidgetItem* multilayer_Item, const double factor)
 {
 	Data struct_Data = multilayer_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
-	if( struct_Data.item_Type == item_Type_Multilayer)
+	if( multilayer_Item->childCount())
 	{
 		struct_Data.period.value *= factor;
-		for(int i=0; i<multilayer_Item->childCount(); ++i)
-		{
-			change_Child_Layers_Thickness(multilayer_Item->child(i), factor);
-		}
-	}
-	if( struct_Data.item_Type == item_Type_General_Aperiodic ||
-		struct_Data.item_Type == item_Type_Regular_Aperiodic )
-	{
-		for(int i=0; i<multilayer_Item->childCount(); ++i)
-		{
-			// usual layers and deeper multilayers
-			change_Child_Layers_Thickness(multilayer_Item->child(i), factor);
 
-			if(struct_Data.item_Type == item_Type_Regular_Aperiodic)
+		if(struct_Data.item_Type == item_Type_Regular_Aperiodic)
+		{
+			for(int i=0; i<multilayer_Item->childCount(); ++i)
 			{
 				for(int n=0; n<struct_Data.num_Repetition.value(); n++)
 				{
@@ -3125,16 +3130,20 @@ void Table_Of_Structures::change_Child_Layers_Thickness(QTreeWidgetItem* multila
 				struct_Data.regular_Components[i].find_Min_Max_Values();
 			}
 		}
-	}
-	{
-		if(struct_Data.item_Type == item_Type_Layer)
+
+		for(int i=0; i<multilayer_Item->childCount(); ++i)
 		{
-			struct_Data.thickness.value *= factor;
+			change_Child_Layers_Thickness(multilayer_Item->child(i), factor);
 		}
 	}
+	if(struct_Data.item_Type == item_Type_Layer)
+	{
+		struct_Data.thickness.value *= factor;
+	}
+
 	QVariant var;
 	var.setValue( struct_Data );
-	multilayer_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);	
+	multilayer_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
 
 	emit regular_Layer_Edited(QString(whats_This_Thickness)+VAL);
 }
@@ -3148,7 +3157,6 @@ void Table_Of_Structures::reset_Multilayer_Thickness(QTreeWidgetItem* multilayer
 		factor = new_Thickness/(  stack_Content.period.value*stack_Content.num_Repetition.value()  );
 		change_Child_Layers_Thickness(multilayer_Item, factor);
 	}
-	//    stack_Content = multilayer_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
 }
 
 void Table_Of_Structures::reset_Layer_Thickness(QTreeWidgetItem* layer_Item, double new_Thickness)
@@ -3432,7 +3440,10 @@ void Table_Of_Structures::refresh_Parameter(My_Table_Widget* table)
 									interlayer.my_Sigma.fit.max = parent_Data.regular_Components[i].components[n].sigma.fit.max;
 								}
 							}
+
 						}
+
+						parent_Data.regular_Components[i].find_Min_Max_Values();
 
 						QVariant var;
 						var.setValue( parent_Data );

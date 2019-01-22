@@ -515,6 +515,7 @@ void Regular_Aperiodic_Table::refresh_Regular_Component(Data& current_Layer, int
 				var.setValue( child );
 				item->child(i)->setData(DEFAULT_COLUMN, Qt::UserRole, var);
 			}
+
 		}
 		if(whats_This == whats_This_Sigma)
 		{
@@ -683,7 +684,8 @@ void Regular_Aperiodic_Table::reload_All_Widgets(QString identifier)
 		identifier == QString(whats_This_Thickness)+VAL ||
 		identifier == colorize_Property)							reload_Thicknesses();
 	if( identifier == "" ||
-		identifier == QString(whats_This_Sigma)+VAL)				reload_Sigmas();
+		identifier == QString(whats_This_Sigma)+VAL ||
+		identifier == colorize_Property)							reload_Sigmas();
 	if( identifier == "" ||
 		identifier == QString(whats_This_Absolute_Density)+VAL ||
 		identifier == QString(whats_This_Relative_Density)+VAL)		reload_Densities();

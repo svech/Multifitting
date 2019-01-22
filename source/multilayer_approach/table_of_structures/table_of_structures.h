@@ -111,7 +111,7 @@ public:
 	void refresh_Check_Box_Header(bool);
 	void colorize_Regular_Aperiodic_Check_Box_Header(QCheckBox* check_Box);
 	void change_Parent_Period_Gamma_Thickness(QTreeWidgetItem* current_Item);
-	void change_Child_Layers_Thickness(QTreeWidgetItem* multilayer_Item, double factor);
+	void change_Child_Layers_Thickness(QTreeWidgetItem* multilayer_Item, const double factor);
 	void reset_Multilayer_Thickness(QTreeWidgetItem* multilayer_Item, double new_Thickness);
 	void reset_Layer_Thickness(QTreeWidgetItem* layer_Item, double new_Thickness);
 	void change_Stack_Gamma(QTreeWidgetItem* structure_Item, double new_Gamma_Value);
