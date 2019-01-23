@@ -1,8 +1,8 @@
 #include "aperiodic_load_setup.h"
 
-Aperiodic_Load_Setup::Aperiodic_Load_Setup(Aperiodic_Settings& aperiodic_Settings, Structure_Toolbar* structure_Toolbar, QWidget* parent) :
+Aperiodic_Load_Setup::Aperiodic_Load_Setup(Aperiodic_Settings& aperiodic_Settings, QString item_Type, QWidget* parent) :
 	aperiodic_Settings(aperiodic_Settings),
-	structure_Toolbar(structure_Toolbar),
+	item_Type(item_Type),
 	QDialog(parent)
 {
 	setWindowTitle("Aperiodic settings");
@@ -79,8 +79,15 @@ void Aperiodic_Load_Setup::create_GroupBox()
 			main_Group_Box_Layout->addWidget(sigma_CheckBox);
 
 		QCheckBox* density_CheckBox = new QCheckBox("Density");
+		if(item_Type == item_Type_General_Aperiodic)
+		{
 			density_CheckBox->setChecked(aperiodic_default_density_import);
 			main_Group_Box_Layout->addWidget(density_CheckBox);
+		}
+		if(item_Type == item_Type_Regular_Aperiodic)
+		{
+			density_CheckBox->setChecked(false);
+		}
 
 		QComboBox* length_Units = new QComboBox;
 			length_Units->addItems(length_Units_List);

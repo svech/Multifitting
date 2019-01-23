@@ -4,6 +4,7 @@
 #include "global/settings.h"
 #include "multilayer_approach/multilayer_approach.h"
 #include "regular_aperiodic_table_widget.h"
+#include "multilayer_approach/multilayer/structure_tree/aperiodic_load_setup.h"
 
 class MyDoubleSpinBox;
 
@@ -12,10 +13,9 @@ class Regular_Aperiodic_Table : public QDialog
 	Q_OBJECT
 	Q_INVOKABLE void adjustSize() {  }
 public:
-	Regular_Aperiodic_Table(QTreeWidgetItem* item,
-							Multilayer* multilayer,
-							QWidget* parent = Q_NULLPTR);
-	~Regular_Aperiodic_Table();
+	explicit Regular_Aperiodic_Table(QTreeWidgetItem* item,
+									Multilayer* multilayer,
+									QWidget* parent = Q_NULLPTR);
 signals:
 	void regular_Aperiodic_Edited();
 	void closed();
@@ -25,6 +25,8 @@ public:
 	void keyReleaseEvent(QKeyEvent *event);
 	bool eventFilter(QObject *obj, QEvent *event);
 	void closeEvent(QCloseEvent* event);
+	void dragEnterEvent(QDragEnterEvent* event);
+	void dropEvent(QDropEvent* event);
 	void create_Main_Layout();
 		void create_Menu();
 		void create_Table();
@@ -50,6 +52,7 @@ public:
 	void write_Window_Geometry();
 	void emit_Regular_Aperiodic_Edited();
 	void save();
+	void read_Data_File(QString fileName);
 
 	bool modifier_Key_Still_Pressed = false;
 	bool modifier_Key_Still_Pressed_Duplicate = false;

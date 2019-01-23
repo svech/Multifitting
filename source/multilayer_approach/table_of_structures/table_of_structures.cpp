@@ -500,43 +500,47 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 			///--------------------------------------------------------------------------------------------
 
 			// multilayer
-			if(struct_Data.item_Type == item_Type_Multilayer)
+			if( struct_Data.item_Type == item_Type_Multilayer ||
+				struct_Data.item_Type == item_Type_Regular_Aperiodic)
 			{
 				// num repetitions
 				QString whats_This = whats_This_Num_Repetitions;
 				add_Columns			(new_Table, current_Column+5);
 				create_Label		(new_Table, tab_Index, current_Row,   current_Column, structure_Item, whats_This, "N");
 				create_Line_Edit	(new_Table, tab_Index, current_Row+1, current_Column, structure_Item, whats_This, VAL);
-				create_Line_Edit	(new_Table, tab_Index, current_Row+3, current_Column, structure_Item, whats_This, MIN);
-				create_Line_Edit	(new_Table, tab_Index, current_Row+4, current_Column, structure_Item, whats_This, MAX);
-				// lastcolumn
-				create_Check_Box_Fit(new_Table, tab_Index, current_Row+2, current_Column, structure_Item, whats_This, 1, 2, 0, 0);
-				current_Column += 2;
-
-
-				// period
-				whats_This = whats_This_Period;
-				add_Columns			(new_Table, current_Column+5);
-				create_Label		(new_Table, tab_Index, current_Row,   current_Column, structure_Item, whats_This, "d ["+length_units+"]");
-				create_Line_Edit	(new_Table, tab_Index, current_Row+1, current_Column, structure_Item, whats_This, VAL);
-				create_Line_Edit	(new_Table, tab_Index, current_Row+3, current_Column, structure_Item, whats_This, MIN);
-				create_Line_Edit	(new_Table, tab_Index, current_Row+4, current_Column, structure_Item, whats_This, MAX);
-				// lastcolumn
-				create_Check_Box_Fit(new_Table, tab_Index, current_Row+2, current_Column, structure_Item, whats_This, 1, 2, 0, 0);
-				current_Column += 3;
-
-				// gamma
-				if(structure_Item->childCount()==2)
+				if( struct_Data.item_Type == item_Type_Multilayer)
 				{
-					whats_This = whats_This_Gamma;
+					create_Line_Edit	(new_Table, tab_Index, current_Row+3, current_Column, structure_Item, whats_This, MIN);
+					create_Line_Edit	(new_Table, tab_Index, current_Row+4, current_Column, structure_Item, whats_This, MAX);
+					// lastcolumn
+					create_Check_Box_Fit(new_Table, tab_Index, current_Row+2, current_Column, structure_Item, whats_This, 1, 2, 0, 0);
+					current_Column += 2;
+
+
+					// period
+					whats_This = whats_This_Period;
 					add_Columns			(new_Table, current_Column+5);
-					create_Label		(new_Table, tab_Index, current_Row,   current_Column, structure_Item, whats_This, Gamma_Sym);
+					create_Label		(new_Table, tab_Index, current_Row,   current_Column, structure_Item, whats_This, "d ["+length_units+"]");
 					create_Line_Edit	(new_Table, tab_Index, current_Row+1, current_Column, structure_Item, whats_This, VAL);
 					create_Line_Edit	(new_Table, tab_Index, current_Row+3, current_Column, structure_Item, whats_This, MIN);
 					create_Line_Edit	(new_Table, tab_Index, current_Row+4, current_Column, structure_Item, whats_This, MAX);
-					// last
+					// lastcolumn
 					create_Check_Box_Fit(new_Table, tab_Index, current_Row+2, current_Column, structure_Item, whats_This, 1, 2, 0, 0);
-					current_Column += 2;
+					current_Column += 3;
+
+					// gamma
+					if(structure_Item->childCount()==2)
+					{
+						whats_This = whats_This_Gamma;
+						add_Columns			(new_Table, current_Column+5);
+						create_Label		(new_Table, tab_Index, current_Row,   current_Column, structure_Item, whats_This, Gamma_Sym);
+						create_Line_Edit	(new_Table, tab_Index, current_Row+1, current_Column, structure_Item, whats_This, VAL);
+						create_Line_Edit	(new_Table, tab_Index, current_Row+3, current_Column, structure_Item, whats_This, MIN);
+						create_Line_Edit	(new_Table, tab_Index, current_Row+4, current_Column, structure_Item, whats_This, MAX);
+						// last
+						create_Check_Box_Fit(new_Table, tab_Index, current_Row+2, current_Column, structure_Item, whats_This, 1, 2, 0, 0);
+						current_Column += 2;
+					}
 				}
 			}
 			///--------------------------------------------------------------------------------------------
@@ -1531,6 +1535,8 @@ void Table_Of_Structures::create_Check_Box_Label(My_Table_Widget* table, int tab
 
 		if(struct_Data.parent_Item_Type == item_Type_Regular_Aperiodic)
 		{
+			regular_Aperiodic_Widgets_To_Reload[tab_Index].append(check_Box);
+
 			Data parent_Data = structure_Item->parent()->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
 			int my_I = -2019;
 			for(int i = 0; i<structure_Item->parent()->childCount(); i++)
@@ -1719,9 +1725,15 @@ void Table_Of_Structures::create_Line_Edit(My_Table_Widget* table, int tab_Index
 		spin_Box->setSingleStep(1);
 		spin_Box->setRange(0, MAX_INTEGER);
 
-		id = struct_Data.num_Repetition.parameter.indicator.id;
-		if(val_Type == VAL) reload_Show_Dependence_Map.insertMulti(spin_Box, id_Of_Thicknesses);
-		spin_Boxes_ID_Map.insert(spin_Box,id);
+		if(struct_Data.item_Type != item_Type_Regular_Aperiodic)
+		{
+			id = struct_Data.num_Repetition.parameter.indicator.id;
+			if(val_Type == VAL) reload_Show_Dependence_Map.insertMulti(spin_Box, id_Of_Thicknesses);
+			spin_Boxes_ID_Map.insert(spin_Box,id);
+		} else
+		{
+			spin_Box->setDisabled(true);
+		}
 	} else
 	{
 		Parameter& parameter = get_Parameter(struct_Data, whats_This, precision, coeff);

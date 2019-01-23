@@ -7,14 +7,14 @@ class Aperiodic_Load_Setup : public QDialog
 {
 	Q_OBJECT
 public:
-	explicit Aperiodic_Load_Setup(Aperiodic_Settings& aperiodic_Settings, Structure_Toolbar* structure_Toolbar, QWidget* parent = nullptr);
+	explicit Aperiodic_Load_Setup(Aperiodic_Settings& aperiodic_Settings, QString item_Type, QWidget* parent = nullptr);
 
 	void set_Window_Geometry();
 	void create_Main_Layout();
 		void create_GroupBox();
 
 	Aperiodic_Settings& aperiodic_Settings;
-	Structure_Toolbar* structure_Toolbar;
+	QString item_Type;
 
 	QVBoxLayout* main_Layout;
 		QGroupBox* main_GroupBox;

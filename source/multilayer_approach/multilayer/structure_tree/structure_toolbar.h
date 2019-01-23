@@ -16,23 +16,26 @@ signals:
 
 public:
 	QTreeWidgetItem* add_Buffered_Layer(QTreeWidgetItem* new_Layer_Passed);
-	void add_Ambient	();
-	void add_Layer		();
-	void add_Multilayer	();
-	void add_Aperiodic	();
-	void add_Substrate	();
-	void edit			();
-	void remove			();
-	void cut			();
-	void copy			();
-	void paste			();
-	void move_Up		();
-	void move_Down		();
-	void group			();
-	void ungroup		();
-	void thickness_Plot	();
-	void sigma_Plot		();
-	void destroy		();
+	void add_Ambient	 ();
+	void add_Layer		 ();
+	void add_Multilayer	 ();
+	void add_Aperiodic	 ();
+	void add_Substrate	 ();
+	void edit			 ();
+	void remove			 ();
+	void cut			 ();
+	void copy			 ();
+	void paste			 ();
+	void move_Up		 ();
+	void move_Down		 ();
+	void group			 ();
+	void ungroup		 ();
+	void thickness_Plot	 ();
+	void sigma_Plot		 ();
+	void destroy		 ();
+	void export_Structure();
+
+	void print_Data(QTextStream& out,const Data& struct_Data);
 
 	bool ask_Parent_Multilayer();
 	void if_Selected();

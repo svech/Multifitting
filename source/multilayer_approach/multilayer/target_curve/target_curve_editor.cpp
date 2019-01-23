@@ -22,7 +22,7 @@ void Target_Curve_Editor::closeEvent(QCloseEvent *event)
 
 void Target_Curve_Editor::dragEnterEvent(QDragEnterEvent* event)
 {
-	if (event->mimeData()->hasUrls())
+	if(event->mimeData()->hasUrls())
 	{
 		event->acceptProposedAction();
 	}

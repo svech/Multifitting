@@ -12,12 +12,9 @@ Regular_Aperiodic_Table::Regular_Aperiodic_Table(QTreeWidgetItem *item, Multilay
 	create_Main_Layout();
 	set_Window_Geometry();
 	setAttribute(Qt::WA_DeleteOnClose);
+	setAcceptDrops(true);
 
 	multilayer->structure_Tree->lock_Tree();
-}
-
-Regular_Aperiodic_Table::~Regular_Aperiodic_Table()
-{
 }
 
 void Regular_Aperiodic_Table::keyPressEvent(QKeyEvent* event)
@@ -58,7 +55,29 @@ void Regular_Aperiodic_Table::closeEvent(QCloseEvent *event)
 		multilayer->structure_Tree->unlock_Tree();
 	}
 	if(multilayer->structure_Tree->list_Editors.isEmpty() && global_Multilayer_Approach->runned_Regular_Aperiodic_Tables.isEmpty())
-	event->accept();
+		event->accept();
+}
+
+void Regular_Aperiodic_Table::dragEnterEvent(QDragEnterEvent *event)
+{
+	if (event->mimeData()->hasUrls())
+	{
+		event->acceptProposedAction();
+	}
+}
+
+void Regular_Aperiodic_Table::dropEvent(QDropEvent *event)
+{
+	int counter = 0;
+	foreach (const QUrl &url, event->mimeData()->urls())
+	{
+		if(counter==0)
+		{
+			QString fileName = url.toLocalFile();
+			read_Data_File(fileName);
+		}
+		++counter;
+	}
 }
 
 void Regular_Aperiodic_Table::set_Window_Geometry()
@@ -89,6 +108,153 @@ void Regular_Aperiodic_Table::save()
 	var.setValue( regular_Aperiodic_Data );
 	item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
 }
+
+void Regular_Aperiodic_Table::read_Data_File(QString fileName)
+{
+	// presettings window
+	Aperiodic_Settings aperiodic_Settings;
+		aperiodic_Settings.length_Units = aperiodic_default_units_import;
+	Aperiodic_Load_Setup* aperiodic_Load_Setup = new Aperiodic_Load_Setup(aperiodic_Settings, item_Type_Regular_Aperiodic, this);
+		aperiodic_Load_Setup->exec();
+	if(!aperiodic_Settings.contin)
+		return;
+
+
+	bool loaded = false;
+	QStringList lines_List;
+
+	QVector<QString> materials;
+	QVector<double> thicknesses;
+	QVector<double> sigmas;
+
+	// imd-styled file
+	QFileInfo filename = QDir::toNativeSeparators(fileName);
+	if (!filename.completeBaseName().isEmpty())
+	{
+		/// reading data
+		QFile input_File(filename.absoluteFilePath());
+		QString temp_Line = "not empty now";
+
+		if (input_File.open(QIODevice::ReadOnly))
+		{
+			QTextStream input_Stream(&input_File);
+			while ( !input_Stream.atEnd() )
+			{
+				temp_Line=input_Stream.readLine();
+				lines_List.append(temp_Line);
+			}
+			input_File.close();
+			loaded = true;
+		} else
+		{
+			QMessageBox::information(this, "Error", "Can't open file filename \"" + filename.fileName() + "\"");
+			return;
+		}
+	}
+	if(!loaded) return;
+
+	/// parsing data
+	for(int line_Index=0; line_Index<lines_List.size(); ++line_Index)
+	{
+		QString temp_Line = lines_List[line_Index];
+		QStringList words = temp_Line.split(delimiters,QString::SkipEmptyParts);
+		if(temp_Line[0]!=';' && temp_Line[0]!='#' && words.size()>0)
+		{
+			bool size_Format = false;
+			bool int_Format = false;
+			bool column_3_Double_Format = false;
+			bool column_4_Double_Format = true;
+
+			int good_Size = 3;
+			if(aperiodic_Settings.column_4 != "") {good_Size = 4; column_4_Double_Format = false;}
+
+			if(words.size()>=good_Size)
+			{
+				size_Format = true;
+				QString(words[0]).toInt(&int_Format);
+				QString(words[2]).toDouble(&column_3_Double_Format);
+
+				if(words.size()>=4) QString(words[3]).toDouble(&column_4_Double_Format);
+			}
+			if(!int_Format || !column_3_Double_Format || !column_4_Double_Format || !size_Format)
+			{
+				QString addition_1 = "";
+				if(aperiodic_Settings.column_4 == whats_This_Sigma)		addition_1 = "  <sigma>";
+
+				QMessageBox::information(nullptr, "Bad format", "Row " + Locale.toString(line_Index) + " has wrong format.\n\nData should be styled:\n <period index>  <material>  <thickness>" + addition_1);
+				return;
+			}
+
+			materials.append(words[1]);
+			thicknesses.append(QString(words[2]).toDouble());
+			if(aperiodic_Settings.column_4 == whats_This_Sigma)		sigmas.append(QString(words[3]).toDouble());
+		}
+	}
+	int num_Layers_Regular_Aperiodic = regular_Aperiodic_Data.num_Repetition.value()*regular_Aperiodic_Data.regular_Components.size();
+	if(materials.size() != num_Layers_Regular_Aperiodic)
+	{
+		QMessageBox::StandardButton reply = QMessageBox::Yes;
+		reply = QMessageBox::question(this,"Number of layers", "File has "+QString::number(materials.size())+" layers, while\nRegular Aperiodic has "+
+									  QString::number(num_Layers_Regular_Aperiodic)+"\n\nContinue?", QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
+		if (reply != QMessageBox::Yes)
+		{
+			return;
+		}
+	}
+	for(int i=0; i<regular_Aperiodic_Data.regular_Components.size(); i++)
+	{
+		regular_Aperiodic_Data.regular_Components[i].is_Common_Thickness = false;
+		if(aperiodic_Settings.column_4 == whats_This_Sigma)	{
+			regular_Aperiodic_Data.regular_Components[i].is_Common_Sigma = false;
+		}
+	}
+
+	int min_Size = min(materials.size(),num_Layers_Regular_Aperiodic);
+	int absolute_Layer_Index=0;
+
+	int first_Different_Material_Index = -2019;
+	QString first_Different_Material = "";
+
+	for(int n=0; n<regular_Aperiodic_Data.num_Repetition.value(); n++)
+	{
+		for(int i=0; i<regular_Aperiodic_Data.regular_Components.size(); i++)
+		{
+			if(absolute_Layer_Index>=min_Size) goto continue_label;
+
+			Data& regular_Layer = regular_Aperiodic_Data.regular_Components[i].components[n];
+
+			regular_Layer.thickness.value = thicknesses[absolute_Layer_Index];
+			if(aperiodic_Settings.column_4 == whats_This_Sigma)		{
+				regular_Layer.sigma.value = sigmas[absolute_Layer_Index];
+			}
+
+			// if inconsistent
+			if(first_Different_Material_Index<0 && (regular_Layer.material != materials[absolute_Layer_Index]))
+			{
+				first_Different_Material_Index = absolute_Layer_Index;
+				first_Different_Material = regular_Layer.material;
+			}
+
+			absolute_Layer_Index++;
+		}
+	}
+	continue_label:
+
+	if(first_Different_Material_Index>=0)
+	{
+		QMessageBox::information(this, "Different materials", "First difference in line "+Locale.toString(first_Different_Material_Index+1)+":\n"+
+								 first_Different_Material + " vs " + materials[first_Different_Material_Index]);
+	}
+	for(int i=0; i<regular_Aperiodic_Data.regular_Components.size(); i++)			{
+		regular_Aperiodic_Data.regular_Components[i].find_Min_Max_Values();
+	}
+	save();
+	reload_Thicknesses();
+	reload_Sigmas();
+	colorize_Material();
+	emit_Regular_Aperiodic_Edited();
+}
+
 
 void Regular_Aperiodic_Table::create_Main_Layout()
 {
@@ -515,7 +681,6 @@ void Regular_Aperiodic_Table::refresh_Regular_Component(Data& current_Layer, int
 				var.setValue( child );
 				item->child(i)->setData(DEFAULT_COLUMN, Qt::UserRole, var);
 			}
-
 		}
 		if(whats_This == whats_This_Sigma)
 		{
@@ -537,6 +702,9 @@ void Regular_Aperiodic_Table::refresh_Regular_Component(Data& current_Layer, int
 
 				Data child = item->child(i)->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
 				child.sigma.value = parameter.value;
+				for(Interlayer& interlayer : child.interlayer_Composition)	{
+					interlayer.my_Sigma.value = child.sigma.value;
+				}
 				QVariant var;
 				var.setValue( child );
 				item->child(i)->setData(DEFAULT_COLUMN, Qt::UserRole, var);

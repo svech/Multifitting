@@ -73,11 +73,15 @@ void Target_Curve::import_Data(QString bare_Filename)
 		if( temp_Line[0]!=';' && temp_Line[0]!='#' && numbers.size()>0)
 		try
 		{
+			bool ok_To_Double = false;
+
 			/// argument
 
 			if(numbers.size()<=number_Index) throw "arg | " + main_Exception_Text;
-			double temp_Number = QString(numbers[number_Index]).toDouble();
-			curve.argument.push_back(temp_Number);
+			double temp_Argument = QString(numbers[number_Index]).toDouble(&ok_To_Double);
+
+			if(!ok_To_Double) goto skip_line_label;
+			curve.argument.push_back(temp_Argument);
 			++number_Index;
 
 			/// value
@@ -85,31 +89,46 @@ void Target_Curve::import_Data(QString bare_Filename)
 			if(curve.value_Mode == value_R_Mode[R] || curve.value_Mode == value_T_Mode[T] )	// R , T
 			{
 				if(numbers.size()<=number_Index) throw "val_1 | " + main_Exception_Text;
-				double temp_Number = QString(numbers[number_Index]).toDouble();
+				double temp_Val_1 = QString(numbers[number_Index]).toDouble(&ok_To_Double);
 				++number_Index;
 
 				Value val;
-				val.val_1 = temp_Number;
+				val.val_1 = temp_Val_1;
+
+				if(!ok_To_Double)
+				{
+					curve.argument.removeLast();
+					goto skip_line_label;
+				}
 				curve.values.push_back(val);
 			} else
 			if(curve.value_Mode == value_R_Mode[R_Phi] )	// R+phi
 			{
 				if(numbers.size()<=number_Index) throw "val_1 | " + main_Exception_Text;
-				double temp_Number_1 = QString(numbers[number_Index]).toDouble();
+				double temp_Number_1 = QString(numbers[number_Index]).toDouble(&ok_To_Double);
 				++number_Index;
 				if(numbers.size()<=number_Index) throw "val_2 | " + main_Exception_Text;
-				double temp_Number_2 = QString(numbers[number_Index]).toDouble();
+				double temp_Number_2 = QString(numbers[number_Index]).toDouble(&ok_To_Double);
 				++number_Index;
 
 				Value val;
 				val.val_1 = temp_Number_1;
 				val.val_2 = temp_Number_2;
+
+				if(!ok_To_Double)
+				{
+					curve.argument.removeLast();
+					goto skip_line_label;
+				}
 				curve.values.push_back(val);
 			} else
 			{
 				throw "wrong curve.value_Mode=" + curve.value_Mode + main_Exception_Text;
 			}
 			loaded_And_Ready = true;
+
+			// this line may be skipped
+			skip_line_label: ok_To_Double = false;
 		}
 		catch(QString& exception)
 		{

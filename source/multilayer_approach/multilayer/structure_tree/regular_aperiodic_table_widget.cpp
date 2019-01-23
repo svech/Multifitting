@@ -26,4 +26,3 @@ Regular_Aperiodic_Table_Widget::Regular_Aperiodic_Table_Widget(int rows, int col
 	}
 	setVerticalHeaderLabels(labels);
 }
-

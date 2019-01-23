@@ -28,6 +28,7 @@ void Structure_Toolbar::create_Toolbar()
 //	QPixmap thickness_Plot	(icon_path + "zplot.bmp");
 //	QPixmap sigma_Plot		(icon_path + "sigmaplot.bmp");
 	QPixmap destroy			(icon_path + "bomb.bmp");
+	QPixmap export_Structure(icon_path + "save.bmp");
 
 	toolbar = new QToolBar;
 	toolbar->addAction(QIcon(add_Layer),		"Add Layer");						// 0
@@ -39,32 +40,34 @@ void Structure_Toolbar::create_Toolbar()
 	toolbar->addAction(QIcon(cut),				"Cut");								// 6
 	toolbar->addAction(QIcon(copy),				"Copy");							// 7
 	toolbar->addAction(QIcon(paste),			"Paste");							// 8
-	toolbar->addAction(QIcon(move_Up),			"Move Up");							// 9
-	toolbar->addAction(QIcon(move_Down),		"Move Down");						// 0
+	toolbar->addAction(QIcon(move_Up),			"Move up");							// 9
+	toolbar->addAction(QIcon(move_Down),		"Move down");						// 0
 //	toolbar->addAction(QIcon(group),			"Group");							// 11
 	toolbar->addAction(QIcon(ungroup),			"Ungroup");							// 12
 //	toolbar->addAction(QIcon(thickness_Plot),	"Plot Layer Thickness Profile");	// 13
 //	toolbar->addAction(QIcon(sigma_Plot),		"Plot Interface Width Profile");	// 14
-	toolbar->addAction(QIcon(destroy),			"Remove Substrate and All Layers");	// 15
+	toolbar->addAction(QIcon(destroy),			"Remove substrate and all layers");	// 15
+	toolbar->addAction(QIcon(export_Structure),	"Save structure as text");			// 16
 
 	toolbar->setIconSize(add_Layer.size());
 
-	connect(toolbar->actions()[Add_Layer],		&QAction::triggered, this, &Structure_Toolbar::add_Layer);
-	connect(toolbar->actions()[Add_Multilayer], &QAction::triggered, this, &Structure_Toolbar::add_Multilayer);
-	connect(toolbar->actions()[Add_Aperiodic],  &QAction::triggered, this, &Structure_Toolbar::add_Aperiodic);
-	connect(toolbar->actions()[Add_Substrate],  &QAction::triggered, this, &Structure_Toolbar::add_Substrate);
-	connect(toolbar->actions()[Edit],			&QAction::triggered, this, &Structure_Toolbar::edit);
-	connect(toolbar->actions()[Remove],			&QAction::triggered, this, &Structure_Toolbar::remove);
-	connect(toolbar->actions()[Cut],			&QAction::triggered, this, &Structure_Toolbar::cut);
-	connect(toolbar->actions()[Copy],			&QAction::triggered, this, &Structure_Toolbar::copy);
-	connect(toolbar->actions()[Paste],			&QAction::triggered, this, &Structure_Toolbar::paste);
-	connect(toolbar->actions()[Move_Up],		&QAction::triggered, this, &Structure_Toolbar::move_Up);
-	connect(toolbar->actions()[Move_Down],		&QAction::triggered, this, &Structure_Toolbar::move_Down);
-//	connect(toolbar->actions()[Group],			&QAction::triggered, this, &Structure_Toolbar::group);
-	connect(toolbar->actions()[Ungroup],		&QAction::triggered, this, &Structure_Toolbar::ungroup);
-//	connect(toolbar->actions()[Thickness_Plot], &QAction::triggered, this, &Structure_Toolbar::thickness_Plot);
-//	connect(toolbar->actions()[Sigma_Plot],		&QAction::triggered, this, &Structure_Toolbar::sigma_Plot);
-	connect(toolbar->actions()[Destroy],		&QAction::triggered, this, &Structure_Toolbar::destroy);
+	connect(toolbar->actions()[Add_Layer],		 &QAction::triggered, this, &Structure_Toolbar::add_Layer);
+	connect(toolbar->actions()[Add_Multilayer],  &QAction::triggered, this, &Structure_Toolbar::add_Multilayer);
+	connect(toolbar->actions()[Add_Aperiodic],   &QAction::triggered, this, &Structure_Toolbar::add_Aperiodic);
+	connect(toolbar->actions()[Add_Substrate],   &QAction::triggered, this, &Structure_Toolbar::add_Substrate);
+	connect(toolbar->actions()[Edit],			 &QAction::triggered, this, &Structure_Toolbar::edit);
+	connect(toolbar->actions()[Remove],			 &QAction::triggered, this, &Structure_Toolbar::remove);
+	connect(toolbar->actions()[Cut],			 &QAction::triggered, this, &Structure_Toolbar::cut);
+	connect(toolbar->actions()[Copy],			 &QAction::triggered, this, &Structure_Toolbar::copy);
+	connect(toolbar->actions()[Paste],			 &QAction::triggered, this, &Structure_Toolbar::paste);
+	connect(toolbar->actions()[Move_Up],		 &QAction::triggered, this, &Structure_Toolbar::move_Up);
+	connect(toolbar->actions()[Move_Down],		 &QAction::triggered, this, &Structure_Toolbar::move_Down);
+//	connect(toolbar->actions()[Group],			 &QAction::triggered, this, &Structure_Toolbar::group);
+	connect(toolbar->actions()[Ungroup],		 &QAction::triggered, this, &Structure_Toolbar::ungroup);
+//	connect(toolbar->actions()[Thickness_Plot],  &QAction::triggered, this, &Structure_Toolbar::thickness_Plot);
+//	connect(toolbar->actions()[Sigma_Plot],		 &QAction::triggered, this, &Structure_Toolbar::sigma_Plot);
+	connect(toolbar->actions()[Destroy],		 &QAction::triggered, this, &Structure_Toolbar::destroy);
+	connect(toolbar->actions()[Export_Structure],&QAction::triggered, this, &Structure_Toolbar::export_Structure);
 
 	if_Selected();
 }
@@ -179,7 +182,7 @@ void Structure_Toolbar::add_Aperiodic()
 	// presettings window
 	Aperiodic_Settings aperiodic_Settings;
 		aperiodic_Settings.length_Units = aperiodic_default_units_import;
-	Aperiodic_Load_Setup* aperiodic_Load_Setup = new Aperiodic_Load_Setup(aperiodic_Settings, this, this);
+	Aperiodic_Load_Setup* aperiodic_Load_Setup = new Aperiodic_Load_Setup(aperiodic_Settings, item_Type_General_Aperiodic, this);
 		aperiodic_Load_Setup->exec();
 	if(!aperiodic_Settings.contin)
 		return;
@@ -621,6 +624,58 @@ void Structure_Toolbar::destroy()
 		toolbar->actions()[Add_Substrate]->setDisabled(false);		// add_Substrate
 		refresh_Toolbar();
 	}
+}
+
+void Structure_Toolbar::export_Structure()
+{
+	QString tab_Text = "";
+	int index = -2019;
+	for(int i=0; i<global_Multilayer_Approach->multilayer_Tabs->count(); ++i)
+	{
+		Multilayer* multilayer = qobject_cast<Multilayer*>(global_Multilayer_Approach->multilayer_Tabs->widget(i));
+		if(multilayer == structure_Tree->multilayer)
+		{
+			tab_Text = global_Multilayer_Approach->multilayer_Tabs->tabText(i);
+			index = i;
+		}
+	}
+	QString name = "structure_"+Locale.toString(index)+tab_Text+".txt";
+	QFile file(name);
+	if (file.open(QIODevice::WriteOnly))
+	{
+		QTextStream out(&file);
+		out.setFieldAlignment(QTextStream::AlignLeft);
+
+		// iteration over tree
+		std::cout << std::endl;
+		QTreeWidgetItemIterator it(structure_Tree->tree);
+		while (*it)
+		{
+			QTreeWidgetItem* structure_Item = *it;
+
+			// depth
+			int item_Depth = Global_Variables::get_Item_Depth(structure_Item);
+			for(int y=0; y<item_Depth-1; y++) {	std::cout << "\t";}
+
+			const Data struct_Data = structure_Item->data(DEFAULT_COLUMN,Qt::UserRole).value<Data>();
+			std::cout << struct_Data.item_Type.toStdString() << std::endl;
+
+//			print_Data(QTextStream& out, const Data& struct_Data)
+
+			++it;
+		}
+
+		file.close();
+	} else
+	{
+		QMessageBox::critical(nullptr, "Structure_Toolbar::export_Structure", "Can't write file " + name);
+		exit(EXIT_FAILURE);
+	}
+}
+
+void Structure_Toolbar::print_Data(QTextStream& out, const Data& struct_Data)
+{
+
 }
 
 void Structure_Toolbar::if_Selected()
