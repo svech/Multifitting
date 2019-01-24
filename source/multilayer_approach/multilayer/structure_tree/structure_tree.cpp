@@ -249,20 +249,41 @@ void Structure_Tree::find_Period_And_Gamma(QTreeWidgetItem* this_Item)
 	if(stack_Data.item_Type == item_Type_Multilayer)
 	{
 		double period=0;
+		double first_Thickness = 0;
 		// iterate over childs
 		for(int i=0; i<this_Item->childCount(); i++)
 		{
-			Data data_i = this_Item->child(i)->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+			QTreeWidgetItem* child = this_Item->child(i);
+			Data data_i = child->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
 			// if layer
-			if(this_Item->child(i)->childCount()==0)
+			if(data_i.item_Type == item_Type_Layer)
 			{
 				period += data_i.thickness.value;
+				if(i==0) first_Thickness += data_i.thickness.value;
 			}
-			else
-			// if multilayer, go deeper
+			if(data_i.item_Type == item_Type_Multilayer)
 			{
-				find_Period_And_Gamma(this_Item->child(i));
+				find_Period_And_Gamma(child);
 				period += data_i.period.value * data_i.num_Repetition.value();
+				if(i==0) first_Thickness += data_i.period.value * data_i.num_Repetition.value();
+			}
+			if(data_i.item_Type == item_Type_General_Aperiodic)
+			{
+				for(int k=0; k<child->childCount(); k++)
+				{
+					find_Period_And_Gamma(child);
+				}
+			}
+			if(data_i.item_Type == item_Type_Regular_Aperiodic)
+			{
+				for(int k=0; k<data_i.regular_Components.size(); k++)
+				{
+					for(int n=0; n<data_i.num_Repetition.value(); n++)
+					{
+						period += data_i.regular_Components[k].components[n].thickness.value;
+						if(i==0) first_Thickness += data_i.regular_Components[k].components[n].thickness.value;
+					}
+				}
 			}
 		}
 
@@ -270,16 +291,7 @@ void Structure_Tree::find_Period_And_Gamma(QTreeWidgetItem* this_Item)
 		double gamma=-4;
 		if(this_Item->childCount()==2)
 		{
-			Data data_0 = this_Item->child(0)->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
-			// layer
-			if(this_Item->child(0)->childCount()==0)
-			{
-				gamma = data_0.thickness.value/period;
-			} else
-			// multilayer
-			{
-				gamma = data_0.period.value*data_0.num_Repetition.value()/period;
-			}
+			gamma = first_Thickness/period;
 		}
 
 		// refresh data

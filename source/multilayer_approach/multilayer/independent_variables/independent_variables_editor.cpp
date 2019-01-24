@@ -662,7 +662,7 @@ void Independent_Variables_Editor::refresh_Show_Data(bool show)
 		else
 			list_Item->setText(name + " [" +Locale.toString(struct_Data.wavelength.independent.num_Points) + " values: " +
 											Locale.toString(Global_Variables::wavelength_Energy(wavelength_units,struct_Data.wavelength.independent.min)/coeff,thumbnail_double_format,thumbnail_wavelength_precision) + " - " +
-											Locale.toString(Global_Variables::wavelength_Energy(wavelength_units,struct_Data.wavelength.independent.max)/coeff/coeff,thumbnail_double_format,thumbnail_wavelength_precision) + units + end_Bracket_Text);
+											Locale.toString(Global_Variables::wavelength_Energy(wavelength_units,struct_Data.wavelength.independent.max)/coeff,thumbnail_double_format,thumbnail_wavelength_precision) + units + end_Bracket_Text);
 
 		if(struct_Data.wavelength.independent.num_Points>1)
 		{

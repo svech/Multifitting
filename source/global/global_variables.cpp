@@ -965,3 +965,56 @@ template void Global_Variables::resize_Line_Edit<QLineEdit>		 (QLineEdit*,		bool
 template void Global_Variables::resize_Line_Edit<QSpinBox>		 (QSpinBox*,		bool);
 template void Global_Variables::resize_Line_Edit<QDoubleSpinBox> (QDoubleSpinBox*,  bool);
 template void Global_Variables::resize_Line_Edit<MyDoubleSpinBox>(MyDoubleSpinBox*, bool);
+
+void Global_Variables::change_Parent_Period_Gamma_Thickness(QTreeWidgetItem* current_Item)
+{
+	// nearest parent
+	QTreeWidgetItem* parent_Item = current_Item->parent();
+	if(parent_Item)
+	{
+		Data parent_Data = parent_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+		if(parent_Data.item_Type == item_Type_Multilayer)
+		{
+			double first_Thickness = 0;
+			parent_Data.period.value = 0;
+			for(int i = 0; i<parent_Item->childCount(); i++)
+			{
+				const Data child_Data = parent_Item->child(i)->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+				if(child_Data.item_Type == item_Type_Layer)
+				{
+					parent_Data.period.value += child_Data.thickness.value;
+					if(i==0) first_Thickness  = child_Data.thickness.value;
+				}
+				if(child_Data.item_Type == item_Type_Multilayer || child_Data.item_Type == item_Type_General_Aperiodic)
+				{
+					parent_Data.period.value += child_Data.period.value*child_Data.num_Repetition.value();
+					if(i==0) first_Thickness  = child_Data.period.value*child_Data.num_Repetition.value();
+				}
+				if(child_Data.item_Type == item_Type_Regular_Aperiodic)
+				{
+					double sum = 0;
+					for(int j=0; j<child_Data.regular_Components.size(); ++j)
+					{
+						for(int n=0; n<child_Data.num_Repetition.value(); ++n)
+						{
+							sum += child_Data.regular_Components[j].components[n].thickness.value;
+						}
+					}
+					parent_Data.period.value += sum;
+					if(i==0) first_Thickness  = sum;
+				}
+			}
+			if(parent_Item->childCount() == 2)
+			{
+				parent_Data.gamma.value = first_Thickness/parent_Data.period.value;
+			}
+			QVariant var;
+			var.setValue( parent_Data );
+			parent_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+		}
+
+		// further parents
+		if(parent_Item->parent())
+			change_Parent_Period_Gamma_Thickness(parent_Item);
+	}
+}

@@ -686,7 +686,7 @@ void Structure_Toolbar::export_Structure()
 				QDateTime date_Time = QDateTime::currentDateTime();
 				out << date_Time.toString(";< dd.MM.yyyy | hh:mm:ss >") << qSetFieldWidth(0) << endl;
 				out << ";< Multifitting v."+QString::number(VERSION_MAJOR)+"."+QString::number(VERSION_MINOR)+"."+QString::number(VERSION_BUILD)+" >" << qSetFieldWidth(0) << endl;
-				out << qSetFieldWidth(index_Width) << ";index" << qSetFieldWidth(0) << " " << qSetFieldWidth(my_material_Width) << "material" << qSetFieldWidth(0);
+				out << qSetFieldWidth(index_Width) << ";cell" << qSetFieldWidth(0) << " " << qSetFieldWidth(my_material_Width) << "material" << qSetFieldWidth(0);
 				out.setFieldAlignment(QTextStream::AlignRight);
 				out << qSetFieldWidth(my_thickness_Width-3) << "d ("      << qSetFieldWidth(0) << thickness_units << ")" << "    ";
 				out << qSetFieldWidth(my_sigma_Width+3)     << "sigma ("  << qSetFieldWidth(0) << thickness_units << ")";

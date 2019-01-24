@@ -3074,59 +3074,6 @@ void Table_Of_Structures::colorize_Regular_Aperiodic_Check_Box_Header(QCheckBox*
 	}
 }
 
-void Table_Of_Structures::change_Parent_Period_Gamma_Thickness(QTreeWidgetItem* current_Item)
-{
-	// nearest parent
-	QTreeWidgetItem* parent_Item = current_Item->parent();
-	if(parent_Item)
-	{
-		Data parent_Data = parent_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
-		if(parent_Data.item_Type == item_Type_Multilayer)
-		{
-			double first_Thickness = 0;
-			parent_Data.period.value = 0;
-			for(int i = 0; i<parent_Item->childCount(); i++)
-			{
-				const Data child_Data = parent_Item->child(i)->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
-				if(child_Data.item_Type == item_Type_Layer)
-				{
-					parent_Data.period.value += child_Data.thickness.value;
-					if(i==0) first_Thickness  = child_Data.thickness.value;
-				}
-				if(child_Data.item_Type == item_Type_Multilayer || child_Data.item_Type == item_Type_General_Aperiodic)
-				{
-					parent_Data.period.value += child_Data.period.value*child_Data.num_Repetition.value();
-					if(i==0) first_Thickness  = child_Data.period.value*child_Data.num_Repetition.value();
-				}
-				if(child_Data.item_Type == item_Type_Regular_Aperiodic)
-				{
-					double sum = 0;
-					for(int j=0; j<parent_Item->child(i)->childCount(); ++j)
-					{
-						for(int n=0; n<child_Data.num_Repetition.value(); ++n)
-						{
-							sum += child_Data.regular_Components[j].components[n].thickness.value;
-						}
-					}
-					parent_Data.period.value += sum;
-					if(i==0) first_Thickness  = sum;
-				}
-			}
-			if(parent_Item->childCount() == 2)
-			{
-				parent_Data.gamma.value = first_Thickness/parent_Data.period.value;
-			}
-			QVariant var;
-			var.setValue( parent_Data );
-			parent_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
-		}
-
-		// further parents
-		if(parent_Item->parent())
-			change_Parent_Period_Gamma_Thickness(parent_Item);
-	}
-}
-
 void Table_Of_Structures::change_Child_Layers_Thickness(QTreeWidgetItem* multilayer_Item, const double factor)
 {
 	Data struct_Data = multilayer_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
@@ -3256,7 +3203,7 @@ void Table_Of_Structures::refresh_Parameter(My_Table_Widget* table)
 			structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
 
 			// parents
-			change_Parent_Period_Gamma_Thickness(structure_Item);
+			Global_Variables::change_Parent_Period_Gamma_Thickness(structure_Item);
 
 			if(layer_Thickness_Transfer_Is_Created)
 				layer_Thickness_Transfer->lock_Unlock_Thickness_Transfer(structure_Item);
@@ -3350,7 +3297,9 @@ void Table_Of_Structures::refresh_Parameter(My_Table_Widget* table)
 					structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
 
 					// parents
-					change_Parent_Period_Gamma_Thickness(structure_Item);
+					if(struct_Data.parent_Item_Type != item_Type_Regular_Aperiodic) {
+						Global_Variables::change_Parent_Period_Gamma_Thickness(structure_Item);
+					}
 				}
 				if(value_Type == MIN)	{parameter.fit.min = spin_Box->value()*coeff; /*parameter.confidence.min = parameter.fit.min;*/}
 				if(value_Type == MAX)	{parameter.fit.max = spin_Box->value()*coeff; /*parameter.confidence.max = parameter.fit.max;*/}
@@ -3373,7 +3322,7 @@ void Table_Of_Structures::refresh_Parameter(My_Table_Widget* table)
 					}
 
 					// parents
-					change_Parent_Period_Gamma_Thickness(structure_Item);
+					Global_Variables::change_Parent_Period_Gamma_Thickness(structure_Item);
 				}
 				if(value_Type == MIN)	{parameter.fit.min = spin_Box->value()*coeff; /*parameter.confidence.min = parameter.fit.min;*/}
 				if(value_Type == MAX)	{parameter.fit.max = spin_Box->value()*coeff; /*parameter.confidence.max = parameter.fit.max;*/}
@@ -3430,45 +3379,45 @@ void Table_Of_Structures::refresh_Parameter(My_Table_Widget* table)
 				if(value_Type == MIN)	{parameter.fit.min = spin_Box->value()*coeff; /*parameter.confidence.min = parameter.fit.min;*/}
 				if(value_Type == MAX)	{parameter.fit.max = spin_Box->value()*coeff; /*parameter.confidence.max = parameter.fit.max;*/}
 			}
+		}
 
-			// regular aperiodic
-			if(struct_Data.parent_Item_Type == item_Type_Regular_Aperiodic)
+		// regular aperiodic
+		if(struct_Data.parent_Item_Type == item_Type_Regular_Aperiodic)
+		{
+			for(int i=0; i<structure_Item->parent()->childCount(); i++)
 			{
-				for(int i=0; i<structure_Item->parent()->childCount(); i++)
+				if(structure_Item->parent()->child(i)==structure_Item)
 				{
-					if(structure_Item->parent()->child(i)==structure_Item)
+					Data parent_Data = structure_Item->parent()->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+					for(int n=0; n<parent_Data.num_Repetition.value(); n++)
 					{
-						Data parent_Data = structure_Item->parent()->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
-						for(int n=0; n<parent_Data.num_Repetition.value(); n++)
+						Parameter& regular_Parameter = get_Parameter(parent_Data.regular_Components[i].components[n], whats_This);
+						if(value_Type == VAL)	regular_Parameter.value   = spin_Box->value()*coeff;
+						if(value_Type == MIN)	regular_Parameter.fit.min = spin_Box->value()*coeff;
+						if(value_Type == MAX)	regular_Parameter.fit.max = spin_Box->value()*coeff;
+
+						if(whats_This == whats_This_Sigma)
 						{
-							Parameter& regular_Parameter = get_Parameter(parent_Data.regular_Components[i].components[n], whats_This);
-							if(value_Type == VAL)	regular_Parameter.value   = spin_Box->value()*coeff;
-							if(value_Type == MIN)	regular_Parameter.fit.min = spin_Box->value()*coeff;
-							if(value_Type == MAX)	regular_Parameter.fit.max = spin_Box->value()*coeff;
-
-							if(whats_This == whats_This_Sigma)
+							for(Interlayer& interlayer : parent_Data.regular_Components[i].components[n].interlayer_Composition)
 							{
-								for(Interlayer& interlayer : parent_Data.regular_Components[i].components[n].interlayer_Composition)
-								{
-									interlayer.my_Sigma.value   = parent_Data.regular_Components[i].components[n].sigma.value;
-									interlayer.my_Sigma.fit.min = parent_Data.regular_Components[i].components[n].sigma.fit.min;
-									interlayer.my_Sigma.fit.max = parent_Data.regular_Components[i].components[n].sigma.fit.max;
-								}
+								interlayer.my_Sigma.value   = parent_Data.regular_Components[i].components[n].sigma.value;
+								interlayer.my_Sigma.fit.min = parent_Data.regular_Components[i].components[n].sigma.fit.min;
+								interlayer.my_Sigma.fit.max = parent_Data.regular_Components[i].components[n].sigma.fit.max;
 							}
-
 						}
-
-						parent_Data.regular_Components[i].find_Min_Max_Values();
-
-						QVariant var;
-						var.setValue( parent_Data );
-						structure_Item->parent()->setData(DEFAULT_COLUMN, Qt::UserRole, var);
-
-						break;
 					}
+
+					parent_Data.regular_Components[i].find_Min_Max_Values();
+
+					QVariant var;
+					var.setValue( parent_Data );
+					structure_Item->parent()->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+
+					break;
 				}
-				emit regular_Layer_Edited(whats_This+value_Type);
 			}
+			Global_Variables::change_Parent_Period_Gamma_Thickness(structure_Item);
+			emit regular_Layer_Edited(whats_This+value_Type);
 		}
 	}
 	{
@@ -3559,17 +3508,16 @@ void Table_Of_Structures::refresh_Fit_Parameter(bool)
 }
 
 void Table_Of_Structures::reload_From_Regular_Aperiodic()
-{
+{	
 	if(table_Is_Created)
 	{
 		// reloading for widgets on current tab
 		int current_Tab_Index = main_Tabs->currentIndex();
-
 		for(int i=0; i<regular_Aperiodic_Widgets_To_Reload[current_Tab_Index].size(); ++i)
 		{
 			QWidget* widget_To_Reload = regular_Aperiodic_Widgets_To_Reload[current_Tab_Index][i];
 
-			// do not reload disabled widgets
+			// reload even disabled widgets!
 			if(widget_To_Reload->property(enabled_Property).toBool())
 			{
 				widget_To_Reload->setProperty(reload_Property, true);
@@ -3585,8 +3533,11 @@ void Table_Of_Structures::reload_From_Regular_Aperiodic()
 				{
 					spin_Box->valueChanged(spin_Box->value());
 					Global_Variables::resize_Line_Edit(spin_Box);
+					reload_Related_Widgets(spin_Box);
 				}
 				widget_To_Reload->setProperty(reload_Property, false);
+			} else {
+				reload_Related_Widgets(widget_To_Reload);
 			}
 		}
 	}
@@ -4007,44 +3958,46 @@ void Table_Of_Structures::reload_Related_Widgets(QObject* sender)
 {
 	if(table_Is_Created)
 	{
-//		qInfo() << "reload_Related_Widgets " << ++temp_Counter_1;
 		for(id_Type id : reload_Show_Dependence_Map.values(qobject_cast<QWidget*>(sender)))
 		{
 			for(QWidget* related: reload_Show_Dependence_Map.keys(id))
 			{
 				if(related != sender)
 				{
-					related->setProperty(reload_Property, true);
+					if(related->property(enabled_Property).toBool())
+					{
+						related->setProperty(reload_Property, true);
 
-					QLabel*				label = qobject_cast<QLabel*>		  (related);
-					QCheckBox*		check_Box = qobject_cast<QCheckBox*>	  (related);
-					QLineEdit*		line_Edit = qobject_cast<QLineEdit*>	  (related);
-					MyDoubleSpinBox* spin_Box = qobject_cast<MyDoubleSpinBox*>(related);
-					QComboBox*		combo_Box = qobject_cast<QComboBox*>	  (related);
+						QLabel*				label = qobject_cast<QLabel*>		  (related);
+						QCheckBox*		check_Box = qobject_cast<QCheckBox*>	  (related);
+						QLineEdit*		line_Edit = qobject_cast<QLineEdit*>	  (related);
+						MyDoubleSpinBox* spin_Box = qobject_cast<MyDoubleSpinBox*>(related);
+						QComboBox*		combo_Box = qobject_cast<QComboBox*>	  (related);
 
-					if(label)
-					{
-						label->windowTitleChanged("temp");
-					}
-					if(check_Box)
-					{
-						check_Box->toggled(check_Box->isChecked());
-					}
-					if(line_Edit)
-					{
-						line_Edit->textEdited("temp");
-						line_Edit->textEdited("temp");
-					}
-					if(spin_Box)
-					{
-						spin_Box->valueChanged(spin_Box->value());
-					}
-					if(combo_Box)
-					{
-						combo_Box->currentTextChanged("temp");
-					}
+						if(label)
+						{
+							label->windowTitleChanged("temp");
+						}
+						if(check_Box)
+						{
+							check_Box->toggled(check_Box->isChecked());
+						}
+						if(line_Edit)
+						{
+							line_Edit->textEdited("temp");
+							line_Edit->textEdited("temp");
+						}
+						if(spin_Box)
+						{
+							spin_Box->valueChanged(spin_Box->value());
+						}
+						if(combo_Box)
+						{
+							combo_Box->currentTextChanged("temp");
+						}
 
-					related->setProperty(reload_Property, false);
+						related->setProperty(reload_Property, false);
+					}
 				}
 			}
 		}

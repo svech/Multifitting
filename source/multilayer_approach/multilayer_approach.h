@@ -108,6 +108,7 @@ public:
 		Fitting_Settings* fitting_Settings;
 
 		QMap<id_Type, Regular_Aperiodic_Table*> runned_Regular_Aperiodic_Tables;
+		QList<Regular_Aperiodic_Table*> runned_Regular_Aperiodic_Tables_List;
 
 	int temp_Counter = 0;
 };

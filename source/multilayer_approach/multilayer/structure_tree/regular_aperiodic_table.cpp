@@ -7,6 +7,7 @@ Regular_Aperiodic_Table::Regular_Aperiodic_Table(QTreeWidgetItem *item, Multilay
 	QDialog(parent) // nullptr!
 {
 	global_Multilayer_Approach->runned_Regular_Aperiodic_Tables.insert(regular_Aperiodic_Data.id, this);
+	global_Multilayer_Approach->runned_Regular_Aperiodic_Tables_List.append(this);
 
 	setWindowTitle(Global_Variables::structure_Item_Name(regular_Aperiodic_Data));
 	create_Main_Layout();
@@ -49,13 +50,19 @@ void Regular_Aperiodic_Table::closeEvent(QCloseEvent *event)
 {
 	emit closed();
 	write_Window_Geometry();
-	global_Multilayer_Approach->runned_Regular_Aperiodic_Tables.remove(regular_Aperiodic_Data.id);
+	if(global_Multilayer_Approach->runned_Regular_Aperiodic_Tables.contains(regular_Aperiodic_Data.id))
+	{
+		global_Multilayer_Approach->runned_Regular_Aperiodic_Tables.remove(regular_Aperiodic_Data.id);
+		global_Multilayer_Approach->runned_Regular_Aperiodic_Tables_List.removeOne(this);
+	}
 	if(multilayer->structure_Tree->list_Editors.isEmpty() && !global_Multilayer_Approach->runned_Tables_Of_Structures.contains(table_Key))
 	{
 		multilayer->structure_Tree->unlock_Tree();
 	}
 	if(multilayer->structure_Tree->list_Editors.isEmpty() && global_Multilayer_Approach->runned_Regular_Aperiodic_Tables.isEmpty())
+	{
 		event->accept();
+	}
 }
 
 void Regular_Aperiodic_Table::dragEnterEvent(QDragEnterEvent *event)
@@ -670,9 +677,12 @@ void Regular_Aperiodic_Table::refresh_Regular_Component(Data& current_Layer, int
 					regular_Aperiodic_Data.regular_Components[i].components[n].thickness.value = parameter.value;
 
 					int position = n*regular_Aperiodic_Data.regular_Components.size() + i;
-					thickness_Spinboxes_List[position]->blockSignals(true);
-					thickness_Spinboxes_List[position]->setValue(parameter.value);
-					thickness_Spinboxes_List[position]->blockSignals(false);
+					if(thickness_Spinboxes_List[position]!=spin_Box)
+					{
+						thickness_Spinboxes_List[position]->blockSignals(true);
+						thickness_Spinboxes_List[position]->setValue(parameter.value);
+						thickness_Spinboxes_List[position]->blockSignals(false);
+					}
 				}
 
 				Data child = item->child(i)->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
@@ -695,9 +705,12 @@ void Regular_Aperiodic_Table::refresh_Regular_Component(Data& current_Layer, int
 					}
 
 					int position = n*regular_Aperiodic_Data.regular_Components.size() + i;
-					sigma_Spinboxes_List[position]->blockSignals(true);
-					sigma_Spinboxes_List[position]->setValue(parameter.value);
-					sigma_Spinboxes_List[position]->blockSignals(false);
+					if(sigma_Spinboxes_List[position]!=spin_Box)
+					{
+						sigma_Spinboxes_List[position]->blockSignals(true);
+						sigma_Spinboxes_List[position]->setValue(parameter.value);
+						sigma_Spinboxes_List[position]->blockSignals(false);
+					}
 				}
 
 				Data child = item->child(i)->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
@@ -717,6 +730,9 @@ void Regular_Aperiodic_Table::refresh_Regular_Component(Data& current_Layer, int
 		}
 		regular_Aperiodic_Data.regular_Components[i].find_Min_Max_Values();
 		save();
+		if(whats_This == whats_This_Thickness)	{
+			Global_Variables::change_Parent_Period_Gamma_Thickness(item);
+		}
 		emit_Regular_Aperiodic_Edited();
 	}
 

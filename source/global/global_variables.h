@@ -237,6 +237,7 @@ public:
 
 	template <typename Type>
 	static void resize_Line_Edit(Type* input_Line_Edit, bool adjust_Window = true);
+	static void change_Parent_Period_Gamma_Thickness(QTreeWidgetItem *current_Item);
 };
 
 #endif // GLOBAL_VARIABLES_H

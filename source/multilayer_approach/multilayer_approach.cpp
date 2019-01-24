@@ -594,11 +594,6 @@ void Multilayer_Approach::open(QString filename)
 		runned_Fits_Selectors.value(fits_Selector_Key)->close();
 	}
 
-	// close aperiodic tables
-	for(Regular_Aperiodic_Table* regular_Aperiodic_Table: runned_Regular_Aperiodic_Tables) {
-		regular_Aperiodic_Table->close();
-	}
-
 	// close target editors
 	for(int i=0; i<multilayer_Tabs->count(); ++i)
 	{
@@ -607,6 +602,11 @@ void Multilayer_Approach::open(QString filename)
 		{
 			target_Curve_Editor->close();
 		}
+	}
+
+	// close aperiodic tables
+	for(Regular_Aperiodic_Table* regular_Aperiodic_Table: runned_Regular_Aperiodic_Tables_List) {
+		regular_Aperiodic_Table->close();
 	}
 
 	// read previous id

@@ -339,10 +339,11 @@ class Node;
 #define previous_Value_Property			"previous_Value"
 #define fit_Column_Property				"fit_Column_Property"
 
-#define refresh_Property	"refresh"
-#define reload_Property		"reload"
-#define colorize_Property	"colorize"
-#define enabled_Property	"enabled"
+#define refresh_Property		"refresh"
+#define reload_Property			"reload"
+#define forced_Reload_Property	"forced reload"
+#define colorize_Property		"colorize"
+#define enabled_Property		"enabled"
 
 // first group
 #define relative_Rows_To_Disable_Start_Property		"relative_Rows_To_Disable_Start"
