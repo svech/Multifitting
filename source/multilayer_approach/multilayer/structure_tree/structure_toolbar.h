@@ -35,7 +35,22 @@ public:
 	void destroy		 ();
 	void export_Structure();
 
-	void print_Data(QTextStream& out,const Data& struct_Data);
+	int material_Width;
+	int thickness_Width;
+	int sigma_Width;
+	int density_Width;
+	QString thickness_units = "A";
+	QString empty_Thickness_units = " ";
+	QString absolute_Density_Units = "g/cm3";
+	QString relative_Density_Units = "r.u.";
+	int thickness_Precision = 3;
+	int sigma_Precision = 3;
+	int density_Precision = 3;
+
+	void iterate_Over_Tree(QTextStream& out, QTreeWidgetItem* parent_Item, QString parent_Index_String = "");
+	void print_Structure_Header(QTextStream& out);
+	void look_Over_Tree();
+	void print_Structure_Item(QTextStream& out, QTreeWidgetItem* structure_Item, QString current_Index_String, int item_Depth, int item_Index);
 
 	bool ask_Parent_Multilayer();
 	void if_Selected();

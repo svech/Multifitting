@@ -628,6 +628,9 @@ void Structure_Toolbar::destroy()
 
 void Structure_Toolbar::export_Structure()
 {
+	// point as decimal separator
+	Locale=QLocale::c();
+
 	QString tab_Text = "";
 	int index = -2019;
 	for(int i=0; i<global_Multilayer_Approach->multilayer_Tabs->count(); ++i)
@@ -636,34 +639,20 @@ void Structure_Toolbar::export_Structure()
 		if(multilayer == structure_Tree->multilayer)
 		{
 			tab_Text = global_Multilayer_Approach->multilayer_Tabs->tabText(i);
-			index = i;
+			index = i+1;
 		}
 	}
-	QString name = "structure_"+Locale.toString(index)+tab_Text+".txt";
+	QString name = "structure_"+Locale.toString(index)+"_"+tab_Text+".txt";
 	QFile file(name);
 	if (file.open(QIODevice::WriteOnly))
 	{
 		QTextStream out(&file);
 		out.setFieldAlignment(QTextStream::AlignLeft);
 
-		// iteration over tree
-		std::cout << std::endl;
-		QTreeWidgetItemIterator it(structure_Tree->tree);
-		while (*it)
-		{
-			QTreeWidgetItem* structure_Item = *it;
-
-			// depth
-			int item_Depth = Global_Variables::get_Item_Depth(structure_Item);
-			for(int y=0; y<item_Depth-1; y++) {	std::cout << "\t";}
-
-			const Data struct_Data = structure_Item->data(DEFAULT_COLUMN,Qt::UserRole).value<Data>();
-			std::cout << struct_Data.item_Type.toStdString() << std::endl;
-
-//			print_Data(QTextStream& out, const Data& struct_Data)
-
-			++it;
-		}
+		look_Over_Tree();
+		print_Structure_Header(out);
+		iterate_Over_Tree(out, structure_Tree->tree->invisibleRootItem());
+		qInfo() << "structure saved as text :"<< name;
 
 		file.close();
 	} else
@@ -671,11 +660,283 @@ void Structure_Toolbar::export_Structure()
 		QMessageBox::critical(nullptr, "Structure_Toolbar::export_Structure", "Can't write file " + name);
 		exit(EXIT_FAILURE);
 	}
+
+	// export all regular aperiodics
+	int aperiodics_Counter = 1;
+	int index_Width = 8;
+	int my_material_Width = max(material_Width,10);
+	int my_thickness_Width = max(thickness_Width+thickness_Precision+1,8);
+	int my_sigma_Width = max(sigma_Width+sigma_Precision+1,7);
+
+	QTreeWidgetItemIterator it(structure_Tree->tree);
+	while (*it)
+	{
+		QTreeWidgetItem* structure_Item = *it;
+		const Data struct_Data = structure_Item->data(DEFAULT_COLUMN,Qt::UserRole).value<Data>();
+		if(struct_Data.item_Type == item_Type_Regular_Aperiodic)
+		{
+			QString name = "structure_"+Locale.toString(index)+"_"+tab_Text+"_Aperiodic_#"+QString::number(aperiodics_Counter)+".txt";
+			QFile file(name);
+			if (file.open(QIODevice::WriteOnly))
+			{
+				QTextStream out(&file);
+				out.setFieldAlignment(QTextStream::AlignLeft);
+
+				// header
+				QDateTime date_Time = QDateTime::currentDateTime();
+				out << date_Time.toString(";< dd.MM.yyyy | hh:mm:ss >") << qSetFieldWidth(0) << endl;
+				out << ";< Multifitting v."+QString::number(VERSION_MAJOR)+"."+QString::number(VERSION_MINOR)+"."+QString::number(VERSION_BUILD)+" >" << qSetFieldWidth(0) << endl;
+				out << qSetFieldWidth(index_Width) << ";index" << qSetFieldWidth(0) << " " << qSetFieldWidth(my_material_Width) << "material" << qSetFieldWidth(0);
+				out.setFieldAlignment(QTextStream::AlignRight);
+				out << qSetFieldWidth(my_thickness_Width-3) << "d ("      << qSetFieldWidth(0) << thickness_units << ")" << "    ";
+				out << qSetFieldWidth(my_sigma_Width+3)     << "sigma ("  << qSetFieldWidth(0) << thickness_units << ")";
+				out.setFieldAlignment(QTextStream::AlignLeft);
+				out	<< qSetFieldWidth(0) << endl;
+
+				// data
+				for(int n=0; n<struct_Data.num_Repetition.value(); n++)
+				{
+					for(int k=0; k<struct_Data.regular_Components.size(); k++)
+					{
+						const Data& regular_Data = struct_Data.regular_Components[k].components[n];
+
+						out << qSetFieldWidth(index_Width) << QString::number(n+1) << qSetFieldWidth(0) << " " << qSetFieldWidth(my_material_Width) << regular_Data.material << qSetFieldWidth(0);
+						out.setFieldAlignment(QTextStream::AlignRight);
+						out << qSetFieldWidth(my_thickness_Width) << Locale.toString(regular_Data.thickness.value,'f',thickness_Precision) << qSetFieldWidth(0) << "    ";
+						out << qSetFieldWidth(my_sigma_Width)     << Locale.toString(regular_Data.sigma.value,    'f',sigma_Precision)     << qSetFieldWidth(0);
+						out.setFieldAlignment(QTextStream::AlignLeft);
+						out	<< qSetFieldWidth(0) << endl;
+					}
+				}
+
+				file.close();
+			} else
+			{
+				QMessageBox::critical(nullptr, "Structure_Toolbar::export_Structure", "Can't write file " + name);
+				exit(EXIT_FAILURE);
+			}
+
+			aperiodics_Counter++;
+		}
+		++it;
+	}
+
+	// back to system locale
+	Locale = QLocale::system();
 }
 
-void Structure_Toolbar::print_Data(QTextStream& out, const Data& struct_Data)
+void Structure_Toolbar::iterate_Over_Tree(QTextStream& out, QTreeWidgetItem* parent_Item, QString parent_Index_String)
 {
+	int addition = 1;
+	if(parent_Item==structure_Tree->tree->invisibleRootItem()) addition=0;
+	int index = 0;
+	for(int i=0; i<parent_Item->childCount(); i++)
+	{
+		QString current_Index_String;
+		if(parent_Index_String=="") current_Index_String = QString::number(i+addition);
+		else						current_Index_String = parent_Index_String+"."+QString::number(i+addition);
 
+		QTreeWidgetItem* structure_Item = parent_Item->child(i);
+		int item_Depth = Global_Variables::get_Item_Depth(structure_Item);
+		const Data struct_Data = structure_Item->data(DEFAULT_COLUMN,Qt::UserRole).value<Data>();
+
+		if(struct_Data.item_Type!=item_Type_Ambient)
+		{
+			if(i>=1) if(parent_Item->child(i-1)->childCount()>0) index=0;
+			print_Structure_Item(out, structure_Item, current_Index_String, item_Depth, index);
+			index++;
+		}
+
+		// go deeper, if you need
+		if( struct_Data.item_Type==item_Type_Multilayer ||
+			struct_Data.item_Type==item_Type_General_Aperiodic)
+		{
+			iterate_Over_Tree(out, structure_Item, current_Index_String);
+		}
+		if( struct_Data.item_Type==item_Type_Regular_Aperiodic)
+		{
+			index = 0;
+			QString temp_Parent_Index_String = current_Index_String;
+			for(int n=0; n<struct_Data.num_Repetition.value(); n++)
+			{
+				for(int k=0; k<struct_Data.regular_Components.size(); k++)
+				{
+					const Data& regular_Data = struct_Data.regular_Components[k].components[n];
+
+					QTreeWidgetItem* temp_Item = new QTreeWidgetItem;
+					QVariant var; var.setValue( regular_Data );
+					temp_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+
+					current_Index_String = temp_Parent_Index_String+"."+QString::number(index+1);
+					print_Structure_Item(out, temp_Item, current_Index_String, item_Depth+1, index);
+					index++;
+
+					delete temp_Item;
+				}
+			}
+		}
+	}
+}
+
+void Structure_Toolbar::print_Structure_Header(QTextStream &out)
+{
+	QDateTime date_Time = QDateTime::currentDateTime();
+	out << date_Time.toString("< dd.MM.yyyy | hh:mm:ss >") << qSetFieldWidth(0) << endl;
+	out << "< Multifitting v."+QString::number(VERSION_MAJOR)+"."+QString::number(VERSION_MINOR)+"."+QString::number(VERSION_BUILD)+" >" << qSetFieldWidth(0) << endl;
+
+	// legend
+	out << "< legend: >" << qSetFieldWidth(0) << endl;
+	out << "\tN - number of elementary cells" << qSetFieldWidth(0) << endl;
+	out << "\td - period or thickness" << qSetFieldWidth(0) << endl;
+	out << "\ts - root-mean-square interface width (sigma)" << qSetFieldWidth(0) << endl;
+	out << "\tr - material density (rho), absolute or relative" << qSetFieldWidth(0) << endl;
+
+	// units
+//	out << "< units: >" << qSetFieldWidth(0) <<endl;
+//	out << "\tN - number of elementary cells" << qSetFieldWidth(0) <<endl;
+//	out << "\td - period or thickness" << qSetFieldWidth(0) <<endl;
+//	out << "\ts - root-mean-square interface width (sigma)" << qSetFieldWidth(0) <<endl;
+//	out << "\tr - material density (rho), absolute or relative" << qSetFieldWidth(0) <<endl;
+
+	out << "-------------------------------------------------------------------------------" << qSetFieldWidth(0) << endl << endl;
+}
+
+void Structure_Toolbar::look_Over_Tree()
+{
+	material_Width = 0;
+	thickness_Width = 0;
+	sigma_Width = 0;
+	density_Width = 0;
+
+	QTreeWidgetItemIterator it(structure_Tree->tree);
+	while (*it)
+	{
+		QTreeWidgetItem* structure_Item = *it;
+		const Data struct_Data = structure_Item->data(DEFAULT_COLUMN,Qt::UserRole).value<Data>();
+		if(struct_Data.item_Type == item_Type_Layer)
+		{
+			// material
+			material_Width = max(material_Width, struct_Data.material.size());
+
+			// density
+			QString density_String;
+			if(struct_Data.composed_Material)	density_String = QString::number(int(struct_Data.absolute_Density.value));
+			else								density_String = QString::number(int(struct_Data.relative_Density.value));
+			density_Width = max(density_Width, density_String.size());
+
+			// thickness_Width
+			QString thickness_String = QString::number(int(struct_Data.thickness.value));
+			thickness_Width = max(thickness_Width, thickness_String.size());
+
+			// sigma_Width
+			QString sigma_String = QString::number(int(struct_Data.sigma.value));
+			sigma_Width = max(sigma_Width, sigma_String.size());
+		}
+
+		if(struct_Data.item_Type == item_Type_Regular_Aperiodic)
+		{
+			for(int n=0; n<struct_Data.num_Repetition.value(); n++)
+			{
+				for(int k=0; k<struct_Data.regular_Components.size(); k++)
+				{
+					const Data& regular_Data = struct_Data.regular_Components[k].components[n];
+
+					// thickness_Width
+					QString thickness_String = QString::number(int(regular_Data.thickness.value));
+					thickness_Width = max(thickness_Width, thickness_String.size());
+
+					// sigma_Width
+					QString sigma_String = QString::number(int(regular_Data.sigma.value));
+					sigma_Width = max(sigma_Width, sigma_String.size());
+				}
+			}
+		}
+		++it;
+	}
+}
+
+void Structure_Toolbar::print_Structure_Item(QTextStream& out, QTreeWidgetItem* structure_Item, QString current_Index_String, int item_Depth, int item_Index)
+{
+	const Data struct_Data = structure_Item->data(DEFAULT_COLUMN,Qt::UserRole).value<Data>();
+
+	int index_Width = 7;
+	if(struct_Data.parent_Item_Type == NOPARENT) index_Width = 0;
+
+	int my_material_Width = material_Width;
+	int my_thickness_Width = thickness_Width+thickness_Precision+1;
+	int my_sigma_Width = sigma_Width+sigma_Precision+1;
+	int my_density_Width = density_Width+density_Precision+1;
+
+	QString temp_thickness_units = thickness_units;
+
+	bool if_Full = (item_Index%10==0);// || (struct_Data.parent_Item_Type == NOPARENT);
+	// indentation
+	for(int y=0; y<item_Depth-1; y++) {	out << "\t";}
+
+	if(struct_Data.item_Type == item_Type_Layer)
+	{
+		out << qSetFieldWidth(index_Width) << current_Index_String << qSetFieldWidth(0) << " " << qSetFieldWidth(my_material_Width) << struct_Data.material << qSetFieldWidth(0);
+		if(if_Full) {out << " : d=";	temp_thickness_units = thickness_units;}
+		else	    {out << "     "; 	temp_thickness_units = empty_Thickness_units;}
+		out.setFieldAlignment(QTextStream::AlignRight);
+		out << qSetFieldWidth(my_thickness_Width) << Locale.toString(struct_Data.thickness.value,'f',thickness_Precision)  << qSetFieldWidth(0) << " " << temp_thickness_units;
+		out.setFieldAlignment(QTextStream::AlignLeft);
+		if(if_Full) {out << "   s=";}
+		else	    {out << "     ";}
+		out.setFieldAlignment(QTextStream::AlignRight);
+		out << qSetFieldWidth(my_sigma_Width) << Locale.toString(struct_Data.sigma.value,'f',sigma_Precision)  << qSetFieldWidth(0) << " " << temp_thickness_units;
+		out.setFieldAlignment(QTextStream::AlignLeft);
+		if(if_Full) {out << "   r=";}
+		else	    {out << "     ";}
+		out.setFieldAlignment(QTextStream::AlignRight);
+		if(struct_Data.composed_Material) {
+		out	<< qSetFieldWidth(my_density_Width) << Locale.toString(struct_Data.absolute_Density.value,'f',density_Precision) << qSetFieldWidth(0) << " " << absolute_Density_Units;
+		} else {
+		out	<< qSetFieldWidth(my_density_Width) << Locale.toString(struct_Data.relative_Density.value,'f',density_Precision) << qSetFieldWidth(0) << " " << relative_Density_Units;
+		}
+		out.setFieldAlignment(QTextStream::AlignLeft);
+		out	<< qSetFieldWidth(0) << endl;
+	}
+	if(struct_Data.item_Type == item_Type_Substrate)
+	{
+		out << qSetFieldWidth(0) << current_Index_String << " Substrate " << qSetFieldWidth(my_material_Width) << struct_Data.material << qSetFieldWidth(0)
+			<< "   s="   << Locale.toString(struct_Data.sigma.value,'f',sigma_Precision) << " " << thickness_units;
+		if(struct_Data.composed_Material) {
+		out	<< "   r="   << Locale.toString(struct_Data.absolute_Density.value,'f',density_Precision) << " " << absolute_Density_Units;
+		} else {
+		out	<< "   r="   << Locale.toString(struct_Data.relative_Density.value,'f',density_Precision) << " " << relative_Density_Units;
+		}
+		out	<< qSetFieldWidth(0) << endl;
+	}
+	if(struct_Data.item_Type == item_Type_Multilayer)
+	{
+		out << qSetFieldWidth(0) << current_Index_String << qSetFieldWidth(0) << "  Periodic   ";
+		for(int i=structure_Item->childCount()-1; i>=0; i--)
+		{
+			const Data child_Data = structure_Item->child(i)->data(DEFAULT_COLUMN,Qt::UserRole).value<Data>();
+			if(child_Data.item_Type == item_Type_Layer)				out << child_Data.material;
+			if(child_Data.item_Type == item_Type_Multilayer)		out << "<periodic>";
+			if(child_Data.item_Type == item_Type_Regular_Aperiodic)	out << "<aperiodic>";
+			if(child_Data.item_Type == item_Type_General_Aperiodic)	out << "<aperiodic>";
+			if(i!=0) out << "/";
+		}
+		out << "   N="<< Locale.toString(struct_Data.num_Repetition.value()) << qSetFieldWidth(0) << endl;
+	}
+	if(struct_Data.item_Type == item_Type_Regular_Aperiodic)
+	{
+		out << qSetFieldWidth(0) << current_Index_String << qSetFieldWidth(0) << "  Aperiodic   ";
+		for(int i=structure_Item->childCount()-1; i>=0; i--)
+		{
+			const Data child_Data = structure_Item->child(i)->data(DEFAULT_COLUMN,Qt::UserRole).value<Data>();
+			out << child_Data.material;
+			if(i!=0) out << "/";
+		}
+		out << "   N="<< Locale.toString(struct_Data.num_Repetition.value()) << qSetFieldWidth(0) << endl;
+	}
+	if(struct_Data.item_Type == item_Type_General_Aperiodic)
+	{
+		out << qSetFieldWidth(0) << current_Index_String  << qSetFieldWidth(0) << "  Aperiodic  " << endl;
+	}
 }
 
 void Structure_Toolbar::if_Selected()
