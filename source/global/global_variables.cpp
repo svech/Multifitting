@@ -580,6 +580,22 @@ int Global_Variables::get_Number_Of_Items(QTreeWidget* tree)
 	return counter;
 }
 
+QTreeWidgetItem* Global_Variables::get_Item_From_Tree_By_Id(QTreeWidget* tree, id_Type id)
+{
+	QTreeWidgetItemIterator it(tree);
+	while (*it)
+	{
+		QTreeWidgetItem* structure_Item = *it;
+		if(structure_Item->data(DEFAULT_COLUMN,Qt::UserRole).value<Data>().id == id)
+		{
+			return structure_Item;
+		}
+		++it;
+	}
+	qInfo() << "Global_Variables::get_Item_From_Tree_By_Id  :  item for id" << id << "not found";
+	return nullptr;
+}
+
 int Global_Variables::get_Tree_Depth(QTreeWidgetItem* item)
 {
 	int depth = 0;

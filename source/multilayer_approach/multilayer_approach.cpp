@@ -338,6 +338,46 @@ void Multilayer_Approach::open_Regular_Aperiodic_Layers_Table(int tab_Index, QTr
 	}
 }
 
+void Multilayer_Approach::temporarily_Close_Regular_Aperiodics()
+{
+	rerun_Of_Regular_Aperiodic_Tables_List.clear();
+	for(Regular_Aperiodic_Table* regular_Aperiodic_Table: runned_Regular_Aperiodic_Tables_List) {
+
+		int tab_Index = -2019;
+		for(int i=0; i<multilayer_Tabs->count(); i++)
+		{
+			Multilayer* multilayer = qobject_cast<Multilayer*>(multilayer_Tabs->widget(i));
+			if(multilayer == regular_Aperiodic_Table->multilayer)	{tab_Index = i;}
+		}
+		Data item_Data = regular_Aperiodic_Table->item->data(DEFAULT_COLUMN,Qt::UserRole).value<Data>();
+		Regular_Aperiodic_Table_Launch lunch = {item_Data.id, tab_Index};
+		rerun_Of_Regular_Aperiodic_Tables_List.append(lunch);
+		regular_Aperiodic_Table->close();
+	}
+}
+
+void Multilayer_Approach::reopen_Regular_Aperiodics()
+{
+	for(Regular_Aperiodic_Table_Launch& lunch: rerun_Of_Regular_Aperiodic_Tables_List)
+	{
+		Multilayer* multilayer = qobject_cast<Multilayer*>(multilayer_Tabs->widget(lunch.tab_Index));
+		QTreeWidgetItem* structure_Item = Global_Variables::get_Item_From_Tree_By_Id(multilayer->structure_Tree->tree, lunch.item_Id);
+		Data struct_Data = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+
+		open_Regular_Aperiodic_Layers_Table(lunch.tab_Index, structure_Item);
+		if(table_Of_Structures)
+		{
+			Regular_Aperiodic_Table* regular_Aperiodic_Table = runned_Regular_Aperiodic_Tables.value(struct_Data.id);
+
+			disconnect(regular_Aperiodic_Table, &Regular_Aperiodic_Table::regular_Aperiodic_Edited, table_Of_Structures, &Table_Of_Structures::reload_From_Regular_Aperiodic);
+			   connect(regular_Aperiodic_Table, &Regular_Aperiodic_Table::regular_Aperiodic_Edited, table_Of_Structures, &Table_Of_Structures::reload_From_Regular_Aperiodic);
+
+			disconnect(table_Of_Structures, &Table_Of_Structures::regular_Layer_Edited, regular_Aperiodic_Table, &Regular_Aperiodic_Table::reload_All_Widgets);
+			   connect(table_Of_Structures, &Table_Of_Structures::regular_Layer_Edited, regular_Aperiodic_Table, &Regular_Aperiodic_Table::reload_All_Widgets);
+		}
+	}
+}
+
 void Multilayer_Approach::lock_Mainwindow_Interface()
 {
 	for(int i=0; i<multilayer_Tabs->count(); ++i)
@@ -605,9 +645,7 @@ void Multilayer_Approach::open(QString filename)
 	}
 
 	// close aperiodic tables
-	for(Regular_Aperiodic_Table* regular_Aperiodic_Table: runned_Regular_Aperiodic_Tables_List) {
-		regular_Aperiodic_Table->close();
-	}
+	temporarily_Close_Regular_Aperiodics();
 
 	// read previous id
 	in >> previous_ID;
@@ -837,6 +875,9 @@ void Multilayer_Approach::open(QString filename)
 	{
 		open_Fits_Selector();
 	}
+
+	// reopen aperiodic tables
+	reopen_Regular_Aperiodics();
 
 	file_Was_Opened_or_Saved = true;
 	last_file = filename;

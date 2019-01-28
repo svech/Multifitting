@@ -216,20 +216,29 @@ void Main_Calculation_Module::fitting_and_Confidence()
 			is_Load_Init_State_Trees = true;
 		}
 
-		// refresh table (anyway)
+		// close aperiodic tables
+		global_Multilayer_Approach->temporarily_Close_Regular_Aperiodics();
+
+		// refresh table and aperiodics (anyway)
 		if(global_Multilayer_Approach->runned_Tables_Of_Structures.contains(table_Key))
 		{
+			// close table
 			int active_Tab = global_Multilayer_Approach->table_Of_Structures->main_Tabs->currentIndex();
 			global_Multilayer_Approach->table_Of_Structures->close();
 
 			if(is_Load_Init_State_Trees) load_Init_State_Trees();
 
+			// reopen table
 			global_Multilayer_Approach->open_Table_Of_Structures();
 			global_Multilayer_Approach->table_Of_Structures->main_Tabs->setCurrentIndex(active_Tab);
+
 		} else
 		{
 			if(is_Load_Init_State_Trees) load_Init_State_Trees();
 		}
+
+		// reopen aperiodic tables
+		global_Multilayer_Approach->reopen_Regular_Aperiodics();
 	}
 	/// --------------------------------------------------------------------------------------------------------------
 	/// confidence intervals from here
@@ -382,13 +391,15 @@ bool Main_Calculation_Module::reject()
 
 void Main_Calculation_Module::calc_Tree_Iteration(const tree<Node>::iterator& parent, bool fitables_Period_Gamma, bool confidentials_Period_Gamma)
 {
+	Data& parent_Data = parent.node->data.struct_Data;
+
 	// iterate over tree
 	for(unsigned i=0; i<parent.number_of_children(); ++i)
 	{
 		tree<Node>::pre_order_iterator child = tree<Node>::child(parent,i);
 		Data& struct_Data = child.node->data.struct_Data;
 
-		find_Fittable_Confidence_Parameters(struct_Data, child, fitables_Period_Gamma, confidentials_Period_Gamma);
+		find_Fittable_Confidence_Parameters(struct_Data, parent_Data, child, fitables_Period_Gamma, confidentials_Period_Gamma);
 
 		// check period and gamma
 		if( struct_Data.item_Type == item_Type_Multilayer ||
@@ -413,21 +424,34 @@ void Main_Calculation_Module::calc_Tree_Iteration(const tree<Node>::iterator& pa
 	}
 }
 
-void Main_Calculation_Module::find_Fittable_Confidence_Parameters(Data& struct_Data, const tree<Node>::iterator& parent, bool fitables_Period_Gamma, bool confidentials_Period_Gamma)
+void Main_Calculation_Module::find_Fittable_Confidence_Parameters(Data& struct_Data, const Data& parent_Data, const tree<Node>::iterator& current, bool fitables_Period_Gamma, bool confidentials_Period_Gamma)
 {
 	struct_Data.fill_Potentially_Fitable_Parameters_Vector();
 	for(Parameter* parameter : struct_Data.potentially_Fitable_Parameters)
 	{
 		// for my_Sigmas
 		if( parameter->indicator.whats_This == whats_This_Interlayer_My_Sigma && !struct_Data.common_Sigma )
-			parameter->fit.is_Fitable = struct_Data.sigma.fit.is_Fitable;
+		{	parameter->fit.is_Fitable = struct_Data.sigma.fit.is_Fitable; }
 
 		QString total_Name = "  " + Medium_BlackCircle_Sym + "  <" + multilayer_Tabs->tabText(parameter->indicator.tab_Index) + "> " + parameter->indicator.full_Name;
+
+		// for regular aperiodic: don't fit thickness of item-layer if not common thickness
+		if( parent_Data.item_Type == item_Type_Regular_Aperiodic )
+		{
+//			for()
+//			if()
+//			parent_Data
+			qInfo() << "parent:" << parent_Data.item_Type;
+			qInfo() << "child :" << struct_Data.item_Type;
+		}
+
 
 		// fitable and has no master
 		if(parameter->fit.is_Fitable && !parameter->coupled.master.exist)
 //		if(calc_Mode != CONFIDENCE || !parameter->confidence.calc_Conf_Interval) // only 1 confidential should be treated as non-fitable in CONFIDENCE mode at the same time
 		{
+			qInfo() << "fitable:" << parameter->indicator.full_Name << parameter->fit.is_Fitable;
+
 			// fixed
 			fitables.struct_Names 		.push_back(multilayer_Tabs->tabText(parameter->indicator.tab_Index));
 			fitables.param_Names		.push_back(parameter->indicator.full_Name);
@@ -436,7 +460,7 @@ void Main_Calculation_Module::find_Fittable_Confidence_Parameters(Data& struct_D
 			// changeable
 			fitables.param_Pointers		.push_back(parameter);
 			fitables.values_Parametrized.push_back(parametrize(parameter->value, parameter->fit.min, parameter->fit.max)); // will be recalculated at solver initialization
-			fitables.parent_Iterators	.push_back(parent);					// used for period and gamma only, but should be filled for all for the length purpose!
+			fitables.parent_Iterators	.push_back(current);					// used for period and gamma only, but should be filled for all for the length purpose!
 
 			/// for rejection
 
@@ -488,7 +512,7 @@ void Main_Calculation_Module::find_Fittable_Confidence_Parameters(Data& struct_D
 			// changeable
 			confidentials.param_Pointers  .push_back(parameter);
 			confidentials.values		  .push_back(parameter->value);
-			confidentials.parent_Iterators.push_back(parent);		// used for period and gamma only, but should be filled for all for the length purpose!
+			confidentials.parent_Iterators.push_back(current);		// used for period and gamma only, but should be filled for all for the length purpose!
 
 			/// for rejection
 

@@ -730,6 +730,8 @@ void Data::fill_Potentially_Fitable_Parameters_Vector()
 	///---------------------------------------------
 	// Measurement
 	//---------------------------------------------
+	if(item_Type == item_Type_Measurement)
+	{
 		// angle
 		potentially_Fitable_Parameters.push_back(&probe_Angle);
 		potentially_Fitable_Parameters.push_back(&angular_Resolution);
@@ -746,10 +748,15 @@ void Data::fill_Potentially_Fitable_Parameters_Vector()
 		potentially_Fitable_Parameters.push_back(&beam_Profile_Spreading);
 		potentially_Fitable_Parameters.push_back(&sample_Size);
 		potentially_Fitable_Parameters.push_back(&sample_Shift);
+	}
 	///---------------------------------------------
 	///---------------------------------------------
 	// Ambient, Layer, Substrate
 	//---------------------------------------------
+	if( item_Type == item_Type_Ambient ||
+		item_Type == item_Type_Layer   ||
+		item_Type == item_Type_Substrate )
+	{
 		if(!composed_Material)
 			potentially_Fitable_Parameters.push_back(&relative_Density);
 		else
@@ -767,10 +774,14 @@ void Data::fill_Potentially_Fitable_Parameters_Vector()
 				potentially_Fitable_Parameters.push_back(&stoichiometry.composition);
 			}
 		}
+	}
 	///---------------------------------------------
 	///---------------------------------------------
 	// Layer, Substrate
 	//---------------------------------------------
+	if( item_Type == item_Type_Layer   ||
+		item_Type == item_Type_Substrate )
+	{
 		int enabled_Counter=0;
 		for(Interlayer& interlayer : interlayer_Composition)
 		{
@@ -785,12 +796,14 @@ void Data::fill_Potentially_Fitable_Parameters_Vector()
 		}
 
 		if(common_Sigma && enabled_Counter>0)
-			potentially_Fitable_Parameters.push_back(&sigma);
-
+		{	potentially_Fitable_Parameters.push_back(&sigma); }
+	}
 	///---------------------------------------------
 	///---------------------------------------------
 	// Layer
 	//---------------------------------------------
+	if( item_Type == item_Type_Layer )
+	{
 		potentially_Fitable_Parameters.push_back(&thickness);
 
 		// thickness drift
@@ -819,15 +832,36 @@ void Data::fill_Potentially_Fitable_Parameters_Vector()
 		}
 
 		if(sigma_Drift.is_Drift_Rand)
-			potentially_Fitable_Parameters.push_back(&sigma_Drift.drift_Rand_Rms);
+		{	potentially_Fitable_Parameters.push_back(&sigma_Drift.drift_Rand_Rms); }
+	}
 
 	///---------------------------------------------
 	///---------------------------------------------
 	// Multilayer
 	//---------------------------------------------
+	if( item_Type == item_Type_Multilayer )
+	{
 		potentially_Fitable_Parameters.push_back(&num_Repetition.parameter);
 		potentially_Fitable_Parameters.push_back(&period);
 		potentially_Fitable_Parameters.push_back(&gamma);
+	}
+
+	///---------------------------------------------
+	///---------------------------------------------
+	// Regular Aperiodic
+	//---------------------------------------------
+	if( item_Type == item_Type_Regular_Aperiodic )
+	{
+		for(int i=0; i<regular_Components.size(); i++)
+		{
+			for(int n=0; n<num_Repetition.value(); n++)
+			{
+				Data& regular_Data = regular_Components[i].components[n];
+				potentially_Fitable_Parameters.push_back(&regular_Data.thickness);
+				potentially_Fitable_Parameters.push_back(&regular_Data.sigma);
+			}
+		}
+	}
 }
 
 void Data::prepare_Layer_For_Regular_Component()

@@ -222,6 +222,7 @@ public:
 	static void fill_Units_Maps();
 	static int get_Item_Depth(QTreeWidgetItem* item);
 	static int get_Number_Of_Items(QTreeWidget* tree);
+	static QTreeWidgetItem* get_Item_From_Tree_By_Id(QTreeWidget* tree, id_Type id);
 	static int get_Tree_Depth(QTreeWidgetItem* item);
 	static QString structure_Item_Name(const Data& struct_Data);
 	static QString parameter_Name(const Data& struct_Data, QString whats_This, int index = -1);

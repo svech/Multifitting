@@ -22,6 +22,12 @@ class Fitting_Settings;
 class Optical_Graphs;
 class Regular_Aperiodic_Table;
 
+struct Regular_Aperiodic_Table_Launch
+{
+	id_Type item_Id = -2019;
+	int tab_Index = -2019;
+};
+
 class Multilayer_Approach : public QWidget
 {
 	Q_OBJECT
@@ -52,6 +58,8 @@ public:
 	void open_Calculation_Settings();
 	void open_Fitting_Settings();
 	void open_Regular_Aperiodic_Layers_Table(int tab_Index, QTreeWidgetItem *item);
+	void temporarily_Close_Regular_Aperiodics();
+	void reopen_Regular_Aperiodics();
 	void lock_Mainwindow_Interface();
 	void unlock_Mainwindow_Interface();
 
@@ -109,6 +117,8 @@ public:
 
 		QMap<id_Type, Regular_Aperiodic_Table*> runned_Regular_Aperiodic_Tables;
 		QList<Regular_Aperiodic_Table*> runned_Regular_Aperiodic_Tables_List;
+
+		QList<Regular_Aperiodic_Table_Launch> rerun_Of_Regular_Aperiodic_Tables_List;
 
 	int temp_Counter = 0;
 };
