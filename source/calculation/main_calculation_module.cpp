@@ -399,7 +399,7 @@ void Main_Calculation_Module::calc_Tree_Iteration(const tree<Node>::iterator& pa
 		tree<Node>::pre_order_iterator child = tree<Node>::child(parent,i);
 		Data& struct_Data = child.node->data.struct_Data;
 
-		find_Fittable_Confidence_Parameters(struct_Data, parent_Data, child, fitables_Period_Gamma, confidentials_Period_Gamma);
+		find_Fittable_Confidence_Parameters(struct_Data, parent_Data, child, i, fitables_Period_Gamma, confidentials_Period_Gamma);
 
 		// check period and gamma
 		if( struct_Data.item_Type == item_Type_Multilayer ||
@@ -424,7 +424,7 @@ void Main_Calculation_Module::calc_Tree_Iteration(const tree<Node>::iterator& pa
 	}
 }
 
-void Main_Calculation_Module::find_Fittable_Confidence_Parameters(Data& struct_Data, const Data& parent_Data, const tree<Node>::iterator& current, bool fitables_Period_Gamma, bool confidentials_Period_Gamma)
+void Main_Calculation_Module::find_Fittable_Confidence_Parameters(Data& struct_Data, const Data& parent_Data, const tree<Node>::iterator& current, int child_Index, bool fitables_Period_Gamma, bool confidentials_Period_Gamma)
 {
 	struct_Data.fill_Potentially_Fitable_Parameters_Vector();
 	for(Parameter* parameter : struct_Data.potentially_Fitable_Parameters)
@@ -435,75 +435,83 @@ void Main_Calculation_Module::find_Fittable_Confidence_Parameters(Data& struct_D
 
 		QString total_Name = "  " + Medium_BlackCircle_Sym + "  <" + multilayer_Tabs->tabText(parameter->indicator.tab_Index) + "> " + parameter->indicator.full_Name;
 
-		// for regular aperiodic: don't fit thickness of item-layer if not common thickness
-		if( parent_Data.item_Type == item_Type_Regular_Aperiodic )
-		{
-//			for()
-//			if()
-//			parent_Data
-			qInfo() << "parent:" << parent_Data.item_Type;
-			qInfo() << "child :" << struct_Data.item_Type;
-		}
-
-
 		// fitable and has no master
 		if(parameter->fit.is_Fitable && !parameter->coupled.master.exist)
 //		if(calc_Mode != CONFIDENCE || !parameter->confidence.calc_Conf_Interval) // only 1 confidential should be treated as non-fitable in CONFIDENCE mode at the same time
 		{
-			qInfo() << "fitable:" << parameter->indicator.full_Name << parameter->fit.is_Fitable;
+			bool go = true;
 
-			// fixed
-			fitables.struct_Names 		.push_back(multilayer_Tabs->tabText(parameter->indicator.tab_Index));
-			fitables.param_Names		.push_back(parameter->indicator.full_Name);
-			fitables.param_IDs			.push_back(parameter->indicator.id);
-
-			// changeable
-			fitables.param_Pointers		.push_back(parameter);
-			fitables.values_Parametrized.push_back(parametrize(parameter->value, parameter->fit.min, parameter->fit.max)); // will be recalculated at solver initialization
-			fitables.parent_Iterators	.push_back(current);					// used for period and gamma only, but should be filled for all for the length purpose!
-
-			/// for rejection
-
-			// sigma value is close to zero
-			if(parameter->indicator.whats_This == whats_This_Interlayer_My_Sigma || parameter->indicator.whats_This == whats_This_Sigma)
-			if(struct_Data.sigma.value < 0.1)
-			if(!fit_Rejected_Sigmas.param_IDs.contains(struct_Data.sigma.indicator.id))
+			// for regular aperiodic: don't fit thickness/sigma of item-layer if not common thickness/sigma
+			if(parent_Data.item_Type == item_Type_Regular_Aperiodic)
 			{
-				fit_Rejected_Sigmas.param_IDs.push_back(struct_Data.sigma.indicator.id);
-				fit_Rejected_Sigmas.param_Names.push_back("  " + Medium_BlackCircle_Sym + "  <" + multilayer_Tabs->tabText(struct_Data.sigma.indicator.tab_Index) + "> " + struct_Data.sigma.indicator.full_Name);
+				if(!parent_Data.regular_Components[child_Index].is_Common_Thickness && parameter->indicator.whats_This == whats_This_Thickness) 	{ go = false; }
+				if(!parent_Data.regular_Components[child_Index].is_Common_Sigma     && parameter->indicator.whats_This == whats_This_Sigma) 	    { go = false; }
 			}
 
-			// forbid fitting internal thicknesses and periods if overlying period or gamma are fitables
-			if(fitables_Period_Gamma)
-			if(parameter->indicator.whats_This == whats_This_Thickness || parameter->indicator.whats_This == whats_This_Period)
+			if(go)
 			{
-				fit_Rejected_Thicknesses_and_Periods.param_Names.push_back(total_Name);
-			}
+				qInfo() << "fitable:" << parameter->indicator.full_Name << parameter->fit.is_Fitable << "parent" << parent_Data.item_Type;
 
-			// forbid calculating interval for outer period or gamma if inner thickness or period are fitables
-			if(confidentials_Period_Gamma)
-			if(parameter->indicator.whats_This == whats_This_Thickness || parameter->indicator.whats_This == whats_This_Period)
-			{ // qLineEdit.setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT)
-				confidentials_Rejected_Thicknesses_and_Periods.param_Names.push_back(total_Name);
-			}
+				// fixed
+				fitables.struct_Names 		.push_back(multilayer_Tabs->tabText(parameter->indicator.tab_Index));
+				fitables.param_Names		.push_back(parameter->indicator.full_Name);
+				fitables.param_IDs			.push_back(parameter->indicator.id);
 
-			// period value == 0
-			if(parameter->indicator.whats_This == whats_This_Period)
-			if(abs(parameter->value) < DBL_MIN)
-			{
-				fit_Rejected_Periods.param_Names.push_back(total_Name);
-			}
+				// changeable
+				fitables.param_Pointers		.push_back(parameter);
+				fitables.values_Parametrized.push_back(parametrize(parameter->value, parameter->fit.min, parameter->fit.max)); // will be recalculated at solver initialization
+				fitables.parent_Iterators	.push_back(current);					// used for period and gamma only, but should be filled for all for the length purpose!
 
-			// min>=max
-			if(parameter->fit.min>=parameter->fit.max)
-			{
-				fit_Rejected_Min_Max.param_Names.push_back(total_Name);
+				/// for rejection
+
+				// sigma value is close to zero
+				Parameter sigma_Parameter;
+				if(parameter->indicator.whats_This == whats_This_Interlayer_My_Sigma) sigma_Parameter = struct_Data.sigma;
+				if(parameter->indicator.whats_This == whats_This_Sigma) sigma_Parameter = *parameter;
+
+				if(parameter->indicator.whats_This == whats_This_Interlayer_My_Sigma || parameter->indicator.whats_This == whats_This_Sigma)
+				if(sigma_Parameter.value < 0.1)
+				if(!fit_Rejected_Sigmas.param_IDs.contains(sigma_Parameter.indicator.id))
+				{
+					fit_Rejected_Sigmas.param_IDs.push_back(sigma_Parameter.indicator.id);
+					fit_Rejected_Sigmas.param_Names.push_back("  " + Medium_BlackCircle_Sym + "  <" + multilayer_Tabs->tabText(sigma_Parameter.indicator.tab_Index) + "> " + sigma_Parameter.indicator.full_Name);
+				}
+
+				// forbid fitting internal thicknesses and periods if overlying period or gamma are fitables
+				if(fitables_Period_Gamma)
+				if(parameter->indicator.whats_This == whats_This_Thickness || parameter->indicator.whats_This == whats_This_Period)
+				{
+					fit_Rejected_Thicknesses_and_Periods.param_Names.push_back(total_Name);
+				}
+
+				// forbid calculating interval for outer period or gamma if inner thickness or period are fitables
+				if(confidentials_Period_Gamma)
+				if(parameter->indicator.whats_This == whats_This_Thickness || parameter->indicator.whats_This == whats_This_Period)
+				{ // qLineEdit.setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT)
+					confidentials_Rejected_Thicknesses_and_Periods.param_Names.push_back(total_Name);
+				}
+
+				// period value == 0
+				if(parameter->indicator.whats_This == whats_This_Period)
+				if(abs(parameter->value) < DBL_MIN)
+				{
+					fit_Rejected_Periods.param_Names.push_back(total_Name);
+				}
+
+				// min>=max
+				if(parameter->fit.min>=parameter->fit.max)
+				{
+					fit_Rejected_Min_Max.param_Names.push_back(total_Name);
+				}
 			}
 		}
 
 		// confidential
 		if(calc_Mode == CONFIDENCE && parameter->confidence.calc_Conf_Interval)
 		{
+			// TODO if regular aperiodic
+			UNUSED("fghfghdghdghdfghdghdghdgh");
+
 			// fixed
 			confidentials.struct_Names	  .push_back(multilayer_Tabs->tabText(parameter->indicator.tab_Index));
 			confidentials.param_Names	  .push_back(parameter->indicator.full_Name);

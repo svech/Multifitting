@@ -157,6 +157,9 @@ void Fits_Selector::open_Fit()
 	bool opened = false;
 	int index = fits_List->currentRow();
 
+	// close aperiodic tables
+	global_Multilayer_Approach->temporarily_Close_Regular_Aperiodics();
+
 	// close table
 	bool table_Was_Opened = false;
 	int active_Table_Tab = -2018;
@@ -205,6 +208,9 @@ void Fits_Selector::open_Fit()
 		global_Multilayer_Approach->open_Table_Of_Structures();
 		global_Multilayer_Approach->table_Of_Structures->main_Tabs->setCurrentIndex(active_Table_Tab);
 	}
+
+	// reopen aperiodic tables
+	global_Multilayer_Approach->reopen_Regular_Aperiodics();
 
 	// recalculate and replot
 	if(opened)

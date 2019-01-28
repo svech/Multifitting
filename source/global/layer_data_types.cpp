@@ -857,8 +857,8 @@ void Data::fill_Potentially_Fitable_Parameters_Vector()
 			for(int n=0; n<num_Repetition.value(); n++)
 			{
 				Data& regular_Data = regular_Components[i].components[n];
-				potentially_Fitable_Parameters.push_back(&regular_Data.thickness);
-				potentially_Fitable_Parameters.push_back(&regular_Data.sigma);
+				if(!regular_Components[i].is_Common_Thickness) {potentially_Fitable_Parameters.push_back(&regular_Data.thickness);}
+				if(!regular_Components[i].is_Common_Sigma)	   {potentially_Fitable_Parameters.push_back(&regular_Data.sigma);}
 			}
 		}
 	}
