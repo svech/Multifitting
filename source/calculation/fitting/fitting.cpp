@@ -232,6 +232,9 @@ void Fitting::calc_Residual(const gsl_vector* x, Fitting_Params* params, gsl_vec
 			fill_Residual(params, residual_Shift, target_Element, f, target_Index);
 			target_Index++;
 		}
+
+
+		// add restrictions here (to "f") (several additional points with factor N)
 	}
 
 	// aperiodic addition: difference between layers thicknesses

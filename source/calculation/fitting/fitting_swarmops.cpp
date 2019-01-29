@@ -53,10 +53,8 @@ SO_TFitness Fitting_SwarmOps::calc_Residual(SO_TElm* x,  void* context, SO_TFitn
 		gsl_vector_set(params->x, i, x[i]);
 	}
 
-	// calc f
-	Fitting::calc_Residual(params->x, params, params->f);
-
 	// calc residual
+	Fitting::calc_Residual(params->x, params, params->f);
 	gsl_blas_ddot(params->f, params->f, &params->final_Residual);
 
 	// duplicate SO functionality for aborting

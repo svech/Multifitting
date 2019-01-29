@@ -199,7 +199,7 @@ class Node;
 
 #define active "     Active"
 #define fit_Text "fit"
-#define expression_Master_Slave_Variable "x"
+#define expression_Master_Slave_Variable "x" // important! default internal dependence in regular aperiodic
 
 #define fit_Function_Separator ";"
 #define fit_Function_Variable "R"

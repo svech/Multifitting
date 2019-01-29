@@ -634,27 +634,11 @@ void Item_Editor::cell_Items_In_Regular_Aperiodic(QHBoxLayout *aperiodic_Group_B
 			item_Common_Sigma->setChecked(struct_Data.regular_Components[i].is_Common_Sigma);
 		common_Sigma_Layout->addWidget(item_Common_Sigma,0,Qt::AlignCenter);
 
-		connect(item_Common_Thickness, &QCheckBox::toggled, this, [=]
-		{
-			struct_Data.regular_Components[i].is_Common_Thickness = item_Common_Thickness->isChecked();
-			save_Data();
-
-			if(global_Multilayer_Approach->runned_Regular_Aperiodic_Tables.contains(struct_Data.id))			{
-				Regular_Aperiodic_Table* regular_Aperiodic_Table = global_Multilayer_Approach->runned_Regular_Aperiodic_Tables.value(struct_Data.id);
-					regular_Aperiodic_Table->colorize_Material();
-					regular_Aperiodic_Table->thickness_Spinboxes_List[i]->valueChanged(regular_Aperiodic_Table->thickness_Spinboxes_List[i]->value());
-			}
+		connect(item_Common_Thickness, &QCheckBox::toggled, this, [=]{
+			check_Item_Common_Thickness_Sigma(item_Common_Thickness, whats_This_Thickness, i);
 		});
-		connect(item_Common_Sigma,	   &QCheckBox::toggled, this, [=]
-		{
-			struct_Data.regular_Components[i].is_Common_Sigma = item_Common_Sigma->isChecked();
-			save_Data();
-
-			if(global_Multilayer_Approach->runned_Regular_Aperiodic_Tables.contains(struct_Data.id))			{
-				Regular_Aperiodic_Table* regular_Aperiodic_Table = global_Multilayer_Approach->runned_Regular_Aperiodic_Tables.value(struct_Data.id);
-					regular_Aperiodic_Table->colorize_Material();
-					regular_Aperiodic_Table->sigma_Spinboxes_List[i]->valueChanged(regular_Aperiodic_Table->sigma_Spinboxes_List[i]->value());
-			}
+		connect(item_Common_Sigma,	   &QCheckBox::toggled, this, [=]{
+			check_Item_Common_Thickness_Sigma(item_Common_Sigma, whats_This_Sigma, i);
 		});
 
 		// create additional restrictions
@@ -743,6 +727,119 @@ void Item_Editor::cell_Items_In_Regular_Aperiodic(QHBoxLayout *aperiodic_Group_B
 					regular_Aperiodic_Table->reload_All_Widgets("especially_wrong");
 			}
 		});
+
+		// set master/slaves for interlayer weights
+		{
+			for(int n=0; n<struct_Data.num_Repetition.value(); n++)
+			{
+				Data& regular_Data = struct_Data.regular_Components[i].components[n];
+
+				for(int inter_Index=0; inter_Index<current_Child_Data.interlayer_Composition.size(); inter_Index++)
+				{
+					// add to slave list (if still not)
+					if(!current_Child_Data.interlayer_Composition[inter_Index].interlayer.coupled.slaves.contains(regular_Data.interlayer_Composition[inter_Index].interlayer.indicator)) {
+						current_Child_Data.interlayer_Composition[inter_Index].interlayer.coupled.slaves.append  (regular_Data.interlayer_Composition[inter_Index].interlayer.indicator);
+					}
+					// set as master (if still not)
+					if(!(regular_Data.interlayer_Composition[inter_Index].interlayer.coupled.master == current_Child_Data.interlayer_Composition[inter_Index].interlayer.indicator)) {
+						 regular_Data.interlayer_Composition[inter_Index].interlayer.coupled.master =  current_Child_Data.interlayer_Composition[inter_Index].interlayer.indicator;
+						 regular_Data.interlayer_Composition[inter_Index].interlayer.coupled.master.exist = true;
+					}
+				}
+			}
+			QVariant var;
+			var.setValue( current_Child_Data );
+			current_Cell_Layer->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+		}
+		// thickness and sigma
+		item_Common_Thickness->toggled(item_Common_Thickness->isChecked());
+		item_Common_Sigma->toggled(item_Common_Sigma->isChecked());
+	}
+}
+
+void Item_Editor::check_Item_Common_Thickness_Sigma(QCheckBox* common_CheckBox, QString whats_This, int i)
+{
+	if(whats_This == whats_This_Thickness) struct_Data.regular_Components[i].is_Common_Thickness = common_CheckBox->isChecked();
+	if(whats_This == whats_This_Sigma)     struct_Data.regular_Components[i].is_Common_Sigma     = common_CheckBox->isChecked();
+
+	// set master/slaves thickness
+	{
+		QTreeWidgetItem* current_Cell_Layer = item->child(i);
+		Data current_Child_Data = current_Cell_Layer->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+
+		for(int n=0; n<struct_Data.num_Repetition.value(); n++)
+		{
+			Data& regular_Data = struct_Data.regular_Components[i].components[n];
+
+			if(whats_This == whats_This_Thickness)
+			{
+				// set slaves and master
+				if(struct_Data.regular_Components[i].is_Common_Thickness)
+				{
+					// add to slave list (if still not)
+					if(!current_Child_Data.thickness.coupled.slaves.contains(regular_Data.thickness.indicator)) {
+						current_Child_Data.thickness.coupled.slaves.append  (regular_Data.thickness.indicator);
+					}
+					// set as master (if still not)
+					if(!(regular_Data.thickness.coupled.master == current_Child_Data.thickness.indicator)) {
+						 regular_Data.thickness.coupled.master =  current_Child_Data.thickness.indicator;
+						 regular_Data.thickness.coupled.master.exist = true;
+					}
+				} else
+				// remove slaves and master
+				{
+					// remove from slave list (if still there)
+					if( current_Child_Data.thickness.coupled.slaves.contains (regular_Data.thickness.indicator)) {
+						current_Child_Data.thickness.coupled.slaves.removeOne(regular_Data.thickness.indicator);
+					}
+					// remove master (if still there)
+					if( regular_Data.thickness.coupled.master == current_Child_Data.thickness.indicator) {
+						regular_Data.thickness.coupled.master.id = 0;
+						regular_Data.thickness.coupled.master.exist = false;
+					}
+				}
+			}
+			if(whats_This == whats_This_Sigma)
+			{
+				// set slaves and master
+				if(struct_Data.regular_Components[i].is_Common_Sigma)
+				{
+					// add to slave list (if still not)
+					if(!current_Child_Data.sigma.coupled.slaves.contains(regular_Data.sigma.indicator)) {
+						current_Child_Data.sigma.coupled.slaves.append  (regular_Data.sigma.indicator);
+					}
+					// set as master (if still not)
+					if(!(regular_Data.sigma.coupled.master == current_Child_Data.sigma.indicator)) {
+						 regular_Data.sigma.coupled.master =  current_Child_Data.sigma.indicator;
+						 regular_Data.thickness.coupled.master.exist = true;
+					}
+				} else
+				// remove slaves and master
+				{
+					// remove from slave list (if still there)
+					if( current_Child_Data.sigma.coupled.slaves.contains (regular_Data.sigma.indicator)) {
+						current_Child_Data.sigma.coupled.slaves.removeOne(regular_Data.sigma.indicator);
+					}
+					// remove master (if still there)
+					if( regular_Data.sigma.coupled.master == current_Child_Data.sigma.indicator) {
+						regular_Data.sigma.coupled.master.id = 0;
+						regular_Data.sigma.coupled.master.exist = false;
+					}
+				}
+			}
+		}
+		QVariant var;
+		var.setValue( current_Child_Data );
+		current_Cell_Layer->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+	}
+	save_Data();
+
+	if(global_Multilayer_Approach->runned_Regular_Aperiodic_Tables.contains(struct_Data.id))
+	{
+		Regular_Aperiodic_Table* regular_Aperiodic_Table = global_Multilayer_Approach->runned_Regular_Aperiodic_Tables.value(struct_Data.id);
+			regular_Aperiodic_Table->colorize_Material();
+		if(whats_This == whats_This_Thickness) regular_Aperiodic_Table->thickness_Spinboxes_List[i]->valueChanged(regular_Aperiodic_Table->thickness_Spinboxes_List[i]->value());
+		if(whats_This == whats_This_Sigma)     regular_Aperiodic_Table->sigma_Spinboxes_List    [i]->valueChanged(regular_Aperiodic_Table->sigma_Spinboxes_List    [i]->value());
 	}
 }
 
@@ -974,6 +1071,12 @@ void Item_Editor::filename_Radio_Toggled()
 		material_Line_Edit->setDisabled(true);
 		density_Line_Edit->setDisabled(true);
 		browse_Material_Button->setDisabled(true);
+
+		for(int n=0; n<parent_Data.num_Repetition.value(); n++)
+		{
+			parent_Data.regular_Components[my_I].components[n].composed_Material = false;
+		}
+		save_Parent_Data();
 	}
 }
 
@@ -986,6 +1089,14 @@ void Item_Editor::composition_Radio_Toggled()
 
 	// composition or filename
 	struct_Data.composed_Material = true;
+	if(struct_Data.parent_Item_Type == item_Type_Regular_Aperiodic)
+	{
+		for(int n=0; n<parent_Data.num_Repetition.value(); n++)
+		{
+			parent_Data.regular_Components[my_I].components[n].composed_Material = true;
+		}
+		save_Parent_Data();
+	}
 
 	// add element row if no data
 	if(struct_Data.composition.size()==0)

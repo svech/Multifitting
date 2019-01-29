@@ -450,8 +450,6 @@ void Main_Calculation_Module::find_Fittable_Confidence_Parameters(Data& struct_D
 
 			if(go)
 			{
-				qInfo() << "fitable:" << parameter->indicator.full_Name << parameter->fit.is_Fitable << "parent" << parent_Data.item_Type;
-
 				// fixed
 				fitables.struct_Names 		.push_back(multilayer_Tabs->tabText(parameter->indicator.tab_Index));
 				fitables.param_Names		.push_back(parameter->indicator.full_Name);
@@ -509,9 +507,6 @@ void Main_Calculation_Module::find_Fittable_Confidence_Parameters(Data& struct_D
 		// confidential
 		if(calc_Mode == CONFIDENCE && parameter->confidence.calc_Conf_Interval)
 		{
-			// TODO if regular aperiodic
-			UNUSED("fghfghdghdghdfghdghdghdgh");
-
 			// fixed
 			confidentials.struct_Names	  .push_back(multilayer_Tabs->tabText(parameter->indicator.tab_Index));
 			confidentials.param_Names	  .push_back(parameter->indicator.full_Name);
@@ -624,10 +619,23 @@ void Main_Calculation_Module::find_Slave_Pointer_Calc_Tree_Iteration(const tree<
 		{
 			pointer = Global_Variables::get_Parameter_From_Struct_Item_by_Id(struct_Data, slave_Parameter_Indicator.id);
 		}
-
+		if(struct_Data.item_Type == item_Type_Regular_Aperiodic)
+		{
+			for(int k=0; k<struct_Data.regular_Components.size(); k++)
+			{
+				for(int n=0; n<struct_Data.num_Repetition.value(); n++)
+				{
+					Data& regular_Data = struct_Data.regular_Components[k].components[n];
+					if(regular_Data.id == slave_Parameter_Indicator.item_Id)
+					{
+						pointer = Global_Variables::get_Parameter_From_Struct_Item_by_Id(regular_Data, slave_Parameter_Indicator.id);
+					}
+				}
+			}
+		}
 		if( struct_Data.item_Type == item_Type_Multilayer ||
-			struct_Data.item_Type == item_Type_Regular_Aperiodic ||
-			struct_Data.item_Type == item_Type_General_Aperiodic )
+			struct_Data.item_Type == item_Type_General_Aperiodic ||
+			struct_Data.item_Type == item_Type_Regular_Aperiodic ) // regular aperiodic here too
 		{
 			find_Slave_Pointer_Calc_Tree_Iteration(child, slave_Parameter_Indicator, pointer);
 		}

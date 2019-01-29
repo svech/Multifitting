@@ -57,6 +57,7 @@ public:
 	void set_Window_Geometry();
 			void unique_Items_In_General_Aperiodic(QHBoxLayout* aperiodic_Group_Box_Layout);
 			void cell_Items_In_Regular_Aperiodic(QHBoxLayout* aperiodic_Group_Box_Layout);
+			void check_Item_Common_Thickness_Sigma(QCheckBox* common_CheckBox, QString whats_This, int i);
 			void transformations();
 			void lock_Interface();
 			void unlock_Interface();

@@ -1327,6 +1327,7 @@ void Table_Of_Structures::create_Stoich_Check_Box_Fit(My_Table_Widget* table, in
 		all_Widgets_To_Reload[tab_Index].append(check_Box);
 
 		// set up BACK widget
+		if(struct_Data.parent_Item_Type != item_Type_Regular_Aperiodic)
 		{
 			back_Widget->setProperty(coupling_Editor_Property, true);	// for opening Coupling_Editor
 			back_Widget->setProperty(fit_Text, fit_Text);				// for coloring
@@ -1337,7 +1338,11 @@ void Table_Of_Structures::create_Stoich_Check_Box_Fit(My_Table_Widget* table, in
 
 			// colorize
 			refresh_Reload_Colorize(colorize_Property, back_Widget, &comp);
+		}	else
+		{
+			back_Widget->setStyleSheet("background-color: lightblue");
 		}
+
 
 		// add widget to table
 		table->setCellWidget(current_Row, current_Column, back_Widget);
@@ -1444,15 +1449,21 @@ void Table_Of_Structures::create_Label(My_Table_Widget* table, int tab_Index, in
 	all_Widgets_To_Reload[tab_Index].append(label);
 
 	// set up BACK widget
-	if(parameter.indicator.id!=0 && whats_This!=whats_This_Num_Repetitions)
+	if(struct_Data.parent_Item_Type != item_Type_Regular_Aperiodic)
 	{
-		label->setProperty(coupling_Editor_Property, true);			// for opening Coupling_Editor
+		if(parameter.indicator.id!=0 && whats_This!=whats_This_Num_Repetitions)
+		{
+			label->setProperty(coupling_Editor_Property, true);			// for opening Coupling_Editor
 
-		coupled_Back_Widget_and_Struct_Item.insert(label, structure_Item);
-		coupled_Back_Widget_and_Id.			insert(label, parameter.indicator.id);
+			coupled_Back_Widget_and_Struct_Item.insert(label, structure_Item);
+			coupled_Back_Widget_and_Id.			insert(label, parameter.indicator.id);
 
-		// colorize
-		refresh_Reload_Colorize(colorize_Property, label, &parameter);
+			// colorize
+			refresh_Reload_Colorize(colorize_Property, label, &parameter);
+		} else
+		{
+			label->setStyleSheet("background-color: lightblue");
+		}
 	} else
 	{
 		label->setStyleSheet("background-color: lightblue");
@@ -1583,20 +1594,27 @@ void Table_Of_Structures::create_Check_Box_Label(My_Table_Widget* table, int tab
 	back_Layout->setAlignment(Qt::AlignCenter);
 
 	// set up BACK widget
-	if(parameter.indicator.id!=0)
+	if(struct_Data.parent_Item_Type != item_Type_Regular_Aperiodic)
 	{
-		back_Widget->setProperty(coupling_Editor_Property, true);		// for opening Coupling_Editor
-		all_Widgets_To_Reload[tab_Index].append(back_Widget);
+		if(parameter.indicator.id!=0)
+		{
+			back_Widget->setProperty(coupling_Editor_Property, true);		// for opening Coupling_Editor
+			all_Widgets_To_Reload[tab_Index].append(back_Widget);
 
-		coupled_Back_Widget_and_Struct_Item.insert(back_Widget, structure_Item);
-		coupled_Back_Widget_and_Id.			insert(back_Widget, parameter.indicator.id);
+			coupled_Back_Widget_and_Struct_Item.insert(back_Widget, structure_Item);
+			coupled_Back_Widget_and_Id.			insert(back_Widget, parameter.indicator.id);
 
-		// colorize
-		refresh_Reload_Colorize(colorize_Property, back_Widget, &parameter);
+			// colorize
+			refresh_Reload_Colorize(colorize_Property, back_Widget, &parameter);
+		} else
+		{
+			back_Widget->setStyleSheet("background-color: lightblue");
+		}
 	} else
 	{
 		back_Widget->setStyleSheet("background-color: lightblue");
 	}
+
 
 	connect(check_Box, &QCheckBox::toggled, this, [=]{cells_On_Off(table); });
 
@@ -2094,6 +2112,7 @@ void Table_Of_Structures::create_Check_Box_Label_Interlayer(My_Table_Widget* tab
 		back_Layout->setAlignment(Qt::AlignCenter);
 
 		// set up BACK widget
+		if(struct_Data.parent_Item_Type != item_Type_Regular_Aperiodic)
 		{
 			back_Widget->setProperty(coupling_Editor_Property, true);		// for opening Coupling_Editor
 			all_Widgets_To_Reload[tab_Index].append(back_Widget);
@@ -2103,6 +2122,9 @@ void Table_Of_Structures::create_Check_Box_Label_Interlayer(My_Table_Widget* tab
 
 			// colorize
 			refresh_Reload_Colorize(colorize_Property, back_Widget, &inter_Comp.interlayer);
+		} else
+		{
+			back_Widget->setStyleSheet("background-color: lightblue");
 		}
 
 		table->setCellWidget(current_Row, current_Column, back_Widget);
@@ -2260,6 +2282,7 @@ void Table_Of_Structures::create_MySigma_Labels_Interlayer(My_Table_Widget* tabl
 		all_Widgets_To_Reload[tab_Index].append(label);
 
 		// set up BACK widget
+		if(struct_Data.parent_Item_Type != item_Type_Regular_Aperiodic)
 		{
 			label->setProperty(coupling_Editor_Property, true);
 
@@ -2268,6 +2291,9 @@ void Table_Of_Structures::create_MySigma_Labels_Interlayer(My_Table_Widget* tabl
 
 			// colorize
 			refresh_Reload_Colorize(colorize_Property, label, &my_Sigma);
+		} else
+		{
+			label->setStyleSheet("background-color: lightblue");
 		}
 
 		table->setCellWidget(current_Row, current_Column, label);
@@ -3004,23 +3030,77 @@ void Table_Of_Structures::refresh_Check_Box_Header(bool)
 		{
 			Data parent_Data = structure_Item->parent()->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
 			int i = check_Box->property(index_Property).toInt();
-			if(whats_This == whats_This_Common_Thickness)	{
+			if(whats_This == whats_This_Common_Thickness)
+			{
 				parent_Data.regular_Components[i].is_Common_Thickness   = check_Box->isChecked();
-				if(check_Box->isChecked())
+
+				for(int n=0; n<parent_Data.num_Repetition.value(); n++)
 				{
-					for(int n=0; n<parent_Data.num_Repetition.value(); ++n)
+					Data& regular_Data = parent_Data.regular_Components[i].components[n];
+
+					if(parent_Data.regular_Components[i].is_Common_Thickness)
 					{
-						parent_Data.regular_Components[i].components[n].thickness.value = struct_Data.thickness.value;
+						// set common value
+						regular_Data.thickness.value = struct_Data.thickness.value;
+
+						// add to slave list (if still not)
+						if(!struct_Data.thickness.coupled.slaves.contains(regular_Data.thickness.indicator)) {
+							struct_Data.thickness.coupled.slaves.append  (regular_Data.thickness.indicator);
+						}
+						// set as master (if still not)
+						if(!(regular_Data.thickness.coupled.master == struct_Data.thickness.indicator)) {
+							 regular_Data.thickness.coupled.master =  struct_Data.thickness.indicator;
+							 regular_Data.thickness.coupled.master.exist = true;
+						}
+					} else
+					// remove slaves and master
+					{
+						// remove from slave list (if still there)
+						if( struct_Data.thickness.coupled.slaves.contains (regular_Data.thickness.indicator)) {
+							struct_Data.thickness.coupled.slaves.removeOne(regular_Data.thickness.indicator);
+						}
+						// remove master (if still there)
+						if( regular_Data.thickness.coupled.master == struct_Data.thickness.indicator) {
+							regular_Data.thickness.coupled.master.id = 0;
+							regular_Data.thickness.coupled.master.exist = false;
+						}
 					}
 				}
 			}
-			if(whats_This == whats_This_Common_Sigma)		{
+			if(whats_This == whats_This_Common_Sigma)
+			{
 				parent_Data.regular_Components[i].is_Common_Sigma       = check_Box->isChecked();
-				if(check_Box->isChecked())
+
+				for(int n=0; n<parent_Data.num_Repetition.value(); n++)
 				{
-					for(int n=0; n<parent_Data.num_Repetition.value(); ++n)
+					Data& regular_Data = parent_Data.regular_Components[i].components[n];
+
+					if(parent_Data.regular_Components[i].is_Common_Sigma)
 					{
-						parent_Data.regular_Components[i].components[n].sigma.value = struct_Data.sigma.value;
+						// set common value
+						regular_Data.sigma.value = struct_Data.sigma.value;
+
+						// add to slave list (if still not)
+						if(!struct_Data.sigma.coupled.slaves.contains(regular_Data.sigma.indicator)) {
+							struct_Data.sigma.coupled.slaves.append  (regular_Data.sigma.indicator);
+						}
+						// set as master (if still not)
+						if(!(regular_Data.sigma.coupled.master == struct_Data.sigma.indicator)) {
+							 regular_Data.sigma.coupled.master =  struct_Data.sigma.indicator;
+							 regular_Data.sigma.coupled.master.exist = true;
+						}
+					} else
+					// remove slaves and master
+					{
+						// remove from slave list (if still there)
+						if( struct_Data.sigma.coupled.slaves.contains (regular_Data.sigma.indicator)) {
+							struct_Data.sigma.coupled.slaves.removeOne(regular_Data.sigma.indicator);
+						}
+						// remove master (if still there)
+						if( regular_Data.sigma.coupled.master == struct_Data.sigma.indicator) {
+							regular_Data.sigma.coupled.master.id = 0;
+							regular_Data.sigma.coupled.master.exist = false;
+						}
 					}
 				}
 			}
