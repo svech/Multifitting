@@ -147,6 +147,7 @@ void Main_Calculation_Module::fitting_and_Confidence()
 		}
 	}
 
+	number_Of_Restricted_Regular_Components = 0;
 	/// create calc tree, fitables and confidentials;
 	for(int tab_Index=0; tab_Index<multilayers.size(); ++tab_Index)
 	{
@@ -400,6 +401,15 @@ void Main_Calculation_Module::calc_Tree_Iteration(const tree<Node>::iterator& pa
 		Data& struct_Data = child.node->data.struct_Data;
 
 		find_Fittable_Confidence_Parameters(struct_Data, parent_Data, child, i, fitables_Period_Gamma, confidentials_Period_Gamma);
+
+		// get number_Of_Restricted_Regular_Components to enlarge number of effective residual points
+		if( struct_Data.item_Type == item_Type_Regular_Aperiodic )
+		{
+			for(int k=0; k<struct_Data.regular_Components.size(); k++)
+			{
+				if(struct_Data.regular_Components[k].use_Soft_Restrictions) { ++number_Of_Restricted_Regular_Components; }
+			}
+		}
 
 		// check period and gamma
 		if( struct_Data.item_Type == item_Type_Multilayer ||

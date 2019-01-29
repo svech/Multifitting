@@ -8,8 +8,9 @@ Fitting::Fitting(Main_Calculation_Module* main_Calculation_Module):
 	calculation_Trees	(main_Calculation_Module->calculation_Trees),
 	fitables			(main_Calculation_Module->fitables),
 	confidentials		(main_Calculation_Module->confidentials),
+	number_Of_Restricted_Regular_Components(main_Calculation_Module->number_Of_Restricted_Regular_Components),
 
-	n(num_Residual_Points()),
+	n(num_Residual_Points()+main_Calculation_Module->number_Of_Restricted_Regular_Components),
 	p(fitables.param_Pointers.size()),
 
 	params({main_Calculation_Module,
@@ -27,6 +28,7 @@ Fitting::Fitting(Main_Calculation_Module* main_Calculation_Module):
 
 		   // for SwarmOps
 		   0
+		   // no my_Res initialization
 		   })
 {
 	f = gsl_vector_calloc(n);
@@ -232,18 +234,57 @@ void Fitting::calc_Residual(const gsl_vector* x, Fitting_Params* params, gsl_vec
 			fill_Residual(params, residual_Shift, target_Element, f, target_Index);
 			target_Index++;
 		}
-
-
-		// add restrictions here (to "f") (several additional points with factor N)
 	}
 
-	// aperiodic addition: difference between layers thicknesses
-//	for(int tab_Index=0; tab_Index<params->calculation_Trees.size(); ++tab_Index)
-//	{
-//		qInfo() << "calc_Residual";
-////		params->main_Calculation_Module->multilayers[0]->structure_Tree->tree
-//		params->calculation_Trees[tab_Index]->look_Aperiodic(params->calculation_Trees[tab_Index]->real_Calc_Tree.begin());
-//	}
+	/// addition to residual from restrictions of regular aperiodics
+	size_t counter = 0;
+	for(int tab_Index=0; tab_Index<params->main_Calculation_Module->multilayers.size(); ++tab_Index)
+	{
+		regular_Restriction_Tree_Iteration(params->calculation_Trees[tab_Index]->real_Calc_Tree.begin(), params, f, counter);
+	}
+}
+
+void Fitting::regular_Restriction_Tree_Iteration(const tree<Node>::iterator& parent, Fitting_Params* params, gsl_vector* f, size_t& counter)
+{
+	// iterate over tree
+	for(unsigned i=0; i<parent.number_of_children(); ++i)
+	{
+		tree<Node>::pre_order_iterator child = tree<Node>::child(parent,i);
+		Data& struct_Data = child.node->data.struct_Data;
+
+		if(struct_Data.item_Type == item_Type_Regular_Aperiodic )
+		{
+			for(int k=0; k<struct_Data.regular_Components.size(); k++)
+			{
+				Regular_Component& regular_Component = struct_Data.regular_Components[k];
+				if(regular_Component.use_Soft_Restrictions)
+				{
+					++counter;
+
+					double addition = 0;
+					double mean = regular_Component.get_Mean_Thickness();
+					for(int n=0; n<struct_Data.num_Repetition.value(); n++)
+					{
+						Data& regular_Data = regular_Component.components[n];
+
+						double deviation = abs(regular_Data.thickness.value - mean)/mean;
+						double exceeding = deviation - double(regular_Component.threshold)/100.; // in relative units
+						if(exceeding>0) addition += exceeding*regular_Component.Q_factor;
+					}
+
+					qInfo() << "addition =" << addition << "threshold" << regular_Component.threshold;
+					gsl_vector_set(f, params->n-counter, sqrt(addition));
+				}
+			}
+		}
+
+		// deeper
+		if( struct_Data.item_Type == item_Type_Multilayer ||
+			struct_Data.item_Type == item_Type_General_Aperiodic )
+		{
+			regular_Restriction_Tree_Iteration(child, params, f, counter);
+		}
+	}
 }
 
 void Fitting::change_Real_Fitables_and_Dependent(Fitting_Params* params, double old_Value, double new_Value, size_t i, QString fit_Conf)
@@ -418,7 +459,7 @@ bool Fitting::fit()
 	if(check_Residual_Expression()) return false;
 
 	// --------------------------------------------------------------------------------
-	if(n<=p)
+	if(n<=(p+number_Of_Restricted_Regular_Components))
 	{
 		QMessageBox::information(nullptr,"Insufficient number of points", "# of fitables: " + Locale.toString(uint(p)) + "\n# of points: " + Locale.toString(uint(n)) + "\n\nShould be f<p");
 		return false;
@@ -461,7 +502,7 @@ bool Fitting::confidence(const vector<double>& fitables_Pointers_Value_Backup, c
 	if(check_Residual_Expression()) return false;
 
 	// --------------------------------------------------------------------------------
-	if(n<=p)
+	if(n<=(p+number_Of_Restricted_Regular_Components))
 	{
 		QMessageBox::information(nullptr,"Insufficient number of points", "# of fitables: " + Locale.toString(uint(p)) + "\n# of points: " + Locale.toString(uint(n)) + "\n\nShould be f<p");
 		return false;

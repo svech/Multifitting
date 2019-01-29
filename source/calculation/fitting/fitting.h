@@ -31,9 +31,6 @@ struct Fitting_Params
 	// for SwarmOps
 	size_t counter;
 	SO_Results my_Res;
-
-	// for Aperiodic
-//	double aperiodic_Addition = 0;
 };
 
 class Fitting
@@ -46,6 +43,7 @@ public:
 	QVector<Calculation_Tree*>& calculation_Trees;
 	Fitables& fitables;
 	Fitables& confidentials;
+	size_t number_Of_Restricted_Regular_Components;
 
 	const size_t n;
 	const size_t p;
@@ -60,6 +58,7 @@ public:
 	static void gamma_Subtree_Iteration(const tree<Node>::iterator& parent, double old_Value);
 	static void slaves_Recalculation(Parameter* master, Fitting_Params* params);
 	static void calc_Residual(const gsl_vector* x, Fitting_Params* params, gsl_vector* f);
+	static void regular_Restriction_Tree_Iteration(const tree<Node>::iterator& parent, Fitting_Params* params, gsl_vector* f, size_t& counter);
 	static void change_Real_Fitables_and_Dependent(Fitting_Params* params, double old_Value, double new_Value, size_t i, QString fit_Conf);
 	static void fill_Residual(Fitting_Params* params, int& residual_Shift, Data_Element<Target_Curve>& target_Element, gsl_vector* f, int index);
 	void initialize_Position();

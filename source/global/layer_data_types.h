@@ -123,6 +123,17 @@ struct Regular_Component		{id_Type top_Id;
 								 int threshold = 0;
 								 double Q_factor = 0;
 
+								 double get_Mean_Thickness()
+								 {
+									 double mean = 0;
+									 for(int n=0; n<components.size(); n++)
+									 {
+										 mean += components[n].thickness.value;
+									 }
+									 mean = mean/components.size();
+									 return mean;
+								 }
+
 								 void find_Min_Max_Values()
 								 {
 									 min_Max_Values.thickness_Min = MAX_DOUBLE;

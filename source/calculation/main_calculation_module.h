@@ -34,6 +34,7 @@ public:
 	Fitables fit_Rejected_Periods;
 
 	QString parametrization_Type = triangle;
+	size_t number_Of_Restricted_Regular_Components = 0;
 
 	void preliminary_Calculation();
 	void single_Calculation(bool print = true);

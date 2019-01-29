@@ -312,7 +312,7 @@ void Regular_Aperiodic_Table::create_Table()
 		QLabel* sigma_Label = new QLabel("common "+Sigma_Sym);
 			sigma_Label->setAlignment(Qt::AlignCenter);
 			sigma_Label->setStyleSheet(common_Sigma_Color);
-			sigma_Label->setFixedWidth(90);
+			sigma_Label->setFixedWidth(102);
 		regular_Table->setCellWidget(current_Row,0, sigma_Label);
 
 		// common thickness
