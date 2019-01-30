@@ -866,6 +866,7 @@ void Data::fill_Potentially_Fitable_Parameters_Vector()
 
 void Data::prepare_Layer_For_Regular_Component()
 {
+	item_Enabled = true;
 ///---------------------------------------------
 ///---------------------------------------------
 // Ambient, Layer, Substrate
@@ -929,16 +930,19 @@ void Data::make_Nonfitable(Parameter &parameter)
 QDataStream& operator <<( QDataStream& stream, const Regular_Component& regular_Component )
 {
 	return stream
-				<< regular_Component.top_Id << regular_Component.components << regular_Component.min_Max_Values
-				<< regular_Component.is_Common_Thickness << regular_Component.is_Common_Sigma
-				<< regular_Component.use_Soft_Restrictions << regular_Component.threshold << regular_Component.Q_factor; // since 1.8.11
+				<< regular_Component.top_Id << regular_Component.components << regular_Component.min_Max_Values			//
+				<< regular_Component.is_Common_Thickness << regular_Component.is_Common_Sigma							//
+				<< regular_Component.use_Soft_Restrictions << regular_Component.threshold << regular_Component.Q_factor // since 1.8.11
+				<< regular_Component.power; // since 1.8.13
 }
 QDataStream& operator >>( QDataStream& stream,		 Regular_Component& regular_Component )
 {
 	if(Global_Variables::check_Loaded_Version(1,8,11))
-	{stream >> regular_Component.top_Id >> regular_Component.components >> regular_Component.min_Max_Values
-			>> regular_Component.is_Common_Thickness >> regular_Component.is_Common_Sigma
+	{stream >> regular_Component.top_Id >> regular_Component.components >> regular_Component.min_Max_Values			    //
+			>> regular_Component.is_Common_Thickness >> regular_Component.is_Common_Sigma							    //
 			>> regular_Component.use_Soft_Restrictions >> regular_Component.threshold >> regular_Component.Q_factor;}	// since 1.8.11
+	if(Global_Variables::check_Loaded_Version(1,8,13))
+	{stream >> regular_Component.power; }				// since 1.8.13
 
 	return stream;
 }
@@ -949,8 +953,9 @@ QDataStream& operator <<( QDataStream& stream, const Data& data )
 				<< data.parent_Item_Type << data.item_Type << data.id
 				<< data.item_Enabled		// since 1.7.7
 			// Measurement
-				<< data.probe_Angle << data.cos2 << data.angle << data.cos2_Value << data.angle_Value << data.angular_Resolution << data.angle_Type
-				<< data.wavelength << data.k << data.lambda << data.k_Value << data.lambda_Value << data.spectral_Resolution << data.polarization << data.polarization_Sensitivity << data.background
+				<< data.probe_Angle	<< data.cos2 << data.angle << data.cos2_Value << data.angle_Value << data.angular_Resolution << data.angle_Type
+				<< data.wavelength << data.k << data.lambda << data.k_Value << data.lambda_Value << data.spectral_Resolution
+				<< data.polarization << data.polarization_Sensitivity << data.background
 				<< data.beam_Size << data.beam_Profile_Spreading << data.sample_Size  << data.sample_Shift
 			// Ambient, Layer, Substrate
 				<< data.composed_Material << data.material << data.approved_Material << data.absolute_Density << data.relative_Density
@@ -972,8 +977,8 @@ QDataStream& operator >>( QDataStream& stream,		 Data& data )
 	{stream >> data.item_Enabled; }	// since 1.7.7
 
 			// Measurement
-	stream		>> data.probe_Angle >> data.cos2 >> data.angle >> data.cos2_Value >> data.angle_Value >> data.angular_Resolution >> data.angle_Type
-				>> data.wavelength >> data.k >> data.lambda >> data.k_Value >> data.lambda_Value >> data.spectral_Resolution >> data.polarization >> data.polarization_Sensitivity >> data.background
+	stream		>> data.probe_Angle >> data.cos2 >> data.angle >> data.cos2_Value >> data.angle_Value >> data.angular_Resolution >> data.angle_Type >> data.wavelength
+				>> data.k >> data.lambda >> data.k_Value >> data.lambda_Value >> data.spectral_Resolution >> data.polarization >> data.polarization_Sensitivity >> data.background
 				>> data.beam_Size >> data.beam_Profile_Spreading >> data.sample_Size  >> data.sample_Shift
 			// Ambient, Layer, Substrate
 				>> data.composed_Material >> data.material >> data.approved_Material >> data.absolute_Density >> data.relative_Density

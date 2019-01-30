@@ -942,6 +942,46 @@ void Global_Variables::parallel_For(int num_Points, int num_Threads, const std::
 	for(std::thread& worker : global_Workers) { if(worker.joinable()) worker.join(); }
 }
 
+bool validate (double number)
+{
+	if(number>=1 && number<10) return true;
+	else					   return false;
+}
+double Global_Variables::get_Order_Of_Magnitude(double number)
+{
+	double order = 1;
+	if(number>1)
+	{
+		while(!validate(number))
+		{
+			number = number/10;
+			order = order*10;
+		}
+		return order;
+	} else
+	{
+		if(number>0)
+		{
+			if(abs(number-1)<DBL_EPSILON)
+			{
+				return 1;
+			}
+			else
+			{
+				while(!validate(number))
+				{
+					number = number*10;
+					order = order/10;
+				}
+				return order;
+			}
+		} else
+		{
+			return 1e-5;
+		}
+	}
+}
+
 template<typename Type>
 void Global_Variables::resize_Line_Edit(Type* line_Edit, bool adjust_Window)
 {

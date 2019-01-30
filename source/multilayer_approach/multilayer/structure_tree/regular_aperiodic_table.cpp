@@ -559,14 +559,13 @@ void Regular_Aperiodic_Table::create_Step_Spin_Box(int current_Row, int current_
 		if(step_SpinBox->property(reload_Property).toBool())
 		{
 			int add_Decimals = min(log10(length_Coeff),2.);
+			step_SpinBox->setDecimals(2+add_Decimals);
 			double min_Step = max(0.1/length_Coeff,0.0001);
+			step_SpinBox->setSingleStep(min_Step);
+			step_SpinBox->setSuffix(" "+length_units);
 
 			if(whats_This == whats_This_Thickness)		{ step_SpinBox->setValue(step_thickness_aperiodic/length_Coeff); }
 			if(whats_This == whats_This_Sigma)			{ step_SpinBox->setValue(step_sigma_aperiodic/length_Coeff);	}
-
-			step_SpinBox->setDecimals(2+add_Decimals);
-			step_SpinBox->setSingleStep(min_Step);
-			step_SpinBox->setSuffix(" "+length_units);
 		}
 
 		if(whats_This == whats_This_Thickness)	{ step_thickness_aperiodic = step_SpinBox->value()*length_Coeff;  for(MyDoubleSpinBox* spb : thickness_Spinboxes_List)	spb->setSingleStep(step_thickness_aperiodic/length_Coeff);}

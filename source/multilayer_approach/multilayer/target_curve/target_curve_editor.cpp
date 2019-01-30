@@ -398,10 +398,10 @@ void Target_Curve_Editor::create_Data_GroupBox()
 		arg_Factor_Label = new QLabel("Scale factor");
 		layout->addWidget(arg_Factor_Label,0,Qt::AlignLeft);
 		arg_Factor_SpinBox = new QDoubleSpinBox;
-			arg_Factor_SpinBox->setValue(1);
 			arg_Factor_SpinBox->setAccelerated(true);
 			arg_Factor_SpinBox->setRange(0, MAX_DOUBLE);
 			arg_Factor_SpinBox->setDecimals(5);
+			arg_Factor_SpinBox->setValue(1);
 			arg_Factor_SpinBox->setSingleStep(0.001);
 			arg_Factor_SpinBox->setFixedWidth(TARGET_LINE_EDIT_WIDTH);
 			arg_Factor_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
@@ -454,10 +454,10 @@ void Target_Curve_Editor::create_Data_GroupBox()
 		val_Factor_Label = new QLabel("Scale factor");
 			layout->addWidget(val_Factor_Label,0,Qt::AlignLeft);
 		val_Factor_SpinBox = new QDoubleSpinBox;
-			val_Factor_SpinBox->setValue(1);
 			val_Factor_SpinBox->setAccelerated(true);
 			val_Factor_SpinBox->setRange(0, MAX_DOUBLE);
 			val_Factor_SpinBox->setDecimals(5);
+			val_Factor_SpinBox->setValue(1);
 			val_Factor_SpinBox->setSingleStep(0.001);
 			val_Factor_SpinBox->setFixedWidth(TARGET_LINE_EDIT_WIDTH);
 			val_Factor_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);

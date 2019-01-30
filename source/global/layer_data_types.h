@@ -121,6 +121,7 @@ struct Regular_Component		{id_Type top_Id;
 
 								 bool use_Soft_Restrictions = false;
 								 int threshold = 0;
+								 int power = 2;
 								 double Q_factor = 0;
 
 								 double get_Mean_Thickness()

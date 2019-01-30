@@ -562,18 +562,20 @@ QString Independent_Variables::enlarge_Tab_Name()
 // serialization
 QDataStream& operator <<( QDataStream& stream, const Independent_Variables* independent_Variables )
 {
-	return stream	<< independent_Variables->measurement << independent_Variables->calc_Functions << independent_Variables->calculated_Values
+	return stream	<< independent_Variables->measurement << independent_Variables->calc_Functions
+					<< independent_Variables->calculated_Values
 					<< independent_Variables->tab_Name << independent_Variables->plot_Options
 					<< independent_Variables->argument_Type;		// since 1.7.5
 
 }
 QDataStream& operator >>(QDataStream& stream,		 Independent_Variables* independent_Variables )
 {
-	 stream	>> independent_Variables->measurement >> independent_Variables->calc_Functions >> independent_Variables->calculated_Values
-			>> independent_Variables->tab_Name >> independent_Variables->plot_Options;
+	stream	>> independent_Variables->measurement >> independent_Variables->calc_Functions;
+	stream >> independent_Variables->calculated_Values;
+	stream >> independent_Variables->tab_Name >> independent_Variables->plot_Options;
 
 	if(Global_Variables::check_Loaded_Version(1,7,5))
-	{stream >> independent_Variables->argument_Type ; }	// since 1.7.5
+	{ stream >> independent_Variables->argument_Type ; }	// since 1.7.5
 
-	 return stream;
+	return stream;
 }

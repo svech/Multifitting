@@ -217,6 +217,9 @@ void Main_Calculation_Module::fitting_and_Confidence()
 			is_Load_Init_State_Trees = true;
 		}
 
+		// close item editors
+		global_Multilayer_Approach->close_Item_Editors();
+
 		// close aperiodic tables
 		global_Multilayer_Approach->temporarily_Close_Regular_Aperiodics();
 

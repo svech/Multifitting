@@ -269,10 +269,12 @@ void Fitting::regular_Restriction_Tree_Iteration(const tree<Node>::iterator& par
 
 						double deviation = abs(regular_Data.thickness.value - mean)/mean;
 						double exceeding = deviation - double(regular_Component.threshold)/100.; // in relative units
-						if(exceeding>0) addition += exceeding*regular_Component.Q_factor;
-					}
-
-					qInfo() << "addition =" << addition << "threshold" << regular_Component.threshold;
+						if(exceeding>0)
+						{
+//							addition += pow(exceeding*regular_Component.Q_factor, regular_Component.power); // not sure
+							addition += pow(exceeding, regular_Component.power)*regular_Component.Q_factor;
+						}
+					}					
 					gsl_vector_set(f, params->n-counter, sqrt(addition));
 				}
 			}

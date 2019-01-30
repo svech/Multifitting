@@ -111,6 +111,17 @@ void Menu::create_File_Menu()
 			file_Menu->addAction(act_Save_As);
 			connect(act_Save_As, &QAction::triggered, global_Multilayer_Approach, [=]{global_Multilayer_Approach->save_As();});
 
+			QAction* act_Export_Structures = new QAction("Export structures", this);
+				act_Export_Structures->setShortcut(Qt::Key_T | Qt::CTRL);
+			file_Menu->addAction(act_Export_Structures);
+			connect(act_Export_Structures, &QAction::triggered, global_Multilayer_Approach, [=]
+			{
+				for(int tab_Index=0; tab_Index<global_Multilayer_Approach->multilayer_Tabs->count(); ++tab_Index)
+				{
+					Multilayer* multilayer = qobject_cast<Multilayer*>(global_Multilayer_Approach->multilayer_Tabs->widget(tab_Index));
+					multilayer->structure_Tree->structure_Toolbar->export_Structure();
+				}
+			});
 		}
 		if(window_Type == window_Type_Multilayer_Approach)
 		{

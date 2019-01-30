@@ -356,6 +356,21 @@ void Multilayer_Approach::temporarily_Close_Regular_Aperiodics()
 	}
 }
 
+void Multilayer_Approach::close_Item_Editors()
+{
+	// close item editors
+	for(int tab_Index=0; tab_Index<multilayer_Tabs->count(); ++tab_Index)
+	{
+		Multilayer* multilayer = qobject_cast<Multilayer*>(multilayer_Tabs->widget(tab_Index));
+
+		for(Item_Editor* item_Editor : multilayer->structure_Tree->list_Editors)
+		{
+			item_Editor->close();
+		}
+		multilayer->structure_Tree->list_Editors.clear();
+	}
+}
+
 void Multilayer_Approach::reopen_Regular_Aperiodics()
 {
 	for(Regular_Aperiodic_Table_Launch& lunch: rerun_Of_Regular_Aperiodic_Tables_List)

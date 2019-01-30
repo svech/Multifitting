@@ -81,6 +81,18 @@ void Target_Curve::import_Data(QString bare_Filename)
 			double temp_Argument = QString(numbers[number_Index]).toDouble(&ok_To_Double);
 
 			if(!ok_To_Double) goto skip_line_label;
+
+			if(curve.argument.size()>=2)
+			{
+				if(curve.argument[curve.argument.size()-1]>curve.argument[curve.argument.size()-2]) // increasing argument is allowed
+				{
+					if(temp_Argument <= curve.argument.last()) goto skip_line_label; // read only monotonical arguments
+				}
+				if(curve.argument[curve.argument.size()-1]<curve.argument[curve.argument.size()-2]) // decreasing argument is allowed
+				{
+					if(temp_Argument >= curve.argument.last()) goto skip_line_label; // read only monotonical arguments
+				}
+			}
 			curve.argument.push_back(temp_Argument);
 			++number_Index;
 

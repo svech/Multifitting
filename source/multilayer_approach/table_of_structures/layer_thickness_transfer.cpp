@@ -81,9 +81,9 @@ void Layer_Thickness_Transfer::create_Content_Box()
 		period_SpinBox = new MyDoubleSpinBox;
 			period_SpinBox->setSuffix(units_Suffix);
 			period_SpinBox->setRange(0.001/coeff, MAX_DOUBLE);
+			period_SpinBox->setDecimals(thickness_transfer_precision);
 			period_SpinBox->setValue(struct_Data.period.value/coeff);
 			period_SpinBox->setAccelerated(true);
-			period_SpinBox->setDecimals(thickness_transfer_precision);
 			period_SpinBox->setSingleStep(struct_Data.step_Value_Change/coeff);
 			period_SpinBox->setProperty(previous_Value_Property,period_SpinBox->value());
 //			period_SpinBox->setProperty(item_Type_Property,struct_Data.item_Type);
@@ -107,9 +107,9 @@ void Layer_Thickness_Transfer::create_Content_Box()
 		step_SpinBox = new MyDoubleSpinBox;
 			step_SpinBox->setSuffix(units_Suffix);
 			step_SpinBox->setRange(0, MAX_DOUBLE);
+			step_SpinBox->setDecimals(2);
 			step_SpinBox->setValue(struct_Data.step_Value_Change/coeff);
 			step_SpinBox->setAccelerated(true);
-			step_SpinBox->setDecimals(2);
 			step_SpinBox->setSingleStep(step_thickness_transfer/coeff);
 		step_Layout->addWidget(step_SpinBox);
 		Global_Variables::resize_Line_Edit(step_SpinBox);
@@ -172,9 +172,9 @@ void Layer_Thickness_Transfer::create_Layer_Lines()
 			MyDoubleSpinBox* current_Child_SpinBox = new MyDoubleSpinBox;
 				current_Child_SpinBox->setSuffix(units_Suffix);
 				current_Child_SpinBox->setRange(current_Child_Min, MAX_DOUBLE);
+				current_Child_SpinBox->setDecimals(thickness_transfer_precision);
 				current_Child_SpinBox->setValue(current_Child_Parameter.value/coeff);
 				current_Child_SpinBox->setAccelerated(true);
-				current_Child_SpinBox->setDecimals(thickness_transfer_precision);
 				current_Child_SpinBox->setSingleStep(step);
 				current_Child_SpinBox->setProperty(previous_Value_Property,current_Child_SpinBox->value());
 //				current_Child_SpinBox->setProperty(item_Type_Property,current_Child_Data.item_Type);
@@ -193,9 +193,9 @@ void Layer_Thickness_Transfer::create_Layer_Lines()
 			MyDoubleSpinBox* partner_SpinBox = new MyDoubleSpinBox;
 				partner_SpinBox->setSuffix(units_Suffix);
 				partner_SpinBox->setRange(partner_Min, MAX_DOUBLE);
+				partner_SpinBox->setDecimals(thickness_transfer_precision);
 				partner_SpinBox->setValue(partner_Parameter.value/coeff);
 				partner_SpinBox->setAccelerated(true);
-				partner_SpinBox->setDecimals(thickness_transfer_precision);
 				partner_SpinBox->setSingleStep(step);
 				partner_SpinBox->setProperty(previous_Value_Property,partner_SpinBox->value());
 //				partner_SpinBox->setProperty(item_Type_Property,partner_Data.item_Type);

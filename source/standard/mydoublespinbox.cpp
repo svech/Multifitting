@@ -61,7 +61,10 @@ void MyDoubleSpinBox::create_Text_Change_Connection()
 	connect(myLineEdit(), &QLineEdit::textChanged, this, [=]
 	{
 		QString clean_Text = text();
+
+		// remove prefix and suffix
 		clean_Text.remove(-suffix().size(),suffix().size());
+		clean_Text.remove(0,prefix().size());
 
 		double value = valueFromText(clean_Text);
 		if(isValid(clean_Text))

@@ -599,7 +599,7 @@ void Item_Editor::cell_Items_In_Regular_Aperiodic(QHBoxLayout *aperiodic_Group_B
 		soft_Restriction_Layout->setContentsMargins(0,4,0,0);
 		soft_Restriction_Layout->setSpacing(2);
 	aperiodic_Group_Box_Layout->addLayout(soft_Restriction_Layout);
-	QLabel* soft_Restriction_Label = new QLabel("       Restrict z: {"+Plus_Minus_Sym+Delta_Big_Sym+", Q}");
+	QLabel* soft_Restriction_Label = new QLabel("       Restrict z: {"+Plus_Minus_Sym+Delta_Big_Sym+", p, Q}");
 	soft_Restriction_Layout->addWidget(soft_Restriction_Label,0,Qt::AlignLeft);
 
 	for(int i=0; i<item->childCount(); i++)
@@ -652,6 +652,7 @@ void Item_Editor::cell_Items_In_Regular_Aperiodic(QHBoxLayout *aperiodic_Group_B
 			soft_Restriction_CheckBox->setChecked(struct_Data.regular_Components[i].use_Soft_Restrictions);
 		soft_Restriction_Row_Layout->addWidget(soft_Restriction_CheckBox);
 
+		// threshold
 		QLabel* plus_Minus_Label = new QLabel(Plus_Minus_Sym);
 			plus_Minus_Label->setEnabled(struct_Data.regular_Components[i].use_Soft_Restrictions);
 		soft_Restriction_Row_Layout->addWidget(plus_Minus_Label);
@@ -662,10 +663,25 @@ void Item_Editor::cell_Items_In_Regular_Aperiodic(QHBoxLayout *aperiodic_Group_B
 			soft_Restriction_Threshold_SpinBox->setSuffix("%");
 			soft_Restriction_Threshold_SpinBox->setValue(struct_Data.regular_Components[i].threshold);
 			soft_Restriction_Threshold_SpinBox->setAccelerated(true);
-			soft_Restriction_Threshold_SpinBox->setFixedWidth(45);
+			soft_Restriction_Threshold_SpinBox->setFixedWidth(37);
 			soft_Restriction_Threshold_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
 		soft_Restriction_Row_Layout->addWidget(soft_Restriction_Threshold_SpinBox);
 
+		// power
+		QLabel* power_Label = new QLabel(", p=");
+			power_Label->setEnabled(struct_Data.regular_Components[i].use_Soft_Restrictions);
+		soft_Restriction_Row_Layout->addWidget(power_Label);
+
+		QSpinBox* soft_Restriction_Power_SpinBox = new QSpinBox;
+			soft_Restriction_Power_SpinBox->setRange(0, 100);
+			soft_Restriction_Power_SpinBox->setEnabled(struct_Data.regular_Components[i].use_Soft_Restrictions);
+			soft_Restriction_Power_SpinBox->setValue(struct_Data.regular_Components[i].power);
+			soft_Restriction_Power_SpinBox->setAccelerated(true);
+			soft_Restriction_Power_SpinBox->setFixedWidth(28);
+			soft_Restriction_Power_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
+		soft_Restriction_Row_Layout->addWidget(soft_Restriction_Power_SpinBox);
+
+		// Q-factor
 		QLabel* Q_Label = new QLabel(", Q=");
 			Q_Label->setEnabled(struct_Data.regular_Components[i].use_Soft_Restrictions);
 		soft_Restriction_Row_Layout->addWidget(Q_Label);
@@ -674,10 +690,11 @@ void Item_Editor::cell_Items_In_Regular_Aperiodic(QHBoxLayout *aperiodic_Group_B
 			soft_Restriction_Q_SpinBox->setEnabled(struct_Data.regular_Components[i].use_Soft_Restrictions);
 			soft_Restriction_Q_SpinBox->setSuffix("  ");
 			soft_Restriction_Q_SpinBox->setRange(0, MAX_DOUBLE);
-			soft_Restriction_Q_SpinBox->setSingleStep(1);
+			soft_Restriction_Q_SpinBox->setDecimals(8);
+			soft_Restriction_Q_SpinBox->setSingleStep(Global_Variables::get_Order_Of_Magnitude(struct_Data.regular_Components[i].Q_factor));
+//			soft_Restriction_Q_SpinBox->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
 			soft_Restriction_Q_SpinBox->setValue(struct_Data.regular_Components[i].Q_factor);
 			soft_Restriction_Q_SpinBox->setAccelerated(true);
-			soft_Restriction_Q_SpinBox->setDecimals(3);
 			soft_Restriction_Q_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
 		soft_Restriction_Row_Layout->addWidget(soft_Restriction_Q_SpinBox);
 		Global_Variables::resize_Line_Edit(soft_Restriction_Q_SpinBox);
@@ -689,10 +706,12 @@ void Item_Editor::cell_Items_In_Regular_Aperiodic(QHBoxLayout *aperiodic_Group_B
 				struct_Data.regular_Components[i].use_Soft_Restrictions = soft_Restriction_CheckBox->isChecked();
 			}
 
-			plus_Minus_Label->setEnabled(soft_Restriction_CheckBox->isChecked());
+			plus_Minus_Label                  ->setEnabled(soft_Restriction_CheckBox->isChecked());
 			soft_Restriction_Threshold_SpinBox->setEnabled(soft_Restriction_CheckBox->isChecked());
-			Q_Label->setEnabled(soft_Restriction_CheckBox->isChecked());
-			soft_Restriction_Q_SpinBox->setEnabled(soft_Restriction_CheckBox->isChecked());
+			power_Label                       ->setEnabled(soft_Restriction_CheckBox->isChecked());
+			soft_Restriction_Power_SpinBox    ->setEnabled(soft_Restriction_CheckBox->isChecked());
+			Q_Label                           ->setEnabled(soft_Restriction_CheckBox->isChecked());
+			soft_Restriction_Q_SpinBox        ->setEnabled(soft_Restriction_CheckBox->isChecked());
 			save_Data();
 
 			if(global_Multilayer_Approach->runned_Regular_Aperiodic_Tables.contains(struct_Data.id))			{
@@ -702,10 +721,17 @@ void Item_Editor::cell_Items_In_Regular_Aperiodic(QHBoxLayout *aperiodic_Group_B
 		});
 		connect(soft_Restriction_Threshold_SpinBox, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, [=]
 		{
-			for(int n=0; n<struct_Data.num_Repetition.value(); ++n)
-			{
-				struct_Data.regular_Components[i].threshold = soft_Restriction_Threshold_SpinBox->value();
+			struct_Data.regular_Components[i].threshold = soft_Restriction_Threshold_SpinBox->value();
+			save_Data();
+
+			if(global_Multilayer_Approach->runned_Regular_Aperiodic_Tables.contains(struct_Data.id))			{
+				Regular_Aperiodic_Table* regular_Aperiodic_Table = global_Multilayer_Approach->runned_Regular_Aperiodic_Tables.value(struct_Data.id);
+					regular_Aperiodic_Table->reload_All_Widgets("especially_wrong");
 			}
+		});
+		connect(soft_Restriction_Power_SpinBox, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, [=]
+		{
+			struct_Data.regular_Components[i].power = soft_Restriction_Power_SpinBox->value();
 			save_Data();
 
 			if(global_Multilayer_Approach->runned_Regular_Aperiodic_Tables.contains(struct_Data.id))			{
@@ -715,9 +741,17 @@ void Item_Editor::cell_Items_In_Regular_Aperiodic(QHBoxLayout *aperiodic_Group_B
 		});
 		connect(soft_Restriction_Q_SpinBox, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
 		{
-			for(int n=0; n<struct_Data.num_Repetition.value(); ++n)
+			struct_Data.regular_Components[i].Q_factor = soft_Restriction_Q_SpinBox->value();
+
+			// adaptive step
+			double order = Global_Variables::get_Order_Of_Magnitude(struct_Data.regular_Components[i].Q_factor);;
+			double difference = struct_Data.regular_Components[i].Q_factor - order;
+			if(Global_Variables::get_Order_Of_Magnitude(difference)<order)
 			{
-				struct_Data.regular_Components[i].Q_factor = soft_Restriction_Q_SpinBox->value();
+				soft_Restriction_Q_SpinBox->setSingleStep(order/10);
+			} else
+			{
+				soft_Restriction_Q_SpinBox->setSingleStep(order);
 			}
 			save_Data();
 			Global_Variables::resize_Line_Edit(soft_Restriction_Q_SpinBox);

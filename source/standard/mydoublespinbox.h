@@ -18,6 +18,8 @@ public:
 	QLineEdit* myLineEdit() const;
 	void create_Text_Change_Connection();
 
+	void setMyAdaptiveStep(bool on);
+
 };
 
 #endif // MYDOUBLESPINBOX_H

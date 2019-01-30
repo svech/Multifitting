@@ -458,6 +458,11 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 				coupled_Back_Widget_and_Struct_Item.insert(item_CheckBox, structure_Item);
 			}
 			new_Table->setCellWidget(current_Row, current_Column, item_CheckBox);
+			if(struct_Data.parent_Item_Type == item_Type_Regular_Aperiodic)
+			{
+				item_CheckBox->setAttribute(Qt::WA_TransparentForMouseEvents, true);
+				item_CheckBox->setFocusPolicy(true ? Qt::NoFocus : Qt::StrongFocus);
+			}
 			item_CheckBox->setChecked(struct_Data.item_Enabled);
 			check_Boxes_Map.insert(item_CheckBox, structure_Item);
 			connect(item_CheckBox, &QCheckBox::toggled, this, [=]
@@ -618,8 +623,8 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 				{
 					create_Check_Box_Label      (new_Table, tab_Index, current_Row+3, current_Column,  structure_Item, whats_This_Common_Thickness, "common z", -2, -2, -4, -4);
 					create_Check_Box_Label      (new_Table, tab_Index, current_Row+4, current_Column,  structure_Item, whats_This_Common_Sigma, "common "+Sigma_Sym, -3, -3, -2, -2);
-					create_Check_Box_Label      (new_Table, tab_Index, current_Row+3, current_Column+3, structure_Item, whats_This_Restrict_Thickness, "restrict z: {"+Plus_Minus_Sym+Delta_Big_Sym+", Q}", 1, 1, 0, 1);
-					create_Thickness_Restriction(new_Table, tab_Index, current_Row+4, current_Column+3, structure_Item);
+					create_Check_Box_Label      (new_Table, tab_Index, current_Row+3, current_Column+2, structure_Item, whats_This_Restrict_Thickness, "restrict z: {"+Plus_Minus_Sym+Delta_Big_Sym+", p, Q}", 1, 1, 0, 2);
+					create_Thickness_Restriction(new_Table,            current_Row+4, current_Column+2, structure_Item);
 				} else
 				{
 					create_MySigma_Labels_Interlayer	    (new_Table, tab_Index, current_Row+3, current_Column, structure_Item);
@@ -1214,8 +1219,8 @@ void Table_Of_Structures::create_Stoich_Line_Edit(My_Table_Widget* table, int ta
 		// create lineedit
 		MyDoubleSpinBox* spin_Box = new MyDoubleSpinBox;
 			spin_Box->setRange(0, MAX_DOUBLE);
-			spin_Box->setValue(value);
 			spin_Box->setDecimals(line_edit_composition_precision);
+			spin_Box->setValue(value);
 			spin_Box->setAccelerated(true);
 			spin_Box->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT_SHORT);
 			spin_Box->setButtonSymbols(QAbstractSpinBox::NoButtons);
@@ -1632,8 +1637,8 @@ void Table_Of_Structures::create_Check_Box_Label(My_Table_Widget* table, int tab
 		}
 		if( whats_This == whats_This_Restrict_Thickness )
 		{
-			table->setSpan(current_Row,current_Column,1,3);
-			back_Widget->setMinimumWidth(3*TABLE_FIX_WIDTH_LINE_EDIT_SHORT+2);
+			table->setSpan(current_Row,current_Column,1,4);
+			back_Widget->setMinimumWidth(4*TABLE_FIX_WIDTH_LINE_EDIT_SHORT+3);
 		}
 	}
 
@@ -1646,7 +1651,7 @@ void Table_Of_Structures::create_Check_Box_Label(My_Table_Widget* table, int tab
 	table->setCellWidget(current_Row, current_Column, back_Widget);
 }
 
-void Table_Of_Structures::create_Thickness_Restriction(My_Table_Widget *table, int tab_Index, int current_Row, int current_Column, QTreeWidgetItem *structure_Item)
+void Table_Of_Structures::create_Thickness_Restriction(My_Table_Widget *table, int current_Row, int current_Column, QTreeWidgetItem *structure_Item)
 {
 	Data regular_Aperiodic_Data = structure_Item->parent()->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
 	int my_I = -2019;
@@ -1669,30 +1674,47 @@ void Table_Of_Structures::create_Thickness_Restriction(My_Table_Widget *table, i
 		soft_Restriction_Threshold_SpinBox->installEventFilter(this);
 	table->setCellWidget(current_Row, current_Column, soft_Restriction_Threshold_SpinBox);
 
+	// power
+	QSpinBox* soft_Restriction_Power_SpinBox = new QSpinBox;
+		soft_Restriction_Power_SpinBox->setRange(0, 100);
+		soft_Restriction_Power_SpinBox->setPrefix("p = ");
+		soft_Restriction_Power_SpinBox->setValue(regular_Aperiodic_Data.regular_Components[my_I].power);
+		soft_Restriction_Power_SpinBox->setAccelerated(true);
+		soft_Restriction_Power_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
+		soft_Restriction_Power_SpinBox->installEventFilter(this);
+	table->setCellWidget(current_Row, current_Column+1, soft_Restriction_Power_SpinBox);
+
 	// Q value
 	MyDoubleSpinBox* soft_Restriction_Q_SpinBox = new MyDoubleSpinBox;
 		soft_Restriction_Q_SpinBox->setPrefix("Q = ");
 		soft_Restriction_Q_SpinBox->setRange(0, MAX_DOUBLE);
-		soft_Restriction_Q_SpinBox->setSingleStep(1);
+		soft_Restriction_Q_SpinBox->setDecimals(8);
+		soft_Restriction_Q_SpinBox->setSingleStep(Global_Variables::get_Order_Of_Magnitude(regular_Aperiodic_Data.regular_Components[my_I].Q_factor));
+//		soft_Restriction_Q_SpinBox->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
 		soft_Restriction_Q_SpinBox->setValue(regular_Aperiodic_Data.regular_Components[my_I].Q_factor);
 		soft_Restriction_Q_SpinBox->setAccelerated(true);
-		soft_Restriction_Q_SpinBox->setDecimals(3);
 		soft_Restriction_Q_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
 		soft_Restriction_Q_SpinBox->installEventFilter(this);
 		soft_Restriction_Q_SpinBox->setProperty(min_Size_Property,2*TABLE_FIX_WIDTH_LINE_EDIT_SHORT+1);
 		soft_Restriction_Q_SpinBox->setProperty(fit_Column_Property,true);
-	table->setSpan(current_Row,current_Column+1,1,2);
-	table->setCellWidget(current_Row, current_Column+1, soft_Restriction_Q_SpinBox);
+	table->setSpan(current_Row,current_Column+2,1,2);
+	table->setCellWidget(current_Row, current_Column+2, soft_Restriction_Q_SpinBox);
 	Global_Variables::resize_Line_Edit(soft_Restriction_Q_SpinBox);
 
 	connect(soft_Restriction_Threshold_SpinBox, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, [=]
 	{
 		Data regular_Aperiodic_Data = structure_Item->parent()->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+		regular_Aperiodic_Data.regular_Components[my_I].threshold = soft_Restriction_Threshold_SpinBox->value();
 
-		for(int n=0; n<regular_Aperiodic_Data.num_Repetition.value(); ++n)
-		{
-			regular_Aperiodic_Data.regular_Components[my_I].threshold = soft_Restriction_Threshold_SpinBox->value();
-		}
+		QVariant var;
+		var.setValue( regular_Aperiodic_Data );
+		structure_Item->parent()->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+		emit regular_Layer_Edited("especially_wrong"); // to reaload regular aperiodic item without reloading widgets
+	});
+	connect(soft_Restriction_Power_SpinBox, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, [=]
+	{
+		Data regular_Aperiodic_Data = structure_Item->parent()->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+		regular_Aperiodic_Data.regular_Components[my_I].power = soft_Restriction_Power_SpinBox->value();
 
 		QVariant var;
 		var.setValue( regular_Aperiodic_Data );
@@ -1702,12 +1724,19 @@ void Table_Of_Structures::create_Thickness_Restriction(My_Table_Widget *table, i
 	connect(soft_Restriction_Q_SpinBox, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
 	{
 		Data regular_Aperiodic_Data = structure_Item->parent()->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
-
-		for(int n=0; n<regular_Aperiodic_Data.num_Repetition.value(); ++n)
-		{
-			regular_Aperiodic_Data.regular_Components[my_I].Q_factor = soft_Restriction_Q_SpinBox->value();
-		}
+		regular_Aperiodic_Data.regular_Components[my_I].Q_factor = soft_Restriction_Q_SpinBox->value();
 		Global_Variables::resize_Line_Edit(soft_Restriction_Q_SpinBox);
+
+		// adaptive step
+		double order = Global_Variables::get_Order_Of_Magnitude(regular_Aperiodic_Data.regular_Components[my_I].Q_factor);;
+		double difference = regular_Aperiodic_Data.regular_Components[my_I].Q_factor - order;
+		if(Global_Variables::get_Order_Of_Magnitude(difference)<order)
+		{
+			soft_Restriction_Q_SpinBox->setSingleStep(order/10);
+		} else
+		{
+			soft_Restriction_Q_SpinBox->setSingleStep(order);
+		}
 
 		QVariant var;
 		var.setValue( regular_Aperiodic_Data );
@@ -2168,8 +2197,8 @@ void Table_Of_Structures::create_Weigts_Interlayer(My_Table_Widget* table, int t
 
 		MyDoubleSpinBox* spin_Box = new MyDoubleSpinBox;
 			spin_Box->setRange(0, MAX_DOUBLE);
-			spin_Box->setValue(value);
 			spin_Box->setDecimals(line_edit_interlayer_precision);
+			spin_Box->setValue(value);
 			spin_Box->setAccelerated(true);
 			spin_Box->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT_SHORT);
 			spin_Box->setButtonSymbols(QAbstractSpinBox::NoButtons);
@@ -2315,8 +2344,8 @@ void Table_Of_Structures::create_MySigma_Line_Edits_Interlayer(My_Table_Widget* 
 
 		MyDoubleSpinBox* spin_Box = new MyDoubleSpinBox;
 			spin_Box->setRange(0, MAX_DOUBLE);
-			spin_Box->setValue(sigma_Comp.value);
 			spin_Box->setDecimals(line_edit_sigma_precision);
+			spin_Box->setValue(sigma_Comp.value);
 			spin_Box->setAccelerated(true);
 			spin_Box->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT_SHORT);
 			spin_Box->setButtonSymbols(QAbstractSpinBox::NoButtons);
@@ -2461,6 +2490,8 @@ void Table_Of_Structures::create_Min_Max_Spin_Box(My_Table_Widget* table, int ta
 	Multilayer* multilayer = qobject_cast<Multilayer*>(multilayer_Tabs->widget(tab_Index));
 
 	QDoubleSpinBox* spin_Box = new QDoubleSpinBox;
+		spin_Box->setRange(0, 100);
+		spin_Box->setDecimals(3);
 		spin_Box->setMinimumWidth(TABLE_FIX_WIDTH_LINE_EDIT_SHORT);
 
 		spin_Box->setAccelerated(true);
@@ -2476,8 +2507,6 @@ void Table_Of_Structures::create_Min_Max_Spin_Box(My_Table_Widget* table, int ta
 		{
 			spin_Box->setValue(multilayer->min_Max_Sigma);
 		}
-		spin_Box->setRange(0, 100);
-		spin_Box->setDecimals(3);
 		spin_Box->setSingleStep(1);
 		spin_Box->setButtonSymbols(QAbstractSpinBox::NoButtons);
 
@@ -2540,13 +2569,13 @@ void Table_Of_Structures::create_Step_Spin_Box(My_Table_Widget* table, int tab_I
 		int add_Decimals = min(log10(length_Coeff),2.);
 		double min_Step = max(0.1/length_Coeff,0.0001);
 
-		if(whats_This == whats_This_Composition)			{ step_SpinBox->setValue(step_composition);				step_SpinBox->setDecimals(2);				step_SpinBox->setSingleStep(0.1);		}
-		if(whats_This == whats_This_Density)				{ step_SpinBox->setValue(step_density);					step_SpinBox->setDecimals(2);				step_SpinBox->setSingleStep(0.1);		}
-		if(whats_This == whats_This_Thickness)				{ step_SpinBox->setValue(step_thickness/length_Coeff);	step_SpinBox->setDecimals(2+add_Decimals);	step_SpinBox->setSingleStep(min_Step);	step_SpinBox->setSuffix(" "+length_units);}
-		if(whats_This == whats_This_Sigma)					{ step_SpinBox->setValue(step_sigma/length_Coeff);		step_SpinBox->setDecimals(2+add_Decimals);	step_SpinBox->setSingleStep(min_Step);	step_SpinBox->setSuffix(" "+length_units);}
-		if(whats_This == whats_This_Interlayer_Composition)	{ step_SpinBox->setValue(step_interlayer);				step_SpinBox->setDecimals(2);				step_SpinBox->setSingleStep(0.1);		}
-		if(whats_This == whats_This_Gamma)					{ step_SpinBox->setValue(step_gamma);					step_SpinBox->setDecimals(3);				step_SpinBox->setSingleStep(0.01);		}
-		if(whats_This == whats_This_Drift)					{ step_SpinBox->setValue(step_drift);					step_SpinBox->setDecimals(4);				step_SpinBox->setSingleStep(0.001);		}
+		if(whats_This == whats_This_Composition)			{ step_SpinBox->setDecimals(2);					step_SpinBox->setValue(step_composition);				step_SpinBox->setSingleStep(0.1);		}
+		if(whats_This == whats_This_Density)				{ step_SpinBox->setDecimals(2);					step_SpinBox->setValue(step_density);					step_SpinBox->setSingleStep(0.1);		}
+		if(whats_This == whats_This_Thickness)				{ step_SpinBox->setDecimals(2+add_Decimals);	step_SpinBox->setValue(step_thickness/length_Coeff);	step_SpinBox->setSingleStep(min_Step);	step_SpinBox->setSuffix(" "+length_units);}
+		if(whats_This == whats_This_Sigma)					{ step_SpinBox->setDecimals(2+add_Decimals);	step_SpinBox->setValue(step_sigma/length_Coeff);		step_SpinBox->setSingleStep(min_Step);	step_SpinBox->setSuffix(" "+length_units);}
+		if(whats_This == whats_This_Interlayer_Composition)	{ step_SpinBox->setDecimals(2);					step_SpinBox->setValue(step_interlayer);				step_SpinBox->setSingleStep(0.1);		}
+		if(whats_This == whats_This_Gamma)					{ step_SpinBox->setDecimals(3);					step_SpinBox->setValue(step_gamma);						step_SpinBox->setSingleStep(0.01);		}
+		if(whats_This == whats_This_Drift)					{ step_SpinBox->setDecimals(4);					step_SpinBox->setValue(step_drift);						step_SpinBox->setSingleStep(0.001);		}
 
 		resize_Line_Edit(table, step_SpinBox);
 	});

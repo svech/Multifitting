@@ -221,11 +221,11 @@ void Curve_Plot::create_Options()
 		scatter_Label = new QLabel("| Scatter:");
 
 		scatter_Spin = new QDoubleSpinBox;
-		scatter_Spin->setValue(0);
 		scatter_Spin->setButtonSymbols(QAbstractSpinBox::NoButtons);
 		scatter_Spin->setAccelerated(true);
 		scatter_Spin->setRange(0, MAX_DOUBLE);
 		scatter_Spin->setDecimals(1);
+		scatter_Spin->setValue(0);
 		scatter_Spin->setSingleStep(0.1);
 		scatter_Spin->setFixedWidth(35);
 		connect(scatter_Spin, static_cast<void(QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, &Curve_Plot::change_Scatter_Size);
@@ -234,11 +234,11 @@ void Curve_Plot::create_Options()
 		thickness_Label = new QLabel("Line:");
 
 		thickness_Spin = new QDoubleSpinBox;
-		thickness_Spin->setValue(0);
 		thickness_Spin->setButtonSymbols(QAbstractSpinBox::NoButtons);
 		thickness_Spin->setAccelerated(true);
 		thickness_Spin->setRange(0, MAX_DOUBLE);
 		thickness_Spin->setDecimals(1);
+		thickness_Spin->setValue(0);
 		thickness_Spin->setSingleStep(0.1);
 		thickness_Spin->setFixedWidth(35);
 		connect(thickness_Spin, static_cast<void(QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, &Curve_Plot::change_Thickness);

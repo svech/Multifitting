@@ -869,7 +869,7 @@ void Structure_Toolbar::print_Structure_Item(QTextStream& out, QTreeWidgetItem* 
 
 	QString temp_thickness_units = thickness_units;
 
-	bool if_Full = (item_Index%10==0);// || (struct_Data.parent_Item_Type == NOPARENT);
+	bool if_Full = (item_Index/*%10*/==0);// || (struct_Data.parent_Item_Type == NOPARENT);
 	// indentation
 	for(int y=0; y<item_Depth-1; y++) {	out << "\t";}
 

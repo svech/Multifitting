@@ -235,6 +235,7 @@ public:
 	static void create_Shortcuts(QWidget* this_Widget);
 
 	static void parallel_For(int num_Points, int num_Threads, const std::function<void(int n_Min, int n_Max)> &lambda);
+	static double get_Order_Of_Magnitude(double number);
 
 	template <typename Type>
 	static void resize_Line_Edit(Type* input_Line_Edit, bool adjust_Window = true);

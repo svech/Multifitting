@@ -157,6 +157,9 @@ void Fits_Selector::open_Fit()
 	bool opened = false;
 	int index = fits_List->currentRow();
 
+	// close item editors
+	global_Multilayer_Approach->close_Item_Editors();
+
 	// close aperiodic tables
 	global_Multilayer_Approach->temporarily_Close_Regular_Aperiodics();
 
