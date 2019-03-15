@@ -577,7 +577,7 @@ struct Fit_Params				{bool calc = true;
 								 bool norm = true;
 								 double weight = 1;
 								 double weight_Sqrt = 1;
-								 QString fit_Function = "log(x+1E-5)";// "log(x+1E-5); sin(x/2)";
+								 QString fit_Function = "log("+QString(fit_Function_Variable)+"+1E-5)";// "log(R+1E-5); sin(phi/2)";
 								 int power = 2;
 								 bool use_Chi2 = true;
 

@@ -1236,9 +1236,10 @@ void Item_Editor::more_Elements_Clicked()
 		fewer_Elements->show();
 	}
 
+	element_Index = composition_Combo_Box_Vec.indexOf(elements);
 	auto_Density_On = true; refresh_Data(); auto_Density_On = false;
-	connect(line_Edit, &QLineEdit::textEdited,        this, [=]{auto_Density_On = true; refresh_Data(); auto_Density_On = false;});
-	connect(elements, &QComboBox::currentTextChanged, this, [=]{auto_Density_On = true; refresh_Data(); auto_Density_On = false; });
+	connect(line_Edit, &QLineEdit::textEdited,        this, [=]{element_Index = composition_Combo_Box_Vec.indexOf(elements); auto_Density_On = true; refresh_Data(); auto_Density_On = false;});
+	connect(elements, &QComboBox::currentTextChanged, this, [=]{element_Index = -2019; auto_Density_On = true; refresh_Data(); auto_Density_On = false; });
 
 	if(struct_Data.parent_Item_Type == item_Type_Regular_Aperiodic)
 	{
@@ -1293,8 +1294,8 @@ void Item_Editor::read_Elements_From_Item()
 		composition_Combo_Box_Vec[i]=elements;
 		composition_At_Weight_Vec[i]=at_Weight;
 
-		connect(line_Edit, &QLineEdit::textEdited,		   this, [=]{auto_Density_On = true; refresh_Data(); auto_Density_On = false;});
-		connect(elements,  &QComboBox::currentTextChanged, this, [=]{auto_Density_On = true; refresh_Data(); auto_Density_On = false;});
+		connect(line_Edit, &QLineEdit::textEdited,		   this, [=]{element_Index = i;     auto_Density_On = true; refresh_Data(); auto_Density_On = false;});
+		connect(elements,  &QComboBox::currentTextChanged, this, [=]{element_Index = -2019; auto_Density_On = true; refresh_Data(); auto_Density_On = false;});
 
 		// placing ui elements
 		QFrame* element_Frame = new QFrame;
@@ -1689,10 +1690,15 @@ void Item_Editor::refresh_Data()
 			for(int i=0; i<struct_Data.composition.size(); ++i)
 			{
 				struct_Data.composition[i].composition.value = Locale.toDouble(composition_Line_Edit_Vec[i]->text());
-				struct_Data.composition[i].composition.fit.min = struct_Data.composition[i].composition.value*(1-dispersion);
-				struct_Data.composition[i].composition.fit.max = struct_Data.composition[i].composition.value*(1+dispersion);
-				struct_Data.composition[i].composition.confidence.min = struct_Data.composition[i].composition.fit.min;
-				struct_Data.composition[i].composition.confidence.max = struct_Data.composition[i].composition.fit.max;
+
+				// only if element changed or added
+				if(auto_Density_On && i == element_Index)
+				{
+					struct_Data.composition[i].composition.fit.min = struct_Data.composition[i].composition.value*(1-dispersion);
+					struct_Data.composition[i].composition.fit.max = struct_Data.composition[i].composition.value*(1+dispersion);
+					struct_Data.composition[i].composition.confidence.min = struct_Data.composition[i].composition.fit.min;
+					struct_Data.composition[i].composition.confidence.max = struct_Data.composition[i].composition.fit.max;
+				}
 
 				struct_Data.composition[i].type = composition_Combo_Box_Vec[i]->currentText();
 				composition_At_Weight_Vec[i]->setText(AtWt + Locale.toString(sorted_Elements.value(composition_Combo_Box_Vec[i]->currentText()),thumbnail_double_format,at_weight_precision) + ")");

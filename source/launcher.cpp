@@ -7,7 +7,7 @@ Launcher::Launcher(QWidget *parent) :
 {
 	QApplication::setWindowIcon(QIcon(QPixmap(icon_path + "icon.ico")));
 
-	Locale.setNumberOptions(QLocale::RejectGroupSeparator);
+	Locale.setNumberOptions(QLocale::OmitGroupSeparator);
 
 	// seed randomizator
 	clock_t t = clock();

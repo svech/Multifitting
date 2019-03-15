@@ -64,7 +64,7 @@ void Main_Calculation_Module::single_Calculation(bool print)
 //	auto start = std::chrono::system_clock::now();
 	for(int tab_Index=0; tab_Index<multilayers.size(); ++tab_Index)
 	{
-		calculation_Trees[tab_Index]->fill_Independent_Calc_Trees();
+//		calculation_Trees[tab_Index]->fill_Independent_Calc_Trees(); // in preliminary calculation now
 		for(Data_Element<Independent_Variables>& independent_Element : calculation_Trees[tab_Index]->independent)
 		{
 //			qInfo() << independent_Element.calc_Tree.begin().number_of_children();
@@ -73,7 +73,7 @@ void Main_Calculation_Module::single_Calculation(bool print)
 			calculation_Trees[tab_Index]->calculate_1_Kind(independent_Element);
 			if(lambda_Out_Of_Range) return;
 		}
-		calculation_Trees[tab_Index]->fill_Target_Calc_Trees();
+//		calculation_Trees[tab_Index]->fill_Target_Calc_Trees(); // in preliminary calculation now
 		for(Data_Element<Target_Curve>& target_Element : calculation_Trees[tab_Index]->target)
 		{
 //			qInfo() << target_Element.calc_Tree.begin().number_of_children();

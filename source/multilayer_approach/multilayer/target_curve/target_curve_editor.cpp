@@ -174,12 +174,15 @@ void Target_Curve_Editor::fill_Arg_Units_ComboBox(QString arg_Type)
 
 		at_Fixed_Units_ComboBox->addItems(list_Grazing);
 		at_Fixed_Units_ComboBox->addItems(list_Incidence);
+		target_Curve->curve.angle_Type = angle_Type_Grazing;
 		at_Fixed_Units_ComboBox->setCurrentIndex(at_Fixed_Units_ComboBox->findText(target_Curve->curve.angular_Units+", "+target_Curve->curve.angle_Type));
 
 		angular_Units_Label->setText(at_Fixed_Units_ComboBox->currentText().split(", ")[0]);
 
 		double coeff = angle_Coefficients_Map.value(target_Curve->curve.angular_Units);				// angular units
 		at_Fixed_LineEdit->setText(Locale.toString(target_Curve->measurement.probe_Angle.value/coeff, line_edit_double_format, line_edit_angle_precision));
+
+		refresh_At_Fixed_Units();
 	}
 	arg_Units_ComboBox->blockSignals(false);
 	at_Fixed_Units_ComboBox->blockSignals(false);
@@ -885,6 +888,7 @@ void Target_Curve_Editor::refresh_Argument_Type()
 	target_Curve->fill_Measurement_With_Data();
 	show_Description_Label();
 	target_Curve_Plot->refresh_Labels();
+
 }
 
 void Target_Curve_Editor::refresh_Value_Type()

@@ -123,6 +123,7 @@ public:
 	QString sigma_Weight = "weight:";
 
 	bool auto_Density_On = false;
+	int element_Index = -2019;
 
 	QVBoxLayout* main_Layout;
 	QHBoxLayout* hor_Layout;

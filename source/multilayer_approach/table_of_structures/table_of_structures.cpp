@@ -234,13 +234,13 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 				QLabel* master_Slave_Label = new QLabel("master/slave");
 					master_Slave_Label->setAlignment(Qt::AlignCenter);
 					master_Slave_Label->setMinimumWidth(COLOR_LEGEND_LABEL_WIDTH);
-				master_Slave_Label->setStyleSheet(master_Parameter_Color);
+				master_Slave_Label->setStyleSheet(master_Slave_Parameter_Color);
 				new_Table->setCellWidget(current_Row+1,0, master_Slave_Label);
 
 				// master parameter
 				QLabel* master_Label = new QLabel("pure master");
 					master_Label->setAlignment(Qt::AlignCenter);
-				master_Label->setStyleSheet(master_Slave_Parameter_Color);
+				master_Label->setStyleSheet(master_Parameter_Color);
 				new_Table->setCellWidget(current_Row+2,0, master_Label);
 
 				// free parameter
@@ -2569,11 +2569,11 @@ void Table_Of_Structures::create_Step_Spin_Box(My_Table_Widget* table, int tab_I
 		int add_Decimals = min(log10(length_Coeff),2.);
 		double min_Step = max(0.1/length_Coeff,0.0001);
 
-		if(whats_This == whats_This_Composition)			{ step_SpinBox->setDecimals(2);					step_SpinBox->setValue(step_composition);				step_SpinBox->setSingleStep(0.1);		}
-		if(whats_This == whats_This_Density)				{ step_SpinBox->setDecimals(2);					step_SpinBox->setValue(step_density);					step_SpinBox->setSingleStep(0.1);		}
+		if(whats_This == whats_This_Composition)			{ step_SpinBox->setDecimals(3);					step_SpinBox->setValue(step_composition);				step_SpinBox->setSingleStep(0.1);		}
+		if(whats_This == whats_This_Density)				{ step_SpinBox->setDecimals(3);					step_SpinBox->setValue(step_density);					step_SpinBox->setSingleStep(0.1);		}
 		if(whats_This == whats_This_Thickness)				{ step_SpinBox->setDecimals(2+add_Decimals);	step_SpinBox->setValue(step_thickness/length_Coeff);	step_SpinBox->setSingleStep(min_Step);	step_SpinBox->setSuffix(" "+length_units);}
 		if(whats_This == whats_This_Sigma)					{ step_SpinBox->setDecimals(2+add_Decimals);	step_SpinBox->setValue(step_sigma/length_Coeff);		step_SpinBox->setSingleStep(min_Step);	step_SpinBox->setSuffix(" "+length_units);}
-		if(whats_This == whats_This_Interlayer_Composition)	{ step_SpinBox->setDecimals(2);					step_SpinBox->setValue(step_interlayer);				step_SpinBox->setSingleStep(0.1);		}
+		if(whats_This == whats_This_Interlayer_Composition)	{ step_SpinBox->setDecimals(3);					step_SpinBox->setValue(step_interlayer);				step_SpinBox->setSingleStep(0.1);		}
 		if(whats_This == whats_This_Gamma)					{ step_SpinBox->setDecimals(3);					step_SpinBox->setValue(step_gamma);						step_SpinBox->setSingleStep(0.01);		}
 		if(whats_This == whats_This_Drift)					{ step_SpinBox->setDecimals(4);					step_SpinBox->setValue(step_drift);						step_SpinBox->setSingleStep(0.001);		}
 
