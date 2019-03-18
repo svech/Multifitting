@@ -183,6 +183,7 @@ void Optical_Graphs::add_Tabs()
 	{
 		if(i!=main_Tabs->currentIndex()) main_Tabs->tabBar()->setTabTextColor(i,Qt::gray);
 	}
+	main_Tabs->setCurrentIndex(global_Multilayer_Approach->multilayer_Tabs->currentIndex());
 }
 
 void Optical_Graphs::create_Tab_Content(QWidget* new_Widget, int tab_Index)

@@ -56,8 +56,6 @@ public:
 	void renew_Item_Tree_From_Calc_Tree(const tree<Node>::iterator& parent, tree<Node>& calc_Tree, QTreeWidgetItem* item);
 
 //	void statify_Item_Tree();
-	void look_Aperiodic(const tree<Node>::iterator& parent);
-	void calc_Aperiodic_Uniqueness(const tree<Node>::iterator& parent);
 
 	void stratify_Calc_Tree_Iteration(const tree<Node>::iterator& parent, int depth, QVector<tree<Node>::iterator>& chosen_Nodes);
 	void stratify_Calc_Tree(tree<Node>& calc_Tree);

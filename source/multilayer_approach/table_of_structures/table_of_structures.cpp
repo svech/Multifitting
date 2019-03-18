@@ -335,8 +335,9 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 			// recalculate on spinboxes change
 			{
 				current_Column = 0;
-				spin_Box_Mouse_Wheel	(new_Table, current_Row  , current_Column);
-				spin_Box_Recalculate	(new_Table, current_Row+1, current_Column);
+				spin_Box_Mouse_Wheel	 (new_Table, current_Row  , current_Column);
+				spin_Box_Recalculate	 (new_Table, current_Row+1, current_Column);
+				spin_Box_Change_Dependent(new_Table, current_Row  , current_Column+1);
 			}
 
 			add_Columns(new_Table, max_Depth + max_Number_Of_Elements+2);
@@ -2632,6 +2633,58 @@ void Table_Of_Structures::spin_Box_Mouse_Wheel(My_Table_Widget *table, int curre
 		checkbox_Mouse_Wheel->setChecked(mouse_Wheel_Spinbox_Table);
 		checkbox_Mouse_Wheel->toggled(checkbox_Mouse_Wheel->isChecked());
 	});
+}
+
+void Table_Of_Structures::spin_Box_Change_Dependent(My_Table_Widget *table, int current_Row, int current_Column)
+{
+	add_Columns(table,current_Column);
+
+	QCheckBox* checkbox_Dependent = new QCheckBox("Change Dependent");
+		checkbox_Dependent->setChecked(refill_Dependent_Table);
+	table->setCellWidget(current_Row, current_Column, checkbox_Dependent);
+
+	connect(checkbox_Dependent, &QCheckBox::toggled, this, [=]
+	{
+		refill_Dependent_Table = checkbox_Dependent->isChecked();
+
+		// immediately refill all tables
+		if(refill_Dependent_Table)
+		{
+			refill_All_Dependent();
+		}
+
+		if(refill_Dependent_Table)
+			checkbox_Dependent->setStyleSheet("QWidget { background: rgb(180, 255, 150); }");
+		else
+			checkbox_Dependent->setStyleSheet("background-color: white");
+	});
+
+	// refresh in each table
+	connect(main_Tabs, &QTabWidget::tabBarClicked, this, [=]
+	{
+		checkbox_Dependent->setChecked(refill_Dependent_Table);
+		checkbox_Dependent->toggled(checkbox_Dependent->isChecked());
+	});
+}
+
+void Table_Of_Structures::refill_All_Dependent()
+{
+//	for(int tab_Index=0; tab_Index<multilayer_Tabs->count(); ++tab_Index)
+//	{
+//		multilayers[tab_Index] = qobject_cast<Multilayer*>(multilayer_Tabs->widget(tab_Index));
+//		calculation_Trees[tab_Index] = new Calculation_Tree(multilayers[tab_Index], calc_Mode);
+//	}
+
+//	for(int tab_Index=0; tab_Index<multilayer_Tabs->count(); ++tab_Index)
+//	{
+//		if( calculation_Trees[tab_Index]->target.size()>0 )
+//		{
+//			// find fitables over tree
+//			calc_Tree_Iteration(calculation_Trees[tab_Index]->real_Calc_Tree.begin());
+//		}
+//	}
+
+	// TODO            поменять также independent trees!
 }
 
 //// refresh

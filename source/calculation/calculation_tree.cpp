@@ -260,32 +260,6 @@ void Calculation_Tree::renew_Item_Tree_From_Calc_Tree(const tree<Node>::iterator
 	}
 }
 
-void Calculation_Tree::look_Aperiodic(const tree<Node>::iterator& parent)
-{
-	// iterate over tree, looking for aperiodics
-//	for(unsigned i=0; i<parent.number_of_children(); ++i)
-//	{
-//		tree<Node>::pre_order_iterator child = tree<Node>::child(parent,i);
-
-//		if(child.node->data.struct_Data.item_Type == item_Type_Aperiodic)
-//		{
-//			qInfo() << "look_Aperiodic";
-//			// calc uniqueness
-//			// for each uniqueness find average thickness
-//			// for each layer find penalty (if turned on, with threshold and Q)
-//		}
-//		if(child.number_of_children()>0)
-//		{
-//			look_Aperiodic(child);
-//		}
-//	}
-}
-
-void Calculation_Tree::calc_Aperiodic_Uniqueness(const tree<Node>::iterator& parent)
-{
-
-}
-
 void Calculation_Tree::stratify_Calc_Tree_Iteration(const tree<Node>::iterator& parent, int depth, QVector<tree<Node>::iterator>& chosen_Nodes)
 {
 	// iterate over tree, looking for fixed depth

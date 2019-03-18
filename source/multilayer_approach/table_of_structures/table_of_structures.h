@@ -74,8 +74,10 @@ public:
 	void create_Step_Spin_Box	 (My_Table_Widget* table, int tab_Index, int current_Row, int current_Column, QString whats_This);
 
 	// spinbox recalculation
-	void spin_Box_Recalculate	 (My_Table_Widget* table,				 int current_Row, int current_Column);
-	void spin_Box_Mouse_Wheel	 (My_Table_Widget* table,				 int current_Row, int current_Column);
+	void spin_Box_Recalculate		(My_Table_Widget* table,				 int current_Row, int current_Column);
+	void spin_Box_Mouse_Wheel		(My_Table_Widget* table,				 int current_Row, int current_Column);
+	void spin_Box_Change_Dependent  (My_Table_Widget* table,				 int current_Row, int current_Column);
+	void refill_All_Dependent();
 
 	// general
 	void span_Structure_Headers(My_Table_Widget* table);

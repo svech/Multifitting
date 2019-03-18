@@ -222,6 +222,7 @@ int reflectivity_Calc_Threads;
 int epsilon_Partial_Fill_Threads;
 bool recalculate_Spinbox_Table;
 bool mouse_Wheel_Spinbox_Table;
+bool refill_Dependent_Table;
 bool aperiodic_Recalculate_Spinbox_Table;
 bool aperiodic_Mouse_Wheel_Spinbox_Table;
 
@@ -770,6 +771,7 @@ void Settings::read_Calculations(bool reset_to_default)
 	calculations.beginGroup( Recalculation );
 		recalculate_Spinbox_Table			 = calculations.value( "recalculate_Spinbox_Table",				true  ).toBool();
 		mouse_Wheel_Spinbox_Table			 = calculations.value( "mouse_Wheel_Spinbox_Table",				false ).toBool();
+		refill_Dependent_Table				 = calculations.value( "refill_Dependent_Table",				false ).toBool();
 		aperiodic_Recalculate_Spinbox_Table	 = calculations.value( "aperiodic_Recalculate_Spinbox_Table",	false  ).toBool();
 		aperiodic_Mouse_Wheel_Spinbox_Table	 = calculations.value( "aperiodic_Mouse_Wheel_Spinbox_Table",	true ).toBool();
 	calculations.endGroup();
@@ -791,6 +793,7 @@ void Settings::save_Calculations()
 	calculations.beginGroup( Recalculation );
 		calculations.setValue( "recalculate_Spinbox_Table",	 recalculate_Spinbox_Table	);
 		calculations.setValue( "mouse_Wheel_Spinbox_Table",	 mouse_Wheel_Spinbox_Table	);
+		calculations.setValue( "refill_Dependent_Table",	 refill_Dependent_Table		);
 		calculations.setValue( "aperiodic_Recalculate_Spinbox_Table", aperiodic_Recalculate_Spinbox_Table );
 		calculations.setValue( "aperiodic_Mouse_Wheel_Spinbox_Table", aperiodic_Mouse_Wheel_Spinbox_Table );
 	calculations.endGroup();

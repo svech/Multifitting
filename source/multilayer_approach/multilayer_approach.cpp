@@ -616,22 +616,28 @@ void Multilayer_Approach::open(QString filename)
 
 	// close table of structures
 	bool reopen_Table = runned_Tables_Of_Structures.contains(table_Key);
+	int active_Tab_Tables_Of_Structures = -2019;
 	if(reopen_Table)
 	{
+		active_Tab_Tables_Of_Structures = runned_Tables_Of_Structures.value(table_Key)->main_Tabs->currentIndex();
 		runned_Tables_Of_Structures.value(table_Key)->close();
 	}
 
 	// close calculation settings
 	bool reopen_Calc_Settings = runned_Calculation_Settings_Editor.contains(calc_Settings_Key);
+	int active_Tab_Calculation_Settings_Editor = -2019;
 	if(reopen_Calc_Settings)
 	{
+		active_Tab_Calculation_Settings_Editor = runned_Calculation_Settings_Editor.value(calc_Settings_Key)->main_Tabs->currentIndex();
 		runned_Calculation_Settings_Editor.value(calc_Settings_Key)->close();
 	}
 
 	// close graphs
 	bool reopen_Graphs = runned_Optical_Graphs.contains(optical_Graphs_Key);
+	int active_Tab_Optical_Graphs = -2019;
 	if(reopen_Graphs)
 	{
+		active_Tab_Optical_Graphs = runned_Optical_Graphs.value(optical_Graphs_Key)->main_Tabs->currentIndex();
 		runned_Optical_Graphs.value(optical_Graphs_Key)->close();
 	}
 
@@ -865,18 +871,21 @@ void Multilayer_Approach::open(QString filename)
 	if(reopen_Table)
 	{
 		open_Table_Of_Structures();
+		runned_Tables_Of_Structures.value(table_Key)->main_Tabs->setCurrentIndex(active_Tab_Tables_Of_Structures);
 	}
 
 	// reopen calculation settings
 	if(reopen_Calc_Settings)
 	{
 		open_Calculation_Settings();
+		runned_Calculation_Settings_Editor.value(calc_Settings_Key)->main_Tabs->setCurrentIndex(active_Tab_Calculation_Settings_Editor);
 	}
 
 	// reopen table of structures
 	if(reopen_Graphs)
 	{
 		open_Optical_Graphs();
+		runned_Optical_Graphs.value(optical_Graphs_Key)->main_Tabs->setCurrentIndex(active_Tab_Optical_Graphs);
 	}
 
 	// reopen fitting settings

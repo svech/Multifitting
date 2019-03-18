@@ -202,22 +202,21 @@ void Unwrapped_Structure::variable_Drift(double& value, Drift& drift, int period
 	double period_Index_From_Middle = period_Index - (num_Repetition/2.-0.5);
 	if(drift.is_Drift_Line)
 	{
-		drift_Factor = 1 + drift.drift_Line_Value.value*period_Index_From_Middle/100.;
+		drift_Factor = drift_Factor + drift.drift_Line_Value.value*period_Index_From_Middle/100.;
 	}
 	if(drift.is_Drift_Sine)
 	{
-		drift_Factor = 1 + drift.drift_Sine_Amplitude.value*sin(2*M_PI*(period_Index_From_Middle*drift.drift_Sine_Frequency.value + drift.drift_Sine_Phase.value))/100.;
+		drift_Factor = drift_Factor + drift.drift_Sine_Amplitude.value*sin(2*M_PI*(period_Index_From_Middle*drift.drift_Sine_Frequency.value + drift.drift_Sine_Phase.value))/100.;
 	}
 	if(drift.is_Drift_Rand)
 	{
-		drift_Factor = 1 + gsl_ran_gaussian(r, drift.drift_Rand_Rms.value)/100.;
+		drift_Factor = drift_Factor + gsl_ran_gaussian(r, drift.drift_Rand_Rms.value)/100.;
 	}
 	if(drift_Factor>=0)
 	{
 		value *= drift_Factor;
 	} else
 	{
-		// TODO stop calculation and show error!
 		qInfo() << "==========\nUnwrapped_Structure::variable_Drift  :  negative drifted variable!\n==========";
 		value *= abs(drift_Factor);
 	}
