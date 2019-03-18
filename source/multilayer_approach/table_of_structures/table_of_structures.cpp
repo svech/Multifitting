@@ -2606,8 +2606,8 @@ void Table_Of_Structures::spin_Box_Recalculate(My_Table_Widget *table, int curre
 	connect(main_Tabs, &QTabWidget::tabBarClicked, this, [=]
 	{
 		checkbox_Recalculate->setChecked(recalculate_Spinbox_Table);
-		checkbox_Recalculate->toggled(checkbox_Recalculate->isChecked());
 	});
+	checkbox_Recalculate->toggled(recalculate_Spinbox_Table);
 }
 
 void Table_Of_Structures::spin_Box_Mouse_Wheel(My_Table_Widget *table, int current_Row, int current_Column)
@@ -2631,11 +2631,11 @@ void Table_Of_Structures::spin_Box_Mouse_Wheel(My_Table_Widget *table, int curre
 	connect(main_Tabs, &QTabWidget::tabBarClicked, this, [=]
 	{
 		checkbox_Mouse_Wheel->setChecked(mouse_Wheel_Spinbox_Table);
-		checkbox_Mouse_Wheel->toggled(checkbox_Mouse_Wheel->isChecked());
 	});
+	checkbox_Mouse_Wheel->toggled(mouse_Wheel_Spinbox_Table);
 }
 
-void Table_Of_Structures::spin_Box_Change_Dependent(My_Table_Widget *table, int current_Row, int current_Column)
+void Table_Of_Structures::spin_Box_Change_Dependent(My_Table_Widget* table, int current_Row, int current_Column)
 {
 	add_Columns(table,current_Column);
 
@@ -2663,28 +2663,85 @@ void Table_Of_Structures::spin_Box_Change_Dependent(My_Table_Widget *table, int 
 	connect(main_Tabs, &QTabWidget::tabBarClicked, this, [=]
 	{
 		checkbox_Dependent->setChecked(refill_Dependent_Table);
-		checkbox_Dependent->toggled(checkbox_Dependent->isChecked());
 	});
+
+	// just colorize
+	if(refill_Dependent_Table)
+		checkbox_Dependent->setStyleSheet("QWidget { background: rgb(180, 255, 150); }");
+	else
+		checkbox_Dependent->setStyleSheet("background-color: white");
 }
 
 void Table_Of_Structures::refill_All_Dependent()
 {
-//	for(int tab_Index=0; tab_Index<multilayer_Tabs->count(); ++tab_Index)
-//	{
-//		multilayers[tab_Index] = qobject_cast<Multilayer*>(multilayer_Tabs->widget(tab_Index));
-//		calculation_Trees[tab_Index] = new Calculation_Tree(multilayers[tab_Index], calc_Mode);
-//	}
+	QVector<Parameter> master_Parameters;
 
-//	for(int tab_Index=0; tab_Index<multilayer_Tabs->count(); ++tab_Index)
-//	{
-//		if( calculation_Trees[tab_Index]->target.size()>0 )
-//		{
-//			// find fitables over tree
-//			calc_Tree_Iteration(calculation_Trees[tab_Index]->real_Calc_Tree.begin());
-//		}
-//	}
+	// find all top masters
+	for(int tab_Index=0; tab_Index<multilayer_Tabs->count(); ++tab_Index)
+	{
+		Multilayer* multilayer = qobject_cast<Multilayer*>(multilayer_Tabs->widget(tab_Index));
+		real_Tree_Iteration(multilayer->structure_Tree->tree, master_Parameters);
+	}
 
-	// TODO            поменять также independent trees!
+	// change dependent chain
+	for(const Parameter& master_Parameter : master_Parameters)
+	{
+		change_Slaves_in_Structure_Tree(master_Parameter.coupled.slaves);
+		qInfo() << master_Parameter.indicator.full_Name;
+	}
+
+	// refresh independent
+	for(int tab_Index=0; tab_Index<multilayer_Tabs->count(); ++tab_Index)
+	{
+		Multilayer* multilayer = qobject_cast<Multilayer*>(multilayer_Tabs->widget(tab_Index));
+		multilayer->refresh_Structure_And_Independent();
+	}
+}
+
+void Table_Of_Structures::real_Tree_Iteration(QTreeWidget* real_Struct_Tree, QVector<Parameter>& master_Parameters)
+{
+	QTreeWidgetItem* structure_Item;
+	QTreeWidgetItemIterator it(real_Struct_Tree);
+	while (*it)
+	{
+		structure_Item = *it;
+		Data struct_Data = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+
+		// look for pure masters
+		struct_Data.fill_Potentially_Fitable_Parameters_Vector();
+		for(Parameter* parameter : struct_Data.potentially_Fitable_Parameters)
+		{
+			// pure masters only
+			if(!parameter->coupled.master.exist && parameter->coupled.slaves.size()>0)
+			{
+				master_Parameters.append(*parameter);
+			}
+		}
+		++it;
+	}
+}
+
+void Table_Of_Structures::change_Slaves_in_Structure_Tree(const QVector<Parameter_Indicator>& slaves)
+{
+	for(const Parameter_Indicator& slave_Indicator : slaves)
+	{
+		QTreeWidgetItem* structure_Item = Global_Variables::get_Struct_Item_From_Multilayer_by_Id (slave_Indicator.id);
+		Data struct_Data = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+		Parameter* slave_Parameter = Global_Variables::get_Parameter_From_Struct_Item_by_Id(struct_Data, slave_Indicator.id);
+
+//		slave_Parameter->coupled.master.expression
+
+		// save
+		QVariant var;
+		var.setValue( struct_Data );
+		structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+
+		// refresh table
+		/// ddddddddddddddddddddddddddddddddddddddd
+
+		// we need to go deeper
+		change_Slaves_in_Structure_Tree(slave_Parameter->coupled.slaves);
+	}
 }
 
 //// refresh
