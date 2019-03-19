@@ -41,12 +41,16 @@ void Coupling_Editor::closeEvent(QCloseEvent *)
 //		qInfo() << "";
 	}
 
-	// enable context menu
+	// enable context menu and refilling
 	if(parent()!=nullptr)
-	for(int tab_Index=0; tab_Index<table_Of_Structures->main_Tabs->count(); ++tab_Index)
 	{
-		My_Table_Widget* table = qobject_cast<My_Table_Widget*>(table_Of_Structures->main_Tabs->widget(tab_Index));
-		table->setContextMenuPolicy(Qt::DefaultContextMenu);
+		for(int tab_Index=0; tab_Index<table_Of_Structures->main_Tabs->count(); ++tab_Index)
+		{
+			My_Table_Widget* table = qobject_cast<My_Table_Widget*>(table_Of_Structures->main_Tabs->widget(tab_Index));
+			table->setContextMenuPolicy(Qt::DefaultContextMenu);
+		}
+
+		table_Of_Structures->refill_All_Dependent();
 	}
 }
 

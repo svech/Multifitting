@@ -313,15 +313,16 @@ class Node;
 // -----------------------------------------------------------------------------------------
 
 // properties
-#define id_Property			"id"
-#define min_Size_Property	"min_Size"
-#define index_Property		"index"
-#define TRIL_TRUE			"True"
-#define TRIL_FALSE			"False"
-#define TRIL_NOT_DEFINED	"NotDefined"
-#define NOPARENT			"No parents"
+#define id_Property				"id"
+#define period_Gamma_Property	"period_Gamma"
+#define min_Size_Property		"min_Size"
+#define index_Property			"index"
+#define TRIL_TRUE				"True"
+#define TRIL_FALSE				"False"
+#define TRIL_NOT_DEFINED		"NotDefined"
+#define NOPARENT				"No parents"
 #define previous_Expression_Property "previous_Expression"
-#define abort_Property		"abort"
+#define abort_Property			"abort"
 
 #define num_Chemic_Element_Property		"num_Chemic_Element"
 #define interlayer_Index_Property		"interlayer_Index"

@@ -1857,7 +1857,15 @@ void Table_Of_Structures::create_Line_Edit(My_Table_Widget* table, int tab_Index
 	// for reloading
 	spin_Box->setProperty(reload_Property, false);
 	spin_Box->setProperty(tab_Index_Property, tab_Index);
-	if(val_Type == VAL)	spin_Box->setProperty(id_Property, id);
+	if(val_Type == VAL)
+	{
+		spin_Box->setProperty(id_Property, id);
+		if(whats_This == whats_This_Period ||
+		   whats_This == whats_This_Gamma )
+		{
+			spin_Box->setProperty(period_Gamma_Property, true);
+		}
+	}
 
 	// storage
 	spin_Boxes_Map.insert(spin_Box, structure_Item);
@@ -2691,19 +2699,34 @@ void Table_Of_Structures::refill_All_Dependent()
 		for(int i=0; i<all_Widgets_To_Reload[tab_Index].size(); ++i)
 		{
 			QWidget* widget_To_Reload = all_Widgets_To_Reload[tab_Index][i];
+			MyDoubleSpinBox* spin_Box = qobject_cast<MyDoubleSpinBox*>(widget_To_Reload);
 
-			// reload only lineedits-slaves;
-			if(ids.contains(widget_To_Reload->property(id_Property).toInt()))
+			if(spin_Box)
 			{
-				MyDoubleSpinBox* spin_Box = qobject_cast<MyDoubleSpinBox*>(widget_To_Reload);
-
-				if(refill_Dependent_Table)
+				// lock, unlock and reload only lineedits-slaves;
+				if(ids.contains(widget_To_Reload->property(id_Property).toInt()))
 				{
-					if(spin_Box) spin_Box->setReadOnly(true);
-					reload_One_Widget(widget_To_Reload);
+					if(refill_Dependent_Table)
+					{
+						spin_Box->setReadOnly(true);
+						reload_One_Widget(widget_To_Reload);
+					} else
+					{
+						spin_Box->setReadOnly(false);
+					}
 				} else
 				{
-					if(spin_Box) spin_Box->setReadOnly(false);
+					// make editable ex-slaves
+					if(widget_To_Reload->property(id_Property).toInt()>0 && !widget_To_Reload->property(period_Gamma_Property).toBool())
+					{
+						spin_Box->setReadOnly(false);
+					}
+				}
+				// lock, unlock and reload period and gamma
+				if(widget_To_Reload->property(period_Gamma_Property).toBool())
+				{
+					// TODO lock period/gamma
+					reload_One_Widget(widget_To_Reload);
 				}
 			}
 		}
@@ -2782,6 +2805,12 @@ void Table_Of_Structures::change_Slaves_in_Structure_Tree(Parameter& master, con
 			QVariant var;
 			var.setValue( slave_Struct_Data );
 			slave_Structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+
+			if(slave_Parameter->indicator.whats_This == whats_This_Thickness &&
+				slave_Struct_Data.parent_Item_Type == item_Type_Multilayer	)
+			{
+				Global_Variables::change_Parent_Period_Gamma_Thickness(slave_Structure_Item);
+			}
 		}
 
 		// refresh table
@@ -3692,13 +3721,23 @@ void Table_Of_Structures::refresh_Parameter(My_Table_Widget* table)
 			Global_Variables::change_Parent_Period_Gamma_Thickness(structure_Item);
 			emit regular_Layer_Edited(whats_This+value_Type);
 		}
-	}
-	{
+
+		// we should save before changing dependent
 		QVariant var;
 		var.setValue( struct_Data );
 		structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
 
 		// change dependent if necessary
+		if( refill_Dependent_Table &&
+			!parameter.coupled.master.exist && parameter.coupled.slaves.size()>0 )
+		{
+
+		}
+	}
+	{
+		QVariant var;
+		var.setValue( struct_Data );
+		structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
 
 		reload_Related_Widgets(QObject::sender());
 		if(layer_Thickness_Transfer_Is_Created && !layer_Thickness_Transfer_Reload_Block)	{
