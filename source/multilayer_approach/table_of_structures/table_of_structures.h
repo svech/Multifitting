@@ -79,7 +79,7 @@ public:
 	void spin_Box_Change_Dependent  (My_Table_Widget* table,				 int current_Row, int current_Column);
 	void refill_All_Dependent();
 	void real_Tree_Iteration(QTreeWidget* real_Struct_Tree, QVector<Parameter>& master_Parameters);
-	void change_Slaves_in_Structure_Tree(const QVector<Parameter_Indicator>& slaves);
+	void change_Slaves_in_Structure_Tree(Parameter& master, const QVector<Parameter_Indicator>& slaves, QVector<id_Type>& ids);
 
 	// general
 	void span_Structure_Headers(My_Table_Widget* table);

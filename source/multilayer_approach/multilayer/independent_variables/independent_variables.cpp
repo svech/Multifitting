@@ -426,7 +426,8 @@ void Independent_Variables::reset_Independent_Variables_Structure()
 
 	// clear irrelevant variables
 	clear_Unused_Independent_List();
-	refresh_Text();
+	// TODO refresh_Text temporary disabled. used seldom, but takes too much time
+//	refresh_Text();
 }
 
 void Independent_Variables::refresh_Independent_State_All()
