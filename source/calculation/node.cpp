@@ -21,6 +21,9 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 	{
 		// here we know that active item type == "Measurement"
 
+		// crutch
+		struct_Data.relative_Density.value = max(struct_Data.relative_Density.value,DBL_EPSILON);
+
 		int num_Points = 0;
 		vector<double> cos2;
 		vector<double> k;
@@ -58,9 +61,9 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 				// if known material
 				if(struct_Data.composed_Material == false)
 				{
-					Material_Data temp_Material_Data = optical_Constants->material_Map.value(struct_Data.material + nk_Ext);
+					Material_Data temp_Material_Data = optical_Constants->material_Map.value(struct_Data.approved_Material + nk_Ext);
 					QVector<complex<double>> n;
-					optical_Constants->interpolation_Epsilon(temp_Material_Data.material_Data, spectral_Points, n, struct_Data.material);
+					optical_Constants->interpolation_Epsilon(temp_Material_Data.material_Data, spectral_Points, n, struct_Data.approved_Material);
 					delta_Epsilon_Ang = 1. - n.first()*n.first();
 				} else
 				// compile from elements
@@ -127,9 +130,9 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 				// if known material
 				if(struct_Data.composed_Material == false)
 				{
-					Material_Data temp_Material_Data = optical_Constants->material_Map.value(struct_Data.material + nk_Ext);
+					Material_Data temp_Material_Data = optical_Constants->material_Map.value(struct_Data.approved_Material + nk_Ext);
 					QVector<complex<double>> n;
-					optical_Constants->interpolation_Epsilon(temp_Material_Data.material_Data, spectral_Points, n, struct_Data.material);
+					optical_Constants->interpolation_Epsilon(temp_Material_Data.material_Data, spectral_Points, n, struct_Data.approved_Material);
 
 					for(int point_Index = 0; point_Index<num_Points; ++point_Index)
 					{

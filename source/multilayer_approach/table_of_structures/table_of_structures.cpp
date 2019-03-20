@@ -62,6 +62,8 @@ void Table_Of_Structures::create_Main_Layout()
 		connect(regular_Aperiodic_Table, &Regular_Aperiodic_Table::regular_Aperiodic_Edited, this, &Table_Of_Structures::reload_From_Regular_Aperiodic);
 		connect(this, &Table_Of_Structures::regular_Layer_Edited, regular_Aperiodic_Table, &Regular_Aperiodic_Table::reload_All_Widgets);
 	}
+
+	refill_All_Dependent();
 }
 
 void Table_Of_Structures::set_Window_Geometry()
@@ -466,6 +468,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 			}
 			item_CheckBox->setChecked(struct_Data.item_Enabled);
 			check_Boxes_Map.insert(item_CheckBox, structure_Item);
+			item_Check_Boxes_Map.insert(structure_Item, item_CheckBox);
 			connect(item_CheckBox, &QCheckBox::toggled, this, [=]
 			{
 				// enable or disable widgets
@@ -1806,7 +1809,7 @@ void Table_Of_Structures::create_Line_Edit(My_Table_Widget* table, int tab_Index
 		}
 		id = parameter.indicator.id;
 
-		spin_Boxes_ID_Map.insert(spin_Box,id);
+		if(val_Type == VAL) spin_Boxes_ID_Map.insert(spin_Box,id);
 
 		if( whats_This == whats_This_Thickness	||
 			whats_This == whats_This_Period		||
@@ -1821,6 +1824,7 @@ void Table_Of_Structures::create_Line_Edit(My_Table_Widget* table, int tab_Index
 			{
 				reload_Show_Dependence_Map.insertMulti(spin_Box,  interlayer.my_Sigma.indicator.id);
 			}
+			spin_Box->setProperty(forced_Reload_Property,true);
 		}
 	}
 
@@ -2670,15 +2674,17 @@ void Table_Of_Structures::spin_Box_Change_Dependent(My_Table_Widget* table, int 
 	{
 		checkbox_Dependent->setChecked(refill_Dependent_Table);
 	});
-	checkbox_Dependent->toggled(refill_Dependent_Table);
+
+	// just colorize
+	if(refill_Dependent_Table)
+		checkbox_Dependent->setStyleSheet("QWidget { background: rgb(180, 255, 150); }");
+	else
+		checkbox_Dependent->setStyleSheet("background-color: white");
 }
 
 void Table_Of_Structures::refill_All_Dependent()
 {
-	auto start = std::chrono::system_clock::now();
-
 	QVector<Parameter> master_Parameters; // real master values should be changed before all refilling operations. Here just copies
-	QVector<id_Type> ids;
 
 	// find all top masters
 	for(int tab_Index=0; tab_Index<multilayer_Tabs->count(); ++tab_Index)
@@ -2688,64 +2694,17 @@ void Table_Of_Structures::refill_All_Dependent()
 	}
 
 	// change dependent chain
+	QVector<id_Type> ids;
 	for(Parameter& master_Parameter : master_Parameters)
 	{
 		change_Slaves_in_Structure_Tree(master_Parameter, master_Parameter.coupled.slaves, ids);
 	}
 
 	// refresh table and independent in all tabs
-	for(int tab_Index=0; tab_Index<main_Tabs->count(); ++tab_Index)
-	{
-		for(int i=0; i<all_Widgets_To_Reload[tab_Index].size(); ++i)
-		{
-			QWidget* widget_To_Reload = all_Widgets_To_Reload[tab_Index][i];
-			MyDoubleSpinBox* spin_Box = qobject_cast<MyDoubleSpinBox*>(widget_To_Reload);
+	refresh_Dependents(ids);
 
-			if(spin_Box)
-			{
-				// lock, unlock and reload only lineedits-slaves;
-				if(ids.contains(widget_To_Reload->property(id_Property).toInt()))
-				{
-					if(refill_Dependent_Table)
-					{
-						spin_Box->setReadOnly(true);
-						reload_One_Widget(widget_To_Reload);
-					} else
-					{
-						spin_Box->setReadOnly(false);
-					}
-				} else
-				{
-					// make editable ex-slaves
-					if(widget_To_Reload->property(id_Property).toInt()>0 && !widget_To_Reload->property(period_Gamma_Property).toBool())
-					{
-						spin_Box->setReadOnly(false);
-					}
-				}
-				// lock, unlock and reload period and gamma
-				if(widget_To_Reload->property(period_Gamma_Property).toBool())
-				{
-					// TODO lock period/gamma
-					reload_One_Widget(widget_To_Reload);
-				}
-			}
-		}
-
-		if(refill_Dependent_Table)
-		{
-			Multilayer* multilayer = qobject_cast<Multilayer*>(multilayer_Tabs->widget(tab_Index));
-			multilayer->structure_Tree->refresh__StructureTree__Data_and_Text();
-			for(int i=0; i<multilayer->independent_Variables_Plot_Tabs->count(); ++i)
-			{
-				Independent_Variables* independent = qobject_cast<Independent_Variables*>(multilayer->independent_Variables_Plot_Tabs->widget(i));
-				independent->reset_Independent_Variables_Structure();
-			}
-		}
-	}
-
-	auto end = std::chrono::system_clock::now();
-	auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-	qInfo() << "refill_All_Dependent time  : "<< elapsed.count()/1000000. << " seconds\n";
+	// lock and unlock
+	lock_Unlock_Dependents(ids);
 }
 
 void Table_Of_Structures::real_Tree_Iteration(QTreeWidget* real_Struct_Tree, QVector<Parameter>& master_Parameters)
@@ -2757,14 +2716,17 @@ void Table_Of_Structures::real_Tree_Iteration(QTreeWidget* real_Struct_Tree, QVe
 		structure_Item = *it;
 		Data struct_Data = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
 
-		// look for pure masters
-		struct_Data.fill_Potentially_Fitable_Parameters_Vector();
-		for(Parameter* parameter : struct_Data.potentially_Fitable_Parameters)
+		if(struct_Data.parent_Item_Type!=item_Type_Regular_Aperiodic)
 		{
-			// pure masters only
-			if(!parameter->coupled.master.exist && parameter->coupled.slaves.size()>0)
+			// look for pure masters
+			struct_Data.fill_Potentially_Fitable_Parameters_Vector();
+			for(Parameter* parameter : struct_Data.potentially_Fitable_Parameters)
 			{
-				master_Parameters.append(*parameter);
+				// pure masters only
+				if(!parameter->coupled.master.exist && parameter->coupled.slaves.size()>0)
+				{
+					master_Parameters.append(*parameter);
+				}
 			}
 		}
 		++it;
@@ -2777,7 +2739,7 @@ void Table_Of_Structures::change_Slaves_in_Structure_Tree(Parameter& master, con
 	{
 		ids.append(slave_Indicator.id);
 
-		QTreeWidgetItem* slave_Structure_Item = Global_Variables::get_Struct_Item_From_Multilayer_by_Id (slave_Indicator.id);
+		QTreeWidgetItem* slave_Structure_Item = get_Struct_Item_From_Multilayer_by_Id (slave_Indicator.id);
 		Data slave_Struct_Data = slave_Structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
 		Parameter* slave_Parameter = Global_Variables::get_Parameter_From_Struct_Item_by_Id(slave_Struct_Data, slave_Indicator.id);
 
@@ -2794,10 +2756,7 @@ void Table_Of_Structures::change_Slaves_in_Structure_Tree(Parameter& master, con
 			expression_Exprtk.register_symbol_table(symbol_table);
 			parser.compile(slave_Parameter->coupled.master.expression.toStdString(), expression_Exprtk);
 
-			qInfo() << "\t" << slave_Parameter->indicator.full_Name << slave_Parameter->coupled.master.expression;
-			qInfo() << "\t before:" << slave_Parameter->value;
 			slave_Parameter->value = expression_Exprtk.value();
-			qInfo() << "\t  after:" << slave_Parameter->value;
 #else
 			slave_Parameter->value = master.value;
 #endif
@@ -2813,12 +2772,142 @@ void Table_Of_Structures::change_Slaves_in_Structure_Tree(Parameter& master, con
 			}
 		}
 
-		// refresh table
-		/// done somewhere else
-
 		// we need to go deeper
 		change_Slaves_in_Structure_Tree(*slave_Parameter, slave_Parameter->coupled.slaves, ids);
 	}
+}
+
+void Table_Of_Structures::refresh_Dependents(const QVector<id_Type>& ids)
+{
+	for(int tab_Index=0; tab_Index<main_Tabs->count(); ++tab_Index)
+	{
+		for(int i=0; i<all_Widgets_To_Reload[tab_Index].size(); ++i)
+		{
+			QWidget* widget_To_Reload = all_Widgets_To_Reload[tab_Index][i];
+			MyDoubleSpinBox* spin_Box = qobject_cast<MyDoubleSpinBox*>(widget_To_Reload);
+
+			if(spin_Box)
+			{
+				// reload only lineedits-slaves;
+				id_Type slave_ID = widget_To_Reload->property(id_Property).toInt();
+				if(ids.contains(slave_ID))
+				{
+					if(refill_Dependent_Table)
+					{
+						reload_One_Widget(widget_To_Reload);
+					}
+				}
+			}
+		}
+
+		if(refill_Dependent_Table)
+		{
+			Multilayer* multilayer = qobject_cast<Multilayer*>(multilayer_Tabs->widget(tab_Index));
+			for(int i=0; i<multilayer->independent_Variables_Plot_Tabs->count(); ++i)
+			{
+				Independent_Variables* independent = qobject_cast<Independent_Variables*>(multilayer->independent_Variables_Plot_Tabs->widget(i));
+				independent->reset_Independent_Variables_Structure();
+			}
+		}
+	}
+}
+
+void Table_Of_Structures::lock_Unlock_Dependents(const QVector<id_Type>& ids)
+{
+	for(int tab_Index=0; tab_Index<main_Tabs->count(); ++tab_Index)
+	{
+		for(int i=0; i<all_Widgets_To_Reload[tab_Index].size(); ++i)
+		{
+			QWidget* widget_To_Reload = all_Widgets_To_Reload[tab_Index][i];
+			MyDoubleSpinBox* spin_Box = qobject_cast<MyDoubleSpinBox*>(widget_To_Reload);
+
+			if(spin_Box)
+			{
+				// lock, unlock and reload only lineedits-slaves;
+				id_Type id = widget_To_Reload->property(id_Property).toInt();
+				if(ids.contains(id))
+				{
+					if(refill_Dependent_Table)	spin_Box->setReadOnly(true);
+					else						spin_Box->setReadOnly(false);
+				} else
+				{
+					// make editable ex-slaves
+					if(id>0 && !widget_To_Reload->property(period_Gamma_Property).toBool())
+					{
+						spin_Box->setReadOnly(false);
+					}
+				}
+
+				// lock unlock period and gamma
+				if(widget_To_Reload->property(period_Gamma_Property).toBool())
+				{
+					QString whats_This = spin_Box->property(whats_This_Property).toString();
+					if(whats_This == whats_This_Period || whats_This == whats_This_Gamma)
+					{
+						QTreeWidgetItem* multilayer_Item = get_Struct_Item_From_Multilayer_by_Id(id);
+						bool has_Dependent = false;
+						check_Multilayer_Item_For_Dependent_Thicknesses(multilayer_Item, has_Dependent);
+
+						QCheckBox* item_Check_Box = item_Check_Boxes_Map.value(multilayer_Item);
+						if(has_Dependent) {spin_Box->setReadOnly(true ); item_Check_Box->setProperty(multilayer_Item_Table_CheckBox_Property, "wrong");                                }
+						else			  {spin_Box->setReadOnly(false); item_Check_Box->setProperty(multilayer_Item_Table_CheckBox_Property, multilayer_Item_Table_CheckBox_Property);}
+					}
+				}
+			}
+		}
+	}
+}
+
+void Table_Of_Structures::check_Multilayer_Item_For_Dependent_Thicknesses(QTreeWidgetItem* multilayer_Item, bool& has_Dependent)
+{
+	for(int i=0; i<multilayer_Item->childCount(); i++)
+	{
+		QTreeWidgetItem* child_Item = multilayer_Item->child(i);
+		if(child_Item->childCount()==0)
+		{
+			Data child_Data = child_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+			if(child_Data.item_Type == item_Type_Layer)
+			{
+				if(child_Data.thickness.coupled.master.exist && refill_Dependent_Table)
+				{
+					has_Dependent = true;
+					return;
+				}
+			}
+		} else
+		// go deeper
+		{
+			check_Multilayer_Item_For_Dependent_Thicknesses(child_Item, has_Dependent);
+		}
+	}
+}
+
+QTreeWidgetItem* Table_Of_Structures::get_Struct_Item_From_Multilayer_by_Id(id_Type id)
+{
+	MyDoubleSpinBox* spin_Box = spin_Boxes_ID_Map.key(id);
+	QTreeWidgetItem* structure_Item = spin_Boxes_Map.value(spin_Box);
+	return structure_Item;
+
+	// old style, slow. reserve realization
+//	for(int tab_Index=0; tab_Index<global_Multilayer_Approach->multilayer_Tabs->count(); ++tab_Index)
+//	{
+//		Multilayer* multilayer = qobject_cast<Multilayer*>(global_Multilayer_Approach->multilayer_Tabs->widget(tab_Index));
+
+//		QTreeWidgetItem* structure_Item;
+//		QTreeWidgetItemIterator it(multilayer->structure_Tree->tree);
+//		while (*it)
+//		{
+//			structure_Item = *it;
+//			Data struct_Data = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+//			Parameter* parameter = Global_Variables::get_Parameter_From_Struct_Item_by_Id(struct_Data, id);
+//			if(parameter!=nullptr)
+//			{
+//				return structure_Item;
+//			}
+//			++it;
+//		}
+//	}
+//	return nullptr;
 }
 
 //// refresh
@@ -2984,7 +3073,7 @@ void Table_Of_Structures::refresh_Stoich()
 		reload_Related_Widgets(QObject::sender());
 
 		// recalculation at change
-		if(recalculate_Spinbox_Table && !reload) {global_Multilayer_Approach->calc_Reflection(true);}
+		if(recalculate_Spinbox_Table && !reload && value_Type == VAL) {global_Multilayer_Approach->calc_Reflection(true);}
 	}
 }
 
@@ -3406,7 +3495,16 @@ void Table_Of_Structures::change_Child_Layers_Thickness(QTreeWidgetItem* multila
 	// change dependent if necessary
 	if(struct_Data.item_Type == item_Type_Layer)
 	{
+		if( refill_Dependent_Table &&
+			!struct_Data.thickness.coupled.master.exist && struct_Data.thickness.coupled.slaves.size()>0 )
+		{
+			// change dependent chain
+			QVector<id_Type> ids;
+			change_Slaves_in_Structure_Tree(struct_Data.thickness, struct_Data.thickness.coupled.slaves, ids);
 
+			// refresh table and independent in all tabs
+			refresh_Dependents(ids);
+		}
 	}
 
 	emit regular_Layer_Edited(QString(whats_This_Thickness)+VAL);
@@ -3430,6 +3528,18 @@ void Table_Of_Structures::reset_Layer_Thickness(QTreeWidgetItem* layer_Item, dou
 	layer.thickness.value = new_Thickness;
 	var.setValue( layer );
 	layer_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+
+	// change dependent if necessary
+	if( refill_Dependent_Table &&
+		!layer.thickness.coupled.master.exist && layer.thickness.coupled.slaves.size()>0 )
+	{
+		// change dependent chain
+		QVector<id_Type> ids;
+		change_Slaves_in_Structure_Tree(layer.thickness, layer.thickness.coupled.slaves, ids);
+
+		// refresh table and independent in all tabs
+		refresh_Dependents(ids);
+	}
 }
 
 void Table_Of_Structures::change_Stack_Gamma(QTreeWidgetItem* structure_Item, double new_Gamma_Value)
@@ -3470,6 +3580,8 @@ void Table_Of_Structures::change_Stack_Gamma(QTreeWidgetItem* structure_Item, do
 void Table_Of_Structures::refresh_Parameter(My_Table_Widget* table)
 {
 	// PARAMETER
+	// save data individually! be careful
+
 	MyDoubleSpinBox* spin_Box = qobject_cast<MyDoubleSpinBox*>(QObject::sender());
 	QTreeWidgetItem* structure_Item = spin_Boxes_Map.value(spin_Box);
 	QString value_Type = spin_Box->property(value_Type_Property).toString();
@@ -3510,6 +3622,10 @@ void Table_Of_Structures::refresh_Parameter(My_Table_Widget* table)
 			if(layer_Thickness_Transfer_Is_Created)
 				layer_Thickness_Transfer->lock_Unlock_Thickness_Transfer(structure_Item);
 		}
+
+		QVariant var;
+		var.setValue( struct_Data );
+		structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
 	} else
 	{
 		Parameter& parameter = get_Parameter(struct_Data, whats_This, precision, coeff);
@@ -3731,14 +3847,15 @@ void Table_Of_Structures::refresh_Parameter(My_Table_Widget* table)
 		if( refill_Dependent_Table &&
 			!parameter.coupled.master.exist && parameter.coupled.slaves.size()>0 )
 		{
+			// change dependent chain
+			QVector<id_Type> ids;
+			change_Slaves_in_Structure_Tree(parameter, parameter.coupled.slaves, ids);
 
+			// refresh table and independent in all tabs
+			refresh_Dependents(ids);
 		}
 	}
 	{
-		QVariant var;
-		var.setValue( struct_Data );
-		structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
-
 		reload_Related_Widgets(QObject::sender());
 		if(layer_Thickness_Transfer_Is_Created && !layer_Thickness_Transfer_Reload_Block)	{
 			layer_Thickness_Transfer->reload();
@@ -3746,7 +3863,7 @@ void Table_Of_Structures::refresh_Parameter(My_Table_Widget* table)
 		emit_Data_Edited();
 
 		// recalculation at change
-		if(recalculate_Spinbox_Table && !reload) {global_Multilayer_Approach->calc_Reflection(true);}
+		if(recalculate_Spinbox_Table && !reload && value_Type == VAL) {global_Multilayer_Approach->calc_Reflection(true);}
 	}
 }
 
@@ -3996,7 +4113,7 @@ void Table_Of_Structures::refresh_Weigts_Interlayer()
 		reload_Related_Widgets(QObject::sender());
 
 		// recalculation at change
-		if(recalculate_Spinbox_Table && !reload) {global_Multilayer_Approach->calc_Reflection(true);}
+		if(recalculate_Spinbox_Table && !reload && value_Type == VAL) {global_Multilayer_Approach->calc_Reflection(true);}
 	}
 }
 
@@ -4278,7 +4395,7 @@ void Table_Of_Structures::reload_Related_Widgets(QObject* sender)
 			{
 				if(related != sender)
 				{
-					if(related->property(enabled_Property).toBool())
+					if(related->property(enabled_Property).toBool() || related->property(forced_Reload_Property).toBool())
 					{
 						related->setProperty(reload_Property, true);
 

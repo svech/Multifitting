@@ -77,18 +77,22 @@ public:
 	void spin_Box_Recalculate		(My_Table_Widget* table,				 int current_Row, int current_Column);
 	void spin_Box_Mouse_Wheel		(My_Table_Widget* table,				 int current_Row, int current_Column);
 	void spin_Box_Change_Dependent  (My_Table_Widget* table,				 int current_Row, int current_Column);
-	void refill_All_Dependent();
-	void real_Tree_Iteration(QTreeWidget* real_Struct_Tree, QVector<Parameter>& master_Parameters);
+	void refill_All_Dependent		();
+	void real_Tree_Iteration			(QTreeWidget* real_Struct_Tree, QVector<Parameter>& master_Parameters);
 	void change_Slaves_in_Structure_Tree(Parameter& master, const QVector<Parameter_Indicator>& slaves, QVector<id_Type>& ids);
+	void refresh_Dependents		(const QVector<id_Type>& ids);
+	void lock_Unlock_Dependents	(const QVector<id_Type>& ids);
+	void check_Multilayer_Item_For_Dependent_Thicknesses(QTreeWidgetItem* multilayer_Item, bool& has_Dependent);
+	QTreeWidgetItem* get_Struct_Item_From_Multilayer_by_Id(id_Type id);
 
 	// general
-	void span_Structure_Headers(My_Table_Widget* table);
-	void span_Structure_Items(My_Table_Widget* table);
+	void span_Structure_Headers	(My_Table_Widget* table);
+	void span_Structure_Items	(My_Table_Widget* table);
 
-	void disable_enable_Structure_Items(My_Table_Widget* table);
-	void disable_enable_One_Item(My_Table_Widget* table, QTableWidgetItem* table_Item);
+	void disable_enable_Structure_Items	(My_Table_Widget* table);
+	void disable_enable_One_Item		(My_Table_Widget* table, QTableWidgetItem* table_Item);
 	void disable_enable_One_Item_Content(My_Table_Widget* table, QTableWidgetItem* table_Item, bool save, bool enable = true);
-	void disable_enable_Multilayers(My_Table_Widget* table, QTreeWidgetItem* parent);
+	void disable_enable_Multilayers		(My_Table_Widget* table, QTreeWidgetItem* parent);
 
 	static void fit_Column(QTableWidget *table, int start_Width, int current_Column);
 	void add_Columns(My_Table_Widget* table, int add_After);
@@ -194,6 +198,9 @@ public:
 
 	// disable/enable
 	QMap<QTreeWidgetItem*, QTableWidgetItem*> struct_Table_Map;
+
+	// access to item checkboxes
+	QMap<QTreeWidgetItem*, QCheckBox*> item_Check_Boxes_Map;
 
 	// steps
 	QList<MyDoubleSpinBox*> composition_Spin_Boxes_List;

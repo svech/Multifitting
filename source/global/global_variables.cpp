@@ -861,30 +861,6 @@ Parameter* Global_Variables::get_Parameter_From_Struct_Item_by_Whats_This(Data& 
 	return nullptr;
 }
 
-QTreeWidgetItem* Global_Variables::get_Struct_Item_From_Multilayer_by_Id(id_Type id)
-{
-	for(int tab_Index=0; tab_Index<global_Multilayer_Approach->multilayer_Tabs->count(); ++tab_Index)
-	{
-		Multilayer* multilayer = qobject_cast<Multilayer*>(global_Multilayer_Approach->multilayer_Tabs->widget(tab_Index));
-
-		QTreeWidgetItem* structure_Item;
-		QTreeWidgetItemIterator it(multilayer->structure_Tree->tree);
-		while (*it)
-		{
-			structure_Item = *it;
-			Data struct_Data = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
-			Parameter* parameter = Global_Variables::get_Parameter_From_Struct_Item_by_Id(struct_Data, id);
-			if(parameter!=nullptr)
-			{
-				return structure_Item;
-			}
-			++it;
-		}
-	}
-
-	return nullptr;
-}
-
 void Global_Variables::copy_Tree(const QTreeWidget* from_Tree, QTreeWidget* to_Tree)
 {
 	to_Tree->clear();
