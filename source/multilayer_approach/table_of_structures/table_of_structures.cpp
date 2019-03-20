@@ -2701,7 +2701,7 @@ void Table_Of_Structures::refill_All_Dependent()
 	}
 
 	// refresh table and independent in all tabs
-	refresh_Dependents(ids);
+	refresh_Dependents(ids, true);
 
 	// lock and unlock
 	lock_Unlock_Dependents(ids);
@@ -2777,7 +2777,7 @@ void Table_Of_Structures::change_Slaves_in_Structure_Tree(Parameter& master, con
 	}
 }
 
-void Table_Of_Structures::refresh_Dependents(const QVector<id_Type>& ids)
+void Table_Of_Structures::refresh_Dependents(const QVector<id_Type>& ids, bool manual_Refresh)
 {
 	for(int tab_Index=0; tab_Index<main_Tabs->count(); ++tab_Index)
 	{
@@ -2797,12 +2797,22 @@ void Table_Of_Structures::refresh_Dependents(const QVector<id_Type>& ids)
 						reload_One_Widget(widget_To_Reload);
 					}
 				}
+
+				// reload period and gamma
+				if(widget_To_Reload->property(period_Gamma_Property).toBool())
+				{
+					if(refill_Dependent_Table)
+					{
+						reload_One_Widget(widget_To_Reload);
+					}
+				}
 			}
 		}
 
-		if(refill_Dependent_Table)
+		if(refill_Dependent_Table && manual_Refresh)
 		{
 			Multilayer* multilayer = qobject_cast<Multilayer*>(multilayer_Tabs->widget(tab_Index));
+			multilayer->structure_Tree->refresh__StructureTree__Data_and_Text();
 			for(int i=0; i<multilayer->independent_Variables_Plot_Tabs->count(); ++i)
 			{
 				Independent_Variables* independent = qobject_cast<Independent_Variables*>(multilayer->independent_Variables_Plot_Tabs->widget(i));
