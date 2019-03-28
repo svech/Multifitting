@@ -80,7 +80,7 @@ public:
 	void refill_All_Dependent		();
 	void real_Tree_Iteration			(QTreeWidget* real_Struct_Tree, QVector<Parameter>& master_Parameters);
 	void change_Slaves_in_Structure_Tree(Parameter& master, const QVector<Parameter_Indicator>& slaves, QVector<id_Type>& ids);
-	void refresh_Dependents		(const QVector<id_Type>& ids, bool manual_Refresh = false);
+	void refresh_Dependents		(const QVector<id_Type>& ids, bool manual_Refresh = false, bool reload_Period_Gamma = true);
 	void lock_Unlock_Dependents	(const QVector<id_Type>& ids);
 	void check_Multilayer_Item_For_Dependent_Thicknesses(QTreeWidgetItem* multilayer_Item, bool& has_Dependent);
 	QTreeWidgetItem* get_Struct_Item_From_Multilayer_by_Id(id_Type id);

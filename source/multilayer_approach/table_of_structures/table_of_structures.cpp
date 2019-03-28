@@ -1239,8 +1239,12 @@ void Table_Of_Structures::create_Stoich_Line_Edit(My_Table_Widget* table, int ta
 		// for reloading
 		spin_Box->setProperty(reload_Property, false);
 		spin_Box->setProperty(tab_Index_Property,tab_Index);
+		if(val_Type == VAL) {
+			spin_Box->setProperty(id_Property, comp.indicator.id);
+		}
 
 		// storage
+		spin_Boxes_ID_Map.insert(spin_Box, comp.indicator.id);
 		spin_Boxes_Map.insert(spin_Box, structure_Item);
 		all_Widgets_To_Reload[tab_Index].append(spin_Box);
 		if(val_Type == VAL)	{
@@ -1840,7 +1844,9 @@ void Table_Of_Structures::create_Line_Edit(My_Table_Widget* table, int tab_Index
 	spin_Box->setValue(value/coeff);
 	spin_Box->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT_SHORT);
 	if( whats_This == whats_This_Absolute_Density || whats_This == whats_This_Relative_Density || whats_This == whats_This_Num_Repetitions ) spin_Box->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT_DENSITY);
-	if( whats_This == whats_This_Sigma || whats_This == whats_This_Thickness || whats_This == whats_This_Period) spin_Box->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT_SIGMA);
+	if( whats_This == whats_This_Sigma )                                       spin_Box->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT_SIGMA);
+	if( whats_This == whats_This_Thickness || whats_This == whats_This_Period) spin_Box->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT_THICKNESS);
+
 	if(	whats_This == whats_This_Thickness_Drift_Line_Value     ||
 		whats_This == whats_This_Thickness_Drift_Rand_Rms       ||
 		whats_This == whats_This_Sigma_Drift_Line_Value			||
@@ -2143,6 +2149,7 @@ void Table_Of_Structures::create_Check_Box_Label_Interlayer(My_Table_Widget* tab
 		check_Boxes_Map.		   insert	   (check_Box, structure_Item);
 		reload_Show_Dependence_Map.insertMulti (check_Box, struct_Data.sigma.indicator.id);
 		all_Widgets_To_Reload[tab_Index].append(check_Box);
+		reload_Show_Dependence_Map.insertMulti(check_Box,  inter_Comp.my_Sigma.indicator.id);
 
 		check_Box->setChecked(inter_Comp.enabled);
 
@@ -2226,8 +2233,11 @@ void Table_Of_Structures::create_Weigts_Interlayer(My_Table_Widget* table, int t
 		// for reloading
 		spin_Box->setProperty(reload_Property, false);
 		spin_Box->setProperty(tab_Index_Property, tab_Index);
-
+		if(val_Type == VAL) {
+			spin_Box->setProperty(id_Property, inter_Comp.interlayer.indicator.id);
+		}
 		// storage
+		spin_Boxes_ID_Map.insert(spin_Box,inter_Comp.interlayer.indicator.id);
 		spin_Boxes_Map.insert(spin_Box, structure_Item);
 		all_Widgets_To_Reload[tab_Index].append(spin_Box);
 		if(val_Type == VAL) {
@@ -2372,8 +2382,10 @@ void Table_Of_Structures::create_MySigma_Line_Edits_Interlayer(My_Table_Widget* 
 		// for reloading
 		spin_Box->setProperty(reload_Property, false);
 		spin_Box->setProperty(tab_Index_Property, tab_Index);
+		spin_Box->setProperty(id_Property, sigma_Comp.indicator.id);
 
 		// storage
+		spin_Boxes_ID_Map.insert(spin_Box,sigma_Comp.indicator.id);
 		spin_Boxes_Map.insert(spin_Box, structure_Item);
 		all_Widgets_To_Reload[tab_Index].append(spin_Box);
 		reload_Show_Dependence_Map.insertMulti(spin_Box, sigma_Comp.indicator.id);
@@ -2553,7 +2565,7 @@ void Table_Of_Structures::create_Step_Spin_Box(My_Table_Widget* table, int tab_I
 		int min_Width = 0;
 		if(whats_This == whats_This_Composition)			{ min_Width = TABLE_FIX_WIDTH_LINE_EDIT_SHORT;	}
 		if(whats_This == whats_This_Density)				{ min_Width = TABLE_FIX_WIDTH_LINE_EDIT_DENSITY;}
-		if(whats_This == whats_This_Thickness)				{ min_Width = TABLE_FIX_WIDTH_LINE_EDIT_SIGMA;	}
+		if(whats_This == whats_This_Thickness)				{ min_Width = TABLE_FIX_WIDTH_LINE_EDIT_THICKNESS;	}
 		if(whats_This == whats_This_Sigma)					{ min_Width = TABLE_FIX_WIDTH_LINE_EDIT_SIGMA;	}
 		if(whats_This == whats_This_Interlayer_Composition)	{ min_Width = TABLE_FIX_WIDTH_LINE_EDIT_SHORT;	}
 		if(whats_This == whats_This_Gamma)					{ min_Width = TABLE_FIX_WIDTH_LINE_EDIT_LONG; step_SpinBox->setRange(0, 0.5);}
@@ -2591,7 +2603,7 @@ void Table_Of_Structures::create_Step_Spin_Box(My_Table_Widget* table, int tab_I
 		if(whats_This == whats_This_Gamma)					{ step_SpinBox->setDecimals(3);					step_SpinBox->setValue(step_gamma);						step_SpinBox->setSingleStep(0.01);		}
 		if(whats_This == whats_This_Drift)					{ step_SpinBox->setDecimals(4);					step_SpinBox->setValue(step_drift);						step_SpinBox->setSingleStep(0.001);		}
 
-		resize_Line_Edit(table, step_SpinBox);
+		step_SpinBox->valueChanged(step_SpinBox->value());
 	});
 
 	// initialize
@@ -2760,6 +2772,23 @@ void Table_Of_Structures::change_Slaves_in_Structure_Tree(Parameter& master, con
 #else
 			slave_Parameter->value = master.value;
 #endif
+			// refresh my_sigmas if you are common_sigma
+			if(slave_Parameter->indicator.whats_This == whats_This_Sigma && slave_Struct_Data.common_Sigma)
+			{
+				for(Interlayer& interlayer : slave_Struct_Data.interlayer_Composition)
+				{
+					interlayer.my_Sigma.value = slave_Struct_Data.sigma.value;
+				}
+			}
+
+			// refresh common_sigma if you are my_sigma
+			if(slave_Parameter->indicator.whats_This == whats_This_Interlayer_My_Sigma && !slave_Struct_Data.common_Sigma )
+			{
+				{
+					slave_Struct_Data.sigma.value = recalculate_Sigma_From_Individuals(slave_Struct_Data.interlayer_Composition);
+				}
+			}
+
 			// save
 			QVariant var;
 			var.setValue( slave_Struct_Data );
@@ -2777,7 +2806,7 @@ void Table_Of_Structures::change_Slaves_in_Structure_Tree(Parameter& master, con
 	}
 }
 
-void Table_Of_Structures::refresh_Dependents(const QVector<id_Type>& ids, bool manual_Refresh)
+void Table_Of_Structures::refresh_Dependents(const QVector<id_Type>& ids, bool manual_Refresh, bool reload_Period_Gamma)
 {
 	for(int tab_Index=0; tab_Index<main_Tabs->count(); ++tab_Index)
 	{
@@ -2799,7 +2828,7 @@ void Table_Of_Structures::refresh_Dependents(const QVector<id_Type>& ids, bool m
 				}
 
 				// reload period and gamma
-				if(widget_To_Reload->property(period_Gamma_Property).toBool())
+				if(widget_To_Reload->property(period_Gamma_Property).toBool() && reload_Period_Gamma)
 				{
 					if(refill_Dependent_Table)
 					{
@@ -3073,10 +3102,22 @@ void Table_Of_Structures::refresh_Stoich()
 			emit regular_Layer_Edited(material_Identifier);
 		}
 
+		// we should save before changing dependent
 		QVariant var;
 		var.setValue( struct_Data );
 		structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
 
+		// change dependent if necessary
+		if( refill_Dependent_Table &&
+			!comp.coupled.master.exist && comp.coupled.slaves.size()>0 )
+		{
+			// change dependent chain
+			QVector<id_Type> ids;
+			change_Slaves_in_Structure_Tree(comp, comp.coupled.slaves, ids);
+
+			// refresh table and independent in all tabs
+			refresh_Dependents(ids);
+		}
 	}
 	{
 		emit_Data_Edited();
@@ -3513,7 +3554,7 @@ void Table_Of_Structures::change_Child_Layers_Thickness(QTreeWidgetItem* multila
 			change_Slaves_in_Structure_Tree(struct_Data.thickness, struct_Data.thickness.coupled.slaves, ids);
 
 			// refresh table and independent in all tabs
-			refresh_Dependents(ids);
+			refresh_Dependents(ids, false, false);
 		}
 	}
 
@@ -3548,7 +3589,7 @@ void Table_Of_Structures::reset_Layer_Thickness(QTreeWidgetItem* layer_Item, dou
 		change_Slaves_in_Structure_Tree(layer.thickness, layer.thickness.coupled.slaves, ids);
 
 		// refresh table and independent in all tabs
-		refresh_Dependents(ids);
+		refresh_Dependents(ids, false, false);
 	}
 }
 
@@ -4039,14 +4080,19 @@ void Table_Of_Structures::refresh_Check_Box_Label_Interlayer(bool)
 		var.setValue( struct_Data );
 		structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
 
+		MyDoubleSpinBox* spin_Box = spin_Boxes_ID_Map.key(struct_Data.interlayer_Composition[interlayer_Index].my_Sigma.indicator.id);
+		spin_Box->setProperty(forced_Reload_Property, struct_Data.interlayer_Composition[interlayer_Index].enabled);
+
 		// refresh widget
 		//	var.setValue(struct_Data.interlayer_Composition[interlayer_Index].interlayer);
 		//	QWidget* back_Widget = coupled_Back_Widget_and_Id.key(struct_Data.interlayer_Composition[interlayer_Index].interlayer.indicator.id);
 		//	back_Widget->setProperty(parameter_Property, var);
-	}
-	{
+//	}
+//	{
 		emit_Data_Edited();
 		reload_Related_Widgets(QObject::sender());
+
+		spin_Box->setProperty(forced_Reload_Property, false);
 
 		// recalculation at change
 		if(recalculate_Spinbox_Table && !reload) {global_Multilayer_Approach->calc_Reflection(true);}
@@ -4114,9 +4160,22 @@ void Table_Of_Structures::refresh_Weigts_Interlayer()
 			emit regular_Layer_Edited("especially_wrong"); // to reaload regular aperiodic item without reloading widgets
 		}
 
+		// we should save before changing dependent
 		QVariant var;
 		var.setValue( struct_Data );
 		structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+
+		// change dependent if necessary
+		if( refill_Dependent_Table &&
+			!interlayer.coupled.master.exist && interlayer.coupled.slaves.size()>0 )
+		{
+			// change dependent chain
+			QVector<id_Type> ids;
+			change_Slaves_in_Structure_Tree(interlayer, interlayer.coupled.slaves, ids);
+
+			// refresh table and independent in all tabs
+			refresh_Dependents(ids);
+		}
 	}
 	{
 		emit_Data_Edited();
@@ -4214,9 +4273,22 @@ void Table_Of_Structures::refresh_MySigma_Interlayer()
 			struct_Data.sigma.value = recalculate_Sigma_From_Individuals(struct_Data.interlayer_Composition);
 		}
 
+		// we should save before changing dependent
 		QVariant var;
 		var.setValue( struct_Data );
 		structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+
+		// change dependent if necessary
+		if( refill_Dependent_Table &&
+			!interlayer.my_Sigma.coupled.master.exist && interlayer.my_Sigma.coupled.slaves.size()>0 )
+		{
+			// change dependent chain
+			QVector<id_Type> ids;
+			change_Slaves_in_Structure_Tree(interlayer.my_Sigma, interlayer.my_Sigma.coupled.slaves, ids);
+
+			// refresh table and independent in all tabs
+			refresh_Dependents(ids);
+		}
 	}
 	{
 		emit_Data_Edited();
@@ -4360,6 +4432,8 @@ void Table_Of_Structures::reload_One_Widget(QWidget* widget_To_Reload)
 	// do not reload disabled widgets
 	if(!widget_To_Reload->property(enabled_Property).toBool())	return;
 
+	My_Table_Widget* table = qobject_cast<My_Table_Widget*>(main_Tabs->widget(main_Tabs->currentIndex()));
+
 	widget_To_Reload->setProperty(reload_Property, true);
 
 	QLabel*				label = qobject_cast<QLabel*>		  (widget_To_Reload);
@@ -4385,7 +4459,7 @@ void Table_Of_Structures::reload_One_Widget(QWidget* widget_To_Reload)
 	if(spin_Box)
 	{
 		spin_Box->valueChanged(spin_Box->value());
-		Global_Variables::resize_Line_Edit(spin_Box);
+		resize_Line_Edit(table, spin_Box);
 	}
 	if(combo_Box)
 	{
@@ -4399,6 +4473,7 @@ void Table_Of_Structures::reload_Related_Widgets(QObject* sender)
 {
 	if(table_Is_Created)
 	{
+		My_Table_Widget* table = qobject_cast<My_Table_Widget*>(main_Tabs->widget(main_Tabs->currentIndex()));
 		for(id_Type id : reload_Show_Dependence_Map.values(qobject_cast<QWidget*>(sender)))
 		{
 			for(QWidget* related: reload_Show_Dependence_Map.keys(id))
@@ -4431,6 +4506,7 @@ void Table_Of_Structures::reload_Related_Widgets(QObject* sender)
 						if(spin_Box)
 						{
 							spin_Box->valueChanged(spin_Box->value());
+							resize_Line_Edit(table, spin_Box);
 						}
 						if(combo_Box)
 						{
