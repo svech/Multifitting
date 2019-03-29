@@ -671,7 +671,6 @@ double Main_Calculation_Module::parametrize(double value, double min, double max
 		return (value - min) / (max - min);
 	} else
 	{
-		qInfo() << "Main_Calculation_Module::parametrize : wrong parametrization_Type";
 		QMessageBox::warning(nullptr, "Main_Calculation_Module::parametrize", "Wrong parametrization_Type");
 		return value;
 	}
@@ -688,7 +687,6 @@ double Main_Calculation_Module::unparametrize(double parametrized_Shifted_Value,
 		return triangle_Wave(parametrized_Shifted_Value) * (max - min) + min;
 	} else
 	{
-		qInfo() << "Main_Calculation_Module::unparametrize : wrong parametrization_Type";
 		QMessageBox::warning(nullptr, "Main_Calculation_Module::unparametrize", "Wrong parametrization_Type");
 		return parametrized_Shifted_Value;
 	}
@@ -790,7 +788,6 @@ void Main_Calculation_Module::print_Reflect_To_File(Data_Element<Type>& data_Ele
 		file.close();
 	} else
 	{
-		qInfo() << "Main_Calculation_Module::print_Reflect_To_File  :  Can't write file " + name;
 		QMessageBox::critical(nullptr, "Main_Calculation_Module::print_Reflect_To_File", "Can't write file " + name);
 		exit(EXIT_FAILURE);
 	}

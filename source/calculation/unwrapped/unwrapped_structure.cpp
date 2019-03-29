@@ -212,6 +212,7 @@ void Unwrapped_Structure::variable_Drift(double& value, Drift& drift, int period
 	{
 		drift_Factor = drift_Factor + gsl_ran_gaussian(r, drift.drift_Rand_Rms.value)/100.;
 	}
+	if(abs(drift_Factor)>=1E10) drift_Factor=1; // crutch
 	if(drift_Factor>=0)
 	{
 		value *= drift_Factor;
