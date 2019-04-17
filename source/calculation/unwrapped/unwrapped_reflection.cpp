@@ -1,5 +1,3 @@
-// This is an open source non-commercial project. Dear PVS-Studio, please check it.
-// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include "unwrapped_reflection.h"
 
 Unwrapped_Reflection::Unwrapped_Reflection(Unwrapped_Structure* unwrapped_Structure, int num_Media, QString active_Parameter_Whats_This, const Data& measurement, bool depth_Grading, bool sigma_Grading, Calc_Functions calc_Functions, QString calc_Mode):
@@ -909,7 +907,7 @@ void Unwrapped_Reflection::calc_Specular()
 			if(measurement.angular_Resolution.value>0 && measurement.angle.size()>=MIN_ANGULAR_RESOLUTION_POINTS)
 			{
 				int ang_Res_Points = max(2.,3*pow(measurement.angular_Resolution.value*100,2));
-					ang_Res_Points = min(30,ang_Res_Points);
+					ang_Res_Points = 30;//min(30,ang_Res_Points);
 				QVector<double> ang_Resolution(measurement.angle.size());
 				for(int i=0; i<measurement.angle.size(); ++i)
 				{

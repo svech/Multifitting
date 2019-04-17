@@ -166,10 +166,3 @@ HEADERS += \
 
 DISTFILES += \
     ../cppcheck-suppressions-list.txt
-
-# add PVS-studio checker
-pvs_studio.target = pvs
-pvs_studio.output = true
-pvs_studio.cxxflags = -std=c++11
-pvs_studio.sources = $${SOURCES}
-include(../PVS-Studio.pri)

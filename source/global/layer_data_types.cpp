@@ -1,5 +1,3 @@
-// This is an open source non-commercial project. Dear PVS-Studio, please check it.
-// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include "layer_data_types.h"
 #include "gsl/gsl_integration.h"
 
@@ -672,8 +670,8 @@ void Data::calc_Instrumental_Factor(QString active_Parameter_Whats_This)
 				max = (sample_Shift.value+sample_Size.value/2.)*sin_Grad;
 
 				// if reasonable to integrate
-				if( min>-1*beam_Size.value ||
-					max< 1*beam_Size.value )
+				if( min>-3/*1*/*beam_Size.value ||
+					max< 3/*1*/*beam_Size.value )
 				{
 					gsl_integration_qag(&F,min,max,epsabs,epsrel,limit,key,w,&result,&error);
 				} else
