@@ -164,30 +164,10 @@ void Target_Curve::import_Data(QString bare_Filename)
 //	double energy_Value;
 //};
 
-//double beta_Func(double energy, void* params)
+//double beta_Func(double energy2, void* params)
 //{
 //	Params* iPB = reinterpret_cast<Params*>(params);
 
-//	// интерполяция
-//	const gsl_interp_type* interp_type = gsl_interp_linear;
-//	gsl_interp_accel* Acc = gsl_interp_accel_alloc();
-//	gsl_spline* Spline = gsl_spline_alloc(interp_type, iPB->size);
-
-//	gsl_spline_init(Spline, iPB->argument_Vec, iPB->value_Vec, iPB->size);
-
-//	double interp_Value = gsl_spline_eval(Spline, energy, Acc);
-
-//	gsl_spline_free(Spline);
-//	gsl_interp_accel_free(Acc);
-
-//	return interp_Value;
-//}
-
-//double beta_Func_2(double energy2, void* params)
-//{
-//	Params* iPB = reinterpret_cast<Params*>(params);
-
-//	// интерполяция
 //	const gsl_interp_type* interp_type = gsl_interp_linear;
 //	gsl_interp_accel* Acc = gsl_interp_accel_alloc();
 //	gsl_spline* Spline = gsl_spline_alloc(interp_type, iPB->size);
@@ -200,14 +180,7 @@ void Target_Curve::import_Data(QString bare_Filename)
 //	gsl_spline_free(Spline);
 //	gsl_interp_accel_free(Acc);
 
-//	return interp_Value * 0.5 * energy;
-
-////	double lambda = (12398.41930092394328/energy);
-////	double ro = 1.848;
-////	return 4 * M_PI * ro * interp_Value * 0.5 * energy / lambda;
-
-
-////	return interp_Value * 0.5;
+//	return interp_Value * 0.5;
 //}
 
 void Target_Curve::fill_Measurement_With_Data()
@@ -297,19 +270,19 @@ void Target_Curve::fill_Measurement_With_Data()
 ////					double energy = 181.50991673992075;//max(10.,curve.beam_Intensity);
 
 //					Params params = { arg, val, curve.argument.size(), energy };
-//					gsl_function F2 = { &beta_Func_2, &params };
+//					gsl_function F2 = { &beta_Func, &params };
 
 //					double deltaEn_1=energy/100;
 //					double deltaEn_2=energy/1000;
 //					double lowLimit = 0.02;
 //					double upLimit = 432000;
 
-//					double re = 2.8179403267E-15;
-//					double h = 4.135667662E-15;
-//					double c = 299792458;
-//					double q = 1.23479E29;
-//					double lambda = (12398.41930092394328/energy)/1E10;
-//					double Zx=(4.-pow(4./82.5,2.37));
+////					double re = 2.8179403267E-15;
+////					double h = 4.135667662E-15;
+////					double c = 299792458;
+////					double q = 1.23479E29;
+////					double lambda = (12398.41930092394328/energy)/1E10;
+////					double Zx=(4.-pow(4./82.5,2.37));
 
 //					// calculate
 //					double output=-2019;
@@ -366,13 +339,10 @@ void Target_Curve::fill_Measurement_With_Data()
 //					gsl_integration_qawc(&F2,pow(point_21,2), pow(point_22,2), pow(energy,2), epsabs, epsrel, limit, /*key,*/ w, &output, &error); integral-=output;
 //					gsl_integration_qawc(&F2,pow(point_22,2), pow(point_23,2), pow(energy,2), epsabs, epsrel, limit, /*key,*/ w, &output, &error); integral-=output;
 
-//					double delta = re*lambda*lambda*q/2./M_PI *
-//															   (Zx+4./(re*h*c*lambda*q)*integral);
+//					double delta = 2./M_PI * integral;
 
-////					double delta = re*lambda*lambda*q/2./M_PI *
-////															   (Zx+2.*Na/(M_PI*9.012182*10E23)*integral);
 
-//					qInfo() << "energy =" << energy << "delta =" << delta << "beta =" << beta_Func(energy, &params);
+//					qInfo() << "energy =" << energy << "delta =" << delta << "beta =" << 2*beta_Func(energy*energy, &params);
 //					out << energy << "\t\t" << delta << endl;
 //				}
 //			}

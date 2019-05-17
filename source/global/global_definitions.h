@@ -16,7 +16,7 @@ class Node;
 
 //#define RELEASE
 
-//#define EXPRTK
+#define EXPRTK
 
 #ifdef RELEASE
    #define EXPRTK
