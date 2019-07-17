@@ -485,7 +485,7 @@ void Multilayer_Approach::unlock_Mainwindow_Interface()
 			for(int i=0; i<multilayer->independent_Variables_Plot_Tabs->count(); ++i)
 			{
 				Independent_Variables* independent_Variables = qobject_cast<Independent_Variables*>(multilayer->independent_Variables_Plot_Tabs->widget(i));
-				independent_Variables->independent_Variables_Toolbar->setDisabled(true);
+				independent_Variables->independent_Variables_Toolbar->setDisabled(false);
 
 				multilayer->independent_Variables_Plot_Tabs->tabBar()->tabButton(i, QTabBar::RightSide)->setDisabled(false);
 			}

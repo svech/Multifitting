@@ -9,14 +9,14 @@
 
 #define VERSION_MAJOR 1
 #define VERSION_MINOR 9
-#define VERSION_BUILD 1
+#define VERSION_BUILD 2
 
 using namespace std;
 class Node;
 
 //#define RELEASE
 
-#define EXPRTK
+//#define EXPRTK
 
 #ifdef RELEASE
    #define EXPRTK

@@ -265,7 +265,7 @@ void Target_Curve::fill_Measurement_With_Data()
 
 //			for(double energy : curve.argument)
 //			{
-//				if( 29.499<=energy && energy<=251.501)
+//				if( 10.0<=energy && energy<=251.501)
 //				{
 ////					double energy = 181.50991673992075;//max(10.,curve.beam_Intensity);
 

@@ -3106,6 +3106,7 @@ void Table_Of_Structures::refresh_Stoich()
 		structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
 
 		// change dependent if necessary
+		if(struct_Data.parent_Item_Type != item_Type_Regular_Aperiodic)
 		if( refill_Dependent_Table &&
 			!comp.coupled.master.exist && comp.coupled.slaves.size()>0 )
 		{
@@ -3893,9 +3894,11 @@ void Table_Of_Structures::refresh_Parameter(My_Table_Widget* table)
 		structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
 
 		// change dependent if necessary
+		if(struct_Data.parent_Item_Type != item_Type_Regular_Aperiodic)
 		if( refill_Dependent_Table &&
 			!parameter.coupled.master.exist && parameter.coupled.slaves.size()>0 )
 		{
+
 			// change dependent chain
 			QVector<id_Type> ids;
 			change_Slaves_in_Structure_Tree(parameter, parameter.coupled.slaves, ids);
@@ -4164,6 +4167,7 @@ void Table_Of_Structures::refresh_Weigts_Interlayer()
 		structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
 
 		// change dependent if necessary
+		if(struct_Data.parent_Item_Type != item_Type_Regular_Aperiodic)
 		if( refill_Dependent_Table &&
 			!interlayer.coupled.master.exist && interlayer.coupled.slaves.size()>0 )
 		{
@@ -4277,6 +4281,7 @@ void Table_Of_Structures::refresh_MySigma_Interlayer()
 		structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
 
 		// change dependent if necessary
+		if(struct_Data.parent_Item_Type != item_Type_Regular_Aperiodic)
 		if( refill_Dependent_Table &&
 			!interlayer.my_Sigma.coupled.master.exist && interlayer.my_Sigma.coupled.slaves.size()>0 )
 		{

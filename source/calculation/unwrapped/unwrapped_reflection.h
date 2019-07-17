@@ -98,6 +98,9 @@ public:
 	void calc_Specular_nMin_nMax_1_Thread(const Data& measurement, int n_Min, int n_Max, int thread_Index);
 	void calc_Specular();
 
+	double find_Min_Mesh_Step(const QVector<double>& argument);
+	void condense_Curve(const QVector<double>& sparse_Argument, const vector<double>& input_Sparse_Curve, double real_Delta, vector<double>& output_Dense_Curve, vector<double>& output_Dense_Argument);
+	void wrap_Condensed_Curve(const QVector<double>& sparse_Argument, const QVector<double>& dense_Argument, const vector<double>& input_Dense_Curve, const QVector<double>& resolution, vector<double>& output_Sparse_Curve);
 	void interpolate_Curve(int res_Points, const QVector<double> &argument, const QVector<double>& resolution, vector<double>& input_Curve, vector<double>& output_Curve);
 };
 

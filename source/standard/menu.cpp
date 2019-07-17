@@ -703,9 +703,14 @@ void Menu::create_Help_Menu()
 {
 	help_Menu = new QMenu("Help",this);
 	{
-		QAction* act_Documentation = new QAction("Multifitting.pdf", this);
-		help_Menu->addAction(act_Documentation);
-		connect(act_Documentation, &QAction::triggered, this, &Menu::open_Documentation);
+		QAction* act_Documentation_Rus = new QAction("Multifitting (Rusian).pdf", this);
+		help_Menu->addAction(act_Documentation_Rus);
+		connect(act_Documentation_Rus, &QAction::triggered, this, &Menu::open_Documentation_Rus);
+	}
+	{
+		QAction* act_Documentation_Eng = new QAction("Multifitting (English).pdf", this);
+		help_Menu->addAction(act_Documentation_Eng);
+		connect(act_Documentation_Eng, &QAction::triggered, this, &Menu::open_Documentation_Eng);
 	}
 	{
 		QAction* act_About = new QAction("About Multifitting",this);
@@ -716,9 +721,14 @@ void Menu::create_Help_Menu()
 
 //// menu actions
 
-void Menu::open_Documentation()
+void Menu::open_Documentation_Rus()
 {
-	// TODO
+	QDesktopServices::openUrl(QUrl::fromLocalFile(Pre_Path+"Multifitting manual Russian.pdf"));
+}
+
+void Menu::open_Documentation_Eng()
+{
+	QDesktopServices::openUrl(QUrl::fromLocalFile(Pre_Path+"Multifitting manual English.pdf"));
 }
 
 void Menu::open_About()

@@ -49,7 +49,8 @@ public:
 	void menu_Focus();
 	void thumb_Edit_Focus();
 
-	void open_Documentation();
+	void open_Documentation_Rus();
+	void open_Documentation_Eng();
 	void open_About();
 	void set_Grazing_Unit();
 	void set_Incidence_Unit();
