@@ -900,22 +900,24 @@ void Unwrapped_Reflection::calc_Specular()
 	/// ----------------------------------------------------------------------------------------------------------------------
 	// postprocessing
 	{
-		auto start = std::chrono::system_clock::now();
 		// interpolation
 		if(active_Parameter_Whats_This == whats_This_Angle)
 		{
 			if(measurement.angular_Resolution.value>0 && measurement.angle.size()>=MIN_ANGULAR_RESOLUTION_POINTS)
 			{
-				int ang_Res_Points = 20; //max(2.,3*pow(measurement.angular_Resolution.value*100,2));
+				int ang_Res_Points = 30; //max(2.,3*pow(measurement.angular_Resolution.value*100,2));
 					qInfo() << "ang_Res_Points =" << ang_Res_Points;
 //					ang_Res_Points = min(30,ang_Res_Points);
 //					qInfo() << "ang_Res_Points =" << ang_Res_Points;
-				QVector<double> ang_Resolution(measurement.angle.size());
+				vector<double> ang_Resolution(measurement.angle.size());
 				for(int i=0; i<measurement.angle.size(); ++i)
 				{
 					ang_Resolution[i] = measurement.angular_Resolution.value;
 				}
 
+				R_Instrumental = R;
+				T_Instrumental = T;
+				A_Instrumental = A;
 				vector<double>& calculated_Curve = R;
 				vector<double>& working_Curve = R_Instrumental;
 
@@ -926,29 +928,36 @@ void Unwrapped_Reflection::calc_Specular()
 				if( calc_Functions.check_Absorptance)
 				{	calculated_Curve = A; working_Curve = A_Instrumental;}
 
+				auto start = std::chrono::system_clock::now();
 				interpolate_Curve(ang_Res_Points, measurement.angle, ang_Resolution, calculated_Curve, working_Curve);
+				auto end = std::chrono::system_clock::now();
+				auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+				qInfo() << "	interpolation:    "<< elapsed.count()/1000000. << " seconds" << endl;
 
 				// interpolation on dense mesh
 				auto start_1 = std::chrono::system_clock::now();
 				{
 					double min_Step_As_Is = find_Min_Mesh_Step(measurement.angle);
-					double min_Resolution = measurement.angular_Resolution.value;  // minimal resolution over all curve points
-					int resolution_Points = 30; // 30 is tunable
-					double delta_From_Resolution = min_Resolution/resolution_Points;
-					double preliminary_Delta = min(min_Step_As_Is, delta_From_Resolution); // interpolation mesh is more dense than initial
-						   preliminary_Delta = max(min_Step_As_Is/20, preliminary_Delta);  // but not too dense (10-20 is tunable)
+
+					// tunable
+//					double min_Resolution = measurement.angular_Resolution.value;  // minimal resolution over all curve points
+					double preliminary_Delta = min_Step_As_Is;//min(min_Step_As_Is/1, min_Resolution/2);  // tunable
+//						   preliminary_Delta = max(min_Step_As_Is/2, preliminary_Delta);  // tunable
 
 					double first_Argument = measurement.angle.first();
 					double last_Argument = measurement.angle.last();
 					unsigned long long num_Points_in_Dense_Mesh = ceil( (last_Argument - first_Argument)/preliminary_Delta );
 					double real_Delta = (last_Argument - first_Argument)/(num_Points_in_Dense_Mesh-1);  // interpolated curve is equidistant
 
+					// create dense mesh
 					vector<double> dense_Mesh(num_Points_in_Dense_Mesh);
 					vector<double> dense_Mesh_Interpolated_Curve(num_Points_in_Dense_Mesh);
-					condense_Curve(measurement.angle, calculated_Curve, real_Delta, dense_Mesh_Interpolated_Curve, dense_Mesh);
+					condense_Curve      (measurement.angle, calculated_Curve, real_Delta, dense_Mesh_Interpolated_Curve, dense_Mesh);
+					wrap_Condensed_Curve(measurement.angle, dense_Mesh, dense_Mesh_Interpolated_Curve, ang_Resolution, working_Curve);
 
 					qInfo() << "num_Points_in_Dense_Mesh =" << num_Points_in_Dense_Mesh;
 				}
+
 				auto end_1 = std::chrono::system_clock::now();
 				auto elapsed_1 = std::chrono::duration_cast<std::chrono::microseconds>(end_1 - start_1);
 				qInfo() << "	dense mesh:    "<< elapsed_1.count()/1000000. << " seconds" << endl;
@@ -959,9 +968,6 @@ void Unwrapped_Reflection::calc_Specular()
 				A_Instrumental = A;
 			}
 		}
-		auto end = std::chrono::system_clock::now();
-		auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-		qInfo() << "	interpolation:    "<< elapsed.count()/1000000. << " seconds" << endl;
 
 		if(active_Parameter_Whats_This == whats_This_Wavelength)
 		{
@@ -969,7 +975,7 @@ void Unwrapped_Reflection::calc_Specular()
 			{
 				int spec_Res_Points = max(2.,3*pow(measurement.spectral_Resolution.value*1000,2));
 					spec_Res_Points = min(30,spec_Res_Points);
-				QVector<double> spec_Resolution(measurement.lambda.size());
+				vector<double> spec_Resolution(measurement.lambda.size());
 				for(int i=0; i<measurement.lambda.size(); ++i)
 				{
 					spec_Resolution[i] = measurement.spectral_Resolution.value*measurement.lambda[i];
@@ -988,7 +994,7 @@ void Unwrapped_Reflection::calc_Specular()
 			}
 		}
 
-		// instrumental function
+		// instrumental function (after interpolation!)
 		if(measurement.beam_Size.value>DBL_EPSILON)
 		for(size_t point_Index=0; point_Index<R.size(); ++point_Index)
 		{
@@ -1017,6 +1023,40 @@ double Unwrapped_Reflection::find_Min_Mesh_Step(const QVector<double>& argument)
 	return min;
 }
 
+void Unwrapped_Reflection::wrap_Condensed_Curve(const QVector<double>& sparse_Argument, const vector<double>& dense_Argument, const vector<double>& dense_Curve, const vector<double>& resolution, vector<double>& output_Sparse_Curve)
+{
+	double delta = dense_Argument[1]-dense_Argument[0];
+	for(int point_Index=0; point_Index<sparse_Argument.size(); ++point_Index)
+	{
+		output_Sparse_Curve[point_Index] = 0;
+		double weight_Accumulator = DBL_MIN;
+		double weight = DBL_MIN;
+		double distance;
+
+		int counter = 0;
+
+		int near_Central_Dense_Position = int(abs(sparse_Argument[point_Index]-sparse_Argument[0])/delta);
+		int range = ceil(2*resolution[point_Index]/delta);
+
+//		qInfo() << "near_Central_Dense_Position ="<<near_Central_Dense_Position << "range =" << range;
+//		qInfo() << "sparse_Argument[pi] =" << sparse_Argument[point_Index];
+
+		for(int i=max(0, near_Central_Dense_Position-range); i<=min(near_Central_Dense_Position+range, int(dense_Argument.size())-1); i++)
+		{
+			distance = abs(dense_Argument[i] - sparse_Argument[point_Index]);
+			weight = exp(-pow(distance/(resolution[point_Index]/2),2));
+
+//			if(i==1) qInfo() << "i=" << i << " distance =" << distance << "dense_Argument[i] =" << dense_Argument[i];
+
+			output_Sparse_Curve[point_Index] += weight*dense_Curve[i];
+			weight_Accumulator += weight;
+			counter++;
+		}
+		output_Sparse_Curve[point_Index] /= weight_Accumulator;
+
+	}
+}
+
 void Unwrapped_Reflection::condense_Curve(const QVector<double>& sparse_Argument, const vector<double>& input_Sparse_Curve, double real_Delta, vector<double>& output_Dense_Curve, vector<double>& output_Dense_Argument)
 {
 	// OPTIMIZE
@@ -1026,6 +1066,8 @@ void Unwrapped_Reflection::condense_Curve(const QVector<double>& sparse_Argument
 
 	gsl_spline_init(Spline, sparse_Argument.data(), input_Sparse_Curve.data(), input_Sparse_Curve.size());
 
+	double minimum = min(sparse_Argument.first(),sparse_Argument.last());
+	double maximum = max(sparse_Argument.first(),sparse_Argument.last());
 	double new_Arg;
 //	Global_Variables::parallel_For(output_Curve.size(), reflectivity_Calc_Threads, [&](int n_Min, int n_Max)
 //	{
@@ -1033,9 +1075,11 @@ void Unwrapped_Reflection::condense_Curve(const QVector<double>& sparse_Argument
 //		for(int point_Index=n_Min; point_Index<n_Max; ++point_Index)
 		{
 			new_Arg = sparse_Argument.first()+point_Index*real_Delta;
-			if(new_Arg>sparse_Argument.last()) new_Arg = sparse_Argument.last(); // control over machine precision
+			if(new_Arg>maximum) new_Arg = maximum; // control over machine precision
+			if(new_Arg<minimum) new_Arg = minimum; // control over machine precision
 			output_Dense_Argument[point_Index] = new_Arg;
 			output_Dense_Curve   [point_Index] = gsl_spline_eval(Spline, new_Arg, Acc);
+
 		}
 //	});
 
@@ -1043,12 +1087,7 @@ void Unwrapped_Reflection::condense_Curve(const QVector<double>& sparse_Argument
 	gsl_interp_accel_free(Acc);
 }
 
-void Unwrapped_Reflection::wrap_Condensed_Curve(const QVector<double>& sparse_Argument, const QVector<double>& dense_Argument, const vector<double>& input_Dense_Curve, const QVector<double>& resolution, vector<double>& output_Sparse_Curve)
-{
-
-}
-
-void Unwrapped_Reflection::interpolate_Curve(int res_Points, const QVector<double> &argument, const QVector<double>& resolution, vector<double>& input_Curve, vector<double>& output_Curve)
+void Unwrapped_Reflection::interpolate_Curve(int res_Points, const QVector<double> &argument, const vector<double>& resolution, const vector<double>& input_Curve, vector<double>& output_Curve)
 {
 	// OPTIMIZE
 	const gsl_interp_type* interp_type = gsl_interp_steffen;
@@ -1057,6 +1096,9 @@ void Unwrapped_Reflection::interpolate_Curve(int res_Points, const QVector<doubl
 
 	gsl_spline_init(Spline, argument.data(), input_Curve.data(), input_Curve.size());
 	int counter=0;
+
+	double minimum = min(argument.first(),argument.last());
+	double maximum = max(argument.first(),argument.last());
 
 //	Global_Variables::parallel_For(input_Curve.size(), reflectivity_Calc_Threads, [&](int n_Min, int n_Max)
 //	{
@@ -1071,12 +1113,13 @@ void Unwrapped_Reflection::interpolate_Curve(int res_Points, const QVector<doubl
 			for(int i=-res_Points; i<res_Points; ++i)
 			{
 				x = i*delta;
-				if((argument[point_Index]+x>argument.first())&&
-				   (argument[point_Index]+x<argument.last()))
+				if((argument[point_Index]+x>=minimum)&&
+				   (argument[point_Index]+x<=maximum))
 				{
 					weight = exp(-pow(x/(resolution[point_Index]/2),2));
 					weight_Accumulator += weight;
 					output_Curve[point_Index] += weight*gsl_spline_eval(Spline, argument[point_Index]+i*delta, Acc);
+					counter++;
 				}
 			}
 			output_Curve[point_Index] /= weight_Accumulator;
