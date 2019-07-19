@@ -682,7 +682,7 @@ void Settings::read_Parameters_Default_Values(bool reset_to_default)
 
 	// parameters default values
 	parameters_Default_Values.beginGroup( Independent_Values );
-		default_num_angular_points		 = parameters_Default_Values.value( "default_num_angular_points",		1		).toInt();
+		default_num_angular_points		 = parameters_Default_Values.value( "default_num_angular_points",		1000	).toInt();
 		default_num_spectral_points		 = parameters_Default_Values.value( "default_num_spectral_points",		1		).toInt();
 		default_angle_value				 = parameters_Default_Values.value( "default_angle_value",				90		).toDouble();
 		default_min_angle				 = parameters_Default_Values.value( "default_min_angle",				0		).toDouble();
@@ -691,7 +691,7 @@ void Settings::read_Parameters_Default_Values(bool reset_to_default)
 		default_min_wavelength			 = parameters_Default_Values.value( "default_min_wavelength",			160		).toDouble();
 		default_max_wavelength			 = parameters_Default_Values.value( "default_max_wavelength",			230		).toDouble();
 		default_angle_type				 = parameters_Default_Values.value( "default_angle_type",				angle_Type_Grazing).toString();
-		default_angular_resolution		 = parameters_Default_Values.value( "default_angular_resolution",		0.010	).toDouble();
+		default_angular_resolution		 = parameters_Default_Values.value( "default_angular_resolution",		0.007	).toDouble();
 		default_polarization			 = parameters_Default_Values.value( "default_polarization",				1		).toDouble();
 		default_spectral_resolution		 = parameters_Default_Values.value( "default_spectral_resolution",		0.000	).toDouble();
 		default_polarization_sensitivity = parameters_Default_Values.value( "default_polarization_sensitivity",	1		).toDouble();
