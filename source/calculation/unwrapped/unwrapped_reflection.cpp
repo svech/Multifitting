@@ -938,7 +938,7 @@ void Unwrapped_Reflection::calc_Specular()
 
 				double first_Argument = measurement.angle.first();
 				double last_Argument = measurement.angle.last();
-				unsigned long long num_Points_in_Dense_Mesh = ceil( (last_Argument - first_Argument)/preliminary_Delta );
+				unsigned long long num_Points_in_Dense_Mesh = ceil( abs(last_Argument - first_Argument)/preliminary_Delta );
 				double real_Delta = (last_Argument - first_Argument)/(num_Points_in_Dense_Mesh-1);  // interpolated curve is equidistant
 
 				// create dense mesh
@@ -973,7 +973,7 @@ void Unwrapped_Reflection::calc_Specular()
 
 				double first_Argument = measurement.lambda.first();
 				double last_Argument = measurement.lambda.last();
-				unsigned long long num_Points_in_Dense_Mesh = ceil( (last_Argument - first_Argument)/preliminary_Delta );
+				unsigned long long num_Points_in_Dense_Mesh = ceil( abs(last_Argument - first_Argument)/preliminary_Delta );
 				double real_Delta = (last_Argument - first_Argument)/(num_Points_in_Dense_Mesh-1);  // interpolated curve is equidistant
 
 				// create dense mesh
@@ -1014,6 +1014,9 @@ double Unwrapped_Reflection::find_Min_Mesh_Step(const QVector<double>& argument)
 		val = abs(argument[i+1]-argument[i]);
 		if( val < min ) {min = val;}
 	}
+	// TODO
+	// сделать, чтобы минимальный шаг соответствовал разумному минимуму, то есть если он повторяется хотя бы в нескольких точках подряд.
+	// Иначе первое дублирование аргумента обратит это в ноль или сверхмалое число
 	return min;
 }
 
@@ -1045,7 +1048,7 @@ void Unwrapped_Reflection::wrap_Condensed_Curve(const QVector<double>& sparse_Ar
 // 0.2 is tunable
 
 	// program
-	double delta = dense_Argument[1]-dense_Argument[0];
+	double delta = abs(dense_Argument[1]-dense_Argument[0]);
 
 	if(sparse_Argument.size()*resolution[0]>50) // tunable
 	{
@@ -1060,17 +1063,28 @@ void Unwrapped_Reflection::wrap_Condensed_Curve(const QVector<double>& sparse_Ar
 	{
 		for(int point_Index=0; point_Index<sparse_Argument.size(); ++point_Index)
 		{
-			Loop_Body
+				Loop_Body
 		}
 	}
 }
 
-void Unwrapped_Reflection::condense_Curve(const QVector<double>& sparse_Argument, const vector<double>& input_Sparse_Curve, double real_Delta, vector<double>& output_Dense_Curve, vector<double>& output_Dense_Argument)
+void Unwrapped_Reflection::condense_Curve(const QVector<double>& sparse_Argument_As_Is, const vector<double>& input_Sparse_Curve_As_Is, double real_Delta, vector<double>& output_Dense_Curve, vector<double>& output_Dense_Argument)
 {
 	// OPTIMIZE
 	const gsl_interp_type* interp_type = gsl_interp_steffen;
 	gsl_interp_accel* Acc = gsl_interp_accel_alloc();
-	gsl_spline* Spline = gsl_spline_alloc(interp_type, input_Sparse_Curve.size());
+	gsl_spline* Spline = gsl_spline_alloc(interp_type, input_Sparse_Curve_As_Is.size());
+
+	// make argument strictly increasing if necessary
+	QVector<double> sparse_Argument = sparse_Argument_As_Is;
+	vector<double> input_Sparse_Curve = input_Sparse_Curve_As_Is;
+	bool was_Reversed = false;
+	if(sparse_Argument.first() >= sparse_Argument.last())
+	{
+		reverse(sparse_Argument.begin(),sparse_Argument.end());
+		reverse(input_Sparse_Curve.begin(),input_Sparse_Curve.end());
+		was_Reversed = true;
+	}
 
 	gsl_spline_init(Spline, sparse_Argument.data(), input_Sparse_Curve.data(), input_Sparse_Curve.size());
 
@@ -1082,13 +1096,19 @@ void Unwrapped_Reflection::condense_Curve(const QVector<double>& sparse_Argument
 //		for(int point_Index=n_Min; point_Index<n_Max; ++point_Index)
 		for(uint point_Index=0; point_Index<output_Dense_Curve.size(); ++point_Index)
 		{
-			new_Arg = sparse_Argument.first()+point_Index*real_Delta;
+			new_Arg = sparse_Argument.first()+point_Index*abs(real_Delta);
 			if(new_Arg>maximum) new_Arg = maximum; // control over machine precision
 			if(new_Arg<minimum) new_Arg = minimum; // control over machine precision
 			output_Dense_Argument[point_Index] = new_Arg;
 			output_Dense_Curve   [point_Index] = gsl_spline_eval(Spline, new_Arg, Acc);
 		}
 //	});
+
+	if(was_Reversed)
+	{
+		reverse(output_Dense_Argument.begin(),output_Dense_Argument.end());
+		reverse(output_Dense_Curve.begin(),output_Dense_Curve.end());
+	}
 
 	gsl_spline_free(Spline);
 	gsl_interp_accel_free(Acc);
