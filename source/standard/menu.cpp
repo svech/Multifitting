@@ -703,7 +703,7 @@ void Menu::create_Help_Menu()
 {
 	help_Menu = new QMenu("Help",this);
 	{
-		QAction* act_Documentation_Rus = new QAction("Multifitting (Rusian).pdf", this);
+		QAction* act_Documentation_Rus = new QAction("Multifitting (Russian).pdf", this);
 		help_Menu->addAction(act_Documentation_Rus);
 		connect(act_Documentation_Rus, &QAction::triggered, this, &Menu::open_Documentation_Rus);
 	}
