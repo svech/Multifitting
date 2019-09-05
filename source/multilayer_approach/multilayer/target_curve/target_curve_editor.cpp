@@ -551,9 +551,10 @@ void Target_Curve_Editor::create_Data_GroupBox()
 
 		// angular resolution
 		{
+			double coeff = angle_Coefficients_Map.value(target_Curve->curve.angular_Units);
 			angular_Resolution_Label = new QLabel(Global_Variables::parameter_Name(target_Curve->measurement, whats_This_Angular_Resolution, 0));
 			layout->addWidget(angular_Resolution_Label,1,6,Qt::AlignRight);
-			angular_Resolution_LineEdit = new QLineEdit(Locale.toString(target_Curve->measurement.angular_Resolution.value,line_edit_double_format,line_edit_angle_precision));
+			angular_Resolution_LineEdit = new QLineEdit(Locale.toString(target_Curve->measurement.angular_Resolution.value/coeff,line_edit_double_format,line_edit_angle_precision));
 				angular_Resolution_LineEdit->setFixedWidth(TARGET_LINE_EDIT_WIDTH);
 				angular_Resolution_LineEdit->setProperty(min_Size_Property, TARGET_LINE_EDIT_WIDTH);
 				angular_Resolution_LineEdit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION, this));

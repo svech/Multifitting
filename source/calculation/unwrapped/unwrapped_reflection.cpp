@@ -872,7 +872,7 @@ void Unwrapped_Reflection::calc_Specular_nMin_nMax_1_Thread(const Data& measurem
 
 void Unwrapped_Reflection::calc_Specular()
 {
-//	auto start = std::chrono::system_clock::now();
+	auto start = std::chrono::system_clock::now();
 
 	/// ----------------------------------------------------------------------------------------------------------------------
 	/// parallelization
@@ -894,13 +894,13 @@ void Unwrapped_Reflection::calc_Specular()
 	{
 		if (global_Workers[thread_Index].joinable()) global_Workers[thread_Index].join();
 	}
-//	auto end = std::chrono::system_clock::now();
-//	auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-//	qInfo() << "	parallelization:    "<< elapsed.count()/1000000. << " seconds" << endl;
+	auto end = std::chrono::system_clock::now();
+	auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+	qInfo() << "	parallelization:    "<< elapsed.count()/1000000. << " seconds" << endl;
 	/// ----------------------------------------------------------------------------------------------------------------------
 	// postprocessing
 	{
-//		auto start = std::chrono::system_clock::now();
+		auto start = std::chrono::system_clock::now();
 
 		// interpolation
 
@@ -999,25 +999,26 @@ void Unwrapped_Reflection::calc_Specular()
 			A_Instrumental[point_Index] += measurement.background.value;
 		}
 
-//		auto end = std::chrono::system_clock::now();
-//		auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-//		qInfo() << "	interpolation:    "<< elapsed.count()/1000000. << " seconds" << endl;
+		auto end = std::chrono::system_clock::now();
+		auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+		qInfo() << "	interpolation:    "<< elapsed.count()/1000000. << " seconds" << endl;
 	}
 }
 
 double Unwrapped_Reflection::find_Min_Mesh_Step(const QVector<double>& argument)
 {
-	double min = DBL_MAX;
-	double val = 0;
+	vector<double> steps;
+	steps.resize(argument.size()-1);
+
 	for(int i=0; i<argument.size()-1; i++)
 	{
-		val = abs(argument[i+1]-argument[i]);
-		if( val < min ) {min = val;}
-	}
-	// TODO
-	// сделать, чтобы минимальный шаг соответствовал разумному минимуму, то есть если он повторяется хотя бы в нескольких точках подряд.
-	// Иначе первое дублирование аргумента обратит это в ноль или сверхмалое число
-	// брать третий (пятый) по минимальности?
+		steps[i] = abs(argument[i+1]-argument[i]);
+	}		
+
+	std::sort(steps.begin(), steps.end());		// sort steps from min to max
+	// minimal index
+	size_t min_Index = std::min(int(steps.size()),7);// not the first from bottom. At least, 7th from bottom
+	double min = max(steps[min_Index], DBL_EPSILON); // not extremely small step
 	return min;
 }
 
@@ -1035,7 +1036,7 @@ void Unwrapped_Reflection::wrap_Condensed_Curve(const QVector<double>& sparse_Ar
 							for(int i=max(0, near_Central_Dense_Position-range); i<=min(near_Central_Dense_Position+range, int(dense_Argument.size())-1); i++)			\
 							{																																			\
 								distance = abs(dense_Argument[i] - sparse_Argument[point_Index]);																		\
-								weight = exp(-pow(distance/(resolution[point_Index]/2),2));																				\
+								weight = exp(-pow(distance/(resolution[point_Index]/2*1.18),2));																		\
 																																										\
 								output_Sparse_Curve[point_Index] += weight*dense_Curve[i];																				\
 								weight_Accumulator += weight;																											\
@@ -1085,6 +1086,16 @@ void Unwrapped_Reflection::condense_Curve(const QVector<double>& sparse_Argument
 		reverse(sparse_Argument.begin(),sparse_Argument.end());
 		reverse(input_Sparse_Curve.begin(),input_Sparse_Curve.end());
 		was_Reversed = true;
+	}
+
+	// remove non-monotomic areas
+	for(int i=0; i<sparse_Argument.size()-1; i++)
+	{
+		if(sparse_Argument[i+1]<=sparse_Argument[i])
+		{
+			sparse_Argument.remove(i+1);
+			input_Sparse_Curve.erase(input_Sparse_Curve.begin()+i+1);
+		}
 	}
 
 	gsl_spline_init(Spline, sparse_Argument.data(), input_Sparse_Curve.data(), input_Sparse_Curve.size());

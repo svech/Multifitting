@@ -827,7 +827,7 @@ void Main_Calculation_Module::print_Data(QTextStream &out, QVector<double> &arg,
 	QString user     = "user";
 
 
-	int precision_Arg = 4;
+	int precision_Arg = 16;
 	int precision_R_T_A = 6;
 	int precision_Phi = 4;
 

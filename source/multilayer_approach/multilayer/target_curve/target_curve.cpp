@@ -1,5 +1,4 @@
 #include "target_curve.h"
-//#include "gsl/gsl_integration.h"
 
 Target_Curve::Target_Curve(QLabel* description_Label, QTreeWidget* real_Struct_Tree, QWidget *parent) :
 	description_Label(description_Label),
@@ -156,33 +155,6 @@ void Target_Curve::import_Data(QString bare_Filename)
 	}
 }
 
-//struct Params
-//{
-//	double* argument_Vec;
-//	double* value_Vec;
-//	size_t size;
-//	double energy_Value;
-//};
-
-//double beta_Func(double energy2, void* params)
-//{
-//	Params* iPB = reinterpret_cast<Params*>(params);
-
-//	const gsl_interp_type* interp_type = gsl_interp_linear;
-//	gsl_interp_accel* Acc = gsl_interp_accel_alloc();
-//	gsl_spline* Spline = gsl_spline_alloc(interp_type, iPB->size);
-
-//	gsl_spline_init(Spline, iPB->argument_Vec, iPB->value_Vec, iPB->size);
-
-//	double energy = sqrt(energy2);
-//	double interp_Value = gsl_spline_eval(Spline, energy, Acc);
-
-//	gsl_spline_free(Spline);
-//	gsl_interp_accel_free(Acc);
-
-//	return interp_Value * 0.5;
-//}
-
 void Target_Curve::fill_Measurement_With_Data()
 {
 	if(loaded_And_Ready)
@@ -238,122 +210,6 @@ void Target_Curve::fill_Measurement_With_Data()
 			return;
 		}
 	}
-
-//	// TEMPORARY (TODO)
-//	{
-//		// effect of beam size
-//		double error;
-//		int key = GSL_INTEG_GAUSS15;
-//		const double epsabs = 1e-3;
-//		const double epsrel = 1e-3;
-//		size_t limit = 100;
-//		gsl_integration_workspace* w = gsl_integration_workspace_alloc (limit);
-
-//		double* val = new double[curve.argument.size()];
-//		double* arg = new double[curve.argument.size()];
-//		for(int i=0; i<curve.argument.size(); ++i)	{
-//			arg[i] = curve.argument[i];
-//			val[i] = curve.values[i].val_1;
-//		}
-
-//		QString name = "delta summary.txt";
-//		QFile file(name);
-//		if (file.open(QIODevice::WriteOnly))
-//		{
-//			QTextStream out(&file);
-//			out.setFieldAlignment(QTextStream::AlignLeft);
-
-//			for(double energy : curve.argument)
-//			{
-//				if( 10.0<=energy && energy<=251.501)
-//				{
-////					double energy = 181.50991673992075;//max(10.,curve.beam_Intensity);
-
-//					Params params = { arg, val, curve.argument.size(), energy };
-//					gsl_function F2 = { &beta_Func, &params };
-
-//					double deltaEn_1=energy/100;
-//					double deltaEn_2=energy/1000;
-//					double lowLimit = 0.02;
-//					double upLimit = 432000;
-
-////					double re = 2.8179403267E-15;
-////					double h = 4.135667662E-15;
-////					double c = 299792458;
-////					double q = 1.23479E29;
-////					double lambda = (12398.41930092394328/energy)/1E10;
-////					double Zx=(4.-pow(4./82.5,2.37));
-
-//					// calculate
-//					double output=-2019;
-//					double integral = 0;
-
-//					// division
-//					double point_0 = lowLimit;
-//					double point_1 = energy/100;
-//					double point_2 = energy/10;
-//					double point_3 = energy/5;
-//					double point_4 = energy/2;
-//					double point_5 = energy/1.5;
-//					double point_6 = energy/1.1;
-//					double point_7 = energy-deltaEn_1;
-//					double point_8 = energy-deltaEn_2;
-//					double point_9 = energy+deltaEn_2;
-//					double point_10 = energy+deltaEn_1;
-//					double point_11 = energy*1.1;
-//					double point_12 = energy*1.5;
-//					double point_13 = energy*2;
-//					double point_14 = energy*2.5;
-//					double point_15 = energy*3;
-//					double point_16 = energy*4;
-//					double point_17 = energy*6;
-//					double point_18 = energy*10;
-//					double point_19 = energy*20;
-//					double point_20 = energy*40;
-//					double point_21 = energy*100;
-//					double point_22 = energy*200;
-//					double point_23 = upLimit;
-
-//					gsl_integration_qawc(&F2,pow(point_0,2), pow(point_1,2), pow(energy,2), epsabs, epsrel, limit, /*key,*/ w, &output, &error); integral-=output;
-//					gsl_integration_qawc(&F2,pow(point_1,2), pow(point_2,2), pow(energy,2), epsabs, epsrel, limit, /*key,*/ w, &output, &error); integral-=output;
-//					gsl_integration_qawc(&F2,pow(point_2,2), pow(point_3,2), pow(energy,2), epsabs, epsrel, limit, /*key,*/ w, &output, &error); integral-=output;
-//					gsl_integration_qawc(&F2,pow(point_3,2), pow(point_4,2), pow(energy,2), epsabs, epsrel, limit, /*key,*/ w, &output, &error); integral-=output;
-//					gsl_integration_qawc(&F2,pow(point_4,2), pow(point_5,2), pow(energy,2), epsabs, epsrel, limit, /*key,*/ w, &output, &error); integral-=output;
-//					gsl_integration_qawc(&F2,pow(point_5,2), pow(point_6,2), pow(energy,2), epsabs, epsrel, limit, /*key,*/ w, &output, &error); integral-=output;
-//					gsl_integration_qawc(&F2,pow(point_6,2), pow(point_7,2), pow(energy,2), epsabs, epsrel, limit, /*key,*/ w, &output, &error); integral-=output;
-//					gsl_integration_qawc(&F2,pow(point_7,2), pow(point_8,2), pow(energy,2), epsabs, epsrel, limit, /*key,*/ w, &output, &error); integral-=output;
-//					gsl_integration_qawc(&F2,pow(point_8,2), pow(point_9,2), pow(energy,2), epsabs, epsrel, limit, /*key,*/ w, &output, &error); integral-=output;
-//					gsl_integration_qawc(&F2,pow(point_9,2), pow(point_10,2), pow(energy,2), epsabs, epsrel, limit, /*key,*/ w, &output, &error); integral-=output;
-//					gsl_integration_qawc(&F2,pow(point_10,2), pow(point_11,2), pow(energy,2), epsabs, epsrel, limit, /*key,*/ w, &output, &error); integral-=output;
-//					gsl_integration_qawc(&F2,pow(point_11,2), pow(point_12,2), pow(energy,2), epsabs, epsrel, limit, /*key,*/ w, &output, &error); integral-=output;
-//					gsl_integration_qawc(&F2,pow(point_12,2), pow(point_13,2), pow(energy,2), epsabs, epsrel, limit, /*key,*/ w, &output, &error); integral-=output;
-//					gsl_integration_qawc(&F2,pow(point_13,2), pow(point_14,2), pow(energy,2), epsabs, epsrel, limit, /*key,*/ w, &output, &error); integral-=output;
-//					gsl_integration_qawc(&F2,pow(point_14,2), pow(point_15,2), pow(energy,2), epsabs, epsrel, limit, /*key,*/ w, &output, &error); integral-=output;
-//					gsl_integration_qawc(&F2,pow(point_15,2), pow(point_16,2), pow(energy,2), epsabs, epsrel, limit, /*key,*/ w, &output, &error); integral-=output;
-//					gsl_integration_qawc(&F2,pow(point_16,2), pow(point_17,2), pow(energy,2), epsabs, epsrel, limit, /*key,*/ w, &output, &error); integral-=output;
-//					gsl_integration_qawc(&F2,pow(point_17,2), pow(point_18,2), pow(energy,2), epsabs, epsrel, limit, /*key,*/ w, &output, &error); integral-=output;
-//					gsl_integration_qawc(&F2,pow(point_18,2), pow(point_19,2), pow(energy,2), epsabs, epsrel, limit, /*key,*/ w, &output, &error); integral-=output;
-//					gsl_integration_qawc(&F2,pow(point_19,2), pow(point_20,2), pow(energy,2), epsabs, epsrel, limit, /*key,*/ w, &output, &error); integral-=output;
-//					gsl_integration_qawc(&F2,pow(point_20,2), pow(point_21,2), pow(energy,2), epsabs, epsrel, limit, /*key,*/ w, &output, &error); integral-=output;
-//					gsl_integration_qawc(&F2,pow(point_20,2), pow(point_21,2), pow(energy,2), epsabs, epsrel, limit, /*key,*/ w, &output, &error); integral-=output;
-//					gsl_integration_qawc(&F2,pow(point_21,2), pow(point_22,2), pow(energy,2), epsabs, epsrel, limit, /*key,*/ w, &output, &error); integral-=output;
-//					gsl_integration_qawc(&F2,pow(point_22,2), pow(point_23,2), pow(energy,2), epsabs, epsrel, limit, /*key,*/ w, &output, &error); integral-=output;
-
-//					double delta = 2./M_PI * integral;
-
-
-//					qInfo() << "energy =" << energy << "delta =" << delta << "beta =" << 2*beta_Func(energy*energy, &params);
-//					out << energy << "\t\t" << delta << endl;
-//				}
-//			}
-
-//			file.close();
-//		}
-
-//		delete val;
-//		delete arg;
-//		gsl_integration_workspace_free(w);
-//	}
 }
 
 void Target_Curve::set_Text_To_Label()
