@@ -28,6 +28,7 @@ public:
 		Parameter angular_Resolution;
 		QString	  angle_Type;
 		vector<double>  instrumental_Factor_Vec;	// without saving
+		vector<double>  angular_Resolution_Mixed;	// without saving
 
 
 		// wavelength
@@ -40,6 +41,7 @@ public:
 		Parameter polarization;
 		Parameter polarization_Sensitivity;
 		Parameter background;
+		vector<double>  spectral_Resolution_Mixed;	// without saving
 
 		// geometry
 		Parameter beam_Size;
@@ -50,6 +52,7 @@ public:
 		void calc_Measured_cos2_k();
 		void calc_Independent_cos2_k();
 		void calc_Instrumental_Factor(QString active_Parameter_Whats_This);
+		void calc_Mixed_Resolution(QString active_Parameter_Whats_This);
 	///---------------------------------------------
 	///---------------------------------------------
 	// Ambient, Layer, Substrate

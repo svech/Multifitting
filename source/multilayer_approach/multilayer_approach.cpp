@@ -433,7 +433,7 @@ void Multilayer_Approach::lock_Mainwindow_Interface()
 		}
 
 		// close target editors
-		if(runned_Optical_Graphs.contains(optical_Graphs_Key) ||
+		if(/*runned_Optical_Graphs.contains(optical_Graphs_Key) ||*/       // better if not close
 		   runned_Calculation_Settings_Editor.contains(calc_Settings_Key))
 		{
 			for(Target_Curve_Editor* target_Curve_Editor : multilayer->runned_Target_Curve_Editors.values())
@@ -879,7 +879,7 @@ void Multilayer_Approach::open(QString filename)
 		runned_Calculation_Settings_Editor.value(calc_Settings_Key)->main_Tabs->setCurrentIndex(active_Tab_Calculation_Settings_Editor);
 	}
 
-	// reopen table of structures
+	// reopen graphs
 	if(reopen_Graphs)
 	{
 		open_Optical_Graphs();

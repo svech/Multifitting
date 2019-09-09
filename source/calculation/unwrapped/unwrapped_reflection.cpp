@@ -95,8 +95,8 @@ int Unwrapped_Reflection::fill_s__Max_Depth_2(const tree<Node>::iterator& parent
 			hi_IM         [thread_Index][media_Index  ] = child.node->data.hi_IM[point_Index];
 			r_Fresnel_s_RE[thread_Index][media_Index-1] = child.node->data.Fresnel_R_s_RE[point_Index] * child.node->data.weak_Factor_R[point_Index];
 			r_Fresnel_s_IM[thread_Index][media_Index-1] = child.node->data.Fresnel_R_s_IM[point_Index] * child.node->data.weak_Factor_R[point_Index];
-			t_Fresnel_s_RE[thread_Index][media_Index-1] = child.node->data.Fresnel_T_s_RE[point_Index] * child.node->data.weak_Factor_T[point_Index];
-			t_Fresnel_s_IM[thread_Index][media_Index-1] = child.node->data.Fresnel_T_s_IM[point_Index] * child.node->data.weak_Factor_T[point_Index];
+			t_Fresnel_s_RE[thread_Index][media_Index-1] = child.node->data.Fresnel_T_s_RE[point_Index];// * child.node->data.weak_Factor_T[point_Index];
+			t_Fresnel_s_IM[thread_Index][media_Index-1] = child.node->data.Fresnel_T_s_IM[point_Index];// * child.node->data.weak_Factor_T[point_Index];
 			exponenta_RE  [thread_Index][media_Index-1] = child.node->data.exponenta_RE[point_Index];
 			exponenta_IM  [thread_Index][media_Index-1] = child.node->data.exponenta_IM[point_Index];
 			exponenta_2_RE[thread_Index][media_Index-1] = child.node->data.exponenta_2_RE[point_Index];
@@ -110,8 +110,8 @@ int Unwrapped_Reflection::fill_s__Max_Depth_2(const tree<Node>::iterator& parent
 			hi_IM         [thread_Index][media_Index  ] = child.node->data.hi_IM[point_Index];
 			r_Fresnel_s_RE[thread_Index][media_Index-1] = child.node->data.Fresnel_R_s_RE[point_Index] * child.node->data.weak_Factor_R[point_Index];
 			r_Fresnel_s_IM[thread_Index][media_Index-1] = child.node->data.Fresnel_R_s_IM[point_Index] * child.node->data.weak_Factor_R[point_Index];
-			t_Fresnel_s_RE[thread_Index][media_Index-1] = child.node->data.Fresnel_T_s_RE[point_Index] * child.node->data.weak_Factor_T[point_Index];
-			t_Fresnel_s_IM[thread_Index][media_Index-1] = child.node->data.Fresnel_T_s_IM[point_Index] * child.node->data.weak_Factor_T[point_Index];
+			t_Fresnel_s_RE[thread_Index][media_Index-1] = child.node->data.Fresnel_T_s_RE[point_Index];// * child.node->data.weak_Factor_T[point_Index];
+			t_Fresnel_s_IM[thread_Index][media_Index-1] = child.node->data.Fresnel_T_s_IM[point_Index];// * child.node->data.weak_Factor_T[point_Index];
 			++media_Index;
 		} else
 		if(child_Data.item_Type == item_Type_Ambient)
@@ -872,7 +872,7 @@ void Unwrapped_Reflection::calc_Specular_nMin_nMax_1_Thread(const Data& measurem
 
 void Unwrapped_Reflection::calc_Specular()
 {
-	auto start = std::chrono::system_clock::now();
+//	auto start = std::chrono::system_clock::now();
 
 	/// ----------------------------------------------------------------------------------------------------------------------
 	/// parallelization
@@ -894,13 +894,13 @@ void Unwrapped_Reflection::calc_Specular()
 	{
 		if (global_Workers[thread_Index].joinable()) global_Workers[thread_Index].join();
 	}
-	auto end = std::chrono::system_clock::now();
-	auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-	qInfo() << "	parallelization:    "<< elapsed.count()/1000000. << " seconds" << endl;
+//	auto end = std::chrono::system_clock::now();
+//	auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+//	qInfo() << "	parallelization:    "<< elapsed.count()/1000000. << " seconds" << endl;
 	/// ----------------------------------------------------------------------------------------------------------------------
 	// postprocessing
 	{
-		auto start = std::chrono::system_clock::now();
+//		auto start = std::chrono::system_clock::now();
 
 		// interpolation
 
@@ -920,24 +920,12 @@ void Unwrapped_Reflection::calc_Specular()
 		{
 			if( (measurement.angular_Resolution.value>0 || measurement.spectral_Resolution.value>0) && measurement.angle.size()>=MIN_ANGULAR_RESOLUTION_POINTS)
 			{
-				vector<double> ang_Resolution(measurement.angle.size());
-				for(int i=0; i<measurement.angle.size(); ++i)
-				{
-					ang_Resolution[i] = sqrt( pow(measurement.angular_Resolution.value,2) /*+ pow(measurement.spectral_Resolution.value,2)*/);
-				}
-
-				// old way
-//				int ang_Res_Points = 30; //max(2.,3*pow(measurement.angular_Resolution.value*100,2));
-//				interpolate_Curve(ang_Res_Points, measurement.angle, ang_Resolution, calculated_Curve, working_Curve);
-
 				// interpolation on dense mesh (tunable)
 				double min_Step_As_Is = find_Min_Mesh_Step(measurement.angle);
-//				double min_Resolution = measurement.angular_Resolution.value;  // minimal resolution over all curve points
 				double preliminary_Delta = min_Step_As_Is;//min(min_Step_As_Is/1, min_Resolution/2);  // tunable
-//					   preliminary_Delta = max(min_Step_As_Is/2, preliminary_Delta);  // tunable
 
 				double first_Argument = measurement.angle.first();
-				double last_Argument = measurement.angle.last();
+				double last_Argument  = measurement.angle.last();
 				unsigned long long num_Points_in_Dense_Mesh = ceil( abs(last_Argument - first_Argument)/preliminary_Delta );
 				double real_Delta = (last_Argument - first_Argument)/(num_Points_in_Dense_Mesh-1);  // interpolated curve is equidistant
 
@@ -945,7 +933,7 @@ void Unwrapped_Reflection::calc_Specular()
 				vector<double> dense_Mesh(num_Points_in_Dense_Mesh);
 				vector<double> dense_Mesh_Interpolated_Curve(num_Points_in_Dense_Mesh);
 				condense_Curve      (measurement.angle, calculated_Curve, real_Delta, dense_Mesh_Interpolated_Curve, dense_Mesh);
-				wrap_Condensed_Curve(measurement.angle, calculated_Curve, dense_Mesh, dense_Mesh_Interpolated_Curve, ang_Resolution, working_Curve);
+				wrap_Condensed_Curve(measurement.angle, calculated_Curve, dense_Mesh, dense_Mesh_Interpolated_Curve, measurement.angular_Resolution_Mixed, working_Curve);
 			}
 		}
 
@@ -953,26 +941,12 @@ void Unwrapped_Reflection::calc_Specular()
 		{
 			if( (measurement.angular_Resolution.value>0 || measurement.spectral_Resolution.value>0) && measurement.lambda.size()>=MIN_SPECTRAL_RESOLUTION_POINTS)
 			{
-				vector<double> spec_Resolution(measurement.lambda.size());
-				for(int i=0; i<measurement.lambda.size(); ++i)
-				{
-					spec_Resolution[i] = measurement.spectral_Resolution.value*measurement.lambda[i];
-//					ang_Resolution[i] = sqrt( pow(measurement.angular_Resolution.value,2) /*+ pow(measurement.spectral_Resolution.value,2)*/);
-				}
-
-				// old way
-//				int spec_Res_Points = 30;// max(2.,3*pow(measurement.spectral_Resolution.value*1000,2));
-										 //	spec_Res_Points = min(30,spec_Res_Points);
-//				interpolate_Curve(spec_Res_Points, measurement.lambda, spec_Resolution, calculated_Curve, working_Curve);
-
 				// interpolation on dense mesh (tunable)
 				double min_Step_As_Is = find_Min_Mesh_Step(measurement.lambda);
-//				double min_Resolution = min(measurement.spectral_Resolution.value...);  // minimal resolution over all curve points
 				double preliminary_Delta = min_Step_As_Is;//min(min_Step_As_Is/1, min_Resolution/2);  // tunable
-//					   preliminary_Delta = max(min_Step_As_Is/2, preliminary_Delta);  // tunable
 
 				double first_Argument = measurement.lambda.first();
-				double last_Argument = measurement.lambda.last();
+				double last_Argument  = measurement.lambda.last();
 				unsigned long long num_Points_in_Dense_Mesh = ceil( abs(last_Argument - first_Argument)/preliminary_Delta );
 				double real_Delta = (last_Argument - first_Argument)/(num_Points_in_Dense_Mesh-1);  // interpolated curve is equidistant
 
@@ -980,7 +954,7 @@ void Unwrapped_Reflection::calc_Specular()
 				vector<double> dense_Mesh(num_Points_in_Dense_Mesh);
 				vector<double> dense_Mesh_Interpolated_Curve(num_Points_in_Dense_Mesh);
 				condense_Curve      (measurement.lambda, calculated_Curve, real_Delta, dense_Mesh_Interpolated_Curve, dense_Mesh);
-				wrap_Condensed_Curve(measurement.lambda, calculated_Curve, dense_Mesh, dense_Mesh_Interpolated_Curve, spec_Resolution, working_Curve);
+				wrap_Condensed_Curve(measurement.lambda, calculated_Curve, dense_Mesh, dense_Mesh_Interpolated_Curve, measurement.spectral_Resolution_Mixed, working_Curve);
 			}
 		}
 
@@ -999,9 +973,9 @@ void Unwrapped_Reflection::calc_Specular()
 			A_Instrumental[point_Index] += measurement.background.value;
 		}
 
-		auto end = std::chrono::system_clock::now();
-		auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-		qInfo() << "	interpolation:    "<< elapsed.count()/1000000. << " seconds" << endl;
+//		auto end = std::chrono::system_clock::now();
+//		auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+//		qInfo() << "	interpolation:    "<< elapsed.count()/1000000. << " seconds" << endl;
 	}
 }
 

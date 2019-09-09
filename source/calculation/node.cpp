@@ -383,6 +383,8 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 								weak_Factor_T[i] += struct_Data.interlayer_Composition[Erf].interlayer.value * factor_t;
 							}
 //						});
+						int i0=442;
+						qInfo() << "WF R =" << weak_Factor_R[i0]  << "WF T ="<< weak_Factor_T[i0];
 					}
 					//-------------------------------------------------------------------------------
 					// lin interlayer

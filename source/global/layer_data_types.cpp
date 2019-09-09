@@ -670,8 +670,8 @@ void Data::calc_Instrumental_Factor(QString active_Parameter_Whats_This)
 				max = (sample_Shift.value+sample_Size.value/2.)*sin_Grad;
 
 				// if reasonable to integrate
-				if( min>-3/*1*/*beam_Size.value ||
-					max< 3/*1*/*beam_Size.value )
+				if( min>-3*beam_Size.value ||
+					max< 3*beam_Size.value )
 				{
 					gsl_integration_qag(&F,min,max,epsabs,epsrel,limit,key,w,&result,&error);
 				} else
@@ -719,6 +719,48 @@ void Data::calc_Instrumental_Factor(QString active_Parameter_Whats_This)
 	}
 
 	gsl_integration_workspace_free(w);
+}
+
+void Data::calc_Mixed_Resolution(QString active_Parameter_Whats_This)
+{
+
+	if(active_Parameter_Whats_This == whats_This_Angle)
+	{
+		angular_Resolution_Mixed.resize(angle.size());
+		for(int i=0; i<angular_Resolution_Mixed.size(); ++i)
+		{
+			double angle_Temp = angle[i]*M_PI/180.; // in radians
+			angular_Resolution_Mixed[i] = sqrt(
+						pow(
+							angular_Resolution.value // in degrees
+							,2) +
+						pow(
+							2*( angle_Temp - asin((1.-spectral_Resolution.value/2)*sin(angle_Temp)) ) * 180./M_PI  // back to degrees
+							,2));
+		}
+	}
+	if(active_Parameter_Whats_This == whats_This_Wavelength)
+	{
+		spectral_Resolution_Mixed.resize(lambda.size());
+		for(int i=0; i<spectral_Resolution_Mixed.size(); ++i)
+		{
+			double angular_Component = 0;
+			if(angle_Value-angular_Resolution.value/2>0 && angle_Value>0)
+			{
+				double angle_Temp = angle_Value*M_PI/180.; // in radians
+				double angular_Resolution_Temp = angular_Resolution.value*M_PI/180.; // in radians
+				angular_Component = 2*(1-sin(angle_Temp-angular_Resolution_Temp/2)/sin(angle_Temp));
+			}
+
+			spectral_Resolution_Mixed[i] = sqrt(
+						pow(
+							spectral_Resolution.value*lambda[i]
+							,2) +
+						pow(
+							angular_Component*lambda[i]
+							,2));
+		}
+	}
 }
 
 void Data::fill_Potentially_Fitable_Parameters_Vector()

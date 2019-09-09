@@ -338,7 +338,27 @@ void Target_Curve_Editor::create_Filepath_GroupBox()
 			filepath_ComboBox->setEditable(true);
 			connect(filepath_ComboBox->lineEdit(), &QLineEdit::textEdited, this, [=]{resize_ComboBox();} );
 			connect(filepath_ComboBox, &QComboBox::currentTextChanged, this, [=](QString str){ filepath_ComboBox->lineEdit()->textEdited(str); } );
-			connect(filepath_ComboBox->lineEdit(), &QLineEdit::returnPressed, this, [=]{ read_Data_File(filepath_ComboBox->lineEdit()->text()); });
+			connect(filepath_ComboBox->lineEdit(), &QLineEdit::returnPressed, this, [=]
+			{
+				// close graphs
+				bool reopen_Graphs = global_Multilayer_Approach->runned_Optical_Graphs.contains(optical_Graphs_Key);
+				int active_Tab_Optical_Graphs = -2019;
+				if(reopen_Graphs)
+				{
+					active_Tab_Optical_Graphs = global_Multilayer_Approach->runned_Optical_Graphs.value(optical_Graphs_Key)->main_Tabs->currentIndex();
+					global_Multilayer_Approach->runned_Optical_Graphs.value(optical_Graphs_Key)->close();
+				}
+
+				read_Data_File(filepath_ComboBox->lineEdit()->text());
+
+				// reopen graphs
+				if(reopen_Graphs)
+				{
+					global_Multilayer_Approach->open_Optical_Graphs();
+					global_Multilayer_Approach->runned_Optical_Graphs.value(optical_Graphs_Key)->main_Tabs->setCurrentIndex(active_Tab_Optical_Graphs);
+				}
+
+			});
 		layout->addWidget(filepath_ComboBox,0,Qt::AlignLeft);
 
 		// browse

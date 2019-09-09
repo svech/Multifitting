@@ -41,7 +41,7 @@ bool MyDoubleSpinBox::isValid(const QString& text) const
 	else			{symbols = positive_Symbols;}
 
 	int idx = text.indexOf(symbols, 0);
-	if(idx != -1)	{
+	if(idx != -1 || text.isEmpty())	{
 		return false;
 	}
 	QList<QString> list = text.split(Locale.decimalPoint());

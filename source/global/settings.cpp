@@ -586,7 +586,7 @@ void Settings::read_Precisions(bool reset_to_default)
 			line_edit_short_double_format = qvariant_cast<char>(precision_Values.value( "line_edit_short_double_format",'g'));
 			line_edit_angle_precision				= precision_Values.value( "line_edit_angle_precision",				5 ).toInt();
 			line_edit_wavelength_precision			= precision_Values.value( "line_edit_wavelength_precision",			6 ).toInt();
-			line_edit_spectral_resolution_precision	= precision_Values.value( "line_edit_spectral_resolution_precision",2 ).toInt();
+			line_edit_spectral_resolution_precision	= precision_Values.value( "line_edit_spectral_resolution_precision",8 ).toInt();
 			line_edit_polarization_precision		= precision_Values.value( "line_edit_polarization_precision",		3 ).toInt();
 			line_edit_background_precision			= precision_Values.value( "line_edit_background_precision",			3 ).toInt();
 			line_edit_beam_size_precision			= precision_Values.value( "line_edit_beam_size_precision",			4 ).toInt();

@@ -411,6 +411,7 @@ void Calculation_Tree::calculate_1_Kind_Preliminary(Data_Element<Type>& data_Ele
 
 	// calculate instrumental function
 	data_Element.the_Class->measurement.calc_Instrumental_Factor(data_Element.active_Parameter_Whats_This);
+	data_Element.the_Class->measurement.calc_Mixed_Resolution(data_Element.active_Parameter_Whats_This);
 }
 template void Calculation_Tree::calculate_1_Kind_Preliminary<Independent_Variables>(Data_Element<Independent_Variables>&);
 template void Calculation_Tree::calculate_1_Kind_Preliminary<Target_Curve>		   (Data_Element<Target_Curve>&);
