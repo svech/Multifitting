@@ -347,6 +347,7 @@ int Unwrapped_Structure::fill_Sigma(const tree<Node>::iterator& parent, int boun
 				// can drift
 				variable_Drift(boundary_Interlayer_Composition[boundary_Index][func_Index].my_Sigma.value, child.node->data.struct_Data.sigma_Drift, per_Index, child.node->data.struct_Data.num_Repetition.value());
 			}
+			qInfo() << "sig" << boundary_Index << boundary_Interlayer_Composition[boundary_Index][0].my_Sigma.value;
 			++boundary_Index;
 		}
 		if( child.node->data.struct_Data.item_Type == item_Type_Substrate )
@@ -364,9 +365,11 @@ int Unwrapped_Structure::fill_Sigma(const tree<Node>::iterator& parent, int boun
 
 		if( child.node->data.struct_Data.item_Type == item_Type_Multilayer )
 		{
+			int per_Index_Amendment = 0;
+			if(child.node->data.struct_Data.num_Repetition.value()>=1) per_Index_Amendment=1;
 			for(int period_Index=0; period_Index<child.node->data.struct_Data.num_Repetition.value(); ++period_Index)
 			{
-				boundary_Index = fill_Sigma(child, boundary_Index, period_Index);
+				boundary_Index = fill_Sigma(child, boundary_Index, period_Index+per_Index_Amendment);
 			}
 		}
 
@@ -392,7 +395,7 @@ int Unwrapped_Structure::fill_Sigma(const tree<Node>::iterator& parent, int boun
 	return boundary_Index;
 }
 
-int Unwrapped_Structure::fill_Thickness(const tree<Node>::iterator& parent, int layer_Index, int per_Index, int num_Repetition)
+int Unwrapped_Structure::fill_Thickness(const tree<Node>::iterator& parent, int layer_Index, int per_Index)
 {
 	for(unsigned child_Index=0; child_Index<parent.number_of_children(); ++child_Index)
 	{
@@ -406,16 +409,18 @@ int Unwrapped_Structure::fill_Thickness(const tree<Node>::iterator& parent, int 
 			thickness[layer_Index] = child.node->data.struct_Data.thickness.value;
 
 			// can drift
-			variable_Drift(thickness[layer_Index], child.node->data.struct_Data.thickness_Drift, per_Index, num_Repetition);
+			variable_Drift(thickness[layer_Index], child.node->data.struct_Data.thickness_Drift, per_Index, child.node->data.struct_Data.num_Repetition.value());
 
 			++layer_Index;
 		}
 
 		if( child.node->data.struct_Data.item_Type == item_Type_Multilayer )
 		{
+			int per_Index_Amendment = 0;
+			if(child.node->data.struct_Data.num_Repetition.value()>=1) per_Index_Amendment=1;
 			for(int period_Index=0; period_Index<child.node->data.struct_Data.num_Repetition.value(); ++period_Index)
 			{
-				layer_Index = fill_Thickness(child, layer_Index, period_Index, child.node->data.struct_Data.num_Repetition.value());
+				layer_Index = fill_Thickness(child, layer_Index, period_Index+per_Index_Amendment);
 			}
 		}
 

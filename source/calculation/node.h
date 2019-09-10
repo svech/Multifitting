@@ -45,7 +45,7 @@ public:
 	vector<double> exponenta_2_RE;
 	vector<double> exponenta_2_IM;
 	vector<double> weak_Factor_R;
-	vector<double> weak_Factor_T;
+//	vector<double> weak_Factor_T;
 
 	/// ------------------------------------------------
 };

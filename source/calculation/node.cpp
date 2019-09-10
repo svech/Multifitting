@@ -325,7 +325,7 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 				struct_Data.item_Type == item_Type_Substrate )
 			{
 				weak_Factor_R.resize(num_Points);
-				weak_Factor_T.resize(num_Points);
+//				weak_Factor_T.resize(num_Points);
 
 				// if >=1 interlayer is turned on
 				bool is_Norm = false;
@@ -342,7 +342,7 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 					double norm = 0;
 					double my_Sigma = struct_Data.sigma.value;	// by default, otherwise we change it
 					vector<double> s_r (num_Points);
-					vector<double> s_t (num_Points);
+//					vector<double> s_t (num_Points);
 
 					// reftectance
 //					Global_Variables::parallel_For(num_Points, reflectivity_Calc_Threads, [&](int n_Min, int n_Max)
@@ -354,8 +354,8 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 							s_r[i] = sqrt(above_Node->hi_RE[i]*hi_RE[i]);
 
 							// transmittance
-							weak_Factor_T[i] = 0;
-							s_t[i] =     (above_Node->hi_RE[i]-hi_RE[i])/2;
+//							weak_Factor_T[i] = 0;
+//							s_t[i] =     (above_Node->hi_RE[i]-hi_RE[i])/2;
 						}
 //					});
 
@@ -370,21 +370,20 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 
 //						Global_Variables::parallel_For(num_Points, reflectivity_Calc_Threads, [&](int n_Min, int n_Max)
 //						{
-							double factor_r, factor_t;
+							double factor_r;
+//							double factor_t;
 							for(int i=0; i<num_Points; ++i)
 //							for(int i=n_Min; i<n_Max; ++i)
 							{
-								// reftectance
+								// reflectance
 								factor_r = exp( - s_r[i] * s_r[i] * my_Sigma * my_Sigma * 2 );
 								weak_Factor_R[i] += struct_Data.interlayer_Composition[Erf].interlayer.value * factor_r;
 
 								// transmittance
-								factor_t = exp(   s_t[i] * s_t[i] * my_Sigma * my_Sigma * 2 );
-								weak_Factor_T[i] += struct_Data.interlayer_Composition[Erf].interlayer.value * factor_t;
+//								factor_t = exp(   s_t[i] * s_t[i] * my_Sigma * my_Sigma * 2 );
+//								weak_Factor_T[i] += struct_Data.interlayer_Composition[Erf].interlayer.value * factor_t;
 							}
 //						});
-						int i0=442;
-						qInfo() << "WF R =" << weak_Factor_R[i0]  << "WF T ="<< weak_Factor_T[i0];
 					}
 					//-------------------------------------------------------------------------------
 					// lin interlayer
@@ -398,11 +397,11 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 //						Global_Variables::parallel_For(num_Points, reflectivity_Calc_Threads, [&](int n_Min, int n_Max)
 //						{
 							double factor_r, x_r;
-							double factor_t, x_t;
+//							double factor_t, x_t;
 //							for(int i=n_Min; i<n_Max; ++i)
 							for(int i=0; i<num_Points; ++i)
 							{
-								// reftectance
+								// reflectance
 								x_r = sqrt(3.) * s_r[i] * my_Sigma * 2;
 								if(abs(x_r)>DBL_MIN) {
 									factor_r = sin(x_r) / (x_r);
@@ -413,13 +412,13 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 								weak_Factor_R[i] += struct_Data.interlayer_Composition[Lin].interlayer.value * factor_r;
 
 								// transmittance
-								x_t = sqrt(3.) * s_t[i] * my_Sigma * 2;
-								if(abs(x_t)>DBL_MIN) {
-									factor_t = sin(x_t) / (x_t);
-								} else {
-									factor_t = 1;
-								}
-								weak_Factor_T[i] += struct_Data.interlayer_Composition[Lin].interlayer.value * factor_t;
+//								x_t = sqrt(3.) * s_t[i] * my_Sigma * 2;
+//								if(abs(x_t)>DBL_MIN) {
+//									factor_t = sin(x_t) / (x_t);
+//								} else {
+//									factor_t = 1;
+//								}
+//								weak_Factor_T[i] += struct_Data.interlayer_Composition[Lin].interlayer.value * factor_t;
 							}
 //						});
 					}
@@ -435,19 +434,19 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 //						Global_Variables::parallel_For(num_Points, reflectivity_Calc_Threads, [&](int n_Min, int n_Max)
 //						{
 							double factor_r, x_r;
-							double factor_t, x_t;
+//							double factor_t, x_t;
 							for(int i=0; i<num_Points; ++i)
 //							for(int i=n_Min; i<n_Max; ++i)
 							{
-								// reftectance
+								// reflectance
 								x_r = pow(s_r[i] * my_Sigma, 2) * 2;
 								factor_r = 1. / (1. + x_r);
 								weak_Factor_R[i] += struct_Data.interlayer_Composition[Exp].interlayer.value * factor_r;
 
 								// transmittance
-								x_t = pow(s_t[i] * my_Sigma, 2) * 2;
-								factor_t = 1. / (1. + x_t);
-								weak_Factor_T[i] += struct_Data.interlayer_Composition[Exp].interlayer.value * factor_t;
+//								x_t = pow(s_t[i] * my_Sigma, 2) * 2;
+//								factor_t = 1. / (1. + x_t);
+//								weak_Factor_T[i] += struct_Data.interlayer_Composition[Exp].interlayer.value * factor_t;
 							}
 //						});
 					}
@@ -463,11 +462,11 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 //						Global_Variables::parallel_For(num_Points, reflectivity_Calc_Threads, [&](int n_Min, int n_Max)
 //						{
 							double factor_r, x_r;
-							double factor_t, x_t;
+//							double factor_t, x_t;
 							for(int i=0; i<num_Points; ++i)
 //							for(int i=n_Min; i<n_Max; ++i)
 							{
-								// reftectance
+								// reflectance
 								x_r = sqrt(3.) * s_r[i] * my_Sigma * 2;
 								if(abs(x_r)>DBL_MIN)
 								{
@@ -480,16 +479,16 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 								weak_Factor_R[i] += struct_Data.interlayer_Composition[Tanh].interlayer.value * factor_r;
 
 								// transmittance
-								x_t = sqrt(3.) * s_t[i] * my_Sigma * 2;
-								if(abs(x_t)>DBL_MIN)
-								{
-									factor_t = x_t / sinh(x_t);
-								}
-								else
-								{
-									factor_t = 1;
-								}
-								weak_Factor_T[i] += struct_Data.interlayer_Composition[Tanh].interlayer.value * factor_t;
+//								x_t = sqrt(3.) * s_t[i] * my_Sigma * 2;
+//								if(abs(x_t)>DBL_MIN)
+//								{
+//									factor_t = x_t / sinh(x_t);
+//								}
+//								else
+//								{
+//									factor_t = 1;
+//								}
+//								weak_Factor_T[i] += struct_Data.interlayer_Composition[Tanh].interlayer.value * factor_t;
 							}
 //						});
 					}
@@ -505,11 +504,11 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 //						Global_Variables::parallel_For(num_Points, reflectivity_Calc_Threads, [&](int n_Min, int n_Max)
 //						{
 							double factor_r, x_r, y_r, six_r, siy_r;
-							double factor_t, x_t, y_t, six_t, siy_t;
+//							double factor_t, x_t, y_t, six_t, siy_t;
 //							for(int i=n_Min; i<n_Max; ++i)
 							for(int i=0; i<num_Points; ++i)
 							{
-								// reftectance
+								// reflectance
 								x_r = a * my_Sigma * s_r[i] * 2 - M_PI_2;
 								y_r = x_r + M_PI;
 
@@ -520,14 +519,14 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 								weak_Factor_R[i] += struct_Data.interlayer_Composition[Sin].interlayer.value * factor_r;
 
 								// transmittance
-								x_t = a * my_Sigma * s_t[i] * 2 - M_PI_2;
-								y_t = x_t + M_PI;
+//								x_t = a * my_Sigma * s_t[i] * 2 - M_PI_2;
+//								y_t = x_t + M_PI;
 
-								if(abs(x_t)>DBL_MIN) six_t = sin(x_t)/x_t; else six_t = 1;
-								if(abs(y_t)>DBL_MIN) siy_t = sin(y_t)/y_t; else siy_t = 1;
+//								if(abs(x_t)>DBL_MIN) six_t = sin(x_t)/x_t; else six_t = 1;
+//								if(abs(y_t)>DBL_MIN) siy_t = sin(y_t)/y_t; else siy_t = 1;
 
-								factor_t = M_PI_4 * (six_t + siy_t);
-								weak_Factor_T[i] += struct_Data.interlayer_Composition[Sin].interlayer.value * factor_t;
+//								factor_t = M_PI_4 * (six_t + siy_t);
+//								weak_Factor_T[i] += struct_Data.interlayer_Composition[Sin].interlayer.value * factor_t;
 							}
 //						});
 					}
@@ -543,17 +542,17 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 //						Global_Variables::parallel_For(num_Points, reflectivity_Calc_Threads, [&](int n_Min, int n_Max)
 //						{
 							double factor_r;
-							double factor_t;
+//							double factor_t;
 							for(int i=0; i<num_Points; ++i)
 //							for(int i=n_Min; i<n_Max; ++i)
 							{
-								// reftectance
+								// reflectance
 								factor_r = cos(s_r[i] * my_Sigma * 2);
 								weak_Factor_R[i] += struct_Data.interlayer_Composition[Step].interlayer.value * factor_r;
 
 								// transmittance
-								factor_t = cos(s_t[i] * my_Sigma * 2);
-								weak_Factor_T[i] += struct_Data.interlayer_Composition[Step].interlayer.value * factor_t;
+//								factor_t = cos(s_t[i] * my_Sigma * 2);
+//								weak_Factor_T[i] += struct_Data.interlayer_Composition[Step].interlayer.value * factor_t;
 							}
 //						});
 					}
@@ -568,7 +567,7 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 //								for(int i=n_Min; i<n_Max; ++i)
 								{
 									weak_Factor_R[i] /= norm;
-									weak_Factor_T[i] /= norm;
+//									weak_Factor_T[i] /= norm;
 								}
 //							});
 						} else
@@ -579,7 +578,7 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 //								for(int i=n_Min; i<n_Max; ++i)
 								{
 									weak_Factor_R[i] = 1;
-									weak_Factor_T[i] = 1;
+//									weak_Factor_T[i] = 1;
 								}
 //							});
 						}
@@ -592,7 +591,7 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 //						for(int i=n_Min; i<n_Max; ++i)
 						{
 							weak_Factor_R[i] = 1;
-							weak_Factor_T[i] = 1;
+//							weak_Factor_T[i] = 1;
 						}
 //					});
 				}

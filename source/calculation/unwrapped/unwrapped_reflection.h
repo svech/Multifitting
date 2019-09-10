@@ -62,7 +62,7 @@ public:
 	vector<vector<double>> exponenta_2_RE;		//	[thread][layer]
 	vector<vector<double>> exponenta_2_IM;		//	[thread][layer]
 	vector<vector<double>> weak_Factor_R;		//	[thread][boundary]
-	vector<vector<double>> weak_Factor_T;		//	[thread][boundary]
+//	vector<vector<double>> weak_Factor_T;		//	[thread][boundary]
 
 	int fill_s__Max_Depth_2(const tree<Node>::iterator& parent, int thread_Index, int point_Index, int media_Index = 0);
 	int fill_p__Max_Depth_2(const tree<Node>::iterator& parent, int thread_Index, int point_Index, int media_Index = 0);

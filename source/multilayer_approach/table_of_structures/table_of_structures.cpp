@@ -1798,7 +1798,7 @@ void Table_Of_Structures::create_Line_Edit(My_Table_Widget* table, int tab_Index
 		if(	whats_This == whats_This_Thickness_Drift_Line_Value ||
 			whats_This == whats_This_Sigma_Drift_Line_Value	)
 		{
-			spin_Box->setRange(-MAX_DOUBLE, MAX_DOUBLE);
+			spin_Box->setRange(-100, MAX_DOUBLE);
 		} else
 		{
 			if(whats_This == whats_This_Gamma)

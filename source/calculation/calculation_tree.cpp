@@ -352,6 +352,10 @@ void Calculation_Tree::stratify_Calc_Tree(tree<Node>& calc_Tree)
 			{
 				for(unsigned child_Index=0; child_Index<chosen_Child.number_of_children(); ++child_Index)
 				{
+					// save number of periods and drift for drift calculation
+					tree<Node>::post_order_iterator layer = tree<Node>::child(chosen_Child,child_Index);
+					layer.node->data.struct_Data.num_Repetition.parameter.value  = chosen_Child.node->data.struct_Data.num_Repetition.parameter.value;
+
 					calc_Tree.insert_subtree     (chosen_Child, tree<Node>::child(chosen_Child,child_Index));
 				}
 				// change data

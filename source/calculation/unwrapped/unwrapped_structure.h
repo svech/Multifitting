@@ -51,7 +51,7 @@ public:
 	int fill_Epsilon		  (const tree<Node>::iterator& parent, int media_Index = 0);
 	int fill_Epsilon_Dependent(const tree<Node>::iterator& parent, int num_Lambda_Points, int media_Index = 0);
 	int fill_Sigma    (const tree<Node>::iterator& parent, int boundary_Index = 0, int per_Index = 0);
-	int fill_Thickness(const tree<Node>::iterator& parent, int layer_Index = 0, int per_Index = 0, int num_Repetition = 1);
+	int fill_Thickness(const tree<Node>::iterator& parent, int layer_Index = 0,    int per_Index = 0);
 };
 
 #endif // UNWRAPPED_STRUCTURE_H
