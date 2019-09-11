@@ -347,7 +347,8 @@ int Unwrapped_Structure::fill_Sigma(const tree<Node>::iterator& parent, int boun
 				// can drift
 				variable_Drift(boundary_Interlayer_Composition[boundary_Index][func_Index].my_Sigma.value, child.node->data.struct_Data.sigma_Drift, per_Index, child.node->data.struct_Data.num_Repetition.value());
 			}
-			qInfo() << "sig" << boundary_Index << boundary_Interlayer_Composition[boundary_Index][0].my_Sigma.value;
+			// can drift
+			variable_Drift(sigma[boundary_Index], child.node->data.struct_Data.sigma_Drift, per_Index, child.node->data.struct_Data.num_Repetition.value());
 			++boundary_Index;
 		}
 		if( child.node->data.struct_Data.item_Type == item_Type_Substrate )

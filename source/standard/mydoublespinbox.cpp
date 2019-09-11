@@ -78,7 +78,9 @@ void MyDoubleSpinBox::create_Text_Change_Connection()
 					value = valueFromText(list[0]+Locale.decimalPoint()+list[1]);
 				}
 			}
+			blockSignals(true);
 			setValue(value);
+			blockSignals(false);
 		} else
 		{
 			Global_Variables::resize_Line_Edit(this);
