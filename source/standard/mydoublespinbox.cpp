@@ -6,6 +6,9 @@ const QRegExp negative_Symbols = QRegExp("[^0-9"+QString(Locale.decimalPoint())+
 MyDoubleSpinBox::MyDoubleSpinBox(QWidget *parent) : QDoubleSpinBox(parent)
 {
 	create_Text_Change_Connection();
+
+	// auto resizing when focus is lost
+	connect(myLineEdit(), &QLineEdit::editingFinished, this, [=]{Global_Variables::resize_Line_Edit(this, false);});
 }
 
 QValidator::State MyDoubleSpinBox::validate(QString &input, int &pos) const

@@ -160,7 +160,8 @@ void Target_Curve::fill_Measurement_With_Data()
 	if(loaded_And_Ready)
 	{
 		// check zero intensity
-		if(abs(curve.beam_Intensity)<=DBL_EPSILON) curve.beam_Intensity = 1;
+		if(abs(curve.beam_Intensity_Start)<=DBL_EPSILON) curve.beam_Intensity_Start = 1;
+		if(abs(curve.beam_Intensity_Final)<=DBL_EPSILON) curve.beam_Intensity_Final = 1;
 
 		// preliminary fill calculated data with 0
 		calculated_Values.R.	resize(curve.argument.size());	calculated_Values.R.fill(0);
@@ -173,13 +174,19 @@ void Target_Curve::fill_Measurement_With_Data()
 		curve.shifted_Argument.resize(curve.argument.size());
 		curve.shifted_Values.resize(curve.argument.size());
 
-		double intensity_Factor = 1;
-		if(curve.divide_On_Beam_Intensity) intensity_Factor = curve.beam_Intensity;
-
+		vector<double> intensity_Factor(curve.argument.size(),1);
+		double delta = (curve.beam_Intensity_Final - curve.beam_Intensity_Start)/max(curve.argument.size()-1,1);
+		if(curve.divide_On_Beam_Intensity)
 		for(int i=0; i<curve.argument.size(); ++i)
 		{
-			curve.shifted_Argument[i]     = curve.argument[i]                     *curve.arg_Factor+curve.arg_Offset;
-			curve.shifted_Values[i].val_1 = curve.values[i].val_1/intensity_Factor*curve.val_Factor+curve.val_Offset;
+			intensity_Factor[i] = curve.beam_Intensity_Start + i*delta;
+		}
+
+		qInfo() << "curve.arg_Offset" << curve.arg_Offset << endl;
+		for(int i=0; i<curve.argument.size(); ++i)
+		{
+			curve.shifted_Argument[i]     = curve.argument[i]                         * curve.arg_Factor+curve.arg_Offset;
+			curve.shifted_Values[i].val_1 = curve.values[i].val_1/intensity_Factor[i] * curve.val_Factor+curve.val_Offset;
 			// shift only first
 			curve.shifted_Values[i].val_2 = curve.values[i].val_2;//*curve.val_Factor+curve.val_Offset;
 		}

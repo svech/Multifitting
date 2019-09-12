@@ -193,7 +193,8 @@ void Item_Editor::make_Materials_Group_Box()
 		layout->addWidget(material_Line_Edit);
 
 		browse_Material_Button = new QPushButton("Browse...");
-		browse_Material_Button->setFixedWidth(60);
+		browse_Material_Button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+//		browse_Material_Button->setFixedWidth(60);
 			browse_Material_Button->setFocusPolicy(Qt::NoFocus);
 		layout->addWidget(browse_Material_Button);
 
@@ -1056,7 +1057,8 @@ void Item_Editor::make_Sigma_Group_Box()
 void Item_Editor::set_Window_Geometry()
 {
 	adjustSize();
-	setFixedSize(size());
+	main_Layout->setSizeConstraint(QLayout::SetFixedSize);
+//	setFixedSize(size());
 	move(QApplication::desktop()->screen()->rect().center() - rect().center());
 }
 

@@ -9,7 +9,7 @@
 
 #define VERSION_MAJOR 1
 #define VERSION_MINOR 9
-#define VERSION_BUILD 2
+#define VERSION_BUILD 3
 
 using namespace std;
 class Node;
@@ -565,7 +565,7 @@ struct Value					{double val_1; double val_2; /*double val_3; double val_4;*/};
 struct Curve					{QVector<double> argument; QVector<double> shifted_Argument;
 								 QVector<Value> values;	   QVector<Value> shifted_Values;
 								 double arg_Offset = 0; double arg_Factor = 1; bool divide_On_Beam_Intensity = true;
-								 double val_Offset = 0; double val_Factor = 1; double beam_Intensity = 1;
+								 double val_Offset = 0; double val_Factor = 1; double beam_Intensity_Start = 1; double beam_Intensity_Final = 1;
 								 QString argument_Type;
 								 QString angle_Type;
 								 QString angular_Units;

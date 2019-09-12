@@ -6,6 +6,7 @@
 #include "multilayer_approach/multilayer/multilayer.h"
 #include "target_curve_plot.h"
 
+class MyDoubleSpinBox;
 class Target_Curve_Editor : public QDialog
 {
 	Q_OBJECT
@@ -79,20 +80,22 @@ public:
 			QLabel* arg_Units_Label;
 			QComboBox* arg_Units_ComboBox;
 			QLabel* arg_Offset_Label;
-			QDoubleSpinBox* arg_Offset_SpinBox;
+			MyDoubleSpinBox* arg_Offset_SpinBox;
 			QLabel* arg_Factor_Label;
-			QDoubleSpinBox* arg_Factor_SpinBox;
+			MyDoubleSpinBox* arg_Factor_SpinBox;
 
 			QLabel* val_Function_Label;
 			QComboBox* val_Function_ComboBox;
 			QLabel* val_Mode_Label;
 			QComboBox* val_Mode_ComboBox;
 			QLabel* val_Offset_Label;
-			QDoubleSpinBox* val_Offset_SpinBox;
+			MyDoubleSpinBox* val_Offset_SpinBox;
 			QLabel* val_Factor_Label;
-			QDoubleSpinBox* val_Factor_SpinBox;
-			QLabel* beam_Intensity_Label;
-			QLineEdit* beam_Intensity_LineEdit;
+			MyDoubleSpinBox* val_Factor_SpinBox;
+			QLabel* beam_Intensity_Start_Label;
+			MyDoubleSpinBox* beam_Intensity_Start_SpinBox;
+			QLabel* beam_Intensity_Final_Label;
+			MyDoubleSpinBox* beam_Intensity_Final_SpinBox;
 			QCheckBox* norm_On_Beam_Intensity;
 
 			QLabel* at_Fixed_Label;

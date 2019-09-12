@@ -904,7 +904,7 @@ void Multilayer_Approach::open(QString filename)
 	file_Was_Opened_or_Saved = true;
 	last_file = filename;
 
-	qInfo() << "opened";// << last_file;
+	qInfo() << "opened\n";// << last_file;
 }
 
 void Multilayer_Approach::open_As()
@@ -1049,7 +1049,7 @@ void Multilayer_Approach::save(QString filename)
 	file_Was_Opened_or_Saved = true;
 	last_file = filename;
 
-	qInfo() << "saved";// << last_file;
+	qInfo() << "saved\n";// << last_file;
 }
 
 void Multilayer_Approach::save_As()

@@ -360,7 +360,7 @@ void Fitting::fill_Residual(Fitting_Params* params, int& residual_Shift, Data_El
 			fi_1 = target_Curve->curve.values[point_Index].val_1;
 			fi_2 = model_Curve[point_Index];
 
-			gsl_vector_set(f, residual_Shift+point_Index, factor*(fi_1-fi_2)*sqrt(target_Curve->curve.beam_Intensity/fi_2)   );
+			gsl_vector_set(f, residual_Shift+point_Index, factor*(fi_1-fi_2)*sqrt((target_Curve->curve.beam_Intensity_Start+target_Curve->curve.beam_Intensity_Final)/(2*fi_2))   );
 		}
 	} else
 	// use custom expression

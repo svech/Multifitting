@@ -47,7 +47,7 @@ void Target_Curve_Editor::dropEvent(QDropEvent* event)
 
 void Target_Curve_Editor::set_Window_Geometry()
 {
-	QMetaObject::invokeMethod(this, "adjustSize", Qt::QueuedConnection);
+//	QMetaObject::invokeMethod(this, "adjustSize", Qt::QueuedConnection);
 //	main_Layout->layout()->setSizeConstraint( QLayout::SetFixedSize );
 }
 
@@ -234,7 +234,6 @@ void Target_Curve_Editor::create_Main_Layout()
 	bottom_Part_Layout = new QVBoxLayout(bottom_Part_Widget);
 		bottom_Part_Layout->setContentsMargins(0,0,0,0);
 		bottom_Part_Layout->setSpacing(0);
-		bottom_Part_Widget->setFixedHeight(305);
 #ifdef __linux__
 		bottom_Part_Widget->setFixedHeight(345);
 #endif
@@ -248,6 +247,9 @@ void Target_Curve_Editor::create_Main_Layout()
 	create_Data_GroupBox();
 		bottom_Part_Layout->addWidget(data_GroupBox);
 	create_Buttons();
+
+	bottom_Part_Widget->adjustSize();
+	bottom_Part_Widget->setFixedHeight(bottom_Part_Widget->height());
 
 	target_Curve_Plot->custom_Plot->replot();
 	main_Layout->addWidget(bottom_Part_Widget);
@@ -379,124 +381,178 @@ void Target_Curve_Editor::create_Data_GroupBox()
 									 "QGroupBox::title   { subcontrol-origin: margin;   top: 6px; left: 9px; padding: 0 0px 0 1px;}");
 #endif
 	QVBoxLayout* data_GroupBox_Layout = new QVBoxLayout(data_GroupBox);
+	QHBoxLayout* hor_Layout = new QHBoxLayout;
+		hor_Layout->setAlignment(Qt::AlignLeft);
 
-	// argument
+	// 1st column
 	{
-		QHBoxLayout* layout = new QHBoxLayout;
-		layout->setAlignment(Qt::AlignLeft);
+		QVBoxLayout* layout = new QVBoxLayout;
+		hor_Layout->addLayout(layout);
 
 		arg_Type_Label = new QLabel("Argument");
-			arg_Type_Label->setFixedWidth(TARGET_LINE_EDIT_WIDTH);
-		layout->addWidget(arg_Type_Label,0,Qt::AlignLeft);
+			layout->addWidget(arg_Type_Label);
+
+		val_Function_Label = new QLabel("Function");
+			layout->addWidget(val_Function_Label);
+	}
+	// 2nd column
+	{
+		QVBoxLayout* layout = new QVBoxLayout;
+		hor_Layout->addLayout(layout);
+
 		arg_Type_ComboBox = new QComboBox;
 			arg_Type_ComboBox->addItems(argument_Types);
-			arg_Type_ComboBox->setFixedWidth(120);
 			arg_Type_ComboBox->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 			connect(arg_Type_ComboBox, &QComboBox::currentTextChanged, this, &Target_Curve_Editor::fill_Arg_Units_ComboBox);
-		layout->addWidget(arg_Type_ComboBox,0,Qt::AlignLeft);
+			layout->addWidget(arg_Type_ComboBox);
+
+		val_Function_ComboBox = new QComboBox;
+			val_Function_ComboBox->addItems(value_Function);
+			val_Function_ComboBox->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+			connect(val_Function_ComboBox, &QComboBox::currentTextChanged, this, &Target_Curve_Editor::fill_Val_Modes_ComboBox );
+			layout->addWidget(val_Function_ComboBox);
+	}
+	// 3rd column
+	{
+		QVBoxLayout* layout = new QVBoxLayout;
+		hor_Layout->addLayout(layout);
 
 		arg_Units_Label = new QLabel("Units");
-			arg_Units_Label->setFixedWidth(25);
-		layout->addWidget(arg_Units_Label,0,Qt::AlignLeft);
+		layout->addWidget(arg_Units_Label);
+
+		val_Mode_Label = new QLabel("Mode");
+		layout->addWidget(val_Mode_Label);
+	}
+	// 4th column
+	{
+		QVBoxLayout* layout = new QVBoxLayout;
+		hor_Layout->addLayout(layout);
+
 		arg_Units_ComboBox = new QComboBox;
-			arg_Units_ComboBox->setFixedWidth(70);
 			arg_Units_ComboBox->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 			connect(arg_Units_ComboBox, &QComboBox::currentTextChanged, this, &Target_Curve_Editor::change_Arg_Units_ComboBox);
-		layout->addWidget(arg_Units_ComboBox,0,Qt::AlignLeft);
+		layout->addWidget(arg_Units_ComboBox);
+
+		val_Mode_ComboBox = new QComboBox;
+			val_Mode_ComboBox->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+		layout->addWidget(val_Mode_ComboBox);
+	}
+	// 5th column
+	{
+		QVBoxLayout* layout = new QVBoxLayout;
+		hor_Layout->addLayout(layout);
 
 		arg_Offset_Label = new QLabel("Offset");
-		layout->addWidget(arg_Offset_Label,0,Qt::AlignLeft);
-		arg_Offset_SpinBox = new QDoubleSpinBox;
+		layout->addWidget(arg_Offset_Label);
+
+		val_Offset_Label = new QLabel("Offset");
+		layout->addWidget(val_Offset_Label);
+	}
+	// 6th column
+	{
+		QVBoxLayout* layout = new QVBoxLayout;
+		hor_Layout->addLayout(layout);
+
+		arg_Offset_SpinBox = new MyDoubleSpinBox;
 			arg_Offset_SpinBox->setAccelerated(true);
 			arg_Offset_SpinBox->setRange(-MAX_DOUBLE, MAX_DOUBLE);
 			arg_Offset_SpinBox->setDecimals(5);
-			arg_Offset_SpinBox->setSingleStep(0.0001);
-			arg_Offset_SpinBox->setFixedWidth(TARGET_LINE_EDIT_WIDTH);
+			arg_Offset_SpinBox->setSingleStep(0.001);
 			arg_Offset_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
-//			arg_Offset_Spinbox->setProperty(min_Size_Property, arg_Offset_Spinbox->width());
-		layout->addWidget(arg_Offset_SpinBox,0,Qt::AlignLeft);
+		connect(arg_Offset_SpinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, [=]{Global_Variables::resize_Line_Edit(arg_Offset_SpinBox, false);} );
+		Global_Variables::resize_Line_Edit(arg_Offset_SpinBox, false);
+		layout->addWidget(arg_Offset_SpinBox);
+
+		val_Offset_SpinBox = new MyDoubleSpinBox;
+			val_Offset_SpinBox->setAccelerated(true);
+			val_Offset_SpinBox->setRange(-MAX_DOUBLE, MAX_DOUBLE);
+			val_Offset_SpinBox->setDecimals(5);
+			val_Offset_SpinBox->setSingleStep(0.001);
+			val_Offset_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
+		connect(val_Offset_SpinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, [=]{Global_Variables::resize_Line_Edit(val_Offset_SpinBox, false);} );
+		Global_Variables::resize_Line_Edit(val_Offset_SpinBox, false);
+		layout->addWidget(val_Offset_SpinBox);
+	}
+	// 7th column
+	{
+		QVBoxLayout* layout = new QVBoxLayout;
+		hor_Layout->addLayout(layout);
 
 		arg_Factor_Label = new QLabel("Scale factor");
-		layout->addWidget(arg_Factor_Label,0,Qt::AlignLeft);
-		arg_Factor_SpinBox = new QDoubleSpinBox;
+		layout->addWidget(arg_Factor_Label);
+
+		val_Factor_Label = new QLabel("Scale factor");
+		layout->addWidget(val_Factor_Label);
+	}
+	// 8th column
+	{
+		QVBoxLayout* layout = new QVBoxLayout;
+		hor_Layout->addLayout(layout);
+
+		arg_Factor_SpinBox = new MyDoubleSpinBox;
 			arg_Factor_SpinBox->setAccelerated(true);
 			arg_Factor_SpinBox->setRange(0, MAX_DOUBLE);
 			arg_Factor_SpinBox->setDecimals(5);
 			arg_Factor_SpinBox->setValue(1);
 			arg_Factor_SpinBox->setSingleStep(0.001);
-			arg_Factor_SpinBox->setFixedWidth(TARGET_LINE_EDIT_WIDTH);
 			arg_Factor_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
-//			arg_Factor_LineEdit->setProperty(min_Size_Property, arg_Factor_LineEdit->width());
-		layout->addWidget(arg_Factor_SpinBox,0,Qt::AlignLeft);
+		connect(arg_Factor_SpinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, [=]{Global_Variables::resize_Line_Edit(arg_Factor_SpinBox, false);} );
+		Global_Variables::resize_Line_Edit(arg_Factor_SpinBox, false);
+		layout->addWidget(arg_Factor_SpinBox);
 
-		norm_On_Beam_Intensity = new QCheckBox("Divide on beam intensity");
-			norm_On_Beam_Intensity->setChecked(target_Curve->curve.divide_On_Beam_Intensity);
-		layout->addWidget(norm_On_Beam_Intensity,0,Qt::AlignLeft);
-
-		data_GroupBox_Layout->addLayout(layout);
-	}
-
-	// value
-	{
-		QHBoxLayout* layout = new QHBoxLayout;
-		layout->setAlignment(Qt::AlignLeft);
-
-		val_Function_Label = new QLabel("Function");
-			val_Function_Label->setFixedWidth(TARGET_LINE_EDIT_WIDTH);
-			layout->addWidget(val_Function_Label,0,Qt::AlignLeft);
-		val_Function_ComboBox = new QComboBox;
-			val_Function_ComboBox->addItems(value_Function);
-			val_Function_ComboBox->setFixedWidth(120);
-			val_Function_ComboBox->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-			connect(val_Function_ComboBox, &QComboBox::currentTextChanged, this, &Target_Curve_Editor::fill_Val_Modes_ComboBox );
-		layout->addWidget(val_Function_ComboBox,0,Qt::AlignLeft);
-
-		val_Mode_Label = new QLabel("Mode");
-			val_Mode_Label->setFixedWidth(25);
-		layout->addWidget(val_Mode_Label,0,Qt::AlignLeft);
-		val_Mode_ComboBox = new QComboBox;
-			val_Mode_ComboBox->setFixedWidth(70);
-			val_Mode_ComboBox->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-		layout->addWidget(val_Mode_ComboBox,0,Qt::AlignLeft);
-
-		val_Offset_Label = new QLabel("Offset");
-			layout->addWidget(val_Offset_Label,0,Qt::AlignLeft);
-		val_Offset_SpinBox = new QDoubleSpinBox;
-			val_Offset_SpinBox->setAccelerated(true);
-			val_Offset_SpinBox->setRange(-MAX_DOUBLE, MAX_DOUBLE);
-			val_Offset_SpinBox->setDecimals(5);
-			val_Offset_SpinBox->setSingleStep(0.001);
-			val_Offset_SpinBox->setFixedWidth(TARGET_LINE_EDIT_WIDTH);
-			val_Offset_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
-//			val_Offset_LineEdit->setProperty(min_Size_Property, val_Offset_LineEdit->width());
-//			connect(val_Offset_LineEdit, &QLineEdit::textEdited, this, &Target_Curve_Editor::resize_Line_Edit );
-		layout->addWidget(val_Offset_SpinBox,0,Qt::AlignLeft);
-
-		val_Factor_Label = new QLabel("Scale factor");
-			layout->addWidget(val_Factor_Label,0,Qt::AlignLeft);
-		val_Factor_SpinBox = new QDoubleSpinBox;
+		val_Factor_SpinBox = new MyDoubleSpinBox;
 			val_Factor_SpinBox->setAccelerated(true);
 			val_Factor_SpinBox->setRange(0, MAX_DOUBLE);
 			val_Factor_SpinBox->setDecimals(5);
 			val_Factor_SpinBox->setValue(1);
 			val_Factor_SpinBox->setSingleStep(0.001);
-			val_Factor_SpinBox->setFixedWidth(TARGET_LINE_EDIT_WIDTH);
 			val_Factor_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
-//			val_Factor_LineEdit->setProperty(min_Size_Property, val_Factor_LineEdit->width());
-//			connect(val_Factor_LineEdit, &QLineEdit::textEdited, this, &Target_Curve_Editor::resize_Line_Edit );
-		layout->addWidget(val_Factor_SpinBox,0,Qt::AlignLeft);
-
-		beam_Intensity_Label = new QLabel("Incident photons per point");
-			layout->addWidget(beam_Intensity_Label,0,Qt::AlignLeft);
-		beam_Intensity_LineEdit = new QLineEdit(Locale.toString(target_Curve->curve.beam_Intensity/*,line_edit_double_format,line_edit_polarization_precision*/));
-			beam_Intensity_LineEdit->setFixedWidth(TARGET_LINE_EDIT_WIDTH);
-			beam_Intensity_LineEdit->setProperty(min_Size_Property, TARGET_LINE_EDIT_WIDTH);
-			beam_Intensity_LineEdit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION, this));
-		connect(beam_Intensity_LineEdit, &QLineEdit::textEdited, this, [=]{Global_Variables::resize_Line_Edit(beam_Intensity_LineEdit, false);} );
-		layout->addWidget(beam_Intensity_LineEdit,0,Qt::AlignLeft);
-
-		data_GroupBox_Layout->addLayout(layout);
+		connect(val_Factor_SpinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, [=]{Global_Variables::resize_Line_Edit(val_Factor_SpinBox, false);} );
+		Global_Variables::resize_Line_Edit(val_Factor_SpinBox, false);
+		layout->addWidget(val_Factor_SpinBox);
 	}
+	// 9th column
+	{
+		QVBoxLayout* layout = new QVBoxLayout;
+		hor_Layout->addLayout(layout);
+
+		norm_On_Beam_Intensity = new QCheckBox("Divide on beam intensity");
+			norm_On_Beam_Intensity->setChecked(target_Curve->curve.divide_On_Beam_Intensity);
+		layout->addWidget(norm_On_Beam_Intensity);
+
+		QHBoxLayout* sub_Layout = new QHBoxLayout;
+		layout->addLayout(sub_Layout);
+
+		beam_Intensity_Start_Label = new QLabel("Incident photons per point, start:");
+			beam_Intensity_Start_Label->setDisabled(true);
+		sub_Layout->addWidget(beam_Intensity_Start_Label);
+
+		beam_Intensity_Start_SpinBox = new MyDoubleSpinBox;
+			beam_Intensity_Start_SpinBox->setAccelerated(true);
+			beam_Intensity_Start_SpinBox->setRange(0, MAX_DOUBLE);
+			beam_Intensity_Start_SpinBox->setDecimals(0);
+			beam_Intensity_Start_SpinBox->setValue(target_Curve->curve.beam_Intensity_Start);
+			beam_Intensity_Start_SpinBox->setSingleStep(10);
+			beam_Intensity_Start_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
+		connect(beam_Intensity_Start_SpinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, [=]{Global_Variables::resize_Line_Edit(beam_Intensity_Start_SpinBox, false);} );
+		Global_Variables::resize_Line_Edit(beam_Intensity_Start_SpinBox, false);
+		sub_Layout->addWidget(beam_Intensity_Start_SpinBox);
+
+		beam_Intensity_Final_Label = new QLabel("  final:");
+		sub_Layout->addWidget(beam_Intensity_Final_Label);
+
+		beam_Intensity_Final_SpinBox = new MyDoubleSpinBox;
+			beam_Intensity_Final_SpinBox->setAccelerated(true);
+			beam_Intensity_Final_SpinBox->setRange(0, MAX_DOUBLE);
+			beam_Intensity_Final_SpinBox->setDecimals(0);
+			beam_Intensity_Final_SpinBox->setValue(target_Curve->curve.beam_Intensity_Final);
+			beam_Intensity_Final_SpinBox->setSingleStep(10);
+			beam_Intensity_Final_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
+		connect(beam_Intensity_Final_SpinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, [=]{Global_Variables::resize_Line_Edit(beam_Intensity_Final_SpinBox, false);} );
+		Global_Variables::resize_Line_Edit(beam_Intensity_Final_SpinBox, false);
+		sub_Layout->addWidget(beam_Intensity_Final_SpinBox);
+	}
+	data_GroupBox_Layout->addLayout(hor_Layout);
 
 	// measurement
 	{
@@ -655,15 +711,25 @@ void Target_Curve_Editor::create_Data_GroupBox()
 	connect(arg_Units_ComboBox, &QComboBox::currentTextChanged, this, &Target_Curve_Editor::show_Angular_Resolution);
 	connect(arg_Offset_SpinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, &Target_Curve_Editor::refresh_Offsets);
 	connect(arg_Factor_SpinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, &Target_Curve_Editor::refresh_Factors);
-	connect(norm_On_Beam_Intensity, &QCheckBox::toggled, this, [=]{target_Curve->curve.divide_On_Beam_Intensity = norm_On_Beam_Intensity->isChecked(); });
+	connect(norm_On_Beam_Intensity, &QCheckBox::toggled, this, [=]
+	{
+		target_Curve->curve.divide_On_Beam_Intensity = norm_On_Beam_Intensity->isChecked();
+		beam_Intensity_Start_Label  ->setDisabled(!target_Curve->curve.divide_On_Beam_Intensity);
+		beam_Intensity_Start_SpinBox->setDisabled(!target_Curve->curve.divide_On_Beam_Intensity);
+		beam_Intensity_Final_Label  ->setDisabled(!target_Curve->curve.divide_On_Beam_Intensity);
+		beam_Intensity_Final_SpinBox->setDisabled(!target_Curve->curve.divide_On_Beam_Intensity);
+
+	});
 	connect(norm_On_Beam_Intensity, &QCheckBox::toggled, this, &Target_Curve_Editor::refresh_Beam_Intensity);
+	norm_On_Beam_Intensity->toggled(target_Curve->curve.divide_On_Beam_Intensity);
 
 	// value line
 	connect(val_Function_ComboBox,	&QComboBox::currentTextChanged, this, &Target_Curve_Editor::refresh_Value_Type );
 	connect(val_Mode_ComboBox,		&QComboBox::currentTextChanged, this, &Target_Curve_Editor::refresh_Value_Mode);
-	connect(val_Offset_SpinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, &Target_Curve_Editor::refresh_Offsets);
-	connect(val_Factor_SpinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, &Target_Curve_Editor::refresh_Factors);
-	connect(beam_Intensity_LineEdit, &QLineEdit::textEdited, this, &Target_Curve_Editor::refresh_Beam_Intensity);
+	connect(val_Offset_SpinBox,     static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, &Target_Curve_Editor::refresh_Offsets);
+	connect(val_Factor_SpinBox,     static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, &Target_Curve_Editor::refresh_Factors);
+	connect(beam_Intensity_Start_SpinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, &Target_Curve_Editor::refresh_Beam_Intensity);
+	connect(beam_Intensity_Final_SpinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, &Target_Curve_Editor::refresh_Beam_Intensity);
 
 	// measurement
 	connect(at_Fixed_Units_ComboBox, &QComboBox::currentTextChanged, this, &Target_Curve_Editor::refresh_At_Fixed_Units);
@@ -998,7 +1064,8 @@ void Target_Curve_Editor::refresh_Factors()
 
 void Target_Curve_Editor::refresh_Beam_Intensity()
 {
-	target_Curve->curve.beam_Intensity = Locale.toDouble(beam_Intensity_LineEdit->text());
+	target_Curve->curve.beam_Intensity_Start = beam_Intensity_Start_SpinBox->value();
+	target_Curve->curve.beam_Intensity_Final = beam_Intensity_Final_SpinBox->value();
 	target_Curve->fill_Measurement_With_Data();
 	show_Description_Label();
 	target_Curve_Plot->plot_Data(true);
