@@ -16,7 +16,7 @@ Table_Of_Structures::Table_Of_Structures(bool temporary, QWidget *parent) :
 
 bool Table_Of_Structures::eventFilter(QObject *obj, QEvent *event)
 {
-	UNUSED(obj);
+	Q_UNUSED(obj);
 	if(event->type() == QEvent::Wheel)
 	{
 		return !mouse_Wheel_Spinbox_Table;
@@ -1767,7 +1767,7 @@ void Table_Of_Structures::create_Line_Edit(My_Table_Widget* table, int tab_Index
 	MyDoubleSpinBox* spin_Box = new MyDoubleSpinBox;
 		spin_Box->setAccelerated(true);
 		spin_Box->setButtonSymbols(QAbstractSpinBox::NoButtons);
-		spin_Box->setRange(MAX_DOUBLE, MAX_DOUBLE); // by default
+		spin_Box->setRange(-100000, MAX_DOUBLE); // by default
 		spin_Box->installEventFilter(this);
 
 	if(whats_This == whats_This_Num_Repetitions)

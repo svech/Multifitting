@@ -14,7 +14,7 @@ Fitting_GSL::Fitting_GSL(Fitting* fitting):
 
 void Fitting_GSL::callback(const size_t iter, void* bare_Params, const gsl_multifit_nlinear_workspace* w)
 {
-	UNUSED(w);
+	Q_UNUSED(w);
 	Fitting_Params* params = ((struct Fitting_Params*)bare_Params);
 
 	// print out current location

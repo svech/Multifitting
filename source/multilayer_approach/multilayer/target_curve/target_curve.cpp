@@ -182,7 +182,6 @@ void Target_Curve::fill_Measurement_With_Data()
 			intensity_Factor[i] = curve.beam_Intensity_Start + i*delta;
 		}
 
-		qInfo() << "curve.arg_Offset" << curve.arg_Offset << endl;
 		for(int i=0; i<curve.argument.size(); ++i)
 		{
 			curve.shifted_Argument[i]     = curve.argument[i]                         * curve.arg_Factor+curve.arg_Offset;
@@ -200,7 +199,6 @@ void Target_Curve::fill_Measurement_With_Data()
 			{
 				measurement.angle[i] = curve.shifted_Argument[i]*coeff;
 			}
-//			qInfo() << "min ="<<measurement.angle.first() << "; max" << measurement.angle.last();
 		} else
 		if(curve.argument_Type == whats_This_Wavelength)	// spectral
 		{
@@ -210,7 +208,6 @@ void Target_Curve::fill_Measurement_With_Data()
 			{
 				measurement.lambda[i] = Global_Variables::wavelength_Energy(curve.spectral_Units,curve.shifted_Argument[i]*coeff);
 			}
-//			qInfo() << "min ="<<measurement.lambda.first() << "; max" << measurement.lambda.last();
 		} else
 		{
 			QMessageBox::critical(nullptr, "Target_Curve::fill_Measurement_With_Data", "wrong curve.argument_Type="+curve.argument_Type);

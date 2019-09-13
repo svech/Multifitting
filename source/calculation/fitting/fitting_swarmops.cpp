@@ -35,7 +35,7 @@ SO_TFitness Fitting_SwarmOps::calc_Residual(SO_TElm* x,  void* context, SO_TFitn
 		longjmp(buffer_SO, 2018); // not zero! zero means repeating in infinite loop!
 	}
 
-	UNUSED(fitnessLimit);
+	Q_UNUSED(fitnessLimit);
 	Fitting_Params* params = ((struct Fitting_Params*)context);
 
 	// first point is the initial

@@ -3,6 +3,8 @@
 
 void myMessageOutput(QtMsgType type, const QMessageLogContext& context, const QString& msg)
 {
+	Q_UNUSED(context);
+
 	if (type != QtWarningMsg || !msg.startsWith("QWindowsWindow::setGeometry")) {
 		QByteArray localMsg = msg.toLocal8Bit();
 		fprintf(stdout, localMsg.constData());
@@ -12,6 +14,7 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext& context, const QS
 int main(int argc, char *argv[])
 {
 	qInstallMessageHandler(myMessageOutput);
+	QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 	QApplication app(argc, argv);
 	Launcher launcher;
 //	launcher.show();

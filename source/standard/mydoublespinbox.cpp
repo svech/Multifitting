@@ -15,8 +15,19 @@ QValidator::State MyDoubleSpinBox::validate(QString &input, int &pos) const
 {
 	Q_UNUSED(pos);
 
-	if(isValid(input))	{
-		return QValidator::Acceptable;
+	bool true_Size = false;
+	QList<QString> list = input.split(Locale.decimalPoint());
+	if(list.size() > 1)
+	{
+		if(list[1].size() <= decimals()) true_Size = true;
+	}
+
+	if(true_Size)
+	{
+		if(isValid(input))
+		{
+			return QValidator::Acceptable;
+		}
 	}
 	return QValidator::Intermediate;
 }
@@ -79,14 +90,22 @@ void MyDoubleSpinBox::create_Text_Change_Connection()
 				{
 					list[1].remove(decimals(),list[1].size()-decimals());
 					value = valueFromText(list[0]+Locale.decimalPoint()+list[1]);
+
+					setValue(value);
+				} else
+				{
+					blockSignals(true);
+					setValue(value);
+					blockSignals(false);
 				}
+			} else
+			{
+				blockSignals(true);
+				setValue(value);
+				blockSignals(false);
 			}
-			blockSignals(true);
-			setValue(value);
-			blockSignals(false);
-		} else
-		{
-			Global_Variables::resize_Line_Edit(this);
 		}
+		Global_Variables::resize_Line_Edit(this,false);
+
 	}, Qt::UniqueConnection);
 }

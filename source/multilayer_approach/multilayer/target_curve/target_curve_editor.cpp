@@ -193,13 +193,17 @@ void Target_Curve_Editor::fill_Val_Modes_ComboBox(QString val_Mode)
 	val_Mode_ComboBox->blockSignals(true);
 	val_Mode_ComboBox->clear();
 
-	if(val_Mode == value_Function[Reflectance])	// reflectance
+	if(val_Mode == value_Function[Reflectance])		// reflectance
 	{
 		val_Mode_ComboBox->addItems(value_R_Mode);
 	}
 	if(val_Mode == value_Function[Transmittance])	// transmittance
 	{
 		val_Mode_ComboBox->addItems(value_T_Mode);
+	}
+	if(val_Mode == value_Function[Absorptance])		// absorptance
+	{
+		val_Mode_ComboBox->addItems(value_A_Mode);
 	}
 	val_Mode_ComboBox->blockSignals(false);
 
@@ -402,13 +406,15 @@ void Target_Curve_Editor::create_Data_GroupBox()
 
 		arg_Type_ComboBox = new QComboBox;
 			arg_Type_ComboBox->addItems(argument_Types);
+			arg_Type_ComboBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
 			arg_Type_ComboBox->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 			connect(arg_Type_ComboBox, &QComboBox::currentTextChanged, this, &Target_Curve_Editor::fill_Arg_Units_ComboBox);
 			layout->addWidget(arg_Type_ComboBox);
 
 		val_Function_ComboBox = new QComboBox;
 			val_Function_ComboBox->addItems(value_Function);
-			val_Function_ComboBox->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+//			val_Function_ComboBox->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+			val_Function_ComboBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
 			connect(val_Function_ComboBox, &QComboBox::currentTextChanged, this, &Target_Curve_Editor::fill_Val_Modes_ComboBox );
 			layout->addWidget(val_Function_ComboBox);
 	}
@@ -429,12 +435,14 @@ void Target_Curve_Editor::create_Data_GroupBox()
 		hor_Layout->addLayout(layout);
 
 		arg_Units_ComboBox = new QComboBox;
+			arg_Units_ComboBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
 			arg_Units_ComboBox->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-			connect(arg_Units_ComboBox, &QComboBox::currentTextChanged, this, &Target_Curve_Editor::change_Arg_Units_ComboBox);
+		connect(arg_Units_ComboBox, &QComboBox::currentTextChanged, this, &Target_Curve_Editor::change_Arg_Units_ComboBox);
 		layout->addWidget(arg_Units_ComboBox);
 
 		val_Mode_ComboBox = new QComboBox;
-			val_Mode_ComboBox->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+			val_Mode_ComboBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
+//			val_Mode_ComboBox->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 		layout->addWidget(val_Mode_ComboBox);
 	}
 	// 5th column
@@ -453,24 +461,21 @@ void Target_Curve_Editor::create_Data_GroupBox()
 		QVBoxLayout* layout = new QVBoxLayout;
 		hor_Layout->addLayout(layout);
 
+		double coeff = angle_Coefficients_Map.value(target_Curve->curve.angular_Units);
 		arg_Offset_SpinBox = new MyDoubleSpinBox;
 			arg_Offset_SpinBox->setAccelerated(true);
-			arg_Offset_SpinBox->setRange(-MAX_DOUBLE, MAX_DOUBLE);
-			arg_Offset_SpinBox->setDecimals(5);
-			arg_Offset_SpinBox->setSingleStep(0.001);
+			arg_Offset_SpinBox->setRange(-100000, MAX_DOUBLE);
+			arg_Offset_SpinBox->setDecimals(6);
+			arg_Offset_SpinBox->setSingleStep(0.001/coeff);
 			arg_Offset_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
-		connect(arg_Offset_SpinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, [=]{Global_Variables::resize_Line_Edit(arg_Offset_SpinBox, false);} );
-		Global_Variables::resize_Line_Edit(arg_Offset_SpinBox, false);
 		layout->addWidget(arg_Offset_SpinBox);
 
 		val_Offset_SpinBox = new MyDoubleSpinBox;
 			val_Offset_SpinBox->setAccelerated(true);
-			val_Offset_SpinBox->setRange(-MAX_DOUBLE, MAX_DOUBLE);
-			val_Offset_SpinBox->setDecimals(5);
+			val_Offset_SpinBox->setRange(-100000, MAX_DOUBLE);
+			val_Offset_SpinBox->setDecimals(6);
 			val_Offset_SpinBox->setSingleStep(0.001);
 			val_Offset_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
-		connect(val_Offset_SpinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, [=]{Global_Variables::resize_Line_Edit(val_Offset_SpinBox, false);} );
-		Global_Variables::resize_Line_Edit(val_Offset_SpinBox, false);
 		layout->addWidget(val_Offset_SpinBox);
 	}
 	// 7th column
@@ -496,8 +501,6 @@ void Target_Curve_Editor::create_Data_GroupBox()
 			arg_Factor_SpinBox->setValue(1);
 			arg_Factor_SpinBox->setSingleStep(0.001);
 			arg_Factor_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
-		connect(arg_Factor_SpinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, [=]{Global_Variables::resize_Line_Edit(arg_Factor_SpinBox, false);} );
-		Global_Variables::resize_Line_Edit(arg_Factor_SpinBox, false);
 		layout->addWidget(arg_Factor_SpinBox);
 
 		val_Factor_SpinBox = new MyDoubleSpinBox;
@@ -507,8 +510,6 @@ void Target_Curve_Editor::create_Data_GroupBox()
 			val_Factor_SpinBox->setValue(1);
 			val_Factor_SpinBox->setSingleStep(0.001);
 			val_Factor_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
-		connect(val_Factor_SpinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, [=]{Global_Variables::resize_Line_Edit(val_Factor_SpinBox, false);} );
-		Global_Variables::resize_Line_Edit(val_Factor_SpinBox, false);
 		layout->addWidget(val_Factor_SpinBox);
 	}
 	// 9th column
@@ -534,7 +535,7 @@ void Target_Curve_Editor::create_Data_GroupBox()
 			beam_Intensity_Start_SpinBox->setValue(target_Curve->curve.beam_Intensity_Start);
 			beam_Intensity_Start_SpinBox->setSingleStep(10);
 			beam_Intensity_Start_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
-		connect(beam_Intensity_Start_SpinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, [=]{Global_Variables::resize_Line_Edit(beam_Intensity_Start_SpinBox, false);} );
+			beam_Intensity_Start_SpinBox->setProperty(min_Size_Property, TARGET_BEAM_INTENSITY_WIDTH);
 		Global_Variables::resize_Line_Edit(beam_Intensity_Start_SpinBox, false);
 		sub_Layout->addWidget(beam_Intensity_Start_SpinBox);
 
@@ -548,7 +549,7 @@ void Target_Curve_Editor::create_Data_GroupBox()
 			beam_Intensity_Final_SpinBox->setValue(target_Curve->curve.beam_Intensity_Final);
 			beam_Intensity_Final_SpinBox->setSingleStep(10);
 			beam_Intensity_Final_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
-		connect(beam_Intensity_Final_SpinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, [=]{Global_Variables::resize_Line_Edit(beam_Intensity_Final_SpinBox, false);} );
+			beam_Intensity_Final_SpinBox->setProperty(min_Size_Property, TARGET_BEAM_INTENSITY_WIDTH);
 		Global_Variables::resize_Line_Edit(beam_Intensity_Final_SpinBox, false);
 		sub_Layout->addWidget(beam_Intensity_Final_SpinBox);
 	}
@@ -564,8 +565,7 @@ void Target_Curve_Editor::create_Data_GroupBox()
 			at_Fixed_Label = new QLabel("At fixed wavelength");
 			layout->addWidget(at_Fixed_Label,0,0,5,1,Qt::AlignRight);
 			at_Fixed_LineEdit = new QLineEdit;
-				at_Fixed_LineEdit->setFixedWidth(TARGET_LINE_EDIT_WIDTH);
-				at_Fixed_LineEdit->setProperty(min_Size_Property, TARGET_LINE_EDIT_WIDTH);
+				at_Fixed_LineEdit->setProperty(min_Size_Property, 85);
 				at_Fixed_LineEdit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION, this));
 			connect(at_Fixed_LineEdit, &QLineEdit::textEdited, this, [=]{Global_Variables::resize_Line_Edit(at_Fixed_LineEdit, false);} );
 			layout->addWidget(at_Fixed_LineEdit,0,1,5,1,Qt::AlignLeft);
@@ -584,7 +584,6 @@ void Target_Curve_Editor::create_Data_GroupBox()
 			polarization_LineEdit = new QLineEdit(Locale.toString(target_Curve->measurement.polarization.value,line_edit_double_format,line_edit_polarization_precision));
 				polarization_LineEdit->setFixedWidth(TARGET_LINE_EDIT_WIDTH);
 				polarization_LineEdit->setProperty(min_Size_Property, TARGET_LINE_EDIT_WIDTH);
-
 				polarization_LineEdit->setValidator(new QDoubleValidator(-1, 1, MAX_PRECISION, this));
 			connect(polarization_LineEdit, &QLineEdit::textEdited, this, [=]{Global_Variables::resize_Line_Edit(polarization_LineEdit, false);} );
 			layout->addWidget(polarization_LineEdit,0,4,Qt::AlignLeft);
@@ -594,12 +593,16 @@ void Target_Curve_Editor::create_Data_GroupBox()
 		{
 			spectral_Resolution_Label = new QLabel(Global_Variables::parameter_Name(target_Curve->measurement, whats_This_Spectral_Resolution, 0));
 			layout->addWidget(spectral_Resolution_Label,0,6,Qt::AlignRight);
-			spectral_Resolution_LineEdit = new QLineEdit(Locale.toString(target_Curve->measurement.spectral_Resolution.value,line_edit_double_format,line_edit_spectral_resolution_precision));
-				spectral_Resolution_LineEdit->setFixedWidth(TARGET_LINE_EDIT_WIDTH);
-				spectral_Resolution_LineEdit->setProperty(min_Size_Property, TARGET_LINE_EDIT_WIDTH);
-				spectral_Resolution_LineEdit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION, this));
-			connect(spectral_Resolution_LineEdit, &QLineEdit::textEdited, this, [=]{Global_Variables::resize_Line_Edit(spectral_Resolution_LineEdit, false);} );
-			layout->addWidget(spectral_Resolution_LineEdit,0,7,Qt::AlignLeft);
+
+			spectral_Resolution_SpinBox = new MyDoubleSpinBox;
+				spectral_Resolution_SpinBox->setAccelerated(true);
+				spectral_Resolution_SpinBox->setRange(0, MAX_DOUBLE);
+				spectral_Resolution_SpinBox->setDecimals(8);
+				spectral_Resolution_SpinBox->setValue(target_Curve->measurement.spectral_Resolution.value);
+				spectral_Resolution_SpinBox->setSingleStep(0.0001);
+				spectral_Resolution_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
+			Global_Variables::resize_Line_Edit(spectral_Resolution_SpinBox, false);
+			layout->addWidget(spectral_Resolution_SpinBox,0,7,Qt::AlignLeft);
 		}
 
 //		// polarization sensitivity
@@ -630,12 +633,17 @@ void Target_Curve_Editor::create_Data_GroupBox()
 			double coeff = angle_Coefficients_Map.value(target_Curve->curve.angular_Units);
 			angular_Resolution_Label = new QLabel(Global_Variables::parameter_Name(target_Curve->measurement, whats_This_Angular_Resolution, 0));
 			layout->addWidget(angular_Resolution_Label,1,6,Qt::AlignRight);
-			angular_Resolution_LineEdit = new QLineEdit(Locale.toString(target_Curve->measurement.angular_Resolution.value/coeff,line_edit_double_format,line_edit_angle_precision));
-				angular_Resolution_LineEdit->setFixedWidth(TARGET_LINE_EDIT_WIDTH);
-				angular_Resolution_LineEdit->setProperty(min_Size_Property, TARGET_LINE_EDIT_WIDTH);
-				angular_Resolution_LineEdit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION, this));
-			connect(angular_Resolution_LineEdit, &QLineEdit::textEdited, this, [=]{Global_Variables::resize_Line_Edit(angular_Resolution_LineEdit, false);} );
-			layout->addWidget(angular_Resolution_LineEdit,1,7,Qt::AlignLeft);
+
+			angular_Resolution_SpinBox = new MyDoubleSpinBox;
+				angular_Resolution_SpinBox->setAccelerated(true);
+				angular_Resolution_SpinBox->setRange(0, MAX_DOUBLE);
+				angular_Resolution_SpinBox->setDecimals(8);
+				angular_Resolution_SpinBox->setValue(target_Curve->measurement.angular_Resolution.value/coeff);
+				angular_Resolution_SpinBox->setSingleStep(0.001/coeff);
+				angular_Resolution_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
+			Global_Variables::resize_Line_Edit(angular_Resolution_SpinBox, false);
+
+			layout->addWidget(angular_Resolution_SpinBox,1,7,Qt::AlignLeft);
 			angular_Units_Label = new QLabel("<ang unit>");
 			layout->addWidget(angular_Units_Label,1,8,Qt::AlignLeft);
 		}
@@ -645,12 +653,17 @@ void Target_Curve_Editor::create_Data_GroupBox()
 		{
 			beam_Size_Label = new QLabel(Global_Variables::parameter_Name(target_Curve->measurement, whats_This_Beam_Size, 0));
 			layout->addWidget(beam_Size_Label,3,3,Qt::AlignRight);
-			beam_Size_LineEdit = new QLineEdit(Locale.toString(target_Curve->measurement.beam_Size.value,line_edit_double_format,line_edit_beam_size_precision));
-				beam_Size_LineEdit->setFixedWidth(TARGET_LINE_EDIT_WIDTH);
-				beam_Size_LineEdit->setProperty(min_Size_Property, TARGET_LINE_EDIT_WIDTH);
-				beam_Size_LineEdit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION, this));
-			connect(beam_Size_LineEdit, &QLineEdit::textEdited, this, [=]{Global_Variables::resize_Line_Edit(beam_Size_LineEdit, false);} );
-			layout->addWidget(beam_Size_LineEdit,3,4,Qt::AlignLeft);
+
+			beam_Size_SpinBox = new MyDoubleSpinBox;
+				beam_Size_SpinBox->setAccelerated(true);
+				beam_Size_SpinBox->setRange(0, MAX_DOUBLE);
+				beam_Size_SpinBox->setDecimals(line_edit_beam_size_precision);
+				beam_Size_SpinBox->setValue(target_Curve->measurement.beam_Size.value);
+				beam_Size_SpinBox->setSingleStep(0.001);
+				beam_Size_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
+				beam_Size_SpinBox->setProperty(min_Size_Property, TARGET_LINE_EDIT_WIDTH);
+			Global_Variables::resize_Line_Edit(beam_Size_SpinBox, false);
+			layout->addWidget(beam_Size_SpinBox,3,4,Qt::AlignLeft);
 			beam_Size_Units_Label = new QLabel(size_Units_List[mm]);
 			layout->addWidget(beam_Size_Units_Label,3,5,Qt::AlignLeft);
 		}
@@ -659,12 +672,17 @@ void Target_Curve_Editor::create_Data_GroupBox()
 		{
 			sample_Size_Label = new QLabel(Global_Variables::parameter_Name(target_Curve->measurement, whats_This_Sample_Size, 0));
 			layout->addWidget(sample_Size_Label,3,6,Qt::AlignRight);
-			sample_Size_LineEdit = new QLineEdit(Locale.toString(target_Curve->measurement.sample_Size.value,line_edit_double_format,line_edit_sample_size_precision));
-				sample_Size_LineEdit->setFixedWidth(TARGET_LINE_EDIT_WIDTH);
-				sample_Size_LineEdit->setProperty(min_Size_Property, TARGET_LINE_EDIT_WIDTH);
-				sample_Size_LineEdit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION, this));
-			connect(sample_Size_LineEdit, &QLineEdit::textEdited, this, [=]{Global_Variables::resize_Line_Edit(sample_Size_LineEdit, false);} );
-			layout->addWidget(sample_Size_LineEdit,3,7,Qt::AlignLeft);
+
+			sample_Size_SpinBox = new MyDoubleSpinBox;
+				sample_Size_SpinBox->setAccelerated(true);
+				sample_Size_SpinBox->setRange(0, MAX_DOUBLE);
+				sample_Size_SpinBox->setDecimals(line_edit_sample_size_precision);
+				sample_Size_SpinBox->setValue(target_Curve->measurement.sample_Size.value);
+				sample_Size_SpinBox->setSingleStep(0.1);
+				sample_Size_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
+				sample_Size_SpinBox->setProperty(min_Size_Property, TARGET_LINE_EDIT_WIDTH);
+			Global_Variables::resize_Line_Edit(sample_Size_SpinBox, false);
+			layout->addWidget(sample_Size_SpinBox,3,7,Qt::AlignLeft);
 			sample_Size_Units_Label = new QLabel(size_Units_List[mm]);
 			layout->addWidget(sample_Size_Units_Label,3,8,Qt::AlignLeft);
 		}
@@ -673,24 +691,32 @@ void Target_Curve_Editor::create_Data_GroupBox()
 		{
 			beam_Profile_Spreading_Label = new QLabel(Global_Variables::parameter_Name(target_Curve->measurement, whats_This_Beam_Profile_Spreading, 0));
 			layout->addWidget(beam_Profile_Spreading_Label,4,3,Qt::AlignRight);
-			beam_Profile_Spreading_LineEdit = new QLineEdit(Locale.toString(target_Curve->measurement.beam_Profile_Spreading.value,line_edit_double_format,line_edit_beam_size_precision));
-				beam_Profile_Spreading_LineEdit->setFixedWidth(TARGET_LINE_EDIT_WIDTH);
-				beam_Profile_Spreading_LineEdit->setProperty(min_Size_Property, TARGET_LINE_EDIT_WIDTH);
-				beam_Profile_Spreading_LineEdit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION, this));
-			connect(beam_Profile_Spreading_LineEdit, &QLineEdit::textEdited, this, [=]{Global_Variables::resize_Line_Edit(beam_Profile_Spreading_LineEdit, false);} );
-			layout->addWidget(beam_Profile_Spreading_LineEdit,4,4,Qt::AlignLeft);
+			beam_Profile_Spreading_SpinBox = new MyDoubleSpinBox;
+				beam_Profile_Spreading_SpinBox->setAccelerated(true);
+				beam_Profile_Spreading_SpinBox->setRange(0, MAX_DOUBLE);
+				beam_Profile_Spreading_SpinBox->setDecimals(line_edit_beam_size_precision);
+				beam_Profile_Spreading_SpinBox->setValue(target_Curve->measurement.beam_Profile_Spreading.value);
+				beam_Profile_Spreading_SpinBox->setSingleStep(0.1);
+				beam_Profile_Spreading_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
+				beam_Profile_Spreading_SpinBox->setProperty(min_Size_Property, TARGET_LINE_EDIT_WIDTH);
+			Global_Variables::resize_Line_Edit(beam_Profile_Spreading_SpinBox, false);
+			layout->addWidget(beam_Profile_Spreading_SpinBox,4,4,Qt::AlignLeft);
 		}
 
 		// sample shift
 		{
 			sample_Shift_Label = new QLabel(Global_Variables::parameter_Name(target_Curve->measurement, whats_This_Sample_Shift, 0));
 			layout->addWidget(sample_Shift_Label,4,6,Qt::AlignRight);
-			sample_Shift_LineEdit = new QLineEdit(Locale.toString(target_Curve->measurement.sample_Shift.value,line_edit_double_format,line_edit_sample_size_precision));
-				sample_Shift_LineEdit->setFixedWidth(TARGET_LINE_EDIT_WIDTH);
-				sample_Shift_LineEdit->setProperty(min_Size_Property, TARGET_LINE_EDIT_WIDTH);
-				sample_Shift_LineEdit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION, this));
-			connect(sample_Shift_LineEdit, &QLineEdit::textEdited, this, [=]{Global_Variables::resize_Line_Edit(sample_Shift_LineEdit, false);} );
-			layout->addWidget(sample_Shift_LineEdit,4,7,Qt::AlignLeft);
+			sample_Shift_SpinBox = new MyDoubleSpinBox;
+				sample_Shift_SpinBox->setAccelerated(true);
+				sample_Shift_SpinBox->setRange(0, MAX_DOUBLE);
+				sample_Shift_SpinBox->setDecimals(line_edit_sample_size_precision);
+				sample_Shift_SpinBox->setValue(target_Curve->measurement.sample_Shift.value);
+				sample_Shift_SpinBox->setSingleStep(0.1);
+				sample_Shift_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
+				sample_Shift_SpinBox->setProperty(min_Size_Property, TARGET_LINE_EDIT_WIDTH);
+			Global_Variables::resize_Line_Edit(sample_Shift_SpinBox, false);
+			layout->addWidget(sample_Shift_SpinBox,4,7,Qt::AlignLeft);
 			sample_Shift_Units_Label = new QLabel(size_Units_List[mm]);
 			layout->addWidget(sample_Shift_Units_Label,4,8,Qt::AlignLeft);
 		}
@@ -739,14 +765,14 @@ void Target_Curve_Editor::create_Data_GroupBox()
 
 	connect(polarization_LineEdit,				&QLineEdit::textEdited, this, &Target_Curve_Editor::refresh_Polarization);
 //	connect(polarization_Sensitivity_LineEdit,	&QLineEdit::textEdited, this, &Target_Curve_Editor::refresh_Polarization);
-	connect(background_LineEdit,			&QLineEdit::textEdited, this, [=]{target_Curve->measurement.background.value = Locale.toDouble(background_LineEdit->text());});
-	connect(spectral_Resolution_LineEdit,	&QLineEdit::textEdited, this, &Target_Curve_Editor::refresh_Resolution);
-	connect(angular_Resolution_LineEdit,	&QLineEdit::textEdited, this, &Target_Curve_Editor::refresh_Resolution);
+	connect(background_LineEdit,				&QLineEdit::textEdited, this, [=]{target_Curve->measurement.background.value = Locale.toDouble(background_LineEdit->text());});
+	connect(spectral_Resolution_SpinBox,	static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, &Target_Curve_Editor::refresh_Resolution);
+	connect(angular_Resolution_SpinBox,		static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, &Target_Curve_Editor::refresh_Resolution);
 
-	connect(beam_Size_LineEdit,				&QLineEdit::textEdited, this, &Target_Curve_Editor::refresh_Measurement_Geometry);
-	connect(beam_Profile_Spreading_LineEdit,&QLineEdit::textEdited, this, &Target_Curve_Editor::refresh_Measurement_Geometry);
-	connect(sample_Size_LineEdit,			&QLineEdit::textEdited, this, &Target_Curve_Editor::refresh_Measurement_Geometry);
-	connect(sample_Shift_LineEdit,			&QLineEdit::textEdited, this, &Target_Curve_Editor::refresh_Measurement_Geometry);
+	connect(beam_Size_SpinBox,				static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, &Target_Curve_Editor::refresh_Measurement_Geometry);
+	connect(beam_Profile_Spreading_SpinBox,	static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, &Target_Curve_Editor::refresh_Measurement_Geometry);
+	connect(sample_Size_SpinBox,			static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, &Target_Curve_Editor::refresh_Measurement_Geometry);
+	connect(sample_Shift_SpinBox,			static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, &Target_Curve_Editor::refresh_Measurement_Geometry);
 }
 
 void Target_Curve_Editor::create_Buttons()
@@ -868,14 +894,14 @@ void Target_Curve_Editor::show_Curve_Data()
 
 	// offsets
 	{
-		arg_Offset_SpinBox->setValue(target_Curve->curve.arg_Offset);
-		val_Offset_SpinBox->setValue(target_Curve->curve.val_Offset);
+		arg_Offset_SpinBox->setValue(target_Curve->curve.arg_Offset); Global_Variables::resize_Line_Edit(arg_Offset_SpinBox, false);
+		val_Offset_SpinBox->setValue(target_Curve->curve.val_Offset); Global_Variables::resize_Line_Edit(val_Offset_SpinBox, false);
 	}
 
 	// scale factors
 	{
-		arg_Factor_SpinBox->setValue(target_Curve->curve.arg_Factor);
-		val_Factor_SpinBox->setValue(target_Curve->curve.val_Factor);
+		arg_Factor_SpinBox->setValue(target_Curve->curve.arg_Factor); Global_Variables::resize_Line_Edit(arg_Factor_SpinBox, false);
+		val_Factor_SpinBox->setValue(target_Curve->curve.val_Factor); Global_Variables::resize_Line_Edit(val_Factor_SpinBox, false);
 	}
 }
 
@@ -931,8 +957,17 @@ void Target_Curve_Editor::show_Unit_Dependent_Data()
 void Target_Curve_Editor::show_Angular_Resolution()
 {
 	double coeff = angle_Coefficients_Map.value(target_Curve->curve.angular_Units);
-	angular_Resolution_LineEdit->setText(Locale.toString(target_Curve->measurement.angular_Resolution.value/coeff, line_edit_double_format, line_edit_angle_precision));
-	Global_Variables::resize_Line_Edit(angular_Resolution_LineEdit, false);
+	angular_Resolution_SpinBox->setValue(target_Curve->measurement.angular_Resolution.value/coeff);
+	angular_Resolution_SpinBox->setSingleStep(0.001/coeff);
+
+	if(target_Curve->curve.argument_Type == whats_This_Wavelength)
+	{
+		coeff = wavelength_Coefficients_Map.value(target_Curve->curve.spectral_Units);
+		arg_Offset_SpinBox->setSingleStep(0.01/coeff);
+	} else
+	{
+		arg_Offset_SpinBox->setSingleStep(0.001/coeff);
+	}
 }
 
 void Target_Curve_Editor::refresh_Filepath(QString filepath)
@@ -973,7 +1008,7 @@ void Target_Curve_Editor::refresh_Argument_Type()
 	target_Curve->fill_Measurement_With_Data();
 	show_Description_Label();
 	target_Curve_Plot->refresh_Labels();
-
+	show_Angular_Resolution();
 }
 
 void Target_Curve_Editor::refresh_Value_Type()
@@ -1089,14 +1124,14 @@ void Target_Curve_Editor::refresh_Polarization()
 void Target_Curve_Editor::refresh_Resolution()
 {
 	double coeff = angle_Coefficients_Map.value(target_Curve->curve.angular_Units);
-	target_Curve->measurement.angular_Resolution.value = Locale.toDouble(angular_Resolution_LineEdit->text())*coeff;
-	target_Curve->measurement.spectral_Resolution.value = Locale.toDouble(spectral_Resolution_LineEdit->text());
+	target_Curve->measurement.angular_Resolution.value = angular_Resolution_SpinBox->value()*coeff;
+	target_Curve->measurement.spectral_Resolution.value = spectral_Resolution_SpinBox->value();
 }
 
 void Target_Curve_Editor::refresh_Measurement_Geometry()
 {
-	target_Curve->measurement.beam_Size.value = Locale.toDouble(beam_Size_LineEdit->text());
-	target_Curve->measurement.beam_Profile_Spreading.value = Locale.toDouble(beam_Profile_Spreading_LineEdit->text());
-	target_Curve->measurement.sample_Size.value = Locale.toDouble(sample_Size_LineEdit->text());
-	target_Curve->measurement.sample_Shift.value = Locale.toDouble(sample_Shift_LineEdit->text());
+	target_Curve->measurement.beam_Size.value = beam_Size_SpinBox->value();
+	target_Curve->measurement.beam_Profile_Spreading.value = beam_Profile_Spreading_SpinBox->value();
+	target_Curve->measurement.sample_Size.value = sample_Size_SpinBox->value();
+	target_Curve->measurement.sample_Shift.value = sample_Shift_SpinBox->value();
 }

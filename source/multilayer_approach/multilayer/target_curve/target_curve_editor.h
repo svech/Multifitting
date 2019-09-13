@@ -104,25 +104,25 @@ public:
 			QLabel* polarization_Label;
 			QLineEdit* polarization_LineEdit;
 			QLabel* spectral_Resolution_Label;
-			QLineEdit* spectral_Resolution_LineEdit;
+			MyDoubleSpinBox* spectral_Resolution_SpinBox;
 //			QLabel* polarization_Sensitivity_Label;
 //			QLineEdit* polarization_Sensitivity_LineEdit;
 			QLabel* background_Label;
 			QLineEdit* background_LineEdit;
 			QLabel* angular_Resolution_Label;
-			QLineEdit* angular_Resolution_LineEdit;
+			MyDoubleSpinBox* angular_Resolution_SpinBox;
 			QLabel* angular_Units_Label;
 
 			QLabel* beam_Size_Label;
-			QLineEdit* beam_Size_LineEdit;
+			MyDoubleSpinBox* beam_Size_SpinBox;
 			QLabel* beam_Size_Units_Label;
 			QLabel* sample_Size_Label;
-			QLineEdit* sample_Size_LineEdit;
+			MyDoubleSpinBox* sample_Size_SpinBox;
 			QLabel* sample_Size_Units_Label;
 			QLabel* beam_Profile_Spreading_Label;
-			QLineEdit* beam_Profile_Spreading_LineEdit;
+			MyDoubleSpinBox* beam_Profile_Spreading_SpinBox;
 			QLabel* sample_Shift_Label;
-			QLineEdit* sample_Shift_LineEdit;
+			MyDoubleSpinBox* sample_Shift_SpinBox;
 			QLabel* sample_Shift_Units_Label;
 
 		QLabel* data_Indicator_Label;

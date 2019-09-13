@@ -38,7 +38,7 @@ void Regular_Aperiodic_Table::keyReleaseEvent(QKeyEvent *event)
 
 bool Regular_Aperiodic_Table::eventFilter(QObject *obj, QEvent *event)
 {
-	UNUSED(obj);
+	Q_UNUSED(obj);
 	if(event->type() == QEvent::Wheel)
 	{
 		return !aperiodic_Mouse_Wheel_Spinbox_Table;
