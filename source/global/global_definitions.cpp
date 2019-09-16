@@ -231,8 +231,16 @@ QDataStream& operator >>( QDataStream& stream,		 Curve& curve )
 {
 	stream  >> curve.argument >> curve.shifted_Argument >> curve.values >> curve.shifted_Values >> curve.arg_Offset >> curve.arg_Factor >> curve.val_Offset >> curve.val_Factor;
 
-	if(Global_Variables::check_Loaded_Version(1,9,3))
-	{stream >> curve.beam_Intensity_Start >> curve.beam_Intensity_Final; }		// since 1.9.3
+	if(Global_Variables::check_Loaded_Version(1,7,1))		// since 1.7.1
+	{
+		if(Global_Variables::check_Loaded_Version(1,9,3))
+		{stream >> curve.beam_Intensity_Start >> curve.beam_Intensity_Final; } 		// since 1.9.3
+		else
+		{
+			stream >> curve.beam_Intensity_Start;
+			curve.beam_Intensity_Final = curve.beam_Intensity_Start;
+		}
+	}
 
 	if(Global_Variables::check_Loaded_Version(1,8,1))
 	{stream >> curve.divide_On_Beam_Intensity; }	// since 1.8.1

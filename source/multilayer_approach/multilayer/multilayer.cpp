@@ -218,14 +218,14 @@ void Multilayer::add_Target_Curve(int index_Pressed, bool opening)
 	// window resizing
 	if(!data_Target_Profile_Frame_Vector.isEmpty())
 	{
-#ifdef __linux__
-		data_Target_Profile_Group_Box->adjustSize();
-#endif
+//#ifdef __linux__
+//		data_Target_Profile_Group_Box->adjustSize();
+//#endif
 		if(!opening)
 		{
-			data_Target_Profile_Group_Box->setFixedHeight(data_Target_Profile_Group_Box->height() + multilayer_height_additive);
-			QWidget::window()->resize(QWidget::window()->width(),QWidget::window()->height() + multilayer_height_additive);
+			QWidget::window()->resize(QWidget::window()->width(),QWidget::window()->height() + data_Target_Profile_Frame_Vector.first()->height());
 		}
+//		data_Target_Profile_Group_Box->adjustSize();
 	}
 
 	QPushButton* new_Import_Button = new QPushButton("Import");
@@ -294,9 +294,7 @@ void Multilayer::remove_Target_Curve(int index_Pressed, bool clean)
 	// window resizing
 	if( !data_Target_Profile_Frame_Vector.isEmpty() )
 	{
-//		data_Target_Profile_Group_Box->adjustSize();
-		data_Target_Profile_Group_Box->setFixedHeight(data_Target_Profile_Group_Box->height() - multilayer_height_additive);
-		QWidget::window()->resize(QWidget::window()->width(),QWidget::window()->height() - multilayer_height_additive);
+		QWidget::window()->resize(QWidget::window()->width(),QWidget::window()->height()      - data_Target_Profile_Frame_Vector.first()->height());
 	}
 
 	if(data_Target_Profile_Frame_Vector.isEmpty() && !clean)	add_Target_Curve(0);

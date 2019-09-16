@@ -765,7 +765,11 @@ void Target_Curve_Editor::create_Data_GroupBox()
 
 	connect(polarization_LineEdit,				&QLineEdit::textEdited, this, &Target_Curve_Editor::refresh_Polarization);
 //	connect(polarization_Sensitivity_LineEdit,	&QLineEdit::textEdited, this, &Target_Curve_Editor::refresh_Polarization);
-	connect(background_LineEdit,				&QLineEdit::textEdited, this, [=]{target_Curve->measurement.background.value = Locale.toDouble(background_LineEdit->text());});
+	connect(background_LineEdit,				&QLineEdit::textEdited, this, [=]
+	{
+		target_Curve->measurement.background.value = Locale.toDouble(background_LineEdit->text());
+//		global_Multilayer_Approach->calc_Reflection(true);
+	});
 	connect(spectral_Resolution_SpinBox,	static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, &Target_Curve_Editor::refresh_Resolution);
 	connect(angular_Resolution_SpinBox,		static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, &Target_Curve_Editor::refresh_Resolution);
 
@@ -1086,6 +1090,7 @@ void Target_Curve_Editor::refresh_Offsets()
 	target_Curve->fill_Measurement_With_Data();
 	show_Description_Label();
 	target_Curve_Plot->plot_Data(true);
+	global_Multilayer_Approach->calc_Reflection(true);
 }
 
 void Target_Curve_Editor::refresh_Factors()
@@ -1095,6 +1100,7 @@ void Target_Curve_Editor::refresh_Factors()
 	target_Curve->fill_Measurement_With_Data();
 	show_Description_Label();
 	target_Curve_Plot->plot_Data(true);
+	global_Multilayer_Approach->calc_Reflection(true);
 }
 
 void Target_Curve_Editor::refresh_Beam_Intensity()
@@ -1104,7 +1110,7 @@ void Target_Curve_Editor::refresh_Beam_Intensity()
 	target_Curve->fill_Measurement_With_Data();
 	show_Description_Label();
 	target_Curve_Plot->plot_Data(true);
-
+	global_Multilayer_Approach->calc_Reflection(true);
 }
 
 void Target_Curve_Editor::refresh_Polarization()
@@ -1126,6 +1132,7 @@ void Target_Curve_Editor::refresh_Resolution()
 	double coeff = angle_Coefficients_Map.value(target_Curve->curve.angular_Units);
 	target_Curve->measurement.angular_Resolution.value = angular_Resolution_SpinBox->value()*coeff;
 	target_Curve->measurement.spectral_Resolution.value = spectral_Resolution_SpinBox->value();
+	global_Multilayer_Approach->calc_Reflection(true);
 }
 
 void Target_Curve_Editor::refresh_Measurement_Geometry()
@@ -1134,4 +1141,5 @@ void Target_Curve_Editor::refresh_Measurement_Geometry()
 	target_Curve->measurement.beam_Profile_Spreading.value = beam_Profile_Spreading_SpinBox->value();
 	target_Curve->measurement.sample_Size.value = sample_Size_SpinBox->value();
 	target_Curve->measurement.sample_Shift.value = sample_Shift_SpinBox->value();
+	global_Multilayer_Approach->calc_Reflection(true);
 }

@@ -18,7 +18,6 @@ int multilayer_min_width;
 int multilayer_min_height;
 int multilayer_width;
 int multilayer_height;
-int multilayer_height_additive;
 
 // structure table window geometry
 int structure_table_x_corner;
@@ -298,7 +297,6 @@ void Settings::read_Gui_Settings(bool reset_to_default)
 		multilayer_min_height		= gui_Settings.value( "multilayer_min_height",		100 ).toInt();
 		multilayer_width			= gui_Settings.value( "multilayer_width",			450 ).toInt();
 		multilayer_height			= gui_Settings.value( "multilayer_height",			450 ).toInt();
-		multilayer_height_additive	= gui_Settings.value( "multilayer_height_additive",	23  ).toInt();
 	gui_Settings.endGroup();
 
 	// structure table window geometry
@@ -377,7 +375,6 @@ void Settings::save_Gui_Settings()
 		gui_Settings.setValue( "multilayer_min_height",			multilayer_min_height );
 		gui_Settings.setValue( "multilayer_width",				multilayer_width );
 		gui_Settings.setValue( "multilayer_height",				multilayer_height );
-		gui_Settings.setValue( "multilayer_height_additive",	multilayer_height_additive );
 	gui_Settings.endGroup();
 
 	// structure table window geometry

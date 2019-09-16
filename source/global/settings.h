@@ -22,7 +22,6 @@ extern int multilayer_min_width;
 extern int multilayer_min_height;
 extern int multilayer_width;
 extern int multilayer_height;
-extern int multilayer_height_additive;
 
 // structure table window geometry
 extern int structure_table_x_corner;

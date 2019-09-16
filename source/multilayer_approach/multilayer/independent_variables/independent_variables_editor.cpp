@@ -338,7 +338,7 @@ void Independent_Variables_Editor::create_Wavelength_Interface()
 void Independent_Variables_Editor::set_Window_Geometry()
 {
 	adjustSize();
-	setFixedSize(size());
+//	main_Layout->setSizeConstraint( QLayout::SetFixedSize );
 }
 
 void Independent_Variables_Editor::show_Hide_Elements()

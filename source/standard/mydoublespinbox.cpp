@@ -15,11 +15,11 @@ QValidator::State MyDoubleSpinBox::validate(QString &input, int &pos) const
 {
 	Q_UNUSED(pos);
 
-	bool true_Size = false;
+	bool true_Size = true;
 	QList<QString> list = input.split(Locale.decimalPoint());
 	if(list.size() > 1)
 	{
-		if(list[1].size() <= decimals()) true_Size = true;
+		if(list[1].size() > decimals()) true_Size = false;
 	}
 
 	if(true_Size)

@@ -223,6 +223,7 @@ void Multilayer_Approach::open_Table_Of_Structures()
 		runned_Tables_Of_Structures.insert(table_Key, table_Of_Structures);
 		table_Of_Structures = new Table_Of_Structures;
 			table_Of_Structures->setWindowFlags(Qt::Window);
+//			table_Of_Structures->set_Window_Geometry();
 			table_Of_Structures->show();
 
 		runned_Tables_Of_Structures.clear();
