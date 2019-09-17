@@ -74,11 +74,11 @@ void Fits_Selector::write_Window_Geometry()
 {
 	if(!isMaximized())
 	{
-		fits_selector_settings_x_corner = geometry().x()-WINDOW_BOUNDARY_SHIFT_X;
-		fits_selector_settings_y_corner = geometry().y()-WINDOW_BOUNDARY_SHIFT_Y;
+		fits_selector_settings_x_corner = frameGeometry().x()-corner_x_shift;
+		fits_selector_settings_y_corner = frameGeometry().y()-corner_y_shift;
 
-		fits_selector_settings_width  = geometry().width();
-		fits_selector_settings_height = geometry().height();
+		fits_selector_settings_width  = geometry().width() +  width_add;
+		fits_selector_settings_height = geometry().height()+ height_add;
 	}
 }
 

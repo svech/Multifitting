@@ -184,16 +184,6 @@ class Node;
 #define MIN_CONFIDENCE_POINTS	3			// for confidence interval
 #define COLOR_LEGEND_LABEL_WIDTH 100		// for table color legend
 
-#ifdef _WIN32
-	#define WINDOW_BOUNDARY_SHIFT_X 1			// shift in window position
-	#define WINDOW_BOUNDARY_SHIFT_Y 31			// shift in window position
-#endif
-#ifdef __linux__
-	#define WINDOW_BOUNDARY_SHIFT_X 1			// shift in window position
-	#define WINDOW_BOUNDARY_SHIFT_Y 27			// shift in window position
-#endif
-
-
 // -----------------------------------------------------------------------------------------
 
 #define active "     Active"
@@ -322,6 +312,7 @@ class Node;
 #define NOPARENT				"No parents"
 #define previous_Expression_Property "previous_Expression"
 #define abort_Property			"abort"
+#define height_Property			"height_Property"
 
 #define num_Chemic_Element_Property		"num_Chemic_Element"
 #define interlayer_Index_Property		"interlayer_Index"

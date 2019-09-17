@@ -895,7 +895,7 @@ void Unwrapped_Reflection::calc_Specular_nMin_nMax_1_Thread(const Data& measurem
 
 void Unwrapped_Reflection::calc_Specular()
 {
-	auto start = std::chrono::system_clock::now();
+//	auto start = std::chrono::system_clock::now();
 
 	/// ----------------------------------------------------------------------------------------------------------------------
 	/// parallelization
@@ -917,9 +917,9 @@ void Unwrapped_Reflection::calc_Specular()
 	{
 		if (global_Workers[thread_Index].joinable()) global_Workers[thread_Index].join();
 	}
-	auto end = std::chrono::system_clock::now();
-	auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-	qInfo() << "	parallelization:    "<< elapsed.count()/1000000. << " seconds" << endl << endl;
+//	auto end = std::chrono::system_clock::now();
+//	auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+//	qInfo() << "	parallelization:    "<< elapsed.count()/1000000. << " seconds" << endl << endl;
 	/// ----------------------------------------------------------------------------------------------------------------------
 	// postprocessing
 	{

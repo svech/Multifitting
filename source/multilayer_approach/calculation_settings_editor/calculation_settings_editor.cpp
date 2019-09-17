@@ -117,11 +117,11 @@ void Calculation_Settings_Editor::write_Window_Geometry()
 {
 	if(!isMaximized())
 	{
-		calculation_settings_x_corner = geometry().x()-WINDOW_BOUNDARY_SHIFT_X;
-		calculation_settings_y_corner = geometry().y()-WINDOW_BOUNDARY_SHIFT_Y;
+		calculation_settings_x_corner = frameGeometry().x()-corner_x_shift;
+		calculation_settings_y_corner = frameGeometry().y()-corner_y_shift;
 
-		calculation_settings_width  = geometry().width();
-		calculation_settings_height = geometry().height();
+		calculation_settings_width  = geometry().width() +  width_add;
+		calculation_settings_height = geometry().height()+ height_add;
 	}
 }
 
@@ -468,7 +468,7 @@ void Calculation_Settings_Editor::load_Independent_Parameters(int tab_Index)
 			{
 				QGroupBox* standard_Functions_Group_Box = new QGroupBox("Standard Functions");
 					standard_Functions_Group_Box->setObjectName("standard_Functions_Group_Box");
-					standard_Functions_Group_Box->setStyleSheet("QGroupBox#standard_Functions_Group_Box { border-radius: 2px;  border: 1px solid gray; margin-top: 2ex;}"
+					standard_Functions_Group_Box->setStyleSheet("QGroupBox#standard_Functions_Group_Box { border-radius: 2px;  border: 1px solid gray; margin-top: 1ex;}"
 																"QGroupBox::title    { subcontrol-origin: margin;	 left: 9px; padding: 0 0px 0 1px;}");
 				box_Layout->addWidget(standard_Functions_Group_Box);
 
@@ -491,7 +491,7 @@ void Calculation_Settings_Editor::load_Independent_Parameters(int tab_Index)
 			{
 				QGroupBox* field_Functions_Group_Box = new QGroupBox("Field Functions");
 					field_Functions_Group_Box->setObjectName("field_Functions_Group_Box");
-					field_Functions_Group_Box->setStyleSheet("QGroupBox#field_Functions_Group_Box { border-radius: 2px;  border: 1px solid gray; margin-top: 2ex;}"
+					field_Functions_Group_Box->setStyleSheet("QGroupBox#field_Functions_Group_Box { border-radius: 2px;  border: 1px solid gray; margin-top: 1ex;}"
 															 "QGroupBox::title    { subcontrol-origin: margin;	 left: 9px; padding: 0 0px 0 1px;}");
 				box_Layout->addWidget(field_Functions_Group_Box);
 
@@ -512,7 +512,7 @@ void Calculation_Settings_Editor::load_Independent_Parameters(int tab_Index)
 			{
 				QGroupBox* user_Functions_Group_Box = new QGroupBox("User-defined Functions");
 					user_Functions_Group_Box->setObjectName("user_Functions_Group_Box");
-					user_Functions_Group_Box->setStyleSheet("QGroupBox#user_Functions_Group_Box { border-radius: 2px;  border: 1px solid gray; margin-top: 2ex;}"
+					user_Functions_Group_Box->setStyleSheet("QGroupBox#user_Functions_Group_Box { border-radius: 2px;  border: 1px solid gray; margin-top: 1ex;}"
 															"QGroupBox::title    { subcontrol-origin: margin;	 left: 9px; padding: 0 0px 0 1px;}");
 				box_Layout->addWidget(user_Functions_Group_Box);
 

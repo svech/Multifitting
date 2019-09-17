@@ -96,11 +96,11 @@ void Regular_Aperiodic_Table::write_Window_Geometry()
 {
 	if(!isMaximized())
 	{
-		regular_aperiodic_table_x_corner = geometry().x()-WINDOW_BOUNDARY_SHIFT_X;
-		regular_aperiodic_table_y_corner = geometry().y()-WINDOW_BOUNDARY_SHIFT_Y;
+		regular_aperiodic_table_x_corner = frameGeometry().x()-corner_x_shift;
+		regular_aperiodic_table_y_corner = frameGeometry().y()-corner_y_shift;
 
-		regular_aperiodic_table_width  = geometry().width();
-		regular_aperiodic_table_height = geometry().height();
+		regular_aperiodic_table_width  = geometry().width() +  width_add;
+		regular_aperiodic_table_height = geometry().height()+ height_add;
 	}
 }
 

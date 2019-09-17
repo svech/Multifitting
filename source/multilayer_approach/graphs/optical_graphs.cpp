@@ -222,7 +222,7 @@ void Optical_Graphs::create_Tab_Content(QWidget* new_Widget, int tab_Index)
 
 		QHBoxLayout* target_Layout = new QHBoxLayout(target_Group_Box);
 		target_Layout->setSpacing(0);
-		target_Layout->setContentsMargins(0,2,0,3);
+		target_Layout->setContentsMargins(0,3,0,3);
 
 		QSplitter* target_Vertical_Splitter = new QSplitter;
 		target_Vertical_Splitter->setOrientation(Qt::Vertical);
@@ -299,7 +299,7 @@ void Optical_Graphs::create_Tab_Content(QWidget* new_Widget, int tab_Index)
 
 		QHBoxLayout* independent_Layout = new QHBoxLayout(independent_Group_Box);
 		independent_Layout->setSpacing(0);
-		independent_Layout->setContentsMargins(0,2,0,3);
+		independent_Layout->setContentsMargins(0,8,0,3);
 
 		QSplitter* independent_Vertical_Splitter = new QSplitter;
 		independent_Vertical_Splitter->setOrientation(Qt::Vertical);
@@ -382,10 +382,10 @@ void Optical_Graphs::write_Window_Geometry()
 {
 	if(!isMaximized())
 	{
-		graphs_x_corner = geometry().x()-WINDOW_BOUNDARY_SHIFT_X;
-		graphs_y_corner = geometry().y()-WINDOW_BOUNDARY_SHIFT_Y;
+		graphs_x_corner = frameGeometry().x()-corner_x_shift;
+		graphs_y_corner = frameGeometry().y()-corner_y_shift;
 
-		graphs_width  = geometry().width();
-		graphs_height = geometry().height();
+		graphs_width  = geometry().width() +  width_add;
+		graphs_height = geometry().height()+ height_add;
 	}
 }

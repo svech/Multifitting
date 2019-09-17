@@ -203,6 +203,14 @@ extern QString soft_Restriction_Color;
 
 // -----------------------------------------------------------------------------------------
 
+extern int scale;
+extern int corner_x_shift;
+extern int corner_y_shift;
+extern int width_add;
+extern int height_add;
+
+// -----------------------------------------------------------------------------------------
+
 extern Optical_Constants* optical_Constants;
 
 class Global_Variables : public QObject
@@ -210,6 +218,7 @@ class Global_Variables : public QObject
 	Q_OBJECT
 public:
 	Global_Variables();
+	static void find_Gui_Shifts();
 	static void read_Optical_Constants();
 	static void create_Sorted_Elements_Map();
 	static void   serialize_Tree(QDataStream &out, QTreeWidget* tree);

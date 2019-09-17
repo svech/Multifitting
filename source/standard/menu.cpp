@@ -19,10 +19,10 @@ void Menu::add_Menu_Points()
 	// for all
 	{
 		create_File_Menu();
-			menu_Bar->addMenu(file_Menu);
 	}
 	if(window_Type == window_Type_Multilayer_Approach)
 	{
+			menu_Bar->addMenu(file_Menu);
 		create_Calculate_Menu();
 			menu_Bar->addMenu(calculate_Menu);
 		create_Optical_Constants_Menu();
@@ -41,6 +41,7 @@ void Menu::add_Menu_Points()
 	{
 		item_Editor = qobject_cast<Item_Editor*>(my_Parent);
 
+			menu_Bar->addMenu(file_Menu);
 		create_Item_Units_Menu();
 			menu_Bar->addMenu(units_Menu);
 		create_Item_Precision_Menu();
@@ -48,6 +49,7 @@ void Menu::add_Menu_Points()
 	}
 	if(window_Type == window_Type_Table)
 	{
+			menu_Bar->addMenu(file_Menu);
 		create_Calculate_Menu();
 			menu_Bar->addMenu(calculate_Menu);
 		create_Table_Units_Menu();
@@ -57,6 +59,7 @@ void Menu::add_Menu_Points()
 	}
 	if(window_Type == window_Type_Regular_Aperiodic_Table )
 	{
+			menu_Bar->addMenu(file_Menu);
 		create_Table_Units_Menu();
 			menu_Bar->addMenu(units_Menu);
 		create_Table_Precision_Menu();
@@ -66,6 +69,7 @@ void Menu::add_Menu_Points()
 	if(window_Type == window_Type_Launcher ||
 	   window_Type == window_Type_Multilayer_Approach)
 	{
+			menu_Bar->addMenu(file_Menu);
 		create_Help_Menu();
 			menu_Bar->addMenu(help_Menu);
 	}

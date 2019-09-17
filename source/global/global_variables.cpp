@@ -354,11 +354,86 @@ QString common_Thickness_and_Sigma_Color	= "QWidget { background: rgb(143, 255, 
 QString soft_Restriction_Color				= "QWidget { background: rgb(94,  244, 227); }";
 
 // -----------------------------------------------------------------------------------------
+
+int scale = 96;
+int corner_x_shift = 0;
+int corner_y_shift = 0;
+int width_add = 0;
+int height_add = 0;
+
+// -----------------------------------------------------------------------------------------
+
 Optical_Constants* optical_Constants;
 
 Global_Variables::Global_Variables()
 {
 
+}
+
+void Global_Variables::find_Gui_Shifts()
+{
+#ifdef _WIN32
+	// corner 100-149%
+//		structure_table_x_corner = frameGeometry().x();
+//		structure_table_y_corner = frameGeometry().y();
+
+	// corner 150-174%
+//		structure_table_x_corner = frameGeometry().x()-1;
+//		structure_table_y_corner = frameGeometry().y()-1;
+
+	// corner 175-199%
+//		structure_table_x_corner = frameGeometry().x()-1;
+//		structure_table_y_corner = frameGeometry().y();
+
+	// corner 200-224%
+//		structure_table_x_corner = frameGeometry().x();
+//		structure_table_y_corner = frameGeometry().y();
+
+	// corner 225-249%
+//		structure_table_x_corner = frameGeometry().x();
+//		structure_table_y_corner = frameGeometry().y()-1;
+
+	// corner 250-299%
+//		structure_table_x_corner = frameGeometry().x()-1;
+//		structure_table_y_corner = frameGeometry().y();
+
+	// corner 300%
+//		structure_table_x_corner = frameGeometry().x();
+//		structure_table_y_corner = frameGeometry().y();
+
+	/// =========================================
+
+	// all custom sizes and 100%
+//		structure_table_width  = geometry().width();
+//		structure_table_height = geometry().height();
+
+	// size 125% preset without signing out
+//		structure_table_width  = geometry().width()+2;
+//		structure_table_height = geometry().height()+8;
+
+	// size 150% preset without signing out
+//		structure_table_width  = geometry().width()+3;
+//		structure_table_height = geometry().height()+8;
+
+	// size 175% preset without signing out
+//		structure_table_width  = geometry().width()+4;
+//		structure_table_height = geometry().height()+12;
+
+	/// =========================================
+
+	scale = qApp->desktop()->logicalDpiX()*qApp->desktop()->devicePixelRatio();
+	if( 96<=scale && scale<144 ) {corner_x_shift = 0; corner_y_shift = 0;}; // 100-149%
+	if(144<=scale && scale<168 ) {corner_x_shift = 1; corner_y_shift = 1;}; // 150-174%
+	if(168<=scale && scale<192 ) {corner_x_shift = 1; corner_y_shift = 0;}; // 175-199%
+	if(192<=scale && scale<216 ) {corner_x_shift = 0; corner_y_shift = 0;}; // 200-224%
+	if(216<=scale && scale<240 ) {corner_x_shift = 0; corner_y_shift = 1;}; // 225-249%
+	if(240<=scale && scale<288 ) {corner_x_shift = 0; corner_y_shift = 1;}; // 250-299%
+	if(288<=scale && scale<312 ) {corner_x_shift = 0; corner_y_shift = 0;}; // 300-324%
+
+//	if(scale==120 ) {width_add = 2; height_add = 8;};  // 125% preset without signing out
+//	if(scale==144 ) {width_add = 3; height_add = 8;};  // 150% preset without signing out
+//	if(scale==168 ) {width_add = 4; height_add = 12;}; // 175% preset without signing out
+#endif
 }
 
 void Global_Variables::read_Optical_Constants()

@@ -86,11 +86,11 @@ void Multilayer_Approach::write_Window_Geometry()
 {
 	if(!isMaximized())
 	{
-		multilayer_x_corner = geometry().x()-WINDOW_BOUNDARY_SHIFT_X;
-		multilayer_y_corner = geometry().y()-WINDOW_BOUNDARY_SHIFT_Y;
+		multilayer_x_corner = frameGeometry().x()-corner_x_shift;
+		multilayer_y_corner = frameGeometry().y()-corner_y_shift;
 
-		multilayer_width  = geometry().width();
-		multilayer_height = geometry().height();
+		multilayer_width  = geometry().width() +  width_add;
+		multilayer_height = geometry().height()+ height_add;
 	}
 }
 
@@ -223,7 +223,6 @@ void Multilayer_Approach::open_Table_Of_Structures()
 		runned_Tables_Of_Structures.insert(table_Key, table_Of_Structures);
 		table_Of_Structures = new Table_Of_Structures;
 			table_Of_Structures->setWindowFlags(Qt::Window);
-//			table_Of_Structures->set_Window_Geometry();
 			table_Of_Structures->show();
 
 		runned_Tables_Of_Structures.clear();

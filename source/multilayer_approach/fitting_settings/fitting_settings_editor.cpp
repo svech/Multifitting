@@ -9,6 +9,8 @@ Fitting_Settings_Editor::Fitting_Settings_Editor(QWidget* parent) :
 	create_Main_Layout();
 	set_Window_Geometry();
 	setAttribute(Qt::WA_DeleteOnClose);
+
+	setProperty(height_Property,height());
 }
 
 void Fitting_Settings_Editor::closeEvent(QCloseEvent *event)
@@ -61,11 +63,6 @@ void Fitting_Settings_Editor::set_Window_Geometry()
 {
 	setGeometry(fitting_settings_x_corner,fitting_settings_y_corner,width(),height());
 	adjustSize();
-//#ifdef _WIN32
-//#endif
-//#ifdef __linux__
-//	setGeometry(768,0,width(),height());
-//#endif
 	setFixedSize(size());
 }
 
@@ -73,8 +70,8 @@ void Fitting_Settings_Editor::write_Window_Geometry()
 {
 	if(!isMaximized())
 	{
-		fitting_settings_x_corner = geometry().x()-WINDOW_BOUNDARY_SHIFT_X;
-		fitting_settings_y_corner = geometry().y()-WINDOW_BOUNDARY_SHIFT_Y;
+		fitting_settings_x_corner = frameGeometry().x()-corner_x_shift;
+		fitting_settings_y_corner = frameGeometry().y()-corner_y_shift;
 	}
 }
 
@@ -220,7 +217,7 @@ void Fitting_Settings_Editor::create_Metods()
 			GSL_randomized_Start_Check_Box->setChecked(fitting_Settings->randomized_Start);
 			SO_randomized_Start_Check_Box->setChecked(fitting_Settings->randomized_Start);
 			SO_initialize_By_Current_Check_Box->setChecked(fitting_Settings->initialize_By_Current_State);
-		}
+		}		
 	});
 }
 
@@ -496,9 +493,9 @@ void Fitting_Settings_Editor::create_SO_Main_Params_Group_Box()
 		connect(SO_max_Eval_Check_Box,		&QCheckBox::toggled,	 this, [=]
 		{
 			fitting_Settings->max_Eval_Check = SO_max_Eval_Check_Box->isChecked();
-			SO_max_Evaluations_Label->setDisabled(fitting_Settings->max_Eval_Check);
+			SO_max_Evaluations_Label  ->setDisabled(fitting_Settings->max_Eval_Check);
 			SO_max_Evaluations_SpinBox->setDisabled(fitting_Settings->max_Eval_Check);
-			SO_max_Eval_Factor_SpinBox->setEnabled(fitting_Settings->max_Eval_Check);
+			SO_max_Eval_Factor_SpinBox->setEnabled (fitting_Settings->max_Eval_Check);
 		});
 	}
 }
@@ -515,7 +512,7 @@ void Fitting_Settings_Editor::create_SO_AdditionalParams_Group_Box()
 	{
 		// create spoiler
 		QVBoxLayout* frame_Layout = new QVBoxLayout;
-		frame_Layout->addWidget(SO_Additional_Params_Group_Box);
+			frame_Layout->addWidget(SO_Additional_Params_Group_Box);
 		Spoiler* spoiler = new Spoiler("Additional parameters", 5, this);
 			spoiler->setContentsMargins(-9,0,-9,-0);
 			spoiler->setContentLayout(*frame_Layout);

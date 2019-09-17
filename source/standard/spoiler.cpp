@@ -45,10 +45,12 @@ Spoiler::Spoiler(const QString & title, const int animationDuration, QWidget *pa
 		auto contentHeight = contentArea.layout()->sizeHint().height();
 		if(toggleButton.isChecked())
 		{
-			parent->setFixedHeight(parent->height()+contentHeight);
+			parent->setFixedHeight(parent->property(height_Property).toInt() +contentHeight);
+//			parent->setFixedHeight(parent->height()+contentHeight);
 		} else
 		{
-			parent->setFixedHeight(parent->height()-contentHeight);
+			parent->setFixedHeight(parent->property(height_Property).toInt());
+//			parent->setFixedHeight(parent->height()-contentHeight);
 		}
 	});
 }

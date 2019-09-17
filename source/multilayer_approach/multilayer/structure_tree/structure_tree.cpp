@@ -137,7 +137,7 @@ void Structure_Tree::refresh_If_Layer(QTreeWidgetItem* this_Item, int i)
 		if(this_Item->parent())
 		{
 			Data parent_Data = this_Item->parent()->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
-			no_Good_Parent = (parent_Data.item_Type != item_Type_Multilayer);
+			no_Good_Parent = (parent_Data.item_Type != item_Type_Multilayer && parent_Data.item_Type != item_Type_Regular_Aperiodic);
 		}
 		if(no_Good_Parent)
 		{
@@ -428,28 +428,32 @@ void Structure_Tree::set_Structure_Item_Text(QTreeWidgetItem* item, int i)
 
 
 				item->setText(DEFAULT_COLUMN, item->text(DEFAULT_COLUMN) + sigma_Text);
-				if(data.sigma.value>0)
+
+				if(!item->parent() || parent_Data.item_Type != item_Type_Regular_Aperiodic)
 				{
-					// show sigma drift
-					Drift sigma_Drift = data.sigma_Drift;
-					if(sigma_Drift.is_Drift_Line || sigma_Drift.is_Drift_Sine || sigma_Drift.is_Drift_Rand)
+					if(data.sigma.value>0)
 					{
-						item->setText(DEFAULT_COLUMN, item->text(DEFAULT_COLUMN) + " || d" + Sigma_Sym + " = on");
+						// show sigma drift
+						Drift sigma_Drift = data.sigma_Drift;
+						if(sigma_Drift.is_Drift_Line || sigma_Drift.is_Drift_Sine || sigma_Drift.is_Drift_Rand)
+						{
+							item->setText(DEFAULT_COLUMN, item->text(DEFAULT_COLUMN) + " || d" + Sigma_Sym + " = on");
+						}
 					}
+
+					// reflect thickness drift
+					Drift thick_Drift = data.thickness_Drift;
+					QString thick_Drift_Text = "";
+					if(thick_Drift.is_Drift_Line || thick_Drift.is_Drift_Sine || thick_Drift.is_Drift_Rand)
+					   thick_Drift_Text += "\n---> dz =";
+					if(thick_Drift.is_Drift_Line) thick_Drift_Text += " {line, " + Locale.toString(thick_Drift.drift_Line_Value.value,		thumbnail_double_format,thumbnail_drift_precision) + "%}";
+					if(thick_Drift.is_Drift_Sine) thick_Drift_Text += " {sine, " + Locale.toString(thick_Drift.drift_Sine_Amplitude.value,	thumbnail_double_format,thumbnail_drift_precision) + "%,"
+																				 + Locale.toString(thick_Drift.drift_Sine_Frequency.value,	thumbnail_double_format,thumbnail_drift_precision) + ","
+																				 + Locale.toString(thick_Drift.drift_Sine_Phase.value,		thumbnail_double_format,thumbnail_drift_precision) + "}";
+					if(thick_Drift.is_Drift_Rand) thick_Drift_Text += " {rand, " + Locale.toString(thick_Drift.drift_Rand_Rms.value,		thumbnail_double_format,thumbnail_drift_precision) + "%}";
+
+					item->setText(DEFAULT_COLUMN, item->text(DEFAULT_COLUMN) +  thick_Drift_Text);
 				}
-
-				// reflect thickness drift
-				Drift thick_Drift = data.thickness_Drift;
-				QString thick_Drift_Text = "";
-				if(thick_Drift.is_Drift_Line || thick_Drift.is_Drift_Sine || thick_Drift.is_Drift_Rand)
-				   thick_Drift_Text += "\n---> dz =";
-				if(thick_Drift.is_Drift_Line) thick_Drift_Text += " {line, " + Locale.toString(thick_Drift.drift_Line_Value.value,		thumbnail_double_format,thumbnail_drift_precision) + "%}";
-				if(thick_Drift.is_Drift_Sine) thick_Drift_Text += " {sine, " + Locale.toString(thick_Drift.drift_Sine_Amplitude.value,	thumbnail_double_format,thumbnail_drift_precision) + "%,"
-																			 + Locale.toString(thick_Drift.drift_Sine_Frequency.value,	thumbnail_double_format,thumbnail_drift_precision) + ","
-																			 + Locale.toString(thick_Drift.drift_Sine_Phase.value,		thumbnail_double_format,thumbnail_drift_precision) + "}";
-				if(thick_Drift.is_Drift_Rand) thick_Drift_Text += " {rand, " + Locale.toString(thick_Drift.drift_Rand_Rms.value,		thumbnail_double_format,thumbnail_drift_precision) + "%}";
-
-				item->setText(DEFAULT_COLUMN, item->text(DEFAULT_COLUMN) +  thick_Drift_Text);
 			}
 		}
 	}

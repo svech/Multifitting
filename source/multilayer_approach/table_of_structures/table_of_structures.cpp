@@ -74,76 +74,11 @@ void Table_Of_Structures::write_Window_Geometry()
 	// usual show
 	if(!isMaximized())
 	{
-
-//#ifdef __linux__
-//	#include <iostream>
-//#endif
-
-		int corner_x_shift = 0, corner_y_shift = 0;
-#ifdef _WIN32
-		int scale = qApp->desktop()->logicalDpiX()*qApp->desktop()->devicePixelRatio();
-		qInfo() << qApp->desktop()->logicalDpiX() << qApp->desktop()->devicePixelRatio() << endl;
-		if( 96<=scale && scale<144 ) {corner_x_shift = 0; corner_y_shift = 0;}; // 100-149%
-		if(144<=scale && scale<168 ) {corner_x_shift = 1; corner_y_shift = 1;}; // 150-174%
-		if(168<=scale && scale<192 ) {corner_x_shift = 1; corner_y_shift = 0;}; // 175-199%
-		if(192<=scale && scale<216 ) {corner_x_shift = 0; corner_y_shift = 0;}; // 200-224%
-		if(216<=scale && scale<240 ) {corner_x_shift = 0; corner_y_shift = 1;}; // 225-249%
-		if(240<=scale && scale<288 ) {corner_x_shift = 0; corner_y_shift = 1;}; // 250-299%
-		if(288<=scale && scale<312 ) {corner_x_shift = 0; corner_y_shift = 0;}; // 300-324%
-#endif
 		structure_table_x_corner = frameGeometry().x()-corner_x_shift;
 		structure_table_y_corner = frameGeometry().y()-corner_y_shift;
 
-		// corner 100-149%
-//		structure_table_x_corner = frameGeometry().x();
-//		structure_table_y_corner = frameGeometry().y();
-
-		// corner 150-174%
-//		structure_table_x_corner = frameGeometry().x()-1;
-//		structure_table_y_corner = frameGeometry().y()-1;
-
-		// corner 175-199%
-//		structure_table_x_corner = frameGeometry().x()-1;
-//		structure_table_y_corner = frameGeometry().y();
-
-		// corner 200-224%
-//		structure_table_x_corner = frameGeometry().x();
-//		structure_table_y_corner = frameGeometry().y();
-
-		// corner 225-249%
-//		structure_table_x_corner = frameGeometry().x();
-//		structure_table_y_corner = frameGeometry().y()-1;
-
-		// corner 250-299%
-//		structure_table_x_corner = frameGeometry().x()-1;
-//		structure_table_y_corner = frameGeometry().y();
-
-		// corner 300%
-//		structure_table_x_corner = frameGeometry().x();
-//		structure_table_y_corner = frameGeometry().y();
-
-		///===========================================
-
-		// all
-		structure_table_width  = geometry().width();
-		structure_table_height = geometry().height();
-
-		// size 125% особый
-//		structure_table_width  = geometry().width()+2;
-//		structure_table_height = geometry().height()+8;
-
-		// size 150% особый
-//		structure_table_width  = geometry().width()+3;
-//		structure_table_height = geometry().height()+8;
-
-		// size 175% особый
-//		structure_table_width  = geometry().width()+4;
-//		structure_table_height = geometry().height()+12;
-
-
-		qInfo() << frameSize().width()  << frameGeometry().width()  << geometry().width()  << endl;
-		qInfo() << frameSize().height() << frameGeometry().height() << geometry().height() << endl;
-
+		structure_table_width  = geometry().width() +  width_add;
+		structure_table_height = geometry().height()+ height_add;
 	}
 }
 

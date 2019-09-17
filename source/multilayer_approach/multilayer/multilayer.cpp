@@ -225,7 +225,6 @@ void Multilayer::add_Target_Curve(int index_Pressed, bool opening)
 		{
 			QWidget::window()->resize(QWidget::window()->width(),QWidget::window()->height() + data_Target_Profile_Frame_Vector.first()->height());
 		}
-//		data_Target_Profile_Group_Box->adjustSize();
 	}
 
 	QPushButton* new_Import_Button = new QPushButton("Import");

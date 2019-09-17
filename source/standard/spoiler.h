@@ -6,8 +6,8 @@
 class Spoiler : public QWidget
 {
 	Q_OBJECT
-private:
-//public:
+//private:
+public:
 	QGridLayout mainLayout;
 	QToolButton toggleButton;
 	QFrame headerLine;
