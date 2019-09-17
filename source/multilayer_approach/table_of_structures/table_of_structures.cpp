@@ -79,10 +79,10 @@ void Table_Of_Structures::write_Window_Geometry()
 //	#include <iostream>
 //#endif
 
-//#ifdef _WIN32
+		int corner_x_shift = 0, corner_y_shift = 0;
+#ifdef _WIN32
 		int scale = qApp->desktop()->logicalDpiX()*qApp->desktop()->devicePixelRatio();
 		qInfo() << qApp->desktop()->logicalDpiX() << qApp->desktop()->devicePixelRatio() << endl;
-		int corner_x_shift = 0, corner_y_shift = 0;
 		if( 96<=scale && scale<144 ) {corner_x_shift = 0; corner_y_shift = 0;}; // 100-149%
 		if(144<=scale && scale<168 ) {corner_x_shift = 1; corner_y_shift = 1;}; // 150-174%
 		if(168<=scale && scale<192 ) {corner_x_shift = 1; corner_y_shift = 0;}; // 175-199%
@@ -90,10 +90,9 @@ void Table_Of_Structures::write_Window_Geometry()
 		if(216<=scale && scale<240 ) {corner_x_shift = 0; corner_y_shift = 1;}; // 225-249%
 		if(240<=scale && scale<288 ) {corner_x_shift = 0; corner_y_shift = 1;}; // 250-299%
 		if(288<=scale && scale<312 ) {corner_x_shift = 0; corner_y_shift = 0;}; // 300-324%
-
+#endif
 		structure_table_x_corner = frameGeometry().x()-corner_x_shift;
 		structure_table_y_corner = frameGeometry().y()-corner_y_shift;
-//#endif
 
 		// corner 100-149%
 //		structure_table_x_corner = frameGeometry().x();
