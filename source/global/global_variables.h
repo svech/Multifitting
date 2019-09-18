@@ -211,6 +211,10 @@ extern int height_add;
 
 // -----------------------------------------------------------------------------------------
 
+extern QString multilayer_Approach_Default_Title;
+
+// -----------------------------------------------------------------------------------------
+
 extern Optical_Constants* optical_Constants;
 
 class Global_Variables : public QObject

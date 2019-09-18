@@ -32,6 +32,7 @@ class Node;
 
 // -----------------------------------------------------------------------------------------
 
+
 #define control_String						 "Multifitting"
 #define default_File						 "save_v."+QString::number(VERSION_MAJOR)+"."+QString::number(VERSION_MINOR)+"."+QString::number(VERSION_BUILD)+".fit"
 #define default_Fit_Statictics_File			 "fits.txt"

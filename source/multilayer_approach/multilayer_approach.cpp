@@ -5,7 +5,7 @@ Multilayer_Approach::Multilayer_Approach(Launcher* launcher, QWidget *parent) :
 	launcher(launcher),
 	QWidget(parent)
 {
-	setWindowTitle("Multilayer Model");
+	setWindowTitle(multilayer_Approach_Default_Title);
 	create_Main_Layout();
 	set_Window_Geometry();
 	setAttribute(Qt::WA_DeleteOnClose);
@@ -904,7 +904,9 @@ void Multilayer_Approach::open(QString filename)
 	file_Was_Opened_or_Saved = true;
 	last_file = filename;
 
-	qInfo() << "opened\n";// << last_file;
+	setWindowTitle(multilayer_Approach_Default_Title + ": .../" + file_Info.dir().dirName() + "/" + file_Info.fileName());
+
+	qInfo() << "opened\n";
 }
 
 void Multilayer_Approach::open_As()
@@ -920,8 +922,27 @@ void Multilayer_Approach::open_As()
 }
 
 void Multilayer_Approach::save(QString filename)
-{
+{	
 	// TODO
+
+	// resaving file from older version
+	if(filename == last_file)
+	{
+		if( (loaded_Version_Major <VERSION_MAJOR) ||
+		   ((loaded_Version_Major==VERSION_MAJOR) && (loaded_Version_Minor <VERSION_MINOR)) ||
+		   ((loaded_Version_Major==VERSION_MAJOR) && (loaded_Version_Minor==VERSION_MINOR) && (loaded_Version_Build<VERSION_BUILD)) )
+		{
+			QMessageBox::StandardButton reply = QMessageBox::warning(this,"Resaving old file","Do you want to rewrite old file,\ncreated by v."
+								 + Locale.toString(loaded_Version_Major) + "."
+								 + Locale.toString(loaded_Version_Minor) + "."
+								 + Locale.toString(loaded_Version_Build) + " by new version v."
+								 + Locale.toString(VERSION_MAJOR) + "."
+								 + Locale.toString(VERSION_MINOR) + "."
+								 + Locale.toString(VERSION_BUILD) + "?\n If yes, it cannot be opened in older version.", QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
+			if (reply == QMessageBox::No) return;
+		}
+	}
+
 	QFile file(filename);
 	file.open(QIODevice::WriteOnly);
 	QDataStream out(&file);
@@ -1049,7 +1070,10 @@ void Multilayer_Approach::save(QString filename)
 	file_Was_Opened_or_Saved = true;
 	last_file = filename;
 
-	qInfo() << "saved\n";// << last_file;
+	QFileInfo file_Info(filename);
+	setWindowTitle(multilayer_Approach_Default_Title + ": .../" + file_Info.dir().dirName() + "/" + file_Info.fileName());
+
+	qInfo() << "saved\n";
 }
 
 void Multilayer_Approach::save_As()
@@ -1061,10 +1085,11 @@ void Multilayer_Approach::save_As()
 		if(filename.suffix() != "fit") { filename2 = QFileInfo(filename.absoluteFilePath()+".fit");	}
 		else						   { filename2 = QFileInfo(filename.absoluteFilePath());		}
 
-		last_file = filename2.absoluteFilePath();
+		QString last_file_0 = filename2.absoluteFilePath();
 		last_directory = filename2.absolutePath();
 
-		save(last_file);
+		save(last_file_0);
+		last_file = last_file_0;
 	}
 }
 

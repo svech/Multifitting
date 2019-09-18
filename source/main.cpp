@@ -14,7 +14,7 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext& context, const QS
 int main(int argc, char *argv[])
 {
 	qInstallMessageHandler(myMessageOutput);
-	QApplication::setAttribute(Qt::AA_EnableHighDpiScaling); // 1 with AA_EnableHighDpiScaling // 2 without AA_EnableHighDpiScaling
+//	QApplication::setAttribute(Qt::AA_EnableHighDpiScaling); // 1 with AA_EnableHighDpiScaling // 2 without AA_EnableHighDpiScaling
 	QApplication app(argc, argv);
 	Launcher launcher;
 //	launcher.show();

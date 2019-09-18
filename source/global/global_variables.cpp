@@ -3,9 +3,9 @@
 #include "standard/mydoublespinbox.h"
 
 // version from save file
-int loaded_Version_Major = -1;
-int loaded_Version_Minor = -1;
-int loaded_Version_Build = -1;
+int loaded_Version_Major = VERSION_MAJOR;
+int loaded_Version_Minor = VERSION_MINOR;
+int loaded_Version_Build = VERSION_BUILD;
 
 bool lambda_Out_Of_Range = false;
 
@@ -360,6 +360,10 @@ int corner_x_shift = 0;
 int corner_y_shift = 0;
 int width_add = 0;
 int height_add = 0;
+
+// -----------------------------------------------------------------------------------------
+
+QString multilayer_Approach_Default_Title = "Multilayer Model";
 
 // -----------------------------------------------------------------------------------------
 

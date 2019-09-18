@@ -617,6 +617,8 @@ void Structure_Toolbar::destroy()
 	QMessageBox::StandardButton reply = QMessageBox::question(this,"Removal", "Remove substrate and all layers?", QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
 	if (reply == QMessageBox::Yes)
 	{
+		QMessageBox::information(this,"Removal", "Caution: the file is the same!");
+
 		structure_Tree->tree->clear();
 		add_Ambient();
 		toolbar->actions()[Add_Substrate]->setDisabled(false);		// add_Substrate
