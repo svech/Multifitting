@@ -490,7 +490,8 @@ struct Material_Data			{QString substance; QString filename; QVector<Point> mate
 struct Element_Data				{QString element;					  QVector<Point> element_Data;  void read_Element (QString& filename);};
 
 // curve plot options
-struct Plot_Options				{QString scale = lin_Scale;
+struct Plot_Options				{QString x_Scale = lin_Scale; //
+								 QString y_Scale = lin_Scale;
 								 bool rescale = true;
 
 								 QColor color = QColor(255, 0, 0);
@@ -503,6 +504,16 @@ struct Plot_Options				{QString scale = lin_Scale;
 								 int scatter_Shape_Second = QCPScatterStyle::ssDiamond;
 								 double scatter_Size_Second = 5;
 								 double thickness_Second = 1;
+								};
+
+struct Graph_Options			{int num_Target_Graph_Rows = 1;		 // rows in Graphs
+								 int num_Independent_Graph_Rows = 1; // rows in Graphs
+
+								 bool show_Scatter = false;
+								 bool show_Thickness = false;
+								 bool show_X_Scale = false;
+								 bool show_Max_Value = false;
+								 bool show_Current_Coordinate = true;
 								};
 
 // calculated functions for plotting
@@ -694,6 +705,9 @@ QDataStream& operator >>( QDataStream& stream,		 Calc_Functions& calc_Functions 
 
 QDataStream& operator <<( QDataStream& stream, const Plot_Options& plot_Options );
 QDataStream& operator >>( QDataStream& stream,		 Plot_Options& plot_Options );
+
+QDataStream& operator <<( QDataStream& stream, const Graph_Options& graph_options );
+QDataStream& operator >>( QDataStream& stream,		 Graph_Options& graph_options );
 
 QDataStream& operator <<( QDataStream& stream, const Value& value );
 QDataStream& operator >>( QDataStream& stream,		 Value& value );

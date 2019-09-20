@@ -167,7 +167,9 @@ QDataStream& operator >>( QDataStream& stream,		 Drift& drift )
 
 QDataStream& operator <<( QDataStream& stream, const Plot_Options& plot_Options )
 {
-	return stream << plot_Options.scale
+	return stream << plot_Options.y_Scale
+				  << plot_Options.x_Scale // since 1.9.3
+
 				  << plot_Options.rescale // since 1.7.6
 
 				  << plot_Options.color        << plot_Options.scatter_Shape << plot_Options.scatter_Size        << plot_Options.thickness
@@ -175,13 +177,31 @@ QDataStream& operator <<( QDataStream& stream, const Plot_Options& plot_Options 
 }
 QDataStream& operator >>( QDataStream& stream,		 Plot_Options& plot_Options )
 {
-	stream >> plot_Options.scale;
+	stream >> plot_Options.y_Scale;
+
+	if(Global_Variables::check_Loaded_Version(1,9,3))
+	{stream >> plot_Options.x_Scale;}	// since 1.9.3
+
 
 	if(Global_Variables::check_Loaded_Version(1,7,6))
 	{stream >> plot_Options.rescale; }	// since 1.7.6
 
 	stream >> plot_Options.color        >> plot_Options.scatter_Shape >> plot_Options.scatter_Size        >> plot_Options.thickness
 		   >> plot_Options.scale_Second >> plot_Options.color_Second >> plot_Options.scatter_Shape_Second >> plot_Options.scatter_Size_Second >> plot_Options.thickness_Second;
+	return stream;
+}
+
+QDataStream& operator <<( QDataStream& stream, const Graph_Options& graph_Options )
+{
+	return stream << graph_Options.num_Target_Graph_Rows << graph_Options.num_Independent_Graph_Rows
+				  << graph_Options.show_Scatter << graph_Options.show_Thickness << graph_Options.show_X_Scale
+				  << graph_Options.show_Max_Value << graph_Options.show_Current_Coordinate;
+}
+QDataStream& operator >>( QDataStream& stream,		 Graph_Options& graph_Options )
+{
+	stream >> graph_Options.num_Target_Graph_Rows >> graph_Options.num_Independent_Graph_Rows
+		   >> graph_Options.show_Scatter >> graph_Options.show_Thickness >> graph_Options.show_X_Scale
+		   >> graph_Options.show_Max_Value >> graph_Options.show_Current_Coordinate;
 	return stream;
 }
 

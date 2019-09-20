@@ -755,9 +755,13 @@ void Multilayer_Approach::open(QString filename)
 			// load calc property for independent plots
 			in >> multilayer->enable_Calc_Independent_Curves;
 
+			// load number of calculation settings independent rows
+			if(Global_Variables::check_Loaded_Version(1,9,3))
+			{in >> multilayer->num_Independent_Rows;}
+
 			// load number of independent graph rows
-			if(Global_Variables::check_Loaded_Version(1,7,8))
-			{in >> multilayer->num_Independent_Graph_Rows;}	// since 1.7.8
+			if(Global_Variables::check_Loaded_Version(1,7,8) && !Global_Variables::check_Loaded_Version(1,9,3))
+			{in >> multilayer->graph_Options.num_Independent_Graph_Rows;}	// since 1.7.8 and before 1.9.3
 		}
 		/// target
 		{
@@ -791,11 +795,19 @@ void Multilayer_Approach::open(QString filename)
 			// load calc property for target plots
 			in >> multilayer->enable_Calc_Target_Curves;
 
-			// load number of target rows
+			// load number of calculation settings target rows
 			if(Global_Variables::check_Loaded_Version(1,7,8))
-			{in >> multilayer->num_Target_Rows;
-			 in >> multilayer->num_Target_Graph_Rows;}	// since 1.7.8
+			{in >> multilayer->num_Target_Rows;}
+
+			// load number of target graph rows
+			if(Global_Variables::check_Loaded_Version(1,7,8) && !Global_Variables::check_Loaded_Version(1,9,3))
+			{in >> multilayer->graph_Options.num_Target_Graph_Rows;}	// since 1.7.8 and before 1.9.3
 		}
+
+		/// graph options
+		if(Global_Variables::check_Loaded_Version(1,9,3))
+		{in >> multilayer->graph_Options;}	              // since 1.9.3
+
 		/// fitting settings
 		{
 			in >> fitting_Settings;
@@ -1006,8 +1018,8 @@ void Multilayer_Approach::save(QString filename)
 			// save calc property for independent plots
 			out << multilayer->enable_Calc_Independent_Curves;
 
-			// save number of independent graph rows
-			out << multilayer->num_Independent_Graph_Rows; // since 1.7.8
+			// save number of independent calculation settings rows
+			out << multilayer->num_Independent_Rows; // since 1.9.3
 		}
 		/// target
 		{
@@ -1023,10 +1035,12 @@ void Multilayer_Approach::save(QString filename)
 			// save calc property for target plots
 			out << multilayer->enable_Calc_Target_Curves;
 
-			// save number of target graph rows
-			out << multilayer->num_Target_Rows;       // since 1.7.8
-			out << multilayer->num_Target_Graph_Rows; // since 1.7.8
-		}
+			// save number of calculation settings target rows
+			out << multilayer->num_Target_Rows;   // since 1.7.8
+		}		
+		/// graph options
+		out << multilayer->graph_Options;		  // since 1.9.3
+
 		/// fitting settings
 		{
 			out << fitting_Settings;
@@ -1035,8 +1049,8 @@ void Multilayer_Approach::save(QString filename)
 		// save min_max values for fitting
 		out << multilayer->min_Max_Density;
 		out << multilayer->min_Max_Thickness;
-		out << multilayer->min_Max_Sigma;
-	}
+		out << multilayer->min_Max_Sigma;		
+	}	
 
 	// save index of active multilayer tab
 	out << multilayer_Tabs->currentIndex();

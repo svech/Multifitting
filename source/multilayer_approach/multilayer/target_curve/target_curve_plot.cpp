@@ -22,7 +22,7 @@ void Target_Curve_Plot::create_Plot_Frame_And_Scale()
 		custom_Plot->yAxis->grid()->setPen(pen);
 		custom_Plot->xAxis->grid()->setPen(pen);
 
-		if(target_Curve->plot_Options_Experimental.scale == log_Scale)
+		if(target_Curve->plot_Options_Experimental.x_Scale == log_Scale)
 		{
 			custom_Plot->yAxis ->setScaleType(QCPAxis::stLogarithmic);
 
@@ -52,7 +52,7 @@ void Target_Curve_Plot::create_Plot_Frame_And_Scale()
 				custom_Plot->yAxis2->setRange(0, 1);
 			}
 		}
-		if(target_Curve->plot_Options_Experimental.scale == lin_Scale)
+		if(target_Curve->plot_Options_Experimental.x_Scale == lin_Scale)
 		{
 			custom_Plot->yAxis ->setScaleType(QCPAxis::stLinear);
 			custom_Plot->yAxis2->setScaleType(QCPAxis::stLinear);
@@ -113,8 +113,8 @@ void Target_Curve_Plot::plot_Data(bool fast)
 				data_To_Plot[i].key = target_Curve->curve.shifted_Argument[i];
 				data_To_Plot[i].value = target_Curve->curve.shifted_Values[i].val_1;
 
-				if(max<data_To_Plot[i].value && (target_Curve->plot_Options_Experimental.scale == lin_Scale || data_To_Plot[i].value > DBL_MIN)) {max=data_To_Plot[i].value;}
-				if(min>data_To_Plot[i].value && (target_Curve->plot_Options_Experimental.scale == lin_Scale || data_To_Plot[i].value > DBL_MIN)) {min=data_To_Plot[i].value;}
+				if(max<data_To_Plot[i].value && (target_Curve->plot_Options_Experimental.x_Scale == lin_Scale || data_To_Plot[i].value > DBL_MIN)) {max=data_To_Plot[i].value;}
+				if(min>data_To_Plot[i].value && (target_Curve->plot_Options_Experimental.x_Scale == lin_Scale || data_To_Plot[i].value > DBL_MIN)) {min=data_To_Plot[i].value;}
 			}
 
 			if(!fast)

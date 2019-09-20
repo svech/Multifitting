@@ -285,14 +285,14 @@ void Target_Curve_Editor::create_Plot_Options_GroupBox()
 		{
 			if(lin_Radio_Button->isChecked())
 			{
-				target_Curve->plot_Options_Experimental.scale = lin_Scale;
-				target_Curve->plot_Options_Calculated.scale = lin_Scale;
+				target_Curve->plot_Options_Experimental.x_Scale = lin_Scale;
+				target_Curve->plot_Options_Calculated.x_Scale = lin_Scale;
 			}
 			target_Curve_Plot->plot_Data();
 		});
 		connect(lin_Radio_Button, &QRadioButton::clicked, lin_Radio_Button, &QRadioButton::toggled);
 
-		if(target_Curve->plot_Options_Experimental.scale == lin_Scale)
+		if(target_Curve->plot_Options_Experimental.x_Scale == lin_Scale)
 		{
 			lin_Radio_Button->setChecked(true);
 			lin_Radio_Button->toggled(true);
@@ -303,14 +303,14 @@ void Target_Curve_Editor::create_Plot_Options_GroupBox()
 		{
 			if(log_Radio_Button->isChecked())
 			{
-				target_Curve->plot_Options_Experimental.scale = log_Scale;
-				target_Curve->plot_Options_Calculated.scale = log_Scale;
+				target_Curve->plot_Options_Experimental.x_Scale = log_Scale;
+				target_Curve->plot_Options_Calculated.x_Scale = log_Scale;
 			}
 			target_Curve_Plot->plot_Data();
 		});
 		connect(log_Radio_Button, &QRadioButton::clicked, log_Radio_Button, &QRadioButton::toggled);
 
-		if(target_Curve->plot_Options_Experimental.scale == log_Scale)
+		if(target_Curve->plot_Options_Experimental.x_Scale == log_Scale)
 		{
 			log_Radio_Button->setChecked(true);
 			log_Radio_Button->toggled(true);

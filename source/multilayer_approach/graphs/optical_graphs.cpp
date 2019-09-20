@@ -58,7 +58,7 @@ void Optical_Graphs::settings()
 	QLabel* target_Rows_Label = new QLabel("Number of \"Measured\" rows");
 	QSpinBox* target_Rows_SpinBox = new QSpinBox;
 		target_Rows_SpinBox->setRange(1, total_Number_of_Target_Graphs);
-		target_Rows_SpinBox->setValue(multilayer->num_Target_Graph_Rows);
+		target_Rows_SpinBox->setValue(multilayer->graph_Options.num_Target_Graph_Rows);
 		target_Rows_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
 		target_Rows_SpinBox->setAccelerated(true);
 		target_Rows_SpinBox->setFixedWidth(25);
@@ -70,13 +70,24 @@ void Optical_Graphs::settings()
 	QLabel* independent_Rows_Label = new QLabel("Number of \"Independent\" rows");
 	QSpinBox* independent_Rows_SpinBox = new QSpinBox;
 		independent_Rows_SpinBox->setRange(1, total_Number_of_Independent_Graphs);
-		independent_Rows_SpinBox->setValue(multilayer->num_Independent_Graph_Rows);
+		independent_Rows_SpinBox->setValue(multilayer->graph_Options.num_Independent_Graph_Rows);
 		independent_Rows_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
 		independent_Rows_SpinBox->setAccelerated(true);
 		independent_Rows_SpinBox->setFixedWidth(25);
 
 	settings_Group_Box_Layout->addWidget(independent_Rows_Label,	1,0,1,1);
 	settings_Group_Box_Layout->addWidget(independent_Rows_SpinBox,	1,1,1,1);
+
+	// additional settings group box
+	QGroupBox* plots_Settings_Group_Box = new QGroupBox;
+		plots_Settings_Group_Box->setObjectName("plots_Settings_Group_Box");
+		plots_Settings_Group_Box->setStyleSheet("QGroupBox#plots_Settings_Group_Box { border-radius: 2px;  border: 1px solid gray; margin-top: 0ex;}"
+																"QGroupBox::title   { subcontrol-origin: margin;   left: 9px; padding: 0 0px 0 1px;}");
+	settings_Main_Layout->addWidget(plots_Settings_Group_Box);
+
+//	QCheckBox* show_Scatter
+
+
 
 	// buttons
 	QHBoxLayout* buttons_Layout = new QHBoxLayout;
@@ -94,8 +105,8 @@ void Optical_Graphs::settings()
 	{
 		int active_Tab = main_Tabs->currentIndex();
 		close();
-		multilayer->num_Target_Graph_Rows = target_Rows_SpinBox->value();
-		multilayer->num_Independent_Graph_Rows = independent_Rows_SpinBox->value();
+		multilayer->graph_Options.num_Target_Graph_Rows = target_Rows_SpinBox->value();
+		multilayer->graph_Options.num_Independent_Graph_Rows = independent_Rows_SpinBox->value();
 		global_Multilayer_Approach->open_Optical_Graphs(TARGET_AND_INDEPENDENT);
 		global_Multilayer_Approach->optical_Graphs->main_Tabs->setCurrentIndex(active_Tab);
 		settings_Window->close();
@@ -118,11 +129,11 @@ void Optical_Graphs::closeEvent(QCloseEvent* event)
 
 		global_Multilayer_Approach->target_Independent_Splitter_Position_Vec[tab_Index] = target_Independent_Splitter_Vec[tab_Index]->saveState();
 		global_Multilayer_Approach->target_Vertical_Splitter_Position_Vec[tab_Index] = target_Vertical_Splitter_Vec[tab_Index]->saveState();
-		for(int row=0; row<multilayer->num_Target_Graph_Rows; row++)			{
+		for(int row=0; row<multilayer->graph_Options.num_Target_Graph_Rows; row++)			{
 			global_Multilayer_Approach->target_Horizontal_Splitter_Position_Vec_Vec[tab_Index][row] = target_Horizontal_Splitter_Vec_Vec[tab_Index][row]->saveState();
 		}
 		global_Multilayer_Approach->independent_Vertical_Splitter_Position_Vec[tab_Index] = independent_Vertical_Splitter_Vec[tab_Index]->saveState();
-		for(int row=0; row<multilayer->num_Independent_Graph_Rows; row++)		{
+		for(int row=0; row<multilayer->graph_Options.num_Independent_Graph_Rows; row++)		{
 			global_Multilayer_Approach->independent_Horizontal_Splitter_Position_Vec_Vec[tab_Index][row] = independent_Horizontal_Splitter_Vec_Vec[tab_Index][row]->saveState();
 		}
 	}
@@ -230,8 +241,8 @@ void Optical_Graphs::create_Tab_Content(QWidget* new_Widget, int tab_Index)
 		target_Vertical_Splitter->setStyleSheet("QSplitter::handle{border: 0px solid gray; background: gray;}");
 		target_Layout->addWidget(target_Vertical_Splitter);
 		target_Vertical_Splitter_Vec[tab_Index] = target_Vertical_Splitter;
-		target_Horizontal_Splitter_Vec_Vec[tab_Index].resize(multilayer->num_Target_Graph_Rows);
-		for(int row=0; row<multilayer->num_Target_Graph_Rows; row++)
+		target_Horizontal_Splitter_Vec_Vec[tab_Index].resize(multilayer->graph_Options.num_Target_Graph_Rows);
+		for(int row=0; row<multilayer->graph_Options.num_Target_Graph_Rows; row++)
 		{
 			QSplitter* target_Horizontal_Splitter = new QSplitter;
 			target_Horizontal_Splitter->setOrientation(Qt::Horizontal);
@@ -242,9 +253,9 @@ void Optical_Graphs::create_Tab_Content(QWidget* new_Widget, int tab_Index)
 		}
 
 		// fill splitters with graphs
-		int graphs_in_Short_Row = total_Number_of_Target_Graphs/multilayer->num_Target_Graph_Rows;
-		int additional_Graphs = total_Number_of_Target_Graphs%multilayer->num_Target_Graph_Rows;
-		int first_Long_Row_Index = multilayer->num_Target_Graph_Rows-additional_Graphs;
+		int graphs_in_Short_Row = total_Number_of_Target_Graphs/multilayer->graph_Options.num_Target_Graph_Rows;
+		int additional_Graphs = total_Number_of_Target_Graphs%multilayer->graph_Options.num_Target_Graph_Rows;
+		int first_Long_Row_Index = multilayer->graph_Options.num_Target_Graph_Rows-additional_Graphs;
 
 		int current_Row = 0;
 		int graphs_in_Filled_Rows = 0;
@@ -307,8 +318,8 @@ void Optical_Graphs::create_Tab_Content(QWidget* new_Widget, int tab_Index)
 		independent_Vertical_Splitter->setStyleSheet("QSplitter::handle{border: 0px solid gray; background: gray;}");
 		independent_Layout->addWidget(independent_Vertical_Splitter);
 		independent_Vertical_Splitter_Vec[tab_Index] = independent_Vertical_Splitter;
-		independent_Horizontal_Splitter_Vec_Vec[tab_Index].resize(multilayer->num_Independent_Graph_Rows);
-		for(int row=0; row<multilayer->num_Independent_Graph_Rows; row++)
+		independent_Horizontal_Splitter_Vec_Vec[tab_Index].resize(multilayer->graph_Options.num_Independent_Graph_Rows);
+		for(int row=0; row<multilayer->graph_Options.num_Independent_Graph_Rows; row++)
 		{
 			QSplitter* independent_Horizontal_Splitter = new QSplitter;
 			independent_Horizontal_Splitter->setOrientation(Qt::Horizontal);
@@ -319,9 +330,9 @@ void Optical_Graphs::create_Tab_Content(QWidget* new_Widget, int tab_Index)
 		}
 
 		// fill splitters with graphs
-		int graphs_in_Short_Row = total_Number_of_Independent_Graphs/multilayer->num_Independent_Graph_Rows;
-		int additional_Graphs = total_Number_of_Independent_Graphs%multilayer->num_Independent_Graph_Rows;
-		int first_Long_Row_Index = multilayer->num_Independent_Graph_Rows-additional_Graphs;
+		int graphs_in_Short_Row = total_Number_of_Independent_Graphs/multilayer->graph_Options.num_Independent_Graph_Rows;
+		int additional_Graphs = total_Number_of_Independent_Graphs%multilayer->graph_Options.num_Independent_Graph_Rows;
+		int first_Long_Row_Index = multilayer->graph_Options.num_Independent_Graph_Rows-additional_Graphs;
 
 		int current_Row = 0;
 		int graphs_in_Filled_Rows = 0;
@@ -346,8 +357,8 @@ void Optical_Graphs::create_Tab_Content(QWidget* new_Widget, int tab_Index)
 	}
 
 	// restore splitter positions
-	global_Multilayer_Approach->target_Horizontal_Splitter_Position_Vec_Vec     [tab_Index].resize(multilayer->num_Target_Graph_Rows);
-	global_Multilayer_Approach->independent_Horizontal_Splitter_Position_Vec_Vec[tab_Index].resize(multilayer->num_Independent_Graph_Rows);
+	global_Multilayer_Approach->target_Horizontal_Splitter_Position_Vec_Vec     [tab_Index].resize(multilayer->graph_Options.num_Target_Graph_Rows);
+	global_Multilayer_Approach->independent_Horizontal_Splitter_Position_Vec_Vec[tab_Index].resize(multilayer->graph_Options.num_Independent_Graph_Rows);
 
 	if(keep_Splitter != TARGET_AND_INDEPENDENT)
 	{
@@ -356,7 +367,7 @@ void Optical_Graphs::create_Tab_Content(QWidget* new_Widget, int tab_Index)
 		{
 			target_Vertical_Splitter_Vec[tab_Index]->restoreState(global_Multilayer_Approach->target_Vertical_Splitter_Position_Vec[tab_Index]);
 
-			for(int row=0; row<multilayer->num_Target_Graph_Rows; row++)
+			for(int row=0; row<multilayer->graph_Options.num_Target_Graph_Rows; row++)
 			{
 				target_Horizontal_Splitter_Vec_Vec[tab_Index][row]->restoreState(global_Multilayer_Approach->target_Horizontal_Splitter_Position_Vec_Vec[tab_Index][row]);
 			}
@@ -365,7 +376,7 @@ void Optical_Graphs::create_Tab_Content(QWidget* new_Widget, int tab_Index)
 		{
 			independent_Vertical_Splitter_Vec[tab_Index]->restoreState(global_Multilayer_Approach->independent_Vertical_Splitter_Position_Vec[tab_Index]);
 
-			for(int row=0; row<multilayer->num_Independent_Graph_Rows; row++)
+			for(int row=0; row<multilayer->graph_Options.num_Independent_Graph_Rows; row++)
 			{
 				independent_Horizontal_Splitter_Vec_Vec[tab_Index][row]->restoreState(global_Multilayer_Approach->independent_Horizontal_Splitter_Position_Vec_Vec[tab_Index][row]);
 			}

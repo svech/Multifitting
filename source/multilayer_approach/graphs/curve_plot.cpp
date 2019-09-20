@@ -56,6 +56,31 @@ void Curve_Plot::create_Main_Layout()
 	main_Layout->setContentsMargins(4,4,4,0);
 
 	custom_Plot = new QCustomPlot(this);
+	{
+		QCPItemText* textItem = new QCPItemText(custom_Plot);
+//		connect(custom_Plot, &QCustomPlot::mouseMove, this, [=](QMouseEvent *event)
+//		{
+//			double x = custom_Plot->xAxis->pixelToCoord(event->pos().x());
+//			double y0 = custom_Plot->yAxis->pixelToCoord(event->pos().y()-5);
+//			double y = custom_Plot->yAxis->pixelToCoord(event->pos().y());
+//			textItem->setText(QString("(%1, %2)").arg(x).arg(y));
+//			textItem->position->setCoords(QPointF(x, y0));
+//			textItem->setFont(QFont(font().family(), 10));
+//			custom_Plot->replot();
+//		});
+		connect(custom_Plot, &QCustomPlot::mousePress, this, [=](QMouseEvent *event)
+		{
+			double x = custom_Plot->xAxis->pixelToCoord(event->pos().x());
+			double y0 = custom_Plot->yAxis->pixelToCoord(event->pos().y()-5);
+			double y = custom_Plot->yAxis->pixelToCoord(event->pos().y());
+			textItem->setText(QString("(%1, %2)").arg(x).arg(y));
+			textItem->position->setCoords(QPointF(x, y0));
+			textItem->setFont(QFont(font().family(), 10));
+			custom_Plot->replot();
+		});
+
+	}
+
 	create_Plot_Frame_And_Scale();
 		main_Layout->addWidget(custom_Plot);
 
@@ -88,7 +113,7 @@ void Curve_Plot::create_Plot_Frame_And_Scale()
 		custom_Plot->yAxis->grid()->setPen(pen);
 		custom_Plot->xAxis->grid()->setPen(pen);
 
-		if(plot_Options_First->scale == lin_Scale)
+		if(plot_Options_First->x_Scale == lin_Scale)
 		{
 			QSharedPointer<QCPAxisTicker> linTicker(new QCPAxisTicker);
 
@@ -105,7 +130,7 @@ void Curve_Plot::create_Plot_Frame_And_Scale()
 			custom_Plot->yAxis2->setNumberPrecision(4);
 //			custom_Plot->yAxis2->setRange(0, 1);
 		}
-		if(plot_Options_First->scale == log_Scale)
+		if(plot_Options_First->x_Scale == log_Scale)
 		{
 			QSharedPointer<QCPAxisTickerLog> logTicker(new QCPAxisTickerLog);
 
@@ -176,13 +201,13 @@ void Curve_Plot::create_Options()
 		{
 			if(lin_RadioButton->isChecked())
 			{
-				plot_Options_First->scale = lin_Scale;
-				plot_Options_Second->scale = lin_Scale;
+				plot_Options_First->x_Scale = lin_Scale;
+				plot_Options_Second->x_Scale = lin_Scale;
 			}
 			plot_All_Data();
 		});
 		connect(lin_RadioButton, &QRadioButton::clicked, lin_RadioButton, &QRadioButton::toggled);
-		if(plot_Options_First->scale == lin_Scale)
+		if(plot_Options_First->x_Scale == lin_Scale)
 		{
 			lin_RadioButton->setChecked(true);
 		}
@@ -192,13 +217,13 @@ void Curve_Plot::create_Options()
 		{
 			if(log_RadioButton->isChecked())
 			{
-				plot_Options_First->scale = log_Scale;
-				plot_Options_Second->scale = log_Scale;
+				plot_Options_First->x_Scale = log_Scale;
+				plot_Options_Second->x_Scale = log_Scale;
 			}
 			plot_All_Data();
 		});
 		connect(log_RadioButton, &QRadioButton::clicked, log_RadioButton, &QRadioButton::toggled);
-		if(plot_Options_First->scale == log_Scale)
+		if(plot_Options_First->x_Scale == log_Scale)
 		{
 			log_RadioButton->setChecked(true);
 		}
@@ -443,8 +468,8 @@ void Curve_Plot::plot_Data(const QVector<double>& argument, const QVector<double
 
 		if(left_Right==left_Axis)
 		{
-			if(local_Max<data_To_Plot[i].value && (plot_Options->scale == lin_Scale || data_To_Plot[i].value > DBL_MIN)) {local_Max=data_To_Plot[i].value;}
-			if(local_Min>data_To_Plot[i].value && (plot_Options->scale == lin_Scale || data_To_Plot[i].value > DBL_MIN)) {local_Min=data_To_Plot[i].value;}
+			if(local_Max<data_To_Plot[i].value && (plot_Options->x_Scale == lin_Scale || data_To_Plot[i].value > DBL_MIN)) {local_Max=data_To_Plot[i].value;}
+			if(local_Min>data_To_Plot[i].value && (plot_Options->x_Scale == lin_Scale || data_To_Plot[i].value > DBL_MIN)) {local_Min=data_To_Plot[i].value;}
 		}
 		if(left_Right==right_Axis)
 		{
@@ -457,13 +482,13 @@ void Curve_Plot::plot_Data(const QVector<double>& argument, const QVector<double
 	if(left_Right==left_Axis)
 	{
 		max_Value_Left = max(max_Value_Left, local_Max);
-		if(plot_Options->scale == log_Scale)
+		if(plot_Options->x_Scale == log_Scale)
 		{
 			if((min_Value_Left>DBL_MIN) && (local_Min<DBL_MIN)) {min_Value_Left = min_Value_Left;} else
 			if((min_Value_Left<DBL_MIN) && (local_Min>DBL_MIN)) {min_Value_Left = local_Min;} else
 			min_Value_Left = min(min_Value_Left, local_Min) ;
 		}
-		if(plot_Options->scale == lin_Scale)
+		if(plot_Options->x_Scale == lin_Scale)
 		{
 			min_Value_Left = min(min_Value_Left, local_Min);
 		}
