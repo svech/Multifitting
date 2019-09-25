@@ -38,8 +38,8 @@ void Target_Curve_Editor::dropEvent(QDropEvent* event)
 			{
 				filepath_ComboBox->addItem(fileName);
 			}
-			filepath_ComboBox->setCurrentIndex(filepath_ComboBox->findText(fileName));
-			read_Data_File(fileName);
+			filepath_ComboBox->setCurrentIndex(filepath_ComboBox->findText(fileName));			
+			filepath_ComboBox->lineEdit()->returnPressed();
 		}
 		++counter;
 	}
@@ -285,14 +285,14 @@ void Target_Curve_Editor::create_Plot_Options_GroupBox()
 		{
 			if(lin_Radio_Button->isChecked())
 			{
-				target_Curve->plot_Options_Experimental.x_Scale = lin_Scale;
-				target_Curve->plot_Options_Calculated.x_Scale = lin_Scale;
+				target_Curve->plot_Options_Experimental.y_Scale = lin_Scale;
+				target_Curve->plot_Options_Calculated.y_Scale = lin_Scale;
 			}
 			target_Curve_Plot->plot_Data();
 		});
 		connect(lin_Radio_Button, &QRadioButton::clicked, lin_Radio_Button, &QRadioButton::toggled);
 
-		if(target_Curve->plot_Options_Experimental.x_Scale == lin_Scale)
+		if(target_Curve->plot_Options_Experimental.y_Scale == lin_Scale)
 		{
 			lin_Radio_Button->setChecked(true);
 			lin_Radio_Button->toggled(true);
@@ -303,14 +303,14 @@ void Target_Curve_Editor::create_Plot_Options_GroupBox()
 		{
 			if(log_Radio_Button->isChecked())
 			{
-				target_Curve->plot_Options_Experimental.x_Scale = log_Scale;
-				target_Curve->plot_Options_Calculated.x_Scale = log_Scale;
+				target_Curve->plot_Options_Experimental.y_Scale = log_Scale;
+				target_Curve->plot_Options_Calculated.y_Scale = log_Scale;
 			}
 			target_Curve_Plot->plot_Data();
 		});
 		connect(log_Radio_Button, &QRadioButton::clicked, log_Radio_Button, &QRadioButton::toggled);
 
-		if(target_Curve->plot_Options_Experimental.x_Scale == log_Scale)
+		if(target_Curve->plot_Options_Experimental.y_Scale == log_Scale)
 		{
 			log_Radio_Button->setChecked(true);
 			log_Radio_Button->toggled(true);
@@ -354,16 +354,31 @@ void Target_Curve_Editor::create_Filepath_GroupBox()
 					active_Tab_Optical_Graphs = global_Multilayer_Approach->runned_Optical_Graphs.value(optical_Graphs_Key)->main_Tabs->currentIndex();
 					global_Multilayer_Approach->runned_Optical_Graphs.value(optical_Graphs_Key)->close();
 				}
+				// close calculation settings
+				bool reopen_Calc_Settings = global_Multilayer_Approach->runned_Calculation_Settings_Editor.contains(calc_Settings_Key);
+				int active_Tab_Calculation_Settings_Editor = -2019;
+				if(reopen_Calc_Settings)
+				{
+					active_Tab_Calculation_Settings_Editor = global_Multilayer_Approach->runned_Calculation_Settings_Editor.value(calc_Settings_Key)->main_Tabs->currentIndex();
+					global_Multilayer_Approach->runned_Calculation_Settings_Editor.value(calc_Settings_Key)->close();
+				}
 
+				//////////////////////////////////////////////////////
 				read_Data_File(filepath_ComboBox->lineEdit()->text());
+				//////////////////////////////////////////////////////
 
 				// reopen graphs
 				if(reopen_Graphs)
 				{
 					global_Multilayer_Approach->open_Optical_Graphs();
 					global_Multilayer_Approach->runned_Optical_Graphs.value(optical_Graphs_Key)->main_Tabs->setCurrentIndex(active_Tab_Optical_Graphs);
+				}				
+				// reopen calculation settings
+				if(reopen_Calc_Settings)
+				{
+					global_Multilayer_Approach->open_Calculation_Settings();
+					global_Multilayer_Approach->runned_Calculation_Settings_Editor.value(calc_Settings_Key)->main_Tabs->setCurrentIndex(active_Tab_Calculation_Settings_Editor);
 				}
-
 			});
 		layout->addWidget(filepath_ComboBox,0,Qt::AlignLeft);
 

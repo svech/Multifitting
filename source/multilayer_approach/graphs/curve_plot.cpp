@@ -1,6 +1,7 @@
 #include "curve_plot.h"
 
-Curve_Plot::Curve_Plot(Target_Curve* target_Curve, Independent_Variables* independent_Variables, QString curve_Class, QWidget* parent) :
+Curve_Plot::Curve_Plot(Multilayer* multilayer, Target_Curve* target_Curve, Independent_Variables* independent_Variables, QString curve_Class, QWidget* parent) :
+	multilayer(multilayer),
 	curve_Class(curve_Class),
 	target_Curve(target_Curve),
 	independent_Variables(independent_Variables),
@@ -56,29 +57,13 @@ void Curve_Plot::create_Main_Layout()
 	main_Layout->setContentsMargins(4,4,4,0);
 
 	custom_Plot = new QCustomPlot(this);
-	{
-		QCPItemText* textItem = new QCPItemText(custom_Plot);
-//		connect(custom_Plot, &QCustomPlot::mouseMove, this, [=](QMouseEvent *event)
-//		{
-//			double x = custom_Plot->xAxis->pixelToCoord(event->pos().x());
-//			double y0 = custom_Plot->yAxis->pixelToCoord(event->pos().y()-5);
-//			double y = custom_Plot->yAxis->pixelToCoord(event->pos().y());
-//			textItem->setText(QString("(%1, %2)").arg(x).arg(y));
-//			textItem->position->setCoords(QPointF(x, y0));
-//			textItem->setFont(QFont(font().family(), 10));
-//			custom_Plot->replot();
-//		});
-		connect(custom_Plot, &QCustomPlot::mousePress, this, [=](QMouseEvent *event)
-		{
-			double x = custom_Plot->xAxis->pixelToCoord(event->pos().x());
-			double y0 = custom_Plot->yAxis->pixelToCoord(event->pos().y()-5);
-			double y = custom_Plot->yAxis->pixelToCoord(event->pos().y());
-			textItem->setText(QString("(%1, %2)").arg(x).arg(y));
-			textItem->position->setCoords(QPointF(x, y0));
-			textItem->setFont(QFont(font().family(), 10));
-			custom_Plot->replot();
-		});
 
+	if(multilayer->graph_Options.show_Title)
+	{
+		plot_Title = new QCPTextElement(custom_Plot,"text_Data",QFont("Times", 10, QFont::DemiBold));
+		custom_Plot->plotLayout()->insertRow(0);
+		custom_Plot->plotLayout()->setRowSpacing(0);
+		custom_Plot->plotLayout()->addElement(0,0,plot_Title);
 	}
 
 	create_Plot_Frame_And_Scale();
@@ -113,7 +98,50 @@ void Curve_Plot::create_Plot_Frame_And_Scale()
 		custom_Plot->yAxis->grid()->setPen(pen);
 		custom_Plot->xAxis->grid()->setPen(pen);
 
+		/// X axis
 		if(plot_Options_First->x_Scale == lin_Scale)
+		{
+			QSharedPointer<QCPAxisTicker> linTicker(new QCPAxisTicker);
+
+			custom_Plot->xAxis->setScaleType(QCPAxis::stLinear);
+			custom_Plot->xAxis->setTicker(linTicker);
+			custom_Plot->xAxis->setNumberFormat("g");
+			custom_Plot->xAxis->setNumberPrecision(4);
+
+			custom_Plot->xAxis2->setScaleType(QCPAxis::stLinear);
+			custom_Plot->xAxis2->setTicker(linTicker);
+			custom_Plot->xAxis2->setNumberFormat("g");
+			custom_Plot->xAxis2->setNumberPrecision(4);
+		}
+		if(plot_Options_First->x_Scale == log_Scale)
+		{
+			QSharedPointer<QCPAxisTickerLog> logTicker(new QCPAxisTickerLog);
+
+			custom_Plot->xAxis->setScaleType(QCPAxis::stLogarithmic);
+			custom_Plot->xAxis->setTicker(logTicker);
+			custom_Plot->xAxis->setNumberFormat("eb"); // e = exponential, b = beautiful decimal powers
+			custom_Plot->xAxis->setNumberPrecision(0); // makes sure "1*10^4" is displayed only as "10^4"
+
+//			if(	target_Curve->curve.value_Mode == value_R_Mode[R] ||
+//				target_Curve->curve.value_Mode == value_T_Mode[T] ||
+//				target_Curve->curve.value_Mode == value_A_Mode[A] )
+			{
+				custom_Plot->xAxis2->setScaleType(QCPAxis::stLogarithmic);
+				custom_Plot->xAxis2->setTicker(logTicker);
+				custom_Plot->xAxis2->setNumberFormat("eb"); // e = exponential, b = beautiful decimal powers
+				custom_Plot->xAxis2->setNumberPrecision(0); // makes sure "1*10^4" is displayed only as "10^4"
+			}
+//			if(	target_Curve->curve.value_Mode == value_R_Mode[R_Phi] )
+//			{
+//				QSharedPointer<QCPAxisTicker> linTicker(new QCPAxisTicker);
+//				custom_Plot->xAxis2->setScaleType(QCPAxis::stLinear);
+//				custom_Plot->xAxis2->setTicker(linTicker);
+//				custom_Plot->xAxis2->setNumberFormat("g");
+//				custom_Plot->xAxis2->setNumberPrecision(4);
+//			}
+		}
+		/// Y axis
+		if(plot_Options_First->y_Scale == lin_Scale)
 		{
 			QSharedPointer<QCPAxisTicker> linTicker(new QCPAxisTicker);
 
@@ -121,25 +149,21 @@ void Curve_Plot::create_Plot_Frame_And_Scale()
 			custom_Plot->yAxis->setTicker(linTicker);
 			custom_Plot->yAxis->setNumberFormat("g");
 			custom_Plot->yAxis->setNumberPrecision(4);
-//			custom_Plot->xAxis->setRange(0, 9);
-//			custom_Plot->yAxis->setRange(0, 1);
 
 			custom_Plot->yAxis2->setScaleType(QCPAxis::stLinear);
 			custom_Plot->yAxis2->setTicker(linTicker);
 			custom_Plot->yAxis2->setNumberFormat("g");
 			custom_Plot->yAxis2->setNumberPrecision(4);
-//			custom_Plot->yAxis2->setRange(0, 1);
 		}
-		if(plot_Options_First->x_Scale == log_Scale)
+		if(plot_Options_First->y_Scale == log_Scale)
 		{
-			QSharedPointer<QCPAxisTickerLog> logTicker(new QCPAxisTickerLog);
+			QCPAxisTickerLog* tick_Log = new QCPAxisTickerLog;
+			QSharedPointer<QCPAxisTickerLog> logTicker(tick_Log);
 
 			custom_Plot->yAxis->setScaleType(QCPAxis::stLogarithmic);
 			custom_Plot->yAxis->setTicker(logTicker);
 			custom_Plot->yAxis->setNumberFormat("eb"); // e = exponential, b = beautiful decimal powers
 			custom_Plot->yAxis->setNumberPrecision(0); // makes sure "1*10^4" is displayed only as "10^4"
-//			custom_Plot->xAxis->setRange(0, 9);
-//			custom_Plot->yAxis->setRange(1e-5, 1e0);
 
 //			if(	target_Curve->curve.value_Mode == value_R_Mode[R] ||
 //				target_Curve->curve.value_Mode == value_T_Mode[T] ||
@@ -149,7 +173,6 @@ void Curve_Plot::create_Plot_Frame_And_Scale()
 				custom_Plot->yAxis2->setTicker(logTicker);
 				custom_Plot->yAxis2->setNumberFormat("eb"); // e = exponential, b = beautiful decimal powers
 				custom_Plot->yAxis2->setNumberPrecision(0); // makes sure "1*10^4" is displayed only as "10^4"
-//				custom_Plot->yAxis2->setRange(1e-5, 1e0);
 			}
 //			if(	target_Curve->curve.value_Mode == value_R_Mode[R_Phi] )
 //			{
@@ -158,12 +181,11 @@ void Curve_Plot::create_Plot_Frame_And_Scale()
 //				custom_Plot->yAxis2->setTicker(linTicker);
 //				custom_Plot->yAxis2->setNumberFormat("g");
 //				custom_Plot->yAxis2->setNumberPrecision(4);
-//				custom_Plot->yAxis2->setRange(0, 1);
 //			}
 		}
 
 		// make range draggable and zoomable:
-		custom_Plot->setInteractions(QCP::iSelectPlottables | QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectAxes | QCP::iSelectLegend);
+		custom_Plot->setInteractions(QCP::iSelectPlottables | QCP::iRangeDrag | QCP::iRangeZoom | /*QCP::iSelectAxes |*/ QCP::iSelectLegend); // iSelectAxes bug?
 
 		// make top right axes clones of bottom left axes:
 		custom_Plot->xAxis2->setVisible(true);
@@ -183,50 +205,103 @@ void Curve_Plot::create_Plot_Frame_And_Scale()
 //			connect   (custom_Plot->xAxis, SIGNAL(rangeChanged(QCPRange)), custom_Plot->xAxis2, SLOT(setRange(QCPRange)));
 //			disconnect(custom_Plot->yAxis, SIGNAL(rangeChanged(QCPRange)), custom_Plot->yAxis2, SLOT(setRange(QCPRange)));
 //		}
-	}
-
+	}	
+	set_Title_Text();
 //	custom_Plot->replot();
 }
 
 void Curve_Plot::create_Options()
 {
 	options_GroupBox = new QGroupBox;
+	options_Layout = new QHBoxLayout(options_GroupBox);
+	options_Layout->setContentsMargins(5,1,5,1);
+	options_Layout->setAlignment(Qt::AlignLeft);
 
 	// scaling
 	{
-		scale_Label = new QLabel("Scale: ");
+		scale_Y_Label = new QLabel("Scale Y: ");
+		options_Layout->addWidget(scale_Y_Label);
 
-		lin_RadioButton = new QRadioButton("Lin");
-		connect(lin_RadioButton, &QRadioButton::toggled, this, [=]
+		lin_Y_RadioButton = new QRadioButton("Lin");
+		connect(lin_Y_RadioButton, &QRadioButton::toggled, this, [&]
 		{
-			if(lin_RadioButton->isChecked())
+			if(lin_Y_RadioButton->isChecked())
 			{
-				plot_Options_First->x_Scale = lin_Scale;
+				plot_Options_First ->y_Scale  = lin_Scale;
+				plot_Options_Second->y_Scale = lin_Scale;
+			}
+			plot_All_Data();
+		});
+		connect(lin_Y_RadioButton, &QRadioButton::clicked, lin_Y_RadioButton, &QRadioButton::toggled);
+		if(plot_Options_First ->y_Scale == lin_Scale)
+		{
+			lin_Y_RadioButton->setChecked(true);
+		}
+		options_Layout->addWidget(lin_Y_RadioButton);
+
+		log_Y_RadioButton = new QRadioButton("Log");
+		connect(log_Y_RadioButton, &QRadioButton::toggled, this, [&]
+		{
+			if(log_Y_RadioButton->isChecked())
+			{
+				plot_Options_First ->y_Scale = log_Scale;
+				plot_Options_Second->y_Scale = log_Scale;
+			}
+			plot_All_Data();
+		});
+		connect(log_Y_RadioButton, &QRadioButton::clicked, log_Y_RadioButton, &QRadioButton::toggled);
+		if(plot_Options_First ->y_Scale == log_Scale)
+		{
+			log_Y_RadioButton->setChecked(true);
+		}
+		options_Layout->addWidget(log_Y_RadioButton);
+
+		Y_ButtonGroup = new QButtonGroup;
+			Y_ButtonGroup->addButton(lin_Y_RadioButton);
+			Y_ButtonGroup->addButton(log_Y_RadioButton);
+	}
+	if(multilayer->graph_Options.show_X_Scale)
+	{
+		scale_X_Label = new QLabel("Scale X: ");
+		options_Layout->addWidget(scale_X_Label);
+
+		lin_X_RadioButton = new QRadioButton("Lin");
+		connect(lin_X_RadioButton, &QRadioButton::toggled, this, [&]
+		{
+			if(lin_X_RadioButton->isChecked())
+			{
+				plot_Options_First ->x_Scale  = lin_Scale;
 				plot_Options_Second->x_Scale = lin_Scale;
 			}
 			plot_All_Data();
 		});
-		connect(lin_RadioButton, &QRadioButton::clicked, lin_RadioButton, &QRadioButton::toggled);
-		if(plot_Options_First->x_Scale == lin_Scale)
+		connect(lin_X_RadioButton, &QRadioButton::clicked, lin_X_RadioButton, &QRadioButton::toggled);
+		if(plot_Options_First ->x_Scale == lin_Scale)
 		{
-			lin_RadioButton->setChecked(true);
+			lin_X_RadioButton->setChecked(true);
 		}
+		options_Layout->addWidget(lin_X_RadioButton);
 
-		log_RadioButton = new QRadioButton("Log");
-		connect(log_RadioButton, &QRadioButton::toggled, this, [=]
+		log_X_RadioButton = new QRadioButton("Log");
+		connect(log_X_RadioButton, &QRadioButton::toggled, this, [&]
 		{
-			if(log_RadioButton->isChecked())
+			if(log_X_RadioButton->isChecked())
 			{
-				plot_Options_First->x_Scale = log_Scale;
+				plot_Options_First ->x_Scale = log_Scale;
 				plot_Options_Second->x_Scale = log_Scale;
 			}
 			plot_All_Data();
 		});
-		connect(log_RadioButton, &QRadioButton::clicked, log_RadioButton, &QRadioButton::toggled);
-		if(plot_Options_First->x_Scale == log_Scale)
+		connect(log_X_RadioButton, &QRadioButton::clicked, log_X_RadioButton, &QRadioButton::toggled);
+		if(plot_Options_First ->x_Scale == log_Scale)
 		{
-			log_RadioButton->setChecked(true);
+			log_X_RadioButton->setChecked(true);
 		}
+		options_Layout->addWidget(log_X_RadioButton);
+
+		X_ButtonGroup = new QButtonGroup;
+			X_ButtonGroup->addButton(lin_X_RadioButton);
+			X_ButtonGroup->addButton(log_X_RadioButton);
 	}
 	{
 		colors_Button = new QPushButton;
@@ -240,8 +315,10 @@ void Curve_Plot::create_Options()
 	{
 		symbol_ComboBox = new QComboBox;
 	}
+	if(multilayer->graph_Options.show_Scatter)
 	{
 		scatter_Label = new QLabel("| Scatter:");
+		options_Layout->addWidget(scatter_Label);
 
 		scatter_Spin = new QDoubleSpinBox;
 		scatter_Spin->setButtonSymbols(QAbstractSpinBox::NoButtons);
@@ -252,9 +329,12 @@ void Curve_Plot::create_Options()
 		scatter_Spin->setSingleStep(0.1);
 		scatter_Spin->setFixedWidth(35);
 		connect(scatter_Spin, static_cast<void(QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, &Curve_Plot::change_Scatter_Size);
+		options_Layout->addWidget(scatter_Spin);
 	}
+	if(multilayer->graph_Options.show_Thickness)
 	{
 		thickness_Label = new QLabel("Line:");
+		options_Layout->addWidget(thickness_Label);
 
 		thickness_Spin = new QDoubleSpinBox;
 		thickness_Spin->setButtonSymbols(QAbstractSpinBox::NoButtons);
@@ -265,13 +345,30 @@ void Curve_Plot::create_Options()
 		thickness_Spin->setSingleStep(0.1);
 		thickness_Spin->setFixedWidth(35);
 		connect(thickness_Spin, static_cast<void(QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, &Curve_Plot::change_Thickness);
+		options_Layout->addWidget(thickness_Spin);
 	}
 	{
 		rescale_Check_Box = new QCheckBox("Rescale");
 		rescale_Check_Box->setChecked(plot_Options_First->rescale);
 		connect(rescale_Check_Box, &QCheckBox::toggled, this, [=]{ plot_Options_First->rescale=rescale_Check_Box->isChecked(); });
+		options_Layout->addWidget(rescale_Check_Box);
+	}
+	if(multilayer->graph_Options.show_Current_Coordinate)
+	{
+		QCPItemText* text_Item = new QCPItemText(custom_Plot);
+		connect(custom_Plot, &QCustomPlot::mouseMove, this, [=](QMouseEvent *event)
+		{
+			double x       = custom_Plot->xAxis->pixelToCoord(event->pos().x());
+			double y       = custom_Plot->yAxis->pixelToCoord(event->pos().y());
+			double y_Text  = custom_Plot->yAxis->pixelToCoord(event->pos().y()-17);
+			text_Item->setText(QString("(%1, %2)").arg(x).arg(y));
+			text_Item->position->setCoords(QPointF(x, y_Text));
+			text_Item->setFont(QFont(font().family(), 10));
+			custom_Plot->replot();
+		});
 	}
 	// max value info
+	if(multilayer->graph_Options.show_Max_Value)
 	{
 		// target
 		if(curve_Class == TARGET)
@@ -322,34 +419,71 @@ void Curve_Plot::create_Options()
 		}
 
 		max_Value_Label = new QLabel;
+		options_Layout->addWidget(max_Value_Label);
 	}
 
 	// layout
 	{
-		options_Layout = new QHBoxLayout(options_GroupBox);
-		options_Layout->setContentsMargins(5,1,5,1);
-		options_Layout->setAlignment(Qt::AlignLeft);
-
-		options_Layout->addWidget(scale_Label);
-		options_Layout->addWidget(lin_RadioButton);
-		options_Layout->addWidget(log_RadioButton);
-
 //		options_Layout->addWidget(colors_Button);
 //		options_Layout->addWidget(symbol_ComboBox);
-
-		options_Layout->addWidget(scatter_Label);
-		options_Layout->addWidget(scatter_Spin);
-
-		options_Layout->addWidget(thickness_Label);
-		options_Layout->addWidget(thickness_Spin);
-
-		options_Layout->addWidget(rescale_Check_Box);
-
-		options_Layout->addWidget(max_Value_Label);
 	}
 
 	options_GroupBox->adjustSize();
 	options_GroupBox->setFixedHeight(options_GroupBox->height());
+}
+
+void Curve_Plot::set_Title_Text()
+{
+	if(multilayer->graph_Options.show_Title)
+	if(plot_Title)
+	{
+		QString prefix_Text = "";//"At fixed ";
+		QString fixed_Quantity = "";
+		QString title_Text = "fixed parameters";
+
+		// at fixed wavelength
+		if(*argument_Type == whats_This_Angle)
+		{
+			double coeff = wavelength_Coefficients_Map.value(*spectral_Units);
+
+			if(	*spectral_Units == wavelength_Units_List[angstrom] ||
+				*spectral_Units == wavelength_Units_List[nm]	   ||
+				*spectral_Units == wavelength_Units_List[mcm]	   )
+			{
+				fixed_Quantity = Lambda_Sym;
+			} else
+			{
+				fixed_Quantity = "E";
+			}
+
+			title_Text = prefix_Text + fixed_Quantity + "=" +
+						 Locale.toString(Global_Variables::wavelength_Energy(
+								*spectral_Units,measurement->wavelength.value)/coeff,
+								line_edit_double_format,
+								line_edit_wavelength_precision)
+						 + " " +*spectral_Units + ", pol=" +
+						 Locale.toString(measurement->polarization.value,
+								line_edit_double_format,
+								line_edit_polarization_precision);
+			plot_Title->setText(title_Text);
+		}
+		// at fixed angle
+		if(*argument_Type == whats_This_Wavelength)
+		{
+			double coeff = angle_Coefficients_Map.value(*angular_Units);
+			fixed_Quantity = *angle_Type + " " +Theta_Sym;
+
+			title_Text = prefix_Text + fixed_Quantity + "=" +
+						 Locale.toString(measurement->probe_Angle.value/coeff,
+								line_edit_double_format,
+								thumbnail_angle_precision)
+						 + " " + *angular_Units + ", pol=" +
+						 Locale.toString(measurement->polarization.value,
+								line_edit_double_format,
+								thumbnail_polarization_precision);
+			plot_Title->setText(title_Text);
+		}
+	}
 }
 
 void Curve_Plot::plot_All_Data()
@@ -433,7 +567,8 @@ void Curve_Plot::plot_All_Data()
 		// no second value up to now
 	}	
 	// show max value
-	if(graph_Done)
+	if(multilayer->graph_Options.show_Max_Value)
+	if(graph_Done && multilayer->graph_Options.show_Max_Value)
 	{
 		double max_Value = *std::max_element(values.begin(), values.end());
 		int max_Value_Position_Index = values.indexOf(max_Value);
@@ -468,8 +603,8 @@ void Curve_Plot::plot_Data(const QVector<double>& argument, const QVector<double
 
 		if(left_Right==left_Axis)
 		{
-			if(local_Max<data_To_Plot[i].value && (plot_Options->x_Scale == lin_Scale || data_To_Plot[i].value > DBL_MIN)) {local_Max=data_To_Plot[i].value;}
-			if(local_Min>data_To_Plot[i].value && (plot_Options->x_Scale == lin_Scale || data_To_Plot[i].value > DBL_MIN)) {local_Min=data_To_Plot[i].value;}
+			if(local_Max<data_To_Plot[i].value && (plot_Options->y_Scale == lin_Scale || data_To_Plot[i].value > DBL_MIN)) {local_Max=data_To_Plot[i].value;}
+			if(local_Min>data_To_Plot[i].value && (plot_Options->y_Scale == lin_Scale || data_To_Plot[i].value > DBL_MIN)) {local_Min=data_To_Plot[i].value;}
 		}
 		if(left_Right==right_Axis)
 		{
@@ -482,13 +617,13 @@ void Curve_Plot::plot_Data(const QVector<double>& argument, const QVector<double
 	if(left_Right==left_Axis)
 	{
 		max_Value_Left = max(max_Value_Left, local_Max);
-		if(plot_Options->x_Scale == log_Scale)
+		if(plot_Options->y_Scale == log_Scale)
 		{
 			if((min_Value_Left>DBL_MIN) && (local_Min<DBL_MIN)) {min_Value_Left = min_Value_Left;} else
 			if((min_Value_Left<DBL_MIN) && (local_Min>DBL_MIN)) {min_Value_Left = local_Min;} else
 			min_Value_Left = min(min_Value_Left, local_Min) ;
 		}
-		if(plot_Options->x_Scale == lin_Scale)
+		if(plot_Options->y_Scale == lin_Scale)
 		{
 			min_Value_Left = min(min_Value_Left, local_Min);
 		}

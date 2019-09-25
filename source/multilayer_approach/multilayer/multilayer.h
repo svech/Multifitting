@@ -71,8 +71,6 @@ public:
 	int num_Independent_Rows;	// rows in Calculation Settings
 
 	Graph_Options graph_Options;
-//	int num_Target_Graph_Rows;		// rows in Graphs
-//	int num_Independent_Graph_Rows;	// rows in Graphs
 
 	bool enable_Calc_Target_Curves = true;
 	bool enable_Calc_Independent_Curves = true;

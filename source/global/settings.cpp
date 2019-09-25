@@ -225,6 +225,10 @@ bool aperiodic_Mouse_Wheel_Spinbox_Table;
 
 // -----------------------------------------------------------------------------------------
 
+bool tab_synchronization;
+
+// -----------------------------------------------------------------------------------------
+
 Settings::Settings()
 {
 
@@ -349,6 +353,7 @@ void Settings::read_Gui_Settings(bool reset_to_default)
 	gui_Settings.beginGroup( Multilayer_Tabs );
 		default_multilayer_tab_name			  = gui_Settings.value( "default_multilayer_tab_name",			 "Struct_" ).toString();
 		default_independent_variable_tab_name = gui_Settings.value( "default_independent_variable_tab_name", "Plot_"   ).toString();
+		tab_synchronization					  = gui_Settings.value( "tab_synchronization",					  true     ).toBool();
 	gui_Settings.endGroup();
 }
 
@@ -427,6 +432,7 @@ void Settings::save_Gui_Settings()
 	gui_Settings.beginGroup( Multilayer_Tabs );
 		gui_Settings.setValue( "default_multilayer_tab_name",			default_multilayer_tab_name );
 		gui_Settings.setValue( "default_independent_variable_tab_name", default_independent_variable_tab_name   );
+		gui_Settings.setValue( "tab_synchronization",				    tab_synchronization   );
 	gui_Settings.endGroup();
 }
 

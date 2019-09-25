@@ -514,6 +514,7 @@ struct Graph_Options			{int num_Target_Graph_Rows = 1;		 // rows in Graphs
 								 bool show_X_Scale = false;
 								 bool show_Max_Value = false;
 								 bool show_Current_Coordinate = true;
+								 bool show_Title = true;
 								};
 
 // calculated functions for plotting

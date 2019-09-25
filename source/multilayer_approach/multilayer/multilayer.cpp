@@ -6,8 +6,6 @@ Multilayer::Multilayer(QWidget *parent) :
 	num_Independent_Rows(1),
 	QWidget(parent)
 {
-//	graph_Options.num_Independent_Graph_Rows = 1;
-//	graph_Options.num_Target_Graph_Rows = 1;
 	create_Main_Layout();
 }
 

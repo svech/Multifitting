@@ -215,6 +215,10 @@ extern QString multilayer_Approach_Default_Title;
 
 // -----------------------------------------------------------------------------------------
 
+extern bool can_Change_Index;
+
+// -----------------------------------------------------------------------------------------
+
 extern Optical_Constants* optical_Constants;
 
 class Global_Variables : public QObject

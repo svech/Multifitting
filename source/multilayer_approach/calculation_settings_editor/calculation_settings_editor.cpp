@@ -111,6 +111,7 @@ void Calculation_Settings_Editor::closeEvent(QCloseEvent* event)
 void Calculation_Settings_Editor::set_Window_Geometry()
 {
 	setGeometry(calculation_settings_x_corner,calculation_settings_y_corner,calculation_settings_width,calculation_settings_height);
+	adjustSize();
 }
 
 void Calculation_Settings_Editor::write_Window_Geometry()
@@ -127,6 +128,7 @@ void Calculation_Settings_Editor::write_Window_Geometry()
 
 void Calculation_Settings_Editor::create_Main_Layout()
 {
+	can_Change_Index = false;
 	main_Layout = new QVBoxLayout(this);
 		main_Layout->setSpacing(0);
 		main_Layout->setContentsMargins(0,0,0,0);
@@ -161,6 +163,7 @@ void Calculation_Settings_Editor::create_Main_Layout()
 	// TODO
 	connect(done_Button,			 &QPushButton::clicked, this, &Calculation_Settings_Editor::close);
 	global_Norm_Button->setDisabled(true);
+	can_Change_Index = tab_synchronization;
 }
 
 void Calculation_Settings_Editor::create_Tabs()
@@ -172,10 +175,18 @@ void Calculation_Settings_Editor::create_Tabs()
 	[=](int index)
 	{
 		main_Tabs->tabBar()->setTabTextColor(index,Qt::black);
-
 		for(int i = 0; i<main_Tabs->tabBar()->count(); i++)
 		{
 			if(i!=index)main_Tabs->tabBar()->setTabTextColor(i,Qt::gray);
+		}
+
+		if(can_Change_Index)
+		{
+			can_Change_Index = false;
+																								{global_Multilayer_Approach->                       multilayer_Tabs->setCurrentIndex(main_Tabs->currentIndex());}
+			if(global_Multilayer_Approach->runned_Tables_Of_Structures.contains(table_Key))		{global_Multilayer_Approach->table_Of_Structures		->main_Tabs->setCurrentIndex(main_Tabs->currentIndex());}
+			if(global_Multilayer_Approach->runned_Optical_Graphs.contains(optical_Graphs_Key))	{global_Multilayer_Approach->optical_Graphs				->main_Tabs->setCurrentIndex(main_Tabs->currentIndex());}
+			can_Change_Index = tab_synchronization;
 		}
 	});
 }
@@ -347,6 +358,14 @@ void Calculation_Settings_Editor::load_Target_Parameters(int tab_Index)
 
 				box_Layout->addLayout(function_Layout);
 
+				connect(fit_Function_Line_Edit,  &QLineEdit::textEdited, this, [=]
+				{
+					QStringList var_List = {fit_Function_Variable};
+					if(Global_Variables::expression_Is_Valid(fit_Function_Line_Edit->text(), var_List) || fit_Function_Line_Edit->text().isEmpty())
+					{
+						target_Curve->fit_Params.fit_Function = fit_Function_Line_Edit->text();
+					}
+				});
 				connect(fit_Function_Line_Edit,  &QLineEdit::editingFinished, this, [=]
 				{
 					QStringList var_List = {fit_Function_Variable};

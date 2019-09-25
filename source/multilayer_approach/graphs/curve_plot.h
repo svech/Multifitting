@@ -7,11 +7,12 @@ class Curve_Plot : public QWidget
 {
 	Q_OBJECT
 public:
-	explicit Curve_Plot(Target_Curve* target_Curve, Independent_Variables* independent_Variables, QString curve_Class, QWidget *parent = nullptr);
+	explicit Curve_Plot(Multilayer* multilayer, Target_Curve* target_Curve, Independent_Variables* independent_Variables, QString curve_Class, QWidget *parent = nullptr);
 
 	void create_Main_Layout();
 	void create_Plot_Frame_And_Scale();
 	void create_Options();
+	void set_Title_Text();
 	void plot_All_Data();
 	void plot_Data(const QVector<double>& argument, const QVector<double>& values, Plot_Options* plot_Options, QString left_Right);
 	void refresh_Labels();
@@ -32,6 +33,7 @@ public:
 	QString* angle_Type;
 	QString* angular_Units;
 
+	Multilayer* multilayer;
 	Target_Curve* target_Curve;
 	Independent_Variables* independent_Variables;
 	double min_Value_Left = DBL_MAX;
@@ -52,12 +54,19 @@ public:
 
 	QVBoxLayout* main_Layout;
 		QCustomPlot* custom_Plot;
+		QCPTextElement* plot_Title;
 		QGroupBox* options_GroupBox;
 			QHBoxLayout* options_Layout;
 
-				QLabel* scale_Label;
-				QRadioButton* lin_RadioButton;
-				QRadioButton* log_RadioButton;
+				QLabel* scale_Y_Label;
+				QButtonGroup* Y_ButtonGroup;
+				QRadioButton* lin_Y_RadioButton;
+				QRadioButton* log_Y_RadioButton;
+
+				QLabel* scale_X_Label;
+				QButtonGroup* X_ButtonGroup;
+				QRadioButton* lin_X_RadioButton;
+				QRadioButton* log_X_RadioButton;
 
 				QPushButton*	colors_Button;	QPalette default_Colors_Button_Palette;
 				QComboBox*		symbol_ComboBox;

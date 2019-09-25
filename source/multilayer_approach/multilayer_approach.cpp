@@ -67,6 +67,18 @@ void Multilayer_Approach::create_Multilayer_Tabs()
 	connect(multilayer_Tabs,		&QTabWidget::currentChanged,	 this, &Multilayer_Approach::change_Tab_Color);
 	connect(multilayer_Tabs,		&QTabWidget::tabBarDoubleClicked,this, &Multilayer_Approach::rename_Multilayer);
 
+	connect(multilayer_Tabs,		&QTabWidget::currentChanged,	 this, [=]
+	{
+		if(can_Change_Index)
+		{
+			can_Change_Index = false;
+			if(runned_Tables_Of_Structures.contains(table_Key))					{table_Of_Structures		->main_Tabs->setCurrentIndex(multilayer_Tabs->currentIndex());}
+			if(runned_Optical_Graphs.contains(optical_Graphs_Key))				{optical_Graphs				->main_Tabs->setCurrentIndex(multilayer_Tabs->currentIndex());}
+			if(runned_Calculation_Settings_Editor.contains(calc_Settings_Key))	{calculation_Settings_Editor->main_Tabs->setCurrentIndex(multilayer_Tabs->currentIndex());}
+			can_Change_Index = tab_synchronization;
+		}
+	});
+
 	add_Multilayer();
 }
 
@@ -424,7 +436,8 @@ void Multilayer_Approach::lock_Mainwindow_Interface()
 			for(int i=0; i<multilayer->independent_Variables_Plot_Tabs->count(); ++i)
 			{
 				Independent_Variables* independent_Variables = qobject_cast<Independent_Variables*>(multilayer->independent_Variables_Plot_Tabs->widget(i));
-				independent_Variables->independent_Variables_Toolbar->setDisabled(true);
+				if(runned_Calculation_Settings_Editor.contains(calc_Settings_Key))
+				{independent_Variables->independent_Variables_Toolbar->setDisabled(true);}
 
 				multilayer->independent_Variables_Plot_Tabs->tabBar()->tabButton(i, QTabBar::RightSide)->setDisabled(true);
 			}
@@ -432,23 +445,13 @@ void Multilayer_Approach::lock_Mainwindow_Interface()
 			multilayer->independent_Variables_Corner_Button->setDisabled(true);
 		}
 
-		// close target editors
-		if(/*runned_Optical_Graphs.contains(optical_Graphs_Key) ||*/       // better if not close
-		   runned_Calculation_Settings_Editor.contains(calc_Settings_Key))
-		{
-			for(Target_Curve_Editor* target_Curve_Editor : multilayer->runned_Target_Curve_Editors.values())
-			{
-				target_Curve_Editor->close();
-			}
-		}
-
 		// lock target buttons
 		if(runned_Optical_Graphs.contains(optical_Graphs_Key) ||
 		   runned_Calculation_Settings_Editor.contains(calc_Settings_Key))
 		{
-				for(int i=0; i<multilayer->data_Target_Profile_Frame_Vector.size(); ++i)
+			for(int i=0; i<multilayer->data_Target_Profile_Frame_Vector.size(); ++i)
 			{
-				multilayer->add_Buttons_To_Lock[i]->setDisabled(true);
+//				multilayer->add_Buttons_To_Lock[i]->setDisabled(true);
 				multilayer->remove_Buttons_To_Lock[i]->setDisabled(true);
 			}
 		}
@@ -491,6 +494,14 @@ void Multilayer_Approach::unlock_Mainwindow_Interface()
 			}
 			multilayer->independent_Variables_Plot_Tabs->setMovable(true);
 			multilayer->independent_Variables_Corner_Button->setDisabled(false);
+		} else
+		if(!runned_Calculation_Settings_Editor.contains(calc_Settings_Key))
+		{
+			for(int i=0; i<multilayer->independent_Variables_Plot_Tabs->count(); ++i)
+			{
+				Independent_Variables* independent_Variables = qobject_cast<Independent_Variables*>(multilayer->independent_Variables_Plot_Tabs->widget(i));
+				independent_Variables->independent_Variables_Toolbar->setDisabled(false);
+			}
 		}
 
 		// unlock target buttons
@@ -499,7 +510,7 @@ void Multilayer_Approach::unlock_Mainwindow_Interface()
 		{
 				for(int i=0; i<multilayer->data_Target_Profile_Frame_Vector.size(); ++i)
 			{
-				multilayer->add_Buttons_To_Lock[i]->setDisabled(false);
+//				multilayer->add_Buttons_To_Lock[i]->setDisabled(false);
 				multilayer->remove_Buttons_To_Lock[i]->setDisabled(false);
 			}
 		}

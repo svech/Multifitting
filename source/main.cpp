@@ -5,7 +5,12 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext& context, const QS
 {
 	Q_UNUSED(context);
 
-	if (type != QtWarningMsg || !msg.startsWith("QWindowsWindow::setGeometry")) {
+	if ((type != QtWarningMsg ||(!msg.startsWith("QWindowsWindow::setGeometry") &&
+								 !msg.startsWith("QPainter::begin") &&
+								 !msg.startsWith("QPainter::setRenderHint")
+								 ))
+			&&!msg.startsWith("void __cdecl"))
+	{
 		QByteArray localMsg = msg.toLocal8Bit();
 		fprintf(stdout, localMsg.constData());
 	}

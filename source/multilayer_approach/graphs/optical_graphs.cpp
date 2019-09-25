@@ -52,7 +52,6 @@ void Optical_Graphs::settings()
 
 	QGridLayout* settings_Group_Box_Layout = new QGridLayout(settings_Group_Box);
 		settings_Group_Box_Layout->setContentsMargins(5,5,5,5);
-	settings_Main_Layout->addWidget(settings_Group_Box);
 
 	// num target rows
 	QLabel* target_Rows_Label = new QLabel("Number of \"Measured\" rows");
@@ -85,9 +84,33 @@ void Optical_Graphs::settings()
 																"QGroupBox::title   { subcontrol-origin: margin;   left: 9px; padding: 0 0px 0 1px;}");
 	settings_Main_Layout->addWidget(plots_Settings_Group_Box);
 
-//	QCheckBox* show_Scatter
+	QVBoxLayout* plots_Settings_Group_Box_Layout = new QVBoxLayout(plots_Settings_Group_Box);
+		plots_Settings_Group_Box_Layout->setContentsMargins(5,5,5,5);
 
+	QCheckBox* show_Scatter_Size_CheckBox = new QCheckBox("Show plot symbol size");
+		show_Scatter_Size_CheckBox->setChecked(multilayer->graph_Options.show_Scatter);
+//		show_Scatter_Size_CheckBox->setLayoutDirection(Qt::RightToLeft);
+		plots_Settings_Group_Box_Layout->addWidget(show_Scatter_Size_CheckBox);
 
+	QCheckBox* show_Thickness_CheckBox = new QCheckBox("Show plot line thickness");
+		show_Thickness_CheckBox->setChecked(multilayer->graph_Options.show_Thickness);
+		plots_Settings_Group_Box_Layout->addWidget(show_Thickness_CheckBox);
+
+	QCheckBox* show_X_Scale_CheckBox = new QCheckBox("Show X scale");
+		show_X_Scale_CheckBox->setChecked(multilayer->graph_Options.show_X_Scale);
+		plots_Settings_Group_Box_Layout->addWidget(show_X_Scale_CheckBox);
+
+	QCheckBox* show_Max_Value_CheckBox = new QCheckBox("Show max calc value");
+		show_Max_Value_CheckBox->setChecked(multilayer->graph_Options.show_Max_Value);
+		plots_Settings_Group_Box_Layout->addWidget(show_Max_Value_CheckBox);
+
+	QCheckBox* show_Current_Coordinate_CheckBox = new QCheckBox("Show cursor position");
+		show_Current_Coordinate_CheckBox->setChecked(multilayer->graph_Options.show_Current_Coordinate);
+		plots_Settings_Group_Box_Layout->addWidget(show_Current_Coordinate_CheckBox);
+
+	QCheckBox* show_Title_CheckBox = new QCheckBox("Show plot title");
+		show_Title_CheckBox->setChecked(multilayer->graph_Options.show_Title);
+		plots_Settings_Group_Box_Layout->addWidget(show_Title_CheckBox);
 
 	// buttons
 	QHBoxLayout* buttons_Layout = new QHBoxLayout;
@@ -107,6 +130,15 @@ void Optical_Graphs::settings()
 		close();
 		multilayer->graph_Options.num_Target_Graph_Rows = target_Rows_SpinBox->value();
 		multilayer->graph_Options.num_Independent_Graph_Rows = independent_Rows_SpinBox->value();
+
+		// additional
+		multilayer->graph_Options.show_Scatter = show_Scatter_Size_CheckBox->isChecked();
+		multilayer->graph_Options.show_Thickness = show_Thickness_CheckBox->isChecked();
+		multilayer->graph_Options.show_X_Scale = show_X_Scale_CheckBox->isChecked();
+		multilayer->graph_Options.show_Max_Value = show_Max_Value_CheckBox->isChecked();
+		multilayer->graph_Options.show_Current_Coordinate = show_Current_Coordinate_CheckBox->isChecked();
+		multilayer->graph_Options.show_Title = show_Title_CheckBox->isChecked();
+
 		global_Multilayer_Approach->open_Optical_Graphs(TARGET_AND_INDEPENDENT);
 		global_Multilayer_Approach->optical_Graphs->main_Tabs->setCurrentIndex(active_Tab);
 		settings_Window->close();
@@ -143,6 +175,7 @@ void Optical_Graphs::closeEvent(QCloseEvent* event)
 
 void Optical_Graphs::create_Main_Layout()
 {
+	can_Change_Index = false;
 	main_Layout = new QVBoxLayout(this);
 	main_Layout->setSpacing(0);
 	main_Layout->setContentsMargins(0,0,0,0);
@@ -154,6 +187,7 @@ void Optical_Graphs::create_Main_Layout()
 
 	// shortcuts
 	Global_Variables::create_Shortcuts(this);
+	can_Change_Index = tab_synchronization;
 }
 
 void Optical_Graphs::create_Tabs()
@@ -165,10 +199,18 @@ void Optical_Graphs::create_Tabs()
 	[=](int index)
 	{
 		main_Tabs->tabBar()->setTabTextColor(index,Qt::black);
-
 		for(int i = 0; i<main_Tabs->tabBar()->count(); i++)
 		{
 			if(i!=index) main_Tabs->tabBar()->setTabTextColor(i,Qt::gray);
+		}
+
+		if(can_Change_Index)
+		{
+			can_Change_Index = false;
+																											{global_Multilayer_Approach->                       multilayer_Tabs->setCurrentIndex(main_Tabs->currentIndex());}
+			if(global_Multilayer_Approach->runned_Tables_Of_Structures.contains(table_Key))					{global_Multilayer_Approach->table_Of_Structures		->main_Tabs->setCurrentIndex(main_Tabs->currentIndex());}
+			if(global_Multilayer_Approach->runned_Calculation_Settings_Editor.contains(calc_Settings_Key))	{global_Multilayer_Approach->calculation_Settings_Editor->main_Tabs->setCurrentIndex(main_Tabs->currentIndex());}
+			can_Change_Index = tab_synchronization;
 		}
 	});
 }
@@ -263,7 +305,7 @@ void Optical_Graphs::create_Tab_Content(QWidget* new_Widget, int tab_Index)
 
 		for(int graph_Index=0; graph_Index<total_Number_of_Target_Graphs; graph_Index++)
 		{
-			Curve_Plot* new_Curve_Plot = new Curve_Plot(target_Profiles_to_Show[graph_Index], nullptr, TARGET, this);
+			Curve_Plot* new_Curve_Plot = new Curve_Plot(multilayer, target_Profiles_to_Show[graph_Index], nullptr, TARGET, this);
 			plots.append(new_Curve_Plot);
 
 			if(current_Row < first_Long_Row_Index) length = graphs_in_Short_Row; else length = graphs_in_Short_Row + 1;
@@ -340,7 +382,7 @@ void Optical_Graphs::create_Tab_Content(QWidget* new_Widget, int tab_Index)
 
 		for(int graph_Index=0; graph_Index<total_Number_of_Independent_Graphs; graph_Index++)
 		{
-			Curve_Plot* new_Curve_Plot = new Curve_Plot(nullptr, independent_Profiles_to_Show[graph_Index], INDEPENDENT, this);
+			Curve_Plot* new_Curve_Plot = new Curve_Plot(multilayer, nullptr, independent_Profiles_to_Show[graph_Index], INDEPENDENT, this);
 			plots.append(new_Curve_Plot);
 
 			if(current_Row < first_Long_Row_Index) length = graphs_in_Short_Row; else length = graphs_in_Short_Row + 1;

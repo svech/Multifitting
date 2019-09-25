@@ -45,8 +45,10 @@ void Table_Of_Structures::emit_Data_Edited()
 
 void Table_Of_Structures::create_Main_Layout()
 {
+	can_Change_Index = false;
 	main_Layout = new QHBoxLayout(this);
 	main_Layout->setContentsMargins(0,0,0,0);
+
 
 	global_Multilayer_Approach->lock_Mainwindow_Interface();
 	create_Menu();
@@ -62,6 +64,7 @@ void Table_Of_Structures::create_Main_Layout()
 	}
 
 	refill_All_Dependent();
+	can_Change_Index = tab_synchronization;
 }
 
 void Table_Of_Structures::set_Window_Geometry()
@@ -108,11 +111,20 @@ void Table_Of_Structures::create_Tabs()
 	connect(main_Tabs,	&QTabWidget::currentChanged, this, [=](int index)
 	{
 		main_Tabs->tabBar()->setTabTextColor(index,Qt::black);
-
 		for(int i = 0; i<main_Tabs->tabBar()->count(); i++)
 		{
 			if(i!=index)main_Tabs->tabBar()->setTabTextColor(i,Qt::gray);
 		}
+
+		if(can_Change_Index)
+		{
+			can_Change_Index = false;
+																											{global_Multilayer_Approach->                       multilayer_Tabs->setCurrentIndex(main_Tabs->currentIndex());}
+			if(global_Multilayer_Approach->runned_Optical_Graphs.contains(optical_Graphs_Key))				{global_Multilayer_Approach->optical_Graphs				->main_Tabs->setCurrentIndex(main_Tabs->currentIndex());}
+			if(global_Multilayer_Approach->runned_Calculation_Settings_Editor.contains(calc_Settings_Key))	{global_Multilayer_Approach->calculation_Settings_Editor->main_Tabs->setCurrentIndex(main_Tabs->currentIndex());}
+			can_Change_Index = tab_synchronization;
+		}
+
 		// CHECK
 //		reload_All_Widgets();
 	});
@@ -471,7 +483,8 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 			connect(item_CheckBox, &QCheckBox::toggled, this, [=]
 			{
 				// enable or disable widgets
-				disable_enable_One_Item(new_Table, table_Item);
+				disable_enable_One_Item(new_Table, table_Item);				
+				if(recalculate_Spinbox_Table) {global_Multilayer_Approach->calc_Reflection(true);}
 
 				// refresh view in main window
 				emit_Data_Edited();

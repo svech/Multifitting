@@ -127,6 +127,7 @@ void Independent_Calc_Function_Selection::create_Main_Layout()
 		main_Layout->addLayout(done_Button_Layout);
 
 	connect(done_Button, &QPushButton::clicked, this, &Independent_Calc_Function_Selection::close);
+	Global_Variables::create_Shortcuts(this);
 }
 
 void Independent_Calc_Function_Selection::set_Window_Geometry()
@@ -158,4 +159,6 @@ void Independent_Calc_Function_Selection::refresh_calc_Functions(bool)
 		if(independent == independent_Variables)
 			independent_Variables_Plot_Tabs->setTabText(tab_Index, independent->tab_Name + independent->enlarge_Tab_Name());
 	}
+
+	Calculation_Settings_Editor::reopen_Optical_Graphs(INDEPENDENT);
 }

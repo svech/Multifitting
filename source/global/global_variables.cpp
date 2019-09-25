@@ -367,6 +367,10 @@ QString multilayer_Approach_Default_Title = "Multilayer Model";
 
 // -----------------------------------------------------------------------------------------
 
+bool can_Change_Index;
+
+// -----------------------------------------------------------------------------------------
+
 Optical_Constants* optical_Constants;
 
 Global_Variables::Global_Variables()
