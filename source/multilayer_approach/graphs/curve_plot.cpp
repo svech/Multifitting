@@ -20,6 +20,7 @@ Curve_Plot::Curve_Plot(Multilayer* multilayer, Target_Curve* target_Curve, Indep
 			angle_Type = &target_Curve->curve.angle_Type;
 			angular_Units = &target_Curve->curve.angular_Units;
 			argument_Type = &target_Curve->curve.argument_Type;
+			plot_Indicator = &target_Curve->index;
 		} else
 		{
 			QMessageBox::critical(nullptr, "Curve_Plot::Curve_Plot", "target_Curve is nullptr");
@@ -40,6 +41,7 @@ Curve_Plot::Curve_Plot(Multilayer* multilayer, Target_Curve* target_Curve, Indep
 			angle_Type = &measurement->angle_Type;
 			angular_Units = &angle_units;
 			argument_Type = &independent_Variables->argument_Type;
+			plot_Indicator = &independent_Variables->tab_Name;
 		} else
 		{
 			QMessageBox::critical(nullptr, "Curve_Plot::Curve_Plot", "independent_Variables is nullptr");
@@ -456,7 +458,7 @@ void Curve_Plot::set_Title_Text()
 				fixed_Quantity = "E";
 			}
 
-			title_Text = prefix_Text + fixed_Quantity + "=" +
+			title_Text = *plot_Indicator + ": " + prefix_Text + fixed_Quantity + "=" +
 						 Locale.toString(Global_Variables::wavelength_Energy(
 								*spectral_Units,measurement->wavelength.value)/coeff,
 								line_edit_double_format,
@@ -473,7 +475,7 @@ void Curve_Plot::set_Title_Text()
 			double coeff = angle_Coefficients_Map.value(*angular_Units);
 			fixed_Quantity = *angle_Type + " " +Theta_Sym;
 
-			title_Text = prefix_Text + fixed_Quantity + "=" +
+			title_Text = *plot_Indicator + ": " + prefix_Text + fixed_Quantity + "=" +
 						 Locale.toString(measurement->probe_Angle.value/coeff,
 								line_edit_double_format,
 								thumbnail_angle_precision)
@@ -715,14 +717,14 @@ void Curve_Plot::refresh_Labels()
 			val_Type_Label = value_Function[Reflectance];
 			val_Mode_Label_1 = value_R_Mode_Label_1[R];
 		}
-		if( !independent_Variables->calc_Functions.check_Reflectance &&
+		if( //!independent_Variables->calc_Functions.check_Reflectance &&
 			 independent_Variables->calc_Functions.check_Transmittance)
 		{
 			val_Type_Label = value_Function[Transmittance];
 			val_Mode_Label_1 = value_T_Mode[T];
 		}
-		if( !independent_Variables->calc_Functions.check_Reflectance &&
-			!independent_Variables->calc_Functions.check_Transmittance &&
+		if( //!independent_Variables->calc_Functions.check_Reflectance &&
+			//!independent_Variables->calc_Functions.check_Transmittance &&
 			 independent_Variables->calc_Functions.check_Absorptance )
 		{
 			val_Type_Label = value_Function[Absorptance];

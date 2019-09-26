@@ -46,6 +46,7 @@ public:
 	Calculated_Values* calculated_Values;
 	Plot_Options* plot_Options_First;
 	Plot_Options* plot_Options_Second;
+	QString* plot_Indicator;
 
 	QColorDialog* colorDialog;
 	QCPGraph* selected_Graph;

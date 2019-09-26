@@ -216,8 +216,45 @@ void Target_Curve::fill_Measurement_With_Data()
 	}
 }
 
-void Target_Curve::set_Text_To_Label()
+void Target_Curve::show_Description_Label()
 {
+	if(loaded_And_Ready)
+	{
+		QString spacer;
+		if(curve.angle_Type == angle_Type_Grazing)   ang_Type_For_Label_At_Fixed="(gr)";
+		if(curve.angle_Type == angle_Type_Incidence) ang_Type_For_Label_At_Fixed="(in)";
+
+		if(curve.argument_Type == whats_This_Angle)
+		{
+			arg_Type_For_Label = "Angular "+ang_Type_For_Label_At_Fixed;
+
+			arg_Units = curve.angular_Units;
+
+			double coeff = wavelength_Coefficients_Map.value(curve.spectral_Units);
+			at_Fixed = Locale.toString(Global_Variables::wavelength_Energy(curve.spectral_Units,measurement.wavelength.value)/coeff, thumbnail_double_format, thumbnail_wavelength_precision)+" "+curve.spectral_Units;
+			spacer = "";
+		}
+		if(curve.argument_Type == whats_This_Wavelength)
+		{
+			arg_Type_For_Label = "Spectral";
+			arg_Units = curve.spectral_Units;
+
+			double coeff = angle_Coefficients_Map.value(curve.angular_Units);
+			at_Fixed = Locale.toString(measurement.probe_Angle.value/coeff, thumbnail_double_format, thumbnail_angle_precision)+" "+curve.angular_Units;
+			at_Fixed = ang_Type_For_Label_At_Fixed + " " + at_Fixed;
+			spacer = " ";
+		}
+
+		label_Text = index + ": " +
+					arg_Type_For_Label + "; " +
+					curve.value_Mode + "; " +
+					Locale.toString(curve.shifted_Argument.first()) + "-" + Locale.toString(curve.shifted_Argument.last()) + spacer + arg_Units + "; " +
+					"at " + at_Fixed;
+	} else
+	{
+		label_Text = "<no description>";
+	}
+
 	description_Label->setText(label_Text);
 }
 

@@ -40,6 +40,8 @@ public:
 	void remove_Target_Curve(int index_Pressed, bool clean = false);
 	void open_Import_Window(Target_Curve* target_Curve);
 
+	void set_Index_To_Target_Curves();
+
 	QWidget* parent;
 	QVBoxLayout* main_Layout;
 		QSplitter* multilayer_Splitter;

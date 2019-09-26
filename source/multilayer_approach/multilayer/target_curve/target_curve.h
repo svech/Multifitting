@@ -15,7 +15,7 @@ public:
 
 	void import_Data(QString bare_Filename);
 	void fill_Measurement_With_Data();
-	void set_Text_To_Label();
+	void show_Description_Label();
 
 	Curve curve;
 	Fit_Params fit_Params;
@@ -36,6 +36,7 @@ public:
 	QString arg_Type_For_Label;
 
 	QString label_Text = "<no description>";
+	QString index;
 };
 
 QDataStream& operator <<( QDataStream& stream, const Target_Curve* target_Curve );

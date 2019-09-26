@@ -30,7 +30,6 @@ public:
 
 
 	void read_Data_File(QString filepath);
-	void show_Description_Label();
 	void browse_Data_File();
 
 	void fill_Arg_Units_ComboBox(QString arg_Type);

@@ -295,6 +295,8 @@ void Multilayer::remove_Target_Curve(int index_Pressed, bool clean)
 	}
 
 	if(data_Target_Profile_Frame_Vector.isEmpty() && !clean)	add_Target_Curve(0);
+
+	set_Index_To_Target_Curves();
 }
 
 void Multilayer::open_Import_Window(Target_Curve* target_Curve)
@@ -310,6 +312,20 @@ void Multilayer::open_Import_Window(Target_Curve* target_Curve)
 			new_Target_Curve_Editor->show();
 
 		runned_Target_Curve_Editors.insert(target_Curve, new_Target_Curve_Editor);
+	}
+}
+
+void Multilayer::set_Index_To_Target_Curves()
+{
+	int serial_Index = 0;
+	for(int i=0; i<target_Profiles_Vector.size(); i++)
+	{
+		if( target_Profiles_Vector[i]->loaded_And_Ready )
+		{
+			serial_Index+=1;
+			target_Profiles_Vector[i]->index = QString::number(serial_Index);
+			target_Profiles_Vector[i]->show_Description_Label();
+		}
 	}
 }
 

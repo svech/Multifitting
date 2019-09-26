@@ -800,7 +800,7 @@ void Multilayer_Approach::open(QString filename)
 
 				// load main data
 				in >> target_Curve;
-				target_Curve->set_Text_To_Label();
+				multilayer->set_Index_To_Target_Curves();
 			}
 
 			// load calc property for target plots
