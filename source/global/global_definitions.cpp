@@ -271,19 +271,34 @@ QDataStream& operator >>( QDataStream& stream,		 Curve& curve )
 
 QDataStream& operator <<( QDataStream& stream, const Fit_Params& fit_Params )
 {
-	return stream << fit_Params.calc << fit_Params.fit << fit_Params.norm  << fit_Params.weight << fit_Params.fit_Function
+	return stream << fit_Params.calc << fit_Params.fit << fit_Params.norm
+				  << fit_Params.maximize_Integral // since 1.9.3
+				  << fit_Params.weight << fit_Params.fit_Function
 				  << fit_Params.use_Chi2 // since 1.8.1
 				  << fit_Params.power; // since 1.8.8
 }
 QDataStream& operator >>( QDataStream& stream,		 Fit_Params& fit_Params )
 {
-	stream >> fit_Params.calc >> fit_Params.fit >> fit_Params.norm  >> fit_Params.weight >> fit_Params.fit_Function;
+	stream >> fit_Params.calc >> fit_Params.fit >> fit_Params.norm;
+
+	if(Global_Variables::check_Loaded_Version(1,9,3))
+	{stream >> fit_Params.maximize_Integral; }			// since 1.9.3
+
+	stream >> fit_Params.weight >> fit_Params.fit_Function;
 
 	if(Global_Variables::check_Loaded_Version(1,8,1))
 	{stream >> fit_Params.use_Chi2; }		// since 1.8.1
 
-	if(Global_Variables::check_Loaded_Version(1,8,8))
-	{stream >> fit_Params.power; }		// since 1.8.8
+	if(Global_Variables::check_Loaded_Version(1,8,8) && !Global_Variables::check_Loaded_Version(1,9,3))
+	{
+		int int_Power;
+		stream >> int_Power;
+		stream >> fit_Params.power;
+		fit_Params.power = double(int_Power);	// since 1.8.8
+	}
+
+	if(Global_Variables::check_Loaded_Version(1,9,3))
+	{stream >> fit_Params.power; }			// since 1.9.3
 
 	return stream;
 }

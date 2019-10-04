@@ -18,13 +18,13 @@ Target_Curve::Target_Curve(QLabel* description_Label, QTreeWidget* real_Struct_T
 
 	{
 		plot_Options_Calculated.color=QColor(0, 0, 255);
-		plot_Options_Calculated.scatter_Shape = QCPScatterStyle::ssNone;
-		plot_Options_Calculated.scatter_Size=5;
+		plot_Options_Calculated.scatter_Shape = QCPScatterStyle::ssDisc;
+		plot_Options_Calculated.scatter_Size=0;
 		plot_Options_Calculated.thickness=2;
 
 		plot_Options_Calculated.color_Second=QColor(0, 255, 0);
-		plot_Options_Calculated.scatter_Shape_Second = QCPScatterStyle::ssNone;
-		plot_Options_Calculated.scatter_Size_Second=5;
+		plot_Options_Calculated.scatter_Shape_Second = QCPScatterStyle::ssStar;
+		plot_Options_Calculated.scatter_Size_Second=0;
 		plot_Options_Calculated.thickness_Second=2;
 	}
 }

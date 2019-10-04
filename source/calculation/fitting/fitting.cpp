@@ -240,6 +240,21 @@ void Fitting::calc_Residual(const gsl_vector* x, Fitting_Params* params, gsl_vec
 	{
 		regular_Restriction_Tree_Iteration(params->calculation_Trees[tab_Index]->real_Calc_Tree.begin(), params, f, counter);
 	}
+
+	// replot
+	if(global_Multilayer_Approach->runned_Optical_Graphs.contains(optical_Graphs_Key))
+	{
+		for(Curve_Plot* curve_Plot : global_Multilayer_Approach->optical_Graphs->plots)
+		{
+			bool plot_Options_First_Rescale  = curve_Plot->plot_Options_First ->rescale;
+			bool plot_Options_Second_Rescale = curve_Plot->plot_Options_Second->rescale;
+			curve_Plot->plot_Options_First ->rescale=false;
+			curve_Plot->plot_Options_Second->rescale=false;
+			curve_Plot->plot_All_Data();
+			curve_Plot->plot_Options_First ->rescale=plot_Options_First_Rescale;
+			curve_Plot->plot_Options_Second->rescale=plot_Options_Second_Rescale;
+		}
+	}
 }
 
 void Fitting::regular_Restriction_Tree_Iteration(const tree<Node>::iterator& parent, Fitting_Params* params, gsl_vector* f, size_t& counter)
@@ -319,8 +334,10 @@ void Fitting::change_Real_Fitables_and_Dependent(Fitting_Params* params, double 
 
 void Fitting::fill_Residual(Fitting_Params* params, int& residual_Shift, Data_Element<Target_Curve>& target_Element, gsl_vector* f, int index)
 {
+	Q_UNUSED(index)
+
 	Target_Curve* target_Curve = target_Element.the_Class;
-	double fi_1, fi_2, factor;
+	double fi_1, fi_2, fi_1_next, fi_2_next, factor;
 	int N = target_Curve->curve.values.size();
 	double N_sqrt = sqrt(double(N));
 	double n_P_sqrt = sqrt(double(params->n-params->fitables.param_Names.size()));
@@ -352,45 +369,79 @@ void Fitting::fill_Residual(Fitting_Params* params, int& residual_Shift, Data_El
 	}
 
 	// use_Chi2
-	if(target_Curve->fit_Params.use_Chi2)
+	if(!target_Curve->fit_Params.maximize_Integral)
 	{
-		for(int point_Index=0; point_Index<N; ++point_Index)
+		if(target_Curve->fit_Params.use_Chi2)
 		{
-			factor = target_Curve->fit_Params.weight_Sqrt/n_P_sqrt;
-			fi_1 = target_Curve->curve.values[point_Index].val_1;
-			fi_2 = model_Curve[point_Index];
+			for(int point_Index=0; point_Index<N; ++point_Index)
+			{
+				factor = target_Curve->fit_Params.weight_Sqrt/n_P_sqrt;
+				fi_1 = target_Curve->curve.values[point_Index].val_1;
+				fi_2 = model_Curve[point_Index];
 
-			gsl_vector_set(f, residual_Shift+point_Index, factor*(fi_1-fi_2)*sqrt((target_Curve->curve.beam_Intensity_Start+target_Curve->curve.beam_Intensity_Final)/(2*fi_2))   );
+				gsl_vector_set(f, residual_Shift+point_Index, factor*(fi_1-fi_2)*sqrt((target_Curve->curve.beam_Intensity_Start+target_Curve->curve.beam_Intensity_Final)/(2*fi_2))   );
+			}
+		} else
+		// use custom expression
+		{
+			for(int point_Index=0; point_Index<N; ++point_Index)
+			{
+				// calculate with expression
+				{
+#ifdef EXPRTK
+					target_Curve->fit_Params.expression_Argument = target_Curve->curve.values[point_Index].val_1;
+					fi_1 = target_Curve->fit_Params.expression_Vec[0].value();
+#else
+					fi_1 = func(target_Curve->curve.values[point_Index].val_1, index);
+#endif
+				}
+				{
+#ifdef EXPRTK
+					target_Curve->fit_Params.expression_Argument = model_Curve[point_Index];
+					fi_2 = target_Curve->fit_Params.expression_Vec[0].value();
+#else
+					fi_2 = func(model_Curve[point_Index], index);
+#endif
+				}
+
+				// weight
+				factor = target_Curve->fit_Params.weight_Sqrt;
+				if(target_Curve->fit_Params.norm) { factor /= N_sqrt; }
+
+				// fill
+				gsl_vector_set(f, residual_Shift+point_Index, factor*pow(abs(fi_1-fi_2),power));
+			}
 		}
 	} else
-	// use custom expression
 	{
+		double integral = 0;
+		params->max_Integral = 0;
+		double delta_Lambda = 0;
+
+		// calculate with expression
+		for(int point_Index=0; point_Index<N-1; ++point_Index)
+		{
+			fi_1      = target_Curve->curve.values[point_Index  ].val_1;
+			fi_1_next = target_Curve->curve.values[point_Index+1].val_1;
+#ifdef EXPRTK
+			target_Curve->fit_Params.expression_Argument = model_Curve[point_Index  ];
+			fi_2      = target_Curve->fit_Params.expression_Vec[0].value();
+			target_Curve->fit_Params.expression_Argument = model_Curve[point_Index+1];
+			fi_2_next = target_Curve->fit_Params.expression_Vec[0].value();
+#else
+			fi_2      = model_Curve[point_Index  ];
+			fi_2_next = model_Curve[point_Index+1];
+#endif
+			delta_Lambda = abs(target_Curve->curve.shifted_Argument[point_Index]-target_Curve->curve.shifted_Argument[point_Index+1]);
+			integral += (fi_1+fi_1_next)/2*(fi_2+fi_2_next)/2*delta_Lambda;
+			params->max_Integral+=1000*(fi_1+fi_1_next)*delta_Lambda; // 1000 is a big number, but if f(R) is bigger, then incorrect
+		}
+
+		// fill
+		double filling = pow(abs(params->max_Integral-integral)/N,0.5);
 		for(int point_Index=0; point_Index<N; ++point_Index)
 		{
-			// calculate with expression
-			{
-#ifdef EXPRTK
-				target_Curve->fit_Params.expression_Argument = target_Curve->curve.values[point_Index].val_1;
-				fi_1 = target_Curve->fit_Params.expression_Vec[0].value();
-#else
-				fi_1 = func(target_Curve->curve.values[point_Index].val_1, index);
-#endif
-			}
-			{
-#ifdef EXPRTK
-				target_Curve->fit_Params.expression_Argument = model_Curve[point_Index];
-				fi_2 = target_Curve->fit_Params.expression_Vec[0].value();
-#else
-				fi_2 = func(model_Curve[point_Index], index);
-#endif
-			}
-
-			// weight
-			factor = target_Curve->fit_Params.weight_Sqrt;
-			if(target_Curve->fit_Params.norm) { factor /= N_sqrt; }
-
-			// fill
-			gsl_vector_set(f, residual_Shift+point_Index, factor*pow(abs(fi_1-fi_2),power));
+			gsl_vector_set(f, residual_Shift+point_Index, filling);
 		}
 	}
 	residual_Shift += N;
@@ -432,6 +483,20 @@ void Fitting::randomize_Position(bool randomize)
 	}
 
 	gsl_rng_free (r);
+}
+
+void Fitting::check_Maximization()
+{
+	params.maximize = false;
+	// checking for maximization
+	for(int tab_Index=0; tab_Index<global_Multilayer_Approach->multilayer_Tabs->count(); tab_Index++)
+	{
+		Multilayer* multilayer = qobject_cast<Multilayer*>(global_Multilayer_Approach->multilayer_Tabs->widget(tab_Index));
+		for(Target_Curve* target_Curve: multilayer->target_Profiles_Vector)
+		{
+			if(target_Curve->fit_Params.maximize_Integral) {params.maximize = true;}
+		}
+	}
 }
 
 bool Fitting::run_Fitting()

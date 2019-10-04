@@ -12,11 +12,11 @@ Independent_Variables::Independent_Variables(QTreeWidget* real_Struct_Tree, QWid
 
 	{
 		plot_Options.color=QColor(0, 0, 255);
-		plot_Options.scatter_Shape = QCPScatterStyle::ssNone;
+		plot_Options.scatter_Shape = QCPScatterStyle::ssDisc;
 		plot_Options.scatter_Size=0;
 		plot_Options.thickness=2;
 
-		plot_Options.scatter_Shape_Second = QCPScatterStyle::ssNone;
+		plot_Options.scatter_Shape_Second = QCPScatterStyle::ssStar;
 		plot_Options.scatter_Size_Second=0;
 		plot_Options.thickness_Second=2;
 	}

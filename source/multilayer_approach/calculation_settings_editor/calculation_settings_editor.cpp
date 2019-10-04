@@ -343,10 +343,18 @@ void Calculation_Settings_Editor::load_Target_Parameters(int tab_Index)
 				different_Lines.append(weight_Line_Edit);
 			}
 			{
-				QCheckBox* norm = new QCheckBox("Divide by N");
-					box_Layout->addWidget(norm);
-				norm->setChecked(target_Curve->fit_Params.norm);
-				connect(norm,  &QCheckBox::toggled, this, [=]{ target_Curve->fit_Params.norm = norm->isChecked(); });
+				QCheckBox* norm_Checkbox = new QCheckBox("Divide by N");
+				norm_Checkbox->setChecked(target_Curve->fit_Params.norm);
+				connect(norm_Checkbox,  &QCheckBox::toggled, this, [=]{ target_Curve->fit_Params.norm = norm_Checkbox->isChecked(); });
+
+				QCheckBox* maximize_Integral_Checkbox = new QCheckBox("Maximize integral");
+					maximize_Integral_Checkbox->setChecked(target_Curve->fit_Params.maximize_Integral);
+					max_Integral_Map.insert(target_Curve, maximize_Integral_Checkbox);
+
+				QHBoxLayout* checkboxes_Layout = new QHBoxLayout;
+					checkboxes_Layout->addWidget(norm_Checkbox);
+					checkboxes_Layout->addWidget(maximize_Integral_Checkbox);
+					box_Layout->addLayout(checkboxes_Layout);
 
 				// -------------------------------------------------------
 				QLabel* function_Label = new QLabel("Function:");
@@ -383,14 +391,16 @@ void Calculation_Settings_Editor::load_Target_Parameters(int tab_Index)
 				QLabel* power_Label = new QLabel("Power:");
 				function_Layout->addWidget(power_Label);
 
-				QSpinBox* power_SpinBox = new QSpinBox;
-					power_SpinBox->setRange(1, 42);
+				MyDoubleSpinBox* power_SpinBox = new MyDoubleSpinBox;
+					power_SpinBox->setRange(0, 42);
+					power_SpinBox->setDecimals(1);
+					power_SpinBox->setSingleStep(1);
 					power_SpinBox->setValue(target_Curve->fit_Params.power);
 					power_SpinBox->setAccelerated(true);
 					power_SpinBox->setFixedWidth(25);
 					power_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
 				function_Layout->addWidget(power_SpinBox);
-				connect(power_SpinBox, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, [=]
+				connect(power_SpinBox, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
 				{
 					target_Curve->fit_Params.power = power_SpinBox->value();
 				});
@@ -401,17 +411,43 @@ void Calculation_Settings_Editor::load_Target_Parameters(int tab_Index)
 				function_Layout->addWidget(chi2_CheckBox);
 				connect(chi2_CheckBox,  &QCheckBox::toggled, this, [=]
 				{
-					power_Label->setEnabled(!chi2_CheckBox->isChecked());
-					power_SpinBox->setEnabled(!chi2_CheckBox->isChecked());
-					function_Label->setEnabled(!chi2_CheckBox->isChecked());
-					fit_Function_Line_Edit->setEnabled(!chi2_CheckBox->isChecked());
-					norm->setEnabled(!chi2_CheckBox->isChecked());
+					power_Label           ->setEnabled(!chi2_CheckBox->isChecked() && !maximize_Integral_Checkbox->isChecked());
+					power_SpinBox         ->setEnabled(!chi2_CheckBox->isChecked() && !maximize_Integral_Checkbox->isChecked());
+					norm_Checkbox         ->setEnabled(!chi2_CheckBox->isChecked() && !maximize_Integral_Checkbox->isChecked());
+
+					function_Label        ->setDisabled(chi2_CheckBox->isChecked() && !target_Curve->fit_Params.maximize_Integral);
+					fit_Function_Line_Edit->setDisabled(chi2_CheckBox->isChecked() && !target_Curve->fit_Params.maximize_Integral);
 
 					target_Curve->fit_Params.use_Chi2 = chi2_CheckBox->isChecked();
 				});
 
+				connect(maximize_Integral_Checkbox,  &QCheckBox::toggled, this, [=]
+				{
+					if(target_Curve->curve.argument_Type == whats_This_Wavelength)
+					{
+						target_Curve->fit_Params.maximize_Integral = maximize_Integral_Checkbox->isChecked();
+					} else
+					{
+						maximize_Integral_Checkbox->blockSignals(true);
+						maximize_Integral_Checkbox->setChecked(false);
+						target_Curve->fit_Params.maximize_Integral = false;
+						maximize_Integral_Checkbox->blockSignals(false);
+						QMessageBox::information(this,"Wrong curve type", "Only spectral curve\nshoud be maximized");
+					}
+					chi2_CheckBox->setEnabled(!maximize_Integral_Checkbox->isChecked());
+
+					power_Label  ->setEnabled(!maximize_Integral_Checkbox->isChecked() && !chi2_CheckBox->isChecked());
+					power_SpinBox->setEnabled(!maximize_Integral_Checkbox->isChecked() && !chi2_CheckBox->isChecked());
+					norm_Checkbox->setEnabled(!maximize_Integral_Checkbox->isChecked() && !chi2_CheckBox->isChecked());
+
+					function_Label        ->setEnabled(maximize_Integral_Checkbox->isChecked() || !target_Curve->fit_Params.use_Chi2);
+					fit_Function_Line_Edit->setEnabled(maximize_Integral_Checkbox->isChecked() || !target_Curve->fit_Params.use_Chi2);
+				});
+
 				// initialize
 				chi2_CheckBox->toggled(chi2_CheckBox->isChecked());
+				if(target_Curve->fit_Params.maximize_Integral)
+				{maximize_Integral_Checkbox->toggled(maximize_Integral_Checkbox->isChecked());}
 			}
 		}
 		target_Index++;

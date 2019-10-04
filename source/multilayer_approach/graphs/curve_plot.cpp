@@ -187,7 +187,7 @@ void Curve_Plot::create_Plot_Frame_And_Scale()
 		}
 
 		// make range draggable and zoomable:
-		custom_Plot->setInteractions(QCP::iSelectPlottables | QCP::iRangeDrag | QCP::iRangeZoom | /*QCP::iSelectAxes |*/ QCP::iSelectLegend); // iSelectAxes bug?
+		custom_Plot->setInteractions(QCP::iSelectPlottables | QCP::iRangeDrag | QCP::iRangeZoom | /*QCP::iSelectAxes |*/ QCP::iSelectLegend);
 
 		// make top right axes clones of bottom left axes:
 		custom_Plot->xAxis2->setVisible(true);
@@ -837,25 +837,31 @@ void Curve_Plot::colorize_Color_Button()
 
 void Curve_Plot::show_Thickness()
 {
-	QCPGraph* graph = get_Selected_Graph();
-	if(graph!=nullptr)
+	if(multilayer->graph_Options.show_Thickness)
 	{
-		thickness_Spin->setValue(graph->pen().widthF());
-	} else
-	{
-		thickness_Spin->setValue(0);
+		QCPGraph* graph = get_Selected_Graph();
+		if(graph!=nullptr)
+		{
+			thickness_Spin->setValue(graph->pen().widthF());
+		} else
+		{
+			thickness_Spin->setValue(0);
+		}
 	}
 }
 
 void Curve_Plot::show_Scatter_Size()
 {
-	QCPGraph* graph = get_Selected_Graph();
-	if(graph!=nullptr)
+	if(multilayer->graph_Options.show_Scatter)
 	{
-		scatter_Spin->setValue(graph->scatterStyle().size());
-	} else
-	{
-		scatter_Spin->setValue(0);
+		QCPGraph* graph = get_Selected_Graph();
+		if(graph!=nullptr)
+		{
+			scatter_Spin->setValue(graph->scatterStyle().size());
+		} else
+		{
+			scatter_Spin->setValue(0);
+		}
 	}
 }
 

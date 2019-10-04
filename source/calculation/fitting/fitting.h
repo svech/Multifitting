@@ -27,6 +27,8 @@ struct Fitting_Params
 
 	double init_Residual;
 	double final_Residual;
+	bool maximize = false;
+	double max_Integral = 0;
 
 	// for SwarmOps
 	size_t counter;
@@ -63,6 +65,8 @@ public:
 	static void fill_Residual(Fitting_Params* params, int& residual_Shift, Data_Element<Target_Curve>& target_Element, gsl_vector* f, int index);
 	void initialize_Position();
 	void randomize_Position(bool randomize = true);
+	void check_Maximization();
+
 	bool run_Fitting();
 	bool fit();
 	bool confidence(const vector<double>& fitables_Pointers_Value_Backup, const vector<double>& confidentials_Pointers_Value_Backup, size_t confidence_Index);

@@ -118,8 +118,17 @@ bool Fitting_GSL::fit()
 	printf("method              : %s\n",  gsl_multifit_nlinear_trs_name(work));
 	printf("NITER               = %zu\n", gsl_multifit_nlinear_niter(work));
 	printf("NFEV                = %zu\n", fdf.nevalf);
-	printf("initial cost        = %g\n",  params->init_Residual);
-	printf("final cost          = %g\n",  params->final_Residual);
+
+	if(params->maximize)
+	{
+		printf("initial cost        = %g\n",  params->max_Integral-params->init_Residual);
+		printf("final cost          = %g\n",  params->max_Integral-params->final_Residual);
+	} else
+	{
+		printf("initial cost        = %g\n",  params->init_Residual);
+		printf("final cost          = %g\n",  params->final_Residual);
+	}
+
 	printf("reason for stopping : %s\n",  (info == 1) ? "small step size" : "small gradient");
 	printf("\n");
 

@@ -192,6 +192,7 @@ void Main_Calculation_Module::fitting_and_Confidence()
 	if( fitables.param_Pointers.size()>0 )
 	{
 		Fitting fitting_Instance(this);
+		fitting_Instance.check_Maximization();
 		bool is_Load_Init_State_Trees = false;
 		bool go = fitting_Instance.fit();
 		if(!go) return;
@@ -281,6 +282,7 @@ void Main_Calculation_Module::fitting_and_Confidence()
 			}
 
 			Fitting fitting_Instance(this);
+			fitting_Instance.check_Maximization();
 			bool go = fitting_Instance.confidence(fitables_Pointers_Value_Backup, confidentials_Pointers_Value_Backup, confidence_Index);
 			confidentials.param_Pointers[confidence_Index]->confidence.is_Active = false;
 			if(!go) return;

@@ -971,12 +971,34 @@ void Target_Curve_Editor::refresh_Argument_Type()
 		target_Curve->curve.argument_Type = whats_This_Angle;
 		target_Curve->curve.angle_Type = angle_Type_Grazing;
 		target_Curve->measurement.angle_Type = target_Curve->curve.angle_Type;
+
+		if(target_Curve->fit_Params.maximize_Integral)
+		{
+			target_Curve->fit_Params.maximize_Integral = false;
+			if(global_Multilayer_Approach->runned_Calculation_Settings_Editor.contains(calc_Settings_Key))
+			{
+				Calculation_Settings_Editor* calculation_Settings_Editor = global_Multilayer_Approach->runned_Calculation_Settings_Editor.value(calc_Settings_Key);
+				QCheckBox* maximize_Integral_Checkbox = calculation_Settings_Editor->max_Integral_Map.value(target_Curve);
+				maximize_Integral_Checkbox->toggled(false);
+			}
+		}
 	} else
 	if(arg_Type_ComboBox->currentText() == argument_Types[Incident_angle])	// Incident angle
 	{
 		target_Curve->curve.argument_Type = whats_This_Angle;
 		target_Curve->curve.angle_Type = angle_Type_Incidence;
 		target_Curve->measurement.angle_Type = target_Curve->curve.angle_Type;
+
+		if(target_Curve->fit_Params.maximize_Integral)
+		{
+			target_Curve->fit_Params.maximize_Integral = false;
+			if(global_Multilayer_Approach->runned_Calculation_Settings_Editor.contains(calc_Settings_Key))
+			{
+				Calculation_Settings_Editor* calculation_Settings_Editor = global_Multilayer_Approach->runned_Calculation_Settings_Editor.value(calc_Settings_Key);
+				QCheckBox* maximize_Integral_Checkbox = calculation_Settings_Editor->max_Integral_Map.value(target_Curve);
+				maximize_Integral_Checkbox->toggled(false);
+			}
+		}
 	} else
 	if(arg_Type_ComboBox->currentText() == argument_Types[Wavelength_Energy])	// Wavelength/energy
 	{

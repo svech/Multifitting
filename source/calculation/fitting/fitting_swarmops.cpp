@@ -22,7 +22,14 @@ void Fitting_SwarmOps::callback(Fitting_Params* params, SO_TFitness residual)
 		{
 			printf("%f ", params->fitables.param_Pointers[i]->value);
 		}
-		printf("\t|f|=%g", residual);
+
+		if(params->maximize)
+		{
+			printf("\t|f|=%g", params->max_Integral-residual);
+		} else
+		{
+			printf("\t|f|=%g", residual);
+		}
 
 		printf("\n\n");
 	}
@@ -161,7 +168,13 @@ bool Fitting_SwarmOps::fit()
 	params->final_Residual = res.best.fitness;
 	if(!global_Multilayer_Approach->fitting_Settings->randomized_Start)
 	{
-		printf("Initial     |f| = %g\n", params->init_Residual);
+		if(params->maximize)
+		{
+			printf("Initial     |f| = %g\n", params->max_Integral-params->init_Residual);
+		} else
+		{
+			printf("Initial     |f| = %g\n", params->init_Residual);
+		}
 
 		// compare with previous solution
 		double* final_State_Parametrized;
@@ -211,7 +224,13 @@ bool Fitting_SwarmOps::fit()
 		Fitting::change_Real_Fitables_and_Dependent(params, old_Value, new_Value, i, FITTING);
 	}
 
-	printf("Final       |f| = %g\n", res.best.fitness);
+	if(params->maximize)
+	{
+		printf("Final       |f| = %g\n", params->max_Integral-res.best.fitness);
+	} else
+	{
+		printf("Final       |f| = %g\n", res.best.fitness);
+	}
 	printf("Best solution:   ");
 	SO_PrintVector(res.best.x, res.best.dim);
 	printf("\n\n");

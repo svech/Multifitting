@@ -36,6 +36,7 @@ public:
 	QVBoxLayout* main_Layout;
 	QTabWidget* main_Tabs;
 		QVector<QGroupBox*> target_Group_Box_Vec;
+		QMap<Target_Curve*,QCheckBox*> max_Integral_Map;
 		QVector<QGroupBox*> independent_Group_Box_Vec;
 
 	QVector<QLineEdit*> different_Lines; // for editingFinished calling from menu

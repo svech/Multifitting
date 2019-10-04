@@ -579,10 +579,11 @@ struct Curve					{QVector<double> argument; QVector<double> shifted_Argument;
 struct Fit_Params				{bool calc = true;
 								 bool fit = true;
 								 bool norm = true;
+								 bool maximize_Integral = false;
 								 double weight = 1;
 								 double weight_Sqrt = 1;
 								 QString fit_Function = "log("+QString(fit_Function_Variable)+"+1E-5)";// "log(R+1E-5); sin(phi/2)";
-								 int power = 2;
+								 double power = 2;
 								 bool use_Chi2 = true;
 
 								 double expression_Argument;							// not to store
