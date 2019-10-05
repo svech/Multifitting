@@ -289,15 +289,15 @@ QStringList SO_Methods = { /* Mesh Iteration. */
 						   "Local Unimodal Sampling",
 
 						   /* Swarm-Based Optimization, DE and variants */
-						   "Differential Evolution",
-						   "Differential Evolution Suite",
+						   "Differential Evolution (Basic)",
+						   "DE (Best/1/Bin/Simple)",  // Differential Evolution Suite, specified in header
 						   "DE with Temporal Parameters",
 						   "Jan. Differential Evolution",
 						   "Evolution by Lingering Global Best",
 						   "More Yo-yos doing Global optimization",
 
 						   /* Swarm-Based Optimization, PSO and variants */
-						   "Particle Swarm Optimization",
+						   "Particle Swarm Optimization (Basic)",
 						   "Forever Accumulating Evolution",
 						   "Many Optimizing Liaisons",
 

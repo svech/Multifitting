@@ -227,6 +227,7 @@ extern bool mouse_Wheel_Spinbox_Table;
 extern bool refill_Dependent_Table;
 extern bool aperiodic_Recalculate_Spinbox_Table;
 extern bool aperiodic_Mouse_Wheel_Spinbox_Table;
+extern bool replot_Graphs_During_Fitting;
 
 // -----------------------------------------------------------------------------------------
 

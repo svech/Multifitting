@@ -222,6 +222,7 @@ bool mouse_Wheel_Spinbox_Table;
 bool refill_Dependent_Table;
 bool aperiodic_Recalculate_Spinbox_Table;
 bool aperiodic_Mouse_Wheel_Spinbox_Table;
+bool replot_Graphs_During_Fitting;
 
 // -----------------------------------------------------------------------------------------
 
@@ -773,8 +774,8 @@ void Settings::read_Calculations(bool reset_to_default)
 		recalculate_Spinbox_Table			 = calculations.value( "recalculate_Spinbox_Table",				true  ).toBool();
 		mouse_Wheel_Spinbox_Table			 = calculations.value( "mouse_Wheel_Spinbox_Table",				false ).toBool();
 		refill_Dependent_Table				 = calculations.value( "refill_Dependent_Table",				false ).toBool();
-		aperiodic_Recalculate_Spinbox_Table	 = calculations.value( "aperiodic_Recalculate_Spinbox_Table",	false  ).toBool();
-		aperiodic_Mouse_Wheel_Spinbox_Table	 = calculations.value( "aperiodic_Mouse_Wheel_Spinbox_Table",	true ).toBool();
+		aperiodic_Recalculate_Spinbox_Table	 = calculations.value( "aperiodic_Recalculate_Spinbox_Table",	false ).toBool();
+		replot_Graphs_During_Fitting		 = calculations.value( "replot_Graphs_During_Fitting",			true  ).toBool();
 	calculations.endGroup();
 
 	// limit max number of threads
@@ -797,6 +798,7 @@ void Settings::save_Calculations()
 		calculations.setValue( "refill_Dependent_Table",	 refill_Dependent_Table		);
 		calculations.setValue( "aperiodic_Recalculate_Spinbox_Table", aperiodic_Recalculate_Spinbox_Table );
 		calculations.setValue( "aperiodic_Mouse_Wheel_Spinbox_Table", aperiodic_Mouse_Wheel_Spinbox_Table );
+		calculations.setValue( "replot_Graphs_During_Fitting",		  replot_Graphs_During_Fitting );
 	calculations.endGroup();
 }
 

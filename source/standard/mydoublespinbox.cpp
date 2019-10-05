@@ -3,12 +3,17 @@
 const QRegExp positive_Symbols = QRegExp("[^0-9"+QString(Locale.decimalPoint())+"]");
 const QRegExp negative_Symbols = QRegExp("[^0-9"+QString(Locale.decimalPoint())+"\\-]");
 
-MyDoubleSpinBox::MyDoubleSpinBox(QWidget *parent) : QDoubleSpinBox(parent)
+MyDoubleSpinBox::MyDoubleSpinBox(QWidget *parent, bool auto_Resize):
+	QDoubleSpinBox(parent),
+	auto_Resize(auto_Resize)
 {
 	create_Text_Change_Connection();
 
 	// auto resizing when focus is lost
-	connect(myLineEdit(), &QLineEdit::editingFinished, this, [=]{Global_Variables::resize_Line_Edit(this, false);});
+	if(auto_Resize)
+	{
+		connect(myLineEdit(), &QLineEdit::editingFinished, this, [=]{Global_Variables::resize_Line_Edit(this, false);});
+	}
 }
 
 QValidator::State MyDoubleSpinBox::validate(QString &input, int &pos) const
@@ -105,7 +110,7 @@ void MyDoubleSpinBox::create_Text_Change_Connection()
 				blockSignals(false);
 			}
 		}
-		Global_Variables::resize_Line_Edit(this,false);
+		if(auto_Resize)	{Global_Variables::resize_Line_Edit(this,false);}
 
 	}, Qt::UniqueConnection);
 }

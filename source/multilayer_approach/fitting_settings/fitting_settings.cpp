@@ -32,6 +32,57 @@ Fitting_Settings::Fitting_Settings(QWidget* parent) :
 	max_Evaluations=1000;
 	max_Eval_Factor=250;
 	max_Eval_Check=false;
+
+	// additional
+
+		// Hill_Climber
+		r_Factor_HC = 0.01;
+		D_HC = 10.0;
+
+		// Simulated_Annealing
+		r_Factor_SA = 0.01;
+		alpha_SA = 0.3;
+		beta_SA = 0.01;
+		T_SA = 40000;
+
+		// Local_Unimodal_Sampling
+		gamma_LUS = 3.0;
+
+		// Differential_Evolution
+		NP_DE = 172.0;
+		CR_DE = 0.965609;
+		F_DE = 0.361520;
+
+		// Differential_Evolution_Suite (Best/1/Bin/Simple)
+		NP_DES = 157.0;
+		CR_DES = 0.976920;
+		F_DES = 0.334942;
+
+		// DE_with_Temporal_Parameters
+		NP_DETP = 9.0;
+		CR_1_DETP = 0.040135;
+		CR_2_DETP = 0.576005;
+		F_1_DETP = 0.955493;
+		F_2_DETP = 0.320264;
+
+		// Jan_Differential_Evolution
+		NP_JDE = 18.0;
+		F_Init_JDE = 1.393273;
+		F_l_JDE = 0.319121;
+		F_u_JDE = 0.933712;
+		Tau_F_JDE = 0.619482;
+		CR_Init_JDE = 0.777215;
+		CR_l_JDE = 0.889368;
+		CR_u_JDE = 0.160088;
+		Tau_CR_JDE = 0.846782;
+
+		// Evolution_by_Lingering_Global_Best
+		NP_ELG = 143.0;
+
+		// More_Yo_yos_Doing_Global_optimization
+		NP_MYG = 300;
+		F_MYG = 1.627797;
+
 }
 
 // serialization

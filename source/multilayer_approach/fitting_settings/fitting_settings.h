@@ -42,6 +42,57 @@ public:
 	int max_Eval_Factor;
 	bool max_Eval_Check;
 
+	// additional
+
+		// Hill_Climber
+		double r_Factor_HC;
+		double D_HC;
+
+		// Simulated_Annealing
+		double r_Factor_SA;
+		double alpha_SA;
+		double beta_SA;
+		double T_SA;
+
+		// Local_Unimodal_Sampling
+		double gamma_LUS;
+
+		// Differential_Evolution
+		double NP_DE;
+		double CR_DE;
+		double F_DE;
+
+		// Differential_Evolution_Suite (Best/1/Bin/Simple)
+		double NP_DES;
+		double CR_DES;
+		double F_DES;
+
+		// DE_with_Temporal_Parameters
+		double NP_DETP;
+		double CR_1_DETP;
+		double CR_2_DETP;
+		double F_1_DETP;
+		double F_2_DETP;
+
+		// Jan_Differential_Evolution
+		double NP_JDE;
+		double F_Init_JDE;
+		double F_l_JDE;
+		double F_u_JDE;
+		double Tau_F_JDE;
+		double CR_Init_JDE;
+		double CR_l_JDE;
+		double CR_u_JDE;
+		double Tau_CR_JDE;
+
+		// Evolution_by_Lingering_Global_Best
+		double NP_ELG;
+
+		// More_Yo_yos_Doing_Global_optimization
+		double NP_MYG;
+		double F_MYG;
+
+
 };
 
 // serialization

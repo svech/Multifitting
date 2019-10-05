@@ -8,7 +8,7 @@ class MyDoubleSpinBox : public QDoubleSpinBox
 {
 	Q_OBJECT
 public:
-	explicit MyDoubleSpinBox(QWidget *parent = nullptr);
+	explicit MyDoubleSpinBox(QWidget *parent = nullptr, bool auto_Resize = true);
 
 	virtual void fixup(QString &input) const override;
 
@@ -16,6 +16,7 @@ public:
 	bool isValid(const QString& text) const;
 
 	QLineEdit* myLineEdit() const;
+	bool auto_Resize;
 	void create_Text_Change_Connection();
 
 	void setMyAdaptiveStep(bool on);

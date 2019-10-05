@@ -135,6 +135,7 @@ class Node;
 #define Epsilon_Sym				QString(QChar(0x03B5))
 #define Cappa_Sym				QString(QChar(0x03F0))
 #define Alpha_Sym				QString(QChar(0x03B1))
+#define Beta_Sym				QString(QChar(0x03B2))
 #define Zeta_Sym				QString(QChar(0x03B6))
 #define Theta_Sym				QString(QChar(0x03B8))
 #define Lambda_Sym				QString(QChar(0x03BB))
@@ -152,6 +153,7 @@ class Node;
 #define More_Sym				QString(QChar(0x00E9))
 #define Proportional_Sym		QString(QChar(0x221D))
 #define Chi2_Sym				QString(QChar(0x03C7))+QString(QChar(0x00B2))
+#define Element_Sym				QString(QChar(0x2208))
 // -----------------------------------------------------------------------------------------
 
 // magic numbers

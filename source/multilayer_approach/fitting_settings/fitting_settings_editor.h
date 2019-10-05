@@ -74,7 +74,10 @@ public:
 					QCheckBox* SO_max_Eval_Check_Box;	QSpinBox* SO_max_Eval_Factor_SpinBox;
 
 				QGroupBox* SO_Additional_Params_Group_Box;
-					QGridLayout* SO_Additional_Params_Group_Box_Layout;
+					QVBoxLayout* SO_Additional_Params_Group_Box_Layout;
+						QStackedWidget* SO_Additional_Pages_Stack;
+							QMap<int,QWidget*> SO_Additional_Pages_Widgets;
+
 
 		QPushButton* done_Button;
 		QPushButton* abort_Button;

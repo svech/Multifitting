@@ -242,7 +242,7 @@ void Fitting::calc_Residual(const gsl_vector* x, Fitting_Params* params, gsl_vec
 	}
 
 	// replot
-	if(global_Multilayer_Approach->runned_Optical_Graphs.contains(optical_Graphs_Key))
+	if(replot_Graphs_During_Fitting && global_Multilayer_Approach->runned_Optical_Graphs.contains(optical_Graphs_Key))
 	{
 		for(Curve_Plot* curve_Plot : global_Multilayer_Approach->optical_Graphs->plots)
 		{
