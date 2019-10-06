@@ -160,24 +160,33 @@ void Fitting_Settings_Editor::create_Metods()
 	// fill SwarmOps group
 	{
 		methods_Combo_Box->addItem(spacer + SO_Methods[Mesh_Iteration]						 );
+		methods_Combo_Box->insertSeparator(methods_Combo_Box->count());
+
 		methods_Combo_Box->addItem(spacer + SO_Methods[Random_Sampling_Uniform]				 );
+		methods_Combo_Box->insertSeparator(methods_Combo_Box->count());
+
 //		methods_Combo_Box->addItem(spacer + SO_Methods[Gradient_Descent]					 );//
 //		methods_Combo_Box->addItem(spacer + SO_Methods[Gradient_Emancipated_Descent]		 );//
 		methods_Combo_Box->addItem(spacer + SO_Methods[Hill_Climber]						 );//
 		methods_Combo_Box->addItem(spacer + SO_Methods[Simulated_Annealing]					 );//
 		methods_Combo_Box->addItem(spacer + SO_Methods[Pattern_Search]						 );//
 		methods_Combo_Box->addItem(spacer + SO_Methods[Local_Unimodal_Sampling]				 );//
+		methods_Combo_Box->insertSeparator(methods_Combo_Box->count());
+
 		methods_Combo_Box->addItem(spacer + SO_Methods[Differential_Evolution]				 );
 		methods_Combo_Box->addItem(spacer + SO_Methods[Differential_Evolution_Suite]		 );
 		methods_Combo_Box->addItem(spacer + SO_Methods[DE_with_Temporal_Parameters]			 );
 		methods_Combo_Box->addItem(spacer + SO_Methods[Jan_Differential_Evolution]			 );//
 		methods_Combo_Box->addItem(spacer + SO_Methods[Evolution_by_Lingering_Global_Best]	 );//
 		methods_Combo_Box->addItem(spacer + SO_Methods[More_Yo_yos_Doing_Global_optimization]);//
+		methods_Combo_Box->insertSeparator(methods_Combo_Box->count());
+
 		methods_Combo_Box->addItem(spacer + SO_Methods[Particle_Swarm_Optimization]			 );//
 		methods_Combo_Box->addItem(spacer + SO_Methods[Forever_Accumulating_Evolution]		 );//
 		methods_Combo_Box->addItem(spacer + SO_Methods[Many_Optimizing_Liaisons]			 );//
-		methods_Combo_Box->addItem(spacer + SO_Methods[Layered_and_Interleaved_CoEvolution]	 );//
+		methods_Combo_Box->insertSeparator(methods_Combo_Box->count());
 
+		methods_Combo_Box->addItem(spacer + SO_Methods[Layered_and_Interleaved_CoEvolution]	 );//
 		methods_Combo_Box->insertSeparator(methods_Combo_Box->count());
 	}
 
@@ -208,7 +217,12 @@ void Fitting_Settings_Editor::create_Metods()
 		fitting_Settings->current_Method = methods_Combo_Box->currentText().remove(QRegExp(spacer));
 
 		// TODO temporary
-		if(	GSL_Methods.contains(fitting_Settings->current_Method) && GSL_Page)	{pages_Stack->setCurrentWidget(GSL_Page);}
+		/// GSL
+		if(	GSL_Methods.contains(fitting_Settings->current_Method) && GSL_Page)
+		{
+			pages_Stack->setCurrentWidget(GSL_Page);
+		}
+		/// SO
 		if(	SO_Methods. contains(fitting_Settings->current_Method) && SO_Page )
 		{
 			pages_Stack->setCurrentWidget(SO_Page);
@@ -691,7 +705,7 @@ void Fitting_Settings_Editor::create_SO_AdditionalParams_Group_Box()
 				page_Layout->setAlignment(Qt::AlignTop);
 
 			// gamma
-			QLabel* gamma_LUS_Label = new QLabel("Power of decreasing range"+Gamma_Sym+Element_Sym+"[0.5,20]"); // official: "gamma"
+			QLabel* gamma_LUS_Label = new QLabel("Power of decreasing range "+Gamma_Sym+Element_Sym+"[0.5,20]"); // official: "gamma"
 			MyDoubleSpinBox* gamma_LUS_SpinBox = new MyDoubleSpinBox(this, false);
 				gamma_LUS_SpinBox->setRange(0.5,20);
 				gamma_LUS_SpinBox->setDecimals(8);
@@ -1152,7 +1166,265 @@ void Fitting_Settings_Editor::create_SO_AdditionalParams_Group_Box()
 			page_Layout->addWidget(F_MYG_Label,1,0);
 			page_Layout->addWidget(F_MYG_SpinBox,1,1);
 		}
+		Particle_Swarm_Optimization;
+		{
+			/// look at Methods/PSO.c in SO source code and at page 31 of SO manual
+			QWidget* page_Widget = new QWidget;
+			SO_Additional_Pages_Stack->addWidget(page_Widget);
+			SO_Additional_Pages_Widgets.insert(Particle_Swarm_Optimization,page_Widget);
+			QGridLayout* page_Layout = new QGridLayout(page_Widget);
+				page_Layout->setAlignment(Qt::AlignTop);
 
+			// S
+			QLabel* S_PSO_Label = new QLabel("Swarm size S"+Element_Sym+"[1,500]"); // official: "Number of agents"
+			MyDoubleSpinBox* S_PSO_SpinBox = new MyDoubleSpinBox(this, false);
+				S_PSO_SpinBox->setRange(1,500);
+				S_PSO_SpinBox->setDecimals(0);
+				S_PSO_SpinBox->setSingleStep(1);
+				S_PSO_SpinBox->setValue(fitting_Settings->S_PSO);
+				S_PSO_SpinBox->setAccelerated(true);
+				S_PSO_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
+			connect(S_PSO_SpinBox, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
+			{
+				fitting_Settings->S_PSO = S_PSO_SpinBox->value();
+			});
+
+			// omega
+			QLabel* omega_PSO_Label = new QLabel("Inertia weight "+Omega_Sym+Element_Sym+"[-2,2]"); // official: "Inertia weight"
+			MyDoubleSpinBox* omega_PSO_SpinBox = new MyDoubleSpinBox(this, false);
+				omega_PSO_SpinBox->setRange(-2,2);
+				omega_PSO_SpinBox->setDecimals(8);
+				omega_PSO_SpinBox->setSingleStep(0.01);
+				omega_PSO_SpinBox->setValue(fitting_Settings->omega_PSO);
+				omega_PSO_SpinBox->setAccelerated(true);
+				omega_PSO_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
+			connect(omega_PSO_SpinBox, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
+			{
+				fitting_Settings->omega_PSO = omega_PSO_SpinBox->value();
+			});
+
+			// phi_p
+			QLabel* phi_p_PSO_Label = new QLabel("Weight on particle-best attraction "+Phi_Sym+"_p"+Element_Sym+"[-4,4]"); // official: "Weight on particle-best attraction"
+			MyDoubleSpinBox* phi_p_PSO_SpinBox = new MyDoubleSpinBox(this, false);
+				phi_p_PSO_SpinBox->setRange(-4,4);
+				phi_p_PSO_SpinBox->setDecimals(8);
+				phi_p_PSO_SpinBox->setSingleStep(0.01);
+				phi_p_PSO_SpinBox->setValue(fitting_Settings->phi_p_PSO);
+				phi_p_PSO_SpinBox->setAccelerated(true);
+				phi_p_PSO_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
+			connect(phi_p_PSO_SpinBox, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
+			{
+				fitting_Settings->phi_p_PSO = phi_p_PSO_SpinBox->value();
+			});
+
+			// phi_g
+			QLabel* phi_g_PSO_Label = new QLabel("Weight on swarm-best attraction "+Phi_Sym+"_g"+Element_Sym+"[-4,4]"); // official: "Weight on swarm-best attraction"
+			MyDoubleSpinBox* phi_g_PSO_SpinBox = new MyDoubleSpinBox(this, false);
+				phi_g_PSO_SpinBox->setRange(-4,4);
+				phi_g_PSO_SpinBox->setDecimals(8);
+				phi_g_PSO_SpinBox->setSingleStep(0.01);
+				phi_g_PSO_SpinBox->setValue(fitting_Settings->phi_g_PSO);
+				phi_g_PSO_SpinBox->setAccelerated(true);
+				phi_g_PSO_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
+			connect(phi_g_PSO_SpinBox, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
+			{
+				fitting_Settings->phi_g_PSO = phi_g_PSO_SpinBox->value();
+			});
+
+			int p=0;
+			page_Layout->addWidget(S_PSO_Label,p,0);
+			page_Layout->addWidget(S_PSO_SpinBox,p,1);
+			p+=1;
+			page_Layout->addWidget(omega_PSO_Label,p,0);
+			page_Layout->addWidget(omega_PSO_SpinBox,p,1);
+			p+=1;
+			page_Layout->addWidget(phi_p_PSO_Label,p,0);
+			page_Layout->addWidget(phi_p_PSO_SpinBox,p,1);
+			p+=1;
+			page_Layout->addWidget(phi_g_PSO_Label,p,0);
+			page_Layout->addWidget(phi_g_PSO_SpinBox,p,1);
+		}
+		Forever_Accumulating_Evolution;
+		{
+			/// look at Methods/FAE.c in SO source code and at page 33 of SO manual
+			QWidget* page_Widget = new QWidget;
+			SO_Additional_Pages_Stack->addWidget(page_Widget);
+			SO_Additional_Pages_Widgets.insert(Forever_Accumulating_Evolution,page_Widget);
+			QGridLayout* page_Layout = new QGridLayout(page_Widget);
+				page_Layout->setAlignment(Qt::AlignTop);
+
+			// S
+			QLabel* S_FAE_Label = new QLabel("Swarm size S"+Element_Sym+"[1,200]"); // official: "Number of agents"
+			MyDoubleSpinBox* S_FAE_SpinBox = new MyDoubleSpinBox(this, false);
+				S_FAE_SpinBox->setRange(1,200);
+				S_FAE_SpinBox->setDecimals(0);
+				S_FAE_SpinBox->setSingleStep(1);
+				S_FAE_SpinBox->setValue(fitting_Settings->S_FAE);
+				S_FAE_SpinBox->setAccelerated(true);
+				S_FAE_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
+			connect(S_FAE_SpinBox, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
+			{
+				fitting_Settings->S_FAE = S_FAE_SpinBox->value();
+			});
+
+			// lambda_g
+			QLabel* lambda_g_FAE_Label = new QLabel("Factor "+Lambda_Sym+"-g"+Element_Sym+"[-2,2]"); // official: "Lambda-g"
+			MyDoubleSpinBox* lambda_g_FAE_SpinBox = new MyDoubleSpinBox(this, false);
+				lambda_g_FAE_SpinBox->setRange(-2,2);
+				lambda_g_FAE_SpinBox->setDecimals(8);
+				lambda_g_FAE_SpinBox->setSingleStep(0.01);
+				lambda_g_FAE_SpinBox->setValue(fitting_Settings->lambda_g_FAE);
+				lambda_g_FAE_SpinBox->setAccelerated(true);
+				lambda_g_FAE_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
+			connect(lambda_g_FAE_SpinBox, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
+			{
+				fitting_Settings->lambda_g_FAE = lambda_g_FAE_SpinBox->value();
+			});
+
+			// lambda_x
+			QLabel* lambda_x_FAE_Label = new QLabel("Factor "+Lambda_Sym+"-x"+Element_Sym+"[-8,-1]"); // official: "Lambda-x"
+			MyDoubleSpinBox* lambda_x_FAE_SpinBox = new MyDoubleSpinBox(this, false);
+				lambda_x_FAE_SpinBox->setRange(-8,-1);
+				lambda_x_FAE_SpinBox->setDecimals(8);
+				lambda_x_FAE_SpinBox->setSingleStep(0.01);
+				lambda_x_FAE_SpinBox->setValue(fitting_Settings->lambda_x_FAE);
+				lambda_x_FAE_SpinBox->setAccelerated(true);
+				lambda_x_FAE_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
+			connect(lambda_x_FAE_SpinBox, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
+			{
+				fitting_Settings->lambda_x_FAE = lambda_x_FAE_SpinBox->value();
+			});
+
+			page_Layout->addWidget(S_FAE_Label,0,0);
+			page_Layout->addWidget(S_FAE_SpinBox,0,1);
+
+			page_Layout->addWidget(lambda_g_FAE_Label,1,0);
+			page_Layout->addWidget(lambda_g_FAE_SpinBox,1,1);
+
+			page_Layout->addWidget(lambda_x_FAE_Label,2,0);
+			page_Layout->addWidget(lambda_x_FAE_SpinBox,2,1);
+		}
+		Many_Optimizing_Liaisons;
+		{
+			/// look at Methods/MOL.c in SO source code and at page 32 of SO manual
+			QWidget* page_Widget = new QWidget;
+			SO_Additional_Pages_Stack->addWidget(page_Widget);
+			SO_Additional_Pages_Widgets.insert(Many_Optimizing_Liaisons,page_Widget);
+			QGridLayout* page_Layout = new QGridLayout(page_Widget);
+				page_Layout->setAlignment(Qt::AlignTop);
+
+			// S
+			QLabel* S_MOL_Label = new QLabel("Swarm size S"+Element_Sym+"[1,500]"); // official: "Number of agents"
+			MyDoubleSpinBox* S_MOL_SpinBox = new MyDoubleSpinBox(this, false);
+				S_MOL_SpinBox->setRange(1,500);
+				S_MOL_SpinBox->setDecimals(0);
+				S_MOL_SpinBox->setSingleStep(1);
+				S_MOL_SpinBox->setValue(fitting_Settings->S_MOL);
+				S_MOL_SpinBox->setAccelerated(true);
+				S_MOL_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
+			connect(S_MOL_SpinBox, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
+			{
+				fitting_Settings->S_MOL = S_MOL_SpinBox->value();
+			});
+
+			// omega
+			QLabel* omega_MOL_Label = new QLabel("Inertia weight "+Omega_Sym+Element_Sym+"[-2,2]"); // official: "Inertia weight"
+			MyDoubleSpinBox* omega_MOL_SpinBox = new MyDoubleSpinBox(this, false);
+				omega_MOL_SpinBox->setRange(-2,2);
+				omega_MOL_SpinBox->setDecimals(8);
+				omega_MOL_SpinBox->setSingleStep(0.01);
+				omega_MOL_SpinBox->setValue(fitting_Settings->omega_MOL);
+				omega_MOL_SpinBox->setAccelerated(true);
+				omega_MOL_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
+			connect(omega_MOL_SpinBox, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
+			{
+				fitting_Settings->omega_MOL = omega_MOL_SpinBox->value();
+			});
+
+			// phi_g
+			QLabel* phi_g_MOL_Label = new QLabel("Weight on swarm-best attraction "+Phi_Sym+"_g"+Element_Sym+"[-4,4]"); // official: "Weight on swarm-best attraction"
+			MyDoubleSpinBox* phi_g_MOL_SpinBox = new MyDoubleSpinBox(this, false);
+				phi_g_MOL_SpinBox->setRange(-4,4);
+				phi_g_MOL_SpinBox->setDecimals(8);
+				phi_g_MOL_SpinBox->setSingleStep(0.01);
+				phi_g_MOL_SpinBox->setValue(fitting_Settings->phi_g_MOL);
+				phi_g_MOL_SpinBox->setAccelerated(true);
+				phi_g_MOL_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
+			connect(phi_g_MOL_SpinBox, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
+			{
+				fitting_Settings->phi_g_MOL = phi_g_MOL_SpinBox->value();
+			});
+
+			int p=0;
+			page_Layout->addWidget(S_MOL_Label,p,0);
+			page_Layout->addWidget(S_MOL_SpinBox,p,1);
+			p+=1;
+			page_Layout->addWidget(omega_MOL_Label,p,0);
+			page_Layout->addWidget(omega_MOL_SpinBox,p,1);
+			p+=1;
+			page_Layout->addWidget(phi_g_MOL_Label,p,0);
+			page_Layout->addWidget(phi_g_MOL_SpinBox,p,1);
+		}
+		Layered_and_Interleaved_CoEvolution;
+		{
+			/// look at Methods/LICE.c in SO source code and at page 34 of SO manual
+			QWidget* page_Widget = new QWidget;
+			SO_Additional_Pages_Stack->addWidget(page_Widget);
+			SO_Additional_Pages_Widgets.insert(Layered_and_Interleaved_CoEvolution,page_Widget);
+			QGridLayout* page_Layout = new QGridLayout(page_Widget);
+				page_Layout->setAlignment(Qt::AlignTop);
+
+			// gamma_2
+			QLabel* gamma_2_LICE_Label = new QLabel("Meta-power of decreasing range "+Gamma_Sym+"2"+Element_Sym+"[0.5,4]"); // official: "gamma2"
+			MyDoubleSpinBox* gamma_2_LICE_SpinBox = new MyDoubleSpinBox(this, false);
+				gamma_2_LICE_SpinBox->setRange(0.5,4);
+				gamma_2_LICE_SpinBox->setDecimals(8);
+				gamma_2_LICE_SpinBox->setSingleStep(0.01);
+				gamma_2_LICE_SpinBox->setValue(fitting_Settings->gamma_2_LICE);
+				gamma_2_LICE_SpinBox->setAccelerated(true);
+				gamma_2_LICE_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
+			connect(gamma_2_LICE_SpinBox, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
+			{
+				fitting_Settings->gamma_2_LICE = gamma_2_LICE_SpinBox->value();
+			});
+
+			// N
+			QLabel* N_LICE_Label = new QLabel("Base layer iteration factor N"+Element_Sym+"[10,40]"); // official: "N"
+			MyDoubleSpinBox* N_LICE_SpinBox = new MyDoubleSpinBox(this, false);
+				N_LICE_SpinBox->setRange(10,40);
+				N_LICE_SpinBox->setDecimals(0);
+				N_LICE_SpinBox->setSingleStep(1);
+				N_LICE_SpinBox->setValue(fitting_Settings->N_LICE);
+				N_LICE_SpinBox->setAccelerated(true);
+				N_LICE_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
+			connect(N_LICE_SpinBox, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
+			{
+				fitting_Settings->N_LICE = N_LICE_SpinBox->value();
+			});
+
+			// gamma
+			QLabel* gamma_LICE_Label = new QLabel("Power of decreasing range "+Gamma_Sym+Element_Sym+"[0.5,6]"); // official: "gamma"
+			MyDoubleSpinBox* gamma_LICE_SpinBox = new MyDoubleSpinBox(this, false);
+				gamma_LICE_SpinBox->setRange(0.5,6);
+				gamma_LICE_SpinBox->setDecimals(8);
+				gamma_LICE_SpinBox->setSingleStep(0.01);
+				gamma_LICE_SpinBox->setValue(fitting_Settings->gamma_LICE);
+				gamma_LICE_SpinBox->setAccelerated(true);
+				gamma_LICE_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
+			connect(gamma_LICE_SpinBox, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
+			{
+				fitting_Settings->gamma_LICE = gamma_LICE_SpinBox->value();
+			});
+
+			page_Layout->addWidget(gamma_2_LICE_Label,0,0);
+			page_Layout->addWidget(gamma_2_LICE_SpinBox,0,1);
+
+			page_Layout->addWidget(N_LICE_Label,1,0);
+			page_Layout->addWidget(N_LICE_SpinBox,1,1);
+
+			page_Layout->addWidget(gamma_LICE_Label,2,0);
+			page_Layout->addWidget(gamma_LICE_SpinBox,2,1);
+		}
 	}
 	{
 		// create spoiler

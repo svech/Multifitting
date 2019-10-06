@@ -17,14 +17,14 @@ Fitting_Settings::Fitting_Settings(QWidget* parent) :
 	f_Tolerance = 1.0e-8;
 
 	// additional
-	current_Scale = GSL_Scales[More];
-	current_Solver = GSL_Solvers[QR_decomposition];
-	current_Fdtype = GSL_Fdtype[Forward];
-	factor_Up = 3;
-	factor_Down = 2;
-	avmax = 0.75;
-	h_df = GSL_SQRT_DBL_EPSILON;
-	h_fvv = 0.02;
+		current_Scale = GSL_Scales[More];
+		current_Solver = GSL_Solvers[QR_decomposition];
+		current_Fdtype = GSL_Fdtype[Forward];
+		factor_Up = 3;
+		factor_Down = 2;
+		avmax = 0.75;
+		h_df = GSL_SQRT_DBL_EPSILON;
+		h_fvv = 0.02;
 
 	/// for SwarmOps
 	// main
@@ -83,6 +83,26 @@ Fitting_Settings::Fitting_Settings(QWidget* parent) :
 		NP_MYG = 300;
 		F_MYG = 1.627797;
 
+		// Particle_Swarm_Optimization
+		S_PSO = 148.0;
+		omega_PSO = -0.046644;
+		phi_p_PSO = 2.882152;
+		phi_g_PSO = 1.857463;
+
+		// Forever_Accumulating_Evolution
+		S_FAE = 100.0;
+		lambda_g_FAE = 1.486496;
+		lambda_x_FAE = -3.949617;
+
+		// Many_Optimizing_Liaisons
+		S_MOL = 153.0;
+		omega_MOL = -0.289623;
+		phi_g_MOL = 1.494742;
+
+		// Layered_and_Interleaved_CoEvolution
+		gamma_2_LICE = 0.991083;
+		N_LICE = 25.0;
+		gamma_LICE = 5.633202;
 }
 
 // serialization
@@ -100,7 +120,22 @@ QDataStream& operator <<( QDataStream& stream, const Fitting_Settings* fitting_S
 	/// SwarmOps
 	// main
 	<< fitting_Settings->initialize_By_Current_State	// since 1.7.1
-	<< fitting_Settings->max_Evaluations << fitting_Settings->max_Eval_Factor << fitting_Settings->max_Eval_Check ;
+	<< fitting_Settings->max_Evaluations << fitting_Settings->max_Eval_Factor << fitting_Settings->max_Eval_Check
+	// additional
+	<< fitting_Settings->r_Factor_HC << fitting_Settings->D_HC
+	<< fitting_Settings->r_Factor_SA << fitting_Settings->alpha_SA << fitting_Settings->beta_SA << fitting_Settings->T_SA
+	<< fitting_Settings->gamma_LUS
+	<< fitting_Settings->NP_DE << fitting_Settings->CR_DE << fitting_Settings->F_DE
+	<< fitting_Settings->NP_DES << fitting_Settings->CR_DES << fitting_Settings->F_DES
+	<< fitting_Settings->NP_DETP << fitting_Settings->CR_1_DETP << fitting_Settings->CR_2_DETP << fitting_Settings->F_1_DETP << fitting_Settings->F_2_DETP
+	<< fitting_Settings->NP_JDE << fitting_Settings->F_Init_JDE << fitting_Settings->F_l_JDE << fitting_Settings->F_u_JDE << fitting_Settings->Tau_F_JDE
+								<< fitting_Settings->CR_Init_JDE << fitting_Settings->CR_l_JDE << fitting_Settings->CR_u_JDE << fitting_Settings->Tau_CR_JDE
+	<< fitting_Settings->NP_ELG
+	<< fitting_Settings->NP_MYG << fitting_Settings->F_MYG
+	<< fitting_Settings->S_PSO << fitting_Settings->omega_PSO << fitting_Settings->phi_p_PSO << fitting_Settings->phi_g_PSO
+	<< fitting_Settings->S_FAE << fitting_Settings->lambda_g_FAE << fitting_Settings->lambda_x_FAE
+	<< fitting_Settings->S_MOL << fitting_Settings->omega_MOL << fitting_Settings->phi_g_MOL
+	<< fitting_Settings->gamma_2_LICE << fitting_Settings->N_LICE << fitting_Settings->gamma_LICE;
 }
 QDataStream& operator >>( QDataStream& stream,		  Fitting_Settings* fitting_Settings )
 {
@@ -110,14 +145,34 @@ QDataStream& operator >>( QDataStream& stream,		  Fitting_Settings* fitting_Sett
 	// main
 	stream >> fitting_Settings->max_Iter >> fitting_Settings->x_Tolerance >> fitting_Settings->g_Tolerance >> fitting_Settings->f_Tolerance
 	// additional
-		   >> fitting_Settings->current_Scale >> fitting_Settings->current_Solver >> fitting_Settings->current_Fdtype
-		   >> fitting_Settings->factor_Up >> fitting_Settings->factor_Down >> fitting_Settings->avmax >> fitting_Settings->h_df >> fitting_Settings->h_fvv;
+	>> fitting_Settings->current_Scale >> fitting_Settings->current_Solver >> fitting_Settings->current_Fdtype
+	>> fitting_Settings->factor_Up >> fitting_Settings->factor_Down >> fitting_Settings->avmax >> fitting_Settings->h_df >> fitting_Settings->h_fvv;
 
 	/// SwarmOps
 	// main
 	if(Global_Variables::check_Loaded_Version(1,7,1))
 	{stream >> fitting_Settings->initialize_By_Current_State; }	// since 1.7.1
-	stream >> fitting_Settings->max_Evaluations >> fitting_Settings->max_Eval_Factor >> fitting_Settings->max_Eval_Check ;
+	stream >> fitting_Settings->max_Evaluations >> fitting_Settings->max_Eval_Factor >> fitting_Settings->max_Eval_Check;
+	// additional
+	if(Global_Variables::check_Loaded_Version(1,9,4))
+	{
+		stream
+		>> fitting_Settings->r_Factor_HC >> fitting_Settings->D_HC
+		>> fitting_Settings->r_Factor_SA >> fitting_Settings->alpha_SA >> fitting_Settings->beta_SA >> fitting_Settings->T_SA
+		>> fitting_Settings->gamma_LUS
+		>> fitting_Settings->NP_DE >> fitting_Settings->CR_DE >> fitting_Settings->F_DE
+		>> fitting_Settings->NP_DES >> fitting_Settings->CR_DES >> fitting_Settings->F_DES
+		>> fitting_Settings->NP_DETP >> fitting_Settings->CR_1_DETP >> fitting_Settings->CR_2_DETP >> fitting_Settings->F_1_DETP >> fitting_Settings->F_2_DETP
+		>> fitting_Settings->NP_JDE >> fitting_Settings->F_Init_JDE >> fitting_Settings->F_l_JDE >> fitting_Settings->F_u_JDE >> fitting_Settings->Tau_F_JDE
+									>> fitting_Settings->CR_Init_JDE >> fitting_Settings->CR_l_JDE >> fitting_Settings->CR_u_JDE >> fitting_Settings->Tau_CR_JDE
+		>> fitting_Settings->NP_ELG
+		>> fitting_Settings->NP_MYG >> fitting_Settings->F_MYG
+		>> fitting_Settings->S_PSO >> fitting_Settings->omega_PSO >> fitting_Settings->phi_p_PSO >> fitting_Settings->phi_g_PSO
+		>> fitting_Settings->S_FAE >> fitting_Settings->lambda_g_FAE >> fitting_Settings->lambda_x_FAE
+		>> fitting_Settings->S_MOL >> fitting_Settings->omega_MOL >> fitting_Settings->phi_g_MOL
+		>> fitting_Settings->gamma_2_LICE >> fitting_Settings->N_LICE >> fitting_Settings->gamma_LICE;
+
+	}
 
 	return stream;
 }

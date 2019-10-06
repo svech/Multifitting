@@ -9,7 +9,7 @@
 
 #define VERSION_MAJOR 1
 #define VERSION_MINOR 9
-#define VERSION_BUILD 3
+#define VERSION_BUILD 4
 
 using namespace std;
 class Node;
@@ -145,6 +145,8 @@ class Node;
 #define Pi_Sym					QString(QChar(0x03C0))
 #define Nu_Sym					QString(QChar(0x03BD))
 #define Phi_Sym					QString(QChar(0x03C6))
+#define Tau_Sym					QString(QChar(0x03C4))
+#define Omega_Sym				QString(QChar(0x03C9))
 #define Prime_Sym				QString(QChar(0x2032))
 #define Double_Prime_Sym		QString(QChar(0x2033))
 #define Medium_BlackCircle_Sym	QString(QChar(0x26AB))

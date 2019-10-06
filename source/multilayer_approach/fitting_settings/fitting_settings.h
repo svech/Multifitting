@@ -26,14 +26,14 @@ public:
 	double f_Tolerance;
 
 	// additional
-	QString current_Scale;
-	QString current_Solver;
-	QString current_Fdtype;
-	double factor_Up;
-	double factor_Down;
-	double avmax;
-	double h_df;
-	double h_fvv;
+		QString current_Scale;
+		QString current_Solver;
+		QString current_Fdtype;
+		double factor_Up;
+		double factor_Down;
+		double avmax;
+		double h_df;
+		double h_fvv;
 
 	/// for SwarmOps
 	// main
@@ -92,7 +92,26 @@ public:
 		double NP_MYG;
 		double F_MYG;
 
+		// Particle_Swarm_Optimization
+		double S_PSO;
+		double omega_PSO;
+		double phi_p_PSO;
+		double phi_g_PSO;
 
+		// Forever_Accumulating_Evolution
+		double S_FAE;
+		double lambda_g_FAE;
+		double lambda_x_FAE;
+
+		// Many_Optimizing_Liaisons
+		double S_MOL;
+		double omega_MOL;
+		double phi_g_MOL;
+
+		// Layered_and_Interleaved_CoEvolution
+		double gamma_2_LICE;
+		double N_LICE;
+		double gamma_LICE;
 };
 
 // serialization
