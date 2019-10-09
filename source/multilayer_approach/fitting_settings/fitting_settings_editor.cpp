@@ -571,7 +571,7 @@ void Fitting_Settings_Editor::create_SO_AdditionalParams_Group_Box()
 			QLabel* r_HC_Label = new QLabel("Range factor for divergence r"+Element_Sym+"(0,1]"); // official: "Sampling range"
 			MyDoubleSpinBox* r_HC_SpinBox = new MyDoubleSpinBox(this, false);
 				r_HC_SpinBox->setRange(1E-5,1);
-//				r_HC_SpinBox->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
+				r_HC_SpinBox->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
 				r_HC_SpinBox->setDecimals(8);
 				r_HC_SpinBox->setSingleStep(0.01);
 				r_HC_SpinBox->setValue(fitting_Settings->r_Factor_HC);
@@ -586,9 +586,9 @@ void Fitting_Settings_Editor::create_SO_AdditionalParams_Group_Box()
 			QLabel* D_HC_Label = new QLabel("\"Temperature\" of transition probability D>0"); // official: "Probability weight"
 			MyDoubleSpinBox* D_HC_SpinBox = new MyDoubleSpinBox(this, false);
 				D_HC_SpinBox->setRange(1E-3,100000);
-//				D_HC_SpinBox->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
+				D_HC_SpinBox->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
 				D_HC_SpinBox->setDecimals(8);
-				D_HC_SpinBox->setSingleStep(1);
+				D_HC_SpinBox->setSingleStep(0.01);
 				D_HC_SpinBox->setValue(fitting_Settings->D_HC);
 				D_HC_SpinBox->setAccelerated(true);
 				D_HC_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
@@ -616,7 +616,7 @@ void Fitting_Settings_Editor::create_SO_AdditionalParams_Group_Box()
 			QLabel* r_SA_Label = new QLabel("Range factor for divergence r"+Element_Sym+"(0,1]"); // official: "r, sampling range factor"
 			MyDoubleSpinBox* r_SA_SpinBox = new MyDoubleSpinBox(this, false);
 				r_SA_SpinBox->setRange(1E-5,1);
-//				r_SA_SpinBox->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
+				r_SA_SpinBox->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
 				r_SA_SpinBox->setDecimals(8);
 				r_SA_SpinBox->setSingleStep(0.01);
 				r_SA_SpinBox->setValue(fitting_Settings->r_Factor_SA);
@@ -631,9 +631,9 @@ void Fitting_Settings_Editor::create_SO_AdditionalParams_Group_Box()
 			QLabel* alpha_SA_Label = new QLabel("Start temperature "+Alpha_Sym+Element_Sym+"(0,1]"); // official: "alpha, start-value"
 			MyDoubleSpinBox* alpha_SA_SpinBox = new MyDoubleSpinBox(this, false);
 				alpha_SA_SpinBox->setRange(1E-5,1);
-//				alpha_SA_SpinBox->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
+				alpha_SA_SpinBox->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
 				alpha_SA_SpinBox->setDecimals(8);
-				alpha_SA_SpinBox->setSingleStep(1);
+				alpha_SA_SpinBox->setSingleStep(0.01);
 				alpha_SA_SpinBox->setValue(fitting_Settings->alpha_SA);
 				alpha_SA_SpinBox->setAccelerated(true);
 				alpha_SA_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
@@ -646,9 +646,9 @@ void Fitting_Settings_Editor::create_SO_AdditionalParams_Group_Box()
 			QLabel* beta_SA_Label = new QLabel("End temperature "+Beta_Sym+Element_Sym+"(0,1]"); // official: "beta, end-value"
 			MyDoubleSpinBox* beta_SA_SpinBox = new MyDoubleSpinBox(this, false);
 				beta_SA_SpinBox->setRange(1E-5,1);
-//				beta_SA_SpinBox->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
+				beta_SA_SpinBox->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
 				beta_SA_SpinBox->setDecimals(8);
-				beta_SA_SpinBox->setSingleStep(1);
+				beta_SA_SpinBox->setSingleStep(0.01);
 				beta_SA_SpinBox->setValue(fitting_Settings->beta_SA);
 				beta_SA_SpinBox->setAccelerated(true);
 				beta_SA_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
@@ -661,7 +661,7 @@ void Fitting_Settings_Editor::create_SO_AdditionalParams_Group_Box()
 			QLabel* T_SA_Label = new QLabel("Iterations between resets"); // official: "T, iterations between resets"
 			QSpinBox* T_SA_SpinBox = new QSpinBox;
 				T_SA_SpinBox->setRange(100,100000);
-//				T_SA_SpinBox->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
+				T_SA_SpinBox->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
 				T_SA_SpinBox->setSingleStep(10);
 				T_SA_SpinBox->setValue(fitting_Settings->T_SA);
 				T_SA_SpinBox->setAccelerated(true);
@@ -709,7 +709,7 @@ void Fitting_Settings_Editor::create_SO_AdditionalParams_Group_Box()
 			MyDoubleSpinBox* gamma_LUS_SpinBox = new MyDoubleSpinBox(this, false);
 				gamma_LUS_SpinBox->setRange(0.5,20);
 				gamma_LUS_SpinBox->setDecimals(8);
-				gamma_LUS_SpinBox->setSingleStep(0.01);
+				gamma_LUS_SpinBox->setSingleStep(0.1);
 				gamma_LUS_SpinBox->setValue(fitting_Settings->gamma_LUS);
 				gamma_LUS_SpinBox->setAccelerated(true);
 				gamma_LUS_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
@@ -734,6 +734,7 @@ void Fitting_Settings_Editor::create_SO_AdditionalParams_Group_Box()
 			QLabel* NP_DE_Label = new QLabel("Swarm size NP"+Element_Sym+"[3,500]"); // official: "Number of agents NP"
 			MyDoubleSpinBox* NP_DE_SpinBox = new MyDoubleSpinBox(this, false);
 				NP_DE_SpinBox->setRange(3,500);
+				NP_DE_SpinBox->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
 				NP_DE_SpinBox->setDecimals(0);
 				NP_DE_SpinBox->setSingleStep(1);
 				NP_DE_SpinBox->setValue(fitting_Settings->NP_DE);
@@ -748,6 +749,7 @@ void Fitting_Settings_Editor::create_SO_AdditionalParams_Group_Box()
 			QLabel* CR_DE_Label = new QLabel("Crossover probability CR"+Element_Sym+"[0,1]"); // official: "Crossover Probability (CR)"
 			MyDoubleSpinBox* CR_DE_SpinBox = new MyDoubleSpinBox(this, false);
 				CR_DE_SpinBox->setRange(0,1);
+				CR_DE_SpinBox->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
 				CR_DE_SpinBox->setDecimals(8);
 				CR_DE_SpinBox->setSingleStep(0.01);
 				CR_DE_SpinBox->setValue(fitting_Settings->CR_DE);
@@ -763,7 +765,7 @@ void Fitting_Settings_Editor::create_SO_AdditionalParams_Group_Box()
 			MyDoubleSpinBox* F_DE_SpinBox = new MyDoubleSpinBox(this, false);
 				F_DE_SpinBox->setRange(0,2);
 				F_DE_SpinBox->setDecimals(8);
-				F_DE_SpinBox->setSingleStep(0.01);
+				F_DE_SpinBox->setSingleStep(0.1);
 				F_DE_SpinBox->setValue(fitting_Settings->F_DE);
 				F_DE_SpinBox->setAccelerated(true);
 				F_DE_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
@@ -794,6 +796,7 @@ void Fitting_Settings_Editor::create_SO_AdditionalParams_Group_Box()
 			QLabel* NP_DES_Label = new QLabel("Swarm size NP"+Element_Sym+"[4,500]"); // official: "Number of agents NP"
 			MyDoubleSpinBox* NP_DES_SpinBox = new MyDoubleSpinBox(this, false);
 				NP_DES_SpinBox->setRange(3,500);
+				NP_DES_SpinBox->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
 				NP_DES_SpinBox->setDecimals(0);
 				NP_DES_SpinBox->setSingleStep(1);
 				NP_DES_SpinBox->setValue(fitting_Settings->NP_DES);
@@ -808,6 +811,7 @@ void Fitting_Settings_Editor::create_SO_AdditionalParams_Group_Box()
 			QLabel* CR_DES_Label = new QLabel("Crossover probability CR"+Element_Sym+"[0,1]"); // official: "Crossover Probability (CR)"
 			MyDoubleSpinBox* CR_DES_SpinBox = new MyDoubleSpinBox(this, false);
 				CR_DES_SpinBox->setRange(0,1);
+				CR_DES_SpinBox->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
 				CR_DES_SpinBox->setDecimals(8);
 				CR_DES_SpinBox->setSingleStep(0.01);
 				CR_DES_SpinBox->setValue(fitting_Settings->CR_DES);
@@ -854,6 +858,7 @@ void Fitting_Settings_Editor::create_SO_AdditionalParams_Group_Box()
 			QLabel* NP_DETP_Label = new QLabel("Swarm size NP"+Element_Sym+"[4,500]"); // official: "Number of agents NP"
 			MyDoubleSpinBox* NP_DETP_SpinBox = new MyDoubleSpinBox(this, false);
 				NP_DETP_SpinBox->setRange(4,500);
+				NP_DETP_SpinBox->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
 				NP_DETP_SpinBox->setDecimals(0);
 				NP_DETP_SpinBox->setSingleStep(1);
 				NP_DETP_SpinBox->setValue(fitting_Settings->NP_DETP);
@@ -868,6 +873,7 @@ void Fitting_Settings_Editor::create_SO_AdditionalParams_Group_Box()
 			QLabel* CR_1_DETP_Label = new QLabel("Crossover probability CR1"+Element_Sym+"[0,1]"); // official: "Crossover probability (CR1)"
 			MyDoubleSpinBox* CR_1_DETP_SpinBox = new MyDoubleSpinBox(this, false);
 				CR_1_DETP_SpinBox->setRange(0,1);
+				CR_1_DETP_SpinBox->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
 				CR_1_DETP_SpinBox->setDecimals(8);
 				CR_1_DETP_SpinBox->setSingleStep(0.01);
 				CR_1_DETP_SpinBox->setValue(fitting_Settings->CR_1_DETP);
@@ -884,6 +890,7 @@ void Fitting_Settings_Editor::create_SO_AdditionalParams_Group_Box()
 				CR_2_DETP_SpinBox->setRange(0,1);
 				CR_2_DETP_SpinBox->setDecimals(8);
 				CR_2_DETP_SpinBox->setSingleStep(0.01);
+				CR_2_DETP_SpinBox->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
 				CR_2_DETP_SpinBox->setValue(fitting_Settings->CR_2_DETP);
 				CR_2_DETP_SpinBox->setAccelerated(true);
 				CR_2_DETP_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
@@ -949,6 +956,7 @@ void Fitting_Settings_Editor::create_SO_AdditionalParams_Group_Box()
 			MyDoubleSpinBox* NP_JDE_SpinBox = new MyDoubleSpinBox(this, false);
 				NP_JDE_SpinBox->setRange(4,500);
 				NP_JDE_SpinBox->setDecimals(0);
+				NP_JDE_SpinBox->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
 				NP_JDE_SpinBox->setSingleStep(1);
 				NP_JDE_SpinBox->setValue(fitting_Settings->NP_JDE);
 				NP_JDE_SpinBox->setAccelerated(true);
@@ -1020,6 +1028,7 @@ void Fitting_Settings_Editor::create_SO_AdditionalParams_Group_Box()
 				CR_Init_JDE_SpinBox->setRange(0,1);
 				CR_Init_JDE_SpinBox->setDecimals(8);
 				CR_Init_JDE_SpinBox->setSingleStep(0.01);
+				CR_Init_JDE_SpinBox->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
 				CR_Init_JDE_SpinBox->setValue(fitting_Settings->CR_Init_JDE);
 				CR_Init_JDE_SpinBox->setAccelerated(true);
 				CR_Init_JDE_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
@@ -1034,6 +1043,7 @@ void Fitting_Settings_Editor::create_SO_AdditionalParams_Group_Box()
 				CR_l_JDE_SpinBox->setRange(0,1);
 				CR_l_JDE_SpinBox->setDecimals(8);
 				CR_l_JDE_SpinBox->setSingleStep(0.01);
+				CR_l_JDE_SpinBox->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
 				CR_l_JDE_SpinBox->setValue(fitting_Settings->CR_l_JDE);
 				CR_l_JDE_SpinBox->setAccelerated(true);
 				CR_l_JDE_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
@@ -1047,6 +1057,7 @@ void Fitting_Settings_Editor::create_SO_AdditionalParams_Group_Box()
 			MyDoubleSpinBox* CR_u_JDE_SpinBox = new MyDoubleSpinBox(this, false);
 				CR_u_JDE_SpinBox->setRange(0,1);
 				CR_u_JDE_SpinBox->setDecimals(8);
+				CR_u_JDE_SpinBox->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
 				CR_u_JDE_SpinBox->setSingleStep(0.01);
 				CR_u_JDE_SpinBox->setValue(fitting_Settings->CR_u_JDE);
 				CR_u_JDE_SpinBox->setAccelerated(true);
@@ -1112,6 +1123,7 @@ void Fitting_Settings_Editor::create_SO_AdditionalParams_Group_Box()
 				NP_ELG_SpinBox->setRange(2,500);
 				NP_ELG_SpinBox->setDecimals(0);
 				NP_ELG_SpinBox->setSingleStep(1);
+				NP_ELG_SpinBox->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
 				NP_ELG_SpinBox->setValue(fitting_Settings->NP_ELG);
 				NP_ELG_SpinBox->setAccelerated(true);
 				NP_ELG_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
@@ -1138,6 +1150,7 @@ void Fitting_Settings_Editor::create_SO_AdditionalParams_Group_Box()
 				NP_MYG_SpinBox->setRange(3,500);
 				NP_MYG_SpinBox->setDecimals(0);
 				NP_MYG_SpinBox->setSingleStep(1);
+				NP_MYG_SpinBox->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
 				NP_MYG_SpinBox->setValue(fitting_Settings->NP_MYG);
 				NP_MYG_SpinBox->setAccelerated(true);
 				NP_MYG_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
@@ -1181,6 +1194,7 @@ void Fitting_Settings_Editor::create_SO_AdditionalParams_Group_Box()
 				S_PSO_SpinBox->setRange(1,500);
 				S_PSO_SpinBox->setDecimals(0);
 				S_PSO_SpinBox->setSingleStep(1);
+				S_PSO_SpinBox->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
 				S_PSO_SpinBox->setValue(fitting_Settings->S_PSO);
 				S_PSO_SpinBox->setAccelerated(true);
 				S_PSO_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
@@ -1194,7 +1208,7 @@ void Fitting_Settings_Editor::create_SO_AdditionalParams_Group_Box()
 			MyDoubleSpinBox* omega_PSO_SpinBox = new MyDoubleSpinBox(this, false);
 				omega_PSO_SpinBox->setRange(-2,2);
 				omega_PSO_SpinBox->setDecimals(8);
-				omega_PSO_SpinBox->setSingleStep(0.01);
+				omega_PSO_SpinBox->setSingleStep(0.1);
 				omega_PSO_SpinBox->setValue(fitting_Settings->omega_PSO);
 				omega_PSO_SpinBox->setAccelerated(true);
 				omega_PSO_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
@@ -1208,7 +1222,7 @@ void Fitting_Settings_Editor::create_SO_AdditionalParams_Group_Box()
 			MyDoubleSpinBox* phi_p_PSO_SpinBox = new MyDoubleSpinBox(this, false);
 				phi_p_PSO_SpinBox->setRange(-4,4);
 				phi_p_PSO_SpinBox->setDecimals(8);
-				phi_p_PSO_SpinBox->setSingleStep(0.01);
+				phi_p_PSO_SpinBox->setSingleStep(0.1);
 				phi_p_PSO_SpinBox->setValue(fitting_Settings->phi_p_PSO);
 				phi_p_PSO_SpinBox->setAccelerated(true);
 				phi_p_PSO_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
@@ -1222,7 +1236,7 @@ void Fitting_Settings_Editor::create_SO_AdditionalParams_Group_Box()
 			MyDoubleSpinBox* phi_g_PSO_SpinBox = new MyDoubleSpinBox(this, false);
 				phi_g_PSO_SpinBox->setRange(-4,4);
 				phi_g_PSO_SpinBox->setDecimals(8);
-				phi_g_PSO_SpinBox->setSingleStep(0.01);
+				phi_g_PSO_SpinBox->setSingleStep(0.1);
 				phi_g_PSO_SpinBox->setValue(fitting_Settings->phi_g_PSO);
 				phi_g_PSO_SpinBox->setAccelerated(true);
 				phi_g_PSO_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
@@ -1259,6 +1273,7 @@ void Fitting_Settings_Editor::create_SO_AdditionalParams_Group_Box()
 				S_FAE_SpinBox->setRange(1,200);
 				S_FAE_SpinBox->setDecimals(0);
 				S_FAE_SpinBox->setSingleStep(1);
+				S_FAE_SpinBox->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
 				S_FAE_SpinBox->setValue(fitting_Settings->S_FAE);
 				S_FAE_SpinBox->setAccelerated(true);
 				S_FAE_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
@@ -1272,7 +1287,7 @@ void Fitting_Settings_Editor::create_SO_AdditionalParams_Group_Box()
 			MyDoubleSpinBox* lambda_g_FAE_SpinBox = new MyDoubleSpinBox(this, false);
 				lambda_g_FAE_SpinBox->setRange(-2,2);
 				lambda_g_FAE_SpinBox->setDecimals(8);
-				lambda_g_FAE_SpinBox->setSingleStep(0.01);
+				lambda_g_FAE_SpinBox->setSingleStep(0.1);
 				lambda_g_FAE_SpinBox->setValue(fitting_Settings->lambda_g_FAE);
 				lambda_g_FAE_SpinBox->setAccelerated(true);
 				lambda_g_FAE_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
@@ -1319,6 +1334,7 @@ void Fitting_Settings_Editor::create_SO_AdditionalParams_Group_Box()
 				S_MOL_SpinBox->setRange(1,500);
 				S_MOL_SpinBox->setDecimals(0);
 				S_MOL_SpinBox->setSingleStep(1);
+				S_MOL_SpinBox->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
 				S_MOL_SpinBox->setValue(fitting_Settings->S_MOL);
 				S_MOL_SpinBox->setAccelerated(true);
 				S_MOL_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
@@ -1332,7 +1348,7 @@ void Fitting_Settings_Editor::create_SO_AdditionalParams_Group_Box()
 			MyDoubleSpinBox* omega_MOL_SpinBox = new MyDoubleSpinBox(this, false);
 				omega_MOL_SpinBox->setRange(-2,2);
 				omega_MOL_SpinBox->setDecimals(8);
-				omega_MOL_SpinBox->setSingleStep(0.01);
+				omega_MOL_SpinBox->setSingleStep(0.1);
 				omega_MOL_SpinBox->setValue(fitting_Settings->omega_MOL);
 				omega_MOL_SpinBox->setAccelerated(true);
 				omega_MOL_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
@@ -1346,7 +1362,7 @@ void Fitting_Settings_Editor::create_SO_AdditionalParams_Group_Box()
 			MyDoubleSpinBox* phi_g_MOL_SpinBox = new MyDoubleSpinBox(this, false);
 				phi_g_MOL_SpinBox->setRange(-4,4);
 				phi_g_MOL_SpinBox->setDecimals(8);
-				phi_g_MOL_SpinBox->setSingleStep(0.01);
+				phi_g_MOL_SpinBox->setSingleStep(0.1);
 				phi_g_MOL_SpinBox->setValue(fitting_Settings->phi_g_MOL);
 				phi_g_MOL_SpinBox->setAccelerated(true);
 				phi_g_MOL_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
@@ -1379,7 +1395,7 @@ void Fitting_Settings_Editor::create_SO_AdditionalParams_Group_Box()
 			MyDoubleSpinBox* gamma_2_LICE_SpinBox = new MyDoubleSpinBox(this, false);
 				gamma_2_LICE_SpinBox->setRange(0.5,4);
 				gamma_2_LICE_SpinBox->setDecimals(8);
-				gamma_2_LICE_SpinBox->setSingleStep(0.01);
+				gamma_2_LICE_SpinBox->setSingleStep(0.1);
 				gamma_2_LICE_SpinBox->setValue(fitting_Settings->gamma_2_LICE);
 				gamma_2_LICE_SpinBox->setAccelerated(true);
 				gamma_2_LICE_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
@@ -1407,7 +1423,7 @@ void Fitting_Settings_Editor::create_SO_AdditionalParams_Group_Box()
 			MyDoubleSpinBox* gamma_LICE_SpinBox = new MyDoubleSpinBox(this, false);
 				gamma_LICE_SpinBox->setRange(0.5,6);
 				gamma_LICE_SpinBox->setDecimals(8);
-				gamma_LICE_SpinBox->setSingleStep(0.01);
+				gamma_LICE_SpinBox->setSingleStep(0.1);
 				gamma_LICE_SpinBox->setValue(fitting_Settings->gamma_LICE);
 				gamma_LICE_SpinBox->setAccelerated(true);
 				gamma_LICE_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
