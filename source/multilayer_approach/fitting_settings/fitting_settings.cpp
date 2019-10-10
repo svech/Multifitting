@@ -154,7 +154,7 @@ QDataStream& operator >>( QDataStream& stream,		  Fitting_Settings* fitting_Sett
 	{stream >> fitting_Settings->initialize_By_Current_State; }	// since 1.7.1
 	stream >> fitting_Settings->max_Evaluations >> fitting_Settings->max_Eval_Factor >> fitting_Settings->max_Eval_Check;
 	// additional
-	if(Global_Variables::check_Loaded_Version(1,9,4))
+	if(Global_Variables::check_Loaded_Version(1,9,4))	// since 1.9.4
 	{
 		stream
 		>> fitting_Settings->r_Factor_HC >> fitting_Settings->D_HC

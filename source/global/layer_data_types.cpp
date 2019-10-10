@@ -1022,8 +1022,9 @@ QDataStream& operator >>( QDataStream& stream,		 Data& data )
 	{stream >> data.item_Enabled; }	// since 1.7.7
 
 			// Measurement
-	stream		>> data.probe_Angle >> data.cos2 >> data.angle >> data.cos2_Value >> data.angle_Value >> data.angular_Resolution >> data.angle_Type >> data.wavelength
-				>> data.k >> data.lambda >> data.k_Value >> data.lambda_Value >> data.spectral_Resolution >> data.polarization >> data.polarization_Sensitivity >> data.background
+	stream		>> data.probe_Angle >> data.cos2 >> data.angle >> data.cos2_Value >> data.angle_Value >> data.angular_Resolution >> data.angle_Type
+				>> data.wavelength >> data.k >> data.lambda >> data.k_Value >> data.lambda_Value >> data.spectral_Resolution
+				>> data.polarization >> data.polarization_Sensitivity >> data.background
 				>> data.beam_Size >> data.beam_Profile_Spreading >> data.sample_Size  >> data.sample_Shift
 			// Ambient, Layer, Substrate
 				>> data.composed_Material >> data.material >> data.approved_Material >> data.absolute_Density >> data.relative_Density

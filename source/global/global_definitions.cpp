@@ -293,7 +293,6 @@ QDataStream& operator >>( QDataStream& stream,		 Fit_Params& fit_Params )
 	{
 		int int_Power;
 		stream >> int_Power;
-		stream >> fit_Params.power;
 		fit_Params.power = double(int_Power);	// since 1.8.8
 	}
 

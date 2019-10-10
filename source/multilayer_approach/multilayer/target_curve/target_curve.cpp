@@ -265,7 +265,6 @@ QDataStream& operator <<( QDataStream& stream, const Target_Curve* target_Curve 
 					<< target_Curve->filepath << target_Curve->loaded_And_Ready	<< target_Curve->plot_Options_Experimental
 					<< target_Curve->plot_Options_Calculated		// since 1.7.4
 					<< target_Curve->calculated_Values
-
 					<< target_Curve->lines_List << target_Curve->arg_Units << target_Curve->at_Fixed << target_Curve->arg_Type_For_Label << target_Curve->ang_Type_For_Label_At_Fixed << target_Curve->label_Text
 	;
 }
