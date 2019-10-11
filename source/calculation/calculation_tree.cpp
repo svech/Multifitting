@@ -224,7 +224,7 @@ void Calculation_Tree::renew_Item_Tree_From_Calc_Tree(const tree<Node>::iterator
 						temp_Sigma_Square += pow(interlayer.my_Sigma.value,2) * interlayer.interlayer.value;
 					}
 				}
-				if(abs(sum)<DBL_EPSILON) {sum = DBL_EPSILON;	qInfo() << "Calculation_Tree::renew_Item_Tree_From_Calc_Tree :: abs(sum)<DBL_EPSILON";}
+				if(abs(sum)<DBL_EPSILON) {sum = DBL_EPSILON;	qInfo() << "Calculation_Tree::renew_Item_Tree_From_Calc_Tree :: abs(sum)<DBL_EPSILON" << endl;}
 
 				// equalize sigma
 				if(struct_Data.common_Sigma)
@@ -428,13 +428,13 @@ void Calculation_Tree::calculate_1_Kind(Data_Element<Type>& data_Element)
 //		tree<Node>::iterator active_Iter = find_Node_By_Item_Id(data_Element.calc_Tree.begin(), data_Element.active_Item_Id, data_Element.calc_Tree);
 	// ....................................................................
 	// emergency case
-//		if (active_Iter.node->data.stop_Calculation) { qInfo() << "stop_Calculation"; return; }
+//		if (active_Iter.node->data.stop_Calculation) { qInfo() << "stop_Calculation" << endl; return; }
 	// ....................................................................
 	// if measurement is not active, create tree for each plot point
 	if(data_Element.active_Item_Type != item_Type_Measurement)
 	{
 		// TODO
-		qInfo() << "Calculation_Tree::calculate_1_Kind  :  Active" << data_Element.active_Item_Type;
+		qInfo() << "Calculation_Tree::calculate_1_Kind  :  Active" << data_Element.active_Item_Type << endl;
 	} else
 	if(data_Element.active_Item_Type == item_Type_Measurement)
 	{

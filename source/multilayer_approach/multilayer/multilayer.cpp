@@ -150,6 +150,8 @@ void Multilayer::add_Independent_Variables_Tab()
 		independent_Variables_Plot_Tabs->tabBar()->setTabTextColor(independent_Variables_Plot_Tabs->count()-1,Qt::gray);
 		independent_Variables_Plot_Tabs->tabBar()->tabButton(independent_Variables_Plot_Tabs->count()-1, QTabBar::RightSide)->hide();
 	}
+
+	qobject_cast<Multilayer_Approach*>(parent)->independent_Added = true;
 }
 
 void Multilayer::change_Tab_Independent_Variables_Tab_Color(int index)

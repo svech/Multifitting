@@ -880,6 +880,17 @@ void Multilayer_Approach::open(QString filename)
 			}
 		}
 	}
+
+	/// load plot splitters state
+	if(Global_Variables::check_Loaded_Version(1,9,5))
+	{
+		in >> target_Independent_Splitter_Position_Vec;
+		in >> target_Vertical_Splitter_Position_Vec;
+		in >> target_Horizontal_Splitter_Position_Vec_Vec;
+		in >> independent_Vertical_Splitter_Position_Vec;
+		in >> independent_Horizontal_Splitter_Position_Vec_Vec;
+	}
+
 	file.close();
 
 	// resizing
@@ -929,7 +940,7 @@ void Multilayer_Approach::open(QString filename)
 
 	setWindowTitle(multilayer_Approach_Default_Title + ": .../" + file_Info.dir().dirName() + "/" + file_Info.fileName());
 
-	qInfo() << "opened\n";
+	qInfo() << "opened" << endl;
 }
 
 void Multilayer_Approach::open_As()
@@ -1091,6 +1102,15 @@ void Multilayer_Approach::save(QString filename)
 		}
 	}
 
+	/// save plot splitters state
+	{
+		out << target_Independent_Splitter_Position_Vec;
+		out << target_Vertical_Splitter_Position_Vec;
+		out << target_Horizontal_Splitter_Position_Vec_Vec;
+		out << independent_Vertical_Splitter_Position_Vec;
+		out << independent_Horizontal_Splitter_Position_Vec_Vec;
+	}
+
 	file.close();
 	file_Was_Opened_or_Saved = true;
 	last_file = filename;
@@ -1098,7 +1118,7 @@ void Multilayer_Approach::save(QString filename)
 	QFileInfo file_Info(filename);
 	setWindowTitle(multilayer_Approach_Default_Title + ": .../" + file_Info.dir().dirName() + "/" + file_Info.fileName());
 
-	qInfo() << "saved\n";
+	qInfo() << "saved" << endl;
 }
 
 void Multilayer_Approach::save_As()
@@ -1127,7 +1147,7 @@ void Multilayer_Approach::calc_Reflection(bool silent)
 		{
 			qInfo() << "\n\n-------------------------------------------------------"
 						 "\ncalc specular functions..." //<< temp_Counter++ <<
-						 "\n-------------------------------------------------------\n";
+						 "\n-------------------------------------------------------\n\n";
 		}
 		Main_Calculation_Module* main_Calculation_Module = new Main_Calculation_Module(CALCULATION);
 		main_Calculation_Module->single_Calculation(!silent);
@@ -1142,7 +1162,7 @@ void Multilayer_Approach::start_Fitting()
 		// TODO
 		qInfo() << "\n\n-------------------------------------------------------"
 					 "\nfitting..."
-					 "\n-------------------------------------------------------\n";
+					 "\n-------------------------------------------------------\n\n";
 
 		if(runned_Tables_Of_Structures.contains(table_Key))
 		{
@@ -1171,7 +1191,7 @@ void Multilayer_Approach::calc_Confidence_Intervals()
 		// TODO
 		qInfo() << "\n\n-------------------------------------------------------"
 					 "\ncalc confidence intervals..."
-					 "\n-------------------------------------------------------\n";
+					 "\n-------------------------------------------------------\n\n";
 
 		Main_Calculation_Module* main_Calculation_Module = new Main_Calculation_Module(CONFIDENCE);
 		main_Calculation_Module->fitting_and_Confidence();
@@ -1240,7 +1260,7 @@ void Multilayer_Approach::reload_Optical_Constants()
 		// TODO
 		qInfo() << "\n\n-------------------------------------------------------"
 					 "\nreload optical constants..."
-					 "\n-------------------------------------------------------\n";
+					 "\n-------------------------------------------------------\n\n";
 		optical_Constants->reload();
 	}
 }

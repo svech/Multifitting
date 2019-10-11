@@ -570,7 +570,7 @@ void Structure_Toolbar::move_Down()
 void Structure_Toolbar::group()
 {
 	// TODO group_toolbutton
-	qInfo() << "group is not implemented";
+	qInfo() << "group is not implemented" << endl;
 	refresh_Toolbar();
 }
 
@@ -603,13 +603,13 @@ void Structure_Toolbar::ungroup()
 void Structure_Toolbar::thickness_Plot()
 {
 	// TODO thickness_Plot_toolbutton
-	qInfo() << "thickness_Plot is not implemented";
+	qInfo() << "thickness_Plot is not implemented" << endl;
 }
 
 void Structure_Toolbar::sigma_Plot()
 {
 	// TODO sigma_Plot_toolbutton
-	qInfo() << "sigma_Plot is not implemented";
+	qInfo() << "sigma_Plot is not implemented" << endl;
 }
 
 void Structure_Toolbar::destroy()
@@ -652,7 +652,7 @@ void Structure_Toolbar::export_Structure()
 		look_Over_Tree();
 		print_Structure_Header(out);
 		iterate_Over_Tree(out, structure_Tree->tree->invisibleRootItem());
-		qInfo() << "structure saved as text :"<< name;
+		qInfo() << "structure saved as text :"<< name << endl;
 
 		file.close();
 	} else

@@ -255,6 +255,7 @@ void Calculation_Settings_Editor::load_Target_Parameters(int tab_Index)
 	target_Group_Box_Vec[tab_Index]->setChecked(multilayer->enable_Calc_Target_Curves);
 	connect(target_Group_Box_Vec[tab_Index],  &QGroupBox::toggled, this, [=]{
 		multilayer->enable_Calc_Target_Curves = target_Group_Box_Vec[tab_Index]->isChecked();
+		global_Multilayer_Approach->independent_Target_Added = target_Group_Box_Vec[tab_Index]->isChecked();
 		reopen_Optical_Graphs(TARGET);
 		activateWindow();
 	});
@@ -310,6 +311,7 @@ void Calculation_Settings_Editor::load_Target_Parameters(int tab_Index)
 		box->setChecked(target_Curve->fit_Params.calc);
 		connect(box,  &QGroupBox::toggled, this, [=]{
 			target_Curve->fit_Params.calc = qobject_cast<QGroupBox*>(sender())->isChecked();
+			global_Multilayer_Approach->target_Added = qobject_cast<QGroupBox*>(sender())->isChecked();
 			reopen_Optical_Graphs(TARGET);
 			activateWindow();
 		});
@@ -462,6 +464,7 @@ void Calculation_Settings_Editor::load_Independent_Parameters(int tab_Index)
 	independent_Group_Box_Vec[tab_Index]->setChecked(multilayer->enable_Calc_Independent_Curves);
 	connect(independent_Group_Box_Vec[tab_Index],  &QGroupBox::toggled, this, [=]{
 		multilayer->enable_Calc_Independent_Curves = independent_Group_Box_Vec[tab_Index]->isChecked();
+		global_Multilayer_Approach->independent_Target_Added = independent_Group_Box_Vec[tab_Index]->isChecked();
 		reopen_Optical_Graphs(INDEPENDENT);
 		activateWindow();
 	});
@@ -501,7 +504,6 @@ void Calculation_Settings_Editor::load_Independent_Parameters(int tab_Index)
 
 		if(independent_Index == independents_in_Filled_Rows+length-1)
 		{
-
 			independents_in_Filled_Rows += length;
 			current_Row++;
 			independent_Vertical_Box_Layout->addLayout(horizontal_Layout);
@@ -511,6 +513,7 @@ void Calculation_Settings_Editor::load_Independent_Parameters(int tab_Index)
 		box->setChecked(independent_Variables->calc_Functions.check_Enabled);
 		connect(box,  &QGroupBox::toggled, this, [=]{
 			refresh_Independent_Calc_Properties(tab_Index, independent_Index, box);
+			global_Multilayer_Approach->independent_Added = qobject_cast<QGroupBox*>(sender())->isChecked();
 			reopen_Optical_Graphs(INDEPENDENT);
 			activateWindow();
 		});

@@ -15,16 +15,16 @@ Data::Data(QString item_Type_Passed)
 			(item_Type_Passed != item_Type_General_Aperiodic) &&
 			(item_Type_Passed != item_Type_Regular_Aperiodic) )
 		{
-			qInfo() << "\n\nData::Data : wrong item_Type\n\n";
+			qInfo() << "\n\nData::Data : wrong item_Type\n\n" << endl;
 		} else
 		{
 			item_Type = item_Type_Passed;
 			parent_Item_Type = NOPARENT;
 		}
-//		qInfo() << "Created:" << item_Type << id;
+//		qInfo() << "Created:" << item_Type << id << endl;
 	} else
 	{
-//		qInfo() << "Data::Data : empty call" << id;
+//		qInfo() << "Data::Data : empty call" << id << endl;
 	}
 
 	// Measurement
@@ -622,7 +622,7 @@ double beam_Func(double z, void* params)
 	if((z>(-iPB->beam_Size/aConst) ) &&	(z< (iPB->beam_Size/aConst)))
 	{
 		double output = pow(1.- pow(abs(z)*aConst/iPB->beam_Size,iPB->beam_Profile_Spreading),2);
-		if(output!=output) qInfo()<< "Unwrapped_Reflection::beam_Func  :  NaN";
+		if(output!=output) qInfo()<< "Unwrapped_Reflection::beam_Func  :  NaN" << endl;
 		return output;
 	}
 	else

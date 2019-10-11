@@ -43,7 +43,7 @@ void Optical_Constants::read_All()
 //	{
 //		qInfo() << Locale.toString(temp_Material_Data.material_Data[i].lambda,'f',9)
 //				<< Locale.toString(temp_Material_Data.material_Data[i].re,'g',9)
-//				<< Locale.toString(temp_Material_Data.material_Data[i].im,'g',9) ;
+//				<< Locale.toString(temp_Material_Data.material_Data[i].im,'g',9) << endl ;
 //	}
 
 //	Element_Data temp_Element_Data = element_Map.value("Ag.ff");
@@ -53,7 +53,7 @@ void Optical_Constants::read_All()
 //	{
 //		qInfo() << Locale.toString(temp_Element_Data.element_Data[i].lambda,'f',9)
 //				<< Locale.toString(temp_Element_Data.element_Data[i].re,'g',9)
-//				<< Locale.toString(temp_Element_Data.element_Data[i].im,'g',9) ;
+//				<< Locale.toString(temp_Element_Data.element_Data[i].im,'g',9) << endl ;
 //	}
 }
 

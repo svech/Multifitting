@@ -29,7 +29,7 @@ Fitting_Settings::Fitting_Settings(QWidget* parent) :
 	/// for SwarmOps
 	// main
 	initialize_By_Current_State = true;
-	max_Evaluations=1000;
+	max_Evaluations=2000;
 	max_Eval_Factor=250;
 	max_Eval_Check=false;
 

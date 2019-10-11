@@ -355,7 +355,7 @@ void Fitting::fill_Residual(Fitting_Params* params, int& residual_Shift, Data_El
 	} else
 	if(target_Curve->curve.value_Mode == value_R_Mode[R_Phi] )
 	{
-		qInfo() << "Fitting::fill_Residual  :  sorry, R_Phi is not ready";
+		qInfo() << "Fitting::fill_Residual  :  sorry, R_Phi is not ready" << endl;
 		return;
 	} else
 
@@ -504,7 +504,7 @@ bool Fitting::run_Fitting()
 	// GSL
 	if(	GSL_Methods.contains(global_Multilayer_Approach->fitting_Settings->current_Method) )
 	{
-		qInfo() << "GSL " << global_Multilayer_Approach->fitting_Settings->current_Method << "optimization";
+		qInfo() << "GSL " << global_Multilayer_Approach->fitting_Settings->current_Method << "optimization" << endl;
 		Fitting_GSL fitting_GSL(this);
 		return fitting_GSL.fit();
 	}
@@ -512,7 +512,7 @@ bool Fitting::run_Fitting()
 	// SO
 	if(	SO_Methods.contains(global_Multilayer_Approach->fitting_Settings->current_Method) )
 	{
-		qInfo() << "SO " << global_Multilayer_Approach->fitting_Settings->current_Method << "optimization";
+		qInfo() << "SO " << global_Multilayer_Approach->fitting_Settings->current_Method << "optimization" << endl;
 		Fitting_SwarmOps fitting_SwarmOps(this);
 		return fitting_SwarmOps.fit();
 	}
@@ -588,11 +588,11 @@ bool Fitting::confidence(const vector<double>& fitables_Pointers_Value_Backup, c
 		initialize_Position();
 
 		for(size_t i=0; i<confidentials.param_Pointers.size(); i++)		{
-			qInfo() << confidentials.param_Pointers[i]->value;
-		}qInfo() << "";
+			qInfo() << confidentials.param_Pointers[i]->value << endl;
+		}qInfo() << "" << endl;
 
-		qInfo() << "fitables.param_Pointers.size()"<<fitables.param_Pointers.size();
-		qInfo() << "fitables.param_Names"<<fitables.param_Names;
+		qInfo() << "fitables.param_Pointers.size()"<<fitables.param_Pointers.size() << endl;
+		qInfo() << "fitables.param_Names"<<fitables.param_Names << endl;
 		// single fit
 		if(fitables.param_Pointers.size()>0)
 		{
@@ -641,7 +641,7 @@ bool Fitting::confidence(const vector<double>& fitables_Pointers_Value_Backup, c
 			params.final_Residual = params.init_Residual;
 			add_Confidence_Distribution_To_File(real_Conf_Value, default_Confidence_Distribution_File, confidence_Index, point_Index, params.final_Residual, nullptr);
 		}
-		qInfo() << "real_Conf_Value = " << real_Conf_Value << "~ final_Residual =" << params.final_Residual;
+		qInfo() << "real_Conf_Value = " << real_Conf_Value << "~ final_Residual =" << params.final_Residual << endl;
 		++point_Index;
 	}
 	// restore current confidential to init value

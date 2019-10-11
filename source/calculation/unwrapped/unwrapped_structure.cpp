@@ -216,7 +216,7 @@ void Unwrapped_Structure::variable_Drift(double& value, Drift& drift, int period
 		value *= drift_Factor;
 	} else
 	{
-		qInfo() << "==========\nUnwrapped_Structure::variable_Drift  :  negative drifted variable!\n==========";
+		qInfo() << "==========\nUnwrapped_Structure::variable_Drift  :  negative drifted variable!\n==========" << endl;
 		value *= abs(drift_Factor);
 	}
 }

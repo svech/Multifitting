@@ -58,6 +58,8 @@ void Target_Curve_Editor::read_Data_File(QString filepath)
 	{
 		target_Curve->import_Data(filepath);
 		target_Curve->fill_Measurement_With_Data();
+		global_Multilayer_Approach->target_Added = true;
+
 	} else
 	{
 		target_Curve->loaded_And_Ready = false;
@@ -322,13 +324,13 @@ void Target_Curve_Editor::create_Filepath_GroupBox()
 				}
 
 				//////////////////////////////////////////////////////
-				read_Data_File(filepath_ComboBox->lineEdit()->text());
+				read_Data_File(filepath_ComboBox->lineEdit()->text());				
 				//////////////////////////////////////////////////////
 
 				// reopen graphs
 				if(reopen_Graphs)
 				{
-					global_Multilayer_Approach->open_Optical_Graphs();
+					global_Multilayer_Approach->open_Optical_Graphs(TARGET);
 					global_Multilayer_Approach->runned_Optical_Graphs.value(optical_Graphs_Key)->main_Tabs->setCurrentIndex(active_Tab_Optical_Graphs);
 				}				
 				// reopen calculation settings

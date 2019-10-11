@@ -673,7 +673,7 @@ QTreeWidgetItem* Global_Variables::get_Item_From_Tree_By_Id(QTreeWidget* tree, i
 		}
 		++it;
 	}
-	qInfo() << "Global_Variables::get_Item_From_Tree_By_Id  :  item for id" << id << "not found";
+	qInfo() << "Global_Variables::get_Item_From_Tree_By_Id  :  item for id" << id << "not found" << endl;
 	return nullptr;
 }
 
@@ -1004,7 +1004,7 @@ void Global_Variables::parallel_For(int num_Points, int num_Threads, const std::
 {
 	if(num_Threads>global_Workers.size())
 	{
-		qInfo() << "Global_Variables::parallel_For  : num_Threads>workers.size()";
+		qInfo() << "Global_Variables::parallel_For  : num_Threads>workers.size()" << endl;
 		QMessageBox::critical(nullptr, "Global_Variables::parallel_For", "num_Threads>workers.size()");
 		exit(EXIT_FAILURE);
 	}
@@ -1068,7 +1068,7 @@ void Global_Variables::resize_Line_Edit(Type* line_Edit, bool adjust_Window)
 {
 	if(line_Edit == nullptr)
 	{
-		qInfo() << "Global_Variables::resize_Line_Edit  :  line_Edit == nullptr";
+		qInfo() << "Global_Variables::resize_Line_Edit  :  line_Edit == nullptr" << endl;
 		QMessageBox::critical(nullptr, "Global_Variables::resize_Line_Edit", "line_Edit == nullptr");
 		return;
 	}

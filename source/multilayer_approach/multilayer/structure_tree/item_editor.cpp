@@ -1739,7 +1739,7 @@ void Item_Editor::refresh_Data()
 				sum+=struct_Data.interlayer_Composition[i].interlayer.value;
 			}
 		}
-		if(abs(sum)<DBL_EPSILON) {sum = DBL_EPSILON; /*qInfo() << "Item_Editor::refresh_Data :: abs(sum)<DBL_EPSILON";*/}
+		if(abs(sum)<DBL_EPSILON) {sum = DBL_EPSILON; /*qInfo() << "Item_Editor::refresh_Data :: abs(sum)<DBL_EPSILON" << endl;*/}
 
 		if(struct_Data.common_Sigma)
 		{
@@ -2019,7 +2019,7 @@ void Item_Editor::general_Aperiodic_To_Multilayer_Or_Regular_Aperiodic(QString t
 	if(target_Item_Type != item_Type_Multilayer &&
 	   target_Item_Type != item_Type_Regular_Aperiodic)
 	{
-		qInfo() << "Item_Editor::general_Aperiodic_To_Multilayer_Or_Regular_Aperiodic  :  wrong target_Item_Type";
+		qInfo() << "Item_Editor::general_Aperiodic_To_Multilayer_Or_Regular_Aperiodic  :  wrong target_Item_Type" << endl;
 		exit(EXIT_FAILURE);
 	}
 
@@ -2101,7 +2101,7 @@ void Item_Editor::general_Aperiodic_To_Multilayer_Or_Regular_Aperiodic(QString t
 void Item_Editor::regular_Aperiodic_To_Multilayer()
 {
 	struct_Data.item_Type = item_Type_Multilayer;
-	if(struct_Data.regular_Components.size() == 0) { qInfo() << "Item_Editor::regular_Aperiodic_To_Multilayer  :  regular_Components.size() == 0"; exit(EXIT_FAILURE);}
+	if(struct_Data.regular_Components.size() == 0) { qInfo() << "Item_Editor::regular_Aperiodic_To_Multilayer  :  regular_Components.size() == 0" << endl; exit(EXIT_FAILURE);}
 	struct_Data.num_Repetition.parameter.value = struct_Data.regular_Components.first().components.size();
 	struct_Data.regular_Components.clear();
 
@@ -2280,7 +2280,7 @@ void Item_Editor::unique_Item_Do(QString action, int uniqueness)
 		}
 	} else
 	{
-		qInfo() << "Item_Editor::unique_Item_Do  :  first == true";
+		qInfo() << "Item_Editor::unique_Item_Do  :  first == true" << endl;
 	}
 }
 

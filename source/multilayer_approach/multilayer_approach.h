@@ -122,6 +122,9 @@ public:
 		QList<Regular_Aperiodic_Table_Launch> rerun_Of_Regular_Aperiodic_Tables_List;
 
 	int temp_Counter = 0;
+	bool independent_Target_Added = false;
+	bool independent_Added = false;
+	bool target_Added = false;
 };
 
 #endif // MULTILAYER_APPROACH_H

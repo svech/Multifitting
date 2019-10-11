@@ -65,7 +65,7 @@ void Main_Calculation_Module::single_Calculation(bool print)
 //		calculation_Trees[tab_Index]->fill_Independent_Calc_Trees(); // in preliminary calculation now
 		for(Data_Element<Independent_Variables>& independent_Element : calculation_Trees[tab_Index]->independent)
 		{
-//			qInfo() << independent_Element.calc_Tree.begin().number_of_children();
+//			qInfo() << independent_Element.calc_Tree.begin().number_of_children() << endl;
 //			calculation_Trees[tab_Index]->print_Tree(independent_Element.calc_Tree.begin(), independent_Element.calc_Tree);
 
 			calculation_Trees[tab_Index]->calculate_1_Kind(independent_Element);
@@ -75,7 +75,7 @@ void Main_Calculation_Module::single_Calculation(bool print)
 //		calculation_Trees[tab_Index]->fill_Target_Calc_Trees(); // in preliminary calculation now
 		for(Data_Element<Target_Curve>& target_Element : calculation_Trees[tab_Index]->target)
 		{
-//			qInfo() << target_Element.calc_Tree.begin().number_of_children();
+//			qInfo() << target_Element.calc_Tree.begin().number_of_children() << endl;
 //			calculation_Trees[tab_Index]->print_Tree(target_Element.calc_Tree.begin(), target_Element.calc_Tree);
 
 			calculation_Trees[tab_Index]->calculate_1_Kind(target_Element);

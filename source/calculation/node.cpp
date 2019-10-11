@@ -4,13 +4,13 @@
 
 Node::Node()
 {
-//	qInfo() << "empty NODE";
+//	qInfo() << "empty NODE" << endl;
 }
 
 Node::Node(QTreeWidgetItem* item):
 	struct_Data(item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>())
 {
-//	qInfo() << "NODE" << struct_Data.item_Type;
+//	qInfo() << "NODE" << struct_Data.item_Type << endl;
 }
 
 void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_Node, QString active_Parameter_Whats_This, bool depth_Grading, bool sigma_Grading)

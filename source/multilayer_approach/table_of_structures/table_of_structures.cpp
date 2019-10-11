@@ -939,7 +939,7 @@ Parameter& Table_Of_Structures::get_Parameter(Data& struct_Data, QString whats_T
 	if(whats_This == whats_This_Period)						{precision = line_edit_period_precision;	coeff = length_Coefficients_Map.value(length_units);	return struct_Data.period;		}
 	if(whats_This == whats_This_Gamma)						{precision = line_edit_gamma_precision;		coeff = 1;												return struct_Data.gamma;		}
 
-	//	qInfo() << "get_Parameter cant find parameter " << whats_This <<"";
+	//	qInfo() << "get_Parameter cant find parameter " << whats_This <<"" << endl;
 	Parameter* parameter = new Parameter;
 	parameter->indicator.id=0;
 	precision = 1; coeff = 1;
@@ -4410,10 +4410,10 @@ void Table_Of_Structures::reload_All_Widgets(QObject* sender)
 {
 	if(table_Is_Created)
 	{
-//		qInfo() << "reload_All_Widgets";
+//		qInfo() << "reload_All_Widgets" << endl;
 		// reloading for widgets on current tab
 		int current_Tab_Index = main_Tabs->currentIndex();
-//		qInfo() << "all_Widgets_To_Reload[current_Tab_Index].size() " << all_Widgets_To_Reload[current_Tab_Index].size();
+//		qInfo() << "all_Widgets_To_Reload[current_Tab_Index].size() " << all_Widgets_To_Reload[current_Tab_Index].size() << endl;
 
 		main_Tabs->tabBarClicked(current_Tab_Index);
 		for(int i=0; i<all_Widgets_To_Reload[current_Tab_Index].size(); ++i)
@@ -4429,7 +4429,7 @@ void Table_Of_Structures::reload_All_Widgets(QObject* sender)
 
 void Table_Of_Structures::reload_One_Widget(QWidget* widget_To_Reload)
 {
-//	qInfo() << "reload_One_Widget"<<++temp_Counter;
+//	qInfo() << "reload_One_Widget"<<++temp_Counter << endl;
 	// reload dependences and color
 	if(widget_To_Reload->property(coupling_Editor_Property).toBool())
 	{

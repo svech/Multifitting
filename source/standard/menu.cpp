@@ -745,7 +745,7 @@ void Menu::open_About()
 	about_Box.information(this,  "About","Multifitting v."+QString::number(VERSION_MAJOR)+"."+QString::number(VERSION_MINOR)+"."+QString::number(VERSION_BUILD)+"\n\n"
 								 "Mikhail Svechnikov\n"
 								 "svechnikovmv@gmail.com\n"
-								 "2018");
+								 "2018-2019");
 }
 
 void Menu::set_Grazing_Unit()

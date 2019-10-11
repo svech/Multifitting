@@ -34,9 +34,9 @@ void Coupling_Editor::closeEvent(QCloseEvent *)
 		// save external slaves
 		save_External_Slaves();
 
-//		qInfo() << coupled_Parameter->indicator.full_Name << "saved" <<     coupled_Parameter->coupled.slaves.size() << "slaves";
-//		qInfo() << coupled_Parameter->indicator.full_Name << "saved" << int(coupled_Parameter->coupled.master.exist) << "master\n";
-//		qInfo() << "";
+//		qInfo() << coupled_Parameter->indicator.full_Name << "saved" <<     coupled_Parameter->coupled.slaves.size() << "slaves" << endl;
+//		qInfo() << coupled_Parameter->indicator.full_Name << "saved" << int(coupled_Parameter->coupled.master.exist) << "master\n" << endl;
+//		qInfo() << "" << endl;
 	}
 
 	// enable context menu and refilling
@@ -187,7 +187,7 @@ void Coupling_Editor::load_Master()
 				master_Widget = old_Master_Widget;
 				master_Label->setText("<"+table_Of_Structures->main_Tabs->tabText(old_Master_Parameter->indicator.tab_Index)+"> "+old_Master_Parameter->indicator.full_Name);
 				loaded = true;
-//				qInfo() << "loaded 1 master";
+//				qInfo() << "loaded 1 master" << endl;
 
 				confidence_Interval_Editor->setEnabled(false);
 			}
@@ -196,7 +196,7 @@ void Coupling_Editor::load_Master()
 	if(!loaded)
 	{
 		remove_Master();
-//		qInfo() << "loaded 0 masters";
+//		qInfo() << "loaded 0 masters" << endl;
 		confidence_Interval_Editor->setEnabled(true);
 	}
 }
@@ -223,7 +223,7 @@ void Coupling_Editor::save_External_Master()
 
 		// save old master
 		table_Of_Structures->refresh_Reload_Colorize(refresh_Property, old_Master_Widget, old_Master_Parameter);
-//		qInfo() << "old master " << old_Master_Parameter->indicator.full_Name << " removed me from slaves. Now " << old_Master_Parameter->coupled.slaves.size() << "slaves";
+//		qInfo() << "old master " << old_Master_Parameter->indicator.full_Name << " removed me from slaves. Now " << old_Master_Parameter->coupled.slaves.size() << "slaves" << endl;
 	}
 
 	// add me to current master
@@ -357,7 +357,7 @@ void Coupling_Editor::load_Slaves()
 			}
 		}
 	}
-//	qInfo() << "loaded" << counter << " of " << old_Slaves->size() << "slaves";
+//	qInfo() << "loaded" << counter << " of " << old_Slaves->size() << "slaves" << endl;
 }
 
 void Coupling_Editor::save_External_Slaves()
@@ -426,7 +426,7 @@ void Coupling_Editor::save_External_Slaves()
 				} else
 				{
 					QMessageBox::warning(nullptr, "Coupling_Editor::save_External_Slaves", "ex_Master_Widget"+slave_Parameter->coupled.master.full_Name+"dont exist");
-					qInfo() << "Coupling_Editor::save_External_Slaves  :  ex_Master_Widget" << slave_Parameter->coupled.master.full_Name << "dont exist";
+					qInfo() << "Coupling_Editor::save_External_Slaves  :  ex_Master_Widget" << slave_Parameter->coupled.master.full_Name << "dont exist" << endl;
 				} // to be sure
 			}
 
@@ -437,7 +437,7 @@ void Coupling_Editor::save_External_Slaves()
 
 			// save slave
 			table_Of_Structures->refresh_Reload_Colorize(refresh_Property, slave_Widget, slave_Parameter);
-//			qInfo() << "slave " << slave_Parameter->indicator.full_Name << " added me as master";
+//			qInfo() << "slave " << slave_Parameter->indicator.full_Name << " added me as master" << endl;
 		}
 		index++;
 	}

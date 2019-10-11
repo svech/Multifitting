@@ -1,4 +1,4 @@
-#include "optical_graphs.h"
+﻿#include "optical_graphs.h"
 
 Optical_Graphs::Optical_Graphs(QString keep_Splitter, QWidget* parent) :
 	total_Number_of_Target_Graphs(0),
@@ -409,14 +409,19 @@ void Optical_Graphs::create_Tab_Content(QWidget* new_Widget, int tab_Index)
 
 	if(keep_Splitter != TARGET_AND_INDEPENDENT)
 	{
-		target_Independent_Splitter_Vec  [tab_Index]->restoreState(global_Multilayer_Approach->target_Independent_Splitter_Position_Vec  [tab_Index]);
+		if(!global_Multilayer_Approach->independent_Target_Added)		{
+			target_Independent_Splitter_Vec  [tab_Index]->restoreState(global_Multilayer_Approach->target_Independent_Splitter_Position_Vec  [tab_Index]);
+		}
+
 		if(keep_Splitter != TARGET)
 		{
 			target_Vertical_Splitter_Vec[tab_Index]->restoreState(global_Multilayer_Approach->target_Vertical_Splitter_Position_Vec[tab_Index]);
 
 			for(int row=0; row<multilayer->graph_Options.num_Target_Graph_Rows; row++)
 			{
-				target_Horizontal_Splitter_Vec_Vec[tab_Index][row]->restoreState(global_Multilayer_Approach->target_Horizontal_Splitter_Position_Vec_Vec[tab_Index][row]);
+				if(!global_Multilayer_Approach->target_Added)		{
+					target_Horizontal_Splitter_Vec_Vec[tab_Index][row]->restoreState(global_Multilayer_Approach->target_Horizontal_Splitter_Position_Vec_Vec[tab_Index][row]);
+				}
 			}
 		}
 		if(keep_Splitter != INDEPENDENT)
@@ -425,10 +430,15 @@ void Optical_Graphs::create_Tab_Content(QWidget* new_Widget, int tab_Index)
 
 			for(int row=0; row<multilayer->graph_Options.num_Independent_Graph_Rows; row++)
 			{
-				independent_Horizontal_Splitter_Vec_Vec[tab_Index][row]->restoreState(global_Multilayer_Approach->independent_Horizontal_Splitter_Position_Vec_Vec[tab_Index][row]);
+				if(!global_Multilayer_Approach->independent_Added)		{
+					independent_Horizontal_Splitter_Vec_Vec[tab_Index][row]->restoreState(global_Multilayer_Approach->independent_Horizontal_Splitter_Position_Vec_Vec[tab_Index][row]);
+				}
 			}
 		}
 	}
+	global_Multilayer_Approach->independent_Target_Added = false;
+	global_Multilayer_Approach->independent_Added = false;
+	global_Multilayer_Approach->target_Added = false;
 }
 
 void Optical_Graphs::set_Window_Geometry()
