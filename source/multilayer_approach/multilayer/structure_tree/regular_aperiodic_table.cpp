@@ -179,9 +179,9 @@ void Regular_Aperiodic_Table::read_Data_File(QString fileName)
 			{
 				size_Format = true;
 				QString(words[0]).toInt(&int_Format);
-				QString(words[2]).toDouble(&column_3_Double_Format);
+				QString(words[2]).replace(",", ".").toDouble(&column_3_Double_Format);
 
-				if(words.size()>=4) QString(words[3]).toDouble(&column_4_Double_Format);
+				if(words.size()>=4) QString(words[3]).replace(",", ".").toDouble(&column_4_Double_Format);
 			}
 			if(!int_Format || !column_3_Double_Format || !column_4_Double_Format || !size_Format)
 			{
@@ -193,8 +193,8 @@ void Regular_Aperiodic_Table::read_Data_File(QString fileName)
 			}
 
 			materials.append(words[1]);
-			thicknesses.append(QString(words[2]).toDouble());
-			if(aperiodic_Settings.column_4 == whats_This_Sigma)		sigmas.append(QString(words[3]).toDouble());
+			thicknesses.append(QString(words[2]).replace(",", ".").toDouble());
+			if(aperiodic_Settings.column_4 == whats_This_Sigma)		sigmas.append(QString(words[3]).replace(",", ".").toDouble());
 		}
 	}
 	int num_Layers_Regular_Aperiodic = regular_Aperiodic_Data.num_Repetition.value()*regular_Aperiodic_Data.regular_Components.size();

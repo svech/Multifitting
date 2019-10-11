@@ -245,10 +245,10 @@ void Structure_Toolbar::add_Aperiodic()
 					{
 						size_Format = true;
 						QString(words[0]).toInt(&int_Format);
-						QString(words[2]).toDouble(&column_3_Double_Format);
+						QString(words[2]).replace(",", ".").toDouble(&column_3_Double_Format);
 
-						if(words.size()>=4) QString(words[3]).toDouble(&column_4_Double_Format);
-						if(words.size()>=5) QString(words[4]).toDouble(&column_5_Double_Format);
+						if(words.size()>=4) QString(words[3]).replace(",", ".").toDouble(&column_4_Double_Format);
+						if(words.size()>=5) QString(words[4]).replace(",", ".").toDouble(&column_5_Double_Format);
 					}
 					if(!int_Format || !column_3_Double_Format || !column_4_Double_Format || !column_5_Double_Format || !size_Format)
 					{
@@ -265,11 +265,11 @@ void Structure_Toolbar::add_Aperiodic()
 					}
 
 					materials.append(words[1]);
-					thicknesses.append(QString(words[2]).toDouble());
-					if(aperiodic_Settings.column_4 == whats_This_Sigma)		sigmas.   append(QString(words[3]).toDouble());
-					if(aperiodic_Settings.column_4 == whats_This_Density)	densities.append(QString(words[3]).toDouble());
-					if(aperiodic_Settings.column_5 == whats_This_Sigma)		sigmas.   append(QString(words[4]).toDouble());
-					if(aperiodic_Settings.column_5 == whats_This_Density)	densities.append(QString(words[4]).toDouble());
+					thicknesses.append(QString(words[2]).replace(",", ".").toDouble());
+					if(aperiodic_Settings.column_4 == whats_This_Sigma)		sigmas.   append(QString(words[3]).replace(",", ".").toDouble());
+					if(aperiodic_Settings.column_4 == whats_This_Density)	densities.append(QString(words[3]).replace(",", ".").toDouble());
+					if(aperiodic_Settings.column_5 == whats_This_Sigma)		sigmas.   append(QString(words[4]).replace(",", ".").toDouble());
+					if(aperiodic_Settings.column_5 == whats_This_Density)	densities.append(QString(words[4]).replace(",", ".").toDouble());
 				}
 			}
 			for(int layer_Index=0; layer_Index<materials.size(); ++layer_Index)

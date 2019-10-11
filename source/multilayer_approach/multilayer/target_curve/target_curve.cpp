@@ -76,7 +76,8 @@ void Target_Curve::import_Data(QString bare_Filename)
 			/// argument
 
 			if(numbers.size()<=number_Index) throw "arg | " + main_Exception_Text;
-			double temp_Argument = QString(numbers[number_Index]).toDouble(&ok_To_Double);
+//			double temp_Argument = QString(numbers[number_Index]).toDouble(&ok_To_Double);
+			double temp_Argument = QString(numbers[number_Index]).replace(",", ".").toDouble(&ok_To_Double); // dots and commas
 
 			if(!ok_To_Double) goto skip_line_label;
 
@@ -99,7 +100,8 @@ void Target_Curve::import_Data(QString bare_Filename)
 			if(curve.value_Mode == value_R_Mode[R] || curve.value_Mode == value_T_Mode[T] )	// R , T
 			{
 				if(numbers.size()<=number_Index) throw "val_1 | " + main_Exception_Text;
-				double temp_Val_1 = QString(numbers[number_Index]).toDouble(&ok_To_Double);
+//				double temp_Val_1 = QString(numbers[number_Index]).toDouble(&ok_To_Double);
+				double temp_Val_1 = QString(numbers[number_Index]).replace(",", ".").toDouble(&ok_To_Double); // dots and commas
 				++number_Index;
 
 				Value val;
@@ -115,10 +117,12 @@ void Target_Curve::import_Data(QString bare_Filename)
 			if(curve.value_Mode == value_R_Mode[R_Phi] )	// R+phi
 			{
 				if(numbers.size()<=number_Index) throw "val_1 | " + main_Exception_Text;
-				double temp_Number_1 = QString(numbers[number_Index]).toDouble(&ok_To_Double);
+//				double temp_Number_1 = QString(numbers[number_Index]).toDouble(&ok_To_Double);
+				double temp_Number_1 = QString(numbers[number_Index]).replace(",", ".").toDouble(&ok_To_Double); // dots and commas
 				++number_Index;
 				if(numbers.size()<=number_Index) throw "val_2 | " + main_Exception_Text;
-				double temp_Number_2 = QString(numbers[number_Index]).toDouble(&ok_To_Double);
+//				double temp_Number_2 = QString(numbers[number_Index]).toDouble(&ok_To_Double);
+				double temp_Number_2 = QString(numbers[number_Index]).replace(",", ".").toDouble(&ok_To_Double); // dots and commas
 				++number_Index;
 
 				Value val;
