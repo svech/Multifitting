@@ -8,13 +8,13 @@
 #include "qcustomplot.h"
 
 #define VERSION_MAJOR 1
-#define VERSION_MINOR 9
-#define VERSION_BUILD 5
+#define VERSION_MINOR 10
+#define VERSION_BUILD 0
 
 using namespace std;
 class Node;
 
-//#define RELEASE
+#define RELEASE
 
 //#define EXPRTK
 

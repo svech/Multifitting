@@ -413,6 +413,7 @@ void Fitting::fill_Residual(Fitting_Params* params, int& residual_Shift, Data_El
 			}
 		}
 	} else
+	// integral maximization
 	{
 		double integral = 0;
 		params->max_Integral = 0;
@@ -544,7 +545,15 @@ bool Fitting::fit()
 	{
 		// save trees to fit
 		main_Calculation_Module->add_Fit(fit_Run_State, 0);
-		add_Fit_To_File(params.x, params.init_Residual, default_Fit_Statictics_File, 0);
+
+		double residual_To_Write = -2019;
+		if(params.maximize)		{
+			residual_To_Write = params.max_Integral-params.init_Residual;
+		} else	{
+			residual_To_Write = params.init_Residual;
+		}
+
+		add_Fit_To_File(params.x, residual_To_Write, default_Fit_Statictics_File, 0);
 		for(int run=1; run<=global_Multilayer_Approach->fitting_Settings->num_Runs; run++)
 		{
 			if(!global_Multilayer_Approach->fitting_Settings->abort)
@@ -553,7 +562,12 @@ bool Fitting::fit()
 				fit_Return = run_Fitting();
 				main_Calculation_Module->renew_Item_Trees();
 				main_Calculation_Module->add_Fit(fit_Run_State, run);
-				add_Fit_To_File(params.x, params.final_Residual, default_Fit_Statictics_File, run);
+				if(params.maximize)		{
+					residual_To_Write = params.max_Integral-params.final_Residual;
+				} else	{
+					residual_To_Write = params.final_Residual;
+				}
+				add_Fit_To_File(params.x, residual_To_Write, default_Fit_Statictics_File, run);
 			}
 		}
 	}
