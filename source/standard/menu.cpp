@@ -737,15 +737,24 @@ void Menu::open_Documentation_Eng()
 
 void Menu::open_About()
 {
-	// TODO
 	QMessageBox about_Box;
-//	about_Box.setTextFormat(Qt::RichText);
-//	about_Box.setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::LinksAccessibleByMouse);
-
-	about_Box.information(this,  "About","Multifitting v."+QString::number(VERSION_MAJOR)+"."+QString::number(VERSION_MINOR)+"."+QString::number(VERSION_BUILD)+"\n\n"
-								 "Mikhail Svechnikov\n"
-								 "svechnikovmv@gmail.com\n"
-								 "2018-2019");
+	about_Box.setTextFormat(Qt::RichText);
+	about_Box.setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::LinksAccessibleByMouse);
+	about_Box.setWindowTitle("About");
+	about_Box.setText(  "Multifitting v."+QString::number(VERSION_MAJOR)+"."+QString::number(VERSION_MINOR)+"."+QString::number(VERSION_BUILD)+"<br><br>"+
+						"Mikhail Svechnikov<br>"
+						"svechnikovmv@gmail.com<br>"
+						"2018-2019<br><br>"
+						"Multifitting is based on Qt5 framework<br>"//(GNU LGPL/GPL)
+						"and also uses the following libraries:<br><br>"
+						"<a href='https://www.gnu.org/software/gsl/'>GSL</a> - GNU Scientific Library<br>"//(GNU GPL)
+						"<a href='http://www.hvass-labs.org/projects/swarmops/'>SwarmOps</a> by Magnus Erik Hvass Pedersen<br>"//(GNU LGPL)
+						"<a href='http://www.partow.net/programming/exprtk/'>ExprTk</a> by Arash Partow<br>"//(MIT licence)
+						"<a href='http://tree.phi-sci.com/'>tree.hh</a> by Kasper Peeters<br>" //(GNU GPL)
+						"<a href='https://www.qcustomplot.com/'>QCustomPlot</a> by Emanuel Eichhammer<br>"//(GNU GPL)
+					  );
+	about_Box.setIcon(QMessageBox::Information);
+	about_Box.exec();
 }
 
 void Menu::set_Grazing_Unit()

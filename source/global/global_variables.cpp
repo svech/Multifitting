@@ -363,7 +363,7 @@ int height_add = 0;
 
 // -----------------------------------------------------------------------------------------
 
-QString multilayer_Approach_Default_Title = "Multilayer Model";
+QString multilayer_Approach_Default_Title = "Multifitting";
 
 // -----------------------------------------------------------------------------------------
 
