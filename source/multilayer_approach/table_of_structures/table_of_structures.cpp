@@ -2724,10 +2724,10 @@ void Table_Of_Structures::refill_All_Dependent()
 		change_Slaves_in_Structure_Tree(master_Parameter, master_Parameter.coupled.slaves, ids);
 	}
 
-	// refresh table and independent in all tabs
+//	// refresh table and independent in all tabs
 	refresh_Dependents(ids, true);
 
-	// lock and unlock
+//	// lock and unlock
 	lock_Unlock_Dependents(ids);
 }
 
@@ -4449,8 +4449,6 @@ void Table_Of_Structures::reload_One_Widget(QWidget* widget_To_Reload)
 	// do not reload disabled widgets
 	if(!widget_To_Reload->property(enabled_Property).toBool())	return;
 
-	My_Table_Widget* table = qobject_cast<My_Table_Widget*>(main_Tabs->widget(main_Tabs->currentIndex()));
-
 	widget_To_Reload->setProperty(reload_Property, true);
 
 	QLabel*				label = qobject_cast<QLabel*>		  (widget_To_Reload);
@@ -4476,7 +4474,7 @@ void Table_Of_Structures::reload_One_Widget(QWidget* widget_To_Reload)
 	if(spin_Box)
 	{
 		spin_Box->valueChanged(spin_Box->value());
-		resize_Line_Edit(table, spin_Box);
+		spin_Box->valueChanged(spin_Box->value());
 	}
 	if(combo_Box)
 	{
@@ -4490,7 +4488,6 @@ void Table_Of_Structures::reload_Related_Widgets(QObject* sender)
 {
 	if(table_Is_Created)
 	{
-		My_Table_Widget* table = qobject_cast<My_Table_Widget*>(main_Tabs->widget(main_Tabs->currentIndex()));
 		for(id_Type id : reload_Show_Dependence_Map.values(qobject_cast<QWidget*>(sender)))
 		{
 			for(QWidget* related: reload_Show_Dependence_Map.keys(id))
@@ -4523,7 +4520,7 @@ void Table_Of_Structures::reload_Related_Widgets(QObject* sender)
 						if(spin_Box)
 						{
 							spin_Box->valueChanged(spin_Box->value());
-							resize_Line_Edit(table, spin_Box);
+							spin_Box->valueChanged(spin_Box->value());
 						}
 						if(combo_Box)
 						{
