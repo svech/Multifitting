@@ -2563,13 +2563,14 @@ void Table_Of_Structures::create_Step_Spin_Box(My_Table_Widget* table, int tab_I
 
 	add_Columns(table,current_Column);
 
-	MyDoubleSpinBox* step_SpinBox = new MyDoubleSpinBox;
+	QDoubleSpinBox* step_SpinBox = new QDoubleSpinBox;
 		step_SpinBox->setMinimumWidth(TABLE_FIX_WIDTH_LINE_EDIT_SHORT);
 		step_SpinBox->setRange(0, MAX_DOUBLE);
 		step_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
 		step_SpinBox->setAccelerated(true);
 		step_SpinBox->setProperty(column_Property,current_Column);
 		step_SpinBox->installEventFilter(this);
+		step_SpinBox->setDecimals(10);
 
 	table->setCellWidget(current_Row, current_Column, step_SpinBox);
 	Global_Variables::resize_Line_Edit(step_SpinBox);
@@ -2585,7 +2586,7 @@ void Table_Of_Structures::create_Step_Spin_Box(My_Table_Widget* table, int tab_I
 		step_SpinBox->setFixedWidth(min_Width);
 		step_SpinBox->setProperty(min_Size_Property, step_SpinBox->width());
 
-	connect(step_SpinBox, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
+	connect(step_SpinBox, static_cast<void(QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, [=]
 	{
 		double length_Coeff = length_Coefficients_Map.value(length_units);
 
@@ -2607,13 +2608,13 @@ void Table_Of_Structures::create_Step_Spin_Box(My_Table_Widget* table, int tab_I
 		int add_Decimals = min(log10(length_Coeff),2.);
 		double min_Step = max(0.1/length_Coeff,0.0001);
 
-		if(whats_This == whats_This_Composition)			{ step_SpinBox->setDecimals(3);					step_SpinBox->setValue(step_composition);				step_SpinBox->setSingleStep(0.1);		}
-		if(whats_This == whats_This_Density)				{ step_SpinBox->setDecimals(3);					step_SpinBox->setValue(step_density);					step_SpinBox->setSingleStep(0.1);		}
-		if(whats_This == whats_This_Thickness)				{ step_SpinBox->setDecimals(2+add_Decimals);	step_SpinBox->setValue(step_thickness/length_Coeff);	step_SpinBox->setSingleStep(min_Step);	step_SpinBox->setSuffix(" "+length_units);}
-		if(whats_This == whats_This_Sigma)					{ step_SpinBox->setDecimals(2+add_Decimals);	step_SpinBox->setValue(step_sigma/length_Coeff);		step_SpinBox->setSingleStep(min_Step);	step_SpinBox->setSuffix(" "+length_units);}
-		if(whats_This == whats_This_Interlayer_Composition)	{ step_SpinBox->setDecimals(3);					step_SpinBox->setValue(step_interlayer);				step_SpinBox->setSingleStep(0.1);		}
-		if(whats_This == whats_This_Gamma)					{ step_SpinBox->setDecimals(3);					step_SpinBox->setValue(step_gamma);						step_SpinBox->setSingleStep(0.01);		}
-		if(whats_This == whats_This_Drift)					{ step_SpinBox->setDecimals(4);					step_SpinBox->setValue(step_drift);						step_SpinBox->setSingleStep(0.001);		}
+		if(whats_This == whats_This_Composition)			{ step_SpinBox->setDecimals(10);	step_SpinBox->setValue(step_composition);				step_SpinBox->setDecimals(3);					step_SpinBox->setSingleStep(0.1);		}
+		if(whats_This == whats_This_Density)				{ step_SpinBox->setDecimals(10);	step_SpinBox->setValue(step_density);					step_SpinBox->setDecimals(3);					step_SpinBox->setSingleStep(0.1);		}
+		if(whats_This == whats_This_Thickness)				{ step_SpinBox->setDecimals(10);	step_SpinBox->setValue(step_thickness/length_Coeff);	step_SpinBox->setDecimals(2+add_Decimals);	    step_SpinBox->setSingleStep(min_Step);	step_SpinBox->setSuffix(" "+length_units);}
+		if(whats_This == whats_This_Sigma)					{ step_SpinBox->setDecimals(10);	step_SpinBox->setValue(step_sigma/length_Coeff);		step_SpinBox->setDecimals(2+add_Decimals);	    step_SpinBox->setSingleStep(min_Step);	step_SpinBox->setSuffix(" "+length_units);}
+		if(whats_This == whats_This_Interlayer_Composition)	{ step_SpinBox->setDecimals(10);	step_SpinBox->setValue(step_interlayer);				step_SpinBox->setDecimals(3);					step_SpinBox->setSingleStep(0.1);		}
+		if(whats_This == whats_This_Gamma)					{ step_SpinBox->setDecimals(10);	step_SpinBox->setValue(step_gamma);						step_SpinBox->setDecimals(3);					step_SpinBox->setSingleStep(0.01);		}
+		if(whats_This == whats_This_Drift)					{ step_SpinBox->setDecimals(10);	step_SpinBox->setValue(step_drift);						step_SpinBox->setDecimals(4);					step_SpinBox->setSingleStep(0.001);		}
 
 		step_SpinBox->valueChanged(step_SpinBox->value());
 	});

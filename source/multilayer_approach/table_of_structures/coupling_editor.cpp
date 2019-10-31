@@ -122,7 +122,7 @@ void Coupling_Editor::create_Master_Box()
 
 	master_Line_Edit = new QLineEdit(coupled_Parameter->coupled.master.expression);
 		master_Line_Edit->setMinimumWidth(MIN_FORMULA_WIDTH_LINE_EDIT);
-		master_Line_Edit->setProperty(previous_Expression_Property,master_Line_Edit->text());
+		master_Line_Edit->setProperty(previous_Expression_Property,coupled_Parameter->coupled.master.expression);
 		group_Box_Layout->addWidget(master_Line_Edit);
 
 	QHBoxLayout* button_Layout = new QHBoxLayout;
@@ -352,6 +352,7 @@ void Coupling_Editor::load_Slaves()
 				coupled_Parameter->coupled.slaves[counter].exist = true;
 				coupled_Parameter->coupled.slaves[counter].expression = old_Slave_Parameter->coupled.master.expression;
 				slave_Line_Edit_Vec[counter]->setText(coupled_Parameter->coupled.slaves[counter].expression);
+				slave_Line_Edit_Vec[counter]->setProperty(previous_Expression_Property,coupled_Parameter->coupled.slaves[counter].expression);
 
 				counter++;
 			}
