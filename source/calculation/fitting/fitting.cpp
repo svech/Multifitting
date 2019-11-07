@@ -517,6 +517,9 @@ bool Fitting::run_Fitting()
 		Fitting_SwarmOps fitting_SwarmOps(this);
 		return fitting_SwarmOps.fit();
 	}
+
+	QMessageBox::warning(nullptr,"Wrong fitting method", "Fitting was canceled.\nCheck fitting method in Fitting Settings window.");
+
 	return false;
 }
 

@@ -136,6 +136,7 @@ QDataStream& operator <<( QDataStream& stream, const Fitting_Settings* fitting_S
 	<< fitting_Settings->S_FAE << fitting_Settings->lambda_g_FAE << fitting_Settings->lambda_x_FAE
 	<< fitting_Settings->S_MOL << fitting_Settings->omega_MOL << fitting_Settings->phi_g_MOL
 	<< fitting_Settings->gamma_2_LICE << fitting_Settings->N_LICE << fitting_Settings->gamma_LICE;
+
 }
 QDataStream& operator >>( QDataStream& stream,		  Fitting_Settings* fitting_Settings )
 {
@@ -171,7 +172,12 @@ QDataStream& operator >>( QDataStream& stream,		  Fitting_Settings* fitting_Sett
 		>> fitting_Settings->S_FAE >> fitting_Settings->lambda_g_FAE >> fitting_Settings->lambda_x_FAE
 		>> fitting_Settings->S_MOL >> fitting_Settings->omega_MOL >> fitting_Settings->phi_g_MOL
 		>> fitting_Settings->gamma_2_LICE >> fitting_Settings->N_LICE >> fitting_Settings->gamma_LICE;
+	}
 
+	// default method
+	if(	!GSL_Methods.contains(fitting_Settings->current_Method) && !SO_Methods.contains(fitting_Settings->current_Method) )
+	{
+		fitting_Settings->current_Method = SO_Methods[Differential_Evolution];
 	}
 
 	return stream;
