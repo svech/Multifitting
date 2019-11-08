@@ -445,7 +445,7 @@ void Fitting::fill_Residual(Fitting_Params* params, int& residual_Shift, Data_El
 			gsl_vector_set(f, residual_Shift+point_Index, filling);
 		}
 	}
-	residual_Shift += N;
+	residual_Shift += N;	
 }
 
 void Fitting::initialize_Position()
