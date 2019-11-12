@@ -116,10 +116,10 @@ void Independent_Variables::create_Independent_Variables_List()
 
 void Independent_Variables::create_Independent_Variables_Toolbar()
 {
-	QPixmap new_Variable	(icon_path + "new.bmp");
-	QPixmap edit			(icon_path + "roi.bmp");
-	QPixmap remove			(icon_path + "delete.bmp");
-	QPixmap function		(icon_path + "plot.bmp");
+	QPixmap new_Variable	(Paths_Icon_Path + "new.bmp");
+	QPixmap edit			(Paths_Icon_Path + "roi.bmp");
+	QPixmap remove			(Paths_Icon_Path + "delete.bmp");
+	QPixmap function		(Paths_Icon_Path + "plot.bmp");
 
 	independent_Variables_Toolbar = new QToolBar;
 

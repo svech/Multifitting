@@ -3,7 +3,7 @@
 Launcher::Launcher(QWidget *parent) :
 	QWidget(parent)
 {
-	QApplication::setWindowIcon(QIcon(QPixmap(icon_path + "icon.ico")));
+	QApplication::setWindowIcon(QIcon(QPixmap(Paths_Icon_Path + "icon.ico")));
 
 	Locale.setNumberOptions(QLocale::OmitGroupSeparator);
 

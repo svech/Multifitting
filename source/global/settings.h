@@ -62,7 +62,7 @@ extern QString default_multilayer_tab_name;
 extern QString default_independent_variable_tab_name;
 
 // paths and names
-extern QString icon_path;
+//extern QString icon_path;
 extern QString last_directory;
 extern QString last_data_directory;
 extern QString last_file;

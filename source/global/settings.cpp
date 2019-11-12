@@ -58,7 +58,7 @@ QString default_multilayer_tab_name;
 QString default_independent_variable_tab_name;
 
 // paths and names
-QString icon_path;
+//QString icon_path;
 QString last_directory;
 QString last_data_directory;
 QString last_file;
@@ -252,9 +252,9 @@ void Settings::read_Paths(bool reset_to_default)
 	paths_Settings.endGroup();
 
 	// resource path
-	paths_Settings.beginGroup( Resource_Paths );
-		icon_path = paths_Settings.value( "icon_path", Pre_Path + "icons/" ).toString();
-	paths_Settings.endGroup();
+//	paths_Settings.beginGroup( Resource_Paths );
+//		icon_path = paths_Settings.value( "icon_path", Pre_Path + "icons/" ).toString();
+//	paths_Settings.endGroup();
 }
 
 void Settings::save_Paths()
@@ -270,8 +270,8 @@ void Settings::save_Paths()
 
 	// resource path
 	paths_Settings.beginGroup( Resource_Paths );
-		paths_Settings.setValue( "icon_path", icon_path );
-	paths_Settings.endGroup();
+//		paths_Settings.setValue( "icon_path", icon_path );
+//	paths_Settings.endGroup();
 }
 
 void Settings::read_Gui_Settings(bool reset_to_default)

@@ -14,7 +14,7 @@
 using namespace std;
 class Node;
 
-//#define RELEASE
+#define RELEASE
 
 #define EXPRTK
 
@@ -56,6 +56,8 @@ class Node;
 #define Paths_Settings_Path Pre_Path + "settings/paths.ini"
 	#define Resource_Paths				"Resource_Paths"
 	#define Last_Paths					"Last_Paths"
+
+#define Paths_Icon_Path Pre_Path + "icons/"
 
 // gui
 #define Gui_Settings_Path Pre_Path + "settings/gui.ini"

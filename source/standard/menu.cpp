@@ -727,12 +727,12 @@ void Menu::create_Help_Menu()
 
 void Menu::open_Documentation_Rus()
 {
-	QDesktopServices::openUrl(QUrl::fromLocalFile(Pre_Path+"Multifitting manual Russian.pdf"));
+	QDesktopServices::openUrl(QUrl::fromLocalFile(Pre_Path+"Multifitting_manual_Russian.pdf"));
 }
 
 void Menu::open_Documentation_Eng()
 {
-	QDesktopServices::openUrl(QUrl::fromLocalFile(Pre_Path+"Multifitting manual English.pdf"));
+	QDesktopServices::openUrl(QUrl::fromLocalFile(Pre_Path+"Multifitting_manual_English.pdf"));
 }
 
 void Menu::open_About()

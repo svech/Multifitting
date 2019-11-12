@@ -10,23 +10,23 @@ Structure_Toolbar::Structure_Toolbar(Structure_Tree* structure_Tree, QWidget *pa
 
 void Structure_Toolbar::create_Toolbar()
 {
-	QPixmap add_Layer		(icon_path + "add_layer.bmp");
-	QPixmap add_Multilayer  (icon_path + "add_multilayer.bmp");
-	QPixmap add_Aperiodic	(icon_path + "taj.bmp");
-	QPixmap add_Substrate	(icon_path + "add_substrate.bmp");
-	QPixmap edit			(icon_path + "roi.bmp");
-	QPixmap remove			(icon_path + "delete.bmp");
-	QPixmap cut				(icon_path + "cut.bmp");
-	QPixmap copy			(icon_path + "copy.bmp");
-	QPixmap paste			(icon_path + "paste.bmp");
-	QPixmap move_Up			(icon_path + "shift_up.bmp");
-	QPixmap move_Down		(icon_path + "shift_down.bmp");
-//	QPixmap group			(icon_path + "group.bmp");
-	QPixmap ungroup			(icon_path + "ungroup.bmp");
-//	QPixmap thickness_Plot	(icon_path + "zplot.bmp");
-//	QPixmap sigma_Plot		(icon_path + "sigmaplot.bmp");
-	QPixmap destroy			(icon_path + "bomb.bmp");
-	QPixmap export_Structure(icon_path + "save.bmp");
+	QPixmap add_Layer		(Paths_Icon_Path + "add_layer.bmp");
+	QPixmap add_Multilayer  (Paths_Icon_Path + "add_multilayer.bmp");
+	QPixmap add_Aperiodic	(Paths_Icon_Path + "taj.bmp");
+	QPixmap add_Substrate	(Paths_Icon_Path + "add_substrate.bmp");
+	QPixmap edit			(Paths_Icon_Path + "roi.bmp");
+	QPixmap remove			(Paths_Icon_Path + "delete.bmp");
+	QPixmap cut				(Paths_Icon_Path + "cut.bmp");
+	QPixmap copy			(Paths_Icon_Path + "copy.bmp");
+	QPixmap paste			(Paths_Icon_Path + "paste.bmp");
+	QPixmap move_Up			(Paths_Icon_Path + "shift_up.bmp");
+	QPixmap move_Down		(Paths_Icon_Path + "shift_down.bmp");
+//	QPixmap group			(Paths_Icon_Path + "group.bmp");
+	QPixmap ungroup			(Paths_Icon_Path + "ungroup.bmp");
+//	QPixmap thickness_Plot	(Paths_Icon_Path + "zplot.bmp");
+//	QPixmap sigma_Plot		(Paths_Icon_Path + "sigmaplot.bmp");
+	QPixmap destroy			(Paths_Icon_Path + "bomb.bmp");
+	QPixmap export_Structure(Paths_Icon_Path + "save.bmp");
 
 	toolbar = new QToolBar;
 	toolbar->addAction(QIcon(add_Layer),		"Add Layer");						// 0
