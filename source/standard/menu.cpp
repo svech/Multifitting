@@ -727,12 +727,22 @@ void Menu::create_Help_Menu()
 
 void Menu::open_Documentation_Rus()
 {
+#ifdef _WIN32
+	QDesktopServices::openUrl(QUrl::fromLocalFile(Pre_Path+"Multifitting_manual_Russian.pdf"));
+#endif
+#ifdef __linux__
 	QDesktopServices::openUrl(QUrl(Pre_Path+"Multifitting_manual_Russian.pdf"));
+#endif
 }
 
 void Menu::open_Documentation_Eng()
 {
+#ifdef _WIN32
+	QDesktopServices::openUrl(QUrl::fromLocalFile(Pre_Path+"Multifitting_manual_English.pdf"));
+#endif
+#ifdef __linux__
 	QDesktopServices::openUrl(QUrl(Pre_Path+"Multifitting_manual_English.pdf"));
+#endif
 }
 
 void Menu::open_About()
