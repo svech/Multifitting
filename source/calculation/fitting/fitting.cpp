@@ -63,7 +63,7 @@ size_t Fitting::num_Residual_Points()
 		for(Data_Element<Target_Curve>& target_Element : calculation_Trees[tab_Index]->target)
 		{
 			// over points
-			residual_Points += target_Element.the_Class->curve.values.size();
+			residual_Points += target_Element.the_Class->curve.shifted_Values.size();
 		}
 	}
 	return residual_Points;
@@ -338,7 +338,7 @@ void Fitting::fill_Residual(Fitting_Params* params, int& residual_Shift, Data_El
 
 	Target_Curve* target_Curve = target_Element.the_Class;
 	double fi_1, fi_2, fi_1_next, fi_2_next, factor;
-	int N = target_Curve->curve.values.size();
+	int N = target_Curve->curve.shifted_Values.size();
 	double N_sqrt = sqrt(double(N));
 	double n_P_sqrt = sqrt(double(params->n-params->fitables.param_Names.size()));
 	double power = target_Curve->fit_Params.power/2.;
@@ -376,7 +376,7 @@ void Fitting::fill_Residual(Fitting_Params* params, int& residual_Shift, Data_El
 			for(int point_Index=0; point_Index<N; ++point_Index)
 			{
 				factor = target_Curve->fit_Params.weight_Sqrt/n_P_sqrt;
-				fi_1 = target_Curve->curve.values[point_Index].val_1;
+				fi_1 = target_Curve->curve.shifted_Values[point_Index].val_1;
 				fi_2 = model_Curve[point_Index];
 
 				gsl_vector_set(f, residual_Shift+point_Index, factor*(fi_1-fi_2)*sqrt((target_Curve->curve.beam_Intensity_Start+target_Curve->curve.beam_Intensity_Final)/(2*fi_2))   );
@@ -389,7 +389,7 @@ void Fitting::fill_Residual(Fitting_Params* params, int& residual_Shift, Data_El
 				// calculate with expression
 				{
 #ifdef EXPRTK
-					target_Curve->fit_Params.expression_Argument = target_Curve->curve.values[point_Index].val_1;
+					target_Curve->fit_Params.expression_Argument = target_Curve->curve.shifted_Values[point_Index].val_1;
 					fi_1 = target_Curve->fit_Params.expression_Vec[0].value();
 #else
 					fi_1 = func(target_Curve->curve.values[point_Index].val_1, index);
@@ -422,8 +422,8 @@ void Fitting::fill_Residual(Fitting_Params* params, int& residual_Shift, Data_El
 		// calculate with expression
 		for(int point_Index=0; point_Index<N-1; ++point_Index)
 		{
-			fi_1      = target_Curve->curve.values[point_Index  ].val_1;
-			fi_1_next = target_Curve->curve.values[point_Index+1].val_1;
+			fi_1      = target_Curve->curve.shifted_Values[point_Index  ].val_1;
+			fi_1_next = target_Curve->curve.shifted_Values[point_Index+1].val_1;
 #ifdef EXPRTK
 			target_Curve->fit_Params.expression_Argument = model_Curve[point_Index  ];
 			fi_2      = target_Curve->fit_Params.expression_Vec[0].value();

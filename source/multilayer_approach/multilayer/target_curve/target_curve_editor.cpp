@@ -360,6 +360,50 @@ void Target_Curve_Editor::create_Data_GroupBox()
 									 "QGroupBox::title   { subcontrol-origin: margin;   top: 6px; left: 9px; padding: 0 0px 0 1px;}");
 #endif
 	QVBoxLayout* data_GroupBox_Layout = new QVBoxLayout(data_GroupBox);
+
+	// specifying interval for fitting
+	{
+		QHBoxLayout* layout = new QHBoxLayout;
+			layout->setAlignment(Qt::AlignLeft);
+		data_GroupBox_Layout->addLayout(layout);
+
+		main_Subinterval_Checkbox = new QCheckBox("Use only data between argument");
+			main_Subinterval_Checkbox->setCheckable(true);
+			main_Subinterval_Checkbox->setChecked(target_Curve->curve.use_Subinterval);
+		layout->addWidget(main_Subinterval_Checkbox);
+
+		from_Subinterval_SpinBox = new MyDoubleSpinBox;
+			from_Subinterval_SpinBox->setAccelerated(true);
+			from_Subinterval_SpinBox->setRange(0, MAX_DOUBLE);
+			from_Subinterval_SpinBox->setDecimals(4);
+			from_Subinterval_SpinBox->setValue(0);
+			from_Subinterval_SpinBox->setSingleStep(0.01);
+			from_Subinterval_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
+		layout->addWidget(from_Subinterval_SpinBox);
+
+		and_Subinterval_Label = new QLabel("  and  ");
+		layout->addWidget(and_Subinterval_Label);
+
+		to_Subinterval_SpinBox = new MyDoubleSpinBox;
+			to_Subinterval_SpinBox->setAccelerated(true);
+			to_Subinterval_SpinBox->setRange(0, MAX_DOUBLE);
+			to_Subinterval_SpinBox->setDecimals(4);
+			to_Subinterval_SpinBox->setValue(5);
+			to_Subinterval_SpinBox->setSingleStep(0.01);
+			to_Subinterval_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
+		layout->addWidget(to_Subinterval_SpinBox);
+
+		connect(main_Subinterval_Checkbox, &QCheckBox::toggled, this, [=]
+		{
+			target_Curve->curve.use_Subinterval = main_Subinterval_Checkbox->isChecked();
+			from_Subinterval_SpinBox->setDisabled(!target_Curve->curve.use_Subinterval);
+			and_Subinterval_Label   ->setDisabled(!target_Curve->curve.use_Subinterval);
+			to_Subinterval_SpinBox  ->setDisabled(!target_Curve->curve.use_Subinterval);
+		});
+//		connect(main_Subinterval_Checkbox, &QCheckBox::toggled, this, &Target_Curve_Editor::fhfghfgh);
+		main_Subinterval_Checkbox->toggled(target_Curve->curve.use_Subinterval);
+	}
+
 	QHBoxLayout* hor_Layout = new QHBoxLayout;
 		hor_Layout->setAlignment(Qt::AlignLeft);
 

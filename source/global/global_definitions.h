@@ -9,14 +9,14 @@
 
 #define VERSION_MAJOR 1
 #define VERSION_MINOR 10
-#define VERSION_BUILD 0
+#define VERSION_BUILD 1
 
 using namespace std;
 class Node;
 
 //#define RELEASE
 
-#define EXPRTK
+//#define EXPRTK
 
 #ifdef RELEASE
    #define EXPRTK
@@ -570,7 +570,10 @@ struct Calc_Functions			{bool check_Enabled = true;
 
 // measured/target data types
 struct Value					{double val_1; double val_2; /*double val_3; double val_4;*/};
-struct Curve					{QVector<double> argument; QVector<double> shifted_Argument;
+struct Curve					{bool use_Subinterval = false;
+								 double subinterval_Start = 0;
+								 double subinterval_End = 5;
+								 QVector<double> argument; QVector<double> shifted_Argument;
 								 QVector<Value> values;	   QVector<Value> shifted_Values;
 								 double arg_Offset = 0; double arg_Factor = 1; bool divide_On_Beam_Intensity = true;
 								 double val_Offset = 0; double val_Factor = 1; double beam_Intensity_Start = 1; double beam_Intensity_Final = 1;

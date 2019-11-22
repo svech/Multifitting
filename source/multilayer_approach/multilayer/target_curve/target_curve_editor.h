@@ -73,7 +73,12 @@ public:
 			QComboBox* filepath_ComboBox;
 			QPushButton* browse_Button;
 
-		QGroupBox* data_GroupBox;
+		QGroupBox* data_GroupBox;		
+			QCheckBox* main_Subinterval_Checkbox;
+			MyDoubleSpinBox* from_Subinterval_SpinBox;
+			QLabel* and_Subinterval_Label;
+			MyDoubleSpinBox* to_Subinterval_SpinBox;
+
 			QLabel* arg_Type_Label;
 			QComboBox* arg_Type_ComboBox;
 			QLabel* arg_Units_Label;
