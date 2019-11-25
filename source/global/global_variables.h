@@ -203,6 +203,11 @@ extern QString soft_Restriction_Color;
 
 // -----------------------------------------------------------------------------------------
 
+extern QPen subinterval_Plot_Pen;
+extern QBrush subinterval_Plot_Brush;
+
+// -----------------------------------------------------------------------------------------
+
 extern int scale;
 extern int corner_x_shift;
 extern int corner_y_shift;
@@ -257,6 +262,8 @@ public:
 	template <typename Type>
 	static void resize_Line_Edit(Type* input_Line_Edit, bool adjust_Window = true);
 	static void change_Parent_Period_Gamma_Thickness(QTreeWidgetItem *current_Item);
+	static void plot_All_Data_in_Graphs();
+	static void replot_All_Graphs();
 };
 
 #endif // GLOBAL_VARIABLES_H

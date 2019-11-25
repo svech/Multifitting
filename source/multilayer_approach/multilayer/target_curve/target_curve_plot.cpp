@@ -7,6 +7,7 @@ Target_Curve_Plot::Target_Curve_Plot(Target_Curve* target_Curve, QWidget *parent
 	custom_Plot = new QCustomPlot(parent);
 	custom_Plot->setMinimumHeight(300);
 	custom_Plot->replot();
+	create_Subinterval_Rectangle();
 }
 
 void Target_Curve_Plot::create_Plot_Frame_And_Scale()
@@ -90,14 +91,39 @@ void Target_Curve_Plot::create_Plot_Frame_And_Scale()
 			disconnect(custom_Plot->yAxis, SIGNAL(rangeChanged(QCPRange)), custom_Plot->yAxis2, SLOT(setRange(QCPRange)));
 		}
 	}
+	custom_Plot->replot();
+}
 
+void Target_Curve_Plot::create_Subinterval_Rectangle()
+{
+	start_Rect = new QCPItemRect(custom_Plot);
+			start_Rect->setPen  (subinterval_Plot_Pen);
+			start_Rect->setBrush(subinterval_Plot_Brush);
+	end_Rect = new QCPItemRect(custom_Plot);
+			end_Rect->setPen  (subinterval_Plot_Pen);
+			end_Rect->setBrush(subinterval_Plot_Brush);
+
+	subinterval_Changed_Replot();
+
+	connect(custom_Plot->xAxis, static_cast<void(QCPAxis::*)(const QCPRange &)>(&QCPAxis::rangeChanged), this, &Target_Curve_Plot::subinterval_Changed_Replot);
+	connect(custom_Plot->yAxis, static_cast<void(QCPAxis::*)(const QCPRange &)>(&QCPAxis::rangeChanged), this, &Target_Curve_Plot::subinterval_Changed_Replot);
+}
+
+void Target_Curve_Plot::subinterval_Changed_Replot()
+{
+	start_Rect->topLeft->setCoords(custom_Plot->xAxis->range().lower, custom_Plot->yAxis->range().upper);
+	start_Rect->bottomRight->setCoords(target_Curve->curve.subinterval_Start,custom_Plot->yAxis->range().lower);
+
+	end_Rect->topLeft->setCoords(target_Curve->curve.subinterval_End,custom_Plot->yAxis->range().upper);
+	end_Rect->bottomRight->setCoords(custom_Plot->xAxis->range().upper, custom_Plot->yAxis->range().lower);
 	custom_Plot->replot();
 }
 
 void Target_Curve_Plot::plot_Data(bool fast)
 {
-	if(!fast)
+	if(!fast){
 		create_Plot_Frame_And_Scale();
+	}
 
 	if(target_Curve->loaded_And_Ready)
 	{

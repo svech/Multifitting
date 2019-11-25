@@ -87,13 +87,7 @@ void Main_Calculation_Module::single_Calculation(bool print)
 //	qInfo() << "single_Calculation: "<< elapsed.count()/1000000. << " seconds" << endl;
 
 	// replot graphs
-	if(global_Multilayer_Approach->runned_Optical_Graphs.contains(optical_Graphs_Key))
-	{
-		for(Curve_Plot* curve_Plot : global_Multilayer_Approach->optical_Graphs->plots)
-		{
-			curve_Plot->plot_All_Data();
-		}
-	}
+	Global_Variables::plot_All_Data_in_Graphs();
 
 	if(print)
 	{

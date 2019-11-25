@@ -252,7 +252,7 @@ QDataStream& operator >>( QDataStream& stream,		 Curve& curve )
 {
 	if(Global_Variables::check_Loaded_Version(1,10,1))		// since 1.10.1
 	{
-		stream >> curve.use_Subinterval << curve.subinterval_Start << curve.subinterval_End;
+		stream >> curve.use_Subinterval >> curve.subinterval_Start >> curve.subinterval_End;
 	}
 
 	stream  >> curve.argument >> curve.shifted_Argument >> curve.values >> curve.shifted_Values >> curve.arg_Offset >> curve.arg_Factor >> curve.val_Offset >> curve.val_Factor;

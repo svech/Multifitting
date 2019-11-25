@@ -25,6 +25,7 @@ public:
 		void create_Plot_Options_GroupBox();
 		void create_Filepath_GroupBox();
 		void create_Data_GroupBox();
+		void reset_Subinterval();
 		void create_Buttons();
 	void set_Window_Geometry();
 

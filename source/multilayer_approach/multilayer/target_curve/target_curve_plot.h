@@ -10,11 +10,16 @@ public:
 	explicit Target_Curve_Plot(Target_Curve* target_Curve, QWidget *parent = nullptr);
 
 	void create_Plot_Frame_And_Scale();
+	void create_Subinterval_Rectangle();
+	void subinterval_Changed_Replot();
 	void plot_Data(bool fast = false);
 	void refresh_Labels();
 
 	Target_Curve* target_Curve;
 	QCustomPlot* custom_Plot;
+
+	QCPItemRect* start_Rect;
+	QCPItemRect* end_Rect;
 
 	QString val_Type_Label;
 	QString val_Mode_Label_1;

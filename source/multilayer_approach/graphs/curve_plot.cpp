@@ -71,6 +71,8 @@ void Curve_Plot::create_Main_Layout()
 	create_Plot_Frame_And_Scale();
 		main_Layout->addWidget(custom_Plot);
 
+	create_Subinterval_Rectangle();
+
 	create_Options();
 		main_Layout->addWidget(options_GroupBox);
 
@@ -84,6 +86,34 @@ void Curve_Plot::create_Main_Layout()
 
 	colorize_Color_Button();
 	graph_Done = true;
+}
+
+void Curve_Plot::create_Subinterval_Rectangle()
+{
+	start_Rect = new QCPItemRect(custom_Plot);
+			start_Rect->setPen  (subinterval_Plot_Pen);
+			start_Rect->setBrush(subinterval_Plot_Brush);
+	end_Rect = new QCPItemRect(custom_Plot);
+			end_Rect->setPen  (subinterval_Plot_Pen);
+			end_Rect->setBrush(subinterval_Plot_Brush);
+
+	subinterval_Changed_Replot();
+
+	connect(custom_Plot->xAxis, static_cast<void(QCPAxis::*)(const QCPRange &)>(&QCPAxis::rangeChanged), this, &Curve_Plot::subinterval_Changed_Replot);
+	connect(custom_Plot->yAxis, static_cast<void(QCPAxis::*)(const QCPRange &)>(&QCPAxis::rangeChanged), this, &Curve_Plot::subinterval_Changed_Replot);
+}
+
+void Curve_Plot::subinterval_Changed_Replot()
+{
+	start_Rect->setVisible(target_Curve->curve.use_Subinterval);
+	end_Rect->setVisible(target_Curve->curve.use_Subinterval);
+
+	start_Rect->topLeft->setCoords(custom_Plot->xAxis->range().lower, custom_Plot->yAxis->range().upper);
+	start_Rect->bottomRight->setCoords(target_Curve->curve.subinterval_Start,custom_Plot->yAxis->range().lower);
+
+	end_Rect->topLeft->setCoords(target_Curve->curve.subinterval_End,custom_Plot->yAxis->range().upper);
+	end_Rect->bottomRight->setCoords(custom_Plot->xAxis->range().upper, custom_Plot->yAxis->range().lower);
+	custom_Plot->replot();
 }
 
 void Curve_Plot::create_Plot_Frame_And_Scale()

@@ -10,6 +10,8 @@ public:
 	explicit Curve_Plot(Multilayer* multilayer, Target_Curve* target_Curve, Independent_Variables* independent_Variables, QString curve_Class, QWidget *parent = nullptr);
 
 	void create_Main_Layout();
+	void create_Subinterval_Rectangle();
+	void subinterval_Changed_Replot();
 	void create_Plot_Frame_And_Scale();
 	void create_Options();
 	void set_Title_Text();
@@ -55,6 +57,8 @@ public:
 
 	QVBoxLayout* main_Layout;
 		QCustomPlot* custom_Plot;
+			QCPItemRect* start_Rect;
+			QCPItemRect* end_Rect;
 		QCPTextElement* plot_Title;
 		QGroupBox* options_GroupBox;
 			QHBoxLayout* options_Layout;

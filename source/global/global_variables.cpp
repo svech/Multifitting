@@ -355,6 +355,11 @@ QString soft_Restriction_Color				= "QWidget { background: rgb(94,  244, 227); }
 
 // -----------------------------------------------------------------------------------------
 
+QPen subinterval_Plot_Pen = QPen(Qt::transparent);
+QBrush subinterval_Plot_Brush = QBrush(QColor(0, 0, 255, 15));
+
+// -----------------------------------------------------------------------------------------
+
 int scale = 96;
 int corner_x_shift = 0;
 int corner_y_shift = 0;
@@ -1153,5 +1158,28 @@ void Global_Variables::change_Parent_Period_Gamma_Thickness(QTreeWidgetItem* cur
 		// further parents
 		if(parent_Item->parent())
 			change_Parent_Period_Gamma_Thickness(parent_Item);
+	}
+}
+
+void Global_Variables::plot_All_Data_in_Graphs()
+{
+	if(global_Multilayer_Approach->runned_Optical_Graphs.contains(optical_Graphs_Key))
+	{
+		for(Curve_Plot* curve_Plot : global_Multilayer_Approach->optical_Graphs->plots)
+		{
+			curve_Plot->plot_All_Data();
+		}
+	}
+}
+
+void Global_Variables::replot_All_Graphs()
+{
+	if(global_Multilayer_Approach->runned_Optical_Graphs.contains(optical_Graphs_Key))
+	{
+		for(Curve_Plot* curve_Plot : global_Multilayer_Approach->optical_Graphs->plots)
+		{
+			curve_Plot->custom_Plot->replot();
+			curve_Plot->custom_Plot->xAxis->rangeChanged(curve_Plot->custom_Plot->xAxis->range()); // to cause normal replotting. crutch?
+		}
 	}
 }

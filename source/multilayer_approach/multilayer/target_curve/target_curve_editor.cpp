@@ -59,7 +59,7 @@ void Target_Curve_Editor::read_Data_File(QString filepath)
 		target_Curve->import_Data(filepath);
 		target_Curve->fill_Measurement_With_Data();
 		global_Multilayer_Approach->target_Added = true;
-
+		reset_Subinterval();
 	} else
 	{
 		target_Curve->loaded_And_Ready = false;
@@ -374,24 +374,43 @@ void Target_Curve_Editor::create_Data_GroupBox()
 
 		from_Subinterval_SpinBox = new MyDoubleSpinBox;
 			from_Subinterval_SpinBox->setAccelerated(true);
-			from_Subinterval_SpinBox->setRange(0, MAX_DOUBLE);
+			if(target_Curve->loaded_And_Ready)
+			{
+				double min = *std::min_element(target_Curve->curve.shifted_Argument.begin(), target_Curve->curve.shifted_Argument.end());
+				double max = *std::max_element(target_Curve->curve.shifted_Argument.begin(), target_Curve->curve.shifted_Argument.end());
+				from_Subinterval_SpinBox->setRange(min,max);
+			} else
+			{
+				from_Subinterval_SpinBox->setRange(-MAX_DOUBLE, MAX_DOUBLE);
+			}
+
 			from_Subinterval_SpinBox->setDecimals(4);
-			from_Subinterval_SpinBox->setValue(0);
+			from_Subinterval_SpinBox->setValue(target_Curve->curve.subinterval_Start);
 			from_Subinterval_SpinBox->setSingleStep(0.01);
 			from_Subinterval_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
 		layout->addWidget(from_Subinterval_SpinBox);
+		Global_Variables::resize_Line_Edit(from_Subinterval_SpinBox);
 
 		and_Subinterval_Label = new QLabel("  and  ");
 		layout->addWidget(and_Subinterval_Label);
 
 		to_Subinterval_SpinBox = new MyDoubleSpinBox;
 			to_Subinterval_SpinBox->setAccelerated(true);
-			to_Subinterval_SpinBox->setRange(0, MAX_DOUBLE);
+			if(target_Curve->loaded_And_Ready)
+			{
+				double min = *std::min_element(target_Curve->curve.shifted_Argument.begin(), target_Curve->curve.shifted_Argument.end());
+				double max = *std::max_element(target_Curve->curve.shifted_Argument.begin(), target_Curve->curve.shifted_Argument.end());
+				to_Subinterval_SpinBox->setRange(min,max);
+			} else
+			{
+				to_Subinterval_SpinBox->setRange(-MAX_DOUBLE, MAX_DOUBLE);
+			}
 			to_Subinterval_SpinBox->setDecimals(4);
-			to_Subinterval_SpinBox->setValue(5);
+			to_Subinterval_SpinBox->setValue(target_Curve->curve.subinterval_End);
 			to_Subinterval_SpinBox->setSingleStep(0.01);
 			to_Subinterval_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
 		layout->addWidget(to_Subinterval_SpinBox);
+		Global_Variables::resize_Line_Edit(to_Subinterval_SpinBox);
 
 		connect(main_Subinterval_Checkbox, &QCheckBox::toggled, this, [=]
 		{
@@ -399,8 +418,33 @@ void Target_Curve_Editor::create_Data_GroupBox()
 			from_Subinterval_SpinBox->setDisabled(!target_Curve->curve.use_Subinterval);
 			and_Subinterval_Label   ->setDisabled(!target_Curve->curve.use_Subinterval);
 			to_Subinterval_SpinBox  ->setDisabled(!target_Curve->curve.use_Subinterval);
+
+			// show/hide subinterval on plot
+			target_Curve_Plot->start_Rect->setVisible(target_Curve->curve.use_Subinterval);
+			target_Curve_Plot->end_Rect->setVisible(target_Curve->curve.use_Subinterval);
+
+			target_Curve_Plot->subinterval_Changed_Replot();
+			Global_Variables::replot_All_Graphs();
 		});
-//		connect(main_Subinterval_Checkbox, &QCheckBox::toggled, this, &Target_Curve_Editor::fhfghfgh);
+
+		connect(from_Subinterval_SpinBox, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
+		{
+			target_Curve->curve.subinterval_Start = from_Subinterval_SpinBox->value();
+			to_Subinterval_SpinBox->setRange(target_Curve->curve.subinterval_Start,to_Subinterval_SpinBox->maximum());
+			to_Subinterval_SpinBox->setValue(max(target_Curve->curve.subinterval_Start,target_Curve->curve.subinterval_End));
+
+			target_Curve_Plot->subinterval_Changed_Replot();
+			Global_Variables::replot_All_Graphs();
+		});
+		connect(to_Subinterval_SpinBox, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
+		{
+			target_Curve->curve.subinterval_End = to_Subinterval_SpinBox->value();
+			from_Subinterval_SpinBox->setRange(from_Subinterval_SpinBox->minimum(),target_Curve->curve.subinterval_End);
+			from_Subinterval_SpinBox->setValue(min(target_Curve->curve.subinterval_Start,target_Curve->curve.subinterval_End));
+
+			target_Curve_Plot->subinterval_Changed_Replot();
+			Global_Variables::replot_All_Graphs();
+		});
 		main_Subinterval_Checkbox->toggled(target_Curve->curve.use_Subinterval);
 	}
 
@@ -796,6 +840,27 @@ void Target_Curve_Editor::create_Data_GroupBox()
 	connect(beam_Profile_Spreading_SpinBox,	static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, &Target_Curve_Editor::refresh_Measurement_Geometry);
 	connect(sample_Size_SpinBox,			static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, &Target_Curve_Editor::refresh_Measurement_Geometry);
 	connect(sample_Shift_SpinBox,			static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, &Target_Curve_Editor::refresh_Measurement_Geometry);
+}
+
+void Target_Curve_Editor::reset_Subinterval()
+{
+	if(target_Curve->loaded_And_Ready)
+	{
+		double min = *std::min_element(target_Curve->curve.shifted_Argument.begin(), target_Curve->curve.shifted_Argument.end());
+		double max = *std::max_element(target_Curve->curve.shifted_Argument.begin(), target_Curve->curve.shifted_Argument.end());
+		from_Subinterval_SpinBox->setRange(min,max);
+		to_Subinterval_SpinBox->setRange(min,max);
+
+		from_Subinterval_SpinBox->setValue(min);
+		to_Subinterval_SpinBox->setValue(max);
+	} else
+	{
+		from_Subinterval_SpinBox->setRange(-MAX_DOUBLE, MAX_DOUBLE);
+		to_Subinterval_SpinBox->setRange(-MAX_DOUBLE, MAX_DOUBLE);
+
+		from_Subinterval_SpinBox->setValue(target_Curve->curve.subinterval_Start);
+		to_Subinterval_SpinBox->setValue(target_Curve->curve.subinterval_End);
+	}
 }
 
 void Target_Curve_Editor::create_Buttons()
