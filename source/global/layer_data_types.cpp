@@ -134,7 +134,7 @@ Data::Data(QString item_Type_Passed)
 			if(item_Type == item_Type_Substrate)	absolute_Density.value = substrate_default_absolute_density;
 			absolute_Density.fit.is_Fitable = false;
 			absolute_Density.fit.min = absolute_Density.value*(1-dispersion);
-			absolute_Density.fit.max = absolute_Density.value*(1+dispersion);
+			absolute_Density.fit.max = absolute_Density.value*(1/*+dispersion*/);
 			absolute_Density.indicator.whats_This = whats_This_Absolute_Density;
 			absolute_Density.indicator.item_Id = id;
 
@@ -150,7 +150,7 @@ Data::Data(QString item_Type_Passed)
 			if(item_Type == item_Type_Substrate)	relative_Density.value = substrate_default_relative_density;
 			relative_Density.fit.is_Fitable = false;
 			relative_Density.fit.min = relative_Density.value*(1-dispersion);
-			relative_Density.fit.max = relative_Density.value*(1+dispersion);
+			relative_Density.fit.max = relative_Density.value*(1/*+dispersion*/);
 			relative_Density.indicator.whats_This = whats_This_Relative_Density;
 			relative_Density.indicator.item_Id = id;
 

@@ -47,6 +47,8 @@ public:
 	Structure_Toolbar* structure_Toolbar;
 	Multilayer* multilayer;
 	QTreeWidget* tree;
+
+	Structure_Tree& operator =(const Structure_Tree& referent_Structure_Tree);
 };
 
 #endif // STRUCTURE_TREE_H

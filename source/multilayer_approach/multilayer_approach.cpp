@@ -64,7 +64,7 @@ void Multilayer_Approach::create_Multilayer_Tabs()
 	main_Layout->addWidget(multilayer_Tabs);
 
 	connect(multilayer_Tabs->tabBar(), &QTabBar::customContextMenuRequested,  this, &Multilayer_Approach::tab_Context_Menu);
-	connect(add_Tab_Corner_Button,  &QToolButton::clicked,			 this, &Multilayer_Approach::add_Multilayer);
+	connect(add_Tab_Corner_Button,  &QToolButton::clicked,			 this, [=]{add_Multilayer();});
 	connect(multilayer_Tabs,		&QTabWidget::tabCloseRequested,  this, &Multilayer_Approach::remove_Multilayer);
 	connect(multilayer_Tabs,		&QTabWidget::currentChanged,	 this, &Multilayer_Approach::change_Tab_Color);
 	connect(multilayer_Tabs,		&QTabWidget::tabBarDoubleClicked,this, &Multilayer_Approach::rename_Multilayer);
@@ -137,32 +137,42 @@ void Multilayer_Approach::tab_Context_Menu(const QPoint& pos)
 	QMenu menu;
 	QAction duplicate_Action("Duplicate structure");
 	menu.addAction(&duplicate_Action);
-	connect(&duplicate_Action, &QAction::triggered, this, [=]
-	{
-		int tab_Index = multilayer_Tabs->tabBar()->tabAt(pos);
-
-
-		qInfo() << "Duplicated" << tab_Index << endl;
-
-	});
+	connect(&duplicate_Action, &QAction::triggered, this, [=]{duplicate_Structure(pos);});
 	menu.exec(QCursor::pos());
 }
 
-void Multilayer_Approach::add_Multilayer()
+void Multilayer_Approach::duplicate_Structure(const QPoint &pos)
+{
+	int old_Tab_Index = multilayer_Tabs->tabBar()->tabAt(pos);
+	Multilayer* new_Multilayer = add_Multilayer(old_Tab_Index);
+	Multilayer* old_Multilayer = qobject_cast<Multilayer*>(multilayer_Tabs->widget(old_Tab_Index));
+
+	*new_Multilayer = *old_Multilayer;
+}
+
+Multilayer* Multilayer_Approach::add_Multilayer(int index)
 {
 	Multilayer* new_Multilayer = new Multilayer(this);
 		new_Multilayer->setContentsMargins(-80,-10,-80,-10);
 
 	connect(new_Multilayer, &Multilayer::refresh_All_Multilayers, this, &Multilayer_Approach::refresh_All_Multilayers_View);
 
-	multilayer_Tabs->addTab(new_Multilayer, default_multilayer_tab_name);
-	multilayer_Tabs->setTabText(multilayer_Tabs->count()-1, default_multilayer_tab_name + Locale.toString(multilayer_Tabs->count()));
+	if(index < 0)
+	{
+		multilayer_Tabs->addTab(new_Multilayer, default_multilayer_tab_name);
+		multilayer_Tabs->setTabText(multilayer_Tabs->count()-1, default_multilayer_tab_name + Locale.toString(multilayer_Tabs->count()));
+	} else
+	{
+		multilayer_Tabs->insertTab(index+1, new_Multilayer, multilayer_Tabs->tabText(index) + " (copy)");
+	}
 
 	if(multilayer_Tabs->count()>1)
 	{
 		multilayer_Tabs->tabBar()->setTabTextColor(multilayer_Tabs->count()-1,Qt::gray);
 		multilayer_Tabs->tabBar()->tabButton(multilayer_Tabs->count()-1, QTabBar::RightSide)->hide();
 	}
+	multilayer_Tabs->currentChanged(multilayer_Tabs->currentIndex());
+	return new_Multilayer;
 }
 
 void Multilayer_Approach::remove_Multilayer(int index)
@@ -435,6 +445,7 @@ void Multilayer_Approach::lock_Mainwindow_Interface()
 			multilayer_Tabs->tabBar()->tabButton(i, QTabBar::RightSide)->setDisabled(true);
 			multilayer_Tabs->setMovable(false);
 			multilayer_Tabs->cornerWidget()->setDisabled(true);
+			disconnect(multilayer_Tabs->tabBar(), &QTabBar::customContextMenuRequested,  this, &Multilayer_Approach::tab_Context_Menu);
 		}
 
 		// lock tree
@@ -490,6 +501,8 @@ void Multilayer_Approach::unlock_Mainwindow_Interface()
 			multilayer_Tabs->tabBar()->tabButton(i, QTabBar::RightSide)->setDisabled(false);
 			multilayer_Tabs->setMovable(true);
 			add_Tab_Corner_Button->setDisabled(false);
+			disconnect(multilayer_Tabs->tabBar(), &QTabBar::customContextMenuRequested,  this, &Multilayer_Approach::tab_Context_Menu);
+			   connect(multilayer_Tabs->tabBar(), &QTabBar::customContextMenuRequested,  this, &Multilayer_Approach::tab_Context_Menu);
 		}
 
 		// unlock tree

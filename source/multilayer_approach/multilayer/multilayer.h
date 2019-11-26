@@ -80,6 +80,9 @@ public:
 	double min_Max_Density = 10;
 	double min_Max_Thickness = 10;
 	double min_Max_Sigma = 10;
+
+	Multilayer& operator =(const Multilayer& referent_Multilayer);
 };
+
 
 #endif // MULTILAYER_H

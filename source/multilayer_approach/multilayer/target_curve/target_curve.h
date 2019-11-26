@@ -37,6 +37,8 @@ public:
 
 	QString label_Text = "<no description>";
 	QString index;
+
+	Target_Curve& operator =(const Target_Curve& referent_Target_Curve);
 };
 
 QDataStream& operator <<( QDataStream& stream, const Target_Curve* target_Curve );

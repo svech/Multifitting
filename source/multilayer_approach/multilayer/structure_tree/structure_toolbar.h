@@ -57,7 +57,7 @@ public:
 	void refresh_Toolbar();
 
 	void create_Toolbar();
-	void change_IDs_Of_Subtree(QTreeWidgetItem* item);
+	static void change_IDs_Of_Subtree(QTreeWidgetItem* item);
 
 	QTreeWidgetItem* buffered=nullptr;
 	QString buffered_Copy_Type = copy_Type_Cut;

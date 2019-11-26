@@ -331,3 +331,48 @@ void Multilayer::set_Index_To_Target_Curves()
 	}
 }
 
+Multilayer& Multilayer::operator =(const Multilayer& referent_Multilayer)
+{
+	// structure tree
+	*structure_Tree = *referent_Multilayer.structure_Tree;
+
+	// independent plots
+	for(int independent_Index=0; independent_Index< independent_Variables_Plot_Tabs->count(); independent_Index++)
+	{
+		Independent_Variables* old_Independent = qobject_cast<Independent_Variables*>(independent_Variables_Plot_Tabs->widget(independent_Index));
+		delete old_Independent;
+	}
+	independent_Variables_Plot_Tabs->clear();
+	for(int independent_Index=0; independent_Index<referent_Multilayer.independent_Variables_Plot_Tabs->tabBar()->count(); independent_Index++)
+	{
+		add_Independent_Variables_Tab();
+		independent_Variables_Plot_Tabs->setTabText(independent_Index, referent_Multilayer.independent_Variables_Plot_Tabs->tabText(independent_Index));
+
+		Independent_Variables* referent_Independent = qobject_cast<Independent_Variables*>(referent_Multilayer.independent_Variables_Plot_Tabs->widget(independent_Index));
+		Independent_Variables* new_Independent = qobject_cast<Independent_Variables*>(independent_Variables_Plot_Tabs->widget(independent_Index));
+
+		*new_Independent = *referent_Independent;
+	}
+
+	// target profiles
+	target_Profiles_Vector.resize(referent_Multilayer.target_Profiles_Vector.size());
+	for(int target_Index=0; target_Index<target_Profiles_Vector.size(); target_Index++)
+	{
+		*target_Profiles_Vector[target_Index] = *referent_Multilayer.target_Profiles_Vector[target_Index];
+	}
+
+	// other data
+	num_Target_Rows		 = referent_Multilayer.num_Target_Rows;		 // rows in Calculation Settings
+	num_Independent_Rows = referent_Multilayer.num_Independent_Rows; // rows in Calculation Settings
+
+	graph_Options = referent_Multilayer.graph_Options;
+
+	enable_Calc_Target_Curves = referent_Multilayer.enable_Calc_Target_Curves;
+	enable_Calc_Independent_Curves = referent_Multilayer.enable_Calc_Independent_Curves;
+
+	min_Max_Density = referent_Multilayer.min_Max_Density;
+	min_Max_Thickness = referent_Multilayer.min_Max_Thickness;
+	min_Max_Sigma = referent_Multilayer.min_Max_Sigma;
+
+	return *this;
+}

@@ -262,6 +262,34 @@ void Target_Curve::show_Description_Label()
 	description_Label->setText(label_Text);
 }
 
+Target_Curve& Target_Curve::operator =(const Target_Curve& referent_Target_Curve)
+{
+	description_Label->setText(referent_Target_Curve.description_Label->text());
+
+	curve = referent_Target_Curve.curve;
+	fit_Params = referent_Target_Curve.fit_Params;
+	measurement = referent_Target_Curve.measurement;
+	calculated_Values = referent_Target_Curve.calculated_Values;
+
+	filename = referent_Target_Curve.filename;	// should be empty
+	filepath = referent_Target_Curve.filepath;	// should be empty
+
+	loaded_And_Ready = referent_Target_Curve.loaded_And_Ready;
+	plot_Options_Experimental = referent_Target_Curve.plot_Options_Experimental;
+	plot_Options_Calculated = referent_Target_Curve.plot_Options_Calculated;
+
+	lines_List = referent_Target_Curve.lines_List;
+	arg_Units = referent_Target_Curve.arg_Units;
+	at_Fixed = referent_Target_Curve.at_Fixed;
+	ang_Type_For_Label_At_Fixed = referent_Target_Curve.ang_Type_For_Label_At_Fixed;
+	arg_Type_For_Label = referent_Target_Curve.arg_Type_For_Label;
+
+	label_Text = referent_Target_Curve.label_Text;
+	index = referent_Target_Curve.index;
+
+	return *this;
+}
+
 // serialization
 QDataStream& operator <<( QDataStream& stream, const Target_Curve* target_Curve )
 {

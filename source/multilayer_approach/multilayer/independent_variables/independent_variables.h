@@ -53,6 +53,8 @@ public:
 	QString argument_Type;
 	QListWidget* independent_Variables_List;
 	QToolBar* independent_Variables_Toolbar;
+
+	Independent_Variables& operator =(const Independent_Variables& referent_Independent_Variables);
 };
 
 QDataStream& operator <<( QDataStream& stream, const Independent_Variables* independent_Variables );

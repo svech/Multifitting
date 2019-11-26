@@ -515,3 +515,15 @@ void Structure_Tree::unlock_Tree()
 	structure_Toolbar->toolbar->setDisabled(false);
 	tree->blockSignals(false);
 }
+
+Structure_Tree& Structure_Tree::operator =(const Structure_Tree& referent_Structure_Tree)
+{
+	tree->clear();
+	for(int i=0; i<referent_Structure_Tree.tree->topLevelItemCount(); i++)
+	{
+		QTreeWidgetItem* item = referent_Structure_Tree.tree->topLevelItem(i)->clone(); // Real copy! The data are also copied here.
+		Structure_Toolbar::change_IDs_Of_Subtree(item);
+		tree->addTopLevelItem(item);
+	}
+	return *this;
+}

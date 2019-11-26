@@ -24,8 +24,8 @@ public:
 	void set_Window_Geometry();
 	void write_Window_Geometry();
 
-	int total_Number_of_Target_Graphs;
-	int total_Number_of_Independent_Graphs;
+	QVector<int> total_Number_of_Target_Graphs;
+	QVector<int> total_Number_of_Independent_Graphs;
 
 	QString keep_Splitter;
 	QVBoxLayout* main_Layout;

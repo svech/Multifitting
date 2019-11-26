@@ -558,6 +558,20 @@ QString Independent_Variables::enlarge_Tab_Name()
 	}
 }
 
+Independent_Variables& Independent_Variables::operator =(const Independent_Variables& referent_Independent_Variables)
+{
+	tab_Name = referent_Independent_Variables.tab_Name;
+
+	calculated_Values = referent_Independent_Variables.calculated_Values;
+
+	calc_Functions = referent_Independent_Variables.calc_Functions;
+	plot_Options = referent_Independent_Variables.plot_Options;
+
+	// I don't know how to copy other things. So I just don't copy them.
+
+	return *this;
+}
+
 // serialization
 QDataStream& operator <<( QDataStream& stream, const Independent_Variables* independent_Variables )
 {

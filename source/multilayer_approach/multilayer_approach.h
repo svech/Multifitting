@@ -76,7 +76,8 @@ public:
 	void fast_Hide_Windows();
 
 	void tab_Context_Menu(const QPoint& pos);
-	void add_Multilayer();
+	void duplicate_Structure(const QPoint& pos);
+	Multilayer* add_Multilayer(int index = -2019);
 	void remove_Multilayer(int index);
 	void change_Tab_Color(int index);
 	void rename_Multilayer(int tab_Index);
