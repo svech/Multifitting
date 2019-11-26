@@ -379,6 +379,15 @@ void Fitting::fill_Residual(Fitting_Params* params, int& residual_Shift, Data_El
 				fi_1 = target_Curve->curve.shifted_Values[point_Index].val_1;
 				fi_2 = model_Curve[point_Index];
 
+				// use only data from subinterval
+				if( target_Curve->curve.use_Subinterval &&
+					((target_Curve->curve.shifted_Argument[point_Index]<target_Curve->curve.subinterval_Start) ||
+					(target_Curve->curve.shifted_Argument[point_Index]>target_Curve->curve.subinterval_End))	)
+				{
+					factor = 0;
+				}
+
+				// fill
 				gsl_vector_set(f, residual_Shift+point_Index, factor*(fi_1-fi_2)*sqrt((target_Curve->curve.beam_Intensity_Start+target_Curve->curve.beam_Intensity_Final)/(2*fi_2))   );
 			}
 		} else
@@ -408,6 +417,14 @@ void Fitting::fill_Residual(Fitting_Params* params, int& residual_Shift, Data_El
 				factor = target_Curve->fit_Params.weight_Sqrt;
 				if(target_Curve->fit_Params.norm) { factor /= N_sqrt; }
 
+				// use only data from subinterval
+				if( target_Curve->curve.use_Subinterval &&
+					((target_Curve->curve.shifted_Argument[point_Index]<target_Curve->curve.subinterval_Start) ||
+					(target_Curve->curve.shifted_Argument[point_Index]>target_Curve->curve.subinterval_End))	)
+				{
+					factor = 0;
+				}
+
 				// fill
 				gsl_vector_set(f, residual_Shift+point_Index, factor*pow(abs(fi_1-fi_2),power));
 			}
@@ -434,8 +451,19 @@ void Fitting::fill_Residual(Fitting_Params* params, int& residual_Shift, Data_El
 			fi_2_next = model_Curve[point_Index+1];
 #endif
 			delta_Lambda = abs(target_Curve->curve.shifted_Argument[point_Index]-target_Curve->curve.shifted_Argument[point_Index+1]);
-			integral += (fi_1+fi_1_next)/2*(fi_2+fi_2_next)/2*delta_Lambda;
-			params->max_Integral+=1000*(fi_1+fi_1_next)*delta_Lambda; // 1000 is a big number, but if f(R) is bigger, then incorrect
+
+			// use only data from subinterval
+			if( target_Curve->curve.use_Subinterval &&
+				((target_Curve->curve.shifted_Argument[point_Index]<target_Curve->curve.subinterval_Start) ||
+				(target_Curve->curve.shifted_Argument[point_Index]>target_Curve->curve.subinterval_End))	)
+			{
+				integral += 0;
+				params->max_Integral+=0;
+			} else
+			{
+				integral += (fi_1+fi_1_next)/2*(fi_2+fi_2_next)/2*delta_Lambda;
+				params->max_Integral+=1000*(fi_1+fi_1_next)*delta_Lambda; // 1000 is a big number, but if f(R) is bigger, then incorrect
+			}
 		}
 
 		// fill

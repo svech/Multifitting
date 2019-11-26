@@ -75,6 +75,7 @@ public:
 	void write_Window_Geometry();
 	void fast_Hide_Windows();
 
+	void tab_Context_Menu(const QPoint& pos);
 	void add_Multilayer();
 	void remove_Multilayer(int index);
 	void change_Tab_Color(int index);

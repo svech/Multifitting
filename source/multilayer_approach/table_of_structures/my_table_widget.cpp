@@ -20,6 +20,7 @@ My_Table_Widget::My_Table_Widget(int rows,
 
 My_Table_Widget::~My_Table_Widget()
 {
+
 }
 
 void My_Table_Widget::contextMenuEvent(QContextMenuEvent *event)

@@ -71,7 +71,13 @@ void Curve_Plot::create_Main_Layout()
 	create_Plot_Frame_And_Scale();
 		main_Layout->addWidget(custom_Plot);
 
-	create_Subinterval_Rectangle();
+	if(curve_Class == TARGET)
+	{
+		if(target_Curve) // if passed pointer!=nullptr
+		{
+			create_Subinterval_Rectangle();
+		}
+	}
 
 	create_Options();
 		main_Layout->addWidget(options_GroupBox);

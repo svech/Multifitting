@@ -54,6 +54,7 @@ void Multilayer_Approach::create_Multilayer_Tabs()
 	multilayer_Tabs = new QTabWidget(this);
 		multilayer_Tabs->setMovable(true);
 		multilayer_Tabs->setTabsClosable(true);
+		multilayer_Tabs->tabBar()->setContextMenuPolicy(Qt::CustomContextMenu);
 
 	add_Tab_Corner_Button = new QToolButton;
 		add_Tab_Corner_Button->setText("+");
@@ -62,6 +63,7 @@ void Multilayer_Approach::create_Multilayer_Tabs()
 	multilayer_Tabs->setCornerWidget(add_Tab_Corner_Button);
 	main_Layout->addWidget(multilayer_Tabs);
 
+	connect(multilayer_Tabs->tabBar(), &QTabBar::customContextMenuRequested,  this, &Multilayer_Approach::tab_Context_Menu);
 	connect(add_Tab_Corner_Button,  &QToolButton::clicked,			 this, &Multilayer_Approach::add_Multilayer);
 	connect(multilayer_Tabs,		&QTabWidget::tabCloseRequested,  this, &Multilayer_Approach::remove_Multilayer);
 	connect(multilayer_Tabs,		&QTabWidget::currentChanged,	 this, &Multilayer_Approach::change_Tab_Color);
@@ -128,6 +130,22 @@ void Multilayer_Approach::fast_Hide_Windows()
 		regular_Aperiodic_Table->write_Window_Geometry();
 		regular_Aperiodic_Table->hide();
 	}
+}
+
+void Multilayer_Approach::tab_Context_Menu(const QPoint& pos)
+{
+	QMenu menu;
+	QAction duplicate_Action("Duplicate structure");
+	menu.addAction(&duplicate_Action);
+	connect(&duplicate_Action, &QAction::triggered, this, [=]
+	{
+		int tab_Index = multilayer_Tabs->tabBar()->tabAt(pos);
+
+
+		qInfo() << "Duplicated" << tab_Index << endl;
+
+	});
+	menu.exec(QCursor::pos());
 }
 
 void Multilayer_Approach::add_Multilayer()
