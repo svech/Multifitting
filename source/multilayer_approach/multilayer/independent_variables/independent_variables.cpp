@@ -567,7 +567,97 @@ Independent_Variables& Independent_Variables::operator =(const Independent_Varia
 	calc_Functions = referent_Independent_Variables.calc_Functions;
 	plot_Options = referent_Independent_Variables.plot_Options;
 
-	// I don't know how to copy other things. So I just don't copy them.
+	// I don't know how to copy all things. So I just don't copy everything.
+
+	// --------------------------------------------------------------------------
+	// make active/inactive corresponding independent variable (from measurement)
+	// --------------------------------------------------------------------------
+	/// probe angle
+	QVariant var;
+	int i=0;
+
+	// set active/inactive
+	Independent_Indicator probe_Ang_Ind          =                                independent_Variables_List->item(i)->data(Qt::UserRole).value<Independent_Indicator>();
+	Independent_Indicator referent_Probe_Ang_Ind = referent_Independent_Variables.independent_Variables_List->item(i)->data(Qt::UserRole).value<Independent_Indicator>();
+	probe_Ang_Ind.is_Active = referent_Probe_Ang_Ind.is_Active;
+	var.setValue(probe_Ang_Ind);
+	independent_Variables_List->item(i)->setData(Qt::UserRole, var);
+
+	// change text
+	QString current_Item_Text = independent_Variables_List->item(i)->text();
+	QStringList item_Text_List = current_Item_Text.split(active, QString::SkipEmptyParts);
+	independent_Variables_List->item(i)->setText(item_Text_List[0]);
+	if(probe_Ang_Ind.is_Active)
+	{
+		independent_Variables_List->item(i)->setText(independent_Variables_List->item(i)->text() + active);
+	}
+
+	/// wavelength
+	i=1;
+
+	// set active/inactive
+	Independent_Indicator probe_Wav_Ind          =                                independent_Variables_List->item(i)->data(Qt::UserRole).value<Independent_Indicator>();
+	Independent_Indicator referent_Probe_Wav_Ind = referent_Independent_Variables.independent_Variables_List->item(i)->data(Qt::UserRole).value<Independent_Indicator>();
+	probe_Wav_Ind.is_Active = referent_Probe_Wav_Ind.is_Active;
+	var.setValue(probe_Wav_Ind);
+	independent_Variables_List->item(i)->setData(Qt::UserRole, var);
+
+	// change text
+	current_Item_Text = independent_Variables_List->item(i)->text();
+	item_Text_List = current_Item_Text.split(active, QString::SkipEmptyParts);
+	independent_Variables_List->item(i)->setText(item_Text_List[0]);
+	if(probe_Wav_Ind.is_Active)
+	{
+		independent_Variables_List->item(i)->setText(independent_Variables_List->item(i)->text() + active);
+	}
+	argument_Type = referent_Independent_Variables.argument_Type;
+	// --------------------------------------------------------------------------
+
+	// value and number of points
+	/// angle
+	measurement.probe_Angle.value				   = referent_Independent_Variables.measurement.probe_Angle.value;
+	measurement.probe_Angle.independent.min		   = referent_Independent_Variables.measurement.probe_Angle.independent.min;
+	measurement.probe_Angle.independent.max		   = referent_Independent_Variables.measurement.probe_Angle.independent.max;
+	measurement.probe_Angle.independent.num_Points = referent_Independent_Variables.measurement.probe_Angle.independent.num_Points;
+
+	measurement.cos2					 = referent_Independent_Variables.measurement.cos2;
+	measurement.angle					 = referent_Independent_Variables.measurement.angle;
+	measurement.cos2_Value				 = referent_Independent_Variables.measurement.cos2_Value;
+	measurement.angle_Value				 = referent_Independent_Variables.measurement.angle_Value;
+	measurement.angular_Resolution.value = referent_Independent_Variables.measurement.angular_Resolution.value;
+	measurement.angle_Type				 = referent_Independent_Variables.measurement.angle_Type;
+
+	/// geometry
+	measurement.beam_Size.value				 = referent_Independent_Variables.measurement.beam_Size.value;
+	measurement.beam_Profile_Spreading.value = referent_Independent_Variables.measurement.beam_Profile_Spreading.value;
+	measurement.sample_Size.value			 = referent_Independent_Variables.measurement.sample_Size.value;
+	measurement.sample_Shift.value			 = referent_Independent_Variables.measurement.sample_Shift.value;
+
+	/// wavelength
+	measurement.wavelength.value				  = referent_Independent_Variables.measurement.wavelength.value;
+	measurement.wavelength.independent.min		  = referent_Independent_Variables.measurement.wavelength.independent.min;
+	measurement.wavelength.independent.max		  = referent_Independent_Variables.measurement.wavelength.independent.max;
+	measurement.wavelength.independent.num_Points = referent_Independent_Variables.measurement.wavelength.independent.num_Points;
+
+	measurement.k							   = referent_Independent_Variables.measurement.k;
+	measurement.lambda						   = referent_Independent_Variables.measurement.lambda;
+	measurement.k_Value						   = referent_Independent_Variables.measurement.k_Value;
+	measurement.lambda_Value				   = referent_Independent_Variables.measurement.lambda_Value;
+	measurement.spectral_Resolution.value	   = referent_Independent_Variables.measurement.spectral_Resolution.value;
+	measurement.polarization.value			   = referent_Independent_Variables.measurement.polarization.value;
+	measurement.polarization_Sensitivity.value = referent_Independent_Variables.measurement.polarization_Sensitivity.value;
+	measurement.background.value			   = referent_Independent_Variables.measurement.background.value;
+
+	var.setValue(measurement);
+	measurement_Item->setData(DEFAULT_COLUMN,Qt::UserRole,var);
+
+	// refresh text
+	i=0;
+	Independent_Variables_Editor* editor = new Independent_Variables_Editor(measurement_Item, independent_Variables_List->item(i), independent_Variables_List, argument_Type);
+		editor->close();
+	i=1;
+	editor = new Independent_Variables_Editor(measurement_Item, independent_Variables_List->item(i), independent_Variables_List, argument_Type);
+		editor->close();
 
 	return *this;
 }
