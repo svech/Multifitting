@@ -355,9 +355,16 @@ Multilayer& Multilayer::operator =(const Multilayer& referent_Multilayer)
 	}
 
 	// target profiles
-	target_Profiles_Vector.resize(referent_Multilayer.target_Profiles_Vector.size());
-	for(int target_Index=0; target_Index<target_Profiles_Vector.size(); target_Index++)
+	data_Target_Profile_Frame_Vector.clear();
+	add_Buttons_To_Lock.clear();
+	remove_Buttons_To_Lock.clear();
+	target_Profiles_Vector.clear();
+	QLayoutItem* child;
+	while ((child = layout_Target_Profile_With_Frame_Vector->takeAt(0)) != 0){delete child;}
+
+	for(int target_Index=0; target_Index<referent_Multilayer.target_Profiles_Vector.size(); target_Index++)
 	{
+		add_Target_Curve(target_Index, true);
 		*target_Profiles_Vector[target_Index] = *referent_Multilayer.target_Profiles_Vector[target_Index];
 	}
 

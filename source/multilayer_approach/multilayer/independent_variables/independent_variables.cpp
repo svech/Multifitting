@@ -613,6 +613,8 @@ Independent_Variables& Independent_Variables::operator =(const Independent_Varia
 	argument_Type = referent_Independent_Variables.argument_Type;
 	// --------------------------------------------------------------------------
 
+	// PARAMETER
+
 	// value and number of points
 	/// angle
 	measurement.probe_Angle.value				   = referent_Independent_Variables.measurement.probe_Angle.value;
@@ -648,6 +650,7 @@ Independent_Variables& Independent_Variables::operator =(const Independent_Varia
 	measurement.polarization_Sensitivity.value = referent_Independent_Variables.measurement.polarization_Sensitivity.value;
 	measurement.background.value			   = referent_Independent_Variables.measurement.background.value;
 
+	// save
 	var.setValue(measurement);
 	measurement_Item->setData(DEFAULT_COLUMN,Qt::UserRole,var);
 
