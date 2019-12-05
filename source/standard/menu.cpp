@@ -47,7 +47,7 @@ void Menu::add_Menu_Points()
 		create_Item_Precision_Menu();
 			menu_Bar->addMenu(precision_Menu);
 	}
-	if(window_Type == window_Type_Table)
+	if(window_Type == window_Type_Table_Of_Structures || window_Type == window_Type_Table_Of_Roughness)
 	{
 			menu_Bar->addMenu(file_Menu);
 		create_Calculate_Menu();
@@ -79,7 +79,7 @@ void Menu::create_File_Menu()
 {
 	file_Menu = new QMenu("File", this);
 	{
-		if(window_Type == window_Type_Multilayer_Approach || window_Type == window_Type_Table)
+		if(window_Type == window_Type_Multilayer_Approach || window_Type == window_Type_Table_Of_Structures || window_Type == window_Type_Table_Of_Roughness)
 		{
 			QAction* act_Open = new QAction("Open last", this);
 				act_Open->setShortcut(Qt::Key_O | Qt::CTRL);
@@ -131,7 +131,7 @@ void Menu::create_File_Menu()
 			connect(act_Open_Launcher, &QAction::triggered, global_Multilayer_Approach, [=]{global_Multilayer_Approach->open_Launcher();});
 			file_Menu->addAction(act_Open_Launcher);
 		}
-		if(window_Type == window_Type_Table)
+		if(window_Type == window_Type_Table_Of_Structures || window_Type == window_Type_Table_Of_Roughness)
 		{
 			QAction* act_Quit = new QAction("Done", this);
 			act_Quit->setShortcut(Qt::Key_D | Qt::CTRL);
@@ -166,7 +166,7 @@ void Menu::create_Calculate_Menu()
 		act_Abort->setShortcut(Qt::Key_Period | Qt::ALT);
 		act_Abort->setProperty(abort_Property,abort_Property);
 
-	if(window_Type == window_Type_Multilayer_Approach || window_Type == window_Type_Table)
+	if(window_Type == window_Type_Multilayer_Approach || window_Type == window_Type_Table_Of_Structures || window_Type == window_Type_Table_Of_Roughness)
 	{
 		connect(act_Specular,	&QAction::triggered, global_Multilayer_Approach, [=]{global_Multilayer_Approach->calc_Reflection();			 });
 		connect(act_Fitting,	&QAction::triggered, global_Multilayer_Approach, [=]{global_Multilayer_Approach->start_Fitting();			 });
@@ -595,6 +595,7 @@ void Menu::create_Table_Precision_Menu()
 	menu_Thumb  = new QMenu("Thumbnail precision", this);
 	menu_Edit   = new QMenu("Operating precision", this);
 
+	if(window_Type == window_Type_Table_Of_Structures )
 	{
 		precision_Menu->addMenu(menu_Density);
 			menu_Density->addMenu(menu_Thumb);
@@ -605,19 +606,19 @@ void Menu::create_Table_Precision_Menu()
 			menu_Lengths->addMenu(menu_Thumb);
 			menu_Lengths->addMenu(menu_Edit);
 	}
-	if(window_Type == window_Type_Table )
+	if(window_Type == window_Type_Table_Of_Structures )
 	{
 		precision_Menu->addMenu(menu_Gamma);
 			menu_Gamma->addMenu(menu_Thumb);
 			menu_Gamma->addMenu(menu_Edit);
 	}
-	if(window_Type == window_Type_Table )
+	if(window_Type == window_Type_Table_Of_Structures )
 	{
 		precision_Menu->addMenu(menu_Composition);
 			//menu_Composition->addMenu(menu_Thumb);
 			menu_Composition->addMenu(menu_Edit);
 	}
-	if(window_Type == window_Type_Table )
+	if(window_Type == window_Type_Table_Of_Structures || window_Type == window_Type_Table_Of_Roughness )
 	{
 		precision_Menu->addMenu(menu_Interlayer);
 			//menu_Interlayer->addMenu(menu_Thumb);

@@ -29,6 +29,12 @@ extern int structure_table_y_corner;
 extern int structure_table_width;
 extern int structure_table_height;
 
+// roughness table window geometry
+extern int roughness_table_x_corner;
+extern int roughness_table_y_corner;
+extern int roughness_table_width;
+extern int roughness_table_height;
+
 // regular aperiodic table window geometry
 extern int regular_aperiodic_table_x_corner;
 extern int regular_aperiodic_table_y_corner;
@@ -40,6 +46,12 @@ extern int graphs_x_corner;
 extern int graphs_y_corner;
 extern int graphs_width;
 extern int graphs_height;
+
+// profile plots window geometry
+extern int profile_plots_x_corner;
+extern int profile_plots_y_corner;
+extern int profile_plots_width;
+extern int profile_plots_height;
 
 // fitting settings window geometry
 extern int fitting_settings_x_corner;

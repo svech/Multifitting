@@ -68,33 +68,47 @@ void Multilayer::create_Variables_Tabs()
 	}
 	{
 		QWidget* frame = new QWidget;
-		QVBoxLayout* layout = new QVBoxLayout;
+		QGridLayout* layout = new QGridLayout;
 			layout->setAlignment(Qt::AlignVCenter);
 
 		structure_Table_Button = new QPushButton("Structure table");
-			layout->addWidget(structure_Table_Button);
+			layout->addWidget(structure_Table_Button,0,0);
+		roughness_Table_Button = new QPushButton("Roughness table");
+			layout->addWidget(roughness_Table_Button,0,1);
 
 		optical_Graphs_Button = new QPushButton("Graphs");
-			layout->addWidget(optical_Graphs_Button);
-
-		fitting_Settings_Button = new QPushButton("Fitting settings");
-			layout->addWidget(fitting_Settings_Button);
+			layout->addWidget(optical_Graphs_Button,1,0);
+		profile_Plots_Button = new QPushButton("Profile plot");
+			layout->addWidget(profile_Plots_Button,1,1);
 
 		calculation_Settings_Button = new QPushButton("Calculation settings");
-			layout->addWidget(calculation_Settings_Button);
+			layout->addWidget(calculation_Settings_Button,2,0);
+		general_Settings_Button = new QPushButton("General settings");
+			layout->addWidget(general_Settings_Button,2,1);
 
+		fitting_Settings_Button = new QPushButton("Fitting settings");
+			layout->addWidget(fitting_Settings_Button,3,0);
 		fits_Selector_Button = new QPushButton("Fits selector");
-			layout->addWidget(fits_Selector_Button);
+			layout->addWidget(fits_Selector_Button,3,1);
 
 		frame->setLayout(layout);
 		frame->setContentsMargins(0,0,0,0);
 		variables_Tabs->addTab(frame, "Main Tools");
 
+		// TODO
+		general_Settings_Button->setDisabled(true);
+
 		Multilayer_Approach* parent_Multilayer_Approach = qobject_cast<Multilayer_Approach*>(parent);
 		connect(structure_Table_Button,		 &QPushButton::clicked, parent_Multilayer_Approach, &Multilayer_Approach::open_Table_Of_Structures);
+		connect(roughness_Table_Button,		 &QPushButton::clicked, parent_Multilayer_Approach, &Multilayer_Approach::open_Table_Of_Roughness);
+
 		connect(optical_Graphs_Button,		 &QPushButton::clicked, parent_Multilayer_Approach, [=]{parent_Multilayer_Approach->open_Optical_Graphs();});
-		connect(fits_Selector_Button,		 &QPushButton::clicked, parent_Multilayer_Approach, &Multilayer_Approach::open_Fits_Selector);
+		connect(profile_Plots_Button,		 &QPushButton::clicked, parent_Multilayer_Approach, [=]{parent_Multilayer_Approach->open_Profile_Plots();});
+
 		connect(calculation_Settings_Button, &QPushButton::clicked, parent_Multilayer_Approach, &Multilayer_Approach::open_Calculation_Settings);
+		connect(general_Settings_Button,	 &QPushButton::clicked, parent_Multilayer_Approach, &Multilayer_Approach::open_General_Settings);
+
+		connect(fits_Selector_Button,		 &QPushButton::clicked, parent_Multilayer_Approach, &Multilayer_Approach::open_Fits_Selector);
 		connect(fitting_Settings_Button,	 &QPushButton::clicked, parent_Multilayer_Approach, &Multilayer_Approach::open_Fitting_Settings);
 	}
 }

@@ -25,6 +25,12 @@ int structure_table_y_corner;
 int structure_table_width;
 int structure_table_height;
 
+// roughness table window geometry
+int roughness_table_x_corner;
+int roughness_table_y_corner;
+int roughness_table_width;
+int roughness_table_height;
+
 // regular aperiodic table window geometry
 int regular_aperiodic_table_x_corner;
 int regular_aperiodic_table_y_corner;
@@ -36,6 +42,12 @@ int graphs_x_corner;
 int graphs_y_corner;
 int graphs_width;
 int graphs_height;
+
+// profile plots window geometry
+int profile_plots_x_corner;
+int profile_plots_y_corner;
+int profile_plots_width;
+int profile_plots_height;
 
 // fitting settings window geometry
 int fitting_settings_x_corner;
@@ -312,6 +324,14 @@ void Settings::read_Gui_Settings(bool reset_to_default)
 		structure_table_height		= gui_Settings.value( "structure_table_height",		700 ).toInt();
 	gui_Settings.endGroup();
 
+	// roughness table window geometry
+	gui_Settings.beginGroup( Roughness_Table_Window_Geometry );
+		roughness_table_x_corner	= gui_Settings.value( "roughness_table_x_corner",	900 ).toInt();
+		roughness_table_y_corner	= gui_Settings.value( "roughness_table_y_corner",	200 ).toInt();
+		roughness_table_width		= gui_Settings.value( "roughness_table_width",		1050 ).toInt();
+		roughness_table_height		= gui_Settings.value( "roughness_table_height",		700 ).toInt();
+	gui_Settings.endGroup();
+
 	// regular aperiodic table window geometry
 	gui_Settings.beginGroup( Regular_Aperiodic_Table_Window_Geometry );
 		regular_aperiodic_table_x_corner	= gui_Settings.value( "regular_aperiodic_table_x_corner",	500 ).toInt();
@@ -326,6 +346,14 @@ void Settings::read_Gui_Settings(bool reset_to_default)
 		graphs_y_corner		= gui_Settings.value( "graphs_y_corner",	300 ).toInt();
 		graphs_width		= gui_Settings.value( "graphs_width",		700 ).toInt();
 		graphs_height		= gui_Settings.value( "graphs_height",		500 ).toInt();
+	gui_Settings.endGroup();
+
+	// profile plots window geometry
+	gui_Settings.beginGroup( Profile_Plots_Window_Geometry );
+		profile_plots_x_corner	= gui_Settings.value( "profile_plots_x_corner",	800 ).toInt();
+		profile_plots_y_corner	= gui_Settings.value( "profile_plots_y_corner",	100 ).toInt();
+		profile_plots_width		= gui_Settings.value( "profile_plots_width",	700 ).toInt();
+		profile_plots_height	= gui_Settings.value( "profile_plots_height",	300 ).toInt();
 	gui_Settings.endGroup();
 
 	// fitting settings window geometry
@@ -391,6 +419,14 @@ void Settings::save_Gui_Settings()
 		gui_Settings.setValue( "structure_table_height",		structure_table_height );
 	gui_Settings.endGroup();
 
+	// roughness table window geometry
+	gui_Settings.beginGroup( Roughness_Table_Window_Geometry );
+		gui_Settings.setValue( "roughness_table_x_corner",		roughness_table_x_corner );
+		gui_Settings.setValue( "roughness_table_y_corner",		roughness_table_y_corner );
+		gui_Settings.setValue( "roughness_table_width",			roughness_table_width );
+		gui_Settings.setValue( "roughness_table_height",		roughness_table_height );
+	gui_Settings.endGroup();
+
 	// regular aperiodic table window geometry
 	gui_Settings.beginGroup( Regular_Aperiodic_Table_Window_Geometry );
 		gui_Settings.setValue( "regular_aperiodic_table_x_corner",		regular_aperiodic_table_x_corner );
@@ -405,6 +441,14 @@ void Settings::save_Gui_Settings()
 		gui_Settings.setValue( "graphs_y_corner",		graphs_y_corner );
 		gui_Settings.setValue( "graphs_width",			graphs_width );
 		gui_Settings.setValue( "graphs_height",			graphs_height );
+	gui_Settings.endGroup();
+
+	// profile plots window geometry
+	gui_Settings.beginGroup( Profile_Plots_Window_Geometry );
+		gui_Settings.setValue( "profile_plots_x_corner",		profile_plots_x_corner );
+		gui_Settings.setValue( "profile_plots_y_corner",		profile_plots_y_corner );
+		gui_Settings.setValue( "profile_plots_width",			profile_plots_width );
+		gui_Settings.setValue( "profile_plots_height",			profile_plots_height );
 	gui_Settings.endGroup();
 
 	// fitting settings window geometry

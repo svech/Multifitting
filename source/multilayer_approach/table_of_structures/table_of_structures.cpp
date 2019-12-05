@@ -27,7 +27,7 @@ bool Table_Of_Structures::eventFilter(QObject *obj, QEvent *event)
 void Table_Of_Structures::closeEvent(QCloseEvent* event)
 {
 	if(!temporary) write_Window_Geometry();
-	runned_Tables_Of_Structures.remove(table_Key);
+	runned_Tables_Of_Structures.remove(table_Of_Structures_Key);
 	for(QLineEdit* material_Line_Edit : material_Line_Edits)
 	{
 		material_Line_Edit->blockSignals(true);
@@ -35,7 +35,6 @@ void Table_Of_Structures::closeEvent(QCloseEvent* event)
 	}
 	if(global_Multilayer_Approach->runned_Regular_Aperiodic_Tables.isEmpty()) global_Multilayer_Approach->unlock_Mainwindow_Interface();
 	event->accept();
-//	delete global_Multilayer_Approach->table_Of_Structures;
 }
 
 void Table_Of_Structures::emit_Data_Edited()
@@ -87,7 +86,7 @@ void Table_Of_Structures::write_Window_Geometry()
 
 void Table_Of_Structures::create_Menu()
 {
-	menu = new Menu(window_Type_Table,this);
+	menu = new Menu(window_Type_Table_Of_Structures,this);
 	main_Layout->setMenuBar(menu->menu_Bar);
 	connect(menu, &Menu::refresh, this, [=]{reload_All_Widgets();});
 	connect(menu, &Menu::refresh, this, &Table_Of_Structures::emit_Data_Edited);

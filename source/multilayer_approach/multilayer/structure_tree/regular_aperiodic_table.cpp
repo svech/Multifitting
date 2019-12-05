@@ -55,7 +55,7 @@ void Regular_Aperiodic_Table::closeEvent(QCloseEvent *event)
 		global_Multilayer_Approach->runned_Regular_Aperiodic_Tables.remove(regular_Aperiodic_Data.id);
 		global_Multilayer_Approach->runned_Regular_Aperiodic_Tables_List.removeOne(this);
 	}
-	if(multilayer->structure_Tree->list_Editors.isEmpty() && !global_Multilayer_Approach->runned_Tables_Of_Structures.contains(table_Key))
+	if(multilayer->structure_Tree->list_Editors.isEmpty() && !global_Multilayer_Approach->runned_Tables_Of_Structures.contains(table_Of_Structures_Key))
 	{
 		multilayer->structure_Tree->unlock_Tree();
 	}
@@ -291,7 +291,7 @@ void Regular_Aperiodic_Table::create_Menu()
 	{
 		reload_All_Widgets();
 		global_Multilayer_Approach->refresh_All_Multilayers_View();
-		if(global_Multilayer_Approach->runned_Tables_Of_Structures.contains(table_Key))
+		if(global_Multilayer_Approach->runned_Tables_Of_Structures.contains(table_Of_Structures_Key))
 		{
 			global_Multilayer_Approach->table_Of_Structures->reload_All_Widgets();
 		}
@@ -422,7 +422,7 @@ void Regular_Aperiodic_Table::create_Table()
 			current_Column++;
 
 			// thickness value
-			MyDoubleSpinBox* thickness_Value_Spinbox = new MyDoubleSpinBox;
+			MyDoubleSpinBox* thickness_Value_Spinbox = new MyDoubleSpinBox(regular_Table,false);
 				thickness_Value_Spinbox->setDecimals(line_edit_thickness_precision);
 				thickness_Value_Spinbox->setRange(0, MAX_DOUBLE);
 				thickness_Value_Spinbox->setSingleStep(step_thickness_aperiodic);
@@ -461,7 +461,7 @@ void Regular_Aperiodic_Table::create_Table()
 			current_Column++;
 
 			// sigma value
-			MyDoubleSpinBox* sigma_Value_Spinbox = new MyDoubleSpinBox;
+			MyDoubleSpinBox* sigma_Value_Spinbox = new MyDoubleSpinBox(regular_Table,false);;
 				sigma_Value_Spinbox->setDecimals(line_edit_sigma_precision);
 				sigma_Value_Spinbox->setRange(0, MAX_DOUBLE);
 				sigma_Value_Spinbox->setSingleStep(step_sigma_aperiodic);
@@ -480,7 +480,7 @@ void Regular_Aperiodic_Table::create_Table()
 			current_Column++;
 
 			// density value
-			MyDoubleSpinBox* density_Value_Spinbox = new MyDoubleSpinBox;
+			MyDoubleSpinBox* density_Value_Spinbox = new MyDoubleSpinBox(regular_Table,false);
 				density_Value_Spinbox->setDecimals(line_edit_density_precision);
 				density_Value_Spinbox->setReadOnly(true);
 				density_Value_Spinbox->setRange(0, MAX_DOUBLE);

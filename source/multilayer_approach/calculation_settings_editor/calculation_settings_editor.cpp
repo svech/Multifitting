@@ -183,9 +183,9 @@ void Calculation_Settings_Editor::create_Tabs()
 		if(can_Change_Index)
 		{
 			can_Change_Index = false;
-																								{global_Multilayer_Approach->                       multilayer_Tabs->setCurrentIndex(main_Tabs->currentIndex());}
-			if(global_Multilayer_Approach->runned_Tables_Of_Structures.contains(table_Key))		{global_Multilayer_Approach->table_Of_Structures		->main_Tabs->setCurrentIndex(main_Tabs->currentIndex());}
-			if(global_Multilayer_Approach->runned_Optical_Graphs.contains(optical_Graphs_Key))	{global_Multilayer_Approach->optical_Graphs				->main_Tabs->setCurrentIndex(main_Tabs->currentIndex());}
+																										 {global_Multilayer_Approach->                       multilayer_Tabs->setCurrentIndex(main_Tabs->currentIndex());}
+			if(global_Multilayer_Approach->runned_Tables_Of_Structures.contains(table_Of_Structures_Key)){global_Multilayer_Approach->table_Of_Structures		->main_Tabs->setCurrentIndex(main_Tabs->currentIndex());}
+			if(global_Multilayer_Approach->runned_Optical_Graphs.contains(optical_Graphs_Key))			 {global_Multilayer_Approach->optical_Graphs				->main_Tabs->setCurrentIndex(main_Tabs->currentIndex());}
 			can_Change_Index = tab_synchronization;
 		}
 	});

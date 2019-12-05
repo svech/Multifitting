@@ -65,8 +65,10 @@ class Node;
 	#define Launcher_Geometry						"Launcher_Geometry"
 	#define Multilayer_Window_Geometry				"Multilayer_Window_Geometry"
 	#define Structure_Table_Window_Geometry			"Structure_Table_Window_Geometry"
+	#define Roughness_Table_Window_Geometry			"Roughness_Table_Window_Geometry"
 	#define Regular_Aperiodic_Table_Window_Geometry	"Regular_Aperiodic_Table_Window_Geometry"
 	#define Graphs_Window_Geometry					"Graphs_Window_Geometry"
+	#define Profile_Plots_Window_Geometry			"Profile_Plots_Window_Geometry"
 	#define Fitting_Settings_Window_Geometry		"Fitting_Settings_Window_Geometry"
 	#define Calculation_Settings_Window_Geometry	"Calculation_Settings_Window_Geometry"
 	#define Fits_Selector_Window_Geometry			"Fits_Selector_Window_Geometry"
@@ -283,7 +285,8 @@ class Node;
 #define window_Type_Independent_Variables_Editor	"Independent Variable Editor"
 #define window_Type_Item_Editor						"Item Editor"
 #define window_Type_Regular_Aperiodic_Table			"Regular_Aperiodic_Table"
-#define window_Type_Table							"Table"
+#define window_Type_Table_Of_Structures				"Table_Of_Structures"
+#define window_Type_Table_Of_Roughness				"Table_Of_Roughness"
 #define window_Type_Calculation_Settings_Editor		"Calculation Settings Editor"
 #define window_Type_Fitting_Settings_Editor			"Fitting Settings Editor"
 
@@ -357,8 +360,10 @@ class Node;
 
 // keys
 #define multilayer_Approach_Key	"multilayer_Approach_Key"
-#define table_Key				"table_Of_Structures_Key"
+#define table_Of_Structures_Key	"table_Of_Structures_Key"
+#define table_Of_Roughness_Key	"table_Of_Roughness_Key"
 #define optical_Graphs_Key		"optical_Graphs_Key"
+#define profile_Plots_Key		"profile_Plots_Key"
 #define fits_Selector_Key		"fits_Selector_Key"
 #define calc_Settings_Key		"calc_Settings_Key"
 #define fit_Settings_Key		"fit_Settings_Key"

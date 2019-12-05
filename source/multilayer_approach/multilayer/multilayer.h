@@ -55,11 +55,10 @@ public:
 					QTabWidget* independent_Variables_Plot_Tabs;
 						QToolButton* independent_Variables_Corner_Button;
 
-					QPushButton* structure_Table_Button;
-					QPushButton* optical_Graphs_Button;
-					QPushButton* fits_Selector_Button;
-					QPushButton* calculation_Settings_Button;
-					QPushButton* fitting_Settings_Button;
+					QPushButton* structure_Table_Button;	  QPushButton* roughness_Table_Button;
+					QPushButton* optical_Graphs_Button;		  QPushButton* profile_Plots_Button;
+					QPushButton* calculation_Settings_Button; QPushButton* general_Settings_Button;
+					QPushButton* fitting_Settings_Button;	  QPushButton* fits_Selector_Button;
 
 				QGroupBox* data_Target_Profile_Group_Box;
 					QVBoxLayout* layout_Target_Profile_With_Frame_Vector;
