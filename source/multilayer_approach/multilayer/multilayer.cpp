@@ -96,6 +96,7 @@ void Multilayer::create_Variables_Tabs()
 		variables_Tabs->addTab(frame, "Main Tools");
 
 		// TODO
+		roughness_Table_Button->setDisabled(true);
 		general_Settings_Button->setDisabled(true);
 
 		Multilayer_Approach* parent_Multilayer_Approach = qobject_cast<Multilayer_Approach*>(parent);

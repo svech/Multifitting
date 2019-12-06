@@ -74,11 +74,13 @@ void Multilayer_Approach::create_Multilayer_Tabs()
 		if(can_Change_Index)
 		{
 			can_Change_Index = false;
-			if(runned_Tables_Of_Structures.contains(table_Of_Structures_Key))	{table_Of_Structures		->main_Tabs->setCurrentIndex(multilayer_Tabs->currentIndex());}
-			if(runned_Optical_Graphs.contains(optical_Graphs_Key))				{optical_Graphs				->main_Tabs->setCurrentIndex(multilayer_Tabs->currentIndex());}
-			if(runned_Calculation_Settings_Editor.contains(calc_Settings_Key))	{calculation_Settings_Editor->main_Tabs->setCurrentIndex(multilayer_Tabs->currentIndex());}
+			if(runned_Tables_Of_Structures.contains(table_Of_Structures_Key)) {table_Of_Structures		  ->main_Tabs->setCurrentIndex(multilayer_Tabs->currentIndex());}
+			if(runned_Tables_Of_Roughness.contains(table_Of_Roughness_Key))	  {table_Of_Roughness		  ->main_Tabs->setCurrentIndex(multilayer_Tabs->currentIndex());}
+			if(runned_Optical_Graphs.contains(optical_Graphs_Key))			  {optical_Graphs			  ->main_Tabs->setCurrentIndex(multilayer_Tabs->currentIndex());}
+			if(runned_Profile_Plots_Window.contains(profile_Plots_Key))		  {profile_Plots_Window		  ->main_Tabs->setCurrentIndex(multilayer_Tabs->currentIndex());}
+			if(runned_Calculation_Settings_Editor.contains(calc_Settings_Key)){calculation_Settings_Editor->main_Tabs->setCurrentIndex(multilayer_Tabs->currentIndex());}
 			can_Change_Index = tab_synchronization;
-		}
+		}		
 	});
 
 	add_Multilayer();
@@ -495,8 +497,8 @@ void Multilayer_Approach::lock_Mainwindow_Interface()
 
 		// lock tree
 		if(runned_Tables_Of_Structures.contains(table_Of_Structures_Key) ||
-		   runned_Tables_Of_Roughness.contains(table_Of_Roughness_Key) ||
-		   runned_Profile_Plots_Window.contains(profile_Plots_Key))
+		   runned_Tables_Of_Roughness.contains(table_Of_Roughness_Key) /*||
+		   runned_Profile_Plots_Window.contains(profile_Plots_Key)*/)
 		{
 			// close editors
 			for(Item_Editor* editor : multilayer->structure_Tree->list_Editors)	editor->close();
@@ -540,12 +542,6 @@ void Multilayer_Approach::unlock_Mainwindow_Interface()
 	{
 		Multilayer* multilayer = qobject_cast<Multilayer*>(multilayer_Tabs->widget(i));
 
-		if(runned_Tables_Of_Structures.contains(table_Of_Structures_Key) ||
-		   runned_Tables_Of_Roughness.contains(table_Of_Roughness_Key) ||
-		   runned_Optical_Graphs.contains(optical_Graphs_Key) ||
-		   runned_Profile_Plots_Window.contains(profile_Plots_Key) ||
-		   runned_Calculation_Settings_Editor.contains(calc_Settings_Key))
-
 		// unlock multilayer tabs
 		if(!runned_Tables_Of_Structures.contains(table_Of_Structures_Key) &&
 		   !runned_Tables_Of_Roughness.contains(table_Of_Roughness_Key) &&
@@ -562,8 +558,8 @@ void Multilayer_Approach::unlock_Mainwindow_Interface()
 
 		// unlock tree
 		if(!runned_Tables_Of_Structures.contains(table_Of_Structures_Key) &&
-		   !runned_Tables_Of_Roughness.contains(table_Of_Roughness_Key) &&
-		   !runned_Profile_Plots_Window.contains(profile_Plots_Key))
+		   !runned_Tables_Of_Roughness.contains(table_Of_Roughness_Key)/* &&
+		   !runned_Profile_Plots_Window.contains(profile_Plots_Key)*/)
 		{
 			multilayer->structure_Tree->structure_Toolbar->toolbar->setDisabled(false);
 			multilayer->structure_Tree->tree->blockSignals(false);
