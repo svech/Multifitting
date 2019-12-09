@@ -256,7 +256,8 @@ void Multilayer::add_Target_Curve(int index_Pressed, bool opening)
 	target_Profiles_Vector.insert(index_Pressed, new_Target_Curve);
 
 	QHBoxLayout* new_Frame_Layout = new QHBoxLayout(new_Frame);
-	new_Frame_Layout->setMargin(0);
+		new_Frame_Layout->setMargin(0);
+		new_Frame_Layout->setSpacing(0);
 	QHBoxLayout* left_Layout  = new QHBoxLayout;
 	QHBoxLayout* right_Layout = new QHBoxLayout;
 	left_Layout->setSpacing(10);
@@ -388,6 +389,7 @@ Multilayer& Multilayer::operator =(const Multilayer& referent_Multilayer)
 	num_Independent_Rows = referent_Multilayer.num_Independent_Rows; // rows in Calculation Settings
 
 	graph_Options = referent_Multilayer.graph_Options;
+	profile_Plot_Options = referent_Multilayer.profile_Plot_Options;
 
 	enable_Calc_Target_Curves = referent_Multilayer.enable_Calc_Target_Curves;
 	enable_Calc_Independent_Curves = referent_Multilayer.enable_Calc_Independent_Curves;

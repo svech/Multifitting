@@ -7,11 +7,17 @@ class Profile_Plot : public QWidget
 {
 	Q_OBJECT
 public:
-	explicit Profile_Plot(QWidget *parent = nullptr);
+	explicit Profile_Plot(Multilayer* multilayer, QWidget *parent = nullptr);
 
-signals:
+	void create_Main_Layout();
+	void create_Plot_Frame_And_Scale();
+	void plot_Data(bool fast = false);
 
-public slots:
+	Multilayer* multilayer;
+	QVBoxLayout* main_Layout;
+		QCustomPlot* custom_Plot;
+			QCPTextElement* plot_Title;
+
 };
 
 #endif // PROFILE_PLOT_H

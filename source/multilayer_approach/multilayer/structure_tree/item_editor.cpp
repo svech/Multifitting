@@ -1022,21 +1022,17 @@ void Item_Editor::make_Sigma_Group_Box()
 		QFrame* PSD_Frame = new QFrame;
 		QVBoxLayout* PSD_Layout = new QVBoxLayout(PSD_Frame);
 			PSD_Layout->setContentsMargins(10,0,0,0);
-		PSD_Check_Box = new QCheckBox("Use PSD");
-			PSD_Check_Box->setDisabled(true);
 		individual_Sigma_Check_Box = new QCheckBox("Use many " + Sigma_Sym);
 		if(item->parent())
 		if(struct_Data.parent_Item_Type == item_Type_Regular_Aperiodic)
 		{
 			individual_Sigma_Check_Box->setDisabled(true);
 		}
-			PSD_Layout->addWidget(PSD_Check_Box);
 			PSD_Layout->addWidget(individual_Sigma_Check_Box);
 		sigma_PSD_Layout->addWidget(PSD_Frame);
 
 		connect(individual_Sigma_Check_Box, &QCheckBox::stateChanged, this, &Item_Editor::interlayer_Check);
 
-		// TODO PSD
 		interlayer_Composition_Layout->addLayout(sigma_PSD_Layout);
 		sigma_Group_Box_Layout->addWidget(interlayer_Composition_Frame);
 	}

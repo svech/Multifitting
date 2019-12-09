@@ -903,6 +903,10 @@ void Multilayer_Approach::open(QString filename)
 		if(Global_Variables::check_Loaded_Version(1,9,3))
 		{in >> multilayer->graph_Options;}	              // since 1.9.3
 
+		/// profile plot options
+		if(Global_Variables::check_Loaded_Version(1,10,2))
+		{in >> multilayer->profile_Plot_Options;}	              // since 1.10.2
+
 		/// fitting settings
 		{
 			in >> fitting_Settings;
@@ -1146,6 +1150,9 @@ void Multilayer_Approach::save(QString filename)
 		}		
 		/// graph options
 		out << multilayer->graph_Options;		  // since 1.9.3
+
+		/// profile plot options
+		out << multilayer->profile_Plot_Options;	  // since 1.10.2
 
 		/// fitting settings
 		{

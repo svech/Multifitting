@@ -9,7 +9,7 @@
 
 #define VERSION_MAJOR 1
 #define VERSION_MINOR 10
-#define VERSION_BUILD 1
+#define VERSION_BUILD 2
 
 using namespace std;
 class Node;
@@ -145,6 +145,7 @@ class Node;
 #define Lambda_Sym				QString(QChar(0x03BB))
 #define Degree_Sym				QString(QChar(0x00B0))
 #define Delta_Big_Sym			QString(QChar(0x0394))
+#define Delta_Small_Sym			QString(QChar(0x03B4))
 #define Mu_Sym					QString(QChar(0x03BC))
 #define Pi_Sym					QString(QChar(0x03C0))
 #define Nu_Sym					QString(QChar(0x03BD))
@@ -373,6 +374,13 @@ class Node;
 #define TARGET		"TARGET"
 #define TARGET_AND_INDEPENDENT "TARGET_AND_INDEPENDENT"
 
+// profile plot types
+#define PERMITTIVITY	"PERMITTIVITY"
+	#define DELTA	"DELTA"
+	#define BETA	"BETA"
+#define MATERIAL		"MATERIAL"
+#define ELEMENTS		"ELEMENTS"
+
 // from boundaries to parametrization
 #define noparam		"no parametrization"
 #define triangle	"triangle"
@@ -526,6 +534,14 @@ struct Graph_Options			{int num_Target_Graph_Rows = 1;		 // rows in Graphs
 								 bool show_Max_Value = false;
 								 bool show_Current_Coordinate = true;
 								 bool show_Title = true;
+								};
+
+struct Profile_Plot_Options		{QString type = PERMITTIVITY;
+								 QString permittivity_Type = DELTA;
+								 bool apply_Roughness = true;
+								 bool apply_Diffusiness = true;
+								 bool show_Sharp_Profile = true;
+								 bool show_Discretization = false;
 								};
 
 // calculated functions for plotting
@@ -724,6 +740,9 @@ QDataStream& operator >>( QDataStream& stream,		 Plot_Options& plot_Options );
 
 QDataStream& operator <<( QDataStream& stream, const Graph_Options& graph_options );
 QDataStream& operator >>( QDataStream& stream,		 Graph_Options& graph_options );
+
+QDataStream& operator <<( QDataStream& stream, const Profile_Plot_Options& profile_Plot_Options );
+QDataStream& operator >>( QDataStream& stream,		 Profile_Plot_Options& profile_Plot_Options );
 
 QDataStream& operator <<( QDataStream& stream, const Value& value );
 QDataStream& operator >>( QDataStream& stream,		 Value& value );

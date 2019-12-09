@@ -205,6 +205,21 @@ QDataStream& operator >>( QDataStream& stream,		 Graph_Options& graph_Options )
 	return stream;
 }
 
+QDataStream& operator <<( QDataStream& stream, const Profile_Plot_Options& profile_Plot_Options )
+{
+	return stream << profile_Plot_Options.type << profile_Plot_Options.permittivity_Type
+				  << profile_Plot_Options.apply_Roughness << profile_Plot_Options.apply_Diffusiness
+				  << profile_Plot_Options.show_Sharp_Profile << profile_Plot_Options.show_Discretization;
+}
+QDataStream& operator >>( QDataStream& stream,		 Profile_Plot_Options& profile_Plot_Options )
+{
+	stream >> profile_Plot_Options.type >> profile_Plot_Options.permittivity_Type
+		   >> profile_Plot_Options.apply_Roughness >> profile_Plot_Options.apply_Diffusiness
+		   >> profile_Plot_Options.show_Sharp_Profile >> profile_Plot_Options.show_Discretization;
+	return stream;
+}
+
+
 QDataStream& operator <<( QDataStream& stream, const Calculated_Values& calculated_Values )
 {
 	return stream << calculated_Values.R << calculated_Values.Phi_R

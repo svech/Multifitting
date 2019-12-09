@@ -161,7 +161,6 @@ public:
 						QVector<QCheckBox*> interlayer_Composition_Check_Box_Vec;
 						QVector<QLineEdit*> interlayer_Composition_Comp_Line_Edit_Vec;
 						QVector<QLineEdit*> interlayer_Composition_My_Sigma_Line_Edit_Vec;
-				QCheckBox* PSD_Check_Box;
 				QCheckBox* individual_Sigma_Check_Box;
 			QPushButton* sigma_Grading_Button;
 
