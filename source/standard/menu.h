@@ -38,10 +38,12 @@ public:
 		void create_Independent_Units_Menu();
 		void create_Independent_Precision_Menu();
 
-		void create_Item_Units_Menu();
+		void create_Wavelength_Units_Menu();
+
+		void create_Item_Length_Units_Menu();
 		void create_Item_Precision_Menu();
 
-		void create_Table_Units_Menu();
+		void create_Length_Units_Menu();
 		void create_Table_Precision_Menu();
 
 //// menu actions
@@ -89,8 +91,9 @@ public:
 		QMenu* calculate_Menu;
 		QMenu* optical_Constants_Menu;
 		QMenu* help_Menu;
-		QMenu* units_Menu;
-			QMenu* menu_Length_Units;
+		QMenu* units_Menu;		
+		QMenu* menu_Wavelength_Units;
+		QMenu* menu_Length_Units;
 		QMenu* precision_Menu;
 			QMenu* menu_Density;
 			QMenu* menu_Lengths;

@@ -6,6 +6,10 @@ Multilayer::Multilayer(QWidget *parent) :
 	num_Independent_Rows(1),
 	QWidget(parent)
 {
+	// initialization. later it will be loaded from .fit
+	profile_Plot_Options.local_length_units = length_units;
+	profile_Plot_Options.local_wavelength_units = wavelength_units;
+
 	create_Main_Layout();
 }
 
@@ -219,6 +223,7 @@ void Multilayer::refresh_Structure_And_Independent(QObject* my_Sender)
 		if(independent!=sender())
 		{
 			independent->reset_Independent_Variables_Structure();
+			independent->refresh_Text();
 		}
 	}
 
@@ -390,6 +395,7 @@ Multilayer& Multilayer::operator =(const Multilayer& referent_Multilayer)
 
 	graph_Options = referent_Multilayer.graph_Options;
 	profile_Plot_Options = referent_Multilayer.profile_Plot_Options;
+	profile_Plot_Data = referent_Multilayer.profile_Plot_Data;
 
 	enable_Calc_Target_Curves = referent_Multilayer.enable_Calc_Target_Curves;
 	enable_Calc_Independent_Curves = referent_Multilayer.enable_Calc_Independent_Curves;

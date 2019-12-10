@@ -16,7 +16,6 @@ public:
 	Multilayer* multilayer;
 	QVBoxLayout* main_Layout;
 		QCustomPlot* custom_Plot;
-			QCPTextElement* plot_Title;
 
 };
 

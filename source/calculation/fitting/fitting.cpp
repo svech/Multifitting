@@ -44,13 +44,13 @@ Fitting::~Fitting()
 double Fitting::func(double argument, int index)
 {
 	// TODO
-	if(index == 0)
-	{
+//	if(index == 0)
+//	{
 		return log(argument+1E-5);
-	} else
-	{
-		return argument;
-	}
+//	} else
+//	{
+//		return argument;
+//	}
 }
 
 size_t Fitting::num_Residual_Points()
@@ -401,7 +401,7 @@ void Fitting::fill_Residual(Fitting_Params* params, int& residual_Shift, Data_El
 					target_Curve->fit_Params.expression_Argument = target_Curve->curve.shifted_Values[point_Index].val_1;
 					fi_1 = target_Curve->fit_Params.expression_Vec[0].value();
 #else
-					fi_1 = func(target_Curve->curve.values[point_Index].val_1, index);
+					fi_1 = func(target_Curve->curve.shifted_Values[point_Index].val_1, index);
 #endif
 				}
 				{

@@ -133,7 +133,11 @@ class Node;
 #define Angstrom_Sym			QString(QChar(0x212B))
 #define Rho_Sym					QString(QChar(0x03C1))
 #define Cube_Sym				QString(QChar(0x00B3))
-#define Minus_One_Sym			QString(QChar(0x207B))+QString(QChar(0x00B9))
+#define Quadro_Sym				QString(QChar(0x00B2))
+#define Minus_Superscript		QString(QChar(0x207B))
+#define Minus_One_Sym			Minus_Superscript+QString(QChar(0x00B9))
+#define Minus_Three_Sym			Minus_Superscript+Cube_Sym
+#define Power_23_Sym			Quadro_Sym+Cube_Sym
 #define Sigma_Sym				QString(QChar(0x03C3))
 #define Gamma_Sym				QString(QChar(0x03B3))
 #define Epsilon_Sym				QString(QChar(0x03B5))
@@ -146,6 +150,7 @@ class Node;
 #define Degree_Sym				QString(QChar(0x00B0))
 #define Delta_Big_Sym			QString(QChar(0x0394))
 #define Delta_Small_Sym			QString(QChar(0x03B4))
+#define Epsilon_Sym				QString(QChar(0x03B5))
 #define Mu_Sym					QString(QChar(0x03BC))
 #define Pi_Sym					QString(QChar(0x03C0))
 #define Nu_Sym					QString(QChar(0x03BD))
@@ -161,6 +166,7 @@ class Node;
 #define Proportional_Sym		QString(QChar(0x221D))
 #define Chi2_Sym				QString(QChar(0x03C7))+QString(QChar(0x00B2))
 #define Element_Sym				QString(QChar(0x2208))
+#define Multiply_Sym			QString(QChar(0x00D7))
 // -----------------------------------------------------------------------------------------
 
 // magic numbers
@@ -285,9 +291,9 @@ class Node;
 #define window_Type_Multilayer_Approach				"Multilayer Approach"
 #define window_Type_Independent_Variables_Editor	"Independent Variable Editor"
 #define window_Type_Item_Editor						"Item Editor"
-#define window_Type_Regular_Aperiodic_Table			"Regular_Aperiodic_Table"
-#define window_Type_Table_Of_Structures				"Table_Of_Structures"
-#define window_Type_Table_Of_Roughness				"Table_Of_Roughness"
+#define window_Type_Regular_Aperiodic_Table			"Regular Aperiodic Table"
+#define window_Type_Table_Of_Structures				"Table Of Structures"
+#define window_Type_Table_Of_Roughness				"Table Of Roughness"
 #define window_Type_Calculation_Settings_Editor		"Calculation Settings Editor"
 #define window_Type_Fitting_Settings_Editor			"Fitting Settings Editor"
 
@@ -376,8 +382,8 @@ class Node;
 
 // profile plot types
 #define PERMITTIVITY	"PERMITTIVITY"
-	#define DELTA	"DELTA"
-	#define BETA	"BETA"
+	#define DELTA_EPS	"DELTA_EPS"
+	#define BETA_EPS	"BETA_EPS"
 #define MATERIAL		"MATERIAL"
 #define ELEMENTS		"ELEMENTS"
 
@@ -536,12 +542,47 @@ struct Graph_Options			{int num_Target_Graph_Rows = 1;		 // rows in Graphs
 								 bool show_Title = true;
 								};
 
+// profile plot options
 struct Profile_Plot_Options		{QString type = PERMITTIVITY;
-								 QString permittivity_Type = DELTA;
+								 QString permittivity_Type = DELTA_EPS;
 								 bool apply_Roughness = true;
 								 bool apply_Diffusiness = true;
 								 bool show_Sharp_Profile = true;
 								 bool show_Discretization = false;
+
+								 QString local_wavelength_units;
+								 QString local_length_units;
+								};
+
+// calculated values for profile plotting
+struct Material_Profile			{QString material;
+								 QColor color;
+								 QVector<double> relative_Concentration;
+								};
+struct Element_Profile			{QString element;
+								 QColor color;
+								 QVector<double> absolute_Concentration;
+								};
+struct Basic_Profile_Plot_Set	{QVector<double> depth; // in angstroms
+								 QVector<double> delta_Epsilon;
+								 QVector<double> beta_Epsilon;
+								 QVector<Material_Profile> materials;
+								 QVector<Element_Profile> elements;
+
+								 void clear_And_Resize_All(int new_Size)
+								 {
+									depth.clear();		depth.resize(new_Size);
+									delta_Epsilon.clear();		delta_Epsilon.resize(new_Size);
+									beta_Epsilon.clear();		beta_Epsilon.resize(new_Size);
+									materials.clear();	materials.resize(new_Size);
+									elements.clear();	elements.resize(new_Size);
+								 }
+								};
+struct Profile_Plot_Data		{Basic_Profile_Plot_Set sharp_Set;
+								 Basic_Profile_Plot_Set smooth_Set;
+								 Basic_Profile_Plot_Set discrete_Set;
+
+								 double local_Wavelength = 1.540562;
 								};
 
 // calculated functions for plotting
@@ -743,6 +784,18 @@ QDataStream& operator >>( QDataStream& stream,		 Graph_Options& graph_options );
 
 QDataStream& operator <<( QDataStream& stream, const Profile_Plot_Options& profile_Plot_Options );
 QDataStream& operator >>( QDataStream& stream,		 Profile_Plot_Options& profile_Plot_Options );
+
+QDataStream& operator <<( QDataStream& stream, const Material_Profile& material_Profile );
+QDataStream& operator >>( QDataStream& stream,		 Material_Profile& material_Profile );
+
+QDataStream& operator <<( QDataStream& stream, const Element_Profile& element_Profile );
+QDataStream& operator >>( QDataStream& stream,		 Element_Profile& element_Profile );
+
+QDataStream& operator <<( QDataStream& stream, const Basic_Profile_Plot_Set& basic_Profile_Plot_Set );
+QDataStream& operator >>( QDataStream& stream,		 Basic_Profile_Plot_Set& basic_Profile_Plot_Set );
+
+QDataStream& operator <<( QDataStream& stream, const Profile_Plot_Data& profile_Plot_Data );
+QDataStream& operator >>( QDataStream& stream,		 Profile_Plot_Data& profile_Plot_Data );
 
 QDataStream& operator <<( QDataStream& stream, const Value& value );
 QDataStream& operator >>( QDataStream& stream,		 Value& value );

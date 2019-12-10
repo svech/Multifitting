@@ -15,11 +15,6 @@ void Profile_Plot::create_Main_Layout()
 
 	custom_Plot = new QCustomPlot(this);
 
-	plot_Title = new QCPTextElement(custom_Plot,"text_Data",QFont("Times", 10, QFont::DemiBold));
-	custom_Plot->plotLayout()->insertRow(0);
-	custom_Plot->plotLayout()->setRowSpacing(0);
-	custom_Plot->plotLayout()->addElement(0,0,plot_Title);
-
 	create_Plot_Frame_And_Scale();
 		main_Layout->addWidget(custom_Plot);
 	plot_Data();

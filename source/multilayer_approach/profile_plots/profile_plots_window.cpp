@@ -8,6 +8,65 @@ Profile_Plots_Window::Profile_Plots_Window(QWidget *parent) : QWidget(parent)
 	setAttribute(Qt::WA_DeleteOnClose);
 }
 
+void Profile_Plots_Window::contextMenuEvent(QContextMenuEvent *event)
+{
+	Multilayer* multilayer = qobject_cast<Multilayer*>(global_Multilayer_Approach->multilayer_Tabs->widget(main_Tabs->currentIndex()));
+
+	QMenu wavelength_Units("Wavelength units");
+	{
+		QActionGroup* group_Act_Unit = new QActionGroup(this);
+			group_Act_Unit->setExclusive(true);
+
+		for(int index=0; index<wavelength_Units_List.size(); index++)
+		{
+			QAction* act_Unit = new QAction(wavelength_Units_List[index], this);
+			act_Unit->setProperty(index_Property, index);
+			act_Unit->setCheckable(true);
+			act_Unit->setActionGroup(group_Act_Unit);
+
+			if(wavelength_Units_List[index] == multilayer->profile_Plot_Options.local_wavelength_units) {act_Unit->setChecked(true);}
+			wavelength_Units.addAction(act_Unit);
+			connect(act_Unit,  &QAction::triggered, this, [=]
+			{
+				multilayer->profile_Plot_Options.local_wavelength_units = wavelength_Units_List[index];
+
+				at_Wavelength_Label_Vector[main_Tabs->currentIndex()]->setText("At fixed " + Global_Variables::wavelength_Energy_Name(multilayer->profile_Plot_Options.local_wavelength_units));
+				at_Wavelength_LineEdit_Vector[main_Tabs->currentIndex()]->setText(Locale.toString(Global_Variables::wavelength_Energy(multilayer->profile_Plot_Options.local_wavelength_units, 1.540562)/wavelength_Coefficients_Map.value(multilayer->profile_Plot_Options.local_wavelength_units),line_edit_double_format,line_edit_wavelength_precision));
+				at_Wavelength_Unints_Label_Vector[main_Tabs->currentIndex()]->setText(" " + multilayer->profile_Plot_Options.local_wavelength_units);
+			});
+		}
+	}
+
+	QMenu depth_Units("Depth units");
+	{
+		QActionGroup* group_Act_Unit = new QActionGroup(this);
+			group_Act_Unit->setExclusive(true);
+
+		for(int index=0; index<length_Units_List.size(); index++)
+		{
+			QAction* act_Unit = new QAction(length_Units_List[index], this);
+				act_Unit->setProperty(index_Property, index);
+				act_Unit->setCheckable(true);
+				act_Unit->setActionGroup(group_Act_Unit);
+
+			if(length_Units_List[index] == multilayer->profile_Plot_Options.local_length_units) {act_Unit->setChecked(true);}
+			depth_Units.addAction(act_Unit);
+			connect(act_Unit,  &QAction::triggered, this, [=]
+			{
+				multilayer->profile_Plot_Options.local_length_units = length_Units_List[index];
+
+				profile_Plot_Vector[main_Tabs->currentIndex()]->custom_Plot->xAxis->setLabel("Depth, "+multilayer->profile_Plot_Options.local_length_units);
+				profile_Plot_Vector[main_Tabs->currentIndex()]->custom_Plot->replot();
+			});
+		}
+	}
+
+	QMenu menu;
+	menu.addMenu(&wavelength_Units);
+	menu.addMenu(&depth_Units);
+	menu.exec(event->globalPos());
+}
+
 void Profile_Plots_Window::closeEvent(QCloseEvent *event)
 {
 	global_Multilayer_Approach->runned_Profile_Plots_Window.remove(profile_Plots_Key);
@@ -80,10 +139,14 @@ void Profile_Plots_Window::create_Tabs()
 
 void Profile_Plots_Window::add_Tabs()
 {
+	at_Wavelength_Label_Vector.resize(global_Multilayer_Approach->multilayer_Tabs->count());
+	at_Wavelength_LineEdit_Vector.resize(global_Multilayer_Approach->multilayer_Tabs->count());
+	at_Wavelength_Unints_Label_Vector.resize(global_Multilayer_Approach->multilayer_Tabs->count());
+	profile_Plot_Vector.resize(global_Multilayer_Approach->multilayer_Tabs->count());
+
 	for(int tab_Index=0; tab_Index<global_Multilayer_Approach->multilayer_Tabs->count(); ++tab_Index)
 	{
 		QWidget* new_Widget = new QWidget;
-
 		create_Tab_Content(new_Widget, tab_Index);
 		main_Tabs->addTab(new_Widget, global_Multilayer_Approach->multilayer_Tabs->tabText(tab_Index));
 	}
@@ -98,8 +161,11 @@ void Profile_Plots_Window::create_Tab_Content(QWidget* new_Widget, int tab_Index
 {
 	Multilayer* multilayer = qobject_cast<Multilayer*>(global_Multilayer_Approach->multilayer_Tabs->widget(tab_Index));
 
+	Profile_Plot* new_Plot = new Profile_Plot(multilayer);
+		new_Plot->custom_Plot->xAxis->setLabel("Depth, "+multilayer->profile_Plot_Options.local_length_units);
+		profile_Plot_Vector[tab_Index] = new_Plot;
+
 	QHBoxLayout* tab_Layout = new QHBoxLayout(new_Widget);
-//		tab_Layout->setAlignment(Qt::AlignLeft);
 
 	// left side
 	///==============================================================================================
@@ -120,24 +186,23 @@ void Profile_Plots_Window::create_Tab_Content(QWidget* new_Widget, int tab_Index
 		// ----------------------------------------------------
 		// permittivity
 		// ----------------------------------------------------
-
 		QGridLayout* permittivity_Layout = new QGridLayout;
 			value_Type_Layout->addLayout(permittivity_Layout);
 
 		QRadioButton* permittivity_RadioButton = new QRadioButton("Permittivity");
 			permittivity_Layout->addWidget(permittivity_RadioButton,0,0,1,6);
 
-		QString at_Fixed_Text = "At fixed " + Global_Variables::wavelength_Energy_Name(wavelength_units);;
-		QLabel* at_Wavelength_Label = new QLabel(at_Fixed_Text);
+		QLabel* at_Wavelength_Label = new QLabel("At fixed " + Global_Variables::wavelength_Energy_Name(multilayer->profile_Plot_Options.local_wavelength_units));
 			permittivity_Layout->addWidget(at_Wavelength_Label,1,2,1,4);
-
-		QLineEdit* at_Wavelength_LineEdit = new QLineEdit(QString::number(Global_Variables::wavelength_Energy(wavelength_units, 1.540562)/wavelength_Coefficients_Map.value(wavelength_units),'f',line_edit_wavelength_precision));
+			at_Wavelength_Label_Vector[tab_Index] = at_Wavelength_Label;
+		QLineEdit* at_Wavelength_LineEdit = new QLineEdit(Locale.toString(Global_Variables::wavelength_Energy(multilayer->profile_Plot_Options.local_wavelength_units, multilayer->profile_Plot_Data.local_Wavelength)/wavelength_Coefficients_Map.value(multilayer->profile_Plot_Options.local_wavelength_units),line_edit_double_format,line_edit_wavelength_precision));
 			at_Wavelength_LineEdit->setFixedWidth(80);
 			at_Wavelength_LineEdit->setProperty(min_Size_Property, 80);
 			at_Wavelength_LineEdit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION, this));
-			connect(at_Wavelength_LineEdit, &QLineEdit::textEdited, this, [=]{Global_Variables::resize_Line_Edit(at_Wavelength_LineEdit, false);} );
-		QString units = " " + wavelength_units;
-		QLabel* at_Wavelength_Unints_Label = new QLabel(units);
+			connect(at_Wavelength_LineEdit, &QLineEdit::textEdited, this, [=]{Global_Variables::resize_Line_Edit(at_Wavelength_LineEdit, false);});
+			at_Wavelength_LineEdit_Vector[tab_Index] = at_Wavelength_LineEdit;
+		QLabel* at_Wavelength_Unints_Label = new QLabel(" " + multilayer->profile_Plot_Options.local_wavelength_units);
+			at_Wavelength_Unints_Label_Vector[tab_Index] = at_Wavelength_Unints_Label;
 
 		QHBoxLayout* wavelength_Layout = new QHBoxLayout;
 			wavelength_Layout->setAlignment(Qt::AlignLeft);
@@ -145,20 +210,30 @@ void Profile_Plots_Window::create_Tab_Content(QWidget* new_Widget, int tab_Index
 			wavelength_Layout->addWidget(at_Wavelength_Unints_Label,0,Qt::AlignLeft);
 			permittivity_Layout->addLayout(wavelength_Layout,2,5);
 
-		QRadioButton* delta_RadioButton = new QRadioButton("Real part, " + Delta_Small_Sym);
+		QRadioButton* delta_RadioButton = new QRadioButton("Re(1-"+Epsilon_Sym+")");
 			permittivity_Layout->addWidget(delta_RadioButton,3,2,1,4);
 			connect(delta_RadioButton, &QRadioButton::toggled, this, [=]
 			{
 				bool checked = delta_RadioButton->isChecked();
-				if(checked){multilayer->profile_Plot_Options.permittivity_Type = DELTA;}
+				if(checked)
+				{
+					multilayer->profile_Plot_Options.permittivity_Type = DELTA_EPS;
+					new_Plot->custom_Plot->yAxis->setLabel("Re(1-"+Epsilon_Sym+")");
+					new_Plot->custom_Plot->replot();
+				}
 			});
 
-		QRadioButton* beta_RadioButton = new QRadioButton("Imag part, " + Beta_Sym);
+		QRadioButton* beta_RadioButton = new QRadioButton("Im("+Epsilon_Sym+")");
 			permittivity_Layout->addWidget(beta_RadioButton,4,2,1,4);
 			connect(beta_RadioButton, &QRadioButton::toggled, this, [=]
 			{
 				bool checked = beta_RadioButton->isChecked();
-				if(checked){multilayer->profile_Plot_Options.permittivity_Type = BETA;}
+				if(checked)
+				{
+					multilayer->profile_Plot_Options.permittivity_Type = BETA_EPS;
+					new_Plot->custom_Plot->yAxis->setLabel("Im("+Epsilon_Sym+")");
+					new_Plot->custom_Plot->replot();
+				}
 			});
 
 		QButtonGroup* delta_Beta_ButtonGroup = new QButtonGroup;
@@ -173,7 +248,12 @@ void Profile_Plots_Window::create_Tab_Content(QWidget* new_Widget, int tab_Index
 			at_Wavelength_LineEdit->setEnabled(checked);
 			at_Wavelength_Unints_Label->setEnabled(checked);
 
-			if(checked){multilayer->profile_Plot_Options.type = PERMITTIVITY;}
+			if(checked)
+			{
+				multilayer->profile_Plot_Options.type = PERMITTIVITY;
+				delta_RadioButton->toggled(delta_RadioButton->isChecked());
+				beta_RadioButton->toggled(beta_RadioButton->isChecked());
+			}
 
 			delta_RadioButton->setEnabled(checked);
 			beta_RadioButton->setEnabled(checked);
@@ -187,7 +267,13 @@ void Profile_Plots_Window::create_Tab_Content(QWidget* new_Widget, int tab_Index
 			connect(materials_RadioButton, &QRadioButton::toggled, this, [=]
 			{
 				bool checked = materials_RadioButton->isChecked();
-				if(checked){multilayer->profile_Plot_Options.type = MATERIAL;}
+				if(checked)
+				{
+					multilayer->profile_Plot_Options.type = MATERIAL;
+					new_Plot->custom_Plot->yAxis->setLabel("Relative density");
+					new_Plot->custom_Plot->replot();
+				}
+				permittivity_RadioButton->toggled(permittivity_RadioButton->isChecked());
 			});
 
 		// ----------------------------------------------------
@@ -198,7 +284,13 @@ void Profile_Plots_Window::create_Tab_Content(QWidget* new_Widget, int tab_Index
 			connect(elements_RadioButton, &QRadioButton::toggled, this, [=]
 			{
 				bool checked = elements_RadioButton->isChecked();
-				if(checked){ multilayer->profile_Plot_Options.type = ELEMENTS;}
+				if(checked)
+				{
+					multilayer->profile_Plot_Options.type = ELEMENTS;
+					new_Plot->custom_Plot->yAxis->setLabel("Absolute concentration, "+Multiply_Sym+"10"+Power_23_Sym+" cm"+Minus_Three_Sym);
+					new_Plot->custom_Plot->replot();
+				}
+				permittivity_RadioButton->toggled(permittivity_RadioButton->isChecked());
 			});
 
 		// ----------------------------------------------------
@@ -260,9 +352,7 @@ void Profile_Plots_Window::create_Tab_Content(QWidget* new_Widget, int tab_Index
 	////////////////////////////////////////////////
 		QVBoxLayout* right_Layout = new QVBoxLayout;
 			tab_Layout->addLayout(right_Layout);
-
-		Profile_Plot* new_Plot = new Profile_Plot(multilayer);
-			right_Layout->addWidget(new_Plot);
+		right_Layout->addWidget(new_Plot);
 	////////////////////////////////////////////////
 
 	///==============================================================================================
@@ -270,8 +360,8 @@ void Profile_Plots_Window::create_Tab_Content(QWidget* new_Widget, int tab_Index
 	// initialization
 	// ----------------------------------------------------
 	if(multilayer->profile_Plot_Options.type == PERMITTIVITY) {permittivity_RadioButton->setChecked(true);}
-	if(multilayer->profile_Plot_Options.permittivity_Type == DELTA) {delta_RadioButton->setChecked(true);}
-	if(multilayer->profile_Plot_Options.permittivity_Type == BETA)  {beta_RadioButton->setChecked(true);}
+	if(multilayer->profile_Plot_Options.permittivity_Type == DELTA_EPS) {delta_RadioButton->setChecked(true);}
+	if(multilayer->profile_Plot_Options.permittivity_Type == BETA_EPS)  {beta_RadioButton->setChecked(true);}
 	if(multilayer->profile_Plot_Options.type == MATERIAL)	  {materials_RadioButton->setChecked(true);}
 	if(multilayer->profile_Plot_Options.type == ELEMENTS)	  {elements_RadioButton->setChecked(true);}
 
@@ -288,8 +378,10 @@ void Profile_Plots_Window::create_Tab_Content(QWidget* new_Widget, int tab_Index
 	discretization_CheckBox->toggled(multilayer->profile_Plot_Options.show_Discretization);
 
 
-	delta_RadioButton->toggled(multilayer->profile_Plot_Options.permittivity_Type == DELTA);
-	beta_RadioButton->toggled(multilayer->profile_Plot_Options.permittivity_Type == BETA);
+	delta_RadioButton->toggled(multilayer->profile_Plot_Options.permittivity_Type == DELTA_EPS);
+	beta_RadioButton->toggled(multilayer->profile_Plot_Options.permittivity_Type == BETA_EPS);
 	materials_RadioButton->toggled(multilayer->profile_Plot_Options.type == MATERIAL);
 	elements_RadioButton->toggled(multilayer->profile_Plot_Options.type == ELEMENTS);
+
+	new_Plot->custom_Plot->replot();
 }

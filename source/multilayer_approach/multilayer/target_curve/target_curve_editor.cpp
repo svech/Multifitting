@@ -1201,8 +1201,8 @@ void Target_Curve_Editor::refresh_Offsets()
 
 void Target_Curve_Editor::refresh_Factors()
 {
-	target_Curve->curve.arg_Factor = arg_Factor_SpinBox->value();
-	target_Curve->curve.val_Factor = val_Factor_SpinBox->value();
+	if(arg_Factor_SpinBox->value() > DBL_EPSILON) target_Curve->curve.arg_Factor = arg_Factor_SpinBox->value();
+	if(val_Factor_SpinBox->value() > DBL_EPSILON) target_Curve->curve.val_Factor = val_Factor_SpinBox->value();
 	target_Curve->fill_Measurement_With_Data();
 	target_Curve->show_Description_Label();
 	target_Curve_Plot->plot_Data(true);

@@ -42,8 +42,8 @@ void Menu::add_Menu_Points()
 		item_Editor = qobject_cast<Item_Editor*>(my_Parent);
 
 			menu_Bar->addMenu(file_Menu);
-		create_Item_Units_Menu();
-			menu_Bar->addMenu(units_Menu);
+		create_Item_Length_Units_Menu();
+			menu_Bar->addMenu(menu_Length_Units);
 		create_Item_Precision_Menu();
 			menu_Bar->addMenu(precision_Menu);
 	}
@@ -52,16 +52,16 @@ void Menu::add_Menu_Points()
 			menu_Bar->addMenu(file_Menu);
 		create_Calculate_Menu();
 			menu_Bar->addMenu(calculate_Menu);
-		create_Table_Units_Menu();
-			menu_Bar->addMenu(units_Menu);
+		create_Length_Units_Menu();
+			menu_Bar->addMenu(menu_Length_Units);
 		create_Table_Precision_Menu();
 			menu_Bar->addMenu(precision_Menu);
 	}
 	if(window_Type == window_Type_Regular_Aperiodic_Table )
 	{
 			menu_Bar->addMenu(file_Menu);
-		create_Table_Units_Menu();
-			menu_Bar->addMenu(units_Menu);
+		create_Length_Units_Menu();
+			menu_Bar->addMenu(menu_Length_Units);
 		create_Table_Precision_Menu();
 			menu_Bar->addMenu(precision_Menu);
 	}
@@ -428,37 +428,35 @@ void Menu::create_Independent_Precision_Menu()
 	}
 }
 
-void Menu::create_Item_Units_Menu()
+void Menu::create_Wavelength_Units_Menu()
+{
+	// PARAMETER
+	menu_Wavelength_Units = new QMenu("Wavelengths units", this);
+
+	QActionGroup* group_Act_Unit = new QActionGroup(this);
+		group_Act_Unit->setExclusive(true);
+
+	for(int index=0; index<wavelength_Units_List.size(); index++)
+	{
+		QAction* act_Unit = new QAction(wavelength_Units_List[index], this);
+		act_Unit->setProperty(index_Property, index);
+		act_Unit->setCheckable(true);
+		act_Unit->setActionGroup(group_Act_Unit);
+
+		if(wavelength_Units_List[index] == wavelength_units) act_Unit->setChecked(true);
+		menu_Wavelength_Units->addAction(act_Unit);
+
+		connect(act_Unit,  &QAction::triggered, this, &Menu::set_Wavelength_Unit);
+	}
+}
+
+void Menu::create_Item_Length_Units_Menu()
 {
 	// PARAMETER
 
 	QString item_Type = item_Editor->item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>().item_Type;
-
-	units_Menu = new QMenu("Units", this);
-
-	if(item_Type == item_Type_Ambient)
-		units_Menu->setDisabled(true);
-
-	menu_Length_Units = new QMenu("Lengths", this);
-	{
-		QActionGroup* group_Act_Unit = new QActionGroup(this);
-			group_Act_Unit->setExclusive(true);
-
-		for(int index=0; index<length_Units_List.size(); index++)
-		{
-			QAction* act_Unit = new QAction(length_Units_List[index], this);
-				act_Unit->setProperty(index_Property, index);
-				act_Unit->setCheckable(true);
-				act_Unit->setActionGroup(group_Act_Unit);
-
-				if(length_Units_List[index] == length_units) act_Unit->setChecked(true);
-
-			menu_Length_Units->addAction(act_Unit);
-			units_Menu->addMenu(menu_Length_Units);
-
-			connect(act_Unit, &QAction::triggered, this, &Menu::set_Length_Unit);
-		}
-	}
+	if(item_Type == item_Type_Ambient)	{menu_Length_Units->setDisabled(true);}
+	create_Length_Units_Menu();
 }
 
 void Menu::create_Item_Precision_Menu()
@@ -553,12 +551,11 @@ void Menu::create_Item_Precision_Menu()
 	}
 }
 
-void Menu::create_Table_Units_Menu()
+void Menu::create_Length_Units_Menu()
 {
 	// PARAMETER
 
-	units_Menu = new QMenu("Units", this);
-	menu_Length_Units = new QMenu("Lengths", this);
+	menu_Length_Units = new QMenu("Lengths units", this);
 	{
 		QActionGroup* group_Act_Unit = new QActionGroup(this);
 			group_Act_Unit->setExclusive(true);
@@ -573,8 +570,6 @@ void Menu::create_Table_Units_Menu()
 				if(length_Units_List[index] == length_units) act_Unit->setChecked(true);
 
 			menu_Length_Units->addAction(act_Unit);
-			units_Menu->addMenu(menu_Length_Units);
-
 			connect(act_Unit,  &QAction::triggered, this, &Menu::set_Length_Unit);
 		}
 	}

@@ -88,7 +88,26 @@ void Table_Of_Structures::create_Menu()
 {
 	menu = new Menu(window_Type_Table_Of_Structures,this);
 	main_Layout->setMenuBar(menu->menu_Bar);
-	connect(menu, &Menu::refresh, this, [=]{reload_All_Widgets();});
+	connect(menu, &Menu::refresh, this, [=]
+	{
+		reload_All_Widgets();
+
+		// in other tabs
+		for(int tab_Index = 0; tab_Index<main_Tabs->count(); tab_Index++)
+		{
+			if(tab_Index != main_Tabs->currentIndex())
+			{
+				for(int i=0; i<all_Widgets_To_Reload[tab_Index].size(); ++i)
+				{
+					QWidget* widget_To_Reload = all_Widgets_To_Reload[tab_Index][i];
+					if(widget_To_Reload != nullptr)
+					{
+						reload_One_Widget(widget_To_Reload);
+					}
+				}
+			}
+		}
+	});
 	connect(menu, &Menu::refresh, this, &Table_Of_Structures::emit_Data_Edited);
 
 	if(global_Multilayer_Approach->fitting_Settings->in_Calculation)
@@ -2606,7 +2625,7 @@ void Table_Of_Structures::create_Step_Spin_Box(My_Table_Widget* table, int tab_I
 	connect(main_Tabs, &QTabWidget::tabBarClicked, this,  [=]
 	{
 		double length_Coeff = length_Coefficients_Map.value(length_units);
-		int add_Decimals = min(log10(length_Coeff),2.);
+		int add_Decimals = /*min(*/log10(length_Coeff)/*,2.)*/;
 		double min_Step = max(0.1/length_Coeff,0.0001);
 
 		if(whats_This == whats_This_Composition)			{ step_SpinBox->setDecimals(10);	step_SpinBox->setValue(step_composition);				step_SpinBox->setDecimals(3);					step_SpinBox->setSingleStep(0.1);		}

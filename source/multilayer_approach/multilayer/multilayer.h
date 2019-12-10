@@ -73,7 +73,7 @@ public:
 
 	Graph_Options graph_Options;
 	Profile_Plot_Options profile_Plot_Options;
-//	Profile_Plot_Data profile_Plot_Data;
+	Profile_Plot_Data profile_Plot_Data;
 
 	bool enable_Calc_Target_Curves = true;
 	bool enable_Calc_Independent_Curves = true;
