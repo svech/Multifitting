@@ -763,6 +763,17 @@ void Data::calc_Mixed_Resolution(QString active_Parameter_Whats_This)
 	}
 }
 
+QString Data::get_Composed_Material()
+{
+	QString composed;
+	for(int i=0; i<composition.size(); ++i)
+	{
+		composed += composition[i].type;
+		if(abs(composition[i].composition.value-1)>DBL_EPSILON) composed += Locale.toString(composition[i].composition.value,line_edit_short_double_format,line_edit_composition_precision);
+	}
+	return composed;
+}
+
 void Data::fill_Potentially_Fitable_Parameters_Vector()
 {
 	potentially_Fitable_Parameters.clear();

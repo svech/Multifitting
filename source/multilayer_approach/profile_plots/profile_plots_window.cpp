@@ -57,6 +57,8 @@ void Profile_Plots_Window::contextMenuEvent(QContextMenuEvent *event)
 
 				profile_Plot_Vector[main_Tabs->currentIndex()]->custom_Plot->xAxis->setLabel("Depth, "+multilayer->profile_Plot_Options.local_length_units);
 				profile_Plot_Vector[main_Tabs->currentIndex()]->custom_Plot->replot();
+
+				// TODO change argument
 			});
 		}
 	}
@@ -280,6 +282,8 @@ void Profile_Plots_Window::create_Tab_Content(QWidget* new_Widget, int tab_Index
 		// elements
 		// ----------------------------------------------------
 		QRadioButton* elements_RadioButton = new QRadioButton("Elements");
+			// TODO
+			elements_RadioButton->setDisabled(true);
 			value_Type_Layout->addWidget(elements_RadioButton);
 			connect(elements_RadioButton, &QRadioButton::toggled, this, [=]
 			{

@@ -571,11 +571,11 @@ struct Basic_Profile_Plot_Set	{QVector<double> depth; // in angstroms
 
 								 void clear_And_Resize_All(int new_Size)
 								 {
-									depth.clear();		depth.resize(new_Size);
-									delta_Epsilon.clear();		delta_Epsilon.resize(new_Size);
-									beta_Epsilon.clear();		beta_Epsilon.resize(new_Size);
-									materials.clear();	materials.resize(new_Size);
-									elements.clear();	elements.resize(new_Size);
+									depth.clear();			depth.resize(new_Size);
+									delta_Epsilon.clear();	delta_Epsilon.resize(new_Size);
+									beta_Epsilon.clear();	beta_Epsilon.resize(new_Size);
+									materials.clear();		materials.resize(new_Size);
+									elements.clear();		elements.resize(new_Size);
 								 }
 								};
 struct Profile_Plot_Data		{Basic_Profile_Plot_Set sharp_Set;
