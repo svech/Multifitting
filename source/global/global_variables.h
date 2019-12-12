@@ -264,6 +264,16 @@ public:
 	static void change_Parent_Period_Gamma_Thickness(QTreeWidgetItem *current_Item);
 	static void plot_All_Data_in_Graphs();
 	static void replot_All_Graphs();
+
+	// profile functions
+	static double theta_Function(double z);
+	static double erf_Profile (double z, double sigma);
+	static double lin_Profile (double z, double sigma);
+	static double exp_Profile (double z, double sigma);
+	static double tanh_Profile(double z, double sigma);
+	static double sin_Profile (double z, double sigma);
+	static double step_Profile(double z, double sigma);
+	static double interface_Profile_Function(double z, QVector<Interlayer> &interlayer_Composition);
 };
 
 #endif // GLOBAL_VARIABLES_H

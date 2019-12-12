@@ -20,10 +20,10 @@ public:
 	QVBoxLayout* main_Layout;
 	QCustomPlot* custom_Plot;
 
+	double max_Sigma = -2019;
 	QVector<Data> struct_Data_Vector;
 	QVector<double> boundary_Vector;
 	QVector<double> thickness_Vector;
-	QVector<double> sigma_Vector;
 	QVector<QString> material_Vector;
 	QVector<double> density_Vector;
 	QVector<double> delta_Epsilon_Vector;

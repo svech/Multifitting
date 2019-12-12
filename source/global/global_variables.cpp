@@ -1183,3 +1183,150 @@ void Global_Variables::replot_All_Graphs()
 		}
 	}
 }
+
+double Global_Variables::theta_Function(double z)
+{
+	if(z<0) return 0;
+	return 1;
+}
+
+double Global_Variables::erf_Profile(double z, double sigma)
+{
+	if(abs(sigma)>DBL_EPSILON)	{return 0.5+0.5*erf(z/(sqrt(2)*sigma));}
+	return theta_Function(z);
+}
+
+double Global_Variables::lin_Profile(double z, double sigma)
+{
+	if(abs(sigma)>DBL_EPSILON)
+	{
+		if( z< -sqrt(3)*sigma )	{return 0;}
+		if((z>=-sqrt(3)*sigma ) &&
+		   (z<= sqrt(3)*sigma))	{return 0.5+z/(2*sqrt(3)*sigma);}
+		if( z>  sqrt(3)*sigma )	{return 1;}
+	}
+	return theta_Function(z);
+}
+
+double Global_Variables::exp_Profile(double z, double sigma)
+{
+	if(abs(sigma)>DBL_EPSILON)
+	{
+		if( z<0  )	{return 0.5*exp(sqrt(2)*z/sigma);}
+		if( z>=0 )	{return 1-0.5*exp(-sqrt(2)*z/sigma);}
+	}
+	return theta_Function(z);
+}
+
+double Global_Variables::tanh_Profile(double z, double sigma)
+{
+	if(abs(sigma)>DBL_EPSILON)
+	{
+		return 0.5+0.5*tanh(M_PI*z/(2*sqrt(3)*sigma));
+	}
+	return theta_Function(z);
+}
+
+double Global_Variables::sin_Profile(double z, double sigma)
+{
+	double g = M_PI/sqrt(M_PI*M_PI - 8.);
+
+	if(abs(sigma)>DBL_EPSILON)
+	{
+		if( z< -g*sigma )	{return 0;}
+		if((z>=-g*sigma ) &&
+		   (z<= g*sigma))	{return 0.5+0.5*sin(M_PI*z/(2*g*sigma));}
+		if( z>  g*sigma )	{return 1;}
+	}
+	return theta_Function(z);
+}
+
+double Global_Variables::step_Profile(double z, double sigma)
+{
+	if(abs(sigma)>DBL_EPSILON)
+	{
+		if( z< -sigma )	{return 0;}
+		if((z>=-sigma ) &&
+		   (z<= sigma))	{return 0.5;}
+		if( z>  sigma )	{return 1;}
+	}
+	return theta_Function(z);
+}
+
+double Global_Variables::interface_Profile_Function(double z, QVector<Interlayer>& interlayer_Composition)
+{
+	double output = 0;
+
+	// temp variables
+	double norm = 0;
+	double my_Sigma = 0;
+
+	//-------------------------------------------------------------------------------
+	// erf interlayer
+	if(interlayer_Composition[Erf].enabled)
+	if(interlayer_Composition[Erf].interlayer.value > DBL_MIN)
+	{
+		norm += interlayer_Composition[Erf].interlayer.value;
+		my_Sigma = interlayer_Composition[Erf].my_Sigma.value;
+
+		output += erf_Profile(z, my_Sigma) * interlayer_Composition[Erf].interlayer.value;
+	}
+	//-------------------------------------------------------------------------------
+	// lin interlayer
+	if(interlayer_Composition[Lin].enabled)
+	if(interlayer_Composition[Lin].interlayer.value > DBL_MIN)
+	{
+		norm += interlayer_Composition[Lin].interlayer.value;
+		my_Sigma = interlayer_Composition[Lin].my_Sigma.value;
+
+		output += lin_Profile(z, my_Sigma) * interlayer_Composition[Lin].interlayer.value;
+	}
+	//-------------------------------------------------------------------------------
+	// exp interlayer
+	if(interlayer_Composition[Exp].enabled)
+	if(interlayer_Composition[Exp].interlayer.value > DBL_MIN)
+	{
+		norm += interlayer_Composition[Exp].interlayer.value;
+		my_Sigma = interlayer_Composition[Exp].my_Sigma.value;
+
+		output += exp_Profile(z, my_Sigma) * interlayer_Composition[Exp].interlayer.value;
+	}
+	//-------------------------------------------------------------------------------
+	// tanh interlayer
+	if(interlayer_Composition[Tanh].enabled)
+	if(interlayer_Composition[Tanh].interlayer.value > DBL_MIN)
+	{
+		norm += interlayer_Composition[Tanh].interlayer.value;
+		my_Sigma = interlayer_Composition[Tanh].my_Sigma.value;
+
+		output += tanh_Profile(z, my_Sigma) * interlayer_Composition[Tanh].interlayer.value;
+	}
+	//-------------------------------------------------------------------------------
+	// sin interlayer
+	if(interlayer_Composition[Sin].enabled)
+	if(interlayer_Composition[Sin].interlayer.value > DBL_MIN)
+	{
+		norm += interlayer_Composition[Sin].interlayer.value;
+		my_Sigma = interlayer_Composition[Sin].my_Sigma.value;
+
+		output += sin_Profile(z, my_Sigma) * interlayer_Composition[Sin].interlayer.value;
+	}
+	//-------------------------------------------------------------------------------
+	// step interlayer
+	if(interlayer_Composition[Step].enabled)
+	if(interlayer_Composition[Step].interlayer.value > DBL_MIN)
+	{
+		norm += interlayer_Composition[Step].interlayer.value;
+		my_Sigma = interlayer_Composition[Step].my_Sigma.value;
+
+		output += step_Profile(z, my_Sigma) * interlayer_Composition[Step].interlayer.value;
+	}
+	//-------------------------------------------------------------------------------
+	// normalization
+
+	if( abs(norm) > DBL_MIN ) {output /= norm;}
+	else					  {output = theta_Function(z);}
+
+	return output;
+}
+

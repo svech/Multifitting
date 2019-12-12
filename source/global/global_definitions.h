@@ -437,6 +437,7 @@ class Global_Definitions
 public:
 	Global_Definitions();
 	static id_Type generate_Id();
+
 };
 
 // -----------------------------------------------------------------------------------------

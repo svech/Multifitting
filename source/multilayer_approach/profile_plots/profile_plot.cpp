@@ -148,13 +148,13 @@ void Profile_Plot::calculate_Profile()
 
 	// thicknesses and boundaries position
 	boundary_Vector.resize(struct_Data_Vector.size()-1);	boundary_Vector.first() = 0;
-	sigma_Vector.resize(struct_Data_Vector.size()-1);		sigma_Vector.last() = struct_Data_Vector.last().sigma.value;
+//	sigma_Vector.resize(struct_Data_Vector.size()-1);		sigma_Vector.last() = struct_Data_Vector.last().sigma.value;
 	thickness_Vector.resize(struct_Data_Vector.size()-2);
 	for(int i=0; i<thickness_Vector.size(); i++)
 	{
 		thickness_Vector[i] = struct_Data_Vector[i+1].thickness.value;
 		boundary_Vector[i+1] = boundary_Vector[i]+thickness_Vector[i];
-		sigma_Vector[i] = struct_Data_Vector[i+1].sigma.value;
+//		sigma_Vector[i] = struct_Data_Vector[i+1].sigma.value;
 	}
 
 	// materials and relative density
@@ -210,38 +210,88 @@ void Profile_Plot::calculate_Profile()
 		if(!different_Materials.contains(material_Vector[i])) different_Materials.append(material_Vector[i]);
 	}
 
-	qInfo() << material_Vector << endl;
+//	qInfo() << material_Vector << endl;
 //	qInfo() << different_Materials << endl;
-	qInfo() << delta_Epsilon_Vector << endl;
-	qInfo() << beta_Epsilon_Vector << endl;
+//	qInfo() << delta_Epsilon_Vector << endl;
+//	qInfo() << beta_Epsilon_Vector << endl;
 //	qInfo() << density_Vector << endl;
 //	qInfo() << thickness_Vector << endl;
-	qInfo() << boundary_Vector << endl;
+//	qInfo() << boundary_Vector << endl;
+
+	// max my_Sigma // TODO сделать до развертки структуры
+//	auto start = std::chrono::system_clock::now();
+//	double max_Sigma = -2019;
+	for(int i=1; i<struct_Data_Vector.size(); i++)
+	{
+		Data& struct_Data = struct_Data_Vector[i];
+		for(int interlayer_Index=0; interlayer_Index<transition_Layer_Functions_Size; interlayer_Index++)
+		{
+			if(struct_Data.interlayer_Composition[interlayer_Index].enabled)
+			{
+				if(max_Sigma<struct_Data.interlayer_Composition[interlayer_Index].my_Sigma.value)
+				{
+					max_Sigma=struct_Data.interlayer_Composition[interlayer_Index].my_Sigma.value;
+				}
+			}
+		}
+	}
+//	auto end = std::chrono::system_clock::now();
+//	auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+//	qInfo() << "	profile plot:    "<< elapsed.count()/1000000. << " seconds" << endl << endl;
+
+	qInfo() << "max_Sigma =" << max_Sigma << endl;
 
 	// profiling
-	int data_Count=20000;
+	int data_Count=3000;
 	arg.resize(data_Count);
 	val.resize(arg.size());
+
+	auto start = std::chrono::system_clock::now();
 	for(int i=0; i<data_Count; i++)
 	{
-		double z = i/5. -250;
+		double z = i/2. -250;
 		arg[i]=z;
 		val[i]=delta_Epsilon_Func(z);
 	}
+	auto end = std::chrono::system_clock::now();
+	auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+	qInfo() << "	profile plot:    "<< elapsed.count()/1000000. << " seconds" << endl << endl;
 }
 
 double Profile_Plot::delta_Epsilon_Func(double z)
 {
+	// where we are
+	int min_Boundary_Index = -2019;
+	int max_Boundary_Index = -2019;
+	int sigma_Factor = 6;
+
+	for(int j=0; j<boundary_Vector.size(); j++)
+	{
+		min_Boundary_Index = j-1;
+		if(z-sigma_Factor*max_Sigma < boundary_Vector[j]) {break;}
+	}
+	for(int j=0; j<boundary_Vector.size(); j++)
+	{
+		max_Boundary_Index = j;
+		if(z+sigma_Factor*max_Sigma < boundary_Vector[j]) {break;}
+	}
+	min_Boundary_Index = max(min_Boundary_Index,0);
+	max_Boundary_Index = min(max_Boundary_Index,thickness_Vector.size()-1);
+
 	// TODO norm to save substance
 	double delta_Epsilon = 0;
-	for(int j=0; j<thickness_Vector.size(); j++)
+
+	for(int j=min_Boundary_Index; j<=max_Boundary_Index; j++) // instead of old slow for(int j=0; j<thickness_Vector.size(); j++)
 	{
 		delta_Epsilon += delta_Epsilon_Vector[j+1] *
-				erfc((boundary_Vector[j  ]-z)/sigma_Vector[j  ]) *
-				erfc((z-boundary_Vector[j+1])/sigma_Vector[j+1]) * 0.25;
+				Global_Variables::interface_Profile_Function(z-boundary_Vector[j  ], struct_Data_Vector[j+1].interlayer_Composition) *
+				Global_Variables::interface_Profile_Function(boundary_Vector[j+1]-z, struct_Data_Vector[j+2].interlayer_Composition);
 	}
-	delta_Epsilon += delta_Epsilon_Vector.last() *
-				erfc((boundary_Vector.last()-z)/sigma_Vector.last()) * 0.5;
+	if(max_Boundary_Index>=thickness_Vector.size()-1)
+	{
+		delta_Epsilon += delta_Epsilon_Vector.last() *
+				Global_Variables::interface_Profile_Function(z-boundary_Vector.last(), struct_Data_Vector.last().interlayer_Composition);
+	}
 	return delta_Epsilon;
 }
 
