@@ -68,7 +68,12 @@ void Target_Curve::import_Data(QString bare_Filename)
 		QStringList numbers = temp_Line.split(delimiters,QString::SkipEmptyParts);
 		int number_Index = 0;
 
-		if( temp_Line[0]!=';' && temp_Line[0]!='#' && numbers.size()>0)
+		// check if header
+		temp_Line = temp_Line.simplified();
+		bool is_Decimal = false;
+		QString(temp_Line[0]).toInt(&is_Decimal);
+
+		if(is_Decimal && numbers.size()>0)	// temp_Line[0]!=';' && temp_Line[0]!='#' && numbers.size()>0    less common
 		try
 		{
 			bool ok_To_Double = false;

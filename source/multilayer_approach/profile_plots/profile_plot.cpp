@@ -14,9 +14,9 @@ void Profile_Plot::create_Main_Layout()
 	main_Layout->setContentsMargins(4,4,4,0);
 
 	custom_Plot = new QCustomPlot(this);
+	main_Layout->addWidget(custom_Plot);
 
 	create_Plot_Frame_And_Scale();
-		main_Layout->addWidget(custom_Plot);
 	plot_Data();
 }
 
@@ -85,7 +85,6 @@ void Profile_Plot::plot_Data(bool fast)
 {
 	if(!fast){create_Plot_Frame_And_Scale();}
 
-	// TODO temporary
 	calculate_Profile();
 
 	QVector<QCPGraphData> data_To_Plot(arg.size());
@@ -119,8 +118,12 @@ void Profile_Plot::plot_Data(bool fast)
 	}
 
 	custom_Plot->graph(0)->data()->set(data_To_Plot);
-	custom_Plot->xAxis->setRange(arg.first(), arg.last());
-	custom_Plot->yAxis->setRange(minimum,maximum);
+
+	if(!fast)
+	{
+		custom_Plot->yAxis->setRange(minimum,maximum);
+		custom_Plot->xAxis->setRange(arg.first(), arg.last());
+	}
 	//custom_Plot->yAxis2->setTickLabels(false);
 
 //	if(!fast)
@@ -131,8 +134,11 @@ void Profile_Plot::plot_Data(bool fast)
 
 void Profile_Plot::calculate_Profile()
 {
+	get_Max_My_Sigma(multilayer->structure_Tree->tree->invisibleRootItem());
+
 	struct_Data_Vector.clear();
 	unwrap_Subtree(struct_Data_Vector, multilayer->structure_Tree->tree->invisibleRootItem());
+
 	// if has no substrate, add it
 	if(struct_Data_Vector.last().item_Type != item_Type_Substrate)
 	{
@@ -148,14 +154,36 @@ void Profile_Plot::calculate_Profile()
 
 	// thicknesses and boundaries position
 	boundary_Vector.resize(struct_Data_Vector.size()-1);	boundary_Vector.first() = 0;
-//	sigma_Vector.resize(struct_Data_Vector.size()-1);		sigma_Vector.last() = struct_Data_Vector.last().sigma.value;
 	thickness_Vector.resize(struct_Data_Vector.size()-2);
 	for(int i=0; i<thickness_Vector.size(); i++)
 	{
 		thickness_Vector[i] = struct_Data_Vector[i+1].thickness.value;
 		boundary_Vector[i+1] = boundary_Vector[i]+thickness_Vector[i];
-//		sigma_Vector[i] = struct_Data_Vector[i+1].sigma.value;
 	}
+
+	// TODO optimize (before unwrapping, check similar layers ....)
+	auto start = std::chrono::system_clock::now();
+	// norm
+	layer_Norm_Vector.resize(thickness_Vector.size());
+	gsl_integration_workspace* w = gsl_integration_workspace_alloc(1000);
+	for(int layer_Index=0; layer_Index<thickness_Vector.size(); layer_Index++)
+	{
+		// thickness
+		if(thickness_Vector[layer_Index]>0)
+		{
+			layer_Norm_Vector[layer_Index] = thickness_Vector[layer_Index] /
+					Global_Variables::layer_Normalization(	thickness_Vector[layer_Index],
+															struct_Data_Vector[layer_Index+1].interlayer_Composition,
+															struct_Data_Vector[layer_Index+2].interlayer_Composition, w);
+		} else
+		{
+			layer_Norm_Vector[layer_Index] = 1;
+		}
+	}
+	gsl_integration_workspace_free(w);
+	auto end = std::chrono::system_clock::now();
+	auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+	qInfo() << "	norm:    "<< elapsed.count()/1000000. << " seconds" << endl << endl;
 
 	// materials and relative density
 	material_Vector.resize(struct_Data_Vector.size());
@@ -208,54 +236,23 @@ void Profile_Plot::calculate_Profile()
 	for(int i=0; i<material_Vector.size(); i++)
 	{
 		if(!different_Materials.contains(material_Vector[i])) different_Materials.append(material_Vector[i]);
-	}
+	}	
 
-//	qInfo() << material_Vector << endl;
-//	qInfo() << different_Materials << endl;
-//	qInfo() << delta_Epsilon_Vector << endl;
-//	qInfo() << beta_Epsilon_Vector << endl;
-//	qInfo() << density_Vector << endl;
-//	qInfo() << thickness_Vector << endl;
-//	qInfo() << boundary_Vector << endl;
+	// profiling
+	int data_Count=9000;
+	arg.resize(data_Count);
+	val.resize(arg.size());
 
-	// max my_Sigma // TODO сделать до развертки структуры
 //	auto start = std::chrono::system_clock::now();
-//	double max_Sigma = -2019;
-	for(int i=1; i<struct_Data_Vector.size(); i++)
+	for(int i=0; i<data_Count; i++)
 	{
-		Data& struct_Data = struct_Data_Vector[i];
-		for(int interlayer_Index=0; interlayer_Index<transition_Layer_Functions_Size; interlayer_Index++)
-		{
-			if(struct_Data.interlayer_Composition[interlayer_Index].enabled)
-			{
-				if(max_Sigma<struct_Data.interlayer_Composition[interlayer_Index].my_Sigma.value)
-				{
-					max_Sigma=struct_Data.interlayer_Composition[interlayer_Index].my_Sigma.value;
-				}
-			}
-		}
+		double z = i/30. -50;
+		arg[i]=z;
+		val[i]=delta_Epsilon_Func(z);
 	}
 //	auto end = std::chrono::system_clock::now();
 //	auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
 //	qInfo() << "	profile plot:    "<< elapsed.count()/1000000. << " seconds" << endl << endl;
-
-	qInfo() << "max_Sigma =" << max_Sigma << endl;
-
-	// profiling
-	int data_Count=3000;
-	arg.resize(data_Count);
-	val.resize(arg.size());
-
-	auto start = std::chrono::system_clock::now();
-	for(int i=0; i<data_Count; i++)
-	{
-		double z = i/2. -250;
-		arg[i]=z;
-		val[i]=delta_Epsilon_Func(z);
-	}
-	auto end = std::chrono::system_clock::now();
-	auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-	qInfo() << "	profile plot:    "<< elapsed.count()/1000000. << " seconds" << endl << endl;
 }
 
 double Profile_Plot::delta_Epsilon_Func(double z)
@@ -278,12 +275,10 @@ double Profile_Plot::delta_Epsilon_Func(double z)
 	min_Boundary_Index = max(min_Boundary_Index,0);
 	max_Boundary_Index = min(max_Boundary_Index,thickness_Vector.size()-1);
 
-	// TODO norm to save substance
 	double delta_Epsilon = 0;
-
 	for(int j=min_Boundary_Index; j<=max_Boundary_Index; j++) // instead of old slow for(int j=0; j<thickness_Vector.size(); j++)
 	{
-		delta_Epsilon += delta_Epsilon_Vector[j+1] *
+		delta_Epsilon += delta_Epsilon_Vector[j+1] * layer_Norm_Vector[j] *
 				Global_Variables::interface_Profile_Function(z-boundary_Vector[j  ], struct_Data_Vector[j+1].interlayer_Composition) *
 				Global_Variables::interface_Profile_Function(boundary_Vector[j+1]-z, struct_Data_Vector[j+2].interlayer_Composition);
 	}
@@ -295,7 +290,7 @@ double Profile_Plot::delta_Epsilon_Func(double z)
 	return delta_Epsilon;
 }
 
-void Profile_Plot::unwrap_Subtree(QVector<Data>& struct_Data_Vector,  QTreeWidgetItem* item)
+void Profile_Plot::unwrap_Subtree(QVector<Data>& struct_Data_Vector, QTreeWidgetItem* item)
 {
 	for(int i=0; i<item->childCount(); ++i)
 	{
@@ -324,10 +319,67 @@ void Profile_Plot::unwrap_Subtree(QVector<Data>& struct_Data_Vector,  QTreeWidge
 
 				if(struct_Data.item_Type == item_Type_Multilayer)
 				{
-					for(int pariod_Index=0; pariod_Index<struct_Data.num_Repetition.value(); pariod_Index++)
+					for(int period_Index=0; period_Index<struct_Data.num_Repetition.value(); period_Index++)
 					{
 						unwrap_Subtree(struct_Data_Vector, item->child(i));
 					}
+				}
+			}
+		}
+	}
+}
+
+void Profile_Plot::get_Max_My_Sigma(QTreeWidgetItem *item)
+{
+	// doesn't look for sigma if ambient only
+	for(int i=0; i<item->childCount(); ++i)
+	{
+		Data struct_Data = item->child(i)->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+		if(struct_Data.item_Enabled)
+		{
+			if(struct_Data.item_Type == item_Type_Layer   ||
+			   struct_Data.item_Type == item_Type_Substrate)
+			{
+				for(int interlayer_Index=0; interlayer_Index<transition_Layer_Functions_Size; interlayer_Index++)
+				{
+					if(struct_Data.interlayer_Composition[interlayer_Index].enabled)
+					{
+						if(max_Sigma<struct_Data.interlayer_Composition[interlayer_Index].my_Sigma.value)
+						{
+							max_Sigma=struct_Data.interlayer_Composition[interlayer_Index].my_Sigma.value;
+						}
+					}
+				}
+			}
+
+			if(item->child(i)->childCount()>0)
+			{
+				if(struct_Data.item_Type == item_Type_Regular_Aperiodic)
+				{
+					for(int layer_Index=0; layer_Index<struct_Data.regular_Components.first().components.size(); layer_Index++)
+					{
+						for(int component_Index=0; component_Index<struct_Data.regular_Components.size(); component_Index++)
+						{
+							Data& component_Data = struct_Data.regular_Components[component_Index].components[layer_Index];
+							for(int interlayer_Index=0; interlayer_Index<transition_Layer_Functions_Size; interlayer_Index++)
+							{
+								if(component_Data.interlayer_Composition[interlayer_Index].enabled)
+								{
+									if(max_Sigma<component_Data.interlayer_Composition[interlayer_Index].my_Sigma.value)
+									{
+										max_Sigma=component_Data.interlayer_Composition[interlayer_Index].my_Sigma.value;
+									}
+								}
+							}
+
+						}
+					}
+				}
+
+				if(struct_Data.item_Type == item_Type_Multilayer ||
+				   struct_Data.item_Type == item_Type_General_Aperiodic)
+				{
+					get_Max_My_Sigma(item->child(i));
 				}
 			}
 		}

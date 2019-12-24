@@ -14,13 +14,14 @@ public:
 	void plot_Data(bool fast = false);
 	void calculate_Profile();
 	void unwrap_Subtree(QVector<Data>& struct_Data_Vector, QTreeWidgetItem* item);
+	void get_Max_My_Sigma(QTreeWidgetItem* item);
 	double delta_Epsilon_Func(double z);
 
 	Multilayer* multilayer;
 	QVBoxLayout* main_Layout;
 	QCustomPlot* custom_Plot;
 
-	double max_Sigma = -2019;
+	double max_Sigma = 0.1;
 	QVector<Data> struct_Data_Vector;
 	QVector<double> boundary_Vector;
 	QVector<double> thickness_Vector;
@@ -28,6 +29,7 @@ public:
 	QVector<double> density_Vector;
 	QVector<double> delta_Epsilon_Vector;
 	QVector<double> beta_Epsilon_Vector;
+	QVector<double> layer_Norm_Vector;
 	QVector<QString> different_Materials;
 
 	QVector<double> arg;

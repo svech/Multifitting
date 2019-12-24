@@ -1186,7 +1186,8 @@ void Global_Variables::replot_All_Graphs()
 
 double Global_Variables::theta_Function(double z)
 {
-	if(z<0) return 0;
+	if(z<0)  return 0;
+	if(z==0) return 0.5;
 	return 1;
 }
 
@@ -1329,4 +1330,90 @@ double Global_Variables::interface_Profile_Function(double z, QVector<Interlayer
 
 	return output;
 }
+
+struct f_params
+{
+	double thickness;
+	QVector<Interlayer> left_Interlayer_Composition;
+	QVector<Interlayer> right_Interlayer_Composition;
+};
+
+double f(double z, void* p)
+{
+	f_params& params= *reinterpret_cast<f_params*>(p);
+
+	double output = Global_Variables::interface_Profile_Function(                 z, params.left_Interlayer_Composition ) *
+					Global_Variables::interface_Profile_Function(params.thickness-z, params.right_Interlayer_Composition);
+
+	return output;
+}
+
+double Global_Variables::get_Max_Sigma_From_Interlayer_Composition(QVector<Interlayer>& interlayer_Composition)
+{
+	double max_Sigma = 0;
+	for(int interlayer_Index=0; interlayer_Index<transition_Layer_Functions_Size; interlayer_Index++)
+	{
+		if(interlayer_Composition[interlayer_Index].enabled)
+		{
+			if(max_Sigma<interlayer_Composition[interlayer_Index].my_Sigma.value)
+			{
+				max_Sigma=interlayer_Composition[interlayer_Index].my_Sigma.value;
+			}
+		}
+	}
+	return max_Sigma;
+}
+
+double Global_Variables::layer_Normalization(double thickness, QVector<Interlayer>& left_Interlayer_Composition, QVector<Interlayer>& right_Interlayer_Composition, gsl_integration_workspace* w)
+{
+	f_params params;
+	params.thickness = thickness;
+	params.left_Interlayer_Composition = left_Interlayer_Composition;
+	params.right_Interlayer_Composition= right_Interlayer_Composition;
+
+	gsl_function F;
+	F.function = &f;
+	F.params = reinterpret_cast<void*>(&params);
+
+	double result=0, error=0;
+	size_t limit=10;
+
+	double max_Sigma_Left  = get_Max_Sigma_From_Interlayer_Composition(left_Interlayer_Composition );
+	double max_Sigma_Right = get_Max_Sigma_From_Interlayer_Composition(right_Interlayer_Composition);
+
+	const double xlow =0        -3*max_Sigma_Left;
+	const double xhigh=thickness+3*max_Sigma_Right;
+	const double epsabs=1e-5;
+	const double epsrel=1e-5;
+
+
+	int code = 0;
+	if(thickness<3*(max_Sigma_Left+max_Sigma_Right))
+	{
+		code=gsl_integration_qag( &F,
+								  xlow,
+								  xhigh,
+								  epsabs,
+								  epsrel,
+								  limit,
+								  GSL_INTEG_GAUSS61,
+								  w,
+								  &result,
+								  &error);
+	} else
+	{
+		result = thickness;
+	}
+
+//	if(code)
+//	{
+//	  qInfo() << "There was a problem with integration: code " << code << endl;
+//	}
+//	else
+//	{
+//	  qInfo() << "Result" << result << "+/-" << error << "from" << neval << "evaluations" << endl;
+//	}
+	return result;
+}
+
 

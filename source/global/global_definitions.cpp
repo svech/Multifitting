@@ -1,5 +1,6 @@
 #include "global_definitions.h"
 #include "global_variables.h"
+#include <algorithm>    // std::reverse
 
 Global_Definitions::Global_Definitions()
 {
@@ -417,20 +418,90 @@ void Material_Data::read_Material(QString& filename)
 		QFile file(nk_Path + filename);
 		file.open(QIODevice::ReadOnly);
 		QTextStream input(&file);
+		Point new_nk_Point;
+		bool growth = true;
 		while(!input.atEnd())
 		{
 			QString temp_Line = input.readLine();
-			if(temp_Line[0]!=';')
+
+			// check if header
+			temp_Line = temp_Line.simplified();
+			bool is_Decimal = false;
+			QString(temp_Line[0]).toInt(&is_Decimal);
+
+			if(is_Decimal) // temp_Line[0]!=';' less common
 			{
-				Point new_nk_Point;
 				QTextStream temp_Stream(&temp_Line);
 				new_nk_Point.read_Row(temp_Stream, false);
-				if(material_Data.size()==0 || (new_nk_Point.lambda > material_Data.last().lambda))
+
+				if(material_Data.size()==0)
 				{
 					material_Data.append(new_nk_Point);
 				}
+				if(material_Data.size()==1 && (abs(new_nk_Point.lambda - material_Data.last().lambda)>DBL_EPSILON)) // not equal
+				{
+					material_Data.append(new_nk_Point);
+				}
+				if(material_Data.size()==2 )
+				{
+					if(material_Data[1].lambda < material_Data[0].lambda) {growth = false;} else {growth = true;}
+
+				}
+				if(material_Data.size()>=2)
+				{
+					if(growth)
+					{
+						if(new_nk_Point.lambda > material_Data.last().lambda)
+						{
+							material_Data.append(new_nk_Point);
+						}
+					} else
+					{
+						if(new_nk_Point.lambda < material_Data.last().lambda)
+						{
+							material_Data.append(new_nk_Point);
+						}
+					}
+				}
+			}			
+		}
+		// add 2 points before
+		{
+			Point first_nk_Point = material_Data.first();
+			if(growth)
+			{
+				first_nk_Point.lambda*=0.99995;
+				material_Data.prepend(first_nk_Point);
+				first_nk_Point.lambda*=0.99995;
+				material_Data.prepend(first_nk_Point);
+			} else
+			{
+				first_nk_Point.lambda*=1.00005;
+				material_Data.prepend(first_nk_Point);
+				first_nk_Point.lambda*=1.00005;
+				material_Data.prepend(first_nk_Point);
 			}
 		}
+		// add 2 points after
+		{
+			Point last_nk_Point = material_Data.last();
+			if(growth)
+			{
+				last_nk_Point.lambda*=1.00005;
+				material_Data.append(last_nk_Point);
+				last_nk_Point.lambda*=1.00005;
+				material_Data.append(last_nk_Point);
+			} else
+			{
+				last_nk_Point.lambda*=0.99995;
+				material_Data.append(last_nk_Point);
+				last_nk_Point.lambda*=0.99995;
+				material_Data.append(last_nk_Point);
+			}
+		}
+		// final vector should be increasing
+		if(!growth) {std::reverse(material_Data.begin(), material_Data.end());}
+
 		file.close();
 	}
 }

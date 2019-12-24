@@ -389,3 +389,11 @@ void Profile_Plots_Window::create_Tab_Content(QWidget* new_Widget, int tab_Index
 
 	new_Plot->custom_Plot->replot();
 }
+
+void Profile_Plots_Window::refresh_Plots()
+{
+	for(Profile_Plot* profile_Plot: profile_Plot_Vector)
+	{
+		profile_Plot->plot_Data(true);
+	}
+}

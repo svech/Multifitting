@@ -340,6 +340,8 @@ void Multilayer_Approach::open_Profile_Plots()
 	} else
 	{
 		profile_Plots_Window->activateWindow();
+
+		profile_Plots_Window->refresh_Plots();
 	}
 }
 
