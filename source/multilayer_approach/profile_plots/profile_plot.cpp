@@ -132,6 +132,55 @@ void Profile_Plot::plot_Data(bool fast)
 		custom_Plot->replot();		
 }
 
+struct Different_Norm_Layer
+{
+	Different_Norm_Layer()
+	{
+		interlayer_Composition_Weight_Left.resize(transition_Layer_Functions_Size);
+		interlayer_My_Sigma_Left.resize(transition_Layer_Functions_Size);
+		interlayer_Composition_Weight_Right.resize(transition_Layer_Functions_Size);
+		interlayer_My_Sigma_Right.resize(transition_Layer_Functions_Size);
+	}
+
+	void set_Interlayer(QVector<Interlayer>& interlayer_Composition, QString side)
+	{
+		for(int i=0; i<transition_Layer_Functions_Size; i++)
+		{
+			if(interlayer_Composition[i].enabled)
+			{
+				if(side == "left")
+				{
+					interlayer_Composition_Weight_Left[i] = interlayer_Composition[i].interlayer.value;
+					interlayer_My_Sigma_Left[i] = interlayer_Composition[i].my_Sigma.value;
+				}
+				if(side == "right")
+				{
+					interlayer_Composition_Weight_Right[i] = interlayer_Composition[i].interlayer.value;
+					interlayer_My_Sigma_Right[i] = interlayer_Composition[i].my_Sigma.value;
+				}
+			}
+		}
+	}
+
+	QVector<double> interlayer_Composition_Weight_Left;
+	QVector<double> interlayer_My_Sigma_Left;
+	QVector<double> interlayer_Composition_Weight_Right;
+	QVector<double> interlayer_My_Sigma_Right;
+	double thickness = -2019;
+
+	double norm = -2019;
+};
+
+bool operator ==( const Different_Norm_Layer& different_Norm_Layer_Left, const Different_Norm_Layer& different_Norm_Layer_Right )
+{
+	return	(different_Norm_Layer_Left.interlayer_Composition_Weight_Left		 == different_Norm_Layer_Right.interlayer_Composition_Weight_Left		) &&
+			(different_Norm_Layer_Left.interlayer_My_Sigma_Left	 == different_Norm_Layer_Right.interlayer_My_Sigma_Left	) &&
+			(different_Norm_Layer_Left.interlayer_Composition_Weight_Right == different_Norm_Layer_Right.interlayer_Composition_Weight_Right) &&
+			(different_Norm_Layer_Left.interlayer_My_Sigma_Right == different_Norm_Layer_Right.interlayer_My_Sigma_Right) &&
+			(different_Norm_Layer_Left.thickness == different_Norm_Layer_Right.thickness);
+}
+
+
 void Profile_Plot::calculate_Profile()
 {
 	get_Max_My_Sigma(multilayer->structure_Tree->tree->invisibleRootItem());
@@ -161,20 +210,34 @@ void Profile_Plot::calculate_Profile()
 		boundary_Vector[i+1] = boundary_Vector[i]+thickness_Vector[i];
 	}
 
-	// TODO optimize (before unwrapping, check similar layers ....)
+	// TODO optimize (before unwrapping, check similar layers ....) CHECK and dooptimizirui
 	auto start = std::chrono::system_clock::now();
 	// norm
 	layer_Norm_Vector.resize(thickness_Vector.size());
+	QList<Different_Norm_Layer> different_Norm_Layer;
+	Different_Norm_Layer temp_Dif_Norm;
 	gsl_integration_workspace* w = gsl_integration_workspace_alloc(1000);
 	for(int layer_Index=0; layer_Index<thickness_Vector.size(); layer_Index++)
 	{
 		// thickness
 		if(thickness_Vector[layer_Index]>0)
 		{
-			layer_Norm_Vector[layer_Index] = thickness_Vector[layer_Index] /
-					Global_Variables::layer_Normalization(	thickness_Vector[layer_Index],
-															struct_Data_Vector[layer_Index+1].interlayer_Composition,
-															struct_Data_Vector[layer_Index+2].interlayer_Composition, w);
+			temp_Dif_Norm.thickness = thickness_Vector[layer_Index];											//   <---here unoptimized
+			temp_Dif_Norm.set_Interlayer(struct_Data_Vector[layer_Index+1].interlayer_Composition,"left");		//   <---here unoptimized
+			temp_Dif_Norm.set_Interlayer(struct_Data_Vector[layer_Index+2].interlayer_Composition,"right");		//   <---here unoptimized
+
+			if(!different_Norm_Layer.contains(temp_Dif_Norm))
+			{
+				layer_Norm_Vector[layer_Index] = thickness_Vector[layer_Index] /
+						Global_Variables::layer_Normalization(	thickness_Vector[layer_Index],
+																struct_Data_Vector[layer_Index+1].interlayer_Composition,
+																struct_Data_Vector[layer_Index+2].interlayer_Composition, w);
+				temp_Dif_Norm.norm = layer_Norm_Vector[layer_Index];
+				different_Norm_Layer.append(temp_Dif_Norm);  //   <---here unoptimized
+			} else
+			{
+				layer_Norm_Vector[layer_Index] = temp_Dif_Norm.norm;
+			}
 		} else
 		{
 			layer_Norm_Vector[layer_Index] = 1;
@@ -243,16 +306,16 @@ void Profile_Plot::calculate_Profile()
 	arg.resize(data_Count);
 	val.resize(arg.size());
 
-//	auto start = std::chrono::system_clock::now();
+	auto start1 = std::chrono::system_clock::now();
 	for(int i=0; i<data_Count; i++)
 	{
 		double z = i/30. -50;
 		arg[i]=z;
 		val[i]=delta_Epsilon_Func(z);
 	}
-//	auto end = std::chrono::system_clock::now();
-//	auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-//	qInfo() << "	profile plot:    "<< elapsed.count()/1000000. << " seconds" << endl << endl;
+	auto end1 = std::chrono::system_clock::now();
+	auto elapsed1 = std::chrono::duration_cast<std::chrono::microseconds>(end1 - start1);
+	qInfo() << "	profile plot:    "<< elapsed1.count()/1000000. << " seconds" << endl << endl;
 }
 
 double Profile_Plot::delta_Epsilon_Func(double z)
