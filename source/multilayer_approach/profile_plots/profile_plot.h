@@ -15,7 +15,7 @@ public:
 	void calculate_Profile();
 	void unwrap_Subtree(QVector<Data>& struct_Data_Vector, QTreeWidgetItem* item);
 	void get_Max_My_Sigma(QTreeWidgetItem* item);
-	double delta_Epsilon_Func(double z);
+	complex<double> delta_Beta_Epsilon_Func(double z);
 
 	Multilayer* multilayer;
 	QVBoxLayout* main_Layout;

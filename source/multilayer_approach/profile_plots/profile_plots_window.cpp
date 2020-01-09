@@ -32,7 +32,7 @@ void Profile_Plots_Window::contextMenuEvent(QContextMenuEvent *event)
 
 				at_Wavelength_Label_Vector[main_Tabs->currentIndex()]->setText("At fixed " + Global_Variables::wavelength_Energy_Name(multilayer->profile_Plot_Options.local_wavelength_units));
 				at_Wavelength_LineEdit_Vector[main_Tabs->currentIndex()]->setText(Locale.toString(Global_Variables::wavelength_Energy(multilayer->profile_Plot_Options.local_wavelength_units, 1.540562)/wavelength_Coefficients_Map.value(multilayer->profile_Plot_Options.local_wavelength_units),line_edit_double_format,line_edit_wavelength_precision));
-				at_Wavelength_Unints_Label_Vector[main_Tabs->currentIndex()]->setText(" " + multilayer->profile_Plot_Options.local_wavelength_units);
+				at_Wavelength_Units_Label_Vector[main_Tabs->currentIndex()]->setText(" " + multilayer->profile_Plot_Options.local_wavelength_units);
 			});
 		}
 	}
@@ -143,7 +143,7 @@ void Profile_Plots_Window::add_Tabs()
 {
 	at_Wavelength_Label_Vector.resize(global_Multilayer_Approach->multilayer_Tabs->count());
 	at_Wavelength_LineEdit_Vector.resize(global_Multilayer_Approach->multilayer_Tabs->count());
-	at_Wavelength_Unints_Label_Vector.resize(global_Multilayer_Approach->multilayer_Tabs->count());
+	at_Wavelength_Units_Label_Vector.resize(global_Multilayer_Approach->multilayer_Tabs->count());
 	profile_Plot_Vector.resize(global_Multilayer_Approach->multilayer_Tabs->count());
 
 	for(int tab_Index=0; tab_Index<global_Multilayer_Approach->multilayer_Tabs->count(); ++tab_Index)
@@ -204,7 +204,7 @@ void Profile_Plots_Window::create_Tab_Content(QWidget* new_Widget, int tab_Index
 			connect(at_Wavelength_LineEdit, &QLineEdit::textEdited, this, [=]{Global_Variables::resize_Line_Edit(at_Wavelength_LineEdit, false);});
 			at_Wavelength_LineEdit_Vector[tab_Index] = at_Wavelength_LineEdit;
 		QLabel* at_Wavelength_Unints_Label = new QLabel(" " + multilayer->profile_Plot_Options.local_wavelength_units);
-			at_Wavelength_Unints_Label_Vector[tab_Index] = at_Wavelength_Unints_Label;
+			at_Wavelength_Units_Label_Vector[tab_Index] = at_Wavelength_Unints_Label;
 
 		QHBoxLayout* wavelength_Layout = new QHBoxLayout;
 			wavelength_Layout->setAlignment(Qt::AlignLeft);
@@ -216,12 +216,15 @@ void Profile_Plots_Window::create_Tab_Content(QWidget* new_Widget, int tab_Index
 			permittivity_Layout->addWidget(delta_RadioButton,3,2,1,4);
 			connect(delta_RadioButton, &QRadioButton::toggled, this, [=]
 			{
+
 				bool checked = delta_RadioButton->isChecked();
 				if(checked)
 				{
+					qInfo() << "delta_RadioButton\n\n";
 					multilayer->profile_Plot_Options.permittivity_Type = DELTA_EPS;
 					new_Plot->custom_Plot->yAxis->setLabel("Re(1-"+Epsilon_Sym+")");
-					new_Plot->custom_Plot->replot();
+//					new_Plot->custom_Plot->replot();
+					new_Plot->plot_Data(true);
 				}
 			});
 
@@ -232,9 +235,11 @@ void Profile_Plots_Window::create_Tab_Content(QWidget* new_Widget, int tab_Index
 				bool checked = beta_RadioButton->isChecked();
 				if(checked)
 				{
+					qInfo() << "beta_RadioButton\n\n";
 					multilayer->profile_Plot_Options.permittivity_Type = BETA_EPS;
 					new_Plot->custom_Plot->yAxis->setLabel("Im("+Epsilon_Sym+")");
-					new_Plot->custom_Plot->replot();
+//					new_Plot->custom_Plot->replot();
+					new_Plot->plot_Data(true);
 				}
 			});
 
@@ -254,7 +259,7 @@ void Profile_Plots_Window::create_Tab_Content(QWidget* new_Widget, int tab_Index
 			{
 				multilayer->profile_Plot_Options.type = PERMITTIVITY;
 				delta_RadioButton->toggled(delta_RadioButton->isChecked());
-				beta_RadioButton->toggled(beta_RadioButton->isChecked());
+				beta_RadioButton ->toggled(beta_RadioButton ->isChecked());
 			}
 
 			delta_RadioButton->setEnabled(checked);
@@ -307,7 +312,7 @@ void Profile_Plots_Window::create_Tab_Content(QWidget* new_Widget, int tab_Index
 		value_Type_GroupBox->setFixedSize(value_Type_GroupBox->size());
 
 		///------------------------------------------------------------------------------------------
-		// bottom part
+		// middle part
 		///------------------------------------------------------------------------------------------
 		QGroupBox* line_Type_GroupBox = new QGroupBox;
 			left_Layout->addWidget(line_Type_GroupBox);
@@ -315,8 +320,6 @@ void Profile_Plots_Window::create_Tab_Content(QWidget* new_Widget, int tab_Index
 			line_Type_Layout->setSpacing(2);
 			line_Type_Layout->setContentsMargins(8,5,8,5);
 
-		// ----------------------------------------------------
-		// elements
 		// ----------------------------------------------------
 		QCheckBox* use_Roughness_CheckBox = new QCheckBox("Apply roughness");
 			line_Type_Layout->addWidget(use_Roughness_CheckBox);
@@ -350,6 +353,77 @@ void Profile_Plots_Window::create_Tab_Content(QWidget* new_Widget, int tab_Index
 		// ----------------------------------------------------
 		line_Type_GroupBox->adjustSize();
 		line_Type_GroupBox->setFixedSize(line_Type_GroupBox->size());
+
+		///------------------------------------------------------------------------------------------
+		// bottom part
+		///------------------------------------------------------------------------------------------
+		QGroupBox* scale_GroupBox = new QGroupBox;
+			left_Layout->addWidget(scale_GroupBox);
+		QVBoxLayout* scale_Layout = new QVBoxLayout(scale_GroupBox);
+			scale_Layout->setSpacing(2);
+			scale_Layout->setContentsMargins(8,5,2,5);
+
+		// ----------------------------------------------------
+		QCheckBox* rescale_X_CheckBox = new QCheckBox("Rescale X");
+			scale_Layout->addWidget(rescale_X_CheckBox);
+			connect(rescale_X_CheckBox, &QCheckBox::toggled, this, [=]
+			{
+				multilayer->profile_Plot_Options.rescale_X = rescale_X_CheckBox->isChecked();
+			});
+
+		QCheckBox* rescale_Y_CheckBox = new QCheckBox("Rescale Y");
+			scale_Layout->addWidget(rescale_Y_CheckBox);
+			connect(rescale_Y_CheckBox, &QCheckBox::toggled, this, [=]
+			{
+				multilayer->profile_Plot_Options.rescale_Y = rescale_Y_CheckBox->isChecked();
+			});
+
+		// scaling
+		QGridLayout* scale_Y_Layout = new QGridLayout;
+			scale_Layout->addLayout(scale_Y_Layout);
+
+		QLabel* scale_Y_Label = new QLabel("Scale Y: ");
+			scale_Y_Layout->addWidget(scale_Y_Label,0,0);
+
+		// lin
+		QRadioButton* lin_Y_RadioButton = new QRadioButton("Lin");
+			scale_Y_Layout->addWidget(lin_Y_RadioButton,0,1);
+//			connect(lin_Y_RadioButton, &QRadioButton::toggled, this, [&]
+//			{
+//				if(lin_Y_RadioButton->isChecked())
+//				{
+//					multilayer->profile_Plot_Options.y_Scale  = lin_Scale;
+//				}
+//				plot_All_Data();
+//			});
+//			connect(lin_Y_RadioButton, &QRadioButton::clicked, lin_Y_RadioButton, &QRadioButton::toggled);
+
+		// log
+		QRadioButton* log_Y_RadioButton = new QRadioButton("Log");
+			scale_Y_Layout->addWidget(log_Y_RadioButton,0,2);
+			qInfo() << log_Y_RadioButton << endl;
+			connect(log_Y_RadioButton, &QRadioButton::toggled, this, [&]
+			{
+				qInfo() << log_Y_RadioButton->isChecked();
+//				if(log_Y_RadioButton->isChecked())
+//				{
+//					multilayer->profile_Plot_Options.y_Scale = log_Scale;
+//				}
+//				plot_All_Data();
+			});
+//			connect(log_Y_RadioButton, &QRadioButton::clicked, log_Y_RadioButton, &QRadioButton::toggled);
+
+		QButtonGroup* Y_ButtonGroup = new QButtonGroup;
+			Y_ButtonGroup->addButton(lin_Y_RadioButton);
+			Y_ButtonGroup->addButton(log_Y_RadioButton);
+
+		// ----------------------------------------------------
+		scale_GroupBox->adjustSize();
+		scale_GroupBox->setFixedSize(scale_GroupBox->size());
+
+		value_Type_GroupBox->setFixedWidth(scale_GroupBox->width());
+		line_Type_GroupBox->setFixedWidth(scale_GroupBox->width());
+
 	///==============================================================================================
 
 	// right side: plot
@@ -369,6 +443,8 @@ void Profile_Plots_Window::create_Tab_Content(QWidget* new_Widget, int tab_Index
 	if(multilayer->profile_Plot_Options.type == MATERIAL)	  {materials_RadioButton->setChecked(true);}
 	if(multilayer->profile_Plot_Options.type == ELEMENTS)	  {elements_RadioButton->setChecked(true);}
 
+	// - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
 	use_Roughness_CheckBox->setChecked(multilayer->profile_Plot_Options.apply_Roughness);
 	use_Diffusiness_CheckBox->setChecked(multilayer->profile_Plot_Options.apply_Diffusiness);
 	show_Sharp_CheckBox->setChecked(multilayer->profile_Plot_Options.show_Sharp_Profile);
@@ -376,16 +452,21 @@ void Profile_Plots_Window::create_Tab_Content(QWidget* new_Widget, int tab_Index
 
 	// - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-	use_Roughness_CheckBox->toggled(multilayer->profile_Plot_Options.apply_Roughness);
-	use_Diffusiness_CheckBox->toggled(multilayer->profile_Plot_Options.apply_Diffusiness);
-	show_Sharp_CheckBox->toggled(multilayer->profile_Plot_Options.show_Sharp_Profile);
-	discretization_CheckBox->toggled(multilayer->profile_Plot_Options.show_Discretization);
+	rescale_X_CheckBox->setChecked(multilayer->profile_Plot_Options.rescale_X);
+	rescale_Y_CheckBox->setChecked(multilayer->profile_Plot_Options.rescale_Y);
+//	if(multilayer->profile_Plot_Options.y_Scale == lin_Scale) {lin_Y_RadioButton->setChecked(true);}
+//	if(multilayer->profile_Plot_Options.y_Scale == log_Scale) {log_Y_RadioButton->setChecked(true);}
 
 
-	delta_RadioButton->toggled(multilayer->profile_Plot_Options.permittivity_Type == DELTA_EPS);
-	beta_RadioButton->toggled(multilayer->profile_Plot_Options.permittivity_Type == BETA_EPS);
-	materials_RadioButton->toggled(multilayer->profile_Plot_Options.type == MATERIAL);
-	elements_RadioButton->toggled(multilayer->profile_Plot_Options.type == ELEMENTS);
+//	use_Roughness_CheckBox->toggled(multilayer->profile_Plot_Options.apply_Roughness);		// already toggled when ->setChecked(true)
+//	use_Diffusiness_CheckBox->toggled(multilayer->profile_Plot_Options.apply_Diffusiness);	// already toggled when ->setChecked(true)
+//	show_Sharp_CheckBox->toggled(multilayer->profile_Plot_Options.show_Sharp_Profile);		// already toggled when ->setChecked(true)
+//	discretization_CheckBox->toggled(multilayer->profile_Plot_Options.show_Discretization);	// already toggled when ->setChecked(true)
+
+//	delta_RadioButton->toggled(multilayer->profile_Plot_Options.permittivity_Type == DELTA_EPS);// already toggled when ->setChecked(true)
+//	beta_RadioButton->toggled(multilayer->profile_Plot_Options.permittivity_Type == BETA_EPS);	// already toggled when ->setChecked(true)
+//	materials_RadioButton->toggled(multilayer->profile_Plot_Options.type == MATERIAL);			// already toggled when ->setChecked(true)
+//	elements_RadioButton->toggled(multilayer->profile_Plot_Options.type == ELEMENTS);			// already toggled when ->setChecked(true)
 
 	new_Plot->custom_Plot->replot();
 }

@@ -551,6 +551,10 @@ struct Profile_Plot_Options		{QString type = PERMITTIVITY;
 								 bool show_Sharp_Profile = true;
 								 bool show_Discretization = false;
 
+								 bool rescale_X = false;
+								 bool rescale_Y = true;
+								 QString y_Scale = lin_Scale;
+
 								 QString local_wavelength_units;
 								 QString local_length_units;
 								};
