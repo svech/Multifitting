@@ -210,17 +210,17 @@ QDataStream& operator <<( QDataStream& stream, const Profile_Plot_Options& profi
 {
 	return stream << profile_Plot_Options.type << profile_Plot_Options.permittivity_Type
 				  << profile_Plot_Options.apply_Roughness << profile_Plot_Options.apply_Diffusiness
-				  << profile_Plot_Options.show_Sharp_Profile << profile_Plot_Options.show_Discretization
-				  << profile_Plot_Options.local_wavelength_units << profile_Plot_Options.local_length_units
-				  << profile_Plot_Options.rescale_X << profile_Plot_Options.rescale_Y << profile_Plot_Options.y_Scale;
+				  << profile_Plot_Options.show_Sharp_Profile << profile_Plot_Options.show_Discretization << profile_Plot_Options.show_Cursor_Position
+				  << profile_Plot_Options.rescale_X << profile_Plot_Options.rescale_Y << profile_Plot_Options.y_Scale
+				  << profile_Plot_Options.local_wavelength_units << profile_Plot_Options.local_length_units;
 }
 QDataStream& operator >>( QDataStream& stream,		 Profile_Plot_Options& profile_Plot_Options )
 {
 	stream >> profile_Plot_Options.type >> profile_Plot_Options.permittivity_Type
 		   >> profile_Plot_Options.apply_Roughness >> profile_Plot_Options.apply_Diffusiness
-		   >> profile_Plot_Options.show_Sharp_Profile >> profile_Plot_Options.show_Discretization
-		   >> profile_Plot_Options.local_wavelength_units >> profile_Plot_Options.local_length_units
-		   >> profile_Plot_Options.rescale_X >> profile_Plot_Options.rescale_Y >> profile_Plot_Options.y_Scale;
+		   >> profile_Plot_Options.show_Sharp_Profile >> profile_Plot_Options.show_Discretization >> profile_Plot_Options.show_Cursor_Position
+		   >> profile_Plot_Options.rescale_X >> profile_Plot_Options.rescale_Y >> profile_Plot_Options.y_Scale
+		   >> profile_Plot_Options.local_wavelength_units >> profile_Plot_Options.local_length_units;
 	return stream;
 }
 

@@ -340,7 +340,6 @@ void Multilayer_Approach::open_Profile_Plots()
 	} else
 	{
 		profile_Plots_Window->activateWindow();
-
 		profile_Plots_Window->refresh_Plots();
 	}
 }
@@ -736,6 +735,15 @@ void Multilayer_Approach::open(QString filename)
 		runned_Optical_Graphs.value(optical_Graphs_Key)->close();
 	}
 
+	// close profile
+	bool reopen_Profile_Plots = runned_Profile_Plots_Window.contains(profile_Plots_Key);
+	int active_Tab_Profile_Plots = -2019;
+	if(reopen_Profile_Plots)
+	{
+		active_Tab_Profile_Plots = runned_Profile_Plots_Window.value(profile_Plots_Key)->main_Tabs->currentIndex();
+		runned_Profile_Plots_Window.value(profile_Plots_Key)->close();
+	}
+
 	// close fitting settings
 	bool reopen_Fit_Settings = runned_Fitting_Settings_Editor.contains(fit_Settings_Key);
 	if(reopen_Fit_Settings)
@@ -1008,6 +1016,20 @@ void Multilayer_Approach::open(QString filename)
 	{
 		open_Optical_Graphs();
 		runned_Optical_Graphs.value(optical_Graphs_Key)->main_Tabs->setCurrentIndex(active_Tab_Optical_Graphs);
+	}
+
+	// reopen graphs
+	if(reopen_Graphs)
+	{
+		open_Optical_Graphs();
+		runned_Optical_Graphs.value(optical_Graphs_Key)->main_Tabs->setCurrentIndex(active_Tab_Optical_Graphs);
+	}
+
+	// close profile
+	if(reopen_Profile_Plots)
+	{
+		open_Profile_Plots();
+		runned_Profile_Plots_Window.value(profile_Plots_Key)->main_Tabs->setCurrentIndex(active_Tab_Profile_Plots);
 	}
 
 	// reopen fitting settings

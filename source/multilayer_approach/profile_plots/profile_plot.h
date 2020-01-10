@@ -3,13 +3,16 @@
 
 #include "multilayer_approach/multilayer_approach.h"
 
+class Profile_Plots_Window;
+
 class Profile_Plot : public QWidget
 {
 	Q_OBJECT
 public:
-	explicit Profile_Plot(Multilayer* multilayer, QWidget *parent = nullptr);
+	explicit Profile_Plot(Multilayer* multilayer, Profile_Plots_Window* profile_Plots_Window, QWidget *parent = nullptr);
 
 	void create_Main_Layout();
+	void create_Left_Side();
 	void create_Plot_Frame_And_Scale();
 	void plot_Data(bool fast = false);
 	void calculate_Profile();
@@ -18,7 +21,35 @@ public:
 	complex<double> delta_Beta_Epsilon_Func(double z);
 
 	Multilayer* multilayer;
-	QVBoxLayout* main_Layout;
+	Profile_Plots_Window* profile_Plots_Window;
+	QHBoxLayout* main_Layout;
+
+	// left side
+		QGroupBox* value_Type_GroupBox;
+			QRadioButton* permittivity_RadioButton;
+			QLabel* at_Wavelength_Label;
+			QLineEdit* at_Wavelength_LineEdit;
+			QLabel* at_Wavelength_Unints_Label;
+			QRadioButton* delta_RadioButton;
+			QRadioButton* beta_RadioButton;
+			QRadioButton* materials_RadioButton;
+			QRadioButton* elements_RadioButton;
+
+		QGroupBox* line_Type_GroupBox;
+			QCheckBox* use_Roughness_CheckBox;
+			QCheckBox* use_Diffusiness_CheckBox;
+			QCheckBox* show_Sharp_CheckBox;
+			QCheckBox* discretization_CheckBox;
+			QCheckBox* cursor_Cordinate_CheckBox;
+
+		QGroupBox* scale_GroupBox;
+			QCheckBox* rescale_X_CheckBox;
+			QCheckBox* rescale_Y_CheckBox;
+			QLabel* scale_Y_Label;
+			QRadioButton* lin_Y_RadioButton;
+			QRadioButton* log_Y_RadioButton;
+
+
 	QCustomPlot* custom_Plot;
 
 	double max_Sigma = 0.1;

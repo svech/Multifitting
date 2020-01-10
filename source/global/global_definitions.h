@@ -550,8 +550,9 @@ struct Profile_Plot_Options		{QString type = PERMITTIVITY;
 								 bool apply_Diffusiness = true;
 								 bool show_Sharp_Profile = true;
 								 bool show_Discretization = false;
+								 bool show_Cursor_Position = false;
 
-								 bool rescale_X = false;
+								 bool rescale_X = true;
 								 bool rescale_Y = true;
 								 QString y_Scale = lin_Scale;
 

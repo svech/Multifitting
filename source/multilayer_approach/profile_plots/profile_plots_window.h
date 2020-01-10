@@ -27,9 +27,6 @@ public:
 
 	QVBoxLayout* main_Layout;
 	QTabWidget* main_Tabs;
-	QVector<QLabel*> at_Wavelength_Label_Vector;
-	QVector<QLineEdit*> at_Wavelength_LineEdit_Vector;
-	QVector<QLabel*> at_Wavelength_Units_Label_Vector;
 	QVector<Profile_Plot*> profile_Plot_Vector;
 };
 
