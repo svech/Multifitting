@@ -6,6 +6,8 @@
 #include "calculation/optical_constants.h"
 #include <thread>
 #include <gsl/gsl_integration.h>
+#include <gsl/gsl_rng.h>
+#include <gsl/gsl_randist.h>
 
 class Optical_Constants;
 class Data;
@@ -265,6 +267,8 @@ public:
 	static void change_Parent_Period_Gamma_Thickness(QTreeWidgetItem *current_Item);
 	static void plot_All_Data_in_Graphs();
 	static void replot_All_Graphs();
+	static void variable_Drift(double& value, Drift& drift, int period_Index, int num_Repetition, gsl_rng *r);
+
 
 	// profile functions
 	static double theta_Function(double z);

@@ -15,6 +15,8 @@ void Profile_Plot::create_Main_Layout()
 	main_Layout->setContentsMargins(4,4,4,0);
 
 	custom_Plot = new QCustomPlot(this);
+	horizontall_Scrollbar = new QScrollBar(Qt::Horizontal);
+
 	if(multilayer->profile_Plot_Options.show_Cursor_Position)
 	{
 		QCPItemText* text_Item = new QCPItemText(custom_Plot);
@@ -29,12 +31,13 @@ void Profile_Plot::create_Main_Layout()
 			custom_Plot->replot();
 		});
 	}
-
-	create_Plot_Frame_And_Scale();
-	plot_Data();
-
 	create_Left_Side();
-	main_Layout->addWidget(custom_Plot);
+
+	QVBoxLayout* plot_Bar_Layout = new QVBoxLayout;
+		plot_Bar_Layout->setContentsMargins(4,4,4,0);
+	main_Layout->addLayout(plot_Bar_Layout);
+	plot_Bar_Layout->addWidget(custom_Plot);
+	plot_Bar_Layout->addWidget(horizontall_Scrollbar);
 
 	custom_Plot->xAxis->setLabel("Depth, "+multilayer->profile_Plot_Options.local_length_units);
 }
@@ -76,7 +79,7 @@ void Profile_Plot::create_Left_Side()
 			connect(at_Wavelength_LineEdit, &QLineEdit::editingFinished, this, [=]
 			{
 				multilayer->profile_Plot_Data.local_Wavelength = Global_Variables::wavelength_Energy(multilayer->profile_Plot_Options.local_wavelength_units, Locale.toDouble(at_Wavelength_LineEdit->text()))*wavelength_Coefficients_Map.value(multilayer->profile_Plot_Options.local_wavelength_units);
-				plot_Data();
+				plot_Data(true);
 			});
 		at_Wavelength_Unints_Label = new QLabel(" " + multilayer->profile_Plot_Options.local_wavelength_units);
 
@@ -88,7 +91,7 @@ void Profile_Plot::create_Left_Side()
 
 		delta_RadioButton = new QRadioButton("Re(1-"+Epsilon_Sym+")");
 			permittivity_Layout->addWidget(delta_RadioButton,3,2,1,4);
-			connect(delta_RadioButton, &QRadioButton::toggled, this, [=]
+			connect(delta_RadioButton, &QRadioButton::clicked, this, [=]
 			{
 				bool checked = delta_RadioButton->isChecked();
 				if(checked)
@@ -99,35 +102,36 @@ void Profile_Plot::create_Left_Side()
 					// disable log scale
 					lin_Y_RadioButton->setDisabled(true);
 					log_Y_RadioButton->setDisabled(true);
-				} else
-				{
-					// enable log scale
-					lin_Y_RadioButton->setDisabled(false);
-					log_Y_RadioButton->setDisabled(false);
+
+//					qInfo() << "delta_RadioButton" << endl;
+					plot_Data(true);
 				}
-				plot_Data();
 			});
-			connect(delta_RadioButton, &QRadioButton::clicked, delta_RadioButton, &QRadioButton::toggled);
 
 		beta_RadioButton = new QRadioButton("Im("+Epsilon_Sym+")");
 			permittivity_Layout->addWidget(beta_RadioButton,4,2,1,4);
-			connect(beta_RadioButton, &QRadioButton::toggled, this, [=]
+			connect(beta_RadioButton, &QRadioButton::clicked, this, [=]
 			{
 				bool checked = beta_RadioButton->isChecked();
 				if(checked)
 				{
 					multilayer->profile_Plot_Options.permittivity_Type = BETA_EPS;
 					custom_Plot->yAxis->setLabel("Im("+Epsilon_Sym+")");
+
+					// enable log scale
+					lin_Y_RadioButton->setDisabled(false);
+					log_Y_RadioButton->setDisabled(false);
+
+//					qInfo() << "beta_RadioButton" << endl;
+					plot_Data(true);
 				}
-				plot_Data();
 			});
-			connect(beta_RadioButton, &QRadioButton::clicked, beta_RadioButton, &QRadioButton::toggled);
 
 		QButtonGroup* delta_Beta_ButtonGroup = new QButtonGroup;
 			delta_Beta_ButtonGroup->addButton(delta_RadioButton);
 			delta_Beta_ButtonGroup->addButton(beta_RadioButton);
 
-		connect(permittivity_RadioButton, &QRadioButton::toggled, this, [=]
+		connect(permittivity_RadioButton, &QRadioButton::clicked, this, [=]
 		{
 			bool checked = permittivity_RadioButton->isChecked();
 			at_Wavelength_Label->setEnabled(checked);
@@ -137,8 +141,8 @@ void Profile_Plot::create_Left_Side()
 			if(checked)
 			{
 				multilayer->profile_Plot_Options.type = PERMITTIVITY;
-				delta_RadioButton->toggled(delta_RadioButton->isChecked());
-				beta_RadioButton ->toggled(beta_RadioButton ->isChecked());
+				delta_RadioButton->clicked(delta_RadioButton->isChecked());
+				beta_RadioButton ->clicked(beta_RadioButton ->isChecked());
 			} else
 			{
 				// enable log scale
@@ -150,24 +154,26 @@ void Profile_Plot::create_Left_Side()
 
 			plot_Data();
 		});
-		connect(permittivity_RadioButton, &QRadioButton::clicked, permittivity_RadioButton, &QRadioButton::toggled);
 
 		// ----------------------------------------------------
 		// materials
 		// ----------------------------------------------------
 		materials_RadioButton = new QRadioButton("Materials");
 			value_Type_Layout->addWidget(materials_RadioButton);
-			connect(materials_RadioButton, &QRadioButton::toggled, this, [=]
+			connect(materials_RadioButton, &QRadioButton::clicked, this, [=]
 			{
 				bool checked = materials_RadioButton->isChecked();
 				if(checked)
 				{
 					multilayer->profile_Plot_Options.type = MATERIAL;
 					custom_Plot->yAxis->setLabel("Relative density");
+
+					permittivity_RadioButton->clicked(permittivity_RadioButton->isChecked());
+
+//					qInfo() << "materials_RadioButton" << endl;
+					plot_Data(true);
 				}
-				permittivity_RadioButton->toggled(permittivity_RadioButton->isChecked());
 			});
-			connect(materials_RadioButton, &QRadioButton::clicked, materials_RadioButton, &QRadioButton::toggled);
 
 		// ----------------------------------------------------
 		// elements
@@ -176,17 +182,20 @@ void Profile_Plot::create_Left_Side()
 			// TODO
 			elements_RadioButton->setDisabled(true);
 			value_Type_Layout->addWidget(elements_RadioButton);
-			connect(elements_RadioButton, &QRadioButton::toggled, this, [=]
+			connect(elements_RadioButton, &QRadioButton::clicked, this, [=]
 			{
 				bool checked = elements_RadioButton->isChecked();
 				if(checked)
 				{
 					multilayer->profile_Plot_Options.type = ELEMENTS;
 					custom_Plot->yAxis->setLabel("Absolute concentration, "+Multiply_Sym+"10"+Power_23_Sym+" cm"+Minus_Three_Sym);
+
+					permittivity_RadioButton->clicked(permittivity_RadioButton->isChecked());
+
+//					qInfo() << "elements_RadioButton" << endl;
+					plot_Data(true);
 				}
-				permittivity_RadioButton->toggled(permittivity_RadioButton->isChecked());
 			});
-			connect(elements_RadioButton, &QRadioButton::clicked, elements_RadioButton, &QRadioButton::toggled);
 
 		// ----------------------------------------------------
 		QButtonGroup* radio_ButtonGroup = new QButtonGroup;
@@ -239,8 +248,6 @@ void Profile_Plot::create_Left_Side()
 			line_Type_Layout->addWidget(cursor_Cordinate_CheckBox);
 			connect(cursor_Cordinate_CheckBox, &QCheckBox::toggled, this, [=]
 			{
-				qInfo() << "cursor_Cordinate_CheckBox\n\n";
-
 				multilayer->profile_Plot_Options.show_Cursor_Position = cursor_Cordinate_CheckBox->isChecked();
 
 				// other profiles obtain the same option : synchronization
@@ -296,7 +303,7 @@ void Profile_Plot::create_Left_Side()
 		// lin
 		lin_Y_RadioButton = new QRadioButton("Lin");
 			scale_Y_Layout->addWidget(lin_Y_RadioButton,0,1);
-			connect(lin_Y_RadioButton, &QRadioButton::toggled, this, [&]
+			connect(lin_Y_RadioButton, &QRadioButton::clicked, this, [&]
 			{
 				if(lin_Y_RadioButton->isChecked())
 				{
@@ -304,12 +311,11 @@ void Profile_Plot::create_Left_Side()
 				}
 				plot_Data();
 			});
-			connect(lin_Y_RadioButton, &QRadioButton::clicked, lin_Y_RadioButton, &QRadioButton::toggled);
 
 		// log
 		log_Y_RadioButton = new QRadioButton("Log");
 			scale_Y_Layout->addWidget(log_Y_RadioButton,0,2);
-			connect(log_Y_RadioButton, &QRadioButton::toggled, this, [&]
+			connect(log_Y_RadioButton, &QRadioButton::clicked, this, [&]
 			{
 				if(log_Y_RadioButton->isChecked())
 				{
@@ -317,7 +323,6 @@ void Profile_Plot::create_Left_Side()
 				}
 				plot_Data();
 			});
-			connect(log_Y_RadioButton, &QRadioButton::clicked, log_Y_RadioButton, &QRadioButton::toggled);
 
 		QButtonGroup* Y_ButtonGroup = new QButtonGroup;
 			Y_ButtonGroup->addButton(lin_Y_RadioButton);
@@ -357,16 +362,17 @@ void Profile_Plot::create_Left_Side()
 	if(multilayer->profile_Plot_Options.y_Scale == lin_Scale) {lin_Y_RadioButton->setChecked(true);}
 	if(multilayer->profile_Plot_Options.y_Scale == log_Scale) {log_Y_RadioButton->setChecked(true);}
 
-
 //	use_Roughness_CheckBox->toggled(multilayer->profile_Plot_Options.apply_Roughness);		// already toggled when ->setChecked(true)
 //	use_Diffusiness_CheckBox->toggled(multilayer->profile_Plot_Options.apply_Diffusiness);	// already toggled when ->setChecked(true)
 //	show_Sharp_CheckBox->toggled(multilayer->profile_Plot_Options.show_Sharp_Profile);		// already toggled when ->setChecked(true)
 //	discretization_CheckBox->toggled(multilayer->profile_Plot_Options.show_Discretization);	// already toggled when ->setChecked(true)
 
-//	delta_RadioButton->toggled(multilayer->profile_Plot_Options.permittivity_Type == DELTA_EPS);// already toggled when ->setChecked(true)
-//	beta_RadioButton->toggled(multilayer->profile_Plot_Options.permittivity_Type == BETA_EPS);	// already toggled when ->setChecked(true)
-//	materials_RadioButton->toggled(multilayer->profile_Plot_Options.type == MATERIAL);			// already toggled when ->setChecked(true)
-//	elements_RadioButton->toggled(multilayer->profile_Plot_Options.type == ELEMENTS);			// already toggled when ->setChecked(true)
+	delta_RadioButton->clicked(multilayer->profile_Plot_Options.permittivity_Type == DELTA_EPS);
+	beta_RadioButton->clicked(multilayer->profile_Plot_Options.permittivity_Type == BETA_EPS);
+	materials_RadioButton->clicked(multilayer->profile_Plot_Options.type == MATERIAL);
+	elements_RadioButton->clicked(multilayer->profile_Plot_Options.type == ELEMENTS);
+
+	// - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 	custom_Plot->replot();
 }
@@ -392,13 +398,11 @@ void Profile_Plot::create_Plot_Frame_And_Scale()
 			custom_Plot->xAxis->setTicker(linTicker);
 			custom_Plot->xAxis->setNumberFormat("g");
 			custom_Plot->xAxis->setNumberPrecision(4);
-//			custom_Plot->xAxis->setRange(-5, 25);
 
 			custom_Plot->xAxis2->setScaleType(QCPAxis::stLinear);
 			custom_Plot->xAxis2->setTicker(linTicker);
 			custom_Plot->xAxis2->setNumberFormat("g");
 			custom_Plot->xAxis2->setNumberPrecision(4);
-//			custom_Plot->xAxis2->setRange(-5, 25);
 		}
 		/// Y axis
 		if(multilayer->profile_Plot_Options.y_Scale == lin_Scale ||
@@ -411,13 +415,11 @@ void Profile_Plot::create_Plot_Frame_And_Scale()
 			custom_Plot->yAxis->setTicker(linTicker);
 			custom_Plot->yAxis->setNumberFormat("g");
 			custom_Plot->yAxis->setNumberPrecision(4);
-//			custom_Plot->yAxis->setRange(-1, 1);
 
 			custom_Plot->yAxis2->setScaleType(QCPAxis::stLinear);
 			custom_Plot->yAxis2->setTicker(linTicker);
 			custom_Plot->yAxis2->setNumberFormat("g");
 			custom_Plot->yAxis2->setNumberPrecision(4);
-//			custom_Plot->yAxis2->setRange(-1, 1);
 		}
 		if(multilayer->profile_Plot_Options.y_Scale == log_Scale &&
 		   (multilayer->profile_Plot_Options.type != PERMITTIVITY ||
@@ -447,40 +449,53 @@ void Profile_Plot::create_Plot_Frame_And_Scale()
 		connect(custom_Plot->xAxis, SIGNAL(rangeChanged(QCPRange)), custom_Plot->xAxis2, SLOT(setRange(QCPRange)));
 		connect(custom_Plot->yAxis, SIGNAL(rangeChanged(QCPRange)), custom_Plot->yAxis2, SLOT(setRange(QCPRange)));
 
+
+		connect(custom_Plot->xAxis, static_cast<void(QCPAxis::*)(const QCPRange&)>(&QCPAxis::rangeChanged), this, [=](const QCPRange&)
+		{
+			multilayer->profile_Plot_Options.old_X_Begin = custom_Plot->xAxis->range().lower;
+			multilayer->profile_Plot_Options.old_X_End   = custom_Plot->xAxis->range().upper;
+		});
+		connect(custom_Plot->yAxis, static_cast<void(QCPAxis::*)(const QCPRange&)>(&QCPAxis::rangeChanged), this, [=](const QCPRange&)
+		{
+			multilayer->profile_Plot_Options.old_Y_Begin = custom_Plot->yAxis->range().lower;
+			multilayer->profile_Plot_Options.old_Y_End   = custom_Plot->yAxis->range().upper;
+		});
 	}
 //	set_Title_Text();
 }
 
-void Profile_Plot::plot_Data(bool fast)
+void Profile_Plot::plot_Data(bool recalculate_Profile)
 {
-	qInfo() << "plot_Data\n\n";
-	if(!fast)
+	create_Plot_Frame_And_Scale();
+
+	if(custom_Plot->graphCount()!=1)
 	{
-		create_Plot_Frame_And_Scale();
+		custom_Plot->clearGraphs();
+		custom_Plot->addGraph();
+	}
+	custom_Plot->graph(0)->setPen(QPen(custom_Plot->graph(0)->pen().color(), 1.3));
+
+	// data
+	if(recalculate_Profile)
+	{
+		auto start = std::chrono::system_clock::now();
+
 		calculate_Profile();
+
+		auto end = std::chrono::system_clock::now();
+		auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+		qInfo() << "	profile plot:    "<< elapsed.count()/1000000. << " seconds" << endl << endl << endl;
 	}
 
-	QVector<QCPGraphData> data_To_Plot(arg.size());
-	for (int i=0; i<data_To_Plot.size(); ++i)
-	{
-		data_To_Plot[i].key = arg[i];
-		data_To_Plot[i].value = val[i];
-
-//		if(max<data_To_Plot[i].value) {max=data_To_Plot[i].value;}
-//		if(min>data_To_Plot[i].value) {min=data_To_Plot[i].value;}
-	}
-
-	double minimum_Raw = *std::min_element(val.constBegin(), val.constEnd());
-	double maximum_Raw = *std::max_element(val.constBegin(), val.constEnd());
-	val.removeAll(0);
-	double maximum_Raw_Non_Zero = *std::max_element(val.constBegin(), val.constEnd()); val.removeAll(0);
-	double minimum_Raw_Non_Zero = *std::min_element(val.constBegin(), val.constEnd()); val.removeAll(0);
-	double minimum = -2020;
-	double maximum = -2020;
+	// rescaling
+	double minimum = -2020, maximum = 2020;
 	if(multilayer->profile_Plot_Options.y_Scale == lin_Scale ||
 	  (multilayer->profile_Plot_Options.type == PERMITTIVITY &&
 	   multilayer->profile_Plot_Options.permittivity_Type == DELTA_EPS))
 	{
+		double minimum_Raw = *std::min_element(val.constBegin(), val.constEnd());
+		double maximum_Raw = *std::max_element(val.constBegin(), val.constEnd());
+
 		maximum = maximum_Raw + (maximum_Raw-minimum_Raw)*0.08;
 		minimum = minimum_Raw - (maximum_Raw-minimum_Raw)*0.08;
 	}
@@ -488,48 +503,22 @@ void Profile_Plot::plot_Data(bool fast)
 	   (multilayer->profile_Plot_Options.type != PERMITTIVITY ||
 		multilayer->profile_Plot_Options.permittivity_Type != DELTA_EPS))
 	{
+		// val is changing here (removing zeros)
+		val.removeAll(0);
+		double maximum_Raw_Non_Zero = *std::max_element(val.constBegin(), val.constEnd()); val.removeAll(0);
+		double minimum_Raw_Non_Zero = *std::min_element(val.constBegin(), val.constEnd()); val.removeAll(0);
+
 		maximum = maximum_Raw_Non_Zero*1.5;
 		minimum = minimum_Raw_Non_Zero/1.5;
 	}
 
-	if(!fast)
-	{
-		if(custom_Plot->graphCount()!=1)
-		{
-			custom_Plot->clearGraphs();
-			custom_Plot->addGraph();
-		}
-//		custom_Plot->graph(0)->setPen(QPen(target_Curve->plot_Options_Experimental.color,target_Curve->plot_Options_Experimental.thickness));
-		//custom_Plot->graph(0)->setBrush(QBrush(target_Curve->plot_Options.color));
-		QCPScatterStyle scatter_Style;
-//		scatter_Style.setShape(QCPScatterStyle::ScatterShape(target_Curve->plot_Options_Experimental.scatter_Shape));
-//		scatter_Style.setSize(target_Curve->plot_Options_Experimental.scatter_Size);
-		custom_Plot->graph(0)->setScatterStyle(scatter_Style);
-		custom_Plot->graph(0)->setPen(QPen(custom_Plot->graph(0)->pen().color(), 1.3));
-	}
+	if(multilayer->profile_Plot_Options.rescale_X)	{ custom_Plot->xAxis->setRange(arg.first(), arg.last());	}
+	else											{ custom_Plot->xAxis->setRange(multilayer->profile_Plot_Options.old_X_Begin, multilayer->profile_Plot_Options.old_X_End);}
+	if(multilayer->profile_Plot_Options.rescale_Y)	{ custom_Plot->yAxis->setRange(minimum,maximum);			}
+	else											{ custom_Plot->yAxis->setRange(multilayer->profile_Plot_Options.old_Y_Begin, multilayer->profile_Plot_Options.old_Y_End);}
 
-	custom_Plot->graph(0)->data()->set(data_To_Plot);
-
-	if(!fast)
-	{
-		if(multilayer->profile_Plot_Options.rescale_X)
-		{
-			custom_Plot->xAxis->setRange(arg.first(), arg.last());
-		}
-		if(multilayer->profile_Plot_Options.rescale_Y)
-		{
-			custom_Plot->yAxis->setRange(minimum,maximum);
-		}
-	}
-
-	//custom_Plot->yAxis2->setTickLabels(false);
-
-//	if(!fast)
-//		refresh_Labels();
-//	else
 	custom_Plot->replot();
 }
-
 
 struct Different_Norm_Layer
 {
@@ -585,15 +574,12 @@ bool operator ==( const Different_Norm_Layer& different_Norm_Layer_Left, const D
 			(different_Norm_Layer_Left.thickness == different_Norm_Layer_Right.thickness);
 }
 
-
 void Profile_Plot::calculate_Profile()
 {
-	qInfo() << "calculate_Profile\n\n";
-
 	get_Max_My_Sigma(multilayer->structure_Tree->tree->invisibleRootItem());
 
 	struct_Data_Vector.clear();
-	unwrap_Subtree(struct_Data_Vector, multilayer->structure_Tree->tree->invisibleRootItem());
+	unwrap_Subtree(struct_Data_Vector, multilayer->structure_Tree->tree->invisibleRootItem(), 0, 0);
 
 	// if has no substrate, add it
 	if(struct_Data_Vector.last().item_Type != item_Type_Substrate)
@@ -617,7 +603,6 @@ void Profile_Plot::calculate_Profile()
 		boundary_Vector[i+1] = boundary_Vector[i]+thickness_Vector[i];
 	}
 
-	auto start = std::chrono::system_clock::now();
 	// norm
 	// TODO optimize (before unwrapping, check similar layers ....). Now more or less OK
 	layer_Norm_Vector.resize(thickness_Vector.size());
@@ -651,9 +636,6 @@ void Profile_Plot::calculate_Profile()
 		}
 	}
 	gsl_integration_workspace_free(w);
-	auto end = std::chrono::system_clock::now();
-	auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-	qInfo() << "	norm:    "<< elapsed.count()/1000000. << " seconds" << endl << endl;
 
 	// materials and relative density
 	material_Vector.resize(struct_Data_Vector.size());
@@ -709,34 +691,47 @@ void Profile_Plot::calculate_Profile()
 	}	
 
 	// profiling
-	int data_Count=9000;
+	double step = 0.1;	// in angstroms
+	double prefix = 15;	// in angstroms
+	double suffix = 15;	// in angstroms
+	double length = prefix+boundary_Vector.last()+suffix;
+	int data_Count = ceil(length/step)+1;
+	data_Count = min(data_Count, 10000); // restriction
+	step = length/(data_Count-1);
+
 	arg.resize(data_Count);
-	val.resize(arg.size());
+	val.resize(data_Count);
 
-	auto start1 = std::chrono::system_clock::now();
-
+	// delta
 	if(multilayer->profile_Plot_Options.type == PERMITTIVITY && multilayer->profile_Plot_Options.permittivity_Type == DELTA_EPS	)
 	{
+		delta_To_Plot_Vector.resize(data_Count);
 		for(int i=0; i<data_Count; i++)
 		{
-			double z = i/30. -50;
-			arg[i]=z;
-			val[i]=real(delta_Beta_Epsilon_Func(z));
+			double z = -prefix + i*step;
+			delta_To_Plot_Vector[i].key = z/length_Coefficients_Map.value(multilayer->profile_Plot_Options.local_length_units);
+			delta_To_Plot_Vector[i].value = real(delta_Beta_Epsilon_Func(z));
+
+			arg[i] = delta_To_Plot_Vector[i].key;
+			val[i] = delta_To_Plot_Vector[i].value;
 		}
+		custom_Plot->graph(0)->data()->set(delta_To_Plot_Vector);
 	}
+	// beta
 	if(multilayer->profile_Plot_Options.type == PERMITTIVITY && multilayer->profile_Plot_Options.permittivity_Type == BETA_EPS	)
 	{
+		beta_To_Plot_Vector.resize(data_Count);
 		for(int i=0; i<data_Count; i++)
 		{
-			double z = i/30. -50;
-			arg[i]=z;
-			val[i]=imag(delta_Beta_Epsilon_Func(z));
-		}
-	}
+			double z = -prefix + i*step;
+			beta_To_Plot_Vector[i].key = z/length_Coefficients_Map.value(multilayer->profile_Plot_Options.local_length_units);
+			beta_To_Plot_Vector[i].value = imag(delta_Beta_Epsilon_Func(z));
 
-	auto end1 = std::chrono::system_clock::now();
-	auto elapsed1 = std::chrono::duration_cast<std::chrono::microseconds>(end1 - start1);
-	qInfo() << "	profile plot:    "<< elapsed1.count()/1000000. << " seconds" << endl << endl << endl;
+			arg[i] = beta_To_Plot_Vector[i].key;
+			val[i] = beta_To_Plot_Vector[i].value;
+		}
+		custom_Plot->graph(0)->data()->set(beta_To_Plot_Vector);
+	}
 }
 
 complex<double> Profile_Plot::delta_Beta_Epsilon_Func(double z)
@@ -781,7 +776,7 @@ complex<double> Profile_Plot::delta_Beta_Epsilon_Func(double z)
 	return complex<double>(delta_Epsilon,beta_Epsilon);
 }
 
-void Profile_Plot::unwrap_Subtree(QVector<Data>& struct_Data_Vector, QTreeWidgetItem* item)
+void Profile_Plot::unwrap_Subtree(QVector<Data>& struct_Data_Vector, QTreeWidgetItem* item, int num_Repetition, int period_Index)
 {
 	for(int i=0; i<item->childCount(); ++i)
 	{
@@ -792,6 +787,19 @@ void Profile_Plot::unwrap_Subtree(QVector<Data>& struct_Data_Vector, QTreeWidget
 			   struct_Data.item_Type == item_Type_Layer   ||
 			   struct_Data.item_Type == item_Type_Substrate)
 			{
+				// drift
+				if(struct_Data.item_Type == item_Type_Layer &&
+				   struct_Data.parent_Item_Type != item_Type_Regular_Aperiodic )
+				{
+					// thickness drift
+					Global_Variables::variable_Drift(struct_Data.thickness.value, struct_Data.thickness_Drift, period_Index, num_Repetition, nullptr);
+
+					// sigma drift
+					for(int func_Index=0; func_Index<transition_Layer_Functions_Size; ++func_Index)	{
+						Global_Variables::variable_Drift(struct_Data.interlayer_Composition[func_Index].my_Sigma.value, struct_Data.sigma_Drift, period_Index, num_Repetition, nullptr);
+					}
+					Global_Variables::variable_Drift(struct_Data.sigma.value, struct_Data.sigma_Drift, period_Index, num_Repetition, nullptr);
+				}
 				struct_Data_Vector.append(struct_Data);
 			}
 
@@ -812,7 +820,7 @@ void Profile_Plot::unwrap_Subtree(QVector<Data>& struct_Data_Vector, QTreeWidget
 				{
 					for(int period_Index=0; period_Index<struct_Data.num_Repetition.value(); period_Index++)
 					{
-						unwrap_Subtree(struct_Data_Vector, item->child(i));
+						unwrap_Subtree(struct_Data_Vector, item->child(i), struct_Data.num_Repetition.value(), period_Index);
 					}
 				}
 			}

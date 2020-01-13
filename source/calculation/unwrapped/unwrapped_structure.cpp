@@ -194,33 +194,6 @@ int Unwrapped_Structure::fill_Thickness_Max_Depth_2(const tree<Node>::iterator& 
 }
 */
 
-void Unwrapped_Structure::variable_Drift(double& value, Drift& drift, int period_Index, int num_Repetition)
-{
-	double drift_Factor = 1;
-	double period_Index_From_Middle = period_Index - (num_Repetition/2.-0.5);
-	if(drift.is_Drift_Line)
-	{
-		drift_Factor = drift_Factor + drift.drift_Line_Value.value*period_Index_From_Middle/100.;
-	}
-	if(drift.is_Drift_Sine)
-	{
-		drift_Factor = drift_Factor + drift.drift_Sine_Amplitude.value*sin(2*M_PI*(period_Index_From_Middle*drift.drift_Sine_Frequency.value + drift.drift_Sine_Phase.value))/100.;
-	}
-	if(drift.is_Drift_Rand)
-	{
-		drift_Factor = drift_Factor + gsl_ran_gaussian(r, drift.drift_Rand_Rms.value)/100.;
-	}
-	if(abs(drift_Factor)>=1E10) drift_Factor=1; // crutch
-	if(drift_Factor>=0)
-	{
-		value *= drift_Factor;
-	} else
-	{
-		qInfo() << "==========\nUnwrapped_Structure::variable_Drift  :  negative drifted variable!\n==========" << endl;
-		value *= abs(drift_Factor);
-	}
-}
-
 int Unwrapped_Structure::fill_Epsilon(const tree<Node>::iterator& parent, int media_Index)
 {
 	for(unsigned child_Index=0; child_Index<parent.number_of_children(); ++child_Index)
@@ -345,10 +318,10 @@ int Unwrapped_Structure::fill_Sigma(const tree<Node>::iterator& parent, int boun
 				boundary_Interlayer_Composition[boundary_Index][func_Index] = child.node->data.struct_Data.interlayer_Composition[func_Index];
 
 				// can drift
-				variable_Drift(boundary_Interlayer_Composition[boundary_Index][func_Index].my_Sigma.value, child.node->data.struct_Data.sigma_Drift, per_Index, child.node->data.struct_Data.num_Repetition.value());
+				Global_Variables::variable_Drift(boundary_Interlayer_Composition[boundary_Index][func_Index].my_Sigma.value, child.node->data.struct_Data.sigma_Drift, per_Index, child.node->data.struct_Data.num_Repetition.value(), r);
 			}
 			// can drift
-			variable_Drift(sigma[boundary_Index], child.node->data.struct_Data.sigma_Drift, per_Index, child.node->data.struct_Data.num_Repetition.value());
+			Global_Variables::variable_Drift(sigma[boundary_Index], child.node->data.struct_Data.sigma_Drift, per_Index, child.node->data.struct_Data.num_Repetition.value(), r);
 			++boundary_Index;
 		}
 		if( child.node->data.struct_Data.item_Type == item_Type_Substrate )
@@ -410,7 +383,7 @@ int Unwrapped_Structure::fill_Thickness(const tree<Node>::iterator& parent, int 
 			thickness[layer_Index] = child.node->data.struct_Data.thickness.value;
 
 			// can drift
-			variable_Drift(thickness[layer_Index], child.node->data.struct_Data.thickness_Drift, per_Index, child.node->data.struct_Data.num_Repetition.value());
+			Global_Variables::variable_Drift(thickness[layer_Index], child.node->data.struct_Data.thickness_Drift, per_Index, child.node->data.struct_Data.num_Repetition.value(), r);
 
 			++layer_Index;
 		}

@@ -56,9 +56,7 @@ void Profile_Plots_Window::contextMenuEvent(QContextMenuEvent *event)
 				multilayer->profile_Plot_Options.local_length_units = length_Units_List[index];
 
 				profile_Plot_Vector[main_Tabs->currentIndex()]->custom_Plot->xAxis->setLabel("Depth, "+multilayer->profile_Plot_Options.local_length_units);
-				profile_Plot_Vector[main_Tabs->currentIndex()]->custom_Plot->replot();
-
-				// TODO change argument
+				profile_Plot_Vector[main_Tabs->currentIndex()]->plot_Data(true);
 			});
 		}
 	}
@@ -171,6 +169,6 @@ void Profile_Plots_Window::refresh_Plots()
 {
 	for(Profile_Plot* profile_Plot: profile_Plot_Vector)
 	{
-		profile_Plot->plot_Data(true);
+		profile_Plot->plot_Data();
 	}
 }

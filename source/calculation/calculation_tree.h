@@ -6,9 +6,6 @@
 #include "unwrapped/unwrapped_reflection.h"
 #include "unwrapped/unwrapped_structure.h"
 
-#include <gsl/gsl_rng.h>
-#include <gsl/gsl_randist.h>
-
 using namespace std;
 
 template <class Type>

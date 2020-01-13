@@ -1184,6 +1184,33 @@ void Global_Variables::replot_All_Graphs()
 	}
 }
 
+void Global_Variables::variable_Drift(double &value, Drift &drift, int period_Index, int num_Repetition, gsl_rng* r)
+{
+	double drift_Factor = 1;
+	double period_Index_From_Middle = period_Index - (num_Repetition/2.-0.5);
+	if(drift.is_Drift_Line)
+	{
+		drift_Factor = drift_Factor + drift.drift_Line_Value.value*period_Index_From_Middle/100.;
+	}
+	if(drift.is_Drift_Sine)
+	{
+		drift_Factor = drift_Factor + drift.drift_Sine_Amplitude.value*sin(2*M_PI*(period_Index_From_Middle*drift.drift_Sine_Frequency.value + drift.drift_Sine_Phase.value))/100.;
+	}
+	if(drift.is_Drift_Rand && r!=nullptr)
+	{
+		drift_Factor = drift_Factor + gsl_ran_gaussian(r, drift.drift_Rand_Rms.value)/100.;
+	}
+	if(abs(drift_Factor)>=1E10) drift_Factor=1; // crutch
+	if(drift_Factor>=0)
+	{
+		value *= drift_Factor;
+	} else
+	{
+		qInfo() << "==========\nUnwrapped_Structure::variable_Drift  :  negative drifted variable!\n==========" << endl;
+		value *= abs(drift_Factor);
+	}
+}
+
 double Global_Variables::theta_Function(double z)
 {
 	if(z<0)  return 0;

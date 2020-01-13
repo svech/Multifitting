@@ -14,9 +14,9 @@ public:
 	void create_Main_Layout();
 	void create_Left_Side();
 	void create_Plot_Frame_And_Scale();
-	void plot_Data(bool fast = false);
+	void plot_Data(bool recalculate_Profile = false);
 	void calculate_Profile();
-	void unwrap_Subtree(QVector<Data>& struct_Data_Vector, QTreeWidgetItem* item);
+	void unwrap_Subtree(QVector<Data>& struct_Data_Vector, QTreeWidgetItem* item, int num_Repetition, int period_Index);
 	void get_Max_My_Sigma(QTreeWidgetItem* item);
 	complex<double> delta_Beta_Epsilon_Func(double z);
 
@@ -51,6 +51,7 @@ public:
 
 
 	QCustomPlot* custom_Plot;
+	QScrollBar* horizontall_Scrollbar;
 
 	double max_Sigma = 0.1;
 	QVector<Data> struct_Data_Vector;
@@ -63,6 +64,20 @@ public:
 	QVector<double> layer_Norm_Vector;
 	QVector<QString> different_Materials;
 
+	/// data to plot
+	// permittivity
+	QVector<QCPGraphData> delta_To_Plot_Vector;
+	QVector<QCPGraphData> beta_To_Plot_Vector;
+
+	// materials
+	QVector<QVector<QCPGraphData>> materials_To_Plot_Vector_Vector;
+	QVector<QString> material_Labels_Vector;
+
+	// elements
+	QVector<QVector<QCPGraphData>> elements_To_Plot_Vector_Vector;
+	QVector<QString> elements_Labels_Vector;
+
+	// general
 	QVector<double> arg;
 	QVector<double> val;
 };
