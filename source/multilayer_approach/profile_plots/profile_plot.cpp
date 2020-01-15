@@ -705,6 +705,7 @@ void Profile_Plot::calculate_Profile()
 
 	auto start3 = std::chrono::system_clock::now();
 	// materials, elements and relative density
+	// TODO optimize
 	different_Materials.clear();
 	different_Elements.clear();
 
