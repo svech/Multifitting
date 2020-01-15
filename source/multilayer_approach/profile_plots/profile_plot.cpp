@@ -15,11 +15,34 @@ void Profile_Plot::create_Main_Layout()
 	main_Layout->setContentsMargins(4,4,4,0);
 
 	custom_Plot = new QCustomPlot(this);
+	custom_Plot->addGraph();
+
 	horizontall_Scrollbar = new QScrollBar(Qt::Horizontal);
+	connect(horizontall_Scrollbar, &QScrollBar::valueChanged, this, &Profile_Plot::horizontall_ScrollbarChanged);
+	connect(custom_Plot->xAxis, static_cast<void(QCPAxis::*)(const QCPRange&)>(&QCPAxis::rangeChanged), this, &Profile_Plot::x_Axis_RangeChanged);
+	horizontall_Scrollbar->blockSignals(true);
+
+	// synchronize selection of graphs with selection of corresponding legend items:
+	connect(custom_Plot, &QCustomPlot::selectionChangedByUser, this, [=]
+	{
+		for (int i=0; i<custom_Plot->graphCount(); ++i)
+		{
+			QCPGraph *graph = custom_Plot->graph(i);
+			QCPPlottableLegendItem *item = custom_Plot->legend->itemWithPlottable(graph);
+			if (item->selected() || graph->selected())
+			{
+				item->setSelected(true);
+				graph->setSelection(QCPDataSelection(graph->data()->dataRange()));
+			}
+		}
+	});
+	custom_Plot->legend->setSelectableParts(QCPLegend::spItems);
+	custom_Plot->legend->setSelectedIconBorderPen(QPen(Qt::black, 1));
 
 	if(multilayer->profile_Plot_Options.show_Cursor_Position)
 	{
 		QCPItemText* text_Item = new QCPItemText(custom_Plot);
+		text_Item->setText("");
 		connect(custom_Plot, &QCustomPlot::mouseMove, this, [=](QMouseEvent *event)
 		{
 			double x       = custom_Plot->xAxis->pixelToCoord(event->pos().x());
@@ -40,6 +63,21 @@ void Profile_Plot::create_Main_Layout()
 	plot_Bar_Layout->addWidget(horizontall_Scrollbar);
 
 	custom_Plot->xAxis->setLabel("Depth, "+multilayer->profile_Plot_Options.local_length_units);
+}
+
+void Profile_Plot::horizontall_ScrollbarChanged(int value)
+{
+	if (qAbs(custom_Plot->xAxis->range().center()-value/scrollbar_Factor) > 1./scrollbar_Factor) // if user is dragging plot, we don't want to replot twice
+	{
+		custom_Plot->xAxis->setRange(value/scrollbar_Factor, custom_Plot->xAxis->range().size(), Qt::AlignCenter);
+		custom_Plot->replot();
+	}
+}
+
+void Profile_Plot::x_Axis_RangeChanged(const QCPRange& range)
+{
+	horizontall_Scrollbar->setValue(qRound(range.center()*scrollbar_Factor)); // adjust position of scroll bar slider
+	horizontall_Scrollbar->setPageStep(qRound(range.size()*scrollbar_Factor)); // adjust size of scroll bar slider
 }
 
 void Profile_Plot::create_Left_Side()
@@ -103,7 +141,6 @@ void Profile_Plot::create_Left_Side()
 					lin_Y_RadioButton->setDisabled(true);
 					log_Y_RadioButton->setDisabled(true);
 
-//					qInfo() << "delta_RadioButton" << endl;
 					plot_Data(true);
 				}
 			});
@@ -122,7 +159,6 @@ void Profile_Plot::create_Left_Side()
 					lin_Y_RadioButton->setDisabled(false);
 					log_Y_RadioButton->setDisabled(false);
 
-//					qInfo() << "beta_RadioButton" << endl;
 					plot_Data(true);
 				}
 			});
@@ -169,8 +205,6 @@ void Profile_Plot::create_Left_Side()
 					custom_Plot->yAxis->setLabel("Relative density");
 
 					permittivity_RadioButton->clicked(permittivity_RadioButton->isChecked());
-
-//					qInfo() << "materials_RadioButton" << endl;
 					plot_Data(true);
 				}
 			});
@@ -179,8 +213,6 @@ void Profile_Plot::create_Left_Side()
 		// elements
 		// ----------------------------------------------------
 		elements_RadioButton = new QRadioButton("Elements");
-			// TODO
-			elements_RadioButton->setDisabled(true);
 			value_Type_Layout->addWidget(elements_RadioButton);
 			connect(elements_RadioButton, &QRadioButton::clicked, this, [=]
 			{
@@ -188,11 +220,9 @@ void Profile_Plot::create_Left_Side()
 				if(checked)
 				{
 					multilayer->profile_Plot_Options.type = ELEMENTS;
-					custom_Plot->yAxis->setLabel("Absolute concentration, "+Multiply_Sym+"10"+Power_23_Sym+" cm"+Minus_Three_Sym);
+					custom_Plot->yAxis->setLabel("Absolute concentration, cm"+Minus_Three_Sym);
 
 					permittivity_RadioButton->clicked(permittivity_RadioButton->isChecked());
-
-//					qInfo() << "elements_RadioButton" << endl;
 					plot_Data(true);
 				}
 			});
@@ -439,7 +469,7 @@ void Profile_Plot::create_Plot_Frame_And_Scale()
 		}
 
 		// make range draggable and zoomable:
-		custom_Plot->setInteractions(QCP::iSelectPlottables | QCP::iRangeDrag | QCP::iRangeZoom | /*QCP::iSelectAxes |*/ QCP::iSelectLegend);
+		custom_Plot->setInteractions(QCP::iSelectPlottables | QCP::iRangeDrag | QCP::iRangeZoom /*| QCP::iSelectAxes*/ | QCP::iSelectLegend);
 
 		// make top right axes clones of bottom left axes:
 		custom_Plot->xAxis2->setVisible(true);
@@ -448,7 +478,6 @@ void Profile_Plot::create_Plot_Frame_And_Scale()
 
 		connect(custom_Plot->xAxis, SIGNAL(rangeChanged(QCPRange)), custom_Plot->xAxis2, SLOT(setRange(QCPRange)));
 		connect(custom_Plot->yAxis, SIGNAL(rangeChanged(QCPRange)), custom_Plot->yAxis2, SLOT(setRange(QCPRange)));
-
 
 		connect(custom_Plot->xAxis, static_cast<void(QCPAxis::*)(const QCPRange&)>(&QCPAxis::rangeChanged), this, [=](const QCPRange&)
 		{
@@ -468,23 +497,10 @@ void Profile_Plot::plot_Data(bool recalculate_Profile)
 {
 	create_Plot_Frame_And_Scale();
 
-	if(custom_Plot->graphCount()!=1)
-	{
-		custom_Plot->clearGraphs();
-		custom_Plot->addGraph();
-	}
-	custom_Plot->graph(0)->setPen(QPen(custom_Plot->graph(0)->pen().color(), 1.3));
-
 	// data
 	if(recalculate_Profile)
 	{
-		auto start = std::chrono::system_clock::now();
-
 		calculate_Profile();
-
-		auto end = std::chrono::system_clock::now();
-		auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-		qInfo() << "	profile plot:    "<< elapsed.count()/1000000. << " seconds" << endl << endl << endl;
 	}
 
 	// rescaling
@@ -497,16 +513,50 @@ void Profile_Plot::plot_Data(bool recalculate_Profile)
 		double maximum_Raw = *std::max_element(val.constBegin(), val.constEnd());
 
 		maximum = maximum_Raw + (maximum_Raw-minimum_Raw)*0.08;
-		minimum = minimum_Raw - (maximum_Raw-minimum_Raw)*0.08;
+		minimum = minimum_Raw - (maximum_Raw-minimum_Raw)*0.05;
 	}
 	if(multilayer->profile_Plot_Options.y_Scale == log_Scale &&
 	   (multilayer->profile_Plot_Options.type != PERMITTIVITY ||
 		multilayer->profile_Plot_Options.permittivity_Type != DELTA_EPS))
 	{
-		// val is changing here (removing zeros)
-		val.removeAll(0);
-		double maximum_Raw_Non_Zero = *std::max_element(val.constBegin(), val.constEnd()); val.removeAll(0);
-		double minimum_Raw_Non_Zero = *std::min_element(val.constBegin(), val.constEnd()); val.removeAll(0);
+		QVector<double> val_Non_Zero;
+
+		// removing zeros
+		if(multilayer->profile_Plot_Options.type == PERMITTIVITY)
+		{
+			QVector<double> val_Non_Zero = val;
+			for(int i=val_Non_Zero.size()-1; i>=0; i--)
+			{
+				if(arg[i]<0 || arg[i]>boundary_Vector.last() || val_Non_Zero[i]<default_logarithmic_threshold_beta) {val_Non_Zero.remove(i);}
+			}
+		}
+		if(multilayer->profile_Plot_Options.type == MATERIAL)
+		{
+			val_Non_Zero.clear();
+			for(int material_index = 0; material_index<different_Materials.size(); material_index++)
+			{
+				for(int i=val_Multiple[material_index].size()-1; i>=0; i--)
+				{
+					if(arg[i]<0 || arg[i]>boundary_Vector.last() || val_Multiple[material_index][i]<default_logarithmic_threshold_material_density) {val_Multiple[material_index].remove(i);}
+				}
+				val_Non_Zero.append(val_Multiple[material_index]);
+			}
+		}
+		if( multilayer->profile_Plot_Options.type == ELEMENTS)
+		{
+			val_Non_Zero.clear();
+			for(int element_index = 0; element_index<different_Elements.size(); element_index++)
+			{
+				for(int i=val_Multiple[element_index].size()-1; i>=0; i--)
+				{
+					if(arg[i]<0 || arg[i]>boundary_Vector.last() || val_Multiple[element_index][i]<default_logarithmic_threshold_element_concentration) {val_Multiple[element_index].remove(i);}
+				}
+				val_Non_Zero.append(val_Multiple[element_index]);
+			}
+		}
+
+		double maximum_Raw_Non_Zero = *std::max_element(val_Non_Zero.constBegin(), val_Non_Zero.constEnd());
+		double minimum_Raw_Non_Zero = *std::min_element(val_Non_Zero.constBegin(), val_Non_Zero.constEnd());
 
 		maximum = maximum_Raw_Non_Zero*1.5;
 		minimum = minimum_Raw_Non_Zero/1.5;
@@ -514,8 +564,13 @@ void Profile_Plot::plot_Data(bool recalculate_Profile)
 
 	if(multilayer->profile_Plot_Options.rescale_X)	{ custom_Plot->xAxis->setRange(arg.first(), arg.last());	}
 	else											{ custom_Plot->xAxis->setRange(multilayer->profile_Plot_Options.old_X_Begin, multilayer->profile_Plot_Options.old_X_End);}
-	if(multilayer->profile_Plot_Options.rescale_Y)	{ custom_Plot->yAxis->setRange(minimum,maximum);			}
+	if(multilayer->profile_Plot_Options.rescale_Y)	{ custom_Plot->yAxis->setRange(minimum, maximum);			}
 	else											{ custom_Plot->yAxis->setRange(multilayer->profile_Plot_Options.old_Y_Begin, multilayer->profile_Plot_Options.old_Y_End);}
+
+	// scrollbar
+	horizontall_Scrollbar->setRange(arg.first()*scrollbar_Factor, arg.last()*scrollbar_Factor);
+	custom_Plot->xAxis->rangeChanged(custom_Plot->xAxis->range());
+	horizontall_Scrollbar->blockSignals(false);
 
 	custom_Plot->replot();
 }
@@ -576,6 +631,8 @@ bool operator ==( const Different_Norm_Layer& different_Norm_Layer_Left, const D
 
 void Profile_Plot::calculate_Profile()
 {
+	auto start1 = std::chrono::system_clock::now();
+
 	get_Max_My_Sigma(multilayer->structure_Tree->tree->invisibleRootItem());
 
 	struct_Data_Vector.clear();
@@ -603,8 +660,13 @@ void Profile_Plot::calculate_Profile()
 		boundary_Vector[i+1] = boundary_Vector[i]+thickness_Vector[i];
 	}
 
+	auto end1 = std::chrono::system_clock::now();
+	auto elapsed1 = std::chrono::duration_cast<std::chrono::microseconds>(end1 - start1);
+	qInfo() << "	unwrap_Subtree:    "<< elapsed1.count()/1000000. << " seconds" << endl << endl << endl;
+
+	auto start2 = std::chrono::system_clock::now();
 	// norm
-	// TODO optimize (before unwrapping, check similar layers ....). Now more or less OK
+	// optimize (before unwrapping, check similar layers ....). Now more or less OK
 	layer_Norm_Vector.resize(thickness_Vector.size());
 	QList<Different_Norm_Layer> different_Norm_Layer;
 	Different_Norm_Layer temp_Dif_Norm;
@@ -637,11 +699,18 @@ void Profile_Plot::calculate_Profile()
 	}
 	gsl_integration_workspace_free(w);
 
-	// materials and relative density
-	material_Vector.resize(struct_Data_Vector.size());
-	density_Vector.resize(struct_Data_Vector.size());
-	delta_Epsilon_Vector.resize(struct_Data_Vector.size());
-	beta_Epsilon_Vector.resize(struct_Data_Vector.size());
+	auto end2 = std::chrono::system_clock::now();
+	auto elapsed2 = std::chrono::duration_cast<std::chrono::microseconds>(end2 - start2);
+	qInfo() << "	norm:    "<< elapsed2.count()/1000000. << " seconds" << endl << endl << endl;
+
+	auto start3 = std::chrono::system_clock::now();
+	// materials, elements and relative density
+	different_Materials.clear();
+	different_Elements.clear();
+
+	delta_Epsilon_Vector.clear();			  delta_Epsilon_Vector.resize(struct_Data_Vector.size());
+	beta_Epsilon_Vector.clear();			  beta_Epsilon_Vector.resize(struct_Data_Vector.size());
+	element_Concentration_Map_Vector.clear(); element_Concentration_Map_Vector.resize(struct_Data_Vector.size());
 
 	complex<double> delta_Epsilon_Ang;
 	QVector<double> spectral_Points (1, multilayer->profile_Plot_Data.local_Wavelength);
@@ -650,50 +719,77 @@ void Profile_Plot::calculate_Profile()
 		Data& struct_Data = struct_Data_Vector[i];
 		if(struct_Data.composed_Material)
 		{
-			material_Vector[i] = struct_Data.get_Composed_Material();
-
-			double stoich_Weight = DBL_MIN;
-			double auto_Density = 0;
-			for(int comp_Index=0; comp_Index<struct_Data.composition.size(); ++comp_Index)
+			if(multilayer->profile_Plot_Options.type == ELEMENTS)
 			{
-				auto_Density += sorted_Density.value(struct_Data.composition[comp_Index].type)*struct_Data.composition[comp_Index].composition.value;
-				stoich_Weight += struct_Data.composition[comp_Index].composition.value;
+				double denominator = 0;
+				for(int comp_Index=0; comp_Index<struct_Data.composition.size(); ++comp_Index)
+				{
+					denominator += struct_Data.composition[comp_Index].composition.value * sorted_Elements.value(struct_Data.composition[comp_Index].type);
+				}
+				if(abs(denominator)<DBL_EPSILON) {denominator = DBL_EPSILON;}
+				double compound_Concentration = Na * struct_Data.absolute_Density.value / denominator;
+
+				for(int comp_Index=0; comp_Index<struct_Data.composition.size(); ++comp_Index)
+				{
+					QString element = struct_Data.composition[comp_Index].type;
+					double element_Concentration = compound_Concentration * struct_Data.composition[comp_Index].composition.value;
+
+					if(!element_Concentration_Map_Vector[i].contains(element))
+					{
+						// if doesn't have such element in this layer
+						element_Concentration_Map_Vector[i].insert(element, element_Concentration);
+					} else
+					{
+						// adds concentration to existing element
+						element_Concentration_Map_Vector[i].insert(element, element_Concentration_Map_Vector[i].value(element)+element_Concentration);
+					}
+
+					if(!different_Elements.contains(element))
+					{
+						different_Elements.append(element);
+					}
+				}
 			}
-			density_Vector[i] = struct_Data.absolute_Density.value/(auto_Density/stoich_Weight);
 
-			// get epsilon
-			QVector<complex<double>> temp_Epsilon;
-			optical_Constants->make_Epsilon_From_Factors(struct_Data.composition, struct_Data.absolute_Density.value, spectral_Points, temp_Epsilon);
-			delta_Epsilon_Ang = 1. - temp_Epsilon.first();
-
-			delta_Epsilon_Vector[i] = real(delta_Epsilon_Ang);
-			beta_Epsilon_Vector [i] = imag(delta_Epsilon_Ang);
+			if(multilayer->profile_Plot_Options.type == PERMITTIVITY)
+			{
+				// get epsilon
+				QVector<complex<double>> temp_Epsilon;
+				optical_Constants->make_Epsilon_From_Factors(struct_Data.composition, struct_Data.absolute_Density.value, spectral_Points, temp_Epsilon);
+				delta_Epsilon_Ang = 1. - temp_Epsilon.first();
+			}
 		} else
 		{
-			material_Vector[i] = struct_Data.approved_Material;
-			density_Vector[i] = struct_Data.relative_Density.value;
-
-			// get epsilon
-			Material_Data temp_Material_Data = optical_Constants->material_Map.value(struct_Data.approved_Material + nk_Ext);
-			QVector<complex<double>> n;
-			optical_Constants->interpolation_Epsilon(temp_Material_Data.material_Data, spectral_Points, n, struct_Data.approved_Material);
-			delta_Epsilon_Ang = 1. - n.first()*n.first();
-
-			delta_Epsilon_Vector[i] = real(delta_Epsilon_Ang);
-			beta_Epsilon_Vector [i] = -imag(delta_Epsilon_Ang); // make it positive
+			if(multilayer->profile_Plot_Options.type == MATERIAL)
+			{
+				if(!different_Materials.contains(struct_Data.approved_Material) && struct_Data.approved_Material!="Vacuum")
+				{
+					different_Materials.append(struct_Data.approved_Material);
+				}
+			}
+			if(multilayer->profile_Plot_Options.type == PERMITTIVITY)
+			{
+				// get epsilon
+				Material_Data temp_Material_Data = optical_Constants->material_Map.value(struct_Data.approved_Material + nk_Ext);
+				QVector<complex<double>> n;
+				optical_Constants->interpolation_Epsilon(temp_Material_Data.material_Data, spectral_Points, n, struct_Data.approved_Material);
+				delta_Epsilon_Ang = 1. - n.first()*n.first();
+			}
 		}
+		delta_Epsilon_Vector[i] =  real(delta_Epsilon_Ang);
+		beta_Epsilon_Vector [i] = -imag(delta_Epsilon_Ang);
 	}
-	// find different materials
-	different_Materials.clear();
-	for(int i=0; i<material_Vector.size(); i++)
-	{
-		if(!different_Materials.contains(material_Vector[i])) different_Materials.append(material_Vector[i]);
-	}	
+
+	auto end3 = std::chrono::system_clock::now();
+	auto elapsed3 = std::chrono::duration_cast<std::chrono::microseconds>(end3 - start3);
+	qInfo() << "	layer profiling:    "<< elapsed3.count()/1000000. << " seconds" << endl << endl << endl;
+
+	auto start4 = std::chrono::system_clock::now();
 
 	// profiling
 	double step = 0.1;	// in angstroms
-	double prefix = 15;	// in angstroms
-	double suffix = 15;	// in angstroms
+	double prefix = max(15., 3*max_Sigma);	// in angstroms
+	double suffix = max(15., 3*max_Sigma);	// in angstroms
 	double length = prefix+boundary_Vector.last()+suffix;
 	int data_Count = ceil(length/step)+1;
 	data_Count = min(data_Count, 10000); // restriction
@@ -704,7 +800,9 @@ void Profile_Plot::calculate_Profile()
 
 	// delta
 	if(multilayer->profile_Plot_Options.type == PERMITTIVITY && multilayer->profile_Plot_Options.permittivity_Type == DELTA_EPS	)
-	{
+	{		
+		custom_Plot->clearGraphs();
+		custom_Plot->addGraph();
 		delta_To_Plot_Vector.resize(data_Count);
 		for(int i=0; i<data_Count; i++)
 		{
@@ -716,10 +814,15 @@ void Profile_Plot::calculate_Profile()
 			val[i] = delta_To_Plot_Vector[i].value;
 		}
 		custom_Plot->graph(0)->data()->set(delta_To_Plot_Vector);
+		custom_Plot->graph(0)->setPen(QPen(Qt::blue, default_Profile_Line_Thickness));
+		custom_Plot->graph(0)->selectionDecorator()->setPen(QPen(custom_Plot->graph(0)->pen().color(),selected_Profile_Line_Thickness));
+		custom_Plot->legend->setVisible(false);
 	}
 	// beta
 	if(multilayer->profile_Plot_Options.type == PERMITTIVITY && multilayer->profile_Plot_Options.permittivity_Type == BETA_EPS	)
 	{
+		custom_Plot->clearGraphs();
+		custom_Plot->addGraph();
 		beta_To_Plot_Vector.resize(data_Count);
 		for(int i=0; i<data_Count; i++)
 		{
@@ -731,10 +834,80 @@ void Profile_Plot::calculate_Profile()
 			val[i] = beta_To_Plot_Vector[i].value;
 		}
 		custom_Plot->graph(0)->data()->set(beta_To_Plot_Vector);
+		custom_Plot->graph(0)->setPen(QPen(Qt::red, default_Profile_Line_Thickness));
+		custom_Plot->graph(0)->selectionDecorator()->setPen(QPen(custom_Plot->graph(0)->pen().color(),selected_Profile_Line_Thickness));
+		custom_Plot->legend->setVisible(false);
 	}
+	// materials
+	if(multilayer->profile_Plot_Options.type == MATERIAL)
+	{
+		val_Multiple.resize(different_Materials.size());
+
+		custom_Plot->clearGraphs();
+		//materials_To_Plot_Vector_Vector.resize(different_Materials.size());
+		for(int material_index = 0; material_index<different_Materials.size(); material_index++)
+		{
+			custom_Plot->addGraph();
+			QVector<QCPGraphData> one_Material_To_Plot_Vector; one_Material_To_Plot_Vector.resize(data_Count);
+			for(int i=0; i<data_Count; i++)
+			{
+				double z = -prefix + i*step;
+				one_Material_To_Plot_Vector[i].key = z/length_Coefficients_Map.value(multilayer->profile_Plot_Options.local_length_units);
+				one_Material_To_Plot_Vector[i].value = real(delta_Beta_Epsilon_Func(z, different_Materials[material_index]));
+
+				arg[i] = one_Material_To_Plot_Vector[i].key; // many times, but OK
+				val[i] = one_Material_To_Plot_Vector[i].value;
+			}
+			val_Multiple[material_index] = val;
+			//materials_To_Plot_Vector_Vector[material_index] = one_Material_To_Plot_Vector;
+			custom_Plot->graph(material_index)->data()->set(one_Material_To_Plot_Vector);
+			custom_Plot->graph(material_index)->setPen(QPen(color_Contrast_Sequence[material_index%color_Contrast_Sequence.size()], default_Profile_Line_Thickness));
+			custom_Plot->graph(material_index)->selectionDecorator()->setPen(QPen(custom_Plot->graph(material_index)->pen().color(),selected_Profile_Line_Thickness));
+			custom_Plot->graph(material_index)->setName(different_Materials[material_index]);
+			custom_Plot->legend->item(material_index)->setTextColor(color_Contrast_Sequence[material_index%color_Contrast_Sequence.size()]);
+			custom_Plot->legend->item(material_index)->setSelectedTextColor(color_Contrast_Sequence[material_index%color_Contrast_Sequence.size()]);
+		}
+		custom_Plot->legend->setVisible(true);
+		custom_Plot->axisRect()->insetLayout()->setInsetAlignment(0, Qt::AlignRight/*|Qt::AlignTop*/);
+	}
+	// elements
+	if(multilayer->profile_Plot_Options.type == ELEMENTS)
+	{
+		val_Multiple.resize(different_Elements.size());
+
+		custom_Plot->clearGraphs();
+		//elements_To_Plot_Vector_Vector.resize(different_Elements.size());
+		for(int element_Index = 0; element_Index<different_Elements.size(); element_Index++)
+		{
+			custom_Plot->addGraph();
+			QVector<QCPGraphData> one_Element_To_Plot_Vector; one_Element_To_Plot_Vector.resize(data_Count);
+			for(int i=0; i<data_Count; i++)
+			{
+				double z = -prefix + i*step;
+				one_Element_To_Plot_Vector[i].key = z/length_Coefficients_Map.value(multilayer->profile_Plot_Options.local_length_units);
+				one_Element_To_Plot_Vector[i].value = real(delta_Beta_Epsilon_Func(z, different_Elements[element_Index]));
+
+				arg[i] = one_Element_To_Plot_Vector[i].key; // many times, but OK
+				val[i] = one_Element_To_Plot_Vector[i].value;
+			}
+			val_Multiple[element_Index] = val;
+			//elements_To_Plot_Vector_Vector[material_index] = one_Element_To_Plot_Vector;
+			custom_Plot->graph(element_Index)->data()->set(one_Element_To_Plot_Vector);
+			custom_Plot->graph(element_Index)->setPen(QPen(color_Contrast_Sequence[element_Index%color_Contrast_Sequence.size()], default_Profile_Line_Thickness));
+			custom_Plot->graph(element_Index)->selectionDecorator()->setPen(QPen(custom_Plot->graph(element_Index)->pen().color(),selected_Profile_Line_Thickness));
+			custom_Plot->graph(element_Index)->setName(different_Elements[element_Index]);
+			custom_Plot->legend->item(element_Index)->setTextColor(color_Contrast_Sequence[element_Index%color_Contrast_Sequence.size()]);
+			custom_Plot->legend->item(element_Index)->setSelectedTextColor(color_Contrast_Sequence[element_Index%color_Contrast_Sequence.size()]);
+		}
+		custom_Plot->legend->setVisible(true);
+		custom_Plot->axisRect()->insetLayout()->setInsetAlignment(0, Qt::AlignRight/*|Qt::AlignTop*/);
+	}
+	auto end4 = std::chrono::system_clock::now();
+	auto elapsed4 = std::chrono::duration_cast<std::chrono::microseconds>(end4 - start4);
+	qInfo() << "	full profiling:    "<< elapsed4.count()/1000000. << " seconds" << endl << endl << endl;
 }
 
-complex<double> Profile_Plot::delta_Beta_Epsilon_Func(double z)
+complex<double> Profile_Plot::delta_Beta_Epsilon_Func(double z, QString given_Material_or_Element)
 {
 	// where we are
 	int min_Boundary_Index = -2019;
@@ -757,21 +930,79 @@ complex<double> Profile_Plot::delta_Beta_Epsilon_Func(double z)
 	double delta_Epsilon = 0;
 	double beta_Epsilon = 0;
 	double geometry_Factor = 1;
-	for(int j=min_Boundary_Index; j<=max_Boundary_Index; j++) // instead of old slow for(int j=0; j<thickness_Vector.size(); j++)
-	{
-		geometry_Factor = layer_Norm_Vector[j] *
-				Global_Variables::interface_Profile_Function(z-boundary_Vector[j  ], struct_Data_Vector[j+1].interlayer_Composition) *
-				Global_Variables::interface_Profile_Function(boundary_Vector[j+1]-z, struct_Data_Vector[j+2].interlayer_Composition);
 
-		delta_Epsilon += delta_Epsilon_Vector[j+1] * geometry_Factor;
-		beta_Epsilon  += beta_Epsilon_Vector [j+1] * geometry_Factor;
+	// permittivity
+	if(multilayer->profile_Plot_Options.type == PERMITTIVITY)
+	{
+		for(int j=min_Boundary_Index; j<=max_Boundary_Index; j++) // instead of old slow for(int j=0; j<thickness_Vector.size(); j++)
+		{
+			geometry_Factor = layer_Norm_Vector[j] *
+					Global_Variables::interface_Profile_Function(z-boundary_Vector[j  ], struct_Data_Vector[j+1].interlayer_Composition) *
+					Global_Variables::interface_Profile_Function(boundary_Vector[j+1]-z, struct_Data_Vector[j+2].interlayer_Composition);
+
+			delta_Epsilon += delta_Epsilon_Vector[j+1] * geometry_Factor;
+			beta_Epsilon  += beta_Epsilon_Vector [j+1] * geometry_Factor;
+		}
+		if(max_Boundary_Index>=thickness_Vector.size()-1)
+		{
+			geometry_Factor = Global_Variables::interface_Profile_Function(z-boundary_Vector.last(), struct_Data_Vector.last().interlayer_Composition);
+
+			delta_Epsilon += delta_Epsilon_Vector.last() * geometry_Factor;
+			beta_Epsilon  += beta_Epsilon_Vector. last() * geometry_Factor;
+		}
 	}
-	if(max_Boundary_Index>=thickness_Vector.size()-1)
+	// material
+	if(multilayer->profile_Plot_Options.type == MATERIAL)
 	{
-		geometry_Factor = Global_Variables::interface_Profile_Function(z-boundary_Vector.last(), struct_Data_Vector.last().interlayer_Composition);
+		for(int j=min_Boundary_Index; j<=max_Boundary_Index; j++) // instead of old slow for(int j=0; j<thickness_Vector.size(); j++)
+		{
+			Data& struct_Data = struct_Data_Vector[j+1];
+			if(!struct_Data.composed_Material && struct_Data.approved_Material == given_Material_or_Element)
+			{
+				geometry_Factor = layer_Norm_Vector[j] *
+						Global_Variables::interface_Profile_Function(z-boundary_Vector[j  ], struct_Data_Vector[j+1].interlayer_Composition) *
+						Global_Variables::interface_Profile_Function(boundary_Vector[j+1]-z, struct_Data_Vector[j+2].interlayer_Composition);
 
-		delta_Epsilon += delta_Epsilon_Vector.last() * geometry_Factor;
-		beta_Epsilon  += beta_Epsilon_Vector. last() * geometry_Factor;
+				delta_Epsilon += struct_Data_Vector[j+1].relative_Density.value * geometry_Factor;
+			}
+		}
+		if(max_Boundary_Index>=thickness_Vector.size()-1)
+		{
+			if(!struct_Data_Vector.last().composed_Material && struct_Data_Vector.last().approved_Material == given_Material_or_Element)
+			{
+				geometry_Factor = Global_Variables::interface_Profile_Function(z-boundary_Vector.last(), struct_Data_Vector.last().interlayer_Composition);
+
+				delta_Epsilon += struct_Data_Vector.last().relative_Density.value * geometry_Factor;
+			}
+		}
+	}
+	// element
+	if(multilayer->profile_Plot_Options.type == ELEMENTS)
+	{
+		for(int j=min_Boundary_Index; j<=max_Boundary_Index; j++) // instead of old slow for(int j=0; j<thickness_Vector.size(); j++)
+		{
+			Data& struct_Data = struct_Data_Vector[j+1];
+			double concentration = element_Concentration_Map_Vector[j+1].value(given_Material_or_Element);
+
+			if(struct_Data.composed_Material && concentration>DBL_EPSILON)
+			{
+				geometry_Factor = layer_Norm_Vector[j] *
+						Global_Variables::interface_Profile_Function(z-boundary_Vector[j  ], struct_Data_Vector[j+1].interlayer_Composition) *
+						Global_Variables::interface_Profile_Function(boundary_Vector[j+1]-z, struct_Data_Vector[j+2].interlayer_Composition);
+
+				delta_Epsilon += concentration * geometry_Factor;
+			}
+		}
+		if(max_Boundary_Index>=thickness_Vector.size()-1)
+		{
+			double concentration = element_Concentration_Map_Vector.last().value(given_Material_or_Element);
+			if(struct_Data_Vector.last().composed_Material && concentration>DBL_EPSILON)
+			{
+				geometry_Factor = Global_Variables::interface_Profile_Function(z-boundary_Vector.last(), struct_Data_Vector.last().interlayer_Composition);
+
+				delta_Epsilon += concentration * geometry_Factor;
+			}
+		}
 	}
 	return complex<double>(delta_Epsilon,beta_Epsilon);
 }

@@ -212,6 +212,9 @@ double default_angular_resolution;
 double default_polarization;
 double default_spectral_resolution;
 double default_polarization_sensitivity;
+double default_logarithmic_threshold_beta;
+double default_logarithmic_threshold_material_density;
+double default_logarithmic_threshold_element_concentration;
 
 // -----------------------------------------------------------------------------------------
 
@@ -730,19 +733,21 @@ void Settings::read_Parameters_Default_Values(bool reset_to_default)
 
 	// parameters default values
 	parameters_Default_Values.beginGroup( Independent_Values );
-		default_num_angular_points		 = parameters_Default_Values.value( "default_num_angular_points",		1000	).toInt();
-		default_num_spectral_points		 = parameters_Default_Values.value( "default_num_spectral_points",		1		).toInt();
-		default_angle_value				 = parameters_Default_Values.value( "default_angle_value",				90		).toDouble();
-		default_min_angle				 = parameters_Default_Values.value( "default_min_angle",				0		).toDouble();
-		default_max_angle				 = parameters_Default_Values.value( "default_max_angle",				7		).toDouble();
-		default_wavelength_value		 = parameters_Default_Values.value( "default_wavelength_value",			1.54056 ).toDouble();
-		default_min_wavelength			 = parameters_Default_Values.value( "default_min_wavelength",			160		).toDouble();
-		default_max_wavelength			 = parameters_Default_Values.value( "default_max_wavelength",			230		).toDouble();
-		default_angle_type				 = parameters_Default_Values.value( "default_angle_type",				angle_Type_Grazing).toString();
-		default_angular_resolution		 = parameters_Default_Values.value( "default_angular_resolution",		0.007	).toDouble();
-		default_polarization			 = parameters_Default_Values.value( "default_polarization",				1		).toDouble();
-		default_spectral_resolution		 = parameters_Default_Values.value( "default_spectral_resolution",		0.000	).toDouble();
-		default_polarization_sensitivity = parameters_Default_Values.value( "default_polarization_sensitivity",	1		).toDouble();
+		default_num_angular_points							= parameters_Default_Values.value( "default_num_angular_points",							1000	).toInt();
+		default_num_spectral_points							= parameters_Default_Values.value( "default_num_spectral_points",							1		).toInt();
+		default_angle_value									= parameters_Default_Values.value( "default_angle_value",									90		).toDouble();
+		default_min_angle									= parameters_Default_Values.value( "default_min_angle",										0		).toDouble();
+		default_max_angle									= parameters_Default_Values.value( "default_max_angle",										7		).toDouble();
+		default_wavelength_value							= parameters_Default_Values.value( "default_wavelength_value",								1.54056 ).toDouble();
+		default_min_wavelength								= parameters_Default_Values.value( "default_min_wavelength",								160		).toDouble();
+		default_max_wavelength								= parameters_Default_Values.value( "default_max_wavelength",								230		).toDouble();
+		default_angle_type									= parameters_Default_Values.value( "default_angle_type",									angle_Type_Grazing).toString();
+		default_angular_resolution							= parameters_Default_Values.value( "default_angular_resolution",							0.007	).toDouble();
+		default_polarization								= parameters_Default_Values.value( "default_polarization",									1		).toDouble();
+		default_spectral_resolution							= parameters_Default_Values.value( "default_spectral_resolution",							0.000	).toDouble();
+		default_logarithmic_threshold_beta					= parameters_Default_Values.value( "default_logarithmic_threshold_beta",					1E-17	).toDouble();
+		default_logarithmic_threshold_material_density		= parameters_Default_Values.value( "default_logarithmic_threshold_material_density",		1E-7	).toDouble();
+		default_logarithmic_threshold_element_concentration = parameters_Default_Values.value( "default_logarithmic_threshold_element_concentration",	1E15	).toDouble();
 	parameters_Default_Values.endGroup();
 }
 
@@ -752,19 +757,22 @@ void Settings::save_Parameters_Default_Values()
 
 	// parameters default values
 	parameters_Default_Values.beginGroup( Independent_Values );
-		parameters_Default_Values.setValue( "default_num_angular_points",		default_num_angular_points		);
-		parameters_Default_Values.setValue( "default_num_spectral_points",		default_num_spectral_points		);
-		parameters_Default_Values.setValue( "default_angle_value",				default_angle_value				);
-		parameters_Default_Values.setValue( "default_min_angle",				default_min_angle				);
-		parameters_Default_Values.setValue( "default_max_angle",				default_max_angle				);
-		parameters_Default_Values.setValue( "default_wavelength_value",			default_wavelength_value		);
-		parameters_Default_Values.setValue( "default_min_wavelength",			default_min_wavelength			);
-		parameters_Default_Values.setValue( "default_max_wavelength",			default_max_wavelength			);
-		parameters_Default_Values.setValue( "default_angle_type",				default_angle_type				);
-		parameters_Default_Values.setValue( "default_angular_resolution",		default_angular_resolution		);
-		parameters_Default_Values.setValue( "default_polarization",				default_polarization			);
-		parameters_Default_Values.setValue( "default_spectral_resolution",		default_spectral_resolution		);
-		parameters_Default_Values.setValue( "default_polarization_sensitivity",	default_polarization_sensitivity);
+		parameters_Default_Values.setValue( "default_num_angular_points",							default_num_angular_points						   );
+		parameters_Default_Values.setValue( "default_num_spectral_points",							default_num_spectral_points						   );
+		parameters_Default_Values.setValue( "default_angle_value",									default_angle_value								   );
+		parameters_Default_Values.setValue( "default_min_angle",									default_min_angle								   );
+		parameters_Default_Values.setValue( "default_max_angle",									default_max_angle								   );
+		parameters_Default_Values.setValue( "default_wavelength_value",								default_wavelength_value						   );
+		parameters_Default_Values.setValue( "default_min_wavelength",								default_min_wavelength							   );
+		parameters_Default_Values.setValue( "default_max_wavelength",								default_max_wavelength							   );
+		parameters_Default_Values.setValue( "default_angle_type",									default_angle_type								   );
+		parameters_Default_Values.setValue( "default_angular_resolution",							default_angular_resolution						   );
+		parameters_Default_Values.setValue( "default_polarization",									default_polarization							   );
+		parameters_Default_Values.setValue( "default_spectral_resolution",							default_spectral_resolution						   );
+		parameters_Default_Values.setValue( "default_polarization_sensitivity",						default_polarization_sensitivity				   );
+		parameters_Default_Values.setValue( "default_logarithmic_threshold_beta",					default_logarithmic_threshold_beta				   );
+		parameters_Default_Values.setValue( "default_logarithmic_threshold_material_density",		default_logarithmic_threshold_material_density	   );
+		parameters_Default_Values.setValue( "default_logarithmic_threshold_element_concentration",	default_logarithmic_threshold_element_concentration);
 	parameters_Default_Values.endGroup();
 }
 

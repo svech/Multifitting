@@ -209,6 +209,11 @@ extern QString soft_Restriction_Color;
 extern QPen subinterval_Plot_Pen;
 extern QBrush subinterval_Plot_Brush;
 
+extern QVector<QColor> color_Contrast_Sequence;
+
+extern double default_Profile_Line_Thickness;
+extern double selected_Profile_Line_Thickness;
+
 // -----------------------------------------------------------------------------------------
 
 extern int scale;

@@ -53,10 +53,18 @@ void Profile_Plots_Window::contextMenuEvent(QContextMenuEvent *event)
 			depth_Units.addAction(act_Unit);
 			connect(act_Unit,  &QAction::triggered, this, [=]
 			{
+				double old_Factor = length_Coefficients_Map.value(multilayer->profile_Plot_Options.local_length_units);
 				multilayer->profile_Plot_Options.local_length_units = length_Units_List[index];
+				double new_Factor = length_Coefficients_Map.value(multilayer->profile_Plot_Options.local_length_units);
 
 				profile_Plot_Vector[main_Tabs->currentIndex()]->custom_Plot->xAxis->setLabel("Depth, "+multilayer->profile_Plot_Options.local_length_units);
+
+				multilayer->profile_Plot_Options.old_X_Begin = multilayer->profile_Plot_Options.old_X_Begin / new_Factor * old_Factor;
+				multilayer->profile_Plot_Options.old_X_End   = multilayer->profile_Plot_Options.old_X_End   / new_Factor * old_Factor;
+
+				profile_Plot_Vector[main_Tabs->currentIndex()]->horizontall_Scrollbar->blockSignals(true);
 				profile_Plot_Vector[main_Tabs->currentIndex()]->plot_Data(true);
+				profile_Plot_Vector[main_Tabs->currentIndex()]->horizontall_Scrollbar->blockSignals(false);
 			});
 		}
 	}

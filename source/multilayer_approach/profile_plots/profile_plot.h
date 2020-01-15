@@ -12,13 +12,15 @@ public:
 	explicit Profile_Plot(Multilayer* multilayer, Profile_Plots_Window* profile_Plots_Window, QWidget *parent = nullptr);
 
 	void create_Main_Layout();
+		void horizontall_ScrollbarChanged(int value);
+		void x_Axis_RangeChanged(const QCPRange& range);
 	void create_Left_Side();
 	void create_Plot_Frame_And_Scale();
 	void plot_Data(bool recalculate_Profile = false);
 	void calculate_Profile();
 	void unwrap_Subtree(QVector<Data>& struct_Data_Vector, QTreeWidgetItem* item, int num_Repetition, int period_Index);
 	void get_Max_My_Sigma(QTreeWidgetItem* item);
-	complex<double> delta_Beta_Epsilon_Func(double z);
+	complex<double> delta_Beta_Epsilon_Func(double z, QString given_Material_or_Element = "no material or element");
 
 	Multilayer* multilayer;
 	Profile_Plots_Window* profile_Plots_Window;
@@ -52,17 +54,18 @@ public:
 
 	QCustomPlot* custom_Plot;
 	QScrollBar* horizontall_Scrollbar;
+	double scrollbar_Factor = 200.0;
 
 	double max_Sigma = 0.1;
 	QVector<Data> struct_Data_Vector;
 	QVector<double> boundary_Vector;
 	QVector<double> thickness_Vector;
-	QVector<QString> material_Vector;
-	QVector<double> density_Vector;
 	QVector<double> delta_Epsilon_Vector;
 	QVector<double> beta_Epsilon_Vector;
 	QVector<double> layer_Norm_Vector;
 	QVector<QString> different_Materials;
+	QVector<QString> different_Elements;
+	QVector<QMap<QString,double>> element_Concentration_Map_Vector;
 
 	/// data to plot
 	// permittivity
@@ -70,16 +73,15 @@ public:
 	QVector<QCPGraphData> beta_To_Plot_Vector;
 
 	// materials
-	QVector<QVector<QCPGraphData>> materials_To_Plot_Vector_Vector;
-	QVector<QString> material_Labels_Vector;
+	//QVector<QVector<QCPGraphData>> materials_To_Plot_Vector_Vector;
 
 	// elements
-	QVector<QVector<QCPGraphData>> elements_To_Plot_Vector_Vector;
-	QVector<QString> elements_Labels_Vector;
+	//QVector<QVector<QCPGraphData>> elements_To_Plot_Vector_Vector;
 
 	// general
 	QVector<double> arg;
 	QVector<double> val;
+	QVector<QVector<double>> val_Multiple;
 };
 
 #endif // PROFILE_PLOT_H

@@ -216,6 +216,9 @@ extern double default_angular_resolution;
 extern double default_polarization;
 extern double default_spectral_resolution;
 extern double default_polarization_sensitivity;
+extern double default_logarithmic_threshold_beta;
+extern double default_logarithmic_threshold_material_density;
+extern double default_logarithmic_threshold_element_concentration;
 
 // -----------------------------------------------------------------------------------------
 

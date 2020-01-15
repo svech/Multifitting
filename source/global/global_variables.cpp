@@ -358,6 +358,21 @@ QString soft_Restriction_Color				= "QWidget { background: rgb(94,  244, 227); }
 QPen subinterval_Plot_Pen = QPen(Qt::transparent);
 QBrush subinterval_Plot_Brush = QBrush(QColor(0, 0, 255, 15));
 
+QVector<QColor> color_Contrast_Sequence = { QColor(0, 205, 0),
+											QColor(255, 0, 0),
+											QColor(0, 0, 255),
+											QColor(240, 65, 255),
+											QColor(0, 0, 0),
+											QColor(25, 205, 205),
+											QColor(0, 120, 55),
+											QColor(250, 140, 0),
+											QColor(0, 0, 127),
+											QColor(255, 0, 127)
+										  };
+
+double default_Profile_Line_Thickness = 1.4;
+double selected_Profile_Line_Thickness = 3.5;
+
 // -----------------------------------------------------------------------------------------
 
 int scale = 96;
