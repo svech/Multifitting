@@ -214,7 +214,7 @@ void Optical_Constants::interpolation_Epsilon(QVector<Point>& input_Values, QVec
 	gsl_interp_accel_free(acc_Im);
 }
 
-void Optical_Constants::make_Epsilon_From_Factors(QList<Stoichiometry>& composition, double density, QVector<double>& spectral_Points, QVector<complex<double>>& epsilon)
+void Optical_Constants::make_Epsilon_From_Factors(const QList<Stoichiometry>& composition, double density, QVector<double>& spectral_Points, QVector<complex<double>>& epsilon)
 {
 	double denominator = 0;	// sum of stoich and masses
 

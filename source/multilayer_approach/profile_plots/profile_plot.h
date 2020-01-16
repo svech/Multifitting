@@ -18,9 +18,13 @@ public:
 	void create_Plot_Frame_And_Scale();
 	void plot_Data(bool recalculate_Profile = false);
 	void calculate_Profile();
+	void get_Delta_Epsilon(const Data& struct_Data, double& delta, double& beta);
+	void get_Material(const Data& struct_Data);
+	void get_Element_Map(const Data& struct_Data, QMap<QString,double>& element_Map);
 	void unwrap_Subtree(QVector<Data>& struct_Data_Vector, QTreeWidgetItem* item, int num_Repetition, int period_Index);
-	void get_Max_My_Sigma(QTreeWidgetItem* item);
+	void get_Max_My_Sigma(QTreeWidgetItem* item, int periods_Factor = 1);
 	complex<double> delta_Beta_Epsilon_Func(double z, QString given_Material_or_Element = "no material or element");
+	void get_Mi_Max_Indices(double value, int& boundary_Index, int current_Index, int up);
 
 	Multilayer* multilayer;
 	Profile_Plots_Window* profile_Plots_Window;
@@ -56,9 +60,12 @@ public:
 	QScrollBar* horizontall_Scrollbar;
 	double scrollbar_Factor = 200.0;
 
+	int struct_Data_Counter = 1; // ambient is the first
+	int struct_Data_Index = 0;
 	double max_Sigma = 0.1;
 	QVector<Data> struct_Data_Vector;
 	QVector<double> boundary_Vector;
+	vector<double> boundary_Vector_Std;
 	QVector<double> thickness_Vector;
 	QVector<double> delta_Epsilon_Vector;
 	QVector<double> beta_Epsilon_Vector;
