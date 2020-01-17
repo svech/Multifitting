@@ -24,7 +24,6 @@ public:
 	void unwrap_Subtree(QVector<Data>& struct_Data_Vector, QTreeWidgetItem* item, int num_Repetition, int period_Index);
 	void get_Max_My_Sigma(QTreeWidgetItem* item, int periods_Factor = 1);
 	complex<double> delta_Beta_Epsilon_Func(double z, QString given_Material_or_Element = "no material or element");
-	void get_Mi_Max_Indices(double value, int& boundary_Index, int current_Index, int up);
 
 	Multilayer* multilayer;
 	Profile_Plots_Window* profile_Plots_Window;
@@ -79,6 +78,9 @@ public:
 	QVector<QCPGraphData> delta_To_Plot_Vector;
 	QVector<QCPGraphData> beta_To_Plot_Vector;
 
+	QVector<QCPGraphData> sharp_Delta_To_Plot_Vector;
+	QVector<QCPGraphData> sharp_Beta_To_Plot_Vector;
+
 	// materials
 	//QVector<QVector<QCPGraphData>> materials_To_Plot_Vector_Vector;
 
@@ -88,6 +90,8 @@ public:
 	// general
 	QVector<double> arg;
 	QVector<double> val;
+	QVector<double> val_Sharp;
+
 	QVector<QVector<double>> val_Multiple;
 };
 

@@ -1367,8 +1367,8 @@ double Global_Variables::interface_Profile_Function(double z, QVector<Interlayer
 	//-------------------------------------------------------------------------------
 	// normalization
 
-	if( abs(norm) > DBL_MIN ) {output /= norm;}
-	else					  {output = theta_Function(z);}
+	if( norm > DBL_MIN ) {output /= norm;}
+	else				 {output = theta_Function(z);}
 
 	return output;
 }

@@ -521,11 +521,11 @@ void Calculation_Tree::calculate_Unwrapped_Reflectivity(Calc_Functions calc_Func
 	Unwrapped_Reflection* new_Unwrapped_Reflection = new Unwrapped_Reflection(unwrapped_Structure_Vec_Element, num_Media, active_Parameter_Whats_This, measurement, depth_Grading, sigma_Grading, calc_Functions, calc_Mode);
 	unwrapped_Reflection_Vec_Element = new_Unwrapped_Reflection;
 
-	auto start = std::chrono::system_clock::now();
+//	auto start = std::chrono::system_clock::now();
 	unwrapped_Reflection_Vec_Element->calc_Specular();
-	auto end = std::chrono::system_clock::now();
-	auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-	qInfo() << "Bare Reflectivity:      "<< elapsed.count()/1000000. << " seconds" << endl;
+//	auto end = std::chrono::system_clock::now();
+//	auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+//	qInfo() << "Bare Reflectivity:      "<< elapsed.count()/1000000. << " seconds" << endl;
 
 	// make a copy for plotting
 	calculated_Values.R=QVector<double>::fromStdVector(unwrapped_Reflection_Vec_Element->R_Instrumental);

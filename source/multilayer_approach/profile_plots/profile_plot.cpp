@@ -246,25 +246,27 @@ void Profile_Plot::create_Left_Side()
 			line_Type_Layout->setContentsMargins(8,5,6,5);
 
 		// ----------------------------------------------------
-		use_Roughness_CheckBox = new QCheckBox("Apply roughness");
-			line_Type_Layout->addWidget(use_Roughness_CheckBox);
-			connect(use_Roughness_CheckBox, &QCheckBox::toggled, this, [=]
-			{
-				multilayer->profile_Plot_Options.apply_Roughness = use_Roughness_CheckBox->isChecked();
-			});
+//		use_Roughness_CheckBox = new QCheckBox("Apply roughness");
+//			// line_Type_Layout->addWidget(use_Roughness_CheckBox);
+//			connect(use_Roughness_CheckBox, &QCheckBox::toggled, this, [=]
+//			{
+//				multilayer->profile_Plot_Options.apply_Roughness = use_Roughness_CheckBox->isChecked();
+//			});
 
-		use_Diffusiness_CheckBox = new QCheckBox("Apply diffusiness");
-			line_Type_Layout->addWidget(use_Diffusiness_CheckBox);
-			connect(use_Diffusiness_CheckBox, &QCheckBox::toggled, this, [=]
-			{
-				multilayer->profile_Plot_Options.apply_Diffusiness = use_Diffusiness_CheckBox->isChecked();
-			});
+//		use_Diffusiness_CheckBox = new QCheckBox("Apply diffusiness");
+//			// line_Type_Layout->addWidget(use_Diffusiness_CheckBox);
+//			connect(use_Diffusiness_CheckBox, &QCheckBox::toggled, this, [=]
+//			{
+//				multilayer->profile_Plot_Options.apply_Diffusiness = use_Diffusiness_CheckBox->isChecked();
+//			});
 
 		show_Sharp_CheckBox = new QCheckBox("Show sharp profile");
 			line_Type_Layout->addWidget(show_Sharp_CheckBox);
 			connect(show_Sharp_CheckBox, &QCheckBox::toggled, this, [=]
 			{
 				multilayer->profile_Plot_Options.show_Sharp_Profile = show_Sharp_CheckBox->isChecked();
+
+				plot_Data(true);
 			});
 
 		discretization_CheckBox = new QCheckBox("Show discretization");
@@ -272,6 +274,8 @@ void Profile_Plot::create_Left_Side()
 			connect(discretization_CheckBox, &QCheckBox::toggled, this, [=]
 			{
 				multilayer->profile_Plot_Options.show_Discretization = discretization_CheckBox->isChecked();
+
+				plot_Data(true);
 			});
 
 		cursor_Cordinate_CheckBox = new QCheckBox("Show cursor position");
@@ -377,8 +381,8 @@ void Profile_Plot::create_Left_Side()
 
 	// - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-	use_Roughness_CheckBox->setChecked(multilayer->profile_Plot_Options.apply_Roughness);
-	use_Diffusiness_CheckBox->setChecked(multilayer->profile_Plot_Options.apply_Diffusiness);
+//	use_Roughness_CheckBox->setChecked(multilayer->profile_Plot_Options.apply_Roughness);
+//	use_Diffusiness_CheckBox->setChecked(multilayer->profile_Plot_Options.apply_Diffusiness);
 	show_Sharp_CheckBox->setChecked(multilayer->profile_Plot_Options.show_Sharp_Profile);
 	discretization_CheckBox->setChecked(multilayer->profile_Plot_Options.show_Discretization);
 	cursor_Cordinate_CheckBox->blockSignals(true);
@@ -500,7 +504,11 @@ void Profile_Plot::plot_Data(bool recalculate_Profile)
 	// data
 	if(recalculate_Profile)
 	{
+//		auto start = std::chrono::system_clock::now();
 		calculate_Profile();
+//		auto end = std::chrono::system_clock::now();
+//		auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+//		qInfo() << "	calculate_Profile:    "<< elapsed.count()/1000000. << " seconds" << endl << endl << endl;
 	}
 
 	// rescaling
@@ -639,17 +647,10 @@ void Profile_Plot::calculate_Profile()
 	struct_Data_Vector.resize(struct_Data_Counter);
 	delta_Epsilon_Vector.resize(struct_Data_Vector.size());
 	beta_Epsilon_Vector.resize(struct_Data_Vector.size());
-	delta_Epsilon_Vector.resize(struct_Data_Vector.size());
-	beta_Epsilon_Vector.resize(struct_Data_Vector.size());
 	element_Concentration_Map_Vector.resize(struct_Data_Vector.size());
 	struct_Data_Index = 0;
 
-	auto start = std::chrono::system_clock::now();
 	unwrap_Subtree(struct_Data_Vector, multilayer->structure_Tree->tree->invisibleRootItem(), 0, 0);
-	auto end = std::chrono::system_clock::now();
-	auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-	qInfo()  << endl << "---------------------------------------------------" << endl << endl;
-	qInfo() << "	unwrap_Subtree:    "<< elapsed.count()/1000000. << " seconds" << endl << endl << endl;
 
 	// if has no substrate, add it
 	if(struct_Data_Vector.last().item_Type != item_Type_Substrate)
@@ -708,12 +709,12 @@ void Profile_Plot::calculate_Profile()
 	gsl_integration_workspace_free(w);
 
 	// profiling
-	double step = 0.1;	// in angstroms
+	double step = 0.2;	// in angstroms
 	double prefix = max(15., 5+2*max_Sigma);	// in angstroms
 	double suffix = max(15., 5+2*max_Sigma);	// in angstroms
 	double length = prefix+boundary_Vector.last()+suffix;
 	int data_Count = ceil(length/step)+1;
-	int limit = 10000; // restriction
+	int limit = 20000; // restriction
 	data_Count = min(data_Count, limit);
 	step = length/(data_Count-1);
 //	if(step >= 2)
@@ -722,7 +723,7 @@ void Profile_Plot::calculate_Profile()
 //		qInfo() << "\n---------------------------------------------------------------------------------"
 //				   "\n   Too many layers to show."
 //				   "\n   For correct representation of profile"
-//				   "\n   number of layers should be diminished"
+//				м   "\n   number of layers should be diminished"
 //				   "\n---------------------------------------------------------------------------------\n";
 //	}
 	arg.resize(data_Count);
@@ -732,20 +733,59 @@ void Profile_Plot::calculate_Profile()
 	if(multilayer->profile_Plot_Options.type == PERMITTIVITY && multilayer->profile_Plot_Options.permittivity_Type == DELTA_EPS	)
 	{		
 		custom_Plot->clearGraphs();
+
+		if(multilayer->profile_Plot_Options.show_Sharp_Profile)
+		{
+			custom_Plot->addGraph();
+			sharp_Delta_To_Plot_Vector.resize(struct_Data_Vector.size()+1);
+			val_Sharp.resize(thickness_Vector.size());
+
+			// first point
+			{
+				sharp_Delta_To_Plot_Vector.first().key   = -prefix;
+				sharp_Delta_To_Plot_Vector.first().value = delta_Epsilon_Vector.first();
+			}
+			// main part
+			for(int media_Index=1; media_Index<struct_Data_Vector.size()-1; media_Index++)
+			{
+				sharp_Delta_To_Plot_Vector[media_Index].key   = boundary_Vector[media_Index-1];
+				sharp_Delta_To_Plot_Vector[media_Index].value = delta_Epsilon_Vector[media_Index];
+
+				val_Sharp[media_Index-1] = sharp_Delta_To_Plot_Vector[media_Index].value;
+			}
+			// last point
+			{
+				sharp_Delta_To_Plot_Vector[sharp_Delta_To_Plot_Vector.size()-2].key   = boundary_Vector.last();
+				sharp_Delta_To_Plot_Vector[sharp_Delta_To_Plot_Vector.size()-2].value = delta_Epsilon_Vector.last();
+				sharp_Delta_To_Plot_Vector.last().key   = boundary_Vector.last()+suffix;
+				sharp_Delta_To_Plot_Vector.last().value = delta_Epsilon_Vector.last();
+			}
+
+			custom_Plot->graph()->data()->set(sharp_Delta_To_Plot_Vector);
+			custom_Plot->graph()->setPen(QPen(Qt::darkCyan, default_Profile_Line_Thickness));
+			custom_Plot->graph()->selectionDecorator()->setPen(QPen(custom_Plot->graph()->pen().color(),selected_Profile_Line_Thickness));
+			custom_Plot->graph()->setLineStyle(QCPGraph::lsStepLeft);
+		}
+
 		custom_Plot->addGraph();
 		delta_To_Plot_Vector.resize(data_Count);
+		Global_Variables::parallel_For(data_Count, reflectivity_Calc_Threads, [&](int n_Min, int n_Max)
+		{
+			for(int i=n_Min; i<n_Max; ++i)
+			{
+				double z = -prefix + i*step;
+				delta_To_Plot_Vector[i].key = z/length_Coefficients_Map.value(multilayer->profile_Plot_Options.local_length_units);
+				delta_To_Plot_Vector[i].value = real(delta_Beta_Epsilon_Func(z));
+			}
+		});
 		for(int i=0; i<data_Count; i++)
 		{
-			double z = -prefix + i*step;
-			delta_To_Plot_Vector[i].key = z/length_Coefficients_Map.value(multilayer->profile_Plot_Options.local_length_units);
-			delta_To_Plot_Vector[i].value = real(delta_Beta_Epsilon_Func(z));
-
 			arg[i] = delta_To_Plot_Vector[i].key;
 			val[i] = delta_To_Plot_Vector[i].value;
 		}
-		custom_Plot->graph(0)->data()->set(delta_To_Plot_Vector);
-		custom_Plot->graph(0)->setPen(QPen(Qt::blue, default_Profile_Line_Thickness));
-		custom_Plot->graph(0)->selectionDecorator()->setPen(QPen(custom_Plot->graph(0)->pen().color(),selected_Profile_Line_Thickness));
+		custom_Plot->graph()->data()->set(delta_To_Plot_Vector);
+		custom_Plot->graph()->setPen(QPen(Qt::blue, default_Profile_Line_Thickness));
+		custom_Plot->graph()->selectionDecorator()->setPen(QPen(custom_Plot->graph()->pen().color(),selected_Profile_Line_Thickness));
 		custom_Plot->legend->setVisible(false);
 	}
 	// beta
@@ -754,18 +794,23 @@ void Profile_Plot::calculate_Profile()
 		custom_Plot->clearGraphs();
 		custom_Plot->addGraph();
 		beta_To_Plot_Vector.resize(data_Count);
+		Global_Variables::parallel_For(data_Count, reflectivity_Calc_Threads, [&](int n_Min, int n_Max)
+		{
+			for(int i=n_Min; i<n_Max; ++i)
+			{
+				double z = -prefix + i*step;
+				beta_To_Plot_Vector[i].key = z/length_Coefficients_Map.value(multilayer->profile_Plot_Options.local_length_units);
+				beta_To_Plot_Vector[i].value = imag(delta_Beta_Epsilon_Func(z));
+			}
+		});
 		for(int i=0; i<data_Count; i++)
 		{
-			double z = -prefix + i*step;
-			beta_To_Plot_Vector[i].key = z/length_Coefficients_Map.value(multilayer->profile_Plot_Options.local_length_units);
-			beta_To_Plot_Vector[i].value = imag(delta_Beta_Epsilon_Func(z));
-
 			arg[i] = beta_To_Plot_Vector[i].key;
 			val[i] = beta_To_Plot_Vector[i].value;
 		}
-		custom_Plot->graph(0)->data()->set(beta_To_Plot_Vector);
-		custom_Plot->graph(0)->setPen(QPen(Qt::red, default_Profile_Line_Thickness));
-		custom_Plot->graph(0)->selectionDecorator()->setPen(QPen(custom_Plot->graph(0)->pen().color(),selected_Profile_Line_Thickness));
+		custom_Plot->graph()->data()->set(beta_To_Plot_Vector);
+		custom_Plot->graph()->setPen(QPen(Qt::red, default_Profile_Line_Thickness));
+		custom_Plot->graph()->selectionDecorator()->setPen(QPen(custom_Plot->graph()->pen().color(),selected_Profile_Line_Thickness));
 		custom_Plot->legend->setVisible(false);
 	}
 	// materials
@@ -781,21 +826,20 @@ void Profile_Plot::calculate_Profile()
 		{
 			val_Multiple[material_index].resize(data_Count);
 			custom_Plot->addGraph();
-
-			start = std::chrono::system_clock::now();
+			Global_Variables::parallel_For(data_Count, reflectivity_Calc_Threads, [&](int n_Min, int n_Max)
+			{
+				for(int i=n_Min; i<n_Max; ++i)
+				{
+					double z = -prefix + i*step;
+					one_Material_To_Plot_Vector[i].key = z/length_Coefficients_Map.value(multilayer->profile_Plot_Options.local_length_units);
+					one_Material_To_Plot_Vector[i].value = real(delta_Beta_Epsilon_Func(z, different_Materials[material_index]));
+				}
+			});
 			for(int i=0; i<data_Count; i++)
 			{
-				double z = -prefix + i*step;
-				one_Material_To_Plot_Vector[i].key = z/length_Coefficients_Map.value(multilayer->profile_Plot_Options.local_length_units);
-				one_Material_To_Plot_Vector[i].value = real(delta_Beta_Epsilon_Func(z, different_Materials[material_index]));
-
 				arg[i] = one_Material_To_Plot_Vector[i].key; // many times, but OK
 				val[i] = one_Material_To_Plot_Vector[i].value;
 			}
-			end = std::chrono::system_clock::now();
-			elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-			qInfo() << "	forrrrr:    "<< elapsed.count()/1000000. << " seconds" << endl << endl << endl;
-
 			val_Multiple[material_index] = val;
 			//materials_To_Plot_Vector_Vector[material_index] = one_Material_To_Plot_Vector;
 			custom_Plot->graph(material_index)->data()->set(one_Material_To_Plot_Vector);
@@ -804,7 +848,6 @@ void Profile_Plot::calculate_Profile()
 			custom_Plot->graph(material_index)->setName(different_Materials[material_index]);
 			custom_Plot->legend->item(material_index)->setTextColor(color_Contrast_Sequence[material_index%color_Contrast_Sequence.size()]);
 			custom_Plot->legend->item(material_index)->setSelectedTextColor(color_Contrast_Sequence[material_index%color_Contrast_Sequence.size()]);
-
 		}
 		custom_Plot->legend->setVisible(true);
 		custom_Plot->axisRect()->insetLayout()->setInsetAlignment(0, Qt::AlignRight/*|Qt::AlignTop*/);
@@ -820,12 +863,17 @@ void Profile_Plot::calculate_Profile()
 		for(int element_Index = 0; element_Index<different_Elements.size(); element_Index++)
 		{
 			custom_Plot->addGraph();
+			Global_Variables::parallel_For(data_Count, reflectivity_Calc_Threads, [&](int n_Min, int n_Max)
+			{
+				for(int i=n_Min; i<n_Max; ++i)
+				{
+					double z = -prefix + i*step;
+					one_Element_To_Plot_Vector[i].key = z/length_Coefficients_Map.value(multilayer->profile_Plot_Options.local_length_units);
+					one_Element_To_Plot_Vector[i].value = real(delta_Beta_Epsilon_Func(z, different_Elements[element_Index]));
+				}
+			});
 			for(int i=0; i<data_Count; i++)
 			{
-				double z = -prefix + i*step;
-				one_Element_To_Plot_Vector[i].key = z/length_Coefficients_Map.value(multilayer->profile_Plot_Options.local_length_units);
-				one_Element_To_Plot_Vector[i].value = real(delta_Beta_Epsilon_Func(z, different_Elements[element_Index]));
-
 				arg[i] = one_Element_To_Plot_Vector[i].key; // many times, but OK
 				val[i] = one_Element_To_Plot_Vector[i].value;
 			}
@@ -846,29 +894,12 @@ void Profile_Plot::calculate_Profile()
 complex<double> Profile_Plot::delta_Beta_Epsilon_Func(double z, QString given_Material_or_Element)
 {
 	// where we are
-	int min_Boundary_Index = -2019;
-	int max_Boundary_Index = -2019;
 	int sigma_Factor = 6;
+	std::vector<double>::iterator it_low = std::lower_bound(boundary_Vector_Std.begin(), boundary_Vector_Std.end(), z-sigma_Factor*max_Sigma);
+	std::vector<double>::iterator it_up  = std::upper_bound(boundary_Vector_Std.begin(), boundary_Vector_Std.end(), z+sigma_Factor*max_Sigma);
 
-//	for(int j=0; j<boundary_Vector.size(); j++)
-//	{
-//		min_Boundary_Index = j-1;
-//		if(z-sigma_Factor*max_Sigma < boundary_Vector[j]) {break;}
-//	}
-//	for(int j=0; j<boundary_Vector.size(); j++)
-//	{
-//		max_Boundary_Index = j;
-//		if(z+sigma_Factor*max_Sigma < boundary_Vector[j]) {break;}
-//	}
-
-//	get_Mi_Max_Indices(z-sigma_Factor*max_Sigma, min_Boundary_Index, 0, thickness_Vector.size()-1);
-
-	std::vector<double>::iterator itlow = std::lower_bound(boundary_Vector_Std.begin(), boundary_Vector_Std.end(), z-sigma_Factor*max_Sigma);
-
-	qInfo() << *itlow << endl;
-
-	min_Boundary_Index = max(min_Boundary_Index,0);
-	max_Boundary_Index = min(max_Boundary_Index,thickness_Vector.size()-1);
+	int min_Boundary_Index = min(max(int(it_low-boundary_Vector_Std.begin())-1, 0), thickness_Vector.size()-1);
+	int max_Boundary_Index = min(    int(it_up -boundary_Vector_Std.begin()),       thickness_Vector.size()-1);
 
 	double delta_Epsilon = 0;
 	double beta_Epsilon = 0;
@@ -950,31 +981,6 @@ complex<double> Profile_Plot::delta_Beta_Epsilon_Func(double z, QString given_Ma
 	return complex<double>(delta_Epsilon,beta_Epsilon);
 }
 
-void Profile_Plot::get_Mi_Max_Indices(double value, int& boundary_Index, int low, int up)
-{
-//	int sigma_Factor = 6;
-
-//	if( boundary_Vector[low]<value && boundary_Vector[up]>value) {low = floor((up+low)/2.); low = floor((up+low)/2.);}
-
-
-
-
-//	current_Index = floor();
-
-//	for(int j=0; j<boundary_Vector.size(); j++)
-//	{
-//		boundary_Index = j-1;
-//		if(z-sigma_Factor*max_Sigma < boundary_Vector[j]) {break;}
-//	}
-//	for(int j=0; j<boundary_Vector.size(); j++)
-//	{
-//		max_Boundary_Index = j;
-//		if(z+sigma_Factor*max_Sigma < boundary_Vector[j]) {break;}
-//	}
-//	boundary_Index = max(boundary_Index,0);
-//	max_Boundary_Index = min(max_Boundary_Index,thickness_Vector.size()-1);
-}
-
 void Profile_Plot::get_Delta_Epsilon(const Data& struct_Data, double& delta, double& beta)
 {
 	QVector<double> spectral_Points (1, multilayer->profile_Plot_Data.local_Wavelength);
@@ -1039,7 +1045,6 @@ void Profile_Plot::get_Element_Map(const Data& struct_Data, QMap<QString, double
 
 void Profile_Plot::unwrap_Subtree(QVector<Data>& struct_Data_Vector, QTreeWidgetItem* item, int num_Repetition, int period_Index)
 {
-
 	for(int i=0; i<item->childCount(); ++i)
 	{
 		Data struct_Data = item->child(i)->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
@@ -1281,10 +1286,3 @@ void Profile_Plot::get_Max_My_Sigma(QTreeWidgetItem* item, int periods_Factor)
 		}
 	}
 }
-
-
-
-
-
-
-
