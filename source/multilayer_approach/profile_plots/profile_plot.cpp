@@ -27,17 +27,21 @@ void Profile_Plot::create_Main_Layout()
 	{
 		for (int i=0; i<custom_Plot->graphCount(); ++i)
 		{
-			QCPGraph *graph = custom_Plot->graph(i);
-			QCPPlottableLegendItem *item = custom_Plot->legend->itemWithPlottable(graph);
-			if (item->selected() || graph->selected())
+			QCPGraph* graph = custom_Plot->graph(i);
+			if(custom_Plot->legend->hasItemWithPlottable(graph))
 			{
-				item->setSelected(true);
-				graph->setSelection(QCPDataSelection(graph->data()->dataRange()));
+				QCPPlottableLegendItem* item = custom_Plot->legend->itemWithPlottable(graph);
+				if (item->selected() || graph->selected())
+				{
+					item->setSelected(true);
+					graph->setSelection(QCPDataSelection(graph->data()->dataRange()));
+				}
 			}
 		}
 	});
 	custom_Plot->legend->setSelectableParts(QCPLegend::spItems);
 	custom_Plot->legend->setSelectedIconBorderPen(QPen(Qt::black, 1));
+	connect(custom_Plot, &QCustomPlot::plottableDoubleClick, this, &Profile_Plot::hide_Show_Other_Plots);
 
 	if(multilayer->profile_Plot_Options.show_Cursor_Position)
 	{
@@ -517,17 +521,74 @@ void Profile_Plot::plot_Data(bool recalculate_Profile)
 	  (multilayer->profile_Plot_Options.type == PERMITTIVITY &&
 	   multilayer->profile_Plot_Options.permittivity_Type == DELTA_EPS))
 	{
-		double minimum_Raw = *std::min_element(val.constBegin(), val.constEnd());
-		double maximum_Raw = *std::max_element(val.constBegin(), val.constEnd());
+		QVector<double> val_Final;
+		QVector<double> val_Sharp_Final;
 
-		maximum = maximum_Raw + (maximum_Raw-minimum_Raw)*0.08;
+		if(multilayer->profile_Plot_Options.type == PERMITTIVITY)
+		{
+			val_Final = val;
+		}
+		if(multilayer->profile_Plot_Options.type == MATERIAL)
+		{
+			val_Final.clear();
+			for(int material_index = 0; material_index<different_Materials.size(); material_index++)
+			{
+				val_Final.append(val_Multiple[material_index]);
+			}
+		}
+		if(multilayer->profile_Plot_Options.type == ELEMENTS)
+		{
+			val_Final.clear();
+			for(int element_index = 0; element_index<different_Elements.size(); element_index++)
+			{
+				val_Final.append(val_Multiple[element_index]);
+			}
+		}
+
+		double minimum_Raw = *std::min_element(val_Final.constBegin(), val_Final.constEnd());
+		double maximum_Raw = *std::max_element(val_Final.constBegin(), val_Final.constEnd());
+
+		// sharp profile
+		if(multilayer->profile_Plot_Options.show_Sharp_Profile)
+		{
+			if(multilayer->profile_Plot_Options.type == PERMITTIVITY)
+			{
+				minimum_Raw = min(minimum_Raw, *std::min_element(val_Sharp.constBegin(), val_Sharp.constEnd()));
+				maximum_Raw = max(maximum_Raw, *std::max_element(val_Sharp.constBegin(), val_Sharp.constEnd()));
+			}
+			if(multilayer->profile_Plot_Options.type == MATERIAL)
+			{
+				val_Sharp_Final.clear();
+				for(int material_index = 0; material_index<different_Materials.size(); material_index++)
+				{
+					val_Sharp_Final.append(val_Sharp_Multiple[material_index]);
+				}
+
+				minimum_Raw = min(minimum_Raw, *std::min_element(val_Sharp_Final.constBegin(), val_Sharp_Final.constEnd()));
+				maximum_Raw = max(maximum_Raw, *std::max_element(val_Sharp_Final.constBegin(), val_Sharp_Final.constEnd()));
+			}
+			if(multilayer->profile_Plot_Options.type == ELEMENTS)
+			{
+				val_Sharp_Final.clear();
+				for(int element_index = 0; element_index<different_Elements.size(); element_index++)
+				{
+					val_Sharp_Final.append(val_Sharp_Multiple[element_index]);
+				}
+
+				minimum_Raw = min(minimum_Raw, *std::min_element(val_Sharp_Final.constBegin(), val_Sharp_Final.constEnd()));
+				maximum_Raw = max(maximum_Raw, *std::max_element(val_Sharp_Final.constBegin(), val_Sharp_Final.constEnd()));
+			}
+		}
+
 		minimum = minimum_Raw - (maximum_Raw-minimum_Raw)*0.05;
+		maximum = maximum_Raw + (maximum_Raw-minimum_Raw)*0.08;
 	}
 	if(multilayer->profile_Plot_Options.y_Scale == log_Scale &&
 	   (multilayer->profile_Plot_Options.type != PERMITTIVITY ||
 		multilayer->profile_Plot_Options.permittivity_Type != DELTA_EPS))
 	{
 		QVector<double> val_Non_Zero;
+		QVector<double> val_Sharp_Non_Zero;
 
 		// removing zeros
 		if(multilayer->profile_Plot_Options.type == PERMITTIVITY)
@@ -545,7 +606,7 @@ void Profile_Plot::plot_Data(bool recalculate_Profile)
 			{
 				for(int i=val_Multiple[material_index].size()-1; i>=0; i--)
 				{
-					if(arg[i]<0 || arg[i]>boundary_Vector.last() || val_Multiple[material_index][i]<default_logarithmic_threshold_material_density) {val_Multiple[material_index].remove(i);}
+					if(arg[i]<0/* || arg[i]>boundary_Vector.last() */|| val_Multiple[material_index][i]<default_logarithmic_threshold_material_density) {val_Multiple[material_index].remove(i);}
 				}
 				val_Non_Zero.append(val_Multiple[material_index]);
 			}
@@ -557,17 +618,63 @@ void Profile_Plot::plot_Data(bool recalculate_Profile)
 			{
 				for(int i=val_Multiple[element_index].size()-1; i>=0; i--)
 				{
-					if(arg[i]<0 || arg[i]>boundary_Vector.last() || val_Multiple[element_index][i]<default_logarithmic_threshold_element_concentration) {val_Multiple[element_index].remove(i);}
+					if(arg[i]<0/* || arg[i]>boundary_Vector.last() */|| val_Multiple[element_index][i]<default_logarithmic_threshold_element_concentration) {val_Multiple[element_index].remove(i);}
 				}
 				val_Non_Zero.append(val_Multiple[element_index]);
 			}
 		}
 
-		double maximum_Raw_Non_Zero = *std::max_element(val_Non_Zero.constBegin(), val_Non_Zero.constEnd());
 		double minimum_Raw_Non_Zero = *std::min_element(val_Non_Zero.constBegin(), val_Non_Zero.constEnd());
+		double maximum_Raw_Non_Zero = *std::max_element(val_Non_Zero.constBegin(), val_Non_Zero.constEnd());
 
-		maximum = maximum_Raw_Non_Zero*1.5;
+		// sharp profile
+		if(multilayer->profile_Plot_Options.show_Sharp_Profile)
+		{
+			if(multilayer->profile_Plot_Options.type == PERMITTIVITY)
+			{
+				val_Sharp_Non_Zero = val_Sharp;
+				for(int i=val_Sharp.size()-1; i>=0; i--)
+				{
+					if(val_Sharp_Non_Zero[i]<default_logarithmic_threshold_beta) {val_Sharp_Non_Zero.remove(i);}
+				}
+
+				minimum_Raw_Non_Zero = min(minimum_Raw_Non_Zero, *std::min_element(val_Sharp_Non_Zero.constBegin(), val_Sharp_Non_Zero.constEnd()));
+				maximum_Raw_Non_Zero = max(maximum_Raw_Non_Zero, *std::max_element(val_Sharp_Non_Zero.constBegin(), val_Sharp_Non_Zero.constEnd()));
+			}
+			if(multilayer->profile_Plot_Options.type == MATERIAL)
+			{
+				val_Sharp_Non_Zero.clear();
+				for(int material_index = 0; material_index<different_Materials.size(); material_index++)
+				{
+					for(int i=val_Sharp_Multiple[material_index].size()-1; i>=0; i--)
+					{
+						if(val_Sharp_Multiple[material_index][i]<default_logarithmic_threshold_material_density) {val_Sharp_Multiple[material_index].remove(i);}
+					}
+					val_Sharp_Non_Zero.append(val_Sharp_Multiple[material_index]);
+				}
+
+				minimum_Raw_Non_Zero = min(minimum_Raw_Non_Zero, *std::min_element(val_Sharp_Non_Zero.constBegin(), val_Sharp_Non_Zero.constEnd()));
+				maximum_Raw_Non_Zero = max(maximum_Raw_Non_Zero, *std::max_element(val_Sharp_Non_Zero.constBegin(), val_Sharp_Non_Zero.constEnd()));
+			}
+			if(multilayer->profile_Plot_Options.type == ELEMENTS)
+			{
+				val_Sharp_Non_Zero.clear();
+				for(int element_index = 0; element_index<different_Elements.size(); element_index++)
+				{
+					for(int i=val_Sharp_Multiple[element_index].size()-1; i>=0; i--)
+					{
+						if(val_Sharp_Multiple[element_index][i]<default_logarithmic_threshold_element_concentration) {val_Sharp_Multiple[element_index].remove(i);}
+					}
+					val_Sharp_Non_Zero.append(val_Sharp_Multiple[element_index]);
+				}
+
+				minimum_Raw_Non_Zero = min(minimum_Raw_Non_Zero, *std::min_element(val_Sharp_Non_Zero.constBegin(), val_Sharp_Non_Zero.constEnd()));
+				maximum_Raw_Non_Zero = max(maximum_Raw_Non_Zero, *std::max_element(val_Sharp_Non_Zero.constBegin(), val_Sharp_Non_Zero.constEnd()));
+			}
+		}
+
 		minimum = minimum_Raw_Non_Zero/1.5;
+		maximum = maximum_Raw_Non_Zero*1.5;
 	}
 
 	if(multilayer->profile_Plot_Options.rescale_X)	{ custom_Plot->xAxis->setRange(arg.first(), arg.last());	}
@@ -640,6 +747,7 @@ bool operator ==( const Different_Norm_Layer& different_Norm_Layer_Left, const D
 void Profile_Plot::calculate_Profile()
 {
 	struct_Data_Counter = 1; // ambient is the first
+	max_Sigma = 0.1;
 	get_Max_My_Sigma(multilayer->structure_Tree->tree->invisibleRootItem());
 
 	different_Materials.clear();
@@ -710,8 +818,8 @@ void Profile_Plot::calculate_Profile()
 
 	// profiling
 	double step = 0.2;	// in angstroms
-	double prefix = max(15., 5+2*max_Sigma);	// in angstroms
-	double suffix = max(15., 5+2*max_Sigma);	// in angstroms
+	double prefix = max(15., 5+3*max_Sigma);	// in angstroms
+	double suffix = max(15., 5+3*max_Sigma);	// in angstroms
 	double length = prefix+boundary_Vector.last()+suffix;
 	int data_Count = ceil(length/step)+1;
 	int limit = 20000; // restriction
@@ -728,22 +836,27 @@ void Profile_Plot::calculate_Profile()
 //	}
 	arg.resize(data_Count);
 	val.resize(data_Count);
+	map_Sharp_Smooth.clear();
 
 	// delta
 	if(multilayer->profile_Plot_Options.type == PERMITTIVITY && multilayer->profile_Plot_Options.permittivity_Type == DELTA_EPS	)
 	{		
+		QCPGraph* sharp_Graph;
 		custom_Plot->clearGraphs();
 
+		// sharp profile
 		if(multilayer->profile_Plot_Options.show_Sharp_Profile)
 		{
 			custom_Plot->addGraph();
 			sharp_Delta_To_Plot_Vector.resize(struct_Data_Vector.size()+1);
-			val_Sharp.resize(thickness_Vector.size());
+			val_Sharp.resize(struct_Data_Vector.size());
 
 			// first point
 			{
 				sharp_Delta_To_Plot_Vector.first().key   = -prefix;
 				sharp_Delta_To_Plot_Vector.first().value = delta_Epsilon_Vector.first();
+
+				val_Sharp.first() = delta_Epsilon_Vector.first();
 			}
 			// main part
 			for(int media_Index=1; media_Index<struct_Data_Vector.size()-1; media_Index++)
@@ -751,12 +864,16 @@ void Profile_Plot::calculate_Profile()
 				sharp_Delta_To_Plot_Vector[media_Index].key   = boundary_Vector[media_Index-1];
 				sharp_Delta_To_Plot_Vector[media_Index].value = delta_Epsilon_Vector[media_Index];
 
-				val_Sharp[media_Index-1] = sharp_Delta_To_Plot_Vector[media_Index].value;
+				val_Sharp[media_Index] = delta_Epsilon_Vector[media_Index];
 			}
 			// last point
 			{
 				sharp_Delta_To_Plot_Vector[sharp_Delta_To_Plot_Vector.size()-2].key   = boundary_Vector.last();
 				sharp_Delta_To_Plot_Vector[sharp_Delta_To_Plot_Vector.size()-2].value = delta_Epsilon_Vector.last();
+
+				val_Sharp.last() = delta_Epsilon_Vector.last();
+
+				// additional point (for stepplot)
 				sharp_Delta_To_Plot_Vector.last().key   = boundary_Vector.last()+suffix;
 				sharp_Delta_To_Plot_Vector.last().value = delta_Epsilon_Vector.last();
 			}
@@ -765,89 +882,222 @@ void Profile_Plot::calculate_Profile()
 			custom_Plot->graph()->setPen(QPen(Qt::darkCyan, default_Profile_Line_Thickness));
 			custom_Plot->graph()->selectionDecorator()->setPen(QPen(custom_Plot->graph()->pen().color(),selected_Profile_Line_Thickness));
 			custom_Plot->graph()->setLineStyle(QCPGraph::lsStepLeft);
+			sharp_Graph = custom_Plot->graph();
 		}
 
-		custom_Plot->addGraph();
-		delta_To_Plot_Vector.resize(data_Count);
-		Global_Variables::parallel_For(data_Count, reflectivity_Calc_Threads, [&](int n_Min, int n_Max)
+		// smooth profile
 		{
-			for(int i=n_Min; i<n_Max; ++i)
-			{
-				double z = -prefix + i*step;
-				delta_To_Plot_Vector[i].key = z/length_Coefficients_Map.value(multilayer->profile_Plot_Options.local_length_units);
-				delta_To_Plot_Vector[i].value = real(delta_Beta_Epsilon_Func(z));
-			}
-		});
-		for(int i=0; i<data_Count; i++)
-		{
-			arg[i] = delta_To_Plot_Vector[i].key;
-			val[i] = delta_To_Plot_Vector[i].value;
-		}
-		custom_Plot->graph()->data()->set(delta_To_Plot_Vector);
-		custom_Plot->graph()->setPen(QPen(Qt::blue, default_Profile_Line_Thickness));
-		custom_Plot->graph()->selectionDecorator()->setPen(QPen(custom_Plot->graph()->pen().color(),selected_Profile_Line_Thickness));
-		custom_Plot->legend->setVisible(false);
-	}
-	// beta
-	if(multilayer->profile_Plot_Options.type == PERMITTIVITY && multilayer->profile_Plot_Options.permittivity_Type == BETA_EPS	)
-	{
-		custom_Plot->clearGraphs();
-		custom_Plot->addGraph();
-		beta_To_Plot_Vector.resize(data_Count);
-		Global_Variables::parallel_For(data_Count, reflectivity_Calc_Threads, [&](int n_Min, int n_Max)
-		{
-			for(int i=n_Min; i<n_Max; ++i)
-			{
-				double z = -prefix + i*step;
-				beta_To_Plot_Vector[i].key = z/length_Coefficients_Map.value(multilayer->profile_Plot_Options.local_length_units);
-				beta_To_Plot_Vector[i].value = imag(delta_Beta_Epsilon_Func(z));
-			}
-		});
-		for(int i=0; i<data_Count; i++)
-		{
-			arg[i] = beta_To_Plot_Vector[i].key;
-			val[i] = beta_To_Plot_Vector[i].value;
-		}
-		custom_Plot->graph()->data()->set(beta_To_Plot_Vector);
-		custom_Plot->graph()->setPen(QPen(Qt::red, default_Profile_Line_Thickness));
-		custom_Plot->graph()->selectionDecorator()->setPen(QPen(custom_Plot->graph()->pen().color(),selected_Profile_Line_Thickness));
-		custom_Plot->legend->setVisible(false);
-	}
-	// materials
-	if(multilayer->profile_Plot_Options.type == MATERIAL)
-	{
-		val_Multiple.resize(different_Materials.size());
-
-		custom_Plot->clearGraphs();
-		//materials_To_Plot_Vector_Vector.resize(different_Materials.size());
-		QVector<QCPGraphData> one_Material_To_Plot_Vector; one_Material_To_Plot_Vector.resize(data_Count);
-
-		for(int material_index = 0; material_index<different_Materials.size(); material_index++)
-		{
-			val_Multiple[material_index].resize(data_Count);
 			custom_Plot->addGraph();
+			delta_To_Plot_Vector.resize(data_Count);
 			Global_Variables::parallel_For(data_Count, reflectivity_Calc_Threads, [&](int n_Min, int n_Max)
 			{
 				for(int i=n_Min; i<n_Max; ++i)
 				{
 					double z = -prefix + i*step;
-					one_Material_To_Plot_Vector[i].key = z/length_Coefficients_Map.value(multilayer->profile_Plot_Options.local_length_units);
-					one_Material_To_Plot_Vector[i].value = real(delta_Beta_Epsilon_Func(z, different_Materials[material_index]));
+					delta_To_Plot_Vector[i].key = z/length_Coefficients_Map.value(multilayer->profile_Plot_Options.local_length_units);
+					delta_To_Plot_Vector[i].value = real(delta_Beta_Epsilon_Func(z));
 				}
 			});
 			for(int i=0; i<data_Count; i++)
 			{
-				arg[i] = one_Material_To_Plot_Vector[i].key; // many times, but OK
-				val[i] = one_Material_To_Plot_Vector[i].value;
+				arg[i] = delta_To_Plot_Vector[i].key;
+				val[i] = delta_To_Plot_Vector[i].value;
 			}
-			val_Multiple[material_index] = val;
-			//materials_To_Plot_Vector_Vector[material_index] = one_Material_To_Plot_Vector;
-			custom_Plot->graph(material_index)->data()->set(one_Material_To_Plot_Vector);
-			custom_Plot->graph(material_index)->setPen(QPen(color_Contrast_Sequence[material_index%color_Contrast_Sequence.size()], default_Profile_Line_Thickness));
-			custom_Plot->graph(material_index)->selectionDecorator()->setPen(QPen(custom_Plot->graph(material_index)->pen().color(),selected_Profile_Line_Thickness));
-			custom_Plot->graph(material_index)->setName(different_Materials[material_index]);
-			custom_Plot->legend->item(material_index)->setTextColor(color_Contrast_Sequence[material_index%color_Contrast_Sequence.size()]);
-			custom_Plot->legend->item(material_index)->setSelectedTextColor(color_Contrast_Sequence[material_index%color_Contrast_Sequence.size()]);
+			custom_Plot->graph()->data()->set(delta_To_Plot_Vector);
+			custom_Plot->graph()->setPen(QPen(Qt::blue, default_Profile_Line_Thickness));
+			custom_Plot->graph()->selectionDecorator()->setPen(QPen(custom_Plot->graph()->pen().color(),selected_Profile_Line_Thickness));
+		}
+
+		// connection between sharp and smooth plots
+		if(multilayer->profile_Plot_Options.show_Sharp_Profile)
+		{
+			map_Sharp_Smooth.insert(custom_Plot->graph(), sharp_Graph);
+		}
+		custom_Plot->legend->setVisible(false);
+	}
+	// beta
+	if(multilayer->profile_Plot_Options.type == PERMITTIVITY && multilayer->profile_Plot_Options.permittivity_Type == BETA_EPS	)
+	{
+		QCPGraph* sharp_Graph;
+		custom_Plot->clearGraphs();
+
+		// sharp profile
+		if(multilayer->profile_Plot_Options.show_Sharp_Profile)
+		{
+			custom_Plot->addGraph();
+			sharp_Beta_To_Plot_Vector.resize(struct_Data_Vector.size()+1);
+			val_Sharp.resize(struct_Data_Vector.size());
+
+			// first point
+			{
+				sharp_Beta_To_Plot_Vector.first().key   = -prefix;
+				sharp_Beta_To_Plot_Vector.first().value = beta_Epsilon_Vector.first();
+
+				val_Sharp.first() = beta_Epsilon_Vector.first();
+			}
+			// main part
+			for(int media_Index=1; media_Index<struct_Data_Vector.size()-1; media_Index++)
+			{
+				sharp_Beta_To_Plot_Vector[media_Index].key   = boundary_Vector[media_Index-1];
+				sharp_Beta_To_Plot_Vector[media_Index].value = beta_Epsilon_Vector[media_Index];
+
+				val_Sharp[media_Index] = beta_Epsilon_Vector[media_Index];
+			}
+			// last point
+			{
+				sharp_Beta_To_Plot_Vector[sharp_Beta_To_Plot_Vector.size()-2].key   = boundary_Vector.last();
+				sharp_Beta_To_Plot_Vector[sharp_Beta_To_Plot_Vector.size()-2].value = beta_Epsilon_Vector.last();
+
+				val_Sharp.last() = beta_Epsilon_Vector.last();
+
+				// additional point (for stepplot)
+				sharp_Beta_To_Plot_Vector.last().key   = boundary_Vector.last()+suffix;
+				sharp_Beta_To_Plot_Vector.last().value = beta_Epsilon_Vector.last();
+			}
+
+			custom_Plot->graph()->data()->set(sharp_Beta_To_Plot_Vector);
+			custom_Plot->graph()->setPen(QPen(Qt::darkMagenta, default_Profile_Line_Thickness));
+			custom_Plot->graph()->selectionDecorator()->setPen(QPen(custom_Plot->graph()->pen().color(),selected_Profile_Line_Thickness));
+			custom_Plot->graph()->setLineStyle(QCPGraph::lsStepLeft);
+			sharp_Graph = custom_Plot->graph();
+		}
+
+		// smooth profile
+		{
+			custom_Plot->addGraph();
+			beta_To_Plot_Vector.resize(data_Count);
+			Global_Variables::parallel_For(data_Count, reflectivity_Calc_Threads, [&](int n_Min, int n_Max)
+			{
+				for(int i=n_Min; i<n_Max; ++i)
+				{
+					double z = -prefix + i*step;
+					beta_To_Plot_Vector[i].key = z/length_Coefficients_Map.value(multilayer->profile_Plot_Options.local_length_units);
+					beta_To_Plot_Vector[i].value = imag(delta_Beta_Epsilon_Func(z));
+				}
+			});
+			for(int i=0; i<data_Count; i++)
+			{
+				arg[i] = beta_To_Plot_Vector[i].key;
+				val[i] = beta_To_Plot_Vector[i].value;
+			}
+			custom_Plot->graph()->data()->set(beta_To_Plot_Vector);
+			custom_Plot->graph()->setPen(QPen(Qt::red, default_Profile_Line_Thickness));
+			custom_Plot->graph()->selectionDecorator()->setPen(QPen(custom_Plot->graph()->pen().color(),selected_Profile_Line_Thickness));
+		}
+
+		// connection between sharp and smooth plots
+		if(multilayer->profile_Plot_Options.show_Sharp_Profile)
+		{
+			map_Sharp_Smooth.insert(custom_Plot->graph(), sharp_Graph);
+		}
+		custom_Plot->legend->setVisible(false);
+	}
+	// materials
+	if(multilayer->profile_Plot_Options.type == MATERIAL)
+	{
+		materials_To_Plot_Vector_Vector      .resize(different_Materials.size());
+		sharp_Materials_To_Plot_Vector_Vector.resize(different_Materials.size());
+
+		val_Multiple      .resize(different_Materials.size());
+		val_Sharp_Multiple.resize(different_Materials.size());
+
+		custom_Plot->clearGraphs();
+
+		for(int material_index = 0; material_index<different_Materials.size(); material_index++)
+		{
+			QCPGraph* sharp_Graph;
+
+			// sharp profile
+			if(multilayer->profile_Plot_Options.show_Sharp_Profile)
+			{
+				sharp_Materials_To_Plot_Vector_Vector[material_index].resize(struct_Data_Vector.size()+1);
+				val_Sharp_Multiple[material_index].resize(struct_Data_Vector.size());
+
+				custom_Plot->addGraph();
+
+				// first point
+				{
+					sharp_Materials_To_Plot_Vector_Vector[material_index].first().key = -prefix;
+					if(struct_Data_Vector.first().approved_Material == different_Materials[material_index])
+					{
+						sharp_Materials_To_Plot_Vector_Vector[material_index].first().value = struct_Data_Vector.first().relative_Density.value;
+					} else
+					{
+						sharp_Materials_To_Plot_Vector_Vector[material_index].first().value = 0;
+					}
+					val_Sharp_Multiple[material_index].first() = sharp_Materials_To_Plot_Vector_Vector[material_index].first().value;
+				}
+				// main part
+				for(int media_Index=1; media_Index<struct_Data_Vector.size()-1; media_Index++)
+				{
+					sharp_Materials_To_Plot_Vector_Vector[material_index][media_Index].key = boundary_Vector[media_Index-1];
+					if(struct_Data_Vector[media_Index].approved_Material == different_Materials[material_index])
+					{
+						sharp_Materials_To_Plot_Vector_Vector[material_index][media_Index].value = struct_Data_Vector[media_Index].relative_Density.value;
+					} else
+					{
+						sharp_Materials_To_Plot_Vector_Vector[material_index][media_Index].value = 0;
+					}
+					val_Sharp_Multiple[material_index][media_Index] = sharp_Materials_To_Plot_Vector_Vector[material_index][media_Index].value;
+				}
+				// last point
+				{
+					sharp_Materials_To_Plot_Vector_Vector[material_index][sharp_Materials_To_Plot_Vector_Vector[material_index].size()-2].key = boundary_Vector.last();
+					if(struct_Data_Vector.last().approved_Material == different_Materials[material_index])
+					{
+						sharp_Materials_To_Plot_Vector_Vector[material_index][sharp_Materials_To_Plot_Vector_Vector[material_index].size()-2].value = struct_Data_Vector.last().relative_Density.value;
+					} else
+					{
+						sharp_Materials_To_Plot_Vector_Vector[material_index][sharp_Materials_To_Plot_Vector_Vector[material_index].size()-2].value = 0;
+					}
+					val_Sharp_Multiple[material_index].last() = sharp_Materials_To_Plot_Vector_Vector[material_index][sharp_Materials_To_Plot_Vector_Vector[material_index].size()-2].value;
+
+					// additional point (for stepplot)
+					sharp_Materials_To_Plot_Vector_Vector[material_index].last().key   = boundary_Vector.last()+suffix;
+					sharp_Materials_To_Plot_Vector_Vector[material_index].last().value = sharp_Materials_To_Plot_Vector_Vector[material_index][sharp_Materials_To_Plot_Vector_Vector[material_index].size()-2].value;
+				}
+
+				custom_Plot->graph()->data()->set(sharp_Materials_To_Plot_Vector_Vector[material_index]);
+				custom_Plot->graph()->setPen(QPen(color_Contrast_Adjoint_Sequence[material_index%color_Contrast_Adjoint_Sequence.size()], default_Profile_Line_Thickness));
+				custom_Plot->graph()->selectionDecorator()->setPen(QPen(custom_Plot->graph()->pen().color(),selected_Profile_Line_Thickness));
+				custom_Plot->graph()->setLineStyle(QCPGraph::lsStepLeft);
+				custom_Plot->graph()->removeFromLegend();
+				sharp_Graph = custom_Plot->graph();
+			}
+
+			// smooth profile
+			{
+				val_Multiple[material_index].resize(data_Count);
+				materials_To_Plot_Vector_Vector[material_index].resize(data_Count);
+
+				custom_Plot->addGraph();
+				Global_Variables::parallel_For(data_Count, reflectivity_Calc_Threads, [&](int n_Min, int n_Max)
+				{
+					for(int i=n_Min; i<n_Max; ++i)
+					{
+						double z = -prefix + i*step;
+						materials_To_Plot_Vector_Vector[material_index][i].key = z/length_Coefficients_Map.value(multilayer->profile_Plot_Options.local_length_units);
+						materials_To_Plot_Vector_Vector[material_index][i].value = real(delta_Beta_Epsilon_Func(z, different_Materials[material_index]));
+					}
+				});
+				for(int i=0; i<data_Count; i++)
+				{
+					arg[i] = materials_To_Plot_Vector_Vector[material_index][i].key; // many times, but OK
+					val_Multiple[material_index][i] = materials_To_Plot_Vector_Vector[material_index][i].value;
+				}
+				custom_Plot->graph()->data()->set(materials_To_Plot_Vector_Vector[material_index]);
+				custom_Plot->graph()->setPen(QPen(color_Contrast_Sequence[material_index%color_Contrast_Sequence.size()], default_Profile_Line_Thickness));
+				custom_Plot->graph()->selectionDecorator()->setPen(QPen(custom_Plot->graph()->pen().color(),selected_Profile_Line_Thickness));
+				custom_Plot->graph()->setName(different_Materials[material_index]);
+				custom_Plot->legend->itemWithPlottable(custom_Plot->graph())->setTextColor(color_Contrast_Sequence[material_index%color_Contrast_Sequence.size()]);
+				custom_Plot->legend->itemWithPlottable(custom_Plot->graph())->setSelectedTextColor(color_Contrast_Sequence[material_index%color_Contrast_Sequence.size()]);
+			}
+
+			// connection between sharp and smooth plots
+			if(multilayer->profile_Plot_Options.show_Sharp_Profile)
+			{
+				map_Sharp_Smooth.insert(custom_Plot->graph(), sharp_Graph);
+			}
 		}
 		custom_Plot->legend->setVisible(true);
 		custom_Plot->axisRect()->insetLayout()->setInsetAlignment(0, Qt::AlignRight/*|Qt::AlignTop*/);
@@ -855,36 +1105,108 @@ void Profile_Plot::calculate_Profile()
 	// elements
 	if(multilayer->profile_Plot_Options.type == ELEMENTS)
 	{
-		val_Multiple.resize(different_Elements.size());
+		elements_To_Plot_Vector_Vector      .resize(different_Elements.size());
+		sharp_Elements_To_Plot_Vector_Vector.resize(different_Elements.size());
+
+		val_Multiple      .resize(different_Elements.size());
+		val_Sharp_Multiple.resize(different_Elements.size());
 
 		custom_Plot->clearGraphs();
-		//elements_To_Plot_Vector_Vector.resize(different_Elements.size());
-		QVector<QCPGraphData> one_Element_To_Plot_Vector; one_Element_To_Plot_Vector.resize(data_Count);
 		for(int element_Index = 0; element_Index<different_Elements.size(); element_Index++)
 		{
-			custom_Plot->addGraph();
-			Global_Variables::parallel_For(data_Count, reflectivity_Calc_Threads, [&](int n_Min, int n_Max)
+			QCPGraph* sharp_Graph;
+
+			// sharp profile
+			if(multilayer->profile_Plot_Options.show_Sharp_Profile)
 			{
-				for(int i=n_Min; i<n_Max; ++i)
+				sharp_Elements_To_Plot_Vector_Vector[element_Index].resize(struct_Data_Vector.size()+1);
+				val_Sharp_Multiple[element_Index].resize(struct_Data_Vector.size());
+
+				custom_Plot->addGraph();
+
+				// first point
 				{
-					double z = -prefix + i*step;
-					one_Element_To_Plot_Vector[i].key = z/length_Coefficients_Map.value(multilayer->profile_Plot_Options.local_length_units);
-					one_Element_To_Plot_Vector[i].value = real(delta_Beta_Epsilon_Func(z, different_Elements[element_Index]));
+					sharp_Elements_To_Plot_Vector_Vector[element_Index].first().key = -prefix;
+					if(element_Concentration_Map_Vector.first().contains(different_Elements[element_Index]))
+					{
+						sharp_Elements_To_Plot_Vector_Vector[element_Index].first().value = element_Concentration_Map_Vector.first().value(different_Elements[element_Index]);
+					} else
+					{
+						sharp_Elements_To_Plot_Vector_Vector[element_Index].first().value = 0;
+					}
+					val_Sharp_Multiple[element_Index].first() = sharp_Elements_To_Plot_Vector_Vector[element_Index].first().value;
 				}
-			});
-			for(int i=0; i<data_Count; i++)
-			{
-				arg[i] = one_Element_To_Plot_Vector[i].key; // many times, but OK
-				val[i] = one_Element_To_Plot_Vector[i].value;
+				// main part
+				for(int media_Index=1; media_Index<struct_Data_Vector.size()-1; media_Index++)
+				{
+					sharp_Elements_To_Plot_Vector_Vector[element_Index][media_Index].key = boundary_Vector[media_Index-1];
+					if(element_Concentration_Map_Vector[media_Index].contains(different_Elements[element_Index]))
+					{
+						sharp_Elements_To_Plot_Vector_Vector[element_Index][media_Index].value = element_Concentration_Map_Vector[media_Index].value(different_Elements[element_Index]);
+					} else
+					{
+						sharp_Elements_To_Plot_Vector_Vector[element_Index][media_Index].value = 0;
+					}
+					val_Sharp_Multiple[element_Index][media_Index] = sharp_Elements_To_Plot_Vector_Vector[element_Index][media_Index].value;
+				}
+				// last point
+				{
+					sharp_Elements_To_Plot_Vector_Vector[element_Index][sharp_Elements_To_Plot_Vector_Vector[element_Index].size()-2].key = boundary_Vector.last();
+					if(element_Concentration_Map_Vector.last().contains(different_Elements[element_Index]))
+					{
+						sharp_Elements_To_Plot_Vector_Vector[element_Index][sharp_Elements_To_Plot_Vector_Vector[element_Index].size()-2].value = element_Concentration_Map_Vector.last().value(different_Elements[element_Index]);
+					} else
+					{
+						sharp_Elements_To_Plot_Vector_Vector[element_Index][sharp_Elements_To_Plot_Vector_Vector[element_Index].size()-2].value = 0;
+					}
+					val_Sharp_Multiple[element_Index].last() = sharp_Elements_To_Plot_Vector_Vector[element_Index][sharp_Elements_To_Plot_Vector_Vector[element_Index].size()-2].value;
+
+					// additional point (for stepplot)
+					sharp_Elements_To_Plot_Vector_Vector[element_Index].last().key   = boundary_Vector.last()+suffix;
+					sharp_Elements_To_Plot_Vector_Vector[element_Index].last().value = sharp_Elements_To_Plot_Vector_Vector[element_Index][sharp_Elements_To_Plot_Vector_Vector[element_Index].size()-2].value;
+				}
+
+				custom_Plot->graph()->data()->set(sharp_Elements_To_Plot_Vector_Vector[element_Index]);
+				custom_Plot->graph()->setPen(QPen(color_Contrast_Adjoint_Sequence[element_Index%color_Contrast_Adjoint_Sequence.size()], default_Profile_Line_Thickness));
+				custom_Plot->graph()->selectionDecorator()->setPen(QPen(custom_Plot->graph()->pen().color(),selected_Profile_Line_Thickness));
+				custom_Plot->graph()->setLineStyle(QCPGraph::lsStepLeft);
+				custom_Plot->graph()->removeFromLegend();
+				sharp_Graph = custom_Plot->graph();
 			}
-			val_Multiple[element_Index] = val;
-			//elements_To_Plot_Vector_Vector[material_index] = one_Element_To_Plot_Vector;
-			custom_Plot->graph(element_Index)->data()->set(one_Element_To_Plot_Vector);
-			custom_Plot->graph(element_Index)->setPen(QPen(color_Contrast_Sequence[element_Index%color_Contrast_Sequence.size()], default_Profile_Line_Thickness));
-			custom_Plot->graph(element_Index)->selectionDecorator()->setPen(QPen(custom_Plot->graph(element_Index)->pen().color(),selected_Profile_Line_Thickness));
-			custom_Plot->graph(element_Index)->setName(different_Elements[element_Index]);
-			custom_Plot->legend->item(element_Index)->setTextColor(color_Contrast_Sequence[element_Index%color_Contrast_Sequence.size()]);
-			custom_Plot->legend->item(element_Index)->setSelectedTextColor(color_Contrast_Sequence[element_Index%color_Contrast_Sequence.size()]);
+
+			// smooth profile
+			{
+				val_Multiple[element_Index].resize(data_Count);
+				elements_To_Plot_Vector_Vector[element_Index].resize(data_Count);
+
+				custom_Plot->addGraph();
+				Global_Variables::parallel_For(data_Count, reflectivity_Calc_Threads, [&](int n_Min, int n_Max)
+				{
+					for(int i=n_Min; i<n_Max; ++i)
+					{
+						double z = -prefix + i*step;
+						elements_To_Plot_Vector_Vector[element_Index][i].key = z/length_Coefficients_Map.value(multilayer->profile_Plot_Options.local_length_units);
+						elements_To_Plot_Vector_Vector[element_Index][i].value = real(delta_Beta_Epsilon_Func(z, different_Elements[element_Index]));
+					}
+				});
+				for(int i=0; i<data_Count; i++)
+				{
+					arg[i] = elements_To_Plot_Vector_Vector[element_Index][i].key; // many times, but OK
+					val_Multiple[element_Index][i] = elements_To_Plot_Vector_Vector[element_Index][i].value;
+				}
+				custom_Plot->graph()->data()->set(elements_To_Plot_Vector_Vector[element_Index]);
+				custom_Plot->graph()->setPen(QPen(color_Contrast_Sequence[element_Index%color_Contrast_Sequence.size()], default_Profile_Line_Thickness));
+				custom_Plot->graph()->selectionDecorator()->setPen(QPen(custom_Plot->graph()->pen().color(),selected_Profile_Line_Thickness));
+				custom_Plot->graph()->setName(different_Elements[element_Index]);
+				custom_Plot->legend->itemWithPlottable(custom_Plot->graph())->setTextColor(color_Contrast_Sequence[element_Index%color_Contrast_Sequence.size()]);
+				custom_Plot->legend->itemWithPlottable(custom_Plot->graph())->setSelectedTextColor(color_Contrast_Sequence[element_Index%color_Contrast_Sequence.size()]);
+			}
+
+			// connection between sharp and smooth plots
+			if(multilayer->profile_Plot_Options.show_Sharp_Profile)
+			{
+				map_Sharp_Smooth.insert(custom_Plot->graph(), sharp_Graph);
+			}
 		}
 		custom_Plot->legend->setVisible(true);
 		custom_Plot->axisRect()->insetLayout()->setInsetAlignment(0, Qt::AlignRight/*|Qt::AlignTop*/);
@@ -979,6 +1301,41 @@ complex<double> Profile_Plot::delta_Beta_Epsilon_Func(double z, QString given_Ma
 		}
 	}
 	return complex<double>(delta_Epsilon,beta_Epsilon);
+}
+
+void Profile_Plot::hide_Show_Other_Plots()
+{
+	QCPGraph* graph = custom_Plot->selectedGraphs()[0];
+
+	if(visibility_State)
+	{
+		// hide
+		for(int i=0; i<custom_Plot->graphCount(); i++)
+		{
+			if(custom_Plot->graph(i) != graph)
+			{
+				custom_Plot->graph(i)->setVisible(false);
+			}
+			if(multilayer->profile_Plot_Options.show_Sharp_Profile)
+			{
+				QCPGraph* sharp_Graph = map_Sharp_Smooth.value(graph);
+				if(sharp_Graph) {sharp_Graph->setVisible(true);	}
+
+				QCPGraph* smooth_Graph = map_Sharp_Smooth.key(graph);
+				if(smooth_Graph) {smooth_Graph->setVisible(true);	}
+			}
+		}
+		visibility_State = false;
+	} else
+	{
+		// show
+		for(int i=0; i<custom_Plot->graphCount(); i++)
+		{
+			if(custom_Plot->graph(i) != graph) {custom_Plot->graph(i)->setVisible(true);}
+		}
+		visibility_State = true;
+	}
+	custom_Plot->replot();
 }
 
 void Profile_Plot::get_Delta_Epsilon(const Data& struct_Data, double& delta, double& beta)

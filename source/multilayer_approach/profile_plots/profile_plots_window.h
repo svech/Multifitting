@@ -23,7 +23,6 @@ public:
 	void create_Tabs();
 	void add_Tabs();
 		void create_Tab_Content(QWidget* new_Widget, int tab_Index);
-	void refresh_Plots();
 
 	QVBoxLayout* main_Layout;
 	QTabWidget* main_Tabs;

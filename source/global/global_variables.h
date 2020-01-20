@@ -210,6 +210,7 @@ extern QPen subinterval_Plot_Pen;
 extern QBrush subinterval_Plot_Brush;
 
 extern QVector<QColor> color_Contrast_Sequence;
+extern QVector<QColor> color_Contrast_Adjoint_Sequence;
 
 extern double default_Profile_Line_Thickness;
 extern double selected_Profile_Line_Thickness;
@@ -271,6 +272,7 @@ public:
 	static void resize_Line_Edit(Type* input_Line_Edit, bool adjust_Window = true);
 	static void change_Parent_Period_Gamma_Thickness(QTreeWidgetItem *current_Item);
 	static void plot_All_Data_in_Graphs();
+	static void plot_All_Data_in_Profiles();
 	static void replot_All_Graphs();
 	static void variable_Drift(double& value, Drift& drift, int period_Index, int num_Repetition, gsl_rng *r);
 

@@ -24,6 +24,7 @@ public:
 	void unwrap_Subtree(QVector<Data>& struct_Data_Vector, QTreeWidgetItem* item, int num_Repetition, int period_Index);
 	void get_Max_My_Sigma(QTreeWidgetItem* item, int periods_Factor = 1);
 	complex<double> delta_Beta_Epsilon_Func(double z, QString given_Material_or_Element = "no material or element");
+	void hide_Show_Other_Plots();
 
 	Multilayer* multilayer;
 	Profile_Plots_Window* profile_Plots_Window;
@@ -82,10 +83,12 @@ public:
 	QVector<QCPGraphData> sharp_Beta_To_Plot_Vector;
 
 	// materials
-	//QVector<QVector<QCPGraphData>> materials_To_Plot_Vector_Vector;
+	QVector<QVector<QCPGraphData>> materials_To_Plot_Vector_Vector;
+	QVector<QVector<QCPGraphData>> sharp_Materials_To_Plot_Vector_Vector;
 
 	// elements
-	//QVector<QVector<QCPGraphData>> elements_To_Plot_Vector_Vector;
+	QVector<QVector<QCPGraphData>> elements_To_Plot_Vector_Vector;
+	QVector<QVector<QCPGraphData>> sharp_Elements_To_Plot_Vector_Vector;
 
 	// general
 	QVector<double> arg;
@@ -93,6 +96,10 @@ public:
 	QVector<double> val_Sharp;
 
 	QVector<QVector<double>> val_Multiple;
+	QVector<QVector<double>> val_Sharp_Multiple;
+
+	QMap<QCPGraph*,QCPGraph*> map_Sharp_Smooth;
+	bool visibility_State = true;
 };
 
 #endif // PROFILE_PLOT_H

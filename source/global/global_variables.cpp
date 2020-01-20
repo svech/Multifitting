@@ -369,6 +369,17 @@ QVector<QColor> color_Contrast_Sequence = { QColor(0, 205, 0),
 											QColor(0, 0, 127),
 											QColor(255, 0, 127)
 										  };
+QVector<QColor> color_Contrast_Adjoint_Sequence = { QColor(0, 115, 40),
+													QColor(125, 0, 0),
+													QColor(50, 50, 125),
+													QColor(120, 35, 125),
+													QColor(100, 100, 100),
+													QColor(1, 105, 105),
+													QColor(0, 60, 27),
+													QColor(125, 70, 0),
+													QColor(30, 30, 94),
+													QColor(127, 0, 64)
+												 };
 
 double default_Profile_Line_Thickness = 1.4;
 double selected_Profile_Line_Thickness = 3.5;
@@ -1183,6 +1194,17 @@ void Global_Variables::plot_All_Data_in_Graphs()
 		for(Curve_Plot* curve_Plot : global_Multilayer_Approach->optical_Graphs->plots)
 		{
 			curve_Plot->plot_All_Data();
+		}
+	}
+}
+
+void Global_Variables::plot_All_Data_in_Profiles()
+{
+	if(global_Multilayer_Approach->runned_Profile_Plots_Window.contains(profile_Plots_Key))
+	{
+		for(Profile_Plot* profile_Plot : global_Multilayer_Approach->profile_Plots_Window->profile_Plot_Vector)
+		{
+			profile_Plot->plot_Data(true);
 		}
 	}
 }

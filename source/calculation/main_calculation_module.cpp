@@ -88,6 +88,7 @@ void Main_Calculation_Module::single_Calculation(bool print)
 
 	// replot graphs
 	Global_Variables::plot_All_Data_in_Graphs();
+	Global_Variables::plot_All_Data_in_Profiles();
 
 	if(print)
 	{

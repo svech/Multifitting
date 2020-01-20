@@ -116,8 +116,14 @@ void Multilayer_Approach::fast_Hide_Windows()
 	if(runned_Tables_Of_Structures.contains(table_Of_Structures_Key))	{
 		table_Of_Structures->close();
 	}
+	if(runned_Tables_Of_Roughness.contains(table_Of_Roughness_Key))	{
+		table_Of_Roughness->close();
+	}
 	if(runned_Optical_Graphs.contains(optical_Graphs_Key))	{
 		optical_Graphs->close();
+	}
+	if(runned_Profile_Plots_Window.contains(profile_Plots_Key))	{
+		profile_Plots_Window->close();
 	}
 	if(runned_Fits_Selectors.contains(fits_Selector_Key))	{
 		fits_Selector->close();
@@ -340,7 +346,6 @@ void Multilayer_Approach::open_Profile_Plots()
 	} else
 	{
 		profile_Plots_Window->activateWindow();
-		profile_Plots_Window->refresh_Plots();
 	}
 }
 
@@ -1009,13 +1014,6 @@ void Multilayer_Approach::open(QString filename)
 	{
 		open_Calculation_Settings();
 		runned_Calculation_Settings_Editor.value(calc_Settings_Key)->main_Tabs->setCurrentIndex(active_Tab_Calculation_Settings_Editor);
-	}
-
-	// reopen graphs
-	if(reopen_Graphs)
-	{
-		open_Optical_Graphs();
-		runned_Optical_Graphs.value(optical_Graphs_Key)->main_Tabs->setCurrentIndex(active_Tab_Optical_Graphs);
 	}
 
 	// reopen graphs
