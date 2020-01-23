@@ -213,14 +213,25 @@ void Calculation_Settings_Editor::create_Tab_Content(QWidget* new_Widget, int ta
 {
 	QVBoxLayout* tab_Layout = new QVBoxLayout(new_Widget);
 		tab_Layout->setSpacing(5);
-		tab_Layout->setContentsMargins(2,2,2,2);
+	tab_Layout->setContentsMargins(2,2,2,2);
 
+	{
+		QGroupBox* discretization_Group_Box = new QGroupBox("Discretization", this);
+			discretization_Group_Box->setCheckable(true);
+			discretization_Group_Box->setObjectName("discretization_Group_Box");
+			discretization_Group_Box->setStyleSheet("QGroupBox#discretization_Group_Box { border-radius: 2px;  border: 1px solid gray; margin-top: 2ex;}"
+																	"QGroupBox::title   { subcontrol-origin: margin;   left: 9px; padding: 0 0px 0 1px;}");
+		tab_Layout->addWidget(discretization_Group_Box);
+
+		discretization_Group_Box_Vec.append(discretization_Group_Box);
+		load_Discretization_Parameters(tab_Index);
+	}
 	{
 		QGroupBox* target_Group_Box = new QGroupBox("Measured", this);
 			target_Group_Box->setCheckable(true);
 			target_Group_Box->setObjectName("target_Group_Box");
 			target_Group_Box->setStyleSheet("QGroupBox#target_Group_Box { border-radius: 2px;  border: 1px solid gray; margin-top: 2ex;}"
-														"QGroupBox::title   { subcontrol-origin: margin;   left: 9px; padding: 0 0px 0 1px;}");
+													"QGroupBox::title   { subcontrol-origin: margin;   left: 9px; padding: 0 0px 0 1px;}");
 		tab_Layout->addWidget(target_Group_Box);
 
 //		QHBoxLayout* target_Layout = new QHBoxLayout(target_Group_Box);
@@ -236,7 +247,7 @@ void Calculation_Settings_Editor::create_Tab_Content(QWidget* new_Widget, int ta
 			independent_Group_Box->setCheckable(true);
 			independent_Group_Box->setObjectName("independent_Group_Box");
 			independent_Group_Box->setStyleSheet("QGroupBox#independent_Group_Box { border-radius: 2px;  border: 1px solid gray; margin-top: 2ex;}"
-														"QGroupBox::title   { subcontrol-origin: margin;   left: 9px; padding: 0 0px 0 1px;}");
+															  "QGroupBox::title   { subcontrol-origin: margin;   left: 9px; padding: 0 0px 0 1px;}");
 		tab_Layout->addWidget(independent_Group_Box);
 
 //		QHBoxLayout* independent_Layout = new QHBoxLayout(independent_Group_Box);
@@ -246,6 +257,56 @@ void Calculation_Settings_Editor::create_Tab_Content(QWidget* new_Widget, int ta
 
 		independent_Group_Box_Vec.append(independent_Group_Box);
 		load_Independent_Parameters(tab_Index);
+	}
+}
+
+void Calculation_Settings_Editor::load_Discretization_Parameters(int tab_Index)
+{
+	Multilayer* multilayer = qobject_cast<Multilayer*>(multilayer_Tabs->widget(tab_Index));
+
+	// enable/disable discretization groupbox
+	discretization_Group_Box_Vec[tab_Index]->setChecked(multilayer->discretization_Parameters.enable_Discretization);
+	connect(discretization_Group_Box_Vec[tab_Index],  &QGroupBox::toggled, this, [=]
+	{
+		multilayer->discretization_Parameters.enable_Discretization = discretization_Group_Box_Vec[tab_Index]->isChecked();
+	});
+
+	QVBoxLayout* discretization_Layout = new QVBoxLayout(discretization_Group_Box_Vec[tab_Index]);
+		discretization_Layout->setSpacing(7);
+	discretization_Layout->setContentsMargins(7,12,7,7);
+
+	{
+		QCheckBox* adjust_To_Period_Checkbox = new QCheckBox("Adjust step to period");
+			adjust_To_Period_Checkbox->setChecked(multilayer->discretization_Parameters.adjust_To_Period);
+		discretization_Layout->addWidget(adjust_To_Period_Checkbox);
+		connect(adjust_To_Period_Checkbox,  &QCheckBox::toggled, this, [=]
+		{
+			multilayer->discretization_Parameters.adjust_To_Period = adjust_To_Period_Checkbox->isChecked();
+		});
+	}
+	{
+		QLabel* step_Label = new QLabel("Discretization step");
+
+		MyDoubleSpinBox* step_SpinBox = new MyDoubleSpinBox;
+			step_SpinBox->setRange(0, MAX_DOUBLE);
+			step_SpinBox->setDecimals(8);
+//			step_SpinBox->setSingleStep(Global_Variables::get_Order_Of_Magnitude(1000));
+			step_SpinBox->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
+			step_SpinBox->setValue(1000);
+			step_SpinBox->setAccelerated(true);
+			step_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
+			step_SpinBox->installEventFilter(this);
+			step_SpinBox->setProperty(min_Size_Property,2*TABLE_FIX_WIDTH_LINE_EDIT_SHORT+1);
+			step_SpinBox->setProperty(fit_Column_Property,true);
+//		Global_Variables::resize_Line_Edit(step_SpinBox);
+
+		QLabel* step_Units_Label = new QLabel(" "+Angstrom_Sym);
+
+		QHBoxLayout* discr_H_Layout = new QHBoxLayout;
+			discr_H_Layout->addWidget(step_Label);
+			discr_H_Layout->addWidget(step_SpinBox);
+			discr_H_Layout->addWidget(step_Units_Label);
+		discretization_Layout->addLayout(discr_H_Layout);
 	}
 }
 

@@ -22,6 +22,7 @@ public:
 	void create_Tabs();
 	void add_Tabs();
 		void create_Tab_Content(QWidget* new_Widget, int tab_Index);
+			void load_Discretization_Parameters(int tab_Index);
 			void load_Target_Parameters(int tab_Index);
 			void load_Independent_Parameters(int tab_Index);
 
@@ -35,6 +36,7 @@ public:
 
 	QVBoxLayout* main_Layout;
 	QTabWidget* main_Tabs;
+		QVector<QGroupBox*> discretization_Group_Box_Vec;
 		QVector<QGroupBox*> target_Group_Box_Vec;
 		QMap<Target_Curve*,QCheckBox*> max_Integral_Map;
 		QVector<QGroupBox*> independent_Group_Box_Vec;

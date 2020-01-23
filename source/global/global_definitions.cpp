@@ -283,6 +283,19 @@ QDataStream& operator >>( QDataStream& stream,		 Calculated_Values& calculated_V
 				  >> calculated_Values.A;
 }
 
+QDataStream& operator <<( QDataStream& stream, const Discretization_Parameters& discretization_Parameters )
+{
+	return stream << discretization_Parameters.enable_Discretization
+				  << discretization_Parameters.discretization_Step
+				  << discretization_Parameters.adjust_To_Period;
+}
+QDataStream& operator >>( QDataStream& stream,		 Discretization_Parameters& discretization_Parameters )
+{
+	return stream >> discretization_Parameters.enable_Discretization
+				  >> discretization_Parameters.discretization_Step
+				  >> discretization_Parameters.adjust_To_Period;
+}
+
 QDataStream& operator <<( QDataStream& stream, const Calc_Functions& calc_Functions )
 {
 	return stream << calc_Functions.check_Enabled << calc_Functions.check_Reflectance << calc_Functions.check_Transmittance << calc_Functions.check_Absorptance

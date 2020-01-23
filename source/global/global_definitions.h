@@ -612,6 +612,10 @@ struct Calculated_Values	    {QVector<double> R;
 									 A.clear();
 								 }
 								};
+struct Discretization_Parameters{bool enable_Discretization = false;
+								 double discretization_Step = 1.0;
+								 bool adjust_To_Period = true;
+								};
 
 // independent calculation functions
 struct Calc_Functions			{bool check_Enabled = true;
@@ -783,6 +787,9 @@ QDataStream& operator >>( QDataStream& stream,		 Drift& drift );
 
 QDataStream& operator <<( QDataStream& stream, const Calculated_Values& calculated_Values );
 QDataStream& operator >>( QDataStream& stream,		 Calculated_Values& calculated_Values );
+
+QDataStream& operator <<( QDataStream& stream, const Discretization_Parameters& discretization_Parameters );
+QDataStream& operator >>( QDataStream& stream,		 Discretization_Parameters& discretization_Parameters );
 
 QDataStream& operator <<( QDataStream& stream, const Calc_Functions& calc_Functions );
 QDataStream& operator >>( QDataStream& stream,		 Calc_Functions& calc_Functions );
