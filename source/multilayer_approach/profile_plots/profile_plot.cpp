@@ -281,6 +281,8 @@ void Profile_Plot::create_Left_Side()
 
 				plot_Data(true);
 			});
+		if(multilayer->discretization_Parameters.enable_Discretization) {discretization_CheckBox->setDisabled(false);}
+		else															{discretization_CheckBox->setDisabled(true);}
 
 		cursor_Cordinate_CheckBox = new QCheckBox("Show cursor position");
 			line_Type_Layout->addWidget(cursor_Cordinate_CheckBox);
@@ -508,6 +510,12 @@ void Profile_Plot::plot_Data(bool recalculate_Profile)
 	// data
 	if(recalculate_Profile)
 	{
+		if(multilayer->discretization_Parameters.enable_Discretization && multilayer->profile_Plot_Options.show_Discretization)
+		{
+			// TODO
+			/// show discretization
+		}
+
 //		auto start = std::chrono::system_clock::now();
 		calculate_Profile();
 //		auto end = std::chrono::system_clock::now();

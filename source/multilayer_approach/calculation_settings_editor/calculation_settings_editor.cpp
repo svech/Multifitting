@@ -216,7 +216,7 @@ void Calculation_Settings_Editor::create_Tab_Content(QWidget* new_Widget, int ta
 	tab_Layout->setContentsMargins(2,2,2,2);
 
 	{
-		QGroupBox* discretization_Group_Box = new QGroupBox("Discretization", this);
+		QGroupBox* discretization_Group_Box = new QGroupBox("Profile discretization", this);
 			discretization_Group_Box->setCheckable(true);
 			discretization_Group_Box->setObjectName("discretization_Group_Box");
 			discretization_Group_Box->setStyleSheet("QGroupBox#discretization_Group_Box { border-radius: 2px;  border: 1px solid gray; margin-top: 2ex;}"
@@ -269,10 +269,18 @@ void Calculation_Settings_Editor::load_Discretization_Parameters(int tab_Index)
 	connect(discretization_Group_Box_Vec[tab_Index],  &QGroupBox::toggled, this, [=]
 	{
 		multilayer->discretization_Parameters.enable_Discretization = discretization_Group_Box_Vec[tab_Index]->isChecked();
+
+		if(global_Multilayer_Approach->runned_Profile_Plots_Window.contains(profile_Plots_Key))
+		{
+			Profile_Plot* profile_Plot = global_Multilayer_Approach->profile_Plots_Window->profile_Plot_Vector[tab_Index];
+			profile_Plot->discretization_CheckBox->setEnabled(multilayer->discretization_Parameters.enable_Discretization);
+			profile_Plot->plot_Data(true);
+		}
 	});
 
+
 	QVBoxLayout* discretization_Layout = new QVBoxLayout(discretization_Group_Box_Vec[tab_Index]);
-		discretization_Layout->setSpacing(7);
+		discretization_Layout->setSpacing(6);
 	discretization_Layout->setContentsMargins(7,12,7,7);
 
 	{
@@ -289,20 +297,25 @@ void Calculation_Settings_Editor::load_Discretization_Parameters(int tab_Index)
 
 		MyDoubleSpinBox* step_SpinBox = new MyDoubleSpinBox;
 			step_SpinBox->setRange(0, MAX_DOUBLE);
-			step_SpinBox->setDecimals(8);
+			step_SpinBox->setDecimals(4);
 //			step_SpinBox->setSingleStep(Global_Variables::get_Order_Of_Magnitude(1000));
 			step_SpinBox->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
-			step_SpinBox->setValue(1000);
+			step_SpinBox->setValue(multilayer->discretization_Parameters.discretization_Step);
 			step_SpinBox->setAccelerated(true);
 			step_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
 			step_SpinBox->installEventFilter(this);
-			step_SpinBox->setProperty(min_Size_Property,2*TABLE_FIX_WIDTH_LINE_EDIT_SHORT+1);
-			step_SpinBox->setProperty(fit_Column_Property,true);
-//		Global_Variables::resize_Line_Edit(step_SpinBox);
+			step_SpinBox->setProperty(min_Size_Property,TABLE_FIX_WIDTH_LINE_EDIT_SHORT+1);
+		Global_Variables::resize_Line_Edit(step_SpinBox, false);
+		connect(step_SpinBox, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
+		{
+			multilayer->discretization_Parameters.discretization_Step = step_SpinBox->value();
+			Global_Variables::resize_Line_Edit(step_SpinBox, false);
+		});
 
 		QLabel* step_Units_Label = new QLabel(" "+Angstrom_Sym);
 
 		QHBoxLayout* discr_H_Layout = new QHBoxLayout;
+			discr_H_Layout->setAlignment(Qt::AlignLeft);
 			discr_H_Layout->addWidget(step_Label);
 			discr_H_Layout->addWidget(step_SpinBox);
 			discr_H_Layout->addWidget(step_Units_Label);
