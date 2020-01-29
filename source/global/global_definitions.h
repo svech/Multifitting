@@ -614,7 +614,6 @@ struct Calculated_Values	    {QVector<double> R;
 								};
 struct Discretization_Parameters{bool enable_Discretization = false;
 								 double discretization_Step = 1.0;
-								 bool adjust_To_Period = true;
 								};
 
 // independent calculation functions

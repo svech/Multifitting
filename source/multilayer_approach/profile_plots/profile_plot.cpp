@@ -510,12 +510,6 @@ void Profile_Plot::plot_Data(bool recalculate_Profile)
 	// data
 	if(recalculate_Profile)
 	{
-		if(multilayer->discretization_Parameters.enable_Discretization && multilayer->profile_Plot_Options.show_Discretization)
-		{
-			// TODO
-			/// show discretization
-		}
-
 //		auto start = std::chrono::system_clock::now();
 		calculate_Profile();
 //		auto end = std::chrono::system_clock::now();
@@ -760,6 +754,7 @@ void Profile_Plot::calculate_Profile()
 
 	different_Materials.clear();
 	different_Elements.clear();
+	discrete_Step_Vector.clear();
 	struct_Data_Vector.resize(struct_Data_Counter);
 	delta_Epsilon_Vector.resize(struct_Data_Vector.size());
 	beta_Epsilon_Vector.resize(struct_Data_Vector.size());
@@ -842,6 +837,18 @@ void Profile_Plot::calculate_Profile()
 //				м   "\n   number of layers should be diminished"
 //				   "\n---------------------------------------------------------------------------------\n";
 //	}
+
+	// discretization
+	if(multilayer->discretization_Parameters.enable_Discretization && multilayer->profile_Plot_Options.show_Discretization)
+	{
+		int num_Prefix_Slices = ceil(prefix/multilayer->discretization_Parameters.discretization_Step);
+		int num_Suffix_Slices = ceil(suffix/multilayer->discretization_Parameters.discretization_Step);
+		double adapted_Prefix_Step = prefix/num_Prefix_Slices;
+		double adapted_Suffix_Step = suffix/num_Suffix_Slices;
+		for(int i=0; i<num_Prefix_Slices; i++) {discrete_Step_Vector.prepend(adapted_Prefix_Step);}
+		for(int i=0; i<num_Suffix_Slices; i++) {discrete_Step_Vector.append(adapted_Suffix_Step);}
+	}
+
 	arg.resize(data_Count);
 	val.resize(data_Count);
 	map_Sharp_Smooth.clear();
@@ -893,23 +900,46 @@ void Profile_Plot::calculate_Profile()
 			sharp_Graph = custom_Plot->graph();
 		}
 
-		// smooth profile
+		// smooth/discrete profile
 		{
 			custom_Plot->addGraph();
-			delta_To_Plot_Vector.resize(data_Count);
-			Global_Variables::parallel_For(data_Count, reflectivity_Calc_Threads, [&](int n_Min, int n_Max)
+
+			if(multilayer->discretization_Parameters.enable_Discretization && multilayer->profile_Plot_Options.show_Discretization)
 			{
-				for(int i=n_Min; i<n_Max; ++i)
+				delta_To_Plot_Vector.resize(discrete_Step_Vector.size());
+				Global_Variables::parallel_For(discrete_Step_Vector.size(), reflectivity_Calc_Threads, [&](int n_Min, int n_Max)
 				{
-					double z = -prefix + i*step;
-					delta_To_Plot_Vector[i].key = z/length_Coefficients_Map.value(multilayer->profile_Plot_Options.local_length_units);
-					delta_To_Plot_Vector[i].value = real(delta_Beta_Epsilon_Func(z));
+					for(int i=n_Min; i<n_Max; ++i)
+					{
+						// TODO
+						double z = -prefix + (i-0.5)*discrete_Step_Vector[i];
+						delta_To_Plot_Vector[i].key = (z-0.5*discrete_Step_Vector[i])/length_Coefficients_Map.value(multilayer->profile_Plot_Options.local_length_units);
+						delta_To_Plot_Vector[i].value = real(delta_Beta_Epsilon_Func(z));
+					}
+				});
+				for(int i=0; i<discrete_Step_Vector.size(); i++)
+				{
+					arg[i] = delta_To_Plot_Vector[i].key;
+					val[i] = delta_To_Plot_Vector[i].value;
 				}
-			});
-			for(int i=0; i<data_Count; i++)
+				custom_Plot->graph()->setLineStyle(QCPGraph::lsStepLeft);
+			} else
 			{
-				arg[i] = delta_To_Plot_Vector[i].key;
-				val[i] = delta_To_Plot_Vector[i].value;
+				delta_To_Plot_Vector.resize(data_Count);
+				Global_Variables::parallel_For(data_Count, reflectivity_Calc_Threads, [&](int n_Min, int n_Max)
+				{
+					for(int i=n_Min; i<n_Max; ++i)
+					{
+						double z = -prefix + i*step;
+						delta_To_Plot_Vector[i].key = z/length_Coefficients_Map.value(multilayer->profile_Plot_Options.local_length_units);
+						delta_To_Plot_Vector[i].value = real(delta_Beta_Epsilon_Func(z));
+					}
+				});
+				for(int i=0; i<data_Count; i++)
+				{
+					arg[i] = delta_To_Plot_Vector[i].key;
+					val[i] = delta_To_Plot_Vector[i].value;
+				}
 			}
 			custom_Plot->graph()->data()->set(delta_To_Plot_Vector);
 			custom_Plot->graph()->setPen(QPen(Qt::blue, default_Profile_Line_Thickness));
@@ -1361,7 +1391,7 @@ void Profile_Plot::get_Delta_Epsilon(const Data& struct_Data, double& delta, dou
 	{
 		Material_Data temp_Material_Data = optical_Constants->material_Map.value(struct_Data.approved_Material + nk_Ext);
 		optical_Constants->interpolation_Epsilon(temp_Material_Data.material_Data, spectral_Points, n, struct_Data.approved_Material);
-		delta_Epsilon = 1. - n.first()*n.first();
+		delta_Epsilon = struct_Data.relative_Density.value * (1. - n.first()*n.first());
 	}
 	delta =  real(delta_Epsilon);
 	beta  = -imag(delta_Epsilon);
@@ -1435,6 +1465,22 @@ void Profile_Plot::unwrap_Subtree(QVector<Data>& struct_Data_Vector, QTreeWidget
 				struct_Data_Vector[struct_Data_Index] = struct_Data;
 				const Data& my_Little_Data = struct_Data_Vector[struct_Data_Index];
 
+				// discretization
+				if(struct_Data.item_Type == item_Type_Layer &&
+				   struct_Data.parent_Item_Type != item_Type_Regular_Aperiodic &&
+				   multilayer->discretization_Parameters.enable_Discretization && multilayer->profile_Plot_Options.show_Discretization)
+				{
+					int num_Slices = ceil(struct_Data.thickness.value/multilayer->discretization_Parameters.discretization_Step);
+					double adapted_Step = struct_Data.thickness.value/num_Slices;
+
+					discrete_Step_Vector.resize(discrete_Step_Vector.size()+num_Slices);
+					int last_Index = discrete_Step_Vector.size()-1;
+					for(int i=0; i<num_Slices; i++)
+					{
+						discrete_Step_Vector[last_Index-i] = adapted_Step;
+					}
+				}
+
 				/// -----------------------------------------------------------------------------------------------------------
 				// get target data
 				/// -----------------------------------------------------------------------------------------------------------
@@ -1503,6 +1549,20 @@ void Profile_Plot::unwrap_Subtree(QVector<Data>& struct_Data_Vector, QTreeWidget
 								element_Concentration_Map_Vector[struct_Data_Index] = concentration_Map_Vector[component_Index];
 							}
 							/// -----------------------------------------------------------------------------------------------------------
+
+							// discretization
+							if(multilayer->discretization_Parameters.enable_Discretization && multilayer->profile_Plot_Options.show_Discretization)
+							{
+								int num_Slices = ceil(struct_Data_Vector[struct_Data_Index].thickness.value/multilayer->discretization_Parameters.discretization_Step);
+								double adapted_Step = struct_Data_Vector[struct_Data_Index].thickness.value/num_Slices;
+
+								discrete_Step_Vector.resize(discrete_Step_Vector.size()+num_Slices);
+								int last_Index = discrete_Step_Vector.size()-1;
+								for(int i=0; i<num_Slices; i++)
+								{
+									discrete_Step_Vector[last_Index-i] = adapted_Step;
+								}
+							}
 							struct_Data_Index++;
 						}
 					}
@@ -1578,6 +1638,20 @@ void Profile_Plot::unwrap_Subtree(QVector<Data>& struct_Data_Vector, QTreeWidget
 									Global_Variables::variable_Drift(child_Data.interlayer_Composition[func_Index].my_Sigma.value, child_Data.sigma_Drift, period_Index, struct_Data.num_Repetition.value(), nullptr);
 								}
 								Global_Variables::variable_Drift(child_Data.sigma.value, child_Data.sigma_Drift, period_Index, struct_Data.num_Repetition.value(), nullptr);
+
+								// discretization
+								if(multilayer->discretization_Parameters.enable_Discretization && multilayer->profile_Plot_Options.show_Discretization)
+								{
+									int num_Slices = ceil(child_Data.thickness.value/multilayer->discretization_Parameters.discretization_Step);
+									double adapted_Step = child_Data.thickness.value/num_Slices;
+
+									discrete_Step_Vector.resize(discrete_Step_Vector.size()+num_Slices);
+									int last_Index = discrete_Step_Vector.size()-1;
+									for(int i=0; i<num_Slices; i++)
+									{
+										discrete_Step_Vector[last_Index-i] = adapted_Step;
+									}
+								}
 							}
 						}
 					} else

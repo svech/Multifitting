@@ -286,14 +286,12 @@ QDataStream& operator >>( QDataStream& stream,		 Calculated_Values& calculated_V
 QDataStream& operator <<( QDataStream& stream, const Discretization_Parameters& discretization_Parameters )
 {
 	return stream << discretization_Parameters.enable_Discretization
-				  << discretization_Parameters.discretization_Step
-				  << discretization_Parameters.adjust_To_Period;
+				  << discretization_Parameters.discretization_Step;
 }
 QDataStream& operator >>( QDataStream& stream,		 Discretization_Parameters& discretization_Parameters )
 {
 	return stream >> discretization_Parameters.enable_Discretization
-				  >> discretization_Parameters.discretization_Step
-				  >> discretization_Parameters.adjust_To_Period;
+				  >> discretization_Parameters.discretization_Step;
 }
 
 QDataStream& operator <<( QDataStream& stream, const Calc_Functions& calc_Functions )

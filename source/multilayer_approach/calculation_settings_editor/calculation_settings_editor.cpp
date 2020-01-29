@@ -283,15 +283,15 @@ void Calculation_Settings_Editor::load_Discretization_Parameters(int tab_Index)
 		discretization_Layout->setSpacing(6);
 	discretization_Layout->setContentsMargins(7,12,7,7);
 
-	{
-		QCheckBox* adjust_To_Period_Checkbox = new QCheckBox("Adjust step to period");
-			adjust_To_Period_Checkbox->setChecked(multilayer->discretization_Parameters.adjust_To_Period);
-		discretization_Layout->addWidget(adjust_To_Period_Checkbox);
-		connect(adjust_To_Period_Checkbox,  &QCheckBox::toggled, this, [=]
-		{
-			multilayer->discretization_Parameters.adjust_To_Period = adjust_To_Period_Checkbox->isChecked();
-		});
-	}
+//	{
+//		QCheckBox* adjust_To_Period_Checkbox = new QCheckBox("Adapt step to thicknesses");
+//			adjust_To_Period_Checkbox->setChecked(multilayer->discretization_Parameters.adapt_To_Thicknesses);
+//		discretization_Layout->addWidget(adjust_To_Period_Checkbox);
+//		connect(adjust_To_Period_Checkbox,  &QCheckBox::toggled, this, [=]
+//		{
+//			multilayer->discretization_Parameters.adapt_To_Thicknesses = adjust_To_Period_Checkbox->isChecked();
+//		});
+//	}
 	{
 		QLabel* step_Label = new QLabel("Discretization step");
 
