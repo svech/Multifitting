@@ -285,7 +285,7 @@ public:
 	static double tanh_Profile(double z, double sigma);
 	static double sin_Profile (double z, double sigma);
 	static double step_Profile(double z, double sigma);
-	static double interface_Profile_Function(double z, QVector<Interlayer>& interlayer_Composition);
+	static double interface_Profile_Function(double z, QVector<Interlayer>& interlayer_Composition, bool for_Integration = false);
 	static double get_Max_Sigma_From_Interlayer_Composition(QVector<Interlayer>& interlayer_Composition);
 	static double layer_Normalization(double thickness, QVector<Interlayer>& left_Interlayer_Composition, QVector<Interlayer>& right_Interlayer_Composition, gsl_integration_workspace* w);
 };

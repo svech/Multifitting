@@ -1318,7 +1318,7 @@ double Global_Variables::step_Profile(double z, double sigma)
 	return theta_Function(z);
 }
 
-double Global_Variables::interface_Profile_Function(double z, QVector<Interlayer>& interlayer_Composition)
+double Global_Variables::interface_Profile_Function(double z, QVector<Interlayer>& interlayer_Composition, bool for_Integration)
 {
 	double output = 0;
 
@@ -1384,7 +1384,13 @@ double Global_Variables::interface_Profile_Function(double z, QVector<Interlayer
 		norm += interlayer_Composition[Step].interlayer.value;
 		my_Sigma = interlayer_Composition[Step].my_Sigma.value;
 
-		output += step_Profile(z, my_Sigma) * interlayer_Composition[Step].interlayer.value;
+		if(for_Integration)
+		{
+			output += sin_Profile(z, my_Sigma) * interlayer_Composition[Step].interlayer.value;  // otherwise integration crashes
+		} else
+		{
+			output += step_Profile(z, my_Sigma) * interlayer_Composition[Step].interlayer.value;
+		}
 	}
 	//-------------------------------------------------------------------------------
 	// normalization
@@ -1406,8 +1412,8 @@ double f(double z, void* p)
 {
 	f_params& params= *reinterpret_cast<f_params*>(p);
 
-	double output = Global_Variables::interface_Profile_Function(                 z, params.left_Interlayer_Composition ) *
-					Global_Variables::interface_Profile_Function(params.thickness-z, params.right_Interlayer_Composition);
+	double output = Global_Variables::interface_Profile_Function(                 z, params.left_Interlayer_Composition ,true) *
+					Global_Variables::interface_Profile_Function(params.thickness-z, params.right_Interlayer_Composition,true);
 
 	return output;
 }
@@ -1451,6 +1457,7 @@ double Global_Variables::layer_Normalization(double thickness, QVector<Interlaye
 	const double epsrel=1e-5;
 
 
+	vector<double> pts = {xlow,xhigh};
 	int code = 0;
 	if(thickness<3*(max_Sigma_Left+max_Sigma_Right))
 	{

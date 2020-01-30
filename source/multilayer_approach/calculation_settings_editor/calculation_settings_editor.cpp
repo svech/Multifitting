@@ -296,7 +296,7 @@ void Calculation_Settings_Editor::load_Discretization_Parameters(int tab_Index)
 		QLabel* step_Label = new QLabel("Discretization step");
 
 		MyDoubleSpinBox* step_SpinBox = new MyDoubleSpinBox;
-			step_SpinBox->setRange(0, MAX_DOUBLE);
+			step_SpinBox->setRange(0.01, MAX_DOUBLE);
 			step_SpinBox->setDecimals(4);
 //			step_SpinBox->setSingleStep(Global_Variables::get_Order_Of_Magnitude(1000));
 			step_SpinBox->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
@@ -310,6 +310,12 @@ void Calculation_Settings_Editor::load_Discretization_Parameters(int tab_Index)
 		{
 			multilayer->discretization_Parameters.discretization_Step = step_SpinBox->value();
 			Global_Variables::resize_Line_Edit(step_SpinBox, false);
+
+			if(global_Multilayer_Approach->runned_Profile_Plots_Window.contains(profile_Plots_Key))
+			{
+				Profile_Plot* profile_Plot = global_Multilayer_Approach->profile_Plots_Window->profile_Plot_Vector[tab_Index];
+				profile_Plot->plot_Data(true);
+			}
 		});
 
 		QLabel* step_Units_Label = new QLabel(" "+Angstrom_Sym);

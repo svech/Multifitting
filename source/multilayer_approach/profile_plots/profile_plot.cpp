@@ -839,18 +839,18 @@ void Profile_Plot::calculate_Profile()
 //	}
 
 	// discretization
+	int num_Prefix_Slices = 1;
+	int num_Suffix_Slices = 1;
 	if(multilayer->discretization_Parameters.enable_Discretization && multilayer->profile_Plot_Options.show_Discretization)
 	{
-		int num_Prefix_Slices = ceil(prefix/multilayer->discretization_Parameters.discretization_Step);
-		int num_Suffix_Slices = ceil(suffix/multilayer->discretization_Parameters.discretization_Step);
-		double adapted_Prefix_Step = prefix/num_Prefix_Slices;
-		double adapted_Suffix_Step = suffix/num_Suffix_Slices;
+		double adapted_Prefix_Step = discrete_Step_Vector.first();
+		double adapted_Suffix_Step = discrete_Step_Vector.last();
+		num_Prefix_Slices = ceil(prefix/adapted_Prefix_Step);
+		num_Suffix_Slices = ceil(suffix/adapted_Suffix_Step);
 		for(int i=0; i<num_Prefix_Slices; i++) {discrete_Step_Vector.prepend(adapted_Prefix_Step);}
-		for(int i=0; i<num_Suffix_Slices; i++) {discrete_Step_Vector.append(adapted_Suffix_Step);}
+		for(int i=0; i<num_Suffix_Slices; i++) {discrete_Step_Vector.append (adapted_Suffix_Step);}
 	}
 
-	arg.resize(data_Count);
-	val.resize(data_Count);
 	map_Sharp_Smooth.clear();
 
 	// delta
@@ -903,29 +903,33 @@ void Profile_Plot::calculate_Profile()
 		// smooth/discrete profile
 		{
 			custom_Plot->addGraph();
-
 			if(multilayer->discretization_Parameters.enable_Discretization && multilayer->profile_Plot_Options.show_Discretization)
 			{
 				delta_To_Plot_Vector.resize(discrete_Step_Vector.size());
-				Global_Variables::parallel_For(discrete_Step_Vector.size(), reflectivity_Calc_Threads, [&](int n_Min, int n_Max)
+				arg.resize(discrete_Step_Vector.size());
+				val.resize(discrete_Step_Vector.size());
+
+				double real_Z = -(num_Prefix_Slices-0.5)*discrete_Step_Vector.first();
+				for(int i=0; i<discrete_Step_Vector.size(); ++i)
 				{
-					for(int i=n_Min; i<n_Max; ++i)
-					{
-						// TODO
-						double z = -prefix + (i-0.5)*discrete_Step_Vector[i];
-						delta_To_Plot_Vector[i].key = (z-0.5*discrete_Step_Vector[i])/length_Coefficients_Map.value(multilayer->profile_Plot_Options.local_length_units);
-						delta_To_Plot_Vector[i].value = real(delta_Beta_Epsilon_Func(z));
-					}
-				});
-				for(int i=0; i<discrete_Step_Vector.size(); i++)
-				{
+					double visible_Z = real_Z-discrete_Step_Vector[i]/2.; // where we dispose point
+					delta_To_Plot_Vector[i].key = visible_Z/length_Coefficients_Map.value(multilayer->profile_Plot_Options.local_length_units);
+					delta_To_Plot_Vector[i].value = real(delta_Beta_Epsilon_Func(real_Z));
+
 					arg[i] = delta_To_Plot_Vector[i].key;
 					val[i] = delta_To_Plot_Vector[i].value;
+
+					if(i!=discrete_Step_Vector.size()) {
+						real_Z += (discrete_Step_Vector[i]+discrete_Step_Vector[i+1])/2.; // real z, where we calculate epsilon
+					}
 				}
 				custom_Plot->graph()->setLineStyle(QCPGraph::lsStepLeft);
 			} else
 			{
 				delta_To_Plot_Vector.resize(data_Count);
+				arg.resize(data_Count);
+				val.resize(data_Count);
+
 				Global_Variables::parallel_For(data_Count, reflectivity_Calc_Threads, [&](int n_Min, int n_Max)
 				{
 					for(int i=n_Min; i<n_Max; ++i)
@@ -1000,23 +1004,50 @@ void Profile_Plot::calculate_Profile()
 			sharp_Graph = custom_Plot->graph();
 		}
 
-		// smooth profile
+		// smooth/discrete profile
 		{
 			custom_Plot->addGraph();
-			beta_To_Plot_Vector.resize(data_Count);
-			Global_Variables::parallel_For(data_Count, reflectivity_Calc_Threads, [&](int n_Min, int n_Max)
+			if(multilayer->discretization_Parameters.enable_Discretization && multilayer->profile_Plot_Options.show_Discretization)
 			{
-				for(int i=n_Min; i<n_Max; ++i)
+				beta_To_Plot_Vector.resize(discrete_Step_Vector.size());
+				arg.resize(discrete_Step_Vector.size());
+				val.resize(discrete_Step_Vector.size());
+
+				double real_Z = -(num_Prefix_Slices-0.5)*discrete_Step_Vector.first();
+				for(int i=0; i<discrete_Step_Vector.size(); ++i)
 				{
-					double z = -prefix + i*step;
-					beta_To_Plot_Vector[i].key = z/length_Coefficients_Map.value(multilayer->profile_Plot_Options.local_length_units);
-					beta_To_Plot_Vector[i].value = imag(delta_Beta_Epsilon_Func(z));
+					double visible_Z = real_Z-discrete_Step_Vector[i]/2.; // where we dispose point
+					beta_To_Plot_Vector[i].key = visible_Z/length_Coefficients_Map.value(multilayer->profile_Plot_Options.local_length_units);
+					beta_To_Plot_Vector[i].value = imag(delta_Beta_Epsilon_Func(real_Z));
+
+					arg[i] = beta_To_Plot_Vector[i].key;
+					val[i] = beta_To_Plot_Vector[i].value;
+
+					if(i!=discrete_Step_Vector.size()) {
+						real_Z += (discrete_Step_Vector[i]+discrete_Step_Vector[i+1])/2.; // real z, where we calculate epsilon
+					}
 				}
-			});
-			for(int i=0; i<data_Count; i++)
+				custom_Plot->graph()->setLineStyle(QCPGraph::lsStepLeft);
+			} else
 			{
-				arg[i] = beta_To_Plot_Vector[i].key;
-				val[i] = beta_To_Plot_Vector[i].value;
+				beta_To_Plot_Vector.resize(data_Count);
+				arg.resize(data_Count);
+				val.resize(data_Count);
+
+				Global_Variables::parallel_For(data_Count, reflectivity_Calc_Threads, [&](int n_Min, int n_Max)
+				{
+					for(int i=n_Min; i<n_Max; ++i)
+					{
+						double z = -prefix + i*step;
+						beta_To_Plot_Vector[i].key = z/length_Coefficients_Map.value(multilayer->profile_Plot_Options.local_length_units);
+						beta_To_Plot_Vector[i].value = imag(delta_Beta_Epsilon_Func(z));
+					}
+				});
+				for(int i=0; i<data_Count; i++)
+				{
+					arg[i] = beta_To_Plot_Vector[i].key;
+					val[i] = beta_To_Plot_Vector[i].value;
+				}
 			}
 			custom_Plot->graph()->data()->set(beta_To_Plot_Vector);
 			custom_Plot->graph()->setPen(QPen(Qt::red, default_Profile_Line_Thickness));
@@ -1103,25 +1134,50 @@ void Profile_Plot::calculate_Profile()
 				sharp_Graph = custom_Plot->graph();
 			}
 
-			// smooth profile
+			// smooth/discrete profile
 			{
-				val_Multiple[material_index].resize(data_Count);
-				materials_To_Plot_Vector_Vector[material_index].resize(data_Count);
-
 				custom_Plot->addGraph();
-				Global_Variables::parallel_For(data_Count, reflectivity_Calc_Threads, [&](int n_Min, int n_Max)
+				if(multilayer->discretization_Parameters.enable_Discretization && multilayer->profile_Plot_Options.show_Discretization)
 				{
-					for(int i=n_Min; i<n_Max; ++i)
+					val_Multiple[material_index].resize(discrete_Step_Vector.size());
+					arg.resize(discrete_Step_Vector.size());
+					materials_To_Plot_Vector_Vector[material_index].resize(discrete_Step_Vector.size());
+
+					double real_Z = -(num_Prefix_Slices-0.5)*discrete_Step_Vector.first();
+					for(int i=0; i<discrete_Step_Vector.size(); ++i)
 					{
-						double z = -prefix + i*step;
-						materials_To_Plot_Vector_Vector[material_index][i].key = z/length_Coefficients_Map.value(multilayer->profile_Plot_Options.local_length_units);
-						materials_To_Plot_Vector_Vector[material_index][i].value = real(delta_Beta_Epsilon_Func(z, different_Materials[material_index]));
+						double visible_Z = real_Z-discrete_Step_Vector[i]/2.; // where we dispose point
+						materials_To_Plot_Vector_Vector[material_index][i].key = visible_Z/length_Coefficients_Map.value(multilayer->profile_Plot_Options.local_length_units);
+						materials_To_Plot_Vector_Vector[material_index][i].value = real(delta_Beta_Epsilon_Func(real_Z, different_Materials[material_index]));
+
+						arg[i] = materials_To_Plot_Vector_Vector[material_index][i].key;
+						val_Multiple[material_index][i] = materials_To_Plot_Vector_Vector[material_index][i].value;
+
+						if(i!=discrete_Step_Vector.size()) {
+							real_Z += (discrete_Step_Vector[i]+discrete_Step_Vector[i+1])/2.; // real z, where we calculate epsilon
+						}
 					}
-				});
-				for(int i=0; i<data_Count; i++)
+					custom_Plot->graph()->setLineStyle(QCPGraph::lsStepLeft);
+				} else
 				{
-					arg[i] = materials_To_Plot_Vector_Vector[material_index][i].key; // many times, but OK
-					val_Multiple[material_index][i] = materials_To_Plot_Vector_Vector[material_index][i].value;
+					val_Multiple[material_index].resize(data_Count);
+					arg.resize(data_Count);
+					materials_To_Plot_Vector_Vector[material_index].resize(data_Count);
+
+					Global_Variables::parallel_For(data_Count, reflectivity_Calc_Threads, [&](int n_Min, int n_Max)
+					{
+						for(int i=n_Min; i<n_Max; ++i)
+						{
+							double z = -prefix + i*step;
+							materials_To_Plot_Vector_Vector[material_index][i].key = z/length_Coefficients_Map.value(multilayer->profile_Plot_Options.local_length_units);
+							materials_To_Plot_Vector_Vector[material_index][i].value = real(delta_Beta_Epsilon_Func(z, different_Materials[material_index]));
+						}
+					});
+					for(int i=0; i<data_Count; i++)
+					{
+						arg[i] = materials_To_Plot_Vector_Vector[material_index][i].key; // many times, but OK
+						val_Multiple[material_index][i] = materials_To_Plot_Vector_Vector[material_index][i].value;
+					}
 				}
 				custom_Plot->graph()->data()->set(materials_To_Plot_Vector_Vector[material_index]);
 				custom_Plot->graph()->setPen(QPen(color_Contrast_Sequence[material_index%color_Contrast_Sequence.size()], default_Profile_Line_Thickness));
@@ -1212,25 +1268,50 @@ void Profile_Plot::calculate_Profile()
 				sharp_Graph = custom_Plot->graph();
 			}
 
-			// smooth profile
+			// smooth/discrete profile
 			{
-				val_Multiple[element_Index].resize(data_Count);
-				elements_To_Plot_Vector_Vector[element_Index].resize(data_Count);
-
 				custom_Plot->addGraph();
-				Global_Variables::parallel_For(data_Count, reflectivity_Calc_Threads, [&](int n_Min, int n_Max)
+				if(multilayer->discretization_Parameters.enable_Discretization && multilayer->profile_Plot_Options.show_Discretization)
 				{
-					for(int i=n_Min; i<n_Max; ++i)
+					val_Multiple[element_Index].resize(discrete_Step_Vector.size());
+					arg.resize(discrete_Step_Vector.size());
+					elements_To_Plot_Vector_Vector[element_Index].resize(discrete_Step_Vector.size());
+
+					double real_Z = -(num_Prefix_Slices-0.5)*discrete_Step_Vector.first();
+					for(int i=0; i<discrete_Step_Vector.size(); ++i)
 					{
-						double z = -prefix + i*step;
-						elements_To_Plot_Vector_Vector[element_Index][i].key = z/length_Coefficients_Map.value(multilayer->profile_Plot_Options.local_length_units);
-						elements_To_Plot_Vector_Vector[element_Index][i].value = real(delta_Beta_Epsilon_Func(z, different_Elements[element_Index]));
+						double visible_Z = real_Z-discrete_Step_Vector[i]/2.; // where we dispose point
+						elements_To_Plot_Vector_Vector[element_Index][i].key = visible_Z/length_Coefficients_Map.value(multilayer->profile_Plot_Options.local_length_units);
+						elements_To_Plot_Vector_Vector[element_Index][i].value = real(delta_Beta_Epsilon_Func(real_Z, different_Elements[element_Index]));
+
+						arg[i] = elements_To_Plot_Vector_Vector[element_Index][i].key;
+						val_Multiple[element_Index][i] = elements_To_Plot_Vector_Vector[element_Index][i].value;
+
+						if(i!=discrete_Step_Vector.size()) {
+							real_Z += (discrete_Step_Vector[i]+discrete_Step_Vector[i+1])/2.; // real z, where we calculate epsilon
+						}
 					}
-				});
-				for(int i=0; i<data_Count; i++)
+					custom_Plot->graph()->setLineStyle(QCPGraph::lsStepLeft);
+				} else
 				{
-					arg[i] = elements_To_Plot_Vector_Vector[element_Index][i].key; // many times, but OK
-					val_Multiple[element_Index][i] = elements_To_Plot_Vector_Vector[element_Index][i].value;
+					val_Multiple[element_Index].resize(data_Count);
+					arg.resize(data_Count);
+					elements_To_Plot_Vector_Vector[element_Index].resize(data_Count);
+
+					Global_Variables::parallel_For(data_Count, reflectivity_Calc_Threads, [&](int n_Min, int n_Max)
+					{
+						for(int i=n_Min; i<n_Max; ++i)
+						{
+							double z = -prefix + i*step;
+							elements_To_Plot_Vector_Vector[element_Index][i].key = z/length_Coefficients_Map.value(multilayer->profile_Plot_Options.local_length_units);
+							elements_To_Plot_Vector_Vector[element_Index][i].value = real(delta_Beta_Epsilon_Func(z, different_Elements[element_Index]));
+						}
+					});
+					for(int i=0; i<data_Count; i++)
+					{
+						arg[i] = elements_To_Plot_Vector_Vector[element_Index][i].key; // many times, but OK
+						val_Multiple[element_Index][i] = elements_To_Plot_Vector_Vector[element_Index][i].value;
+					}
 				}
 				custom_Plot->graph()->data()->set(elements_To_Plot_Vector_Vector[element_Index]);
 				custom_Plot->graph()->setPen(QPen(color_Contrast_Sequence[element_Index%color_Contrast_Sequence.size()], default_Profile_Line_Thickness));
@@ -1661,6 +1742,11 @@ void Profile_Plot::unwrap_Subtree(QVector<Data>& struct_Data_Vector, QTreeWidget
 							unwrap_Subtree(struct_Data_Vector, item->child(i), struct_Data.num_Repetition.value(), period_Index);
 						}
 					}
+				}
+
+				if(struct_Data.item_Type == item_Type_General_Aperiodic)
+				{
+					unwrap_Subtree(struct_Data_Vector, item->child(i), 1, 0);
 				}
 			}
 		}
