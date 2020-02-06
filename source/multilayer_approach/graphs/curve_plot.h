@@ -26,6 +26,7 @@ public:
 	void show_Scatter_Size();
 	void change_Thickness();
 	void change_Scatter_Size();
+	void get_Min_Max_For_Graph(Plot_Options* plot_Options, QString left_Right, const QVector<double>& values, double& minimum, double& maximum);
 
 	QVector<double> argument;
 	QVector<double> values;

@@ -530,6 +530,11 @@ void Curve_Plot::plot_All_Data()
 	custom_Plot->clearGraphs();
 	refresh_Labels();
 
+	min_Value_Left = DBL_MAX;
+	max_Value_Left = -DBL_MAX;
+	min_Value_Right = DBL_MAX;
+	max_Value_Right = -DBL_MAX;
+
 	if(curve_Class == TARGET)
 	{
 		argument = target_Curve->curve.shifted_Argument;
@@ -542,6 +547,7 @@ void Curve_Plot::plot_All_Data()
 				values[i] = target_Curve->curve.shifted_Values[i].val_1;
 			}
 			plot_Data(argument, values, plot_Options_First, left_Axis);
+			get_Min_Max_For_Graph(plot_Options_First, left_Axis, values, min_Value_Left, max_Value_Left);
 		}
 		// second value (phase)
 		if(target_Curve->curve.value_Mode == value_R_Mode[R_Phi])
@@ -550,6 +556,7 @@ void Curve_Plot::plot_All_Data()
 				values[i] = target_Curve->curve.shifted_Values[i].val_2;
 			}
 			plot_Data(argument, values, plot_Options_First, right_Axis);
+//			get_Min_Max_For_Graph(plot_Options_First, right_Axis, values, min_Value_Right, max_Value_Right); // no rescaling for phase
 		}
 
 		/// calculated data
@@ -557,15 +564,16 @@ void Curve_Plot::plot_All_Data()
 		if(target_Curve->curve.value_Mode == value_R_Mode[R_Phi])
 		{
 			values = calculated_Values->Phi_R;
-			plot_Data(argument, values, plot_Options_Second, right_Axis);
+			plot_Data(argument, values, plot_Options_Second, right_Axis);			
+//			get_Min_Max_For_Graph(plot_Options_Second, right_Axis, values, min_Value_Right, max_Value_Right); // no rescaling for phase
 		}
 		// first value (R,T,A...)
 		{
 			if(	target_Curve->curve.value_Mode == value_R_Mode[R] ||
 				target_Curve->curve.value_Mode == value_R_Mode[R_Phi] )	{	values = calculated_Values->R; }
 			if(	target_Curve->curve.value_Mode == value_T_Mode[T] )		{	values = calculated_Values->T; }
-
 			plot_Data(argument, values, plot_Options_Second, left_Axis);
+			get_Min_Max_For_Graph(plot_Options_Second, left_Axis, values, min_Value_Left, max_Value_Left);
 		}
 	}
 
@@ -601,9 +609,16 @@ void Curve_Plot::plot_All_Data()
 			}
 
 			plot_Data(argument, values, plot_Options_First, left_Axis);
+			get_Min_Max_For_Graph(plot_Options_First, left_Axis, values, min_Value_Left, max_Value_Left);
 		}
 		// no second value up to now
 	}	
+	// rescaling
+	if(plot_Options_First->rescale)
+	{
+		custom_Plot->yAxis->setRange(min_Value_Left,max_Value_Left);
+		custom_Plot->xAxis->setRange(argument.first(), argument.last());
+	}
 	// show max value
 	if(multilayer->graph_Options.show_Max_Value)
 	if(graph_Done && multilayer->graph_Options.show_Max_Value)
@@ -631,46 +646,46 @@ void Curve_Plot::plot_Data(const QVector<double>& argument, const QVector<double
 	graph_Left_Right_Map.insert(custom_Plot->graph(graph_Index), left_Right);
 
 	QVector<QCPGraphData> data_To_Plot(argument.size());
-	double local_Min = DBL_MAX;
-	double local_Max = -DBL_MAX;
+//	double local_Min = DBL_MAX;
+//	double local_Max = -DBL_MAX;
 
 	for (int i=0; i<argument.size(); ++i)
 	{
 		data_To_Plot[i].key = argument[i];
 		data_To_Plot[i].value = values[i];
 
-		if(left_Right==left_Axis)
-		{
-			if(local_Max<data_To_Plot[i].value && (plot_Options->y_Scale == lin_Scale || data_To_Plot[i].value > DBL_MIN)) {local_Max=data_To_Plot[i].value;}
-			if(local_Min>data_To_Plot[i].value && (plot_Options->y_Scale == lin_Scale || data_To_Plot[i].value > DBL_MIN)) {local_Min=data_To_Plot[i].value;}
-		}
-		if(left_Right==right_Axis)
-		{
-			if(local_Max<data_To_Plot[i].value) local_Max=data_To_Plot[i].value;
-			if(local_Min>data_To_Plot[i].value) local_Min=data_To_Plot[i].value;
-		}
+//		if(left_Right==left_Axis)
+//		{
+//			if(local_Max<data_To_Plot[i].value && (plot_Options->y_Scale == lin_Scale || data_To_Plot[i].value > DBL_MIN)) {local_Max=data_To_Plot[i].value;}
+//			if(local_Min>data_To_Plot[i].value && (plot_Options->y_Scale == lin_Scale || data_To_Plot[i].value > DBL_MIN)) {local_Min=data_To_Plot[i].value;}
+//		}
+//		if(left_Right==right_Axis)
+//		{
+//			if(local_Max<data_To_Plot[i].value) local_Max=data_To_Plot[i].value;
+//			if(local_Min>data_To_Plot[i].value) local_Min=data_To_Plot[i].value;
+//		}
 	}
 	custom_Plot->graph(graph_Index)->data()->set(data_To_Plot);
 
-	if(left_Right==left_Axis)
-	{
-		max_Value_Left = max(max_Value_Left, local_Max);
-		if(plot_Options->y_Scale == log_Scale)
-		{
-			if((min_Value_Left>DBL_MIN) && (local_Min<DBL_MIN)) {min_Value_Left = min_Value_Left;} else
-			if((min_Value_Left<DBL_MIN) && (local_Min>DBL_MIN)) {min_Value_Left = local_Min;} else
-			min_Value_Left = min(min_Value_Left, local_Min) ;
-		}
-		if(plot_Options->y_Scale == lin_Scale)
-		{
-			min_Value_Left = min(min_Value_Left, local_Min);
-		}
-	}
-	if(left_Right==right_Axis)
-	{
-		max_Value_Right = max(max_Value_Right, local_Max);
-		min_Value_Right = min(min_Value_Right, local_Min);
-	}
+//	if(left_Right==left_Axis)
+//	{
+//		max_Value_Left = max(max_Value_Left, local_Max);
+//		if(plot_Options->y_Scale == log_Scale)
+//		{
+//			if((min_Value_Left>DBL_MIN) && (local_Min<DBL_MIN)) {min_Value_Left = min_Value_Left;} else
+//			if((min_Value_Left<DBL_MIN) && (local_Min>DBL_MIN)) {min_Value_Left = local_Min;} else
+//			min_Value_Left = min(min_Value_Left, local_Min) ;
+//		}
+//		if(plot_Options->y_Scale == lin_Scale)
+//		{
+//			min_Value_Left = min(min_Value_Left, local_Min);
+//		}
+//	}
+//	if(left_Right==right_Axis)
+//	{
+//		max_Value_Right = max(max_Value_Right, local_Max);
+//		min_Value_Right = min(min_Value_Right, local_Min);
+//	}
 
 	// styling
 	QCPScatterStyle scatter_Style;
@@ -696,11 +711,11 @@ void Curve_Plot::plot_Data(const QVector<double>& argument, const QVector<double
 	if(left_Right==left_Axis)
 	{
 		custom_Plot->yAxis2->setLabel("");
-		if(plot_Options_First->rescale)
-		{
-			custom_Plot->yAxis->setRange(min_Value_Left,max_Value_Left);
-			custom_Plot->xAxis->setRange(argument.first(), argument.last());
-		}
+//		if(plot_Options_First->rescale)
+//		{
+//			custom_Plot->yAxis->setRange(min_Value_Left,max_Value_Left);
+//			custom_Plot->xAxis->setRange(argument.first(), argument.last());
+//		}
 	}
 	if(left_Right==right_Axis)
 	{
@@ -714,19 +729,19 @@ void Curve_Plot::plot_Data(const QVector<double>& argument, const QVector<double
 
 		custom_Plot->yAxis2->setLabel(val_Mode_Label_2);
 
-		if(plot_Options_First->rescale)
-		{
-			custom_Plot->xAxis2->setRange(argument.first(), argument.last());
-			custom_Plot->yAxis2->setRange(min_Value_Right, max_Value_Right);
-		}
+//		if(plot_Options_First->rescale)
+//		{
+//			custom_Plot->xAxis2->setRange(argument.first(), argument.last());
+//			custom_Plot->yAxis2->setRange(min_Value_Right, max_Value_Right);
+//		}
 	}
 //	custom_Plot->replot();
 
 	// reset
-	min_Value_Left = DBL_MAX;
-	max_Value_Left = -DBL_MAX;
-	min_Value_Right = DBL_MAX;
-	max_Value_Right = -DBL_MAX;
+//	min_Value_Left = DBL_MAX;
+//	max_Value_Left = -DBL_MAX;
+//	min_Value_Right = DBL_MAX;
+//	max_Value_Right = -DBL_MAX;
 }
 
 void Curve_Plot::refresh_Labels()
@@ -952,4 +967,27 @@ void Curve_Plot::change_Scatter_Size()
 			plot_Options->scatter_Size_Second = new_Scatter_Size;
 		}
 	}
+}
+
+void Curve_Plot::get_Min_Max_For_Graph(Plot_Options* plot_Options, QString left_Right, const QVector<double>& values, double& minimum, double& maximum)
+{
+	double local_Min = DBL_MAX;
+	double local_Max = -DBL_MAX;
+
+	for (int i=0; i<values.size(); ++i)
+	{
+		if(left_Right==left_Axis)
+		{
+			if(local_Max<values[i] && (plot_Options->y_Scale == lin_Scale || values[i] > DBL_MIN)) {local_Max=values[i];}
+			if(local_Min>values[i] && (plot_Options->y_Scale == lin_Scale || values[i] > DBL_MIN)) {local_Min=values[i];}
+		}
+		if(left_Right==right_Axis)
+		{
+			if(local_Max<values[i]) local_Max=values[i];
+			if(local_Min>values[i]) local_Min=values[i];
+		}
+	}
+
+	minimum = min(minimum, local_Min);
+	maximum = max(maximum, local_Max);
 }
