@@ -4,6 +4,7 @@
 
 Calculation_Tree::Calculation_Tree(Multilayer* multilayer, QString calc_Mode):
 	calc_Mode(calc_Mode),
+	multilayer(multilayer),
 	real_Struct_Tree(multilayer->structure_Tree->tree)
 {	
 	// initialization independent vector
@@ -468,7 +469,7 @@ void Calculation_Tree::calculate_Intermediate_Values_1_Tree(tree<Node>& calc_Tre
 	{
 		tree<Node>::post_order_iterator child = calc_Tree.child(parent,i);
 
-		child.node->data.calculate_Intermediate_Points(measurement, above_Node, active_Parameter_Whats_This, depth_Grading, sigma_Grading);
+		child.node->data.calculate_Intermediate_Points(measurement, above_Node, active_Parameter_Whats_This, depth_Grading, sigma_Grading, multilayer->discretization_Parameters.enable_Discretization);
 
 		if( child.node->data.struct_Data.item_Type != item_Type_Multilayer &&
 			child.node->data.struct_Data.item_Type != item_Type_Regular_Aperiodic &&
@@ -511,7 +512,7 @@ void Calculation_Tree::calculate_Unwrapped_Structure(tree<Node>& calc_Tree, cons
 {
 	delete unwrapped_Structure_Vec_Element;
 	num_Media = get_Total_Num_Layers(calc_Tree.begin(), calc_Tree);
-	Unwrapped_Structure*   new_Unwrapped_Structure  = new Unwrapped_Structure (calc_Tree, measurement, active_Parameter_Whats_This, num_Media, max_Depth, depth_Grading, sigma_Grading, r);
+	Unwrapped_Structure* new_Unwrapped_Structure  = new Unwrapped_Structure (calc_Tree, measurement, active_Parameter_Whats_This, num_Media, max_Depth, depth_Grading, sigma_Grading, multilayer->discretization_Parameters, r);
 	unwrapped_Structure_Vec_Element = new_Unwrapped_Structure;
 }
 

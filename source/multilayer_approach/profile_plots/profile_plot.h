@@ -67,7 +67,7 @@ public:
 	QVector<double> boundary_Vector;
 	vector<double> boundary_Vector_Std;
 	QVector<double> thickness_Vector;
-	QVector<double> discrete_Step_Vector;
+	 vector<double> discrete_Step_Vector;
 	QVector<double> delta_Epsilon_Vector;
 	QVector<double> beta_Epsilon_Vector;
 	QVector<double> layer_Norm_Vector;

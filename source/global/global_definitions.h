@@ -563,6 +563,8 @@ struct Profile_Plot_Options		{QString type = PERMITTIVITY;
 
 								 QString local_wavelength_units;
 								 QString local_length_units;
+
+								 double local_Wavelength = 1.540562;
 								};
 
 // calculated values for profile plotting
@@ -588,12 +590,6 @@ struct Basic_Profile_Plot_Set	{QVector<double> depth; // in angstroms
 									materials.clear();		materials.resize(new_Size);
 									elements.clear();		elements.resize(new_Size);
 								 }
-								};
-struct Profile_Plot_Data		{Basic_Profile_Plot_Set sharp_Set;
-								 Basic_Profile_Plot_Set smooth_Set;
-								 Basic_Profile_Plot_Set discrete_Set;
-
-								 double local_Wavelength = 1.540562;
 								};
 
 // calculated functions for plotting
@@ -810,9 +806,6 @@ QDataStream& operator >>( QDataStream& stream,		 Element_Profile& element_Profil
 
 QDataStream& operator <<( QDataStream& stream, const Basic_Profile_Plot_Set& basic_Profile_Plot_Set );
 QDataStream& operator >>( QDataStream& stream,		 Basic_Profile_Plot_Set& basic_Profile_Plot_Set );
-
-QDataStream& operator <<( QDataStream& stream, const Profile_Plot_Data& profile_Plot_Data );
-QDataStream& operator >>( QDataStream& stream,		 Profile_Plot_Data& profile_Plot_Data );
 
 QDataStream& operator <<( QDataStream& stream, const Value& value );
 QDataStream& operator >>( QDataStream& stream,		 Value& value );

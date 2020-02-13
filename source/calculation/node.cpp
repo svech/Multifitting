@@ -13,7 +13,7 @@ Node::Node(QTreeWidgetItem* item):
 //	qInfo() << "NODE" << struct_Data.item_Type << endl;
 }
 
-void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_Node, QString active_Parameter_Whats_This, bool depth_Grading, bool sigma_Grading)
+void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_Node, QString active_Parameter_Whats_This, bool depth_Grading, bool sigma_Grading, bool enable_Discretization)
 {
 	// PARAMETER
 	if(active_Parameter_Whats_This == whats_This_Angle ||
@@ -187,461 +187,466 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 				}
 			}
 
-			/// ---------------------------------------------------------------------------------------------------------------
-			/// hi
-			/// ---------------------------------------------------------------------------------------------------------------
-
-			if(true)
+			// only without discretization
+//			if(!enable_Discretization)
 			{
-				hi_RE.resize(num_Points);
-				hi_IM.resize(num_Points);
-				double re, im, phase, mod;
+				/// ---------------------------------------------------------------------------------------------------------------
+				/// hi
+				/// ---------------------------------------------------------------------------------------------------------------
 
-//				Global_Variables::parallel_For(num_Points, reflectivity_Calc_Threads, [&](int n_Min, int n_Max)
-//				{
-//					for(int i=n_Min; i<n_Max; ++i)
-					for(int i=0; i<num_Points; ++i)
-					{
-						re = epsilon_RE[i] - cos2[i];
-						im = epsilon_IM[i];
-
-						phase = atan2(im, re)/2;
-						mod = k[i]*sqrt(sqrt(re*re + im*im));
-
-						hi_RE[i] = mod* cos(phase);
-						hi_IM[i] = mod* sin(phase);
-					}
-//				});
-			}
-
-			/// ---------------------------------------------------------------------------------------------------------------
-			/// Fresnel
-			/// ---------------------------------------------------------------------------------------------------------------
-
-			if( struct_Data.item_Type == item_Type_Layer   ||
-				struct_Data.item_Type == item_Type_Substrate )
-			{
-				// s-polarization
-				if (measurement.polarization.value >-1)
+				if(true)
 				{
-					// reflectance
-					Fresnel_R_s_RE.resize(num_Points);
-					Fresnel_R_s_IM.resize(num_Points);
-					// transmittance
-					Fresnel_T_s_RE.resize(num_Points);
-					Fresnel_T_s_IM.resize(num_Points);
+					hi_RE.resize(num_Points);
+					hi_IM.resize(num_Points);
+					double re, im, phase, mod;
 
-//					Global_Variables::parallel_For(num_Points, reflectivity_Calc_Threads, [&](int n_Min, int n_Max)
-//					{
-						double temp_Fre_Numer_RE, temp_Fre_Numer_IM, temp_Fre_Denom_SQARE, temp_Fre_Denom_RE, temp_Fre_Denom_IM;
+	//				Global_Variables::parallel_For(num_Points, reflectivity_Calc_Threads, [&](int n_Min, int n_Max)
+	//				{
+	//					for(int i=n_Min; i<n_Max; ++i)
 						for(int i=0; i<num_Points; ++i)
-//						for (int i=n_Min; i<n_Max; ++i)
 						{
-							temp_Fre_Denom_RE = above_Node->hi_RE[i] + hi_RE[i];
-							temp_Fre_Denom_IM = above_Node->hi_IM[i] + hi_IM[i];
-							temp_Fre_Denom_SQARE = temp_Fre_Denom_RE*temp_Fre_Denom_RE + temp_Fre_Denom_IM*temp_Fre_Denom_IM;
+							re = epsilon_RE[i] - cos2[i];
+							im = epsilon_IM[i];
 
-							if ( abs(temp_Fre_Denom_SQARE) > DBL_MIN)
+							phase = atan2(im, re)/2;
+							mod = k[i]*sqrt(sqrt(re*re + im*im));
+
+							hi_RE[i] = mod* cos(phase);
+							hi_IM[i] = mod* sin(phase);
+						}
+	//				});
+				}
+
+				/// ---------------------------------------------------------------------------------------------------------------
+				/// Fresnel
+				/// ---------------------------------------------------------------------------------------------------------------
+
+				if( struct_Data.item_Type == item_Type_Layer   ||
+					struct_Data.item_Type == item_Type_Substrate )
+				{
+					// s-polarization
+					if (measurement.polarization.value >-1)
+					{
+						// reflectance
+						Fresnel_R_s_RE.resize(num_Points);
+						Fresnel_R_s_IM.resize(num_Points);
+						// transmittance
+						Fresnel_T_s_RE.resize(num_Points);
+						Fresnel_T_s_IM.resize(num_Points);
+
+	//					Global_Variables::parallel_For(num_Points, reflectivity_Calc_Threads, [&](int n_Min, int n_Max)
+	//					{
+							double temp_Fre_Numer_RE, temp_Fre_Numer_IM, temp_Fre_Denom_SQARE, temp_Fre_Denom_RE, temp_Fre_Denom_IM;
+							for(int i=0; i<num_Points; ++i)
+	//						for (int i=n_Min; i<n_Max; ++i)
 							{
-								temp_Fre_Numer_RE = above_Node->hi_RE[i] - hi_RE[i];
-								temp_Fre_Numer_IM = above_Node->hi_IM[i] - hi_IM[i];
+								temp_Fre_Denom_RE = above_Node->hi_RE[i] + hi_RE[i];
+								temp_Fre_Denom_IM = above_Node->hi_IM[i] + hi_IM[i];
+								temp_Fre_Denom_SQARE = temp_Fre_Denom_RE*temp_Fre_Denom_RE + temp_Fre_Denom_IM*temp_Fre_Denom_IM;
 
-								// reflectance
-								Fresnel_R_s_RE[i] = (temp_Fre_Numer_RE*temp_Fre_Denom_RE + temp_Fre_Numer_IM*temp_Fre_Denom_IM) / temp_Fre_Denom_SQARE;
-								Fresnel_R_s_IM[i] = (temp_Fre_Numer_IM*temp_Fre_Denom_RE - temp_Fre_Numer_RE*temp_Fre_Denom_IM) / temp_Fre_Denom_SQARE;
+								if ( abs(temp_Fre_Denom_SQARE) > DBL_MIN)
+								{
+									temp_Fre_Numer_RE = above_Node->hi_RE[i] - hi_RE[i];
+									temp_Fre_Numer_IM = above_Node->hi_IM[i] - hi_IM[i];
+
+									// reflectance
+									Fresnel_R_s_RE[i] = (temp_Fre_Numer_RE*temp_Fre_Denom_RE + temp_Fre_Numer_IM*temp_Fre_Denom_IM) / temp_Fre_Denom_SQARE;
+									Fresnel_R_s_IM[i] = (temp_Fre_Numer_IM*temp_Fre_Denom_RE - temp_Fre_Numer_RE*temp_Fre_Denom_IM) / temp_Fre_Denom_SQARE;
+									// transmittance
+									Fresnel_T_s_RE[i] = 2*(above_Node->hi_RE[i]*temp_Fre_Denom_RE + above_Node->hi_IM[i]*temp_Fre_Denom_IM) / temp_Fre_Denom_SQARE;
+									Fresnel_T_s_IM[i] = 2*(above_Node->hi_IM[i]*temp_Fre_Denom_RE - above_Node->hi_RE[i]*temp_Fre_Denom_IM) / temp_Fre_Denom_SQARE;
+								} else
+								{
+									// reflectance
+									Fresnel_R_s_RE[i] = 0;
+									Fresnel_R_s_IM[i] = 0;
+									// transmittance
+									Fresnel_T_s_RE[i] = 1;
+									Fresnel_T_s_IM[i] = 1;
+								}
+							}
+	//					});
+					}
+
+					// p-polarization
+					if (measurement.polarization.value < 1)
+					{
+						// reflectance
+						Fresnel_R_p_RE.resize(num_Points);
+						Fresnel_R_p_IM.resize(num_Points);
+						// transmittance
+						Fresnel_T_p_RE.resize(num_Points);
+						Fresnel_T_p_IM.resize(num_Points);
+
+	//					Global_Variables::parallel_For(num_Points, reflectivity_Calc_Threads, [&](int n_Min, int n_Max)
+	//					{
+							double temp_Fre_Numer_RE, temp_Fre_Numer_IM, temp_Fre_Denom_SQARE, temp_Fre_Denom_RE, temp_Fre_Denom_IM, temp_1_RE, temp_1_IM, temp_2_RE, temp_2_IM;
+							for(int i=0; i<num_Points; ++i)
+	//						for (int i=n_Min; i<n_Max; ++i)
+							{
+								temp_1_RE = (above_Node->hi_RE[i]*above_Node->epsilon_RE[i] + above_Node->hi_IM[i]*above_Node->epsilon_IM[i]) / above_Node->epsilon_NORM[i];
+								temp_1_IM = (above_Node->hi_IM[i]*above_Node->epsilon_RE[i] - above_Node->hi_RE[i]*above_Node->epsilon_IM[i]) / above_Node->epsilon_NORM[i];
+
+								temp_2_RE = (hi_RE[i]*epsilon_RE[i] + hi_IM[i]*epsilon_IM[i]) / epsilon_NORM[i];
+								temp_2_IM = (hi_IM[i]*epsilon_RE[i] - hi_RE[i]*epsilon_IM[i]) / epsilon_NORM[i];
+
+								temp_Fre_Denom_RE = temp_1_RE + temp_2_RE;
+								temp_Fre_Denom_IM = temp_1_IM + temp_2_IM;
+								temp_Fre_Denom_SQARE = temp_Fre_Denom_RE*temp_Fre_Denom_RE + temp_Fre_Denom_IM*temp_Fre_Denom_IM;
+
+								if ( abs(temp_Fre_Denom_SQARE) > DBL_MIN )
+								{
+									temp_Fre_Numer_RE = temp_1_RE - temp_2_RE;
+									temp_Fre_Numer_IM = temp_1_IM - temp_2_IM;
+
+									// reflectance
+									Fresnel_R_p_RE[i] =-(temp_Fre_Numer_RE*temp_Fre_Denom_RE + temp_Fre_Numer_IM*temp_Fre_Denom_IM) / temp_Fre_Denom_SQARE; // - sign for p polarization due to vector expressions
+									Fresnel_R_p_IM[i] =-(temp_Fre_Numer_IM*temp_Fre_Denom_RE - temp_Fre_Numer_RE*temp_Fre_Denom_IM) / temp_Fre_Denom_SQARE; // - sign for p polarization due to vector expressions
+									// transmittance
+									Fresnel_T_p_RE[i] = 2*(temp_1_RE*temp_Fre_Denom_RE + temp_1_IM*temp_Fre_Denom_IM) / temp_Fre_Denom_SQARE;
+									Fresnel_T_p_IM[i] = 2*(temp_1_IM*temp_Fre_Denom_RE - temp_1_RE*temp_Fre_Denom_IM) / temp_Fre_Denom_SQARE;
+								} else
+								{
+									// reflectance
+									Fresnel_R_p_RE[i] = 0;
+									Fresnel_R_p_IM[i] = 0;
+									// transmittance
+									Fresnel_T_p_RE[i] = 1;
+									Fresnel_T_p_IM[i] = 1;
+								}
+							}
+	//					});
+					}
+				}
+
+				/// ---------------------------------------------------------------------------------------------------------------
+				/// weak_Factor_Ang
+				/// ---------------------------------------------------------------------------------------------------------------
+
+				// if sigma graded, set WF=1 here and recalculate later
+				if( struct_Data.item_Type == item_Type_Layer   ||
+					struct_Data.item_Type == item_Type_Substrate )
+				{
+					weak_Factor_R.resize(num_Points);
+	//				weak_Factor_T.resize(num_Points);
+
+					// if >=1 interlayer is turned on
+					bool is_Norm = false;
+					for(const Interlayer& inter : struct_Data.interlayer_Composition)
+					{
+						is_Norm = is_Norm || (inter.enabled && (inter.interlayer.value > DBL_MIN) && (inter.my_Sigma.value > DBL_MIN));
+					}
+
+					if( is_Norm && (abs(struct_Data.sigma.value) > DBL_MIN) && (!sigma_Grading) )
+					{
+						// temp variables
+						double a = M_PI/sqrt(M_PI*M_PI - 8.);
+
+						double norm = 0;
+						double my_Sigma = struct_Data.sigma.value;	// by default, otherwise we change it
+						vector<double> s_r (num_Points);
+	//					vector<double> s_t (num_Points);
+
+						// reftectance
+	//					Global_Variables::parallel_For(num_Points, reflectivity_Calc_Threads, [&](int n_Min, int n_Max)
+	//					{
+							for(int i=0; i<num_Points; ++i)
+	//						for(int i=n_Min; i<n_Max; ++i)
+							{
+								weak_Factor_R[i] = 0;
+								s_r[i] = sqrt(above_Node->hi_RE[i]*hi_RE[i]);
+
 								// transmittance
-								Fresnel_T_s_RE[i] = 2*(above_Node->hi_RE[i]*temp_Fre_Denom_RE + above_Node->hi_IM[i]*temp_Fre_Denom_IM) / temp_Fre_Denom_SQARE;
-								Fresnel_T_s_IM[i] = 2*(above_Node->hi_IM[i]*temp_Fre_Denom_RE - above_Node->hi_RE[i]*temp_Fre_Denom_IM) / temp_Fre_Denom_SQARE;
+	//							weak_Factor_T[i] = 0;
+	//							s_t[i] =     (above_Node->hi_RE[i]-hi_RE[i])/2;
+							}
+	//					});
+
+						//-------------------------------------------------------------------------------
+						// erf interlayer
+						if(struct_Data.interlayer_Composition[Erf].enabled)
+						if(struct_Data.interlayer_Composition[Erf].interlayer.value > DBL_MIN)
+						{
+							norm += struct_Data.interlayer_Composition[Erf].interlayer.value;
+							if(!struct_Data.common_Sigma) {
+								my_Sigma = struct_Data.interlayer_Composition[Erf].my_Sigma.value;}
+
+	//						Global_Variables::parallel_For(num_Points, reflectivity_Calc_Threads, [&](int n_Min, int n_Max)
+	//						{
+								double factor_r;
+	//							double factor_t;
+								for(int i=0; i<num_Points; ++i)
+	//							for(int i=n_Min; i<n_Max; ++i)
+								{
+									// reflectance
+									factor_r = exp( - s_r[i] * s_r[i] * my_Sigma * my_Sigma * 2 );
+									weak_Factor_R[i] += struct_Data.interlayer_Composition[Erf].interlayer.value * factor_r;
+
+									// transmittance
+	//								factor_t = exp(   s_t[i] * s_t[i] * my_Sigma * my_Sigma * 2 );
+	//								weak_Factor_T[i] += struct_Data.interlayer_Composition[Erf].interlayer.value * factor_t;
+								}
+	//						});
+						}
+						//-------------------------------------------------------------------------------
+						// lin interlayer
+						if(struct_Data.interlayer_Composition[Lin].enabled)
+						if(struct_Data.interlayer_Composition[Lin].interlayer.value > DBL_MIN)
+						{
+							norm += struct_Data.interlayer_Composition[Lin].interlayer.value;
+							if(!struct_Data.common_Sigma) {
+								my_Sigma = struct_Data.interlayer_Composition[Lin].my_Sigma.value;}
+
+	//						Global_Variables::parallel_For(num_Points, reflectivity_Calc_Threads, [&](int n_Min, int n_Max)
+	//						{
+								double factor_r, x_r;
+	//							double factor_t, x_t;
+	//							for(int i=n_Min; i<n_Max; ++i)
+								for(int i=0; i<num_Points; ++i)
+								{
+									// reflectance
+									x_r = sqrt(3.) * s_r[i] * my_Sigma * 2;
+									if(abs(x_r)>DBL_MIN) {
+										factor_r = sin(x_r) / (x_r);
+									}
+									else {
+										factor_r = 1;
+									}
+									weak_Factor_R[i] += struct_Data.interlayer_Composition[Lin].interlayer.value * factor_r;
+
+									// transmittance
+	//								x_t = sqrt(3.) * s_t[i] * my_Sigma * 2;
+	//								if(abs(x_t)>DBL_MIN) {
+	//									factor_t = sin(x_t) / (x_t);
+	//								} else {
+	//									factor_t = 1;
+	//								}
+	//								weak_Factor_T[i] += struct_Data.interlayer_Composition[Lin].interlayer.value * factor_t;
+								}
+	//						});
+						}
+						//-------------------------------------------------------------------------------
+						// exp interlayer
+						if(struct_Data.interlayer_Composition[Exp].enabled)
+						if(struct_Data.interlayer_Composition[Exp].interlayer.value > DBL_MIN)
+						{
+							norm += struct_Data.interlayer_Composition[Exp].interlayer.value;
+							if(!struct_Data.common_Sigma) {
+								my_Sigma = struct_Data.interlayer_Composition[Exp].my_Sigma.value;}
+
+	//						Global_Variables::parallel_For(num_Points, reflectivity_Calc_Threads, [&](int n_Min, int n_Max)
+	//						{
+								double factor_r, x_r;
+	//							double factor_t, x_t;
+								for(int i=0; i<num_Points; ++i)
+	//							for(int i=n_Min; i<n_Max; ++i)
+								{
+									// reflectance
+									x_r = pow(s_r[i] * my_Sigma, 2) * 2;
+									factor_r = 1. / (1. + x_r);
+									weak_Factor_R[i] += struct_Data.interlayer_Composition[Exp].interlayer.value * factor_r;
+
+									// transmittance
+	//								x_t = pow(s_t[i] * my_Sigma, 2) * 2;
+	//								factor_t = 1. / (1. + x_t);
+	//								weak_Factor_T[i] += struct_Data.interlayer_Composition[Exp].interlayer.value * factor_t;
+								}
+	//						});
+						}
+						//-------------------------------------------------------------------------------
+						// tanh interlayer
+						if(struct_Data.interlayer_Composition[Tanh].enabled)
+						if(struct_Data.interlayer_Composition[Tanh].interlayer.value > DBL_MIN)
+						{
+							norm += struct_Data.interlayer_Composition[Tanh].interlayer.value;
+							if(!struct_Data.common_Sigma) {
+								my_Sigma = struct_Data.interlayer_Composition[Tanh].my_Sigma.value;}
+
+	//						Global_Variables::parallel_For(num_Points, reflectivity_Calc_Threads, [&](int n_Min, int n_Max)
+	//						{
+								double factor_r, x_r;
+	//							double factor_t, x_t;
+								for(int i=0; i<num_Points; ++i)
+	//							for(int i=n_Min; i<n_Max; ++i)
+								{
+									// reflectance
+									x_r = sqrt(3.) * s_r[i] * my_Sigma * 2;
+									if(abs(x_r)>DBL_MIN)
+									{
+										factor_r = x_r / sinh(x_r);
+									}
+									else
+									{
+										factor_r = 1;
+									}
+									weak_Factor_R[i] += struct_Data.interlayer_Composition[Tanh].interlayer.value * factor_r;
+
+									// transmittance
+	//								x_t = sqrt(3.) * s_t[i] * my_Sigma * 2;
+	//								if(abs(x_t)>DBL_MIN)
+	//								{
+	//									factor_t = x_t / sinh(x_t);
+	//								}
+	//								else
+	//								{
+	//									factor_t = 1;
+	//								}
+	//								weak_Factor_T[i] += struct_Data.interlayer_Composition[Tanh].interlayer.value * factor_t;
+								}
+	//						});
+						}
+						//-------------------------------------------------------------------------------
+						// sin interlayer
+						if(struct_Data.interlayer_Composition[Sin].enabled)
+						if(struct_Data.interlayer_Composition[Sin].interlayer.value > DBL_MIN)
+						{
+							norm += struct_Data.interlayer_Composition[Sin].interlayer.value;
+							if(!struct_Data.common_Sigma) {
+								my_Sigma = struct_Data.interlayer_Composition[Sin].my_Sigma.value;}
+
+	//						Global_Variables::parallel_For(num_Points, reflectivity_Calc_Threads, [&](int n_Min, int n_Max)
+	//						{
+								double factor_r, x_r, y_r, six_r, siy_r;
+	//							double factor_t, x_t, y_t, six_t, siy_t;
+	//							for(int i=n_Min; i<n_Max; ++i)
+								for(int i=0; i<num_Points; ++i)
+								{
+									// reflectance
+									x_r = a * my_Sigma * s_r[i] * 2 - M_PI_2;
+									y_r = x_r + M_PI;
+
+									if(abs(x_r)>DBL_MIN) six_r = sin(x_r)/x_r; else six_r = 1;
+									if(abs(y_r)>DBL_MIN) siy_r = sin(y_r)/y_r; else siy_r = 1;
+
+									factor_r = M_PI_4 * (six_r + siy_r);
+									weak_Factor_R[i] += struct_Data.interlayer_Composition[Sin].interlayer.value * factor_r;
+
+									// transmittance
+	//								x_t = a * my_Sigma * s_t[i] * 2 - M_PI_2;
+	//								y_t = x_t + M_PI;
+
+	//								if(abs(x_t)>DBL_MIN) six_t = sin(x_t)/x_t; else six_t = 1;
+	//								if(abs(y_t)>DBL_MIN) siy_t = sin(y_t)/y_t; else siy_t = 1;
+
+	//								factor_t = M_PI_4 * (six_t + siy_t);
+	//								weak_Factor_T[i] += struct_Data.interlayer_Composition[Sin].interlayer.value * factor_t;
+								}
+	//						});
+						}
+						//-------------------------------------------------------------------------------
+						// step interlayer
+						if(struct_Data.interlayer_Composition[Step].enabled)
+						if(struct_Data.interlayer_Composition[Step].interlayer.value > DBL_MIN)
+						{
+							norm += struct_Data.interlayer_Composition[Step].interlayer.value;
+							if(!struct_Data.common_Sigma) {
+								my_Sigma = struct_Data.interlayer_Composition[Step].my_Sigma.value;}
+
+	//						Global_Variables::parallel_For(num_Points, reflectivity_Calc_Threads, [&](int n_Min, int n_Max)
+	//						{
+								double factor_r;
+	//							double factor_t;
+								for(int i=0; i<num_Points; ++i)
+	//							for(int i=n_Min; i<n_Max; ++i)
+								{
+									// reflectance
+									factor_r = cos(s_r[i] * my_Sigma * 2);
+									weak_Factor_R[i] += struct_Data.interlayer_Composition[Step].interlayer.value * factor_r;
+
+									// transmittance
+	//								factor_t = cos(s_t[i] * my_Sigma * 2);
+	//								weak_Factor_T[i] += struct_Data.interlayer_Composition[Step].interlayer.value * factor_t;
+								}
+	//						});
+						}
+						//-------------------------------------------------------------------------------
+						// normalization
+						{
+							if( abs(norm) > DBL_MIN )
+							{
+	//							Global_Variables::parallel_For(num_Points, reflectivity_Calc_Threads, [&](int n_Min, int n_Max)
+	//							{
+									for(int i=0; i<num_Points; ++i)
+	//								for(int i=n_Min; i<n_Max; ++i)
+									{
+										weak_Factor_R[i] /= norm;
+	//									weak_Factor_T[i] /= norm;
+									}
+	//							});
 							} else
 							{
-								// reflectance
-								Fresnel_R_s_RE[i] = 0;
-								Fresnel_R_s_IM[i] = 0;
-								// transmittance
-								Fresnel_T_s_RE[i] = 1;
-								Fresnel_T_s_IM[i] = 1;
+	//							Global_Variables::parallel_For(num_Points, reflectivity_Calc_Threads, [&](int n_Min, int n_Max)
+	//							{
+									for(int i=0; i<num_Points; ++i)
+	//								for(int i=n_Min; i<n_Max; ++i)
+									{
+										weak_Factor_R[i] = 1;
+	//									weak_Factor_T[i] = 1;
+									}
+	//							});
 							}
 						}
-//					});
+					} else
+					{
+	//					Global_Variables::parallel_For(num_Points, reflectivity_Calc_Threads, [&](int n_Min, int n_Max)
+	//					{
+							for(int i=0; i<num_Points; ++i)
+	//						for(int i=n_Min; i<n_Max; ++i)
+							{
+								weak_Factor_R[i] = 1;
+	//							weak_Factor_T[i] = 1;
+							}
+	//					});
+					}
 				}
 
-				// p-polarization
-				if (measurement.polarization.value < 1)
+				/// ---------------------------------------------------------------------------------------------------------------
+				/// exponenta
+				/// ---------------------------------------------------------------------------------------------------------------
+
+				// if depth graded, set exp=1 here and recalculate later
+				if( struct_Data.item_Type == item_Type_Layer)
 				{
-					// reflectance
-					Fresnel_R_p_RE.resize(num_Points);
-					Fresnel_R_p_IM.resize(num_Points);
-					// transmittance
-					Fresnel_T_p_RE.resize(num_Points);
-					Fresnel_T_p_IM.resize(num_Points);
+					exponenta_RE.  resize(num_Points);
+					exponenta_IM.  resize(num_Points);
+					exponenta_2_RE.resize(num_Points);
+					exponenta_2_IM.resize(num_Points);
 
-//					Global_Variables::parallel_For(num_Points, reflectivity_Calc_Threads, [&](int n_Min, int n_Max)
-//					{
-						double temp_Fre_Numer_RE, temp_Fre_Numer_IM, temp_Fre_Denom_SQARE, temp_Fre_Denom_RE, temp_Fre_Denom_IM, temp_1_RE, temp_1_IM, temp_2_RE, temp_2_IM;
-						for(int i=0; i<num_Points; ++i)
-//						for (int i=n_Min; i<n_Max; ++i)
-						{
-							temp_1_RE = (above_Node->hi_RE[i]*above_Node->epsilon_RE[i] + above_Node->hi_IM[i]*above_Node->epsilon_IM[i]) / above_Node->epsilon_NORM[i];
-							temp_1_IM = (above_Node->hi_IM[i]*above_Node->epsilon_RE[i] - above_Node->hi_RE[i]*above_Node->epsilon_IM[i]) / above_Node->epsilon_NORM[i];
-
-							temp_2_RE = (hi_RE[i]*epsilon_RE[i] + hi_IM[i]*epsilon_IM[i]) / epsilon_NORM[i];
-							temp_2_IM = (hi_IM[i]*epsilon_RE[i] - hi_RE[i]*epsilon_IM[i]) / epsilon_NORM[i];
-
-							temp_Fre_Denom_RE = temp_1_RE + temp_2_RE;
-							temp_Fre_Denom_IM = temp_1_IM + temp_2_IM;
-							temp_Fre_Denom_SQARE = temp_Fre_Denom_RE*temp_Fre_Denom_RE + temp_Fre_Denom_IM*temp_Fre_Denom_IM;
-
-							if ( abs(temp_Fre_Denom_SQARE) > DBL_MIN )
+					if( depth_Grading )
+					{
+	//					Global_Variables::parallel_For(num_Points, reflectivity_Calc_Threads, [&](int n_Min, int n_Max)
+	//					{
+							for(int i=0; i<num_Points; ++i)
+	//						for(int i=n_Min; i<n_Max; ++i)
 							{
-								temp_Fre_Numer_RE = temp_1_RE - temp_2_RE;
-								temp_Fre_Numer_IM = temp_1_IM - temp_2_IM;
-
-								// reflectance
-								Fresnel_R_p_RE[i] =-(temp_Fre_Numer_RE*temp_Fre_Denom_RE + temp_Fre_Numer_IM*temp_Fre_Denom_IM) / temp_Fre_Denom_SQARE; // - sign for p polarization due to vector expressions
-								Fresnel_R_p_IM[i] =-(temp_Fre_Numer_IM*temp_Fre_Denom_RE - temp_Fre_Numer_RE*temp_Fre_Denom_IM) / temp_Fre_Denom_SQARE; // - sign for p polarization due to vector expressions
-								// transmittance
-								Fresnel_T_p_RE[i] = 2*(temp_1_RE*temp_Fre_Denom_RE + temp_1_IM*temp_Fre_Denom_IM) / temp_Fre_Denom_SQARE;
-								Fresnel_T_p_IM[i] = 2*(temp_1_IM*temp_Fre_Denom_RE - temp_1_RE*temp_Fre_Denom_IM) / temp_Fre_Denom_SQARE;
-							} else
-							{
-								// reflectance
-								Fresnel_R_p_RE[i] = 0;
-								Fresnel_R_p_IM[i] = 0;
-								// transmittance
-								Fresnel_T_p_RE[i] = 1;
-								Fresnel_T_p_IM[i] = 1;
+								exponenta_RE[i]   = 1;
+								exponenta_IM[i]   = 1;
+								exponenta_2_RE[i] = 1;
+								exponenta_2_IM[i] = 1;
 							}
-						}
-//					});
-				}
-			}
+	//					});
+					} else
+					{
+	//					Global_Variables::parallel_For(num_Points, reflectivity_Calc_Threads, [&](int n_Min, int n_Max)
+	//					{
+							double re, im, ere, ere2;
+							for(int i=0; i<num_Points; ++i)
+	//						for(int i=n_Min; i<n_Max; ++i)
+							{
+								re = -hi_IM[i]*struct_Data.thickness.value;
+								im =  hi_RE[i]*struct_Data.thickness.value;
+								ere =  exp(   re);
+								ere2 = exp(2.*re);
 
-			/// ---------------------------------------------------------------------------------------------------------------
-			/// weak_Factor_Ang
-			/// ---------------------------------------------------------------------------------------------------------------
-
-			// if sigma graded, set WF=1 here and recalculate later
-			if( struct_Data.item_Type == item_Type_Layer   ||
-				struct_Data.item_Type == item_Type_Substrate )
-			{
-				weak_Factor_R.resize(num_Points);
-//				weak_Factor_T.resize(num_Points);
-
-				// if >=1 interlayer is turned on
-				bool is_Norm = false;
-				for(const Interlayer& inter : struct_Data.interlayer_Composition)
-				{
-					is_Norm = is_Norm || (inter.enabled && (inter.interlayer.value > DBL_MIN) && (inter.my_Sigma.value > DBL_MIN));
+								exponenta_RE[i] = ere*cos(im);
+								exponenta_IM[i] = ere*sin(im);
+								exponenta_2_RE[i] = ere2*cos(2.*im);
+								exponenta_2_IM[i] = ere2*sin(2.*im);
+							}
+	//					});
+					}
 				}
 
-				if( is_Norm && (abs(struct_Data.sigma.value) > DBL_MIN) && (!sigma_Grading) )
-				{
-					// temp variables
-					double a = M_PI/sqrt(M_PI*M_PI - 8.);
-
-					double norm = 0;
-					double my_Sigma = struct_Data.sigma.value;	// by default, otherwise we change it
-					vector<double> s_r (num_Points);
-//					vector<double> s_t (num_Points);
-
-					// reftectance
-//					Global_Variables::parallel_For(num_Points, reflectivity_Calc_Threads, [&](int n_Min, int n_Max)
-//					{
-						for(int i=0; i<num_Points; ++i)
-//						for(int i=n_Min; i<n_Max; ++i)
-						{
-							weak_Factor_R[i] = 0;
-							s_r[i] = sqrt(above_Node->hi_RE[i]*hi_RE[i]);
-
-							// transmittance
-//							weak_Factor_T[i] = 0;
-//							s_t[i] =     (above_Node->hi_RE[i]-hi_RE[i])/2;
-						}
-//					});
-
-					//-------------------------------------------------------------------------------
-					// erf interlayer
-					if(struct_Data.interlayer_Composition[Erf].enabled)
-					if(struct_Data.interlayer_Composition[Erf].interlayer.value > DBL_MIN)
-					{
-						norm += struct_Data.interlayer_Composition[Erf].interlayer.value;
-						if(!struct_Data.common_Sigma) {
-							my_Sigma = struct_Data.interlayer_Composition[Erf].my_Sigma.value;}
-
-//						Global_Variables::parallel_For(num_Points, reflectivity_Calc_Threads, [&](int n_Min, int n_Max)
-//						{
-							double factor_r;
-//							double factor_t;
-							for(int i=0; i<num_Points; ++i)
-//							for(int i=n_Min; i<n_Max; ++i)
-							{
-								// reflectance
-								factor_r = exp( - s_r[i] * s_r[i] * my_Sigma * my_Sigma * 2 );
-								weak_Factor_R[i] += struct_Data.interlayer_Composition[Erf].interlayer.value * factor_r;
-
-								// transmittance
-//								factor_t = exp(   s_t[i] * s_t[i] * my_Sigma * my_Sigma * 2 );
-//								weak_Factor_T[i] += struct_Data.interlayer_Composition[Erf].interlayer.value * factor_t;
-							}
-//						});
-					}
-					//-------------------------------------------------------------------------------
-					// lin interlayer
-					if(struct_Data.interlayer_Composition[Lin].enabled)
-					if(struct_Data.interlayer_Composition[Lin].interlayer.value > DBL_MIN)
-					{
-						norm += struct_Data.interlayer_Composition[Lin].interlayer.value;
-						if(!struct_Data.common_Sigma) {
-							my_Sigma = struct_Data.interlayer_Composition[Lin].my_Sigma.value;}
-
-//						Global_Variables::parallel_For(num_Points, reflectivity_Calc_Threads, [&](int n_Min, int n_Max)
-//						{
-							double factor_r, x_r;
-//							double factor_t, x_t;
-//							for(int i=n_Min; i<n_Max; ++i)
-							for(int i=0; i<num_Points; ++i)
-							{
-								// reflectance
-								x_r = sqrt(3.) * s_r[i] * my_Sigma * 2;
-								if(abs(x_r)>DBL_MIN) {
-									factor_r = sin(x_r) / (x_r);
-								}
-								else {
-									factor_r = 1;
-								}
-								weak_Factor_R[i] += struct_Data.interlayer_Composition[Lin].interlayer.value * factor_r;
-
-								// transmittance
-//								x_t = sqrt(3.) * s_t[i] * my_Sigma * 2;
-//								if(abs(x_t)>DBL_MIN) {
-//									factor_t = sin(x_t) / (x_t);
-//								} else {
-//									factor_t = 1;
-//								}
-//								weak_Factor_T[i] += struct_Data.interlayer_Composition[Lin].interlayer.value * factor_t;
-							}
-//						});
-					}
-					//-------------------------------------------------------------------------------
-					// exp interlayer
-					if(struct_Data.interlayer_Composition[Exp].enabled)
-					if(struct_Data.interlayer_Composition[Exp].interlayer.value > DBL_MIN)
-					{
-						norm += struct_Data.interlayer_Composition[Exp].interlayer.value;
-						if(!struct_Data.common_Sigma) {
-							my_Sigma = struct_Data.interlayer_Composition[Exp].my_Sigma.value;}
-
-//						Global_Variables::parallel_For(num_Points, reflectivity_Calc_Threads, [&](int n_Min, int n_Max)
-//						{
-							double factor_r, x_r;
-//							double factor_t, x_t;
-							for(int i=0; i<num_Points; ++i)
-//							for(int i=n_Min; i<n_Max; ++i)
-							{
-								// reflectance
-								x_r = pow(s_r[i] * my_Sigma, 2) * 2;
-								factor_r = 1. / (1. + x_r);
-								weak_Factor_R[i] += struct_Data.interlayer_Composition[Exp].interlayer.value * factor_r;
-
-								// transmittance
-//								x_t = pow(s_t[i] * my_Sigma, 2) * 2;
-//								factor_t = 1. / (1. + x_t);
-//								weak_Factor_T[i] += struct_Data.interlayer_Composition[Exp].interlayer.value * factor_t;
-							}
-//						});
-					}
-					//-------------------------------------------------------------------------------
-					// tanh interlayer
-					if(struct_Data.interlayer_Composition[Tanh].enabled)
-					if(struct_Data.interlayer_Composition[Tanh].interlayer.value > DBL_MIN)
-					{
-						norm += struct_Data.interlayer_Composition[Tanh].interlayer.value;
-						if(!struct_Data.common_Sigma) {
-							my_Sigma = struct_Data.interlayer_Composition[Tanh].my_Sigma.value;}
-
-//						Global_Variables::parallel_For(num_Points, reflectivity_Calc_Threads, [&](int n_Min, int n_Max)
-//						{
-							double factor_r, x_r;
-//							double factor_t, x_t;
-							for(int i=0; i<num_Points; ++i)
-//							for(int i=n_Min; i<n_Max; ++i)
-							{
-								// reflectance
-								x_r = sqrt(3.) * s_r[i] * my_Sigma * 2;
-								if(abs(x_r)>DBL_MIN)
-								{
-									factor_r = x_r / sinh(x_r);
-								}
-								else
-								{
-									factor_r = 1;
-								}
-								weak_Factor_R[i] += struct_Data.interlayer_Composition[Tanh].interlayer.value * factor_r;
-
-								// transmittance
-//								x_t = sqrt(3.) * s_t[i] * my_Sigma * 2;
-//								if(abs(x_t)>DBL_MIN)
-//								{
-//									factor_t = x_t / sinh(x_t);
-//								}
-//								else
-//								{
-//									factor_t = 1;
-//								}
-//								weak_Factor_T[i] += struct_Data.interlayer_Composition[Tanh].interlayer.value * factor_t;
-							}
-//						});
-					}
-					//-------------------------------------------------------------------------------
-					// sin interlayer
-					if(struct_Data.interlayer_Composition[Sin].enabled)
-					if(struct_Data.interlayer_Composition[Sin].interlayer.value > DBL_MIN)
-					{
-						norm += struct_Data.interlayer_Composition[Sin].interlayer.value;
-						if(!struct_Data.common_Sigma) {
-							my_Sigma = struct_Data.interlayer_Composition[Sin].my_Sigma.value;}
-
-//						Global_Variables::parallel_For(num_Points, reflectivity_Calc_Threads, [&](int n_Min, int n_Max)
-//						{
-							double factor_r, x_r, y_r, six_r, siy_r;
-//							double factor_t, x_t, y_t, six_t, siy_t;
-//							for(int i=n_Min; i<n_Max; ++i)
-							for(int i=0; i<num_Points; ++i)
-							{
-								// reflectance
-								x_r = a * my_Sigma * s_r[i] * 2 - M_PI_2;
-								y_r = x_r + M_PI;
-
-								if(abs(x_r)>DBL_MIN) six_r = sin(x_r)/x_r; else six_r = 1;
-								if(abs(y_r)>DBL_MIN) siy_r = sin(y_r)/y_r; else siy_r = 1;
-
-								factor_r = M_PI_4 * (six_r + siy_r);
-								weak_Factor_R[i] += struct_Data.interlayer_Composition[Sin].interlayer.value * factor_r;
-
-								// transmittance
-//								x_t = a * my_Sigma * s_t[i] * 2 - M_PI_2;
-//								y_t = x_t + M_PI;
-
-//								if(abs(x_t)>DBL_MIN) six_t = sin(x_t)/x_t; else six_t = 1;
-//								if(abs(y_t)>DBL_MIN) siy_t = sin(y_t)/y_t; else siy_t = 1;
-
-//								factor_t = M_PI_4 * (six_t + siy_t);
-//								weak_Factor_T[i] += struct_Data.interlayer_Composition[Sin].interlayer.value * factor_t;
-							}
-//						});
-					}
-					//-------------------------------------------------------------------------------
-					// step interlayer
-					if(struct_Data.interlayer_Composition[Step].enabled)
-					if(struct_Data.interlayer_Composition[Step].interlayer.value > DBL_MIN)
-					{
-						norm += struct_Data.interlayer_Composition[Step].interlayer.value;
-						if(!struct_Data.common_Sigma) {
-							my_Sigma = struct_Data.interlayer_Composition[Step].my_Sigma.value;}
-
-//						Global_Variables::parallel_For(num_Points, reflectivity_Calc_Threads, [&](int n_Min, int n_Max)
-//						{
-							double factor_r;
-//							double factor_t;
-							for(int i=0; i<num_Points; ++i)
-//							for(int i=n_Min; i<n_Max; ++i)
-							{
-								// reflectance
-								factor_r = cos(s_r[i] * my_Sigma * 2);
-								weak_Factor_R[i] += struct_Data.interlayer_Composition[Step].interlayer.value * factor_r;
-
-								// transmittance
-//								factor_t = cos(s_t[i] * my_Sigma * 2);
-//								weak_Factor_T[i] += struct_Data.interlayer_Composition[Step].interlayer.value * factor_t;
-							}
-//						});
-					}
-					//-------------------------------------------------------------------------------
-					// normalization
-					{
-						if( abs(norm) > DBL_MIN )
-						{
-//							Global_Variables::parallel_For(num_Points, reflectivity_Calc_Threads, [&](int n_Min, int n_Max)
-//							{
-								for(int i=0; i<num_Points; ++i)
-//								for(int i=n_Min; i<n_Max; ++i)
-								{
-									weak_Factor_R[i] /= norm;
-//									weak_Factor_T[i] /= norm;
-								}
-//							});
-						} else
-						{
-//							Global_Variables::parallel_For(num_Points, reflectivity_Calc_Threads, [&](int n_Min, int n_Max)
-//							{
-								for(int i=0; i<num_Points; ++i)
-//								for(int i=n_Min; i<n_Max; ++i)
-								{
-									weak_Factor_R[i] = 1;
-//									weak_Factor_T[i] = 1;
-								}
-//							});
-						}
-					}
-				} else
-				{
-//					Global_Variables::parallel_For(num_Points, reflectivity_Calc_Threads, [&](int n_Min, int n_Max)
-//					{
-						for(int i=0; i<num_Points; ++i)
-//						for(int i=n_Min; i<n_Max; ++i)
-						{
-							weak_Factor_R[i] = 1;
-//							weak_Factor_T[i] = 1;
-						}
-//					});
-				}
-			}
-
-			/// ---------------------------------------------------------------------------------------------------------------
-			/// exponenta
-			/// ---------------------------------------------------------------------------------------------------------------
-
-			// if depth graded, set exp=1 here and recalculate later
-			if( struct_Data.item_Type == item_Type_Layer)
-			{
-				exponenta_RE.  resize(num_Points);
-				exponenta_IM.  resize(num_Points);
-				exponenta_2_RE.resize(num_Points);
-				exponenta_2_IM.resize(num_Points);
-
-				if( depth_Grading )
-				{
-//					Global_Variables::parallel_For(num_Points, reflectivity_Calc_Threads, [&](int n_Min, int n_Max)
-//					{
-						for(int i=0; i<num_Points; ++i)
-//						for(int i=n_Min; i<n_Max; ++i)
-						{
-							exponenta_RE[i]   = 1;
-							exponenta_IM[i]   = 1;
-							exponenta_2_RE[i] = 1;
-							exponenta_2_IM[i] = 1;
-						}
-//					});
-				} else
-				{
-//					Global_Variables::parallel_For(num_Points, reflectivity_Calc_Threads, [&](int n_Min, int n_Max)
-//					{
-						double re, im, ere, ere2;
-						for(int i=0; i<num_Points; ++i)
-//						for(int i=n_Min; i<n_Max; ++i)
-						{
-							re = -hi_IM[i]*struct_Data.thickness.value;
-							im =  hi_RE[i]*struct_Data.thickness.value;
-							ere =  exp(   re);
-							ere2 = exp(2.*re);
-
-							exponenta_RE[i] = ere*cos(im);
-							exponenta_IM[i] = ere*sin(im);
-							exponenta_2_RE[i] = ere2*cos(2.*im);
-							exponenta_2_IM[i] = ere2*sin(2.*im);
-						}
-//					});
-				}
 			}
 		}
 	}

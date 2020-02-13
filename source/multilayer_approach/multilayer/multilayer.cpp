@@ -395,7 +395,6 @@ Multilayer& Multilayer::operator =(const Multilayer& referent_Multilayer)
 
 	graph_Options = referent_Multilayer.graph_Options;
 	profile_Plot_Options = referent_Multilayer.profile_Plot_Options;
-	profile_Plot_Data = referent_Multilayer.profile_Plot_Data;
 
 	enable_Calc_Target_Curves = referent_Multilayer.enable_Calc_Target_Curves;
 	enable_Calc_Independent_Curves = referent_Multilayer.enable_Calc_Independent_Curves;

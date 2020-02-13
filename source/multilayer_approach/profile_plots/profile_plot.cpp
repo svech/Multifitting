@@ -113,14 +113,14 @@ void Profile_Plot::create_Left_Side()
 
 		at_Wavelength_Label = new QLabel("At fixed " + Global_Variables::wavelength_Energy_Name(multilayer->profile_Plot_Options.local_wavelength_units));
 			permittivity_Layout->addWidget(at_Wavelength_Label,1,2,1,4);
-		at_Wavelength_LineEdit = new QLineEdit(Locale.toString(Global_Variables::wavelength_Energy(multilayer->profile_Plot_Options.local_wavelength_units, multilayer->profile_Plot_Data.local_Wavelength)/wavelength_Coefficients_Map.value(multilayer->profile_Plot_Options.local_wavelength_units),line_edit_double_format,line_edit_wavelength_precision));
+		at_Wavelength_LineEdit = new QLineEdit(Locale.toString(Global_Variables::wavelength_Energy(multilayer->profile_Plot_Options.local_wavelength_units, multilayer->profile_Plot_Options.local_Wavelength)/wavelength_Coefficients_Map.value(multilayer->profile_Plot_Options.local_wavelength_units),line_edit_double_format,line_edit_wavelength_precision));
 			at_Wavelength_LineEdit->setFixedWidth(80);
 			at_Wavelength_LineEdit->setProperty(min_Size_Property, 80);
 			at_Wavelength_LineEdit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION, this));
 			connect(at_Wavelength_LineEdit, &QLineEdit::textEdited, this, [=]{Global_Variables::resize_Line_Edit(at_Wavelength_LineEdit, false);});
 			connect(at_Wavelength_LineEdit, &QLineEdit::editingFinished, this, [=]
 			{
-				multilayer->profile_Plot_Data.local_Wavelength = Global_Variables::wavelength_Energy(multilayer->profile_Plot_Options.local_wavelength_units, Locale.toDouble(at_Wavelength_LineEdit->text()))*wavelength_Coefficients_Map.value(multilayer->profile_Plot_Options.local_wavelength_units);
+				multilayer->profile_Plot_Options.local_Wavelength = Global_Variables::wavelength_Energy(multilayer->profile_Plot_Options.local_wavelength_units, Locale.toDouble(at_Wavelength_LineEdit->text()))*wavelength_Coefficients_Map.value(multilayer->profile_Plot_Options.local_wavelength_units);
 				plot_Data(true);
 			});
 		at_Wavelength_Unints_Label = new QLabel(" " + multilayer->profile_Plot_Options.local_wavelength_units);
@@ -821,8 +821,8 @@ void Profile_Plot::calculate_Profile()
 
 	// profiling
 	double step = 0.2;	// in angstroms
-	double prefix = max(15., 5+3*max_Sigma);	// in angstroms
-	double suffix = max(15., 5+3*max_Sigma);	// in angstroms
+	double prefix = 15, suffix = 15;
+	Global_Variables::get_Prefix_Suffix(prefix, suffix, max_Sigma);
 	double length = prefix+boundary_Vector.last()+suffix;
 	int data_Count = ceil(length/step)+1;
 	int limit = 20000; // restriction
@@ -839,16 +839,10 @@ void Profile_Plot::calculate_Profile()
 //	}
 
 	// discretization
-	int num_Prefix_Slices = 1;
-	int num_Suffix_Slices = 1;
+	int num_Prefix_Slices =1, num_Suffix_Slices = 1;
 	if(multilayer->discretization_Parameters.enable_Discretization && multilayer->profile_Plot_Options.show_Discretization)
 	{
-		double adapted_Prefix_Step = discrete_Step_Vector.first();
-		double adapted_Suffix_Step = discrete_Step_Vector.last();
-		num_Prefix_Slices = ceil(prefix/adapted_Prefix_Step);
-		num_Suffix_Slices = ceil(suffix/adapted_Suffix_Step);
-		for(int i=0; i<num_Prefix_Slices; i++) {discrete_Step_Vector.prepend(adapted_Prefix_Step);}
-		for(int i=0; i<num_Suffix_Slices; i++) {discrete_Step_Vector.append (adapted_Suffix_Step);}
+		Global_Variables::discretize_Prefix_Suffix(prefix, suffix, num_Prefix_Slices, num_Suffix_Slices, discrete_Step_Vector);
 	}
 
 	map_Sharp_Smooth.clear();
@@ -905,11 +899,11 @@ void Profile_Plot::calculate_Profile()
 			custom_Plot->addGraph();
 			if(multilayer->discretization_Parameters.enable_Discretization && multilayer->profile_Plot_Options.show_Discretization)
 			{
-				delta_To_Plot_Vector.resize(discrete_Step_Vector.size());
-				arg.resize(discrete_Step_Vector.size());
-				val.resize(discrete_Step_Vector.size());
+				delta_To_Plot_Vector.resize(int(discrete_Step_Vector.size()));
+				arg.resize(int(discrete_Step_Vector.size()));
+				val.resize(int(discrete_Step_Vector.size()));
 
-				double real_Z = -(num_Prefix_Slices-0.5)*discrete_Step_Vector.first();
+				double real_Z = -(num_Prefix_Slices-0.5)*discrete_Step_Vector.front();
 				for(int i=0; i<discrete_Step_Vector.size(); ++i)
 				{
 					double visible_Z = real_Z-discrete_Step_Vector[i]/2.; // where we dispose point
@@ -919,7 +913,7 @@ void Profile_Plot::calculate_Profile()
 					arg[i] = delta_To_Plot_Vector[i].key;
 					val[i] = delta_To_Plot_Vector[i].value;
 
-					if(i!=discrete_Step_Vector.size()) {
+					if(i!=(discrete_Step_Vector.size()-1)) {
 						real_Z += (discrete_Step_Vector[i]+discrete_Step_Vector[i+1])/2.; // real z, where we calculate epsilon
 					}
 				}
@@ -1009,11 +1003,11 @@ void Profile_Plot::calculate_Profile()
 			custom_Plot->addGraph();
 			if(multilayer->discretization_Parameters.enable_Discretization && multilayer->profile_Plot_Options.show_Discretization)
 			{
-				beta_To_Plot_Vector.resize(discrete_Step_Vector.size());
-				arg.resize(discrete_Step_Vector.size());
-				val.resize(discrete_Step_Vector.size());
+				beta_To_Plot_Vector.resize(int(discrete_Step_Vector.size()));
+				arg.resize(int(discrete_Step_Vector.size()));
+				val.resize(int(discrete_Step_Vector.size()));
 
-				double real_Z = -(num_Prefix_Slices-0.5)*discrete_Step_Vector.first();
+				double real_Z = -(num_Prefix_Slices-0.5)*discrete_Step_Vector.front();
 				for(int i=0; i<discrete_Step_Vector.size(); ++i)
 				{
 					double visible_Z = real_Z-discrete_Step_Vector[i]/2.; // where we dispose point
@@ -1023,7 +1017,7 @@ void Profile_Plot::calculate_Profile()
 					arg[i] = beta_To_Plot_Vector[i].key;
 					val[i] = beta_To_Plot_Vector[i].value;
 
-					if(i!=discrete_Step_Vector.size()) {
+					if(i!=(discrete_Step_Vector.size()-1)) {
 						real_Z += (discrete_Step_Vector[i]+discrete_Step_Vector[i+1])/2.; // real z, where we calculate epsilon
 					}
 				}
@@ -1139,11 +1133,11 @@ void Profile_Plot::calculate_Profile()
 				custom_Plot->addGraph();
 				if(multilayer->discretization_Parameters.enable_Discretization && multilayer->profile_Plot_Options.show_Discretization)
 				{
-					val_Multiple[material_index].resize(discrete_Step_Vector.size());
-					arg.resize(discrete_Step_Vector.size());
-					materials_To_Plot_Vector_Vector[material_index].resize(discrete_Step_Vector.size());
+					val_Multiple[material_index].resize(int(discrete_Step_Vector.size()));
+					arg.resize(int(discrete_Step_Vector.size()));
+					materials_To_Plot_Vector_Vector[material_index].resize(int(discrete_Step_Vector.size()));
 
-					double real_Z = -(num_Prefix_Slices-0.5)*discrete_Step_Vector.first();
+					double real_Z = -(num_Prefix_Slices-0.5)*discrete_Step_Vector.front();
 					for(int i=0; i<discrete_Step_Vector.size(); ++i)
 					{
 						double visible_Z = real_Z-discrete_Step_Vector[i]/2.; // where we dispose point
@@ -1153,7 +1147,7 @@ void Profile_Plot::calculate_Profile()
 						arg[i] = materials_To_Plot_Vector_Vector[material_index][i].key;
 						val_Multiple[material_index][i] = materials_To_Plot_Vector_Vector[material_index][i].value;
 
-						if(i!=discrete_Step_Vector.size()) {
+						if(i!=(discrete_Step_Vector.size()-1)) {
 							real_Z += (discrete_Step_Vector[i]+discrete_Step_Vector[i+1])/2.; // real z, where we calculate epsilon
 						}
 					}
@@ -1273,11 +1267,11 @@ void Profile_Plot::calculate_Profile()
 				custom_Plot->addGraph();
 				if(multilayer->discretization_Parameters.enable_Discretization && multilayer->profile_Plot_Options.show_Discretization)
 				{
-					val_Multiple[element_Index].resize(discrete_Step_Vector.size());
-					arg.resize(discrete_Step_Vector.size());
-					elements_To_Plot_Vector_Vector[element_Index].resize(discrete_Step_Vector.size());
+					val_Multiple[element_Index].resize(int(discrete_Step_Vector.size()));
+					arg.resize(int(discrete_Step_Vector.size()));
+					elements_To_Plot_Vector_Vector[element_Index].resize(int(discrete_Step_Vector.size()));
 
-					double real_Z = -(num_Prefix_Slices-0.5)*discrete_Step_Vector.first();
+					double real_Z = -(num_Prefix_Slices-0.5)*discrete_Step_Vector.front();
 					for(int i=0; i<discrete_Step_Vector.size(); ++i)
 					{
 						double visible_Z = real_Z-discrete_Step_Vector[i]/2.; // where we dispose point
@@ -1287,7 +1281,7 @@ void Profile_Plot::calculate_Profile()
 						arg[i] = elements_To_Plot_Vector_Vector[element_Index][i].key;
 						val_Multiple[element_Index][i] = elements_To_Plot_Vector_Vector[element_Index][i].value;
 
-						if(i!=discrete_Step_Vector.size()) {
+						if(i!=(discrete_Step_Vector.size()-1)) {
 							real_Z += (discrete_Step_Vector[i]+discrete_Step_Vector[i+1])/2.; // real z, where we calculate epsilon
 						}
 					}
@@ -1459,7 +1453,7 @@ void Profile_Plot::hide_Show_Other_Plots()
 
 void Profile_Plot::get_Delta_Epsilon(const Data& struct_Data, double& delta, double& beta)
 {
-	QVector<double> spectral_Points (1, multilayer->profile_Plot_Data.local_Wavelength);
+	QVector<double> spectral_Points (1, multilayer->profile_Plot_Options.local_Wavelength);
 	QVector<complex<double>> temp_Epsilon; temp_Epsilon.resize(1);
 	QVector<complex<double>> n; n.resize(1);
 	complex<double> delta_Epsilon;
@@ -1554,8 +1548,8 @@ void Profile_Plot::unwrap_Subtree(QVector<Data>& struct_Data_Vector, QTreeWidget
 					int num_Slices = ceil(struct_Data.thickness.value/multilayer->discretization_Parameters.discretization_Step);
 					double adapted_Step = struct_Data.thickness.value/num_Slices;
 
-					discrete_Step_Vector.resize(discrete_Step_Vector.size()+num_Slices);
-					int last_Index = discrete_Step_Vector.size()-1;
+					discrete_Step_Vector.resize(int(discrete_Step_Vector.size())+num_Slices);
+					size_t last_Index = discrete_Step_Vector.size()-1;
 					for(int i=0; i<num_Slices; i++)
 					{
 						discrete_Step_Vector[last_Index-i] = adapted_Step;
@@ -1638,7 +1632,7 @@ void Profile_Plot::unwrap_Subtree(QVector<Data>& struct_Data_Vector, QTreeWidget
 								double adapted_Step = struct_Data_Vector[struct_Data_Index].thickness.value/num_Slices;
 
 								discrete_Step_Vector.resize(discrete_Step_Vector.size()+num_Slices);
-								int last_Index = discrete_Step_Vector.size()-1;
+								size_t last_Index = discrete_Step_Vector.size()-1;
 								for(int i=0; i<num_Slices; i++)
 								{
 									discrete_Step_Vector[last_Index-i] = adapted_Step;
@@ -1727,7 +1721,7 @@ void Profile_Plot::unwrap_Subtree(QVector<Data>& struct_Data_Vector, QTreeWidget
 									double adapted_Step = child_Data.thickness.value/num_Slices;
 
 									discrete_Step_Vector.resize(discrete_Step_Vector.size()+num_Slices);
-									int last_Index = discrete_Step_Vector.size()-1;
+									size_t last_Index = discrete_Step_Vector.size()-1;
 									for(int i=0; i<num_Slices; i++)
 									{
 										discrete_Step_Vector[last_Index-i] = adapted_Step;

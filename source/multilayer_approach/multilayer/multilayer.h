@@ -73,7 +73,6 @@ public:
 
 	Graph_Options graph_Options;
 	Profile_Plot_Options profile_Plot_Options;
-	Profile_Plot_Data profile_Plot_Data;
 	Discretization_Parameters discretization_Parameters;
 
 	bool enable_Calc_Target_Curves = true;

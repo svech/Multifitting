@@ -920,7 +920,7 @@ void Multilayer_Approach::open(QString filename)
 
 		/// profile plot
 		if(Global_Variables::check_Loaded_Version(1,10,2))
-		{in >> multilayer->profile_Plot_Options >> multilayer->profile_Plot_Data;}	  // since 1.10.2
+		{in >> multilayer->profile_Plot_Options;}	  // since 1.10.2
 
 		/// discretization
 		if(Global_Variables::check_Loaded_Version(1,10,2))
@@ -1178,7 +1178,7 @@ void Multilayer_Approach::save(QString filename)
 		out << multilayer->graph_Options;		  // since 1.9.3
 
 		/// profile plot
-		out << multilayer->profile_Plot_Options << multilayer->profile_Plot_Data;	  // since 1.10.2
+		out << multilayer->profile_Plot_Options;	  // since 1.10.2
 
 		/// discretization
 		out << multilayer->discretization_Parameters;	  // since 1.10.2

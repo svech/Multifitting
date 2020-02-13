@@ -11,7 +11,7 @@ public:
 	Node();
 	explicit Node(QTreeWidgetItem* item);
 
-	void calculate_Intermediate_Points(const Data& measurement, Node* above_Node, QString active_Parameter_Whats_This, bool depth_Grading, bool sigma_Grading);
+	void calculate_Intermediate_Points(const Data& measurement, Node* above_Node, QString active_Parameter_Whats_This, bool depth_Grading, bool sigma_Grading, bool enable_Discretization);
 
 	Data struct_Data;
 	bool stop_Calcuation = false;

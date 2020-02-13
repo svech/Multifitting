@@ -31,7 +31,7 @@ void Profile_Plots_Window::contextMenuEvent(QContextMenuEvent *event)
 				multilayer->profile_Plot_Options.local_wavelength_units = wavelength_Units_List[index];
 
 				profile_Plot_Vector[main_Tabs->currentIndex()]->at_Wavelength_Label->setText("At fixed " + Global_Variables::wavelength_Energy_Name(multilayer->profile_Plot_Options.local_wavelength_units));
-				profile_Plot_Vector[main_Tabs->currentIndex()]->at_Wavelength_LineEdit->setText(Locale.toString(Global_Variables::wavelength_Energy(multilayer->profile_Plot_Options.local_wavelength_units, multilayer->profile_Plot_Data.local_Wavelength)/wavelength_Coefficients_Map.value(multilayer->profile_Plot_Options.local_wavelength_units),line_edit_double_format,line_edit_wavelength_precision));
+				profile_Plot_Vector[main_Tabs->currentIndex()]->at_Wavelength_LineEdit->setText(Locale.toString(Global_Variables::wavelength_Energy(multilayer->profile_Plot_Options.local_wavelength_units, multilayer->profile_Plot_Options.local_Wavelength)/wavelength_Coefficients_Map.value(multilayer->profile_Plot_Options.local_wavelength_units),line_edit_double_format,line_edit_wavelength_precision));
 				profile_Plot_Vector[main_Tabs->currentIndex()]->at_Wavelength_Unints_Label->setText(" " + multilayer->profile_Plot_Options.local_wavelength_units);
 			});
 		}

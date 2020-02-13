@@ -1248,6 +1248,22 @@ void Global_Variables::variable_Drift(double &value, Drift &drift, int period_In
 	}
 }
 
+void Global_Variables::get_Prefix_Suffix(double& prefix, double& suffix, double max_Sigma)
+{
+	prefix = max(15., 5+3*max_Sigma);	// in angstroms
+	suffix = max(15., 5+3*max_Sigma);	// in angstroms
+}
+
+void Global_Variables::discretize_Prefix_Suffix(double prefix, double suffix, int& num_Prefix_Slices, int& num_Suffix_Slices, vector<double>& discrete_Step_Vector)
+{
+	double adapted_Prefix_Step = discrete_Step_Vector.front();
+	double adapted_Suffix_Step = discrete_Step_Vector.back();
+	num_Prefix_Slices = ceil(prefix/adapted_Prefix_Step);
+	num_Suffix_Slices = ceil(suffix/adapted_Suffix_Step);
+	for(int i=0; i<num_Prefix_Slices; i++) {discrete_Step_Vector.insert(discrete_Step_Vector.begin(), adapted_Prefix_Step);}
+	for(int i=0; i<num_Suffix_Slices; i++) {discrete_Step_Vector.push_back(adapted_Suffix_Step);}
+}
+
 double Global_Variables::theta_Function(double z)
 {
 	if(z<0)  return 0;

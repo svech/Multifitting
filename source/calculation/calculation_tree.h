@@ -74,6 +74,7 @@ public:
 //	void print_Flat_list(QList<Node> flat_List);
 //	void print_Item_Tree(QTreeWidgetItem* item);
 
+	Multilayer* multilayer;
 	gsl_rng* r;
 
 	QString calc_Mode;
