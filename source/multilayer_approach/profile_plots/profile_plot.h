@@ -62,6 +62,7 @@ public:
 
 	int struct_Data_Counter = 1; // ambient is the first
 	int struct_Data_Index = 0;
+	int num_Slices;
 	double max_Sigma = 0.1;
 	QVector<Data> struct_Data_Vector;
 	QVector<double> boundary_Vector;

@@ -63,12 +63,15 @@ void Main_Calculation_Module::single_Calculation(bool print)
 	for(int tab_Index=0; tab_Index<multilayers.size(); ++tab_Index)
 	{
 //		calculation_Trees[tab_Index]->fill_Independent_Calc_Trees(); // in preliminary calculation now
+		int counter=0;
 		for(Data_Element<Independent_Variables>& independent_Element : calculation_Trees[tab_Index]->independent)
 		{
 //			qInfo() << independent_Element.calc_Tree.begin().number_of_children() << endl;
 //			calculation_Trees[tab_Index]->print_Tree(independent_Element.calc_Tree.begin(), independent_Element.calc_Tree);
 
+			qInfo() << "curve" << counter++ << "in operation" << endl;
 			calculation_Trees[tab_Index]->calculate_1_Kind(independent_Element);
+			qInfo() << "" << endl;
 			if(lambda_Out_Of_Range) return;
 		}
 

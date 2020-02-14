@@ -592,6 +592,50 @@ struct Basic_Profile_Plot_Set	{QVector<double> depth; // in angstroms
 								 }
 								};
 
+
+struct Different_Norm_Layer
+{
+	Different_Norm_Layer()
+	{
+//		interlayer_Composition_Weight_Left.resize(transition_Layer_Functions_Size);
+//		interlayer_My_Sigma_Left.resize(transition_Layer_Functions_Size);
+//		interlayer_Composition_Weight_Right.resize(transition_Layer_Functions_Size);
+//		interlayer_My_Sigma_Right.resize(transition_Layer_Functions_Size);
+	}
+
+//	void set_Interlayer(QVector<Interlayer>& interlayer_Composition, QString side)
+//	{
+//		for(int i=0; i<transition_Layer_Functions_Size; i++)
+//		{
+//			if(interlayer_Composition[i].enabled)
+//			{
+//				if(side == "left")
+//				{
+//					interlayer_Composition_Weight_Left[i] = interlayer_Composition[i].interlayer.value;
+//					interlayer_My_Sigma_Left[i] = interlayer_Composition[i].my_Sigma.value;
+//				}
+//				if(side == "right")
+//				{
+//					interlayer_Composition_Weight_Right[i] = interlayer_Composition[i].interlayer.value;
+//					interlayer_My_Sigma_Right[i] = interlayer_Composition[i].my_Sigma.value;
+//				}
+//			}
+//		}
+//	}
+
+//	QVector<double> interlayer_Composition_Weight_Left;
+//	QVector<double> interlayer_My_Sigma_Left;
+//	QVector<double> interlayer_Composition_Weight_Right;
+//	QVector<double> interlayer_My_Sigma_Right;
+
+	// only checking
+	double thickness = -2019;
+	double sigma_Left = -2019;
+	double sigma_Right = -2019;
+
+	double norm = -2019;
+};
+
 // calculated functions for plotting
 struct Calculated_Values	    {QVector<double> R;
 								 QVector<double> Phi_R;
@@ -818,6 +862,7 @@ QDataStream& operator >>( QDataStream& stream,		 Fit_Params& fit_Params );
 // -----------------------------------------------------------------------------------------
 
 bool operator ==( const Parameter_Indicator& parameter_Indicator_Left, const Parameter_Indicator& parameter_Indicator_Right );
+bool operator ==( const Different_Norm_Layer& different_Norm_Layer_Left, const Different_Norm_Layer& different_Norm_Layer_Right );
 
 //template <typename T>
 //void print_Vector	(QString name, vector<T>& vec, int transpose)	// output

@@ -119,7 +119,8 @@ void Table_Of_Roughness::add_Tabs()
 	main_Tabs->setCurrentIndex(global_Multilayer_Approach->multilayer_Tabs->currentIndex());
 }
 
-void Table_Of_Roughness::create_Tab_Content(QWidget *new_Widget, int tab_Index)
+void Table_Of_Roughness::create_Tab_Content(QWidget* new_Widget, int tab_Index)
 {
-
+	Q_UNUSED(new_Widget)
+	Q_UNUSED(tab_Index)
 }

@@ -43,6 +43,7 @@ Fitting::~Fitting()
 
 double Fitting::func(double argument, int index)
 {
+	Q_UNUSED(index)
 	// TODO
 //	if(index == 0)
 //	{

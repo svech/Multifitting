@@ -692,60 +692,6 @@ void Profile_Plot::plot_Data(bool recalculate_Profile)
 	custom_Plot->replot();
 }
 
-struct Different_Norm_Layer
-{
-	Different_Norm_Layer()
-	{
-//		interlayer_Composition_Weight_Left.resize(transition_Layer_Functions_Size);
-//		interlayer_My_Sigma_Left.resize(transition_Layer_Functions_Size);
-//		interlayer_Composition_Weight_Right.resize(transition_Layer_Functions_Size);
-//		interlayer_My_Sigma_Right.resize(transition_Layer_Functions_Size);
-	}
-
-//	void set_Interlayer(QVector<Interlayer>& interlayer_Composition, QString side)
-//	{
-//		for(int i=0; i<transition_Layer_Functions_Size; i++)
-//		{
-//			if(interlayer_Composition[i].enabled)
-//			{
-//				if(side == "left")
-//				{
-//					interlayer_Composition_Weight_Left[i] = interlayer_Composition[i].interlayer.value;
-//					interlayer_My_Sigma_Left[i] = interlayer_Composition[i].my_Sigma.value;
-//				}
-//				if(side == "right")
-//				{
-//					interlayer_Composition_Weight_Right[i] = interlayer_Composition[i].interlayer.value;
-//					interlayer_My_Sigma_Right[i] = interlayer_Composition[i].my_Sigma.value;
-//				}
-//			}
-//		}
-//	}
-
-//	QVector<double> interlayer_Composition_Weight_Left;
-//	QVector<double> interlayer_My_Sigma_Left;
-//	QVector<double> interlayer_Composition_Weight_Right;
-//	QVector<double> interlayer_My_Sigma_Right;
-
-	// only checking
-	double thickness = -2019;
-	double sigma_Left = -2019;
-	double sigma_Right = -2019;
-
-	double norm = -2019;
-};
-
-bool operator ==( const Different_Norm_Layer& different_Norm_Layer_Left, const Different_Norm_Layer& different_Norm_Layer_Right )
-{
-	return	/*(different_Norm_Layer_Left.interlayer_Composition_Weight_Left		 == different_Norm_Layer_Right.interlayer_Composition_Weight_Left		) &&
-			(different_Norm_Layer_Left.interlayer_My_Sigma_Left	 == different_Norm_Layer_Right.interlayer_My_Sigma_Left	) &&
-			(different_Norm_Layer_Left.interlayer_Composition_Weight_Right == different_Norm_Layer_Right.interlayer_Composition_Weight_Right) &&
-			(different_Norm_Layer_Left.interlayer_My_Sigma_Right == different_Norm_Layer_Right.interlayer_My_Sigma_Right) &&*/
-			(different_Norm_Layer_Left.sigma_Left == different_Norm_Layer_Right.sigma_Left) &&
-			(different_Norm_Layer_Left.sigma_Right == different_Norm_Layer_Right.sigma_Right) &&
-			(different_Norm_Layer_Left.thickness == different_Norm_Layer_Right.thickness);
-}
-
 void Profile_Plot::calculate_Profile()
 {
 	struct_Data_Counter = 1; // ambient is the first
@@ -843,6 +789,7 @@ void Profile_Plot::calculate_Profile()
 	if(multilayer->discretization_Parameters.enable_Discretization && multilayer->profile_Plot_Options.show_Discretization)
 	{
 		Global_Variables::discretize_Prefix_Suffix(prefix, suffix, num_Prefix_Slices, num_Suffix_Slices, discrete_Step_Vector);
+		num_Slices = int(discrete_Step_Vector.size());
 	}
 
 	map_Sharp_Smooth.clear();
@@ -899,12 +846,12 @@ void Profile_Plot::calculate_Profile()
 			custom_Plot->addGraph();
 			if(multilayer->discretization_Parameters.enable_Discretization && multilayer->profile_Plot_Options.show_Discretization)
 			{
-				delta_To_Plot_Vector.resize(int(discrete_Step_Vector.size()));
-				arg.resize(int(discrete_Step_Vector.size()));
-				val.resize(int(discrete_Step_Vector.size()));
+				delta_To_Plot_Vector.resize(num_Slices);
+				arg.resize(num_Slices);
+				val.resize(num_Slices);
 
 				double real_Z = -(num_Prefix_Slices-0.5)*discrete_Step_Vector.front();
-				for(int i=0; i<discrete_Step_Vector.size(); ++i)
+				for(int i=0; i<num_Slices; ++i)
 				{
 					double visible_Z = real_Z-discrete_Step_Vector[i]/2.; // where we dispose point
 					delta_To_Plot_Vector[i].key = visible_Z/length_Coefficients_Map.value(multilayer->profile_Plot_Options.local_length_units);
@@ -913,10 +860,30 @@ void Profile_Plot::calculate_Profile()
 					arg[i] = delta_To_Plot_Vector[i].key;
 					val[i] = delta_To_Plot_Vector[i].value;
 
-					if(i!=(discrete_Step_Vector.size()-1)) {
+					if(i<(num_Slices-1)) {
 						real_Z += (discrete_Step_Vector[i]+discrete_Step_Vector[i+1])/2.; // real z, where we calculate epsilon
+					} else
+					{
+						real_Z += discrete_Step_Vector[i]; // real z, where we calculate epsilon
 					}
 				}
+
+				// add ambient
+//				QCPGraphData ambient;
+//					ambient.key = delta_To_Plot_Vector.first().key-discrete_Step_Vector.front();
+//					ambient.value = beta_Epsilon_Vector.first();
+//				delta_To_Plot_Vector.prepend(ambient);
+//				arg.prepend(delta_To_Plot_Vector.first().key);
+//				val.prepend(delta_To_Plot_Vector.first().value);
+
+				// add substrate
+				QCPGraphData substrate;
+					substrate.key = delta_To_Plot_Vector.last().key+discrete_Step_Vector.back();
+					substrate.value = delta_Epsilon_Vector.last();
+				delta_To_Plot_Vector.append(substrate);
+				arg.append(delta_To_Plot_Vector.last().key);
+				val.append(delta_To_Plot_Vector.last().value);
+
 				custom_Plot->graph()->setLineStyle(QCPGraph::lsStepLeft);
 			} else
 			{
@@ -1003,12 +970,12 @@ void Profile_Plot::calculate_Profile()
 			custom_Plot->addGraph();
 			if(multilayer->discretization_Parameters.enable_Discretization && multilayer->profile_Plot_Options.show_Discretization)
 			{
-				beta_To_Plot_Vector.resize(int(discrete_Step_Vector.size()));
-				arg.resize(int(discrete_Step_Vector.size()));
-				val.resize(int(discrete_Step_Vector.size()));
+				beta_To_Plot_Vector.resize(num_Slices);
+				arg.resize(num_Slices);
+				val.resize(num_Slices);
 
 				double real_Z = -(num_Prefix_Slices-0.5)*discrete_Step_Vector.front();
-				for(int i=0; i<discrete_Step_Vector.size(); ++i)
+				for(int i=0; i<num_Slices; ++i)
 				{
 					double visible_Z = real_Z-discrete_Step_Vector[i]/2.; // where we dispose point
 					beta_To_Plot_Vector[i].key = visible_Z/length_Coefficients_Map.value(multilayer->profile_Plot_Options.local_length_units);
@@ -1017,10 +984,30 @@ void Profile_Plot::calculate_Profile()
 					arg[i] = beta_To_Plot_Vector[i].key;
 					val[i] = beta_To_Plot_Vector[i].value;
 
-					if(i!=(discrete_Step_Vector.size()-1)) {
+					if(i<(num_Slices-1)) {
 						real_Z += (discrete_Step_Vector[i]+discrete_Step_Vector[i+1])/2.; // real z, where we calculate epsilon
+					} else
+					{
+						real_Z += discrete_Step_Vector[i]; // real z, where we calculate epsilon
 					}
 				}
+
+				// add ambient
+//				QCPGraphData ambient;
+//					ambient.key = beta_To_Plot_Vector.first().key-discrete_Step_Vector.front();
+//					ambient.value = beta_Epsilon_Vector.first();
+//				beta_To_Plot_Vector.prepend(ambient);
+//				arg.prepend(beta_To_Plot_Vector.first().key);
+//				val.prepend(beta_To_Plot_Vector.first().value);
+
+				// add substrate
+				QCPGraphData substrate;
+					substrate.key = beta_To_Plot_Vector.last().key+discrete_Step_Vector.back();
+					substrate.value = beta_Epsilon_Vector.last();
+				beta_To_Plot_Vector.append(substrate);
+				arg.append(beta_To_Plot_Vector.last().key);
+				val.append(beta_To_Plot_Vector.last().value);
+
 				custom_Plot->graph()->setLineStyle(QCPGraph::lsStepLeft);
 			} else
 			{
@@ -1133,12 +1120,12 @@ void Profile_Plot::calculate_Profile()
 				custom_Plot->addGraph();
 				if(multilayer->discretization_Parameters.enable_Discretization && multilayer->profile_Plot_Options.show_Discretization)
 				{
-					val_Multiple[material_index].resize(int(discrete_Step_Vector.size()));
-					arg.resize(int(discrete_Step_Vector.size()));
-					materials_To_Plot_Vector_Vector[material_index].resize(int(discrete_Step_Vector.size()));
+					val_Multiple[material_index].resize(num_Slices);
+					arg.resize(num_Slices);
+					materials_To_Plot_Vector_Vector[material_index].resize(num_Slices);
 
 					double real_Z = -(num_Prefix_Slices-0.5)*discrete_Step_Vector.front();
-					for(int i=0; i<discrete_Step_Vector.size(); ++i)
+					for(int i=0; i<num_Slices; ++i)
 					{
 						double visible_Z = real_Z-discrete_Step_Vector[i]/2.; // where we dispose point
 						materials_To_Plot_Vector_Vector[material_index][i].key = visible_Z/length_Coefficients_Map.value(multilayer->profile_Plot_Options.local_length_units);
@@ -1147,10 +1134,30 @@ void Profile_Plot::calculate_Profile()
 						arg[i] = materials_To_Plot_Vector_Vector[material_index][i].key;
 						val_Multiple[material_index][i] = materials_To_Plot_Vector_Vector[material_index][i].value;
 
-						if(i!=(discrete_Step_Vector.size()-1)) {
+						if(i<(num_Slices-1)) {
 							real_Z += (discrete_Step_Vector[i]+discrete_Step_Vector[i+1])/2.; // real z, where we calculate epsilon
+						} else
+						{
+							real_Z += discrete_Step_Vector[i]; // real z, where we calculate epsilon
 						}
 					}
+
+					// add ambient
+//					QCPGraphData ambient;
+//						ambient.key = materials_To_Plot_Vector_Vector[material_index].first().key-discrete_Step_Vector.front();
+//						ambient.value = struct_Data_Vector.first().relative_Density.value;
+//					materials_To_Plot_Vector_Vector[material_index].prepend(ambient);
+//					arg.prepend(materials_To_Plot_Vector_Vector[material_index].first().key);
+//					val_Multiple[material_index].prepend(materials_To_Plot_Vector_Vector[material_index].first().value);
+
+					// add substrate
+					QCPGraphData substrate;
+						substrate.key = materials_To_Plot_Vector_Vector[material_index].last().key+discrete_Step_Vector.back();
+						substrate.value = struct_Data_Vector.last().relative_Density.value;
+					materials_To_Plot_Vector_Vector[material_index].append(substrate);
+					arg.append(materials_To_Plot_Vector_Vector[material_index].last().key);
+					val_Multiple[material_index].append(materials_To_Plot_Vector_Vector[material_index].last().value);
+
 					custom_Plot->graph()->setLineStyle(QCPGraph::lsStepLeft);
 				} else
 				{
@@ -1267,12 +1274,12 @@ void Profile_Plot::calculate_Profile()
 				custom_Plot->addGraph();
 				if(multilayer->discretization_Parameters.enable_Discretization && multilayer->profile_Plot_Options.show_Discretization)
 				{
-					val_Multiple[element_Index].resize(int(discrete_Step_Vector.size()));
-					arg.resize(int(discrete_Step_Vector.size()));
-					elements_To_Plot_Vector_Vector[element_Index].resize(int(discrete_Step_Vector.size()));
+					val_Multiple[element_Index].resize(num_Slices);
+					arg.resize(num_Slices);
+					elements_To_Plot_Vector_Vector[element_Index].resize(num_Slices);
 
 					double real_Z = -(num_Prefix_Slices-0.5)*discrete_Step_Vector.front();
-					for(int i=0; i<discrete_Step_Vector.size(); ++i)
+					for(int i=0; i<num_Slices; ++i)
 					{
 						double visible_Z = real_Z-discrete_Step_Vector[i]/2.; // where we dispose point
 						elements_To_Plot_Vector_Vector[element_Index][i].key = visible_Z/length_Coefficients_Map.value(multilayer->profile_Plot_Options.local_length_units);
@@ -1281,10 +1288,30 @@ void Profile_Plot::calculate_Profile()
 						arg[i] = elements_To_Plot_Vector_Vector[element_Index][i].key;
 						val_Multiple[element_Index][i] = elements_To_Plot_Vector_Vector[element_Index][i].value;
 
-						if(i!=(discrete_Step_Vector.size()-1)) {
+						if(i<(num_Slices-1)) {
 							real_Z += (discrete_Step_Vector[i]+discrete_Step_Vector[i+1])/2.; // real z, where we calculate epsilon
+						} else
+						{
+							real_Z += discrete_Step_Vector[i]; // real z, where we calculate epsilon
 						}
 					}
+
+					// add ambient
+//					QCPGraphData ambient;
+//						ambient.key = elements_To_Plot_Vector_Vector[element_Index].first().key-discrete_Step_Vector.front();
+//						ambient.value = element_Concentration_Map_Vector.first().value(different_Elements[element_Index]);
+//					elements_To_Plot_Vector_Vector[element_Index].prepend(ambient);
+//					arg.prepend(elements_To_Plot_Vector_Vector[element_Index].first().key);
+//					val_Multiple[element_Index].prepend(elements_To_Plot_Vector_Vector[element_Index].first().value);
+
+					// add substrate
+					QCPGraphData substrate;
+						substrate.key = elements_To_Plot_Vector_Vector[element_Index].last().key+discrete_Step_Vector.back();
+						substrate.value = element_Concentration_Map_Vector.last().value(different_Elements[element_Index]);
+					elements_To_Plot_Vector_Vector[element_Index].append(substrate);
+					arg.append(elements_To_Plot_Vector_Vector[element_Index].last().key);
+					val_Multiple[element_Index].append(elements_To_Plot_Vector_Vector[element_Index].last().value);
+
 					custom_Plot->graph()->setLineStyle(QCPGraph::lsStepLeft);
 				} else
 				{
@@ -1545,12 +1572,12 @@ void Profile_Plot::unwrap_Subtree(QVector<Data>& struct_Data_Vector, QTreeWidget
 				   struct_Data.parent_Item_Type != item_Type_Regular_Aperiodic &&
 				   multilayer->discretization_Parameters.enable_Discretization && multilayer->profile_Plot_Options.show_Discretization)
 				{
-					int num_Slices = ceil(struct_Data.thickness.value/multilayer->discretization_Parameters.discretization_Step);
-					double adapted_Step = struct_Data.thickness.value/num_Slices;
+					int num_Slices_Local = ceil(struct_Data.thickness.value/multilayer->discretization_Parameters.discretization_Step);
+					double adapted_Step = struct_Data.thickness.value/num_Slices_Local;
 
-					discrete_Step_Vector.resize(int(discrete_Step_Vector.size())+num_Slices);
+					discrete_Step_Vector.resize(discrete_Step_Vector.size()+num_Slices_Local);
 					size_t last_Index = discrete_Step_Vector.size()-1;
-					for(int i=0; i<num_Slices; i++)
+					for(int i=0; i<num_Slices_Local; i++)
 					{
 						discrete_Step_Vector[last_Index-i] = adapted_Step;
 					}
@@ -1628,12 +1655,12 @@ void Profile_Plot::unwrap_Subtree(QVector<Data>& struct_Data_Vector, QTreeWidget
 							// discretization
 							if(multilayer->discretization_Parameters.enable_Discretization && multilayer->profile_Plot_Options.show_Discretization)
 							{
-								int num_Slices = ceil(struct_Data_Vector[struct_Data_Index].thickness.value/multilayer->discretization_Parameters.discretization_Step);
-								double adapted_Step = struct_Data_Vector[struct_Data_Index].thickness.value/num_Slices;
+								int num_Slices_Local = ceil(struct_Data_Vector[struct_Data_Index].thickness.value/multilayer->discretization_Parameters.discretization_Step);
+								double adapted_Step = struct_Data_Vector[struct_Data_Index].thickness.value/num_Slices_Local;
 
-								discrete_Step_Vector.resize(discrete_Step_Vector.size()+num_Slices);
+								discrete_Step_Vector.resize(discrete_Step_Vector.size()+num_Slices_Local);
 								size_t last_Index = discrete_Step_Vector.size()-1;
-								for(int i=0; i<num_Slices; i++)
+								for(int i=0; i<num_Slices_Local; i++)
 								{
 									discrete_Step_Vector[last_Index-i] = adapted_Step;
 								}
@@ -1717,12 +1744,12 @@ void Profile_Plot::unwrap_Subtree(QVector<Data>& struct_Data_Vector, QTreeWidget
 								// discretization
 								if(multilayer->discretization_Parameters.enable_Discretization && multilayer->profile_Plot_Options.show_Discretization)
 								{
-									int num_Slices = ceil(child_Data.thickness.value/multilayer->discretization_Parameters.discretization_Step);
-									double adapted_Step = child_Data.thickness.value/num_Slices;
+									int num_Slices_Local = ceil(child_Data.thickness.value/multilayer->discretization_Parameters.discretization_Step);
+									double adapted_Step = child_Data.thickness.value/num_Slices_Local;
 
-									discrete_Step_Vector.resize(discrete_Step_Vector.size()+num_Slices);
+									discrete_Step_Vector.resize(discrete_Step_Vector.size()+num_Slices_Local);
 									size_t last_Index = discrete_Step_Vector.size()-1;
-									for(int i=0; i<num_Slices; i++)
+									for(int i=0; i<num_Slices_Local; i++)
 									{
 										discrete_Step_Vector[last_Index-i] = adapted_Step;
 									}

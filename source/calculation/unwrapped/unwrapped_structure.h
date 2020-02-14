@@ -40,9 +40,10 @@ public:
 	double max_Sigma;
 	vector<double> sigma;											//	[boundary]
 	vector<bool> common_Sigma;										//	[boundary]
-	vector<vector<Interlayer>> boundary_Interlayer_Composition;		//  [boundary][function]
+	vector<QVector<Interlayer>> boundary_Interlayer_Composition;		//  [boundary][function]
 	vector<double> thickness;										//	[layer]
 	vector<double> boundaries;										//	[boundary]
+	vector<double> layer_Norm_Vector;								//	[layer]
 
 	// discretized structure
 	vector<complex<double>> discretized_Epsilon;
@@ -59,10 +60,11 @@ public:
 	double prefix = 15, suffix = 15;
 	int num_Prefix_Slices =1, num_Suffix_Slices = 1;
 
+	void layer_Normalizing();
 	void find_Discretization();
 	void fill_Discretized_Epsilon_Dependent(int num_Lambda_Points);
 	void fill_Discretized_Epsilon();
-	complex<double> epsilon_Func(double z);
+	complex<double> epsilon_Func(double z, const vector<complex<double>>& epsilon_Vector);
 
 //	int fill_Epsilon_Angular_Max_Depth_2  (const tree<Node>::iterator& parent, int media_Index = 0);
 //	int fill_Epsilon_Spectra_Max_Depth_2  (const tree<Node>::iterator& parent, int media_Index = 0);

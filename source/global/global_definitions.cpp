@@ -383,6 +383,17 @@ bool operator ==( const Parameter_Indicator& parameter_Indicator_Left, const Par
 			(parameter_Indicator_Left.whats_This == parameter_Indicator_Right.whats_This);
 }
 
+bool operator ==( const Different_Norm_Layer& different_Norm_Layer_Left, const Different_Norm_Layer& different_Norm_Layer_Right )
+{
+	return	/*(different_Norm_Layer_Left.interlayer_Composition_Weight_Left		 == different_Norm_Layer_Right.interlayer_Composition_Weight_Left		) &&
+			(different_Norm_Layer_Left.interlayer_My_Sigma_Left	 == different_Norm_Layer_Right.interlayer_My_Sigma_Left	) &&
+			(different_Norm_Layer_Left.interlayer_Composition_Weight_Right == different_Norm_Layer_Right.interlayer_Composition_Weight_Right) &&
+			(different_Norm_Layer_Left.interlayer_My_Sigma_Right == different_Norm_Layer_Right.interlayer_My_Sigma_Right) &&*/
+			(different_Norm_Layer_Left.sigma_Left == different_Norm_Layer_Right.sigma_Left) &&
+			(different_Norm_Layer_Left.sigma_Right == different_Norm_Layer_Right.sigma_Right) &&
+			(different_Norm_Layer_Left.thickness == different_Norm_Layer_Right.thickness);
+}
+
 // optical constants
 
 void Point::read_Row(QTextStream& input, bool if_Factors)

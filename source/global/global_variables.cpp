@@ -1502,5 +1502,3 @@ double Global_Variables::layer_Normalization(double thickness, QVector<Interlaye
 //	}
 	return result;
 }
-
-
