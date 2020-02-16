@@ -23,9 +23,10 @@ public:
 	void get_Element_Map(const Data& struct_Data, QMap<QString,double>& element_Map);
 	void unwrap_Subtree(QVector<Data>& struct_Data_Vector, QTreeWidgetItem* item, int num_Repetition, int period_Index);
 	void get_Max_My_Sigma(QTreeWidgetItem* item, int periods_Factor = 1);
-	complex<double> delta_Beta_Epsilon_Func(double z, QString given_Material_or_Element = "no material or element");
+	complex<double> delta_Beta_Epsilon_Func(double z, int thread_Index = 0, QString given_Material_or_Element = "no material or element");
 	void hide_Show_Other_Plots();
 
+	int plotting_Threads;
 	Multilayer* multilayer;
 	Profile_Plots_Window* profile_Plots_Window;
 	QHBoxLayout* main_Layout;
@@ -65,16 +66,21 @@ public:
 	int num_Slices;
 	double max_Sigma = 0.1;
 	QVector<Data> struct_Data_Vector;
+	vector<vector<Data>> struct_Data_Vector_Threaded;
 	QVector<double> boundary_Vector;
-	vector<double> boundary_Vector_Std;
+	vector<vector<double>> boundary_Vector_Std_Threaded;
 	QVector<double> thickness_Vector;
 	 vector<double> discrete_Step_Vector;
 	QVector<double> delta_Epsilon_Vector;
+	vector<vector<double>> delta_Epsilon_Vector_Threaded;
 	QVector<double> beta_Epsilon_Vector;
+	vector<vector<double>> beta_Epsilon_Vector_Threaded;
 	QVector<double> layer_Norm_Vector;
+	vector<vector<double>> layer_Norm_Vector_Threaded;
 	QVector<QString> different_Materials;
 	QVector<QString> different_Elements;
 	QVector<QMap<QString,double>> element_Concentration_Map_Vector;
+	vector<vector<QMap<QString,double>>> element_Concentration_Map_Vector_Threaded;
 
 	/// data to plot
 	// permittivity

@@ -37,7 +37,7 @@ public:
 	size_t number_Of_Restricted_Regular_Components = 0;
 
 	void preliminary_Calculation();
-	void single_Calculation(bool print = true);
+	void single_Calculation(bool print_And_Verbose = true);
 	void fitting_and_Confidence();
 	void save_Init_State_Trees();
 	void load_Init_State_Trees();

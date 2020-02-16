@@ -15,7 +15,7 @@ Unwrapped_Structure::Unwrapped_Structure(const tree<Node>& calc_Tree, const Data
 	int depth_Threshold = 2;
 
 	// recalculate all if depth is big
-	if( max_Depth > depth_Threshold || discretization_Parameters.enable_Discretization)
+	if( (max_Depth > depth_Threshold) || discretization_Parameters.enable_Discretization)
 	{		
 		// PARAMETER
 		if(active_Parameter_Whats_This == whats_This_Wavelength)
@@ -79,25 +79,25 @@ Unwrapped_Structure::Unwrapped_Structure(const tree<Node>& calc_Tree, const Data
 		// prolong discretization into ambient and substrate
 		Global_Variables::get_Prefix_Suffix(prefix, suffix, max_Sigma);
 		Global_Variables::discretize_Prefix_Suffix(prefix, suffix, num_Prefix_Slices, num_Suffix_Slices, discretized_Thickness);
-		size_t num_Slices_Media = discretized_Thickness.size()+2;
+		num_Discretized_Media = discretized_Thickness.size()+2;
 
 		// PARAMETER
 		if(active_Parameter_Whats_This == whats_This_Wavelength)
 		{
 			int num_Lambda_Points = measurement.lambda.size();
 
-			discretized_Epsilon_Dependent.resize(num_Lambda_Points, vector<complex<double>>(num_Slices_Media));
-			discretized_Epsilon_Dependent_RE.resize(num_Lambda_Points, vector<double>(num_Slices_Media));
-			discretized_Epsilon_Dependent_IM.resize(num_Lambda_Points, vector<double>(num_Slices_Media));
-			discretized_Epsilon_Dependent_NORM.resize(num_Lambda_Points, vector<double>(num_Slices_Media));
+			discretized_Epsilon_Dependent.resize(num_Lambda_Points, vector<complex<double>>(num_Discretized_Media));
+			discretized_Epsilon_Dependent_RE.resize(num_Lambda_Points, vector<double>(num_Discretized_Media));
+			discretized_Epsilon_Dependent_IM.resize(num_Lambda_Points, vector<double>(num_Discretized_Media));
+			discretized_Epsilon_Dependent_NORM.resize(num_Lambda_Points, vector<double>(num_Discretized_Media));
 
 			fill_Discretized_Epsilon_Dependent(num_Lambda_Points);
 		} else
 		{
-			discretized_Epsilon.resize(num_Slices_Media);
-			discretized_Epsilon_RE.resize(num_Slices_Media);
-			discretized_Epsilon_IM.resize(num_Slices_Media);
-			discretized_Epsilon_NORM.resize(num_Slices_Media);
+			discretized_Epsilon.resize(num_Discretized_Media);
+			discretized_Epsilon_RE.resize(num_Discretized_Media);
+			discretized_Epsilon_IM.resize(num_Discretized_Media);
+			discretized_Epsilon_NORM.resize(num_Discretized_Media);
 
 			fill_Discretized_Epsilon();
 		}
@@ -130,7 +130,8 @@ void Unwrapped_Structure::layer_Normalizing()
 				different_Norm_Layer.append(temp_Dif_Norm);
 			} else
 			{
-				layer_Norm_Vector[layer_Index] = temp_Dif_Norm.norm;
+				Different_Norm_Layer old_Norm = different_Norm_Layer[different_Norm_Layer.indexOf(temp_Dif_Norm)];
+				layer_Norm_Vector[layer_Index] = old_Norm.norm;
 			}
 		} else
 		{
@@ -168,19 +169,19 @@ void Unwrapped_Structure::fill_Discretized_Epsilon()
 	discretized_Epsilon_NORM.front() = epsilon_NORM.front();
 
 	// main part
-	double real_Z = -(num_Prefix_Slices-0.5)*discretized_Thickness.front();
+	double z = -(num_Prefix_Slices/*-0.5*/)*discretized_Thickness.front();
 	for(int i=1; i<=discretized_Thickness.size(); ++i)
 	{
-		discretized_Epsilon[i] = epsilon_Func(real_Z, epsilon);
+		discretized_Epsilon[i] = epsilon_Func(z, epsilon);
 		discretized_Epsilon_RE[i] = real(discretized_Epsilon[i]);
 		discretized_Epsilon_IM[i] = imag(discretized_Epsilon[i]);
 		discretized_Epsilon_NORM[i] = discretized_Epsilon_RE[i]*discretized_Epsilon_RE[i]+discretized_Epsilon_IM[i]*discretized_Epsilon_IM[i];
 
 		if(i!=(discretized_Thickness.size()-1)) {
-			real_Z += (discretized_Thickness[i]+discretized_Thickness[i+1])/2.; // real z, where we calculate epsilon
+			z += (discretized_Thickness[i]+discretized_Thickness[i+1])/2.; // real z, where we calculate epsilon
 		} else
 		{
-			real_Z += discretized_Thickness[i]; // real z, where we calculate epsilon
+			z += discretized_Thickness[i]; // real z, where we calculate epsilon
 		}
 	}
 
@@ -202,19 +203,19 @@ void Unwrapped_Structure::fill_Discretized_Epsilon_Dependent(int num_Lambda_Poin
 		discretized_Epsilon_Dependent_NORM[lambda_Point].front() = epsilon_Dependent_NORM[lambda_Point].front();
 
 		// main part
-		double real_Z = -(num_Prefix_Slices-0.5)*discretized_Thickness.front();
+		double z = -(num_Prefix_Slices/*-0.5*/)*discretized_Thickness.front();
 		for(int i=1; i<=discretized_Thickness.size(); ++i)
 		{
-			discretized_Epsilon_Dependent[lambda_Point][i] = epsilon_Func(real_Z, epsilon_Dependent[lambda_Point]);
+			discretized_Epsilon_Dependent[lambda_Point][i] = epsilon_Func(z, epsilon_Dependent[lambda_Point]);
 			discretized_Epsilon_Dependent_RE[lambda_Point][i] = real(discretized_Epsilon_Dependent[lambda_Point][i]);
 			discretized_Epsilon_Dependent_IM[lambda_Point][i] = imag(discretized_Epsilon_Dependent[lambda_Point][i]);
 			discretized_Epsilon_Dependent_NORM[lambda_Point][i] = discretized_Epsilon_Dependent_RE[lambda_Point][i]*discretized_Epsilon_Dependent_RE[lambda_Point][i]+discretized_Epsilon_Dependent_IM[lambda_Point][i]*discretized_Epsilon_Dependent_IM[lambda_Point][i];
 
 			if(i!=(discretized_Thickness.size()-1)) {
-				real_Z += (discretized_Thickness[i]+discretized_Thickness[i+1])/2.; // real z, where we calculate epsilon
+				z += (discretized_Thickness[i]+discretized_Thickness[i+1])/2.; // real z, where we calculate epsilon
 			} else
 			{
-				real_Z += discretized_Thickness[i]; // real z, where we calculate epsilon
+				z += discretized_Thickness[i]; // real z, where we calculate epsilon
 			}
 		}
 

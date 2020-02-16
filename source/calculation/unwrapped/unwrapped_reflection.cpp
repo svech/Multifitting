@@ -32,19 +32,22 @@ Unwrapped_Reflection::Unwrapped_Reflection(Unwrapped_Structure* unwrapped_Struct
 	t_Local_p_RE  (num_Threads,vector<double>(num_Boundaries)),
 	t_Local_p_IM  (num_Threads,vector<double>(num_Boundaries)),
 
-	epsilon_Ambient(num_Threads),
-	epsilon_Substrate(num_Threads),
-
 	hi_RE		  (num_Threads,vector<double>(num_Media)),
 	hi_IM		  (num_Threads,vector<double>(num_Media)),
+
 	exponenta_RE  (num_Threads,vector<double>(num_Boundaries)),
 	exponenta_IM  (num_Threads,vector<double>(num_Boundaries)),
 	exponenta_2_RE(num_Threads,vector<double>(num_Boundaries)),
 	exponenta_2_IM(num_Threads,vector<double>(num_Boundaries)),
 
-	weak_Factor_R (num_Threads,vector<double>(num_Boundaries))
-//	weak_Factor_T (num_Threads,vector<double>(num_Boundaries))
-{
+	weak_Factor_R (num_Threads,vector<double>(num_Boundaries)),
+//	weak_Factor_T (num_Threads,vector<double>(num_Boundaries)),
+
+	epsilon_Ambient(num_Threads),
+	epsilon_Substrate(num_Threads)
+{	
+
+
 	if(active_Parameter_Whats_This == whats_This_Angle)
 	{
 		num_Points = measurement.cos2.size();
@@ -572,13 +575,13 @@ void Unwrapped_Reflection::calc_Fresnel(double polarization, const vector<double
 	}
 }
 
-void Unwrapped_Reflection::calc_Exponenta(int thread_Index)
+void Unwrapped_Reflection::calc_Exponenta(int thread_Index, vector<double>& thickness)
 {
 	double re, im, ere, ere2;
 	for (int i = 0; i < num_Layers; ++i)
 	{
-		re = -hi_IM[thread_Index][i+1]*unwrapped_Structure->thickness[i];
-		im =  hi_RE[thread_Index][i+1]*unwrapped_Structure->thickness[i];
+		re = -hi_IM[thread_Index][i+1]*thickness[i];
+		im =  hi_RE[thread_Index][i+1]*thickness[i];
 		ere = exp(re);
 		ere2 = exp(2.*re);
 
@@ -728,6 +731,8 @@ void Unwrapped_Reflection::calc_Local(double polarization, int thread_Index)
 
 void Unwrapped_Reflection::multifly_Fresnel_And_Weak_Factor(double polarization, int thread_Index)
 {
+	/// used only in if Fresnel was taken from Node
+
 	// s-polarization
 	if (polarization >-1)
 	for (int i = 0; i < num_Boundaries; ++i)
@@ -762,53 +767,84 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(const Data& measuremen
 
 	int depth_Threshold = 2;
 
-	if( max_Depth <= depth_Threshold )
+	if(!unwrapped_Structure->discretization_Parameters.enable_Discretization)
 	{
-		// in case of grading, some of these values are temporary and will be recalculated
-		if( abs(measurement.polarization.value - 1) < DBL_EPSILON )			// s-polarization only
+		if( max_Depth <= depth_Threshold)
 		{
-			fill_s__Max_Depth_2(unwrapped_Structure->calc_Tree.begin(), thread_Index, point_Index);
-		} else
-		if( abs(measurement.polarization.value + 1) < DBL_EPSILON )			// p-polarization only
-		{
-			fill_p__Max_Depth_2(unwrapped_Structure->calc_Tree.begin(), thread_Index, point_Index);
-		} else																// both polarizations
-		{
-			fill_sp_Max_Depth_2(unwrapped_Structure->calc_Tree.begin(), thread_Index, point_Index);
-		}
+			// in case of grading, some of these values are temporary and will be recalculated
+			if( abs(measurement.polarization.value - 1) < DBL_EPSILON )			// s-polarization only
+			{
+				fill_s__Max_Depth_2(unwrapped_Structure->calc_Tree.begin(), thread_Index, point_Index);
+			} else
+			if( abs(measurement.polarization.value + 1) < DBL_EPSILON )			// p-polarization only
+			{
+				fill_p__Max_Depth_2(unwrapped_Structure->calc_Tree.begin(), thread_Index, point_Index);
+			} else																// both polarizations
+			{
+				fill_sp_Max_Depth_2(unwrapped_Structure->calc_Tree.begin(), thread_Index, point_Index);
+			}
 
-		// if we have some grading
-		if( depth_Grading )
+			// if we have some grading
+			if( depth_Grading )
+			{
+				calc_Exponenta  (thread_Index,unwrapped_Structure->thickness);
+			}
+			if( sigma_Grading )
+			{
+				calc_Weak_Factor(thread_Index);
+				multifly_Fresnel_And_Weak_Factor(measurement.polarization.value, thread_Index);
+			}
+		} else
 		{
-			calc_Exponenta  (thread_Index);
-		}
-		if( sigma_Grading )
-		{
-			calc_Weak_Factor(thread_Index);
-			multifly_Fresnel_And_Weak_Factor(measurement.polarization.value, thread_Index);
+			if(active_Parameter_Whats_This == whats_This_Angle)
+			{
+				calc_Hi(measurement.k_Value, measurement.cos2[point_Index], unwrapped_Structure->epsilon_RE, unwrapped_Structure->epsilon_IM, thread_Index);
+				calc_Weak_Factor(thread_Index);
+				calc_Exponenta  (thread_Index,unwrapped_Structure->thickness);
+				calc_Fresnel(measurement.polarization.value, unwrapped_Structure->epsilon_RE,
+															 unwrapped_Structure->epsilon_IM,
+															 unwrapped_Structure->epsilon_NORM,
+																								thread_Index);
+			}
+			if(active_Parameter_Whats_This == whats_This_Wavelength)
+			{
+				calc_Hi(measurement.k[point_Index], measurement.cos2_Value, unwrapped_Structure->epsilon_Dependent_RE[point_Index], unwrapped_Structure->epsilon_Dependent_IM[point_Index], thread_Index);
+				calc_Weak_Factor(thread_Index);
+				calc_Exponenta  (thread_Index,unwrapped_Structure->thickness);
+				calc_Fresnel(measurement.polarization.value, unwrapped_Structure->epsilon_Dependent_RE  [point_Index],
+															 unwrapped_Structure->epsilon_Dependent_IM  [point_Index],
+															 unwrapped_Structure->epsilon_Dependent_NORM[point_Index],
+																													   thread_Index);
+			}
 		}
 	} else
 	{
+		// weak factors are "not used" with discretization. only formally
+		for(int thread_Index=0; thread_Index<num_Threads; thread_Index++)
+		{
+			weak_Factor_R[thread_Index].assign(num_Boundaries,1);
+		//	weak_Factor_T[thread_Index].assign(num_Boundaries,1);
+		}
+
 		if(active_Parameter_Whats_This == whats_This_Angle)
 		{
-			calc_Hi(measurement.k_Value, measurement.cos2[point_Index], unwrapped_Structure->epsilon_RE, unwrapped_Structure->epsilon_IM, thread_Index);
-			calc_Weak_Factor(thread_Index);
-			calc_Exponenta  (thread_Index);
-			calc_Fresnel(measurement.polarization.value, unwrapped_Structure->epsilon_RE,
-														 unwrapped_Structure->epsilon_IM,
-														 unwrapped_Structure->epsilon_NORM,
+			calc_Hi(measurement.k_Value, measurement.cos2[point_Index], unwrapped_Structure->discretized_Epsilon_RE, unwrapped_Structure->discretized_Epsilon_IM, thread_Index);
+			calc_Exponenta  (thread_Index,unwrapped_Structure->discretized_Thickness);
+			calc_Fresnel(measurement.polarization.value, unwrapped_Structure->discretized_Epsilon_RE,
+														 unwrapped_Structure->discretized_Epsilon_IM,
+														 unwrapped_Structure->discretized_Epsilon_NORM,
 																							thread_Index);
 		}
 		if(active_Parameter_Whats_This == whats_This_Wavelength)
 		{
-			calc_Hi(measurement.k[point_Index], measurement.cos2_Value, unwrapped_Structure->epsilon_Dependent_RE[point_Index], unwrapped_Structure->epsilon_Dependent_IM[point_Index], thread_Index);
-			calc_Weak_Factor(thread_Index);
-			calc_Exponenta  (thread_Index);
-			calc_Fresnel(measurement.polarization.value, unwrapped_Structure->epsilon_Dependent_RE  [point_Index],
-														 unwrapped_Structure->epsilon_Dependent_IM  [point_Index],
-														 unwrapped_Structure->epsilon_Dependent_NORM[point_Index],
+			calc_Hi(measurement.k[point_Index], measurement.cos2_Value, unwrapped_Structure->discretized_Epsilon_Dependent_RE[point_Index], unwrapped_Structure->discretized_Epsilon_Dependent_IM[point_Index], thread_Index);
+			calc_Exponenta  (thread_Index,unwrapped_Structure->discretized_Thickness);
+			calc_Fresnel(measurement.polarization.value, unwrapped_Structure->discretized_Epsilon_Dependent_RE  [point_Index],
+														 unwrapped_Structure->discretized_Epsilon_Dependent_IM  [point_Index],
+														 unwrapped_Structure->discretized_Epsilon_Dependent_NORM[point_Index],
 																												   thread_Index);
 		}
+
 	}
 //	auto end = std::chrono::system_clock::now();
 
@@ -818,8 +854,11 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(const Data& measuremen
 //	auto elapseD = std::chrono::duration_cast<std::chrono::nanoseconds>(enD - end);
 
 //	auto elapsed = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start);
-//	qInfo() << "Pre    : "<< elapsed.count()/1000000000. << " seconds" << endl;
-//	qInfo() << "Local  : "<< elapseD.count()/1000000000. << " seconds" << endl;
+//	if(point_Index==0)
+//	{
+//		qInfo() << "Pre    : "<< elapsed.count()/1000000000.*num_Points << " seconds" << endl;
+//		qInfo() << "Local  : "<< elapseD.count()/1000000000.*num_Points << " seconds" << endl;
+//	}
 }
 
 void Unwrapped_Reflection::fill_Specular_Values(const Data& measurement, int thread_Index, int point_Index)
@@ -1051,7 +1090,7 @@ void Unwrapped_Reflection::wrap_Condensed_Curve(const QVector<double>& sparse_Ar
 
 	if(sparse_Argument.size()*resolution[0]>50) // tunable
 	{
-		Global_Variables::parallel_For(sparse_Argument.size(), reflectivity_Calc_Threads, [&](int n_Min, int n_Max)
+		Global_Variables::parallel_For(sparse_Argument.size(), reflectivity_Calc_Threads, [&](int n_Min, int n_Max, int thread_Index)
 		{
 			for(int point_Index=n_Min; point_Index<n_Max; ++point_Index)
 			{

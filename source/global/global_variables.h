@@ -265,7 +265,7 @@ public:
 	static bool check_Loaded_Version(int MAJOR, int MINOR, int BUILD);
 	static void create_Shortcuts(QWidget* this_Widget);
 
-	static void parallel_For(int num_Points, int num_Threads, const std::function<void(int n_Min, int n_Max)> &lambda);
+	static void parallel_For(int num_Points, int num_Threads, const std::function<void(int n_Min, int n_Max, int thread_Index)> &lambda);
 	static double get_Order_Of_Magnitude(double number);
 
 	template <typename Type>

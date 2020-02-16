@@ -188,7 +188,7 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 			}
 
 			// only without discretization
-//			if(!enable_Discretization)
+			if(!enable_Discretization)
 			{
 				/// ---------------------------------------------------------------------------------------------------------------
 				/// hi

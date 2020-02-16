@@ -3,6 +3,7 @@
 Profile_Plot::Profile_Plot(Multilayer* multilayer, Profile_Plots_Window* profile_Plots_Window, QWidget *parent) :
 	multilayer(multilayer),
 	profile_Plots_Window(profile_Plots_Window),
+	plotting_Threads(reflectivity_Calc_Threads),
 	QWidget(parent)
 {
 	create_Main_Layout();
@@ -730,7 +731,6 @@ void Profile_Plot::calculate_Profile()
 		thickness_Vector[i] = struct_Data_Vector[i+1].thickness.value;
 		boundary_Vector[i+1] = boundary_Vector[i]+thickness_Vector[i];
 	}
-	boundary_Vector_Std = boundary_Vector.toStdVector();
 
 	// norm. Optimize (before unwrapping, check similar layers ....). Now more or less OK
 	layer_Norm_Vector.resize(thickness_Vector.size());
@@ -756,7 +756,8 @@ void Profile_Plot::calculate_Profile()
 				different_Norm_Layer.append(temp_Dif_Norm);
 			} else
 			{
-				layer_Norm_Vector[layer_Index] = temp_Dif_Norm.norm;
+				Different_Norm_Layer old_Norm = different_Norm_Layer[different_Norm_Layer.indexOf(temp_Dif_Norm)];
+				layer_Norm_Vector[layer_Index] = old_Norm.norm;
 			}
 		} else
 		{
@@ -793,6 +794,26 @@ void Profile_Plot::calculate_Profile()
 	}
 
 	map_Sharp_Smooth.clear();
+
+	// multithreading
+	{
+		boundary_Vector_Std_Threaded.resize(plotting_Threads);
+		layer_Norm_Vector_Threaded.resize(plotting_Threads);
+		struct_Data_Vector_Threaded.resize(plotting_Threads);
+		delta_Epsilon_Vector_Threaded.resize(plotting_Threads);
+		beta_Epsilon_Vector_Threaded.resize(plotting_Threads);
+		element_Concentration_Map_Vector_Threaded.resize(plotting_Threads);
+
+		for(int thread_Index=0; thread_Index<plotting_Threads; thread_Index++)
+		{
+			boundary_Vector_Std_Threaded[thread_Index] = boundary_Vector.toStdVector();
+			layer_Norm_Vector_Threaded[thread_Index] = layer_Norm_Vector.toStdVector();
+			struct_Data_Vector_Threaded[thread_Index] = struct_Data_Vector.toStdVector();
+			delta_Epsilon_Vector_Threaded[thread_Index] = delta_Epsilon_Vector.toStdVector();
+			beta_Epsilon_Vector_Threaded[thread_Index] = beta_Epsilon_Vector.toStdVector();
+			element_Concentration_Map_Vector_Threaded[thread_Index] = element_Concentration_Map_Vector.toStdVector();
+		}
+	}
 
 	// delta
 	if(multilayer->profile_Plot_Options.type == PERMITTIVITY && multilayer->profile_Plot_Options.permittivity_Type == DELTA_EPS	)
@@ -891,13 +912,13 @@ void Profile_Plot::calculate_Profile()
 				arg.resize(data_Count);
 				val.resize(data_Count);
 
-				Global_Variables::parallel_For(data_Count, reflectivity_Calc_Threads, [&](int n_Min, int n_Max)
+				Global_Variables::parallel_For(data_Count, reflectivity_Calc_Threads, [&](int n_Min, int n_Max, int thread_Index)
 				{
 					for(int i=n_Min; i<n_Max; ++i)
 					{
 						double z = -prefix + i*step;
 						delta_To_Plot_Vector[i].key = z/length_Coefficients_Map.value(multilayer->profile_Plot_Options.local_length_units);
-						delta_To_Plot_Vector[i].value = real(delta_Beta_Epsilon_Func(z));
+						delta_To_Plot_Vector[i].value = real(delta_Beta_Epsilon_Func(z, thread_Index));
 					}
 				});
 				for(int i=0; i<data_Count; i++)
@@ -905,6 +926,7 @@ void Profile_Plot::calculate_Profile()
 					arg[i] = delta_To_Plot_Vector[i].key;
 					val[i] = delta_To_Plot_Vector[i].value;
 				}
+
 			}
 			custom_Plot->graph()->data()->set(delta_To_Plot_Vector);
 			custom_Plot->graph()->setPen(QPen(Qt::blue, default_Profile_Line_Thickness));
@@ -1015,13 +1037,13 @@ void Profile_Plot::calculate_Profile()
 				arg.resize(data_Count);
 				val.resize(data_Count);
 
-				Global_Variables::parallel_For(data_Count, reflectivity_Calc_Threads, [&](int n_Min, int n_Max)
+				Global_Variables::parallel_For(data_Count, reflectivity_Calc_Threads, [&](int n_Min, int n_Max, int thread_Index)
 				{
 					for(int i=n_Min; i<n_Max; ++i)
 					{
 						double z = -prefix + i*step;
 						beta_To_Plot_Vector[i].key = z/length_Coefficients_Map.value(multilayer->profile_Plot_Options.local_length_units);
-						beta_To_Plot_Vector[i].value = imag(delta_Beta_Epsilon_Func(z));
+						beta_To_Plot_Vector[i].value = imag(delta_Beta_Epsilon_Func(z, thread_Index));
 					}
 				});
 				for(int i=0; i<data_Count; i++)
@@ -1129,7 +1151,7 @@ void Profile_Plot::calculate_Profile()
 					{
 						double visible_Z = real_Z-discrete_Step_Vector[i]/2.; // where we dispose point
 						materials_To_Plot_Vector_Vector[material_index][i].key = visible_Z/length_Coefficients_Map.value(multilayer->profile_Plot_Options.local_length_units);
-						materials_To_Plot_Vector_Vector[material_index][i].value = real(delta_Beta_Epsilon_Func(real_Z, different_Materials[material_index]));
+						materials_To_Plot_Vector_Vector[material_index][i].value = real(delta_Beta_Epsilon_Func(real_Z, 0, different_Materials[material_index]));
 
 						arg[i] = materials_To_Plot_Vector_Vector[material_index][i].key;
 						val_Multiple[material_index][i] = materials_To_Plot_Vector_Vector[material_index][i].value;
@@ -1165,13 +1187,13 @@ void Profile_Plot::calculate_Profile()
 					arg.resize(data_Count);
 					materials_To_Plot_Vector_Vector[material_index].resize(data_Count);
 
-					Global_Variables::parallel_For(data_Count, reflectivity_Calc_Threads, [&](int n_Min, int n_Max)
+					Global_Variables::parallel_For(data_Count, reflectivity_Calc_Threads, [&](int n_Min, int n_Max, int thread_Index)
 					{
 						for(int i=n_Min; i<n_Max; ++i)
 						{
 							double z = -prefix + i*step;
 							materials_To_Plot_Vector_Vector[material_index][i].key = z/length_Coefficients_Map.value(multilayer->profile_Plot_Options.local_length_units);
-							materials_To_Plot_Vector_Vector[material_index][i].value = real(delta_Beta_Epsilon_Func(z, different_Materials[material_index]));
+							materials_To_Plot_Vector_Vector[material_index][i].value = real(delta_Beta_Epsilon_Func(z, thread_Index, different_Materials[material_index]));
 						}
 					});
 					for(int i=0; i<data_Count; i++)
@@ -1283,7 +1305,7 @@ void Profile_Plot::calculate_Profile()
 					{
 						double visible_Z = real_Z-discrete_Step_Vector[i]/2.; // where we dispose point
 						elements_To_Plot_Vector_Vector[element_Index][i].key = visible_Z/length_Coefficients_Map.value(multilayer->profile_Plot_Options.local_length_units);
-						elements_To_Plot_Vector_Vector[element_Index][i].value = real(delta_Beta_Epsilon_Func(real_Z, different_Elements[element_Index]));
+						elements_To_Plot_Vector_Vector[element_Index][i].value = real(delta_Beta_Epsilon_Func(real_Z, 0, different_Elements[element_Index]));
 
 						arg[i] = elements_To_Plot_Vector_Vector[element_Index][i].key;
 						val_Multiple[element_Index][i] = elements_To_Plot_Vector_Vector[element_Index][i].value;
@@ -1319,13 +1341,13 @@ void Profile_Plot::calculate_Profile()
 					arg.resize(data_Count);
 					elements_To_Plot_Vector_Vector[element_Index].resize(data_Count);
 
-					Global_Variables::parallel_For(data_Count, reflectivity_Calc_Threads, [&](int n_Min, int n_Max)
+					Global_Variables::parallel_For(data_Count, reflectivity_Calc_Threads, [&](int n_Min, int n_Max, int thread_Index)
 					{
 						for(int i=n_Min; i<n_Max; ++i)
 						{
 							double z = -prefix + i*step;
 							elements_To_Plot_Vector_Vector[element_Index][i].key = z/length_Coefficients_Map.value(multilayer->profile_Plot_Options.local_length_units);
-							elements_To_Plot_Vector_Vector[element_Index][i].value = real(delta_Beta_Epsilon_Func(z, different_Elements[element_Index]));
+							elements_To_Plot_Vector_Vector[element_Index][i].value = real(delta_Beta_Epsilon_Func(z, thread_Index, different_Elements[element_Index]));
 						}
 					});
 					for(int i=0; i<data_Count; i++)
@@ -1353,15 +1375,15 @@ void Profile_Plot::calculate_Profile()
 	}
 }
 
-complex<double> Profile_Plot::delta_Beta_Epsilon_Func(double z, QString given_Material_or_Element)
+complex<double> Profile_Plot::delta_Beta_Epsilon_Func(double z, int thread_Index, QString given_Material_or_Element)
 {
 	// where we are
 	int sigma_Factor = 6;
-	std::vector<double>::iterator it_low = std::lower_bound(boundary_Vector_Std.begin(), boundary_Vector_Std.end(), z-sigma_Factor*max_Sigma);
-	std::vector<double>::iterator it_up  = std::upper_bound(boundary_Vector_Std.begin(), boundary_Vector_Std.end(), z+sigma_Factor*max_Sigma);
+	std::vector<double>::iterator it_low = std::lower_bound(boundary_Vector_Std_Threaded[thread_Index].begin(), boundary_Vector_Std_Threaded[thread_Index].end(), z-sigma_Factor*max_Sigma);
+	std::vector<double>::iterator it_up  = std::upper_bound(boundary_Vector_Std_Threaded[thread_Index].begin(), boundary_Vector_Std_Threaded[thread_Index].end(), z+sigma_Factor*max_Sigma);
 
-	int min_Boundary_Index = min(max(int(it_low-boundary_Vector_Std.begin())-1, 0), thickness_Vector.size()-1);
-	int max_Boundary_Index = min(    int(it_up -boundary_Vector_Std.begin()),       thickness_Vector.size()-1);
+	int min_Boundary_Index = min(max(int(it_low-boundary_Vector_Std_Threaded[thread_Index].begin())-1, 0), thickness_Vector.size()-1);
+	int max_Boundary_Index = min(    int(it_up -boundary_Vector_Std_Threaded[thread_Index].begin()),       thickness_Vector.size()-1);
 
 	double delta_Epsilon = 0;
 	double beta_Epsilon = 0;
@@ -1372,19 +1394,19 @@ complex<double> Profile_Plot::delta_Beta_Epsilon_Func(double z, QString given_Ma
 	{
 		for(int j=min_Boundary_Index; j<=max_Boundary_Index; j++) // instead of old slow for(int j=0; j<thickness_Vector.size(); j++)
 		{
-			geometry_Factor = layer_Norm_Vector[j] *
-					Global_Variables::interface_Profile_Function(z-boundary_Vector[j  ], struct_Data_Vector[j+1].interlayer_Composition) *
-					Global_Variables::interface_Profile_Function(boundary_Vector[j+1]-z, struct_Data_Vector[j+2].interlayer_Composition);
+			geometry_Factor = layer_Norm_Vector_Threaded[thread_Index][j] *
+					Global_Variables::interface_Profile_Function(z-boundary_Vector_Std_Threaded[thread_Index][j  ], struct_Data_Vector_Threaded[thread_Index][j+1].interlayer_Composition) *
+					Global_Variables::interface_Profile_Function(boundary_Vector_Std_Threaded[thread_Index][j+1]-z, struct_Data_Vector_Threaded[thread_Index][j+2].interlayer_Composition);
 
-			delta_Epsilon += delta_Epsilon_Vector[j+1] * geometry_Factor;
-			beta_Epsilon  += beta_Epsilon_Vector [j+1] * geometry_Factor;
+			delta_Epsilon += delta_Epsilon_Vector_Threaded[thread_Index][j+1] * geometry_Factor;
+			beta_Epsilon  += beta_Epsilon_Vector_Threaded [thread_Index][j+1] * geometry_Factor;
 		}
 		if(max_Boundary_Index>=thickness_Vector.size()-1)
 		{
-			geometry_Factor = Global_Variables::interface_Profile_Function(z-boundary_Vector.last(), struct_Data_Vector.last().interlayer_Composition);
+			geometry_Factor = Global_Variables::interface_Profile_Function(z-boundary_Vector_Std_Threaded[thread_Index].back(), struct_Data_Vector_Threaded[thread_Index].back().interlayer_Composition);
 
-			delta_Epsilon += delta_Epsilon_Vector.last() * geometry_Factor;
-			beta_Epsilon  += beta_Epsilon_Vector. last() * geometry_Factor;
+			delta_Epsilon += delta_Epsilon_Vector_Threaded[thread_Index].back() * geometry_Factor;
+			beta_Epsilon  += beta_Epsilon_Vector_Threaded [thread_Index].back() * geometry_Factor;
 		}
 	}
 	// material
@@ -1392,23 +1414,23 @@ complex<double> Profile_Plot::delta_Beta_Epsilon_Func(double z, QString given_Ma
 	{
 		for(int j=min_Boundary_Index; j<=max_Boundary_Index; j++) // instead of old slow for(int j=0; j<thickness_Vector.size(); j++)
 		{
-			Data& struct_Data = struct_Data_Vector[j+1];
+			Data& struct_Data = struct_Data_Vector_Threaded[thread_Index][j+1];
 			if(!struct_Data.composed_Material && struct_Data.approved_Material == given_Material_or_Element)
 			{
-				geometry_Factor = layer_Norm_Vector[j] *
-						Global_Variables::interface_Profile_Function(z-boundary_Vector[j  ], struct_Data_Vector[j+1].interlayer_Composition) *
-						Global_Variables::interface_Profile_Function(boundary_Vector[j+1]-z, struct_Data_Vector[j+2].interlayer_Composition);
+				geometry_Factor = layer_Norm_Vector_Threaded[thread_Index][j] *
+						Global_Variables::interface_Profile_Function(z-boundary_Vector_Std_Threaded[thread_Index][j  ], struct_Data_Vector_Threaded[thread_Index][j+1].interlayer_Composition) *
+						Global_Variables::interface_Profile_Function(boundary_Vector_Std_Threaded[thread_Index][j+1]-z, struct_Data_Vector_Threaded[thread_Index][j+2].interlayer_Composition);
 
-				delta_Epsilon += struct_Data_Vector[j+1].relative_Density.value * geometry_Factor;
+				delta_Epsilon += struct_Data_Vector_Threaded[thread_Index][j+1].relative_Density.value * geometry_Factor;
 			}
 		}
 		if(max_Boundary_Index>=thickness_Vector.size()-1)
 		{
-			if(!struct_Data_Vector.last().composed_Material && struct_Data_Vector.last().approved_Material == given_Material_or_Element)
+			if(!struct_Data_Vector_Threaded[thread_Index].back().composed_Material && struct_Data_Vector_Threaded[thread_Index].back().approved_Material == given_Material_or_Element)
 			{
-				geometry_Factor = Global_Variables::interface_Profile_Function(z-boundary_Vector.last(), struct_Data_Vector.last().interlayer_Composition);
+				geometry_Factor = Global_Variables::interface_Profile_Function(z-boundary_Vector_Std_Threaded[thread_Index].back(), struct_Data_Vector_Threaded[thread_Index].back().interlayer_Composition);
 
-				delta_Epsilon += struct_Data_Vector.last().relative_Density.value * geometry_Factor;
+				delta_Epsilon += struct_Data_Vector_Threaded[thread_Index].back().relative_Density.value * geometry_Factor;
 			}
 		}
 	}
@@ -1417,24 +1439,24 @@ complex<double> Profile_Plot::delta_Beta_Epsilon_Func(double z, QString given_Ma
 	{
 		for(int j=min_Boundary_Index; j<=max_Boundary_Index; j++) // instead of old slow for(int j=0; j<thickness_Vector.size(); j++)
 		{
-			Data& struct_Data = struct_Data_Vector[j+1];
-			double concentration = element_Concentration_Map_Vector[j+1].value(given_Material_or_Element);
+			Data& struct_Data = struct_Data_Vector_Threaded[thread_Index][j+1];
+			double concentration = element_Concentration_Map_Vector_Threaded[thread_Index][j+1].value(given_Material_or_Element);
 
 			if(struct_Data.composed_Material && concentration>DBL_EPSILON)
 			{
-				geometry_Factor = layer_Norm_Vector[j] *
-						Global_Variables::interface_Profile_Function(z-boundary_Vector[j  ], struct_Data_Vector[j+1].interlayer_Composition) *
-						Global_Variables::interface_Profile_Function(boundary_Vector[j+1]-z, struct_Data_Vector[j+2].interlayer_Composition);
+				geometry_Factor = layer_Norm_Vector_Threaded[thread_Index][j] *
+						Global_Variables::interface_Profile_Function(z-boundary_Vector_Std_Threaded[thread_Index][j  ], struct_Data_Vector_Threaded[thread_Index][j+1].interlayer_Composition) *
+						Global_Variables::interface_Profile_Function(boundary_Vector_Std_Threaded[thread_Index][j+1]-z, struct_Data_Vector_Threaded[thread_Index][j+2].interlayer_Composition);
 
 				delta_Epsilon += concentration * geometry_Factor;
 			}
 		}
 		if(max_Boundary_Index>=thickness_Vector.size()-1)
 		{
-			double concentration = element_Concentration_Map_Vector.last().value(given_Material_or_Element);
-			if(struct_Data_Vector.last().composed_Material && concentration>DBL_EPSILON)
+			double concentration = element_Concentration_Map_Vector_Threaded[thread_Index].back().value(given_Material_or_Element);
+			if(struct_Data_Vector_Threaded[thread_Index].back().composed_Material && concentration>DBL_EPSILON)
 			{
-				geometry_Factor = Global_Variables::interface_Profile_Function(z-boundary_Vector.last(), struct_Data_Vector.last().interlayer_Composition);
+				geometry_Factor = Global_Variables::interface_Profile_Function(z-boundary_Vector_Std_Threaded[thread_Index].back(), struct_Data_Vector_Threaded[thread_Index].back().interlayer_Composition);
 
 				delta_Epsilon += concentration * geometry_Factor;
 			}
@@ -1717,41 +1739,44 @@ void Profile_Plot::unwrap_Subtree(QVector<Data>& struct_Data_Vector, QTreeWidget
 								struct_Data_Vector[struct_Data_Index] = child_Data_List[child_Index];
 								Data& child_Data = struct_Data_Vector[struct_Data_Index];
 
-								/// -----------------------------------------------------------------------------------------------------------
-								// copy already obtained epsilon
-								/// -----------------------------------------------------------------------------------------------------------
-								if(multilayer->profile_Plot_Options.type == PERMITTIVITY)
+								if(child_Data.item_Enabled)
 								{
-									delta_Epsilon_Vector[struct_Data_Index] = delta_Vector[child_Index];
-									beta_Epsilon_Vector [struct_Data_Index] = beta_Vector [child_Index];
-								}
-								if(multilayer->profile_Plot_Options.type == ELEMENTS && child_Data.composed_Material)
-								{
-									element_Concentration_Map_Vector[struct_Data_Index] = concentration_Map_Vector[child_Index];
-								}
-								/// -----------------------------------------------------------------------------------------------------------
-								struct_Data_Index++;
-
-								// thickness drift
-								Global_Variables::variable_Drift(child_Data.thickness.value, child_Data.thickness_Drift, period_Index, struct_Data.num_Repetition.value(), nullptr);
-
-								// sigma drift
-								for(int func_Index=0; func_Index<transition_Layer_Functions_Size; ++func_Index)	{
-									Global_Variables::variable_Drift(child_Data.interlayer_Composition[func_Index].my_Sigma.value, child_Data.sigma_Drift, period_Index, struct_Data.num_Repetition.value(), nullptr);
-								}
-								Global_Variables::variable_Drift(child_Data.sigma.value, child_Data.sigma_Drift, period_Index, struct_Data.num_Repetition.value(), nullptr);
-
-								// discretization
-								if(multilayer->discretization_Parameters.enable_Discretization && multilayer->profile_Plot_Options.show_Discretization)
-								{
-									int num_Slices_Local = ceil(child_Data.thickness.value/multilayer->discretization_Parameters.discretization_Step);
-									double adapted_Step = child_Data.thickness.value/num_Slices_Local;
-
-									discrete_Step_Vector.resize(discrete_Step_Vector.size()+num_Slices_Local);
-									size_t last_Index = discrete_Step_Vector.size()-1;
-									for(int i=0; i<num_Slices_Local; i++)
+									/// -----------------------------------------------------------------------------------------------------------
+									// copy already obtained epsilon
+									/// -----------------------------------------------------------------------------------------------------------
+									if(multilayer->profile_Plot_Options.type == PERMITTIVITY)
 									{
-										discrete_Step_Vector[last_Index-i] = adapted_Step;
+										delta_Epsilon_Vector[struct_Data_Index] = delta_Vector[child_Index];
+										beta_Epsilon_Vector [struct_Data_Index] = beta_Vector [child_Index];
+									}
+									if(multilayer->profile_Plot_Options.type == ELEMENTS && child_Data.composed_Material)
+									{
+										element_Concentration_Map_Vector[struct_Data_Index] = concentration_Map_Vector[child_Index];
+									}
+									/// -----------------------------------------------------------------------------------------------------------
+									struct_Data_Index++;
+
+									// thickness drift
+									Global_Variables::variable_Drift(child_Data.thickness.value, child_Data.thickness_Drift, period_Index, struct_Data.num_Repetition.value(), nullptr);
+
+									// sigma drift
+									for(int func_Index=0; func_Index<transition_Layer_Functions_Size; ++func_Index)	{
+										Global_Variables::variable_Drift(child_Data.interlayer_Composition[func_Index].my_Sigma.value, child_Data.sigma_Drift, period_Index, struct_Data.num_Repetition.value(), nullptr);
+									}
+									Global_Variables::variable_Drift(child_Data.sigma.value, child_Data.sigma_Drift, period_Index, struct_Data.num_Repetition.value(), nullptr);
+
+									// discretization
+									if(multilayer->discretization_Parameters.enable_Discretization && multilayer->profile_Plot_Options.show_Discretization)
+									{
+										int num_Slices_Local = ceil(child_Data.thickness.value/multilayer->discretization_Parameters.discretization_Step);
+										double adapted_Step = child_Data.thickness.value/num_Slices_Local;
+
+										discrete_Step_Vector.resize(discrete_Step_Vector.size()+num_Slices_Local);
+										size_t last_Index = discrete_Step_Vector.size()-1;
+										for(int i=0; i<num_Slices_Local; i++)
+										{
+											discrete_Step_Vector[last_Index-i] = adapted_Step;
+										}
 									}
 								}
 							}

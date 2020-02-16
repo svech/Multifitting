@@ -71,7 +71,7 @@ public:
 	void calc_Hi		 (double k, double cos2, const vector<double>& eps_RE, const vector<double>& eps_IM, int thread_Index);
 	void calc_Weak_Factor(int thread_Index);
 	void calc_Fresnel	 (double polarization,   const vector<double>& eps_RE, const vector<double>& eps_IM, const vector<double>& eps_NORM, int thread_Index);
-	void calc_Exponenta	 (int thread_Index);
+	void calc_Exponenta	 (int thread_Index, vector<double>& thickness);
 	void calc_Local		 (double polarization, int thread_Index);
 
 	// for sigma grading

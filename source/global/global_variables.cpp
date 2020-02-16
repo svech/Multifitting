@@ -1031,7 +1031,7 @@ void Global_Variables::create_Shortcuts(QWidget* this_Widget)
 	}
 }
 
-void Global_Variables::parallel_For(int num_Points, int num_Threads, const std::function<void(int n_Min, int n_Max)>& lambda)
+void Global_Variables::parallel_For(int num_Points, int num_Threads, const std::function<void(int n_Min, int n_Max, int thread_Index)>& lambda)
 {
 	if(num_Threads>global_Workers.size())
 	{
@@ -1049,7 +1049,7 @@ void Global_Variables::parallel_For(int num_Points, int num_Threads, const std::
 		{
 			n_Max = num_Points;
 		}
-		global_Workers[thread_Index] = std::thread(lambda, n_Min, n_Max);
+		global_Workers[thread_Index] = std::thread(lambda, n_Min, n_Max, thread_Index);
 	}
 	for(std::thread& worker : global_Workers) { if(worker.joinable()) worker.join(); }
 }

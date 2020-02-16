@@ -57,6 +57,7 @@ public:
 	vector<vector<double>> discretized_Epsilon_Dependent_NORM;
 
 	vector<double> discretized_Thickness;
+	int num_Discretized_Media;
 	double prefix = 15, suffix = 15;
 	int num_Prefix_Slices =1, num_Suffix_Slices = 1;
 

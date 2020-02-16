@@ -518,7 +518,11 @@ void Calculation_Tree::calculate_Unwrapped_Structure(tree<Node>& calc_Tree, cons
 
 void Calculation_Tree::calculate_Unwrapped_Reflectivity(Calc_Functions calc_Functions, Calculated_Values& calculated_Values, const Data& measurement, QString active_Parameter_Whats_This, Unwrapped_Structure* unwrapped_Structure_Vec_Element, Unwrapped_Reflection*& unwrapped_Reflection_Vec_Element)
 {
-	delete unwrapped_Reflection_Vec_Element;
+	delete unwrapped_Reflection_Vec_Element;	
+	if(unwrapped_Structure_Vec_Element->discretization_Parameters.enable_Discretization)
+	{
+		num_Media = unwrapped_Structure_Vec_Element->num_Discretized_Media;
+	}
 	Unwrapped_Reflection* new_Unwrapped_Reflection = new Unwrapped_Reflection(unwrapped_Structure_Vec_Element, num_Media, active_Parameter_Whats_This, measurement, depth_Grading, sigma_Grading, calc_Functions, calc_Mode);
 	unwrapped_Reflection_Vec_Element = new_Unwrapped_Reflection;
 

@@ -274,8 +274,9 @@ void Calculation_Settings_Editor::load_Discretization_Parameters(int tab_Index)
 		{
 			Profile_Plot* profile_Plot = global_Multilayer_Approach->profile_Plots_Window->profile_Plot_Vector[tab_Index];
 			profile_Plot->discretization_CheckBox->setEnabled(multilayer->discretization_Parameters.enable_Discretization);
-			profile_Plot->plot_Data(true);
+//			profile_Plot->plot_Data(true);
 		}
+		global_Multilayer_Approach->calc_Reflection(true);
 	});
 
 
