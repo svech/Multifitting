@@ -78,7 +78,7 @@ Unwrapped_Structure::Unwrapped_Structure(const tree<Node>& calc_Tree, const Data
 
 		// prolong discretization into ambient and substrate
 		Global_Variables::get_Prefix_Suffix(prefix, suffix, max_Sigma);
-		Global_Variables::discretize_Prefix_Suffix(prefix, suffix, num_Prefix_Slices, num_Suffix_Slices, discretized_Thickness);
+		Global_Variables::discretize_Prefix_Suffix(prefix, suffix, num_Prefix_Slices, num_Suffix_Slices, discretized_Thickness, discretization_Parameters.discretization_Step);
 		num_Discretized_Media = discretized_Thickness.size()+2;
 
 		// PARAMETER
@@ -169,7 +169,7 @@ void Unwrapped_Structure::fill_Discretized_Epsilon()
 	discretized_Epsilon_NORM.front() = epsilon_NORM.front();
 
 	// main part
-	double z = -(num_Prefix_Slices/*-0.5*/)*discretized_Thickness.front();
+	double z = -(num_Prefix_Slices-0.5)*discretized_Thickness.front();
 	for(int i=1; i<=discretized_Thickness.size(); ++i)
 	{
 		discretized_Epsilon[i] = epsilon_Func(z, epsilon);
@@ -177,11 +177,11 @@ void Unwrapped_Structure::fill_Discretized_Epsilon()
 		discretized_Epsilon_IM[i] = imag(discretized_Epsilon[i]);
 		discretized_Epsilon_NORM[i] = discretized_Epsilon_RE[i]*discretized_Epsilon_RE[i]+discretized_Epsilon_IM[i]*discretized_Epsilon_IM[i];
 
-		if(i!=(discretized_Thickness.size()-1)) {
-			z += (discretized_Thickness[i]+discretized_Thickness[i+1])/2.; // real z, where we calculate epsilon
+		if(i<discretized_Thickness.size()) {
+			z += (discretized_Thickness[i-1]+discretized_Thickness[i])/2.; // real z, where we calculate epsilon
 		} else
 		{
-			z += discretized_Thickness[i]; // real z, where we calculate epsilon
+			z += discretized_Thickness[i-1]; // real z, where we calculate epsilon
 		}
 	}
 
@@ -203,7 +203,7 @@ void Unwrapped_Structure::fill_Discretized_Epsilon_Dependent(int num_Lambda_Poin
 		discretized_Epsilon_Dependent_NORM[lambda_Point].front() = epsilon_Dependent_NORM[lambda_Point].front();
 
 		// main part
-		double z = -(num_Prefix_Slices/*-0.5*/)*discretized_Thickness.front();
+		double z = -(num_Prefix_Slices-0.5)*discretized_Thickness.front();
 		for(int i=1; i<=discretized_Thickness.size(); ++i)
 		{
 			discretized_Epsilon_Dependent[lambda_Point][i] = epsilon_Func(z, epsilon_Dependent[lambda_Point]);
@@ -211,11 +211,11 @@ void Unwrapped_Structure::fill_Discretized_Epsilon_Dependent(int num_Lambda_Poin
 			discretized_Epsilon_Dependent_IM[lambda_Point][i] = imag(discretized_Epsilon_Dependent[lambda_Point][i]);
 			discretized_Epsilon_Dependent_NORM[lambda_Point][i] = discretized_Epsilon_Dependent_RE[lambda_Point][i]*discretized_Epsilon_Dependent_RE[lambda_Point][i]+discretized_Epsilon_Dependent_IM[lambda_Point][i]*discretized_Epsilon_Dependent_IM[lambda_Point][i];
 
-			if(i!=(discretized_Thickness.size()-1)) {
-				z += (discretized_Thickness[i]+discretized_Thickness[i+1])/2.; // real z, where we calculate epsilon
+			if(i<discretized_Thickness.size()) {
+				z += (discretized_Thickness[i-1]+discretized_Thickness[i])/2.; // real z, where we calculate epsilon
 			} else
 			{
-				z += discretized_Thickness[i]; // real z, where we calculate epsilon
+				z += discretized_Thickness[i-1]; // real z, where we calculate epsilon
 			}
 		}
 
@@ -234,8 +234,8 @@ complex<double> Unwrapped_Structure::epsilon_Func(double z, const vector<complex
 	std::vector<double>::iterator it_low = std::lower_bound(boundaries.begin(), boundaries.end(), z-sigma_Factor*max_Sigma);
 	std::vector<double>::iterator it_up  = std::upper_bound(boundaries.begin(), boundaries.end(), z+sigma_Factor*max_Sigma);
 
-	int min_Boundary_Index = min(max(int(it_low-boundaries.begin())-1, 0), int(thickness.size()-1));
-	int max_Boundary_Index = min(    int(it_up -boundaries.begin()),       int(thickness.size()-1));
+	int min_Boundary_Index = max(min(int(it_low-boundaries.begin())-1, int(thickness.size()-1)),0);
+	int max_Boundary_Index = min(    int(it_up -boundaries.begin()),   int(thickness.size()-1));
 
 	double delta_Epsilon = 0;
 	double beta_Epsilon = 0;
@@ -255,7 +255,7 @@ complex<double> Unwrapped_Structure::epsilon_Func(double z, const vector<complex
 		geometry_Factor = Global_Variables::interface_Profile_Function(z-boundaries.back(), boundary_Interlayer_Composition.back());
 
 		delta_Epsilon += (1-real(epsilon_Vector.back())) * geometry_Factor;
-		beta_Epsilon  +=    imag(epsilon_Vector.back ())  * geometry_Factor;
+		beta_Epsilon  +=    imag(epsilon_Vector.back ()) * geometry_Factor;
 	}
 
 	return complex<double>(1-delta_Epsilon,beta_Epsilon);

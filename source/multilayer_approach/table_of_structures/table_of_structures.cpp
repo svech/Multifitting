@@ -504,10 +504,10 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 			{
 				// enable or disable widgets
 				disable_enable_One_Item(new_Table, table_Item);				
-				if(recalculate_Spinbox_Table) {global_Multilayer_Approach->calc_Reflection(true);}
 
 				// refresh view in main window
 				emit_Data_Edited();
+				if(recalculate_Spinbox_Table) {global_Multilayer_Approach->calc_Reflection(true);}
 			});
 
 			current_Column = max_Depth+1;

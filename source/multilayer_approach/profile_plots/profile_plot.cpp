@@ -789,7 +789,7 @@ void Profile_Plot::calculate_Profile()
 	int num_Prefix_Slices =1, num_Suffix_Slices = 1;
 	if(multilayer->discretization_Parameters.enable_Discretization && multilayer->profile_Plot_Options.show_Discretization)
 	{
-		Global_Variables::discretize_Prefix_Suffix(prefix, suffix, num_Prefix_Slices, num_Suffix_Slices, discrete_Step_Vector);
+		Global_Variables::discretize_Prefix_Suffix(prefix, suffix, num_Prefix_Slices, num_Suffix_Slices, discrete_Step_Vector, multilayer->discretization_Parameters.discretization_Step);
 		num_Slices = int(discrete_Step_Vector.size());
 	}
 
@@ -1382,8 +1382,8 @@ complex<double> Profile_Plot::delta_Beta_Epsilon_Func(double z, int thread_Index
 	std::vector<double>::iterator it_low = std::lower_bound(boundary_Vector_Std_Threaded[thread_Index].begin(), boundary_Vector_Std_Threaded[thread_Index].end(), z-sigma_Factor*max_Sigma);
 	std::vector<double>::iterator it_up  = std::upper_bound(boundary_Vector_Std_Threaded[thread_Index].begin(), boundary_Vector_Std_Threaded[thread_Index].end(), z+sigma_Factor*max_Sigma);
 
-	int min_Boundary_Index = min(max(int(it_low-boundary_Vector_Std_Threaded[thread_Index].begin())-1, 0), thickness_Vector.size()-1);
-	int max_Boundary_Index = min(    int(it_up -boundary_Vector_Std_Threaded[thread_Index].begin()),       thickness_Vector.size()-1);
+	int min_Boundary_Index = max(min(int(it_low-boundary_Vector_Std_Threaded[thread_Index].begin())-1, thickness_Vector.size()-1), 0);
+	int max_Boundary_Index = min(    int(it_up -boundary_Vector_Std_Threaded[thread_Index].begin())  , thickness_Vector.size()-1);
 
 	double delta_Epsilon = 0;
 	double beta_Epsilon = 0;

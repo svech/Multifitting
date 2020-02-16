@@ -276,7 +276,7 @@ public:
 	static void replot_All_Graphs();
 	static void variable_Drift(double& value, Drift& drift, int period_Index, int num_Repetition, gsl_rng *r);
 	static void get_Prefix_Suffix(double& prefix, double& suffix, double max_Sigma);
-	static void discretize_Prefix_Suffix(double prefix, double suffix, int& num_Prefix_Slices, int& num_Suffix_Slices, vector<double>& discrete_Step_Vector);
+	static void discretize_Prefix_Suffix(double prefix, double suffix, int& num_Prefix_Slices, int& num_Suffix_Slices, vector<double>& discrete_Step_Vector, double default_Step);
 
 	// profile functions
 	static double theta_Function(double z);
