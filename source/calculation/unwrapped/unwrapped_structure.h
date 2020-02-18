@@ -27,36 +27,40 @@ public:
 	const tree<Node>& calc_Tree;
 
 	vector<complex<double>> epsilon;								//	[media]
-	vector<double> epsilon_RE;										//	[media]
-	vector<double> epsilon_IM;										//	[media]
-	vector<double> epsilon_NORM;									//	[media]
+//	vector<double> epsilon_RE;										//	[media]
+//	vector<double> epsilon_IM;										//	[media]
+//	vector<double> epsilon_NORM;									//	[media]
 
 	// if epsilon is dependent on variable
 	vector<vector<complex<double>>> epsilon_Dependent;				//	[wavelength][media]
-	vector<vector<double>> epsilon_Dependent_RE;					//	[wavelength][media]
-	vector<vector<double>> epsilon_Dependent_IM;					//	[wavelength][media]
-	vector<vector<double>> epsilon_Dependent_NORM;					//	[wavelength][media]
+//	vector<vector<double>> epsilon_Dependent_RE;					//	[wavelength][media]
+//	vector<vector<double>> epsilon_Dependent_IM;					//	[wavelength][media]
+//	vector<vector<double>> epsilon_Dependent_NORM;					//	[wavelength][media]
 
 	double max_Sigma;
 	vector<double> sigma;											//	[boundary]
 	vector<bool> common_Sigma;										//	[boundary]
 	vector<QVector<Interlayer>> boundary_Interlayer_Composition;	//  [boundary][function]
+	vector<vector<QVector<Interlayer>>> boundary_Interlayer_Composition_Threaded;	//  [thread][boundary][function]
 	vector<double> thickness;										//	[layer]
 	vector<double> boundaries;										//	[boundary]
+	vector<vector<double>> boundaries_Threaded;						//	[thread][boundary]
 	vector<double> layer_Norm_Vector;								//	[layer]
+//	vector<vector<double>> layer_Norm_Vector_Threaded;				//	[thread][layer]
 
 	// discretized structure
 	vector<complex<double>> discretized_Epsilon;
-	vector<double> discretized_Epsilon_RE;
-	vector<double> discretized_Epsilon_IM;
-	vector<double> discretized_Epsilon_NORM;
+//	vector<double> discretized_Epsilon_RE;
+//	vector<double> discretized_Epsilon_IM;
+//	vector<double> discretized_Epsilon_NORM;
 
 	vector<vector<complex<double>>> discretized_Epsilon_Dependent;
-	vector<vector<double>> discretized_Epsilon_Dependent_RE;
-	vector<vector<double>> discretized_Epsilon_Dependent_IM;
-	vector<vector<double>> discretized_Epsilon_Dependent_NORM;
+//	vector<vector<double>> discretized_Epsilon_Dependent_RE;
+//	vector<vector<double>> discretized_Epsilon_Dependent_IM;
+//	vector<vector<double>> discretized_Epsilon_Dependent_NORM;
 
 	vector<double> discretized_Thickness;
+//	vector<vector<double>> discretized_Thickness_Threaded;
 	int num_Discretized_Media;
 	double prefix = 15, suffix = 15;
 	int num_Prefix_Slices =1, num_Suffix_Slices = 1;
@@ -65,7 +69,24 @@ public:
 	void find_Discretization();
 	void fill_Discretized_Epsilon_Dependent(int num_Lambda_Points);
 	void fill_Discretized_Epsilon();
-	complex<double> epsilon_Func(double z, const vector<complex<double>>& epsilon_Vector);
+	void epsilon_Func(double z, int media_Index, bool is_Dependent,
+
+								const vector<complex<double>>& epsilon_Vector,
+//								const vector<double>& epsilon_RE,
+//								const vector<double>& epsilon_IM,
+								const vector<vector<complex<double>>>& epsilon_Dependent_Vector,
+//								const vector<vector<double>>& epsilon_Dependent_RE,
+//								const vector<vector<double>>& epsilon_Dependent_IM,
+
+								vector<complex<double>>& discretized_Epsilon,
+//								vector<double>& discretized_Epsilon_RE,
+//								vector<double>& discretized_Epsilon_IM,
+//								vector<double>& discretized_Epsilon_NORM,
+								vector<vector<complex<double>>>& discretized_Epsilon_Dependent,
+//								vector<vector<double>>& discretized_Epsilon_Dependent_RE,
+//								vector<vector<double>>& discretized_Epsilon_Dependent_IM
+//								vector<vector<double>>& discretized_Epsilon_Dependent_NORM
+								int thread_Index);
 
 //	int fill_Epsilon_Angular_Max_Depth_2  (const tree<Node>::iterator& parent, int media_Index = 0);
 //	int fill_Epsilon_Spectra_Max_Depth_2  (const tree<Node>::iterator& parent, int media_Index = 0);

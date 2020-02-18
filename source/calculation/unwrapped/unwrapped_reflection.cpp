@@ -302,13 +302,19 @@ int Unwrapped_Reflection::fill_sp_Max_Depth_2(const tree<Node>::iterator& parent
 	return media_Index;
 }
 
-void Unwrapped_Reflection::calc_Hi(double k, double cos2, const vector<double>& eps_RE, const vector<double>& eps_IM, int thread_Index)
+void Unwrapped_Reflection::calc_Hi(double k, double cos2,
+								   const vector<complex<double>>& eps,
+//								   const vector<double>& eps_RE,
+//								   const vector<double>& eps_IM,
+								   int thread_Index)
 {
 	double re, im, phase, mod;
 	for (int i = 0; i < num_Media; ++i)
 	{
-		re = eps_RE[i] - cos2;
-		im = eps_IM[i];
+//		re = eps_RE[i] - cos2;
+//		im = eps_IM[i];
+		re = real(eps[i]) - cos2;
+		im = imag(eps[i]);
 
 		phase = atan2(im, re)/2.;
 		mod = k*sqrt(sqrt(re*re + im*im));
@@ -497,7 +503,12 @@ void Unwrapped_Reflection::calc_Weak_Factor(int thread_Index)
 	}
 }
 
-void Unwrapped_Reflection::calc_Fresnel(double polarization, const vector<double>& eps_RE, const vector<double>& eps_IM, const vector<double>& eps_NORM, int thread_Index)
+void Unwrapped_Reflection::calc_Fresnel(double polarization,
+										const vector<complex<double>>& eps,
+//										const vector<double>& eps_RE,
+//										const vector<double>& eps_IM,
+//										const vector<double>& eps_NORM,
+										int thread_Index)
 {
 	double temp_Fre_Numer_RE, temp_Fre_Numer_IM, temp_Fre_Denom_SQARE, temp_Fre_Denom_RE, temp_Fre_Denom_IM, temp_1_RE, temp_1_IM, temp_2_RE, temp_2_IM;
 	// s-polarization
@@ -537,11 +548,17 @@ void Unwrapped_Reflection::calc_Fresnel(double polarization, const vector<double
 	if (polarization < 1)
 	for (int i = 0; i < num_Boundaries; ++i)
 	{
-		temp_1_RE = (hi_RE[thread_Index][i]*eps_RE[i] + hi_IM[thread_Index][i]*eps_IM[i]) / eps_NORM[i];
-		temp_1_IM = (hi_IM[thread_Index][i]*eps_RE[i] - hi_RE[thread_Index][i]*eps_IM[i]) / eps_NORM[i];
+//		temp_1_RE = (hi_RE[thread_Index][i]*eps_RE[i] + hi_IM[thread_Index][i]*eps_IM[i]) / eps_NORM[i];
+//		temp_1_IM = (hi_IM[thread_Index][i]*eps_RE[i] - hi_RE[thread_Index][i]*eps_IM[i]) / eps_NORM[i];
+		double eps_NORM_i = real(eps[i])*real(eps[i]) +imag(eps[i])*imag(eps[i]);
+		temp_1_RE = (hi_RE[thread_Index][i]*real(eps[i]) + hi_IM[thread_Index][i]*imag(eps[i])) / eps_NORM_i;
+		temp_1_IM = (hi_IM[thread_Index][i]*real(eps[i]) - hi_RE[thread_Index][i]*imag(eps[i])) / eps_NORM_i;
 
-		temp_2_RE = (hi_RE[thread_Index][i+1]*eps_RE[i+1] + hi_IM[thread_Index][i+1]*eps_IM[i+1]) / eps_NORM[i+1];
-		temp_2_IM = (hi_IM[thread_Index][i+1]*eps_RE[i+1] - hi_RE[thread_Index][i+1]*eps_IM[i+1]) / eps_NORM[i+1];
+//		temp_2_RE = (hi_RE[thread_Index][i+1]*eps_RE[i+1] + hi_IM[thread_Index][i+1]*eps_IM[i+1]) / eps_NORM[i+1];
+//		temp_2_IM = (hi_IM[thread_Index][i+1]*eps_RE[i+1] - hi_RE[thread_Index][i+1]*eps_IM[i+1]) / eps_NORM[i+1];
+		double eps_NORM_i1 = real(eps[i+1])*real(eps[i+1]) +imag(eps[i+1])*imag(eps[i+1]);
+		temp_2_RE = (hi_RE[thread_Index][i+1]*real(eps[i+1]) + hi_IM[thread_Index][i+1]*imag(eps[i+1])) / eps_NORM_i1;
+		temp_2_IM = (hi_IM[thread_Index][i+1]*real(eps[i+1]) - hi_RE[thread_Index][i+1]*imag(eps[i+1])) / eps_NORM_i1;
 
 		temp_Fre_Denom_RE = temp_1_RE + temp_2_RE;
 		temp_Fre_Denom_IM = temp_1_IM + temp_2_IM;
@@ -798,23 +815,35 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(const Data& measuremen
 		{
 			if(active_Parameter_Whats_This == whats_This_Angle)
 			{
-				calc_Hi(measurement.k_Value, measurement.cos2[point_Index], unwrapped_Structure->epsilon_RE, unwrapped_Structure->epsilon_IM, thread_Index);
+				calc_Hi(measurement.k_Value, measurement.cos2[point_Index],
+						unwrapped_Structure->epsilon,
+//						unwrapped_Structure->epsilon_RE,
+//						unwrapped_Structure->epsilon_IM,
+						thread_Index);
 				calc_Weak_Factor(thread_Index);
 				calc_Exponenta  (thread_Index,unwrapped_Structure->thickness);
-				calc_Fresnel(measurement.polarization.value, unwrapped_Structure->epsilon_RE,
-															 unwrapped_Structure->epsilon_IM,
-															 unwrapped_Structure->epsilon_NORM,
-																								thread_Index);
+				calc_Fresnel(measurement.polarization.value,
+							 unwrapped_Structure->epsilon,
+//							 unwrapped_Structure->epsilon_RE,
+//							 unwrapped_Structure->epsilon_IM,
+//							 unwrapped_Structure->epsilon_NORM,
+							 thread_Index);
 			}
 			if(active_Parameter_Whats_This == whats_This_Wavelength)
 			{
-				calc_Hi(measurement.k[point_Index], measurement.cos2_Value, unwrapped_Structure->epsilon_Dependent_RE[point_Index], unwrapped_Structure->epsilon_Dependent_IM[point_Index], thread_Index);
+				calc_Hi(measurement.k[point_Index], measurement.cos2_Value,
+						unwrapped_Structure->epsilon_Dependent	 [point_Index],
+//						unwrapped_Structure->epsilon_Dependent_RE[point_Index],
+//						unwrapped_Structure->epsilon_Dependent_IM[point_Index],
+						thread_Index);
 				calc_Weak_Factor(thread_Index);
 				calc_Exponenta  (thread_Index,unwrapped_Structure->thickness);
-				calc_Fresnel(measurement.polarization.value, unwrapped_Structure->epsilon_Dependent_RE  [point_Index],
-															 unwrapped_Structure->epsilon_Dependent_IM  [point_Index],
-															 unwrapped_Structure->epsilon_Dependent_NORM[point_Index],
-																													   thread_Index);
+				calc_Fresnel(measurement.polarization.value,
+							 unwrapped_Structure->epsilon_Dependent		[point_Index],
+//							 unwrapped_Structure->epsilon_Dependent_RE  [point_Index],
+//							 unwrapped_Structure->epsilon_Dependent_IM  [point_Index],
+//							 unwrapped_Structure->epsilon_Dependent_NORM[point_Index],
+							 thread_Index);
 			}
 		}
 	} else
@@ -828,21 +857,33 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(const Data& measuremen
 
 		if(active_Parameter_Whats_This == whats_This_Angle)
 		{
-			calc_Hi(measurement.k_Value, measurement.cos2[point_Index], unwrapped_Structure->discretized_Epsilon_RE, unwrapped_Structure->discretized_Epsilon_IM, thread_Index);
+			calc_Hi(measurement.k_Value, measurement.cos2[point_Index],
+					unwrapped_Structure->discretized_Epsilon,
+//					unwrapped_Structure->discretized_Epsilon_RE,
+//					unwrapped_Structure->discretized_Epsilon_IM,
+					thread_Index);
 			calc_Exponenta  (thread_Index,unwrapped_Structure->discretized_Thickness);
-			calc_Fresnel(measurement.polarization.value, unwrapped_Structure->discretized_Epsilon_RE,
-														 unwrapped_Structure->discretized_Epsilon_IM,
-														 unwrapped_Structure->discretized_Epsilon_NORM,
-																							thread_Index);
+			calc_Fresnel(measurement.polarization.value,
+						 unwrapped_Structure->discretized_Epsilon,
+//						 unwrapped_Structure->discretized_Epsilon_RE,
+//						 unwrapped_Structure->discretized_Epsilon_IM,
+//						 unwrapped_Structure->discretized_Epsilon_NORM,
+						 thread_Index);
 		}
 		if(active_Parameter_Whats_This == whats_This_Wavelength)
 		{
-			calc_Hi(measurement.k[point_Index], measurement.cos2_Value, unwrapped_Structure->discretized_Epsilon_Dependent_RE[point_Index], unwrapped_Structure->discretized_Epsilon_Dependent_IM[point_Index], thread_Index);
+			calc_Hi(measurement.k[point_Index], measurement.cos2_Value,
+					unwrapped_Structure->discretized_Epsilon_Dependent[point_Index],
+//					unwrapped_Structure->discretized_Epsilon_Dependent_RE[point_Index],
+//					unwrapped_Structure->discretized_Epsilon_Dependent_IM[point_Index],
+					thread_Index);
 			calc_Exponenta  (thread_Index,unwrapped_Structure->discretized_Thickness);
-			calc_Fresnel(measurement.polarization.value, unwrapped_Structure->discretized_Epsilon_Dependent_RE  [point_Index],
-														 unwrapped_Structure->discretized_Epsilon_Dependent_IM  [point_Index],
-														 unwrapped_Structure->discretized_Epsilon_Dependent_NORM[point_Index],
-																												   thread_Index);
+			calc_Fresnel(measurement.polarization.value,
+						 unwrapped_Structure->discretized_Epsilon_Dependent     [point_Index],
+//						 unwrapped_Structure->discretized_Epsilon_Dependent_RE  [point_Index],
+//						 unwrapped_Structure->discretized_Epsilon_Dependent_IM  [point_Index],
+//						 unwrapped_Structure->discretized_Epsilon_Dependent_NORM[point_Index],
+						 thread_Index);
 		}
 
 	}

@@ -23,17 +23,17 @@ Unwrapped_Structure::Unwrapped_Structure(const tree<Node>& calc_Tree, const Data
 			int num_Lambda_Points = measurement.lambda.size();
 
 			epsilon_Dependent.resize(num_Lambda_Points, vector<complex<double>>(num_Media));
-			epsilon_Dependent_RE.resize(num_Lambda_Points, vector<double>(num_Media));
-			epsilon_Dependent_IM.resize(num_Lambda_Points, vector<double>(num_Media));
-			epsilon_Dependent_NORM.resize(num_Lambda_Points, vector<double>(num_Media));
+//			epsilon_Dependent_RE.resize(num_Lambda_Points, vector<double>(num_Media));
+//			epsilon_Dependent_IM.resize(num_Lambda_Points, vector<double>(num_Media));
+//			epsilon_Dependent_NORM.resize(num_Lambda_Points, vector<double>(num_Media));
 
 			fill_Epsilon_Dependent(calc_Tree.begin(), num_Lambda_Points);
 		} else
 		{
 			epsilon.resize(num_Media);
-			epsilon_RE.resize(num_Media);
-			epsilon_IM.resize(num_Media);
-			epsilon_NORM.resize(num_Media);
+//			epsilon_RE.resize(num_Media);
+//			epsilon_IM.resize(num_Media);
+//			epsilon_NORM.resize(num_Media);
 			fill_Epsilon(calc_Tree.begin());
 		}
 	}
@@ -45,6 +45,15 @@ Unwrapped_Structure::Unwrapped_Structure(const tree<Node>& calc_Tree, const Data
 		common_Sigma.resize(num_Boundaries);
 		boundary_Interlayer_Composition.resize(num_Boundaries, QVector<Interlayer>(transition_Layer_Functions_Size));
 		fill_Sigma(calc_Tree.begin(), max_Sigma);
+
+		// multithreading
+		{
+			boundary_Interlayer_Composition_Threaded.resize(reflectivity_Calc_Threads);
+			for(int thread_Index=0; thread_Index<reflectivity_Calc_Threads; thread_Index++)
+			{
+				boundary_Interlayer_Composition_Threaded[thread_Index] = boundary_Interlayer_Composition;
+			}
+		}
 	}
 
 	// recalculate thicknesses if depth is big or depth grading
@@ -54,6 +63,15 @@ Unwrapped_Structure::Unwrapped_Structure(const tree<Node>& calc_Tree, const Data
 		boundaries.resize(num_Boundaries);
 		boundaries.front() = 0;
 		fill_Thickness_And_Boundaries(calc_Tree.begin());
+
+		// multithreading
+		{
+			boundaries_Threaded.resize(reflectivity_Calc_Threads);
+			for(int thread_Index=0; thread_Index<reflectivity_Calc_Threads; thread_Index++)
+			{
+				boundaries_Threaded[thread_Index] = boundaries;
+			}
+		}
 	} /*else
 	{
 		epsilon.resize(num_Media);
@@ -81,25 +99,62 @@ Unwrapped_Structure::Unwrapped_Structure(const tree<Node>& calc_Tree, const Data
 		Global_Variables::discretize_Prefix_Suffix(prefix, suffix, num_Prefix_Slices, num_Suffix_Slices, discretized_Thickness, discretization_Parameters.discretization_Step);
 		num_Discretized_Media = discretized_Thickness.size()+2;
 
+		// multithreading
+//		{
+//			layer_Norm_Vector_Threaded.resize(reflectivity_Calc_Threads);
+//			discretized_Thickness_Threaded.resize(reflectivity_Calc_Threads);
+//			for(int thread_Index=0; thread_Index<reflectivity_Calc_Threads; thread_Index++)
+//			{
+//				layer_Norm_Vector_Threaded[thread_Index] = layer_Norm_Vector;
+//				discretized_Thickness_Threaded[thread_Index] = discretized_Thickness;
+//			}
+//		}
+
 		// PARAMETER
 		if(active_Parameter_Whats_This == whats_This_Wavelength)
 		{
+			auto start = std::chrono::system_clock::now();
+
 			int num_Lambda_Points = measurement.lambda.size();
 
 			discretized_Epsilon_Dependent.resize(num_Lambda_Points, vector<complex<double>>(num_Discretized_Media));
-			discretized_Epsilon_Dependent_RE.resize(num_Lambda_Points, vector<double>(num_Discretized_Media));
-			discretized_Epsilon_Dependent_IM.resize(num_Lambda_Points, vector<double>(num_Discretized_Media));
-			discretized_Epsilon_Dependent_NORM.resize(num_Lambda_Points, vector<double>(num_Discretized_Media));
+//			discretized_Epsilon_Dependent_RE.resize(num_Lambda_Points, vector<double>(num_Discretized_Media));
+//			discretized_Epsilon_Dependent_IM.resize(num_Lambda_Points, vector<double>(num_Discretized_Media));
+//			discretized_Epsilon_Dependent_NORM.resize(num_Lambda_Points, vector<double>(num_Discretized_Media));
+
+			auto end = std::chrono::system_clock::now();
+			auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+			qInfo() << "First d part:   "<< elapsed.count()/1000000. << " seconds" << endl;
+			start = std::chrono::system_clock::now();
+
+			for(int lambda_Point=0; lambda_Point<num_Lambda_Points; lambda_Point++)
+			{
+				discretized_Epsilon_Dependent[lambda_Point].assign(num_Discretized_Media,complex<double>(1,0));
+//				discretized_Epsilon_Dependent_RE[lambda_Point].assign(num_Discretized_Media,1);
+			}
+			end = std::chrono::system_clock::now();
+			elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+			qInfo() << "Secon d part:   "<< elapsed.count()/1000000. << " seconds" << endl;
+			start = std::chrono::system_clock::now();
 
 			fill_Discretized_Epsilon_Dependent(num_Lambda_Points);
+
+			end = std::chrono::system_clock::now();
+			elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+			qInfo() << "Discret part:   "<< elapsed.count()/1000000. << " seconds" << endl;
 		} else
 		{
 			discretized_Epsilon.resize(num_Discretized_Media);
-			discretized_Epsilon_RE.resize(num_Discretized_Media);
-			discretized_Epsilon_IM.resize(num_Discretized_Media);
-			discretized_Epsilon_NORM.resize(num_Discretized_Media);
+//			discretized_Epsilon_RE.resize(num_Discretized_Media);
+//			discretized_Epsilon_IM.resize(num_Discretized_Media);
+//			discretized_Epsilon_NORM.resize(num_Discretized_Media);
+
+			discretized_Epsilon.assign(num_Discretized_Media,complex<double>(1,0));
+//			discretized_Epsilon_RE.assign(num_Discretized_Media,1);
 
 			fill_Discretized_Epsilon();
+
+//			for(int i=discretized_Epsilon.size()-100; i<discretized_Epsilon.size()-70; i++){qInfo() << imag(discretized_Epsilon[i]) << " ";}   qInfo() << endl;
 		}
 	}
 }
@@ -164,19 +219,71 @@ void Unwrapped_Structure::fill_Discretized_Epsilon()
 {
 	// ambient
 	discretized_Epsilon.front() = epsilon.front();
-	discretized_Epsilon_RE.front() = epsilon_RE.front();
-	discretized_Epsilon_IM.front() = epsilon_IM.front();
-	discretized_Epsilon_NORM.front() = epsilon_NORM.front();
+//	discretized_Epsilon_RE.front() = epsilon_RE.front();
+//	discretized_Epsilon_IM.front() = epsilon_IM.front();
+//	discretized_Epsilon_NORM.front() = epsilon_NORM.front();
+
+	// main part
+	double z = -(num_Prefix_Slices-0.5)*discretized_Thickness.front();
+
+//	Global_Variables::parallel_For(discretized_Thickness.size(), 1/*reflectivity_Calc_Threads*/, [&](int n_Min, int n_Max, int thread_Index)
+//	{
+//		for(int i0=n_Min; i0<n_Max; ++i0)
+		for(int i=1; i<=discretized_Thickness.size(); ++i)
+		{
+//			int i=i0+1;
+			epsilon_Func(z, i, false, epsilon, epsilon_Dependent, discretized_Epsilon, discretized_Epsilon_Dependent, 0);
+	//		epsilon_Func(z, i, false,
+	//					 epsilon_RE, epsilon_IM,
+	//					 epsilon_Dependent_RE, epsilon_Dependent_IM,
+	//					 discretized_Epsilon_RE, discretized_Epsilon_IM, discretized_Epsilon_Dependent_RE, discretized_Epsilon_Dependent_IM);
+	//		discretized_Epsilon_RE[i] = real(discretized_Epsilon[i]);
+	//		discretized_Epsilon_IM[i] = imag(discretized_Epsilon[i]);
+	//		discretized_Epsilon_NORM[i] = discretized_Epsilon_RE[i]*discretized_Epsilon_RE[i]+discretized_Epsilon_IM[i]*discretized_Epsilon_IM[i];
+
+			if(i<discretized_Thickness.size()) {
+				z += (discretized_Thickness[i-1]+discretized_Thickness[i])/2.; // real z, where we calculate epsilon
+			} else
+			{
+				z += discretized_Thickness[i-1]; // real z, where we calculate epsilon
+			}
+		}
+//	});
+
+	// substrate
+	discretized_Epsilon.back() = epsilon.back();
+//	discretized_Epsilon_RE.back() = epsilon_RE.back();
+//	discretized_Epsilon_IM.back() = epsilon_IM.back();
+//	discretized_Epsilon_NORM.back() = epsilon_NORM.back();
+}
+
+void Unwrapped_Structure::fill_Discretized_Epsilon_Dependent(int num_Lambda_Points)
+{
+	// ambient
+	for(int lambda_Point=0; lambda_Point<num_Lambda_Points; lambda_Point++)
+	{
+		discretized_Epsilon_Dependent[lambda_Point].front() = epsilon_Dependent[lambda_Point].front();
+//		discretized_Epsilon_Dependent_RE[lambda_Point].front() = epsilon_Dependent_RE[lambda_Point].front();
+//		discretized_Epsilon_Dependent_IM[lambda_Point].front() = epsilon_Dependent_IM[lambda_Point].front();
+//		discretized_Epsilon_Dependent_NORM[lambda_Point].front() = epsilon_Dependent_NORM[lambda_Point].front();
+	}
 
 	// main part
 	double z = -(num_Prefix_Slices-0.5)*discretized_Thickness.front();
 	for(int i=1; i<=discretized_Thickness.size(); ++i)
 	{
-		discretized_Epsilon[i] = epsilon_Func(z, epsilon);
-		discretized_Epsilon_RE[i] = real(discretized_Epsilon[i]);
-		discretized_Epsilon_IM[i] = imag(discretized_Epsilon[i]);
-		discretized_Epsilon_NORM[i] = discretized_Epsilon_RE[i]*discretized_Epsilon_RE[i]+discretized_Epsilon_IM[i]*discretized_Epsilon_IM[i];
+		epsilon_Func(z, i, true, epsilon, epsilon_Dependent, discretized_Epsilon, discretized_Epsilon_Dependent, 0);
+//		epsilon_Func(z, i, true,
+//					 epsilon_RE, epsilon_IM,
+//					 epsilon_Dependent_RE, epsilon_Dependent_IM,
+//					 discretized_Epsilon_RE, discretized_Epsilon_IM, discretized_Epsilon_Dependent_RE, discretized_Epsilon_Dependent_IM);
 
+//		for(int lambda_Point=0; lambda_Point<num_Lambda_Points; lambda_Point++)
+//		{
+//			discretized_Epsilon_Dependent_RE[lambda_Point][i] = real(discretized_Epsilon_Dependent[lambda_Point][i]);
+//			discretized_Epsilon_Dependent_IM[lambda_Point][i] = imag(discretized_Epsilon_Dependent[lambda_Point][i]);
+//			discretized_Epsilon_Dependent_NORM[lambda_Point][i] = discretized_Epsilon_Dependent_RE[lambda_Point][i]*discretized_Epsilon_Dependent_RE[lambda_Point][i]+discretized_Epsilon_Dependent_IM[lambda_Point][i]*discretized_Epsilon_Dependent_IM[lambda_Point][i];
+//		}
 		if(i<discretized_Thickness.size()) {
 			z += (discretized_Thickness[i-1]+discretized_Thickness[i])/2.; // real z, where we calculate epsilon
 		} else
@@ -186,79 +293,88 @@ void Unwrapped_Structure::fill_Discretized_Epsilon()
 	}
 
 	// substrate
-	discretized_Epsilon.back() = epsilon.back();
-	discretized_Epsilon_RE.back() = epsilon_RE.back();
-	discretized_Epsilon_IM.back() = epsilon_IM.back();
-	discretized_Epsilon_NORM.back() = epsilon_NORM.back();
-}
-
-void Unwrapped_Structure::fill_Discretized_Epsilon_Dependent(int num_Lambda_Points)
-{
 	for(int lambda_Point=0; lambda_Point<num_Lambda_Points; lambda_Point++)
 	{
-		// ambient
-		discretized_Epsilon_Dependent[lambda_Point].front() = epsilon_Dependent[lambda_Point].front();
-		discretized_Epsilon_Dependent_RE[lambda_Point].front() = epsilon_Dependent_RE[lambda_Point].front();
-		discretized_Epsilon_Dependent_IM[lambda_Point].front() = epsilon_Dependent_IM[lambda_Point].front();
-		discretized_Epsilon_Dependent_NORM[lambda_Point].front() = epsilon_Dependent_NORM[lambda_Point].front();
-
-		// main part
-		double z = -(num_Prefix_Slices-0.5)*discretized_Thickness.front();
-		for(int i=1; i<=discretized_Thickness.size(); ++i)
-		{
-			discretized_Epsilon_Dependent[lambda_Point][i] = epsilon_Func(z, epsilon_Dependent[lambda_Point]);
-			discretized_Epsilon_Dependent_RE[lambda_Point][i] = real(discretized_Epsilon_Dependent[lambda_Point][i]);
-			discretized_Epsilon_Dependent_IM[lambda_Point][i] = imag(discretized_Epsilon_Dependent[lambda_Point][i]);
-			discretized_Epsilon_Dependent_NORM[lambda_Point][i] = discretized_Epsilon_Dependent_RE[lambda_Point][i]*discretized_Epsilon_Dependent_RE[lambda_Point][i]+discretized_Epsilon_Dependent_IM[lambda_Point][i]*discretized_Epsilon_Dependent_IM[lambda_Point][i];
-
-			if(i<discretized_Thickness.size()) {
-				z += (discretized_Thickness[i-1]+discretized_Thickness[i])/2.; // real z, where we calculate epsilon
-			} else
-			{
-				z += discretized_Thickness[i-1]; // real z, where we calculate epsilon
-			}
-		}
-
-		// substrate
 		discretized_Epsilon_Dependent[lambda_Point].back() = epsilon_Dependent[lambda_Point].back();
-		discretized_Epsilon_Dependent_RE[lambda_Point].back() = epsilon_Dependent_RE[lambda_Point].back();
-		discretized_Epsilon_Dependent_IM[lambda_Point].back() = epsilon_Dependent_IM[lambda_Point].back();
-		discretized_Epsilon_Dependent_NORM[lambda_Point].back() = epsilon_Dependent_NORM[lambda_Point].back();
+//		discretized_Epsilon_Dependent_RE[lambda_Point].back() = epsilon_Dependent_RE[lambda_Point].back();
+//		discretized_Epsilon_Dependent_IM[lambda_Point].back() = epsilon_Dependent_IM[lambda_Point].back();
+//		discretized_Epsilon_Dependent_NORM[lambda_Point].back() = epsilon_Dependent_NORM[lambda_Point].back();
 	}
 }
 
-complex<double> Unwrapped_Structure::epsilon_Func(double z, const vector<complex<double>>& epsilon_Vector)
+void Unwrapped_Structure::epsilon_Func(double z, int media_Index, bool is_Dependent,
+
+								const vector<complex<double>>& epsilon_Vector,
+//								const vector<double>& epsilon_RE,
+//								const vector<double>& epsilon_IM,
+								const vector<vector<complex<double>>>& epsilon_Dependent_Vector,
+//								const vector<vector<double>>& epsilon_Dependent_RE,
+//								const vector<vector<double>>& epsilon_Dependent_IM,
+
+								vector<complex<double>>& discretized_Epsilon,
+//								vector<double>& discretized_Epsilon_RE,
+//								vector<double>& discretized_Epsilon_IM,
+//								vector<double>& discretized_Epsilon_NORM,
+								vector<vector<complex<double>>>& discretized_Epsilon_Dependent,
+//								vector<vector<double>>& discretized_Epsilon_Dependent_RE,
+//								vector<vector<double>>& discretized_Epsilon_Dependent_IM
+//								vector<vector<double>>& discretized_Epsilon_Dependent_NORM
+//								const vector<double>& layer_Norm_Vector,
+//								const vector<double>& boundaries,
+//								const vector<QVector<Interlayer>>& boundary_Interlayer_Composition,
+								int thread_Index)
+
 {
 	// where we are
 	int sigma_Factor = 6;
-	std::vector<double>::iterator it_low = std::lower_bound(boundaries.begin(), boundaries.end(), z-sigma_Factor*max_Sigma);
-	std::vector<double>::iterator it_up  = std::upper_bound(boundaries.begin(), boundaries.end(), z+sigma_Factor*max_Sigma);
+	std::vector<double>::iterator it_low = std::lower_bound(boundaries_Threaded[thread_Index].begin(), boundaries_Threaded[thread_Index].end(), z-sigma_Factor*max_Sigma);
+	std::vector<double>::iterator it_up  = std::upper_bound(boundaries_Threaded[thread_Index].begin(), boundaries_Threaded[thread_Index].end(), z+sigma_Factor*max_Sigma);
 
-	int min_Boundary_Index = max(min(int(it_low-boundaries.begin())-1, int(thickness.size()-1)),0);
-	int max_Boundary_Index = min(    int(it_up -boundaries.begin()),   int(thickness.size()-1));
+	int min_Boundary_Index = max(min(int(it_low-boundaries_Threaded[thread_Index].begin())-1, int(thickness.size()-1)),0);
+	int max_Boundary_Index = min(    int(it_up -boundaries_Threaded[thread_Index].begin()),   int(thickness.size()-1));
 
-	double delta_Epsilon = 0;
-	double beta_Epsilon = 0;
 	double geometry_Factor = 1;
 
 	for(int j=min_Boundary_Index; j<=max_Boundary_Index; j++) // instead of old slow for(int j=0; j<thickness_Vector.size(); j++)
 	{
 		geometry_Factor = layer_Norm_Vector[j] *
-				Global_Variables::interface_Profile_Function(z-boundaries[j  ], boundary_Interlayer_Composition[j]) *
-				Global_Variables::interface_Profile_Function(boundaries[j+1]-z, boundary_Interlayer_Composition[j+1]);
+				Global_Variables::interface_Profile_Function(z-boundaries_Threaded[thread_Index][j  ], boundary_Interlayer_Composition_Threaded[thread_Index][j]) *
+				Global_Variables::interface_Profile_Function(boundaries_Threaded[thread_Index][j+1]-z, boundary_Interlayer_Composition_Threaded[thread_Index][j+1]);
 
-		delta_Epsilon += (1-real(epsilon_Vector[j+1])) * geometry_Factor;
-		beta_Epsilon  +=    imag(epsilon_Vector[j+1])  * geometry_Factor;
+		if(!is_Dependent)
+		{			
+			discretized_Epsilon[media_Index] += complex<double>(real(epsilon_Vector[j+1])-1,imag(epsilon_Vector[j+1])) * geometry_Factor;
+//			discretized_Epsilon_RE[media_Index] += (epsilon_RE[j+1]-1) * geometry_Factor;
+//			discretized_Epsilon_IM[media_Index] +=  epsilon_IM[j+1]    * geometry_Factor;
+		} else
+		{
+			for(int lambda_Point=0; lambda_Point<discretized_Epsilon_Dependent.size(); lambda_Point++)
+			{
+				discretized_Epsilon_Dependent[lambda_Point][media_Index] += complex<double>(real(epsilon_Dependent_Vector[lambda_Point][j+1])-1,imag(epsilon_Dependent_Vector[lambda_Point][j+1])) * geometry_Factor;
+//				discretized_Epsilon_Dependent_RE[lambda_Point][media_Index] += (epsilon_Dependent_RE[lambda_Point][j+1]-1) * geometry_Factor;
+//				discretized_Epsilon_Dependent_IM[lambda_Point][media_Index] +=  epsilon_Dependent_IM[lambda_Point][j+1]    * geometry_Factor;
+			}
+		}
 	}
 	if(max_Boundary_Index>=thickness.size()-1)
 	{
-		geometry_Factor = Global_Variables::interface_Profile_Function(z-boundaries.back(), boundary_Interlayer_Composition.back());
+		geometry_Factor = Global_Variables::interface_Profile_Function(z-boundaries_Threaded[thread_Index].back(), boundary_Interlayer_Composition_Threaded[thread_Index].back());
 
-		delta_Epsilon += (1-real(epsilon_Vector.back())) * geometry_Factor;
-		beta_Epsilon  +=    imag(epsilon_Vector.back ()) * geometry_Factor;
+		if(!is_Dependent)
+		{
+			discretized_Epsilon[media_Index] += complex<double>(real(epsilon_Vector.back())-1,imag(epsilon_Vector.back())) * geometry_Factor;
+//			discretized_Epsilon_RE[media_Index] += (epsilon_RE.back()-1) * geometry_Factor;
+//			discretized_Epsilon_IM[media_Index] +=  epsilon_IM.back()    * geometry_Factor;
+		} else
+		{
+			for(int lambda_Point=0; lambda_Point<discretized_Epsilon_Dependent.size(); lambda_Point++)
+			{
+				discretized_Epsilon_Dependent[lambda_Point][media_Index] += complex<double>(real(epsilon_Dependent_Vector[lambda_Point].back())-1,imag(epsilon_Dependent_Vector[lambda_Point].back())) * geometry_Factor;
+//				discretized_Epsilon_Dependent_RE[lambda_Point][media_Index] += (epsilon_Dependent_RE[lambda_Point].back()-1) * geometry_Factor;
+//				discretized_Epsilon_Dependent_IM[lambda_Point][media_Index] +=  epsilon_Dependent_IM[lambda_Point].back()    * geometry_Factor;
+			}
+		}
 	}
-
-	return complex<double>(1-delta_Epsilon,beta_Epsilon);
 }
 
 /*
@@ -403,9 +519,9 @@ int Unwrapped_Structure::fill_Epsilon(const tree<Node>::iterator& parent, int me
 			{
 				// TODO extreme layers
 					epsilon     [media_Index] = child.node->data.epsilon     .front();
-					epsilon_RE  [media_Index] = child.node->data.epsilon_RE  .front();
-					epsilon_IM  [media_Index] = child.node->data.epsilon_IM  .front();
-					epsilon_NORM[media_Index] = child.node->data.epsilon_NORM.front();
+//					epsilon_RE  [media_Index] = child.node->data.epsilon_RE  .front();
+//					epsilon_IM  [media_Index] = child.node->data.epsilon_IM  .front();
+//					epsilon_NORM[media_Index] = child.node->data.epsilon_NORM.front();
 				++media_Index;
 			}
 		}
@@ -427,9 +543,9 @@ int Unwrapped_Structure::fill_Epsilon(const tree<Node>::iterator& parent, int me
 				{
 					tree<Node>::post_order_iterator grandchild = tree<Node>::child(child,grandchild_Index);
 					epsilon     [media_Index] = grandchild.node->data.epsilon     .front();
-					epsilon_RE  [media_Index] = grandchild.node->data.epsilon_RE  .front();
-					epsilon_IM  [media_Index] = grandchild.node->data.epsilon_IM  .front();
-					epsilon_NORM[media_Index] = grandchild.node->data.epsilon_NORM.front();
+//					epsilon_RE  [media_Index] = grandchild.node->data.epsilon_RE  .front();
+//					epsilon_IM  [media_Index] = grandchild.node->data.epsilon_IM  .front();
+//					epsilon_NORM[media_Index] = grandchild.node->data.epsilon_NORM.front();
 					++media_Index;
 				}
 			}
@@ -456,9 +572,9 @@ int Unwrapped_Structure::fill_Epsilon_Dependent(const tree<Node>::iterator& pare
 				{
 				// TODO extreme layers
 					epsilon_Dependent     [point_Index][media_Index] = child.node->data.epsilon     [point_Index];
-					epsilon_Dependent_RE  [point_Index][media_Index] = child.node->data.epsilon_RE  [point_Index];
-					epsilon_Dependent_IM  [point_Index][media_Index] = child.node->data.epsilon_IM  [point_Index];
-					epsilon_Dependent_NORM[point_Index][media_Index] = child.node->data.epsilon_NORM[point_Index];
+//					epsilon_Dependent_RE  [point_Index][media_Index] = child.node->data.epsilon_RE  [point_Index];
+//					epsilon_Dependent_IM  [point_Index][media_Index] = child.node->data.epsilon_IM  [point_Index];
+//					epsilon_Dependent_NORM[point_Index][media_Index] = child.node->data.epsilon_NORM[point_Index];
 				}
 				++media_Index;
 			}
@@ -483,9 +599,9 @@ int Unwrapped_Structure::fill_Epsilon_Dependent(const tree<Node>::iterator& pare
 					for(int point_Index = 0; point_Index<num_Lambda_Points; ++point_Index)
 					{
 						epsilon_Dependent     [point_Index][media_Index] = grandchild.node->data.epsilon     [point_Index];
-						epsilon_Dependent_RE  [point_Index][media_Index] = grandchild.node->data.epsilon_RE  [point_Index];
-						epsilon_Dependent_IM  [point_Index][media_Index] = grandchild.node->data.epsilon_IM  [point_Index];
-						epsilon_Dependent_NORM[point_Index][media_Index] = grandchild.node->data.epsilon_NORM[point_Index];
+//						epsilon_Dependent_RE  [point_Index][media_Index] = grandchild.node->data.epsilon_RE  [point_Index];
+//						epsilon_Dependent_IM  [point_Index][media_Index] = grandchild.node->data.epsilon_IM  [point_Index];
+//						epsilon_Dependent_NORM[point_Index][media_Index] = grandchild.node->data.epsilon_NORM[point_Index];
 					}
 					++media_Index;
 				}

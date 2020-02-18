@@ -1342,7 +1342,7 @@ double Global_Variables::step_Profile(double z, double sigma)
 	return theta_Function(z);
 }
 
-double Global_Variables::interface_Profile_Function(double z, QVector<Interlayer>& interlayer_Composition, bool for_Integration)
+double Global_Variables::interface_Profile_Function(double z, const QVector<Interlayer>& interlayer_Composition, bool for_Integration)
 {
 	double output = 0;
 

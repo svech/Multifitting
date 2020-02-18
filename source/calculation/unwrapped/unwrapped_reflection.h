@@ -68,9 +68,18 @@ public:
 	int fill_p__Max_Depth_2(const tree<Node>::iterator& parent, int thread_Index, int point_Index, int media_Index = 0);
 	int fill_sp_Max_Depth_2(const tree<Node>::iterator& parent, int thread_Index, int point_Index, int media_Index = 0);
 
-	void calc_Hi		 (double k, double cos2, const vector<double>& eps_RE, const vector<double>& eps_IM, int thread_Index);
+	void calc_Hi		 (double k, double cos2,
+						  const vector<complex<double>>& eps,
+//						  const vector<double>& eps_RE,
+//						  const vector<double>& eps_IM,
+						  int thread_Index);
 	void calc_Weak_Factor(int thread_Index);
-	void calc_Fresnel	 (double polarization,   const vector<double>& eps_RE, const vector<double>& eps_IM, const vector<double>& eps_NORM, int thread_Index);
+	void calc_Fresnel	 (double polarization,
+						  const vector<complex<double>>& eps,
+//						  const vector<double>& eps_RE,
+//						  const vector<double>& eps_IM,
+//						  const vector<double>& eps_NORM,
+						  int thread_Index);
 	void calc_Exponenta	 (int thread_Index, vector<double>& thickness);
 	void calc_Local		 (double polarization, int thread_Index);
 
