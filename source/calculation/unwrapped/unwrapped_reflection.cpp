@@ -592,7 +592,7 @@ void Unwrapped_Reflection::calc_Fresnel(double polarization,
 	}
 }
 
-void Unwrapped_Reflection::calc_Exponenta(int thread_Index, vector<double>& thickness)
+void Unwrapped_Reflection::calc_Exponenta(int thread_Index, const vector<double>& thickness)
 {
 	double re, im, ere, ere2;
 	for (int i = 0; i < num_Layers; ++i)
@@ -804,7 +804,7 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(const Data& measuremen
 			// if we have some grading
 			if( depth_Grading )
 			{
-				calc_Exponenta  (thread_Index,unwrapped_Structure->thickness);
+				calc_Exponenta(thread_Index,unwrapped_Structure->thickness);
 			}
 			if( sigma_Grading )
 			{
@@ -821,7 +821,7 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(const Data& measuremen
 //						unwrapped_Structure->epsilon_IM,
 						thread_Index);
 				calc_Weak_Factor(thread_Index);
-				calc_Exponenta  (thread_Index,unwrapped_Structure->thickness);
+				calc_Exponenta(thread_Index,unwrapped_Structure->thickness);
 				calc_Fresnel(measurement.polarization.value,
 							 unwrapped_Structure->epsilon,
 //							 unwrapped_Structure->epsilon_RE,
@@ -837,7 +837,7 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(const Data& measuremen
 //						unwrapped_Structure->epsilon_Dependent_IM[point_Index],
 						thread_Index);
 				calc_Weak_Factor(thread_Index);
-				calc_Exponenta  (thread_Index,unwrapped_Structure->thickness);
+				calc_Exponenta(thread_Index,unwrapped_Structure->thickness);
 				calc_Fresnel(measurement.polarization.value,
 							 unwrapped_Structure->epsilon_Dependent		[point_Index],
 //							 unwrapped_Structure->epsilon_Dependent_RE  [point_Index],
@@ -862,7 +862,7 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(const Data& measuremen
 //					unwrapped_Structure->discretized_Epsilon_RE,
 //					unwrapped_Structure->discretized_Epsilon_IM,
 					thread_Index);
-			calc_Exponenta  (thread_Index,unwrapped_Structure->discretized_Thickness);
+			calc_Exponenta(thread_Index,unwrapped_Structure->discretized_Thickness);
 			calc_Fresnel(measurement.polarization.value,
 						 unwrapped_Structure->discretized_Epsilon,
 //						 unwrapped_Structure->discretized_Epsilon_RE,
@@ -877,7 +877,7 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(const Data& measuremen
 //					unwrapped_Structure->discretized_Epsilon_Dependent_RE[point_Index],
 //					unwrapped_Structure->discretized_Epsilon_Dependent_IM[point_Index],
 					thread_Index);
-			calc_Exponenta  (thread_Index,unwrapped_Structure->discretized_Thickness);
+			calc_Exponenta(thread_Index,unwrapped_Structure->discretized_Thickness);
 			calc_Fresnel(measurement.polarization.value,
 						 unwrapped_Structure->discretized_Epsilon_Dependent     [point_Index],
 //						 unwrapped_Structure->discretized_Epsilon_Dependent_RE  [point_Index],
@@ -897,8 +897,8 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(const Data& measuremen
 //	auto elapsed = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start);
 //	if(point_Index==0)
 //	{
-//		qInfo() << "Pre    : "<< elapsed.count()/1000000000.*num_Points << " seconds" << endl;
-//		qInfo() << "Local  : "<< elapseD.count()/1000000000.*num_Points << " seconds" << endl;
+//		qInfo() << "Pre    : "<< elapsed.count()/1000000000.*100 << " seconds" << endl;
+//		qInfo() << "Local  : "<< elapseD.count()/1000000000.*100 << " seconds" << endl;
 //	}
 }
 

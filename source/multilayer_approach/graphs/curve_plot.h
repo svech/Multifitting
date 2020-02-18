@@ -60,6 +60,7 @@ public:
 		QCustomPlot* custom_Plot;
 			QCPItemRect* start_Rect;
 			QCPItemRect* end_Rect;
+			QCPItemStraightLine* infLine;
 		QCPTextElement* plot_Title;
 		QGroupBox* options_GroupBox;
 			QHBoxLayout* options_Layout;

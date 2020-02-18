@@ -80,7 +80,7 @@ public:
 //						  const vector<double>& eps_IM,
 //						  const vector<double>& eps_NORM,
 						  int thread_Index);
-	void calc_Exponenta	 (int thread_Index, vector<double>& thickness);
+	void calc_Exponenta	 (int thread_Index, const vector<double>& thickness);
 	void calc_Local		 (double polarization, int thread_Index);
 
 	// for sigma grading

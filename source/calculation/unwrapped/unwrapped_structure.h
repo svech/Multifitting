@@ -46,7 +46,7 @@ public:
 	vector<double> boundaries;										//	[boundary]
 	vector<vector<double>> boundaries_Threaded;						//	[thread][boundary]
 	vector<double> layer_Norm_Vector;								//	[layer]
-//	vector<vector<double>> layer_Norm_Vector_Threaded;				//	[thread][layer]
+	vector<vector<double>> layer_Norm_Vector_Threaded;				//	[thread][layer]
 
 	// discretized structure
 	vector<complex<double>> discretized_Epsilon;
@@ -60,13 +60,14 @@ public:
 //	vector<vector<double>> discretized_Epsilon_Dependent_NORM;
 
 	vector<double> discretized_Thickness;
-//	vector<vector<double>> discretized_Thickness_Threaded;
+	vector<double> z_Positions;
 	int num_Discretized_Media;
 	double prefix = 15, suffix = 15;
 	int num_Prefix_Slices =1, num_Suffix_Slices = 1;
 
 	void layer_Normalizing();
 	void find_Discretization();
+	void find_Z_Positions();
 	void fill_Discretized_Epsilon_Dependent(int num_Lambda_Points);
 	void fill_Discretized_Epsilon();
 	void epsilon_Func(double z, int media_Index, bool is_Dependent,

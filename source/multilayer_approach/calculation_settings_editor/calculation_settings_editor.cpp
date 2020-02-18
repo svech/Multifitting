@@ -276,6 +276,22 @@ void Calculation_Settings_Editor::load_Discretization_Parameters(int tab_Index)
 			profile_Plot->discretization_CheckBox->setEnabled(multilayer->discretization_Parameters.enable_Discretization);
 //			profile_Plot->plot_Data(true);
 		}
+//		if(global_Multilayer_Approach->runned_Optical_Graphs.contains(optical_Graphs_Key))
+//		{
+//			for(Curve_Plot* curve_Plot = global_Multilayer_Approach->optical_Graphs->plots);
+//			if(multilayer->discretization_Parameters.enable_Discretization || )
+//			{
+//				if()
+//				curve_Plot->infLine	= new QCPItemStraightLine(curve_Plot->custom_Plot);
+//					curve_Plot->infLine->point1->setCoords(2, 0);  // location of point 1 in plot coordinate
+//					curve_Plot->infLine->point2->setCoords(2, 1);  // location of point 2 in plot coordinate
+//			} else
+//			{
+//				delete curve_Plot->infLine;
+//			}
+//		}
+
+
 		global_Multilayer_Approach->calc_Reflection(true);
 	});
 
