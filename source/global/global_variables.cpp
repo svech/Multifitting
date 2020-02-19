@@ -1191,9 +1191,12 @@ void Global_Variables::plot_All_Data_in_Graphs()
 {
 	if(global_Multilayer_Approach->runned_Optical_Graphs.contains(optical_Graphs_Key))
 	{
-		for(Curve_Plot* curve_Plot : global_Multilayer_Approach->optical_Graphs->plots)
+		for(QVector<Curve_Plot*>& tab_Plots : global_Multilayer_Approach->optical_Graphs->plots)
 		{
-			curve_Plot->plot_All_Data();
+			for(Curve_Plot* curve_Plot : tab_Plots)
+			{
+				curve_Plot->plot_All_Data();
+			}
 		}
 	}
 }
@@ -1213,10 +1216,16 @@ void Global_Variables::replot_All_Graphs()
 {
 	if(global_Multilayer_Approach->runned_Optical_Graphs.contains(optical_Graphs_Key))
 	{
-		for(Curve_Plot* curve_Plot : global_Multilayer_Approach->optical_Graphs->plots)
+		if(global_Multilayer_Approach->runned_Optical_Graphs.contains(optical_Graphs_Key))
 		{
-			curve_Plot->custom_Plot->replot();
-			curve_Plot->custom_Plot->xAxis->rangeChanged(curve_Plot->custom_Plot->xAxis->range()); // to cause normal replotting. crutch?
+			for(QVector<Curve_Plot*>& tab_Plots : global_Multilayer_Approach->optical_Graphs->plots)
+			{
+				for(Curve_Plot* curve_Plot : tab_Plots)
+				{
+					curve_Plot->custom_Plot->replot();
+					curve_Plot->custom_Plot->xAxis->rangeChanged(curve_Plot->custom_Plot->xAxis->range()); // to cause normal replotting. crutch?
+				}
+			}
 		}
 	}
 }

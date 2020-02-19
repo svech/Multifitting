@@ -12,6 +12,7 @@ public:
 	void create_Main_Layout();
 	void create_Subinterval_Rectangle();
 	void subinterval_Changed_Replot();
+	void discretized_Angular_Threshold();
 	void create_Plot_Frame_And_Scale();
 	void create_Options();
 	void set_Title_Text();

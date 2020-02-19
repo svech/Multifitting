@@ -257,6 +257,7 @@ void Optical_Graphs::create_Tab_Content(QWidget* new_Widget, int tab_Index)
 	tab_Layout->addWidget(target_Independent_Splitter);
 	target_Independent_Splitter_Vec[tab_Index] = target_Independent_Splitter;
 
+	QVector<Curve_Plot*> tab_Plots;
 	// target
 	{
 		// calculate total number of graphs
@@ -314,7 +315,7 @@ void Optical_Graphs::create_Tab_Content(QWidget* new_Widget, int tab_Index)
 		for(int graph_Index=0; graph_Index<total_Number_of_Target_Graphs[tab_Index]; graph_Index++)
 		{
 			Curve_Plot* new_Curve_Plot = new Curve_Plot(multilayer, target_Profiles_to_Show[graph_Index], nullptr, TARGET, this);
-			plots.append(new_Curve_Plot);
+			tab_Plots.append(new_Curve_Plot);
 
 			if(current_Row < first_Long_Row_Index) length = graphs_in_Short_Row; else length = graphs_in_Short_Row + 1;
 
@@ -391,7 +392,7 @@ void Optical_Graphs::create_Tab_Content(QWidget* new_Widget, int tab_Index)
 		for(int graph_Index=0; graph_Index<total_Number_of_Independent_Graphs[tab_Index]; graph_Index++)
 		{
 			Curve_Plot* new_Curve_Plot = new Curve_Plot(multilayer, nullptr, independent_Profiles_to_Show[graph_Index], INDEPENDENT, this);
-			plots.append(new_Curve_Plot);
+			tab_Plots.append(new_Curve_Plot);
 
 			if(current_Row < first_Long_Row_Index) length = graphs_in_Short_Row; else length = graphs_in_Short_Row + 1;
 
@@ -405,6 +406,7 @@ void Optical_Graphs::create_Tab_Content(QWidget* new_Widget, int tab_Index)
 		}
 		independent_GroupBox_Vec.append(independent_Group_Box);
 	}
+	plots.append(tab_Plots);
 
 	// restore splitter positions
 	global_Multilayer_Approach->target_Horizontal_Splitter_Position_Vec_Vec     [tab_Index].resize(multilayer->graph_Options.num_Target_Graph_Rows);

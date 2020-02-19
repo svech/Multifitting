@@ -39,7 +39,7 @@ public:
 	QVector<QVector<QSplitter*>> target_Horizontal_Splitter_Vec_Vec;
 	QVector        <QSplitter*>  independent_Vertical_Splitter_Vec;
 	QVector<QVector<QSplitter*>> independent_Horizontal_Splitter_Vec_Vec;
-	QVector<Curve_Plot*> plots;
+	QVector<QVector<Curve_Plot*>> plots;
 };
 
 #endif // OPTICAL_GRAPHS_H

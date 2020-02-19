@@ -296,10 +296,7 @@ void Unwrapped_Structure::epsilon_Func(double z, int media_Index, bool is_Depend
 								vector<vector<complex<double>>>& discretized_Epsilon_Dependent,
 //								vector<vector<double>>& discretized_Epsilon_Dependent_RE,
 //								vector<vector<double>>& discretized_Epsilon_Dependent_IM
-//								vector<vector<double>>& discretized_Epsilon_Dependent_NORM
-//								const vector<double>& layer_Norm_Vector,
-//								const vector<double>& boundaries,
-//								const vector<QVector<Interlayer>>& boundary_Interlayer_Composition,
+//								vector<vector<double>>& discretized_Epsilon_Dependent_NORM,
 								int thread_Index)
 
 {

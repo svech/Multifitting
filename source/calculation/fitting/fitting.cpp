@@ -245,15 +245,18 @@ void Fitting::calc_Residual(const gsl_vector* x, Fitting_Params* params, gsl_vec
 	// replot
 	if(replot_Graphs_During_Fitting && global_Multilayer_Approach->runned_Optical_Graphs.contains(optical_Graphs_Key))
 	{
-		for(Curve_Plot* curve_Plot : global_Multilayer_Approach->optical_Graphs->plots)
+		for(QVector<Curve_Plot*>& tab_Plots : global_Multilayer_Approach->optical_Graphs->plots)
 		{
-			bool plot_Options_First_Rescale  = curve_Plot->plot_Options_First ->rescale;
-			bool plot_Options_Second_Rescale = curve_Plot->plot_Options_Second->rescale;
-			curve_Plot->plot_Options_First ->rescale=false;
-			curve_Plot->plot_Options_Second->rescale=false;
-			curve_Plot->plot_All_Data();
-			curve_Plot->plot_Options_First ->rescale=plot_Options_First_Rescale;
-			curve_Plot->plot_Options_Second->rescale=plot_Options_Second_Rescale;
+			for(Curve_Plot* curve_Plot : tab_Plots)
+			{
+				bool plot_Options_First_Rescale  = curve_Plot->plot_Options_First ->rescale;
+				bool plot_Options_Second_Rescale = curve_Plot->plot_Options_Second->rescale;
+				curve_Plot->plot_Options_First ->rescale=false;
+				curve_Plot->plot_Options_Second->rescale=false;
+				curve_Plot->plot_All_Data();
+				curve_Plot->plot_Options_First ->rescale=plot_Options_First_Rescale;
+				curve_Plot->plot_Options_Second->rescale=plot_Options_Second_Rescale;
+			}
 		}
 	}
 }

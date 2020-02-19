@@ -439,7 +439,6 @@ void Calculation_Tree::calculate_1_Kind(Data_Element<Type>& data_Element)
 	} else
 	if(data_Element.active_Item_Type == item_Type_Measurement)
 	{
-		qInfo() << "Thick =" << 2*11.2*sin(4.*M_PI/180) << 0.5*asin(1.54062/(2*1.12))*180/M_PI << endl;
 //		auto start = std::chrono::system_clock::now();
 		calculate_Intermediate_Values_1_Tree(data_Element.calc_Tree, data_Element.the_Class->measurement, data_Element.active_Parameter_Whats_This, data_Element.calc_Tree.begin());
 		if(lambda_Out_Of_Range) return;

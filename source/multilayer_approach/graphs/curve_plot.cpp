@@ -79,6 +79,13 @@ void Curve_Plot::create_Main_Layout()
 		}
 	}
 
+	// for discretized structures plot vertical threshold line
+	if(*argument_Type == whats_This_Angle)
+	{
+		infLine = new QCPItemStraightLine(custom_Plot);
+		discretized_Angular_Threshold();
+	}
+
 	create_Options();
 		main_Layout->addWidget(options_GroupBox);
 
@@ -119,6 +126,59 @@ void Curve_Plot::subinterval_Changed_Replot()
 
 	end_Rect->topLeft->setCoords(target_Curve->curve.subinterval_End,custom_Plot->yAxis->range().upper);
 	end_Rect->bottomRight->setCoords(custom_Plot->xAxis->range().upper, custom_Plot->yAxis->range().lower);
+	custom_Plot->replot();
+}
+
+void Curve_Plot::discretized_Angular_Threshold()
+{
+	QString argument_Type;
+	QString angle_Type;
+	QString angle_Units;
+	double wavelength = 1;
+	if(curve_Class == TARGET)     {
+		argument_Type = target_Curve->curve.argument_Type;
+		angle_Type = target_Curve->curve.angle_Type;
+		angle_Units = target_Curve->curve.angular_Units;
+		if(argument_Type == whats_This_Angle)
+		{
+			wavelength = target_Curve->measurement.lambda_Value;
+		}
+	}
+	if(curve_Class == INDEPENDENT){
+		argument_Type = independent_Variables->argument_Type;
+		angle_Type = independent_Variables->measurement.angle_Type;
+		angle_Units = angle_units;
+		if(argument_Type == whats_This_Angle)
+		{
+			wavelength = independent_Variables->measurement.lambda_Value;
+		}
+	}
+
+	if(argument_Type == whats_This_Angle)
+	{
+		if(multilayer->discretization_Parameters.enable_Discretization)
+		{
+			double safety_Factor = 0.25;
+			double asin_Argument = wavelength/(2*multilayer->discretization_Parameters.discretization_Step);
+			if(abs(asin_Argument)<1)
+			{
+				double angle = safety_Factor*(asin(asin_Argument)*180/M_PI);
+				if(angle_Type == angle_Type_Incidence)	{angle = 90-angle;}
+				double angle_In_Plot_Units = angle/angle_Coefficients_Map.value(angle_Units);
+
+				infLine->point1->setCoords(angle_In_Plot_Units, 0);  // location of point 1 in plot coordinate
+				infLine->point2->setCoords(angle_In_Plot_Units, 1);  // location of point 2 in plot coordinate
+			} else
+			{
+				infLine->point1->setCoords(-MAX_DOUBLE, 0);  // location of point 1 in plot coordinate
+				infLine->point2->setCoords(-MAX_DOUBLE, 1);  // location of point 2 in plot coordinate
+			}
+		} else
+		{
+			infLine->point1->setCoords(-MAX_DOUBLE, 0);  // location of point 1 in plot coordinate
+			infLine->point2->setCoords(-MAX_DOUBLE, 1);  // location of point 2 in plot coordinate
+		}
+	}
 	custom_Plot->replot();
 }
 
