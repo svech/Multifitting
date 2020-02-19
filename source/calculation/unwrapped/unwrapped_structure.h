@@ -40,7 +40,7 @@ public:
 	double max_Sigma;
 	vector<double> sigma;											//	[boundary]
 	vector<bool> common_Sigma;										//	[boundary]
-	vector<QVector<Interlayer>> boundary_Interlayer_Composition;	//  [boundary][function]
+	vector<QVector<Interlayer>> boundary_Interlayer_Composition;	//  [boundary][function] not use in multithreaded mode
 	vector<vector<QVector<Interlayer>>> boundary_Interlayer_Composition_Threaded;	//  [thread][boundary][function]
 	vector<double> thickness;										//	[layer]
 	vector<double> boundaries;										//	[boundary]

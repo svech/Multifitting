@@ -337,7 +337,7 @@ void Unwrapped_Reflection::calc_Weak_Factor(int thread_Index)
 		is_Norm = false;
 		for(int func_Index=0; func_Index<transition_Layer_Functions_Size; ++func_Index)
 		{
-			is_Norm = is_Norm || unwrapped_Structure->boundary_Interlayer_Composition[i][func_Index].enabled;
+			is_Norm = is_Norm || unwrapped_Structure->boundary_Interlayer_Composition_Threaded[thread_Index][i][func_Index].enabled;
 		}
 
 		weak_Factor_R[thread_Index][i] = 0;
@@ -352,29 +352,29 @@ void Unwrapped_Reflection::calc_Weak_Factor(int thread_Index)
 
 			//-------------------------------------------------------------------------------
 			// erf interlayer
-			if(unwrapped_Structure->boundary_Interlayer_Composition[i][Erf].enabled)
-			if(unwrapped_Structure->boundary_Interlayer_Composition[i][Erf].interlayer.value > DBL_MIN)
+			if(unwrapped_Structure->boundary_Interlayer_Composition_Threaded[thread_Index][i][Erf].enabled)
+			if(unwrapped_Structure->boundary_Interlayer_Composition_Threaded[thread_Index][i][Erf].interlayer.value > DBL_MIN)
 			{
-				norm += unwrapped_Structure->boundary_Interlayer_Composition[i][Erf].interlayer.value;
+				norm += unwrapped_Structure->boundary_Interlayer_Composition_Threaded[thread_Index][i][Erf].interlayer.value;
 				if(!unwrapped_Structure->common_Sigma[i]) {
-					my_Sigma = unwrapped_Structure->boundary_Interlayer_Composition[i][Erf].my_Sigma.value; }
+					my_Sigma = unwrapped_Structure->boundary_Interlayer_Composition_Threaded[thread_Index][i][Erf].my_Sigma.value; }
 
 				// reflectance
 				factor_r = exp( - s_r * s_r * my_Sigma * my_Sigma * 2);
-				weak_Factor_R[thread_Index][i] += unwrapped_Structure->boundary_Interlayer_Composition[i][Erf].interlayer.value * factor_r;
+				weak_Factor_R[thread_Index][i] += unwrapped_Structure->boundary_Interlayer_Composition_Threaded[thread_Index][i][Erf].interlayer.value * factor_r;
 
 				// transmittance
 //				factor_t = exp( - s_t * s_t * my_Sigma * my_Sigma * 2);
-//				weak_Factor_T[thread_Index][i] += unwrapped_Structure->boundary_Interlayer_Composition[i][Erf].interlayer.value * factor_t;
+//				weak_Factor_T[thread_Index][i] += unwrapped_Structure->boundary_Interlayer_Composition_Threaded[thread_Index][i][Erf].interlayer.value * factor_t;
 			}
 			//-------------------------------------------------------------------------------
 			// lin interlayer
-			if(unwrapped_Structure->boundary_Interlayer_Composition[i][Lin].enabled)
-			if(unwrapped_Structure->boundary_Interlayer_Composition[i][Lin].interlayer.value > DBL_MIN)
+			if(unwrapped_Structure->boundary_Interlayer_Composition_Threaded[thread_Index][i][Lin].enabled)
+			if(unwrapped_Structure->boundary_Interlayer_Composition_Threaded[thread_Index][i][Lin].interlayer.value > DBL_MIN)
 			{
-				norm += unwrapped_Structure->boundary_Interlayer_Composition[i][Lin].interlayer.value;
+				norm += unwrapped_Structure->boundary_Interlayer_Composition_Threaded[thread_Index][i][Lin].interlayer.value;
 				if(!unwrapped_Structure->common_Sigma[i]) {
-					my_Sigma = unwrapped_Structure->boundary_Interlayer_Composition[i][Lin].my_Sigma.value; }
+					my_Sigma = unwrapped_Structure->boundary_Interlayer_Composition_Threaded[thread_Index][i][Lin].my_Sigma.value; }
 
 				// reflectance
 				x_r = sqrt(3.) * s_r * my_Sigma * 2;
@@ -383,7 +383,7 @@ void Unwrapped_Reflection::calc_Weak_Factor(int thread_Index)
 				} else {
 					factor_r = 1;
 				}
-				weak_Factor_R[thread_Index][i] += unwrapped_Structure->boundary_Interlayer_Composition[i][Lin].interlayer.value * factor_r;
+				weak_Factor_R[thread_Index][i] += unwrapped_Structure->boundary_Interlayer_Composition_Threaded[thread_Index][i][Lin].interlayer.value * factor_r;
 
 				// transmittance
 //				x_t = sqrt(3.) * s_t * my_Sigma * 2;
@@ -392,35 +392,35 @@ void Unwrapped_Reflection::calc_Weak_Factor(int thread_Index)
 //				} else {
 //					factor_t = 1;
 //				}
-//				weak_Factor_T[thread_Index][i] += unwrapped_Structure->boundary_Interlayer_Composition[i][Lin].interlayer.value * factor_t;
+//				weak_Factor_T[thread_Index][i] += unwrapped_Structure->boundary_Interlayer_Composition_Threaded[thread_Index][i][Lin].interlayer.value * factor_t;
 			}
 			//-------------------------------------------------------------------------------
 			// exp interlayer
-			if(unwrapped_Structure->boundary_Interlayer_Composition[i][Exp].enabled)
-			if(unwrapped_Structure->boundary_Interlayer_Composition[i][Exp].interlayer.value > DBL_MIN)
+			if(unwrapped_Structure->boundary_Interlayer_Composition_Threaded[thread_Index][i][Exp].enabled)
+			if(unwrapped_Structure->boundary_Interlayer_Composition_Threaded[thread_Index][i][Exp].interlayer.value > DBL_MIN)
 			{
-				norm += unwrapped_Structure->boundary_Interlayer_Composition[i][Exp].interlayer.value;
+				norm += unwrapped_Structure->boundary_Interlayer_Composition_Threaded[thread_Index][i][Exp].interlayer.value;
 				if(!unwrapped_Structure->common_Sigma[i]) {
-					my_Sigma = unwrapped_Structure->boundary_Interlayer_Composition[i][Exp].my_Sigma.value; }
+					my_Sigma = unwrapped_Structure->boundary_Interlayer_Composition_Threaded[thread_Index][i][Exp].my_Sigma.value; }
 
 				// reflectance
 				x_r = 2 * pow(s_r * my_Sigma, 2);
 				factor_r = 1. / (1. + x_r);
-				weak_Factor_R[thread_Index][i] += unwrapped_Structure->boundary_Interlayer_Composition[i][Exp].interlayer.value * factor_r;
+				weak_Factor_R[thread_Index][i] += unwrapped_Structure->boundary_Interlayer_Composition_Threaded[thread_Index][i][Exp].interlayer.value * factor_r;
 
 				// transmittance
 //				x_t = 2 * pow(s_t * my_Sigma, 2);
 //				factor_t = 1. / (1. + x_t);
-//				weak_Factor_T[thread_Index][i] += unwrapped_Structure->boundary_Interlayer_Composition[i][Exp].interlayer.value * factor_t;
+//				weak_Factor_T[thread_Index][i] += unwrapped_Structure->boundary_Interlayer_Composition_Threaded[thread_Index][i][Exp].interlayer.value * factor_t;
 			}
 			//-------------------------------------------------------------------------------
 			// tanh interlayer
-			if(unwrapped_Structure->boundary_Interlayer_Composition[i][Tanh].enabled)
-			if(unwrapped_Structure->boundary_Interlayer_Composition[i][Tanh].interlayer.value > DBL_MIN)
+			if(unwrapped_Structure->boundary_Interlayer_Composition_Threaded[thread_Index][i][Tanh].enabled)
+			if(unwrapped_Structure->boundary_Interlayer_Composition_Threaded[thread_Index][i][Tanh].interlayer.value > DBL_MIN)
 			{
-				norm += unwrapped_Structure->boundary_Interlayer_Composition[i][Tanh].interlayer.value;
+				norm += unwrapped_Structure->boundary_Interlayer_Composition_Threaded[thread_Index][i][Tanh].interlayer.value;
 				if(!unwrapped_Structure->common_Sigma[i]) {
-					my_Sigma = unwrapped_Structure->boundary_Interlayer_Composition[i][Tanh].my_Sigma.value; }
+					my_Sigma = unwrapped_Structure->boundary_Interlayer_Composition_Threaded[thread_Index][i][Tanh].my_Sigma.value; }
 
 				// reflectance
 				x_r = 2 * sqrt(3.) * s_r * my_Sigma;
@@ -429,7 +429,7 @@ void Unwrapped_Reflection::calc_Weak_Factor(int thread_Index)
 				} else {
 					factor_r = 1;
 				}
-				weak_Factor_R[thread_Index][i] += unwrapped_Structure->boundary_Interlayer_Composition[i][Tanh].interlayer.value * factor_r;
+				weak_Factor_R[thread_Index][i] += unwrapped_Structure->boundary_Interlayer_Composition_Threaded[thread_Index][i][Tanh].interlayer.value * factor_r;
 
 				// transmittance
 //				x_t = 2 * sqrt(3.) * s_t * my_Sigma;
@@ -438,16 +438,16 @@ void Unwrapped_Reflection::calc_Weak_Factor(int thread_Index)
 //				} else {
 //					factor_t = 1;
 //				}
-//				weak_Factor_T[thread_Index][i] += unwrapped_Structure->boundary_Interlayer_Composition[i][Tanh].interlayer.value * factor_t;
+//				weak_Factor_T[thread_Index][i] += unwrapped_Structure->boundary_Interlayer_Composition_Threaded[thread_Index][i][Tanh].interlayer.value * factor_t;
 			}
 			//-------------------------------------------------------------------------------
 			// sin interlayer
-			if(unwrapped_Structure->boundary_Interlayer_Composition[i][Sin].enabled)
-			if(unwrapped_Structure->boundary_Interlayer_Composition[i][Sin].interlayer.value > DBL_MIN)
+			if(unwrapped_Structure->boundary_Interlayer_Composition_Threaded[thread_Index][i][Sin].enabled)
+			if(unwrapped_Structure->boundary_Interlayer_Composition_Threaded[thread_Index][i][Sin].interlayer.value > DBL_MIN)
 			{
-				norm += unwrapped_Structure->boundary_Interlayer_Composition[i][Sin].interlayer.value;
+				norm += unwrapped_Structure->boundary_Interlayer_Composition_Threaded[thread_Index][i][Sin].interlayer.value;
 				if(!unwrapped_Structure->common_Sigma[i]) {
-					my_Sigma = unwrapped_Structure->boundary_Interlayer_Composition[i][Sin].my_Sigma.value; }
+					my_Sigma = unwrapped_Structure->boundary_Interlayer_Composition_Threaded[thread_Index][i][Sin].my_Sigma.value; }
 
 				// reflectance
 				x_r = 2 * a * s_r * my_Sigma - M_PI_2;
@@ -455,7 +455,7 @@ void Unwrapped_Reflection::calc_Weak_Factor(int thread_Index)
 				if(abs(x_r)>DBL_MIN) six_r = sin(x_r)/x_r; else six_r = 1;
 				if(abs(y_r)>DBL_MIN) siy_r = sin(y_r)/y_r; else siy_r = 1;
 				factor_r = M_PI_4 * (six_r + siy_r);
-				weak_Factor_R[thread_Index][i] += unwrapped_Structure->boundary_Interlayer_Composition[i][Sin].interlayer.value * factor_r;
+				weak_Factor_R[thread_Index][i] += unwrapped_Structure->boundary_Interlayer_Composition_Threaded[thread_Index][i][Sin].interlayer.value * factor_r;
 
 				// transmittance
 //				x_t = 2 * a * s_t * my_Sigma - M_PI_2;
@@ -463,24 +463,24 @@ void Unwrapped_Reflection::calc_Weak_Factor(int thread_Index)
 //				if(abs(x_t)>DBL_MIN) six_t = sin(x_t)/x_t; else six_t = 1;
 //				if(abs(y_t)>DBL_MIN) siy_t = sin(y_t)/y_t; else siy_t = 1;
 //				factor_t = M_PI_4 * (six_t + siy_t);
-//				weak_Factor_T[thread_Index][i] += unwrapped_Structure->boundary_Interlayer_Composition[i][Sin].interlayer.value * factor_t;
+//				weak_Factor_T[thread_Index][i] += unwrapped_Structure->boundary_Interlayer_Composition_Threaded[thread_Index][i][Sin].interlayer.value * factor_t;
 			}
 			//-------------------------------------------------------------------------------
 			// step interlayer
-			if(unwrapped_Structure->boundary_Interlayer_Composition[i][Step].enabled)
-			if(unwrapped_Structure->boundary_Interlayer_Composition[i][Step].interlayer.value > DBL_MIN)
+			if(unwrapped_Structure->boundary_Interlayer_Composition_Threaded[thread_Index][i][Step].enabled)
+			if(unwrapped_Structure->boundary_Interlayer_Composition_Threaded[thread_Index][i][Step].interlayer.value > DBL_MIN)
 			{
-				norm += unwrapped_Structure->boundary_Interlayer_Composition[i][Step].interlayer.value;
+				norm += unwrapped_Structure->boundary_Interlayer_Composition_Threaded[thread_Index][i][Step].interlayer.value;
 				if(!unwrapped_Structure->common_Sigma[i]) {
-					my_Sigma = unwrapped_Structure->boundary_Interlayer_Composition[i][Step].my_Sigma.value; }
+					my_Sigma = unwrapped_Structure->boundary_Interlayer_Composition_Threaded[thread_Index][i][Step].my_Sigma.value; }
 
 				// reflectance
 				factor_r = cos(2 * s_r * my_Sigma);
-				weak_Factor_R[thread_Index][i] += unwrapped_Structure->boundary_Interlayer_Composition[i][Step].interlayer.value * factor_r;
+				weak_Factor_R[thread_Index][i] += unwrapped_Structure->boundary_Interlayer_Composition_Threaded[thread_Index][i][Step].interlayer.value * factor_r;
 
 				// transmittance
 //				factor_t = cos(2 * s_t * my_Sigma);
-//				weak_Factor_T[thread_Index][i] += unwrapped_Structure->boundary_Interlayer_Composition[i][Step].interlayer.value * factor_t;
+//				weak_Factor_T[thread_Index][i] += unwrapped_Structure->boundary_Interlayer_Composition_Threaded[thread_Index][i][Step].interlayer.value * factor_t;
 			}
 			//-------------------------------------------------------------------------------
 			// normalization
@@ -550,13 +550,13 @@ void Unwrapped_Reflection::calc_Fresnel(double polarization,
 	{
 //		temp_1_RE = (hi_RE[thread_Index][i]*eps_RE[i] + hi_IM[thread_Index][i]*eps_IM[i]) / eps_NORM[i];
 //		temp_1_IM = (hi_IM[thread_Index][i]*eps_RE[i] - hi_RE[thread_Index][i]*eps_IM[i]) / eps_NORM[i];
-		double eps_NORM_i = real(eps[i])*real(eps[i]) +imag(eps[i])*imag(eps[i]);
+		double eps_NORM_i = real(eps[i])*real(eps[i]) + imag(eps[i])*imag(eps[i]);
 		temp_1_RE = (hi_RE[thread_Index][i]*real(eps[i]) + hi_IM[thread_Index][i]*imag(eps[i])) / eps_NORM_i;
 		temp_1_IM = (hi_IM[thread_Index][i]*real(eps[i]) - hi_RE[thread_Index][i]*imag(eps[i])) / eps_NORM_i;
 
 //		temp_2_RE = (hi_RE[thread_Index][i+1]*eps_RE[i+1] + hi_IM[thread_Index][i+1]*eps_IM[i+1]) / eps_NORM[i+1];
 //		temp_2_IM = (hi_IM[thread_Index][i+1]*eps_RE[i+1] - hi_RE[thread_Index][i+1]*eps_IM[i+1]) / eps_NORM[i+1];
-		double eps_NORM_i1 = real(eps[i+1])*real(eps[i+1]) +imag(eps[i+1])*imag(eps[i+1]);
+		double eps_NORM_i1 = real(eps[i+1])*real(eps[i+1]) + imag(eps[i+1])*imag(eps[i+1]);
 		temp_2_RE = (hi_RE[thread_Index][i+1]*real(eps[i+1]) + hi_IM[thread_Index][i+1]*imag(eps[i+1])) / eps_NORM_i1;
 		temp_2_IM = (hi_IM[thread_Index][i+1]*real(eps[i+1]) - hi_RE[thread_Index][i+1]*imag(eps[i+1])) / eps_NORM_i1;
 

@@ -62,6 +62,8 @@ void Main_Calculation_Module::single_Calculation(bool print_And_Verbose)
 	std::chrono::system_clock::time_point start;
 	if(print_And_Verbose) {start = std::chrono::system_clock::now();}
 
+	int counter1=0;
+	int counter2=0;
 	for(int tab_Index=0; tab_Index<multilayers.size(); ++tab_Index)
 	{
 //		calculation_Trees[tab_Index]->fill_Independent_Calc_Trees(); // in preliminary calculation now
@@ -69,7 +71,7 @@ void Main_Calculation_Module::single_Calculation(bool print_And_Verbose)
 		{
 //			qInfo() << independent_Element.calc_Tree.begin().number_of_children() << endl;
 //			calculation_Trees[tab_Index]->print_Tree(independent_Element.calc_Tree.begin(), independent_Element.calc_Tree);
-
+			qInfo() << endl <<counter2++ << endl;
 			calculation_Trees[tab_Index]->calculate_1_Kind(independent_Element);
 			if(lambda_Out_Of_Range) return;
 		}
@@ -79,7 +81,7 @@ void Main_Calculation_Module::single_Calculation(bool print_And_Verbose)
 		{
 //			qInfo() << target_Element.calc_Tree.begin().number_of_children() << endl;
 //			calculation_Trees[tab_Index]->print_Tree(target_Element.calc_Tree.begin(), target_Element.calc_Tree);
-
+			qInfo() << endl <<counter1++ << endl;
 			calculation_Trees[tab_Index]->calculate_1_Kind(target_Element);
 			if(lambda_Out_Of_Range) return;
 		}

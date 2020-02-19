@@ -86,6 +86,27 @@ void Target_Curve_Editor::browse_Data_File()
 	}
 }
 
+void Target_Curve_Editor::export_Data_File()
+{
+	QFile file = QFileDialog::getSaveFileName(this, "Export Loaded Curve", filepath_ComboBox->lineEdit()->text(), "Text data (*.txt *.dat *.xy);;All files (*.*)");
+	QFileInfo filename = QDir::toNativeSeparators(file.fileName());
+	{
+		if (file.open(QIODevice::WriteOnly))
+		{
+			QTextStream out(&file);
+			for(QString line : target_Curve->lines_List)
+			{
+				out << line << endl;
+			}
+			file.close();
+		} else
+		{
+			QMessageBox::critical(nullptr, "Target_Curve_Editor::export_Data_File", "Can't write file " + filename.fileName());
+			exit(EXIT_FAILURE);
+		}
+	}
+}
+
 void Target_Curve_Editor::fill_Arg_Units_ComboBox(QString arg_Type)
 {
 	arg_Units_ComboBox->blockSignals(true);
@@ -880,10 +901,17 @@ void Target_Curve_Editor::create_Buttons()
 
 	// read data
 	{
-		read_Data_Button = new QPushButton("Read Data", this);
+		read_Data_Button = new QPushButton("Read data", this);
 			read_Data_Button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 			connect(read_Data_Button, &QPushButton::clicked, this, [=]{ filepath_ComboBox->lineEdit()->returnPressed(); });
 		button_Layout->addWidget(read_Data_Button,0,Qt::AlignCenter);
+	}
+	// export data
+	{
+		export_Data_Button = new QPushButton("Export data", this);
+			export_Data_Button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+			connect(export_Data_Button, &QPushButton::clicked, this, [=]{ export_Data_File(); });
+		button_Layout->addWidget(export_Data_Button,0,Qt::AlignCenter);
 	}
 
 	bottom_Part_Layout->addLayout(button_Layout);

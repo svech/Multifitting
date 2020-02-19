@@ -32,6 +32,7 @@ public:
 
 	void read_Data_File(QString filepath);
 	void browse_Data_File();
+	void export_Data_File();
 
 	void fill_Arg_Units_ComboBox(QString arg_Type);
 	void fill_Val_Modes_ComboBox(QString val_Mode);
@@ -133,6 +134,7 @@ public:
 		QLabel* data_Indicator_Label;
 		QPushButton* close_Button;
 		QPushButton* read_Data_Button;
+		QPushButton* export_Data_Button;
 };
 
 #endif // TARGET_CURVE_EDITOR_H
