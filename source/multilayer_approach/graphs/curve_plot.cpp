@@ -158,7 +158,7 @@ void Curve_Plot::discretized_Angular_Threshold()
 	{
 		if(multilayer->discretization_Parameters.enable_Discretization)
 		{
-			double safety_Factor = 0.25;
+			double safety_Factor = 0.3;
 			double asin_Argument = wavelength/(2*multilayer->discretization_Parameters.discretization_Step);
 			if(abs(asin_Argument)<1)
 			{
