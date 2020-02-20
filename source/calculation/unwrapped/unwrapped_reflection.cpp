@@ -1028,7 +1028,7 @@ void Unwrapped_Reflection::calc_Specular()
 				double first_Argument = measurement.angle.first();
 				double last_Argument  = measurement.angle.last();
 				unsigned long long num_Points_in_Dense_Mesh = ceil( abs(last_Argument - first_Argument)/preliminary_Delta );
-								   num_Points_in_Dense_Mesh = min(num_Points_in_Dense_Mesh, unsigned long long(202020));
+								   num_Points_in_Dense_Mesh = min(num_Points_in_Dense_Mesh, (unsigned long long)(202020));
 				double real_Delta = (last_Argument - first_Argument)/(num_Points_in_Dense_Mesh-1);  // interpolated curve is equidistant
 
 				// create dense mesh
@@ -1050,7 +1050,7 @@ void Unwrapped_Reflection::calc_Specular()
 				double first_Argument = measurement.lambda.first();
 				double last_Argument  = measurement.lambda.last();
 				unsigned long long num_Points_in_Dense_Mesh = ceil( abs(last_Argument - first_Argument)/preliminary_Delta );
-								   num_Points_in_Dense_Mesh = min(num_Points_in_Dense_Mesh, unsigned long long(202020));
+								   num_Points_in_Dense_Mesh = min(num_Points_in_Dense_Mesh, (unsigned long long)(202020));
 				double real_Delta = (last_Argument - first_Argument)/(num_Points_in_Dense_Mesh-1);  // interpolated curve is equidistant
 
 				// create dense mesh

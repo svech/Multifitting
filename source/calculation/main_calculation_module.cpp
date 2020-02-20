@@ -44,10 +44,10 @@ void Main_Calculation_Module::increase_Mesh_density(Data_Element<Target_Curve>& 
 			dense_Angle.resize((angle.size()-1)*target_Curve->curve.mesh_Density_Factor+1);
 			for(int i=0; i<angle.size()-1; i++)
 			{
+				double delta_Angle = (angle[i+1]-angle[i])/target_Curve->curve.mesh_Density_Factor;
 				for(int dense_Index=0; dense_Index<target_Curve->curve.mesh_Density_Factor; dense_Index++)
 				{
-					double delta_Angle = (angle[i+1]-angle[i])/target_Curve->curve.mesh_Density_Factor;
-					dense_Angle[i*target_Curve->curve.mesh_Density_Factor+dense_Index] = angle[i] + delta_Angle*dense_Index;
+					dense_Angle[i*target_Curve->curve.mesh_Density_Factor+dense_Index] = angle[i] + delta_Angle;//*(dense_Index+0.1*(dense_Index%3-1));
 				}
 			}
 			dense_Angle.last() = angle.last();
@@ -60,10 +60,10 @@ void Main_Calculation_Module::increase_Mesh_density(Data_Element<Target_Curve>& 
 			dense_Lambda.resize((lambda.size()-1)*target_Curve->curve.mesh_Density_Factor+1);
 			for(int i=0; i<lambda.size()-1; i++)
 			{
+				double delta_Lambda = (lambda[i+1]-lambda[i])/target_Curve->curve.mesh_Density_Factor;
 				for(int dense_Index=0; dense_Index<target_Curve->curve.mesh_Density_Factor; dense_Index++)
 				{
-					double delta_Lambda = (lambda[i+1]-lambda[i])/target_Curve->curve.mesh_Density_Factor;
-					dense_Lambda[i*target_Curve->curve.mesh_Density_Factor+dense_Index] = lambda[i] + delta_Lambda*dense_Index;
+					dense_Lambda[i*target_Curve->curve.mesh_Density_Factor+dense_Index] = lambda[i] + delta_Lambda;//*(dense_Index+0.1*(dense_Index%3-1));
 				}
 			}
 			dense_Lambda.last() = lambda.last();
@@ -104,29 +104,91 @@ void Main_Calculation_Module::decrease_Mesh_density(Data_Element<Target_Curve>& 
 			target_Curve->measurement.lambda = sparse_Lambda;
 		}
 
-//		// decrease value in calc_Functions
-//		QVector<double> sparse_Value;
-//		if(target_Curve->curve.argument_Type == whats_This_Angle)	   {sparse_Value.resize(target_Curve->measurement.angle.size());}
-//		if(target_Curve->curve.argument_Type == whats_This_Wavelength) {sparse_Value.resize(target_Curve->measurement.lambda.size());}
+		// decrease value in calc_Functions
+		int size;
+		if(target_Curve->curve.argument_Type == whats_This_Angle)	   {size = target_Curve->measurement.angle.size();}
+		if(target_Curve->curve.argument_Type == whats_This_Wavelength) {size = target_Curve->measurement.lambda.size();}
+		vector<double> sparse_Val  (size);
+		vector<double> sparse_Val_s(size);
+		vector<double> sparse_Val_p(size);
+		vector<double> sparse_Phi_s(size);
+		vector<double> sparse_Phi_p(size);
 
-//		if(target.calc_Functions.check_Reflectance)
-//		{
-//			for(int i=0; i<sparse_Value.size(); i++)
-//			{
-//				sparse_Value[i] = target_Curve->calculated_Values.R[i*target_Curve->curve.mesh_Density_Factor];
-//			}
-//			sparse_Value.last() = target_Curve->calculated_Values.R.last();
-//			target_Curve->calculated_Values.R = sparse_Value;
-//		}
-//		if(target.calc_Functions.check_Transmittance)
-//		{
-//			for(int i=0; i<sparse_Value.size(); i++)
-//			{
-//				sparse_Value[i] = target_Curve->calculated_Values.T[i*target_Curve->curve.mesh_Density_Factor];
-//			}
-//			sparse_Value.last() = target_Curve->calculated_Values.T.last();
-//			target_Curve->calculated_Values.T = sparse_Value;
-//		}
+		/// R
+		{
+			for(int i=0; i<size; i++)
+			{
+				sparse_Val  [i] = target.unwrapped_Reflection->R_Instrumental[i*target_Curve->curve.mesh_Density_Factor];
+				sparse_Val_s[i] = target.unwrapped_Reflection->R_s           [i*target_Curve->curve.mesh_Density_Factor];
+				sparse_Val_p[i] = target.unwrapped_Reflection->R_p           [i*target_Curve->curve.mesh_Density_Factor];
+				sparse_Phi_s[i] = target.unwrapped_Reflection->Phi_R_s       [i*target_Curve->curve.mesh_Density_Factor];
+				sparse_Phi_p[i] = target.unwrapped_Reflection->Phi_R_p       [i*target_Curve->curve.mesh_Density_Factor];
+			}
+			sparse_Val  .back() = target.unwrapped_Reflection->R_Instrumental.back();
+			sparse_Val_s.back() = target.unwrapped_Reflection->R_s           .back();
+			sparse_Val_p.back() = target.unwrapped_Reflection->R_p           .back();
+			sparse_Phi_s.back() = target.unwrapped_Reflection->Phi_R_s       .back();
+			sparse_Phi_p.back() = target.unwrapped_Reflection->Phi_R_p       .back();
+
+			// copying
+			target.unwrapped_Reflection->R				= sparse_Val;
+			target.unwrapped_Reflection->R_Instrumental = sparse_Val;
+			target.unwrapped_Reflection->R_s			= sparse_Val_s;
+			target.unwrapped_Reflection->R_p			= sparse_Val_p;
+			target.unwrapped_Reflection->Phi_R_s		= sparse_Phi_s;
+			target.unwrapped_Reflection->Phi_R_p		= sparse_Phi_p;
+
+			target_Curve->calculated_Values.R = QVector<double>::fromStdVector(sparse_Val);
+			if(abs(target_Curve->measurement.polarization.value-1)<DBL_EPSILON)	{ target_Curve->calculated_Values.Phi_R = QVector<double>::fromStdVector(target.unwrapped_Reflection->Phi_R_s); } else
+			if(abs(target_Curve->measurement.polarization.value+1)<DBL_EPSILON)	{ target_Curve->calculated_Values.Phi_R = QVector<double>::fromStdVector(target.unwrapped_Reflection->Phi_R_p); } else
+																				{ target_Curve->calculated_Values.Phi_R.clear(); }
+		}
+		/// T
+		{
+			for(int i=0; i<size; i++)
+			{
+				sparse_Val  [i] = target.unwrapped_Reflection->T_Instrumental[i*target_Curve->curve.mesh_Density_Factor];
+				sparse_Val_s[i] = target.unwrapped_Reflection->T_s           [i*target_Curve->curve.mesh_Density_Factor];
+				sparse_Val_p[i] = target.unwrapped_Reflection->T_p           [i*target_Curve->curve.mesh_Density_Factor];
+				sparse_Phi_s[i] = target.unwrapped_Reflection->Phi_T_s       [i*target_Curve->curve.mesh_Density_Factor];
+				sparse_Phi_p[i] = target.unwrapped_Reflection->Phi_T_p       [i*target_Curve->curve.mesh_Density_Factor];
+			}
+			sparse_Val  .back() = target.unwrapped_Reflection->T_Instrumental.back();
+			sparse_Val_s.back() = target.unwrapped_Reflection->T_s           .back();
+			sparse_Val_p.back() = target.unwrapped_Reflection->T_p           .back();
+			sparse_Phi_s.back() = target.unwrapped_Reflection->Phi_T_s       .back();
+			sparse_Phi_p.back() = target.unwrapped_Reflection->Phi_T_p       .back();
+
+			// copying
+			target.unwrapped_Reflection->T				= sparse_Val;
+			target.unwrapped_Reflection->T_Instrumental = sparse_Val;
+			target.unwrapped_Reflection->T_s			= sparse_Val_s;
+			target.unwrapped_Reflection->T_p			= sparse_Val_p;
+			target.unwrapped_Reflection->Phi_T_s		= sparse_Phi_s;
+			target.unwrapped_Reflection->Phi_T_p		= sparse_Phi_p;
+
+			target_Curve->calculated_Values.T = QVector<double>::fromStdVector(sparse_Val);
+		}
+		/// A
+		{
+			for(int i=0; i<size; i++)
+			{
+				sparse_Val  [i] = target.unwrapped_Reflection->A_Instrumental[i*target_Curve->curve.mesh_Density_Factor];
+				sparse_Val_s[i] = target.unwrapped_Reflection->A_s           [i*target_Curve->curve.mesh_Density_Factor];
+				sparse_Val_p[i] = target.unwrapped_Reflection->A_p           [i*target_Curve->curve.mesh_Density_Factor];
+			}
+			sparse_Val  .back() = target.unwrapped_Reflection->A_Instrumental.back();
+			sparse_Val_s.back() = target.unwrapped_Reflection->A_s           .back();
+			sparse_Val_p.back() = target.unwrapped_Reflection->A_p           .back();
+
+			// copying
+			target.unwrapped_Reflection->A				= sparse_Val;
+			target.unwrapped_Reflection->A_Instrumental = sparse_Val;
+			target.unwrapped_Reflection->A_s			= sparse_Val_s;
+			target.unwrapped_Reflection->A_p			= sparse_Val_p;
+
+			target_Curve->calculated_Values.A = QVector<double>::fromStdVector(sparse_Val);
+		}
 	}
 }
 
