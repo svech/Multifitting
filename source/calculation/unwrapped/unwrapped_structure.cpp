@@ -690,10 +690,10 @@ int Unwrapped_Structure::fill_Thickness_And_Boundaries(const tree<Node>::iterato
 		{
 			// TODO extreme layers
 			thickness[layer_Index] = child.node->data.struct_Data.thickness.value;
-			boundaries[layer_Index+1] = boundaries[layer_Index] + thickness[layer_Index];
 
 			// can drift
 			Global_Variables::variable_Drift(thickness[layer_Index], child.node->data.struct_Data.thickness_Drift, per_Index, child.node->data.struct_Data.num_Repetition.value(), r);
+			boundaries[layer_Index+1] = boundaries[layer_Index] + thickness[layer_Index];
 
 			++layer_Index;
 		}
