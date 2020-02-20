@@ -1007,8 +1007,8 @@ void Unwrapped_Reflection::calc_Specular()
 
 		// interpolation
 
-		vector<double>* calculated_Curve;
-		vector<double>* working_Curve;
+		vector<double>* calculated_Curve = &R;
+		vector<double>* working_Curve = &R_Instrumental;
 		if( calc_Functions.check_Reflectance)
 		{	calculated_Curve = &R; R_Instrumental = R; working_Curve = &R_Instrumental;}
 		if( calc_Functions.check_Transmittance)
@@ -1154,9 +1154,6 @@ void Unwrapped_Reflection::wrap_Condensed_Curve(const QVector<double>& sparse_Ar
 void Unwrapped_Reflection::condense_Curve(const QVector<double>& sparse_Argument_As_Is, const vector<double>* input_Sparse_Curve_As_Is, double real_Delta, vector<double>& output_Dense_Curve, vector<double>& output_Dense_Argument)
 {
 	// OPTIMIZE
-	const gsl_interp_type* interp_type = gsl_interp_steffen;
-	gsl_interp_accel* Acc = gsl_interp_accel_alloc();
-	gsl_spline* Spline = gsl_spline_alloc(interp_type, (*input_Sparse_Curve_As_Is).size());
 
 	// make argument strictly increasing if necessary
 	QVector<double> sparse_Argument = sparse_Argument_As_Is;
@@ -1179,6 +1176,9 @@ void Unwrapped_Reflection::condense_Curve(const QVector<double>& sparse_Argument
 		}
 	}
 
+	const gsl_interp_type* interp_type = gsl_interp_steffen;
+	gsl_interp_accel* Acc = gsl_interp_accel_alloc();
+	gsl_spline* Spline = gsl_spline_alloc(interp_type, input_Sparse_Curve.size());
 	gsl_spline_init(Spline, sparse_Argument.data(), input_Sparse_Curve.data(), input_Sparse_Curve.size());
 
 	double minimum = min(sparse_Argument.first(),sparse_Argument.last());

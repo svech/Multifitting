@@ -47,7 +47,7 @@ void Main_Calculation_Module::increase_Mesh_density(Data_Element<Target_Curve>& 
 				double delta_Angle = (angle[i+1]-angle[i])/target_Curve->curve.mesh_Density_Factor;
 				for(int dense_Index=0; dense_Index<target_Curve->curve.mesh_Density_Factor; dense_Index++)
 				{
-					dense_Angle[i*target_Curve->curve.mesh_Density_Factor+dense_Index] = angle[i] + delta_Angle;//*(dense_Index+0.1*(dense_Index%3-1));
+					dense_Angle[i*target_Curve->curve.mesh_Density_Factor+dense_Index] = angle[i] + delta_Angle*(dense_Index+0.5/**sin(i)*/*(dense_Index%2));
 				}
 			}
 			dense_Angle.last() = angle.last();
@@ -63,7 +63,7 @@ void Main_Calculation_Module::increase_Mesh_density(Data_Element<Target_Curve>& 
 				double delta_Lambda = (lambda[i+1]-lambda[i])/target_Curve->curve.mesh_Density_Factor;
 				for(int dense_Index=0; dense_Index<target_Curve->curve.mesh_Density_Factor; dense_Index++)
 				{
-					dense_Lambda[i*target_Curve->curve.mesh_Density_Factor+dense_Index] = lambda[i] + delta_Lambda;//*(dense_Index+0.1*(dense_Index%3-1));
+					dense_Lambda[i*target_Curve->curve.mesh_Density_Factor+dense_Index] = lambda[i] + delta_Lambda*(dense_Index+0.5*(dense_Index%2));
 				}
 			}
 			dense_Lambda.last() = lambda.last();

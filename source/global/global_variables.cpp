@@ -1382,7 +1382,13 @@ double Global_Variables::interface_Profile_Function(double z, const QVector<Inte
 		norm += interlayer_Composition[Lin].interlayer.value;
 		my_Sigma = interlayer_Composition[Lin].my_Sigma.value;
 
-		output += lin_Profile(z, my_Sigma) * interlayer_Composition[Lin].interlayer.value;
+		if(for_Integration)
+		{
+			output += sin_Profile(z, my_Sigma) * interlayer_Composition[Lin].interlayer.value;  // otherwise integration crashes
+		} else
+		{
+			output += lin_Profile(z, my_Sigma) * interlayer_Composition[Lin].interlayer.value;
+		}
 	}
 	//-------------------------------------------------------------------------------
 	// exp interlayer
