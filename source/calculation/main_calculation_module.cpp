@@ -28,7 +28,106 @@ Main_Calculation_Module::~Main_Calculation_Module()
 //	for(QTreeWidget* copy_Real_Struct_Tree : copy_Real_Struct_Trees)
 //	{
 //		copy_Real_Struct_Tree->clear();
-	//	}
+//	}
+}
+
+void Main_Calculation_Module::increase_Mesh_density(Data_Element<Target_Curve>& target)
+{
+	// PARAMETER
+	Target_Curve* target_Curve = qobject_cast<Target_Curve*>(target.the_Class);
+	if(target_Curve->curve.mesh_Density_Factor>1)
+	{
+		if(target_Curve->curve.argument_Type == whats_This_Angle)
+		{
+			QVector<double>& angle = target_Curve->measurement.angle;
+			QVector<double> dense_Angle;
+			dense_Angle.resize((angle.size()-1)*target_Curve->curve.mesh_Density_Factor+1);
+			for(int i=0; i<angle.size()-1; i++)
+			{
+				for(int dense_Index=0; dense_Index<target_Curve->curve.mesh_Density_Factor; dense_Index++)
+				{
+					double delta_Angle = (angle[i+1]-angle[i])/target_Curve->curve.mesh_Density_Factor;
+					dense_Angle[i*target_Curve->curve.mesh_Density_Factor+dense_Index] = angle[i] + delta_Angle*dense_Index;
+				}
+			}
+			dense_Angle.last() = angle.last();
+			target_Curve->measurement.angle = dense_Angle;
+		}
+		if(target_Curve->curve.argument_Type == whats_This_Wavelength)
+		{
+			QVector<double>& lambda = target_Curve->measurement.lambda;
+			QVector<double> dense_Lambda;
+			dense_Lambda.resize((lambda.size()-1)*target_Curve->curve.mesh_Density_Factor+1);
+			for(int i=0; i<lambda.size()-1; i++)
+			{
+				for(int dense_Index=0; dense_Index<target_Curve->curve.mesh_Density_Factor; dense_Index++)
+				{
+					double delta_Lambda = (lambda[i+1]-lambda[i])/target_Curve->curve.mesh_Density_Factor;
+					dense_Lambda[i*target_Curve->curve.mesh_Density_Factor+dense_Index] = lambda[i] + delta_Lambda*dense_Index;
+				}
+			}
+			dense_Lambda.last() = lambda.last();
+			target_Curve->measurement.lambda = dense_Lambda;
+		}
+	}
+}
+
+void Main_Calculation_Module::decrease_Mesh_density(Data_Element<Target_Curve>& target)
+{
+	// PARAMETER
+
+	// decrease mesh density to default
+	Target_Curve* target_Curve = qobject_cast<Target_Curve*>(target.the_Class);
+	if(target_Curve->curve.mesh_Density_Factor>1)
+	{
+		// decrease argument measurement
+		if(target_Curve->curve.argument_Type == whats_This_Angle)
+		{
+			QVector<double>& angle = target_Curve->measurement.angle;
+			QVector<double> sparse_Angle;
+			sparse_Angle.resize((angle.size()-1)/target_Curve->curve.mesh_Density_Factor+1);
+			for(int i=0; i<sparse_Angle.size(); i++)
+			{
+				sparse_Angle[i] = angle[i*target_Curve->curve.mesh_Density_Factor];
+			}
+			target_Curve->measurement.angle = sparse_Angle;
+		}
+		if(target_Curve->curve.argument_Type == whats_This_Wavelength)
+		{
+			QVector<double>& lambda = target_Curve->measurement.lambda;
+			QVector<double> sparse_Lambda;
+			sparse_Lambda.resize((lambda.size()-1)/target_Curve->curve.mesh_Density_Factor+1);
+			for(int i=0; i<sparse_Lambda.size(); i++)
+			{
+				sparse_Lambda[i] = lambda[i*target_Curve->curve.mesh_Density_Factor];
+			}
+			target_Curve->measurement.lambda = sparse_Lambda;
+		}
+
+//		// decrease value in calc_Functions
+//		QVector<double> sparse_Value;
+//		if(target_Curve->curve.argument_Type == whats_This_Angle)	   {sparse_Value.resize(target_Curve->measurement.angle.size());}
+//		if(target_Curve->curve.argument_Type == whats_This_Wavelength) {sparse_Value.resize(target_Curve->measurement.lambda.size());}
+
+//		if(target.calc_Functions.check_Reflectance)
+//		{
+//			for(int i=0; i<sparse_Value.size(); i++)
+//			{
+//				sparse_Value[i] = target_Curve->calculated_Values.R[i*target_Curve->curve.mesh_Density_Factor];
+//			}
+//			sparse_Value.last() = target_Curve->calculated_Values.R.last();
+//			target_Curve->calculated_Values.R = sparse_Value;
+//		}
+//		if(target.calc_Functions.check_Transmittance)
+//		{
+//			for(int i=0; i<sparse_Value.size(); i++)
+//			{
+//				sparse_Value[i] = target_Curve->calculated_Values.T[i*target_Curve->curve.mesh_Density_Factor];
+//			}
+//			sparse_Value.last() = target_Curve->calculated_Values.T.last();
+//			target_Curve->calculated_Values.T = sparse_Value;
+//		}
+	}
 }
 
 void Main_Calculation_Module::preliminary_Calculation()
@@ -42,7 +141,8 @@ void Main_Calculation_Module::preliminary_Calculation()
 		}
 		calculation_Trees[tab_Index]->fill_Target_Calc_Trees();
 		for(Data_Element<Target_Curve>& target_Element : calculation_Trees[tab_Index]->target)
-		{
+		{			
+			increase_Mesh_density(target_Element);
 			calculation_Trees[tab_Index]->calculate_1_Kind_Preliminary(target_Element);
 		}
 	}
@@ -83,6 +183,7 @@ void Main_Calculation_Module::single_Calculation(bool print_And_Verbose)
 //			calculation_Trees[tab_Index]->print_Tree(target_Element.calc_Tree.begin(), target_Element.calc_Tree);
 //			qInfo() << endl <<counter1++ << endl;
 			calculation_Trees[tab_Index]->calculate_1_Kind(target_Element);
+			decrease_Mesh_density(target_Element);
 			if(lambda_Out_Of_Range) return;
 		}
 	}
@@ -738,7 +839,7 @@ void Main_Calculation_Module::print_Calculated_To_File()
 		}
 		counter = 0;
 		if( multilayers[tab_Index]->enable_Calc_Target_Curves )
-		{
+		{			
 			for(Data_Element<Target_Curve>& target : calculation_Trees[tab_Index]->target)
 			{
 				print_Reflect_To_File(target, multilayer_Tabs->tabText(tab_Index), counter++);

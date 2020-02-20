@@ -115,8 +115,8 @@ public:
 	void calc_Specular();
 
 	double find_Min_Mesh_Step(const QVector<double>& argument);
-	void condense_Curve(const QVector<double>& sparse_Argument, const vector<double>& input_Sparse_Curve, double real_Delta, vector<double>& output_Dense_Curve, vector<double>& output_Dense_Argument);
-	void wrap_Condensed_Curve(const QVector<double>& sparse_Argument, const vector<double>& sparse_Input_Curve, const vector<double>& dense_Argument, const vector<double>& dense_Curve, const vector<double>& resolution, vector<double>& output_Sparse_Curve);
+	void condense_Curve(const QVector<double>& sparse_Argument, const vector<double>* input_Sparse_Curve, double real_Delta, vector<double>& output_Dense_Curve, vector<double>& output_Dense_Argument);
+	void wrap_Condensed_Curve(const QVector<double>& sparse_Argument, const vector<double>* sparse_Input_Curve, const vector<double>& dense_Argument, const vector<double>& dense_Curve, const vector<double>& resolution, vector<double>* output_Sparse_Curve);
 	void interpolate_Curve(int res_Points, const QVector<double>& argument, const vector<double>& resolution, const vector<double>& input_Curve, vector<double>& output_Curve);
 };
 

@@ -1007,17 +1007,15 @@ void Unwrapped_Reflection::calc_Specular()
 
 		// interpolation
 
-		R_Instrumental = R;
-		T_Instrumental = T;
-		A_Instrumental = A;
-		vector<double>& calculated_Curve = R;
-		vector<double>& working_Curve = R_Instrumental;
+		vector<double>* calculated_Curve;
+		vector<double>* working_Curve;
 		if( calc_Functions.check_Reflectance)
-		{	calculated_Curve = R; working_Curve = R_Instrumental;}
+		{	calculated_Curve = &R; R_Instrumental = R; working_Curve = &R_Instrumental;}
 		if( calc_Functions.check_Transmittance)
-		{	calculated_Curve = T; working_Curve = T_Instrumental;}
+		{	calculated_Curve = &T; T_Instrumental = T; working_Curve = &T_Instrumental;}
 		if( calc_Functions.check_Absorptance)
-		{	calculated_Curve = A; working_Curve = A_Instrumental;}
+		{	calculated_Curve = &A; A_Instrumental = A; working_Curve = &A_Instrumental;}
+
 
 		if(active_Parameter_Whats_This == whats_This_Angle)
 		{
@@ -1030,6 +1028,7 @@ void Unwrapped_Reflection::calc_Specular()
 				double first_Argument = measurement.angle.first();
 				double last_Argument  = measurement.angle.last();
 				unsigned long long num_Points_in_Dense_Mesh = ceil( abs(last_Argument - first_Argument)/preliminary_Delta );
+								   num_Points_in_Dense_Mesh = min(num_Points_in_Dense_Mesh, unsigned long long(202020));
 				double real_Delta = (last_Argument - first_Argument)/(num_Points_in_Dense_Mesh-1);  // interpolated curve is equidistant
 
 				// create dense mesh
@@ -1051,6 +1050,7 @@ void Unwrapped_Reflection::calc_Specular()
 				double first_Argument = measurement.lambda.first();
 				double last_Argument  = measurement.lambda.last();
 				unsigned long long num_Points_in_Dense_Mesh = ceil( abs(last_Argument - first_Argument)/preliminary_Delta );
+								   num_Points_in_Dense_Mesh = min(num_Points_in_Dense_Mesh, unsigned long long(202020));
 				double real_Delta = (last_Argument - first_Argument)/(num_Points_in_Dense_Mesh-1);  // interpolated curve is equidistant
 
 				// create dense mesh
@@ -1069,11 +1069,15 @@ void Unwrapped_Reflection::calc_Specular()
 		}
 
 		// any way
-		for(size_t point_Index=0; point_Index<R.size(); ++point_Index)
-		{
-			R_Instrumental[point_Index] += measurement.background.value;
-			T_Instrumental[point_Index] += measurement.background.value;
-			A_Instrumental[point_Index] += measurement.background.value;
+		if( calc_Functions.check_Reflectance)	{
+			for(size_t point_Index=0; point_Index<R.size(); ++point_Index)	{
+				R_Instrumental[point_Index] += measurement.background.value;
+			}
+		}
+		if( calc_Functions.check_Transmittance)	{
+			for(size_t point_Index=0; point_Index<R.size(); ++point_Index)	{
+				T_Instrumental[point_Index] += measurement.background.value;
+			}
 		}
 
 //		auto end = std::chrono::system_clock::now();
@@ -1099,10 +1103,10 @@ double Unwrapped_Reflection::find_Min_Mesh_Step(const QVector<double>& argument)
 	return min;
 }
 
-void Unwrapped_Reflection::wrap_Condensed_Curve(const QVector<double>& sparse_Argument, const vector<double>& sparse_Input_Curve, const vector<double>& dense_Argument, const vector<double>& dense_Curve, const vector<double>& resolution, vector<double>& output_Sparse_Curve)
+void Unwrapped_Reflection::wrap_Condensed_Curve(const QVector<double>& sparse_Argument, const vector<double>* sparse_Input_Curve, const vector<double>& dense_Argument, const vector<double>& dense_Curve, const vector<double>& resolution, vector<double>* output_Sparse_Curve)
 {
 #define Loop_Body 		{																																				\
-							output_Sparse_Curve[point_Index] = 0;																										\
+							(*output_Sparse_Curve)[point_Index] = 0;																										\
 							double weight_Accumulator = DBL_MIN;																										\
 							double weight = DBL_MIN;																													\
 							double distance;																															\
@@ -1115,14 +1119,14 @@ void Unwrapped_Reflection::wrap_Condensed_Curve(const QVector<double>& sparse_Ar
 								distance = abs(dense_Argument[i] - sparse_Argument[point_Index]);																		\
 								weight = exp(-pow(distance/(resolution[point_Index]/2*1.18),2));																		\
 																																										\
-								output_Sparse_Curve[point_Index] += weight*dense_Curve[i];																				\
+								(*output_Sparse_Curve)[point_Index] += weight*dense_Curve[i];																				\
 								weight_Accumulator += weight;																											\
 							}																																			\
 							double self_weight = 0.2;																													\
-							output_Sparse_Curve[point_Index] += self_weight*sparse_Input_Curve[point_Index];															\
+							(*output_Sparse_Curve)[point_Index] += self_weight*(*sparse_Input_Curve)[point_Index];															\
 							weight_Accumulator += self_weight;																											\
 																																										\
-							output_Sparse_Curve[point_Index] /= weight_Accumulator;																						\
+							(*output_Sparse_Curve)[point_Index] /= weight_Accumulator;																						\
 						}																																				\
 // 0.2 is tunable
 
@@ -1147,16 +1151,16 @@ void Unwrapped_Reflection::wrap_Condensed_Curve(const QVector<double>& sparse_Ar
 	}
 }
 
-void Unwrapped_Reflection::condense_Curve(const QVector<double>& sparse_Argument_As_Is, const vector<double>& input_Sparse_Curve_As_Is, double real_Delta, vector<double>& output_Dense_Curve, vector<double>& output_Dense_Argument)
+void Unwrapped_Reflection::condense_Curve(const QVector<double>& sparse_Argument_As_Is, const vector<double>* input_Sparse_Curve_As_Is, double real_Delta, vector<double>& output_Dense_Curve, vector<double>& output_Dense_Argument)
 {
 	// OPTIMIZE
 	const gsl_interp_type* interp_type = gsl_interp_steffen;
 	gsl_interp_accel* Acc = gsl_interp_accel_alloc();
-	gsl_spline* Spline = gsl_spline_alloc(interp_type, input_Sparse_Curve_As_Is.size());
+	gsl_spline* Spline = gsl_spline_alloc(interp_type, (*input_Sparse_Curve_As_Is).size());
 
 	// make argument strictly increasing if necessary
 	QVector<double> sparse_Argument = sparse_Argument_As_Is;
-	vector<double> input_Sparse_Curve = input_Sparse_Curve_As_Is;
+	vector<double> input_Sparse_Curve = (*input_Sparse_Curve_As_Is);
 	bool was_Reversed = false;
 	if(sparse_Argument.first() >= sparse_Argument.last())
 	{

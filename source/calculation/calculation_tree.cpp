@@ -374,8 +374,8 @@ void Calculation_Tree::calculate_1_Kind_Preliminary(Data_Element<Type>& data_Ele
 	data_Element.calc_Functions.check_Reflectance = true;
 
 	// calculation of wavenumbers and cos squares
-	if(data_Element.curve_Class == INDEPENDENT)	data_Element.the_Class->measurement.calc_Independent_cos2_k(); else
-	if(data_Element.curve_Class == TARGET)		data_Element.the_Class->measurement.calc_Measured_cos2_k();
+	if(data_Element.curve_Class == INDEPENDENT)	{data_Element.the_Class->measurement.calc_Independent_cos2_k();} else
+	if(data_Element.curve_Class == TARGET)		{data_Element.the_Class->measurement.calc_Measured_cos2_k();}
 
 	// find active node
 	if(data_Element.curve_Class == INDEPENDENT)

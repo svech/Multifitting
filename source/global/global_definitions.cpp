@@ -307,7 +307,9 @@ QDataStream& operator >>( QDataStream& stream,		 Value& value )
 
 QDataStream& operator <<( QDataStream& stream, const Curve& curve )
 {
-	return stream << curve.use_Subinterval << curve.subinterval_Start << curve.subinterval_End // since 1.10.1
+	return stream << curve.use_Subinterval
+				  << curve.mesh_Density_Factor // Parameter since 1.10.2
+				  << curve.subinterval_Start << curve.subinterval_End // since 1.10.1
 				  << curve.argument << curve.shifted_Argument << curve.values << curve.shifted_Values << curve.arg_Offset << curve.arg_Factor << curve.val_Offset
 				  << curve.val_Factor	// Parameter since 1.10.2
 				  << curve.beam_Intensity_Start << curve.beam_Intensity_Final	// since 1.9.3
@@ -318,7 +320,12 @@ QDataStream& operator <<( QDataStream& stream, const Curve& curve )
 QDataStream& operator >>( QDataStream& stream,		 Curve& curve )
 {
 	if(Global_Variables::check_Loaded_Version(1,10,1))		// since 1.10.1
-	{stream >> curve.use_Subinterval >> curve.subinterval_Start >> curve.subinterval_End;}
+	{stream >> curve.use_Subinterval;
+		if(Global_Variables::check_Loaded_Version(1,10,2))		// since 1.10.2
+		{
+			stream >> curve.mesh_Density_Factor;
+		}
+	 stream >> curve.subinterval_Start >> curve.subinterval_End;}
 
 	stream  >> curve.argument >> curve.shifted_Argument >> curve.values >> curve.shifted_Values >> curve.arg_Offset >> curve.arg_Factor >> curve.val_Offset;
 

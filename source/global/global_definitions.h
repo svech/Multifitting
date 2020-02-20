@@ -687,6 +687,7 @@ struct Calc_Functions			{bool check_Enabled = true;
 // measured/target data types
 struct Value					{double val_1; double val_2; /*double val_3; double val_4;*/};
 struct Curve					{bool use_Subinterval = false;
+								 int mesh_Density_Factor = 1;
 								 double subinterval_Start = 0;
 								 double subinterval_End = 5;
 								 QVector<double> argument; QVector<double> shifted_Argument;

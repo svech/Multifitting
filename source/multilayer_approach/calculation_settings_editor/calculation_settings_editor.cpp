@@ -421,23 +421,60 @@ void Calculation_Settings_Editor::load_Target_Parameters(int tab_Index)
 
 		// content
 		{
-			{
+			{				
+				QHBoxLayout* fit_Layout = new QHBoxLayout;
+					box_Layout->addLayout(fit_Layout);
+
 				// fit
 				QCheckBox* fit = new QCheckBox("Fit");
-					box_Layout->addWidget(fit);
+					fit_Layout->addWidget(fit,Qt::AlignLeft);
 					fit->setChecked(target_Curve->fit_Params.fit);
-				connect(fit,  &QCheckBox::toggled, this, [=]{ target_Curve->fit_Params.fit = fit->isChecked(); });
+				connect(fit,  &QCheckBox::toggled, this, [=]
+				{
+					target_Curve->fit_Params.fit = fit->isChecked();
+					if(target_Curve->fit_Params.fit) {
+						fit->setStyleSheet("QCheckBox { color: green }");
+					} else	{
+						fit->setStyleSheet("QCheckBox { color: black }");
+					}
+				});
+				fit->toggled(fit->isChecked());
+
+				// mesh density
+				QLabel* mesh_Density_Label = new QLabel("Mesh density factor");
+					fit_Layout->addWidget(mesh_Density_Label);
+				QSpinBox* mesh_Density_SpinBox = new QSpinBox;
+					mesh_Density_SpinBox->setRange(1,9);
+					mesh_Density_SpinBox->setSingleStep(1);
+					mesh_Density_SpinBox->setValue(target_Curve->curve.mesh_Density_Factor);
+					mesh_Density_SpinBox->setAccelerated(true);
+					mesh_Density_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
+				Global_Variables::resize_Line_Edit(mesh_Density_SpinBox, false);
+				connect(mesh_Density_SpinBox, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, [=]
+				{
+					target_Curve->curve.mesh_Density_Factor = mesh_Density_SpinBox->value();
+					if(target_Curve->curve.mesh_Density_Factor == 1) {
+						mesh_Density_SpinBox->setStyleSheet("QSpinBox { color: black }");
+						mesh_Density_Label  ->setStyleSheet("QLabel   { color: black }");
+					} else	{
+						mesh_Density_SpinBox->setStyleSheet("QSpinBox { color: blue }");
+						mesh_Density_Label  ->setStyleSheet("QLabel   { color: blue }");
+					}
+				});
+				mesh_Density_SpinBox->valueChanged(mesh_Density_SpinBox->value());
+				fit_Layout->addWidget(mesh_Density_SpinBox,Qt::AlignRight);
+
+
+				QHBoxLayout* weight_Layout = new QHBoxLayout;
+					box_Layout->addLayout(weight_Layout);
 
 				// weght
 				QLabel* weight_Label = new QLabel("Weight");
 				QLineEdit* weight_Line_Edit = new QLineEdit(Locale.toString(target_Curve->fit_Params.weight));
 					weight_Line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION, this));
-
-				QHBoxLayout* weight_Layout = new QHBoxLayout;
 					weight_Layout->addWidget(weight_Label);
 					weight_Layout->addWidget(weight_Line_Edit);
 
-				box_Layout->addLayout(weight_Layout);
 				connect(weight_Line_Edit,  &QLineEdit::textEdited, this, [=]
 				{
 					target_Curve->fit_Params.weight      =      Locale.toDouble(weight_Line_Edit->text());
@@ -471,9 +508,9 @@ void Calculation_Settings_Editor::load_Target_Parameters(int tab_Index)
 					max_Integral_Map.insert(target_Curve, maximize_Integral_Checkbox);
 
 				QHBoxLayout* checkboxes_Layout = new QHBoxLayout;
-					checkboxes_Layout->addWidget(norm_Checkbox);
-					checkboxes_Layout->addWidget(maximize_Integral_Checkbox);
 					box_Layout->addLayout(checkboxes_Layout);
+					checkboxes_Layout->addWidget(norm_Checkbox,0,Qt::AlignLeft);
+					checkboxes_Layout->addWidget(maximize_Integral_Checkbox,0,Qt::AlignRight);
 
 				// -------------------------------------------------------
 				QLabel* function_Label = new QLabel("Function:");
