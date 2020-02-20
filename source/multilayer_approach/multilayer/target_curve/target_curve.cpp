@@ -13,8 +13,8 @@ Target_Curve::Target_Curve(QLabel* description_Label, QTreeWidget* real_Struct_T
 	curve.value_Function = value_Function[Reflectance];
 	curve.value_Mode = value_R_Mode[R];			// R
 
-	curve.arg_Offset = 0; curve.arg_Factor = 1;
-	curve.val_Offset = 0; curve.val_Factor = 1;
+//	curve.arg_Offset = 0; curve.arg_Factor = 1;
+//	curve.val_Offset = 0; curve.val_Factor = 1;
 
 	{
 		plot_Options_Calculated.color=QColor(0, 0, 255);
@@ -182,6 +182,7 @@ void Target_Curve::fill_Measurement_With_Data()
 		// shift has the same units as data
 		curve.shifted_Argument.resize(curve.argument.size());
 		curve.shifted_Values.resize(curve.argument.size());
+		curve.shifted_Values_No_Scaling_And_Offset.resize(curve.argument.size());
 
 		vector<double> intensity_Factor(curve.argument.size(),1);
 		double delta = (curve.beam_Intensity_Final - curve.beam_Intensity_Start)/max(curve.argument.size()-1,1);
@@ -193,8 +194,9 @@ void Target_Curve::fill_Measurement_With_Data()
 
 		for(int i=0; i<curve.argument.size(); ++i)
 		{
-			curve.shifted_Argument[i]     = curve.argument[i]                         * curve.arg_Factor+curve.arg_Offset;
-			curve.shifted_Values[i].val_1 = curve.values[i].val_1/intensity_Factor[i] * curve.val_Factor+curve.val_Offset;
+			curve.shifted_Argument[i]     = curve.argument[i]                         * curve.arg_Factor      +curve.arg_Offset;
+			curve.shifted_Values[i].val_1 = curve.values[i].val_1/intensity_Factor[i] * curve.val_Factor.value+curve.val_Offset;
+			curve.shifted_Values_No_Scaling_And_Offset[i]  = curve.values[i].val_1/intensity_Factor[i];
 			// shift only first
 			curve.shifted_Values[i].val_2 = curve.values[i].val_2;//*curve.val_Factor+curve.val_Offset;
 		}

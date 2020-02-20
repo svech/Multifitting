@@ -47,7 +47,7 @@ double Fitting::func(double argument, int index)
 	// TODO
 //	if(index == 0)
 //	{
-		return log(argument+1E-5);
+		return log(argument+1E-6);
 //	} else
 //	{
 //		return argument;
@@ -380,7 +380,10 @@ void Fitting::fill_Residual(Fitting_Params* params, int& residual_Shift, Data_El
 			for(int point_Index=0; point_Index<N; ++point_Index)
 			{
 				factor = target_Curve->fit_Params.weight_Sqrt/n_P_sqrt;
-				fi_1 = target_Curve->curve.shifted_Values[point_Index].val_1;
+//				fi_1 = target_Curve->curve.shifted_Values[point_Index].val_1;
+				fi_1 = target_Curve->curve.shifted_Values_No_Scaling_And_Offset[point_Index]*
+					   target_Curve->curve.val_Factor.value +
+					   target_Curve->curve.val_Offset;
 				fi_2 = model_Curve[point_Index];
 
 				// use only data from subinterval
@@ -402,10 +405,17 @@ void Fitting::fill_Residual(Fitting_Params* params, int& residual_Shift, Data_El
 				// calculate with expression
 				{
 #ifdef EXPRTK
-					target_Curve->fit_Params.expression_Argument = target_Curve->curve.shifted_Values[point_Index].val_1;
+//					target_Curve->fit_Params.expression_Argument = target_Curve->curve.shifted_Values[point_Index].val_1;
+					target_Curve->fit_Params.expression_Argument = target_Curve->curve.shifted_Values_No_Scaling_And_Offset[point_Index]*
+																   target_Curve->curve.val_Factor.value +
+																   target_Curve->curve.val_Offset;
+
 					fi_1 = target_Curve->fit_Params.expression_Vec[0].value();
 #else
-					fi_1 = func(target_Curve->curve.shifted_Values[point_Index].val_1, index);
+//					fi_1 = func(target_Curve->curve.shifted_Values[point_Index].val_1, index);
+					fi_1 = func(target_Curve->curve.shifted_Values_No_Scaling_And_Offset[point_Index]*
+								target_Curve->curve.val_Factor.value +
+								target_Curve->curve.val_Offset, index);
 #endif
 				}
 				{

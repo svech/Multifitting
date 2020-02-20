@@ -160,6 +160,35 @@ void Main_Calculation_Module::fitting_and_Confidence()
 			// find fitables over tree
 			calc_Tree_Iteration(calculation_Trees[tab_Index]->real_Calc_Tree.begin());
 		}
+
+		// additional fitables: target curve scale factors
+		for(Data_Element<Target_Curve>& target_Element : calculation_Trees[tab_Index]->target)
+		{
+			Parameter* parameter = &(target_Element.the_Class->curve.val_Factor);
+			QString total_Name = "  " + Medium_BlackCircle_Sym + "  <" + multilayer_Tabs->tabText(tab_Index) + "> " + parameter->indicator.full_Name;
+
+			if(parameter->fit.is_Fitable && !target_Element.the_Class->fit_Params.maximize_Integral)
+			{
+				// fixed
+				fitables.struct_Names 		.push_back(multilayer_Tabs->tabText(parameter->indicator.tab_Index));
+				fitables.param_Names		.push_back(parameter->indicator.full_Name);
+				fitables.param_IDs			.push_back(parameter->indicator.id);
+
+				// changeable
+				fitables.param_Pointers		.push_back(parameter);
+				fitables.values_Parametrized.push_back(parametrize(parameter->value, parameter->fit.min, parameter->fit.max)); // will be recalculated at solver initialization
+				tree<Node>::iterator empty_Iterator;
+				fitables.parent_Iterators	.push_back(empty_Iterator);					// used for period and gamma only, but should be filled for all for the length purpose!
+
+				/// for rejection
+
+				// min>=max
+				if(parameter->fit.min>=parameter->fit.max)
+				{
+					fit_Rejected_Min_Max.param_Names.push_back(total_Name);
+				}
+			}
+		}
 	}
 
 	/// fill pointers to slaves

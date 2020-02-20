@@ -603,8 +603,17 @@ void Curve_Plot::plot_All_Data()
 		/// experimental data
 		// first value (R,T,A...)
 		{
-			for(int i=0; i<target_Curve->curve.shifted_Values.size(); ++i)	{
-				values[i] = target_Curve->curve.shifted_Values[i].val_1;
+			if(target_Curve->fit_Params.adjust_Scale_Factor)
+			{
+				for(int i=0; i<target_Curve->curve.shifted_Values.size(); ++i) {
+					values[i] = target_Curve->curve.shifted_Values_No_Scaling_And_Offset[i]*
+								target_Curve->curve.val_Factor.value +
+								target_Curve->curve.val_Offset;
+				}
+			} else {
+				for(int i=0; i<target_Curve->curve.shifted_Values.size(); ++i) {
+					values[i] = target_Curve->curve.shifted_Values[i].val_1;
+				}
 			}
 			plot_Data(argument, values, plot_Options_First, left_Axis);
 			get_Min_Max_For_Graph(plot_Options_First, left_Axis, values, min_Value_Left, max_Value_Left);

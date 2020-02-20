@@ -573,8 +573,9 @@ void Target_Curve_Editor::create_Data_GroupBox()
 			arg_Factor_SpinBox->setAccelerated(true);
 			arg_Factor_SpinBox->setRange(0, MAX_DOUBLE);
 			arg_Factor_SpinBox->setDecimals(5);
-			arg_Factor_SpinBox->setValue(1);
-			arg_Factor_SpinBox->setSingleStep(0.001);
+			arg_Factor_SpinBox->setValue(target_Curve->curve.arg_Factor);
+			arg_Factor_SpinBox->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
+//			arg_Factor_SpinBox->setSingleStep(0.001);
 			arg_Factor_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
 		layout->addWidget(arg_Factor_SpinBox);
 
@@ -582,8 +583,9 @@ void Target_Curve_Editor::create_Data_GroupBox()
 			val_Factor_SpinBox->setAccelerated(true);
 			val_Factor_SpinBox->setRange(0, MAX_DOUBLE);
 			val_Factor_SpinBox->setDecimals(5);
-			val_Factor_SpinBox->setValue(1);
-			val_Factor_SpinBox->setSingleStep(0.001);
+			val_Factor_SpinBox->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
+			val_Factor_SpinBox->setValue(target_Curve->curve.val_Factor.value);
+//			val_Factor_SpinBox->setSingleStep(0.001);
 			val_Factor_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
 		layout->addWidget(val_Factor_SpinBox);
 	}
@@ -592,41 +594,86 @@ void Target_Curve_Editor::create_Data_GroupBox()
 		QVBoxLayout* layout = new QVBoxLayout;
 		hor_Layout->addLayout(layout);
 
-		norm_On_Beam_Intensity = new QCheckBox("Divide on beam intensity");
+		// top
+		QHBoxLayout* top_Sub_Layout = new QHBoxLayout;
+			top_Sub_Layout->setAlignment(Qt::AlignLeft);
+		layout->addLayout(top_Sub_Layout);
+
+		norm_On_Beam_Intensity = new QCheckBox("Divide on beam intensity,");
 			norm_On_Beam_Intensity->setChecked(target_Curve->curve.divide_On_Beam_Intensity);
-		layout->addWidget(norm_On_Beam_Intensity);
+		top_Sub_Layout->addWidget(norm_On_Beam_Intensity);
 
-		QHBoxLayout* sub_Layout = new QHBoxLayout;
-		layout->addLayout(sub_Layout);
-
-		beam_Intensity_Start_Label = new QLabel("Incident photons per point, start:");
+		beam_Intensity_Start_Label = new QLabel("start:");
 			beam_Intensity_Start_Label->setDisabled(true);
-		sub_Layout->addWidget(beam_Intensity_Start_Label);
+		top_Sub_Layout->addWidget(beam_Intensity_Start_Label);
 
 		beam_Intensity_Start_SpinBox = new MyDoubleSpinBox;
 			beam_Intensity_Start_SpinBox->setAccelerated(true);
 			beam_Intensity_Start_SpinBox->setRange(0, MAX_DOUBLE);
 			beam_Intensity_Start_SpinBox->setDecimals(0);
 			beam_Intensity_Start_SpinBox->setValue(target_Curve->curve.beam_Intensity_Start);
-			beam_Intensity_Start_SpinBox->setSingleStep(10);
+			beam_Intensity_Start_SpinBox->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
+//			beam_Intensity_Start_SpinBox->setSingleStep(10);
 			beam_Intensity_Start_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
 			beam_Intensity_Start_SpinBox->setProperty(min_Size_Property, TARGET_BEAM_INTENSITY_WIDTH);
 		Global_Variables::resize_Line_Edit(beam_Intensity_Start_SpinBox, false);
-		sub_Layout->addWidget(beam_Intensity_Start_SpinBox);
+		top_Sub_Layout->addWidget(beam_Intensity_Start_SpinBox);
 
 		beam_Intensity_Final_Label = new QLabel("  final:");
-		sub_Layout->addWidget(beam_Intensity_Final_Label);
+		top_Sub_Layout->addWidget(beam_Intensity_Final_Label);
 
 		beam_Intensity_Final_SpinBox = new MyDoubleSpinBox;
 			beam_Intensity_Final_SpinBox->setAccelerated(true);
 			beam_Intensity_Final_SpinBox->setRange(0, MAX_DOUBLE);
 			beam_Intensity_Final_SpinBox->setDecimals(0);
 			beam_Intensity_Final_SpinBox->setValue(target_Curve->curve.beam_Intensity_Final);
-			beam_Intensity_Final_SpinBox->setSingleStep(10);
+			beam_Intensity_Final_SpinBox->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
+//			beam_Intensity_Final_SpinBox->setSingleStep(10);
 			beam_Intensity_Final_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
 			beam_Intensity_Final_SpinBox->setProperty(min_Size_Property, TARGET_BEAM_INTENSITY_WIDTH);
 		Global_Variables::resize_Line_Edit(beam_Intensity_Final_SpinBox, false);
-		sub_Layout->addWidget(beam_Intensity_Final_SpinBox);
+		top_Sub_Layout->addWidget(beam_Intensity_Final_SpinBox);
+
+		// bottom
+		QHBoxLayout* bottom_Sub_Layout = new QHBoxLayout;
+			bottom_Sub_Layout->setAlignment(Qt::AlignLeft);
+		layout->addLayout(bottom_Sub_Layout);
+
+		// min
+		QLabel* scale_Factor_Min_Label = new QLabel(", min");
+			bottom_Sub_Layout->addWidget(scale_Factor_Min_Label);
+		MyDoubleSpinBox* scale_Factor_Min_SpinBox = new MyDoubleSpinBox(this);
+			scale_Factor_Min_SpinBox->setRange(1E-5,MAX_DOUBLE);
+			scale_Factor_Min_SpinBox->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
+			scale_Factor_Min_SpinBox->setDecimals(5);
+//			scale_Factor_Min_SpinBox->setSingleStep(0.01);
+			scale_Factor_Min_SpinBox->setValue(target_Curve->curve.val_Factor.fit.min);
+			scale_Factor_Min_SpinBox->setAccelerated(true);
+			scale_Factor_Min_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
+		Global_Variables::resize_Line_Edit(scale_Factor_Min_SpinBox, false);
+		connect(scale_Factor_Min_SpinBox, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
+		{
+			target_Curve->curve.val_Factor.fit.min = scale_Factor_Min_SpinBox->value();
+		});
+		bottom_Sub_Layout->addWidget(scale_Factor_Min_SpinBox);
+
+		// max
+		QLabel* scale_Factor_Max_Label = new QLabel("max");
+			bottom_Sub_Layout->addWidget(scale_Factor_Max_Label);
+		MyDoubleSpinBox* scale_Factor_Max_SpinBox = new MyDoubleSpinBox(this);
+			scale_Factor_Max_SpinBox->setRange(1E-5,MAX_DOUBLE);
+			scale_Factor_Max_SpinBox->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
+			scale_Factor_Max_SpinBox->setDecimals(5);
+//			scale_Factor_Max_SpinBox->setSingleStep(0.01);
+			scale_Factor_Max_SpinBox->setValue(target_Curve->curve.val_Factor.fit.max);
+			scale_Factor_Max_SpinBox->setAccelerated(true);
+			scale_Factor_Max_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
+		Global_Variables::resize_Line_Edit(scale_Factor_Max_SpinBox, false);
+		connect(scale_Factor_Max_SpinBox, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
+		{
+			target_Curve->curve.val_Factor.fit.max = scale_Factor_Max_SpinBox->value();
+		});
+		bottom_Sub_Layout->addWidget(scale_Factor_Max_SpinBox);
 	}
 	data_GroupBox_Layout->addLayout(hor_Layout);
 
@@ -1007,8 +1054,8 @@ void Target_Curve_Editor::show_Curve_Data()
 
 	// scale factors
 	{
-		arg_Factor_SpinBox->setValue(target_Curve->curve.arg_Factor); Global_Variables::resize_Line_Edit(arg_Factor_SpinBox, false);
-		val_Factor_SpinBox->setValue(target_Curve->curve.val_Factor); Global_Variables::resize_Line_Edit(val_Factor_SpinBox, false);
+		arg_Factor_SpinBox->setValue(target_Curve->curve.arg_Factor      ); Global_Variables::resize_Line_Edit(arg_Factor_SpinBox, false);
+		val_Factor_SpinBox->setValue(target_Curve->curve.val_Factor.value); Global_Variables::resize_Line_Edit(val_Factor_SpinBox, false);
 	}
 }
 
@@ -1220,8 +1267,8 @@ void Target_Curve_Editor::refresh_Offsets()
 
 void Target_Curve_Editor::refresh_Factors()
 {
-	if(arg_Factor_SpinBox->value() > DBL_EPSILON) target_Curve->curve.arg_Factor = arg_Factor_SpinBox->value();
-	if(val_Factor_SpinBox->value() > DBL_EPSILON) target_Curve->curve.val_Factor = val_Factor_SpinBox->value();
+	if(arg_Factor_SpinBox->value() > DBL_EPSILON) target_Curve->curve.arg_Factor       = arg_Factor_SpinBox->value();
+	if(val_Factor_SpinBox->value() > DBL_EPSILON) target_Curve->curve.val_Factor.value = val_Factor_SpinBox->value();
 	target_Curve->fill_Measurement_With_Data();
 	target_Curve->show_Description_Label();
 	target_Curve_Plot->plot_Data(true);

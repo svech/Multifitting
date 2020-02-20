@@ -422,11 +422,13 @@ void Calculation_Settings_Editor::load_Target_Parameters(int tab_Index)
 		// content
 		{
 			{
+				// fit
 				QCheckBox* fit = new QCheckBox("Fit");
 					box_Layout->addWidget(fit);
 					fit->setChecked(target_Curve->fit_Params.fit);
 				connect(fit,  &QCheckBox::toggled, this, [=]{ target_Curve->fit_Params.fit = fit->isChecked(); });
 
+				// weght
 				QLabel* weight_Label = new QLabel("Weight");
 				QLineEdit* weight_Line_Edit = new QLineEdit(Locale.toString(target_Curve->fit_Params.weight));
 					weight_Line_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION, this));
@@ -442,6 +444,22 @@ void Calculation_Settings_Editor::load_Target_Parameters(int tab_Index)
 					target_Curve->fit_Params.weight_Sqrt = sqrt(Locale.toDouble(weight_Line_Edit->text()));
 				});
 				different_Lines.append(weight_Line_Edit);
+
+				// scale factor
+				QCheckBox* adjust_Scale_Factor = new QCheckBox("Adjust scale factor");
+					weight_Layout->addWidget(adjust_Scale_Factor);
+					adjust_Scale_Factor->setChecked(target_Curve->fit_Params.adjust_Scale_Factor);
+				connect(adjust_Scale_Factor,  &QCheckBox::toggled, this, [=]
+				{
+					target_Curve->fit_Params.adjust_Scale_Factor = adjust_Scale_Factor->isChecked();
+					target_Curve->curve.val_Factor.fit.is_Fitable = target_Curve->fit_Params.adjust_Scale_Factor;
+					if(target_Curve->fit_Params.adjust_Scale_Factor) {
+						adjust_Scale_Factor->setStyleSheet("QCheckBox { color: red }");
+					} else	{
+						adjust_Scale_Factor->setStyleSheet("QCheckBox { color: black }");
+					}
+				});
+				adjust_Scale_Factor->toggled(adjust_Scale_Factor->isChecked());
 			}
 			{
 				QCheckBox* norm_Checkbox = new QCheckBox("Divide by N");
@@ -645,50 +663,51 @@ void Calculation_Settings_Editor::load_Independent_Parameters(int tab_Index)
 				connect(transmit_Functions, &QCheckBox::toggled, this, [=]{ refresh_Independent_Calc_Properties(tab_Index, independent_Index, box); });
 				connect(absorp_Functions,   &QCheckBox::toggled, this, [=]{ refresh_Independent_Calc_Properties(tab_Index, independent_Index, box); });
 			}
-			{
-				QGroupBox* field_Functions_Group_Box = new QGroupBox("Field Functions");
-					field_Functions_Group_Box->setObjectName("field_Functions_Group_Box");
-					field_Functions_Group_Box->setStyleSheet("QGroupBox#field_Functions_Group_Box { border-radius: 2px;  border: 1px solid gray; margin-top: 1ex;}"
-															 "QGroupBox::title    { subcontrol-origin: margin;	 left: 9px; padding: 0 0px 0 1px;}");
-				box_Layout->addWidget(field_Functions_Group_Box);
+			// TODO
+//			{
+//				QGroupBox* field_Functions_Group_Box = new QGroupBox("Field Functions");
+//					field_Functions_Group_Box->setObjectName("field_Functions_Group_Box");
+//					field_Functions_Group_Box->setStyleSheet("QGroupBox#field_Functions_Group_Box { border-radius: 2px;  border: 1px solid gray; margin-top: 1ex;}"
+//															 "QGroupBox::title    { subcontrol-origin: margin;	 left: 9px; padding: 0 0px 0 1px;}");
+//				box_Layout->addWidget(field_Functions_Group_Box);
 
-				QHBoxLayout* field_Functions_Layout = new QHBoxLayout(field_Functions_Group_Box);
-					field_Functions_Layout->setAlignment(Qt::AlignLeft);
-					QCheckBox* field_Intensity = new QCheckBox(intensity_Function);
-						field_Functions_Layout->addWidget(field_Intensity);
-						field_Intensity->setChecked(independent_Variables->calc_Functions.check_Field);
-/* TODO */				field_Intensity->setDisabled(true);
-					QCheckBox* joule_Absorption= new QCheckBox(joule_Function);
-						field_Functions_Layout->addWidget(joule_Absorption);
-						joule_Absorption->setChecked(independent_Variables->calc_Functions.check_Joule);
-/* TODO */				joule_Absorption->setDisabled(true);
+//				QHBoxLayout* field_Functions_Layout = new QHBoxLayout(field_Functions_Group_Box);
+//					field_Functions_Layout->setAlignment(Qt::AlignLeft);
+//					QCheckBox* field_Intensity = new QCheckBox(intensity_Function);
+//						field_Functions_Layout->addWidget(field_Intensity);
+//						field_Intensity->setChecked(independent_Variables->calc_Functions.check_Field);
+///* TODO */				field_Intensity->setDisabled(true);
+//					QCheckBox* joule_Absorption= new QCheckBox(joule_Function);
+//						field_Functions_Layout->addWidget(joule_Absorption);
+//						joule_Absorption->setChecked(independent_Variables->calc_Functions.check_Joule);
+///* TODO */				joule_Absorption->setDisabled(true);
 
-				connect(field_Intensity,  &QCheckBox::toggled, this, [=]{ refresh_Independent_Calc_Properties(tab_Index, independent_Index, box); });
-				connect(joule_Absorption, &QCheckBox::toggled, this, [=]{ refresh_Independent_Calc_Properties(tab_Index, independent_Index, box); });
-			}
-			{
-				QGroupBox* user_Functions_Group_Box = new QGroupBox("User-defined Functions");
-					user_Functions_Group_Box->setObjectName("user_Functions_Group_Box");
-					user_Functions_Group_Box->setStyleSheet("QGroupBox#user_Functions_Group_Box { border-radius: 2px;  border: 1px solid gray; margin-top: 1ex;}"
-															"QGroupBox::title    { subcontrol-origin: margin;	 left: 9px; padding: 0 0px 0 1px;}");
-				box_Layout->addWidget(user_Functions_Group_Box);
+//				connect(field_Intensity,  &QCheckBox::toggled, this, [=]{ refresh_Independent_Calc_Properties(tab_Index, independent_Index, box); });
+//				connect(joule_Absorption, &QCheckBox::toggled, this, [=]{ refresh_Independent_Calc_Properties(tab_Index, independent_Index, box); });
+//			}
+//			{
+//				QGroupBox* user_Functions_Group_Box = new QGroupBox("User-defined Functions");
+//					user_Functions_Group_Box->setObjectName("user_Functions_Group_Box");
+//					user_Functions_Group_Box->setStyleSheet("QGroupBox#user_Functions_Group_Box { border-radius: 2px;  border: 1px solid gray; margin-top: 1ex;}"
+//															"QGroupBox::title    { subcontrol-origin: margin;	 left: 9px; padding: 0 0px 0 1px;}");
+//				box_Layout->addWidget(user_Functions_Group_Box);
 
-				QHBoxLayout* user_Functions_Layout = new QHBoxLayout(user_Functions_Group_Box);
-					user_Functions_Layout->setAlignment(Qt::AlignLeft);
-					QCheckBox* user_Supplied_Functions_Check = new QCheckBox(user_Function);
-						user_Functions_Layout->addWidget(user_Supplied_Functions_Check);
-						user_Supplied_Functions_Check->setChecked(independent_Variables->calc_Functions.check_User);
-/* TODO */				user_Supplied_Functions_Check->setDisabled(true);
-					QLineEdit* user_Supplied_Functions = new QLineEdit;
-						user_Functions_Layout->addWidget(user_Supplied_Functions);
-						user_Supplied_Functions->setText(independent_Variables->calc_Functions.user_Functions);
-						user_Supplied_Functions->setEnabled(independent_Variables->calc_Functions.check_User);
+//				QHBoxLayout* user_Functions_Layout = new QHBoxLayout(user_Functions_Group_Box);
+//					user_Functions_Layout->setAlignment(Qt::AlignLeft);
+//					QCheckBox* user_Supplied_Functions_Check = new QCheckBox(user_Function);
+//						user_Functions_Layout->addWidget(user_Supplied_Functions_Check);
+//						user_Supplied_Functions_Check->setChecked(independent_Variables->calc_Functions.check_User);
+///* TODO */				user_Supplied_Functions_Check->setDisabled(true);
+//					QLineEdit* user_Supplied_Functions = new QLineEdit;
+//						user_Functions_Layout->addWidget(user_Supplied_Functions);
+//						user_Supplied_Functions->setText(independent_Variables->calc_Functions.user_Functions);
+//						user_Supplied_Functions->setEnabled(independent_Variables->calc_Functions.check_User);
 
 
-				connect(user_Supplied_Functions_Check,  &QCheckBox::toggled,		 this, [=]{ refresh_Independent_Calc_Properties(tab_Index, independent_Index, box); user_Supplied_Functions->setEnabled(independent_Variables->calc_Functions.check_User);});
-				connect(user_Supplied_Functions,		&QLineEdit::editingFinished, this, [=]{ refresh_Independent_Calc_Properties(tab_Index, independent_Index, box); });
-				different_Lines.append(user_Supplied_Functions);
-			}
+//				connect(user_Supplied_Functions_Check,  &QCheckBox::toggled,		 this, [=]{ refresh_Independent_Calc_Properties(tab_Index, independent_Index, box); user_Supplied_Functions->setEnabled(independent_Variables->calc_Functions.check_User);});
+//				connect(user_Supplied_Functions,		&QLineEdit::editingFinished, this, [=]{ refresh_Independent_Calc_Properties(tab_Index, independent_Index, box); });
+//				different_Lines.append(user_Supplied_Functions);
+//			}
 		}
 	}
 	if(!horizontal_Layout->parent()) delete horizontal_Layout;

@@ -308,7 +308,8 @@ QDataStream& operator >>( QDataStream& stream,		 Value& value )
 QDataStream& operator <<( QDataStream& stream, const Curve& curve )
 {
 	return stream << curve.use_Subinterval << curve.subinterval_Start << curve.subinterval_End // since 1.10.1
-				  << curve.argument << curve.shifted_Argument << curve.values << curve.shifted_Values << curve.arg_Offset << curve.arg_Factor << curve.val_Offset << curve.val_Factor
+				  << curve.argument << curve.shifted_Argument << curve.values << curve.shifted_Values << curve.arg_Offset << curve.arg_Factor << curve.val_Offset
+				  << curve.val_Factor	// Parameter since 1.10.2
 				  << curve.beam_Intensity_Start << curve.beam_Intensity_Final	// since 1.9.3
 				  << curve. divide_On_Beam_Intensity							// since 1.8.1
 
@@ -317,11 +318,19 @@ QDataStream& operator <<( QDataStream& stream, const Curve& curve )
 QDataStream& operator >>( QDataStream& stream,		 Curve& curve )
 {
 	if(Global_Variables::check_Loaded_Version(1,10,1))		// since 1.10.1
-	{
-		stream >> curve.use_Subinterval >> curve.subinterval_Start >> curve.subinterval_End;
+	{stream >> curve.use_Subinterval >> curve.subinterval_Start >> curve.subinterval_End;}
+
+	stream  >> curve.argument >> curve.shifted_Argument >> curve.values >> curve.shifted_Values >> curve.arg_Offset >> curve.arg_Factor >> curve.val_Offset;
+
+	// indtead of loading shifted_Values_No_Scaling_And_Offset // since 1.10.2
+	curve.shifted_Values_No_Scaling_And_Offset.resize(curve.shifted_Values.size());
+	for(int i=0; i<curve.shifted_Values.size(); i++)	{
+		curve.shifted_Values_No_Scaling_And_Offset[i] = (curve.shifted_Values[i].val_1 - curve.val_Offset)/curve.val_Factor.value; // since 1.10.2
 	}
 
-	stream  >> curve.argument >> curve.shifted_Argument >> curve.values >> curve.shifted_Values >> curve.arg_Offset >> curve.arg_Factor >> curve.val_Offset >> curve.val_Factor;
+	if(Global_Variables::check_Loaded_Version(1,10,2))		// since 1.10.2
+		 {stream >> curve.val_Factor;}
+	else {stream >> curve.val_Factor.value;}
 
 	if(Global_Variables::check_Loaded_Version(1,7,1))		// since 1.7.1
 	{
@@ -344,6 +353,7 @@ QDataStream& operator >>( QDataStream& stream,		 Curve& curve )
 QDataStream& operator <<( QDataStream& stream, const Fit_Params& fit_Params )
 {
 	return stream << fit_Params.calc << fit_Params.fit << fit_Params.norm
+				  << fit_Params.adjust_Scale_Factor // since 1.10.2
 				  << fit_Params.maximize_Integral // since 1.9.3
 				  << fit_Params.weight << fit_Params.fit_Function
 				  << fit_Params.use_Chi2 // since 1.8.1
@@ -352,6 +362,9 @@ QDataStream& operator <<( QDataStream& stream, const Fit_Params& fit_Params )
 QDataStream& operator >>( QDataStream& stream,		 Fit_Params& fit_Params )
 {
 	stream >> fit_Params.calc >> fit_Params.fit >> fit_Params.norm;
+
+	if(Global_Variables::check_Loaded_Version(1,10,2))
+	{stream >> fit_Params.adjust_Scale_Factor;}
 
 	if(Global_Variables::check_Loaded_Version(1,9,3))
 	{stream >> fit_Params.maximize_Integral; }			// since 1.9.3

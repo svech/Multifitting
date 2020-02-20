@@ -691,8 +691,10 @@ struct Curve					{bool use_Subinterval = false;
 								 double subinterval_End = 5;
 								 QVector<double> argument; QVector<double> shifted_Argument;
 								 QVector<Value> values;	   QVector<Value> shifted_Values;
+														   vector<double> shifted_Values_No_Scaling_And_Offset; // without saving, for fitting purposes
 								 double arg_Offset = 0; double arg_Factor = 1; bool divide_On_Beam_Intensity = true;
-								 double val_Offset = 0; double val_Factor = 1; double beam_Intensity_Start = 1; double beam_Intensity_Final = 1;
+								 double val_Offset = 0; Parameter val_Factor;  double beam_Intensity_Start = 1; double beam_Intensity_Final = 1;
+
 								 QString argument_Type;
 								 QString angle_Type;
 								 QString angular_Units;
@@ -700,10 +702,20 @@ struct Curve					{bool use_Subinterval = false;
 
 								 QString value_Function;
 								 QString value_Mode;
+
+								 Curve()
+								 {
+									 val_Factor.value = 1;
+									 val_Factor.fit.min = 0.1;
+									 val_Factor.fit.max = 10;
+
+									 val_Factor.indicator.full_Name = "Target curve scale factor";
+								 }
 								};
 struct Fit_Params				{bool calc = true;
 								 bool fit = true;
 								 bool norm = true;
+								 bool adjust_Scale_Factor = false;
 								 bool maximize_Integral = false;
 								 double weight = 1;
 								 double weight_Sqrt = 1;
