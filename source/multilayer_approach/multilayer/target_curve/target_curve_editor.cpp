@@ -89,22 +89,13 @@ void Target_Curve_Editor::browse_Data_File()
 void Target_Curve_Editor::export_Data_File()
 {
 	QFile file = QFileDialog::getSaveFileName(this, "Export Loaded Curve", filepath_ComboBox->lineEdit()->text(), "Text data (*.txt *.dat *.xy);;All files (*.*)");
-	QFileInfo filename = QDir::toNativeSeparators(file.fileName());
+	file.open(QIODevice::WriteOnly);
+	QTextStream out(&file);
+	for(QString line : target_Curve->lines_List)
 	{
-		if (file.open(QIODevice::WriteOnly))
-		{
-			QTextStream out(&file);
-			for(QString line : target_Curve->lines_List)
-			{
-				out << line << endl;
-			}
-			file.close();
-		} else
-		{
-			QMessageBox::critical(nullptr, "Target_Curve_Editor::export_Data_File", "Can't write file " + filename.fileName());
-			exit(EXIT_FAILURE);
-		}
+		out << line << endl;
 	}
+	file.close();
 }
 
 void Target_Curve_Editor::fill_Arg_Units_ComboBox(QString arg_Type)

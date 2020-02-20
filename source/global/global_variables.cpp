@@ -356,7 +356,7 @@ QString soft_Restriction_Color				= "QWidget { background: rgb(94,  244, 227); }
 // -----------------------------------------------------------------------------------------
 
 QPen subinterval_Plot_Pen = QPen(Qt::transparent);
-QBrush subinterval_Plot_Brush = QBrush(QColor(0, 0, 255, 15));
+QBrush subinterval_Plot_Brush = QBrush(QColor(0, 0, 255, 35));
 
 QVector<QColor> color_Contrast_Sequence = { QColor(0, 205, 0),
 											QColor(255, 0, 0),
