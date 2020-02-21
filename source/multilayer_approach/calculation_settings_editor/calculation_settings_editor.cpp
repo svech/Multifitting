@@ -440,6 +440,26 @@ void Calculation_Settings_Editor::load_Target_Parameters(int tab_Index)
 				});
 				fit->toggled(fit->isChecked());
 
+				// mesh shift
+				QLabel* shift_Label = new QLabel("Shift");
+					fit_Layout->addWidget(shift_Label);
+				MyDoubleSpinBox* shift_SpinBox = new MyDoubleSpinBox(this, true);
+					shift_SpinBox->setRange(-0.9,0.9);
+					shift_SpinBox->setDecimals(2);
+					shift_SpinBox->setSingleStep(0.01);
+					shift_SpinBox->setValue(target_Curve->curve.mesh_Density_Shift);
+					shift_SpinBox->setAccelerated(true);
+					shift_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
+					shift_SpinBox->setFixedWidth(32);
+				connect(shift_SpinBox, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
+				{
+					target_Curve->curve.mesh_Density_Shift = shift_SpinBox->value();
+					if(target_Curve->curve.mesh_Density_Factor > 1) {
+						global_Multilayer_Approach->calc_Reflection(true);
+					}
+				});
+				shift_SpinBox->valueChanged(shift_SpinBox->value());
+
 				// mesh density
 				QLabel* mesh_Density_Label = new QLabel("Mesh density factor");
 					fit_Layout->addWidget(mesh_Density_Label);
@@ -453,16 +473,24 @@ void Calculation_Settings_Editor::load_Target_Parameters(int tab_Index)
 				connect(mesh_Density_SpinBox, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, [=]
 				{
 					target_Curve->curve.mesh_Density_Factor = mesh_Density_SpinBox->value();
+					global_Multilayer_Approach->calc_Reflection(true);
 					if(target_Curve->curve.mesh_Density_Factor == 1) {
 						mesh_Density_SpinBox->setStyleSheet("QSpinBox { color: black }");
 						mesh_Density_Label  ->setStyleSheet("QLabel   { color: black }");
+						shift_SpinBox		->setStyleSheet("QSpinBox { color: black }");
+						shift_Label			->setStyleSheet("QLabel   { color: black }");
 					} else	{
 						mesh_Density_SpinBox->setStyleSheet("QSpinBox { color: blue }");
 						mesh_Density_Label  ->setStyleSheet("QLabel   { color: blue }");
+						shift_SpinBox		->setStyleSheet("QSpinBox { color: blue }");
+						shift_Label			->setStyleSheet("QLabel   { color: blue }");
 					}
 				});
 				mesh_Density_SpinBox->valueChanged(mesh_Density_SpinBox->value());
 				fit_Layout->addWidget(mesh_Density_SpinBox,Qt::AlignRight);
+
+				fit_Layout->addWidget(shift_Label);
+				fit_Layout->addWidget(shift_SpinBox,Qt::AlignRight);
 
 
 				QHBoxLayout* weight_Layout = new QHBoxLayout;

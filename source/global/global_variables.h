@@ -277,6 +277,7 @@ public:
 	static void variable_Drift(double& value, Drift& drift, int period_Index, int num_Repetition, gsl_rng *r);
 	static void get_Prefix_Suffix(double& prefix, double& suffix, double max_Sigma);
 	static void discretize_Prefix_Suffix(double prefix, double suffix, int& num_Prefix_Slices, int& num_Suffix_Slices, vector<double>& discrete_Step_Vector, double default_Step);
+	static void get_Peak_Parameters(const QVector<double>& argument, const QVector<double>& values, double& max_Value_Position, double& max_Value, double& width);
 
 	// profile functions
 	static double theta_Function(double z);

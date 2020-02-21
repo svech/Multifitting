@@ -692,10 +692,20 @@ void Curve_Plot::plot_All_Data()
 	if(multilayer->graph_Options.show_Max_Value)
 	if(graph_Done && multilayer->graph_Options.show_Max_Value)
 	{
-		double max_Value = *std::max_element(values.begin(), values.end());
-		int max_Value_Position_Index = values.indexOf(max_Value);
-		double max_Value_Position = argument[max_Value_Position_Index];
-		max_Value_Label->setText(max_Value_Title + " " + Locale.toString(max_Value,'f',4) + " at " + Locale.toString(max_Value_Position,'f',4) + " " + argument_Units);
+		if(argument.size()>3)
+		{
+			double max_Value, max_Value_Position, width;
+			Global_Variables::get_Peak_Parameters(argument, values, max_Value_Position, max_Value, width);
+
+			max_Value_Label->setText(max_Value_Title + " " + Locale.toString(max_Value,'f',4) + " at " + Locale.toString(max_Value_Position,'f',4) + " " + argument_Units);
+			if(*argument_Type == whats_This_Wavelength)
+			{
+				max_Value_Label->setText(max_Value_Label->text() + ", FWHM " + Locale.toString(width,'f',4) + " " + argument_Units);
+			}
+		} else
+		{
+			max_Value_Label->clear();
+		}
 	}
 	custom_Plot->replot();
 }

@@ -37,7 +37,7 @@ public:
 	size_t number_Of_Restricted_Regular_Components = 0;
 
 	void increase_Mesh_density(Data_Element<Target_Curve>& target);
-	void decrease_Mesh_density(Data_Element<Target_Curve>& target);
+	void decrease_Mesh_density(Data_Element<Target_Curve>& target, bool fit_Mode = false);
 	void preliminary_Calculation();
 	void single_Calculation(bool print_And_Verbose = true);
 	void fitting_and_Confidence();

@@ -1286,6 +1286,50 @@ void Global_Variables::discretize_Prefix_Suffix(double prefix, double suffix, in
 	for(int i=0; i<num_Suffix_Slices; i++) {discrete_Step_Vector.push_back(adapted_Suffix_Step);}
 }
 
+void Global_Variables::get_Peak_Parameters(const QVector<double>& argument, const QVector<double>& values, double& max_Value_Position, double& max_Value, double& width)
+{
+	max_Value = *std::max_element(values.begin(), values.end());
+	int max_Value_Position_Index = values.indexOf(max_Value);
+	max_Value_Position = argument[max_Value_Position_Index];
+
+	// go left
+	int i_0=0;
+	double left_Wall_Position = argument.first();
+	for(int i=max_Value_Position_Index; i>=0; i--)
+	{
+		if(values[i]<=max_Value/2)
+		{
+			left_Wall_Position = argument[i];
+			i_0 = i;
+			break;
+		}
+	}
+	double curr_Value = values[i_0];
+	double prev_Value = values[i_0+1];
+	double a = abs(curr_Value-max_Value/2);
+	double b = abs(prev_Value-max_Value/2);
+	left_Wall_Position = argument[i_0]+a/(a+b)*(argument[i_0+1]-argument[i_0]);
+
+	// go right
+	double right_Wall_Position = argument.last();;
+	for(int i=max_Value_Position_Index; i<values.size(); i++)
+	{
+		if(values[i]<=max_Value/2)
+		{
+			right_Wall_Position = argument[i];
+			i_0 = i;
+			break;
+		}
+	}
+	curr_Value = values[i_0];
+	prev_Value = values[i_0-1];
+	a = abs(curr_Value-max_Value/2);
+	b = abs(prev_Value-max_Value/2);
+	right_Wall_Position = argument[i_0]+a/(a+b)*(argument[i_0-1]-argument[i_0]);
+
+	width = abs(right_Wall_Position-left_Wall_Position);
+}
+
 double Global_Variables::theta_Function(double z)
 {
 	if(z<0)  return 0;
