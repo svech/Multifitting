@@ -44,7 +44,7 @@ void Menu::add_Menu_Points()
 	{
 		item_Editor = qobject_cast<Item_Editor*>(my_Parent);
 //		create_File_Menu();
-			menu_Bar->addMenu(file_Menu);
+//			menu_Bar->addMenu(file_Menu);
 		create_Item_Length_Units_Menu();
 			menu_Bar->addMenu(menu_Length_Units);
 		create_Item_Precision_Menu();
@@ -461,8 +461,8 @@ void Menu::create_Item_Length_Units_Menu()
 	// PARAMETER
 
 	QString item_Type = item_Editor->item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>().item_Type;
-	if(item_Type == item_Type_Ambient)	{menu_Length_Units->setDisabled(true);}
 	create_Length_Units_Menu();
+	if(item_Type == item_Type_Ambient)	{menu_Length_Units->setDisabled(true);}
 }
 
 void Menu::create_Item_Precision_Menu()

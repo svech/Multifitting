@@ -651,8 +651,8 @@ void Curve_Plot::plot_All_Data()
 		if(	*argument_Type == whats_This_Angle )	 {	argument = measurement->angle;	}
 		if(	*argument_Type == whats_This_Wavelength ){	argument = measurement->lambda;	}
 
-		if(	independent_Variables->calc_Functions.check_Reflectance)   { values = calculated_Values->R; } else
-		if(	independent_Variables->calc_Functions.check_Transmittance) { values = calculated_Values->T; } else
+		if(	independent_Variables->calc_Functions.check_Reflectance)   { values = calculated_Values->R; } /*else*/
+		if(	independent_Variables->calc_Functions.check_Transmittance) { values = calculated_Values->T; } /*else*/
 		if(	independent_Variables->calc_Functions.check_Absorptance)   { values = calculated_Values->A; }
 		// TODO
 //		else
