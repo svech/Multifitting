@@ -18,16 +18,18 @@ void Menu::add_Menu_Points()
 {
 	// for all
 	{
-//		create_File_Menu();
+		create_File_Menu();
 	}
 	if(window_Type == window_Type_Multilayer_Approach)
 	{
-		create_File_Menu();
+//		create_File_Menu();
 			menu_Bar->addMenu(file_Menu);
 		create_Calculate_Menu();
 			menu_Bar->addMenu(calculate_Menu);
 		create_Optical_Constants_Menu();
 			menu_Bar->addMenu(optical_Constants_Menu);
+		create_Help_Menu();
+			menu_Bar->addMenu(help_Menu);
 	}
 	if(window_Type == window_Type_Independent_Variables_Editor)
 	{
@@ -41,7 +43,7 @@ void Menu::add_Menu_Points()
 	if(window_Type == window_Type_Item_Editor)
 	{
 		item_Editor = qobject_cast<Item_Editor*>(my_Parent);
-		create_File_Menu();
+//		create_File_Menu();
 			menu_Bar->addMenu(file_Menu);
 		create_Item_Length_Units_Menu();
 			menu_Bar->addMenu(menu_Length_Units);
@@ -50,7 +52,7 @@ void Menu::add_Menu_Points()
 	}
 	if(window_Type == window_Type_Table_Of_Structures || window_Type == window_Type_Table_Of_Roughness)
 	{
-		create_File_Menu();
+//		create_File_Menu();
 			menu_Bar->addMenu(file_Menu);
 		create_Calculate_Menu();
 			menu_Bar->addMenu(calculate_Menu);
@@ -61,7 +63,7 @@ void Menu::add_Menu_Points()
 	}
 	if(window_Type == window_Type_Regular_Aperiodic_Table )
 	{
-		create_File_Menu();
+//		create_File_Menu();
 			menu_Bar->addMenu(file_Menu);
 		create_Length_Units_Menu();
 			menu_Bar->addMenu(menu_Length_Units);
@@ -69,14 +71,14 @@ void Menu::add_Menu_Points()
 			menu_Bar->addMenu(precision_Menu);
 	}
 
-	if(window_Type == window_Type_Launcher ||
-	   window_Type == window_Type_Multilayer_Approach)
-	{
-		create_File_Menu();
-			menu_Bar->addMenu(file_Menu);
-		create_Help_Menu();
-			menu_Bar->addMenu(help_Menu);
-	}
+//	if(window_Type == window_Type_Launcher ||
+//	   window_Type == window_Type_Multilayer_Approach)
+//	{
+//		create_File_Menu();
+//			menu_Bar->addMenu(file_Menu);
+//		create_Help_Menu();
+//			menu_Bar->addMenu(help_Menu);
+//	}
 }
 
 void Menu::create_File_Menu()
