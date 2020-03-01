@@ -1091,6 +1091,11 @@ void Multilayer_Approach::save(QString filename)
 		}
 	}
 
+	// mark as new version now
+	loaded_Version_Major = VERSION_MAJOR;
+	loaded_Version_Minor = VERSION_MINOR;
+	loaded_Version_Build = VERSION_BUILD;
+
 	QFile file(filename);
 	file.open(QIODevice::WriteOnly);
 	QDataStream out(&file);

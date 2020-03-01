@@ -830,7 +830,7 @@ void Profile_Plot::calculate_Profile()
 
 			// first point
 			{
-				sharp_Delta_To_Plot_Vector.first().key   = -prefix;
+				sharp_Delta_To_Plot_Vector.first().key   = -prefix/length_Coefficients_Map.value(multilayer->profile_Plot_Options.local_length_units);
 				sharp_Delta_To_Plot_Vector.first().value = delta_Epsilon_Vector.first();
 
 				val_Sharp.first() = delta_Epsilon_Vector.first();
@@ -838,20 +838,20 @@ void Profile_Plot::calculate_Profile()
 			// main part
 			for(int media_Index=1; media_Index<struct_Data_Vector.size()-1; media_Index++)
 			{
-				sharp_Delta_To_Plot_Vector[media_Index].key   = boundary_Vector[media_Index-1];
+				sharp_Delta_To_Plot_Vector[media_Index].key   = boundary_Vector[media_Index-1]/length_Coefficients_Map.value(multilayer->profile_Plot_Options.local_length_units);
 				sharp_Delta_To_Plot_Vector[media_Index].value = delta_Epsilon_Vector[media_Index];
 
 				val_Sharp[media_Index] = delta_Epsilon_Vector[media_Index];
 			}
 			// last point
 			{
-				sharp_Delta_To_Plot_Vector[sharp_Delta_To_Plot_Vector.size()-2].key   = boundary_Vector.last();
+				sharp_Delta_To_Plot_Vector[sharp_Delta_To_Plot_Vector.size()-2].key   = boundary_Vector.last()/length_Coefficients_Map.value(multilayer->profile_Plot_Options.local_length_units);
 				sharp_Delta_To_Plot_Vector[sharp_Delta_To_Plot_Vector.size()-2].value = delta_Epsilon_Vector.last();
 
 				val_Sharp.last() = delta_Epsilon_Vector.last();
 
 				// additional point (for stepplot)
-				sharp_Delta_To_Plot_Vector.last().key   = boundary_Vector.last()+suffix;
+				sharp_Delta_To_Plot_Vector.last().key   = (boundary_Vector.last()+suffix)/length_Coefficients_Map.value(multilayer->profile_Plot_Options.local_length_units);
 				sharp_Delta_To_Plot_Vector.last().value = delta_Epsilon_Vector.last();
 			}
 
@@ -890,8 +890,8 @@ void Profile_Plot::calculate_Profile()
 				}
 
 				// add ambient
-//				QCPGraphData ambient;
-//					ambient.key = delta_To_Plot_Vector.first().key-discrete_Step_Vector.front();
+//				QCPGraphData ambient;			
+//					ambient.key = delta_To_Plot_Vector.first().key-discrete_Step_Vector.front()/length_Coefficients_Map.value(multilayer->profile_Plot_Options.local_length_units);
 //					ambient.value = beta_Epsilon_Vector.first();
 //				delta_To_Plot_Vector.prepend(ambient);
 //				arg.prepend(delta_To_Plot_Vector.first().key);
@@ -899,7 +899,7 @@ void Profile_Plot::calculate_Profile()
 
 				// add substrate
 				QCPGraphData substrate;
-					substrate.key = delta_To_Plot_Vector.last().key+discrete_Step_Vector.back();
+					substrate.key = delta_To_Plot_Vector.last().key+discrete_Step_Vector.back()/length_Coefficients_Map.value(multilayer->profile_Plot_Options.local_length_units);
 					substrate.value = delta_Epsilon_Vector.last();
 				delta_To_Plot_Vector.append(substrate);
 				arg.append(delta_To_Plot_Vector.last().key);
@@ -955,7 +955,7 @@ void Profile_Plot::calculate_Profile()
 
 			// first point
 			{
-				sharp_Beta_To_Plot_Vector.first().key   = -prefix;
+				sharp_Beta_To_Plot_Vector.first().key   = -prefix/length_Coefficients_Map.value(multilayer->profile_Plot_Options.local_length_units);
 				sharp_Beta_To_Plot_Vector.first().value = beta_Epsilon_Vector.first();
 
 				val_Sharp.first() = beta_Epsilon_Vector.first();
@@ -963,20 +963,20 @@ void Profile_Plot::calculate_Profile()
 			// main part
 			for(int media_Index=1; media_Index<struct_Data_Vector.size()-1; media_Index++)
 			{
-				sharp_Beta_To_Plot_Vector[media_Index].key   = boundary_Vector[media_Index-1];
+				sharp_Beta_To_Plot_Vector[media_Index].key   = boundary_Vector[media_Index-1]/length_Coefficients_Map.value(multilayer->profile_Plot_Options.local_length_units);
 				sharp_Beta_To_Plot_Vector[media_Index].value = beta_Epsilon_Vector[media_Index];
 
 				val_Sharp[media_Index] = beta_Epsilon_Vector[media_Index];
 			}
 			// last point
 			{
-				sharp_Beta_To_Plot_Vector[sharp_Beta_To_Plot_Vector.size()-2].key   = boundary_Vector.last();
+				sharp_Beta_To_Plot_Vector[sharp_Beta_To_Plot_Vector.size()-2].key   = boundary_Vector.last()/length_Coefficients_Map.value(multilayer->profile_Plot_Options.local_length_units);
 				sharp_Beta_To_Plot_Vector[sharp_Beta_To_Plot_Vector.size()-2].value = beta_Epsilon_Vector.last();
 
 				val_Sharp.last() = beta_Epsilon_Vector.last();
 
 				// additional point (for stepplot)
-				sharp_Beta_To_Plot_Vector.last().key   = boundary_Vector.last()+suffix;
+				sharp_Beta_To_Plot_Vector.last().key   = (boundary_Vector.last()+suffix)/length_Coefficients_Map.value(multilayer->profile_Plot_Options.local_length_units);
 				sharp_Beta_To_Plot_Vector.last().value = beta_Epsilon_Vector.last();
 			}
 
@@ -1016,7 +1016,7 @@ void Profile_Plot::calculate_Profile()
 
 				// add ambient
 //				QCPGraphData ambient;
-//					ambient.key = beta_To_Plot_Vector.first().key-discrete_Step_Vector.front();
+//					ambient.key = beta_To_Plot_Vector.first().key-discrete_Step_Vector.front()/length_Coefficients_Map.value(multilayer->profile_Plot_Options.local_length_units);
 //					ambient.value = beta_Epsilon_Vector.first();
 //				beta_To_Plot_Vector.prepend(ambient);
 //				arg.prepend(beta_To_Plot_Vector.first().key);
@@ -1024,7 +1024,7 @@ void Profile_Plot::calculate_Profile()
 
 				// add substrate
 				QCPGraphData substrate;
-					substrate.key = beta_To_Plot_Vector.last().key+discrete_Step_Vector.back();
+					substrate.key = beta_To_Plot_Vector.last().key+discrete_Step_Vector.back()/length_Coefficients_Map.value(multilayer->profile_Plot_Options.local_length_units);
 					substrate.value = beta_Epsilon_Vector.last();
 				beta_To_Plot_Vector.append(substrate);
 				arg.append(beta_To_Plot_Vector.last().key);
@@ -1089,7 +1089,7 @@ void Profile_Plot::calculate_Profile()
 
 				// first point
 				{
-					sharp_Materials_To_Plot_Vector_Vector[material_index].first().key = -prefix;
+					sharp_Materials_To_Plot_Vector_Vector[material_index].first().key = -prefix/length_Coefficients_Map.value(multilayer->profile_Plot_Options.local_length_units);
 					if(struct_Data_Vector.first().approved_Material == different_Materials[material_index])
 					{
 						sharp_Materials_To_Plot_Vector_Vector[material_index].first().value = struct_Data_Vector.first().relative_Density.value;
@@ -1102,7 +1102,7 @@ void Profile_Plot::calculate_Profile()
 				// main part
 				for(int media_Index=1; media_Index<struct_Data_Vector.size()-1; media_Index++)
 				{
-					sharp_Materials_To_Plot_Vector_Vector[material_index][media_Index].key = boundary_Vector[media_Index-1];
+					sharp_Materials_To_Plot_Vector_Vector[material_index][media_Index].key = boundary_Vector[media_Index-1]/length_Coefficients_Map.value(multilayer->profile_Plot_Options.local_length_units);
 					if(struct_Data_Vector[media_Index].approved_Material == different_Materials[material_index])
 					{
 						sharp_Materials_To_Plot_Vector_Vector[material_index][media_Index].value = struct_Data_Vector[media_Index].relative_Density.value;
@@ -1114,7 +1114,7 @@ void Profile_Plot::calculate_Profile()
 				}
 				// last point
 				{
-					sharp_Materials_To_Plot_Vector_Vector[material_index][sharp_Materials_To_Plot_Vector_Vector[material_index].size()-2].key = boundary_Vector.last();
+					sharp_Materials_To_Plot_Vector_Vector[material_index][sharp_Materials_To_Plot_Vector_Vector[material_index].size()-2].key = boundary_Vector.last()/length_Coefficients_Map.value(multilayer->profile_Plot_Options.local_length_units);
 					if(struct_Data_Vector.last().approved_Material == different_Materials[material_index])
 					{
 						sharp_Materials_To_Plot_Vector_Vector[material_index][sharp_Materials_To_Plot_Vector_Vector[material_index].size()-2].value = struct_Data_Vector.last().relative_Density.value;
@@ -1125,7 +1125,7 @@ void Profile_Plot::calculate_Profile()
 					val_Sharp_Multiple[material_index].last() = sharp_Materials_To_Plot_Vector_Vector[material_index][sharp_Materials_To_Plot_Vector_Vector[material_index].size()-2].value;
 
 					// additional point (for stepplot)
-					sharp_Materials_To_Plot_Vector_Vector[material_index].last().key   = boundary_Vector.last()+suffix;
+					sharp_Materials_To_Plot_Vector_Vector[material_index].last().key   = (boundary_Vector.last()+suffix)/length_Coefficients_Map.value(multilayer->profile_Plot_Options.local_length_units);
 					sharp_Materials_To_Plot_Vector_Vector[material_index].last().value = sharp_Materials_To_Plot_Vector_Vector[material_index][sharp_Materials_To_Plot_Vector_Vector[material_index].size()-2].value;
 				}
 
@@ -1166,7 +1166,7 @@ void Profile_Plot::calculate_Profile()
 
 					// add ambient
 //					QCPGraphData ambient;
-//						ambient.key = materials_To_Plot_Vector_Vector[material_index].first().key-discrete_Step_Vector.front();
+//						ambient.key = materials_To_Plot_Vector_Vector[material_index].first().key-discrete_Step_Vector.front()/length_Coefficients_Map.value(multilayer->profile_Plot_Options.local_length_units);
 //						ambient.value = struct_Data_Vector.first().relative_Density.value;
 //					materials_To_Plot_Vector_Vector[material_index].prepend(ambient);
 //					arg.prepend(materials_To_Plot_Vector_Vector[material_index].first().key);
@@ -1174,7 +1174,7 @@ void Profile_Plot::calculate_Profile()
 
 					// add substrate
 					QCPGraphData substrate;
-						substrate.key = materials_To_Plot_Vector_Vector[material_index].last().key+discrete_Step_Vector.back();
+						substrate.key = materials_To_Plot_Vector_Vector[material_index].last().key+discrete_Step_Vector.back()/length_Coefficients_Map.value(multilayer->profile_Plot_Options.local_length_units);
 						substrate.value = struct_Data_Vector.last().relative_Density.value;
 					materials_To_Plot_Vector_Vector[material_index].append(substrate);
 					arg.append(materials_To_Plot_Vector_Vector[material_index].last().key);
@@ -1243,7 +1243,7 @@ void Profile_Plot::calculate_Profile()
 
 				// first point
 				{
-					sharp_Elements_To_Plot_Vector_Vector[element_Index].first().key = -prefix;
+					sharp_Elements_To_Plot_Vector_Vector[element_Index].first().key = -prefix/length_Coefficients_Map.value(multilayer->profile_Plot_Options.local_length_units);
 					if(element_Concentration_Map_Vector.first().contains(different_Elements[element_Index]))
 					{
 						sharp_Elements_To_Plot_Vector_Vector[element_Index].first().value = element_Concentration_Map_Vector.first().value(different_Elements[element_Index]);
@@ -1256,7 +1256,7 @@ void Profile_Plot::calculate_Profile()
 				// main part
 				for(int media_Index=1; media_Index<struct_Data_Vector.size()-1; media_Index++)
 				{
-					sharp_Elements_To_Plot_Vector_Vector[element_Index][media_Index].key = boundary_Vector[media_Index-1];
+					sharp_Elements_To_Plot_Vector_Vector[element_Index][media_Index].key = boundary_Vector[media_Index-1]/length_Coefficients_Map.value(multilayer->profile_Plot_Options.local_length_units);
 					if(element_Concentration_Map_Vector[media_Index].contains(different_Elements[element_Index]))
 					{
 						sharp_Elements_To_Plot_Vector_Vector[element_Index][media_Index].value = element_Concentration_Map_Vector[media_Index].value(different_Elements[element_Index]);
@@ -1268,7 +1268,7 @@ void Profile_Plot::calculate_Profile()
 				}
 				// last point
 				{
-					sharp_Elements_To_Plot_Vector_Vector[element_Index][sharp_Elements_To_Plot_Vector_Vector[element_Index].size()-2].key = boundary_Vector.last();
+					sharp_Elements_To_Plot_Vector_Vector[element_Index][sharp_Elements_To_Plot_Vector_Vector[element_Index].size()-2].key = boundary_Vector.last()/length_Coefficients_Map.value(multilayer->profile_Plot_Options.local_length_units);
 					if(element_Concentration_Map_Vector.last().contains(different_Elements[element_Index]))
 					{
 						sharp_Elements_To_Plot_Vector_Vector[element_Index][sharp_Elements_To_Plot_Vector_Vector[element_Index].size()-2].value = element_Concentration_Map_Vector.last().value(different_Elements[element_Index]);
@@ -1279,7 +1279,7 @@ void Profile_Plot::calculate_Profile()
 					val_Sharp_Multiple[element_Index].last() = sharp_Elements_To_Plot_Vector_Vector[element_Index][sharp_Elements_To_Plot_Vector_Vector[element_Index].size()-2].value;
 
 					// additional point (for stepplot)
-					sharp_Elements_To_Plot_Vector_Vector[element_Index].last().key   = boundary_Vector.last()+suffix;
+					sharp_Elements_To_Plot_Vector_Vector[element_Index].last().key   = (boundary_Vector.last()+suffix)/length_Coefficients_Map.value(multilayer->profile_Plot_Options.local_length_units);
 					sharp_Elements_To_Plot_Vector_Vector[element_Index].last().value = sharp_Elements_To_Plot_Vector_Vector[element_Index][sharp_Elements_To_Plot_Vector_Vector[element_Index].size()-2].value;
 				}
 

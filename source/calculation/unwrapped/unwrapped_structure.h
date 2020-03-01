@@ -10,7 +10,7 @@
 class Unwrapped_Structure
 {
 public:
-	Unwrapped_Structure(const tree<Node>& calc_Tree, const Data& measurement, QString active_Parameter_Whats_This, int num_Media, int max_Depth, bool depth_Grading, bool sigma_Grading, Discretization_Parameters discretization_Parameters, gsl_rng* r);
+	Unwrapped_Structure(const Calc_Functions& calc_Functions, const tree<Node>& calc_Tree, const Data& measurement, QString active_Parameter_Whats_This, int num_Media, int max_Depth, bool depth_Grading, bool sigma_Grading, Discretization_Parameters discretization_Parameters, gsl_rng* r);
 
 	gsl_rng * r;
 
@@ -25,6 +25,7 @@ public:
 	Discretization_Parameters discretization_Parameters;
 
 	const tree<Node>& calc_Tree;
+	const Calc_Functions& calc_Functions;
 
 	vector<complex<double>> epsilon;								//	[media]
 //	vector<double> epsilon_RE;										//	[media]
@@ -60,6 +61,7 @@ public:
 //	vector<vector<double>> discretized_Epsilon_Dependent_NORM;
 
 	vector<double> discretized_Thickness;
+	vector<double> discretized_Slices_Boundaries;
 	vector<double> z_Positions;
 	int num_Discretized_Media;
 	double prefix = 15, suffix = 15;
@@ -88,6 +90,12 @@ public:
 //								vector<vector<double>>& discretized_Epsilon_Dependent_IM
 //								vector<vector<double>>& discretized_Epsilon_Dependent_NORM,
 								int thread_Index);
+
+	// field spacing
+	int num_Field_Slices = 0;
+	vector<double> field_Z_Positions;
+	void find_Field_Spacing();
+	int get_Layer_or_Slice_Index(double z);
 
 //	int fill_Epsilon_Angular_Max_Depth_2  (const tree<Node>::iterator& parent, int media_Index = 0);
 //	int fill_Epsilon_Spectra_Max_Depth_2  (const tree<Node>::iterator& parent, int media_Index = 0);

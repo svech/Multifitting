@@ -284,15 +284,25 @@ QDataStream& operator >>( QDataStream& stream,		 Discretization_Parameters& disc
 				  >> discretization_Parameters.discretization_Step;
 }
 
+double field_Step = 2;
+double field_Ambient_Distance = 0;
+double field_Substrate_Distance = 0;
+
 QDataStream& operator <<( QDataStream& stream, const Calc_Functions& calc_Functions )
 {
 	return stream << calc_Functions.check_Enabled << calc_Functions.check_Reflectance << calc_Functions.check_Transmittance << calc_Functions.check_Absorptance
-				  << calc_Functions.check_Field	  << calc_Functions.check_Joule		  << calc_Functions.check_User			<< calc_Functions.user_Functions;
+				  << calc_Functions.check_Field	  << calc_Functions.check_Joule		  << calc_Functions.check_User			<< calc_Functions.user_Functions
+				  << calc_Functions.field_Step << calc_Functions.field_Ambient_Distance	<< calc_Functions.field_Substrate_Distance; // since 1.10.2
 }
 QDataStream& operator >>( QDataStream& stream,		 Calc_Functions& calc_Functions )
 {
-	return stream >> calc_Functions.check_Enabled >> calc_Functions.check_Reflectance >> calc_Functions.check_Transmittance >> calc_Functions.check_Absorptance
-				  >> calc_Functions.check_Field	  >> calc_Functions.check_Joule		  >> calc_Functions.check_User			>> calc_Functions.user_Functions;
+	stream >> calc_Functions.check_Enabled >> calc_Functions.check_Reflectance >> calc_Functions.check_Transmittance >> calc_Functions.check_Absorptance
+		   >> calc_Functions.check_Field   >> calc_Functions.check_Joule	   >> calc_Functions.check_User		 	 >> calc_Functions.user_Functions;
+
+	if(Global_Variables::check_Loaded_Version(1,10,3))
+	{stream >> calc_Functions.field_Step >> calc_Functions.field_Ambient_Distance >> calc_Functions.field_Substrate_Distance; }	// since 1.10.3
+
+	return stream;
 }
 
 

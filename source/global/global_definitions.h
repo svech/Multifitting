@@ -9,7 +9,7 @@
 
 #define VERSION_MAJOR 1
 #define VERSION_MINOR 10
-#define VERSION_BUILD 2
+#define VERSION_BUILD 3
 
 using namespace std;
 class Node;
@@ -216,9 +216,9 @@ class Node;
 #define symbol_T "T"
 #define absorptance_Function	"Absorptance"
 #define symbol_A "A"
-#define intensity_Function		"Field Intensity"
+#define intensity_Function		"Field intensity"
 #define symbol_F "F"
-#define joule_Function			"Joule Absorption"
+#define joule_Function			"Absorption map"
 #define symbol_J "J"
 #define user_Function			""
 #define symbol_U "U"
@@ -643,6 +643,9 @@ struct Calculated_Values	    {QVector<double> R;
 								 QVector<double> T;
 								 QVector<double> A;
 
+								 vector<vector<double>> field_Intensity;  // not saved
+								 vector<vector<double>> absorption_Map;   // not saved
+
 								 void clear_All()
 								 {
 									 R.clear();
@@ -665,6 +668,10 @@ struct Calc_Functions			{bool check_Enabled = true;
 								 bool check_Joule = false;
 								 bool check_User = false;
 								 QString user_Functions = "R+T; cos(A)*R^3-sqrt(J) ; pow(F, log(root(3,5)))";
+
+								 double field_Step = 2;
+								 double field_Ambient_Distance = 0;
+								 double field_Substrate_Distance = 0;
 
 								 // cppcheck-suppress functionConst
 								 bool if_Something_Enabled()

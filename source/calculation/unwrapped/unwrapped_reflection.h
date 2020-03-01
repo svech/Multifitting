@@ -15,7 +15,9 @@ struct Interpol
 class Unwrapped_Reflection
 {
 public:
-	Unwrapped_Reflection(Unwrapped_Structure* unwrapped_Structure, int num_Media, QString active_Parameter_Whats_This, const Data& measurement, bool depth_Grading, bool sigma_Grading, Calc_Functions calc_Functions, QString calc_Mode);
+	Unwrapped_Reflection(Unwrapped_Structure* unwrapped_Structure, int num_Media, QString active_Parameter_Whats_This,
+						 const Data& measurement, bool depth_Grading, bool sigma_Grading,
+						 const Calc_Functions& calc_Functions, Calculated_Values& calculated_Values, QString calc_Mode);
 	~Unwrapped_Reflection();
 
 	int num_Threads;
@@ -27,7 +29,8 @@ public:
 
 	bool depth_Grading;
 	bool sigma_Grading;
-	Calc_Functions calc_Functions;
+	const Calc_Functions& calc_Functions;
+	Calculated_Values& calculated_Values;
 
 	QString calc_Mode;
 	QString active_Parameter_Whats_This;
@@ -82,12 +85,11 @@ public:
 						  int thread_Index);
 	void calc_Exponenta	 (int thread_Index, const vector<double>& thickness);
 	void calc_Local		 (double polarization, int thread_Index);
+	void calc_Field		 (double polarization, int thread_Index, int point_Index);
 
 	// for sigma grading
 	void multifly_Fresnel_And_Weak_Factor(double polarization, int thread_Index);
 
-	vector<complex<double>> r_s;
-	vector<complex<double>> r_p;
 	vector<double> Phi_R_s;
 	vector<double> Phi_R_p;
 	vector<double> R_s;
@@ -95,8 +97,6 @@ public:
 	vector<double> R;
 	vector<double> R_Instrumental;
 
-	vector<complex<double>> t_s;
-	vector<complex<double>> t_p;
 	vector<double> Phi_T_s;
 	vector<double> Phi_T_p;
 	vector<double> T_s;
@@ -108,6 +108,16 @@ public:
 	vector<double> A_p;
 	vector<double> A;
 	vector<double> A_Instrumental;
+
+	// fields
+	vector<double> boundaries_Enlarged;
+	vector<vector<complex<double>>> U_i_s;		//	[thread][media]
+	vector<vector<complex<double>>> U_r_s;		//	[thread][media]
+	vector<vector<complex<double>>> U_i_p;		//	[thread][media]
+	vector<vector<complex<double>>> U_r_p;		//	[thread][media]
+
+	vector<vector<double>>& field_Intensity;
+	vector<vector<double>>& absorption_Map;
 
 	void fill_Specular_Values            (const Data& measurement, int thread_Index, int point_Index);
 	void calc_Specular_1_Point_1_Thread  (const Data& measurement, int thread_Index, int point_Index);

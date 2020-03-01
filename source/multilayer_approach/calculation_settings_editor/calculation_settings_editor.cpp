@@ -729,27 +729,117 @@ void Calculation_Settings_Editor::load_Independent_Parameters(int tab_Index)
 				connect(absorp_Functions,   &QCheckBox::toggled, this, [=]{ refresh_Independent_Calc_Properties(tab_Index, independent_Index, box); });
 			}
 			// TODO
-//			{
-//				QGroupBox* field_Functions_Group_Box = new QGroupBox("Field Functions");
-//					field_Functions_Group_Box->setObjectName("field_Functions_Group_Box");
-//					field_Functions_Group_Box->setStyleSheet("QGroupBox#field_Functions_Group_Box { border-radius: 2px;  border: 1px solid gray; margin-top: 1ex;}"
-//															 "QGroupBox::title    { subcontrol-origin: margin;	 left: 9px; padding: 0 0px 0 1px;}");
-//				box_Layout->addWidget(field_Functions_Group_Box);
+			{
+				QGroupBox* field_Functions_Group_Box = new QGroupBox("Field Functions");
+					field_Functions_Group_Box->setObjectName("field_Functions_Group_Box");
+					field_Functions_Group_Box->setStyleSheet("QGroupBox#field_Functions_Group_Box { border-radius: 2px;  border: 1px solid gray; margin-top: 1ex;}"
+															 "QGroupBox::title    { subcontrol-origin: margin;	 left: 9px; padding: 0 0px 0 1px;}");
+				box_Layout->addWidget(field_Functions_Group_Box);
 
-//				QHBoxLayout* field_Functions_Layout = new QHBoxLayout(field_Functions_Group_Box);
-//					field_Functions_Layout->setAlignment(Qt::AlignLeft);
-//					QCheckBox* field_Intensity = new QCheckBox(intensity_Function);
-//						field_Functions_Layout->addWidget(field_Intensity);
-//						field_Intensity->setChecked(independent_Variables->calc_Functions.check_Field);
-///* TODO */				field_Intensity->setDisabled(true);
-//					QCheckBox* joule_Absorption= new QCheckBox(joule_Function);
-//						field_Functions_Layout->addWidget(joule_Absorption);
-//						joule_Absorption->setChecked(independent_Variables->calc_Functions.check_Joule);
-///* TODO */				joule_Absorption->setDisabled(true);
+				QVBoxLayout* field_Functions_Layout = new QVBoxLayout(field_Functions_Group_Box);
+					field_Functions_Layout->setSpacing(3);
+				QHBoxLayout* field_Checkbox_Layout = new QHBoxLayout;
+					field_Checkbox_Layout->setAlignment(Qt::AlignLeft);
+				field_Functions_Layout->addLayout(field_Checkbox_Layout);
 
-//				connect(field_Intensity,  &QCheckBox::toggled, this, [=]{ refresh_Independent_Calc_Properties(tab_Index, independent_Index, box); });
-//				connect(joule_Absorption, &QCheckBox::toggled, this, [=]{ refresh_Independent_Calc_Properties(tab_Index, independent_Index, box); });
-//			}
+					QCheckBox* field_Intensity = new QCheckBox(intensity_Function);
+						field_Checkbox_Layout->addWidget(field_Intensity);
+						field_Intensity->setChecked(independent_Variables->calc_Functions.check_Field);
+					QCheckBox* joule_Absorption= new QCheckBox(joule_Function);
+						field_Checkbox_Layout->addWidget(joule_Absorption);
+						joule_Absorption->setChecked(independent_Variables->calc_Functions.check_Joule);
+
+				connect(field_Intensity,  &QCheckBox::toggled, this, [=]{ refresh_Independent_Calc_Properties(tab_Index, independent_Index, box); });
+				connect(joule_Absorption, &QCheckBox::toggled, this, [=]{ refresh_Independent_Calc_Properties(tab_Index, independent_Index, box); });
+
+				// in-depth step
+				QList<QWidget*> step_Widgets_List;
+
+				QHBoxLayout* field_Step_Layout = new QHBoxLayout;
+					field_Step_Layout->setAlignment(Qt::AlignLeft);
+				field_Functions_Layout->addLayout(field_Step_Layout);
+
+				QLabel* field_Step_Label = new QLabel("Z-spacing");
+					field_Step_Layout->addWidget(field_Step_Label);
+					step_Widgets_List.append(field_Step_Label);
+				MyDoubleSpinBox* field_Step_SpinBox = new MyDoubleSpinBox;
+					field_Step_SpinBox->setAccelerated(true);
+					field_Step_SpinBox->setRange(0.1, MAX_DOUBLE);
+					field_Step_SpinBox->setDecimals(2);
+					field_Step_SpinBox->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
+					field_Step_SpinBox->setValue(independent_Variables->calc_Functions.field_Step);
+					field_Step_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
+				field_Step_Layout->addWidget(field_Step_SpinBox);
+				step_Widgets_List.append(field_Step_SpinBox);
+				Global_Variables::resize_Line_Edit(field_Step_SpinBox, false);
+				connect(field_Step_SpinBox, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
+				{
+					independent_Variables->calc_Functions.field_Step = field_Step_SpinBox->value();
+					Global_Variables::resize_Line_Edit(field_Step_SpinBox, false);
+				});
+				QLabel* field_Step_Units_Label = new QLabel(Angstrom_Sym);
+					field_Step_Layout->addWidget(field_Step_Units_Label);
+					step_Widgets_List.append(field_Step_Units_Label);
+
+
+				QGridLayout* field_Ambient_Substrate_Layout = new QGridLayout;
+				field_Functions_Layout->addLayout(field_Ambient_Substrate_Layout);
+
+				QLabel* field_Ambient_Label = new QLabel("Calculation depth into ambient   ");
+					field_Ambient_Substrate_Layout->addWidget(field_Ambient_Label,0,0);
+					step_Widgets_List.append(field_Ambient_Label);
+				MyDoubleSpinBox* field_Ambient_SpinBox = new MyDoubleSpinBox;
+					field_Ambient_SpinBox->setAccelerated(true);
+					field_Ambient_SpinBox->setRange(0, MAX_DOUBLE);
+					field_Ambient_SpinBox->setDecimals(2);
+					field_Ambient_SpinBox->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
+					field_Ambient_SpinBox->setValue(independent_Variables->calc_Functions.field_Ambient_Distance);
+					field_Ambient_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
+				field_Ambient_Substrate_Layout->addWidget(field_Ambient_SpinBox,0,1);
+				step_Widgets_List.append(field_Ambient_SpinBox);
+				Global_Variables::resize_Line_Edit(field_Ambient_SpinBox, false);
+				connect(field_Ambient_SpinBox, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
+				{
+					independent_Variables->calc_Functions.field_Ambient_Distance = field_Ambient_SpinBox->value();
+					Global_Variables::resize_Line_Edit(field_Ambient_SpinBox, false);
+				});
+				QLabel* field_Ambient_Units_Label = new QLabel(Angstrom_Sym);
+					field_Ambient_Substrate_Layout->addWidget(field_Ambient_Units_Label,0,2);
+					step_Widgets_List.append(field_Ambient_Units_Label);
+
+
+				QLabel* field_Substrate_Label = new QLabel("Calculation depth into substrate");
+					field_Ambient_Substrate_Layout->addWidget(field_Substrate_Label,1,0);
+					step_Widgets_List.append(field_Substrate_Label);
+				MyDoubleSpinBox* field_Substrate_SpinBox = new MyDoubleSpinBox;
+					field_Substrate_SpinBox->setAccelerated(true);
+					field_Substrate_SpinBox->setRange(0, MAX_DOUBLE);
+					field_Substrate_SpinBox->setDecimals(2);
+					field_Substrate_SpinBox->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
+					field_Substrate_SpinBox->setValue(independent_Variables->calc_Functions.field_Substrate_Distance);
+					field_Substrate_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
+				field_Ambient_Substrate_Layout->addWidget(field_Substrate_SpinBox,1,1);
+				step_Widgets_List.append(field_Substrate_SpinBox);
+				Global_Variables::resize_Line_Edit(field_Substrate_SpinBox, false);
+				connect(field_Substrate_SpinBox, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
+				{
+					independent_Variables->calc_Functions.field_Substrate_Distance = field_Substrate_SpinBox->value();
+					Global_Variables::resize_Line_Edit(field_Substrate_SpinBox, false);
+				});
+				QLabel* field_Substrate_Units_Label = new QLabel(Angstrom_Sym);
+					field_Ambient_Substrate_Layout->addWidget(field_Substrate_Units_Label,1,2);
+					step_Widgets_List.append(field_Substrate_Units_Label);
+
+				connect(field_Intensity,  &QCheckBox::toggled, this, [=]
+				{
+					for(QWidget* step_Widget : step_Widgets_List)
+					{
+						step_Widget->setEnabled(field_Intensity->isChecked() || joule_Absorption->isChecked());
+					}
+				});
+				connect(joule_Absorption, &QCheckBox::toggled, this, [=]{field_Intensity->toggled(field_Intensity->isChecked());});
+				field_Intensity->toggled(field_Intensity->isChecked());
+			}
 //			{
 //				QGroupBox* user_Functions_Group_Box = new QGroupBox("User-defined Functions");
 //					user_Functions_Group_Box->setObjectName("user_Functions_Group_Box");

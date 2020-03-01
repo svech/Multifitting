@@ -1,6 +1,6 @@
 #include "unwrapped_structure.h"
 
-Unwrapped_Structure::Unwrapped_Structure(const tree<Node>& calc_Tree, const Data& measurement, QString active_Parameter_Whats_This, int num_Media, int max_Depth, bool depth_Grading, bool sigma_Grading, Discretization_Parameters discretization_Parameters, gsl_rng* r):
+Unwrapped_Structure::Unwrapped_Structure(const Calc_Functions& calc_Functions, const tree<Node>& calc_Tree, const Data& measurement, QString active_Parameter_Whats_This, int num_Media, int max_Depth, bool depth_Grading, bool sigma_Grading, Discretization_Parameters discretization_Parameters, gsl_rng* r):
 	r(r),
 	num_Threads		(epsilon_Partial_Fill_Threads),
 	num_Media		(num_Media),
@@ -10,7 +10,8 @@ Unwrapped_Structure::Unwrapped_Structure(const tree<Node>& calc_Tree, const Data
 	depth_Grading	(depth_Grading),
 	sigma_Grading	(sigma_Grading),	
 	discretization_Parameters(discretization_Parameters),
-	calc_Tree		(calc_Tree)
+	calc_Tree		(calc_Tree),
+	calc_Functions  (calc_Functions)
 {
 	int depth_Threshold = 2;
 
@@ -54,7 +55,8 @@ Unwrapped_Structure::Unwrapped_Structure(const tree<Node>& calc_Tree, const Data
 	}
 
 	// recalculate thicknesses if depth is big or depth grading
-	if( (max_Depth > depth_Threshold) || depth_Grading || discretization_Parameters.enable_Discretization)
+	if( (max_Depth > depth_Threshold) || depth_Grading || discretization_Parameters.enable_Discretization
+		|| calc_Functions.check_Field || calc_Functions.check_Joule)
 	{
 		thickness.resize(num_Layers);
 		boundaries.resize(num_Boundaries);
@@ -124,6 +126,23 @@ Unwrapped_Structure::Unwrapped_Structure(const tree<Node>& calc_Tree, const Data
 
 			fill_Discretized_Epsilon();
 		}
+	}
+
+	// field functions
+//	qInfo() << (calc_Functions.check_Field || calc_Functions.check_Joule) << endl;
+	if(calc_Functions.check_Field || calc_Functions.check_Joule)
+	{
+		if(discretization_Parameters.enable_Discretization)
+		{
+			discretized_Slices_Boundaries.resize(discretized_Thickness.size()+1);
+			discretized_Slices_Boundaries.front() = -num_Prefix_Slices*discretized_Thickness.front();
+			for(int i=0; i<discretized_Thickness.size(); i++)
+			{
+				discretized_Slices_Boundaries[i+1] = discretized_Slices_Boundaries[i]+discretized_Thickness[i];
+			}
+		}
+
+		find_Field_Spacing();
 	}
 }
 
@@ -349,6 +368,46 @@ void Unwrapped_Structure::epsilon_Func(double z, int media_Index, bool is_Depend
 //				discretized_Epsilon_Dependent_IM[lambda_Point][media_Index] +=  epsilon_Dependent_IM[lambda_Point].back()    * geometry_Factor;
 			}
 		}
+	}
+}
+
+void Unwrapped_Structure::find_Field_Spacing()
+{
+	// structure and substrate
+	double structure_Thickness = 0;
+	for(int layer_Index=0; layer_Index<num_Layers; layer_Index++)
+	{
+		structure_Thickness += thickness[layer_Index];
+	}
+	structure_Thickness += calc_Functions.field_Substrate_Distance;
+	num_Field_Slices = ceil(structure_Thickness/calc_Functions.field_Step);
+
+	field_Z_Positions.resize(num_Field_Slices);
+	for(size_t i=0; i<num_Field_Slices; ++i)
+	{
+		field_Z_Positions[i] = i*calc_Functions.field_Step;
+	}
+
+	// ambient
+	int num_Ambient_Slices = floor(calc_Functions.field_Ambient_Distance/calc_Functions.field_Step);
+	num_Field_Slices += num_Ambient_Slices;
+	for(int i=0; i<num_Ambient_Slices; ++i)
+	{
+		double z = -(i+1)*calc_Functions.field_Step;
+		field_Z_Positions.insert(field_Z_Positions.begin(), z);
+	}
+}
+
+int Unwrapped_Structure::get_Layer_or_Slice_Index(double z)
+{
+	if(discretization_Parameters.enable_Discretization)
+	{
+		std::vector<double>::iterator it_low = std::lower_bound(discretized_Slices_Boundaries.begin(), discretized_Slices_Boundaries.end(), z);
+		return int(it_low-discretized_Slices_Boundaries.begin())-1;
+	} else
+	{
+		std::vector<double>::iterator it_low = std::lower_bound(boundaries.begin(), boundaries.end(), z);
+		return int(it_low-boundaries.begin())-1;
 	}
 }
 
