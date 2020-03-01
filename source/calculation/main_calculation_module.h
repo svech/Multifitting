@@ -74,6 +74,7 @@ public:
 									 bool print_User,
 									 double incident_Polarization
 									 );
+	void print_Matrix(QTextStream& out, const vector<vector<double>>& matrix);
 
 	void add_Fit(QString name_Modificator, int run=0);
 };

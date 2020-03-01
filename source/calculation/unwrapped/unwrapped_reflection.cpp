@@ -708,15 +708,15 @@ void Unwrapped_Reflection::calc_Local(double polarization, int thread_Index)
 			calc_Functions.check_Field )
 		{
 			U_i_s[thread_Index].front() = 1;
-			U_r_s[thread_Index].front() = complex<double>(r_Local_s_RE[thread_Index].front(), r_Fresnel_s_IM[thread_Index].front());
+			U_r_s[thread_Index].front() = complex<double>(r_Local_s_RE[thread_Index].front(), r_Local_s_IM[thread_Index].front());
 
 			for (int j = 1; j<num_Boundaries; j++)
 			{
-				U_i_s[thread_Index][j] = U_i_s[thread_Index][j-1] * complex<double>(t_Local_s_RE[thread_Index][j-1], t_Fresnel_s_IM[thread_Index][j-1])
-																  / complex<double>(t_Local_s_RE[thread_Index][j  ], t_Fresnel_s_IM[thread_Index][j  ]);
-				U_r_s[thread_Index][j] = U_i_s[thread_Index][j] * complex<double>(r_Local_s_RE[thread_Index][j], r_Fresnel_s_IM[thread_Index][j]);
+				U_i_s[thread_Index][j] = U_i_s[thread_Index][j-1] * complex<double>(t_Local_s_RE[thread_Index][j-1], t_Local_s_IM[thread_Index][j-1])
+																  / complex<double>(t_Local_s_RE[thread_Index][j  ], t_Local_s_IM[thread_Index][j  ]);
+				U_r_s[thread_Index][j] = U_i_s[thread_Index][j] * complex<double>(r_Local_s_RE[thread_Index][j], r_Local_s_IM[thread_Index][j]);
 			}
-			U_i_s[thread_Index].back() = U_i_s[thread_Index][num_Boundaries-1] * complex<double>(t_Local_s_RE[thread_Index].back(), t_Fresnel_s_IM[thread_Index].back());
+			U_i_s[thread_Index].back() = U_i_s[thread_Index][num_Boundaries-1] * complex<double>(t_Local_s_RE[thread_Index].back(), t_Local_s_IM[thread_Index].back());
 			U_r_s[thread_Index].back() = 0;
 		}
 	}
@@ -825,12 +825,12 @@ void Unwrapped_Reflection::calc_Field(double polarization, int thread_Index, int
 				iChi = complex<double>(0,1)*complex<double>(hi_RE[thread_Index][media_Index],hi_IM[thread_Index][media_Index]);
 
 				e_1 = exp(iChi*(z-boundaries_Enlarged[media_Index]));
-				e_2 = conj(e_1);
+				e_2 = exp(iChi*(-z+boundaries_Enlarged[media_Index]));
 				U = U_i_s[thread_Index][media_Index] * e_1 + U_r_s[thread_Index][media_Index] * e_2;
 
 				field_Intensity[point_Index][z_Index] = s_Weight*pow(abs(U),2);
 //				absorption_Map [point_Index][z_Index] += field_Intensity[point_Index][z_Index] * unwrapped_Structure->epsilon;
-				qInfo() << z << layer_Index << media_Index << field_Intensity[point_Index][z_Index] << endl;
+//				qInfo() << z << layer_Index << media_Index << field_Intensity[point_Index][z_Index] << endl;
 			}
 		}
 

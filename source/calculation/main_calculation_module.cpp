@@ -1027,10 +1027,10 @@ void Main_Calculation_Module::print_Reflect_To_File(Data_Element<Type>& data_Ele
 		arg = data_Element.the_Class->measurement.lambda;
 	}
 
-	QString name = first_Name+"_"+Locale.toString(index)+".txt";
-	QFile file(name);
-	if (file.open(QIODevice::WriteOnly))
 	{
+		QString name = first_Name+"_"+Locale.toString(index)+".txt";
+		QFile file(name);
+		file.open(QIODevice::WriteOnly);
 		QTextStream out(&file);
 		out.setFieldAlignment(QTextStream::AlignLeft);
 
@@ -1044,10 +1044,30 @@ void Main_Calculation_Module::print_Reflect_To_File(Data_Element<Type>& data_Ele
 				   data_Element.the_Class->measurement.polarization.value
 				   );
 		file.close();
-	} else
+	}
+
+	// intensity
+	if(data_Element.calc_Functions.check_Field)
 	{
-		QMessageBox::critical(nullptr, "Main_Calculation_Module::print_Reflect_To_File", "Can't write file " + name);
-		exit(EXIT_FAILURE);
+		QString name = first_Name+"_"+Locale.toString(index)+"_intensity.txt";
+		QFile file(name);
+		file.open(QIODevice::WriteOnly);
+		QTextStream out(&file);
+		out.setFieldAlignment(QTextStream::AlignLeft);
+		print_Matrix(out, data_Element.the_Class->calculated_Values.field_Intensity);
+		file.close();
+	}
+
+	// absorption
+	if(data_Element.calc_Functions.check_Joule)
+	{
+		QString name = first_Name+"_"+Locale.toString(index)+"_absorption.txt";
+		QFile file(name);
+		file.open(QIODevice::WriteOnly);
+		QTextStream out(&file);
+		out.setFieldAlignment(QTextStream::AlignLeft);
+		print_Matrix(out, data_Element.the_Class->calculated_Values.absorption_Map);
+		file.close();
 	}
 }
 template void Main_Calculation_Module::print_Reflect_To_File<Independent_Variables>(Data_Element<Independent_Variables>&, QString, int);
@@ -1181,6 +1201,25 @@ void Main_Calculation_Module::print_Data(QTextStream &out, QVector<double> &arg,
 			if(i!=arg.size()-1)
 				out << qSetFieldWidth(arg_Shift) << endl  << qSetFieldWidth(width_Short);
 		}
+	}
+
+	// back to system locale
+	Locale = QLocale::system();
+}
+
+void Main_Calculation_Module::print_Matrix(QTextStream &out, const vector<vector<double>>& matrix)
+{
+	// point as decimal separator
+	Locale=QLocale::c();
+
+	int precision = 6;
+	for(auto j=0; j<matrix.front().size(); ++j)
+	{
+		for(auto i=0; i<matrix.size(); ++i)
+		{
+			out << Locale.toString(matrix[i][j],'e',precision) << "\t";
+		}
+		out << endl;
 	}
 
 	// back to system locale
