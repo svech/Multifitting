@@ -787,25 +787,35 @@ void Unwrapped_Reflection::calc_Local(double polarization, int thread_Index)
 		}		
 
 		// fields
-//		if( calc_Functions.check_Joule ||
-//			calc_Functions.check_Field )
-//		{
-//			U_i_p[thread_Index].front() = 1;
-//			U_r_p[thread_Index].front() = complex<double>(r_Local_p_RE[thread_Index].front(), r_Fresnel_p_IM[thread_Index].front());
+		if( calc_Functions.check_Joule ||
+			calc_Functions.check_Field )
+		{
+			U_i_p[thread_Index].front() = 1;
+			U_r_p[thread_Index].front() = complex<double>(r_Local_p_RE[thread_Index].front(), r_Local_p_IM[thread_Index].front());
 
-//		/DFGSDFGSDFGSFG
-//			for (int j = 1; j <num_Boundaries; j++)
-//			{
-//				U_i_p[thread_Index][j] = U_i_p[thread_Index][j-1] * complex<double>(t_Local_p_RE[thread_Index][j-1], t_Fresnel_p_IM[thread_Index][j-1])
-//																  / complex<double>(t_Local_p_RE[thread_Index][j  ], t_Fresnel_p_IM[thread_Index][j  ]);
-//				U_r_p[thread_Index][j] = U_i_p[thread_Index][j] * complex<double>(r_Local_p_RE[thread_Index][j], r_Fresnel_p_IM[thread_Index][j]);
-//			}
-//		}
+			for (int j = 1; j<num_Boundaries; j++)
+			{
+				U_i_p[thread_Index][j] = U_i_p[thread_Index][j-1] * complex<double>(t_Local_p_RE[thread_Index][j-1], t_Local_p_IM[thread_Index][j-1])
+																  / complex<double>(t_Local_p_RE[thread_Index][j  ], t_Local_p_IM[thread_Index][j  ]);
+				U_r_p[thread_Index][j] = U_i_p[thread_Index][j] * complex<double>(r_Local_p_RE[thread_Index][j], r_Local_p_IM[thread_Index][j]);
+			}
+			U_i_p[thread_Index].back() = U_i_p[thread_Index][num_Boundaries-1] * complex<double>(t_Local_p_RE[thread_Index].back(), t_Local_p_IM[thread_Index].back());
+			U_r_p[thread_Index].back() = 0;
+		}
 	}
 }
 
-void Unwrapped_Reflection::calc_Field(double polarization, int thread_Index, int point_Index)
+void Unwrapped_Reflection::calc_Field(double polarization, int thread_Index, int point_Index, const vector<complex<double>>& epsilon_Vector)
 {
+	//  TODO
+	// now only for non-discretized case
+	// also unchecked for spectral dependences
+	// optimizetion
+	// duplication of calculation exp
+	// go to complex computation of everything?
+	// everyhwhere: double polarization is compared to double
+	// p-polarization unchecked
+
 	// s-polarization
 	if( calc_Functions.check_Field ||
 		calc_Functions.check_Joule )
@@ -824,58 +834,46 @@ void Unwrapped_Reflection::calc_Field(double polarization, int thread_Index, int
 
 				iChi = complex<double>(0,1)*complex<double>(hi_RE[thread_Index][media_Index],hi_IM[thread_Index][media_Index]);
 
-				e_1 = exp(iChi*(z-boundaries_Enlarged[media_Index]));
+				e_1 = exp(iChi*(+z-boundaries_Enlarged[media_Index]));
 				e_2 = exp(iChi*(-z+boundaries_Enlarged[media_Index]));
 				U = U_i_s[thread_Index][media_Index] * e_1 + U_r_s[thread_Index][media_Index] * e_2;
 
-				field_Intensity[point_Index][z_Index] = s_Weight*pow(abs(U),2);
-//				absorption_Map [point_Index][z_Index] += field_Intensity[point_Index][z_Index] * unwrapped_Structure->epsilon;
-//				qInfo() << z << layer_Index << media_Index << field_Intensity[point_Index][z_Index] << endl;
+				double field_Value = s_Weight*pow(abs(U),2);
+				// temporary
+				if(media_Index%2==1)
+				{
+					field_Intensity[point_Index][z_Index] += field_Value;
+				}
+				// TODO too sharp. consider sigmas.
+				absorption_Map [point_Index][z_Index] += field_Value * imag(epsilon_Vector[media_Index]);
 			}
 		}
 
-//		// p-polarization
-//		if (polarization <1)
-//		{
-//			double p_Weight = (1. - polarization) / 2.;
-//			for(int z_Index=0; z_Index<unwrapped_Structure->num_Field_Slices; z_Index++)
-//			{
-//				double z = unwrapped_Structure->field_Z_Positions[z_Index];
-//				int layer_Index = unwrapped_Structure->get_Layer_or_Slice_Index(z);
+		// p-polarization
+		if (polarization <1)
+		{
+			double p_Weight = (1. - polarization) / 2.;
 
+			complex<double> U, e_1, e_2, iChi;
 
+			for(int z_Index=0; z_Index<unwrapped_Structure->num_Field_Slices; z_Index++)
+			{
+				double z = unwrapped_Structure->field_Z_Positions[z_Index];
+				int layer_Index = unwrapped_Structure->get_Layer_or_Slice_Index(z);
+				int media_Index = layer_Index+1;
 
-//				r_Local_p_RE[thread_Index].back() = r_Fresnel_p_RE[thread_Index].back();	// last boundary
-//				r_Local_p_IM[thread_Index].back() = r_Fresnel_p_IM[thread_Index].back();	// last boundary
-//				t_Local_p_RE[thread_Index].back() = t_Fresnel_p_RE[thread_Index].back();	// last boundary
-//				t_Local_p_IM[thread_Index].back() = t_Fresnel_p_IM[thread_Index].back();	// last boundary
+				iChi = complex<double>(0,1)*complex<double>(hi_RE[thread_Index][media_Index],hi_IM[thread_Index][media_Index]);
 
-//				for (int i = num_Layers-1; i >= 0; --i)
-//				{
-//					temp_R_RE = r_Local_p_RE[thread_Index][i+1]*exponenta_2_RE[thread_Index][i] - r_Local_p_IM[thread_Index][i+1]*exponenta_2_IM[thread_Index][i];
-//					temp_R_IM = r_Local_p_IM[thread_Index][i+1]*exponenta_2_RE[thread_Index][i] + r_Local_p_RE[thread_Index][i+1]*exponenta_2_IM[thread_Index][i];
+				e_1 = exp(iChi*(+z-boundaries_Enlarged[media_Index]));
+				e_2 = exp(iChi*(-z+boundaries_Enlarged[media_Index]));
+				U = U_i_p[thread_Index][media_Index] * e_1 + U_r_p[thread_Index][media_Index] * e_2;
 
-//					temp_T_RE = t_Local_p_RE[thread_Index][i+1]*exponenta_RE[thread_Index][i] - t_Local_p_IM[thread_Index][i+1]*exponenta_IM[thread_Index][i];
-//					temp_T_IM = t_Local_p_IM[thread_Index][i+1]*exponenta_RE[thread_Index][i] + t_Local_p_RE[thread_Index][i+1]*exponenta_IM[thread_Index][i];
-
-//					loc_Denom_RE = 1. + (temp_R_RE*r_Fresnel_p_RE[thread_Index][i] - temp_R_IM*r_Fresnel_p_IM[thread_Index][i]);
-//					loc_Denom_IM =       temp_R_IM*r_Fresnel_p_RE[thread_Index][i] + temp_R_RE*r_Fresnel_p_IM[thread_Index][i];
-//					loc_Denom_SQUARE = loc_Denom_RE*loc_Denom_RE + loc_Denom_IM*loc_Denom_IM;
-
-//					loc_Numer_R_RE = r_Fresnel_p_RE[thread_Index][i] + temp_R_RE;
-//					loc_Numer_R_IM = r_Fresnel_p_IM[thread_Index][i] + temp_R_IM;
-
-//					loc_Numer_T_RE = t_Fresnel_p_RE[thread_Index][i]*temp_T_RE - t_Fresnel_p_IM[thread_Index][i]*temp_T_IM;
-//					loc_Numer_T_IM = t_Fresnel_p_RE[thread_Index][i]*temp_T_IM + t_Fresnel_p_IM[thread_Index][i]*temp_T_RE;
-
-//					r_Local_p_RE[thread_Index][i] = (loc_Numer_R_RE*loc_Denom_RE + loc_Numer_R_IM*loc_Denom_IM) / loc_Denom_SQUARE;
-//					r_Local_p_IM[thread_Index][i] = (loc_Numer_R_IM*loc_Denom_RE - loc_Numer_R_RE*loc_Denom_IM) / loc_Denom_SQUARE;
-
-//					t_Local_p_RE[thread_Index][i] = (loc_Numer_T_RE*loc_Denom_RE + loc_Numer_T_IM*loc_Denom_IM) / loc_Denom_SQUARE;
-//					t_Local_p_IM[thread_Index][i] = (loc_Numer_T_IM*loc_Denom_RE - loc_Numer_T_RE*loc_Denom_IM) / loc_Denom_SQUARE;
-//				}
-//			}
-//		}
+				double field_Value = p_Weight*pow(abs(U),2);
+				field_Intensity[point_Index][z_Index] += field_Value;
+				// TODO too sharp. consider sigmas.
+				absorption_Map [point_Index][z_Index] += field_Value * imag(epsilon_Vector[media_Index]);
+			}
+		}
 	}
 }
 
@@ -1028,7 +1026,17 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(const Data& measuremen
 //	auto elapseD = std::chrono::duration_cast<std::chrono::nanoseconds>(enD - end);
 
 //	auto start_Field = std::chrono::system_clock::now();
-	calc_Field(measurement.polarization.value, thread_Index, point_Index);
+	//  TODO
+	// now only for non-discretized case
+	// also unchecked for spectral dependences
+	if(active_Parameter_Whats_This == whats_This_Angle)
+	{
+		calc_Field(measurement.polarization.value, thread_Index, point_Index, unwrapped_Structure->epsilon);
+	}
+	if(active_Parameter_Whats_This == whats_This_Wavelength)
+	{
+		calc_Field(measurement.polarization.value, thread_Index, point_Index, unwrapped_Structure->epsilon_Dependent[point_Index]);
+	}
 //	auto end_Field = std::chrono::system_clock::now();
 //	auto elapsed_Field = std::chrono::duration_cast<std::chrono::nanoseconds>(end_Field - start_Field);
 

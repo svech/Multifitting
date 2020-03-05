@@ -16,7 +16,8 @@ Unwrapped_Structure::Unwrapped_Structure(const Calc_Functions& calc_Functions, c
 	int depth_Threshold = 2;
 
 	// recalculate all if depth is big
-	if( (max_Depth > depth_Threshold) || discretization_Parameters.enable_Discretization)
+	if( (max_Depth > depth_Threshold) || discretization_Parameters.enable_Discretization
+		|| calc_Functions.check_Field || calc_Functions.check_Joule)
 	{		
 		// PARAMETER
 		if(active_Parameter_Whats_This == whats_This_Wavelength)

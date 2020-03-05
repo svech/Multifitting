@@ -85,7 +85,7 @@ public:
 						  int thread_Index);
 	void calc_Exponenta	 (int thread_Index, const vector<double>& thickness);
 	void calc_Local		 (double polarization, int thread_Index);
-	void calc_Field		 (double polarization, int thread_Index, int point_Index);
+	void calc_Field		 (double polarization, int thread_Index, int point_Index, const vector<complex<double>>& epsilon_Vector);
 
 	// for sigma grading
 	void multifly_Fresnel_And_Weak_Factor(double polarization, int thread_Index);
