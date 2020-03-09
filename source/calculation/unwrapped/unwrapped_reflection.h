@@ -118,6 +118,7 @@ public:
 
 	vector<vector<double>>& field_Intensity;
 	vector<vector<double>>& absorption_Map;
+	vector<double> Kossel;
 
 	void fill_Specular_Values            (const Data& measurement, int thread_Index, int point_Index);
 	void calc_Specular_1_Point_1_Thread  (const Data& measurement, int thread_Index, int point_Index);

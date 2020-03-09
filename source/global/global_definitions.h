@@ -644,7 +644,7 @@ struct Calculated_Values	    {QVector<double> R;
 								 QVector<double> A;
 
 								 vector<vector<double>> field_Intensity;  // not saved
-								 vector<vector<double>> absorption_Map;   // not saved
+								 vector<vector<double>> absorption_Map;   // not saved								
 
 								 void clear_All()
 								 {

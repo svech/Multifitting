@@ -94,15 +94,15 @@ Unwrapped_Reflection::Unwrapped_Reflection(Unwrapped_Structure* unwrapped_Struct
 		U_r_p.resize(num_Threads, vector<complex<double>>(num_Media));
 
 
-
 		field_Intensity.resize(num_Points, vector<double>(unwrapped_Structure->num_Field_Slices));
 		absorption_Map .resize(num_Points, vector<double>(unwrapped_Structure->num_Field_Slices));
-
 		for(int i=0; i<num_Points; i++)
 		{
 			field_Intensity[i].assign(unwrapped_Structure->num_Field_Slices,0);
 			absorption_Map [i].assign(unwrapped_Structure->num_Field_Slices,0);
 		}
+		Kossel.resize(num_Points);
+		Kossel.assign(num_Points,0);
 	}
 }
 
@@ -840,12 +840,18 @@ void Unwrapped_Reflection::calc_Field(double polarization, int thread_Index, int
 
 				double field_Value = s_Weight*pow(abs(U),2);
 				// temporary
-				if(media_Index%2==1)
+				if(media_Index%2==1 || media_Index == num_Media-1)
 				{
 					field_Intensity[point_Index][z_Index] += field_Value;
-				}
+					Kossel[point_Index] += field_Value*unwrapped_Structure->calc_Functions.field_Step;
+				}/* else
+				{
+					field_Intensity[point_Index][z_Index] += field_Value*15/26;
+					Kossel[point_Index] += field_Value*unwrapped_Structure->calc_Functions.field_Step*15/26;
+				}*/
 				// TODO too sharp. consider sigmas.
-				absorption_Map [point_Index][z_Index] += field_Value * imag(epsilon_Vector[media_Index]);
+//				absorption_Map [point_Index][z_Index] += field_Value * imag(epsilon_Vector[media_Index]);
+				absorption_Map [point_Index][z_Index] += field_Value;// * imag(epsilon_Vector[media_Index]);
 			}
 		}
 
@@ -869,9 +875,19 @@ void Unwrapped_Reflection::calc_Field(double polarization, int thread_Index, int
 				U = U_i_p[thread_Index][media_Index] * e_1 + U_r_p[thread_Index][media_Index] * e_2;
 
 				double field_Value = p_Weight*pow(abs(U),2);
-				field_Intensity[point_Index][z_Index] += field_Value;
+				// temporary
+				if(media_Index%2==1 || media_Index == num_Media-1)
+				{
+					field_Intensity[point_Index][z_Index] += field_Value;
+					Kossel[point_Index] += field_Value*unwrapped_Structure->calc_Functions.field_Step;
+				}/* else
+				{
+					field_Intensity[point_Index][z_Index] += field_Value*15/26;
+					Kossel[point_Index] += field_Value*unwrapped_Structure->calc_Functions.field_Step*15/26;
+				}*/
 				// TODO too sharp. consider sigmas.
-				absorption_Map [point_Index][z_Index] += field_Value * imag(epsilon_Vector[media_Index]);
+//				absorption_Map [point_Index][z_Index] += field_Value * imag(epsilon_Vector[media_Index]);
+				absorption_Map [point_Index][z_Index] += field_Value;// * imag(epsilon_Vector[media_Index]);
 			}
 		}
 	}

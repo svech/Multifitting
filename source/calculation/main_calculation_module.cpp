@@ -1015,6 +1015,11 @@ void Main_Calculation_Module::print_Reflect_To_File(Data_Element<Type>& data_Ele
 	if(independent_Variables->calc_Functions.check_User)
 		print_User = true;
 
+	// Kossel intensity
+	bool print_Kossel = false;
+	if(data_Element.curve_Class == INDEPENDENT)
+	if(independent_Variables->calc_Functions.check_Field)
+		print_Kossel = true;
 	//-----------------------------------------------------------------------------------------------------
 
 	QVector<double> arg;
@@ -1041,6 +1046,7 @@ void Main_Calculation_Module::print_Reflect_To_File(Data_Element<Type>& data_Ele
 				   print_Transmittance,
 				   print_Absorptance,
 				   print_User,
+				   print_Kossel,
 				   data_Element.the_Class->measurement.polarization.value
 				   );
 		file.close();
@@ -1078,6 +1084,7 @@ void Main_Calculation_Module::print_Data(QTextStream &out, QVector<double> &arg,
 										bool print_Transmittance,
 										bool print_Absorptance,
 										bool print_User,
+										bool print_Kossel,
 										double incident_Polarization
 										)
 {
@@ -1105,6 +1112,7 @@ void Main_Calculation_Module::print_Data(QTextStream &out, QVector<double> &arg,
 
 	QString user     = "user";
 
+	QString Kossel  = "Kossel";
 
 	int precision_Arg = 16;
 	int precision_R_T_A = 6;
@@ -1153,6 +1161,12 @@ void Main_Calculation_Module::print_Data(QTextStream &out, QVector<double> &arg,
 		{
 			out << user;
 		}
+
+		// Kossel
+		if(print_Kossel)
+		{
+			out << Kossel;
+		}
 		out << qSetFieldWidth(arg_Shift) << endl  << qSetFieldWidth(width_Short);
 	}
 	///------------------------------------------------------------------------
@@ -1196,6 +1210,13 @@ void Main_Calculation_Module::print_Data(QTextStream &out, QVector<double> &arg,
 			if(print_User)
 			{
 				out << user;
+			}
+			//////////////////////////////////////////////////////////////////////////////
+
+			// Kossel
+			if(print_Kossel)
+			{
+				out << Locale.toString(unwrapped_Reflection->Kossel[i],'e',precision_R_T_A);
 			}
 
 			if(i!=arg.size()-1)
