@@ -23,6 +23,7 @@ public:
 
 	/// ------------------------------------------------
 
+#ifdef REAL_CALC
 	vector<double> epsilon_RE;
 	vector<double> epsilon_IM;
 	vector<double> epsilon_NORM;
@@ -44,6 +45,17 @@ public:
 	vector<double> exponenta_IM;
 	vector<double> exponenta_2_RE;
 	vector<double> exponenta_2_IM;
+
+#else
+	vector<complex<double>> hi;
+	vector<complex<double>> Fresnel_R_s;
+	vector<complex<double>> Fresnel_R_p;
+	vector<complex<double>> Fresnel_T_s;
+	vector<complex<double>> Fresnel_T_p;
+	vector<complex<double>> exponenta;
+	vector<complex<double>> exponenta_2;
+#endif
+
 	vector<double> weak_Factor_R;
 //	vector<double> weak_Factor_T;
 

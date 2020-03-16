@@ -37,6 +37,7 @@ public:
 	Unwrapped_Structure* unwrapped_Structure;
 	const Data& measurement;
 
+	#ifdef REAL_CALC
 	vector<vector<double>> r_Fresnel_s_RE;		//	[thread][boundary]
 	vector<vector<double>> r_Fresnel_s_IM;		//	[thread][boundary]
 	vector<vector<double>> r_Fresnel_p_RE;		//	[thread][boundary]
@@ -55,15 +56,31 @@ public:
 	vector<vector<double>> t_Local_p_RE;		//	[thread][boundary]
 	vector<vector<double>> t_Local_p_IM;		//	[thread][boundary]
 
-	vector<complex<double>> epsilon_Ambient;	//	[thread]
-	vector<complex<double>> epsilon_Substrate;	//	[thread]
-
 	vector<vector<double>> hi_RE;				//	[thread][media]
 	vector<vector<double>> hi_IM;				//	[thread][media]
 	vector<vector<double>> exponenta_RE;		//	[thread][layer]
 	vector<vector<double>> exponenta_IM;		//	[thread][layer]
 	vector<vector<double>> exponenta_2_RE;		//	[thread][layer]
 	vector<vector<double>> exponenta_2_IM;		//	[thread][layer]
+	#else
+	vector<vector<complex<double>>> r_Fresnel_s;	//	[thread][boundary]
+	vector<vector<complex<double>>> r_Fresnel_p;	//	[thread][boundary]
+	vector<vector<complex<double>>> r_Local_s;		//	[thread][boundary]
+	vector<vector<complex<double>>> r_Local_p;		//	[thread][boundary]
+
+	vector<vector<complex<double>>> t_Fresnel_s;	//	[thread][boundary]
+	vector<vector<complex<double>>> t_Fresnel_p;	//	[thread][boundary]
+	vector<vector<complex<double>>> t_Local_s;		//	[thread][boundary]
+	vector<vector<complex<double>>> t_Local_p;		//	[thread][boundary]
+
+	vector<vector<complex<double>>> hi;				//	[thread][media]
+	vector<vector<complex<double>>> exponenta;		//	[thread][layer]
+	vector<vector<complex<double>>> exponenta_2;	//	[thread][layer]
+	#endif
+
+	vector<complex<double>> epsilon_Ambient;	//	[thread]
+	vector<complex<double>> epsilon_Substrate;	//	[thread]
+
 	vector<vector<double>> weak_Factor_R;		//	[thread][boundary]
 //	vector<vector<double>> weak_Factor_T;		//	[thread][boundary]
 
@@ -110,15 +127,15 @@ public:
 	vector<double> A_Instrumental;
 
 	// fields
-	vector<double> boundaries_Enlarged;
-	vector<vector<complex<double>>> U_i_s;		//	[thread][media]
-	vector<vector<complex<double>>> U_r_s;		//	[thread][media]
-	vector<vector<complex<double>>> U_i_p;		//	[thread][media]
-	vector<vector<complex<double>>> U_r_p;		//	[thread][media]
+//	vector<double> boundaries_Enlarged;
+//	vector<vector<complex<double>>> U_i_s;		//	[thread][media]
+//	vector<vector<complex<double>>> U_r_s;		//	[thread][media]
+//	vector<vector<complex<double>>> U_i_p;		//	[thread][media]
+//	vector<vector<complex<double>>> U_r_p;		//	[thread][media]
 
-	vector<vector<double>>& field_Intensity;
-	vector<vector<double>>& absorption_Map;
-	vector<double> Kossel;
+//	vector<vector<double>>& field_Intensity;
+//	vector<vector<double>>& absorption_Map;
+//	vector<double> Kossel;
 
 	void fill_Specular_Values            (const Data& measurement, int thread_Index, int point_Index);
 	void calc_Specular_1_Point_1_Thread  (const Data& measurement, int thread_Index, int point_Index);

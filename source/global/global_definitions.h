@@ -14,6 +14,8 @@
 using namespace std;
 class Node;
 
+//#define REAL_CALC
+
 //#define RELEASE
 
 //#define EXPRTK

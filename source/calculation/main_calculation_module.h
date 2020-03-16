@@ -72,7 +72,7 @@ public:
 									 bool print_Transmittance,
 									 bool print_Absorptance,
 									 bool print_User,
-									 bool print_Kossel,
+//									 bool print_Kossel,
 									 double incident_Polarization
 									 );
 	void print_Matrix(QTextStream& out, const vector<vector<double>>& matrix);
