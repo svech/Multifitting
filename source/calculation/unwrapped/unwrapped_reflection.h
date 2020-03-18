@@ -127,14 +127,14 @@ public:
 	vector<double> A_Instrumental;
 
 	// fields
-//	vector<double> boundaries_Enlarged;
-//	vector<vector<complex<double>>> U_i_s;		//	[thread][media]
-//	vector<vector<complex<double>>> U_r_s;		//	[thread][media]
-//	vector<vector<complex<double>>> U_i_p;		//	[thread][media]
-//	vector<vector<complex<double>>> U_r_p;		//	[thread][media]
+	vector<double> boundaries_Enlarged;
+	vector<vector<complex<double>>> U_i_s;		//	[thread][media]
+	vector<vector<complex<double>>> U_r_s;		//	[thread][media]
+	vector<vector<complex<double>>> U_i_p;		//	[thread][media]
+	vector<vector<complex<double>>> U_r_p;		//	[thread][media]
 
-//	vector<vector<double>>& field_Intensity;
-//	vector<vector<double>>& absorption_Map;
+	vector<vector<double>>& field_Intensity;
+	vector<vector<double>>& absorption_Map;
 //	vector<double> Kossel;
 
 	void fill_Specular_Values            (const Data& measurement, int thread_Index, int point_Index);

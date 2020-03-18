@@ -1052,29 +1052,29 @@ void Main_Calculation_Module::print_Reflect_To_File(Data_Element<Type>& data_Ele
 		file.close();
 	}
 
-//	// intensity
-//	if(data_Element.calc_Functions.check_Field)
-//	{
-//		QString name = first_Name+"_"+Locale.toString(index)+"_intensity.txt";
-//		QFile file(name);
-//		file.open(QIODevice::WriteOnly);
-//		QTextStream out(&file);
-//		out.setFieldAlignment(QTextStream::AlignLeft);
-//		print_Matrix(out, data_Element.the_Class->calculated_Values.field_Intensity);
-//		file.close();
-//	}
+	// intensity
+	if(data_Element.calc_Functions.check_Field)
+	{
+		QString name = first_Name+"_"+Locale.toString(index)+"_intensity.txt";
+		QFile file(name);
+		file.open(QIODevice::WriteOnly);
+		QTextStream out(&file);
+		out.setFieldAlignment(QTextStream::AlignLeft);
+		print_Matrix(out, data_Element.the_Class->calculated_Values.field_Intensity);
+		file.close();
+	}
 
-//	// absorption
-//	if(data_Element.calc_Functions.check_Joule)
-//	{
-//		QString name = first_Name+"_"+Locale.toString(index)+"_absorption.txt";
-//		QFile file(name);
-//		file.open(QIODevice::WriteOnly);
-//		QTextStream out(&file);
-//		out.setFieldAlignment(QTextStream::AlignLeft);
-//		print_Matrix(out, data_Element.the_Class->calculated_Values.absorption_Map);
-//		file.close();
-//	}
+	// absorption
+	if(data_Element.calc_Functions.check_Joule)
+	{
+		QString name = first_Name+"_"+Locale.toString(index)+"_absorption.txt";
+		QFile file(name);
+		file.open(QIODevice::WriteOnly);
+		QTextStream out(&file);
+		out.setFieldAlignment(QTextStream::AlignLeft);
+		print_Matrix(out, data_Element.the_Class->calculated_Values.absorption_Map);
+		file.close();
+	}
 }
 template void Main_Calculation_Module::print_Reflect_To_File<Independent_Variables>(Data_Element<Independent_Variables>&, QString, int);
 template void Main_Calculation_Module::print_Reflect_To_File<Target_Curve>		   (Data_Element<Target_Curve>&,          QString, int);

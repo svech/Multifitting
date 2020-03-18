@@ -303,7 +303,7 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 									// reflectance
 									Fresnel_R_s[i] = (above_Node->hi[i] - hi[i]) / (above_Node->hi[i] + hi[i]);
 									// transmittance
-									Fresnel_T_s[i] = 2*above_Node->hi[i] / (above_Node->hi[i] + hi[i]);
+									Fresnel_T_s[i] = 2.*above_Node->hi[i] / (above_Node->hi[i] + hi[i]);
 								} else
 								{
 									// reflectance
@@ -349,8 +349,8 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 									temp_Fre_Numer_IM = temp_1_IM - temp_2_IM;
 
 									// reflectance
-									Fresnel_R_p_RE[i] =-(temp_Fre_Numer_RE*temp_Fre_Denom_RE + temp_Fre_Numer_IM*temp_Fre_Denom_IM) / temp_Fre_Denom_SQARE; // - sign for p polarization due to vector expressions
-									Fresnel_R_p_IM[i] =-(temp_Fre_Numer_IM*temp_Fre_Denom_RE - temp_Fre_Numer_RE*temp_Fre_Denom_IM) / temp_Fre_Denom_SQARE; // - sign for p polarization due to vector expressions
+									Fresnel_R_p_RE[i] =(temp_Fre_Numer_RE*temp_Fre_Denom_RE + temp_Fre_Numer_IM*temp_Fre_Denom_IM) / temp_Fre_Denom_SQARE;
+									Fresnel_R_p_IM[i] =(temp_Fre_Numer_IM*temp_Fre_Denom_RE - temp_Fre_Numer_RE*temp_Fre_Denom_IM) / temp_Fre_Denom_SQARE;
 									// transmittance
 									Fresnel_T_p_RE[i] = 2*(temp_1_RE*temp_Fre_Denom_RE + temp_1_IM*temp_Fre_Denom_IM) / temp_Fre_Denom_SQARE;
 									Fresnel_T_p_IM[i] = 2*(temp_1_IM*temp_Fre_Denom_RE - temp_1_RE*temp_Fre_Denom_IM) / temp_Fre_Denom_SQARE;
@@ -377,15 +377,15 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 							for(int i=0; i<num_Points; ++i)
 		//					for (int i=n_Min; i<n_Max; ++i)
 							{
-								hi_je = hi[i]/epsilon[i];
-								hi_j1e = above_Node->hi[i]/above_Node->epsilon[i];
+								hi_je = above_Node->hi[i]/above_Node->epsilon[i];
+								hi_j1e = hi[i]/epsilon[i];
 
 								if ( abs(hi_je+hi_j1e) > DBL_MIN )
 								{
 									// reflectance
-									Fresnel_R_p[i] =-(hi_je-hi_j1e) / (hi_je+hi_j1e); // - sign for p polarization due to vector expressions
+									Fresnel_R_p[i] = (hi_je-hi_j1e) / (hi_je+hi_j1e);
 									// transmittance
-									Fresnel_T_p[i] = 2*hi_je / (hi_je+hi_j1e);
+									Fresnel_T_p[i] = 2.*hi_je / (hi_je+hi_j1e);
 								} else
 								{
 									// reflectance
@@ -744,8 +744,8 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 							for(int i=0; i<num_Points; ++i)
 	//						for(int i=n_Min; i<n_Max; ++i)
 							{
-								exponenta[i]   = 1;
-								exponenta_2[i] = 1;
+								exponenta[i]   = 1.;
+								exponenta_2[i] = 1.;
 							}
 	//					});
 					} else

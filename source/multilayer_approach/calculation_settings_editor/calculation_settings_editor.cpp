@@ -749,8 +749,14 @@ void Calculation_Settings_Editor::load_Independent_Parameters(int tab_Index)
 						field_Checkbox_Layout->addWidget(joule_Absorption);
 						joule_Absorption->setChecked(independent_Variables->calc_Functions.check_Joule);
 
-				connect(field_Intensity,  &QCheckBox::toggled, this, [=]{ refresh_Independent_Calc_Properties(tab_Index, independent_Index, box); });
-				connect(joule_Absorption, &QCheckBox::toggled, this, [=]{ refresh_Independent_Calc_Properties(tab_Index, independent_Index, box); });
+				connect(field_Intensity,  &QCheckBox::toggled, this, [=]{
+					independent_Variables->calc_Functions.check_Field = field_Intensity->isChecked();
+//					refresh_Independent_Calc_Properties(tab_Index, independent_Index, box);
+				});
+				connect(joule_Absorption, &QCheckBox::toggled, this, [=]{
+					independent_Variables->calc_Functions.check_Joule = joule_Absorption->isChecked();
+//					refresh_Independent_Calc_Properties(tab_Index, independent_Index, box);
+				});
 
 				// in-depth step
 				QList<QWidget*> step_Widgets_List;
@@ -882,8 +888,8 @@ void Calculation_Settings_Editor::refresh_Independent_Calc_Properties(int tab_In
 		if(check_Box->text() == transmittance_Function) independent_Variables->calc_Functions.check_Transmittance = check_Box->isChecked();
 		if(check_Box->text() == absorptance_Function)	independent_Variables->calc_Functions.check_Absorptance = check_Box->isChecked();
 
-		if(check_Box->text() == intensity_Function)		independent_Variables->calc_Functions.check_Field = check_Box->isChecked();
-		if(check_Box->text() == joule_Function)			independent_Variables->calc_Functions.check_Joule = check_Box->isChecked();
+///		if(check_Box->text() == intensity_Function)		independent_Variables->calc_Functions.check_Field = check_Box->isChecked();
+///		if(check_Box->text() == joule_Function)			independent_Variables->calc_Functions.check_Joule = check_Box->isChecked();
 		if(check_Box->text() == user_Function)			independent_Variables->calc_Functions.check_User = check_Box->isChecked();
 
 		reopen_Optical_Graphs();
