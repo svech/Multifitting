@@ -491,28 +491,21 @@ void Curve_Plot::create_Options()
 		// independent
 		if(curve_Class == INDEPENDENT)
 		{
+			if(independent_Variables->calc_Functions.check_Absorptance )
+			{
+				max_Value_Title = "| Max A =";
+			} else
+			if(independent_Variables->calc_Functions.check_Transmittance )
+			{
+				max_Value_Title = "| Max T =";
+			} else
 			if( independent_Variables->calc_Functions.check_Reflectance )
 			{
 				max_Value_Title = "| Max R =";
 			} else
 			{
-				if(!independent_Variables->calc_Functions.check_Reflectance &&
-					independent_Variables->calc_Functions.check_Transmittance )
-				{
-					max_Value_Title = "| Max T =";
-				} else
-				{
-					if(!independent_Variables->calc_Functions.check_Reflectance &&
-					   !independent_Variables->calc_Functions.check_Transmittance &&
-						independent_Variables->calc_Functions.check_Absorptance )
-					{
-						max_Value_Title = "| Max A =";
-					} else
-					{
-						// none
-						max_Value_Title = "";
-					}
-				}
+				// none
+				max_Value_Title = "";
 			}
 		}
 

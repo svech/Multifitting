@@ -78,6 +78,9 @@ public:
 	vector<vector<complex<double>>> exponenta_2;	//	[thread][layer]
 	#endif
 
+	vector<double> environment_Factor_s;	//	[thread]
+	vector<double> environment_Factor_p;	//	[thread]
+
 	vector<complex<double>> epsilon_Ambient;	//	[thread]
 	vector<complex<double>> epsilon_Substrate;	//	[thread]
 
@@ -87,6 +90,7 @@ public:
 	int fill_s__Max_Depth_2(const tree<Node>::iterator& parent, int thread_Index, int point_Index, int media_Index = 0);
 	int fill_p__Max_Depth_2(const tree<Node>::iterator& parent, int thread_Index, int point_Index, int media_Index = 0);
 	int fill_sp_Max_Depth_2(const tree<Node>::iterator& parent, int thread_Index, int point_Index, int media_Index = 0);
+	int fill_Epsilon_Ambient_Substrate(int thread_Index, vector<complex<double>>& epsilon_In_Depth);
 
 	void calc_Hi		 (double k, double cos2,
 						  const vector<complex<double>>& eps,
@@ -103,6 +107,7 @@ public:
 	void calc_Exponenta	 (int thread_Index, const vector<double>& thickness);
 	void calc_Local		 (double polarization, int thread_Index);
 	void calc_Field		 (double polarization, int thread_Index, int point_Index, const vector<complex<double>>& epsilon_Vector);
+	void calc_Environmental_Factor(int thread_Index);
 
 	// for sigma grading
 	void multifly_Fresnel_And_Weak_Factor(double polarization, int thread_Index);

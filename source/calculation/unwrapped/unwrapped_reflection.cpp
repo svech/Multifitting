@@ -61,11 +61,14 @@ Unwrapped_Reflection::Unwrapped_Reflection(Unwrapped_Structure* unwrapped_Struct
 	exponenta_2(num_Threads,vector<complex<double>>(num_Boundaries)),
 	#endif
 
-	weak_Factor_R (num_Threads,vector<double>(num_Boundaries)),
-//	weak_Factor_T (num_Threads,vector<double>(num_Boundaries)),
+	environment_Factor_s(num_Threads),
+	environment_Factor_p(num_Threads),
 
 	epsilon_Ambient(num_Threads),
 	epsilon_Substrate(num_Threads),
+
+	weak_Factor_R (num_Threads,vector<double>(num_Boundaries)),
+//	weak_Factor_T (num_Threads,vector<double>(num_Boundaries)),
 
 	// references to vectors!
 	field_Intensity(calculated_Values.field_Intensity),
@@ -102,8 +105,14 @@ Unwrapped_Reflection::Unwrapped_Reflection(Unwrapped_Structure* unwrapped_Struct
 
 	if(unwrapped_Structure->calc_Functions.check_Field || unwrapped_Structure->calc_Functions.check_Joule)
 	{
+		if(!unwrapped_Structure->discretization_Parameters.enable_Discretization)
+		{
+			boundaries_Enlarged = unwrapped_Structure->boundaries;
+		} else
+		{
+			boundaries_Enlarged = unwrapped_Structure->discretized_Slices_Boundaries;
+		}
 		// plus one element to end
-		boundaries_Enlarged = unwrapped_Structure->boundaries;
 		boundaries_Enlarged.push_back(boundaries_Enlarged.back());
 
 		U_i_s.resize(num_Threads, vector<complex<double>>(num_Media));
@@ -421,6 +430,12 @@ int Unwrapped_Reflection::fill_sp_Max_Depth_2(const tree<Node>::iterator& parent
 		}
 	}
 	return media_Index;
+}
+
+int Unwrapped_Reflection::fill_Epsilon_Ambient_Substrate(int thread_Index, vector<complex<double>>& epsilon_In_Depth)
+{
+	epsilon_Ambient  [thread_Index] = epsilon_In_Depth.front();
+	epsilon_Substrate[thread_Index] = epsilon_In_Depth.back();
 }
 
 void Unwrapped_Reflection::calc_Hi(double k, double cos2,
@@ -1135,10 +1150,6 @@ void Unwrapped_Reflection::calc_Local(double polarization, int thread_Index)
 
 void Unwrapped_Reflection::calc_Field(double polarization, int thread_Index, int point_Index, const vector<complex<double>>& epsilon_Vector)
 {
-	//  TODO
-	// now only for non-discretized case
-	// also unchecked for spectral dependences
-
 	// s-polarization
 	if( calc_Functions.check_Field ||
 		calc_Functions.check_Joule )
@@ -1240,6 +1251,18 @@ void Unwrapped_Reflection::calc_Field(double polarization, int thread_Index, int
 	}
 }
 
+void Unwrapped_Reflection::calc_Environmental_Factor(int thread_Index)
+{
+	environment_Factor_s[thread_Index] = real( hi[thread_Index].back() /hi[thread_Index].front());
+	environment_Factor_p[thread_Index] = real((hi[thread_Index].back() /epsilon_Substrate[thread_Index] )/
+											  (hi[thread_Index].front()/epsilon_Ambient  [thread_Index]));
+
+	if(isinf(environment_Factor_s[thread_Index])) {environment_Factor_s[thread_Index] = 0;}
+	if(isinf(environment_Factor_p[thread_Index])) {environment_Factor_p[thread_Index] = 0;}
+	if(isnan(environment_Factor_s[thread_Index])) {environment_Factor_s[thread_Index] = 0;}
+	if(isnan(environment_Factor_p[thread_Index])) {environment_Factor_p[thread_Index] = 0;}
+}
+
 void Unwrapped_Reflection::multifly_Fresnel_And_Weak_Factor(double polarization, int thread_Index)
 {
 	/// used only in if Fresnel was taken from Node
@@ -1335,6 +1358,7 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(const Data& measuremen
 		{
 			if(active_Parameter_Whats_This == whats_This_Angle)
 			{
+				fill_Epsilon_Ambient_Substrate(thread_Index, unwrapped_Structure->epsilon);
 				calc_Hi(measurement.k_Value, measurement.cos2[point_Index],
 						unwrapped_Structure->epsilon,
 //						unwrapped_Structure->epsilon_RE,
@@ -1351,6 +1375,7 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(const Data& measuremen
 			}
 			if(active_Parameter_Whats_This == whats_This_Wavelength)
 			{
+				fill_Epsilon_Ambient_Substrate(thread_Index, unwrapped_Structure->epsilon_Dependent[point_Index]);
 				calc_Hi(measurement.k[point_Index], measurement.cos2_Value,
 						unwrapped_Structure->epsilon_Dependent	 [point_Index],
 //						unwrapped_Structure->epsilon_Dependent_RE[point_Index],
@@ -1377,6 +1402,7 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(const Data& measuremen
 
 		if(active_Parameter_Whats_This == whats_This_Angle)
 		{
+			fill_Epsilon_Ambient_Substrate(thread_Index, unwrapped_Structure->epsilon); // here can be passed non-discretized epsilon
 			calc_Hi(measurement.k_Value, measurement.cos2[point_Index],
 					unwrapped_Structure->discretized_Epsilon,
 //					unwrapped_Structure->discretized_Epsilon_RE,
@@ -1392,6 +1418,7 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(const Data& measuremen
 		}
 		if(active_Parameter_Whats_This == whats_This_Wavelength)
 		{
+			fill_Epsilon_Ambient_Substrate(thread_Index, unwrapped_Structure->epsilon_Dependent[point_Index]); // here can be passed non-discretized epsilon
 			calc_Hi(measurement.k[point_Index], measurement.cos2_Value,
 					unwrapped_Structure->discretized_Epsilon_Dependent[point_Index],
 //					unwrapped_Structure->discretized_Epsilon_Dependent_RE[point_Index],
@@ -1415,16 +1442,25 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(const Data& measuremen
 //	auto elapseD = std::chrono::duration_cast<std::chrono::nanoseconds>(enD - end);
 
 //	auto start_Field = std::chrono::system_clock::now();
-	//  TODO
-	// now only for non-discretized case
-	// also unchecked for spectral dependences
 	if(active_Parameter_Whats_This == whats_This_Angle)
 	{
-		calc_Field(measurement.polarization.value, thread_Index, point_Index, unwrapped_Structure->epsilon);
+		if(!unwrapped_Structure->discretization_Parameters.enable_Discretization)
+		{
+			calc_Field(measurement.polarization.value, thread_Index, point_Index, unwrapped_Structure->epsilon);
+		} else
+		{
+			calc_Field(measurement.polarization.value, thread_Index, point_Index, unwrapped_Structure->discretized_Epsilon);
+		}
 	}
 	if(active_Parameter_Whats_This == whats_This_Wavelength)
 	{
-		calc_Field(measurement.polarization.value, thread_Index, point_Index, unwrapped_Structure->epsilon_Dependent[point_Index]);
+		if(!unwrapped_Structure->discretization_Parameters.enable_Discretization)
+		{
+			calc_Field(measurement.polarization.value, thread_Index, point_Index, unwrapped_Structure->epsilon_Dependent[point_Index]);
+		} else
+		{
+			calc_Field(measurement.polarization.value, thread_Index, point_Index, unwrapped_Structure->discretized_Epsilon_Dependent[point_Index]);
+		}
 	}
 //	auto end_Field = std::chrono::system_clock::now();
 //	auto elapsed_Field = std::chrono::duration_cast<std::chrono::nanoseconds>(end_Field - start_Field);
@@ -1440,6 +1476,8 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(const Data& measuremen
 
 void Unwrapped_Reflection::fill_Specular_Values(const Data& measurement, int thread_Index, int point_Index)
 {
+	calc_Environmental_Factor(thread_Index);
+
 	double s_Weight = (1. + measurement.polarization.value) / 2.;
 	double p_Weight = (1. - measurement.polarization.value) / 2.;
 
@@ -1471,25 +1509,8 @@ void Unwrapped_Reflection::fill_Specular_Values(const Data& measurement, int thr
 	Phi_T_s[point_Index] = arg(t_s)/M_PI*180.;
 	Phi_T_p[point_Index] = arg(t_p)/M_PI*180.;
 
-	#ifdef REAL_CALC
-	complex<double> hi_Ambient   = complex<double>(hi_RE[thread_Index][0],           hi_IM[thread_Index][0]);
-	complex<double> hi_Substrate = complex<double>(hi_RE[thread_Index][num_Media-1], hi_IM[thread_Index][num_Media-1]);
-	#else
-	complex<double> hi_Ambient   = hi[thread_Index][0];
-	complex<double> hi_Substrate = hi[thread_Index][num_Media-1];
-	#endif
-
-	double environment_Factor_s = real(hi_Substrate/hi_Ambient);
-	double environment_Factor_p = real(
-										(hi_Substrate/epsilon_Substrate[thread_Index])/
-										(hi_Ambient  /epsilon_Ambient[thread_Index]  ));
-	if(isinf(environment_Factor_s)) environment_Factor_s = 0;
-	if(isinf(environment_Factor_p)) environment_Factor_p = 0;
-	if(isnan(environment_Factor_s)) environment_Factor_s = 0;
-	if(isnan(environment_Factor_p)) environment_Factor_p = 0;
-
-	T_s[point_Index] = pow(abs(t_s),2)*environment_Factor_s;
-	T_p[point_Index] = pow(abs(t_p),2)*environment_Factor_p;
+	T_s[point_Index] = pow(abs(t_s),2)*environment_Factor_s[thread_Index];
+	T_p[point_Index] = pow(abs(t_p),2)*environment_Factor_p[thread_Index];
 	T  [point_Index] = s_Weight * T_s[point_Index] + p_Weight * T_p[point_Index];
 
 	// absorptance (without scattering!)
@@ -1519,7 +1540,7 @@ void Unwrapped_Reflection::fill_Specular_Values(const Data& measurement, int thr
 		qInfo() << "r_Local_p_RE" << real(r_Local_p[thread_Index][0]) << "r_Local_p_IM" << imag(r_Local_p[thread_Index][0]) << endl;
 		qInfo() << "t_Local_s_RE" << real(t_Local_s[thread_Index][0]) << "t_Local_s_IM" << imag(t_Local_s[thread_Index][0]) << endl;
 		qInfo() << "t_Local_p_RE" << real(t_Local_p[thread_Index][0]) << "t_Local_p_IM" << imag(t_Local_p[thread_Index][0]) << endl;
-		qInfo() << "environment_Factor_s" << environment_Factor_s << "environment_Factor_p" << environment_Factor_p << endl;
+		qInfo() << "environment_Factor_s" << environment_Factor_s[thread_Index] << "environment_Factor_p" << environment_Factor_p[thread_Index]  << endl;
 		qInfo() << "";
 		#endif
 	}
