@@ -67,12 +67,8 @@ Unwrapped_Reflection::Unwrapped_Reflection(Unwrapped_Structure* unwrapped_Struct
 	epsilon_Ambient(num_Threads),
 	epsilon_Substrate(num_Threads),
 
-	weak_Factor_R (num_Threads,vector<double>(num_Boundaries)),
-//	weak_Factor_T (num_Threads,vector<double>(num_Boundaries)),
-
-	// references to vectors!
-	field_Intensity(calculated_Values.field_Intensity),
-	absorption_Map (calculated_Values.absorption_Map)
+	weak_Factor_R (num_Threads,vector<double>(num_Boundaries))
+//	weak_Factor_T (num_Threads,vector<double>(num_Boundaries))
 {	
 	// PARAMETER
 	if(active_Parameter_Whats_This == whats_This_Angle)
@@ -120,8 +116,17 @@ Unwrapped_Reflection::Unwrapped_Reflection(Unwrapped_Structure* unwrapped_Struct
 		U_i_p.resize(num_Threads, vector<complex<double>>(num_Media));
 		U_r_p.resize(num_Threads, vector<complex<double>>(num_Media));
 
-		field_Intensity.resize(num_Points, vector<double>(unwrapped_Structure->num_Field_Slices));
-		absorption_Map .resize(num_Points, vector<double>(unwrapped_Structure->num_Field_Slices));
+		// if too much slices
+//		unwrapped_Structure->num_Field_Slices = min(unwrapped_Structure->num_Field_Slices, 1000000/num_Points);
+//		unwrapped_Structure->field_Z_Positions.resize(unwrapped_Structure->num_Field_Slices);
+
+		calculated_Values.field_Intensity.resize(num_Points);
+		calculated_Values.absorption_Map.resize(num_Points);
+		for(int i=0; i<num_Points; i++)
+		{
+			calculated_Values.field_Intensity[i].resize(unwrapped_Structure->num_Field_Slices);
+			calculated_Values.absorption_Map [i].resize(unwrapped_Structure->num_Field_Slices);
+		}
 //		Kossel.resize(num_Points);
 //		Kossel.assign(num_Points,0);
 	}
@@ -1244,8 +1249,8 @@ void Unwrapped_Reflection::calc_Field(double polarization, int thread_Index, int
 				field_Value+=p_Weight*pow(abs(U_p),2);
 			}
 
-			field_Intensity[point_Index][z_Index] = field_Value;
-			absorption_Map [point_Index][z_Index] = field_Value * imag(epsilon_Vector[media_Index]); // consider sigma?
+			calculated_Values.field_Intensity[point_Index][z_Index] = field_Value;
+			calculated_Values.absorption_Map [point_Index][z_Index] = field_Value * imag(epsilon_Vector[media_Index]); // consider sigma?
 //			Kossel[point_Index] += field_Value*unwrapped_Structure->calc_Functions.field_Step;
 		}
 	}
