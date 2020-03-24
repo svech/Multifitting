@@ -865,18 +865,23 @@ void Table_Of_Structures::refresh_Reload_Colorize(QString refresh_Reload, QWidge
 
 	/// colorize dependence
 	{
+		// colorize fit checkbox
+		QWidget* back_Widget_Fit = back_Widgets_Fit_Map.key(parameter->indicator.id);
+		if(back_Widget_Fit)
+		{
+			if(parameter->fit.is_Fitable && !parameter->coupled.master.exist)
+			{	back_Widget_Fit->setStyleSheet(fit_Color);}
+			else
+			{	back_Widget_Fit->setStyleSheet(white_Color);}
+		}
+
 		// has no dependencies
 		if(!parameter->coupled.master.exist && parameter->coupled.slaves.size()==0)
-		{
-			if(back_Widget->property(fit_Text).toString() == fit_Text)
+		{	
+			if(back_Widget->property(fit_Text).toString() != fit_Text)
 			{
-				if(parameter->fit.is_Fitable)
-					back_Widget->setStyleSheet(fit_Color);
-				else
-					back_Widget->setStyleSheet(white_Color);
-			}
-			else
 				back_Widget->setStyleSheet(free_Parameter_Color);
+			}
 		}
 
 		// has master only
@@ -902,7 +907,9 @@ void Table_Of_Structures::refresh_Reload_Colorize(QString refresh_Reload, QWidge
 		// colorize fit
 		QCheckBox* fit_Check_Box = check_Boxes_Fit_Map.key(parameter->indicator.id);
 		if(fit_Check_Box)
+		{
 			fit_Check_Box->toggled(fit_Check_Box->isChecked());
+		}
 	}
 }
 
@@ -2037,6 +2044,9 @@ void Table_Of_Structures::create_Check_Box_Fit(My_Table_Widget* table, int tab_I
 
 		// colorize
 		refresh_Reload_Colorize(colorize_Property, back_Widget, &parameter);
+	} else
+	{
+		back_Widgets_Fit_Map.insert(back_Widget, parameter.indicator.id);
 	}
 
 	// create item
@@ -2314,8 +2324,9 @@ void Table_Of_Structures::create_Weights_Check_Box_Fit_Interlayer(My_Table_Widge
 
 		check_Box->setChecked(inter_Comp.interlayer.fit.is_Fitable);
 
-		// alignment (back_Widget only for alignment)
+		// alignment (back_Widget for alignment and color)
 		QWidget* back_Widget = new QWidget;
+		back_Widgets_Fit_Map.insert(back_Widget, inter_Comp.interlayer.indicator.id);
 		QVBoxLayout* back_Layout = new QVBoxLayout(back_Widget);
 		back_Layout->addWidget(check_Box);
 		back_Layout->setSpacing(0);

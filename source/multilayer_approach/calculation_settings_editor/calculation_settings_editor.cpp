@@ -432,11 +432,7 @@ void Calculation_Settings_Editor::load_Target_Parameters(int tab_Index)
 				connect(fit,  &QCheckBox::toggled, this, [=]
 				{
 					target_Curve->fit_Params.fit = fit->isChecked();
-					if(target_Curve->fit_Params.fit) {
-						fit->setStyleSheet("QCheckBox { color: green }");
-					} else	{
-						fit->setStyleSheet("QCheckBox { color: black }");
-					}
+					fit->setStyleSheet("QCheckBox:enabled{ color: green; }QCheckBox:disabled{}");
 				});
 				fit->toggled(fit->isChecked());
 
@@ -458,7 +454,7 @@ void Calculation_Settings_Editor::load_Target_Parameters(int tab_Index)
 						global_Multilayer_Approach->calc_Reflection(true);
 					}
 				});
-				shift_SpinBox->valueChanged(shift_SpinBox->value());
+//				shift_SpinBox->valueChanged(shift_SpinBox->value());
 
 				// mesh density
 				QLabel* mesh_Density_Label = new QLabel("Mesh density factor");
@@ -473,20 +469,24 @@ void Calculation_Settings_Editor::load_Target_Parameters(int tab_Index)
 				connect(mesh_Density_SpinBox, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, [=]
 				{
 					target_Curve->curve.mesh_Density_Factor = mesh_Density_SpinBox->value();
-					global_Multilayer_Approach->calc_Reflection(true);
 					if(target_Curve->curve.mesh_Density_Factor == 1) {
-						mesh_Density_SpinBox->setStyleSheet("QSpinBox { color: black }");
-						mesh_Density_Label  ->setStyleSheet("QLabel   { color: black }");
-						shift_SpinBox		->setStyleSheet("QSpinBox { color: black }");
-						shift_Label			->setStyleSheet("QLabel   { color: black }");
+						mesh_Density_SpinBox->setStyleSheet("QSpinBox { }");
+						mesh_Density_Label  ->setStyleSheet("QLabel   { }");
+						shift_SpinBox		->setStyleSheet("QSpinBox {  }");
+						shift_Label			->setStyleSheet("QLabel   { }");
 					} else	{
-						mesh_Density_SpinBox->setStyleSheet("QSpinBox { color: blue }");
-						mesh_Density_Label  ->setStyleSheet("QLabel   { color: blue }");
-						shift_SpinBox		->setStyleSheet("QSpinBox { color: blue }");
-						shift_Label			->setStyleSheet("QLabel   { color: blue }");
+						mesh_Density_SpinBox->setStyleSheet("QSpinBox:enabled { color: blue } QCheckBox:disabled{}");
+						mesh_Density_Label  ->setStyleSheet("QLabel:enabled   { color: blue } QCheckBox:disabled{}");
+						shift_SpinBox		->setStyleSheet("QSpinBox:enabled { color: blue } QCheckBox:disabled{}");
+						shift_Label			->setStyleSheet("QLabel:enabled   { color: blue } QCheckBox:disabled{}");
 					}
 				});
 				mesh_Density_SpinBox->valueChanged(mesh_Density_SpinBox->value());
+				connect(mesh_Density_SpinBox, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, [=]
+				{
+					target_Curve->curve.mesh_Density_Factor = mesh_Density_SpinBox->value();
+					global_Multilayer_Approach->calc_Reflection(true);
+				});
 				fit_Layout->addWidget(mesh_Density_SpinBox,Qt::AlignRight);
 
 				fit_Layout->addWidget(shift_Label);
@@ -519,9 +519,9 @@ void Calculation_Settings_Editor::load_Target_Parameters(int tab_Index)
 					target_Curve->fit_Params.adjust_Scale_Factor = adjust_Scale_Factor->isChecked();
 					target_Curve->curve.val_Factor.fit.is_Fitable = target_Curve->fit_Params.adjust_Scale_Factor;
 					if(target_Curve->fit_Params.adjust_Scale_Factor) {
-						adjust_Scale_Factor->setStyleSheet("QCheckBox { color: red }");
+						adjust_Scale_Factor->setStyleSheet("QCheckBox:enabled { color: red } QCheckBox:disabled{}");
 					} else	{
-						adjust_Scale_Factor->setStyleSheet("QCheckBox { color: black }");
+						adjust_Scale_Factor->setStyleSheet("QCheckBox { }");
 					}
 				});
 				adjust_Scale_Factor->toggled(adjust_Scale_Factor->isChecked());

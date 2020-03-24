@@ -663,6 +663,7 @@ int Unwrapped_Structure::fill_Sigma(const tree<Node>::iterator& parent, double& 
 			for(int func_Index=0; func_Index<transition_Layer_Functions_Size; ++func_Index)
 			{
 				boundary_Interlayer_Composition[boundary_Index][func_Index] = child.node->data.struct_Data.interlayer_Composition[func_Index];			
+
 				if(boundary_Interlayer_Composition[boundary_Index][func_Index].enabled)
 				{
 					if(max_Sigma<boundary_Interlayer_Composition[boundary_Index][func_Index].my_Sigma.value)

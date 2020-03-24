@@ -16,7 +16,7 @@ Coupling_Editor::Coupling_Editor(QWidget* coupled_Widget,
 	create_Main_Layout();
 	set_Window_Geometry();
 	setAttribute(Qt::WA_DeleteOnClose);
-	setWindowFlags(Qt::Window | Qt::WindowTitleHint | Qt::CustomizeWindowHint);
+	setWindowFlags(Qt::Window | Qt::WindowTitleHint | Qt::CustomizeWindowHint | Qt::WindowStaysOnTopHint);
 }
 
 void Coupling_Editor::closeEvent(QCloseEvent *)

@@ -195,6 +195,19 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 				#endif
 			}
 
+			// anyway
+			if( struct_Data.item_Type == item_Type_Layer   ||
+				struct_Data.item_Type == item_Type_Substrate )
+			{
+				if(struct_Data.common_Sigma)
+				{
+					for(Interlayer& inter : struct_Data.interlayer_Composition)
+					{
+						inter.my_Sigma.value = struct_Data.sigma.value;
+					}
+				}
+			}
+
 			// only without discretization
 			if(!enable_Discretization)
 			{

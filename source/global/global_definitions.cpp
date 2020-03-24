@@ -318,8 +318,7 @@ QDataStream& operator >>( QDataStream& stream,		 Value& value )
 QDataStream& operator <<( QDataStream& stream, const Curve& curve )
 {
 	return stream << curve.use_Subinterval
-				  << curve.mesh_Density_Factor // Parameter since 1.10.2
-				  << curve.mesh_Density_Shift  // Parameter since 1.10.2
+				  << curve.mesh_Density_Factor << curve.mesh_Density_Shift  // Parameter since 1.10.2
 				  << curve.subinterval_Start << curve.subinterval_End // since 1.10.1
 				  << curve.argument << curve.shifted_Argument << curve.values << curve.shifted_Values << curve.arg_Offset << curve.arg_Factor << curve.val_Offset
 				  << curve.val_Factor	// Parameter since 1.10.2
@@ -340,15 +339,15 @@ QDataStream& operator >>( QDataStream& stream,		 Curve& curve )
 
 	stream  >> curve.argument >> curve.shifted_Argument >> curve.values >> curve.shifted_Values >> curve.arg_Offset >> curve.arg_Factor >> curve.val_Offset;
 
-	// indtead of loading shifted_Values_No_Scaling_And_Offset // since 1.10.2
+	if(Global_Variables::check_Loaded_Version(1,10,2))		// since 1.10.2
+		 {stream >> curve.val_Factor;}
+	else {stream >> curve.val_Factor.value;}
+
+	// instead of loading shifted_Values_No_Scaling_And_Offset // since 1.10.2
 	curve.shifted_Values_No_Scaling_And_Offset.resize(curve.shifted_Values.size());
 	for(int i=0; i<curve.shifted_Values.size(); i++)	{
 		curve.shifted_Values_No_Scaling_And_Offset[i] = (curve.shifted_Values[i].val_1 - curve.val_Offset)/curve.val_Factor.value; // since 1.10.2
 	}
-
-	if(Global_Variables::check_Loaded_Version(1,10,2))		// since 1.10.2
-		 {stream >> curve.val_Factor;}
-	else {stream >> curve.val_Factor.value;}
 
 	if(Global_Variables::check_Loaded_Version(1,7,1))		// since 1.7.1
 	{

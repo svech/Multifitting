@@ -191,6 +191,7 @@ public:
 	QList<QList<QWidget*>>			all_Widgets_To_Reload;
 	QMultiMap<QWidget*, id_Type>	reload_Show_Dependence_Map;
 	QMap<QCheckBox*,id_Type>		check_Boxes_Fit_Map;
+	QMap<QWidget*,id_Type>			back_Widgets_Fit_Map;
 	QMap<MyDoubleSpinBox*,id_Type>	spin_Boxes_ID_Map;
 
 	// refresh/reload regular aperiodic
