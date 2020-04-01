@@ -447,8 +447,8 @@ void Fitting::fill_Residual(Fitting_Params* params, int& residual_Shift, Data_El
 		// calculate with expression
 		for(int point_Index=0; point_Index<N-1; ++point_Index)
 		{
-			fi_1      = target_Curve->curve.shifted_Values[point_Index  ].val_1;
-			fi_1_next = target_Curve->curve.shifted_Values[point_Index+1].val_1;
+			fi_1      = target_Curve->curve.shifted_Values[point_Index  ];
+			fi_1_next = target_Curve->curve.shifted_Values[point_Index+1];
 #ifdef EXPRTK
 			target_Curve->fit_Params.expression_Argument = model_Curve[point_Index  ];
 			fi_2      = target_Curve->fit_Params.expression_Vec[0].value();

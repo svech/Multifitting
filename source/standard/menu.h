@@ -55,7 +55,6 @@ public:
 	void open_Documentation_Eng();
 	void open_About();
 	void set_Grazing_Unit();
-	void set_Incidence_Unit();
 	void set_Wavelength_Unit();
 	void set_Length_Unit();
 	void activate_Item_Thumbnail_Precision();

@@ -15,10 +15,6 @@ Independent_Variables::Independent_Variables(QTreeWidget* real_Struct_Tree, QWid
 		plot_Options.scatter_Shape = QCPScatterStyle::ssDisc;
 		plot_Options.scatter_Size=0;
 		plot_Options.thickness=2;
-
-		plot_Options.scatter_Shape_Second = QCPScatterStyle::ssStar;
-		plot_Options.scatter_Size_Second=0;
-		plot_Options.thickness_Second=2;
 	}
 }
 
@@ -627,7 +623,6 @@ Independent_Variables& Independent_Variables::operator =(const Independent_Varia
 	measurement.cos2_Value				 = referent_Independent_Variables.measurement.cos2_Value;
 	measurement.angle_Value				 = referent_Independent_Variables.measurement.angle_Value;
 	measurement.angular_Resolution.value = referent_Independent_Variables.measurement.angular_Resolution.value;
-	measurement.angle_Type				 = referent_Independent_Variables.measurement.angle_Type;
 
 	/// geometry
 	measurement.beam_Size.value				 = referent_Independent_Variables.measurement.beam_Size.value;

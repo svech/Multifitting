@@ -39,7 +39,6 @@ public:
 	QStringList lines_List;
 	QString arg_Units;
 	QString at_Fixed;
-	QString ang_Type_For_Label_At_Fixed;
 	QString arg_Type_For_Label;
 
 	QString label_Text = "<no description>";

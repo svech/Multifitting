@@ -34,6 +34,8 @@ void Target_Curve_Plot::create_Plot()
 	{
 		// TODO GISAS
 //		color_Map = new QCPColorMap()
+		create_Subinterval_Rectangle();
+		create_Plot_Options_GroupBox();
 	}
 }
 
@@ -132,15 +134,14 @@ void Target_Curve_Plot::subinterval_Changed_Replot()
 	end_Rect->topLeft->setCoords(target_Curve->curve.subinterval_End,custom_Plot->yAxis->range().upper);
 	end_Rect->bottomRight->setCoords(custom_Plot->xAxis->range().upper, custom_Plot->yAxis->range().lower);
 
-	// TODO GISAS
-//	if( target_Curve->target_Data_Type == target_Data_Types[GISAS] )
-//	{
-//		top_Rect->topLeft->setCoords(target_Curve->curve.subinterval_Start, custom_Plot->yAxis->range().upper);
-//		top_Rect->bottomRight->setCoords(target_Curve->curve.subinterval_End,target_Curve->curve.subinterval_Top);
+	if( target_Curve->target_Data_Type == target_Data_Types[GISAS] )
+	{
+		top_Rect->topLeft->setCoords(target_Curve->curve.subinterval_Start, custom_Plot->yAxis->range().upper);
+		top_Rect->bottomRight->setCoords(target_Curve->curve.subinterval_End,target_Curve->curve.subinterval_Top);
 
-//		bottom_Rect->topLeft->setCoords(target_Curve->curve.subinterval_Start, target_Curve->curve.subinterval_Bottom);
-//		bottom_Rect->bottomRight->setCoords(target_Curve->curve.subinterval_End, custom_Plot->yAxis->range().lower);
-//	}
+		bottom_Rect->topLeft->setCoords(target_Curve->curve.subinterval_Start, target_Curve->curve.subinterval_Bottom);
+		bottom_Rect->bottomRight->setCoords(target_Curve->curve.subinterval_End, custom_Plot->yAxis->range().lower);
+	}
 
 	custom_Plot->replot();
 }
@@ -160,6 +161,7 @@ void Target_Curve_Plot::plot_Data(bool fast)
 		{
 			// TODO GISAS
 	//		color_Map = new QCPColorMap()
+			create_Plot_Frame_And_Scale_1D();
 		}
 	}
 
@@ -180,7 +182,7 @@ void Target_Curve_Plot::plot_Data(bool fast)
 				for (int i=0; i<data_Count; ++i)
 				{
 					data_To_Plot[i].key = target_Curve->curve.shifted_Argument[i];
-					data_To_Plot[i].value = target_Curve->curve.shifted_Values[i].val_1;
+					data_To_Plot[i].value = target_Curve->curve.shifted_Values[i];
 
 					if(max<data_To_Plot[i].value && (target_Curve->plot_Options_Experimental.y_Scale == lin_Scale || data_To_Plot[i].value > DBL_MIN)) {max=data_To_Plot[i].value;}
 					if(min>data_To_Plot[i].value && (target_Curve->plot_Options_Experimental.y_Scale == lin_Scale || data_To_Plot[i].value > DBL_MIN)) {min=data_To_Plot[i].value;}
@@ -297,8 +299,7 @@ void Target_Curve_Plot::refresh_Labels()
 	{
 		if(target_Curve->curve.argument_Type == whats_This_Angle)
 		{
-			if(target_Curve->curve.angle_Type == angle_Type_Grazing)	argument_Type_Label = argument_Types[Grazing_angle];
-			if(target_Curve->curve.angle_Type == angle_Type_Incidence)	argument_Type_Label = argument_Types[Incident_angle];
+			argument_Type_Label = argument_Types[Sample_Grazing_angle];
 
 			argument_Label = argument_Type_Label + " " + Theta_Sym + ", " + target_Curve->curve.angular_Units;
 		}

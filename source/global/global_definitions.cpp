@@ -173,8 +173,7 @@ QDataStream& operator <<( QDataStream& stream, const Plot_Options& plot_Options 
 
 				  << plot_Options.rescale // since 1.7.6
 
-				  << plot_Options.color        << plot_Options.scatter_Shape << plot_Options.scatter_Size        << plot_Options.thickness
-				  << plot_Options.scale_Second << plot_Options.color_Second << plot_Options.scatter_Shape_Second << plot_Options.scatter_Size_Second << plot_Options.thickness_Second;
+				  << plot_Options.color << plot_Options.scatter_Shape << plot_Options.scatter_Size << plot_Options.thickness;
 }
 QDataStream& operator >>( QDataStream& stream,		 Plot_Options& plot_Options )
 {
@@ -187,8 +186,17 @@ QDataStream& operator >>( QDataStream& stream,		 Plot_Options& plot_Options )
 	if(Global_Variables::check_Loaded_Version(1,7,6))
 	{stream >> plot_Options.rescale; }	// since 1.7.6
 
-	stream >> plot_Options.color        >> plot_Options.scatter_Shape >> plot_Options.scatter_Size        >> plot_Options.thickness
-		   >> plot_Options.scale_Second >> plot_Options.color_Second >> plot_Options.scatter_Shape_Second >> plot_Options.scatter_Size_Second >> plot_Options.thickness_Second;
+	stream >> plot_Options.color >> plot_Options.scatter_Shape >> plot_Options.scatter_Size        >> plot_Options.thickness;
+
+	if(!Global_Variables::check_Loaded_Version(1,11,0))	// aren't used since 1.11.0
+	{
+		QString scale_Second;
+		QColor color_Second;
+		int scatter_Shape_Second;
+		double scatter_Size_Second;
+		double thickness_Second;
+		stream >> scale_Second >> color_Second >> scatter_Shape_Second >> scatter_Size_Second >> thickness_Second;
+	}
 	return stream;
 }
 
@@ -320,24 +328,60 @@ QDataStream& operator <<( QDataStream& stream, const Curve& curve )
 	return stream << curve.use_Subinterval
 				  << curve.mesh_Density_Factor << curve.mesh_Density_Shift  // Parameter since 1.10.2
 				  << curve.subinterval_Start << curve.subinterval_End // since 1.10.1
-				  << curve.argument << curve.shifted_Argument << curve.values << curve.shifted_Values << curve.arg_Offset << curve.arg_Factor << curve.val_Offset
+				  << curve.subinterval_Top << curve.subinterval_Bottom // since 1.11.0
+				  << curve.argument << curve.shifted_Argument << curve.values << curve.shifted_Values
+				  << curve.horizontal_Arg_Offset << curve.horizontal_Arg_Factor // since 1.11.0
+				  << curve.vertical_Arg_Offset << curve.vertical_Arg_Factor
+				  << curve.val_Offset
 				  << curve.val_Factor	// Parameter since 1.10.2
 				  << curve.beam_Intensity_Start << curve.beam_Intensity_Final	// since 1.9.3
 				  << curve. divide_On_Beam_Intensity							// since 1.8.1
 
-				  << curve.argument_Type << curve.angle_Type << curve.angular_Units << curve.spectral_Units << curve.value_Function << curve.value_Mode;
+				  << curve.argument_Type << curve.angular_Units << curve.spectral_Units << curve.value_Function;
 }
 QDataStream& operator >>( QDataStream& stream,		 Curve& curve )
 {
 	if(Global_Variables::check_Loaded_Version(1,10,1))		// since 1.10.1
-	{stream >> curve.use_Subinterval;
+	{
+		stream >> curve.use_Subinterval;
 		if(Global_Variables::check_Loaded_Version(1,10,2))		// since 1.10.2
 		{
 			stream >> curve.mesh_Density_Factor >> curve.mesh_Density_Shift;  // Parameter since 1.10.2
 		}
-	 stream >> curve.subinterval_Start >> curve.subinterval_End;}
+		stream >> curve.subinterval_Start >> curve.subinterval_End;
+	}
 
-	stream  >> curve.argument >> curve.shifted_Argument >> curve.values >> curve.shifted_Values >> curve.arg_Offset >> curve.arg_Factor >> curve.val_Offset;
+	if(Global_Variables::check_Loaded_Version(1,11,0))		// since 1.11.0
+	{
+		stream >> curve.subinterval_Top >> curve.subinterval_Bottom;
+	}
+
+	stream  >> curve.argument >> curve.shifted_Argument;
+	if(Global_Variables::check_Loaded_Version(1,11,0))	// since 1.11.0 values are just double
+	{
+		stream >> curve.values >> curve.shifted_Values;
+	} else
+	{
+		// read
+		QVector<Value> values;
+		QVector<Value> shifted_Values;
+		stream >> values >> shifted_Values;
+
+		// convert
+		curve.values.resize(values.size());
+		curve.shifted_Values.resize(values.size());
+		for(int i=0; i<values.size(); i++)
+		{
+			curve.values[i] = values[i].val_1;
+			curve.shifted_Values[i] = shifted_Values[i].val_1;
+		}
+	}
+	stream >> curve.horizontal_Arg_Offset >> curve.horizontal_Arg_Factor;
+	if(Global_Variables::check_Loaded_Version(1,11,0))	// since 1.11.0
+	{
+		stream >> curve.vertical_Arg_Offset >> curve.vertical_Arg_Factor;
+	}
+	stream >> curve.val_Offset;
 
 	if(Global_Variables::check_Loaded_Version(1,10,2))		// since 1.10.2
 		 {stream >> curve.val_Factor;}
@@ -346,7 +390,7 @@ QDataStream& operator >>( QDataStream& stream,		 Curve& curve )
 	// instead of loading shifted_Values_No_Scaling_And_Offset // since 1.10.2
 	curve.shifted_Values_No_Scaling_And_Offset.resize(curve.shifted_Values.size());
 	for(int i=0; i<curve.shifted_Values.size(); i++)	{
-		curve.shifted_Values_No_Scaling_And_Offset[i] = (curve.shifted_Values[i].val_1 - curve.val_Offset)/curve.val_Factor.value; // since 1.10.2
+		curve.shifted_Values_No_Scaling_And_Offset[i] = (curve.shifted_Values[i] - curve.val_Offset)/curve.val_Factor.value; // since 1.10.2
 	}
 
 	if(Global_Variables::check_Loaded_Version(1,7,1))		// since 1.7.1
@@ -363,7 +407,18 @@ QDataStream& operator >>( QDataStream& stream,		 Curve& curve )
 	if(Global_Variables::check_Loaded_Version(1,8,1))
 	{stream >> curve.divide_On_Beam_Intensity; }	// since 1.8.1
 
-	stream  >> curve.argument_Type >> curve.angle_Type >> curve.angular_Units >> curve.spectral_Units >> curve.value_Function >> curve.value_Mode;
+	stream  >> curve.argument_Type;
+	if(!Global_Variables::check_Loaded_Version(1,11,0))	// aren't used since 1.11.0
+	{
+		QString angle_Type;
+		stream >> angle_Type ;
+	}
+	stream >> curve.angular_Units >> curve.spectral_Units >> curve.value_Function;
+	if(!Global_Variables::check_Loaded_Version(1,11,0))	// aren't used since 1.11.0
+	{
+		QString value_Mode;
+		stream >> value_Mode ;
+	}
 	return stream;
 }
 

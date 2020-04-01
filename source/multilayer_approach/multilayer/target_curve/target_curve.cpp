@@ -7,7 +7,6 @@ Target_Curve::Target_Curve(QLabel* description_Label, QTreeWidget* real_Struct_T
 	QWidget(parent)
 {
 	curve.argument_Type = whats_This_Angle;		// angular curve
-	curve.angle_Type = angle_Type_Grazing/*default_angle_type*/	;
 	curve.angular_Units = angle_Units_List[degree]/*angle_units*/	;
 	curve.spectral_Units = wavelength_Units_List[angstrom]/*wavelength_units*/;
 	curve.value_Function = specular_Value_Function[Reflectance];
@@ -20,11 +19,6 @@ Target_Curve::Target_Curve(QLabel* description_Label, QTreeWidget* real_Struct_T
 		plot_Options_Calculated.scatter_Shape = QCPScatterStyle::ssDisc;
 		plot_Options_Calculated.scatter_Size=0;
 		plot_Options_Calculated.thickness=2;
-
-		plot_Options_Calculated.color_Second=QColor(0, 255, 0);
-		plot_Options_Calculated.scatter_Shape_Second = QCPScatterStyle::ssStar;
-		plot_Options_Calculated.scatter_Size_Second=0;
-		plot_Options_Calculated.thickness_Second=2;
 	}
 }
 
@@ -104,22 +98,19 @@ void Target_Curve::import_Data(QString bare_Filename)
 			if(curve.value_Function == specular_Value_Function[Reflectance] || curve.value_Function == specular_Value_Function[Transmittance] )	// R , T
 			{
 				if(numbers.size()<=number_Index) throw "val_1 | " + main_Exception_Text;
-//				double temp_Val_1 = QString(numbers[number_Index]).toDouble(&ok_To_Double);
-				double temp_Val_1 = QString(numbers[number_Index]).replace(",", ".").toDouble(&ok_To_Double); // dots and commas
+//				double temp_Val = QString(numbers[number_Index]).toDouble(&ok_To_Double);
+				double temp_Val = QString(numbers[number_Index]).replace(",", ".").toDouble(&ok_To_Double); // dots and commas
 				++number_Index;
-
-				Value val;
-				val.val_1 = temp_Val_1;
 
 				if(!ok_To_Double)
 				{
 					curve.argument.removeLast();
 					goto skip_line_label;
 				}
-				curve.values.push_back(val);
+				curve.values.push_back(temp_Val);
 			} else
 			{
-				throw "wrong curve.value_Mode=" + curve.value_Mode + main_Exception_Text;
+				throw "wrong curve.value_Function=" + curve.value_Function + main_Exception_Text;
 			}
 			loaded_And_Ready = true;
 
@@ -171,11 +162,9 @@ void Target_Curve::fill_Measurement_With_Data()
 
 		for(int i=0; i<curve.argument.size(); ++i)
 		{
-			curve.shifted_Argument[i]     = curve.argument[i]                         * curve.arg_Factor      +curve.arg_Offset;
-			curve.shifted_Values[i].val_1 = curve.values[i].val_1/intensity_Factor[i] * curve.val_Factor.value+curve.val_Offset;
-			curve.shifted_Values_No_Scaling_And_Offset[i]  = curve.values[i].val_1/intensity_Factor[i];
-			// shift only first
-			curve.shifted_Values[i].val_2 = curve.values[i].val_2;//*curve.val_Factor+curve.val_Offset;
+			curve.shifted_Argument[i] = curve.argument[i]                   * curve.horizontal_Arg_Factor      +curve.horizontal_Arg_Offset;
+			curve.shifted_Values  [i] = curve.values[i]/intensity_Factor[i] * curve.val_Factor.value+curve.val_Offset;
+			curve.shifted_Values_No_Scaling_And_Offset[i] = curve.values[i]/intensity_Factor[i];
 		}
 
 		// measurement filling
@@ -209,12 +198,9 @@ void Target_Curve::show_Description_Label()
 	if(loaded_And_Ready)
 	{
 		QString spacer;
-		if(curve.angle_Type == angle_Type_Grazing)   ang_Type_For_Label_At_Fixed="(gr)";
-		if(curve.angle_Type == angle_Type_Incidence) ang_Type_For_Label_At_Fixed="(in)";
-
 		if(curve.argument_Type == whats_This_Angle)
 		{
-			arg_Type_For_Label = "Angular "+ang_Type_For_Label_At_Fixed;
+			arg_Type_For_Label = "Angular";
 
 			arg_Units = curve.angular_Units;
 
@@ -229,13 +215,12 @@ void Target_Curve::show_Description_Label()
 
 			double coeff = angle_Coefficients_Map.value(curve.angular_Units);
 			at_Fixed = Locale.toString(measurement.probe_Angle.value/coeff, thumbnail_double_format, thumbnail_angle_precision)+" "+curve.angular_Units;
-			at_Fixed = ang_Type_For_Label_At_Fixed + " " + at_Fixed;
 			spacer = " ";
 		}
 
 		label_Text = index + ": " +
 					arg_Type_For_Label + "; " +
-					curve.value_Mode + "; " +
+					specular_Value_Function_Short[specular_Value_Function.indexOf(curve.value_Function)] + "; " +
 					Locale.toString(curve.shifted_Argument.first()) + "-" + Locale.toString(curve.shifted_Argument.last()) + spacer + arg_Units + "; " +
 					"at " + at_Fixed;
 	} else
@@ -265,7 +250,6 @@ Target_Curve& Target_Curve::operator =(const Target_Curve& referent_Target_Curve
 	lines_List = referent_Target_Curve.lines_List;
 	arg_Units = referent_Target_Curve.arg_Units;
 	at_Fixed = referent_Target_Curve.at_Fixed;
-	ang_Type_For_Label_At_Fixed = referent_Target_Curve.ang_Type_For_Label_At_Fixed;
 	arg_Type_For_Label = referent_Target_Curve.arg_Type_For_Label;
 
 	label_Text = referent_Target_Curve.label_Text;
@@ -281,8 +265,7 @@ QDataStream& operator <<( QDataStream& stream, const Target_Curve* target_Curve 
 					<< target_Curve->filepath << target_Curve->loaded_And_Ready	<< target_Curve->plot_Options_Experimental
 					<< target_Curve->plot_Options_Calculated		// since 1.7.4
 					<< target_Curve->calculated_Values
-					<< target_Curve->lines_List << target_Curve->arg_Units << target_Curve->at_Fixed << target_Curve->arg_Type_For_Label << target_Curve->ang_Type_For_Label_At_Fixed << target_Curve->label_Text
-	;
+					<< target_Curve->lines_List << target_Curve->arg_Units << target_Curve->at_Fixed << target_Curve->arg_Type_For_Label << target_Curve->label_Text;
 }
 QDataStream& operator >>(QDataStream& stream,		 Target_Curve* target_Curve )
 {
@@ -293,6 +276,12 @@ QDataStream& operator >>(QDataStream& stream,		 Target_Curve* target_Curve )
 	{stream >> target_Curve->plot_Options_Calculated ; }	// since 1.7.4
 
 	stream  >> target_Curve->calculated_Values
-			>> target_Curve->lines_List >> target_Curve->arg_Units >> target_Curve->at_Fixed >> target_Curve->arg_Type_For_Label >> target_Curve->ang_Type_For_Label_At_Fixed >> target_Curve->label_Text;
+			>> target_Curve->lines_List >> target_Curve->arg_Units >> target_Curve->at_Fixed >> target_Curve->arg_Type_For_Label ;
+	if(Global_Variables::check_Loaded_Version(1,11,0)) // aren't used since 1.11.0
+	{
+		QString ang_Type_For_Label_At_Fixed;
+		stream >> ang_Type_For_Label_At_Fixed;
+	}
+	stream >> target_Curve->label_Text;
 	return stream;
 }

@@ -34,7 +34,6 @@ public:
 	QString curve_Class;
 	QString* argument_Type;
 	QString* spectral_Units;
-	QString* angle_Type;
 	QString* angular_Units;
 
 	Multilayer* multilayer;

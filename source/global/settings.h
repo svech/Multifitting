@@ -211,7 +211,6 @@ extern double default_max_angle;
 extern double default_wavelength_value;
 extern double default_min_wavelength;
 extern double default_max_wavelength;
-extern QString default_angle_type;
 extern double default_angular_resolution;
 extern double default_polarization;
 extern double default_spectral_resolution;

@@ -246,29 +246,18 @@ void Menu::create_Independent_Units_Menu()
 		// Grazing & Incidence
 		for(int index=0; index<angle_Units_List.size(); index++)
 		{
-			QAction* act_Grazing   = new QAction(angle_Units_Legend_Map.value(angle_Units_List[index]) + ", " + angle_Type_Grazing,   this);
-			QAction* act_Incidence = new QAction(angle_Units_Legend_Map.value(angle_Units_List[index]) + ", " + angle_Type_Incidence, this);
+			QAction* act_Grazing   = new QAction(angle_Units_Legend_Map.value(angle_Units_List[index]),   this);
 				act_Grazing->setProperty  (index_Property, index);
-				act_Incidence->setProperty(index_Property, index);
-
 				act_Grazing->setCheckable  (true);
-				act_Incidence->setCheckable(true);
-
 				act_Grazing->setActionGroup  (group_Act_Angle);
-				act_Incidence->setActionGroup(group_Act_Angle);
-
 				if(angle_Units_List[index] == angle_units)
 				{
-					Data measurement = independent_Variables_Editor->structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
-					if(measurement.angle_Type == angle_Type_Grazing)	act_Grazing->setChecked(true);
-					if(measurement.angle_Type == angle_Type_Incidence)	act_Incidence->setChecked(true);
+					act_Grazing->setChecked(true);
 				}
 
 			units_Menu->addAction(act_Grazing);
-			units_Menu->addAction(act_Incidence);
 
 			connect(act_Grazing,   &QAction::triggered, this, &Menu::set_Grazing_Unit);
-			connect(act_Incidence, &QAction::triggered, this, &Menu::set_Incidence_Unit);
 		}
 	}
 	// if wavelength
@@ -779,20 +768,6 @@ void Menu::set_Grazing_Unit()
 	int index = sender()->property(index_Property).toInt();
 	//-------------------------------------------------
 	angle_units				= angle_Units_List[index];
-	measurement.angle_Type	= angle_Type_Grazing;
-	//-------------------------------------------------
-	QVariant var; var.setValue(measurement);
-	independent_Variables_Editor->structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
-	emit refresh();
-}
-
-void Menu::set_Incidence_Unit()
-{
-	Data measurement = independent_Variables_Editor->structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
-	int index = sender()->property(index_Property).toInt();
-	//-------------------------------------------------
-	angle_units				= angle_Units_List[index];
-	measurement.angle_Type	= angle_Type_Incidence;
 	//-------------------------------------------------
 	QVariant var; var.setValue(measurement);
 	independent_Variables_Editor->structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);

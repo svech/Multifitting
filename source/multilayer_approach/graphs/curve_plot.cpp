@@ -17,7 +17,6 @@ Curve_Plot::Curve_Plot(Multilayer* multilayer, Target_Curve* target_Curve, Indep
 			plot_Options_First = &target_Curve->plot_Options_Experimental;
 			plot_Options_Second = &target_Curve->plot_Options_Calculated;
 			spectral_Units = &target_Curve->curve.spectral_Units;
-			angle_Type = &target_Curve->curve.angle_Type;
 			angular_Units = &target_Curve->curve.angular_Units;
 			argument_Type = &target_Curve->curve.argument_Type;
 			plot_Indicator = &target_Curve->index;
@@ -38,7 +37,6 @@ Curve_Plot::Curve_Plot(Multilayer* multilayer, Target_Curve* target_Curve, Indep
 			plot_Options_First = &independent_Variables->plot_Options;
 			plot_Options_Second = plot_Options_First;
 			spectral_Units = &wavelength_units;
-			angle_Type = &measurement->angle_Type;
 			angular_Units = &angle_units;
 			argument_Type = &independent_Variables->argument_Type;
 			plot_Indicator = &independent_Variables->tab_Name;
@@ -137,7 +135,6 @@ void Curve_Plot::discretized_Angular_Threshold()
 	double wavelength = 1;
 	if(curve_Class == TARGET)     {
 		argument_Type = target_Curve->curve.argument_Type;
-		angle_Type = target_Curve->curve.angle_Type;
 		angle_Units = target_Curve->curve.angular_Units;
 		if(argument_Type == whats_This_Angle)
 		{
@@ -146,7 +143,6 @@ void Curve_Plot::discretized_Angular_Threshold()
 	}
 	if(curve_Class == INDEPENDENT){
 		argument_Type = independent_Variables->argument_Type;
-		angle_Type = independent_Variables->measurement.angle_Type;
 		angle_Units = angle_units;
 		if(argument_Type == whats_This_Angle)
 		{
@@ -163,7 +159,6 @@ void Curve_Plot::discretized_Angular_Threshold()
 			if(abs(asin_Argument)<1)
 			{
 				double angle = safety_Factor*(asin(asin_Argument)*180/M_PI);
-				if(angle_Type == angle_Type_Incidence)	{angle = 90-angle;}
 				double angle_In_Plot_Units = angle/angle_Coefficients_Map.value(angle_Units);
 
 				infLine->point1->setCoords(angle_In_Plot_Units, 0);  // location of point 1 in plot coordinate
@@ -560,7 +555,7 @@ void Curve_Plot::set_Title_Text()
 		if(*argument_Type == whats_This_Wavelength)
 		{
 			double coeff = angle_Coefficients_Map.value(*angular_Units);
-			fixed_Quantity = *angle_Type + " " +Theta_Sym;
+			fixed_Quantity = " " +Omega_Sym;
 
 			title_Text = *plot_Indicator + ": " + prefix_Text + fixed_Quantity + "=" +
 						 Locale.toString(measurement->probe_Angle.value/coeff,
@@ -602,7 +597,7 @@ void Curve_Plot::plot_All_Data()
 				}
 			} else {
 				for(int i=0; i<target_Curve->curve.shifted_Values.size(); ++i) {
-					values[i] = target_Curve->curve.shifted_Values[i].val_1;
+					values[i] = target_Curve->curve.shifted_Values[i];
 				}
 			}
 			plot_Data(argument, values, plot_Options_First);
@@ -740,8 +735,7 @@ void Curve_Plot::refresh_Labels()
 	{
 		if(*argument_Type == whats_This_Angle)
 		{
-			if(*angle_Type == angle_Type_Grazing)	argument_Type_Label = argument_Types[Grazing_angle];
-			if(*angle_Type == angle_Type_Incidence)	argument_Type_Label = argument_Types[Incident_angle];
+			argument_Type_Label = argument_Types[Sample_Grazing_angle];
 
 			argument_Label = argument_Type_Label + " " + Theta_Sym + ", " + *angular_Units;
 

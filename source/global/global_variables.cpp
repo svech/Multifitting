@@ -218,8 +218,6 @@ QStringList tril						{TRIL_TRUE, TRIL_FALSE, TRIL_NOT_DEFINED};
 
 // experimental data types
 QString no_Data_Type = "no data type";
-QString target_Data_1D_Group = "1D data";
-QString target_Data_2D_Group = "2D data";
 QStringList target_Data_Types {	/** 1D */			/// change enum!
 								"Specular scan",	// R,T vs angle, wavelength
 								"Detector scan",	// R-,T-Scattering vs angle // from 0 or from specular direction
@@ -230,9 +228,12 @@ QStringList target_Data_Types {	/** 1D */			/// change enum!
 								"GISAS map"			// R-,T-Scattering vs theta & phi // from 0 or from specular direction
 };
 
-// measured curves
-QStringList argument_Types				{"Grazing angle","Incident angle","Wavelength/Energy"}; // change enum!
-QStringList specular_Value_Function		{"Reflectance","Transmittance"};						// change enum!
+// argument types
+QStringList argument_Types	{"Grazing angle, "+Omega_Sym, "Detector Angle, "+Theta_Sym, "Azimuthal angle, "+Phi_Sym, "Wavelength/Energy"}; // change enum!
+
+// specular scan
+QStringList specular_Value_Function		  {"Reflectance","Transmittance"};		  // change enum!
+QStringList specular_Value_Function_Short {"R","T"};							  // change enum!
 
 /// -------------------------------------------------------------------------
 /// GSL
@@ -833,8 +834,8 @@ QString Global_Variables::parameter_Name(const Data &struct_Data, QString whats_
 	/// measurement parameters
 	if(	struct_Data.item_Type == item_Type_Measurement )
 	{
-		if(whats_This == whats_This_Angle)							text = struct_Data.angle_Type + " angle, " + Theta_Sym;
-		if(whats_This == whats_This_Angular_Resolution)				text = "Angular resolution, " + Delta_Big_Sym + Theta_Sym;
+		if(whats_This == whats_This_Angle)							text = "Grazing angle, " + Omega_Sym;
+		if(whats_This == whats_This_Angular_Resolution)				text = "Angular resolution, " + Delta_Big_Sym + Omega_Sym;
 		if(whats_This == whats_This_Wavelength)						text = Global_Variables::wavelength_Energy_Name(wavelength_units);
 		if(whats_This == whats_This_Spectral_Resolution)			text = "Spectral resolution, " + Delta_Big_Sym + "E/E";
 		if(whats_This == whats_This_Polarization)					text = "Polarization";

@@ -26,7 +26,6 @@ public:
 		double			 cos2_Value;
 		double			 angle_Value;
 		Parameter angular_Resolution;
-		QString	  angle_Type;
 		vector<double>  instrumental_Factor_Vec;	// without saving
 		vector<double>  angular_Resolution_Mixed;	// without saving
 

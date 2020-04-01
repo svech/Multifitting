@@ -207,7 +207,6 @@ double default_max_angle;
 double default_wavelength_value;
 double default_min_wavelength;
 double default_max_wavelength;
-QString default_angle_type;
 double default_angular_resolution;
 double default_polarization;
 double default_spectral_resolution;
@@ -741,7 +740,6 @@ void Settings::read_Parameters_Default_Values(bool reset_to_default)
 		default_wavelength_value							= parameters_Default_Values.value( "default_wavelength_value",								1.54056 ).toDouble();
 		default_min_wavelength								= parameters_Default_Values.value( "default_min_wavelength",								160		).toDouble();
 		default_max_wavelength								= parameters_Default_Values.value( "default_max_wavelength",								230		).toDouble();
-		default_angle_type									= parameters_Default_Values.value( "default_angle_type",									angle_Type_Grazing).toString();
 		default_angular_resolution							= parameters_Default_Values.value( "default_angular_resolution",							0.007	).toDouble();
 		default_polarization								= parameters_Default_Values.value( "default_polarization",									1		).toDouble();
 		default_spectral_resolution							= parameters_Default_Values.value( "default_spectral_resolution",							0.000	).toDouble();
@@ -765,7 +763,6 @@ void Settings::save_Parameters_Default_Values()
 		parameters_Default_Values.setValue( "default_wavelength_value",								default_wavelength_value						   );
 		parameters_Default_Values.setValue( "default_min_wavelength",								default_min_wavelength							   );
 		parameters_Default_Values.setValue( "default_max_wavelength",								default_max_wavelength							   );
-		parameters_Default_Values.setValue( "default_angle_type",									default_angle_type								   );
 		parameters_Default_Values.setValue( "default_angular_resolution",							default_angular_resolution						   );
 		parameters_Default_Values.setValue( "default_polarization",									default_polarization							   );
 		parameters_Default_Values.setValue( "default_spectral_resolution",							default_spectral_resolution						   );

@@ -45,7 +45,6 @@ Data::Data(QString item_Type_Passed)
 			angular_Resolution.independent.num_Points = 1;
 			angular_Resolution.indicator.whats_This = whats_This_Angular_Resolution;
 			angular_Resolution.indicator.item_Id = id;
-			angle_Type = default_angle_type;
 		}
 		// wavelength
 		{
@@ -537,14 +536,12 @@ void Data::calc_Measured_cos2_k()
 {
 	// cos2
 	angle_Value = probe_Angle.value;
-	if(angle_Type == angle_Type_Grazing)	{ cos2_Value = pow(cos(angle_Value*M_PI/180.),2); }
-	else									{ cos2_Value = pow(sin(angle_Value*M_PI/180.),2); }
+	cos2_Value = pow(cos(angle_Value*M_PI/180.),2);
 
 	cos2.resize(angle.size());
 	for(int i=0; i<angle.size(); ++i)
 	{
-		if(angle_Type == angle_Type_Grazing){ cos2[i] = pow(cos(angle[i]*M_PI/180.),2); }
-		else								{ cos2[i] = pow(sin(angle[i]*M_PI/180.),2); }
+		cos2[i] = pow(cos(angle[i]*M_PI/180.),2);
 	}
 
 	// k
@@ -562,8 +559,7 @@ void Data::calc_Independent_cos2_k()
 {
 	// cos2
 	angle_Value = probe_Angle.value;
-	if(angle_Type == angle_Type_Grazing)	{ cos2_Value = pow(cos(angle_Value*M_PI/180.),2); }
-	else									{ cos2_Value = pow(sin(angle_Value*M_PI/180.),2); }
+	cos2_Value = pow(cos(angle_Value*M_PI/180.),2);
 
 	angle.resize(probe_Angle.independent.num_Points);
 	cos2.resize(probe_Angle.independent.num_Points);
@@ -573,8 +569,7 @@ void Data::calc_Independent_cos2_k()
 		double angle_Temp = probe_Angle.independent.min;
 		for(int i=0; i<probe_Angle.independent.num_Points; ++i)
 		{
-			if(angle_Type == angle_Type_Grazing){ cos2[i] = pow(cos(angle_Temp*M_PI/180.),2); }
-			else								{ cos2[i] = pow(sin(angle_Temp*M_PI/180.),2); }
+			cos2[i] = pow(cos(angle_Temp*M_PI/180.),2);
 
 			angle[i] = angle_Temp;
 			angle_Temp += angle_Step;
@@ -1009,7 +1004,7 @@ QDataStream& operator <<( QDataStream& stream, const Data& data )
 				<< data.parent_Item_Type << data.item_Type << data.id
 				<< data.item_Enabled		// since 1.7.7
 			// Measurement
-				<< data.probe_Angle	<< data.cos2 << data.angle << data.cos2_Value << data.angle_Value << data.angular_Resolution << data.angle_Type
+				<< data.probe_Angle	<< data.cos2 << data.angle << data.cos2_Value << data.angle_Value << data.angular_Resolution
 				<< data.wavelength << data.k << data.lambda << data.k_Value << data.lambda_Value << data.spectral_Resolution
 				<< data.polarization << data.polarization_Sensitivity << data.background
 				<< data.beam_Size << data.beam_Profile_Spreading << data.sample_Size  << data.sample_Shift
@@ -1033,8 +1028,13 @@ QDataStream& operator >>( QDataStream& stream,		 Data& data )
 	{stream >> data.item_Enabled; }	// since 1.7.7
 
 			// Measurement
-	stream		>> data.probe_Angle >> data.cos2 >> data.angle >> data.cos2_Value >> data.angle_Value >> data.angular_Resolution >> data.angle_Type
-				>> data.wavelength >> data.k >> data.lambda >> data.k_Value >> data.lambda_Value >> data.spectral_Resolution
+	stream		>> data.probe_Angle >> data.cos2 >> data.angle >> data.cos2_Value >> data.angle_Value >> data.angular_Resolution;
+	if(!Global_Variables::check_Loaded_Version(1,11,0))	// aren't used since 1.11.0
+	{
+		QString angle_Type;
+		stream >> angle_Type;
+	}
+	stream		>> data.wavelength >> data.k >> data.lambda >> data.k_Value >> data.lambda_Value >> data.spectral_Resolution
 				>> data.polarization >> data.polarization_Sensitivity >> data.background
 				>> data.beam_Size >> data.beam_Profile_Spreading >> data.sample_Size  >> data.sample_Shift
 			// Ambient, Layer, Substrate

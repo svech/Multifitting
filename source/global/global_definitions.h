@@ -9,7 +9,7 @@
 
 #define VERSION_MAJOR 1
 #define VERSION_MINOR 11
-#define VERSION_BUILD 4
+#define VERSION_BUILD 0
 
 using namespace std;
 class Node;
@@ -299,10 +299,6 @@ class Node;
 #define window_Type_Calculation_Settings_Editor		"Calculation Settings Editor"
 #define window_Type_Fitting_Settings_Editor			"Fitting Settings Editor"
 
-// angle types
-#define angle_Type_Grazing		"Grazing"
-#define angle_Type_Incidence	"Incidence"
-
 // value types
 #define VAL				"value"
 #define MIN				"min value"
@@ -525,12 +521,12 @@ struct Plot_Options				{QString x_Scale = lin_Scale; //
 								 double scatter_Size = 5;
 								 double thickness = 1;
 
-								// TODO remove
-								 QString scale_Second = lin_Scale;
-								 QColor color_Second = QColor(0, 0, 255);
-								 int scatter_Shape_Second = QCPScatterStyle::ssDiamond;
-								 double scatter_Size_Second = 5;
-								 double thickness_Second = 1;
+//								// TODO remove
+//								 QString scale_Second = lin_Scale;
+//								 QColor color_Second = QColor(0, 0, 255);
+//								 int scatter_Shape_Second = QCPScatterStyle::ssDiamond;
+//								 double scatter_Size_Second = 5;
+//								 double thickness_Second = 1;
 								};
 
 struct Graph_Options			{int num_Target_Graph_Rows = 1;		 // rows in Graphs
@@ -693,28 +689,28 @@ struct Calc_Functions			{bool check_Enabled = true;
 								};
 
 // measured/target data types
-struct Value					{double val_1; double val_2; /*double val_3; double val_4;*/};
+struct Value					{double val_1; double val_2;}; // legacy type
 struct Curve					{bool use_Subinterval = false;
 								 int mesh_Density_Factor = 1;
 								 double mesh_Density_Shift = 0.5;
 								 double subinterval_Start = 0;
-								 double subinterval_End = 5;
-//								 double subinterval_Top = 1;		// TODO GISAS
-//								 double subinterval_Bottom = -1;	// TODO GISAS
+								 double subinterval_End = 1;
+								 double subinterval_Top = 1;		// TODO GISAS
+								 double subinterval_Bottom = -1;	// TODO GISAS
 
 								 QVector<double> argument; QVector<double> shifted_Argument;
-								 QVector<Value> values;	   QVector<Value> shifted_Values;
+								 QVector<double> values;   QVector<double> shifted_Values;
 														   vector<double> shifted_Values_No_Scaling_And_Offset; // without saving, for fitting purposes
-								 double arg_Offset = 0; double arg_Factor = 1; bool divide_On_Beam_Intensity = true;
+								 double horizontal_Arg_Offset = 0; double horizontal_Arg_Factor = 1;
+								 double vertical_Arg_Offset = 0;   double vertical_Arg_Factor = 1; // TODO GISAS
+								 bool divide_On_Beam_Intensity = true;
 								 double val_Offset = 0; Parameter val_Factor;  double beam_Intensity_Start = 1; double beam_Intensity_Final = 1;
 
 								 QString argument_Type;
-								 QString angle_Type;
 								 QString angular_Units;
 								 QString spectral_Units;
 
 								 QString value_Function;
-								 QString value_Mode; // TODO remove
 
 								 Curve()
 								 {

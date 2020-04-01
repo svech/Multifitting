@@ -70,8 +70,6 @@ enum independent_Toolbar_Enum   { New_Variable_Independent,
 
 // experimental data types
 extern QString no_Data_Type;
-extern QString target_Data_1D_Group;
-extern QString target_Data_2D_Group;
 extern QStringList target_Data_Types;
 enum target_Data_Types_Enum {	/** 1D */
 							Specular_Scan,		// R,T vs angle, wavelength
@@ -83,10 +81,13 @@ enum target_Data_Types_Enum {	/** 1D */
 							GISAS	// R-,T-Scattering vs theta & phi // from 0 or from specular direction
 };
 
-// specular scan
+// argument types
 extern QStringList argument_Types;
-enum argument_Types_Enum    { Grazing_angle, Incident_angle, Wavelength_Energy };
+enum argument_Types_Enum    { Sample_Grazing_angle, Detector_Angle, Azimuthal_angle, Wavelength_Energy };
+
+// specular scan
 extern QStringList specular_Value_Function;
+extern QStringList specular_Value_Function_Short;
 enum specular_Value_Function_Enum    { Reflectance,   Transmittance };
 
 /// -------------------------------------------------------------------------
