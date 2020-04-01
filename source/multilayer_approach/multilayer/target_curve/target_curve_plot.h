@@ -9,21 +9,29 @@ class Target_Curve_Plot : public QWidget
 public:
 	explicit Target_Curve_Plot(Target_Curve* target_Curve, QWidget *parent = nullptr);
 
-	void create_Plot_Frame_And_Scale();
+	void create_Main_Layout();
+	void create_Plot();
+	void create_Plot_Frame_And_Scale_1D();
 	void create_Subinterval_Rectangle();
 	void subinterval_Changed_Replot();
 	void plot_Data(bool fast = false);
 	void refresh_Labels();
+	void create_Plot_Options_GroupBox();
 
 	Target_Curve* target_Curve;
+
+	QCPColorMap* color_Map;
 	QCustomPlot* custom_Plot;
 
 	QCPItemRect* start_Rect;
 	QCPItemRect* end_Rect;
 
+	QCPItemRect* top_Rect;
+	QCPItemRect* bottom_Rect;
+
+	QVBoxLayout* main_layout;
+
 	QString val_Type_Label;
-	QString val_Mode_Label_1;
-	QString val_Mode_Label_2;
 
 	QString argument_Type_Label;
 	QString argument_Label;

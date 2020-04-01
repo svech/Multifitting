@@ -112,7 +112,7 @@ void Fitting_Settings_Editor::create_Metods()
 		methods_Combo_Box->insertSeparator(methods_Combo_Box->count());
 	}
 
-	QString spacer = "\t";
+	QString spacer = "      ";
 
 	// fill GSL group
 	{
@@ -121,7 +121,7 @@ void Fitting_Settings_Editor::create_Metods()
 		methods_Combo_Box->addItem(spacer + GSL_Methods[Dogleg]);
 		methods_Combo_Box->addItem(spacer + GSL_Methods[Double_Dogleg]);
 		methods_Combo_Box->addItem(spacer + GSL_Methods[Two_Dimensional_Subspace]);
-		methods_Combo_Box->insertSeparator(methods_Combo_Box->count());
+//		methods_Combo_Box->insertSeparator(methods_Combo_Box->count());
 
 		// TODO
 //		methods_Combo_Box->addItem(spacer + GSL_Methods[Fletcher_Reeves_Conjugate_Gradient]);

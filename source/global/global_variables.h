@@ -68,23 +68,26 @@ enum independent_Toolbar_Enum   { New_Variable_Independent,
 								  Remove_Independent,
 								  Function_Independent };
 
-// measured curves
+// experimental data types
+extern QString no_Data_Type;
+extern QString target_Data_1D_Group;
+extern QString target_Data_2D_Group;
+extern QStringList target_Data_Types;
+enum target_Data_Types_Enum {	/** 1D */
+							Specular_Scan,		// R,T vs angle, wavelength
+							Detector_Scan,		// R-,T-Scattering vs theta or phi // from 0 or from specular direction
+							Rocking_Curve,		// R-,T-Scattering vs angle	// from 0 or from specular direction
+							Offset_Scan,		// R-,T-Scattering vs angle, wavelength
+
+							/** 2D */
+							GISAS	// R-,T-Scattering vs theta & phi // from 0 or from specular direction
+};
+
+// specular scan
 extern QStringList argument_Types;
 enum argument_Types_Enum    { Grazing_angle, Incident_angle, Wavelength_Energy };
-
-extern QStringList value_Function;
-enum value_Function_Enum    { Reflectance,   Transmittance , Absorptance};
-
-extern QStringList value_R_Mode;
-extern QStringList value_R_Mode_Label_1;
-extern QStringList value_R_Mode_Label_2;
-enum value_R_Mode_Enum		{ R,  R_Phi };
-
-extern QStringList value_T_Mode;
-enum value_T_Mode_Enum		{ T };
-
-extern QStringList value_A_Mode;
-enum value_A_Mode_Enum		{ A };
+extern QStringList specular_Value_Function;
+enum specular_Value_Function_Enum    { Reflectance,   Transmittance };
 
 /// -------------------------------------------------------------------------
 /// GSL

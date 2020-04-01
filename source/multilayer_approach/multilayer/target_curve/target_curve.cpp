@@ -10,8 +10,7 @@ Target_Curve::Target_Curve(QLabel* description_Label, QTreeWidget* real_Struct_T
 	curve.angle_Type = angle_Type_Grazing/*default_angle_type*/	;
 	curve.angular_Units = angle_Units_List[degree]/*angle_units*/	;
 	curve.spectral_Units = wavelength_Units_List[angstrom]/*wavelength_units*/;
-	curve.value_Function = value_Function[Reflectance];
-	curve.value_Mode = value_R_Mode[R];			// R
+	curve.value_Function = specular_Value_Function[Reflectance];
 
 //	curve.arg_Offset = 0; curve.arg_Factor = 1;
 //	curve.val_Offset = 0; curve.val_Factor = 1;
@@ -102,7 +101,7 @@ void Target_Curve::import_Data(QString bare_Filename)
 
 			/// value
 
-			if(curve.value_Mode == value_R_Mode[R] || curve.value_Mode == value_T_Mode[T] )	// R , T
+			if(curve.value_Function == specular_Value_Function[Reflectance] || curve.value_Function == specular_Value_Function[Transmittance] )	// R , T
 			{
 				if(numbers.size()<=number_Index) throw "val_1 | " + main_Exception_Text;
 //				double temp_Val_1 = QString(numbers[number_Index]).toDouble(&ok_To_Double);
@@ -111,28 +110,6 @@ void Target_Curve::import_Data(QString bare_Filename)
 
 				Value val;
 				val.val_1 = temp_Val_1;
-
-				if(!ok_To_Double)
-				{
-					curve.argument.removeLast();
-					goto skip_line_label;
-				}
-				curve.values.push_back(val);
-			} else
-			if(curve.value_Mode == value_R_Mode[R_Phi] )	// R+phi
-			{
-				if(numbers.size()<=number_Index) throw "val_1 | " + main_Exception_Text;
-//				double temp_Number_1 = QString(numbers[number_Index]).toDouble(&ok_To_Double);
-				double temp_Number_1 = QString(numbers[number_Index]).replace(",", ".").toDouble(&ok_To_Double); // dots and commas
-				++number_Index;
-				if(numbers.size()<=number_Index) throw "val_2 | " + main_Exception_Text;
-//				double temp_Number_2 = QString(numbers[number_Index]).toDouble(&ok_To_Double);
-				double temp_Number_2 = QString(numbers[number_Index]).replace(",", ".").toDouble(&ok_To_Double); // dots and commas
-				++number_Index;
-
-				Value val;
-				val.val_1 = temp_Number_1;
-				val.val_2 = temp_Number_2;
 
 				if(!ok_To_Double)
 				{

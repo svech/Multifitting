@@ -6,14 +6,14 @@ Target_Curve_Editor::Target_Curve_Editor(Target_Curve* target_Curve, Multilayer*
 	QDialog(parent)
 {
 	create_Main_Layout();
-	setWindowTitle("Import Data");
+	setWindowTitle("Import Data: "+target_Curve->target_Data_Type);
 	set_Window_Geometry();
 	setAttribute(Qt::WA_DeleteOnClose);
 	setAcceptDrops(true);
 }
 
 void Target_Curve_Editor::closeEvent(QCloseEvent *event)
-{	
+{
 	multilayer_Parent->runned_Target_Curve_Editors.remove(multilayer_Parent->runned_Target_Curve_Editors.key(this));
 	event->accept();
 }
@@ -160,30 +160,6 @@ void Target_Curve_Editor::fill_Arg_Units_ComboBox(QString arg_Type)
 	Global_Variables::resize_Line_Edit(at_Fixed_LineEdit, false);
 }
 
-void Target_Curve_Editor::fill_Val_Modes_ComboBox(QString val_Mode)
-{
-	val_Mode_ComboBox->blockSignals(true);
-	val_Mode_ComboBox->clear();
-
-	if(val_Mode == value_Function[Reflectance])		// reflectance
-	{
-		val_Mode_ComboBox->addItems(value_R_Mode);
-	}
-	if(val_Mode == value_Function[Transmittance])	// transmittance
-	{
-		val_Mode_ComboBox->addItems(value_T_Mode);
-	}
-	if(val_Mode == value_Function[Absorptance])		// absorptance
-	{
-		val_Mode_ComboBox->addItems(value_A_Mode);
-	}
-	val_Mode_ComboBox->blockSignals(false);
-
-	int index = val_Mode_ComboBox->findText(target_Curve->curve.value_Mode);
-	if(index>=0) {val_Mode_ComboBox->setCurrentIndex(index);}
-	else		 {val_Mode_ComboBox->setCurrentIndex(0);val_Mode_ComboBox->currentTextChanged(val_Mode_ComboBox->currentText());}
-}
-
 void Target_Curve_Editor::change_Arg_Units_ComboBox(QString arg_Units)
 {
 	if(arg_Type_ComboBox->currentText() == argument_Types[Grazing_angle] || arg_Type_ComboBox->currentText() == argument_Types[Incident_angle])	// grazing or incidence angle
@@ -210,14 +186,9 @@ void Target_Curve_Editor::create_Main_Layout()
 	bottom_Part_Layout = new QVBoxLayout(bottom_Part_Widget);
 		bottom_Part_Layout->setContentsMargins(0,0,0,0);
 		bottom_Part_Layout->setSpacing(0);
-#ifdef __linux__
-		bottom_Part_Widget->setFixedHeight(345);
-#endif
 
 	create_Plot();
-		main_Layout->addWidget(target_Curve_Plot->custom_Plot);
-	create_Plot_Options_GroupBox();
-		bottom_Part_Layout->addWidget(plot_Options_GroupBox);
+		main_Layout->addWidget(target_Curve_Plot);
 	create_Filepath_GroupBox();
 		bottom_Part_Layout->addWidget(filepath_GroupBox);
 	create_Data_GroupBox();
@@ -237,65 +208,6 @@ void Target_Curve_Editor::create_Main_Layout()
 void Target_Curve_Editor::create_Plot()
 {
 	target_Curve_Plot = new Target_Curve_Plot(target_Curve, this);
-}
-
-void Target_Curve_Editor::create_Plot_Options_GroupBox()
-{
-	plot_Options_GroupBox = new QGroupBox("Plot options");
-#ifdef __linux__
-		plot_Options_GroupBox->setStyleSheet("QGroupBox{ border-radius: 2px;  border: 1px solid silver; margin-top: 2ex;}"
-											 "QGroupBox::title   { subcontrol-origin: margin;   top: 6px; left: 9px; padding: 0 0px 0 1px;}");
-#endif
-	QVBoxLayout* plot_Options_GroupBox_Layout = new QVBoxLayout(plot_Options_GroupBox);
-
-	// first row
-	{
-		QLabel* scale_Label = new QLabel("Scale: ");
-
-		QRadioButton* lin_Radio_Button = new QRadioButton("Lin");
-		connect(lin_Radio_Button, &QRadioButton::toggled, this, [=]
-		{
-			if(lin_Radio_Button->isChecked())
-			{
-				target_Curve->plot_Options_Experimental.y_Scale = lin_Scale;
-				target_Curve->plot_Options_Calculated.y_Scale = lin_Scale;
-			}
-			target_Curve_Plot->plot_Data();
-		});
-		connect(lin_Radio_Button, &QRadioButton::clicked, lin_Radio_Button, &QRadioButton::toggled);
-
-		if(target_Curve->plot_Options_Experimental.y_Scale == lin_Scale)
-		{
-			lin_Radio_Button->setChecked(true);
-			lin_Radio_Button->toggled(true);
-		}
-
-		QRadioButton* log_Radio_Button = new QRadioButton("Log");
-		connect(log_Radio_Button, &QRadioButton::toggled, this, [=]
-		{
-			if(log_Radio_Button->isChecked())
-			{
-				target_Curve->plot_Options_Experimental.y_Scale = log_Scale;
-				target_Curve->plot_Options_Calculated.y_Scale = log_Scale;
-			}
-			target_Curve_Plot->plot_Data();
-		});
-		connect(log_Radio_Button, &QRadioButton::clicked, log_Radio_Button, &QRadioButton::toggled);
-
-		if(target_Curve->plot_Options_Experimental.y_Scale == log_Scale)
-		{
-			log_Radio_Button->setChecked(true);
-			log_Radio_Button->toggled(true);
-		}
-
-		QHBoxLayout* radio_Button_Layout = new QHBoxLayout;
-		radio_Button_Layout->setAlignment(Qt::AlignLeft);
-		radio_Button_Layout->addWidget(scale_Label);
-		radio_Button_Layout->addWidget(lin_Radio_Button);
-		radio_Button_Layout->addWidget(log_Radio_Button);
-
-		plot_Options_GroupBox_Layout->addLayout(radio_Button_Layout);
-	}
 }
 
 void Target_Curve_Editor::create_Filepath_GroupBox()
@@ -366,12 +278,13 @@ void Target_Curve_Editor::create_Filepath_GroupBox()
 
 void Target_Curve_Editor::create_Data_GroupBox()
 {
-	data_GroupBox = new QGroupBox("Data", this);
-#ifdef __linux__
-		data_GroupBox->setStyleSheet("QGroupBox{ border-radius: 2px;  border: 1px solid silver; margin-top: 2ex;}"
-									 "QGroupBox::title   { subcontrol-origin: margin;   top: 6px; left: 9px; padding: 0 0px 0 1px;}");
-#endif
-	QVBoxLayout* data_GroupBox_Layout = new QVBoxLayout(data_GroupBox);
+	create_Value_GroupBox();
+	create_Argument_GroupBox();
+	create_Beam_GroupBox();
+	create_Detector_GroupBox();
+	create_Sample_GroupBox();
+	create_Footptint_GroupBox();
+
 
 	// specifying interval for fitting
 	{
@@ -487,10 +400,9 @@ void Target_Curve_Editor::create_Data_GroupBox()
 			layout->addWidget(arg_Type_ComboBox);
 
 		val_Function_ComboBox = new QComboBox;
-			val_Function_ComboBox->addItems(value_Function);
+			val_Function_ComboBox->addItems(specular_Value_Function);
 //			val_Function_ComboBox->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 			val_Function_ComboBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
-			connect(val_Function_ComboBox, &QComboBox::currentTextChanged, this, &Target_Curve_Editor::fill_Val_Modes_ComboBox );
 			layout->addWidget(val_Function_ComboBox);
 	}
 	// 3rd column
@@ -500,9 +412,6 @@ void Target_Curve_Editor::create_Data_GroupBox()
 
 		arg_Units_Label = new QLabel("Units");
 		layout->addWidget(arg_Units_Label);
-
-		val_Mode_Label = new QLabel("Mode");
-		layout->addWidget(val_Mode_Label);
 	}
 	// 4th column
 	{
@@ -515,10 +424,6 @@ void Target_Curve_Editor::create_Data_GroupBox()
 		connect(arg_Units_ComboBox, &QComboBox::currentTextChanged, this, &Target_Curve_Editor::change_Arg_Units_ComboBox);
 		layout->addWidget(arg_Units_ComboBox);
 
-		val_Mode_ComboBox = new QComboBox;
-			val_Mode_ComboBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
-//			val_Mode_ComboBox->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-		layout->addWidget(val_Mode_ComboBox);
 	}
 	// 5th column
 	{
@@ -873,7 +778,6 @@ void Target_Curve_Editor::create_Data_GroupBox()
 
 	// value line
 	connect(val_Function_ComboBox,	&QComboBox::currentTextChanged, this, &Target_Curve_Editor::refresh_Value_Type );
-	connect(val_Mode_ComboBox,		&QComboBox::currentTextChanged, this, &Target_Curve_Editor::refresh_Value_Mode);
 	connect(val_Offset_SpinBox,     static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, &Target_Curve_Editor::refresh_Offsets);
 	connect(val_Factor_SpinBox,     static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, &Target_Curve_Editor::refresh_Factors);
 	connect(beam_Intensity_Start_SpinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, &Target_Curve_Editor::refresh_Beam_Intensity);
@@ -899,6 +803,58 @@ void Target_Curve_Editor::create_Data_GroupBox()
 	connect(beam_Profile_Spreading_SpinBox,	static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, &Target_Curve_Editor::refresh_Measurement_Geometry);
 	connect(sample_Size_SpinBox,			static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, &Target_Curve_Editor::refresh_Measurement_Geometry);
 	connect(sample_Shift_SpinBox,			static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, &Target_Curve_Editor::refresh_Measurement_Geometry);
+}
+
+void Target_Curve_Editor::create_Value_GroupBox()
+{
+	QGroupBox* value_GroupBox = new QGroupBox("Value", this);
+#ifdef __linux__
+		value_GroupBox->setStyleSheet("QGroupBox{ border-radius: 2px;  border: 1px solid silver; margin-top: 2ex;}"
+									 "QGroupBox::title   { subcontrol-origin: margin;   top: 6px; left: 9px; padding: 0 0px 0 1px;}");
+#endif
+	QGridLayout* value_GroupBox_Layout = new QVBoxLayout(value_GroupBox);
+
+	QComboBox* value_Type_ComboBox = new QComboBox;
+	if( target_Curve->target_Data_Type == target_Data_Types[Specular_Scan] ) {value_Type_ComboBox->addItems(specular_Value_Function);}
+		target_Curve->target_Data_Type == target_Data_Types[Detector_Scan] ||
+		target_Curve->target_Data_Type == target_Data_Types[Rocking_Curve] ||
+		target_Curve->target_Data_Type == target_Data_Types[Offset_Scan] )
+	{
+		create_Subinterval_Rectangle();
+		create_Plot_Options_GroupBox();
+	}
+	if( target_Curve->target_Data_Type == target_Data_Types[GISAS] )
+	{
+	}
+
+		value_Type_ComboBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
+		layout->addWidget(val_Function_ComboBox);
+
+}
+
+void Target_Curve_Editor::create_Argument_GroupBox()
+{
+
+}
+
+void Target_Curve_Editor::create_Beam_GroupBox()
+{
+
+}
+
+void Target_Curve_Editor::create_Detector_GroupBox()
+{
+
+}
+
+void Target_Curve_Editor::create_Sample_GroupBox()
+{
+
+}
+
+void Target_Curve_Editor::create_Footptint_GroupBox()
+{
+
 }
 
 void Target_Curve_Editor::reset_Subinterval()
@@ -1039,11 +995,6 @@ void Target_Curve_Editor::show_Curve_Data()
 			arg_Units_ComboBox->setCurrentIndex(arg_Units_ComboBox->findText(target_Curve->curve.angular_Units));
 		if(target_Curve->curve.argument_Type == whats_This_Wavelength)
 			arg_Units_ComboBox->setCurrentIndex(arg_Units_ComboBox->findText(target_Curve->curve.spectral_Units));
-	}
-
-	// value mode
-	{
-		val_Mode_ComboBox->setCurrentIndex(val_Mode_ComboBox->findText(target_Curve->curve.value_Mode));
 	}
 
 	// offsets
@@ -1211,7 +1162,6 @@ void Target_Curve_Editor::refresh_Argument_Units()
 
 void Target_Curve_Editor::refresh_Value_Mode()
 {
-	target_Curve->curve.value_Mode = val_Mode_ComboBox->currentText();
 	target_Curve_Plot->refresh_Labels();
 }
 

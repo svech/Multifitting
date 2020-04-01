@@ -352,21 +352,16 @@ void Fitting::fill_Residual(Fitting_Params* params, int& residual_Shift, Data_El
 	/// reflectance
 	/// -------------------------------------------------------------------------------
 
-	if(target_Curve->curve.value_Mode == value_R_Mode[R] )				// R
+	if(target_Curve->curve.value_Function == specular_Value_Function[Reflectance] )				// R
 	{
 		model_Curve = target_Element.unwrapped_Reflection->R_Instrumental;
-	} else
-	if(target_Curve->curve.value_Mode == value_R_Mode[R_Phi] )
-	{
-		qInfo() << "Fitting::fill_Residual  :  sorry, R_Phi is not ready" << endl;
-		return;
 	} else
 
 	/// -------------------------------------------------------------------------------
 	/// transmittance
 	/// -------------------------------------------------------------------------------
 
-	if(target_Curve->curve.value_Mode == value_T_Mode[T] )				// T
+	if(target_Curve->curve.value_Function == specular_Value_Function[Transmittance] )				// T
 	{
 		model_Curve = target_Element.unwrapped_Reflection->T_Instrumental;
 	}
@@ -919,35 +914,14 @@ bool Fitting::check_Residual_Expression()
 			/// 1 value
 			/// -------------------------------------------------------------------------------
 
-			if(target_Curve->curve.value_Mode == value_R_Mode[R] || 			// R
-			   target_Curve->curve.value_Mode == value_T_Mode[T] )				// T
+			if(target_Curve->fit_Params.expression_Vec.size() < 1)
 			{
-				if(target_Curve->fit_Params.expression_Vec.size() < 1)
-				{
-					QMessageBox::information(nullptr,"Bad expression", "Residual function\n\n\"" +
-																	target_Curve->fit_Params.fit_Function +
-																	"\"\n\nin\n\n" +
-																	struct_Name + ", measured curve #" + Locale.toString(target_Element_Index+1) +
-																	"\n\nshould contains >=1 expression, separated by \"" + fit_Function_Separator + "\"");
-					return true;
-				}
-			}
-
-			/// -------------------------------------------------------------------------------
-			/// 2 values
-			/// -------------------------------------------------------------------------------
-
-			if(target_Curve->curve.value_Mode == value_R_Mode[R_Phi] )
-			{
-				if(target_Curve->fit_Params.expression_Vec.size() < 2)
-				{
-					QMessageBox::information(nullptr,"Bad expression", "Residual function\n\n\"" +
-																	target_Curve->fit_Params.fit_Function +
-																	"\"\n\nin\n\n" +
-																	struct_Name + ", measured curve #" + Locale.toString(target_Element_Index+1) +
-																	"\n\nshould contains >=1 expression, separated by \"" + fit_Function_Separator + "\"");
-					return true;
-				}
+				QMessageBox::information(nullptr,"Bad expression", "Residual function\n\n\"" +
+																target_Curve->fit_Params.fit_Function +
+																"\"\n\nin\n\n" +
+																struct_Name + ", measured curve #" + Locale.toString(target_Element_Index+1) +
+																"\n\nshould contains >=1 expression, separated by \"" + fit_Function_Separator + "\"");
+				return true;
 			}
 		}
 	}

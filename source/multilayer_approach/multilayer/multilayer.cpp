@@ -329,12 +329,57 @@ void Multilayer::open_Import_Window(Target_Curve* target_Curve)
 		runned_Target_Curve_Editors.value(target_Curve)->activateWindow();
 	}
 	if(!runned_Target_Curve_Editors.contains(target_Curve))
-	{
-		Target_Curve_Editor* new_Target_Curve_Editor = new Target_Curve_Editor(target_Curve, this, this);
-			new_Target_Curve_Editor->setWindowFlags(Qt::Window);
-			new_Target_Curve_Editor->show();
+	{		
+		if(target_Curve->target_Data_Type == no_Data_Type)
+		{
+			QDialog* choice_Data_Type_Window = new QDialog(this);
+				choice_Data_Type_Window->setWindowTitle("Data");
+				choice_Data_Type_Window->setWindowModality(Qt::ApplicationModal);
+				choice_Data_Type_Window->setAttribute(Qt::WA_DeleteOnClose);
+				choice_Data_Type_Window->setWindowFlags(Qt::Tool);
+				choice_Data_Type_Window->show();
 
-		runned_Target_Curve_Editors.insert(target_Curve, new_Target_Curve_Editor);
+			QVBoxLayout* choice_Data_Type_Layout = new QVBoxLayout(choice_Data_Type_Window);
+				choice_Data_Type_Layout->setSpacing(5);
+				choice_Data_Type_Layout->setContentsMargins(5,5,5,5);
+
+			// settings group box
+			QGroupBox*  choice_Data_Type_Group_Box = new QGroupBox;
+				choice_Data_Type_Group_Box->setObjectName("choice_Data_Type_Group_Box");
+				choice_Data_Type_Group_Box->setStyleSheet("QGroupBox#choice_Data_Type_Group_Box { border-radius: 2px;  border: 1px solid gray; margin-top: 0ex;}"
+															"QGroupBox::title   { subcontrol-origin: margin;   left: 9px; padding: 0 0px 0 1px;}");
+			choice_Data_Type_Layout->addWidget(choice_Data_Type_Group_Box);
+
+			QVBoxLayout* choice_Data_Type_Group_Box_Layout = new QVBoxLayout(choice_Data_Type_Group_Box);
+				choice_Data_Type_Group_Box_Layout->setSpacing(5);
+				choice_Data_Type_Group_Box_Layout->setContentsMargins(5,5,5,5);
+
+			// buttons
+			QPushButton* specular_Button = new QPushButton(target_Data_Types[Specular_Scan]);
+			connect(specular_Button,  &QPushButton::clicked, this, [=]{target_Curve->target_Data_Type = target_Data_Types[Specular_Scan]; choice_Data_Type_Window->close(); open_Import_Window(target_Curve);});
+				choice_Data_Type_Group_Box_Layout->addWidget(specular_Button);
+			QPushButton* detector_Button = new QPushButton(target_Data_Types[Detector_Scan]);
+			connect(detector_Button,  &QPushButton::clicked, this, [=]{target_Curve->target_Data_Type = target_Data_Types[Detector_Scan]; choice_Data_Type_Window->close(); open_Import_Window(target_Curve);});
+				choice_Data_Type_Group_Box_Layout->addWidget(detector_Button);
+			QPushButton* rocking_Button  = new QPushButton(target_Data_Types[Rocking_Curve]);
+			connect(rocking_Button,   &QPushButton::clicked, this, [=]{target_Curve->target_Data_Type = target_Data_Types[Rocking_Curve]; choice_Data_Type_Window->close(); open_Import_Window(target_Curve);});
+				choice_Data_Type_Group_Box_Layout->addWidget(rocking_Button);
+			QPushButton* offset_Button   = new QPushButton(target_Data_Types[Offset_Scan]);
+			connect(offset_Button,    &QPushButton::clicked, this, [=]{target_Curve->target_Data_Type = target_Data_Types[Offset_Scan];   choice_Data_Type_Window->close(); open_Import_Window(target_Curve);});
+				choice_Data_Type_Group_Box_Layout->addWidget(offset_Button);
+			QPushButton* gisas_Button    = new QPushButton(target_Data_Types[GISAS]);
+			connect(gisas_Button,     &QPushButton::clicked, this, [=]{target_Curve->target_Data_Type = target_Data_Types[GISAS];		  choice_Data_Type_Window->close(); open_Import_Window(target_Curve);});
+				choice_Data_Type_Group_Box_Layout->addWidget(gisas_Button);
+
+			choice_Data_Type_Window->adjustSize();
+			choice_Data_Type_Window->setFixedSize(choice_Data_Type_Window->size());
+		} else
+		{
+			Target_Curve_Editor* new_Target_Curve_Editor = new Target_Curve_Editor(target_Curve, this, this);
+				new_Target_Curve_Editor->setWindowFlags(Qt::Window);
+				new_Target_Curve_Editor->show();
+			runned_Target_Curve_Editors.insert(target_Curve, new_Target_Curve_Editor);
+		}
 	}
 }
 

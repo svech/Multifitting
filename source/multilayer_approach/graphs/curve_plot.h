@@ -17,7 +17,7 @@ public:
 	void create_Options();
 	void set_Title_Text();
 	void plot_All_Data();
-	void plot_Data(const QVector<double>& argument, const QVector<double>& values, Plot_Options* plot_Options, QString left_Right);
+	void plot_Data(const QVector<double>& argument, const QVector<double>& values, Plot_Options* plot_Options);
 	void refresh_Labels();
 	QCPGraph* get_Selected_Graph();
 	void choose_Graph_Color();
@@ -27,7 +27,7 @@ public:
 	void show_Scatter_Size();
 	void change_Thickness();
 	void change_Scatter_Size();
-	void get_Min_Max_For_Graph(Plot_Options* plot_Options, QString left_Right, const QVector<double>& values, double& minimum, double& maximum);
+	void get_Min_Max_For_Graph(Plot_Options* plot_Options, const QVector<double>& values, double& minimum, double& maximum);
 
 	QVector<double> argument;
 	QVector<double> values;
@@ -55,7 +55,6 @@ public:
 	QColorDialog* colorDialog;
 	QCPGraph* selected_Graph;
 	QMap<QCPGraph*, Plot_Options*> graph_Options_Map;
-	QMap<QCPGraph*, QString> graph_Left_Right_Map;
 
 	QVBoxLayout* main_Layout;
 		QCustomPlot* custom_Plot;
@@ -94,8 +93,6 @@ public:
 	bool graph_Done = false;
 
 	QString val_Type_Label;
-	QString val_Mode_Label_1;
-	QString val_Mode_Label_2;
 
 	QString argument_Type_Label;
 	QString argument_Label;

@@ -216,14 +216,23 @@ QMap<QString, double> sorted_Elements;
 QStringList transition_Layer_Functions	{"erf","lin","exp","tanh","sin","step"}; int transition_Layer_Functions_Size = int(transition_Layer_Functions.size());
 QStringList tril						{TRIL_TRUE, TRIL_FALSE, TRIL_NOT_DEFINED};
 
+// experimental data types
+QString no_Data_Type = "no data type";
+QString target_Data_1D_Group = "1D data";
+QString target_Data_2D_Group = "2D data";
+QStringList target_Data_Types {	/** 1D */			/// change enum!
+								"Specular scan",	// R,T vs angle, wavelength
+								"Detector scan",	// R-,T-Scattering vs angle // from 0 or from specular direction
+								"Rocking scan",		// R-,T-Scattering vs angle	// from 0 or from specular direction
+								"Offset scan",		// R-,T-Scattering vs angle, wavelength
+													/// change enum!
+								/** 2D */
+								"GISAS map"			// R-,T-Scattering vs theta & phi // from 0 or from specular direction
+};
+
 // measured curves
 QStringList argument_Types				{"Grazing angle","Incident angle","Wavelength/Energy"}; // change enum!
-QStringList value_Function				{"Reflectance","Transmittance","Absorptance"};			// change enum!
-QStringList value_R_Mode				{"R","R+"+Phi_Sym };									// change enum!
-QStringList value_R_Mode_Label_1		{"R","R"          };
-QStringList value_R_Mode_Label_2		{" ","Phase "+Phi_Sym+", "+Degree_Sym };
-QStringList value_T_Mode				{"T"};													// change enum!
-QStringList value_A_Mode				{"A"};													// change enum!
+QStringList specular_Value_Function		{"Reflectance","Transmittance"};						// change enum!
 
 /// -------------------------------------------------------------------------
 /// GSL

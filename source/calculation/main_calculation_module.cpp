@@ -991,7 +991,7 @@ void Main_Calculation_Module::print_Reflect_To_File(Data_Element<Type>& data_Ele
 	if(independent_Variables->calc_Functions.check_Reflectance)
 		print_Reflectance = true;
 	if(data_Element.curve_Class == TARGET)
-	if(target_Curve->curve.value_Function == value_Function[Reflectance])
+	if(target_Curve->curve.value_Function == specular_Value_Function[Reflectance])
 		print_Reflectance = true;
 
 	// transmittance
@@ -1000,7 +1000,7 @@ void Main_Calculation_Module::print_Reflect_To_File(Data_Element<Type>& data_Ele
 	if(independent_Variables->calc_Functions.check_Transmittance)
 		print_Transmittance = true;
 	if(data_Element.curve_Class == TARGET)
-	if(target_Curve->curve.value_Function == value_Function[Transmittance])
+	if(target_Curve->curve.value_Function == specular_Value_Function[Transmittance])
 		print_Transmittance = true;
 
 	// absorptance

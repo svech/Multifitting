@@ -471,16 +471,14 @@ void Curve_Plot::create_Options()
 		// target
 		if(curve_Class == TARGET)
 		{
-			if(target_Curve->curve.value_Function == value_Function[Reflectance])
+			if(target_Curve->curve.value_Function == specular_Value_Function[Reflectance])
 			{
-				if(target_Curve->curve.value_Mode == value_R_Mode[R] || target_Curve->curve.value_Mode == value_R_Mode[R_Phi])
-					max_Value_Title = "| Max R =";
+				max_Value_Title = "| Max R =";
 			} else
 			{
-				if(target_Curve->curve.value_Function == value_Function[Transmittance])
+				if(target_Curve->curve.value_Function == specular_Value_Function[Transmittance])
 				{
-					if(target_Curve->curve.value_Mode == value_T_Mode[T])
-						max_Value_Title = "| Max T =";
+					max_Value_Title = "| Max T =";
 				} else
 				{
 					// none
@@ -594,7 +592,6 @@ void Curve_Plot::plot_All_Data()
 		values.resize(target_Curve->curve.shifted_Values.size());
 
 		/// experimental data
-		// first value (R,T,A...)
 		{
 			if(target_Curve->fit_Params.adjust_Scale_Factor)
 			{
@@ -608,34 +605,16 @@ void Curve_Plot::plot_All_Data()
 					values[i] = target_Curve->curve.shifted_Values[i].val_1;
 				}
 			}
-			plot_Data(argument, values, plot_Options_First, left_Axis);
-			get_Min_Max_For_Graph(plot_Options_First, left_Axis, values, min_Value_Left, max_Value_Left);
-		}
-		// second value (phase)
-		if(target_Curve->curve.value_Mode == value_R_Mode[R_Phi])
-		{
-			for(int i=0; i<target_Curve->curve.shifted_Values.size(); ++i)	{
-				values[i] = target_Curve->curve.shifted_Values[i].val_2;
-			}
-			plot_Data(argument, values, plot_Options_First, right_Axis);
-//			get_Min_Max_For_Graph(plot_Options_First, right_Axis, values, min_Value_Right, max_Value_Right); // no rescaling for phase
+			plot_Data(argument, values, plot_Options_First);
+			get_Min_Max_For_Graph(plot_Options_First, values, min_Value_Left, max_Value_Left);
 		}
 
 		/// calculated data
-		// second value (phase) // placed first for showing max value, not phase
-		if(target_Curve->curve.value_Mode == value_R_Mode[R_Phi])
 		{
-			values = calculated_Values->Phi_R;
-			plot_Data(argument, values, plot_Options_Second, right_Axis);			
-//			get_Min_Max_For_Graph(plot_Options_Second, right_Axis, values, min_Value_Right, max_Value_Right); // no rescaling for phase
-		}
-		// first value (R,T,A...)
-		{
-			if(	target_Curve->curve.value_Mode == value_R_Mode[R] ||
-				target_Curve->curve.value_Mode == value_R_Mode[R_Phi] )	{	values = calculated_Values->R; }
-			if(	target_Curve->curve.value_Mode == value_T_Mode[T] )		{	values = calculated_Values->T; }
-			plot_Data(argument, values, plot_Options_Second, left_Axis);
-			get_Min_Max_For_Graph(plot_Options_Second, left_Axis, values, min_Value_Left, max_Value_Left);
+			if(	target_Curve->curve.value_Function == specular_Value_Function[Reflectance] ) {	values = calculated_Values->R; }
+			if(	target_Curve->curve.value_Function == specular_Value_Function[Transmittance]){	values = calculated_Values->T; }
+			plot_Data(argument, values, plot_Options_Second);
+			get_Min_Max_For_Graph(plot_Options_Second, values, min_Value_Left, max_Value_Left);
 		}
 	}
 
@@ -670,8 +649,8 @@ void Curve_Plot::plot_All_Data()
 				}
 			}
 
-			plot_Data(argument, values, plot_Options_First, left_Axis);
-			get_Min_Max_For_Graph(plot_Options_First, left_Axis, values, min_Value_Left, max_Value_Left);
+			plot_Data(argument, values, plot_Options_First);
+			get_Min_Max_For_Graph(plot_Options_First, values, min_Value_Left, max_Value_Left);
 		}
 		// no second value up to now
 	}	
@@ -703,19 +682,11 @@ void Curve_Plot::plot_All_Data()
 	custom_Plot->replot();
 }
 
-void Curve_Plot::plot_Data(const QVector<double>& argument, const QVector<double>& values, Plot_Options* plot_Options, QString left_Right)
+void Curve_Plot::plot_Data(const QVector<double>& argument, const QVector<double>& values, Plot_Options* plot_Options)
 {
-	if(left_Right==left_Axis)
-	{
-		custom_Plot->addGraph();
-	}
-	if(left_Right==right_Axis)
-	{
-		custom_Plot->addGraph(custom_Plot->xAxis2, custom_Plot->yAxis2);
-	}
+	custom_Plot->addGraph();
 	int graph_Index = custom_Plot->graphCount()-1;
 	graph_Options_Map.insert(custom_Plot->graph(graph_Index), plot_Options);
-	graph_Left_Right_Map.insert(custom_Plot->graph(graph_Index), left_Right);
 
 	QVector<QCPGraphData> data_To_Plot(argument.size());
 //	double local_Min = DBL_MAX;
@@ -725,133 +696,43 @@ void Curve_Plot::plot_Data(const QVector<double>& argument, const QVector<double
 	{
 		data_To_Plot[i].key = argument[i];
 		data_To_Plot[i].value = values[i];
-
-//		if(left_Right==left_Axis)
-//		{
-//			if(local_Max<data_To_Plot[i].value && (plot_Options->y_Scale == lin_Scale || data_To_Plot[i].value > DBL_MIN)) {local_Max=data_To_Plot[i].value;}
-//			if(local_Min>data_To_Plot[i].value && (plot_Options->y_Scale == lin_Scale || data_To_Plot[i].value > DBL_MIN)) {local_Min=data_To_Plot[i].value;}
-//		}
-//		if(left_Right==right_Axis)
-//		{
-//			if(local_Max<data_To_Plot[i].value) local_Max=data_To_Plot[i].value;
-//			if(local_Min>data_To_Plot[i].value) local_Min=data_To_Plot[i].value;
-//		}
 	}
 	custom_Plot->graph(graph_Index)->data()->set(data_To_Plot);
 
-//	if(left_Right==left_Axis)
-//	{
-//		max_Value_Left = max(max_Value_Left, local_Max);
-//		if(plot_Options->y_Scale == log_Scale)
-//		{
-//			if((min_Value_Left>DBL_MIN) && (local_Min<DBL_MIN)) {min_Value_Left = min_Value_Left;} else
-//			if((min_Value_Left<DBL_MIN) && (local_Min>DBL_MIN)) {min_Value_Left = local_Min;} else
-//			min_Value_Left = min(min_Value_Left, local_Min) ;
-//		}
-//		if(plot_Options->y_Scale == lin_Scale)
-//		{
-//			min_Value_Left = min(min_Value_Left, local_Min);
-//		}
-//	}
-//	if(left_Right==right_Axis)
-//	{
-//		max_Value_Right = max(max_Value_Right, local_Max);
-//		min_Value_Right = min(min_Value_Right, local_Min);
-//	}
-
 	// styling
 	QCPScatterStyle scatter_Style;
-	if(left_Right==left_Axis)
-	{
-		custom_Plot->graph(graph_Index)->setPen(QPen(plot_Options->color, plot_Options->thickness));
-		scatter_Style.setShape(QCPScatterStyle::ScatterShape(plot_Options->scatter_Shape));
-		scatter_Style.setSize(plot_Options->scatter_Size);
-	}
-	if(left_Right==right_Axis)
-	{
-		custom_Plot->graph(graph_Index)->setPen(QPen(plot_Options->color_Second, plot_Options->thickness_Second));
-		scatter_Style.setShape(QCPScatterStyle::ScatterShape(plot_Options->scatter_Shape_Second));
-		scatter_Style.setSize(plot_Options->scatter_Size_Second);
-	}
+	custom_Plot->graph(graph_Index)->setPen(QPen(plot_Options->color, plot_Options->thickness));
+	scatter_Style.setShape(QCPScatterStyle::ScatterShape(plot_Options->scatter_Shape));
+	scatter_Style.setSize(plot_Options->scatter_Size);
+
 	custom_Plot->graph(graph_Index)->setScatterStyle(scatter_Style);
 
 	// on selection
 	custom_Plot->graph(graph_Index)->selectionDecorator()->setPen(QPen(
 					custom_Plot->graph(graph_Index)->pen().color(),
 				max(custom_Plot->graph(graph_Index)->pen().widthF()*2,3.)));
-
-	if(left_Right==left_Axis)
-	{
-		custom_Plot->yAxis2->setLabel("");
-//		if(plot_Options_First->rescale)
-//		{
-//			custom_Plot->yAxis->setRange(min_Value_Left,max_Value_Left);
-//			custom_Plot->xAxis->setRange(argument.first(), argument.last());
-//		}
-	}
-	if(left_Right==right_Axis)
-	{
-		QSharedPointer<QCPAxisTicker> linTicker(new QCPAxisTicker);
-		custom_Plot->yAxis2->setScaleType(QCPAxis::stLinear);
-		custom_Plot->yAxis2->setTicker(linTicker);
-		custom_Plot->yAxis2->setNumberFormat("g");
-		custom_Plot->yAxis2->setNumberPrecision(4);
-
-		disconnect(custom_Plot->yAxis, SIGNAL(rangeChanged(QCPRange)), custom_Plot->yAxis2, SLOT(setRange(QCPRange)));
-
-		custom_Plot->yAxis2->setLabel(val_Mode_Label_2);
-
-//		if(plot_Options_First->rescale)
-//		{
-//			custom_Plot->xAxis2->setRange(argument.first(), argument.last());
-//			custom_Plot->yAxis2->setRange(min_Value_Right, max_Value_Right);
-//		}
-	}
-//	custom_Plot->replot();
-
-	// reset
-//	min_Value_Left = DBL_MAX;
-//	max_Value_Left = -DBL_MAX;
-//	min_Value_Right = DBL_MAX;
-//	max_Value_Right = -DBL_MAX;
 }
 
 void Curve_Plot::refresh_Labels()
 {
-//	bool show_Second_Label = false;
-
 	// value
 	if(curve_Class == TARGET)
 	{
 		val_Type_Label = target_Curve->curve.value_Function;
-
-		if( target_Curve->curve.value_Mode == value_R_Mode[R] )	{val_Mode_Label_1 = value_R_Mode_Label_1[R];}
-		if( target_Curve->curve.value_Mode == value_R_Mode[R_Phi] )	{
-			val_Mode_Label_1 = value_R_Mode_Label_1[R_Phi];
-			val_Mode_Label_2 = value_R_Mode_Label_2[R_Phi];
-//			show_Second_Label = true;
-		}
-		if( target_Curve->curve.value_Mode == value_T_Mode[T] )	{val_Mode_Label_1 = value_T_Mode[T];}
 	}
 	if(curve_Class == INDEPENDENT)
 	{
 		if(	independent_Variables->calc_Functions.check_Reflectance)
 		{
-			val_Type_Label = value_Function[Reflectance];
-			val_Mode_Label_1 = value_R_Mode_Label_1[R];
+			val_Type_Label = specular_Value_Function[Reflectance];
 		}
-		if( //!independent_Variables->calc_Functions.check_Reflectance &&
-			 independent_Variables->calc_Functions.check_Transmittance)
+		if( independent_Variables->calc_Functions.check_Transmittance)
 		{
-			val_Type_Label = value_Function[Transmittance];
-			val_Mode_Label_1 = value_T_Mode[T];
+			val_Type_Label = specular_Value_Function[Transmittance];
 		}
-		if( //!independent_Variables->calc_Functions.check_Reflectance &&
-			//!independent_Variables->calc_Functions.check_Transmittance &&
-			 independent_Variables->calc_Functions.check_Absorptance )
+		if( independent_Variables->calc_Functions.check_Absorptance )
 		{
-			val_Type_Label = value_Function[Absorptance];
-			val_Mode_Label_1 = value_A_Mode[A];
+			val_Type_Label = "Absorptance";
 		}
 	}
 
@@ -889,10 +770,8 @@ void Curve_Plot::refresh_Labels()
 			}
 		}
 	}
-	custom_Plot->yAxis->setLabel(val_Type_Label + ", " + val_Mode_Label_1);
+	custom_Plot->yAxis->setLabel(val_Type_Label);
 	custom_Plot->xAxis->setLabel(argument_Label);
-
-//	custom_Plot->replot();
 }
 
 QCPGraph* Curve_Plot::get_Selected_Graph()
@@ -929,19 +808,10 @@ void Curve_Plot::set_Graph_Color(QCPGraph* graph, QColor color)
 	graph->setPen(QPen(color, graph->pen().widthF()));
 	graph->selectionDecorator()->setPen(QPen(color,graph->selectionDecorator()->pen().widthF()));
 	colors_Button->setPalette(color);
-//	custom_Plot->replot();
 
 	// renew data in plot_Options
 	Plot_Options* plot_Options = graph_Options_Map.value(graph);
-	QString left_Right = graph_Left_Right_Map.value(graph);
-	if(left_Right==left_Axis)
-	{
-		plot_Options->color = color;
-	}
-	if(left_Right==right_Axis)
-	{
-		plot_Options->color_Second = color;
-	}
+	plot_Options->color = color;
 }
 
 void Curve_Plot::colorize_Color_Button()
@@ -1002,15 +872,7 @@ void Curve_Plot::change_Thickness()
 
 		// renew data in plot_Options
 		Plot_Options* plot_Options = graph_Options_Map.value(graph);
-		QString left_Right = graph_Left_Right_Map.value(graph);
-		if(left_Right==left_Axis)
-		{
-			plot_Options->thickness = new_Width;
-		}
-		if(left_Right==right_Axis)
-		{
-			plot_Options->thickness_Second = new_Width;
-		}
+		plot_Options->thickness = new_Width;
 	}
 }
 
@@ -1029,35 +891,19 @@ void Curve_Plot::change_Scatter_Size()
 
 		// renew data in plot_Options
 		Plot_Options* plot_Options = graph_Options_Map.value(graph);
-		QString left_Right = graph_Left_Right_Map.value(graph);
-		if(left_Right==left_Axis)
-		{
-			plot_Options->scatter_Size = new_Scatter_Size;
-		}
-		if(left_Right==right_Axis)
-		{
-			plot_Options->scatter_Size_Second = new_Scatter_Size;
-		}
+		plot_Options->scatter_Size = new_Scatter_Size;
 	}
 }
 
-void Curve_Plot::get_Min_Max_For_Graph(Plot_Options* plot_Options, QString left_Right, const QVector<double>& values, double& minimum, double& maximum)
+void Curve_Plot::get_Min_Max_For_Graph(Plot_Options* plot_Options, const QVector<double>& values, double& minimum, double& maximum)
 {
 	double local_Min = DBL_MAX;
 	double local_Max = -DBL_MAX;
 
 	for (int i=0; i<values.size(); ++i)
 	{
-		if(left_Right==left_Axis)
-		{
-			if(local_Max<values[i] && (plot_Options->y_Scale == lin_Scale || values[i] > DBL_MIN)) {local_Max=values[i];}
-			if(local_Min>values[i] && (plot_Options->y_Scale == lin_Scale || values[i] > DBL_MIN)) {local_Min=values[i];}
-		}
-		if(left_Right==right_Axis)
-		{
-			if(local_Max<values[i]) local_Max=values[i];
-			if(local_Min>values[i]) local_Min=values[i];
-		}
+		if(local_Max<values[i] && (plot_Options->y_Scale == lin_Scale || values[i] > DBL_MIN)) {local_Max=values[i];}
+		if(local_Min>values[i] && (plot_Options->y_Scale == lin_Scale || values[i] > DBL_MIN)) {local_Min=values[i];}
 	}
 
 	minimum = min(minimum, local_Min);

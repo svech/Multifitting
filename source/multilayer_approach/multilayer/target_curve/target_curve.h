@@ -17,6 +17,13 @@ public:
 	void fill_Measurement_With_Data();
 	void show_Description_Label();
 
+
+	//------------------------------------------------------
+
+	QString target_Data_Type = no_Data_Type;
+
+	//------------------------------------------------------
+
 	Curve curve;
 	Fit_Params fit_Params;
 	Data measurement;

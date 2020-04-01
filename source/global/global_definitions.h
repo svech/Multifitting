@@ -8,8 +8,8 @@
 #include "qcustomplot.h"
 
 #define VERSION_MAJOR 1
-#define VERSION_MINOR 10
-#define VERSION_BUILD 3
+#define VERSION_MINOR 11
+#define VERSION_BUILD 4
 
 using namespace std;
 class Node;
@@ -311,8 +311,6 @@ class Node;
 // plot scales
 #define lin_Scale		"lin"
 #define log_Scale		"value"
-#define left_Axis		"left"
-#define right_Axis		"right"
 
 // insert items with or without changing IDs
 #define copy_Type_Copy	"copy"
@@ -377,7 +375,7 @@ class Node;
 #define calc_Settings_Key		"calc_Settings_Key"
 #define fit_Settings_Key		"fit_Settings_Key"
 
-// curves types
+// curve types
 #define INDEPENDENT	"INDEPENDENT"
 #define TARGET		"TARGET"
 #define TARGET_AND_INDEPENDENT "TARGET_AND_INDEPENDENT"
@@ -527,6 +525,7 @@ struct Plot_Options				{QString x_Scale = lin_Scale; //
 								 double scatter_Size = 5;
 								 double thickness = 1;
 
+								// TODO remove
 								 QString scale_Second = lin_Scale;
 								 QColor color_Second = QColor(0, 0, 255);
 								 int scatter_Shape_Second = QCPScatterStyle::ssDiamond;
@@ -700,6 +699,9 @@ struct Curve					{bool use_Subinterval = false;
 								 double mesh_Density_Shift = 0.5;
 								 double subinterval_Start = 0;
 								 double subinterval_End = 5;
+//								 double subinterval_Top = 1;		// TODO GISAS
+//								 double subinterval_Bottom = -1;	// TODO GISAS
+
 								 QVector<double> argument; QVector<double> shifted_Argument;
 								 QVector<Value> values;	   QVector<Value> shifted_Values;
 														   vector<double> shifted_Values_No_Scaling_And_Offset; // without saving, for fitting purposes
@@ -712,7 +714,7 @@ struct Curve					{bool use_Subinterval = false;
 								 QString spectral_Units;
 
 								 QString value_Function;
-								 QString value_Mode;
+								 QString value_Mode; // TODO remove
 
 								 Curve()
 								 {
