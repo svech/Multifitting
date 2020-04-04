@@ -100,6 +100,8 @@ SOURCES += \
     multilayer_approach/multilayer/structure_tree/item_editor.cpp \
     multilayer_approach/multilayer/structure_tree/structure_toolbar.cpp \
     multilayer_approach/multilayer/structure_tree/structure_tree.cpp \
+    multilayer_approach/multilayer/target_curve/distribution_box.cpp \
+    multilayer_approach/multilayer/target_curve/distribution_editor.cpp \
     multilayer_approach/multilayer/target_curve/target_curve.cpp \
     multilayer_approach/multilayer/target_curve/target_curve_editor.cpp \
     multilayer_approach/multilayer/multilayer.cpp \
@@ -150,6 +152,8 @@ HEADERS += \
     multilayer_approach/multilayer/structure_tree/item_editor.h \
     multilayer_approach/multilayer/structure_tree/structure_toolbar.h \
     multilayer_approach/multilayer/structure_tree/structure_tree.h \
+    multilayer_approach/multilayer/target_curve/distribution_box.h \
+    multilayer_approach/multilayer/target_curve/distribution_editor.h \
     multilayer_approach/multilayer/target_curve/target_curve.h \
     multilayer_approach/multilayer/target_curve/target_curve_editor.h \
     multilayer_approach/multilayer/multilayer.h \

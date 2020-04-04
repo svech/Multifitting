@@ -5,6 +5,7 @@
 #include "multilayer_approach/multilayer/target_curve/target_curve.h"
 #include "multilayer_approach/multilayer/multilayer.h"
 #include "target_curve_plot.h"
+#include "distribution_editor.h"
 
 class MyDoubleSpinBox;
 class Target_Curve_Editor : public QDialog
@@ -28,7 +29,6 @@ public:
 			void create_Argument_GroupBox();
 			void create_Beam_GroupBox();
 			void create_Detector_GroupBox();
-			void create_Sample_GroupBox();
 			void create_Footptint_GroupBox();
 		void reset_Subinterval();
 		void create_Buttons();

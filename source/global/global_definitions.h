@@ -169,6 +169,7 @@ class Node;
 #define Chi2_Sym				QString(QChar(0x03C7))+QString(QChar(0x00B2))
 #define Element_Sym				QString(QChar(0x2208))
 #define Multiply_Sym			QString(QChar(0x00D7))
+
 // -----------------------------------------------------------------------------------------
 
 // magic numbers
@@ -196,11 +197,12 @@ class Node;
 #define MIN_FORMULA_WIDTH_LINE_EDIT 80		// master/slave width for dependance formula
 #define id_Of_Thicknesses 9					// used fore refresh/reload of corresponding line_Edits
 #define TARGET_LINE_EDIT_WIDTH 65			// for target_Curve_Editor
-#define TARGET_LINE_AT_FIXED_WIDTH 85		// for target_Curve_Editor
+#define TARGET_LINE_AT_FIXED_WIDTH 105		// for target_Curve_Editor
 #define TARGET_BEAM_INTENSITY_WIDTH 25		// for target_Curve_Editor
 #define INDEPENDENT_LINE_EDIT_WIDTH 50		// for independent_Variables_Editor
 #define MIN_CONFIDENCE_POINTS	3			// for confidence interval
 #define COLOR_LEGEND_LABEL_WIDTH 100		// for table color legend
+#define DISTRIBUTION_BOX_FIELD_WIDTH 90		// for target_Curve_Editor: distribution box
 
 // -----------------------------------------------------------------------------------------
 

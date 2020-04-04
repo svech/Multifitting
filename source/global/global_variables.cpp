@@ -235,6 +235,12 @@ QStringList argument_Types	{"Grazing angle, "+Omega_Sym, "Detector Angle, "+Thet
 QStringList specular_Value_Function		  {"Reflectance","Transmittance"};		  // change enum!
 QStringList specular_Value_Function_Short {"R","T"};							  // change enum!
 
+// distributions
+QStringList distributions { "None", "Gate", "Cosine", "Gaussian", "Lorentz" };
+
+// detector types
+QStringList detectors = { "Slit", "Crystal", "Spherical", "Rectangular" };
+
 /// -------------------------------------------------------------------------
 /// GSL
 /// -------------------------------------------------------------------------
