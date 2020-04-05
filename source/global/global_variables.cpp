@@ -229,7 +229,7 @@ QStringList target_Data_Types {	/** 1D */			/// change enum!
 };
 
 // argument types
-QStringList argument_Types	{"Grazing angle, "+Omega_Sym, "Detector Angle, "+Theta_Sym, "Azimuthal angle, "+Phi_Sym, "Wavelength/Energy"}; // change enum!
+QStringList argument_Types	{"Grazing angle, "+Theta_Sym, "Detector angle, "+Alpha_Sym, "Azimuthal angle, "+Phi_Sym, "Wavelength/Energy"}; // change enum!
 
 // specular scan
 QStringList specular_Value_Function		  {"Reflectance","Transmittance"};		  // change enum!
