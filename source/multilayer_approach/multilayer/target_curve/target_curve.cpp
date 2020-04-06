@@ -6,7 +6,7 @@ Target_Curve::Target_Curve(QLabel* description_Label, QTreeWidget* real_Struct_T
 	measurement(item_Type_Measurement),
 	QWidget(parent)
 {
-	curve.argument_Type = whats_This_Angle;		// angular curve
+	curve.argument_Type = whats_This_Beam_Theta_0_Angle;		// angular curve
 	curve.angular_Units = angle_Units_List[degree]/*angle_units*/	;
 	curve.spectral_Units = wavelength_Units_List[angstrom]/*wavelength_units*/;
 	curve.value_Function = specular_Value_Function[Reflectance];
@@ -168,22 +168,22 @@ void Target_Curve::fill_Measurement_With_Data()
 		}
 
 		// measurement filling
-		if(curve.argument_Type == whats_This_Angle)			// angular
+		if(curve.argument_Type == whats_This_Beam_Theta_0_Angle)			// angular
 		{
 			double coeff = angle_Coefficients_Map.value(curve.angular_Units);
-			measurement.angle.resize(curve.shifted_Argument.size());
+			measurement.beam_Theta_0_Angle_Vec.resize(curve.shifted_Argument.size());
 			for(int i=0; i<curve.shifted_Argument.size(); ++i)
 			{
-				measurement.angle[i] = curve.shifted_Argument[i]*coeff;
+				measurement.beam_Theta_0_Angle_Vec[i] = curve.shifted_Argument[i]*coeff;
 			}
 		} else
 		if(curve.argument_Type == whats_This_Wavelength)	// spectral
 		{
 			double coeff = wavelength_Coefficients_Map.value(curve.spectral_Units);
-			measurement.lambda.resize(curve.shifted_Argument.size());
+			measurement.lambda_Vec.resize(curve.shifted_Argument.size());
 			for(int i=0; i<curve.shifted_Argument.size(); ++i)
 			{
-				measurement.lambda[i] = Global_Variables::wavelength_Energy(curve.spectral_Units,curve.shifted_Argument[i]*coeff);
+				measurement.lambda_Vec[i] = Global_Variables::wavelength_Energy(curve.spectral_Units,curve.shifted_Argument[i]*coeff);
 			}
 		} else
 		{
@@ -198,7 +198,7 @@ void Target_Curve::show_Description_Label()
 	if(loaded_And_Ready)
 	{
 		QString spacer;
-		if(curve.argument_Type == whats_This_Angle)
+		if(curve.argument_Type == whats_This_Beam_Theta_0_Angle)
 		{
 			arg_Type_For_Label = "Angular";
 
@@ -214,7 +214,7 @@ void Target_Curve::show_Description_Label()
 			arg_Units = curve.spectral_Units;
 
 			double coeff = angle_Coefficients_Map.value(curve.angular_Units);
-			at_Fixed = Locale.toString(measurement.probe_Angle.value/coeff, thumbnail_double_format, thumbnail_angle_precision)+" "+curve.angular_Units;
+			at_Fixed = Locale.toString(measurement.beam_Theta_0_Angle.value/coeff, thumbnail_double_format, thumbnail_angle_precision)+" "+curve.angular_Units;
 			spacer = " ";
 		}
 

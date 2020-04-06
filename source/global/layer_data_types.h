@@ -19,34 +19,81 @@ public:
 	///---------------------------------------------
 	// Measurement
 	//---------------------------------------------
-		// angle
-		Parameter probe_Angle;
-		QVector<double>  cos2;
-		QVector<double>  angle;
-		double			 cos2_Value;
-		double			 angle_Value;
-		Parameter angular_Resolution;
-		vector<double>  instrumental_Factor_Vec;	// without saving
-		vector<double>  angular_Resolution_Mixed;	// without saving
 
+		QString measurement_Type;	// Specular (R,T) ; Detector; Offset ; Rocking ; GISAX
 
 		// wavelength
 		Parameter wavelength;
-		QVector<double>    k;
-		QVector<double>	   lambda;
-		double			   k_Value;
-		double			   lambda_Value;
-		Parameter spectral_Resolution;
-		Parameter polarization;
-		Parameter polarization_Sensitivity;
-		Parameter background;
+		QVector<double> k_Vec;		double k_Value;
+		QVector<double>	lambda_Vec;	double lambda_Value;
+
+		// theta_0 angle
+		Parameter beam_Theta_0_Angle;
+		QVector<double> beam_Theta_0_Cos2_Vec;  double beam_Theta_0_Cos2_Value;
+		QVector<double>	beam_Theta_0_Angle_Vec; double beam_Theta_0_Angle_Value;
+
+		// theta angle
+		Parameter detector_Theta_Angle;
+		QVector<double> detector_Theta_Cos2_Vec;  double detector_Theta_Cos2_Value;
+		QVector<double>	detector_Theta_Angle_Vec; double detector_Theta_Angle_Value;
+
+		// phi angle
+		Parameter detector_Phi_Angle;
+		QVector<double> detector_Phi_Cos2_Vec;  double detector_Phi_Cos2_Value;
+		QVector<double>	detector_Phi_Angle_Vec; double detector_Phi_Angle_Value;
+
+		// resolution
+		Distribution spectral_Distribution;
+		Distribution beam_Theta_0_Distribution;
+		Distribution beam_Phi_0_Distribution;
+		Distribution detector_Theta_Resolution;
+		Distribution detector_Phi_Resolution;
+
+		vector<double>  angular_Resolution_Mixed;	// without saving
 		vector<double>  spectral_Resolution_Mixed;	// without saving
 
-		// geometry
-		Parameter beam_Size;
-		Parameter beam_Profile_Spreading;
-		Parameter sample_Size;
-		Parameter sample_Shift;
+		// footprint
+		vector<double>  footprint_Factor_Vec;	// without saving
+		Beam_Geometry beam_Geometry;
+		Sample_Geometry sample_Geometry;
+
+		// other
+		double polarization;
+		double background;
+
+		/// old approach
+		///-----------------------------------------------
+//		// angle
+//		Parameter probe_Angle;
+//		QVector<double>  cos2;
+//		QVector<double>  angle;
+//		double			 cos2_Value;
+//		double			 angle_Value;
+
+//		Parameter angular_Resolution;
+//		vector<double>  instrumental_Factor_Vec;	// without saving
+//		vector<double>  angular_Resolution_Mixed;	// without saving
+
+
+//		// wavelength
+//		Parameter wavelength;
+//		QVector<double>     k;
+//		QVector<double>	   lambda;
+//		double			   k_Value;
+//		double			   lambda_Value;
+
+//		Parameter spectral_Resolution;
+//		Parameter polarization;
+//		Parameter polarization_Sensitivity;
+//		Parameter background;
+//		vector<double>  spectral_Resolution_Mixed;	// without saving
+
+//		// geometry
+//		Parameter beam_Size;
+//		Parameter beam_Profile_Spreading;
+//		Parameter sample_Size;
+//		Parameter sample_Shift;
+		///----------------------------------
 
 		void calc_Measured_cos2_k();
 		void calc_Independent_cos2_k();
@@ -117,7 +164,7 @@ public:
 
 struct Regular_Component		{id_Type top_Id;
 								 QVector<Data> components;
-								 Min_Max min_Max_Values;
+															  Min_Max min_Max_Values;
 
 								 bool is_Common_Thickness = false;
 								 bool is_Common_Sigma = false;

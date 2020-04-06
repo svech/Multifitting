@@ -297,7 +297,7 @@ void Target_Curve_Plot::refresh_Labels()
 
 	// argument
 	{
-		if(target_Curve->curve.argument_Type == whats_This_Angle)
+		if(target_Curve->curve.argument_Type == whats_This_Beam_Theta_0_Angle)
 		{
 			argument_Type_Label = argument_Types[Sample_Grazing_angle];
 

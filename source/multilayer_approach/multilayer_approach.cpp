@@ -39,7 +39,7 @@ void Multilayer_Approach::create_Main_Layout()
 	main_Layout = new QHBoxLayout(this);
 		main_Layout->setContentsMargins(4,3,2,3);
 
-    create_Multilayer_Tabs ();
+	create_Multilayer_Tabs ();
 	create_Fitting_Settings();
 }
 

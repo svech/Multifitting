@@ -78,7 +78,7 @@ void Curve_Plot::create_Main_Layout()
 	}
 
 	// for discretized structures plot vertical threshold line
-	if(*argument_Type == whats_This_Angle)
+	if(*argument_Type == whats_This_Beam_Theta_0_Angle)
 	{
 		infLine = new QCPItemStraightLine(custom_Plot);
 		discretized_Angular_Threshold();
@@ -136,7 +136,7 @@ void Curve_Plot::discretized_Angular_Threshold()
 	if(curve_Class == TARGET)     {
 		argument_Type = target_Curve->curve.argument_Type;
 		angle_Units = target_Curve->curve.angular_Units;
-		if(argument_Type == whats_This_Angle)
+		if(argument_Type == whats_This_Beam_Theta_0_Angle)
 		{
 			wavelength = target_Curve->measurement.lambda_Value;
 		}
@@ -144,13 +144,13 @@ void Curve_Plot::discretized_Angular_Threshold()
 	if(curve_Class == INDEPENDENT){
 		argument_Type = independent_Variables->argument_Type;
 		angle_Units = angle_units;
-		if(argument_Type == whats_This_Angle)
+		if(argument_Type == whats_This_Beam_Theta_0_Angle)
 		{
 			wavelength = independent_Variables->measurement.lambda_Value;
 		}
 	}
 
-	if(argument_Type == whats_This_Angle)
+	if(argument_Type == whats_This_Beam_Theta_0_Angle)
 	{
 		if(multilayer->discretization_Parameters.enable_Discretization)
 		{
@@ -526,7 +526,7 @@ void Curve_Plot::set_Title_Text()
 		QString title_Text = "fixed parameters";
 
 		// at fixed wavelength
-		if(*argument_Type == whats_This_Angle)
+		if(*argument_Type == whats_This_Beam_Theta_0_Angle)
 		{
 			double coeff = wavelength_Coefficients_Map.value(*spectral_Units);
 
@@ -546,7 +546,7 @@ void Curve_Plot::set_Title_Text()
 								line_edit_double_format,
 								line_edit_wavelength_precision)
 						 + " " +*spectral_Units + ", pol=" +
-						 Locale.toString(measurement->polarization.value,
+						 Locale.toString(measurement->polarization,
 								line_edit_double_format,
 								line_edit_polarization_precision);
 			plot_Title->setText(title_Text);
@@ -558,11 +558,11 @@ void Curve_Plot::set_Title_Text()
 			fixed_Quantity = " " +Omega_Sym;
 
 			title_Text = *plot_Indicator + ": " + prefix_Text + fixed_Quantity + "=" +
-						 Locale.toString(measurement->probe_Angle.value/coeff,
+						 Locale.toString(measurement->beam_Theta_0_Angle.value/coeff,
 								line_edit_double_format,
 								thumbnail_angle_precision)
 						 + " " + *angular_Units + ", pol=" +
-						 Locale.toString(measurement->polarization.value,
+						 Locale.toString(measurement->polarization,
 								line_edit_double_format,
 								thumbnail_polarization_precision);
 			plot_Title->setText(title_Text);
@@ -615,8 +615,8 @@ void Curve_Plot::plot_All_Data()
 
 	if(curve_Class == INDEPENDENT)
 	{
-		if(	*argument_Type == whats_This_Angle )	 {	argument = measurement->angle;	}
-		if(	*argument_Type == whats_This_Wavelength ){	argument = measurement->lambda;	}
+		if(	*argument_Type == whats_This_Beam_Theta_0_Angle )	{	argument = measurement->beam_Theta_0_Angle_Vec;	}
+		if(	*argument_Type == whats_This_Wavelength )		{	argument = measurement->lambda_Vec;	}
 
 		if(	independent_Variables->calc_Functions.check_Reflectance)   { values = calculated_Values->R; } /*else*/
 		if(	independent_Variables->calc_Functions.check_Transmittance) { values = calculated_Values->T; } /*else*/
@@ -629,7 +629,7 @@ void Curve_Plot::plot_All_Data()
 		// first value (R,T,A...)
 		{
 			double coeff=1;
-			if(*argument_Type == whats_This_Angle)
+			if(*argument_Type == whats_This_Beam_Theta_0_Angle)
 			{
 				coeff = angle_Coefficients_Map.value(angle_units);
 				for(int i=0; i<values.size(); ++i)				{
@@ -733,7 +733,7 @@ void Curve_Plot::refresh_Labels()
 
 	// argument
 	{
-		if(*argument_Type == whats_This_Angle)
+		if(*argument_Type == whats_This_Beam_Theta_0_Angle)
 		{
 			argument_Type_Label = argument_Types[Sample_Grazing_angle];
 

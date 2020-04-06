@@ -16,7 +16,7 @@ Node::Node(QTreeWidgetItem* item):
 void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_Node, QString active_Parameter_Whats_This, bool depth_Grading, bool sigma_Grading, bool enable_Discretization)
 {
 	// PARAMETER
-	if(active_Parameter_Whats_This == whats_This_Angle ||
+	if(active_Parameter_Whats_This == whats_This_Beam_Theta_0_Angle ||
 	   active_Parameter_Whats_This == whats_This_Wavelength )
 	{
 		// here we know that active item type == "Measurement"
@@ -34,11 +34,11 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 			struct_Data.item_Type == item_Type_Substrate )
 		{
 			// if angle is changing
-			if(active_Parameter_Whats_This == whats_This_Angle)
+			if(active_Parameter_Whats_This == whats_This_Beam_Theta_0_Angle)
 			{
 				// measured points
-				num_Points = measurement.cos2.size();
-				cos2 = measurement.cos2.toStdVector();
+				num_Points = measurement.beam_Theta_0_Cos2_Vec.size();
+				cos2 = measurement.beam_Theta_0_Cos2_Vec.toStdVector();
 				k.resize(num_Points);
 				for(int point_Index = 0; point_Index<num_Points; ++point_Index)
 				{
@@ -111,12 +111,12 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 			if(active_Parameter_Whats_This == whats_This_Wavelength)
 			{
 				// measured points
-				num_Points = measurement.lambda.size();
-				k = measurement.k.toStdVector();
+				num_Points = measurement.lambda_Vec.size();
+				k = measurement.k_Vec.toStdVector();
 				cos2.resize(num_Points);
 				for(int point_Index = 0; point_Index<num_Points; ++point_Index)
 				{
-					cos2[point_Index] = measurement.cos2_Value;
+					cos2[point_Index] = measurement.beam_Theta_0_Cos2_Value;
 				}
 
 				delta_Epsilon.resize(num_Points);
@@ -131,7 +131,7 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 				/// delta_Epsilon
 				/// ---------------------------------------------------------------------------------------------------------------
 
-				QVector<double> spectral_Points = measurement.lambda;
+				QVector<double> spectral_Points = measurement.lambda_Vec;
 
 				// if known material
 				if(struct_Data.composed_Material == false)
@@ -258,7 +258,7 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 					struct_Data.item_Type == item_Type_Substrate )
 				{
 					// s-polarization
-					if (measurement.polarization.value >-1)
+					if (measurement.polarization >-1)
 					{
 						#ifdef REAL_CALC
 						// reflectance
@@ -330,7 +330,7 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 					}
 
 					// p-polarization
-					if (measurement.polarization.value < 1)
+					if (measurement.polarization < 1)
 					{
 						#ifdef REAL_CALC
 						// reflectance

@@ -136,6 +136,7 @@ class Node;
 #define Rho_Sym					QString(QChar(0x03C1))
 #define Cube_Sym				QString(QChar(0x00B3))
 #define Quadro_Sym				QString(QChar(0x00B2))
+#define Zero_Subscript_Sym		QString(QChar(0x2080))
 #define Minus_Superscript		QString(QChar(0x207B))
 #define Minus_One_Sym			Minus_Superscript+QString(QChar(0x00B9))
 #define Minus_Three_Sym			Minus_Superscript+Cube_Sym
@@ -241,12 +242,10 @@ class Node;
 #define item_Type_Substrate			"Substrate"
 
 // whatsThis : specialized additions
-#define whats_This_Angle					"Angle"
-#define whats_This_Angular_Resolution		"Angular Resolution"
 #define whats_This_Wavelength				"Wavelength"
-#define whats_This_Spectral_Resolution		"Spectral Resolution"
-#define whats_This_Polarization				"Polarization"
-#define whats_This_Polarization_Sensitivity	"Polarization Sensitivity"
+#define whats_This_Beam_Theta_0_Angle		"Theta_0 Angle"
+#define whats_This_Detector_Theta_Angle		"Theta Angle"
+#define whats_This_Detector_Phi_Angle		"Phi Angle"
 #define whats_This_Absolute_Density			"Absolute Density"
 #define whats_This_Relative_Density			"Relative Density"
 #define whats_This_Permittivity				"Permittivity"
@@ -259,12 +258,6 @@ class Node;
 #define whats_This_Num_Repetitions			"Num Repetitions"
 #define whats_This_Period					"Period"
 #define whats_This_Gamma					"Gamma"
-
-#define whats_This_Background				"Background"
-#define whats_This_Beam_Size				"Beam Size"
-#define whats_This_Beam_Profile_Spreading	"Beam Profile Spreading"
-#define whats_This_Sample_Size				"Sample Size"
-#define whats_This_Sample_Shift				"Sample Shift"
 
 #define whats_This_Density					"Density"
 #define whats_This_Common_Thickness			"Common Thickness"
@@ -473,6 +466,21 @@ struct Parameter				{double value; Independent independent; Coupled coupled; Con
 								 {
 									indicator.id = Global_Definitions::generate_Id();	// create unique id
 								 }};
+struct Distribution             { double FWHM_distribution = 0;
+								  QString distribution_Function = "Lorentz"; // see distributions in global_variables
+								  int number_of_Samples = 1;
+								  double coverage = 2; // in units of FWHM
+								};
+
+struct Sample_Geometry			{ double size = 20;
+								  double x_Position = 0;
+								  double z_Position = 0;
+								  double curvature = 0;
+								};
+
+struct Beam_Geometry			{ double size = 0.055;
+								  double smoothing = 0;
+								};
 
 struct Int_Independent			{int start = 1; int step = 1; int num_Steps = 3;
 								 Parameter parameter; // double-valued, should be rounded
@@ -837,6 +845,15 @@ QDataStream& operator >>( QDataStream& stream,		 Confidence& confidence );
 
 QDataStream& operator <<( QDataStream& stream, const Parameter& parameter );
 QDataStream& operator >>( QDataStream& stream,		 Parameter& parameter );
+
+QDataStream& operator <<( QDataStream& stream, const Distribution& resolution );
+QDataStream& operator >>( QDataStream& stream,		 Distribution& resolution );
+
+QDataStream& operator <<( QDataStream& stream, const Sample_Geometry& sample_Geometry );
+QDataStream& operator >>( QDataStream& stream,		 Sample_Geometry& sample_Geometry );
+
+QDataStream& operator <<( QDataStream& stream, const Beam_Geometry& beam_Geometry );
+QDataStream& operator >>( QDataStream& stream,		 Beam_Geometry& beam_Geometry );
 
 QDataStream& operator <<( QDataStream& stream, const Stoichiometry& stoichiometry );
 QDataStream& operator >>( QDataStream& stream,		 Stoichiometry& stoichiometry );

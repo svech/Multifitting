@@ -22,7 +22,7 @@ Unwrapped_Structure::Unwrapped_Structure(const Calc_Functions& calc_Functions, c
 		// PARAMETER
 		if(active_Parameter_Whats_This == whats_This_Wavelength)
 		{
-			int num_Lambda_Points = measurement.lambda.size();
+			int num_Lambda_Points = measurement.lambda_Vec.size();
 
 			epsilon_Dependent.resize(num_Lambda_Points, vector<complex<double>>(num_Media));
 //			epsilon_Dependent_RE.resize(num_Lambda_Points, vector<double>(num_Media));
@@ -101,7 +101,7 @@ Unwrapped_Structure::Unwrapped_Structure(const Calc_Functions& calc_Functions, c
 		// PARAMETER
 		if(active_Parameter_Whats_This == whats_This_Wavelength)
 		{
-			int num_Lambda_Points = measurement.lambda.size();
+			int num_Lambda_Points = measurement.lambda_Vec.size();
 
 			discretized_Epsilon_Dependent.resize(num_Lambda_Points, vector<complex<double>>(num_Discretized_Media));
 //			discretized_Epsilon_Dependent_RE.resize(num_Lambda_Points, vector<double>(num_Discretized_Media));

@@ -40,7 +40,7 @@ void Independent_Variables_Editor::create_Main_Layout()
 		main_Layout->addWidget(group_Box);
 
 	// if angle
-	if(indicator.parameter_Whats_This == whats_This_Angle)		create_Angle_Interface();
+	if(indicator.parameter_Whats_This == whats_This_Beam_Theta_0_Angle)		create_Angle_Interface();
 	// if wavelength
 	if(indicator.parameter_Whats_This == whats_This_Wavelength)	create_Wavelength_Interface();
 
@@ -180,10 +180,10 @@ void Independent_Variables_Editor::create_Angle_Interface()
 
 	// angular resolution
 	{
-		angular_Resolution_Label = new QLabel(Global_Variables::parameter_Name(struct_Data, whats_This_Angular_Resolution, 0));
+		angular_Resolution_Label = new QLabel("Angular resolution");
 			angular_Resolution_Label->setSizePolicy(sp_retain);
 		layout_Ang_Res->addWidget(angular_Resolution_Label);
-		angular_Resolution_Edit = new QLineEdit(Locale.toString(struct_Data.angular_Resolution.value,line_edit_double_format,line_edit_angle_precision));
+		angular_Resolution_Edit = new QLineEdit(Locale.toString(struct_Data.beam_Theta_0_Distribution.FWHM_distribution,line_edit_double_format,line_edit_angle_precision));
 			angular_Resolution_Edit->setFixedWidth(INDEPENDENT_LINE_EDIT_WIDTH);
 			angular_Resolution_Edit->setProperty(min_Size_Property, INDEPENDENT_LINE_EDIT_WIDTH);
 			angular_Resolution_Edit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION, this));
@@ -203,9 +203,9 @@ void Independent_Variables_Editor::create_Angle_Interface()
 
 	// beam size
 	{
-		beam_Size_Label = new QLabel(Global_Variables::parameter_Name(struct_Data, whats_This_Beam_Size, 0));
+		beam_Size_Label = new QLabel("Beam size");
 		geometry_Layout->addWidget(beam_Size_Label,0,0,Qt::AlignRight);
-		beam_Size_LineEdit = new QLineEdit(Locale.toString(struct_Data.beam_Size.value,line_edit_double_format,line_edit_beam_size_precision));
+		beam_Size_LineEdit = new QLineEdit(Locale.toString(struct_Data.beam_Geometry.size,line_edit_double_format,line_edit_beam_size_precision));
 			beam_Size_LineEdit->setFixedWidth(INDEPENDENT_LINE_EDIT_WIDTH);
 			beam_Size_LineEdit->setProperty(min_Size_Property, INDEPENDENT_LINE_EDIT_WIDTH);
 			beam_Size_LineEdit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION, this));
@@ -225,9 +225,9 @@ void Independent_Variables_Editor::create_Angle_Interface()
 
 	// sample size
 	{
-		sample_Size_Label = new QLabel(Global_Variables::parameter_Name(struct_Data, whats_This_Sample_Size, 0));
+		sample_Size_Label = new QLabel("Sample size");
 		geometry_Layout->addWidget(sample_Size_Label,0,4,Qt::AlignRight);
-		sample_Size_LineEdit = new QLineEdit(Locale.toString(struct_Data.sample_Size.value,line_edit_double_format,line_edit_sample_size_precision));
+		sample_Size_LineEdit = new QLineEdit(Locale.toString(struct_Data.sample_Geometry.size,line_edit_double_format,line_edit_sample_size_precision));
 			sample_Size_LineEdit->setFixedWidth(INDEPENDENT_LINE_EDIT_WIDTH);
 			sample_Size_LineEdit->setProperty(min_Size_Property, INDEPENDENT_LINE_EDIT_WIDTH);
 			sample_Size_LineEdit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION, this));
@@ -241,9 +241,9 @@ void Independent_Variables_Editor::create_Angle_Interface()
 
 	// beam spreading
 	{
-		beam_Profile_Spreading_Label = new QLabel(Global_Variables::parameter_Name(struct_Data, whats_This_Beam_Profile_Spreading, 0));
+		beam_Profile_Spreading_Label = new QLabel("Beam spreading");
 		geometry_Layout->addWidget(beam_Profile_Spreading_Label,1,0,Qt::AlignRight);
-		beam_Profile_Spreading_LineEdit = new QLineEdit(Locale.toString(struct_Data.beam_Profile_Spreading.value,line_edit_double_format,line_edit_beam_size_precision));
+		beam_Profile_Spreading_LineEdit = new QLineEdit(Locale.toString(struct_Data.beam_Geometry.smoothing,line_edit_double_format,line_edit_beam_size_precision));
 			beam_Profile_Spreading_LineEdit->setFixedWidth(INDEPENDENT_LINE_EDIT_WIDTH);
 			beam_Profile_Spreading_LineEdit->setProperty(min_Size_Property, INDEPENDENT_LINE_EDIT_WIDTH);
 			beam_Profile_Spreading_LineEdit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION, this));
@@ -261,9 +261,9 @@ void Independent_Variables_Editor::create_Angle_Interface()
 
 	// sample shift
 	{
-		sample_Shift_Label = new QLabel(Global_Variables::parameter_Name(struct_Data, whats_This_Sample_Shift, 0));
+		sample_Shift_Label = new QLabel("Sample shift");
 		geometry_Layout->addWidget(sample_Shift_Label,1,4,Qt::AlignRight);
-		sample_Shift_LineEdit = new QLineEdit(Locale.toString(struct_Data.sample_Shift.value,line_edit_double_format,line_edit_sample_size_precision));
+		sample_Shift_LineEdit = new QLineEdit(Locale.toString(struct_Data.sample_Geometry.x_Position,line_edit_double_format,line_edit_sample_size_precision));
 			sample_Shift_LineEdit->setFixedWidth(INDEPENDENT_LINE_EDIT_WIDTH);
 			sample_Shift_LineEdit->setProperty(min_Size_Property, INDEPENDENT_LINE_EDIT_WIDTH);
 			sample_Shift_LineEdit->setValidator(new QDoubleValidator(0, MAX_DOUBLE, MAX_PRECISION, this));
@@ -286,7 +286,7 @@ void Independent_Variables_Editor::create_Wavelength_Interface()
 			up_Layout->setAlignment(Qt::AlignLeft);
 		group_Box_Layout->addLayout(up_Layout);
 
-		spectral_Resolution_Label = new QLabel(Global_Variables::parameter_Name(struct_Data, whats_This_Spectral_Resolution, 0));
+		spectral_Resolution_Label = new QLabel("Spectral resolution");
 			spectral_Resolution_Label->setSizePolicy(sp_retain);
 		up_Layout->addWidget(spectral_Resolution_Label);
 
@@ -302,7 +302,7 @@ void Independent_Variables_Editor::create_Wavelength_Interface()
 			down_Layout->setAlignment(Qt::AlignLeft);
 		group_Box_Layout->addLayout(down_Layout);
 
-		polarization_Label = new QLabel(Global_Variables::parameter_Name(struct_Data, whats_This_Polarization, 0));
+		polarization_Label = new QLabel("Polarization");
 			polarization_Label->setSizePolicy(sp_retain);
 		down_Layout->addWidget(polarization_Label);
 
@@ -313,7 +313,7 @@ void Independent_Variables_Editor::create_Wavelength_Interface()
 			polarization_Edit->setSizePolicy(sp_retain);
 		down_Layout->addWidget(polarization_Edit);
 
-		background_Label = new QLabel(Global_Variables::parameter_Name(struct_Data, whats_This_Background, 0));
+		background_Label = new QLabel("Background");
 			background_Label->setSizePolicy(sp_retain);
 		down_Layout->addWidget(background_Label);
 
@@ -428,7 +428,7 @@ void Independent_Variables_Editor::refresh_Show_Data(bool show)
 		units_Label->setText(units);
 		step_Units_Label->setText(units);
 
-		if(indicator.parameter_Whats_This == whats_This_Angle)
+		if(indicator.parameter_Whats_This == whats_This_Beam_Theta_0_Angle)
 		{
 			angle_Units_Label->setText(units);
 		}
@@ -444,13 +444,13 @@ void Independent_Variables_Editor::refresh_Show_Data(bool show)
 			Global_Variables::resize_Line_Edit(min_Edit);
 			Global_Variables::resize_Line_Edit(max_Edit);
 
-			if(indicator.parameter_Whats_This == whats_This_Angle)
+			if(indicator.parameter_Whats_This == whats_This_Beam_Theta_0_Angle)
 			{
-				angular_Resolution_Edit->		 setText(Locale.toString(struct_Data.angular_Resolution.value/coeff,line_edit_double_format,line_edit_angle_precision));
-				beam_Size_LineEdit->			 setText(Locale.toString(struct_Data.beam_Size.value,				line_edit_double_format,line_edit_beam_size_precision));
-				sample_Size_LineEdit->			 setText(Locale.toString(struct_Data.sample_Size.value,				line_edit_double_format,line_edit_sample_size_precision));
-				beam_Profile_Spreading_LineEdit->setText(Locale.toString(struct_Data.beam_Profile_Spreading.value,	line_edit_double_format,line_edit_beam_size_precision));
-				sample_Shift_LineEdit->			 setText(Locale.toString(struct_Data.sample_Shift.value,			line_edit_double_format,line_edit_sample_size_precision));
+				angular_Resolution_Edit->		 setText(Locale.toString(struct_Data.beam_Theta_0_Distribution.FWHM_distribution/coeff,line_edit_double_format,line_edit_angle_precision));
+				beam_Size_LineEdit->			 setText(Locale.toString(struct_Data.beam_Geometry.size,						 line_edit_double_format,line_edit_beam_size_precision));
+				sample_Size_LineEdit->			 setText(Locale.toString(struct_Data.sample_Geometry.size,						 line_edit_double_format,line_edit_sample_size_precision));
+				beam_Profile_Spreading_LineEdit->setText(Locale.toString(struct_Data.beam_Geometry.smoothing,					 line_edit_double_format,line_edit_beam_size_precision));
+				sample_Shift_LineEdit->			 setText(Locale.toString(struct_Data.sample_Geometry.x_Position,				 line_edit_double_format,line_edit_sample_size_precision));
 
 				Global_Variables::resize_Line_Edit(angular_Resolution_Edit);
 				Global_Variables::resize_Line_Edit(beam_Size_LineEdit);
@@ -484,7 +484,7 @@ void Independent_Variables_Editor::refresh_Show_Data(bool show)
 					Global_Variables::resize_Line_Edit(max_Edit);
 				}
 			}
-			if(indicator.parameter_Whats_This == whats_This_Angle)
+			if(indicator.parameter_Whats_This == whats_This_Beam_Theta_0_Angle)
 			{
 				if(Locale.toDouble(val_Edit->text())*coeff>90.+3*pow(10.,-line_edit_angle_precision+1))
 				{
@@ -504,12 +504,12 @@ void Independent_Variables_Editor::refresh_Show_Data(bool show)
 
 				if(parameter.independent.num_Points >= MIN_ANGULAR_RESOLUTION_POINTS)
 				{
-					struct_Data.angular_Resolution.value = Locale.toDouble(angular_Resolution_Edit->text())*coeff;
+					struct_Data.beam_Theta_0_Distribution.FWHM_distribution = Locale.toDouble(angular_Resolution_Edit->text())*coeff;
 				}
-				struct_Data.beam_Size.value				= Locale.toDouble(beam_Size_LineEdit->text());
-				struct_Data.sample_Size.value			= Locale.toDouble(sample_Size_LineEdit->text());
-				struct_Data.beam_Profile_Spreading.value= Locale.toDouble(beam_Profile_Spreading_LineEdit->text());
-				struct_Data.sample_Shift.value			= Locale.toDouble(sample_Shift_LineEdit->text());
+				struct_Data.beam_Geometry.size			= Locale.toDouble(beam_Size_LineEdit->text());
+				struct_Data.sample_Geometry.size		= Locale.toDouble(sample_Size_LineEdit->text());
+				struct_Data.beam_Geometry.smoothing		= Locale.toDouble(beam_Profile_Spreading_LineEdit->text());
+				struct_Data.sample_Geometry.x_Position	= Locale.toDouble(sample_Shift_LineEdit->text());
 			}
 
 			parameter.independent.num_Points = num_Points->value();
@@ -532,7 +532,7 @@ void Independent_Variables_Editor::refresh_Show_Data(bool show)
 			Global_Variables::resize_Line_Edit(step_Edit);
 		}
 		show_Hide_Elements();
-		if(indicator.parameter_Whats_This == whats_This_Angle)	show_Hide_Angular_Elements();
+		if(indicator.parameter_Whats_This == whats_This_Beam_Theta_0_Angle)	show_Hide_Angular_Elements();
 	}
 
 	// special cases
@@ -607,7 +607,7 @@ void Independent_Variables_Editor::refresh_Show_Data(bool show)
 
 		units_Label->setText(units);
 		step_Units_Label->setText(units);
-		spectral_Resolution_Label->setText(Global_Variables::parameter_Name(struct_Data, whats_This_Spectral_Resolution, indicator.index));
+		spectral_Resolution_Label->setText("Spectral resolution");
 
 		// show data
 		if(show)
@@ -620,9 +620,9 @@ void Independent_Variables_Editor::refresh_Show_Data(bool show)
 			Global_Variables::resize_Line_Edit(min_Edit);
 			Global_Variables::resize_Line_Edit(max_Edit);
 
-			spectral_Resolution_Edit->setText(Locale.toString(struct_Data.spectral_Resolution.value,line_edit_double_format,line_edit_wavelength_precision));
-			polarization_Edit->setText(Locale.toString(struct_Data.polarization.value,line_edit_double_format,line_edit_polarization_precision));
-			background_Edit->setText(Locale.toString(struct_Data.background.value,line_edit_short_double_format,line_edit_background_precision));
+			spectral_Resolution_Edit->setText(Locale.toString(struct_Data.spectral_Distribution.FWHM_distribution,line_edit_double_format,line_edit_wavelength_precision));
+			polarization_Edit->setText(Locale.toString(struct_Data.polarization,line_edit_double_format,line_edit_polarization_precision));
+			background_Edit->setText(Locale.toString(struct_Data.background,line_edit_short_double_format,line_edit_background_precision));
 
 			Global_Variables::resize_Line_Edit(spectral_Resolution_Edit);
 			Global_Variables::resize_Line_Edit(polarization_Edit);
@@ -637,7 +637,7 @@ void Independent_Variables_Editor::refresh_Show_Data(bool show)
 			// no check for zero wavelength
 			if(Locale.toDouble(polarization_Edit->text())>1 || Locale.toDouble(polarization_Edit->text())<-1)
 			{
-				polarization_Edit->setText(Locale.toString(struct_Data.polarization.value,line_edit_double_format,line_edit_polarization_precision));
+				polarization_Edit->setText(Locale.toString(struct_Data.polarization,line_edit_double_format,line_edit_polarization_precision));
 				Global_Variables::resize_Line_Edit(polarization_Edit);
 			}
 
@@ -646,11 +646,11 @@ void Independent_Variables_Editor::refresh_Show_Data(bool show)
 			struct_Data.wavelength.independent.min = Global_Variables::wavelength_Energy(wavelength_units,Locale.toDouble(min_Edit->text())*coeff);
 			struct_Data.wavelength.independent.max = Global_Variables::wavelength_Energy(wavelength_units,Locale.toDouble(max_Edit->text())*coeff);
 
-			struct_Data.polarization.value = Locale.toDouble(polarization_Edit->text());
-			struct_Data.background.value = Locale.toDouble(background_Edit->text());
+			struct_Data.polarization = Locale.toDouble(polarization_Edit->text());
+			struct_Data.background = Locale.toDouble(background_Edit->text());
 
 			if(struct_Data.wavelength.independent.num_Points >= MIN_SPECTRAL_RESOLUTION_POINTS)
-				struct_Data.spectral_Resolution.value = Locale.toDouble(spectral_Resolution_Edit->text());
+				struct_Data.spectral_Distribution.FWHM_distribution = Locale.toDouble(spectral_Resolution_Edit->text());
 
 			QVariant var; var.setValue(struct_Data);
 			structure_Item->setData(DEFAULT_COLUMN,Qt::UserRole,var);

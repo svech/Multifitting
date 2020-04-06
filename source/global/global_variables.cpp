@@ -236,7 +236,7 @@ QStringList specular_Value_Function		  {"Reflectance","Transmittance"};		  // ch
 QStringList specular_Value_Function_Short {"R","T"};							  // change enum!
 
 // distributions
-QStringList distributions { "None", "Gate", "Cosine", "Gaussian", "Lorentz" };
+QStringList distributions { "Gate", "Cosine", "Gaussian", "Lorentz" };
 
 // detector types
 QStringList detectors = { "Slit", "Crystal", "Spherical", "Rectangular" };
@@ -840,18 +840,10 @@ QString Global_Variables::parameter_Name(const Data &struct_Data, QString whats_
 	/// measurement parameters
 	if(	struct_Data.item_Type == item_Type_Measurement )
 	{
-		if(whats_This == whats_This_Angle)							text = "Grazing angle, " + Omega_Sym;
-		if(whats_This == whats_This_Angular_Resolution)				text = "Angular resolution, " + Delta_Big_Sym + Omega_Sym;
 		if(whats_This == whats_This_Wavelength)						text = Global_Variables::wavelength_Energy_Name(wavelength_units);
-		if(whats_This == whats_This_Spectral_Resolution)			text = "Spectral resolution, " + Delta_Big_Sym + "E/E";
-		if(whats_This == whats_This_Polarization)					text = "Polarization";
-		if(whats_This == whats_This_Polarization_Sensitivity)		text = "Polarization sensitivity";
-
-		if(whats_This == whats_This_Background)						text = "Background";
-		if(whats_This == whats_This_Beam_Size)						text = "Beam width";
-		if(whats_This == whats_This_Beam_Profile_Spreading)			text = "Beam spreading";
-		if(whats_This == whats_This_Sample_Size)					text = "Sample size";
-		if(whats_This == whats_This_Sample_Shift)					text = "Sample shift";
+		if(whats_This == whats_This_Beam_Theta_0_Angle)				text = "Beam grazing angle, " + Theta_Sym + Zero_Subscript_Sym;
+		if(whats_This == whats_This_Detector_Theta_Angle)			text = "Detector polar angle, " + Theta_Sym;
+		if(whats_This == whats_This_Detector_Phi_Angle)				text = "Detector azimuthal angle, " + Phi_Sym;
 	}
 
 	return text;
@@ -883,18 +875,10 @@ Parameter* Global_Variables::get_Parameter_From_Struct_Item_by_Id(Data& struct_D
 	// PARAMETER
 
 	// measurement
-	if(id == struct_Data.probe_Angle.indicator.id)								return &struct_Data.probe_Angle;
-	if(id == struct_Data.angular_Resolution.indicator.id)						return &struct_Data.angular_Resolution;
 	if(id == struct_Data.wavelength.indicator.id)								return &struct_Data.wavelength;
-	if(id == struct_Data.spectral_Resolution.indicator.id)						return &struct_Data.spectral_Resolution;
-	if(id == struct_Data.polarization.indicator.id)								return &struct_Data.polarization;
-	if(id == struct_Data.polarization_Sensitivity.indicator.id)					return &struct_Data.polarization_Sensitivity;
-	if(id == struct_Data.background.indicator.id)								return &struct_Data.background;
-
-	if(id == struct_Data.beam_Size.indicator.id)								return &struct_Data.beam_Size;
-	if(id == struct_Data.beam_Profile_Spreading.indicator.id)					return &struct_Data.beam_Profile_Spreading;
-	if(id == struct_Data.sample_Size.indicator.id)								return &struct_Data.sample_Size;
-	if(id == struct_Data.sample_Shift.indicator.id)								return &struct_Data.sample_Shift;
+	if(id == struct_Data.beam_Theta_0_Angle.indicator.id)						return &struct_Data.beam_Theta_0_Angle;
+	if(id == struct_Data.detector_Theta_Angle.indicator.id)						return &struct_Data.detector_Theta_Angle;
+	if(id == struct_Data.detector_Phi_Angle.indicator.id)						return &struct_Data.detector_Phi_Angle;
 
 	// optical properties
 	if(id == struct_Data.absolute_Density.indicator.id)							return &struct_Data.absolute_Density;
@@ -949,18 +933,10 @@ Parameter* Global_Variables::get_Parameter_From_Struct_Item_by_Whats_This(Data& 
 	if(coeff == nullptr) coeff = &coeff_LOC;
 
 	// measurement
-	if(whats_This == whats_This_Angle)							{*line_edit_precision = line_edit_angle_precision;				*thumbnail_precision = thumbnail_angle_precision;				*units = angle_units;			*coeff = angle_Coefficients_Map.value(angle_units);				return &struct_Data.probe_Angle;				}
-	if(whats_This == whats_This_Angular_Resolution)				{*line_edit_precision = line_edit_angle_precision;				*thumbnail_precision = thumbnail_angle_precision;				*units = angle_units;			*coeff = angle_Coefficients_Map.value(angle_units);				return &struct_Data.angular_Resolution;			}
-	if(whats_This == whats_This_Wavelength)						{*line_edit_precision = line_edit_wavelength_precision;			*thumbnail_precision = thumbnail_wavelength_precision;			*units = " " + wavelength_units;*coeff = wavelength_Coefficients_Map.value(wavelength_units);	return &struct_Data.wavelength;					}
-	if(whats_This == whats_This_Spectral_Resolution)			{*line_edit_precision = line_edit_spectral_resolution_precision;*thumbnail_precision = thumbnail_spectral_resolution_precision;	*units = "";					*coeff = 1;														return &struct_Data.spectral_Resolution;		}
-	if(whats_This == whats_This_Polarization)					{*line_edit_precision = line_edit_polarization_precision;		*thumbnail_precision = thumbnail_polarization_precision;		*units = "";					*coeff = 1;														return &struct_Data.polarization;				}
-	if(whats_This == whats_This_Polarization_Sensitivity)		{*line_edit_precision = line_edit_polarization_precision;		*thumbnail_precision = thumbnail_polarization_precision;		*units = "";					*coeff = 1;														return &struct_Data.polarization_Sensitivity;	}
-	if(whats_This == whats_This_Background)						{*line_edit_precision = line_edit_background_precision;			*thumbnail_precision = thumbnail_background_precision;			*units = "";					*coeff = 1;														return &struct_Data.background;					}
-
-	if(whats_This == whats_This_Beam_Size)						{*line_edit_precision = line_edit_beam_size_precision;		*thumbnail_precision = thumbnail_beam_size_precision;	*units = "";	*coeff = 1;	return &struct_Data.beam_Size; }
-	if(whats_This == whats_This_Beam_Profile_Spreading)			{*line_edit_precision = line_edit_beam_size_precision;		*thumbnail_precision = thumbnail_beam_size_precision;	*units = "";	*coeff = 1;	return &struct_Data.beam_Profile_Spreading;}
-	if(whats_This == whats_This_Sample_Size)					{*line_edit_precision = line_edit_sample_size_precision;	*thumbnail_precision = thumbnail_sample_size_precision;	*units = "";	*coeff = 1;	return &struct_Data.sample_Size;}
-	if(whats_This == whats_This_Sample_Shift)					{*line_edit_precision = line_edit_sample_size_precision;	*thumbnail_precision = thumbnail_sample_size_precision;	*units = "";	*coeff = 1;	return &struct_Data.sample_Shift;}
+	if(whats_This == whats_This_Wavelength)						{*line_edit_precision = line_edit_wavelength_precision;			*thumbnail_precision = thumbnail_wavelength_precision;			*units = " " + wavelength_units;*coeff = wavelength_Coefficients_Map.value(wavelength_units);	return &struct_Data.wavelength;				}
+	if(whats_This == whats_This_Beam_Theta_0_Angle)				{*line_edit_precision = line_edit_angle_precision;				*thumbnail_precision = thumbnail_angle_precision;				*units = angle_units;			*coeff = angle_Coefficients_Map.value(angle_units);				return &struct_Data.beam_Theta_0_Angle;		}
+	if(whats_This == whats_This_Detector_Theta_Angle)			{*line_edit_precision = line_edit_angle_precision;				*thumbnail_precision = thumbnail_angle_precision;				*units = angle_units;			*coeff = angle_Coefficients_Map.value(angle_units);				return &struct_Data.detector_Theta_Angle;	}
+	if(whats_This == whats_This_Detector_Phi_Angle)				{*line_edit_precision = line_edit_angle_precision;				*thumbnail_precision = thumbnail_angle_precision;				*units = angle_units;			*coeff = angle_Coefficients_Map.value(angle_units);				return &struct_Data.detector_Phi_Angle;		}
 
 	// optical properties
 	if(whats_This == whats_This_Absolute_Density)				{*line_edit_precision = line_edit_density_precision;		*thumbnail_precision = thumbnail_density_precision;		*units = " " + density_units;	*coeff = 1;	return &struct_Data.absolute_Density;	}

@@ -1127,7 +1127,7 @@ void Target_Curve_Editor::create_Argument_GroupBox()
 		}
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 		double coeff = 1;
-		if(target_Curve->curve.argument_Type == whats_This_Angle)	  { coeff = angle_Coefficients_Map.value(target_Curve->curve.angular_Units); }
+		if(target_Curve->curve.argument_Type == whats_This_Beam_Theta_0_Angle)	  { coeff = angle_Coefficients_Map.value(target_Curve->curve.angular_Units); }
 		if(target_Curve->curve.argument_Type == whats_This_Wavelength){ coeff = 0.1/wavelength_Coefficients_Map.value(target_Curve->curve.spectral_Units); }
 
 		MyDoubleSpinBox* horizontal_Arg_Offset_SpinBox = new MyDoubleSpinBox;
@@ -1225,7 +1225,7 @@ void Target_Curve_Editor::create_Beam_GroupBox()
 			polarization_SpinBox->setAccelerated(true);
 			polarization_SpinBox->setRange(-1, 1);
 			polarization_SpinBox->setDecimals(3);
-			polarization_SpinBox->setValue(target_Curve->measurement.polarization.value);
+			polarization_SpinBox->setValue(target_Curve->measurement.polarization);
 			polarization_SpinBox->setSingleStep(0.01);
 			polarization_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
 			polarization_SpinBox->setFixedWidth(TARGET_LINE_EDIT_WIDTH);
@@ -1241,7 +1241,7 @@ void Target_Curve_Editor::create_Beam_GroupBox()
 			spectral_Resolution_SpinBox->setAccelerated(true);
 			spectral_Resolution_SpinBox->setRange(0, MAX_DOUBLE);
 			spectral_Resolution_SpinBox->setDecimals(6);
-			spectral_Resolution_SpinBox->setValue(target_Curve->measurement.spectral_Resolution.value);
+			spectral_Resolution_SpinBox->setValue(target_Curve->measurement.spectral_Distribution.FWHM_distribution);
 			spectral_Resolution_SpinBox->setSingleStep(0.0001);
 			spectral_Resolution_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
 			spectral_Resolution_SpinBox->setFixedWidth(TARGET_LINE_AT_FIXED_WIDTH);
@@ -1259,7 +1259,7 @@ void Target_Curve_Editor::create_Beam_GroupBox()
 			angular_Resolution_SpinBox->setAccelerated(true);
 			angular_Resolution_SpinBox->setRange(0, MAX_DOUBLE);
 			angular_Resolution_SpinBox->setDecimals(6);
-			angular_Resolution_SpinBox->setValue(target_Curve->measurement.angular_Resolution.value/coeff);
+			angular_Resolution_SpinBox->setValue(target_Curve->measurement.beam_Theta_0_Distribution.FWHM_distribution/coeff);
 			angular_Resolution_SpinBox->setSingleStep(0.001/coeff);
 			angular_Resolution_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
 			angular_Resolution_SpinBox->setFixedWidth(TARGET_LINE_AT_FIXED_WIDTH);
@@ -1735,7 +1735,7 @@ void Target_Curve_Editor::show_Curve_Data()
 {
 	// argument type
 	{
-		if(target_Curve->curve.argument_Type == whats_This_Angle)
+		if(target_Curve->curve.argument_Type == whats_This_Beam_Theta_0_Angle)
 		{
 			arg_Type_ComboBox->setCurrentIndex(arg_Type_ComboBox->findText(argument_Types[Sample_Grazing_angle]));		// Grazing angle
 		} else
@@ -1752,7 +1752,7 @@ void Target_Curve_Editor::show_Curve_Data()
 
 	// argument units
 	{
-		if(target_Curve->curve.argument_Type == whats_This_Angle)
+		if(target_Curve->curve.argument_Type == whats_This_Beam_Theta_0_Angle)
 			argument_Units_ComboBox->setCurrentIndex(argument_Units_ComboBox->findText(target_Curve->curve.angular_Units));
 		if(target_Curve->curve.argument_Type == whats_This_Wavelength)
 			argument_Units_ComboBox->setCurrentIndex(argument_Units_ComboBox->findText(target_Curve->curve.spectral_Units));
@@ -1805,7 +1805,7 @@ void Target_Curve_Editor::show_Measurement_Data()
 void Target_Curve_Editor::show_Unit_Dependent_Data()
 {
 	// at fixed value
-	if(target_Curve->curve.argument_Type == whats_This_Angle)
+	if(target_Curve->curve.argument_Type == whats_This_Beam_Theta_0_Angle)
 	{
 		double coeff = wavelength_Coefficients_Map.value(target_Curve->curve.spectral_Units);		// spectral units
 		at_Fixed_LineEdit->setText(Locale.toString(Global_Variables::wavelength_Energy(target_Curve->curve.spectral_Units,target_Curve->measurement.wavelength.value)/coeff, line_edit_double_format, line_edit_wavelength_precision));
@@ -1813,7 +1813,7 @@ void Target_Curve_Editor::show_Unit_Dependent_Data()
 	if(target_Curve->curve.argument_Type == whats_This_Wavelength)
 	{
 		double coeff = angle_Coefficients_Map.value(target_Curve->curve.angular_Units);				// angular units
-		at_Fixed_LineEdit->setText(Locale.toString(target_Curve->measurement.probe_Angle.value/coeff, line_edit_double_format, line_edit_angle_precision));
+		at_Fixed_LineEdit->setText(Locale.toString(target_Curve->measurement.beam_Theta_0_Angle.value/coeff, line_edit_double_format, line_edit_angle_precision));
 	}
 
 	show_Angular_Resolution();
@@ -1823,7 +1823,7 @@ void Target_Curve_Editor::show_Unit_Dependent_Data()
 void Target_Curve_Editor::show_Angular_Resolution()
 {
 	double coeff = angle_Coefficients_Map.value(target_Curve->curve.angular_Units);
-	angular_Resolution_SpinBox->setValue(target_Curve->measurement.angular_Resolution.value/coeff);
+	angular_Resolution_SpinBox->setValue(target_Curve->measurement.beam_Theta_0_Distribution.FWHM_distribution/coeff);
 	angular_Resolution_SpinBox->setSingleStep(0.001/coeff);
 
 	if(target_Curve->curve.argument_Type == whats_This_Wavelength)
@@ -1857,7 +1857,7 @@ void Target_Curve_Editor::refresh_Argument_Type()
 {
 	if(arg_Type_ComboBox->currentText() == argument_Types[Sample_Grazing_angle])	// Grazing angle
 	{
-		target_Curve->curve.argument_Type = whats_This_Angle;
+		target_Curve->curve.argument_Type = whats_This_Beam_Theta_0_Angle;
 
 		if(target_Curve->fit_Params.maximize_Integral)
 		{
@@ -1922,10 +1922,10 @@ void Target_Curve_Editor::refresh_At_Fixed_Value()
 		// be ready to have a bug next line!
 		if(Locale.toDouble(at_Fixed_LineEdit->text())*coeff<=90)//.+3*pow(10.,-line_edit_angle_precision+1))	// be ready to have a bug!
 		{
-			target_Curve->measurement.probe_Angle.value = Locale.toDouble(at_Fixed_LineEdit->text())*coeff;
+			target_Curve->measurement.beam_Theta_0_Angle.value = Locale.toDouble(at_Fixed_LineEdit->text())*coeff;
 		} else
 		{
-			at_Fixed_LineEdit->setText(Locale.toString(target_Curve->measurement.probe_Angle.value/coeff, line_edit_double_format, line_edit_angle_precision));
+			at_Fixed_LineEdit->setText(Locale.toString(target_Curve->measurement.beam_Theta_0_Angle.value/coeff, line_edit_double_format, line_edit_angle_precision));
 		}
 	}
 	target_Curve->show_Description_Label();
@@ -1984,10 +1984,10 @@ void Target_Curve_Editor::refresh_Polarization()
 	// polarization
 	if(abs(Locale.toDouble(polarization_LineEdit->text()))<=1)
 	{
-		target_Curve->measurement.polarization.value = Locale.toDouble(polarization_LineEdit->text());
+		target_Curve->measurement.polarization = Locale.toDouble(polarization_LineEdit->text());
 	} else
 	{
-		polarization_LineEdit->setText(Locale.toString(target_Curve->measurement.polarization.value, line_edit_double_format, line_edit_polarization_precision));
+		polarization_LineEdit->setText(Locale.toString(target_Curve->measurement.polarization, line_edit_double_format, line_edit_polarization_precision));
 	}
 	// polarization sensitivity
 //	target_Curve->measurement.polarization_Sensitivity.value = Locale.toDouble(polarization_Sensitivity_LineEdit->text());
@@ -1996,16 +1996,16 @@ void Target_Curve_Editor::refresh_Polarization()
 void Target_Curve_Editor::refresh_Resolution()
 {
 	double coeff = angle_Coefficients_Map.value(target_Curve->curve.angular_Units);
-	target_Curve->measurement.angular_Resolution.value = angular_Resolution_SpinBox->value()*coeff;
-	target_Curve->measurement.spectral_Resolution.value = spectral_Resolution_SpinBox->value();
+	target_Curve->measurement.beam_Theta_0_Distribution.FWHM_distribution = angular_Resolution_SpinBox->value()*coeff;
+	target_Curve->measurement.spectral_Distribution.FWHM_distribution = spectral_Resolution_SpinBox->value();
 	global_Multilayer_Approach->calc_Reflection(true);
 }
 
 void Target_Curve_Editor::refresh_Measurement_Geometry()
 {
-	target_Curve->measurement.beam_Size.value = beam_Size_SpinBox->value();
-	target_Curve->measurement.beam_Profile_Spreading.value = beam_Profile_Spreading_SpinBox->value();
-	target_Curve->measurement.sample_Size.value = sample_Size_SpinBox->value();
-	target_Curve->measurement.sample_Shift.value = sample_Shift_SpinBox->value();
+	target_Curve->measurement.beam_Geometry.size = beam_Size_SpinBox->value();
+	target_Curve->measurement.beam_Geometry.smoothing = beam_Profile_Spreading_SpinBox->value();
+	target_Curve->measurement.sample_Geometry.size = sample_Size_SpinBox->value();
+	target_Curve->measurement.sample_Geometry.x_Position = sample_Shift_SpinBox->value();
 	global_Multilayer_Approach->calc_Reflection(true);
 }

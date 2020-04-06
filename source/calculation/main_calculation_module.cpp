@@ -37,9 +37,9 @@ void Main_Calculation_Module::increase_Mesh_density(Data_Element<Target_Curve>& 
 	Target_Curve* target_Curve = qobject_cast<Target_Curve*>(target.the_Class);
 	if(target_Curve->curve.mesh_Density_Factor>1)
 	{
-		if(target_Curve->curve.argument_Type == whats_This_Angle)
+		if(target_Curve->curve.argument_Type == whats_This_Beam_Theta_0_Angle)
 		{
-			QVector<double>& angle = target_Curve->measurement.angle;
+			QVector<double>& angle = target_Curve->measurement.beam_Theta_0_Angle_Vec;
 			QVector<double> dense_Angle;
 			dense_Angle.resize((angle.size()-1)*target_Curve->curve.mesh_Density_Factor+1);
 			for(int i=0; i<angle.size()-1; i++)
@@ -52,11 +52,11 @@ void Main_Calculation_Module::increase_Mesh_density(Data_Element<Target_Curve>& 
 				}
 			}
 			dense_Angle.last() = angle.last();
-			target_Curve->measurement.angle = dense_Angle;
+			target_Curve->measurement.beam_Theta_0_Angle_Vec = dense_Angle;
 		}
 		if(target_Curve->curve.argument_Type == whats_This_Wavelength)
 		{
-			QVector<double>& lambda = target_Curve->measurement.lambda;
+			QVector<double>& lambda = target_Curve->measurement.lambda_Vec;
 			QVector<double> dense_Lambda;
 			dense_Lambda.resize((lambda.size()-1)*target_Curve->curve.mesh_Density_Factor+1);
 			for(int i=0; i<lambda.size()-1; i++)
@@ -69,7 +69,7 @@ void Main_Calculation_Module::increase_Mesh_density(Data_Element<Target_Curve>& 
 				}
 			}
 			dense_Lambda.last() = lambda.last();
-			target_Curve->measurement.lambda = dense_Lambda;
+			target_Curve->measurement.lambda_Vec = dense_Lambda;
 		}
 	}
 }
@@ -85,33 +85,33 @@ void Main_Calculation_Module::decrease_Mesh_density(Data_Element<Target_Curve>& 
 		if(!fit_Mode)
 		{
 			// decrease argument measurement
-			if(target_Curve->curve.argument_Type == whats_This_Angle)
+			if(target_Curve->curve.argument_Type == whats_This_Beam_Theta_0_Angle)
 			{
-				QVector<double>& angle = target_Curve->measurement.angle;
+				QVector<double>& angle = target_Curve->measurement.beam_Theta_0_Angle_Vec;
 				QVector<double> sparse_Angle;
 				sparse_Angle.resize((angle.size()-1)/target_Curve->curve.mesh_Density_Factor+1);
 				for(int i=0; i<sparse_Angle.size(); i++)
 				{
 					sparse_Angle[i] = angle[i*target_Curve->curve.mesh_Density_Factor];
 				}
-				target_Curve->measurement.angle = sparse_Angle;
+				target_Curve->measurement.beam_Theta_0_Angle_Vec = sparse_Angle;
 			}
 			if(target_Curve->curve.argument_Type == whats_This_Wavelength)
 			{
-				QVector<double>& lambda = target_Curve->measurement.lambda;
+				QVector<double>& lambda = target_Curve->measurement.lambda_Vec;
 				QVector<double> sparse_Lambda;
 				sparse_Lambda.resize((lambda.size()-1)/target_Curve->curve.mesh_Density_Factor+1);
 				for(int i=0; i<sparse_Lambda.size(); i++)
 				{
 					sparse_Lambda[i] = lambda[i*target_Curve->curve.mesh_Density_Factor];
 				}
-				target_Curve->measurement.lambda = sparse_Lambda;
+				target_Curve->measurement.lambda_Vec = sparse_Lambda;
 			}
 
 			// decrease value in calc_Functions
 			int size;
-			if(target_Curve->curve.argument_Type == whats_This_Angle)	   {size = target_Curve->measurement.angle.size();}
-			if(target_Curve->curve.argument_Type == whats_This_Wavelength) {size = target_Curve->measurement.lambda.size();}
+			if(target_Curve->curve.argument_Type == whats_This_Beam_Theta_0_Angle)	   {size = target_Curve->measurement.beam_Theta_0_Angle_Vec.size();}
+			if(target_Curve->curve.argument_Type == whats_This_Wavelength) {size = target_Curve->measurement.lambda_Vec.size();}
 			vector<double> sparse_Val  (size);
 			vector<double> sparse_Val_s(size);
 			vector<double> sparse_Val_p(size);
@@ -143,9 +143,9 @@ void Main_Calculation_Module::decrease_Mesh_density(Data_Element<Target_Curve>& 
 				target.unwrapped_Reflection->Phi_R_p		= sparse_Phi_p;
 
 				target_Curve->calculated_Values.R = QVector<double>::fromStdVector(sparse_Val);
-				if(abs(target_Curve->measurement.polarization.value-1)<DBL_EPSILON)	{ target_Curve->calculated_Values.Phi_R = QVector<double>::fromStdVector(target.unwrapped_Reflection->Phi_R_s); } else
-				if(abs(target_Curve->measurement.polarization.value+1)<DBL_EPSILON)	{ target_Curve->calculated_Values.Phi_R = QVector<double>::fromStdVector(target.unwrapped_Reflection->Phi_R_p); } else
-																					{ target_Curve->calculated_Values.Phi_R.clear(); }
+				if(abs(target_Curve->measurement.polarization-1)<DBL_EPSILON)	{ target_Curve->calculated_Values.Phi_R = QVector<double>::fromStdVector(target.unwrapped_Reflection->Phi_R_s); } else
+				if(abs(target_Curve->measurement.polarization+1)<DBL_EPSILON)	{ target_Curve->calculated_Values.Phi_R = QVector<double>::fromStdVector(target.unwrapped_Reflection->Phi_R_p); } else
+																				{ target_Curve->calculated_Values.Phi_R.clear(); }
 			}
 			/// T
 			{
@@ -197,8 +197,8 @@ void Main_Calculation_Module::decrease_Mesh_density(Data_Element<Target_Curve>& 
 		{
 			// if fitting
 			int size;
-			if(target_Curve->curve.argument_Type == whats_This_Angle)	   {size = (target_Curve->measurement.angle .size()-1)/target_Curve->curve.mesh_Density_Factor+1;}
-			if(target_Curve->curve.argument_Type == whats_This_Wavelength) {size = (target_Curve->measurement.lambda.size()-1)/target_Curve->curve.mesh_Density_Factor+1;}
+			if(target_Curve->curve.argument_Type == whats_This_Beam_Theta_0_Angle)	   {size = (target_Curve->measurement.beam_Theta_0_Angle_Vec.size()-1)/target_Curve->curve.mesh_Density_Factor+1;}
+			if(target_Curve->curve.argument_Type == whats_This_Wavelength) {size = (target_Curve->measurement.lambda_Vec.          size()-1)/target_Curve->curve.mesh_Density_Factor+1;}
 			vector<double> sparse_Val  (size);
 
 			/// R
@@ -1023,13 +1023,13 @@ void Main_Calculation_Module::print_Reflect_To_File(Data_Element<Type>& data_Ele
 	//-----------------------------------------------------------------------------------------------------
 
 	QVector<double> arg;
-	if(data_Element.active_Parameter_Whats_This == whats_This_Angle )
+	if(data_Element.active_Parameter_Whats_This == whats_This_Beam_Theta_0_Angle )
 	{
-		arg = data_Element.the_Class->measurement.angle;
+		arg = data_Element.the_Class->measurement.beam_Theta_0_Angle_Vec;
 	}
 	if(data_Element.active_Parameter_Whats_This == whats_This_Wavelength )
 	{
-		arg = data_Element.the_Class->measurement.lambda;
+		arg = data_Element.the_Class->measurement.lambda_Vec;
 	}
 
 	{
@@ -1047,7 +1047,7 @@ void Main_Calculation_Module::print_Reflect_To_File(Data_Element<Type>& data_Ele
 				   print_Absorptance,
 				   print_User,
 //				   print_Kossel,
-				   data_Element.the_Class->measurement.polarization.value
+				   data_Element.the_Class->measurement.polarization
 				   );
 		file.close();
 	}

@@ -92,7 +92,7 @@ enum specular_Value_Function_Enum    { Reflectance,   Transmittance };
 
 // distributions
 extern QStringList distributions;
-enum distributions_Enum    { None, Gate, Cosine, Gaussian, Lorentz };
+enum distributions_Enum    { Gate, Cosine, Gaussian, Lorentz };
 
 // detector types
 extern QStringList detectors;

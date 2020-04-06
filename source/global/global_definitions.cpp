@@ -131,6 +131,33 @@ QDataStream& operator >>( QDataStream& stream,		 Parameter& parameter )
 	return stream;
 }
 
+QDataStream& operator <<( QDataStream& stream, const Distribution& resolution )
+{
+	return stream << resolution.FWHM_distribution << resolution.distribution_Function << resolution.number_of_Samples << resolution.coverage;
+}
+QDataStream& operator >>( QDataStream& stream,		 Distribution& resolution )
+{
+	return stream >> resolution.FWHM_distribution >> resolution.distribution_Function >> resolution.number_of_Samples >> resolution.coverage;
+}
+
+QDataStream& operator <<( QDataStream& stream, const Sample_Geometry& sample_Geometry )
+{
+	return stream << sample_Geometry.size << sample_Geometry.x_Position << sample_Geometry.z_Position << sample_Geometry.curvature;
+}
+QDataStream& operator >>( QDataStream& stream,		 Sample_Geometry& sample_Geometry )
+{
+	return stream >> sample_Geometry.size >> sample_Geometry.x_Position >> sample_Geometry.z_Position >> sample_Geometry.curvature;
+}
+
+QDataStream& operator <<( QDataStream& stream, const Beam_Geometry& beam_Geometry )
+{
+	return stream << beam_Geometry.size << beam_Geometry.smoothing;
+}
+QDataStream& operator >>( QDataStream& stream,		 Beam_Geometry& beam_Geometry )
+{
+	return stream >> beam_Geometry.size >> beam_Geometry.smoothing;
+}
+
 QDataStream& operator <<( QDataStream& stream, const Stoichiometry& stoichiometry )
 {
 	return stream << stoichiometry.composition << stoichiometry.type;

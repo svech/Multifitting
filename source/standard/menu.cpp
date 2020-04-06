@@ -238,7 +238,7 @@ void Menu::create_Independent_Units_Menu()
 		}
 	}
 	// if angle
-	if(whats_This == whats_This_Angle)
+	if(whats_This == whats_This_Beam_Theta_0_Angle)
 	{
 		QActionGroup* group_Act_Angle = new QActionGroup(this);
 			group_Act_Angle->setExclusive(true);
@@ -403,7 +403,7 @@ void Menu::create_Independent_Precision_Menu()
 			connect(precision_Edit, &QAction::triggered, this, &Menu::set_Line_Edit_Gamma_Precision);
 		}
 		// if angle
-		if(whats_This == whats_This_Angle)
+		if(whats_This == whats_This_Beam_Theta_0_Angle)
 		{
 			if(index == thumbnail_angle_precision) precision_Thumb->setChecked(true);
 			if(index == line_edit_angle_precision) precision_Edit->setChecked(true);

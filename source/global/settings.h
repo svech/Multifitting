@@ -203,18 +203,27 @@ extern int thickness_transfer_precision		;
 // parameters default values
 
 // angular and spectral independent variables
-extern int default_num_angular_points;
 extern int default_num_spectral_points;
-extern double default_angle_value;
-extern double default_min_angle;
-extern double default_max_angle;
+extern int default_num_theta_angular_points;
+extern int default_num_alpha_angular_points;
+extern int default_num_phi_angular_points;
+
+extern double default_theta_angle_value;
+extern double default_min_theta_angle;
+extern double default_max_theta_angle;
+
+extern double default_alpha_angle_value;
+extern double default_min_alpha_angle;
+extern double default_max_alpha_angle;
+
+extern double default_phi_angle_value;
+extern double default_min_phi_angle;
+extern double default_max_phi_angle;
+
 extern double default_wavelength_value;
 extern double default_min_wavelength;
 extern double default_max_wavelength;
-extern double default_angular_resolution;
-extern double default_polarization;
-extern double default_spectral_resolution;
-extern double default_polarization_sensitivity;
+
 extern double default_logarithmic_threshold_beta;
 extern double default_logarithmic_threshold_material_density;
 extern double default_logarithmic_threshold_element_concentration;

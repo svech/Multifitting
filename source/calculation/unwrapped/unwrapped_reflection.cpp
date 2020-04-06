@@ -71,13 +71,13 @@ Unwrapped_Reflection::Unwrapped_Reflection(Unwrapped_Structure* unwrapped_Struct
 //	weak_Factor_T (num_Threads,vector<double>(num_Boundaries))
 {	
 	// PARAMETER
-	if(active_Parameter_Whats_This == whats_This_Angle)
+	if(active_Parameter_Whats_This == whats_This_Beam_Theta_0_Angle)
 	{
-		num_Points = measurement.cos2.size();
+		num_Points = measurement.beam_Theta_0_Cos2_Vec.size();
 	}
 	if(active_Parameter_Whats_This == whats_This_Wavelength)
 	{
-		num_Points = measurement.lambda.size();
+		num_Points = measurement.lambda_Vec.size();
 	}
 
 	Phi_R_s.resize(num_Points);
@@ -1337,11 +1337,11 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(const Data& measuremen
 		if( max_Depth <= depth_Threshold)
 		{
 			// in case of grading, some of these values are temporary and will be recalculated
-			if( abs(measurement.polarization.value - 1) < DBL_EPSILON )			// s-polarization only
+			if( abs(measurement.polarization - 1) < DBL_EPSILON )			// s-polarization only
 			{
 				fill_s__Max_Depth_2(unwrapped_Structure->calc_Tree.begin(), thread_Index, point_Index);
 			} else
-			if( abs(measurement.polarization.value + 1) < DBL_EPSILON )			// p-polarization only
+			if( abs(measurement.polarization + 1) < DBL_EPSILON )			// p-polarization only
 			{
 				fill_p__Max_Depth_2(unwrapped_Structure->calc_Tree.begin(), thread_Index, point_Index);
 			} else																// both polarizations
@@ -1357,21 +1357,21 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(const Data& measuremen
 			if( sigma_Grading )
 			{
 				calc_Weak_Factor(thread_Index);
-				multifly_Fresnel_And_Weak_Factor(measurement.polarization.value, thread_Index);
+				multifly_Fresnel_And_Weak_Factor(measurement.polarization, thread_Index);
 			}
 		} else
 		{
-			if(active_Parameter_Whats_This == whats_This_Angle)
+			if(active_Parameter_Whats_This == whats_This_Beam_Theta_0_Angle)
 			{
 				fill_Epsilon_Ambient_Substrate(thread_Index, unwrapped_Structure->epsilon);
-				calc_Hi(measurement.k_Value, measurement.cos2[point_Index],
+				calc_Hi(measurement.k_Value, measurement.beam_Theta_0_Cos2_Vec[point_Index],
 						unwrapped_Structure->epsilon,
 //						unwrapped_Structure->epsilon_RE,
 //						unwrapped_Structure->epsilon_IM,
 						thread_Index);
 				calc_Weak_Factor(thread_Index);
 				calc_Exponenta(thread_Index,unwrapped_Structure->thickness);
-				calc_Fresnel(measurement.polarization.value,
+				calc_Fresnel(measurement.polarization,
 							 unwrapped_Structure->epsilon,
 //							 unwrapped_Structure->epsilon_RE,
 //							 unwrapped_Structure->epsilon_IM,
@@ -1381,14 +1381,14 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(const Data& measuremen
 			if(active_Parameter_Whats_This == whats_This_Wavelength)
 			{
 				fill_Epsilon_Ambient_Substrate(thread_Index, unwrapped_Structure->epsilon_Dependent[point_Index]);
-				calc_Hi(measurement.k[point_Index], measurement.cos2_Value,
+				calc_Hi(measurement.k_Vec[point_Index], measurement.beam_Theta_0_Cos2_Value,
 						unwrapped_Structure->epsilon_Dependent	 [point_Index],
 //						unwrapped_Structure->epsilon_Dependent_RE[point_Index],
 //						unwrapped_Structure->epsilon_Dependent_IM[point_Index],
 						thread_Index);
 				calc_Weak_Factor(thread_Index);
 				calc_Exponenta(thread_Index,unwrapped_Structure->thickness);
-				calc_Fresnel(measurement.polarization.value,
+				calc_Fresnel(measurement.polarization,
 							 unwrapped_Structure->epsilon_Dependent		[point_Index],
 //							 unwrapped_Structure->epsilon_Dependent_RE  [point_Index],
 //							 unwrapped_Structure->epsilon_Dependent_IM  [point_Index],
@@ -1405,16 +1405,16 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(const Data& measuremen
 		//	weak_Factor_T[thread_Index].assign(num_Boundaries,1);
 		}
 
-		if(active_Parameter_Whats_This == whats_This_Angle)
+		if(active_Parameter_Whats_This == whats_This_Beam_Theta_0_Angle)
 		{
 			fill_Epsilon_Ambient_Substrate(thread_Index, unwrapped_Structure->epsilon); // here can be passed non-discretized epsilon
-			calc_Hi(measurement.k_Value, measurement.cos2[point_Index],
+			calc_Hi(measurement.k_Value, measurement.beam_Theta_0_Cos2_Vec[point_Index],
 					unwrapped_Structure->discretized_Epsilon,
 //					unwrapped_Structure->discretized_Epsilon_RE,
 //					unwrapped_Structure->discretized_Epsilon_IM,
 					thread_Index);
 			calc_Exponenta(thread_Index,unwrapped_Structure->discretized_Thickness);
-			calc_Fresnel(measurement.polarization.value,
+			calc_Fresnel(measurement.polarization,
 						 unwrapped_Structure->discretized_Epsilon,
 //						 unwrapped_Structure->discretized_Epsilon_RE,
 //						 unwrapped_Structure->discretized_Epsilon_IM,
@@ -1424,13 +1424,13 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(const Data& measuremen
 		if(active_Parameter_Whats_This == whats_This_Wavelength)
 		{
 			fill_Epsilon_Ambient_Substrate(thread_Index, unwrapped_Structure->epsilon_Dependent[point_Index]); // here can be passed non-discretized epsilon
-			calc_Hi(measurement.k[point_Index], measurement.cos2_Value,
+			calc_Hi(measurement.k_Vec[point_Index], measurement.beam_Theta_0_Cos2_Value,
 					unwrapped_Structure->discretized_Epsilon_Dependent[point_Index],
 //					unwrapped_Structure->discretized_Epsilon_Dependent_RE[point_Index],
 //					unwrapped_Structure->discretized_Epsilon_Dependent_IM[point_Index],
 					thread_Index);
 			calc_Exponenta(thread_Index,unwrapped_Structure->discretized_Thickness);
-			calc_Fresnel(measurement.polarization.value,
+			calc_Fresnel(measurement.polarization,
 						 unwrapped_Structure->discretized_Epsilon_Dependent     [point_Index],
 //						 unwrapped_Structure->discretized_Epsilon_Dependent_RE  [point_Index],
 //						 unwrapped_Structure->discretized_Epsilon_Dependent_IM  [point_Index],
@@ -1441,30 +1441,30 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(const Data& measuremen
 	}
 //	auto end = std::chrono::system_clock::now();
 
-	calc_Local(measurement.polarization.value, thread_Index);
+	calc_Local(measurement.polarization, thread_Index);
 
 //	auto enD = std::chrono::system_clock::now();
 //	auto elapseD = std::chrono::duration_cast<std::chrono::nanoseconds>(enD - end);
 
 //	auto start_Field = std::chrono::system_clock::now();
-	if(active_Parameter_Whats_This == whats_This_Angle)
+	if(active_Parameter_Whats_This == whats_This_Beam_Theta_0_Angle)
 	{
 		if(!unwrapped_Structure->discretization_Parameters.enable_Discretization)
 		{
-			calc_Field(measurement.polarization.value, thread_Index, point_Index, unwrapped_Structure->epsilon);
+			calc_Field(measurement.polarization, thread_Index, point_Index, unwrapped_Structure->epsilon);
 		} else
 		{
-			calc_Field(measurement.polarization.value, thread_Index, point_Index, unwrapped_Structure->discretized_Epsilon);
+			calc_Field(measurement.polarization, thread_Index, point_Index, unwrapped_Structure->discretized_Epsilon);
 		}
 	}
 	if(active_Parameter_Whats_This == whats_This_Wavelength)
 	{
 		if(!unwrapped_Structure->discretization_Parameters.enable_Discretization)
 		{
-			calc_Field(measurement.polarization.value, thread_Index, point_Index, unwrapped_Structure->epsilon_Dependent[point_Index]);
+			calc_Field(measurement.polarization, thread_Index, point_Index, unwrapped_Structure->epsilon_Dependent[point_Index]);
 		} else
 		{
-			calc_Field(measurement.polarization.value, thread_Index, point_Index, unwrapped_Structure->discretized_Epsilon_Dependent[point_Index]);
+			calc_Field(measurement.polarization, thread_Index, point_Index, unwrapped_Structure->discretized_Epsilon_Dependent[point_Index]);
 		}
 	}
 //	auto end_Field = std::chrono::system_clock::now();
@@ -1483,8 +1483,8 @@ void Unwrapped_Reflection::fill_Specular_Values(const Data& measurement, int thr
 {
 	calc_Environmental_Factor(thread_Index);
 
-	double s_Weight = (1. + measurement.polarization.value) / 2.;
-	double p_Weight = (1. - measurement.polarization.value) / 2.;
+	double s_Weight = (1. + measurement.polarization) / 2.;
+	double p_Weight = (1. - measurement.polarization) / 2.;
 
 	// reflectance
 	#ifdef REAL_CALC
@@ -1604,16 +1604,16 @@ void Unwrapped_Reflection::calc_Specular()
 		{	calculated_Curve = &A; A_Instrumental = A; working_Curve = &A_Instrumental;}
 
 
-		if(active_Parameter_Whats_This == whats_This_Angle)
+		if(active_Parameter_Whats_This == whats_This_Beam_Theta_0_Angle)
 		{
-			if( (measurement.angular_Resolution.value>0 || measurement.spectral_Resolution.value>0) && measurement.angle.size()>=MIN_ANGULAR_RESOLUTION_POINTS)
+			if( (measurement.beam_Theta_0_Distribution.FWHM_distribution>0 || measurement.spectral_Distribution.FWHM_distribution>0) && measurement.beam_Theta_0_Angle_Vec.size()>=MIN_ANGULAR_RESOLUTION_POINTS)
 			{
 				// interpolation on dense mesh (tunable)
-				double min_Step_As_Is = find_Min_Mesh_Step(measurement.angle);
+				double min_Step_As_Is = find_Min_Mesh_Step(measurement.beam_Theta_0_Angle_Vec);
 				double preliminary_Delta = min_Step_As_Is;//min(min_Step_As_Is/1, min_Resolution/2);  // tunable
 
-				double first_Argument = measurement.angle.first();
-				double last_Argument  = measurement.angle.last();
+				double first_Argument = measurement.beam_Theta_0_Angle_Vec.first();
+				double last_Argument  = measurement.beam_Theta_0_Angle_Vec.last();
 				unsigned long long num_Points_in_Dense_Mesh = ceil( abs(last_Argument - first_Argument)/preliminary_Delta );
 								   num_Points_in_Dense_Mesh = min(num_Points_in_Dense_Mesh, (unsigned long long)(202020));
 				double real_Delta = (last_Argument - first_Argument)/(num_Points_in_Dense_Mesh-1);  // interpolated curve is equidistant
@@ -1621,21 +1621,21 @@ void Unwrapped_Reflection::calc_Specular()
 				// create dense mesh
 				vector<double> dense_Mesh(num_Points_in_Dense_Mesh);
 				vector<double> dense_Mesh_Interpolated_Curve(num_Points_in_Dense_Mesh);
-				condense_Curve      (measurement.angle, calculated_Curve, real_Delta, dense_Mesh_Interpolated_Curve, dense_Mesh);
-				wrap_Condensed_Curve(measurement.angle, calculated_Curve, dense_Mesh, dense_Mesh_Interpolated_Curve, measurement.angular_Resolution_Mixed, working_Curve);
+				condense_Curve      (measurement.beam_Theta_0_Angle_Vec, calculated_Curve, real_Delta, dense_Mesh_Interpolated_Curve, dense_Mesh);
+				wrap_Condensed_Curve(measurement.beam_Theta_0_Angle_Vec, calculated_Curve, dense_Mesh, dense_Mesh_Interpolated_Curve, measurement.angular_Resolution_Mixed, working_Curve);
 			}
 		}
 
 		if(active_Parameter_Whats_This == whats_This_Wavelength)
 		{
-			if( (measurement.angular_Resolution.value>0 || measurement.spectral_Resolution.value>0) && measurement.lambda.size()>=MIN_SPECTRAL_RESOLUTION_POINTS)
+			if( (measurement.beam_Theta_0_Distribution.FWHM_distribution>0 || measurement.spectral_Distribution.FWHM_distribution>0) && measurement.lambda_Vec.size()>=MIN_SPECTRAL_RESOLUTION_POINTS)
 			{
 				// interpolation on dense mesh (tunable)
-				double min_Step_As_Is = find_Min_Mesh_Step(measurement.lambda);
+				double min_Step_As_Is = find_Min_Mesh_Step(measurement.lambda_Vec);
 				double preliminary_Delta = min_Step_As_Is;//min(min_Step_As_Is/1, min_Resolution/2);  // tunable
 
-				double first_Argument = measurement.lambda.first();
-				double last_Argument  = measurement.lambda.last();
+				double first_Argument = measurement.lambda_Vec.first();
+				double last_Argument  = measurement.lambda_Vec.last();
 				unsigned long long num_Points_in_Dense_Mesh = ceil( abs(last_Argument - first_Argument)/preliminary_Delta );
 								   num_Points_in_Dense_Mesh = min(num_Points_in_Dense_Mesh, (unsigned long long)(202020));
 				double real_Delta = (last_Argument - first_Argument)/(num_Points_in_Dense_Mesh-1);  // interpolated curve is equidistant
@@ -1643,27 +1643,27 @@ void Unwrapped_Reflection::calc_Specular()
 				// create dense mesh
 				vector<double> dense_Mesh(num_Points_in_Dense_Mesh);
 				vector<double> dense_Mesh_Interpolated_Curve(num_Points_in_Dense_Mesh);
-				condense_Curve      (measurement.lambda, calculated_Curve, real_Delta, dense_Mesh_Interpolated_Curve, dense_Mesh);
-				wrap_Condensed_Curve(measurement.lambda, calculated_Curve, dense_Mesh, dense_Mesh_Interpolated_Curve, measurement.spectral_Resolution_Mixed, working_Curve);
+				condense_Curve      (measurement.lambda_Vec, calculated_Curve, real_Delta, dense_Mesh_Interpolated_Curve, dense_Mesh);
+				wrap_Condensed_Curve(measurement.lambda_Vec, calculated_Curve, dense_Mesh, dense_Mesh_Interpolated_Curve, measurement.spectral_Resolution_Mixed, working_Curve);
 			}
 		}
 
 		// instrumental function (after interpolation!)
-		if(measurement.beam_Size.value>DBL_EPSILON)
+		if(measurement.beam_Geometry.size>DBL_EPSILON)
 		for(size_t point_Index=0; point_Index<R.size(); ++point_Index)
 		{
-			R_Instrumental[point_Index] *= measurement.instrumental_Factor_Vec[point_Index];
+			R_Instrumental[point_Index] *= measurement.footprint_Factor_Vec[point_Index];
 		}
 
 		// any way
 		if( calc_Functions.check_Reflectance)	{
 			for(size_t point_Index=0; point_Index<R.size(); ++point_Index)	{
-				R_Instrumental[point_Index] += measurement.background.value;
+				R_Instrumental[point_Index] += measurement.background;
 			}
 		}
 		if( calc_Functions.check_Transmittance)	{
 			for(size_t point_Index=0; point_Index<R.size(); ++point_Index)	{
-				T_Instrumental[point_Index] += measurement.background.value;
+				T_Instrumental[point_Index] += measurement.background;
 			}
 		}
 

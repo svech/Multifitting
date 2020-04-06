@@ -73,8 +73,8 @@ void Independent_Variables::create_Independent_Variables_List()
 		Independent_Indicator angle_Indicator;
 		angle_Indicator.item_Id				 = measurement.id;
 		angle_Indicator.item_Type			 = measurement.item_Type;
-		angle_Indicator.id					 = measurement.probe_Angle.indicator.id;
-		angle_Indicator.parameter_Whats_This = measurement.probe_Angle.indicator.whats_This;
+		angle_Indicator.id					 = measurement.beam_Theta_0_Angle.indicator.id;
+		angle_Indicator.parameter_Whats_This = measurement.beam_Theta_0_Angle.indicator.whats_This;
 		angle_Indicator.is_Active = true;					// adding "active" status
 
 		QVariant var;
@@ -183,24 +183,24 @@ void Independent_Variables::edit_Independent_Variable(QListWidgetItem* list_Item
 		connect(editor, &Independent_Variables_Editor::refresh_Measurement, this, [=]
 		{
 			// keep previous lambda and angle for plotting without recalculation
-			QVector<double>  cos2 = measurement.cos2;
-			QVector<double> angle = measurement.angle;
-			double	   cos2_Value = measurement.cos2_Value;
-			double	  angle_Value = measurement.angle_Value;
-			QVector<double>      k = measurement.cos2;
-			QVector<double>	lambda = measurement.lambda;
+			QVector<double>  cos2 = measurement.beam_Theta_0_Cos2_Vec;
+			QVector<double> angle = measurement.beam_Theta_0_Angle_Vec;
+			double	   cos2_Value = measurement.beam_Theta_0_Cos2_Value;
+			double	  angle_Value = measurement.beam_Theta_0_Angle_Value;
+			QVector<double>      k = measurement.k_Vec;
+			QVector<double>	lambda = measurement.lambda_Vec;
 			double		   k_Value = measurement.k_Value;
 			double	  lambda_Value = measurement.lambda_Value;
 
 			measurement = structure_Item->data(DEFAULT_COLUMN,Qt::UserRole).value<Data>();
 
 			// restore
-			measurement.cos2 = cos2;
-			measurement.angle = angle;
-			measurement.cos2_Value = cos2_Value;
-			measurement.angle_Value = angle_Value;
-			measurement.cos2 = cos2;
-			measurement.lambda = lambda;
+			measurement.beam_Theta_0_Cos2_Vec = cos2;
+			measurement.beam_Theta_0_Angle_Vec = angle;
+			measurement.beam_Theta_0_Cos2_Value = cos2_Value;
+			measurement.beam_Theta_0_Angle_Value = angle_Value;
+			measurement.k_Vec = k;
+			measurement.lambda_Vec = lambda;
 			measurement.k_Value=  k_Value;
 			measurement.lambda_Value = lambda_Value;
 		});
@@ -612,38 +612,67 @@ Independent_Variables& Independent_Variables::operator =(const Independent_Varia
 	// PARAMETER
 
 	// value and number of points
-	/// angle
-	measurement.probe_Angle.value				   = referent_Independent_Variables.measurement.probe_Angle.value;
-	measurement.probe_Angle.independent.min		   = referent_Independent_Variables.measurement.probe_Angle.independent.min;
-	measurement.probe_Angle.independent.max		   = referent_Independent_Variables.measurement.probe_Angle.independent.max;
-	measurement.probe_Angle.independent.num_Points = referent_Independent_Variables.measurement.probe_Angle.independent.num_Points;
 
-	measurement.cos2					 = referent_Independent_Variables.measurement.cos2;
-	measurement.angle					 = referent_Independent_Variables.measurement.angle;
-	measurement.cos2_Value				 = referent_Independent_Variables.measurement.cos2_Value;
-	measurement.angle_Value				 = referent_Independent_Variables.measurement.angle_Value;
-	measurement.angular_Resolution.value = referent_Independent_Variables.measurement.angular_Resolution.value;
-
-	/// geometry
-	measurement.beam_Size.value				 = referent_Independent_Variables.measurement.beam_Size.value;
-	measurement.beam_Profile_Spreading.value = referent_Independent_Variables.measurement.beam_Profile_Spreading.value;
-	measurement.sample_Size.value			 = referent_Independent_Variables.measurement.sample_Size.value;
-	measurement.sample_Shift.value			 = referent_Independent_Variables.measurement.sample_Shift.value;
+	measurement.measurement_Type				   = referent_Independent_Variables.measurement.measurement_Type;
 
 	/// wavelength
-	measurement.wavelength.value				  = referent_Independent_Variables.measurement.wavelength.value;
-	measurement.wavelength.independent.min		  = referent_Independent_Variables.measurement.wavelength.independent.min;
-	measurement.wavelength.independent.max		  = referent_Independent_Variables.measurement.wavelength.independent.max;
-	measurement.wavelength.independent.num_Points = referent_Independent_Variables.measurement.wavelength.independent.num_Points;
+	measurement.wavelength.value				   = referent_Independent_Variables.measurement.wavelength.value;
+	measurement.wavelength.independent.min		   = referent_Independent_Variables.measurement.wavelength.independent.min;
+	measurement.wavelength.independent.max		   = referent_Independent_Variables.measurement.wavelength.independent.max;
+	measurement.wavelength.independent.num_Points  = referent_Independent_Variables.measurement.wavelength.independent.num_Points;
 
-	measurement.k							   = referent_Independent_Variables.measurement.k;
-	measurement.lambda						   = referent_Independent_Variables.measurement.lambda;
-	measurement.k_Value						   = referent_Independent_Variables.measurement.k_Value;
-	measurement.lambda_Value				   = referent_Independent_Variables.measurement.lambda_Value;
-	measurement.spectral_Resolution.value	   = referent_Independent_Variables.measurement.spectral_Resolution.value;
-	measurement.polarization.value			   = referent_Independent_Variables.measurement.polarization.value;
-	measurement.polarization_Sensitivity.value = referent_Independent_Variables.measurement.polarization_Sensitivity.value;
-	measurement.background.value			   = referent_Independent_Variables.measurement.background.value;
+	measurement.k_Vec							   = referent_Independent_Variables.measurement.k_Vec;
+	measurement.lambda_Vec						   = referent_Independent_Variables.measurement.lambda_Vec;
+	measurement.k_Value							   = referent_Independent_Variables.measurement.k_Value;
+	measurement.lambda_Value					   = referent_Independent_Variables.measurement.lambda_Value;
+
+	/// theta angle
+	measurement.beam_Theta_0_Angle.value				    = referent_Independent_Variables.measurement.beam_Theta_0_Angle.value;
+	measurement.beam_Theta_0_Angle.independent.min		= referent_Independent_Variables.measurement.beam_Theta_0_Angle.independent.min;
+	measurement.beam_Theta_0_Angle.independent.max		= referent_Independent_Variables.measurement.beam_Theta_0_Angle.independent.max;
+	measurement.beam_Theta_0_Angle.independent.num_Points	= referent_Independent_Variables.measurement.beam_Theta_0_Angle.independent.num_Points;
+
+	measurement.beam_Theta_0_Cos2_Vec						= referent_Independent_Variables.measurement.beam_Theta_0_Cos2_Vec;
+	measurement.beam_Theta_0_Angle_Vec					= referent_Independent_Variables.measurement.beam_Theta_0_Angle_Vec;
+	measurement.beam_Theta_0_Cos2_Value					= referent_Independent_Variables.measurement.beam_Theta_0_Cos2_Value;
+	measurement.beam_Theta_0_Angle_Value					= referent_Independent_Variables.measurement.beam_Theta_0_Angle_Value;
+
+	/// alpha angle
+	measurement.detector_Theta_Angle.value				    = referent_Independent_Variables.measurement.detector_Theta_Angle.value;
+	measurement.detector_Theta_Angle.independent.min		= referent_Independent_Variables.measurement.detector_Theta_Angle.independent.min;
+	measurement.detector_Theta_Angle.independent.max		= referent_Independent_Variables.measurement.detector_Theta_Angle.independent.max;
+	measurement.detector_Theta_Angle.independent.num_Points	= referent_Independent_Variables.measurement.detector_Theta_Angle.independent.num_Points;
+
+	measurement.detector_Theta_Cos2_Vec						= referent_Independent_Variables.measurement.detector_Theta_Cos2_Vec;
+	measurement.detector_Theta_Angle_Vec					= referent_Independent_Variables.measurement.detector_Theta_Angle_Vec;
+	measurement.detector_Theta_Cos2_Value					= referent_Independent_Variables.measurement.detector_Theta_Cos2_Value;
+	measurement.detector_Theta_Angle_Value					= referent_Independent_Variables.measurement.detector_Theta_Angle_Value;
+
+	/// phi angle
+	measurement.detector_Phi_Angle.value				    = referent_Independent_Variables.measurement.detector_Phi_Angle.value;
+	measurement.detector_Phi_Angle.independent.min			= referent_Independent_Variables.measurement.detector_Phi_Angle.independent.min;
+	measurement.detector_Phi_Angle.independent.max			= referent_Independent_Variables.measurement.detector_Phi_Angle.independent.max;
+	measurement.detector_Phi_Angle.independent.num_Points	= referent_Independent_Variables.measurement.detector_Phi_Angle.independent.num_Points;
+
+	measurement.detector_Phi_Cos2_Vec						= referent_Independent_Variables.measurement.detector_Phi_Cos2_Vec;
+	measurement.detector_Phi_Angle_Vec						= referent_Independent_Variables.measurement.detector_Phi_Angle_Vec;
+	measurement.detector_Phi_Cos2_Value						= referent_Independent_Variables.measurement.detector_Phi_Cos2_Value;
+	measurement.detector_Phi_Angle_Value					= referent_Independent_Variables.measurement.detector_Phi_Angle_Value;
+
+	/// resolution
+	measurement.spectral_Distribution				= referent_Independent_Variables.measurement.spectral_Distribution;
+	measurement.beam_Theta_0_Distribution			= referent_Independent_Variables.measurement.beam_Theta_0_Distribution;
+	measurement.beam_Phi_0_Distribution				= referent_Independent_Variables.measurement.beam_Phi_0_Distribution;
+	measurement.detector_Theta_Resolution			= referent_Independent_Variables.measurement.detector_Theta_Resolution;
+	measurement.detector_Phi_Resolution				= referent_Independent_Variables.measurement.detector_Phi_Resolution;
+
+	/// footprint
+	measurement.beam_Geometry	= referent_Independent_Variables.measurement.beam_Geometry;
+	measurement.sample_Geometry = referent_Independent_Variables.measurement.sample_Geometry;
+
+	/// other
+	measurement.polarization	= referent_Independent_Variables.measurement.polarization;
+	measurement.background		= referent_Independent_Variables.measurement.background;
 
 	// save
 	var.setValue(measurement);

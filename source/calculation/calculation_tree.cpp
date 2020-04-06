@@ -534,12 +534,12 @@ void Calculation_Tree::calculate_Unwrapped_Reflectivity(const Calc_Functions& ca
 //	qInfo() << "Bare Reflectivity:      "<< elapsed.count()/1000000. << " seconds" << endl;
 
 	// make a copy for plotting
-	calculated_Values.R=QVector<double>::fromStdVector(unwrapped_Reflection_Vec_Element->R_Instrumental);
-	if(abs(measurement.polarization.value-1)<DBL_EPSILON)	{ calculated_Values.Phi_R = QVector<double>::fromStdVector(unwrapped_Reflection_Vec_Element->Phi_R_s); } else
-	if(abs(measurement.polarization.value+1)<DBL_EPSILON)	{ calculated_Values.Phi_R = QVector<double>::fromStdVector(unwrapped_Reflection_Vec_Element->Phi_R_p); } else
-															{ calculated_Values.Phi_R.clear(); }
-	calculated_Values.T=QVector<double>::fromStdVector(unwrapped_Reflection_Vec_Element->T_Instrumental);
-	calculated_Values.A=QVector<double>::fromStdVector(unwrapped_Reflection_Vec_Element->A_Instrumental);
+	calculated_Values.R=QVector<double>(unwrapped_Reflection_Vec_Element->R_Instrumental.begin(),unwrapped_Reflection_Vec_Element->R_Instrumental.end());
+	if(abs(measurement.polarization-1)<DBL_EPSILON)	{ calculated_Values.Phi_R = QVector<double>(unwrapped_Reflection_Vec_Element->Phi_R_s.begin(),unwrapped_Reflection_Vec_Element->Phi_R_s.end()); } else
+	if(abs(measurement.polarization+1)<DBL_EPSILON)	{ calculated_Values.Phi_R = QVector<double>(unwrapped_Reflection_Vec_Element->Phi_R_p.begin(),unwrapped_Reflection_Vec_Element->Phi_R_p.end()); } else
+													{ calculated_Values.Phi_R.clear(); }
+	calculated_Values.T=QVector<double>(unwrapped_Reflection_Vec_Element->T_Instrumental.begin(),unwrapped_Reflection_Vec_Element->T_Instrumental.end());
+	calculated_Values.A=QVector<double>(unwrapped_Reflection_Vec_Element->A_Instrumental.begin(),unwrapped_Reflection_Vec_Element->A_Instrumental.end());
 	// TODO user function
 //	calculated_Values.=QVector<double>::fromStdVector(unwrapped_Reflection_Vec_Element->A_Instrumental);
 

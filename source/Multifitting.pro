@@ -105,6 +105,11 @@ SOURCES += \
     multilayer_approach/multilayer/target_curve/target_curve.cpp \
     multilayer_approach/multilayer/target_curve/target_curve_editor.cpp \
     multilayer_approach/multilayer/multilayer.cpp \
+    multilayer_approach/multilayer/target_curve/target_data_types/detector_target_curve_part.cpp \
+    multilayer_approach/multilayer/target_curve/target_data_types/gisas_target_curve_part.cpp \
+    multilayer_approach/multilayer/target_curve/target_data_types/offset_target_curve_part.cpp \
+    multilayer_approach/multilayer/target_curve/target_data_types/rocking_target_curve_part.cpp \
+    multilayer_approach/multilayer/target_curve/target_data_types/specular_target_curve_part.cpp \
     multilayer_approach/profile_plots/profile_plot.cpp \
     multilayer_approach/profile_plots/profile_plots_window.cpp \
     multilayer_approach/table_of_roughness/table_of_roughness.cpp \
@@ -157,6 +162,11 @@ HEADERS += \
     multilayer_approach/multilayer/target_curve/target_curve.h \
     multilayer_approach/multilayer/target_curve/target_curve_editor.h \
     multilayer_approach/multilayer/multilayer.h \
+    multilayer_approach/multilayer/target_curve/target_data_types/detector_target_curve_part.h \
+    multilayer_approach/multilayer/target_curve/target_data_types/gisas_target_curve_part.h \
+    multilayer_approach/multilayer/target_curve/target_data_types/offset_target_curve_part.h \
+    multilayer_approach/multilayer/target_curve/target_data_types/rocking_target_curve_part.h \
+    multilayer_approach/multilayer/target_curve/target_data_types/specular_target_curve_part.h \
     multilayer_approach/profile_plots/profile_plot.h \
     multilayer_approach/profile_plots/profile_plots_window.h \
     multilayer_approach/table_of_roughness/table_of_roughness.h \
