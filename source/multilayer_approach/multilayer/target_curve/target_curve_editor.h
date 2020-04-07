@@ -30,9 +30,6 @@ public:
 		void create_Plot();
 		void create_Filepath_GroupBox();
 		void create_Data_GroupBox();
-			void create_Value_GroupBox();
-			void create_Argument_GroupBox();
-			void create_Beam_GroupBox();
 			void create_Detector_GroupBox();
 			void create_Footptint_GroupBox();
 		void reset_Subinterval();

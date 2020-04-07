@@ -30,17 +30,17 @@ Curve::Curve()
 
 	// intensity
 	divide_On_Beam_Intensity = true;
-	beam_Intensity_Start = 1;
+	beam_Intensity_Initial = 1;
 	// 1D only
-	use_Final_Intensity;
+	use_Final_Intensity = false;
 	beam_Intensity_Final = 1;
 
 	// units
-	angular_Units;
-	spectral_Units;
+	angular_Units = angle_Units_List[degree];
+	spectral_Units = wavelength_Units_List[angstrom];
 
 	// type
-	value_Type;
+	value_Type = no_Value_Type;
 }
 
 Fit_Params::Fit_Params()
@@ -92,10 +92,6 @@ Target_Curve::Target_Curve(QLabel* description_Label, QTreeWidget* real_Struct_T
 	measurement(item_Type_Measurement),
 	QWidget(parent)
 {
-	measurement.argument_Type = whats_This_Beam_Theta_0_Angle;		// angular curve
-	curve.angular_Units = angle_Units_List[degree]/*angle_units*/	;
-	curve.spectral_Units = wavelength_Units_List[angstrom]/*wavelength_units*/;
-	curve.value_Type = value_Types[Reflectance];
 	{
 		plot_Options_Calculated.color=QColor(0, 0, 255);
 		plot_Options_Calculated.scatter_Shape = QCPScatterStyle::ssDisc;
@@ -219,7 +215,7 @@ void Target_Curve::fill_Measurement_With_Data()
 	if(loaded_And_Ready)
 	{
 		// check zero intensity
-		if(abs(curve.beam_Intensity_Start)<=DBL_EPSILON) curve.beam_Intensity_Start = 1;
+		if(abs(curve.beam_Intensity_Initial)<=DBL_EPSILON) curve.beam_Intensity_Initial = 1;
 		if(abs(curve.beam_Intensity_Final)<=DBL_EPSILON) curve.beam_Intensity_Final = 1;
 
 		// preliminary fill calculated data with 0
@@ -235,11 +231,11 @@ void Target_Curve::fill_Measurement_With_Data()
 		curve.shifted_Values_No_Scaling_And_Offset.resize(curve.argument.size());
 
 		vector<double> intensity_Factor(curve.argument.size(),1);
-		double delta = (curve.beam_Intensity_Final - curve.beam_Intensity_Start)/max(curve.argument.size()-1,1);
+		double delta = (curve.beam_Intensity_Final - curve.beam_Intensity_Initial)/max(curve.argument.size()-1,1);
 		if(curve.divide_On_Beam_Intensity)
 		for(int i=0; i<curve.argument.size(); ++i)
 		{
-			intensity_Factor[i] = curve.beam_Intensity_Start + i*delta;
+			intensity_Factor[i] = curve.beam_Intensity_Initial + i*delta;
 		}
 
 		for(int i=0; i<curve.argument.size(); ++i)
@@ -356,7 +352,7 @@ QDataStream& operator <<( QDataStream& stream, const Curve& curve )
 					<< curve.use_Subinterval << curve.subinterval_Left << curve.subinterval_Right << curve.subinterval_Top << curve.subinterval_Bottom
 					<< curve.horizontal_Arg_Shift << curve.horizontal_Arg_Factor << curve.vertical_Arg_Shift << curve.vertical_Arg_Factor
 					<< curve.val_Shift << curve.val_Factor
-					<< curve.divide_On_Beam_Intensity << curve.beam_Intensity_Start << curve.use_Final_Intensity << curve.beam_Intensity_Final
+					<< curve.divide_On_Beam_Intensity << curve.beam_Intensity_Initial << curve.use_Final_Intensity << curve.beam_Intensity_Final
 					<< curve.angular_Units << curve.spectral_Units << curve.value_Type;
 }
 QDataStream& operator >>( QDataStream& stream,		 Curve& curve )
@@ -368,7 +364,7 @@ QDataStream& operator >>( QDataStream& stream,		 Curve& curve )
 				>> curve.subinterval_Left >> curve.subinterval_Right >> curve.subinterval_Top >> curve.subinterval_Bottom
 				>> curve.horizontal_Arg_Shift >> curve.horizontal_Arg_Factor >> curve.vertical_Arg_Shift >> curve.vertical_Arg_Factor
 				>> curve.val_Shift >> curve.val_Factor
-				>> curve. divide_On_Beam_Intensity >> curve.beam_Intensity_Start >> curve.use_Final_Intensity >> curve.beam_Intensity_Final
+				>> curve. divide_On_Beam_Intensity >> curve.beam_Intensity_Initial >> curve.use_Final_Intensity >> curve.beam_Intensity_Final
 				>> curve.angular_Units >> curve.spectral_Units >> curve.value_Type;
 	} else // before 1.11.0
 	{
@@ -415,11 +411,11 @@ QDataStream& operator >>( QDataStream& stream,		 Curve& curve )
 		if(Global_Variables::check_Loaded_Version(1,7,1))		// since 1.7.1
 		{
 			if(Global_Variables::check_Loaded_Version(1,9,3))
-			{stream >> curve.beam_Intensity_Start >> curve.beam_Intensity_Final; } 		// since 1.9.3
+			{stream >> curve.beam_Intensity_Initial >> curve.beam_Intensity_Final; } 		// since 1.9.3
 			else
 			{
-				stream >> curve.beam_Intensity_Start;
-				curve.beam_Intensity_Final = curve.beam_Intensity_Start;
+				stream >> curve.beam_Intensity_Initial;
+				curve.beam_Intensity_Final = curve.beam_Intensity_Initial;
 			}
 			curve.use_Final_Intensity = true;
 		}

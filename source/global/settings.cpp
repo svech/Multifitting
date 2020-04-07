@@ -746,7 +746,7 @@ void Settings::read_Parameters_Default_Values(bool reset_to_default)
 		default_num_alpha_angular_points					= parameters_Default_Values.value( "default_num_alpha_angular_points",						1000	).toInt();
 		default_num_phi_angular_points						= parameters_Default_Values.value( "default_num_phi_angular_points",						1000	).toInt();
 
-		default_wavelength_value							= parameters_Default_Values.value( "default_wavelength_value",								1.54056 ).toDouble();
+		default_wavelength_value							= parameters_Default_Values.value( "default_wavelength_value",								1.540562).toDouble();
 		default_min_wavelength								= parameters_Default_Values.value( "default_min_wavelength",								160		).toDouble();
 		default_max_wavelength								= parameters_Default_Values.value( "default_max_wavelength",								230		).toDouble();
 

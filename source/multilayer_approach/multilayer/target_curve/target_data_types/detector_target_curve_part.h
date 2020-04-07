@@ -11,8 +11,6 @@ class Detector_Target_Curve_Part : public QWidget
 public:
 	explicit Detector_Target_Curve_Part(Target_Curve* target_Curve, Target_Curve_Plot* target_Curve_Plot, QWidget *parent = nullptr);
 
-signals:
-
 };
 
 #endif // DETECTOR_TARGET_CURVE_PART_H

@@ -113,4 +113,8 @@ void MyDoubleSpinBox::create_Text_Change_Connection()
 		if(auto_Resize)	{Global_Variables::resize_Line_Edit(this,false);}
 
 	}, Qt::UniqueConnection);
+	connect(this, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
+	{
+		if(auto_Resize)	{Global_Variables::resize_Line_Edit(this,false);}
+	}, Qt::UniqueConnection);
 }
