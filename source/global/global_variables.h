@@ -68,27 +68,29 @@ enum independent_Toolbar_Enum   { New_Variable_Independent,
 								  Remove_Independent,
 								  Function_Independent };
 
-// experimental data types
-extern QString no_Data_Type;
-extern QStringList target_Data_Types;
+// data types
+extern QString no_Measurement_Type;
+extern QStringList measurement_Types;
 enum target_Data_Types_Enum {	/** 1D */
-							Specular_Scan,		// R,T vs angle, wavelength
-							Detector_Scan,		// R-,T-Scattering vs theta or phi // from 0 or from specular direction
-							Rocking_Curve,		// R-,T-Scattering vs angle	// from 0 or from specular direction
-							Offset_Scan,		// R-,T-Scattering vs angle, wavelength
+								Specular_Scan,		// R,T vs angle, wavelength
+								Detector_Scan,		// scattering vs theta
+								Rocking_Curve,		// scattering vs theta_0
+								Offset_Scan,		// scattering vs theta_0, wavelength
 
-							/** 2D */
-							GISAS	// R-,T-Scattering vs theta & phi // from 0 or from specular direction
+								/** 2D */
+								GISAS	// scattering vs theta & phi // from 0 or from specular direction
 };
 
 // argument types
+extern QString no_Argument_Type;
 extern QStringList argument_Types;
-enum argument_Types_Enum    { Sample_Grazing_angle, Detector_Angle, Azimuthal_angle, Wavelength_Energy };
+enum argument_Types_Enum    { Beam_Grazing_Angle, Detector_Polar_Angle, Detector_Azimuthal_Angle, Wavelength_Energy };
 
-// specular scan
-extern QStringList specular_Value_Function;
-extern QStringList specular_Value_Function_Short;
-enum specular_Value_Function_Enum    { Reflectance,   Transmittance };
+// value types
+extern QString no_Value_Type;
+extern QStringList value_Types;
+extern QStringList value_Types_Short;
+enum value_Types_Enum    { Reflectance, Transmittance, Absorptance, Scattering };
 
 // distributions
 extern QStringList distributions;

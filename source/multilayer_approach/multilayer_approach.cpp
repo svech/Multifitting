@@ -873,6 +873,7 @@ void Multilayer_Approach::open(QString filename)
 			if(Global_Variables::check_Loaded_Version(1,7,8) && !Global_Variables::check_Loaded_Version(1,9,3))
 			{in >> multilayer->graph_Options.num_Independent_Graph_Rows;}	// since 1.7.8 and before 1.9.3
 		}
+
 		/// target
 		{
 			// clear existing targets

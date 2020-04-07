@@ -28,8 +28,9 @@ Data::Data(QString item_Type_Passed)
 	}
 
 	// Measurement
-	{
-		measurement_Type = target_Data_Types[Specular_Scan];
+	{	
+		measurement_Type = no_Measurement_Type;
+		argument_Type = no_Argument_Type;
 
 		// wavelength
 		{
@@ -42,7 +43,7 @@ Data::Data(QString item_Type_Passed)
 			wavelength.indicator.item_Id = id;
 		}
 
-		// theta angle
+		// theta_0 angle
 		{
 			beam_Theta_0_Angle.value = default_theta_angle_value;
 			beam_Theta_0_Angle.independent.is_Independent = true;
@@ -53,7 +54,7 @@ Data::Data(QString item_Type_Passed)
 			beam_Theta_0_Angle.indicator.item_Id = id;
 		}
 
-		// alpha angle
+		// theta angle
 		{
 			detector_Theta_Angle.value = default_alpha_angle_value;
 			detector_Theta_Angle.independent.is_Independent = true;
@@ -62,6 +63,8 @@ Data::Data(QString item_Type_Passed)
 			detector_Theta_Angle.independent.num_Points = default_num_alpha_angular_points;
 			detector_Theta_Angle.indicator.whats_This = whats_This_Detector_Theta_Angle;
 			detector_Theta_Angle.indicator.item_Id = id;
+
+			detector_Theta_Offset = 0.5;
 		}
 
 		// phi angle
@@ -103,7 +106,7 @@ Data::Data(QString item_Type_Passed)
 
 		// footprint
 		beam_Geometry.size = 0.055;
-		beam_Geometry.smoothing = 0;
+		beam_Geometry.smoothing = 1;
 
 		sample_Geometry.size = 20;
 		sample_Geometry.x_Position = 0;
@@ -981,10 +984,10 @@ QDataStream& operator <<( QDataStream& stream, const Data& data )
 				<< data.parent_Item_Type << data.item_Type << data.id
 				<< data.item_Enabled		// since 1.7.7
 			// Measurement
-				<< data.measurement_Type
+				<< data.measurement_Type << data.argument_Type
 				<< data.wavelength << data.k_Vec << data.k_Value << data.lambda_Vec << data.lambda_Value
 				<< data.beam_Theta_0_Angle << data.beam_Theta_0_Cos2_Vec << data.beam_Theta_0_Cos2_Value << data.beam_Theta_0_Angle_Vec << data.beam_Theta_0_Angle_Value
-				<< data.detector_Theta_Angle << data.detector_Theta_Cos2_Vec << data.detector_Theta_Cos2_Value << data.detector_Theta_Angle_Vec << data.detector_Theta_Angle_Value
+				<< data.detector_Theta_Angle << data.detector_Theta_Cos2_Vec << data.detector_Theta_Cos2_Value << data.detector_Theta_Angle_Vec << data.detector_Theta_Angle_Value << data.detector_Theta_Offset
 				<< data.detector_Phi_Angle << data.detector_Phi_Cos2_Vec << data.detector_Phi_Cos2_Value << data.detector_Phi_Angle_Vec << data.detector_Phi_Angle_Value
 
 				<< data.spectral_Distribution << data.beam_Theta_0_Distribution << data.beam_Phi_0_Distribution << data.detector_Theta_Resolution << data.detector_Phi_Resolution
@@ -992,6 +995,7 @@ QDataStream& operator <<( QDataStream& stream, const Data& data )
 				<< data.beam_Geometry << data.sample_Geometry
 				<< data.polarization << data.background
 
+				/// old approach
 //				<< data.probe_Angle	<< data.cos2 << data.angle << data.cos2_Value << data.angle_Value << data.angular_Resolution
 //				<< data.wavelength << data.k << data.lambda << data.k_Value << data.lambda_Value << data.spectral_Resolution
 //				<< data.polarization << data.polarization_Sensitivity << data.background
@@ -1019,10 +1023,11 @@ QDataStream& operator >>( QDataStream& stream,		 Data& data )
 	// Measurement
 	if(Global_Variables::check_Loaded_Version(1,11,0)) //since 1.11.0
 	{
-		stream	>> data.measurement_Type
+
+		stream	>> data.measurement_Type >> data.argument_Type
 				>> data.wavelength >> data.k_Vec >> data.k_Value >> data.lambda_Vec >> data.lambda_Value
 				>> data.beam_Theta_0_Angle >> data.beam_Theta_0_Cos2_Vec >> data.beam_Theta_0_Cos2_Value >> data.beam_Theta_0_Angle_Vec >> data.beam_Theta_0_Angle_Value
-				>> data.detector_Theta_Angle >> data.detector_Theta_Cos2_Vec >> data.detector_Theta_Cos2_Value >> data.detector_Theta_Angle_Vec >> data.detector_Theta_Angle_Value
+				>> data.detector_Theta_Angle >> data.detector_Theta_Cos2_Vec >> data.detector_Theta_Cos2_Value >> data.detector_Theta_Angle_Vec >> data.detector_Theta_Angle_Value >> data.detector_Theta_Offset
 				>> data.detector_Phi_Angle >> data.detector_Phi_Cos2_Vec >> data.detector_Phi_Cos2_Value >> data.detector_Phi_Angle_Vec >> data.detector_Phi_Angle_Value
 
 				>> data.spectral_Distribution >> data.beam_Theta_0_Distribution >> data.beam_Phi_0_Distribution >> data.detector_Theta_Resolution >> data.detector_Phi_Resolution
@@ -1031,7 +1036,6 @@ QDataStream& operator >>( QDataStream& stream,		 Data& data )
 				>> data.polarization >> data.background;
 	} else // before 1.11.0
 	{
-		data.measurement_Type = target_Data_Types[Specular_Scan];
 		stream	>> data.beam_Theta_0_Angle >> data.beam_Theta_0_Cos2_Vec >> data.beam_Theta_0_Angle_Vec >> data.beam_Theta_0_Cos2_Value >> data.beam_Theta_0_Angle_Value;
 
 		// ----------------------------
@@ -1058,6 +1062,12 @@ QDataStream& operator >>( QDataStream& stream,		 Data& data )
 		Parameter sample_Size;  stream >> sample_Size; data.sample_Geometry.size = sample_Size.value;
 		// ----------------------------
 		Parameter sample_Shift;  stream >> sample_Shift; data.sample_Geometry.x_Position = sample_Shift.value;
+		// ----------------------------
+
+		data.measurement_Type = measurement_Types[Specular_Scan];
+		if(data.wavelength.independent.num_Points>1)		 {data.argument_Type = argument_Types[Wavelength_Energy]; } else
+		if(data.beam_Theta_0_Angle.independent.num_Points>1) {data.argument_Type = argument_Types[Beam_Grazing_Angle];} else
+															 {data.argument_Type = argument_Types[Beam_Grazing_Angle];}
 	}
 			// Ambient, Layer, Substrate
 		stream	>> data.composed_Material >> data.material >> data.approved_Material >> data.absolute_Density >> data.relative_Density

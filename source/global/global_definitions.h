@@ -698,88 +698,6 @@ struct Calc_Functions			{bool check_Enabled = true;
 								 }
 								};
 
-// measured/target data types
-struct Value					{double val_1; double val_2;}; // legacy type
-struct Curve					{bool use_Subinterval = false;
-								 int mesh_Density_Factor = 1;
-								 double mesh_Density_Shift = 0.5;
-								 double subinterval_Start = 0;
-								 double subinterval_End = 1;
-								 double subinterval_Top = 1;		// TODO GISAS
-								 double subinterval_Bottom = -1;	// TODO GISAS
-
-								 QVector<double> argument; QVector<double> shifted_Argument;
-								 QVector<double> values;   QVector<double> shifted_Values;
-														   vector<double> shifted_Values_No_Scaling_And_Offset; // without saving, for fitting purposes
-								 double horizontal_Arg_Offset = 0; double horizontal_Arg_Factor = 1;
-								 double vertical_Arg_Offset = 0;   double vertical_Arg_Factor = 1; // TODO GISAS
-								 bool divide_On_Beam_Intensity = true;
-								 double val_Offset = 0; Parameter val_Factor;  double beam_Intensity_Start = 1; double beam_Intensity_Final = 1;
-
-								 QString argument_Type;
-								 QString angular_Units;
-								 QString spectral_Units;
-
-								 QString value_Function;
-
-								 Curve()
-								 {
-									 val_Factor.value = 1;
-									 val_Factor.fit.min = 0.1;
-									 val_Factor.fit.max = 10;
-
-									 val_Factor.indicator.full_Name = "Target curve scale factor";
-								 }
-								};
-struct Fit_Params				{bool calc = true;
-								 bool fit = true;
-								 bool norm = true;
-								 bool adjust_Scale_Factor = false;
-								 bool maximize_Integral = false;
-								 double weight = 1;
-								 double weight_Sqrt = 1;
-								 QString fit_Function = "log("+QString(fit_Function_Variable)+"+1E-5)";// "log(R+1E-5); sin(phi/2)";
-								 double power = 2;
-								 bool use_Chi2 = false;
-
-								 double expression_Argument;							// not to store
-
-							#ifdef EXPRTK
-								 QVector<exprtk::expression<double>> expression_Vec;	// not to store
-							#else
-								 QVector<QString> expression_Vec;						// not to store
-							#endif
-
-								 void create_Expressions_for_Residual()
-								 {
-									expression_Vec.clear();
-
-							#ifdef EXPRTK
-									exprtk::parser<double> parser;
-									exprtk::symbol_table<double> symbol_table;
-									symbol_table.add_variable(fit_Function_Variable, expression_Argument);
-									symbol_table.add_constants();
-							#endif
-
-									QVector<QString> bare_String_Expressions = fit_Function.split(fit_Function_Separator, QString::SkipEmptyParts).toVector();
-									for(int i=0; i<bare_String_Expressions.size(); ++i)
-									{
-										if(!bare_String_Expressions[i].split(" ", QString::SkipEmptyParts).empty())
-										{
-							#ifdef EXPRTK
-											exprtk::expression<double> new_Expression;
-							#else
-											QString new_Expression;
-							#endif
-											expression_Vec.append(new_Expression);
-							#ifdef EXPRTK
-											expression_Vec[i].register_symbol_table(symbol_table);
-											parser.compile(bare_String_Expressions[i].toStdString(), expression_Vec[i]);
-							#endif
-										}
-									}
-								 }
-								};
 struct Fitables					{	vector<QString> struct_Names;		// names of structures
 									vector<QString> param_Names;		// names of parameters to be fitted
 									QVector<id_Type>param_IDs;			// ID of parameters to be fitted
@@ -891,14 +809,6 @@ QDataStream& operator >>( QDataStream& stream,		 Element_Profile& element_Profil
 QDataStream& operator <<( QDataStream& stream, const Basic_Profile_Plot_Set& basic_Profile_Plot_Set );
 QDataStream& operator >>( QDataStream& stream,		 Basic_Profile_Plot_Set& basic_Profile_Plot_Set );
 
-QDataStream& operator <<( QDataStream& stream, const Value& value );
-QDataStream& operator >>( QDataStream& stream,		 Value& value );
-
-QDataStream& operator <<( QDataStream& stream, const Curve& curve );
-QDataStream& operator >>( QDataStream& stream,		 Curve& curve );
-
-QDataStream& operator <<( QDataStream& stream, const Fit_Params& fit_Params );
-QDataStream& operator >>( QDataStream& stream,		 Fit_Params& fit_Params );
 // -----------------------------------------------------------------------------------------
 
 bool operator ==( const Parameter_Indicator& parameter_Indicator_Left, const Parameter_Indicator& parameter_Indicator_Right );

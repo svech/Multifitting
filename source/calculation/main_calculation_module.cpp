@@ -37,7 +37,7 @@ void Main_Calculation_Module::increase_Mesh_density(Data_Element<Target_Curve>& 
 	Target_Curve* target_Curve = qobject_cast<Target_Curve*>(target.the_Class);
 	if(target_Curve->curve.mesh_Density_Factor>1)
 	{
-		if(target_Curve->curve.argument_Type == whats_This_Beam_Theta_0_Angle)
+		if(target_Curve->measurement.argument_Type == whats_This_Beam_Theta_0_Angle)
 		{
 			QVector<double>& angle = target_Curve->measurement.beam_Theta_0_Angle_Vec;
 			QVector<double> dense_Angle;
@@ -54,7 +54,7 @@ void Main_Calculation_Module::increase_Mesh_density(Data_Element<Target_Curve>& 
 			dense_Angle.last() = angle.last();
 			target_Curve->measurement.beam_Theta_0_Angle_Vec = dense_Angle;
 		}
-		if(target_Curve->curve.argument_Type == whats_This_Wavelength)
+		if(target_Curve->measurement.argument_Type == whats_This_Wavelength)
 		{
 			QVector<double>& lambda = target_Curve->measurement.lambda_Vec;
 			QVector<double> dense_Lambda;
@@ -85,7 +85,7 @@ void Main_Calculation_Module::decrease_Mesh_density(Data_Element<Target_Curve>& 
 		if(!fit_Mode)
 		{
 			// decrease argument measurement
-			if(target_Curve->curve.argument_Type == whats_This_Beam_Theta_0_Angle)
+			if(target_Curve->measurement.argument_Type == whats_This_Beam_Theta_0_Angle)
 			{
 				QVector<double>& angle = target_Curve->measurement.beam_Theta_0_Angle_Vec;
 				QVector<double> sparse_Angle;
@@ -96,7 +96,7 @@ void Main_Calculation_Module::decrease_Mesh_density(Data_Element<Target_Curve>& 
 				}
 				target_Curve->measurement.beam_Theta_0_Angle_Vec = sparse_Angle;
 			}
-			if(target_Curve->curve.argument_Type == whats_This_Wavelength)
+			if(target_Curve->measurement.argument_Type == whats_This_Wavelength)
 			{
 				QVector<double>& lambda = target_Curve->measurement.lambda_Vec;
 				QVector<double> sparse_Lambda;
@@ -110,8 +110,8 @@ void Main_Calculation_Module::decrease_Mesh_density(Data_Element<Target_Curve>& 
 
 			// decrease value in calc_Functions
 			int size;
-			if(target_Curve->curve.argument_Type == whats_This_Beam_Theta_0_Angle)	   {size = target_Curve->measurement.beam_Theta_0_Angle_Vec.size();}
-			if(target_Curve->curve.argument_Type == whats_This_Wavelength) {size = target_Curve->measurement.lambda_Vec.size();}
+			if(target_Curve->measurement.argument_Type == whats_This_Beam_Theta_0_Angle)	{size = target_Curve->measurement.beam_Theta_0_Angle_Vec.size();}
+			if(target_Curve->measurement.argument_Type == whats_This_Wavelength)			{size = target_Curve->measurement.lambda_Vec.size();}
 			vector<double> sparse_Val  (size);
 			vector<double> sparse_Val_s(size);
 			vector<double> sparse_Val_p(size);
@@ -197,8 +197,8 @@ void Main_Calculation_Module::decrease_Mesh_density(Data_Element<Target_Curve>& 
 		{
 			// if fitting
 			int size;
-			if(target_Curve->curve.argument_Type == whats_This_Beam_Theta_0_Angle)	   {size = (target_Curve->measurement.beam_Theta_0_Angle_Vec.size()-1)/target_Curve->curve.mesh_Density_Factor+1;}
-			if(target_Curve->curve.argument_Type == whats_This_Wavelength) {size = (target_Curve->measurement.lambda_Vec.          size()-1)/target_Curve->curve.mesh_Density_Factor+1;}
+			if(target_Curve->measurement.argument_Type == whats_This_Beam_Theta_0_Angle)	   {size = (target_Curve->measurement.beam_Theta_0_Angle_Vec.size()-1)/target_Curve->curve.mesh_Density_Factor+1;}
+			if(target_Curve->measurement.argument_Type == whats_This_Wavelength) {size = (target_Curve->measurement.lambda_Vec.          size()-1)/target_Curve->curve.mesh_Density_Factor+1;}
 			vector<double> sparse_Val  (size);
 
 			/// R
@@ -991,7 +991,7 @@ void Main_Calculation_Module::print_Reflect_To_File(Data_Element<Type>& data_Ele
 	if(independent_Variables->calc_Functions.check_Reflectance)
 		print_Reflectance = true;
 	if(data_Element.curve_Class == TARGET)
-	if(target_Curve->curve.value_Function == specular_Value_Function[Reflectance])
+	if(target_Curve->curve.value_Type == value_Types[Reflectance])
 		print_Reflectance = true;
 
 	// transmittance
@@ -1000,7 +1000,7 @@ void Main_Calculation_Module::print_Reflect_To_File(Data_Element<Type>& data_Ele
 	if(independent_Variables->calc_Functions.check_Transmittance)
 		print_Transmittance = true;
 	if(data_Element.curve_Class == TARGET)
-	if(target_Curve->curve.value_Function == specular_Value_Function[Transmittance])
+	if(target_Curve->curve.value_Type == value_Types[Transmittance])
 		print_Transmittance = true;
 
 	// absorptance

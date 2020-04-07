@@ -18,7 +18,7 @@ Curve_Plot::Curve_Plot(Multilayer* multilayer, Target_Curve* target_Curve, Indep
 			plot_Options_Second = &target_Curve->plot_Options_Calculated;
 			spectral_Units = &target_Curve->curve.spectral_Units;
 			angular_Units = &target_Curve->curve.angular_Units;
-			argument_Type = &target_Curve->curve.argument_Type;
+			argument_Type = &target_Curve->measurement.argument_Type;
 			plot_Indicator = &target_Curve->index;
 		} else
 		{
@@ -120,9 +120,9 @@ void Curve_Plot::subinterval_Changed_Replot()
 	end_Rect->setVisible(target_Curve->curve.use_Subinterval);
 
 	start_Rect->topLeft->setCoords(custom_Plot->xAxis->range().lower, custom_Plot->yAxis->range().upper);
-	start_Rect->bottomRight->setCoords(target_Curve->curve.subinterval_Start,custom_Plot->yAxis->range().lower);
+	start_Rect->bottomRight->setCoords(target_Curve->curve.subinterval_Left,custom_Plot->yAxis->range().lower);
 
-	end_Rect->topLeft->setCoords(target_Curve->curve.subinterval_End,custom_Plot->yAxis->range().upper);
+	end_Rect->topLeft->setCoords(target_Curve->curve.subinterval_Right,custom_Plot->yAxis->range().upper);
 	end_Rect->bottomRight->setCoords(custom_Plot->xAxis->range().upper, custom_Plot->yAxis->range().lower);
 	custom_Plot->replot();
 }
@@ -130,11 +130,10 @@ void Curve_Plot::subinterval_Changed_Replot()
 void Curve_Plot::discretized_Angular_Threshold()
 {
 	QString argument_Type;
-	QString angle_Type;
 	QString angle_Units;
 	double wavelength = 1;
 	if(curve_Class == TARGET)     {
-		argument_Type = target_Curve->curve.argument_Type;
+		argument_Type = target_Curve->measurement.argument_Type;
 		angle_Units = target_Curve->curve.angular_Units;
 		if(argument_Type == whats_This_Beam_Theta_0_Angle)
 		{
@@ -466,12 +465,12 @@ void Curve_Plot::create_Options()
 		// target
 		if(curve_Class == TARGET)
 		{
-			if(target_Curve->curve.value_Function == specular_Value_Function[Reflectance])
+			if(target_Curve->curve.value_Type == value_Types[Reflectance])
 			{
 				max_Value_Title = "| Max R =";
 			} else
 			{
-				if(target_Curve->curve.value_Function == specular_Value_Function[Transmittance])
+				if(target_Curve->curve.value_Type == value_Types[Transmittance])
 				{
 					max_Value_Title = "| Max T =";
 				} else
@@ -593,7 +592,7 @@ void Curve_Plot::plot_All_Data()
 				for(int i=0; i<target_Curve->curve.shifted_Values.size(); ++i) {
 					values[i] = target_Curve->curve.shifted_Values_No_Scaling_And_Offset[i]*
 								target_Curve->curve.val_Factor.value +
-								target_Curve->curve.val_Offset;
+								target_Curve->curve.val_Shift;
 				}
 			} else {
 				for(int i=0; i<target_Curve->curve.shifted_Values.size(); ++i) {
@@ -606,8 +605,8 @@ void Curve_Plot::plot_All_Data()
 
 		/// calculated data
 		{
-			if(	target_Curve->curve.value_Function == specular_Value_Function[Reflectance] ) {	values = calculated_Values->R; }
-			if(	target_Curve->curve.value_Function == specular_Value_Function[Transmittance]){	values = calculated_Values->T; }
+			if(	target_Curve->curve.value_Type == value_Types[Reflectance] ) {	values = calculated_Values->R; }
+			if(	target_Curve->curve.value_Type == value_Types[Transmittance]){	values = calculated_Values->T; }
 			plot_Data(argument, values, plot_Options_Second);
 			get_Min_Max_For_Graph(plot_Options_Second, values, min_Value_Left, max_Value_Left);
 		}
@@ -713,17 +712,17 @@ void Curve_Plot::refresh_Labels()
 	// value
 	if(curve_Class == TARGET)
 	{
-		val_Type_Label = target_Curve->curve.value_Function;
+		val_Type_Label = target_Curve->curve.value_Type;
 	}
 	if(curve_Class == INDEPENDENT)
 	{
 		if(	independent_Variables->calc_Functions.check_Reflectance)
 		{
-			val_Type_Label = specular_Value_Function[Reflectance];
+			val_Type_Label = value_Types[Reflectance];
 		}
 		if( independent_Variables->calc_Functions.check_Transmittance)
 		{
-			val_Type_Label = specular_Value_Function[Transmittance];
+			val_Type_Label = value_Types[Transmittance];
 		}
 		if( independent_Variables->calc_Functions.check_Absorptance )
 		{
@@ -735,7 +734,7 @@ void Curve_Plot::refresh_Labels()
 	{
 		if(*argument_Type == whats_This_Beam_Theta_0_Angle)
 		{
-			argument_Type_Label = argument_Types[Sample_Grazing_angle];
+			argument_Type_Label = argument_Types[Beam_Grazing_Angle];
 
 			argument_Label = argument_Type_Label + " " + Theta_Sym + ", " + *angular_Units;
 

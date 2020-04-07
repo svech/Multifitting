@@ -20,7 +20,8 @@ public:
 	// Measurement
 	//---------------------------------------------
 
-		QString measurement_Type;	// Specular (R,T) ; Detector; Offset ; Rocking ; GISAX
+		QString measurement_Type;
+		QString argument_Type;
 
 		// wavelength
 		Parameter wavelength;
@@ -37,15 +38,17 @@ public:
 		QVector<double> detector_Theta_Cos2_Vec;  double detector_Theta_Cos2_Value;
 		QVector<double>	detector_Theta_Angle_Vec; double detector_Theta_Angle_Value;
 
+		double detector_Theta_Offset;
+
 		// phi angle
 		Parameter detector_Phi_Angle;
 		QVector<double> detector_Phi_Cos2_Vec;  double detector_Phi_Cos2_Value;
 		QVector<double>	detector_Phi_Angle_Vec; double detector_Phi_Angle_Value;
 
 		// resolution
-		Distribution spectral_Distribution;
+		Distribution spectral_Distribution;		
 		Distribution beam_Theta_0_Distribution;
-		Distribution beam_Phi_0_Distribution;
+		Distribution beam_Phi_0_Distribution;		
 		Distribution detector_Theta_Resolution;
 		Distribution detector_Phi_Resolution;
 

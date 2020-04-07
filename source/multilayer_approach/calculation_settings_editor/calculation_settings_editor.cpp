@@ -607,7 +607,7 @@ void Calculation_Settings_Editor::load_Target_Parameters(int tab_Index)
 
 				connect(maximize_Integral_Checkbox,  &QCheckBox::toggled, this, [=]
 				{
-					if(target_Curve->curve.argument_Type == whats_This_Wavelength)
+					if(target_Curve->measurement.argument_Type == whats_This_Wavelength)
 					{
 						target_Curve->fit_Params.maximize_Integral = maximize_Integral_Checkbox->isChecked();
 					} else

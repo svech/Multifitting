@@ -216,9 +216,9 @@ QMap<QString, double> sorted_Elements;
 QStringList transition_Layer_Functions	{"erf","lin","exp","tanh","sin","step"}; int transition_Layer_Functions_Size = int(transition_Layer_Functions.size());
 QStringList tril						{TRIL_TRUE, TRIL_FALSE, TRIL_NOT_DEFINED};
 
-// experimental data types
-QString no_Data_Type = "no data type";
-QStringList target_Data_Types {	/** 1D */			/// change enum!
+// data types
+QString no_Measurement_Type = "no measurement type";
+QStringList measurement_Types {	/** 1D */			/// change enum!
 								"Specular scan",	// R,T vs angle, wavelength
 								"Detector scan",	// R-,T-Scattering vs angle // from 0 or from specular direction
 								"Rocking scan",		// R-,T-Scattering vs angle	// from 0 or from specular direction
@@ -229,11 +229,13 @@ QStringList target_Data_Types {	/** 1D */			/// change enum!
 };
 
 // argument types
-QStringList argument_Types	{"Grazing angle, "+Theta_Sym, "Detector angle, "+Alpha_Sym, "Azimuthal angle, "+Phi_Sym, "Wavelength/Energy"}; // change enum!
+QString no_Argument_Type = "no argument type";
+QStringList argument_Types	{"Beam grazing angle, "+Theta_Sym+Zero_Subscript_Sym, "Detector polar angle, "+Theta_Sym, "Detector azimuthal angle, "+Phi_Sym, "Wavelength/Energy"}; // change enum!
 
-// specular scan
-QStringList specular_Value_Function		  {"Reflectance","Transmittance"};		  // change enum!
-QStringList specular_Value_Function_Short {"R","T"};							  // change enum!
+// value types
+QString no_Value_Type = "no value type";
+QStringList value_Types		  {"Reflectance", "Transmittance", "Scattering"};	  // change enum!
+QStringList value_Types_Short {"R", "T", "A", "S"};							  // change enum!
 
 // distributions
 QStringList distributions { "Gate", "Cosine", "Gaussian", "Lorentz" };

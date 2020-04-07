@@ -406,9 +406,9 @@ void Calculation_Tree::calculate_1_Kind_Preliminary(Data_Element<Type>& data_Ele
 		// only measurement can be active here
 		data_Element.active_Item_Type			 = item_Type_Measurement;
 		data_Element.active_Item_Id				 = target_Curve->measurement.id;
-		data_Element.active_Parameter_Whats_This = target_Curve->curve.argument_Type;
+		data_Element.active_Parameter_Whats_This = target_Curve->measurement.argument_Type;
 
-		if( target_Curve->curve.value_Function == specular_Value_Function[Transmittance])
+		if( target_Curve->curve.value_Type == value_Types[Transmittance])
 		{
 			data_Element.calc_Functions.check_Transmittance = true;
 		}

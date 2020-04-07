@@ -352,7 +352,7 @@ void Fitting::fill_Residual(Fitting_Params* params, int& residual_Shift, Data_El
 	/// reflectance
 	/// -------------------------------------------------------------------------------
 
-	if(target_Curve->curve.value_Function == specular_Value_Function[Reflectance] )				// R
+	if(target_Curve->curve.value_Type == value_Types[Reflectance] )				// R
 	{
 		model_Curve = target_Element.unwrapped_Reflection->R_Instrumental;
 	} else
@@ -361,7 +361,7 @@ void Fitting::fill_Residual(Fitting_Params* params, int& residual_Shift, Data_El
 	/// transmittance
 	/// -------------------------------------------------------------------------------
 
-	if(target_Curve->curve.value_Function == specular_Value_Function[Transmittance] )				// T
+	if(target_Curve->curve.value_Type == value_Types[Transmittance] )				// T
 	{
 		model_Curve = target_Element.unwrapped_Reflection->T_Instrumental;
 	}
@@ -377,13 +377,13 @@ void Fitting::fill_Residual(Fitting_Params* params, int& residual_Shift, Data_El
 //				fi_1 = target_Curve->curve.shifted_Values[point_Index].val_1;
 				fi_1 = target_Curve->curve.shifted_Values_No_Scaling_And_Offset[point_Index]*
 					   target_Curve->curve.val_Factor.value +
-					   target_Curve->curve.val_Offset;
+					   target_Curve->curve.val_Shift;
 				fi_2 = model_Curve[point_Index];
 
 				// use only data from subinterval
 				if( target_Curve->curve.use_Subinterval &&
-					((target_Curve->curve.shifted_Argument[point_Index]<target_Curve->curve.subinterval_Start) ||
-					(target_Curve->curve.shifted_Argument[point_Index]>target_Curve->curve.subinterval_End))	)
+					((target_Curve->curve.shifted_Argument[point_Index]<target_Curve->curve.subinterval_Left) ||
+					(target_Curve->curve.shifted_Argument[point_Index]>target_Curve->curve.subinterval_Right))	)
 				{
 					factor = 0;
 				}
@@ -409,7 +409,7 @@ void Fitting::fill_Residual(Fitting_Params* params, int& residual_Shift, Data_El
 //					fi_1 = func(target_Curve->curve.shifted_Values[point_Index].val_1, index);
 					fi_1 = func(target_Curve->curve.shifted_Values_No_Scaling_And_Offset[point_Index]*
 								target_Curve->curve.val_Factor.value +
-								target_Curve->curve.val_Offset, index);
+								target_Curve->curve.val_Shift, index);
 #endif
 				}
 				{
@@ -427,8 +427,8 @@ void Fitting::fill_Residual(Fitting_Params* params, int& residual_Shift, Data_El
 
 				// use only data from subinterval
 				if( target_Curve->curve.use_Subinterval &&
-					((target_Curve->curve.shifted_Argument[point_Index]<target_Curve->curve.subinterval_Start) ||
-					(target_Curve->curve.shifted_Argument[point_Index]>target_Curve->curve.subinterval_End))	)
+					((target_Curve->curve.shifted_Argument[point_Index]<target_Curve->curve.subinterval_Left) ||
+					(target_Curve->curve.shifted_Argument[point_Index]>target_Curve->curve.subinterval_Right))	)
 				{
 					factor = 0;
 				}
@@ -462,8 +462,8 @@ void Fitting::fill_Residual(Fitting_Params* params, int& residual_Shift, Data_El
 
 			// use only data from subinterval
 			if( target_Curve->curve.use_Subinterval &&
-				((target_Curve->curve.shifted_Argument[point_Index]<target_Curve->curve.subinterval_Start) ||
-				(target_Curve->curve.shifted_Argument[point_Index]>target_Curve->curve.subinterval_End))	)
+				((target_Curve->curve.shifted_Argument[point_Index]<target_Curve->curve.subinterval_Left) ||
+				(target_Curve->curve.shifted_Argument[point_Index]>target_Curve->curve.subinterval_Right))	)
 			{
 				integral += 0;
 				params->max_Integral+=0;

@@ -22,15 +22,15 @@ void Target_Curve_Plot::create_Plot()
 	custom_Plot->setMinimumHeight(300);
 	main_layout->addWidget(custom_Plot);
 
-	if( target_Curve->target_Data_Type == target_Data_Types[Specular_Scan] ||
-		target_Curve->target_Data_Type == target_Data_Types[Detector_Scan] ||
-		target_Curve->target_Data_Type == target_Data_Types[Rocking_Curve] ||
-		target_Curve->target_Data_Type == target_Data_Types[Offset_Scan] )
+	if( target_Curve->measurement.measurement_Type == measurement_Types[Specular_Scan] ||
+		target_Curve->measurement.measurement_Type == measurement_Types[Detector_Scan] ||
+		target_Curve->measurement.measurement_Type == measurement_Types[Rocking_Curve] ||
+		target_Curve->measurement.measurement_Type == measurement_Types[Offset_Scan] )
 	{
 		create_Subinterval_Rectangle();
 		create_Plot_Options_GroupBox();
 	}
-	if( target_Curve->target_Data_Type == target_Data_Types[GISAS] )
+	if( target_Curve->measurement.measurement_Type == measurement_Types[GISAS] )
 	{
 		// TODO GISAS
 //		color_Map = new QCPColorMap()
@@ -110,7 +110,7 @@ void Target_Curve_Plot::create_Subinterval_Rectangle()
 			end_Rect->setPen  (subinterval_Plot_Pen);
 			end_Rect->setBrush(subinterval_Plot_Brush);
 
-	if( target_Curve->target_Data_Type == target_Data_Types[GISAS] )
+	if( target_Curve->measurement.measurement_Type == measurement_Types[GISAS] )
 	{
 		top_Rect = new QCPItemRect(custom_Plot);
 				top_Rect->setPen  (subinterval_Plot_Pen);
@@ -129,18 +129,18 @@ void Target_Curve_Plot::create_Subinterval_Rectangle()
 void Target_Curve_Plot::subinterval_Changed_Replot()
 {
 	start_Rect->topLeft->setCoords(custom_Plot->xAxis->range().lower, custom_Plot->yAxis->range().upper);
-	start_Rect->bottomRight->setCoords(target_Curve->curve.subinterval_Start,custom_Plot->yAxis->range().lower);
+	start_Rect->bottomRight->setCoords(target_Curve->curve.subinterval_Left,custom_Plot->yAxis->range().lower);
 
-	end_Rect->topLeft->setCoords(target_Curve->curve.subinterval_End,custom_Plot->yAxis->range().upper);
+	end_Rect->topLeft->setCoords(target_Curve->curve.subinterval_Right,custom_Plot->yAxis->range().upper);
 	end_Rect->bottomRight->setCoords(custom_Plot->xAxis->range().upper, custom_Plot->yAxis->range().lower);
 
-	if( target_Curve->target_Data_Type == target_Data_Types[GISAS] )
+	if( target_Curve->measurement.measurement_Type == measurement_Types[GISAS] )
 	{
-		top_Rect->topLeft->setCoords(target_Curve->curve.subinterval_Start, custom_Plot->yAxis->range().upper);
-		top_Rect->bottomRight->setCoords(target_Curve->curve.subinterval_End,target_Curve->curve.subinterval_Top);
+		top_Rect->topLeft->setCoords(target_Curve->curve.subinterval_Left, custom_Plot->yAxis->range().upper);
+		top_Rect->bottomRight->setCoords(target_Curve->curve.subinterval_Right,target_Curve->curve.subinterval_Top);
 
-		bottom_Rect->topLeft->setCoords(target_Curve->curve.subinterval_Start, target_Curve->curve.subinterval_Bottom);
-		bottom_Rect->bottomRight->setCoords(target_Curve->curve.subinterval_End, custom_Plot->yAxis->range().lower);
+		bottom_Rect->topLeft->setCoords(target_Curve->curve.subinterval_Left, target_Curve->curve.subinterval_Bottom);
+		bottom_Rect->bottomRight->setCoords(target_Curve->curve.subinterval_Right, custom_Plot->yAxis->range().lower);
 	}
 
 	custom_Plot->replot();
@@ -150,14 +150,14 @@ void Target_Curve_Plot::plot_Data(bool fast)
 {
 	if(!fast)
 	{
-		if( target_Curve->target_Data_Type == target_Data_Types[Specular_Scan] ||
-			target_Curve->target_Data_Type == target_Data_Types[Detector_Scan] ||
-			target_Curve->target_Data_Type == target_Data_Types[Rocking_Curve] ||
-			target_Curve->target_Data_Type == target_Data_Types[Offset_Scan] )
+		if( target_Curve->measurement.measurement_Type == measurement_Types[Specular_Scan] ||
+			target_Curve->measurement.measurement_Type == measurement_Types[Detector_Scan] ||
+			target_Curve->measurement.measurement_Type == measurement_Types[Rocking_Curve] ||
+			target_Curve->measurement.measurement_Type == measurement_Types[Offset_Scan] )
 		{
 			create_Plot_Frame_And_Scale_1D();
 		}
-		if( target_Curve->target_Data_Type == target_Data_Types[GISAS] )
+		if( target_Curve->measurement.measurement_Type == measurement_Types[GISAS] )
 		{
 			// TODO GISAS
 	//		color_Map = new QCPColorMap()
@@ -167,10 +167,10 @@ void Target_Curve_Plot::plot_Data(bool fast)
 
 	if(target_Curve->loaded_And_Ready)
 	{
-		if( target_Curve->target_Data_Type == target_Data_Types[Specular_Scan] ||
-			target_Curve->target_Data_Type == target_Data_Types[Detector_Scan] ||
-			target_Curve->target_Data_Type == target_Data_Types[Rocking_Curve] ||
-			target_Curve->target_Data_Type == target_Data_Types[Offset_Scan] )
+		if( target_Curve->measurement.measurement_Type == measurement_Types[Specular_Scan] ||
+			target_Curve->measurement.measurement_Type == measurement_Types[Detector_Scan] ||
+			target_Curve->measurement.measurement_Type == measurement_Types[Rocking_Curve] ||
+			target_Curve->measurement.measurement_Type == measurement_Types[Offset_Scan] )
 		{
 			int data_Count = target_Curve->curve.argument.size();
 
@@ -209,7 +209,7 @@ void Target_Curve_Plot::plot_Data(bool fast)
 	//			custom_Plot->yAxis2->setTickLabels(false);
 			}
 		}
-		if( target_Curve->target_Data_Type == target_Data_Types[GISAS] )
+		if( target_Curve->measurement.measurement_Type == measurement_Types[GISAS] )
 		{
 			// TODO GISAS
 		}
@@ -291,19 +291,19 @@ void Target_Curve_Plot::refresh_Labels()
 {
 	// value
 	{
-		if( target_Curve->target_Data_Type == target_Data_Types[Specular_Scan] ) {val_Type_Label = target_Curve->curve.value_Function;}
-//		if( target_Curve->target_Data_Type == target_Data_Types[Detector_Scan] ) {val_Type_Label = target_Curve->curve.value_Function;}
+		if( target_Curve->measurement.measurement_Type == measurement_Types[Specular_Scan] ) {val_Type_Label = target_Curve->curve.value_Type;}
+//		if( target_Curve->measurement.measurement_Type == target_Data_Types[Detector_Scan] ) {val_Type_Label = target_Curve->curve.value_Type;}
 	}
 
 	// argument
 	{
-		if(target_Curve->curve.argument_Type == whats_This_Beam_Theta_0_Angle)
+		if(target_Curve->measurement.argument_Type == whats_This_Beam_Theta_0_Angle)
 		{
-			argument_Type_Label = argument_Types[Sample_Grazing_angle];
+			argument_Type_Label = argument_Types[Beam_Grazing_Angle];
 
 			argument_Label = argument_Type_Label + " " + Theta_Sym + ", " + target_Curve->curve.angular_Units;
 		}
-		if(target_Curve->curve.argument_Type == whats_This_Wavelength)
+		if(target_Curve->measurement.argument_Type == whats_This_Wavelength)
 		{
 			if(	target_Curve->curve.spectral_Units == wavelength_Units_List[angstrom] ||
 				target_Curve->curve.spectral_Units == wavelength_Units_List[nm]		  ||

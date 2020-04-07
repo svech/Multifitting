@@ -330,7 +330,7 @@ void Multilayer::open_Import_Window(Target_Curve* target_Curve)
 	}
 	if(!runned_Target_Curve_Editors.contains(target_Curve))
 	{		
-		if(target_Curve->target_Data_Type == no_Data_Type)
+		if(target_Curve->measurement.measurement_Type == no_Measurement_Type)
 		{
 			QDialog* choice_Data_Type_Window = new QDialog(this);
 				choice_Data_Type_Window->setWindowTitle("Data");
@@ -355,20 +355,20 @@ void Multilayer::open_Import_Window(Target_Curve* target_Curve)
 				choice_Data_Type_Group_Box_Layout->setContentsMargins(5,5,5,5);
 
 			// buttons
-			QPushButton* specular_Button = new QPushButton(target_Data_Types[Specular_Scan]);
-			connect(specular_Button,  &QPushButton::clicked, this, [=]{target_Curve->target_Data_Type = target_Data_Types[Specular_Scan]; choice_Data_Type_Window->close(); open_Import_Window(target_Curve);});
+			QPushButton* specular_Button = new QPushButton(measurement_Types[Specular_Scan]);
+			connect(specular_Button,  &QPushButton::clicked, this, [=]{target_Curve->measurement.measurement_Type = measurement_Types[Specular_Scan]; choice_Data_Type_Window->close(); open_Import_Window(target_Curve);});
 				choice_Data_Type_Group_Box_Layout->addWidget(specular_Button);
-			QPushButton* detector_Button = new QPushButton(target_Data_Types[Detector_Scan]);
-			connect(detector_Button,  &QPushButton::clicked, this, [=]{target_Curve->target_Data_Type = target_Data_Types[Detector_Scan]; choice_Data_Type_Window->close(); open_Import_Window(target_Curve);});
+			QPushButton* detector_Button = new QPushButton(measurement_Types[Detector_Scan]);
+			connect(detector_Button,  &QPushButton::clicked, this, [=]{target_Curve->measurement.measurement_Type = measurement_Types[Detector_Scan]; choice_Data_Type_Window->close(); open_Import_Window(target_Curve);});
 				choice_Data_Type_Group_Box_Layout->addWidget(detector_Button);
-			QPushButton* rocking_Button  = new QPushButton(target_Data_Types[Rocking_Curve]);
-			connect(rocking_Button,   &QPushButton::clicked, this, [=]{target_Curve->target_Data_Type = target_Data_Types[Rocking_Curve]; choice_Data_Type_Window->close(); open_Import_Window(target_Curve);});
+			QPushButton* rocking_Button  = new QPushButton(measurement_Types[Rocking_Curve]);
+			connect(rocking_Button,   &QPushButton::clicked, this, [=]{target_Curve->measurement.measurement_Type = measurement_Types[Rocking_Curve]; choice_Data_Type_Window->close(); open_Import_Window(target_Curve);});
 				choice_Data_Type_Group_Box_Layout->addWidget(rocking_Button);
-			QPushButton* offset_Button   = new QPushButton(target_Data_Types[Offset_Scan]);
-			connect(offset_Button,    &QPushButton::clicked, this, [=]{target_Curve->target_Data_Type = target_Data_Types[Offset_Scan];   choice_Data_Type_Window->close(); open_Import_Window(target_Curve);});
+			QPushButton* offset_Button   = new QPushButton(measurement_Types[Offset_Scan]);
+			connect(offset_Button,    &QPushButton::clicked, this, [=]{target_Curve->measurement.measurement_Type = measurement_Types[Offset_Scan];   choice_Data_Type_Window->close(); open_Import_Window(target_Curve);});
 				choice_Data_Type_Group_Box_Layout->addWidget(offset_Button);
-			QPushButton* gisas_Button    = new QPushButton(target_Data_Types[GISAS]);
-			connect(gisas_Button,     &QPushButton::clicked, this, [=]{target_Curve->target_Data_Type = target_Data_Types[GISAS];		  choice_Data_Type_Window->close(); open_Import_Window(target_Curve);});
+			QPushButton* gisas_Button    = new QPushButton(measurement_Types[GISAS]);
+			connect(gisas_Button,     &QPushButton::clicked, this, [=]{target_Curve->measurement.measurement_Type = measurement_Types[GISAS];		  choice_Data_Type_Window->close(); open_Import_Window(target_Curve);});
 				choice_Data_Type_Group_Box_Layout->addWidget(gisas_Button);
 
 			choice_Data_Type_Window->adjustSize();

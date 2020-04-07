@@ -1,19 +1,101 @@
 #include "target_curve.h"
 
+Curve::Curve()
+{
+	// mesh density : 1D only
+	mesh_Density_Factor = 1;
+	mesh_Density_Shift = 0.5;
+
+	// subinterval
+	use_Subinterval = false;
+	subinterval_Left = 0;
+	subinterval_Right = 1;
+	// 2D only
+	subinterval_Top = 1;
+	subinterval_Bottom = -1;
+
+	// argument shift & factor
+	horizontal_Arg_Shift = 0;
+	horizontal_Arg_Factor = 1;
+	// 2D only
+	vertical_Arg_Shift = 0;
+	vertical_Arg_Factor = 1;
+
+	// value shift & factor
+	val_Shift = 0;
+	val_Factor.value = 1;
+	val_Factor.fit.min = 0.1;
+	val_Factor.fit.max = 10;
+	val_Factor.indicator.full_Name = "Target curve scale factor";
+
+	// intensity
+	divide_On_Beam_Intensity = true;
+	beam_Intensity_Start = 1;
+	// 1D only
+	use_Final_Intensity;
+	beam_Intensity_Final = 1;
+
+	// units
+	angular_Units;
+	spectral_Units;
+
+	// type
+	value_Type;
+}
+
+Fit_Params::Fit_Params()
+{
+	calc = true;
+	fit = true;
+	norm = true;
+	adjust_Scale_Factor = false;
+	maximize_Integral = false;
+	weight = 1;
+	weight_Sqrt = 1;
+	fit_Function = "log("+QString(fit_Function_Variable)+"+1E-5)";// "log(R+1E-5); sin(phi/2)";
+	power = 2;
+	use_Chi2 = false;
+}
+void Fit_Params::create_Expressions_for_Residual()
+{
+   expression_Vec.clear();
+
+#ifdef EXPRTK
+   exprtk::parser<double> parser;
+   exprtk::symbol_table<double> symbol_table;
+   symbol_table.add_variable(fit_Function_Variable, expression_Argument);
+   symbol_table.add_constants();
+#endif
+
+   QVector<QString> bare_String_Expressions = fit_Function.split(fit_Function_Separator, QString::SkipEmptyParts).toVector();
+   for(int i=0; i<bare_String_Expressions.size(); ++i)
+   {
+	   if(!bare_String_Expressions[i].split(" ", QString::SkipEmptyParts).empty())
+	   {
+#ifdef EXPRTK
+		   exprtk::expression<double> new_Expression;
+#else
+		   QString new_Expression;
+#endif
+		   expression_Vec.append(new_Expression);
+#ifdef EXPRTK
+		   expression_Vec[i].register_symbol_table(symbol_table);
+		   parser.compile(bare_String_Expressions[i].toStdString(), expression_Vec[i]);
+#endif
+	   }
+   }
+}
+
 Target_Curve::Target_Curve(QLabel* description_Label, QTreeWidget* real_Struct_Tree, QWidget *parent) :
 	description_Label(description_Label),
 	real_Struct_Tree(real_Struct_Tree),
 	measurement(item_Type_Measurement),
 	QWidget(parent)
 {
-	curve.argument_Type = whats_This_Beam_Theta_0_Angle;		// angular curve
+	measurement.argument_Type = whats_This_Beam_Theta_0_Angle;		// angular curve
 	curve.angular_Units = angle_Units_List[degree]/*angle_units*/	;
 	curve.spectral_Units = wavelength_Units_List[angstrom]/*wavelength_units*/;
-	curve.value_Function = specular_Value_Function[Reflectance];
-
-//	curve.arg_Offset = 0; curve.arg_Factor = 1;
-//	curve.val_Offset = 0; curve.val_Factor = 1;
-
+	curve.value_Type = value_Types[Reflectance];
 	{
 		plot_Options_Calculated.color=QColor(0, 0, 255);
 		plot_Options_Calculated.scatter_Shape = QCPScatterStyle::ssDisc;
@@ -95,7 +177,7 @@ void Target_Curve::import_Data(QString bare_Filename)
 
 			/// value
 
-			if(curve.value_Function == specular_Value_Function[Reflectance] || curve.value_Function == specular_Value_Function[Transmittance] )	// R , T
+			if(curve.value_Type == value_Types[Reflectance] || curve.value_Type == value_Types[Transmittance] )	// R , T
 			{
 				if(numbers.size()<=number_Index) throw "val_1 | " + main_Exception_Text;
 //				double temp_Val = QString(numbers[number_Index]).toDouble(&ok_To_Double);
@@ -110,7 +192,7 @@ void Target_Curve::import_Data(QString bare_Filename)
 				curve.values.push_back(temp_Val);
 			} else
 			{
-				throw "wrong curve.value_Function=" + curve.value_Function + main_Exception_Text;
+				throw "wrong curve.value_Function=" + curve.value_Type + main_Exception_Text;
 			}
 			loaded_And_Ready = true;
 
@@ -162,13 +244,13 @@ void Target_Curve::fill_Measurement_With_Data()
 
 		for(int i=0; i<curve.argument.size(); ++i)
 		{
-			curve.shifted_Argument[i] = curve.argument[i]                   * curve.horizontal_Arg_Factor      +curve.horizontal_Arg_Offset;
-			curve.shifted_Values  [i] = curve.values[i]/intensity_Factor[i] * curve.val_Factor.value+curve.val_Offset;
+			curve.shifted_Argument[i] = curve.argument[i]                   * curve.horizontal_Arg_Factor      +curve.horizontal_Arg_Shift;
+			curve.shifted_Values  [i] = curve.values[i]/intensity_Factor[i] * curve.val_Factor.value+curve.val_Shift;
 			curve.shifted_Values_No_Scaling_And_Offset[i] = curve.values[i]/intensity_Factor[i];
 		}
 
 		// measurement filling
-		if(curve.argument_Type == whats_This_Beam_Theta_0_Angle)			// angular
+		if(measurement.argument_Type == whats_This_Beam_Theta_0_Angle)			// angular
 		{
 			double coeff = angle_Coefficients_Map.value(curve.angular_Units);
 			measurement.beam_Theta_0_Angle_Vec.resize(curve.shifted_Argument.size());
@@ -177,7 +259,7 @@ void Target_Curve::fill_Measurement_With_Data()
 				measurement.beam_Theta_0_Angle_Vec[i] = curve.shifted_Argument[i]*coeff;
 			}
 		} else
-		if(curve.argument_Type == whats_This_Wavelength)	// spectral
+		if(measurement.argument_Type == whats_This_Wavelength)	// spectral
 		{
 			double coeff = wavelength_Coefficients_Map.value(curve.spectral_Units);
 			measurement.lambda_Vec.resize(curve.shifted_Argument.size());
@@ -187,7 +269,7 @@ void Target_Curve::fill_Measurement_With_Data()
 			}
 		} else
 		{
-			QMessageBox::critical(nullptr, "Target_Curve::fill_Measurement_With_Data", "wrong curve.argument_Type="+curve.argument_Type);
+			QMessageBox::critical(nullptr, "Target_Curve::fill_Measurement_With_Data", "wrong curve.argument_Type="+measurement.argument_Type);
 			return;
 		}
 	}
@@ -198,7 +280,7 @@ void Target_Curve::show_Description_Label()
 	if(loaded_And_Ready)
 	{
 		QString spacer;
-		if(curve.argument_Type == whats_This_Beam_Theta_0_Angle)
+		if(measurement.argument_Type == whats_This_Beam_Theta_0_Angle)
 		{
 			arg_Type_For_Label = "Angular";
 
@@ -208,7 +290,7 @@ void Target_Curve::show_Description_Label()
 			at_Fixed = Locale.toString(Global_Variables::wavelength_Energy(curve.spectral_Units,measurement.wavelength.value)/coeff, thumbnail_double_format, thumbnail_wavelength_precision)+" "+curve.spectral_Units;
 			spacer = "";
 		}
-		if(curve.argument_Type == whats_This_Wavelength)
+		if(measurement.argument_Type == whats_This_Wavelength)
 		{
 			arg_Type_For_Label = "Spectral";
 			arg_Units = curve.spectral_Units;
@@ -220,7 +302,7 @@ void Target_Curve::show_Description_Label()
 
 		label_Text = index + ": " +
 					arg_Type_For_Label + "; " +
-					specular_Value_Function_Short[specular_Value_Function.indexOf(curve.value_Function)] + "; " +
+					value_Types_Short[value_Types.indexOf(curve.value_Type)] + "; " +
 					Locale.toString(curve.shifted_Argument.first()) + "-" + Locale.toString(curve.shifted_Argument.last()) + spacer + arg_Units + "; " +
 					"at " + at_Fixed;
 	} else
@@ -259,6 +341,143 @@ Target_Curve& Target_Curve::operator =(const Target_Curve& referent_Target_Curve
 }
 
 // serialization
+QDataStream& operator <<( QDataStream& stream, const Value& value )
+{
+	return stream << value.val_1 << value.val_2;
+}
+QDataStream& operator >>( QDataStream& stream,		 Value& value )
+{
+	return stream >> value.val_1 >> value.val_2;
+}
+
+QDataStream& operator <<( QDataStream& stream, const Curve& curve )
+{
+	return stream	<< curve.mesh_Density_Factor << curve.mesh_Density_Shift
+					<< curve.use_Subinterval << curve.subinterval_Left << curve.subinterval_Right << curve.subinterval_Top << curve.subinterval_Bottom
+					<< curve.horizontal_Arg_Shift << curve.horizontal_Arg_Factor << curve.vertical_Arg_Shift << curve.vertical_Arg_Factor
+					<< curve.val_Shift << curve.val_Factor
+					<< curve.divide_On_Beam_Intensity << curve.beam_Intensity_Start << curve.use_Final_Intensity << curve.beam_Intensity_Final
+					<< curve.angular_Units << curve.spectral_Units << curve.value_Type;
+}
+QDataStream& operator >>( QDataStream& stream,		 Curve& curve )
+{
+
+	if(Global_Variables::check_Loaded_Version(1,11,0))		// since 1.11.0
+	{
+		stream	>> curve.mesh_Density_Factor >> curve.mesh_Density_Shift
+				>> curve.subinterval_Left >> curve.subinterval_Right >> curve.subinterval_Top >> curve.subinterval_Bottom
+				>> curve.horizontal_Arg_Shift >> curve.horizontal_Arg_Factor >> curve.vertical_Arg_Shift >> curve.vertical_Arg_Factor
+				>> curve.val_Shift >> curve.val_Factor
+				>> curve. divide_On_Beam_Intensity >> curve.beam_Intensity_Start >> curve.use_Final_Intensity >> curve.beam_Intensity_Final
+				>> curve.angular_Units >> curve.spectral_Units >> curve.value_Type;
+	} else // before 1.11.0
+	{
+		if(Global_Variables::check_Loaded_Version(1,10,1))		// since 1.10.1
+		{
+			stream >> curve.use_Subinterval;
+			if(Global_Variables::check_Loaded_Version(1,10,2))		// since 1.10.2
+			{
+				stream >> curve.mesh_Density_Factor >> curve.mesh_Density_Shift;  // Parameter since 1.10.2
+			}
+			stream >> curve.subinterval_Left >> curve.subinterval_Right;
+		}
+		stream  >> curve.argument >> curve.shifted_Argument;
+
+		// values are just double now
+		{
+			// read
+			QVector<Value> values;
+			QVector<Value> shifted_Values;
+			stream >> values >> shifted_Values;
+			// convert
+			curve.values.resize(values.size());
+			curve.shifted_Values.resize(values.size());
+			for(int i=0; i<values.size(); i++)
+			{
+				curve.values[i] = values[i].val_1;
+				curve.shifted_Values[i] = shifted_Values[i].val_1;
+			}
+		}
+
+		stream >> curve.horizontal_Arg_Shift >> curve.horizontal_Arg_Factor;
+		stream >> curve.val_Shift;
+
+		if(Global_Variables::check_Loaded_Version(1,10,2))		// since 1.10.2
+			 {stream >> curve.val_Factor;}
+		else {stream >> curve.val_Factor.value;}
+
+		// instead of loading shifted_Values_No_Scaling_And_Offset // since 1.10.2
+		curve.shifted_Values_No_Scaling_And_Offset.resize(curve.shifted_Values.size());
+		for(int i=0; i<curve.shifted_Values.size(); i++)	{
+			curve.shifted_Values_No_Scaling_And_Offset[i] = (curve.shifted_Values[i] - curve.val_Shift)/curve.val_Factor.value; // since 1.10.2
+		}
+
+		if(Global_Variables::check_Loaded_Version(1,7,1))		// since 1.7.1
+		{
+			if(Global_Variables::check_Loaded_Version(1,9,3))
+			{stream >> curve.beam_Intensity_Start >> curve.beam_Intensity_Final; } 		// since 1.9.3
+			else
+			{
+				stream >> curve.beam_Intensity_Start;
+				curve.beam_Intensity_Final = curve.beam_Intensity_Start;
+			}
+			curve.use_Final_Intensity = true;
+		}
+
+		if(Global_Variables::check_Loaded_Version(1,8,1))
+		{stream >> curve.divide_On_Beam_Intensity; }	// since 1.8.1
+
+		{
+			QString argument_Type;
+			QString angle_Type;
+			stream >> argument_Type >> angle_Type ;
+		}
+		stream >> curve.angular_Units >> curve.spectral_Units >> curve.value_Type;
+		{
+			QString value_Mode;
+			stream >> value_Mode;
+		}
+	}
+	return stream;
+}
+
+QDataStream& operator <<( QDataStream& stream, const Fit_Params& fit_Params )
+{
+	return stream << fit_Params.calc << fit_Params.fit << fit_Params.norm
+				  << fit_Params.adjust_Scale_Factor // since 1.10.2
+				  << fit_Params.maximize_Integral // since 1.9.3
+				  << fit_Params.weight << fit_Params.fit_Function
+				  << fit_Params.use_Chi2 // since 1.8.1
+				  << fit_Params.power; // since 1.8.8
+}
+QDataStream& operator >>( QDataStream& stream,		 Fit_Params& fit_Params )
+{
+	stream >> fit_Params.calc >> fit_Params.fit >> fit_Params.norm;
+
+	if(Global_Variables::check_Loaded_Version(1,10,2))
+	{stream >> fit_Params.adjust_Scale_Factor;}
+
+	if(Global_Variables::check_Loaded_Version(1,9,3))
+	{stream >> fit_Params.maximize_Integral; }			// since 1.9.3
+
+	stream >> fit_Params.weight >> fit_Params.fit_Function;
+
+	if(Global_Variables::check_Loaded_Version(1,8,1))
+	{stream >> fit_Params.use_Chi2; }		// since 1.8.1
+
+	if(Global_Variables::check_Loaded_Version(1,8,8) && !Global_Variables::check_Loaded_Version(1,9,3))
+	{
+		int int_Power;
+		stream >> int_Power;
+		fit_Params.power = double(int_Power);	// since 1.8.8
+	}
+
+	if(Global_Variables::check_Loaded_Version(1,9,3))
+	{stream >> fit_Params.power; }			// since 1.9.3
+
+	return stream;
+}
+
 QDataStream& operator <<( QDataStream& stream, const Target_Curve* target_Curve )
 {
 	return stream	<< target_Curve->curve << target_Curve->fit_Params << target_Curve->measurement << target_Curve->filename
@@ -269,8 +488,8 @@ QDataStream& operator <<( QDataStream& stream, const Target_Curve* target_Curve 
 }
 QDataStream& operator >>(QDataStream& stream,		 Target_Curve* target_Curve )
 {
-	stream	>> target_Curve->curve >> target_Curve->fit_Params >> target_Curve->measurement >> target_Curve->filename
-			>> target_Curve->filepath >> target_Curve->loaded_And_Ready	>> target_Curve->plot_Options_Experimental;
+	stream	>> target_Curve->curve >> target_Curve->fit_Params >> target_Curve->measurement
+			>> target_Curve->filename >> target_Curve->filepath >> target_Curve->loaded_And_Ready >> target_Curve->plot_Options_Experimental;
 
 	if(Global_Variables::check_Loaded_Version(1,7,4))
 	{stream >> target_Curve->plot_Options_Calculated ; }	// since 1.7.4
@@ -285,3 +504,4 @@ QDataStream& operator >>(QDataStream& stream,		 Target_Curve* target_Curve )
 	stream >> target_Curve->label_Text;
 	return stream;
 }
+

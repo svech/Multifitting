@@ -8,7 +8,7 @@ Target_Curve_Editor::Target_Curve_Editor(Target_Curve* target_Curve, Multilayer*
 //	stylesheet = "QGroupBox { border-radius: 2px;  border: 1px solid gray; margin-top: 2ex;} QGroupBox::title { subcontrol-origin: margin; color: darkblue; top: 6px; left: 9px; padding: 0 0px 0 1px;}";
 
 	create_Main_Layout();
-	setWindowTitle("Import Data: "+target_Curve->target_Data_Type);
+	setWindowTitle("Import Data: "+target_Curve->measurement.measurement_Type);
 	set_Window_Geometry();
 	setAttribute(Qt::WA_DeleteOnClose);
 	setAcceptDrops(true);
@@ -107,9 +107,9 @@ void Target_Curve_Editor::fill_Arg_Units_ComboBox(QString arg_Type)
 	argument_Units_ComboBox->clear();
 //	at_Fixed_Units_ComboBox->clear();
 
-	if(arg_Type == argument_Types[Sample_Grazing_angle] ||
-	   arg_Type == argument_Types[Detector_Angle] ||
-	   arg_Type == argument_Types[Azimuthal_angle] )
+	if(arg_Type == argument_Types[Beam_Grazing_Angle] ||
+	   arg_Type == argument_Types[Detector_Polar_Angle] ||
+	   arg_Type == argument_Types[Detector_Azimuthal_Angle] )
 	{
 		argument_Units_ComboBox->addItems(angle_Units_List);
 		argument_Units_ComboBox->setCurrentIndex(argument_Units_ComboBox->findText(target_Curve->curve.angular_Units));
@@ -157,7 +157,7 @@ void Target_Curve_Editor::fill_Arg_Units_ComboBox(QString arg_Type)
 
 void Target_Curve_Editor::change_Arg_Units_ComboBox(QString arg_Units)
 {
-	if(argument_Type_ComboBox->currentText() == argument_Types[Sample_Grazing_angle])	// grazing angle
+	if(argument_Type_ComboBox->currentText() == argument_Types[Beam_Grazing_Angle])	// grazing angle
 	{
 		angular_Units_Label->setText(arg_Units);
 	}
@@ -270,7 +270,31 @@ void Target_Curve_Editor::create_Filepath_GroupBox()
 
 void Target_Curve_Editor::create_Data_GroupBox()
 {
-
+	if(	target_Curve->measurement.measurement_Type == measurement_Types[Specular_Scan] )
+	{
+		Specular_Target_Curve_Part* specular_Target_Curve_Part = new Specular_Target_Curve_Part(target_Curve, target_Curve_Plot);
+			bottom_Part_Layout->addWidget(specular_Target_Curve_Part);
+	}
+	if(	target_Curve->measurement.measurement_Type == measurement_Types[Detector_Scan] )
+	{
+		Detector_Target_Curve_Part* detector_Target_Curve_Part = new Detector_Target_Curve_Part(target_Curve, target_Curve_Plot);
+			bottom_Part_Layout->addWidget(detector_Target_Curve_Part);
+	}
+	if(	target_Curve->measurement.measurement_Type == measurement_Types[Rocking_Curve] )
+	{
+		Rocking_Target_Curve_Part* rocking_Target_Curve_Part = new Rocking_Target_Curve_Part(target_Curve, target_Curve_Plot);
+			bottom_Part_Layout->addWidget(rocking_Target_Curve_Part);
+	}
+	if(	target_Curve->measurement.measurement_Type == measurement_Types[Offset_Scan] )
+	{
+		Offset_Target_Curve_Part* offset_Target_Curve_Part = new Offset_Target_Curve_Part(target_Curve, target_Curve_Plot);
+			bottom_Part_Layout->addWidget(offset_Target_Curve_Part);
+	}
+	if(	target_Curve->measurement.measurement_Type == measurement_Types[GISAS] )
+	{
+		GISAS_Target_Curve_Part* gisas_Target_Curve_Part = new GISAS_Target_Curve_Part(target_Curve);
+			bottom_Part_Layout->addWidget(gisas_Target_Curve_Part);
+	}
 	create_Argument_GroupBox();
 	create_Value_GroupBox();
 	create_Beam_GroupBox();
@@ -774,30 +798,30 @@ void Target_Curve_Editor::create_Value_GroupBox()
 	{
 		QComboBox* value_Type_ComboBox = new QComboBox;
 			value_Type_ComboBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
-		if( target_Curve->target_Data_Type == target_Data_Types[Specular_Scan])
+		if( target_Curve->measurement.measurement_Type == measurement_Types[Specular_Scan])
 		{
-			value_Type_ComboBox->addItem(specular_Value_Function[Reflectance]);
-			value_Type_ComboBox->addItem(specular_Value_Function[Transmittance]);
+			value_Type_ComboBox->addItem(value_Types[Reflectance]);
+			value_Type_ComboBox->addItem(value_Types[Transmittance]);
 			hor_1_Layout->addWidget(value_Type_ComboBox);
 		}
-		if( target_Curve->target_Data_Type == target_Data_Types[Offset_Scan])
+		if( target_Curve->measurement.measurement_Type == measurement_Types[Offset_Scan])
 		{
-			value_Type_ComboBox->addItem(target_Data_Types[Offset_Scan]);
+			value_Type_ComboBox->addItem(measurement_Types[Offset_Scan]);
 			hor_1_Layout->addWidget(value_Type_ComboBox);
 		}
-		if( target_Curve->target_Data_Type == target_Data_Types[Detector_Scan])
+		if( target_Curve->measurement.measurement_Type == measurement_Types[Detector_Scan])
 		{
-			value_Type_ComboBox->addItem(target_Data_Types[Detector_Scan]);
+			value_Type_ComboBox->addItem(measurement_Types[Detector_Scan]);
 			hor_1_Layout->addWidget(value_Type_ComboBox);
 		}
-		if( target_Curve->target_Data_Type == target_Data_Types[Rocking_Curve])
+		if( target_Curve->measurement.measurement_Type == measurement_Types[Rocking_Curve])
 		{
-			value_Type_ComboBox->addItem(target_Data_Types[Rocking_Curve]);
+			value_Type_ComboBox->addItem(measurement_Types[Rocking_Curve]);
 			hor_1_Layout->addWidget(value_Type_ComboBox);
 		}
-		if( target_Curve->target_Data_Type == target_Data_Types[GISAS])
+		if( target_Curve->measurement.measurement_Type == measurement_Types[GISAS])
 		{
-			value_Type_ComboBox->addItem(target_Data_Types[GISAS]);
+			value_Type_ComboBox->addItem(measurement_Types[GISAS]);
 			hor_1_Layout->addWidget(value_Type_ComboBox);
 		}
 	}
@@ -811,7 +835,7 @@ void Target_Curve_Editor::create_Value_GroupBox()
 			value_Offset_SpinBox->setAccelerated(true);
 			value_Offset_SpinBox->setDecimals(4);
 			value_Offset_SpinBox->setRange(-100000, MAX_DOUBLE);
-			value_Offset_SpinBox->setValue(target_Curve->curve.val_Offset);
+			value_Offset_SpinBox->setValue(target_Curve->curve.val_Shift);
 			value_Offset_SpinBox->setSingleStep(0.001);
 			value_Offset_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
 		hor_1_Layout->addWidget(value_Offset_SpinBox);
@@ -890,7 +914,7 @@ void Target_Curve_Editor::create_Argument_GroupBox()
 			main_Subinterval_Checkbox->setCheckable(true);
 			main_Subinterval_Checkbox->setChecked(target_Curve->curve.use_Subinterval);
 		interval_Layout->addWidget(main_Subinterval_Checkbox,0,0,1,1,Qt::AlignLeft);
-		if(	target_Curve->target_Data_Type == target_Data_Types[GISAS])
+		if(	target_Curve->measurement.measurement_Type == measurement_Types[GISAS])
 		{
 			interval_Layout->addWidget(main_Subinterval_Checkbox,0,0,2,1,Qt::AlignLeft);
 		}
@@ -898,7 +922,7 @@ void Target_Curve_Editor::create_Argument_GroupBox()
 		QLabel* horizontal_Label = new QLabel;
 		interval_Layout->addWidget(horizontal_Label,0,1,1,1,Qt::AlignLeft);
 		QLabel* vertical_Label = new QLabel;
-		if(	target_Curve->target_Data_Type == target_Data_Types[GISAS])
+		if(	target_Curve->measurement.measurement_Type == measurement_Types[GISAS])
 		{
 			horizontal_Label->setText(Theta_Sym+" :");
 			vertical_Label->setText(Phi_Sym+" :");
@@ -909,16 +933,16 @@ void Target_Curve_Editor::create_Argument_GroupBox()
 			horizontal_From_Subinterval_SpinBox->setAccelerated(true);
 		if(target_Curve->loaded_And_Ready)
 		{
-			if(	target_Curve->target_Data_Type == target_Data_Types[Specular_Scan] ||
-				target_Curve->target_Data_Type == target_Data_Types[Detector_Scan] ||
-				target_Curve->target_Data_Type == target_Data_Types[Rocking_Curve] ||
-				target_Curve->target_Data_Type == target_Data_Types[Offset_Scan])
+			if(	target_Curve->measurement.measurement_Type == measurement_Types[Specular_Scan] ||
+				target_Curve->measurement.measurement_Type == measurement_Types[Detector_Scan] ||
+				target_Curve->measurement.measurement_Type == measurement_Types[Rocking_Curve] ||
+				target_Curve->measurement.measurement_Type == measurement_Types[Offset_Scan])
 			{
 				double min = *std::min_element(target_Curve->curve.shifted_Argument.begin(), target_Curve->curve.shifted_Argument.end());
 				double max = *std::max_element(target_Curve->curve.shifted_Argument.begin(), target_Curve->curve.shifted_Argument.end());
 				horizontal_From_Subinterval_SpinBox->setRange(min,max);
 			}
-			if(	target_Curve->target_Data_Type == target_Data_Types[GISAS])
+			if(	target_Curve->measurement.measurement_Type == measurement_Types[GISAS])
 			{
 				// TODO GISAS
 			}
@@ -927,14 +951,14 @@ void Target_Curve_Editor::create_Argument_GroupBox()
 			horizontal_From_Subinterval_SpinBox->setRange(-MAX_DOUBLE, MAX_DOUBLE);
 		}
 		horizontal_From_Subinterval_SpinBox->setDecimals(4);
-		horizontal_From_Subinterval_SpinBox->setValue(target_Curve->curve.subinterval_Start);
-		horizontal_From_Subinterval_SpinBox->setSingleStep((target_Curve->curve.subinterval_End-target_Curve->curve.subinterval_Start)/100.);
+		horizontal_From_Subinterval_SpinBox->setValue(target_Curve->curve.subinterval_Left);
+		horizontal_From_Subinterval_SpinBox->setSingleStep((target_Curve->curve.subinterval_Right-target_Curve->curve.subinterval_Left)/100.);
 		horizontal_From_Subinterval_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
 		interval_Layout->addWidget(horizontal_From_Subinterval_SpinBox,0,2,1,1,Qt::AlignLeft);
 		Global_Variables::resize_Line_Edit(horizontal_From_Subinterval_SpinBox);
 
 		MyDoubleSpinBox* vertical_From_Subinterval_SpinBox = new MyDoubleSpinBox;
-		if(	target_Curve->target_Data_Type == target_Data_Types[GISAS])
+		if(	target_Curve->measurement.measurement_Type == measurement_Types[GISAS])
 		{
 			vertical_From_Subinterval_SpinBox->setAccelerated(true);
 			if(target_Curve->loaded_And_Ready)
@@ -955,7 +979,7 @@ void Target_Curve_Editor::create_Argument_GroupBox()
 		QLabel* horizontal_And_Subinterval_Label = new QLabel("  and  ");
 		interval_Layout->addWidget(horizontal_And_Subinterval_Label,0,3,1,1,Qt::AlignLeft);
 		QLabel* vertical_And_Subinterval_Label = new QLabel;
-		if(	target_Curve->target_Data_Type == target_Data_Types[GISAS])
+		if(	target_Curve->measurement.measurement_Type == measurement_Types[GISAS])
 		{
 			vertical_And_Subinterval_Label ->setText("  and  ");
 			interval_Layout->addWidget(vertical_And_Subinterval_Label,1,3,1,1,Qt::AlignLeft);
@@ -965,16 +989,16 @@ void Target_Curve_Editor::create_Argument_GroupBox()
 			horizontal_To_Subinterval_SpinBox->setAccelerated(true);
 		if(target_Curve->loaded_And_Ready)
 		{
-			if(	target_Curve->target_Data_Type == target_Data_Types[Specular_Scan] ||
-				target_Curve->target_Data_Type == target_Data_Types[Detector_Scan] ||
-				target_Curve->target_Data_Type == target_Data_Types[Rocking_Curve] ||
-				target_Curve->target_Data_Type == target_Data_Types[Offset_Scan])
+			if(	target_Curve->measurement.measurement_Type == measurement_Types[Specular_Scan] ||
+				target_Curve->measurement.measurement_Type == measurement_Types[Detector_Scan] ||
+				target_Curve->measurement.measurement_Type == measurement_Types[Rocking_Curve] ||
+				target_Curve->measurement.measurement_Type == measurement_Types[Offset_Scan])
 			{
 				double min = *std::min_element(target_Curve->curve.shifted_Argument.begin(), target_Curve->curve.shifted_Argument.end());
 				double max = *std::max_element(target_Curve->curve.shifted_Argument.begin(), target_Curve->curve.shifted_Argument.end());
 				horizontal_To_Subinterval_SpinBox->setRange(min,max);
 			}
-			if(	target_Curve->target_Data_Type == target_Data_Types[GISAS])
+			if(	target_Curve->measurement.measurement_Type == measurement_Types[GISAS])
 			{
 				// TODO GISAS
 			}
@@ -983,14 +1007,14 @@ void Target_Curve_Editor::create_Argument_GroupBox()
 			horizontal_To_Subinterval_SpinBox->setRange(-MAX_DOUBLE, MAX_DOUBLE);
 		}
 		horizontal_To_Subinterval_SpinBox->setDecimals(4);
-		horizontal_To_Subinterval_SpinBox->setValue(target_Curve->curve.subinterval_End);
-		horizontal_To_Subinterval_SpinBox->setSingleStep((target_Curve->curve.subinterval_End-target_Curve->curve.subinterval_Start)/100.);
+		horizontal_To_Subinterval_SpinBox->setValue(target_Curve->curve.subinterval_Right);
+		horizontal_To_Subinterval_SpinBox->setSingleStep((target_Curve->curve.subinterval_Right-target_Curve->curve.subinterval_Left)/100.);
 		horizontal_To_Subinterval_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
 		interval_Layout->addWidget(horizontal_To_Subinterval_SpinBox,0,4,1,1,Qt::AlignLeft);
 		Global_Variables::resize_Line_Edit(horizontal_To_Subinterval_SpinBox);
 
 		MyDoubleSpinBox* vertical_To_Subinterval_SpinBox = new MyDoubleSpinBox;
-		if(	target_Curve->target_Data_Type == target_Data_Types[GISAS])
+		if(	target_Curve->measurement.measurement_Type == measurement_Types[GISAS])
 		{
 			vertical_To_Subinterval_SpinBox->setAccelerated(true);
 			if(target_Curve->loaded_And_Ready)
@@ -1021,15 +1045,15 @@ void Target_Curve_Editor::create_Argument_GroupBox()
 			horizontal_To_Subinterval_SpinBox	->setDisabled(!target_Curve->curve.use_Subinterval);
 			vertical_To_Subinterval_SpinBox		->setDisabled(!target_Curve->curve.use_Subinterval);
 
-			horizontal_From_Subinterval_SpinBox	->setMaximum(target_Curve->curve.subinterval_End);
-			horizontal_To_Subinterval_SpinBox	->setMinimum(target_Curve->curve.subinterval_Start);
+			horizontal_From_Subinterval_SpinBox	->setMaximum(target_Curve->curve.subinterval_Right);
+			horizontal_To_Subinterval_SpinBox	->setMinimum(target_Curve->curve.subinterval_Left);
 			vertical_From_Subinterval_SpinBox	->setMaximum(target_Curve->curve.subinterval_Top);
 			vertical_To_Subinterval_SpinBox		->setMinimum(target_Curve->curve.subinterval_Bottom);
 
 			// show/hide subinterval on plot
 			target_Curve_Plot->start_Rect->setVisible(target_Curve->curve.use_Subinterval);
 			target_Curve_Plot->end_Rect->setVisible(target_Curve->curve.use_Subinterval);
-			if( target_Curve->target_Data_Type == target_Data_Types[GISAS] )
+			if( target_Curve->measurement.measurement_Type == measurement_Types[GISAS] )
 			{
 				target_Curve_Plot->top_Rect->setVisible(target_Curve->curve.use_Subinterval);
 				target_Curve_Plot->bottom_Rect->setVisible(target_Curve->curve.use_Subinterval);
@@ -1040,8 +1064,8 @@ void Target_Curve_Editor::create_Argument_GroupBox()
 
 		connect(horizontal_From_Subinterval_SpinBox, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
 		{
-			target_Curve->curve.subinterval_Start = horizontal_From_Subinterval_SpinBox->value();
-			horizontal_To_Subinterval_SpinBox->setRange(target_Curve->curve.subinterval_Start,horizontal_To_Subinterval_SpinBox->maximum());
+			target_Curve->curve.subinterval_Left = horizontal_From_Subinterval_SpinBox->value();
+			horizontal_To_Subinterval_SpinBox->setRange(target_Curve->curve.subinterval_Left,horizontal_To_Subinterval_SpinBox->maximum());
 			target_Curve_Plot->subinterval_Changed_Replot();
 			Global_Variables::replot_All_Graphs();
 		});
@@ -1054,8 +1078,8 @@ void Target_Curve_Editor::create_Argument_GroupBox()
 		});
 		connect(horizontal_To_Subinterval_SpinBox, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
 		{
-			target_Curve->curve.subinterval_End = horizontal_To_Subinterval_SpinBox->value();
-			horizontal_From_Subinterval_SpinBox->setRange(horizontal_From_Subinterval_SpinBox->minimum(),target_Curve->curve.subinterval_End);
+			target_Curve->curve.subinterval_Right = horizontal_To_Subinterval_SpinBox->value();
+			horizontal_From_Subinterval_SpinBox->setRange(horizontal_From_Subinterval_SpinBox->minimum(),target_Curve->curve.subinterval_Right);
 			target_Curve_Plot->subinterval_Changed_Replot();
 			Global_Variables::replot_All_Graphs();
 		});
@@ -1073,32 +1097,32 @@ void Target_Curve_Editor::create_Argument_GroupBox()
 	{
 		argument_Type_ComboBox = new QComboBox;
 			argument_Type_ComboBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
-		if( target_Curve->target_Data_Type == target_Data_Types[Specular_Scan] ||
-			target_Curve->target_Data_Type == target_Data_Types[Offset_Scan] )
+		if( target_Curve->measurement.measurement_Type == measurement_Types[Specular_Scan] ||
+			target_Curve->measurement.measurement_Type == measurement_Types[Offset_Scan] )
 		{
-			argument_Type_ComboBox->addItem(argument_Types[Sample_Grazing_angle]);
+			argument_Type_ComboBox->addItem(argument_Types[Beam_Grazing_Angle]);
 			argument_Type_ComboBox->addItem(argument_Types[Wavelength_Energy]);
 			grid_1_Layout->addWidget(argument_Type_ComboBox,0,0,1,1,Qt::AlignLeft);
 		}
-		if( target_Curve->target_Data_Type == target_Data_Types[Detector_Scan] )
+		if( target_Curve->measurement.measurement_Type == measurement_Types[Detector_Scan] )
 		{
-			argument_Type_ComboBox->addItem(argument_Types[Detector_Angle]);
+			argument_Type_ComboBox->addItem(argument_Types[Detector_Polar_Angle]);
 			grid_1_Layout->addWidget(argument_Type_ComboBox,0,0,1,1,Qt::AlignLeft);
 		}
-		if( target_Curve->target_Data_Type == target_Data_Types[Rocking_Curve] )
+		if( target_Curve->measurement.measurement_Type == measurement_Types[Rocking_Curve] )
 		{
-			argument_Type_ComboBox->addItem(argument_Types[Sample_Grazing_angle]);
+			argument_Type_ComboBox->addItem(argument_Types[Beam_Grazing_Angle]);
 			grid_1_Layout->addWidget(argument_Type_ComboBox,0,0,1,1,Qt::AlignLeft);
 		}
-		if( target_Curve->target_Data_Type == target_Data_Types[GISAS] )
+		if( target_Curve->measurement.measurement_Type == measurement_Types[GISAS] )
 		{
-			argument_Type_ComboBox->addItem(argument_Types[Detector_Angle]);
+			argument_Type_ComboBox->addItem(argument_Types[Detector_Polar_Angle]);
 			grid_1_Layout->addWidget(argument_Type_ComboBox,0,0,1,1,Qt::AlignLeft);
 
 			// "vertical" argument
 			QComboBox* second_Argument_Type_ComboBox = new QComboBox;
 				second_Argument_Type_ComboBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
-			second_Argument_Type_ComboBox->addItem(argument_Types[Azimuthal_angle]);
+			second_Argument_Type_ComboBox->addItem(argument_Types[Detector_Azimuthal_Angle]);
 
 			second_Argument_Type_ComboBox->adjustSize();
 			argument_Type_ComboBox->adjustSize();
@@ -1110,7 +1134,7 @@ void Target_Curve_Editor::create_Argument_GroupBox()
 		argument_Units_ComboBox = new QComboBox;
 			argument_Units_ComboBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
 		grid_1_Layout->addWidget(argument_Units_ComboBox,0,1,1,1,Qt::AlignLeft);
-		if(	target_Curve->target_Data_Type == target_Data_Types[GISAS])
+		if(	target_Curve->measurement.measurement_Type == measurement_Types[GISAS])
 		{
 			grid_1_Layout->addWidget(argument_Units_ComboBox,0,1,2,1,Qt::AlignLeft);
 		}
@@ -1120,33 +1144,33 @@ void Target_Curve_Editor::create_Argument_GroupBox()
 	{
 		QLabel* horizontal_Arg_Offset_Label = new QLabel("   Scale shift");
 		grid_1_Layout->addWidget(horizontal_Arg_Offset_Label,0,2,1,1,Qt::AlignLeft);
-		if( target_Curve->target_Data_Type == target_Data_Types[GISAS] )
+		if( target_Curve->measurement.measurement_Type == measurement_Types[GISAS] )
 		{
 			QLabel* vertical_Arg_Offset_Label = new QLabel("   Scale shift");
 			grid_1_Layout->addWidget(vertical_Arg_Offset_Label,1,2,1,1,Qt::AlignLeft);
 		}
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 		double coeff = 1;
-		if(target_Curve->curve.argument_Type == whats_This_Beam_Theta_0_Angle)	  { coeff = angle_Coefficients_Map.value(target_Curve->curve.angular_Units); }
-		if(target_Curve->curve.argument_Type == whats_This_Wavelength){ coeff = 0.1/wavelength_Coefficients_Map.value(target_Curve->curve.spectral_Units); }
+		if(target_Curve->measurement.argument_Type == whats_This_Beam_Theta_0_Angle)	  { coeff = angle_Coefficients_Map.value(target_Curve->curve.angular_Units); }
+		if(target_Curve->measurement.argument_Type == whats_This_Wavelength){ coeff = 0.1/wavelength_Coefficients_Map.value(target_Curve->curve.spectral_Units); }
 
 		MyDoubleSpinBox* horizontal_Arg_Offset_SpinBox = new MyDoubleSpinBox;
 			horizontal_Arg_Offset_SpinBox->setAccelerated(true);
 			horizontal_Arg_Offset_SpinBox->setRange(-100000, MAX_DOUBLE);
 			horizontal_Arg_Offset_SpinBox->setDecimals(4);
-			horizontal_Arg_Offset_SpinBox->setValue(target_Curve->curve.horizontal_Arg_Offset);
+			horizontal_Arg_Offset_SpinBox->setValue(target_Curve->curve.horizontal_Arg_Shift);
 			horizontal_Arg_Offset_SpinBox->setSingleStep(0.001/coeff);
 			horizontal_Arg_Offset_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
 		grid_1_Layout->addWidget(horizontal_Arg_Offset_SpinBox,0,3,1,1,Qt::AlignLeft);
 		Global_Variables::resize_Line_Edit(horizontal_Arg_Offset_SpinBox);
 
 		MyDoubleSpinBox* vertical_Arg_Offset_SpinBox = new MyDoubleSpinBox;
-		if(	target_Curve->target_Data_Type == target_Data_Types[GISAS] )
+		if(	target_Curve->measurement.measurement_Type == measurement_Types[GISAS] )
 		{
 				vertical_Arg_Offset_SpinBox->setAccelerated(true);
 				vertical_Arg_Offset_SpinBox->setRange(-100000, MAX_DOUBLE);
 				vertical_Arg_Offset_SpinBox->setDecimals(4);
-				vertical_Arg_Offset_SpinBox->setValue(target_Curve->curve.vertical_Arg_Offset);
+				vertical_Arg_Offset_SpinBox->setValue(target_Curve->curve.vertical_Arg_Shift);
 				vertical_Arg_Offset_SpinBox->setSingleStep(0.001/coeff);
 				vertical_Arg_Offset_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
 			grid_1_Layout->addWidget(vertical_Arg_Offset_SpinBox,1,3,1,1,Qt::AlignLeft);
@@ -1155,7 +1179,7 @@ void Target_Curve_Editor::create_Argument_GroupBox()
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 		QLabel* horizontal_Arg_Factor_Label = new QLabel("   Scale factor");
 		grid_1_Layout->addWidget(horizontal_Arg_Factor_Label,0,4,1,1,Qt::AlignLeft);
-		if( target_Curve->target_Data_Type == target_Data_Types[GISAS] )
+		if( target_Curve->measurement.measurement_Type == measurement_Types[GISAS] )
 		{
 			QLabel* vertical_Arg_Factor_Label = new QLabel("   Scale factor");
 			grid_1_Layout->addWidget(vertical_Arg_Factor_Label,1,4,1,1,Qt::AlignLeft);
@@ -1172,7 +1196,7 @@ void Target_Curve_Editor::create_Argument_GroupBox()
 		Global_Variables::resize_Line_Edit(horizontal_Arg_Factor_SpinBox);
 
 		MyDoubleSpinBox* vertical_Arg_Factor_SpinBox = new MyDoubleSpinBox;
-		if(	target_Curve->target_Data_Type == target_Data_Types[GISAS] )
+		if(	target_Curve->measurement.measurement_Type == measurement_Types[GISAS] )
 		{
 			vertical_Arg_Factor_SpinBox->setAccelerated(true);
 			vertical_Arg_Factor_SpinBox->setRange(0, MAX_DOUBLE);
@@ -1281,7 +1305,7 @@ void Target_Curve_Editor::create_Beam_GroupBox()
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 		QLabel* phi_Angular_Units_Label = new QLabel("<ang unit>");
 
-		if(	target_Curve->target_Data_Type == target_Data_Types[GISAS] )
+		if(	target_Curve->measurement.measurement_Type == measurement_Types[GISAS] )
 		{
 			beam_GroupBox_Layout->addWidget(phi_Resolution_Label,3,0,Qt::AlignLeft);
 			beam_GroupBox_Layout->addWidget(phi_Resolution_SpinBox,3,1,Qt::AlignLeft);
@@ -1294,7 +1318,7 @@ void Target_Curve_Editor::create_Beam_GroupBox()
 		QGroupBox* setup_GroupBox = new QGroupBox;
 		setup_GroupBox->setContentsMargins(0,0,0,0);
 		QGridLayout* setup_GroupBox_Layout = new QGridLayout(setup_GroupBox);
-		beam_GroupBox_Layout->addWidget(setup_GroupBox, 1,3,2+int(target_Curve->target_Data_Type == target_Data_Types[GISAS]),2);
+		beam_GroupBox_Layout->addWidget(setup_GroupBox, 1,3,2+int(target_Curve->measurement.measurement_Type == measurement_Types[GISAS]),2);
 
 		QRadioButton* interpolation_RadioButton = new QRadioButton("Interpolation (fast)");
 		setup_GroupBox_Layout->addWidget(interpolation_RadioButton,0,0,1,1,Qt::AlignLeft);
@@ -1473,14 +1497,14 @@ void Target_Curve_Editor::create_Detector_GroupBox()
 	background_Layout->addWidget(background_SpinBox,0,Qt::AlignLeft);
 
 	// choose one page
-	if(	target_Curve->target_Data_Type == target_Data_Types[Specular_Scan] ||
-		target_Curve->target_Data_Type == target_Data_Types[Offset_Scan]   ||
-		target_Curve->target_Data_Type == target_Data_Types[Detector_Scan] ||
-		target_Curve->target_Data_Type == target_Data_Types[Rocking_Curve] )
+	if(	target_Curve->measurement.measurement_Type == measurement_Types[Specular_Scan] ||
+		target_Curve->measurement.measurement_Type == measurement_Types[Offset_Scan]   ||
+		target_Curve->measurement.measurement_Type == measurement_Types[Detector_Scan] ||
+		target_Curve->measurement.measurement_Type == measurement_Types[Rocking_Curve] )
 	{
 		detectors_Stack->setCurrentIndex(0);
 	}
-	if(	target_Curve->target_Data_Type == target_Data_Types[GISAS] )
+	if(	target_Curve->measurement.measurement_Type == measurement_Types[GISAS] )
 	{
 		detectors_Stack->setCurrentIndex(1);
 	}
@@ -1637,8 +1661,8 @@ void Target_Curve_Editor::reset_Subinterval()
 		from_Subinterval_SpinBox->setRange(-MAX_DOUBLE, MAX_DOUBLE);
 		to_Subinterval_SpinBox->setRange(-MAX_DOUBLE, MAX_DOUBLE);
 
-		from_Subinterval_SpinBox->setValue(target_Curve->curve.subinterval_Start);
-		to_Subinterval_SpinBox->setValue(target_Curve->curve.subinterval_End);
+		from_Subinterval_SpinBox->setValue(target_Curve->curve.subinterval_Left);
+		to_Subinterval_SpinBox->setValue(target_Curve->curve.subinterval_Right);
 	}
 }
 
@@ -1735,11 +1759,11 @@ void Target_Curve_Editor::show_Curve_Data()
 {
 	// argument type
 	{
-		if(target_Curve->curve.argument_Type == whats_This_Beam_Theta_0_Angle)
+		if(target_Curve->measurement.argument_Type == whats_This_Beam_Theta_0_Angle)
 		{
-			arg_Type_ComboBox->setCurrentIndex(arg_Type_ComboBox->findText(argument_Types[Sample_Grazing_angle]));		// Grazing angle
+			arg_Type_ComboBox->setCurrentIndex(arg_Type_ComboBox->findText(argument_Types[Beam_Grazing_Angle]));		// Grazing angle
 		} else
-		if(target_Curve->curve.argument_Type == whats_This_Wavelength)
+		if(target_Curve->measurement.argument_Type == whats_This_Wavelength)
 		{
 			arg_Type_ComboBox->setCurrentIndex(arg_Type_ComboBox->findText(argument_Types[Wavelength_Energy]));	// Wavelength/energy
 		}
@@ -1747,21 +1771,21 @@ void Target_Curve_Editor::show_Curve_Data()
 
 	// value type
 	{
-		val_Function_ComboBox->setCurrentIndex(val_Function_ComboBox->findText(target_Curve->curve.value_Function));
+		val_Function_ComboBox->setCurrentIndex(val_Function_ComboBox->findText(target_Curve->curve.value_Type));
 	}
 
 	// argument units
 	{
-		if(target_Curve->curve.argument_Type == whats_This_Beam_Theta_0_Angle)
+		if(target_Curve->measurement.argument_Type == whats_This_Beam_Theta_0_Angle)
 			argument_Units_ComboBox->setCurrentIndex(argument_Units_ComboBox->findText(target_Curve->curve.angular_Units));
-		if(target_Curve->curve.argument_Type == whats_This_Wavelength)
+		if(target_Curve->measurement.argument_Type == whats_This_Wavelength)
 			argument_Units_ComboBox->setCurrentIndex(argument_Units_ComboBox->findText(target_Curve->curve.spectral_Units));
 	}
 
 	// offsets
 	{
-		arg_Offset_SpinBox->setValue(target_Curve->curve.horizontal_Arg_Offset); Global_Variables::resize_Line_Edit(arg_Offset_SpinBox, false);
-		val_Offset_SpinBox->setValue(target_Curve->curve.val_Offset); Global_Variables::resize_Line_Edit(val_Offset_SpinBox, false);
+		arg_Offset_SpinBox->setValue(target_Curve->curve.horizontal_Arg_Shift); Global_Variables::resize_Line_Edit(arg_Offset_SpinBox, false);
+		val_Offset_SpinBox->setValue(target_Curve->curve.val_Shift); Global_Variables::resize_Line_Edit(val_Offset_SpinBox, false);
 	}
 
 	// scale factors
@@ -1805,12 +1829,12 @@ void Target_Curve_Editor::show_Measurement_Data()
 void Target_Curve_Editor::show_Unit_Dependent_Data()
 {
 	// at fixed value
-	if(target_Curve->curve.argument_Type == whats_This_Beam_Theta_0_Angle)
+	if(target_Curve->measurement.argument_Type == whats_This_Beam_Theta_0_Angle)
 	{
 		double coeff = wavelength_Coefficients_Map.value(target_Curve->curve.spectral_Units);		// spectral units
 		at_Fixed_LineEdit->setText(Locale.toString(Global_Variables::wavelength_Energy(target_Curve->curve.spectral_Units,target_Curve->measurement.wavelength.value)/coeff, line_edit_double_format, line_edit_wavelength_precision));
 	}
-	if(target_Curve->curve.argument_Type == whats_This_Wavelength)
+	if(target_Curve->measurement.argument_Type == whats_This_Wavelength)
 	{
 		double coeff = angle_Coefficients_Map.value(target_Curve->curve.angular_Units);				// angular units
 		at_Fixed_LineEdit->setText(Locale.toString(target_Curve->measurement.beam_Theta_0_Angle.value/coeff, line_edit_double_format, line_edit_angle_precision));
@@ -1826,7 +1850,7 @@ void Target_Curve_Editor::show_Angular_Resolution()
 	angular_Resolution_SpinBox->setValue(target_Curve->measurement.beam_Theta_0_Distribution.FWHM_distribution/coeff);
 	angular_Resolution_SpinBox->setSingleStep(0.001/coeff);
 
-	if(target_Curve->curve.argument_Type == whats_This_Wavelength)
+	if(target_Curve->measurement.argument_Type == whats_This_Wavelength)
 	{
 		coeff = wavelength_Coefficients_Map.value(target_Curve->curve.spectral_Units);
 		arg_Offset_SpinBox->setSingleStep(0.01/coeff);
@@ -1855,9 +1879,9 @@ void Target_Curve_Editor::refresh_Filepath(QString filepath)
 
 void Target_Curve_Editor::refresh_Argument_Type()
 {
-	if(arg_Type_ComboBox->currentText() == argument_Types[Sample_Grazing_angle])	// Grazing angle
+	if(arg_Type_ComboBox->currentText() == argument_Types[Beam_Grazing_Angle])	// Grazing angle
 	{
-		target_Curve->curve.argument_Type = whats_This_Beam_Theta_0_Angle;
+		target_Curve->measurement.argument_Type = whats_This_Beam_Theta_0_Angle;
 
 		if(target_Curve->fit_Params.maximize_Integral)
 		{
@@ -1872,7 +1896,7 @@ void Target_Curve_Editor::refresh_Argument_Type()
 	} else
 	if(arg_Type_ComboBox->currentText() == argument_Types[Wavelength_Energy])	// Wavelength/energy
 	{
-		target_Curve->curve.argument_Type = whats_This_Wavelength;
+		target_Curve->measurement.argument_Type = whats_This_Wavelength;
 	}
 	target_Curve->fill_Measurement_With_Data();
 	target_Curve->show_Description_Label();
@@ -1882,14 +1906,14 @@ void Target_Curve_Editor::refresh_Argument_Type()
 
 void Target_Curve_Editor::refresh_Value_Type()
 {
-	target_Curve->curve.value_Function = val_Function_ComboBox->currentText();
+	target_Curve->curve.value_Type = val_Function_ComboBox->currentText();
 	target_Curve->show_Description_Label();
 	target_Curve_Plot->refresh_Labels();
 }
 
 void Target_Curve_Editor::refresh_Argument_Units()
 {
-	if(arg_Type_ComboBox->currentText() == argument_Types[Sample_Grazing_angle])	// angle
+	if(arg_Type_ComboBox->currentText() == argument_Types[Beam_Grazing_Angle])	// angle
 	{
 		target_Curve->curve.angular_Units = argument_Units_ComboBox->currentText();
 	}
@@ -1910,7 +1934,7 @@ void Target_Curve_Editor::refresh_Value_Mode()
 void Target_Curve_Editor::refresh_At_Fixed_Value()
 {
 	QString local_Unit = at_Fixed_Units_ComboBox->currentText();
-	if(argument_Type_ComboBox->currentText() == argument_Types[Sample_Grazing_angle])	// angle
+	if(argument_Type_ComboBox->currentText() == argument_Types[Beam_Grazing_Angle])	// angle
 	{
 		double coeff = wavelength_Coefficients_Map.value(local_Unit);		// spectral units
 		target_Curve->measurement.wavelength.value = Global_Variables::wavelength_Energy(local_Unit, Locale.toDouble(at_Fixed_LineEdit->text())*coeff);
@@ -1933,9 +1957,9 @@ void Target_Curve_Editor::refresh_At_Fixed_Value()
 
 void Target_Curve_Editor::refresh_At_Fixed_Units()
 {
-	if( argument_Type_ComboBox->currentText() == argument_Types[Sample_Grazing_angle] ||
-		argument_Type_ComboBox->currentText() == argument_Types[Detector_Angle] ||
-		argument_Type_ComboBox->currentText() == argument_Types[Azimuthal_angle] )	// angle
+	if( argument_Type_ComboBox->currentText() == argument_Types[Beam_Grazing_Angle] ||
+		argument_Type_ComboBox->currentText() == argument_Types[Detector_Polar_Angle] ||
+		argument_Type_ComboBox->currentText() == argument_Types[Detector_Azimuthal_Angle] )	// angle
 	{
 		target_Curve->curve.spectral_Units = at_Fixed_Units_ComboBox->currentText();
 	}
@@ -1949,8 +1973,8 @@ void Target_Curve_Editor::refresh_At_Fixed_Units()
 
 void Target_Curve_Editor::refresh_Offsets()
 {
-	target_Curve->curve.horizontal_Arg_Offset = arg_Offset_SpinBox->value();
-	target_Curve->curve.val_Offset = val_Offset_SpinBox->value();
+	target_Curve->curve.horizontal_Arg_Shift = arg_Offset_SpinBox->value();
+	target_Curve->curve.val_Shift = val_Offset_SpinBox->value();
 	target_Curve->fill_Measurement_With_Data();
 	target_Curve->show_Description_Label();
 	target_Curve_Plot->plot_Data(true);

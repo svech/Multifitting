@@ -5,7 +5,12 @@
 #include "multilayer_approach/multilayer/target_curve/target_curve.h"
 #include "multilayer_approach/multilayer/multilayer.h"
 #include "target_curve_plot.h"
-#include "distribution_editor.h"
+
+#include "target_data_types/specular_target_curve_part.h"
+#include "target_data_types/detector_target_curve_part.h"
+#include "target_data_types/rocking_target_curve_part.h"
+#include "target_data_types/offset_target_curve_part.h"
+#include "target_data_types/gisas_target_curve_part.h"
 
 class MyDoubleSpinBox;
 class Target_Curve_Editor : public QDialog
