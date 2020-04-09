@@ -19,7 +19,7 @@ void Target_Curve_Plot::create_Main_Layout()
 void Target_Curve_Plot::create_Plot()
 {
 	custom_Plot = new QCustomPlot;
-	custom_Plot->setMinimumHeight(300);
+		custom_Plot->setMinimumHeight(300);
 	main_layout->addWidget(custom_Plot);
 
 	if( target_Curve->measurement.measurement_Type == measurement_Types[Specular_Scan] ||
@@ -46,7 +46,7 @@ void Target_Curve_Plot::create_Plot_Frame_And_Scale_1D()
 	// frame, axes
 
 	QPen pen = custom_Plot->yAxis->grid()->pen();
-	pen.setStyle(Qt::DashLine);
+		pen.setStyle(Qt::DashLine);
 	custom_Plot->yAxis->grid()->setSubGridVisible(true);
 	custom_Plot->xAxis->grid()->setSubGridVisible(true);
 	custom_Plot->yAxis->grid()->setPen(pen);
@@ -134,6 +134,10 @@ void Target_Curve_Plot::subinterval_Changed_Replot()
 	end_Rect->topLeft->setCoords(target_Curve->curve.subinterval_Right,custom_Plot->yAxis->range().upper);
 	end_Rect->bottomRight->setCoords(custom_Plot->xAxis->range().upper, custom_Plot->yAxis->range().lower);
 
+	// show/hide
+	start_Rect->setVisible(target_Curve->curve.use_Subinterval);
+	end_Rect->setVisible(target_Curve->curve.use_Subinterval);
+
 	if( target_Curve->measurement.measurement_Type == measurement_Types[GISAS] )
 	{
 		top_Rect->topLeft->setCoords(target_Curve->curve.subinterval_Left, custom_Plot->yAxis->range().upper);
@@ -141,6 +145,10 @@ void Target_Curve_Plot::subinterval_Changed_Replot()
 
 		bottom_Rect->topLeft->setCoords(target_Curve->curve.subinterval_Left, target_Curve->curve.subinterval_Bottom);
 		bottom_Rect->bottomRight->setCoords(target_Curve->curve.subinterval_Right, custom_Plot->yAxis->range().lower);
+
+		// show/hide
+		top_Rect->setVisible(target_Curve->curve.use_Subinterval);
+		bottom_Rect->setVisible(target_Curve->curve.use_Subinterval);
 	}
 
 	custom_Plot->replot();
@@ -161,7 +169,7 @@ void Target_Curve_Plot::plot_Data(bool fast)
 		{
 			// TODO GISAS
 	//		color_Map = new QCPColorMap()
-			create_Plot_Frame_And_Scale_1D();
+//			create_Plot_Frame_And_Scale_2D();
 		}
 	}
 
@@ -181,8 +189,8 @@ void Target_Curve_Plot::plot_Data(bool fast)
 				double max = 0;
 				for (int i=0; i<data_Count; ++i)
 				{
-					data_To_Plot[i].key = target_Curve->curve.shifted_Argument[i];
-					data_To_Plot[i].value = target_Curve->curve.shifted_Values[i];
+					data_To_Plot[i].key   = target_Curve->curve.shifted_Argument[i];
+					data_To_Plot[i].value = target_Curve->curve.shifted_Values  [i];
 
 					if(max<data_To_Plot[i].value && (target_Curve->plot_Options_Experimental.y_Scale == lin_Scale || data_To_Plot[i].value > DBL_MIN)) {max=data_To_Plot[i].value;}
 					if(min>data_To_Plot[i].value && (target_Curve->plot_Options_Experimental.y_Scale == lin_Scale || data_To_Plot[i].value > DBL_MIN)) {min=data_To_Plot[i].value;}
@@ -195,18 +203,16 @@ void Target_Curve_Plot::plot_Data(bool fast)
 						custom_Plot->clearGraphs();
 						custom_Plot->addGraph();
 					}
-					custom_Plot->graph(0)->setPen(QPen(target_Curve->plot_Options_Experimental.color,target_Curve->plot_Options_Experimental.thickness));
-	//				custom_Plot->graph(0)->setBrush(QBrush(target_Curve->plot_Options.color));
+					custom_Plot->graph()->setPen(QPen(target_Curve->plot_Options_Experimental.color,target_Curve->plot_Options_Experimental.thickness));
 					QCPScatterStyle scatter_Style;
 					scatter_Style.setShape(QCPScatterStyle::ScatterShape(target_Curve->plot_Options_Experimental.scatter_Shape));
 					scatter_Style.setSize(target_Curve->plot_Options_Experimental.scatter_Size);
-					custom_Plot->graph(0)->setScatterStyle(scatter_Style);
+					custom_Plot->graph()->setScatterStyle(scatter_Style);
 				}
 
-				custom_Plot->graph(0)->data()->set(data_To_Plot);
+				custom_Plot->graph()->data()->set(data_To_Plot);
 				custom_Plot->xAxis->setRange(target_Curve->curve.shifted_Argument[0], target_Curve->curve.shifted_Argument[data_Count-1]);
 				custom_Plot->yAxis->setRange(min,max);
-	//			custom_Plot->yAxis2->setTickLabels(false);
 			}
 		}
 		if( target_Curve->measurement.measurement_Type == measurement_Types[GISAS] )
@@ -228,17 +234,19 @@ void Target_Curve_Plot::create_Plot_Options_GroupBox()
 {
 	QGroupBox* plot_Options_GroupBox = new QGroupBox("Plot options");
 		main_layout->addWidget(plot_Options_GroupBox);
-#ifdef __linux__
-		plot_Options_GroupBox->setStyleSheet("QGroupBox{ border-radius: 2px;  border: 1px solid silver; margin-top: 2ex;}"
-											 "QGroupBox::title   { subcontrol-origin: margin;   top: 6px; left: 9px; padding: 0 0px 0 1px;}");
-#endif
 	QVBoxLayout* plot_Options_GroupBox_Layout = new QVBoxLayout(plot_Options_GroupBox);
+		plot_Options_GroupBox_Layout->setAlignment(Qt::AlignLeft);
 
-	// first row
 	{
+		QHBoxLayout* radio_Button_Layout = new QHBoxLayout;
+			radio_Button_Layout->setAlignment(Qt::AlignLeft);
+		plot_Options_GroupBox_Layout->addLayout(radio_Button_Layout);
+
 		QLabel* scale_Label = new QLabel("Scale: ");
+		radio_Button_Layout->addWidget(scale_Label);
 
 		QRadioButton* lin_Radio_Button = new QRadioButton("Lin");
+		radio_Button_Layout->addWidget(lin_Radio_Button);
 		connect(lin_Radio_Button, &QRadioButton::toggled, this, [=]
 		{
 			if(lin_Radio_Button->isChecked())
@@ -257,6 +265,7 @@ void Target_Curve_Plot::create_Plot_Options_GroupBox()
 		}
 
 		QRadioButton* log_Radio_Button = new QRadioButton("Log");
+		radio_Button_Layout->addWidget(log_Radio_Button);
 		connect(log_Radio_Button, &QRadioButton::toggled, this, [=]
 		{
 			if(log_Radio_Button->isChecked())
@@ -273,66 +282,23 @@ void Target_Curve_Plot::create_Plot_Options_GroupBox()
 			log_Radio_Button->setChecked(true);
 			log_Radio_Button->toggled(true);
 		}
-
-		QHBoxLayout* radio_Button_Layout = new QHBoxLayout;
-		radio_Button_Layout->setAlignment(Qt::AlignLeft);
-		radio_Button_Layout->addWidget(scale_Label);
-		radio_Button_Layout->addWidget(lin_Radio_Button);
-		radio_Button_Layout->addWidget(log_Radio_Button);
-
-		plot_Options_GroupBox_Layout->addLayout(radio_Button_Layout);
 	}
-
 	plot_Options_GroupBox->adjustSize();
 	plot_Options_GroupBox->setFixedHeight(plot_Options_GroupBox->height());
 }
 
 void Target_Curve_Plot::refresh_Labels()
 {
-	// value
-	{
-		if( target_Curve->measurement.measurement_Type == measurement_Types[Specular_Scan] ) {val_Type_Label = target_Curve->curve.value_Type;}
-//		if( target_Curve->measurement.measurement_Type == target_Data_Types[Detector_Scan] ) {val_Type_Label = target_Curve->curve.value_Type;}
-	}
-
 	// argument
-	{
-		if(target_Curve->measurement.argument_Type == whats_This_Beam_Theta_0_Angle)
-		{
-			argument_Type_Label = argument_Types[Beam_Grazing_Angle];
+	custom_Plot->xAxis->setLabel(argument_Type_Text + argument_Sym_Text + ", " + argument_Units_Text);
+	// value
+	custom_Plot->yAxis->setLabel(value_Type_Text);
 
-			argument_Label = argument_Type_Label + " " + Theta_Sym + ", " + target_Curve->curve.angular_Units;
-		}
-		if(target_Curve->measurement.argument_Type == whats_This_Wavelength)
-		{
-			if(	target_Curve->curve.spectral_Units == wavelength_Units_List[angstrom] ||
-				target_Curve->curve.spectral_Units == wavelength_Units_List[nm]		  ||
-				target_Curve->curve.spectral_Units == wavelength_Units_List[mcm]	   )
-			{
-				argument_Type_Label = QString(argument_Types[Wavelength_Energy]).split("/").first();
-				argument_Label = argument_Type_Label + " " + Lambda_Sym + ", " + target_Curve->curve.spectral_Units;
-			} else
-			{
-				argument_Type_Label = QString(argument_Types[Wavelength_Energy]).split("/").last();
-				argument_Label = argument_Type_Label + " E, " + target_Curve->curve.spectral_Units;
-			}
-		}
-	}
-
-	// plot
-	{
-		// argument
-		custom_Plot->xAxis->setLabel(argument_Label);
-
-		// value
-		custom_Plot->yAxis->setLabel(val_Type_Label);
-
-		custom_Plot->yAxis2->setLabel("");
-		custom_Plot->yAxis2->setLabelColor(Qt::black);
-		custom_Plot->yAxis2->setTickLabelColor(Qt::black);
-		custom_Plot->yAxis->setLabelColor(Qt::black);
-		custom_Plot->yAxis->setTickLabelColor(Qt::black);
-	}
+	custom_Plot->yAxis2->setLabel("");
+	custom_Plot->yAxis2->setLabelColor(Qt::black);
+	custom_Plot->yAxis2->setTickLabelColor(Qt::black);
+	custom_Plot->yAxis->setLabelColor(Qt::black);
+	custom_Plot->yAxis->setTickLabelColor(Qt::black);
 
 	custom_Plot->replot();
 }

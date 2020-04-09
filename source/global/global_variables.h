@@ -190,11 +190,12 @@ enum SO_Methods_Enum	{	/* Mesh Iteration. */
 
 // units
 extern QStringList wavelength_Units_List;	extern QMap<QString, double> wavelength_Coefficients_Map;
-enum wavelength_Units_List_Enum		{ angstrom, nm, mcm, eV, keV };
+enum wavelength_Units_List_Enum		{ angstrom, nm, eV, keV }; // mcm
 
 extern QStringList length_Units_List;		extern QMap<QString, double> length_Coefficients_Map;
+
 extern QStringList angle_Units_List;		extern QMap<QString, double> angle_Coefficients_Map;		extern QMap<QString, QString> angle_Units_Legend_Map;
-enum angle_Units_List_Enum {degree, minute, second, radian, mrad};
+enum angle_Units_List_Enum {degree, minute, second, mrad}; // radian
 
 extern QStringList density_Units_List;
 extern QStringList opt_Const_Units_List;
@@ -284,7 +285,7 @@ public:
 	static double get_Order_Of_Magnitude(double number);
 
 	template <typename Type>
-	static void resize_Line_Edit(Type* input_Line_Edit, bool adjust_Window = true);
+	static void resize_Line_Edit(Type* input_Line_Edit, bool adjust_Window = false);
 	static void change_Parent_Period_Gamma_Thickness(QTreeWidgetItem *current_Item);
 	static void plot_All_Data_in_Graphs();
 	static void plot_All_Data_in_Profiles();

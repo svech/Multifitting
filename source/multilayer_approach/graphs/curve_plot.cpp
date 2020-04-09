@@ -530,8 +530,7 @@ void Curve_Plot::set_Title_Text()
 			double coeff = wavelength_Coefficients_Map.value(*spectral_Units);
 
 			if(	*spectral_Units == wavelength_Units_List[angstrom] ||
-				*spectral_Units == wavelength_Units_List[nm]	   ||
-				*spectral_Units == wavelength_Units_List[mcm]	   )
+				*spectral_Units == wavelength_Units_List[nm]	  )
 			{
 				fixed_Quantity = Lambda_Sym;
 			} else
@@ -746,8 +745,7 @@ void Curve_Plot::refresh_Labels()
 		if(*argument_Type == whats_This_Wavelength)
 		{
 			if(	*spectral_Units == wavelength_Units_List[angstrom] ||
-				*spectral_Units == wavelength_Units_List[nm]	   ||
-				*spectral_Units == wavelength_Units_List[mcm]	   )
+				*spectral_Units == wavelength_Units_List[nm]	   )
 			{
 				argument_Type_Label = QString(argument_Types[Wavelength_Energy]).split("/").first();
 				argument_Label = argument_Type_Label + " " + Lambda_Sym + ", " + spectral_Units;

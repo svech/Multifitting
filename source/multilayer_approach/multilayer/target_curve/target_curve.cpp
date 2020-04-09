@@ -103,7 +103,7 @@ Target_Curve::~Target_Curve()
 {
 }
 
-void Target_Curve::import_Data(QString bare_Filename)
+void Target_Curve::import_Data_From_File(QString bare_Filename)
 {
 	QFileInfo filename = bare_Filename;
 
@@ -127,7 +127,10 @@ void Target_Curve::import_Data(QString bare_Filename)
 		QMessageBox::information(this, "Target_Curve::import_Data", "Can't read file filename \"" + filename.fileName() + "\"");
 		return;
 	}
+}
 
+void Target_Curve::parse_Data_From_List()
+{
 	if( measurement.measurement_Type == measurement_Types[Specular_Scan] ||
 		measurement.measurement_Type == measurement_Types[Detector_Scan] ||
 		measurement.measurement_Type == measurement_Types[Rocking_Curve] ||
@@ -163,8 +166,8 @@ void Target_Curve::parse_1D_Data()
 		{
 			bool ok_To_Double = false;
 
-			double temp_Argument = QString(potentional_Numbers.first()).replace(",", ".").toDouble(&ok_To_Double); // dots and commas are considered as dots
-			double temp_Value    = QString(potentional_Numbers.last() ).replace(",", ".").toDouble(&ok_To_Double); // dots and commas are considered as dots
+			double temp_Argument = QString(potentional_Numbers[0]).replace(",", ".").toDouble(&ok_To_Double); // dots and commas are considered as dots
+			double temp_Value    = QString(potentional_Numbers[1]).replace(",", ".").toDouble(&ok_To_Double); // dots and commas are considered as dots
 
 			if(!ok_To_Double) goto skip_line_label;
 
@@ -204,12 +207,26 @@ void Target_Curve::parse_2D_Data()
 	qInfo() << "Target_Curve::parse_2D_Data() not implemented" << endl;
 }
 
-void Target_Curve::fill_Measurement_With_Data()
+void Target_Curve::fill_Measurement_And_Curve_With_Shifted_Data()
+{
+	if( measurement.measurement_Type == measurement_Types[Specular_Scan] ||
+		measurement.measurement_Type == measurement_Types[Detector_Scan] ||
+		measurement.measurement_Type == measurement_Types[Rocking_Curve] ||
+		measurement.measurement_Type == measurement_Types[Offset_Scan] )
+	{
+		fill_Measurement_And_Curve_With_Shifted_1D_Data();
+	}
+	if(	measurement.measurement_Type == measurement_Types[GISAS] )
+	{
+		fill_Measurement_And_Curve_With_Shifted_2D_Data();
+	}
+}
+
+void Target_Curve::fill_Measurement_And_Curve_With_Shifted_1D_Data()
 {
 	if(loaded_And_Ready)
 	{
-		// argument shift
-		// shift has the same units as data
+		// shifted data filling. shift has the same units as main data
 		curve.shifted_Argument.resize(curve.argument.size());
 		curve.shifted_Values.resize(curve.argument.size());
 		curve.shifted_Values_No_Scaling_And_Offset.resize(curve.argument.size());
@@ -217,20 +234,22 @@ void Target_Curve::fill_Measurement_With_Data()
 		vector<double> intensity_Factor(curve.argument.size(),1);
 		double delta = (curve.beam_Intensity_Final - curve.beam_Intensity_Initial)/max(curve.argument.size()-1,1);
 		if(curve.divide_On_Beam_Intensity)
-		for(int i=0; i<curve.argument.size(); ++i)
 		{
-			intensity_Factor[i] = curve.beam_Intensity_Initial + i*delta;
+			for(int i=0; i<curve.argument.size(); ++i)
+			{
+				intensity_Factor[i] = curve.beam_Intensity_Initial + i*delta;
+			}
 		}
 
 		for(int i=0; i<curve.argument.size(); ++i)
 		{
-			curve.shifted_Argument[i] = curve.argument[i]                   * curve.horizontal_Arg_Factor      +curve.horizontal_Arg_Shift;
-			curve.shifted_Values  [i] = curve.values[i]/intensity_Factor[i] * curve.val_Factor.value+curve.val_Shift;
+			curve.shifted_Argument[i] = curve.argument[i]                     * curve.horizontal_Arg_Factor + curve.horizontal_Arg_Shift;
+			curve.shifted_Values  [i] = curve.values  [i]/intensity_Factor[i] * curve.val_Factor.value      + curve.val_Shift;
 			curve.shifted_Values_No_Scaling_And_Offset[i] = curve.values[i]/intensity_Factor[i];
 		}
 
 		// measurement filling
-		if(measurement.argument_Type == whats_This_Beam_Theta_0_Angle)			// angular
+		if(measurement.argument_Type == argument_Types[Beam_Grazing_Angle])
 		{
 			double coeff = angle_Coefficients_Map.value(curve.angular_Units);
 			measurement.beam_Theta_0_Angle_Vec.resize(curve.shifted_Argument.size());
@@ -238,59 +257,35 @@ void Target_Curve::fill_Measurement_With_Data()
 			{
 				measurement.beam_Theta_0_Angle_Vec[i] = curve.shifted_Argument[i]*coeff;
 			}
-		} else
-		if(measurement.argument_Type == whats_This_Wavelength)	// spectral
+		}
+		if(measurement.argument_Type == argument_Types[Wavelength_Energy])
 		{
 			double coeff = wavelength_Coefficients_Map.value(curve.spectral_Units);
 			measurement.lambda_Vec.resize(curve.shifted_Argument.size());
 			for(int i=0; i<curve.shifted_Argument.size(); ++i)
 			{
-				measurement.lambda_Vec[i] = Global_Variables::wavelength_Energy(curve.spectral_Units,curve.shifted_Argument[i]*coeff);
+				measurement.lambda_Vec[i] = Global_Variables::wavelength_Energy(curve.spectral_Units, curve.shifted_Argument[i]*coeff);
 			}
-		} else
-		{
-			QMessageBox::critical(nullptr, "Target_Curve::fill_Measurement_With_Data", "wrong curve.argument_Type="+measurement.argument_Type);
-			return;
 		}
 	}
+}
+
+void Target_Curve::fill_Measurement_And_Curve_With_Shifted_2D_Data()
+{
+	// TODO
+	qInfo() << "Target_Curve::fill_Measurement_And_Curve_With_Shifted_2D_Data()) not implemented" << endl;
 }
 
 void Target_Curve::show_Description_Label()
 {
 	if(loaded_And_Ready)
 	{
-		QString spacer;
-		if(measurement.argument_Type == whats_This_Beam_Theta_0_Angle)
-		{
-			arg_Type_For_Label = "Angular";
-
-			arg_Units = curve.angular_Units;
-
-			double coeff = wavelength_Coefficients_Map.value(curve.spectral_Units);
-			at_Fixed = Locale.toString(Global_Variables::wavelength_Energy(curve.spectral_Units,measurement.wavelength.value)/coeff, thumbnail_double_format, thumbnail_wavelength_precision)+" "+curve.spectral_Units;
-			spacer = "";
-		}
-		if(measurement.argument_Type == whats_This_Wavelength)
-		{
-			arg_Type_For_Label = "Spectral";
-			arg_Units = curve.spectral_Units;
-
-			double coeff = angle_Coefficients_Map.value(curve.angular_Units);
-			at_Fixed = Locale.toString(measurement.beam_Theta_0_Angle.value/coeff, thumbnail_double_format, thumbnail_angle_precision)+" "+curve.angular_Units;
-			spacer = " ";
-		}
-
-		label_Text = index + ": " +
-					arg_Type_For_Label + "; " +
-					value_Types_Short[value_Types.indexOf(curve.value_Type)] + "; " +
-					Locale.toString(curve.shifted_Argument.first()) + "-" + Locale.toString(curve.shifted_Argument.last()) + spacer + arg_Units + "; " +
-					"at " + at_Fixed;
+		description_Label->setText(index + ": " +label_Text);
 	} else
 	{
 		label_Text = "<no description>";
+		description_Label->setText(label_Text);
 	}
-
-	description_Label->setText(label_Text);
 }
 
 Target_Curve& Target_Curve::operator =(const Target_Curve& referent_Target_Curve)
@@ -310,10 +305,10 @@ Target_Curve& Target_Curve::operator =(const Target_Curve& referent_Target_Curve
 	plot_Options_Calculated = referent_Target_Curve.plot_Options_Calculated;
 
 	lines_List = referent_Target_Curve.lines_List;
+
 	arg_Units = referent_Target_Curve.arg_Units;
 	at_Fixed = referent_Target_Curve.at_Fixed;
 	arg_Type_For_Label = referent_Target_Curve.arg_Type_For_Label;
-
 	label_Text = referent_Target_Curve.label_Text;
 	index = referent_Target_Curve.index;
 

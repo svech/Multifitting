@@ -2,6 +2,7 @@
 
 Specular_Target_Curve_Part::Specular_Target_Curve_Part(Target_Curve* target_Curve, Target_Curve_Plot* target_Curve_Plot, QWidget *parent) :
 	target_Curve(target_Curve),
+	target_Curve_Plot(target_Curve_Plot),
 	QWidget(parent)
 {
 	main_Layout = new QVBoxLayout(this);
@@ -14,6 +15,7 @@ Specular_Target_Curve_Part::Specular_Target_Curve_Part(Target_Curve* target_Curv
 	create_Detector_GroupBox();
 	create_Footptint_GroupBox();
 
+	refresh_Plot_Axes_Labels();;
 	connecting();
 }
 
@@ -23,21 +25,6 @@ void Specular_Target_Curve_Part::create_Argument_GroupBox()
 	if(target_Curve->measurement.argument_Type == no_Argument_Type)
 	{
 		target_Curve->measurement.argument_Type = argument_Types[Beam_Grazing_Angle];
-	}
-
-	double arg_Coeff = 1;
-	if(target_Curve->measurement.argument_Type == argument_Types[Beam_Grazing_Angle])  { arg_Coeff = angle_Coefficients_Map.value(target_Curve->curve.angular_Units); }
-	if(target_Curve->measurement.argument_Type == argument_Types[Wavelength_Energy])   { arg_Coeff = wavelength_Coefficients_Map.value(target_Curve->curve.spectral_Units); }
-
-	double min, max;
-	if(target_Curve->loaded_And_Ready)
-	{
-		min = *std::min_element(target_Curve->curve.shifted_Argument.begin(), target_Curve->curve.shifted_Argument.end())/arg_Coeff;
-		max = *std::max_element(target_Curve->curve.shifted_Argument.begin(), target_Curve->curve.shifted_Argument.end())/arg_Coeff;
-	} else
-	{
-		min = -MAX_DOUBLE;
-		max =  MAX_DOUBLE;
 	}
 
 	QGroupBox* argument_GroupBox = new QGroupBox("Argument");
@@ -78,8 +65,8 @@ void Specular_Target_Curve_Part::create_Argument_GroupBox()
 			arg_Shift_SpinBox->setAccelerated(true);
 			arg_Shift_SpinBox->setRange(-100000, MAX_DOUBLE);
 			arg_Shift_SpinBox->setDecimals(4);
-			arg_Shift_SpinBox->setValue(target_Curve->curve.horizontal_Arg_Shift/arg_Coeff);
-			arg_Shift_SpinBox->setSingleStep(0.001/arg_Coeff);
+			arg_Shift_SpinBox->setValue(target_Curve->curve.horizontal_Arg_Shift);
+			arg_Shift_SpinBox->setSingleStep(0.001);
 			arg_Shift_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
 			arg_Shift_SpinBox->setProperty(min_Size_Property,TARGET_LINE_EDIT_WIDTH);
 		argument_GroupBox_Layout->addWidget(arg_Shift_SpinBox,0,Qt::AlignLeft);
@@ -114,31 +101,32 @@ void Specular_Target_Curve_Part::create_Argument_GroupBox()
 
 		horizontal_From_Subinterval_SpinBox = new MyDoubleSpinBox;
 			horizontal_From_Subinterval_SpinBox->setAccelerated(true);
-			horizontal_From_Subinterval_SpinBox->setRange(min, max);
 			horizontal_From_Subinterval_SpinBox->setDecimals(4);
-			horizontal_From_Subinterval_SpinBox->setValue(target_Curve->curve.subinterval_Left/arg_Coeff);
-			horizontal_From_Subinterval_SpinBox->setSingleStep((target_Curve->curve.subinterval_Right-target_Curve->curve.subinterval_Left)/arg_Coeff/100.);
+			horizontal_From_Subinterval_SpinBox->setSingleStep((target_Curve->curve.subinterval_Right-target_Curve->curve.subinterval_Left)/100.);
 			horizontal_From_Subinterval_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
 			horizontal_From_Subinterval_SpinBox->setProperty(min_Size_Property,TARGET_LINE_EDIT_WIDTH);
+			horizontal_From_Subinterval_SpinBox->setEnabled(target_Curve->curve.use_Subinterval);
 		argument_GroupBox_Layout->addWidget(horizontal_From_Subinterval_SpinBox,0,Qt::AlignLeft);
 		Global_Variables::resize_Line_Edit(horizontal_From_Subinterval_SpinBox);
 
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-		QLabel* horizontal_And_Subinterval_Label = new QLabel("  and  ");
+		horizontal_And_Subinterval_Label = new QLabel("  and  ");
+			horizontal_And_Subinterval_Label->setEnabled(target_Curve->curve.use_Subinterval);
 		argument_GroupBox_Layout->addWidget(horizontal_And_Subinterval_Label,0,Qt::AlignLeft);
 
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 		horizontal_To_Subinterval_SpinBox = new MyDoubleSpinBox;
 			horizontal_To_Subinterval_SpinBox->setAccelerated(true);
-			horizontal_To_Subinterval_SpinBox->setRange(min, max);
 			horizontal_To_Subinterval_SpinBox->setDecimals(4);
-			horizontal_To_Subinterval_SpinBox->setValue(target_Curve->curve.subinterval_Right/arg_Coeff);
-			horizontal_To_Subinterval_SpinBox->setSingleStep((target_Curve->curve.subinterval_Right-target_Curve->curve.subinterval_Left)/arg_Coeff/100.);
+			horizontal_To_Subinterval_SpinBox->setSingleStep((target_Curve->curve.subinterval_Right-target_Curve->curve.subinterval_Left)/100.);
 			horizontal_To_Subinterval_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
+			horizontal_To_Subinterval_SpinBox->setEnabled(target_Curve->curve.use_Subinterval);
 		argument_GroupBox_Layout->addWidget(horizontal_To_Subinterval_SpinBox,0,Qt::AlignLeft);
 		Global_Variables::resize_Line_Edit(horizontal_To_Subinterval_SpinBox);
+
+		reset_Subinterval();
 	}
 }
 
@@ -218,7 +206,7 @@ void Specular_Target_Curve_Part::create_Value_GroupBox()
 			val_Factor_Min_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
 			val_Factor_Min_SpinBox->setProperty(min_Size_Property,TARGET_LINE_EDIT_WIDTH);
 		value_GroupBox_Layout->addWidget(val_Factor_Min_SpinBox);
-		Global_Variables::resize_Line_Edit(val_Factor_Min_SpinBox, false);
+		Global_Variables::resize_Line_Edit(val_Factor_Min_SpinBox);
 
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -236,7 +224,7 @@ void Specular_Target_Curve_Part::create_Value_GroupBox()
 			val_Factor_Max_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
 			val_Factor_Max_SpinBox->setProperty(min_Size_Property,TARGET_LINE_EDIT_WIDTH);
 		value_GroupBox_Layout->addWidget(val_Factor_Max_SpinBox,0,Qt::AlignLeft);
-		Global_Variables::resize_Line_Edit(val_Factor_Max_SpinBox, false);
+		Global_Variables::resize_Line_Edit(val_Factor_Max_SpinBox);
 	}
 	// norm on beam intensity
 	{
@@ -246,7 +234,8 @@ void Specular_Target_Curve_Part::create_Value_GroupBox()
 
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-		QLabel* beam_Intensity_Start_Label = new QLabel("initial");
+		beam_Intensity_Start_Label = new QLabel("initial");
+			beam_Intensity_Start_Label->setEnabled(target_Curve->curve.divide_On_Beam_Intensity);
 		value_GroupBox_Layout->addWidget(beam_Intensity_Start_Label,0,Qt::AlignLeft);
 
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -259,13 +248,15 @@ void Specular_Target_Curve_Part::create_Value_GroupBox()
 			beam_Intensity_Initial_SpinBox->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
 			beam_Intensity_Initial_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
 			beam_Intensity_Initial_SpinBox->setProperty(min_Size_Property, TARGET_BEAM_INTENSITY_WIDTH);
-		Global_Variables::resize_Line_Edit(beam_Intensity_Initial_SpinBox, false);
+			beam_Intensity_Initial_SpinBox->setEnabled(target_Curve->curve.divide_On_Beam_Intensity);
 		value_GroupBox_Layout->addWidget(beam_Intensity_Initial_SpinBox,0,Qt::AlignLeft);
+		Global_Variables::resize_Line_Edit(beam_Intensity_Initial_SpinBox);
 
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 		beam_Intensity_Final_CheckBox = new QCheckBox("final");
 			beam_Intensity_Final_CheckBox->setChecked(target_Curve->curve.use_Final_Intensity);
+			beam_Intensity_Final_CheckBox->setEnabled(target_Curve->curve.divide_On_Beam_Intensity);
 		value_GroupBox_Layout->addWidget(beam_Intensity_Final_CheckBox,0,Qt::AlignLeft);
 
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -278,8 +269,9 @@ void Specular_Target_Curve_Part::create_Value_GroupBox()
 			beam_Intensity_Final_SpinBox->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
 			beam_Intensity_Final_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
 			beam_Intensity_Final_SpinBox->setProperty(min_Size_Property, TARGET_BEAM_INTENSITY_WIDTH);
-		Global_Variables::resize_Line_Edit(beam_Intensity_Final_SpinBox, false);
+			beam_Intensity_Final_SpinBox->setEnabled(target_Curve->curve.divide_On_Beam_Intensity && target_Curve->curve.use_Final_Intensity);
 		value_GroupBox_Layout->addWidget(beam_Intensity_Final_SpinBox,0,Qt::AlignLeft);
+		Global_Variables::resize_Line_Edit(beam_Intensity_Final_SpinBox);
 	}
 }
 
@@ -301,11 +293,11 @@ void Specular_Target_Curve_Part::create_Beam_GroupBox()
 
 		at_Fixed_SpinBox = new MyDoubleSpinBox;
 			at_Fixed_SpinBox->setAccelerated(true);
-			at_Fixed_SpinBox->setRange(0, MAX_DOUBLE);
 			at_Fixed_SpinBox->setDecimals(7);
 			at_Fixed_SpinBox->setSingleStep(0.01);
+			fill_At_Fixed_Value();
 			at_Fixed_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
-			at_Fixed_SpinBox->setProperty(min_Size_Property, TARGET_BEAM_INTENSITY_WIDTH);
+			at_Fixed_SpinBox->setProperty(min_Size_Property, TARGET_LINE_AT_FIXED_WIDTH);
 		beam_GroupBox_Layout->addWidget(at_Fixed_SpinBox,0,2,Qt::AlignLeft);
 		Global_Variables::resize_Line_Edit(at_Fixed_SpinBox);
 
@@ -335,7 +327,7 @@ void Specular_Target_Curve_Part::create_Beam_GroupBox()
 			polarization_SpinBox->setValue(target_Curve->measurement.polarization);
 			polarization_SpinBox->setSingleStep(0.01);
 			polarization_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
-			polarization_SpinBox->setProperty(min_Size_Property, TARGET_BEAM_INTENSITY_WIDTH);
+			polarization_SpinBox->setProperty(min_Size_Property, 50);
 		beam_GroupBox_Layout->addWidget(polarization_SpinBox,1,1,Qt::AlignLeft);
 		Global_Variables::resize_Line_Edit(polarization_SpinBox);
 	}
@@ -469,7 +461,7 @@ void Specular_Target_Curve_Part::create_Detector_GroupBox()
 			slit_Width_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
 			slit_Width_SpinBox->setProperty(min_Size_Property,TARGET_LINE_EDIT_WIDTH);
 		slit_Layout->addWidget(slit_Width_SpinBox,0,Qt::AlignLeft);
-		Global_Variables::resize_Line_Edit(slit_Width_SpinBox, false);
+		Global_Variables::resize_Line_Edit(slit_Width_SpinBox);
 
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -497,7 +489,7 @@ void Specular_Target_Curve_Part::create_Detector_GroupBox()
 			slit_Distance_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
 			slit_Distance_SpinBox->setProperty(min_Size_Property,TARGET_LINE_EDIT_WIDTH);
 		slit_Layout->addWidget(slit_Distance_SpinBox,0,Qt::AlignLeft);
-		Global_Variables::resize_Line_Edit(slit_Distance_SpinBox, false);
+		Global_Variables::resize_Line_Edit(slit_Distance_SpinBox);
 
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -528,8 +520,8 @@ void Specular_Target_Curve_Part::create_Detector_GroupBox()
 			crystal_Resolution_SpinBox->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
 			crystal_Resolution_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
 			crystal_Resolution_SpinBox->setProperty(min_Size_Property,TARGET_LINE_EDIT_WIDTH);
-		Global_Variables::resize_Line_Edit(crystal_Resolution_SpinBox, false);
 		crystal_Layout->addWidget(crystal_Resolution_SpinBox,0,Qt::AlignLeft);
+		Global_Variables::resize_Line_Edit(crystal_Resolution_SpinBox);
 
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -579,7 +571,7 @@ void Specular_Target_Curve_Part::create_Footptint_GroupBox()
 			beam_Footprint_Width_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
 			beam_Footprint_Width_SpinBox->setProperty(min_Size_Property,TARGET_LINE_EDIT_WIDTH);
 		beam_Footprint_GroupBox_Layout->addWidget(beam_Footprint_Width_SpinBox,0,1,Qt::AlignLeft);
-		Global_Variables::resize_Line_Edit(beam_Footprint_Width_SpinBox, false);
+		Global_Variables::resize_Line_Edit(beam_Footprint_Width_SpinBox);
 
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -602,7 +594,7 @@ void Specular_Target_Curve_Part::create_Footptint_GroupBox()
 			beam_Footprint_Shape_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
 			beam_Footprint_Shape_SpinBox->setProperty(min_Size_Property,TARGET_LINE_EDIT_WIDTH);
 		beam_Footprint_GroupBox_Layout->addWidget(beam_Footprint_Shape_SpinBox,1,1,Qt::AlignLeft);
-		Global_Variables::resize_Line_Edit(beam_Footprint_Shape_SpinBox, false);
+		Global_Variables::resize_Line_Edit(beam_Footprint_Shape_SpinBox);
 
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -634,7 +626,7 @@ void Specular_Target_Curve_Part::create_Footptint_GroupBox()
 			sample_Size_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
 			sample_Size_SpinBox->setProperty(min_Size_Property,TARGET_LINE_EDIT_WIDTH);
 		sample_GroupBox_Layout->addWidget(sample_Size_SpinBox,0,1,Qt::AlignLeft);
-		Global_Variables::resize_Line_Edit(sample_Size_SpinBox, false);
+		Global_Variables::resize_Line_Edit(sample_Size_SpinBox);
 
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -655,7 +647,7 @@ void Specular_Target_Curve_Part::create_Footptint_GroupBox()
 			sample_X_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
 			sample_X_SpinBox->setProperty(min_Size_Property,TARGET_LINE_EDIT_WIDTH);
 		sample_GroupBox_Layout->addWidget(sample_X_SpinBox,1,1,Qt::AlignLeft);
-		Global_Variables::resize_Line_Edit(sample_X_SpinBox, false);
+		Global_Variables::resize_Line_Edit(sample_X_SpinBox);
 
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -676,7 +668,7 @@ void Specular_Target_Curve_Part::create_Footptint_GroupBox()
 			sample_Z_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
 			sample_Z_SpinBox->setProperty(min_Size_Property,TARGET_LINE_EDIT_WIDTH);
 		sample_GroupBox_Layout->addWidget(sample_Z_SpinBox,2,1,Qt::AlignLeft);
-		Global_Variables::resize_Line_Edit(sample_Z_SpinBox, false);
+		Global_Variables::resize_Line_Edit(sample_Z_SpinBox);
 
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -699,7 +691,7 @@ void Specular_Target_Curve_Part::create_Footptint_GroupBox()
 			sample_Curvature_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
 			sample_Curvature_SpinBox->setProperty(min_Size_Property,TARGET_LINE_EDIT_WIDTH);
 		sample_GroupBox_Layout->addWidget(sample_Curvature_SpinBox,3,1,Qt::AlignLeft);
-		Global_Variables::resize_Line_Edit(sample_Curvature_SpinBox, false);
+		Global_Variables::resize_Line_Edit(sample_Curvature_SpinBox);
 
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -711,6 +703,27 @@ void Specular_Target_Curve_Part::create_Footptint_GroupBox()
 		QCustomPlot* sample_Profile_CustomPlot = new QCustomPlot;
 //		sample_Profile_CustomPlot->setMinimumHeight(200);
 		footprint_GroupBox_Layout->addWidget(sample_Profile_CustomPlot,0);
+		}
+}
+
+void Specular_Target_Curve_Part::reset_Subinterval()
+{
+	if(target_Curve->loaded_And_Ready)
+	{
+		double min = *std::min_element(target_Curve->curve.shifted_Argument.begin(), target_Curve->curve.shifted_Argument.end());
+		double max = *std::max_element(target_Curve->curve.shifted_Argument.begin(), target_Curve->curve.shifted_Argument.end());
+		horizontal_From_Subinterval_SpinBox->setRange(min,max);
+		horizontal_To_Subinterval_SpinBox->setRange(min,max);
+
+		horizontal_From_Subinterval_SpinBox->setValue(min);
+		horizontal_To_Subinterval_SpinBox->setValue(max);
+	} else
+	{
+		horizontal_From_Subinterval_SpinBox->setRange(-MAX_DOUBLE, MAX_DOUBLE);
+		horizontal_To_Subinterval_SpinBox->setRange(-MAX_DOUBLE, MAX_DOUBLE);
+
+		horizontal_From_Subinterval_SpinBox->setValue(target_Curve->curve.subinterval_Left);
+		horizontal_To_Subinterval_SpinBox->setValue(target_Curve->curve.subinterval_Right);
 	}
 }
 
@@ -734,13 +747,31 @@ void Specular_Target_Curve_Part::fill_Argument_Units()
 	arg_Units_ComboBox->blockSignals(false);
 }
 
+void Specular_Target_Curve_Part::refresh_Argument_Units()
+{
+	if(arg_Type_ComboBox->currentText() == argument_Types[Beam_Grazing_Angle])
+	{
+		target_Curve->curve.angular_Units = arg_Units_ComboBox->currentText();
+
+		double coeff = angle_Coefficients_Map.value(target_Curve->curve.angular_Units);
+		angular_Divergence_SpinBox->setValue(target_Curve->measurement.beam_Theta_0_Distribution.FWHM_distribution/coeff);
+		angular_Divergence_Units_Label->setText(target_Curve->curve.angular_Units);
+	}
+	if(arg_Type_ComboBox->currentText() == argument_Types[Wavelength_Energy])
+	{
+		target_Curve->curve.spectral_Units = arg_Units_ComboBox->currentText();
+	}
+	target_Curve->fill_Measurement_And_Curve_With_Shifted_Data();
+	refresh_Description_Label();
+	refresh_Plot_Axes_Labels();
+}
+
 void Specular_Target_Curve_Part::fill_At_Fixed_Label()
 {
 	if(target_Curve->measurement.argument_Type == argument_Types[Beam_Grazing_Angle])
 	{
 		if(	target_Curve->curve.spectral_Units == wavelength_Units_List[angstrom] ||
-			target_Curve->curve.spectral_Units == wavelength_Units_List[nm]		  ||
-			target_Curve->curve.spectral_Units == wavelength_Units_List[mcm]	   )
+			target_Curve->curve.spectral_Units == wavelength_Units_List[nm]		  )
 		{
 			at_Fixed_Label->setText("At fixed wavelength:");
 		} else
@@ -760,23 +791,84 @@ void Specular_Target_Curve_Part::fill_At_Fixed_Units()
 
 	if(target_Curve->measurement.argument_Type == argument_Types[Beam_Grazing_Angle])
 	{
-		double arg_Coeff = wavelength_Coefficients_Map.value(target_Curve->curve.spectral_Units);
-		at_Fixed_SpinBox->setValue(Global_Variables::wavelength_Energy(target_Curve->curve.spectral_Units,target_Curve->measurement.wavelength.value/arg_Coeff));
-
+		at_Fixed_Units_ComboBox->clear();
 		at_Fixed_Units_ComboBox->addItems(wavelength_Units_List);
 		at_Fixed_Units_ComboBox->setCurrentText(target_Curve->curve.spectral_Units);
 	}
 	if(target_Curve->measurement.argument_Type == argument_Types[Wavelength_Energy])
 	{
-		double arg_Coeff = angle_Coefficients_Map.value(target_Curve->curve.angular_Units);
-		at_Fixed_Label->setText("At fixed grazing angle "+Theta_Sym+Zero_Subscript_Sym);
-		at_Fixed_SpinBox->setValue(target_Curve->measurement.beam_Theta_0_Angle.value/arg_Coeff);
-
+		at_Fixed_Units_ComboBox->clear();
 		at_Fixed_Units_ComboBox->addItems(angle_Units_List);
 		at_Fixed_Units_ComboBox->setCurrentText(target_Curve->curve.angular_Units);
 	}
 	at_Fixed_Units_ComboBox->blockSignals(false);
 }
+
+void Specular_Target_Curve_Part::refresh_At_Fixed_Units()
+{
+	if( arg_Type_ComboBox->currentText() == argument_Types[Beam_Grazing_Angle] )
+	{
+		target_Curve->curve.spectral_Units = at_Fixed_Units_ComboBox->currentText();
+
+		double coeff = wavelength_Coefficients_Map.value(target_Curve->curve.spectral_Units);
+		at_Fixed_SpinBox->setValue(Global_Variables::wavelength_Energy(target_Curve->curve.spectral_Units,target_Curve->measurement.wavelength.value)/coeff);
+	}
+	if(arg_Type_ComboBox->currentText() == argument_Types[Wavelength_Energy] )
+	{
+		target_Curve->curve.angular_Units = at_Fixed_Units_ComboBox->currentText();
+
+		double coeff = angle_Coefficients_Map.value(target_Curve->curve.angular_Units);
+		at_Fixed_SpinBox->setRange(0,90./coeff);
+		at_Fixed_SpinBox->setValue(target_Curve->measurement.beam_Theta_0_Angle.value/coeff);
+
+		angular_Divergence_SpinBox->setValue(target_Curve->measurement.beam_Theta_0_Distribution.FWHM_distribution/coeff);
+		angular_Divergence_Units_Label->setText(target_Curve->curve.angular_Units);
+	}
+	refresh_Description_Label();
+}
+
+void Specular_Target_Curve_Part::fill_At_Fixed_Value()
+{
+	at_Fixed_SpinBox->blockSignals(true);
+
+	if(target_Curve->measurement.argument_Type == argument_Types[Beam_Grazing_Angle])
+	{
+		double coeff = wavelength_Coefficients_Map.value(target_Curve->curve.spectral_Units);
+		at_Fixed_SpinBox->setRange(0,MAX_DOUBLE);
+		at_Fixed_SpinBox->setValue(Global_Variables::wavelength_Energy(target_Curve->curve.spectral_Units,target_Curve->measurement.wavelength.value)/coeff);
+	}
+	if(target_Curve->measurement.argument_Type == argument_Types[Wavelength_Energy])
+	{
+		double coeff = angle_Coefficients_Map.value(target_Curve->curve.angular_Units);
+		at_Fixed_SpinBox->setRange(0,90./coeff);
+		at_Fixed_SpinBox->setValue(target_Curve->measurement.beam_Theta_0_Angle.value/coeff);
+	}
+	at_Fixed_SpinBox->blockSignals(false);
+}
+
+void Specular_Target_Curve_Part::refresh_At_Fixed_Value()
+{
+	if(arg_Type_ComboBox->currentText() == argument_Types[Beam_Grazing_Angle])
+	{
+		double coeff = wavelength_Coefficients_Map.value(target_Curve->curve.spectral_Units);
+		target_Curve->measurement.wavelength.value = Global_Variables::wavelength_Energy(target_Curve->curve.spectral_Units, at_Fixed_SpinBox->value()*coeff);
+	}
+	if(arg_Type_ComboBox->currentText() == argument_Types[Wavelength_Energy])
+	{
+		double coeff = angle_Coefficients_Map.value(target_Curve->curve.angular_Units);
+		target_Curve->measurement.beam_Theta_0_Angle.value = at_Fixed_SpinBox->value()*coeff;
+	}
+	target_Curve->show_Description_Label();
+	refresh_Description_Label();
+}
+
+void Specular_Target_Curve_Part::refresh_Value_Type()
+{
+	target_Curve->curve.value_Type = value_Type_ComboBox->currentText();
+	refresh_Description_Label();
+	refresh_Plot_Axes_Labels();
+}
+
 
 void Specular_Target_Curve_Part::disable_Crystal_Detector_Type()
 {
@@ -797,9 +889,73 @@ void Specular_Target_Curve_Part::disable_Crystal_Detector_Type()
 	detector_Type_ComboBox->blockSignals(false);
 }
 
+void Specular_Target_Curve_Part::refresh_Plot_Axes_Labels()
+{
+	target_Curve_Plot->value_Type_Text = target_Curve->curve.value_Type;
+
+	if(target_Curve->measurement.argument_Type == argument_Types[Beam_Grazing_Angle])
+	{
+		target_Curve_Plot->argument_Type_Text = argument_Types[Beam_Grazing_Angle];
+		target_Curve_Plot->argument_Sym_Text = "";
+		target_Curve_Plot->argument_Units_Text = target_Curve->curve.angular_Units;
+	}
+	if(target_Curve->measurement.argument_Type == argument_Types[Wavelength_Energy])
+	{
+		if(	target_Curve->curve.spectral_Units == wavelength_Units_List[angstrom] ||
+			target_Curve->curve.spectral_Units == wavelength_Units_List[nm]		  )
+		{
+			target_Curve_Plot->argument_Type_Text = QString(argument_Types[Wavelength_Energy]).split("/").first();
+			target_Curve_Plot->argument_Sym_Text = " "+Lambda_Sym;
+			target_Curve_Plot->argument_Units_Text = target_Curve->curve.spectral_Units;
+		} else
+		{
+			target_Curve_Plot->argument_Type_Text = QString(argument_Types[Wavelength_Energy]).split("/").last();
+			target_Curve_Plot->argument_Sym_Text = " E";
+			target_Curve_Plot->argument_Units_Text = target_Curve->curve.spectral_Units;
+		}
+	}
+	target_Curve_Plot->refresh_Labels();
+}
+
+void Specular_Target_Curve_Part::refresh_Description_Label()
+{
+	if(target_Curve->loaded_And_Ready)
+	{
+		QString spacer;
+		if(target_Curve->measurement.argument_Type == argument_Types[Beam_Grazing_Angle])
+		{
+			target_Curve->arg_Units = target_Curve->curve.angular_Units;
+
+			double coeff = wavelength_Coefficients_Map.value(target_Curve->curve.spectral_Units);
+			target_Curve->at_Fixed = Locale.toString(Global_Variables::wavelength_Energy(target_Curve->curve.spectral_Units,target_Curve->measurement.wavelength.value)/coeff, thumbnail_double_format, thumbnail_wavelength_precision)+" "+target_Curve->curve.spectral_Units;
+			spacer = "";
+		}
+		if(target_Curve->measurement.argument_Type == argument_Types[Wavelength_Energy])
+		{
+			target_Curve->arg_Units = target_Curve->curve.spectral_Units;
+
+			double coeff = angle_Coefficients_Map.value(target_Curve->curve.angular_Units);
+			target_Curve->at_Fixed = Locale.toString(target_Curve->measurement.beam_Theta_0_Angle.value/coeff, thumbnail_double_format, thumbnail_angle_precision)+" "+target_Curve->curve.angular_Units;
+			spacer = " ";
+		}
+
+		target_Curve->label_Text =  target_Curve->curve.value_Type + "; " +
+									Locale.toString(target_Curve->curve.shifted_Argument.first()) + "-" + Locale.toString(target_Curve->curve.shifted_Argument.last()) +
+									spacer + target_Curve->arg_Units + "; " +
+									"at " + target_Curve->at_Fixed;
+
+		target_Curve->description_Label->setText(target_Curve->index + ": " + target_Curve->label_Text);
+	} else
+	{
+		target_Curve->label_Text = "<no description>";
+		target_Curve->description_Label->setText( target_Curve->label_Text);
+	}
+}
+
 void Specular_Target_Curve_Part::connecting()
 {
-	// argument box
+	/// argument box
+	// argument type
 	connect(arg_Type_ComboBox,	&QComboBox::currentTextChanged, this, [=]
 	{
 		qInfo() << "arg_Type_ComboBox->currentTextChanged" << endl;
@@ -807,10 +963,17 @@ void Specular_Target_Curve_Part::connecting()
 
 		fill_Argument_Units();
 		fill_At_Fixed_Label();
+		fill_At_Fixed_Value();
 		fill_At_Fixed_Units();
-		disable_Crystal_Detector_Type();
 
-//		refresh_At_Fixed_Units();
+		refresh_Argument_Units();
+		refresh_At_Fixed_Units();
+
+		disable_Crystal_Detector_Type();
+		refresh_Description_Label();
+		refresh_Plot_Axes_Labels();
+
+		target_Curve->fill_Measurement_And_Curve_With_Shifted_Data();
 
 		// maximize_Integral
 		if(arg_Type_ComboBox->currentText() != argument_Types[Beam_Grazing_Angle])
@@ -826,187 +989,221 @@ void Specular_Target_Curve_Part::connecting()
 				}
 			}
 		}
-//		target_Curve->fill_Measurement_With_Data();
-//		target_Curve->show_Description_Label();
-//		target_Curve_Plot->refresh_Labels();
-//		show_Angular_Resolution();
+//		Global_Variables::replot_All_Graphs();
 	});
+	// argument units
 	connect(arg_Units_ComboBox, &QComboBox::currentTextChanged, this, [=]
 	{
 		qInfo() << "arg_Units_ComboBox->currentTextChanged" << endl;
+		refresh_Argument_Units();
+//		Global_Variables::replot_All_Graphs();
+	});
+	// argument shift
+	connect(arg_Shift_SpinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, [=]
+	{
+		qInfo() << "arg_Shift_SpinBox->valueChanged" << endl;
+		target_Curve->curve.horizontal_Arg_Shift = arg_Shift_SpinBox->value();
 
-		double arg_Coeff = 1;
-		if(arg_Type_ComboBox->currentText() == argument_Types[Beam_Grazing_Angle])
-		{
-			target_Curve->curve.angular_Units = arg_Units_ComboBox->currentText();
+		target_Curve->fill_Measurement_And_Curve_With_Shifted_Data();
+		target_Curve_Plot->plot_Data(true);
+		refresh_Description_Label();
+//		global_Multilayer_Approach->calc_Reflection(true);
+	});
+	// argument factor
+	connect(arg_Factor_SpinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, [=]
+	{
+		qInfo() << "arg_Factor_SpinBox->valueChanged" << endl;
+		target_Curve->curve.horizontal_Arg_Factor= arg_Factor_SpinBox->value();
 
-			arg_Coeff = angle_Coefficients_Map.value(target_Curve->curve.angular_Units);
-		}
-		if(arg_Type_ComboBox->currentText() == argument_Types[Wavelength_Energy])
-		{
-			target_Curve->curve.spectral_Units = arg_Units_ComboBox->currentText();
+		target_Curve->fill_Measurement_And_Curve_With_Shifted_Data();
+		target_Curve_Plot->plot_Data(true);
+		refresh_Description_Label();
+//		global_Multilayer_Approach->calc_Reflection(true);
+	});
+	// subinterval
+	connect(main_Subinterval_Checkbox, &QCheckBox::toggled, this, [=]
+	{
+		qInfo() << "main_Subinterval_Checkbox->toggled" << endl;
+		target_Curve->curve.use_Subinterval = main_Subinterval_Checkbox->isChecked();
 
-			arg_Coeff = wavelength_Coefficients_Map.value(target_Curve->curve.spectral_Units);
-		}
-		arg_Shift_SpinBox->setValue(target_Curve->curve.horizontal_Arg_Shift/arg_Coeff);
+		horizontal_From_Subinterval_SpinBox->setEnabled(target_Curve->curve.use_Subinterval);
+		horizontal_And_Subinterval_Label   ->setEnabled(target_Curve->curve.use_Subinterval);
+		horizontal_To_Subinterval_SpinBox  ->setEnabled(target_Curve->curve.use_Subinterval);
 
-//		target_Curve->fill_Measurement_With_Data();
+		target_Curve_Plot->subinterval_Changed_Replot();
+//		Global_Variables::replot_All_Graphs();
+	});
+	connect(horizontal_From_Subinterval_SpinBox, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
+	{
+		qInfo() << "horizontal_From_Subinterval_SpinBox->valueChanged" << endl;
+		target_Curve->curve.subinterval_Left = horizontal_From_Subinterval_SpinBox->value();
 
-//		//
-//		double min, max;
-//		if(target_Curve->loaded_And_Ready)
-//		{
-//			min = *std::min_element(target_Curve->curve.shifted_Argument.begin(), target_Curve->curve.shifted_Argument.end())/arg_Coeff;
-//			max = *std::max_element(target_Curve->curve.shifted_Argument.begin(), target_Curve->curve.shifted_Argument.end())/arg_Coeff;
-//		} else
-//		{
-//			min = -MAX_DOUBLE;
-//			max =  MAX_DOUBLE;
-//		}
+		horizontal_To_Subinterval_SpinBox->setRange(target_Curve->curve.subinterval_Left,horizontal_To_Subinterval_SpinBox->maximum());
+		horizontal_To_Subinterval_SpinBox->setValue(max(target_Curve->curve.subinterval_Left,target_Curve->curve.subinterval_Right));
 
-//		target_Curve->show_Description_Label();
-//		target_Curve_Plot->refresh_Labels();
+		target_Curve_Plot->subinterval_Changed_Replot();
+//		Global_Variables::replot_All_Graphs();
+	});
+	connect(horizontal_To_Subinterval_SpinBox, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
+	{
+		qInfo() << "horizontal_To_Subinterval_SpinBox->valueChanged" << endl;
+		target_Curve->curve.subinterval_Right = horizontal_To_Subinterval_SpinBox->value();
+
+		horizontal_From_Subinterval_SpinBox->setRange(horizontal_From_Subinterval_SpinBox->minimum(),target_Curve->curve.subinterval_Right);
+		horizontal_From_Subinterval_SpinBox->setValue(min(target_Curve->curve.subinterval_Left,target_Curve->curve.subinterval_Right));
+
+		target_Curve_Plot->subinterval_Changed_Replot();
+//		Global_Variables::replot_All_Graphs();
 	});
 
-	//	connect(arg_Units_ComboBox, &QComboBox::currentTextChanged, this, &Target_Curve_Editor::show_Angular_Resolution);
-	//	connect(arg_Offset_SpinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, &Target_Curve_Editor::refresh_Offsets);
-	//	connect(arg_Factor_SpinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, &Target_Curve_Editor::refresh_Factors);
-	//	connect(norm_On_Beam_Intensity, &QCheckBox::toggled, this, [=]
-	//	{
-	//		target_Curve->curve.divide_On_Beam_Intensity = norm_On_Beam_Intensity->isChecked();
-	//		beam_Intensity_Start_Label  ->setDisabled(!target_Curve->curve.divide_On_Beam_Intensity);
-	//		beam_Intensity_Start_SpinBox->setDisabled(!target_Curve->curve.divide_On_Beam_Intensity);
-	//		beam_Intensity_Final_Label  ->setDisabled(!target_Curve->curve.divide_On_Beam_Intensity);
-	//		beam_Intensity_Final_SpinBox->setDisabled(!target_Curve->curve.divide_On_Beam_Intensity);
-
-	//	});
-	//	connect(norm_On_Beam_Intensity, &QCheckBox::toggled, this, &Target_Curve_Editor::refresh_Beam_Intensity);
-	//	norm_On_Beam_Intensity->toggled(target_Curve->curve.divide_On_Beam_Intensity);
-
-	//	// value line
-	//	connect(val_Function_ComboBox,	&QComboBox::currentTextChanged, this, &Target_Curve_Editor::refresh_Value_Type );
-	//	connect(val_Offset_SpinBox,     static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, &Target_Curve_Editor::refresh_Offsets);
-	//	connect(val_Factor_SpinBox,     static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, &Target_Curve_Editor::refresh_Factors);
-	//	connect(beam_Intensity_Start_SpinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, &Target_Curve_Editor::refresh_Beam_Intensity);
-	//	connect(beam_Intensity_Final_SpinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, &Target_Curve_Editor::refresh_Beam_Intensity);
-
-	//	// measurement
-	//	connect(at_Fixed_Units_ComboBox, &QComboBox::currentTextChanged, this, &Target_Curve_Editor::refresh_At_Fixed_Units);
-	//	connect(at_Fixed_Units_ComboBox, &QComboBox::currentTextChanged, this, &Target_Curve_Editor::show_Unit_Dependent_Data);
-
-	//	connect(at_Fixed_LineEdit, &QLineEdit::textEdited, this, &Target_Curve_Editor::refresh_At_Fixed_Value);
-
-	//	connect(polarization_LineEdit,				&QLineEdit::textEdited, this, &Target_Curve_Editor::refresh_Polarization);
-	////	connect(polarization_Sensitivity_LineEdit,	&QLineEdit::textEdited, this, &Target_Curve_Editor::refresh_Polarization);
-	//	connect(background_LineEdit,				&QLineEdit::textEdited, this, [=]
-	//	{
-	//		target_Curve->measurement.background.value = Locale.toDouble(background_LineEdit->text());
-	////		global_Multilayer_Approach->calc_Reflection(true);
-	//	});
-	//	connect(spectral_Resolution_SpinBox,	static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, &Target_Curve_Editor::refresh_Resolution);
-	//	connect(angular_Resolution_SpinBox,		static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, &Target_Curve_Editor::refresh_Resolution);
-
-	//	connect(beam_Size_SpinBox,				static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, &Target_Curve_Editor::refresh_Measurement_Geometry);
-	//	connect(beam_Profile_Spreading_SpinBox,	static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, &Target_Curve_Editor::refresh_Measurement_Geometry);
-	//	connect(sample_Size_SpinBox,			static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, &Target_Curve_Editor::refresh_Measurement_Geometry);
-	//	connect(sample_Shift_SpinBox,			static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, &Target_Curve_Editor::refresh_Measurement_Geometry);
-
-
-	//			connect(at_Fixed_Units_ComboBox, &QComboBox::currentTextChanged, this, &Target_Curve_Editor::change_At_Fixed_Units_ComboBox);
-
-//	connect(main_Subinterval_Checkbox, &QCheckBox::toggled, this, [=]
-//	{
-//		target_Curve->curve.use_Subinterval = main_Subinterval_Checkbox->isChecked();
-
-//		horizontal_Label					->setDisabled(!target_Curve->curve.use_Subinterval);
-//		vertical_Label						->setDisabled(!target_Curve->curve.use_Subinterval);
-//		horizontal_From_Subinterval_SpinBox	->setDisabled(!target_Curve->curve.use_Subinterval);
-//		vertical_From_Subinterval_SpinBox	->setDisabled(!target_Curve->curve.use_Subinterval);
-//		horizontal_And_Subinterval_Label	->setDisabled(!target_Curve->curve.use_Subinterval);
-//		vertical_And_Subinterval_Label		->setDisabled(!target_Curve->curve.use_Subinterval);
-//		horizontal_To_Subinterval_SpinBox	->setDisabled(!target_Curve->curve.use_Subinterval);
-//		vertical_To_Subinterval_SpinBox		->setDisabled(!target_Curve->curve.use_Subinterval);
-
-//		horizontal_From_Subinterval_SpinBox	->setMaximum(target_Curve->curve.subinterval_Right);
-//		horizontal_To_Subinterval_SpinBox	->setMinimum(target_Curve->curve.subinterval_Left);
-//		vertical_From_Subinterval_SpinBox	->setMaximum(target_Curve->curve.subinterval_Top);
-//		vertical_To_Subinterval_SpinBox		->setMinimum(target_Curve->curve.subinterval_Bottom);
-
-//		// show/hide subinterval on plot
-//		target_Curve_Plot->start_Rect->setVisible(target_Curve->curve.use_Subinterval);
-//		target_Curve_Plot->end_Rect->setVisible(target_Curve->curve.use_Subinterval);
-//		if( target_Curve->measurement.measurement_Type == measurement_Types[GISAS] )
-//		{
-//			target_Curve_Plot->top_Rect->setVisible(target_Curve->curve.use_Subinterval);
-//			target_Curve_Plot->bottom_Rect->setVisible(target_Curve->curve.use_Subinterval);
-//		}
-//		target_Curve_Plot->subinterval_Changed_Replot();
+	/// value box
+	// value type
+	connect(value_Type_ComboBox, &QComboBox::currentTextChanged, this, [=]
+	{
+		qInfo() << "value_Type_ComboBox->currentTextChanged" << endl;
+		refresh_Value_Type();
 //		Global_Variables::replot_All_Graphs();
-//	});
+	});
+	// value shift
+	connect(val_Shift_SpinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, [=]
+	{
+		qInfo() << "val_Shift_SpinBox->valueChanged" << endl;
+		target_Curve->curve.val_Shift = val_Shift_SpinBox->value();
 
-//	connect(horizontal_From_Subinterval_SpinBox, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
-//	{
-//		target_Curve->curve.subinterval_Left = horizontal_From_Subinterval_SpinBox->value();
-//		horizontal_To_Subinterval_SpinBox->setRange(target_Curve->curve.subinterval_Left,horizontal_To_Subinterval_SpinBox->maximum());
-//		target_Curve_Plot->subinterval_Changed_Replot();
+		target_Curve->fill_Measurement_And_Curve_With_Shifted_Data();
+		target_Curve_Plot->plot_Data(true);
+		refresh_Description_Label();
+//		global_Multilayer_Approach->calc_Reflection(true);
+	});
+	// value factor
+	connect(val_Factor_SpinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, [=]
+	{
+		qInfo() << "val_Factor_SpinBox->valueChanged" << endl;
+		target_Curve->curve.val_Factor.value = val_Factor_SpinBox->value();
+
+		target_Curve->fill_Measurement_And_Curve_With_Shifted_Data();
+		target_Curve_Plot->plot_Data(true);
+		refresh_Description_Label();
+//		global_Multilayer_Approach->calc_Reflection(true);
+	});
+	connect(val_Factor_Min_SpinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, [=]
+	{
+		qInfo() << "val_Factor_Min_SpinBox->valueChanged" << endl;
+		target_Curve->curve.val_Factor.fit.min = val_Factor_Min_SpinBox->value();
+	});
+	connect(val_Factor_Max_SpinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, [=]
+	{
+		qInfo() << "val_Factor_Max_SpinBox->valueChanged" << endl;
+		target_Curve->curve.val_Factor.fit.max = val_Factor_Max_SpinBox->value();
+	});
+	// beam intensity
+	connect(norm_On_Beam_Intensity, &QCheckBox::toggled, this, [=]
+	{
+		qInfo() << "norm_On_Beam_Intensity->toggled" << endl;
+		target_Curve->curve.divide_On_Beam_Intensity = norm_On_Beam_Intensity->isChecked();
+
+		beam_Intensity_Start_Label	  ->setEnabled(target_Curve->curve.divide_On_Beam_Intensity);
+		beam_Intensity_Initial_SpinBox->setEnabled(target_Curve->curve.divide_On_Beam_Intensity);
+		beam_Intensity_Final_CheckBox ->setEnabled(target_Curve->curve.divide_On_Beam_Intensity);
+		beam_Intensity_Final_SpinBox  ->setEnabled(target_Curve->curve.divide_On_Beam_Intensity && target_Curve->curve.use_Final_Intensity);
+
+		target_Curve->fill_Measurement_And_Curve_With_Shifted_Data();
+		target_Curve_Plot->plot_Data(true);
 //		Global_Variables::replot_All_Graphs();
-//	});
-//	connect(vertical_From_Subinterval_SpinBox, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
-//	{
-//		target_Curve->curve.subinterval_Bottom = vertical_From_Subinterval_SpinBox->value();
-//		vertical_To_Subinterval_SpinBox->setRange(target_Curve->curve.subinterval_Bottom,vertical_To_Subinterval_SpinBox->maximum());
-//		target_Curve_Plot->subinterval_Changed_Replot();
+	});
+	connect(beam_Intensity_Initial_SpinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, [=]
+	{
+		qInfo() << "beam_Intensity_Initial_SpinBox->valueChanged" << endl;
+		target_Curve->curve.beam_Intensity_Initial= beam_Intensity_Initial_SpinBox->value();
+		if(!target_Curve->curve.use_Final_Intensity)
+		{
+			target_Curve->curve.beam_Intensity_Final = target_Curve->curve.beam_Intensity_Initial;
+		}
+
+		target_Curve->fill_Measurement_And_Curve_With_Shifted_Data();
+		target_Curve_Plot->plot_Data(true);
 //		Global_Variables::replot_All_Graphs();
-//	});
-//	connect(horizontal_To_Subinterval_SpinBox, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
-//	{
-//		target_Curve->curve.subinterval_Right = horizontal_To_Subinterval_SpinBox->value();
-//		horizontal_From_Subinterval_SpinBox->setRange(horizontal_From_Subinterval_SpinBox->minimum(),target_Curve->curve.subinterval_Right);
-//		target_Curve_Plot->subinterval_Changed_Replot();
+	});
+	connect(beam_Intensity_Final_CheckBox, &QCheckBox::toggled, this, [=]
+	{
+		qInfo() << "beam_Intensity_Final_CheckBox->toggled" << endl;
+		target_Curve->curve.use_Final_Intensity = beam_Intensity_Final_CheckBox->isChecked();
+
+		beam_Intensity_Final_SpinBox->setEnabled(target_Curve->curve.divide_On_Beam_Intensity && target_Curve->curve.use_Final_Intensity);
+		if(target_Curve->curve.use_Final_Intensity)
+		{
+			target_Curve->curve.beam_Intensity_Final = beam_Intensity_Final_SpinBox->value();
+		} else
+		{
+			target_Curve->curve.beam_Intensity_Final = target_Curve->curve.beam_Intensity_Initial;
+		}
+
+		target_Curve->fill_Measurement_And_Curve_With_Shifted_Data();
+		target_Curve_Plot->plot_Data(true);
 //		Global_Variables::replot_All_Graphs();
-//	});
-//	connect(vertical_To_Subinterval_SpinBox, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
-//	{
-//		target_Curve->curve.subinterval_Top = vertical_To_Subinterval_SpinBox->value();
-//		vertical_From_Subinterval_SpinBox->setRange(vertical_From_Subinterval_SpinBox->minimum(),target_Curve->curve.subinterval_Top);
-//		target_Curve_Plot->subinterval_Changed_Replot();
+	});
+	connect(beam_Intensity_Final_SpinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, [=]
+	{
+		qInfo() << "beam_Intensity_Final_SpinBox->valueChanged" << endl;
+		target_Curve->curve.beam_Intensity_Final= beam_Intensity_Final_SpinBox->value();
+
+		target_Curve->fill_Measurement_And_Curve_With_Shifted_Data();
+		target_Curve_Plot->plot_Data(true);
+
 //		Global_Variables::replot_All_Graphs();
-//	});
-//	main_Subinterval_Checkbox->toggled(target_Curve->curve.use_Subinterval);
+	});
 
+	/// beam box
+	// at fixed
+	connect(at_Fixed_SpinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, [=]
+	{
+		qInfo() << "at_Fixed_SpinBox->currentTextChanged" << endl;
+		refresh_At_Fixed_Value();
 
+//		global_Multilayer_Approach->calc_Reflection(true);
+	});
+	// at fixed units
+	connect(at_Fixed_Units_ComboBox, &QComboBox::currentTextChanged, this, [=]
+	{
+		qInfo() << "at_Fixed_Units_ComboBox->currentTextChanged" << endl;
+		refresh_At_Fixed_Units();
 
+//		Global_Variables::replot_All_Graphs();
+	});
+	// polarization
+	connect(polarization_SpinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, [=]
+	{
+		qInfo() << "polarization_SpinBox->currentTextChanged" << endl;
+		target_Curve->measurement.polarization= polarization_SpinBox->value();
 
+//		global_Multilayer_Approach->calc_Reflection(true);
+	});
+	// background
+	connect(background_SpinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, [=]
+	{
+		qInfo() << "background_SpinBox->currentTextChanged" << endl;
+		target_Curve->measurement.background= background_SpinBox->value();
 
+//		global_Multilayer_Approach->calc_Reflection(true);
+	});
+	// spectral width
+	connect(spectral_Width_SpinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, [=]
+	{
+		qInfo() << "spectral_Width_SpinBox->currentTextChanged" << endl;
+		target_Curve->measurement.spectral_Distribution.FWHM_distribution = spectral_Width_SpinBox->value();
 
-//		connect(val_Factor_Min_SpinBox, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
-//		{
-//			target_Curve->curve.val_Factor.fit.min = val_Factor_Min_SpinBox->value();
-//		});
-//		connect(val_Factor_Max_SpinBox, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
-//		{
-//			target_Curve->curve.val_Factor.fit.max = val_Factor_Max_SpinBox->value();
-//		});
+//		global_Multilayer_Approach->calc_Reflection(true);
+	});
+	// angular divergence
+	connect(angular_Divergence_SpinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, [=]
+	{
+		qInfo() << "angular_Divergence_SpinBox->currentTextChanged" << endl;
+		double coeff = angle_Coefficients_Map.value(target_Curve->curve.angular_Units);
+		target_Curve->measurement.beam_Theta_0_Distribution.FWHM_distribution = angular_Divergence_SpinBox->value()*coeff;
 
+//		global_Multilayer_Approach->calc_Reflection(true);
+	});
 
-
-
-	// -_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
-//		connect(norm_On_Beam_Intensity, &QCheckBox::toggled, this, [=]
-//		{
-//			target_Curve->curve.divide_On_Beam_Intensity = norm_On_Beam_Intensity->isChecked();
-//			beam_Intensity_Start_Label  ->setDisabled(!target_Curve->curve.divide_On_Beam_Intensity);
-//			beam_Intensity_Start_SpinBox->setDisabled(!target_Curve->curve.divide_On_Beam_Intensity);
-//			beam_Intensity_Final_Label  ->setDisabled(!target_Curve->curve.divide_On_Beam_Intensity);
-//			beam_Intensity_Final_SpinBox->setDisabled(!target_Curve->curve.divide_On_Beam_Intensity);
-//			refresh_Beam_Intensity();
-//		});
-//		connect(beam_Intensity_Start_SpinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, &Target_Curve_Editor::refresh_Beam_Intensity);
-//		connect(beam_Intensity_Final_SpinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, &Target_Curve_Editor::refresh_Beam_Intensity);
-
-//		norm_On_Beam_Intensity->toggled(target_Curve->curve.divide_On_Beam_Intensity);
-
-	//	connect(at_Fixed_Units_ComboBox, &QComboBox::currentTextChanged, this, &Target_Curve_Editor::change_At_Fixed_Units_ComboBox);
 
 //	connect(setup_Button, &QPushButton::clicked, this, [=]
 //	{

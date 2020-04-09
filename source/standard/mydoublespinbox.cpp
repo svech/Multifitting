@@ -8,12 +8,6 @@ MyDoubleSpinBox::MyDoubleSpinBox(QWidget *parent, bool auto_Resize):
 	auto_Resize(auto_Resize)
 {
 	create_Text_Change_Connection();
-
-	// auto resizing when focus is lost
-	if(auto_Resize)
-	{
-		connect(myLineEdit(), &QLineEdit::editingFinished, this, [=]{Global_Variables::resize_Line_Edit(this, false);});
-	}
 }
 
 QValidator::State MyDoubleSpinBox::validate(QString &input, int &pos) const
@@ -110,11 +104,15 @@ void MyDoubleSpinBox::create_Text_Change_Connection()
 				blockSignals(false);
 			}
 		}
-		if(auto_Resize)	{Global_Variables::resize_Line_Edit(this,false);}
+		if(auto_Resize)	{Global_Variables::resize_Line_Edit(this);}
 
 	}, Qt::UniqueConnection);
 	connect(this, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
 	{
-		if(auto_Resize)	{Global_Variables::resize_Line_Edit(this,false);}
+		if(auto_Resize)	{Global_Variables::resize_Line_Edit(this);}
+	}, Qt::UniqueConnection);
+	connect(myLineEdit(), &QLineEdit::editingFinished, this, [=]
+	{
+		if(auto_Resize) {Global_Variables::resize_Line_Edit(this);}
 	}, Qt::UniqueConnection);
 }

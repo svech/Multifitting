@@ -20,15 +20,26 @@ public:
 	void create_Footptint_GroupBox();
 
 	// supplementary functions
+	void reset_Subinterval();
 	void fill_Argument_Units();
 	void fill_At_Fixed_Label();
 	void fill_At_Fixed_Units();
+	void fill_At_Fixed_Value();
+
+	void refresh_Argument_Units();
+	void refresh_At_Fixed_Units();
+	void refresh_At_Fixed_Value();
+	void refresh_Value_Type();
+
 	void disable_Crystal_Detector_Type();
+	void refresh_Plot_Axes_Labels();
+	void refresh_Description_Label();
 
 
 	void connecting();
 
 	Target_Curve* target_Curve;
+	Target_Curve_Plot* target_Curve_Plot;
 
 	QVBoxLayout* main_Layout;
 
@@ -39,6 +50,7 @@ public:
 	MyDoubleSpinBox* arg_Factor_SpinBox;
 	QCheckBox* main_Subinterval_Checkbox;
 	MyDoubleSpinBox* horizontal_From_Subinterval_SpinBox;
+	QLabel* horizontal_And_Subinterval_Label;
 	MyDoubleSpinBox* horizontal_To_Subinterval_SpinBox;
 
 	// value
@@ -48,6 +60,7 @@ public:
 	MyDoubleSpinBox* val_Factor_Min_SpinBox;
 	MyDoubleSpinBox* val_Factor_Max_SpinBox;
 	QCheckBox* norm_On_Beam_Intensity;
+	QLabel* beam_Intensity_Start_Label;
 	MyDoubleSpinBox* beam_Intensity_Initial_SpinBox;
 	QCheckBox* beam_Intensity_Final_CheckBox;
 	MyDoubleSpinBox* beam_Intensity_Final_SpinBox;

@@ -31,11 +31,11 @@ public:
 
 	QVBoxLayout* main_layout;
 
-	QString val_Type_Label;
-
-	QString argument_Type_Label;
-	QString argument_Label;
-
+	// axes text
+	QString value_Type_Text;
+	QString argument_Type_Text;
+	QString argument_Sym_Text;
+	QString argument_Units_Text;
 };
 
 #endif // TARGET_CURVE_PLOT_H

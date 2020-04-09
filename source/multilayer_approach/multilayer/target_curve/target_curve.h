@@ -101,10 +101,13 @@ public:
 	QLabel* description_Label;
 	QTreeWidget* real_Struct_Tree;
 
-	void import_Data(QString bare_Filename);
-		void parse_1D_Data();
-		void parse_2D_Data();
-	void fill_Measurement_With_Data();
+	void import_Data_From_File(QString bare_Filename);
+		void parse_Data_From_List();
+			void parse_1D_Data();
+			void parse_2D_Data();
+		void fill_Measurement_And_Curve_With_Shifted_Data();
+			void fill_Measurement_And_Curve_With_Shifted_1D_Data();
+			void fill_Measurement_And_Curve_With_Shifted_2D_Data();
 	void show_Description_Label();
 
 	Curve curve;

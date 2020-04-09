@@ -408,7 +408,8 @@ void Calculation_Settings_Editor::load_Target_Parameters(int tab_Index)
 		}
 
 		box->setChecked(target_Curve->fit_Params.calc);
-		connect(box,  &QGroupBox::toggled, this, [=]{
+		connect(box,  &QGroupBox::toggled, this, [=]
+		{
 			target_Curve->fit_Params.calc = qobject_cast<QGroupBox*>(sender())->isChecked();
 			global_Multilayer_Approach->target_Added = qobject_cast<QGroupBox*>(sender())->isChecked();
 			reopen_Optical_Graphs(TARGET);

@@ -230,7 +230,7 @@ QStringList measurement_Types {	/** 1D */			/// change enum!
 
 // argument types
 QString no_Argument_Type = "no argument type";
-QStringList argument_Types	{"Beam grazing angle, "+Theta_Sym+Zero_Subscript_Sym, "Detector polar angle, "+Theta_Sym, "Detector azimuthal angle, "+Phi_Sym, "Wavelength/Energy"}; // change enum!
+QStringList argument_Types	{"Beam grazing angle "+Theta_Sym+Zero_Subscript_Sym, "Detector polar angle "+Theta_Sym, "Detector azimuthal angle "+Phi_Sym, "Wavelength/Energy"}; // change enum!
 
 // value types
 QString no_Value_Type = "no value type";
@@ -327,19 +327,19 @@ QStringList SO_Methods = { /* Mesh Iteration. */
 // units
 
 // wavelength
-QStringList   wavelength_Units_List				{Angstrom_Sym,"nm",Mu_Sym + "m","eV","keV"};	// change enum!
-QList<double> wavelength_Coefficients_List		{1.           ,1E1,1E4         ,1.  ,1E3  };
+QStringList   wavelength_Units_List				{Angstrom_Sym,"nm","eV","keV"}; // Mu_Sym + "m"	// change enum!
+QList<double> wavelength_Coefficients_List		{1.           ,1E1,1.  ,1E3  }; // 1E4
 QMap<QString, double>  wavelength_Coefficients_Map;
 
 // length
-QStringList   length_Units_List					{Angstrom_Sym,"nm",Mu_Sym + "m"};				// change enum!
-QList<double> length_Coefficients_List			{1.           ,1E1,1E4         };
+QStringList   length_Units_List					{Angstrom_Sym,"nm"}; // Mu_Sym + "m"				// change enum!
+QList<double> length_Coefficients_List			{1.          , 1E1}; // 1E4
 QMap<QString, double>  length_Coefficients_Map;
 
 // angle
-QStringList   angle_Units_List				{Degree_Sym,Prime_Sym   ,Double_Prime_Sym," rad"   ," mrad"  }; // change enum!
-QStringList   angle_Units_Legend_List		{"degree"  ,"arc minute","arc second"    ,"radian" ,"mrad"   };
-QList<double> angle_Coefficients_List		{1.		   ,1./60       ,1./3600         ,180./M_PI,0.18/M_PI};
+QStringList   angle_Units_List				{Degree_Sym,Prime_Sym   ,Double_Prime_Sym,"mrad"   };  // "rad"    // change enum!
+QStringList   angle_Units_Legend_List		{"degree"  ,"arc minute","arc second"    ,"mrad"   };  // "radian"
+QList<double> angle_Coefficients_List		{1.		   ,1./60       ,1./3600         ,0.18/M_PI};  // 180./M_PI
 QMap<QString, double>  angle_Coefficients_Map;
 QMap<QString, QString> angle_Units_Legend_Map;
 
@@ -646,8 +646,8 @@ double Global_Variables::wavelength_Energy(QString wavelength_Units, double y)
 	{
 		if(wavelength_Units == wavelength_Units_List[i])
 		{
-			if( 0<=i && i<3)                            value = y;
-			if( 3<=i && i<wavelength_Units_List.size()) value = angstrom_eV(y);
+			if( 0<=i && i<=nm)                    value = y;
+			if( eV<=i && i<wavelength_Units_List.size()) value = angstrom_eV(y);
 		}
 	}
 	return value;
