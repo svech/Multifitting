@@ -102,6 +102,8 @@ public:
 	QTreeWidget* real_Struct_Tree;
 
 	void import_Data(QString bare_Filename);
+		void parse_1D_Data();
+		void parse_2D_Data();
 	void fill_Measurement_With_Data();
 	void show_Description_Label();
 

@@ -92,12 +92,11 @@ Target_Curve::Target_Curve(QLabel* description_Label, QTreeWidget* real_Struct_T
 	measurement(item_Type_Measurement),
 	QWidget(parent)
 {
-	{
-		plot_Options_Calculated.color=QColor(0, 0, 255);
-		plot_Options_Calculated.scatter_Shape = QCPScatterStyle::ssDisc;
-		plot_Options_Calculated.scatter_Size=0;
-		plot_Options_Calculated.thickness=2;
-	}
+
+	plot_Options_Calculated.color=QColor(0, 0, 255);
+	plot_Options_Calculated.scatter_Shape = QCPScatterStyle::ssDisc;
+	plot_Options_Calculated.scatter_Size=0;
+	plot_Options_Calculated.thickness=2;
 }
 
 Target_Curve::~Target_Curve()
@@ -108,7 +107,7 @@ void Target_Curve::import_Data(QString bare_Filename)
 {
 	QFileInfo filename = bare_Filename;
 
-	/// reading data
+	// reading whole file to lines_kist
 	QFile input_File(filename.absoluteFilePath());
 	QString temp_Line = "not empty now";
 
@@ -129,34 +128,47 @@ void Target_Curve::import_Data(QString bare_Filename)
 		return;
 	}
 
-	/// parsing data
+	if( measurement.measurement_Type == measurement_Types[Specular_Scan] ||
+		measurement.measurement_Type == measurement_Types[Detector_Scan] ||
+		measurement.measurement_Type == measurement_Types[Rocking_Curve] ||
+		measurement.measurement_Type == measurement_Types[Offset_Scan] )
+	{
+		parse_1D_Data();
+	}
+	if(	measurement.measurement_Type == measurement_Types[GISAS] )
+	{
+		parse_2D_Data();
+	}
+}
+
+void Target_Curve::parse_1D_Data()
+{
 	curve.argument.clear();
 	curve.values.clear();
-	QString main_Exception_Text = "short data in \"" + filename.fileName() + "\"";
+
 	for(int line_Index=0; line_Index<lines_List.size(); ++line_Index)
 	{
-		temp_Line = lines_List[line_Index];
-		QStringList numbers = temp_Line.split(delimiters,QString::SkipEmptyParts);
-		int number_Index = 0;
-
-		// check if header
+		QString temp_Line = lines_List[line_Index];
 		temp_Line = temp_Line.simplified();
+
+		// check if not header line (starts from digit)
 		bool is_Decimal = false;
 		QString(temp_Line[0]).toInt(&is_Decimal);
 
-		if(is_Decimal && numbers.size()>0)	// temp_Line[0]!=';' && temp_Line[0]!='#' && numbers.size()>0    less common
+		// split line into "numbers"
+		QStringList potentional_Numbers = temp_Line.split(delimiters,QString::SkipEmptyParts);
+
+		if(is_Decimal && potentional_Numbers.size()>=2)	// temp_Line[0]!=';' && temp_Line[0]!='#' && numbers.size()>0    less common
 		try
 		{
 			bool ok_To_Double = false;
 
-			/// argument
-
-			if(numbers.size()<=number_Index) throw "arg | " + main_Exception_Text;
-//			double temp_Argument = QString(numbers[number_Index]).toDouble(&ok_To_Double);
-			double temp_Argument = QString(numbers[number_Index]).replace(",", ".").toDouble(&ok_To_Double); // dots and commas
+			double temp_Argument = QString(potentional_Numbers.first()).replace(",", ".").toDouble(&ok_To_Double); // dots and commas are considered as dots
+			double temp_Value    = QString(potentional_Numbers.last() ).replace(",", ".").toDouble(&ok_To_Double); // dots and commas are considered as dots
 
 			if(!ok_To_Double) goto skip_line_label;
 
+			// argument should be monotonic
 			if(curve.argument.size()>=2)
 			{
 				if(curve.argument[curve.argument.size()-1]>curve.argument[curve.argument.size()-2]) // increasing argument is allowed
@@ -168,28 +180,10 @@ void Target_Curve::import_Data(QString bare_Filename)
 					if(temp_Argument >= curve.argument.last()) goto skip_line_label; // read only monotonical arguments
 				}
 			}
+
 			curve.argument.push_back(temp_Argument);
-			++number_Index;
+			curve.values.push_back(temp_Value);
 
-			/// value
-
-			if(curve.value_Type == value_Types[Reflectance] || curve.value_Type == value_Types[Transmittance] )	// R , T
-			{
-				if(numbers.size()<=number_Index) throw "val_1 | " + main_Exception_Text;
-//				double temp_Val = QString(numbers[number_Index]).toDouble(&ok_To_Double);
-				double temp_Val = QString(numbers[number_Index]).replace(",", ".").toDouble(&ok_To_Double); // dots and commas
-				++number_Index;
-
-				if(!ok_To_Double)
-				{
-					curve.argument.removeLast();
-					goto skip_line_label;
-				}
-				curve.values.push_back(temp_Val);
-			} else
-			{
-				throw "wrong curve.value_Function=" + curve.value_Type + main_Exception_Text;
-			}
 			loaded_And_Ready = true;
 
 			// this line may be skipped
@@ -202,28 +196,18 @@ void Target_Curve::import_Data(QString bare_Filename)
 			return;
 		}
 	}
-	if(	curve.argument.size()!=curve.values.size() )
-	{
-		QMessageBox::critical(nullptr, "Target_Curve::import_Data", "curve.argument.size()!=curve.values.size()");
-		loaded_And_Ready = false;
-		return;
-	}
+}
+
+void Target_Curve::parse_2D_Data()
+{
+	// TODO
+	qInfo() << "Target_Curve::parse_2D_Data() not implemented" << endl;
 }
 
 void Target_Curve::fill_Measurement_With_Data()
 {
 	if(loaded_And_Ready)
 	{
-		// check zero intensity
-		if(abs(curve.beam_Intensity_Initial)<=DBL_EPSILON) curve.beam_Intensity_Initial = 1;
-		if(abs(curve.beam_Intensity_Final)<=DBL_EPSILON) curve.beam_Intensity_Final = 1;
-
-		// preliminary fill calculated data with 0
-		calculated_Values.R.	resize(curve.argument.size());	calculated_Values.R.fill(0);
-		calculated_Values.Phi_R.resize(curve.argument.size());	calculated_Values.Phi_R.fill(0);
-		calculated_Values.T.	resize(curve.argument.size());	calculated_Values.T.fill(0);
-		calculated_Values.A.	resize(curve.argument.size());	calculated_Values.A.fill(0);
-
 		// argument shift
 		// shift has the same units as data
 		curve.shifted_Argument.resize(curve.argument.size());

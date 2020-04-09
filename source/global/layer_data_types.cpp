@@ -94,15 +94,24 @@ Data::Data(QString item_Type_Passed)
 		beam_Phi_0_Distribution.number_of_Samples = 5;
 		beam_Phi_0_Distribution.coverage = 2;
 
-		detector_Theta_Resolution.FWHM_distribution = 0;
-		detector_Theta_Resolution.distribution_Function = distributions[Lorentz];
-		detector_Theta_Resolution.number_of_Samples = 5;
-		detector_Theta_Resolution.coverage = 2;
+		// detector
+		detector_1D.detector_Type = detectors[Slit];
+		detector_1D.slit_Width = 0.8;
+		detector_1D.distance_To_Sample = 320;
+		detector_1D.detector_Theta_Resolution.FWHM_distribution = 0;
+		detector_1D.detector_Theta_Resolution.distribution_Function = distributions[Lorentz];
+		detector_1D.detector_Theta_Resolution.number_of_Samples = 5;
+		detector_1D.detector_Theta_Resolution.coverage = 2;
 
-		detector_Phi_Resolution.FWHM_distribution = 0;
-		detector_Phi_Resolution.distribution_Function = distributions[Lorentz];
-		detector_Phi_Resolution.number_of_Samples = 5;
-		detector_Phi_Resolution.coverage = 2;
+		detector_2D.detector_Type = detectors[Spherical];
+		detector_2D.detector_Theta_Resolution.FWHM_distribution = 0;
+		detector_2D.detector_Theta_Resolution.distribution_Function = distributions[Lorentz];
+		detector_2D.detector_Theta_Resolution.number_of_Samples = 5;
+		detector_2D.detector_Theta_Resolution.coverage = 2;
+		detector_2D.detector_Phi_Resolution.FWHM_distribution = 0;
+		detector_2D.detector_Phi_Resolution.distribution_Function = distributions[Lorentz];
+		detector_2D.detector_Phi_Resolution.number_of_Samples = 5;
+		detector_2D.detector_Phi_Resolution.coverage = 2;
 
 		// footprint
 		beam_Geometry.size = 0.055;
@@ -990,7 +999,8 @@ QDataStream& operator <<( QDataStream& stream, const Data& data )
 				<< data.detector_Theta_Angle << data.detector_Theta_Cos2_Vec << data.detector_Theta_Cos2_Value << data.detector_Theta_Angle_Vec << data.detector_Theta_Angle_Value << data.detector_Theta_Offset
 				<< data.detector_Phi_Angle << data.detector_Phi_Cos2_Vec << data.detector_Phi_Cos2_Value << data.detector_Phi_Angle_Vec << data.detector_Phi_Angle_Value
 
-				<< data.spectral_Distribution << data.beam_Theta_0_Distribution << data.beam_Phi_0_Distribution << data.detector_Theta_Resolution << data.detector_Phi_Resolution
+				<< data.spectral_Distribution << data.beam_Theta_0_Distribution << data.beam_Phi_0_Distribution
+				<< data.detector_1D << data.detector_2D
 
 				<< data.beam_Geometry << data.sample_Geometry
 				<< data.polarization << data.background
@@ -1030,7 +1040,8 @@ QDataStream& operator >>( QDataStream& stream,		 Data& data )
 				>> data.detector_Theta_Angle >> data.detector_Theta_Cos2_Vec >> data.detector_Theta_Cos2_Value >> data.detector_Theta_Angle_Vec >> data.detector_Theta_Angle_Value >> data.detector_Theta_Offset
 				>> data.detector_Phi_Angle >> data.detector_Phi_Cos2_Vec >> data.detector_Phi_Cos2_Value >> data.detector_Phi_Angle_Vec >> data.detector_Phi_Angle_Value
 
-				>> data.spectral_Distribution >> data.beam_Theta_0_Distribution >> data.beam_Phi_0_Distribution >> data.detector_Theta_Resolution >> data.detector_Phi_Resolution
+				>> data.spectral_Distribution >> data.beam_Theta_0_Distribution >> data.beam_Phi_0_Distribution
+				>> data.detector_1D >> data.detector_2D
 
 				>> data.beam_Geometry >> data.sample_Geometry
 				>> data.polarization >> data.background;

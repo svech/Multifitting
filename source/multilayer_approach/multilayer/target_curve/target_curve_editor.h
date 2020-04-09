@@ -3,7 +3,6 @@
 
 #include "global/layer_data_types.h"
 #include "multilayer_approach/multilayer/target_curve/target_curve.h"
-#include "multilayer_approach/multilayer/multilayer.h"
 #include "target_curve_plot.h"
 
 #include "target_data_types/specular_target_curve_part.h"
@@ -30,8 +29,6 @@ public:
 		void create_Plot();
 		void create_Filepath_GroupBox();
 		void create_Data_GroupBox();
-			void create_Detector_GroupBox();
-			void create_Footptint_GroupBox();
 		void reset_Subinterval();
 		void create_Buttons();
 	void set_Window_Geometry();
@@ -47,10 +44,7 @@ public:
 
 	void resize_ComboBox(QLineEdit* line_Edit = nullptr);
 
-	void show_All();
-		void show_Filepath();
-		void show_Curve_Data();
-		void show_Measurement_Data();
+	void show_Filepath();
 			void show_Unit_Dependent_Data();
 				void show_Angular_Resolution();
 

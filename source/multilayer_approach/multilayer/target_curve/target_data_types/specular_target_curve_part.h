@@ -1,6 +1,8 @@
 #ifndef SPECULAR_TARGET_CURVE_PART_H
 #define SPECULAR_TARGET_CURVE_PART_H
 
+#include "multilayer_approach/multilayer/multilayer.h"
+
 #include "multilayer_approach/multilayer/target_curve/distribution_editor.h"
 #include "multilayer_approach/multilayer/target_curve/target_curve.h"
 #include "multilayer_approach/multilayer/target_curve/target_curve_plot.h"
@@ -15,6 +17,14 @@ public:
 	void create_Value_GroupBox();
 	void create_Beam_GroupBox();
 	void create_Detector_GroupBox();
+	void create_Footptint_GroupBox();
+
+	// supplementary functions
+	void fill_Argument_Units();
+	void fill_At_Fixed_Label();
+	void fill_At_Fixed_Units();
+	void disable_Crystal_Detector_Type();
+
 
 	void connecting();
 
@@ -51,7 +61,23 @@ public:
 	MyDoubleSpinBox* spectral_Width_SpinBox;
 	MyDoubleSpinBox* angular_Divergence_SpinBox;
 	QLabel* angular_Divergence_Units_Label;
-	QPushButton* setup_Button;
+	QPushButton* setup_Beam_Distribution_Button;
+
+	// detector
+	QComboBox* detector_Type_ComboBox;
+	QStackedWidget* detectors_Stack;
+	MyDoubleSpinBox* slit_Width_SpinBox;
+	MyDoubleSpinBox* slit_Distance_SpinBox;
+	MyDoubleSpinBox* crystal_Resolution_SpinBox;
+	QPushButton* setup_Crystal_Resolution_Button;
+
+	// footprint
+	MyDoubleSpinBox* beam_Footprint_Width_SpinBox;
+	MyDoubleSpinBox* beam_Footprint_Shape_SpinBox;
+	MyDoubleSpinBox* sample_Size_SpinBox;
+	MyDoubleSpinBox* sample_X_SpinBox;
+	MyDoubleSpinBox* sample_Z_SpinBox;
+	MyDoubleSpinBox* sample_Curvature_SpinBox;
 };
 
 #endif // SPECULAR_TARGET_CURVE_PART_H

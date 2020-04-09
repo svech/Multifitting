@@ -663,8 +663,10 @@ Independent_Variables& Independent_Variables::operator =(const Independent_Varia
 	measurement.spectral_Distribution				= referent_Independent_Variables.measurement.spectral_Distribution;
 	measurement.beam_Theta_0_Distribution			= referent_Independent_Variables.measurement.beam_Theta_0_Distribution;
 	measurement.beam_Phi_0_Distribution				= referent_Independent_Variables.measurement.beam_Phi_0_Distribution;
-	measurement.detector_Theta_Resolution			= referent_Independent_Variables.measurement.detector_Theta_Resolution;
-	measurement.detector_Phi_Resolution				= referent_Independent_Variables.measurement.detector_Phi_Resolution;
+
+	/// detector
+	measurement.detector_1D		= referent_Independent_Variables.measurement.detector_1D;
+	measurement.detector_2D		= referent_Independent_Variables.measurement.detector_2D;
 
 	/// footprint
 	measurement.beam_Geometry	= referent_Independent_Variables.measurement.beam_Geometry;

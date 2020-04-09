@@ -472,6 +472,23 @@ struct Distribution             { double FWHM_distribution = 0;
 								  double coverage = 2; // in units of FWHM
 								};
 
+struct Detector_1D				{ QString detector_Type;
+
+								  // slit
+								  double slit_Width;
+								  double distance_To_Sample;
+
+								  // crystal
+								  Distribution detector_Theta_Resolution;
+								};
+
+struct Detector_2D				{ QString detector_Type;
+
+								  // spherical
+								  Distribution detector_Theta_Resolution;
+								  Distribution detector_Phi_Resolution;
+								};
+
 struct Sample_Geometry			{ double size = 20;
 								  double x_Position = 0;
 								  double z_Position = 0;
@@ -481,6 +498,7 @@ struct Sample_Geometry			{ double size = 20;
 struct Beam_Geometry			{ double size = 0.055;
 								  double smoothing = 0;
 								};
+
 
 struct Int_Independent			{int start = 1; int step = 1; int num_Steps = 3;
 								 Parameter parameter; // double-valued, should be rounded
@@ -766,6 +784,12 @@ QDataStream& operator >>( QDataStream& stream,		 Parameter& parameter );
 
 QDataStream& operator <<( QDataStream& stream, const Distribution& resolution );
 QDataStream& operator >>( QDataStream& stream,		 Distribution& resolution );
+
+QDataStream& operator <<( QDataStream& stream, const Detector_1D& detector_1D );
+QDataStream& operator >>( QDataStream& stream,		 Detector_1D& detector_1D );
+
+QDataStream& operator <<( QDataStream& stream, const Detector_2D& detector_2D );
+QDataStream& operator >>( QDataStream& stream,		 Detector_2D& detector_2D );
 
 QDataStream& operator <<( QDataStream& stream, const Sample_Geometry& sample_Geometry );
 QDataStream& operator >>( QDataStream& stream,		 Sample_Geometry& sample_Geometry );

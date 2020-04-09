@@ -45,24 +45,26 @@ public:
 		QVector<double> detector_Phi_Cos2_Vec;  double detector_Phi_Cos2_Value;
 		QVector<double>	detector_Phi_Angle_Vec; double detector_Phi_Angle_Value;
 
-		// resolution
+		// deam distribution
 		Distribution spectral_Distribution;		
 		Distribution beam_Theta_0_Distribution;
 		Distribution beam_Phi_0_Distribution;		
-		Distribution detector_Theta_Resolution;
-		Distribution detector_Phi_Resolution;
 
-		vector<double>  angular_Resolution_Mixed;	// without saving
-		vector<double>  spectral_Resolution_Mixed;	// without saving
+		// detector
+		Detector_1D	detector_1D;
+		Detector_2D	detector_2D;
 
 		// footprint
-		vector<double>  footprint_Factor_Vec;	// without saving
 		Beam_Geometry beam_Geometry;
 		Sample_Geometry sample_Geometry;
 
 		// other
 		double polarization;
 		double background;
+
+		vector<double>  angular_Resolution_Mixed;	// without saving
+		vector<double>  spectral_Resolution_Mixed;	// without saving
+		vector<double>  footprint_Factor_Vec;		// without saving
 
 		/// old approach
 		///-----------------------------------------------

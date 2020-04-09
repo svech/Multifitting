@@ -140,6 +140,30 @@ QDataStream& operator >>( QDataStream& stream,		 Distribution& resolution )
 	return stream >> resolution.FWHM_distribution >> resolution.distribution_Function >> resolution.number_of_Samples >> resolution.coverage;
 }
 
+QDataStream& operator <<( QDataStream& stream, const Detector_1D& detector_1D )
+{
+	return stream << detector_1D.detector_Type
+				  << detector_1D.slit_Width << detector_1D.distance_To_Sample
+				  << detector_1D.detector_Theta_Resolution;
+}
+QDataStream& operator >>( QDataStream& stream,		 Detector_1D& detector_1D )
+{
+	return stream >> detector_1D.detector_Type
+				  >> detector_1D.slit_Width >> detector_1D.distance_To_Sample
+				  >> detector_1D.detector_Theta_Resolution;
+}
+
+QDataStream& operator <<( QDataStream& stream, const Detector_2D& detector_2D )
+{
+	return stream << detector_2D.detector_Type
+				  << detector_2D.detector_Theta_Resolution << detector_2D.detector_Phi_Resolution;
+}
+QDataStream& operator >>( QDataStream& stream,		 Detector_2D& detector_2D )
+{
+	return stream >> detector_2D.detector_Type
+				  >> detector_2D.detector_Theta_Resolution >> detector_2D.detector_Phi_Resolution;
+}
+
 QDataStream& operator <<( QDataStream& stream, const Sample_Geometry& sample_Geometry )
 {
 	return stream << sample_Geometry.size << sample_Geometry.x_Position << sample_Geometry.z_Position << sample_Geometry.curvature;

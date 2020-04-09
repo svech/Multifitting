@@ -55,22 +55,23 @@ void Target_Curve_Editor::set_Window_Geometry()
 
 void Target_Curve_Editor::read_Data_File(QString filepath)
 {
-	refresh_Filepath(filepath);
+	// TODO
+	refresh_Filepath(filepath);	
 	if(is_File_Exists)
 	{
 		target_Curve->import_Data(filepath);
 		target_Curve->fill_Measurement_With_Data();
-		global_Multilayer_Approach->target_Added = true;
-		reset_Subinterval();
+//		global_Multilayer_Approach->target_Added = true;
+//		reset_Subinterval();
 	} else
 	{
 		target_Curve->loaded_And_Ready = false;
 	}
 
-	multilayer_Parent->set_Index_To_Target_Curves();
+//	multilayer_Parent->set_Index_To_Target_Curves();
 
 	// refresh plot
-	target_Curve_Plot->plot_Data();
+//	target_Curve_Plot->plot_Data();
 }
 
 void Target_Curve_Editor::browse_Data_File()
@@ -185,7 +186,7 @@ void Target_Curve_Editor::create_Main_Layout()
 	create_Plot();
 		main_Layout->addWidget(target_Curve_Plot);
 	create_Filepath_GroupBox();
-		bottom_Part_Layout->addWidget(filepath_GroupBox);
+
 	create_Data_GroupBox();
 //		bottom_Part_Layout->addWidget(data_GroupBox);
 	create_Buttons();
@@ -208,64 +209,63 @@ void Target_Curve_Editor::create_Plot()
 void Target_Curve_Editor::create_Filepath_GroupBox()
 {
 	filepath_GroupBox = new QGroupBox("File path");
-//		filepath_GroupBox->setStyleSheet(stylesheet);
-	QVBoxLayout* filepath_GroupBox_Layout = new QVBoxLayout(filepath_GroupBox);
+	bottom_Part_Layout->addWidget(filepath_GroupBox);
 
-	// first row
+	QHBoxLayout* filepath_GroupBox_Layout = new QHBoxLayout(filepath_GroupBox);
+		filepath_GroupBox_Layout->setAlignment(Qt::AlignLeft);
+
+	// filepath
+	filepath_ComboBox = new QComboBox;
+		filepath_ComboBox->setEditable(true);
+	filepath_GroupBox_Layout->addWidget(filepath_ComboBox,0,Qt::AlignLeft);
+
+	connect(filepath_ComboBox->lineEdit(), &QLineEdit::textEdited, this, [=]{resize_ComboBox();} );
+	connect(filepath_ComboBox, &QComboBox::currentTextChanged, this, [=](QString str){ filepath_ComboBox->lineEdit()->textEdited(str); } );
+	connect(filepath_ComboBox->lineEdit(), &QLineEdit::returnPressed, this, [=]
 	{
-		QHBoxLayout* layout = new QHBoxLayout;
+		// close graphs
+		bool reopen_Graphs = global_Multilayer_Approach->runned_Optical_Graphs.contains(optical_Graphs_Key);
+		int active_Tab_Optical_Graphs = -2019;
+		if(reopen_Graphs)
+		{
+			active_Tab_Optical_Graphs = global_Multilayer_Approach->runned_Optical_Graphs.value(optical_Graphs_Key)->main_Tabs->currentIndex();
+			global_Multilayer_Approach->runned_Optical_Graphs.value(optical_Graphs_Key)->close();
+		}
+		// close calculation settings
+		bool reopen_Calc_Settings = global_Multilayer_Approach->runned_Calculation_Settings_Editor.contains(calc_Settings_Key);
+		int active_Tab_Calculation_Settings_Editor = -2019;
+		if(reopen_Calc_Settings)
+		{
+			active_Tab_Calculation_Settings_Editor = global_Multilayer_Approach->runned_Calculation_Settings_Editor.value(calc_Settings_Key)->main_Tabs->currentIndex();
+			global_Multilayer_Approach->runned_Calculation_Settings_Editor.value(calc_Settings_Key)->close();
+		}
 
-		// filepath
-		filepath_ComboBox = new QComboBox;
-			filepath_ComboBox->setEditable(true);
-			connect(filepath_ComboBox->lineEdit(), &QLineEdit::textEdited, this, [=]{resize_ComboBox();} );
-			connect(filepath_ComboBox, &QComboBox::currentTextChanged, this, [=](QString str){ filepath_ComboBox->lineEdit()->textEdited(str); } );
-			connect(filepath_ComboBox->lineEdit(), &QLineEdit::returnPressed, this, [=]
-			{
-				// close graphs
-				bool reopen_Graphs = global_Multilayer_Approach->runned_Optical_Graphs.contains(optical_Graphs_Key);
-				int active_Tab_Optical_Graphs = -2019;
-				if(reopen_Graphs)
-				{
-					active_Tab_Optical_Graphs = global_Multilayer_Approach->runned_Optical_Graphs.value(optical_Graphs_Key)->main_Tabs->currentIndex();
-					global_Multilayer_Approach->runned_Optical_Graphs.value(optical_Graphs_Key)->close();
-				}
-				// close calculation settings
-				bool reopen_Calc_Settings = global_Multilayer_Approach->runned_Calculation_Settings_Editor.contains(calc_Settings_Key);
-				int active_Tab_Calculation_Settings_Editor = -2019;
-				if(reopen_Calc_Settings)
-				{
-					active_Tab_Calculation_Settings_Editor = global_Multilayer_Approach->runned_Calculation_Settings_Editor.value(calc_Settings_Key)->main_Tabs->currentIndex();
-					global_Multilayer_Approach->runned_Calculation_Settings_Editor.value(calc_Settings_Key)->close();
-				}
+		//////////////////////////////////////////////////////
+		read_Data_File(filepath_ComboBox->lineEdit()->text());
+		//////////////////////////////////////////////////////
 
-				//////////////////////////////////////////////////////
-				read_Data_File(filepath_ComboBox->lineEdit()->text());				
-				//////////////////////////////////////////////////////
+		// reopen graphs
+		if(reopen_Graphs)
+		{
+			global_Multilayer_Approach->open_Optical_Graphs(TARGET);
+			global_Multilayer_Approach->runned_Optical_Graphs.value(optical_Graphs_Key)->main_Tabs->setCurrentIndex(active_Tab_Optical_Graphs);
+		}
+		// reopen calculation settings
+		if(reopen_Calc_Settings)
+		{
+			global_Multilayer_Approach->open_Calculation_Settings();
+			global_Multilayer_Approach->runned_Calculation_Settings_Editor.value(calc_Settings_Key)->main_Tabs->setCurrentIndex(active_Tab_Calculation_Settings_Editor);
+		}
+	});
 
-				// reopen graphs
-				if(reopen_Graphs)
-				{
-					global_Multilayer_Approach->open_Optical_Graphs(TARGET);
-					global_Multilayer_Approach->runned_Optical_Graphs.value(optical_Graphs_Key)->main_Tabs->setCurrentIndex(active_Tab_Optical_Graphs);
-				}				
-				// reopen calculation settings
-				if(reopen_Calc_Settings)
-				{
-					global_Multilayer_Approach->open_Calculation_Settings();
-					global_Multilayer_Approach->runned_Calculation_Settings_Editor.value(calc_Settings_Key)->main_Tabs->setCurrentIndex(active_Tab_Calculation_Settings_Editor);
-				}
-			});
-		layout->addWidget(filepath_ComboBox,0,Qt::AlignLeft);
+	// browse
+	browse_Button = new QPushButton("Browse...");
+		browse_Button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+	filepath_GroupBox_Layout->addWidget(browse_Button,0,Qt::AlignLeft);
+	connect(browse_Button, &QPushButton::clicked, this, &Target_Curve_Editor::browse_Data_File);
 
-		// browse
-		browse_Button = new QPushButton("Browse...");
-			browse_Button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-			connect(browse_Button, &QPushButton::clicked, this, &Target_Curve_Editor::browse_Data_File);
-		layout->addWidget(browse_Button,0,Qt::AlignLeft);
-
-		filepath_GroupBox_Layout->addLayout(layout);
-	}
+	// show
+	show_Filepath();
 }
 
 void Target_Curve_Editor::create_Data_GroupBox()
@@ -295,8 +295,6 @@ void Target_Curve_Editor::create_Data_GroupBox()
 		GISAS_Target_Curve_Part* gisas_Target_Curve_Part = new GISAS_Target_Curve_Part(target_Curve);
 			bottom_Part_Layout->addWidget(gisas_Target_Curve_Part);
 	}
-//	create_Detector_GroupBox();
-	create_Footptint_GroupBox();
 
 	// connections
 //	connect(argument_Type_ComboBox, &QComboBox::currentTextChanged, this, &Target_Curve_Editor::fill_Arg_Units_ComboBox);
@@ -725,312 +723,6 @@ void Target_Curve_Editor::create_Data_GroupBox()
 //	connect(sample_Shift_SpinBox,			static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, &Target_Curve_Editor::refresh_Measurement_Geometry);
 }
 
-void Target_Curve_Editor::create_Detector_GroupBox()
-{
-	QGroupBox* detector_GroupBox = new QGroupBox("Detector");
-	bottom_Part_Layout->addWidget(detector_GroupBox);
-	QVBoxLayout* temp_Layout = new QVBoxLayout(detector_GroupBox);
-//		temp_Layout->setContentsMargins(0,0,0,0);
-	QStackedWidget* detectors_Stack = new QStackedWidget;
-	temp_Layout->addWidget(detectors_Stack);
-
-	// 1D
-	{
-		QWidget* one_Dimensional_Page = new QWidget;
-		detectors_Stack->addWidget(one_Dimensional_Page);
-		QHBoxLayout* one_Dimensional_Layout = new QHBoxLayout(one_Dimensional_Page);
-			one_Dimensional_Layout->setContentsMargins(0,0,0,0);
-
-		QComboBox* detector_1D_ComboBox = new QComboBox;
-			detector_1D_ComboBox->addItem(detectors[Slit]);
-			detector_1D_ComboBox->addItem(detectors[Crystal]);
-		one_Dimensional_Layout->addWidget(detector_1D_ComboBox,0,Qt::AlignLeft);
-
-		QStackedWidget* detectors_1D_Stack = new QStackedWidget;
-		one_Dimensional_Layout->addWidget(detectors_1D_Stack);
-
-		// slit
-		QWidget* slit_Page = new QWidget;
-		detectors_1D_Stack->addWidget(slit_Page);
-		QHBoxLayout* slit_Layout = new QHBoxLayout(slit_Page);
-			slit_Layout->setAlignment(Qt::AlignLeft);
-
-		// - - - - - - - - - - - - - - - - - - - - - - - - - - -
-		QLabel* slit_Width_Label = new QLabel("         Slit width");
-		slit_Layout->addWidget(slit_Width_Label,0,Qt::AlignLeft);
-
-		MyDoubleSpinBox* slit_Width_SpinBox = new MyDoubleSpinBox;
-			slit_Width_SpinBox->setAccelerated(true);
-			slit_Width_SpinBox->setRange(0, MAX_DOUBLE);
-			slit_Width_SpinBox->setDecimals(2);
-//			slit_Width_SpinBox->setValue(target_Curve->measurement.angular_Resolution.value/coeff);
-			slit_Width_SpinBox->setSingleStep(0.01);
-			slit_Width_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
-			slit_Width_SpinBox->setProperty(min_Size_Property,TARGET_LINE_EDIT_WIDTH);
-		Global_Variables::resize_Line_Edit(slit_Width_SpinBox, false);
-		slit_Layout->addWidget(slit_Width_SpinBox,0,Qt::AlignLeft);
-
-		QLabel* mm_Width_Label = new QLabel("mm");
-		slit_Layout->addWidget(mm_Width_Label,0,Qt::AlignLeft);
-		// - - - - - - - - - - - - - - - - - - - - - - - - - - -
-		QLabel* slit_Distance_Label = new QLabel("              Distance to detector");
-		slit_Layout->addWidget(slit_Distance_Label,0,Qt::AlignLeft);
-
-		MyDoubleSpinBox* slit_Distance_SpinBox = new MyDoubleSpinBox;
-			slit_Distance_SpinBox->setAccelerated(true);
-			slit_Distance_SpinBox->setRange(0, MAX_DOUBLE);
-			slit_Distance_SpinBox->setDecimals(1);
-//			slit_Distance_SpinBox->setValue(target_Curve->measurement.angular_Resolution.value/coeff);
-			slit_Distance_SpinBox->setSingleStep(1);
-			slit_Distance_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
-			slit_Distance_SpinBox->setProperty(min_Size_Property,TARGET_LINE_EDIT_WIDTH);
-		Global_Variables::resize_Line_Edit(slit_Distance_SpinBox, false);
-		slit_Layout->addWidget(slit_Distance_SpinBox,0,Qt::AlignLeft);
-
-		QLabel* mm_Distance_Label = new QLabel("mm");
-		slit_Layout->addWidget(mm_Distance_Label,0,Qt::AlignLeft);
-		// - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-		// crystal
-		QWidget* crystal_Page = new QWidget;
-		detectors_1D_Stack->addWidget(crystal_Page);
-		QHBoxLayout* crystal_Layout = new QHBoxLayout(crystal_Page);
-			crystal_Layout->setAlignment(Qt::AlignLeft);
-
-		// - - - - - - - - - - - - - - - - - - - - - - - - - - -
-		QLabel* crystal_Width_Label = new QLabel("         Angular resolution");
-		crystal_Layout->addWidget(crystal_Width_Label,0,Qt::AlignLeft);
-
-		MyDoubleSpinBox* crystal_Resolution_SpinBox = new MyDoubleSpinBox;
-			crystal_Resolution_SpinBox->setAccelerated(true);
-			crystal_Resolution_SpinBox->setRange(0, MAX_DOUBLE);
-			crystal_Resolution_SpinBox->setDecimals(6);
-	//		crystal_Resolution_SpinBox->setValue(target_Curve->measurement.angular_Resolution.value/coeff);
-			crystal_Resolution_SpinBox->setSingleStep(0.0001);
-			crystal_Resolution_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
-			crystal_Resolution_SpinBox->setProperty(min_Size_Property,TARGET_LINE_EDIT_WIDTH);
-		Global_Variables::resize_Line_Edit(crystal_Resolution_SpinBox, false);
-		crystal_Layout->addWidget(crystal_Resolution_SpinBox,0,Qt::AlignLeft);
-
-		QLabel* ang_Units_Label = new QLabel("<ang units>");
-		crystal_Layout->addWidget(ang_Units_Label,0,Qt::AlignLeft);
-		// - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-
-		connect(detector_1D_ComboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, [=]
-		{
-			detectors_1D_Stack->setCurrentIndex(detector_1D_ComboBox->currentIndex());
-		});
-	}
-
-	// 2D
-	{
-		QWidget* two_Dimensional_Page = new QWidget;
-		detectors_Stack->addWidget(two_Dimensional_Page);
-		QVBoxLayout* two_Dimensional_Layout = new QVBoxLayout(two_Dimensional_Page);
-
-		QComboBox* detector_2D_ComboBox = new QComboBox;
-			detector_2D_ComboBox->addItem(detectors[Spherical]);
-			detector_2D_ComboBox->addItem(detectors[Rectangular]);
-		two_Dimensional_Layout->addWidget(detector_2D_ComboBox);
-
-		QStackedWidget* detectors_2D_Stack = new QStackedWidget;
-		two_Dimensional_Layout->addWidget(detectors_2D_Stack);
-
-		// spherical
-		QWidget* spherical_Page = new QWidget;
-		detectors_2D_Stack->addWidget(spherical_Page);
-		QHBoxLayout* spherical_Layout = new QHBoxLayout(spherical_Page);
-			spherical_Layout->setAlignment(Qt::AlignLeft);
-		// - - - - - - - - - - - - - - - - - - - - - - - - - - -
-		QLabel* label1 = new QLabel("<temporary spherical>");
-		spherical_Layout->addWidget(label1);
-
-		// rectangular
-		QWidget* rectangular_Page = new QWidget;
-		detectors_2D_Stack->addWidget(rectangular_Page);
-		QHBoxLayout* rectangular_Layout = new QHBoxLayout(rectangular_Page);
-			rectangular_Layout->setAlignment(Qt::AlignLeft);
-		// - - - - - - - - - - - - - - - - - - - - - - - - - - -
-		QLabel* label2 = new QLabel("<temporary rectangular>");
-		rectangular_Layout->addWidget(label2);
-		// - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-
-		connect(detector_2D_ComboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, [=]
-		{
-			detectors_2D_Stack->setCurrentIndex(detector_2D_ComboBox->currentIndex());
-		});
-	}
-
-	// background
-	// - - - - - - - - - - - - - - - - - - - - - - - - - - -
-	QHBoxLayout* background_Layout = new QHBoxLayout;
-		background_Layout->setAlignment(Qt::AlignLeft);
-	temp_Layout->addLayout(background_Layout);
-
-	QLabel* background_Label = new QLabel("Background");
-	background_Layout->addWidget(background_Label,0,Qt::AlignLeft);
-
-	MyDoubleSpinBox* background_SpinBox = new MyDoubleSpinBox;
-		background_SpinBox->setAccelerated(true);
-		background_SpinBox->setRange(0, MAX_DOUBLE);
-		background_SpinBox->setDecimals(9);
-		background_SpinBox->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
-		background_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
-		background_SpinBox->setProperty(min_Size_Property,TARGET_LINE_EDIT_WIDTH);
-	Global_Variables::resize_Line_Edit(background_SpinBox, false);
-	background_Layout->addWidget(background_SpinBox,0,Qt::AlignLeft);
-
-	// choose one page
-	if(	target_Curve->measurement.measurement_Type == measurement_Types[Specular_Scan] ||
-		target_Curve->measurement.measurement_Type == measurement_Types[Offset_Scan]   ||
-		target_Curve->measurement.measurement_Type == measurement_Types[Detector_Scan] ||
-		target_Curve->measurement.measurement_Type == measurement_Types[Rocking_Curve] )
-	{
-		detectors_Stack->setCurrentIndex(0);
-	}
-	if(	target_Curve->measurement.measurement_Type == measurement_Types[GISAS] )
-	{
-		detectors_Stack->setCurrentIndex(1);
-	}
-}
-
-void Target_Curve_Editor::create_Footptint_GroupBox()
-{
-	QGroupBox* footprint_GroupBox = new QGroupBox("Footptint and distortion");
-	bottom_Part_Layout->addWidget(footprint_GroupBox);
-
-	QGridLayout* footprint_GroupBox_Layout = new QGridLayout(footprint_GroupBox);
-		footprint_GroupBox_Layout->setAlignment(Qt::AlignLeft);
-
-	// beam
-	{
-		QGroupBox* beam_Footprint_GroupBox = new QGroupBox("Beam");
-		footprint_GroupBox_Layout->addWidget(beam_Footprint_GroupBox,0,0,Qt::AlignLeft);
-
-		QGridLayout* beam_Footprint_GroupBox_Layout = new QGridLayout(beam_Footprint_GroupBox);
-			beam_Footprint_GroupBox_Layout->setAlignment(Qt::AlignLeft);
-
-		// - - - - - - - - - - - - - - - - - - - - - - - - - - -
-		QLabel* beam_Footprint_Width_Label = new QLabel("Beam FWHM in incidence plane");
-		beam_Footprint_GroupBox_Layout->addWidget(beam_Footprint_Width_Label,0,0,Qt::AlignLeft);
-
-		MyDoubleSpinBox* beam_Footprint_Width_SpinBox = new MyDoubleSpinBox;
-			beam_Footprint_Width_SpinBox->setAccelerated(true);
-			beam_Footprint_Width_SpinBox->setRange(0, MAX_DOUBLE);
-			beam_Footprint_Width_SpinBox->setDecimals(3);
-			beam_Footprint_Width_SpinBox->setSingleStep(0.01);
-			beam_Footprint_Width_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
-			beam_Footprint_Width_SpinBox->setProperty(min_Size_Property,TARGET_LINE_EDIT_WIDTH);
-		Global_Variables::resize_Line_Edit(beam_Footprint_Width_SpinBox, false);
-		beam_Footprint_GroupBox_Layout->addWidget(beam_Footprint_Width_SpinBox,0,1,Qt::AlignLeft);
-
-		QLabel* mm_beam_Footprint_Width_Label = new QLabel("mm");
-		beam_Footprint_GroupBox_Layout->addWidget(mm_beam_Footprint_Width_Label,0,2,Qt::AlignLeft);
-		// - - - - - - - - - - - - - - - - - - - - - - - - - - -
-		QLabel* beam_Footprint_Shape_Label = new QLabel("Beam profile smoothing");
-		beam_Footprint_GroupBox_Layout->addWidget(beam_Footprint_Shape_Label,1,0,Qt::AlignLeft);
-
-		MyDoubleSpinBox* beam_Footprint_Shape_SpinBox = new MyDoubleSpinBox;
-			beam_Footprint_Shape_SpinBox->setAccelerated(true);
-			beam_Footprint_Shape_SpinBox->setRange(0, MAX_DOUBLE);
-			beam_Footprint_Shape_SpinBox->setDecimals(3);
-			beam_Footprint_Shape_SpinBox->setSingleStep(0.01);
-			beam_Footprint_Shape_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
-			beam_Footprint_Shape_SpinBox->setProperty(min_Size_Property,TARGET_LINE_EDIT_WIDTH);
-		Global_Variables::resize_Line_Edit(beam_Footprint_Shape_SpinBox, false);
-		beam_Footprint_GroupBox_Layout->addWidget(beam_Footprint_Shape_SpinBox,1,1,Qt::AlignLeft);
-		// - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-		QCustomPlot* beam_Profile_CustomPlot = new QCustomPlot;
-		beam_Profile_CustomPlot->setMinimumHeight(200);
-		footprint_GroupBox_Layout->addWidget(beam_Profile_CustomPlot,1,0);
-
-	}
-
-	// sample
-	{
-		QGroupBox* sample_Footprint_GroupBox = new QGroupBox("Sample");
-		footprint_GroupBox_Layout->addWidget(sample_Footprint_GroupBox,0,1,Qt::AlignLeft);
-
-		QGridLayout* sample_GroupBox_Layout = new QGridLayout(sample_Footprint_GroupBox);
-			sample_GroupBox_Layout->setAlignment(Qt::AlignLeft);
-
-		// - - - - - - - - - - - - - - - - - - - - - - - - - - -
-		QLabel* sample_Size_Label = new QLabel("Sample size");
-		sample_GroupBox_Layout->addWidget(sample_Size_Label,0,0,Qt::AlignLeft);
-
-		MyDoubleSpinBox* sample_Size_SpinBox = new MyDoubleSpinBox;
-			sample_Size_SpinBox->setAccelerated(true);
-			sample_Size_SpinBox->setRange(0, MAX_DOUBLE);
-			sample_Size_SpinBox->setDecimals(2);
-			sample_Size_SpinBox->setSingleStep(0.1);
-			sample_Size_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
-			sample_Size_SpinBox->setProperty(min_Size_Property,TARGET_LINE_EDIT_WIDTH);
-		Global_Variables::resize_Line_Edit(sample_Size_SpinBox, false);
-		sample_GroupBox_Layout->addWidget(sample_Size_SpinBox,0,1,Qt::AlignLeft);
-
-		QLabel* mm_Sample_Size_Label = new QLabel("mm");
-		sample_GroupBox_Layout->addWidget(mm_Sample_Size_Label,0,2,Qt::AlignLeft);
-		// - - - - - - - - - - - - - - - - - - - - - - - - - - -
-		QLabel* sample_X_Label = new QLabel("Sample x-position");
-		sample_GroupBox_Layout->addWidget(sample_X_Label,1,0,Qt::AlignLeft);
-
-		MyDoubleSpinBox* sample_X_SpinBox = new MyDoubleSpinBox;
-			sample_X_SpinBox->setAccelerated(true);
-			sample_X_SpinBox->setRange(0, MAX_DOUBLE);
-			sample_X_SpinBox->setDecimals(2);
-			sample_X_SpinBox->setSingleStep(0.1);
-			sample_X_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
-			sample_X_SpinBox->setProperty(min_Size_Property,TARGET_LINE_EDIT_WIDTH);
-		Global_Variables::resize_Line_Edit(sample_X_SpinBox, false);
-		sample_GroupBox_Layout->addWidget(sample_X_SpinBox,1,1,Qt::AlignLeft);
-
-		QLabel* mm_Sample_X_Label = new QLabel("mm");
-		sample_GroupBox_Layout->addWidget(mm_Sample_X_Label,1,2,Qt::AlignLeft);
-		// - - - - - - - - - - - - - - - - - - - - - - - - - - -
-		QLabel* sample_Z_Label = new QLabel("Sample z-position");
-		sample_GroupBox_Layout->addWidget(sample_Z_Label,2,0,Qt::AlignLeft);
-
-		MyDoubleSpinBox* sample_Z_SpinBox = new MyDoubleSpinBox;
-			sample_Z_SpinBox->setAccelerated(true);
-			sample_Z_SpinBox->setRange(0, MAX_DOUBLE);
-			sample_Z_SpinBox->setDecimals(3);
-			sample_Z_SpinBox->setSingleStep(0.01);
-			sample_Z_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
-			sample_Z_SpinBox->setProperty(min_Size_Property,TARGET_LINE_EDIT_WIDTH);
-		Global_Variables::resize_Line_Edit(sample_Z_SpinBox, false);
-		sample_GroupBox_Layout->addWidget(sample_Z_SpinBox,2,1,Qt::AlignLeft);
-
-		QLabel* mm_Sample_Z_Label = new QLabel("mm");
-		sample_GroupBox_Layout->addWidget(mm_Sample_Z_Label,2,2,Qt::AlignLeft);
-		// - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-		QLabel* sample_Curvature_Label = new QLabel("Sample curvature");
-		sample_GroupBox_Layout->addWidget(sample_Curvature_Label,3,0,Qt::AlignLeft);
-
-		MyDoubleSpinBox* sample_Curvature_SpinBox = new MyDoubleSpinBox;
-			sample_Curvature_SpinBox->setAccelerated(true);
-			sample_Curvature_SpinBox->setRange(-MAX_DOUBLE, MAX_DOUBLE);
-			sample_Curvature_SpinBox->setDecimals(3);
-			sample_Curvature_SpinBox->setSingleStep(0.01);
-			sample_Curvature_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
-			sample_Curvature_SpinBox->setProperty(min_Size_Property,TARGET_LINE_EDIT_WIDTH);
-		Global_Variables::resize_Line_Edit(sample_Curvature_SpinBox, false);
-		sample_GroupBox_Layout->addWidget(sample_Curvature_SpinBox,3,1,Qt::AlignLeft);
-
-		QLabel* m_Sample_Curvature_Label = new QLabel("m"+Minus_One_Sym);
-		sample_GroupBox_Layout->addWidget(m_Sample_Curvature_Label,3,2,Qt::AlignLeft);
-		// - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-		QCustomPlot* sample_Profile_CustomPlot = new QCustomPlot;
-		sample_Profile_CustomPlot->setMinimumHeight(200);
-		footprint_GroupBox_Layout->addWidget(sample_Profile_CustomPlot,1,1);
-
-	}
-}
-
 void Target_Curve_Editor::reset_Subinterval()
 {
 	if(target_Curve->loaded_And_Ready)
@@ -1105,13 +797,6 @@ void Target_Curve_Editor::resize_ComboBox(QLineEdit* line_Edit)
 //	QMetaObject::invokeMethod(this, "adjustSize", Qt::QueuedConnection);
 }
 
-void Target_Curve_Editor::show_All()
-{
-	show_Filepath();
-	show_Curve_Data();
-//	show_Measurement_Data();
-}
-
 void Target_Curve_Editor::show_Filepath()
 {
 	QString current_Filepath;
@@ -1139,77 +824,6 @@ void Target_Curve_Editor::show_Filepath()
 	filepath_ComboBox->lineEdit()->setProperty(min_Size_Property, width);
 
 	resize_ComboBox(filepath_ComboBox->lineEdit());
-}
-
-void Target_Curve_Editor::show_Curve_Data()
-{
-	// argument type
-	{
-		if(target_Curve->measurement.argument_Type == whats_This_Beam_Theta_0_Angle)
-		{
-			arg_Type_ComboBox->setCurrentIndex(arg_Type_ComboBox->findText(argument_Types[Beam_Grazing_Angle]));		// Grazing angle
-		} else
-		if(target_Curve->measurement.argument_Type == whats_This_Wavelength)
-		{
-			arg_Type_ComboBox->setCurrentIndex(arg_Type_ComboBox->findText(argument_Types[Wavelength_Energy]));	// Wavelength/energy
-		}
-	}
-
-	// value type
-	{
-		val_Function_ComboBox->setCurrentIndex(val_Function_ComboBox->findText(target_Curve->curve.value_Type));
-	}
-
-	// argument units
-	{
-		if(target_Curve->measurement.argument_Type == whats_This_Beam_Theta_0_Angle)
-			argument_Units_ComboBox->setCurrentIndex(argument_Units_ComboBox->findText(target_Curve->curve.angular_Units));
-		if(target_Curve->measurement.argument_Type == whats_This_Wavelength)
-			argument_Units_ComboBox->setCurrentIndex(argument_Units_ComboBox->findText(target_Curve->curve.spectral_Units));
-	}
-
-	// offsets
-	{
-		arg_Offset_SpinBox->setValue(target_Curve->curve.horizontal_Arg_Shift); Global_Variables::resize_Line_Edit(arg_Offset_SpinBox, false);
-		val_Offset_SpinBox->setValue(target_Curve->curve.val_Shift); Global_Variables::resize_Line_Edit(val_Offset_SpinBox, false);
-	}
-
-	// scale factors
-	{
-		arg_Factor_SpinBox->setValue(target_Curve->curve.horizontal_Arg_Factor      ); Global_Variables::resize_Line_Edit(arg_Factor_SpinBox, false);
-		val_Factor_SpinBox->setValue(target_Curve->curve.val_Factor.value); Global_Variables::resize_Line_Edit(val_Factor_SpinBox, false);
-	}
-}
-
-void Target_Curve_Editor::show_Measurement_Data()
-{
-//	// at fixed units
-//	if(target_Curve->curve.argument_Type == whats_This_Angle)
-//	{
-//		at_Fixed_Units_ComboBox->setCurrentIndex(at_Fixed_Units_ComboBox->findText(target_Curve->curve.spectral_Units));
-//	}
-//	if(target_Curve->curve.argument_Type == whats_This_Wavelength)
-//	{
-//		at_Fixed_Units_ComboBox->setCurrentIndex(at_Fixed_Units_ComboBox->findText(target_Curve->curve.angular_Units+", "+target_Curve->curve.angle_Type));
-//	}
-
-//	polarization_LineEdit->setText(Locale.toString(target_Curve->measurement.polarization.value, line_edit_double_format, line_edit_polarization_precision));
-////	polarization_Sensitivity_LineEdit->setText(Locale.toString(target_Curve->measurement.polarization_Sensitivity.value, line_edit_double_format, line_edit_polarization_precision));
-//	spectral_Resolution_LineEdit->setText(Locale.toString(target_Curve->measurement.spectral_Resolution.value, line_edit_double_format, line_edit_wavelength_precision));
-
-//	show_Unit_Dependent_Data();
-
-//	resize_Line_Edit(at_Fixed_LineEdit);
-//	resize_Line_Edit(polarization_LineEdit);
-////	resize_Line_Edit(polarization_Sensitivity_LineEdit);
-//	resize_Line_Edit(background_LineEdit);
-//	resize_Line_Edit(spectral_Resolution_LineEdit);
-//	resize_Line_Edit(angular_Resolution_LineEdit);
-
-//	resize_Line_Edit(beam_Size_LineEdit);
-//	resize_Line_Edit(beam_Profile_Spreading_LineEdit);
-//	resize_Line_Edit(sample_Size_LineEdit);
-//	resize_Line_Edit(sample_Shift_LineEdit);
 }
 
 void Target_Curve_Editor::show_Unit_Dependent_Data()
