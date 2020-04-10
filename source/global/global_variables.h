@@ -306,6 +306,11 @@ public:
 	static double interface_Profile_Function(double z, const QVector<Interlayer>& interlayer_Composition, bool for_Integration = false);
 	static double get_Max_Sigma_From_Interlayer_Composition(QVector<Interlayer>& interlayer_Composition);
 	static double layer_Normalization(double thickness, QVector<Interlayer>& left_Interlayer_Composition, QVector<Interlayer>& right_Interlayer_Composition, gsl_integration_workspace* w);
+
+	// beam profile
+	static double beam_Profile(double x, double FWHM, double smoothing);
+
+
 };
 
 #endif // GLOBAL_VARIABLES_H

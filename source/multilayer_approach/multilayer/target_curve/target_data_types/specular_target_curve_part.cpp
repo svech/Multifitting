@@ -359,11 +359,11 @@ void Specular_Target_Curve_Part::create_Beam_GroupBox()
 		spectral_Width_SpinBox = new MyDoubleSpinBox;
 			spectral_Width_SpinBox->setAccelerated(true);
 			spectral_Width_SpinBox->setRange(0, MAX_DOUBLE);
-			spectral_Width_SpinBox->setDecimals(6);
+			spectral_Width_SpinBox->setDecimals(7);
 			spectral_Width_SpinBox->setValue(target_Curve->measurement.spectral_Distribution.FWHM_distribution);
 			spectral_Width_SpinBox->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
 			spectral_Width_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
-			spectral_Width_SpinBox->setProperty(min_Size_Property, TARGET_BEAM_INTENSITY_WIDTH);
+			spectral_Width_SpinBox->setProperty(min_Size_Property, TARGET_LINE_AT_FIXED_WIDTH);
 		beam_GroupBox_Layout->addWidget(spectral_Width_SpinBox,0,6,Qt::AlignLeft);
 		Global_Variables::resize_Line_Edit(spectral_Width_SpinBox);
 	}
@@ -379,11 +379,11 @@ void Specular_Target_Curve_Part::create_Beam_GroupBox()
 		angular_Divergence_SpinBox = new MyDoubleSpinBox;
 			angular_Divergence_SpinBox->setAccelerated(true);
 			angular_Divergence_SpinBox->setRange(0, MAX_DOUBLE);
-			angular_Divergence_SpinBox->setDecimals(6);
+			angular_Divergence_SpinBox->setDecimals(7);
 			angular_Divergence_SpinBox->setValue(target_Curve->measurement.beam_Theta_0_Distribution.FWHM_distribution/arg_Coeff);
 			angular_Divergence_SpinBox->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
 			angular_Divergence_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
-			angular_Divergence_SpinBox->setProperty(min_Size_Property, TARGET_BEAM_INTENSITY_WIDTH);
+			angular_Divergence_SpinBox->setProperty(min_Size_Property, TARGET_LINE_AT_FIXED_WIDTH);
 		beam_GroupBox_Layout->addWidget(angular_Divergence_SpinBox,1,6,Qt::AlignLeft);
 		Global_Variables::resize_Line_Edit(angular_Divergence_SpinBox);
 
@@ -429,8 +429,6 @@ void Specular_Target_Curve_Part::create_Detector_GroupBox()
 			detector_Type_ComboBox->addItem(detectors[Slit]);
 			detector_Type_ComboBox->addItem(detectors[Crystal]);
 			detector_Type_ComboBox->setFixedWidth(133);
-			disable_Crystal_Detector_Type();
-			detector_Type_ComboBox->setCurrentText(target_Curve->measurement.detector_1D.detector_Type);
 		detector_Type_Layout->addWidget(detector_Type_ComboBox,0,Qt::AlignLeft);
 
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -519,14 +517,14 @@ void Specular_Target_Curve_Part::create_Detector_GroupBox()
 			crystal_Resolution_SpinBox->setValue(target_Curve->measurement.detector_1D.detector_Theta_Resolution.FWHM_distribution/arg_Coeff);
 			crystal_Resolution_SpinBox->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
 			crystal_Resolution_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
-			crystal_Resolution_SpinBox->setProperty(min_Size_Property,TARGET_LINE_EDIT_WIDTH);
+			crystal_Resolution_SpinBox->setProperty(min_Size_Property,TARGET_LINE_AT_FIXED_WIDTH);
 		crystal_Layout->addWidget(crystal_Resolution_SpinBox,0,Qt::AlignLeft);
 		Global_Variables::resize_Line_Edit(crystal_Resolution_SpinBox);
 
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-		QLabel* ang_Units_Label = new QLabel(target_Curve->curve.angular_Units);
-		crystal_Layout->addWidget(ang_Units_Label,0,Qt::AlignLeft);
+		crystal_Resolution_Units_Label = new QLabel(target_Curve->curve.angular_Units);
+		crystal_Layout->addWidget(crystal_Resolution_Units_Label,0,Qt::AlignLeft);
 
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -538,6 +536,7 @@ void Specular_Target_Curve_Part::create_Detector_GroupBox()
 		setup_Crystal_Resolution_Button = new QPushButton("Set up resolution");
 		crystal_Layout->addWidget(setup_Crystal_Resolution_Button,0,Qt::AlignLeft);
 	}
+	disable_Crystal_Detector_Type();
 }
 
 void Specular_Target_Curve_Part::create_Footptint_GroupBox()
@@ -546,7 +545,7 @@ void Specular_Target_Curve_Part::create_Footptint_GroupBox()
 	main_Layout->addWidget(footprint_GroupBox);
 
 	QHBoxLayout* footprint_GroupBox_Layout = new QHBoxLayout(footprint_GroupBox);
-//		footprint_GroupBox_Layout->setAlignment(Qt::AlignLeft);
+		footprint_GroupBox_Layout->setAlignment(Qt::AlignLeft);
 		footprint_GroupBox_Layout->setSpacing(0);
 
 	// beam
@@ -598,8 +597,7 @@ void Specular_Target_Curve_Part::create_Footptint_GroupBox()
 
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-		QCustomPlot* beam_Profile_CustomPlot = new QCustomPlot;
-		beam_Profile_CustomPlot->setMinimumHeight(200);
+		create_Beam_Plot();
 		footprint_GroupBox_Layout->addWidget(beam_Profile_CustomPlot,0);
 	}
 	// sample
@@ -640,7 +638,7 @@ void Specular_Target_Curve_Part::create_Footptint_GroupBox()
 
 		sample_X_SpinBox = new MyDoubleSpinBox;
 			sample_X_SpinBox->setAccelerated(true);
-			sample_X_SpinBox->setRange(0, MAX_DOUBLE);
+			sample_X_SpinBox->setRange(-100, MAX_DOUBLE);
 			sample_X_SpinBox->setDecimals(2);
 			sample_X_SpinBox->setSingleStep(0.1);
 			sample_X_SpinBox->setValue(target_Curve->measurement.sample_Geometry.x_Position);
@@ -661,10 +659,10 @@ void Specular_Target_Curve_Part::create_Footptint_GroupBox()
 
 		sample_Z_SpinBox = new MyDoubleSpinBox;
 			sample_Z_SpinBox->setAccelerated(true);
-			sample_Z_SpinBox->setRange(0, MAX_DOUBLE);
+			sample_Z_SpinBox->setRange(-100, MAX_DOUBLE);
 			sample_Z_SpinBox->setDecimals(3);
 			sample_Z_SpinBox->setValue(target_Curve->measurement.sample_Geometry.z_Position);
-			sample_Z_SpinBox->setSingleStep(0.01);
+			sample_Z_SpinBox->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
 			sample_Z_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
 			sample_Z_SpinBox->setProperty(min_Size_Property,TARGET_LINE_EDIT_WIDTH);
 		sample_GroupBox_Layout->addWidget(sample_Z_SpinBox,2,1,Qt::AlignLeft);
@@ -684,9 +682,9 @@ void Specular_Target_Curve_Part::create_Footptint_GroupBox()
 
 		sample_Curvature_SpinBox = new MyDoubleSpinBox;
 			sample_Curvature_SpinBox->setAccelerated(true);
-			sample_Curvature_SpinBox->setRange(-MAX_DOUBLE, MAX_DOUBLE);
-			sample_Curvature_SpinBox->setDecimals(3);
-			sample_Curvature_SpinBox->setSingleStep(0.01);
+			sample_Curvature_SpinBox->setRange(-1000, MAX_DOUBLE);
+			sample_Curvature_SpinBox->setDecimals(4);
+			sample_Curvature_SpinBox->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
 			sample_Curvature_SpinBox->setValue(target_Curve->measurement.sample_Geometry.curvature);
 			sample_Curvature_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
 			sample_Curvature_SpinBox->setProperty(min_Size_Property,TARGET_LINE_EDIT_WIDTH);
@@ -699,11 +697,211 @@ void Specular_Target_Curve_Part::create_Footptint_GroupBox()
 		sample_GroupBox_Layout->addWidget(m_Sample_Curvature_Label,3,2,Qt::AlignLeft);
 
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - -
+		R_Curvature_Label = new QLabel;
+		refresh_Curvature_Radius();
+		sample_GroupBox_Layout->addWidget(R_Curvature_Label,4,0,1,3,Qt::AlignLeft);
 
-		QCustomPlot* sample_Profile_CustomPlot = new QCustomPlot;
-//		sample_Profile_CustomPlot->setMinimumHeight(200);
+		// - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+
+		create_Sample_Plot();
 		footprint_GroupBox_Layout->addWidget(sample_Profile_CustomPlot,0);
+	}
+}
+
+void Specular_Target_Curve_Part::create_Beam_Plot()
+{
+	beam_Profile_CustomPlot = new QCustomPlot;
+		beam_Profile_CustomPlot->setMinimumWidth(240);
+
+	beam_Profile_CustomPlot->setNoAntialiasingOnDrag(false);
+	beam_Profile_CustomPlot->clearGraphs();
+	beam_Profile_CustomPlot->addGraph();
+
+	// frame, axes
+	QPen pen = beam_Profile_CustomPlot->yAxis->grid()->pen();
+		pen.setStyle(Qt::DashLine);
+	beam_Profile_CustomPlot->yAxis->grid()->setSubGridVisible(true);
+	beam_Profile_CustomPlot->xAxis->grid()->setSubGridVisible(true);
+	beam_Profile_CustomPlot->yAxis->grid()->setPen(pen);
+	beam_Profile_CustomPlot->xAxis->grid()->setPen(pen);
+
+	// curve
+	beam_Profile_CustomPlot->graph()->setPen(QPen(QColor(0, 135, 0),2));
+
+	// make top right axes clones of bottom left axes:
+	beam_Profile_CustomPlot->xAxis2->setVisible(true);
+	beam_Profile_CustomPlot->yAxis2->setVisible(true);
+	beam_Profile_CustomPlot->xAxis2->setTickLabels(false);
+
+	// ticks
+	QSharedPointer<QCPAxisTicker> linTicker(new QCPAxisTicker);
+		linTicker->setTickCount(4);
+	beam_Profile_CustomPlot->xAxis->setTicker(linTicker);
+
+	// make range draggable and zoomable:
+	beam_Profile_CustomPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom);
+
+	// connect signals so top and right axes move in sync with bottom and left axes:
+	connect(beam_Profile_CustomPlot->xAxis, SIGNAL(rangeChanged(QCPRange)), beam_Profile_CustomPlot->xAxis2, SLOT(setRange(QCPRange)));
+	connect(beam_Profile_CustomPlot->yAxis, SIGNAL(rangeChanged(QCPRange)), beam_Profile_CustomPlot->yAxis2, SLOT(setRange(QCPRange)));
+
+	plot_Beam_Profile();
+}
+
+void Specular_Target_Curve_Part::plot_Beam_Profile()
+{
+	int data_Count = 300;
+	double FWHM = target_Curve->measurement.beam_Geometry.size;
+	double sigma = FWHM*target_Curve->measurement.beam_Geometry.smoothing;
+	double limit = 1.7*FWHM;
+	double delta = (2*limit)/(data_Count-1);
+
+	QVector<QCPGraphData> data_To_Plot(data_Count);
+
+	for (int i=0; i<data_Count; ++i)
+	{
+		double x = -limit + delta*i;
+		data_To_Plot[i].key   = x;
+		data_To_Plot[i].value = Global_Variables::beam_Profile(x,FWHM,sigma);
+	}
+	beam_Profile_CustomPlot->graph()->data()->set(data_To_Plot);
+
+	beam_Profile_CustomPlot->xAxis->setRange(-limit,limit);
+	beam_Profile_CustomPlot->yAxis->setRange(0,1.05);
+	beam_Profile_CustomPlot->replot();
+}
+
+void Specular_Target_Curve_Part::create_Sample_Plot()
+{
+	sample_Profile_CustomPlot = new QCustomPlot;
+		sample_Profile_CustomPlot->setMinimumWidth(240);
+
+	sample_Profile_CustomPlot->setNoAntialiasingOnDrag(false);
+	sample_Profile_CustomPlot->clearGraphs();
+	sample_Profile_CustomPlot->addGraph();
+
+	// frame, axes
+	QPen pen = sample_Profile_CustomPlot->yAxis->grid()->pen();
+		pen.setStyle(Qt::DashLine);
+	sample_Profile_CustomPlot->yAxis->grid()->setSubGridVisible(true);
+	sample_Profile_CustomPlot->xAxis->grid()->setSubGridVisible(true);
+	sample_Profile_CustomPlot->yAxis->grid()->setPen(pen);
+	sample_Profile_CustomPlot->xAxis->grid()->setPen(pen);
+
+	// make top right axes clones of bottom left axes:
+	sample_Profile_CustomPlot->xAxis2->setVisible(true);
+	sample_Profile_CustomPlot->yAxis2->setVisible(true);
+	sample_Profile_CustomPlot->xAxis2->setTickLabels(false);
+
+	// ticks
+	QSharedPointer<QCPAxisTicker> linTicker(new QCPAxisTicker);
+		linTicker->setTickCount(6);
+//		linTicker->setTickStepStrategy(QCPAxisTicker::tssMeetTickCount);
+		linTicker->setTickStepStrategy(QCPAxisTicker::tssReadability);
+	sample_Profile_CustomPlot->yAxis->setTicker(linTicker);
+	sample_Profile_CustomPlot->yAxis2->setTicker(linTicker);
+
+	// make range draggable and zoomable:
+	sample_Profile_CustomPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom);
+
+	// connect signals so top and right axes move in sync with bottom and left axes:
+	connect(sample_Profile_CustomPlot->xAxis, SIGNAL(rangeChanged(QCPRange)), sample_Profile_CustomPlot->xAxis2, SLOT(setRange(QCPRange)));
+	connect(sample_Profile_CustomPlot->yAxis, SIGNAL(rangeChanged(QCPRange)), sample_Profile_CustomPlot->yAxis2, SLOT(setRange(QCPRange)));
+
+	connect(sample_Profile_CustomPlot->xAxis, static_cast<void(QCPAxis::*)(const QCPRange &)>(&QCPAxis::rangeChanged), this, &Specular_Target_Curve_Part::auto_Replot_Curve);
+	connect(sample_Profile_CustomPlot->yAxis, static_cast<void(QCPAxis::*)(const QCPRange &)>(&QCPAxis::rangeChanged), this, &Specular_Target_Curve_Part::auto_Replot_Curve);
+
+	// create empty curve objects:
+	sample_Curve = new QCPCurve(sample_Profile_CustomPlot->xAxis, sample_Profile_CustomPlot->yAxis);
+	sample_Curve->setPen(QPen(QColor(0, 0, 255),1));
+	sample_Curve->setBrush(QBrush(QColor(15, 200, 255, 200)));
+
+	// position of sample center
+	center_Line = new QCPItemStraightLine(sample_Profile_CustomPlot);
+
+	// add the arrow:
+	arrow_Incident  = new QCPItemLine(sample_Profile_CustomPlot);
+	arrow_Reflected = new QCPItemLine(sample_Profile_CustomPlot);
+	arrow_Incident ->setHead(QCPLineEnding::esSpikeArrow);
+	arrow_Reflected->setHead(QCPLineEnding::esSpikeArrow);
+	arrow_Incident ->setPen(QPen(QColor(255, 150, 10),1.5));
+	arrow_Reflected->setPen(QPen(QColor(255, 150, 10),1.5));
+
+	plot_Sample();
+}
+
+void Specular_Target_Curve_Part::plot_Sample()
+{
+	int curve_Point_Count = 300;
+
+	double size = target_Curve->measurement.sample_Geometry.size;
+	double z_Pos = target_Curve->measurement.sample_Geometry.z_Position;
+	double x_Pos = target_Curve->measurement.sample_Geometry.x_Position;
+	double limit = 0.7*size;
+	double sag = 0;
+	double delta = size/(curve_Point_Count-1);
+
+	curve_Data.resize(curve_Point_Count);
+	curve_Data.first() = QCPCurveData(0, -size/2 + x_Pos, sample_Profile_CustomPlot->yAxis->range().lower);
+	if(abs(target_Curve->measurement.sample_Geometry.curvature)>CURVATURE_LIMIT)
+	{
+		double R = 1000./target_Curve->measurement.sample_Geometry.curvature;
+		for (int i=1; i<curve_Data.size()-1; ++i)
+		{
+			double x = -size/2+(i-1)*delta + x_Pos;
+			double y = 0;
+			if(R>0)	{y = R-sqrt(R*R-pow(x-x_Pos,2))+z_Pos; sag = max(sag, R-sqrt(R*R-pow(x-x_Pos,2)));}
+			if(R<0) {y = R+sqrt(R*R-pow(x-x_Pos,2))+z_Pos; sag = min(sag, R+sqrt(R*R-pow(x-x_Pos,2)));}
+			curve_Data[i] = QCPCurveData(i, x, y);
 		}
+	} else
+	{
+		for (int i=1; i<curve_Data.size()-1; ++i)
+		{
+			double x = -size/2+(i-1)*delta + x_Pos;
+			double y = z_Pos;
+			curve_Data[i] = QCPCurveData(i, x, y);
+		}
+	}
+
+	curve_Data.last() = QCPCurveData(curve_Data.size()-1, size/2 + x_Pos, sample_Profile_CustomPlot->yAxis->range().lower);
+
+	sample_Curve->data()->set(curve_Data, true);
+
+	// mark center of sample
+	center_Line->point1->setCoords(x_Pos, 0);
+	center_Line->point2->setCoords(x_Pos, 1);
+
+	sample_Profile_CustomPlot->xAxis->setRange(-limit+x_Pos,limit+x_Pos);
+	if(sag>=0) sample_Profile_CustomPlot->yAxis->setRange(-0.019+z_Pos-1.3*sag,0.019+z_Pos+1.3*sag);
+	if(sag< 0) sample_Profile_CustomPlot->yAxis->setRange(-0.019+z_Pos+1.3*sag,0.019+z_Pos-1.3*sag);
+
+	sample_Profile_CustomPlot->replot();
+}
+
+void Specular_Target_Curve_Part::auto_Replot_Curve()
+{
+	double size = target_Curve->measurement.sample_Geometry.size;
+	double x_Pos = target_Curve->measurement.sample_Geometry.x_Position;
+	double z_Pos = target_Curve->measurement.sample_Geometry.z_Position;
+
+	curve_Data.first() = QCPCurveData(0,                  -size/2 + x_Pos, sample_Profile_CustomPlot->yAxis->range().lower);
+	curve_Data.last()  = QCPCurveData(curve_Data.size()-1, size/2 + x_Pos, sample_Profile_CustomPlot->yAxis->range().lower);
+	sample_Curve->data()->set(curve_Data, true);
+
+	// show arrows
+	double factor = (sample_Profile_CustomPlot->yAxis->range().upper-sample_Profile_CustomPlot->yAxis->range().lower) /
+					(sample_Profile_CustomPlot->xAxis->range().upper-sample_Profile_CustomPlot->xAxis->range().lower);
+
+	double limit = 0.5*size;
+	arrow_Incident->start->setCoords(-limit, limit*factor+z_Pos*0.8);
+	arrow_Incident->end->setCoords(-size/10, size/10*factor+z_Pos*0.8);
+
+	arrow_Reflected->start->setCoords(size/10, size/10*factor+z_Pos*0.8);
+	arrow_Reflected->end->setCoords(limit, limit*factor+z_Pos*0.8);
+
+	sample_Profile_CustomPlot->replot();
 }
 
 void Specular_Target_Curve_Part::reset_Subinterval()
@@ -749,6 +947,9 @@ void Specular_Target_Curve_Part::fill_Argument_Units()
 
 void Specular_Target_Curve_Part::refresh_Argument_Units()
 {
+	angular_Divergence_SpinBox->blockSignals(true);
+	crystal_Resolution_SpinBox->blockSignals(true);
+
 	if(arg_Type_ComboBox->currentText() == argument_Types[Beam_Grazing_Angle])
 	{
 		target_Curve->curve.angular_Units = arg_Units_ComboBox->currentText();
@@ -756,14 +957,20 @@ void Specular_Target_Curve_Part::refresh_Argument_Units()
 		double coeff = angle_Coefficients_Map.value(target_Curve->curve.angular_Units);
 		angular_Divergence_SpinBox->setValue(target_Curve->measurement.beam_Theta_0_Distribution.FWHM_distribution/coeff);
 		angular_Divergence_Units_Label->setText(target_Curve->curve.angular_Units);
+
+		crystal_Resolution_SpinBox->setValue(target_Curve->measurement.detector_1D.detector_Theta_Resolution.FWHM_distribution/coeff);
+		crystal_Resolution_Units_Label->setText(target_Curve->curve.angular_Units);
 	}
 	if(arg_Type_ComboBox->currentText() == argument_Types[Wavelength_Energy])
 	{
 		target_Curve->curve.spectral_Units = arg_Units_ComboBox->currentText();
 	}
 	target_Curve->fill_Measurement_And_Curve_With_Shifted_Data();
-	refresh_Description_Label();
+	target_Curve->refresh_Description_Label();
 	refresh_Plot_Axes_Labels();
+
+	angular_Divergence_SpinBox->blockSignals(false);
+	crystal_Resolution_SpinBox->blockSignals(false);
 }
 
 void Specular_Target_Curve_Part::fill_At_Fixed_Label()
@@ -806,6 +1013,10 @@ void Specular_Target_Curve_Part::fill_At_Fixed_Units()
 
 void Specular_Target_Curve_Part::refresh_At_Fixed_Units()
 {
+	at_Fixed_SpinBox->blockSignals(true);
+	angular_Divergence_SpinBox->blockSignals(true);
+	crystal_Resolution_SpinBox->blockSignals(true);
+
 	if( arg_Type_ComboBox->currentText() == argument_Types[Beam_Grazing_Angle] )
 	{
 		target_Curve->curve.spectral_Units = at_Fixed_Units_ComboBox->currentText();
@@ -823,8 +1034,15 @@ void Specular_Target_Curve_Part::refresh_At_Fixed_Units()
 
 		angular_Divergence_SpinBox->setValue(target_Curve->measurement.beam_Theta_0_Distribution.FWHM_distribution/coeff);
 		angular_Divergence_Units_Label->setText(target_Curve->curve.angular_Units);
+
+		crystal_Resolution_SpinBox->setValue(target_Curve->measurement.detector_1D.detector_Theta_Resolution.FWHM_distribution/coeff);
+		crystal_Resolution_Units_Label->setText(target_Curve->curve.angular_Units);
 	}
-	refresh_Description_Label();
+	target_Curve->refresh_Description_Label();
+
+	at_Fixed_SpinBox->blockSignals(false);
+	angular_Divergence_SpinBox->blockSignals(false);
+	crystal_Resolution_SpinBox->blockSignals(false);
 }
 
 void Specular_Target_Curve_Part::fill_At_Fixed_Value()
@@ -858,15 +1076,28 @@ void Specular_Target_Curve_Part::refresh_At_Fixed_Value()
 		double coeff = angle_Coefficients_Map.value(target_Curve->curve.angular_Units);
 		target_Curve->measurement.beam_Theta_0_Angle.value = at_Fixed_SpinBox->value()*coeff;
 	}
-	target_Curve->show_Description_Label();
-	refresh_Description_Label();
+	target_Curve->refresh_Description_Label();
+	target_Curve->refresh_Description_Label();
 }
 
 void Specular_Target_Curve_Part::refresh_Value_Type()
 {
 	target_Curve->curve.value_Type = value_Type_ComboBox->currentText();
-	refresh_Description_Label();
+	target_Curve->refresh_Description_Label();
 	refresh_Plot_Axes_Labels();
+}
+
+void Specular_Target_Curve_Part::refresh_Curvature_Radius()
+{
+	QString R_Text;
+	if(abs(target_Curve->measurement.sample_Geometry.curvature)>CURVATURE_LIMIT)
+	{
+		R_Text = QString::number(1./target_Curve->measurement.sample_Geometry.curvature) + " m";
+	} else
+	{
+		R_Text = Infinity_Sym;
+	}
+	R_Curvature_Label->setText("Radius of curvature = " + R_Text);
 }
 
 
@@ -885,6 +1116,7 @@ void Specular_Target_Curve_Part::disable_Crystal_Detector_Type()
 		item->setEnabled(true);
 	}
 	detector_Type_ComboBox->setCurrentText(target_Curve->measurement.detector_1D.detector_Type);
+	detectors_Stack->setCurrentIndex(detector_Type_ComboBox->findText(target_Curve->measurement.detector_1D.detector_Type));
 
 	detector_Type_ComboBox->blockSignals(false);
 }
@@ -917,48 +1149,12 @@ void Specular_Target_Curve_Part::refresh_Plot_Axes_Labels()
 	target_Curve_Plot->refresh_Labels();
 }
 
-void Specular_Target_Curve_Part::refresh_Description_Label()
-{
-	if(target_Curve->loaded_And_Ready)
-	{
-		QString spacer;
-		if(target_Curve->measurement.argument_Type == argument_Types[Beam_Grazing_Angle])
-		{
-			target_Curve->arg_Units = target_Curve->curve.angular_Units;
-
-			double coeff = wavelength_Coefficients_Map.value(target_Curve->curve.spectral_Units);
-			target_Curve->at_Fixed = Locale.toString(Global_Variables::wavelength_Energy(target_Curve->curve.spectral_Units,target_Curve->measurement.wavelength.value)/coeff, thumbnail_double_format, thumbnail_wavelength_precision)+" "+target_Curve->curve.spectral_Units;
-			spacer = "";
-		}
-		if(target_Curve->measurement.argument_Type == argument_Types[Wavelength_Energy])
-		{
-			target_Curve->arg_Units = target_Curve->curve.spectral_Units;
-
-			double coeff = angle_Coefficients_Map.value(target_Curve->curve.angular_Units);
-			target_Curve->at_Fixed = Locale.toString(target_Curve->measurement.beam_Theta_0_Angle.value/coeff, thumbnail_double_format, thumbnail_angle_precision)+" "+target_Curve->curve.angular_Units;
-			spacer = " ";
-		}
-
-		target_Curve->label_Text =  target_Curve->curve.value_Type + "; " +
-									Locale.toString(target_Curve->curve.shifted_Argument.first()) + "-" + Locale.toString(target_Curve->curve.shifted_Argument.last()) +
-									spacer + target_Curve->arg_Units + "; " +
-									"at " + target_Curve->at_Fixed;
-
-		target_Curve->description_Label->setText(target_Curve->index + ": " + target_Curve->label_Text);
-	} else
-	{
-		target_Curve->label_Text = "<no description>";
-		target_Curve->description_Label->setText( target_Curve->label_Text);
-	}
-}
-
 void Specular_Target_Curve_Part::connecting()
 {
 	/// argument box
 	// argument type
 	connect(arg_Type_ComboBox,	&QComboBox::currentTextChanged, this, [=]
 	{
-		qInfo() << "arg_Type_ComboBox->currentTextChanged" << endl;
 		target_Curve->measurement.argument_Type = arg_Type_ComboBox->currentText();
 
 		fill_Argument_Units();
@@ -970,10 +1166,10 @@ void Specular_Target_Curve_Part::connecting()
 		refresh_At_Fixed_Units();
 
 		disable_Crystal_Detector_Type();
-		refresh_Description_Label();
 		refresh_Plot_Axes_Labels();
 
 		target_Curve->fill_Measurement_And_Curve_With_Shifted_Data();
+		target_Curve->refresh_Description_Label();
 
 		// maximize_Integral
 		if(arg_Type_ComboBox->currentText() != argument_Types[Beam_Grazing_Angle])
@@ -989,41 +1185,37 @@ void Specular_Target_Curve_Part::connecting()
 				}
 			}
 		}
-//		Global_Variables::replot_All_Graphs();
+		global_Multilayer_Approach->calc_Reflection(true);
 	});
 	// argument units
 	connect(arg_Units_ComboBox, &QComboBox::currentTextChanged, this, [=]
 	{
-		qInfo() << "arg_Units_ComboBox->currentTextChanged" << endl;
 		refresh_Argument_Units();
-//		Global_Variables::replot_All_Graphs();
+		Global_Variables::replot_All_Graphs();
 	});
 	// argument shift
 	connect(arg_Shift_SpinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, [=]
 	{
-		qInfo() << "arg_Shift_SpinBox->valueChanged" << endl;
 		target_Curve->curve.horizontal_Arg_Shift = arg_Shift_SpinBox->value();
 
 		target_Curve->fill_Measurement_And_Curve_With_Shifted_Data();
 		target_Curve_Plot->plot_Data(true);
-		refresh_Description_Label();
-//		global_Multilayer_Approach->calc_Reflection(true);
+		target_Curve->refresh_Description_Label();
+		global_Multilayer_Approach->calc_Reflection(true);
 	});
 	// argument factor
 	connect(arg_Factor_SpinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, [=]
 	{
-		qInfo() << "arg_Factor_SpinBox->valueChanged" << endl;
 		target_Curve->curve.horizontal_Arg_Factor= arg_Factor_SpinBox->value();
 
 		target_Curve->fill_Measurement_And_Curve_With_Shifted_Data();
 		target_Curve_Plot->plot_Data(true);
-		refresh_Description_Label();
-//		global_Multilayer_Approach->calc_Reflection(true);
+		target_Curve->refresh_Description_Label();
+		global_Multilayer_Approach->calc_Reflection(true);
 	});
 	// subinterval
 	connect(main_Subinterval_Checkbox, &QCheckBox::toggled, this, [=]
 	{
-		qInfo() << "main_Subinterval_Checkbox->toggled" << endl;
 		target_Curve->curve.use_Subinterval = main_Subinterval_Checkbox->isChecked();
 
 		horizontal_From_Subinterval_SpinBox->setEnabled(target_Curve->curve.use_Subinterval);
@@ -1031,75 +1223,68 @@ void Specular_Target_Curve_Part::connecting()
 		horizontal_To_Subinterval_SpinBox  ->setEnabled(target_Curve->curve.use_Subinterval);
 
 		target_Curve_Plot->subinterval_Changed_Replot();
-//		Global_Variables::replot_All_Graphs();
+		Global_Variables::replot_All_Graphs();
 	});
 	connect(horizontal_From_Subinterval_SpinBox, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
 	{
-		qInfo() << "horizontal_From_Subinterval_SpinBox->valueChanged" << endl;
 		target_Curve->curve.subinterval_Left = horizontal_From_Subinterval_SpinBox->value();
 
 		horizontal_To_Subinterval_SpinBox->setRange(target_Curve->curve.subinterval_Left,horizontal_To_Subinterval_SpinBox->maximum());
 		horizontal_To_Subinterval_SpinBox->setValue(max(target_Curve->curve.subinterval_Left,target_Curve->curve.subinterval_Right));
 
 		target_Curve_Plot->subinterval_Changed_Replot();
-//		Global_Variables::replot_All_Graphs();
+		Global_Variables::replot_All_Graphs();
 	});
 	connect(horizontal_To_Subinterval_SpinBox, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
 	{
-		qInfo() << "horizontal_To_Subinterval_SpinBox->valueChanged" << endl;
 		target_Curve->curve.subinterval_Right = horizontal_To_Subinterval_SpinBox->value();
 
 		horizontal_From_Subinterval_SpinBox->setRange(horizontal_From_Subinterval_SpinBox->minimum(),target_Curve->curve.subinterval_Right);
 		horizontal_From_Subinterval_SpinBox->setValue(min(target_Curve->curve.subinterval_Left,target_Curve->curve.subinterval_Right));
 
 		target_Curve_Plot->subinterval_Changed_Replot();
-//		Global_Variables::replot_All_Graphs();
+		Global_Variables::replot_All_Graphs();
 	});
 
 	/// value box
 	// value type
 	connect(value_Type_ComboBox, &QComboBox::currentTextChanged, this, [=]
 	{
-		qInfo() << "value_Type_ComboBox->currentTextChanged" << endl;
 		refresh_Value_Type();
-//		Global_Variables::replot_All_Graphs();
+
+		global_Multilayer_Approach->calc_Reflection(true);
 	});
 	// value shift
 	connect(val_Shift_SpinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, [=]
 	{
-		qInfo() << "val_Shift_SpinBox->valueChanged" << endl;
 		target_Curve->curve.val_Shift = val_Shift_SpinBox->value();
 
 		target_Curve->fill_Measurement_And_Curve_With_Shifted_Data();
 		target_Curve_Plot->plot_Data(true);
-		refresh_Description_Label();
-//		global_Multilayer_Approach->calc_Reflection(true);
+		target_Curve->refresh_Description_Label();
+		Global_Variables::replot_All_Graphs();
 	});
 	// value factor
 	connect(val_Factor_SpinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, [=]
 	{
-		qInfo() << "val_Factor_SpinBox->valueChanged" << endl;
 		target_Curve->curve.val_Factor.value = val_Factor_SpinBox->value();
 
 		target_Curve->fill_Measurement_And_Curve_With_Shifted_Data();
 		target_Curve_Plot->plot_Data(true);
-		refresh_Description_Label();
-//		global_Multilayer_Approach->calc_Reflection(true);
+		target_Curve->refresh_Description_Label();
+		Global_Variables::replot_All_Graphs();
 	});
 	connect(val_Factor_Min_SpinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, [=]
 	{
-		qInfo() << "val_Factor_Min_SpinBox->valueChanged" << endl;
 		target_Curve->curve.val_Factor.fit.min = val_Factor_Min_SpinBox->value();
 	});
 	connect(val_Factor_Max_SpinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, [=]
 	{
-		qInfo() << "val_Factor_Max_SpinBox->valueChanged" << endl;
 		target_Curve->curve.val_Factor.fit.max = val_Factor_Max_SpinBox->value();
 	});
 	// beam intensity
 	connect(norm_On_Beam_Intensity, &QCheckBox::toggled, this, [=]
 	{
-		qInfo() << "norm_On_Beam_Intensity->toggled" << endl;
 		target_Curve->curve.divide_On_Beam_Intensity = norm_On_Beam_Intensity->isChecked();
 
 		beam_Intensity_Start_Label	  ->setEnabled(target_Curve->curve.divide_On_Beam_Intensity);
@@ -1109,11 +1294,10 @@ void Specular_Target_Curve_Part::connecting()
 
 		target_Curve->fill_Measurement_And_Curve_With_Shifted_Data();
 		target_Curve_Plot->plot_Data(true);
-//		Global_Variables::replot_All_Graphs();
+		Global_Variables::replot_All_Graphs();
 	});
 	connect(beam_Intensity_Initial_SpinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, [=]
 	{
-		qInfo() << "beam_Intensity_Initial_SpinBox->valueChanged" << endl;
 		target_Curve->curve.beam_Intensity_Initial= beam_Intensity_Initial_SpinBox->value();
 		if(!target_Curve->curve.use_Final_Intensity)
 		{
@@ -1122,11 +1306,10 @@ void Specular_Target_Curve_Part::connecting()
 
 		target_Curve->fill_Measurement_And_Curve_With_Shifted_Data();
 		target_Curve_Plot->plot_Data(true);
-//		Global_Variables::replot_All_Graphs();
+		Global_Variables::replot_All_Graphs();
 	});
 	connect(beam_Intensity_Final_CheckBox, &QCheckBox::toggled, this, [=]
 	{
-		qInfo() << "beam_Intensity_Final_CheckBox->toggled" << endl;
 		target_Curve->curve.use_Final_Intensity = beam_Intensity_Final_CheckBox->isChecked();
 
 		beam_Intensity_Final_SpinBox->setEnabled(target_Curve->curve.divide_On_Beam_Intensity && target_Curve->curve.use_Final_Intensity);
@@ -1140,75 +1323,157 @@ void Specular_Target_Curve_Part::connecting()
 
 		target_Curve->fill_Measurement_And_Curve_With_Shifted_Data();
 		target_Curve_Plot->plot_Data(true);
-//		Global_Variables::replot_All_Graphs();
+		Global_Variables::replot_All_Graphs();
 	});
 	connect(beam_Intensity_Final_SpinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, [=]
 	{
-		qInfo() << "beam_Intensity_Final_SpinBox->valueChanged" << endl;
 		target_Curve->curve.beam_Intensity_Final= beam_Intensity_Final_SpinBox->value();
 
 		target_Curve->fill_Measurement_And_Curve_With_Shifted_Data();
 		target_Curve_Plot->plot_Data(true);
 
-//		Global_Variables::replot_All_Graphs();
+		Global_Variables::replot_All_Graphs();
 	});
 
 	/// beam box
 	// at fixed
 	connect(at_Fixed_SpinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, [=]
 	{
-		qInfo() << "at_Fixed_SpinBox->currentTextChanged" << endl;
 		refresh_At_Fixed_Value();
 
-//		global_Multilayer_Approach->calc_Reflection(true);
+		global_Multilayer_Approach->calc_Reflection(true);
 	});
 	// at fixed units
 	connect(at_Fixed_Units_ComboBox, &QComboBox::currentTextChanged, this, [=]
 	{
-		qInfo() << "at_Fixed_Units_ComboBox->currentTextChanged" << endl;
 		refresh_At_Fixed_Units();
 
-//		Global_Variables::replot_All_Graphs();
+		Global_Variables::replot_All_Graphs();
 	});
 	// polarization
 	connect(polarization_SpinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, [=]
 	{
-		qInfo() << "polarization_SpinBox->currentTextChanged" << endl;
 		target_Curve->measurement.polarization= polarization_SpinBox->value();
 
-//		global_Multilayer_Approach->calc_Reflection(true);
+		global_Multilayer_Approach->calc_Reflection(true);
 	});
 	// background
 	connect(background_SpinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, [=]
 	{
-		qInfo() << "background_SpinBox->currentTextChanged" << endl;
 		target_Curve->measurement.background= background_SpinBox->value();
 
-//		global_Multilayer_Approach->calc_Reflection(true);
+		global_Multilayer_Approach->calc_Reflection(true);
 	});
 	// spectral width
 	connect(spectral_Width_SpinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, [=]
 	{
-		qInfo() << "spectral_Width_SpinBox->currentTextChanged" << endl;
 		target_Curve->measurement.spectral_Distribution.FWHM_distribution = spectral_Width_SpinBox->value();
 
-//		global_Multilayer_Approach->calc_Reflection(true);
+		global_Multilayer_Approach->calc_Reflection(true);
 	});
 	// angular divergence
 	connect(angular_Divergence_SpinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, [=]
 	{
-		qInfo() << "angular_Divergence_SpinBox->currentTextChanged" << endl;
 		double coeff = angle_Coefficients_Map.value(target_Curve->curve.angular_Units);
 		target_Curve->measurement.beam_Theta_0_Distribution.FWHM_distribution = angular_Divergence_SpinBox->value()*coeff;
 
-//		global_Multilayer_Approach->calc_Reflection(true);
+		global_Multilayer_Approach->calc_Reflection(true);
+	});
+	// beam distribution button
+	connect(setup_Beam_Distribution_Button, &QPushButton::clicked, this, [=]
+	{
+		// TODO
+		Distribution_Editor* distribution_Editor = new Distribution_Editor;
+		distribution_Editor->show();
 	});
 
+	/// detector box
+	// detector type
+	connect(detector_Type_ComboBox, &QComboBox::currentTextChanged, this, [=]
+	{
+		target_Curve->measurement.detector_1D.detector_Type = detector_Type_ComboBox->currentText();
+		detectors_Stack->setCurrentIndex(detector_Type_ComboBox->findText(target_Curve->measurement.detector_1D.detector_Type));
 
-//	connect(setup_Button, &QPushButton::clicked, this, [=]
-//	{
-//		Distribution_Editor* distribution_Editor = new Distribution_Editor;
-//		distribution_Editor->show();
-//	});
+		global_Multilayer_Approach->calc_Reflection(true);
+	});
+	// slit width
+	connect(slit_Width_SpinBox,  static_cast<void(QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, [=]
+	{
+		target_Curve->measurement.detector_1D.slit_Width = slit_Width_SpinBox->value();
 
+		global_Multilayer_Approach->calc_Reflection(true);
+	});
+	// slit distance
+	connect(slit_Distance_SpinBox,  static_cast<void(QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, [=]
+	{
+		target_Curve->measurement.detector_1D.distance_To_Sample = slit_Distance_SpinBox->value();
+
+		global_Multilayer_Approach->calc_Reflection(true);
+	});
+	// crystal resolution
+	connect(crystal_Resolution_SpinBox,  static_cast<void(QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, [=]
+	{
+		double coeff = angle_Coefficients_Map.value(target_Curve->curve.angular_Units);
+		target_Curve->measurement.detector_1D.detector_Theta_Resolution.FWHM_distribution = crystal_Resolution_SpinBox->value()*coeff;
+
+		global_Multilayer_Approach->calc_Reflection(true);
+	});
+	// crystal resolution button
+	connect(setup_Crystal_Resolution_Button, &QPushButton::clicked, this, [=]
+	{
+		// TODO
+		Distribution_Editor* distribution_Editor = new Distribution_Editor;
+		distribution_Editor->show();
+	});
+
+	/// footprint & distortion groupbox
+	// beam width
+	connect(beam_Footprint_Width_SpinBox, static_cast<void(QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, [=]
+	{
+		target_Curve->measurement.beam_Geometry.size = beam_Footprint_Width_SpinBox->value();
+
+		plot_Beam_Profile();
+		global_Multilayer_Approach->calc_Reflection(true);
+	});
+	// beam shape
+	connect(beam_Footprint_Shape_SpinBox, static_cast<void(QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, [=]
+	{
+		target_Curve->measurement.beam_Geometry.smoothing = beam_Footprint_Shape_SpinBox->value();
+
+		plot_Beam_Profile();
+		global_Multilayer_Approach->calc_Reflection(true);
+	});
+	// sample size
+	connect(sample_Size_SpinBox, static_cast<void(QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, [=]
+	{
+		target_Curve->measurement.sample_Geometry.size = sample_Size_SpinBox->value();
+
+		plot_Sample();
+		global_Multilayer_Approach->calc_Reflection(true);
+	});
+	// sample x-position
+	connect(sample_X_SpinBox, static_cast<void(QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, [=]
+	{
+		target_Curve->measurement.sample_Geometry.x_Position = sample_X_SpinBox->value();
+
+		plot_Sample();
+		global_Multilayer_Approach->calc_Reflection(true);
+	});
+	// sample z-position
+	connect(sample_Z_SpinBox, static_cast<void(QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, [=]
+	{
+		target_Curve->measurement.sample_Geometry.z_Position = sample_Z_SpinBox->value();
+
+		plot_Sample();
+		global_Multilayer_Approach->calc_Reflection(true);
+	});
+	// sample curvature
+	connect(sample_Curvature_SpinBox, static_cast<void(QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, [=]
+	{
+		target_Curve->measurement.sample_Geometry.curvature = sample_Curvature_SpinBox->value();
+
+		refresh_Curvature_Radius();
+		plot_Sample();
+		global_Multilayer_Approach->calc_Reflection(true);
+	});
 }

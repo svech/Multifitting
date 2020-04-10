@@ -392,7 +392,7 @@ void Multilayer::set_Index_To_Target_Curves()
 		{
 			serial_Index+=1;
 			target_Profiles_Vector[i]->index = QString::number(serial_Index);
-			target_Profiles_Vector[i]->show_Description_Label();
+			target_Profiles_Vector[i]->refresh_Description_Label();
 		}
 	}
 }

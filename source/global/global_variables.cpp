@@ -1568,3 +1568,26 @@ double Global_Variables::layer_Normalization(double thickness, QVector<Interlaye
 //	}
 	return result;
 }
+
+double Global_Variables::beam_Profile(double x, double FWHM, double smoothing)
+{
+	if(smoothing < DBL_EPSILON)
+	{
+		if(x <  -FWHM/2) return 0;
+		if(x == -FWHM/2) return 0.5;
+		if(-FWHM/2 < x && x < FWHM/2) return 1;
+		if(x ==  FWHM/2) return 0.5;
+		if(x >   FWHM/2) return 0;
+	} else
+	{
+		double limit = FWHM/2+1.5*smoothing;
+		if(x <= -limit) return 0;
+		if(-limit < x && x < limit)
+		{
+			double x_Factor = 4*smoothing*acosh(0.5*sqrt(2+2*sqrt(2+pow(sinh(FWHM/smoothing),2))))/FWHM;
+
+			return (1+tanh((x*x_Factor+FWHM)/smoothing))*(1+tanh((-x*x_Factor+FWHM)/smoothing))/pow(1+tanh(FWHM/smoothing),2);
+		}
+		if(x >=  limit) return 0;
+	}
+}

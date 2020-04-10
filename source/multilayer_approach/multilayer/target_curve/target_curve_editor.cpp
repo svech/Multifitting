@@ -63,7 +63,7 @@ void Target_Curve_Editor::read_Data_File(QString filepath)
 		target_Curve->fill_Measurement_And_Curve_With_Shifted_Data();
 		global_Multilayer_Approach->target_Added = true;
 		reset_Subinterval();
-		refresh_Description_Label();
+		target_Curve->refresh_Description_Label();
 		multilayer_Parent->set_Index_To_Target_Curves();
 	} else
 	{
@@ -245,29 +245,6 @@ void Target_Curve_Editor::reset_Subinterval()
 //		gisas_Target_Curve_Part->reset_Subinterval();
 	}
 }
-
-void Target_Curve_Editor::refresh_Description_Label()
-{
-	if(	target_Curve->measurement.measurement_Type == measurement_Types[Specular_Scan] )
-	{
-		specular_Target_Curve_Part->refresh_Description_Label();
-	}
-	if(	target_Curve->measurement.measurement_Type == measurement_Types[Detector_Scan] )
-	{
-//		detector_Target_Curve_Part->refresh_Description_Label();
-	}
-	if(	target_Curve->measurement.measurement_Type == measurement_Types[Rocking_Curve] )
-	{
-//		rocking_Target_Curve_Part->refresh_Description_Label();
-	}
-	if(	target_Curve->measurement.measurement_Type == measurement_Types[Offset_Scan] )
-	{
-//		offset_Target_Curve_Part->refresh_Description_Label();
-	}
-	if(	target_Curve->measurement.measurement_Type == measurement_Types[GISAS] )
-	{
-//		gisas_Target_Curve_Part->refresh_Description_Label();
-	}}
 
 void Target_Curve_Editor::create_Buttons()
 {

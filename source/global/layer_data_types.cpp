@@ -115,7 +115,7 @@ Data::Data(QString item_Type_Passed)
 
 		// footprint
 		beam_Geometry.size = 0.055;
-		beam_Geometry.smoothing = 1;
+		beam_Geometry.smoothing = 0.5;
 
 		sample_Geometry.size = 20;
 		sample_Geometry.x_Position = 0;

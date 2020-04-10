@@ -170,11 +170,13 @@ class Node;
 #define Chi2_Sym				QString(QChar(0x03C7))+QString(QChar(0x00B2))
 #define Element_Sym				QString(QChar(0x2208))
 #define Multiply_Sym			QString(QChar(0x00D7))
+#define Infinity_Sym			QString(QChar(0x221E))
 
 // -----------------------------------------------------------------------------------------
 
 // magic numbers
 #define MAX_DOUBLE 1E300
+#define CURVATURE_LIMIT 0.00005
 #define MAX_INTEGER INT_MAX					// MAXINT
 #define MAX_PRECISION 100
 #define MIN_ANGULAR_RESOLUTION_POINTS 5		// minimal number of points necessary for specifying non-zero resolution
@@ -496,7 +498,7 @@ struct Sample_Geometry			{ double size = 20;
 								};
 
 struct Beam_Geometry			{ double size = 0.055;
-								  double smoothing = 0;
+								  double smoothing = 0.5;
 								};
 
 

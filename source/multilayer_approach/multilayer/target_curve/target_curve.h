@@ -108,7 +108,7 @@ public:
 		void fill_Measurement_And_Curve_With_Shifted_Data();
 			void fill_Measurement_And_Curve_With_Shifted_1D_Data();
 			void fill_Measurement_And_Curve_With_Shifted_2D_Data();
-	void show_Description_Label();
+	void refresh_Description_Label();
 
 	Curve curve;
 	Fit_Params fit_Params;

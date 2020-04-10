@@ -36,7 +36,6 @@ public:
 		void create_Filepath_GroupBox();
 		void create_Data_GroupBox();
 		void reset_Subinterval();
-		void refresh_Description_Label();
 		void create_Buttons();
 	void set_Window_Geometry();
 
