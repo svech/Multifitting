@@ -78,7 +78,7 @@ void Curve_Plot::create_Main_Layout()
 	}
 
 	// for discretized structures plot vertical threshold line
-	if(*argument_Type == whats_This_Beam_Theta_0_Angle)
+	if(*argument_Type == argument_Types[Beam_Grazing_Angle])
 	{
 		infLine = new QCPItemStraightLine(custom_Plot);
 		discretized_Angular_Threshold();
@@ -135,7 +135,7 @@ void Curve_Plot::discretized_Angular_Threshold()
 	if(curve_Class == TARGET)     {
 		argument_Type = target_Curve->measurement.argument_Type;
 		angle_Units = target_Curve->curve.angular_Units;
-		if(argument_Type == whats_This_Beam_Theta_0_Angle)
+		if(argument_Type == argument_Types[Beam_Grazing_Angle])
 		{
 			wavelength = target_Curve->measurement.lambda_Value;
 		}
@@ -143,13 +143,13 @@ void Curve_Plot::discretized_Angular_Threshold()
 	if(curve_Class == INDEPENDENT){
 		argument_Type = independent_Variables->argument_Type;
 		angle_Units = angle_units;
-		if(argument_Type == whats_This_Beam_Theta_0_Angle)
+		if(argument_Type == argument_Types[Beam_Grazing_Angle])
 		{
 			wavelength = independent_Variables->measurement.lambda_Value;
 		}
 	}
 
-	if(argument_Type == whats_This_Beam_Theta_0_Angle)
+	if(argument_Type == argument_Types[Beam_Grazing_Angle])
 	{
 		if(multilayer->discretization_Parameters.enable_Discretization)
 		{
@@ -525,7 +525,7 @@ void Curve_Plot::set_Title_Text()
 		QString title_Text = "fixed parameters";
 
 		// at fixed wavelength
-		if(*argument_Type == whats_This_Beam_Theta_0_Angle)
+		if(*argument_Type == argument_Types[Beam_Grazing_Angle])
 		{
 			double coeff = wavelength_Coefficients_Map.value(*spectral_Units);
 
@@ -550,7 +550,7 @@ void Curve_Plot::set_Title_Text()
 			plot_Title->setText(title_Text);
 		}
 		// at fixed angle
-		if(*argument_Type == whats_This_Wavelength)
+		if(*argument_Type == argument_Types[Wavelength_Energy])
 		{
 			double coeff = angle_Coefficients_Map.value(*angular_Units);
 			fixed_Quantity = " " +Omega_Sym;
@@ -613,8 +613,8 @@ void Curve_Plot::plot_All_Data()
 
 	if(curve_Class == INDEPENDENT)
 	{
-		if(	*argument_Type == whats_This_Beam_Theta_0_Angle )	{	argument = measurement->beam_Theta_0_Angle_Vec;	}
-		if(	*argument_Type == whats_This_Wavelength )		{	argument = measurement->lambda_Vec;	}
+		if(	*argument_Type == argument_Types[Beam_Grazing_Angle])	{	argument = measurement->beam_Theta_0_Angle_Vec;	}
+		if(	*argument_Type == argument_Types[Wavelength_Energy] )	{	argument = measurement->lambda_Vec;	}
 
 		if(	independent_Variables->calc_Functions.check_Reflectance)   { values = calculated_Values->R; } /*else*/
 		if(	independent_Variables->calc_Functions.check_Transmittance) { values = calculated_Values->T; } /*else*/
@@ -627,14 +627,14 @@ void Curve_Plot::plot_All_Data()
 		// first value (R,T,A...)
 		{
 			double coeff=1;
-			if(*argument_Type == whats_This_Beam_Theta_0_Angle)
+			if(*argument_Type == argument_Types[Beam_Grazing_Angle])
 			{
 				coeff = angle_Coefficients_Map.value(angle_units);
 				for(int i=0; i<values.size(); ++i)				{
 					argument[i]=argument[i]/coeff;
 				}
 			}
-			if(*argument_Type == whats_This_Wavelength)
+			if(*argument_Type == argument_Types[Wavelength_Energy])
 			{
 				coeff = wavelength_Coefficients_Map.value(wavelength_units);
 				for(int i=0; i<values.size(); ++i)				{
@@ -663,7 +663,7 @@ void Curve_Plot::plot_All_Data()
 			Global_Variables::get_Peak_Parameters(argument, values, max_Value_Position, max_Value, width);
 
 			max_Value_Label->setText(max_Value_Title + " " + Locale.toString(max_Value,'f',4) + " at " + Locale.toString(max_Value_Position,'f',4) + " " + argument_Units);
-			if(*argument_Type == whats_This_Wavelength)
+			if(*argument_Type == argument_Types[Wavelength_Energy])
 			{
 				max_Value_Label->setText(max_Value_Label->text() + ", FWHM " + Locale.toString(width,'f',4) + " " + argument_Units);
 			}
@@ -731,7 +731,7 @@ void Curve_Plot::refresh_Labels()
 
 	// argument
 	{
-		if(*argument_Type == whats_This_Beam_Theta_0_Angle)
+		if(*argument_Type == argument_Types[Beam_Grazing_Angle])
 		{
 			argument_Type_Label = argument_Types[Beam_Grazing_Angle];
 
@@ -742,7 +742,7 @@ void Curve_Plot::refresh_Labels()
 				argument_Units = *angular_Units;
 			}
 		}
-		if(*argument_Type == whats_This_Wavelength)
+		if(*argument_Type == argument_Types[Wavelength_Energy])
 		{
 			if(	*spectral_Units == wavelength_Units_List[angstrom] ||
 				*spectral_Units == wavelength_Units_List[nm]	   )

@@ -751,7 +751,7 @@ void Specular_Target_Curve_Part::create_Beam_Plot()
 
 void Specular_Target_Curve_Part::plot_Beam_Profile()
 {
-	int data_Count = 300;
+	int data_Count = 301;
 	double FWHM = target_Curve->measurement.beam_Geometry.size;
 	double sigma = FWHM*target_Curve->measurement.beam_Geometry.smoothing;
 	double limit = 1.7*FWHM;
@@ -833,7 +833,7 @@ void Specular_Target_Curve_Part::create_Sample_Plot()
 
 void Specular_Target_Curve_Part::plot_Sample()
 {
-	int curve_Point_Count = 300;
+	int curve_Point_Count = 301;
 
 	double size = target_Curve->measurement.sample_Geometry.size;
 	double z_Pos = target_Curve->measurement.sample_Geometry.z_Position;
