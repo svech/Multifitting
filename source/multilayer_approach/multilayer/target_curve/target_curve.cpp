@@ -86,9 +86,8 @@ void Fit_Params::create_Expressions_for_Residual()
    }
 }
 
-Target_Curve::Target_Curve(QLabel* description_Label, QTreeWidget* real_Struct_Tree, QWidget *parent) :
+Target_Curve::Target_Curve(QLabel* description_Label, QWidget *parent) :
 	description_Label(description_Label),
-	real_Struct_Tree(real_Struct_Tree),
 	measurement(item_Type_Measurement),
 	QWidget(parent)
 {
@@ -96,10 +95,6 @@ Target_Curve::Target_Curve(QLabel* description_Label, QTreeWidget* real_Struct_T
 	plot_Options_Calculated.scatter_Shape = QCPScatterStyle::ssDisc;
 	plot_Options_Calculated.scatter_Size=0;
 	plot_Options_Calculated.thickness=2;
-}
-
-Target_Curve::~Target_Curve()
-{
 }
 
 void Target_Curve::import_Data_From_File(QString bare_Filename)
@@ -327,7 +322,6 @@ void Target_Curve::refresh_Description_Label()
 		label_Text = "<no description>";
 		description_Label->setText(label_Text);
 	}
-
 }
 
 Target_Curve& Target_Curve::operator =(const Target_Curve& referent_Target_Curve)

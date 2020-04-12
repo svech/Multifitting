@@ -195,12 +195,13 @@ void Fits_Selector::open_Fit()
 			}
 		}
 
+		// TODO INDEPENDENT
 		// refresh struct_Tree_Copy
-		for(int independent_Index=0; independent_Index<multilayer->independent_Variables_Plot_Tabs->tabBar()->count(); independent_Index++)
-		{
-			Independent_Variables* independent = qobject_cast<Independent_Variables*>(multilayer->independent_Variables_Plot_Tabs->widget(independent_Index));
-			independent->reset_Independent_Variables_Structure();
-		}
+//		for(int independent_Index=0; independent_Index<multilayer->independent_Curve_Tabs->tabBar()->count(); independent_Index++)
+//		{
+//			Independent_Curve* independent = qobject_cast<Independent_Curve*>(multilayer->independent_Curve_Tabs->widget(independent_Index));
+//			independent->reset_Independent_Variables_Structure();
+//		}
 	}
 
 	// refresh table

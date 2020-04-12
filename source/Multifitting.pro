@@ -92,10 +92,13 @@ SOURCES += \
     multilayer_approach/fitting_settings/fitting_settings.cpp \
     multilayer_approach/fits_selector/fits_selector.cpp \
     multilayer_approach/calculation_settings_editor/calculation_settings_editor.cpp \
-    multilayer_approach/multilayer/independent_variables/independent_calc_function_selection.cpp \
-    multilayer_approach/multilayer/independent_variables/independent_variables.cpp \
-    multilayer_approach/multilayer/independent_variables/independent_variables_editor.cpp \
-    multilayer_approach/multilayer/independent_variables/variable_selection.cpp \
+    multilayer_approach/multilayer/independent_curve/independent_curve.cpp \
+    multilayer_approach/multilayer/independent_curve/independent_curve_editor.cpp \
+    multilayer_approach/multilayer/independent_curve/independent_data_types/detector_independent_curve_part.cpp \
+    multilayer_approach/multilayer/independent_curve/independent_data_types/gisas_independent_curve_part.cpp \
+    multilayer_approach/multilayer/independent_curve/independent_data_types/offset_independent_curve_part.cpp \
+    multilayer_approach/multilayer/independent_curve/independent_data_types/rocking_independent_curve_part.cpp \
+    multilayer_approach/multilayer/independent_curve/independent_data_types/specular_independent_curve_part.cpp \
     multilayer_approach/multilayer/structure_tree/grading_editor.cpp \
     multilayer_approach/multilayer/structure_tree/item_editor.cpp \
     multilayer_approach/multilayer/structure_tree/structure_toolbar.cpp \
@@ -149,10 +152,13 @@ HEADERS += \
     multilayer_approach/fitting_settings/fitting_settings_editor.h \
     multilayer_approach/fitting_settings/fitting_settings.h \
     multilayer_approach/calculation_settings_editor/calculation_settings_editor.h \
-    multilayer_approach/multilayer/independent_variables/independent_calc_function_selection.h \
-    multilayer_approach/multilayer/independent_variables/independent_variables.h \
-    multilayer_approach/multilayer/independent_variables/independent_variables_editor.h \
-    multilayer_approach/multilayer/independent_variables/variable_selection.h \
+    multilayer_approach/multilayer/independent_curve/independent_curve.h \
+    multilayer_approach/multilayer/independent_curve/independent_curve_editor.h \
+    multilayer_approach/multilayer/independent_curve/independent_data_types/detector_independent_curve_part.h \
+    multilayer_approach/multilayer/independent_curve/independent_data_types/gisas_independent_curve_part.h \
+    multilayer_approach/multilayer/independent_curve/independent_data_types/offset_independent_curve_part.h \
+    multilayer_approach/multilayer/independent_curve/independent_data_types/rocking_independent_curve_part.h \
+    multilayer_approach/multilayer/independent_curve/independent_data_types/specular_independent_curve_part.h \
     multilayer_approach/multilayer/structure_tree/grading_editor.h \
     multilayer_approach/multilayer/structure_tree/item_editor.h \
     multilayer_approach/multilayer/structure_tree/structure_toolbar.h \

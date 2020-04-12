@@ -246,7 +246,7 @@ void Main_Calculation_Module::preliminary_Calculation()
 	for(int tab_Index=0; tab_Index<multilayers.size(); ++tab_Index)
 	{
 		calculation_Trees[tab_Index]->fill_Independent_Calc_Trees();
-		for(Data_Element<Independent_Variables>& independent_Element : calculation_Trees[tab_Index]->independent)
+		for(Data_Element<Independent_Curve>& independent_Element : calculation_Trees[tab_Index]->independent)
 		{
 			calculation_Trees[tab_Index]->calculate_1_Kind_Preliminary(independent_Element);
 		}
@@ -278,7 +278,7 @@ void Main_Calculation_Module::single_Calculation(bool print_And_Verbose)
 	for(int tab_Index=0; tab_Index<multilayers.size(); ++tab_Index)
 	{
 //		calculation_Trees[tab_Index]->fill_Independent_Calc_Trees(); // in preliminary calculation now
-		for(Data_Element<Independent_Variables>& independent_Element : calculation_Trees[tab_Index]->independent)
+		for(Data_Element<Independent_Curve>& independent_Element : calculation_Trees[tab_Index]->independent)
 		{
 //			qInfo() << independent_Element.calc_Tree.begin().number_of_children() << endl;
 //			calculation_Trees[tab_Index]->print_Tree(independent_Element.calc_Tree.begin(), independent_Element.calc_Tree);
@@ -957,7 +957,7 @@ void Main_Calculation_Module::print_Calculated_To_File()
 		int counter = 0;
 		if( multilayers[tab_Index]->enable_Calc_Independent_Curves )
 		{
-			for(Data_Element<Independent_Variables>& independent : calculation_Trees[tab_Index]->independent)
+			for(Data_Element<Independent_Curve>& independent : calculation_Trees[tab_Index]->independent)
 			{
 				print_Reflect_To_File(independent, multilayer_Tabs->tabText(tab_Index), counter++);
 			}
@@ -980,7 +980,7 @@ void Main_Calculation_Module::print_Reflect_To_File(Data_Element<Type>& data_Ele
 	if(data_Element.curve_Class == INDEPENDENT)	first_Name = "calc_" + struct_Name + "_independent";
 	if(data_Element.curve_Class == TARGET)		first_Name = "calc_" + struct_Name + "_target";
 
-	Independent_Variables* independent_Variables = qobject_cast<Independent_Variables*>(data_Element.the_Class);
+	Independent_Curve* independent_Variables = qobject_cast<Independent_Curve*>(data_Element.the_Class);
 	Target_Curve* target_Curve = qobject_cast<Target_Curve*>(data_Element.the_Class);
 
 	//-----------------------------------------------------------------------------------------------------
@@ -1076,7 +1076,7 @@ void Main_Calculation_Module::print_Reflect_To_File(Data_Element<Type>& data_Ele
 		file.close();
 	}
 }
-template void Main_Calculation_Module::print_Reflect_To_File<Independent_Variables>(Data_Element<Independent_Variables>&, QString, int);
+template void Main_Calculation_Module::print_Reflect_To_File<Independent_Curve>(Data_Element<Independent_Curve>&, QString, int);
 template void Main_Calculation_Module::print_Reflect_To_File<Target_Curve>		   (Data_Element<Target_Curve>&,          QString, int);
 
 void Main_Calculation_Module::print_Data(QTextStream &out, QVector<double> &arg, Unwrapped_Reflection* unwrapped_Reflection,

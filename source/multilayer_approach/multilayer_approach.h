@@ -27,6 +27,7 @@ class Calculation_Settings_Editor;
 class Fitting_Settings_Editor;
 class Fitting_Settings;
 class Fits_Selector;
+class Menu;
 
 struct Regular_Aperiodic_Table_Launch
 {

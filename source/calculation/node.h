@@ -2,7 +2,7 @@
 #define NODE_H
 
 #include "global/layer_data_types.h"
-#include "multilayer_approach/multilayer/independent_variables/independent_variables.h"
+#include "multilayer_approach/multilayer/independent_curve/independent_curve.h"
 #include "multilayer_approach/multilayer/target_curve/target_curve.h"
 
 class Node

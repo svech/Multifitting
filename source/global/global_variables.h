@@ -65,8 +65,7 @@ enum multilayer_Toolbar_Enum    { Add_Layer,
 // independent variables toolbar
 enum independent_Toolbar_Enum   { New_Variable_Independent,
 								  Edit_Independent,
-								  Remove_Independent,
-								  Function_Independent };
+								  Remove_Independent };
 
 // data types
 extern QString no_Measurement_Type;
@@ -261,8 +260,10 @@ public:
 	static void create_Sorted_Elements_Map();
 	static void   serialize_Tree(QDataStream &out, QTreeWidget* tree);
 	static void deserialize_Tree(QDataStream &in,  QTreeWidget* tree);
+	static void pseudo_Deserialize_Tree(QDataStream &in);
 	static void   serialize_Variables_List(QDataStream &out, QListWidget* list);
 	static void deserialize_Variables_List(QDataStream &in,  QListWidget* list);
+	static void pseudo_Deserialize_Variables_List(QDataStream &in);
 	static double wavelength_Energy(QString wavelength_Units, double y);
 	static QString wavelength_Energy_Name(QString wavelength_Units);
 	static double angstrom_eV(double x);

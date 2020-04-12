@@ -33,7 +33,7 @@ void Menu::add_Menu_Points()
 	}
 	if(window_Type == window_Type_Independent_Variables_Editor)
 	{
-		independent_Variables_Editor = qobject_cast<Independent_Variables_Editor*>(my_Parent);
+		independent_Variables_Editor = qobject_cast<Independent_Curve_Editor*>(my_Parent);
 
 		create_Independent_Units_Menu();
 			menu_Bar->addMenu(units_Menu);
@@ -197,9 +197,10 @@ void Menu::create_Optical_Constants_Menu()
 
 void Menu::create_Independent_Units_Menu()
 {
+	// TODO INDEPENDENT
 	// PARAMETER
 
-	QString whats_This= independent_Variables_Editor->list_Item->data(Qt::UserRole).value<Independent_Indicator>().parameter_Whats_This;
+	QString whats_This;//= independent_Variables_Editor->list_Item->data(Qt::UserRole).value<Independent_Indicator>().parameter_Whats_This;
 
 	units_Menu = new QMenu("Units", this);
 
@@ -286,7 +287,8 @@ void Menu::create_Independent_Precision_Menu()
 {
 	// PARAMETER
 
-	QString whats_This= independent_Variables_Editor->list_Item->data(Qt::UserRole).value<Independent_Indicator>().parameter_Whats_This;
+	// TODO INDEPENDENT
+	QString whats_This;//= independent_Variables_Editor->list_Item->data(Qt::UserRole).value<Independent_Indicator>().parameter_Whats_This;
 
 	precision_Menu = new QMenu("Precision", this);
 
@@ -764,13 +766,15 @@ void Menu::open_About()
 
 void Menu::set_Grazing_Unit()
 {
-	Data measurement = independent_Variables_Editor->structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+	// TODO INDEPENDENT
+	Data measurement;// = independent_Variables_Editor->structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
 	int index = sender()->property(index_Property).toInt();
 	//-------------------------------------------------
 	angle_units				= angle_Units_List[index];
 	//-------------------------------------------------
 	QVariant var; var.setValue(measurement);
-	independent_Variables_Editor->structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+	// TODO INDEPENDENT
+//	independent_Variables_Editor->structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
 	emit refresh();
 }
 

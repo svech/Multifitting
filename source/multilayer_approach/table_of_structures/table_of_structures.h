@@ -11,6 +11,7 @@ class MyDoubleSpinBox;
 class My_Table_Widget;
 class Calculation_Settings_Editor;
 class Layer_Thickness_Transfer;
+class Menu;
 
 class Table_Of_Structures : public QWidget
 {

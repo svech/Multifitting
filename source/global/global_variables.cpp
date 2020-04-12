@@ -595,6 +595,24 @@ void Global_Variables::deserialize_Tree(QDataStream& in, QTreeWidget* tree)
 	tree->expandAll();
 }
 
+void Global_Variables::pseudo_Deserialize_Tree(QDataStream &in)
+{
+	id_Type tree_Id = 0;
+	in >> tree_Id;
+
+	int num_Items=0;
+	in >> num_Items;
+
+	for(int i=0; i<num_Items; ++i)
+	{
+		Data data;
+		in >> data;
+
+		QString id_Parent;
+		in >> id_Parent;
+	}
+}
+
 void Global_Variables::serialize_Variables_List(QDataStream& out, QListWidget* list)
 {
 	// save number of items
@@ -636,6 +654,22 @@ void Global_Variables::deserialize_Variables_List(QDataStream& in, QListWidget* 
 		QVariant var;
 		var.setValue(indicator);
 		new_Item->setData(Qt::UserRole,var);
+	}
+}
+
+void Global_Variables::pseudo_Deserialize_Variables_List(QDataStream& in)
+{
+	// load number of items
+	int num_Items;
+	in >> num_Items;
+
+	for(int i=0; i<num_Items; ++i)
+	{
+		QString text;
+		in >> text;
+
+		Independent_Indicator indicator;
+		in >> indicator;
 	}
 }
 

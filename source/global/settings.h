@@ -230,13 +230,13 @@ extern double default_logarithmic_threshold_element_concentration;
 
 // -----------------------------------------------------------------------------------------
 
+
 // units
-extern QString wavelength_units;
+extern QString wavelength_units;// TODO INDEPENDENT
 extern QString length_units;
-extern QString angle_units;
+extern QString angle_units;// TODO INDEPENDENT
 extern QString density_units;
 extern QString opt_const_units;
-extern QString drift_units;
 
 
 // -----------------------------------------------------------------------------------------

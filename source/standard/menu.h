@@ -2,10 +2,10 @@
 #define MENU_H
 
 #include "global/layer_data_types.h"
-#include "multilayer_approach/multilayer/independent_variables/independent_variables_editor.h"
+#include "multilayer_approach/multilayer/independent_curve/independent_curve_editor.h"
 #include "multilayer_approach/multilayer/structure_tree/item_editor.h"
 
-class Independent_Variables_Editor;
+class Independent_Curve_Editor;
 class Item_Editor;
 
 class Menu : public QWidget
@@ -20,7 +20,7 @@ signals:
 
 public:
 	QString window_Type;
-	Independent_Variables_Editor* independent_Variables_Editor;
+	Independent_Curve_Editor* independent_Variables_Editor;
 	Item_Editor* item_Editor;
 	QObject* my_Parent;
 

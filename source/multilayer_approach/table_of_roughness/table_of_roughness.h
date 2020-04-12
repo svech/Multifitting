@@ -11,6 +11,7 @@
 //class Calculation_Settings_Editor;
 //class Layer_Thickness_Transfer;
 
+class Menu;
 class Table_Of_Roughness : public QWidget
 {
 	Q_OBJECT

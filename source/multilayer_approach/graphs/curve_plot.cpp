@@ -1,10 +1,10 @@
 #include "curve_plot.h"
 
-Curve_Plot::Curve_Plot(Multilayer* multilayer, Target_Curve* target_Curve, Independent_Variables* independent_Variables, QString curve_Class, QWidget* parent) :
+Curve_Plot::Curve_Plot(Multilayer* multilayer, Target_Curve* target_Curve, Independent_Curve* independent_Variables, QString curve_Class, QWidget* parent) :
 	multilayer(multilayer),
 	curve_Class(curve_Class),
 	target_Curve(target_Curve),
-	independent_Variables(independent_Variables),
+	independent_Curve(independent_Variables),
 	QWidget(parent)
 {
 	// if target
@@ -38,7 +38,7 @@ Curve_Plot::Curve_Plot(Multilayer* multilayer, Target_Curve* target_Curve, Indep
 			plot_Options_Second = plot_Options_First;
 			spectral_Units = &wavelength_units;
 			angular_Units = &angle_units;
-			argument_Type = &independent_Variables->argument_Type;
+			argument_Type = &independent_Variables->measurement.argument_Type;
 			plot_Indicator = &independent_Variables->tab_Name;
 		} else
 		{
@@ -141,11 +141,11 @@ void Curve_Plot::discretized_Angular_Threshold()
 		}
 	}
 	if(curve_Class == INDEPENDENT){
-		argument_Type = independent_Variables->argument_Type;
+		argument_Type = independent_Curve->measurement.argument_Type;
 		angle_Units = angle_units;
 		if(argument_Type == argument_Types[Beam_Grazing_Angle])
 		{
-			wavelength = independent_Variables->measurement.lambda_Value;
+			wavelength = independent_Curve->measurement.lambda_Value;
 		}
 	}
 
@@ -483,15 +483,15 @@ void Curve_Plot::create_Options()
 		// independent
 		if(curve_Class == INDEPENDENT)
 		{
-			if(independent_Variables->calc_Functions.check_Absorptance )
+			if(independent_Curve->calc_Functions.check_Absorptance )
 			{
 				max_Value_Title = "| Max A =";
 			} else
-			if(independent_Variables->calc_Functions.check_Transmittance )
+			if(independent_Curve->calc_Functions.check_Transmittance )
 			{
 				max_Value_Title = "| Max T =";
 			} else
-			if( independent_Variables->calc_Functions.check_Reflectance )
+			if( independent_Curve->calc_Functions.check_Reflectance )
 			{
 				max_Value_Title = "| Max R =";
 			} else
@@ -616,9 +616,9 @@ void Curve_Plot::plot_All_Data()
 		if(	*argument_Type == argument_Types[Beam_Grazing_Angle])	{	argument = measurement->beam_Theta_0_Angle_Vec;	}
 		if(	*argument_Type == argument_Types[Wavelength_Energy] )	{	argument = measurement->lambda_Vec;	}
 
-		if(	independent_Variables->calc_Functions.check_Reflectance)   { values = calculated_Values->R; } /*else*/
-		if(	independent_Variables->calc_Functions.check_Transmittance) { values = calculated_Values->T; } /*else*/
-		if(	independent_Variables->calc_Functions.check_Absorptance)   { values = calculated_Values->A; }
+		if(	independent_Curve->calc_Functions.check_Reflectance)   { values = calculated_Values->R; } /*else*/
+		if(	independent_Curve->calc_Functions.check_Transmittance) { values = calculated_Values->T; } /*else*/
+		if(	independent_Curve->calc_Functions.check_Absorptance)   { values = calculated_Values->A; }
 		// TODO
 //		else
 //		if(	independent_Variables->calc_Functions.check_User) { values=calculated_Valufgh }
@@ -715,15 +715,15 @@ void Curve_Plot::refresh_Labels()
 	}
 	if(curve_Class == INDEPENDENT)
 	{
-		if(	independent_Variables->calc_Functions.check_Reflectance)
+		if(	independent_Curve->calc_Functions.check_Reflectance)
 		{
 			val_Type_Label = value_Types[Reflectance];
 		}
-		if( independent_Variables->calc_Functions.check_Transmittance)
+		if( independent_Curve->calc_Functions.check_Transmittance)
 		{
 			val_Type_Label = value_Types[Transmittance];
 		}
-		if( independent_Variables->calc_Functions.check_Absorptance )
+		if( independent_Curve->calc_Functions.check_Absorptance )
 		{
 			val_Type_Label = "Absorptance";
 		}

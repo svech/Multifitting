@@ -87,7 +87,7 @@ public:
 	int max_Depth;
 	int num_Media;
 
-	QVector<Data_Element<Independent_Variables>> independent;
+	QVector<Data_Element<Independent_Curve>> independent;
 	QVector<Data_Element<Target_Curve>>			 target;
 };
 

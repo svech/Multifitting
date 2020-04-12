@@ -9,7 +9,6 @@ Target_Curve_Editor::Target_Curve_Editor(Target_Curve* target_Curve, Multilayer*
 
 	create_Main_Layout();
 	setWindowTitle("Import Data: "+target_Curve->measurement.measurement_Type);
-	set_Window_Geometry();
 	setAttribute(Qt::WA_DeleteOnClose);
 	setAcceptDrops(true);
 }
@@ -45,12 +44,6 @@ void Target_Curve_Editor::dropEvent(QDropEvent* event)
 		}
 		++counter;
 	}
-}
-
-void Target_Curve_Editor::set_Window_Geometry()
-{
-//	QMetaObject::invokeMethod(this, "adjustSize", Qt::QueuedConnection);
-//	main_Layout->layout()->setSizeConstraint( QLayout::SetFixedSize );
 }
 
 void Target_Curve_Editor::read_Data_File(QString filepath)

@@ -334,11 +334,11 @@ void Optical_Graphs::create_Tab_Content(QWidget* new_Widget, int tab_Index)
 	{
 		// calculate total number of graphs
 		total_Number_of_Independent_Graphs[tab_Index] = 0;
-		QVector<Independent_Variables*> independent_Profiles_to_Show;
+		QVector<Independent_Curve*> independent_Profiles_to_Show;
 		if(multilayer->enable_Calc_Independent_Curves)
-		for(int i=0; i<multilayer->independent_Variables_Plot_Tabs->count(); ++i)
+		for(int i=0; i<multilayer->independent_Curve_Tabs->count(); ++i)
 		{
-			Independent_Variables* independent_Variables = qobject_cast<Independent_Variables*>(multilayer->independent_Variables_Plot_Tabs->widget(i));
+			Independent_Curve* independent_Variables = qobject_cast<Independent_Curve*>(multilayer->independent_Curve_Tabs->widget(i));
 			if( independent_Variables->calc_Functions.check_Enabled	)
 			if(	independent_Variables->calc_Functions.if_Something_Enabled() )
 			{

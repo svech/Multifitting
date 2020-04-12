@@ -1,6 +1,27 @@
 #include "multilayer_approach.h"
 #include <thread>
 
+struct Old_Independent_Variables
+{
+	QString tab_Name;
+	Data measurement;
+	Calculated_Values calculated_Values;
+	Calc_Functions calc_Functions;
+	Plot_Options plot_Options;
+	QString argument_Type;
+};
+QDataStream& operator >>(QDataStream& stream,		 Old_Independent_Variables old_Independent_Variables )
+{
+	stream	>> old_Independent_Variables.measurement >> old_Independent_Variables.calc_Functions;
+	stream >> old_Independent_Variables.calculated_Values;
+	stream >> old_Independent_Variables.tab_Name >> old_Independent_Variables.plot_Options;
+
+	if(Global_Variables::check_Loaded_Version(1,7,5))
+	{ stream >> old_Independent_Variables.argument_Type ; }
+
+	return stream;
+}
+
 Multilayer_Approach::Multilayer_Approach(Launcher* launcher, QWidget *parent) :
 	launcher(launcher),
 	QWidget(parent)
@@ -517,15 +538,11 @@ void Multilayer_Approach::lock_Mainwindow_Interface()
 		if(runned_Optical_Graphs.contains(optical_Graphs_Key) ||
 		   runned_Calculation_Settings_Editor.contains(calc_Settings_Key))
 		{
-			for(int i=0; i<multilayer->independent_Variables_Plot_Tabs->count(); ++i)
+			for(int i=0; i<multilayer->independent_Curve_Tabs->count(); ++i)
 			{
-				Independent_Variables* independent_Variables = qobject_cast<Independent_Variables*>(multilayer->independent_Variables_Plot_Tabs->widget(i));
-				if(runned_Calculation_Settings_Editor.contains(calc_Settings_Key))
-				{independent_Variables->independent_Variables_Toolbar->setDisabled(true);}
-
-				multilayer->independent_Variables_Plot_Tabs->tabBar()->tabButton(i, QTabBar::RightSide)->setDisabled(true);
+				multilayer->independent_Curve_Tabs->tabBar()->tabButton(i, QTabBar::RightSide)->setDisabled(true);
 			}
-			multilayer->independent_Variables_Plot_Tabs->setMovable(false);
+			multilayer->independent_Curve_Tabs->setMovable(false);
 			multilayer->independent_Variables_Corner_Button->setDisabled(true);
 		}
 
@@ -575,23 +592,12 @@ void Multilayer_Approach::unlock_Mainwindow_Interface()
 		if(!runned_Optical_Graphs.contains(optical_Graphs_Key) &&
 		   !runned_Calculation_Settings_Editor.contains(calc_Settings_Key))
 		{
-			for(int i=0; i<multilayer->independent_Variables_Plot_Tabs->count(); ++i)
+			for(int i=0; i<multilayer->independent_Curve_Tabs->count(); ++i)
 			{
-				Independent_Variables* independent_Variables = qobject_cast<Independent_Variables*>(multilayer->independent_Variables_Plot_Tabs->widget(i));
-				independent_Variables->independent_Variables_Toolbar->setDisabled(false);
-
-				multilayer->independent_Variables_Plot_Tabs->tabBar()->tabButton(i, QTabBar::RightSide)->setDisabled(false);
+				multilayer->independent_Curve_Tabs->tabBar()->tabButton(i, QTabBar::RightSide)->setDisabled(false);
 			}
-			multilayer->independent_Variables_Plot_Tabs->setMovable(true);
+			multilayer->independent_Curve_Tabs->setMovable(true);
 			multilayer->independent_Variables_Corner_Button->setDisabled(false);
-		} else
-		if(!runned_Calculation_Settings_Editor.contains(calc_Settings_Key))
-		{
-			for(int i=0; i<multilayer->independent_Variables_Plot_Tabs->count(); ++i)
-			{
-				Independent_Variables* independent_Variables = qobject_cast<Independent_Variables*>(multilayer->independent_Variables_Plot_Tabs->widget(i));
-				independent_Variables->independent_Variables_Toolbar->setDisabled(false);
-			}
 		}
 
 		// unlock target buttons
@@ -763,6 +769,16 @@ void Multilayer_Approach::open(QString filename)
 		runned_Fits_Selectors.value(fits_Selector_Key)->close();
 	}
 
+	// close independent editors
+	for(int i=0; i<multilayer_Tabs->count(); ++i)
+	{
+		Multilayer* multilayer = qobject_cast<Multilayer*>(multilayer_Tabs->widget(i));
+		for(Independent_Curve_Editor* independent_Curve_Editor : multilayer->runned_Independent_Curve_Editors.values())
+		{
+			independent_Curve_Editor->close();
+		}
+	}
+
 	// close target editors
 	for(int i=0; i<multilayer_Tabs->count(); ++i)
 	{
@@ -782,13 +798,6 @@ void Multilayer_Approach::open(QString filename)
 	// clear existing tabs
 	for(int i=0; i<multilayer_Tabs->count(); ++i)
 	{
-		// for not growing in size
-//		Multilayer* multilayer = qobject_cast<Multilayer*>(multilayer_Tabs->widget(i));
-//		for(int i=multilayer->data_Target_Profile_Frame_Vector.size()-1; i>=0; --i)
-//		{
-//			multilayer->remove_Target_Curve(i,true);
-//		}
-
 		delete multilayer_Tabs->widget(i);
 	}
 	multilayer_Tabs->clear();
@@ -813,21 +822,19 @@ void Multilayer_Approach::open(QString filename)
 		// load tree
 		Global_Variables::deserialize_Tree(in, multilayer->structure_Tree->tree);
 
-		/// variables
+		if(!Global_Variables::check_Loaded_Version(1,11,0))
 		{
-			// load index of active variables tab
 			int current_Variable_Tab_Index;
 			in >> current_Variable_Tab_Index;
-			multilayer->variables_Tabs->setCurrentIndex(current_Variable_Tab_Index);
 		}
 		/// independent
 		{
 			// clear existing independent tabs
-			for(int i=0; i<multilayer->independent_Variables_Plot_Tabs->count(); ++i)
+			for(int i=0; i<multilayer->independent_Curve_Tabs->count(); ++i)
 			{
-				delete multilayer->independent_Variables_Plot_Tabs->widget(i);
+				delete multilayer->independent_Curve_Tabs->widget(i);
 			}
-			multilayer->independent_Variables_Plot_Tabs->clear();
+			multilayer->independent_Curve_Tabs->clear();
 
 			// read number of independent tabs
 			int num_Independent;
@@ -837,30 +844,28 @@ void Multilayer_Approach::open(QString filename)
 			for(int i=0; i<num_Independent; ++i)
 			{
 				multilayer->add_Independent_Variables_Tab();
-				Independent_Variables* independent = qobject_cast<Independent_Variables*>(multilayer->independent_Variables_Plot_Tabs->widget(i));
 
 				// load plot name
 				QString tab_Text;
 				in >> tab_Text;
-				multilayer->independent_Variables_Plot_Tabs->setTabText(i, tab_Text);
+				multilayer->independent_Curve_Tabs->setTabText(i, tab_Text);
 
-				// load main data
-				in >> independent;
+				if(!Global_Variables::check_Loaded_Version(1,11,0))
+				{
+					Old_Independent_Variables old_independent;
+					in >> old_independent;
+					Global_Variables::pseudo_Deserialize_Tree(in);
+					Global_Variables::pseudo_Deserialize_Variables_List(in);
+				} else
+				{
 
-				// load real tree
-				independent->real_Struct_Tree = multilayer->structure_Tree->tree;
-
-				// load plot tree
-				Global_Variables::deserialize_Tree(in, independent->struct_Tree_Copy);
-
-				// load variables list
-				Global_Variables::deserialize_Variables_List(in, independent->independent_Variables_List);
+				}
 			}
 
 			// load index of active independent tab
 			int current_Independent_Tab_Index;
 			in >> current_Independent_Tab_Index;
-			multilayer->independent_Variables_Plot_Tabs->setCurrentIndex(current_Independent_Tab_Index);
+			multilayer->independent_Curve_Tabs->setCurrentIndex(current_Independent_Tab_Index);
 
 			// load calc property for independent plots
 			in >> multilayer->enable_Calc_Independent_Curves;
@@ -1126,36 +1131,31 @@ void Multilayer_Approach::save(QString filename)
 		// save tree		
 		Global_Variables::serialize_Tree(out, multilayer->structure_Tree->tree);
 
-		/// variables
-		{
-			// save index of active variables tab
-			out << multilayer->variables_Tabs->currentIndex();
-		}
 		/// independent
 		{
 			// save number of independent tabs
-			out << multilayer->independent_Variables_Plot_Tabs->count();
+			out << multilayer->independent_Curve_Tabs->count();
 
 			// save independent tabs
-			for(int i=0; i<multilayer->independent_Variables_Plot_Tabs->count(); ++i)
+			for(int i=0; i<multilayer->independent_Curve_Tabs->count(); ++i)
 			{
-				Independent_Variables* independent = qobject_cast<Independent_Variables*>(multilayer->independent_Variables_Plot_Tabs->widget(i));
-
 				// save plot name
-				out << multilayer->independent_Variables_Plot_Tabs->tabText(i);
+				out << multilayer->independent_Curve_Tabs->tabText(i);
 
-				// save main data
-				out << independent;
+//				Independent_Variables* independent = qobject_cast<Independent_Variables*>(multilayer->independent_Variables_Plot_Tabs->widget(i));
 
-				// save plot tree
-				Global_Variables::serialize_Tree(out, independent->struct_Tree_Copy);
+//				// save main data
+//				out << independent;
 
-				// save variables list
-				Global_Variables::serialize_Variables_List(out, independent->independent_Variables_List);
+//				// save plot tree
+//				Global_Variables::serialize_Tree(out, independent->struct_Tree_Copy);
+
+//				// save variables list
+//				Global_Variables::serialize_Variables_List(out, independent->independent_Variables_List);
 			}
 
 			// save index of active independent tab
-			out << multilayer->independent_Variables_Plot_Tabs->currentIndex();
+			out << multilayer->independent_Curve_Tabs->currentIndex();
 
 			// save calc property for independent plots
 			out << multilayer->enable_Calc_Independent_Curves;

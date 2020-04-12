@@ -657,7 +657,7 @@ void Calculation_Settings_Editor::load_Independent_Parameters(int tab_Index)
 		independent_Vertical_Box_Layout->setContentsMargins(7,14,7,7);
 
 	// total number of independents
-	total_Number_of_Independents = multilayer->independent_Variables_Plot_Tabs->count();
+	total_Number_of_Independents = multilayer->independent_Curve_Tabs->count();
 
 	int independents_in_Short_Row = total_Number_of_Independents/multilayer->num_Independent_Rows;
 	int additional_Independents = total_Number_of_Independents%multilayer->num_Independent_Rows;
@@ -669,11 +669,11 @@ void Calculation_Settings_Editor::load_Independent_Parameters(int tab_Index)
 
 	QHBoxLayout* horizontal_Layout = new QHBoxLayout;
 
-	for(int independent_Index=0; independent_Index<multilayer->independent_Variables_Plot_Tabs->count(); ++independent_Index)
+	for(int independent_Index=0; independent_Index<multilayer->independent_Curve_Tabs->count(); ++independent_Index)
 	{
-		Independent_Variables* independent_Variables = qobject_cast<Independent_Variables*>(multilayer->independent_Variables_Plot_Tabs->widget(independent_Index));
+		Independent_Curve* independent_Variables = qobject_cast<Independent_Curve*>(multilayer->independent_Curve_Tabs->widget(independent_Index));
 
-		QGroupBox* box = new QGroupBox(multilayer->independent_Variables_Plot_Tabs->tabText(independent_Index));
+		QGroupBox* box = new QGroupBox(multilayer->independent_Curve_Tabs->tabText(independent_Index));
 			box->setCheckable(true);
 			box->setObjectName("box");
 			box->setStyleSheet("QGroupBox#box { border-radius: 2px;  border: 1px solid gray; margin-top: 2ex;}"
@@ -878,7 +878,7 @@ void Calculation_Settings_Editor::load_Independent_Parameters(int tab_Index)
 void Calculation_Settings_Editor::refresh_Independent_Calc_Properties(int tab_Index, int independent_Index, QGroupBox* box)
 {
 	Multilayer* multilayer = qobject_cast<Multilayer*>(multilayer_Tabs->widget(tab_Index));
-	Independent_Variables* independent_Variables = qobject_cast<Independent_Variables*>(multilayer->independent_Variables_Plot_Tabs->widget(independent_Index));
+	Independent_Curve* independent_Variables = qobject_cast<Independent_Curve*>(multilayer->independent_Curve_Tabs->widget(independent_Index));
 
 	independent_Variables->calc_Functions.check_Enabled = box->isChecked();
 
@@ -911,8 +911,8 @@ void Calculation_Settings_Editor::refresh_Independent_Calc_Properties(int tab_In
 		}
 	}
 
-	multilayer->independent_Variables_Plot_Tabs->setTabText(independent_Index, independent_Variables->tab_Name + independent_Variables->enlarge_Tab_Name());
-	box->setTitle(multilayer->independent_Variables_Plot_Tabs->tabText(independent_Index));
+	multilayer->independent_Curve_Tabs->setTabText(independent_Index, independent_Variables->tab_Name + independent_Variables->enlarge_Tab_Name());
+	box->setTitle(multilayer->independent_Curve_Tabs->tabText(independent_Index));
 }
 
 void Calculation_Settings_Editor::reopen_Optical_Graphs(QString keep_Splitter)

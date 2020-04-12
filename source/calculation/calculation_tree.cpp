@@ -11,9 +11,9 @@ Calculation_Tree::Calculation_Tree(Multilayer* multilayer, QString calc_Mode):
 	if(calc_Mode==CALCULATION)
 	{
 		if(multilayer->enable_Calc_Independent_Curves)
-		for(int i=0; i<multilayer->independent_Variables_Plot_Tabs->count(); ++i)
+		for(int i=0; i<multilayer->independent_Curve_Tabs->count(); ++i)
 		{
-			Independent_Variables* independent_Variables = qobject_cast<Independent_Variables*>(multilayer->independent_Variables_Plot_Tabs->widget(i));
+			Independent_Curve* independent_Variables = qobject_cast<Independent_Curve*>(multilayer->independent_Curve_Tabs->widget(i));
 			if( independent_Variables->calc_Functions.check_Enabled	)
 			if(	independent_Variables->calc_Functions.if_Something_Enabled() )
 			{
@@ -170,15 +170,16 @@ void Calculation_Tree::fill_Calc_Tree_From_Item_Tree(const tree<Node>::iterator&
 
 void Calculation_Tree::fill_Independent_Calc_Trees()
 {
-	// for independent
-	for(Data_Element<Independent_Variables>& data_Element : independent)
-	{
-		fill_Tree_From_Scratch(data_Element.calc_Tree, data_Element.the_Class->struct_Tree_Copy, data_Element.curve_Class);
-		stratify_Calc_Tree(data_Element.calc_Tree);
+	// TODO INDEPENDENT
+//	// for independent
+//	for(Data_Element<Independent_Curve>& data_Element : independent)
+//	{
+//		fill_Tree_From_Scratch(data_Element.calc_Tree, data_Element.the_Class->struct_Tree_Copy, data_Element.curve_Class);
+//		stratify_Calc_Tree(data_Element.calc_Tree);
 
-		// remove measurement
-		data_Element.calc_Tree.erase(data_Element.calc_Tree.child(data_Element.calc_Tree.begin(),0));
-	}
+//		// remove measurement
+//		data_Element.calc_Tree.erase(data_Element.calc_Tree.child(data_Element.calc_Tree.begin(),0));
+//	}
 }
 
 void Calculation_Tree::fill_Target_Calc_Trees()
@@ -380,24 +381,25 @@ void Calculation_Tree::calculate_1_Kind_Preliminary(Data_Element<Type>& data_Ele
 	// find active node
 	if(data_Element.curve_Class == INDEPENDENT)
 	{
-		Independent_Variables* independent_Variables = qobject_cast<Independent_Variables*>(data_Element.the_Class);
+		// TODO INDEPENDENT
+		Independent_Curve* independent_Variables = qobject_cast<Independent_Curve*>(data_Element.the_Class);
 
-		// find whats_This of active item
-		for(int item_Index=0; item_Index<independent_Variables->independent_Variables_List->count(); ++item_Index)
-		{
-			QListWidgetItem* list_Item = independent_Variables->independent_Variables_List->item(item_Index);
-			Independent_Indicator item_Indicator = list_Item->data(Qt::UserRole).value<Independent_Indicator>();
+//		// find whats_This of active item
+//		for(int item_Index=0; item_Index<independent_Variables->independent_Variables_List->count(); ++item_Index)
+//		{
+//			QListWidgetItem* list_Item = independent_Variables->independent_Variables_List->item(item_Index);
+//			Independent_Indicator item_Indicator = list_Item->data(Qt::UserRole).value<Independent_Indicator>();
 
-			// if active
-			if(item_Indicator.is_Active)
-			{
-				data_Element.active_Item_Type			 = item_Indicator.item_Type;
-				data_Element.active_Item_Id				 = item_Indicator.item_Id;
-				data_Element.active_Parameter_Whats_This = item_Indicator.parameter_Whats_This;
-			}
+//			// if active
+//			if(item_Indicator.is_Active)
+//			{
+//				data_Element.active_Item_Type			 = item_Indicator.item_Type;
+//				data_Element.active_Item_Id				 = item_Indicator.item_Id;
+//				data_Element.active_Parameter_Whats_This = item_Indicator.parameter_Whats_This;
+//			}
 
-			data_Element.calc_Functions = independent_Variables->calc_Functions;
-		}
+//			data_Element.calc_Functions = independent_Variables->calc_Functions;
+//		}
 	} else
 	if(data_Element.curve_Class == TARGET)
 	{
@@ -418,7 +420,7 @@ void Calculation_Tree::calculate_1_Kind_Preliminary(Data_Element<Type>& data_Ele
 	data_Element.the_Class->measurement.calc_Instrumental_Factor(data_Element.active_Parameter_Whats_This);
 	data_Element.the_Class->measurement.calc_Mixed_Resolution(data_Element.active_Parameter_Whats_This);
 }
-template void Calculation_Tree::calculate_1_Kind_Preliminary<Independent_Variables>(Data_Element<Independent_Variables>&);
+template void Calculation_Tree::calculate_1_Kind_Preliminary<Independent_Curve>(Data_Element<Independent_Curve>&);
 template void Calculation_Tree::calculate_1_Kind_Preliminary<Target_Curve>		   (Data_Element<Target_Curve>&);
 
 template<typename Type>
@@ -458,7 +460,7 @@ void Calculation_Tree::calculate_1_Kind(Data_Element<Type>& data_Element)
 //		qInfo() << "Unwrap Reflect: "<< elapsed.count()/1000000. << " seconds" << endl;
 	}
 }
-template void Calculation_Tree::calculate_1_Kind<Independent_Variables>(Data_Element<Independent_Variables>&);
+template void Calculation_Tree::calculate_1_Kind<Independent_Curve>(Data_Element<Independent_Curve>&);
 template void Calculation_Tree::calculate_1_Kind<Target_Curve>		   (Data_Element<Target_Curve>&);
 
 void Calculation_Tree::calculate_Intermediate_Values_1_Tree(tree<Node>& calc_Tree, const Data& measurement, QString active_Parameter_Whats_This, const tree<Node>::iterator& parent, Node* above_Node)

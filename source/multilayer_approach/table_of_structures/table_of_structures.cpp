@@ -2879,11 +2879,12 @@ void Table_Of_Structures::refresh_Dependents(const QVector<id_Type>& ids, bool m
 		{
 			Multilayer* multilayer = qobject_cast<Multilayer*>(multilayer_Tabs->widget(tab_Index));
 			multilayer->structure_Tree->refresh__StructureTree__Data_and_Text();
-			for(int i=0; i<multilayer->independent_Variables_Plot_Tabs->count(); ++i)
-			{
-				Independent_Variables* independent = qobject_cast<Independent_Variables*>(multilayer->independent_Variables_Plot_Tabs->widget(i));
-				independent->reset_Independent_Variables_Structure();
-			}
+			// TODO INDEPENDENT
+//			for(int i=0; i<multilayer->independent_Curve_Tabs->count(); ++i)
+//			{
+//				Independent_Curve* independent = qobject_cast<Independent_Curve*>(multilayer->independent_Curve_Tabs->widget(i));
+//				independent->reset_Independent_Variables_Structure();
+//			}
 		}
 	}
 }

@@ -3,31 +3,29 @@
 
 #include "multilayer_approach/multilayer_approach.h"
 #include "multilayer_approach/multilayer/structure_tree/structure_tree.h"
-#include "multilayer_approach/multilayer/independent_variables/independent_variables.h"
+#include "multilayer_approach/multilayer/independent_curve/independent_curve.h"
 #include "multilayer_approach/multilayer/target_curve/target_curve.h"
 #include "multilayer_approach/multilayer/target_curve/target_curve_editor.h"
 
 class Structure_Tree;
 class Multilayer_Approach;
 class Target_Curve_Editor;
+class Independent_Curve_Editor;
 
 class Multilayer : public QWidget
 {
 	Q_OBJECT
 public:	
 	explicit Multilayer(QWidget *parent = 0);
-	~Multilayer();
 
 signals:
 	void refresh_All_Multilayers();
 
 public:
 	void create_Main_Layout();
-		void create_Splitter();
-		void create_Structure_Frame();
-		void create_Variables_Frame();
-			void create_Variables_Tabs();
-				void create_Independent_Variables_Tabs();
+		void create_Structure_Tree();
+		void create_Main_Tools();
+		void create_Independent_Variables_Tabs();
 		void create_Data_Frame();
 
 	void add_Independent_Variables_Tab();
@@ -38,22 +36,19 @@ public:
 	void refresh_Structure_And_Independent(QObject* my_Sender = nullptr);
 	void add_Target_Curve   (int index_Pressed, bool opening = false);
 	void remove_Target_Curve(int index_Pressed, bool clean = false);
+	template<typename Type_Curve, typename Type_Curve_Editor>
+	void open_Editor_Window(Type_Curve* type_Curve, Type_Curve_Editor* type_Editor);
 	void open_Import_Window(Target_Curve* target_Curve);
-
 	void set_Index_To_Target_Curves();
 
 	QWidget* parent;
 	QVBoxLayout* main_Layout;
-		QSplitter* multilayer_Splitter;
-		QWidget* top_Widget_Split;
-			QVBoxLayout* top_Widget_Layout;
-				Structure_Tree* structure_Tree;
+		Structure_Tree* structure_Tree;
+			QVBoxLayout* bottom_Part_Layout;
 
-		QWidget* bottom_Widget_Split;
-			QVBoxLayout* bottom_Widget_Layout;
-				QTabWidget*	variables_Tabs;
-					QTabWidget* independent_Variables_Plot_Tabs;
-						QToolButton* independent_Variables_Corner_Button;
+				QTabWidget* independent_Curve_Tabs;
+					QToolButton* independent_Variables_Corner_Button;
+					QMap<Independent_Curve*, Independent_Curve_Editor*> runned_Independent_Curve_Editors;
 
 					QPushButton* structure_Table_Button;	  QPushButton* roughness_Table_Button;
 					QPushButton* optical_Graphs_Button;		  QPushButton* profile_Plots_Button;

@@ -37,7 +37,6 @@ public:
 		void create_Data_GroupBox();
 		void reset_Subinterval();
 		void create_Buttons();
-	void set_Window_Geometry();
 
 	void read_Data_File(QString filepath);
 	void browse_Data_File();
@@ -47,7 +46,6 @@ public:
 
 	void show_Filepath();
 	void refresh_Filepath(QString filepath);
-
 
 	bool is_File_Exists = false;
 

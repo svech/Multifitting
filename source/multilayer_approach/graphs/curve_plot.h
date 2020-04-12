@@ -7,7 +7,7 @@ class Curve_Plot : public QWidget
 {
 	Q_OBJECT
 public:
-	explicit Curve_Plot(Multilayer* multilayer, Target_Curve* target_Curve, Independent_Variables* independent_Variables, QString curve_Class, QWidget *parent = nullptr);
+	explicit Curve_Plot(Multilayer* multilayer, Target_Curve* target_Curve, Independent_Curve* independent_Curve, QString curve_Class, QWidget *parent = nullptr);
 
 	void create_Main_Layout();
 	void create_Subinterval_Rectangle();
@@ -38,7 +38,7 @@ public:
 
 	Multilayer* multilayer;
 	Target_Curve* target_Curve;
-	Independent_Variables* independent_Variables;
+	Independent_Curve* independent_Curve;
 	double min_Value_Left = DBL_MAX;
 	double max_Value_Left = -DBL_MAX;
 	double min_Value_Right = DBL_MAX;

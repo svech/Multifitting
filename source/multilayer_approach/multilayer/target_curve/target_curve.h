@@ -95,11 +95,9 @@ class Target_Curve : public QWidget
 {
 	Q_OBJECT
 public:
-	explicit Target_Curve(QLabel* description_Label, QTreeWidget* real_Struct_Tree, QWidget *parent = 0);
-	~Target_Curve();
+	explicit Target_Curve(QLabel* description_Label, QWidget *parent = 0);
 
 	QLabel* description_Label;
-	QTreeWidget* real_Struct_Tree;
 
 	void import_Data_From_File(QString bare_Filename);
 		void parse_Data_From_List();
