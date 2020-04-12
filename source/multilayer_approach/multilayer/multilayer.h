@@ -38,7 +38,6 @@ public:
 	void remove_Target_Curve(int index_Pressed, bool clean = false);
 	template<typename Type_Curve, typename Type_Curve_Editor>
 	void open_Editor_Window(Type_Curve* type_Curve, Type_Curve_Editor* type_Editor);
-	void open_Import_Window(Target_Curve* target_Curve);
 	void set_Index_To_Target_Curves();
 
 	QWidget* parent;

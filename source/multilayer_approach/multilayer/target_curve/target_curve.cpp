@@ -274,30 +274,27 @@ void Target_Curve::refresh_Description_Label()
 {
 	if(loaded_And_Ready)
 	{
+		double spectral_Coeff = wavelength_Coefficients_Map.value(curve.spectral_Units);
+		double angular_Coeff = angle_Coefficients_Map.value(curve.angular_Units);
+
 		if(	measurement.measurement_Type == measurement_Types[Specular_Scan] )
 		{
-			QString spacer;
 			if(measurement.argument_Type == argument_Types[Beam_Grazing_Angle])
-			{
-				arg_Units = curve.angular_Units;
-
-				double coeff = wavelength_Coefficients_Map.value(curve.spectral_Units);
-				at_Fixed = Locale.toString(Global_Variables::wavelength_Energy(curve.spectral_Units,measurement.wavelength.value)/coeff, thumbnail_double_format, thumbnail_wavelength_precision)+" "+curve.spectral_Units;
-				spacer = "";
+			{		
+				label_Text =  curve.value_Type + "; " +
+							  Locale.toString(curve.shifted_Argument.first()) + "-" + Locale.toString(curve.shifted_Argument.last()) +
+							  "" + curve.angular_Units + "; " + "at " +
+							  Locale.toString(Global_Variables::wavelength_Energy(curve.spectral_Units,measurement.wavelength.value)/spectral_Coeff, thumbnail_double_format, thumbnail_wavelength_precision) +
+							  " " + curve.spectral_Units;
 			}
 			if(measurement.argument_Type == argument_Types[Wavelength_Energy])
 			{
-				arg_Units = curve.spectral_Units;
-
-				double coeff = angle_Coefficients_Map.value(curve.angular_Units);
-				at_Fixed = Locale.toString(measurement.beam_Theta_0_Angle.value/coeff, thumbnail_double_format, thumbnail_angle_precision)+" "+curve.angular_Units;
-				spacer = " ";
+				label_Text =  curve.value_Type + "; " +
+							  Locale.toString(curve.shifted_Argument.first()) + "-" + Locale.toString(curve.shifted_Argument.last()) +
+							  "" + curve.spectral_Units + "; " + "at " +
+							  Locale.toString(measurement.beam_Theta_0_Angle.value/angular_Coeff, thumbnail_double_format, thumbnail_angle_precision) +
+							  " " + curve.angular_Units;
 			}
-
-			label_Text =  curve.value_Type + "; " +
-										Locale.toString(curve.shifted_Argument.first()) + "-" + Locale.toString(curve.shifted_Argument.last()) +
-										spacer + arg_Units + "; " +
-										"at " + at_Fixed;
 		}
 		if(	measurement.measurement_Type == measurement_Types[Detector_Scan] )
 		{
@@ -342,9 +339,6 @@ Target_Curve& Target_Curve::operator =(const Target_Curve& referent_Target_Curve
 
 	lines_List = referent_Target_Curve.lines_List;
 
-	arg_Units = referent_Target_Curve.arg_Units;
-	at_Fixed = referent_Target_Curve.at_Fixed;
-	arg_Type_For_Label = referent_Target_Curve.arg_Type_For_Label;
 	label_Text = referent_Target_Curve.label_Text;
 	index = referent_Target_Curve.index;
 
@@ -492,9 +486,9 @@ QDataStream& operator <<( QDataStream& stream, const Target_Curve* target_Curve 
 {
 	return stream	<< target_Curve->curve << target_Curve->fit_Params << target_Curve->measurement << target_Curve->filename
 					<< target_Curve->filepath << target_Curve->plot_Options_Experimental
-					<< target_Curve->plot_Options_Calculated		// since 1.7.4
+					<< target_Curve->plot_Options_Calculated
 					<< target_Curve->calculated_Values
-					<< target_Curve->lines_List << target_Curve->arg_Units << target_Curve->at_Fixed << target_Curve->arg_Type_For_Label << target_Curve->label_Text;
+					<< target_Curve->lines_List << target_Curve->label_Text;
 }
 QDataStream& operator >>(QDataStream& stream,		 Target_Curve* target_Curve )
 {
@@ -507,12 +501,18 @@ QDataStream& operator >>(QDataStream& stream,		 Target_Curve* target_Curve )
 	stream	>> target_Curve->plot_Options_Experimental;
 
 	if(Global_Variables::check_Loaded_Version(1,7,4))
-	{stream >> target_Curve->plot_Options_Calculated ; }	// since 1.7.4
+	{stream >> target_Curve->plot_Options_Calculated ; }
 
 	stream  >> target_Curve->calculated_Values
-			>> target_Curve->lines_List >> target_Curve->arg_Units >> target_Curve->at_Fixed >> target_Curve->arg_Type_For_Label ;
-	if(Global_Variables::check_Loaded_Version(1,11,0)) // aren't used since 1.11.0
+			>> target_Curve->lines_List;
+	if(Global_Variables::check_Loaded_Version(1,11,0))
 	{
+		QString arg_Units;
+		stream >> arg_Units;
+		QString at_Fixed;
+		stream >> at_Fixed;
+		QString arg_Type_For_Label;
+		stream >> arg_Type_For_Label;
 		QString ang_Type_For_Label_At_Fixed;
 		stream >> ang_Type_For_Label_At_Fixed;
 	}

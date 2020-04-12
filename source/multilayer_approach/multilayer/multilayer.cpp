@@ -51,6 +51,7 @@ void Multilayer::create_Structure_Tree()
 {
 	structure_Tree = new Structure_Tree(this, this);
 	main_Layout->addWidget(structure_Tree->tree);
+	structure_Tree->structure_Toolbar->toolbar->actions()[Add_Substrate]->triggered();
 }
 
 void Multilayer::create_Main_Tools()
@@ -138,7 +139,8 @@ void Multilayer::create_Data_Frame()
 void Multilayer::add_Independent_Variables_Tab()
 {
 	Independent_Curve* new_Independent_Curve = new Independent_Curve;
-	connect(new_Independent_Curve->setup_Button, &QPushButton::clicked, this, [=]{ open_Setup_Window (new_Independent_Curve); });
+	Independent_Curve_Editor* independent_Curve_Editor;
+	connect(new_Independent_Curve->setup_Button, &QPushButton::clicked, this, [=]{ open_Editor_Window(new_Independent_Curve, independent_Curve_Editor); });
 
 	// add new tab
 	independent_Curve_Tabs->addTab(new_Independent_Curve, default_independent_variable_tab_name);
@@ -232,6 +234,7 @@ void Multilayer::add_Target_Curve(int index_Pressed, bool opening)
 
 	QFrame* new_Frame = new QFrame;
 	Target_Curve* new_Target_Curve = new Target_Curve(new_Description_Label);
+	Target_Curve_Editor* new_Target_Curve_Editor;
 
 	add_Buttons_To_Lock.insert(index_Pressed,new_Add_Button);
 	remove_Buttons_To_Lock.insert(index_Pressed,new_Remove_Button);
@@ -262,7 +265,7 @@ void Multilayer::add_Target_Curve(int index_Pressed, bool opening)
 
 	layout_Target_Profile_With_Frame_Vector->insertWidget(index_Pressed,new_Frame);
 
-	connect(new_Import_Button, &QPushButton::clicked, this, [=]{ open_Import_Window (new_Target_Curve); });
+	connect(new_Import_Button, &QPushButton::clicked, this, [=]{ open_Editor_Window (new_Target_Curve, new_Target_Curve_Editor); });
 	connect(new_Add_Button,    &QPushButton::clicked, this, [=]{ add_Target_Curve   (data_Target_Profile_Frame_Vector.indexOf(new_Frame)+1); });
 	connect(new_Remove_Button, &QPushButton::clicked, this, [=]{ remove_Target_Curve(data_Target_Profile_Frame_Vector.indexOf(new_Frame)  ); });
 }
@@ -292,18 +295,36 @@ void Multilayer::remove_Target_Curve(int index_Pressed, bool clean)
 
 
 template<typename Type_Curve, typename Type_Curve_Editor>
-void Multilayer::open_Editor_Window(Type_Curve* type_Curve, Type_Curve_Editor* type_Editor)
+void Multilayer::open_Editor_Window(Type_Curve* type_Curve, Type_Curve_Editor* type_Curve_Editor)
 {
-	QMap<Type_Curve*, Type_Curve_Editor*>* runned_Type_Curve_Editors;
-
-	if(typeid(type_Curve) == typeid(Independent_Curve)) {runned_Type_Curve_Editors = &runned_Independent_Curve_Editors;}
-	if(typeid(type_Curve) == typeid(Target_Curve))		{runned_Type_Curve_Editors = &runned_Target_Curve_Editors;}
-
-	if(runned_Type_Curve_Editors->contains(type_Curve))
+	// check in map if open
+	bool check = false;
+	if(typeid(Type_Curve) == typeid(Independent_Curve))
 	{
-		runned_Type_Curve_Editors->value(type_Curve)->activateWindow();
+		Independent_Curve* independent_Curve = qobject_cast<Independent_Curve*>(type_Curve);
+		if(runned_Independent_Curve_Editors.contains(independent_Curve))
+		{
+			runned_Independent_Curve_Editors.value(independent_Curve)->activateWindow();
+			check = false;
+		} else
+		{
+			check = true;
+		}
 	}
-	if(!runned_Type_Curve_Editors->contains(type_Curve))
+	if(typeid(Type_Curve) == typeid(Target_Curve))
+	{
+		Target_Curve* target_Curve = qobject_cast<Target_Curve*>(type_Curve);
+		if(runned_Target_Curve_Editors.contains(target_Curve))
+		{
+			runned_Target_Curve_Editors.value(target_Curve)->activateWindow();
+			check = false;
+		} else
+		{
+			check = true;
+		}
+	}
+
+	if(check)
 	{
 		if(type_Curve->measurement.measurement_Type == no_Measurement_Type)
 		{
@@ -331,96 +352,47 @@ void Multilayer::open_Editor_Window(Type_Curve* type_Curve, Type_Curve_Editor* t
 
 			// buttons
 			QPushButton* specular_Button = new QPushButton(measurement_Types[Specular_Scan]);
-			connect(specular_Button,  &QPushButton::clicked, this, [=]{type_Curve->measurement.measurement_Type = measurement_Types[Specular_Scan]; choice_Data_Type_Window->close(); open_Editor_Window(type_Curve, type_Editor);});
+			connect(specular_Button,  &QPushButton::clicked, this, [=]{type_Curve->measurement.measurement_Type = measurement_Types[Specular_Scan]; choice_Data_Type_Window->close(); open_Editor_Window(type_Curve, type_Curve_Editor);});
 				choice_Data_Type_Group_Box_Layout->addWidget(specular_Button);
 			QPushButton* detector_Button = new QPushButton(measurement_Types[Detector_Scan]);
-			connect(detector_Button,  &QPushButton::clicked, this, [=]{type_Curve->measurement.measurement_Type = measurement_Types[Detector_Scan]; choice_Data_Type_Window->close(); open_Editor_Window(type_Curve, type_Editor);});
+			connect(detector_Button,  &QPushButton::clicked, this, [=]{type_Curve->measurement.measurement_Type = measurement_Types[Detector_Scan]; choice_Data_Type_Window->close(); open_Editor_Window(type_Curve, type_Curve_Editor);});
 				choice_Data_Type_Group_Box_Layout->addWidget(detector_Button);
 			QPushButton* rocking_Button  = new QPushButton(measurement_Types[Rocking_Curve]);
-			connect(rocking_Button,   &QPushButton::clicked, this, [=]{type_Curve->measurement.measurement_Type = measurement_Types[Rocking_Curve]; choice_Data_Type_Window->close(); open_Editor_Window(type_Curve, type_Editor);});
+			connect(rocking_Button,   &QPushButton::clicked, this, [=]{type_Curve->measurement.measurement_Type = measurement_Types[Rocking_Curve]; choice_Data_Type_Window->close(); open_Editor_Window(type_Curve, type_Curve_Editor);});
 				choice_Data_Type_Group_Box_Layout->addWidget(rocking_Button);
 			QPushButton* offset_Button   = new QPushButton(measurement_Types[Offset_Scan]);
-			connect(offset_Button,    &QPushButton::clicked, this, [=]{type_Curve->measurement.measurement_Type = measurement_Types[Offset_Scan];   choice_Data_Type_Window->close(); open_Editor_Window(type_Curve, type_Editor);});
+			connect(offset_Button,    &QPushButton::clicked, this, [=]{type_Curve->measurement.measurement_Type = measurement_Types[Offset_Scan];   choice_Data_Type_Window->close(); open_Editor_Window(type_Curve, type_Curve_Editor);});
 				choice_Data_Type_Group_Box_Layout->addWidget(offset_Button);
 			QPushButton* gisas_Button    = new QPushButton(measurement_Types[GISAS]);
-			connect(gisas_Button,     &QPushButton::clicked, this, [=]{type_Curve->measurement.measurement_Type = measurement_Types[GISAS];		    choice_Data_Type_Window->close(); open_Editor_Window(type_Curve, type_Editor);});
+			connect(gisas_Button,     &QPushButton::clicked, this, [=]{type_Curve->measurement.measurement_Type = measurement_Types[GISAS];		    choice_Data_Type_Window->close(); open_Editor_Window(type_Curve, type_Curve_Editor);});
 				choice_Data_Type_Group_Box_Layout->addWidget(gisas_Button);
 
 			choice_Data_Type_Window->adjustSize();
 			choice_Data_Type_Window->setFixedSize(choice_Data_Type_Window->size());
 		} else
 		{
-			type_Editor = new Type_Curve_Editor(type_Curve, this, this);
-				type_Editor->setWindowFlags(Qt::Window);
-				type_Editor->show();
-			runned_Type_Curve_Editors.insert(type_Curve, type_Editor);
+			type_Curve_Editor = new Type_Curve_Editor(type_Curve, this, this);
+				type_Curve_Editor->setWindowFlags(Qt::Window);
+				type_Curve_Editor->show();
+
+			// add to map
+			if(typeid(Type_Curve) == typeid(Independent_Curve))
+			{
+				Independent_Curve* independent_Curve = qobject_cast<Independent_Curve*>(type_Curve);
+				Independent_Curve_Editor* independent_Curve_Editor = qobject_cast<Independent_Curve_Editor*>(type_Curve_Editor);
+				runned_Independent_Curve_Editors.insert(independent_Curve, independent_Curve_Editor);
+			}
+			if(typeid(Type_Curve) == typeid(Target_Curve))
+			{
+				Target_Curve* target_Curve = qobject_cast<Target_Curve*>(type_Curve);
+				Target_Curve_Editor* target_Curve_Editor = qobject_cast<Target_Curve_Editor*>(type_Curve_Editor);
+				runned_Target_Curve_Editors.insert(target_Curve, target_Curve_Editor);
+			}
 		}
 	}
 }
 template void Multilayer::open_Editor_Window<Independent_Curve, Independent_Curve_Editor>(Independent_Curve*, Independent_Curve_Editor*);
 template void Multilayer::open_Editor_Window<Target_Curve,      Target_Curve_Editor>	 (Target_Curve*,      Target_Curve_Editor*);
-
-void Multilayer::open_Import_Window(Target_Curve* target_Curve)
-{
-
-	if(runned_Target_Curve_Editors.contains(target_Curve))
-	{
-		runned_Target_Curve_Editors.value(target_Curve)->activateWindow();
-	}
-	if(!runned_Target_Curve_Editors.contains(target_Curve))
-	{		
-		if(target_Curve->measurement.measurement_Type == no_Measurement_Type)
-		{
-			QDialog* choice_Data_Type_Window = new QDialog(this);
-				choice_Data_Type_Window->setWindowTitle("Data");
-				choice_Data_Type_Window->setWindowModality(Qt::ApplicationModal);
-				choice_Data_Type_Window->setAttribute(Qt::WA_DeleteOnClose);
-				choice_Data_Type_Window->setWindowFlags(Qt::Tool);
-				choice_Data_Type_Window->show();
-
-			QVBoxLayout* choice_Data_Type_Layout = new QVBoxLayout(choice_Data_Type_Window);
-				choice_Data_Type_Layout->setSpacing(5);
-				choice_Data_Type_Layout->setContentsMargins(5,5,5,5);
-
-			// settings group box
-			QGroupBox*  choice_Data_Type_Group_Box = new QGroupBox;
-				choice_Data_Type_Group_Box->setObjectName("choice_Data_Type_Group_Box");
-				choice_Data_Type_Group_Box->setStyleSheet("QGroupBox#choice_Data_Type_Group_Box { border-radius: 2px;  border: 1px solid gray; margin-top: 0ex;}"
-															"QGroupBox::title   { subcontrol-origin: margin;   left: 9px; padding: 0 0px 0 1px;}");
-			choice_Data_Type_Layout->addWidget(choice_Data_Type_Group_Box);
-
-			QVBoxLayout* choice_Data_Type_Group_Box_Layout = new QVBoxLayout(choice_Data_Type_Group_Box);
-				choice_Data_Type_Group_Box_Layout->setSpacing(5);
-				choice_Data_Type_Group_Box_Layout->setContentsMargins(5,5,5,5);
-
-			// buttons
-			QPushButton* specular_Button = new QPushButton(measurement_Types[Specular_Scan]);
-			connect(specular_Button,  &QPushButton::clicked, this, [=]{target_Curve->measurement.measurement_Type = measurement_Types[Specular_Scan]; choice_Data_Type_Window->close(); open_Import_Window(target_Curve);});
-				choice_Data_Type_Group_Box_Layout->addWidget(specular_Button);
-			QPushButton* detector_Button = new QPushButton(measurement_Types[Detector_Scan]);
-			connect(detector_Button,  &QPushButton::clicked, this, [=]{target_Curve->measurement.measurement_Type = measurement_Types[Detector_Scan]; choice_Data_Type_Window->close(); open_Import_Window(target_Curve);});
-				choice_Data_Type_Group_Box_Layout->addWidget(detector_Button);
-			QPushButton* rocking_Button  = new QPushButton(measurement_Types[Rocking_Curve]);
-			connect(rocking_Button,   &QPushButton::clicked, this, [=]{target_Curve->measurement.measurement_Type = measurement_Types[Rocking_Curve]; choice_Data_Type_Window->close(); open_Import_Window(target_Curve);});
-				choice_Data_Type_Group_Box_Layout->addWidget(rocking_Button);
-			QPushButton* offset_Button   = new QPushButton(measurement_Types[Offset_Scan]);
-			connect(offset_Button,    &QPushButton::clicked, this, [=]{target_Curve->measurement.measurement_Type = measurement_Types[Offset_Scan];   choice_Data_Type_Window->close(); open_Import_Window(target_Curve);});
-				choice_Data_Type_Group_Box_Layout->addWidget(offset_Button);
-			QPushButton* gisas_Button    = new QPushButton(measurement_Types[GISAS]);
-			connect(gisas_Button,     &QPushButton::clicked, this, [=]{target_Curve->measurement.measurement_Type = measurement_Types[GISAS];		  choice_Data_Type_Window->close(); open_Import_Window(target_Curve);});
-				choice_Data_Type_Group_Box_Layout->addWidget(gisas_Button);
-
-			choice_Data_Type_Window->adjustSize();
-			choice_Data_Type_Window->setFixedSize(choice_Data_Type_Window->size());
-		} else
-		{
-			Target_Curve_Editor* new_Target_Curve_Editor = new Target_Curve_Editor(target_Curve, this, this);
-				new_Target_Curve_Editor->setWindowFlags(Qt::Window);
-				new_Target_Curve_Editor->show();
-			runned_Target_Curve_Editors.insert(target_Curve, new_Target_Curve_Editor);
-		}
-	}
-}
 
 void Multilayer::set_Index_To_Target_Curves()
 {

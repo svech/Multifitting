@@ -201,6 +201,7 @@ class Node;
 #define id_Of_Thicknesses 9					// used fore refresh/reload of corresponding line_Edits
 #define TARGET_LINE_EDIT_WIDTH 65			// for target_Curve_Editor
 #define TARGET_LINE_AT_FIXED_WIDTH 105		// for target_Curve_Editor
+#define TARGET_LINE_RESOLUTION_WIDTH 80		// for target_Curve_Editor
 #define TARGET_BEAM_INTENSITY_WIDTH 25		// for target_Curve_Editor
 #define INDEPENDENT_LINE_EDIT_WIDTH 50		// for independent_Variables_Editor
 #define MIN_CONFIDENCE_POINTS	3			// for confidence interval

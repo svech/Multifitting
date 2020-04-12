@@ -28,6 +28,8 @@ public:
 	QString angular_Units;
 	QString spectral_Units;
 
+	QString label_Text = "<no description>";
+
 	Independent_Curve& operator =(const Independent_Curve& referent_Independent_Curve);
 };
 

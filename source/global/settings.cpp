@@ -740,14 +740,14 @@ void Settings::read_Parameters_Default_Values(bool reset_to_default)
 
 	// parameters default values
 	parameters_Default_Values.beginGroup( Independent_Values );
-		default_num_spectral_points							= parameters_Default_Values.value( "default_num_spectral_points",							1		).toInt();
+		default_num_spectral_points							= parameters_Default_Values.value( "default_num_spectral_points",							400		).toInt();
 		default_num_theta_angular_points					= parameters_Default_Values.value( "default_num_theta_angular_points",						1000	).toInt();
 		default_num_alpha_angular_points					= parameters_Default_Values.value( "default_num_alpha_angular_points",						1000	).toInt();
-		default_num_phi_angular_points						= parameters_Default_Values.value( "default_num_phi_angular_points",						1000	).toInt();
+		default_num_phi_angular_points						= parameters_Default_Values.value( "default_num_phi_angular_points",						500		).toInt();
 
 		default_wavelength_value							= parameters_Default_Values.value( "default_wavelength_value",								1.540562).toDouble();
-		default_min_wavelength								= parameters_Default_Values.value( "default_min_wavelength",								160		).toDouble();
-		default_max_wavelength								= parameters_Default_Values.value( "default_max_wavelength",								230		).toDouble();
+		default_min_wavelength								= parameters_Default_Values.value( "default_min_wavelength",								100		).toDouble();
+		default_max_wavelength								= parameters_Default_Values.value( "default_max_wavelength",								200		).toDouble();
 
 		default_theta_angle_value							= parameters_Default_Values.value( "default_theta_angle_value",								90		).toDouble();
 		default_min_theta_angle								= parameters_Default_Values.value( "default_min_theta_angle",								0		).toDouble();

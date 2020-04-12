@@ -858,7 +858,10 @@ void Multilayer_Approach::open(QString filename)
 					Global_Variables::pseudo_Deserialize_Variables_List(in);
 				} else
 				{
+					Independent_Curve* independent = qobject_cast<Independent_Curve*>(multilayer->independent_Curve_Tabs->widget(i));
 
+					// load main data
+					in >> independent;
 				}
 			}
 
@@ -1142,16 +1145,10 @@ void Multilayer_Approach::save(QString filename)
 				// save plot name
 				out << multilayer->independent_Curve_Tabs->tabText(i);
 
-//				Independent_Variables* independent = qobject_cast<Independent_Variables*>(multilayer->independent_Variables_Plot_Tabs->widget(i));
+				Independent_Curve* independent = qobject_cast<Independent_Curve*>(multilayer->independent_Curve_Tabs->widget(i));
 
-//				// save main data
-//				out << independent;
-
-//				// save plot tree
-//				Global_Variables::serialize_Tree(out, independent->struct_Tree_Copy);
-
-//				// save variables list
-//				Global_Variables::serialize_Variables_List(out, independent->independent_Variables_List);
+				// save main data
+				out << independent;
 			}
 
 			// save index of active independent tab

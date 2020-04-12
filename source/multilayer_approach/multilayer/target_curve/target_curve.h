@@ -121,9 +121,6 @@ public:
 	Plot_Options plot_Options_Calculated;
 
 	QStringList lines_List;
-	QString arg_Units;
-	QString at_Fixed;
-	QString arg_Type_For_Label;
 
 	QString label_Text = "<no description>";
 	QString index;

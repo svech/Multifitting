@@ -6,7 +6,7 @@ Independent_Curve_Editor::Independent_Curve_Editor(Independent_Curve* independen
 	QWidget(parent)
 {
 	create_Main_Layout();
-	setWindowTitle("Independent Variable");
+	setWindowTitle(independent_Curve->measurement.measurement_Type);
 	setAttribute(Qt::WA_DeleteOnClose);
 }
 
@@ -23,8 +23,7 @@ void Independent_Curve_Editor::create_Main_Layout()
 		main_Layout->setSpacing(0);
 		main_Layout->setContentsMargins(4,0,4,0);
 
-//	create_Standard_Interface();
-//		main_Layout->addWidget(group_Box);
+	create_Main_Part();
 
 	done_Button = new QPushButton("Done");
 		done_Button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
