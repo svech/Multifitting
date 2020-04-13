@@ -75,6 +75,7 @@ public:
 	QComboBox* at_Fixed_Units_ComboBox;
 	MyDoubleSpinBox* polarization_SpinBox;
 	MyDoubleSpinBox* background_SpinBox;
+	QLabel* spectral_Width_Label;
 	MyDoubleSpinBox* spectral_Width_SpinBox;
 	MyDoubleSpinBox* angular_Divergence_SpinBox;
 	QLabel* angular_Divergence_Units_Label;
@@ -87,7 +88,7 @@ public:
 	MyDoubleSpinBox* slit_Distance_SpinBox;
 	MyDoubleSpinBox* crystal_Resolution_SpinBox;
 	QLabel* crystal_Resolution_Units_Label;
-	QPushButton* setup_Crystal_Resolution_Button;
+	QComboBox* crystal_Resolution_Function_ComboBox;
 
 	// footprint
 	MyDoubleSpinBox* beam_Footprint_Width_SpinBox;

@@ -272,6 +272,7 @@ void Target_Curve::fill_Measurement_And_Curve_With_Shifted_2D_Data()
 
 void Target_Curve::refresh_Description_Label()
 {
+	// TODO
 	if(loaded_And_Ready)
 	{
 		double spectral_Coeff = wavelength_Coefficients_Map.value(curve.spectral_Units);
@@ -484,8 +485,9 @@ QDataStream& operator >>( QDataStream& stream,		 Fit_Params& fit_Params )
 
 QDataStream& operator <<( QDataStream& stream, const Target_Curve* target_Curve )
 {
-	return stream	<< target_Curve->curve << target_Curve->fit_Params << target_Curve->measurement << target_Curve->filename
-					<< target_Curve->filepath << target_Curve->plot_Options_Experimental
+	return stream	<< target_Curve->curve << target_Curve->fit_Params << target_Curve->measurement
+					<< target_Curve->filename << target_Curve->filepath
+					<< target_Curve->plot_Options_Experimental
 					<< target_Curve->plot_Options_Calculated
 					<< target_Curve->calculated_Values
 					<< target_Curve->lines_List << target_Curve->label_Text;
@@ -505,7 +507,7 @@ QDataStream& operator >>(QDataStream& stream,		 Target_Curve* target_Curve )
 
 	stream  >> target_Curve->calculated_Values
 			>> target_Curve->lines_List;
-	if(Global_Variables::check_Loaded_Version(1,11,0))
+	if(!Global_Variables::check_Loaded_Version(1,11,0))
 	{
 		QString arg_Units;
 		stream >> arg_Units;

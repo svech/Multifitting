@@ -1625,3 +1625,66 @@ double Global_Variables::beam_Profile(double x, double FWHM, double smoothing)
 		if(x >=  limit) return 0;
 	}
 }
+
+double Global_Variables::distribution_Function(QString function, double FWHM, double x)
+{
+	if(function == distributions[Gate])		{return distribution_Gate	 (FWHM, x);} else
+	if(function == distributions[Cosine])	{return distribution_Cosine	 (FWHM, x);} else
+	if(function == distributions[Gaussian]) {return distribution_Gaussian(FWHM, x);} else
+	if(function == distributions[Lorentz])	{return distribution_Lorentz (FWHM, x);} else
+	return -2020;
+}
+
+double Global_Variables::distribution_Gate(double FWHM, double x)
+{
+	if(-FWHM/2-DBL_EPSILON<= x && x <= FWHM/2+DBL_EPSILON) return 1;
+	else							return 0;
+}
+
+double Global_Variables::distribution_Cosine(double FWHM, double x)
+{
+	if(-FWHM <= x && x <= FWHM)
+	{
+		if(FWHM>DBL_EPSILON)
+		{
+			return pow(cos(M_PI_2*x/FWHM),2);
+		} else
+		{
+			return 1;
+		}
+	}
+	else
+		return 0;
+}
+
+double Global_Variables::distribution_Gaussian(double FWHM, double x)
+{
+	if(-1.5*FWHM <= x && x <= 1.5*FWHM)
+	{
+		if(FWHM>DBL_EPSILON)
+		{
+			return exp(-4*log(2)*pow(x/FWHM,2));
+		} else
+		{
+			return 1;
+		}
+	}
+	else
+		return 0;
+}
+
+double Global_Variables::distribution_Lorentz(double FWHM, double x)
+{
+	if(-10*FWHM <= x && x <= 10*FWHM)
+	{
+		if(FWHM>DBL_EPSILON)
+		{
+			return 1./(1.+pow(2*x/FWHM,2));
+		} else
+		{
+			return 1;
+		}
+	}
+	else
+		return 0;
+}

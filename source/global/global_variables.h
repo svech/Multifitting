@@ -311,7 +311,12 @@ public:
 	// beam profile
 	static double beam_Profile(double x, double FWHM, double smoothing);
 
-
+	// resolution/distribution functions
+	static double distribution_Function(QString function, double FWHM, double x);
+	static double distribution_Gate		(double FWHM, double x);
+	static double distribution_Cosine	(double FWHM, double x);
+	static double distribution_Gaussian	(double FWHM, double x);
+	static double distribution_Lorentz	(double FWHM, double x);
 };
 
 #endif // GLOBAL_VARIABLES_H

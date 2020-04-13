@@ -8,6 +8,7 @@ Multilayer::Multilayer(QWidget *parent) :
 {
 	// TODO WTF
 	// initialization. later it will be loaded from .fit
+
 	profile_Plot_Options.local_length_units = length_units;
 	profile_Plot_Options.local_wavelength_units = wavelength_units;
 

@@ -50,6 +50,7 @@ QString Independent_Curve::enlarge_Tab_Name()
 
 void Independent_Curve::refresh_Description_Label()
 {
+	// TODO
 	if(measurement.measurement_Type != no_Measurement_Type)
 	{
 		double spectral_Coeff = wavelength_Coefficients_Map.value(spectral_Units);

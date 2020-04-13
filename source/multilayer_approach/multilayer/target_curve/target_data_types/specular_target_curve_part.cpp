@@ -351,7 +351,15 @@ void Specular_Target_Curve_Part::create_Beam_GroupBox()
 	}
 	// spectral distribution
 	{
-		QLabel* spectral_Width_Label = new QLabel("      Spectral width, FWHM, " + Delta_Big_Sym + Lambda_Sym+"/"+Lambda_Sym);
+		spectral_Width_Label = new QLabel;
+		if(	target_Curve->curve.spectral_Units == wavelength_Units_List[angstrom] ||
+			target_Curve->curve.spectral_Units == wavelength_Units_List[nm]	   )
+		{
+			spectral_Width_Label->setText("      Spectral width, FWHM, " + Delta_Big_Sym + Lambda_Sym+"/"+Lambda_Sym);
+		} else
+		{
+			spectral_Width_Label->setText("      Spectral width, FWHM, " + Delta_Big_Sym + "E/E");
+		}
 		beam_GroupBox_Layout->addWidget(spectral_Width_Label,0,5,Qt::AlignRight);
 
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -528,13 +536,16 @@ void Specular_Target_Curve_Part::create_Detector_GroupBox()
 
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-		QLabel* spacing_Label = new QLabel("             ");
-		crystal_Layout->addWidget(spacing_Label,0,Qt::AlignLeft);
+		QLabel* crystal_Resolution_Function_Label = new QLabel("       Function");
+		crystal_Layout->addWidget(crystal_Resolution_Function_Label,0,Qt::AlignLeft);
 
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-		setup_Crystal_Resolution_Button = new QPushButton("Set up resolution");
-		crystal_Layout->addWidget(setup_Crystal_Resolution_Button,0,Qt::AlignLeft);
+		crystal_Resolution_Function_ComboBox = new QComboBox;
+			crystal_Resolution_Function_ComboBox->addItems(distributions);
+			crystal_Resolution_Function_ComboBox->setCurrentText(target_Curve->measurement.detector_1D.detector_Theta_Resolution.distribution_Function);
+			crystal_Resolution_Function_ComboBox->setFixedWidth(DISTRIBUTION_BOX_FIELD_WIDTH);
+		crystal_Layout->addWidget(crystal_Resolution_Function_ComboBox,0,Qt::AlignLeft);
 	}
 	disable_Crystal_Detector_Type();
 }
@@ -832,7 +843,7 @@ void Specular_Target_Curve_Part::create_Sample_Plot()
 
 void Specular_Target_Curve_Part::plot_Sample()
 {
-	int curve_Point_Count = 303;
+	int curve_Point_Count = 203;
 
 	double size = target_Curve->measurement.sample_Geometry.size;
 	double z_Pos = target_Curve->measurement.sample_Geometry.z_Position;
@@ -949,7 +960,7 @@ void Specular_Target_Curve_Part::refresh_Argument_Units()
 	angular_Divergence_SpinBox->blockSignals(true);
 	crystal_Resolution_SpinBox->blockSignals(true);
 
-	if(arg_Type_ComboBox->currentText() == argument_Types[Beam_Grazing_Angle])
+	if(target_Curve->measurement.argument_Type == argument_Types[Beam_Grazing_Angle])
 	{
 		target_Curve->curve.angular_Units = arg_Units_ComboBox->currentText();
 
@@ -960,9 +971,18 @@ void Specular_Target_Curve_Part::refresh_Argument_Units()
 		crystal_Resolution_SpinBox->setValue(target_Curve->measurement.detector_1D.detector_Theta_Resolution.FWHM_distribution/coeff);
 		crystal_Resolution_Units_Label->setText(target_Curve->curve.angular_Units);
 	}
-	if(arg_Type_ComboBox->currentText() == argument_Types[Wavelength_Energy])
+	if(target_Curve->measurement.argument_Type == argument_Types[Wavelength_Energy])
 	{
 		target_Curve->curve.spectral_Units = arg_Units_ComboBox->currentText();
+
+		if(	target_Curve->curve.spectral_Units == wavelength_Units_List[angstrom] ||
+			target_Curve->curve.spectral_Units == wavelength_Units_List[nm]	   )
+		{
+			spectral_Width_Label->setText("      Spectral width, FWHM, " + Delta_Big_Sym + Lambda_Sym+"/"+Lambda_Sym);
+		} else
+		{
+			spectral_Width_Label->setText("      Spectral width, FWHM, " + Delta_Big_Sym + "E/E");
+		}
 	}
 	target_Curve->fill_Measurement_And_Curve_With_Shifted_Data();
 	target_Curve->refresh_Description_Label();
@@ -1022,6 +1042,15 @@ void Specular_Target_Curve_Part::refresh_At_Fixed_Units()
 
 		double coeff = wavelength_Coefficients_Map.value(target_Curve->curve.spectral_Units);
 		at_Fixed_SpinBox->setValue(Global_Variables::wavelength_Energy(target_Curve->curve.spectral_Units,target_Curve->measurement.wavelength.value)/coeff);
+
+		if(	target_Curve->curve.spectral_Units == wavelength_Units_List[angstrom] ||
+			target_Curve->curve.spectral_Units == wavelength_Units_List[nm]	   )
+		{
+			spectral_Width_Label->setText("      Spectral width, FWHM, " + Delta_Big_Sym + Lambda_Sym+"/"+Lambda_Sym);
+		} else
+		{
+			spectral_Width_Label->setText("      Spectral width, FWHM, " + Delta_Big_Sym + "E/E");
+		}
 	}
 	if(arg_Type_ComboBox->currentText() == argument_Types[Wavelength_Energy] )
 	{
@@ -1192,7 +1221,7 @@ void Specular_Target_Curve_Part::connecting()
 		Global_Variables::replot_All_Graphs();
 	});
 	// argument shift
-	connect(arg_Shift_SpinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, [=]
+	connect(arg_Shift_SpinBox, static_cast<void (MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
 	{
 		target_Curve->curve.horizontal_Arg_Shift = arg_Shift_SpinBox->value();
 
@@ -1202,7 +1231,7 @@ void Specular_Target_Curve_Part::connecting()
 		global_Multilayer_Approach->calc_Reflection(true);
 	});
 	// argument factor
-	connect(arg_Factor_SpinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, [=]
+	connect(arg_Factor_SpinBox, static_cast<void (MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
 	{
 		target_Curve->curve.horizontal_Arg_Factor= arg_Factor_SpinBox->value();
 
@@ -1253,7 +1282,7 @@ void Specular_Target_Curve_Part::connecting()
 		global_Multilayer_Approach->calc_Reflection(true);
 	});
 	// value shift
-	connect(val_Shift_SpinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, [=]
+	connect(val_Shift_SpinBox, static_cast<void (MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
 	{
 		target_Curve->curve.val_Shift = val_Shift_SpinBox->value();
 
@@ -1263,7 +1292,7 @@ void Specular_Target_Curve_Part::connecting()
 		Global_Variables::replot_All_Graphs();
 	});
 	// value factor
-	connect(val_Factor_SpinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, [=]
+	connect(val_Factor_SpinBox, static_cast<void (MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
 	{
 		target_Curve->curve.val_Factor.value = val_Factor_SpinBox->value();
 
@@ -1272,11 +1301,11 @@ void Specular_Target_Curve_Part::connecting()
 		target_Curve->refresh_Description_Label();
 		Global_Variables::replot_All_Graphs();
 	});
-	connect(val_Factor_Min_SpinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, [=]
+	connect(val_Factor_Min_SpinBox, static_cast<void (MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
 	{
 		target_Curve->curve.val_Factor.fit.min = val_Factor_Min_SpinBox->value();
 	});
-	connect(val_Factor_Max_SpinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, [=]
+	connect(val_Factor_Max_SpinBox, static_cast<void (MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
 	{
 		target_Curve->curve.val_Factor.fit.max = val_Factor_Max_SpinBox->value();
 	});
@@ -1294,7 +1323,7 @@ void Specular_Target_Curve_Part::connecting()
 		target_Curve_Plot->plot_Data(true);
 		Global_Variables::replot_All_Graphs();
 	});
-	connect(beam_Intensity_Initial_SpinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, [=]
+	connect(beam_Intensity_Initial_SpinBox, static_cast<void (MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
 	{
 		target_Curve->curve.beam_Intensity_Initial= beam_Intensity_Initial_SpinBox->value();
 		if(!target_Curve->curve.use_Final_Intensity)
@@ -1323,7 +1352,7 @@ void Specular_Target_Curve_Part::connecting()
 		target_Curve_Plot->plot_Data(true);
 		Global_Variables::replot_All_Graphs();
 	});
-	connect(beam_Intensity_Final_SpinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, [=]
+	connect(beam_Intensity_Final_SpinBox, static_cast<void (MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
 	{
 		target_Curve->curve.beam_Intensity_Final= beam_Intensity_Final_SpinBox->value();
 
@@ -1335,7 +1364,7 @@ void Specular_Target_Curve_Part::connecting()
 
 	/// beam box
 	// at fixed
-	connect(at_Fixed_SpinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, [=]
+	connect(at_Fixed_SpinBox, static_cast<void (MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
 	{
 		refresh_At_Fixed_Value();
 
@@ -1349,28 +1378,28 @@ void Specular_Target_Curve_Part::connecting()
 		Global_Variables::replot_All_Graphs();
 	});
 	// polarization
-	connect(polarization_SpinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, [=]
+	connect(polarization_SpinBox, static_cast<void (MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
 	{
 		target_Curve->measurement.polarization = polarization_SpinBox->value();
 
 		global_Multilayer_Approach->calc_Reflection(true);
 	});
 	// background
-	connect(background_SpinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, [=]
+	connect(background_SpinBox, static_cast<void (MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
 	{
 		target_Curve->measurement.background = background_SpinBox->value();
 
 		global_Multilayer_Approach->calc_Reflection(true);
 	});
 	// spectral width
-	connect(spectral_Width_SpinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, [=]
+	connect(spectral_Width_SpinBox, static_cast<void (MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
 	{
 		target_Curve->measurement.spectral_Distribution.FWHM_distribution = spectral_Width_SpinBox->value();
 
 		global_Multilayer_Approach->calc_Reflection(true);
 	});
 	// angular divergence
-	connect(angular_Divergence_SpinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, [=]
+	connect(angular_Divergence_SpinBox, static_cast<void (MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
 	{
 		double coeff = angle_Coefficients_Map.value(target_Curve->curve.angular_Units);
 		target_Curve->measurement.beam_Theta_0_Distribution.FWHM_distribution = angular_Divergence_SpinBox->value()*coeff;
@@ -1380,8 +1409,11 @@ void Specular_Target_Curve_Part::connecting()
 	// beam distribution button
 	connect(setup_Beam_Distribution_Button, &QPushButton::clicked, this, [=]
 	{
-		// TODO
-		Distribution_Editor* distribution_Editor = new Distribution_Editor;
+		Distribution_Editor* distribution_Editor = new Distribution_Editor(target_Curve->measurement,
+																		   target_Curve->curve.spectral_Units,
+																		   target_Curve->curve.angular_Units,
+																		   spectral_Width_SpinBox,
+																		   angular_Divergence_SpinBox);
 		distribution_Editor->show();
 	});
 
@@ -1395,38 +1427,38 @@ void Specular_Target_Curve_Part::connecting()
 		global_Multilayer_Approach->calc_Reflection(true);
 	});
 	// slit width
-	connect(slit_Width_SpinBox,  static_cast<void(QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, [=]
+	connect(slit_Width_SpinBox,  static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
 	{
 		target_Curve->measurement.detector_1D.slit_Width = slit_Width_SpinBox->value();
 
 		global_Multilayer_Approach->calc_Reflection(true);
 	});
 	// slit distance
-	connect(slit_Distance_SpinBox,  static_cast<void(QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, [=]
+	connect(slit_Distance_SpinBox,  static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
 	{
 		target_Curve->measurement.detector_1D.distance_To_Sample = slit_Distance_SpinBox->value();
 
 		global_Multilayer_Approach->calc_Reflection(true);
 	});
 	// crystal resolution
-	connect(crystal_Resolution_SpinBox,  static_cast<void(QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, [=]
+	connect(crystal_Resolution_SpinBox,  static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
 	{
 		double coeff = angle_Coefficients_Map.value(target_Curve->curve.angular_Units);
 		target_Curve->measurement.detector_1D.detector_Theta_Resolution.FWHM_distribution = crystal_Resolution_SpinBox->value()*coeff;
 
 		global_Multilayer_Approach->calc_Reflection(true);
 	});
-	// crystal resolution button
-	connect(setup_Crystal_Resolution_Button, &QPushButton::clicked, this, [=]
+	// crystal resolution function
+	connect(crystal_Resolution_Function_ComboBox, &QComboBox::currentTextChanged, this, [=]
 	{
-		// TODO
-		Distribution_Editor* distribution_Editor = new Distribution_Editor;
-		distribution_Editor->show();
+		target_Curve->measurement.detector_1D.detector_Theta_Resolution.distribution_Function = crystal_Resolution_Function_ComboBox->currentText();
+
+		global_Multilayer_Approach->calc_Reflection(true);
 	});
 
 	/// footprint & distortion groupbox
 	// beam width
-	connect(beam_Footprint_Width_SpinBox, static_cast<void(QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, [=]
+	connect(beam_Footprint_Width_SpinBox, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
 	{
 		target_Curve->measurement.beam_Geometry.size = beam_Footprint_Width_SpinBox->value();
 
@@ -1434,7 +1466,7 @@ void Specular_Target_Curve_Part::connecting()
 		global_Multilayer_Approach->calc_Reflection(true);
 	});
 	// beam shape
-	connect(beam_Footprint_Shape_SpinBox, static_cast<void(QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, [=]
+	connect(beam_Footprint_Shape_SpinBox, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
 	{
 		target_Curve->measurement.beam_Geometry.smoothing = beam_Footprint_Shape_SpinBox->value();
 
@@ -1442,7 +1474,7 @@ void Specular_Target_Curve_Part::connecting()
 		global_Multilayer_Approach->calc_Reflection(true);
 	});
 	// sample size
-	connect(sample_Size_SpinBox, static_cast<void(QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, [=]
+	connect(sample_Size_SpinBox, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
 	{
 		target_Curve->measurement.sample_Geometry.size = sample_Size_SpinBox->value();
 
@@ -1450,7 +1482,7 @@ void Specular_Target_Curve_Part::connecting()
 		global_Multilayer_Approach->calc_Reflection(true);
 	});
 	// sample x-position
-	connect(sample_X_SpinBox, static_cast<void(QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, [=]
+	connect(sample_X_SpinBox, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
 	{
 		target_Curve->measurement.sample_Geometry.x_Position = sample_X_SpinBox->value();
 
@@ -1458,7 +1490,7 @@ void Specular_Target_Curve_Part::connecting()
 		global_Multilayer_Approach->calc_Reflection(true);
 	});
 	// sample z-position
-	connect(sample_Z_SpinBox, static_cast<void(QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, [=]
+	connect(sample_Z_SpinBox, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
 	{
 		target_Curve->measurement.sample_Geometry.z_Position = sample_Z_SpinBox->value();
 
@@ -1466,7 +1498,7 @@ void Specular_Target_Curve_Part::connecting()
 		global_Multilayer_Approach->calc_Reflection(true);
 	});
 	// sample curvature
-	connect(sample_Curvature_SpinBox, static_cast<void(QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, [=]
+	connect(sample_Curvature_SpinBox, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
 	{
 		target_Curve->measurement.sample_Geometry.curvature = sample_Curvature_SpinBox->value();
 
