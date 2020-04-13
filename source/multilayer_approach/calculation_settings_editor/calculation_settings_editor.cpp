@@ -645,7 +645,9 @@ void Calculation_Settings_Editor::load_Independent_Parameters(int tab_Index)
 	Multilayer* multilayer = qobject_cast<Multilayer*>(multilayer_Tabs->widget(tab_Index));
 
 	independent_Group_Box_Vec[tab_Index]->setChecked(multilayer->enable_Calc_Independent_Curves);
-	connect(independent_Group_Box_Vec[tab_Index],  &QGroupBox::toggled, this, [=]{
+
+	connect(independent_Group_Box_Vec[tab_Index],  &QGroupBox::toggled, this, [=]
+	{
 		multilayer->enable_Calc_Independent_Curves = independent_Group_Box_Vec[tab_Index]->isChecked();
 		global_Multilayer_Approach->independent_Target_Added = independent_Group_Box_Vec[tab_Index]->isChecked();
 		reopen_Optical_Graphs(INDEPENDENT);
@@ -656,8 +658,18 @@ void Calculation_Settings_Editor::load_Independent_Parameters(int tab_Index)
 		independent_Vertical_Box_Layout->setSpacing(20);
 		independent_Vertical_Box_Layout->setContentsMargins(7,14,7,7);
 
-	// total number of independents
-	total_Number_of_Independents = multilayer->independent_Curve_Tabs->count();
+	// calculate total number of independents
+	QVector<Independent_Curve*> independents;
+	total_Number_of_Independents = 0;
+	for(int independent_Index=0; independent_Index<multilayer->independent_Curve_Tabs->count(); ++independent_Index)
+	{
+		Independent_Curve* independent_Curve = qobject_cast<Independent_Curve*>(multilayer->independent_Curve_Tabs->widget(independent_Index));
+		if(independent_Curve->measurement.measurement_Type != no_Measurement_Type)
+		{
+			independents.append(independent_Curve);
+			total_Number_of_Independents++;
+		}
+	}
 
 	int independents_in_Short_Row = total_Number_of_Independents/multilayer->num_Independent_Rows;
 	int additional_Independents = total_Number_of_Independents%multilayer->num_Independent_Rows;
@@ -669,11 +681,10 @@ void Calculation_Settings_Editor::load_Independent_Parameters(int tab_Index)
 
 	QHBoxLayout* horizontal_Layout = new QHBoxLayout;
 
-	for(int independent_Index=0; independent_Index<multilayer->independent_Curve_Tabs->count(); ++independent_Index)
+	int independent_Index = 0;
+	for(Independent_Curve* independent_Curve : independents)
 	{
-		Independent_Curve* independent_Variables = qobject_cast<Independent_Curve*>(multilayer->independent_Curve_Tabs->widget(independent_Index));
-
-		QGroupBox* box = new QGroupBox(multilayer->independent_Curve_Tabs->tabText(independent_Index));
+		QGroupBox* box = new QGroupBox(independent_Curve->tab_Name);
 			box->setCheckable(true);
 			box->setObjectName("box");
 			box->setStyleSheet("QGroupBox#box { border-radius: 2px;  border: 1px solid gray; margin-top: 2ex;}"
@@ -693,8 +704,9 @@ void Calculation_Settings_Editor::load_Independent_Parameters(int tab_Index)
 			horizontal_Layout = new QHBoxLayout; // may be memory leak at the end
 		}
 
-		box->setChecked(independent_Variables->calc_Functions.check_Enabled);
-		connect(box,  &QGroupBox::toggled, this, [=]{
+		box->setChecked(independent_Curve->calc_Functions.check_Enabled);
+		connect(box,  &QGroupBox::toggled, this, [=]
+		{
 			refresh_Independent_Calc_Properties(tab_Index, independent_Index, box);
 			global_Multilayer_Approach->independent_Added = qobject_cast<QGroupBox*>(sender())->isChecked();
 			reopen_Optical_Graphs(INDEPENDENT);
@@ -717,13 +729,13 @@ void Calculation_Settings_Editor::load_Independent_Parameters(int tab_Index)
 					standard_Functions_Layout->setAlignment(Qt::AlignLeft);
 					QCheckBox* reflect_Functions = new QCheckBox(reflectance_Function);
 						standard_Functions_Layout->addWidget(reflect_Functions);
-						reflect_Functions->setChecked(independent_Variables->calc_Functions.check_Reflectance);
+						reflect_Functions->setChecked(independent_Curve->calc_Functions.check_Reflectance);
 					QCheckBox* transmit_Functions = new QCheckBox(transmittance_Function);
 						standard_Functions_Layout->addWidget(transmit_Functions);
-						transmit_Functions->setChecked(independent_Variables->calc_Functions.check_Transmittance);
+						transmit_Functions->setChecked(independent_Curve->calc_Functions.check_Transmittance);
 					QCheckBox* absorp_Functions = new QCheckBox(absorptance_Function);
 						standard_Functions_Layout->addWidget(absorp_Functions);
-						absorp_Functions->setChecked(independent_Variables->calc_Functions.check_Absorptance);
+						absorp_Functions->setChecked(independent_Curve->calc_Functions.check_Absorptance);
 
 				connect(reflect_Functions,  &QCheckBox::toggled, this, [=]{ refresh_Independent_Calc_Properties(tab_Index, independent_Index, box); });
 				connect(transmit_Functions, &QCheckBox::toggled, this, [=]{ refresh_Independent_Calc_Properties(tab_Index, independent_Index, box); });
@@ -745,17 +757,17 @@ void Calculation_Settings_Editor::load_Independent_Parameters(int tab_Index)
 
 					QCheckBox* field_Intensity = new QCheckBox(intensity_Function);
 						field_Checkbox_Layout->addWidget(field_Intensity);
-						field_Intensity->setChecked(independent_Variables->calc_Functions.check_Field);
+						field_Intensity->setChecked(independent_Curve->calc_Functions.check_Field);
 					QCheckBox* joule_Absorption= new QCheckBox(joule_Function);
 						field_Checkbox_Layout->addWidget(joule_Absorption);
-						joule_Absorption->setChecked(independent_Variables->calc_Functions.check_Joule);
+						joule_Absorption->setChecked(independent_Curve->calc_Functions.check_Joule);
 
 				connect(field_Intensity,  &QCheckBox::toggled, this, [=]{
-					independent_Variables->calc_Functions.check_Field = field_Intensity->isChecked();
+					independent_Curve->calc_Functions.check_Field = field_Intensity->isChecked();
 //					refresh_Independent_Calc_Properties(tab_Index, independent_Index, box);
 				});
 				connect(joule_Absorption, &QCheckBox::toggled, this, [=]{
-					independent_Variables->calc_Functions.check_Joule = joule_Absorption->isChecked();
+					independent_Curve->calc_Functions.check_Joule = joule_Absorption->isChecked();
 //					refresh_Independent_Calc_Properties(tab_Index, independent_Index, box);
 				});
 
@@ -774,14 +786,14 @@ void Calculation_Settings_Editor::load_Independent_Parameters(int tab_Index)
 					field_Step_SpinBox->setRange(0.1, MAX_DOUBLE);
 					field_Step_SpinBox->setDecimals(2);
 					field_Step_SpinBox->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
-					field_Step_SpinBox->setValue(independent_Variables->calc_Functions.field_Step);
+					field_Step_SpinBox->setValue(independent_Curve->calc_Functions.field_Step);
 					field_Step_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
 				field_Step_Layout->addWidget(field_Step_SpinBox);
 				step_Widgets_List.append(field_Step_SpinBox);
 				Global_Variables::resize_Line_Edit(field_Step_SpinBox, false);
 				connect(field_Step_SpinBox, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
 				{
-					independent_Variables->calc_Functions.field_Step = field_Step_SpinBox->value();
+					independent_Curve->calc_Functions.field_Step = field_Step_SpinBox->value();
 					Global_Variables::resize_Line_Edit(field_Step_SpinBox, false);
 				});
 				QLabel* field_Step_Units_Label = new QLabel(Angstrom_Sym);
@@ -800,14 +812,14 @@ void Calculation_Settings_Editor::load_Independent_Parameters(int tab_Index)
 					field_Ambient_SpinBox->setRange(0, MAX_DOUBLE);
 					field_Ambient_SpinBox->setDecimals(2);
 					field_Ambient_SpinBox->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
-					field_Ambient_SpinBox->setValue(independent_Variables->calc_Functions.field_Ambient_Distance);
+					field_Ambient_SpinBox->setValue(independent_Curve->calc_Functions.field_Ambient_Distance);
 					field_Ambient_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
 				field_Ambient_Substrate_Layout->addWidget(field_Ambient_SpinBox,0,1);
 				step_Widgets_List.append(field_Ambient_SpinBox);
 				Global_Variables::resize_Line_Edit(field_Ambient_SpinBox, false);
 				connect(field_Ambient_SpinBox, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
 				{
-					independent_Variables->calc_Functions.field_Ambient_Distance = field_Ambient_SpinBox->value();
+					independent_Curve->calc_Functions.field_Ambient_Distance = field_Ambient_SpinBox->value();
 					Global_Variables::resize_Line_Edit(field_Ambient_SpinBox, false);
 				});
 				QLabel* field_Ambient_Units_Label = new QLabel(Angstrom_Sym);
@@ -823,14 +835,14 @@ void Calculation_Settings_Editor::load_Independent_Parameters(int tab_Index)
 					field_Substrate_SpinBox->setRange(0, MAX_DOUBLE);
 					field_Substrate_SpinBox->setDecimals(2);
 					field_Substrate_SpinBox->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
-					field_Substrate_SpinBox->setValue(independent_Variables->calc_Functions.field_Substrate_Distance);
+					field_Substrate_SpinBox->setValue(independent_Curve->calc_Functions.field_Substrate_Distance);
 					field_Substrate_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
 				field_Ambient_Substrate_Layout->addWidget(field_Substrate_SpinBox,1,1);
 				step_Widgets_List.append(field_Substrate_SpinBox);
 				Global_Variables::resize_Line_Edit(field_Substrate_SpinBox, false);
 				connect(field_Substrate_SpinBox, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
 				{
-					independent_Variables->calc_Functions.field_Substrate_Distance = field_Substrate_SpinBox->value();
+					independent_Curve->calc_Functions.field_Substrate_Distance = field_Substrate_SpinBox->value();
 					Global_Variables::resize_Line_Edit(field_Substrate_SpinBox, false);
 				});
 				QLabel* field_Substrate_Units_Label = new QLabel(Angstrom_Sym);
@@ -871,6 +883,7 @@ void Calculation_Settings_Editor::load_Independent_Parameters(int tab_Index)
 //				different_Lines.append(user_Supplied_Functions);
 //			}
 		}
+		independent_Index++;
 	}
 	if(!horizontal_Layout->parent()) delete horizontal_Layout;
 }

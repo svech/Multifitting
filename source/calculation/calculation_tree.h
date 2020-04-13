@@ -28,7 +28,6 @@ struct Data_Element
 
 	// active
 	QString active_Item_Type;
-	QString active_Item_Id;
 	QString active_Parameter_Whats_This;
 };
 

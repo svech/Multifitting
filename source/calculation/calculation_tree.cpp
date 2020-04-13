@@ -394,7 +394,6 @@ void Calculation_Tree::calculate_1_Kind_Preliminary(Data_Element<Type>& data_Ele
 //			if(item_Indicator.is_Active)
 //			{
 //				data_Element.active_Item_Type			 = item_Indicator.item_Type;
-//				data_Element.active_Item_Id				 = item_Indicator.item_Id;
 //				data_Element.active_Parameter_Whats_This = item_Indicator.parameter_Whats_This;
 //			}
 
@@ -407,7 +406,6 @@ void Calculation_Tree::calculate_1_Kind_Preliminary(Data_Element<Type>& data_Ele
 
 		// only measurement can be active here
 		data_Element.active_Item_Type			 = item_Type_Measurement;
-		data_Element.active_Item_Id				 = target_Curve->measurement.id;
 		data_Element.active_Parameter_Whats_This = target_Curve->measurement.argument_Type;
 
 		if( target_Curve->curve.value_Type == value_Types[Transmittance])

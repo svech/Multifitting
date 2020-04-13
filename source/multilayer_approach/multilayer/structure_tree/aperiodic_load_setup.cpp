@@ -15,7 +15,7 @@ void Aperiodic_Load_Setup::set_Window_Geometry()
 {
 	adjustSize();
 	setFixedSize(size());
-	//	move(QApplication::desktop()->screen()->rect().center() - rect().center());
+//	move(QApplication::desktop()->screen()->rect().center() - rect().center());
 }
 
 void Aperiodic_Load_Setup::create_Main_Layout()

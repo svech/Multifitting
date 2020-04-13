@@ -141,38 +141,24 @@ void Target_Curve_Editor::create_Filepath_GroupBox()
 	connect(filepath_ComboBox, &QComboBox::currentTextChanged, this, [=](QString str){ filepath_ComboBox->lineEdit()->textEdited(str); } );
 	connect(filepath_ComboBox->lineEdit(), &QLineEdit::returnPressed, this, [=]
 	{
-		// close graphs
-		bool reopen_Graphs = global_Multilayer_Approach->runned_Optical_Graphs.contains(optical_Graphs_Key);
-		int active_Tab_Optical_Graphs = -2019;
-		if(reopen_Graphs)
-		{
-			active_Tab_Optical_Graphs = global_Multilayer_Approach->runned_Optical_Graphs.value(optical_Graphs_Key)->main_Tabs->currentIndex();
-			global_Multilayer_Approach->runned_Optical_Graphs.value(optical_Graphs_Key)->close();
-		}
-		// close calculation settings
-		bool reopen_Calc_Settings = global_Multilayer_Approach->runned_Calculation_Settings_Editor.contains(calc_Settings_Key);
-		int active_Tab_Calculation_Settings_Editor = -2019;
-		if(reopen_Calc_Settings)
-		{
-			active_Tab_Calculation_Settings_Editor = global_Multilayer_Approach->runned_Calculation_Settings_Editor.value(calc_Settings_Key)->main_Tabs->currentIndex();
-			global_Multilayer_Approach->runned_Calculation_Settings_Editor.value(calc_Settings_Key)->close();
-		}
-
 		//////////////////////////////////////////////////////
 		read_Data_File(filepath_ComboBox->lineEdit()->text());
 		//////////////////////////////////////////////////////
 
-		// reopen graphs
-		if(reopen_Graphs)
+		// reopen Calculation_Settings and Optical_Graphs
+		if(global_Multilayer_Approach->runned_Calculation_Settings_Editor.contains(calc_Settings_Key))
 		{
-			global_Multilayer_Approach->open_Optical_Graphs(TARGET);
-			global_Multilayer_Approach->runned_Optical_Graphs.value(optical_Graphs_Key)->main_Tabs->setCurrentIndex(active_Tab_Optical_Graphs);
-		}
-		// reopen calculation settings
-		if(reopen_Calc_Settings)
-		{
+			int active_Tab_Calculation_Settings_Editor = global_Multilayer_Approach->runned_Calculation_Settings_Editor.value(calc_Settings_Key)->main_Tabs->currentIndex();
+			global_Multilayer_Approach->runned_Calculation_Settings_Editor.value(calc_Settings_Key)->close();
 			global_Multilayer_Approach->open_Calculation_Settings();
 			global_Multilayer_Approach->runned_Calculation_Settings_Editor.value(calc_Settings_Key)->main_Tabs->setCurrentIndex(active_Tab_Calculation_Settings_Editor);
+		}
+		if(global_Multilayer_Approach->runned_Optical_Graphs.contains(optical_Graphs_Key))
+		{
+			int active_Tab_Optical_Graphs = global_Multilayer_Approach->runned_Optical_Graphs.value(optical_Graphs_Key)->main_Tabs->currentIndex();
+			global_Multilayer_Approach->runned_Optical_Graphs.value(optical_Graphs_Key)->close();
+			global_Multilayer_Approach->open_Optical_Graphs(TARGET);
+			global_Multilayer_Approach->runned_Optical_Graphs.value(optical_Graphs_Key)->main_Tabs->setCurrentIndex(active_Tab_Optical_Graphs);
 		}
 	});
 
