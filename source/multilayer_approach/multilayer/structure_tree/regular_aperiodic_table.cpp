@@ -736,7 +736,7 @@ void Regular_Aperiodic_Table::refresh_Regular_Component(Data& current_Layer, int
 	}
 
 	// recalculation at change
-	if(aperiodic_Recalculate_Spinbox_Table && !reload) {global_Multilayer_Approach->calc_Reflection(true);}
+	if(aperiodic_Recalculate_Spinbox_Table && !reload) {global_Multilayer_Approach->calculate(true);}
 }
 
 void Regular_Aperiodic_Table::refresh_Thickness_Checkboxes(int i, int n)

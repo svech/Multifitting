@@ -284,7 +284,7 @@ void Calculation_Settings_Editor::load_Discretization_Parameters(int tab_Index)
 				curve_Plot->discretized_Angular_Threshold();
 			}
 		}
-		global_Multilayer_Approach->calc_Reflection(true);
+		global_Multilayer_Approach->calculate(true);
 	});
 
 
@@ -452,7 +452,7 @@ void Calculation_Settings_Editor::load_Target_Parameters(int tab_Index)
 				{
 					target_Curve->curve.mesh_Density_Shift = shift_SpinBox->value();
 					if(target_Curve->curve.mesh_Density_Factor > 1) {
-						global_Multilayer_Approach->calc_Reflection(true);
+						global_Multilayer_Approach->calculate(true);
 					}
 				});
 //				shift_SpinBox->valueChanged(shift_SpinBox->value());
@@ -486,7 +486,7 @@ void Calculation_Settings_Editor::load_Target_Parameters(int tab_Index)
 				connect(mesh_Density_SpinBox, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, [=]
 				{
 					target_Curve->curve.mesh_Density_Factor = mesh_Density_SpinBox->value();
-					global_Multilayer_Approach->calc_Reflection(true);
+					global_Multilayer_Approach->calculate(true);
 				});
 				fit_Layout->addWidget(mesh_Density_SpinBox,Qt::AlignRight);
 
@@ -902,26 +902,11 @@ void Calculation_Settings_Editor::refresh_Independent_Calc_Properties(int tab_In
 		if(check_Box->text() == transmittance_Function) independent_Variables->calc_Functions.check_Transmittance = check_Box->isChecked();
 		if(check_Box->text() == absorptance_Function)	independent_Variables->calc_Functions.check_Absorptance = check_Box->isChecked();
 
-///		if(check_Box->text() == intensity_Function)		independent_Variables->calc_Functions.check_Field = check_Box->isChecked();
-///		if(check_Box->text() == joule_Function)			independent_Variables->calc_Functions.check_Joule = check_Box->isChecked();
-		if(check_Box->text() == user_Function)			independent_Variables->calc_Functions.check_User = check_Box->isChecked();
+		if(check_Box->text() == intensity_Function)		independent_Variables->calc_Functions.check_Field = check_Box->isChecked();
+		if(check_Box->text() == joule_Function)			independent_Variables->calc_Functions.check_Joule = check_Box->isChecked();
 
 		reopen_Optical_Graphs();
 		activateWindow();
-	}
-
-	if(qobject_cast<QLineEdit*>(sender()))
-	{
-		QLineEdit* user_Supplied_Functions = qobject_cast<QLineEdit*>(sender());
-		QStringList var_List = {symbol_R, symbol_T, symbol_A, symbol_F, symbol_J};
-		if(Global_Variables::expression_Is_Valid(user_Supplied_Functions->text(), var_List) || user_Supplied_Functions->text().isEmpty())
-		{
-			independent_Variables->calc_Functions.user_Functions = user_Supplied_Functions->text();
-		} else
-		{
-			user_Supplied_Functions->setText(independent_Variables->calc_Functions.user_Functions);
-			QMessageBox::information(this, "Wrong expression", "Expression has wrong syntax");
-		}
 	}
 
 	multilayer->independent_Curve_Tabs->setTabText(independent_Index, independent_Variables->tab_Name + independent_Variables->enlarge_Tab_Name());

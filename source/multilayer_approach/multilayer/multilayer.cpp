@@ -9,7 +9,6 @@ Multilayer::Multilayer(QWidget *parent) :
 	// TODO WTF
 	// initialization. later it will be loaded from .fit
 	profile_Plot_Options.local_length_units = length_units;
-	profile_Plot_Options.local_wavelength_units = wavelength_units;
 
 	create_Main_Layout();
 }
@@ -253,6 +252,10 @@ void Multilayer::add_Target_Curve(int index_Pressed, bool opening)
 	new_Description_Label->	setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 	new_Add_Button->		setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 	new_Remove_Button->		setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+
+	new_Import_Button->		setFixedWidth(60);
+	new_Add_Button->		setFixedWidth(63);
+	new_Remove_Button->		setFixedWidth(60);
 
 	left_Layout->addWidget(new_Import_Button);
 	left_Layout->addWidget(new_Description_Label, 0, Qt::AlignLeft);

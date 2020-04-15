@@ -35,10 +35,6 @@ Curve::Curve()
 	use_Final_Intensity = false;
 	beam_Intensity_Final = 1;
 
-	// units
-	angular_Units = angle_Units_List[degree];
-	spectral_Units = wavelength_Units_List[angstrom];
-
 	// type
 	value_Type = no_Value_Type;
 }
@@ -95,6 +91,10 @@ Target_Curve::Target_Curve(QLabel* description_Label, QWidget *parent) :
 	plot_Options_Calculated.scatter_Shape = QCPScatterStyle::ssDisc;
 	plot_Options_Calculated.scatter_Size=0;
 	plot_Options_Calculated.thickness=2;
+
+	// units
+	angular_Units = angle_Units_List[degree];
+	spectral_Units = wavelength_Units_List[angstrom];
 }
 
 void Target_Curve::import_Data_From_File(QString bare_Filename)
@@ -245,7 +245,7 @@ void Target_Curve::fill_Measurement_And_Curve_With_Shifted_1D_Data()
 		// measurement filling
 		if(measurement.argument_Type == argument_Types[Beam_Grazing_Angle])
 		{
-			double coeff = angle_Coefficients_Map.value(curve.angular_Units);
+			double coeff = angle_Coefficients_Map.value(angular_Units);
 			measurement.beam_Theta_0_Angle_Vec.resize(curve.shifted_Argument.size());
 			for(int i=0; i<curve.shifted_Argument.size(); ++i)
 			{
@@ -254,11 +254,11 @@ void Target_Curve::fill_Measurement_And_Curve_With_Shifted_1D_Data()
 		}
 		if(measurement.argument_Type == argument_Types[Wavelength_Energy])
 		{
-			double coeff = wavelength_Coefficients_Map.value(curve.spectral_Units);
+			double coeff = wavelength_Coefficients_Map.value(spectral_Units);
 			measurement.lambda_Vec.resize(curve.shifted_Argument.size());
 			for(int i=0; i<curve.shifted_Argument.size(); ++i)
 			{
-				measurement.lambda_Vec[i] = Global_Variables::wavelength_Energy(curve.spectral_Units, curve.shifted_Argument[i]*coeff);
+				measurement.lambda_Vec[i] = Global_Variables::wavelength_Energy(spectral_Units, curve.shifted_Argument[i]*coeff);
 			}
 		}
 	}
@@ -275,26 +275,28 @@ void Target_Curve::refresh_Description_Label()
 	// TODO
 	if(loaded_And_Ready)
 	{
-		double spectral_Coeff = wavelength_Coefficients_Map.value(curve.spectral_Units);
-		double angular_Coeff = angle_Coefficients_Map.value(curve.angular_Units);
+		double spectral_Coeff = wavelength_Coefficients_Map.value(spectral_Units);
+		double angular_Coeff = angle_Coefficients_Map.value(angular_Units);
 
 		if(	measurement.measurement_Type == measurement_Types[Specular_Scan] )
 		{
 			if(measurement.argument_Type == argument_Types[Beam_Grazing_Angle])
 			{		
 				label_Text =  curve.value_Type + "; " +
-							  Locale.toString(curve.shifted_Argument.first()) + "-" + Locale.toString(curve.shifted_Argument.last()) +
-							  "" + curve.angular_Units + "; " + "at " +
-							  Locale.toString(Global_Variables::wavelength_Energy(curve.spectral_Units,measurement.wavelength.value)/spectral_Coeff, thumbnail_double_format, thumbnail_wavelength_precision) +
-							  " " + curve.spectral_Units;
+							  Locale.toString(curve.shifted_Argument.first(), thumbnail_double_format, 3) +
+						"-" + Locale.toString(curve.shifted_Argument.last(), thumbnail_double_format, 3) +
+							  "" + angular_Units + "; " + "at " +
+							  Locale.toString(Global_Variables::wavelength_Energy(spectral_Units,measurement.wavelength.value)/spectral_Coeff, thumbnail_double_format, thumbnail_wavelength_precision) +
+							  " " + spectral_Units;
 			}
 			if(measurement.argument_Type == argument_Types[Wavelength_Energy])
 			{
 				label_Text =  curve.value_Type + "; " +
-							  Locale.toString(curve.shifted_Argument.first()) + "-" + Locale.toString(curve.shifted_Argument.last()) +
-							  "" + curve.spectral_Units + "; " + "at " +
+							  Locale.toString(curve.shifted_Argument.first(), thumbnail_double_format, 3) +
+						"-" + Locale.toString(curve.shifted_Argument.last(), thumbnail_double_format, 3) +
+							  "" + spectral_Units + "; " + "at " +
 							  Locale.toString(measurement.beam_Theta_0_Angle.value/angular_Coeff, thumbnail_double_format, thumbnail_angle_precision) +
-							  " " + curve.angular_Units;
+							  " " + angular_Units;
 			}
 		}
 		if(	measurement.measurement_Type == measurement_Types[Detector_Scan] )
@@ -363,7 +365,7 @@ QDataStream& operator <<( QDataStream& stream, const Curve& curve )
 					<< curve.horizontal_Arg_Shift << curve.horizontal_Arg_Factor << curve.vertical_Arg_Shift << curve.vertical_Arg_Factor
 					<< curve.val_Shift << curve.val_Factor
 					<< curve.divide_On_Beam_Intensity << curve.beam_Intensity_Initial << curve.use_Final_Intensity << curve.beam_Intensity_Final
-					<< curve.angular_Units << curve.spectral_Units << curve.value_Type;
+					<< curve.value_Type;
 }
 QDataStream& operator >>( QDataStream& stream,		 Curve& curve )
 {
@@ -374,7 +376,7 @@ QDataStream& operator >>( QDataStream& stream,		 Curve& curve )
 				>> curve.horizontal_Arg_Shift >> curve.horizontal_Arg_Factor >> curve.vertical_Arg_Shift >> curve.vertical_Arg_Factor
 				>> curve.val_Shift >> curve.val_Factor
 				>> curve.divide_On_Beam_Intensity >> curve.beam_Intensity_Initial >> curve.use_Final_Intensity >> curve.beam_Intensity_Final
-				>> curve.angular_Units >> curve.spectral_Units >> curve.value_Type;		
+				>> curve.value_Type;
 	} else // before 1.11.0
 	{
 		if(Global_Variables::check_Loaded_Version(1,10,1))		// since 1.10.1
@@ -435,9 +437,11 @@ QDataStream& operator >>( QDataStream& stream,		 Curve& curve )
 		{
 			QString argument_Type;
 			QString angle_Type;
-			stream >> argument_Type >> angle_Type ;
+			QString angular_Units;
+			QString spectral_Units;
+			stream >> argument_Type >> angle_Type >> angular_Units >> spectral_Units;
 		}
-		stream >> curve.angular_Units >> curve.spectral_Units >> curve.value_Type;
+		stream >> curve.value_Type;
 		{
 			QString value_Mode;
 			stream >> value_Mode;
@@ -490,7 +494,7 @@ QDataStream& operator <<( QDataStream& stream, const Target_Curve* target_Curve 
 					<< target_Curve->plot_Options_Experimental
 					<< target_Curve->plot_Options_Calculated
 					<< target_Curve->calculated_Values
-					<< target_Curve->lines_List << target_Curve->label_Text;
+					<< target_Curve->lines_List << target_Curve->label_Text << target_Curve->angular_Units << target_Curve->spectral_Units;
 }
 QDataStream& operator >>(QDataStream& stream,		 Target_Curve* target_Curve )
 {
@@ -522,6 +526,8 @@ QDataStream& operator >>(QDataStream& stream,		 Target_Curve* target_Curve )
 
 	if(Global_Variables::check_Loaded_Version(1,11,0))
 	{
+		stream >> target_Curve->angular_Units >> target_Curve->spectral_Units;
+
 		// loaded_And_Ready is calculated here, after main load
 		target_Curve->parse_Data_From_List();
 		target_Curve->fill_Measurement_And_Curve_With_Shifted_Data();

@@ -40,10 +40,6 @@ struct Curve
 	bool use_Final_Intensity;
 	double beam_Intensity_Final;
 
-	// units
-	QString angular_Units;
-	QString spectral_Units;
-
 	// type
 	QString value_Type;
 
@@ -124,6 +120,10 @@ public:
 
 	QString label_Text = "<no description>";
 	QString index;
+
+	// units
+	QString angular_Units;
+	QString spectral_Units;
 
 	Target_Curve& operator =(const Target_Curve& referent_Target_Curve);
 };

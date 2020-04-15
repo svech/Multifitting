@@ -52,7 +52,7 @@ public:
 	void open_As();
 	void save(QString filename);
 	void save_As();
-	void calc_Reflection(bool silent = false);
+	void calculate(bool silent = false);
 	void start_Fitting();
 	void abort_Calculations();
 	void calculation_Started();

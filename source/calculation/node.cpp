@@ -13,14 +13,10 @@ Node::Node(QTreeWidgetItem* item):
 //	qInfo() << "NODE" << struct_Data.item_Type << endl;
 }
 
-void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_Node, QString active_Parameter_Whats_This, bool depth_Grading, bool sigma_Grading, bool enable_Discretization)
+void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_Node, bool depth_Grading, bool sigma_Grading, bool enable_Discretization)
 {
 	// PARAMETER
-	if(active_Parameter_Whats_This == whats_This_Beam_Theta_0_Angle ||
-	   active_Parameter_Whats_This == whats_This_Wavelength )
 	{
-		// here we know that active item type == "Measurement"
-
 		// crutch
 		struct_Data.relative_Density.value = max(struct_Data.relative_Density.value,DBL_EPSILON);
 
@@ -34,7 +30,8 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 			struct_Data.item_Type == item_Type_Substrate )
 		{
 			// if angle is changing
-			if(active_Parameter_Whats_This == whats_This_Beam_Theta_0_Angle)
+			if( measurement.measurement_Type == measurement_Types[Specular_Scan] &&
+				measurement.argument_Type == argument_Types[Beam_Grazing_Angle] )
 			{
 				// measured points
 				num_Points = measurement.beam_Theta_0_Cos2_Vec.size();
@@ -46,11 +43,6 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 				}
 
 				epsilon.resize(num_Points);
-				#ifdef REAL_CALC
-				epsilon_RE.resize(num_Points);
-				epsilon_IM.resize(num_Points);
-				epsilon_NORM.resize(num_Points);
-				#endif
 
 				/// ---------------------------------------------------------------------------------------------------------------
 				/// delta_Epsilon
@@ -99,16 +91,12 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 				for(int point_Index = 0; point_Index<num_Points; ++point_Index)
 				{
 					epsilon     [point_Index] =      epsilon_Ang;
-					#ifdef REAL_CALC
-					epsilon_RE  [point_Index] = real(epsilon_Ang);
-					epsilon_IM  [point_Index] = imag(epsilon_Ang);
-					epsilon_NORM[point_Index] = epsilon_RE[point_Index]*epsilon_RE[point_Index] + epsilon_IM[point_Index]*epsilon_IM[point_Index];
-					#endif
 				}
 			}
 
 			// if wavelength is changing
-			if(active_Parameter_Whats_This == whats_This_Wavelength)
+			if( measurement.measurement_Type == measurement_Types[Specular_Scan] &&
+				measurement.argument_Type == argument_Types[Wavelength_Energy] )
 			{
 				// measured points
 				num_Points = measurement.lambda_Vec.size();
@@ -121,11 +109,6 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 
 				delta_Epsilon.resize(num_Points);
 				epsilon.resize(num_Points);
-				#ifdef REAL_CALC
-				epsilon_RE.resize(num_Points);
-				epsilon_IM.resize(num_Points);
-				epsilon_NORM.resize(num_Points);
-				#endif
 
 				/// ---------------------------------------------------------------------------------------------------------------
 				/// delta_Epsilon
@@ -184,15 +167,6 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 						epsilon[point_Index] = 1. - delta_Epsilon[point_Index];
 					}
 				}
-
-				#ifdef REAL_CALC
-				for(int point_Index = 0; point_Index<num_Points; ++point_Index)
-				{
-					epsilon_RE  [point_Index] = real(epsilon[point_Index]);
-					epsilon_IM  [point_Index] = imag(epsilon[point_Index]);
-					epsilon_NORM[point_Index] = epsilon_RE[point_Index]*epsilon_RE[point_Index] + epsilon_IM[point_Index]*epsilon_IM[point_Index];
-				}
-				#endif
 			}
 
 			// anyway
@@ -217,27 +191,6 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 
 				if(true)
 				{
-					#ifdef REAL_CALC
-					hi_RE.resize(num_Points);
-					hi_IM.resize(num_Points);
-					double re, im, phase, mod;
-
-	//				Global_Variables::parallel_For(num_Points, reflectivity_Calc_Threads, [&](int n_Min, int n_Max)
-	//				{
-	//					for(int i=n_Min; i<n_Max; ++i)
-						for(int i=0; i<num_Points; ++i)
-						{
-							re = epsilon_RE[i] - cos2[i];
-							im = epsilon_IM[i];
-
-							phase = atan2(im, re)/2;
-							mod = k[i]*sqrt(sqrt(re*re + im*im));
-
-							hi_RE[i] = mod* cos(phase);
-							hi_IM[i] = mod* sin(phase);
-						}
-	//				});
-					#else
 					hi.resize(num_Points);
 //					Global_Variables::parallel_For(num_Points, reflectivity_Calc_Threads, [&](int n_Min, int n_Max)
 //					{
@@ -247,7 +200,6 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 							hi[i] = k[i]*sqrt(epsilon[i] - cos2[i]);
 						}
 //					});
-					#endif
 				}
 
 				/// ---------------------------------------------------------------------------------------------------------------
@@ -260,47 +212,6 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 					// s-polarization
 					if (measurement.polarization >-1)
 					{
-						#ifdef REAL_CALC
-						// reflectance
-						Fresnel_R_s_RE.resize(num_Points);
-						Fresnel_R_s_IM.resize(num_Points);
-						// transmittance
-						Fresnel_T_s_RE.resize(num_Points);
-						Fresnel_T_s_IM.resize(num_Points);
-
-	//					Global_Variables::parallel_For(num_Points, reflectivity_Calc_Threads, [&](int n_Min, int n_Max)
-	//					{
-							double temp_Fre_Numer_RE, temp_Fre_Numer_IM, temp_Fre_Denom_SQARE, temp_Fre_Denom_RE, temp_Fre_Denom_IM;
-							for(int i=0; i<num_Points; ++i)
-	//						for (int i=n_Min; i<n_Max; ++i)
-							{
-								temp_Fre_Denom_RE = above_Node->hi_RE[i] + hi_RE[i];
-								temp_Fre_Denom_IM = above_Node->hi_IM[i] + hi_IM[i];
-								temp_Fre_Denom_SQARE = temp_Fre_Denom_RE*temp_Fre_Denom_RE + temp_Fre_Denom_IM*temp_Fre_Denom_IM;
-
-								if ( abs(temp_Fre_Denom_SQARE) > DBL_MIN)
-								{
-									temp_Fre_Numer_RE = above_Node->hi_RE[i] - hi_RE[i];
-									temp_Fre_Numer_IM = above_Node->hi_IM[i] - hi_IM[i];
-
-									// reflectance
-									Fresnel_R_s_RE[i] = (temp_Fre_Numer_RE*temp_Fre_Denom_RE + temp_Fre_Numer_IM*temp_Fre_Denom_IM) / temp_Fre_Denom_SQARE;
-									Fresnel_R_s_IM[i] = (temp_Fre_Numer_IM*temp_Fre_Denom_RE - temp_Fre_Numer_RE*temp_Fre_Denom_IM) / temp_Fre_Denom_SQARE;
-									// transmittance
-									Fresnel_T_s_RE[i] = 2*(above_Node->hi_RE[i]*temp_Fre_Denom_RE + above_Node->hi_IM[i]*temp_Fre_Denom_IM) / temp_Fre_Denom_SQARE;
-									Fresnel_T_s_IM[i] = 2*(above_Node->hi_IM[i]*temp_Fre_Denom_RE - above_Node->hi_RE[i]*temp_Fre_Denom_IM) / temp_Fre_Denom_SQARE;
-								} else
-								{
-									// reflectance
-									Fresnel_R_s_RE[i] = 0;
-									Fresnel_R_s_IM[i] = 0;
-									// transmittance
-									Fresnel_T_s_RE[i] = 1;
-									Fresnel_T_s_IM[i] = 1;
-								}
-							}
-	//					});
-						#else
 						// reflectance
 						Fresnel_R_s.resize(num_Points);
 						// transmittance
@@ -326,59 +237,11 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 								}
 							}
 //						});
-						#endif
 					}
 
 					// p-polarization
 					if (measurement.polarization < 1)
 					{
-						#ifdef REAL_CALC
-						// reflectance
-						Fresnel_R_p_RE.resize(num_Points);
-						Fresnel_R_p_IM.resize(num_Points);
-						// transmittance
-						Fresnel_T_p_RE.resize(num_Points);
-						Fresnel_T_p_IM.resize(num_Points);
-
-	//					Global_Variables::parallel_For(num_Points, reflectivity_Calc_Threads, [&](int n_Min, int n_Max)
-	//					{
-							double temp_Fre_Numer_RE, temp_Fre_Numer_IM, temp_Fre_Denom_SQARE, temp_Fre_Denom_RE, temp_Fre_Denom_IM, temp_1_RE, temp_1_IM, temp_2_RE, temp_2_IM;
-							for(int i=0; i<num_Points; ++i)
-	//						for (int i=n_Min; i<n_Max; ++i)
-							{
-								temp_1_RE = (above_Node->hi_RE[i]*above_Node->epsilon_RE[i] + above_Node->hi_IM[i]*above_Node->epsilon_IM[i]) / above_Node->epsilon_NORM[i];
-								temp_1_IM = (above_Node->hi_IM[i]*above_Node->epsilon_RE[i] - above_Node->hi_RE[i]*above_Node->epsilon_IM[i]) / above_Node->epsilon_NORM[i];
-
-								temp_2_RE = (hi_RE[i]*epsilon_RE[i] + hi_IM[i]*epsilon_IM[i]) / epsilon_NORM[i];
-								temp_2_IM = (hi_IM[i]*epsilon_RE[i] - hi_RE[i]*epsilon_IM[i]) / epsilon_NORM[i];
-
-								temp_Fre_Denom_RE = temp_1_RE + temp_2_RE;
-								temp_Fre_Denom_IM = temp_1_IM + temp_2_IM;
-								temp_Fre_Denom_SQARE = temp_Fre_Denom_RE*temp_Fre_Denom_RE + temp_Fre_Denom_IM*temp_Fre_Denom_IM;
-
-								if ( abs(temp_Fre_Denom_SQARE) > DBL_MIN )
-								{
-									temp_Fre_Numer_RE = temp_1_RE - temp_2_RE;
-									temp_Fre_Numer_IM = temp_1_IM - temp_2_IM;
-
-									// reflectance
-									Fresnel_R_p_RE[i] =(temp_Fre_Numer_RE*temp_Fre_Denom_RE + temp_Fre_Numer_IM*temp_Fre_Denom_IM) / temp_Fre_Denom_SQARE;
-									Fresnel_R_p_IM[i] =(temp_Fre_Numer_IM*temp_Fre_Denom_RE - temp_Fre_Numer_RE*temp_Fre_Denom_IM) / temp_Fre_Denom_SQARE;
-									// transmittance
-									Fresnel_T_p_RE[i] = 2*(temp_1_RE*temp_Fre_Denom_RE + temp_1_IM*temp_Fre_Denom_IM) / temp_Fre_Denom_SQARE;
-									Fresnel_T_p_IM[i] = 2*(temp_1_IM*temp_Fre_Denom_RE - temp_1_RE*temp_Fre_Denom_IM) / temp_Fre_Denom_SQARE;
-								} else
-								{
-									// reflectance
-									Fresnel_R_p_RE[i] = 0;
-									Fresnel_R_p_IM[i] = 0;
-									// transmittance
-									Fresnel_T_p_RE[i] = 1;
-									Fresnel_T_p_IM[i] = 1;
-								}
-							}
-	//					});
-						#else
 						// reflectance
 						Fresnel_R_p.resize(num_Points);
 						// transmittance
@@ -408,7 +271,6 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 								}
 							}
 		//				});
-						#endif
 					}
 				}
 
@@ -447,18 +309,10 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 	//						for(int i=n_Min; i<n_Max; ++i)
 							{
 								weak_Factor_R[i] = 0;
-								#ifdef REAL_CALC
-								s_r[i] = sqrt(above_Node->hi_RE[i]*hi_RE[i]);
-								#else
 								s_r[i] = sqrt(real(above_Node->hi[i])*real(hi[i]));
-								#endif
 								// transmittance
 //								weak_Factor_T[i] = 0;
-								#ifdef REAL_CALC
-//								s_t[i] =     (above_Node->hi_RE[i]-hi_RE[i])/2;
-								#else
 //								s_t[i] =     (real(above_Node->hi[i])-real(hi[i]))/2;
-								#endif
 							}
 	//					});
 
@@ -707,46 +561,6 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 				// if depth graded, set exp=1 here and recalculate later
 				if( struct_Data.item_Type == item_Type_Layer)
 				{
-					#ifdef REAL_CALC
-					exponenta_RE.  resize(num_Points);
-					exponenta_IM.  resize(num_Points);
-					exponenta_2_RE.resize(num_Points);
-					exponenta_2_IM.resize(num_Points);
-
-					if( depth_Grading )
-					{
-	//					Global_Variables::parallel_For(num_Points, reflectivity_Calc_Threads, [&](int n_Min, int n_Max)
-	//					{
-							for(int i=0; i<num_Points; ++i)
-	//						for(int i=n_Min; i<n_Max; ++i)
-							{
-								exponenta_RE[i]   = 1;
-								exponenta_IM[i]   = 1;
-								exponenta_2_RE[i] = 1;
-								exponenta_2_IM[i] = 1;
-							}
-	//					});
-					} else
-					{
-	//					Global_Variables::parallel_For(num_Points, reflectivity_Calc_Threads, [&](int n_Min, int n_Max)
-	//					{
-							double re, im, ere, ere2;
-							for(int i=0; i<num_Points; ++i)
-	//						for(int i=n_Min; i<n_Max; ++i)
-							{
-								re = -hi_IM[i]*struct_Data.thickness.value;
-								im =  hi_RE[i]*struct_Data.thickness.value;
-								ere =  exp(   re);
-								ere2 = exp(2.*re);
-
-								exponenta_RE[i] = ere*cos(im);
-								exponenta_IM[i] = ere*sin(im);
-								exponenta_2_RE[i] = ere2*cos(2.*im);
-								exponenta_2_IM[i] = ere2*sin(2.*im);
-							}
-	//					});
-					}
-					#else
 					exponenta.  resize(num_Points);
 					exponenta_2.resize(num_Points);
 
@@ -773,7 +587,6 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 							}
 	//					});
 					}
-					#endif
 				}
 			}
 		}

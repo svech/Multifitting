@@ -217,7 +217,7 @@ void Fits_Selector::open_Fit()
 	// recalculate and replot
 	if(opened)
 	{
-		global_Multilayer_Approach->calc_Reflection(true);
+		global_Multilayer_Approach->calculate(true);
 		if(global_Multilayer_Approach->runned_Optical_Graphs.contains(optical_Graphs_Key))
 		{
 			global_Multilayer_Approach->optical_Graphs->activateWindow();

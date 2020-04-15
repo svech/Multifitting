@@ -1261,7 +1261,7 @@ void Multilayer_Approach::save_As()
 	}
 }
 
-void Multilayer_Approach::calc_Reflection(bool silent)
+void Multilayer_Approach::calculate(bool silent)
 {
 	if(!fitting_Settings->in_Calculation)
 	{
@@ -1269,7 +1269,7 @@ void Multilayer_Approach::calc_Reflection(bool silent)
 		if(!silent)
 		{
 			qInfo() << "\n\n-------------------------------------------------------"
-						 "\ncalc specular functions..." //<< temp_Counter++ <<
+						 "\ncalculation..."
 						 "\n-------------------------------------------------------\n\n";
 		}
 		Main_Calculation_Module* main_Calculation_Module = new Main_Calculation_Module(CALCULATION);

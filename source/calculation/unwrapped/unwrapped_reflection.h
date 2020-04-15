@@ -15,7 +15,7 @@ struct Interpol
 class Unwrapped_Reflection
 {
 public:
-	Unwrapped_Reflection(Unwrapped_Structure* unwrapped_Structure, int num_Media, QString active_Parameter_Whats_This,
+	Unwrapped_Reflection(Unwrapped_Structure* unwrapped_Structure, int num_Media,
 						 const Data& measurement, bool depth_Grading, bool sigma_Grading,
 						 const Calc_Functions& calc_Functions, Calculated_Values& calculated_Values, QString calc_Mode);
 	~Unwrapped_Reflection();
@@ -33,36 +33,9 @@ public:
 	Calculated_Values& calculated_Values;
 
 	QString calc_Mode;
-	QString active_Parameter_Whats_This;
 	Unwrapped_Structure* unwrapped_Structure;
 	const Data& measurement;
 
-	#ifdef REAL_CALC
-	vector<vector<double>> r_Fresnel_s_RE;		//	[thread][boundary]
-	vector<vector<double>> r_Fresnel_s_IM;		//	[thread][boundary]
-	vector<vector<double>> r_Fresnel_p_RE;		//	[thread][boundary]
-	vector<vector<double>> r_Fresnel_p_IM;		//	[thread][boundary]
-	vector<vector<double>> r_Local_s_RE;		//	[thread][boundary]
-	vector<vector<double>> r_Local_s_IM;		//	[thread][boundary]
-	vector<vector<double>> r_Local_p_RE;		//	[thread][boundary]
-	vector<vector<double>> r_Local_p_IM;		//	[thread][boundary]
-
-	vector<vector<double>> t_Fresnel_s_RE;		//	[thread][boundary]
-	vector<vector<double>> t_Fresnel_s_IM;		//	[thread][boundary]
-	vector<vector<double>> t_Fresnel_p_RE;		//	[thread][boundary]
-	vector<vector<double>> t_Fresnel_p_IM;		//	[thread][boundary]
-	vector<vector<double>> t_Local_s_RE;		//	[thread][boundary]
-	vector<vector<double>> t_Local_s_IM;		//	[thread][boundary]
-	vector<vector<double>> t_Local_p_RE;		//	[thread][boundary]
-	vector<vector<double>> t_Local_p_IM;		//	[thread][boundary]
-
-	vector<vector<double>> hi_RE;				//	[thread][media]
-	vector<vector<double>> hi_IM;				//	[thread][media]
-	vector<vector<double>> exponenta_RE;		//	[thread][layer]
-	vector<vector<double>> exponenta_IM;		//	[thread][layer]
-	vector<vector<double>> exponenta_2_RE;		//	[thread][layer]
-	vector<vector<double>> exponenta_2_IM;		//	[thread][layer]
-	#else
 	vector<vector<complex<double>>> r_Fresnel_s;	//	[thread][boundary]
 	vector<vector<complex<double>>> r_Fresnel_p;	//	[thread][boundary]
 	vector<vector<complex<double>>> r_Local_s;		//	[thread][boundary]
@@ -76,7 +49,6 @@ public:
 	vector<vector<complex<double>>> hi;				//	[thread][media]
 	vector<vector<complex<double>>> exponenta;		//	[thread][layer]
 	vector<vector<complex<double>>> exponenta_2;	//	[thread][layer]
-	#endif
 
 	vector<double> environment_Factor_s;	//	[thread]
 	vector<double> environment_Factor_p;	//	[thread]
@@ -90,19 +62,14 @@ public:
 	int fill_s__Max_Depth_2(const tree<Node>::iterator& parent, int thread_Index, int point_Index, int media_Index = 0);
 	int fill_p__Max_Depth_2(const tree<Node>::iterator& parent, int thread_Index, int point_Index, int media_Index = 0);
 	int fill_sp_Max_Depth_2(const tree<Node>::iterator& parent, int thread_Index, int point_Index, int media_Index = 0);
-	int fill_Epsilon_Ambient_Substrate(int thread_Index, vector<complex<double>>& epsilon_In_Depth);
+	void fill_Epsilon_Ambient_Substrate(int thread_Index, vector<complex<double>>& epsilon_In_Depth);
 
 	void calc_Hi		 (double k, double cos2,
 						  const vector<complex<double>>& eps,
-//						  const vector<double>& eps_RE,
-//						  const vector<double>& eps_IM,
 						  int thread_Index);
 	void calc_Weak_Factor(int thread_Index);
 	void calc_Fresnel	 (double polarization,
 						  const vector<complex<double>>& eps,
-//						  const vector<double>& eps_RE,
-//						  const vector<double>& eps_IM,
-//						  const vector<double>& eps_NORM,
 						  int thread_Index);
 	void calc_Exponenta	 (int thread_Index, const vector<double>& thickness);
 	void calc_Local		 (double polarization, int thread_Index);

@@ -222,7 +222,7 @@ void Distribution_Box::connecting()
 		related_SpinBox->blockSignals(false);
 
 		replot();
-		global_Multilayer_Approach->calc_Reflection(true);
+		global_Multilayer_Approach->calculate(true);
 	});
 	// distribution function
 	connect(distribution_ComboBox, &QComboBox::currentTextChanged, this, [=]
@@ -230,7 +230,7 @@ void Distribution_Box::connecting()
 		distribution.distribution_Function = distribution_ComboBox->currentText();
 
 		replot();
-		global_Multilayer_Approach->calc_Reflection(true);
+		global_Multilayer_Approach->calculate(true);
 	});
 	// sampling
 	connect(sample_SpinBox,  static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, [=]
@@ -238,7 +238,7 @@ void Distribution_Box::connecting()
 		distribution.number_of_Samples = sample_SpinBox->value();
 
 		replot();
-		global_Multilayer_Approach->calc_Reflection(true);
+		global_Multilayer_Approach->calculate(true);
 	});
 	// coverage
 	connect(coverage_SpinBox,  static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
@@ -246,7 +246,7 @@ void Distribution_Box::connecting()
 		distribution.coverage = coverage_SpinBox->value();
 
 		replot();
-		global_Multilayer_Approach->calc_Reflection(true);
+		global_Multilayer_Approach->calculate(true);
 	});
 }
 

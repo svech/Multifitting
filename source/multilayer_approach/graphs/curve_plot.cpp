@@ -1,10 +1,10 @@
 #include "curve_plot.h"
 
-Curve_Plot::Curve_Plot(Multilayer* multilayer, Target_Curve* target_Curve, Independent_Curve* independent_Variables, QString curve_Class, QWidget* parent) :
+Curve_Plot::Curve_Plot(Multilayer* multilayer, Target_Curve* target_Curve, Independent_Curve* independent_Curve, QString curve_Class, QWidget* parent) :
 	multilayer(multilayer),
 	curve_Class(curve_Class),
 	target_Curve(target_Curve),
-	independent_Curve(independent_Variables),
+	independent_Curve(independent_Curve),
 	QWidget(parent)
 {
 	// if target
@@ -16,8 +16,8 @@ Curve_Plot::Curve_Plot(Multilayer* multilayer, Target_Curve* target_Curve, Indep
 			calculated_Values = &target_Curve->calculated_Values;
 			plot_Options_First = &target_Curve->plot_Options_Experimental;
 			plot_Options_Second = &target_Curve->plot_Options_Calculated;
-			spectral_Units = &target_Curve->curve.spectral_Units;
-			angular_Units = &target_Curve->curve.angular_Units;
+			spectral_Units = &target_Curve->spectral_Units;
+			angular_Units = &target_Curve->angular_Units;
 			argument_Type = &target_Curve->measurement.argument_Type;
 			plot_Indicator = &target_Curve->index;
 		} else
@@ -30,23 +30,22 @@ Curve_Plot::Curve_Plot(Multilayer* multilayer, Target_Curve* target_Curve, Indep
 	// if independent
 	if(curve_Class == INDEPENDENT)
 	{
-		if(independent_Variables) // if passed pointer!=nullptr
+		if(independent_Curve) // if passed pointer!=nullptr
 		{
-			measurement = &independent_Variables->measurement;
-			calculated_Values = &independent_Variables->calculated_Values;
-			plot_Options_First = &independent_Variables->plot_Options;
+			measurement = &independent_Curve->measurement;
+			calculated_Values = &independent_Curve->calculated_Values;
+			plot_Options_First = &independent_Curve->plot_Options;
 			plot_Options_Second = plot_Options_First;
-			spectral_Units = &wavelength_units;
-			angular_Units = &angle_units;
-			argument_Type = &independent_Variables->measurement.argument_Type;
-			plot_Indicator = &independent_Variables->tab_Name;
+			spectral_Units = &independent_Curve->spectral_Units;
+			angular_Units = &independent_Curve->angular_Units;
+			argument_Type = &independent_Curve->measurement.argument_Type;
+			plot_Indicator = &independent_Curve->tab_Name;
 		} else
 		{
 			QMessageBox::critical(nullptr, "Curve_Plot::Curve_Plot", "independent_Variables is nullptr");
 			exit(EXIT_FAILURE);
 		}
 	}
-
 	create_Main_Layout();
 }
 
@@ -134,7 +133,7 @@ void Curve_Plot::discretized_Angular_Threshold()
 	double wavelength = 1;
 	if(curve_Class == TARGET)     {
 		argument_Type = target_Curve->measurement.argument_Type;
-		angle_Units = target_Curve->curve.angular_Units;
+		angle_Units = target_Curve->angular_Units;
 		if(argument_Type == argument_Types[Beam_Grazing_Angle])
 		{
 			wavelength = target_Curve->measurement.lambda_Value;
@@ -142,7 +141,7 @@ void Curve_Plot::discretized_Angular_Threshold()
 	}
 	if(curve_Class == INDEPENDENT){
 		argument_Type = independent_Curve->measurement.argument_Type;
-		angle_Units = angle_units;
+		angle_Units = independent_Curve->angular_Units;
 		if(argument_Type == argument_Types[Beam_Grazing_Angle])
 		{
 			wavelength = independent_Curve->measurement.lambda_Value;
@@ -214,23 +213,10 @@ void Curve_Plot::create_Plot_Frame_And_Scale()
 			custom_Plot->xAxis->setNumberFormat("eb"); // e = exponential, b = beautiful decimal powers
 			custom_Plot->xAxis->setNumberPrecision(0); // makes sure "1*10^4" is displayed only as "10^4"
 
-//			if(	target_Curve->curve.value_Mode == value_R_Mode[R] ||
-//				target_Curve->curve.value_Mode == value_T_Mode[T] ||
-//				target_Curve->curve.value_Mode == value_A_Mode[A] )
-			{
-				custom_Plot->xAxis2->setScaleType(QCPAxis::stLogarithmic);
-				custom_Plot->xAxis2->setTicker(logTicker);
-				custom_Plot->xAxis2->setNumberFormat("eb"); // e = exponential, b = beautiful decimal powers
-				custom_Plot->xAxis2->setNumberPrecision(0); // makes sure "1*10^4" is displayed only as "10^4"
-			}
-//			if(	target_Curve->curve.value_Mode == value_R_Mode[R_Phi] )
-//			{
-//				QSharedPointer<QCPAxisTicker> linTicker(new QCPAxisTicker);
-//				custom_Plot->xAxis2->setScaleType(QCPAxis::stLinear);
-//				custom_Plot->xAxis2->setTicker(linTicker);
-//				custom_Plot->xAxis2->setNumberFormat("g");
-//				custom_Plot->xAxis2->setNumberPrecision(4);
-//			}
+			custom_Plot->xAxis2->setScaleType(QCPAxis::stLogarithmic);
+			custom_Plot->xAxis2->setTicker(logTicker);
+			custom_Plot->xAxis2->setNumberFormat("eb"); // e = exponential, b = beautiful decimal powers
+			custom_Plot->xAxis2->setNumberPrecision(0); // makes sure "1*10^4" is displayed only as "10^4"
 		}
 		/// Y axis
 		if(plot_Options_First->y_Scale == lin_Scale)
@@ -257,23 +243,10 @@ void Curve_Plot::create_Plot_Frame_And_Scale()
 			custom_Plot->yAxis->setNumberFormat("eb"); // e = exponential, b = beautiful decimal powers
 			custom_Plot->yAxis->setNumberPrecision(0); // makes sure "1*10^4" is displayed only as "10^4"
 
-//			if(	target_Curve->curve.value_Mode == value_R_Mode[R] ||
-//				target_Curve->curve.value_Mode == value_T_Mode[T] ||
-//				target_Curve->curve.value_Mode == value_A_Mode[A] )
-			{
-				custom_Plot->yAxis2->setScaleType(QCPAxis::stLogarithmic);
-				custom_Plot->yAxis2->setTicker(logTicker);
-				custom_Plot->yAxis2->setNumberFormat("eb"); // e = exponential, b = beautiful decimal powers
-				custom_Plot->yAxis2->setNumberPrecision(0); // makes sure "1*10^4" is displayed only as "10^4"
-			}
-//			if(	target_Curve->curve.value_Mode == value_R_Mode[R_Phi] )
-//			{
-//				QSharedPointer<QCPAxisTicker> linTicker(new QCPAxisTicker);
-//				custom_Plot->yAxis2->setScaleType(QCPAxis::stLinear);
-//				custom_Plot->yAxis2->setTicker(linTicker);
-//				custom_Plot->yAxis2->setNumberFormat("g");
-//				custom_Plot->yAxis2->setNumberPrecision(4);
-//			}
+			custom_Plot->yAxis2->setScaleType(QCPAxis::stLogarithmic);
+			custom_Plot->yAxis2->setTicker(logTicker);
+			custom_Plot->yAxis2->setNumberFormat("eb"); // e = exponential, b = beautiful decimal powers
+			custom_Plot->yAxis2->setNumberPrecision(0); // makes sure "1*10^4" is displayed only as "10^4"
 		}
 
 		// make range draggable and zoomable:
@@ -284,22 +257,10 @@ void Curve_Plot::create_Plot_Frame_And_Scale()
 		custom_Plot->yAxis2->setVisible(true);
 		custom_Plot->xAxis2->setTickLabels(false);
 
-//		// connect signals so top and right axes move in sync with bottom and left axes:
-//		if(	target_Curve->curve.value_Mode == value_R_Mode[R] ||
-//			target_Curve->curve.value_Mode == value_T_Mode[T] ||
-//			target_Curve->curve.value_Mode == value_A_Mode[A])
-		{
-			connect(custom_Plot->xAxis, SIGNAL(rangeChanged(QCPRange)), custom_Plot->xAxis2, SLOT(setRange(QCPRange)));
-			connect(custom_Plot->yAxis, SIGNAL(rangeChanged(QCPRange)), custom_Plot->yAxis2, SLOT(setRange(QCPRange)));
-		}
-//		if(	target_Curve->curve.value_Mode == value_R_Mode[R_Phi] )
-//		{
-//			connect   (custom_Plot->xAxis, SIGNAL(rangeChanged(QCPRange)), custom_Plot->xAxis2, SLOT(setRange(QCPRange)));
-//			disconnect(custom_Plot->yAxis, SIGNAL(rangeChanged(QCPRange)), custom_Plot->yAxis2, SLOT(setRange(QCPRange)));
-//		}
+		connect(custom_Plot->xAxis, SIGNAL(rangeChanged(QCPRange)), custom_Plot->xAxis2, SLOT(setRange(QCPRange)));
+		connect(custom_Plot->yAxis, SIGNAL(rangeChanged(QCPRange)), custom_Plot->yAxis2, SLOT(setRange(QCPRange)));
 	}	
 	set_Title_Text();
-//	custom_Plot->replot();
 }
 
 void Curve_Plot::create_Options()
@@ -541,8 +502,7 @@ void Curve_Plot::set_Title_Text()
 			title_Text = *plot_Indicator + ": " + prefix_Text + fixed_Quantity + "=" +
 						 Locale.toString(Global_Variables::wavelength_Energy(
 								*spectral_Units,measurement->wavelength.value)/coeff,
-								line_edit_double_format,
-								line_edit_wavelength_precision)
+								line_edit_double_format, thumbnail_wavelength_precision)
 						 + " " +*spectral_Units + ", pol=" +
 						 Locale.toString(measurement->polarization,
 								line_edit_double_format,
@@ -553,12 +513,11 @@ void Curve_Plot::set_Title_Text()
 		if(*argument_Type == argument_Types[Wavelength_Energy])
 		{
 			double coeff = angle_Coefficients_Map.value(*angular_Units);
-			fixed_Quantity = " " +Omega_Sym;
+			fixed_Quantity = " " +Theta_Sym+Zero_Subscript_Sym;
 
 			title_Text = *plot_Indicator + ": " + prefix_Text + fixed_Quantity + "=" +
 						 Locale.toString(measurement->beam_Theta_0_Angle.value/coeff,
-								line_edit_double_format,
-								thumbnail_angle_precision)
+								line_edit_double_format, thumbnail_angle_precision)
 						 + " " + *angular_Units + ", pol=" +
 						 Locale.toString(measurement->polarization,
 								line_edit_double_format,
@@ -629,16 +588,18 @@ void Curve_Plot::plot_All_Data()
 			double coeff=1;
 			if(*argument_Type == argument_Types[Beam_Grazing_Angle])
 			{
-				coeff = angle_Coefficients_Map.value(angle_units);
-				for(int i=0; i<values.size(); ++i)				{
+				coeff = angle_Coefficients_Map.value(independent_Curve->angular_Units);
+				for(int i=0; i<values.size(); ++i)
+				{
 					argument[i]=argument[i]/coeff;
 				}
 			}
 			if(*argument_Type == argument_Types[Wavelength_Energy])
 			{
-				coeff = wavelength_Coefficients_Map.value(wavelength_units);
-				for(int i=0; i<values.size(); ++i)				{
-					argument[i]=Global_Variables::wavelength_Energy(wavelength_units,argument[i])/coeff;
+				coeff = wavelength_Coefficients_Map.value(independent_Curve->spectral_Units);
+				for(int i=0; i<values.size(); ++i)
+				{
+					argument[i]=Global_Variables::wavelength_Energy(independent_Curve->spectral_Units,argument[i])/coeff;
 				}
 			}
 
@@ -725,7 +686,7 @@ void Curve_Plot::refresh_Labels()
 		}
 		if( independent_Curve->calc_Functions.check_Absorptance )
 		{
-			val_Type_Label = "Absorptance";
+			val_Type_Label = value_Types[Absorptance];
 		}
 	}
 
@@ -735,7 +696,7 @@ void Curve_Plot::refresh_Labels()
 		{
 			argument_Type_Label = argument_Types[Beam_Grazing_Angle];
 
-			argument_Label = argument_Type_Label + " " + Theta_Sym + ", " + *angular_Units;
+			argument_Label = argument_Type_Label + ", " + *angular_Units;
 
 			if(graph_Done)
 			{

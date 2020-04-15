@@ -10,7 +10,7 @@
 class Unwrapped_Structure
 {
 public:
-	Unwrapped_Structure(const Calc_Functions& calc_Functions, const tree<Node>& calc_Tree, const Data& measurement, QString active_Parameter_Whats_This, int num_Media, int max_Depth, bool depth_Grading, bool sigma_Grading, Discretization_Parameters discretization_Parameters, gsl_rng* r);
+	Unwrapped_Structure(const Calc_Functions& calc_Functions, const tree<Node>& calc_Tree, const Data& measurement, int num_Media, int max_Depth, bool depth_Grading, bool sigma_Grading, Discretization_Parameters discretization_Parameters, gsl_rng* r);
 
 	gsl_rng * r;
 
@@ -28,15 +28,9 @@ public:
 	const Calc_Functions& calc_Functions;
 
 	vector<complex<double>> epsilon;								//	[media]
-//	vector<double> epsilon_RE;										//	[media]
-//	vector<double> epsilon_IM;										//	[media]
-//	vector<double> epsilon_NORM;									//	[media]
 
 	// if epsilon is dependent on variable
 	vector<vector<complex<double>>> epsilon_Dependent;				//	[wavelength][media]
-//	vector<vector<double>> epsilon_Dependent_RE;					//	[wavelength][media]
-//	vector<vector<double>> epsilon_Dependent_IM;					//	[wavelength][media]
-//	vector<vector<double>> epsilon_Dependent_NORM;					//	[wavelength][media]
 
 	double max_Sigma;
 	vector<double> sigma;											//	[boundary]
@@ -51,14 +45,7 @@ public:
 
 	// discretized structure
 	vector<complex<double>> discretized_Epsilon;
-//	vector<double> discretized_Epsilon_RE;
-//	vector<double> discretized_Epsilon_IM;
-//	vector<double> discretized_Epsilon_NORM;
-
 	vector<vector<complex<double>>> discretized_Epsilon_Dependent;
-//	vector<vector<double>> discretized_Epsilon_Dependent_RE;
-//	vector<vector<double>> discretized_Epsilon_Dependent_IM;
-//	vector<vector<double>> discretized_Epsilon_Dependent_NORM;
 
 	vector<double> discretized_Thickness;
 	vector<double> discretized_Slices_Boundaries;
@@ -75,20 +62,10 @@ public:
 	void epsilon_Func(double z, int media_Index, bool is_Dependent,
 
 								const vector<complex<double>>& epsilon_Vector,
-//								const vector<double>& epsilon_RE,
-//								const vector<double>& epsilon_IM,
 								const vector<vector<complex<double>>>& epsilon_Dependent_Vector,
-//								const vector<vector<double>>& epsilon_Dependent_RE,
-//								const vector<vector<double>>& epsilon_Dependent_IM,
 
 								vector<complex<double>>& discretized_Epsilon,
-//								vector<double>& discretized_Epsilon_RE,
-//								vector<double>& discretized_Epsilon_IM,
-//								vector<double>& discretized_Epsilon_NORM,
 								vector<vector<complex<double>>>& discretized_Epsilon_Dependent,
-//								vector<vector<double>>& discretized_Epsilon_Dependent_RE,
-//								vector<vector<double>>& discretized_Epsilon_Dependent_IM
-//								vector<vector<double>>& discretized_Epsilon_Dependent_NORM,
 								int thread_Index);
 
 	// field spacing

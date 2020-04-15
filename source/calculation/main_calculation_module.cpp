@@ -7,13 +7,13 @@ Main_Calculation_Module::Main_Calculation_Module(QString calc_Mode):
 	copy_Real_Struct_Trees	(multilayer_Tabs->count()),
 	calc_Mode				(calc_Mode)
 {
+	// create calculation_Trees
 	lambda_Out_Of_Range = false;
 	for(int tab_Index=0; tab_Index<multilayer_Tabs->count(); ++tab_Index)
 	{
 		multilayers[tab_Index] = qobject_cast<Multilayer*>(multilayer_Tabs->widget(tab_Index));
 		calculation_Trees[tab_Index] = new Calculation_Tree(multilayers[tab_Index], calc_Mode);
 	}
-
 	global_Multilayer_Approach->calculation_Started();
 }
 
@@ -245,16 +245,16 @@ void Main_Calculation_Module::preliminary_Calculation()
 {
 	for(int tab_Index=0; tab_Index<multilayers.size(); ++tab_Index)
 	{
-		calculation_Trees[tab_Index]->fill_Independent_Calc_Trees();
-		for(Data_Element<Independent_Curve>& independent_Element : calculation_Trees[tab_Index]->independent)
+		calculation_Trees[tab_Index]->fill_Calc_Trees();
+		for(Data_Element<Independent_Curve>& independent_Data_Element : calculation_Trees[tab_Index]->independent)
 		{
-			calculation_Trees[tab_Index]->calculate_1_Kind_Preliminary(independent_Element);
+			calculation_Trees[tab_Index]->calculate_1_Kind_Preliminary(independent_Data_Element);
 		}
-		calculation_Trees[tab_Index]->fill_Target_Calc_Trees();
-		for(Data_Element<Target_Curve>& target_Element : calculation_Trees[tab_Index]->target)
+		for(Data_Element<Target_Curve>& target_Data_Element : calculation_Trees[tab_Index]->target)
 		{			
-			increase_Mesh_density(target_Element);
-			calculation_Trees[tab_Index]->calculate_1_Kind_Preliminary(target_Element);
+			// TODO
+//			increase_Mesh_density(target_Data_Element);
+			calculation_Trees[tab_Index]->calculate_1_Kind_Preliminary(target_Data_Element);
 		}
 	}
 }
@@ -267,34 +267,24 @@ void Main_Calculation_Module::single_Calculation(bool print_And_Verbose)
 		return;
 	}
 
-	// prepare cos2 and active_Parameter_Whats_This
+	// prepare k and cos2 vectors
 	preliminary_Calculation();
 
-	std::chrono::system_clock::time_point start;
-	if(print_And_Verbose) {start = std::chrono::system_clock::now();}
+	// timer
+	std::chrono::system_clock::time_point start = std::chrono::system_clock::now();
 
-//	int counter1=0;
-//	int counter2=0;
 	for(int tab_Index=0; tab_Index<multilayers.size(); ++tab_Index)
 	{
-//		calculation_Trees[tab_Index]->fill_Independent_Calc_Trees(); // in preliminary calculation now
-		for(Data_Element<Independent_Curve>& independent_Element : calculation_Trees[tab_Index]->independent)
+		for(Data_Element<Independent_Curve>& independent_Data_Element : calculation_Trees[tab_Index]->independent)
 		{
-//			qInfo() << independent_Element.calc_Tree.begin().number_of_children() << endl;
-//			calculation_Trees[tab_Index]->print_Tree(independent_Element.calc_Tree.begin(), independent_Element.calc_Tree);
-//			qInfo() << endl <<counter2++ << endl;
-			calculation_Trees[tab_Index]->calculate_1_Kind(independent_Element);
+			calculation_Trees[tab_Index]->calculate_1_Kind(independent_Data_Element);
 			if(lambda_Out_Of_Range) return;
 		}
-
-//		calculation_Trees[tab_Index]->fill_Target_Calc_Trees(); // in preliminary calculation now
-		for(Data_Element<Target_Curve>& target_Element : calculation_Trees[tab_Index]->target)
+		for(Data_Element<Target_Curve>& target_Data_Element : calculation_Trees[tab_Index]->target)
 		{
-//			qInfo() << target_Element.calc_Tree.begin().number_of_children() << endl;
-//			calculation_Trees[tab_Index]->print_Tree(target_Element.calc_Tree.begin(), target_Element.calc_Tree);
-//			qInfo() << endl <<counter1++ << endl;
-			calculation_Trees[tab_Index]->calculate_1_Kind(target_Element);
-			decrease_Mesh_density(target_Element);
+			calculation_Trees[tab_Index]->calculate_1_Kind(target_Data_Element);
+			// TODO
+//			decrease_Mesh_density(target_Data_Element);
 			if(lambda_Out_Of_Range) return;
 		}
 	}
@@ -352,17 +342,19 @@ void Main_Calculation_Module::fitting_and_Confidence()
 	// cheking for lambda_Out_Of_Range
 	for(int tab_Index=0; tab_Index<multilayers.size(); ++tab_Index)
 	{
-		calculation_Trees[tab_Index]->fill_Target_Calc_Trees();
+		calculation_Trees[tab_Index]->fill_Calc_Trees();
 		for(Data_Element<Target_Curve>& target_Element : calculation_Trees[tab_Index]->target)
 		{
 			calculation_Trees[tab_Index]->calculate_1_Kind(target_Element);			
 			if(lambda_Out_Of_Range)
 			{
-				decrease_Mesh_density(target_Element);
+				// TODO
+//				decrease_Mesh_density(target_Element);
 				return;
 			} else
 			{
-				decrease_Mesh_density(target_Element,true);
+				// TODO
+//				decrease_Mesh_density(target_Element,true);
 			}
 		}
 	}
@@ -372,7 +364,7 @@ void Main_Calculation_Module::fitting_and_Confidence()
 	for(int tab_Index=0; tab_Index<multilayers.size(); ++tab_Index)
 	{
 		// prepare real_Calc_Tree  (for all multilayers!)
-		calculation_Trees[tab_Index]->fill_Tree_From_Scratch(calculation_Trees[tab_Index]->real_Calc_Tree, calculation_Trees[tab_Index]->real_Struct_Tree, TARGET);
+		calculation_Trees[tab_Index]->fill_Tree_From_Scratch(calculation_Trees[tab_Index]->real_Calc_Tree, calculation_Trees[tab_Index]->real_Struct_Tree);
 
 		if( calculation_Trees[tab_Index]->target.size()>0 )
 		{
@@ -449,7 +441,8 @@ void Main_Calculation_Module::fitting_and_Confidence()
 		{
 			for(Data_Element<Target_Curve>& target_Element : calculation_Trees[tab_Index]->target)
 			{
-				decrease_Mesh_density(target_Element);
+				// TODO
+//				decrease_Mesh_density(target_Element);
 			}
 		}
 		if(!go) return;
@@ -980,56 +973,43 @@ void Main_Calculation_Module::print_Reflect_To_File(Data_Element<Type>& data_Ele
 	if(data_Element.curve_Class == INDEPENDENT)	first_Name = "calc_" + struct_Name + "_independent";
 	if(data_Element.curve_Class == TARGET)		first_Name = "calc_" + struct_Name + "_target";
 
-	Independent_Curve* independent_Variables = qobject_cast<Independent_Curve*>(data_Element.the_Class);
-	Target_Curve* target_Curve = qobject_cast<Target_Curve*>(data_Element.the_Class);
-
-	//-----------------------------------------------------------------------------------------------------
-	/// which values to print
-	// reflectance
-	bool print_Reflectance = false;
-	if(data_Element.curve_Class == INDEPENDENT)
-	if(independent_Variables->calc_Functions.check_Reflectance)
-		print_Reflectance = true;
-	if(data_Element.curve_Class == TARGET)
-	if(target_Curve->curve.value_Type == value_Types[Reflectance])
-		print_Reflectance = true;
-
-	// transmittance
-	bool print_Transmittance = false;
-	if(data_Element.curve_Class == INDEPENDENT)
-	if(independent_Variables->calc_Functions.check_Transmittance)
-		print_Transmittance = true;
-	if(data_Element.curve_Class == TARGET)
-	if(target_Curve->curve.value_Type == value_Types[Transmittance])
-		print_Transmittance = true;
-
-	// absorptance
-	bool print_Absorptance = false;
-	if(data_Element.curve_Class == INDEPENDENT)
-	if(independent_Variables->calc_Functions.check_Absorptance)
-		print_Absorptance = true;
-
-	// user function
-	bool print_User = false;
-	if(data_Element.curve_Class == INDEPENDENT)
-	if(independent_Variables->calc_Functions.check_User)
-		print_User = true;
-
-//	// Kossel intensity
-//	bool print_Kossel = false;
-//	if(data_Element.curve_Class == INDEPENDENT)
-//	if(independent_Variables->calc_Functions.check_Field)
-//		print_Kossel = true;
 	//-----------------------------------------------------------------------------------------------------
 
-	QVector<double> arg;
-	if(data_Element.active_Parameter_Whats_This == whats_This_Beam_Theta_0_Angle )
+	QVector<double> argument;
+	if(	data_Element.the_Class->measurement.measurement_Type == measurement_Types[Specular_Scan] )
 	{
-		arg = data_Element.the_Class->measurement.beam_Theta_0_Angle_Vec;
+		if( data_Element.the_Class->measurement.argument_Type == argument_Types[Beam_Grazing_Angle] )
+		{
+			argument = data_Element.the_Class->measurement.beam_Theta_0_Angle_Vec;
+
+			// change units
+			double coeff = angle_Coefficients_Map.value(data_Element.the_Class->angular_Units);
+			for(double arg : argument)	{arg = arg/coeff;}
+		}
+		if( data_Element.the_Class->measurement.argument_Type == argument_Types[Wavelength_Energy] )
+		{
+			argument = data_Element.the_Class->measurement.lambda_Vec;
+
+			// change units
+			double coeff = wavelength_Coefficients_Map.value(data_Element.the_Class->spectral_Units);
+			for(double arg : argument)	{arg = Global_Variables::wavelength_Energy(data_Element.the_Class->spectral_Units,arg)/coeff;}
+		}
 	}
-	if(data_Element.active_Parameter_Whats_This == whats_This_Wavelength )
+	if(	data_Element.the_Class->measurement.measurement_Type == measurement_Types[Detector_Scan] )
 	{
-		arg = data_Element.the_Class->measurement.lambda_Vec;
+		// TODO
+	}
+	if(	data_Element.the_Class->measurement.measurement_Type == measurement_Types[Rocking_Curve] )
+	{
+		// TODO
+	}
+	if(	data_Element.the_Class->measurement.measurement_Type == measurement_Types[Offset_Scan] )
+	{
+		// TODO
+	}
+	if(	data_Element.the_Class->measurement.measurement_Type == measurement_Types[GISAS] )
+	{
+		// TODO
 	}
 
 	{
@@ -1040,13 +1020,9 @@ void Main_Calculation_Module::print_Reflect_To_File(Data_Element<Type>& data_Ele
 		out.setFieldAlignment(QTextStream::AlignLeft);
 
 		print_Data(out,
-				   arg,
+				   argument,
 				   data_Element.unwrapped_Reflection,
-				   print_Reflectance,
-				   print_Transmittance,
-				   print_Absorptance,
-				   print_User,
-//				   print_Kossel,
+				   data_Element.calc_Functions,
 				   data_Element.the_Class->measurement.polarization
 				   );
 		file.close();
@@ -1079,14 +1055,7 @@ void Main_Calculation_Module::print_Reflect_To_File(Data_Element<Type>& data_Ele
 template void Main_Calculation_Module::print_Reflect_To_File<Independent_Curve>(Data_Element<Independent_Curve>&, QString, int);
 template void Main_Calculation_Module::print_Reflect_To_File<Target_Curve>		   (Data_Element<Target_Curve>&,          QString, int);
 
-void Main_Calculation_Module::print_Data(QTextStream &out, QVector<double> &arg, Unwrapped_Reflection* unwrapped_Reflection,
-										bool print_Reflectance,
-										bool print_Transmittance,
-										bool print_Absorptance,
-										bool print_User,
-//										bool print_Kossel,
-										double incident_Polarization
-										)
+void Main_Calculation_Module::print_Data(QTextStream &out, QVector<double> &arg, Unwrapped_Reflection* unwrapped_Reflection, Calc_Functions& calc_Functions, double incident_Polarization)
 {
 	// point as decimal separator
 	Locale=QLocale::c();
@@ -1110,10 +1079,6 @@ void Main_Calculation_Module::print_Data(QTextStream &out, QVector<double> &arg,
 	QString A_s      = "A_s";
 	QString A_p      = "A_p";
 
-	QString user     = "user";
-
-//	QString Kossel  = "Kossel";
-
 	int precision_Arg = 16;
 	int precision_R_T_A = 6;
 	int precision_Phi = 4;
@@ -1129,7 +1094,7 @@ void Main_Calculation_Module::print_Data(QTextStream &out, QVector<double> &arg,
 		out << qSetFieldWidth(width_Short) << argument  << qSetFieldWidth(width_Long);
 
 		// reflectance
-		if(print_Reflectance)
+		if(calc_Functions.check_Reflectance)
 		{
 											out << R_mixed;
 			if(incident_Polarization>-1)	out << R_s;
@@ -1139,7 +1104,7 @@ void Main_Calculation_Module::print_Data(QTextStream &out, QVector<double> &arg,
 		}
 
 		// transmittance
-		if(print_Transmittance)
+		if(calc_Functions.check_Transmittance)
 		{
 											out <<T_mixed;
 			if(incident_Polarization>-1)	out << T_s;
@@ -1149,24 +1114,14 @@ void Main_Calculation_Module::print_Data(QTextStream &out, QVector<double> &arg,
 		}
 
 		// absorptance
-		if(print_Absorptance)
+		if(calc_Functions.check_Absorptance)
 		{
 											out << A_mixed;
 			if(incident_Polarization>-1)	out << A_s;
 			if(incident_Polarization< 1)	out << A_p;
 		}
 
-		// user
-		if(print_User)
-		{
-			out << user;
-		}
 
-//		// Kossel
-//		if(print_Kossel)
-//		{
-//			out << Kossel;
-//		}
 		out << qSetFieldWidth(arg_Shift) << endl  << qSetFieldWidth(width_Short);
 	}
 	///------------------------------------------------------------------------
@@ -1179,7 +1134,7 @@ void Main_Calculation_Module::print_Data(QTextStream &out, QVector<double> &arg,
 			out << qSetFieldWidth(width_Short) << Locale.toString(arg[i],'f',precision_Arg)  << qSetFieldWidth(width_Long);
 
 			// reflectance
-			if(print_Reflectance)
+			if(calc_Functions.check_Reflectance)
 			{
 												out << Locale.toString(unwrapped_Reflection->R_Instrumental[i],'e',precision_R_T_A);
 				if(incident_Polarization>-1)	out << Locale.toString(unwrapped_Reflection->R_s           [i],'e',precision_R_T_A);
@@ -1189,7 +1144,7 @@ void Main_Calculation_Module::print_Data(QTextStream &out, QVector<double> &arg,
 			}
 
 			// transmittance
-			if(print_Transmittance)
+			if(calc_Functions.check_Transmittance)
 			{
 												out << Locale.toString(unwrapped_Reflection->T_Instrumental[i],'e',precision_R_T_A);
 				if(incident_Polarization>-1)	out << Locale.toString(unwrapped_Reflection->T_s           [i],'e',precision_R_T_A);
@@ -1199,25 +1154,12 @@ void Main_Calculation_Module::print_Data(QTextStream &out, QVector<double> &arg,
 			}
 
 			// absorptance
-			if(print_Absorptance)
+			if(calc_Functions.check_Absorptance)
 			{
 												out << Locale.toString(unwrapped_Reflection->A_Instrumental[i],'e',precision_R_T_A);
 				if(incident_Polarization>-1)	out << Locale.toString(unwrapped_Reflection->A_s           [i],'e',precision_R_T_A);
-				if(incident_Polarization< 1)	out << Locale.toString(unwrapped_Reflection->A_p           [i],'e',precision_R_T_A);			}
-
-			/////////////////////////////////////// TODO /////////////////////////////////
-			// user
-			if(print_User)
-			{
-				out << user;
+				if(incident_Polarization< 1)	out << Locale.toString(unwrapped_Reflection->A_p           [i],'e',precision_R_T_A);
 			}
-			//////////////////////////////////////////////////////////////////////////////
-
-//			// Kossel
-//			if(print_Kossel)
-//			{
-//				out << Locale.toString(unwrapped_Reflection->Kossel[i],'e',precision_R_T_A);
-//			}
 
 			if(i!=arg.size()-1)
 				out << qSetFieldWidth(arg_Shift) << endl  << qSetFieldWidth(width_Short);

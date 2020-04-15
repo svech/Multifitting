@@ -180,11 +180,6 @@ void Optical_Constants::interpolation_Epsilon(QVector<Point>& input_Values, QVec
 	gsl_spline_init(spline_Re, lambda.data(), re.data(), input_Values.size());
 	gsl_spline_init(spline_Im, lambda.data(), im.data(), input_Values.size());
 
-	// units
-	double coeff = wavelength_Coefficients_Map.value(wavelength_units);
-	QString temp_Wavelength_Name = Global_Variables::wavelength_Energy_Name(wavelength_units);
-	QString wavelength_Energy = temp_Wavelength_Name.split(",").first();
-
 	output_Values.resize(spectral_Points.size());
 	for(int l=0; l<spectral_Points.size(); ++l)
 	{
@@ -194,9 +189,9 @@ void Optical_Constants::interpolation_Epsilon(QVector<Point>& input_Values, QVec
 		{
 			if(!lambda_Out_Of_Range)
 			{
-				QString warning_Text = wavelength_Energy + " is out of range for " + material + ".\nAcceptable range is " + Locale.toString(Global_Variables::wavelength_Energy(wavelength_units,lambda.first())/coeff)
-																												  + " - " + Locale.toString(Global_Variables::wavelength_Energy(wavelength_units,lambda.last() )/coeff)
-																													+ " " + wavelength_units;
+				QString warning_Text = "Wavelength is out of range for " + material + ".\nAcceptable range is " + Locale.toString(lambda.first())
+																												+ " - " + Locale.toString(lambda.last())
+																												+ " " + wavelength_Units_List[angstrom];
 				QMessageBox::warning(nullptr, "Optical constants", warning_Text);
 				lambda_Out_Of_Range = true;
 			}

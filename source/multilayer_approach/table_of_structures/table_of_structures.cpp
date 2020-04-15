@@ -507,7 +507,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 
 				// refresh view in main window
 				emit_Data_Edited();
-				if(recalculate_Spinbox_Table) {global_Multilayer_Approach->calc_Reflection(true);}
+				if(recalculate_Spinbox_Table) {global_Multilayer_Approach->calculate(true);}
 			});
 
 			current_Column = max_Depth+1;
@@ -924,13 +924,6 @@ void Table_Of_Structures::add_Columns(My_Table_Widget* table, int add_After)
 Parameter& Table_Of_Structures::get_Parameter(Data& struct_Data, QString whats_This, int& precision, double& coeff)
 {
 	// PARAMETER
-
-	// measurement
-	if(whats_This == whats_This_Wavelength)					{precision = line_edit_wavelength_precision;			coeff = 1;						return struct_Data.wavelength;			}
-	if(whats_This == whats_This_Beam_Theta_0_Angle)			{precision = line_edit_angle_precision;					coeff = 1;						return struct_Data.beam_Theta_0_Angle;	}
-	if(whats_This == whats_This_Detector_Theta_Angle)		{precision = line_edit_angle_precision;					coeff = 1;						return struct_Data.detector_Theta_Angle;}
-	if(whats_This == whats_This_Detector_Phi_Angle)			{precision = line_edit_angle_precision;					coeff = 1;						return struct_Data.detector_Phi_Angle;	}
-
 
 	// optical properties
 	if(whats_This == whats_This_Absolute_Density)			{precision = line_edit_density_precision;	coeff = 1;						return struct_Data.absolute_Density;			}
@@ -3163,7 +3156,7 @@ void Table_Of_Structures::refresh_Stoich()
 		reload_Related_Widgets(QObject::sender());
 
 		// recalculation at change
-		if(recalculate_Spinbox_Table && !reload && value_Type == VAL) {global_Multilayer_Approach->calc_Reflection(true);}
+		if(recalculate_Spinbox_Table && !reload && value_Type == VAL) {global_Multilayer_Approach->calculate(true);}
 	}
 }
 
@@ -3518,7 +3511,7 @@ void Table_Of_Structures::refresh_Check_Box_Header(bool)
 		reload_Related_Widgets(QObject::sender());
 
 		//	recalculation at change
-		if(recalculate_Spinbox_Table && !reload) {global_Multilayer_Approach->calc_Reflection(true);}
+		if(recalculate_Spinbox_Table && !reload) {global_Multilayer_Approach->calculate(true);}
 	}
 }
 
@@ -3955,7 +3948,7 @@ void Table_Of_Structures::refresh_Parameter(My_Table_Widget* table)
 		emit_Data_Edited();
 
 		// recalculation at change
-		if(recalculate_Spinbox_Table && !reload && value_Type == VAL) {global_Multilayer_Approach->calc_Reflection(true);}
+		if(recalculate_Spinbox_Table && !reload && value_Type == VAL) {global_Multilayer_Approach->calculate(true);}
 	}
 }
 
@@ -4136,7 +4129,7 @@ void Table_Of_Structures::refresh_Check_Box_Label_Interlayer(bool)
 		spin_Box->setProperty(forced_Reload_Property, false);
 
 		// recalculation at change
-		if(recalculate_Spinbox_Table && !reload) {global_Multilayer_Approach->calc_Reflection(true);}
+		if(recalculate_Spinbox_Table && !reload) {global_Multilayer_Approach->calculate(true);}
 	}
 }
 
@@ -4224,7 +4217,7 @@ void Table_Of_Structures::refresh_Weigts_Interlayer()
 		reload_Related_Widgets(QObject::sender());
 
 		// recalculation at change
-		if(recalculate_Spinbox_Table && !reload && value_Type == VAL) {global_Multilayer_Approach->calc_Reflection(true);}
+		if(recalculate_Spinbox_Table && !reload && value_Type == VAL) {global_Multilayer_Approach->calculate(true);}
 	}
 }
 
@@ -4338,7 +4331,7 @@ void Table_Of_Structures::refresh_MySigma_Interlayer()
 		reload_Related_Widgets(QObject::sender());
 
 		// recalculation at change
-		if(recalculate_Spinbox_Table && !reload) {global_Multilayer_Approach->calc_Reflection(true);}
+		if(recalculate_Spinbox_Table && !reload) {global_Multilayer_Approach->calculate(true);}
 	}
 }
 

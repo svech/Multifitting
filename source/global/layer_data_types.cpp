@@ -536,72 +536,126 @@ void Data::reset_All_IDs()
 
 void Data::calc_Measured_cos2_k()
 {
-	// cos2
-	beam_Theta_0_Angle_Value = beam_Theta_0_Angle.value;
-	beam_Theta_0_Cos2_Value = pow(cos(beam_Theta_0_Angle_Value*M_PI/180.),2);
-	
-	beam_Theta_0_Cos2_Vec.resize(beam_Theta_0_Angle_Vec.size());
-	for(int i=0; i<beam_Theta_0_Angle_Vec.size(); ++i)
+	if(	measurement_Type == measurement_Types[Specular_Scan] )
 	{
-		beam_Theta_0_Cos2_Vec[i] = pow(cos(beam_Theta_0_Angle_Vec[i]*M_PI/180.),2);
+		if( argument_Type == argument_Types[Beam_Grazing_Angle] )
+		{
+			// cos2
+			beam_Theta_0_Cos2_Vec.resize(beam_Theta_0_Angle_Vec.size());
+			for(int i=0; i<beam_Theta_0_Angle_Vec.size(); ++i)
+			{
+				beam_Theta_0_Cos2_Vec[i] = pow(cos(beam_Theta_0_Angle_Vec[i]*M_PI/180.),2);
+			}
+
+			// k
+			lambda_Value = wavelength.value;
+			k_Value = 2*M_PI/wavelength.value;
+		}
+		if( argument_Type == argument_Types[Wavelength_Energy] )
+		{
+			// cos2
+			beam_Theta_0_Angle_Value = beam_Theta_0_Angle.value;
+			beam_Theta_0_Cos2_Value = pow(cos(beam_Theta_0_Angle_Value*M_PI/180.),2);
+
+			// k
+			k_Vec.resize(lambda_Vec.size());
+			for(int i=0; i<lambda_Vec.size(); ++i)
+			{
+				k_Vec[i] = 2*M_PI/lambda_Vec[i];
+			}
+		}
 	}
-
-	// k
-	lambda_Value = wavelength.value;
-	k_Value = 2*M_PI/wavelength.value;
-
-	k_Vec.resize(lambda_Vec.size());
-	for(int i=0; i<lambda_Vec.size(); ++i)
+	if(	measurement_Type == measurement_Types[Detector_Scan] )
 	{
-		k_Vec[i] = 2*M_PI/lambda_Vec[i];
+		// TODO
+	}
+	if(	measurement_Type == measurement_Types[Rocking_Curve] )
+	{
+		// TODO
+	}
+	if(	measurement_Type == measurement_Types[Offset_Scan] )
+	{
+		// TODO
+	}
+	if(	measurement_Type == measurement_Types[GISAS] )
+	{
+		// TODO
 	}
 }
 
 void Data::calc_Independent_cos2_k()
 {
-	// cos2
-	beam_Theta_0_Angle_Value = beam_Theta_0_Angle.value;
-	beam_Theta_0_Cos2_Value = pow(cos(beam_Theta_0_Angle_Value*M_PI/180.),2);
-
-	beam_Theta_0_Angle_Vec.resize(beam_Theta_0_Angle.independent.num_Points);
-	beam_Theta_0_Cos2_Vec.resize(beam_Theta_0_Angle.independent.num_Points);
-	if(beam_Theta_0_Angle.independent.num_Points>1)
+	if(	measurement_Type == measurement_Types[Specular_Scan] )
 	{
-		double angle_Step = (beam_Theta_0_Angle.independent.max - beam_Theta_0_Angle.independent.min) / (beam_Theta_0_Angle.independent.num_Points - 1);
-		double angle_Temp = beam_Theta_0_Angle.independent.min;
-		for(int i=0; i<beam_Theta_0_Angle.independent.num_Points; ++i)
+		if( argument_Type == argument_Types[Beam_Grazing_Angle] )
 		{
-			beam_Theta_0_Cos2_Vec[i] = pow(cos(angle_Temp*M_PI/180.),2);
+			// cos2
+			beam_Theta_0_Angle_Vec.resize(beam_Theta_0_Angle.independent.num_Points);
+			beam_Theta_0_Cos2_Vec.resize(beam_Theta_0_Angle.independent.num_Points);
 
-			beam_Theta_0_Angle_Vec[i] = angle_Temp;
-			angle_Temp += angle_Step;
+			if(beam_Theta_0_Angle.independent.num_Points>1)
+			{
+				double angle_Step = (beam_Theta_0_Angle.independent.max - beam_Theta_0_Angle.independent.min) / (beam_Theta_0_Angle.independent.num_Points - 1);
+				double angle_Temp = beam_Theta_0_Angle.independent.min;
+				for(int i=0; i<beam_Theta_0_Angle.independent.num_Points; ++i)
+				{
+					beam_Theta_0_Cos2_Vec[i] = pow(cos(angle_Temp*M_PI/180.),2);
+
+					beam_Theta_0_Angle_Vec[i] = angle_Temp;
+					angle_Temp += angle_Step;
+				}
+			} else
+			{
+				beam_Theta_0_Cos2_Vec[0] = beam_Theta_0_Angle.value;
+				beam_Theta_0_Angle_Vec[0] = pow(cos(beam_Theta_0_Angle.value*M_PI/180.),2);;
+			}
+
+			// k
+			lambda_Value = wavelength.value;
+			k_Value = 2*M_PI/wavelength.value;
 		}
-	} else
-	{
-		beam_Theta_0_Cos2_Vec[0] = beam_Theta_0_Cos2_Value;
-		beam_Theta_0_Angle_Vec[0] = beam_Theta_0_Angle_Value;
+		if( argument_Type == argument_Types[Wavelength_Energy] )
+		{
+			// cos2
+			beam_Theta_0_Angle_Value = beam_Theta_0_Angle.value;
+			beam_Theta_0_Cos2_Value = pow(cos(beam_Theta_0_Angle_Value*M_PI/180.),2);
+
+			// k
+			lambda_Vec.resize(wavelength.independent.num_Points);
+			k_Vec.resize(wavelength.independent.num_Points);
+
+			if(wavelength.independent.num_Points>1)
+			{
+				double wave_Step = (wavelength.independent.max - wavelength.independent.min) / (wavelength.independent.num_Points - 1);
+				double wave = wavelength.independent.min;
+				for(int i=0; i<wavelength.independent.num_Points; ++i)
+				{
+					k_Vec[i] = 2*M_PI/wave;
+					lambda_Vec[i] = wave;
+					wave += wave_Step;
+				}
+			} else
+			{
+				lambda_Vec[0] = wavelength.value;
+				k_Vec[0] = 2*M_PI/wavelength.value;
+			}
+		}
 	}
-
-	// k
-	lambda_Value = wavelength.value;
-	k_Value = 2*M_PI/wavelength.value;
-	lambda_Vec.resize(wavelength.independent.num_Points);
-	k_Vec.resize(wavelength.independent.num_Points);
-
-	if(wavelength.independent.num_Points>1)
+	if(	measurement_Type == measurement_Types[Detector_Scan] )
 	{
-		double wave_Step = (wavelength.independent.max - wavelength.independent.min) / (wavelength.independent.num_Points - 1);
-		double wave = wavelength.independent.min;
-		for(int i=0; i<wavelength.independent.num_Points; ++i)
-		{
-			k_Vec[i] = 2*M_PI/wave;
-			lambda_Vec[i] = wave;
-			wave += wave_Step;
-		}
-	} else
+		// TODO
+	}
+	if(	measurement_Type == measurement_Types[Rocking_Curve] )
 	{
-		lambda_Vec[0] = lambda_Value;
-		k_Vec[0] = k_Value;
+		// TODO
+	}
+	if(	measurement_Type == measurement_Types[Offset_Scan] )
+	{
+		// TODO
+	}
+	if(	measurement_Type == measurement_Types[GISAS] )
+	{
+		// TODO
 	}
 }
 
@@ -628,135 +682,136 @@ double beam_Func(double z, void* params)
 	}
 }
 
-void Data::calc_Instrumental_Factor(QString active_Parameter_Whats_This)
+void Data::calc_Instrumental_Factor()
 {
-	int num_Points = 0;
+	// TODO
+//	int num_Points = 0;
 
-	// effect of beam size
-	double error;
-	int key = GSL_INTEG_GAUSS15;
-	const double epsabs = 1e-3;
-	const double epsrel = 1e-3;
-	size_t limit = 1000;
-	gsl_integration_workspace* w = gsl_integration_workspace_alloc (limit);
-	gsl_function F = { &beam_Func, &beam_Geometry };
+//	// effect of beam size
+//	double error;
+//	int key = GSL_INTEG_GAUSS15;
+//	const double epsabs = 1e-3;
+//	const double epsrel = 1e-3;
+//	size_t limit = 1000;
+//	gsl_integration_workspace* w = gsl_integration_workspace_alloc (limit);
+//	gsl_function F = { &beam_Func, &beam_Geometry };
 
-	// calculate denominator
-	double denominator=1;
-	gsl_integration_qag(&F,-5*beam_Geometry.size, 5*beam_Geometry.size, epsabs, epsrel, limit, key, w, &denominator, &error);
+//	// calculate denominator
+//	double denominator=1;
+//	gsl_integration_qag(&F,-5*beam_Geometry.size, 5*beam_Geometry.size, epsabs, epsrel, limit, key, w, &denominator, &error);
 
-	if(active_Parameter_Whats_This == whats_This_Beam_Theta_0_Angle)		{ num_Points = beam_Theta_0_Cos2_Vec.size();	  }
-	if(active_Parameter_Whats_This == whats_This_Wavelength){ num_Points = lambda_Vec.size(); }
-	footprint_Factor_Vec.resize(num_Points, 1);
+//	if(active_Parameter_Whats_This == whats_This_Beam_Theta_0_Angle)		{ num_Points = beam_Theta_0_Cos2_Vec.size();	  }
+//	if(active_Parameter_Whats_This == whats_This_Wavelength){ num_Points = lambda_Vec.size(); }
+//	footprint_Factor_Vec.resize(num_Points, 1);
 
-	// special cases
-	if( (denominator < DBL_MIN) || (beam_Geometry.size<DBL_EPSILON) )	{return;}
+//	// special cases
+//	if( (denominator < DBL_MIN) || (beam_Geometry.size<DBL_EPSILON) )	{return;}
 
-	// calculate factor
-	if(active_Parameter_Whats_This == whats_This_Beam_Theta_0_Angle)
-	{
-		double sin_Grad, min, max, result;
-		for(int i=0; i<num_Points; ++i)
-		{
-			sin_Grad = sqrt(1-beam_Theta_0_Cos2_Vec[i]);
+//	// calculate factor
+//	if(active_Parameter_Whats_This == whats_This_Beam_Theta_0_Angle)
+//	{
+//		double sin_Grad, min, max, result;
+//		for(int i=0; i<num_Points; ++i)
+//		{
+//			sin_Grad = sqrt(1-beam_Theta_0_Cos2_Vec[i]);
 
-			if(sin_Grad > DBL_EPSILON)
-			{
-				min = (sample_Geometry.x_Position-sample_Geometry.size/2.)*sin_Grad;
-				max = (sample_Geometry.x_Position+sample_Geometry.size/2.)*sin_Grad;
+//			if(sin_Grad > DBL_EPSILON)
+//			{
+//				min = (sample_Geometry.x_Position-sample_Geometry.size/2.)*sin_Grad;
+//				max = (sample_Geometry.x_Position+sample_Geometry.size/2.)*sin_Grad;
 
-				// if reasonable to integrate
-				if( min>-3*beam_Geometry.size ||
-					max< 3*beam_Geometry.size )
-				{
-					gsl_integration_qag(&F,min,max,epsabs,epsrel,limit,key,w,&result,&error);
-				} else
-				{
-					result = denominator;
-				}
-			} else
-			{
-				result = 0.5*denominator;
-			}
-			// fill
-			footprint_Factor_Vec[i] = result/denominator;
-		}
-	} else
-	if(active_Parameter_Whats_This == whats_This_Wavelength)
-	{
-		double sin_Grad, min, max, result;
-		sin_Grad = sqrt(1-beam_Theta_0_Cos2_Value);
+//				// if reasonable to integrate
+//				if( min>-3*beam_Geometry.size ||
+//					max< 3*beam_Geometry.size )
+//				{
+//					gsl_integration_qag(&F,min,max,epsabs,epsrel,limit,key,w,&result,&error);
+//				} else
+//				{
+//					result = denominator;
+//				}
+//			} else
+//			{
+//				result = 0.5*denominator;
+//			}
+//			// fill
+//			footprint_Factor_Vec[i] = result/denominator;
+//		}
+//	} else
+//	if(active_Parameter_Whats_This == whats_This_Wavelength)
+//	{
+//		double sin_Grad, min, max, result;
+//		sin_Grad = sqrt(1-beam_Theta_0_Cos2_Value);
 
-		if(sin_Grad > DBL_EPSILON)
-		{
-			min = (sample_Geometry.x_Position-sample_Geometry.size/2.)*sin_Grad;
-			max = (sample_Geometry.x_Position+sample_Geometry.size/2.)*sin_Grad;
+//		if(sin_Grad > DBL_EPSILON)
+//		{
+//			min = (sample_Geometry.x_Position-sample_Geometry.size/2.)*sin_Grad;
+//			max = (sample_Geometry.x_Position+sample_Geometry.size/2.)*sin_Grad;
 
-			// if reasonable to integrate
-			if( min>-1*beam_Geometry.size ||
-				max< 1*beam_Geometry.size )
-			{
-				gsl_integration_qag(&F,min,max,epsabs,epsrel,limit,key,w,&result,&error);
-			} else
-			{
-				result = denominator;
-			}
-		} else
-		{
-			result = 0.5*denominator;
-		}
-		result /= denominator;
+//			// if reasonable to integrate
+//			if( min>-1*beam_Geometry.size ||
+//				max< 1*beam_Geometry.size )
+//			{
+//				gsl_integration_qag(&F,min,max,epsabs,epsrel,limit,key,w,&result,&error);
+//			} else
+//			{
+//				result = denominator;
+//			}
+//		} else
+//		{
+//			result = 0.5*denominator;
+//		}
+//		result /= denominator;
 
-		// fill
-		for(int i=0; i<num_Points; ++i)
-		{
-			footprint_Factor_Vec[i] = result;
-		}
-	}
+//		// fill
+//		for(int i=0; i<num_Points; ++i)
+//		{
+//			footprint_Factor_Vec[i] = result;
+//		}
+//	}
 
-	gsl_integration_workspace_free(w);
+//	gsl_integration_workspace_free(w);
 }
 
-void Data::calc_Mixed_Resolution(QString active_Parameter_Whats_This)
+void Data::calc_Mixed_Resolution()
 {
+	// TODO
+//	if(active_Parameter_Whats_This == whats_This_Beam_Theta_0_Angle)
+//	{
+//		angular_Resolution_Mixed.resize(beam_Theta_0_Angle_Vec.size());
+//		for(int i=0; i<angular_Resolution_Mixed.size(); ++i)
+//		{
+//			double angle_Temp = beam_Theta_0_Angle_Vec[i]*M_PI/180.; // in radians
+//			angular_Resolution_Mixed[i] = sqrt(
+//						pow(
+//							beam_Theta_0_Distribution.FWHM_distribution // in degrees
+//							,2) +
+//						pow(
+//							2*( angle_Temp - asin((1.-spectral_Distribution.FWHM_distribution/2)*sin(angle_Temp)) ) * 180./M_PI  // back to degrees
+//							,2));
+//		}
+//	}
+//	if(active_Parameter_Whats_This == whats_This_Wavelength)
+//	{
+//		spectral_Resolution_Mixed.resize(lambda_Vec.size());
+//		for(int i=0; i<spectral_Resolution_Mixed.size(); ++i)
+//		{
+//			double angular_Component = 0;
+//			if(beam_Theta_0_Angle_Value-beam_Theta_0_Distribution.FWHM_distribution/2>0 && beam_Theta_0_Angle_Value>0)
+//			{
+//				double angle_Temp = beam_Theta_0_Angle_Value*M_PI/180.; // in radians
+//				double angular_Resolution_Temp = beam_Theta_0_Distribution.FWHM_distribution*M_PI/180.; // in radians
+//				angular_Component = 2*(1-sin(angle_Temp-angular_Resolution_Temp/2)/sin(angle_Temp));
+//			}
 
-	if(active_Parameter_Whats_This == whats_This_Beam_Theta_0_Angle)
-	{
-		angular_Resolution_Mixed.resize(beam_Theta_0_Angle_Vec.size());
-		for(int i=0; i<angular_Resolution_Mixed.size(); ++i)
-		{
-			double angle_Temp = beam_Theta_0_Angle_Vec[i]*M_PI/180.; // in radians
-			angular_Resolution_Mixed[i] = sqrt(
-						pow(
-							beam_Theta_0_Distribution.FWHM_distribution // in degrees
-							,2) +
-						pow(
-							2*( angle_Temp - asin((1.-spectral_Distribution.FWHM_distribution/2)*sin(angle_Temp)) ) * 180./M_PI  // back to degrees
-							,2));
-		}
-	}
-	if(active_Parameter_Whats_This == whats_This_Wavelength)
-	{
-		spectral_Resolution_Mixed.resize(lambda_Vec.size());
-		for(int i=0; i<spectral_Resolution_Mixed.size(); ++i)
-		{
-			double angular_Component = 0;
-			if(beam_Theta_0_Angle_Value-beam_Theta_0_Distribution.FWHM_distribution/2>0 && beam_Theta_0_Angle_Value>0)
-			{
-				double angle_Temp = beam_Theta_0_Angle_Value*M_PI/180.; // in radians
-				double angular_Resolution_Temp = beam_Theta_0_Distribution.FWHM_distribution*M_PI/180.; // in radians
-				angular_Component = 2*(1-sin(angle_Temp-angular_Resolution_Temp/2)/sin(angle_Temp));
-			}
-
-			spectral_Resolution_Mixed[i] = sqrt(
-						pow(
-							spectral_Distribution.FWHM_distribution*lambda_Vec[i]
-							,2) +
-						pow(
-							angular_Component*lambda_Vec[i]
-							,2));
-		}
-	}
+//			spectral_Resolution_Mixed[i] = sqrt(
+//						pow(
+//							spectral_Distribution.FWHM_distribution*lambda_Vec[i]
+//							,2) +
+//						pow(
+//							angular_Component*lambda_Vec[i]
+//							,2));
+//		}
+//	}
 }
 
 QString Data::get_Composed_Material()

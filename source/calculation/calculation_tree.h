@@ -16,19 +16,13 @@ struct Data_Element
 		delete unwrapped_Reflection;
 		delete unwrapped_Structure;
 	}
+	Unwrapped_Reflection* unwrapped_Reflection;
+	Unwrapped_Structure*  unwrapped_Structure;
 
 	QString curve_Class;			// INDEPENDENT or TARGET
 	Type* the_Class;
 	Calc_Functions calc_Functions;
-
 	tree<Node> calc_Tree; // each tree creates somehow 2 nodes at creation
-
-	Unwrapped_Reflection* unwrapped_Reflection;
-	Unwrapped_Structure*  unwrapped_Structure;
-
-	// active
-	QString active_Item_Type;
-	QString active_Parameter_Whats_This;
 };
 
 class Multilayer;
@@ -37,17 +31,14 @@ class Calculation_Tree
 {
 public:
 	Calculation_Tree(Multilayer* multilayer, QString calc_Mode);
-	~Calculation_Tree();
 
-public:
 	void prepare_Residual_Expressions();
 	void create_Rand_Generator();
 	void check_If_Graded();
 
-	void fill_Tree_From_Scratch(tree<Node>& calc_Tree, QTreeWidget* item_Tree, QString curve_Class);
+	void fill_Tree_From_Scratch(tree<Node>& calc_Tree, QTreeWidget* item_Tree);
 	void fill_Calc_Tree_From_Item_Tree(const tree<Node>::iterator& parent, tree<Node>& calc_Tree, QTreeWidgetItem* item);
-	void fill_Independent_Calc_Trees();
-	void fill_Target_Calc_Trees();
+	void fill_Calc_Trees();
 
 	void renew_Item_Tree_From_Calc_Tree(const tree<Node>::iterator& parent, tree<Node>& calc_Tree, QTreeWidgetItem* item);
 
@@ -58,14 +49,14 @@ public:
 
 	template <typename Type>
 	void calculate_1_Kind_Preliminary(Data_Element<Type>& data_Element);
+
 	template <typename Type>
 	void calculate_1_Kind(Data_Element<Type>& data_Element);
 
-	void calculate_Intermediate_Values_1_Tree(tree<Node>& calc_Tree, const Data& measurement, QString active_Parameter_Whats_This, const tree<Node>::iterator& parent, Node* above_Node = NULL);
-	tree<Node>::iterator find_Node_By_Item_Id(const tree<Node>::iterator& parent, id_Type active_Item_Id, tree<Node>& calc_Tree);
+	void calculate_Intermediate_Values_1_Tree(tree<Node>& calc_Tree, const Data& measurement, const tree<Node>::iterator& parent, Node* above_Node = NULL);
 
-	void calculate_Unwrapped_Structure   (const Calc_Functions& calc_Functions, tree<Node>& calc_Tree,                const Data& measurement, QString active_Parameter_Whats_This, Unwrapped_Structure*& unwrapped_Structure_Vec_Element);
-	void calculate_Unwrapped_Reflectivity(const Calc_Functions& calc_Functions, Calculated_Values& calculated_Values, const Data& measurement, QString active_Parameter_Whats_This, Unwrapped_Structure*  unwrapped_Structure_Vec_Element, Unwrapped_Reflection*& unwrapped_Reflection_Vec_Element);
+	void calculate_Unwrapped_Structure   (const Calc_Functions& calc_Functions, tree<Node>& calc_Tree,                const Data& measurement, Unwrapped_Structure*& unwrapped_Structure_Vec_Element);
+	void calculate_Unwrapped_Reflectivity(const Calc_Functions& calc_Functions, Calculated_Values& calculated_Values, const Data& measurement, Unwrapped_Structure*  unwrapped_Structure_Vec_Element, Unwrapped_Reflection*& unwrapped_Reflection_Vec_Element);
 
 	int get_Total_Num_Layers(const tree<Node>::iterator& parent, const tree<Node>& calc_Tree);
 

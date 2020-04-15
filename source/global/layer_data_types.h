@@ -62,48 +62,16 @@ public:
 		double polarization;
 		double background;
 
+		// TODO
 		vector<double>  angular_Resolution_Mixed;	// without saving
 		vector<double>  spectral_Resolution_Mixed;	// without saving
 		vector<double>  footprint_Factor_Vec;		// without saving
 
-		/// old approach
-		///-----------------------------------------------
-//		// angle
-//		Parameter probe_Angle;
-//		QVector<double>  cos2;
-//		QVector<double>  angle;
-//		double			 cos2_Value;
-//		double			 angle_Value;
-
-//		Parameter angular_Resolution;
-//		vector<double>  instrumental_Factor_Vec;	// without saving
-//		vector<double>  angular_Resolution_Mixed;	// without saving
-
-
-//		// wavelength
-//		Parameter wavelength;
-//		QVector<double>     k;
-//		QVector<double>	   lambda;
-//		double			   k_Value;
-//		double			   lambda_Value;
-
-//		Parameter spectral_Resolution;
-//		Parameter polarization;
-//		Parameter polarization_Sensitivity;
-//		Parameter background;
-//		vector<double>  spectral_Resolution_Mixed;	// without saving
-
-//		// geometry
-//		Parameter beam_Size;
-//		Parameter beam_Profile_Spreading;
-//		Parameter sample_Size;
-//		Parameter sample_Shift;
-		///----------------------------------
-
 		void calc_Measured_cos2_k();
 		void calc_Independent_cos2_k();
-		void calc_Instrumental_Factor(QString active_Parameter_Whats_This);
-		void calc_Mixed_Resolution(QString active_Parameter_Whats_This);
+
+		void calc_Instrumental_Factor();
+		void calc_Mixed_Resolution();
 	///---------------------------------------------
 	///---------------------------------------------
 	// Ambient, Layer, Substrate

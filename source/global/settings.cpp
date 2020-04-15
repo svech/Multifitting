@@ -227,9 +227,7 @@ double default_logarithmic_threshold_element_concentration;
 // -----------------------------------------------------------------------------------------
 
 // units
-QString wavelength_units; // TODO INDEPENDENT
 QString length_units;
-QString angle_units; // TODO INDEPENDENT
 QString density_units;
 QString opt_const_units;
 
@@ -809,9 +807,7 @@ void Settings::read_Units(bool reset_to_default)
 
 	// units
 	units.beginGroup( Units );
-		wavelength_units		= units.value( "wavelength_units",	wavelength_Units_List.first() ).toString();
 		length_units			= units.value( "length_units",		length_Units_List    .first() ).toString();
-		angle_units				= units.value( "angle_units",		angle_Units_List	 .first() ).toString();
 		density_units			= units.value( "density_units",		density_Units_List   .first() ).toString();
 		opt_const_units			= units.value( "opt_const_units",	opt_Const_Units_List .first() ).toString();
 	units.endGroup();
@@ -823,9 +819,7 @@ void Settings::save_Units()
 
 	// units
 	units.beginGroup( Units );
-		units.setValue( "wavelength_units",	wavelength_units);
 		units.setValue( "length_units",		length_units	);
-		units.setValue( "angle_units",		angle_units		);
 		units.setValue( "density_units",	density_units   );
 		units.setValue( "opt_const_units",	opt_const_units	);
 	units.endGroup();

@@ -815,8 +815,6 @@ QString Global_Variables::parameter_Name(const Data &struct_Data, QString whats_
 																			" - " + Locale.toString(struct_Data.last_Layer_Index) + ")";}
 	if(struct_Data.item_Type == item_Type_General_Aperiodic){brackets = "General Aperiodic ("  + Locale.toString(struct_Data.first_Layer_Index) +
 																			" - " + Locale.toString(struct_Data.last_Layer_Index) + ")";}
-	if(struct_Data.item_Type == item_Type_Measurement)		{brackets = "(measurement)";}
-
 
 	/// optical constants
 	if(	struct_Data.item_Type == item_Type_Ambient	||
@@ -871,15 +869,6 @@ QString Global_Variables::parameter_Name(const Data &struct_Data, QString whats_
 	if(	struct_Data.item_Type == item_Type_Regular_Aperiodic )
 	{
 
-	}
-
-	/// measurement parameters
-	if(	struct_Data.item_Type == item_Type_Measurement )
-	{
-		if(whats_This == whats_This_Wavelength)						text = Global_Variables::wavelength_Energy_Name(wavelength_units);
-		if(whats_This == whats_This_Beam_Theta_0_Angle)				text = "Beam grazing angle, " + Theta_Sym + Zero_Subscript_Sym;
-		if(whats_This == whats_This_Detector_Theta_Angle)			text = "Detector polar angle, " + Theta_Sym;
-		if(whats_This == whats_This_Detector_Phi_Angle)				text = "Detector azimuthal angle, " + Phi_Sym;
 	}
 
 	return text;
@@ -968,12 +957,6 @@ Parameter* Global_Variables::get_Parameter_From_Struct_Item_by_Whats_This(Data& 
 	if(units == nullptr) units = &units_LOC;
 	if(coeff == nullptr) coeff = &coeff_LOC;
 
-	// measurement
-	if(whats_This == whats_This_Wavelength)						{*line_edit_precision = line_edit_wavelength_precision;			*thumbnail_precision = thumbnail_wavelength_precision;			*units = " " + wavelength_units;*coeff = wavelength_Coefficients_Map.value(wavelength_units);	return &struct_Data.wavelength;				}
-	if(whats_This == whats_This_Beam_Theta_0_Angle)				{*line_edit_precision = line_edit_angle_precision;				*thumbnail_precision = thumbnail_angle_precision;				*units = angle_units;			*coeff = angle_Coefficients_Map.value(angle_units);				return &struct_Data.beam_Theta_0_Angle;		}
-	if(whats_This == whats_This_Detector_Theta_Angle)			{*line_edit_precision = line_edit_angle_precision;				*thumbnail_precision = thumbnail_angle_precision;				*units = angle_units;			*coeff = angle_Coefficients_Map.value(angle_units);				return &struct_Data.detector_Theta_Angle;	}
-	if(whats_This == whats_This_Detector_Phi_Angle)				{*line_edit_precision = line_edit_angle_precision;				*thumbnail_precision = thumbnail_angle_precision;				*units = angle_units;			*coeff = angle_Coefficients_Map.value(angle_units);				return &struct_Data.detector_Phi_Angle;		}
-
 	// optical properties
 	if(whats_This == whats_This_Absolute_Density)				{*line_edit_precision = line_edit_density_precision;		*thumbnail_precision = thumbnail_density_precision;		*units = " " + density_units;	*coeff = 1;	return &struct_Data.absolute_Density;	}
 	if(whats_This == whats_This_Relative_Density)				{*line_edit_precision = line_edit_density_precision;		*thumbnail_precision = thumbnail_density_precision;		*units = "" ;					*coeff = 1;	return &struct_Data.relative_Density;	}
@@ -1058,7 +1041,7 @@ void Global_Variables::create_Shortcuts(QWidget* this_Widget)
 		});
 		connect(open_As_Shortcut,			&QShortcut::activated, this_Widget, [=]{ global_Multilayer_Approach->open_As();					 });
 		connect(fit_Shortcut,				&QShortcut::activated, this_Widget, [=]{ global_Multilayer_Approach->start_Fitting();		     });
-		connect(calc_Specular_Shortcut,		&QShortcut::activated, this_Widget, [=]{ global_Multilayer_Approach->calc_Reflection();			 });
+		connect(calc_Specular_Shortcut,		&QShortcut::activated, this_Widget, [=]{ global_Multilayer_Approach->calculate();			 });
 		connect(calc_Confidence_Shortcut,	&QShortcut::activated, this_Widget, [=]{ global_Multilayer_Approach->calc_Confidence_Intervals();});
 		connect(abort_Shortcut,				&QShortcut::activated, this_Widget, [=]{ global_Multilayer_Approach->abort_Calculations();		 });
 	}

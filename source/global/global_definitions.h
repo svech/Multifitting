@@ -14,8 +14,6 @@
 using namespace std;
 class Node;
 
-//#define REAL_CALC
-
 //#define RELEASE
 
 //#define EXPRTK
@@ -228,8 +226,8 @@ class Node;
 #define symbol_F "F"
 #define joule_Function			"Absorption map"
 #define symbol_J "J"
-#define user_Function			""
-#define symbol_U "U"
+#define scattering_Function		"Scattering"
+#define symbol_S "S"
 
 // whatsThis : delimiters
 #define whats_This_Delimiter ";"
@@ -589,7 +587,7 @@ struct Profile_Plot_Options		{QString type = PERMITTIVITY;
 								 double old_Y_Begin = 0;
 								 double old_Y_End   = 1;
 
-								 QString local_wavelength_units;
+								 QString local_wavelength_units = Angstrom_Sym;
 								 QString local_length_units;
 
 								 double local_Wavelength = 1.540562;
@@ -689,13 +687,14 @@ struct Discretization_Parameters{bool enable_Discretization = false;
 
 // independent calculation functions
 struct Calc_Functions			{bool check_Enabled = true;
-								 bool check_Reflectance = true;
+								 // all types of data, target or independent should be "interpreted" according to this list
+								 bool check_Reflectance = false;
 								 bool check_Transmittance = false;
 								 bool check_Absorptance = false;
 								 bool check_Field = false;
 								 bool check_Joule = false;
-								 bool check_User = false;
-								 QString user_Functions = "R+T; cos(A)*R^3-sqrt(J) ; pow(F, log(root(3,5)))";
+								 bool check_Scattering = false;
+								 bool check_GISAS = false;
 
 								 double field_Step = 2;
 								 double field_Ambient_Distance = 0;
@@ -709,7 +708,8 @@ struct Calc_Functions			{bool check_Enabled = true;
 										 check_Absorptance	||
 										 check_Field		||
 										 check_Joule		||
-										 check_User			)
+										 check_Scattering   ||
+										 check_GISAS		)
 									 {
 										 return true;
 									 } else

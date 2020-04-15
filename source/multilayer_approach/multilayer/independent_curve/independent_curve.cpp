@@ -1,6 +1,7 @@
 #include "independent_curve.h"
 
 Independent_Curve::Independent_Curve(QWidget *parent) :
+	measurement(item_Type_Measurement),
 	QWidget(parent)
 {
 	// we can initialize values here, because withouts opening Editor there is no measurement type
@@ -23,6 +24,7 @@ void Independent_Curve::create_Main_Layout()
 
 	setup_Button = new QPushButton("Set up");
 		setup_Button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+		setup_Button->setFixedWidth(60);
 	main_Layout->addWidget(setup_Button);
 
 	description_Label  = new QLabel("<no description>");
@@ -31,7 +33,6 @@ void Independent_Curve::create_Main_Layout()
 
 QString Independent_Curve::enlarge_Tab_Name()
 {
-	// TODO INDEPENDENT
 	if(calc_Functions.check_Enabled)
 	{
 		QString suffix = "  ";
@@ -40,7 +41,7 @@ QString Independent_Curve::enlarge_Tab_Name()
 		if(calc_Functions.check_Absorptance)	suffix = suffix+symbol_A+",";
 		if(calc_Functions.check_Field)			suffix = suffix+symbol_F+",";
 		if(calc_Functions.check_Joule)			suffix = suffix+symbol_J+",";
-		if(calc_Functions.check_User)			suffix = suffix+symbol_U+",";
+		if(calc_Functions.check_Scattering)		suffix = suffix+symbol_S+",";
 		return suffix.remove(-1,1);
 	} else
 	{
@@ -114,7 +115,7 @@ Independent_Curve& Independent_Curve::operator =(const Independent_Curve& refere
 QDataStream& operator <<( QDataStream& stream, const Independent_Curve* independent_Curve )
 {	
 	return stream	<< independent_Curve->tab_Name << independent_Curve->measurement
-					<< independent_Curve->calculated_Values	<< independent_Curve->plot_Options
+					<< independent_Curve->calculated_Values	<< independent_Curve->calc_Functions << independent_Curve->plot_Options
 					<< independent_Curve->angular_Units	<< independent_Curve->spectral_Units
 					<< independent_Curve->label_Text;
 }
@@ -123,7 +124,7 @@ QDataStream& operator >>(QDataStream& stream,		 Independent_Curve* independent_C
 	if(Global_Variables::check_Loaded_Version(1,11,0))
 	{
 		stream	>> independent_Curve->tab_Name >> independent_Curve->measurement
-				>> independent_Curve->calculated_Values	>> independent_Curve->plot_Options
+				>> independent_Curve->calculated_Values	>> independent_Curve->calc_Functions >> independent_Curve->plot_Options
 				>> independent_Curve->angular_Units	>> independent_Curve->spectral_Units
 				>> independent_Curve->label_Text;
 	} else

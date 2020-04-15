@@ -38,8 +38,6 @@ public:
 		void create_Independent_Units_Menu();
 		void create_Independent_Precision_Menu();
 
-		void create_Wavelength_Units_Menu();
-
 		void create_Item_Length_Units_Menu();
 		void create_Item_Precision_Menu();
 
@@ -54,8 +52,6 @@ public:
 	void open_Documentation_Rus();
 	void open_Documentation_Eng();
 	void open_About();
-	void set_Grazing_Unit();
-	void set_Wavelength_Unit();
 	void set_Length_Unit();
 	void activate_Item_Thumbnail_Precision();
 	void activate_Item_Line_Edit_Precision();
@@ -79,11 +75,6 @@ public:
 	void set_Line_Edit_Period_Precision();
 	void set_Thumbnail_Gamma_Precision();
 	void set_Line_Edit_Gamma_Precision();
-
-	void set_Thumbnail_Angle_Precision();
-	void set_Line_Edit_Angle_Precision();
-	void set_Thumbnail_Wavelength_Precision();
-	void set_Line_Edit_Wavelength_Precision();
 
 	QMenuBar* menu_Bar;
 		QMenu* file_Menu;

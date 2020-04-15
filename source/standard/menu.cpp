@@ -174,7 +174,7 @@ void Menu::create_Calculate_Menu()
 
 	if(window_Type == window_Type_Multilayer_Approach || window_Type == window_Type_Table_Of_Structures || window_Type == window_Type_Table_Of_Roughness)
 	{
-		connect(act_Specular,	&QAction::triggered, global_Multilayer_Approach, [=]{global_Multilayer_Approach->calc_Reflection();			 });
+		connect(act_Specular,	&QAction::triggered, global_Multilayer_Approach, [=]{global_Multilayer_Approach->calculate();			 });
 		connect(act_Fitting,	&QAction::triggered, global_Multilayer_Approach, [=]{global_Multilayer_Approach->start_Fitting();			 });
 		connect(act_Confidence,	&QAction::triggered, global_Multilayer_Approach, [=]{global_Multilayer_Approach->calc_Confidence_Intervals();});
 		connect(act_Abort,		&QAction::triggered, global_Multilayer_Approach, [=]{global_Multilayer_Approach->abort_Calculations();		 });
@@ -236,49 +236,6 @@ void Menu::create_Independent_Units_Menu()
 			units_Menu->addAction(act_Unit);
 
 			connect(act_Unit, &QAction::triggered, this, &Menu::set_Length_Unit);
-		}
-	}
-	// if angle
-	if(whats_This == whats_This_Beam_Theta_0_Angle)
-	{
-		QActionGroup* group_Act_Angle = new QActionGroup(this);
-			group_Act_Angle->setExclusive(true);
-
-		// Grazing & Incidence
-		for(int index=0; index<angle_Units_List.size(); index++)
-		{
-			QAction* act_Grazing   = new QAction(angle_Units_Legend_Map.value(angle_Units_List[index]),   this);
-				act_Grazing->setProperty  (index_Property, index);
-				act_Grazing->setCheckable  (true);
-				act_Grazing->setActionGroup  (group_Act_Angle);
-				if(angle_Units_List[index] == angle_units)
-				{
-					act_Grazing->setChecked(true);
-				}
-
-			units_Menu->addAction(act_Grazing);
-
-			connect(act_Grazing,   &QAction::triggered, this, &Menu::set_Grazing_Unit);
-		}
-	}
-	// if wavelength
-	if(whats_This == whats_This_Wavelength)
-	{
-		QActionGroup* group_Act_Unit = new QActionGroup(this);
-			group_Act_Unit->setExclusive(true);
-
-		for(int index=0; index<wavelength_Units_List.size(); index++)
-		{
-			QAction* act_Unit = new QAction(wavelength_Units_List[index], this);
-				act_Unit->setProperty(index_Property, index);
-				act_Unit->setCheckable(true);
-				act_Unit->setActionGroup(group_Act_Unit);
-
-				if(wavelength_Units_List[index] == wavelength_units) act_Unit->setChecked(true);
-
-			units_Menu->addAction(act_Unit);
-
-			connect(act_Unit,  &QAction::triggered, this, &Menu::set_Wavelength_Unit);
 		}
 	}
 }
@@ -404,46 +361,6 @@ void Menu::create_Independent_Precision_Menu()
 			connect(precision_Thumb,&QAction::triggered, this, &Menu::set_Thumbnail_Gamma_Precision);
 			connect(precision_Edit, &QAction::triggered, this, &Menu::set_Line_Edit_Gamma_Precision);
 		}
-		// if angle
-		if(whats_This == whats_This_Beam_Theta_0_Angle)
-		{
-			if(index == thumbnail_angle_precision) precision_Thumb->setChecked(true);
-			if(index == line_edit_angle_precision) precision_Edit->setChecked(true);
-
-			connect(precision_Thumb,&QAction::triggered, this, &Menu::set_Thumbnail_Angle_Precision);
-			connect(precision_Edit, &QAction::triggered, this, &Menu::set_Line_Edit_Angle_Precision);
-		}
-		// if wavelength
-		if(whats_This == whats_This_Wavelength)
-		{
-			if(index == thumbnail_wavelength_precision) precision_Thumb->setChecked(true);
-			if(index == line_edit_wavelength_precision) precision_Edit->setChecked(true);
-
-			connect(precision_Thumb,&QAction::triggered, this, &Menu::set_Thumbnail_Wavelength_Precision);
-			connect(precision_Edit, &QAction::triggered, this, &Menu::set_Line_Edit_Wavelength_Precision);
-		}
-	}
-}
-
-void Menu::create_Wavelength_Units_Menu()
-{
-	// PARAMETER
-	menu_Wavelength_Units = new QMenu("Wavelengths units", this);
-
-	QActionGroup* group_Act_Unit = new QActionGroup(this);
-		group_Act_Unit->setExclusive(true);
-
-	for(int index=0; index<wavelength_Units_List.size(); index++)
-	{
-		QAction* act_Unit = new QAction(wavelength_Units_List[index], this);
-		act_Unit->setProperty(index_Property, index);
-		act_Unit->setCheckable(true);
-		act_Unit->setActionGroup(group_Act_Unit);
-
-		if(wavelength_Units_List[index] == wavelength_units) act_Unit->setChecked(true);
-		menu_Wavelength_Units->addAction(act_Unit);
-
-		connect(act_Unit,  &QAction::triggered, this, &Menu::set_Wavelength_Unit);
 	}
 }
 
@@ -764,29 +681,6 @@ void Menu::open_About()
 	about_Box.exec();
 }
 
-void Menu::set_Grazing_Unit()
-{
-	// TODO INDEPENDENT
-	Data measurement;// = independent_Variables_Editor->structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
-	int index = sender()->property(index_Property).toInt();
-	//-------------------------------------------------
-	angle_units				= angle_Units_List[index];
-	//-------------------------------------------------
-	QVariant var; var.setValue(measurement);
-	// TODO INDEPENDENT
-//	independent_Variables_Editor->structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
-	emit refresh();
-}
-
-void Menu::set_Wavelength_Unit()
-{
-	int index = sender()->property(index_Property).toInt();
-	//-------------------------------------------------
-	wavelength_units = wavelength_Units_List[index];
-	//-------------------------------------------------
-	emit refresh();
-}
-
 void Menu::set_Length_Unit()
 {
 	int index = sender()->property(index_Property).toInt();
@@ -942,29 +836,5 @@ void Menu::set_Thumbnail_Gamma_Precision()
 void Menu::set_Line_Edit_Gamma_Precision()
 {
 	line_edit_gamma_precision = sender()->property(index_Property).toInt();
-	emit refresh();
-}
-
-void Menu::set_Thumbnail_Angle_Precision()
-{
-	thumbnail_angle_precision = sender()->property(index_Property).toInt();
-	emit refresh();
-}
-
-void Menu::set_Line_Edit_Angle_Precision()
-{
-	line_edit_angle_precision = sender()->property(index_Property).toInt();
-	emit refresh();
-}
-
-void Menu::set_Thumbnail_Wavelength_Precision()
-{
-	thumbnail_wavelength_precision = sender()->property(index_Property).toInt();
-	emit refresh();
-}
-
-void Menu::set_Line_Edit_Wavelength_Precision()
-{
-	line_edit_wavelength_precision = sender()->property(index_Property).toInt();
 	emit refresh();
 }

@@ -843,7 +843,6 @@ void Specular_Independent_Curve_Part::refresh_Angular_Units()
 	crystal_Resolution_SpinBox->blockSignals(false);
 
 	independent_Curve->refresh_Description_Label();
-	Global_Variables::replot_All_Graphs();
 }
 
 void Specular_Independent_Curve_Part::refresh_Spectral_Units()
@@ -886,7 +885,6 @@ void Specular_Independent_Curve_Part::refresh_Spectral_Units()
 	at_Fixed_SpinBox->blockSignals(false);
 
 	independent_Curve->refresh_Description_Label();
-	Global_Variables::replot_All_Graphs();
 }
 
 void Specular_Independent_Curve_Part::refresh_Argument_Values()
@@ -1017,12 +1015,14 @@ void Specular_Independent_Curve_Part::connecting()
 		independent_Curve->angular_Units = angular_Units_ComboBox->currentText();
 
 		refresh_Angular_Units();
+		Global_Variables::plot_All_Data_in_Graphs();
 	});
 	connect(spectral_Units_ComboBox,	&QComboBox::currentTextChanged, this, [=]
 	{
 		independent_Curve->spectral_Units = spectral_Units_ComboBox->currentText();
 
 		refresh_Spectral_Units();
+		Global_Variables::plot_All_Data_in_Graphs();
 	});
 
 	/// argument box
@@ -1036,31 +1036,28 @@ void Specular_Independent_Curve_Part::connecting()
 		fill_At_Fixed_Units();
 		fill_Argument_Values();
 
-		refresh_Angular_Units();
-		refresh_Spectral_Units();
-
 		disable_Crystal_Detector_Type();
 
 		independent_Curve->refresh_Description_Label();
-		global_Multilayer_Approach->calc_Reflection(true);
+		global_Multilayer_Approach->calculate(true);
 	});
 	// number of points
 	connect(num_Points_Spinbox, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, [=]
 	{
 		refresh_Argument_Values();
-		global_Multilayer_Approach->calc_Reflection(true);
+		global_Multilayer_Approach->calculate(true);
 	});
 	// start value
 	connect(start_Argument_Spinbox, static_cast<void (MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
 	{
 		refresh_Argument_Values();
-		global_Multilayer_Approach->calc_Reflection(true);
+		global_Multilayer_Approach->calculate(true);
 	});
 	// final value
 	connect(final_Argument_Spinbox, static_cast<void (MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
 	{
 		refresh_Argument_Values();
-		global_Multilayer_Approach->calc_Reflection(true);
+		global_Multilayer_Approach->calculate(true);
 	});
 
 	/// beam box
@@ -1068,28 +1065,28 @@ void Specular_Independent_Curve_Part::connecting()
 	connect(at_Fixed_SpinBox, static_cast<void (MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
 	{
 		refresh_At_Fixed_Value();
-		global_Multilayer_Approach->calc_Reflection(true);
+		global_Multilayer_Approach->calculate(true);
 	});
 	// polarization
 	connect(polarization_SpinBox, static_cast<void (MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
 	{
 		independent_Curve->measurement.polarization = polarization_SpinBox->value();
 
-		global_Multilayer_Approach->calc_Reflection(true);
+		global_Multilayer_Approach->calculate(true);
 	});
 	// background
 	connect(background_SpinBox, static_cast<void (MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
 	{
 		independent_Curve->measurement.background = background_SpinBox->value();
 
-		global_Multilayer_Approach->calc_Reflection(true);
+		global_Multilayer_Approach->calculate(true);
 	});
 	// spectral width
 	connect(spectral_Width_SpinBox, static_cast<void (MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
 	{
 		independent_Curve->measurement.spectral_Distribution.FWHM_distribution = spectral_Width_SpinBox->value();
 
-		global_Multilayer_Approach->calc_Reflection(true);
+		global_Multilayer_Approach->calculate(true);
 	});
 	// angular divergence
 	connect(angular_Divergence_SpinBox, static_cast<void (MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
@@ -1097,7 +1094,7 @@ void Specular_Independent_Curve_Part::connecting()
 		double coeff = angle_Coefficients_Map.value(independent_Curve->angular_Units);
 		independent_Curve->measurement.beam_Theta_0_Distribution.FWHM_distribution = angular_Divergence_SpinBox->value()*coeff;
 
-		global_Multilayer_Approach->calc_Reflection(true);
+		global_Multilayer_Approach->calculate(true);
 	});
 	// beam distribution button
 	connect(setup_Beam_Distribution_Button, &QPushButton::clicked, this, [=]
@@ -1117,21 +1114,21 @@ void Specular_Independent_Curve_Part::connecting()
 		independent_Curve->measurement.detector_1D.detector_Type = detector_Type_ComboBox->currentText();
 		detectors_Stack->setCurrentIndex(detector_Type_ComboBox->findText(independent_Curve->measurement.detector_1D.detector_Type));
 
-		global_Multilayer_Approach->calc_Reflection(true);
+		global_Multilayer_Approach->calculate(true);
 	});
 	// slit width
 	connect(slit_Width_SpinBox,  static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
 	{
 		independent_Curve->measurement.detector_1D.slit_Width = slit_Width_SpinBox->value();
 
-		global_Multilayer_Approach->calc_Reflection(true);
+		global_Multilayer_Approach->calculate(true);
 	});
 	// slit distance
 	connect(slit_Distance_SpinBox,  static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
 	{
 		independent_Curve->measurement.detector_1D.distance_To_Sample = slit_Distance_SpinBox->value();
 
-		global_Multilayer_Approach->calc_Reflection(true);
+		global_Multilayer_Approach->calculate(true);
 	});
 	// crystal resolution
 	connect(crystal_Resolution_SpinBox,  static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
@@ -1139,14 +1136,14 @@ void Specular_Independent_Curve_Part::connecting()
 		double coeff = angle_Coefficients_Map.value(independent_Curve->angular_Units);
 		independent_Curve->measurement.detector_1D.detector_Theta_Resolution.FWHM_distribution = crystal_Resolution_SpinBox->value()*coeff;
 
-		global_Multilayer_Approach->calc_Reflection(true);
+		global_Multilayer_Approach->calculate(true);
 	});
 	// crystal resolution function
 	connect(crystal_Resolution_Function_ComboBox, &QComboBox::currentTextChanged, this, [=]
 	{
 		independent_Curve->measurement.detector_1D.detector_Theta_Resolution.distribution_Function = crystal_Resolution_Function_ComboBox->currentText();
 
-		global_Multilayer_Approach->calc_Reflection(true);
+		global_Multilayer_Approach->calculate(true);
 	});
 
 	/// footprint & distortion groupbox
@@ -1156,7 +1153,7 @@ void Specular_Independent_Curve_Part::connecting()
 		independent_Curve->measurement.beam_Geometry.size = beam_Footprint_Width_SpinBox->value();
 
 		plot_Beam_Profile();
-		global_Multilayer_Approach->calc_Reflection(true);
+		global_Multilayer_Approach->calculate(true);
 	});
 	// beam shape
 	connect(beam_Footprint_Shape_SpinBox, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
@@ -1164,7 +1161,7 @@ void Specular_Independent_Curve_Part::connecting()
 		independent_Curve->measurement.beam_Geometry.smoothing = beam_Footprint_Shape_SpinBox->value();
 
 		plot_Beam_Profile();
-		global_Multilayer_Approach->calc_Reflection(true);
+		global_Multilayer_Approach->calculate(true);
 	});
 	// sample size
 	connect(sample_Size_SpinBox, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
@@ -1172,7 +1169,7 @@ void Specular_Independent_Curve_Part::connecting()
 		independent_Curve->measurement.sample_Geometry.size = sample_Size_SpinBox->value();
 
 		plot_Sample();
-		global_Multilayer_Approach->calc_Reflection(true);
+		global_Multilayer_Approach->calculate(true);
 	});
 	// sample x-position
 	connect(sample_X_SpinBox, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
@@ -1180,7 +1177,7 @@ void Specular_Independent_Curve_Part::connecting()
 		independent_Curve->measurement.sample_Geometry.x_Position = sample_X_SpinBox->value();
 
 		plot_Sample();
-		global_Multilayer_Approach->calc_Reflection(true);
+		global_Multilayer_Approach->calculate(true);
 	});
 	// sample z-position
 	connect(sample_Z_SpinBox, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
@@ -1188,7 +1185,7 @@ void Specular_Independent_Curve_Part::connecting()
 		independent_Curve->measurement.sample_Geometry.z_Position = sample_Z_SpinBox->value();
 
 		plot_Sample();
-		global_Multilayer_Approach->calc_Reflection(true);
+		global_Multilayer_Approach->calculate(true);
 	});
 	// sample curvature
 	connect(sample_Curvature_SpinBox, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
@@ -1197,7 +1194,7 @@ void Specular_Independent_Curve_Part::connecting()
 
 		refresh_Curvature_Radius();
 		plot_Sample();
-		global_Multilayer_Approach->calc_Reflection(true);
+		global_Multilayer_Approach->calculate(true);
 	});
 }
 
