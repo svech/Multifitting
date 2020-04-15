@@ -72,25 +72,6 @@ public:
 	// for sigma grading
 	void multifly_Fresnel_And_Weak_Factor(double polarization, int thread_Index);
 
-	vector<double> Phi_R_s;
-	vector<double> Phi_R_p;
-	vector<double> R_s;
-	vector<double> R_p;
-	vector<double> R;
-	vector<double> R_Instrumental;
-
-	vector<double> Phi_T_s;
-	vector<double> Phi_T_p;
-	vector<double> T_s;
-	vector<double> T_p;
-	vector<double> T;
-	vector<double> T_Instrumental;
-
-	vector<double> A_s;
-	vector<double> A_p;
-	vector<double> A;
-	vector<double> A_Instrumental;
-
 	// fields
 	vector<double> boundaries_Enlarged;
 	vector<vector<complex<double>>> U_i_s;		//	[thread][media]

@@ -5,15 +5,15 @@ struct Old_Independent_Variables
 {
 	QString tab_Name;
 	Data measurement;
-	Calculated_Values calculated_Values;
+	Old_Calculated_Values old_Calculated_Values;
 	Calc_Functions calc_Functions;
 	Plot_Options plot_Options;
 	QString argument_Type;
 };
 QDataStream& operator >>(QDataStream& stream,		 Old_Independent_Variables old_Independent_Variables )
 {
-	stream	>> old_Independent_Variables.measurement >> old_Independent_Variables.calc_Functions;
-	stream >> old_Independent_Variables.calculated_Values;
+	stream >> old_Independent_Variables.measurement >> old_Independent_Variables.calc_Functions;
+	stream >> old_Independent_Variables.old_Calculated_Values;
 	stream >> old_Independent_Variables.tab_Name >> old_Independent_Variables.plot_Options;
 
 	if(Global_Variables::check_Loaded_Version(1,7,5))
@@ -1064,6 +1064,8 @@ void Multilayer_Approach::open(QString filename)
 	setWindowTitle(multilayer_Approach_Default_Title + ": .../" + file_Info.dir().dirName() + "/" + file_Info.fileName());
 
 	qInfo() << "opened" << endl;
+
+	global_Multilayer_Approach->calculate(true); // to obtain calculated curves that are not loaded
 }
 
 void Multilayer_Approach::open_As()

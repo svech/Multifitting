@@ -548,13 +548,6 @@ struct Plot_Options				{QString x_Scale = lin_Scale; //
 								 int scatter_Shape = QCPScatterStyle::ssCircle;
 								 double scatter_Size = 5;
 								 double thickness = 1;
-
-//								// TODO remove
-//								 QString scale_Second = lin_Scale;
-//								 QColor color_Second = QColor(0, 0, 255);
-//								 int scatter_Shape_Second = QCPScatterStyle::ssDiamond;
-//								 double scatter_Size_Second = 5;
-//								 double thickness_Second = 1;
 								};
 
 struct Graph_Options			{int num_Target_Graph_Rows = 1;		 // rows in Graphs
@@ -661,25 +654,45 @@ struct Different_Norm_Layer
 	double norm = -2019;
 };
 
-// calculated functions for plotting
-struct Calculated_Values	    {QVector<double> R;
-								 QVector<double> Phi_R;
+// calculated functions for plotting WITHOUT SAVING
+struct Calculated_Values	  {	// reflectance
+								vector<double> Phi_R_s;
+								vector<double> Phi_R_p;
+								vector<double> R_s;
+								vector<double> R_p;
+								vector<double> R;
+								vector<double> R_Instrumental;
 
-								 QVector<double> T;
-								 QVector<double> A;
+								// transmittance
+								vector<double> Phi_T_s;
+								vector<double> Phi_T_p;
+								vector<double> T_s;
+								vector<double> T_p;
+								vector<double> T;
+								vector<double> T_Instrumental;
 
-								 vector<vector<double>> field_Intensity;  // not saved
-								 vector<vector<double>> absorption_Map;   // not saved
+								// absorptance
+								vector<double> A_s;
+								vector<double> A_p;
+								vector<double> A;
 
-								 void clear_All()
-								 {
-									 R.clear();
-									 Phi_R.clear();
+								// field intensity in-depth
+								vector<vector<double>> field_Intensity;
+								vector<vector<double>> absorption_Map;
 
-									 T.clear();
-									 A.clear();
-								 }
-								};
+								// scattering
+								vector<double> S_s;
+								vector<double> S_p;
+								vector<double> S;
+								vector<double> S_Instrumental;
+
+								// GISAS
+								vector<vector<double>> GISAS_Map_s;
+								vector<vector<double>> GISAS_Map_p;
+								vector<vector<double>> GISAS_Map;
+								vector<vector<double>> GISAS_Instrumental;
+							   };
+
 struct Discretization_Parameters{bool enable_Discretization = false;
 								 double discretization_Step = 1.0;
 								};
@@ -754,7 +767,14 @@ struct Aperiodic_Settings
 								};
 
 // -----------------------------------------------------------------------------------------
+// DEPRECATED
+struct Old_Calculated_Values	{QVector<double> R;
+								 QVector<double> Phi_R;
 
+								 QVector<double> T;
+								 QVector<double> A;
+								};
+// -----------------------------------------------------------------------------------------
 // serialization
 
 QDataStream& operator <<( QDataStream& stream, const Independent_Indicator& independent_Indicator );
@@ -808,8 +828,8 @@ QDataStream& operator >>( QDataStream& stream,		 Interlayer& interlayer );
 QDataStream& operator <<( QDataStream& stream, const Drift& drift );
 QDataStream& operator >>( QDataStream& stream,		 Drift& drift );
 
-QDataStream& operator <<( QDataStream& stream, const Calculated_Values& calculated_Values );
-QDataStream& operator >>( QDataStream& stream,		 Calculated_Values& calculated_Values );
+QDataStream& operator <<( QDataStream& stream, const Old_Calculated_Values& old_Calculated_Values );
+QDataStream& operator >>( QDataStream& stream,		 Old_Calculated_Values& old_Calculated_Values );
 
 QDataStream& operator <<( QDataStream& stream, const Discretization_Parameters& discretization_Parameters );
 QDataStream& operator >>( QDataStream& stream,		 Discretization_Parameters& discretization_Parameters );

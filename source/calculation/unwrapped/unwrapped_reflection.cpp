@@ -31,6 +31,11 @@ Unwrapped_Reflection::Unwrapped_Reflection(Unwrapped_Structure* unwrapped_Struct
 	exponenta  (num_Threads,vector<complex<double>>(num_Boundaries)),
 	exponenta_2(num_Threads,vector<complex<double>>(num_Boundaries)),
 
+	U_i_s	(num_Threads, vector<complex<double>>(num_Media)),
+	U_r_s	(num_Threads, vector<complex<double>>(num_Media)),
+	U_i_p	(num_Threads, vector<complex<double>>(num_Media)),
+	U_r_p	(num_Threads, vector<complex<double>>(num_Media)),
+
 	environment_Factor_s(num_Threads),
 	environment_Factor_p(num_Threads),
 
@@ -52,25 +57,36 @@ Unwrapped_Reflection::Unwrapped_Reflection(Unwrapped_Structure* unwrapped_Struct
 		num_Points = measurement.lambda_Vec.size();
 	}
 
-	Phi_R_s.resize(num_Points);
-	Phi_R_p.resize(num_Points);
-	R_s.resize(num_Points);
-	R_p.resize(num_Points);
-	R  .resize(num_Points);
-	R_Instrumental.resize(num_Points);
-
-	Phi_T_s.resize(num_Points);
-	Phi_T_p.resize(num_Points);
-	T_s.resize(num_Points);
-	T_p.resize(num_Points);
-	T  .resize(num_Points);
-	T_Instrumental.resize(num_Points);
-
-	A_s.resize(num_Points);
-	A_p.resize(num_Points);
-	A  .resize(num_Points);
-	A_Instrumental.resize(num_Points);
-
+	// reflectance
+	if(	unwrapped_Structure->calc_Functions.check_Reflectance ||
+		unwrapped_Structure->calc_Functions.check_Absorptance )
+	{
+		calculated_Values.Phi_R_s.resize(num_Points);
+		calculated_Values.Phi_R_p.resize(num_Points);
+		calculated_Values.R_s.resize(num_Points);
+		calculated_Values.R_p.resize(num_Points);
+		calculated_Values.R  .resize(num_Points);
+		calculated_Values.R_Instrumental.resize(num_Points);
+	}
+	// transmittance
+	if(	unwrapped_Structure->calc_Functions.check_Transmittance ||
+		unwrapped_Structure->calc_Functions.check_Absorptance )
+	{
+		calculated_Values.Phi_T_s.resize(num_Points);
+		calculated_Values.Phi_T_p.resize(num_Points);
+		calculated_Values.T_s.resize(num_Points);
+		calculated_Values.T_p.resize(num_Points);
+		calculated_Values.T  .resize(num_Points);
+		calculated_Values.T_Instrumental.resize(num_Points);
+	}
+	// scattering
+	if(	unwrapped_Structure->calc_Functions.check_Absorptance)
+	{
+		calculated_Values.A_s.resize(num_Points);
+		calculated_Values.A_p.resize(num_Points);
+		calculated_Values.A  .resize(num_Points);
+	}
+	// field intensity in-depth
 	if(unwrapped_Structure->calc_Functions.check_Field || unwrapped_Structure->calc_Functions.check_Joule)
 	{
 		if(!unwrapped_Structure->discretization_Parameters.enable_Discretization)
@@ -83,11 +99,6 @@ Unwrapped_Reflection::Unwrapped_Reflection(Unwrapped_Structure* unwrapped_Struct
 		// plus one element to end
 		boundaries_Enlarged.push_back(boundaries_Enlarged.back());
 
-		U_i_s.resize(num_Threads, vector<complex<double>>(num_Media));
-		U_r_s.resize(num_Threads, vector<complex<double>>(num_Media));
-		U_i_p.resize(num_Threads, vector<complex<double>>(num_Media));
-		U_r_p.resize(num_Threads, vector<complex<double>>(num_Media));
-
 		// if too much slices
 //		unwrapped_Structure->num_Field_Slices = min(unwrapped_Structure->num_Field_Slices, 1000000/num_Points);
 //		unwrapped_Structure->field_Z_Positions.resize(unwrapped_Structure->num_Field_Slices);
@@ -99,8 +110,25 @@ Unwrapped_Reflection::Unwrapped_Reflection(Unwrapped_Structure* unwrapped_Struct
 			calculated_Values.field_Intensity[i].resize(unwrapped_Structure->num_Field_Slices);
 			calculated_Values.absorption_Map [i].resize(unwrapped_Structure->num_Field_Slices);
 		}
-//		Kossel.resize(num_Points);
-//		Kossel.assign(num_Points,0);
+	}
+
+	// absorptance
+	if(	unwrapped_Structure->calc_Functions.check_Scattering)
+	{
+		calculated_Values.S_s.resize(num_Points);
+		calculated_Values.S_p.resize(num_Points);
+		calculated_Values.S  .resize(num_Points);
+		calculated_Values.S_Instrumental.resize(num_Points);
+	}
+
+	// GISAS
+	if(	unwrapped_Structure->calc_Functions.check_GISAS)
+	{
+		// TODO GISAS
+//		calculated_Values.GISAS_Map_s;
+//		calculated_Values.GISAS_Map_p;
+//		calculated_Values.GISAS_Map;
+//		calculated_Values.GISAS_Instrumental;
 	}
 }
 
@@ -916,54 +944,99 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(const Data& measuremen
 
 void Unwrapped_Reflection::fill_Specular_Values(const Data& measurement, int thread_Index, int point_Index)
 {
-	calc_Environmental_Factor(thread_Index);
-
 	double s_Weight = (1. + measurement.polarization) / 2.;
 	double p_Weight = (1. - measurement.polarization) / 2.;
 
 	// reflectance
-	complex<double> r_s = r_Local_s[thread_Index][0];
-	complex<double> r_p = r_Local_p[thread_Index][0];
-
-	Phi_R_s[point_Index] = arg(r_s)/M_PI*180.;
-	Phi_R_p[point_Index] = arg(r_p)/M_PI*180.;
-
-	R_s[point_Index] = pow(abs(r_s),2);
-	R_p[point_Index] = pow(abs(r_p),2);
-	R  [point_Index] = s_Weight * R_s[point_Index] + p_Weight * R_p[point_Index];
-
-	// transmittance
-	complex<double> t_s = t_Local_s[thread_Index][0];
-	complex<double> t_p = t_Local_p[thread_Index][0];
-
-	Phi_T_s[point_Index] = arg(t_s)/M_PI*180.;
-	Phi_T_p[point_Index] = arg(t_p)/M_PI*180.;
-
-	T_s[point_Index] = pow(abs(t_s),2)*environment_Factor_s[thread_Index];
-	T_p[point_Index] = pow(abs(t_p),2)*environment_Factor_p[thread_Index];
-	T  [point_Index] = s_Weight * T_s[point_Index] + p_Weight * T_p[point_Index];
-
-	// absorptance (without scattering!)
-	A_s[point_Index] = 1.-T_s[point_Index]-R_s[point_Index];
-	A_p[point_Index] = 1.-T_p[point_Index]-R_p[point_Index];		
-	A  [point_Index] = s_Weight * A_s[point_Index] + p_Weight * A_p[point_Index];	
-
-	if(A_s[point_Index] < DBL_MIN) A_s[point_Index] = DBL_MIN;
-	if(A_p[point_Index] < DBL_MIN) A_p[point_Index] = DBL_MIN;
-	if(A  [point_Index] < DBL_MIN) A  [point_Index] = DBL_MIN;
-
-	// NaN
-	if(isnan(R[point_Index]) || isnan(T[point_Index]))
+	if( unwrapped_Structure->calc_Functions.check_Reflectance ||
+		unwrapped_Structure->calc_Functions.check_Absorptance )
 	{
-		if(isnan(R[point_Index])) {R[point_Index]=10000; qInfo() << "Unwrapped_Reflection::fill_Specular_Values  :  R = NaN at point" << point_Index << endl; QMessageBox::warning(nullptr, "Unwrapped_Reflection::fill_Specular_Values", "R = NaN");}		// NaN to 10000. Be careful!
-		if(isnan(T[point_Index])) {T[point_Index]=10000; qInfo() << "Unwrapped_Reflection::fill_Specular_Values  :  T = NaN at point" << point_Index << endl; QMessageBox::warning(nullptr, "Unwrapped_Reflection::fill_Specular_Values", "T = NaN");}		// NaN to 10000. Be careful!
+		complex<double> r_s = r_Local_s[thread_Index][0];
+		complex<double> r_p = r_Local_p[thread_Index][0];
 
-		qInfo() << "r_Local_s_RE" << real(r_Local_s[thread_Index][0]) << "r_Local_s_IM" << imag(r_Local_s[thread_Index][0]) << endl;
-		qInfo() << "r_Local_p_RE" << real(r_Local_p[thread_Index][0]) << "r_Local_p_IM" << imag(r_Local_p[thread_Index][0]) << endl;
-		qInfo() << "t_Local_s_RE" << real(t_Local_s[thread_Index][0]) << "t_Local_s_IM" << imag(t_Local_s[thread_Index][0]) << endl;
-		qInfo() << "t_Local_p_RE" << real(t_Local_p[thread_Index][0]) << "t_Local_p_IM" << imag(t_Local_p[thread_Index][0]) << endl;
-		qInfo() << "environment_Factor_s" << environment_Factor_s[thread_Index] << "environment_Factor_p" << environment_Factor_p[thread_Index]  << endl;
-		qInfo() << "";
+		calculated_Values.Phi_R_s[point_Index] = arg(r_s)/M_PI*180.;
+		calculated_Values.Phi_R_p[point_Index] = arg(r_p)/M_PI*180.;
+		calculated_Values.R_s	 [point_Index] = pow(abs(r_s),2);
+		calculated_Values.R_p	 [point_Index] = pow(abs(r_p),2);
+		calculated_Values.R		 [point_Index] = s_Weight * calculated_Values.R_s[point_Index] + p_Weight * calculated_Values.R_p[point_Index];
+		//	calculated_Values.R_Instrumental  later
+
+		// NaN
+		if(isnan(calculated_Values.R[point_Index]))
+		{
+			calculated_Values.R[point_Index]=10000;  // NaN to 10000. Be careful!
+			qInfo() << "Unwrapped_Reflection::fill_Specular_Values  :  R = NaN at point" << point_Index << endl;
+			QMessageBox::warning(nullptr, "Unwrapped_Reflection::fill_Specular_Values", "R = NaN");
+
+			qInfo() << "r_Local_s_RE" << real(r_Local_s[thread_Index][0]) << "r_Local_s_IM" << imag(r_Local_s[thread_Index][0]) << endl;
+			qInfo() << "r_Local_p_RE" << real(r_Local_p[thread_Index][0]) << "r_Local_p_IM" << imag(r_Local_p[thread_Index][0]) << endl  << endl;
+		}
+	}
+	// transmittance
+	if(	unwrapped_Structure->calc_Functions.check_Transmittance ||
+		unwrapped_Structure->calc_Functions.check_Absorptance )
+	{
+		calc_Environmental_Factor(thread_Index);
+
+		complex<double> t_s = t_Local_s[thread_Index][0];
+		complex<double> t_p = t_Local_p[thread_Index][0];
+
+		calculated_Values.Phi_T_s[point_Index] = arg(t_s)/M_PI*180.;
+		calculated_Values.Phi_T_p[point_Index] = arg(t_p)/M_PI*180.;
+		calculated_Values.T_s	 [point_Index] = pow(abs(t_s),2)*environment_Factor_s[thread_Index];
+		calculated_Values.T_p	 [point_Index] = pow(abs(t_p),2)*environment_Factor_p[thread_Index];
+		calculated_Values.T		 [point_Index] = s_Weight * calculated_Values.T_s[point_Index] + p_Weight * calculated_Values.T_p[point_Index];
+		//	calculated_Values.T_Instrumental  later
+
+		// NaN
+		if(isnan(calculated_Values.T[point_Index]))
+		{
+			calculated_Values.T[point_Index]=10000;  // NaN to 10000. Be careful!
+			qInfo() << "Unwrapped_Reflection::fill_Specular_Values  :  T = NaN at point" << point_Index << endl;
+			QMessageBox::warning(nullptr, "Unwrapped_Reflection::fill_Specular_Values", "T = NaN");
+
+			qInfo() << "t_Local_s_RE" << real(t_Local_s[thread_Index][0]) << "t_Local_s_IM" << imag(t_Local_s[thread_Index][0]) << endl;
+			qInfo() << "t_Local_p_RE" << real(t_Local_p[thread_Index][0]) << "t_Local_p_IM" << imag(t_Local_p[thread_Index][0]) << endl;
+			qInfo() << "environment_Factor_s" << environment_Factor_s[thread_Index] << "environment_Factor_p" << environment_Factor_p[thread_Index]  << endl  << endl;
+
+		}
+	}
+	// absorptance (simple, without scattering!)
+	if(	unwrapped_Structure->calc_Functions.check_Absorptance)
+	{
+		calculated_Values.A_s[point_Index] = 1.-calculated_Values.T_s[point_Index]-calculated_Values.R_s[point_Index];
+		calculated_Values.A_p[point_Index] = 1.-calculated_Values.T_p[point_Index]-calculated_Values.R_p[point_Index];
+		calculated_Values.A  [point_Index] = s_Weight * calculated_Values.A_s[point_Index] + p_Weight * calculated_Values.A_p[point_Index];
+
+		// crutch for non-displaying slightly negative values (?)
+		if(calculated_Values.A_s[point_Index] < DBL_MIN) {calculated_Values.A_s[point_Index] = DBL_MIN;}
+		if(calculated_Values.A_p[point_Index] < DBL_MIN) {calculated_Values.A_p[point_Index] = DBL_MIN;}
+		if(calculated_Values.A  [point_Index] < DBL_MIN) {calculated_Values.A  [point_Index] = DBL_MIN;}
+	}
+	// field intensity in-depth
+	if( unwrapped_Structure->calc_Functions.check_Field ||
+		unwrapped_Structure->calc_Functions.check_Joule )
+	{
+		// calculated_Values.field_Intensity	already calculated
+		// calculated_Values.absorption_Map		already calculated
+	}
+	// scattering
+	if(	unwrapped_Structure->calc_Functions.check_Scattering)
+	{
+		// TODO
+//		calculated_Values.S_s
+//		calculated_Values.S_p
+//		calculated_Values.S
+		//	calculated_Values.S_Instrumental  later
+	}
+	// GISAS
+	if(	unwrapped_Structure->calc_Functions.check_GISAS)
+	{
+		// TODO GISAS
+//		calculated_Values.GISAS_Map_s
+//		calculated_Values.GISAS_Map_p
+//		calculated_Values.GISAS_Map
+		// calculated_Values.GISAS_Instrumental		later
 	}
 }
 
@@ -1010,15 +1083,13 @@ void Unwrapped_Reflection::calc_Specular()
 
 		// interpolation
 
-		vector<double>* calculated_Curve = &R;
-		vector<double>* working_Curve = &R_Instrumental;
+		vector<double>* calculated_Curve = &calculated_Values.R;
+		vector<double>* working_Curve = &calculated_Values.R_Instrumental;
 		if( calc_Functions.check_Reflectance)
-		{	calculated_Curve = &R; R_Instrumental = R; working_Curve = &R_Instrumental;}
+		{	calculated_Curve = &calculated_Values.R; calculated_Values.R_Instrumental = calculated_Values.R; working_Curve = &calculated_Values.R_Instrumental;}
 		if( calc_Functions.check_Transmittance)
-		{	calculated_Curve = &T; T_Instrumental = T; working_Curve = &T_Instrumental;}
-		if( calc_Functions.check_Absorptance)
-		{	calculated_Curve = &A; A_Instrumental = A; working_Curve = &A_Instrumental;}
-
+		{	calculated_Curve = &calculated_Values.T; calculated_Values.T_Instrumental = calculated_Values.T; working_Curve = &calculated_Values.T_Instrumental;}
+		// TODO GISAS Scattering
 
 //		if( measurement.measurement_Type == measurement_Types[Specular_Scan] &&
 //			measurement.argument_Type  == argument_Types[Beam_Grazing_Angle] )
@@ -1075,13 +1146,13 @@ void Unwrapped_Reflection::calc_Specular()
 
 		// any way
 		if( calc_Functions.check_Reflectance)	{
-			for(size_t point_Index=0; point_Index<R.size(); ++point_Index)	{
-				R_Instrumental[point_Index] += measurement.background;
+			for(size_t point_Index=0; point_Index<calculated_Values.R.size(); ++point_Index)	{
+				calculated_Values.R_Instrumental[point_Index] += measurement.background;
 			}
 		}
 		if( calc_Functions.check_Transmittance)	{
-			for(size_t point_Index=0; point_Index<R.size(); ++point_Index)	{
-				T_Instrumental[point_Index] += measurement.background;
+			for(size_t point_Index=0; point_Index<calculated_Values.T.size(); ++point_Index)	{
+				calculated_Values.T_Instrumental[point_Index] += measurement.background;
 			}
 		}
 

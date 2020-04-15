@@ -563,8 +563,9 @@ void Curve_Plot::plot_All_Data()
 
 		/// calculated data
 		{
-			if(	target_Curve->curve.value_Type == value_Types[Reflectance] ) {	values = calculated_Values->R; }
-			if(	target_Curve->curve.value_Type == value_Types[Transmittance]){	values = calculated_Values->T; }
+			if(	target_Curve->curve.value_Type == value_Types[Reflectance] )	{ values = QVector<double>(calculated_Values->R.begin(),calculated_Values->R.end()); }
+			if(	target_Curve->curve.value_Type == value_Types[Transmittance])	{ values = QVector<double>(calculated_Values->T.begin(),calculated_Values->T.end()); }
+			// TODO scattering
 			plot_Data(argument, values, plot_Options_Second);
 			get_Min_Max_For_Graph(plot_Options_Second, values, min_Value_Left, max_Value_Left);
 		}
@@ -575,12 +576,10 @@ void Curve_Plot::plot_All_Data()
 		if(	*argument_Type == argument_Types[Beam_Grazing_Angle])	{	argument = measurement->beam_Theta_0_Angle_Vec;	}
 		if(	*argument_Type == argument_Types[Wavelength_Energy] )	{	argument = measurement->lambda_Vec;	}
 
-		if(	independent_Curve->calc_Functions.check_Reflectance)   { values = calculated_Values->R; } /*else*/
-		if(	independent_Curve->calc_Functions.check_Transmittance) { values = calculated_Values->T; } /*else*/
-		if(	independent_Curve->calc_Functions.check_Absorptance)   { values = calculated_Values->A; }
-		// TODO
-//		else
-//		if(	independent_Variables->calc_Functions.check_User) { values=calculated_Valufgh }
+		if(	independent_Curve->calc_Functions.check_Reflectance)	{ values = QVector<double>(calculated_Values->R.begin(),calculated_Values->R.end()); }
+		if(	independent_Curve->calc_Functions.check_Transmittance)	{ values = QVector<double>(calculated_Values->T.begin(),calculated_Values->T.end()); }
+		if(	independent_Curve->calc_Functions.check_Absorptance)	{ values = QVector<double>(calculated_Values->A.begin(),calculated_Values->A.end()); }
+		// TODO scattering
 
 		/// calculated data
 		// first value (R,T,A...)
@@ -589,7 +588,7 @@ void Curve_Plot::plot_All_Data()
 			if(*argument_Type == argument_Types[Beam_Grazing_Angle])
 			{
 				coeff = angle_Coefficients_Map.value(independent_Curve->angular_Units);
-				for(int i=0; i<values.size(); ++i)
+				for(int i=0; i<argument.size(); ++i)
 				{
 					argument[i]=argument[i]/coeff;
 				}
@@ -597,7 +596,7 @@ void Curve_Plot::plot_All_Data()
 			if(*argument_Type == argument_Types[Wavelength_Energy])
 			{
 				coeff = wavelength_Coefficients_Map.value(independent_Curve->spectral_Units);
-				for(int i=0; i<values.size(); ++i)
+				for(int i=0; i<argument.size(); ++i)
 				{
 					argument[i]=Global_Variables::wavelength_Energy(independent_Curve->spectral_Units,argument[i])/coeff;
 				}

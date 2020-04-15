@@ -319,17 +319,17 @@ QDataStream& operator >>( QDataStream& stream,		 Basic_Profile_Plot_Set& basic_P
 	return stream;
 }
 
-QDataStream& operator <<( QDataStream& stream, const Calculated_Values& calculated_Values )
+QDataStream& operator <<( QDataStream& stream, const Old_Calculated_Values& old_Calculated_Values )
 {
-	return stream << calculated_Values.R << calculated_Values.Phi_R
-				  << calculated_Values.T
-				  << calculated_Values.A;
+	return stream << old_Calculated_Values.R << old_Calculated_Values.Phi_R
+				  << old_Calculated_Values.T
+				  << old_Calculated_Values.A;
 }
-QDataStream& operator >>( QDataStream& stream,		 Calculated_Values& calculated_Values )
+QDataStream& operator >>( QDataStream& stream,		 Old_Calculated_Values& old_Calculated_Values )
 {
-	return stream >> calculated_Values.R >> calculated_Values.Phi_R
-				  >> calculated_Values.T
-				  >> calculated_Values.A;
+	return stream >> old_Calculated_Values.R >> old_Calculated_Values.Phi_R
+				  >> old_Calculated_Values.T
+				  >> old_Calculated_Values.A;
 }
 
 QDataStream& operator <<( QDataStream& stream, const Discretization_Parameters& discretization_Parameters )

@@ -331,7 +331,6 @@ Target_Curve& Target_Curve::operator =(const Target_Curve& referent_Target_Curve
 	curve = referent_Target_Curve.curve;
 	fit_Params = referent_Target_Curve.fit_Params;
 	measurement = referent_Target_Curve.measurement;	measurement.reset_All_IDs();
-	calculated_Values = referent_Target_Curve.calculated_Values;
 	filename = referent_Target_Curve.filename;	// should be empty
 	filepath = referent_Target_Curve.filepath;	// should be empty
 	loaded_And_Ready = referent_Target_Curve.loaded_And_Ready;
@@ -489,7 +488,6 @@ QDataStream& operator <<( QDataStream& stream, const Target_Curve* target_Curve 
 					<< target_Curve->filename << target_Curve->filepath
 					<< target_Curve->plot_Options_Experimental
 					<< target_Curve->plot_Options_Calculated
-					<< target_Curve->calculated_Values
 					<< target_Curve->lines_List << target_Curve->label_Text << target_Curve->angular_Units << target_Curve->spectral_Units;
 }
 QDataStream& operator >>(QDataStream& stream,		 Target_Curve* target_Curve )
@@ -505,8 +503,12 @@ QDataStream& operator >>(QDataStream& stream,		 Target_Curve* target_Curve )
 	if(Global_Variables::check_Loaded_Version(1,7,4))
 	{stream >> target_Curve->plot_Options_Calculated ; }
 
-	stream  >> target_Curve->calculated_Values
-			>> target_Curve->lines_List;
+	if(!Global_Variables::check_Loaded_Version(1,11,0))
+	{
+		Old_Calculated_Values old_Calculated_Values;
+		stream  >> old_Calculated_Values;
+	}
+	stream	>> target_Curve->lines_List;
 	if(!Global_Variables::check_Loaded_Version(1,11,0))
 	{
 		QString arg_Units;

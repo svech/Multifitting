@@ -355,8 +355,8 @@ void Fitting::fill_Residual(Fitting_Params* params, int& residual_Shift, Data_El
 
 	if(target_Curve->curve.value_Type == value_Types[Reflectance] )				// R
 	{
-		model_Curve = target_Element.unwrapped_Reflection->R_Instrumental;
-	} else
+		model_Curve = target_Element.unwrapped_Reflection->calculated_Values.R_Instrumental;
+	}
 
 	/// -------------------------------------------------------------------------------
 	/// transmittance
@@ -364,7 +364,7 @@ void Fitting::fill_Residual(Fitting_Params* params, int& residual_Shift, Data_El
 
 	if(target_Curve->curve.value_Type == value_Types[Transmittance] )				// T
 	{
-		model_Curve = target_Element.unwrapped_Reflection->T_Instrumental;
+		model_Curve = target_Element.unwrapped_Reflection->calculated_Values.T_Instrumental;
 	}
 
 	// use_Chi2

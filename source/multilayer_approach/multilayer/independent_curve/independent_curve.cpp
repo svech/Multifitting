@@ -108,7 +108,6 @@ Independent_Curve& Independent_Curve::operator =(const Independent_Curve& refere
 {
 	tab_Name = referent_Independent_Curve.tab_Name;
 	measurement = referent_Independent_Curve.measurement;	measurement.reset_All_IDs();
-	calculated_Values = referent_Independent_Curve.calculated_Values;
 	calc_Functions = referent_Independent_Curve.calc_Functions;
 	plot_Options = referent_Independent_Curve.plot_Options;
 	angular_Units = referent_Independent_Curve.angular_Units;
@@ -122,7 +121,7 @@ Independent_Curve& Independent_Curve::operator =(const Independent_Curve& refere
 QDataStream& operator <<( QDataStream& stream, const Independent_Curve* independent_Curve )
 {	
 	return stream	<< independent_Curve->tab_Name << independent_Curve->measurement
-					<< independent_Curve->calculated_Values	<< independent_Curve->calc_Functions << independent_Curve->plot_Options
+					<< independent_Curve->calc_Functions << independent_Curve->plot_Options
 					<< independent_Curve->angular_Units	<< independent_Curve->spectral_Units
 					<< independent_Curve->label_Text;
 }
@@ -131,13 +130,18 @@ QDataStream& operator >>(QDataStream& stream,		 Independent_Curve* independent_C
 	if(Global_Variables::check_Loaded_Version(1,11,0))
 	{
 		stream	>> independent_Curve->tab_Name >> independent_Curve->measurement
-				>> independent_Curve->calculated_Values	>> independent_Curve->calc_Functions >> independent_Curve->plot_Options
+				>> independent_Curve->calc_Functions >> independent_Curve->plot_Options
 				>> independent_Curve->angular_Units	>> independent_Curve->spectral_Units
 				>> independent_Curve->label_Text;
 	} else
 	{
 		stream >> independent_Curve->measurement >> independent_Curve->calc_Functions;
-		stream >> independent_Curve->calculated_Values;
+
+		{
+			Old_Calculated_Values old_Calculated_Values;
+			stream >> old_Calculated_Values;
+		}
+
 		stream >> independent_Curve->tab_Name >> independent_Curve->plot_Options;
 
 		if(Global_Variables::check_Loaded_Version(1,7,5))
