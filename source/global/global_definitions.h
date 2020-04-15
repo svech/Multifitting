@@ -287,7 +287,6 @@ class Node;
 // window types
 #define window_Type_Launcher						"Launcher"
 #define window_Type_Multilayer_Approach				"Multilayer Approach"
-#define window_Type_Independent_Variables_Editor	"Independent Variable Editor"
 #define window_Type_Item_Editor						"Item Editor"
 #define window_Type_Regular_Aperiodic_Table			"Regular Aperiodic Table"
 #define window_Type_Table_Of_Structures				"Table Of Structures"
@@ -670,7 +669,7 @@ struct Calculated_Values	    {QVector<double> R;
 								 QVector<double> A;
 
 								 vector<vector<double>> field_Intensity;  // not saved
-								 vector<vector<double>> absorption_Map;   // not saved								
+								 vector<vector<double>> absorption_Map;   // not saved
 
 								 void clear_All()
 								 {

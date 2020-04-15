@@ -475,7 +475,7 @@ void Data::reset_All_IDs()
 	// Measurement
 	//---------------------------------------------
 		// angle
-		beam_Theta_0_Angle		.indicator.id = Global_Definitions::generate_Id(); beam_Theta_0_Angle			.indicator.item_Id = id;	beam_Theta_0_Angle		.coupled.clear_Coupled();
+		beam_Theta_0_Angle		.indicator.id = Global_Definitions::generate_Id(); beam_Theta_0_Angle		.indicator.item_Id = id;	beam_Theta_0_Angle		.coupled.clear_Coupled();
 		detector_Theta_Angle	.indicator.id = Global_Definitions::generate_Id(); detector_Theta_Angle		.indicator.item_Id = id;	detector_Theta_Angle	.coupled.clear_Coupled();
 		detector_Phi_Angle		.indicator.id = Global_Definitions::generate_Id(); detector_Phi_Angle		.indicator.item_Id = id;	detector_Phi_Angle		.coupled.clear_Coupled();
 

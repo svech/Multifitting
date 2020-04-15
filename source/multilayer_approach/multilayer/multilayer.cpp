@@ -416,7 +416,7 @@ Multilayer& Multilayer::operator =(const Multilayer& referent_Multilayer)
 	// structure tree
 	*structure_Tree = *referent_Multilayer.structure_Tree;
 
-	// independent plots
+	// independent
 	for(int independent_Index=0; independent_Index< independent_Curve_Tabs->count(); independent_Index++)
 	{
 		Independent_Curve* old_Independent = qobject_cast<Independent_Curve*>(independent_Curve_Tabs->widget(independent_Index));

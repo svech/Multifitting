@@ -31,15 +31,6 @@ void Menu::add_Menu_Points()
 		create_Help_Menu();
 			menu_Bar->addMenu(help_Menu);
 	}
-	if(window_Type == window_Type_Independent_Variables_Editor)
-	{
-		independent_Variables_Editor = qobject_cast<Independent_Curve_Editor*>(my_Parent);
-
-		create_Independent_Units_Menu();
-			menu_Bar->addMenu(units_Menu);
-		create_Independent_Precision_Menu();
-			menu_Bar->addMenu(precision_Menu);
-	}
 	if(window_Type == window_Type_Item_Editor)
 	{
 		item_Editor = qobject_cast<Item_Editor*>(my_Parent);

@@ -330,18 +330,14 @@ Target_Curve& Target_Curve::operator =(const Target_Curve& referent_Target_Curve
 
 	curve = referent_Target_Curve.curve;
 	fit_Params = referent_Target_Curve.fit_Params;
-	measurement = referent_Target_Curve.measurement;
+	measurement = referent_Target_Curve.measurement;	measurement.reset_All_IDs();
 	calculated_Values = referent_Target_Curve.calculated_Values;
-
 	filename = referent_Target_Curve.filename;	// should be empty
 	filepath = referent_Target_Curve.filepath;	// should be empty
-
 	loaded_And_Ready = referent_Target_Curve.loaded_And_Ready;
 	plot_Options_Experimental = referent_Target_Curve.plot_Options_Experimental;
 	plot_Options_Calculated = referent_Target_Curve.plot_Options_Calculated;
-
 	lines_List = referent_Target_Curve.lines_List;
-
 	label_Text = referent_Target_Curve.label_Text;
 	index = referent_Target_Curve.index;
 

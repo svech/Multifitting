@@ -106,7 +106,14 @@ void Independent_Curve::refresh_Description_Label()
 
 Independent_Curve& Independent_Curve::operator =(const Independent_Curve& referent_Independent_Curve)
 {
-	// TODO INDEPENDENT ?
+	tab_Name = referent_Independent_Curve.tab_Name;
+	measurement = referent_Independent_Curve.measurement;	measurement.reset_All_IDs();
+	calculated_Values = referent_Independent_Curve.calculated_Values;
+	calc_Functions = referent_Independent_Curve.calc_Functions;
+	plot_Options = referent_Independent_Curve.plot_Options;
+	angular_Units = referent_Independent_Curve.angular_Units;
+	spectral_Units = referent_Independent_Curve.spectral_Units;
+	label_Text = referent_Independent_Curve.spectral_Units;
 
 	return *this;
 }

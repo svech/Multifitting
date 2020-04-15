@@ -477,17 +477,6 @@ void Calculation_Tree::calculate_Unwrapped_Reflectivity(const Calc_Functions& ca
 													{ calculated_Values.Phi_R.clear(); }
 	calculated_Values.T=QVector<double>(unwrapped_Reflection_Vec_Element->T_Instrumental.begin(),unwrapped_Reflection_Vec_Element->T_Instrumental.end());
 	calculated_Values.A=QVector<double>(unwrapped_Reflection_Vec_Element->A_Instrumental.begin(),unwrapped_Reflection_Vec_Element->A_Instrumental.end());
-	// TODO user function
-//	calculated_Values.=QVector<double>::fromStdVector(unwrapped_Reflection_Vec_Element->A_Instrumental);
-
-
-
-//	cout << "r_s     [" << 0 << "] = " << unwrapped_Reflection_Vec_Element->r_s[0] << endl;
-//	cout << "r_p     [" << 0 << "] = " << unwrapped_Reflection_Vec_Element->r_p[0] << endl;
-
-//	cout << "R_s     [" << 0 << "] = " << unwrapped_Reflection_Vec_Element->R_s[0] << endl;
-//	cout << "R_p     [" << 0 << "] = " << unwrapped_Reflection_Vec_Element->R_p[0] << endl;
-//	cout << "--------------------------------\n";
 }
 
 int Calculation_Tree::get_Total_Num_Layers(const tree<Node>::iterator& parent, const tree<Node>& calc_Tree)

@@ -5,13 +5,6 @@
 #include "gsl/gsl_integration.h"
 #include "iostream"
 
-struct Interpol
-{
-	double value;
-	int min_Index;
-	int max_Index;
-};
-
 class Unwrapped_Reflection
 {
 public:
