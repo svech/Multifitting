@@ -115,7 +115,7 @@ void Specular_Independent_Curve_Part::create_Argument_GroupBox()
 		final_Argument_Spinbox = new MyDoubleSpinBox;
 			final_Argument_Spinbox->setAccelerated(true);
 			final_Argument_Spinbox->setRange(0, MAX_DOUBLE);
-			final_Argument_Spinbox->setDecimals(3);
+			final_Argument_Spinbox->setDecimals(4);
 			final_Argument_Spinbox->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
 			final_Argument_Spinbox->setButtonSymbols(QAbstractSpinBox::NoButtons);
 			final_Argument_Spinbox->setProperty(min_Size_Property,TARGET_LINE_EDIT_WIDTH);

@@ -92,7 +92,6 @@ public:
 	QCPItemStraightLine* center_Line;
 	QCPItemLine* arrow_Incident;
 	QCPItemLine* arrow_Reflected;
-
 };
 
 #endif // SPECULAR_INDEPENDENT_CURVE_PART_H

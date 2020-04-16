@@ -77,11 +77,20 @@ void Independent_Curve::refresh_Description_Label()
 							  Locale.toString(measurement.beam_Theta_0_Angle.value/angular_Coeff, thumbnail_double_format, thumbnail_angle_precision) +
 							  "" + angular_Units;
 			}
-
 		}
 		if(	measurement.measurement_Type == measurement_Types[Detector_Scan] )
 		{
-	//		detector_Target_Curve_Part->refresh_Description_Label();
+			if(measurement.argument_Type == argument_Types[Detector_Polar_Angle])
+			{
+				label_Text =  measurement.measurement_Type + "; " +
+							  Locale.toString(measurement.detector_Theta_Angle.independent.min/angular_Coeff) +
+						"-" + Locale.toString(measurement.detector_Theta_Angle.independent.max/angular_Coeff) +
+							  "" + angular_Units + "; " + "at " +
+							  Locale.toString(Global_Variables::wavelength_Energy(spectral_Units, measurement.wavelength.value)/spectral_Coeff, thumbnail_double_format, thumbnail_wavelength_precision) +
+							  " " + spectral_Units + " and " + Theta_Sym + Zero_Subscript_Sym + "=" +
+							  Locale.toString(measurement.beam_Theta_0_Angle.value/angular_Coeff, thumbnail_double_format, thumbnail_angle_precision) +
+							  "" + angular_Units;
+			}
 		}
 		if(	measurement.measurement_Type == measurement_Types[Rocking_Curve] )
 		{
