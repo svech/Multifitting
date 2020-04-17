@@ -659,7 +659,7 @@ void Menu::open_About()
 						"Multifitting is based on Qt5 framework<br>"//(GNU LGPL/GPL)
 						"and also uses the following libraries:<br><br>"
 						"<a href='https://www.gnu.org/software/gsl/'>GSL</a> - GNU Scientific Library<br>"//(GNU GPL)
-						"<a href='http://www.hvass-labs.org/projects/swarmops/'>SwarmOps</a> by Magnus Erik Hvass Pedersen<br>"//(GNU LGPL)
+						"<a href='https://github.com/Hvass-Labs/swarmops-other'>SwarmOps</a> by Magnus Erik Hvass Pedersen<br>"//(MIT licence)
 						"<a href='http://www.partow.net/programming/exprtk/'>ExprTk</a> by Arash Partow<br>"//(MIT licence)
 						"<a href='http://tree.phi-sci.com/'>tree.hh</a> by Kasper Peeters<br>" //(GNU GPL)
 						"<a href='https://www.qcustomplot.com/'>QCustomPlot</a> by Emanuel Eichhammer<br>"//(GNU GPL)
