@@ -58,7 +58,10 @@ void Offset_Independent_Curve_Part::create_Units_GroupBox()
 void Offset_Independent_Curve_Part::create_Argument_GroupBox()
 {
 	// initialization
-	independent_Curve->measurement.argument_Type = argument_Types[Beam_Grazing_Angle];
+	if(independent_Curve->measurement.argument_Type == no_Argument_Type)
+	{
+		independent_Curve->measurement.argument_Type = argument_Types[Beam_Grazing_Angle];
+	}
 
 	QGroupBox* argument_GroupBox = new QGroupBox("Argument");
 	main_Layout->addWidget(argument_GroupBox);
@@ -74,12 +77,12 @@ void Offset_Independent_Curve_Part::create_Argument_GroupBox()
 	// argument points
 	{
 		num_Points_Spinbox = new QSpinBox;
-		num_Points_Spinbox->setAccelerated(true);
-		num_Points_Spinbox->setRange(3, MAX_INTEGER);
-		num_Points_Spinbox->setValue(independent_Curve->measurement.beam_Theta_0_Angle.independent.num_Points);
-		num_Points_Spinbox->setProperty(min_Size_Property,TARGET_LINE_EDIT_WIDTH);
-		num_Points_Spinbox->setButtonSymbols(QAbstractSpinBox::NoButtons);
-		num_Points_Spinbox->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
+			num_Points_Spinbox->setAccelerated(true);
+			num_Points_Spinbox->setRange(3, MAX_INTEGER);
+			num_Points_Spinbox->setValue(independent_Curve->measurement.beam_Theta_0_Angle.independent.num_Points);
+			num_Points_Spinbox->setProperty(min_Size_Property,TARGET_LINE_EDIT_WIDTH);
+			num_Points_Spinbox->setButtonSymbols(QAbstractSpinBox::NoButtons);
+			num_Points_Spinbox->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
 		argument_GroupBox_Layout->addWidget(num_Points_Spinbox,0,Qt::AlignLeft);
 		Global_Variables::resize_Line_Edit(num_Points_Spinbox);
 
@@ -93,13 +96,13 @@ void Offset_Independent_Curve_Part::create_Argument_GroupBox()
 		double coeff = angle_Coefficients_Map.value(independent_Curve->angular_Units);
 
 		start_Argument_Spinbox = new MyDoubleSpinBox;
-		start_Argument_Spinbox->setAccelerated(true);
-		start_Argument_Spinbox->setRange(0, 90./coeff);
-		start_Argument_Spinbox->setDecimals(4);
-		start_Argument_Spinbox->setValue(independent_Curve->measurement.beam_Theta_0_Angle.independent.min/coeff);
-		start_Argument_Spinbox->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
-		start_Argument_Spinbox->setButtonSymbols(QAbstractSpinBox::NoButtons);
-		start_Argument_Spinbox->setProperty(min_Size_Property,TARGET_LINE_EDIT_WIDTH);
+			start_Argument_Spinbox->setAccelerated(true);
+			start_Argument_Spinbox->setRange(0, 90./coeff);
+			start_Argument_Spinbox->setDecimals(4);
+			start_Argument_Spinbox->setValue(independent_Curve->measurement.beam_Theta_0_Angle.independent.min/coeff);
+			start_Argument_Spinbox->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
+			start_Argument_Spinbox->setButtonSymbols(QAbstractSpinBox::NoButtons);
+			start_Argument_Spinbox->setProperty(min_Size_Property,TARGET_LINE_EDIT_WIDTH);
 		argument_GroupBox_Layout->addWidget(start_Argument_Spinbox,0,Qt::AlignLeft);
 		Global_Variables::resize_Line_Edit(start_Argument_Spinbox);
 
@@ -111,13 +114,13 @@ void Offset_Independent_Curve_Part::create_Argument_GroupBox()
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 		final_Argument_Spinbox = new MyDoubleSpinBox;
-		final_Argument_Spinbox->setAccelerated(true);
-		final_Argument_Spinbox->setRange(0, 90./coeff);
-		final_Argument_Spinbox->setDecimals(4);
-		final_Argument_Spinbox->setValue(independent_Curve->measurement.beam_Theta_0_Angle.independent.max/coeff);
-		final_Argument_Spinbox->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
-		final_Argument_Spinbox->setButtonSymbols(QAbstractSpinBox::NoButtons);
-		final_Argument_Spinbox->setProperty(min_Size_Property,TARGET_LINE_EDIT_WIDTH);
+			final_Argument_Spinbox->setAccelerated(true);
+			final_Argument_Spinbox->setRange(0, 90./coeff);
+			final_Argument_Spinbox->setDecimals(4);
+			final_Argument_Spinbox->setValue(independent_Curve->measurement.beam_Theta_0_Angle.independent.max/coeff);
+			final_Argument_Spinbox->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
+			final_Argument_Spinbox->setButtonSymbols(QAbstractSpinBox::NoButtons);
+			final_Argument_Spinbox->setProperty(min_Size_Property,TARGET_LINE_EDIT_WIDTH);
 		argument_GroupBox_Layout->addWidget(final_Argument_Spinbox,0,Qt::AlignLeft);
 		Global_Variables::resize_Line_Edit(final_Argument_Spinbox);
 

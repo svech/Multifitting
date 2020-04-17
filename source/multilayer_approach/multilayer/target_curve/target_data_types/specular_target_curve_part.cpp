@@ -543,6 +543,8 @@ void Specular_Target_Curve_Part::refresh_At_Fixed_Units()
 		double coeff = wavelength_Coefficients_Map.value(target_Curve->spectral_Units);
 		at_Fixed_SpinBox->setValue(Global_Variables::wavelength_Energy(target_Curve->spectral_Units,target_Curve->measurement.wavelength.value)/coeff);
 
+		fill_At_Fixed_Label();
+
 		if(	target_Curve->spectral_Units == wavelength_Units_List[angstrom] ||
 			target_Curve->spectral_Units == wavelength_Units_List[nm]	   )
 		{

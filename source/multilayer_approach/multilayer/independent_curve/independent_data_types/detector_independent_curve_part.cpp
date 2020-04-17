@@ -58,7 +58,10 @@ void Detector_Independent_Curve_Part::create_Units_GroupBox()
 void Detector_Independent_Curve_Part::create_Argument_GroupBox()
 {
 	// initialization
-	independent_Curve->measurement.argument_Type = argument_Types[Detector_Polar_Angle];
+	if(independent_Curve->measurement.argument_Type == no_Argument_Type)
+	{
+		independent_Curve->measurement.argument_Type = argument_Types[Detector_Polar_Angle];
+	}
 
 	QGroupBox* argument_GroupBox = new QGroupBox("Argument");
 	main_Layout->addWidget(argument_GroupBox);

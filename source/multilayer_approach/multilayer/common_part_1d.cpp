@@ -22,14 +22,14 @@ void Common_Part_1D::create_Detector_GroupBox()
 	QGroupBox* detector_GroupBox = new QGroupBox("Detector");
 	main_Layout->addWidget(detector_GroupBox);
 
-	QVBoxLayout* detector_GroupBox_Layout = new QVBoxLayout(detector_GroupBox);
+	QGridLayout* detector_GroupBox_Layout = new QGridLayout(detector_GroupBox);
 	detector_GroupBox_Layout->setAlignment(Qt::AlignLeft);
 
 	// detector type
 	{
 		QHBoxLayout* detector_Type_Layout = new QHBoxLayout;
 		detector_Type_Layout->setAlignment(Qt::AlignLeft);
-		detector_GroupBox_Layout->addLayout(detector_Type_Layout);
+		detector_GroupBox_Layout->addLayout(detector_Type_Layout,0,0);
 
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -48,7 +48,13 @@ void Common_Part_1D::create_Detector_GroupBox()
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 		detectors_Stack = new QStackedWidget;
-		detector_GroupBox_Layout->addWidget(detectors_Stack);
+		if(is_Independent)
+		{
+			detector_GroupBox_Layout->addWidget(detectors_Stack,1,0);
+		} else
+		{
+			detector_GroupBox_Layout->addWidget(detectors_Stack,0,1);
+		}
 	}
 	// slit
 	{

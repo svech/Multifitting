@@ -58,7 +58,10 @@ void Rocking_Independent_Curve_Part::create_Units_GroupBox()
 void Rocking_Independent_Curve_Part::create_Argument_GroupBox()
 {
 	// initialization
-	independent_Curve->measurement.argument_Type = argument_Types[Beam_Grazing_Angle];
+	if(independent_Curve->measurement.argument_Type == no_Argument_Type)
+	{
+		independent_Curve->measurement.argument_Type = argument_Types[Beam_Grazing_Angle];
+	}
 
 	QGroupBox* argument_GroupBox = new QGroupBox("Argument");
 	main_Layout->addWidget(argument_GroupBox);
@@ -78,12 +81,12 @@ void Rocking_Independent_Curve_Part::create_Argument_GroupBox()
 	// argument points
 	{
 		num_Points_Spinbox = new QSpinBox;
-		num_Points_Spinbox->setAccelerated(true);
-		num_Points_Spinbox->setRange(3, MAX_INTEGER);
-		num_Points_Spinbox->setValue(independent_Curve->measurement.beam_Theta_0_Angle.independent.num_Points);
-		num_Points_Spinbox->setProperty(min_Size_Property,TARGET_LINE_EDIT_WIDTH);
-		num_Points_Spinbox->setButtonSymbols(QAbstractSpinBox::NoButtons);
-		num_Points_Spinbox->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
+			num_Points_Spinbox->setAccelerated(true);
+			num_Points_Spinbox->setRange(3, MAX_INTEGER);
+			num_Points_Spinbox->setValue(independent_Curve->measurement.beam_Theta_0_Angle.independent.num_Points);
+			num_Points_Spinbox->setProperty(min_Size_Property,TARGET_LINE_EDIT_WIDTH);
+			num_Points_Spinbox->setButtonSymbols(QAbstractSpinBox::NoButtons);
+			num_Points_Spinbox->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
 		argument_GroupBox_Layout->addWidget(num_Points_Spinbox,0,Qt::AlignLeft);
 		Global_Variables::resize_Line_Edit(num_Points_Spinbox);
 

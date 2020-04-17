@@ -234,8 +234,8 @@ QStringList argument_Types	{"Beam grazing angle "+Theta_Sym+Zero_Subscript_Sym, 
 
 // value types
 QString no_Value_Type = "no value type";
-QStringList value_Types		  {"Reflectance", "Transmittance", "Scattering"};	  // change enum!
-QStringList value_Types_Short {"R", "T", "A", "S"};							  // change enum!
+QStringList value_Types		  {"Reflectance", "Transmittance", "Absorptance", "Scattering"};  // change enum!
+QStringList value_Types_Short {"R", "T", "A", "S"};											  // change enum!
 
 // distributions
 QStringList distributions { "Gate", "Cosine", "Gaussian", "Lorentz" };

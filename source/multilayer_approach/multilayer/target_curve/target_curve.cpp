@@ -252,6 +252,15 @@ void Target_Curve::fill_Measurement_And_Curve_With_Shifted_1D_Data()
 				measurement.beam_Theta_0_Angle_Vec[i] = curve.shifted_Argument[i]*coeff;
 			}
 		}
+		if(measurement.argument_Type == argument_Types[Detector_Polar_Angle])
+		{
+			double coeff = angle_Coefficients_Map.value(angular_Units);
+			measurement.detector_Theta_Angle_Vec.resize(curve.shifted_Argument.size());
+			for(int i=0; i<curve.shifted_Argument.size(); ++i)
+			{
+				measurement.detector_Theta_Angle_Vec[i] = curve.shifted_Argument[i]*coeff;
+			}
+		}
 		if(measurement.argument_Type == argument_Types[Wavelength_Energy])
 		{
 			double coeff = wavelength_Coefficients_Map.value(spectral_Units);
