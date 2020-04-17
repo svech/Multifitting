@@ -12,7 +12,7 @@ Specular_Independent_Curve_Part::Specular_Independent_Curve_Part(Independent_Cur
 	create_Argument_GroupBox();
 	create_Beam_GroupBox();
 
-	independent_1D_Common_Part = new Independent_1D_Common_Part(independent_Curve);
+	independent_1D_Common_Part = new Common_Part_1D(independent_Curve, nullptr);
 	main_Layout->addWidget(independent_1D_Common_Part);
 
 	connecting();
@@ -591,4 +591,3 @@ void Specular_Independent_Curve_Part::connecting()
 		distribution_Editor->show();
 	});
 }
-

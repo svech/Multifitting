@@ -1,10 +1,10 @@
 #ifndef DETECTOR_INDEPENDENT_CURVE_PART_H
 #define DETECTOR_INDEPENDENT_CURVE_PART_H
 
-#include "independent_1d_common_part.h"
+#include "multilayer_approach/multilayer/common_part_1d.h"
 
 class Multilayer_Approach;
-class Independent_1D_Common_Part;
+class Common_Part_1D;
 
 class Detector_Independent_Curve_Part : public QWidget
 {
@@ -31,7 +31,7 @@ public:
 	Independent_Curve* independent_Curve;
 
 	QVBoxLayout* main_Layout;
-	Independent_1D_Common_Part* independent_1D_Common_Part;
+	Common_Part_1D* independent_1D_Common_Part;
 
 	// units
 	QComboBox* angular_Units_ComboBox;

@@ -1,7 +1,7 @@
 #ifndef OFFSET_TARGET_CURVE_PART_H
 #define OFFSET_TARGET_CURVE_PART_H
 
-#include "multilayer_approach/multilayer/target_curve/distribution_editor.h"
+#include "multilayer_approach/multilayer/distribution_editor.h"
 #include "multilayer_approach/multilayer/target_curve/target_curve.h"
 #include "multilayer_approach/multilayer/target_curve/target_curve_plot.h"
 

@@ -5,7 +5,6 @@
 #include "standard/mydoublespinbox.h"
 #include "distribution_editor.h"
 
-
 class Distribution_Box : public QWidget
 {
 	Q_OBJECT

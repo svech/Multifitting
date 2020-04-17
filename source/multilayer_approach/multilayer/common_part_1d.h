@@ -1,17 +1,18 @@
-#ifndef INDEPENDENT_1D_COMMON_PART_H
-#define INDEPENDENT_1D_COMMON_PART_H
+#ifndef COMMON_PART_1D_H
+#define COMMON_PART_1D_H
 
 #include "standard/mydoublespinbox.h"
 #include "multilayer_approach/multilayer_approach.h"
 #include "multilayer_approach/multilayer/independent_curve/independent_curve.h"
+#include "multilayer_approach/multilayer/target_curve/target_curve.h"
 
 class Multilayer_Approach;
 
-class Independent_1D_Common_Part : public QWidget
+class Common_Part_1D : public QWidget
 {
 	Q_OBJECT
 public:
-	explicit Independent_1D_Common_Part(Independent_Curve* independent_Curve, QWidget *parent = nullptr);
+	explicit Common_Part_1D(Independent_Curve* independent_Curve, Target_Curve* target_Curve, QWidget *parent = nullptr);
 
 	void create_Detector_GroupBox();
 	void create_Footptint_GroupBox();
@@ -26,7 +27,11 @@ public:
 
 	void connecting();
 
-	Independent_Curve* independent_Curve;
+	bool is_Independent = true;
+
+	Data& measurement;
+	QString& angular_Units;
+	QString& spectral_Units;
 
 	QVBoxLayout* main_Layout;
 
@@ -57,4 +62,4 @@ public:
 	QCPItemLine* arrow_Reflected;
 };
 
-#endif // INDEPENDENT_1D_COMMON_PART_H
+#endif // COMMON_PART_1D_H

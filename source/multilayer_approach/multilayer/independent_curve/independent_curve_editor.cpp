@@ -32,12 +32,12 @@ void Independent_Curve_Editor::closeEvent(QCloseEvent *event)
 	event->accept();
 }
 
-
 void Independent_Curve_Editor::create_Main_Layout()
 {
 	main_Layout = new QVBoxLayout(this);
 		main_Layout->setSpacing(0);
 		main_Layout->setContentsMargins(4,0,4,0);
+		main_Layout->setSizeConstraint(QLayout::SetFixedSize);
 
 	create_Main_Part();
 

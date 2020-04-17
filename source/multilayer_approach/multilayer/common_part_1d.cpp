@@ -1,7 +1,10 @@
-#include "independent_1d_common_part.h"
+#include "common_part_1d.h"
 
-Independent_1D_Common_Part::Independent_1D_Common_Part(Independent_Curve* independent_Curve, QWidget *parent) :
-	independent_Curve(independent_Curve),
+Common_Part_1D::Common_Part_1D(Independent_Curve* independent_Curve, Target_Curve* target_Curve, QWidget *parent) :
+	measurement   (independent_Curve != nullptr ? independent_Curve->measurement    : target_Curve->measurement),
+	angular_Units (independent_Curve != nullptr ? independent_Curve->angular_Units  : target_Curve->angular_Units),
+	spectral_Units(independent_Curve != nullptr ? independent_Curve->spectral_Units : target_Curve->spectral_Units),
+	is_Independent(independent_Curve != nullptr),
 	QWidget(parent)
 {
 	main_Layout = new QVBoxLayout(this);
@@ -14,7 +17,7 @@ Independent_1D_Common_Part::Independent_1D_Common_Part(Independent_Curve* indepe
 	connecting();
 }
 
-void Independent_1D_Common_Part::create_Detector_GroupBox()
+void Common_Part_1D::create_Detector_GroupBox()
 {
 	QGroupBox* detector_GroupBox = new QGroupBox("Detector");
 	main_Layout->addWidget(detector_GroupBox);
@@ -36,10 +39,10 @@ void Independent_1D_Common_Part::create_Detector_GroupBox()
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 		detector_Type_ComboBox = new QComboBox;
-		detector_Type_ComboBox->addItem(detectors[Slit]);
-		detector_Type_ComboBox->addItem(detectors[Crystal]);
-		detector_Type_ComboBox->setCurrentText(independent_Curve->measurement.detector_1D.detector_Type);
-		detector_Type_ComboBox->setFixedWidth(133);
+			detector_Type_ComboBox->addItem(detectors[Slit]);
+			detector_Type_ComboBox->addItem(detectors[Crystal]);
+			detector_Type_ComboBox->setCurrentText(measurement.detector_1D.detector_Type);
+			detector_Type_ComboBox->setFixedWidth(133);
 		detector_Type_Layout->addWidget(detector_Type_ComboBox,0,Qt::AlignLeft);
 
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -62,13 +65,13 @@ void Independent_1D_Common_Part::create_Detector_GroupBox()
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 		slit_Width_SpinBox = new MyDoubleSpinBox;
-		slit_Width_SpinBox->setAccelerated(true);
-		slit_Width_SpinBox->setRange(0, MAX_DOUBLE);
-		slit_Width_SpinBox->setDecimals(2);
-		slit_Width_SpinBox->setValue(independent_Curve->measurement.detector_1D.slit_Width);
-		slit_Width_SpinBox->setSingleStep(0.01);
-		slit_Width_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
-		slit_Width_SpinBox->setProperty(min_Size_Property,TARGET_LINE_EDIT_WIDTH);
+			slit_Width_SpinBox->setAccelerated(true);
+			slit_Width_SpinBox->setRange(0, MAX_DOUBLE);
+			slit_Width_SpinBox->setDecimals(2);
+			slit_Width_SpinBox->setValue(measurement.detector_1D.slit_Width);
+			slit_Width_SpinBox->setSingleStep(0.01);
+			slit_Width_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
+			slit_Width_SpinBox->setProperty(min_Size_Property,TARGET_LINE_EDIT_WIDTH);
 		slit_Layout->addWidget(slit_Width_SpinBox,0,Qt::AlignLeft);
 		Global_Variables::resize_Line_Edit(slit_Width_SpinBox);
 
@@ -90,13 +93,13 @@ void Independent_1D_Common_Part::create_Detector_GroupBox()
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 		slit_Distance_SpinBox = new MyDoubleSpinBox;
-		slit_Distance_SpinBox->setAccelerated(true);
-		slit_Distance_SpinBox->setRange(0, MAX_DOUBLE);
-		slit_Distance_SpinBox->setDecimals(1);
-		slit_Distance_SpinBox->setValue(independent_Curve->measurement.detector_1D.distance_To_Sample);
-		slit_Distance_SpinBox->setSingleStep(1);
-		slit_Distance_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
-		slit_Distance_SpinBox->setProperty(min_Size_Property,TARGET_LINE_EDIT_WIDTH);
+			slit_Distance_SpinBox->setAccelerated(true);
+			slit_Distance_SpinBox->setRange(0, MAX_DOUBLE);
+			slit_Distance_SpinBox->setDecimals(1);
+			slit_Distance_SpinBox->setValue(measurement.detector_1D.distance_To_Sample);
+			slit_Distance_SpinBox->setSingleStep(1);
+			slit_Distance_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
+			slit_Distance_SpinBox->setProperty(min_Size_Property,TARGET_LINE_EDIT_WIDTH);
 		slit_Layout->addWidget(slit_Distance_SpinBox,0,Qt::AlignLeft);
 		Global_Variables::resize_Line_Edit(slit_Distance_SpinBox);
 
@@ -119,22 +122,22 @@ void Independent_1D_Common_Part::create_Detector_GroupBox()
 
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-		double arg_Coeff = angle_Coefficients_Map.value(independent_Curve->angular_Units);
+		double arg_Coeff = angle_Coefficients_Map.value(angular_Units);
 
 		crystal_Resolution_SpinBox = new MyDoubleSpinBox;
-		crystal_Resolution_SpinBox->setAccelerated(true);
-		crystal_Resolution_SpinBox->setRange(0, MAX_DOUBLE);
-		crystal_Resolution_SpinBox->setDecimals(6);
-		crystal_Resolution_SpinBox->setValue(independent_Curve->measurement.detector_1D.detector_Theta_Resolution.FWHM_distribution/arg_Coeff);
-		crystal_Resolution_SpinBox->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
-		crystal_Resolution_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
-		crystal_Resolution_SpinBox->setProperty(min_Size_Property,TARGET_LINE_AT_FIXED_WIDTH);
+			crystal_Resolution_SpinBox->setAccelerated(true);
+			crystal_Resolution_SpinBox->setRange(0, MAX_DOUBLE);
+			crystal_Resolution_SpinBox->setDecimals(6);
+			crystal_Resolution_SpinBox->setValue(measurement.detector_1D.detector_Theta_Resolution.FWHM_distribution/arg_Coeff);
+			crystal_Resolution_SpinBox->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
+			crystal_Resolution_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
+			crystal_Resolution_SpinBox->setProperty(min_Size_Property,TARGET_LINE_AT_FIXED_WIDTH);
 		crystal_Layout->addWidget(crystal_Resolution_SpinBox,0,Qt::AlignLeft);
 		Global_Variables::resize_Line_Edit(crystal_Resolution_SpinBox);
 
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-		crystal_Resolution_Units_Label = new QLabel(independent_Curve->angular_Units);
+		crystal_Resolution_Units_Label = new QLabel(angular_Units);
 		crystal_Layout->addWidget(crystal_Resolution_Units_Label,0,Qt::AlignLeft);
 
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -145,14 +148,14 @@ void Independent_1D_Common_Part::create_Detector_GroupBox()
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 		crystal_Resolution_Function_ComboBox = new QComboBox;
-		crystal_Resolution_Function_ComboBox->addItems(distributions);
-		crystal_Resolution_Function_ComboBox->setCurrentText(independent_Curve->measurement.detector_1D.detector_Theta_Resolution.distribution_Function);
-		crystal_Resolution_Function_ComboBox->setFixedWidth(DISTRIBUTION_BOX_FIELD_WIDTH);
+			crystal_Resolution_Function_ComboBox->addItems(distributions);
+			crystal_Resolution_Function_ComboBox->setCurrentText(measurement.detector_1D.detector_Theta_Resolution.distribution_Function);
+			crystal_Resolution_Function_ComboBox->setFixedWidth(DISTRIBUTION_BOX_FIELD_WIDTH);
 		crystal_Layout->addWidget(crystal_Resolution_Function_ComboBox,0,Qt::AlignLeft);
 	}
 }
 
-void Independent_1D_Common_Part::create_Footptint_GroupBox()
+void Common_Part_1D::create_Footptint_GroupBox()
 {
 	QGroupBox* footprint_GroupBox = new QGroupBox("Footptint and distortion");
 	main_Layout->addWidget(footprint_GroupBox);
@@ -164,7 +167,6 @@ void Independent_1D_Common_Part::create_Footptint_GroupBox()
 	// beam
 	{
 		QGroupBox* beam_Footprint_GroupBox = new QGroupBox("Beam");
-		footprint_GroupBox_Layout->addWidget(beam_Footprint_GroupBox,0,0,Qt::AlignLeft);
 
 		QGridLayout* beam_Footprint_GroupBox_Layout = new QGridLayout(beam_Footprint_GroupBox);
 		beam_Footprint_GroupBox_Layout->setAlignment(Qt::AlignLeft);
@@ -175,13 +177,13 @@ void Independent_1D_Common_Part::create_Footptint_GroupBox()
 		beam_Footprint_GroupBox_Layout->addWidget(beam_Footprint_Width_Label,0,0,Qt::AlignLeft);
 
 		beam_Footprint_Width_SpinBox = new MyDoubleSpinBox;
-		beam_Footprint_Width_SpinBox->setAccelerated(true);
-		beam_Footprint_Width_SpinBox->setRange(0, MAX_DOUBLE);
-		beam_Footprint_Width_SpinBox->setDecimals(3);
-		beam_Footprint_Width_SpinBox->setValue(independent_Curve->measurement.beam_Geometry.size);
-		beam_Footprint_Width_SpinBox->setSingleStep(0.01);
-		beam_Footprint_Width_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
-		beam_Footprint_Width_SpinBox->setProperty(min_Size_Property,TARGET_LINE_EDIT_WIDTH);
+			beam_Footprint_Width_SpinBox->setAccelerated(true);
+			beam_Footprint_Width_SpinBox->setRange(0, MAX_DOUBLE);
+			beam_Footprint_Width_SpinBox->setDecimals(3);
+			beam_Footprint_Width_SpinBox->setValue(measurement.beam_Geometry.size);
+			beam_Footprint_Width_SpinBox->setSingleStep(0.01);
+			beam_Footprint_Width_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
+			beam_Footprint_Width_SpinBox->setProperty(min_Size_Property,TARGET_LINE_EDIT_WIDTH);
 		beam_Footprint_GroupBox_Layout->addWidget(beam_Footprint_Width_SpinBox,0,1,Qt::AlignLeft);
 		Global_Variables::resize_Line_Edit(beam_Footprint_Width_SpinBox);
 
@@ -198,25 +200,32 @@ void Independent_1D_Common_Part::create_Footptint_GroupBox()
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 		beam_Footprint_Shape_SpinBox = new MyDoubleSpinBox;
-		beam_Footprint_Shape_SpinBox->setAccelerated(true);
-		beam_Footprint_Shape_SpinBox->setRange(0, 1);
-		beam_Footprint_Shape_SpinBox->setDecimals(3);
-		beam_Footprint_Shape_SpinBox->setValue(independent_Curve->measurement.beam_Geometry.smoothing);
-		beam_Footprint_Shape_SpinBox->setSingleStep(0.01);
-		beam_Footprint_Shape_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
-		beam_Footprint_Shape_SpinBox->setProperty(min_Size_Property,TARGET_LINE_EDIT_WIDTH);
+			beam_Footprint_Shape_SpinBox->setAccelerated(true);
+			beam_Footprint_Shape_SpinBox->setRange(0, 1);
+			beam_Footprint_Shape_SpinBox->setDecimals(3);
+			beam_Footprint_Shape_SpinBox->setValue(measurement.beam_Geometry.smoothing);
+			beam_Footprint_Shape_SpinBox->setSingleStep(0.01);
+			beam_Footprint_Shape_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
+			beam_Footprint_Shape_SpinBox->setProperty(min_Size_Property,TARGET_LINE_EDIT_WIDTH);
 		beam_Footprint_GroupBox_Layout->addWidget(beam_Footprint_Shape_SpinBox,1,1,Qt::AlignLeft);
 		Global_Variables::resize_Line_Edit(beam_Footprint_Shape_SpinBox);
 
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 		create_Beam_Plot();
-		footprint_GroupBox_Layout->addWidget(beam_Profile_CustomPlot,1,0);
+		if(is_Independent)
+		{
+			footprint_GroupBox_Layout->addWidget(beam_Footprint_GroupBox,0,0,Qt::AlignLeft);
+			footprint_GroupBox_Layout->addWidget(beam_Profile_CustomPlot,1,0);
+		} else
+		{
+			footprint_GroupBox_Layout->addWidget(beam_Footprint_GroupBox,0,0,Qt::AlignLeft);
+			footprint_GroupBox_Layout->addWidget(beam_Profile_CustomPlot,0,1);
+		}
 	}
 	// sample
 	{
 		QGroupBox* sample_Footprint_GroupBox = new QGroupBox("Sample");
-		footprint_GroupBox_Layout->addWidget(sample_Footprint_GroupBox,0,1/*,Qt::AlignLeft*/);
 
 		QGridLayout* sample_GroupBox_Layout = new QGridLayout(sample_Footprint_GroupBox);
 		sample_GroupBox_Layout->setAlignment(Qt::AlignLeft);
@@ -229,13 +238,13 @@ void Independent_1D_Common_Part::create_Footptint_GroupBox()
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 		sample_Size_SpinBox = new MyDoubleSpinBox;
-		sample_Size_SpinBox->setAccelerated(true);
-		sample_Size_SpinBox->setRange(0, MAX_DOUBLE);
-		sample_Size_SpinBox->setDecimals(2);
-		sample_Size_SpinBox->setSingleStep(0.1);
-		sample_Size_SpinBox->setValue(independent_Curve->measurement.sample_Geometry.size);
-		sample_Size_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
-		sample_Size_SpinBox->setProperty(min_Size_Property,TARGET_LINE_EDIT_WIDTH);
+			sample_Size_SpinBox->setAccelerated(true);
+			sample_Size_SpinBox->setRange(0, MAX_DOUBLE);
+			sample_Size_SpinBox->setDecimals(2);
+			sample_Size_SpinBox->setSingleStep(0.1);
+			sample_Size_SpinBox->setValue(measurement.sample_Geometry.size);
+			sample_Size_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
+			sample_Size_SpinBox->setProperty(min_Size_Property,TARGET_LINE_EDIT_WIDTH);
 		sample_GroupBox_Layout->addWidget(sample_Size_SpinBox,0,1,Qt::AlignLeft);
 		Global_Variables::resize_Line_Edit(sample_Size_SpinBox);
 
@@ -250,13 +259,13 @@ void Independent_1D_Common_Part::create_Footptint_GroupBox()
 		sample_GroupBox_Layout->addWidget(sample_X_Label,1,0,Qt::AlignLeft);
 
 		sample_X_SpinBox = new MyDoubleSpinBox;
-		sample_X_SpinBox->setAccelerated(true);
-		sample_X_SpinBox->setRange(-100, MAX_DOUBLE);
-		sample_X_SpinBox->setDecimals(2);
-		sample_X_SpinBox->setSingleStep(0.1);
-		sample_X_SpinBox->setValue(independent_Curve->measurement.sample_Geometry.x_Position);
-		sample_X_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
-		sample_X_SpinBox->setProperty(min_Size_Property,TARGET_LINE_EDIT_WIDTH);
+			sample_X_SpinBox->setAccelerated(true);
+			sample_X_SpinBox->setRange(-100, MAX_DOUBLE);
+			sample_X_SpinBox->setDecimals(2);
+			sample_X_SpinBox->setSingleStep(0.1);
+			sample_X_SpinBox->setValue(measurement.sample_Geometry.x_Position);
+			sample_X_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
+			sample_X_SpinBox->setProperty(min_Size_Property,TARGET_LINE_EDIT_WIDTH);
 		sample_GroupBox_Layout->addWidget(sample_X_SpinBox,1,1,Qt::AlignLeft);
 		Global_Variables::resize_Line_Edit(sample_X_SpinBox);
 
@@ -271,13 +280,13 @@ void Independent_1D_Common_Part::create_Footptint_GroupBox()
 		sample_GroupBox_Layout->addWidget(sample_Z_Label,2,0,Qt::AlignLeft);
 
 		sample_Z_SpinBox = new MyDoubleSpinBox;
-		sample_Z_SpinBox->setAccelerated(true);
-		sample_Z_SpinBox->setRange(-100, MAX_DOUBLE);
-		sample_Z_SpinBox->setDecimals(3);
-		sample_Z_SpinBox->setValue(independent_Curve->measurement.sample_Geometry.z_Position);
-		sample_Z_SpinBox->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
-		sample_Z_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
-		sample_Z_SpinBox->setProperty(min_Size_Property,TARGET_LINE_EDIT_WIDTH);
+			sample_Z_SpinBox->setAccelerated(true);
+			sample_Z_SpinBox->setRange(-100, MAX_DOUBLE);
+			sample_Z_SpinBox->setDecimals(3);
+			sample_Z_SpinBox->setValue(measurement.sample_Geometry.z_Position);
+			sample_Z_SpinBox->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
+			sample_Z_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
+			sample_Z_SpinBox->setProperty(min_Size_Property,TARGET_LINE_EDIT_WIDTH);
 		sample_GroupBox_Layout->addWidget(sample_Z_SpinBox,2,1,Qt::AlignLeft);
 		Global_Variables::resize_Line_Edit(sample_Z_SpinBox);
 
@@ -294,13 +303,13 @@ void Independent_1D_Common_Part::create_Footptint_GroupBox()
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 		sample_Curvature_SpinBox = new MyDoubleSpinBox;
-		sample_Curvature_SpinBox->setAccelerated(true);
-		sample_Curvature_SpinBox->setRange(-1000, MAX_DOUBLE);
-		sample_Curvature_SpinBox->setDecimals(4);
-		sample_Curvature_SpinBox->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
-		sample_Curvature_SpinBox->setValue(independent_Curve->measurement.sample_Geometry.curvature);
-		sample_Curvature_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
-		sample_Curvature_SpinBox->setProperty(min_Size_Property,TARGET_LINE_EDIT_WIDTH);
+			sample_Curvature_SpinBox->setAccelerated(true);
+			sample_Curvature_SpinBox->setRange(-1000, MAX_DOUBLE);
+			sample_Curvature_SpinBox->setDecimals(4);
+			sample_Curvature_SpinBox->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
+			sample_Curvature_SpinBox->setValue(measurement.sample_Geometry.curvature);
+			sample_Curvature_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
+			sample_Curvature_SpinBox->setProperty(min_Size_Property,TARGET_LINE_EDIT_WIDTH);
 		sample_GroupBox_Layout->addWidget(sample_Curvature_SpinBox,3,1,Qt::AlignLeft);
 		Global_Variables::resize_Line_Edit(sample_Curvature_SpinBox);
 
@@ -317,15 +326,29 @@ void Independent_1D_Common_Part::create_Footptint_GroupBox()
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 		create_Sample_Plot();
-		footprint_GroupBox_Layout->addWidget(sample_Profile_CustomPlot,1,1);
+		if(is_Independent)
+		{
+			footprint_GroupBox_Layout->addWidget(sample_Footprint_GroupBox,0,1,Qt::AlignLeft);
+			footprint_GroupBox_Layout->addWidget(sample_Profile_CustomPlot,1,1);
+		} else
+		{
+			footprint_GroupBox_Layout->addWidget(sample_Footprint_GroupBox,0,2,Qt::AlignLeft);
+			footprint_GroupBox_Layout->addWidget(sample_Profile_CustomPlot,0,3);
+		}
 	}
 }
 
 
-void Independent_1D_Common_Part::create_Beam_Plot()
+void Common_Part_1D::create_Beam_Plot()
 {
 	beam_Profile_CustomPlot = new QCustomPlot;
-	beam_Profile_CustomPlot->setMinimumSize(270,190);
+	if(is_Independent)
+	{
+		beam_Profile_CustomPlot->setMinimumSize(270,190);
+	} else
+	{
+		beam_Profile_CustomPlot->setMinimumWidth(240);
+	}
 
 	beam_Profile_CustomPlot->setNoAntialiasingOnDrag(false);
 	beam_Profile_CustomPlot->clearGraphs();
@@ -362,11 +385,11 @@ void Independent_1D_Common_Part::create_Beam_Plot()
 	plot_Beam_Profile();
 }
 
-void Independent_1D_Common_Part::plot_Beam_Profile()
+void Common_Part_1D::plot_Beam_Profile()
 {
 	int data_Count = 301;
-	double FWHM = independent_Curve->measurement.beam_Geometry.size;
-	double sigma = FWHM*independent_Curve->measurement.beam_Geometry.smoothing;
+	double FWHM = measurement.beam_Geometry.size;
+	double sigma = FWHM*measurement.beam_Geometry.smoothing;
 	double limit = 1.7*FWHM;
 	double delta = (2*limit)/(data_Count-1);
 
@@ -385,10 +408,16 @@ void Independent_1D_Common_Part::plot_Beam_Profile()
 	beam_Profile_CustomPlot->replot();
 }
 
-void Independent_1D_Common_Part::create_Sample_Plot()
+void Common_Part_1D::create_Sample_Plot()
 {
 	sample_Profile_CustomPlot = new QCustomPlot;
-	sample_Profile_CustomPlot->setMinimumSize(270,190);
+	if(is_Independent)
+	{
+		sample_Profile_CustomPlot->setMinimumSize(270,190);
+	} else
+	{
+		sample_Profile_CustomPlot->setMinimumWidth(240);
+	}
 
 	sample_Profile_CustomPlot->setNoAntialiasingOnDrag(false);
 	sample_Profile_CustomPlot->clearGraphs();
@@ -422,8 +451,8 @@ void Independent_1D_Common_Part::create_Sample_Plot()
 	connect(sample_Profile_CustomPlot->xAxis, SIGNAL(rangeChanged(QCPRange)), sample_Profile_CustomPlot->xAxis2, SLOT(setRange(QCPRange)));
 	connect(sample_Profile_CustomPlot->yAxis, SIGNAL(rangeChanged(QCPRange)), sample_Profile_CustomPlot->yAxis2, SLOT(setRange(QCPRange)));
 
-	connect(sample_Profile_CustomPlot->xAxis, static_cast<void(QCPAxis::*)(const QCPRange &)>(&QCPAxis::rangeChanged), this, &Independent_1D_Common_Part::auto_Replot_Curve);
-	connect(sample_Profile_CustomPlot->yAxis, static_cast<void(QCPAxis::*)(const QCPRange &)>(&QCPAxis::rangeChanged), this, &Independent_1D_Common_Part::auto_Replot_Curve);
+	connect(sample_Profile_CustomPlot->xAxis, static_cast<void(QCPAxis::*)(const QCPRange &)>(&QCPAxis::rangeChanged), this, &Common_Part_1D::auto_Replot_Curve);
+	connect(sample_Profile_CustomPlot->yAxis, static_cast<void(QCPAxis::*)(const QCPRange &)>(&QCPAxis::rangeChanged), this, &Common_Part_1D::auto_Replot_Curve);
 
 	// create empty curve objects:
 	sample_Curve = new QCPCurve(sample_Profile_CustomPlot->xAxis, sample_Profile_CustomPlot->yAxis);
@@ -444,22 +473,22 @@ void Independent_1D_Common_Part::create_Sample_Plot()
 	plot_Sample();
 }
 
-void Independent_1D_Common_Part::plot_Sample()
+void Common_Part_1D::plot_Sample()
 {
 	int curve_Point_Count = 203;
 
-	double size = independent_Curve->measurement.sample_Geometry.size;
-	double z_Pos = independent_Curve->measurement.sample_Geometry.z_Position;
-	double x_Pos = independent_Curve->measurement.sample_Geometry.x_Position;
+	double size = measurement.sample_Geometry.size;
+	double z_Pos = measurement.sample_Geometry.z_Position;
+	double x_Pos = measurement.sample_Geometry.x_Position;
 	double limit = 0.7*size;
 	double sag = 0;
 	double delta = size/(curve_Point_Count-3);
 
 	curve_Data.resize(curve_Point_Count);
 	curve_Data.first() = QCPCurveData(0, -size/2 + x_Pos, sample_Profile_CustomPlot->yAxis->range().lower);
-	if(abs(independent_Curve->measurement.sample_Geometry.curvature)>CURVATURE_LIMIT)
+	if(abs(measurement.sample_Geometry.curvature)>CURVATURE_LIMIT)
 	{
-		double R = 1000./independent_Curve->measurement.sample_Geometry.curvature;
+		double R = 1000./measurement.sample_Geometry.curvature;
 		for (int i=1; i<curve_Data.size()-1; ++i)
 		{
 			double x = -size/2+(i-1)*delta + x_Pos;
@@ -492,11 +521,11 @@ void Independent_1D_Common_Part::plot_Sample()
 	sample_Profile_CustomPlot->replot();
 }
 
-void Independent_1D_Common_Part::auto_Replot_Curve()
+void Common_Part_1D::auto_Replot_Curve()
 {
-	double size = independent_Curve->measurement.sample_Geometry.size;
-	double x_Pos = independent_Curve->measurement.sample_Geometry.x_Position;
-	double z_Pos = independent_Curve->measurement.sample_Geometry.z_Position;
+	double size  = measurement.sample_Geometry.size;
+	double x_Pos = measurement.sample_Geometry.x_Position;
+	double z_Pos = measurement.sample_Geometry.z_Position;
 
 	curve_Data.first() = QCPCurveData(0,                  -size/2 + x_Pos, sample_Profile_CustomPlot->yAxis->range().lower);
 	curve_Data.last()  = QCPCurveData(curve_Data.size()-1, size/2 + x_Pos, sample_Profile_CustomPlot->yAxis->range().lower);
@@ -516,12 +545,12 @@ void Independent_1D_Common_Part::auto_Replot_Curve()
 	sample_Profile_CustomPlot->replot();
 }
 
-void Independent_1D_Common_Part::refresh_Curvature_Radius()
+void Common_Part_1D::refresh_Curvature_Radius()
 {
 	QString R_Text;
-	if(abs(independent_Curve->measurement.sample_Geometry.curvature)>CURVATURE_LIMIT)
+	if(abs(measurement.sample_Geometry.curvature)>CURVATURE_LIMIT)
 	{
-		R_Text = QString::number(1./independent_Curve->measurement.sample_Geometry.curvature) + " m";
+		R_Text = QString::number(1./measurement.sample_Geometry.curvature) + " m";
 	} else
 	{
 		R_Text = Infinity_Sym;
@@ -529,43 +558,43 @@ void Independent_1D_Common_Part::refresh_Curvature_Radius()
 	R_Curvature_Label->setText("Radius of curvature = " + R_Text);
 }
 
-void Independent_1D_Common_Part::connecting()
+void Common_Part_1D::connecting()
 {
 	/// detector box
 	// detector type
 	connect(detector_Type_ComboBox, &QComboBox::currentTextChanged, this, [=]
 	{
-		independent_Curve->measurement.detector_1D.detector_Type = detector_Type_ComboBox->currentText();
-		detectors_Stack->setCurrentIndex(detector_Type_ComboBox->findText(independent_Curve->measurement.detector_1D.detector_Type));
+		measurement.detector_1D.detector_Type = detector_Type_ComboBox->currentText();
+		detectors_Stack->setCurrentIndex(detector_Type_ComboBox->findText(measurement.detector_1D.detector_Type));
 
 		global_Multilayer_Approach->calculate(true);
 	});
 	// slit width
 	connect(slit_Width_SpinBox,  static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
 	{
-		independent_Curve->measurement.detector_1D.slit_Width = slit_Width_SpinBox->value();
+		measurement.detector_1D.slit_Width = slit_Width_SpinBox->value();
 
 		global_Multilayer_Approach->calculate(true);
 	});
 	// slit distance
 	connect(slit_Distance_SpinBox,  static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
 	{
-		independent_Curve->measurement.detector_1D.distance_To_Sample = slit_Distance_SpinBox->value();
+		measurement.detector_1D.distance_To_Sample = slit_Distance_SpinBox->value();
 
 		global_Multilayer_Approach->calculate(true);
 	});
 	// crystal resolution
 	connect(crystal_Resolution_SpinBox,  static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
 	{
-		double coeff = angle_Coefficients_Map.value(independent_Curve->angular_Units);
-		independent_Curve->measurement.detector_1D.detector_Theta_Resolution.FWHM_distribution = crystal_Resolution_SpinBox->value()*coeff;
+		double coeff = angle_Coefficients_Map.value(angular_Units);
+		measurement.detector_1D.detector_Theta_Resolution.FWHM_distribution = crystal_Resolution_SpinBox->value()*coeff;
 
 		global_Multilayer_Approach->calculate(true);
 	});
 	// crystal resolution function
 	connect(crystal_Resolution_Function_ComboBox, &QComboBox::currentTextChanged, this, [=]
 	{
-		independent_Curve->measurement.detector_1D.detector_Theta_Resolution.distribution_Function = crystal_Resolution_Function_ComboBox->currentText();
+		measurement.detector_1D.detector_Theta_Resolution.distribution_Function = crystal_Resolution_Function_ComboBox->currentText();
 
 		global_Multilayer_Approach->calculate(true);
 	});
@@ -574,7 +603,7 @@ void Independent_1D_Common_Part::connecting()
 	// beam width
 	connect(beam_Footprint_Width_SpinBox, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
 	{
-		independent_Curve->measurement.beam_Geometry.size = beam_Footprint_Width_SpinBox->value();
+		measurement.beam_Geometry.size = beam_Footprint_Width_SpinBox->value();
 
 		plot_Beam_Profile();
 		global_Multilayer_Approach->calculate(true);
@@ -582,7 +611,7 @@ void Independent_1D_Common_Part::connecting()
 	// beam shape
 	connect(beam_Footprint_Shape_SpinBox, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
 	{
-		independent_Curve->measurement.beam_Geometry.smoothing = beam_Footprint_Shape_SpinBox->value();
+		measurement.beam_Geometry.smoothing = beam_Footprint_Shape_SpinBox->value();
 
 		plot_Beam_Profile();
 		global_Multilayer_Approach->calculate(true);
@@ -590,7 +619,7 @@ void Independent_1D_Common_Part::connecting()
 	// sample size
 	connect(sample_Size_SpinBox, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
 	{
-		independent_Curve->measurement.sample_Geometry.size = sample_Size_SpinBox->value();
+		measurement.sample_Geometry.size = sample_Size_SpinBox->value();
 
 		plot_Sample();
 		global_Multilayer_Approach->calculate(true);
@@ -598,7 +627,7 @@ void Independent_1D_Common_Part::connecting()
 	// sample x-position
 	connect(sample_X_SpinBox, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
 	{
-		independent_Curve->measurement.sample_Geometry.x_Position = sample_X_SpinBox->value();
+		measurement.sample_Geometry.x_Position = sample_X_SpinBox->value();
 
 		plot_Sample();
 		global_Multilayer_Approach->calculate(true);
@@ -606,7 +635,7 @@ void Independent_1D_Common_Part::connecting()
 	// sample z-position
 	connect(sample_Z_SpinBox, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
 	{
-		independent_Curve->measurement.sample_Geometry.z_Position = sample_Z_SpinBox->value();
+		measurement.sample_Geometry.z_Position = sample_Z_SpinBox->value();
 
 		plot_Sample();
 		global_Multilayer_Approach->calculate(true);
@@ -614,7 +643,7 @@ void Independent_1D_Common_Part::connecting()
 	// sample curvature
 	connect(sample_Curvature_SpinBox, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
 	{
-		independent_Curve->measurement.sample_Geometry.curvature = sample_Curvature_SpinBox->value();
+		measurement.sample_Geometry.curvature = sample_Curvature_SpinBox->value();
 
 		refresh_Curvature_Radius();
 		plot_Sample();

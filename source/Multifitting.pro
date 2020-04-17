@@ -92,11 +92,13 @@ SOURCES += \
     multilayer_approach/fitting_settings/fitting_settings.cpp \
     multilayer_approach/fits_selector/fits_selector.cpp \
     multilayer_approach/calculation_settings_editor/calculation_settings_editor.cpp \
+    multilayer_approach/multilayer/common_part_1d.cpp \
+    multilayer_approach/multilayer/distribution_box.cpp \
+    multilayer_approach/multilayer/distribution_editor.cpp \
     multilayer_approach/multilayer/independent_curve/independent_curve.cpp \
     multilayer_approach/multilayer/independent_curve/independent_curve_editor.cpp \
     multilayer_approach/multilayer/independent_curve/independent_data_types/detector_independent_curve_part.cpp \
     multilayer_approach/multilayer/independent_curve/independent_data_types/gisas_independent_curve_part.cpp \
-    multilayer_approach/multilayer/independent_curve/independent_data_types/independent_1d_common_part.cpp \
     multilayer_approach/multilayer/independent_curve/independent_data_types/offset_independent_curve_part.cpp \
     multilayer_approach/multilayer/independent_curve/independent_data_types/rocking_independent_curve_part.cpp \
     multilayer_approach/multilayer/independent_curve/independent_data_types/specular_independent_curve_part.cpp \
@@ -104,8 +106,6 @@ SOURCES += \
     multilayer_approach/multilayer/structure_tree/item_editor.cpp \
     multilayer_approach/multilayer/structure_tree/structure_toolbar.cpp \
     multilayer_approach/multilayer/structure_tree/structure_tree.cpp \
-    multilayer_approach/multilayer/target_curve/distribution_box.cpp \
-    multilayer_approach/multilayer/target_curve/distribution_editor.cpp \
     multilayer_approach/multilayer/target_curve/target_curve.cpp \
     multilayer_approach/multilayer/target_curve/target_curve_editor.cpp \
     multilayer_approach/multilayer/multilayer.cpp \
@@ -153,11 +153,13 @@ HEADERS += \
     multilayer_approach/fitting_settings/fitting_settings_editor.h \
     multilayer_approach/fitting_settings/fitting_settings.h \
     multilayer_approach/calculation_settings_editor/calculation_settings_editor.h \
+    multilayer_approach/multilayer/common_part_1d.h \
+    multilayer_approach/multilayer/distribution_box.h \
+    multilayer_approach/multilayer/distribution_editor.h \
     multilayer_approach/multilayer/independent_curve/independent_curve.h \
     multilayer_approach/multilayer/independent_curve/independent_curve_editor.h \
     multilayer_approach/multilayer/independent_curve/independent_data_types/detector_independent_curve_part.h \
     multilayer_approach/multilayer/independent_curve/independent_data_types/gisas_independent_curve_part.h \
-    multilayer_approach/multilayer/independent_curve/independent_data_types/independent_1d_common_part.h \
     multilayer_approach/multilayer/independent_curve/independent_data_types/offset_independent_curve_part.h \
     multilayer_approach/multilayer/independent_curve/independent_data_types/rocking_independent_curve_part.h \
     multilayer_approach/multilayer/independent_curve/independent_data_types/specular_independent_curve_part.h \
@@ -165,8 +167,6 @@ HEADERS += \
     multilayer_approach/multilayer/structure_tree/item_editor.h \
     multilayer_approach/multilayer/structure_tree/structure_toolbar.h \
     multilayer_approach/multilayer/structure_tree/structure_tree.h \
-    multilayer_approach/multilayer/target_curve/distribution_box.h \
-    multilayer_approach/multilayer/target_curve/distribution_editor.h \
     multilayer_approach/multilayer/target_curve/target_curve.h \
     multilayer_approach/multilayer/target_curve/target_curve_editor.h \
     multilayer_approach/multilayer/multilayer.h \

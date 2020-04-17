@@ -125,7 +125,7 @@ void Distribution_Box::create_Box()
 
 	// - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-	coverage_Label = new QLabel("Coverage");
+	coverage_Label = new QLabel("Coverage (in units of FWHM)");
 	groupbox_Layout->addWidget(coverage_Label,3,0,Qt::AlignLeft);
 
 	coverage_SpinBox = new MyDoubleSpinBox(this,false);
@@ -249,4 +249,3 @@ void Distribution_Box::connecting()
 		global_Multilayer_Approach->calculate(true);
 	});
 }
-
