@@ -1036,7 +1036,7 @@ void Specular_Target_Curve_Part::refresh_At_Fixed_Units()
 	angular_Divergence_SpinBox->blockSignals(true);
 	crystal_Resolution_SpinBox->blockSignals(true);
 
-	if( arg_Type_ComboBox->currentText() == argument_Types[Beam_Grazing_Angle] )
+	if( target_Curve->measurement.argument_Type == argument_Types[Beam_Grazing_Angle] )
 	{
 		target_Curve->spectral_Units = at_Fixed_Units_ComboBox->currentText();
 
@@ -1052,7 +1052,7 @@ void Specular_Target_Curve_Part::refresh_At_Fixed_Units()
 			spectral_Width_Label->setText("      Spectral width, FWHM, " + Delta_Big_Sym + "E/E");
 		}
 	}
-	if(arg_Type_ComboBox->currentText() == argument_Types[Wavelength_Energy] )
+	if( target_Curve->measurement.argument_Type == argument_Types[Wavelength_Energy] )
 	{
 		target_Curve->angular_Units = at_Fixed_Units_ComboBox->currentText();
 
@@ -1199,7 +1199,7 @@ void Specular_Target_Curve_Part::connecting()
 		target_Curve->refresh_Description_Label();
 
 		// maximize_Integral
-		if(arg_Type_ComboBox->currentText() != argument_Types[Beam_Grazing_Angle])
+		if(target_Curve->measurement.argument_Type != argument_Types[Beam_Grazing_Angle])
 		{
 			if(target_Curve->fit_Params.maximize_Integral)
 			{

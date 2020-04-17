@@ -230,7 +230,7 @@ QStringList measurement_Types {	/** 1D */			/// change enum!
 
 // argument types
 QString no_Argument_Type = "no argument type";
-QStringList argument_Types	{"Beam grazing angle "+Theta_Sym+Zero_Subscript_Sym, "Detector polar angle "+Theta_Sym, "Detector azimuthal angle "+Phi_Sym, "Wavelength/Energy"}; // change enum!
+QStringList argument_Types	{"Beam grazing angle "+Theta_Sym+Zero_Subscript_Sym, "Deviation from specular, "+Delta_Big_Sym+Theta_Sym+Zero_Subscript_Sym, "Detector polar angle "+Theta_Sym, "Detector azimuthal angle "+Phi_Sym, "Wavelength/Energy"}; // change enum!
 
 // value types
 QString no_Value_Type = "no value type";

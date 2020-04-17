@@ -176,7 +176,13 @@ void Multilayer::remove_Independent_Variables_Tab(int index)
 															  + "\" will be removed.\nContinue?", QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
 	if (reply == QMessageBox::Yes)
 	{
-		delete independent_Curve_Tabs->widget(index);
+		Independent_Curve* independent_Curve = qobject_cast<Independent_Curve*>(independent_Curve_Tabs->widget(index));
+		if(runned_Independent_Curve_Editors.contains(independent_Curve))
+		{
+			runned_Independent_Curve_Editors.value(independent_Curve)->close();
+			runned_Independent_Curve_Editors.remove(independent_Curve);
+		}
+		delete independent_Curve;	//detele independent_Curve_Tabs->widget(index);
 		if(independent_Curve_Tabs->count()==0) add_Independent_Variables_Tab();
 	}
 }
@@ -198,16 +204,6 @@ void Multilayer::refresh_Structure_And_Independent(QObject* my_Sender)
 {
 	structure_Tree->refresh__StructureTree__Data_and_Text();
 	structure_Tree->editors_Edit(sender());
-	// TODO INDEPENDENT
-//	for(int i=0; i<independent_Curve_Tabs->count(); ++i)
-//	{
-//		Independent_Curve* independent = qobject_cast<Independent_Curve*>(independent_Curve_Tabs->widget(i));
-//		if(independent!=sender())
-//		{
-//			independent->reset_Independent_Variables_Structure();
-//			independent->refresh_Text();
-//		}
-//	}
 
 	// refresh other multilayers
 	if(!my_Sender) {emit refresh_All_Multilayers();}
@@ -275,13 +271,18 @@ void Multilayer::add_Target_Curve(int index_Pressed, bool opening)
 
 void Multilayer::remove_Target_Curve(int index_Pressed, bool clean)
 {
-	// delete frame
+	// delete frame	
 	delete data_Target_Profile_Frame_Vector[index_Pressed];
 	data_Target_Profile_Frame_Vector.removeAt(index_Pressed);
 	add_Buttons_To_Lock.removeAt(index_Pressed);
 	remove_Buttons_To_Lock.removeAt(index_Pressed);
 
 	// delete data
+	if(runned_Target_Curve_Editors.contains(target_Profiles_Vector[index_Pressed]))
+	{
+		runned_Target_Curve_Editors.value(target_Profiles_Vector[index_Pressed])->close();
+		runned_Target_Curve_Editors.remove(target_Profiles_Vector[index_Pressed]);
+	}
 	delete target_Profiles_Vector[index_Pressed];
 	target_Profiles_Vector.removeAt(index_Pressed);
 

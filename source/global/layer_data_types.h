@@ -33,6 +33,8 @@ public:
 		QVector<double> beam_Theta_0_Cos2_Vec;  double beam_Theta_0_Cos2_Value;
 		QVector<double>	beam_Theta_0_Angle_Vec; double beam_Theta_0_Angle_Value;
 
+		double beam_Theta_0_Specular_Position;
+
 		// theta angle
 		Parameter detector_Theta_Angle;
 		QVector<double> detector_Theta_Cos2_Vec;  double detector_Theta_Cos2_Value;

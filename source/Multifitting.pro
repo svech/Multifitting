@@ -96,6 +96,7 @@ SOURCES += \
     multilayer_approach/multilayer/independent_curve/independent_curve_editor.cpp \
     multilayer_approach/multilayer/independent_curve/independent_data_types/detector_independent_curve_part.cpp \
     multilayer_approach/multilayer/independent_curve/independent_data_types/gisas_independent_curve_part.cpp \
+    multilayer_approach/multilayer/independent_curve/independent_data_types/independent_1d_common_part.cpp \
     multilayer_approach/multilayer/independent_curve/independent_data_types/offset_independent_curve_part.cpp \
     multilayer_approach/multilayer/independent_curve/independent_data_types/rocking_independent_curve_part.cpp \
     multilayer_approach/multilayer/independent_curve/independent_data_types/specular_independent_curve_part.cpp \
@@ -156,6 +157,7 @@ HEADERS += \
     multilayer_approach/multilayer/independent_curve/independent_curve_editor.h \
     multilayer_approach/multilayer/independent_curve/independent_data_types/detector_independent_curve_part.h \
     multilayer_approach/multilayer/independent_curve/independent_data_types/gisas_independent_curve_part.h \
+    multilayer_approach/multilayer/independent_curve/independent_data_types/independent_1d_common_part.h \
     multilayer_approach/multilayer/independent_curve/independent_data_types/offset_independent_curve_part.h \
     multilayer_approach/multilayer/independent_curve/independent_data_types/rocking_independent_curve_part.h \
     multilayer_approach/multilayer/independent_curve/independent_data_types/specular_independent_curve_part.h \

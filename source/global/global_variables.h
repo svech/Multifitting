@@ -83,7 +83,7 @@ enum target_Data_Types_Enum {	/** 1D */
 // argument types
 extern QString no_Argument_Type;
 extern QStringList argument_Types;
-enum argument_Types_Enum    { Beam_Grazing_Angle, Detector_Polar_Angle, Detector_Azimuthal_Angle, Wavelength_Energy };
+enum argument_Types_Enum    { Beam_Grazing_Angle, Deviation_From_Specular_Angle, Detector_Polar_Angle, Detector_Azimuthal_Angle, Wavelength_Energy };
 
 // value types
 extern QString no_Value_Type;

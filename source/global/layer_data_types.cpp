@@ -52,6 +52,8 @@ Data::Data(QString item_Type_Passed)
 			beam_Theta_0_Angle.independent.num_Points = default_num_theta_angular_points;
 			beam_Theta_0_Angle.indicator.whats_This = whats_This_Beam_Theta_0_Angle;
 			beam_Theta_0_Angle.indicator.item_Id = id;
+
+			beam_Theta_0_Specular_Position = 1;
 		}
 
 		// theta angle
@@ -1050,7 +1052,7 @@ QDataStream& operator <<( QDataStream& stream, const Data& data )
 			// Measurement
 				<< data.measurement_Type << data.argument_Type
 				<< data.wavelength << data.k_Vec << data.k_Value << data.lambda_Vec << data.lambda_Value
-				<< data.beam_Theta_0_Angle << data.beam_Theta_0_Cos2_Vec << data.beam_Theta_0_Cos2_Value << data.beam_Theta_0_Angle_Vec << data.beam_Theta_0_Angle_Value
+				<< data.beam_Theta_0_Angle << data.beam_Theta_0_Cos2_Vec << data.beam_Theta_0_Cos2_Value << data.beam_Theta_0_Angle_Vec << data.beam_Theta_0_Angle_Value << data.beam_Theta_0_Specular_Position
 				<< data.detector_Theta_Angle << data.detector_Theta_Cos2_Vec << data.detector_Theta_Cos2_Value << data.detector_Theta_Angle_Vec << data.detector_Theta_Angle_Value << data.detector_Theta_Offset
 				<< data.detector_Phi_Angle << data.detector_Phi_Cos2_Vec << data.detector_Phi_Cos2_Value << data.detector_Phi_Angle_Vec << data.detector_Phi_Angle_Value
 
@@ -1059,12 +1061,6 @@ QDataStream& operator <<( QDataStream& stream, const Data& data )
 
 				<< data.beam_Geometry << data.sample_Geometry
 				<< data.polarization << data.background
-
-				/// old approach
-//				<< data.probe_Angle	<< data.cos2 << data.angle << data.cos2_Value << data.angle_Value << data.angular_Resolution
-//				<< data.wavelength << data.k << data.lambda << data.k_Value << data.lambda_Value << data.spectral_Resolution
-//				<< data.polarization << data.polarization_Sensitivity << data.background
-//				<< data.beam_Size << data.beam_Profile_Spreading << data.sample_Size  << data.sample_Shift
 
 			// Ambient, Layer, Substrate
 				<< data.composed_Material << data.material << data.approved_Material << data.absolute_Density << data.relative_Density
@@ -1091,7 +1087,7 @@ QDataStream& operator >>( QDataStream& stream,		 Data& data )
 
 		stream	>> data.measurement_Type >> data.argument_Type
 				>> data.wavelength >> data.k_Vec >> data.k_Value >> data.lambda_Vec >> data.lambda_Value
-				>> data.beam_Theta_0_Angle >> data.beam_Theta_0_Cos2_Vec >> data.beam_Theta_0_Cos2_Value >> data.beam_Theta_0_Angle_Vec >> data.beam_Theta_0_Angle_Value
+				>> data.beam_Theta_0_Angle >> data.beam_Theta_0_Cos2_Vec >> data.beam_Theta_0_Cos2_Value >> data.beam_Theta_0_Angle_Vec >> data.beam_Theta_0_Angle_Value >> data.beam_Theta_0_Specular_Position
 				>> data.detector_Theta_Angle >> data.detector_Theta_Cos2_Vec >> data.detector_Theta_Cos2_Value >> data.detector_Theta_Angle_Vec >> data.detector_Theta_Angle_Value >> data.detector_Theta_Offset
 				>> data.detector_Phi_Angle >> data.detector_Phi_Cos2_Vec >> data.detector_Phi_Cos2_Value >> data.detector_Phi_Angle_Vec >> data.detector_Phi_Angle_Value
 
