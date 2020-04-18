@@ -213,7 +213,8 @@ void Target_Curve_Editor::reset_Subinterval()
 	}
 	if(	target_Curve->measurement.measurement_Type == measurement_Types[Rocking_Curve] )
 	{
-//		rocking_Target_Curve_Part->reset_Subinterval();
+		rocking_Target_Curve_Part->reset_Subinterval();
+		rocking_Target_Curve_Part->reset_Range_Specular_Position();
 	}
 	if(	target_Curve->measurement.measurement_Type == measurement_Types[Offset_Scan] )
 	{

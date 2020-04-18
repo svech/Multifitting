@@ -235,6 +235,7 @@ void Target_Curve::fill_Measurement_And_Curve_With_Shifted_1D_Data()
 			}
 		}
 
+		double coeff = angle_Coefficients_Map.value(angular_Units);
 		for(int i=0; i<curve.argument.size(); ++i)
 		{
 			curve.shifted_Argument[i] = curve.argument[i]                     * curve.horizontal_Arg_Factor + curve.horizontal_Arg_Shift;
@@ -245,16 +246,22 @@ void Target_Curve::fill_Measurement_And_Curve_With_Shifted_1D_Data()
 		// measurement filling
 		if(measurement.argument_Type == argument_Types[Beam_Grazing_Angle])
 		{
-			double coeff = angle_Coefficients_Map.value(angular_Units);
 			measurement.beam_Theta_0_Angle_Vec.resize(curve.shifted_Argument.size());
 			for(int i=0; i<curve.shifted_Argument.size(); ++i)
 			{
 				measurement.beam_Theta_0_Angle_Vec[i] = curve.shifted_Argument[i]*coeff;
 			}
 		}
+		if(measurement.argument_Type == argument_Types[Deviation_From_Specular_Angle])
+		{
+			measurement.beam_Theta_0_Angle_Vec.resize(curve.shifted_Argument.size());
+			for(int i=0; i<curve.shifted_Argument.size(); ++i)
+			{
+				measurement.beam_Theta_0_Angle_Vec[i] = curve.shifted_Argument[i]*coeff + measurement.beam_Theta_0_Specular_Position;
+			}
+		}
 		if(measurement.argument_Type == argument_Types[Detector_Polar_Angle])
 		{
-			double coeff = angle_Coefficients_Map.value(angular_Units);
 			measurement.detector_Theta_Angle_Vec.resize(curve.shifted_Argument.size());
 			for(int i=0; i<curve.shifted_Argument.size(); ++i)
 			{
@@ -263,11 +270,11 @@ void Target_Curve::fill_Measurement_And_Curve_With_Shifted_1D_Data()
 		}
 		if(measurement.argument_Type == argument_Types[Wavelength_Energy])
 		{
-			double coeff = wavelength_Coefficients_Map.value(spectral_Units);
+			double coeff_Spectral = wavelength_Coefficients_Map.value(spectral_Units);
 			measurement.lambda_Vec.resize(curve.shifted_Argument.size());
 			for(int i=0; i<curve.shifted_Argument.size(); ++i)
 			{
-				measurement.lambda_Vec[i] = Global_Variables::wavelength_Energy(spectral_Units, curve.shifted_Argument[i]*coeff);
+				measurement.lambda_Vec[i] = Global_Variables::wavelength_Energy(spectral_Units, curve.shifted_Argument[i]*coeff_Spectral);
 			}
 		}
 	}
@@ -334,7 +341,28 @@ void Target_Curve::refresh_Description_Label()
 		}
 		if(	measurement.measurement_Type == measurement_Types[Rocking_Curve] )
 		{
-			//		gisas_Target_Curve_Part->refresh_Description_Label();
+			if(measurement.argument_Type == argument_Types[Beam_Grazing_Angle])
+			{
+				label_Text =  measurement.measurement_Type + "; " + Theta_Sym + Zero_Subscript_Sym + "=" +
+							  Locale.toString(curve.shifted_Argument.first(), thumbnail_double_format, 3) +
+						"-" + Locale.toString(curve.shifted_Argument.last(), thumbnail_double_format, 3) +
+							  " " + angular_Units + "; " + "at " + lambda_Energy + "=" +
+							  Locale.toString(Global_Variables::wavelength_Energy(spectral_Units, measurement.wavelength.value)/spectral_Coeff, thumbnail_double_format, thumbnail_wavelength_precision) +
+							  " " + spectral_Units + ", specular=" +
+							  Locale.toString(measurement.beam_Theta_0_Specular_Position/angular_Coeff, thumbnail_double_format, thumbnail_angle_precision) +
+							  " " + angular_Units;
+			}
+			if(measurement.argument_Type == argument_Types[Deviation_From_Specular_Angle])
+			{
+				label_Text =  measurement.measurement_Type + "; " + Delta_Big_Sym + Theta_Sym + Zero_Subscript_Sym + "=" +
+							  Locale.toString(curve.shifted_Argument.first(), thumbnail_double_format, 3) +
+						"-" + Locale.toString(curve.shifted_Argument.last(), thumbnail_double_format, 3) +
+							  "" + angular_Units + "; " + "at " + lambda_Energy + "=" +
+							  Locale.toString(Global_Variables::wavelength_Energy(spectral_Units, measurement.wavelength.value)/spectral_Coeff, thumbnail_double_format, thumbnail_wavelength_precision) +
+							  " " + spectral_Units + ", specular=" +
+							  Locale.toString(measurement.beam_Theta_0_Specular_Position/angular_Coeff, thumbnail_double_format, thumbnail_angle_precision) +
+							  " " + angular_Units;
+			}
 		}
 		if(	measurement.measurement_Type == measurement_Types[Offset_Scan] )
 		{

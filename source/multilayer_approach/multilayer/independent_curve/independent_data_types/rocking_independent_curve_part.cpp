@@ -142,7 +142,7 @@ void Rocking_Independent_Curve_Part::create_Beam_GroupBox()
 	// at fixed wavelength
 	{
 		at_Fixed_Wavelength_Label = new QLabel;
-		fill_At_Fixed_Wavelength_Label();
+			fill_At_Fixed_Wavelength_Label();
 		beam_GroupBox_Layout->addWidget(at_Fixed_Wavelength_Label,0,0,Qt::AlignLeft);
 
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -165,7 +165,7 @@ void Rocking_Independent_Curve_Part::create_Beam_GroupBox()
 		at_Fixed_Wavelength_Units_Label = new QLabel(independent_Curve->spectral_Units);
 		beam_GroupBox_Layout->addWidget(at_Fixed_Wavelength_Units_Label,0,2,Qt::AlignLeft);
 	}
-	// at fixed beam theta_0
+	// at fixed specular position
 	{
 		at_Fixed_Specular_Position_Label = new QLabel("Specular position");
 		beam_GroupBox_Layout->addWidget(at_Fixed_Specular_Position_Label,1,0,Qt::AlignLeft);
@@ -229,19 +229,19 @@ void Rocking_Independent_Curve_Part::create_Beam_GroupBox()
 	// spectral distribution
 	{
 		spectral_Width_Label = new QLabel;
-		fill_Spectral_Width_Label();
+			fill_Spectral_Width_Label();
 		beam_GroupBox_Layout->addWidget(spectral_Width_Label,0,4,Qt::AlignRight);
 
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 		spectral_Width_SpinBox = new MyDoubleSpinBox;
-		spectral_Width_SpinBox->setAccelerated(true);
-		spectral_Width_SpinBox->setRange(0, MAX_DOUBLE);
-		spectral_Width_SpinBox->setDecimals(7);
-		spectral_Width_SpinBox->setValue(independent_Curve->measurement.spectral_Distribution.FWHM_distribution);
-		spectral_Width_SpinBox->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
-		spectral_Width_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
-		spectral_Width_SpinBox->setProperty(min_Size_Property, TARGET_LINE_RESOLUTION_WIDTH);
+			spectral_Width_SpinBox->setAccelerated(true);
+			spectral_Width_SpinBox->setRange(0, MAX_DOUBLE);
+			spectral_Width_SpinBox->setDecimals(7);
+			spectral_Width_SpinBox->setValue(independent_Curve->measurement.spectral_Distribution.FWHM_distribution);
+			spectral_Width_SpinBox->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
+			spectral_Width_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
+			spectral_Width_SpinBox->setProperty(min_Size_Property, TARGET_LINE_RESOLUTION_WIDTH);
 		beam_GroupBox_Layout->addWidget(spectral_Width_SpinBox,0,5,Qt::AlignLeft);
 		Global_Variables::resize_Line_Edit(spectral_Width_SpinBox);
 	}
@@ -410,7 +410,7 @@ void Rocking_Independent_Curve_Part::refresh_At_Fixed_Specular_Position()
 void Rocking_Independent_Curve_Part::fill_At_Fixed_Wavelength_Label()
 {
 	if(	independent_Curve->spectral_Units == wavelength_Units_List[angstrom] ||
-			independent_Curve->spectral_Units == wavelength_Units_List[nm]		  )
+		independent_Curve->spectral_Units == wavelength_Units_List[nm]		  )
 	{
 		at_Fixed_Wavelength_Label->setText("At fixed wavelength");
 	} else

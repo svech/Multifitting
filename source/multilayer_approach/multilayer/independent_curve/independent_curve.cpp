@@ -113,18 +113,18 @@ void Independent_Curve::refresh_Description_Label()
 							  Locale.toString(Global_Variables::wavelength_Energy(spectral_Units, measurement.wavelength.value)/spectral_Coeff, thumbnail_double_format, thumbnail_wavelength_precision) +
 							  " " + spectral_Units + ", specular=" +
 							  Locale.toString(measurement.beam_Theta_0_Specular_Position/angular_Coeff, thumbnail_double_format, thumbnail_angle_precision) +
-							  "" + angular_Units;
+							  " " + angular_Units;
 			}
 			if(measurement.argument_Type == argument_Types[Deviation_From_Specular_Angle])
 			{
 				label_Text =  measurement.measurement_Type + "; " + Delta_Big_Sym + Theta_Sym + Zero_Subscript_Sym + "=" +
 							  Locale.toString((measurement.beam_Theta_0_Angle.independent.min-measurement.beam_Theta_0_Specular_Position)/angular_Coeff) +
 						"-" + Locale.toString((measurement.beam_Theta_0_Angle.independent.max-measurement.beam_Theta_0_Specular_Position)/angular_Coeff) +
-							  "" + angular_Units + "; " + "at " + lambda_Energy + "=" +
+							  " " + angular_Units + "; " + "at " + lambda_Energy + "=" +
 							  Locale.toString(Global_Variables::wavelength_Energy(spectral_Units, measurement.wavelength.value)/spectral_Coeff, thumbnail_double_format, thumbnail_wavelength_precision) +
 							  " " + spectral_Units + ", specular=" +
 							  Locale.toString(measurement.beam_Theta_0_Specular_Position/angular_Coeff, thumbnail_double_format, thumbnail_angle_precision) +
-							  "" + angular_Units;
+							  " " + angular_Units;
 			}
 		}
 		if(	measurement.measurement_Type == measurement_Types[Offset_Scan] )
@@ -134,11 +134,11 @@ void Independent_Curve::refresh_Description_Label()
 				label_Text =  measurement.measurement_Type + "; " + Theta_Sym + Zero_Subscript_Sym + "=" +
 							  Locale.toString(measurement.beam_Theta_0_Angle.independent.min/angular_Coeff) +
 						"-" + Locale.toString(measurement.beam_Theta_0_Angle.independent.max/angular_Coeff) +
-							  "" + angular_Units + "; " + "at " + lambda_Energy + "=" +
+							  " " + angular_Units + "; " + "at " + lambda_Energy + "=" +
 							  Locale.toString(Global_Variables::wavelength_Energy(spectral_Units, measurement.wavelength.value)/spectral_Coeff, thumbnail_double_format, thumbnail_wavelength_precision) +
 							  " " + spectral_Units + ", offset =" +
 							  Locale.toString(measurement.detector_Theta_Offset/angular_Coeff, thumbnail_double_format, thumbnail_angle_precision) +
-							  "" + angular_Units;
+							  " " + angular_Units;
 			}
 		}
 		if(	measurement.measurement_Type == measurement_Types[GISAS] )
