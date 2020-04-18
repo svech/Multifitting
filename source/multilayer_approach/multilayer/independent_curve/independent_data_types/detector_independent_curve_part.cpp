@@ -71,8 +71,11 @@ void Detector_Independent_Curve_Part::create_Argument_GroupBox()
 
 	// argument type
 	{
-		arg_Type_Label = new QLabel(independent_Curve->measurement.argument_Type + ":");
-		argument_GroupBox_Layout->addWidget(arg_Type_Label,0,Qt::AlignLeft);
+		arg_Type_ComboBox = new QComboBox;
+			arg_Type_ComboBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
+			arg_Type_ComboBox->addItem(independent_Curve->measurement.argument_Type);
+			arg_Type_ComboBox->setCurrentText(independent_Curve->measurement.argument_Type);
+		argument_GroupBox_Layout->addWidget(arg_Type_ComboBox,0,Qt::AlignLeft);
 	}
 	// argument points
 	{
@@ -139,36 +142,11 @@ void Detector_Independent_Curve_Part::create_Beam_GroupBox()
 	QGridLayout* beam_GroupBox_Layout = new QGridLayout(beam_GroupBox);
 	beam_GroupBox_Layout->setAlignment(Qt::AlignLeft);
 
-	// at fixed beam theta_0
-	{
-		at_Fixed_Beam_Theta_0_Label = new QLabel("At fixed grazing angle "+Theta_Sym+Zero_Subscript_Sym);
-		beam_GroupBox_Layout->addWidget(at_Fixed_Beam_Theta_0_Label,0,0,Qt::AlignLeft);
-
-		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-		double coeff = angle_Coefficients_Map.value(independent_Curve->angular_Units);
-
-		at_Fixed_Beam_Theta_0_SpinBox = new MyDoubleSpinBox;
-			at_Fixed_Beam_Theta_0_SpinBox->setAccelerated(true);
-			at_Fixed_Beam_Theta_0_SpinBox->setRange(0,90./coeff);
-			at_Fixed_Beam_Theta_0_SpinBox->setDecimals(7);
-			at_Fixed_Beam_Theta_0_SpinBox->setSingleStep(0.01);
-			at_Fixed_Beam_Theta_0_SpinBox->setValue(independent_Curve->measurement.beam_Theta_0_Angle.value/coeff);
-			at_Fixed_Beam_Theta_0_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
-			at_Fixed_Beam_Theta_0_SpinBox->setProperty(min_Size_Property, TARGET_LINE_AT_FIXED_WIDTH);
-		beam_GroupBox_Layout->addWidget(at_Fixed_Beam_Theta_0_SpinBox,0,1,Qt::AlignLeft);
-		Global_Variables::resize_Line_Edit(at_Fixed_Beam_Theta_0_SpinBox);
-
-		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-		at_Fixed_Beam_Theta_0_Units_Label = new QLabel(independent_Curve->angular_Units);
-		beam_GroupBox_Layout->addWidget(at_Fixed_Beam_Theta_0_Units_Label,0,2,1,3,Qt::AlignLeft);
-	}
 	// at fixed wavelength
 	{
 		at_Fixed_Wavelength_Label = new QLabel;
 			fill_At_Fixed_Wavelength_Label();
-		beam_GroupBox_Layout->addWidget(at_Fixed_Wavelength_Label,1,0,1,1,Qt::AlignLeft);
+		beam_GroupBox_Layout->addWidget(at_Fixed_Wavelength_Label,0,0,Qt::AlignLeft);
 
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -182,13 +160,38 @@ void Detector_Independent_Curve_Part::create_Beam_GroupBox()
 			at_Fixed_Wavelength_SpinBox->setValue(Global_Variables::wavelength_Energy(independent_Curve->spectral_Units,independent_Curve->measurement.wavelength.value)/coeff);
 			at_Fixed_Wavelength_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
 			at_Fixed_Wavelength_SpinBox->setProperty(min_Size_Property, TARGET_LINE_AT_FIXED_WIDTH);
-		beam_GroupBox_Layout->addWidget(at_Fixed_Wavelength_SpinBox,1,1,Qt::AlignLeft);
+		beam_GroupBox_Layout->addWidget(at_Fixed_Wavelength_SpinBox,0,1,Qt::AlignLeft);
 		Global_Variables::resize_Line_Edit(at_Fixed_Wavelength_SpinBox);
 
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 		at_Fixed_Wavelength_Units_Label = new QLabel(independent_Curve->spectral_Units);
-		beam_GroupBox_Layout->addWidget(at_Fixed_Wavelength_Units_Label,1,2,Qt::AlignLeft);
+		beam_GroupBox_Layout->addWidget(at_Fixed_Wavelength_Units_Label,0,2,Qt::AlignLeft);
+	}
+	// at fixed beam theta_0
+	{
+		at_Fixed_Beam_Theta_0_Label = new QLabel("At fixed grazing angle "+Theta_Sym+Zero_Subscript_Sym);
+		beam_GroupBox_Layout->addWidget(at_Fixed_Beam_Theta_0_Label,1,0,Qt::AlignLeft);
+
+		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+		double coeff = angle_Coefficients_Map.value(independent_Curve->angular_Units);
+
+		at_Fixed_Beam_Theta_0_SpinBox = new MyDoubleSpinBox;
+			at_Fixed_Beam_Theta_0_SpinBox->setAccelerated(true);
+			at_Fixed_Beam_Theta_0_SpinBox->setRange(0,90./coeff);
+			at_Fixed_Beam_Theta_0_SpinBox->setDecimals(7);
+			at_Fixed_Beam_Theta_0_SpinBox->setSingleStep(0.01);
+			at_Fixed_Beam_Theta_0_SpinBox->setValue(independent_Curve->measurement.beam_Theta_0_Angle.value/coeff);
+			at_Fixed_Beam_Theta_0_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
+			at_Fixed_Beam_Theta_0_SpinBox->setProperty(min_Size_Property, TARGET_LINE_AT_FIXED_WIDTH);
+		beam_GroupBox_Layout->addWidget(at_Fixed_Beam_Theta_0_SpinBox,1,1,Qt::AlignLeft);
+		Global_Variables::resize_Line_Edit(at_Fixed_Beam_Theta_0_SpinBox);
+
+		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+		at_Fixed_Beam_Theta_0_Units_Label = new QLabel(independent_Curve->angular_Units);
+		beam_GroupBox_Layout->addWidget(at_Fixed_Beam_Theta_0_Units_Label,1,2,Qt::AlignLeft);
 	}
 	// polarization
 	{
@@ -230,7 +233,7 @@ void Detector_Independent_Curve_Part::create_Beam_GroupBox()
 	{
 		spectral_Width_Label = new QLabel;
 			fill_Spectral_Width_Label();
-		beam_GroupBox_Layout->addWidget(spectral_Width_Label,1,4,Qt::AlignRight);
+		beam_GroupBox_Layout->addWidget(spectral_Width_Label,0,4,Qt::AlignRight);
 
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -242,13 +245,13 @@ void Detector_Independent_Curve_Part::create_Beam_GroupBox()
 			spectral_Width_SpinBox->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
 			spectral_Width_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
 			spectral_Width_SpinBox->setProperty(min_Size_Property, TARGET_LINE_RESOLUTION_WIDTH);
-		beam_GroupBox_Layout->addWidget(spectral_Width_SpinBox,1,5,Qt::AlignLeft);
+		beam_GroupBox_Layout->addWidget(spectral_Width_SpinBox,0,5,Qt::AlignLeft);
 		Global_Variables::resize_Line_Edit(spectral_Width_SpinBox);
 	}
 	// angular divergence
 	{
 		QLabel* angular_Divergence_Label = new QLabel("  Angular divergence, FWHM, " + Delta_Big_Sym + Theta_Sym + Zero_Subscript_Sym);
-		beam_GroupBox_Layout->addWidget(angular_Divergence_Label,2,4,Qt::AlignRight);
+		beam_GroupBox_Layout->addWidget(angular_Divergence_Label,1,4,Qt::AlignRight);
 
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -262,18 +265,18 @@ void Detector_Independent_Curve_Part::create_Beam_GroupBox()
 			angular_Divergence_SpinBox->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
 			angular_Divergence_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
 			angular_Divergence_SpinBox->setProperty(min_Size_Property, TARGET_LINE_RESOLUTION_WIDTH);
-		beam_GroupBox_Layout->addWidget(angular_Divergence_SpinBox,2,5,Qt::AlignLeft);
+		beam_GroupBox_Layout->addWidget(angular_Divergence_SpinBox,1,5,Qt::AlignLeft);
 		Global_Variables::resize_Line_Edit(angular_Divergence_SpinBox);
 
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 		angular_Divergence_Units_Label = new QLabel(independent_Curve->angular_Units);
-		beam_GroupBox_Layout->addWidget(angular_Divergence_Units_Label,2,6,Qt::AlignLeft);
+		beam_GroupBox_Layout->addWidget(angular_Divergence_Units_Label,1,6,Qt::AlignLeft);
 	}
 	// set up distribution
 	{
 		setup_Beam_Distribution_Button = new QPushButton("Set up distribution");
-		beam_GroupBox_Layout->addWidget(setup_Beam_Distribution_Button,3,4,1,2,Qt::AlignCenter);
+		beam_GroupBox_Layout->addWidget(setup_Beam_Distribution_Button,2,4,1,2,Qt::AlignCenter);
 	}
 }
 
@@ -364,10 +367,10 @@ void Detector_Independent_Curve_Part::fill_At_Fixed_Wavelength_Label()
 	if(	independent_Curve->spectral_Units == wavelength_Units_List[angstrom] ||
 		independent_Curve->spectral_Units == wavelength_Units_List[nm]		  )
 	{
-		at_Fixed_Wavelength_Label->setText("At fixed wavelength:");
+		at_Fixed_Wavelength_Label->setText("At fixed wavelength");
 	} else
 	{
-		at_Fixed_Wavelength_Label->setText("At fixed energy:");
+		at_Fixed_Wavelength_Label->setText("At fixed energy");
 	}
 }
 

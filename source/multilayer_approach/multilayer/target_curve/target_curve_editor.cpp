@@ -209,7 +209,7 @@ void Target_Curve_Editor::reset_Subinterval()
 	}
 	if(	target_Curve->measurement.measurement_Type == measurement_Types[Detector_Scan] )
 	{
-//		detector_Target_Curve_Part->reset_Subinterval();
+		detector_Target_Curve_Part->reset_Subinterval();
 	}
 	if(	target_Curve->measurement.measurement_Type == measurement_Types[Rocking_Curve] )
 	{
@@ -217,7 +217,8 @@ void Target_Curve_Editor::reset_Subinterval()
 	}
 	if(	target_Curve->measurement.measurement_Type == measurement_Types[Offset_Scan] )
 	{
-//		offset_Target_Curve_Part->reset_Subinterval();
+		offset_Target_Curve_Part->reset_Subinterval();
+		offset_Target_Curve_Part->fill_Offset();
 	}
 	if(	target_Curve->measurement.measurement_Type == measurement_Types[GISAS] )
 	{

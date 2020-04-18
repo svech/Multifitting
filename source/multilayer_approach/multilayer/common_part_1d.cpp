@@ -29,7 +29,7 @@ void Common_Part_1D::create_Detector_GroupBox()
 	{
 		QHBoxLayout* detector_Type_Layout = new QHBoxLayout;
 		detector_Type_Layout->setAlignment(Qt::AlignLeft);
-		detector_GroupBox_Layout->addLayout(detector_Type_Layout,0,0);
+		detector_GroupBox_Layout->addLayout(detector_Type_Layout,0,0,Qt::AlignLeft);
 
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -42,7 +42,7 @@ void Common_Part_1D::create_Detector_GroupBox()
 			detector_Type_ComboBox->addItem(detectors[Slit]);
 			detector_Type_ComboBox->addItem(detectors[Crystal]);
 			detector_Type_ComboBox->setCurrentText(measurement.detector_1D.detector_Type);
-			detector_Type_ComboBox->setFixedWidth(133);
+			detector_Type_ComboBox->setFixedWidth(130);
 		detector_Type_Layout->addWidget(detector_Type_ComboBox,0,Qt::AlignLeft);
 
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -61,11 +61,12 @@ void Common_Part_1D::create_Detector_GroupBox()
 		QWidget* slit_Page = new QWidget;
 		detectors_Stack->addWidget(slit_Page);
 		QHBoxLayout* slit_Layout = new QHBoxLayout(slit_Page);
+			slit_Layout->setContentsMargins(0,0,0,0);
 		slit_Layout->setAlignment(Qt::AlignLeft);
 
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-		QLabel* slit_Width_Label = new QLabel("Slit width");
+		QLabel* slit_Width_Label = new QLabel("    Slit width");
 		slit_Layout->addWidget(slit_Width_Label,0,Qt::AlignLeft);
 
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -119,11 +120,12 @@ void Common_Part_1D::create_Detector_GroupBox()
 		QWidget* crystal_Page = new QWidget;
 		detectors_Stack->addWidget(crystal_Page);
 		QHBoxLayout* crystal_Layout = new QHBoxLayout(crystal_Page);
+			crystal_Layout->setContentsMargins(0,0,0,0);
 		crystal_Layout->setAlignment(Qt::AlignLeft);
 
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-		QLabel* crystal_Width_Label = new QLabel("Angular resolution, FWHM, "+Delta_Big_Sym+Theta_Sym);
+		QLabel* crystal_Width_Label = new QLabel("    Angular resolution, FWHM, "+Delta_Big_Sym+Theta_Sym);
 		crystal_Layout->addWidget(crystal_Width_Label,0,Qt::AlignLeft);
 
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - -

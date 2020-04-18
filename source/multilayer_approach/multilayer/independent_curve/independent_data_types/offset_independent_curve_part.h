@@ -39,7 +39,7 @@ public:
 	QComboBox* spectral_Units_ComboBox;
 
 	// argument
-	QLabel* arg_Type_Label;
+	QComboBox* arg_Type_ComboBox;
 	QSpinBox* num_Points_Spinbox;
 	MyDoubleSpinBox* start_Argument_Spinbox;
 	MyDoubleSpinBox* final_Argument_Spinbox;

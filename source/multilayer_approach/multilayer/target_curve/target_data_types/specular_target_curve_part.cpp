@@ -300,13 +300,8 @@ void Specular_Target_Curve_Part::create_Beam_GroupBox()
 			fill_At_Fixed_Value();
 			at_Fixed_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
 			at_Fixed_SpinBox->setProperty(min_Size_Property, TARGET_LINE_AT_FIXED_WIDTH);
-		beam_GroupBox_Layout->addWidget(at_Fixed_SpinBox,0,2,Qt::AlignLeft);
+		beam_GroupBox_Layout->addWidget(at_Fixed_SpinBox,0,2,1,2,Qt::AlignRight);
 		Global_Variables::resize_Line_Edit(at_Fixed_SpinBox);
-
-		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-		QLabel* at_Fixed_Units_Label = new QLabel("  Units");
-		beam_GroupBox_Layout->addWidget(at_Fixed_Units_Label,0,3,Qt::AlignLeft);
 
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -315,28 +310,10 @@ void Specular_Target_Curve_Part::create_Beam_GroupBox()
 			at_Fixed_Units_ComboBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
 		beam_GroupBox_Layout->addWidget(at_Fixed_Units_ComboBox,0,4,Qt::AlignLeft);
 	}
-	// polarization
-	{
-		QLabel* polarization_Label = new QLabel("Polarization");
-		beam_GroupBox_Layout->addWidget(polarization_Label,1,0,Qt::AlignRight);
-
-		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-		polarization_SpinBox = new MyDoubleSpinBox;
-			polarization_SpinBox->setAccelerated(true);
-			polarization_SpinBox->setRange(-1, 1);
-			polarization_SpinBox->setDecimals(3);
-			polarization_SpinBox->setValue(target_Curve->measurement.polarization);
-			polarization_SpinBox->setSingleStep(0.01);
-			polarization_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
-			polarization_SpinBox->setProperty(min_Size_Property, 50);
-		beam_GroupBox_Layout->addWidget(polarization_SpinBox,1,1,Qt::AlignLeft);
-		Global_Variables::resize_Line_Edit(polarization_SpinBox);
-	}
 	// background
 	{
 		QLabel* background_Label = new QLabel("Background");
-		beam_GroupBox_Layout->addWidget(background_Label,1,2,Qt::AlignRight);
+		beam_GroupBox_Layout->addWidget(background_Label,1,0,Qt::AlignRight);
 
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -348,20 +325,31 @@ void Specular_Target_Curve_Part::create_Beam_GroupBox()
 			background_SpinBox->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
 			background_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
 			background_SpinBox->setProperty(min_Size_Property, TARGET_BEAM_INTENSITY_WIDTH);
-		beam_GroupBox_Layout->addWidget(background_SpinBox,1,3,1,2,Qt::AlignLeft);
+		beam_GroupBox_Layout->addWidget(background_SpinBox,1,1,1,2,Qt::AlignLeft);
 		Global_Variables::resize_Line_Edit(background_SpinBox);
+	}
+	// polarization
+	{
+		QLabel* polarization_Label = new QLabel("Polarization");
+		beam_GroupBox_Layout->addWidget(polarization_Label,1,3,Qt::AlignRight);
+
+		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+		polarization_SpinBox = new MyDoubleSpinBox;
+			polarization_SpinBox->setAccelerated(true);
+			polarization_SpinBox->setRange(-1, 1);
+			polarization_SpinBox->setDecimals(3);
+			polarization_SpinBox->setValue(target_Curve->measurement.polarization);
+			polarization_SpinBox->setSingleStep(0.01);
+			polarization_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
+			polarization_SpinBox->setProperty(min_Size_Property, 50);
+		beam_GroupBox_Layout->addWidget(polarization_SpinBox,1,4,Qt::AlignLeft);
+		Global_Variables::resize_Line_Edit(polarization_SpinBox);
 	}
 	// spectral distribution
 	{
 		spectral_Width_Label = new QLabel;
-		if(	target_Curve->spectral_Units == wavelength_Units_List[angstrom] ||
-			target_Curve->spectral_Units == wavelength_Units_List[nm]	   )
-		{
-			spectral_Width_Label->setText("      Spectral width, FWHM, " + Delta_Big_Sym + Lambda_Sym+"/"+Lambda_Sym);
-		} else
-		{
-			spectral_Width_Label->setText("      Spectral width, FWHM, " + Delta_Big_Sym + "E/E");
-		}
+			fill_Spectral_Width_Label();
 		beam_GroupBox_Layout->addWidget(spectral_Width_Label,0,5,Qt::AlignRight);
 
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -475,14 +463,7 @@ void Specular_Target_Curve_Part::refresh_Argument_Units()
 	{
 		target_Curve->spectral_Units = arg_Units_ComboBox->currentText();
 
-		if(	target_Curve->spectral_Units == wavelength_Units_List[angstrom] ||
-			target_Curve->spectral_Units == wavelength_Units_List[nm]	   )
-		{
-			spectral_Width_Label->setText("      Spectral width, FWHM, " + Delta_Big_Sym + Lambda_Sym+"/"+Lambda_Sym);
-		} else
-		{
-			spectral_Width_Label->setText("      Spectral width, FWHM, " + Delta_Big_Sym + "E/E");
-		}
+		fill_Spectral_Width_Label();
 	}
 	target_Curve->fill_Measurement_And_Curve_With_Shifted_Data();
 	target_Curve->refresh_Description_Label();
@@ -499,10 +480,10 @@ void Specular_Target_Curve_Part::fill_At_Fixed_Label()
 		if(	target_Curve->spectral_Units == wavelength_Units_List[angstrom] ||
 			target_Curve->spectral_Units == wavelength_Units_List[nm]		  )
 		{
-			at_Fixed_Label->setText("At fixed wavelength:");
+			at_Fixed_Label->setText("At fixed wavelength");
 		} else
 		{
-			at_Fixed_Label->setText("At fixed energy:");
+			at_Fixed_Label->setText("At fixed energy");
 		}
 	}
 	if(target_Curve->measurement.argument_Type == argument_Types[Wavelength_Energy])
@@ -544,15 +525,6 @@ void Specular_Target_Curve_Part::refresh_At_Fixed_Units()
 		at_Fixed_SpinBox->setValue(Global_Variables::wavelength_Energy(target_Curve->spectral_Units,target_Curve->measurement.wavelength.value)/coeff);
 
 		fill_At_Fixed_Label();
-
-		if(	target_Curve->spectral_Units == wavelength_Units_List[angstrom] ||
-			target_Curve->spectral_Units == wavelength_Units_List[nm]	   )
-		{
-			spectral_Width_Label->setText("      Spectral width, FWHM, " + Delta_Big_Sym + Lambda_Sym+"/"+Lambda_Sym);
-		} else
-		{
-			spectral_Width_Label->setText("      Spectral width, FWHM, " + Delta_Big_Sym + "E/E");
-		}
 	}
 	if( target_Curve->measurement.argument_Type == argument_Types[Wavelength_Energy] )
 	{
@@ -592,6 +564,18 @@ void Specular_Target_Curve_Part::fill_At_Fixed_Value()
 		at_Fixed_SpinBox->setValue(target_Curve->measurement.beam_Theta_0_Angle.value/coeff);
 	}
 	at_Fixed_SpinBox->blockSignals(false);
+}
+
+void Specular_Target_Curve_Part::fill_Spectral_Width_Label()
+{
+	if(	target_Curve->spectral_Units == wavelength_Units_List[angstrom] ||
+		target_Curve->spectral_Units == wavelength_Units_List[nm]	   )
+	{
+		spectral_Width_Label->setText("      Spectral width, FWHM, " + Delta_Big_Sym + Lambda_Sym+"/"+Lambda_Sym);
+	} else
+	{
+		spectral_Width_Label->setText("      Spectral width, FWHM, " + Delta_Big_Sym + "E/E");
+	}
 }
 
 void Specular_Target_Curve_Part::refresh_At_Fixed_Value()

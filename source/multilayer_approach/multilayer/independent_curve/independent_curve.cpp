@@ -54,6 +54,16 @@ void Independent_Curve::refresh_Description_Label()
 	// TODO
 	if(measurement.measurement_Type != no_Measurement_Type)
 	{
+		QString lambda_Energy;
+		if(	spectral_Units == wavelength_Units_List[angstrom] ||
+			spectral_Units == wavelength_Units_List[nm]		  )
+		{
+			lambda_Energy = Lambda_Sym;
+		} else
+		{
+			lambda_Energy = "E";
+		}
+
 		double spectral_Coeff = wavelength_Coefficients_Map.value(spectral_Units);
 		double angular_Coeff = angle_Coefficients_Map.value(angular_Units);
 
@@ -61,58 +71,58 @@ void Independent_Curve::refresh_Description_Label()
 		{
 			if(measurement.argument_Type == argument_Types[Beam_Grazing_Angle])
 			{
-				label_Text =  measurement.measurement_Type + "; " +
+				label_Text =  measurement.measurement_Type + "; " + Theta_Sym + Zero_Subscript_Sym + "=" +
 							  Locale.toString(measurement.beam_Theta_0_Angle.independent.min/angular_Coeff) +
 						"-" + Locale.toString(measurement.beam_Theta_0_Angle.independent.max/angular_Coeff) +
-							  "" + angular_Units + "; " + "at " +
+							  " " + angular_Units + "; " + "at " + lambda_Energy + "=" +
 							  Locale.toString(Global_Variables::wavelength_Energy(spectral_Units, measurement.wavelength.value)/spectral_Coeff, thumbnail_double_format, thumbnail_wavelength_precision) +
 							  " " + spectral_Units;
 			}
 			if(measurement.argument_Type == argument_Types[Wavelength_Energy])
 			{
-				label_Text =  measurement.measurement_Type + "; " +
+				label_Text =  measurement.measurement_Type + "; " + lambda_Energy + "=" +
 							  Locale.toString(Global_Variables::wavelength_Energy(spectral_Units, measurement.wavelength.independent.min)/spectral_Coeff) +
 						"-" + Locale.toString(Global_Variables::wavelength_Energy(spectral_Units, measurement.wavelength.independent.max)/spectral_Coeff) +
-							  " " + spectral_Units + "; " + "at " +
+							  " " + spectral_Units + "; " + "at " + Theta_Sym + Zero_Subscript_Sym + "=" +
 							  Locale.toString(measurement.beam_Theta_0_Angle.value/angular_Coeff, thumbnail_double_format, thumbnail_angle_precision) +
-							  "" + angular_Units;
+							  " " + angular_Units;
 			}
 		}
 		if(	measurement.measurement_Type == measurement_Types[Detector_Scan] )
 		{
 			if(measurement.argument_Type == argument_Types[Detector_Polar_Angle])
 			{
-				label_Text =  measurement.measurement_Type + "; " +
+				label_Text =  measurement.measurement_Type + "; " + Theta_Sym + "=" +
 							  Locale.toString(measurement.detector_Theta_Angle.independent.min/angular_Coeff) +
 						"-" + Locale.toString(measurement.detector_Theta_Angle.independent.max/angular_Coeff) +
-							  "" + angular_Units + "; " + "at " +
+							  " " + angular_Units + "; " + "at " + lambda_Energy + "=" +
 							  Locale.toString(Global_Variables::wavelength_Energy(spectral_Units, measurement.wavelength.value)/spectral_Coeff, thumbnail_double_format, thumbnail_wavelength_precision) +
 							  " " + spectral_Units + " and " + Theta_Sym + Zero_Subscript_Sym + "=" +
 							  Locale.toString(measurement.beam_Theta_0_Angle.value/angular_Coeff, thumbnail_double_format, thumbnail_angle_precision) +
-							  "" + angular_Units;
+							  " " + angular_Units;
 			}
 		}
 		if(	measurement.measurement_Type == measurement_Types[Rocking_Curve] )
 		{
 			if(measurement.argument_Type == argument_Types[Beam_Grazing_Angle])
 			{
-				label_Text =  measurement.measurement_Type + "; " +
+				label_Text =  measurement.measurement_Type + "; " + Theta_Sym + Zero_Subscript_Sym + "=" +
 							  Locale.toString(measurement.beam_Theta_0_Angle.independent.min/angular_Coeff) +
 						"-" + Locale.toString(measurement.beam_Theta_0_Angle.independent.max/angular_Coeff) +
-							  "" + angular_Units + "; " + "at " +
+							  " " + angular_Units + "; " + "at " + lambda_Energy + "=" +
 							  Locale.toString(Global_Variables::wavelength_Energy(spectral_Units, measurement.wavelength.value)/spectral_Coeff, thumbnail_double_format, thumbnail_wavelength_precision) +
-							  " " + spectral_Units + ", specular =" +
+							  " " + spectral_Units + ", specular=" +
 							  Locale.toString(measurement.beam_Theta_0_Specular_Position/angular_Coeff, thumbnail_double_format, thumbnail_angle_precision) +
 							  "" + angular_Units;
 			}
 			if(measurement.argument_Type == argument_Types[Deviation_From_Specular_Angle])
 			{
-				label_Text =  measurement.measurement_Type + "; " +
+				label_Text =  measurement.measurement_Type + "; " + Delta_Big_Sym + Theta_Sym + Zero_Subscript_Sym + "=" +
 							  Locale.toString((measurement.beam_Theta_0_Angle.independent.min-measurement.beam_Theta_0_Specular_Position)/angular_Coeff) +
 						"-" + Locale.toString((measurement.beam_Theta_0_Angle.independent.max-measurement.beam_Theta_0_Specular_Position)/angular_Coeff) +
-							  "" + angular_Units + "; " + "at " +
+							  "" + angular_Units + "; " + "at " + lambda_Energy + "=" +
 							  Locale.toString(Global_Variables::wavelength_Energy(spectral_Units, measurement.wavelength.value)/spectral_Coeff, thumbnail_double_format, thumbnail_wavelength_precision) +
-							  " " + spectral_Units + ", specular =" +
+							  " " + spectral_Units + ", specular=" +
 							  Locale.toString(measurement.beam_Theta_0_Specular_Position/angular_Coeff, thumbnail_double_format, thumbnail_angle_precision) +
 							  "" + angular_Units;
 			}
@@ -121,10 +131,10 @@ void Independent_Curve::refresh_Description_Label()
 		{
 			if(measurement.argument_Type == argument_Types[Beam_Grazing_Angle])
 			{
-				label_Text =  measurement.measurement_Type + "; " +
+				label_Text =  measurement.measurement_Type + "; " + Theta_Sym + Zero_Subscript_Sym + "=" +
 							  Locale.toString(measurement.beam_Theta_0_Angle.independent.min/angular_Coeff) +
 						"-" + Locale.toString(measurement.beam_Theta_0_Angle.independent.max/angular_Coeff) +
-							  "" + angular_Units + "; " + "at " +
+							  "" + angular_Units + "; " + "at " + lambda_Energy + "=" +
 							  Locale.toString(Global_Variables::wavelength_Energy(spectral_Units, measurement.wavelength.value)/spectral_Coeff, thumbnail_double_format, thumbnail_wavelength_precision) +
 							  " " + spectral_Units + ", offset =" +
 							  Locale.toString(measurement.detector_Theta_Offset/angular_Coeff, thumbnail_double_format, thumbnail_angle_precision) +

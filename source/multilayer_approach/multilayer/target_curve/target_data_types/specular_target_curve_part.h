@@ -23,6 +23,7 @@ public:
 	void fill_At_Fixed_Label();
 	void fill_At_Fixed_Units();
 	void fill_At_Fixed_Value();
+	void fill_Spectral_Width_Label();
 
 	void refresh_Argument_Units();
 	void refresh_At_Fixed_Units();

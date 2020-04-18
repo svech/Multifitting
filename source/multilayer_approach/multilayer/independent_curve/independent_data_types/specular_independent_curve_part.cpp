@@ -144,7 +144,7 @@ void Specular_Independent_Curve_Part::create_Beam_GroupBox()
 	{
 		at_Fixed_Label = new QLabel;
 			fill_At_Fixed_Label();
-		beam_GroupBox_Layout->addWidget(at_Fixed_Label,0,0,1,1,Qt::AlignLeft);
+		beam_GroupBox_Layout->addWidget(at_Fixed_Label,0,0,Qt::AlignLeft);
 
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -444,10 +444,10 @@ void Specular_Independent_Curve_Part::fill_At_Fixed_Label()
 		if(	independent_Curve->spectral_Units == wavelength_Units_List[angstrom] ||
 			independent_Curve->spectral_Units == wavelength_Units_List[nm]		  )
 		{
-			at_Fixed_Label->setText("At fixed wavelength:");
+			at_Fixed_Label->setText("At fixed wavelength");
 		} else
 		{
-			at_Fixed_Label->setText("At fixed energy:");
+			at_Fixed_Label->setText("At fixed energy");
 		}
 	}
 	if(independent_Curve->measurement.argument_Type == argument_Types[Wavelength_Energy])

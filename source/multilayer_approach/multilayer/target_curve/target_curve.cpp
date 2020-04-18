@@ -284,6 +284,16 @@ void Target_Curve::refresh_Description_Label()
 	// TODO
 	if(loaded_And_Ready)
 	{
+		QString lambda_Energy;
+		if(	spectral_Units == wavelength_Units_List[angstrom] ||
+			spectral_Units == wavelength_Units_List[nm]		  )
+		{
+			lambda_Energy = Lambda_Sym;
+		} else
+		{
+			lambda_Energy = "E";
+		}
+
 		double spectral_Coeff = wavelength_Coefficients_Map.value(spectral_Units);
 		double angular_Coeff = angle_Coefficients_Map.value(angular_Units);
 
@@ -291,34 +301,54 @@ void Target_Curve::refresh_Description_Label()
 		{
 			if(measurement.argument_Type == argument_Types[Beam_Grazing_Angle])
 			{		
-				label_Text =  curve.value_Type + "; " +
+				label_Text =  curve.value_Type + "; " + Theta_Sym + Zero_Subscript_Sym + "=" +
 							  Locale.toString(curve.shifted_Argument.first(), thumbnail_double_format, 3) +
 						"-" + Locale.toString(curve.shifted_Argument.last(), thumbnail_double_format, 3) +
-							  "" + angular_Units + "; " + "at " +
+							  " " + angular_Units + "; " + "at " + lambda_Energy + "=" +
 							  Locale.toString(Global_Variables::wavelength_Energy(spectral_Units,measurement.wavelength.value)/spectral_Coeff, thumbnail_double_format, thumbnail_wavelength_precision) +
 							  " " + spectral_Units;
 			}
 			if(measurement.argument_Type == argument_Types[Wavelength_Energy])
 			{
-				label_Text =  curve.value_Type + "; " +
+				label_Text =  curve.value_Type + "; " + lambda_Energy + "=" +
 							  Locale.toString(curve.shifted_Argument.first(), thumbnail_double_format, 3) +
 						"-" + Locale.toString(curve.shifted_Argument.last(), thumbnail_double_format, 3) +
-							  "" + spectral_Units + "; " + "at " +
+							  " " + spectral_Units + "; " + "at " + Theta_Sym + Zero_Subscript_Sym + "=" +
 							  Locale.toString(measurement.beam_Theta_0_Angle.value/angular_Coeff, thumbnail_double_format, thumbnail_angle_precision) +
 							  " " + angular_Units;
 			}
 		}
 		if(	measurement.measurement_Type == measurement_Types[Detector_Scan] )
 		{
-	//		detector_Target_Curve_Part->refresh_Description_Label();
+			if(measurement.argument_Type == argument_Types[Detector_Polar_Angle])
+			{
+				label_Text =  measurement.measurement_Type + "; " + Theta_Sym + "=" +
+							  Locale.toString(curve.shifted_Argument.first(), thumbnail_double_format, 3) +
+						"-" + Locale.toString(curve.shifted_Argument.last(), thumbnail_double_format, 3) +
+							  " " + angular_Units + "; " + "at " + lambda_Energy + "=" +
+							  Locale.toString(Global_Variables::wavelength_Energy(spectral_Units, measurement.wavelength.value)/spectral_Coeff, thumbnail_double_format, thumbnail_wavelength_precision) +
+							  " " + spectral_Units + " and " + Theta_Sym + Zero_Subscript_Sym + "=" +
+							  Locale.toString(measurement.beam_Theta_0_Angle.value/angular_Coeff, thumbnail_double_format, thumbnail_angle_precision) +
+							  " " + angular_Units;
+			}
 		}
 		if(	measurement.measurement_Type == measurement_Types[Rocking_Curve] )
 		{
-	//		rocking_Target_Curve_Part->refresh_Description_Label();
+			//		gisas_Target_Curve_Part->refresh_Description_Label();
 		}
 		if(	measurement.measurement_Type == measurement_Types[Offset_Scan] )
 		{
-	//		offset_Target_Curve_Part->refresh_Description_Label();
+			if(measurement.argument_Type == argument_Types[Beam_Grazing_Angle])
+			{
+				label_Text =  measurement.measurement_Type + "; " + Theta_Sym + Zero_Subscript_Sym + "=" +
+							  Locale.toString(curve.shifted_Argument.first(), thumbnail_double_format, 3) +
+						"-" + Locale.toString(curve.shifted_Argument.last(), thumbnail_double_format, 3) +
+							  " " + angular_Units + "; " + "at " + lambda_Energy + "=" +
+							  Locale.toString(Global_Variables::wavelength_Energy(spectral_Units, measurement.wavelength.value)/spectral_Coeff, thumbnail_double_format, thumbnail_wavelength_precision) +
+							  " " + spectral_Units + ", offset =" +
+							  Locale.toString(measurement.detector_Theta_Offset/angular_Coeff, thumbnail_double_format, thumbnail_angle_precision) +
+							  " " + angular_Units;
+			}
 		}
 		if(	measurement.measurement_Type == measurement_Types[GISAS] )
 		{

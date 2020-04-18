@@ -27,7 +27,6 @@ public:
 	void refresh_At_Fixed_Beam_Theta_0_Value();
 	void refresh_At_Fixed_Wavelength_Value();
 
-	void disable_Crystal_Detector_Type();
 	void refresh_Plot_Axes_Labels();
 
 	void connecting();
