@@ -14,12 +14,9 @@ Curve::Curve()
 	subinterval_Top = 1;
 	subinterval_Bottom = -1;
 
-	// argument shift & factor
+	// argument shift & factor 1D only
 	horizontal_Arg_Shift = 0;
 	horizontal_Arg_Factor = 1;
-	// 2D only
-	vertical_Arg_Shift = 0;
-	vertical_Arg_Factor = 1;
 
 	// value shift & factor
 	val_Shift = 0;
@@ -132,7 +129,7 @@ void Target_Curve::parse_Data_From_List()
 	{
 		parse_1D_Data();
 	}
-	if(	measurement.measurement_Type == measurement_Types[GISAS] )
+	if(	measurement.measurement_Type == measurement_Types[GISAS_Map] )
 	{
 		parse_2D_Data();
 	}
@@ -210,7 +207,7 @@ void Target_Curve::fill_Measurement_And_Curve_With_Shifted_Data()
 	{
 		fill_Measurement_And_Curve_With_Shifted_1D_Data();
 	}
-	if(	measurement.measurement_Type == measurement_Types[GISAS] )
+	if(	measurement.measurement_Type == measurement_Types[GISAS_Map] )
 	{
 		fill_Measurement_And_Curve_With_Shifted_2D_Data();
 	}
@@ -288,7 +285,6 @@ void Target_Curve::fill_Measurement_And_Curve_With_Shifted_2D_Data()
 
 void Target_Curve::refresh_Description_Label()
 {
-	// TODO
 	if(loaded_And_Ready)
 	{
 		QString lambda_Energy;
@@ -378,9 +374,22 @@ void Target_Curve::refresh_Description_Label()
 							  " " + angular_Units;
 			}
 		}
-		if(	measurement.measurement_Type == measurement_Types[GISAS] )
+		if(	measurement.measurement_Type == measurement_Types[GISAS_Map] )
 		{
-	//		gisas_Target_Curve_Part->refresh_Description_Label();
+			if(measurement.argument_Type == argument_Types[Detector_Theta_Phi_Angles])
+			{
+				label_Text =  measurement.measurement_Type + "; " + Theta_Sym + "=" +
+							  Locale.toString(measurement.detector_Theta_Angle.independent.min/angular_Coeff) +
+						"-" + Locale.toString(measurement.detector_Theta_Angle.independent.max/angular_Coeff) +
+							  " " + angular_Units + "; " +			Phi_Sym + "=" +
+							  Locale.toString(measurement.detector_Phi_Angle.independent.min/angular_Coeff) +
+						"-" + Locale.toString(measurement.detector_Phi_Angle.independent.max/angular_Coeff) +
+							  " " + angular_Units + "; " + "at " + lambda_Energy + "=" +
+							  Locale.toString(Global_Variables::wavelength_Energy(spectral_Units, measurement.wavelength.value)/spectral_Coeff, thumbnail_double_format, thumbnail_wavelength_precision) +
+							  " " + spectral_Units + " and " + Theta_Sym + Zero_Subscript_Sym + "=" +
+							  Locale.toString(measurement.beam_Theta_0_Angle.value/angular_Coeff, thumbnail_double_format, thumbnail_angle_precision) +
+							  " " + angular_Units;
+			}
 		}
 
 		description_Label->setText(index + ": " + label_Text);
@@ -424,7 +433,7 @@ QDataStream& operator <<( QDataStream& stream, const Curve& curve )
 {
 	return stream	<< curve.mesh_Density_Factor << curve.mesh_Density_Shift
 					<< curve.use_Subinterval << curve.subinterval_Left << curve.subinterval_Right << curve.subinterval_Top << curve.subinterval_Bottom
-					<< curve.horizontal_Arg_Shift << curve.horizontal_Arg_Factor << curve.vertical_Arg_Shift << curve.vertical_Arg_Factor
+					<< curve.horizontal_Arg_Shift << curve.horizontal_Arg_Factor
 					<< curve.val_Shift << curve.val_Factor
 					<< curve.divide_On_Beam_Intensity << curve.beam_Intensity_Initial << curve.use_Final_Intensity << curve.beam_Intensity_Final
 					<< curve.value_Type;
@@ -435,7 +444,7 @@ QDataStream& operator >>( QDataStream& stream,		 Curve& curve )
 	{
 		stream	>> curve.mesh_Density_Factor >> curve.mesh_Density_Shift
 				>> curve.use_Subinterval >> curve.subinterval_Left >> curve.subinterval_Right >> curve.subinterval_Top >> curve.subinterval_Bottom
-				>> curve.horizontal_Arg_Shift >> curve.horizontal_Arg_Factor >> curve.vertical_Arg_Shift >> curve.vertical_Arg_Factor
+				>> curve.horizontal_Arg_Shift >> curve.horizontal_Arg_Factor
 				>> curve.val_Shift >> curve.val_Factor
 				>> curve.divide_On_Beam_Intensity >> curve.beam_Intensity_Initial >> curve.use_Final_Intensity >> curve.beam_Intensity_Final
 				>> curve.value_Type;

@@ -30,7 +30,7 @@ void Target_Curve_Plot::create_Plot()
 		create_Subinterval_Rectangle();
 		create_Plot_Options_GroupBox();
 	}
-	if( target_Curve->measurement.measurement_Type == measurement_Types[GISAS] )
+	if( target_Curve->measurement.measurement_Type == measurement_Types[GISAS_Map] )
 	{
 		// TODO GISAS
 //		color_Map = new QCPColorMap()
@@ -110,7 +110,7 @@ void Target_Curve_Plot::create_Subinterval_Rectangle()
 			end_Rect->setPen  (subinterval_Plot_Pen);
 			end_Rect->setBrush(subinterval_Plot_Brush);
 
-	if( target_Curve->measurement.measurement_Type == measurement_Types[GISAS] )
+	if( target_Curve->measurement.measurement_Type == measurement_Types[GISAS_Map] )
 	{
 		top_Rect = new QCPItemRect(custom_Plot);
 				top_Rect->setPen  (subinterval_Plot_Pen);
@@ -138,7 +138,7 @@ void Target_Curve_Plot::subinterval_Changed_Replot()
 	start_Rect->setVisible(target_Curve->curve.use_Subinterval);
 	end_Rect->setVisible(target_Curve->curve.use_Subinterval);
 
-	if( target_Curve->measurement.measurement_Type == measurement_Types[GISAS] )
+	if( target_Curve->measurement.measurement_Type == measurement_Types[GISAS_Map] )
 	{
 		top_Rect->topLeft->setCoords(target_Curve->curve.subinterval_Left, custom_Plot->yAxis->range().upper);
 		top_Rect->bottomRight->setCoords(target_Curve->curve.subinterval_Right,target_Curve->curve.subinterval_Top);
@@ -165,7 +165,7 @@ void Target_Curve_Plot::plot_Data(bool fast)
 		{
 			create_Plot_Frame_And_Scale_1D();
 		}
-		if( target_Curve->measurement.measurement_Type == measurement_Types[GISAS] )
+		if( target_Curve->measurement.measurement_Type == measurement_Types[GISAS_Map] )
 		{
 			// TODO GISAS
 	//		color_Map = new QCPColorMap()
@@ -215,7 +215,7 @@ void Target_Curve_Plot::plot_Data(bool fast)
 				custom_Plot->yAxis->setRange(min,max);
 			}
 		}
-		if( target_Curve->measurement.measurement_Type == measurement_Types[GISAS] )
+		if( target_Curve->measurement.measurement_Type == measurement_Types[GISAS_Map] )
 		{
 			// TODO GISAS
 		}

@@ -51,10 +51,10 @@ void Distribution_Editor::create_Main_Layout()
 	// ---------------------------------------------
 	// phi_0
 	// ---------------------------------------------
-	if( measurement.measurement_Type == measurement_Types[GISAS] )
+	if( measurement.measurement_Type == measurement_Types[GISAS_Map] )
 	{
 		name = "Angular divergence, FWHM, " + Delta_Big_Sym + Phi_Sym + Zero_Subscript_Sym;
-		Distribution_Box* phi_0_Distribution_Box = new Distribution_Box(measurement.beam_Phi_0_Distribution, name, related_Phi_0_SpinBox, angular_Units);
+		Distribution_Box* phi_0_Distribution_Box = new Distribution_Box(measurement.beam_Phi_0_Distribution, name, related_Phi_0_SpinBox, angular_Units, false);
 			hor_Layout->addWidget(phi_0_Distribution_Box);
 	}
 

@@ -194,9 +194,9 @@ void Target_Curve_Editor::create_Data_GroupBox()
 		offset_Target_Curve_Part = new Offset_Target_Curve_Part(target_Curve, target_Curve_Plot);
 			bottom_Part_Layout->addWidget(offset_Target_Curve_Part);
 	}
-	if(	target_Curve->measurement.measurement_Type == measurement_Types[GISAS] )
+	if(	target_Curve->measurement.measurement_Type == measurement_Types[GISAS_Map] )
 	{
-		gisas_Target_Curve_Part = new GISAS_Target_Curve_Part(target_Curve);
+		gisas_Target_Curve_Part = new GISAS_Target_Curve_Part(target_Curve, target_Curve_Plot);
 			bottom_Part_Layout->addWidget(gisas_Target_Curve_Part);
 	}
 }
@@ -221,9 +221,9 @@ void Target_Curve_Editor::reset_Subinterval()
 		offset_Target_Curve_Part->reset_Subinterval();
 		offset_Target_Curve_Part->fill_Offset();
 	}
-	if(	target_Curve->measurement.measurement_Type == measurement_Types[GISAS] )
-	{
-//		gisas_Target_Curve_Part->reset_Subinterval();
+	if(	target_Curve->measurement.measurement_Type == measurement_Types[GISAS_Map] )
+	{		
+		// nothing to do
 	}
 }
 

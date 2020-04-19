@@ -77,7 +77,7 @@ enum target_Data_Types_Enum {	/** 1D */
 								Offset_Scan,		// scattering vs theta_0, wavelength
 
 								/** 2D */
-								GISAS	// scattering vs theta & phi // from 0 or from specular direction
+								GISAS_Map	// scattering vs theta & phi // from 0 or from specular direction
 };
 
 // argument types
@@ -89,7 +89,7 @@ enum argument_Types_Enum    { Beam_Grazing_Angle, Deviation_From_Specular_Angle,
 extern QString no_Value_Type;
 extern QStringList value_Types;
 extern QStringList value_Types_Short;
-enum value_Types_Enum    { Reflectance, Transmittance, Absorptance, Scattering };
+enum value_Types_Enum    { Reflectance, Transmittance, Absorptance, Scattering, GISAS };
 
 // distributions
 extern QStringList distributions;

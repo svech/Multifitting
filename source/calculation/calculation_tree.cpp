@@ -384,7 +384,7 @@ void Calculation_Tree::calculate_1_Kind_Preliminary(Data_Element<Type>& data_Ele
 		{
 			// TODO
 		}
-		if(	target_Curve->measurement.measurement_Type == measurement_Types[GISAS] )
+		if(	target_Curve->measurement.measurement_Type == measurement_Types[GISAS_Map] )
 		{
 			// TODO
 		}

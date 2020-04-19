@@ -18,7 +18,7 @@ Common_Part::Common_Part(Independent_Curve* independent_Curve, Target_Curve* tar
 	{
 		create_Detector_GroupBox();
 	}
-	if( measurement.measurement_Type == measurement_Types[GISAS] )
+	if( measurement.measurement_Type == measurement_Types[GISAS_Map] )
 	{
 		create_2D_Detector_GroupBox();
 	}
@@ -737,7 +737,7 @@ void Common_Part::connecting()
 			global_Multilayer_Approach->calculate(true);
 		});
 	}
-	if( measurement.measurement_Type == measurement_Types[GISAS] )
+	if( measurement.measurement_Type == measurement_Types[GISAS_Map] )
 	{
 		// detector type
 		connect(detector_Type_ComboBox, &QComboBox::currentTextChanged, this, [=]

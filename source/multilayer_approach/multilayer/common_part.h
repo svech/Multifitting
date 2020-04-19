@@ -1,7 +1,7 @@
 #ifndef COMMON_PART_1D_H
 #define COMMON_PART_1D_H
 
-#include "standard/mydoublespinbox.h"
+#include "distribution_editor.h"
 #include "multilayer_approach/multilayer_approach.h"
 #include "multilayer_approach/multilayer/independent_curve/independent_curve.h"
 #include "multilayer_approach/multilayer/target_curve/target_curve.h"

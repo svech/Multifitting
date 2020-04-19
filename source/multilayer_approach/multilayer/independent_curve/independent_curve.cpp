@@ -140,7 +140,7 @@ void Independent_Curve::refresh_Description_Label()
 							  " " + angular_Units;
 			}
 		}
-		if(	measurement.measurement_Type == measurement_Types[GISAS] )
+		if(	measurement.measurement_Type == measurement_Types[GISAS_Map] )
 		{
 			if(measurement.argument_Type == argument_Types[Detector_Theta_Phi_Angles])
 			{

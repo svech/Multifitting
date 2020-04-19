@@ -75,7 +75,7 @@ void Independent_Curve_Editor::create_Main_Part()
 		offset_Independent_Curve_Part = new Offset_Independent_Curve_Part(independent_Curve);
 			main_Layout->addWidget(offset_Independent_Curve_Part);
 	}
-	if(	independent_Curve->measurement.measurement_Type == measurement_Types[GISAS] )
+	if(	independent_Curve->measurement.measurement_Type == measurement_Types[GISAS_Map] )
 	{
 		gisas_Independent_Curve_Part = new GISAS_Independent_Curve_Part(independent_Curve);
 			main_Layout->addWidget(gisas_Independent_Curve_Part);

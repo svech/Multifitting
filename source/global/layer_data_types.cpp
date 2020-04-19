@@ -579,7 +579,7 @@ void Data::calc_Measured_cos2_k()
 	{
 		// TODO
 	}
-	if(	measurement_Type == measurement_Types[GISAS] )
+	if(	measurement_Type == measurement_Types[GISAS_Map] )
 	{
 		// TODO
 	}
@@ -655,7 +655,7 @@ void Data::calc_Independent_cos2_k()
 	{
 		// TODO
 	}
-	if(	measurement_Type == measurement_Types[GISAS] )
+	if(	measurement_Type == measurement_Types[GISAS_Map] )
 	{
 		// TODO
 	}

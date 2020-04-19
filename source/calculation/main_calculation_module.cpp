@@ -998,7 +998,7 @@ void Main_Calculation_Module::print_Reflect_To_File(Data_Element<Type>& data_Ele
 	{
 		// TODO
 	}
-	if(	data_Element.the_Class->measurement.measurement_Type == measurement_Types[GISAS] )
+	if(	data_Element.the_Class->measurement.measurement_Type == measurement_Types[GISAS_Map] )
 	{
 		// TODO
 	}

@@ -22,12 +22,9 @@ struct Curve
 	double subinterval_Top;
 	double subinterval_Bottom;
 
-	// argument shift & factor
+	// argument shift & factor 1D only
 	double horizontal_Arg_Shift;
 	double horizontal_Arg_Factor;
-	// 2D only
-	double vertical_Arg_Shift;
-	double vertical_Arg_Factor;
 
 	// value shift & factor
 	double val_Shift;
@@ -52,10 +49,6 @@ struct Curve
 	 vector<double> shifted_Values_No_Scaling_And_Offset; // without saving, for fitting scale purposes
 
 	// 2D
-	QVector<double> horizontal_Argument;						// without saving
-	QVector<double> horizontal_Argument_Shifted;				// without saving
-	QVector<double> vertical_Argument;							// without saving
-	QVector<double> vertical_Argument_Shifted;					// without saving
 	QVector<QVector<double>> value_2D;							// without saving
 	 vector<QVector<double>> value_2D_Shifted;					// without saving
 	 vector<QVector<double>> value_2D_No_Scaling_And_Offset;	// without saving

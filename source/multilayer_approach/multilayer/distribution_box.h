@@ -9,7 +9,7 @@ class Distribution_Box : public QWidget
 {
 	Q_OBJECT
 public:
-	explicit Distribution_Box(Distribution& distribution, QString name, MyDoubleSpinBox* related_SpinBox, QString angular_Units = "", QWidget *parent = nullptr);
+	explicit Distribution_Box(Distribution& distribution, QString name, MyDoubleSpinBox* related_SpinBox, QString angular_Units = "", bool use_Sampling = true, QWidget *parent = nullptr);
 
 	void create_Main_Layout();
 	void create_Plot();
@@ -23,6 +23,7 @@ public:
 	QString name;
 	MyDoubleSpinBox* related_SpinBox;
 	QString angular_Units;
+	bool use_Sampling;
 
 	QVBoxLayout* main_Layout;
 
