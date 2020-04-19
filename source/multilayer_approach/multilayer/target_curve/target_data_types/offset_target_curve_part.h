@@ -1,11 +1,11 @@
 #ifndef OFFSET_TARGET_CURVE_PART_H
 #define OFFSET_TARGET_CURVE_PART_H
 
-#include "multilayer_approach/multilayer/common_part_1d.h"
+#include "multilayer_approach/multilayer/common_part.h"
 #include "multilayer_approach/multilayer/target_curve/target_curve_plot.h"
 
 class Multilayer_Approach;
-class Common_Part_1D;
+class Common_Part;
 
 class Offset_Target_Curve_Part : public QWidget
 {
@@ -36,7 +36,7 @@ public:
 	Target_Curve_Plot* target_Curve_Plot;
 
 	QVBoxLayout* main_Layout;
-	Common_Part_1D* target_1D_Common_Part;
+	Common_Part* target_Common_Part;
 
 	// argument
 	QComboBox* arg_Type_ComboBox;

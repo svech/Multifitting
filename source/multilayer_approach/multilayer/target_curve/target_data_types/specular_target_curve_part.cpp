@@ -13,8 +13,9 @@ Specular_Target_Curve_Part::Specular_Target_Curve_Part(Target_Curve* target_Curv
 	create_Value_GroupBox();
 	create_Beam_GroupBox();
 
-	target_1D_Common_Part = new Common_Part_1D(nullptr, target_Curve);
-	main_Layout->addWidget(target_1D_Common_Part);
+	Independent_Curve* independent_Curve;
+	target_Common_Part = new Common_Part(independent_Curve, target_Curve);
+	main_Layout->addWidget(target_Common_Part);
 
 	connecting();
 	refresh_Plot_Axes_Labels();;
@@ -446,7 +447,7 @@ void Specular_Target_Curve_Part::fill_Argument_Units()
 void Specular_Target_Curve_Part::refresh_Argument_Units()
 {
 	angular_Divergence_SpinBox->blockSignals(true);
-	target_1D_Common_Part->crystal_Resolution_SpinBox->blockSignals(true);
+	target_Common_Part->crystal_Resolution_SpinBox->blockSignals(true);
 
 	if(target_Curve->measurement.argument_Type == argument_Types[Beam_Grazing_Angle])
 	{
@@ -456,8 +457,8 @@ void Specular_Target_Curve_Part::refresh_Argument_Units()
 		angular_Divergence_SpinBox->setValue(target_Curve->measurement.beam_Theta_0_Distribution.FWHM_distribution/coeff);
 		angular_Divergence_Units_Label->setText(target_Curve->angular_Units);
 
-		target_1D_Common_Part->crystal_Resolution_SpinBox->setValue(target_Curve->measurement.detector_1D.detector_Theta_Resolution.FWHM_distribution/coeff);
-		target_1D_Common_Part->crystal_Resolution_Units_Label->setText(target_Curve->angular_Units);
+		target_Common_Part->crystal_Resolution_SpinBox->setValue(target_Curve->measurement.detector_1D.detector_Theta_Resolution.FWHM_distribution/coeff);
+		target_Common_Part->crystal_Resolution_Units_Label->setText(target_Curve->angular_Units);
 	}
 	if(target_Curve->measurement.argument_Type == argument_Types[Wavelength_Energy])
 	{
@@ -470,7 +471,7 @@ void Specular_Target_Curve_Part::refresh_Argument_Units()
 	refresh_Plot_Axes_Labels();
 
 	angular_Divergence_SpinBox->blockSignals(false);
-	target_1D_Common_Part->crystal_Resolution_SpinBox->blockSignals(false);
+	target_Common_Part->crystal_Resolution_SpinBox->blockSignals(false);
 }
 
 void Specular_Target_Curve_Part::fill_At_Fixed_Label()
@@ -515,7 +516,7 @@ void Specular_Target_Curve_Part::refresh_At_Fixed_Units()
 {
 	at_Fixed_SpinBox->blockSignals(true);
 	angular_Divergence_SpinBox->blockSignals(true);
-	target_1D_Common_Part->crystal_Resolution_SpinBox->blockSignals(true);
+	target_Common_Part->crystal_Resolution_SpinBox->blockSignals(true);
 
 	if( target_Curve->measurement.argument_Type == argument_Types[Beam_Grazing_Angle] )
 	{
@@ -537,14 +538,14 @@ void Specular_Target_Curve_Part::refresh_At_Fixed_Units()
 		angular_Divergence_SpinBox->setValue(target_Curve->measurement.beam_Theta_0_Distribution.FWHM_distribution/coeff);
 		angular_Divergence_Units_Label->setText(target_Curve->angular_Units);
 
-		target_1D_Common_Part->crystal_Resolution_SpinBox->setValue(target_Curve->measurement.detector_1D.detector_Theta_Resolution.FWHM_distribution/coeff);
-		target_1D_Common_Part->crystal_Resolution_Units_Label->setText(target_Curve->angular_Units);
+		target_Common_Part->crystal_Resolution_SpinBox->setValue(target_Curve->measurement.detector_1D.detector_Theta_Resolution.FWHM_distribution/coeff);
+		target_Common_Part->crystal_Resolution_Units_Label->setText(target_Curve->angular_Units);
 	}
 	target_Curve->refresh_Description_Label();
 
 	at_Fixed_SpinBox->blockSignals(false);
 	angular_Divergence_SpinBox->blockSignals(false);
-	target_1D_Common_Part->crystal_Resolution_SpinBox->blockSignals(false);
+	target_Common_Part->crystal_Resolution_SpinBox->blockSignals(false);
 }
 
 void Specular_Target_Curve_Part::fill_At_Fixed_Value()
@@ -603,10 +604,10 @@ void Specular_Target_Curve_Part::refresh_Value_Type()
 
 void Specular_Target_Curve_Part::disable_Crystal_Detector_Type()
 {
-	target_1D_Common_Part->detector_Type_ComboBox->blockSignals(true);
+	target_Common_Part->detector_Type_ComboBox->blockSignals(true);
 
-	QStandardItemModel* model =	qobject_cast<QStandardItemModel*>(target_1D_Common_Part->detector_Type_ComboBox->model());
-	QStandardItem* item = model->item(target_1D_Common_Part->detector_Type_ComboBox->findText(detectors[Crystal] )); // crystal item
+	QStandardItemModel* model =	qobject_cast<QStandardItemModel*>(target_Common_Part->detector_Type_ComboBox->model());
+	QStandardItem* item = model->item(target_Common_Part->detector_Type_ComboBox->findText(detectors[Crystal] )); // crystal item
 	if(	target_Curve->measurement.argument_Type == argument_Types[Wavelength_Energy] )
 	{
 		target_Curve->measurement.detector_1D.detector_Type = detectors[Slit];
@@ -615,10 +616,10 @@ void Specular_Target_Curve_Part::disable_Crystal_Detector_Type()
 	{
 		item->setEnabled(true);
 	}
-	target_1D_Common_Part->detector_Type_ComboBox->setCurrentText(target_Curve->measurement.detector_1D.detector_Type);
-	target_1D_Common_Part->detectors_Stack->setCurrentIndex(target_1D_Common_Part->detector_Type_ComboBox->findText(target_Curve->measurement.detector_1D.detector_Type));
+	target_Common_Part->detector_Type_ComboBox->setCurrentText(target_Curve->measurement.detector_1D.detector_Type);
+	target_Common_Part->detectors_Stack->setCurrentIndex(target_Common_Part->detector_Type_ComboBox->findText(target_Curve->measurement.detector_1D.detector_Type));
 
-	target_1D_Common_Part->detector_Type_ComboBox->blockSignals(false);
+	target_Common_Part->detector_Type_ComboBox->blockSignals(false);
 }
 
 void Specular_Target_Curve_Part::refresh_Plot_Axes_Labels()

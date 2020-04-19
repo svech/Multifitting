@@ -13,8 +13,9 @@ Detector_Target_Curve_Part::Detector_Target_Curve_Part(Target_Curve* target_Curv
 	create_Value_GroupBox();
 	create_Beam_GroupBox();
 
-	target_1D_Common_Part = new Common_Part_1D(nullptr, target_Curve);
-	main_Layout->addWidget(target_1D_Common_Part);
+	Independent_Curve* independent_Curve;
+	target_Common_Part = new Common_Part(independent_Curve, target_Curve);
+	main_Layout->addWidget(target_Common_Part);
 
 	connecting();
 	refresh_Plot_Axes_Labels();;
@@ -302,7 +303,7 @@ void Detector_Target_Curve_Part::create_Beam_GroupBox()
 			at_Fixed_Wavelength_SpinBox->setValue(Global_Variables::wavelength_Energy(target_Curve->spectral_Units,target_Curve->measurement.wavelength.value)/coeff);
 			at_Fixed_Wavelength_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
 			at_Fixed_Wavelength_SpinBox->setProperty(min_Size_Property, TARGET_LINE_AT_FIXED_WIDTH);
-		beam_GroupBox_Layout->addWidget(at_Fixed_Wavelength_SpinBox,0,2,1,2,Qt::AlignLeft);
+		beam_GroupBox_Layout->addWidget(at_Fixed_Wavelength_SpinBox,0,2,1,2,Qt::AlignRight);
 		Global_Variables::resize_Line_Edit(at_Fixed_Wavelength_SpinBox);
 
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -330,7 +331,7 @@ void Detector_Target_Curve_Part::create_Beam_GroupBox()
 			at_Fixed_Beam_Theta_0_SpinBox->setValue(target_Curve->measurement.beam_Theta_0_Angle.value/coeff);
 			at_Fixed_Beam_Theta_0_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
 			at_Fixed_Beam_Theta_0_SpinBox->setProperty(min_Size_Property, TARGET_LINE_AT_FIXED_WIDTH);
-		beam_GroupBox_Layout->addWidget(at_Fixed_Beam_Theta_0_SpinBox,1,2,1,2,Qt::AlignLeft);
+		beam_GroupBox_Layout->addWidget(at_Fixed_Beam_Theta_0_SpinBox,1,2,1,2,Qt::AlignRight);
 		Global_Variables::resize_Line_Edit(at_Fixed_Beam_Theta_0_SpinBox);
 
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -454,7 +455,7 @@ void Detector_Target_Curve_Part::reset_Subinterval()
 void Detector_Target_Curve_Part::refresh_Argument_Units()
 {
 	angular_Divergence_SpinBox->blockSignals(true);
-	target_1D_Common_Part->crystal_Resolution_SpinBox->blockSignals(true);
+	target_Common_Part->crystal_Resolution_SpinBox->blockSignals(true);
 	at_Fixed_Beam_Theta_0_SpinBox->blockSignals(true);
 
 	target_Curve->angular_Units = arg_Units_ComboBox->currentText();
@@ -470,15 +471,15 @@ void Detector_Target_Curve_Part::refresh_Argument_Units()
 	angular_Divergence_Units_Label->setText(target_Curve->angular_Units);
 
 	// crystal resolution
-	target_1D_Common_Part->crystal_Resolution_SpinBox->setValue(target_Curve->measurement.detector_1D.detector_Theta_Resolution.FWHM_distribution/coeff);
-	target_1D_Common_Part->crystal_Resolution_Units_Label->setText(target_Curve->angular_Units);
+	target_Common_Part->crystal_Resolution_SpinBox->setValue(target_Curve->measurement.detector_1D.detector_Theta_Resolution.FWHM_distribution/coeff);
+	target_Common_Part->crystal_Resolution_Units_Label->setText(target_Curve->angular_Units);
 
 	target_Curve->fill_Measurement_And_Curve_With_Shifted_Data();
 	target_Curve->refresh_Description_Label();
 	refresh_Plot_Axes_Labels();
 
 	angular_Divergence_SpinBox->blockSignals(false);
-	target_1D_Common_Part->crystal_Resolution_SpinBox->blockSignals(false);
+	target_Common_Part->crystal_Resolution_SpinBox->blockSignals(false);
 	at_Fixed_Beam_Theta_0_SpinBox->blockSignals(false);
 }
 

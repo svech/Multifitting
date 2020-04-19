@@ -1,10 +1,10 @@
 #ifndef ROCKING_INDEPENDENT_CURVE_PART_H
 #define ROCKING_INDEPENDENT_CURVE_PART_H
 
-#include "multilayer_approach/multilayer/common_part_1d.h"
+#include "multilayer_approach/multilayer/common_part.h"
 
 class Multilayer_Approach;
-class Common_Part_1D;
+class Common_Part;
 
 class Rocking_Independent_Curve_Part : public QWidget
 {
@@ -32,7 +32,7 @@ public:
 	Independent_Curve* independent_Curve;
 
 	QVBoxLayout* main_Layout;
-	Common_Part_1D* independent_1D_Common_Part;
+	Common_Part* independent_Common_Part;
 
 	// units
 	QComboBox* angular_Units_ComboBox;

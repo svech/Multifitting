@@ -51,7 +51,6 @@ QString Independent_Curve::enlarge_Tab_Name()
 
 void Independent_Curve::refresh_Description_Label()
 {
-	// TODO
 	if(measurement.measurement_Type != no_Measurement_Type)
 	{
 		QString lambda_Energy;
@@ -143,9 +142,21 @@ void Independent_Curve::refresh_Description_Label()
 		}
 		if(	measurement.measurement_Type == measurement_Types[GISAS] )
 		{
-	//		gisas_Target_Curve_Part->refresh_Description_Label();
+			if(measurement.argument_Type == argument_Types[Detector_Theta_Phi_Angles])
+			{
+				label_Text =  measurement.measurement_Type + "; " + Theta_Sym + "=" +
+							  Locale.toString(measurement.detector_Theta_Angle.independent.min/angular_Coeff) +
+						"-" + Locale.toString(measurement.detector_Theta_Angle.independent.max/angular_Coeff) +
+							  " " + angular_Units + "; " +			Phi_Sym + "=" +
+							  Locale.toString(measurement.detector_Phi_Angle.independent.min/angular_Coeff) +
+						"-" + Locale.toString(measurement.detector_Phi_Angle.independent.max/angular_Coeff) +
+							  " " + angular_Units + "; " + "at " + lambda_Energy + "=" +
+							  Locale.toString(Global_Variables::wavelength_Energy(spectral_Units, measurement.wavelength.value)/spectral_Coeff, thumbnail_double_format, thumbnail_wavelength_precision) +
+							  " " + spectral_Units + " and " + Theta_Sym + Zero_Subscript_Sym + "=" +
+							  Locale.toString(measurement.beam_Theta_0_Angle.value/angular_Coeff, thumbnail_double_format, thumbnail_angle_precision) +
+							  " " + angular_Units;
+			}
 		}
-
 		description_Label->setText(label_Text);
 	} else
 	{

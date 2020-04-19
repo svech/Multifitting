@@ -12,8 +12,9 @@ Rocking_Independent_Curve_Part::Rocking_Independent_Curve_Part(Independent_Curve
 	create_Argument_GroupBox();
 	create_Beam_GroupBox();
 
-	independent_1D_Common_Part = new Common_Part_1D(independent_Curve, nullptr);
-	main_Layout->addWidget(independent_1D_Common_Part);
+	Target_Curve* target_Curve;
+	independent_Common_Part = new Common_Part(independent_Curve, target_Curve);
+	main_Layout->addWidget(independent_Common_Part);
 
 	connecting();
 	independent_Curve->refresh_Description_Label();
@@ -319,7 +320,7 @@ void Rocking_Independent_Curve_Part::refresh_Angular_Units()
 	start_Argument_Spinbox->blockSignals(true);
 	final_Argument_Spinbox->blockSignals(true);
 	angular_Divergence_SpinBox->blockSignals(true);
-	independent_1D_Common_Part->crystal_Resolution_SpinBox->blockSignals(true);
+	independent_Common_Part->crystal_Resolution_SpinBox->blockSignals(true);
 
 	double coeff = angle_Coefficients_Map.value(independent_Curve->angular_Units);
 
@@ -328,6 +329,7 @@ void Rocking_Independent_Curve_Part::refresh_Angular_Units()
 	argument_Units_Label->setText(independent_Curve->angular_Units);
 
 	// at fixed specular position
+	at_Fixed_Specular_Position_SpinBox->setRange(0,90./coeff);
 	at_Fixed_Specular_Position_SpinBox->setValue(independent_Curve->measurement.beam_Theta_0_Specular_Position/coeff);
 	at_Fixed_Specular_Position_Units_Label->setText(independent_Curve->angular_Units);
 
@@ -336,13 +338,13 @@ void Rocking_Independent_Curve_Part::refresh_Angular_Units()
 	angular_Divergence_Units_Label->setText(independent_Curve->angular_Units);
 
 	// crystal resolution
-	independent_1D_Common_Part->crystal_Resolution_SpinBox->setValue(independent_Curve->measurement.detector_1D.detector_Theta_Resolution.FWHM_distribution/coeff);
-	independent_1D_Common_Part->crystal_Resolution_Units_Label->setText(independent_Curve->angular_Units);
+	independent_Common_Part->crystal_Resolution_SpinBox->setValue(independent_Curve->measurement.detector_1D.detector_Theta_Resolution.FWHM_distribution/coeff);
+	independent_Common_Part->crystal_Resolution_Units_Label->setText(independent_Curve->angular_Units);
 
 	start_Argument_Spinbox->blockSignals(false);
 	final_Argument_Spinbox->blockSignals(false);
 	angular_Divergence_SpinBox->blockSignals(false);
-	independent_1D_Common_Part->crystal_Resolution_SpinBox->blockSignals(false);
+	independent_Common_Part->crystal_Resolution_SpinBox->blockSignals(false);
 
 	independent_Curve->refresh_Description_Label();
 }

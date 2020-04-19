@@ -1,6 +1,6 @@
-#include "common_part_1d.h"
+#include "common_part.h"
 
-Common_Part_1D::Common_Part_1D(Independent_Curve* independent_Curve, Target_Curve* target_Curve, QWidget *parent) :
+Common_Part::Common_Part(Independent_Curve* independent_Curve, Target_Curve* target_Curve, QWidget *parent) :
 	measurement   (independent_Curve != nullptr ? independent_Curve->measurement    : target_Curve->measurement),
 	angular_Units (independent_Curve != nullptr ? independent_Curve->angular_Units  : target_Curve->angular_Units),
 	spectral_Units(independent_Curve != nullptr ? independent_Curve->spectral_Units : target_Curve->spectral_Units),
@@ -8,16 +8,26 @@ Common_Part_1D::Common_Part_1D(Independent_Curve* independent_Curve, Target_Curv
 	QWidget(parent)
 {
 	main_Layout = new QVBoxLayout(this);
-	main_Layout->setContentsMargins(0,0,0,0);
-	main_Layout->setSpacing(0);
+		main_Layout->setContentsMargins(0,0,0,0);
+		main_Layout->setSpacing(0);
 
-	create_Detector_GroupBox();
+	if( measurement.measurement_Type == measurement_Types[Specular_Scan] ||
+		measurement.measurement_Type == measurement_Types[Detector_Scan] ||
+		measurement.measurement_Type == measurement_Types[Rocking_Curve] ||
+		measurement.measurement_Type == measurement_Types[Offset_Scan] )
+	{
+		create_Detector_GroupBox();
+	}
+	if( measurement.measurement_Type == measurement_Types[GISAS] )
+	{
+		create_2D_Detector_GroupBox();
+	}
 	create_Footptint_GroupBox();
 
 	connecting();
 }
 
-void Common_Part_1D::create_Detector_GroupBox()
+void Common_Part::create_Detector_GroupBox()
 {
 	QGroupBox* detector_GroupBox = new QGroupBox("Detector");
 	main_Layout->addWidget(detector_GroupBox);
@@ -125,8 +135,8 @@ void Common_Part_1D::create_Detector_GroupBox()
 
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-		QLabel* crystal_Width_Label = new QLabel("    Angular resolution, FWHM, "+Delta_Big_Sym+Theta_Sym);
-		crystal_Layout->addWidget(crystal_Width_Label,0,Qt::AlignLeft);
+		QLabel* crystal_Resolution_Label = new QLabel("    Angular resolution, FWHM, "+Delta_Big_Sym+Theta_Sym);
+		crystal_Layout->addWidget(crystal_Resolution_Label,0,Qt::AlignLeft);
 
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -155,15 +165,128 @@ void Common_Part_1D::create_Detector_GroupBox()
 
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-		crystal_Resolution_Function_ComboBox = new QComboBox;
-			crystal_Resolution_Function_ComboBox->addItems(distributions);
-			crystal_Resolution_Function_ComboBox->setCurrentText(measurement.detector_1D.detector_Theta_Resolution.distribution_Function);
-			crystal_Resolution_Function_ComboBox->setFixedWidth(DISTRIBUTION_BOX_FIELD_WIDTH);
-		crystal_Layout->addWidget(crystal_Resolution_Function_ComboBox,0,Qt::AlignLeft);
+		resolution_Function_ComboBox = new QComboBox;
+			resolution_Function_ComboBox->addItems(distributions);
+			resolution_Function_ComboBox->setCurrentText(measurement.detector_1D.detector_Theta_Resolution.distribution_Function);
+			resolution_Function_ComboBox->setFixedWidth(DISTRIBUTION_BOX_FIELD_WIDTH);
+		crystal_Layout->addWidget(resolution_Function_ComboBox,0,Qt::AlignLeft);
 	}
 }
 
-void Common_Part_1D::create_Footptint_GroupBox()
+void Common_Part::create_2D_Detector_GroupBox()
+{
+	QGroupBox* detector_GroupBox = new QGroupBox("Detector");
+	main_Layout->addWidget(detector_GroupBox);
+
+	QGridLayout* detector_GroupBox_Layout = new QGridLayout(detector_GroupBox);
+	detector_GroupBox_Layout->setAlignment(Qt::AlignLeft);
+
+	// detector type
+	{
+		QHBoxLayout* detector_Type_Layout = new QHBoxLayout;
+		detector_Type_Layout->setAlignment(Qt::AlignLeft);
+		detector_GroupBox_Layout->addLayout(detector_Type_Layout,0,0,Qt::AlignLeft);
+
+		// - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+		QLabel* detector_Type_Label = new QLabel("Detector type");
+		detector_Type_Layout->addWidget(detector_Type_Label,0,Qt::AlignLeft);
+
+		// - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+		detector_Type_ComboBox = new QComboBox;
+			detector_Type_ComboBox->addItem(detectors[Spherical]);
+			//detector_Type_ComboBox->addItem(detectors[Rectangular]);
+			detector_Type_ComboBox->setCurrentText(measurement.detector_2D.detector_Type);
+			detector_Type_ComboBox->setFixedWidth(130);
+		detector_Type_Layout->addWidget(detector_Type_ComboBox,0,Qt::AlignLeft);
+
+		// - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+		detectors_Stack = new QStackedWidget;
+		if(is_Independent)
+		{
+			detector_GroupBox_Layout->addWidget(detectors_Stack,1,0);
+		} else
+		{
+			detector_GroupBox_Layout->addWidget(detectors_Stack,0,1);
+		}
+	}
+	// spherical
+	{
+		QWidget* spherical_Page = new QWidget;
+		detectors_Stack->addWidget(spherical_Page);
+		QGridLayout* spherical_Layout = new QGridLayout(spherical_Page);
+			spherical_Layout->setContentsMargins(0,0,0,0);
+		spherical_Layout->setAlignment(Qt::AlignLeft);
+
+		// theta
+		{
+			QLabel* spherical_Theta_Resolution_Label = new QLabel("    Angular resolution, FWHM, "+Delta_Big_Sym+Theta_Sym);
+			spherical_Layout->addWidget(spherical_Theta_Resolution_Label,0,0,Qt::AlignLeft);
+
+			// - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+			double arg_Coeff = angle_Coefficients_Map.value(angular_Units);
+
+			theta_Resolution_SpinBox = new MyDoubleSpinBox;
+				theta_Resolution_SpinBox->setAccelerated(true);
+				theta_Resolution_SpinBox->setRange(0, MAX_DOUBLE);
+				theta_Resolution_SpinBox->setDecimals(6);
+				theta_Resolution_SpinBox->setValue(measurement.detector_2D.detector_Theta_Resolution.FWHM_distribution/arg_Coeff);
+				theta_Resolution_SpinBox->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
+				theta_Resolution_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
+				theta_Resolution_SpinBox->setProperty(min_Size_Property,TARGET_LINE_AT_FIXED_WIDTH);
+			spherical_Layout->addWidget(theta_Resolution_SpinBox,0,1,Qt::AlignLeft);
+			Global_Variables::resize_Line_Edit(theta_Resolution_SpinBox);
+
+			// - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+			theta_Resolution_Units_Label = new QLabel(angular_Units);
+			spherical_Layout->addWidget(theta_Resolution_Units_Label,0,2,Qt::AlignLeft);
+		}
+		// phi
+		{
+			QLabel* spherical_Phi_Resolution_Label = new QLabel("    Angular resolution, FWHM, "+Delta_Big_Sym+Phi_Sym);
+			spherical_Layout->addWidget(spherical_Phi_Resolution_Label,1,0,Qt::AlignLeft);
+
+			// - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+			double arg_Coeff = angle_Coefficients_Map.value(angular_Units);
+
+			phi_Resolution_SpinBox = new MyDoubleSpinBox;
+				phi_Resolution_SpinBox->setAccelerated(true);
+				phi_Resolution_SpinBox->setRange(0, MAX_DOUBLE);
+				phi_Resolution_SpinBox->setDecimals(6);
+				phi_Resolution_SpinBox->setValue(measurement.detector_2D.detector_Phi_Resolution.FWHM_distribution/arg_Coeff);
+				phi_Resolution_SpinBox->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
+				phi_Resolution_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
+				phi_Resolution_SpinBox->setProperty(min_Size_Property,TARGET_LINE_AT_FIXED_WIDTH);
+			spherical_Layout->addWidget(phi_Resolution_SpinBox,1,1,Qt::AlignLeft);
+			Global_Variables::resize_Line_Edit(phi_Resolution_SpinBox);
+
+			// - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+			phi_Resolution_Units_Label = new QLabel(angular_Units);
+			spherical_Layout->addWidget(phi_Resolution_Units_Label,1,2,Qt::AlignLeft);
+		}
+
+		// - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+		QLabel* spherical_Resolution_Function_Label = new QLabel("       Function");
+		spherical_Layout->addWidget(spherical_Resolution_Function_Label,0,3,2,1,Qt::AlignLeft);
+
+		// - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+		resolution_Function_ComboBox = new QComboBox;
+			resolution_Function_ComboBox->addItems(distributions);
+			resolution_Function_ComboBox->setCurrentText(measurement.detector_2D.detector_Theta_Resolution.distribution_Function); // detector_Theta_Resolution.distribution_Function = detector_Phi_Resolution.distribution_Function
+			resolution_Function_ComboBox->setFixedWidth(DISTRIBUTION_BOX_FIELD_WIDTH);
+		spherical_Layout->addWidget(resolution_Function_ComboBox,0,4,2,1,Qt::AlignLeft);
+	}
+}
+
+void Common_Part::create_Footptint_GroupBox()
 {
 	QGroupBox* footprint_GroupBox = new QGroupBox("Footptint and distortion");
 	main_Layout->addWidget(footprint_GroupBox);
@@ -347,7 +470,7 @@ void Common_Part_1D::create_Footptint_GroupBox()
 }
 
 
-void Common_Part_1D::create_Beam_Plot()
+void Common_Part::create_Beam_Plot()
 {
 	beam_Profile_CustomPlot = new QCustomPlot;
 	if(is_Independent)
@@ -393,7 +516,7 @@ void Common_Part_1D::create_Beam_Plot()
 	plot_Beam_Profile();
 }
 
-void Common_Part_1D::plot_Beam_Profile()
+void Common_Part::plot_Beam_Profile()
 {
 	int data_Count = 301;
 	double FWHM = measurement.beam_Geometry.size;
@@ -416,7 +539,7 @@ void Common_Part_1D::plot_Beam_Profile()
 	beam_Profile_CustomPlot->replot();
 }
 
-void Common_Part_1D::create_Sample_Plot()
+void Common_Part::create_Sample_Plot()
 {
 	sample_Profile_CustomPlot = new QCustomPlot;
 	if(is_Independent)
@@ -459,8 +582,8 @@ void Common_Part_1D::create_Sample_Plot()
 	connect(sample_Profile_CustomPlot->xAxis, SIGNAL(rangeChanged(QCPRange)), sample_Profile_CustomPlot->xAxis2, SLOT(setRange(QCPRange)));
 	connect(sample_Profile_CustomPlot->yAxis, SIGNAL(rangeChanged(QCPRange)), sample_Profile_CustomPlot->yAxis2, SLOT(setRange(QCPRange)));
 
-	connect(sample_Profile_CustomPlot->xAxis, static_cast<void(QCPAxis::*)(const QCPRange &)>(&QCPAxis::rangeChanged), this, &Common_Part_1D::auto_Replot_Curve);
-	connect(sample_Profile_CustomPlot->yAxis, static_cast<void(QCPAxis::*)(const QCPRange &)>(&QCPAxis::rangeChanged), this, &Common_Part_1D::auto_Replot_Curve);
+	connect(sample_Profile_CustomPlot->xAxis, static_cast<void(QCPAxis::*)(const QCPRange &)>(&QCPAxis::rangeChanged), this, &Common_Part::auto_Replot_Curve);
+	connect(sample_Profile_CustomPlot->yAxis, static_cast<void(QCPAxis::*)(const QCPRange &)>(&QCPAxis::rangeChanged), this, &Common_Part::auto_Replot_Curve);
 
 	// create empty curve objects:
 	sample_Curve = new QCPCurve(sample_Profile_CustomPlot->xAxis, sample_Profile_CustomPlot->yAxis);
@@ -481,7 +604,7 @@ void Common_Part_1D::create_Sample_Plot()
 	plot_Sample();
 }
 
-void Common_Part_1D::plot_Sample()
+void Common_Part::plot_Sample()
 {
 	int curve_Point_Count = 203;
 
@@ -529,7 +652,7 @@ void Common_Part_1D::plot_Sample()
 	sample_Profile_CustomPlot->replot();
 }
 
-void Common_Part_1D::auto_Replot_Curve()
+void Common_Part::auto_Replot_Curve()
 {
 	double size  = measurement.sample_Geometry.size;
 	double x_Pos = measurement.sample_Geometry.x_Position;
@@ -553,7 +676,7 @@ void Common_Part_1D::auto_Replot_Curve()
 	sample_Profile_CustomPlot->replot();
 }
 
-void Common_Part_1D::refresh_Curvature_Radius()
+void Common_Part::refresh_Curvature_Radius()
 {
 	QString R_Text;
 	if(abs(measurement.sample_Geometry.curvature)>CURVATURE_LIMIT)
@@ -566,46 +689,90 @@ void Common_Part_1D::refresh_Curvature_Radius()
 	R_Curvature_Label->setText("Radius of curvature = " + R_Text);
 }
 
-void Common_Part_1D::connecting()
+void Common_Part::connecting()
 {
 	/// detector box
-	// detector type
-	connect(detector_Type_ComboBox, &QComboBox::currentTextChanged, this, [=]
-	{
-		measurement.detector_1D.detector_Type = detector_Type_ComboBox->currentText();
-		detectors_Stack->setCurrentIndex(detector_Type_ComboBox->findText(measurement.detector_1D.detector_Type));
 
-		global_Multilayer_Approach->calculate(true);
-	});
-	// slit width
-	connect(slit_Width_SpinBox,  static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
+	// 1D slit width
+	if( measurement.measurement_Type == measurement_Types[Specular_Scan] ||
+		measurement.measurement_Type == measurement_Types[Detector_Scan] ||
+		measurement.measurement_Type == measurement_Types[Rocking_Curve] ||
+		measurement.measurement_Type == measurement_Types[Offset_Scan] )
 	{
-		measurement.detector_1D.slit_Width = slit_Width_SpinBox->value();
+		// detector type
+		connect(detector_Type_ComboBox, &QComboBox::currentTextChanged, this, [=]
+		{
+			measurement.detector_1D.detector_Type = detector_Type_ComboBox->currentText();
+			detectors_Stack->setCurrentIndex(detector_Type_ComboBox->findText(measurement.detector_1D.detector_Type));
 
-		global_Multilayer_Approach->calculate(true);
-	});
-	// slit distance
-	connect(slit_Distance_SpinBox,  static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
+			global_Multilayer_Approach->calculate(true);
+		});
+		// 1D slit width
+		connect(slit_Width_SpinBox,  static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
+		{
+			measurement.detector_1D.slit_Width = slit_Width_SpinBox->value();
+
+			global_Multilayer_Approach->calculate(true);
+		});
+		// 1D slit distance
+		connect(slit_Distance_SpinBox,  static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
+		{
+			measurement.detector_1D.distance_To_Sample = slit_Distance_SpinBox->value();
+
+			global_Multilayer_Approach->calculate(true);
+		});
+		// 1D crystal resolution
+		connect(crystal_Resolution_SpinBox,  static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
+		{
+			double coeff = angle_Coefficients_Map.value(angular_Units);
+			measurement.detector_1D.detector_Theta_Resolution.FWHM_distribution = crystal_Resolution_SpinBox->value()*coeff;
+
+			global_Multilayer_Approach->calculate(true);
+		});
+		// resolution function
+		connect(resolution_Function_ComboBox, &QComboBox::currentTextChanged, this, [=]
+		{
+			measurement.detector_1D.detector_Theta_Resolution.distribution_Function = resolution_Function_ComboBox->currentText();
+
+			global_Multilayer_Approach->calculate(true);
+		});
+	}
+	if( measurement.measurement_Type == measurement_Types[GISAS] )
 	{
-		measurement.detector_1D.distance_To_Sample = slit_Distance_SpinBox->value();
+		// detector type
+		connect(detector_Type_ComboBox, &QComboBox::currentTextChanged, this, [=]
+		{
+			measurement.detector_2D.detector_Type = detector_Type_ComboBox->currentText();
+			detectors_Stack->setCurrentIndex(detector_Type_ComboBox->findText(measurement.detector_2D.detector_Type));
 
-		global_Multilayer_Approach->calculate(true);
-	});
-	// crystal resolution
-	connect(crystal_Resolution_SpinBox,  static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
-	{
-		double coeff = angle_Coefficients_Map.value(angular_Units);
-		measurement.detector_1D.detector_Theta_Resolution.FWHM_distribution = crystal_Resolution_SpinBox->value()*coeff;
+			global_Multilayer_Approach->calculate(true);
+		});
+		// 2D theta resolution
+		connect(theta_Resolution_SpinBox,  static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
+		{
+			double coeff = angle_Coefficients_Map.value(angular_Units);
+			measurement.detector_2D.detector_Theta_Resolution.FWHM_distribution = theta_Resolution_SpinBox->value()*coeff;
 
-		global_Multilayer_Approach->calculate(true);
-	});
-	// crystal resolution function
-	connect(crystal_Resolution_Function_ComboBox, &QComboBox::currentTextChanged, this, [=]
-	{
-		measurement.detector_1D.detector_Theta_Resolution.distribution_Function = crystal_Resolution_Function_ComboBox->currentText();
+			global_Multilayer_Approach->calculate(true);
+		});
+		// 2D phi resolution
+		connect(phi_Resolution_SpinBox,  static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
+		{
+			double coeff = angle_Coefficients_Map.value(angular_Units);
+			measurement.detector_2D.detector_Phi_Resolution.FWHM_distribution = phi_Resolution_SpinBox->value()*coeff;
 
-		global_Multilayer_Approach->calculate(true);
-	});
+			global_Multilayer_Approach->calculate(true);
+		});
+		// resolution function
+		connect(resolution_Function_ComboBox, &QComboBox::currentTextChanged, this, [=]
+		{
+			measurement.detector_2D.detector_Theta_Resolution.distribution_Function = resolution_Function_ComboBox->currentText();
+			measurement.detector_2D.detector_Phi_Resolution.distribution_Function = resolution_Function_ComboBox->currentText();
+
+			global_Multilayer_Approach->calculate(true);
+		});
+	}
+
 
 	/// footprint & distortion groupbox
 	// beam width

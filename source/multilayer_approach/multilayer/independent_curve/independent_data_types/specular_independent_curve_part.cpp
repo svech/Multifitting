@@ -12,8 +12,9 @@ Specular_Independent_Curve_Part::Specular_Independent_Curve_Part(Independent_Cur
 	create_Argument_GroupBox();
 	create_Beam_GroupBox();
 
-	independent_1D_Common_Part = new Common_Part_1D(independent_Curve, nullptr);
-	main_Layout->addWidget(independent_1D_Common_Part);
+	Target_Curve* target_Curve;
+	independent_Common_Part = new Common_Part(independent_Curve, target_Curve);
+	main_Layout->addWidget(independent_Common_Part);
 
 	connecting();
 	independent_Curve->refresh_Description_Label();
@@ -310,7 +311,7 @@ void Specular_Independent_Curve_Part::refresh_Angular_Units()
 	final_Argument_Spinbox->blockSignals(true);
 	at_Fixed_SpinBox->blockSignals(true);
 	angular_Divergence_SpinBox->blockSignals(true);
-	independent_1D_Common_Part->crystal_Resolution_SpinBox->blockSignals(true);
+	independent_Common_Part->crystal_Resolution_SpinBox->blockSignals(true);
 
 	double coeff = angle_Coefficients_Map.value(independent_Curve->angular_Units);
 	if(independent_Curve->measurement.argument_Type == argument_Types[Beam_Grazing_Angle])
@@ -336,14 +337,14 @@ void Specular_Independent_Curve_Part::refresh_Angular_Units()
 	angular_Divergence_Units_Label->setText(independent_Curve->angular_Units);
 
 	// crystal resolution
-	independent_1D_Common_Part->crystal_Resolution_SpinBox->setValue(independent_Curve->measurement.detector_1D.detector_Theta_Resolution.FWHM_distribution/coeff);
-	independent_1D_Common_Part->crystal_Resolution_Units_Label->setText(independent_Curve->angular_Units);
+	independent_Common_Part->crystal_Resolution_SpinBox->setValue(independent_Curve->measurement.detector_1D.detector_Theta_Resolution.FWHM_distribution/coeff);
+	independent_Common_Part->crystal_Resolution_Units_Label->setText(independent_Curve->angular_Units);
 
 	start_Argument_Spinbox->blockSignals(false);
 	final_Argument_Spinbox->blockSignals(false);
 	at_Fixed_SpinBox->blockSignals(false);
 	angular_Divergence_SpinBox->blockSignals(false);
-	independent_1D_Common_Part->crystal_Resolution_SpinBox->blockSignals(false);
+	independent_Common_Part->crystal_Resolution_SpinBox->blockSignals(false);
 
 	independent_Curve->refresh_Description_Label();
 }
@@ -419,10 +420,10 @@ void Specular_Independent_Curve_Part::refresh_At_Fixed_Value()
 
 void Specular_Independent_Curve_Part::disable_Crystal_Detector_Type()
 {
-	independent_1D_Common_Part->detector_Type_ComboBox->blockSignals(true);
+	independent_Common_Part->detector_Type_ComboBox->blockSignals(true);
 
-	QStandardItemModel* model =	qobject_cast<QStandardItemModel*>(independent_1D_Common_Part->detector_Type_ComboBox->model());
-	QStandardItem* item = model->item(independent_1D_Common_Part->detector_Type_ComboBox->findText(detectors[Crystal])); // crystal item
+	QStandardItemModel* model =	qobject_cast<QStandardItemModel*>(independent_Common_Part->detector_Type_ComboBox->model());
+	QStandardItem* item = model->item(independent_Common_Part->detector_Type_ComboBox->findText(detectors[Crystal])); // crystal item
 	if(	independent_Curve->measurement.argument_Type == argument_Types[Wavelength_Energy] )
 	{
 		independent_Curve->measurement.detector_1D.detector_Type = detectors[Slit];
@@ -431,10 +432,10 @@ void Specular_Independent_Curve_Part::disable_Crystal_Detector_Type()
 	{
 		item->setEnabled(true);
 	}
-	independent_1D_Common_Part->detector_Type_ComboBox->setCurrentText(independent_Curve->measurement.detector_1D.detector_Type);
-	independent_1D_Common_Part->detectors_Stack->setCurrentIndex(independent_1D_Common_Part->detector_Type_ComboBox->findText(independent_Curve->measurement.detector_1D.detector_Type));
+	independent_Common_Part->detector_Type_ComboBox->setCurrentText(independent_Curve->measurement.detector_1D.detector_Type);
+	independent_Common_Part->detectors_Stack->setCurrentIndex(independent_Common_Part->detector_Type_ComboBox->findText(independent_Curve->measurement.detector_1D.detector_Type));
 
-	independent_1D_Common_Part->detector_Type_ComboBox->blockSignals(false);
+	independent_Common_Part->detector_Type_ComboBox->blockSignals(false);
 }
 
 void Specular_Independent_Curve_Part::fill_At_Fixed_Label()

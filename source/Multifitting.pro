@@ -92,7 +92,7 @@ SOURCES += \
     multilayer_approach/fitting_settings/fitting_settings.cpp \
     multilayer_approach/fits_selector/fits_selector.cpp \
     multilayer_approach/calculation_settings_editor/calculation_settings_editor.cpp \
-    multilayer_approach/multilayer/common_part_1d.cpp \
+    multilayer_approach/multilayer/common_part.cpp \
     multilayer_approach/multilayer/distribution_box.cpp \
     multilayer_approach/multilayer/distribution_editor.cpp \
     multilayer_approach/multilayer/independent_curve/independent_curve.cpp \
@@ -153,7 +153,7 @@ HEADERS += \
     multilayer_approach/fitting_settings/fitting_settings_editor.h \
     multilayer_approach/fitting_settings/fitting_settings.h \
     multilayer_approach/calculation_settings_editor/calculation_settings_editor.h \
-    multilayer_approach/multilayer/common_part_1d.h \
+    multilayer_approach/multilayer/common_part.h \
     multilayer_approach/multilayer/distribution_box.h \
     multilayer_approach/multilayer/distribution_editor.h \
     multilayer_approach/multilayer/independent_curve/independent_curve.h \

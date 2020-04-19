@@ -8,13 +8,14 @@
 
 class Multilayer_Approach;
 
-class Common_Part_1D : public QWidget
+class Common_Part : public QWidget
 {
 	Q_OBJECT
 public:
-	explicit Common_Part_1D(Independent_Curve* independent_Curve, Target_Curve* target_Curve, QWidget *parent = nullptr);
+	explicit Common_Part(Independent_Curve* independent_Curve, Target_Curve* target_Curve, QWidget *parent = nullptr);
 
 	void create_Detector_GroupBox();
+	void create_2D_Detector_GroupBox();
 	void create_Footptint_GroupBox();
 	void create_Beam_Plot();
 		void plot_Beam_Profile();
@@ -35,15 +36,20 @@ public:
 
 	QVBoxLayout* main_Layout;
 
-
 	// detector
 	QComboBox* detector_Type_ComboBox;
 	QStackedWidget* detectors_Stack;
+	QComboBox* resolution_Function_ComboBox;
+	// 1D
 	MyDoubleSpinBox* slit_Width_SpinBox;
 	MyDoubleSpinBox* slit_Distance_SpinBox;
 	MyDoubleSpinBox* crystal_Resolution_SpinBox;
 	QLabel* crystal_Resolution_Units_Label;
-	QComboBox* crystal_Resolution_Function_ComboBox;
+	// 2D
+	MyDoubleSpinBox* theta_Resolution_SpinBox;
+	QLabel* theta_Resolution_Units_Label;
+	MyDoubleSpinBox* phi_Resolution_SpinBox;
+	QLabel* phi_Resolution_Units_Label;
 
 	// footprint
 	MyDoubleSpinBox* beam_Footprint_Width_SpinBox;
