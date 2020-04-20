@@ -10,18 +10,35 @@ public:
 	explicit Target_Curve_Plot(Target_Curve* target_Curve, QWidget *parent = nullptr);
 
 	void create_Main_Layout();
-	void create_Plot();
+	void plot_Data();
+
+	// 1D
 	void create_Plot_Frame_And_Scale_1D();
-	void create_Subinterval_Rectangle();
-	void subinterval_Changed_Replot();
-	void plot_Data(bool fast = false);
-	void refresh_Labels();
-	void create_Plot_Options_GroupBox();
+	void apply_Log_Scale_1D();
+	void apply_Lin_Scale_1D();
+	void plot_Data_1D();
+	void refresh_Labels_1D();
+	void create_Plot_Options_GroupBox_1D();
+	void create_Subinterval_Rectangle_1D();
+	void subinterval_Changed_Replot_1D();
+
+	// 2D
+	void create_Plot_Frame_And_Scale_2D();
+	void refresh_Axes_Range_2D();
+	void apply_Log_Scale_2D();
+	void apply_Lin_Scale_2D();
+	void plot_Data_2D();
+	void refresh_Labels_2D();
+	void create_Plot_Options_GroupBox_2D();
+	void create_Subinterval_Rectangle_2D();
+	void subinterval_Changed_Replot_2D();
 
 	Target_Curve* target_Curve;
 
-	QCPColorMap* color_Map;
 	QCustomPlot* custom_Plot;
+	QCPColorMap* color_Map;
+	QCPColorScale* color_Scale;
+	QCPMarginGroup* margin_Group;
 
 	QCPItemRect* start_Rect;
 	QCPItemRect* end_Rect;

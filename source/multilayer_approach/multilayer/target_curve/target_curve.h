@@ -46,12 +46,12 @@ struct Curve
 	QVector<double> shifted_Argument; // without saving
 	QVector<double> values;			  // without saving
 	QVector<double> shifted_Values;   // without saving
-	 vector<double> shifted_Values_No_Scaling_And_Offset; // without saving, for fitting scale purposes
+	QVector<double> shifted_Values_No_Scaling_And_Offset; // without saving, for fitting scale purposes
 
 	// 2D
 	QVector<QVector<double>> value_2D;							// without saving
-	 vector<QVector<double>> value_2D_Shifted;					// without saving
-	 vector<QVector<double>> value_2D_No_Scaling_And_Offset;	// without saving
+	QVector<QVector<double>> value_2D_Shifted;					// without saving
+	QVector<QVector<double>> value_2D_No_Scaling_And_Offset;	// without saving
 };
 
 struct Fit_Params

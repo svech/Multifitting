@@ -18,7 +18,7 @@ Rocking_Target_Curve_Part::Rocking_Target_Curve_Part(Target_Curve* target_Curve,
 	main_Layout->addWidget(target_Common_Part);
 
 	connecting();
-	refresh_Plot_Axes_Labels();;
+	refresh_Plot_Axes_Labels();
 	target_Curve->refresh_Description_Label();
 }
 
@@ -96,7 +96,7 @@ void Rocking_Target_Curve_Part::create_Argument_GroupBox()
 	}
 	// specifying interval for fitting
 	{
-		main_Subinterval_Checkbox = new QCheckBox("Use only data between argument");
+		main_Subinterval_Checkbox = new QCheckBox("Fit only data between argument");
 			main_Subinterval_Checkbox->setCheckable(true);
 			main_Subinterval_Checkbox->setChecked(target_Curve->curve.use_Subinterval);
 		argument_GroupBox_Layout->addWidget(main_Subinterval_Checkbox,0,Qt::AlignLeft);
@@ -563,7 +563,7 @@ void Rocking_Target_Curve_Part::refresh_Plot_Axes_Labels()
 	target_Curve_Plot->argument_Type_Text = target_Curve->measurement.argument_Type;
 	target_Curve_Plot->argument_Sym_Text = "";
 	target_Curve_Plot->argument_Units_Text = target_Curve->angular_Units;
-	target_Curve_Plot->refresh_Labels();
+	target_Curve_Plot->refresh_Labels_1D();
 }
 
 void Rocking_Target_Curve_Part::connecting()
@@ -593,7 +593,7 @@ void Rocking_Target_Curve_Part::connecting()
 
 		target_Curve->fill_Measurement_And_Curve_With_Shifted_Data();
 		reset_Range_Specular_Position();
-		target_Curve_Plot->plot_Data(true);
+		target_Curve_Plot->plot_Data_1D();
 		target_Curve->refresh_Description_Label();
 		global_Multilayer_Approach->calculate(true);
 	});
@@ -604,7 +604,7 @@ void Rocking_Target_Curve_Part::connecting()
 
 		target_Curve->fill_Measurement_And_Curve_With_Shifted_Data();
 		reset_Range_Specular_Position();
-		target_Curve_Plot->plot_Data(true);
+		target_Curve_Plot->plot_Data_1D();
 		target_Curve->refresh_Description_Label();
 		global_Multilayer_Approach->calculate(true);
 	});
@@ -617,7 +617,7 @@ void Rocking_Target_Curve_Part::connecting()
 		horizontal_And_Subinterval_Label   ->setEnabled(target_Curve->curve.use_Subinterval);
 		horizontal_To_Subinterval_SpinBox  ->setEnabled(target_Curve->curve.use_Subinterval);
 
-		target_Curve_Plot->subinterval_Changed_Replot();
+		target_Curve_Plot->subinterval_Changed_Replot_1D();
 		Global_Variables::replot_All_Graphs();
 	});
 	connect(horizontal_From_Subinterval_SpinBox, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
@@ -627,7 +627,7 @@ void Rocking_Target_Curve_Part::connecting()
 		horizontal_To_Subinterval_SpinBox->setRange(target_Curve->curve.subinterval_Left,horizontal_To_Subinterval_SpinBox->maximum());
 		horizontal_To_Subinterval_SpinBox->setValue(max(target_Curve->curve.subinterval_Left,target_Curve->curve.subinterval_Right));
 
-		target_Curve_Plot->subinterval_Changed_Replot();
+		target_Curve_Plot->subinterval_Changed_Replot_1D();
 		Global_Variables::replot_All_Graphs();
 	});
 	connect(horizontal_To_Subinterval_SpinBox, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
@@ -637,7 +637,7 @@ void Rocking_Target_Curve_Part::connecting()
 		horizontal_From_Subinterval_SpinBox->setRange(horizontal_From_Subinterval_SpinBox->minimum(),target_Curve->curve.subinterval_Right);
 		horizontal_From_Subinterval_SpinBox->setValue(min(target_Curve->curve.subinterval_Left,target_Curve->curve.subinterval_Right));
 
-		target_Curve_Plot->subinterval_Changed_Replot();
+		target_Curve_Plot->subinterval_Changed_Replot_1D();
 		Global_Variables::replot_All_Graphs();
 	});
 
@@ -648,7 +648,7 @@ void Rocking_Target_Curve_Part::connecting()
 		target_Curve->curve.val_Shift = val_Shift_SpinBox->value();
 
 		target_Curve->fill_Measurement_And_Curve_With_Shifted_Data();
-		target_Curve_Plot->plot_Data(true);
+		target_Curve_Plot->plot_Data_1D();
 		target_Curve->refresh_Description_Label();
 		Global_Variables::plot_All_Data_in_Graphs();
 	});
@@ -658,7 +658,7 @@ void Rocking_Target_Curve_Part::connecting()
 		target_Curve->curve.val_Factor.value = val_Factor_SpinBox->value();
 
 		target_Curve->fill_Measurement_And_Curve_With_Shifted_Data();
-		target_Curve_Plot->plot_Data(true);
+		target_Curve_Plot->plot_Data_1D();
 		target_Curve->refresh_Description_Label();
 		Global_Variables::plot_All_Data_in_Graphs();
 	});
@@ -681,7 +681,7 @@ void Rocking_Target_Curve_Part::connecting()
 		beam_Intensity_Final_SpinBox  ->setEnabled(target_Curve->curve.divide_On_Beam_Intensity && target_Curve->curve.use_Final_Intensity);
 
 		target_Curve->fill_Measurement_And_Curve_With_Shifted_Data();
-		target_Curve_Plot->plot_Data(true);
+		target_Curve_Plot->plot_Data_1D();
 		Global_Variables::plot_All_Data_in_Graphs();
 	});
 	connect(beam_Intensity_Initial_SpinBox, static_cast<void (MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
@@ -693,7 +693,7 @@ void Rocking_Target_Curve_Part::connecting()
 		}
 
 		target_Curve->fill_Measurement_And_Curve_With_Shifted_Data();
-		target_Curve_Plot->plot_Data(true);
+		target_Curve_Plot->plot_Data_1D();
 		Global_Variables::plot_All_Data_in_Graphs();
 	});
 	connect(beam_Intensity_Final_CheckBox, &QCheckBox::toggled, this, [=]
@@ -710,7 +710,7 @@ void Rocking_Target_Curve_Part::connecting()
 		}
 
 		target_Curve->fill_Measurement_And_Curve_With_Shifted_Data();
-		target_Curve_Plot->plot_Data(true);
+		target_Curve_Plot->plot_Data_1D();
 		Global_Variables::plot_All_Data_in_Graphs();
 	});
 	connect(beam_Intensity_Final_SpinBox, static_cast<void (MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
@@ -718,7 +718,7 @@ void Rocking_Target_Curve_Part::connecting()
 		target_Curve->curve.beam_Intensity_Final= beam_Intensity_Final_SpinBox->value();
 
 		target_Curve->fill_Measurement_And_Curve_With_Shifted_Data();
-		target_Curve_Plot->plot_Data(true);
+		target_Curve_Plot->plot_Data_1D();
 
 		Global_Variables::plot_All_Data_in_Graphs();
 	});

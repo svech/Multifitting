@@ -223,6 +223,7 @@ extern QString soft_Restriction_Color;
 
 extern QPen subinterval_Plot_Pen;
 extern QBrush subinterval_Plot_Brush;
+extern QBrush subinterval_Plot_Brush_2D;
 
 extern QVector<QColor> color_Contrast_Sequence;
 extern QVector<QColor> color_Contrast_Adjoint_Sequence;

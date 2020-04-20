@@ -540,16 +540,22 @@ struct Material_Data			{QString substance; QString filename; QVector<Point> mate
 struct Element_Data				{QString element;					  QVector<Point> element_Data;  void read_Element (QString& filename);};
 
 // curve plot options
-struct Plot_Options				{QString x_Scale = lin_Scale; //
-								 QString y_Scale = lin_Scale;
-								 bool rescale = true;
+struct Plot_Options				{ bool rescale = true;
 
-								 QColor color = QColor(255, 0, 0);
-								 int scatter_Shape = QCPScatterStyle::ssCircle;
-								 double scatter_Size = 5;
-								 double thickness = 1;
+								  // 1D
+								  QString x_Scale = lin_Scale;
+								  QString y_Scale = log_Scale;
+								  QColor color = QColor(255, 0, 0);
+								  int scatter_Shape = QCPScatterStyle::ssCircle;
+								  double scatter_Size = 5;
+								  double thickness = 1;
+
+								  // 2D
+								  bool use_Interpolation = true;
+								  QString z_Scale = lin_Scale;
+								  int color_Scheme = QCPColorGradient::gpJet;
+								  int rotation_Angle = 0; // in degrees
 								};
-
 struct Graph_Options			{int num_Target_Graph_Rows = 1;		 // rows in Graphs
 								 int num_Independent_Graph_Rows = 1; // rows in Graphs
 

@@ -194,8 +194,47 @@ void Target_Curve::parse_1D_Data()
 
 void Target_Curve::parse_2D_Data()
 {
-	// TODO
-	qInfo() << "Target_Curve::parse_2D_Data() not implemented" << endl;
+	curve.value_2D.clear();
+	for(int line_Index=0; line_Index<lines_List.size(); ++line_Index)
+	{
+		QString temp_Line = lines_List[line_Index];
+		temp_Line = temp_Line.simplified();
+
+		// check if not header line (starts from digit)
+		bool is_Decimal = false;
+		QString(temp_Line[0]).toInt(&is_Decimal);
+
+		if(is_Decimal)
+		{
+			// split line into "numbers"
+			QStringList potentional_Numbers = temp_Line.split(delimiters,QString::SkipEmptyParts);
+
+			QVector<double> numbers_Row(potentional_Numbers.size());
+			for(int num_Index=0; num_Index<potentional_Numbers.size(); num_Index++)
+			{
+				bool ok_To_Double = false;
+				double temp_Value = QString(potentional_Numbers[num_Index]).replace(",", ".").toDouble(&ok_To_Double); // dots and commas are considered as dots
+
+				if(ok_To_Double)
+				{
+					numbers_Row[num_Index] = temp_Value;
+				} else
+				{
+					numbers_Row[num_Index] = -2020;
+					qInfo() << "Target_Curve::parse_2D_Data  :  bad number in row" << line_Index << "column" << num_Index << endl;
+				}
+
+			}
+			curve.value_2D.append(numbers_Row);
+		}
+	}
+	if(curve.value_2D.size()>0)
+	{
+		if(curve.value_2D.first().size()>0)
+		{
+			loaded_And_Ready = true;
+		}
+	}
 }
 
 void Target_Curve::fill_Measurement_And_Curve_With_Shifted_Data()
@@ -279,8 +318,27 @@ void Target_Curve::fill_Measurement_And_Curve_With_Shifted_1D_Data()
 
 void Target_Curve::fill_Measurement_And_Curve_With_Shifted_2D_Data()
 {
-	// TODO
-	qInfo() << "Target_Curve::fill_Measurement_And_Curve_With_Shifted_2D_Data()) not implemented" << endl;
+	if(loaded_And_Ready)
+	{
+		curve.value_2D_Shifted.resize(curve.value_2D.size());
+		curve.value_2D_No_Scaling_And_Offset.resize(curve.value_2D.size());
+		for(int i=0; i<curve.value_2D.size(); i++)
+		{
+			curve.value_2D_Shifted[i].resize(curve.value_2D[i].size());
+			curve.value_2D_No_Scaling_And_Offset[i].resize(curve.value_2D[i].size());
+		}
+
+		double intensity_Factor = 1;
+		if(curve.divide_On_Beam_Intensity) intensity_Factor = curve.beam_Intensity_Initial;
+		for(int row=0; row<curve.value_2D.size(); row++)
+		{
+			for(int col=0; col<curve.value_2D.first().size(); col++)
+			{
+				curve.value_2D_Shifted			    [row][col] = curve.value_2D[row][col]/intensity_Factor * curve.val_Factor.value + curve.val_Shift;
+				curve.value_2D_No_Scaling_And_Offset[row][col] = curve.value_2D[row][col]/intensity_Factor;
+			}
+		}
+	}
 }
 
 void Target_Curve::refresh_Description_Label()

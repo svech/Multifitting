@@ -18,7 +18,7 @@ GISAS_Target_Curve_Part::GISAS_Target_Curve_Part(Target_Curve *target_Curve, Tar
 	main_Layout->addWidget(target_Common_Part);
 
 	connecting();
-	refresh_Plot_Axes_Labels();;
+	refresh_Plot_Axes_Labels();
 	target_Curve->refresh_Description_Label();
 }
 
@@ -156,7 +156,7 @@ void GISAS_Target_Curve_Part::create_Argument_GroupBox()
 	}
 	// specifying interval for fitting
 	{
-		main_Subinterval_Checkbox = new QCheckBox("Use only data between argument");
+		main_Subinterval_Checkbox = new QCheckBox("Fit only data between argument");
 			main_Subinterval_Checkbox->setCheckable(true);
 			main_Subinterval_Checkbox->setChecked(target_Curve->curve.use_Subinterval);
 		argument_GroupBox_Layout->addWidget(main_Subinterval_Checkbox,0,8,2,1,Qt::AlignLeft);
@@ -635,20 +635,20 @@ void GISAS_Target_Curve_Part::refresh_Argument_Units()
 	target_Common_Part->phi_Resolution_Units_Label->setText(target_Curve->angular_Units);
 
 	reset_Subinterval();
-
+	target_Curve_Plot->refresh_Axes_Range_2D();
 	target_Curve->refresh_Description_Label();
 	refresh_Plot_Axes_Labels();
 
 	//-----------------------------------------------------------------------------------
-	theta_Min_SpinBox->blockSignals(true);
-	theta_Max_SpinBox->blockSignals(true);
-	phi_Min_SpinBox->blockSignals(true);
-	phi_Max_SpinBox->blockSignals(true);
-	at_Fixed_Beam_Theta_0_SpinBox->blockSignals(true);
-	angular_Divergence_Theta_0_SpinBox->blockSignals(true);
-	angular_Divergence_Phi_0_SpinBox->blockSignals(true);
-	target_Common_Part->theta_Resolution_SpinBox->blockSignals(true);
-	target_Common_Part->phi_Resolution_SpinBox->blockSignals(true);
+	theta_Min_SpinBox->blockSignals(false);
+	theta_Max_SpinBox->blockSignals(false);
+	phi_Min_SpinBox->blockSignals(false);
+	phi_Max_SpinBox->blockSignals(false);
+	at_Fixed_Beam_Theta_0_SpinBox->blockSignals(false);
+	angular_Divergence_Theta_0_SpinBox->blockSignals(false);
+	angular_Divergence_Phi_0_SpinBox->blockSignals(false);
+	target_Common_Part->theta_Resolution_SpinBox->blockSignals(false);
+	target_Common_Part->phi_Resolution_SpinBox->blockSignals(false);
 }
 
 void GISAS_Target_Curve_Part::fill_At_Fixed_Wavelength_Label()
@@ -708,11 +708,11 @@ void GISAS_Target_Curve_Part::refresh_At_Fixed_Wavelength_Value()
 
 void GISAS_Target_Curve_Part::refresh_Plot_Axes_Labels()
 {
-//	target_Curve_Plot->value_Type_Text = target_Curve->curve.value_Type;
-//	target_Curve_Plot->argument_Type_Text = argument_Types[Detector_Polar_Angle];
-//	target_Curve_Plot->argument_Sym_Text = "";
-//	target_Curve_Plot->argument_Units_Text = target_Curve->angular_Units;
-//	target_Curve_Plot->refresh_Labels();
+	target_Curve_Plot->value_Type_Text = argument_Types[Detector_Azimuthal_Angle];
+	target_Curve_Plot->argument_Type_Text = argument_Types[Detector_Polar_Angle];
+	target_Curve_Plot->argument_Sym_Text = "";
+	target_Curve_Plot->argument_Units_Text = target_Curve->angular_Units;
+	target_Curve_Plot->refresh_Labels_2D();
 }
 
 void GISAS_Target_Curve_Part::connecting()
@@ -731,6 +731,7 @@ void GISAS_Target_Curve_Part::connecting()
 		target_Curve->measurement.detector_Theta_Angle.independent.min = theta_Min_SpinBox->value()*coeff;
 
 		reset_Subinterval();
+		target_Curve_Plot->refresh_Axes_Range_2D();
 		target_Curve->refresh_Description_Label();
 		global_Multilayer_Approach->calculate(true);
 	});
@@ -740,6 +741,7 @@ void GISAS_Target_Curve_Part::connecting()
 		target_Curve->measurement.detector_Theta_Angle.independent.max = theta_Max_SpinBox->value()*coeff;
 
 		reset_Subinterval();
+		target_Curve_Plot->refresh_Axes_Range_2D();
 		target_Curve->refresh_Description_Label();
 		global_Multilayer_Approach->calculate(true);
 	});
@@ -750,6 +752,7 @@ void GISAS_Target_Curve_Part::connecting()
 		target_Curve->measurement.detector_Phi_Angle.independent.min = phi_Min_SpinBox->value()*coeff;
 
 		reset_Subinterval();
+		target_Curve_Plot->refresh_Axes_Range_2D();
 		target_Curve->refresh_Description_Label();
 		global_Multilayer_Approach->calculate(true);
 	});
@@ -759,6 +762,7 @@ void GISAS_Target_Curve_Part::connecting()
 		target_Curve->measurement.detector_Phi_Angle.independent.max = phi_Max_SpinBox->value()*coeff;
 
 		reset_Subinterval();
+		target_Curve_Plot->refresh_Axes_Range_2D();
 		target_Curve->refresh_Description_Label();
 		global_Multilayer_Approach->calculate(true);
 	});
@@ -777,7 +781,7 @@ void GISAS_Target_Curve_Part::connecting()
 		to_Subinterval_Phi_SpinBox  ->setEnabled(target_Curve->curve.use_Subinterval);
 		subinterval_Phi_Units_Label ->setEnabled(target_Curve->curve.use_Subinterval);
 
-		target_Curve_Plot->subinterval_Changed_Replot();
+		target_Curve_Plot->subinterval_Changed_Replot_2D();
 		Global_Variables::replot_All_Graphs();
 	});
 	// theta subinterval
@@ -789,7 +793,7 @@ void GISAS_Target_Curve_Part::connecting()
 		to_Subinterval_Theta_SpinBox->setRange(target_Curve->curve.subinterval_Left/coeff,to_Subinterval_Theta_SpinBox->maximum());
 		to_Subinterval_Theta_SpinBox->setValue(max(target_Curve->curve.subinterval_Left,target_Curve->curve.subinterval_Right)/coeff);
 
-		target_Curve_Plot->subinterval_Changed_Replot();
+		target_Curve_Plot->subinterval_Changed_Replot_2D();
 		Global_Variables::replot_All_Graphs();
 	});
 	connect(to_Subinterval_Theta_SpinBox, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
@@ -800,7 +804,7 @@ void GISAS_Target_Curve_Part::connecting()
 		from_Subinterval_Theta_SpinBox->setRange(from_Subinterval_Theta_SpinBox->minimum(),target_Curve->curve.subinterval_Right/coeff);
 		from_Subinterval_Theta_SpinBox->setValue(min(target_Curve->curve.subinterval_Left,target_Curve->curve.subinterval_Right)/coeff);
 
-		target_Curve_Plot->subinterval_Changed_Replot();
+		target_Curve_Plot->subinterval_Changed_Replot_2D();
 		Global_Variables::replot_All_Graphs();
 	});
 	// phi subinterval
@@ -812,7 +816,7 @@ void GISAS_Target_Curve_Part::connecting()
 		to_Subinterval_Phi_SpinBox->setRange(target_Curve->curve.subinterval_Bottom,to_Subinterval_Phi_SpinBox->maximum());
 		to_Subinterval_Phi_SpinBox->setValue(max(target_Curve->curve.subinterval_Bottom,target_Curve->curve.subinterval_Top));
 
-		target_Curve_Plot->subinterval_Changed_Replot();
+		target_Curve_Plot->subinterval_Changed_Replot_2D();
 		Global_Variables::replot_All_Graphs();
 	});
 	connect(to_Subinterval_Phi_SpinBox, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
@@ -823,7 +827,7 @@ void GISAS_Target_Curve_Part::connecting()
 		from_Subinterval_Phi_SpinBox->setRange(from_Subinterval_Phi_SpinBox->minimum(),target_Curve->curve.subinterval_Top);
 		from_Subinterval_Phi_SpinBox->setValue(min(target_Curve->curve.subinterval_Bottom,target_Curve->curve.subinterval_Top));
 
-		target_Curve_Plot->subinterval_Changed_Replot();
+		target_Curve_Plot->subinterval_Changed_Replot_2D();
 		Global_Variables::replot_All_Graphs();
 	});
 
@@ -834,7 +838,7 @@ void GISAS_Target_Curve_Part::connecting()
 		target_Curve->curve.val_Shift = val_Shift_SpinBox->value();
 
 		target_Curve->fill_Measurement_And_Curve_With_Shifted_Data();
-		target_Curve_Plot->plot_Data(true);
+		target_Curve_Plot->plot_Data_2D();
 		target_Curve->refresh_Description_Label();
 		Global_Variables::plot_All_Data_in_Graphs();
 	});
@@ -844,7 +848,7 @@ void GISAS_Target_Curve_Part::connecting()
 		target_Curve->curve.val_Factor.value = val_Factor_SpinBox->value();
 
 		target_Curve->fill_Measurement_And_Curve_With_Shifted_Data();
-		target_Curve_Plot->plot_Data(true);
+		target_Curve_Plot->plot_Data_2D();
 		target_Curve->refresh_Description_Label();
 		Global_Variables::plot_All_Data_in_Graphs();
 	});
@@ -864,7 +868,7 @@ void GISAS_Target_Curve_Part::connecting()
 		beam_Intensity_SpinBox->setEnabled(target_Curve->curve.divide_On_Beam_Intensity);
 
 		target_Curve->fill_Measurement_And_Curve_With_Shifted_Data();
-		target_Curve_Plot->plot_Data(true);
+		target_Curve_Plot->plot_Data_2D();
 		Global_Variables::plot_All_Data_in_Graphs();
 	});
 	connect(beam_Intensity_SpinBox, static_cast<void (MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
@@ -873,7 +877,7 @@ void GISAS_Target_Curve_Part::connecting()
 		target_Curve->curve.beam_Intensity_Final = target_Curve->curve.beam_Intensity_Initial;
 
 		target_Curve->fill_Measurement_And_Curve_With_Shifted_Data();
-		target_Curve_Plot->plot_Data(true);
+		target_Curve_Plot->plot_Data_2D();
 		Global_Variables::plot_All_Data_in_Graphs();
 	});
 

@@ -219,34 +219,45 @@ QDataStream& operator >>( QDataStream& stream,		 Drift& drift )
 
 QDataStream& operator <<( QDataStream& stream, const Plot_Options& plot_Options )
 {
-	return stream << plot_Options.y_Scale
-				  << plot_Options.x_Scale // since 1.9.3
-
-				  << plot_Options.rescale // since 1.7.6
-
-				  << plot_Options.color << plot_Options.scatter_Shape << plot_Options.scatter_Size << plot_Options.thickness;
+	return stream << plot_Options.rescale
+				  // 1D
+				  << plot_Options.x_Scale << plot_Options.y_Scale << plot_Options.color
+				  << plot_Options.scatter_Shape << plot_Options.scatter_Size << plot_Options.thickness
+				  // 2D
+				  << plot_Options.use_Interpolation << plot_Options.z_Scale << plot_Options.color_Scheme
+				  << plot_Options.rotation_Angle;
 }
 QDataStream& operator >>( QDataStream& stream,		 Plot_Options& plot_Options )
 {
-	stream >> plot_Options.y_Scale;
-
-	if(Global_Variables::check_Loaded_Version(1,9,3))
-	{stream >> plot_Options.x_Scale;}	// since 1.9.3
-
-
-	if(Global_Variables::check_Loaded_Version(1,7,6))
-	{stream >> plot_Options.rescale; }	// since 1.7.6
-
-	stream >> plot_Options.color >> plot_Options.scatter_Shape >> plot_Options.scatter_Size        >> plot_Options.thickness;
-
-	if(!Global_Variables::check_Loaded_Version(1,11,0))	// aren't used since 1.11.0
+	if(Global_Variables::check_Loaded_Version(1,11,0))
 	{
+		stream>> plot_Options.rescale
+			  // 1D
+			  >> plot_Options.x_Scale >> plot_Options.y_Scale >> plot_Options.color
+			  >> plot_Options.scatter_Shape >> plot_Options.scatter_Size >> plot_Options.thickness
+			  // 2D
+			  >> plot_Options.use_Interpolation >> plot_Options.z_Scale >> plot_Options.color_Scheme
+			  >> plot_Options.rotation_Angle;
+	} else
+	{
+		stream >> plot_Options.y_Scale;
+
+		if(Global_Variables::check_Loaded_Version(1,9,3))
+		{stream >> plot_Options.x_Scale;}	// since 1.9.3
+
+		if(Global_Variables::check_Loaded_Version(1,7,6))
+		{stream >> plot_Options.rescale; }	// since 1.7.6
+
+		stream >> plot_Options.color >> plot_Options.scatter_Shape >> plot_Options.scatter_Size        >> plot_Options.thickness;
+
+		// ------------------------------------------------------
 		QString scale_Second;
 		QColor color_Second;
 		int scatter_Shape_Second;
 		double scatter_Size_Second;
 		double thickness_Second;
 		stream >> scale_Second >> color_Second >> scatter_Shape_Second >> scatter_Size_Second >> thickness_Second;
+		// ------------------------------------------------------
 	}
 	return stream;
 }

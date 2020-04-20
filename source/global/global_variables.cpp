@@ -376,10 +376,12 @@ QString soft_Restriction_Color				= "QWidget { background: rgb(94,  244, 227); }
 
 QPen subinterval_Plot_Pen = QPen(Qt::transparent);
 #ifdef _WIN32
-	QBrush subinterval_Plot_Brush = QBrush(QColor(0, 0, 255, 25));
+	QBrush subinterval_Plot_Brush    = QBrush(QColor(0, 0, 255, 25));
+	QBrush subinterval_Plot_Brush_2D = QBrush(QColor(0, 0, 0, 90));
 #endif
 #ifdef __linux__
-	QBrush subinterval_Plot_Brush = QBrush(QColor(0, 0, 255, 35));
+	QBrush subinterval_Plot_Brush    = QBrush(QColor(0, 0, 255, 35));
+	QBrush subinterval_Plot_Brush_2D = QBrush(QColor(0, 0, 0, 111));
 #endif
 
 QVector<QColor> color_Contrast_Sequence = { QColor(0, 205, 0),
