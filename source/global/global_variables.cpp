@@ -1674,3 +1674,194 @@ double Global_Variables::distribution_Lorentz(double FWHM, double x)
 	else
 		return 0;
 }
+
+void Global_Variables::color_Scheme_Change(QCPColorMap* color_Map, QCustomPlot* main_Plot, QCPColorGradient::GradientPreset* color_Scheme)
+{
+	main_Plot->blockSignals(true);
+	QDialog* choice_Color_Scheme_Window = new QDialog();
+		choice_Color_Scheme_Window->setWindowTitle("Color scheme");
+		choice_Color_Scheme_Window->setWindowModality(Qt::ApplicationModal);
+		choice_Color_Scheme_Window->setAttribute(Qt::WA_DeleteOnClose);
+		choice_Color_Scheme_Window->setWindowFlags(Qt::Tool);
+		choice_Color_Scheme_Window->show();
+
+	QGridLayout* choice_Color_Scheme_Layout = new QGridLayout(choice_Color_Scheme_Window);
+		choice_Color_Scheme_Layout->setSizeConstraint(QLayout::SetFixedSize);
+		choice_Color_Scheme_Layout->setSpacing(5);
+		choice_Color_Scheme_Layout->setContentsMargins(5,5,5,5);
+
+	// group box
+	QGroupBox*  choice_Data_Color_Scheme_Box = new QGroupBox;
+		choice_Data_Color_Scheme_Box->setObjectName("choice_Data_Color_Scheme_Box");
+		choice_Data_Color_Scheme_Box->setStyleSheet("QGroupBox#choice_Data_Color_Scheme_Box { border-radius: 2px;  border: 1px solid gray; margin-top: 0ex;}"
+													"QGroupBox::title   { subcontrol-origin: margin;   left: 9px; padding: 0 0px 0 1px;}");
+
+	// inside group box
+	{
+		QGridLayout* choice_Data_Type_Group_Box_Layout = new QGridLayout(choice_Data_Color_Scheme_Box);
+
+		int col = 0;
+		QCPColorGradient::GradientPreset preset;
+		QButtonGroup* button_Group = new QButtonGroup;
+		// Grayscale
+		{
+			preset = QCPColorGradient::gpGrayscale;
+			QCustomPlot* plot = new QCustomPlot;
+			color_Scheme_Example(plot, preset);
+			choice_Data_Type_Group_Box_Layout->addWidget(plot,0,col);
+
+			// ------------------------------------------------
+
+			QRadioButton* radio_Button = new QRadioButton("Grayscale");
+				radio_Button->setChecked(*color_Scheme == preset);
+			button_Group->addButton(radio_Button);
+			choice_Data_Type_Group_Box_Layout->addWidget(radio_Button,1,col,Qt::AlignHCenter);
+			connect(radio_Button, &QRadioButton::clicked, [=]
+			{
+				*color_Scheme = preset;
+				color_Map->setGradient(preset);
+				main_Plot->replot();
+			});
+			col++;
+		}
+		// Spectrum
+		{
+			preset = QCPColorGradient::gpSpectrum;
+			QCustomPlot* plot = new QCustomPlot;
+			color_Scheme_Example(plot, preset);
+			choice_Data_Type_Group_Box_Layout->addWidget(plot,0,col);
+
+			// ------------------------------------------------
+
+			QRadioButton* radio_Button = new QRadioButton("Spectrum");
+				radio_Button->setChecked(*color_Scheme == preset);
+			button_Group->addButton(radio_Button);
+			choice_Data_Type_Group_Box_Layout->addWidget(radio_Button,1,col,Qt::AlignHCenter);
+			connect(radio_Button, &QRadioButton::clicked, [=]
+			{
+				*color_Scheme = preset;
+				color_Map->setGradient(preset);
+				main_Plot->replot();
+			});
+			col++;
+		}
+		// Jet
+		{
+			preset = QCPColorGradient::gpJet;
+			QCustomPlot* plot = new QCustomPlot;
+			color_Scheme_Example(plot, preset);
+			choice_Data_Type_Group_Box_Layout->addWidget(plot,0,col);
+
+			// ------------------------------------------------
+
+			QRadioButton* radio_Button = new QRadioButton("Jet");
+				radio_Button->setChecked(*color_Scheme == preset);
+			button_Group->addButton(radio_Button);
+			choice_Data_Type_Group_Box_Layout->addWidget(radio_Button,1,col,Qt::AlignHCenter);
+			connect(radio_Button, &QRadioButton::clicked, [=]
+			{
+				*color_Scheme = preset;
+				color_Map->setGradient(preset);
+				main_Plot->replot();
+			});
+			col++;
+		}
+		// Polar
+		{
+			preset = QCPColorGradient::gpPolar;
+			QCustomPlot* plot = new QCustomPlot;
+			color_Scheme_Example(plot, preset);
+			choice_Data_Type_Group_Box_Layout->addWidget(plot,0,col);
+
+			// ------------------------------------------------
+
+			QRadioButton* radio_Button = new QRadioButton("Polar");
+				radio_Button->setChecked(*color_Scheme == preset);
+			button_Group->addButton(radio_Button);
+			choice_Data_Type_Group_Box_Layout->addWidget(radio_Button,1,col,Qt::AlignHCenter);
+			connect(radio_Button, &QRadioButton::clicked, [=]
+			{
+				*color_Scheme = preset;
+				color_Map->setGradient(preset);
+				main_Plot->replot();
+			});
+			col++;
+		}
+		// Thermal
+		{
+			preset = QCPColorGradient::gpThermal;
+			QCustomPlot* plot = new QCustomPlot;
+			color_Scheme_Example(plot, preset);
+			choice_Data_Type_Group_Box_Layout->addWidget(plot,0,col);
+
+			// ------------------------------------------------
+
+			QRadioButton* radio_Button = new QRadioButton("Thermal");
+				radio_Button->setChecked(*color_Scheme == preset);
+			button_Group->addButton(radio_Button);
+			choice_Data_Type_Group_Box_Layout->addWidget(radio_Button,1,col,Qt::AlignHCenter);
+			connect(radio_Button, &QRadioButton::clicked, [=]
+			{
+				*color_Scheme = preset;
+				color_Map->setGradient(preset);
+				main_Plot->replot();
+			});
+			col++;
+		}
+	}
+
+	// close button
+	QPushButton* close_Button = new QPushButton("Close");
+		close_Button->setSizePolicy(QSizePolicy::Fixed,QSizePolicy::Fixed);
+		close_Button->setAutoDefault(true);
+	choice_Color_Scheme_Layout->addWidget(close_Button,1,0,Qt::AlignHCenter);
+	choice_Color_Scheme_Layout->addWidget(choice_Data_Color_Scheme_Box,0,0);
+	connect(close_Button, &QPushButton::clicked, choice_Color_Scheme_Window, &QDialog::close);
+
+	// crutch
+	choice_Color_Scheme_Window->setGeometry(QApplication::desktop()->screen()->width()/2-652,
+											QApplication::desktop()->screen()->height()/2-167,
+											choice_Color_Scheme_Window->width(),
+											choice_Color_Scheme_Window->height());
+	main_Plot->blockSignals(false);
+}
+
+void Global_Variables::color_Scheme_Example(QCustomPlot* plot, QCPColorGradient::GradientPreset preset)
+{
+	plot->setMinimumSize(250,250);
+
+	plot->setNoAntialiasingOnDrag(false);
+
+	// frame
+	plot->xAxis2->setVisible(true);
+	plot->yAxis2->setVisible(true);
+	plot->xAxis->setTicks(false);
+	plot->xAxis2->setTicks(false);
+	plot->yAxis->setTicks(false);
+	plot->yAxis2->setTicks(false);
+
+	// add a color scale:
+	QCPColorMap* map = new QCPColorMap(plot->xAxis, plot->yAxis);
+	map->setTightBoundary(true);
+	map->setGradient(preset);
+
+	// data
+	int nx = 100;
+	int ny = 100;
+	map->data()->setSize(nx, ny);
+	map->data()->setRange(QCPRange(-7, 7), QCPRange(-7, 7));
+	double x,y;
+	for (int x_Index=0; x_Index<nx; ++x_Index)
+	{
+		for (int y_Index=0; y_Index<ny; ++y_Index)
+		{
+			map->data()->cellToCoord(x_Index, y_Index, &x, &y);
+			double r = sqrt(x*x+y*y)/r;
+			double val = sin(x)*sin(y);
+			map->data()->setCell(x_Index, y_Index, val);
+		}
+	}
+	map->rescaleAxes();
+	map->rescaleDataRange(); // rescale the data dimension (color) such that all data points lie in the span visualized by the color gradient
+	plot->replot();
+}

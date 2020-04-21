@@ -318,6 +318,11 @@ public:
 	static double distribution_Cosine	(double FWHM, double x);
 	static double distribution_Gaussian	(double FWHM, double x);
 	static double distribution_Lorentz	(double FWHM, double x);
+
+	// 2D plots
+	static void color_Scheme_Change(QCPColorMap* color_Map, QCustomPlot* main_Plot, QCPColorGradient::GradientPreset* color_Scheme);
+	static void color_Scheme_Example(QCustomPlot* plot, QCPColorGradient::GradientPreset preset);
+
 };
 
 #endif // GLOBAL_VARIABLES_H

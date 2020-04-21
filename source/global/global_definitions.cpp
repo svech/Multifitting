@@ -226,6 +226,7 @@ QDataStream& operator <<( QDataStream& stream, const Plot_Options& plot_Options 
 				  // 2D
 				  << plot_Options.use_Interpolation << plot_Options.z_Scale << plot_Options.color_Scheme
 				  << plot_Options.rotation_Angle;
+
 }
 QDataStream& operator >>( QDataStream& stream,		 Plot_Options& plot_Options )
 {

@@ -271,47 +271,11 @@ void Target_Curve::fill_Measurement_And_Curve_With_Shifted_1D_Data()
 			}
 		}
 
-		double coeff = angle_Coefficients_Map.value(angular_Units);
 		for(int i=0; i<curve.argument.size(); ++i)
 		{
 			curve.shifted_Argument[i] = curve.argument[i]                     * curve.horizontal_Arg_Factor + curve.horizontal_Arg_Shift;
 			curve.shifted_Values  [i] = curve.values  [i]/intensity_Factor[i] * curve.val_Factor.value      + curve.val_Shift;
 			curve.shifted_Values_No_Scaling_And_Offset[i] = curve.values[i]/intensity_Factor[i];
-		}
-
-		// measurement filling
-		if(measurement.argument_Type == argument_Types[Beam_Grazing_Angle])
-		{
-			measurement.beam_Theta_0_Angle_Vec.resize(curve.shifted_Argument.size());
-			for(int i=0; i<curve.shifted_Argument.size(); ++i)
-			{
-				measurement.beam_Theta_0_Angle_Vec[i] = curve.shifted_Argument[i]*coeff;
-			}
-		}
-		if(measurement.argument_Type == argument_Types[Deviation_From_Specular_Angle])
-		{
-			measurement.beam_Theta_0_Angle_Vec.resize(curve.shifted_Argument.size());
-			for(int i=0; i<curve.shifted_Argument.size(); ++i)
-			{
-				measurement.beam_Theta_0_Angle_Vec[i] = curve.shifted_Argument[i]*coeff + measurement.beam_Theta_0_Specular_Position;
-			}
-		}
-		if(measurement.argument_Type == argument_Types[Detector_Polar_Angle])
-		{
-			measurement.detector_Theta_Angle_Vec.resize(curve.shifted_Argument.size());
-			for(int i=0; i<curve.shifted_Argument.size(); ++i)
-			{
-				measurement.detector_Theta_Angle_Vec[i] = curve.shifted_Argument[i]*coeff;
-			}
-		}
-		if(measurement.argument_Type == argument_Types[Wavelength_Energy])
-		{
-			double coeff_Spectral = wavelength_Coefficients_Map.value(spectral_Units);
-			measurement.lambda_Vec.resize(curve.shifted_Argument.size());
-			for(int i=0; i<curve.shifted_Argument.size(); ++i)
-			{
-				measurement.lambda_Vec[i] = Global_Variables::wavelength_Energy(spectral_Units, curve.shifted_Argument[i]*coeff_Spectral);
-			}
 		}
 	}
 }
@@ -338,6 +302,116 @@ void Target_Curve::fill_Measurement_And_Curve_With_Shifted_2D_Data()
 				curve.value_2D_No_Scaling_And_Offset[row][col] = curve.value_2D[row][col]/intensity_Factor;
 			}
 		}
+		rotate_Data();
+	}
+}
+
+void Target_Curve::rotate_Data()
+{
+	if(loaded_And_Ready)
+	{
+		plot_Options_Experimental.rotation_Angle = (plot_Options_Experimental.rotation_Angle+100*360)%360;
+
+		if(plot_Options_Experimental.rotation_Angle == 0)
+		{
+			// do nothing
+		} else
+		if(plot_Options_Experimental.rotation_Angle == 90)
+		{
+			rotate_Data_From_Previous_State(left);
+		}
+		else
+		if(plot_Options_Experimental.rotation_Angle == 180)
+		{
+			reverse(curve.value_2D.begin(),curve.value_2D.end());
+			reverse(curve.value_2D_Shifted.begin(),curve.value_2D_Shifted.end());
+			reverse(curve.value_2D_No_Scaling_And_Offset.begin(),curve.value_2D_No_Scaling_And_Offset.end());
+			for(int row=0; row<curve.value_2D.size(); row++)
+			{
+				reverse(curve.value_2D[row].begin(),curve.value_2D[row].end());
+				reverse(curve.value_2D_Shifted[row].begin(),curve.value_2D_Shifted[row].end());
+				reverse(curve.value_2D_No_Scaling_And_Offset[row].begin(),curve.value_2D_No_Scaling_And_Offset[row].end());
+			}
+		}
+		else
+		if(plot_Options_Experimental.rotation_Angle == 270)
+		{
+			rotate_Data_From_Previous_State(right);
+		}
+		else
+		{
+			qInfo() << "Target_Curve::rotate_Data()  :  angle should be divisible on 90. We have rotation_Angle =" << plot_Options_Experimental.rotation_Angle << endl;
+		}
+	}
+}
+
+void Target_Curve::rotate_Data_From_Previous_State(QString left_Right)
+{
+	if(left_Right == right)
+	{
+		int new_Row_Count = curve.value_2D.first().size();
+		int new_Col_Count = curve.value_2D.size();
+		int new_Last_Row = new_Row_Count-1;
+
+		// resize
+		QVector<QVector<double>> temp_Value_2D						(new_Row_Count);
+		QVector<QVector<double>> temp_Value_2D_Shifted				(new_Row_Count);
+		QVector<QVector<double>> temp_Value_2D_No_Scaling_And_Offset(new_Row_Count);
+		for(int row=0; row<temp_Value_2D.size(); row++)
+		{
+			temp_Value_2D					   [row].resize(new_Col_Count);
+			temp_Value_2D_Shifted			   [row].resize(new_Col_Count);
+			temp_Value_2D_No_Scaling_And_Offset[row].resize(new_Col_Count);
+		}
+
+		// fill
+		for(int row=0; row<new_Row_Count; row++)
+		{
+			for(int col=0; col<new_Col_Count; col++)
+			{
+				temp_Value_2D						[row][col]	= curve.value_2D					  [col][new_Last_Row-row];
+				temp_Value_2D_Shifted				[row][col]	= curve.value_2D_Shifted			  [col][new_Last_Row-row];
+				temp_Value_2D_No_Scaling_And_Offset	[row][col]	= curve.value_2D_No_Scaling_And_Offset[col][new_Last_Row-row];
+			}
+		}
+
+		// change
+		curve.value_2D = temp_Value_2D;
+		curve.value_2D_Shifted = temp_Value_2D_Shifted;
+		curve.value_2D_No_Scaling_And_Offset = temp_Value_2D_No_Scaling_And_Offset;
+	}
+	if(left_Right == left)
+	{
+		int new_Row_Count = curve.value_2D.first().size();
+		int new_Col_Count = curve.value_2D.size();
+		int new_Last_Col = new_Col_Count-1;
+
+		// resize
+		QVector<QVector<double>> temp_Value_2D						(new_Row_Count);
+		QVector<QVector<double>> temp_Value_2D_Shifted				(new_Row_Count);
+		QVector<QVector<double>> temp_Value_2D_No_Scaling_And_Offset(new_Row_Count);
+		for(int row=0; row<temp_Value_2D.size(); row++)
+		{
+			temp_Value_2D					   [row].resize(new_Col_Count);
+			temp_Value_2D_Shifted			   [row].resize(new_Col_Count);
+			temp_Value_2D_No_Scaling_And_Offset[row].resize(new_Col_Count);
+		}
+
+		// fill
+		for(int row=0; row<new_Row_Count; row++)
+		{
+			for(int col=0; col<new_Col_Count; col++)
+			{
+				temp_Value_2D						[row][col]	= curve.value_2D					  [new_Last_Col-col][row];
+				temp_Value_2D_Shifted				[row][col]	= curve.value_2D_Shifted			  [new_Last_Col-col][row];
+				temp_Value_2D_No_Scaling_And_Offset	[row][col]	= curve.value_2D_No_Scaling_And_Offset[new_Last_Col-col][row];
+			}
+		}
+
+		// change
+		curve.value_2D = temp_Value_2D;
+		curve.value_2D_Shifted = temp_Value_2D_Shifted;
+		curve.value_2D_No_Scaling_And_Offset = temp_Value_2D_No_Scaling_And_Offset;
 	}
 }
 
@@ -456,6 +530,90 @@ void Target_Curve::refresh_Description_Label()
 		label_Text = "<no description>";
 		description_Label->setText(label_Text);
 	}
+}
+
+void Target_Curve::calc_Measured_cos2_k()
+{
+//	// measurement filling
+//	if(measurement.argument_Type == argument_Types[Beam_Grazing_Angle])
+//	{
+//		measurement.beam_Theta_0_Angle_Vec.resize(curve.shifted_Argument.size());
+//		for(int i=0; i<curve.shifted_Argument.size(); ++i)
+//		{
+//			measurement.beam_Theta_0_Angle_Vec[i] = curve.shifted_Argument[i]*coeff;
+//		}
+//	}
+//	if(measurement.argument_Type == argument_Types[Deviation_From_Specular_Angle])
+//	{
+//		measurement.beam_Theta_0_Angle_Vec.resize(curve.shifted_Argument.size());
+//		for(int i=0; i<curve.shifted_Argument.size(); ++i)
+//		{
+//			measurement.beam_Theta_0_Angle_Vec[i] = curve.shifted_Argument[i]*coeff + measurement.beam_Theta_0_Specular_Position;
+//		}
+//	}
+//	if(measurement.argument_Type == argument_Types[Detector_Polar_Angle])
+//	{
+//		measurement.detector_Theta_Angle_Vec.resize(curve.shifted_Argument.size());
+//		for(int i=0; i<curve.shifted_Argument.size(); ++i)
+//		{
+//			measurement.detector_Theta_Angle_Vec[i] = curve.shifted_Argument[i]*coeff;
+//		}
+//	}
+//	if(measurement.argument_Type == argument_Types[Wavelength_Energy])
+//	{
+//		double coeff_Spectral = wavelength_Coefficients_Map.value(spectral_Units);
+//		measurement.lambda_Vec.resize(curve.shifted_Argument.size());
+//		for(int i=0; i<curve.shifted_Argument.size(); ++i)
+//		{
+//			measurement.lambda_Vec[i] = Global_Variables::wavelength_Energy(spectral_Units, curve.shifted_Argument[i]*coeff_Spectral);
+//		}
+//	}
+
+//	if(	measurement.measurement_Type == measurement_Types[Specular_Scan] )
+//	{
+//		if( measurement.argument_Type == argument_Types[Beam_Grazing_Angle] )
+//		{
+//			// cos2
+//			measurement.beam_Theta_0_Cos2_Vec.resize(measurement.beam_Theta_0_Angle_Vec.size());
+//			for(int i=0; i<measurement.beam_Theta_0_Angle_Vec.size(); ++i)
+//			{
+//				measurement.beam_Theta_0_Cos2_Vec[i] = pow(cos(measurement.beam_Theta_0_Angle_Vec[i]*M_PI/180.),2);
+//			}
+
+//			// k
+//			measurement.lambda_Value = measurement.wavelength.value;
+//			measurement.k_Value = 2*M_PI/measurement.wavelength.value;
+//		}
+//		if( measurement.argument_Type == argument_Types[Wavelength_Energy] )
+//		{
+//			// cos2
+//			measurement.beam_Theta_0_Angle_Value = measurement.beam_Theta_0_Angle.value;
+//			measurement.beam_Theta_0_Cos2_Value = pow(cos(measurement.beam_Theta_0_Angle_Value*M_PI/180.),2);
+
+//			// k
+//			measurement.k_Vec.resize(measurement.lambda_Vec.size());
+//			for(int i=0; i<measurement.lambda_Vec.size(); ++i)
+//			{
+//				measurement.k_Vec[i] = 2*M_PI/lambda_Vec[i];
+//			}
+//		}
+//	}
+//	if(	measurement.measurement_Type == measurement_Types[Detector_Scan] )
+//	{
+//		// TODO
+//	}
+//	if(	measurement.measurement_Type == measurement_Types[Rocking_Curve] )
+//	{
+//		// TODO
+//	}
+//	if(	measurement.measurement_Type == measurement_Types[Offset_Scan] )
+//	{
+//		// TODO
+//	}
+//	if(	measurement.measurement_Type == measurement_Types[GISAS_Map] )
+//	{
+//		// TODO
+//	}
 }
 
 Target_Curve& Target_Curve::operator =(const Target_Curve& referent_Target_Curve)

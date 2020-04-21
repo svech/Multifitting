@@ -12,6 +12,7 @@ public:
 	void create_Main_Layout();
 	QString enlarge_Tab_Name();
 	void refresh_Description_Label();
+	void calc_Independent_cos2_k();
 
 	QHBoxLayout* main_Layout;
 	QPushButton* setup_Button;

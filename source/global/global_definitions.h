@@ -302,6 +302,8 @@ class Node;
 // plot scales
 #define lin_Scale		"lin"
 #define log_Scale		"value"
+#define left			"left"
+#define right			"right"
 
 // insert items with or without changing IDs
 #define copy_Type_Copy	"copy"
@@ -553,8 +555,8 @@ struct Plot_Options				{ bool rescale = true;
 								  // 2D
 								  bool use_Interpolation = true;
 								  QString z_Scale = lin_Scale;
-								  int color_Scheme = QCPColorGradient::gpJet;
-								  int rotation_Angle = 0; // in degrees
+								  QCPColorGradient::GradientPreset color_Scheme = QCPColorGradient::gpJet;
+								  int rotation_Angle = 0;
 								};
 struct Graph_Options			{int num_Target_Graph_Rows = 1;		 // rows in Graphs
 								 int num_Independent_Graph_Rows = 1; // rows in Graphs

@@ -1,4 +1,5 @@
 #include "target_curve_plot.h"
+#include "multilayer_approach/multilayer_approach.h"
 
 Target_Curve_Plot::Target_Curve_Plot(Target_Curve* target_Curve, QWidget *parent) :
 	target_Curve(target_Curve),
@@ -40,6 +41,12 @@ void Target_Curve_Plot::create_Main_Layout()
 		plot_Data_2D();
 		refresh_Labels_2D();
 		create_Plot_Options_GroupBox_2D();
+
+		// color scheme editor
+		connect(custom_Plot, &QCustomPlot::axisDoubleClick, this, [=](QCPAxis* axis, QCPAxis::SelectablePart part, QMouseEvent* event)
+		{
+			if(axis == color_Scale->axis()) { Global_Variables::color_Scheme_Change(color_Map, custom_Plot, &target_Curve->plot_Options_Experimental.color_Scheme); }
+		}, Qt::UniqueConnection);
 	}
 }
 
@@ -228,11 +235,12 @@ void Target_Curve_Plot::create_Plot_Frame_And_Scale_2D()
 	// add a color scale:
 	color_Scale->setType(QCPAxis::atRight); // scale shall be vertical bar with tick/axis labels right (actually atRight is already the default)
 	color_Map->setColorScale(color_Scale); // associate the color map with the color scale
-	color_Map->setGradient(QCPColorGradient::GradientPreset(target_Curve->plot_Options_Experimental.color_Scheme)); // set the color gradient of the color map to one of the presets
+	color_Map->setTightBoundary(true);
 
 	// make sure the axis rect and color scale synchronize their bottom and top margins (so they line up):
-	custom_Plot->axisRect()->setMarginGroup(QCP::msBottom|QCP::msTop, margin_Group);
-	color_Scale->setMarginGroup(QCP::msBottom|QCP::msTop, margin_Group);
+	custom_Plot->axisRect()->setMarginGroup(QCP::msBottom | QCP::msTop, margin_Group);
+	color_Scale->setMarginGroup(QCP::msBottom | QCP::msTop, margin_Group);
+	color_Map->setGradient(target_Curve->plot_Options_Experimental.color_Scheme); // set the color gradient of the color map to one of the presets
 
 	// scale
 	if(target_Curve->plot_Options_Experimental.y_Scale == log_Scale)  apply_Log_Scale_2D();
@@ -296,6 +304,8 @@ void Target_Curve_Plot::plot_Data_2D()
 		// color_Map->rescaleDataRange(); // rescale the data dimension (color) such that all data points lie in the span visualized by the color gradient
 		if(target_Curve->plot_Options_Experimental.y_Scale == log_Scale) { min_Val = max(min_Val,max_Val/1e5); } // no more than 5 orders
 		color_Map->setDataRange(QCPRange(min_Val,max_Val));
+
+		color_Map->setInterpolate(target_Curve->plot_Options_Experimental.use_Interpolation);
 		custom_Plot->replot();
 	}
 }
@@ -354,7 +364,62 @@ void Target_Curve_Plot::create_Plot_Options_GroupBox_2D()
 		});
 		connect(log_Radio_Button, &QRadioButton::clicked, log_Radio_Button, &QRadioButton::toggled);
 	}
+	//  rotations
+	{
+		QHBoxLayout* rotate_Button_Layout = new QHBoxLayout;
+			rotate_Button_Layout->setAlignment(Qt::AlignLeft);
+		plot_Options_GroupBox_Layout->addLayout(rotate_Button_Layout);
 
+		QLabel* rotate_Label = new QLabel("Rotate: ");
+		rotate_Button_Layout->addWidget(rotate_Label);
+
+		QPixmap rotate_Left_Pic	(Paths_Icon_Path + "rotate-left-24.png");
+		QPixmap rotate_Right_Pic(Paths_Icon_Path + "rotate-right-24.png");
+
+		QToolButton* rotate_Left_Button = new QToolButton;
+			rotate_Left_Button->setIcon(QIcon(rotate_Left_Pic));
+			rotate_Left_Button->setToolTip("Rotate 90"+Degree_Sym+" left");
+		rotate_Button_Layout->addWidget(rotate_Left_Button);
+		connect(rotate_Left_Button, &QToolButton::clicked, this, [=]
+		{
+			target_Curve->plot_Options_Experimental.rotation_Angle -= 90;
+			target_Curve->plot_Options_Calculated.rotation_Angle -= 90;
+			target_Curve->plot_Options_Experimental.rotation_Angle = (target_Curve->plot_Options_Experimental.rotation_Angle+2*360)%360;
+			target_Curve->plot_Options_Calculated.rotation_Angle   = (target_Curve->plot_Options_Calculated.rotation_Angle  +2*360)%360;
+
+			target_Curve->rotate_Data_From_Previous_State(left);
+			plot_Data_2D();
+			global_Multilayer_Approach->calculate(true);
+		});
+
+		QToolButton* rotate_Right_Button = new QToolButton;
+			rotate_Right_Button->setIcon(QIcon(rotate_Right_Pic));
+			rotate_Right_Button->setToolTip("Rotate 90"+Degree_Sym+" right");
+		rotate_Button_Layout->addWidget(rotate_Right_Button);
+		connect(rotate_Right_Button, &QToolButton::clicked, this, [=]
+		{
+			target_Curve->plot_Options_Experimental.rotation_Angle += 90;
+			target_Curve->plot_Options_Calculated.rotation_Angle += 90;
+			target_Curve->plot_Options_Experimental.rotation_Angle = (target_Curve->plot_Options_Experimental.rotation_Angle+2*360)%360;
+			target_Curve->plot_Options_Calculated.rotation_Angle   = (target_Curve->plot_Options_Calculated.rotation_Angle  +2*360)%360;
+
+			target_Curve->rotate_Data_From_Previous_State(right);
+			plot_Data_2D();
+			global_Multilayer_Approach->calculate(true);
+		});
+	}
+	//  interpolation
+	{
+		QCheckBox* use_Interpolation_CheckBox = new QCheckBox("Interpolate");
+			use_Interpolation_CheckBox->setChecked(target_Curve->plot_Options_Experimental.use_Interpolation);
+		plot_Options_GroupBox_Layout->addWidget(use_Interpolation_CheckBox);
+		connect(use_Interpolation_CheckBox, &QCheckBox::clicked, this, [=]
+		{
+			target_Curve->plot_Options_Experimental.use_Interpolation = use_Interpolation_CheckBox->isChecked();
+			target_Curve->plot_Options_Calculated.use_Interpolation = use_Interpolation_CheckBox->isChecked();
+			plot_Data_2D();
+		});
+	}
 	plot_Options_GroupBox->adjustSize();
 	plot_Options_GroupBox->setFixedHeight(plot_Options_GroupBox->height());
 }

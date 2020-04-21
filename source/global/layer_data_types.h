@@ -69,9 +69,6 @@ public:
 		vector<double>  spectral_Resolution_Mixed;	// without saving
 		vector<double>  footprint_Factor_Vec;		// without saving
 
-		void calc_Measured_cos2_k();
-		void calc_Independent_cos2_k();
-
 		void calc_Instrumental_Factor();
 		void calc_Mixed_Resolution();
 	///---------------------------------------------

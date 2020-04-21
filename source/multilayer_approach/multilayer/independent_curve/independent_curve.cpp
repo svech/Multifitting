@@ -165,6 +165,82 @@ void Independent_Curve::refresh_Description_Label()
 	}
 }
 
+void Independent_Curve::calc_Independent_cos2_k()
+{
+	if(	measurement.measurement_Type == measurement_Types[Specular_Scan] )
+	{
+		if( measurement.argument_Type == argument_Types[Beam_Grazing_Angle] )
+		{
+			// cos2
+			measurement.beam_Theta_0_Angle_Vec.resize(measurement.beam_Theta_0_Angle.independent.num_Points);
+			measurement.beam_Theta_0_Cos2_Vec.resize(measurement.beam_Theta_0_Angle.independent.num_Points);
+
+			if(measurement.beam_Theta_0_Angle.independent.num_Points>1)
+			{
+				double angle_Step = (measurement.beam_Theta_0_Angle.independent.max - measurement.beam_Theta_0_Angle.independent.min) / (measurement.beam_Theta_0_Angle.independent.num_Points - 1);
+				double angle_Temp = measurement.beam_Theta_0_Angle.independent.min;
+				for(int i=0; i<measurement.beam_Theta_0_Angle.independent.num_Points; ++i)
+				{
+					measurement.beam_Theta_0_Cos2_Vec[i] = pow(cos(angle_Temp*M_PI/180.),2);
+
+					measurement.beam_Theta_0_Angle_Vec[i] = angle_Temp;
+					angle_Temp += angle_Step;
+				}
+			} else
+			{
+				measurement.beam_Theta_0_Cos2_Vec[0] = measurement.beam_Theta_0_Angle.value;
+				measurement.beam_Theta_0_Angle_Vec[0] = pow(cos(measurement.beam_Theta_0_Angle.value*M_PI/180.),2);;
+			}
+
+			// k
+			measurement.lambda_Value = measurement.wavelength.value;
+			measurement.k_Value = 2*M_PI/measurement.wavelength.value;
+		}
+		if( measurement.argument_Type == argument_Types[Wavelength_Energy] )
+		{
+			// cos2
+			measurement.beam_Theta_0_Angle_Value = measurement.beam_Theta_0_Angle.value;
+			measurement.beam_Theta_0_Cos2_Value = pow(cos(measurement.beam_Theta_0_Angle_Value*M_PI/180.),2);
+
+			// k
+			measurement.lambda_Vec.resize(measurement.wavelength.independent.num_Points);
+			measurement.k_Vec.resize(measurement.wavelength.independent.num_Points);
+
+			if(measurement.wavelength.independent.num_Points>1)
+			{
+				double wave_Step = (measurement.wavelength.independent.max - measurement.wavelength.independent.min) / (measurement.wavelength.independent.num_Points - 1);
+				double wave = measurement.wavelength.independent.min;
+				for(int i=0; i<measurement.wavelength.independent.num_Points; ++i)
+				{
+					measurement.k_Vec[i] = 2*M_PI/wave;
+					measurement.lambda_Vec[i] = wave;
+					wave += wave_Step;
+				}
+			} else
+			{
+				measurement.lambda_Vec[0] = measurement.wavelength.value;
+				measurement.k_Vec[0] = 2*M_PI/measurement.wavelength.value;
+			}
+		}
+	}
+	if(	measurement.measurement_Type == measurement_Types[Detector_Scan] )
+	{
+		// TODO
+	}
+	if(	measurement.measurement_Type == measurement_Types[Rocking_Curve] )
+	{
+		// TODO
+	}
+	if(	measurement.measurement_Type == measurement_Types[Offset_Scan] )
+	{
+		// TODO
+	}
+	if(	measurement.measurement_Type == measurement_Types[GISAS_Map] )
+	{
+		// TODO
+	}
+}
+
 Independent_Curve& Independent_Curve::operator =(const Independent_Curve& referent_Independent_Curve)
 {
 	tab_Name = referent_Independent_Curve.tab_Name;

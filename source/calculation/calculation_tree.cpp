@@ -353,19 +353,19 @@ void Calculation_Tree::stratify_Calc_Tree(tree<Node>& calc_Tree)
 template<typename Type>
 void Calculation_Tree::calculate_1_Kind_Preliminary(Data_Element<Type>& data_Element)
 {
-	// calculation of wavenumbers and cos squares
-	if(data_Element.curve_Class == INDEPENDENT)	{data_Element.the_Class->measurement.calc_Independent_cos2_k();}
-	if(data_Element.curve_Class == TARGET)		{data_Element.the_Class->measurement.calc_Measured_cos2_k();}
-
-	// find active node
 	if(data_Element.curve_Class == INDEPENDENT)
 	{
-		Independent_Curve* independent_Variables = qobject_cast<Independent_Curve*>(data_Element.the_Class);
-		data_Element.calc_Functions = independent_Variables->calc_Functions;
+		Independent_Curve* independent_Curve = qobject_cast<Independent_Curve*>(data_Element.the_Class);
+
+		independent_Curve->calc_Independent_cos2_k();
+
+		data_Element.calc_Functions = independent_Curve->calc_Functions;
 	}
 	if(data_Element.curve_Class == TARGET)
 	{
 		Target_Curve* target_Curve = qobject_cast<Target_Curve*>(data_Element.the_Class);		
+
+		target_Curve->calc_Measured_cos2_k();
 
 		if(	target_Curve->measurement.measurement_Type == measurement_Types[Specular_Scan] )
 		{
@@ -374,19 +374,19 @@ void Calculation_Tree::calculate_1_Kind_Preliminary(Data_Element<Type>& data_Ele
 		}
 		if(	target_Curve->measurement.measurement_Type == measurement_Types[Detector_Scan] )
 		{
-			// TODO
+			if( target_Curve->curve.value_Type == value_Types[Scattering]   )	{ data_Element.calc_Functions.check_Scattering = true; }
 		}
 		if(	target_Curve->measurement.measurement_Type == measurement_Types[Rocking_Curve] )
 		{
-			// TODO
+			if( target_Curve->curve.value_Type == value_Types[Scattering]   )	{ data_Element.calc_Functions.check_Scattering = true; }
 		}
 		if(	target_Curve->measurement.measurement_Type == measurement_Types[Offset_Scan] )
 		{
-			// TODO
+			if( target_Curve->curve.value_Type == value_Types[Scattering]   )	{ data_Element.calc_Functions.check_Scattering = true; }
 		}
 		if(	target_Curve->measurement.measurement_Type == measurement_Types[GISAS_Map] )
 		{
-			// TODO
+			if( target_Curve->curve.value_Type == value_Types[GISAS]   )		{ data_Element.calc_Functions.check_GISAS = true; }
 		}
 	}
 
