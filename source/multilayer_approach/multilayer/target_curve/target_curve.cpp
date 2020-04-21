@@ -167,11 +167,11 @@ void Target_Curve::parse_1D_Data()
 			{
 				if(curve.argument[curve.argument.size()-1]>curve.argument[curve.argument.size()-2]) // increasing argument is allowed
 				{
-					if(temp_Argument <= curve.argument.last()) goto skip_line_label; // read only monotonical arguments
+					if(temp_Argument <= curve.argument.back()) goto skip_line_label; // read only monotonical arguments
 				}
 				if(curve.argument[curve.argument.size()-1]<curve.argument[curve.argument.size()-2]) // decreasing argument is allowed
 				{
-					if(temp_Argument >= curve.argument.last()) goto skip_line_label; // read only monotonical arguments
+					if(temp_Argument >= curve.argument.back()) goto skip_line_label; // read only monotonical arguments
 				}
 			}
 
@@ -225,15 +225,25 @@ void Target_Curve::parse_2D_Data()
 				}
 
 			}
-			curve.value_2D.append(numbers_Row);
+			curve.value_2D.push_back(numbers_Row);
 		}
 	}
-	if(curve.value_2D.size()>0)
+
+	// decision
+	if(curve.value_2D.size()>3)
 	{
-		if(curve.value_2D.first().size()>0)
+		if(curve.value_2D.front().size()>3)
 		{
 			loaded_And_Ready = true;
+		} else
+		{
+			loaded_And_Ready = false;
+			qInfo() << "Target_Curve::parse_2D_Data  :  file should have at least 3 columns" << endl;
 		}
+	} else
+	{
+		loaded_And_Ready = false;
+		qInfo() << "Target_Curve::parse_2D_Data  :  file should have at least 3 rows" << endl;
 	}
 }
 
@@ -262,7 +272,7 @@ void Target_Curve::fill_Measurement_And_Curve_With_Shifted_1D_Data()
 		curve.shifted_Values_No_Scaling_And_Offset.resize(curve.argument.size());
 
 		vector<double> intensity_Factor(curve.argument.size(),1);
-		double delta = (curve.beam_Intensity_Final - curve.beam_Intensity_Initial)/max(curve.argument.size()-1,1);
+		double delta = (curve.beam_Intensity_Final - curve.beam_Intensity_Initial)/max(int(curve.argument.size())-1,1);
 		if(curve.divide_On_Beam_Intensity)
 		{
 			for(int i=0; i<curve.argument.size(); ++i)
@@ -296,7 +306,7 @@ void Target_Curve::fill_Measurement_And_Curve_With_Shifted_2D_Data()
 		if(curve.divide_On_Beam_Intensity) intensity_Factor = curve.beam_Intensity_Initial;
 		for(int row=0; row<curve.value_2D.size(); row++)
 		{
-			for(int col=0; col<curve.value_2D.first().size(); col++)
+			for(int col=0; col<curve.value_2D.front().size(); col++)
 			{
 				curve.value_2D_Shifted			    [row][col] = curve.value_2D[row][col]/intensity_Factor * curve.val_Factor.value + curve.val_Shift;
 				curve.value_2D_No_Scaling_And_Offset[row][col] = curve.value_2D[row][col]/intensity_Factor;
@@ -347,24 +357,25 @@ void Target_Curve::rotate_Data()
 
 void Target_Curve::rotate_Data_From_Previous_State(QString left_Right)
 {
+	int new_Row_Count = curve.value_2D.front().size();
+	int new_Col_Count = curve.value_2D.size();
+	int new_Last_Row = new_Row_Count-1;
+	int new_Last_Col = new_Col_Count-1;
+
+	// resize
+	vector<QVector<double>> temp_Value_2D					   (new_Row_Count);
+	vector<QVector<double>> temp_Value_2D_Shifted			   (new_Row_Count);
+	vector<QVector<double>> temp_Value_2D_No_Scaling_And_Offset(new_Row_Count);
+	for(int row=0; row<temp_Value_2D.size(); row++)
+	{
+		temp_Value_2D					   [row].resize(new_Col_Count);
+		temp_Value_2D_Shifted			   [row].resize(new_Col_Count);
+		temp_Value_2D_No_Scaling_And_Offset[row].resize(new_Col_Count);
+	}
+
+	// fill
 	if(left_Right == right)
 	{
-		int new_Row_Count = curve.value_2D.first().size();
-		int new_Col_Count = curve.value_2D.size();
-		int new_Last_Row = new_Row_Count-1;
-
-		// resize
-		QVector<QVector<double>> temp_Value_2D						(new_Row_Count);
-		QVector<QVector<double>> temp_Value_2D_Shifted				(new_Row_Count);
-		QVector<QVector<double>> temp_Value_2D_No_Scaling_And_Offset(new_Row_Count);
-		for(int row=0; row<temp_Value_2D.size(); row++)
-		{
-			temp_Value_2D					   [row].resize(new_Col_Count);
-			temp_Value_2D_Shifted			   [row].resize(new_Col_Count);
-			temp_Value_2D_No_Scaling_And_Offset[row].resize(new_Col_Count);
-		}
-
-		// fill
 		for(int row=0; row<new_Row_Count; row++)
 		{
 			for(int col=0; col<new_Col_Count; col++)
@@ -374,30 +385,9 @@ void Target_Curve::rotate_Data_From_Previous_State(QString left_Right)
 				temp_Value_2D_No_Scaling_And_Offset	[row][col]	= curve.value_2D_No_Scaling_And_Offset[col][new_Last_Row-row];
 			}
 		}
-
-		// change
-		curve.value_2D = temp_Value_2D;
-		curve.value_2D_Shifted = temp_Value_2D_Shifted;
-		curve.value_2D_No_Scaling_And_Offset = temp_Value_2D_No_Scaling_And_Offset;
 	}
 	if(left_Right == left)
 	{
-		int new_Row_Count = curve.value_2D.first().size();
-		int new_Col_Count = curve.value_2D.size();
-		int new_Last_Col = new_Col_Count-1;
-
-		// resize
-		QVector<QVector<double>> temp_Value_2D						(new_Row_Count);
-		QVector<QVector<double>> temp_Value_2D_Shifted				(new_Row_Count);
-		QVector<QVector<double>> temp_Value_2D_No_Scaling_And_Offset(new_Row_Count);
-		for(int row=0; row<temp_Value_2D.size(); row++)
-		{
-			temp_Value_2D					   [row].resize(new_Col_Count);
-			temp_Value_2D_Shifted			   [row].resize(new_Col_Count);
-			temp_Value_2D_No_Scaling_And_Offset[row].resize(new_Col_Count);
-		}
-
-		// fill
 		for(int row=0; row<new_Row_Count; row++)
 		{
 			for(int col=0; col<new_Col_Count; col++)
@@ -407,12 +397,12 @@ void Target_Curve::rotate_Data_From_Previous_State(QString left_Right)
 				temp_Value_2D_No_Scaling_And_Offset	[row][col]	= curve.value_2D_No_Scaling_And_Offset[new_Last_Col-col][row];
 			}
 		}
-
-		// change
-		curve.value_2D = temp_Value_2D;
-		curve.value_2D_Shifted = temp_Value_2D_Shifted;
-		curve.value_2D_No_Scaling_And_Offset = temp_Value_2D_No_Scaling_And_Offset;
 	}
+
+	// change
+	curve.value_2D = temp_Value_2D;
+	curve.value_2D_Shifted = temp_Value_2D_Shifted;
+	curve.value_2D_No_Scaling_And_Offset = temp_Value_2D_No_Scaling_And_Offset;
 }
 
 void Target_Curve::refresh_Description_Label()
@@ -437,8 +427,8 @@ void Target_Curve::refresh_Description_Label()
 			if(measurement.argument_Type == argument_Types[Beam_Grazing_Angle])
 			{		
 				label_Text =  curve.value_Type + "; " + Theta_Sym + Zero_Subscript_Sym + "=" +
-							  Locale.toString(curve.shifted_Argument.first(), thumbnail_double_format, 3) +
-						"-" + Locale.toString(curve.shifted_Argument.last(), thumbnail_double_format, 3) +
+							  Locale.toString(curve.shifted_Argument.front(), thumbnail_double_format, 3) +
+						"-" + Locale.toString(curve.shifted_Argument.back(), thumbnail_double_format, 3) +
 							  " " + angular_Units + "; " + "at " + lambda_Energy + "=" +
 							  Locale.toString(Global_Variables::wavelength_Energy(spectral_Units,measurement.wavelength.value)/spectral_Coeff, thumbnail_double_format, thumbnail_wavelength_precision) +
 							  " " + spectral_Units;
@@ -446,8 +436,8 @@ void Target_Curve::refresh_Description_Label()
 			if(measurement.argument_Type == argument_Types[Wavelength_Energy])
 			{
 				label_Text =  curve.value_Type + "; " + lambda_Energy + "=" +
-							  Locale.toString(curve.shifted_Argument.first(), thumbnail_double_format, 3) +
-						"-" + Locale.toString(curve.shifted_Argument.last(), thumbnail_double_format, 3) +
+							  Locale.toString(curve.shifted_Argument.front(), thumbnail_double_format, 3) +
+						"-" + Locale.toString(curve.shifted_Argument.back(), thumbnail_double_format, 3) +
 							  " " + spectral_Units + "; " + "at " + Theta_Sym + Zero_Subscript_Sym + "=" +
 							  Locale.toString(measurement.beam_Theta_0_Angle.value/angular_Coeff, thumbnail_double_format, thumbnail_angle_precision) +
 							  " " + angular_Units;
@@ -458,8 +448,8 @@ void Target_Curve::refresh_Description_Label()
 			if(measurement.argument_Type == argument_Types[Detector_Polar_Angle])
 			{
 				label_Text =  measurement.measurement_Type + "; " + Theta_Sym + "=" +
-							  Locale.toString(curve.shifted_Argument.first(), thumbnail_double_format, 3) +
-						"-" + Locale.toString(curve.shifted_Argument.last(), thumbnail_double_format, 3) +
+							  Locale.toString(curve.shifted_Argument.front(), thumbnail_double_format, 3) +
+						"-" + Locale.toString(curve.shifted_Argument.back(), thumbnail_double_format, 3) +
 							  " " + angular_Units + "; " + "at " + lambda_Energy + "=" +
 							  Locale.toString(Global_Variables::wavelength_Energy(spectral_Units, measurement.wavelength.value)/spectral_Coeff, thumbnail_double_format, thumbnail_wavelength_precision) +
 							  " " + spectral_Units + " and " + Theta_Sym + Zero_Subscript_Sym + "=" +
@@ -472,8 +462,8 @@ void Target_Curve::refresh_Description_Label()
 			if(measurement.argument_Type == argument_Types[Beam_Grazing_Angle])
 			{
 				label_Text =  measurement.measurement_Type + "; " + Theta_Sym + Zero_Subscript_Sym + "=" +
-							  Locale.toString(curve.shifted_Argument.first(), thumbnail_double_format, 3) +
-						"-" + Locale.toString(curve.shifted_Argument.last(), thumbnail_double_format, 3) +
+							  Locale.toString(curve.shifted_Argument.front(), thumbnail_double_format, 3) +
+						"-" + Locale.toString(curve.shifted_Argument.back(), thumbnail_double_format, 3) +
 							  " " + angular_Units + "; " + "at " + lambda_Energy + "=" +
 							  Locale.toString(Global_Variables::wavelength_Energy(spectral_Units, measurement.wavelength.value)/spectral_Coeff, thumbnail_double_format, thumbnail_wavelength_precision) +
 							  " " + spectral_Units + ", specular=" +
@@ -483,8 +473,8 @@ void Target_Curve::refresh_Description_Label()
 			if(measurement.argument_Type == argument_Types[Deviation_From_Specular_Angle])
 			{
 				label_Text =  measurement.measurement_Type + "; " + Delta_Big_Sym + Theta_Sym + Zero_Subscript_Sym + "=" +
-							  Locale.toString(curve.shifted_Argument.first(), thumbnail_double_format, 3) +
-						"-" + Locale.toString(curve.shifted_Argument.last(), thumbnail_double_format, 3) +
+							  Locale.toString(curve.shifted_Argument.front(), thumbnail_double_format, 3) +
+						"-" + Locale.toString(curve.shifted_Argument.back(), thumbnail_double_format, 3) +
 							  "" + angular_Units + "; " + "at " + lambda_Energy + "=" +
 							  Locale.toString(Global_Variables::wavelength_Energy(spectral_Units, measurement.wavelength.value)/spectral_Coeff, thumbnail_double_format, thumbnail_wavelength_precision) +
 							  " " + spectral_Units + ", specular=" +
@@ -497,8 +487,8 @@ void Target_Curve::refresh_Description_Label()
 			if(measurement.argument_Type == argument_Types[Beam_Grazing_Angle])
 			{
 				label_Text =  measurement.measurement_Type + "; " + Theta_Sym + Zero_Subscript_Sym + "=" +
-							  Locale.toString(curve.shifted_Argument.first(), thumbnail_double_format, 3) +
-						"-" + Locale.toString(curve.shifted_Argument.last(), thumbnail_double_format, 3) +
+							  Locale.toString(curve.shifted_Argument.front(), thumbnail_double_format, 3) +
+						"-" + Locale.toString(curve.shifted_Argument.back(), thumbnail_double_format, 3) +
 							  " " + angular_Units + "; " + "at " + lambda_Energy + "=" +
 							  Locale.toString(Global_Variables::wavelength_Energy(spectral_Units, measurement.wavelength.value)/spectral_Coeff, thumbnail_double_format, thumbnail_wavelength_precision) +
 							  " " + spectral_Units + ", offset =" +
@@ -534,86 +524,223 @@ void Target_Curve::refresh_Description_Label()
 
 void Target_Curve::calc_Measured_cos2_k()
 {
-//	// measurement filling
-//	if(measurement.argument_Type == argument_Types[Beam_Grazing_Angle])
-//	{
-//		measurement.beam_Theta_0_Angle_Vec.resize(curve.shifted_Argument.size());
-//		for(int i=0; i<curve.shifted_Argument.size(); ++i)
-//		{
-//			measurement.beam_Theta_0_Angle_Vec[i] = curve.shifted_Argument[i]*coeff;
-//		}
-//	}
-//	if(measurement.argument_Type == argument_Types[Deviation_From_Specular_Angle])
-//	{
-//		measurement.beam_Theta_0_Angle_Vec.resize(curve.shifted_Argument.size());
-//		for(int i=0; i<curve.shifted_Argument.size(); ++i)
-//		{
-//			measurement.beam_Theta_0_Angle_Vec[i] = curve.shifted_Argument[i]*coeff + measurement.beam_Theta_0_Specular_Position;
-//		}
-//	}
-//	if(measurement.argument_Type == argument_Types[Detector_Polar_Angle])
-//	{
-//		measurement.detector_Theta_Angle_Vec.resize(curve.shifted_Argument.size());
-//		for(int i=0; i<curve.shifted_Argument.size(); ++i)
-//		{
-//			measurement.detector_Theta_Angle_Vec[i] = curve.shifted_Argument[i]*coeff;
-//		}
-//	}
-//	if(measurement.argument_Type == argument_Types[Wavelength_Energy])
-//	{
-//		double coeff_Spectral = wavelength_Coefficients_Map.value(spectral_Units);
-//		measurement.lambda_Vec.resize(curve.shifted_Argument.size());
-//		for(int i=0; i<curve.shifted_Argument.size(); ++i)
-//		{
-//			measurement.lambda_Vec[i] = Global_Variables::wavelength_Energy(spectral_Units, curve.shifted_Argument[i]*coeff_Spectral);
-//		}
-//	}
+	double coeff_Spectral = wavelength_Coefficients_Map.value(spectral_Units);
+	double coeff_Angular = angle_Coefficients_Map.value(angular_Units);
 
-//	if(	measurement.measurement_Type == measurement_Types[Specular_Scan] )
-//	{
-//		if( measurement.argument_Type == argument_Types[Beam_Grazing_Angle] )
-//		{
-//			// cos2
-//			measurement.beam_Theta_0_Cos2_Vec.resize(measurement.beam_Theta_0_Angle_Vec.size());
-//			for(int i=0; i<measurement.beam_Theta_0_Angle_Vec.size(); ++i)
-//			{
-//				measurement.beam_Theta_0_Cos2_Vec[i] = pow(cos(measurement.beam_Theta_0_Angle_Vec[i]*M_PI/180.),2);
-//			}
+	if(	measurement.measurement_Type == measurement_Types[Specular_Scan] )
+	{
+		if( measurement.argument_Type == argument_Types[Beam_Grazing_Angle] )
+		{
+			// beam angle_cos_cos2 : vector
+			{
+				measurement.beam_Theta_0_Angle_Vec.resize(curve.shifted_Argument.size());
+				measurement.beam_Theta_0_Cos_Vec.  resize(curve.shifted_Argument.size());
+				measurement.beam_Theta_0_Cos2_Vec. resize(curve.shifted_Argument.size());
 
-//			// k
-//			measurement.lambda_Value = measurement.wavelength.value;
-//			measurement.k_Value = 2*M_PI/measurement.wavelength.value;
-//		}
-//		if( measurement.argument_Type == argument_Types[Wavelength_Energy] )
-//		{
-//			// cos2
-//			measurement.beam_Theta_0_Angle_Value = measurement.beam_Theta_0_Angle.value;
-//			measurement.beam_Theta_0_Cos2_Value = pow(cos(measurement.beam_Theta_0_Angle_Value*M_PI/180.),2);
+				for(int i=0; i<curve.shifted_Argument.size(); ++i)
+				{
+					measurement.beam_Theta_0_Angle_Vec[i] = curve.shifted_Argument[i]*coeff_Angular;
+					measurement.beam_Theta_0_Cos_Vec [i] = cos(measurement.beam_Theta_0_Angle_Vec[i]*M_PI/180.);
+					measurement.beam_Theta_0_Cos2_Vec[i] = pow(measurement.beam_Theta_0_Cos_Vec[i],2);
+				}
+			}
+			// k : single_value
+			{
+				measurement.lambda_Value = measurement.wavelength.value;
+				measurement.k_Value = 2*M_PI/measurement.wavelength.value;
+			}
+		}
+		if( measurement.argument_Type == argument_Types[Wavelength_Energy] )
+		{
+			// beam angle_cos_cos2 : single value
+			{
+				measurement.beam_Theta_0_Angle_Value = measurement.beam_Theta_0_Angle.value;
+				measurement.beam_Theta_0_Cos_Value = cos(measurement.beam_Theta_0_Angle_Value*M_PI/180.);
+				measurement.beam_Theta_0_Cos2_Value = pow(measurement.beam_Theta_0_Cos_Value,2);
+			}
+			// k : vector
+			{
+				measurement.lambda_Vec.resize(curve.shifted_Argument.size());
+				measurement.k_Vec.	   resize(curve.shifted_Argument.size());
 
-//			// k
-//			measurement.k_Vec.resize(measurement.lambda_Vec.size());
-//			for(int i=0; i<measurement.lambda_Vec.size(); ++i)
-//			{
-//				measurement.k_Vec[i] = 2*M_PI/lambda_Vec[i];
-//			}
-//		}
-//	}
-//	if(	measurement.measurement_Type == measurement_Types[Detector_Scan] )
-//	{
-//		// TODO
-//	}
-//	if(	measurement.measurement_Type == measurement_Types[Rocking_Curve] )
-//	{
-//		// TODO
-//	}
-//	if(	measurement.measurement_Type == measurement_Types[Offset_Scan] )
-//	{
-//		// TODO
-//	}
-//	if(	measurement.measurement_Type == measurement_Types[GISAS_Map] )
-//	{
-//		// TODO
-//	}
+				for(int i=0; i<curve.shifted_Argument.size(); ++i)
+				{
+					measurement.lambda_Vec[i] = Global_Variables::wavelength_Energy(spectral_Units, curve.shifted_Argument[i]*coeff_Spectral);
+					measurement.k_Vec	  [i] = 2*M_PI/measurement.lambda_Vec[i];
+				}
+			}
+		}
+	}
+	if(	measurement.measurement_Type == measurement_Types[Detector_Scan] )
+	{
+		if( measurement.argument_Type == argument_Types[Detector_Polar_Angle] )
+		{
+			// detector angle_cos : vector
+			{
+				measurement.detector_Theta_Angle_Vec.resize(curve.shifted_Argument.size());
+				measurement.detector_Theta_Cos_Vec.  resize(curve.shifted_Argument.size());
+
+				for(int i=0; i<curve.shifted_Argument.size(); ++i)
+				{
+					measurement.detector_Theta_Angle_Vec[i] = curve.shifted_Argument[i]*coeff_Angular;;
+					measurement.detector_Theta_Cos_Vec[i] = cos(measurement.detector_Theta_Angle_Vec[i]*M_PI/180.);
+				}
+			}
+			// beam angle_cos_cos2 : single value
+			{
+				measurement.beam_Theta_0_Angle_Value = measurement.beam_Theta_0_Angle.value;
+				measurement.beam_Theta_0_Cos_Value = cos(measurement.beam_Theta_0_Angle_Value*M_PI/180.);
+				measurement.beam_Theta_0_Cos2_Value = pow(measurement.beam_Theta_0_Cos_Value,2);
+			}
+			// k : single value
+			{
+				measurement.lambda_Value = measurement.wavelength.value;
+				measurement.k_Value = 2*M_PI/measurement.wavelength.value;
+			}
+		}
+	}
+	if(	measurement.measurement_Type == measurement_Types[Rocking_Curve] )
+	{
+		/// different part
+		if( measurement.argument_Type == argument_Types[Beam_Grazing_Angle] )
+		{
+			// beam angle_cos_cos2 : vector
+			{
+				measurement.beam_Theta_0_Angle_Vec.resize(curve.shifted_Argument.size());
+				measurement.beam_Theta_0_Cos_Vec.  resize(curve.shifted_Argument.size());
+				measurement.beam_Theta_0_Cos2_Vec. resize(curve.shifted_Argument.size());
+
+				for(int i=0; i<curve.shifted_Argument.size(); ++i)
+				{
+					measurement.beam_Theta_0_Angle_Vec[i] = curve.shifted_Argument[i]*coeff_Angular;
+					measurement.beam_Theta_0_Cos_Vec [i] = cos(measurement.beam_Theta_0_Angle_Vec[i]*M_PI/180.);
+					measurement.beam_Theta_0_Cos2_Vec[i] = pow(measurement.beam_Theta_0_Cos_Vec[i],2);
+				}
+			}
+		}
+		if(measurement.argument_Type == argument_Types[Deviation_From_Specular_Angle] )
+		{
+			// beam angle_cos_cos2 : vector
+			{
+				measurement.beam_Theta_0_Angle_Vec.resize(curve.shifted_Argument.size());
+				measurement.beam_Theta_0_Cos_Vec.  resize(curve.shifted_Argument.size());
+				measurement.beam_Theta_0_Cos2_Vec. resize(curve.shifted_Argument.size());
+
+				for(int i=0; i<curve.shifted_Argument.size(); ++i)
+				{
+					measurement.beam_Theta_0_Angle_Vec[i] = curve.shifted_Argument[i]*coeff_Angular + measurement.beam_Theta_0_Specular_Position;
+					measurement.beam_Theta_0_Cos_Vec [i] = cos(measurement.beam_Theta_0_Angle_Vec[i]*M_PI/180.);
+					measurement.beam_Theta_0_Cos2_Vec[i] = pow(measurement.beam_Theta_0_Cos_Vec[i],2);
+				}
+			}
+		}
+		/// common part
+		if( measurement.argument_Type == argument_Types[Beam_Grazing_Angle] ||
+			measurement.argument_Type == argument_Types[Deviation_From_Specular_Angle] )
+		{
+			// detector angle_cos : vector, depends on beam
+			{
+				measurement.detector_Theta_Angle_Vec.resize(curve.shifted_Argument.size());
+				measurement.detector_Theta_Cos_Vec.  resize(curve.shifted_Argument.size());
+
+				for(int i=0; i<curve.shifted_Argument.size(); ++i)
+				{
+					double angle_Temp = 2*measurement.beam_Theta_0_Specular_Position - measurement.beam_Theta_0_Angle_Vec[i];
+					measurement.detector_Theta_Angle_Vec[i] = angle_Temp;
+					measurement.detector_Theta_Cos_Vec[i] = cos(angle_Temp*M_PI/180.);
+				}
+			}
+			// k : single value
+			{
+				measurement.lambda_Value = measurement.wavelength.value;
+				measurement.k_Value = 2*M_PI/measurement.wavelength.value;
+			}
+		}
+	}
+	if(	measurement.measurement_Type == measurement_Types[Offset_Scan] )
+	{
+		if( measurement.argument_Type == argument_Types[Beam_Grazing_Angle] )
+		{
+			// beam angle_cos_cos2 : vector
+			{
+				measurement.beam_Theta_0_Angle_Vec.resize(curve.shifted_Argument.size());
+				measurement.beam_Theta_0_Cos_Vec.  resize(curve.shifted_Argument.size());
+				measurement.beam_Theta_0_Cos2_Vec. resize(curve.shifted_Argument.size());
+
+				for(int i=0; i<curve.shifted_Argument.size(); ++i)
+				{
+					measurement.beam_Theta_0_Angle_Vec[i] = curve.shifted_Argument[i]*coeff_Angular;;
+					measurement.beam_Theta_0_Cos_Vec [i] = cos(measurement.beam_Theta_0_Angle_Vec[i]*M_PI/180.);
+					measurement.beam_Theta_0_Cos2_Vec[i] = pow(measurement.beam_Theta_0_Cos_Vec[i],2);
+				}
+			}
+			// detector angle_cos : vector, depends on beam
+			{
+				measurement.detector_Theta_Angle_Vec.resize(curve.shifted_Argument.size());
+				measurement.detector_Theta_Cos_Vec.  resize(curve.shifted_Argument.size());
+
+				for(int i=0; i<curve.shifted_Argument.size(); ++i)
+				{
+					measurement.detector_Theta_Angle_Vec[i] = measurement.beam_Theta_0_Angle_Vec[i] + measurement.detector_Theta_Offset;;
+					measurement.detector_Theta_Cos_Vec[i] = cos(measurement.detector_Theta_Angle_Vec[i]*M_PI/180.);
+				}
+			}
+			// k : single value
+			{
+				measurement.lambda_Value = measurement.wavelength.value;
+				measurement.k_Value = 2*M_PI/measurement.wavelength.value;
+			}
+		}
+	}
+	if(	measurement.measurement_Type == measurement_Types[GISAS_Map] )
+	{
+		if( measurement.argument_Type == argument_Types[Detector_Theta_Phi_Angles] )
+		{
+			// detector THETA angle_cos : vector
+			{
+				int num_Points_Theta = curve.value_2D_Shifted.front().size();
+				measurement.detector_Theta_Angle_Vec.resize(num_Points_Theta);
+				measurement.detector_Theta_Cos_Vec.  resize(num_Points_Theta);
+
+				double angle_Step = (measurement.detector_Theta_Angle.independent.max - measurement.detector_Theta_Angle.independent.min) / (num_Points_Theta - 1);
+				double angle_Temp =  measurement.detector_Theta_Angle.independent.min;
+				for(int i=0; i<num_Points_Theta; ++i)
+				{
+					measurement.detector_Theta_Cos_Vec[i] = cos(angle_Temp*M_PI/180.);
+					measurement.detector_Theta_Angle_Vec[i] = angle_Temp;
+					angle_Temp += angle_Step;
+				}
+			}
+			// detector PHI angle_cos_sin : vector
+			{
+				int num_Points_Phi = curve.value_2D_Shifted.size();
+				measurement.detector_Phi_Angle_Vec.resize(num_Points_Phi);
+				measurement.detector_Phi_Cos_Vec.  resize(num_Points_Phi);
+				measurement.detector_Phi_Sin_Vec.  resize(num_Points_Phi);
+
+				double angle_Step = (measurement.detector_Phi_Angle.independent.max - measurement.detector_Phi_Angle.independent.min) / (num_Points_Phi - 1);
+				double angle_Temp =  measurement.detector_Phi_Angle.independent.min;
+				for(int i=0; i<num_Points_Phi; ++i)
+				{
+					measurement.detector_Phi_Cos_Vec[i] = cos(angle_Temp*M_PI/180.);
+					measurement.detector_Phi_Sin_Vec[i] = sin(angle_Temp*M_PI/180.);
+					measurement.detector_Phi_Angle_Vec[i] = angle_Temp;
+					angle_Temp += angle_Step;
+				}
+			}
+			// beam angle_cos_cos2 : single value
+			{
+				measurement.beam_Theta_0_Angle_Value = measurement.beam_Theta_0_Angle.value;
+				measurement.beam_Theta_0_Cos_Value  = cos(measurement.beam_Theta_0_Angle_Value*M_PI/180.);
+				measurement.beam_Theta_0_Cos2_Value = pow(measurement.beam_Theta_0_Cos_Value,2);
+			}
+			// k : single value
+			{
+				measurement.lambda_Value = measurement.wavelength.value;
+				measurement.k_Value = 2*M_PI/measurement.wavelength.value;
+			}
+		}
+	}
 }
 
 Target_Curve& Target_Curve::operator =(const Target_Curve& referent_Target_Curve)
@@ -675,7 +802,14 @@ QDataStream& operator >>( QDataStream& stream,		 Curve& curve )
 			}
 			stream >> curve.subinterval_Left >> curve.subinterval_Right;
 		}
-		stream  >> curve.argument >> curve.shifted_Argument;
+		//------------------------------
+		QVector<double> argument;
+		QVector<double> shifted_Argument;
+		stream >> argument >> shifted_Argument;
+
+		curve.argument = vector<double>(argument.begin(), argument.end());
+		curve.shifted_Argument = vector<double>(shifted_Argument.begin(), shifted_Argument.end());
+		//------------------------------
 
 		// values are just double now
 		{
@@ -683,14 +817,6 @@ QDataStream& operator >>( QDataStream& stream,		 Curve& curve )
 			QVector<Value> values;
 			QVector<Value> shifted_Values;
 			stream >> values >> shifted_Values;
-			// convert
-			curve.values.resize(values.size());
-			curve.shifted_Values.resize(values.size());
-			for(int i=0; i<values.size(); i++)
-			{
-				curve.values[i] = values[i].val_1;
-				curve.shifted_Values[i] = shifted_Values[i].val_1;
-			}
 		}
 
 		stream >> curve.horizontal_Arg_Shift >> curve.horizontal_Arg_Factor;
@@ -817,12 +943,12 @@ QDataStream& operator >>(QDataStream& stream,		 Target_Curve* target_Curve )
 	if(Global_Variables::check_Loaded_Version(1,11,0))
 	{
 		stream >> target_Curve->angular_Units >> target_Curve->spectral_Units;
-
-		// loaded_And_Ready is calculated here, after main load
-		target_Curve->parse_Data_From_List();
-		target_Curve->fill_Measurement_And_Curve_With_Shifted_Data();
-		target_Curve->refresh_Description_Label();
 	}
+
+	// loaded_And_Ready is calculated here, after main load
+	target_Curve->parse_Data_From_List();
+	target_Curve->fill_Measurement_And_Curve_With_Shifted_Data();
+	target_Curve->refresh_Description_Label();
 	return stream;
 }
 

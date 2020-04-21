@@ -142,7 +142,7 @@ void Target_Curve_Plot::plot_Data_1D()
 			if(min>data_To_Plot[i].value && (target_Curve->plot_Options_Experimental.y_Scale == lin_Scale || data_To_Plot[i].value > DBL_MIN)) {min=data_To_Plot[i].value;}
 		}
 		custom_Plot->graph()->data()->set(data_To_Plot);
-		custom_Plot->xAxis->setRange(target_Curve->curve.shifted_Argument.first(), target_Curve->curve.shifted_Argument.last());
+		custom_Plot->xAxis->setRange(target_Curve->curve.shifted_Argument.front(), target_Curve->curve.shifted_Argument.back());
 		custom_Plot->yAxis->setRange(min,max);
 		custom_Plot->replot();
 	}
@@ -280,7 +280,7 @@ void Target_Curve_Plot::plot_Data_2D()
 {
 	if(target_Curve->loaded_And_Ready)
 	{
-		int nx = target_Curve->curve.value_2D_Shifted.first().size();
+		int nx = target_Curve->curve.value_2D_Shifted.front().size();
 		int ny = target_Curve->curve.value_2D_Shifted.size();
 		color_Map->data()->setSize(nx, ny);
 
@@ -382,8 +382,8 @@ void Target_Curve_Plot::create_Plot_Options_GroupBox_2D()
 		rotate_Button_Layout->addWidget(rotate_Left_Button);
 		connect(rotate_Left_Button, &QToolButton::clicked, this, [=]
 		{
-			target_Curve->plot_Options_Experimental.rotation_Angle -= 90;
-			target_Curve->plot_Options_Calculated.rotation_Angle -= 90;
+			target_Curve->plot_Options_Experimental.rotation_Angle += 90;
+			target_Curve->plot_Options_Calculated.rotation_Angle += 90;
 			target_Curve->plot_Options_Experimental.rotation_Angle = (target_Curve->plot_Options_Experimental.rotation_Angle+2*360)%360;
 			target_Curve->plot_Options_Calculated.rotation_Angle   = (target_Curve->plot_Options_Calculated.rotation_Angle  +2*360)%360;
 
@@ -398,8 +398,8 @@ void Target_Curve_Plot::create_Plot_Options_GroupBox_2D()
 		rotate_Button_Layout->addWidget(rotate_Right_Button);
 		connect(rotate_Right_Button, &QToolButton::clicked, this, [=]
 		{
-			target_Curve->plot_Options_Experimental.rotation_Angle += 90;
-			target_Curve->plot_Options_Calculated.rotation_Angle += 90;
+			target_Curve->plot_Options_Experimental.rotation_Angle -= 90;
+			target_Curve->plot_Options_Calculated.rotation_Angle -= 90;
 			target_Curve->plot_Options_Experimental.rotation_Angle = (target_Curve->plot_Options_Experimental.rotation_Angle+2*360)%360;
 			target_Curve->plot_Options_Calculated.rotation_Angle   = (target_Curve->plot_Options_Calculated.rotation_Angle  +2*360)%360;
 

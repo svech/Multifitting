@@ -25,27 +25,29 @@ public:
 
 		// wavelength
 		Parameter wavelength;
-		QVector<double> k_Vec;		double k_Value;
-		QVector<double>	lambda_Vec;	double lambda_Value;
+		vector<double> k_Vec;		double k_Value;		// wihout saving
+		vector<double>	lambda_Vec;	double lambda_Value;// wihout saving
 
 		// theta_0 angle
 		Parameter beam_Theta_0_Angle;
-		QVector<double> beam_Theta_0_Cos2_Vec;  double beam_Theta_0_Cos2_Value;
-		QVector<double>	beam_Theta_0_Angle_Vec; double beam_Theta_0_Angle_Value;
+		vector<double> beam_Theta_0_Cos2_Vec; double beam_Theta_0_Cos2_Value;	// wihout saving
+		vector<double> beam_Theta_0_Cos_Vec;  double beam_Theta_0_Cos_Value;	// wihout saving
+		vector<double>beam_Theta_0_Angle_Vec; double beam_Theta_0_Angle_Value;	// wihout saving
 
 		double beam_Theta_0_Specular_Position;
 
 		// theta angle
 		Parameter detector_Theta_Angle;
-		QVector<double> detector_Theta_Cos2_Vec;  double detector_Theta_Cos2_Value;
-		QVector<double>	detector_Theta_Angle_Vec; double detector_Theta_Angle_Value;
+		vector<double> detector_Theta_Cos_Vec;   double detector_Theta_Cos_Value;	// wihout saving
+		vector<double> detector_Theta_Angle_Vec; double detector_Theta_Angle_Value; // wihout saving
 
 		double detector_Theta_Offset;
 
 		// phi angle
 		Parameter detector_Phi_Angle;
-		QVector<double> detector_Phi_Cos2_Vec;  double detector_Phi_Cos2_Value;
-		QVector<double>	detector_Phi_Angle_Vec; double detector_Phi_Angle_Value;
+		vector<double> detector_Phi_Cos_Vec;   double detector_Phi_Cos_Value;	// wihout saving
+		vector<double> detector_Phi_Sin_Vec;   double detector_Phi_Sin_Value;	// wihout saving
+		vector<double> detector_Phi_Angle_Vec; double detector_Phi_Angle_Value; // wihout saving
 
 		// deam distribution
 		Distribution spectral_Distribution;		

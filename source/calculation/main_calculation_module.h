@@ -66,7 +66,7 @@ public:
 	template <typename Type>
 	void print_Reflect_To_File(Data_Element<Type>& data_Element, QString struct_Name, int index);
 	void print_Calculated_To_File();
-	void print_Data(QTextStream& out, QVector<double>& arg,
+	void print_Data(QTextStream& out, vector<double>& arg,
 									 Unwrapped_Reflection* unwrapped_Reflection,
 									 Calc_Functions& calc_Functions,
 									 double incident_Polarization

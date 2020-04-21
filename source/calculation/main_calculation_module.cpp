@@ -39,8 +39,8 @@ void Main_Calculation_Module::increase_Mesh_density(Data_Element<Target_Curve>& 
 	{
 		if(target_Curve->measurement.argument_Type == argument_Types[Beam_Grazing_Angle])
 		{
-			QVector<double>& angle = target_Curve->measurement.beam_Theta_0_Angle_Vec;
-			QVector<double> dense_Angle;
+			vector<double>& angle = target_Curve->measurement.beam_Theta_0_Angle_Vec;
+			vector<double> dense_Angle;
 			dense_Angle.resize((angle.size()-1)*target_Curve->curve.mesh_Density_Factor+1);
 			for(int i=0; i<angle.size()-1; i++)
 			{
@@ -51,13 +51,13 @@ void Main_Calculation_Module::increase_Mesh_density(Data_Element<Target_Curve>& 
 					dense_Angle[i*target_Curve->curve.mesh_Density_Factor+dense_Index] = angle[i] + delta_Angle*(dense_Index+target_Curve->curve.mesh_Density_Shift);
 				}
 			}
-			dense_Angle.last() = angle.last();
+			dense_Angle.back() = angle.back();
 			target_Curve->measurement.beam_Theta_0_Angle_Vec = dense_Angle;
 		}
 		if(target_Curve->measurement.argument_Type == argument_Types[Wavelength_Energy])
 		{
-			QVector<double>& lambda = target_Curve->measurement.lambda_Vec;
-			QVector<double> dense_Lambda;
+			vector<double>& lambda = target_Curve->measurement.lambda_Vec;
+			vector<double> dense_Lambda;
 			dense_Lambda.resize((lambda.size()-1)*target_Curve->curve.mesh_Density_Factor+1);
 			for(int i=0; i<lambda.size()-1; i++)
 			{
@@ -68,7 +68,7 @@ void Main_Calculation_Module::increase_Mesh_density(Data_Element<Target_Curve>& 
 					dense_Lambda[i*target_Curve->curve.mesh_Density_Factor+dense_Index] = lambda[i] + delta_Lambda*(dense_Index+target_Curve->curve.mesh_Density_Shift);
 				}
 			}
-			dense_Lambda.last() = lambda.last();
+			dense_Lambda.back() = lambda.back();
 			target_Curve->measurement.lambda_Vec = dense_Lambda;
 		}
 	}
@@ -87,8 +87,8 @@ void Main_Calculation_Module::decrease_Mesh_density(Data_Element<Target_Curve>& 
 			// decrease argument measurement
 			if(target_Curve->measurement.argument_Type == argument_Types[Beam_Grazing_Angle])
 			{
-				QVector<double>& angle = target_Curve->measurement.beam_Theta_0_Angle_Vec;
-				QVector<double> sparse_Angle;
+				vector<double>& angle = target_Curve->measurement.beam_Theta_0_Angle_Vec;
+				vector<double> sparse_Angle;
 				sparse_Angle.resize((angle.size()-1)/target_Curve->curve.mesh_Density_Factor+1);
 				for(int i=0; i<sparse_Angle.size(); i++)
 				{
@@ -98,8 +98,8 @@ void Main_Calculation_Module::decrease_Mesh_density(Data_Element<Target_Curve>& 
 			}
 			if(target_Curve->measurement.argument_Type == argument_Types[Wavelength_Energy])
 			{
-				QVector<double>& lambda = target_Curve->measurement.lambda_Vec;
-				QVector<double> sparse_Lambda;
+				vector<double>& lambda = target_Curve->measurement.lambda_Vec;
+				vector<double> sparse_Lambda;
 				sparse_Lambda.resize((lambda.size()-1)/target_Curve->curve.mesh_Density_Factor+1);
 				for(int i=0; i<sparse_Lambda.size(); i++)
 				{
@@ -966,7 +966,7 @@ void Main_Calculation_Module::print_Reflect_To_File(Data_Element<Type>& data_Ele
 
 	//-----------------------------------------------------------------------------------------------------
 
-	QVector<double> argument;
+	vector<double> argument;
 	if(	data_Element.the_Class->measurement.measurement_Type == measurement_Types[Specular_Scan] )
 	{
 		if( data_Element.the_Class->measurement.argument_Type == argument_Types[Beam_Grazing_Angle] )
@@ -1049,7 +1049,7 @@ void Main_Calculation_Module::print_Reflect_To_File(Data_Element<Type>& data_Ele
 template void Main_Calculation_Module::print_Reflect_To_File<Independent_Curve>(Data_Element<Independent_Curve>&, QString, int);
 template void Main_Calculation_Module::print_Reflect_To_File<Target_Curve>		   (Data_Element<Target_Curve>&,          QString, int);
 
-void Main_Calculation_Module::print_Data(QTextStream &out, QVector<double> &arg, Unwrapped_Reflection* unwrapped_Reflection, Calc_Functions& calc_Functions, double incident_Polarization)
+void Main_Calculation_Module::print_Data(QTextStream &out, vector<double> &arg, Unwrapped_Reflection* unwrapped_Reflection, Calc_Functions& calc_Functions, double incident_Polarization)
 {
 	// point as decimal separator
 	Locale=QLocale::c();

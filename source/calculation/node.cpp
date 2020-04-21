@@ -35,7 +35,7 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 			{
 				// measured points
 				num_Points = measurement.beam_Theta_0_Cos2_Vec.size();
-				cos2 = measurement.beam_Theta_0_Cos2_Vec.toStdVector();
+				cos2 = measurement.beam_Theta_0_Cos2_Vec;
 				k.resize(num_Points);
 				for(int point_Index = 0; point_Index<num_Points; ++point_Index)
 				{
@@ -50,21 +50,21 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 
 				complex<double> delta_Epsilon_Ang, epsilon_Ang;
 
-				QVector<double> spectral_Points (1, measurement.wavelength.value);
+				vector<double> spectral_Points (1, measurement.wavelength.value);
 
 				// if known material
 				if(struct_Data.composed_Material == false)
 				{
 					Material_Data temp_Material_Data = optical_Constants->material_Map.value(struct_Data.approved_Material + nk_Ext);
-					QVector<complex<double>> n;
+					vector<complex<double>> n;
 					optical_Constants->interpolation_Epsilon(temp_Material_Data.material_Data, spectral_Points, n, struct_Data.approved_Material);
-					delta_Epsilon_Ang = 1. - n.first()*n.first();
+					delta_Epsilon_Ang = 1. - n.front()*n.front();
 				} else
 				// compile from elements
 				{
-					QVector<complex<double>> temp_Epsilon;
+					vector<complex<double>> temp_Epsilon;
 					optical_Constants->make_Epsilon_From_Factors(struct_Data.composition, struct_Data.absolute_Density.value, spectral_Points, temp_Epsilon);
-					delta_Epsilon_Ang = 1. - temp_Epsilon.first();
+					delta_Epsilon_Ang = 1. - temp_Epsilon.front();
 				}
 
 				/// ---------------------------------------------------------------------------------------------------------------
@@ -100,7 +100,7 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 			{
 				// measured points
 				num_Points = measurement.lambda_Vec.size();
-				k = measurement.k_Vec.toStdVector();
+				k = measurement.k_Vec;
 				cos2.resize(num_Points);
 				for(int point_Index = 0; point_Index<num_Points; ++point_Index)
 				{
@@ -114,13 +114,13 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 				/// delta_Epsilon
 				/// ---------------------------------------------------------------------------------------------------------------
 
-				QVector<double> spectral_Points = measurement.lambda_Vec;
+				vector<double> spectral_Points = measurement.lambda_Vec;
 
 				// if known material
 				if(struct_Data.composed_Material == false)
 				{
 					Material_Data temp_Material_Data = optical_Constants->material_Map.value(struct_Data.approved_Material + nk_Ext);
-					QVector<complex<double>> n;
+					vector<complex<double>> n;
 					optical_Constants->interpolation_Epsilon(temp_Material_Data.material_Data, spectral_Points, n, struct_Data.approved_Material);
 
 					for(int point_Index = 0; point_Index<num_Points; ++point_Index)
@@ -130,7 +130,7 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 				} else
 				// compile from elements
 				{
-					QVector<complex<double>> temp_Epsilon;
+					vector<complex<double>> temp_Epsilon;
 					optical_Constants->make_Epsilon_From_Factors(struct_Data.composition, struct_Data.absolute_Density.value, spectral_Points, temp_Epsilon);
 
 					for(int point_Index = 0; point_Index<num_Points; ++point_Index)

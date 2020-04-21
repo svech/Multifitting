@@ -540,7 +540,7 @@ void Curve_Plot::plot_All_Data()
 
 	if(curve_Class == TARGET)
 	{
-		argument = target_Curve->curve.shifted_Argument;
+		argument = QVector<double>(target_Curve->curve.shifted_Argument.begin(),target_Curve->curve.shifted_Argument.end());
 		values.resize(target_Curve->curve.shifted_Values.size());
 
 		/// experimental data
@@ -573,8 +573,8 @@ void Curve_Plot::plot_All_Data()
 
 	if(curve_Class == INDEPENDENT)
 	{
-		if(	*argument_Type == argument_Types[Beam_Grazing_Angle])	{	argument = measurement->beam_Theta_0_Angle_Vec;	}
-		if(	*argument_Type == argument_Types[Wavelength_Energy] )	{	argument = measurement->lambda_Vec;	}
+		if(	*argument_Type == argument_Types[Beam_Grazing_Angle])	{ argument = QVector<double>(measurement->beam_Theta_0_Angle_Vec.begin(),measurement->beam_Theta_0_Angle_Vec.end());	}
+		if(	*argument_Type == argument_Types[Wavelength_Energy] )	{ argument = QVector<double>(measurement->lambda_Vec.begin(),measurement->lambda_Vec.end());	}
 
 		if(	independent_Curve->calc_Functions.check_Reflectance)	{ values = QVector<double>(calculated_Values->R.begin(),calculated_Values->R.end()); }
 		if(	independent_Curve->calc_Functions.check_Transmittance)	{ values = QVector<double>(calculated_Values->T.begin(),calculated_Values->T.end()); }

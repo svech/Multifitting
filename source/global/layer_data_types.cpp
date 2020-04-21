@@ -926,10 +926,10 @@ QDataStream& operator <<( QDataStream& stream, const Data& data )
 				<< data.item_Enabled		// since 1.7.7
 			// Measurement
 				<< data.measurement_Type << data.argument_Type
-				<< data.wavelength << data.k_Vec << data.k_Value << data.lambda_Vec << data.lambda_Value
-				<< data.beam_Theta_0_Angle << data.beam_Theta_0_Cos2_Vec << data.beam_Theta_0_Cos2_Value << data.beam_Theta_0_Angle_Vec << data.beam_Theta_0_Angle_Value << data.beam_Theta_0_Specular_Position
-				<< data.detector_Theta_Angle << data.detector_Theta_Cos2_Vec << data.detector_Theta_Cos2_Value << data.detector_Theta_Angle_Vec << data.detector_Theta_Angle_Value << data.detector_Theta_Offset
-				<< data.detector_Phi_Angle << data.detector_Phi_Cos2_Vec << data.detector_Phi_Cos2_Value << data.detector_Phi_Angle_Vec << data.detector_Phi_Angle_Value
+				<< data.wavelength
+				<< data.beam_Theta_0_Angle << data.beam_Theta_0_Specular_Position
+				<< data.detector_Theta_Angle << data.detector_Theta_Offset
+				<< data.detector_Phi_Angle
 
 				<< data.spectral_Distribution << data.beam_Theta_0_Distribution << data.beam_Phi_0_Distribution
 				<< data.detector_1D << data.detector_2D
@@ -959,12 +959,11 @@ QDataStream& operator >>( QDataStream& stream,		 Data& data )
 	// Measurement
 	if(Global_Variables::check_Loaded_Version(1,11,0)) //since 1.11.0
 	{
-
 		stream	>> data.measurement_Type >> data.argument_Type
-				>> data.wavelength >> data.k_Vec >> data.k_Value >> data.lambda_Vec >> data.lambda_Value
-				>> data.beam_Theta_0_Angle >> data.beam_Theta_0_Cos2_Vec >> data.beam_Theta_0_Cos2_Value >> data.beam_Theta_0_Angle_Vec >> data.beam_Theta_0_Angle_Value >> data.beam_Theta_0_Specular_Position
-				>> data.detector_Theta_Angle >> data.detector_Theta_Cos2_Vec >> data.detector_Theta_Cos2_Value >> data.detector_Theta_Angle_Vec >> data.detector_Theta_Angle_Value >> data.detector_Theta_Offset
-				>> data.detector_Phi_Angle >> data.detector_Phi_Cos2_Vec >> data.detector_Phi_Cos2_Value >> data.detector_Phi_Angle_Vec >> data.detector_Phi_Angle_Value
+				>> data.wavelength
+				>> data.beam_Theta_0_Angle >> data.beam_Theta_0_Specular_Position
+				>> data.detector_Theta_Angle >> data.detector_Theta_Offset
+				>> data.detector_Phi_Angle
 
 				>> data.spectral_Distribution >> data.beam_Theta_0_Distribution >> data.beam_Phi_0_Distribution
 				>> data.detector_1D >> data.detector_2D
@@ -973,16 +972,26 @@ QDataStream& operator >>( QDataStream& stream,		 Data& data )
 				>> data.polarization >> data.background;
 	} else // before 1.11.0
 	{
-		stream	>> data.beam_Theta_0_Angle >> data.beam_Theta_0_Cos2_Vec >> data.beam_Theta_0_Angle_Vec >> data.beam_Theta_0_Cos2_Value >> data.beam_Theta_0_Angle_Value;
+		stream	>> data.beam_Theta_0_Angle;
 
+		// ----------------------------
+		QVector<double> beam_Theta_0_Cos2_Vec;	stream >> beam_Theta_0_Cos2_Vec;
+		QVector<double> beam_Theta_0_Angle_Vec; stream >> beam_Theta_0_Angle_Vec;
+		double beam_Theta_0_Cos2_Value;			stream >> beam_Theta_0_Cos2_Value;
+		double beam_Theta_0_Angle_Value;		stream >> beam_Theta_0_Angle_Value;
 		// ----------------------------
 		Parameter angular_Resolution;	stream >> angular_Resolution; data.beam_Theta_0_Distribution.FWHM_distribution = angular_Resolution.value;
 		// ----------------------------
-		QString angle_Type; stream >> angle_Type; // not used
+		QString angle_Type; stream >> angle_Type;
 		// ----------------------------
 
-		stream	>> data.wavelength >> data.k_Vec >> data.lambda_Vec >> data.k_Value >> data.lambda_Value;
+		stream  >> data.wavelength;
 
+		// ----------------------------
+		QVector<double> k_Vec;		stream >> k_Vec;
+		QVector<double> lambda_Vec; stream >> lambda_Vec;
+		double k_Value;				stream >> k_Value;
+		double lambda_Value;		stream >> lambda_Value;
 		// ----------------------------
 		Parameter spectral_Resolution;	stream >> spectral_Resolution; data.spectral_Distribution.FWHM_distribution = spectral_Resolution.value;
 		// ----------------------------

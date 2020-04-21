@@ -544,7 +544,7 @@ void Rocking_Target_Curve_Part::reset_Range_Specular_Position()
 	if(target_Curve->loaded_And_Ready)
 	{
 		double coeff = angle_Coefficients_Map.value(target_Curve->angular_Units);
-		double max_Value = max(abs(target_Curve->curve.shifted_Argument.first()), abs(target_Curve->curve.shifted_Argument.last()))*coeff;
+		double max_Value = max(abs(target_Curve->curve.shifted_Argument.front()), abs(target_Curve->curve.shifted_Argument.back()))*coeff;
 		if(target_Curve->measurement.argument_Type == argument_Types[Beam_Grazing_Angle])
 		{
 			max_Value = max_Value/2;

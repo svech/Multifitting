@@ -1502,20 +1502,20 @@ void Profile_Plot::hide_Show_Other_Plots()
 
 void Profile_Plot::get_Delta_Epsilon(const Data& struct_Data, double& delta, double& beta)
 {
-	QVector<double> spectral_Points (1, multilayer->profile_Plot_Options.local_Wavelength);
-	QVector<complex<double>> temp_Epsilon; temp_Epsilon.resize(1);
-	QVector<complex<double>> n; n.resize(1);
+	vector<double> spectral_Points (1, multilayer->profile_Plot_Options.local_Wavelength);
+	vector<complex<double>> temp_Epsilon; temp_Epsilon.resize(1);
+	vector<complex<double>> n; n.resize(1);
 	complex<double> delta_Epsilon;
 
 	if(struct_Data.composed_Material)
 	{
 		optical_Constants->make_Epsilon_From_Factors(struct_Data.composition, struct_Data.absolute_Density.value, spectral_Points, temp_Epsilon);
-		delta_Epsilon = 1. - temp_Epsilon.first();
+		delta_Epsilon = 1. - temp_Epsilon.front();
 	} else
 	{
 		Material_Data temp_Material_Data = optical_Constants->material_Map.value(struct_Data.approved_Material + nk_Ext);
 		optical_Constants->interpolation_Epsilon(temp_Material_Data.material_Data, spectral_Points, n, struct_Data.approved_Material);
-		delta_Epsilon = struct_Data.relative_Density.value * (1. - n.first()*n.first());
+		delta_Epsilon = struct_Data.relative_Density.value * (1. - n.front()*n.front());
 	}
 	delta =  real(delta_Epsilon);
 	beta  = -imag(delta_Epsilon);

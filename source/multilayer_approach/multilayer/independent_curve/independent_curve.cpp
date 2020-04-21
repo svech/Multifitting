@@ -167,47 +167,48 @@ void Independent_Curve::refresh_Description_Label()
 
 void Independent_Curve::calc_Independent_cos2_k()
 {
+	// if parameter is active, num points >=3
+
 	if(	measurement.measurement_Type == measurement_Types[Specular_Scan] )
 	{
 		if( measurement.argument_Type == argument_Types[Beam_Grazing_Angle] )
 		{
-			// cos2
-			measurement.beam_Theta_0_Angle_Vec.resize(measurement.beam_Theta_0_Angle.independent.num_Points);
-			measurement.beam_Theta_0_Cos2_Vec.resize(measurement.beam_Theta_0_Angle.independent.num_Points);
-
-			if(measurement.beam_Theta_0_Angle.independent.num_Points>1)
+			// beam angle_cos_cos2 : vector
 			{
+				measurement.beam_Theta_0_Angle_Vec.resize(measurement.beam_Theta_0_Angle.independent.num_Points);
+				measurement.beam_Theta_0_Cos_Vec.  resize(measurement.beam_Theta_0_Angle.independent.num_Points);
+				measurement.beam_Theta_0_Cos2_Vec. resize(measurement.beam_Theta_0_Angle.independent.num_Points);
+
 				double angle_Step = (measurement.beam_Theta_0_Angle.independent.max - measurement.beam_Theta_0_Angle.independent.min) / (measurement.beam_Theta_0_Angle.independent.num_Points - 1);
-				double angle_Temp = measurement.beam_Theta_0_Angle.independent.min;
+				double angle_Temp =  measurement.beam_Theta_0_Angle.independent.min;
 				for(int i=0; i<measurement.beam_Theta_0_Angle.independent.num_Points; ++i)
 				{
-					measurement.beam_Theta_0_Cos2_Vec[i] = pow(cos(angle_Temp*M_PI/180.),2);
-
+					measurement.beam_Theta_0_Cos_Vec [i] = cos(angle_Temp*M_PI/180.);
+					measurement.beam_Theta_0_Cos2_Vec[i] = pow(measurement.beam_Theta_0_Cos_Vec[i],2);
 					measurement.beam_Theta_0_Angle_Vec[i] = angle_Temp;
 					angle_Temp += angle_Step;
 				}
-			} else
-			{
-				measurement.beam_Theta_0_Cos2_Vec[0] = measurement.beam_Theta_0_Angle.value;
-				measurement.beam_Theta_0_Angle_Vec[0] = pow(cos(measurement.beam_Theta_0_Angle.value*M_PI/180.),2);;
-			}
 
-			// k
-			measurement.lambda_Value = measurement.wavelength.value;
-			measurement.k_Value = 2*M_PI/measurement.wavelength.value;
+			}
+			// k : single_value
+			{
+				measurement.lambda_Value = measurement.wavelength.value;
+				measurement.k_Value = 2*M_PI/measurement.wavelength.value;
+			}
 		}
 		if( measurement.argument_Type == argument_Types[Wavelength_Energy] )
 		{
-			// cos2
-			measurement.beam_Theta_0_Angle_Value = measurement.beam_Theta_0_Angle.value;
-			measurement.beam_Theta_0_Cos2_Value = pow(cos(measurement.beam_Theta_0_Angle_Value*M_PI/180.),2);
-
-			// k
-			measurement.lambda_Vec.resize(measurement.wavelength.independent.num_Points);
-			measurement.k_Vec.resize(measurement.wavelength.independent.num_Points);
-
-			if(measurement.wavelength.independent.num_Points>1)
+			// beam angle_cos_cos2 : single value
 			{
+				measurement.beam_Theta_0_Angle_Value = measurement.beam_Theta_0_Angle.value;
+				measurement.beam_Theta_0_Cos_Value = cos(measurement.beam_Theta_0_Angle_Value*M_PI/180.);
+				measurement.beam_Theta_0_Cos2_Value = pow(measurement.beam_Theta_0_Cos_Value,2);
+			}
+			// k : vector
+			{
+				measurement.lambda_Vec.resize(measurement.wavelength.independent.num_Points);
+				measurement.k_Vec.resize(measurement.wavelength.independent.num_Points);
+
 				double wave_Step = (measurement.wavelength.independent.max - measurement.wavelength.independent.min) / (measurement.wavelength.independent.num_Points - 1);
 				double wave = measurement.wavelength.independent.min;
 				for(int i=0; i<measurement.wavelength.independent.num_Points; ++i)
@@ -216,28 +217,189 @@ void Independent_Curve::calc_Independent_cos2_k()
 					measurement.lambda_Vec[i] = wave;
 					wave += wave_Step;
 				}
-			} else
-			{
-				measurement.lambda_Vec[0] = measurement.wavelength.value;
-				measurement.k_Vec[0] = 2*M_PI/measurement.wavelength.value;
 			}
 		}
 	}
 	if(	measurement.measurement_Type == measurement_Types[Detector_Scan] )
 	{
-		// TODO
+		if( measurement.argument_Type == argument_Types[Detector_Polar_Angle] )
+		{
+			// detector angle_cos : vector
+			{
+				measurement.detector_Theta_Angle_Vec.resize(measurement.detector_Theta_Angle.independent.num_Points);
+				measurement.detector_Theta_Cos_Vec.  resize(measurement.detector_Theta_Angle.independent.num_Points);
+
+				double angle_Step = (measurement.detector_Theta_Angle.independent.max - measurement.detector_Theta_Angle.independent.min) / (measurement.detector_Theta_Angle.independent.num_Points - 1);
+				double angle_Temp =  measurement.detector_Theta_Angle.independent.min;
+				for(int i=0; i<measurement.detector_Theta_Angle.independent.num_Points; ++i)
+				{
+					measurement.detector_Theta_Cos_Vec[i] = cos(angle_Temp*M_PI/180.);
+					measurement.detector_Theta_Angle_Vec[i] = angle_Temp;
+					angle_Temp += angle_Step;
+				}
+			}
+			// beam angle_cos_cos2 : single value
+			{
+				measurement.beam_Theta_0_Angle_Value = measurement.beam_Theta_0_Angle.value;
+				measurement.beam_Theta_0_Cos_Value = cos(measurement.beam_Theta_0_Angle_Value*M_PI/180.);
+				measurement.beam_Theta_0_Cos2_Value = pow(measurement.beam_Theta_0_Cos_Value,2);
+			}
+			// k : single value
+			{
+				measurement.lambda_Value = measurement.wavelength.value;
+				measurement.k_Value = 2*M_PI/measurement.wavelength.value;
+			}
+		}
 	}
 	if(	measurement.measurement_Type == measurement_Types[Rocking_Curve] )
 	{
-		// TODO
+		/// different part
+		if( measurement.argument_Type == argument_Types[Beam_Grazing_Angle] )
+		{
+			// beam angle_cos_cos2 : vector
+			{
+				measurement.beam_Theta_0_Angle_Vec.resize(measurement.beam_Theta_0_Angle.independent.num_Points);
+				measurement.beam_Theta_0_Cos_Vec.  resize(measurement.beam_Theta_0_Angle.independent.num_Points);
+				measurement.beam_Theta_0_Cos2_Vec. resize(measurement.beam_Theta_0_Angle.independent.num_Points);
+
+				double angle_Step = (measurement.beam_Theta_0_Angle.independent.max - measurement.beam_Theta_0_Angle.independent.min) / (measurement.beam_Theta_0_Angle.independent.num_Points - 1);
+				double angle_Temp =  measurement.beam_Theta_0_Angle.independent.min;
+				for(int i=0; i<measurement.beam_Theta_0_Angle.independent.num_Points; ++i)
+				{
+					measurement.beam_Theta_0_Cos_Vec [i] = cos(angle_Temp*M_PI/180.);
+					measurement.beam_Theta_0_Cos2_Vec[i] = pow(measurement.beam_Theta_0_Cos_Vec[i],2);
+					measurement.beam_Theta_0_Angle_Vec[i] = angle_Temp;
+					angle_Temp += angle_Step;
+				}
+			}
+		}
+		if(measurement.argument_Type == argument_Types[Deviation_From_Specular_Angle] )
+		{
+			// beam angle_cos_cos2 : vector
+			{
+				measurement.beam_Theta_0_Angle_Vec.resize(measurement.beam_Theta_0_Angle.independent.num_Points);
+				measurement.beam_Theta_0_Cos_Vec.  resize(measurement.beam_Theta_0_Angle.independent.num_Points);
+				measurement.beam_Theta_0_Cos2_Vec. resize(measurement.beam_Theta_0_Angle.independent.num_Points);
+
+				double angle_Step = (measurement.beam_Theta_0_Angle.independent.max - measurement.beam_Theta_0_Angle.independent.min) / (measurement.beam_Theta_0_Angle.independent.num_Points - 1);
+				double angle_Temp =  measurement.beam_Theta_0_Angle.independent.min + measurement.beam_Theta_0_Specular_Position;
+				for(int i=0; i<measurement.beam_Theta_0_Angle.independent.num_Points; ++i)
+				{
+					measurement.beam_Theta_0_Cos_Vec [i] = cos(angle_Temp*M_PI/180.);
+					measurement.beam_Theta_0_Cos2_Vec[i] = pow(measurement.beam_Theta_0_Cos_Vec[i],2);
+					measurement.beam_Theta_0_Angle_Vec[i] = angle_Temp;
+					angle_Temp += angle_Step;
+				}
+			}
+		}
+		/// common part
+		if( measurement.argument_Type == argument_Types[Beam_Grazing_Angle] ||
+			measurement.argument_Type == argument_Types[Deviation_From_Specular_Angle] )
+		{
+			// detector angle_cos : vector, depends on beam
+			{
+				measurement.detector_Theta_Angle_Vec.resize(measurement.beam_Theta_0_Angle.independent.num_Points);
+				measurement.detector_Theta_Cos_Vec. resize(measurement.beam_Theta_0_Angle.independent.num_Points);
+
+				for(int i=0; i<measurement.beam_Theta_0_Angle.independent.num_Points; ++i)
+				{
+					double angle_Temp = 2*measurement.beam_Theta_0_Specular_Position - measurement.beam_Theta_0_Angle_Vec[i];
+					measurement.detector_Theta_Angle_Vec[i] = angle_Temp;
+					measurement.detector_Theta_Cos_Vec[i] = cos(angle_Temp*M_PI/180.);
+				}
+			}
+			// k : single value
+			{
+				measurement.lambda_Value = measurement.wavelength.value;
+				measurement.k_Value = 2*M_PI/measurement.wavelength.value;
+			}
+		}
 	}
 	if(	measurement.measurement_Type == measurement_Types[Offset_Scan] )
 	{
-		// TODO
+		if( measurement.argument_Type == argument_Types[Beam_Grazing_Angle] )
+		{
+			// beam angle_cos_cos2 : vector
+			{
+				measurement.beam_Theta_0_Angle_Vec.resize(measurement.beam_Theta_0_Angle.independent.num_Points);
+				measurement.beam_Theta_0_Cos_Vec.  resize(measurement.beam_Theta_0_Angle.independent.num_Points);
+				measurement.beam_Theta_0_Cos2_Vec. resize(measurement.beam_Theta_0_Angle.independent.num_Points);
+
+				double angle_Step = (measurement.beam_Theta_0_Angle.independent.max - measurement.beam_Theta_0_Angle.independent.min) / (measurement.beam_Theta_0_Angle.independent.num_Points - 1);
+				double angle_Temp =  measurement.beam_Theta_0_Angle.independent.min;
+				for(int i=0; i<measurement.beam_Theta_0_Angle.independent.num_Points; ++i)
+				{
+					measurement.beam_Theta_0_Cos_Vec [i] = cos(angle_Temp*M_PI/180.);
+					measurement.beam_Theta_0_Cos2_Vec[i] = pow(measurement.beam_Theta_0_Cos_Vec[i],2);
+					measurement.beam_Theta_0_Angle_Vec[i] = angle_Temp;
+					angle_Temp += angle_Step;
+				}
+			}
+			// detector angle_cos : vector, depends on beam
+			{
+				measurement.detector_Theta_Angle_Vec.resize(measurement.beam_Theta_0_Angle.independent.num_Points);
+				measurement.detector_Theta_Cos_Vec.  resize(measurement.beam_Theta_0_Angle.independent.num_Points);
+
+				for(int i=0; i<measurement.beam_Theta_0_Angle.independent.num_Points; ++i)
+				{
+					double angle_Temp = measurement.beam_Theta_0_Angle_Vec[i] + measurement.detector_Theta_Offset;
+					measurement.detector_Theta_Angle_Vec[i] = angle_Temp;
+					measurement.detector_Theta_Cos_Vec[i] = cos(angle_Temp*M_PI/180.);
+				}
+			}
+			// k : single value
+			{
+				measurement.lambda_Value = measurement.wavelength.value;
+				measurement.k_Value = 2*M_PI/measurement.wavelength.value;
+			}
+		}
 	}
 	if(	measurement.measurement_Type == measurement_Types[GISAS_Map] )
 	{
-		// TODO
+		if( measurement.argument_Type == argument_Types[Detector_Theta_Phi_Angles] )
+		{
+			// detector THETA angle_cos : vector
+			{
+				measurement.detector_Theta_Angle_Vec.resize(measurement.detector_Theta_Angle.independent.num_Points);
+				measurement.detector_Theta_Cos_Vec.resize(measurement.detector_Theta_Angle.independent.num_Points);
+
+				double angle_Step = (measurement.detector_Theta_Angle.independent.max - measurement.detector_Theta_Angle.independent.min) / (measurement.detector_Theta_Angle.independent.num_Points - 1);
+				double angle_Temp =  measurement.detector_Theta_Angle.independent.min;
+				for(int i=0; i<measurement.detector_Theta_Angle.independent.num_Points; ++i)
+				{
+					measurement.detector_Theta_Cos_Vec[i] = cos(angle_Temp*M_PI/180.);
+					measurement.detector_Theta_Angle_Vec[i] = angle_Temp;
+					angle_Temp += angle_Step;
+				}
+			}
+			// detector PHI angle_cos_sin : vector
+			{
+				measurement.detector_Phi_Angle_Vec.resize(measurement.detector_Phi_Angle.independent.num_Points);
+				measurement.detector_Phi_Cos_Vec.  resize(measurement.detector_Phi_Angle.independent.num_Points);
+				measurement.detector_Phi_Sin_Vec.  resize(measurement.detector_Phi_Angle.independent.num_Points);
+
+				double angle_Step = (measurement.detector_Phi_Angle.independent.max - measurement.detector_Phi_Angle.independent.min) / (measurement.detector_Phi_Angle.independent.num_Points - 1);
+				double angle_Temp =  measurement.detector_Phi_Angle.independent.min;
+				for(int i=0; i<measurement.detector_Phi_Angle.independent.num_Points; ++i)
+				{
+					measurement.detector_Phi_Cos_Vec[i] = cos(angle_Temp*M_PI/180.);
+					measurement.detector_Phi_Sin_Vec[i] = sin(angle_Temp*M_PI/180.);
+					measurement.detector_Phi_Angle_Vec[i] = angle_Temp;
+					angle_Temp += angle_Step;
+				}
+			}
+			// beam angle_cos_cos2 : single value
+			{
+				measurement.beam_Theta_0_Angle_Value = measurement.beam_Theta_0_Angle.value;
+				measurement.beam_Theta_0_Cos_Value  = cos(measurement.beam_Theta_0_Angle_Value*M_PI/180.);
+				measurement.beam_Theta_0_Cos2_Value = pow(measurement.beam_Theta_0_Cos_Value,2);
+			}
+			// k : single value
+			{
+				measurement.lambda_Value = measurement.wavelength.value;
+				measurement.k_Value = 2*M_PI/measurement.wavelength.value;
+			}
+		}
 	}
 }
 
