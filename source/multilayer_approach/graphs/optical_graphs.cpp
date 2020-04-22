@@ -41,6 +41,7 @@ void Optical_Graphs::settings()
 		settings_Window->show();
 
 	QVBoxLayout* settings_Main_Layout = new QVBoxLayout(settings_Window);
+		settings_Main_Layout->setSizeConstraint(QLayout::SetFixedSize);
 		settings_Main_Layout->setSpacing(5);
 		settings_Main_Layout->setContentsMargins(5,5,5,5);
 
@@ -149,18 +150,24 @@ void Optical_Graphs::settings()
 		global_Multilayer_Approach->optical_Graphs->main_Tabs->setCurrentIndex(active_Tab);
 		settings_Window->close();
 	});
-
-	settings_Window->adjustSize();
-	settings_Window->setFixedSize(settings_Window->size());
 }
 
 void Optical_Graphs::closeEvent(QCloseEvent* event)
 {
 	global_Multilayer_Approach->runned_Optical_Graphs.remove(optical_Graphs_Key);
 	global_Multilayer_Approach->unlock_Mainwindow_Interface();
+
+	save_Geometry();
+
+	event->accept();
+}
+
+void Optical_Graphs::save_Geometry()
+{
+	// frame geometry
 	write_Window_Geometry();
 
-	// save splitters geometry
+	// splitters geometry
 	for(int tab_Index=0; tab_Index<global_Multilayer_Approach->multilayer_Tabs->count(); ++tab_Index)
 	{
 		Multilayer* multilayer = qobject_cast<Multilayer*>(global_Multilayer_Approach->multilayer_Tabs->widget(tab_Index));
@@ -175,8 +182,6 @@ void Optical_Graphs::closeEvent(QCloseEvent* event)
 			global_Multilayer_Approach->independent_Horizontal_Splitter_Position_Vec_Vec[tab_Index][row] = independent_Horizontal_Splitter_Vec_Vec[tab_Index][row]->saveState();
 		}
 	}
-
-	event->accept();
 }
 
 void Optical_Graphs::create_Main_Layout()

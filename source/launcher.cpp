@@ -45,6 +45,8 @@ void Launcher::closeEvent(QCloseEvent* event)
 void Launcher::create_Main_Layout()
 {
 	main_Layout = new QHBoxLayout(this);
+		main_Layout->setSizeConstraint(QLayout::SetFixedSize);
+
 	create_Menu();
 	create_Buttons();
 }
@@ -70,8 +72,6 @@ void Launcher::create_Buttons()
 
 void Launcher::set_Window_Geometry()
 {
-	adjustSize();
-	setFixedSize(size());
 	setGeometry(launcher_x_corner, launcher_x_corner, 0, 0);
 }
 

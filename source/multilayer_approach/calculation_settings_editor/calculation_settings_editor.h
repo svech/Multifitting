@@ -29,8 +29,8 @@ public:
 	void refresh_Independent_Calc_Properties(int tab_Index, int independent_Index, QGroupBox* box);
 	static void reopen_Optical_Graphs(QString keep_Splitter = "");
 
-	int total_Number_of_Targets;
-	int total_Number_of_Independents;
+	vector<int> total_Number_of_Targets;
+	vector<int> total_Number_of_Independents;
 
 	QTabWidget* multilayer_Tabs;
 
@@ -40,8 +40,6 @@ public:
 		QVector<QGroupBox*> target_Group_Box_Vec;
 		QMap<Target_Curve*,QCheckBox*> max_Integral_Map;
 		QVector<QGroupBox*> independent_Group_Box_Vec;
-
-	QVector<QLineEdit*> different_Lines; // for editingFinished calling from menu
 
 	QPushButton* done_Button;
 	QPushButton* global_Norm_Button;

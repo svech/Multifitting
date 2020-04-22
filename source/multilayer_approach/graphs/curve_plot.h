@@ -17,7 +17,7 @@ public:
 	void create_Options();
 	void set_Title_Text();
 	void plot_All_Data();
-	void plot_Data(const QVector<double>& argument, const QVector<double>& values, Plot_Options* plot_Options);
+	void plot_Data(const vector<double>& argument, const vector<double>& values, Plot_Options* plot_Options);
 	void refresh_Labels();
 	QCPGraph* get_Selected_Graph();
 	void choose_Graph_Color();
@@ -27,10 +27,10 @@ public:
 	void show_Scatter_Size();
 	void change_Thickness();
 	void change_Scatter_Size();
-	void get_Min_Max_For_Graph(Plot_Options* plot_Options, const QVector<double>& values, double& minimum, double& maximum);
+	void get_Min_Max_For_Graph(Plot_Options* plot_Options, const vector<double>& values, double& minimum, double& maximum);
 
-	QVector<double> argument;
-	QVector<double> values;
+	vector<double> argument;
+	vector<double> values;
 	QString curve_Class;
 	QString* argument_Type;
 	QString* spectral_Units;

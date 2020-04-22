@@ -228,6 +228,8 @@ class Node;
 #define symbol_J "J"
 #define scattering_Function		"Scattering"
 #define symbol_S "S"
+#define gisas_Function			"GISAS map"
+#define symbol_G "G"
 
 // whatsThis : delimiters
 #define whats_This_Delimiter ";"

@@ -1229,6 +1229,10 @@ void Multilayer_Approach::save(QString filename)
 
 	/// save plot splitters state
 	{
+		if(runned_Optical_Graphs.contains(optical_Graphs_Key))
+		{
+			runned_Optical_Graphs.value(optical_Graphs_Key)->save_Geometry();
+		}
 		out << target_Independent_Splitter_Position_Vec;
 		out << target_Vertical_Splitter_Position_Vec;
 		out << target_Horizontal_Splitter_Position_Vec_Vec;
@@ -1265,9 +1269,11 @@ void Multilayer_Approach::save_As()
 
 void Multilayer_Approach::calculate(bool silent)
 {
+	// TODO
+	silent = false;
+
 	if(!fitting_Settings->in_Calculation)
 	{
-		// TODO
 		if(!silent)
 		{
 			qInfo() << "\n\n-------------------------------------------------------"
@@ -1284,7 +1290,6 @@ void Multilayer_Approach::start_Fitting()
 {
 	if(!fitting_Settings->in_Calculation)
 	{
-		// TODO
 		qInfo() << "\n\n-------------------------------------------------------"
 					 "\nfitting..."
 					 "\n-------------------------------------------------------\n\n";
@@ -1313,7 +1318,6 @@ void Multilayer_Approach::calc_Confidence_Intervals()
 {
 	if(!fitting_Settings->in_Calculation)
 	{
-		// TODO
 		qInfo() << "\n\n-------------------------------------------------------"
 					 "\ncalc confidence intervals..."
 					 "\n-------------------------------------------------------\n\n";

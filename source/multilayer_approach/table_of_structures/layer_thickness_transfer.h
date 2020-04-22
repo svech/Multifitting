@@ -14,7 +14,6 @@ public:
 									  QWidget* parent = nullptr);
 
 	void closeEvent(QCloseEvent*);
-	void set_Window_Geometry();
 	void create_Main_Layout();
 	void create_Content_Box();
 	void create_Layer_Lines();

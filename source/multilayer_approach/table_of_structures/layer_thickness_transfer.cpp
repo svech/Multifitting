@@ -14,7 +14,6 @@ Layer_Thickness_Transfer::Layer_Thickness_Transfer(QWidget* item_Widget,
 	units_Suffix = "  "+length_units;
 	setWindowTitle("<"+table_Of_Structures->main_Tabs->tabText(table_Of_Structures->main_Tabs->currentIndex())+"> "+Global_Variables::structure_Item_Name(struct_Data));
 	create_Main_Layout();
-	set_Window_Geometry();
 	setAttribute(Qt::WA_DeleteOnClose);
 }
 
@@ -24,15 +23,10 @@ void Layer_Thickness_Transfer::closeEvent(QCloseEvent *)
 	table_Of_Structures->layer_Thickness_Transfer_Is_Created = false;
 }
 
-void Layer_Thickness_Transfer::set_Window_Geometry()
-{
-	adjustSize();
-	setFixedSize(size());
-}
-
 void Layer_Thickness_Transfer::create_Main_Layout()
 {
 	main_Layout = new QVBoxLayout(this);
+		main_Layout->setSizeConstraint(QLayout::SetFixedSize);
 		main_Layout->setSpacing(0);
 		main_Layout->setContentsMargins(4,4,4,0);
 

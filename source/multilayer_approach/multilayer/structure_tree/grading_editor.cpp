@@ -10,7 +10,6 @@ Grading_Editor::Grading_Editor(QTreeWidgetItem* item, QString drift_Name, QWidge
     create_Main_Layout();
 
 	setWindowTitle(drift_Name + " Grading");
-    set_Window_Geometry();
     setAttribute(Qt::WA_DeleteOnClose);
 }
 
@@ -48,6 +47,7 @@ void Grading_Editor::refresh_Data()
 void Grading_Editor::create_Main_Layout()
 {
     main_Layout = new QVBoxLayout(this);
+		main_Layout->setSizeConstraint(QLayout::SetFixedSize);
 		main_Layout->setContentsMargins(4,6,4,0);
 		main_Layout->setSpacing(8);
 
@@ -213,8 +213,3 @@ void Grading_Editor::read_Drift_From_Item()
 	}
 }
 
-void Grading_Editor::set_Window_Geometry()
-{
-    adjustSize();
-    setFixedSize(size());
-}

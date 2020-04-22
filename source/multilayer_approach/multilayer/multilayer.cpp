@@ -340,6 +340,7 @@ void Multilayer::open_Editor_Window(Type_Curve* type_Curve, Type_Curve_Editor* t
 				choice_Data_Type_Window->show();
 
 			QVBoxLayout* choice_Data_Type_Layout = new QVBoxLayout(choice_Data_Type_Window);
+				choice_Data_Type_Layout->setSizeConstraint(QLayout::SetFixedSize);
 				choice_Data_Type_Layout->setSpacing(5);
 				choice_Data_Type_Layout->setContentsMargins(5,5,5,5);
 
@@ -370,9 +371,6 @@ void Multilayer::open_Editor_Window(Type_Curve* type_Curve, Type_Curve_Editor* t
 			QPushButton* gisas_Button    = new QPushButton(measurement_Types[GISAS_Map]);
 			connect(gisas_Button,     &QPushButton::clicked, this, [=]{type_Curve->measurement.measurement_Type = measurement_Types[GISAS_Map];		choice_Data_Type_Window->close(); open_Editor_Window(type_Curve, type_Curve_Editor);});
 				choice_Data_Type_Group_Box_Layout->addWidget(gisas_Button);
-
-			choice_Data_Type_Window->adjustSize();
-			choice_Data_Type_Window->setFixedSize(choice_Data_Type_Window->size());
 		} else
 		{
 			type_Curve_Editor = new Type_Curve_Editor(type_Curve, this, this);

@@ -77,6 +77,8 @@ void Distribution_Box::create_Box()
 {
 	groupbox = new QGroupBox;
 	QGridLayout* groupbox_Layout = new QGridLayout(groupbox);
+		groupbox_Layout->setSizeConstraint(QLayout::SetFixedSize);
+
 	main_Layout->addWidget(groupbox,0,Qt::AlignHCenter);
 
 	// - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -147,11 +149,6 @@ void Distribution_Box::create_Box()
 		coverage_SpinBox->setFixedWidth(DISTRIBUTION_BOX_FIELD_WIDTH);
 	groupbox_Layout->addWidget(coverage_SpinBox,3,1,Qt::AlignLeft);
 	if(!use_Sampling)	{coverage_SpinBox->setDisabled(true);}
-
-	// - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-	groupbox->adjustSize();
-	groupbox->setFixedSize(groupbox->size());
 }
 
 double Distribution_Box::set_From_Value(double real_input)

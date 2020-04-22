@@ -98,7 +98,7 @@ void Target_Curve::import_Data_From_File(QString bare_Filename)
 {
 	QFileInfo filename = bare_Filename;
 
-	// reading whole file to lines_kist
+	// reading whole file to lines_list
 	QFile input_File(filename.absoluteFilePath());
 	QString temp_Line = "not empty now";
 

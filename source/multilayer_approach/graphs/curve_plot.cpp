@@ -540,7 +540,7 @@ void Curve_Plot::plot_All_Data()
 
 	if(curve_Class == TARGET)
 	{
-		argument = QVector<double>(target_Curve->curve.shifted_Argument.begin(),target_Curve->curve.shifted_Argument.end());
+		argument = target_Curve->curve.shifted_Argument;
 		values.resize(target_Curve->curve.shifted_Values.size());
 
 		/// experimental data
@@ -563,8 +563,8 @@ void Curve_Plot::plot_All_Data()
 
 		/// calculated data
 		{
-			if(	target_Curve->curve.value_Type == value_Types[Reflectance] )	{ values = QVector<double>(calculated_Values->R.begin(),calculated_Values->R.end()); }
-			if(	target_Curve->curve.value_Type == value_Types[Transmittance])	{ values = QVector<double>(calculated_Values->T.begin(),calculated_Values->T.end()); }
+			if(	target_Curve->curve.value_Type == value_Types[Reflectance] )	{ values = calculated_Values->R; }
+			if(	target_Curve->curve.value_Type == value_Types[Transmittance])	{ values = calculated_Values->T; }
 			// TODO scattering
 			plot_Data(argument, values, plot_Options_Second);
 			get_Min_Max_For_Graph(plot_Options_Second, values, min_Value_Left, max_Value_Left);
@@ -573,12 +573,12 @@ void Curve_Plot::plot_All_Data()
 
 	if(curve_Class == INDEPENDENT)
 	{
-		if(	*argument_Type == argument_Types[Beam_Grazing_Angle])	{ argument = QVector<double>(measurement->beam_Theta_0_Angle_Vec.begin(),measurement->beam_Theta_0_Angle_Vec.end());	}
-		if(	*argument_Type == argument_Types[Wavelength_Energy] )	{ argument = QVector<double>(measurement->lambda_Vec.begin(),measurement->lambda_Vec.end());	}
+		if(	*argument_Type == argument_Types[Beam_Grazing_Angle])	{ argument = measurement->beam_Theta_0_Angle_Vec;	}
+		if(	*argument_Type == argument_Types[Wavelength_Energy] )	{ argument = measurement->lambda_Vec;	}
 
-		if(	independent_Curve->calc_Functions.check_Reflectance)	{ values = QVector<double>(calculated_Values->R.begin(),calculated_Values->R.end()); }
-		if(	independent_Curve->calc_Functions.check_Transmittance)	{ values = QVector<double>(calculated_Values->T.begin(),calculated_Values->T.end()); }
-		if(	independent_Curve->calc_Functions.check_Absorptance)	{ values = QVector<double>(calculated_Values->A.begin(),calculated_Values->A.end()); }
+		if(	independent_Curve->calc_Functions.check_Reflectance)	{ values = calculated_Values->R; }
+		if(	independent_Curve->calc_Functions.check_Transmittance)	{ values = calculated_Values->T; }
+		if(	independent_Curve->calc_Functions.check_Absorptance)	{ values = calculated_Values->A; }
 		// TODO scattering
 
 		/// calculated data
@@ -611,7 +611,7 @@ void Curve_Plot::plot_All_Data()
 	if(plot_Options_First->rescale)
 	{
 		custom_Plot->yAxis->setRange(min_Value_Left,max_Value_Left);
-		custom_Plot->xAxis->setRange(argument.first(), argument.last());
+		custom_Plot->xAxis->setRange(argument.front(), argument.back());
 	}
 	// show max value
 	if(multilayer->graph_Options.show_Max_Value)
@@ -635,7 +635,7 @@ void Curve_Plot::plot_All_Data()
 	custom_Plot->replot();
 }
 
-void Curve_Plot::plot_Data(const QVector<double>& argument, const QVector<double>& values, Plot_Options* plot_Options)
+void Curve_Plot::plot_Data(const vector<double>& argument, const vector<double>& values, Plot_Options* plot_Options)
 {
 	custom_Plot->addGraph();
 	int graph_Index = custom_Plot->graphCount()-1;
@@ -846,7 +846,7 @@ void Curve_Plot::change_Scatter_Size()
 	}
 }
 
-void Curve_Plot::get_Min_Max_For_Graph(Plot_Options* plot_Options, const QVector<double>& values, double& minimum, double& maximum)
+void Curve_Plot::get_Min_Max_For_Graph(Plot_Options* plot_Options, const vector<double>& values, double& minimum, double& maximum)
 {
 	double local_Min = DBL_MAX;
 	double local_Max = -DBL_MAX;

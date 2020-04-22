@@ -13,14 +13,13 @@ Aperiodic_Load_Setup::Aperiodic_Load_Setup(Aperiodic_Settings& aperiodic_Setting
 
 void Aperiodic_Load_Setup::set_Window_Geometry()
 {
-	adjustSize();
-	setFixedSize(size());
 //	move(QApplication::desktop()->screen()->rect().center() - rect().center());
 }
 
 void Aperiodic_Load_Setup::create_Main_Layout()
 {
 	main_Layout = new QVBoxLayout(this);
+		main_Layout->setSizeConstraint(QLayout::SetFixedSize);
 		main_Layout->setSpacing(0);
 		main_Layout->setContentsMargins(3,0,3,0);
 

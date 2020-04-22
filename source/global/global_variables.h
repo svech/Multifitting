@@ -74,10 +74,10 @@ enum target_Data_Types_Enum {	/** 1D */
 								Specular_Scan,		// R,T vs angle, wavelength
 								Detector_Scan,		// scattering vs theta
 								Rocking_Curve,		// scattering vs theta_0
-								Offset_Scan,		// scattering vs theta_0, wavelength
+								Offset_Scan,		// scattering vs theta_0
 
 								/** 2D */
-								GISAS_Map	// scattering vs theta & phi // from 0 or from specular direction
+								GISAS_Map	// scattering vs theta & phi
 };
 
 // argument types
@@ -295,7 +295,7 @@ public:
 	static void variable_Drift(double& value, Drift& drift, int period_Index, int num_Repetition, gsl_rng *r);
 	static void get_Prefix_Suffix(double& prefix, double& suffix, double max_Sigma);
 	static void discretize_Prefix_Suffix(double prefix, double suffix, int& num_Prefix_Slices, int& num_Suffix_Slices, vector<double>& discrete_Step_Vector, double default_Step);
-	static void get_Peak_Parameters(const QVector<double>& argument, const QVector<double>& values, double& max_Value_Position, double& max_Value, double& width);
+	static void get_Peak_Parameters(const vector<double>& argument, const vector<double>& values, double& max_Value_Position, double& max_Value, double& width);
 
 	// profile functions
 	static double theta_Function(double z);

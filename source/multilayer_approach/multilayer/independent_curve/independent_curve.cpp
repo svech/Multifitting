@@ -42,6 +42,7 @@ QString Independent_Curve::enlarge_Tab_Name()
 		if(calc_Functions.check_Field)			suffix = suffix+symbol_F+",";
 		if(calc_Functions.check_Joule)			suffix = suffix+symbol_J+",";
 		if(calc_Functions.check_Scattering)		suffix = suffix+symbol_S+",";
+		if(calc_Functions.check_GISAS)			suffix = suffix+symbol_G+",";
 		return suffix.remove(-1,1);
 	} else
 	{

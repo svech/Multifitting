@@ -19,7 +19,6 @@ public:
 	void create_Main_Layout();
 		void create_Interface();
             void read_Drift_From_Item();
-    void set_Window_Geometry();
 
 	QTreeWidgetItem* item;
 	int default_Min_Line_Size;

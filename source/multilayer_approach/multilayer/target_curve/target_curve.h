@@ -40,7 +40,6 @@ struct Curve
 	// type
 	QString value_Type;
 
-	/// data without saving! reimport from lines_List!
 	// 1D
 	QVector<double> argument;
 	QVector<double> values;
