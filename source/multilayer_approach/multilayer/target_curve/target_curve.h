@@ -42,16 +42,16 @@ struct Curve
 
 	/// data without saving! reimport from lines_List!
 	// 1D
-	vector<double> argument;							 // without saving
-	vector<double> shifted_Argument;					 // without saving
-	vector<double> values;								 // without saving
-	vector<double> shifted_Values;						 // without saving
-	vector<double> shifted_Values_No_Scaling_And_Offset; // without saving, for fitting scale purposes
+	QVector<double> argument;
+	QVector<double> values;
+	vector<double>  shifted_Argument;					  // without saving
+	vector<double>  shifted_Values;						  // without saving
+	vector<double>  shifted_Values_No_Scaling_And_Offset; // without saving, for fitting scale purposes
 
 	// 2D
-	vector<QVector<double>> value_2D;							// without saving
-	vector<QVector<double>> value_2D_Shifted;					// without saving
-	vector<QVector<double>> value_2D_No_Scaling_And_Offset;		// without saving
+	QVector<QVector<double>> value_2D;
+	vector<vector<double>>   value_2D_Shifted;					// without saving
+	vector<vector<double>>   value_2D_No_Scaling_And_Offset;	// without saving
 };
 
 struct Fit_Params
@@ -114,6 +114,7 @@ public:
 	Plot_Options plot_Options_Calculated;
 
 	QStringList lines_List;
+	QStringList header;
 
 	QString label_Text = "<no description>";
 	QString index;

@@ -102,7 +102,7 @@ void Target_Curve::import_Data_From_File(QString bare_Filename)
 	QFile input_File(filename.absoluteFilePath());
 	QString temp_Line = "not empty now";
 
-	if (input_File.open(QIODevice::ReadOnly))
+	if(input_File.open(QIODevice::ReadOnly))
 	{
 		QTextStream input_Stream(&input_File);
 		lines_List.clear();
@@ -153,41 +153,46 @@ void Target_Curve::parse_1D_Data()
 		QStringList potentional_Numbers = temp_Line.split(delimiters,QString::SkipEmptyParts);
 
 		if(is_Decimal && potentional_Numbers.size()>=2)	// temp_Line[0]!=';' && temp_Line[0]!='#' && numbers.size()>0    less common
-		try
 		{
-			bool ok_To_Double = false;
-
-			double temp_Argument = QString(potentional_Numbers[0]).replace(",", ".").toDouble(&ok_To_Double); // dots and commas are considered as dots
-			double temp_Value    = QString(potentional_Numbers[1]).replace(",", ".").toDouble(&ok_To_Double); // dots and commas are considered as dots
-
-			if(!ok_To_Double) goto skip_line_label;
-
-			// argument should be monotonic
-			if(curve.argument.size()>=2)
+			try
 			{
-				if(curve.argument[curve.argument.size()-1]>curve.argument[curve.argument.size()-2]) // increasing argument is allowed
+				bool ok_To_Double = false;
+
+				double temp_Argument = QString(potentional_Numbers[0]).replace(",", ".").toDouble(&ok_To_Double); // dots and commas are considered as dots
+				double temp_Value    = QString(potentional_Numbers[1]).replace(",", ".").toDouble(&ok_To_Double); // dots and commas are considered as dots
+
+				if(!ok_To_Double) goto skip_line_label;
+
+				// argument should be monotonic
+				if(curve.argument.size()>=2)
 				{
-					if(temp_Argument <= curve.argument.back()) goto skip_line_label; // read only monotonical arguments
+					if(curve.argument[curve.argument.size()-1]>curve.argument[curve.argument.size()-2]) // increasing argument is allowed
+					{
+						if(temp_Argument <= curve.argument.back()) goto skip_line_label; // read only monotonical arguments
+					}
+					if(curve.argument[curve.argument.size()-1]<curve.argument[curve.argument.size()-2]) // decreasing argument is allowed
+					{
+						if(temp_Argument >= curve.argument.back()) goto skip_line_label; // read only monotonical arguments
+					}
 				}
-				if(curve.argument[curve.argument.size()-1]<curve.argument[curve.argument.size()-2]) // decreasing argument is allowed
-				{
-					if(temp_Argument >= curve.argument.back()) goto skip_line_label; // read only monotonical arguments
-				}
+
+				curve.argument.push_back(temp_Argument);
+				curve.values.push_back(temp_Value);
+
+				loaded_And_Ready = true;
+
+				// this line may be skipped
+				skip_line_label: ok_To_Double = false;
 			}
-
-			curve.argument.push_back(temp_Argument);
-			curve.values.push_back(temp_Value);
-
-			loaded_And_Ready = true;
-
-			// this line may be skipped
-			skip_line_label: ok_To_Double = false;
-		}
-		catch(QString& exception)
+			catch(QString& exception)
+			{
+				loaded_And_Ready = false;
+				QMessageBox::information(this, "Target_Curve::import_Data", exception);
+				return;
+			}
+		} else
 		{
-			loaded_And_Ready = false;
-			QMessageBox::information(this, "Target_Curve::import_Data", exception);
-			return;
+			header.append(temp_Line);
 		}
 	}
 }
@@ -225,7 +230,10 @@ void Target_Curve::parse_2D_Data()
 				}
 
 			}
-			curve.value_2D.push_back(numbers_Row);
+			curve.value_2D.append(numbers_Row);
+		} else
+		{
+			header.append(temp_Line);
 		}
 	}
 
@@ -363,9 +371,9 @@ void Target_Curve::rotate_Data_From_Previous_State(QString left_Right)
 	int new_Last_Col = new_Col_Count-1;
 
 	// resize
-	vector<QVector<double>> temp_Value_2D					   (new_Row_Count);
-	vector<QVector<double>> temp_Value_2D_Shifted			   (new_Row_Count);
-	vector<QVector<double>> temp_Value_2D_No_Scaling_And_Offset(new_Row_Count);
+	QVector<QVector<double>>temp_Value_2D					   (new_Row_Count);
+	vector<vector<double>>  temp_Value_2D_Shifted			   (new_Row_Count);
+	vector<vector<double>>  temp_Value_2D_No_Scaling_And_Offset(new_Row_Count);
 	for(int row=0; row<temp_Value_2D.size(); row++)
 	{
 		temp_Value_2D					   [row].resize(new_Col_Count);
@@ -779,7 +787,7 @@ QDataStream& operator <<( QDataStream& stream, const Curve& curve )
 					<< curve.horizontal_Arg_Shift << curve.horizontal_Arg_Factor
 					<< curve.val_Shift << curve.val_Factor
 					<< curve.divide_On_Beam_Intensity << curve.beam_Intensity_Initial << curve.use_Final_Intensity << curve.beam_Intensity_Final
-					<< curve.value_Type;
+					<< curve.value_Type << curve.argument << curve.values << curve.value_2D;
 }
 QDataStream& operator >>( QDataStream& stream,		 Curve& curve )
 {
@@ -790,7 +798,7 @@ QDataStream& operator >>( QDataStream& stream,		 Curve& curve )
 				>> curve.horizontal_Arg_Shift >> curve.horizontal_Arg_Factor
 				>> curve.val_Shift >> curve.val_Factor
 				>> curve.divide_On_Beam_Intensity >> curve.beam_Intensity_Initial >> curve.use_Final_Intensity >> curve.beam_Intensity_Final
-				>> curve.value_Type;
+				>> curve.value_Type >> curve.argument >> curve.values >> curve.value_2D;
 	} else // before 1.11.0
 	{
 		if(Global_Variables::check_Loaded_Version(1,10,1))		// since 1.10.1
@@ -802,14 +810,12 @@ QDataStream& operator >>( QDataStream& stream,		 Curve& curve )
 			}
 			stream >> curve.subinterval_Left >> curve.subinterval_Right;
 		}
-		//------------------------------
-		QVector<double> argument;
-		QVector<double> shifted_Argument;
-		stream >> argument >> shifted_Argument;
+		stream  >> curve.argument;
 
-		curve.argument = vector<double>(argument.begin(), argument.end());
-		curve.shifted_Argument = vector<double>(shifted_Argument.begin(), shifted_Argument.end());
-		//------------------------------
+		// ----------------------------------------------------
+		QVector<double> shifted_Argument;
+		stream >> shifted_Argument;
+		// ----------------------------------------------------
 
 		// values are just double now
 		{
@@ -817,6 +823,14 @@ QDataStream& operator >>( QDataStream& stream,		 Curve& curve )
 			QVector<Value> values;
 			QVector<Value> shifted_Values;
 			stream >> values >> shifted_Values;
+			// convert
+			curve.values.resize(values.size());
+			curve.shifted_Values.resize(values.size());
+			for(int i=0; i<values.size(); i++)
+			{
+				curve.values[i] = values[i].val_1;
+				curve.shifted_Values[i] = shifted_Values[i].val_1;
+			}
 		}
 
 		stream >> curve.horizontal_Arg_Shift >> curve.horizontal_Arg_Factor;
@@ -906,47 +920,47 @@ QDataStream& operator <<( QDataStream& stream, const Target_Curve* target_Curve 
 					<< target_Curve->filename << target_Curve->filepath
 					<< target_Curve->plot_Options_Experimental
 					<< target_Curve->plot_Options_Calculated
-					<< target_Curve->lines_List << target_Curve->label_Text << target_Curve->angular_Units << target_Curve->spectral_Units;
+					<< target_Curve->header << target_Curve->label_Text
+					<< target_Curve->angular_Units << target_Curve->spectral_Units << target_Curve->loaded_And_Ready;
 }
 QDataStream& operator >>(QDataStream& stream,		 Target_Curve* target_Curve )
 {
-	stream	>> target_Curve->curve >> target_Curve->fit_Params >> target_Curve->measurement
-			>> target_Curve->filename >> target_Curve->filepath;
-	if(!Global_Variables::check_Loaded_Version(1,11,0))
-	{
-		stream >> target_Curve->loaded_And_Ready;
-	}
-	stream	>> target_Curve->plot_Options_Experimental;
-
-	if(Global_Variables::check_Loaded_Version(1,7,4))
-	{stream >> target_Curve->plot_Options_Calculated ; }
-
-	if(!Global_Variables::check_Loaded_Version(1,11,0))
-	{
-		Old_Calculated_Values old_Calculated_Values;
-		stream  >> old_Calculated_Values;
-	}
-	stream	>> target_Curve->lines_List;
-	if(!Global_Variables::check_Loaded_Version(1,11,0))
-	{
-		QString arg_Units;
-		stream >> arg_Units;
-		QString at_Fixed;
-		stream >> at_Fixed;
-		QString arg_Type_For_Label;
-		stream >> arg_Type_For_Label;
-		QString ang_Type_For_Label_At_Fixed;
-		stream >> ang_Type_For_Label_At_Fixed;
-	}
-	stream >> target_Curve->label_Text;
-
 	if(Global_Variables::check_Loaded_Version(1,11,0))
 	{
-		stream >> target_Curve->angular_Units >> target_Curve->spectral_Units;
+		stream	>> target_Curve->curve >> target_Curve->fit_Params >> target_Curve->measurement
+				>> target_Curve->filename >> target_Curve->filepath
+				>> target_Curve->plot_Options_Experimental
+				>> target_Curve->plot_Options_Calculated
+				>> target_Curve->header >> target_Curve->label_Text
+				>> target_Curve->angular_Units >> target_Curve->spectral_Units >> target_Curve->loaded_And_Ready;
+
+	} else
+	{
+		stream	>> target_Curve->curve >> target_Curve->fit_Params >> target_Curve->measurement
+				>> target_Curve->filename >> target_Curve->filepath;
+
+		stream >> target_Curve->loaded_And_Ready;
+
+		stream	>> target_Curve->plot_Options_Experimental;
+
+		if(Global_Variables::check_Loaded_Version(1,7,4))
+		{stream >> target_Curve->plot_Options_Calculated ; }
+
+		Old_Calculated_Values old_Calculated_Values;
+		stream  >> old_Calculated_Values;
+
+		stream	>> target_Curve->lines_List;
+
+		// --------------------------------------------------------------------------
+		QString arg_Units;					stream >> arg_Units;
+		QString at_Fixed;					stream >> at_Fixed;
+		QString arg_Type_For_Label;			stream >> arg_Type_For_Label;
+		QString ang_Type_For_Label_At_Fixed;stream >> ang_Type_For_Label_At_Fixed;
+		// --------------------------------------------------------------------------
+
+		stream >> target_Curve->label_Text;
 	}
 
-	// loaded_And_Ready is calculated here, after main load
-	target_Curve->parse_Data_From_List();
 	target_Curve->fill_Measurement_And_Curve_With_Shifted_Data();
 	target_Curve->refresh_Description_Label();
 	return stream;

@@ -85,9 +85,31 @@ void Target_Curve_Editor::export_Data_File()
 	QFile file = QFileDialog::getSaveFileName(this, "Export Loaded Curve", filepath_ComboBox->lineEdit()->text(), "Text data (*.txt *.dat *.xy);;All files (*.*)");
 	file.open(QIODevice::WriteOnly);
 	QTextStream out(&file);
-	for(QString line : target_Curve->lines_List)
+	for(QString line : target_Curve->header)
 	{
 		out << line << endl;
+	}
+
+	if( target_Curve->measurement.measurement_Type == measurement_Types[Specular_Scan] ||
+		target_Curve->measurement.measurement_Type == measurement_Types[Detector_Scan] ||
+		target_Curve->measurement.measurement_Type == measurement_Types[Rocking_Curve] ||
+		target_Curve->measurement.measurement_Type == measurement_Types[Offset_Scan] )
+	{
+		for(int i=0; i<target_Curve->curve.argument.size(); i++)
+		{
+			out << Locale.toString(target_Curve->curve.argument[i],'f',16) << "\t" << Locale.toString(target_Curve->curve.values[i],'e',12) << endl;
+		}
+	}
+	if(	target_Curve->measurement.measurement_Type == measurement_Types[GISAS_Map] )
+	{
+		for(int i=0; i<target_Curve->curve.value_2D.size(); i++)
+		{
+			for(int j=0; j<target_Curve->curve.value_2D.first().size(); j++)
+			{
+				out << Locale.toString(target_Curve->curve.value_2D[i][j],'e',12) << "\t";
+			}
+			out << endl;
+		}
 	}
 	file.close();
 }
