@@ -3,7 +3,7 @@
 
 Fitting_Settings_Editor::Fitting_Settings_Editor(QWidget* parent) :
 	fitting_Settings(global_Multilayer_Approach->fitting_Settings),
-	QWidget(parent) // nullptr!
+	QWidget(parent)
 {
 	setWindowTitle("Fitting Settings");
 	create_Main_Layout();
@@ -23,9 +23,8 @@ void Fitting_Settings_Editor::closeEvent(QCloseEvent *event)
 void Fitting_Settings_Editor::create_Main_Layout()
 {
 	main_Layout = new QVBoxLayout(this);
-		main_Layout->setSizeConstraint(QLayout::SetFixedSize);
-		main_Layout->setSpacing(0);
-		main_Layout->setContentsMargins(4,4,4,0);
+	main_Layout->setSpacing(0);
+	main_Layout->setContentsMargins(4,4,4,0);
 
 	Global_Variables::create_Shortcuts(this);
 	create_Metods();
@@ -63,6 +62,8 @@ void Fitting_Settings_Editor::create_Main_Layout()
 void Fitting_Settings_Editor::set_Window_Geometry()
 {
 	setGeometry(fitting_settings_x_corner,fitting_settings_y_corner,width(),height());
+	adjustSize();
+	setFixedSize(size());
 }
 
 void Fitting_Settings_Editor::write_Window_Geometry()

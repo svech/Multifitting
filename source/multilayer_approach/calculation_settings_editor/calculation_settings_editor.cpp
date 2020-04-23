@@ -182,7 +182,10 @@ void Calculation_Settings_Editor::load_Discretization_Parameters(int tab_Index)
 			QVector<Curve_Plot*>& tab_Plots = global_Multilayer_Approach->optical_Graphs->plots[tab_Index];
 			for(Curve_Plot* curve_Plot : tab_Plots)
 			{
-				curve_Plot->discretized_Angular_Threshold();
+				if( curve_Plot->measurement.measurement_Type == measurement_Types[Specular_Scan] )
+				{
+					curve_Plot->discretized_Threshold_Line();
+				}
 			}
 		}
 		global_Multilayer_Approach->calculate(true);
@@ -220,7 +223,10 @@ void Calculation_Settings_Editor::load_Discretization_Parameters(int tab_Index)
 				QVector<Curve_Plot*>& tab_Plots = global_Multilayer_Approach->optical_Graphs->plots[tab_Index];
 				for(Curve_Plot* curve_Plot : tab_Plots)
 				{
-					curve_Plot->discretized_Angular_Threshold();
+					if( curve_Plot->measurement.measurement_Type == measurement_Types[Specular_Scan] )
+					{
+						curve_Plot->discretized_Threshold_Line();
+					}
 				}
 			}
 		});

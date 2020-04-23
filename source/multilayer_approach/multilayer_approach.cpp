@@ -1009,6 +1009,8 @@ void Multilayer_Approach::open(QString filename)
 
 	file.close();
 
+	global_Multilayer_Approach->calculate(true); // to obtain calculated curves that are not loaded
+
 	// resizing
 	if(max_Num_Targets>=2 && height()<=multilayer_height)
 	{
@@ -1064,8 +1066,6 @@ void Multilayer_Approach::open(QString filename)
 	setWindowTitle(multilayer_Approach_Default_Title + ": .../" + file_Info.dir().dirName() + "/" + file_Info.fileName());
 
 	qInfo() << "opened" << endl;
-
-	global_Multilayer_Approach->calculate(true); // to obtain calculated curves that are not loaded
 }
 
 void Multilayer_Approach::open_As()

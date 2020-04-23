@@ -188,8 +188,8 @@ void Optical_Graphs::create_Main_Layout()
 {
 	can_Change_Index = false;
 	main_Layout = new QVBoxLayout(this);
-	main_Layout->setSpacing(0);
-	main_Layout->setContentsMargins(0,0,0,0);
+		main_Layout->setSpacing(0);
+		main_Layout->setContentsMargins(0,0,0,0);
 
 	global_Multilayer_Approach->lock_Mainwindow_Interface();
 	create_Tabs();
@@ -204,7 +204,7 @@ void Optical_Graphs::create_Main_Layout()
 void Optical_Graphs::create_Tabs()
 {
 	main_Tabs = new QTabWidget(this);
-	main_Tabs->setMovable(false);
+		main_Tabs->setMovable(false);
 
 	connect(main_Tabs,	&QTabWidget::currentChanged, this,
 	[=](int index)
@@ -274,6 +274,7 @@ void Optical_Graphs::create_Tab_Content(QWidget* new_Widget, int tab_Index)
 		{
 			if(target_Curve->loaded_And_Ready)
 			if(target_Curve->fit_Params.calc)
+			if(target_Curve->measurement.measurement_Type != measurement_Types[GISAS_Map])
 			{
 				target_Profiles_to_Show.append(target_Curve);
 				total_Number_of_Target_Graphs[tab_Index]++;
@@ -288,13 +289,13 @@ void Optical_Graphs::create_Tab_Content(QWidget* new_Widget, int tab_Index)
 		target_Independent_Splitter->addWidget(target_Group_Box);
 
 		QHBoxLayout* target_Layout = new QHBoxLayout(target_Group_Box);
-		target_Layout->setSpacing(0);
-		target_Layout->setContentsMargins(0,3,0,3);
+			target_Layout->setSpacing(0);
+			target_Layout->setContentsMargins(0,3,0,3);
 
 		QSplitter* target_Vertical_Splitter = new QSplitter;
-		target_Vertical_Splitter->setOrientation(Qt::Vertical);
-		target_Vertical_Splitter->setHandleWidth(1);
-		target_Vertical_Splitter->setStyleSheet("QSplitter::handle{border: 0px solid gray; background: gray;}");
+			target_Vertical_Splitter->setOrientation(Qt::Vertical);
+			target_Vertical_Splitter->setHandleWidth(1);
+			target_Vertical_Splitter->setStyleSheet("QSplitter::handle{border: 0px solid gray; background: gray;}");
 		target_Layout->addWidget(target_Vertical_Splitter);
 		target_Vertical_Splitter_Vec[tab_Index] = target_Vertical_Splitter;
 		target_Horizontal_Splitter_Vec_Vec[tab_Index].resize(multilayer->graph_Options.num_Target_Graph_Rows);
@@ -319,7 +320,7 @@ void Optical_Graphs::create_Tab_Content(QWidget* new_Widget, int tab_Index)
 
 		for(int graph_Index=0; graph_Index<total_Number_of_Target_Graphs[tab_Index]; graph_Index++)
 		{
-			Curve_Plot* new_Curve_Plot = new Curve_Plot(multilayer, target_Profiles_to_Show[graph_Index], nullptr, TARGET, this);
+			Curve_Plot* new_Curve_Plot = new Curve_Plot(multilayer, target_Profiles_to_Show[graph_Index], nullptr, TARGET);
 			tab_Plots.append(new_Curve_Plot);
 
 			if(current_Row < first_Long_Row_Index) length = graphs_in_Short_Row; else length = graphs_in_Short_Row + 1;
@@ -346,6 +347,9 @@ void Optical_Graphs::create_Tab_Content(QWidget* new_Widget, int tab_Index)
 			Independent_Curve* independent_Variables = qobject_cast<Independent_Curve*>(multilayer->independent_Curve_Tabs->widget(i));
 			if( independent_Variables->calc_Functions.check_Enabled	)
 			if(	independent_Variables->calc_Functions.if_Something_Enabled() )
+			if( !independent_Variables->calc_Functions.check_Field &&
+				!independent_Variables->calc_Functions.check_Joule &&
+				!independent_Variables->calc_Functions.check_GISAS)
 			{
 				independent_Profiles_to_Show.append(independent_Variables);
 				total_Number_of_Independent_Graphs[tab_Index]++;
@@ -391,7 +395,7 @@ void Optical_Graphs::create_Tab_Content(QWidget* new_Widget, int tab_Index)
 
 		for(int graph_Index=0; graph_Index<total_Number_of_Independent_Graphs[tab_Index]; graph_Index++)
 		{
-			Curve_Plot* new_Curve_Plot = new Curve_Plot(multilayer, nullptr, independent_Profiles_to_Show[graph_Index], INDEPENDENT, this);
+			Curve_Plot* new_Curve_Plot = new Curve_Plot(multilayer, nullptr, independent_Profiles_to_Show[graph_Index], INDEPENDENT);
 			tab_Plots.append(new_Curve_Plot);
 
 			if(current_Row < first_Long_Row_Index) length = graphs_in_Short_Row; else length = graphs_in_Short_Row + 1;

@@ -4,9 +4,7 @@ Target_Curve_Editor::Target_Curve_Editor(Target_Curve* target_Curve, Multilayer*
 	target_Curve(target_Curve),
 	multilayer_Parent(multilayer),
 	QDialog(parent)
-{ // black silver gray
-//	stylesheet = "QGroupBox { border-radius: 2px;  border: 1px solid gray; margin-top: 2ex;} QGroupBox::title { subcontrol-origin: margin; color: darkblue; top: 6px; left: 9px; padding: 0 0px 0 1px;}";
-
+{
 	create_Main_Layout();
 	setWindowTitle("Import Data: "+target_Curve->measurement.measurement_Type);
 	setAttribute(Qt::WA_DeleteOnClose);
@@ -170,17 +168,13 @@ void Target_Curve_Editor::create_Filepath_GroupBox()
 		// reopen Calculation_Settings and Optical_Graphs
 		if(global_Multilayer_Approach->runned_Calculation_Settings_Editor.contains(calc_Settings_Key))
 		{
-			int active_Tab_Calculation_Settings_Editor = global_Multilayer_Approach->runned_Calculation_Settings_Editor.value(calc_Settings_Key)->main_Tabs->currentIndex();
 			global_Multilayer_Approach->runned_Calculation_Settings_Editor.value(calc_Settings_Key)->close();
 			global_Multilayer_Approach->open_Calculation_Settings();
-			global_Multilayer_Approach->runned_Calculation_Settings_Editor.value(calc_Settings_Key)->main_Tabs->setCurrentIndex(active_Tab_Calculation_Settings_Editor);
 		}
 		if(global_Multilayer_Approach->runned_Optical_Graphs.contains(optical_Graphs_Key))
 		{
-			int active_Tab_Optical_Graphs = global_Multilayer_Approach->runned_Optical_Graphs.value(optical_Graphs_Key)->main_Tabs->currentIndex();
 			global_Multilayer_Approach->runned_Optical_Graphs.value(optical_Graphs_Key)->close();
 			global_Multilayer_Approach->open_Optical_Graphs(TARGET);
-			global_Multilayer_Approach->runned_Optical_Graphs.value(optical_Graphs_Key)->main_Tabs->setCurrentIndex(active_Tab_Optical_Graphs);
 		}
 	});
 
@@ -259,7 +253,7 @@ void Target_Curve_Editor::create_Buttons()
 		close_Button = new QPushButton("Done", this);
 			close_Button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 			close_Button->setDefault(true);
-			connect(close_Button, SIGNAL(clicked()), this, SLOT(close()));
+			connect(close_Button, &QPushButton::clicked, this, [=]{ close(); });
 		button_Layout->addWidget(close_Button,0,Qt::AlignCenter);
 	}
 

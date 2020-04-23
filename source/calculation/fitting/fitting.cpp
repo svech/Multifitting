@@ -249,13 +249,13 @@ void Fitting::calc_Residual(const gsl_vector* x, Fitting_Params* params, gsl_vec
 		{
 			for(Curve_Plot* curve_Plot : tab_Plots)
 			{
-				bool plot_Options_First_Rescale  = curve_Plot->plot_Options_First ->rescale;
-				bool plot_Options_Second_Rescale = curve_Plot->plot_Options_Second->rescale;
-				curve_Plot->plot_Options_First ->rescale=false;
-				curve_Plot->plot_Options_Second->rescale=false;
+				bool plot_Options_First_Rescale  = curve_Plot->plot_Options_First.rescale;
+				bool plot_Options_Second_Rescale = curve_Plot->plot_Options_Second.rescale;
+				curve_Plot->plot_Options_First .rescale = false;
+				curve_Plot->plot_Options_Second.rescale = false;
 				curve_Plot->plot_All_Data();
-				curve_Plot->plot_Options_First ->rescale=plot_Options_First_Rescale;
-				curve_Plot->plot_Options_Second->rescale=plot_Options_Second_Rescale;
+				curve_Plot->plot_Options_First .rescale = plot_Options_First_Rescale;
+				curve_Plot->plot_Options_Second.rescale = plot_Options_Second_Rescale;
 			}
 		}
 	}

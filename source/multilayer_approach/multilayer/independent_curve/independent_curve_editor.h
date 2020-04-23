@@ -30,7 +30,7 @@ public:
 	Independent_Curve* independent_Curve;
 	Multilayer* multilayer_Parent;
 
-	QVBoxLayout* main_Layout;
+	QGridLayout* main_Layout;
 		Specular_Independent_Curve_Part* specular_Independent_Curve_Part;
 		Detector_Independent_Curve_Part* detector_Independent_Curve_Part;
 		Rocking_Independent_Curve_Part* rocking_Independent_Curve_Part;

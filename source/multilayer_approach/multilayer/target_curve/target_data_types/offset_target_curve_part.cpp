@@ -320,9 +320,13 @@ void Offset_Target_Curve_Part::create_Beam_GroupBox()
 
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+		double coeff = angle_Coefficients_Map.value(target_Curve->angular_Units);
+
 		at_Fixed_Detector_Offset_SpinBox = new MyDoubleSpinBox;
 			at_Fixed_Detector_Offset_SpinBox->setAccelerated(true);
+			at_Fixed_Detector_Offset_SpinBox->setRange(0,180./coeff);
 			at_Fixed_Detector_Offset_SpinBox->setDecimals(7);
+			at_Fixed_Detector_Offset_SpinBox->setValue(target_Curve->measurement.detector_Theta_Offset/coeff);
 			at_Fixed_Detector_Offset_SpinBox->setSingleStep(0.01);
 			at_Fixed_Detector_Offset_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
 			at_Fixed_Detector_Offset_SpinBox->setProperty(min_Size_Property, TARGET_LINE_AT_FIXED_WIDTH);
@@ -451,25 +455,28 @@ void Offset_Target_Curve_Part::reset_Subinterval()
 
 void Offset_Target_Curve_Part::fill_Offset()
 {
-	at_Fixed_Detector_Offset_SpinBox->blockSignals(true);
+	if(target_Curve->loaded_And_Ready)
+	{
+		at_Fixed_Detector_Offset_SpinBox->blockSignals(true);
 
-	double coeff = angle_Coefficients_Map.value(target_Curve->angular_Units);
+		double coeff = angle_Coefficients_Map.value(target_Curve->angular_Units);
 
-	double min_Arg = *std::min_element(target_Curve->curve.shifted_Argument.begin(), target_Curve->curve.shifted_Argument.end());
-	double max_Arg = *std::max_element(target_Curve->curve.shifted_Argument.begin(), target_Curve->curve.shifted_Argument.end());
+		double min_Arg = *std::min_element(target_Curve->curve.shifted_Argument.begin(), target_Curve->curve.shifted_Argument.end());
+		double max_Arg = *std::max_element(target_Curve->curve.shifted_Argument.begin(), target_Curve->curve.shifted_Argument.end());
 
-	double min_Range =			 -min_Arg;
-	double max_Range = 180./coeff-max_Arg;
+		double min_Range =			 -min_Arg;
+		double max_Range = 180./coeff-max_Arg;
 
-	at_Fixed_Detector_Offset_SpinBox->setRange(min_Range,max_Range);
+		at_Fixed_Detector_Offset_SpinBox->setRange(min_Range,max_Range);
 
-	target_Curve->measurement.detector_Theta_Offset = min(target_Curve->measurement.detector_Theta_Offset, max_Range*coeff);
-	target_Curve->measurement.detector_Theta_Offset = max(target_Curve->measurement.detector_Theta_Offset, min_Range*coeff);
+		target_Curve->measurement.detector_Theta_Offset = min(target_Curve->measurement.detector_Theta_Offset, max_Range*coeff);
+		target_Curve->measurement.detector_Theta_Offset = max(target_Curve->measurement.detector_Theta_Offset, min_Range*coeff);
 
-	at_Fixed_Detector_Offset_SpinBox->setValue(target_Curve->measurement.detector_Theta_Offset/coeff);
-	at_Fixed_Detector_Offset_Units_Label->setText(target_Curve->angular_Units);
+		at_Fixed_Detector_Offset_SpinBox->setValue(target_Curve->measurement.detector_Theta_Offset/coeff);
+		at_Fixed_Detector_Offset_Units_Label->setText(target_Curve->angular_Units);
 
-	at_Fixed_Detector_Offset_SpinBox->blockSignals(false);
+		at_Fixed_Detector_Offset_SpinBox->blockSignals(false);
+	}
 }
 
 void Offset_Target_Curve_Part::refresh_Argument_Units()

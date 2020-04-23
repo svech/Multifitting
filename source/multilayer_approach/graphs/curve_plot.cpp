@@ -5,57 +5,28 @@ Curve_Plot::Curve_Plot(Multilayer* multilayer, Target_Curve* target_Curve, Indep
 	curve_Class(curve_Class),
 	target_Curve(target_Curve),
 	independent_Curve(independent_Curve),
+
+	measurement			(curve_Class == INDEPENDENT ? independent_Curve->measurement	   : target_Curve->measurement				),
+	calculated_Values   (curve_Class == INDEPENDENT ? independent_Curve->calculated_Values : target_Curve->calculated_Values		),
+	plot_Options_First  (curve_Class == INDEPENDENT ? independent_Curve->plot_Options	   : target_Curve->plot_Options_Experimental),
+	plot_Options_Second (curve_Class == INDEPENDENT ? independent_Curve->plot_Options	   : target_Curve->plot_Options_Calculated	),
+	spectral_Units		(curve_Class == INDEPENDENT ? independent_Curve->spectral_Units	   : target_Curve->spectral_Units			),
+	angular_Units		(curve_Class == INDEPENDENT ? independent_Curve->angular_Units	   : target_Curve->angular_Units			),
+	plot_Indicator		(curve_Class == INDEPENDENT ? independent_Curve->tab_Name		   : target_Curve->index	),
+
 	QWidget(parent)
 {
-	// if target
-	if(curve_Class == TARGET)
-	{
-		if(target_Curve) // if passed pointer!=nullptr
-		{
-			measurement = &target_Curve->measurement;
-			calculated_Values = &target_Curve->calculated_Values;
-			plot_Options_First = &target_Curve->plot_Options_Experimental;
-			plot_Options_Second = &target_Curve->plot_Options_Calculated;
-			spectral_Units = &target_Curve->spectral_Units;
-			angular_Units = &target_Curve->angular_Units;
-			argument_Type = &target_Curve->measurement.argument_Type;
-			plot_Indicator = &target_Curve->index;
-		} else
-		{
-			QMessageBox::critical(nullptr, "Curve_Plot::Curve_Plot", "target_Curve is nullptr");
-			exit(EXIT_FAILURE);
-		}
-	}
-
-	// if independent
-	if(curve_Class == INDEPENDENT)
-	{
-		if(independent_Curve) // if passed pointer!=nullptr
-		{
-			measurement = &independent_Curve->measurement;
-			calculated_Values = &independent_Curve->calculated_Values;
-			plot_Options_First = &independent_Curve->plot_Options;
-			plot_Options_Second = plot_Options_First;
-			spectral_Units = &independent_Curve->spectral_Units;
-			angular_Units = &independent_Curve->angular_Units;
-			argument_Type = &independent_Curve->measurement.argument_Type;
-			plot_Indicator = &independent_Curve->tab_Name;
-		} else
-		{
-			QMessageBox::critical(nullptr, "Curve_Plot::Curve_Plot", "independent_Variables is nullptr");
-			exit(EXIT_FAILURE);
-		}
-	}
 	create_Main_Layout();
 }
 
 void Curve_Plot::create_Main_Layout()
 {
 	main_Layout = new QVBoxLayout(this);
-	main_Layout->setSpacing(0);
-	main_Layout->setContentsMargins(4,4,4,0);
+		main_Layout->setSpacing(0);
+		main_Layout->setContentsMargins(4,4,4,0);
 
-	custom_Plot = new QCustomPlot(this);
+	custom_Plot = new QCustomPlot;
+	main_Layout->addWidget(custom_Plot);
 
 	if(multilayer->graph_Options.show_Title)
 	{
@@ -66,36 +37,33 @@ void Curve_Plot::create_Main_Layout()
 	}
 
 	create_Plot_Frame_And_Scale();
-		main_Layout->addWidget(custom_Plot);
 
 	if(curve_Class == TARGET)
 	{
-		if(target_Curve) // if passed pointer!=nullptr
-		{
-			create_Subinterval_Rectangle();
-		}
+		create_Subinterval_Rectangle();
 	}
 
 	// for discretized structures plot vertical threshold line
-	if(*argument_Type == argument_Types[Beam_Grazing_Angle])
+	if( measurement.measurement_Type == measurement_Types[Specular_Scan] )
 	{
 		infLine = new QCPItemStraightLine(custom_Plot);
-		discretized_Angular_Threshold();
+		discretized_Threshold_Line();
 	}
 
 	create_Options();
-		main_Layout->addWidget(options_GroupBox);
 
 	// events on selection
 	connect(custom_Plot, &QCustomPlot::plottableDoubleClick,   this, &Curve_Plot::choose_Graph_Color);
-	connect(custom_Plot, &QCustomPlot::selectionChangedByUser, this, [=]{
-			colorize_Color_Button();
-			show_Thickness();
-			show_Scatter_Size();
+	connect(custom_Plot, &QCustomPlot::selectionChangedByUser, this, [=]
+	{
+		show_Thickness();
+		show_Scatter_Size();
 	});
 
-	colorize_Color_Button();
 	graph_Done = true;
+
+	// show
+	plot_All_Data();
 }
 
 void Curve_Plot::create_Subinterval_Rectangle()
@@ -126,284 +94,307 @@ void Curve_Plot::subinterval_Changed_Replot()
 	custom_Plot->replot();
 }
 
-void Curve_Plot::discretized_Angular_Threshold()
+void Curve_Plot::discretized_Threshold_Line()
 {
-	QString argument_Type;
-	QString angle_Units;
-	double wavelength = 1;
-	if(curve_Class == TARGET)     {
-		argument_Type = target_Curve->measurement.argument_Type;
-		angle_Units = target_Curve->angular_Units;
-		if(argument_Type == argument_Types[Beam_Grazing_Angle])
-		{
-			wavelength = target_Curve->measurement.lambda_Value;
-		}
-	}
-	if(curve_Class == INDEPENDENT){
-		argument_Type = independent_Curve->measurement.argument_Type;
-		angle_Units = independent_Curve->angular_Units;
-		if(argument_Type == argument_Types[Beam_Grazing_Angle])
-		{
-			wavelength = independent_Curve->measurement.lambda_Value;
-		}
-	}
-
-	if(argument_Type == argument_Types[Beam_Grazing_Angle])
+	if( measurement.measurement_Type == measurement_Types[Specular_Scan] )
 	{
-		if(multilayer->discretization_Parameters.enable_Discretization)
-		{
-			double safety_Factor = 0.3;
-			double asin_Argument = wavelength/(2*multilayer->discretization_Parameters.discretization_Step);
-			if(abs(asin_Argument)<1)
-			{
-				double angle = safety_Factor*(asin(asin_Argument)*180/M_PI);
-				double angle_In_Plot_Units = angle/angle_Coefficients_Map.value(angle_Units);
+		double safety_Factor = 0.3;
 
-				infLine->point1->setCoords(angle_In_Plot_Units, 0);  // location of point 1 in plot coordinate
-				infLine->point2->setCoords(angle_In_Plot_Units, 1);  // location of point 2 in plot coordinate
+		if(measurement.argument_Type == argument_Types[Beam_Grazing_Angle])
+		{
+			if(multilayer->discretization_Parameters.enable_Discretization)
+			{
+				double asin_Argument = measurement.wavelength.value/(2*multilayer->discretization_Parameters.discretization_Step);
+				if(abs(asin_Argument)<1)
+				{
+					double angle = safety_Factor*(asin(asin_Argument)*180/M_PI);
+					double angle_In_Plot_Units = angle/angle_Coefficients_Map.value(angular_Units);
+
+					infLine->point1->setCoords(angle_In_Plot_Units, 0);
+					infLine->point2->setCoords(angle_In_Plot_Units, 1);
+				}
+				else
+				{
+					infLine->point1->setCoords(-MAX_DOUBLE, 0);
+					infLine->point2->setCoords(-MAX_DOUBLE, 1);
+				}
 			} else
 			{
-				infLine->point1->setCoords(-MAX_DOUBLE, 0);  // location of point 1 in plot coordinate
-				infLine->point2->setCoords(-MAX_DOUBLE, 1);  // location of point 2 in plot coordinate
+				infLine->point1->setCoords(-MAX_DOUBLE, 0);
+				infLine->point2->setCoords(-MAX_DOUBLE, 1);
 			}
-		} else
-		{
-			infLine->point1->setCoords(-MAX_DOUBLE, 0);  // location of point 1 in plot coordinate
-			infLine->point2->setCoords(-MAX_DOUBLE, 1);  // location of point 2 in plot coordinate
 		}
+		if(measurement.argument_Type == argument_Types[Wavelength_Energy])
+		{
+			if(multilayer->discretization_Parameters.enable_Discretization)
+			{
+				double lambda_Argument = 2*multilayer->discretization_Parameters.discretization_Step*sin(measurement.beam_Theta_0_Angle.value*M_PI/180.)/safety_Factor;
+				double wavelength_In_Plot_Units = Global_Variables::wavelength_Energy(spectral_Units, lambda_Argument)/ wavelength_Coefficients_Map.value(spectral_Units);
+
+				infLine->point1->setCoords(wavelength_In_Plot_Units, 0);
+				infLine->point2->setCoords(wavelength_In_Plot_Units, 1);
+			}
+			else
+			{
+				infLine->point1->setCoords(-MAX_DOUBLE, 0);
+				infLine->point2->setCoords(-MAX_DOUBLE, 1);
+			}
+		}
+		custom_Plot->replot();
 	}
-	custom_Plot->replot();
 }
 
 void Curve_Plot::create_Plot_Frame_And_Scale()
 {
-	// runned many times!
-	custom_Plot->setNoAntialiasingOnDrag(false); // more performance/responsiveness during dragging
+	custom_Plot->setNoAntialiasingOnDrag(false);
+	custom_Plot->setInteractions(QCP::iSelectPlottables | QCP::iRangeDrag | QCP::iRangeZoom);
 
-	// frame, axes
-	{
-		QPen pen = custom_Plot->yAxis->grid()->pen();
+	// frame
+	custom_Plot->axisRect()->setupFullAxesBox(true);
+	custom_Plot->yAxis2->setTickLabels(true);
+	QSharedPointer<QCPAxisTicker> linTicker(new QCPAxisTicker);
+		linTicker->setTickCount(12);
+	custom_Plot->xAxis ->setTicker(linTicker);
+	custom_Plot->xAxis2->setTicker(linTicker);
+
+	// set grid style
+	QPen pen = custom_Plot->yAxis->grid()->pen();
 		pen.setStyle(Qt::DashLine);
-		custom_Plot->yAxis->grid()->setSubGridVisible(true);
-		custom_Plot->xAxis->grid()->setSubGridVisible(true);
-		custom_Plot->yAxis->grid()->setPen(pen);
-		custom_Plot->xAxis->grid()->setPen(pen);
+	custom_Plot->yAxis->grid()->setSubGridVisible(true);
+	custom_Plot->xAxis->grid()->setSubGridVisible(true);
+	custom_Plot->yAxis->grid()->setPen(pen);
+	custom_Plot->xAxis->grid()->setPen(pen);
 
-		/// X axis
-		if(plot_Options_First->x_Scale == lin_Scale)
-		{
-			QSharedPointer<QCPAxisTicker> linTicker(new QCPAxisTicker);
+	/// X axis
+	if(plot_Options_First.x_Scale == lin_Scale)	apply_Lin_Scale("x");
+	if(plot_Options_First.x_Scale == log_Scale) apply_Log_Scale("x");
+	/// Y axis
+	if(plot_Options_First.y_Scale == lin_Scale) apply_Lin_Scale("y");
+	if(plot_Options_First.y_Scale == log_Scale) apply_Log_Scale("y");
 
-			custom_Plot->xAxis->setScaleType(QCPAxis::stLinear);
-			custom_Plot->xAxis->setTicker(linTicker);
-			custom_Plot->xAxis->setNumberFormat("g");
-			custom_Plot->xAxis->setNumberPrecision(4);
+	// default ranges
+	custom_Plot->yAxis->setRange(1e-5, 1e0);
+	custom_Plot->yAxis->setRange(0, 1);
 
-			custom_Plot->xAxis2->setScaleType(QCPAxis::stLinear);
-			custom_Plot->xAxis2->setTicker(linTicker);
-			custom_Plot->xAxis2->setNumberFormat("g");
-			custom_Plot->xAxis2->setNumberPrecision(4);
-		}
-		if(plot_Options_First->x_Scale == log_Scale)
-		{
-			QSharedPointer<QCPAxisTickerLog> logTicker(new QCPAxisTickerLog);
+	// create 2 graphs
+	if(custom_Plot->graphCount()!=2)
+	{
+		custom_Plot->clearGraphs();
+		custom_Plot->addGraph();
+		custom_Plot->addGraph();
 
-			custom_Plot->xAxis->setScaleType(QCPAxis::stLogarithmic);
-			custom_Plot->xAxis->setTicker(logTicker);
-			custom_Plot->xAxis->setNumberFormat("eb"); // e = exponential, b = beautiful decimal powers
-			custom_Plot->xAxis->setNumberPrecision(0); // makes sure "1*10^4" is displayed only as "10^4"
+		graph_Options_Map.clear();
+		graph_Options_Map.insert(custom_Plot->graph(0), &plot_Options_First);
+		graph_Options_Map.insert(custom_Plot->graph(1), &plot_Options_Second);
 
-			custom_Plot->xAxis2->setScaleType(QCPAxis::stLogarithmic);
-			custom_Plot->xAxis2->setTicker(logTicker);
-			custom_Plot->xAxis2->setNumberFormat("eb"); // e = exponential, b = beautiful decimal powers
-			custom_Plot->xAxis2->setNumberPrecision(0); // makes sure "1*10^4" is displayed only as "10^4"
-		}
-		/// Y axis
-		if(plot_Options_First->y_Scale == lin_Scale)
-		{
-			QSharedPointer<QCPAxisTicker> linTicker(new QCPAxisTicker);
-
-			custom_Plot->yAxis->setScaleType(QCPAxis::stLinear);
-			custom_Plot->yAxis->setTicker(linTicker);
-			custom_Plot->yAxis->setNumberFormat("g");
-			custom_Plot->yAxis->setNumberPrecision(4);
-
-			custom_Plot->yAxis2->setScaleType(QCPAxis::stLinear);
-			custom_Plot->yAxis2->setTicker(linTicker);
-			custom_Plot->yAxis2->setNumberFormat("g");
-			custom_Plot->yAxis2->setNumberPrecision(4);
-		}
-		if(plot_Options_First->y_Scale == log_Scale)
-		{
-			QCPAxisTickerLog* tick_Log = new QCPAxisTickerLog;
-			QSharedPointer<QCPAxisTickerLog> logTicker(tick_Log);
-
-			custom_Plot->yAxis->setScaleType(QCPAxis::stLogarithmic);
-			custom_Plot->yAxis->setTicker(logTicker);
-			custom_Plot->yAxis->setNumberFormat("eb"); // e = exponential, b = beautiful decimal powers
-			custom_Plot->yAxis->setNumberPrecision(0); // makes sure "1*10^4" is displayed only as "10^4"
-
-			custom_Plot->yAxis2->setScaleType(QCPAxis::stLogarithmic);
-			custom_Plot->yAxis2->setTicker(logTicker);
-			custom_Plot->yAxis2->setNumberFormat("eb"); // e = exponential, b = beautiful decimal powers
-			custom_Plot->yAxis2->setNumberPrecision(0); // makes sure "1*10^4" is displayed only as "10^4"
-		}
-
-		// make range draggable and zoomable:
-		custom_Plot->setInteractions(QCP::iSelectPlottables | QCP::iRangeDrag | QCP::iRangeZoom | /*QCP::iSelectAxes |*/ QCP::iSelectLegend);
-
-		// make top right axes clones of bottom left axes:
-		custom_Plot->xAxis2->setVisible(true);
-		custom_Plot->yAxis2->setVisible(true);
-		custom_Plot->xAxis2->setTickLabels(false);
-
-		connect(custom_Plot->xAxis, SIGNAL(rangeChanged(QCPRange)), custom_Plot->xAxis2, SLOT(setRange(QCPRange)));
-		connect(custom_Plot->yAxis, SIGNAL(rangeChanged(QCPRange)), custom_Plot->yAxis2, SLOT(setRange(QCPRange)));
-	}	
+	}
+	custom_Plot->replot();
 	set_Title_Text();
+}
+
+void Curve_Plot::apply_Log_Scale(QString xy)
+{
+	if(xy == "x")
+	{
+		QSharedPointer<QCPAxisTickerLog> logTicker(new QCPAxisTickerLog);
+
+		custom_Plot->xAxis ->setScaleType(QCPAxis::stLogarithmic);
+		custom_Plot->xAxis->setTicker(logTicker);
+		custom_Plot->xAxis ->setNumberFormat("eb"); // e = exponential, b = beautiful decimal powers
+		custom_Plot->xAxis ->setNumberPrecision(0); // makes sure "1*10^4" is displayed only as "10^4"
+
+		custom_Plot->xAxis2->setScaleType(QCPAxis::stLogarithmic);
+		custom_Plot->xAxis2->setTicker(logTicker);
+		custom_Plot->xAxis2->setNumberFormat("eb"); // e = exponential, b = beautiful decimal powers
+		custom_Plot->xAxis2->setNumberPrecision(0); // makes sure "1*10^4" is displayed only as "10^4"
+	}
+	if(xy == "y")
+	{
+		QSharedPointer<QCPAxisTickerLog> logTicker(new QCPAxisTickerLog);
+
+		custom_Plot->yAxis->setScaleType(QCPAxis::stLogarithmic);
+		custom_Plot->yAxis->setTicker(logTicker);
+		custom_Plot->yAxis->setNumberFormat("eb"); // e = exponential, b = beautiful decimal powers
+		custom_Plot->yAxis->setNumberPrecision(0); // makes sure "1*10^4" is displayed only as "10^4"
+
+		custom_Plot->yAxis2->setScaleType(QCPAxis::stLogarithmic);
+		custom_Plot->yAxis2->setTicker(logTicker);
+		custom_Plot->yAxis2->setNumberFormat("eb"); // e = exponential, b = beautiful decimal powers
+		custom_Plot->yAxis2->setNumberPrecision(0); // makes sure "1*10^4" is displayed only as "10^4"
+	}
+}
+
+void Curve_Plot::apply_Lin_Scale(QString xy)
+{
+	if(xy == "x")
+	{
+		QSharedPointer<QCPAxisTicker> linTicker(new QCPAxisTicker);
+			linTicker->setTickCount(12);
+
+		custom_Plot->xAxis->setScaleType(QCPAxis::stLinear);
+		custom_Plot->xAxis->setTicker(linTicker);
+		custom_Plot->xAxis->setNumberFormat("g");
+		custom_Plot->xAxis->setNumberPrecision(4);
+
+		custom_Plot->xAxis2->setScaleType(QCPAxis::stLinear);
+		custom_Plot->xAxis2->setTicker(linTicker);
+		custom_Plot->xAxis2->setNumberFormat("g");
+		custom_Plot->xAxis2->setNumberPrecision(4);
+	}
+	if(xy == "y")
+	{
+		QSharedPointer<QCPAxisTicker> linTicker(new QCPAxisTicker);
+			linTicker->setTickCount(8);
+
+		custom_Plot->yAxis->setScaleType(QCPAxis::stLinear);
+		custom_Plot->yAxis->setTicker(linTicker);
+		custom_Plot->yAxis->setNumberFormat("g");
+		custom_Plot->yAxis->setNumberPrecision(4);
+
+		custom_Plot->yAxis2->setScaleType(QCPAxis::stLinear);
+		custom_Plot->yAxis2->setTicker(linTicker);
+		custom_Plot->yAxis2->setNumberFormat("g");
+		custom_Plot->yAxis2->setNumberPrecision(4);
+	}
 }
 
 void Curve_Plot::create_Options()
 {
-	options_GroupBox = new QGroupBox;
-	options_Layout = new QHBoxLayout(options_GroupBox);
-	options_Layout->setContentsMargins(5,1,5,1);
-	options_Layout->setAlignment(Qt::AlignLeft);
+	QGroupBox* options_GroupBox = new QGroupBox;
+	main_Layout->addWidget(options_GroupBox);
 
-	// scaling
+	QHBoxLayout* options_Layout = new QHBoxLayout(options_GroupBox);
+		options_Layout->setContentsMargins(5,1,5,1);
+		options_Layout->setAlignment(Qt::AlignLeft);
+
+	//  scale radiobuttons
 	{
-		scale_Y_Label = new QLabel("Scale Y: ");
-		options_Layout->addWidget(scale_Y_Label);
+		QLabel* scale_Label = new QLabel("Scale Y: ");
+		options_Layout->addWidget(scale_Label);
 
-		lin_Y_RadioButton = new QRadioButton("Lin");
-		connect(lin_Y_RadioButton, &QRadioButton::toggled, this, [&]
+		// -------------------------------------------------
+
+		QRadioButton* lin_Y_RadioButton = new QRadioButton("Lin");
+			lin_Y_RadioButton->setChecked(plot_Options_First.y_Scale == lin_Scale);
+		options_Layout->addWidget(lin_Y_RadioButton);
+		connect(lin_Y_RadioButton, &QRadioButton::toggled, this, [=]
 		{
 			if(lin_Y_RadioButton->isChecked())
 			{
-				plot_Options_First ->y_Scale  = lin_Scale;
-				plot_Options_Second->y_Scale = lin_Scale;
+				plot_Options_First. y_Scale = lin_Scale;
+				plot_Options_Second.y_Scale = lin_Scale;
 			}
+			apply_Lin_Scale("y");
 			plot_All_Data();
+			custom_Plot->replot();
 		});
 		connect(lin_Y_RadioButton, &QRadioButton::clicked, lin_Y_RadioButton, &QRadioButton::toggled);
-		if(plot_Options_First ->y_Scale == lin_Scale)
-		{
-			lin_Y_RadioButton->setChecked(true);
-		}
-		options_Layout->addWidget(lin_Y_RadioButton);
 
-		log_Y_RadioButton = new QRadioButton("Log");
-		connect(log_Y_RadioButton, &QRadioButton::toggled, this, [&]
+		// -------------------------------------------------
+
+		QRadioButton* log_Y_RadioButton = new QRadioButton("Log");
+			log_Y_RadioButton->setChecked(plot_Options_First.y_Scale == log_Scale);
+		options_Layout->addWidget(log_Y_RadioButton);
+		connect(log_Y_RadioButton, &QRadioButton::toggled, this, [=]
 		{
 			if(log_Y_RadioButton->isChecked())
 			{
-				plot_Options_First ->y_Scale = log_Scale;
-				plot_Options_Second->y_Scale = log_Scale;
+				plot_Options_First. y_Scale = log_Scale;
+				plot_Options_Second.y_Scale = log_Scale;
 			}
+			apply_Log_Scale("y");
 			plot_All_Data();
+			custom_Plot->replot();
 		});
 		connect(log_Y_RadioButton, &QRadioButton::clicked, log_Y_RadioButton, &QRadioButton::toggled);
-		if(plot_Options_First ->y_Scale == log_Scale)
-		{
-			log_Y_RadioButton->setChecked(true);
-		}
-		options_Layout->addWidget(log_Y_RadioButton);
 
-		Y_ButtonGroup = new QButtonGroup;
+		QButtonGroup* Y_ButtonGroup = new QButtonGroup;
 			Y_ButtonGroup->addButton(lin_Y_RadioButton);
 			Y_ButtonGroup->addButton(log_Y_RadioButton);
 	}
 	if(multilayer->graph_Options.show_X_Scale)
 	{
-		scale_X_Label = new QLabel("Scale X: ");
+		QLabel* scale_X_Label = new QLabel("Scale X: ");
 		options_Layout->addWidget(scale_X_Label);
 
-		lin_X_RadioButton = new QRadioButton("Lin");
-		connect(lin_X_RadioButton, &QRadioButton::toggled, this, [&]
+		// -------------------------------------------------
+
+		QRadioButton* lin_X_RadioButton = new QRadioButton("Lin");
+			lin_X_RadioButton->setChecked(plot_Options_First.x_Scale == lin_Scale);
+		options_Layout->addWidget(lin_X_RadioButton);
+		connect(lin_X_RadioButton, &QRadioButton::toggled, this, [=]
 		{
 			if(lin_X_RadioButton->isChecked())
 			{
-				plot_Options_First ->x_Scale  = lin_Scale;
-				plot_Options_Second->x_Scale = lin_Scale;
+				plot_Options_First. x_Scale = lin_Scale;
+				plot_Options_Second.x_Scale = lin_Scale;
 			}
+			apply_Lin_Scale("x");
 			plot_All_Data();
+			custom_Plot->replot();
 		});
 		connect(lin_X_RadioButton, &QRadioButton::clicked, lin_X_RadioButton, &QRadioButton::toggled);
-		if(plot_Options_First ->x_Scale == lin_Scale)
-		{
-			lin_X_RadioButton->setChecked(true);
-		}
-		options_Layout->addWidget(lin_X_RadioButton);
 
-		log_X_RadioButton = new QRadioButton("Log");
-		connect(log_X_RadioButton, &QRadioButton::toggled, this, [&]
+		// -------------------------------------------------
+
+		QRadioButton* log_X_RadioButton = new QRadioButton("Log");
+			log_X_RadioButton->setChecked(plot_Options_First.x_Scale == log_Scale);
+		options_Layout->addWidget(log_X_RadioButton);
+		connect(log_X_RadioButton, &QRadioButton::toggled, this, [=]
 		{
 			if(log_X_RadioButton->isChecked())
 			{
-				plot_Options_First ->x_Scale = log_Scale;
-				plot_Options_Second->x_Scale = log_Scale;
+				plot_Options_First. x_Scale = log_Scale;
+				plot_Options_Second.x_Scale = log_Scale;
 			}
+			apply_Log_Scale("x");
 			plot_All_Data();
+			custom_Plot->replot();
 		});
 		connect(log_X_RadioButton, &QRadioButton::clicked, log_X_RadioButton, &QRadioButton::toggled);
-		if(plot_Options_First ->x_Scale == log_Scale)
-		{
-			log_X_RadioButton->setChecked(true);
-		}
-		options_Layout->addWidget(log_X_RadioButton);
 
-		X_ButtonGroup = new QButtonGroup;
+		// -------------------------------------------------
+
+		QButtonGroup* X_ButtonGroup = new QButtonGroup;
 			X_ButtonGroup->addButton(lin_X_RadioButton);
 			X_ButtonGroup->addButton(log_X_RadioButton);
 	}
-	{
-		colors_Button = new QPushButton;
-		colors_Button->setFixedWidth(23);
-		colorDialog = new QColorDialog(this);
-		colorDialog->setModal(true);
-		colorDialog->setOption(QColorDialog::ColorDialogOption::DontUseNativeDialog);
-		default_Colors_Button_Palette = colors_Button->palette();
-		connect(colors_Button, &QPushButton::clicked, this, &Curve_Plot::choose_Graph_Color);
-	}
-	{
-		symbol_ComboBox = new QComboBox;
-	}
 	if(multilayer->graph_Options.show_Scatter)
 	{
-		scatter_Label = new QLabel("| Scatter:");
+		QLabel* scatter_Label = new QLabel("| Scatter:");
 		options_Layout->addWidget(scatter_Label);
 
 		scatter_Spin = new QDoubleSpinBox;
-		scatter_Spin->setButtonSymbols(QAbstractSpinBox::NoButtons);
-		scatter_Spin->setAccelerated(true);
-		scatter_Spin->setRange(0, MAX_DOUBLE);
-		scatter_Spin->setDecimals(1);
-		scatter_Spin->setValue(0);
-		scatter_Spin->setSingleStep(0.1);
-		scatter_Spin->setFixedWidth(35);
+			scatter_Spin->setButtonSymbols(QAbstractSpinBox::NoButtons);
+			scatter_Spin->setAccelerated(true);
+			scatter_Spin->setRange(0, MAX_DOUBLE);
+			scatter_Spin->setDecimals(1);
+			scatter_Spin->setValue(0);
+			scatter_Spin->setSingleStep(0.1);
+			scatter_Spin->setFixedWidth(35);
 		connect(scatter_Spin, static_cast<void(QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, &Curve_Plot::change_Scatter_Size);
 		options_Layout->addWidget(scatter_Spin);
 	}
 	if(multilayer->graph_Options.show_Thickness)
 	{
-		thickness_Label = new QLabel("Line:");
+		QLabel* thickness_Label = new QLabel("Line:");
 		options_Layout->addWidget(thickness_Label);
 
 		thickness_Spin = new QDoubleSpinBox;
-		thickness_Spin->setButtonSymbols(QAbstractSpinBox::NoButtons);
-		thickness_Spin->setAccelerated(true);
-		thickness_Spin->setRange(0, MAX_DOUBLE);
-		thickness_Spin->setDecimals(1);
-		thickness_Spin->setValue(0);
-		thickness_Spin->setSingleStep(0.1);
-		thickness_Spin->setFixedWidth(35);
+			thickness_Spin->setButtonSymbols(QAbstractSpinBox::NoButtons);
+			thickness_Spin->setAccelerated(true);
+			thickness_Spin->setRange(0, MAX_DOUBLE);
+			thickness_Spin->setDecimals(1);
+			thickness_Spin->setValue(0);
+			thickness_Spin->setSingleStep(0.1);
+			thickness_Spin->setFixedWidth(35);
 		connect(thickness_Spin, static_cast<void(QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, &Curve_Plot::change_Thickness);
 		options_Layout->addWidget(thickness_Spin);
 	}
 	{
-		rescale_Check_Box = new QCheckBox("Rescale");
-		rescale_Check_Box->setChecked(plot_Options_First->rescale);
-		connect(rescale_Check_Box, &QCheckBox::toggled, this, [=]{ plot_Options_First->rescale=rescale_Check_Box->isChecked(); });
+		QCheckBox* rescale_Check_Box = new QCheckBox("Rescale");
+			rescale_Check_Box->setChecked(plot_Options_First.rescale);
+		connect(rescale_Check_Box, &QCheckBox::toggled, this, [=]{ plot_Options_First.rescale = rescale_Check_Box->isChecked(); });
 		options_Layout->addWidget(rescale_Check_Box);
 	}
 	if(multilayer->graph_Options.show_Current_Coordinate)
@@ -423,53 +414,24 @@ void Curve_Plot::create_Options()
 	// max value info
 	if(multilayer->graph_Options.show_Max_Value)
 	{
-		// target
 		if(curve_Class == TARGET)
 		{
-			if(target_Curve->curve.value_Type == value_Types[Reflectance])
-			{
-				max_Value_Title = "| Max R =";
-			} else
-			{
-				if(target_Curve->curve.value_Type == value_Types[Transmittance])
-				{
-					max_Value_Title = "| Max T =";
-				} else
-				{
-					// none
-					max_Value_Title = "";
-				}
-			}
+			if(target_Curve->curve.value_Type == value_Types[Reflectance])	{ max_Value_Title = "| Max R ="; } else
+			if(target_Curve->curve.value_Type == value_Types[Transmittance]){ max_Value_Title = "| Max T ="; } else
+			if(target_Curve->curve.value_Type == value_Types[Scattering])	{ max_Value_Title = "| Max S ="; } else
+																			{ max_Value_Title = "";	}
 		}
-		// independent
 		if(curve_Class == INDEPENDENT)
 		{
-			if(independent_Curve->calc_Functions.check_Absorptance )
-			{
-				max_Value_Title = "| Max A =";
-			} else
-			if(independent_Curve->calc_Functions.check_Transmittance )
-			{
-				max_Value_Title = "| Max T =";
-			} else
-			if( independent_Curve->calc_Functions.check_Reflectance )
-			{
-				max_Value_Title = "| Max R =";
-			} else
-			{
-				// none
-				max_Value_Title = "";
-			}
+			if( independent_Curve->calc_Functions.check_Absorptance )		{ max_Value_Title = "| Max A ="; } else
+			if( independent_Curve->calc_Functions.check_Transmittance )		{ max_Value_Title = "| Max T ="; } else
+			if( independent_Curve->calc_Functions.check_Reflectance )		{ max_Value_Title = "| Max R ="; } else
+			if( independent_Curve->calc_Functions.check_Scattering )		{ max_Value_Title = "| Max S ="; } else
+																			{ max_Value_Title = ""; }
 		}
 
 		max_Value_Label = new QLabel;
 		options_Layout->addWidget(max_Value_Label);
-	}
-
-	// layout
-	{
-//		options_Layout->addWidget(colors_Button);
-//		options_Layout->addWidget(symbol_ComboBox);
 	}
 
 	options_GroupBox->adjustSize();
@@ -481,138 +443,175 @@ void Curve_Plot::set_Title_Text()
 	if(multilayer->graph_Options.show_Title)
 	if(plot_Title)
 	{
-		QString prefix_Text = "";//"At fixed ";
-		QString fixed_Quantity = "";
-		QString title_Text = "fixed parameters";
-
-		// at fixed wavelength
-		if(*argument_Type == argument_Types[Beam_Grazing_Angle])
+		QString lambda_Energy;
+		if(	spectral_Units == wavelength_Units_List[angstrom] ||
+			spectral_Units == wavelength_Units_List[nm]		  )
 		{
-			double coeff = wavelength_Coefficients_Map.value(*spectral_Units);
+			lambda_Energy = Lambda_Sym;
+		} else
+		{
+			lambda_Energy = "E";
+		}
 
-			if(	*spectral_Units == wavelength_Units_List[angstrom] ||
-				*spectral_Units == wavelength_Units_List[nm]	  )
+		double spectral_Coeff = wavelength_Coefficients_Map.value(spectral_Units);
+		double angular_Coeff = angle_Coefficients_Map.value(angular_Units);
+
+		QString plot_Title_Text;
+		if(	measurement.measurement_Type == measurement_Types[Specular_Scan] )
+		{
+			if(measurement.argument_Type == argument_Types[Beam_Grazing_Angle])
 			{
-				fixed_Quantity = Lambda_Sym;
-			} else
-			{
-				fixed_Quantity = "E";
+				plot_Title_Text = plot_Indicator + ": " +
+								  lambda_Energy + "=" + Locale.toString(Global_Variables::wavelength_Energy(spectral_Units,measurement.wavelength.value)/spectral_Coeff, line_edit_double_format, line_edit_wavelength_precision) + " " + spectral_Units +
+								  ", pol=" + measurement.polarization;
 			}
-
-			title_Text = *plot_Indicator + ": " + prefix_Text + fixed_Quantity + "=" +
-						 Locale.toString(Global_Variables::wavelength_Energy(
-								*spectral_Units,measurement->wavelength.value)/coeff,
-								line_edit_double_format, thumbnail_wavelength_precision)
-						 + " " +*spectral_Units + ", pol=" +
-						 Locale.toString(measurement->polarization,
-								line_edit_double_format,
-								line_edit_polarization_precision);
-			plot_Title->setText(title_Text);
+			if(measurement.argument_Type == argument_Types[Wavelength_Energy])
+			{
+				plot_Title_Text = plot_Indicator + ": " +
+								  Theta_Sym + Zero_Subscript_Sym + "=" + Locale.toString(measurement.beam_Theta_0_Angle.value/angular_Coeff, line_edit_double_format, line_edit_wavelength_precision) + " " + angular_Units +
+								  ", pol=" + measurement.polarization;
+			}
 		}
-		// at fixed angle
-		if(*argument_Type == argument_Types[Wavelength_Energy])
+		if(	measurement.measurement_Type == measurement_Types[Detector_Scan] )
 		{
-			double coeff = angle_Coefficients_Map.value(*angular_Units);
-			fixed_Quantity = " " +Theta_Sym+Zero_Subscript_Sym;
-
-			title_Text = *plot_Indicator + ": " + prefix_Text + fixed_Quantity + "=" +
-						 Locale.toString(measurement->beam_Theta_0_Angle.value/coeff,
-								line_edit_double_format, thumbnail_angle_precision)
-						 + " " + *angular_Units + ", pol=" +
-						 Locale.toString(measurement->polarization,
-								line_edit_double_format,
-								thumbnail_polarization_precision);
-			plot_Title->setText(title_Text);
+			if(measurement.argument_Type == argument_Types[Detector_Polar_Angle])
+			{
+				plot_Title_Text = plot_Indicator + ": " +
+								  Theta_Sym + Zero_Subscript_Sym + "=" + Locale.toString(measurement.beam_Theta_0_Angle.value/angular_Coeff, line_edit_double_format, line_edit_wavelength_precision) + " " + angular_Units +
+								  ", " + lambda_Energy + "=" + Locale.toString(Global_Variables::wavelength_Energy(spectral_Units,measurement.wavelength.value)/spectral_Coeff, line_edit_double_format, line_edit_wavelength_precision) + " " + spectral_Units +
+								  ", pol=" + measurement.polarization;
+			}
 		}
+		if(	measurement.measurement_Type == measurement_Types[Rocking_Curve] )
+		{
+			if(measurement.argument_Type == argument_Types[Beam_Grazing_Angle])
+			{
+				plot_Title_Text = plot_Indicator + ": " +
+								  "specular " + Theta_Sym + Zero_Subscript_Sym + "=" + Locale.toString(measurement.beam_Theta_0_Specular_Position/angular_Coeff, line_edit_double_format, line_edit_wavelength_precision) + " " + angular_Units +
+								  ", " + lambda_Energy + "=" + Locale.toString(Global_Variables::wavelength_Energy(spectral_Units,measurement.wavelength.value)/spectral_Coeff, line_edit_double_format, line_edit_wavelength_precision) + " " + spectral_Units +
+								  ", pol=" + measurement.polarization;
+			}
+			if(measurement.argument_Type == argument_Types[Deviation_From_Specular_Angle])
+			{
+				plot_Title_Text = plot_Indicator + ": " +
+								  "specular " + Theta_Sym + Zero_Subscript_Sym + "=" + Locale.toString(measurement.beam_Theta_0_Specular_Position/angular_Coeff, line_edit_double_format, line_edit_wavelength_precision) + " " + angular_Units +
+								  ", " + lambda_Energy + "=" + Locale.toString(Global_Variables::wavelength_Energy(spectral_Units,measurement.wavelength.value)/spectral_Coeff, line_edit_double_format, line_edit_wavelength_precision) + " " + spectral_Units +
+								  ", pol=" + measurement.polarization;
+			}
+		}
+		if(	measurement.measurement_Type == measurement_Types[Offset_Scan] )
+		{
+			if(measurement.argument_Type == argument_Types[Beam_Grazing_Angle])
+			{
+				plot_Title_Text = plot_Indicator + ": " +
+								  "offset " + Delta_Big_Sym + Theta_Sym + "=" + Locale.toString(measurement.detector_Theta_Offset/angular_Coeff, line_edit_double_format, line_edit_wavelength_precision) + " " + angular_Units +
+								  ", " + lambda_Energy + "=" + Locale.toString(Global_Variables::wavelength_Energy(spectral_Units,measurement.wavelength.value)/spectral_Coeff, line_edit_double_format, line_edit_wavelength_precision) + " " + spectral_Units +
+								  ", pol=" + measurement.polarization;
+			}
+		}
+		plot_Title->setText(plot_Title_Text);
 	}
 }
 
 void Curve_Plot::plot_All_Data()
 {	
-	create_Plot_Frame_And_Scale();
-	custom_Plot->clearGraphs();
 	refresh_Labels();
 
 	min_Value_Left = DBL_MAX;
 	max_Value_Left = -DBL_MAX;
-	min_Value_Right = DBL_MAX;
-	max_Value_Right = -DBL_MAX;
 
 	if(curve_Class == TARGET)
 	{
 		argument = target_Curve->curve.shifted_Argument;
-		values.resize(target_Curve->curve.shifted_Values.size());
-
 		/// experimental data
 		{
+			values = target_Curve->curve.shifted_Values;
+
+			// if changing val_Factor
 			if(target_Curve->fit_Params.adjust_Scale_Factor)
 			{
-				for(int i=0; i<target_Curve->curve.shifted_Values.size(); ++i) {
+				for(size_t i=0; i<target_Curve->curve.shifted_Values.size(); ++i)
+				{
 					values[i] = target_Curve->curve.shifted_Values_No_Scaling_And_Offset[i]*
 								target_Curve->curve.val_Factor.value +
 								target_Curve->curve.val_Shift;
 				}
-			} else {
-				for(int i=0; i<target_Curve->curve.shifted_Values.size(); ++i) {
-					values[i] = target_Curve->curve.shifted_Values[i];
-				}
 			}
-			plot_Data(argument, values, plot_Options_First);
+			plot_Data(argument, values, plot_Options_First, 0);
 			get_Min_Max_For_Graph(plot_Options_First, values, min_Value_Left, max_Value_Left);
 		}
-
 		/// calculated data
 		{
-			if(	target_Curve->curve.value_Type == value_Types[Reflectance] )	{ values = calculated_Values->R; }
-			if(	target_Curve->curve.value_Type == value_Types[Transmittance])	{ values = calculated_Values->T; }
-			// TODO scattering
-			plot_Data(argument, values, plot_Options_Second);
+			if(	target_Curve->curve.value_Type == value_Types[Reflectance])		{ values = calculated_Values.R; }
+			if(	target_Curve->curve.value_Type == value_Types[Transmittance])	{ values = calculated_Values.T; }
+			if(	target_Curve->curve.value_Type == value_Types[Scattering])		{ values = calculated_Values.S; }
+
+			// TODO
+			if(values.size() == 0)
+			{
+				qInfo() << "Target curve " << plot_Indicator << " : calculation of " << target_Curve->curve.value_Type << "is not done. Fake data are shown." << endl;
+				values = target_Curve->curve.shifted_Values;
+				for(int i=0; i<values.size(); i++) {values[i] /=10;}
+			}
+			plot_Data(argument, values, plot_Options_Second, 1);
 			get_Min_Max_For_Graph(plot_Options_Second, values, min_Value_Left, max_Value_Left);
 		}
 	}
 
 	if(curve_Class == INDEPENDENT)
 	{
-		if(	*argument_Type == argument_Types[Beam_Grazing_Angle])	{ argument = measurement->beam_Theta_0_Angle_Vec;	}
-		if(	*argument_Type == argument_Types[Wavelength_Energy] )	{ argument = measurement->lambda_Vec;	}
+		// value
+		if(	independent_Curve->calc_Functions.check_Reflectance)	{ values = calculated_Values.R; }
+		if(	independent_Curve->calc_Functions.check_Transmittance)	{ values = calculated_Values.T; }
+		if(	independent_Curve->calc_Functions.check_Absorptance)	{ values = calculated_Values.A; }
+		if( independent_Curve->calc_Functions.check_Scattering )	{ values = calculated_Values.S; }
 
-		if(	independent_Curve->calc_Functions.check_Reflectance)	{ values = calculated_Values->R; }
-		if(	independent_Curve->calc_Functions.check_Transmittance)	{ values = calculated_Values->T; }
-		if(	independent_Curve->calc_Functions.check_Absorptance)	{ values = calculated_Values->A; }
-		// TODO scattering
+		// argument
+		double coeff_Angular = angle_Coefficients_Map.value(angular_Units);
+		double coeff_Spectral = wavelength_Coefficients_Map.value(spectral_Units);
 
-		/// calculated data
-		// first value (R,T,A...)
+		if(	measurement.argument_Type == argument_Types[Beam_Grazing_Angle])
 		{
-			double coeff=1;
-			if(*argument_Type == argument_Types[Beam_Grazing_Angle])
+			argument.resize(measurement.beam_Theta_0_Angle_Vec.size());
+			for(size_t i=0; i<measurement.beam_Theta_0_Angle_Vec.size(); i++)
 			{
-				coeff = angle_Coefficients_Map.value(independent_Curve->angular_Units);
-				for(int i=0; i<argument.size(); ++i)
-				{
-					argument[i]=argument[i]/coeff;
-				}
+				argument[i] = measurement.beam_Theta_0_Angle_Vec[i]/coeff_Angular;
 			}
-			if(*argument_Type == argument_Types[Wavelength_Energy])
-			{
-				coeff = wavelength_Coefficients_Map.value(independent_Curve->spectral_Units);
-				for(int i=0; i<argument.size(); ++i)
-				{
-					argument[i]=Global_Variables::wavelength_Energy(independent_Curve->spectral_Units,argument[i])/coeff;
-				}
-			}
-
-			plot_Data(argument, values, plot_Options_First);
-			get_Min_Max_For_Graph(plot_Options_First, values, min_Value_Left, max_Value_Left);
 		}
-		// no second value up to now
-	}	
-	// rescaling
-	if(plot_Options_First->rescale)
+		if(	measurement.argument_Type == argument_Types[Wavelength_Energy])
+		{
+			argument.resize(measurement.lambda_Vec.size());
+			for(size_t i=0; i<measurement.lambda_Vec.size(); i++)
+			{
+				argument[i] = Global_Variables::wavelength_Energy(spectral_Units, measurement.lambda_Vec[i])/coeff_Spectral;
+			}
+		}
+		if(	measurement.argument_Type == argument_Types[Detector_Polar_Angle])
+		{
+			argument.resize(measurement.detector_Theta_Angle_Vec.size());
+			for(size_t i=0; i<measurement.detector_Theta_Angle_Vec.size(); i++)
+			{
+				argument[i] = measurement.detector_Theta_Angle_Vec[i]/coeff_Angular;
+			}
+		}
+		if(	measurement.argument_Type == argument_Types[Deviation_From_Specular_Angle])
+		{
+			argument.resize(measurement.beam_Theta_0_Angle_Vec.size());
+			for(size_t i=0; i<measurement.beam_Theta_0_Angle_Vec.size(); i++)
+			{
+				argument[i] = (measurement.beam_Theta_0_Angle_Vec[i]-measurement.beam_Theta_0_Specular_Position)/coeff_Angular;
+			}
+		}
+		plot_Data(argument, values, plot_Options_First, 0);
+		get_Min_Max_For_Graph(plot_Options_First, values, min_Value_Left, max_Value_Left);
+	}
+
+	if(plot_Options_First.rescale)
 	{
 		custom_Plot->yAxis->setRange(min_Value_Left,max_Value_Left);
 		custom_Plot->xAxis->setRange(argument.front(), argument.back());
 	}
+
 	// show max value
 	if(multilayer->graph_Options.show_Max_Value)
 	if(graph_Done && multilayer->graph_Options.show_Max_Value)
@@ -622,8 +621,14 @@ void Curve_Plot::plot_All_Data()
 			double max_Value, max_Value_Position, width;
 			Global_Variables::get_Peak_Parameters(argument, values, max_Value_Position, max_Value, width);
 
+			QString argument_Units;
+			if(	measurement.argument_Type == argument_Types[Beam_Grazing_Angle])			argument_Units = angular_Units;
+			if(	measurement.argument_Type == argument_Types[Wavelength_Energy])				argument_Units = spectral_Units;
+			if(	measurement.argument_Type == argument_Types[Detector_Polar_Angle])			argument_Units = angular_Units;
+			if(	measurement.argument_Type == argument_Types[Deviation_From_Specular_Angle])	argument_Units = angular_Units;
+
 			max_Value_Label->setText(max_Value_Title + " " + Locale.toString(max_Value,'f',4) + " at " + Locale.toString(max_Value_Position,'f',4) + " " + argument_Units);
-			if(*argument_Type == argument_Types[Wavelength_Energy])
+			if(measurement.argument_Type == argument_Types[Wavelength_Energy])
 			{
 				max_Value_Label->setText(max_Value_Label->text() + ", FWHM " + Locale.toString(width,'f',4) + " " + argument_Units);
 			}
@@ -635,15 +640,9 @@ void Curve_Plot::plot_All_Data()
 	custom_Plot->replot();
 }
 
-void Curve_Plot::plot_Data(const vector<double>& argument, const vector<double>& values, Plot_Options* plot_Options)
+void Curve_Plot::plot_Data(const vector<double>& argument, const vector<double>& values, Plot_Options plot_Options, int graph_Index)
 {
-	custom_Plot->addGraph();
-	int graph_Index = custom_Plot->graphCount()-1;
-	graph_Options_Map.insert(custom_Plot->graph(graph_Index), plot_Options);
-
 	QVector<QCPGraphData> data_To_Plot(argument.size());
-//	double local_Min = DBL_MAX;
-//	double local_Max = -DBL_MAX;
 
 	for (int i=0; i<argument.size(); ++i)
 	{
@@ -654,9 +653,9 @@ void Curve_Plot::plot_Data(const vector<double>& argument, const vector<double>&
 
 	// styling
 	QCPScatterStyle scatter_Style;
-	custom_Plot->graph(graph_Index)->setPen(QPen(plot_Options->color, plot_Options->thickness));
-	scatter_Style.setShape(QCPScatterStyle::ScatterShape(plot_Options->scatter_Shape));
-	scatter_Style.setSize(plot_Options->scatter_Size);
+	custom_Plot->graph(graph_Index)->setPen(QPen(plot_Options.color, plot_Options.thickness));
+	scatter_Style.setShape(QCPScatterStyle::ScatterShape(plot_Options.scatter_Shape));
+	scatter_Style.setSize(plot_Options.scatter_Size);
 
 	custom_Plot->graph(graph_Index)->setScatterStyle(scatter_Style);
 
@@ -669,59 +668,36 @@ void Curve_Plot::plot_Data(const vector<double>& argument, const vector<double>&
 void Curve_Plot::refresh_Labels()
 {
 	// value
+	QString value_Label;
 	if(curve_Class == TARGET)
 	{
-		val_Type_Label = target_Curve->curve.value_Type;
+		value_Label = target_Curve->curve.value_Type;
 	}
 	if(curve_Class == INDEPENDENT)
 	{
-		if(	independent_Curve->calc_Functions.check_Reflectance)
-		{
-			val_Type_Label = value_Types[Reflectance];
-		}
-		if( independent_Curve->calc_Functions.check_Transmittance)
-		{
-			val_Type_Label = value_Types[Transmittance];
-		}
-		if( independent_Curve->calc_Functions.check_Absorptance )
-		{
-			val_Type_Label = value_Types[Absorptance];
-		}
+		if(	independent_Curve->calc_Functions.check_Reflectance)	value_Label = value_Types[Reflectance];
+		if( independent_Curve->calc_Functions.check_Transmittance)	value_Label = value_Types[Transmittance];
+		if( independent_Curve->calc_Functions.check_Absorptance )	value_Label = value_Types[Absorptance];
+		if( independent_Curve->calc_Functions.check_Scattering )	value_Label = value_Types[Scattering];
 	}
+	custom_Plot->yAxis->setLabel(value_Label);
 
 	// argument
+	QString lambda_Sym;
+	if(	spectral_Units == wavelength_Units_List[angstrom] ||
+		spectral_Units == wavelength_Units_List[nm]	   )
 	{
-		if(*argument_Type == argument_Types[Beam_Grazing_Angle])
-		{
-			argument_Type_Label = argument_Types[Beam_Grazing_Angle];
-
-			argument_Label = argument_Type_Label + ", " + *angular_Units;
-
-			if(graph_Done)
-			{
-				argument_Units = *angular_Units;
-			}
-		}
-		if(*argument_Type == argument_Types[Wavelength_Energy])
-		{
-			if(	*spectral_Units == wavelength_Units_List[angstrom] ||
-				*spectral_Units == wavelength_Units_List[nm]	   )
-			{
-				argument_Type_Label = QString(argument_Types[Wavelength_Energy]).split("/").first();
-				argument_Label = argument_Type_Label + " " + Lambda_Sym + ", " + spectral_Units;
-			} else
-			{
-				argument_Type_Label = QString(argument_Types[Wavelength_Energy]).split("/").last();
-				argument_Label = argument_Type_Label + " E, " + *spectral_Units;
-			}
-
-			if(graph_Done)
-			{
-				argument_Units = *spectral_Units;
-			}
-		}
+		lambda_Sym = Lambda_Sym;
+	} else
+	{
+		lambda_Sym = "E";
 	}
-	custom_Plot->yAxis->setLabel(val_Type_Label);
+	QString argument_Label;
+	if(measurement.argument_Type == argument_Types[Beam_Grazing_Angle])				argument_Label = measurement.argument_Type + ", " + angular_Units;
+	if(measurement.argument_Type == argument_Types[Wavelength_Energy])				argument_Label = measurement.argument_Type + ", " + lambda_Sym;
+	if(measurement.argument_Type == argument_Types[Detector_Polar_Angle])			argument_Label = measurement.argument_Type + ", " + angular_Units;
+	if(measurement.argument_Type == argument_Types[Deviation_From_Specular_Angle])	argument_Label = measurement.argument_Type + ", " + angular_Units;
+
 	custom_Plot->xAxis->setLabel(argument_Label);
 }
 
@@ -740,9 +716,12 @@ void Curve_Plot::choose_Graph_Color()
 	if(graph!=nullptr)
 	{
 		custom_Plot->deselectAll();
-//		custom_Plot->replot();
 
-		colorDialog->show();
+		QColorDialog* colorDialog = new QColorDialog(this);
+			colorDialog->setModal(true);
+			colorDialog->setOption(QColorDialog::ColorDialogOption::DontUseNativeDialog);
+			colorDialog->show();
+
 		QColor old_Color = graph->pen().color();
 		connect(colorDialog, &QColorDialog::currentColorChanged, this, [=]{set_Graph_Color(graph, colorDialog->currentColor());});
 		connect(colorDialog, &QColorDialog::rejected, this, [=]{set_Graph_Color(graph, old_Color);});
@@ -758,25 +737,10 @@ void Curve_Plot::set_Graph_Color(QCPGraph* graph, QColor color)
 {
 	graph->setPen(QPen(color, graph->pen().widthF()));
 	graph->selectionDecorator()->setPen(QPen(color,graph->selectionDecorator()->pen().widthF()));
-	colors_Button->setPalette(color);
 
 	// renew data in plot_Options
 	Plot_Options* plot_Options = graph_Options_Map.value(graph);
 	plot_Options->color = color;
-}
-
-void Curve_Plot::colorize_Color_Button()
-{
-	QPalette pal = colors_Button->palette();
-	QCPGraph* graph = get_Selected_Graph();
-	if(graph!=nullptr)
-	{
-		pal.setColor(QPalette::Button, graph->pen().color());
-		colors_Button->setPalette(pal);
-	} else
-	{
-		colors_Button->setPalette(default_Colors_Button_Palette);
-	}
 }
 
 void Curve_Plot::show_Thickness()
@@ -846,15 +810,15 @@ void Curve_Plot::change_Scatter_Size()
 	}
 }
 
-void Curve_Plot::get_Min_Max_For_Graph(Plot_Options* plot_Options, const vector<double>& values, double& minimum, double& maximum)
+void Curve_Plot::get_Min_Max_For_Graph(Plot_Options plot_Options, const vector<double>& values, double& minimum, double& maximum)
 {
 	double local_Min = DBL_MAX;
 	double local_Max = -DBL_MAX;
 
-	for (int i=0; i<values.size(); ++i)
+	for (size_t i=0; i<values.size(); ++i)
 	{
-		if(local_Max<values[i] && (plot_Options->y_Scale == lin_Scale || values[i] > DBL_MIN)) {local_Max=values[i];}
-		if(local_Min>values[i] && (plot_Options->y_Scale == lin_Scale || values[i] > DBL_MIN)) {local_Min=values[i];}
+		if(local_Max<values[i] && (plot_Options.y_Scale == lin_Scale || values[i] > DBL_MIN)) {local_Max=values[i];}
+		if(local_Min>values[i] && (plot_Options.y_Scale == lin_Scale || values[i] > DBL_MIN)) {local_Min=values[i];}
 	}
 
 	minimum = min(minimum, local_Min);

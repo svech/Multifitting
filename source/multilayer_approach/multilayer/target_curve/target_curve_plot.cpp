@@ -187,6 +187,7 @@ void Target_Curve_Plot::create_Plot_Options_GroupBox_1D()
 		});
 		connect(lin_Radio_Button, &QRadioButton::clicked, lin_Radio_Button, &QRadioButton::toggled);
 
+		// -----------------------------------------------------------
 
 		QRadioButton* log_Radio_Button = new QRadioButton("Log");
 			log_Radio_Button->setChecked(target_Curve->plot_Options_Experimental.y_Scale == log_Scale);
@@ -202,6 +203,12 @@ void Target_Curve_Plot::create_Plot_Options_GroupBox_1D()
 			plot_Data_1D();
 		});
 		connect(log_Radio_Button, &QRadioButton::clicked, log_Radio_Button, &QRadioButton::toggled);
+
+		// -----------------------------------------------------------
+
+		QButtonGroup* buttonGroup = new QButtonGroup;
+			buttonGroup->addButton(lin_Radio_Button);
+			buttonGroup->addButton(log_Radio_Button);
 	}
 
 	plot_Options_GroupBox->adjustSize();
