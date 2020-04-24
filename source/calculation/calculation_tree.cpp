@@ -356,38 +356,18 @@ void Calculation_Tree::calculate_1_Kind_Preliminary(Data_Element<Type>& data_Ele
 	if(data_Element.curve_Class == INDEPENDENT)
 	{
 		Independent_Curve* independent_Curve = qobject_cast<Independent_Curve*>(data_Element.the_Class);
-
 		independent_Curve->calc_Independent_cos2_k();
-
 		data_Element.calc_Functions = independent_Curve->calc_Functions;
 	}
 	if(data_Element.curve_Class == TARGET)
 	{
-		Target_Curve* target_Curve = qobject_cast<Target_Curve*>(data_Element.the_Class);		
-
+		Target_Curve* target_Curve = qobject_cast<Target_Curve*>(data_Element.the_Class);
 		target_Curve->calc_Measured_cos2_k();
 
-		if(	target_Curve->measurement.measurement_Type == measurement_Types[Specular_Scan] )
-		{
-			if( target_Curve->curve.value_Type == value_Types[Reflectance]   )	{ data_Element.calc_Functions.check_Reflectance   = true; }
-			if( target_Curve->curve.value_Type == value_Types[Transmittance] )	{ data_Element.calc_Functions.check_Transmittance = true; }
-		}
-		if(	target_Curve->measurement.measurement_Type == measurement_Types[Detector_Scan] )
-		{
-			if( target_Curve->curve.value_Type == value_Types[Scattering]   )	{ data_Element.calc_Functions.check_Scattering = true; }
-		}
-		if(	target_Curve->measurement.measurement_Type == measurement_Types[Rocking_Curve] )
-		{
-			if( target_Curve->curve.value_Type == value_Types[Scattering]   )	{ data_Element.calc_Functions.check_Scattering = true; }
-		}
-		if(	target_Curve->measurement.measurement_Type == measurement_Types[Offset_Scan] )
-		{
-			if( target_Curve->curve.value_Type == value_Types[Scattering]   )	{ data_Element.calc_Functions.check_Scattering = true; }
-		}
-		if(	target_Curve->measurement.measurement_Type == measurement_Types[GISAS_Map] )
-		{
-			if( target_Curve->curve.value_Type == value_Types[GISAS]   )		{ data_Element.calc_Functions.check_GISAS = true; }
-		}
+		if( target_Curve->curve.value_Type == value_Types[Reflectance]   )	{ data_Element.calc_Functions.check_Reflectance = true; }
+		if( target_Curve->curve.value_Type == value_Types[Transmittance] )	{ data_Element.calc_Functions.check_Transmittance = true; }
+		if( target_Curve->curve.value_Type == value_Types[Scattering]   )	{ data_Element.calc_Functions.check_Scattering = true; }
+		if( target_Curve->curve.value_Type == value_Types[GISAS]   )		{ data_Element.calc_Functions.check_GISAS = true; }
 	}
 
 	// TODO

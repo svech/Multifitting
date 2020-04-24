@@ -6,10 +6,6 @@ Multilayer::Multilayer(QWidget *parent) :
 	num_Independent_Rows(1),
 	QWidget(parent)
 {
-	// TODO WTF
-	// initialization. later it will be loaded from .fit
-	profile_Plot_Options.local_length_units = length_units;
-
 	create_Main_Layout();
 }
 

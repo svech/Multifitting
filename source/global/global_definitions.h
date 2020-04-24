@@ -590,7 +590,7 @@ struct Profile_Plot_Options		{QString type = PERMITTIVITY;
 								 double old_Y_End   = 1;
 
 								 QString local_wavelength_units = Angstrom_Sym;
-								 QString local_length_units;
+								 QString local_length_units = Angstrom_Sym;
 
 								 double local_Wavelength = 1.540562;
 								};

@@ -416,17 +416,17 @@ void Curve_Plot::create_Options()
 	{
 		if(curve_Class == TARGET)
 		{
-			if(target_Curve->curve.value_Type == value_Types[Reflectance])	{ max_Value_Title = "| Max R ="; } else
-			if(target_Curve->curve.value_Type == value_Types[Transmittance]){ max_Value_Title = "| Max T ="; } else
-			if(target_Curve->curve.value_Type == value_Types[Scattering])	{ max_Value_Title = "| Max S ="; } else
+			if(target_Curve->curve.value_Type == value_Types[Reflectance])	{ max_Value_Title = "|  Max R ="; } else
+			if(target_Curve->curve.value_Type == value_Types[Transmittance]){ max_Value_Title = "|  Max T ="; } else
+			if(target_Curve->curve.value_Type == value_Types[Scattering])	{ max_Value_Title = "|  Max S ="; } else
 																			{ max_Value_Title = "";	}
 		}
 		if(curve_Class == INDEPENDENT)
 		{
-			if( independent_Curve->calc_Functions.check_Absorptance )		{ max_Value_Title = "| Max A ="; } else
-			if( independent_Curve->calc_Functions.check_Transmittance )		{ max_Value_Title = "| Max T ="; } else
-			if( independent_Curve->calc_Functions.check_Reflectance )		{ max_Value_Title = "| Max R ="; } else
-			if( independent_Curve->calc_Functions.check_Scattering )		{ max_Value_Title = "| Max S ="; } else
+			if( independent_Curve->calc_Functions.check_Absorptance )		{ max_Value_Title = "|  Max A ="; } else
+			if( independent_Curve->calc_Functions.check_Transmittance )		{ max_Value_Title = "|  Max T ="; } else
+			if( independent_Curve->calc_Functions.check_Reflectance )		{ max_Value_Title = "|  Max R ="; } else
+			if( independent_Curve->calc_Functions.check_Scattering )		{ max_Value_Title = "|  Max S ="; } else
 																			{ max_Value_Title = ""; }
 		}
 
