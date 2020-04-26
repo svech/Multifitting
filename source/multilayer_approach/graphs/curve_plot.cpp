@@ -414,6 +414,7 @@ void Curve_Plot::create_Options()
 	// max value info
 	if(multilayer->graph_Options.show_Max_Value)
 	{
+		max_Value_Label = new QLabel;
 		if(curve_Class == TARGET)
 		{
 			if(target_Curve->curve.value_Type == value_Types[Reflectance])	{ max_Value_Title = "|  Max R ="; } else
@@ -425,12 +426,13 @@ void Curve_Plot::create_Options()
 		{
 			if( independent_Curve->calc_Functions.check_Absorptance )		{ max_Value_Title = "|  Max A ="; } else
 			if( independent_Curve->calc_Functions.check_Transmittance )		{ max_Value_Title = "|  Max T ="; } else
-			if( independent_Curve->calc_Functions.check_Reflectance )		{ max_Value_Title = "|  Max R ="; } else
+			if( independent_Curve->calc_Functions.check_Reflectance ||
+				independent_Curve->calc_Functions.check_Field ||
+				independent_Curve->calc_Functions.check_Joule )				{ max_Value_Title = "|  Max R ="; } else
 			if( independent_Curve->calc_Functions.check_Scattering )		{ max_Value_Title = "|  Max S ="; } else
 																			{ max_Value_Title = ""; }
 		}
 
-		max_Value_Label = new QLabel;
 		options_Layout->addWidget(max_Value_Label);
 	}
 
@@ -561,9 +563,11 @@ void Curve_Plot::plot_All_Data()
 	if(curve_Class == INDEPENDENT)
 	{
 		// value
-		if(	independent_Curve->calc_Functions.check_Reflectance)	{ values = calculated_Values.R; }
-		if(	independent_Curve->calc_Functions.check_Transmittance)	{ values = calculated_Values.T; }
-		if(	independent_Curve->calc_Functions.check_Absorptance)	{ values = calculated_Values.A; }
+		if(	independent_Curve->calc_Functions.check_Reflectance ||
+			independent_Curve->calc_Functions.check_Field ||
+			independent_Curve->calc_Functions.check_Joule )			{ values = calculated_Values.R; }
+		if(	independent_Curve->calc_Functions.check_Transmittance )	{ values = calculated_Values.T; }
+		if(	independent_Curve->calc_Functions.check_Absorptance )	{ values = calculated_Values.A; }
 		if( independent_Curve->calc_Functions.check_Scattering )	{ values = calculated_Values.S; }
 
 		// argument
@@ -675,7 +679,9 @@ void Curve_Plot::refresh_Labels()
 	}
 	if(curve_Class == INDEPENDENT)
 	{
-		if(	independent_Curve->calc_Functions.check_Reflectance)	value_Label = value_Types[Reflectance];
+		if(	independent_Curve->calc_Functions.check_Reflectance ||
+			independent_Curve->calc_Functions.check_Field ||
+			independent_Curve->calc_Functions.check_Joule )			value_Label = value_Types[Reflectance];
 		if( independent_Curve->calc_Functions.check_Transmittance)	value_Label = value_Types[Transmittance];
 		if( independent_Curve->calc_Functions.check_Absorptance )	value_Label = value_Types[Absorptance];
 		if( independent_Curve->calc_Functions.check_Scattering )	value_Label = value_Types[Scattering];

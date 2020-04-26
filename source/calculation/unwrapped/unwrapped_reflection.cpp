@@ -59,7 +59,9 @@ Unwrapped_Reflection::Unwrapped_Reflection(Unwrapped_Structure* unwrapped_Struct
 
 	// reflectance
 	if(	unwrapped_Structure->calc_Functions.check_Reflectance ||
-		unwrapped_Structure->calc_Functions.check_Absorptance )
+		unwrapped_Structure->calc_Functions.check_Absorptance ||
+		unwrapped_Structure->calc_Functions.check_Field  ||
+		unwrapped_Structure->calc_Functions.check_Joule )
 	{
 		calculated_Values.Phi_R_s.resize(num_Points);
 		calculated_Values.Phi_R_p.resize(num_Points);
@@ -948,8 +950,10 @@ void Unwrapped_Reflection::fill_Specular_Values(const Data& measurement, int thr
 	double p_Weight = (1. - measurement.polarization) / 2.;
 
 	// reflectance
-	if( unwrapped_Structure->calc_Functions.check_Reflectance ||
-		unwrapped_Structure->calc_Functions.check_Absorptance )
+	if(	unwrapped_Structure->calc_Functions.check_Reflectance ||
+		unwrapped_Structure->calc_Functions.check_Absorptance ||
+		unwrapped_Structure->calc_Functions.check_Field  ||
+		unwrapped_Structure->calc_Functions.check_Joule )
 	{
 		complex<double> r_s = r_Local_s[thread_Index][0];
 		complex<double> r_p = r_Local_p[thread_Index][0];
