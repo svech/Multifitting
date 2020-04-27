@@ -9,6 +9,9 @@ class Curve_Plot : public QWidget
 public:
 	explicit Curve_Plot(Multilayer* multilayer, Target_Curve* target_Curve, Independent_Curve* independent_Curve, QString curve_Class, QWidget *parent = nullptr);
 
+	void dragEnterEvent(QDragEnterEvent* event);
+	void dropEvent(QDropEvent* event);
+
 	void create_Main_Layout();
 	void create_Subinterval_Rectangle();
 	void subinterval_Changed_Replot();
@@ -52,6 +55,8 @@ public:
 	QString& spectral_Units;
 	QString& angular_Units;
 	QString& plot_Indicator;
+	vector<Simple_Curve>& additional_Curves;
+
 
 	QColorDialog* colorDialog;
 	QCPGraph* selected_Graph;

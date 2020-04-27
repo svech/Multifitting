@@ -104,6 +104,7 @@ public:
 	Fit_Params fit_Params;
 	Data measurement;
 	Calculated_Values calculated_Values;
+	vector<Simple_Curve> additional_Curves; // without saving
 
 	QString filename;	// should be empty
 	QString filepath;	// should be empty

@@ -22,6 +22,7 @@ public:
 
 	Data measurement;
 	Calculated_Values calculated_Values;
+	vector<Simple_Curve> additional_Curves; // without saving
 
 	Calc_Functions calc_Functions;
 	Plot_Options plot_Options;

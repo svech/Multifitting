@@ -12,11 +12,42 @@ Curve_Plot::Curve_Plot(Multilayer* multilayer, Target_Curve* target_Curve, Indep
 	plot_Options_Second (curve_Class == INDEPENDENT ? independent_Curve->plot_Options	   : target_Curve->plot_Options_Calculated	),
 	spectral_Units		(curve_Class == INDEPENDENT ? independent_Curve->spectral_Units	   : target_Curve->spectral_Units			),
 	angular_Units		(curve_Class == INDEPENDENT ? independent_Curve->angular_Units	   : target_Curve->angular_Units			),
-	plot_Indicator		(curve_Class == INDEPENDENT ? independent_Curve->tab_Name		   : target_Curve->index	),
+	plot_Indicator		(curve_Class == INDEPENDENT ? independent_Curve->tab_Name		   : target_Curve->index					),
+	additional_Curves	(curve_Class == INDEPENDENT ? independent_Curve->additional_Curves : target_Curve->additional_Curves		),
 
 	QWidget(parent)
 {
 	create_Main_Layout();
+	setAcceptDrops(true);
+}
+
+void Curve_Plot::dragEnterEvent(QDragEnterEvent* event)
+{
+	if(event->mimeData()->hasUrls())
+	{
+		event->acceptProposedAction();
+	}
+}
+
+void Curve_Plot::dropEvent(QDropEvent* event)
+{
+	int counter = 0;
+	foreach (const QUrl &url, event->mimeData()->urls())
+	{
+		if(counter==0)
+		{
+			QString fileName = url.toLocalFile();
+
+			Simple_Curve new_Simple_Curve;
+			new_Simple_Curve.read_Simple_Curve(fileName);
+
+			additional_Curves.push_back(new_Simple_Curve);
+
+			create_Plot_Frame_And_Scale();
+			plot_All_Data();
+		}
+		++counter;
+	}
 }
 
 void Curve_Plot::create_Main_Layout()
@@ -172,12 +203,8 @@ void Curve_Plot::create_Plot_Frame_And_Scale()
 	if(plot_Options_First.y_Scale == lin_Scale) apply_Lin_Scale("y");
 	if(plot_Options_First.y_Scale == log_Scale) apply_Log_Scale("y");
 
-	// default ranges
-	custom_Plot->yAxis->setRange(1e-5, 1e0);
-	custom_Plot->yAxis->setRange(0, 1);
-
 	// create 2 graphs
-	if(custom_Plot->graphCount()!=2)
+	if(custom_Plot->graphCount()!=2+additional_Curves.size())
 	{
 		custom_Plot->clearGraphs();
 		custom_Plot->addGraph();
@@ -187,6 +214,35 @@ void Curve_Plot::create_Plot_Frame_And_Scale()
 		graph_Options_Map.insert(custom_Plot->graph(0), &plot_Options_First);
 		graph_Options_Map.insert(custom_Plot->graph(1), &plot_Options_Second);
 
+		// additional curves
+		for(size_t additional_Index=0; additional_Index<additional_Curves.size(); additional_Index++)
+		{
+			size_t absolute_Graph_Index = 2+additional_Index;
+			custom_Plot->addGraph();
+
+			// styling
+			if(additional_Curves[additional_Index].plot_Options.color == QColor(0, 0, 0, 254))
+			{
+				if(additional_Index<color_Contrast_Adjoint_Sequence.size()) additional_Curves[additional_Index].plot_Options.color = color_Contrast_Adjoint_Sequence[additional_Index];
+				else														additional_Curves[additional_Index].plot_Options.color = QColor(0, 0, 0);
+			}
+			custom_Plot->graph(absolute_Graph_Index)->setPen(QPen(additional_Curves[additional_Index].plot_Options.color,additional_Curves[additional_Index].plot_Options.thickness));
+			graph_Options_Map.insert(custom_Plot->graph(absolute_Graph_Index), &additional_Curves[additional_Index].plot_Options);
+
+			// additional data plotting
+			QVector<QCPGraphData> data_To_Plot(additional_Curves[additional_Index].argument.size());
+			for (size_t i=0; i<additional_Curves[additional_Index].argument.size(); ++i)
+			{
+				data_To_Plot[i].key = additional_Curves[additional_Index].argument[i];
+				data_To_Plot[i].value = additional_Curves[additional_Index].values[i];
+			}
+			custom_Plot->graph(absolute_Graph_Index)->data()->set(data_To_Plot);
+
+			// on selection
+			custom_Plot->graph(absolute_Graph_Index)->selectionDecorator()->setPen(QPen(
+							custom_Plot->graph(absolute_Graph_Index)->pen().color(),
+						max(custom_Plot->graph(absolute_Graph_Index)->pen().widthF()*2,3.)));
+		}
 	}
 	custom_Plot->replot();
 	set_Title_Text();
@@ -312,6 +368,13 @@ void Curve_Plot::create_Options()
 			Y_ButtonGroup->addButton(lin_Y_RadioButton);
 			Y_ButtonGroup->addButton(log_Y_RadioButton);
 	}
+	//  rescale
+	{
+		QCheckBox* rescale_Check_Box = new QCheckBox("Rescale");
+			rescale_Check_Box->setChecked(plot_Options_First.rescale);
+		connect(rescale_Check_Box, &QCheckBox::toggled, this, [=]{ plot_Options_First.rescale = rescale_Check_Box->isChecked(); });
+		options_Layout->addWidget(rescale_Check_Box);
+	}
 	if(multilayer->graph_Options.show_X_Scale)
 	{
 		QLabel* scale_X_Label = new QLabel("Scale X: ");
@@ -390,12 +453,6 @@ void Curve_Plot::create_Options()
 			thickness_Spin->setFixedWidth(35);
 		connect(thickness_Spin, static_cast<void(QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, &Curve_Plot::change_Thickness);
 		options_Layout->addWidget(thickness_Spin);
-	}
-	{
-		QCheckBox* rescale_Check_Box = new QCheckBox("Rescale");
-			rescale_Check_Box->setChecked(plot_Options_First.rescale);
-		connect(rescale_Check_Box, &QCheckBox::toggled, this, [=]{ plot_Options_First.rescale = rescale_Check_Box->isChecked(); });
-		options_Layout->addWidget(rescale_Check_Box);
 	}
 	if(multilayer->graph_Options.show_Current_Coordinate)
 	{
@@ -648,7 +705,7 @@ void Curve_Plot::plot_Data(const vector<double>& argument, const vector<double>&
 {
 	QVector<QCPGraphData> data_To_Plot(argument.size());
 
-	for (int i=0; i<argument.size(); ++i)
+	for (size_t i=0; i<argument.size(); ++i)
 	{
 		data_To_Plot[i].key = argument[i];
 		data_To_Plot[i].value = values[i];
@@ -746,7 +803,10 @@ void Curve_Plot::set_Graph_Color(QCPGraph* graph, QColor color)
 
 	// renew data in plot_Options
 	Plot_Options* plot_Options = graph_Options_Map.value(graph);
-	plot_Options->color = color;
+	if(plot_Options != nullptr)
+	{
+		plot_Options->color = color;
+	}
 }
 
 void Curve_Plot::show_Thickness()
@@ -793,7 +853,10 @@ void Curve_Plot::change_Thickness()
 
 		// renew data in plot_Options
 		Plot_Options* plot_Options = graph_Options_Map.value(graph);
-		plot_Options->thickness = new_Width;
+		if(plot_Options != nullptr)
+		{
+			plot_Options->thickness = new_Width;
+		}
 	}
 }
 
@@ -812,7 +875,10 @@ void Curve_Plot::change_Scatter_Size()
 
 		// renew data in plot_Options
 		Plot_Options* plot_Options = graph_Options_Map.value(graph);
-		plot_Options->scatter_Size = new_Scatter_Size;
+		if(plot_Options != nullptr)
+		{
+			plot_Options->scatter_Size = new_Scatter_Size;
+		}
 	}
 }
 

@@ -49,8 +49,8 @@ public:
 	vector<complex<double>> epsilon_Ambient;	//	[thread]
 	vector<complex<double>> epsilon_Substrate;	//	[thread]
 
-	vector<vector<double>> weak_Factor_R;		//	[thread][boundary]
-//	vector<vector<double>> weak_Factor_T;		//	[thread][boundary]
+	vector<vector<complex<double>>> weak_Factor_R;		//	[thread][boundary]
+	vector<vector<complex<double>>> weak_Factor_T;		//	[thread][boundary]
 
 	int fill_s__Max_Depth_2(const tree<Node>::iterator& parent, int thread_Index, int point_Index, int media_Index = 0);
 	int fill_p__Max_Depth_2(const tree<Node>::iterator& parent, int thread_Index, int point_Index, int media_Index = 0);

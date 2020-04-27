@@ -384,7 +384,7 @@ QPen subinterval_Plot_Pen = QPen(Qt::transparent);
 	QBrush subinterval_Plot_Brush_2D = QBrush(QColor(0, 0, 0, 111));
 #endif
 
-QVector<QColor> color_Contrast_Sequence = { QColor(0, 205, 0),
+vector<QColor> color_Contrast_Sequence = {	QColor(0, 205, 0),
 											QColor(255, 0, 0),
 											QColor(0, 0, 255),
 											QColor(240, 65, 255),
@@ -395,7 +395,7 @@ QVector<QColor> color_Contrast_Sequence = { QColor(0, 205, 0),
 											QColor(0, 0, 127),
 											QColor(255, 0, 127)
 										  };
-QVector<QColor> color_Contrast_Adjoint_Sequence = { QColor(0, 115, 40),
+vector<QColor> color_Contrast_Adjoint_Sequence = {	QColor(0, 115, 40),
 													QColor(125, 0, 0),
 													QColor(50, 50, 125),
 													QColor(120, 35, 125),

@@ -31,8 +31,8 @@ public:
 	vector<complex<double>> exponenta;
 	vector<complex<double>> exponenta_2;
 
-	vector<double> weak_Factor_R;
-//	vector<double> weak_Factor_T;
+	vector<complex<double>> weak_Factor_R;
+	vector<complex<double>> weak_Factor_T;
 
 	/// ------------------------------------------------
 };

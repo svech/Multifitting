@@ -772,18 +772,9 @@ void Profile_Plot::calculate_Profile()
 	Global_Variables::get_Prefix_Suffix(prefix, suffix, max_Sigma);
 	double length = prefix+boundary_Vector.last()+suffix;
 	int data_Count = ceil(length/step)+1;
-	int limit = 20000; // restriction
-	data_Count = min(data_Count, limit);
+	int limit_For_Line_Thickness = 5000;	// restriction for line thickness
+	data_Count = min(data_Count, 1000000);	// restriction for points
 	step = length/(data_Count-1);
-//	if(step >= 2)
-//	{
-//		QMessageBox::warning(nullptr,"Too many layers to show", "For correct representation of profile\nnumber of layers should be diminished");
-//		qInfo() << "\n---------------------------------------------------------------------------------"
-//				   "\n   Too many layers to show."
-//				   "\n   For correct representation of profile"
-//				м   "\n   number of layers should be diminished"
-//				   "\n---------------------------------------------------------------------------------\n";
-//	}
 
 	// discretization
 	int num_Prefix_Slices =1, num_Suffix_Slices = 1;
@@ -856,7 +847,10 @@ void Profile_Plot::calculate_Profile()
 			}
 
 			custom_Plot->graph()->data()->set(sharp_Delta_To_Plot_Vector);
-			custom_Plot->graph()->setPen(QPen(Qt::darkCyan, default_Profile_Line_Thickness));
+
+			if(data_Count<limit_For_Line_Thickness) custom_Plot->graph()->setPen(QPen(Qt::darkCyan, default_Profile_Line_Thickness));
+							else custom_Plot->graph()->setPen(QPen(Qt::darkCyan, 0));
+
 			custom_Plot->graph()->selectionDecorator()->setPen(QPen(custom_Plot->graph()->pen().color(),selected_Profile_Line_Thickness));
 			custom_Plot->graph()->setLineStyle(QCPGraph::lsStepLeft);
 			sharp_Graph = custom_Plot->graph();
@@ -929,7 +923,10 @@ void Profile_Plot::calculate_Profile()
 
 			}
 			custom_Plot->graph()->data()->set(delta_To_Plot_Vector);
-			custom_Plot->graph()->setPen(QPen(Qt::blue, default_Profile_Line_Thickness));
+
+			if(data_Count<limit_For_Line_Thickness) custom_Plot->graph()->setPen(QPen(Qt::blue, default_Profile_Line_Thickness));
+							else custom_Plot->graph()->setPen(QPen(Qt::blue, 0));
+
 			custom_Plot->graph()->selectionDecorator()->setPen(QPen(custom_Plot->graph()->pen().color(),selected_Profile_Line_Thickness));
 		}
 
@@ -981,7 +978,10 @@ void Profile_Plot::calculate_Profile()
 			}
 
 			custom_Plot->graph()->data()->set(sharp_Beta_To_Plot_Vector);
-			custom_Plot->graph()->setPen(QPen(Qt::darkMagenta, default_Profile_Line_Thickness));
+
+			if(data_Count<limit_For_Line_Thickness) custom_Plot->graph()->setPen(QPen(Qt::darkMagenta, default_Profile_Line_Thickness));
+							else custom_Plot->graph()->setPen(QPen(Qt::darkMagenta, 0));
+
 			custom_Plot->graph()->selectionDecorator()->setPen(QPen(custom_Plot->graph()->pen().color(),selected_Profile_Line_Thickness));
 			custom_Plot->graph()->setLineStyle(QCPGraph::lsStepLeft);
 			sharp_Graph = custom_Plot->graph();
@@ -1053,7 +1053,10 @@ void Profile_Plot::calculate_Profile()
 				}
 			}
 			custom_Plot->graph()->data()->set(beta_To_Plot_Vector);
-			custom_Plot->graph()->setPen(QPen(Qt::red, default_Profile_Line_Thickness));
+
+			if(data_Count<limit_For_Line_Thickness) custom_Plot->graph()->setPen(QPen(Qt::red, default_Profile_Line_Thickness));
+							else custom_Plot->graph()->setPen(QPen(Qt::red, 0));
+
 			custom_Plot->graph()->selectionDecorator()->setPen(QPen(custom_Plot->graph()->pen().color(),selected_Profile_Line_Thickness));
 		}
 
@@ -1130,7 +1133,10 @@ void Profile_Plot::calculate_Profile()
 				}
 
 				custom_Plot->graph()->data()->set(sharp_Materials_To_Plot_Vector_Vector[material_index]);
-				custom_Plot->graph()->setPen(QPen(color_Contrast_Adjoint_Sequence[material_index%color_Contrast_Adjoint_Sequence.size()], default_Profile_Line_Thickness));
+
+				if(data_Count<limit_For_Line_Thickness) custom_Plot->graph()->setPen(QPen(color_Contrast_Adjoint_Sequence[material_index%color_Contrast_Adjoint_Sequence.size()], default_Profile_Line_Thickness));
+								else custom_Plot->graph()->setPen(QPen(color_Contrast_Adjoint_Sequence[material_index%color_Contrast_Adjoint_Sequence.size()], 0));
+
 				custom_Plot->graph()->selectionDecorator()->setPen(QPen(custom_Plot->graph()->pen().color(),selected_Profile_Line_Thickness));
 				custom_Plot->graph()->setLineStyle(QCPGraph::lsStepLeft);
 				custom_Plot->graph()->removeFromLegend();
@@ -1203,7 +1209,10 @@ void Profile_Plot::calculate_Profile()
 					}
 				}
 				custom_Plot->graph()->data()->set(materials_To_Plot_Vector_Vector[material_index]);
-				custom_Plot->graph()->setPen(QPen(color_Contrast_Sequence[material_index%color_Contrast_Sequence.size()], default_Profile_Line_Thickness));
+
+				if(data_Count<limit_For_Line_Thickness) custom_Plot->graph()->setPen(QPen(color_Contrast_Sequence[material_index%color_Contrast_Sequence.size()], default_Profile_Line_Thickness));
+								else custom_Plot->graph()->setPen(QPen(color_Contrast_Sequence[material_index%color_Contrast_Sequence.size()], 0));
+
 				custom_Plot->graph()->selectionDecorator()->setPen(QPen(custom_Plot->graph()->pen().color(),selected_Profile_Line_Thickness));
 				custom_Plot->graph()->setName(different_Materials[material_index]);
 				custom_Plot->legend->itemWithPlottable(custom_Plot->graph())->setTextColor(color_Contrast_Sequence[material_index%color_Contrast_Sequence.size()]);
@@ -1284,7 +1293,10 @@ void Profile_Plot::calculate_Profile()
 				}
 
 				custom_Plot->graph()->data()->set(sharp_Elements_To_Plot_Vector_Vector[element_Index]);
-				custom_Plot->graph()->setPen(QPen(color_Contrast_Adjoint_Sequence[element_Index%color_Contrast_Adjoint_Sequence.size()], default_Profile_Line_Thickness));
+
+				if(data_Count<limit_For_Line_Thickness) custom_Plot->graph()->setPen(QPen(color_Contrast_Adjoint_Sequence[element_Index%color_Contrast_Adjoint_Sequence.size()], default_Profile_Line_Thickness));
+								else custom_Plot->graph()->setPen(QPen(color_Contrast_Adjoint_Sequence[element_Index%color_Contrast_Adjoint_Sequence.size()], 0));
+
 				custom_Plot->graph()->selectionDecorator()->setPen(QPen(custom_Plot->graph()->pen().color(),selected_Profile_Line_Thickness));
 				custom_Plot->graph()->setLineStyle(QCPGraph::lsStepLeft);
 				custom_Plot->graph()->removeFromLegend();
@@ -1357,7 +1369,10 @@ void Profile_Plot::calculate_Profile()
 					}
 				}
 				custom_Plot->graph()->data()->set(elements_To_Plot_Vector_Vector[element_Index]);
-				custom_Plot->graph()->setPen(QPen(color_Contrast_Sequence[element_Index%color_Contrast_Sequence.size()], default_Profile_Line_Thickness));
+
+				if(data_Count<limit_For_Line_Thickness) custom_Plot->graph()->setPen(QPen(color_Contrast_Sequence[element_Index%color_Contrast_Sequence.size()], default_Profile_Line_Thickness));
+								else custom_Plot->graph()->setPen(QPen(color_Contrast_Sequence[element_Index%color_Contrast_Sequence.size()], 0));
+
 				custom_Plot->graph()->selectionDecorator()->setPen(QPen(custom_Plot->graph()->pen().color(),selected_Profile_Line_Thickness));
 				custom_Plot->graph()->setName(different_Elements[element_Index]);
 				custom_Plot->legend->itemWithPlottable(custom_Plot->graph())->setTextColor(color_Contrast_Sequence[element_Index%color_Contrast_Sequence.size()]);

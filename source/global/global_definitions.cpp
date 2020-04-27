@@ -23,6 +23,80 @@ id_Type Global_Definitions::generate_Id()
 	return current_ID;
 }
 
+
+Simple_Curve::Simple_Curve()
+{
+	plot_Options.thickness = 1.5;
+	plot_Options.color = QColor(0, 0, 0, 254);
+}
+
+void Simple_Curve::read_Simple_Curve(QString bare_Filename)
+{
+	QFileInfo filename = bare_Filename;
+	QStringList lines_List;
+
+	// reading whole file to lines_list
+	QFile input_File(filename.absoluteFilePath());
+	QString temp_Line = "not empty now";
+	if(input_File.open(QIODevice::ReadOnly))
+	{
+		QTextStream input_Stream(&input_File);
+
+		while ( !input_Stream.atEnd() )
+		{
+			temp_Line=input_Stream.readLine();
+			lines_List.append(temp_Line);
+		}
+		input_File.close();
+	}
+
+	// parsing content
+	argument.clear();
+	values.clear();
+
+	for(int line_Index=0; line_Index<lines_List.size(); ++line_Index)
+	{
+		QString temp_Line = lines_List[line_Index];
+		temp_Line = temp_Line.simplified();
+
+		// check if not header line (starts from digit)
+		bool is_Decimal = false;
+		QString(temp_Line[0]).toInt(&is_Decimal);
+
+		// split line into "numbers"
+		QStringList potentional_Numbers = temp_Line.split(delimiters,QString::SkipEmptyParts);
+
+		if(is_Decimal && potentional_Numbers.size()>=2)
+		{
+			bool ok_To_Double = false;
+
+			double temp_Argument = QString(potentional_Numbers[0]).replace(",", ".").toDouble(&ok_To_Double); // dots and commas are considered as dots
+			double temp_Value    = QString(potentional_Numbers[1]).replace(",", ".").toDouble(&ok_To_Double); // dots and commas are considered as dots
+
+			if(!ok_To_Double) goto skip_line_label;
+
+			// argument should be monotonic
+			if(argument.size()>=2)
+			{
+				if(argument[argument.size()-1]>argument[argument.size()-2]) // increasing argument is allowed
+				{
+					if(temp_Argument <= argument.back()) goto skip_line_label; // read only monotonical arguments
+				}
+				if(argument[argument.size()-1]<argument[argument.size()-2]) // decreasing argument is allowed
+				{
+					if(temp_Argument >= argument.back()) goto skip_line_label; // read only monotonical arguments
+				}
+			}
+
+			argument.push_back(temp_Argument);
+			values.push_back(temp_Value);
+
+			// this line may be skipped
+			skip_line_label: ok_To_Double = false;
+		}
+	}
+}
+
 // -----------------------------------------------------------------------------------------
 // serialization
 

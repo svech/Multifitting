@@ -585,7 +585,7 @@ struct Profile_Plot_Options		{QString type = PERMITTIVITY;
 								 QString y_Scale = lin_Scale;
 
 								 double old_X_Begin = -10;
-								 double old_X_End   = +100;
+								 double old_X_End   = +200;
 								 double old_Y_Begin = 0;
 								 double old_Y_End   = 1;
 
@@ -702,7 +702,14 @@ struct Calculated_Values	  {	// reflectance
 								vector<vector<double>> GISAS_Map;
 								vector<vector<double>> GISAS_Instrumental;
 							   };
+struct Simple_Curve		       {
+								Simple_Curve();
+								Plot_Options plot_Options;// without saving
+								vector<double> argument;// without saving
+								vector<double> values;	// without saving
 
+								void read_Simple_Curve(QString bare_Filename);
+							   };
 struct Discretization_Parameters{bool enable_Discretization = false;
 								 double discretization_Step = 1.0;
 								};
@@ -730,8 +737,7 @@ struct Calc_Functions			{bool check_Enabled = true;
 										 check_Absorptance	||
 										 check_Field		||
 										 check_Joule		||
-										 check_Scattering   ||
-										 check_GISAS		)
+										 check_Scattering	)
 									 {
 										 return true;
 									 } else

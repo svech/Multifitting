@@ -347,7 +347,6 @@ void Optical_Graphs::create_Tab_Content(QWidget* new_Widget, int tab_Index)
 			Independent_Curve* independent_Variables = qobject_cast<Independent_Curve*>(multilayer->independent_Curve_Tabs->widget(i));
 			if( independent_Variables->calc_Functions.check_Enabled	)
 			if(	independent_Variables->calc_Functions.if_Something_Enabled() )
-			if( !independent_Variables->calc_Functions.check_GISAS)
 			{
 				independent_Profiles_to_Show.append(independent_Variables);
 				total_Number_of_Independent_Graphs[tab_Index]++;

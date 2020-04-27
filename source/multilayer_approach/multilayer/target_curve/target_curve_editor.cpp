@@ -168,13 +168,17 @@ void Target_Curve_Editor::create_Filepath_GroupBox()
 		// reopen Calculation_Settings and Optical_Graphs
 		if(global_Multilayer_Approach->runned_Calculation_Settings_Editor.contains(calc_Settings_Key))
 		{
+			int active_Tab_Optical_Graphs = global_Multilayer_Approach->runned_Calculation_Settings_Editor.value(calc_Settings_Key)->main_Tabs->currentIndex();
 			global_Multilayer_Approach->runned_Calculation_Settings_Editor.value(calc_Settings_Key)->close();
 			global_Multilayer_Approach->open_Calculation_Settings();
+			global_Multilayer_Approach->runned_Calculation_Settings_Editor.value(calc_Settings_Key)->main_Tabs->setCurrentIndex(active_Tab_Optical_Graphs);
 		}
 		if(global_Multilayer_Approach->runned_Optical_Graphs.contains(optical_Graphs_Key))
 		{
+			int active_Tab_Optical_Graphs = global_Multilayer_Approach->runned_Optical_Graphs.value(optical_Graphs_Key)->main_Tabs->currentIndex();
 			global_Multilayer_Approach->runned_Optical_Graphs.value(optical_Graphs_Key)->close();
 			global_Multilayer_Approach->open_Optical_Graphs(TARGET);
+			global_Multilayer_Approach->runned_Optical_Graphs.value(optical_Graphs_Key)->main_Tabs->setCurrentIndex(active_Tab_Optical_Graphs);
 		}
 	});
 

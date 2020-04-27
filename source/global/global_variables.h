@@ -225,8 +225,8 @@ extern QPen subinterval_Plot_Pen;
 extern QBrush subinterval_Plot_Brush;
 extern QBrush subinterval_Plot_Brush_2D;
 
-extern QVector<QColor> color_Contrast_Sequence;
-extern QVector<QColor> color_Contrast_Adjoint_Sequence;
+extern vector<QColor> color_Contrast_Sequence;
+extern vector<QColor> color_Contrast_Adjoint_Sequence;
 
 extern double default_Profile_Line_Thickness;
 extern double selected_Profile_Line_Thickness;

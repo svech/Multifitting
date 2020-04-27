@@ -17,7 +17,8 @@ Calculation_Tree::Calculation_Tree(Multilayer* multilayer, QString calc_Mode):
 				Independent_Curve* independent_Curve = qobject_cast<Independent_Curve*>(multilayer->independent_Curve_Tabs->widget(i));
 				if( independent_Curve->measurement.measurement_Type != no_Measurement_Type)
 				if( independent_Curve->calc_Functions.check_Enabled	)
-				if(	independent_Curve->calc_Functions.if_Something_Enabled() )
+				if(	independent_Curve->calc_Functions.if_Something_Enabled() ||
+					independent_Curve->calc_Functions.check_GISAS	)
 				{
 					independent.resize(independent.size()+1);
 
