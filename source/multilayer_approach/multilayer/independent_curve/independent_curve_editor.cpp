@@ -14,20 +14,13 @@ Independent_Curve_Editor::Independent_Curve_Editor(Independent_Curve* independen
 
 	if(new_curve)
 	{
-		/// now we have measurement type and consequently have a new curve
+		/// now we have measurement type and consequently have a new curve. But initially fully unchecked
 		if(global_Multilayer_Approach->runned_Calculation_Settings_Editor.contains(calc_Settings_Key))
 		{
-			int active_Tab_Optical_Graphs = global_Multilayer_Approach->runned_Optical_Graphs.value(optical_Graphs_Key)->main_Tabs->currentIndex();
+			int active_Tab_Optical_Graphs = global_Multilayer_Approach->runned_Optical_Graphs_1D.value(optical_Graphs_1D_Key)->main_Tabs->currentIndex();
 			global_Multilayer_Approach->runned_Calculation_Settings_Editor.value(calc_Settings_Key)->close();
 			global_Multilayer_Approach->open_Calculation_Settings();
-			global_Multilayer_Approach->runned_Optical_Graphs.value(optical_Graphs_Key)->main_Tabs->setCurrentIndex(active_Tab_Optical_Graphs);
-		}
-		if(global_Multilayer_Approach->runned_Optical_Graphs.contains(optical_Graphs_Key))
-		{
-			int active_Tab_Optical_Graphs = global_Multilayer_Approach->runned_Optical_Graphs.value(optical_Graphs_Key)->main_Tabs->currentIndex();
-			global_Multilayer_Approach->runned_Optical_Graphs.value(optical_Graphs_Key)->close();
-			global_Multilayer_Approach->open_Optical_Graphs(INDEPENDENT);
-			global_Multilayer_Approach->runned_Optical_Graphs.value(optical_Graphs_Key)->main_Tabs->setCurrentIndex(active_Tab_Optical_Graphs);
+			global_Multilayer_Approach->runned_Optical_Graphs_1D.value(optical_Graphs_1D_Key)->main_Tabs->setCurrentIndex(active_Tab_Optical_Graphs);
 		}
 	}
 }

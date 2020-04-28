@@ -60,13 +60,13 @@ void Multilayer::create_Main_Tools()
 
 	structure_Table_Button = new QPushButton("Structure table");
 		layout->addWidget(structure_Table_Button,0,0);
-	roughness_Table_Button = new QPushButton("Roughness table");
-		layout->addWidget(roughness_Table_Button,0,1);
-
-	optical_Graphs_Button = new QPushButton("Graphs");
-		layout->addWidget(optical_Graphs_Button,1,0);
 	profile_Plots_Button = new QPushButton("Profile plot");
-		layout->addWidget(profile_Plots_Button,1,1);
+			layout->addWidget(profile_Plots_Button,0,1);
+
+	optical_Graphs_1D_Button = new QPushButton("1D graphs");
+		layout->addWidget(optical_Graphs_1D_Button,1,0);
+	optical_Graphs_2D_Button = new QPushButton("2D graphs");
+		layout->addWidget(optical_Graphs_2D_Button,1,1);
 
 	calculation_Settings_Button = new QPushButton("Calculation settings");
 		layout->addWidget(calculation_Settings_Button,2,0);
@@ -78,16 +78,12 @@ void Multilayer::create_Main_Tools()
 	fits_Selector_Button = new QPushButton("Fits selector");
 		layout->addWidget(fits_Selector_Button,3,1);
 
-	// TODO
-	roughness_Table_Button->setDisabled(true);
-	general_Settings_Button->setDisabled(true);
-
 	Multilayer_Approach* parent_Multilayer_Approach = qobject_cast<Multilayer_Approach*>(parent);
 	connect(structure_Table_Button,		 &QPushButton::clicked, parent_Multilayer_Approach, &Multilayer_Approach::open_Table_Of_Structures);
-	connect(roughness_Table_Button,		 &QPushButton::clicked, parent_Multilayer_Approach, &Multilayer_Approach::open_Table_Of_Roughness);
-
-	connect(optical_Graphs_Button,		 &QPushButton::clicked, parent_Multilayer_Approach, [=]{parent_Multilayer_Approach->open_Optical_Graphs();});
 	connect(profile_Plots_Button,		 &QPushButton::clicked, parent_Multilayer_Approach, [=]{parent_Multilayer_Approach->open_Profile_Plots();});
+
+	connect(optical_Graphs_1D_Button,	 &QPushButton::clicked, parent_Multilayer_Approach, [=]{parent_Multilayer_Approach->open_Optical_Graphs_1D();});
+	connect(optical_Graphs_2D_Button,	 &QPushButton::clicked, parent_Multilayer_Approach, [=]{parent_Multilayer_Approach->open_Optical_Graphs_2D();});
 
 	connect(calculation_Settings_Button, &QPushButton::clicked, parent_Multilayer_Approach, &Multilayer_Approach::open_Calculation_Settings);
 	connect(general_Settings_Button,	 &QPushButton::clicked, parent_Multilayer_Approach, &Multilayer_Approach::open_General_Settings);
@@ -147,7 +143,8 @@ void Multilayer::add_Independent_Variables_Tab()
 		independent_Curve_Tabs->tabBar()->setTabTextColor(independent_Curve_Tabs->count()-1,Qt::gray);
 		independent_Curve_Tabs->tabBar()->tabButton(independent_Curve_Tabs->count()-1, QTabBar::RightSide)->hide();
 	}
-	qobject_cast<Multilayer_Approach*>(parent)->independent_Added = true;
+	if(new_Independent_Curve->calc_Functions.if_Something_Enabled_1D()) qobject_cast<Multilayer_Approach*>(parent)->independent_Added_1D = true;
+	if(new_Independent_Curve->calc_Functions.if_Something_Enabled_2D()) qobject_cast<Multilayer_Approach*>(parent)->independent_Added_2D = true;
 }
 
 void Multilayer::change_Tab_Independent_Variables_Tab_Color(int index)
@@ -447,7 +444,7 @@ Multilayer& Multilayer::operator =(const Multilayer& referent_Multilayer)
 	num_Target_Rows		 = referent_Multilayer.num_Target_Rows;		 // rows in Calculation Settings
 	num_Independent_Rows = referent_Multilayer.num_Independent_Rows; // rows in Calculation Settings
 
-	graph_Options = referent_Multilayer.graph_Options;
+	graph_Options_1D = referent_Multilayer.graph_Options_1D;
 	profile_Plot_Options = referent_Multilayer.profile_Plot_Options;
 
 	enable_Calc_Target_Curves = referent_Multilayer.enable_Calc_Target_Curves;

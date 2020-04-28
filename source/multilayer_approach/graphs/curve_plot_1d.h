@@ -3,11 +3,11 @@
 
 #include "multilayer_approach/multilayer_approach.h"
 
-class Curve_Plot : public QWidget
+class Curve_Plot_1D : public QWidget
 {
 	Q_OBJECT
 public:
-	explicit Curve_Plot(Multilayer* multilayer, Target_Curve* target_Curve, Independent_Curve* independent_Curve, QString curve_Class, QWidget *parent = nullptr);
+	explicit Curve_Plot_1D(Multilayer* multilayer, Target_Curve* target_Curve, Independent_Curve* independent_Curve, QString curve_Class, QWidget *parent = nullptr);
 
 	void dragEnterEvent(QDragEnterEvent* event);
 	void dropEvent(QDropEvent* event);

@@ -96,8 +96,8 @@ void Calculation_Settings_Editor::create_Tabs()
 			can_Change_Index = false;
 																										 {global_Multilayer_Approach->                multilayer_Tabs->setCurrentIndex(main_Tabs->currentIndex());}
 			if(global_Multilayer_Approach->runned_Tables_Of_Structures.contains(table_Of_Structures_Key)){global_Multilayer_Approach->table_Of_Structures ->main_Tabs->setCurrentIndex(main_Tabs->currentIndex());}
-			if(global_Multilayer_Approach->runned_Tables_Of_Roughness.contains(table_Of_Roughness_Key))	 {global_Multilayer_Approach->table_Of_Roughness  ->main_Tabs->setCurrentIndex(main_Tabs->currentIndex());}
-			if(global_Multilayer_Approach->runned_Optical_Graphs.contains(optical_Graphs_Key))			 {global_Multilayer_Approach->optical_Graphs	  ->main_Tabs->setCurrentIndex(main_Tabs->currentIndex());}
+			if(global_Multilayer_Approach->runned_Optical_Graphs_2D.contains(optical_Graphs_2D_Key))	 {global_Multilayer_Approach->optical_Graphs_2D	  ->main_Tabs->setCurrentIndex(main_Tabs->currentIndex());}
+			if(global_Multilayer_Approach->runned_Optical_Graphs_1D.contains(optical_Graphs_1D_Key))	 {global_Multilayer_Approach->optical_Graphs_1D	  ->main_Tabs->setCurrentIndex(main_Tabs->currentIndex());}
 			if(global_Multilayer_Approach->runned_Profile_Plots_Window.contains(profile_Plots_Key))		 {global_Multilayer_Approach->profile_Plots_Window->main_Tabs->setCurrentIndex(main_Tabs->currentIndex());}
 			can_Change_Index = tab_synchronization;
 		}
@@ -177,10 +177,11 @@ void Calculation_Settings_Editor::load_Discretization_Parameters(int tab_Index)
 			profile_Plot->discretization_CheckBox->setEnabled(multilayer->discretization_Parameters.enable_Discretization);
 			profile_Plot->plot_Data(true);
 		}
-		if(global_Multilayer_Approach->runned_Optical_Graphs.contains(optical_Graphs_Key))
+		// threshold line only for 1D
+		if(global_Multilayer_Approach->runned_Optical_Graphs_1D.contains(optical_Graphs_1D_Key))
 		{
-			QVector<Curve_Plot*>& tab_Plots = global_Multilayer_Approach->optical_Graphs->plots[tab_Index];
-			for(Curve_Plot* curve_Plot : tab_Plots)
+			QVector<Curve_Plot_1D*>& tab_Plots = global_Multilayer_Approach->optical_Graphs_1D->plots_1D[tab_Index];
+			for(Curve_Plot_1D* curve_Plot : tab_Plots)
 			{
 				if( curve_Plot->measurement.measurement_Type == measurement_Types[Specular_Scan] )
 				{
@@ -218,10 +219,11 @@ void Calculation_Settings_Editor::load_Discretization_Parameters(int tab_Index)
 				Profile_Plot* profile_Plot = global_Multilayer_Approach->profile_Plots_Window->profile_Plot_Vector[tab_Index];
 				profile_Plot->plot_Data(true);
 			}
-			if(global_Multilayer_Approach->runned_Optical_Graphs.contains(optical_Graphs_Key))
+			// threshold line only for 1D
+			if(global_Multilayer_Approach->runned_Optical_Graphs_1D.contains(optical_Graphs_1D_Key))
 			{
-				QVector<Curve_Plot*>& tab_Plots = global_Multilayer_Approach->optical_Graphs->plots[tab_Index];
-				for(Curve_Plot* curve_Plot : tab_Plots)
+				QVector<Curve_Plot_1D*>& tab_Plots = global_Multilayer_Approach->optical_Graphs_1D->plots_1D[tab_Index];
+				for(Curve_Plot_1D* curve_Plot : tab_Plots)
 				{
 					if( curve_Plot->measurement.measurement_Type == measurement_Types[Specular_Scan] )
 					{
@@ -253,8 +255,10 @@ void Calculation_Settings_Editor::load_Target_Parameters(int tab_Index)
 	{
 		multilayer->enable_Calc_Target_Curves = target_Group_Box_Vec[tab_Index]->isChecked();
 
-		global_Multilayer_Approach->independent_Target_Added = target_Group_Box_Vec[tab_Index]->isChecked();
-		reopen_Optical_Graphs(TARGET);
+		global_Multilayer_Approach->independent_Target_Added_1D = target_Group_Box_Vec[tab_Index]->isChecked();
+		global_Multilayer_Approach->independent_Target_Added_2D = target_Group_Box_Vec[tab_Index]->isChecked();
+		reopen_Optical_Graphs_1D(TARGET);
+		reopen_Optical_Graphs_2D(TARGET);
 		activateWindow();
 	});
 
@@ -307,13 +311,20 @@ void Calculation_Settings_Editor::load_Target_Parameters(int tab_Index)
 			horizontal_Layout = new QHBoxLayout; // may be memory leak at the end
 		}
 
-		box->setChecked(target_Curve->fit_Params.calc);
+		box->setChecked(target_Curve->fit_Params.calculate);
 		connect(box, &QGroupBox::toggled, this, [=]
 		{
-			target_Curve->fit_Params.calc = box->isChecked();
-
-			global_Multilayer_Approach->target_Added = box->isChecked();
-			reopen_Optical_Graphs(TARGET);
+			target_Curve->fit_Params.calculate = box->isChecked();
+			if(target_Curve->measurement.measurement_Type != measurement_Types[GISAS_Map])
+			{
+				global_Multilayer_Approach->target_Added_1D = box->isChecked();
+				reopen_Optical_Graphs_1D(TARGET);
+			}
+			if(target_Curve->measurement.measurement_Type == measurement_Types[GISAS_Map])
+			{
+				global_Multilayer_Approach->target_Added_2D = box->isChecked();
+				reopen_Optical_Graphs_2D(TARGET);
+			}
 			activateWindow();
 		});
 
@@ -619,8 +630,10 @@ void Calculation_Settings_Editor::load_Independent_Parameters(int tab_Index)
 	connect(independent_Group_Box_Vec[tab_Index],  &QGroupBox::toggled, this, [=]
 	{
 		multilayer->enable_Calc_Independent_Curves = independent_Group_Box_Vec[tab_Index]->isChecked();
-		global_Multilayer_Approach->independent_Target_Added = independent_Group_Box_Vec[tab_Index]->isChecked();
-		reopen_Optical_Graphs(INDEPENDENT);
+		global_Multilayer_Approach->independent_Target_Added_1D = independent_Group_Box_Vec[tab_Index]->isChecked();
+		global_Multilayer_Approach->independent_Target_Added_2D = independent_Group_Box_Vec[tab_Index]->isChecked();
+		reopen_Optical_Graphs_1D(INDEPENDENT);
+		reopen_Optical_Graphs_2D(INDEPENDENT);
 		activateWindow();
 	});
 
@@ -678,8 +691,17 @@ void Calculation_Settings_Editor::load_Independent_Parameters(int tab_Index)
 		connect(box,  &QGroupBox::toggled, this, [=]
 		{
 			refresh_Independent_Calc_Properties(tab_Index, independent_Index, box);
-			global_Multilayer_Approach->independent_Added = box->isChecked();
-			reopen_Optical_Graphs(INDEPENDENT);
+
+			if(independent_Curve->calc_Functions.if_Something_Enabled_1D())
+			{
+				global_Multilayer_Approach->independent_Added_1D = box->isChecked();
+				reopen_Optical_Graphs_1D(INDEPENDENT);
+			}
+			if(independent_Curve->calc_Functions.if_Something_Enabled_2D())
+			{
+				global_Multilayer_Approach->independent_Added_2D = box->isChecked();
+				reopen_Optical_Graphs_1D(INDEPENDENT);
+			}
 			activateWindow();
 		});
 
@@ -861,36 +883,44 @@ void Calculation_Settings_Editor::refresh_Independent_Calc_Properties(int tab_In
 	if(qobject_cast<QCheckBox*>(sender()))
 	{
 		QCheckBox* check_Box = qobject_cast<QCheckBox*>(sender());
-		if(check_Box->text() == reflectance_Function)	independent_Curve->calc_Functions.check_Reflectance = check_Box->isChecked();
-		if(check_Box->text() == transmittance_Function) independent_Curve->calc_Functions.check_Transmittance = check_Box->isChecked();
-		if(check_Box->text() == absorptance_Function)	independent_Curve->calc_Functions.check_Absorptance = check_Box->isChecked();
+		// 1D
+		if(check_Box->text() == reflectance_Function)	{independent_Curve->calc_Functions.check_Reflectance = check_Box->isChecked();	reopen_Optical_Graphs_1D();}
+		if(check_Box->text() == transmittance_Function) {independent_Curve->calc_Functions.check_Transmittance = check_Box->isChecked();reopen_Optical_Graphs_1D();}
+		if(check_Box->text() == absorptance_Function)	{independent_Curve->calc_Functions.check_Absorptance = check_Box->isChecked();	reopen_Optical_Graphs_1D();}
+		if(check_Box->text() == QString(scattering_Function) + " (" + independent_Curve->measurement.measurement_Type + ")")
+														{independent_Curve->calc_Functions.check_Scattering = check_Box->isChecked();	reopen_Optical_Graphs_1D();}
 
-		if(check_Box->text() == intensity_Function)		independent_Curve->calc_Functions.check_Field = check_Box->isChecked();
-		if(check_Box->text() == joule_Function)			independent_Curve->calc_Functions.check_Joule = check_Box->isChecked();
+		// 2D
+		if(check_Box->text() == intensity_Function)		{independent_Curve->calc_Functions.check_Field = check_Box->isChecked(); reopen_Optical_Graphs_2D();}
+		if(check_Box->text() == joule_Function)			{independent_Curve->calc_Functions.check_Joule = check_Box->isChecked(); reopen_Optical_Graphs_2D();}
+		if(check_Box->text() == gisas_Function)			{independent_Curve->calc_Functions.check_GISAS = check_Box->isChecked(); reopen_Optical_Graphs_2D();}
 
-		if(check_Box->text() == QString(scattering_Function) + " (" + independent_Curve->measurement.measurement_Type + ")")	independent_Curve->calc_Functions.check_Scattering = check_Box->isChecked();
-		if(check_Box->text() == gisas_Function)			independent_Curve->calc_Functions.check_GISAS = check_Box->isChecked();
-
-		global_Multilayer_Approach->calculate(true);
-
-		reopen_Optical_Graphs();
+		global_Multilayer_Approach->calculate(true);		
 		activateWindow();
 	}
-
 	multilayer->independent_Curve_Tabs->setTabText(independent_Index, independent_Curve->tab_Name + independent_Curve->enlarge_Tab_Name());
 	box->setTitle(multilayer->independent_Curve_Tabs->tabText(independent_Index));
 }
 
-void Calculation_Settings_Editor::reopen_Optical_Graphs(QString keep_Splitter)
+void Calculation_Settings_Editor::reopen_Optical_Graphs_1D(QString keep_Splitter)
 {
 	// refresh graphs (anyway)
-	if(global_Multilayer_Approach->runned_Optical_Graphs.contains(optical_Graphs_Key))
+	if(global_Multilayer_Approach->runned_Optical_Graphs_1D.contains(optical_Graphs_1D_Key))
 	{
-		global_Multilayer_Approach->optical_Graphs->close();
-		global_Multilayer_Approach->open_Optical_Graphs(keep_Splitter);
+		global_Multilayer_Approach->optical_Graphs_1D->close();
+		global_Multilayer_Approach->open_Optical_Graphs_1D(keep_Splitter);
 	}
 }
 
+void Calculation_Settings_Editor::reopen_Optical_Graphs_2D(QString keep_Splitter)
+{
+	// refresh graphs (anyway)
+	if(global_Multilayer_Approach->runned_Optical_Graphs_2D.contains(optical_Graphs_2D_Key))
+	{
+		global_Multilayer_Approach->optical_Graphs_2D->close();
+		global_Multilayer_Approach->open_Optical_Graphs_2D(keep_Splitter);
+	}
+}
 
 void Calculation_Settings_Editor::contextMenuEvent(QContextMenuEvent* event)
 {

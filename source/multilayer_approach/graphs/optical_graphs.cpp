@@ -1,8 +1,9 @@
 ﻿#include "optical_graphs.h"
 
-Optical_Graphs::Optical_Graphs(QString keep_Splitter, QWidget* parent) :
+Optical_Graphs::Optical_Graphs(QString dimension, QString keep_Splitter, QWidget* parent) :
 	total_Number_of_Target_Graphs(global_Multilayer_Approach->multilayer_Tabs->count()),
 	total_Number_of_Independent_Graphs(global_Multilayer_Approach->multilayer_Tabs->count()),
+	dimension(dimension),
 	keep_Splitter(keep_Splitter),
 	target_Independent_Splitter_Vec        (global_Multilayer_Approach->multilayer_Tabs->count()),
 	target_Vertical_Splitter_Vec		   (global_Multilayer_Approach->multilayer_Tabs->count()),
@@ -11,10 +12,11 @@ Optical_Graphs::Optical_Graphs(QString keep_Splitter, QWidget* parent) :
 	independent_Horizontal_Splitter_Vec_Vec(global_Multilayer_Approach->multilayer_Tabs->count()),
 	QWidget(parent) // nullptr!
 {
-	setWindowTitle("Graphs");
+	if(	dimension == dim_1D )	setWindowTitle("1D graphs");
+	if(	dimension == dim_2D )	setWindowTitle("2D graphs");
 	create_Main_Layout();
 	set_Window_Geometry();
-	setAttribute(Qt::WA_DeleteOnClose);
+	setAttribute(Qt::WA_DeleteOnClose);	
 }
 
 void Optical_Graphs::contextMenuEvent(QContextMenuEvent* event)
@@ -23,12 +25,13 @@ void Optical_Graphs::contextMenuEvent(QContextMenuEvent* event)
 	QAction settings_Action("Settings");
 	menu.addAction(&settings_Action);
 
-	connect(&settings_Action, &QAction::triggered, this, [=]{ settings();});
+	if(dimension == dim_1D) connect(&settings_Action, &QAction::triggered, this, [=]{ settings_1D();});
+	if(dimension == dim_2D) connect(&settings_Action, &QAction::triggered, this, [=]{ settings_2D();});
 
 	menu.exec(event->globalPos());
 }
 
-void Optical_Graphs::settings()
+void Optical_Graphs::settings_1D()
 {
 	int index = main_Tabs->currentIndex();
 	Multilayer* multilayer = qobject_cast<Multilayer*>(global_Multilayer_Approach->multilayer_Tabs->widget(index));
@@ -59,7 +62,7 @@ void Optical_Graphs::settings()
 	QLabel* target_Rows_Label = new QLabel("Number of \"Measured\" rows");
 	QSpinBox* target_Rows_SpinBox = new QSpinBox;
 		target_Rows_SpinBox->setRange(1, total_Number_of_Target_Graphs[index]);
-		target_Rows_SpinBox->setValue(multilayer->graph_Options.num_Target_Graph_Rows);
+		target_Rows_SpinBox->setValue(multilayer->graph_Options_1D.num_Target_Graph_Rows);
 		target_Rows_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
 		target_Rows_SpinBox->setAccelerated(true);
 		target_Rows_SpinBox->setFixedWidth(25);
@@ -71,7 +74,7 @@ void Optical_Graphs::settings()
 	QLabel* independent_Rows_Label = new QLabel("Number of \"Independent\" rows");
 	QSpinBox* independent_Rows_SpinBox = new QSpinBox;
 		independent_Rows_SpinBox->setRange(1, total_Number_of_Independent_Graphs[index]);
-		independent_Rows_SpinBox->setValue(multilayer->graph_Options.num_Independent_Graph_Rows);
+		independent_Rows_SpinBox->setValue(multilayer->graph_Options_1D.num_Independent_Graph_Rows);
 		independent_Rows_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
 		independent_Rows_SpinBox->setAccelerated(true);
 		independent_Rows_SpinBox->setFixedWidth(25);
@@ -90,32 +93,32 @@ void Optical_Graphs::settings()
 		plots_Settings_Group_Box_Layout->setContentsMargins(5,5,5,5);
 
 	QCheckBox* show_Scatter_Size_CheckBox = new QCheckBox("Show plot symbol size");
-		show_Scatter_Size_CheckBox->setChecked(multilayer->graph_Options.show_Scatter);
+		show_Scatter_Size_CheckBox->setChecked(multilayer->graph_Options_1D.show_Scatter);
 //		show_Scatter_Size_CheckBox->setLayoutDirection(Qt::RightToLeft);
 		plots_Settings_Group_Box_Layout->addWidget(show_Scatter_Size_CheckBox);
 
 	QCheckBox* show_Thickness_CheckBox = new QCheckBox("Show plot line thickness");
-		show_Thickness_CheckBox->setChecked(multilayer->graph_Options.show_Thickness);
+		show_Thickness_CheckBox->setChecked(multilayer->graph_Options_1D.show_Thickness);
 		plots_Settings_Group_Box_Layout->addWidget(show_Thickness_CheckBox);
 
 	QCheckBox* show_X_Scale_CheckBox = new QCheckBox("Show X scale");
-		show_X_Scale_CheckBox->setChecked(multilayer->graph_Options.show_X_Scale);
+		show_X_Scale_CheckBox->setChecked(multilayer->graph_Options_1D.show_X_Scale);
 		plots_Settings_Group_Box_Layout->addWidget(show_X_Scale_CheckBox);
 
 	QCheckBox* show_Max_Value_CheckBox = new QCheckBox("Show max calc value");
-		show_Max_Value_CheckBox->setChecked(multilayer->graph_Options.show_Max_Value);
+		show_Max_Value_CheckBox->setChecked(multilayer->graph_Options_1D.show_Max_Value);
 		plots_Settings_Group_Box_Layout->addWidget(show_Max_Value_CheckBox);
 
 	QCheckBox* show_Current_Coordinate_CheckBox = new QCheckBox("Show cursor position");
-		show_Current_Coordinate_CheckBox->setChecked(multilayer->graph_Options.show_Current_Coordinate);
+		show_Current_Coordinate_CheckBox->setChecked(multilayer->graph_Options_1D.show_Current_Coordinate);
 		plots_Settings_Group_Box_Layout->addWidget(show_Current_Coordinate_CheckBox);
 
 	QCheckBox* show_Title_CheckBox = new QCheckBox("Show plot title");
-		show_Title_CheckBox->setChecked(multilayer->graph_Options.show_Title);
+		show_Title_CheckBox->setChecked(multilayer->graph_Options_1D.show_Title);
 		plots_Settings_Group_Box_Layout->addWidget(show_Title_CheckBox);
 
 	QCheckBox* replot_Graphs_During_Fitting_CheckBox = new QCheckBox("Replot while fitting");
-		replot_Graphs_During_Fitting_CheckBox->setChecked(replot_Graphs_During_Fitting);
+		replot_Graphs_During_Fitting_CheckBox->setChecked(replot_Graphs_During_Fitting_1D);
 		plots_Settings_Group_Box_Layout->addWidget(replot_Graphs_During_Fitting_CheckBox);
 
 	// buttons
@@ -134,27 +137,136 @@ void Optical_Graphs::settings()
 	{
 		int active_Tab = main_Tabs->currentIndex();
 		close();
-		multilayer->graph_Options.num_Target_Graph_Rows = target_Rows_SpinBox->value();
-		multilayer->graph_Options.num_Independent_Graph_Rows = independent_Rows_SpinBox->value();
+		multilayer->graph_Options_1D.num_Target_Graph_Rows = target_Rows_SpinBox->value();
+		multilayer->graph_Options_1D.num_Independent_Graph_Rows = independent_Rows_SpinBox->value();
 
 		// additional
-		multilayer->graph_Options.show_Scatter = show_Scatter_Size_CheckBox->isChecked();
-		multilayer->graph_Options.show_Thickness = show_Thickness_CheckBox->isChecked();
-		multilayer->graph_Options.show_X_Scale = show_X_Scale_CheckBox->isChecked();
-		multilayer->graph_Options.show_Max_Value = show_Max_Value_CheckBox->isChecked();
-		multilayer->graph_Options.show_Current_Coordinate = show_Current_Coordinate_CheckBox->isChecked();
-		multilayer->graph_Options.show_Title = show_Title_CheckBox->isChecked();
-		replot_Graphs_During_Fitting = replot_Graphs_During_Fitting_CheckBox->isChecked();
+		multilayer->graph_Options_1D.show_Scatter = show_Scatter_Size_CheckBox->isChecked();
+		multilayer->graph_Options_1D.show_Thickness = show_Thickness_CheckBox->isChecked();
+		multilayer->graph_Options_1D.show_X_Scale = show_X_Scale_CheckBox->isChecked();
+		multilayer->graph_Options_1D.show_Max_Value = show_Max_Value_CheckBox->isChecked();
+		multilayer->graph_Options_1D.show_Current_Coordinate = show_Current_Coordinate_CheckBox->isChecked();
+		multilayer->graph_Options_1D.show_Title = show_Title_CheckBox->isChecked();
+		replot_Graphs_During_Fitting_1D = replot_Graphs_During_Fitting_CheckBox->isChecked();
 
-		global_Multilayer_Approach->open_Optical_Graphs(TARGET_AND_INDEPENDENT);
-		global_Multilayer_Approach->optical_Graphs->main_Tabs->setCurrentIndex(active_Tab);
+		global_Multilayer_Approach->open_Optical_Graphs_1D(TARGET_AND_INDEPENDENT);
+		global_Multilayer_Approach->optical_Graphs_1D->main_Tabs->setCurrentIndex(active_Tab);
+		settings_Window->close();
+	});
+}
+
+void Optical_Graphs::settings_2D()
+{
+	int index = main_Tabs->currentIndex();
+	Multilayer* multilayer = qobject_cast<Multilayer*>(global_Multilayer_Approach->multilayer_Tabs->widget(index));
+
+	QWidget* settings_Window = new QWidget(this);
+		settings_Window->setWindowTitle("Graphs Settings");
+		settings_Window->setWindowModality(Qt::ApplicationModal);
+		settings_Window->setAttribute(Qt::WA_DeleteOnClose);
+		settings_Window->setWindowFlags(Qt::Window);
+		settings_Window->show();
+
+	QVBoxLayout* settings_Main_Layout = new QVBoxLayout(settings_Window);
+		settings_Main_Layout->setSizeConstraint(QLayout::SetFixedSize);
+		settings_Main_Layout->setSpacing(5);
+		settings_Main_Layout->setContentsMargins(5,5,5,5);
+
+	// settings group box
+	QGroupBox* settings_Group_Box = new QGroupBox;
+		settings_Group_Box->setObjectName("settings_Group_Box_2D");
+		settings_Group_Box->setStyleSheet("QGroupBox#settings_Group_Box_2D { border-radius: 2px;  border: 1px solid gray; margin-top: 0ex;}"
+													"QGroupBox::title   { subcontrol-origin: margin;   left: 9px; padding: 0 0px 0 1px;}");
+	settings_Main_Layout->addWidget(settings_Group_Box);
+
+	QGridLayout* settings_Group_Box_Layout = new QGridLayout(settings_Group_Box);
+		settings_Group_Box_Layout->setContentsMargins(5,5,5,5);
+
+	// num target rows
+	QLabel* target_Rows_Label = new QLabel("Number of \"Measured\" rows");
+	QSpinBox* target_Rows_SpinBox = new QSpinBox;
+		target_Rows_SpinBox->setRange(1, total_Number_of_Target_Graphs[index]);
+		target_Rows_SpinBox->setValue(multilayer->graph_Options_2D.num_Target_Graph_Rows);
+		target_Rows_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
+		target_Rows_SpinBox->setAccelerated(true);
+		target_Rows_SpinBox->setFixedWidth(25);
+
+	settings_Group_Box_Layout->addWidget(target_Rows_Label,		0,0,1,1);
+	settings_Group_Box_Layout->addWidget(target_Rows_SpinBox,	0,1,1,1);
+
+	// num independent rows
+	QLabel* independent_Rows_Label = new QLabel("Number of \"Independent\" rows");
+	QSpinBox* independent_Rows_SpinBox = new QSpinBox;
+		independent_Rows_SpinBox->setRange(1, total_Number_of_Independent_Graphs[index]);
+		independent_Rows_SpinBox->setValue(multilayer->graph_Options_2D.num_Independent_Graph_Rows);
+		independent_Rows_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
+		independent_Rows_SpinBox->setAccelerated(true);
+		independent_Rows_SpinBox->setFixedWidth(25);
+
+	settings_Group_Box_Layout->addWidget(independent_Rows_Label,	1,0,1,1);
+	settings_Group_Box_Layout->addWidget(independent_Rows_SpinBox,	1,1,1,1);
+
+	// additional settings group box
+	QGroupBox* plots_Settings_Group_Box = new QGroupBox;
+		plots_Settings_Group_Box->setObjectName("plots_Settings_Group_Box_2D");
+		plots_Settings_Group_Box->setStyleSheet("QGroupBox#plots_Settings_Group_Box_2D { border-radius: 2px;  border: 1px solid gray; margin-top: 0ex;}"
+																"QGroupBox::title   { subcontrol-origin: margin;   left: 9px; padding: 0 0px 0 1px;}");
+	settings_Main_Layout->addWidget(plots_Settings_Group_Box);
+
+	QVBoxLayout* plots_Settings_Group_Box_Layout = new QVBoxLayout(plots_Settings_Group_Box);
+		plots_Settings_Group_Box_Layout->setContentsMargins(5,5,5,5);
+
+	QCheckBox* show_Current_Coordinate_CheckBox = new QCheckBox("Show cursor position");
+		show_Current_Coordinate_CheckBox->setChecked(multilayer->graph_Options_2D.show_Current_Coordinate);
+	plots_Settings_Group_Box_Layout->addWidget(show_Current_Coordinate_CheckBox);
+
+	QCheckBox* show_Title_CheckBox = new QCheckBox("Show plot title");
+		show_Title_CheckBox->setChecked(multilayer->graph_Options_2D.show_Title);
+	plots_Settings_Group_Box_Layout->addWidget(show_Title_CheckBox);
+
+	QCheckBox* show_Interpolation_CheckBox = new QCheckBox("Show interpolation");
+		show_Interpolation_CheckBox->setChecked(multilayer->graph_Options_2D.show_Interpolation);
+	plots_Settings_Group_Box_Layout->addWidget(show_Interpolation_CheckBox);
+
+	QCheckBox* replot_Graphs_During_Fitting_CheckBox = new QCheckBox("Replot while fitting");
+		replot_Graphs_During_Fitting_CheckBox->setChecked(replot_Graphs_During_Fitting_2D);
+	plots_Settings_Group_Box_Layout->addWidget(replot_Graphs_During_Fitting_CheckBox);
+
+	// buttons
+	QHBoxLayout* buttons_Layout = new QHBoxLayout;
+		buttons_Layout->setSpacing(10);
+		buttons_Layout->setContentsMargins(0,0,0,0);
+
+	QPushButton* ok_Button = new QPushButton ("OK");
+	QPushButton* cancel_Button = new QPushButton("Cancel");
+		buttons_Layout->addWidget(ok_Button);
+		buttons_Layout->addWidget(cancel_Button);
+	settings_Main_Layout->addLayout(buttons_Layout);
+
+	connect(cancel_Button,  &QPushButton::clicked, this, [=]{settings_Window->close();});
+	connect(ok_Button,      &QPushButton::clicked, this, [=]
+	{
+		int active_Tab = main_Tabs->currentIndex();
+		close();
+		multilayer->graph_Options_2D.num_Target_Graph_Rows = target_Rows_SpinBox->value();
+		multilayer->graph_Options_2D.num_Independent_Graph_Rows = independent_Rows_SpinBox->value();
+
+		// additional
+		multilayer->graph_Options_2D.show_Current_Coordinate = show_Current_Coordinate_CheckBox->isChecked();
+		multilayer->graph_Options_2D.show_Title = show_Title_CheckBox->isChecked();
+		multilayer->graph_Options_2D.show_Interpolation = show_Interpolation_CheckBox->isChecked();
+		replot_Graphs_During_Fitting_2D = replot_Graphs_During_Fitting_CheckBox->isChecked();
+
+		global_Multilayer_Approach->open_Optical_Graphs_2D(TARGET_AND_INDEPENDENT);
+		global_Multilayer_Approach->optical_Graphs_2D->main_Tabs->setCurrentIndex(active_Tab);
 		settings_Window->close();
 	});
 }
 
 void Optical_Graphs::closeEvent(QCloseEvent* event)
 {
-	global_Multilayer_Approach->runned_Optical_Graphs.remove(optical_Graphs_Key);
+	if(dimension == dim_1D)	global_Multilayer_Approach->runned_Optical_Graphs_1D.remove(optical_Graphs_1D_Key);
+	if(dimension == dim_2D)	global_Multilayer_Approach->runned_Optical_Graphs_2D.remove(optical_Graphs_2D_Key);
 	global_Multilayer_Approach->unlock_Mainwindow_Interface();
 
 	save_Geometry();
@@ -172,14 +284,35 @@ void Optical_Graphs::save_Geometry()
 	{
 		Multilayer* multilayer = qobject_cast<Multilayer*>(global_Multilayer_Approach->multilayer_Tabs->widget(tab_Index));
 
-		global_Multilayer_Approach->target_Independent_Splitter_Position_Vec[tab_Index] = target_Independent_Splitter_Vec[tab_Index]->saveState();
-		global_Multilayer_Approach->target_Vertical_Splitter_Position_Vec[tab_Index] = target_Vertical_Splitter_Vec[tab_Index]->saveState();
-		for(int row=0; row<multilayer->graph_Options.num_Target_Graph_Rows; row++)			{
-			global_Multilayer_Approach->target_Horizontal_Splitter_Position_Vec_Vec[tab_Index][row] = target_Horizontal_Splitter_Vec_Vec[tab_Index][row]->saveState();
+		// 1D
+		if(dimension == dim_1D)
+		{
+			global_Multilayer_Approach->target_Independent_Splitter_Position_1D_Vec[tab_Index] = target_Independent_Splitter_Vec[tab_Index]->saveState();
+			global_Multilayer_Approach->target_Vertical_Splitter_Position_1D_Vec[tab_Index] = target_Vertical_Splitter_Vec[tab_Index]->saveState();
+			for(int row=0; row<multilayer->graph_Options_1D.num_Target_Graph_Rows; row++)
+			{
+				global_Multilayer_Approach->target_Horizontal_Splitter_Position_1D_Vec_Vec[tab_Index][row] = target_Horizontal_Splitter_Vec_Vec[tab_Index][row]->saveState();
+			}
+			global_Multilayer_Approach->independent_Vertical_Splitter_Position_1D_Vec[tab_Index] = independent_Vertical_Splitter_Vec[tab_Index]->saveState();
+			for(int row=0; row<multilayer->graph_Options_1D.num_Independent_Graph_Rows; row++)
+			{
+				global_Multilayer_Approach->independent_Horizontal_Splitter_Position_1D_Vec_Vec[tab_Index][row] = independent_Horizontal_Splitter_Vec_Vec[tab_Index][row]->saveState();
+			}
 		}
-		global_Multilayer_Approach->independent_Vertical_Splitter_Position_Vec[tab_Index] = independent_Vertical_Splitter_Vec[tab_Index]->saveState();
-		for(int row=0; row<multilayer->graph_Options.num_Independent_Graph_Rows; row++)		{
-			global_Multilayer_Approach->independent_Horizontal_Splitter_Position_Vec_Vec[tab_Index][row] = independent_Horizontal_Splitter_Vec_Vec[tab_Index][row]->saveState();
+		// 2D
+		if(dimension == dim_2D)
+		{
+			global_Multilayer_Approach->target_Independent_Splitter_Position_2D_Vec[tab_Index] = target_Independent_Splitter_Vec[tab_Index]->saveState();
+			global_Multilayer_Approach->target_Vertical_Splitter_Position_2D_Vec[tab_Index] = target_Vertical_Splitter_Vec[tab_Index]->saveState();
+			for(int row=0; row<multilayer->graph_Options_2D.num_Target_Graph_Rows; row++)
+			{
+				global_Multilayer_Approach->target_Horizontal_Splitter_Position_2D_Vec_Vec[tab_Index][row] = target_Horizontal_Splitter_Vec_Vec[tab_Index][row]->saveState();
+			}
+			global_Multilayer_Approach->independent_Vertical_Splitter_Position_2D_Vec[tab_Index] = independent_Vertical_Splitter_Vec[tab_Index]->saveState();
+			for(int row=0; row<multilayer->graph_Options_2D.num_Independent_Graph_Rows; row++)
+			{
+				global_Multilayer_Approach->independent_Horizontal_Splitter_Position_2D_Vec_Vec[tab_Index][row] = independent_Horizontal_Splitter_Vec_Vec[tab_Index][row]->saveState();
+			}
 		}
 	}
 }
@@ -220,7 +353,7 @@ void Optical_Graphs::create_Tabs()
 			can_Change_Index = false;
 																										  {global_Multilayer_Approach->						  multilayer_Tabs->setCurrentIndex(main_Tabs->currentIndex());}
 			if(global_Multilayer_Approach->runned_Tables_Of_Structures.contains(table_Of_Structures_Key)) {global_Multilayer_Approach->table_Of_Structures		  ->main_Tabs->setCurrentIndex(main_Tabs->currentIndex());}
-			if(global_Multilayer_Approach->runned_Tables_Of_Roughness.contains(table_Of_Roughness_Key))	  {global_Multilayer_Approach->table_Of_Roughness		  ->main_Tabs->setCurrentIndex(main_Tabs->currentIndex());}
+			if(global_Multilayer_Approach->runned_Optical_Graphs_2D.contains(optical_Graphs_2D_Key))	  {global_Multilayer_Approach->optical_Graphs_2D		  ->main_Tabs->setCurrentIndex(main_Tabs->currentIndex());}
 			if(global_Multilayer_Approach->runned_Profile_Plots_Window.contains(profile_Plots_Key))		  {global_Multilayer_Approach->profile_Plots_Window       ->main_Tabs->setCurrentIndex(main_Tabs->currentIndex());}
 			if(global_Multilayer_Approach->runned_Calculation_Settings_Editor.contains(calc_Settings_Key)){global_Multilayer_Approach->calculation_Settings_Editor->main_Tabs->setCurrentIndex(main_Tabs->currentIndex());}
 			can_Change_Index = tab_synchronization;
@@ -230,11 +363,24 @@ void Optical_Graphs::create_Tabs()
 
 void Optical_Graphs::add_Tabs()
 {
-	global_Multilayer_Approach->target_Independent_Splitter_Position_Vec.resize		   (global_Multilayer_Approach->multilayer_Tabs->count());
-	global_Multilayer_Approach->target_Vertical_Splitter_Position_Vec.resize		   (global_Multilayer_Approach->multilayer_Tabs->count());
-	global_Multilayer_Approach->target_Horizontal_Splitter_Position_Vec_Vec.resize	   (global_Multilayer_Approach->multilayer_Tabs->count());
-	global_Multilayer_Approach->independent_Vertical_Splitter_Position_Vec.resize	   (global_Multilayer_Approach->multilayer_Tabs->count());
-	global_Multilayer_Approach->independent_Horizontal_Splitter_Position_Vec_Vec.resize(global_Multilayer_Approach->multilayer_Tabs->count());
+	// 1D
+	if(dimension == dim_1D)
+	{
+		global_Multilayer_Approach->target_Independent_Splitter_Position_1D_Vec.resize		   (global_Multilayer_Approach->multilayer_Tabs->count());
+		global_Multilayer_Approach->target_Vertical_Splitter_Position_1D_Vec.resize			   (global_Multilayer_Approach->multilayer_Tabs->count());
+		global_Multilayer_Approach->target_Horizontal_Splitter_Position_1D_Vec_Vec.resize	   (global_Multilayer_Approach->multilayer_Tabs->count());
+		global_Multilayer_Approach->independent_Vertical_Splitter_Position_1D_Vec.resize	   (global_Multilayer_Approach->multilayer_Tabs->count());
+		global_Multilayer_Approach->independent_Horizontal_Splitter_Position_1D_Vec_Vec.resize (global_Multilayer_Approach->multilayer_Tabs->count());
+	}
+	// 2D
+	if(dimension == dim_2D)
+	{
+		global_Multilayer_Approach->target_Independent_Splitter_Position_2D_Vec.resize		   (global_Multilayer_Approach->multilayer_Tabs->count());
+		global_Multilayer_Approach->target_Vertical_Splitter_Position_2D_Vec.resize			   (global_Multilayer_Approach->multilayer_Tabs->count());
+		global_Multilayer_Approach->target_Horizontal_Splitter_Position_2D_Vec_Vec.resize	   (global_Multilayer_Approach->multilayer_Tabs->count());
+		global_Multilayer_Approach->independent_Vertical_Splitter_Position_2D_Vec.resize	   (global_Multilayer_Approach->multilayer_Tabs->count());
+		global_Multilayer_Approach->independent_Horizontal_Splitter_Position_2D_Vec_Vec.resize (global_Multilayer_Approach->multilayer_Tabs->count());
+	}
 
 	for(int tab_Index=0; tab_Index<global_Multilayer_Approach->multilayer_Tabs->count(); ++tab_Index)
 	{
@@ -262,7 +408,8 @@ void Optical_Graphs::create_Tab_Content(QWidget* new_Widget, int tab_Index)
 	tab_Layout->addWidget(target_Independent_Splitter);
 	target_Independent_Splitter_Vec[tab_Index] = target_Independent_Splitter;
 
-	QVector<Curve_Plot*> tab_Plots;
+	QVector<Curve_Plot_1D*> tab_Plots_1D;
+	QVector<Curve_Plot_2D*> tab_Plots_2D;
 	// target
 	{
 		// calculate total number of graphs
@@ -273,11 +420,18 @@ void Optical_Graphs::create_Tab_Content(QWidget* new_Widget, int tab_Index)
 		for(Target_Curve* target_Curve : multilayer->target_Profiles_Vector)
 		{
 			if(target_Curve->loaded_And_Ready)
-			if(target_Curve->fit_Params.calc)
-			if(target_Curve->measurement.measurement_Type != measurement_Types[GISAS_Map])
+			if(target_Curve->fit_Params.calculate)
 			{
-				target_Profiles_to_Show.append(target_Curve);
-				total_Number_of_Target_Graphs[tab_Index]++;
+				if(dimension == dim_1D && target_Curve->measurement.measurement_Type != measurement_Types[GISAS_Map])
+				{
+					target_Profiles_to_Show.append(target_Curve);
+					total_Number_of_Target_Graphs[tab_Index]++;
+				}
+				if(dimension == dim_2D && target_Curve->measurement.measurement_Type == measurement_Types[GISAS_Map])
+				{
+					target_Profiles_to_Show.append(target_Curve);
+					total_Number_of_Target_Graphs[tab_Index]++;
+				}
 			}
 		}
 
@@ -292,27 +446,29 @@ void Optical_Graphs::create_Tab_Content(QWidget* new_Widget, int tab_Index)
 			target_Layout->setSpacing(0);
 			target_Layout->setContentsMargins(0,3,0,3);
 
-		QSplitter* target_Vertical_Splitter = new QSplitter;
+		MySplitter* target_Vertical_Splitter = new MySplitter;
 			target_Vertical_Splitter->setOrientation(Qt::Vertical);
+			target_Vertical_Splitter->setChildrenCollapsible(false);
 			target_Vertical_Splitter->setHandleWidth(1);
 			target_Vertical_Splitter->setStyleSheet("QSplitter::handle{border: 0px solid gray; background: gray;}");
 		target_Layout->addWidget(target_Vertical_Splitter);
 		target_Vertical_Splitter_Vec[tab_Index] = target_Vertical_Splitter;
-		target_Horizontal_Splitter_Vec_Vec[tab_Index].resize(multilayer->graph_Options.num_Target_Graph_Rows);
-		for(int row=0; row<multilayer->graph_Options.num_Target_Graph_Rows; row++)
+		target_Horizontal_Splitter_Vec_Vec[tab_Index].resize(multilayer->graph_Options_1D.num_Target_Graph_Rows);
+		for(int row=0; row<multilayer->graph_Options_1D.num_Target_Graph_Rows; row++)
 		{
 			QSplitter* target_Horizontal_Splitter = new QSplitter;
-			target_Horizontal_Splitter->setOrientation(Qt::Horizontal);
-			target_Horizontal_Splitter->setHandleWidth(1);
-			target_Horizontal_Splitter->setStyleSheet("QSplitter::handle{border: 0px solid gray; background: gray;}");
+				target_Horizontal_Splitter->setOrientation(Qt::Horizontal);
+				target_Horizontal_Splitter->setChildrenCollapsible(false);
+				target_Horizontal_Splitter->setHandleWidth(1);
+				target_Horizontal_Splitter->setStyleSheet("QSplitter::handle{border: 0px solid gray; background: gray;}");
 			target_Horizontal_Splitter_Vec_Vec[tab_Index][row] = target_Horizontal_Splitter;
 			target_Vertical_Splitter->addWidget(target_Horizontal_Splitter);
 		}
 
 		// fill splitters with graphs
-		int graphs_in_Short_Row = total_Number_of_Target_Graphs[tab_Index]/multilayer->graph_Options.num_Target_Graph_Rows;
-		int additional_Graphs = total_Number_of_Target_Graphs[tab_Index]%multilayer->graph_Options.num_Target_Graph_Rows;
-		int first_Long_Row_Index = multilayer->graph_Options.num_Target_Graph_Rows-additional_Graphs;
+		int graphs_in_Short_Row = total_Number_of_Target_Graphs[tab_Index]/multilayer->graph_Options_1D.num_Target_Graph_Rows;
+		int additional_Graphs = total_Number_of_Target_Graphs[tab_Index]%multilayer->graph_Options_1D.num_Target_Graph_Rows;
+		int first_Long_Row_Index = multilayer->graph_Options_1D.num_Target_Graph_Rows-additional_Graphs;
 
 		int current_Row = 0;
 		int graphs_in_Filled_Rows = 0;
@@ -320,12 +476,19 @@ void Optical_Graphs::create_Tab_Content(QWidget* new_Widget, int tab_Index)
 
 		for(int graph_Index=0; graph_Index<total_Number_of_Target_Graphs[tab_Index]; graph_Index++)
 		{
-			Curve_Plot* new_Curve_Plot = new Curve_Plot(multilayer, target_Profiles_to_Show[graph_Index], nullptr, TARGET);
-			tab_Plots.append(new_Curve_Plot);
-
+			if(	dimension == dim_1D )
+			{
+				Curve_Plot_1D* new_Curve_Plot_1D = new Curve_Plot_1D(multilayer, target_Profiles_to_Show[graph_Index], nullptr, TARGET);
+				tab_Plots_1D.append(new_Curve_Plot_1D);
+				target_Horizontal_Splitter_Vec_Vec[tab_Index][current_Row]->addWidget(new_Curve_Plot_1D);
+			}
+			if(	dimension == dim_2D )
+			{
+				Curve_Plot_2D* new_Curve_Plot_2D = new Curve_Plot_2D(multilayer, target_Profiles_to_Show[graph_Index], nullptr, TARGET);
+				tab_Plots_2D.append(new_Curve_Plot_2D);
+				target_Horizontal_Splitter_Vec_Vec[tab_Index][current_Row]->addWidget(new_Curve_Plot_2D);
+			}
 			if(current_Row < first_Long_Row_Index) length = graphs_in_Short_Row; else length = graphs_in_Short_Row + 1;
-
-			target_Horizontal_Splitter_Vec_Vec[tab_Index][current_Row]->addWidget(new_Curve_Plot);
 
 			if(graph_Index == graphs_in_Filled_Rows+length-1)
 			{
@@ -346,10 +509,17 @@ void Optical_Graphs::create_Tab_Content(QWidget* new_Widget, int tab_Index)
 		{
 			Independent_Curve* independent_Variables = qobject_cast<Independent_Curve*>(multilayer->independent_Curve_Tabs->widget(i));
 			if( independent_Variables->calc_Functions.check_Enabled	)
-			if(	independent_Variables->calc_Functions.if_Something_Enabled() )
 			{
-				independent_Profiles_to_Show.append(independent_Variables);
-				total_Number_of_Independent_Graphs[tab_Index]++;
+				if(	dimension == dim_1D && independent_Variables->calc_Functions.if_Something_Enabled_1D() )
+				{
+					independent_Profiles_to_Show.append(independent_Variables);
+					total_Number_of_Independent_Graphs[tab_Index]++;
+				}
+				if(	dimension == dim_2D && independent_Variables->calc_Functions.if_Something_Enabled_2D() )
+				{
+					independent_Profiles_to_Show.append(independent_Variables);
+					total_Number_of_Independent_Graphs[tab_Index]++;
+				}
 			}
 		}
 
@@ -365,26 +535,28 @@ void Optical_Graphs::create_Tab_Content(QWidget* new_Widget, int tab_Index)
 		independent_Layout->setContentsMargins(0,8,0,3);
 
 		QSplitter* independent_Vertical_Splitter = new QSplitter;
-		independent_Vertical_Splitter->setOrientation(Qt::Vertical);
-		independent_Vertical_Splitter->setHandleWidth(1);
-		independent_Vertical_Splitter->setStyleSheet("QSplitter::handle{border: 0px solid gray; background: gray;}");
+			independent_Vertical_Splitter->setOrientation(Qt::Vertical);
+			independent_Vertical_Splitter->setChildrenCollapsible(false);
+			independent_Vertical_Splitter->setHandleWidth(1);
+			independent_Vertical_Splitter->setStyleSheet("QSplitter::handle{border: 0px solid gray; background: gray;}");
 		independent_Layout->addWidget(independent_Vertical_Splitter);
 		independent_Vertical_Splitter_Vec[tab_Index] = independent_Vertical_Splitter;
-		independent_Horizontal_Splitter_Vec_Vec[tab_Index].resize(multilayer->graph_Options.num_Independent_Graph_Rows);
-		for(int row=0; row<multilayer->graph_Options.num_Independent_Graph_Rows; row++)
+		independent_Horizontal_Splitter_Vec_Vec[tab_Index].resize(multilayer->graph_Options_1D.num_Independent_Graph_Rows);
+		for(int row=0; row<multilayer->graph_Options_1D.num_Independent_Graph_Rows; row++)
 		{
 			QSplitter* independent_Horizontal_Splitter = new QSplitter;
-			independent_Horizontal_Splitter->setOrientation(Qt::Horizontal);
-			independent_Horizontal_Splitter->setHandleWidth(1);
-			independent_Horizontal_Splitter->setStyleSheet("QSplitter::handle{border: 0px solid gray; background: gray;}");
+				independent_Horizontal_Splitter->setOrientation(Qt::Horizontal);
+				independent_Horizontal_Splitter->setChildrenCollapsible(false);
+				independent_Horizontal_Splitter->setHandleWidth(1);
+				independent_Horizontal_Splitter->setStyleSheet("QSplitter::handle{border: 0px solid gray; background: gray;}");
 			independent_Horizontal_Splitter_Vec_Vec[tab_Index][row] = independent_Horizontal_Splitter;
 			independent_Vertical_Splitter->addWidget(independent_Horizontal_Splitter);
 		}
 
 		// fill splitters with graphs
-		int graphs_in_Short_Row = total_Number_of_Independent_Graphs[tab_Index]/multilayer->graph_Options.num_Independent_Graph_Rows;
-		int additional_Graphs = total_Number_of_Independent_Graphs[tab_Index]%multilayer->graph_Options.num_Independent_Graph_Rows;
-		int first_Long_Row_Index = multilayer->graph_Options.num_Independent_Graph_Rows-additional_Graphs;
+		int graphs_in_Short_Row = total_Number_of_Independent_Graphs[tab_Index]/multilayer->graph_Options_1D.num_Independent_Graph_Rows;
+		int additional_Graphs = total_Number_of_Independent_Graphs[tab_Index]%multilayer->graph_Options_1D.num_Independent_Graph_Rows;
+		int first_Long_Row_Index = multilayer->graph_Options_1D.num_Independent_Graph_Rows-additional_Graphs;
 
 		int current_Row = 0;
 		int graphs_in_Filled_Rows = 0;
@@ -392,12 +564,19 @@ void Optical_Graphs::create_Tab_Content(QWidget* new_Widget, int tab_Index)
 
 		for(int graph_Index=0; graph_Index<total_Number_of_Independent_Graphs[tab_Index]; graph_Index++)
 		{
-			Curve_Plot* new_Curve_Plot = new Curve_Plot(multilayer, nullptr, independent_Profiles_to_Show[graph_Index], INDEPENDENT);
-			tab_Plots.append(new_Curve_Plot);
-
+			if(	dimension == dim_1D )
+			{
+				Curve_Plot_1D* new_Curve_Plot_1D = new Curve_Plot_1D(multilayer, nullptr, independent_Profiles_to_Show[graph_Index], INDEPENDENT);
+				tab_Plots_1D.append(new_Curve_Plot_1D);
+				independent_Horizontal_Splitter_Vec_Vec[tab_Index][current_Row]->addWidget(new_Curve_Plot_1D);
+			}
+			if(	dimension == dim_2D )
+			{
+				Curve_Plot_2D* new_Curve_Plot_2D = new Curve_Plot_2D(multilayer, nullptr, independent_Profiles_to_Show[graph_Index], INDEPENDENT);
+				tab_Plots_2D.append(new_Curve_Plot_2D);
+				independent_Horizontal_Splitter_Vec_Vec[tab_Index][current_Row]->addWidget(new_Curve_Plot_2D);
+			}
 			if(current_Row < first_Long_Row_Index) length = graphs_in_Short_Row; else length = graphs_in_Short_Row + 1;
-
-			independent_Horizontal_Splitter_Vec_Vec[tab_Index][current_Row]->addWidget(new_Curve_Plot);
 
 			if(graph_Index == graphs_in_Filled_Rows+length-1)
 			{
@@ -407,59 +586,122 @@ void Optical_Graphs::create_Tab_Content(QWidget* new_Widget, int tab_Index)
 		}
 		independent_GroupBox_Vec.append(independent_Group_Box);
 	}
-	plots.append(tab_Plots);
+	if(	dimension == dim_1D ) plots_1D.append(tab_Plots_1D);
+	if(	dimension == dim_2D ) plots_2D.append(tab_Plots_2D);
 
 	// restore splitter positions
-	global_Multilayer_Approach->target_Horizontal_Splitter_Position_Vec_Vec     [tab_Index].resize(multilayer->graph_Options.num_Target_Graph_Rows);
-	global_Multilayer_Approach->independent_Horizontal_Splitter_Position_Vec_Vec[tab_Index].resize(multilayer->graph_Options.num_Independent_Graph_Rows);
+	if(	dimension == dim_1D ) global_Multilayer_Approach->target_Horizontal_Splitter_Position_1D_Vec_Vec     [tab_Index].resize(multilayer->graph_Options_1D.num_Target_Graph_Rows);
+	if(	dimension == dim_2D ) global_Multilayer_Approach->target_Horizontal_Splitter_Position_2D_Vec_Vec     [tab_Index].resize(multilayer->graph_Options_2D.num_Target_Graph_Rows);
+	if(	dimension == dim_1D ) global_Multilayer_Approach->independent_Horizontal_Splitter_Position_1D_Vec_Vec[tab_Index].resize(multilayer->graph_Options_1D.num_Independent_Graph_Rows);
+	if(	dimension == dim_2D ) global_Multilayer_Approach->independent_Horizontal_Splitter_Position_2D_Vec_Vec[tab_Index].resize(multilayer->graph_Options_2D.num_Independent_Graph_Rows);
 
 	if(keep_Splitter != TARGET_AND_INDEPENDENT)
 	{
-		if(!global_Multilayer_Approach->independent_Target_Added)		{
-			target_Independent_Splitter_Vec  [tab_Index]->restoreState(global_Multilayer_Approach->target_Independent_Splitter_Position_Vec  [tab_Index]);
+		if(	dimension == dim_1D )
+		{
+			if(!global_Multilayer_Approach->independent_Target_Added_1D)
+			{
+				target_Independent_Splitter_Vec[tab_Index]->restoreState(global_Multilayer_Approach->target_Independent_Splitter_Position_1D_Vec[tab_Index]);
+			}
+		}
+		if(	dimension == dim_2D )
+		{
+			if(!global_Multilayer_Approach->independent_Target_Added_2D)
+			{
+				target_Independent_Splitter_Vec[tab_Index]->restoreState(global_Multilayer_Approach->target_Independent_Splitter_Position_2D_Vec[tab_Index]);
+			}
 		}
 
 		if(keep_Splitter != TARGET)
 		{
-			target_Vertical_Splitter_Vec[tab_Index]->restoreState(global_Multilayer_Approach->target_Vertical_Splitter_Position_Vec[tab_Index]);
-
-			for(int row=0; row<multilayer->graph_Options.num_Target_Graph_Rows; row++)
+			if(	dimension == dim_1D )
 			{
-				if(!global_Multilayer_Approach->target_Added)		{
-					target_Horizontal_Splitter_Vec_Vec[tab_Index][row]->restoreState(global_Multilayer_Approach->target_Horizontal_Splitter_Position_Vec_Vec[tab_Index][row]);
+				target_Vertical_Splitter_Vec[tab_Index]->restoreState(global_Multilayer_Approach->target_Vertical_Splitter_Position_1D_Vec[tab_Index]);
+				for(int row=0; row<multilayer->graph_Options_1D.num_Target_Graph_Rows; row++)
+				{
+					if(!global_Multilayer_Approach->target_Added_1D)
+					{
+						target_Horizontal_Splitter_Vec_Vec[tab_Index][row]->restoreState(global_Multilayer_Approach->target_Horizontal_Splitter_Position_1D_Vec_Vec[tab_Index][row]);
+					}
+				}
+			}
+			if(	dimension == dim_2D )
+			{
+				target_Vertical_Splitter_Vec[tab_Index]->restoreState(global_Multilayer_Approach->target_Vertical_Splitter_Position_2D_Vec[tab_Index]);
+				for(int row=0; row<multilayer->graph_Options_2D.num_Target_Graph_Rows; row++)
+				{
+					if(!global_Multilayer_Approach->target_Added_2D)
+					{
+						target_Horizontal_Splitter_Vec_Vec[tab_Index][row]->restoreState(global_Multilayer_Approach->target_Horizontal_Splitter_Position_2D_Vec_Vec[tab_Index][row]);
+					}
 				}
 			}
 		}
 		if(keep_Splitter != INDEPENDENT)
 		{
-			independent_Vertical_Splitter_Vec[tab_Index]->restoreState(global_Multilayer_Approach->independent_Vertical_Splitter_Position_Vec[tab_Index]);
-
-			for(int row=0; row<multilayer->graph_Options.num_Independent_Graph_Rows; row++)
+			if(	dimension == dim_1D )
 			{
-				if(!global_Multilayer_Approach->independent_Added)		{
-					independent_Horizontal_Splitter_Vec_Vec[tab_Index][row]->restoreState(global_Multilayer_Approach->independent_Horizontal_Splitter_Position_Vec_Vec[tab_Index][row]);
+				independent_Vertical_Splitter_Vec[tab_Index]->restoreState(global_Multilayer_Approach->independent_Vertical_Splitter_Position_1D_Vec[tab_Index]);
+				for(int row=0; row<multilayer->graph_Options_1D.num_Independent_Graph_Rows; row++)
+				{
+					if(!global_Multilayer_Approach->independent_Added_1D)
+					{
+						independent_Horizontal_Splitter_Vec_Vec[tab_Index][row]->restoreState(global_Multilayer_Approach->independent_Horizontal_Splitter_Position_1D_Vec_Vec[tab_Index][row]);
+					}
+				}
+			}
+			if(	dimension == dim_2D )
+			{
+				independent_Vertical_Splitter_Vec[tab_Index]->restoreState(global_Multilayer_Approach->independent_Vertical_Splitter_Position_2D_Vec[tab_Index]);
+				for(int row=0; row<multilayer->graph_Options_2D.num_Independent_Graph_Rows; row++)
+				{
+					if(!global_Multilayer_Approach->independent_Added_2D)
+					{
+						independent_Horizontal_Splitter_Vec_Vec[tab_Index][row]->restoreState(global_Multilayer_Approach->independent_Horizontal_Splitter_Position_2D_Vec_Vec[tab_Index][row]);
+					}
 				}
 			}
 		}
 	}
-	global_Multilayer_Approach->independent_Target_Added = false;
-	global_Multilayer_Approach->independent_Added = false;
-	global_Multilayer_Approach->target_Added = false;
+	if(	dimension == dim_1D )
+	{
+		global_Multilayer_Approach->independent_Target_Added_1D = false;
+		global_Multilayer_Approach->independent_Added_1D = false;
+		global_Multilayer_Approach->target_Added_1D = false;
+	}
+	if(	dimension == dim_2D )
+	{
+		global_Multilayer_Approach->independent_Target_Added_2D = false;
+		global_Multilayer_Approach->independent_Added_2D = false;
+		global_Multilayer_Approach->target_Added_2D = false;
+	}
 }
 
 void Optical_Graphs::set_Window_Geometry()
 {
-	setGeometry(graphs_x_corner,graphs_y_corner,graphs_width,graphs_height);
+	if(dimension == dim_1D) setGeometry(graphs_x_corner_1D,graphs_y_corner_1D,graphs_width_1D,graphs_height_1D);
+	if(dimension == dim_2D) setGeometry(graphs_x_corner_2D,graphs_y_corner_2D,graphs_width_2D,graphs_height_2D);
 }
 
 void Optical_Graphs::write_Window_Geometry()
 {
 	if(!isMaximized())
 	{
-		graphs_x_corner = frameGeometry().x()-corner_x_shift;
-		graphs_y_corner = frameGeometry().y()-corner_y_shift;
+		if(dimension == dim_1D)
+		{
+			graphs_x_corner_1D = frameGeometry().x()-corner_x_shift;
+			graphs_y_corner_1D = frameGeometry().y()-corner_y_shift;
 
-		graphs_width  = geometry().width() +  width_add;
-		graphs_height = geometry().height()+ height_add;
+			graphs_width_1D  = geometry().width() +  width_add;
+			graphs_height_1D = geometry().height()+ height_add;
+		}
+		if(dimension == dim_2D)
+		{
+			graphs_x_corner_2D = frameGeometry().x()-corner_x_shift;
+			graphs_y_corner_2D = frameGeometry().y()-corner_y_shift;
+
+			graphs_width_2D  = geometry().width() +  width_add;
+			graphs_height_2D = geometry().height()+ height_add;
+		}
 	}
 }

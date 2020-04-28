@@ -92,6 +92,8 @@ SOURCES += \
     multilayer_approach/fitting_settings/fitting_settings.cpp \
     multilayer_approach/fits_selector/fits_selector.cpp \
     multilayer_approach/calculation_settings_editor/calculation_settings_editor.cpp \
+    multilayer_approach/graphs/curve_plot_1d.cpp \
+    multilayer_approach/graphs/curve_plot_2d.cpp \
     multilayer_approach/multilayer/common_part.cpp \
     multilayer_approach/multilayer/distribution_box.cpp \
     multilayer_approach/multilayer/distribution_editor.cpp \
@@ -116,7 +118,6 @@ SOURCES += \
     multilayer_approach/multilayer/target_curve/target_data_types/specular_target_curve_part.cpp \
     multilayer_approach/profile_plots/profile_plot.cpp \
     multilayer_approach/profile_plots/profile_plots_window.cpp \
-    multilayer_approach/table_of_roughness/table_of_roughness.cpp \
     multilayer_approach/table_of_structures/coupling_editor.cpp \
     multilayer_approach/table_of_structures/confidence_interval_editor.cpp \
     multilayer_approach/table_of_structures/my_table_widget.cpp \
@@ -126,7 +127,6 @@ SOURCES += \
     standard/spoiler.cpp \
     multilayer_approach/multilayer/target_curve/target_curve_plot.cpp \
     multilayer_approach/graphs/optical_graphs.cpp \
-    multilayer_approach/graphs/curve_plot.cpp \
     multilayer_approach/table_of_structures/layer_thickness_transfer.cpp \
     standard/mydoublespinbox.cpp \
     multilayer_approach/multilayer/structure_tree/aperiodic_load_setup.cpp \
@@ -153,6 +153,8 @@ HEADERS += \
     multilayer_approach/fitting_settings/fitting_settings_editor.h \
     multilayer_approach/fitting_settings/fitting_settings.h \
     multilayer_approach/calculation_settings_editor/calculation_settings_editor.h \
+    multilayer_approach/graphs/curve_plot_1d.h \
+    multilayer_approach/graphs/curve_plot_2d.h \
     multilayer_approach/multilayer/common_part.h \
     multilayer_approach/multilayer/distribution_box.h \
     multilayer_approach/multilayer/distribution_editor.h \
@@ -177,7 +179,6 @@ HEADERS += \
     multilayer_approach/multilayer/target_curve/target_data_types/specular_target_curve_part.h \
     multilayer_approach/profile_plots/profile_plot.h \
     multilayer_approach/profile_plots/profile_plots_window.h \
-    multilayer_approach/table_of_roughness/table_of_roughness.h \
     multilayer_approach/table_of_structures/coupling_editor.h \
     multilayer_approach/table_of_structures/confidence_interval_editor.h \
     multilayer_approach/table_of_structures/my_table_widget.h \
@@ -187,7 +188,6 @@ HEADERS += \
     standard/spoiler.h \
     multilayer_approach/multilayer/target_curve/target_curve_plot.h \
     multilayer_approach/graphs/optical_graphs.h \
-    multilayer_approach/graphs/curve_plot.h \
     multilayer_approach/table_of_structures/layer_thickness_transfer.h \
     standard/mydoublespinbox.h \
     multilayer_approach/multilayer/structure_tree/aperiodic_load_setup.h \

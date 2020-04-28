@@ -46,7 +46,7 @@ public:
 	QCPItemRect* top_Rect;
 	QCPItemRect* bottom_Rect;
 
-	QVBoxLayout* main_layout;
+	QVBoxLayout* main_Layout;
 
 	// axes text
 	QString value_Type_Text;

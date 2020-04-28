@@ -97,6 +97,53 @@ void Simple_Curve::read_Simple_Curve(QString bare_Filename)
 	}
 }
 
+
+bool Calc_Functions::if_Something_Enabled_1D() const
+{
+	if( check_Reflectance	||
+		check_Transmittance||
+		check_Absorptance	||
+		check_Scattering	)
+	{
+		return true;
+	} else
+	{
+		return false;
+	}
+}
+
+bool Calc_Functions::if_Something_Enabled_2D() const
+{
+	if( check_Field ||
+		check_Joule ||
+		check_GISAS )
+	{
+		return true;
+	} else
+	{
+		return false;
+	}
+}
+
+bool Calc_Functions::if_Reflectance_Only() const
+{
+	if(  check_Reflectance &&
+		!check_Transmittance &&
+		!check_Absorptance &&
+		!check_Scattering &&
+		!check_Field &&
+		!check_Joule &&
+		!check_GISAS)
+	{
+		return true;
+	} else
+	{
+		return false;
+	}
+}
+
+
+
 // -----------------------------------------------------------------------------------------
 // serialization
 
@@ -299,8 +346,8 @@ QDataStream& operator <<( QDataStream& stream, const Plot_Options& plot_Options 
 				  << plot_Options.scatter_Shape << plot_Options.scatter_Size << plot_Options.thickness
 				  // 2D
 				  << plot_Options.use_Interpolation << plot_Options.z_Scale << plot_Options.color_Scheme
-				  << plot_Options.rotation_Angle;
-
+				  << plot_Options.rotation_Angle << plot_Options.left_Section_Plot
+				  << plot_Options.bottom_Section_Plot << plot_Options.bottom_Section_Tab_Index << plot_Options.data_To_Show;
 }
 QDataStream& operator >>( QDataStream& stream,		 Plot_Options& plot_Options )
 {
@@ -312,7 +359,8 @@ QDataStream& operator >>( QDataStream& stream,		 Plot_Options& plot_Options )
 			  >> plot_Options.scatter_Shape >> plot_Options.scatter_Size >> plot_Options.thickness
 			  // 2D
 			  >> plot_Options.use_Interpolation >> plot_Options.z_Scale >> plot_Options.color_Scheme
-			  >> plot_Options.rotation_Angle;
+			  >> plot_Options.rotation_Angle >> plot_Options.left_Section_Plot
+			  >> plot_Options.bottom_Section_Plot >> plot_Options.bottom_Section_Tab_Index >> plot_Options.data_To_Show;
 	} else
 	{
 		stream >> plot_Options.y_Scale;
@@ -341,13 +389,19 @@ QDataStream& operator <<( QDataStream& stream, const Graph_Options& graph_Option
 {
 	return stream << graph_Options.num_Target_Graph_Rows << graph_Options.num_Independent_Graph_Rows
 				  << graph_Options.show_Scatter << graph_Options.show_Thickness << graph_Options.show_X_Scale
-				  << graph_Options.show_Max_Value << graph_Options.show_Current_Coordinate << graph_Options.show_Title;
+				  << graph_Options.show_Max_Value << graph_Options.show_Current_Coordinate << graph_Options.show_Title
+				  << graph_Options.show_Interpolation;
 }
 QDataStream& operator >>( QDataStream& stream,		 Graph_Options& graph_Options )
 {
 	stream >> graph_Options.num_Target_Graph_Rows >> graph_Options.num_Independent_Graph_Rows
 		   >> graph_Options.show_Scatter >> graph_Options.show_Thickness >> graph_Options.show_X_Scale
 		   >> graph_Options.show_Max_Value >> graph_Options.show_Current_Coordinate >> graph_Options.show_Title;
+	if(Global_Variables::check_Loaded_Version(1,11,0))
+	{
+		stream >> graph_Options.show_Interpolation;
+	}
+
 	return stream;
 }
 
@@ -632,3 +686,4 @@ void Element_Data::read_Element(QString& filename)
 	}
 	file.close();
 }
+

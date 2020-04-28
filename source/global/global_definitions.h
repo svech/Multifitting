@@ -307,6 +307,11 @@ class Node;
 #define left			"left"
 #define right			"right"
 
+// 2D data to show
+#define meas		"meas"
+#define calc		"calc"
+#define diff		"diff"
+
 // insert items with or without changing IDs
 #define copy_Type_Copy	"copy"
 #define copy_Type_Cut	"cut"
@@ -364,11 +369,16 @@ class Node;
 #define multilayer_Approach_Key	"multilayer_Approach_Key"
 #define table_Of_Structures_Key	"table_Of_Structures_Key"
 #define table_Of_Roughness_Key	"table_Of_Roughness_Key"
-#define optical_Graphs_Key		"optical_Graphs_Key"
+#define optical_Graphs_1D_Key	"optical_Graphs_1D_Key"
+#define optical_Graphs_2D_Key	"optical_Graphs_2D_Key"
 #define profile_Plots_Key		"profile_Plots_Key"
 #define fits_Selector_Key		"fits_Selector_Key"
 #define calc_Settings_Key		"calc_Settings_Key"
 #define fit_Settings_Key		"fit_Settings_Key"
+
+// dimension
+#define dim_1D	"dim_1D"
+#define dim_2D	"dim_2D"
 
 // curve types
 #define INDEPENDENT	"INDEPENDENT"
@@ -559,16 +569,25 @@ struct Plot_Options				{ bool rescale = true;
 								  QString z_Scale = lin_Scale;
 								  QCPColorGradient::GradientPreset color_Scheme = QCPColorGradient::gpJet;
 								  int rotation_Angle = 0;
+								  bool left_Section_Plot = false;
+								  bool bottom_Section_Plot = false;
+								  int bottom_Section_Tab_Index = 0;
+								  QString data_To_Show = meas;
 								};
 struct Graph_Options			{int num_Target_Graph_Rows = 1;		 // rows in Graphs
 								 int num_Independent_Graph_Rows = 1; // rows in Graphs
 
+								 bool show_Current_Coordinate = true;
+								 bool show_Title = true;
+
+								 // 1D
 								 bool show_Scatter = false;
 								 bool show_Thickness = false;
 								 bool show_X_Scale = false;
 								 bool show_Max_Value = false;
-								 bool show_Current_Coordinate = true;
-								 bool show_Title = true;
+
+								 // 2D
+								 bool show_Interpolation = false;
 								};
 
 // profile plot options
@@ -717,34 +736,24 @@ struct Discretization_Parameters{bool enable_Discretization = false;
 // independent calculation functions
 struct Calc_Functions			{bool check_Enabled = true;
 								 // all types of data, target or independent should be "interpreted" according to this list
+								 // 1D
 								 bool check_Reflectance = false;
 								 bool check_Transmittance = false;
 								 bool check_Absorptance = false;
+								 bool check_Scattering = false;
+
+								 // 2D
 								 bool check_Field = false;
 								 bool check_Joule = false;
-								 bool check_Scattering = false;
 								 bool check_GISAS = false;
 
 								 double field_Step = 2;
 								 double field_Ambient_Distance = 0;
 								 double field_Substrate_Distance = 0;
 
-								 // cppcheck-suppress functionConst
-								 bool if_Something_Enabled()
-								 {
-									 if( check_Reflectance	||
-										 check_Transmittance||
-										 check_Absorptance	||
-										 check_Field		||
-										 check_Joule		||
-										 check_Scattering	)
-									 {
-										 return true;
-									 } else
-									 {
-										return false;
-									 }
-								 }
+								 bool if_Something_Enabled_1D() const;
+								 bool if_Something_Enabled_2D() const;
+								 bool if_Reflectance_Only() const;
 								};
 
 struct Fitables					{	vector<QString> struct_Names;		// names of structures

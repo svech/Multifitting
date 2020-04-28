@@ -41,11 +41,17 @@ extern int regular_aperiodic_table_y_corner;
 extern int regular_aperiodic_table_width;
 extern int regular_aperiodic_table_height;
 
-// graphs window geometry
-extern int graphs_x_corner;
-extern int graphs_y_corner;
-extern int graphs_width;
-extern int graphs_height;
+// graphs 1D window geometry
+extern int graphs_x_corner_1D;
+extern int graphs_y_corner_1D;
+extern int graphs_width_1D;
+extern int graphs_height_1D;
+
+// graphs 2D window geometry
+extern int graphs_x_corner_2D;
+extern int graphs_y_corner_2D;
+extern int graphs_width_2D;
+extern int graphs_height_2D;
 
 // profile plots window geometry
 extern int profile_plots_x_corner;
@@ -248,7 +254,8 @@ extern bool mouse_Wheel_Spinbox_Table;
 extern bool refill_Dependent_Table;
 extern bool aperiodic_Recalculate_Spinbox_Table;
 extern bool aperiodic_Mouse_Wheel_Spinbox_Table;
-extern bool replot_Graphs_During_Fitting;
+extern bool replot_Graphs_During_Fitting_1D;
+extern bool replot_Graphs_During_Fitting_2D;
 
 // -----------------------------------------------------------------------------------------
 

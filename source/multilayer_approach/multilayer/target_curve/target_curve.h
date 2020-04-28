@@ -59,7 +59,7 @@ struct Fit_Params
 
 	void create_Expressions_for_Residual();
 
-	bool calc;
+	bool calculate;
 	bool fit;
 	bool norm;
 	bool adjust_Scale_Factor;

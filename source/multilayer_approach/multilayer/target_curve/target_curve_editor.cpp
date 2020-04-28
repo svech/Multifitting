@@ -52,7 +52,19 @@ void Target_Curve_Editor::read_Data_File(QString filepath)
 		target_Curve->import_Data_From_File(filepath);
 		target_Curve->parse_Data_From_List();
 		target_Curve->fill_Measurement_And_Curve_With_Shifted_Data();
-		global_Multilayer_Approach->target_Added = true;
+
+		if( target_Curve->measurement.measurement_Type == measurement_Types[Specular_Scan] ||
+			target_Curve->measurement.measurement_Type == measurement_Types[Detector_Scan] ||
+			target_Curve->measurement.measurement_Type == measurement_Types[Rocking_Curve] ||
+			target_Curve->measurement.measurement_Type == measurement_Types[Offset_Scan] )
+		{
+			global_Multilayer_Approach->target_Added_1D = true;
+		}
+		if(	target_Curve->measurement.measurement_Type == measurement_Types[GISAS_Map] )
+		{
+			global_Multilayer_Approach->target_Added_2D = true;
+		}
+
 		reset_Subinterval();
 		target_Curve->refresh_Description_Label();
 		multilayer_Parent->set_Index_To_Target_Curves();
@@ -173,12 +185,25 @@ void Target_Curve_Editor::create_Filepath_GroupBox()
 			global_Multilayer_Approach->open_Calculation_Settings();
 			global_Multilayer_Approach->runned_Calculation_Settings_Editor.value(calc_Settings_Key)->main_Tabs->setCurrentIndex(active_Tab_Optical_Graphs);
 		}
-		if(global_Multilayer_Approach->runned_Optical_Graphs.contains(optical_Graphs_Key))
+		if(target_Curve->measurement.measurement_Type != measurement_Types[GISAS_Map])
 		{
-			int active_Tab_Optical_Graphs = global_Multilayer_Approach->runned_Optical_Graphs.value(optical_Graphs_Key)->main_Tabs->currentIndex();
-			global_Multilayer_Approach->runned_Optical_Graphs.value(optical_Graphs_Key)->close();
-			global_Multilayer_Approach->open_Optical_Graphs(TARGET);
-			global_Multilayer_Approach->runned_Optical_Graphs.value(optical_Graphs_Key)->main_Tabs->setCurrentIndex(active_Tab_Optical_Graphs);
+			if(global_Multilayer_Approach->runned_Optical_Graphs_1D.contains(optical_Graphs_1D_Key))
+			{
+				int active_Tab_Optical_Graphs = global_Multilayer_Approach->runned_Optical_Graphs_1D.value(optical_Graphs_1D_Key)->main_Tabs->currentIndex();
+				global_Multilayer_Approach->runned_Optical_Graphs_1D.value(optical_Graphs_1D_Key)->close();
+				global_Multilayer_Approach->open_Optical_Graphs_1D(TARGET);
+				global_Multilayer_Approach->runned_Optical_Graphs_1D.value(optical_Graphs_1D_Key)->main_Tabs->setCurrentIndex(active_Tab_Optical_Graphs);
+			}
+		}
+		if(target_Curve->measurement.measurement_Type == measurement_Types[GISAS_Map])
+		{
+			if(global_Multilayer_Approach->runned_Optical_Graphs_2D.contains(optical_Graphs_2D_Key))
+			{
+				int active_Tab_Optical_Graphs = global_Multilayer_Approach->runned_Optical_Graphs_2D.value(optical_Graphs_2D_Key)->main_Tabs->currentIndex();
+				global_Multilayer_Approach->runned_Optical_Graphs_2D.value(optical_Graphs_2D_Key)->close();
+				global_Multilayer_Approach->open_Optical_Graphs_2D(TARGET);
+				global_Multilayer_Approach->runned_Optical_Graphs_2D.value(optical_Graphs_2D_Key)->main_Tabs->setCurrentIndex(active_Tab_Optical_Graphs);
+			}
 		}
 	});
 

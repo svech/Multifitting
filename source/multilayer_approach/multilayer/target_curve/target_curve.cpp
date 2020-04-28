@@ -38,7 +38,7 @@ Curve::Curve()
 
 Fit_Params::Fit_Params()
 {
-	calc = true;
+	calculate = true;
 	fit = true;
 	norm = true;
 	adjust_Scale_Factor = false;
@@ -879,7 +879,7 @@ QDataStream& operator >>( QDataStream& stream,		 Curve& curve )
 
 QDataStream& operator <<( QDataStream& stream, const Fit_Params& fit_Params )
 {
-	return stream << fit_Params.calc << fit_Params.fit << fit_Params.norm
+	return stream << fit_Params.calculate << fit_Params.fit << fit_Params.norm
 				  << fit_Params.adjust_Scale_Factor // since 1.10.2
 				  << fit_Params.maximize_Integral // since 1.9.3
 				  << fit_Params.weight << fit_Params.fit_Function
@@ -888,7 +888,7 @@ QDataStream& operator <<( QDataStream& stream, const Fit_Params& fit_Params )
 }
 QDataStream& operator >>( QDataStream& stream,		 Fit_Params& fit_Params )
 {
-	stream >> fit_Params.calc >> fit_Params.fit >> fit_Params.norm;
+	stream >> fit_Params.calculate >> fit_Params.fit >> fit_Params.norm;
 
 	if(Global_Variables::check_Loaded_Version(1,10,2))
 	{stream >> fit_Params.adjust_Scale_Factor;}

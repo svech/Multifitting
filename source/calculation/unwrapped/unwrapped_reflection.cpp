@@ -59,9 +59,7 @@ Unwrapped_Reflection::Unwrapped_Reflection(Unwrapped_Structure* unwrapped_Struct
 
 	// reflectance
 	if(	unwrapped_Structure->calc_Functions.check_Reflectance ||
-		unwrapped_Structure->calc_Functions.check_Absorptance ||
-		unwrapped_Structure->calc_Functions.check_Field  ||
-		unwrapped_Structure->calc_Functions.check_Joule )
+		unwrapped_Structure->calc_Functions.check_Absorptance)
 	{
 		calculated_Values.Phi_R_s.resize(num_Points);
 		calculated_Values.Phi_R_p.resize(num_Points);
@@ -512,10 +510,7 @@ void Unwrapped_Reflection::calc_Fresnel(double polarization,
 	if (polarization >-1)
 	{
 		// reflectance only
-		if( !calc_Functions.check_Transmittance &&
-			!calc_Functions.check_Absorptance	&&
-			!calc_Functions.check_Joule			&&
-			!calc_Functions.check_Field )
+		if( calc_Functions.if_Reflectance_Only() )
 		{
 			for (int i = 0; i < num_Boundaries; ++i)
 			{
@@ -555,10 +550,7 @@ void Unwrapped_Reflection::calc_Fresnel(double polarization,
 	{
 		complex<double> hi_je, hi_j1e;
 		// reflectance only
-		if( !calc_Functions.check_Transmittance &&
-			!calc_Functions.check_Absorptance	&&
-			!calc_Functions.check_Joule			&&
-			!calc_Functions.check_Field )
+		if( calc_Functions.if_Reflectance_Only() )
 		{
 			for (int i = 0; i < num_Boundaries; ++i)
 			{
@@ -602,10 +594,7 @@ void Unwrapped_Reflection::calc_Fresnel(double polarization,
 void Unwrapped_Reflection::calc_Exponenta(int thread_Index, const vector<double>& thickness)
 {
 	// reflectance only
-	if( !calc_Functions.check_Transmittance &&
-		!calc_Functions.check_Absorptance	&&
-		!calc_Functions.check_Joule			&&
-		!calc_Functions.check_Field )
+	if( calc_Functions.if_Reflectance_Only() )
 	{
 		for (int i = 0; i < num_Layers; ++i)
 		{
@@ -628,10 +617,7 @@ void Unwrapped_Reflection::calc_Local(double polarization, int thread_Index)
 	if (polarization >-1)
 	{
 		// reflectance only
-		if( !calc_Functions.check_Transmittance &&
-			!calc_Functions.check_Absorptance	&&
-			!calc_Functions.check_Joule			&&
-			!calc_Functions.check_Field )
+		if( calc_Functions.if_Reflectance_Only() )
 		{
 			complex<double> r_exp;
 			r_Local_s[thread_Index].back() = r_Fresnel_s[thread_Index].back();	// last boundary
@@ -660,10 +646,7 @@ void Unwrapped_Reflection::calc_Local(double polarization, int thread_Index)
 	if (polarization <1)
 	{
 		// reflectance only
-		if( !calc_Functions.check_Transmittance &&
-			!calc_Functions.check_Absorptance	&&
-			!calc_Functions.check_Joule			&&
-			!calc_Functions.check_Field )
+		if( calc_Functions.if_Reflectance_Only() )
 		{
 			complex<double> r_exp;
 			r_Local_p[thread_Index].back() = r_Fresnel_p[thread_Index].back();	// last boundary
@@ -951,9 +934,7 @@ void Unwrapped_Reflection::fill_Specular_Values(const Data& measurement, int thr
 
 	// reflectance
 	if(	unwrapped_Structure->calc_Functions.check_Reflectance ||
-		unwrapped_Structure->calc_Functions.check_Absorptance ||
-		unwrapped_Structure->calc_Functions.check_Field  ||
-		unwrapped_Structure->calc_Functions.check_Joule )
+		unwrapped_Structure->calc_Functions.check_Absorptance )
 	{
 		complex<double> r_s = r_Local_s[thread_Index][0];
 		complex<double> r_p = r_Local_p[thread_Index][0];

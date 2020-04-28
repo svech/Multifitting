@@ -17,8 +17,8 @@ Calculation_Tree::Calculation_Tree(Multilayer* multilayer, QString calc_Mode):
 				Independent_Curve* independent_Curve = qobject_cast<Independent_Curve*>(multilayer->independent_Curve_Tabs->widget(i));
 				if( independent_Curve->measurement.measurement_Type != no_Measurement_Type)
 				if( independent_Curve->calc_Functions.check_Enabled	)
-				if(	independent_Curve->calc_Functions.if_Something_Enabled() ||
-					independent_Curve->calc_Functions.check_GISAS	)
+				if(	independent_Curve->calc_Functions.if_Something_Enabled_1D() ||
+					independent_Curve->calc_Functions.if_Something_Enabled_2D()	)
 				{
 					independent.resize(independent.size()+1);
 
@@ -34,15 +34,15 @@ Calculation_Tree::Calculation_Tree(Multilayer* multilayer, QString calc_Mode):
 	{
 		if( multilayer->enable_Calc_Target_Curves )
 		{
-			for(Target_Curve* targey_Curve : multilayer->target_Profiles_Vector)
+			for(Target_Curve* target_Curve : multilayer->target_Profiles_Vector)
 			{
-				if(targey_Curve->loaded_And_Ready)
-				if(targey_Curve->fit_Params.calc)
-				if(calc_Mode==CALCULATION || targey_Curve->fit_Params.fit)	// check fit value only if FITTING mode (otherwise CALCULATION is enough)
+				if(target_Curve->loaded_And_Ready)
+				if(target_Curve->fit_Params.calculate)
+				if(calc_Mode==CALCULATION || target_Curve->fit_Params.fit)	// check fit value only if FITTING mode (otherwise CALCULATION is enough)
 				{
 					target.resize(target.size()+1);
 
-					target.last().the_Class = targey_Curve;
+					target.last().the_Class = target_Curve;
 					target.last().curve_Class = TARGET;
 				}
 			}

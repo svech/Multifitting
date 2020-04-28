@@ -1208,11 +1208,23 @@ void Global_Variables::change_Parent_Period_Gamma_Thickness(QTreeWidgetItem* cur
 
 void Global_Variables::plot_All_Data_in_Graphs()
 {
-	if(global_Multilayer_Approach->runned_Optical_Graphs.contains(optical_Graphs_Key))
+	// 1D
+	if(global_Multilayer_Approach->runned_Optical_Graphs_1D.contains(optical_Graphs_1D_Key))
 	{
-		for(QVector<Curve_Plot*>& tab_Plots : global_Multilayer_Approach->optical_Graphs->plots)
+		for(QVector<Curve_Plot_1D*>& tab_Plots : global_Multilayer_Approach->optical_Graphs_1D->plots_1D)
 		{
-			for(Curve_Plot* curve_Plot : tab_Plots)
+			for(Curve_Plot_1D* curve_Plot : tab_Plots)
+			{
+				curve_Plot->plot_All_Data();
+			}
+		}
+	}
+	// 2D
+	if(global_Multilayer_Approach->runned_Optical_Graphs_2D.contains(optical_Graphs_2D_Key))
+	{
+		for(QVector<Curve_Plot_2D*>& tab_Plots : global_Multilayer_Approach->optical_Graphs_2D->plots_2D)
+		{
+			for(Curve_Plot_2D* curve_Plot : tab_Plots)
 			{
 				curve_Plot->plot_All_Data();
 			}
@@ -1233,16 +1245,34 @@ void Global_Variables::plot_All_Data_in_Profiles()
 
 void Global_Variables::replot_All_Graphs()
 {
-	if(global_Multilayer_Approach->runned_Optical_Graphs.contains(optical_Graphs_Key))
+	// 1D
+	if(global_Multilayer_Approach->runned_Optical_Graphs_1D.contains(optical_Graphs_1D_Key))
 	{
-		if(global_Multilayer_Approach->runned_Optical_Graphs.contains(optical_Graphs_Key))
+		if(global_Multilayer_Approach->runned_Optical_Graphs_1D.contains(optical_Graphs_1D_Key))
 		{
-			for(QVector<Curve_Plot*>& tab_Plots : global_Multilayer_Approach->optical_Graphs->plots)
+			for(QVector<Curve_Plot_1D*>& tab_Plots : global_Multilayer_Approach->optical_Graphs_1D->plots_1D)
 			{
-				for(Curve_Plot* curve_Plot : tab_Plots)
+				for(Curve_Plot_1D* curve_Plot : tab_Plots)
 				{
 					curve_Plot->custom_Plot->replot();
 					curve_Plot->custom_Plot->xAxis->rangeChanged(curve_Plot->custom_Plot->xAxis->range()); // to cause normal replotting. crutch?
+				}
+			}
+		}
+	}
+	// 2D
+	if(global_Multilayer_Approach->runned_Optical_Graphs_2D.contains(optical_Graphs_2D_Key))
+	{
+		if(global_Multilayer_Approach->runned_Optical_Graphs_2D.contains(optical_Graphs_2D_Key))
+		{
+			for(QVector<Curve_Plot_2D*>& tab_Plots : global_Multilayer_Approach->optical_Graphs_2D->plots_2D)
+			{
+				for(Curve_Plot_2D* curve_Plot : tab_Plots)
+				{
+					// TODO
+					qInfo() << "Global_Variables::replot_All_Graphs()" << endl;
+//					curve_Plot->custom_Plot->replot();
+//					curve_Plot->custom_Plot->xAxis->rangeChanged(curve_Plot->custom_Plot->xAxis->range()); // to cause normal replotting. crutch?
 				}
 			}
 		}

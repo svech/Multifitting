@@ -1,6 +1,6 @@
-#include "curve_plot.h"
+#include "curve_plot_1d.h"
 
-Curve_Plot::Curve_Plot(Multilayer* multilayer, Target_Curve* target_Curve, Independent_Curve* independent_Curve, QString curve_Class, QWidget* parent) :
+Curve_Plot_1D::Curve_Plot_1D(Multilayer* multilayer, Target_Curve* target_Curve, Independent_Curve* independent_Curve, QString curve_Class, QWidget* parent) :
 	multilayer(multilayer),
 	curve_Class(curve_Class),
 	target_Curve(target_Curve),
@@ -21,7 +21,7 @@ Curve_Plot::Curve_Plot(Multilayer* multilayer, Target_Curve* target_Curve, Indep
 	setAcceptDrops(true);
 }
 
-void Curve_Plot::dragEnterEvent(QDragEnterEvent* event)
+void Curve_Plot_1D::dragEnterEvent(QDragEnterEvent* event)
 {
 	if(event->mimeData()->hasUrls())
 	{
@@ -29,7 +29,7 @@ void Curve_Plot::dragEnterEvent(QDragEnterEvent* event)
 	}
 }
 
-void Curve_Plot::dropEvent(QDropEvent* event)
+void Curve_Plot_1D::dropEvent(QDropEvent* event)
 {
 	int counter = 0;
 	foreach (const QUrl &url, event->mimeData()->urls())
@@ -50,7 +50,7 @@ void Curve_Plot::dropEvent(QDropEvent* event)
 	}
 }
 
-void Curve_Plot::create_Main_Layout()
+void Curve_Plot_1D::create_Main_Layout()
 {
 	main_Layout = new QVBoxLayout(this);
 		main_Layout->setSpacing(0);
@@ -59,7 +59,7 @@ void Curve_Plot::create_Main_Layout()
 	custom_Plot = new QCustomPlot;
 	main_Layout->addWidget(custom_Plot);
 
-	if(multilayer->graph_Options.show_Title)
+	if(multilayer->graph_Options_1D.show_Title)
 	{
 		plot_Title = new QCPTextElement(custom_Plot,"text_Data",QFont("Times", 10, QFont::DemiBold));
 		custom_Plot->plotLayout()->insertRow(0);
@@ -69,10 +69,7 @@ void Curve_Plot::create_Main_Layout()
 
 	create_Plot_Frame_And_Scale();
 
-	if(curve_Class == TARGET)
-	{
-		create_Subinterval_Rectangle();
-	}
+	if(curve_Class == TARGET) create_Subinterval_Rectangle();
 
 	// for discretized structures plot vertical threshold line
 	if( measurement.measurement_Type == measurement_Types[Specular_Scan] )
@@ -84,7 +81,7 @@ void Curve_Plot::create_Main_Layout()
 	create_Options();
 
 	// events on selection
-	connect(custom_Plot, &QCustomPlot::plottableDoubleClick,   this, &Curve_Plot::choose_Graph_Color);
+	connect(custom_Plot, &QCustomPlot::plottableDoubleClick,   this, &Curve_Plot_1D::choose_Graph_Color);
 	connect(custom_Plot, &QCustomPlot::selectionChangedByUser, this, [=]
 	{
 		show_Thickness();
@@ -97,7 +94,7 @@ void Curve_Plot::create_Main_Layout()
 	plot_All_Data();
 }
 
-void Curve_Plot::create_Subinterval_Rectangle()
+void Curve_Plot_1D::create_Subinterval_Rectangle()
 {
 	start_Rect = new QCPItemRect(custom_Plot);
 			start_Rect->setPen  (subinterval_Plot_Pen);
@@ -108,11 +105,11 @@ void Curve_Plot::create_Subinterval_Rectangle()
 
 	subinterval_Changed_Replot();
 
-	connect(custom_Plot->xAxis, static_cast<void(QCPAxis::*)(const QCPRange &)>(&QCPAxis::rangeChanged), this, &Curve_Plot::subinterval_Changed_Replot);
-	connect(custom_Plot->yAxis, static_cast<void(QCPAxis::*)(const QCPRange &)>(&QCPAxis::rangeChanged), this, &Curve_Plot::subinterval_Changed_Replot);
+	connect(custom_Plot->xAxis, static_cast<void(QCPAxis::*)(const QCPRange &)>(&QCPAxis::rangeChanged), this, &Curve_Plot_1D::subinterval_Changed_Replot);
+	connect(custom_Plot->yAxis, static_cast<void(QCPAxis::*)(const QCPRange &)>(&QCPAxis::rangeChanged), this, &Curve_Plot_1D::subinterval_Changed_Replot);
 }
 
-void Curve_Plot::subinterval_Changed_Replot()
+void Curve_Plot_1D::subinterval_Changed_Replot()
 {
 	start_Rect->setVisible(target_Curve->curve.use_Subinterval);
 	end_Rect->setVisible(target_Curve->curve.use_Subinterval);
@@ -125,7 +122,7 @@ void Curve_Plot::subinterval_Changed_Replot()
 	custom_Plot->replot();
 }
 
-void Curve_Plot::discretized_Threshold_Line()
+void Curve_Plot_1D::discretized_Threshold_Line()
 {
 	if( measurement.measurement_Type == measurement_Types[Specular_Scan] )
 	{
@@ -175,7 +172,7 @@ void Curve_Plot::discretized_Threshold_Line()
 	}
 }
 
-void Curve_Plot::create_Plot_Frame_And_Scale()
+void Curve_Plot_1D::create_Plot_Frame_And_Scale()
 {
 	custom_Plot->setNoAntialiasingOnDrag(false);
 	custom_Plot->setInteractions(QCP::iSelectPlottables | QCP::iRangeDrag | QCP::iRangeZoom);
@@ -203,7 +200,7 @@ void Curve_Plot::create_Plot_Frame_And_Scale()
 	if(plot_Options_First.y_Scale == lin_Scale) apply_Lin_Scale("y");
 	if(plot_Options_First.y_Scale == log_Scale) apply_Log_Scale("y");
 
-	// create 2 graphs
+	// create 2 graphs + additional
 	if(custom_Plot->graphCount()!=2+additional_Curves.size())
 	{
 		custom_Plot->clearGraphs();
@@ -248,7 +245,7 @@ void Curve_Plot::create_Plot_Frame_And_Scale()
 	set_Title_Text();
 }
 
-void Curve_Plot::apply_Log_Scale(QString xy)
+void Curve_Plot_1D::apply_Log_Scale(QString xy)
 {
 	if(xy == "x")
 	{
@@ -280,7 +277,7 @@ void Curve_Plot::apply_Log_Scale(QString xy)
 	}
 }
 
-void Curve_Plot::apply_Lin_Scale(QString xy)
+void Curve_Plot_1D::apply_Lin_Scale(QString xy)
 {
 	if(xy == "x")
 	{
@@ -314,7 +311,7 @@ void Curve_Plot::apply_Lin_Scale(QString xy)
 	}
 }
 
-void Curve_Plot::create_Options()
+void Curve_Plot_1D::create_Options()
 {
 	QGroupBox* options_GroupBox = new QGroupBox;
 	main_Layout->addWidget(options_GroupBox);
@@ -375,7 +372,7 @@ void Curve_Plot::create_Options()
 		connect(rescale_Check_Box, &QCheckBox::toggled, this, [=]{ plot_Options_First.rescale = rescale_Check_Box->isChecked(); });
 		options_Layout->addWidget(rescale_Check_Box);
 	}
-	if(multilayer->graph_Options.show_X_Scale)
+	if(multilayer->graph_Options_1D.show_X_Scale)
 	{
 		QLabel* scale_X_Label = new QLabel("Scale X: ");
 		options_Layout->addWidget(scale_X_Label);
@@ -422,7 +419,7 @@ void Curve_Plot::create_Options()
 			X_ButtonGroup->addButton(lin_X_RadioButton);
 			X_ButtonGroup->addButton(log_X_RadioButton);
 	}
-	if(multilayer->graph_Options.show_Scatter)
+	if(multilayer->graph_Options_1D.show_Scatter)
 	{
 		QLabel* scatter_Label = new QLabel("| Scatter:");
 		options_Layout->addWidget(scatter_Label);
@@ -435,10 +432,10 @@ void Curve_Plot::create_Options()
 			scatter_Spin->setValue(0);
 			scatter_Spin->setSingleStep(0.1);
 			scatter_Spin->setFixedWidth(35);
-		connect(scatter_Spin, static_cast<void(QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, &Curve_Plot::change_Scatter_Size);
+		connect(scatter_Spin, static_cast<void(QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, &Curve_Plot_1D::change_Scatter_Size);
 		options_Layout->addWidget(scatter_Spin);
 	}
-	if(multilayer->graph_Options.show_Thickness)
+	if(multilayer->graph_Options_1D.show_Thickness)
 	{
 		QLabel* thickness_Label = new QLabel("Line:");
 		options_Layout->addWidget(thickness_Label);
@@ -451,10 +448,10 @@ void Curve_Plot::create_Options()
 			thickness_Spin->setValue(0);
 			thickness_Spin->setSingleStep(0.1);
 			thickness_Spin->setFixedWidth(35);
-		connect(thickness_Spin, static_cast<void(QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, &Curve_Plot::change_Thickness);
+		connect(thickness_Spin, static_cast<void(QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, &Curve_Plot_1D::change_Thickness);
 		options_Layout->addWidget(thickness_Spin);
 	}
-	if(multilayer->graph_Options.show_Current_Coordinate)
+	if(multilayer->graph_Options_1D.show_Current_Coordinate)
 	{
 		QCPItemText* text_Item = new QCPItemText(custom_Plot);
 		connect(custom_Plot, &QCustomPlot::mouseMove, this, [=](QMouseEvent *event)
@@ -469,7 +466,7 @@ void Curve_Plot::create_Options()
 		});
 	}
 	// max value info
-	if(multilayer->graph_Options.show_Max_Value)
+	if(multilayer->graph_Options_1D.show_Max_Value)
 	{
 		max_Value_Label = new QLabel;
 		if(curve_Class == TARGET)
@@ -483,9 +480,7 @@ void Curve_Plot::create_Options()
 		{
 			if( independent_Curve->calc_Functions.check_Absorptance )		{ max_Value_Title = "|  Max A ="; } else
 			if( independent_Curve->calc_Functions.check_Transmittance )		{ max_Value_Title = "|  Max T ="; } else
-			if( independent_Curve->calc_Functions.check_Reflectance ||
-				independent_Curve->calc_Functions.check_Field ||
-				independent_Curve->calc_Functions.check_Joule )				{ max_Value_Title = "|  Max R ="; } else
+			if( independent_Curve->calc_Functions.check_Reflectance )		{ max_Value_Title = "|  Max R ="; } else
 			if( independent_Curve->calc_Functions.check_Scattering )		{ max_Value_Title = "|  Max S ="; } else
 																			{ max_Value_Title = ""; }
 		}
@@ -497,9 +492,9 @@ void Curve_Plot::create_Options()
 	options_GroupBox->setFixedHeight(options_GroupBox->height());
 }
 
-void Curve_Plot::set_Title_Text()
+void Curve_Plot_1D::set_Title_Text()
 {
-	if(multilayer->graph_Options.show_Title)
+	if(multilayer->graph_Options_1D.show_Title)
 	if(plot_Title)
 	{
 		QString lambda_Energy;
@@ -572,7 +567,7 @@ void Curve_Plot::set_Title_Text()
 	}
 }
 
-void Curve_Plot::plot_All_Data()
+void Curve_Plot_1D::plot_All_Data()
 {	
 	refresh_Labels();
 
@@ -601,16 +596,16 @@ void Curve_Plot::plot_All_Data()
 		}
 		/// calculated data
 		{
-			if(	target_Curve->curve.value_Type == value_Types[Reflectance])		{ values = calculated_Values.R; }
-			if(	target_Curve->curve.value_Type == value_Types[Transmittance])	{ values = calculated_Values.T; }
-			if(	target_Curve->curve.value_Type == value_Types[Scattering])		{ values = calculated_Values.S; }
+			if(	target_Curve->curve.value_Type == value_Types[Reflectance])		{ values = calculated_Values.R_Instrumental; }
+			if(	target_Curve->curve.value_Type == value_Types[Transmittance])	{ values = calculated_Values.T_Instrumental; }
+			if(	target_Curve->curve.value_Type == value_Types[Scattering])		{ values = calculated_Values.S_Instrumental; }
 
 			// TODO
 			if(values.size() == 0)
 			{
 				qInfo() << "Target curve " << plot_Indicator << " : calculation of " << target_Curve->curve.value_Type << "is not done. Fake data are shown." << endl;
 				values = target_Curve->curve.shifted_Values;
-				for(int i=0; i<values.size(); i++) {values[i] /=10;}
+				for(size_t i=0; i<values.size(); i++) {values[i] /=10;}
 			}
 			plot_Data(argument, values, plot_Options_Second, 1);
 			get_Min_Max_For_Graph(plot_Options_Second, values, min_Value_Left, max_Value_Left);
@@ -620,12 +615,10 @@ void Curve_Plot::plot_All_Data()
 	if(curve_Class == INDEPENDENT)
 	{
 		// value
-		if(	independent_Curve->calc_Functions.check_Reflectance ||
-			independent_Curve->calc_Functions.check_Field ||
-			independent_Curve->calc_Functions.check_Joule )			{ values = calculated_Values.R; }
-		if(	independent_Curve->calc_Functions.check_Transmittance )	{ values = calculated_Values.T; }
+		if(	independent_Curve->calc_Functions.check_Reflectance )	{ values = calculated_Values.R_Instrumental; }
+		if(	independent_Curve->calc_Functions.check_Transmittance )	{ values = calculated_Values.T_Instrumental; }
 		if(	independent_Curve->calc_Functions.check_Absorptance )	{ values = calculated_Values.A; }
-		if( independent_Curve->calc_Functions.check_Scattering )	{ values = calculated_Values.S; }
+		if( independent_Curve->calc_Functions.check_Scattering )	{ values = calculated_Values.S_Instrumental; }
 
 		// argument
 		double coeff_Angular = angle_Coefficients_Map.value(angular_Units);
@@ -663,6 +656,19 @@ void Curve_Plot::plot_All_Data()
 				argument[i] = (measurement.beam_Theta_0_Angle_Vec[i]-measurement.beam_Theta_0_Specular_Position)/coeff_Angular;
 			}
 		}
+
+		// TODO
+		if(values.size() == 0)
+		{
+			qInfo() << "Independent curve " << plot_Indicator << " : calculation is not done. Fake data are shown." << endl;
+			argument.resize(1000);
+			values.resize(argument.size());
+			for(size_t i=0; i<values.size(); i++)
+			{
+				argument[i] = i/100.;
+				values[i] = sin(argument[i])*sin(argument[i])+DBL_EPSILON;
+			}
+		}
 		plot_Data(argument, values, plot_Options_First, 0);
 		get_Min_Max_For_Graph(plot_Options_First, values, min_Value_Left, max_Value_Left);
 	}
@@ -674,8 +680,8 @@ void Curve_Plot::plot_All_Data()
 	}
 
 	// show max value
-	if(multilayer->graph_Options.show_Max_Value)
-	if(graph_Done && multilayer->graph_Options.show_Max_Value)
+	if(multilayer->graph_Options_1D.show_Max_Value)
+	if(graph_Done && multilayer->graph_Options_1D.show_Max_Value)
 	{
 		if(argument.size()>3)
 		{
@@ -701,7 +707,7 @@ void Curve_Plot::plot_All_Data()
 	custom_Plot->replot();
 }
 
-void Curve_Plot::plot_Data(const vector<double>& argument, const vector<double>& values, Plot_Options plot_Options, int graph_Index)
+void Curve_Plot_1D::plot_Data(const vector<double>& argument, const vector<double>& values, Plot_Options plot_Options, int graph_Index)
 {
 	QVector<QCPGraphData> data_To_Plot(argument.size());
 
@@ -726,7 +732,7 @@ void Curve_Plot::plot_Data(const vector<double>& argument, const vector<double>&
 				max(custom_Plot->graph(graph_Index)->pen().widthF()*2,3.)));
 }
 
-void Curve_Plot::refresh_Labels()
+void Curve_Plot_1D::refresh_Labels()
 {
 	// value
 	QString value_Label;
@@ -736,9 +742,7 @@ void Curve_Plot::refresh_Labels()
 	}
 	if(curve_Class == INDEPENDENT)
 	{
-		if(	independent_Curve->calc_Functions.check_Reflectance ||
-			independent_Curve->calc_Functions.check_Field ||
-			independent_Curve->calc_Functions.check_Joule )			value_Label = value_Types[Reflectance];
+		if(	independent_Curve->calc_Functions.check_Reflectance )	value_Label = value_Types[Reflectance];
 		if( independent_Curve->calc_Functions.check_Transmittance)	value_Label = value_Types[Transmittance];
 		if( independent_Curve->calc_Functions.check_Absorptance )	value_Label = value_Types[Absorptance];
 		if( independent_Curve->calc_Functions.check_Scattering )	value_Label = value_Types[Scattering];
@@ -764,7 +768,7 @@ void Curve_Plot::refresh_Labels()
 	custom_Plot->xAxis->setLabel(argument_Label);
 }
 
-QCPGraph* Curve_Plot::get_Selected_Graph()
+QCPGraph* Curve_Plot_1D::get_Selected_Graph()
 {
 	if(custom_Plot->selectedGraphs().size()==1)
 	{
@@ -773,7 +777,7 @@ QCPGraph* Curve_Plot::get_Selected_Graph()
 	return nullptr;
 }
 
-void Curve_Plot::choose_Graph_Color()
+void Curve_Plot_1D::choose_Graph_Color()
 {
 	QCPGraph* graph = get_Selected_Graph();
 	if(graph!=nullptr)
@@ -796,7 +800,7 @@ void Curve_Plot::choose_Graph_Color()
 	}
 }
 
-void Curve_Plot::set_Graph_Color(QCPGraph* graph, QColor color)
+void Curve_Plot_1D::set_Graph_Color(QCPGraph* graph, QColor color)
 {
 	graph->setPen(QPen(color, graph->pen().widthF()));
 	graph->selectionDecorator()->setPen(QPen(color,graph->selectionDecorator()->pen().widthF()));
@@ -809,9 +813,9 @@ void Curve_Plot::set_Graph_Color(QCPGraph* graph, QColor color)
 	}
 }
 
-void Curve_Plot::show_Thickness()
+void Curve_Plot_1D::show_Thickness()
 {
-	if(multilayer->graph_Options.show_Thickness)
+	if(multilayer->graph_Options_1D.show_Thickness)
 	{
 		QCPGraph* graph = get_Selected_Graph();
 		if(graph!=nullptr)
@@ -824,9 +828,9 @@ void Curve_Plot::show_Thickness()
 	}
 }
 
-void Curve_Plot::show_Scatter_Size()
+void Curve_Plot_1D::show_Scatter_Size()
 {
-	if(multilayer->graph_Options.show_Scatter)
+	if(multilayer->graph_Options_1D.show_Scatter)
 	{
 		QCPGraph* graph = get_Selected_Graph();
 		if(graph!=nullptr)
@@ -839,7 +843,7 @@ void Curve_Plot::show_Scatter_Size()
 	}
 }
 
-void Curve_Plot::change_Thickness()
+void Curve_Plot_1D::change_Thickness()
 {
 	QCPGraph* graph = get_Selected_Graph();
 	if(graph!=nullptr)
@@ -860,7 +864,7 @@ void Curve_Plot::change_Thickness()
 	}
 }
 
-void Curve_Plot::change_Scatter_Size()
+void Curve_Plot_1D::change_Scatter_Size()
 {
 	QCPGraph* graph = get_Selected_Graph();
 	if(graph!=nullptr)
@@ -882,7 +886,7 @@ void Curve_Plot::change_Scatter_Size()
 	}
 }
 
-void Curve_Plot::get_Min_Max_For_Graph(Plot_Options plot_Options, const vector<double>& values, double& minimum, double& maximum)
+void Curve_Plot_1D::get_Min_Max_For_Graph(Plot_Options plot_Options, const vector<double>& values, double& minimum, double& maximum)
 {
 	double local_Min = DBL_MAX;
 	double local_Max = -DBL_MAX;

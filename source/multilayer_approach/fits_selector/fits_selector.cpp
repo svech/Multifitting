@@ -218,9 +218,9 @@ void Fits_Selector::open_Fit()
 	if(opened)
 	{
 		global_Multilayer_Approach->calculate(true);
-		if(global_Multilayer_Approach->runned_Optical_Graphs.contains(optical_Graphs_Key))
+		if(global_Multilayer_Approach->runned_Optical_Graphs_1D.contains(optical_Graphs_1D_Key))
 		{
-			global_Multilayer_Approach->optical_Graphs->activateWindow();
+			global_Multilayer_Approach->optical_Graphs_1D->activateWindow();
 		}
 	}
 

@@ -8,7 +8,6 @@
 #include "multilayer_approach/multilayer/structure_tree/regular_aperiodic_table.h"
 
 #include "multilayer_approach/table_of_structures/table_of_structures.h"
-#include "multilayer_approach/table_of_roughness/table_of_roughness.h"
 #include "multilayer_approach/graphs/optical_graphs.h"
 #include "multilayer_approach/profile_plots/profile_plots_window.h"
 #include "multilayer_approach/calculation_settings_editor/calculation_settings_editor.h"
@@ -61,9 +60,9 @@ public:
 	void reload_Optical_Constants();
 
 	void open_Table_Of_Structures();
-	void open_Table_Of_Roughness();
-	void open_Optical_Graphs(QString keep_Splitter = "");
 	void open_Profile_Plots();
+	void open_Optical_Graphs_1D(QString keep_Splitter = "");
+	void open_Optical_Graphs_2D(QString keep_Splitter = "");
 	void open_Calculation_Settings();
 	void open_General_Settings();
 	void open_Fits_Selector();
@@ -108,19 +107,27 @@ public:
 		QToolButton* add_Tab_Corner_Button;
 
 		Table_Of_Structures*		 table_Of_Structures;		  QMap<QString, Table_Of_Structures*>		  runned_Tables_Of_Structures;
-		Table_Of_Roughness*			 table_Of_Roughness;		  QMap<QString, Table_Of_Roughness*>		  runned_Tables_Of_Roughness;
-		Optical_Graphs*				 optical_Graphs;			  QMap<QString, Optical_Graphs*>			  runned_Optical_Graphs;
+		Optical_Graphs*				 optical_Graphs_1D;			  QMap<QString, Optical_Graphs*>			  runned_Optical_Graphs_1D;
+		Optical_Graphs*				 optical_Graphs_2D;			  QMap<QString, Optical_Graphs*>			  runned_Optical_Graphs_2D;
 		Profile_Plots_Window*		 profile_Plots_Window;		  QMap<QString, Profile_Plots_Window*>		  runned_Profile_Plots_Window;
 		Calculation_Settings_Editor* calculation_Settings_Editor; QMap<QString, Calculation_Settings_Editor*> runned_Calculation_Settings_Editor;
 //		General_Settings_Editor*	 general_Settings_Editor;	  QMap<QString, General_Settings_Editor*>	  runned_General_Settings_Editor;
 		Fitting_Settings_Editor*	 fitting_Settings_Editor;	  QMap<QString, Fitting_Settings_Editor*>	  runned_Fitting_Settings_Editor;
 		Fits_Selector*				 fits_Selector;				  QMap<QString, Fits_Selector*>				  runned_Fits_Selectors;
 
-		QVector<QByteArray>  target_Independent_Splitter_Position_Vec;
-		QVector        <QByteArray>  target_Vertical_Splitter_Position_Vec;
-		QVector<QVector<QByteArray>> target_Horizontal_Splitter_Position_Vec_Vec;
-		QVector        <QByteArray>  independent_Vertical_Splitter_Position_Vec;
-		QVector<QVector<QByteArray>> independent_Horizontal_Splitter_Position_Vec_Vec;
+		// 1D
+		QVector<QByteArray>  target_Independent_Splitter_Position_1D_Vec;
+		QVector        <QByteArray>  target_Vertical_Splitter_Position_1D_Vec;
+		QVector<QVector<QByteArray>> target_Horizontal_Splitter_Position_1D_Vec_Vec;
+		QVector        <QByteArray>  independent_Vertical_Splitter_Position_1D_Vec;
+		QVector<QVector<QByteArray>> independent_Horizontal_Splitter_Position_1D_Vec_Vec;
+
+		// 2D
+		QVector<QByteArray>  target_Independent_Splitter_Position_2D_Vec;
+		QVector        <QByteArray>  target_Vertical_Splitter_Position_2D_Vec;
+		QVector<QVector<QByteArray>> target_Horizontal_Splitter_Position_2D_Vec_Vec;
+		QVector        <QByteArray>  independent_Vertical_Splitter_Position_2D_Vec;
+		QVector<QVector<QByteArray>> independent_Horizontal_Splitter_Position_2D_Vec_Vec;
 
 		QVector<Fitted_Structure> fitted_Structures;
 		id_Type fits_Positive_Counter = 0;
@@ -132,10 +139,13 @@ public:
 
 		QList<Regular_Aperiodic_Table_Launch> rerun_Of_Regular_Aperiodic_Tables_List;
 
-	int temp_Counter = 0;
-	bool independent_Target_Added = false;
-	bool independent_Added = false;
-	bool target_Added = false;
+	bool independent_Target_Added_1D = false;
+	bool independent_Added_1D = false;
+	bool target_Added_1D = false;
+
+	bool independent_Target_Added_2D = false;
+	bool independent_Added_2D = false;
+	bool target_Added_2D = false;
 };
 
 #endif // MULTILAYER_APPROACH_H

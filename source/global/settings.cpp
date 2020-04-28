@@ -37,11 +37,17 @@ int regular_aperiodic_table_y_corner;
 int regular_aperiodic_table_width;
 int regular_aperiodic_table_height;
 
-// graphs window geometry
-int graphs_x_corner;
-int graphs_y_corner;
-int graphs_width;
-int graphs_height;
+// graphs 1D window geometry
+int graphs_x_corner_1D;
+int graphs_y_corner_1D;
+int graphs_width_1D;
+int graphs_height_1D;
+
+// graphs 2D window geometry
+int graphs_x_corner_2D;
+int graphs_y_corner_2D;
+int graphs_width_2D;
+int graphs_height_2D;
 
 // profile plots window geometry
 int profile_plots_x_corner;
@@ -242,7 +248,8 @@ bool mouse_Wheel_Spinbox_Table;
 bool refill_Dependent_Table;
 bool aperiodic_Recalculate_Spinbox_Table;
 bool aperiodic_Mouse_Wheel_Spinbox_Table;
-bool replot_Graphs_During_Fitting;
+bool replot_Graphs_During_Fitting_1D;
+bool replot_Graphs_During_Fitting_2D;
 
 // -----------------------------------------------------------------------------------------
 
@@ -350,10 +357,15 @@ void Settings::read_Gui_Settings(bool reset_to_default)
 
 	// graphs window geometry
 	gui_Settings.beginGroup( Graphs_Window_Geometry );
-		graphs_x_corner		= gui_Settings.value( "graphs_x_corner",	400 ).toInt();
-		graphs_y_corner		= gui_Settings.value( "graphs_y_corner",	300 ).toInt();
-		graphs_width		= gui_Settings.value( "graphs_width",		700 ).toInt();
-		graphs_height		= gui_Settings.value( "graphs_height",		500 ).toInt();
+		graphs_x_corner_1D		= gui_Settings.value( "graphs_x_corner_1D",	400 ).toInt();
+		graphs_y_corner_1D		= gui_Settings.value( "graphs_y_corner_1D",	300 ).toInt();
+		graphs_width_1D			= gui_Settings.value( "graphs_width_1D",	700 ).toInt();
+		graphs_height_1D		= gui_Settings.value( "graphs_height_1D",	500 ).toInt();
+
+		graphs_x_corner_2D		= gui_Settings.value( "graphs_x_corner_2D",	430 ).toInt();
+		graphs_y_corner_2D		= gui_Settings.value( "graphs_y_corner_2D",	330 ).toInt();
+		graphs_width_2D			= gui_Settings.value( "graphs_width_2D",	700 ).toInt();
+		graphs_height_2D		= gui_Settings.value( "graphs_height_2D",	500 ).toInt();
 	gui_Settings.endGroup();
 
 	// profile plots window geometry
@@ -440,15 +452,20 @@ void Settings::save_Gui_Settings()
 		gui_Settings.setValue( "regular_aperiodic_table_x_corner",		regular_aperiodic_table_x_corner );
 		gui_Settings.setValue( "regular_aperiodic_table_y_corner",		regular_aperiodic_table_y_corner );
 		gui_Settings.setValue( "regular_aperiodic_table_width",			regular_aperiodic_table_width );
-		gui_Settings.setValue( "regular_aperiodic_table_height",		regular_aperiodic_table_height );
+		gui_Settings.setValue( "regular_aperiodic_table_height",		regular_aperiodic_table_height );		
 	gui_Settings.endGroup();
 
 	// graphs window geometry
 	gui_Settings.beginGroup( Graphs_Window_Geometry );
-		gui_Settings.setValue( "graphs_x_corner",		graphs_x_corner );
-		gui_Settings.setValue( "graphs_y_corner",		graphs_y_corner );
-		gui_Settings.setValue( "graphs_width",			graphs_width );
-		gui_Settings.setValue( "graphs_height",			graphs_height );
+		gui_Settings.setValue( "graphs_x_corner_1D",		graphs_x_corner_1D );
+		gui_Settings.setValue( "graphs_y_corner_1D",		graphs_y_corner_1D );
+		gui_Settings.setValue( "graphs_width_1D",			graphs_width_1D );
+		gui_Settings.setValue( "graphs_height_1D",			graphs_height_1D );
+
+		gui_Settings.setValue( "graphs_x_corner_2D",		graphs_x_corner_2D );
+		gui_Settings.setValue( "graphs_y_corner_2D",		graphs_y_corner_2D );
+		gui_Settings.setValue( "graphs_width_2D",			graphs_width_2D );
+		gui_Settings.setValue( "graphs_height_2D",			graphs_height_2D );
 	gui_Settings.endGroup();
 
 	// profile plots window geometry
@@ -843,7 +860,8 @@ void Settings::read_Calculations(bool reset_to_default)
 		mouse_Wheel_Spinbox_Table			 = calculations.value( "mouse_Wheel_Spinbox_Table",				false ).toBool();
 		refill_Dependent_Table				 = calculations.value( "refill_Dependent_Table",				false ).toBool();
 		aperiodic_Recalculate_Spinbox_Table	 = calculations.value( "aperiodic_Recalculate_Spinbox_Table",	false ).toBool();
-		replot_Graphs_During_Fitting		 = calculations.value( "replot_Graphs_During_Fitting",			true  ).toBool();
+		replot_Graphs_During_Fitting_1D		 = calculations.value( "replot_Graphs_During_Fitting_1D",		true  ).toBool();
+		replot_Graphs_During_Fitting_2D		 = calculations.value( "replot_Graphs_During_Fitting_2D",		false ).toBool();
 	calculations.endGroup();
 
 	// limit max number of threads
@@ -866,7 +884,8 @@ void Settings::save_Calculations()
 		calculations.setValue( "refill_Dependent_Table",	 refill_Dependent_Table		);
 		calculations.setValue( "aperiodic_Recalculate_Spinbox_Table", aperiodic_Recalculate_Spinbox_Table );
 		calculations.setValue( "aperiodic_Mouse_Wheel_Spinbox_Table", aperiodic_Mouse_Wheel_Spinbox_Table );
-		calculations.setValue( "replot_Graphs_During_Fitting",		  replot_Graphs_During_Fitting );
+		calculations.setValue( "replot_Graphs_During_Fitting_1D",	  replot_Graphs_During_Fitting_1D );
+		calculations.setValue( "replot_Graphs_During_Fitting_2D",	  replot_Graphs_During_Fitting_2D );
 	calculations.endGroup();
 }
 

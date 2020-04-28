@@ -2,19 +2,22 @@
 #define OPTICAL_GRAPHS_H
 
 #include "multilayer_approach/multilayer_approach.h"
-#include "curve_plot.h"
+#include "curve_plot_1d.h"
+#include "curve_plot_2d.h"
 
 class Multilayer_Approach;
-class Curve_Plot;
+class Curve_Plot_1D;
+class Curve_Plot_2D;
 
 class Optical_Graphs : public QWidget
 {
 	Q_OBJECT
 public:
-	explicit Optical_Graphs(QString keep_Splitter = "", QWidget *parent = nullptr);
+	explicit Optical_Graphs(QString dimension, QString keep_Splitter = "", QWidget *parent = nullptr);
 
 	void contextMenuEvent(QContextMenuEvent *event);
-	void settings();
+	void settings_1D();
+	void settings_2D();
 
 	void closeEvent(QCloseEvent* event);
 	void save_Geometry();
@@ -29,6 +32,7 @@ public:
 	QVector<int> total_Number_of_Independent_Graphs;
 
 	QString keep_Splitter;
+	QString dimension;
 	QVBoxLayout* main_Layout;
 
 	QTabWidget* main_Tabs;
@@ -40,7 +44,8 @@ public:
 	QVector<QVector<QSplitter*>> target_Horizontal_Splitter_Vec_Vec;
 	QVector        <QSplitter*>  independent_Vertical_Splitter_Vec;
 	QVector<QVector<QSplitter*>> independent_Horizontal_Splitter_Vec_Vec;
-	QVector<QVector<Curve_Plot*>> plots;
+	QVector<QVector<Curve_Plot_1D*>> plots_1D;
+	QVector<QVector<Curve_Plot_2D*>> plots_2D;
 };
 
 #endif // OPTICAL_GRAPHS_H

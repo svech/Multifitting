@@ -49,8 +49,8 @@ public:
 					QToolButton* independent_Variables_Corner_Button;
 					QMap<Independent_Curve*, Independent_Curve_Editor*> runned_Independent_Curve_Editors;
 
-					QPushButton* structure_Table_Button;	  QPushButton* roughness_Table_Button;
-					QPushButton* optical_Graphs_Button;		  QPushButton* profile_Plots_Button;
+					QPushButton* structure_Table_Button;	  QPushButton* profile_Plots_Button;
+					QPushButton* optical_Graphs_1D_Button;	  QPushButton* optical_Graphs_2D_Button;
 					QPushButton* calculation_Settings_Button; QPushButton* general_Settings_Button;
 					QPushButton* fitting_Settings_Button;	  QPushButton* fits_Selector_Button;
 
@@ -65,7 +65,8 @@ public:
 	int num_Target_Rows;		// rows in Calculation Settings
 	int num_Independent_Rows;	// rows in Calculation Settings
 
-	Graph_Options graph_Options;
+	Graph_Options graph_Options_1D;
+	Graph_Options graph_Options_2D;
 	Profile_Plot_Options profile_Plot_Options;
 	Discretization_Parameters discretization_Parameters;
 

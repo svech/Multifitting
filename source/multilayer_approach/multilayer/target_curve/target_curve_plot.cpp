@@ -10,13 +10,13 @@ Target_Curve_Plot::Target_Curve_Plot(Target_Curve* target_Curve, QWidget *parent
 
 void Target_Curve_Plot::create_Main_Layout()
 {
-	main_layout = new QVBoxLayout(this);
-		main_layout->setContentsMargins(0,0,0,0);
-		main_layout->setSpacing(0);
+	main_Layout = new QVBoxLayout(this);
+		main_Layout->setContentsMargins(0,0,0,0);
+		main_Layout->setSpacing(0);
 
 	custom_Plot = new QCustomPlot;
 		custom_Plot->setMinimumHeight(350);
-	main_layout->addWidget(custom_Plot);
+	main_Layout->addWidget(custom_Plot);
 
 	if( target_Curve->measurement.measurement_Type == measurement_Types[Specular_Scan] ||
 		target_Curve->measurement.measurement_Type == measurement_Types[Detector_Scan] ||
@@ -45,6 +45,8 @@ void Target_Curve_Plot::create_Main_Layout()
 		// color scheme editor
 		connect(custom_Plot, &QCustomPlot::axisDoubleClick, this, [=](QCPAxis* axis, QCPAxis::SelectablePart part, QMouseEvent* event)
 		{
+			Q_UNUSED(part)
+			Q_UNUSED(event)
 			if(axis == color_Scale->axis()) { Global_Variables::color_Scheme_Change(color_Map, custom_Plot, &target_Curve->plot_Options_Experimental.color_Scheme); }
 		}, Qt::UniqueConnection);
 	}
@@ -158,7 +160,7 @@ void Target_Curve_Plot::refresh_Labels_1D()
 void Target_Curve_Plot::create_Plot_Options_GroupBox_1D()
 {
 	QGroupBox* plot_Options_GroupBox = new QGroupBox("Plot options");
-	main_layout->addWidget(plot_Options_GroupBox);
+	main_Layout->addWidget(plot_Options_GroupBox);
 
 	QHBoxLayout* plot_Options_GroupBox_Layout = new QHBoxLayout(plot_Options_GroupBox);
 		plot_Options_GroupBox_Layout->setAlignment(Qt::AlignLeft);
@@ -250,8 +252,8 @@ void Target_Curve_Plot::create_Plot_Frame_And_Scale_2D()
 	color_Map->setGradient(target_Curve->plot_Options_Experimental.color_Scheme); // set the color gradient of the color map to one of the presets
 
 	// scale
-	if(target_Curve->plot_Options_Experimental.y_Scale == log_Scale)  apply_Log_Scale_2D();
-	if(target_Curve->plot_Options_Experimental.y_Scale == lin_Scale)  apply_Lin_Scale_2D();
+	if(target_Curve->plot_Options_Experimental.z_Scale == log_Scale)  apply_Log_Scale_2D();
+	if(target_Curve->plot_Options_Experimental.z_Scale == lin_Scale)  apply_Lin_Scale_2D();
 
 	// default ranges
 	refresh_Axes_Range_2D();
@@ -300,8 +302,8 @@ void Target_Curve_Plot::plot_Data_2D()
 				double val = target_Curve->curve.value_2D_Shifted[y_Index][x_Index];
 				color_Map->data()->setCell(x_Index, y_Index, val);
 
-				if(max_Val<val && (target_Curve->plot_Options_Experimental.y_Scale == lin_Scale || val > DBL_MIN)) {max_Val = val;}
-				if(min_Val>val && (target_Curve->plot_Options_Experimental.y_Scale == lin_Scale || val > DBL_MIN)) {min_Val = val;}
+				if(max_Val<val && (target_Curve->plot_Options_Experimental.z_Scale == lin_Scale || val > DBL_MIN)) {max_Val = val;}
+				if(min_Val>val && (target_Curve->plot_Options_Experimental.z_Scale == lin_Scale || val > DBL_MIN)) {min_Val = val;}
 			}
 		}
 		// x,y ranges
@@ -309,7 +311,7 @@ void Target_Curve_Plot::plot_Data_2D()
 
 		// z range
 		// color_Map->rescaleDataRange(); // rescale the data dimension (color) such that all data points lie in the span visualized by the color gradient
-		if(target_Curve->plot_Options_Experimental.y_Scale == log_Scale) { min_Val = max(min_Val,max_Val/1e5); } // no more than 5 orders
+		if(target_Curve->plot_Options_Experimental.z_Scale == log_Scale) { min_Val = max(min_Val,max_Val/1e5); } // no more than 5 orders
 		color_Map->setDataRange(QCPRange(min_Val,max_Val));
 
 		color_Map->setInterpolate(target_Curve->plot_Options_Experimental.use_Interpolation);
@@ -327,7 +329,7 @@ void Target_Curve_Plot::refresh_Labels_2D()
 void Target_Curve_Plot::create_Plot_Options_GroupBox_2D()
 {
 	QGroupBox* plot_Options_GroupBox = new QGroupBox("Plot options");
-	main_layout->addWidget(plot_Options_GroupBox);
+	main_Layout->addWidget(plot_Options_GroupBox);
 
 	QHBoxLayout* plot_Options_GroupBox_Layout = new QHBoxLayout(plot_Options_GroupBox);
 		plot_Options_GroupBox_Layout->setAlignment(Qt::AlignLeft);
@@ -342,14 +344,14 @@ void Target_Curve_Plot::create_Plot_Options_GroupBox_2D()
 		radio_Button_Layout->addWidget(scale_Label);
 
 		QRadioButton* lin_Radio_Button = new QRadioButton("Lin");
-			lin_Radio_Button->setChecked(target_Curve->plot_Options_Experimental.y_Scale == lin_Scale);
+			lin_Radio_Button->setChecked(target_Curve->plot_Options_Experimental.z_Scale == lin_Scale);
 		radio_Button_Layout->addWidget(lin_Radio_Button);
 		connect(lin_Radio_Button, &QRadioButton::toggled, this, [=]
 		{
 			if(lin_Radio_Button->isChecked())
 			{
-				target_Curve->plot_Options_Experimental.y_Scale = lin_Scale;
-				target_Curve->plot_Options_Calculated.y_Scale = lin_Scale;
+				target_Curve->plot_Options_Experimental.z_Scale = lin_Scale;
+				target_Curve->plot_Options_Calculated.z_Scale = lin_Scale;
 			}
 			create_Plot_Frame_And_Scale_2D();
 			plot_Data_2D();
@@ -357,14 +359,14 @@ void Target_Curve_Plot::create_Plot_Options_GroupBox_2D()
 		connect(lin_Radio_Button, &QRadioButton::clicked, lin_Radio_Button, &QRadioButton::toggled);
 
 		QRadioButton* log_Radio_Button = new QRadioButton("Log");
-			log_Radio_Button->setChecked(target_Curve->plot_Options_Experimental.y_Scale == log_Scale);
+			log_Radio_Button->setChecked(target_Curve->plot_Options_Experimental.z_Scale == log_Scale);
 		radio_Button_Layout->addWidget(log_Radio_Button);
 		connect(log_Radio_Button, &QRadioButton::toggled, this, [=]
 		{
 			if(log_Radio_Button->isChecked())
 			{
-				target_Curve->plot_Options_Experimental.y_Scale = log_Scale;
-				target_Curve->plot_Options_Calculated.y_Scale = log_Scale;
+				target_Curve->plot_Options_Experimental.z_Scale = log_Scale;
+				target_Curve->plot_Options_Calculated.z_Scale = log_Scale;
 			}
 			create_Plot_Frame_And_Scale_2D();
 			plot_Data_2D();

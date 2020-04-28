@@ -96,8 +96,8 @@ void Multilayer_Approach::create_Multilayer_Tabs()
 		{
 			can_Change_Index = false;
 			if(runned_Tables_Of_Structures.contains(table_Of_Structures_Key)) {table_Of_Structures		  ->main_Tabs->setCurrentIndex(multilayer_Tabs->currentIndex());}
-			if(runned_Tables_Of_Roughness.contains(table_Of_Roughness_Key))	  {table_Of_Roughness		  ->main_Tabs->setCurrentIndex(multilayer_Tabs->currentIndex());}
-			if(runned_Optical_Graphs.contains(optical_Graphs_Key))			  {optical_Graphs			  ->main_Tabs->setCurrentIndex(multilayer_Tabs->currentIndex());}
+			if(runned_Optical_Graphs_2D.contains(optical_Graphs_2D_Key))	  {optical_Graphs_2D		  ->main_Tabs->setCurrentIndex(multilayer_Tabs->currentIndex());}
+			if(runned_Optical_Graphs_1D.contains(optical_Graphs_1D_Key))	  {optical_Graphs_1D		  ->main_Tabs->setCurrentIndex(multilayer_Tabs->currentIndex());}
 			if(runned_Profile_Plots_Window.contains(profile_Plots_Key))		  {profile_Plots_Window		  ->main_Tabs->setCurrentIndex(multilayer_Tabs->currentIndex());}
 			if(runned_Calculation_Settings_Editor.contains(calc_Settings_Key)){calculation_Settings_Editor->main_Tabs->setCurrentIndex(multilayer_Tabs->currentIndex());}
 			can_Change_Index = tab_synchronization;
@@ -137,11 +137,11 @@ void Multilayer_Approach::fast_Hide_Windows()
 	if(runned_Tables_Of_Structures.contains(table_Of_Structures_Key))	{
 		table_Of_Structures->close();
 	}
-	if(runned_Tables_Of_Roughness.contains(table_Of_Roughness_Key))	{
-		table_Of_Roughness->close();
+	if(runned_Optical_Graphs_2D.contains(optical_Graphs_2D_Key))	{
+		optical_Graphs_2D->close();
 	}
-	if(runned_Optical_Graphs.contains(optical_Graphs_Key))	{
-		optical_Graphs->close();
+	if(runned_Optical_Graphs_1D.contains(optical_Graphs_1D_Key))	{
+		optical_Graphs_1D->close();
 	}
 	if(runned_Profile_Plots_Window.contains(profile_Plots_Key))	{
 		profile_Plots_Window->close();
@@ -310,45 +310,39 @@ void Multilayer_Approach::open_Table_Of_Structures()
 	}
 }
 
-void Multilayer_Approach::open_Table_Of_Roughness()
-{
-	if(!runned_Tables_Of_Roughness.contains(table_Of_Roughness_Key))
-	{
-		runned_Tables_Of_Roughness.insert(table_Of_Roughness_Key, table_Of_Roughness);
-		table_Of_Roughness = new Table_Of_Roughness();
-			table_Of_Roughness->setWindowFlags(Qt::Window);
-			table_Of_Roughness->show();
-
-		runned_Tables_Of_Roughness.clear();
-		runned_Tables_Of_Roughness.insert(table_Of_Roughness_Key, table_Of_Roughness);
-
-		// TODO
-//		connect(table_Of_Roughness, &Table_Of_Roughness::data_Edited, this, &Multilayer_Approach::refresh_All_Multilayers_View);
-//		for(int i=0; i<multilayer_Tabs->count(); ++i)
-//		{
-//			Multilayer* multilayer = qobject_cast<Multilayer*>(multilayer_Tabs->widget(i));
-//			connect(multilayer, &Multilayer::refresh_All_Multilayers, table_Of_Structures, [=]{table_Of_Roughness->reload_All_Widgets();});
-//		}
-	} else
-	{
-		table_Of_Roughness->activateWindow();
-	}}
-
-void Multilayer_Approach::open_Optical_Graphs(QString keep_Splitter)
+void Multilayer_Approach::open_Optical_Graphs_1D(QString keep_Splitter)
 {	
-	if(!runned_Optical_Graphs.contains(optical_Graphs_Key))
+	if(!runned_Optical_Graphs_1D.contains(optical_Graphs_1D_Key))
 	{
-		runned_Optical_Graphs.insert(optical_Graphs_Key, optical_Graphs);
-		optical_Graphs = new Optical_Graphs(keep_Splitter);//(this);
-			optical_Graphs->setWindowFlags(Qt::Window);
-			optical_Graphs->show();
+		runned_Optical_Graphs_1D.insert(optical_Graphs_1D_Key, optical_Graphs_1D);
+		optical_Graphs_1D = new Optical_Graphs(dim_1D, keep_Splitter);
+			optical_Graphs_1D->setWindowFlags(Qt::Window);
+			optical_Graphs_1D->show();
 
-		runned_Optical_Graphs.clear();
-		runned_Optical_Graphs.insert(optical_Graphs_Key, optical_Graphs);
+		runned_Optical_Graphs_1D.clear();
+		runned_Optical_Graphs_1D.insert(optical_Graphs_1D_Key, optical_Graphs_1D);
 
 	} else
 	{
-		optical_Graphs->activateWindow();
+		optical_Graphs_1D->activateWindow();
+	}
+}
+
+void Multilayer_Approach::open_Optical_Graphs_2D(QString keep_Splitter)
+{
+	if(!runned_Optical_Graphs_2D.contains(optical_Graphs_2D_Key))
+	{
+		runned_Optical_Graphs_2D.insert(optical_Graphs_2D_Key, optical_Graphs_2D);
+		optical_Graphs_2D = new Optical_Graphs(dim_2D, keep_Splitter);
+			optical_Graphs_2D->setWindowFlags(Qt::Window);
+			optical_Graphs_2D->show();
+
+		runned_Optical_Graphs_2D.clear();
+		runned_Optical_Graphs_2D.insert(optical_Graphs_2D_Key, optical_Graphs_2D);
+
+	} else
+	{
+		optical_Graphs_2D->activateWindow();
 	}
 }
 
@@ -511,8 +505,8 @@ void Multilayer_Approach::lock_Mainwindow_Interface()
 
 		// lock multilayer tabs
 		if(runned_Tables_Of_Structures.contains(table_Of_Structures_Key) ||
-		   runned_Tables_Of_Roughness.contains(table_Of_Roughness_Key) ||
-		   runned_Optical_Graphs.contains(optical_Graphs_Key) ||
+		   runned_Optical_Graphs_2D.contains(optical_Graphs_2D_Key) ||
+		   runned_Optical_Graphs_1D.contains(optical_Graphs_1D_Key) ||
 		   runned_Profile_Plots_Window.contains(profile_Plots_Key) ||
 		   runned_Calculation_Settings_Editor.contains(calc_Settings_Key))
 		{
@@ -523,8 +517,7 @@ void Multilayer_Approach::lock_Mainwindow_Interface()
 		}
 
 		// lock tree
-		if(runned_Tables_Of_Structures.contains(table_Of_Structures_Key) ||
-		   runned_Tables_Of_Roughness.contains(table_Of_Roughness_Key) /*||
+		if(runned_Tables_Of_Structures.contains(table_Of_Structures_Key)/*||
 		   runned_Profile_Plots_Window.contains(profile_Plots_Key)*/)
 		{
 			// close editors
@@ -535,8 +528,9 @@ void Multilayer_Approach::lock_Mainwindow_Interface()
 		}
 
 		// lock independent tabs
-		if(runned_Optical_Graphs.contains(optical_Graphs_Key) ||
-		   runned_Calculation_Settings_Editor.contains(calc_Settings_Key))
+		if( runned_Optical_Graphs_1D.contains(optical_Graphs_1D_Key) ||
+			runned_Optical_Graphs_2D.contains(optical_Graphs_2D_Key) ||
+			runned_Calculation_Settings_Editor.contains(calc_Settings_Key))
 		{
 			for(int i=0; i<multilayer->independent_Curve_Tabs->count(); ++i)
 			{
@@ -547,8 +541,9 @@ void Multilayer_Approach::lock_Mainwindow_Interface()
 		}
 
 		// lock target buttons
-		if(runned_Optical_Graphs.contains(optical_Graphs_Key) ||
-		   runned_Calculation_Settings_Editor.contains(calc_Settings_Key))
+		if( runned_Optical_Graphs_1D.contains(optical_Graphs_1D_Key) ||
+			runned_Optical_Graphs_2D.contains(optical_Graphs_2D_Key) ||
+			runned_Calculation_Settings_Editor.contains(calc_Settings_Key))
 		{
 			for(int i=0; i<multilayer->data_Target_Profile_Frame_Vector.size(); ++i)
 			{
@@ -567,8 +562,8 @@ void Multilayer_Approach::unlock_Mainwindow_Interface()
 
 		// unlock multilayer tabs
 		if(!runned_Tables_Of_Structures.contains(table_Of_Structures_Key) &&
-		   !runned_Tables_Of_Roughness.contains(table_Of_Roughness_Key) &&
-		   !runned_Optical_Graphs.contains(optical_Graphs_Key) &&
+		   !runned_Optical_Graphs_2D.contains(optical_Graphs_2D_Key) &&
+		   !runned_Optical_Graphs_1D.contains(optical_Graphs_1D_Key) &&
 		   !runned_Profile_Plots_Window.contains(profile_Plots_Key) &&
 		   !runned_Calculation_Settings_Editor.contains(calc_Settings_Key))
 		{
@@ -580,8 +575,7 @@ void Multilayer_Approach::unlock_Mainwindow_Interface()
 		}
 
 		// unlock tree
-		if(!runned_Tables_Of_Structures.contains(table_Of_Structures_Key) &&
-		   !runned_Tables_Of_Roughness.contains(table_Of_Roughness_Key)/* &&
+		if(!runned_Tables_Of_Structures.contains(table_Of_Structures_Key)/* &&
 		   !runned_Profile_Plots_Window.contains(profile_Plots_Key)*/)
 		{
 			multilayer->structure_Tree->structure_Toolbar->toolbar->setDisabled(false);
@@ -589,8 +583,9 @@ void Multilayer_Approach::unlock_Mainwindow_Interface()
 		}
 
 		// unlock independent tabs
-		if(!runned_Optical_Graphs.contains(optical_Graphs_Key) &&
-		   !runned_Calculation_Settings_Editor.contains(calc_Settings_Key))
+		if( !runned_Optical_Graphs_1D.contains(optical_Graphs_1D_Key) &&
+			!runned_Optical_Graphs_2D.contains(optical_Graphs_2D_Key) &&
+			!runned_Calculation_Settings_Editor.contains(calc_Settings_Key))
 		{
 			for(int i=0; i<multilayer->independent_Curve_Tabs->count(); ++i)
 			{
@@ -601,8 +596,9 @@ void Multilayer_Approach::unlock_Mainwindow_Interface()
 		}
 
 		// unlock target buttons
-		if(!runned_Optical_Graphs.contains(optical_Graphs_Key) &&
-		   !runned_Calculation_Settings_Editor.contains(calc_Settings_Key))
+		if( !runned_Optical_Graphs_1D.contains(optical_Graphs_1D_Key) &&
+			!runned_Optical_Graphs_2D.contains(optical_Graphs_2D_Key) &&
+			!runned_Calculation_Settings_Editor.contains(calc_Settings_Key))
 		{
 				for(int i=0; i<multilayer->data_Target_Profile_Frame_Vector.size(); ++i)
 			{
@@ -737,13 +733,22 @@ void Multilayer_Approach::open(QString filename)
 		runned_Calculation_Settings_Editor.value(calc_Settings_Key)->close();
 	}
 
-	// close graphs
-	bool reopen_Graphs = runned_Optical_Graphs.contains(optical_Graphs_Key);
-	int active_Tab_Optical_Graphs = -2019;
-	if(reopen_Graphs)
+	// close graphs 1D
+	bool reopen_Graphs_1D = runned_Optical_Graphs_1D.contains(optical_Graphs_1D_Key);
+	int active_Tab_Optical_Graphs_1D = -2019;
+	if(reopen_Graphs_1D)
 	{
-		active_Tab_Optical_Graphs = runned_Optical_Graphs.value(optical_Graphs_Key)->main_Tabs->currentIndex();
-		runned_Optical_Graphs.value(optical_Graphs_Key)->close();
+		active_Tab_Optical_Graphs_1D = runned_Optical_Graphs_1D.value(optical_Graphs_1D_Key)->main_Tabs->currentIndex();
+		runned_Optical_Graphs_1D.value(optical_Graphs_1D_Key)->close();
+	}
+
+	// close graphs 2D
+	bool reopen_Graphs_2D = runned_Optical_Graphs_2D.contains(optical_Graphs_2D_Key);
+	int active_Tab_Optical_Graphs_2D = -2019;
+	if(reopen_Graphs_2D)
+	{
+		active_Tab_Optical_Graphs_2D = runned_Optical_Graphs_2D.value(optical_Graphs_2D_Key)->main_Tabs->currentIndex();
+		runned_Optical_Graphs_2D.value(optical_Graphs_2D_Key)->close();
 	}
 
 	// close profile
@@ -879,7 +884,7 @@ void Multilayer_Approach::open(QString filename)
 
 			// load number of independent graph rows
 			if(Global_Variables::check_Loaded_Version(1,7,8) && !Global_Variables::check_Loaded_Version(1,9,3))
-			{in >> multilayer->graph_Options.num_Independent_Graph_Rows;}	// since 1.7.8 and before 1.9.3
+			{in >> multilayer->graph_Options_1D.num_Independent_Graph_Rows;}	// since 1.7.8 and before 1.9.3
 		}
 
 		/// target
@@ -920,12 +925,12 @@ void Multilayer_Approach::open(QString filename)
 
 			// load number of target graph rows
 			if(Global_Variables::check_Loaded_Version(1,7,8) && !Global_Variables::check_Loaded_Version(1,9,3))
-			{in >> multilayer->graph_Options.num_Target_Graph_Rows;}	// since 1.7.8 and before 1.9.3
+			{in >> multilayer->graph_Options_1D.num_Target_Graph_Rows;}	// since 1.7.8 and before 1.9.3
 		}
 
 		/// graph options
 		if(Global_Variables::check_Loaded_Version(1,9,3))
-		{in >> multilayer->graph_Options;}	              // since 1.9.3
+		{in >> multilayer->graph_Options_1D;}	              // since 1.9.3
 
 		/// profile plot
 		if(Global_Variables::check_Loaded_Version(1,10,2))
@@ -1000,11 +1005,19 @@ void Multilayer_Approach::open(QString filename)
 	/// load plot splitters state
 	if(Global_Variables::check_Loaded_Version(1,9,5))
 	{
-		in >> target_Independent_Splitter_Position_Vec;
-		in >> target_Vertical_Splitter_Position_Vec;
-		in >> target_Horizontal_Splitter_Position_Vec_Vec;
-		in >> independent_Vertical_Splitter_Position_Vec;
-		in >> independent_Horizontal_Splitter_Position_Vec_Vec;
+		in >> target_Independent_Splitter_Position_1D_Vec;
+		in >> target_Vertical_Splitter_Position_1D_Vec;
+		in >> target_Horizontal_Splitter_Position_1D_Vec_Vec;
+		in >> independent_Vertical_Splitter_Position_1D_Vec;
+		in >> independent_Horizontal_Splitter_Position_1D_Vec_Vec;
+	}
+	if(Global_Variables::check_Loaded_Version(1,11,0))
+	{
+		in >> target_Independent_Splitter_Position_2D_Vec;
+		in >> target_Vertical_Splitter_Position_2D_Vec;
+		in >> target_Horizontal_Splitter_Position_2D_Vec_Vec;
+		in >> independent_Vertical_Splitter_Position_2D_Vec;
+		in >> independent_Horizontal_Splitter_Position_2D_Vec_Vec;
 	}
 
 	file.close();
@@ -1031,11 +1044,18 @@ void Multilayer_Approach::open(QString filename)
 		runned_Calculation_Settings_Editor.value(calc_Settings_Key)->main_Tabs->setCurrentIndex(active_Tab_Calculation_Settings_Editor);
 	}
 
-	// reopen graphs
-	if(reopen_Graphs)
+	// reopen 1D graphs
+	if(reopen_Graphs_1D)
 	{
-		open_Optical_Graphs();
-		runned_Optical_Graphs.value(optical_Graphs_Key)->main_Tabs->setCurrentIndex(active_Tab_Optical_Graphs);
+		open_Optical_Graphs_1D();
+		runned_Optical_Graphs_1D.value(optical_Graphs_1D_Key)->main_Tabs->setCurrentIndex(active_Tab_Optical_Graphs_1D);
+	}
+
+	// reopen 2D graphs
+	if(reopen_Graphs_2D)
+	{
+		open_Optical_Graphs_2D();
+		runned_Optical_Graphs_2D.value(optical_Graphs_2D_Key)->main_Tabs->setCurrentIndex(active_Tab_Optical_Graphs_2D);
 	}
 
 	// close profile
@@ -1180,7 +1200,7 @@ void Multilayer_Approach::save(QString filename)
 			out << multilayer->num_Target_Rows;   // since 1.7.8
 		}		
 		/// graph options
-		out << multilayer->graph_Options;		  // since 1.9.3
+		out << multilayer->graph_Options_1D;		  // since 1.9.3
 
 		/// profile plot
 		out << multilayer->profile_Plot_Options;	  // since 1.10.2
@@ -1229,15 +1249,27 @@ void Multilayer_Approach::save(QString filename)
 
 	/// save plot splitters state
 	{
-		if(runned_Optical_Graphs.contains(optical_Graphs_Key))
+		// 1D
+		if(runned_Optical_Graphs_1D.contains(optical_Graphs_1D_Key))
 		{
-			runned_Optical_Graphs.value(optical_Graphs_Key)->save_Geometry();
+			runned_Optical_Graphs_1D.value(optical_Graphs_1D_Key)->save_Geometry();
 		}
-		out << target_Independent_Splitter_Position_Vec;
-		out << target_Vertical_Splitter_Position_Vec;
-		out << target_Horizontal_Splitter_Position_Vec_Vec;
-		out << independent_Vertical_Splitter_Position_Vec;
-		out << independent_Horizontal_Splitter_Position_Vec_Vec;
+		out << target_Independent_Splitter_Position_1D_Vec;
+		out << target_Vertical_Splitter_Position_1D_Vec;
+		out << target_Horizontal_Splitter_Position_1D_Vec_Vec;
+		out << independent_Vertical_Splitter_Position_1D_Vec;
+		out << independent_Horizontal_Splitter_Position_1D_Vec_Vec;
+
+		// 2D
+		if(runned_Optical_Graphs_2D.contains(optical_Graphs_2D_Key))
+		{
+			runned_Optical_Graphs_2D.value(optical_Graphs_2D_Key)->save_Geometry();
+		}
+		out << target_Independent_Splitter_Position_2D_Vec;
+		out << target_Vertical_Splitter_Position_2D_Vec;
+		out << target_Horizontal_Splitter_Position_2D_Vec_Vec;
+		out << independent_Vertical_Splitter_Position_2D_Vec;
+		out << independent_Horizontal_Splitter_Position_2D_Vec_Vec;
 	}
 
 	file.close();
@@ -1270,20 +1302,20 @@ void Multilayer_Approach::save_As()
 void Multilayer_Approach::calculate(bool silent)
 {
 	// TODO
-	silent = false;
+	silent = false; // remove this line
 
-	if(!fitting_Settings->in_Calculation)
-	{
-		if(!silent)
-		{
+//	if(!fitting_Settings->in_Calculation)
+//	{
+//		if(!silent)
+//		{
 			qInfo() << "\n\n-------------------------------------------------------"
 						 "\ncalculation..."
 						 "\n-------------------------------------------------------\n\n";
-		}
-		Main_Calculation_Module* main_Calculation_Module = new Main_Calculation_Module(CALCULATION);
-		main_Calculation_Module->single_Calculation(!silent);
-		delete main_Calculation_Module;
-	}
+//		}
+//		Main_Calculation_Module* main_Calculation_Module = new Main_Calculation_Module(CALCULATION);
+//		main_Calculation_Module->single_Calculation(!silent);
+//		delete main_Calculation_Module;
+//	}
 }
 
 void Multilayer_Approach::start_Fitting()
