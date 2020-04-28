@@ -30,7 +30,8 @@ public:
 	void subinterval_Changed_Replot();
 
 	vector<vector<double>>* values_2D;
-	vector<vector<double>> values_2D_Local;
+	vector<vector<double>>* values_2D_Meas;
+	vector<vector<double>>* values_2D_Calc;
 
 	Multilayer* multilayer;
 	Target_Curve* target_Curve;
@@ -54,14 +55,18 @@ public:
 	QCustomPlot* main_2D_Custom_Plot;
 	QCPColorMap* color_Map;
 	QCPColorScale* color_Scale;
-	QCPMarginGroup* margin_Group;
+	QCPMarginGroup* margin_Group_Top_Bottom;
+	QCPMarginGroup* margin_Group_Left_Right;
 
 	// sections
 	QTabWidget* bottom_Section_Tabs;
 	QWidget* empty_Widget;
+	QHBoxLayout* bottom_Hor_Layout;
+	QHBoxLayout* bottom_Ver_Layout;
 	QCustomPlot* bottom_Horizontal_Custom_Plot;
 	QCustomPlot* bottom_Vertical_Custom_Plot;
 	QCustomPlot* left_Vertical_Custom_Plot;
+	double shift;
 
 	// fitting rectangle
 	QCPItemRect* start_Rect;

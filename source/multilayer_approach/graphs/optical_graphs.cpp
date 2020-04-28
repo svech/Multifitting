@@ -228,9 +228,9 @@ void Optical_Graphs::settings_2D()
 		show_Interpolation_CheckBox->setChecked(multilayer->graph_Options_2D.show_Interpolation);
 	plots_Settings_Group_Box_Layout->addWidget(show_Interpolation_CheckBox);
 
-	QCheckBox* replot_Graphs_During_Fitting_CheckBox = new QCheckBox("Replot while fitting");
-		replot_Graphs_During_Fitting_CheckBox->setChecked(replot_Graphs_During_Fitting_2D);
-	plots_Settings_Group_Box_Layout->addWidget(replot_Graphs_During_Fitting_CheckBox);
+//	QCheckBox* replot_Graphs_During_Fitting_CheckBox = new QCheckBox("Replot while fitting");
+//		replot_Graphs_During_Fitting_CheckBox->setChecked(replot_Graphs_During_Fitting_2D);
+//	plots_Settings_Group_Box_Layout->addWidget(replot_Graphs_During_Fitting_CheckBox);
 
 	// buttons
 	QHBoxLayout* buttons_Layout = new QHBoxLayout;
@@ -255,7 +255,7 @@ void Optical_Graphs::settings_2D()
 		multilayer->graph_Options_2D.show_Current_Coordinate = show_Current_Coordinate_CheckBox->isChecked();
 		multilayer->graph_Options_2D.show_Title = show_Title_CheckBox->isChecked();
 		multilayer->graph_Options_2D.show_Interpolation = show_Interpolation_CheckBox->isChecked();
-		replot_Graphs_During_Fitting_2D = replot_Graphs_During_Fitting_CheckBox->isChecked();
+//		replot_Graphs_During_Fitting_2D = replot_Graphs_During_Fitting_CheckBox->isChecked();
 
 		global_Multilayer_Approach->open_Optical_Graphs_2D(TARGET_AND_INDEPENDENT);
 		global_Multilayer_Approach->optical_Graphs_2D->main_Tabs->setCurrentIndex(active_Tab);
@@ -611,6 +611,14 @@ void Optical_Graphs::create_Tab_Content(QWidget* new_Widget, int tab_Index)
 				target_Independent_Splitter_Vec[tab_Index]->restoreState(global_Multilayer_Approach->target_Independent_Splitter_Position_2D_Vec[tab_Index]);
 			}
 		}
+//		if(total_Number_of_Target_Graphs[tab_Index] == 0)
+//		{
+//			target_Independent_Splitter_Vec[tab_Index]->widget(0)->setHidden(true);
+//		}
+//		if(total_Number_of_Independent_Graphs[tab_Index] == 0)
+//		{
+//			target_Independent_Splitter_Vec[tab_Index]->widget(0)->setHidden(true);
+//		}
 
 		if(keep_Splitter != TARGET)
 		{

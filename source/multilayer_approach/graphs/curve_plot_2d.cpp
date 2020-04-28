@@ -15,7 +15,7 @@ Curve_Plot_2D::Curve_Plot_2D(Multilayer* multilayer, Target_Curve* target_Curve,
 
 	QWidget(parent)
 {
-	create_Main_Layout();
+	create_Main_Layout();	
 }
 
 void Curve_Plot_2D::create_Main_Layout()
@@ -30,68 +30,96 @@ void Curve_Plot_2D::create_Main_Layout()
 	bottom_Splitter = new MySplitter;
 		bottom_Splitter->setOrientation(Qt::Vertical);
 		bottom_Splitter->setChildrenCollapsible(false);
-//		bottom_Splitter->setStyleSheet("QSplitter::handle{border: 0px solid light gray; background: none;}");
+		bottom_Splitter->setHandleWidth(0);
+		bottom_Splitter->setStyleSheet("QSplitter::handle{background-color: gray;}");
 	main_Layout->addWidget(bottom_Splitter);
 	//------------------------------------------------------
 	left_Splitter = new MySplitter;
 		left_Splitter->setOrientation(Qt::Horizontal);
 		left_Splitter->setChildrenCollapsible(false);
-//		left_Splitter->setStyleSheet("QSplitter::handle{border: 0px solid light gray; background: none;}");
+		left_Splitter->setHandleWidth(1);
+		left_Splitter->setStyleSheet("QSplitter::handle{background-color: gray; }");
 	bottom_Splitter->addWidget(left_Splitter);
 	//------------------------------------------------------
 	bottom_Left_Splitter = new MySplitter;
 		bottom_Left_Splitter->setOrientation(Qt::Horizontal);
 		bottom_Left_Splitter->setChildrenCollapsible(false);
-//		bottom_Left_Splitter->setStyleSheet("QSplitter::handle{border: 0px solid light gray; background: none;}");
+		bottom_Left_Splitter->setHandleWidth(0);
+		bottom_Left_Splitter->setStyleSheet("QSplitter::handle{background-color: gray;}");
 	bottom_Splitter->addWidget(bottom_Left_Splitter);
 
 	connect(left_Splitter, &MySplitter::splitterMoved, this, [=](int pos, int index)
 	{
-		empty_Widget->setMaximumWidth(16777215);
 		left_Vertical_Custom_Plot->setMaximumWidth(16777215);
-		qInfo() << "left_Splitter" << pos << index << endl;
+		empty_Widget->setMaximumWidth(16777215);
+
 		bottom_Left_Splitter->blockSignals(true);
 		bottom_Left_Splitter->moveSplitter(pos,index);
 		bottom_Left_Splitter->blockSignals(false);
 	});
 	connect(bottom_Left_Splitter, &MySplitter::splitterMoved, this, [=](int pos, int index)
 	{
-		empty_Widget->setMaximumWidth(16777215);
 		left_Vertical_Custom_Plot->setMaximumWidth(16777215);
-		qInfo() << "bottom_Left_Splitter" << pos << index << endl;
+		empty_Widget->setMaximumWidth(16777215);
+
 		left_Splitter->blockSignals(true);
 		left_Splitter->moveSplitter(pos,index);
 		left_Splitter->blockSignals(false);
 	});
+	connect(bottom_Splitter, &MySplitter::splitterMoved, this, [=](int pos, int index)
+	{
+		Q_UNUSED(pos) Q_UNUSED(index)
+		bottom_Section_Tabs->setMaximumHeight(16777215);
+	});
 	//------------------------------------------------------
-	/// fill splitters
+	/// fulill splitters
 	//------------------------------------------------------
 	left_Vertical_Custom_Plot = new QCustomPlot;
+		left_Vertical_Custom_Plot->setHidden(!plot_Options.left_Section_Plot);
 		left_Vertical_Custom_Plot->setMaximumWidth(100);
+		left_Vertical_Custom_Plot->setMinimumWidth(100);
 	left_Splitter->addWidget(left_Vertical_Custom_Plot);
 
 	main_2D_Custom_Plot = new QCustomPlot;
 	left_Splitter->addWidget(main_2D_Custom_Plot);
 
+	empty_Widget = new QWidget;
+		empty_Widget->setHidden(!plot_Options.left_Section_Plot || !plot_Options.bottom_Section_Plot);
+		empty_Widget->setMinimumWidth(100);
 		empty_Widget->setMaximumWidth(100);
 	bottom_Left_Splitter->addWidget(empty_Widget);
 
 	bottom_Section_Tabs = new QTabWidget;
 		bottom_Section_Tabs->setTabsClosable(false);
+		bottom_Section_Tabs->setTabPosition(QTabWidget::South);
 		bottom_Section_Tabs->setMovable(false);
+		bottom_Section_Tabs->setHidden(!plot_Options.bottom_Section_Plot);
+		bottom_Section_Tabs->setMinimumHeight(120);
+		bottom_Section_Tabs->setMaximumHeight(121);
 	bottom_Left_Splitter->addWidget(bottom_Section_Tabs);
-
-	bottom_Horizontal_Custom_Plot = new QCustomPlot;
-	bottom_Section_Tabs->addTab(bottom_Horizontal_Custom_Plot, "Horizontal");
-	bottom_Vertical_Custom_Plot = new QCustomPlot;
-	bottom_Section_Tabs->addTab(bottom_Vertical_Custom_Plot, "Vertical");
 
 	//------------------------------------------------------
 
 	color_Map = new QCPColorMap(main_2D_Custom_Plot->xAxis, main_2D_Custom_Plot->yAxis);
 	color_Scale = new QCPColorScale(main_2D_Custom_Plot);
-	margin_Group = new QCPMarginGroup(main_2D_Custom_Plot);
-	main_2D_Custom_Plot->plotLayout()->addElement(0, 1, color_Scale); // add it to the right of the main axis rect
+	margin_Group_Top_Bottom = new QCPMarginGroup(main_2D_Custom_Plot);
+	margin_Group_Left_Right = new QCPMarginGroup(main_2D_Custom_Plot);
+	main_2D_Custom_Plot->plotLayout()->addElement(0,1,color_Scale);
+
+	bottom_Horizontal_Custom_Plot = new QCustomPlot(main_2D_Custom_Plot);
+	QWidget* bottom_Hor_Widget = new QWidget;
+	bottom_Hor_Layout = new QHBoxLayout(bottom_Hor_Widget);
+		bottom_Hor_Layout->setContentsMargins(0,0,shift,0);
+		bottom_Hor_Layout->addWidget(bottom_Horizontal_Custom_Plot);
+	bottom_Section_Tabs->addTab(bottom_Hor_Widget, "Horizontal");
+
+	bottom_Vertical_Custom_Plot = new QCustomPlot;
+	QWidget* bottom_Ver_Widget = new QWidget;
+	bottom_Ver_Layout = new QHBoxLayout(bottom_Ver_Widget);
+		bottom_Ver_Layout->setContentsMargins(0,0,shift,0);
+		bottom_Ver_Layout->addWidget(bottom_Vertical_Custom_Plot);
+	bottom_Section_Tabs->addTab(bottom_Ver_Widget, "Vertical");
+
 
 	if(curve_Class == TARGET) create_Subinterval_Rectangle();
 
@@ -105,11 +133,9 @@ void Curve_Plot_2D::create_Main_Layout()
 	// color scheme editor
 	connect(main_2D_Custom_Plot, &QCustomPlot::axisDoubleClick, this, [=](QCPAxis* axis, QCPAxis::SelectablePart part, QMouseEvent* event)
 	{
-		Q_UNUSED(part)
-		Q_UNUSED(event)
+		Q_UNUSED(part)	Q_UNUSED(event)
 		if(axis == color_Scale->axis()) { Global_Variables::color_Scheme_Change(color_Map, main_2D_Custom_Plot, &plot_Options.color_Scheme); }
 	}, Qt::UniqueConnection);
-
 }
 
 void Curve_Plot_2D::create_Plot_Frame_And_Scale()
@@ -119,7 +145,7 @@ void Curve_Plot_2D::create_Plot_Frame_And_Scale()
 
 	// frame
 	main_2D_Custom_Plot->axisRect()->setupFullAxesBox(true);
-	main_2D_Custom_Plot->yAxis2->setTickLabels(true);
+//	main_2D_Custom_Plot->yAxis2->setTickLabels(true);
 	QSharedPointer<QCPAxisTicker> linTicker(new QCPAxisTicker);
 		linTicker->setTickCount(12);
 	main_2D_Custom_Plot->xAxis ->setTicker(linTicker);
@@ -139,18 +165,20 @@ void Curve_Plot_2D::create_Plot_Frame_And_Scale()
 	color_Scale->setType(QCPAxis::atRight); // scale shall be vertical bar with tick/axis labels right (actually atRight is already the default)
 	color_Map->setColorScale(color_Scale); // associate the color map with the color scale
 	color_Map->setTightBoundary(true);
-
-	// make sure the axis rect and color scale synchronize their bottom and top margins (so they line up):
-	main_2D_Custom_Plot->axisRect()->setMarginGroup(QCP::msBottom | QCP::msTop, margin_Group);
-	color_Scale->setMarginGroup(QCP::msBottom | QCP::msTop, margin_Group);
 	color_Map->setGradient(plot_Options.color_Scheme); // set the color gradient of the color map to one of the presets
 
-	// scale
-	if(plot_Options.z_Scale == log_Scale)  apply_Log_Scale();
-	if(plot_Options.z_Scale == lin_Scale)  apply_Lin_Scale();
+	// margin group
+	main_2D_Custom_Plot->axisRect()->setMarginGroup(QCP::msBottom | QCP::msTop, margin_Group_Top_Bottom);
+	color_Scale->setMarginGroup(QCP::msBottom | QCP::msTop, margin_Group_Top_Bottom);
+	left_Vertical_Custom_Plot->axisRect()->setMarginGroup(QCP::msBottom | QCP::msTop, margin_Group_Top_Bottom);
 
-	// default ranges
-	refresh_Axes_Range();
+	main_2D_Custom_Plot->axisRect()->setMarginGroup(QCP::msLeft | QCP::msRight, margin_Group_Left_Right);
+	bottom_Horizontal_Custom_Plot->axisRect()->setMarginGroup(QCP::msLeft | QCP::msRight, margin_Group_Left_Right);
+	bottom_Vertical_Custom_Plot->axisRect()->setMarginGroup(QCP::msLeft | QCP::msRight, margin_Group_Left_Right);
+
+	// scale
+	if(plot_Options.z_Scale == log_Scale) apply_Log_Scale();
+	if(plot_Options.z_Scale == lin_Scale) apply_Lin_Scale();
 }
 
 void Curve_Plot_2D::create_Left_Part()
@@ -166,10 +194,13 @@ void Curve_Plot_2D::create_Bottom_Part()
 void Curve_Plot_2D::refresh_Axes_Range()
 {
 	// TODO
-	double coeff = angle_Coefficients_Map.value(angular_Units); // ?????????? field joule
-	color_Map->data()->setRange(QCPRange(measurement.detector_Theta_Angle.independent.min/coeff, measurement.detector_Theta_Angle.independent.max/coeff),
-								QCPRange(measurement.detector_Phi_Angle.independent.min/coeff,   measurement.detector_Phi_Angle.independent.max/coeff));
-	main_2D_Custom_Plot->rescaleAxes();
+	if(plot_Options.rescale)
+	{
+		double coeff = angle_Coefficients_Map.value(angular_Units); // ?????????? field joule
+		color_Map->data()->setRange(QCPRange(measurement.detector_Theta_Angle.independent.min/coeff, measurement.detector_Theta_Angle.independent.max/coeff),
+									QCPRange(measurement.detector_Phi_Angle.independent.min/coeff,   measurement.detector_Phi_Angle.independent.max/coeff));
+		main_2D_Custom_Plot->rescaleAxes();
+	}
 }
 
 void Curve_Plot_2D::apply_Log_Scale()
@@ -179,6 +210,11 @@ void Curve_Plot_2D::apply_Log_Scale()
 	color_Scale->axis()->setTicker(logTicker);
 	color_Scale->axis()->setNumberFormat("eb");
 	color_Scale->axis()->setNumberPrecision(0);
+
+	// crutch for aligning sections with map
+	shift = 55;
+	bottom_Hor_Layout->setContentsMargins(0,0,shift,0);
+	bottom_Ver_Layout->setContentsMargins(0,0,shift,0);
 }
 
 void Curve_Plot_2D::apply_Lin_Scale()
@@ -186,8 +222,13 @@ void Curve_Plot_2D::apply_Lin_Scale()
 	QSharedPointer<QCPAxisTicker> linTicker(new QCPAxisTicker);
 	color_Scale->axis()->setScaleType(QCPAxis::stLinear);
 	color_Scale->axis()->setTicker(linTicker);
-	color_Scale->axis()->setNumberFormat("g");
-	color_Scale->axis()->setNumberPrecision(4);
+	color_Scale->axis()->setNumberFormat("gbc");
+	color_Scale->axis()->setNumberPrecision(2);
+
+	// crutch for aligning sections with map
+	shift = 55;
+	bottom_Hor_Layout->setContentsMargins(0,0,shift,0);
+	bottom_Ver_Layout->setContentsMargins(0,0,shift,0);
 }
 
 void Curve_Plot_2D::plot_All_Data()
@@ -197,35 +238,24 @@ void Curve_Plot_2D::plot_All_Data()
 	// GISAS
 	if(curve_Class == TARGET)
 	{
-		/// experimental data
-		if(plot_Options.data_To_Show == meas)
-		{
-			values_2D = &target_Curve->curve.value_2D_Shifted;
-		}
-		/// calculated data
-		if(plot_Options.data_To_Show == calc)
-		{
-			values_2D = &calculated_Values.GISAS_Instrumental;
-		}
-		/// difference data
-		if(plot_Options.data_To_Show == diff)
-		{
-			values_2D_Local = target_Curve->curve.value_2D_Shifted;
-			for(size_t i=0; i<values_2D_Local.size(); i++)
-			{
-				for(size_t j=0; j<values_2D_Local.front().size(); j++)
-				{
-					values_2D_Local[i][j] -= calculated_Values.GISAS_Instrumental[i][j];
-				}
-			}
-			values_2D = &values_2D_Local;
-		}
+		values_2D_Meas = &target_Curve->curve.value_2D_Shifted;
+		values_2D_Calc = &calculated_Values.GISAS_Instrumental;
+
+		if(plot_Options.data_To_Show == meas) values_2D = values_2D_Meas;
+		if(plot_Options.data_To_Show == calc) values_2D = values_2D_Calc;
 
 		// TODO
-		if(values_2D->size() == 0)
+		if(values_2D_Calc->size() == 0)
 		{
 			qInfo() << "Curve_Plot_2D   Target curve " << plot_Indicator << " : calculation of " << target_Curve->curve.value_Type << "is not done. Fake data are shown." << endl;
-			values_2D = &target_Curve->curve.value_2D_Shifted;
+			values_2D_Calc->resize(values_2D_Meas->size(), vector<double>(values_2D_Meas->front().size()));
+			for(size_t i=0; i<values_2D_Calc->size(); i++)
+			{
+				for(size_t j=0; j<values_2D_Calc->front().size(); j++)
+				{
+					(*values_2D_Calc)[i][j] = cos((i-500.)/100.)*cos((j-500.)/100.);
+				}
+			}
 		}
 	}
 	// GISAS or field or joule
@@ -250,12 +280,7 @@ void Curve_Plot_2D::plot_All_Data()
 		}
 	}
 
-	// plot data
 	plot_Data();
-
-	refresh_Axes_Range();
-
-	main_2D_Custom_Plot->replot();
 }
 
 void Curve_Plot_2D::plot_Data()
@@ -279,11 +304,10 @@ void Curve_Plot_2D::plot_Data()
 	}
 	// x,y ranges
 	refresh_Axes_Range();
-
 	// z range
-	// color_Map->rescaleDataRange(); // rescale the data dimension (color) such that all data points lie in the span visualized by the color gradient
+//	color_Map->rescaleDataRange(); // rescale the data dimension (color) such that all data points lie in the span visualized by the color gradient
 	if(plot_Options.z_Scale == log_Scale) { min_Val = max(min_Val,max_Val/1e5); } // no more than 5 orders
-	color_Map->setDataRange(QCPRange(min_Val,max_Val));
+	if(plot_Options.rescale) { color_Map->setDataRange(QCPRange(min_Val,max_Val)); }
 
 	color_Map->setInterpolate(plot_Options.use_Interpolation);
 	main_2D_Custom_Plot->replot();
@@ -299,7 +323,7 @@ void Curve_Plot_2D::refresh_Labels()
 
 void Curve_Plot_2D::create_Plot_Options_GroupBox()
 {
-	QGroupBox* plot_Options_GroupBox = new QGroupBox("Plot options");
+	QGroupBox* plot_Options_GroupBox = new QGroupBox;
 	main_Layout->addWidget(plot_Options_GroupBox);
 
 	QHBoxLayout* plot_Options_GroupBox_Layout = new QHBoxLayout(plot_Options_GroupBox);
@@ -317,38 +341,39 @@ void Curve_Plot_2D::create_Plot_Options_GroupBox()
 		QRadioButton* lin_Radio_Button = new QRadioButton("Lin");
 			lin_Radio_Button->setChecked(plot_Options.z_Scale == lin_Scale);
 		radio_Button_Layout->addWidget(lin_Radio_Button);
-		connect(lin_Radio_Button, &QRadioButton::toggled, this, [=]
+		connect(lin_Radio_Button, &QRadioButton::clicked, this, [=]
 		{
-			if(lin_Radio_Button->isChecked())
-			{
-				plot_Options.z_Scale = lin_Scale;
-			}
-			// TODO
-			qInfo() << "plot_Options.z_Scale lin_Scale" << endl;
-//			create_Plot_Frame_And_Scale();
-//			plot_Data();
+			if(lin_Radio_Button->isChecked())	plot_Options.z_Scale = lin_Scale;
+
+			apply_Lin_Scale();
+			plot_Data();
+			apply_Lin_Scale();
+			main_2D_Custom_Plot->replot();
 		});
-		connect(lin_Radio_Button, &QRadioButton::clicked, lin_Radio_Button, &QRadioButton::toggled);
 
 		QRadioButton* log_Radio_Button = new QRadioButton("Log");
 			log_Radio_Button->setChecked(plot_Options.z_Scale == log_Scale);
 		radio_Button_Layout->addWidget(log_Radio_Button);
-		connect(log_Radio_Button, &QRadioButton::toggled, this, [=]
+		connect(log_Radio_Button, &QRadioButton::clicked, this, [=]
 		{
-			if(log_Radio_Button->isChecked())
-			{
-				plot_Options.z_Scale = log_Scale;
-			}
-			// TODO
-			qInfo() << "plot_Options.z_Scale log_Scale" << endl;
-//			create_Plot_Frame_And_Scale();
-//			plot_Data();
+			if(log_Radio_Button->isChecked())	plot_Options.z_Scale = log_Scale;
+
+			apply_Log_Scale();
+			plot_Data();
+			apply_Log_Scale();
+			main_2D_Custom_Plot->replot();
 		});
-		connect(log_Radio_Button, &QRadioButton::clicked, log_Radio_Button, &QRadioButton::toggled);
 
 		QButtonGroup* Z_ButtonGroup = new QButtonGroup;
 			Z_ButtonGroup->addButton(lin_Radio_Button);
 			Z_ButtonGroup->addButton(log_Radio_Button);
+	}
+	// rescale
+	{
+		QCheckBox* rescale_Check_Box = new QCheckBox("Rescale  |");
+			rescale_Check_Box->setChecked(plot_Options.rescale);
+		plot_Options_GroupBox_Layout->addWidget(rescale_Check_Box);
+		connect(rescale_Check_Box, &QCheckBox::toggled, this, [=]{ plot_Options.rescale = rescale_Check_Box->isChecked(); });
 	}
 	// left panel
 	{
@@ -358,22 +383,22 @@ void Curve_Plot_2D::create_Plot_Options_GroupBox()
 		connect(show_Left_Panel_CheckBox, &QCheckBox::clicked, this, [=]
 		{
 			plot_Options.left_Section_Plot = show_Left_Panel_CheckBox->isChecked();
-			// TODO
-			qInfo() << "plot_Options.left_Section_Plot" << endl;
-//			someting plot_Data();
+
+			left_Vertical_Custom_Plot->setHidden(!plot_Options.left_Section_Plot);
+			empty_Widget->setHidden(!plot_Options.left_Section_Plot || !plot_Options.bottom_Section_Plot);
 		});
 	}
 	// bottom panel
 	{
-		QCheckBox* show_Bottom_Panel_CheckBox = new QCheckBox("Bottom panel");
+		QCheckBox* show_Bottom_Panel_CheckBox = new QCheckBox("Bottom panel  |");
 			show_Bottom_Panel_CheckBox->setChecked(plot_Options.bottom_Section_Plot);
 		plot_Options_GroupBox_Layout->addWidget(show_Bottom_Panel_CheckBox);
 		connect(show_Bottom_Panel_CheckBox, &QCheckBox::clicked, this, [=]
 		{
 			plot_Options.bottom_Section_Plot = show_Bottom_Panel_CheckBox->isChecked();
-			// TODO
-			qInfo() << "plot_Options.bottom_Section_Plot" << endl;
-//			someting plot_Data();
+
+			bottom_Section_Tabs->setHidden(!plot_Options.bottom_Section_Plot);
+			empty_Widget->setHidden(!plot_Options.left_Section_Plot || !plot_Options.bottom_Section_Plot);
 		});
 	}
 	// data to show
@@ -385,41 +410,29 @@ void Curve_Plot_2D::create_Plot_Options_GroupBox()
 
 		QRadioButton* meas_Button = new QRadioButton("meas");
 		QRadioButton* calc_Button = new QRadioButton("calc");
-		QRadioButton* diff_Button = new QRadioButton("diff");
 			meas_Button->setChecked(plot_Options.data_To_Show == meas);
 			calc_Button->setChecked(plot_Options.data_To_Show == calc);
-			diff_Button->setChecked(plot_Options.data_To_Show == diff);
 		radio_Button_Layout->addWidget(meas_Button);
 		radio_Button_Layout->addWidget(calc_Button);
-		radio_Button_Layout->addWidget(diff_Button);
 
 		QButtonGroup* data_ButtonGroup = new QButtonGroup;
 			data_ButtonGroup->addButton(meas_Button);
 			data_ButtonGroup->addButton(calc_Button);
-			data_ButtonGroup->addButton(diff_Button);
 
 		connect(meas_Button, &QCheckBox::clicked, this, [=]
 		{
-			if(meas_Button->isChecked())	plot_Options.data_To_Show = meas;
+			if(meas_Button->isChecked()) plot_Options.data_To_Show = meas;
 			// TODO
 			qInfo() << "plot_Options.data_To_Show = meas" << endl;
 //			someting plot_Data();
 		});
 		connect(calc_Button, &QCheckBox::clicked, this, [=]
 		{
-			if(calc_Button->isChecked())	plot_Options.data_To_Show = calc;
+			if(calc_Button->isChecked()) plot_Options.data_To_Show = calc;
 			// TODO
 			qInfo() << "plot_Options.data_To_Show = calc" << endl;
 //			someting plot_Data();
 		});
-		connect(diff_Button, &QCheckBox::clicked, this, [=]
-		{
-			if(diff_Button->isChecked())	plot_Options.data_To_Show = diff;
-			// TODO
-			qInfo() << "plot_Options.data_To_Show = diff" << endl;
-//			someting plot_Data();
-		});
-
 	}
 	// interpolation
 	if(multilayer->graph_Options_2D.show_Interpolation)
