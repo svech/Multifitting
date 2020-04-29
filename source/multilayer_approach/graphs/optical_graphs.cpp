@@ -224,14 +224,6 @@ void Optical_Graphs::settings_2D()
 		show_Title_CheckBox->setChecked(multilayer->graph_Options_2D.show_Title);
 	plots_Settings_Group_Box_Layout->addWidget(show_Title_CheckBox);
 
-	QCheckBox* show_Interpolation_CheckBox = new QCheckBox("Show interpolation");
-		show_Interpolation_CheckBox->setChecked(multilayer->graph_Options_2D.show_Interpolation);
-	plots_Settings_Group_Box_Layout->addWidget(show_Interpolation_CheckBox);
-
-//	QCheckBox* replot_Graphs_During_Fitting_CheckBox = new QCheckBox("Replot while fitting");
-//		replot_Graphs_During_Fitting_CheckBox->setChecked(replot_Graphs_During_Fitting_2D);
-//	plots_Settings_Group_Box_Layout->addWidget(replot_Graphs_During_Fitting_CheckBox);
-
 	// buttons
 	QHBoxLayout* buttons_Layout = new QHBoxLayout;
 		buttons_Layout->setSpacing(10);
@@ -254,8 +246,6 @@ void Optical_Graphs::settings_2D()
 		// additional
 		multilayer->graph_Options_2D.show_Current_Coordinate = show_Current_Coordinate_CheckBox->isChecked();
 		multilayer->graph_Options_2D.show_Title = show_Title_CheckBox->isChecked();
-		multilayer->graph_Options_2D.show_Interpolation = show_Interpolation_CheckBox->isChecked();
-//		replot_Graphs_During_Fitting_2D = replot_Graphs_During_Fitting_CheckBox->isChecked();
 
 		global_Multilayer_Approach->open_Optical_Graphs_2D(TARGET_AND_INDEPENDENT);
 		global_Multilayer_Approach->optical_Graphs_2D->main_Tabs->setCurrentIndex(active_Tab);

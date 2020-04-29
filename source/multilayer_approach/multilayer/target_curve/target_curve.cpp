@@ -320,46 +320,6 @@ void Target_Curve::fill_Measurement_And_Curve_With_Shifted_2D_Data()
 				curve.value_2D_No_Scaling_And_Offset[row][col] = curve.value_2D[row][col]/intensity_Factor;
 			}
 		}
-		rotate_Data();
-	}
-}
-
-void Target_Curve::rotate_Data()
-{
-	if(loaded_And_Ready)
-	{
-		plot_Options_Experimental.rotation_Angle = (plot_Options_Experimental.rotation_Angle+100*360)%360;
-
-		if(plot_Options_Experimental.rotation_Angle == 0)
-		{
-			// do nothing
-		} else
-		if(plot_Options_Experimental.rotation_Angle == 90)
-		{
-			rotate_Data_From_Previous_State(left);
-		}
-		else
-		if(plot_Options_Experimental.rotation_Angle == 180)
-		{
-			reverse(curve.value_2D.begin(),curve.value_2D.end());
-			reverse(curve.value_2D_Shifted.begin(),curve.value_2D_Shifted.end());
-			reverse(curve.value_2D_No_Scaling_And_Offset.begin(),curve.value_2D_No_Scaling_And_Offset.end());
-			for(int row=0; row<curve.value_2D.size(); row++)
-			{
-				reverse(curve.value_2D[row].begin(),curve.value_2D[row].end());
-				reverse(curve.value_2D_Shifted[row].begin(),curve.value_2D_Shifted[row].end());
-				reverse(curve.value_2D_No_Scaling_And_Offset[row].begin(),curve.value_2D_No_Scaling_And_Offset[row].end());
-			}
-		}
-		else
-		if(plot_Options_Experimental.rotation_Angle == 270)
-		{
-			rotate_Data_From_Previous_State(right);
-		}
-		else
-		{
-			qInfo() << "Target_Curve::rotate_Data()  :  angle should be divisible on 90. We have rotation_Angle =" << plot_Options_Experimental.rotation_Angle << endl;
-		}
 	}
 }
 

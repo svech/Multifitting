@@ -94,7 +94,6 @@ public:
 		void fill_Measurement_And_Curve_With_Shifted_Data();
 			void fill_Measurement_And_Curve_With_Shifted_1D_Data();
 			void fill_Measurement_And_Curve_With_Shifted_2D_Data();
-			void rotate_Data();
 			void rotate_Data_From_Previous_State(QString left_Right);
 	void refresh_Description_Label();
 

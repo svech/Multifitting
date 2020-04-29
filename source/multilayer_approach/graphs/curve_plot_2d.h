@@ -15,15 +15,17 @@ public:
 	explicit Curve_Plot_2D(Multilayer* multilayer, Target_Curve* target_Curve, Independent_Curve* independent_Curve, QString curve_Class, QWidget *parent = nullptr);
 
 	void create_Main_Layout();
+	void create_Position_Lines();
 	void create_Plot_Frame_And_Scale();
-	void create_Left_Part();
-	void create_Bottom_Part();
+	void create_Section_Parts();
 	void refresh_Axes_Range();
 	void apply_Log_Scale();
 	void apply_Lin_Scale();
 	void plot_All_Data();
 	void plot_Data();
 	void refresh_Labels();
+	void touch_It();
+	void replot_All();
 
 	void create_Plot_Options_GroupBox();
 	void create_Subinterval_Rectangle();
@@ -32,6 +34,14 @@ public:
 	vector<vector<double>>* values_2D;
 	vector<vector<double>>* values_2D_Meas;
 	vector<vector<double>>* values_2D_Calc;
+
+	QVector<QCPGraphData> values_Hor_Meas;
+	QVector<QCPGraphData> values_Hor_Calc;
+	QVector<QCPGraphData> values_Ver_Meas;
+	QVector<QCPGraphData> values_Ver_Calc;
+
+	double max_Val_Mixed = -MAX_DOUBLE;
+	double min_Val_Mixed =  MAX_DOUBLE;
 
 	Multilayer* multilayer;
 	Target_Curve* target_Curve;
@@ -58,6 +68,11 @@ public:
 	QCPMarginGroup* margin_Group_Top_Bottom;
 	QCPMarginGroup* margin_Group_Left_Right;
 
+	QCPItemStraightLine* hor_Line_Current;
+	QCPItemStraightLine* ver_Line_Current;
+	QCPItemStraightLine* hor_Line_Fixed;
+	QCPItemStraightLine* ver_Line_Fixed;
+
 	// sections
 	QTabWidget* bottom_Section_Tabs;
 	QWidget* empty_Widget;
@@ -67,6 +82,14 @@ public:
 	QCustomPlot* bottom_Vertical_Custom_Plot;
 	QCustomPlot* left_Vertical_Custom_Plot;
 	double shift;
+	int x_Cell_Cur;
+	int y_Cell_Cur;
+	int x_Cell_Fix;
+	int y_Cell_Fix;
+	double thickness_Fixed = 2;
+	double thickness_Current = 1;
+	QColor color_Meas = Qt::red;
+	QColor color_Calc = Qt::blue;
 
 	// fitting rectangle
 	QCPItemRect* start_Rect;
