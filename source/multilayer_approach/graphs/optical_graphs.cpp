@@ -216,7 +216,7 @@ void Optical_Graphs::settings_2D()
 	QVBoxLayout* plots_Settings_Group_Box_Layout = new QVBoxLayout(plots_Settings_Group_Box);
 		plots_Settings_Group_Box_Layout->setContentsMargins(5,5,5,5);
 
-	QCheckBox* show_Current_Coordinate_CheckBox = new QCheckBox("Show cursor position");
+	QCheckBox* show_Current_Coordinate_CheckBox = new QCheckBox("Show value near cursor");
 		show_Current_Coordinate_CheckBox->setChecked(multilayer->graph_Options_2D.show_Current_Coordinate);
 	plots_Settings_Group_Box_Layout->addWidget(show_Current_Coordinate_CheckBox);
 

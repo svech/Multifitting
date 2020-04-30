@@ -23,7 +23,9 @@ public:
 	void apply_Lin_Scale();
 	void plot_All_Data();
 	void plot_Data();
-	void refresh_Labels();
+	void refresh_Axes_Labels();
+	void refresh_Corner_Labels(double x = -MAX_DOUBLE, double y = -MAX_DOUBLE, int x_Cell = -2020, int y_Cell = -2020);
+	void set_Title_Text();
 	void touch_It();
 	void replot_All();
 
@@ -72,16 +74,25 @@ public:
 	QCPItemStraightLine* ver_Line_Current;
 	QCPItemStraightLine* hor_Line_Fixed;
 	QCPItemStraightLine* ver_Line_Fixed;
+	QCPTextElement* plot_Title;
 
 	// sections
 	QTabWidget* bottom_Section_Tabs;
-	QWidget* empty_Widget;
+	QWidget* corner_Widget;
+	QWidget* left_Ver_Widget;
+	QHBoxLayout* left_Ver_Layout;
 	QHBoxLayout* bottom_Hor_Layout;
 	QHBoxLayout* bottom_Ver_Layout;
 	QCustomPlot* bottom_Horizontal_Custom_Plot;
 	QCustomPlot* bottom_Vertical_Custom_Plot;
 	QCustomPlot* left_Vertical_Custom_Plot;
-	double shift;
+	QLabel* cur_Arg_X;
+	QLabel* cur_Arg_Y;
+	QLabel* cur_Bin_X;
+	QLabel* cur_Bin_Y;
+	QLabel* cur_Val;
+	double shift_Bottom;
+	double shift_Left;
 	int x_Cell_Cur;
 	int y_Cell_Cur;
 	int x_Cell_Fix;

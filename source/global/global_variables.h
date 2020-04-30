@@ -267,6 +267,7 @@ public:
 	static void pseudo_Deserialize_Variables_List(QDataStream &in);
 	static double wavelength_Energy(QString wavelength_Units, double y);
 	static QString wavelength_Energy_Name(QString wavelength_Units);
+	static QString wavelength_Energy_Symbol(QString spectral_Units);
 	static double angstrom_eV(double x);
 	static void fill_Units_Maps();
 	static int get_Item_Depth(QTreeWidgetItem* item);

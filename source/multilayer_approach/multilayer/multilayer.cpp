@@ -6,6 +6,7 @@ Multilayer::Multilayer(QWidget *parent) :
 	num_Independent_Rows(1),
 	QWidget(parent)
 {
+	graph_Options_2D.show_Current_Coordinate = false;
 	create_Main_Layout();
 }
 

@@ -704,6 +704,20 @@ QString Global_Variables::wavelength_Energy_Name(QString wavelength_Units)
 	return value;
 }
 
+QString Global_Variables::wavelength_Energy_Symbol(QString spectral_Units)
+{
+	QString lambda_Sym;
+	if(	spectral_Units == wavelength_Units_List[angstrom] ||
+		spectral_Units == wavelength_Units_List[nm]	   )
+	{
+		lambda_Sym = Lambda_Sym;
+	} else
+	{
+		lambda_Sym = "E";
+	}
+	return lambda_Sym;
+}
+
 double Global_Variables::angstrom_eV(double x)
 {
 	return 12398.41930092394328/x;
@@ -1709,7 +1723,7 @@ double Global_Variables::distribution_Lorentz(double FWHM, double x)
 void Global_Variables::color_Scheme_Change(QCPColorMap* color_Map, QCustomPlot* main_Plot, QCPColorGradient::GradientPreset* color_Scheme)
 {
 	main_Plot->blockSignals(true);
-	QDialog* choice_Color_Scheme_Window = new QDialog();
+	QDialog* choice_Color_Scheme_Window = new QDialog(main_Plot);
 		choice_Color_Scheme_Window->setWindowTitle("Color scheme");
 		choice_Color_Scheme_Window->setWindowModality(Qt::ApplicationModal);
 		choice_Color_Scheme_Window->setAttribute(Qt::WA_DeleteOnClose);
