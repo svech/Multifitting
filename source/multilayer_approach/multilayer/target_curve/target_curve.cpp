@@ -881,7 +881,8 @@ QDataStream& operator <<( QDataStream& stream, const Target_Curve* target_Curve 
 					<< target_Curve->plot_Options_Experimental
 					<< target_Curve->plot_Options_Calculated
 					<< target_Curve->header << target_Curve->label_Text
-					<< target_Curve->angular_Units << target_Curve->spectral_Units << target_Curve->loaded_And_Ready;
+					<< target_Curve->angular_Units << target_Curve->spectral_Units << target_Curve->loaded_And_Ready
+					<< target_Curve->graph_2D_Positions;
 }
 QDataStream& operator >>(QDataStream& stream,		 Target_Curve* target_Curve )
 {
@@ -892,8 +893,8 @@ QDataStream& operator >>(QDataStream& stream,		 Target_Curve* target_Curve )
 				>> target_Curve->plot_Options_Experimental
 				>> target_Curve->plot_Options_Calculated
 				>> target_Curve->header >> target_Curve->label_Text
-				>> target_Curve->angular_Units >> target_Curve->spectral_Units >> target_Curve->loaded_And_Ready;
-
+				>> target_Curve->angular_Units >> target_Curve->spectral_Units >> target_Curve->loaded_And_Ready
+				>> target_Curve->graph_2D_Positions;
 	} else
 	{
 		stream	>> target_Curve->curve >> target_Curve->fit_Params >> target_Curve->measurement

@@ -589,6 +589,13 @@ struct Graph_Options			{int num_Target_Graph_Rows = 1;		 // rows in Graphs
 								 // 2D
 								 bool show_Interpolation = false;
 								};
+struct Graph_2D_Positions		{
+								 double left_Min_Width = 130;
+								 double bottom_Min_Width = 130;
+								 double x_Mark = -MAX_DOUBLE;
+								 double y_Mark = -MAX_DOUBLE;
+								 QPoint current_Pos;
+								};
 
 // profile plot options
 struct Profile_Plot_Options		{QString type = PERMITTIVITY;
@@ -867,6 +874,9 @@ QDataStream& operator >>( QDataStream& stream,		 Plot_Options& plot_Options );
 
 QDataStream& operator <<( QDataStream& stream, const Graph_Options& graph_options );
 QDataStream& operator >>( QDataStream& stream,		 Graph_Options& graph_options );
+
+QDataStream& operator <<( QDataStream& stream, const Graph_2D_Positions& graph_2D_Positions );
+QDataStream& operator >>( QDataStream& stream,		 Graph_2D_Positions& graph_2D_Positions );
 
 QDataStream& operator <<( QDataStream& stream, const Profile_Plot_Options& profile_Plot_Options );
 QDataStream& operator >>( QDataStream& stream,		 Profile_Plot_Options& profile_Plot_Options );

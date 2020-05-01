@@ -347,6 +347,20 @@ void Rocking_Independent_Curve_Part::refresh_Angular_Units()
 	independent_Common_Part->crystal_Resolution_SpinBox->blockSignals(false);
 
 	independent_Curve->refresh_Description_Label();
+
+	// independently of main calculation
+	independent_Curve->calc_Independent_cos2_k();
+
+	// curve plots
+	if(global_Multilayer_Approach->runned_Optical_Graphs_1D.contains(optical_Graphs_1D_Key))
+	{
+		if(global_Multilayer_Approach->optical_Graphs_1D->meas_Id_Curve_1D_Map.contains(independent_Curve->measurement.id))
+		{
+			Curve_Plot_1D* curve_Plot_1D = global_Multilayer_Approach->optical_Graphs_1D->meas_Id_Curve_1D_Map.value(independent_Curve->measurement.id);
+			curve_Plot_1D->plot_All_Data();
+			curve_Plot_1D->set_Title_Text();
+		}
+	}
 }
 
 void Rocking_Independent_Curve_Part::refresh_Spectral_Units()
@@ -363,6 +377,20 @@ void Rocking_Independent_Curve_Part::refresh_Spectral_Units()
 	at_Fixed_Wavelength_SpinBox->blockSignals(false);
 
 	independent_Curve->refresh_Description_Label();
+
+	// independently of main calculation
+	independent_Curve->calc_Independent_cos2_k();
+
+	// curve plots
+	if(global_Multilayer_Approach->runned_Optical_Graphs_1D.contains(optical_Graphs_1D_Key))
+	{
+		if(global_Multilayer_Approach->optical_Graphs_1D->meas_Id_Curve_1D_Map.contains(independent_Curve->measurement.id))
+		{
+			Curve_Plot_1D* curve_Plot_1D = global_Multilayer_Approach->optical_Graphs_1D->meas_Id_Curve_1D_Map.value(independent_Curve->measurement.id);
+			curve_Plot_1D->plot_All_Data();
+			curve_Plot_1D->set_Title_Text();
+		}
+	}
 }
 
 void Rocking_Independent_Curve_Part::refresh_Argument_Values()
@@ -382,6 +410,19 @@ void Rocking_Independent_Curve_Part::refresh_Argument_Values()
 		independent_Curve->measurement.beam_Theta_0_Angle.independent.max = final_Argument_Spinbox->value()*coeff + independent_Curve->measurement.beam_Theta_0_Specular_Position;
 	}
 	independent_Curve->refresh_Description_Label();
+
+	// independently of main calculation
+	independent_Curve->calc_Independent_cos2_k();
+
+	// curve plots
+	if(global_Multilayer_Approach->runned_Optical_Graphs_1D.contains(optical_Graphs_1D_Key))
+	{
+		if(global_Multilayer_Approach->optical_Graphs_1D->meas_Id_Curve_1D_Map.contains(independent_Curve->measurement.id))
+		{
+			Curve_Plot_1D* curve_Plot_1D = global_Multilayer_Approach->optical_Graphs_1D->meas_Id_Curve_1D_Map.value(independent_Curve->measurement.id);
+			curve_Plot_1D->plot_All_Data();
+		}
+	}
 }
 
 void Rocking_Independent_Curve_Part::refresh_At_Fixed_Wavelength_Value()
@@ -390,6 +431,19 @@ void Rocking_Independent_Curve_Part::refresh_At_Fixed_Wavelength_Value()
 	independent_Curve->measurement.wavelength.value = Global_Variables::wavelength_Energy(independent_Curve->spectral_Units, at_Fixed_Wavelength_SpinBox->value()*coeff);
 
 	independent_Curve->refresh_Description_Label();
+
+	// independently of main calculation
+	independent_Curve->calc_Independent_cos2_k();
+
+	// curve plots
+	if(global_Multilayer_Approach->runned_Optical_Graphs_1D.contains(optical_Graphs_1D_Key))
+	{
+		if(global_Multilayer_Approach->optical_Graphs_1D->meas_Id_Curve_1D_Map.contains(independent_Curve->measurement.id))
+		{
+			Curve_Plot_1D* curve_Plot_1D = global_Multilayer_Approach->optical_Graphs_1D->meas_Id_Curve_1D_Map.value(independent_Curve->measurement.id);
+			curve_Plot_1D->set_Title_Text();
+		}
+	}
 }
 
 void Rocking_Independent_Curve_Part::refresh_At_Fixed_Specular_Position()
@@ -407,6 +461,19 @@ void Rocking_Independent_Curve_Part::refresh_At_Fixed_Specular_Position()
 	}
 	fill_Argument();
 	independent_Curve->refresh_Description_Label();
+
+	// independently of main calculation
+	independent_Curve->calc_Independent_cos2_k();
+
+	// curve plots
+	if(global_Multilayer_Approach->runned_Optical_Graphs_1D.contains(optical_Graphs_1D_Key))
+	{
+		if(global_Multilayer_Approach->optical_Graphs_1D->meas_Id_Curve_1D_Map.contains(independent_Curve->measurement.id))
+		{
+			Curve_Plot_1D* curve_Plot_1D = global_Multilayer_Approach->optical_Graphs_1D->meas_Id_Curve_1D_Map.value(independent_Curve->measurement.id);
+			curve_Plot_1D->set_Title_Text();
+		}
+	}
 }
 
 void Rocking_Independent_Curve_Part::fill_At_Fixed_Wavelength_Label()
@@ -445,14 +512,12 @@ void Rocking_Independent_Curve_Part::connecting()
 		independent_Curve->angular_Units = angular_Units_ComboBox->currentText();
 
 		refresh_Angular_Units();
-		Global_Variables::plot_All_Data_in_Graphs();
 	});
 	connect(spectral_Units_ComboBox,	&QComboBox::currentTextChanged, this, [=]
 	{
 		independent_Curve->spectral_Units = spectral_Units_ComboBox->currentText();
 
 		refresh_Spectral_Units();
-		Global_Variables::plot_All_Data_in_Graphs();
 	});
 
 	/// argument box
@@ -464,7 +529,19 @@ void Rocking_Independent_Curve_Part::connecting()
 		fill_Argument();
 
 		independent_Curve->refresh_Description_Label();
-		Global_Variables::plot_All_Data_in_Graphs();
+
+		// independently of main calculation
+		independent_Curve->calc_Independent_cos2_k();
+
+		// curve plots
+		if(global_Multilayer_Approach->runned_Optical_Graphs_1D.contains(optical_Graphs_1D_Key))
+		{
+			if(global_Multilayer_Approach->optical_Graphs_1D->meas_Id_Curve_1D_Map.contains(independent_Curve->measurement.id))
+			{
+				Curve_Plot_1D* curve_Plot_1D = global_Multilayer_Approach->optical_Graphs_1D->meas_Id_Curve_1D_Map.value(independent_Curve->measurement.id);
+				curve_Plot_1D->plot_All_Data();
+			}
+		}
 	});
 	// number of points
 	connect(num_Points_Spinbox, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, [=]
@@ -502,7 +579,15 @@ void Rocking_Independent_Curve_Part::connecting()
 	connect(polarization_SpinBox, static_cast<void (MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
 	{
 		independent_Curve->measurement.polarization = polarization_SpinBox->value();
-
+		// curve plots
+		if(global_Multilayer_Approach->runned_Optical_Graphs_1D.contains(optical_Graphs_1D_Key))
+		{
+			if(global_Multilayer_Approach->optical_Graphs_1D->meas_Id_Curve_1D_Map.contains(independent_Curve->measurement.id))
+			{
+				Curve_Plot_1D* curve_Plot_1D = global_Multilayer_Approach->optical_Graphs_1D->meas_Id_Curve_1D_Map.value(independent_Curve->measurement.id);
+				curve_Plot_1D->set_Title_Text();
+			}
+		}
 		global_Multilayer_Approach->calculate(true);
 	});
 	// background

@@ -404,6 +404,16 @@ QDataStream& operator >>( QDataStream& stream,		 Graph_Options& graph_Options )
 
 	return stream;
 }
+QDataStream& operator <<( QDataStream& stream, const Graph_2D_Positions& graph_2D_Positions )
+{
+	return stream << graph_2D_Positions.left_Min_Width << graph_2D_Positions.bottom_Min_Width
+				  << graph_2D_Positions.x_Mark << graph_2D_Positions.y_Mark << graph_2D_Positions.current_Pos;
+}
+QDataStream& operator >>( QDataStream& stream,		 Graph_2D_Positions& graph_2D_Positions )
+{
+	return stream >> graph_2D_Positions.left_Min_Width >> graph_2D_Positions.bottom_Min_Width
+				  >> graph_2D_Positions.x_Mark >> graph_2D_Positions.y_Mark >> graph_2D_Positions.current_Pos;
+}
 
 QDataStream& operator <<( QDataStream& stream, const Profile_Plot_Options& profile_Plot_Options )
 {

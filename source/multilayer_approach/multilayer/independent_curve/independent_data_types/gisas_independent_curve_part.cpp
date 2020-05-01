@@ -427,6 +427,17 @@ void GISAS_Independent_Curve_Part::refresh_Angular_Units()
 	independent_Common_Part->phi_Resolution_SpinBox->blockSignals(false);
 
 	independent_Curve->refresh_Description_Label();
+
+	// curve plots
+	if(global_Multilayer_Approach->runned_Optical_Graphs_2D.contains(optical_Graphs_2D_Key))
+	{
+		if(global_Multilayer_Approach->optical_Graphs_2D->meas_Id_Curve_2D_Map.contains(independent_Curve->measurement.id))
+		{
+			Curve_Plot_2D* curve_Plot_2D = global_Multilayer_Approach->optical_Graphs_2D->meas_Id_Curve_2D_Map.value(independent_Curve->measurement.id);
+			curve_Plot_2D->plot_All_Data();
+			curve_Plot_2D->set_Title_Text();
+		}
+	}
 }
 
 void GISAS_Independent_Curve_Part::refresh_Spectral_Units()
@@ -443,6 +454,17 @@ void GISAS_Independent_Curve_Part::refresh_Spectral_Units()
 	at_Fixed_Wavelength_SpinBox->blockSignals(false);
 
 	independent_Curve->refresh_Description_Label();
+
+	// curve plots
+	if(global_Multilayer_Approach->runned_Optical_Graphs_2D.contains(optical_Graphs_2D_Key))
+	{
+		if(global_Multilayer_Approach->optical_Graphs_2D->meas_Id_Curve_2D_Map.contains(independent_Curve->measurement.id))
+		{
+			Curve_Plot_2D* curve_Plot_2D = global_Multilayer_Approach->optical_Graphs_2D->meas_Id_Curve_2D_Map.value(independent_Curve->measurement.id);
+			curve_Plot_2D->plot_All_Data();
+			curve_Plot_2D->set_Title_Text();
+		}
+	}
 }
 
 void GISAS_Independent_Curve_Part::refresh_Theta_Argument_Values()
@@ -453,6 +475,19 @@ void GISAS_Independent_Curve_Part::refresh_Theta_Argument_Values()
 	independent_Curve->measurement.detector_Theta_Angle.independent.max = final_Argument_Theta_Spinbox->value()*coeff;
 
 	independent_Curve->refresh_Description_Label();
+
+	// independently of main calculation
+	independent_Curve->calc_Independent_cos2_k();
+
+	// curve plots
+	if(global_Multilayer_Approach->runned_Optical_Graphs_2D.contains(optical_Graphs_2D_Key))
+	{
+		if(global_Multilayer_Approach->optical_Graphs_2D->meas_Id_Curve_2D_Map.contains(independent_Curve->measurement.id))
+		{
+			Curve_Plot_2D* curve_Plot_2D = global_Multilayer_Approach->optical_Graphs_2D->meas_Id_Curve_2D_Map.value(independent_Curve->measurement.id);
+			curve_Plot_2D->plot_All_Data();
+		}
+	}
 }
 
 void GISAS_Independent_Curve_Part::refresh_Phi_Argument_Values()
@@ -463,6 +498,19 @@ void GISAS_Independent_Curve_Part::refresh_Phi_Argument_Values()
 	independent_Curve->measurement.detector_Phi_Angle.independent.max = final_Argument_Phi_Spinbox->value()*coeff;
 
 	independent_Curve->refresh_Description_Label();
+
+	// independently of main calculation
+	independent_Curve->calc_Independent_cos2_k();
+
+	// curve plots
+	if(global_Multilayer_Approach->runned_Optical_Graphs_2D.contains(optical_Graphs_2D_Key))
+	{
+		if(global_Multilayer_Approach->optical_Graphs_2D->meas_Id_Curve_2D_Map.contains(independent_Curve->measurement.id))
+		{
+			Curve_Plot_2D* curve_Plot_2D = global_Multilayer_Approach->optical_Graphs_2D->meas_Id_Curve_2D_Map.value(independent_Curve->measurement.id);
+			curve_Plot_2D->plot_All_Data();
+		}
+	}
 }
 
 void GISAS_Independent_Curve_Part::refresh_At_Fixed_Wavelength_Value()
@@ -471,6 +519,19 @@ void GISAS_Independent_Curve_Part::refresh_At_Fixed_Wavelength_Value()
 	independent_Curve->measurement.wavelength.value = Global_Variables::wavelength_Energy(independent_Curve->spectral_Units, at_Fixed_Wavelength_SpinBox->value()*coeff);
 
 	independent_Curve->refresh_Description_Label();
+
+	// independently of main calculation
+	independent_Curve->calc_Independent_cos2_k();
+
+	// curve plots
+	if(global_Multilayer_Approach->runned_Optical_Graphs_2D.contains(optical_Graphs_2D_Key))
+	{
+		if(global_Multilayer_Approach->optical_Graphs_2D->meas_Id_Curve_2D_Map.contains(independent_Curve->measurement.id))
+		{
+			Curve_Plot_2D* curve_Plot_2D = global_Multilayer_Approach->optical_Graphs_2D->meas_Id_Curve_2D_Map.value(independent_Curve->measurement.id);
+			curve_Plot_2D->set_Title_Text();
+		}
+	}
 }
 
 void GISAS_Independent_Curve_Part::refresh_At_Fixed_Beam_Theta_0_Value()
@@ -479,6 +540,19 @@ void GISAS_Independent_Curve_Part::refresh_At_Fixed_Beam_Theta_0_Value()
 	independent_Curve->measurement.beam_Theta_0_Angle.value = at_Fixed_Beam_Theta_0_SpinBox->value()*coeff;
 
 	independent_Curve->refresh_Description_Label();
+
+	// independently of main calculation
+	independent_Curve->calc_Independent_cos2_k();
+
+	// curve plots
+	if(global_Multilayer_Approach->runned_Optical_Graphs_2D.contains(optical_Graphs_2D_Key))
+	{
+		if(global_Multilayer_Approach->optical_Graphs_2D->meas_Id_Curve_2D_Map.contains(independent_Curve->measurement.id))
+		{
+			Curve_Plot_2D* curve_Plot_2D = global_Multilayer_Approach->optical_Graphs_2D->meas_Id_Curve_2D_Map.value(independent_Curve->measurement.id);
+			curve_Plot_2D->set_Title_Text();
+		}
+	}
 }
 
 void GISAS_Independent_Curve_Part::fill_At_Fixed_Wavelength_Label()
@@ -515,16 +589,12 @@ void GISAS_Independent_Curve_Part::connecting()
 	connect(angular_Units_ComboBox,	&QComboBox::currentTextChanged, this, [=]
 	{
 		independent_Curve->angular_Units = angular_Units_ComboBox->currentText();
-
 		refresh_Angular_Units();
-		Global_Variables::plot_All_Data_in_Graphs();
 	});
 	connect(spectral_Units_ComboBox,	&QComboBox::currentTextChanged, this, [=]
 	{
 		independent_Curve->spectral_Units = spectral_Units_ComboBox->currentText();
-
 		refresh_Spectral_Units();
-		Global_Variables::plot_All_Data_in_Graphs();
 	});
 
 	/// argument box
@@ -580,6 +650,18 @@ void GISAS_Independent_Curve_Part::connecting()
 	{
 		independent_Curve->measurement.polarization = polarization_SpinBox->value();
 
+		// independently of main calculation
+		independent_Curve->calc_Independent_cos2_k();
+
+		// curve plots
+		if(global_Multilayer_Approach->runned_Optical_Graphs_2D.contains(optical_Graphs_2D_Key))
+		{
+			if(global_Multilayer_Approach->optical_Graphs_2D->meas_Id_Curve_2D_Map.contains(independent_Curve->measurement.id))
+			{
+				Curve_Plot_2D* curve_Plot_2D = global_Multilayer_Approach->optical_Graphs_2D->meas_Id_Curve_2D_Map.value(independent_Curve->measurement.id);
+				curve_Plot_2D->set_Title_Text();
+			}
+		}
 		global_Multilayer_Approach->calculate(true);
 	});
 	// background

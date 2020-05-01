@@ -47,7 +47,7 @@ void Target_Curve_Plot::create_Main_Layout()
 		{
 			Q_UNUSED(part)
 			Q_UNUSED(event)
-			if(axis == color_Scale->axis()) { Global_Variables::color_Scheme_Change(color_Map, custom_Plot, &target_Curve->plot_Options_Experimental.color_Scheme); }
+			if(axis == color_Scale->axis())	{Global_Variables::color_Scheme_Change(color_Map, custom_Plot, &target_Curve->plot_Options_Experimental.color_Scheme);}
 		}, Qt::UniqueConnection);
 	}
 }
@@ -281,8 +281,8 @@ void Target_Curve_Plot::apply_Lin_Scale_2D()
 	color_Scale->axis()->setScaleType(QCPAxis::stLinear);
 	QSharedPointer<QCPAxisTicker> linTicker(new QCPAxisTicker);
 	color_Scale->axis()->setTicker(linTicker);
-	color_Scale->axis()->setNumberFormat("g");
-	color_Scale->axis()->setNumberPrecision(4);
+	color_Scale->axis()->setNumberFormat("gbc");
+	color_Scale->axis()->setNumberPrecision(2);
 }
 
 void Target_Curve_Plot::plot_Data_2D()
@@ -398,7 +398,7 @@ void Target_Curve_Plot::create_Plot_Options_GroupBox_2D()
 
 			target_Curve->rotate_Data_From_Previous_State(left);
 			plot_Data_2D();
-			global_Multilayer_Approach->calculate(true);
+//			global_Multilayer_Approach->calculate(true);
 		});
 
 		QToolButton* rotate_Right_Button = new QToolButton;
@@ -414,7 +414,7 @@ void Target_Curve_Plot::create_Plot_Options_GroupBox_2D()
 
 			target_Curve->rotate_Data_From_Previous_State(right);
 			plot_Data_2D();
-			global_Multilayer_Approach->calculate(true);
+//			global_Multilayer_Approach->calculate(true);
 		});
 	}
 	//  interpolation
@@ -494,6 +494,16 @@ void Target_Curve_Plot::subinterval_Changed_Replot_1D()
 	end_Rect->setVisible(target_Curve->curve.use_Subinterval);
 
 	custom_Plot->replot();
+
+	// curve plots
+	if(global_Multilayer_Approach->runned_Optical_Graphs_1D.contains(optical_Graphs_1D_Key))
+	{
+		if(global_Multilayer_Approach->optical_Graphs_1D->meas_Id_Curve_1D_Map.contains(target_Curve->measurement.id))
+		{
+			Curve_Plot_1D* curve_Plot_1D = global_Multilayer_Approach->optical_Graphs_1D->meas_Id_Curve_1D_Map.value(target_Curve->measurement.id);
+			curve_Plot_1D->subinterval_Changed_Replot();
+		}
+	}
 }
 
 void Target_Curve_Plot::subinterval_Changed_Replot_2D()
@@ -519,6 +529,16 @@ void Target_Curve_Plot::subinterval_Changed_Replot_2D()
 	bottom_Rect->setVisible(target_Curve->curve.use_Subinterval);
 
 	custom_Plot->replot();
+
+	// curve plots
+	if(global_Multilayer_Approach->runned_Optical_Graphs_2D.contains(optical_Graphs_2D_Key))
+	{
+		if(global_Multilayer_Approach->optical_Graphs_2D->meas_Id_Curve_2D_Map.contains(target_Curve->measurement.id))
+		{
+			Curve_Plot_2D* curve_Plot_2D = global_Multilayer_Approach->optical_Graphs_2D->meas_Id_Curve_2D_Map.value(target_Curve->measurement.id);
+			curve_Plot_2D->subinterval_Changed_Replot();
+		}
+	}
 }
 
 void Target_Curve_Plot::plot_Data()

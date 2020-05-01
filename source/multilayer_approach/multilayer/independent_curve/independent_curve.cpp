@@ -254,8 +254,9 @@ void Independent_Curve::calc_Independent_cos2_k()
 	}
 	if(	measurement.measurement_Type == measurement_Types[Rocking_Curve] )
 	{
-		/// different part
-		if( measurement.argument_Type == argument_Types[Beam_Grazing_Angle] )
+		/// common part
+		if( measurement.argument_Type == argument_Types[Beam_Grazing_Angle] ||
+			measurement.argument_Type == argument_Types[Deviation_From_Specular_Angle] )
 		{
 			// beam angle_cos_cos2 : vector
 			{
@@ -273,34 +274,10 @@ void Independent_Curve::calc_Independent_cos2_k()
 					angle_Temp += angle_Step;
 				}
 			}
-		}
-		if(measurement.argument_Type == argument_Types[Deviation_From_Specular_Angle] )
-		{
-			// beam angle_cos_cos2 : vector
-			{
-				measurement.beam_Theta_0_Angle_Vec.resize(measurement.beam_Theta_0_Angle.independent.num_Points);
-				measurement.beam_Theta_0_Cos_Vec.  resize(measurement.beam_Theta_0_Angle.independent.num_Points);
-				measurement.beam_Theta_0_Cos2_Vec. resize(measurement.beam_Theta_0_Angle.independent.num_Points);
-
-				double angle_Step = (measurement.beam_Theta_0_Angle.independent.max - measurement.beam_Theta_0_Angle.independent.min) / (measurement.beam_Theta_0_Angle.independent.num_Points - 1);
-				double angle_Temp =  measurement.beam_Theta_0_Angle.independent.min + measurement.beam_Theta_0_Specular_Position;
-				for(int i=0; i<measurement.beam_Theta_0_Angle.independent.num_Points; ++i)
-				{
-					measurement.beam_Theta_0_Cos_Vec [i] = cos(angle_Temp*M_PI/180.);
-					measurement.beam_Theta_0_Cos2_Vec[i] = pow(measurement.beam_Theta_0_Cos_Vec[i],2);
-					measurement.beam_Theta_0_Angle_Vec[i] = angle_Temp;
-					angle_Temp += angle_Step;
-				}
-			}
-		}
-		/// common part
-		if( measurement.argument_Type == argument_Types[Beam_Grazing_Angle] ||
-			measurement.argument_Type == argument_Types[Deviation_From_Specular_Angle] )
-		{
 			// detector angle_cos : vector, depends on beam
 			{
 				measurement.detector_Theta_Angle_Vec.resize(measurement.beam_Theta_0_Angle.independent.num_Points);
-				measurement.detector_Theta_Cos_Vec. resize(measurement.beam_Theta_0_Angle.independent.num_Points);
+				measurement.detector_Theta_Cos_Vec.  resize(measurement.beam_Theta_0_Angle.independent.num_Points);
 
 				for(int i=0; i<measurement.beam_Theta_0_Angle.independent.num_Points; ++i)
 				{
@@ -423,7 +400,7 @@ QDataStream& operator <<( QDataStream& stream, const Independent_Curve* independ
 	return stream	<< independent_Curve->tab_Name << independent_Curve->measurement
 					<< independent_Curve->calc_Functions << independent_Curve->plot_Options
 					<< independent_Curve->angular_Units	<< independent_Curve->spectral_Units
-					<< independent_Curve->label_Text;
+					<< independent_Curve->label_Text << independent_Curve->graph_2D_Positions;
 }
 QDataStream& operator >>(QDataStream& stream,		 Independent_Curve* independent_Curve )
 {
@@ -432,7 +409,7 @@ QDataStream& operator >>(QDataStream& stream,		 Independent_Curve* independent_C
 		stream	>> independent_Curve->tab_Name >> independent_Curve->measurement
 				>> independent_Curve->calc_Functions >> independent_Curve->plot_Options
 				>> independent_Curve->angular_Units	>> independent_Curve->spectral_Units
-				>> independent_Curve->label_Text;
+				>> independent_Curve->label_Text >> independent_Curve->graph_2D_Positions;
 	} else
 	{
 		stream >> independent_Curve->measurement >> independent_Curve->calc_Functions;

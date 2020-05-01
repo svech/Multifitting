@@ -46,6 +46,9 @@ public:
 	QVector<QVector<QSplitter*>> independent_Horizontal_Splitter_Vec_Vec;
 	QVector<QVector<Curve_Plot_1D*>> plots_1D;
 	QVector<QVector<Curve_Plot_2D*>> plots_2D;
+
+	QMap<id_Type, Curve_Plot_1D*> meas_Id_Curve_1D_Map;
+	QMap<id_Type, Curve_Plot_2D*> meas_Id_Curve_2D_Map;
 };
 
 #endif // OPTICAL_GRAPHS_H

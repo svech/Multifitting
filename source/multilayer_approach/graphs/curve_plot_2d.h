@@ -15,6 +15,7 @@ public:
 	explicit Curve_Plot_2D(Multilayer* multilayer, Target_Curve* target_Curve, Independent_Curve* independent_Curve, QString curve_Class, QWidget *parent = nullptr);
 
 	void create_Main_Layout();
+	void restore_Marks();
 	void create_Position_Lines();
 	void create_Plot_Frame_And_Scale();
 	void create_Section_Parts();
@@ -57,6 +58,7 @@ public:
 	QString& spectral_Units;
 	QString& angular_Units;
 	QString& plot_Indicator;
+	Graph_2D_Positions& graph_2D_Positions;
 
 	// main objects
 	QVBoxLayout* main_Layout;

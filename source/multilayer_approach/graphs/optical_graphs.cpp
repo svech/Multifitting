@@ -469,12 +469,14 @@ void Optical_Graphs::create_Tab_Content(QWidget* new_Widget, int tab_Index)
 			if(	dimension == dim_1D )
 			{
 				Curve_Plot_1D* new_Curve_Plot_1D = new Curve_Plot_1D(multilayer, target_Profiles_to_Show[graph_Index], nullptr, TARGET);
+				meas_Id_Curve_1D_Map.insert(target_Profiles_to_Show[graph_Index]->measurement.id, new_Curve_Plot_1D);
 				tab_Plots_1D.append(new_Curve_Plot_1D);
 				target_Horizontal_Splitter_Vec_Vec[tab_Index][current_Row]->addWidget(new_Curve_Plot_1D);
 			}
 			if(	dimension == dim_2D )
 			{
 				Curve_Plot_2D* new_Curve_Plot_2D = new Curve_Plot_2D(multilayer, target_Profiles_to_Show[graph_Index], nullptr, TARGET);
+				meas_Id_Curve_2D_Map.insert(target_Profiles_to_Show[graph_Index]->measurement.id, new_Curve_Plot_2D);
 				tab_Plots_2D.append(new_Curve_Plot_2D);
 				target_Horizontal_Splitter_Vec_Vec[tab_Index][current_Row]->addWidget(new_Curve_Plot_2D);
 			}
@@ -557,12 +559,14 @@ void Optical_Graphs::create_Tab_Content(QWidget* new_Widget, int tab_Index)
 			if(	dimension == dim_1D )
 			{
 				Curve_Plot_1D* new_Curve_Plot_1D = new Curve_Plot_1D(multilayer, nullptr, independent_Profiles_to_Show[graph_Index], INDEPENDENT);
+				meas_Id_Curve_1D_Map.insert(independent_Profiles_to_Show[graph_Index]->measurement.id, new_Curve_Plot_1D);
 				tab_Plots_1D.append(new_Curve_Plot_1D);
 				independent_Horizontal_Splitter_Vec_Vec[tab_Index][current_Row]->addWidget(new_Curve_Plot_1D);
 			}
 			if(	dimension == dim_2D )
 			{
 				Curve_Plot_2D* new_Curve_Plot_2D = new Curve_Plot_2D(multilayer, nullptr, independent_Profiles_to_Show[graph_Index], INDEPENDENT);
+				meas_Id_Curve_2D_Map.insert(independent_Profiles_to_Show[graph_Index]->measurement.id, new_Curve_Plot_2D);
 				tab_Plots_2D.append(new_Curve_Plot_2D);
 				independent_Horizontal_Splitter_Vec_Vec[tab_Index][current_Row]->addWidget(new_Curve_Plot_2D);
 			}
@@ -593,6 +597,8 @@ void Optical_Graphs::create_Tab_Content(QWidget* new_Widget, int tab_Index)
 			{
 				target_Independent_Splitter_Vec[tab_Index]->restoreState(global_Multilayer_Approach->target_Independent_Splitter_Position_1D_Vec[tab_Index]);
 			}
+			if(total_Number_of_Target_Graphs[tab_Index] == 0)		target_Independent_Splitter_Vec[tab_Index]->widget(0)->setHidden(true);
+			if(total_Number_of_Independent_Graphs[tab_Index] == 0)	target_Independent_Splitter_Vec[tab_Index]->widget(1)->setHidden(true);
 		}
 		if(	dimension == dim_2D )
 		{
@@ -600,15 +606,9 @@ void Optical_Graphs::create_Tab_Content(QWidget* new_Widget, int tab_Index)
 			{
 				target_Independent_Splitter_Vec[tab_Index]->restoreState(global_Multilayer_Approach->target_Independent_Splitter_Position_2D_Vec[tab_Index]);
 			}
+			if(total_Number_of_Target_Graphs[tab_Index] == 0)		target_Independent_Splitter_Vec[tab_Index]->widget(0)->setHidden(true);
+			if(total_Number_of_Independent_Graphs[tab_Index] == 0)	target_Independent_Splitter_Vec[tab_Index]->widget(1)->setHidden(true);
 		}
-//		if(total_Number_of_Target_Graphs[tab_Index] == 0)
-//		{
-//			target_Independent_Splitter_Vec[tab_Index]->widget(0)->setHidden(true);
-//		}
-//		if(total_Number_of_Independent_Graphs[tab_Index] == 0)
-//		{
-//			target_Independent_Splitter_Vec[tab_Index]->widget(0)->setHidden(true);
-//		}
 
 		if(keep_Splitter != TARGET)
 		{

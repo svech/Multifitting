@@ -476,11 +476,15 @@ void Detector_Target_Curve_Part::refresh_Argument_Units()
 
 	target_Curve->fill_Measurement_And_Curve_With_Shifted_Data();
 	target_Curve->refresh_Description_Label();
+
 	refresh_Plot_Axes_Labels();
 
 	angular_Divergence_SpinBox->blockSignals(false);
 	target_Common_Part->crystal_Resolution_SpinBox->blockSignals(false);
 	at_Fixed_Beam_Theta_0_SpinBox->blockSignals(false);
+
+	// independently of main calculation
+	target_Curve->calc_Measured_cos2_k();
 }
 
 void Detector_Target_Curve_Part::fill_At_Fixed_Wavelength_Label()
@@ -521,6 +525,16 @@ void Detector_Target_Curve_Part::refresh_At_Fixed_Wavelength_Units()
 
 	target_Curve->refresh_Description_Label();
 	at_Fixed_Wavelength_SpinBox->blockSignals(false);
+
+	// curve plots
+	if(global_Multilayer_Approach->runned_Optical_Graphs_1D.contains(optical_Graphs_1D_Key))
+	{
+		if(global_Multilayer_Approach->optical_Graphs_1D->meas_Id_Curve_1D_Map.contains(target_Curve->measurement.id))
+		{
+			Curve_Plot_1D* curve_Plot_1D = global_Multilayer_Approach->optical_Graphs_1D->meas_Id_Curve_1D_Map.value(target_Curve->measurement.id);
+			curve_Plot_1D->set_Title_Text();
+		}
+	}
 }
 
 void Detector_Target_Curve_Part::refresh_At_Fixed_Beam_Theta_0_Value()
@@ -529,6 +543,19 @@ void Detector_Target_Curve_Part::refresh_At_Fixed_Beam_Theta_0_Value()
 	target_Curve->measurement.beam_Theta_0_Angle.value = at_Fixed_Beam_Theta_0_SpinBox->value()*coeff;
 
 	target_Curve->refresh_Description_Label();
+
+	// independently of main calculation
+	target_Curve->calc_Measured_cos2_k();
+
+	// curve plots
+	if(global_Multilayer_Approach->runned_Optical_Graphs_1D.contains(optical_Graphs_1D_Key))
+	{
+		if(global_Multilayer_Approach->optical_Graphs_1D->meas_Id_Curve_1D_Map.contains(target_Curve->measurement.id))
+		{
+			Curve_Plot_1D* curve_Plot_1D = global_Multilayer_Approach->optical_Graphs_1D->meas_Id_Curve_1D_Map.value(target_Curve->measurement.id);
+			curve_Plot_1D->set_Title_Text();
+		}
+	}
 }
 
 void Detector_Target_Curve_Part::refresh_At_Fixed_Wavelength_Value()
@@ -536,6 +563,19 @@ void Detector_Target_Curve_Part::refresh_At_Fixed_Wavelength_Value()
 	double coeff = wavelength_Coefficients_Map.value(target_Curve->spectral_Units);
 	target_Curve->measurement.wavelength.value = Global_Variables::wavelength_Energy(target_Curve->spectral_Units, at_Fixed_Wavelength_SpinBox->value()*coeff);
 	target_Curve->refresh_Description_Label();
+
+	// independently of main calculation
+	target_Curve->calc_Measured_cos2_k();
+
+	// curve plots
+	if(global_Multilayer_Approach->runned_Optical_Graphs_1D.contains(optical_Graphs_1D_Key))
+	{
+		if(global_Multilayer_Approach->optical_Graphs_1D->meas_Id_Curve_1D_Map.contains(target_Curve->measurement.id))
+		{
+			Curve_Plot_1D* curve_Plot_1D = global_Multilayer_Approach->optical_Graphs_1D->meas_Id_Curve_1D_Map.value(target_Curve->measurement.id);
+			curve_Plot_1D->set_Title_Text();
+		}
+	}
 }
 
 void Detector_Target_Curve_Part::refresh_Plot_Axes_Labels()
@@ -545,6 +585,17 @@ void Detector_Target_Curve_Part::refresh_Plot_Axes_Labels()
 	target_Curve_Plot->argument_Sym_Text = "";
 	target_Curve_Plot->argument_Units_Text = target_Curve->angular_Units;
 	target_Curve_Plot->refresh_Labels_1D();
+
+	// curve plots
+	if(global_Multilayer_Approach->runned_Optical_Graphs_1D.contains(optical_Graphs_1D_Key))
+	{
+		if(global_Multilayer_Approach->optical_Graphs_1D->meas_Id_Curve_1D_Map.contains(target_Curve->measurement.id))
+		{
+			Curve_Plot_1D* curve_Plot_1D = global_Multilayer_Approach->optical_Graphs_1D->meas_Id_Curve_1D_Map.value(target_Curve->measurement.id);
+			curve_Plot_1D->set_Title_Text();
+			curve_Plot_1D->refresh_Labels();
+		}
+	}
 }
 
 void Detector_Target_Curve_Part::connecting()
@@ -564,6 +615,19 @@ void Detector_Target_Curve_Part::connecting()
 		target_Curve->fill_Measurement_And_Curve_With_Shifted_Data();
 		target_Curve_Plot->plot_Data_1D();
 		target_Curve->refresh_Description_Label();
+
+		// independently of main calculation
+		target_Curve->calc_Measured_cos2_k();
+
+		// curve plots
+		if(global_Multilayer_Approach->runned_Optical_Graphs_1D.contains(optical_Graphs_1D_Key))
+		{
+			if(global_Multilayer_Approach->optical_Graphs_1D->meas_Id_Curve_1D_Map.contains(target_Curve->measurement.id))
+			{
+				Curve_Plot_1D* curve_Plot_1D = global_Multilayer_Approach->optical_Graphs_1D->meas_Id_Curve_1D_Map.value(target_Curve->measurement.id);
+				curve_Plot_1D->plot_All_Data();
+			}
+		}
 		global_Multilayer_Approach->calculate(true);
 	});
 	// argument factor
@@ -574,6 +638,19 @@ void Detector_Target_Curve_Part::connecting()
 		target_Curve->fill_Measurement_And_Curve_With_Shifted_Data();
 		target_Curve_Plot->plot_Data_1D();
 		target_Curve->refresh_Description_Label();
+
+		// independently of main calculation
+		target_Curve->calc_Measured_cos2_k();
+
+		// curve plots
+		if(global_Multilayer_Approach->runned_Optical_Graphs_1D.contains(optical_Graphs_1D_Key))
+		{
+			if(global_Multilayer_Approach->optical_Graphs_1D->meas_Id_Curve_1D_Map.contains(target_Curve->measurement.id))
+			{
+				Curve_Plot_1D* curve_Plot_1D = global_Multilayer_Approach->optical_Graphs_1D->meas_Id_Curve_1D_Map.value(target_Curve->measurement.id);
+				curve_Plot_1D->plot_All_Data();
+			}
+		}
 		global_Multilayer_Approach->calculate(true);
 	});
 	// subinterval
@@ -586,7 +663,15 @@ void Detector_Target_Curve_Part::connecting()
 		horizontal_To_Subinterval_SpinBox  ->setEnabled(target_Curve->curve.use_Subinterval);
 
 		target_Curve_Plot->subinterval_Changed_Replot_1D();
-		Global_Variables::replot_All_Graphs();
+		// curve plots
+		if(global_Multilayer_Approach->runned_Optical_Graphs_1D.contains(optical_Graphs_1D_Key))
+		{
+			if(global_Multilayer_Approach->optical_Graphs_1D->meas_Id_Curve_1D_Map.contains(target_Curve->measurement.id))
+			{
+				Curve_Plot_1D* curve_Plot_1D = global_Multilayer_Approach->optical_Graphs_1D->meas_Id_Curve_1D_Map.value(target_Curve->measurement.id);
+				curve_Plot_1D->subinterval_Changed_Replot();
+			}
+		}
 	});
 	connect(horizontal_From_Subinterval_SpinBox, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
 	{
@@ -596,7 +681,15 @@ void Detector_Target_Curve_Part::connecting()
 		horizontal_To_Subinterval_SpinBox->setValue(max(target_Curve->curve.subinterval_Left,target_Curve->curve.subinterval_Right));
 
 		target_Curve_Plot->subinterval_Changed_Replot_1D();
-		Global_Variables::replot_All_Graphs();
+		// curve plots
+		if(global_Multilayer_Approach->runned_Optical_Graphs_1D.contains(optical_Graphs_1D_Key))
+		{
+			if(global_Multilayer_Approach->optical_Graphs_1D->meas_Id_Curve_1D_Map.contains(target_Curve->measurement.id))
+			{
+				Curve_Plot_1D* curve_Plot_1D = global_Multilayer_Approach->optical_Graphs_1D->meas_Id_Curve_1D_Map.value(target_Curve->measurement.id);
+				curve_Plot_1D->subinterval_Changed_Replot();
+			}
+		}
 	});
 	connect(horizontal_To_Subinterval_SpinBox, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
 	{
@@ -606,7 +699,15 @@ void Detector_Target_Curve_Part::connecting()
 		horizontal_From_Subinterval_SpinBox->setValue(min(target_Curve->curve.subinterval_Left,target_Curve->curve.subinterval_Right));
 
 		target_Curve_Plot->subinterval_Changed_Replot_1D();
-		Global_Variables::replot_All_Graphs();
+		// curve plots
+		if(global_Multilayer_Approach->runned_Optical_Graphs_1D.contains(optical_Graphs_1D_Key))
+		{
+			if(global_Multilayer_Approach->optical_Graphs_1D->meas_Id_Curve_1D_Map.contains(target_Curve->measurement.id))
+			{
+				Curve_Plot_1D* curve_Plot_1D = global_Multilayer_Approach->optical_Graphs_1D->meas_Id_Curve_1D_Map.value(target_Curve->measurement.id);
+				curve_Plot_1D->subinterval_Changed_Replot();
+			}
+		}
 	});
 
 	/// value box
@@ -618,7 +719,16 @@ void Detector_Target_Curve_Part::connecting()
 		target_Curve->fill_Measurement_And_Curve_With_Shifted_Data();
 		target_Curve_Plot->plot_Data_1D();
 		target_Curve->refresh_Description_Label();
-		Global_Variables::plot_All_Data_in_Graphs();
+
+		// curve plots
+		if(global_Multilayer_Approach->runned_Optical_Graphs_1D.contains(optical_Graphs_1D_Key))
+		{
+			if(global_Multilayer_Approach->optical_Graphs_1D->meas_Id_Curve_1D_Map.contains(target_Curve->measurement.id))
+			{
+				Curve_Plot_1D* curve_Plot_1D = global_Multilayer_Approach->optical_Graphs_1D->meas_Id_Curve_1D_Map.value(target_Curve->measurement.id);
+				curve_Plot_1D->plot_All_Data();
+			}
+		}
 	});
 	// value factor
 	connect(val_Factor_SpinBox, static_cast<void (MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
@@ -628,7 +738,16 @@ void Detector_Target_Curve_Part::connecting()
 		target_Curve->fill_Measurement_And_Curve_With_Shifted_Data();
 		target_Curve_Plot->plot_Data_1D();
 		target_Curve->refresh_Description_Label();
-		Global_Variables::plot_All_Data_in_Graphs();
+
+		// curve plots
+		if(global_Multilayer_Approach->runned_Optical_Graphs_1D.contains(optical_Graphs_1D_Key))
+		{
+			if(global_Multilayer_Approach->optical_Graphs_1D->meas_Id_Curve_1D_Map.contains(target_Curve->measurement.id))
+			{
+				Curve_Plot_1D* curve_Plot_1D = global_Multilayer_Approach->optical_Graphs_1D->meas_Id_Curve_1D_Map.value(target_Curve->measurement.id);
+				curve_Plot_1D->plot_All_Data();
+			}
+		}
 	});
 	connect(val_Factor_Min_SpinBox, static_cast<void (MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
 	{
@@ -650,7 +769,16 @@ void Detector_Target_Curve_Part::connecting()
 
 		target_Curve->fill_Measurement_And_Curve_With_Shifted_Data();
 		target_Curve_Plot->plot_Data_1D();
-		Global_Variables::plot_All_Data_in_Graphs();
+
+		// curve plots
+		if(global_Multilayer_Approach->runned_Optical_Graphs_1D.contains(optical_Graphs_1D_Key))
+		{
+			if(global_Multilayer_Approach->optical_Graphs_1D->meas_Id_Curve_1D_Map.contains(target_Curve->measurement.id))
+			{
+				Curve_Plot_1D* curve_Plot_1D = global_Multilayer_Approach->optical_Graphs_1D->meas_Id_Curve_1D_Map.value(target_Curve->measurement.id);
+				curve_Plot_1D->plot_All_Data();
+			}
+		}
 	});
 	connect(beam_Intensity_Initial_SpinBox, static_cast<void (MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
 	{
@@ -662,7 +790,16 @@ void Detector_Target_Curve_Part::connecting()
 
 		target_Curve->fill_Measurement_And_Curve_With_Shifted_Data();
 		target_Curve_Plot->plot_Data_1D();
-		Global_Variables::plot_All_Data_in_Graphs();
+
+		// curve plots
+		if(global_Multilayer_Approach->runned_Optical_Graphs_1D.contains(optical_Graphs_1D_Key))
+		{
+			if(global_Multilayer_Approach->optical_Graphs_1D->meas_Id_Curve_1D_Map.contains(target_Curve->measurement.id))
+			{
+				Curve_Plot_1D* curve_Plot_1D = global_Multilayer_Approach->optical_Graphs_1D->meas_Id_Curve_1D_Map.value(target_Curve->measurement.id);
+				curve_Plot_1D->plot_All_Data();
+			}
+		}
 	});
 	connect(beam_Intensity_Final_CheckBox, &QCheckBox::toggled, this, [=]
 	{
@@ -679,7 +816,16 @@ void Detector_Target_Curve_Part::connecting()
 
 		target_Curve->fill_Measurement_And_Curve_With_Shifted_Data();
 		target_Curve_Plot->plot_Data_1D();
-		Global_Variables::plot_All_Data_in_Graphs();
+
+		// curve plots
+		if(global_Multilayer_Approach->runned_Optical_Graphs_1D.contains(optical_Graphs_1D_Key))
+		{
+			if(global_Multilayer_Approach->optical_Graphs_1D->meas_Id_Curve_1D_Map.contains(target_Curve->measurement.id))
+			{
+				Curve_Plot_1D* curve_Plot_1D = global_Multilayer_Approach->optical_Graphs_1D->meas_Id_Curve_1D_Map.value(target_Curve->measurement.id);
+				curve_Plot_1D->plot_All_Data();
+			}
+		}
 	});
 	connect(beam_Intensity_Final_SpinBox, static_cast<void (MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
 	{
@@ -688,7 +834,15 @@ void Detector_Target_Curve_Part::connecting()
 		target_Curve->fill_Measurement_And_Curve_With_Shifted_Data();
 		target_Curve_Plot->plot_Data_1D();
 
-		Global_Variables::plot_All_Data_in_Graphs();
+		// curve plots
+		if(global_Multilayer_Approach->runned_Optical_Graphs_1D.contains(optical_Graphs_1D_Key))
+		{
+			if(global_Multilayer_Approach->optical_Graphs_1D->meas_Id_Curve_1D_Map.contains(target_Curve->measurement.id))
+			{
+				Curve_Plot_1D* curve_Plot_1D = global_Multilayer_Approach->optical_Graphs_1D->meas_Id_Curve_1D_Map.value(target_Curve->measurement.id);
+				curve_Plot_1D->plot_All_Data();
+			}
+		}
 	});
 
 	/// beam box
@@ -696,28 +850,33 @@ void Detector_Target_Curve_Part::connecting()
 	connect(at_Fixed_Beam_Theta_0_SpinBox, static_cast<void (MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
 	{
 		refresh_At_Fixed_Beam_Theta_0_Value();
-
 		global_Multilayer_Approach->calculate(true);
 	});
 	// at fixed wavelength
 	connect(at_Fixed_Wavelength_SpinBox, static_cast<void (MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
 	{
 		refresh_At_Fixed_Wavelength_Value();
-
 		global_Multilayer_Approach->calculate(true);
 	});
 	// at fixed units
 	connect(at_Fixed_Wavelength_Units_ComboBox, &QComboBox::currentTextChanged, this, [=]
 	{
 		refresh_At_Fixed_Wavelength_Units();
-
-		Global_Variables::plot_All_Data_in_Graphs();
 	});
 	// polarization
 	connect(polarization_SpinBox, static_cast<void (MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
 	{
 		target_Curve->measurement.polarization = polarization_SpinBox->value();
 
+		// curve plots
+		if(global_Multilayer_Approach->runned_Optical_Graphs_1D.contains(optical_Graphs_1D_Key))
+		{
+			if(global_Multilayer_Approach->optical_Graphs_1D->meas_Id_Curve_1D_Map.contains(target_Curve->measurement.id))
+			{
+				Curve_Plot_1D* curve_Plot_1D = global_Multilayer_Approach->optical_Graphs_1D->meas_Id_Curve_1D_Map.value(target_Curve->measurement.id);
+				curve_Plot_1D->set_Title_Text();
+			}
+		}
 		global_Multilayer_Approach->calculate(true);
 	});
 	// background

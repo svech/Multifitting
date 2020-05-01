@@ -122,6 +122,9 @@ public:
 	QString angular_Units;
 	QString spectral_Units;
 
+	// 2D positions
+	Graph_2D_Positions graph_2D_Positions;
+
 	Target_Curve& operator =(const Target_Curve& referent_Target_Curve);
 };
 

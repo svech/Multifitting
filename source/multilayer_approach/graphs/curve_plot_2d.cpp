@@ -12,10 +12,12 @@ Curve_Plot_2D::Curve_Plot_2D(Multilayer* multilayer, Target_Curve* target_Curve,
 	spectral_Units		(curve_Class == INDEPENDENT ? independent_Curve->spectral_Units	   : target_Curve->spectral_Units			),
 	angular_Units		(curve_Class == INDEPENDENT ? independent_Curve->angular_Units	   : target_Curve->angular_Units			),
 	plot_Indicator		(curve_Class == INDEPENDENT ? independent_Curve->tab_Name		   : target_Curve->index					),
+	graph_2D_Positions	(curve_Class == INDEPENDENT ? independent_Curve->graph_2D_Positions: target_Curve->graph_2D_Positions		),
 
 	QWidget(parent)
 {
-	create_Main_Layout();	
+	create_Main_Layout();
+	restore_Marks();
 }
 
 void Curve_Plot_2D::create_Main_Layout()
@@ -52,25 +54,35 @@ void Curve_Plot_2D::create_Main_Layout()
 		connect(left_Splitter, &MySplitter::splitterMoved, this, [=](int pos, int index)
 		{
 			left_Ver_Widget->setMaximumWidth(16777215);
+			left_Ver_Widget->setMinimumWidth(130);
 			corner_Widget->setMaximumWidth(16777215);
+			corner_Widget->setMinimumWidth(130);
+
 
 			bottom_Left_Splitter->blockSignals(true);
 			bottom_Left_Splitter->moveSplitter(pos,index);
 			bottom_Left_Splitter->blockSignals(false);
+			graph_2D_Positions.left_Min_Width = left_Ver_Widget->width();
 		});
 		connect(bottom_Left_Splitter, &MySplitter::splitterMoved, this, [=](int pos, int index)
 		{
 			left_Ver_Widget->setMaximumWidth(16777215);
+			left_Ver_Widget->setMinimumWidth(130);
 			corner_Widget->setMaximumWidth(16777215);
+			corner_Widget->setMinimumWidth(130);
 
 			left_Splitter->blockSignals(true);
 			left_Splitter->moveSplitter(pos,index);
 			left_Splitter->blockSignals(false);
+			graph_2D_Positions.left_Min_Width = corner_Widget->width();
 		});
 		connect(bottom_Splitter, &MySplitter::splitterMoved, this, [=](int pos, int index)
 		{
 			Q_UNUSED(pos) Q_UNUSED(index)
 			bottom_Section_Tabs->setMaximumHeight(16777215);
+			bottom_Section_Tabs->setMinimumHeight(150);
+
+			graph_2D_Positions.bottom_Min_Width = bottom_Section_Tabs->height();
 		});
 	}
 	//------------------------------------------------------
@@ -80,8 +92,8 @@ void Curve_Plot_2D::create_Main_Layout()
 		left_Vertical_Custom_Plot = new QCustomPlot;
 		left_Ver_Widget = new QWidget;
 			left_Ver_Widget->setHidden(!plot_Options.left_Section_Plot);
-			left_Ver_Widget->setMaximumWidth(130);
-			left_Ver_Widget->setMinimumWidth(130);
+			left_Ver_Widget->setMaximumWidth(graph_2D_Positions.left_Min_Width);
+			left_Ver_Widget->setMinimumWidth(graph_2D_Positions.left_Min_Width);
 		left_Ver_Layout = new QHBoxLayout(left_Ver_Widget);
 			left_Ver_Layout->setContentsMargins(0,shift_Left,0,0);
 			left_Ver_Layout->addWidget(left_Vertical_Custom_Plot);
@@ -89,21 +101,24 @@ void Curve_Plot_2D::create_Main_Layout()
 
 		main_2D_Custom_Plot = new QCustomPlot;
 		left_Splitter->addWidget(main_2D_Custom_Plot);
+		bottom_Splitter->setStretchFactor(0,0);
 
 		corner_Widget = new QWidget;
 			corner_Widget->setHidden(!plot_Options.left_Section_Plot || !plot_Options.bottom_Section_Plot);
-			corner_Widget->setMinimumWidth(130);
-			corner_Widget->setMaximumWidth(130);
+			corner_Widget->setMinimumWidth(graph_2D_Positions.left_Min_Width);
+			corner_Widget->setMaximumWidth(graph_2D_Positions.left_Min_Width);
 		bottom_Left_Splitter->addWidget(corner_Widget);
+		bottom_Splitter->setStretchFactor(0,0);
 
 		bottom_Section_Tabs = new QTabWidget;
 			bottom_Section_Tabs->setTabsClosable(false);
 			bottom_Section_Tabs->setTabPosition(QTabWidget::South);
 			bottom_Section_Tabs->setMovable(false);
 			bottom_Section_Tabs->setHidden(!plot_Options.bottom_Section_Plot);
-			bottom_Section_Tabs->setMinimumHeight(150);
-			bottom_Section_Tabs->setMaximumHeight(150);
+			bottom_Section_Tabs->setMinimumHeight(graph_2D_Positions.bottom_Min_Width);
+			bottom_Section_Tabs->setMaximumHeight(graph_2D_Positions.bottom_Min_Width);
 		bottom_Left_Splitter->addWidget(bottom_Section_Tabs);
+		bottom_Left_Splitter->setStretchFactor(0,0);
 	}
 	//------------------------------------------------------
 	/// create plots
@@ -197,6 +212,14 @@ void Curve_Plot_2D::create_Main_Layout()
 		Q_UNUSED(part)	Q_UNUSED(event)
 		if(axis == color_Scale->axis()){Global_Variables::color_Scheme_Change(color_Map, main_2D_Custom_Plot, &plot_Options.color_Scheme);}
 	}, Qt::UniqueConnection);
+}
+
+void Curve_Plot_2D::restore_Marks()
+{
+	main_2D_Custom_Plot->itemClick(hor_Line_Current,new QMouseEvent(QEvent::MouseButtonDblClick,
+																	QPointF(main_2D_Custom_Plot->xAxis->coordToPixel(graph_2D_Positions.x_Mark),
+																			main_2D_Custom_Plot->yAxis->coordToPixel(graph_2D_Positions.y_Mark)),
+																	Qt::LeftButton, Qt::RightButton, Qt::NoModifier));
 }
 
 void Curve_Plot_2D::create_Position_Lines()
@@ -385,13 +408,43 @@ void Curve_Plot_2D::create_Section_Parts()
 
 void Curve_Plot_2D::refresh_Axes_Range()
 {
-	// TODO
 	if(plot_Options.rescale)
 	{
-		double coeff = angle_Coefficients_Map.value(angular_Units); // ?????????? field joule
-		color_Map->data()->setRange(QCPRange(measurement.detector_Theta_Angle.independent.min/coeff, measurement.detector_Theta_Angle.independent.max/coeff),
-									QCPRange(measurement.detector_Phi_Angle.independent.min/coeff,   measurement.detector_Phi_Angle.independent.max/coeff));
-		main_2D_Custom_Plot->rescaleAxes();
+		double spectral_Coeff = wavelength_Coefficients_Map.value(spectral_Units);
+		double angular_Coeff = angle_Coefficients_Map.value(angular_Units);
+
+		if(	measurement.measurement_Type == measurement_Types[GISAS_Map] ) // both independent and target
+		{
+			color_Map->data()->setRange(QCPRange(measurement.detector_Theta_Angle.independent.min/angular_Coeff, measurement.detector_Theta_Angle.independent.max/angular_Coeff),
+										QCPRange(measurement.detector_Phi_Angle.independent.min/angular_Coeff,   measurement.detector_Phi_Angle.independent.max/angular_Coeff));
+			main_2D_Custom_Plot->rescaleAxes();
+		}
+		// fields
+		if(curve_Class == INDEPENDENT)
+		{
+			if(independent_Curve->calc_Functions.check_Field || independent_Curve->calc_Functions.check_Joule)
+			{
+				QCPRange y_Range;
+				QCPRange x_Range = QCPRange(-independent_Curve->calc_Functions.field_Ambient_Distance,
+											-independent_Curve->calc_Functions.field_Ambient_Distance + values_2D->front().size()*independent_Curve->calc_Functions.field_Step);
+
+				if(	measurement.measurement_Type == measurement_Types[Specular_Scan] )
+				{
+					if(measurement.argument_Type == argument_Types[Beam_Grazing_Angle])
+					{
+						y_Range = QCPRange(measurement.beam_Theta_0_Angle.independent.min/angular_Coeff,
+										   measurement.beam_Theta_0_Angle.independent.max/angular_Coeff);
+					}
+					if(measurement.argument_Type == argument_Types[Wavelength_Energy])
+					{
+						y_Range = QCPRange(Global_Variables::wavelength_Energy(spectral_Units,measurement.wavelength.independent.min)/spectral_Coeff,
+										   Global_Variables::wavelength_Energy(spectral_Units,measurement.wavelength.independent.max)/spectral_Coeff);
+					}
+					color_Map->data()->setRange(x_Range,y_Range);
+					main_2D_Custom_Plot->rescaleAxes();
+				}
+			}
+		}
 	}
 }
 
@@ -440,6 +493,13 @@ void Curve_Plot_2D::apply_Log_Scale()
 	replot_All();
 	// crutch for aligning sections with map
 	shift_Bottom = 45;
+	if(curve_Class == INDEPENDENT)
+	{
+		if(independent_Curve->calc_Functions.check_Field || independent_Curve->calc_Functions.check_Joule)
+		{
+			shift_Bottom = 45;
+		}
+	}
 	bottom_Hor_Layout->setContentsMargins(0,0,shift_Bottom,0);
 	bottom_Ver_Layout->setContentsMargins(0,0,shift_Bottom,0);
 }
@@ -488,6 +548,13 @@ void Curve_Plot_2D::apply_Lin_Scale()
 	replot_All();
 	// crutch for aligning sections with map
 	shift_Bottom = 45;
+	if(curve_Class == INDEPENDENT)
+	{
+		if(independent_Curve->calc_Functions.check_Field || independent_Curve->calc_Functions.check_Joule)
+		{
+			shift_Bottom = 32;
+		}
+	}
 	bottom_Hor_Layout->setContentsMargins(0,0,shift_Bottom,0);
 	bottom_Ver_Layout->setContentsMargins(0,0,shift_Bottom,0);
 }
@@ -505,16 +572,20 @@ void Curve_Plot_2D::plot_All_Data()
 		if(plot_Options.data_To_Show == meas) values_2D = values_2D_Meas;
 		if(plot_Options.data_To_Show == calc) values_2D = values_2D_Calc;
 
-		// TODO
-		if(values_2D_Calc->size() == 0)
+		// in data are not calculated
+		bool show_Fake_Data = false;
+		if( values_2D_Calc->size() != values_2D_Meas->size() )																		show_Fake_Data = true;
+		else if( values_2D_Calc->size()==values_2D_Meas->size()	&& values_2D_Calc->front().size()!=values_2D_Meas->front().size() ) show_Fake_Data = true;
+		if(show_Fake_Data)
 		{
-			qInfo() << "Curve_Plot_2D   Target curve " << plot_Indicator << " : calculation of " << target_Curve->curve.value_Type << "is not done. Fake data are shown." << endl;
-			values_2D_Calc->resize(values_2D_Meas->size(), vector<double>(values_2D_Meas->front().size()));
+			qInfo() << "Curve_Plot_2D::plot_All_Data  :  Target curve " << plot_Indicator << " : calculation of " << target_Curve->curve.value_Type << "is not done" << endl;
+			*values_2D_Calc = *values_2D_Meas;
 			for(size_t i=0; i<values_2D_Calc->size(); i++)
 			{
 				for(size_t j=0; j<values_2D_Calc->front().size(); j++)
 				{
-					(*values_2D_Calc)[i][j] = cos((i-500.)/100.)*cos((j-500.)/100.);
+					//(*values_2D_Calc)[i][j] = 0;
+					(*values_2D_Calc)[i][j] = cos((i-values_2D_Calc->size()/2.)/50.)*cos((j-values_2D_Calc->front().size()/2.)/50.);
 				}
 			}
 		}
@@ -531,16 +602,16 @@ void Curve_Plot_2D::plot_All_Data()
 		if(	independent_Curve->calc_Functions.check_Joule )	values_2D = &calculated_Values.absorption_Map;
 		if(	independent_Curve->calc_Functions.check_GISAS )	values_2D = &calculated_Values.GISAS_Instrumental;
 
-		// TODO
 		if(values_2D->size() == 0)
 		{
-			values_2D->resize(1000, vector<double>(1000));
-			qInfo() << "Curve_Plot_2D   Independent curve " << plot_Indicator << " : calculation is not done. Fake data are shown." << endl;
+			values_2D->resize(200, vector<double>(500));
+			qInfo() << "Curve_Plot_2D::plot_All_Data  :  Independent curve " << plot_Indicator << " : calculation is not done" << endl;
 			for(size_t i=0; i<values_2D->size(); i++)
 			{
 				for(size_t j=0; j<values_2D->front().size(); j++)
 				{
-					(*values_2D)[i][j] = cos((i-500.)/100.)*cos((j-500.)/100.);
+					//(*values_2D)[i][j] = 0;
+					(*values_2D)[i][j] = cos((i-values_2D->size()/2.)/50.)*cos((j-values_2D->front().size()/2.)/50.);
 				}
 			}
 		}
@@ -550,6 +621,10 @@ void Curve_Plot_2D::plot_All_Data()
 	}
 
 	plot_Data();
+
+	// show me on recalculate
+	restore_Marks();
+	main_2D_Custom_Plot->mouseMove(new QMouseEvent(QEvent::MouseMove, QPointF(graph_2D_Positions.current_Pos), Qt::NoButton, Qt::NoButton, Qt::NoModifier));
 }
 
 void Curve_Plot_2D::plot_Data()
@@ -611,22 +686,13 @@ void Curve_Plot_2D::refresh_Axes_Labels()
 				}
 				if(measurement.argument_Type == argument_Types[Wavelength_Energy])
 				{
-					if(	spectral_Units == wavelength_Units_List[angstrom] ||
-						spectral_Units == wavelength_Units_List[nm]		  )
-					{
-						argument_Type_Text = QString(argument_Types[Wavelength_Energy]).split("/").first();
-						argument_Sym_Text = " "+Lambda_Sym;
-						argument_Units_Text = spectral_Units;
-					} else
-					{
-						argument_Type_Text = QString(argument_Types[Wavelength_Energy]).split("/").last();
-						argument_Sym_Text = " E";
-						argument_Units_Text = spectral_Units;
-					}
+					argument_Type_Text = Global_Variables::wavelength_Energy_Name(spectral_Units); + ", " + spectral_Units;
+					argument_Sym_Text = "";
+					argument_Units_Text = spectral_Units;
 				}
 			}
-			main_2D_Custom_Plot->xAxis->setLabel(argument_Type_Text + ", " + argument_Units_Text);
-			main_2D_Custom_Plot->yAxis->setLabel(value_Type_Text );
+			main_2D_Custom_Plot->yAxis->setLabel(argument_Type_Text + ", " + argument_Units_Text);
+			main_2D_Custom_Plot->xAxis->setLabel(value_Type_Text );
 		}
 	}
 	replot_All();
@@ -670,26 +736,26 @@ void Curve_Plot_2D::refresh_Corner_Labels(double x, double y, int x_Cell, int y_
 		{
 			if(	measurement.measurement_Type == measurement_Types[Specular_Scan] )
 			{
-				base_Arg_Y = "Depth:  ";
+				base_Arg_X = "Depth:  ";
 				if(x_Cell>=0 && y_Cell>=0)
 				{
-					add_Arg_Y = QString::number(y, 'g', 3) + " " + Angstrom_Sym;
+					add_Arg_X = QString::number(x, 'g', 3) + " " + Angstrom_Sym;
 				}
 
 				if(measurement.argument_Type == argument_Types[Beam_Grazing_Angle])
 				{
-					base_Arg_X = Theta_Sym + Zero_Subscript_Sym + ":        ";
+					base_Arg_Y = Theta_Sym + Zero_Subscript_Sym + ":        ";
 					if(x_Cell>=0 && y_Cell>=0)
 					{
-						add_Arg_X = QString::number(x, 'g', 3) + " " + angular_Units;
+						add_Arg_Y = QString::number(y, 'g', 3) + " " + angular_Units;
 					}
 				}
 				if(measurement.argument_Type == argument_Types[Wavelength_Energy])
 				{
-					base_Arg_X = Global_Variables::wavelength_Energy_Symbol(spectral_Units) + ":          ";
+					base_Arg_Y = Global_Variables::wavelength_Energy_Symbol(spectral_Units) + ":          ";
 					if(x_Cell>=0 && y_Cell>=0)
 					{
-						add_Arg_X = QString::number(x, 'g', 3) + " " + spectral_Units;
+						add_Arg_Y = QString::number(y, 'g', 3) + " " + spectral_Units;
 					}
 				}
 			}
@@ -747,13 +813,14 @@ void Curve_Plot_2D::set_Title_Text()
 				}
 				if(measurement.argument_Type == argument_Types[Wavelength_Energy])
 				{
-					plot_Title_Text = plot_Indicator + ": " +
+					plot_Title_Text = plot_Indicator + add_Text + ": " +
 									  Theta_Sym + Zero_Subscript_Sym + "=" + Locale.toString(measurement.beam_Theta_0_Angle.value/angular_Coeff, line_edit_double_format, line_edit_angle_precision) + " " + angular_Units +
 									  ", pol=" + QString::number(measurement.polarization,'f',3);
 				}
 			}
 		}
 		plot_Title->setText(plot_Title_Text);
+		main_2D_Custom_Plot->replot();
 	}
 }
 
@@ -871,15 +938,11 @@ void Curve_Plot_2D::create_Plot_Options_GroupBox()
 		connect(meas_Button, &QCheckBox::clicked, this, [=]
 		{
 			if(meas_Button->isChecked()) plot_Options.data_To_Show = meas;
-			// TODO
-			qInfo() << "plot_Options.data_To_Show = meas" << endl;
 			plot_All_Data();
 		});
 		connect(calc_Button, &QCheckBox::clicked, this, [=]
 		{
 			if(calc_Button->isChecked()) plot_Options.data_To_Show = calc;
-			// TODO
-			qInfo() << "plot_Options.data_To_Show = calc" << endl;
 			plot_All_Data();
 		});
 	}
@@ -915,9 +978,12 @@ void Curve_Plot_2D::create_Plot_Options_GroupBox()
 			{
 				if(event->button() & Qt::RightButton)
 				{
+					graph_2D_Positions.x_Mark = -MAX_DOUBLE;
+					graph_2D_Positions.y_Mark = -MAX_DOUBLE;
+
 					// remove lines
-					hor_Line_Fixed->point1->setCoords(-MAX_DOUBLE, 0);
-					hor_Line_Fixed->point2->setCoords(-MAX_DOUBLE, 1);
+					hor_Line_Fixed->point1->setCoords(0, -MAX_DOUBLE);
+					hor_Line_Fixed->point2->setCoords(1, -MAX_DOUBLE);
 					ver_Line_Fixed->point1->setCoords(-MAX_DOUBLE, 0);
 					ver_Line_Fixed->point2->setCoords(-MAX_DOUBLE, 1);
 
@@ -941,6 +1007,9 @@ void Curve_Plot_2D::create_Plot_Options_GroupBox()
 				}
 				if(event->button() & Qt::LeftButton)
 				{
+					graph_2D_Positions.x_Mark = x;
+					graph_2D_Positions.y_Mark = y;
+
 					// mark position
 					hor_Line_Fixed->point1->setCoords(0, y);
 					hor_Line_Fixed->point2->setCoords(1, y);
@@ -1009,121 +1078,126 @@ void Curve_Plot_2D::create_Plot_Options_GroupBox()
 			text_Item->position->setCoords(QPointF(-MAX_DOUBLE, -MAX_DOUBLE));
 		connect(main_2D_Custom_Plot, &QCustomPlot::mouseMove, this, [=](QMouseEvent* event)
 		{
-			double x = main_2D_Custom_Plot->xAxis->pixelToCoord(event->pos().x());
-			double y = main_2D_Custom_Plot->yAxis->pixelToCoord(event->pos().y());
-
-			color_Map->data()->coordToCell(x,y,&x_Cell_Cur,&y_Cell_Cur);
-
-			bool show_Lines = true;
-			show_Lines = show_Lines && x<main_2D_Custom_Plot->xAxis->range().upper;
-			show_Lines = show_Lines && x>main_2D_Custom_Plot->xAxis->range().lower;
-			show_Lines = show_Lines && y<main_2D_Custom_Plot->yAxis->range().upper;
-			show_Lines = show_Lines && y>main_2D_Custom_Plot->yAxis->range().lower;
-
-			// mark position
-			if(show_Lines)
+			if(event->button() == Qt::NoButton)
 			{
-				hor_Line_Current->point1->setCoords(0, y);
-				hor_Line_Current->point2->setCoords(1, y);
-				ver_Line_Current->point1->setCoords(x, 0);
-				ver_Line_Current->point2->setCoords(x, 1);
-			} else
-			{
-				hor_Line_Current->point1->setCoords(-MAX_DOUBLE, 0);
-				hor_Line_Current->point2->setCoords(-MAX_DOUBLE, 1);
-				ver_Line_Current->point1->setCoords(-MAX_DOUBLE, 0);
-				ver_Line_Current->point2->setCoords(-MAX_DOUBLE, 1);
-			}
+				graph_2D_Positions.current_Pos = event->pos();
 
-			bool show = true;
-			show = show && x_Cell_Cur>=0;
-			show = show && y_Cell_Cur>=0;
-			show = show && x_Cell_Cur<=int(values_2D->front().size())-1;
-			show = show && y_Cell_Cur<=int(values_2D->size())-1;
+				double x = main_2D_Custom_Plot->xAxis->pixelToCoord(event->pos().x());
+				double y = main_2D_Custom_Plot->yAxis->pixelToCoord(event->pos().y());
 
-			if(show)
-			{
-				double temp;
-				if(curve_Class == TARGET)
+				color_Map->data()->coordToCell(x,y,&x_Cell_Cur,&y_Cell_Cur);
+
+				bool show_Lines = true;
+				show_Lines = show_Lines && x<main_2D_Custom_Plot->xAxis->range().upper;
+				show_Lines = show_Lines && x>main_2D_Custom_Plot->xAxis->range().lower;
+				show_Lines = show_Lines && y<main_2D_Custom_Plot->yAxis->range().upper;
+				show_Lines = show_Lines && y>main_2D_Custom_Plot->yAxis->range().lower;
+
+				// mark position
+				if(show_Lines)
 				{
-					// horizontal
-					for (int j=0; j<values_Hor_Meas.size(); ++j)
-					{
-						color_Map->data()->cellToCoord(j,y_Cell_Cur,&(values_Hor_Meas[j].key),&temp);
-						values_Hor_Meas[j].value = (*values_2D_Meas)[y_Cell_Cur][j];
-
-						color_Map->data()->cellToCoord(j,y_Cell_Cur,&(values_Hor_Calc[j].key),&temp);
-						values_Hor_Calc[j].value = (*values_2D_Calc)[y_Cell_Cur][j];
-					}
-					bottom_Horizontal_Custom_Plot->graph(0)->data()->set(values_Hor_Meas);
-					bottom_Horizontal_Custom_Plot->graph(1)->data()->set(values_Hor_Calc);
-
-					// vertical
-					for (int i=0; i<values_Ver_Meas.size(); ++i)
-					{
-						color_Map->data()->cellToCoord(x_Cell_Cur,i,&temp,&(values_Ver_Meas[i].key));
-						values_Ver_Meas[i].value = (*values_2D_Meas)[i][x_Cell_Cur];
-
-						color_Map->data()->cellToCoord(x_Cell_Cur,i,&temp,&(values_Ver_Calc[i].key));
-						values_Ver_Calc[i].value = (*values_2D_Calc)[i][x_Cell_Cur];
-					}
-					bottom_Vertical_Custom_Plot->graph(0)->data()->set(values_Ver_Meas);
-					bottom_Vertical_Custom_Plot->graph(1)->data()->set(values_Ver_Calc);
-
-					left_Vertical_Custom_Plot->graph(0)->data()->set(values_Ver_Meas);
-					left_Vertical_Custom_Plot->graph(1)->data()->set(values_Ver_Calc);
-				}
-				if(curve_Class == INDEPENDENT)
+					hor_Line_Current->point1->setCoords(0, y);
+					hor_Line_Current->point2->setCoords(1, y);
+					ver_Line_Current->point1->setCoords(x, 0);
+					ver_Line_Current->point2->setCoords(x, 1);
+				} else
 				{
-					// horizontal
-					for (int j=0; j<values_Hor_Calc.size(); ++j)
-					{
-						color_Map->data()->cellToCoord(j,y_Cell_Cur,&(values_Hor_Calc[j].key),&temp);
-						values_Hor_Calc[j].value = (*values_2D)[y_Cell_Cur][j];
-					}
-					bottom_Horizontal_Custom_Plot->graph(0)->data()->set(values_Hor_Calc);
-
-					// vertical
-					for (int i=0; i<values_Ver_Calc.size(); ++i)
-					{
-						color_Map->data()->cellToCoord(x_Cell_Cur,i,&temp,&(values_Ver_Calc[i].key));
-						values_Ver_Calc[i].value = (*values_2D)[i][x_Cell_Cur];
-					}
-					bottom_Vertical_Custom_Plot->graph(0)->data()->set(values_Ver_Calc);
-
-					left_Vertical_Custom_Plot->graph(0)->data()->set(values_Ver_Calc);
+					hor_Line_Current->point1->setCoords(-MAX_DOUBLE, 0);
+					hor_Line_Current->point2->setCoords(-MAX_DOUBLE, 1);
+					ver_Line_Current->point1->setCoords(-MAX_DOUBLE, 0);
+					ver_Line_Current->point2->setCoords(-MAX_DOUBLE, 1);
 				}
-				if(multilayer->graph_Options_2D.show_Current_Coordinate)
+
+				bool show = true;
+				show = show && x_Cell_Cur>=0;
+				show = show && y_Cell_Cur>=0;
+				show = show && x_Cell_Cur<=int(values_2D->front().size())-1;
+				show = show && y_Cell_Cur<=int(values_2D->size())-1;
+
+				if(show)
 				{
-					double x_Text  = main_2D_Custom_Plot->xAxis->pixelToCoord(event->pos().x()+50);
-					double y_Text  = main_2D_Custom_Plot->yAxis->pixelToCoord(event->pos().y()-17);
-					double z	   = color_Map->data()->data(x,y);
-//					text_Item->setText(QString("(%1, %2, %3)").arg(x).arg(y).arg(z));
-					text_Item->setText(QString("(%1)").arg(z));
-					text_Item->position->setCoords(QPointF(x_Text, y_Text));
-					text_Item->setFont(QFont(font().family(), 10, QFont::Bold));
-//					text_Item->setColor(Qt::white);
-				}
-				refresh_Corner_Labels(x, y, x_Cell_Cur, y_Cell_Cur);
-				replot_All();
-			} else
-			{
-				// remove text item
-				text_Item->position->setCoords(QPointF(-MAX_DOUBLE, -MAX_DOUBLE));
+					double temp;
+					if(curve_Class == TARGET)
+					{
+						// horizontal
+						for (int j=0; j<values_Hor_Meas.size(); ++j)
+						{
+							color_Map->data()->cellToCoord(j,y_Cell_Cur,&(values_Hor_Meas[j].key),&temp);
+							values_Hor_Meas[j].value = (*values_2D_Meas)[y_Cell_Cur][j];
 
-				// remove sections
-				bottom_Horizontal_Custom_Plot->graph(0)->data()->clear();
-				bottom_Vertical_Custom_Plot->graph(0)->data()->clear();
-				left_Vertical_Custom_Plot->graph(0)->data()->clear();
+							color_Map->data()->cellToCoord(j,y_Cell_Cur,&(values_Hor_Calc[j].key),&temp);
+							values_Hor_Calc[j].value = (*values_2D_Calc)[y_Cell_Cur][j];
+						}
+						bottom_Horizontal_Custom_Plot->graph(0)->data()->set(values_Hor_Meas);
+						bottom_Horizontal_Custom_Plot->graph(1)->data()->set(values_Hor_Calc);
 
-				if(curve_Class == TARGET)
+						// vertical
+						for (int i=0; i<values_Ver_Meas.size(); ++i)
+						{
+							color_Map->data()->cellToCoord(x_Cell_Cur,i,&temp,&(values_Ver_Meas[i].key));
+							values_Ver_Meas[i].value = (*values_2D_Meas)[i][x_Cell_Cur];
+
+							color_Map->data()->cellToCoord(x_Cell_Cur,i,&temp,&(values_Ver_Calc[i].key));
+							values_Ver_Calc[i].value = (*values_2D_Calc)[i][x_Cell_Cur];
+						}
+						bottom_Vertical_Custom_Plot->graph(0)->data()->set(values_Ver_Meas);
+						bottom_Vertical_Custom_Plot->graph(1)->data()->set(values_Ver_Calc);
+
+						left_Vertical_Custom_Plot->graph(0)->data()->set(values_Ver_Meas);
+						left_Vertical_Custom_Plot->graph(1)->data()->set(values_Ver_Calc);
+					}
+					if(curve_Class == INDEPENDENT)
+					{
+						// horizontal
+						for (int j=0; j<values_Hor_Calc.size(); ++j)
+						{
+							color_Map->data()->cellToCoord(j,y_Cell_Cur,&(values_Hor_Calc[j].key),&temp);
+							values_Hor_Calc[j].value = (*values_2D)[y_Cell_Cur][j];
+						}
+						bottom_Horizontal_Custom_Plot->graph(0)->data()->set(values_Hor_Calc);
+
+						// vertical
+						for (int i=0; i<values_Ver_Calc.size(); ++i)
+						{
+							color_Map->data()->cellToCoord(x_Cell_Cur,i,&temp,&(values_Ver_Calc[i].key));
+							values_Ver_Calc[i].value = (*values_2D)[i][x_Cell_Cur];
+						}
+						bottom_Vertical_Custom_Plot->graph(0)->data()->set(values_Ver_Calc);
+
+						left_Vertical_Custom_Plot->graph(0)->data()->set(values_Ver_Calc);
+					}
+					if(multilayer->graph_Options_2D.show_Current_Coordinate)
+					{
+						double x_Text  = main_2D_Custom_Plot->xAxis->pixelToCoord(event->pos().x()+50);
+						double y_Text  = main_2D_Custom_Plot->yAxis->pixelToCoord(event->pos().y()-17);
+						double z	   = color_Map->data()->data(x,y);
+	//					text_Item->setText(QString("(%1, %2, %3)").arg(x).arg(y).arg(z));
+						text_Item->setText(QString("(%1)").arg(z));
+						text_Item->position->setCoords(QPointF(x_Text, y_Text));
+						text_Item->setFont(QFont(font().family(), 10, QFont::Bold));
+	//					text_Item->setColor(Qt::white);
+					}
+					refresh_Corner_Labels(x, y, x_Cell_Cur, y_Cell_Cur);
+					replot_All();
+				} else
 				{
-					bottom_Horizontal_Custom_Plot->graph(1)->data()->clear();
-					bottom_Vertical_Custom_Plot->graph(1)->data()->clear();
-					left_Vertical_Custom_Plot->graph(1)->data()->clear();
+					// remove text item
+					text_Item->position->setCoords(QPointF(-MAX_DOUBLE, -MAX_DOUBLE));
+
+					// remove sections
+					bottom_Horizontal_Custom_Plot->graph(0)->data()->clear();
+					bottom_Vertical_Custom_Plot->graph(0)->data()->clear();
+					left_Vertical_Custom_Plot->graph(0)->data()->clear();
+
+					if(curve_Class == TARGET)
+					{
+						bottom_Horizontal_Custom_Plot->graph(1)->data()->clear();
+						bottom_Vertical_Custom_Plot->graph(1)->data()->clear();
+						left_Vertical_Custom_Plot->graph(1)->data()->clear();
+					}
+					refresh_Corner_Labels();
+					replot_All();
 				}
-				refresh_Corner_Labels();
-				replot_All();
 			}
 		});
 	}

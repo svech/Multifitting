@@ -564,6 +564,7 @@ void Curve_Plot_1D::set_Title_Text()
 			}
 		}
 		plot_Title->setText(plot_Title_Text);
+		custom_Plot->replot();
 	}
 }
 
@@ -624,6 +625,7 @@ void Curve_Plot_1D::plot_All_Data()
 		double coeff_Angular = angle_Coefficients_Map.value(angular_Units);
 		double coeff_Spectral = wavelength_Coefficients_Map.value(spectral_Units);
 
+
 		if(	measurement.argument_Type == argument_Types[Beam_Grazing_Angle])
 		{
 			argument.resize(measurement.beam_Theta_0_Angle_Vec.size());
@@ -658,14 +660,20 @@ void Curve_Plot_1D::plot_All_Data()
 		}
 
 		// TODO
-		if(values.size() == 0)
+		if(values.size() == 0 )
 		{
 			qInfo() << "Independent curve " << plot_Indicator << " : calculation is not done. Fake data are shown." << endl;
-			argument.resize(1000);
+			if(argument.size() == 0)
+			{
+				argument.resize(1000);
+				for(size_t i=0; i<values.size(); i++)
+				{
+					argument[i] = i/100.;
+				}
+			}
 			values.resize(argument.size());
 			for(size_t i=0; i<values.size(); i++)
 			{
-				argument[i] = i/100.;
 				values[i] = sin(argument[i])*sin(argument[i])+DBL_EPSILON;
 			}
 		}
@@ -750,22 +758,14 @@ void Curve_Plot_1D::refresh_Labels()
 	custom_Plot->yAxis->setLabel(value_Label);
 
 	// argument
-	QString lambda_Sym;
-	if(	spectral_Units == wavelength_Units_List[angstrom] ||
-		spectral_Units == wavelength_Units_List[nm]	   )
-	{
-		lambda_Sym = Lambda_Sym;
-	} else
-	{
-		lambda_Sym = "E";
-	}
 	QString argument_Label;
 	if(measurement.argument_Type == argument_Types[Beam_Grazing_Angle])				argument_Label = measurement.argument_Type + ", " + angular_Units;
-	if(measurement.argument_Type == argument_Types[Wavelength_Energy])				argument_Label = measurement.argument_Type + ", " + lambda_Sym;
+	if(measurement.argument_Type == argument_Types[Wavelength_Energy])				argument_Label = Global_Variables::wavelength_Energy_Name(spectral_Units) + ", " + spectral_Units;
 	if(measurement.argument_Type == argument_Types[Detector_Polar_Angle])			argument_Label = measurement.argument_Type + ", " + angular_Units;
 	if(measurement.argument_Type == argument_Types[Deviation_From_Specular_Angle])	argument_Label = measurement.argument_Type + ", " + angular_Units;
 
 	custom_Plot->xAxis->setLabel(argument_Label);
+	custom_Plot->replot();
 }
 
 QCPGraph* Curve_Plot_1D::get_Selected_Graph()
