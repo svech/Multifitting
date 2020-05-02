@@ -27,8 +27,6 @@ public:
 			void load_Independent_Parameters(int tab_Index);
 
 	void refresh_Independent_Calc_Properties(int tab_Index, int independent_Index, QGroupBox* box);
-	static void reopen_Optical_Graphs_1D(QString keep_Splitter = "");
-	static void reopen_Optical_Graphs_2D(QString keep_Splitter = "");
 
 	vector<int> total_Number_of_Targets;
 	vector<int> total_Number_of_Independents;

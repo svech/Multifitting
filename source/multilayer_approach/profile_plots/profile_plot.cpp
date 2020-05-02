@@ -299,11 +299,7 @@ void Profile_Plot::create_Left_Side()
 					profile_Plot->cursor_Cordinate_CheckBox->setChecked(profile_Plot->multilayer->profile_Plot_Options.show_Cursor_Position);
 					profile_Plot->cursor_Cordinate_CheckBox->blockSignals(false);
 				}
-
-				int active_Tab = profile_Plots_Window->main_Tabs->currentIndex();
-				profile_Plots_Window->close();
-				global_Multilayer_Approach->open_Profile_Plots();
-				global_Multilayer_Approach->profile_Plots_Window->main_Tabs->setCurrentIndex(active_Tab);
+				global_Multilayer_Approach->reopen_Profile_Plots();
 			});
 
 		// ----------------------------------------------------

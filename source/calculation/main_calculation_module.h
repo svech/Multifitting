@@ -71,7 +71,7 @@ public:
 									 Calc_Functions& calc_Functions,
 									 double incident_Polarization
 									 );
-	void print_Matrix(QTextStream& out, const vector<vector<double>>& matrix);
+	void print_Matrix(QString function, const Calc_Functions& calc_Functions, QTextStream& out, const vector<vector<double>>& matrix, const Data& measurement);
 
 	void add_Fit(QString name_Modificator, int run=0);
 };

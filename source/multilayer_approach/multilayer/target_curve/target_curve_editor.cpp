@@ -178,32 +178,16 @@ void Target_Curve_Editor::create_Filepath_GroupBox()
 		//////////////////////////////////////////////////////
 
 		// reopen Calculation_Settings and Optical_Graphs
-		if(global_Multilayer_Approach->runned_Calculation_Settings_Editor.contains(calc_Settings_Key))
-		{
-			int active_Tab_Optical_Graphs = global_Multilayer_Approach->runned_Calculation_Settings_Editor.value(calc_Settings_Key)->main_Tabs->currentIndex();
-			global_Multilayer_Approach->runned_Calculation_Settings_Editor.value(calc_Settings_Key)->close();
-			global_Multilayer_Approach->open_Calculation_Settings();
-			global_Multilayer_Approach->runned_Calculation_Settings_Editor.value(calc_Settings_Key)->main_Tabs->setCurrentIndex(active_Tab_Optical_Graphs);
-		}
+		global_Multilayer_Approach->reopen_Calculation_Settings();
+		// 1D case
 		if(target_Curve->measurement.measurement_Type != measurement_Types[GISAS_Map])
 		{
-			if(global_Multilayer_Approach->runned_Optical_Graphs_1D.contains(optical_Graphs_1D_Key))
-			{
-				int active_Tab_Optical_Graphs = global_Multilayer_Approach->runned_Optical_Graphs_1D.value(optical_Graphs_1D_Key)->main_Tabs->currentIndex();
-				global_Multilayer_Approach->runned_Optical_Graphs_1D.value(optical_Graphs_1D_Key)->close();
-				global_Multilayer_Approach->open_Optical_Graphs_1D(TARGET);
-				global_Multilayer_Approach->runned_Optical_Graphs_1D.value(optical_Graphs_1D_Key)->main_Tabs->setCurrentIndex(active_Tab_Optical_Graphs);
-			}
+			global_Multilayer_Approach->reopen_Optical_Graphs_1D(true, TARGET);
 		}
+		// 2D case
 		if(target_Curve->measurement.measurement_Type == measurement_Types[GISAS_Map])
 		{
-			if(global_Multilayer_Approach->runned_Optical_Graphs_2D.contains(optical_Graphs_2D_Key))
-			{
-				int active_Tab_Optical_Graphs = global_Multilayer_Approach->runned_Optical_Graphs_2D.value(optical_Graphs_2D_Key)->main_Tabs->currentIndex();
-				global_Multilayer_Approach->runned_Optical_Graphs_2D.value(optical_Graphs_2D_Key)->close();
-				global_Multilayer_Approach->open_Optical_Graphs_2D(TARGET);
-				global_Multilayer_Approach->runned_Optical_Graphs_2D.value(optical_Graphs_2D_Key)->main_Tabs->setCurrentIndex(active_Tab_Optical_Graphs);
-			}
+			global_Multilayer_Approach->reopen_Optical_Graphs_2D(true, TARGET);
 		}
 	});
 

@@ -81,7 +81,7 @@ void Multilayer::create_Main_Tools()
 
 	Multilayer_Approach* parent_Multilayer_Approach = qobject_cast<Multilayer_Approach*>(parent);
 	connect(structure_Table_Button,		 &QPushButton::clicked, parent_Multilayer_Approach, &Multilayer_Approach::open_Table_Of_Structures);
-	connect(profile_Plots_Button,		 &QPushButton::clicked, parent_Multilayer_Approach, [=]{parent_Multilayer_Approach->open_Profile_Plots();});
+	connect(profile_Plots_Button,		 &QPushButton::clicked, parent_Multilayer_Approach, &Multilayer_Approach::open_Profile_Plots);
 
 	connect(optical_Graphs_1D_Button,	 &QPushButton::clicked, parent_Multilayer_Approach, [=]{parent_Multilayer_Approach->open_Optical_Graphs_1D();});
 	connect(optical_Graphs_2D_Button,	 &QPushButton::clicked, parent_Multilayer_Approach, [=]{parent_Multilayer_Approach->open_Optical_Graphs_2D();});
@@ -171,6 +171,9 @@ void Multilayer::remove_Independent_Variables_Tab(int index)
 	if (reply == QMessageBox::Yes)
 	{
 		Independent_Curve* independent_Curve = qobject_cast<Independent_Curve*>(independent_Curve_Tabs->widget(index));
+		// reopening
+		bool reopen_Windows = (independent_Curve->measurement.measurement_Type != no_Measurement_Type);
+
 		if(runned_Independent_Curve_Editors.contains(independent_Curve))
 		{
 			runned_Independent_Curve_Editors.value(independent_Curve)->close();
@@ -178,6 +181,13 @@ void Multilayer::remove_Independent_Variables_Tab(int index)
 		}
 		delete independent_Curve;	//detele independent_Curve_Tabs->widget(index);
 		if(independent_Curve_Tabs->count()==0) add_Independent_Variables_Tab();
+
+		if(reopen_Windows)
+		{
+			global_Multilayer_Approach->reopen_Calculation_Settings();
+			global_Multilayer_Approach->reopen_Optical_Graphs_1D();
+			global_Multilayer_Approach->reopen_Optical_Graphs_2D();
+		}
 	}
 }
 
@@ -264,12 +274,15 @@ void Multilayer::add_Target_Curve(int index_Pressed, bool opening)
 }
 
 void Multilayer::remove_Target_Curve(int index_Pressed, bool clean)
-{
+{	
 	// delete frame	
 	delete data_Target_Profile_Frame_Vector[index_Pressed];
 	data_Target_Profile_Frame_Vector.removeAt(index_Pressed);
 	add_Buttons_To_Lock.removeAt(index_Pressed);
 	remove_Buttons_To_Lock.removeAt(index_Pressed);
+
+	// reopening
+	bool reopen_Windows = target_Profiles_Vector[index_Pressed]->loaded_And_Ready;
 
 	// delete data
 	if(runned_Target_Curve_Editors.contains(target_Profiles_Vector[index_Pressed]))
@@ -289,6 +302,13 @@ void Multilayer::remove_Target_Curve(int index_Pressed, bool clean)
 	if(data_Target_Profile_Frame_Vector.isEmpty() && !clean)	add_Target_Curve(0);
 
 	set_Index_To_Target_Curves();
+
+	if(reopen_Windows)
+	{
+		global_Multilayer_Approach->reopen_Calculation_Settings();
+		global_Multilayer_Approach->reopen_Optical_Graphs_1D();
+		global_Multilayer_Approach->reopen_Optical_Graphs_2D();
+	}
 }
 
 
@@ -425,6 +445,7 @@ Multilayer& Multilayer::operator =(const Multilayer& referent_Multilayer)
 		Independent_Curve* new_Independent = qobject_cast<Independent_Curve*>(independent_Curve_Tabs->widget(independent_Index));
 
 		*new_Independent = *referent_Independent;
+		new_Independent->refresh_Description_Label();
 	}
 
 	// target profiles

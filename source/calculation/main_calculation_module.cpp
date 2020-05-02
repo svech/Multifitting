@@ -965,45 +965,43 @@ void Main_Calculation_Module::print_Reflect_To_File(Data_Element<Type>& data_Ele
 	if(data_Element.curve_Class == TARGET)		first_Name = "calc_" + struct_Name + "_target";
 
 	//-----------------------------------------------------------------------------------------------------
+	// 1D
+	//-----------------------------------------------------------------------------------------------------
 
-	vector<double> argument;
-	if(	data_Element.the_Class->measurement.measurement_Type == measurement_Types[Specular_Scan] )
+	if(true/*print_1D_Data*/)
 	{
-		if( data_Element.the_Class->measurement.argument_Type == argument_Types[Beam_Grazing_Angle] )
+		double angular_Coeff = angle_Coefficients_Map.value(data_Element.the_Class->angular_Units);
+		double spectral_Coeff = wavelength_Coefficients_Map.value(data_Element.the_Class->spectral_Units);
+
+		vector<double> argument;
+		if(	data_Element.the_Class->measurement.measurement_Type == measurement_Types[Specular_Scan] )
+		{
+			if( data_Element.the_Class->measurement.argument_Type == argument_Types[Beam_Grazing_Angle] )
+			{
+				argument = data_Element.the_Class->measurement.beam_Theta_0_Angle_Vec;
+				for(double arg : argument)	arg = arg/angular_Coeff;
+			}
+			if( data_Element.the_Class->measurement.argument_Type == argument_Types[Wavelength_Energy] )
+			{
+				argument = data_Element.the_Class->measurement.lambda_Vec;
+				for(double arg : argument)	arg = Global_Variables::wavelength_Energy(data_Element.the_Class->spectral_Units,arg)/spectral_Coeff;
+			}
+		}
+		if(	data_Element.the_Class->measurement.measurement_Type == measurement_Types[Detector_Scan] )
+		{
+			argument = data_Element.the_Class->measurement.detector_Theta_Angle_Vec;
+			for(double arg : argument)	arg = arg/angular_Coeff;
+		}
+		if(	data_Element.the_Class->measurement.measurement_Type == measurement_Types[Rocking_Curve] )
 		{
 			argument = data_Element.the_Class->measurement.beam_Theta_0_Angle_Vec;
-
-			// change units
-			double coeff = angle_Coefficients_Map.value(data_Element.the_Class->angular_Units);
-			for(double arg : argument)	{arg = arg/coeff;}
+			for(double arg : argument)	arg = arg/angular_Coeff;
 		}
-		if( data_Element.the_Class->measurement.argument_Type == argument_Types[Wavelength_Energy] )
+		if(	data_Element.the_Class->measurement.measurement_Type == measurement_Types[Offset_Scan] )
 		{
-			argument = data_Element.the_Class->measurement.lambda_Vec;
-
-			// change units
-			double coeff = wavelength_Coefficients_Map.value(data_Element.the_Class->spectral_Units);
-			for(double arg : argument)	{arg = Global_Variables::wavelength_Energy(data_Element.the_Class->spectral_Units,arg)/coeff;}
+			argument = data_Element.the_Class->measurement.beam_Theta_0_Angle_Vec;
+			for(double arg : argument)	arg = arg/angular_Coeff;
 		}
-	}
-	if(	data_Element.the_Class->measurement.measurement_Type == measurement_Types[Detector_Scan] )
-	{
-		// TODO
-	}
-	if(	data_Element.the_Class->measurement.measurement_Type == measurement_Types[Rocking_Curve] )
-	{
-		// TODO
-	}
-	if(	data_Element.the_Class->measurement.measurement_Type == measurement_Types[Offset_Scan] )
-	{
-		// TODO
-	}
-	if(	data_Element.the_Class->measurement.measurement_Type == measurement_Types[GISAS_Map] )
-	{
-		// TODO
-	}
-
-	{
 		QString name = first_Name+"_"+Locale.toString(index)+".txt";
 		QFile file(name);
 		file.open(QIODevice::WriteOnly);
@@ -1019,35 +1017,54 @@ void Main_Calculation_Module::print_Reflect_To_File(Data_Element<Type>& data_Ele
 		file.close();
 	}
 
-//	// intensity
-//	if(data_Element.calc_Functions.check_Field)
-//	{
-//		QString name = first_Name+"_"+Locale.toString(index)+"_intensity.txt";
-//		QFile file(name);
-//		file.open(QIODevice::WriteOnly);
-//		QTextStream out(&file);
-//		out.setFieldAlignment(QTextStream::AlignLeft);
-//		print_Matrix(out, data_Element.the_Class->calculated_Values.field_Intensity);
-//		file.close();
-//	}
+	//-----------------------------------------------------------------------------------------------------
+	// 2D
+	//-----------------------------------------------------------------------------------------------------
 
-//	// absorption
-//	if(data_Element.calc_Functions.check_Joule)
-//	{
-//		QString name = first_Name+"_"+Locale.toString(index)+"_absorption.txt";
-//		QFile file(name);
-//		file.open(QIODevice::WriteOnly);
-//		QTextStream out(&file);
-//		out.setFieldAlignment(QTextStream::AlignLeft);
-//		print_Matrix(out, data_Element.the_Class->calculated_Values.absorption_Map);
-//		file.close();
-//	}
+	if(false/*print_2D_Data*/)
+	{
+		// intensity
+		if(data_Element.calc_Functions.check_Field)
+		if(data_Element.the_Class->calculated_Values.field_Intensity.size()>0)
+		{
+			QString name = first_Name+"_"+Locale.toString(index)+"_intensity.txt";
+			QFile file(name);
+			file.open(QIODevice::WriteOnly);
+			QTextStream out(&file);
+			out.setFieldAlignment(QTextStream::AlignLeft);
+			print_Matrix(intensity_Function, data_Element.calc_Functions, out, data_Element.the_Class->calculated_Values.field_Intensity, data_Element.the_Class->measurement);
+			file.close();
+		}
 
-	// TODO GISAS
+		// absorption
+		if(data_Element.calc_Functions.check_Joule)
+		if(data_Element.the_Class->calculated_Values.absorption_Map.size()>0)
+		{
+			QString name = first_Name+"_"+Locale.toString(index)+"_absorption.txt";
+			QFile file(name);
+			file.open(QIODevice::WriteOnly);
+			QTextStream out(&file);
+			out.setFieldAlignment(QTextStream::AlignLeft);
+			print_Matrix(joule_Function, data_Element.calc_Functions, out, data_Element.the_Class->calculated_Values.absorption_Map, data_Element.the_Class->measurement);
+			file.close();
+		}
 
+		// GISAS
+		if(data_Element.calc_Functions.check_GISAS)
+		if(data_Element.the_Class->calculated_Values.GISAS_Instrumental.size()>0)
+		{
+			QString name = first_Name+"_"+Locale.toString(index)+"_GISAS.txt";
+			QFile file(name);
+			file.open(QIODevice::WriteOnly);
+			QTextStream out(&file);
+			out.setFieldAlignment(QTextStream::AlignLeft);
+			print_Matrix(gisas_Function, data_Element.calc_Functions, out, data_Element.the_Class->calculated_Values.GISAS_Instrumental, data_Element.the_Class->measurement);
+			file.close();
+		}
+	}
 }
 template void Main_Calculation_Module::print_Reflect_To_File<Independent_Curve>(Data_Element<Independent_Curve>&, QString, int);
-template void Main_Calculation_Module::print_Reflect_To_File<Target_Curve>		   (Data_Element<Target_Curve>&,          QString, int);
+template void Main_Calculation_Module::print_Reflect_To_File<Target_Curve>	   (Data_Element<Target_Curve>&,      QString, int);
 
 void Main_Calculation_Module::print_Data(QTextStream &out, vector<double> &arg, Unwrapped_Reflection* unwrapped_Reflection, Calc_Functions& calc_Functions, double incident_Polarization)
 {
@@ -1073,17 +1090,23 @@ void Main_Calculation_Module::print_Data(QTextStream &out, vector<double> &arg, 
 	QString A_s      = "A_s";
 	QString A_p      = "A_p";
 
+	QString S_mixed  = "S_mixed";
+	QString S_s      = "S_s";
+	QString S_p      = "S_p";
+
 	int precision_Arg = 16;
-	int precision_R_T_A = 6;
+	int precision_R_T_A_S = 6;
 	int precision_Phi = 4;
 
 	int arg_Shift = 3;
 	int width_Short= 8+precision_Arg;
-	int width_Long = 11+precision_R_T_A;
+	int width_Long = 11+precision_R_T_A_S;
 
 	///------------------------------------------------------------------------
 	/// headline
-	{	// argument
+	{
+		out << "; polarization = " << Locale.toString(incident_Polarization,'f', 3) << endl;
+		// argument
 		if(	calc_Functions.check_Reflectance   ||
 			calc_Functions.check_Transmittance ||
 			calc_Functions.check_Absorptance   ||
@@ -1121,15 +1144,18 @@ void Main_Calculation_Module::print_Data(QTextStream &out, vector<double> &arg, 
 			if(incident_Polarization< 1)	out << A_p;
 		}
 
-		// TODO scattering
-
+		// scattering
+		if(calc_Functions.check_Scattering)
+		{									out << S_mixed;
+			if(incident_Polarization>-1)	out << S_s;
+			if(incident_Polarization< 1)	out << S_p;
+		}
 		out << qSetFieldWidth(arg_Shift) << endl  << qSetFieldWidth(width_Short);
 	}
 	///------------------------------------------------------------------------
 	/// data
 	{
-
-		for(auto i=0; i<arg.size(); ++i)
+		for(size_t i=0; i<arg.size(); ++i)
 		{
 			// argument
 			if(	calc_Functions.check_Reflectance   ||
@@ -1142,36 +1168,45 @@ void Main_Calculation_Module::print_Data(QTextStream &out, vector<double> &arg, 
 
 			// reflectance
 			if(calc_Functions.check_Reflectance)
+			if(unwrapped_Reflection->calculated_Values.R_Instrumental.size() == arg.size())
 			{
-												out << Locale.toString(unwrapped_Reflection->calculated_Values.R_Instrumental[i],'e',precision_R_T_A);
-				if(incident_Polarization>-1)	out << Locale.toString(unwrapped_Reflection->calculated_Values.R_s           [i],'e',precision_R_T_A);
-				if(incident_Polarization< 1)	out << Locale.toString(unwrapped_Reflection->calculated_Values.R_p           [i],'e',precision_R_T_A);
+												out << Locale.toString(unwrapped_Reflection->calculated_Values.R_Instrumental[i],'e',precision_R_T_A_S);
+				if(incident_Polarization>-1)	out << Locale.toString(unwrapped_Reflection->calculated_Values.R_s           [i],'e',precision_R_T_A_S);
+				if(incident_Polarization< 1)	out << Locale.toString(unwrapped_Reflection->calculated_Values.R_p           [i],'e',precision_R_T_A_S);
 				if(incident_Polarization>-1)	out << Locale.toString(unwrapped_Reflection->calculated_Values.Phi_R_s       [i],'f',precision_Phi);
 				if(incident_Polarization< 1)	out << Locale.toString(unwrapped_Reflection->calculated_Values.Phi_R_p       [i],'f',precision_Phi);
 			}
 
 			// transmittance
 			if(calc_Functions.check_Transmittance)
+			if(unwrapped_Reflection->calculated_Values.T_Instrumental.size() == arg.size())
 			{
-												out << Locale.toString(unwrapped_Reflection->calculated_Values.T_Instrumental[i],'e',precision_R_T_A);
-				if(incident_Polarization>-1)	out << Locale.toString(unwrapped_Reflection->calculated_Values.T_s           [i],'e',precision_R_T_A);
-				if(incident_Polarization< 1)	out << Locale.toString(unwrapped_Reflection->calculated_Values.T_p           [i],'e',precision_R_T_A);
+												out << Locale.toString(unwrapped_Reflection->calculated_Values.T_Instrumental[i],'e',precision_R_T_A_S);
+				if(incident_Polarization>-1)	out << Locale.toString(unwrapped_Reflection->calculated_Values.T_s           [i],'e',precision_R_T_A_S);
+				if(incident_Polarization< 1)	out << Locale.toString(unwrapped_Reflection->calculated_Values.T_p           [i],'e',precision_R_T_A_S);
 				if(incident_Polarization>-1)	out << Locale.toString(unwrapped_Reflection->calculated_Values.Phi_T_s       [i],'f',precision_Phi);
 				if(incident_Polarization< 1)	out << Locale.toString(unwrapped_Reflection->calculated_Values.Phi_T_p       [i],'f',precision_Phi);
 			}
 
 			// absorptance
 			if(calc_Functions.check_Absorptance)
+			if(unwrapped_Reflection->calculated_Values.A.size() == arg.size())
 			{
-												out << Locale.toString(unwrapped_Reflection->calculated_Values.A			 [i],'e',precision_R_T_A);
-				if(incident_Polarization>-1)	out << Locale.toString(unwrapped_Reflection->calculated_Values.A_s           [i],'e',precision_R_T_A);
-				if(incident_Polarization< 1)	out << Locale.toString(unwrapped_Reflection->calculated_Values.A_p           [i],'e',precision_R_T_A);
+												out << Locale.toString(unwrapped_Reflection->calculated_Values.A			 [i],'e',precision_R_T_A_S);
+				if(incident_Polarization>-1)	out << Locale.toString(unwrapped_Reflection->calculated_Values.A_s           [i],'e',precision_R_T_A_S);
+				if(incident_Polarization< 1)	out << Locale.toString(unwrapped_Reflection->calculated_Values.A_p           [i],'e',precision_R_T_A_S);
 			}
 
-			// TODO scattering
+			// scattering
+			if(calc_Functions.check_Scattering)
+			if(unwrapped_Reflection->calculated_Values.S_Instrumental.size() == arg.size())
+			{
+												out << Locale.toString(unwrapped_Reflection->calculated_Values.S_Instrumental[i],'e',precision_R_T_A_S);
+				if(incident_Polarization>-1)	out << Locale.toString(unwrapped_Reflection->calculated_Values.S_s           [i],'e',precision_R_T_A_S);
+				if(incident_Polarization< 1)	out << Locale.toString(unwrapped_Reflection->calculated_Values.S_p           [i],'e',precision_R_T_A_S);
+			}
 
-			if(i!=arg.size()-1)
-				out << qSetFieldWidth(arg_Shift) << endl  << qSetFieldWidth(width_Short);
+			if(i!=arg.size()-1)	out << qSetFieldWidth(arg_Shift) << endl << qSetFieldWidth(width_Short);
 		}
 	}
 
@@ -1179,19 +1214,57 @@ void Main_Calculation_Module::print_Data(QTextStream &out, vector<double> &arg, 
 	Locale = QLocale::system();
 }
 
-void Main_Calculation_Module::print_Matrix(QTextStream &out, const vector<vector<double>>& matrix)
+void Main_Calculation_Module::print_Matrix(QString function, const Calc_Functions& calc_Functions, QTextStream &out, const vector<vector<double>>& matrix, const Data& measurement)
 {
 	// point as decimal separator
-	Locale=QLocale::c();
+	Locale = QLocale::c();
 
-	int precision = 6;
-	for(auto j=0; j<matrix.front().size(); ++j)
+	if(matrix.size()>0)
 	{
-		for(auto i=0; i<matrix.size(); ++i)
+		if(function == intensity_Function)	out << "Field intensity distribution" << endl;
+		if(function == joule_Function)		out << "Photoabsorption distribution" << endl;
+		if(function == gisas_Function)		out << "GISAS data" << endl;
+		out << "(" << matrix.front().size() << " x " << matrix.size() << ") points" << endl;
+
+		if(function == gisas_Function)
 		{
-			out << Locale.toString(matrix[i][j],'e',precision) << "\t";
+			out << "Theta    :   (" << Locale.toString(measurement.detector_Theta_Angle.independent.min,'f', 6)
+						   << " , " << Locale.toString(measurement.detector_Theta_Angle.independent.max,'f', 6) << ") degrees" << endl;
+			out << "Phi      :   (" << Locale.toString(measurement.detector_Phi_Angle.independent.min,'f', 6)
+						   << " , " << Locale.toString(measurement.detector_Phi_Angle.independent.max,'f', 6) << ") degrees" << endl;
+			out << "Theta_0  :   "  << Locale.toString(measurement.beam_Theta_0_Angle.value,'f', 6) << " degrees" << endl;
+			out << "Lambda   :   "  << Locale.toString(measurement.wavelength.value,'f', 6) << " angstrom" << endl;
 		}
+		if(function == intensity_Function || function == joule_Function)
+		{
+			out << "Depth    :   (" << Locale.toString(-calc_Functions.field_Ambient_Distance,'f', 2)
+						   << " , " << Locale.toString(-calc_Functions.field_Ambient_Distance + matrix.front().size()*calc_Functions.field_Step,'f', 2) << ") angstrom" << endl;
+
+			if(measurement.argument_Type == argument_Types[Beam_Grazing_Angle])
+			{
+			out << "Theta_0  :   (" << Locale.toString(measurement.beam_Theta_0_Angle.independent.min,'f', 6)
+						   << " , " << Locale.toString(measurement.beam_Theta_0_Angle.independent.max,'f', 6) << ") degrees" << endl;
+			out << "Lambda   :   "  << Locale.toString(measurement.wavelength.value,'f', 6) << " angstrom" << endl;
+			}
+			if(measurement.argument_Type == argument_Types[Wavelength_Energy])
+			{
+			out << "Lambda   :   (" << Locale.toString(measurement.wavelength.independent.min,'f', 6)
+						   << " , " << Locale.toString(measurement.wavelength.independent.max,'f', 6) << ") angstrom" << endl;
+			out << "Theta_0  :   "  << Locale.toString(measurement.beam_Theta_0_Angle.value,'f', 6) << " degrees" << endl;
+			}
+		}
+			out << "pol      :   " << Locale.toString(measurement.polarization,'f', 3) << endl;
 		out << endl;
+
+		int precision = 6;
+		for(size_t j=0; j<matrix.front().size(); ++j)
+		{
+			for(size_t i=0; i<matrix.size(); ++i)
+			{
+				out << Locale.toString(matrix[i][j],'e',precision) << "\t";
+			}
+			out << endl;
+		}
 	}
 
 	// back to system locale

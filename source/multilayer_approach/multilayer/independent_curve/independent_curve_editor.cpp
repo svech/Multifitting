@@ -12,15 +12,19 @@ Independent_Curve_Editor::Independent_Curve_Editor(Independent_Curve* independen
 	setWindowTitle(independent_Curve->measurement.measurement_Type);
 	setAttribute(Qt::WA_DeleteOnClose);
 
+	/// now we have measurement type and consequently have a new curve
 	if(new_curve)
 	{
-		/// now we have measurement type and consequently have a new curve. But initially fully unchecked
-		if(global_Multilayer_Approach->runned_Calculation_Settings_Editor.contains(calc_Settings_Key))
+		global_Multilayer_Approach->reopen_Calculation_Settings();
+		// 1D case
+		if(independent_Curve->calc_Functions.if_Something_Enabled_1D())
 		{
-			int active_Tab_Optical_Graphs = global_Multilayer_Approach->runned_Optical_Graphs_1D.value(optical_Graphs_1D_Key)->main_Tabs->currentIndex();
-			global_Multilayer_Approach->runned_Calculation_Settings_Editor.value(calc_Settings_Key)->close();
-			global_Multilayer_Approach->open_Calculation_Settings();
-			global_Multilayer_Approach->runned_Optical_Graphs_1D.value(optical_Graphs_1D_Key)->main_Tabs->setCurrentIndex(active_Tab_Optical_Graphs);
+			global_Multilayer_Approach->reopen_Optical_Graphs_1D(true);
+		}
+		// 2D case
+		if(independent_Curve->calc_Functions.if_Something_Enabled_2D())
+		{
+			global_Multilayer_Approach->reopen_Optical_Graphs_2D(true);
 		}
 	}
 }
@@ -56,25 +60,30 @@ void Independent_Curve_Editor::create_Main_Part()
 	{
 		specular_Independent_Curve_Part = new Specular_Independent_Curve_Part(independent_Curve);
 			main_Layout->addWidget(specular_Independent_Curve_Part,0,0);
+		independent_Curve->calc_Functions.check_Reflectance = true;
 	}
 	if(	independent_Curve->measurement.measurement_Type == measurement_Types[Detector_Scan] )
 	{
 		detector_Independent_Curve_Part = new Detector_Independent_Curve_Part(independent_Curve);
 			main_Layout->addWidget(detector_Independent_Curve_Part,0,0);
+		independent_Curve->calc_Functions.check_Scattering = true;
 	}
 	if(	independent_Curve->measurement.measurement_Type == measurement_Types[Rocking_Curve] )
 	{
 		rocking_Independent_Curve_Part = new Rocking_Independent_Curve_Part(independent_Curve);
 			main_Layout->addWidget(rocking_Independent_Curve_Part,0,0);
+		independent_Curve->calc_Functions.check_Scattering = true;
 	}
 	if(	independent_Curve->measurement.measurement_Type == measurement_Types[Offset_Scan] )
 	{
 		offset_Independent_Curve_Part = new Offset_Independent_Curve_Part(independent_Curve);
 			main_Layout->addWidget(offset_Independent_Curve_Part,0,0);
+		independent_Curve->calc_Functions.check_Scattering = true;
 	}
 	if(	independent_Curve->measurement.measurement_Type == measurement_Types[GISAS_Map] )
 	{
 		gisas_Independent_Curve_Part = new GISAS_Independent_Curve_Part(independent_Curve);
 			main_Layout->addWidget(gisas_Independent_Curve_Part,0,0);
+		independent_Curve->calc_Functions.check_GISAS = true;
 	}
 }

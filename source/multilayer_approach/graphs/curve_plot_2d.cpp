@@ -589,7 +589,6 @@ void Curve_Plot_2D::plot_All_Data()
 				}
 			}
 		}
-
 		values_Hor_Meas.resize(values_2D_Meas->front().size());
 		values_Hor_Calc.resize(values_2D_Calc->front().size());
 		values_Ver_Meas.resize(values_2D_Meas->size());
@@ -615,11 +614,9 @@ void Curve_Plot_2D::plot_All_Data()
 				}
 			}
 		}
-
 		values_Hor_Calc.resize(values_2D->front().size());
 		values_Ver_Calc.resize(values_2D->size());
 	}
-
 	plot_Data();
 
 	// show me on recalculate

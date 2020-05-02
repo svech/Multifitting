@@ -135,8 +135,6 @@ void Optical_Graphs::settings_1D()
 	connect(cancel_Button,  &QPushButton::clicked, this, [=]{settings_Window->close();});
 	connect(ok_Button,      &QPushButton::clicked, this, [=]
 	{
-		int active_Tab = main_Tabs->currentIndex();
-		close();
 		multilayer->graph_Options_1D.num_Target_Graph_Rows = target_Rows_SpinBox->value();
 		multilayer->graph_Options_1D.num_Independent_Graph_Rows = independent_Rows_SpinBox->value();
 
@@ -149,8 +147,7 @@ void Optical_Graphs::settings_1D()
 		multilayer->graph_Options_1D.show_Title = show_Title_CheckBox->isChecked();
 		replot_Graphs_During_Fitting_1D = replot_Graphs_During_Fitting_CheckBox->isChecked();
 
-		global_Multilayer_Approach->open_Optical_Graphs_1D(TARGET_AND_INDEPENDENT);
-		global_Multilayer_Approach->optical_Graphs_1D->main_Tabs->setCurrentIndex(active_Tab);
+		global_Multilayer_Approach->reopen_Optical_Graphs_1D(true);
 		settings_Window->close();
 	});
 }
@@ -238,8 +235,6 @@ void Optical_Graphs::settings_2D()
 	connect(cancel_Button,  &QPushButton::clicked, this, [=]{settings_Window->close();});
 	connect(ok_Button,      &QPushButton::clicked, this, [=]
 	{
-		int active_Tab = main_Tabs->currentIndex();
-		close();
 		multilayer->graph_Options_2D.num_Target_Graph_Rows = target_Rows_SpinBox->value();
 		multilayer->graph_Options_2D.num_Independent_Graph_Rows = independent_Rows_SpinBox->value();
 
@@ -247,8 +242,7 @@ void Optical_Graphs::settings_2D()
 		multilayer->graph_Options_2D.show_Current_Coordinate = show_Current_Coordinate_CheckBox->isChecked();
 		multilayer->graph_Options_2D.show_Title = show_Title_CheckBox->isChecked();
 
-		global_Multilayer_Approach->open_Optical_Graphs_2D(TARGET_AND_INDEPENDENT);
-		global_Multilayer_Approach->optical_Graphs_2D->main_Tabs->setCurrentIndex(active_Tab);
+		global_Multilayer_Approach->reopen_Optical_Graphs_2D(true);
 		settings_Window->close();
 	});
 }
@@ -260,7 +254,6 @@ void Optical_Graphs::closeEvent(QCloseEvent* event)
 	global_Multilayer_Approach->unlock_Mainwindow_Interface();
 
 	save_Geometry();
-
 	event->accept();
 }
 

@@ -68,6 +68,12 @@ public:
 	void open_Fits_Selector();
 	void open_Fitting_Settings();
 
+	void reopen_Table_Of_Structures(bool keep_Tab_Index = false);
+	void reopen_Profile_Plots(bool keep_Tab_Index = false);
+	void reopen_Optical_Graphs_1D(bool keep_Tab_Index = false, QString keep_Splitter = "");
+	void reopen_Optical_Graphs_2D(bool keep_Tab_Index = false, QString keep_Splitter = "");
+	void reopen_Calculation_Settings(bool keep_Tab_Index = false);
+
 	void open_Regular_Aperiodic_Layers_Table(int tab_Index, QTreeWidgetItem *item);
 	void temporarily_Close_Regular_Aperiodics();
 	void close_Item_Editors();
