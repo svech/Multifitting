@@ -130,7 +130,7 @@ void Menu::create_File_Menu()
 		}
 		if(window_Type == window_Type_Table_Of_Structures || window_Type == window_Type_Table_Of_Roughness)
 		{
-			QAction* act_Quit = new QAction("Done", this);
+			QAction* act_Quit = new QAction("Close", this);
 			act_Quit->setShortcut(Qt::Key_D | Qt::CTRL);
 			connect(act_Quit, &QAction::triggered, my_Parent, [=]{qobject_cast<QWidget*>(my_Parent)->close();});
 			file_Menu->addAction(act_Quit);

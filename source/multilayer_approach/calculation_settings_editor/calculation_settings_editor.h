@@ -4,8 +4,6 @@
 #include "global/layer_data_types.h"
 #include "multilayer_approach/multilayer/multilayer.h"
 
-//class Table_Of_Structures;
-
 class Calculation_Settings_Editor : public QWidget
 {
 	Q_OBJECT
@@ -40,7 +38,6 @@ public:
 		QMap<Target_Curve*,QCheckBox*> max_Integral_Map;
 		QVector<QGroupBox*> independent_Group_Box_Vec;
 
-	QPushButton* done_Button;
 	QPushButton* global_Norm_Button;
 };
 

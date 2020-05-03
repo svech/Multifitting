@@ -56,25 +56,29 @@ void Calculation_Settings_Editor::create_Main_Layout()
 		button_Layout->setAlignment(Qt::AlignCenter);
 		button_Layout->setSpacing(54);
 	{
-		done_Button = new QPushButton("Done");
-			done_Button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-			done_Button->setFocus();
-			done_Button->setDefault(true);
-		button_Layout->addWidget(done_Button);
-	}
-	{
 		global_Norm_Button = new QPushButton("Calculate Weights");
 			global_Norm_Button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 			global_Norm_Button->setFocus();
 			global_Norm_Button->setDefault(true);
-		button_Layout->addWidget(global_Norm_Button);
+//		button_Layout->addWidget(global_Norm_Button);
 	}
 	main_Layout->addLayout(button_Layout);
 
 	// TODO
-	connect(done_Button, &QPushButton::clicked, this, &Calculation_Settings_Editor::close);
 	global_Norm_Button->setDisabled(true);
 	can_Change_Index = tab_synchronization;
+
+	connect(main_Tabs, &QTabWidget::currentChanged,	[=](int index)
+	{
+		if(tab_synchronization)
+		{
+																										 {global_Multilayer_Approach->                multilayer_Tabs->setCurrentIndex(main_Tabs->currentIndex());}
+			if(global_Multilayer_Approach->runned_Tables_Of_Structures.contains(table_Of_Structures_Key)){global_Multilayer_Approach->table_Of_Structures ->main_Tabs->setCurrentIndex(main_Tabs->currentIndex());}
+			if(global_Multilayer_Approach->runned_Optical_Graphs_2D.contains(optical_Graphs_2D_Key))	 {global_Multilayer_Approach->optical_Graphs_2D	  ->main_Tabs->setCurrentIndex(main_Tabs->currentIndex());}
+			if(global_Multilayer_Approach->runned_Optical_Graphs_1D.contains(optical_Graphs_1D_Key))	 {global_Multilayer_Approach->optical_Graphs_1D	  ->main_Tabs->setCurrentIndex(main_Tabs->currentIndex());}
+			if(global_Multilayer_Approach->runned_Profile_Plots_Window.contains(profile_Plots_Key))		 {global_Multilayer_Approach->profile_Plots_Window->main_Tabs->setCurrentIndex(main_Tabs->currentIndex());}
+		}
+	});
 }
 
 void Calculation_Settings_Editor::create_Tabs()

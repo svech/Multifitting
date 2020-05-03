@@ -104,7 +104,7 @@ void Item_Editor::create_Main_Layout()
 	QHBoxLayout* button_Layout = new QHBoxLayout;
 	main_Layout->addLayout(button_Layout);
 
-	done_Button = new QPushButton("Done");
+	done_Button = new QPushButton("Close");
 		done_Button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 		done_Button->setFocus();
 		done_Button->setDefault(true);

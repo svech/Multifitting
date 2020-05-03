@@ -37,7 +37,7 @@ void Layer_Thickness_Transfer::create_Main_Layout()
 		button_Layout->setSpacing(0);
 		button_Layout->setContentsMargins(4,0,4,0);
 	{
-		QPushButton* done_Button = new QPushButton("Done");
+		QPushButton* done_Button = new QPushButton("Close");
 			done_Button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 //			done_Button->setFocus();
 //			done_Button->setDefault(true);

@@ -42,7 +42,7 @@ void Independent_Curve_Editor::create_Main_Layout()
 		main_Layout->setContentsMargins(4,0,4,0);
 		main_Layout->setSizeConstraint(QLayout::SetFixedSize);
 
-	done_Button = new QPushButton("Done");
+	done_Button = new QPushButton("Close");
 		done_Button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 		done_Button->setDefault(true);
 	main_Layout->addWidget(done_Button,1,0,Qt::AlignCenter);

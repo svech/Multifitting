@@ -31,7 +31,7 @@ void Fits_Selector::create_Main_Layout()
 			button_Layout->setAlignment(Qt::AlignCenter);
 			button_Layout->setSpacing(20);
 
-		done_Button = new QPushButton("Done");
+		done_Button = new QPushButton("Close");
 			done_Button->setMaximumWidth(60);
 			done_Button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 			done_Button->setFocus();

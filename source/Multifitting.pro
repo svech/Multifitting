@@ -92,6 +92,7 @@ SOURCES += \
     multilayer_approach/fitting_settings/fitting_settings.cpp \
     multilayer_approach/fits_selector/fits_selector.cpp \
     multilayer_approach/calculation_settings_editor/calculation_settings_editor.cpp \
+    multilayer_approach/general_settings_editor/general_settings_editor.cpp \
     multilayer_approach/graphs/curve_plot_1d.cpp \
     multilayer_approach/graphs/curve_plot_2d.cpp \
     multilayer_approach/multilayer/common_part.cpp \
@@ -153,6 +154,7 @@ HEADERS += \
     multilayer_approach/fitting_settings/fitting_settings_editor.h \
     multilayer_approach/fitting_settings/fitting_settings.h \
     multilayer_approach/calculation_settings_editor/calculation_settings_editor.h \
+    multilayer_approach/general_settings_editor/general_settings_editor.h \
     multilayer_approach/graphs/curve_plot_1d.h \
     multilayer_approach/graphs/curve_plot_2d.h \
     multilayer_approach/multilayer/common_part.h \

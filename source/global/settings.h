@@ -69,6 +69,12 @@ extern int calculation_settings_y_corner;
 extern int calculation_settings_width;
 extern int calculation_settings_height;
 
+// general settings window geometry
+extern int general_settings_x_corner;
+extern int general_settings_y_corner;
+extern int general_settings_width;
+extern int general_settings_height;
+
 // fits selector window geometry
 extern int fits_selector_settings_x_corner;
 extern int fits_selector_settings_y_corner;
@@ -245,10 +251,12 @@ extern QString opt_const_units;
 
 // -----------------------------------------------------------------------------------------
 
-// calculations
+// general settings
 extern int optical_Constants_Read_Threads;
 extern int reflectivity_Calc_Threads;
 extern int epsilon_Partial_Fill_Threads;
+
+extern bool recalculate_Spinbox_Global;
 extern bool recalculate_Spinbox_Table;
 extern bool mouse_Wheel_Spinbox_Table;
 extern bool refill_Dependent_Table;
@@ -256,6 +264,8 @@ extern bool aperiodic_Recalculate_Spinbox_Table;
 extern bool aperiodic_Mouse_Wheel_Spinbox_Table;
 extern bool replot_Graphs_During_Fitting_1D;
 extern bool replot_Graphs_During_Fitting_2D;
+extern bool print_1D_Data_On_Recalculation;
+extern bool print_2D_Data_On_Recalculation;
 
 // -----------------------------------------------------------------------------------------
 
@@ -293,8 +303,8 @@ public:
 	static void save_Units();
 
 	// calculation params
-	static void read_Calculations(bool reset_to_default = false);
-	static void save_Calculations();
+	static void read_General_Settings(bool reset_to_default = false);
+	static void save_General_Settings();
 
 	// measurements
 	static void read_Measurements(bool reset_to_default = false);

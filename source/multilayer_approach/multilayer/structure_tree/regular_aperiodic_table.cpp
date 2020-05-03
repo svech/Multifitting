@@ -274,7 +274,7 @@ void Regular_Aperiodic_Table::create_Main_Layout()
 
 	create_Table();
 
-	QPushButton* done_Button = new QPushButton("Done");
+	QPushButton* done_Button = new QPushButton("Close");
 		done_Button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 		done_Button->setFocus();
 		done_Button->setDefault(true);

@@ -968,7 +968,7 @@ void Main_Calculation_Module::print_Reflect_To_File(Data_Element<Type>& data_Ele
 	// 1D
 	//-----------------------------------------------------------------------------------------------------
 
-	if(true/*print_1D_Data*/)
+	if(print_1D_Data_On_Recalculation)
 	{
 		double angular_Coeff = angle_Coefficients_Map.value(data_Element.the_Class->angular_Units);
 		double spectral_Coeff = wavelength_Coefficients_Map.value(data_Element.the_Class->spectral_Units);
@@ -997,11 +997,12 @@ void Main_Calculation_Module::print_Reflect_To_File(Data_Element<Type>& data_Ele
 			argument = data_Element.the_Class->measurement.beam_Theta_0_Angle_Vec;
 			for(double arg : argument)	arg = arg/angular_Coeff;
 		}
-		if(	data_Element.the_Class->measurement.measurement_Type == measurement_Types[Offset_Scan] )
+		if(	data_Element.the_Class->measurement.measurement_Type == measurement_Types[Offset_Scan]   )
 		{
 			argument = data_Element.the_Class->measurement.beam_Theta_0_Angle_Vec;
 			for(double arg : argument)	arg = arg/angular_Coeff;
 		}
+
 		QString name = first_Name+"_"+Locale.toString(index)+".txt";
 		QFile file(name);
 		file.open(QIODevice::WriteOnly);
@@ -1021,7 +1022,7 @@ void Main_Calculation_Module::print_Reflect_To_File(Data_Element<Type>& data_Ele
 	// 2D
 	//-----------------------------------------------------------------------------------------------------
 
-	if(false/*print_2D_Data*/)
+	if(print_2D_Data_On_Recalculation)
 	{
 		// intensity
 		if(data_Element.calc_Functions.check_Field)

@@ -71,6 +71,7 @@ class Node;
 	#define Profile_Plots_Window_Geometry			"Profile_Plots_Window_Geometry"
 	#define Fitting_Settings_Window_Geometry		"Fitting_Settings_Window_Geometry"
 	#define Calculation_Settings_Window_Geometry	"Calculation_Settings_Window_Geometry"
+	#define General_Settings_Window_Geometry		"General_Settings_Window_Geometry"
 	#define Fits_Selector_Window_Geometry			"Fits_Selector_Window_Geometry"
 
 	#define Multilayer_Tabs							"Multilayer_Tabs"
@@ -102,9 +103,10 @@ class Node;
 	#define Units "Units"
 
 // calculations
-#define Calculations_Path Pre_Path + "settings/calculations.ini"
+#define General_Settings_Path Pre_Path + "settings/general.ini"
 	#define Threads		  "Threads"
 	#define Recalculation "Recalculation"
+	#define Output "Output"
 
 // measurements
 #define Measurements_Path Pre_Path + "settings/measurements.ini"
@@ -374,6 +376,7 @@ class Node;
 #define profile_Plots_Key		"profile_Plots_Key"
 #define fits_Selector_Key		"fits_Selector_Key"
 #define calc_Settings_Key		"calc_Settings_Key"
+#define general_Settings_Key	"general_Settings_Key"
 #define fit_Settings_Key		"fit_Settings_Key"
 
 // dimension

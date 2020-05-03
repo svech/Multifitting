@@ -65,6 +65,12 @@ int calculation_settings_y_corner;
 int calculation_settings_width;
 int calculation_settings_height;
 
+// general settings window geometry
+int general_settings_x_corner;
+int general_settings_y_corner;
+int general_settings_width;
+int general_settings_height;
+
 // fits selector window geometry
 int fits_selector_settings_x_corner;
 int fits_selector_settings_y_corner;
@@ -239,10 +245,12 @@ QString opt_const_units;
 
 // -----------------------------------------------------------------------------------------
 
-// calculations
+// general settings
 int optical_Constants_Read_Threads;
 int reflectivity_Calc_Threads;
 int epsilon_Partial_Fill_Threads;
+
+bool recalculate_Spinbox_Global;
 bool recalculate_Spinbox_Table;
 bool mouse_Wheel_Spinbox_Table;
 bool refill_Dependent_Table;
@@ -250,6 +258,8 @@ bool aperiodic_Recalculate_Spinbox_Table;
 bool aperiodic_Mouse_Wheel_Spinbox_Table;
 bool replot_Graphs_During_Fitting_1D;
 bool replot_Graphs_During_Fitting_2D;
+bool print_1D_Data_On_Recalculation;
+bool print_2D_Data_On_Recalculation;
 
 // -----------------------------------------------------------------------------------------
 
@@ -390,6 +400,14 @@ void Settings::read_Gui_Settings(bool reset_to_default)
 		calculation_settings_height		= gui_Settings.value( "calculation_settings_height",	50 ).toInt();
 	gui_Settings.endGroup();
 
+	// general settings window geometry
+	gui_Settings.beginGroup( General_Settings_Window_Geometry );
+		general_settings_x_corner	= gui_Settings.value( "general_settings_x_corner",	50 ).toInt();
+		general_settings_y_corner	= gui_Settings.value( "general_settings_y_corner",	582 ).toInt();
+		general_settings_width		= gui_Settings.value( "general_settings_width",		70 ).toInt();
+		general_settings_height		= gui_Settings.value( "general_settings_height",	50 ).toInt();
+	gui_Settings.endGroup();
+
 	// fits selector window geometry
 	gui_Settings.beginGroup( Fits_Selector_Window_Geometry );
 		fits_selector_settings_x_corner	= gui_Settings.value( "fits_selector_settings_x_corner",	0 ).toInt();
@@ -488,6 +506,14 @@ void Settings::save_Gui_Settings()
 		gui_Settings.setValue( "calculation_settings_y_corner",		calculation_settings_y_corner );
 		gui_Settings.setValue( "calculation_settings_width",		calculation_settings_width );
 		gui_Settings.setValue( "calculation_settings_height",		calculation_settings_height );
+	gui_Settings.endGroup();
+
+	// general settings window geometry
+	gui_Settings.beginGroup( General_Settings_Window_Geometry );
+		gui_Settings.setValue( "general_settings_x_corner",		general_settings_x_corner );
+		gui_Settings.setValue( "general_settings_y_corner",		general_settings_y_corner );
+		gui_Settings.setValue( "general_settings_width",		general_settings_width );
+		gui_Settings.setValue( "general_settings_height",		general_settings_height );
 	gui_Settings.endGroup();
 
 	// fits selector window geometry
@@ -842,51 +868,61 @@ void Settings::save_Units()
 	units.endGroup();
 }
 
-void Settings::read_Calculations(bool reset_to_default)
+void Settings::read_General_Settings(bool reset_to_default)
 {
 	QString add_reset;
 	if(reset_to_default) add_reset = "wrong_path";
 
-	QSettings calculations(Calculations_Path + add_reset, QSettings::IniFormat);
+	QSettings general_Settings(General_Settings_Path + add_reset, QSettings::IniFormat);
 
 	// calculations
-	calculations.beginGroup( Threads );
-		optical_Constants_Read_Threads = calculations.value( "optical_Constants_Read_Threads",	max(QThread::idealThreadCount(),1) ).toInt();
-		reflectivity_Calc_Threads	   = calculations.value( "reflectivity_Calc_Threads",		max(QThread::idealThreadCount(),1) ).toInt();
-		epsilon_Partial_Fill_Threads   = calculations.value( "epsilon_Partial_Fill_Threads",	max(QThread::idealThreadCount(),1) ).toInt();
-	calculations.endGroup();
-	calculations.beginGroup( Recalculation );
-		recalculate_Spinbox_Table			 = calculations.value( "recalculate_Spinbox_Table",				true  ).toBool();
-		mouse_Wheel_Spinbox_Table			 = calculations.value( "mouse_Wheel_Spinbox_Table",				false ).toBool();
-		refill_Dependent_Table				 = calculations.value( "refill_Dependent_Table",				false ).toBool();
-		aperiodic_Recalculate_Spinbox_Table	 = calculations.value( "aperiodic_Recalculate_Spinbox_Table",	false ).toBool();
-		replot_Graphs_During_Fitting_1D		 = calculations.value( "replot_Graphs_During_Fitting_1D",		true  ).toBool();
-		replot_Graphs_During_Fitting_2D		 = calculations.value( "replot_Graphs_During_Fitting_2D",		false ).toBool();
-	calculations.endGroup();
+	general_Settings.beginGroup( Threads );
+		optical_Constants_Read_Threads = general_Settings.value( "optical_Constants_Read_Threads",	max(QThread::idealThreadCount(),1) ).toInt();
+		reflectivity_Calc_Threads	   = general_Settings.value( "reflectivity_Calc_Threads",		max(QThread::idealThreadCount(),1) ).toInt();
+		epsilon_Partial_Fill_Threads   = general_Settings.value( "epsilon_Partial_Fill_Threads",	max(QThread::idealThreadCount(),1) ).toInt();
+	general_Settings.endGroup();
+	general_Settings.beginGroup( Recalculation );
+		recalculate_Spinbox_Global			 = general_Settings.value( "recalculate_Spinbox_Global",			true  ).toBool();
+		recalculate_Spinbox_Table			 = general_Settings.value( "recalculate_Spinbox_Table",				true  ).toBool();
+		mouse_Wheel_Spinbox_Table			 = general_Settings.value( "mouse_Wheel_Spinbox_Table",				false ).toBool();
+		refill_Dependent_Table				 = general_Settings.value( "refill_Dependent_Table",				false ).toBool();
+		aperiodic_Recalculate_Spinbox_Table	 = general_Settings.value( "aperiodic_Recalculate_Spinbox_Table",	false ).toBool();
+		replot_Graphs_During_Fitting_1D		 = general_Settings.value( "replot_Graphs_During_Fitting_1D",		true  ).toBool();
+		replot_Graphs_During_Fitting_2D		 = general_Settings.value( "replot_Graphs_During_Fitting_2D",		false ).toBool();
+	general_Settings.endGroup();
+	general_Settings.beginGroup( Output );
+		print_1D_Data_On_Recalculation		 = general_Settings.value( "print_1D_Data_On_Recalculation",		true  ).toBool();
+		print_2D_Data_On_Recalculation		 = general_Settings.value( "print_2D_Data_On_Recalculation",		false ).toBool();
+	general_Settings.endGroup();
 
 	// limit max number of threads
 	reflectivity_Calc_Threads = min(QThread::idealThreadCount(),reflectivity_Calc_Threads);
 }
 
-void Settings::save_Calculations()
+void Settings::save_General_Settings()
 {
-	QSettings calculations(Calculations_Path, QSettings::IniFormat);
+	QSettings general_Settings(General_Settings_Path, QSettings::IniFormat);
 
 	// calculations
-	calculations.beginGroup( Threads );
-		calculations.setValue( "optical_Constants_Read_Threads", optical_Constants_Read_Threads );
-		calculations.setValue( "reflectivity_Calc_Threads",		 reflectivity_Calc_Threads		);
-		calculations.setValue( "epsilon_Partial_Fill_Threads",	 epsilon_Partial_Fill_Threads	);
-	calculations.endGroup();
-	calculations.beginGroup( Recalculation );
-		calculations.setValue( "recalculate_Spinbox_Table",	 recalculate_Spinbox_Table	);
-		calculations.setValue( "mouse_Wheel_Spinbox_Table",	 mouse_Wheel_Spinbox_Table	);
-		calculations.setValue( "refill_Dependent_Table",	 refill_Dependent_Table		);
-		calculations.setValue( "aperiodic_Recalculate_Spinbox_Table", aperiodic_Recalculate_Spinbox_Table );
-		calculations.setValue( "aperiodic_Mouse_Wheel_Spinbox_Table", aperiodic_Mouse_Wheel_Spinbox_Table );
-		calculations.setValue( "replot_Graphs_During_Fitting_1D",	  replot_Graphs_During_Fitting_1D );
-		calculations.setValue( "replot_Graphs_During_Fitting_2D",	  replot_Graphs_During_Fitting_2D );
-	calculations.endGroup();
+	general_Settings.beginGroup( Threads );
+		general_Settings.setValue( "optical_Constants_Read_Threads", optical_Constants_Read_Threads );
+		general_Settings.setValue( "reflectivity_Calc_Threads",		 reflectivity_Calc_Threads		);
+		general_Settings.setValue( "epsilon_Partial_Fill_Threads",	 epsilon_Partial_Fill_Threads	);
+	general_Settings.endGroup();
+	general_Settings.beginGroup( Recalculation );
+		general_Settings.setValue( "recalculate_Spinbox_Global", recalculate_Spinbox_Global	);
+		general_Settings.setValue( "recalculate_Spinbox_Table",	 recalculate_Spinbox_Table	);
+		general_Settings.setValue( "mouse_Wheel_Spinbox_Table",	 mouse_Wheel_Spinbox_Table	);
+		general_Settings.setValue( "refill_Dependent_Table",	 refill_Dependent_Table		);
+		general_Settings.setValue( "aperiodic_Recalculate_Spinbox_Table", aperiodic_Recalculate_Spinbox_Table );
+		general_Settings.setValue( "aperiodic_Mouse_Wheel_Spinbox_Table", aperiodic_Mouse_Wheel_Spinbox_Table );
+		general_Settings.setValue( "replot_Graphs_During_Fitting_1D",	  replot_Graphs_During_Fitting_1D );
+		general_Settings.setValue( "replot_Graphs_During_Fitting_2D",	  replot_Graphs_During_Fitting_2D );
+	general_Settings.endGroup();
+	general_Settings.beginGroup( Output );
+		general_Settings.setValue( "print_1D_Data_On_Recalculation", print_1D_Data_On_Recalculation );
+		general_Settings.setValue( "print_2D_Data_On_Recalculation", print_2D_Data_On_Recalculation );
+	general_Settings.endGroup();
 }
 
 void Settings::read_Measurements(bool reset_to_default)
@@ -932,7 +968,7 @@ void Settings::read_All_Settings(bool reset_to_default)
 	read_Precisions(reset_to_default);
 	read_Parameters_Default_Values(reset_to_default);
 	read_Units(reset_to_default);
-	read_Calculations(reset_to_default);
+	read_General_Settings(reset_to_default);
 	read_Measurements(reset_to_default);
 }
 
@@ -944,6 +980,6 @@ void Settings::save_All_Settings()
 	save_Precisions();
 	save_Parameters_Default_Values();
 	save_Units();
-	save_Calculations();
+	save_General_Settings();
 	save_Measurements();
 }

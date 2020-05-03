@@ -2651,10 +2651,13 @@ void Table_Of_Structures::spin_Box_Recalculate(My_Table_Widget *table, int curre
 	connect(checkbox_Recalculate, &QCheckBox::toggled, this, [=]
 	{
 		recalculate_Spinbox_Table = checkbox_Recalculate->isChecked();
-		if(recalculate_Spinbox_Table)
-			checkbox_Recalculate->setStyleSheet("QWidget { background: rgb(245, 228, 158); }");
-		else
-			checkbox_Recalculate->setStyleSheet("background-color: white");
+		if(recalculate_Spinbox_Table)	checkbox_Recalculate->setStyleSheet("QWidget { background: rgb(245, 228, 158); }");
+		else							checkbox_Recalculate->setStyleSheet("background-color: white");
+
+		if(global_Multilayer_Approach->runned_General_Settings_Editor.contains(general_Settings_Key))
+		{
+			global_Multilayer_Approach->general_Settings_Editor->table_Recalculation_Checkbox->setChecked(recalculate_Spinbox_Table);
+		}
 	});
 
 	// refresh in each table

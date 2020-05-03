@@ -34,7 +34,7 @@ void Fitting_Settings_Editor::create_Main_Layout()
 	create_SO_Main_Params_Group_Box();
 	create_SO_AdditionalParams_Group_Box();
 	{
-		done_Button = new QPushButton("Done");
+		done_Button = new QPushButton("Close");
 			done_Button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 			done_Button->setFocus();
 			done_Button->setDefault(true);

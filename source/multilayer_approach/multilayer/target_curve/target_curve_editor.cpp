@@ -263,7 +263,7 @@ void Target_Curve_Editor::create_Buttons()
 
 	// close
 	{
-		close_Button = new QPushButton("Done", this);
+		close_Button = new QPushButton("Close", this);
 			close_Button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 			close_Button->setDefault(true);
 			connect(close_Button, &QPushButton::clicked, this, [=]{ close(); });

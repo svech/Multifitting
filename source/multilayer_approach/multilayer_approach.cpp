@@ -336,7 +336,6 @@ void Multilayer_Approach::open_Optical_Graphs_1D(QString keep_Splitter)
 
 		runned_Optical_Graphs_1D.clear();
 		runned_Optical_Graphs_1D.insert(optical_Graphs_1D_Key, optical_Graphs_1D);
-
 	} else
 	{
 		optical_Graphs_1D->activateWindow();
@@ -354,7 +353,6 @@ void Multilayer_Approach::open_Optical_Graphs_2D(QString keep_Splitter)
 
 		runned_Optical_Graphs_2D.clear();
 		runned_Optical_Graphs_2D.insert(optical_Graphs_2D_Key, optical_Graphs_2D);
-
 	} else
 	{
 		optical_Graphs_2D->activateWindow();
@@ -372,7 +370,6 @@ void Multilayer_Approach::open_Profile_Plots()
 
 		runned_Profile_Plots_Window.clear();
 		runned_Profile_Plots_Window.insert(profile_Plots_Key, profile_Plots_Window);
-
 	} else
 	{
 		profile_Plots_Window->activateWindow();
@@ -390,7 +387,6 @@ void Multilayer_Approach::open_Fits_Selector()
 
 		runned_Fits_Selectors.clear();
 		runned_Fits_Selectors.insert(fits_Selector_Key, fits_Selector);
-
 	} else
 	{
 		fits_Selector->activateWindow();
@@ -408,7 +404,6 @@ void Multilayer_Approach::open_Calculation_Settings()
 
 		runned_Calculation_Settings_Editor.clear();
 		runned_Calculation_Settings_Editor.insert(calc_Settings_Key, calculation_Settings_Editor);
-
 	} else
 	{
 		calculation_Settings_Editor->activateWindow();
@@ -417,8 +412,19 @@ void Multilayer_Approach::open_Calculation_Settings()
 
 void Multilayer_Approach::open_General_Settings()
 {
-	// TODO
-	qInfo() << "open general settings" << endl;
+	if(!runned_General_Settings_Editor.contains(general_Settings_Key))
+	{
+		runned_General_Settings_Editor.insert(general_Settings_Key, general_Settings_Editor);
+		general_Settings_Editor = new General_Settings_Editor;
+			general_Settings_Editor->setWindowFlags(Qt::Window);
+			general_Settings_Editor->show();
+
+		runned_General_Settings_Editor.clear();
+		runned_General_Settings_Editor.insert(general_Settings_Key, general_Settings_Editor);
+	} else
+	{
+		general_Settings_Editor->activateWindow();
+	}
 }
 
 void Multilayer_Approach::open_Fitting_Settings()
@@ -432,7 +438,6 @@ void Multilayer_Approach::open_Fitting_Settings()
 
 		runned_Fitting_Settings_Editor.clear();
 		runned_Fitting_Settings_Editor.insert(fit_Settings_Key, fitting_Settings_Editor);
-
 	} else
 	{
 		fitting_Settings_Editor->activateWindow();

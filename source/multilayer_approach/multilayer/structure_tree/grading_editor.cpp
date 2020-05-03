@@ -57,7 +57,7 @@ void Grading_Editor::create_Main_Layout()
 		main_Layout->addWidget(sine_Group_Box);
 		main_Layout->addWidget(rand_Group_Box);
 
-    done_Button = new QPushButton("Done", this);
+	done_Button = new QPushButton("Close", this);
         done_Button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
         done_Button->setFocus();
         done_Button->setDefault(true);
