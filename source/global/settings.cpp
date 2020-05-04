@@ -82,7 +82,11 @@ QString default_multilayer_tab_name;
 QString default_independent_variable_tab_name;
 
 // paths and names
+bool use_working_directory;
+bool use_multifitting_directory;
+bool use_last_directory;
 //QString icon_path;
+QString working_directory;
 QString last_directory;
 QString last_data_directory;
 QString last_file;
@@ -277,12 +281,18 @@ void Settings::read_Paths(bool reset_to_default)
 	QString add_reset;
 	if(reset_to_default) add_reset = "wrong_path";
 
-	QSettings paths_Settings(Paths_Settings_Path + add_reset,   QSettings::IniFormat);
+	QSettings paths_Settings(Paths_Settings_Path + add_reset, QSettings::IniFormat);
 
 	if(reset_to_default) paths_Settings.setPath(paths_Settings.format(),paths_Settings.scope(),"");
 
 	// save/open path
 	paths_Settings.beginGroup( Last_Paths );
+		use_multifitting_directory	= paths_Settings.value( "use_multifitting_directory",	true ).toBool();
+		use_working_directory		= paths_Settings.value( "use_working_directory",		false ).toBool();
+		use_last_directory			= paths_Settings.value( "use_last_directory",			false ).toBool();
+		working_directory	= paths_Settings.value( "working_directory",	QDir::currentPath() ).toString();
+		working_directory	= paths_Settings.value( "working_directory",	QDir::currentPath() ).toString();
+		working_directory	= paths_Settings.value( "working_directory",	QDir::currentPath() ).toString();
 		last_directory		= paths_Settings.value( "last_directory",		QDir::currentPath() ).toString();
 		last_data_directory = paths_Settings.value( "last_data_directory",	QDir::currentPath() ).toString();
 		last_file			= paths_Settings.value( "last_file",			default_File		).toString();
@@ -296,10 +306,14 @@ void Settings::read_Paths(bool reset_to_default)
 
 void Settings::save_Paths()
 {
-	QSettings paths_Settings  (Paths_Settings_Path,   QSettings::IniFormat);
+	QSettings paths_Settings(Paths_Settings_Path, QSettings::IniFormat);
 
 	// save/open path
 	paths_Settings.beginGroup( Last_Paths );
+		paths_Settings.setValue( "use_multifitting_directory", use_multifitting_directory );
+		paths_Settings.setValue( "use_working_directory", use_working_directory );
+		paths_Settings.setValue( "use_last_directory", use_last_directory );
+		paths_Settings.setValue( "working_directory", working_directory );
 		paths_Settings.setValue( "last_directory", last_directory );
 		paths_Settings.setValue( "last_data_directory", last_data_directory );
 		paths_Settings.setValue( "last_file", last_file );
@@ -316,7 +330,7 @@ void Settings::read_Gui_Settings(bool reset_to_default)
 	QString add_reset;
 	if(reset_to_default) add_reset = "wrong_path";
 
-	QSettings gui_Settings(Gui_Settings_Path + add_reset,   QSettings::IniFormat);
+	QSettings gui_Settings(Gui_Settings_Path + add_reset, QSettings::IniFormat);
 
 	if(reset_to_default) gui_Settings.setPath(gui_Settings.format(),gui_Settings.scope(),"");
 
@@ -426,7 +440,7 @@ void Settings::read_Gui_Settings(bool reset_to_default)
 
 void Settings::save_Gui_Settings()
 {
-	QSettings gui_Settings  (Gui_Settings_Path,   QSettings::IniFormat);
+	QSettings gui_Settings  (Gui_Settings_Path, QSettings::IniFormat);
 
 	// application style
 	gui_Settings.beginGroup( Application_Style );

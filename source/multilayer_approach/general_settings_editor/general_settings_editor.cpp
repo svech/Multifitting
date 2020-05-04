@@ -18,7 +18,7 @@ void General_Settings_Editor::closeEvent(QCloseEvent *event)
 void General_Settings_Editor::create_Main_Layout()
 {
 	main_Layout = new QVBoxLayout(this);
-		main_Layout->setSizeConstraint(QLayout::SetFixedSize);
+//		main_Layout->setSizeConstraint(QLayout::SetFixedSize);
 		main_Layout->setSpacing(0);
 		main_Layout->setContentsMargins(0,0,0,0);
 
@@ -55,6 +55,7 @@ void General_Settings_Editor::create_Calculation_Tab()
 	QWidget* widget = new QWidget;
 	main_Tabs->addTab(widget, "Calculation");
 	QVBoxLayout* layout = new QVBoxLayout(widget);
+		layout->setAlignment(Qt::AlignTop);
 
 	QGroupBox* threads_Groupbox = new QGroupBox("Multithreading");
 	layout->addWidget(threads_Groupbox);
@@ -129,6 +130,7 @@ void General_Settings_Editor::create_Interface_Tab()
 	QWidget* widget = new QWidget;
 	main_Tabs->addTab(widget, "Interface");
 	QVBoxLayout* layout = new QVBoxLayout(widget);
+		layout->setAlignment(Qt::AlignTop);
 
 	//----------------------------------------------------------------------------
 
@@ -143,20 +145,129 @@ void General_Settings_Editor::create_Output_Tab()
 	QWidget* widget = new QWidget;
 	main_Tabs->addTab(widget, "Output");
 	QVBoxLayout* layout = new QVBoxLayout(widget);
+		layout->setAlignment(Qt::AlignTop);
 
-	//----------------------------------------------------------------------------
+	QGroupBox* print_Groupbox = new QGroupBox("Print data");
+	layout->addWidget(print_Groupbox);
+	{
+		QVBoxLayout* groupbox_Layout = new QVBoxLayout(print_Groupbox);
 
-	QCheckBox* print_1D_Data = new QCheckBox("Print to file 1D data on recalculation");
-		print_1D_Data->setChecked(print_1D_Data_On_Recalculation);
-	layout->addWidget(print_1D_Data);
-	connect(print_1D_Data, &QCheckBox::toggled,	[=]{print_1D_Data_On_Recalculation = print_1D_Data->isChecked();});
+		QCheckBox* print_1D_Data = new QCheckBox("Print to file 1D data on recalculation");
+			print_1D_Data->setChecked(print_1D_Data_On_Recalculation);
+		groupbox_Layout->addWidget(print_1D_Data);
+		connect(print_1D_Data, &QCheckBox::toggled,	[=]{print_1D_Data_On_Recalculation = print_1D_Data->isChecked();});
 
-	//----------------------------------------------------------------------------
+		//----------------------------------------------------------------------------
 
-	QCheckBox* print_2D_Data = new QCheckBox("Print to file 2D data on recalculation");
-		print_2D_Data->setChecked(print_2D_Data_On_Recalculation);
-	layout->addWidget(print_2D_Data);
-	connect(print_2D_Data, &QCheckBox::toggled,	[=]{print_2D_Data_On_Recalculation = print_2D_Data->isChecked();});
+		QCheckBox* print_2D_Data = new QCheckBox("Print to file 2D data on recalculation");
+			print_2D_Data->setChecked(print_2D_Data_On_Recalculation);
+		groupbox_Layout->addWidget(print_2D_Data);
+		connect(print_2D_Data, &QCheckBox::toggled,	[=]{print_2D_Data_On_Recalculation = print_2D_Data->isChecked();});
+	}
+
+	QGroupBox* path_Groupbox = new QGroupBox("Paths");
+	layout->addWidget(path_Groupbox);
+	{
+		QVBoxLayout* groupbox_Layout = new QVBoxLayout(path_Groupbox);
+
+		QRadioButton* multifitting_Radiobitton = new QRadioButton("Save/output to Multifitting directory");
+			multifitting_Radiobitton->setChecked(use_multifitting_directory);
+		groupbox_Layout->addWidget(multifitting_Radiobitton);
+
+		QLineEdit* multifitting_LineEdit = new QLineEdit;
+			multifitting_LineEdit->setText(QDir::currentPath());
+			multifitting_LineEdit->setReadOnly(true);
+			multifitting_LineEdit->setEnabled(use_multifitting_directory);
+		groupbox_Layout->addWidget(multifitting_LineEdit);
+
+		//----------------------------------------------------------------------------
+
+		QRadioButton* working_Radiobitton = new QRadioButton("Save/output to chosen directory");
+			working_Radiobitton->setChecked(use_working_directory);
+		groupbox_Layout->addWidget(working_Radiobitton);
+
+		QHBoxLayout* working_Layout = new QHBoxLayout;
+		groupbox_Layout->addLayout(working_Layout);
+		QPushButton* working_Button = new QPushButton("Set up");
+			working_Button->setEnabled(use_working_directory);
+			working_Button->setFixedWidth(55);
+		working_Layout->addWidget(working_Button);
+		QLineEdit* working_LineEdit = new QLineEdit;
+			working_LineEdit->setText(working_directory);
+			working_LineEdit->setEnabled(use_working_directory);
+		working_Layout->addWidget(working_LineEdit);
+
+		connect(working_Button, &QPushButton::clicked, this, [=]
+		{
+			QDir temp_Directory = QDir::toNativeSeparators(QFileDialog::getExistingDirectory(this, "Set working directory", working_directory, QFileDialog::ShowDirsOnly));
+			if(temp_Directory.exists())	working_directory = temp_Directory.absolutePath();
+			working_LineEdit->setText(working_directory);
+		});
+		connect(working_LineEdit, &QLineEdit::returnPressed, this, [=]
+		{
+			QDir temp_Directory = QDir::toNativeSeparators(working_LineEdit->text());
+			if(temp_Directory.exists())
+			{
+				working_directory = temp_Directory.absolutePath();
+			} else
+			{
+				QMessageBox::information(nullptr,"No such directory", "Directory\n\""+working_directory+"\"\nis not exist");
+			}
+		});
+
+		//----------------------------------------------------------------------------
+
+		QRadioButton* last_Radiobitton = new QRadioButton("Save/output to .fit file directory");
+			last_Radiobitton->setChecked(use_last_directory);
+		groupbox_Layout->addWidget(last_Radiobitton);
+
+		QLineEdit* last_LineEdit = new QLineEdit;
+			last_LineEdit->setText(last_directory);
+			last_LineEdit->setReadOnly(true);
+			last_LineEdit->setEnabled(use_last_directory);
+		groupbox_Layout->addWidget(last_LineEdit);
+
+		//----------------------------------------------------------------------------
+
+		QButtonGroup* data_ButtonGroup = new QButtonGroup;
+			data_ButtonGroup->addButton(multifitting_Radiobitton);
+			data_ButtonGroup->addButton(working_Radiobitton);
+			data_ButtonGroup->addButton(last_Radiobitton);
+
+		connect(multifitting_Radiobitton, &QCheckBox::clicked, this, [=]
+		{
+			use_multifitting_directory = multifitting_Radiobitton->isChecked();
+			use_working_directory = working_Radiobitton->isChecked();
+			use_last_directory = last_Radiobitton->isChecked();
+
+			multifitting_LineEdit->setEnabled(use_multifitting_directory);
+			working_LineEdit->setEnabled(use_working_directory);
+			working_Button->setEnabled(use_working_directory);
+			last_LineEdit->setEnabled(use_last_directory);
+		});
+		connect(last_Radiobitton, &QCheckBox::clicked, this, [=]
+		{
+			use_multifitting_directory = multifitting_Radiobitton->isChecked();
+			use_working_directory = working_Radiobitton->isChecked();
+			use_last_directory = last_Radiobitton->isChecked();
+
+			multifitting_LineEdit->setEnabled(use_multifitting_directory);
+			working_LineEdit->setEnabled(use_working_directory);
+			working_Button->setEnabled(use_working_directory);
+			last_LineEdit->setEnabled(use_last_directory);
+		});
+		connect(working_Radiobitton, &QCheckBox::clicked, this, [=]
+		{
+			use_multifitting_directory = multifitting_Radiobitton->isChecked();
+			use_working_directory = working_Radiobitton->isChecked();
+			use_last_directory = last_Radiobitton->isChecked();
+
+			multifitting_LineEdit->setEnabled(use_multifitting_directory);
+			working_LineEdit->setEnabled(use_working_directory);
+			working_Button->setEnabled(use_working_directory);
+			last_LineEdit->setEnabled(use_last_directory);
+		});
+	}
 }
 
 void General_Settings_Editor::set_Window_Geometry()

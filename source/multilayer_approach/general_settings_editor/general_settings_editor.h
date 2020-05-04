@@ -18,12 +18,10 @@ public:
 	void set_Window_Geometry();
 	void write_Window_Geometry();
 
-
 	QVBoxLayout* main_Layout;
 	QTabWidget* main_Tabs;
 	QPushButton* close_Button;
 	QCheckBox* table_Recalculation_Checkbox;
-
 };
 
 #endif // GENERAL_SETTINGS_EDITOR_H

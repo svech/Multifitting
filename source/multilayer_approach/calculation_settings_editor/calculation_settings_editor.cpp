@@ -40,7 +40,6 @@ void Calculation_Settings_Editor::write_Window_Geometry()
 
 void Calculation_Settings_Editor::create_Main_Layout()
 {
-	can_Change_Index = false;
 	main_Layout = new QVBoxLayout(this);
 		main_Layout->setSizeConstraint(QLayout::SetFixedSize);
 		main_Layout->setSpacing(0);
@@ -66,9 +65,7 @@ void Calculation_Settings_Editor::create_Main_Layout()
 
 	// TODO
 	global_Norm_Button->setDisabled(true);
-	can_Change_Index = tab_synchronization;
-
-	connect(main_Tabs, &QTabWidget::currentChanged,	[=](int index)
+	connect(main_Tabs, &QTabWidget::currentChanged,	[=]
 	{
 		if(tab_synchronization)
 		{
@@ -86,24 +83,12 @@ void Calculation_Settings_Editor::create_Tabs()
 	main_Tabs = new QTabWidget(this);
 	main_Tabs->setMovable(false);
 
-	connect(main_Tabs, &QTabWidget::currentChanged,
-	[=](int index)
+	connect(main_Tabs, &QTabWidget::currentChanged,	[=](int index)
 	{
 		main_Tabs->tabBar()->setTabTextColor(index,Qt::black);
 		for(int i = 0; i<main_Tabs->tabBar()->count(); i++)
 		{
 			if(i!=index)main_Tabs->tabBar()->setTabTextColor(i,Qt::gray);
-		}
-
-		if(can_Change_Index)
-		{
-			can_Change_Index = false;
-																										 {global_Multilayer_Approach->                multilayer_Tabs->setCurrentIndex(main_Tabs->currentIndex());}
-			if(global_Multilayer_Approach->runned_Tables_Of_Structures.contains(table_Of_Structures_Key)){global_Multilayer_Approach->table_Of_Structures ->main_Tabs->setCurrentIndex(main_Tabs->currentIndex());}
-			if(global_Multilayer_Approach->runned_Optical_Graphs_2D.contains(optical_Graphs_2D_Key))	 {global_Multilayer_Approach->optical_Graphs_2D	  ->main_Tabs->setCurrentIndex(main_Tabs->currentIndex());}
-			if(global_Multilayer_Approach->runned_Optical_Graphs_1D.contains(optical_Graphs_1D_Key))	 {global_Multilayer_Approach->optical_Graphs_1D	  ->main_Tabs->setCurrentIndex(main_Tabs->currentIndex());}
-			if(global_Multilayer_Approach->runned_Profile_Plots_Window.contains(profile_Plots_Key))		 {global_Multilayer_Approach->profile_Plots_Window->main_Tabs->setCurrentIndex(main_Tabs->currentIndex());}
-			can_Change_Index = tab_synchronization;
 		}
 	});
 }
@@ -193,7 +178,7 @@ void Calculation_Settings_Editor::load_Discretization_Parameters(int tab_Index)
 				}
 			}
 		}
-		global_Multilayer_Approach->calculate(true);
+		global_Multilayer_Approach->global_Recalculate();
 	});
 
 	QVBoxLayout* discretization_Layout = new QVBoxLayout(discretization_Group_Box_Vec[tab_Index]);
@@ -400,7 +385,7 @@ void Calculation_Settings_Editor::load_Target_Parameters(int tab_Index)
 				{
 					target_Curve->curve.mesh_Density_Factor = mesh_Density_SpinBox->value();
 
-					global_Multilayer_Approach->calculate(true);
+					global_Multilayer_Approach->global_Recalculate();
 				});
 				row_Right_Layout->addWidget(mesh_Density_SpinBox,0,Qt::AlignRight);
 
@@ -422,7 +407,7 @@ void Calculation_Settings_Editor::load_Target_Parameters(int tab_Index)
 				{
 					target_Curve->curve.mesh_Density_Shift = shift_SpinBox->value();
 					if(target_Curve->curve.mesh_Density_Factor > 1) {
-						global_Multilayer_Approach->calculate(true);
+						global_Multilayer_Approach->global_Recalculate();
 					}
 				});
 
@@ -906,7 +891,7 @@ void Calculation_Settings_Editor::refresh_Independent_Calc_Properties(int tab_In
 		if(check_Box->text() == joule_Function)			{independent_Curve->calc_Functions.check_Joule = check_Box->isChecked(); global_Multilayer_Approach->reopen_Optical_Graphs_2D(true);}
 		if(check_Box->text() == gisas_Function)			{independent_Curve->calc_Functions.check_GISAS = check_Box->isChecked(); global_Multilayer_Approach->reopen_Optical_Graphs_2D(true);}
 
-		global_Multilayer_Approach->calculate(true);		
+		global_Multilayer_Approach->global_Recalculate();
 		activateWindow();
 	}
 	multilayer->independent_Curve_Tabs->setTabText(independent_Index, independent_Curve->tab_Name + independent_Curve->enlarge_Tab_Name());

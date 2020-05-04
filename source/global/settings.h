@@ -86,7 +86,11 @@ extern QString default_multilayer_tab_name;
 extern QString default_independent_variable_tab_name;
 
 // paths and names
+extern bool use_working_directory;
+extern bool use_multifitting_directory;
+extern bool use_last_directory;
 //extern QString icon_path;
+extern QString working_directory;
 extern QString last_directory;
 extern QString last_data_directory;
 extern QString last_file;

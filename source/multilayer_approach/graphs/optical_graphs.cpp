@@ -302,7 +302,6 @@ void Optical_Graphs::save_Geometry()
 
 void Optical_Graphs::create_Main_Layout()
 {
-	can_Change_Index = false;
 	main_Layout = new QVBoxLayout(this);
 		main_Layout->setSpacing(0);
 		main_Layout->setContentsMargins(0,0,0,0);
@@ -314,7 +313,17 @@ void Optical_Graphs::create_Main_Layout()
 
 	// shortcuts
 	Global_Variables::create_Shortcuts(this);
-	can_Change_Index = tab_synchronization;
+	connect(main_Tabs,	&QTabWidget::currentChanged, this, [=]
+	{
+		if(tab_synchronization)
+		{
+																										  {global_Multilayer_Approach->						  multilayer_Tabs->setCurrentIndex(main_Tabs->currentIndex());}
+			if(global_Multilayer_Approach->runned_Tables_Of_Structures.contains(table_Of_Structures_Key)) {global_Multilayer_Approach->table_Of_Structures		  ->main_Tabs->setCurrentIndex(main_Tabs->currentIndex());}
+			if(global_Multilayer_Approach->runned_Optical_Graphs_2D.contains(optical_Graphs_2D_Key))	  {global_Multilayer_Approach->optical_Graphs_2D		  ->main_Tabs->setCurrentIndex(main_Tabs->currentIndex());}
+			if(global_Multilayer_Approach->runned_Profile_Plots_Window.contains(profile_Plots_Key))		  {global_Multilayer_Approach->profile_Plots_Window       ->main_Tabs->setCurrentIndex(main_Tabs->currentIndex());}
+			if(global_Multilayer_Approach->runned_Calculation_Settings_Editor.contains(calc_Settings_Key)){global_Multilayer_Approach->calculation_Settings_Editor->main_Tabs->setCurrentIndex(main_Tabs->currentIndex());}
+		}
+	});
 }
 
 void Optical_Graphs::create_Tabs()
@@ -322,24 +331,12 @@ void Optical_Graphs::create_Tabs()
 	main_Tabs = new QTabWidget(this);
 		main_Tabs->setMovable(false);
 
-	connect(main_Tabs,	&QTabWidget::currentChanged, this,
-	[=](int index)
+	connect(main_Tabs,	&QTabWidget::currentChanged, this, [=](int index)
 	{
 		main_Tabs->tabBar()->setTabTextColor(index,Qt::black);
 		for(int i = 0; i<main_Tabs->tabBar()->count(); i++)
 		{
 			if(i!=index) main_Tabs->tabBar()->setTabTextColor(i,Qt::gray);
-		}
-
-		if(can_Change_Index)
-		{
-			can_Change_Index = false;
-																										  {global_Multilayer_Approach->						  multilayer_Tabs->setCurrentIndex(main_Tabs->currentIndex());}
-			if(global_Multilayer_Approach->runned_Tables_Of_Structures.contains(table_Of_Structures_Key)) {global_Multilayer_Approach->table_Of_Structures		  ->main_Tabs->setCurrentIndex(main_Tabs->currentIndex());}
-			if(global_Multilayer_Approach->runned_Optical_Graphs_2D.contains(optical_Graphs_2D_Key))	  {global_Multilayer_Approach->optical_Graphs_2D		  ->main_Tabs->setCurrentIndex(main_Tabs->currentIndex());}
-			if(global_Multilayer_Approach->runned_Profile_Plots_Window.contains(profile_Plots_Key))		  {global_Multilayer_Approach->profile_Plots_Window       ->main_Tabs->setCurrentIndex(main_Tabs->currentIndex());}
-			if(global_Multilayer_Approach->runned_Calculation_Settings_Editor.contains(calc_Settings_Key)){global_Multilayer_Approach->calculation_Settings_Editor->main_Tabs->setCurrentIndex(main_Tabs->currentIndex());}
-			can_Change_Index = tab_synchronization;
 		}
 	});
 }

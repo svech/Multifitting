@@ -44,7 +44,6 @@ void Table_Of_Structures::emit_Data_Edited()
 
 void Table_Of_Structures::create_Main_Layout()
 {
-	can_Change_Index = false;
 	main_Layout = new QHBoxLayout(this);
 	main_Layout->setContentsMargins(0,0,0,0);
 
@@ -63,7 +62,17 @@ void Table_Of_Structures::create_Main_Layout()
 	}
 
 	refill_All_Dependent();
-	can_Change_Index = tab_synchronization;
+	connect(main_Tabs,	&QTabWidget::currentChanged, this, [=]
+	{
+		if(tab_synchronization)
+		{
+																										  {global_Multilayer_Approach->						  multilayer_Tabs->setCurrentIndex(main_Tabs->currentIndex());}
+			if(global_Multilayer_Approach->runned_Optical_Graphs_2D.contains(optical_Graphs_2D_Key))	  {global_Multilayer_Approach->optical_Graphs_2D		  ->main_Tabs->setCurrentIndex(main_Tabs->currentIndex());}
+			if(global_Multilayer_Approach->runned_Profile_Plots_Window.contains(profile_Plots_Key))		  {global_Multilayer_Approach->profile_Plots_Window       ->main_Tabs->setCurrentIndex(main_Tabs->currentIndex());}
+			if(global_Multilayer_Approach->runned_Optical_Graphs_1D.contains(optical_Graphs_1D_Key))	  {global_Multilayer_Approach->optical_Graphs_1D		  ->main_Tabs->setCurrentIndex(main_Tabs->currentIndex());}
+			if(global_Multilayer_Approach->runned_Calculation_Settings_Editor.contains(calc_Settings_Key)){global_Multilayer_Approach->calculation_Settings_Editor->main_Tabs->setCurrentIndex(main_Tabs->currentIndex());}
+		}
+	});
 }
 
 void Table_Of_Structures::set_Window_Geometry()
@@ -133,20 +142,6 @@ void Table_Of_Structures::create_Tabs()
 		{
 			if(i!=index)main_Tabs->tabBar()->setTabTextColor(i,Qt::gray);
 		}
-
-		if(can_Change_Index)
-		{
-			can_Change_Index = false;
-																										  {global_Multilayer_Approach->						  multilayer_Tabs->setCurrentIndex(main_Tabs->currentIndex());}
-			if(global_Multilayer_Approach->runned_Optical_Graphs_2D.contains(optical_Graphs_2D_Key))	  {global_Multilayer_Approach->optical_Graphs_2D		  ->main_Tabs->setCurrentIndex(main_Tabs->currentIndex());}
-			if(global_Multilayer_Approach->runned_Profile_Plots_Window.contains(profile_Plots_Key))		  {global_Multilayer_Approach->profile_Plots_Window       ->main_Tabs->setCurrentIndex(main_Tabs->currentIndex());}
-			if(global_Multilayer_Approach->runned_Optical_Graphs_1D.contains(optical_Graphs_1D_Key))	  {global_Multilayer_Approach->optical_Graphs_1D		  ->main_Tabs->setCurrentIndex(main_Tabs->currentIndex());}
-			if(global_Multilayer_Approach->runned_Calculation_Settings_Editor.contains(calc_Settings_Key)){global_Multilayer_Approach->calculation_Settings_Editor->main_Tabs->setCurrentIndex(main_Tabs->currentIndex());}
-			can_Change_Index = tab_synchronization;
-		}
-
-		// CHECK
-//		reload_All_Widgets();
 	});
 }
 

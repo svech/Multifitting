@@ -83,9 +83,16 @@ void Menu::create_File_Menu()
 			connect(act_Open, &QAction::triggered, global_Multilayer_Approach, [=]
 			{
 				if(global_Multilayer_Approach->file_Was_Opened_or_Saved)
+				{
 					global_Multilayer_Approach->open(last_file);
+				}
 				else
-					global_Multilayer_Approach->open(default_File);
+				{
+					QString path = "";
+					if(use_working_directory) path = working_directory + "/";
+					if(use_last_directory)	  path = last_directory + "/";
+					global_Multilayer_Approach->open(path + default_File);
+				}
 			});
 			file_Menu->addAction(act_Open);
 
@@ -100,9 +107,16 @@ void Menu::create_File_Menu()
 			connect(act_Save, &QAction::triggered, global_Multilayer_Approach, [=]
 			{
 				if(global_Multilayer_Approach->file_Was_Opened_or_Saved)
+				{
 					global_Multilayer_Approach->save(last_file);
+				}
 				else
-					global_Multilayer_Approach->save(default_File);
+				{
+					QString path = "";
+					if(use_working_directory) path = working_directory + "/";
+					if(use_last_directory)	  path = last_directory + "/";
+					global_Multilayer_Approach->save(path + default_File);
+				}
 			});
 
 			QAction* act_Save_As = new QAction("Save as", this);

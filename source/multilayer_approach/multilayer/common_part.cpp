@@ -705,21 +705,21 @@ void Common_Part::connecting()
 			measurement.detector_1D.detector_Type = detector_Type_ComboBox->currentText();
 			detectors_Stack->setCurrentIndex(detector_Type_ComboBox->findText(measurement.detector_1D.detector_Type));
 
-			global_Multilayer_Approach->calculate(true);
+			global_Multilayer_Approach->global_Recalculate();
 		});
 		// 1D slit width
 		connect(slit_Width_SpinBox,  static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
 		{
 			measurement.detector_1D.slit_Width = slit_Width_SpinBox->value();
 
-			global_Multilayer_Approach->calculate(true);
+			global_Multilayer_Approach->global_Recalculate();
 		});
 		// 1D slit distance
 		connect(slit_Distance_SpinBox,  static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
 		{
 			measurement.detector_1D.distance_To_Sample = slit_Distance_SpinBox->value();
 
-			global_Multilayer_Approach->calculate(true);
+			global_Multilayer_Approach->global_Recalculate();
 		});
 		// 1D crystal resolution
 		connect(crystal_Resolution_SpinBox,  static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
@@ -727,14 +727,14 @@ void Common_Part::connecting()
 			double coeff = angle_Coefficients_Map.value(angular_Units);
 			measurement.detector_1D.detector_Theta_Resolution.FWHM_distribution = crystal_Resolution_SpinBox->value()*coeff;
 
-			global_Multilayer_Approach->calculate(true);
+			global_Multilayer_Approach->global_Recalculate();
 		});
 		// resolution function
 		connect(resolution_Function_ComboBox, &QComboBox::currentTextChanged, this, [=]
 		{
 			measurement.detector_1D.detector_Theta_Resolution.distribution_Function = resolution_Function_ComboBox->currentText();
 
-			global_Multilayer_Approach->calculate(true);
+			global_Multilayer_Approach->global_Recalculate();
 		});
 	}
 	if( measurement.measurement_Type == measurement_Types[GISAS_Map] )
@@ -745,7 +745,7 @@ void Common_Part::connecting()
 			measurement.detector_2D.detector_Type = detector_Type_ComboBox->currentText();
 			detectors_Stack->setCurrentIndex(detector_Type_ComboBox->findText(measurement.detector_2D.detector_Type));
 
-			global_Multilayer_Approach->calculate(true);
+			global_Multilayer_Approach->global_Recalculate();
 		});
 		// 2D theta resolution
 		connect(theta_Resolution_SpinBox,  static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
@@ -753,7 +753,7 @@ void Common_Part::connecting()
 			double coeff = angle_Coefficients_Map.value(angular_Units);
 			measurement.detector_2D.detector_Theta_Resolution.FWHM_distribution = theta_Resolution_SpinBox->value()*coeff;
 
-			global_Multilayer_Approach->calculate(true);
+			global_Multilayer_Approach->global_Recalculate();
 		});
 		// 2D phi resolution
 		connect(phi_Resolution_SpinBox,  static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
@@ -761,7 +761,7 @@ void Common_Part::connecting()
 			double coeff = angle_Coefficients_Map.value(angular_Units);
 			measurement.detector_2D.detector_Phi_Resolution.FWHM_distribution = phi_Resolution_SpinBox->value()*coeff;
 
-			global_Multilayer_Approach->calculate(true);
+			global_Multilayer_Approach->global_Recalculate();
 		});
 		// resolution function
 		connect(resolution_Function_ComboBox, &QComboBox::currentTextChanged, this, [=]
@@ -769,7 +769,7 @@ void Common_Part::connecting()
 			measurement.detector_2D.detector_Theta_Resolution.distribution_Function = resolution_Function_ComboBox->currentText();
 			measurement.detector_2D.detector_Phi_Resolution.distribution_Function = resolution_Function_ComboBox->currentText();
 
-			global_Multilayer_Approach->calculate(true);
+			global_Multilayer_Approach->global_Recalculate();
 		});
 	}
 
@@ -781,7 +781,7 @@ void Common_Part::connecting()
 		measurement.beam_Geometry.size = beam_Footprint_Width_SpinBox->value();
 
 		plot_Beam_Profile();
-		global_Multilayer_Approach->calculate(true);
+		global_Multilayer_Approach->global_Recalculate();
 	});
 	// beam shape
 	connect(beam_Footprint_Shape_SpinBox, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
@@ -789,7 +789,7 @@ void Common_Part::connecting()
 		measurement.beam_Geometry.smoothing = beam_Footprint_Shape_SpinBox->value();
 
 		plot_Beam_Profile();
-		global_Multilayer_Approach->calculate(true);
+		global_Multilayer_Approach->global_Recalculate();
 	});
 	// sample size
 	connect(sample_Size_SpinBox, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
@@ -797,7 +797,7 @@ void Common_Part::connecting()
 		measurement.sample_Geometry.size = sample_Size_SpinBox->value();
 
 		plot_Sample();
-		global_Multilayer_Approach->calculate(true);
+		global_Multilayer_Approach->global_Recalculate();
 	});
 	// sample x-position
 	connect(sample_X_SpinBox, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
@@ -805,7 +805,7 @@ void Common_Part::connecting()
 		measurement.sample_Geometry.x_Position = sample_X_SpinBox->value();
 
 		plot_Sample();
-		global_Multilayer_Approach->calculate(true);
+		global_Multilayer_Approach->global_Recalculate();
 	});
 	// sample z-position
 	connect(sample_Z_SpinBox, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
@@ -813,7 +813,7 @@ void Common_Part::connecting()
 		measurement.sample_Geometry.z_Position = sample_Z_SpinBox->value();
 
 		plot_Sample();
-		global_Multilayer_Approach->calculate(true);
+		global_Multilayer_Approach->global_Recalculate();
 	});
 	// sample curvature
 	connect(sample_Curvature_SpinBox, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
@@ -822,6 +822,6 @@ void Common_Part::connecting()
 
 		refresh_Curvature_Radius();
 		plot_Sample();
-		global_Multilayer_Approach->calculate(true);
+		global_Multilayer_Approach->global_Recalculate();
 	});
 }

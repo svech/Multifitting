@@ -964,58 +964,68 @@ void Main_Calculation_Module::print_Reflect_To_File(Data_Element<Type>& data_Ele
 	if(data_Element.curve_Class == INDEPENDENT)	first_Name = "calc_" + struct_Name + "_independent";
 	if(data_Element.curve_Class == TARGET)		first_Name = "calc_" + struct_Name + "_target";
 
+	QString path = "";
+	if(use_working_directory) path = working_directory + "/";
+	if(use_last_directory)	  path = last_directory + "/";
+
 	//-----------------------------------------------------------------------------------------------------
 	// 1D
 	//-----------------------------------------------------------------------------------------------------
 
 	if(print_1D_Data_On_Recalculation)
 	{
-		double angular_Coeff = angle_Coefficients_Map.value(data_Element.the_Class->angular_Units);
-		double spectral_Coeff = wavelength_Coefficients_Map.value(data_Element.the_Class->spectral_Units);
-
-		vector<double> argument;
-		if(	data_Element.the_Class->measurement.measurement_Type == measurement_Types[Specular_Scan] )
+		if(	data_Element.calc_Functions.check_Reflectance   ||
+			data_Element.calc_Functions.check_Transmittance ||
+			data_Element.calc_Functions.check_Absorptance   ||
+			data_Element.calc_Functions.check_Scattering	)
 		{
-			if( data_Element.the_Class->measurement.argument_Type == argument_Types[Beam_Grazing_Angle] )
+			double angular_Coeff = angle_Coefficients_Map.value(data_Element.the_Class->angular_Units);
+			double spectral_Coeff = wavelength_Coefficients_Map.value(data_Element.the_Class->spectral_Units);
+
+			vector<double> argument;
+			if(	data_Element.the_Class->measurement.measurement_Type == measurement_Types[Specular_Scan] )
+			{
+				if( data_Element.the_Class->measurement.argument_Type == argument_Types[Beam_Grazing_Angle] )
+				{
+					argument = data_Element.the_Class->measurement.beam_Theta_0_Angle_Vec;
+					for(double arg : argument)	arg = arg/angular_Coeff;
+				}
+				if( data_Element.the_Class->measurement.argument_Type == argument_Types[Wavelength_Energy] )
+				{
+					argument = data_Element.the_Class->measurement.lambda_Vec;
+					for(double arg : argument)	arg = Global_Variables::wavelength_Energy(data_Element.the_Class->spectral_Units,arg)/spectral_Coeff;
+				}
+			}
+			if(	data_Element.the_Class->measurement.measurement_Type == measurement_Types[Detector_Scan] )
+			{
+				argument = data_Element.the_Class->measurement.detector_Theta_Angle_Vec;
+				for(double arg : argument)	arg = arg/angular_Coeff;
+			}
+			if(	data_Element.the_Class->measurement.measurement_Type == measurement_Types[Rocking_Curve] )
 			{
 				argument = data_Element.the_Class->measurement.beam_Theta_0_Angle_Vec;
 				for(double arg : argument)	arg = arg/angular_Coeff;
 			}
-			if( data_Element.the_Class->measurement.argument_Type == argument_Types[Wavelength_Energy] )
+			if(	data_Element.the_Class->measurement.measurement_Type == measurement_Types[Offset_Scan]   )
 			{
-				argument = data_Element.the_Class->measurement.lambda_Vec;
-				for(double arg : argument)	arg = Global_Variables::wavelength_Energy(data_Element.the_Class->spectral_Units,arg)/spectral_Coeff;
+				argument = data_Element.the_Class->measurement.beam_Theta_0_Angle_Vec;
+				for(double arg : argument)	arg = arg/angular_Coeff;
 			}
-		}
-		if(	data_Element.the_Class->measurement.measurement_Type == measurement_Types[Detector_Scan] )
-		{
-			argument = data_Element.the_Class->measurement.detector_Theta_Angle_Vec;
-			for(double arg : argument)	arg = arg/angular_Coeff;
-		}
-		if(	data_Element.the_Class->measurement.measurement_Type == measurement_Types[Rocking_Curve] )
-		{
-			argument = data_Element.the_Class->measurement.beam_Theta_0_Angle_Vec;
-			for(double arg : argument)	arg = arg/angular_Coeff;
-		}
-		if(	data_Element.the_Class->measurement.measurement_Type == measurement_Types[Offset_Scan]   )
-		{
-			argument = data_Element.the_Class->measurement.beam_Theta_0_Angle_Vec;
-			for(double arg : argument)	arg = arg/angular_Coeff;
-		}
 
-		QString name = first_Name+"_"+Locale.toString(index)+".txt";
-		QFile file(name);
-		file.open(QIODevice::WriteOnly);
-		QTextStream out(&file);
-		out.setFieldAlignment(QTextStream::AlignLeft);
+			QString name = path + first_Name+"_"+Locale.toString(index)+".txt";
+			QFile file(name);
+			file.open(QIODevice::WriteOnly);
+			QTextStream out(&file);
+			out.setFieldAlignment(QTextStream::AlignLeft);
 
-		print_Data(out,
-				   argument,
-				   data_Element.unwrapped_Reflection,
-				   data_Element.calc_Functions,
-				   data_Element.the_Class->measurement.polarization
-				   );
-		file.close();
+			print_Data(out,
+					   argument,
+					   data_Element.unwrapped_Reflection,
+					   data_Element.calc_Functions,
+					   data_Element.the_Class->measurement.polarization
+					   );
+			file.close();
+		}
 	}
 
 	//-----------------------------------------------------------------------------------------------------
@@ -1028,7 +1038,7 @@ void Main_Calculation_Module::print_Reflect_To_File(Data_Element<Type>& data_Ele
 		if(data_Element.calc_Functions.check_Field)
 		if(data_Element.the_Class->calculated_Values.field_Intensity.size()>0)
 		{
-			QString name = first_Name+"_"+Locale.toString(index)+"_intensity.txt";
+			QString name = path + first_Name+"_"+Locale.toString(index)+"_intensity.txt";
 			QFile file(name);
 			file.open(QIODevice::WriteOnly);
 			QTextStream out(&file);
@@ -1041,7 +1051,7 @@ void Main_Calculation_Module::print_Reflect_To_File(Data_Element<Type>& data_Ele
 		if(data_Element.calc_Functions.check_Joule)
 		if(data_Element.the_Class->calculated_Values.absorption_Map.size()>0)
 		{
-			QString name = first_Name+"_"+Locale.toString(index)+"_absorption.txt";
+			QString name = path + first_Name+"_"+Locale.toString(index)+"_absorption.txt";
 			QFile file(name);
 			file.open(QIODevice::WriteOnly);
 			QTextStream out(&file);
@@ -1054,7 +1064,7 @@ void Main_Calculation_Module::print_Reflect_To_File(Data_Element<Type>& data_Ele
 		if(data_Element.calc_Functions.check_GISAS)
 		if(data_Element.the_Class->calculated_Values.GISAS_Instrumental.size()>0)
 		{
-			QString name = first_Name+"_"+Locale.toString(index)+"_GISAS.txt";
+			QString name = path + first_Name+"_"+Locale.toString(index)+"_GISAS.txt";
 			QFile file(name);
 			file.open(QIODevice::WriteOnly);
 			QTextStream out(&file);
@@ -1106,13 +1116,9 @@ void Main_Calculation_Module::print_Data(QTextStream &out, vector<double> &arg, 
 	///------------------------------------------------------------------------
 	/// headline
 	{
-		out << "; polarization = " << Locale.toString(incident_Polarization,'f', 3) << endl;
 		// argument
-		if(	calc_Functions.check_Reflectance   ||
-			calc_Functions.check_Transmittance ||
-			calc_Functions.check_Absorptance   ||
-			calc_Functions.check_Scattering	)
 		{
+			out << "; polarization = " << Locale.toString(incident_Polarization,'f', 3) << endl;
 			out << qSetFieldWidth(arg_Shift-1) << ";";
 			out << qSetFieldWidth(width_Short) << argument  << qSetFieldWidth(width_Long);
 		}
@@ -1159,10 +1165,6 @@ void Main_Calculation_Module::print_Data(QTextStream &out, vector<double> &arg, 
 		for(size_t i=0; i<arg.size(); ++i)
 		{
 			// argument
-			if(	calc_Functions.check_Reflectance   ||
-				calc_Functions.check_Transmittance ||
-				calc_Functions.check_Absorptance   ||
-				calc_Functions.check_Scattering	)
 			{
 				out << qSetFieldWidth(width_Short) << Locale.toString(arg[i],'f',precision_Arg)  << qSetFieldWidth(width_Long);
 			}
@@ -1239,7 +1241,8 @@ void Main_Calculation_Module::print_Matrix(QString function, const Calc_Function
 		if(function == intensity_Function || function == joule_Function)
 		{
 			out << "Depth    :   (" << Locale.toString(-calc_Functions.field_Ambient_Distance,'f', 2)
-						   << " , " << Locale.toString(-calc_Functions.field_Ambient_Distance + matrix.front().size()*calc_Functions.field_Step,'f', 2) << ") angstrom" << endl;
+						   << " , " << Locale.toString(-calc_Functions.field_Ambient_Distance + matrix.front().size()*calc_Functions.field_Step,'f', 2) << ") angstrom, step = "
+						   << Locale.toString(calc_Functions.field_Step,'f', 2) << " angstrom" << endl;
 
 			if(measurement.argument_Type == argument_Types[Beam_Grazing_Angle])
 			{

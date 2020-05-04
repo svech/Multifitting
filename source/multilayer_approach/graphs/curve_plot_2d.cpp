@@ -426,7 +426,7 @@ void Curve_Plot_2D::refresh_Axes_Range()
 			{
 				QCPRange y_Range;
 				QCPRange x_Range = QCPRange(-independent_Curve->calc_Functions.field_Ambient_Distance,
-											-independent_Curve->calc_Functions.field_Ambient_Distance + values_2D->front().size()*independent_Curve->calc_Functions.field_Step);
+											-independent_Curve->calc_Functions.field_Ambient_Distance + (values_2D->front().size()-1)*independent_Curve->calc_Functions.field_Step);
 
 				if(	measurement.measurement_Type == measurement_Types[Specular_Scan] )
 				{

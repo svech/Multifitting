@@ -788,7 +788,7 @@ void GISAS_Target_Curve_Part::connecting()
 	connect(arg_Units_ComboBox, &QComboBox::currentTextChanged, this, [=]
 	{
 		refresh_Argument_Units();
-		global_Multilayer_Approach->calculate(true);
+		global_Multilayer_Approach->global_Recalculate();
 	});
 	// theta
 	connect(theta_Min_SpinBox, static_cast<void (MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
@@ -812,7 +812,7 @@ void GISAS_Target_Curve_Part::connecting()
 				curve_Plot_2D->plot_All_Data();
 			}
 		}
-		global_Multilayer_Approach->calculate(true);
+		global_Multilayer_Approach->global_Recalculate();
 	});
 	connect(theta_Max_SpinBox, static_cast<void (MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
 	{
@@ -835,7 +835,7 @@ void GISAS_Target_Curve_Part::connecting()
 				curve_Plot_2D->plot_All_Data();
 			}
 		}
-		global_Multilayer_Approach->calculate(true);
+		global_Multilayer_Approach->global_Recalculate();
 	});
 	// phi
 	connect(phi_Min_SpinBox, static_cast<void (MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
@@ -859,7 +859,7 @@ void GISAS_Target_Curve_Part::connecting()
 				curve_Plot_2D->plot_All_Data();
 			}
 		}
-		global_Multilayer_Approach->calculate(true);
+		global_Multilayer_Approach->global_Recalculate();
 	});
 	connect(phi_Max_SpinBox, static_cast<void (MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
 	{
@@ -882,7 +882,7 @@ void GISAS_Target_Curve_Part::connecting()
 				curve_Plot_2D->plot_All_Data();
 			}
 		}
-		global_Multilayer_Approach->calculate(true);
+		global_Multilayer_Approach->global_Recalculate();
 	});
 	// subinterval
 	connect(main_Subinterval_Checkbox, &QCheckBox::toggled, this, [=]
@@ -1085,13 +1085,13 @@ void GISAS_Target_Curve_Part::connecting()
 	connect(at_Fixed_Beam_Theta_0_SpinBox, static_cast<void (MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
 	{
 		refresh_At_Fixed_Beam_Theta_0_Value();
-		global_Multilayer_Approach->calculate(true);
+		global_Multilayer_Approach->global_Recalculate();
 	});
 	// at fixed wavelength
 	connect(at_Fixed_Wavelength_SpinBox, static_cast<void (MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
 	{
 		refresh_At_Fixed_Wavelength_Value();
-		global_Multilayer_Approach->calculate(true);
+		global_Multilayer_Approach->global_Recalculate();
 	});
 	// at fixed units
 	connect(at_Fixed_Wavelength_Units_ComboBox, &QComboBox::currentTextChanged, this, [=]
@@ -1112,21 +1112,21 @@ void GISAS_Target_Curve_Part::connecting()
 				curve_Plot_2D->set_Title_Text();
 			}
 		}
-		global_Multilayer_Approach->calculate(true);
+		global_Multilayer_Approach->global_Recalculate();
 	});
 	// background
 	connect(background_SpinBox, static_cast<void (MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
 	{
 		target_Curve->measurement.background = background_SpinBox->value();
 
-		global_Multilayer_Approach->calculate(true);
+		global_Multilayer_Approach->global_Recalculate();
 	});
 	// spectral width
 	connect(spectral_Width_SpinBox, static_cast<void (MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
 	{
 		target_Curve->measurement.spectral_Distribution.FWHM_distribution = spectral_Width_SpinBox->value();
 
-		global_Multilayer_Approach->calculate(true);
+		global_Multilayer_Approach->global_Recalculate();
 	});
 	// angular divergence
 	connect(angular_Divergence_Theta_0_SpinBox, static_cast<void (MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
@@ -1134,14 +1134,14 @@ void GISAS_Target_Curve_Part::connecting()
 		double coeff = angle_Coefficients_Map.value(target_Curve->angular_Units);
 		target_Curve->measurement.beam_Theta_0_Distribution.FWHM_distribution = angular_Divergence_Theta_0_SpinBox->value()*coeff;
 
-		global_Multilayer_Approach->calculate(true);
+		global_Multilayer_Approach->global_Recalculate();
 	});
 	connect(angular_Divergence_Phi_0_SpinBox, static_cast<void (MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
 	{
 		double coeff = angle_Coefficients_Map.value(target_Curve->angular_Units);
 		target_Curve->measurement.beam_Phi_0_Distribution.FWHM_distribution = angular_Divergence_Phi_0_SpinBox->value()*coeff;
 
-		global_Multilayer_Approach->calculate(true);
+		global_Multilayer_Approach->global_Recalculate();
 	});
 	// beam distribution button
 	connect(setup_Beam_Distribution_Button, &QPushButton::clicked, this, [=]

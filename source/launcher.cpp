@@ -17,7 +17,6 @@ Launcher::Launcher(QWidget *parent) :
 //	Settings::save_All_Settings();
 	Global_Variables::fill_Units_Maps();
 	global_Workers.resize(reflectivity_Calc_Threads);
-	can_Change_Index = tab_synchronization;
 
 	printf("\n%d logical cores, %d used\n", QThread::idealThreadCount(),reflectivity_Calc_Threads);
 	printf("\nMultifitting version %d.%d.%d\n\n", VERSION_MAJOR, VERSION_MINOR, VERSION_BUILD);

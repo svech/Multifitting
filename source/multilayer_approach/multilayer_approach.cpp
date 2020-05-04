@@ -90,21 +90,19 @@ void Multilayer_Approach::create_Multilayer_Tabs()
 	connect(multilayer_Tabs,		&QTabWidget::currentChanged,	 this, &Multilayer_Approach::change_Tab_Color);
 	connect(multilayer_Tabs,		&QTabWidget::tabBarDoubleClicked,this, &Multilayer_Approach::rename_Multilayer);
 
+	add_Multilayer();
+
 	connect(multilayer_Tabs,		&QTabWidget::currentChanged,	 this, [=]
 	{
-		if(can_Change_Index)
+		if(tab_synchronization)
 		{
-			can_Change_Index = false;
 			if(runned_Tables_Of_Structures.contains(table_Of_Structures_Key)) {table_Of_Structures		  ->main_Tabs->setCurrentIndex(multilayer_Tabs->currentIndex());}
 			if(runned_Optical_Graphs_2D.contains(optical_Graphs_2D_Key))	  {optical_Graphs_2D		  ->main_Tabs->setCurrentIndex(multilayer_Tabs->currentIndex());}
 			if(runned_Optical_Graphs_1D.contains(optical_Graphs_1D_Key))	  {optical_Graphs_1D		  ->main_Tabs->setCurrentIndex(multilayer_Tabs->currentIndex());}
 			if(runned_Profile_Plots_Window.contains(profile_Plots_Key))		  {profile_Plots_Window		  ->main_Tabs->setCurrentIndex(multilayer_Tabs->currentIndex());}
 			if(runned_Calculation_Settings_Editor.contains(calc_Settings_Key)){calculation_Settings_Editor->main_Tabs->setCurrentIndex(multilayer_Tabs->currentIndex());}
-			can_Change_Index = tab_synchronization;
-		}		
+		}
 	});
-
-	add_Multilayer();
 }
 
 void Multilayer_Approach::create_Fitting_Settings()
@@ -169,6 +167,9 @@ void Multilayer_Approach::fast_Hide_Windows()
 	}
 	if(runned_Fitting_Settings_Editor.contains(fit_Settings_Key))	{
 		fitting_Settings_Editor->close();
+	}
+	if(runned_General_Settings_Editor.contains(general_Settings_Key))	{
+		general_Settings_Editor->close();
 	}
 	for(Regular_Aperiodic_Table* regular_Aperiodic_Table: runned_Regular_Aperiodic_Tables) {
 		regular_Aperiodic_Table->write_Window_Geometry();
@@ -1114,35 +1115,30 @@ void Multilayer_Approach::open(QString filename)
 	if(reopen_Table)
 	{
 		open_Table_Of_Structures();
-		runned_Tables_Of_Structures.value(table_Of_Structures_Key)->main_Tabs->setCurrentIndex(active_Tab_Tables_Of_Structures);
 	}
 
 	// reopen calculation settings
 	if(reopen_Calc_Settings)
 	{
 		open_Calculation_Settings();
-		runned_Calculation_Settings_Editor.value(calc_Settings_Key)->main_Tabs->setCurrentIndex(active_Tab_Calculation_Settings_Editor);
 	}
 
 	// reopen 1D graphs
 	if(reopen_Graphs_1D)
 	{
 		open_Optical_Graphs_1D();
-		runned_Optical_Graphs_1D.value(optical_Graphs_1D_Key)->main_Tabs->setCurrentIndex(active_Tab_Optical_Graphs_1D);
 	}
 
 	// reopen 2D graphs
 	if(reopen_Graphs_2D)
 	{
 		open_Optical_Graphs_2D();
-		runned_Optical_Graphs_2D.value(optical_Graphs_2D_Key)->main_Tabs->setCurrentIndex(active_Tab_Optical_Graphs_2D);
 	}
 
 	// close profile
 	if(reopen_Profile_Plots)
 	{
 		open_Profile_Plots();
-		runned_Profile_Plots_Window.value(profile_Plots_Key)->main_Tabs->setCurrentIndex(active_Tab_Profile_Plots);
 	}
 
 	// reopen fitting settings
@@ -1170,7 +1166,11 @@ void Multilayer_Approach::open(QString filename)
 
 void Multilayer_Approach::open_As()
 {
-	QFileInfo filename = QDir::toNativeSeparators(QFileDialog::getOpenFileName(this, "Open saved file", last_directory, "Multifitting files " + QString("*.fit") + ";;All files (*.*)"));
+	QString directory_To_Open = QDir::currentPath();
+	if(use_working_directory) directory_To_Open = working_directory;
+	if(use_last_directory)	  directory_To_Open = last_directory;
+
+	QFileInfo filename = QDir::toNativeSeparators(QFileDialog::getOpenFileName(this, "Open saved file", directory_To_Open, "Multifitting files " + QString("*.fit") + ";;All files (*.*)"));
 	if(!filename.completeBaseName().isEmpty())
 	{
 		last_file = filename.absoluteFilePath();
@@ -1364,7 +1364,11 @@ void Multilayer_Approach::save(QString filename)
 
 void Multilayer_Approach::save_As()
 {
-	QFileInfo filename = QDir::toNativeSeparators(QFileDialog::getSaveFileName(this, "Save as", last_directory, "Multifitting files " + QString("*.fit") + ";;All files (*.*)"));
+	QString directory_To_Save = QDir::currentPath();
+	if(use_working_directory) directory_To_Save = working_directory;
+	if(use_last_directory)	  directory_To_Save = last_directory;
+
+	QFileInfo filename = QDir::toNativeSeparators(QFileDialog::getSaveFileName(this, "Save as", directory_To_Save, "Multifitting files " + QString("*.fit") + ";;All files (*.*)"));
 	if(!filename.completeBaseName().isEmpty())
 	{
 		QFileInfo filename2;
@@ -1395,6 +1399,14 @@ void Multilayer_Approach::calculate(bool silent)
 		Main_Calculation_Module* main_Calculation_Module = new Main_Calculation_Module(CALCULATION);
 		main_Calculation_Module->single_Calculation(!silent);
 		delete main_Calculation_Module;
+	}
+}
+
+void Multilayer_Approach::global_Recalculate(bool silent)
+{
+	if(recalculate_Spinbox_Global)
+	{
+		calculate(silent);
 	}
 }
 

@@ -646,7 +646,7 @@ void Rocking_Target_Curve_Part::connecting()
 	connect(arg_Units_ComboBox, &QComboBox::currentTextChanged, this, [=]
 	{
 		refresh_Argument_Units();
-		global_Multilayer_Approach->calculate(true);
+		global_Multilayer_Approach->global_Recalculate();
 	});
 	// argument shift
 	connect(arg_Shift_SpinBox, static_cast<void (MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
@@ -670,7 +670,7 @@ void Rocking_Target_Curve_Part::connecting()
 				curve_Plot_1D->plot_All_Data();
 			}
 		}
-		global_Multilayer_Approach->calculate(true);
+		global_Multilayer_Approach->global_Recalculate();
 	});
 	// argument factor
 	connect(arg_Factor_SpinBox, static_cast<void (MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
@@ -694,7 +694,7 @@ void Rocking_Target_Curve_Part::connecting()
 				curve_Plot_1D->plot_All_Data();
 			}
 		}
-		global_Multilayer_Approach->calculate(true);
+		global_Multilayer_Approach->global_Recalculate();
 	});
 	// subinterval
 	connect(main_Subinterval_Checkbox, &QCheckBox::toggled, this, [=]
@@ -893,13 +893,13 @@ void Rocking_Target_Curve_Part::connecting()
 	connect(at_Fixed_Specular_Position_SpinBox, static_cast<void (MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
 	{
 		refresh_At_Fixed_Specular_Position();
-		global_Multilayer_Approach->calculate(true);
+		global_Multilayer_Approach->global_Recalculate();
 	});
 	// at fixed wavelength
 	connect(at_Fixed_Wavelength_SpinBox, static_cast<void (MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
 	{
 		refresh_At_Fixed_Wavelength_Value();
-		global_Multilayer_Approach->calculate(true);
+		global_Multilayer_Approach->global_Recalculate();
 	});
 	// at fixed units
 	connect(at_Fixed_Wavelength_Units_ComboBox, &QComboBox::currentTextChanged, this, [=]
@@ -920,21 +920,21 @@ void Rocking_Target_Curve_Part::connecting()
 				curve_Plot_1D->set_Title_Text();
 			}
 		}
-		global_Multilayer_Approach->calculate(true);
+		global_Multilayer_Approach->global_Recalculate();
 	});
 	// background
 	connect(background_SpinBox, static_cast<void (MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
 	{
 		target_Curve->measurement.background = background_SpinBox->value();
 
-		global_Multilayer_Approach->calculate(true);
+		global_Multilayer_Approach->global_Recalculate();
 	});
 	// spectral width
 	connect(spectral_Width_SpinBox, static_cast<void (MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
 	{
 		target_Curve->measurement.spectral_Distribution.FWHM_distribution = spectral_Width_SpinBox->value();
 
-		global_Multilayer_Approach->calculate(true);
+		global_Multilayer_Approach->global_Recalculate();
 	});
 	// angular divergence
 	connect(angular_Divergence_SpinBox, static_cast<void (MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
@@ -942,7 +942,7 @@ void Rocking_Target_Curve_Part::connecting()
 		double coeff = angle_Coefficients_Map.value(target_Curve->angular_Units);
 		target_Curve->measurement.beam_Theta_0_Distribution.FWHM_distribution = angular_Divergence_SpinBox->value()*coeff;
 
-		global_Multilayer_Approach->calculate(true);
+		global_Multilayer_Approach->global_Recalculate();
 	});
 	// beam distribution button
 	connect(setup_Beam_Distribution_Button, &QPushButton::clicked, this, [=]

@@ -424,10 +424,6 @@ QString multilayer_Approach_Default_Title = "Multifitting";
 
 // -----------------------------------------------------------------------------------------
 
-bool can_Change_Index;
-
-// -----------------------------------------------------------------------------------------
-
 Optical_Constants* optical_Constants;
 
 Global_Variables::Global_Variables()
@@ -1044,21 +1040,35 @@ void Global_Variables::create_Shortcuts(QWidget* this_Widget)
 		connect(save_Shortcut,				&QShortcut::activated, this_Widget, [=]
 		{
 			if(global_Multilayer_Approach->file_Was_Opened_or_Saved)
+			{
 				global_Multilayer_Approach->save(last_file);
+			}
 			else
-				global_Multilayer_Approach->save(default_File);
+			{
+				QString path = "";
+				if(use_working_directory) path = working_directory + "/";
+				if(use_last_directory)	  path = last_directory + "/";
+				global_Multilayer_Approach->save(path + default_File);
+			}
 		});
 		connect(save_As_Shortcut,			&QShortcut::activated, this_Widget, [=]{ global_Multilayer_Approach->save_As();					 });
 		connect(open_Shortcut,				&QShortcut::activated, this_Widget, [=]
 		{
 			if(global_Multilayer_Approach->file_Was_Opened_or_Saved)
+			{
 				global_Multilayer_Approach->open(last_file);
+			}
 			else
-				global_Multilayer_Approach->open(default_File);
+			{
+				QString path = "";
+				if(use_working_directory) path = working_directory + "/";
+				if(use_last_directory)	  path = last_directory + "/";
+				global_Multilayer_Approach->open(path + default_File);
+			}
 		});
 		connect(open_As_Shortcut,			&QShortcut::activated, this_Widget, [=]{ global_Multilayer_Approach->open_As();					 });
 		connect(fit_Shortcut,				&QShortcut::activated, this_Widget, [=]{ global_Multilayer_Approach->start_Fitting();		     });
-		connect(calc_Specular_Shortcut,		&QShortcut::activated, this_Widget, [=]{ global_Multilayer_Approach->calculate();			 });
+		connect(calc_Specular_Shortcut,		&QShortcut::activated, this_Widget, [=]{ global_Multilayer_Approach->calculate();				 });
 		connect(calc_Confidence_Shortcut,	&QShortcut::activated, this_Widget, [=]{ global_Multilayer_Approach->calc_Confidence_Intervals();});
 		connect(abort_Shortcut,				&QShortcut::activated, this_Widget, [=]{ global_Multilayer_Approach->abort_Calculations();		 });
 	}

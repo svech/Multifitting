@@ -217,10 +217,16 @@ void Fits_Selector::open_Fit()
 	// recalculate and replot
 	if(opened)
 	{
-		global_Multilayer_Approach->calculate(true);
+		global_Multilayer_Approach->global_Recalculate();
 		if(global_Multilayer_Approach->runned_Optical_Graphs_1D.contains(optical_Graphs_1D_Key))
 		{
 			global_Multilayer_Approach->optical_Graphs_1D->activateWindow();
+		} else
+		{
+			if(global_Multilayer_Approach->runned_Optical_Graphs_2D.contains(optical_Graphs_2D_Key))
+			{
+				global_Multilayer_Approach->optical_Graphs_2D->activateWindow();
+			}
 		}
 	}
 

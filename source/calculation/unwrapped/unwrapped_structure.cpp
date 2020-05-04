@@ -319,10 +319,10 @@ void Unwrapped_Structure::find_Field_Spacing()
 		structure_Thickness += thickness[layer_Index];
 	}
 	structure_Thickness += calc_Functions.field_Substrate_Distance;
-	num_Field_Slices = ceil(structure_Thickness/calc_Functions.field_Step);
+	num_Field_Slices = ceil(structure_Thickness/calc_Functions.field_Step)+1;
 
 	field_Z_Positions.resize(num_Field_Slices);
-	for(size_t i=0; i<num_Field_Slices; ++i)
+	for(int i=0; i<num_Field_Slices; ++i)
 	{
 		field_Z_Positions[i] = i*calc_Functions.field_Step;
 	}
