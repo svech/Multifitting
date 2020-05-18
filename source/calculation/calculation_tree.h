@@ -75,6 +75,7 @@ public:
 	bool sigma_Grading = false;
 
 	int max_Depth;
+	int depth_Threshold;
 	int num_Media;
 
 	QVector<Data_Element<Independent_Curve>> independent;

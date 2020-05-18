@@ -283,7 +283,7 @@ void Main_Calculation_Module::single_Calculation(bool print_And_Verbose)
 	{
 		auto end = std::chrono::system_clock::now();
 		auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-		qInfo() << "Calculation: "<< elapsed.count()/1000000. << " seconds" << endl;
+		qInfo() << "\nCalculation: "<< elapsed.count()/1000000. << " seconds" << endl;
 	}
 
 	// replot graphs

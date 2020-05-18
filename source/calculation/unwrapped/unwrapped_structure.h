@@ -10,7 +10,7 @@
 class Unwrapped_Structure
 {
 public:
-	Unwrapped_Structure(const Calc_Functions& calc_Functions, const tree<Node>& calc_Tree, const Data& measurement, int num_Media, int max_Depth, bool depth_Grading, bool sigma_Grading, Discretization_Parameters discretization_Parameters, gsl_rng* r);
+	Unwrapped_Structure(const Calc_Functions& calc_Functions, const tree<Node>& calc_Tree, const Data& measurement, int num_Media, int max_Depth, int depth_Threshold, bool depth_Grading, bool sigma_Grading, Discretization_Parameters discretization_Parameters, gsl_rng* r);
 
 	gsl_rng * r;
 
@@ -19,6 +19,7 @@ public:
 	int num_Boundaries;
 	int num_Layers;
 	int max_Depth;
+	int depth_Threshold;
 
 	bool depth_Grading;
 	bool sigma_Grading;

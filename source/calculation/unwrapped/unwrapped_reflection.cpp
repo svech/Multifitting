@@ -8,6 +8,7 @@ Unwrapped_Reflection::Unwrapped_Reflection(Unwrapped_Structure* unwrapped_Struct
 	num_Boundaries	(num_Media-1),
 	num_Media		(num_Media),
 	max_Depth		(unwrapped_Structure->max_Depth),
+	depth_Threshold	(unwrapped_Structure->depth_Threshold),
 	depth_Grading	(depth_Grading),
 	sigma_Grading	(sigma_Grading),
 	calc_Functions  (calc_Functions),
@@ -79,7 +80,7 @@ Unwrapped_Reflection::Unwrapped_Reflection(Unwrapped_Structure* unwrapped_Struct
 		calculated_Values.T  .resize(num_Points);
 		calculated_Values.T_Instrumental.resize(num_Points);
 	}
-	// scattering
+	// absorptance
 	if(	unwrapped_Structure->calc_Functions.check_Absorptance)
 	{
 		calculated_Values.A_s.resize(num_Points);
@@ -111,8 +112,7 @@ Unwrapped_Reflection::Unwrapped_Reflection(Unwrapped_Structure* unwrapped_Struct
 			calculated_Values.absorption_Map [i].resize(unwrapped_Structure->num_Field_Slices);
 		}
 	}
-
-	// absorptance
+	// scattering
 	if(	unwrapped_Structure->calc_Functions.check_Scattering)
 	{
 		calculated_Values.S_s.resize(num_Points);
@@ -120,7 +120,6 @@ Unwrapped_Reflection::Unwrapped_Reflection(Unwrapped_Structure* unwrapped_Struct
 		calculated_Values.S  .resize(num_Points);
 		calculated_Values.S_Instrumental.resize(num_Points);
 	}
-
 	// GISAS
 	if(	unwrapped_Structure->calc_Functions.check_GISAS)
 	{
@@ -791,11 +790,8 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(const Data& measuremen
 {
 //	auto start = std::chrono::system_clock::now();
 	// PARAMETER
-
-	int depth_Threshold = 2;
-
 	if(!unwrapped_Structure->discretization_Parameters.enable_Discretization)
-	{
+	{		
 		if( max_Depth <= depth_Threshold)
 		{
 			// in case of grading, some of these values are temporary and will be recalculated

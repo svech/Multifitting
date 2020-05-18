@@ -18,6 +18,7 @@ public:
 	int num_Boundaries;
 	int num_Media;
 	int max_Depth;
+	int depth_Threshold;
 	int num_Points = 0;
 
 	bool depth_Grading;

@@ -53,6 +53,7 @@ Calculation_Tree::Calculation_Tree(Multilayer* multilayer, QString calc_Mode):
 	create_Rand_Generator();
 	check_If_Graded();
 	max_Depth = Global_Variables::get_Tree_Depth(real_Struct_Tree->invisibleRootItem());	// unstratified depth
+	depth_Threshold = 2;
 }
 
 void Calculation_Tree::prepare_Residual_Expressions()
@@ -301,36 +302,6 @@ void Calculation_Tree::stratify_Calc_Tree(tree<Node>& calc_Tree)
 //				chosen_Child.node->data.struct_Data.num_Repetition.value = 0;
 			} else
 
-			/// add before and after
-//			// if 2 periods
-//			if(chosen_Child.node->data.struct_Data.num_Repetition.value() == 2)
-//			{
-//				tree<Node>::iterator next = chosen_Child;
-//				for(unsigned child_Index=0; child_Index<chosen_Child.number_of_children(); ++child_Index)
-//				{
-//					calc_Tree.insert_subtree     (chosen_Child, tree<Node>::child(chosen_Child,child_Index));
-//					next = calc_Tree.insert_subtree_after(next, tree<Node>::child(chosen_Child,child_Index));
-//				}
-//				// delete
-//				calc_Tree.erase(chosen_Child);
-//				// not delete
-////				chosen_Child.node->data.stack_Content.num_Repetition.value = 0;
-//			} else
-
-//			// if >=3 periods
-//			if(chosen_Child.node->data.struct_Data.num_Repetition.value() >= 3)
-//			{
-//				tree<Node>::iterator next = chosen_Child;
-//				for(unsigned child_Index=0; child_Index<chosen_Child.number_of_children(); ++child_Index)
-//				{
-//					calc_Tree.insert_subtree     (chosen_Child, tree<Node>::child(chosen_Child,child_Index));
-//					next = calc_Tree.insert_subtree_after(next, tree<Node>::child(chosen_Child,child_Index));
-//				}
-//				// change data
-//				chosen_Child.node->data.struct_Data.num_Repetition.parameter.value -= 2;
-//			}
-
-			/// add before only
 			// if >=2 periods
 			if(chosen_Child.node->data.struct_Data.num_Repetition.value() >= 2)
 			{
@@ -338,16 +309,24 @@ void Calculation_Tree::stratify_Calc_Tree(tree<Node>& calc_Tree)
 				{
 					// save number of periods and drift for drift calculation
 					tree<Node>::post_order_iterator layer = tree<Node>::child(chosen_Child,child_Index);
-					layer.node->data.struct_Data.num_Repetition.parameter.value  = chosen_Child.node->data.struct_Data.num_Repetition.parameter.value;
-
-					calc_Tree.insert_subtree     (chosen_Child, tree<Node>::child(chosen_Child,child_Index));
+					if(layer.node->data.struct_Data.item_Type == item_Type_Layer)
+					{
+						layer.node->data.struct_Data.num_Repetition.parameter.value = chosen_Child.node->data.struct_Data.num_Repetition.parameter.value;
+					}
 				}
 				// change data
 				if(chosen_Child.node->data.struct_Data.item_Type != item_Type_Regular_Aperiodic)
 				{chosen_Child.node->data.struct_Data.num_Repetition.parameter.value -= 1;}
+
+				for(unsigned child_Index=0; child_Index<chosen_Child.number_of_children(); ++child_Index)
+				{
+					calc_Tree.insert_subtree(chosen_Child, tree<Node>::child(chosen_Child,child_Index));
+				}
 			}
 		}
 	}
+//	print_Tree(calc_Tree.begin(), calc_Tree);
+//	qInfo() << endl << endl;
 }
 
 
@@ -382,24 +361,24 @@ template void Calculation_Tree::calculate_1_Kind_Preliminary<Target_Curve>		   (
 template<typename Type>
 void Calculation_Tree::calculate_1_Kind(Data_Element<Type>& data_Element)
 {
-//	auto start = std::chrono::system_clock::now();
+	auto start = std::chrono::system_clock::now();
 	calculate_Intermediate_Values_1_Tree(data_Element.calc_Tree, data_Element.the_Class->measurement, data_Element.calc_Tree.begin());
 	if(lambda_Out_Of_Range) return;
-//	auto end = std::chrono::system_clock::now();
-//	auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+	auto end = std::chrono::system_clock::now();
+	auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
 //	qInfo() << "\nIntermediate:   "<< elapsed.count()/1000000. << " seconds" << endl;
 
-//	start = std::chrono::system_clock::now();
+	start = std::chrono::system_clock::now();
 	calculate_Unwrapped_Structure		(data_Element.calc_Functions, data_Element.calc_Tree, data_Element.the_Class->measurement, data_Element.unwrapped_Structure);
-//	end = std::chrono::system_clock::now();
-//	elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+	end = std::chrono::system_clock::now();
+	elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
 //	qInfo() << "Unwrap:         "<< elapsed.count()/1000000. << " seconds" << endl;
 
-//	start = std::chrono::system_clock::now();
+	start = std::chrono::system_clock::now();
 	calculate_Unwrapped_Reflectivity	(data_Element.calc_Functions, data_Element.the_Class->calculated_Values, data_Element.the_Class->measurement, data_Element.unwrapped_Structure, data_Element.unwrapped_Reflection);
-//	end = std::chrono::system_clock::now();
-//	elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-//	qInfo() << "Unwrap Reflect: "<< elapsed.count()/1000000. << " seconds" << endl;
+	end = std::chrono::system_clock::now();
+	elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+	qInfo() << "Unwrap Reflect: "<< elapsed.count()/1000000. << " seconds" << endl;
 }
 template void Calculation_Tree::calculate_1_Kind<Independent_Curve>(Data_Element<Independent_Curve>&);
 template void Calculation_Tree::calculate_1_Kind<Target_Curve>	   (Data_Element<Target_Curve>&);
@@ -430,7 +409,7 @@ void Calculation_Tree::calculate_Unwrapped_Structure(const Calc_Functions& calc_
 	delete unwrapped_Structure_Vec_Element;
 	num_Media = get_Total_Num_Layers(calc_Tree.begin(), calc_Tree);
 
-	Unwrapped_Structure* new_Unwrapped_Structure  = new Unwrapped_Structure (calc_Functions, calc_Tree, measurement, num_Media, max_Depth, depth_Grading, sigma_Grading, multilayer->discretization_Parameters, r);
+	Unwrapped_Structure* new_Unwrapped_Structure = new Unwrapped_Structure (calc_Functions, calc_Tree, measurement, num_Media, max_Depth, depth_Threshold, depth_Grading, sigma_Grading, multilayer->discretization_Parameters, r);
 	unwrapped_Structure_Vec_Element = new_Unwrapped_Structure;
 
 	if(unwrapped_Structure_Vec_Element->discretization_Parameters.enable_Discretization)

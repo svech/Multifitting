@@ -217,7 +217,7 @@ void General_Settings_Editor::create_Output_Tab()
 
 		//----------------------------------------------------------------------------
 
-		QRadioButton* last_Radiobitton = new QRadioButton("Save/output to .fit file directory");
+		QRadioButton* last_Radiobitton = new QRadioButton("Save/output to last .fit file directory");
 			last_Radiobitton->setChecked(use_last_directory);
 		groupbox_Layout->addWidget(last_Radiobitton);
 

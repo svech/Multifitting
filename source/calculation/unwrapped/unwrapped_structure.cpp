@@ -1,19 +1,20 @@
 #include "unwrapped_structure.h"
 
-Unwrapped_Structure::Unwrapped_Structure(const Calc_Functions& calc_Functions, const tree<Node>& calc_Tree, const Data& measurement, int num_Media, int max_Depth, bool depth_Grading, bool sigma_Grading, Discretization_Parameters discretization_Parameters, gsl_rng* r):
+Unwrapped_Structure::Unwrapped_Structure(const Calc_Functions& calc_Functions, const tree<Node>& calc_Tree, const Data& measurement, int num_Media, int max_Depth, int depth_Threshold, bool depth_Grading, bool sigma_Grading, Discretization_Parameters discretization_Parameters, gsl_rng* r):
 	r(r),
 	num_Threads		(epsilon_Partial_Fill_Threads),
 	num_Media		(num_Media),
 	num_Boundaries	(num_Media - 1),
 	num_Layers		(num_Media - 2),
 	max_Depth		(max_Depth),
+	depth_Threshold	(depth_Threshold),
 	depth_Grading	(depth_Grading),
 	sigma_Grading	(sigma_Grading),	
 	discretization_Parameters(discretization_Parameters),
 	calc_Tree		(calc_Tree),
 	calc_Functions  (calc_Functions)
 {
-	int depth_Threshold = 2;
+	qInfo()<< "max_Depth" << max_Depth << endl;
 
 	// recalculate all if depth is big
 	if( (max_Depth > depth_Threshold) || discretization_Parameters.enable_Discretization
