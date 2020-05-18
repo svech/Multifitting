@@ -135,7 +135,7 @@ Unwrapped_Reflection::~Unwrapped_Reflection()
 {
 }
 
-int Unwrapped_Reflection::fill_s__Max_Depth_2(const tree<Node>::iterator& parent, int thread_Index, int point_Index, int media_Index)
+int Unwrapped_Reflection::fill_s__Max_Depth_3(const tree<Node>::iterator& parent, int thread_Index, int point_Index, int media_Index)
 {
 	for(unsigned child_Index=0; child_Index<parent.number_of_children(); ++child_Index)
 	{
@@ -166,30 +166,74 @@ int Unwrapped_Reflection::fill_s__Max_Depth_2(const tree<Node>::iterator& parent
 			++media_Index;
 		} else
 		if( child_Data.item_Type == item_Type_Multilayer ||
-			child_Data.item_Type == item_Type_Regular_Aperiodic )
+			child_Data.item_Type == item_Type_Regular_Aperiodic	)
 		{
 			int start_Period = 0;
 			if(child_Data.item_Type == item_Type_Regular_Aperiodic) // only slight difference here
 			{	start_Period = 1;	}
 
-			for(int period_Index=start_Period; period_Index<child_Data.num_Repetition.value(); ++period_Index)
+			if(max_Depth == 2)
 			{
-				for(unsigned grandchild_Index=0; grandchild_Index<child.number_of_children(); ++grandchild_Index)
+				for(int period_Index=start_Period; period_Index<child_Data.num_Repetition.value(); ++period_Index)
 				{
-					tree<Node>::post_order_iterator grandchild = tree<Node>::child(child,grandchild_Index);
-					hi         [thread_Index][media_Index  ] = grandchild.node->data.hi			[point_Index];
-					r_Fresnel_s[thread_Index][media_Index-1] = grandchild.node->data.Fresnel_R_s[point_Index] * grandchild.node->data.weak_Factor_R[point_Index];
-					t_Fresnel_s[thread_Index][media_Index-1] = grandchild.node->data.Fresnel_T_s[point_Index] * grandchild.node->data.weak_Factor_T[point_Index];
-					exponenta  [thread_Index][media_Index-1] = grandchild.node->data.exponenta  [point_Index];
-					exponenta_2[thread_Index][media_Index-1] = grandchild.node->data.exponenta_2[point_Index];
-					++media_Index;
+					for(unsigned grandchild_Index=0; grandchild_Index<child.number_of_children(); ++grandchild_Index)
+					{
+						tree<Node>::post_order_iterator grandchild = tree<Node>::child(child,grandchild_Index);
+						hi         [thread_Index][media_Index  ] = grandchild.node->data.hi			[point_Index];
+						r_Fresnel_s[thread_Index][media_Index-1] = grandchild.node->data.Fresnel_R_s[point_Index] * grandchild.node->data.weak_Factor_R[point_Index];
+						t_Fresnel_s[thread_Index][media_Index-1] = grandchild.node->data.Fresnel_T_s[point_Index] * grandchild.node->data.weak_Factor_T[point_Index];
+						exponenta  [thread_Index][media_Index-1] = grandchild.node->data.exponenta  [point_Index];
+						exponenta_2[thread_Index][media_Index-1] = grandchild.node->data.exponenta_2[point_Index];
+						++media_Index;
+					}
+				}
+			} else
+			{
+				for(int period_Index=start_Period; period_Index<child_Data.num_Repetition.value(); ++period_Index)
+				{
+					for(unsigned grandchild_Index=0; grandchild_Index<child.number_of_children(); ++grandchild_Index)
+					{
+						tree<Node>::post_order_iterator grandchild = tree<Node>::child(child,grandchild_Index);
+						const Data& grandchild_Data = grandchild.node->data.struct_Data;
+
+						if(grandchild_Data.item_Type == item_Type_Layer)
+						{
+							hi         [thread_Index][media_Index  ] = grandchild.node->data.hi			[point_Index];
+							r_Fresnel_s[thread_Index][media_Index-1] = grandchild.node->data.Fresnel_R_s[point_Index] * grandchild.node->data.weak_Factor_R[point_Index];
+							t_Fresnel_s[thread_Index][media_Index-1] = grandchild.node->data.Fresnel_T_s[point_Index] * grandchild.node->data.weak_Factor_T[point_Index];
+							exponenta  [thread_Index][media_Index-1] = grandchild.node->data.exponenta  [point_Index];
+							exponenta_2[thread_Index][media_Index-1] = grandchild.node->data.exponenta_2[point_Index];
+							++media_Index;
+						} else
+						if( grandchild_Data.item_Type == item_Type_Multilayer ||
+							grandchild_Data.item_Type == item_Type_Regular_Aperiodic )
+						{
+							int start_Period_1 = 0;
+							if(grandchild_Data.item_Type == item_Type_Regular_Aperiodic) // only slight difference here
+							{	start_Period_1 = 1;	}
+
+							for(int period_Index_1=start_Period_1; period_Index_1<grandchild_Data.num_Repetition.value(); ++period_Index_1)
+							{
+								for(unsigned grandgrandchild_Index=0; grandgrandchild_Index<grandchild.number_of_children(); ++grandgrandchild_Index)
+								{
+									tree<Node>::post_order_iterator grandgrandchild = tree<Node>::child(grandchild,grandgrandchild_Index);
+									hi         [thread_Index][media_Index  ] = grandgrandchild.node->data.hi		 [point_Index];
+									r_Fresnel_s[thread_Index][media_Index-1] = grandgrandchild.node->data.Fresnel_R_s[point_Index] * grandgrandchild.node->data.weak_Factor_R[point_Index];
+									t_Fresnel_s[thread_Index][media_Index-1] = grandgrandchild.node->data.Fresnel_T_s[point_Index] * grandgrandchild.node->data.weak_Factor_T[point_Index];
+									exponenta  [thread_Index][media_Index-1] = grandgrandchild.node->data.exponenta  [point_Index];
+									exponenta_2[thread_Index][media_Index-1] = grandgrandchild.node->data.exponenta_2[point_Index];
+									++media_Index;
+								}
+							}
+						}
+					}
 				}
 			}
 		}
 	}
 	return media_Index;
 }
-int Unwrapped_Reflection::fill_p__Max_Depth_2(const tree<Node>::iterator& parent, int thread_Index, int point_Index, int media_Index)
+int Unwrapped_Reflection::fill_p__Max_Depth_3(const tree<Node>::iterator& parent, int thread_Index, int point_Index, int media_Index)
 {
 	for(unsigned child_Index=0; child_Index<parent.number_of_children(); ++child_Index)
 	{
@@ -226,24 +270,68 @@ int Unwrapped_Reflection::fill_p__Max_Depth_2(const tree<Node>::iterator& parent
 			if(child_Data.item_Type == item_Type_Regular_Aperiodic) // only slight difference here
 			{	start_Period = 1;	}
 
-			for(int period_Index=start_Period; period_Index<child_Data.num_Repetition.value(); ++period_Index)
+			if(max_Depth == 2)
 			{
-				for(unsigned grandchild_Index=0; grandchild_Index<child.number_of_children(); ++grandchild_Index)
+				for(int period_Index=start_Period; period_Index<child_Data.num_Repetition.value(); ++period_Index)
 				{
-					tree<Node>::post_order_iterator grandchild = tree<Node>::child(child,grandchild_Index);
-					hi         [thread_Index][media_Index  ] = grandchild.node->data.hi		    [point_Index];
-					r_Fresnel_p[thread_Index][media_Index-1] = grandchild.node->data.Fresnel_R_p[point_Index] * grandchild.node->data.weak_Factor_R[point_Index];
-					t_Fresnel_p[thread_Index][media_Index-1] = grandchild.node->data.Fresnel_T_p[point_Index] * grandchild.node->data.weak_Factor_T[point_Index];
-					exponenta  [thread_Index][media_Index-1] = grandchild.node->data.exponenta  [point_Index];
-					exponenta_2[thread_Index][media_Index-1] = grandchild.node->data.exponenta_2[point_Index];
-					++media_Index;
+					for(unsigned grandchild_Index=0; grandchild_Index<child.number_of_children(); ++grandchild_Index)
+					{
+						tree<Node>::post_order_iterator grandchild = tree<Node>::child(child,grandchild_Index);
+						hi         [thread_Index][media_Index  ] = grandchild.node->data.hi		    [point_Index];
+						r_Fresnel_p[thread_Index][media_Index-1] = grandchild.node->data.Fresnel_R_p[point_Index] * grandchild.node->data.weak_Factor_R[point_Index];
+						t_Fresnel_p[thread_Index][media_Index-1] = grandchild.node->data.Fresnel_T_p[point_Index] * grandchild.node->data.weak_Factor_T[point_Index];
+						exponenta  [thread_Index][media_Index-1] = grandchild.node->data.exponenta  [point_Index];
+						exponenta_2[thread_Index][media_Index-1] = grandchild.node->data.exponenta_2[point_Index];
+						++media_Index;
+					}
+				}
+			} else
+			{
+				for(int period_Index=start_Period; period_Index<child_Data.num_Repetition.value(); ++period_Index)
+				{
+					for(unsigned grandchild_Index=0; grandchild_Index<child.number_of_children(); ++grandchild_Index)
+					{
+						tree<Node>::post_order_iterator grandchild = tree<Node>::child(child,grandchild_Index);
+						const Data& grandchild_Data = grandchild.node->data.struct_Data;
+
+						if(grandchild_Data.item_Type == item_Type_Layer)
+						{
+							hi         [thread_Index][media_Index  ] = grandchild.node->data.hi			[point_Index];
+							r_Fresnel_p[thread_Index][media_Index-1] = grandchild.node->data.Fresnel_R_p[point_Index] * grandchild.node->data.weak_Factor_R[point_Index];
+							t_Fresnel_p[thread_Index][media_Index-1] = grandchild.node->data.Fresnel_T_p[point_Index] * grandchild.node->data.weak_Factor_T[point_Index];
+							exponenta  [thread_Index][media_Index-1] = grandchild.node->data.exponenta  [point_Index];
+							exponenta_2[thread_Index][media_Index-1] = grandchild.node->data.exponenta_2[point_Index];
+							++media_Index;
+						} else
+						if( grandchild_Data.item_Type == item_Type_Multilayer ||
+							grandchild_Data.item_Type == item_Type_Regular_Aperiodic )
+						{
+							int start_Period_1 = 0;
+							if(grandchild_Data.item_Type == item_Type_Regular_Aperiodic) // only slight difference here
+							{	start_Period_1 = 1;	}
+
+							for(int period_Index_1=start_Period_1; period_Index_1<grandchild_Data.num_Repetition.value(); ++period_Index_1)
+							{
+								for(unsigned grandgrandchild_Index=0; grandgrandchild_Index<grandchild.number_of_children(); ++grandgrandchild_Index)
+								{
+									tree<Node>::post_order_iterator grandgrandchild = tree<Node>::child(grandchild,grandgrandchild_Index);
+									hi         [thread_Index][media_Index  ] = grandgrandchild.node->data.hi		 [point_Index];
+									r_Fresnel_p[thread_Index][media_Index-1] = grandgrandchild.node->data.Fresnel_R_p[point_Index] * grandgrandchild.node->data.weak_Factor_R[point_Index];
+									t_Fresnel_p[thread_Index][media_Index-1] = grandgrandchild.node->data.Fresnel_T_p[point_Index] * grandgrandchild.node->data.weak_Factor_T[point_Index];
+									exponenta  [thread_Index][media_Index-1] = grandgrandchild.node->data.exponenta  [point_Index];
+									exponenta_2[thread_Index][media_Index-1] = grandgrandchild.node->data.exponenta_2[point_Index];
+									++media_Index;
+								}
+							}
+						}
+					}
 				}
 			}
 		}
 	}
 	return media_Index;
 }
-int Unwrapped_Reflection::fill_sp_Max_Depth_2(const tree<Node>::iterator& parent, int thread_Index, int point_Index, int media_Index)
+int Unwrapped_Reflection::fill_sp_Max_Depth_3(const tree<Node>::iterator& parent, int thread_Index, int point_Index, int media_Index)
 {
 	for(unsigned child_Index=0; child_Index<parent.number_of_children(); ++child_Index)
 	{
@@ -282,21 +370,69 @@ int Unwrapped_Reflection::fill_sp_Max_Depth_2(const tree<Node>::iterator& parent
 		{
 			int start_Period = 0;
 			if(child_Data.item_Type == item_Type_Regular_Aperiodic) // only slight difference here
-			{	start_Period = 1;	}
+			{   start_Period = 1;	}
 
-			for(int period_Index=start_Period; period_Index<child_Data.num_Repetition.value(); ++period_Index)
+			if(max_Depth == 2)
 			{
-				for(unsigned grandchild_Index=0; grandchild_Index<child.number_of_children(); ++grandchild_Index)
+				for(int period_Index=start_Period; period_Index<child_Data.num_Repetition.value(); ++period_Index)
 				{
-					tree<Node>::post_order_iterator grandchild = tree<Node>::child(child,grandchild_Index);
-					hi         [thread_Index][media_Index  ] = grandchild.node->data.hi			[point_Index];
-					r_Fresnel_s[thread_Index][media_Index-1] = grandchild.node->data.Fresnel_R_s[point_Index] * grandchild.node->data.weak_Factor_R[point_Index];
-					r_Fresnel_p[thread_Index][media_Index-1] = grandchild.node->data.Fresnel_R_p[point_Index] * grandchild.node->data.weak_Factor_R[point_Index];
-					t_Fresnel_s[thread_Index][media_Index-1] = grandchild.node->data.Fresnel_T_s[point_Index] * grandchild.node->data.weak_Factor_T[point_Index];
-					t_Fresnel_p[thread_Index][media_Index-1] = grandchild.node->data.Fresnel_T_p[point_Index] * grandchild.node->data.weak_Factor_T[point_Index];
-					exponenta  [thread_Index][media_Index-1] = grandchild.node->data.exponenta  [point_Index];
-					exponenta_2[thread_Index][media_Index-1] = grandchild.node->data.exponenta_2[point_Index];
-					++media_Index;
+					for(unsigned grandchild_Index=0; grandchild_Index<child.number_of_children(); ++grandchild_Index)
+					{
+						tree<Node>::post_order_iterator grandchild = tree<Node>::child(child,grandchild_Index);
+						hi         [thread_Index][media_Index  ] = grandchild.node->data.hi			[point_Index];
+						r_Fresnel_s[thread_Index][media_Index-1] = grandchild.node->data.Fresnel_R_s[point_Index] * grandchild.node->data.weak_Factor_R[point_Index];
+						r_Fresnel_p[thread_Index][media_Index-1] = grandchild.node->data.Fresnel_R_p[point_Index] * grandchild.node->data.weak_Factor_R[point_Index];
+						t_Fresnel_s[thread_Index][media_Index-1] = grandchild.node->data.Fresnel_T_s[point_Index] * grandchild.node->data.weak_Factor_T[point_Index];
+						t_Fresnel_p[thread_Index][media_Index-1] = grandchild.node->data.Fresnel_T_p[point_Index] * grandchild.node->data.weak_Factor_T[point_Index];
+						exponenta  [thread_Index][media_Index-1] = grandchild.node->data.exponenta  [point_Index];
+						exponenta_2[thread_Index][media_Index-1] = grandchild.node->data.exponenta_2[point_Index];
+						++media_Index;
+					}
+				}
+			} else
+			{
+				for(int period_Index=start_Period; period_Index<child_Data.num_Repetition.value(); ++period_Index)
+				{
+					for(unsigned grandchild_Index=0; grandchild_Index<child.number_of_children(); ++grandchild_Index)
+					{
+						tree<Node>::post_order_iterator grandchild = tree<Node>::child(child,grandchild_Index);
+						const Data& grandchild_Data = grandchild.node->data.struct_Data;
+
+						if(grandchild_Data.item_Type == item_Type_Layer)
+						{
+							hi         [thread_Index][media_Index  ] = grandchild.node->data.hi			[point_Index];
+							r_Fresnel_s[thread_Index][media_Index-1] = grandchild.node->data.Fresnel_R_s[point_Index] * grandchild.node->data.weak_Factor_R[point_Index];
+							r_Fresnel_p[thread_Index][media_Index-1] = grandchild.node->data.Fresnel_R_p[point_Index] * grandchild.node->data.weak_Factor_R[point_Index];
+							t_Fresnel_s[thread_Index][media_Index-1] = grandchild.node->data.Fresnel_T_s[point_Index] * grandchild.node->data.weak_Factor_T[point_Index];
+							t_Fresnel_p[thread_Index][media_Index-1] = grandchild.node->data.Fresnel_T_p[point_Index] * grandchild.node->data.weak_Factor_T[point_Index];
+							exponenta  [thread_Index][media_Index-1] = grandchild.node->data.exponenta  [point_Index];
+							exponenta_2[thread_Index][media_Index-1] = grandchild.node->data.exponenta_2[point_Index];
+							++media_Index;
+						} else
+						if( grandchild_Data.item_Type == item_Type_Multilayer ||
+							grandchild_Data.item_Type == item_Type_Regular_Aperiodic )
+						{
+							int start_Period_1 = 0;
+							if(grandchild_Data.item_Type == item_Type_Regular_Aperiodic) // only slight difference here
+							{	start_Period_1 = 1;	}
+
+							for(int period_Index_1=start_Period_1; period_Index_1<grandchild_Data.num_Repetition.value(); ++period_Index_1)
+							{
+								for(unsigned grandgrandchild_Index=0; grandgrandchild_Index<grandchild.number_of_children(); ++grandgrandchild_Index)
+								{
+									tree<Node>::post_order_iterator grandgrandchild = tree<Node>::child(grandchild,grandgrandchild_Index);
+									hi         [thread_Index][media_Index  ] = grandgrandchild.node->data.hi		 [point_Index];
+									r_Fresnel_s[thread_Index][media_Index-1] = grandgrandchild.node->data.Fresnel_R_s[point_Index] * grandgrandchild.node->data.weak_Factor_R[point_Index];
+									r_Fresnel_p[thread_Index][media_Index-1] = grandgrandchild.node->data.Fresnel_R_p[point_Index] * grandgrandchild.node->data.weak_Factor_R[point_Index];
+									t_Fresnel_s[thread_Index][media_Index-1] = grandgrandchild.node->data.Fresnel_T_s[point_Index] * grandgrandchild.node->data.weak_Factor_T[point_Index];
+									t_Fresnel_p[thread_Index][media_Index-1] = grandgrandchild.node->data.Fresnel_T_p[point_Index] * grandgrandchild.node->data.weak_Factor_T[point_Index];
+									exponenta  [thread_Index][media_Index-1] = grandgrandchild.node->data.exponenta  [point_Index];
+									exponenta_2[thread_Index][media_Index-1] = grandgrandchild.node->data.exponenta_2[point_Index];
+									++media_Index;
+								}
+							}
+						}
+					}
 				}
 			}
 		}
@@ -795,16 +931,16 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(const Data& measuremen
 		if( max_Depth <= depth_Threshold)
 		{
 			// in case of grading, some of these values are temporary and will be recalculated
-			if( abs(measurement.polarization - 1) < DBL_EPSILON )			// s-polarization only
+			if( abs(measurement.polarization - 1) < POLARIZATION_TOLERANCE )			// s-polarization only
 			{
-				fill_s__Max_Depth_2(unwrapped_Structure->calc_Tree.begin(), thread_Index, point_Index);
+				fill_s__Max_Depth_3(unwrapped_Structure->calc_Tree.begin(), thread_Index, point_Index);
 			} else
-			if( abs(measurement.polarization + 1) < DBL_EPSILON )			// p-polarization only
+			if( abs(measurement.polarization + 1) < POLARIZATION_TOLERANCE )			// p-polarization only
 			{
-				fill_p__Max_Depth_2(unwrapped_Structure->calc_Tree.begin(), thread_Index, point_Index);
+				fill_p__Max_Depth_3(unwrapped_Structure->calc_Tree.begin(), thread_Index, point_Index);
 			} else																// both polarizations
 			{
-				fill_sp_Max_Depth_2(unwrapped_Structure->calc_Tree.begin(), thread_Index, point_Index);
+				fill_sp_Max_Depth_3(unwrapped_Structure->calc_Tree.begin(), thread_Index, point_Index);
 			}
 
 			// if we have some grading

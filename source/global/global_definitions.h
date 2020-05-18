@@ -175,6 +175,7 @@ class Node;
 // -----------------------------------------------------------------------------------------
 
 // magic numbers
+#define POLARIZATION_TOLERANCE 0.0001
 #define MAX_DOUBLE 1E300
 #define CURVATURE_LIMIT 0.00005
 #define MAX_INTEGER INT_MAX					// MAXINT

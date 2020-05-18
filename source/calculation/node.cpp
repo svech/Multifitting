@@ -210,7 +210,7 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 					struct_Data.item_Type == item_Type_Substrate )
 				{
 					// s-polarization
-					if (measurement.polarization >-1)
+					if( measurement.polarization > -1+POLARIZATION_TOLERANCE )			// s-polarization only
 					{
 						// reflectance
 						Fresnel_R_s.resize(num_Points);
@@ -240,7 +240,7 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 					}
 
 					// p-polarization
-					if (measurement.polarization < 1)
+					if (measurement.polarization < 1-POLARIZATION_TOLERANCE)
 					{
 						// reflectance
 						Fresnel_R_p.resize(num_Points);

@@ -53,7 +53,7 @@ Calculation_Tree::Calculation_Tree(Multilayer* multilayer, QString calc_Mode):
 	create_Rand_Generator();
 	check_If_Graded();
 	max_Depth = Global_Variables::get_Tree_Depth(real_Struct_Tree->invisibleRootItem());	// unstratified depth
-	depth_Threshold = 2;
+	depth_Threshold = 3;
 }
 
 void Calculation_Tree::prepare_Residual_Expressions()
@@ -366,13 +366,13 @@ void Calculation_Tree::calculate_1_Kind(Data_Element<Type>& data_Element)
 	if(lambda_Out_Of_Range) return;
 	auto end = std::chrono::system_clock::now();
 	auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-//	qInfo() << "\nIntermediate:   "<< elapsed.count()/1000000. << " seconds" << endl;
+	qInfo() << "\nIntermediate:   "<< elapsed.count()/1000000. << " seconds" << endl;
 
 	start = std::chrono::system_clock::now();
 	calculate_Unwrapped_Structure		(data_Element.calc_Functions, data_Element.calc_Tree, data_Element.the_Class->measurement, data_Element.unwrapped_Structure);
 	end = std::chrono::system_clock::now();
 	elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-//	qInfo() << "Unwrap:         "<< elapsed.count()/1000000. << " seconds" << endl;
+	qInfo() << "Unwrap:         "<< elapsed.count()/1000000. << " seconds" << endl;
 
 	start = std::chrono::system_clock::now();
 	calculate_Unwrapped_Reflectivity	(data_Element.calc_Functions, data_Element.the_Class->calculated_Values, data_Element.the_Class->measurement, data_Element.unwrapped_Structure, data_Element.unwrapped_Reflection);
