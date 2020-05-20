@@ -3223,6 +3223,7 @@ void Table_Of_Structures::refresh_Stoich()
 	if(reload)
 	{
 		spin_Box->blockSignals(true);
+		spin_Box->setDecimals(line_edit_composition_precision);
 		if(value_Type == VAL)	spin_Box->setValue(comp.value);
 		if(value_Type == MIN)	spin_Box->setValue(comp.fit.min);
 		if(value_Type == MAX)	spin_Box->setValue(comp.fit.max);
@@ -4263,19 +4264,25 @@ void Table_Of_Structures::refresh_Check_Box_Label_Interlayer(bool)
 		var.setValue( struct_Data );
 		structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
 
-		MyDoubleSpinBox* spin_Box = spin_Boxes_ID_Map.key(struct_Data.interlayer_Composition[interlayer_Index].my_Sigma.indicator.id);
-		spin_Box->setProperty(forced_Reload_Property, struct_Data.interlayer_Composition[interlayer_Index].enabled);
+		MyDoubleSpinBox* spin_Box;
+		if(struct_Data.parent_Item_Type != item_Type_Regular_Aperiodic)
+		{
+			spin_Box = spin_Boxes_ID_Map.key(struct_Data.interlayer_Composition[interlayer_Index].my_Sigma.indicator.id);
+			spin_Box->setProperty(forced_Reload_Property, struct_Data.interlayer_Composition[interlayer_Index].enabled);
+		}
 
 		// refresh widget
 		//	var.setValue(struct_Data.interlayer_Composition[interlayer_Index].interlayer);
 		//	QWidget* back_Widget = coupled_Back_Widget_and_Id.key(struct_Data.interlayer_Composition[interlayer_Index].interlayer.indicator.id);
 		//	back_Widget->setProperty(parameter_Property, var);
-//	}
-//	{
+
 		emit_Data_Edited();
 		reload_Related_Widgets(QObject::sender());
 
-		spin_Box->setProperty(forced_Reload_Property, false);
+		if(struct_Data.parent_Item_Type != item_Type_Regular_Aperiodic)
+		{
+			spin_Box->setProperty(forced_Reload_Property, false);
+		}
 
 		// recalculation at change
 		if(recalculate_Spinbox_Table && !reload) {global_Multilayer_Approach->calculate(true);}
@@ -4298,6 +4305,7 @@ void Table_Of_Structures::refresh_Weigts_Interlayer()
 	if(reload)
 	{
 		spin_Box->blockSignals(true);
+		spin_Box->setDecimals(line_edit_interlayer_precision);
 		if(value_Type == VAL)	spin_Box->setValue(interlayer.value);
 		if(value_Type == MIN)	spin_Box->setValue(interlayer.fit.min);
 		if(value_Type == MAX)	spin_Box->setValue(interlayer.fit.max);
@@ -4443,6 +4451,7 @@ void Table_Of_Structures::refresh_MySigma_Interlayer()
 	if(reload)
 	{
 		spin_Box->blockSignals(true);
+		spin_Box->setDecimals(line_edit_sigma_precision);
 		spin_Box->setValue(interlayer.my_Sigma.value/length_Coeff);
 		bool disable = struct_Data.common_Sigma || !interlayer.enabled;
 		spin_Box->setDisabled(disable);

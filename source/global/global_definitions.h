@@ -240,6 +240,13 @@ class Node;
 #define SA_approximation	"SA"
 #define CSA_approximation	"CSA"
 
+#define PSD_usage	"use PSD"
+#define Cor_usage	"use Cor"
+
+#define full_Correlation		"full correlation"
+#define partial_Correlation		"partial correlation"
+#define zero_Correlation		"zero correlation"
+
 // PSD models
 #define ABC_model_PSD				"ABC model PSD"
 #define ABC_model_PSD_1D_Expression	"2*G(a+0.5)*s^2*x/(sqrt(pi)*G(a)*(1+p^2*x^2)^(a+0.5))"
@@ -249,20 +256,12 @@ class Node;
 #define linear_model_PSD_1D_Expression	"no explicit PSD_1D"
 #define linear_model_PSD_2D_Expression	"W*(1-exp(-2b(v)*h))/(8pi^3*2b(v))"
 
-#define full_PSD_Correlation		"full PSD Correlation"
-#define no_PSD_Correlation			"no PSD Correlation"
-#define partial_PSD_Correlation		"partial PSD Correlation"
-
 // correlation function models
-#define gauss_model_Cor_2D			"gauss model Cor"
-#define gauss_model_Cor_2D_Expression"s^2*exp(-pow(r/l,2a))"
+#define gauss_model_Cor_2D			  "gauss model Cor"
+#define gauss_model_Cor_2D_Expression "s^2*exp(-pow(r/l,2a))"
 
 #define ABC_model_Cor				"ABC model Cor"
 #define ABC_model_Cor_2D_Expression	"pow(2,1-a)*s^2*pow(r/l,a)*BesselK(a,r/l)/G(a)"
-
-#define full_Cor_Correlation		"full Cor Correlation"
-#define no_Cor_Correlation			"no Cor Correlation"
-#define partial_Cor_Correlation		"partial Cor Correlation"
 
 // whatsThis : delimiters
 #define whats_This_Delimiter ";"
@@ -822,14 +821,14 @@ struct Imperfections_Model		{
 								bool use_Roughness = false;
 
 								QString approximation = PT_approximation;
-
-								QString PSD_Correlation = full_PSD_Correlation;
-								bool use_Common_PSD = true;
+								QString use_PSD_Cor = PSD_usage;
+								QString vertical_Correlation = full_Correlation;
+								bool use_Common_Statitics = true;
 								PSD common_PSD;
-
-								QString Cor_Correlation = full_Cor_Correlation;
-								bool use_Common_Cor = true;
 								Cor common_Cor;
+
+								// density fluctuations
+								bool use_Fluctuations = false;
 								};
 
 // independent calculation functions

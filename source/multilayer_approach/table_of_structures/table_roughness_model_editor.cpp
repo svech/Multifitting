@@ -58,9 +58,11 @@ void Table_Roughness_Model_Editor::create_Interlayer_Groupbox()
 	});
 
 	QHBoxLayout* groupbox_Layout = new QHBoxLayout(interlayer_Groupbox);
+	QLabel* show_label = new QLabel("Show:");
+	groupbox_Layout->addWidget(show_label);
 
 	// --------------------------------------------------------------------
-	QCheckBox* erf_Checkbox = new QCheckBox("Show Erf");
+	QCheckBox* erf_Checkbox = new QCheckBox("Erf");
 		erf_Checkbox->setChecked(multilayer->imperfections_Model.use_Func[Erf]);
 	groupbox_Layout->addWidget(erf_Checkbox);
 	connect(erf_Checkbox, &QCheckBox::toggled, this, [=]
@@ -69,7 +71,7 @@ void Table_Roughness_Model_Editor::create_Interlayer_Groupbox()
 		refresh_Tree_Interlayer(Erf, multilayer->imperfections_Model.use_Func[Erf]);
 	});
 	// --------------------------------------------------------------------
-	QCheckBox* lin_Checkbox = new QCheckBox("Show Lin");
+	QCheckBox* lin_Checkbox = new QCheckBox("Lin");
 		lin_Checkbox->setChecked(multilayer->imperfections_Model.use_Func[Lin]);
 	groupbox_Layout->addWidget(lin_Checkbox);
 	connect(lin_Checkbox, &QCheckBox::toggled, this, [=]
@@ -78,7 +80,7 @@ void Table_Roughness_Model_Editor::create_Interlayer_Groupbox()
 		refresh_Tree_Interlayer(Lin, multilayer->imperfections_Model.use_Func[Lin]);
 	});
 	// --------------------------------------------------------------------
-	QCheckBox* exp_Checkbox = new QCheckBox("Show Exp");
+	QCheckBox* exp_Checkbox = new QCheckBox("Exp");
 		exp_Checkbox->setChecked(multilayer->imperfections_Model.use_Func[Exp]);
 	groupbox_Layout->addWidget(exp_Checkbox);
 	connect(exp_Checkbox, &QCheckBox::toggled, this, [=]
@@ -87,7 +89,7 @@ void Table_Roughness_Model_Editor::create_Interlayer_Groupbox()
 		refresh_Tree_Interlayer(Exp, multilayer->imperfections_Model.use_Func[Exp]);
 	});
 	// --------------------------------------------------------------------
-	QCheckBox* tanh_Checkbox = new QCheckBox("Show Tanh");
+	QCheckBox* tanh_Checkbox = new QCheckBox("Tanh");
 		tanh_Checkbox->setChecked(multilayer->imperfections_Model.use_Func[Tanh]);
 	groupbox_Layout->addWidget(tanh_Checkbox);
 	connect(tanh_Checkbox, &QCheckBox::toggled, this, [=]
@@ -96,7 +98,7 @@ void Table_Roughness_Model_Editor::create_Interlayer_Groupbox()
 		refresh_Tree_Interlayer(Tanh, multilayer->imperfections_Model.use_Func[Tanh]);
 	});
 	// --------------------------------------------------------------------
-	QCheckBox* sin_Checkbox = new QCheckBox("Show Sin");
+	QCheckBox* sin_Checkbox = new QCheckBox("Sin");
 		sin_Checkbox->setChecked(multilayer->imperfections_Model.use_Func[Sin]);
 	groupbox_Layout->addWidget(sin_Checkbox);
 	connect(sin_Checkbox, &QCheckBox::toggled, this, [=]
@@ -105,7 +107,7 @@ void Table_Roughness_Model_Editor::create_Interlayer_Groupbox()
 		refresh_Tree_Interlayer(Sin, multilayer->imperfections_Model.use_Func[Sin]);
 	});
 	// --------------------------------------------------------------------
-	QCheckBox* step_Checkbox = new QCheckBox("Show Step");
+	QCheckBox* step_Checkbox = new QCheckBox("Step");
 		step_Checkbox->setChecked(multilayer->imperfections_Model.use_Func[Step]);
 	groupbox_Layout->addWidget(step_Checkbox);
 	connect(step_Checkbox, &QCheckBox::toggled, this, [=]
@@ -199,14 +201,210 @@ void Table_Roughness_Model_Editor::create_Roughness_Groupbox()
 {
 	roughness_Groupbox = new QGroupBox("Use roughness");
 		roughness_Groupbox->setCheckable(true);
+		roughness_Groupbox->setChecked(multilayer->imperfections_Model.use_Roughness);
 	main_Layout->addWidget(roughness_Groupbox);
+	connect(roughness_Groupbox, &QGroupBox::toggled, this, [=]
+	{
+		multilayer->imperfections_Model.use_Roughness = roughness_Groupbox->isChecked();
+	});
+
+	QHBoxLayout* groupbox_Layout = new QHBoxLayout(roughness_Groupbox);
+
+	// --------------------------------------------
+	// approximation
+	// --------------------------------------------
+
+		QVBoxLayout* approximation_Layout = new QVBoxLayout;
+			approximation_Layout->setAlignment(Qt::AlignTop);
+		groupbox_Layout->addLayout(approximation_Layout);
+
+		QLabel* approximation_Label = new QLabel("Approximation");
+		approximation_Layout->addWidget(approximation_Label);
+
+		QRadioButton* PT_Radiobutton = new QRadioButton("PT ");
+			PT_Radiobutton->setChecked(multilayer->imperfections_Model.approximation == PT_approximation);
+		approximation_Layout->addWidget(PT_Radiobutton);
+
+		QRadioButton* DWBA_Radiobutton = new QRadioButton("DWBA ");
+			DWBA_Radiobutton->setChecked(multilayer->imperfections_Model.approximation == DWBA_approximation);
+		approximation_Layout->addWidget(DWBA_Radiobutton);
+
+		QRadioButton* SA_Radiobutton = new QRadioButton("SA ");
+			SA_Radiobutton->setChecked(multilayer->imperfections_Model.approximation == SA_approximation);
+		approximation_Layout->addWidget(SA_Radiobutton);
+
+		QRadioButton* CSA_Radiobutton = new QRadioButton("CSA ");
+			CSA_Radiobutton->setChecked(multilayer->imperfections_Model.approximation == CSA_approximation);
+		approximation_Layout->addWidget(CSA_Radiobutton);
+
+		QButtonGroup* approx_Group = new QButtonGroup;
+			approx_Group->addButton(PT_Radiobutton);
+			approx_Group->addButton(DWBA_Radiobutton);
+			approx_Group->addButton(SA_Radiobutton);
+			approx_Group->addButton(CSA_Radiobutton);
+
+	// --------------------------------------------
+	// full, partial or zero vertical correlation
+	// --------------------------------------------
+
+		QVBoxLayout* vertical_Correlation_Layout = new QVBoxLayout;
+			vertical_Correlation_Layout->setAlignment(Qt::AlignTop);
+		groupbox_Layout->addLayout(vertical_Correlation_Layout);
+
+		QLabel* vertical_Correlation_Label = new QLabel("Vertical\ncorrelation");
+		vertical_Correlation_Layout->addWidget(vertical_Correlation_Label);
+
+		QRadioButton* full_Radiobutton = new QRadioButton("Full");
+			full_Radiobutton->setChecked(multilayer->imperfections_Model.vertical_Correlation == full_Correlation);
+		vertical_Correlation_Layout->addWidget(full_Radiobutton);
+
+		QRadioButton* partial_Radiobutton = new QRadioButton("Partial");
+			partial_Radiobutton->setChecked(multilayer->imperfections_Model.vertical_Correlation == partial_Correlation);
+		vertical_Correlation_Layout->addWidget(partial_Radiobutton);
+
+		QRadioButton* zero_Radiobutton = new QRadioButton("Zero");
+			zero_Radiobutton->setChecked(multilayer->imperfections_Model.vertical_Correlation == zero_Correlation);
+		vertical_Correlation_Layout->addWidget(zero_Radiobutton);
+
+		QButtonGroup* vertical_Correlation_Group = new QButtonGroup;
+			vertical_Correlation_Group->addButton(full_Radiobutton);
+			vertical_Correlation_Group->addButton(partial_Radiobutton);
+			vertical_Correlation_Group->addButton(zero_Radiobutton);
+
+	// --------------------------------------------
+	// PSD or Cor
+	// --------------------------------------------
+
+		QVBoxLayout* PSD_Cor_Layout = new QVBoxLayout;
+			PSD_Cor_Layout->setAlignment(Qt::AlignTop);
+		groupbox_Layout->addLayout(PSD_Cor_Layout);
+
+		QLabel* PSD_Cor_Label = new QLabel("Use");
+		PSD_Cor_Layout->addWidget(PSD_Cor_Label);
+
+		QRadioButton* PSD_Radiobutton = new QRadioButton("PSD function");
+			PSD_Radiobutton->setChecked(multilayer->imperfections_Model.use_PSD_Cor == PSD_usage);
+			PSD_Radiobutton->setDisabled(DWBA_Radiobutton->isChecked() || SA_Radiobutton->isChecked() || CSA_Radiobutton->isChecked());
+		PSD_Cor_Layout->addWidget(PSD_Radiobutton);
+
+		QRadioButton* Cor_Radiobutton = new QRadioButton("Correlation function");
+			Cor_Radiobutton->setChecked(multilayer->imperfections_Model.use_PSD_Cor == Cor_usage);
+			Cor_Radiobutton->setDisabled(DWBA_Radiobutton->isChecked() || SA_Radiobutton->isChecked() || CSA_Radiobutton->isChecked());
+		PSD_Cor_Layout->addWidget(Cor_Radiobutton);
+
+		QButtonGroup* use_Group = new QButtonGroup;
+			use_Group->addButton(PSD_Radiobutton);
+			use_Group->addButton(Cor_Radiobutton);
+
+		// --------------------------------------------
+		// common statistics (in the same layout)
+		// --------------------------------------------
+		QCheckBox* common_Checkbox = new QCheckBox("Common function\nfor all boundaries");
+			common_Checkbox->setChecked(multilayer->imperfections_Model.use_Common_Statitics);
+			common_Checkbox->setDisabled(full_Radiobutton->isChecked());
+		PSD_Cor_Layout->addWidget(common_Checkbox);
+
+	// connections
+	connect(PT_Radiobutton, &QRadioButton::toggled, this, [=]
+	{
+		if(PT_Radiobutton->isChecked())
+		{
+			multilayer->imperfections_Model.approximation = PT_approximation;
+			PSD_Radiobutton->setDisabled(false);
+			Cor_Radiobutton->setDisabled(false);
+		}
+	});
+	connect(DWBA_Radiobutton, &QRadioButton::toggled, this, [=]
+	{
+		if(DWBA_Radiobutton->isChecked())
+		{
+			multilayer->imperfections_Model.approximation = DWBA_approximation;
+			PSD_Radiobutton->setDisabled(true);
+			Cor_Radiobutton->setDisabled(true);
+			Cor_Radiobutton->setChecked(true);
+			Cor_Radiobutton->toggled(true);
+		}
+	});
+	connect(SA_Radiobutton, &QRadioButton::toggled, this, [=]
+	{
+		if(SA_Radiobutton->isChecked())
+		{
+			multilayer->imperfections_Model.approximation = SA_approximation;
+			PSD_Radiobutton->setDisabled(true);
+			Cor_Radiobutton->setDisabled(true);
+			Cor_Radiobutton->setChecked(true);
+			Cor_Radiobutton->toggled(true);
+		}
+	});
+	connect(CSA_Radiobutton, &QRadioButton::toggled, this, [=]
+	{
+		if(CSA_Radiobutton->isChecked())
+		{
+			multilayer->imperfections_Model.approximation = CSA_approximation;
+			PSD_Radiobutton->setDisabled(true);
+			Cor_Radiobutton->setDisabled(true);
+			Cor_Radiobutton->setChecked(true);
+			Cor_Radiobutton->toggled(true);
+		}
+	});
+
+
+	connect(full_Radiobutton, &QRadioButton::toggled, this, [=]
+	{
+		if(full_Radiobutton->isChecked())
+		{
+			multilayer->imperfections_Model.vertical_Correlation = full_Correlation;
+			common_Checkbox->setChecked(true);
+			common_Checkbox->toggled(true);
+			common_Checkbox->setDisabled(true);
+		}
+	});
+	connect(partial_Radiobutton, &QRadioButton::toggled, this, [=]
+	{
+		if(partial_Radiobutton->isChecked())
+		{
+			multilayer->imperfections_Model.vertical_Correlation = partial_Correlation;
+			common_Checkbox->setDisabled(false);
+		}
+	});
+	connect(zero_Radiobutton, &QRadioButton::toggled, this, [=]
+	{
+		if(zero_Radiobutton->isChecked())
+		{
+			multilayer->imperfections_Model.vertical_Correlation = zero_Correlation;
+			common_Checkbox->setDisabled(false);
+		}
+	});
+	connect(PSD_Radiobutton, &QRadioButton::toggled, this, [=]
+	{
+		if(PSD_Radiobutton->isChecked())
+		{
+			multilayer->imperfections_Model.use_PSD_Cor = PSD_usage;
+		}
+	});
+	connect(Cor_Radiobutton, &QRadioButton::toggled, this, [=]
+	{
+		if(Cor_Radiobutton->isChecked())
+		{
+			multilayer->imperfections_Model.use_PSD_Cor = Cor_usage;
+		}
+	});
+	connect(common_Checkbox, &QCheckBox::toggled, this, [=]
+	{
+		multilayer->imperfections_Model.use_Common_Statitics = common_Checkbox->isChecked();
+	});
 }
 
 void Table_Roughness_Model_Editor::create_Density_Fluctuations_Groupbox()
 {
 	density_Fluctuations_Groupbox = new QGroupBox("Use density fluctuations");
 		density_Fluctuations_Groupbox->setCheckable(true);
+		density_Fluctuations_Groupbox->setChecked(multilayer->imperfections_Model.use_Fluctuations);
 	main_Layout->addWidget(density_Fluctuations_Groupbox);
+	connect(density_Fluctuations_Groupbox, &QGroupBox::toggled, this, [=]
+	{
+		multilayer->imperfections_Model.use_Fluctuations = density_Fluctuations_Groupbox->isChecked();
+	});
 }
 
 void Table_Roughness_Model_Editor::refresh_Tree_Interlayer(int interlayer_Index, bool state)

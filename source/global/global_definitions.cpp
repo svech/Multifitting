@@ -523,9 +523,10 @@ QDataStream& operator <<( QDataStream& stream, const Imperfections_Model& imperf
 				  << imperfections_Model.show_Thickness_Drift_Line << imperfections_Model.show_Thickness_Drift_Rand << imperfections_Model.show_Thickness_Drift_Sine
 				  << imperfections_Model.show_Sigma_Drift_Line << imperfections_Model.show_Sigma_Drift_Rand << imperfections_Model.show_Sigma_Drift_Sine
 
-				  << imperfections_Model.use_Roughness << imperfections_Model.approximation
-				  << imperfections_Model.PSD_Correlation << imperfections_Model.use_Common_PSD << imperfections_Model.common_PSD
-				  << imperfections_Model.Cor_Correlation << imperfections_Model.use_Common_Cor << imperfections_Model.common_Cor;
+				  << imperfections_Model.use_Roughness << imperfections_Model.approximation << imperfections_Model.use_PSD_Cor
+				  << imperfections_Model.vertical_Correlation << imperfections_Model.use_Common_Statitics
+				  << imperfections_Model.common_PSD << imperfections_Model.common_Cor
+				  << imperfections_Model.use_Fluctuations;
 }
 QDataStream& operator >>( QDataStream& stream,		 Imperfections_Model& imperfections_Model )
 {
@@ -535,9 +536,11 @@ QDataStream& operator >>( QDataStream& stream,		 Imperfections_Model& imperfecti
 				  >> imperfections_Model.show_Thickness_Drift_Line >> imperfections_Model.show_Thickness_Drift_Rand >> imperfections_Model.show_Thickness_Drift_Sine
 				  >> imperfections_Model.show_Sigma_Drift_Line >> imperfections_Model.show_Sigma_Drift_Rand >> imperfections_Model.show_Sigma_Drift_Sine
 
-				  >> imperfections_Model.use_Roughness >> imperfections_Model.approximation
-				  >> imperfections_Model.PSD_Correlation >> imperfections_Model.use_Common_PSD >> imperfections_Model.common_PSD
-				  >> imperfections_Model.Cor_Correlation >> imperfections_Model.use_Common_Cor >> imperfections_Model.common_Cor;
+				  >> imperfections_Model.use_Roughness >> imperfections_Model.approximation >> imperfections_Model.use_PSD_Cor
+				  >> imperfections_Model.vertical_Correlation >> imperfections_Model.use_Common_Statitics
+				  >> imperfections_Model.common_PSD >> imperfections_Model.common_Cor
+
+				  >> imperfections_Model.use_Fluctuations;
 }
 
 QDataStream& operator <<( QDataStream& stream, const Calc_Functions& calc_Functions )

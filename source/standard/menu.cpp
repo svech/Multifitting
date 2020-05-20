@@ -515,6 +515,12 @@ void Menu::create_Table_Precision_Menu()
 			menu_Density->addMenu(menu_Thumb);
 			menu_Density->addMenu(menu_Edit);
 	}
+	if(window_Type == window_Type_Table_Of_Structures )
+	{
+		precision_Menu->addMenu(menu_Composition);
+			//menu_Composition->addMenu(menu_Thumb);
+			menu_Composition->addMenu(menu_Edit);
+	}
 	{
 		precision_Menu->addMenu(menu_Lengths);
 			menu_Lengths->addMenu(menu_Thumb);
@@ -526,12 +532,6 @@ void Menu::create_Table_Precision_Menu()
 			menu_Gamma->addMenu(menu_Thumb);
 			menu_Gamma->addMenu(menu_Edit);
 	}
-	if(window_Type == window_Type_Table_Of_Structures )
-	{
-		precision_Menu->addMenu(menu_Composition);
-			//menu_Composition->addMenu(menu_Thumb);
-			menu_Composition->addMenu(menu_Edit);
-	}
 	if(window_Type == window_Type_Table_Of_Structures || window_Type == window_Type_Table_Of_Roughness )
 	{
 		precision_Menu->addMenu(menu_Interlayer);
@@ -540,9 +540,9 @@ void Menu::create_Table_Precision_Menu()
 	}
 
 	connect(menu_Density,	 &QMenu::aboutToShow, this, &Menu::menu_Focus);
+	connect(menu_Composition,&QMenu::aboutToShow, this, &Menu::menu_Focus);
 	connect(menu_Lengths,	 &QMenu::aboutToShow, this, &Menu::menu_Focus);
 	connect(menu_Gamma,		 &QMenu::aboutToShow, this, &Menu::menu_Focus);
-	connect(menu_Composition,&QMenu::aboutToShow, this, &Menu::menu_Focus);
 	connect(menu_Interlayer, &QMenu::aboutToShow, this, &Menu::menu_Focus);
 
 	connect(menu_Thumb,		 &QMenu::aboutToShow, this, &Menu::thumb_Edit_Focus);
