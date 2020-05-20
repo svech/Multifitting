@@ -14,8 +14,6 @@ Unwrapped_Structure::Unwrapped_Structure(const Calc_Functions& calc_Functions, c
 	calc_Tree		(calc_Tree),
 	calc_Functions  (calc_Functions)
 {
-	qInfo()<< "max_Depth" << max_Depth << endl;
-
 	// recalculate all if depth is big
 	if( (max_Depth > depth_Threshold) || discretization_Parameters.enable_Discretization
 		|| calc_Functions.check_Field || calc_Functions.check_Joule)

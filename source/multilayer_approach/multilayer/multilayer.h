@@ -69,6 +69,7 @@ public:
 	Graph_Options graph_Options_2D;
 	Profile_Plot_Options profile_Plot_Options;
 	Discretization_Parameters discretization_Parameters;
+	Imperfections_Model imperfections_Model;
 
 	bool enable_Calc_Target_Curves = true;
 	bool enable_Calc_Independent_Curves = true;

@@ -908,6 +908,14 @@ void Multilayer_Approach::open(QString filename)
 		// load tree
 		Global_Variables::deserialize_Tree(in, multilayer->structure_Tree->tree);
 
+		// check if have substrate
+		QTreeWidgetItem* last = multilayer->structure_Tree->tree->topLevelItem(multilayer->structure_Tree->tree->topLevelItemCount()-1);
+		Data data = last->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+		if(data.item_Type != item_Type_Substrate)
+		{
+			multilayer->structure_Tree->structure_Toolbar->toolbar->actions()[Add_Substrate]->setDisabled(false);		// add_Substrate button
+		}
+
 		if(!Global_Variables::check_Loaded_Version(1,11,0))
 		{
 			int current_Variable_Tab_Index;
@@ -1020,6 +1028,10 @@ void Multilayer_Approach::open(QString filename)
 		/// discretization
 		if(Global_Variables::check_Loaded_Version(1,10,2))
 		{in >> multilayer->discretization_Parameters;}	  // since 1.10.2
+
+		/// roughness
+		if(Global_Variables::check_Loaded_Version(1,11,0))
+		{in >> multilayer->imperfections_Model;}	  // since 1.11.0
 
 		/// fitting settings
 		{
@@ -1287,6 +1299,9 @@ void Multilayer_Approach::save(QString filename)
 
 		/// discretization
 		out << multilayer->discretization_Parameters;	  // since 1.10.2
+
+		/// roughness
+		out << multilayer->imperfections_Model;	  // since 1.11.0
 
 		/// fitting settings
 		{

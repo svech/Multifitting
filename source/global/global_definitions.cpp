@@ -493,9 +493,52 @@ QDataStream& operator >>( QDataStream& stream,		 Discretization_Parameters& disc
 				  >> discretization_Parameters.discretization_Step;
 }
 
-double field_Step = 2;
-double field_Ambient_Distance = 0;
-double field_Substrate_Distance = 0;
+QDataStream& operator <<( QDataStream& stream, const PSD& psd )
+{
+	return stream << psd.model << psd.expression << psd.crosscorrelation_Function << psd.inheritance_Exponenta
+				  << psd.sigma_r << psd.cor_radius << psd.fractal_alpha;
+}
+QDataStream& operator >>( QDataStream& stream,		 PSD& psd )
+{
+	return stream >> psd.model >> psd.expression >> psd.crosscorrelation_Function >> psd.inheritance_Exponenta
+				  >> psd.sigma_r >> psd.cor_radius >> psd.fractal_alpha;
+}
+
+QDataStream& operator <<( QDataStream& stream, const Cor& cor )
+{
+	return stream << cor.model << cor.expression << cor.crosscorrelation_Function
+				  << cor.sigma_r << cor.cor_radius << cor.fractal_alpha;
+}
+QDataStream& operator >>( QDataStream& stream,		 Cor& cor )
+{
+	return stream >> cor.model >> cor.expression >> cor.crosscorrelation_Function
+				  >> cor.sigma_r >> cor.cor_radius >> cor.fractal_alpha;
+}
+
+QDataStream& operator <<( QDataStream& stream, const Imperfections_Model& imperfections_Model )
+{
+	return stream << imperfections_Model.use_Interlayer << imperfections_Model.use_Func
+
+				  << imperfections_Model.show_Drift
+				  << imperfections_Model.show_Thickness_Drift_Line << imperfections_Model.show_Thickness_Drift_Rand << imperfections_Model.show_Thickness_Drift_Sine
+				  << imperfections_Model.show_Sigma_Drift_Line << imperfections_Model.show_Sigma_Drift_Rand << imperfections_Model.show_Sigma_Drift_Sine
+
+				  << imperfections_Model.use_Roughness << imperfections_Model.approximation
+				  << imperfections_Model.PSD_Correlation << imperfections_Model.use_Common_PSD << imperfections_Model.common_PSD
+				  << imperfections_Model.Cor_Correlation << imperfections_Model.use_Common_Cor << imperfections_Model.common_Cor;
+}
+QDataStream& operator >>( QDataStream& stream,		 Imperfections_Model& imperfections_Model )
+{
+	return stream >> imperfections_Model.use_Interlayer >> imperfections_Model.use_Func
+
+				  >> imperfections_Model.show_Drift
+				  >> imperfections_Model.show_Thickness_Drift_Line >> imperfections_Model.show_Thickness_Drift_Rand >> imperfections_Model.show_Thickness_Drift_Sine
+				  >> imperfections_Model.show_Sigma_Drift_Line >> imperfections_Model.show_Sigma_Drift_Rand >> imperfections_Model.show_Sigma_Drift_Sine
+
+				  >> imperfections_Model.use_Roughness >> imperfections_Model.approximation
+				  >> imperfections_Model.PSD_Correlation >> imperfections_Model.use_Common_PSD >> imperfections_Model.common_PSD
+				  >> imperfections_Model.Cor_Correlation >> imperfections_Model.use_Common_Cor >> imperfections_Model.common_Cor;
+}
 
 QDataStream& operator <<( QDataStream& stream, const Calc_Functions& calc_Functions )
 {

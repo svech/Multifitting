@@ -67,7 +67,7 @@ public:
 	void create_MySigma_Line_Edits_Interlayer	(My_Table_Widget* table, int tab_Index, int current_Row, int start_Column, QTreeWidgetItem* structure_Item);
 
 	// min/max
-	void create_Simple_Label	 (My_Table_Widget* table,				 int current_Row, int current_Column, QString text);
+	void create_Simple_Label	 (My_Table_Widget* table, int tab_Index,				 int current_Row, int current_Column, QString whats_This, QString text);
 	void create_Min_Max_Button	 (My_Table_Widget* table, int tab_Index, int current_Row, int current_Column, QString whats_This);
 	void create_Min_Max_Spin_Box (My_Table_Widget* table, int tab_Index, int current_Row, int current_Column, QString whats_This);
 
@@ -78,6 +78,7 @@ public:
 	void spin_Box_Recalculate		(My_Table_Widget* table,				 int current_Row, int current_Column);
 	void spin_Box_Mouse_Wheel		(My_Table_Widget* table,				 int current_Row, int current_Column);
 	void spin_Box_Change_Dependent  (My_Table_Widget* table,				 int current_Row, int current_Column);
+	void change_Model				(My_Table_Widget* table, int tab_Index,	 int current_Row, int current_Column);
 	void refill_All_Dependent		();
 	void real_Tree_Iteration			(QTreeWidget* real_Struct_Tree, QVector<Parameter>& master_Parameters);
 	void change_Slaves_in_Structure_Tree(Parameter& master, const QVector<Parameter_Indicator>& slaves, QVector<id_Type>& ids);
@@ -136,7 +137,7 @@ public:
 	void refresh_Weights_Check_Box_Fit_Interlayer(bool);
 
 	void refresh_MySigma_Interlayer();
-	double recalculate_Sigma_From_Individuals(QVector<Interlayer>& interlayer_Composition);
+	static double recalculate_Sigma_From_Individuals(QVector<Interlayer>& interlayer_Composition);
 
 	// general
 	void cells_On_Off		(My_Table_Widget* table);

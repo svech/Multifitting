@@ -1,5 +1,6 @@
 #include "table_of_structures.h"
 #include "algorithm"
+#include "multilayer_approach/table_of_structures/table_roughness_model_editor.h"
 
 Table_Of_Structures::Table_Of_Structures(bool temporary, QWidget *parent) :
 	runned_Tables_Of_Structures(global_Multilayer_Approach->runned_Tables_Of_Structures),
@@ -182,6 +183,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 {
 	// PARAMETER
 
+	Multilayer* multilayer = qobject_cast<Multilayer*>(multilayer_Tabs->widget(tab_Index));
 	rows_List_To_Span.clear();
 	{
 		// header for each structure
@@ -195,8 +197,16 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 		int max_Depth = Global_Variables::get_Tree_Depth(list_Of_Trees[tab_Index]->tree->invisibleRootItem());
 		int depth, current_Column;
 
+		int interlayer_Types_To_Show = 0;
+		for(int i=0; i<multilayer->imperfections_Model.use_Func.size(); i++)
+		{
+			if(multilayer->imperfections_Model.use_Func[i]) interlayer_Types_To_Show++;
+		}
+
 		bool has_Layers = false;
 		bool has_Boundaries = false;
+		bool has_Interlayer_Functions = false;
+		bool has_Drift = false;
 		bool has_Multilayers = false;
 		bool has_Gamma = false;
 
@@ -211,9 +221,28 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 				Data struct_Data = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
 
 				// for min/max buttons
-				if(struct_Data.item_Type == item_Type_Layer)		{has_Layers = true;}
+				if(struct_Data.item_Type == item_Type_Layer)
+				{
+					has_Layers = true;
+
+					if( multilayer->imperfections_Model.show_Drift &&
+					   (multilayer->imperfections_Model.show_Thickness_Drift_Line ||
+						multilayer->imperfections_Model.show_Thickness_Drift_Rand ||
+						multilayer->imperfections_Model.show_Thickness_Drift_Sine ||
+						multilayer->imperfections_Model.show_Sigma_Drift_Line ||
+						multilayer->imperfections_Model.show_Sigma_Drift_Rand ||
+						multilayer->imperfections_Model.show_Sigma_Drift_Sine ))
+					has_Drift = true;
+				}
 				if(struct_Data.item_Type == item_Type_Layer    ||
-				   struct_Data.item_Type == item_Type_Substrate )	{has_Boundaries = true;}
+				   struct_Data.item_Type == item_Type_Substrate )
+				{
+					has_Boundaries = true;
+
+					if(struct_Data.parent_Item_Type == item_Type_Regular_Aperiodic ||
+					  (interlayer_Types_To_Show>0 && multilayer->imperfections_Model.use_Interlayer))
+					{has_Interlayer_Functions = true;}
+				}
 				if(struct_Data.item_Type == item_Type_Multilayer)
 				{
 					has_Multilayers = true;
@@ -238,6 +267,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 			new_Table->item   (current_Row,0)->setTextAlignment(Qt::AlignCenter);
 			new_Table->item   (current_Row,0)->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEnabled);
 			new_Table->item   (current_Row,0)->setFont(font_Header);
+			new_Table->item   (current_Row,0)->setSizeHint(QSize(0,0));
 
 			new_Table->insertRow(new_Table->rowCount());
 			new_Table->insertRow(new_Table->rowCount());
@@ -268,6 +298,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 				// master parameter
 				QLabel* master_Label = new QLabel("pure master");
 					master_Label->setAlignment(Qt::AlignCenter);
+					master_Label->setMinimumWidth(COLOR_LEGEND_LABEL_WIDTH);
 				master_Label->setStyleSheet(master_Parameter_Color);
 				new_Table->setCellWidget(current_Row+2,0, master_Label);
 
@@ -305,6 +336,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 					fit_Label->setMinimumWidth(TABLE_FIX_WIDTH_LINE_EDIT_LONG);
 				fit_Label->setStyleSheet(fit_Color);
 				new_Table->setCellWidget(current_Row,2, fit_Label);
+				new_Table->setSpan(current_Row,2,1,2);
 
 				// common z
 				QLabel* common_Z_Label = new QLabel("common z");
@@ -312,6 +344,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 					common_Z_Label->setMinimumWidth(TABLE_FIX_WIDTH_LINE_EDIT_LONG);
 				common_Z_Label->setStyleSheet(common_Thickness_Color);
 				new_Table->setCellWidget(current_Row+1,2, common_Z_Label);
+				new_Table->setSpan(current_Row+1,2,1,2);
 
 				// common sigma
 				QLabel* common_Sigma_Label = new QLabel("common "+Sigma_Sym);
@@ -319,10 +352,11 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 					common_Sigma_Label->setMinimumWidth(TABLE_FIX_WIDTH_LINE_EDIT_LONG);
 				common_Sigma_Label->setStyleSheet(common_Sigma_Color);
 				new_Table->setCellWidget(current_Row+2,2, common_Sigma_Label);
+				new_Table->setSpan(current_Row+2,2,1,2);
 			}
 
 			// density min/max
-			create_Simple_Label		(new_Table,			   current_Row,   current_Column, Rho_Sym+", "+/*Plus_Minus_Sym*/Minus_Sym+"%");
+			create_Simple_Label		(new_Table,	tab_Index, current_Row,   current_Column, "nothing", Rho_Sym+", "+/*Plus_Minus_Sym*/Minus_Sym+"%");
 			create_Min_Max_Button	(new_Table, tab_Index, current_Row+1, current_Column, whats_This_Density);
 			create_Min_Max_Spin_Box	(new_Table, tab_Index, current_Row+2, current_Column, whats_This_Density);
 			current_Column += 2;
@@ -330,7 +364,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 			// thickness min/max
 			if(has_Layers)
 			{
-				create_Simple_Label		(new_Table,			   current_Row,   current_Column, "z/d, "+Plus_Minus_Sym+"%");
+				create_Simple_Label		(new_Table,	tab_Index, current_Row,   current_Column, "nothing", "z/d, "+Plus_Minus_Sym+"%");
 				create_Min_Max_Button	(new_Table, tab_Index, current_Row+1, current_Column, whats_This_Thickness);
 				create_Min_Max_Spin_Box	(new_Table, tab_Index, current_Row+2, current_Column, whats_This_Thickness);
 			}
@@ -339,7 +373,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 			// sigma min/max
 			if(has_Boundaries)
 			{
-				create_Simple_Label		(new_Table,			   current_Row,   current_Column, Sigma_Sym+", "+Plus_Minus_Sym+"%");
+				create_Simple_Label		(new_Table,	tab_Index, current_Row,   current_Column, "nothing", Sigma_Sym+", "+Plus_Minus_Sym+"%");
 				create_Min_Max_Button	(new_Table, tab_Index, current_Row+1, current_Column, whats_This_Sigma);
 				create_Min_Max_Spin_Box	(new_Table, tab_Index, current_Row+2, current_Column, whats_This_Sigma);
 			}
@@ -351,21 +385,23 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 			current_Row = new_Table->rowCount()-2;
 
 			rows_List_To_Span.append(current_Row);
-			new_Table->setItem(current_Row,0, new QTableWidgetItem("Set steps"));
+			new_Table->setItem(current_Row,0, new QTableWidgetItem("Set increase/decrease steps"));
 			new_Table->item   (current_Row,0)->setTextAlignment(Qt::AlignCenter);
 			new_Table->item   (current_Row,0)->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEnabled);
 			new_Table->item   (current_Row,0)->setFont(font_Header);
+			new_Table->item   (current_Row,0)->setSizeHint(QSize(0,0));
 
 			new_Table->insertRow(new_Table->rowCount());
 			current_Row = new_Table->rowCount()-2;
 			new_Table->insertRow(new_Table->rowCount());
 
-			// recalculate on spinboxes change
+			// modifications
 			{
 				current_Column = 0;
-				spin_Box_Mouse_Wheel	 (new_Table, current_Row  , current_Column);
-				spin_Box_Recalculate	 (new_Table, current_Row+1, current_Column);
-				spin_Box_Change_Dependent(new_Table, current_Row  , current_Column+1);
+				spin_Box_Mouse_Wheel	 (new_Table,			current_Row  , current_Column);
+				spin_Box_Recalculate	 (new_Table,			current_Row+1, current_Column);
+				spin_Box_Change_Dependent(new_Table,			current_Row  , current_Column+1);
+				change_Model			 (new_Table, tab_Index, current_Row+1, current_Column+1);
 			}
 
 			add_Columns(new_Table, max_Depth + max_Number_Of_Elements+2);
@@ -374,28 +410,28 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 			if(max_Number_Of_Elements>=2)
 			{
 				current_Column = max_Depth+1;
-				create_Simple_Label		(new_Table,				current_Row,   current_Column, Zeta_Sym + " step");
-				create_Step_Spin_Box	(new_Table, tab_Index,	current_Row+1, current_Column, whats_This_Composition);
+				create_Simple_Label		(new_Table,	tab_Index, current_Row,   current_Column, whats_This_Composition, Zeta_Sym);
+				create_Step_Spin_Box	(new_Table, tab_Index, current_Row+1, current_Column, whats_This_Composition);
 			}
 			current_Column = max_Depth + max_Number_Of_Elements+2;
 
 			// density step
-			create_Simple_Label		(new_Table,				current_Row,   current_Column, Rho_Sym + " step");
-			create_Step_Spin_Box	(new_Table, tab_Index,	current_Row+1, current_Column, whats_This_Density);
+			create_Simple_Label		(new_Table,	tab_Index, current_Row,   current_Column, whats_This_Density, Rho_Sym);
+			create_Step_Spin_Box	(new_Table, tab_Index, current_Row+1, current_Column, whats_This_Density);
 			current_Column += 2;
 
 			// thickness step
 			if(has_Layers)
 			{
-				create_Simple_Label	(new_Table,			   current_Row,   current_Column, "z/d step");
+				create_Simple_Label	(new_Table,	tab_Index, current_Row,   current_Column, whats_This_Thickness, "z/d ["+length_units+"]");
 				create_Step_Spin_Box(new_Table, tab_Index, current_Row+1, current_Column, whats_This_Thickness);
+				current_Column += 2;
 			}
-			current_Column += 2;
 
 			// sigma step
 			if(has_Boundaries)
 			{
-				create_Simple_Label	(new_Table,			   current_Row,   current_Column, Sigma_Sym + " step");
+				create_Simple_Label	(new_Table,	tab_Index, current_Row,   current_Column, whats_This_Sigma, Sigma_Sym+" ["+length_units+"]");
 				create_Step_Spin_Box(new_Table, tab_Index, current_Row+1, current_Column, whats_This_Sigma);
 			}
 			current_Column += 1;
@@ -403,23 +439,23 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 			// gamma step
 			if(has_Gamma)
 			{
-				create_Simple_Label	(new_Table,			   current_Row,   current_Column, Gamma_Sym + " step");
+				create_Simple_Label	(new_Table,	tab_Index, current_Row,   current_Column, whats_This_Gamma, Gamma_Sym);
 				create_Step_Spin_Box(new_Table, tab_Index, current_Row+1, current_Column, whats_This_Gamma);
 			}
-			current_Column += 4;
+			current_Column += 1;
 
 			// interlayer step
-			if(has_Boundaries)
+			if(has_Boundaries && has_Interlayer_Functions)
 			{
-				create_Simple_Label	(new_Table,			   current_Row,   current_Column, Alpha_Sym + " step");
+				create_Simple_Label	(new_Table,	tab_Index, current_Row,   current_Column, whats_This_Interlayer_Composition, "interl");
 				create_Step_Spin_Box(new_Table, tab_Index, current_Row+1, current_Column, whats_This_Interlayer_Composition);
 			}
-			current_Column += 4;
+			current_Column += 1+interlayer_Types_To_Show;
 
 			// drift step
-			if(has_Multilayers)
+			if(has_Multilayers && has_Drift)
 			{
-				create_Simple_Label	(new_Table,			   current_Row,   current_Column, "drift step");
+				create_Simple_Label	(new_Table,	tab_Index, current_Row,   current_Column, whats_This_Drift, "dz/d"+Sigma_Sym);
 				create_Step_Spin_Box(new_Table, tab_Index, current_Row+1, current_Column, whats_This_Drift);
 			}
 		}
@@ -562,7 +598,9 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 					create_Line_Edit	(new_Table, tab_Index, current_Row+4, current_Column, structure_Item, whats_This, MAX);
 					// lastcolumn
 					create_Check_Box_Fit(new_Table, tab_Index, current_Row+2, current_Column, structure_Item, whats_This, 1, 2, 0, 0);
-					current_Column += 3;
+
+					if(has_Boundaries) current_Column += 3;
+					else			   current_Column += 2;
 
 					// gamma
 					if(structure_Item->childCount()==2)
@@ -622,53 +660,62 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 			///--------------------------------------------------------------------------------------------
 
 			// common sigma
-			if( struct_Data.item_Type == item_Type_Layer    ||
-				struct_Data.item_Type == item_Type_Substrate )
+			if(multilayer->imperfections_Model.use_Interlayer || struct_Data.parent_Item_Type == item_Type_Regular_Aperiodic)
 			{
-				QString whats_This = whats_This_Sigma;
-				add_Columns(new_Table, current_Column+1);
-				create_Line_Edit	  (new_Table, tab_Index, current_Row+1, current_Column, structure_Item, whats_This, VAL);
-				// second
-				create_Check_Box_Label(new_Table, tab_Index, current_Row,   current_Column, structure_Item, whats_This, Sigma_Sym+" ["+length_units+"]", 1, 0, 0, 0);
-				create_Line_Edit	  (new_Table, tab_Index, current_Row+3, current_Column, structure_Item, whats_This, MIN);
-				create_Line_Edit	  (new_Table, tab_Index, current_Row+4, current_Column, structure_Item, whats_This, MAX);
-				// last
-				create_Check_Box_Fit  (new_Table, tab_Index, current_Row+2, current_Column, structure_Item, whats_This, 1, 2, 0, 0);
+				if( struct_Data.item_Type == item_Type_Layer    ||
+					struct_Data.item_Type == item_Type_Substrate )
+				{
+					QString whats_This = whats_This_Sigma;
+					add_Columns(new_Table, current_Column+1);
+					create_Line_Edit	  (new_Table, tab_Index, current_Row+1, current_Column, structure_Item, whats_This, VAL);
+					// second
+					create_Check_Box_Label(new_Table, tab_Index, current_Row,   current_Column, structure_Item, whats_This, Sigma_Sym+" ["+length_units+"]", 1, 0, 0, 0);
+					create_Line_Edit	  (new_Table, tab_Index, current_Row+3, current_Column, structure_Item, whats_This, MIN);
+					create_Line_Edit	  (new_Table, tab_Index, current_Row+4, current_Column, structure_Item, whats_This, MAX);
+					// last
+					create_Check_Box_Fit  (new_Table, tab_Index, current_Row+2, current_Column, structure_Item, whats_This, 1, 2, 0, 0);
+				}
+				current_Column += 2;
 			}
-			current_Column += 2;
 			///--------------------------------------------------------------------------------------------
 
 			// interlayers: weights and sigmas
-			if( struct_Data.item_Type == item_Type_Layer    ||
-				struct_Data.item_Type == item_Type_Substrate )
+			if(multilayer->imperfections_Model.use_Interlayer || struct_Data.parent_Item_Type == item_Type_Regular_Aperiodic)
 			{
-				add_Columns(new_Table, current_Column+transition_Layer_Functions_Size);
-
-				// weights
-				create_Weigts_Interlayer		        (new_Table, tab_Index, current_Row+1, current_Column, structure_Item, VAL);
-				create_Check_Box_Label_Interlayer	    (new_Table, tab_Index, current_Row,   current_Column, structure_Item);
-				create_Weights_Check_Box_Fit_Interlayer (new_Table, tab_Index, current_Row+2, current_Column, structure_Item);
-
-				// sigmas
-				if(struct_Data.parent_Item_Type == item_Type_Regular_Aperiodic)
+				if( struct_Data.item_Type == item_Type_Layer    ||
+					struct_Data.item_Type == item_Type_Substrate )
 				{
-					create_Check_Box_Label      (new_Table, tab_Index, current_Row+3, current_Column,  structure_Item, whats_This_Common_Thickness, "common z", -2, -2, -4, -4);
-					create_Check_Box_Label      (new_Table, tab_Index, current_Row+4, current_Column,  structure_Item, whats_This_Common_Sigma, "common "+Sigma_Sym, -3, -3, -2, -2);
-					create_Check_Box_Label      (new_Table, tab_Index, current_Row+3, current_Column+2, structure_Item, whats_This_Restrict_Thickness, "restrict z: {"+Plus_Minus_Sym+Delta_Big_Sym+", p, Q}", 1, 1, 0, 2);
-					create_Thickness_Restriction(new_Table,            current_Row+4, current_Column+2, structure_Item);
-				} else
-				{
-					create_MySigma_Labels_Interlayer	    (new_Table, tab_Index, current_Row+3, current_Column, structure_Item);
-					create_MySigma_Line_Edits_Interlayer	(new_Table, tab_Index, current_Row+4, current_Column, structure_Item);
+					if(struct_Data.parent_Item_Type == item_Type_Regular_Aperiodic) add_Columns(new_Table, current_Column+transition_Layer_Functions_Size);
+					else															add_Columns(new_Table, current_Column+interlayer_Types_To_Show);
+
+					// weights
+					create_Weigts_Interlayer		        (new_Table, tab_Index, current_Row+1, current_Column, structure_Item, VAL);
+					create_Check_Box_Label_Interlayer	    (new_Table, tab_Index, current_Row,   current_Column, structure_Item);
+					create_Weights_Check_Box_Fit_Interlayer (new_Table, tab_Index, current_Row+2, current_Column, structure_Item);
+
+					// sigmas
+					if(struct_Data.parent_Item_Type == item_Type_Regular_Aperiodic)
+					{
+						create_Check_Box_Label      (new_Table, tab_Index, current_Row+3, current_Column,  structure_Item, whats_This_Common_Thickness, "common z", -2, -2, -4, -4);
+						create_Check_Box_Label      (new_Table, tab_Index, current_Row+4, current_Column,  structure_Item, whats_This_Common_Sigma, "common "+Sigma_Sym, -3, -3, -2, -2);
+						create_Check_Box_Label      (new_Table, tab_Index, current_Row+3, current_Column+2,structure_Item, whats_This_Restrict_Thickness, "restrict z: {"+Plus_Minus_Sym+Delta_Big_Sym+", p, Q}", 1, 1, 0, 2);
+						create_Thickness_Restriction(new_Table,            current_Row+4, current_Column+2,structure_Item);
+					} else
+					{
+						create_MySigma_Labels_Interlayer	    (new_Table, tab_Index, current_Row+3, current_Column, structure_Item);
+						create_MySigma_Line_Edits_Interlayer	(new_Table, tab_Index, current_Row+4, current_Column, structure_Item);
+					}
 				}
+
+				if(struct_Data.parent_Item_Type == item_Type_Regular_Aperiodic) current_Column += (1+transition_Layer_Functions_Size);
+				else															current_Column += (1+interlayer_Types_To_Show);
 			}
-			current_Column += (1+transition_Layer_Functions_Size);
 			///--------------------------------------------------------------------------------------------
 			/// DRIFTS
 			///--------------------------------------------------------------------------------------------
 
 			// thickness linear drift
-			if(struct_Data.thickness_Drift.show_Drift_Line)
+			if(multilayer->imperfections_Model.show_Thickness_Drift_Line && multilayer->imperfections_Model.show_Drift)
 			if(struct_Data.item_Type == item_Type_Layer && struct_Data.parent_Item_Type == item_Type_Multilayer)
 			{
 				QString whats_This = whats_This_Thickness_Drift_Line_Value;
@@ -685,7 +732,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 			///--------------------------------------------------------------------------------------------
 
 			// thickness random drift
-			if(struct_Data.thickness_Drift.show_Drift_Rand)
+			if(multilayer->imperfections_Model.show_Thickness_Drift_Rand && multilayer->imperfections_Model.show_Drift)
 			if(struct_Data.item_Type == item_Type_Layer && struct_Data.parent_Item_Type == item_Type_Multilayer)
 			{
 				QString whats_This = whats_This_Thickness_Drift_Rand_Rms;
@@ -702,7 +749,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 			///--------------------------------------------------------------------------------------------
 
 			// thickness sine drift
-			if(struct_Data.thickness_Drift.show_Drift_Sine)
+			if(multilayer->imperfections_Model.show_Thickness_Drift_Sine && multilayer->imperfections_Model.show_Drift)
 			if(struct_Data.item_Type == item_Type_Layer && struct_Data.parent_Item_Type == item_Type_Multilayer)
 			{
 				add_Columns(new_Table, current_Column+3);
@@ -730,14 +777,14 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 				new_Table->setSpan(current_Row,current_Column,1,3);
 				current_Column += 3;
 			}
-			if(	struct_Data.thickness_Drift.show_Drift_Line ||
-				struct_Data.thickness_Drift.show_Drift_Rand ||
-				struct_Data.thickness_Drift.show_Drift_Sine )
+			if(	(multilayer->imperfections_Model.show_Thickness_Drift_Line  && multilayer->imperfections_Model.show_Drift) ||
+				(multilayer->imperfections_Model.show_Thickness_Drift_Rand  && multilayer->imperfections_Model.show_Drift) ||
+				(multilayer->imperfections_Model.show_Thickness_Drift_Sine  && multilayer->imperfections_Model.show_Drift) )
 			{	current_Column += 1; }
 			///--------------------------------------------------------------------------------------------
 
 			// sigma linear drift
-			if(struct_Data.sigma_Drift.show_Drift_Line)
+			if(multilayer->imperfections_Model.show_Sigma_Drift_Line  && multilayer->imperfections_Model.show_Drift)
 			if(struct_Data.item_Type == item_Type_Layer && struct_Data.parent_Item_Type == item_Type_Multilayer)
 			{
 				QString whats_This = whats_This_Sigma_Drift_Line_Value;
@@ -754,7 +801,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 			///--------------------------------------------------------------------------------------------
 
 			// sigma random drift
-			if(struct_Data.sigma_Drift.show_Drift_Rand)
+			if(multilayer->imperfections_Model.show_Sigma_Drift_Rand && multilayer->imperfections_Model.show_Drift)
 			if(struct_Data.item_Type == item_Type_Layer && struct_Data.parent_Item_Type == item_Type_Multilayer)
 			{
 				QString whats_This = whats_This_Sigma_Drift_Rand_Rms;
@@ -771,7 +818,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 			///--------------------------------------------------------------------------------------------
 
 			// sigma sine drift
-			if(struct_Data.sigma_Drift.show_Drift_Sine)
+			if(multilayer->imperfections_Model.show_Sigma_Drift_Sine && multilayer->imperfections_Model.show_Drift)
 			if(struct_Data.item_Type == item_Type_Layer && struct_Data.parent_Item_Type == item_Type_Multilayer)
 			{
 				add_Columns(new_Table, current_Column+3);
@@ -799,11 +846,17 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 				new_Table->setSpan(current_Row,current_Column,1,3);
 				current_Column += 4;
 			}
+			if(	(multilayer->imperfections_Model.show_Sigma_Drift_Line  && multilayer->imperfections_Model.show_Drift) ||
+				(multilayer->imperfections_Model.show_Sigma_Drift_Rand  && multilayer->imperfections_Model.show_Drift) ||
+				(multilayer->imperfections_Model.show_Sigma_Drift_Sine  && multilayer->imperfections_Model.show_Drift) )
+			{	current_Column += 1; }
 			///--------------------------------------------------------------------------------------------
 
+			rows_List_To_Span.append(current_Row-1);
 			++it;
 		}
-		new_Table->insertRow(new_Table->rowCount());
+//		new_Table->insertRow(new_Table->rowCount());
+		rows_List_To_Span.append(new_Table->rowCount()-1);
 	}
 	span_Structure_Headers(new_Table);
 	span_Structure_Items(new_Table);
@@ -928,19 +981,19 @@ Parameter& Table_Of_Structures::get_Parameter(Data& struct_Data, QString whats_T
 
 	// thickness
 	if(whats_This == whats_This_Thickness)						{precision = line_edit_thickness_precision;	coeff = length_Coefficients_Map.value(length_units);	return struct_Data.thickness;	}
-	if(whats_This == whats_This_Thickness_Drift_Line_Value)		{precision = line_edit_thickness_precision;	coeff = 1;					return struct_Data.thickness_Drift.drift_Line_Value;		}
-	if(whats_This == whats_This_Thickness_Drift_Rand_Rms)		{precision = line_edit_thickness_precision;	coeff = 1;					return struct_Data.thickness_Drift.drift_Rand_Rms;			}
-	if(whats_This == whats_This_Thickness_Drift_Sine_Amplitude)	{precision = line_edit_thickness_precision;	coeff = 1;					return struct_Data.thickness_Drift.drift_Sine_Amplitude;	}
-	if(whats_This == whats_This_Thickness_Drift_Sine_Frequency)	{precision = line_edit_thickness_precision;	coeff = 1;					return struct_Data.thickness_Drift.drift_Sine_Frequency;	}
-	if(whats_This == whats_This_Thickness_Drift_Sine_Phase)		{precision = line_edit_thickness_precision;	coeff = 1;					return struct_Data.thickness_Drift.drift_Sine_Phase;		}
+	if(whats_This == whats_This_Thickness_Drift_Line_Value)		{precision = line_edit_drift_precision;	coeff = 1;					return struct_Data.thickness_Drift.drift_Line_Value;		}
+	if(whats_This == whats_This_Thickness_Drift_Rand_Rms)		{precision = line_edit_drift_precision;	coeff = 1;					return struct_Data.thickness_Drift.drift_Rand_Rms;			}
+	if(whats_This == whats_This_Thickness_Drift_Sine_Amplitude)	{precision = line_edit_drift_precision;	coeff = 1;					return struct_Data.thickness_Drift.drift_Sine_Amplitude;	}
+	if(whats_This == whats_This_Thickness_Drift_Sine_Frequency)	{precision = line_edit_drift_precision;	coeff = 1;					return struct_Data.thickness_Drift.drift_Sine_Frequency;	}
+	if(whats_This == whats_This_Thickness_Drift_Sine_Phase)		{precision = line_edit_drift_precision;	coeff = 1;					return struct_Data.thickness_Drift.drift_Sine_Phase;		}
 
 	// interface
 	if(whats_This == whats_This_Sigma)						{precision = line_edit_sigma_precision;		coeff = length_Coefficients_Map.value(length_units);	return struct_Data.sigma;		}
-	if(whats_This == whats_This_Sigma_Drift_Line_Value)		{precision = line_edit_sigma_precision;		coeff = 1;						return struct_Data.sigma_Drift.drift_Line_Value;		}
-	if(whats_This == whats_This_Sigma_Drift_Rand_Rms)		{precision = line_edit_sigma_precision;		coeff = 1;						return struct_Data.sigma_Drift.drift_Rand_Rms;			}
-	if(whats_This == whats_This_Sigma_Drift_Sine_Amplitude)	{precision = line_edit_sigma_precision;		coeff = 1;						return struct_Data.sigma_Drift.drift_Sine_Amplitude;	}
-	if(whats_This == whats_This_Sigma_Drift_Sine_Frequency)	{precision = line_edit_sigma_precision;		coeff = 1;						return struct_Data.sigma_Drift.drift_Sine_Frequency;	}
-	if(whats_This == whats_This_Sigma_Drift_Sine_Phase)		{precision = line_edit_sigma_precision;		coeff = 1;						return struct_Data.sigma_Drift.drift_Sine_Phase;		}
+	if(whats_This == whats_This_Sigma_Drift_Line_Value)		{precision = line_edit_drift_precision;		coeff = 1;						return struct_Data.sigma_Drift.drift_Line_Value;		}
+	if(whats_This == whats_This_Sigma_Drift_Rand_Rms)		{precision = line_edit_drift_precision;		coeff = 1;						return struct_Data.sigma_Drift.drift_Rand_Rms;			}
+	if(whats_This == whats_This_Sigma_Drift_Sine_Amplitude)	{precision = line_edit_drift_precision;		coeff = 1;						return struct_Data.sigma_Drift.drift_Sine_Amplitude;	}
+	if(whats_This == whats_This_Sigma_Drift_Sine_Frequency)	{precision = line_edit_drift_precision;		coeff = 1;						return struct_Data.sigma_Drift.drift_Sine_Frequency;	}
+	if(whats_This == whats_This_Sigma_Drift_Sine_Phase)		{precision = line_edit_drift_precision;		coeff = 1;						return struct_Data.sigma_Drift.drift_Sine_Phase;		}
 
 	// multilayer
 	if(whats_This == whats_This_Num_Repetitions)			{precision = 0;								coeff = 1;						return struct_Data.num_Repetition.parameter;			}
@@ -2132,94 +2185,100 @@ void Table_Of_Structures::create_Check_Box_Label_Interlayer(My_Table_Widget* tab
 	QVector<Interlayer>& interlayer_Composition = struct_Data.interlayer_Composition;
 
 	int current_Column = start_Column;
+
+	Multilayer* multilayer = qobject_cast<Multilayer*>(multilayer_Tabs->widget(tab_Index));
+
 	for(int interlayer_Index=0; interlayer_Index<interlayer_Composition.size(); ++interlayer_Index)
 	{
-		Interlayer& inter_Comp = interlayer_Composition[interlayer_Index];
-
-		// update tab_Index and full_Name
-		inter_Comp.interlayer.indicator.tab_Index = tab_Index;
-		inter_Comp.interlayer.indicator.full_Name = Global_Variables::parameter_Name(struct_Data, whats_This_Interlayer_Composition, interlayer_Index);
-		QVariant var;
-		var.setValue(struct_Data);
-		structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
-
-		QCheckBox* check_Box = new QCheckBox(transition_Layer_Functions[interlayer_Index]);
-
-		// enable/disable function
-		check_Box->setProperty(row_Property, current_Row);
-		check_Box->setProperty(column_Property, current_Column);
-
-
-		// first group
-		check_Box->setProperty(relative_Rows_To_Disable_Start_Property, 1);
-		check_Box->setProperty(relative_Rows_To_Disable_Finish_Property, 1);
-		check_Box->setProperty(relative_Columns_To_Disable_Start_Property, 0);
-		check_Box->setProperty(relative_Columns_To_Disable_Finish_Property, 0);
-
-		// second group
-		check_Box->setProperty(relative_Rows_To_Disable_Start_Property_2, 4);
-		check_Box->setProperty(relative_Rows_To_Disable_Finish_Property_2, 4);
-		check_Box->setProperty(relative_Columns_To_Disable_Start_Property_2, 0);
-		check_Box->setProperty(relative_Columns_To_Disable_Finish_Property_2, 0);
-
-		check_Box->setProperty(interlayer_Index_Property, interlayer_Index);
-
-		// for reloading
-		check_Box->setProperty(reload_Property, false);
-		check_Box->setProperty(tab_Index_Property, tab_Index);
-
-		// storage
-		check_Boxes_Map.		   insert	   (check_Box, structure_Item);
-		reload_Show_Dependence_Map.insertMulti (check_Box, struct_Data.sigma.indicator.id);
-		all_Widgets_To_Reload[tab_Index].append(check_Box);
-		reload_Show_Dependence_Map.insertMulti(check_Box,  inter_Comp.my_Sigma.indicator.id);
-
-		check_Box->setChecked(inter_Comp.enabled);
-
-		// alignment
-		QWidget* back_Widget = new QWidget;
-		QVBoxLayout* back_Layout = new QVBoxLayout(back_Widget);
-		back_Layout->addWidget(check_Box);
-		back_Layout->setSpacing(0);
-		back_Layout->setContentsMargins(0,0,0,0);
-		back_Layout->setAlignment(Qt::AlignCenter);
-
-		// set up BACK widget
-		if(struct_Data.parent_Item_Type != item_Type_Regular_Aperiodic)
+		if(multilayer->imperfections_Model.use_Func[interlayer_Index] || struct_Data.parent_Item_Type == item_Type_Regular_Aperiodic)
 		{
-			back_Widget->setProperty(coupling_Editor_Property, true);		// for opening Coupling_Editor
-			all_Widgets_To_Reload[tab_Index].append(back_Widget);
+			Interlayer& inter_Comp = interlayer_Composition[interlayer_Index];
 
-			coupled_Back_Widget_and_Struct_Item.insert(back_Widget, structure_Item);
-			coupled_Back_Widget_and_Id.			insert(back_Widget, inter_Comp.interlayer.indicator.id);
+			// update tab_Index and full_Name
+			inter_Comp.interlayer.indicator.tab_Index = tab_Index;
+			inter_Comp.interlayer.indicator.full_Name = Global_Variables::parameter_Name(struct_Data, whats_This_Interlayer_Composition, interlayer_Index);
+			QVariant var;
+			var.setValue(struct_Data);
+			structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
 
-			// colorize
-			refresh_Reload_Colorize(colorize_Property, back_Widget, &inter_Comp.interlayer);
-		} else
-		{
-			back_Widget->setStyleSheet("background-color: lightblue");
+			QCheckBox* check_Box = new QCheckBox(transition_Layer_Functions[interlayer_Index]);
+
+			// enable/disable function
+			check_Box->setProperty(row_Property, current_Row);
+			check_Box->setProperty(column_Property, current_Column);
+
+
+			// first group
+			check_Box->setProperty(relative_Rows_To_Disable_Start_Property, 1);
+			check_Box->setProperty(relative_Rows_To_Disable_Finish_Property, 1);
+			check_Box->setProperty(relative_Columns_To_Disable_Start_Property, 0);
+			check_Box->setProperty(relative_Columns_To_Disable_Finish_Property, 0);
+
+			// second group
+			check_Box->setProperty(relative_Rows_To_Disable_Start_Property_2, 4);
+			check_Box->setProperty(relative_Rows_To_Disable_Finish_Property_2, 4);
+			check_Box->setProperty(relative_Columns_To_Disable_Start_Property_2, 0);
+			check_Box->setProperty(relative_Columns_To_Disable_Finish_Property_2, 0);
+
+			check_Box->setProperty(interlayer_Index_Property, interlayer_Index);
+
+			// for reloading
+			check_Box->setProperty(reload_Property, false);
+			check_Box->setProperty(tab_Index_Property, tab_Index);
+
+			// storage
+			check_Boxes_Map.		   insert	   (check_Box, structure_Item);
+			reload_Show_Dependence_Map.insertMulti (check_Box, struct_Data.sigma.indicator.id);
+			all_Widgets_To_Reload[tab_Index].append(check_Box);
+			reload_Show_Dependence_Map.insertMulti(check_Box,  inter_Comp.my_Sigma.indicator.id);
+
+			check_Box->setChecked(inter_Comp.enabled);
+
+			// alignment
+			QWidget* back_Widget = new QWidget;
+			QVBoxLayout* back_Layout = new QVBoxLayout(back_Widget);
+			back_Layout->addWidget(check_Box);
+			back_Layout->setSpacing(0);
+			back_Layout->setContentsMargins(0,0,0,0);
+			back_Layout->setAlignment(Qt::AlignCenter);
+
+			// set up BACK widget
+			if(struct_Data.parent_Item_Type != item_Type_Regular_Aperiodic)
+			{
+				back_Widget->setProperty(coupling_Editor_Property, true);		// for opening Coupling_Editor
+				all_Widgets_To_Reload[tab_Index].append(back_Widget);
+
+				coupled_Back_Widget_and_Struct_Item.insert(back_Widget, structure_Item);
+				coupled_Back_Widget_and_Id.			insert(back_Widget, inter_Comp.interlayer.indicator.id);
+
+				// colorize
+				refresh_Reload_Colorize(colorize_Property, back_Widget, &inter_Comp.interlayer);
+			} else
+			{
+				back_Widget->setStyleSheet("background-color: lightblue");
+			}
+
+			table->setCellWidget(current_Row, current_Column, back_Widget);
+
+			connect(check_Box, &QCheckBox::toggled, this, &Table_Of_Structures::refresh_Check_Box_Label_Interlayer);
+			connect(check_Box, &QCheckBox::toggled, this, [=]
+			{
+				cells_On_Off(table);
+
+				// colorizing working fits
+				QTreeWidgetItem* item = check_Boxes_Map.value(check_Box);
+				Data data = item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+				Interlayer& inter_Com = data.interlayer_Composition[interlayer_Index];
+				QCheckBox* fit_Check = check_Boxes_Fit_Map.key(-inter_Com.interlayer.indicator.id);// negaive "id"!
+				if(fit_Check)
+					fit_Check->released();
+			});
+			if(struct_Data.parent_Item_Type != item_Type_Regular_Aperiodic)
+			{
+				connect(check_Box, &QCheckBox::toggled, this, [=]{cells_On_Off_2(table, structure_Item); });
+			}
+			current_Column+=TABLE_COLUMN_INTERLAYERS_SHIFT;
 		}
-
-		table->setCellWidget(current_Row, current_Column, back_Widget);
-
-		connect(check_Box, &QCheckBox::toggled, this, &Table_Of_Structures::refresh_Check_Box_Label_Interlayer);
-		connect(check_Box, &QCheckBox::toggled, this, [=]
-		{
-			cells_On_Off(table);
-
-			// colorizing working fits
-			QTreeWidgetItem* item = check_Boxes_Map.value(check_Box);
-			Data data = item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
-			Interlayer& inter_Com = data.interlayer_Composition[interlayer_Index];
-			QCheckBox* fit_Check = check_Boxes_Fit_Map.key(-inter_Com.interlayer.indicator.id);// negaive "id"!
-			if(fit_Check)
-				fit_Check->released();
-		});
-		if(struct_Data.parent_Item_Type != item_Type_Regular_Aperiodic)
-		{
-			connect(check_Box, &QCheckBox::toggled, this, [=]{cells_On_Off_2(table, structure_Item); });
-		}
-		current_Column+=TABLE_COLUMN_INTERLAYERS_SHIFT;
 	}
 }
 
@@ -2231,52 +2290,57 @@ void Table_Of_Structures::create_Weigts_Interlayer(My_Table_Widget* table, int t
 	int current_Column = start_Column;
 	double value = -2017;
 
+	Multilayer* multilayer = qobject_cast<Multilayer*>(multilayer_Tabs->widget(tab_Index));
+
 	for(int interlayer_Index=0; interlayer_Index<interlayer_Composition.size(); ++interlayer_Index)
 	{
-		Interlayer& inter_Comp = interlayer_Composition[interlayer_Index];
+		if(multilayer->imperfections_Model.use_Func[interlayer_Index] || struct_Data.parent_Item_Type == item_Type_Regular_Aperiodic)
+		{
+			Interlayer& inter_Comp = interlayer_Composition[interlayer_Index];
 
-		if(val_Type == VAL)	value = inter_Comp.interlayer.value;
-		if(val_Type == MIN)	value = inter_Comp.interlayer.fit.min;
-		if(val_Type == MAX)	value = inter_Comp.interlayer.fit.max;
+			if(val_Type == VAL)	value = inter_Comp.interlayer.value;
+			if(val_Type == MIN)	value = inter_Comp.interlayer.fit.min;
+			if(val_Type == MAX)	value = inter_Comp.interlayer.fit.max;
 
-		MyDoubleSpinBox* spin_Box = new MyDoubleSpinBox;
-			spin_Box->setRange(0, MAX_DOUBLE);
-			spin_Box->setDecimals(line_edit_interlayer_precision);
-			spin_Box->setValue(value);
-			spin_Box->setAccelerated(true);
-			spin_Box->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT_SHORT);
-			spin_Box->setButtonSymbols(QAbstractSpinBox::NoButtons);
-			spin_Box->installEventFilter(this);
+			MyDoubleSpinBox* spin_Box = new MyDoubleSpinBox;
+				spin_Box->setRange(0, MAX_DOUBLE);
+				spin_Box->setDecimals(line_edit_interlayer_precision);
+				spin_Box->setValue(value);
+				spin_Box->setAccelerated(true);
+				spin_Box->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT_SHORT);
+				spin_Box->setButtonSymbols(QAbstractSpinBox::NoButtons);
+				spin_Box->installEventFilter(this);
 
-		spin_Box->setProperty(interlayer_Index_Property, interlayer_Index);
-		spin_Box->setProperty(min_Size_Property, spin_Box->width());
-		spin_Box->setProperty(column_Property, current_Column);
-		spin_Box->setProperty(value_Type_Property, val_Type);
+			spin_Box->setProperty(interlayer_Index_Property, interlayer_Index);
+			spin_Box->setProperty(min_Size_Property, spin_Box->width());
+			spin_Box->setProperty(column_Property, current_Column);
+			spin_Box->setProperty(value_Type_Property, val_Type);
 
-		// for reloading
-		spin_Box->setProperty(reload_Property, false);
-		spin_Box->setProperty(tab_Index_Property, tab_Index);
-		if(val_Type == VAL) {
-			spin_Box->setProperty(id_Property, inter_Comp.interlayer.indicator.id);
+			// for reloading
+			spin_Box->setProperty(reload_Property, false);
+			spin_Box->setProperty(tab_Index_Property, tab_Index);
+			if(val_Type == VAL) {
+				spin_Box->setProperty(id_Property, inter_Comp.interlayer.indicator.id);
+			}
+			// storage
+			spin_Boxes_ID_Map.insert(spin_Box,inter_Comp.interlayer.indicator.id);
+			spin_Boxes_Map.insert(spin_Box, structure_Item);
+			all_Widgets_To_Reload[tab_Index].append(spin_Box);
+			if(val_Type == VAL) {
+				reload_Show_Dependence_Map.insertMulti(spin_Box, struct_Data.sigma.indicator.id);
+			}
+
+			// create item
+			table->setCellWidget(current_Row, current_Column, spin_Box);
+
+			connect(spin_Box, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]{resize_Line_Edit(table,spin_Box); });
+			connect(spin_Box, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]{refresh_Weigts_Interlayer();});
+
+			spin_Box->setSingleStep(step_interlayer);
+			interlayer_Spin_Boxes_List.append(spin_Box);
+
+			current_Column+=TABLE_COLUMN_INTERLAYERS_SHIFT;
 		}
-		// storage
-		spin_Boxes_ID_Map.insert(spin_Box,inter_Comp.interlayer.indicator.id);
-		spin_Boxes_Map.insert(spin_Box, structure_Item);
-		all_Widgets_To_Reload[tab_Index].append(spin_Box);
-		if(val_Type == VAL) {
-			reload_Show_Dependence_Map.insertMulti(spin_Box, struct_Data.sigma.indicator.id);
-		}
-
-		// create item
-		table->setCellWidget(current_Row, current_Column, spin_Box);
-
-		connect(spin_Box, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]{resize_Line_Edit(table,spin_Box); });
-		connect(spin_Box, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]{refresh_Weigts_Interlayer();});
-
-		spin_Box->setSingleStep(step_interlayer);
-		interlayer_Spin_Boxes_List.append(spin_Box);
-
-		current_Column+=TABLE_COLUMN_INTERLAYERS_SHIFT;
 	}
 }
 
@@ -2287,53 +2351,58 @@ void Table_Of_Structures::create_Weights_Check_Box_Fit_Interlayer(My_Table_Widge
 
 	int current_Column = start_Column;
 
+	Multilayer* multilayer = qobject_cast<Multilayer*>(multilayer_Tabs->widget(tab_Index));
+
 	for(int interlayer_Index=0; interlayer_Index<interlayer_Composition.size(); ++interlayer_Index)
 	{
-		Interlayer& inter_Comp = interlayer_Composition[interlayer_Index];
-
-		QCheckBox* check_Box = new QCheckBox("fit");
-		check_Box->setProperty(interlayer_Index_Property, interlayer_Index);
-
-		// for reloading
-		check_Box->setProperty(reload_Property, false);
-		check_Box->setProperty(tab_Index_Property, tab_Index);
-
-		// storage
-		check_Boxes_Fit_Map.			 insert(check_Box, -inter_Comp.interlayer.indicator.id); // negaive "id"!
-		check_Boxes_Map.				 insert(check_Box, structure_Item);
-		all_Widgets_To_Reload[tab_Index].append(check_Box);
-
-		check_Box->setChecked(inter_Comp.interlayer.fit.is_Fitable);
-
-		// alignment (back_Widget for alignment and color)
-		QWidget* back_Widget = new QWidget;
-		back_Widgets_Fit_Map.insert(back_Widget, inter_Comp.interlayer.indicator.id);
-		QVBoxLayout* back_Layout = new QVBoxLayout(back_Widget);
-		back_Layout->addWidget(check_Box);
-		back_Layout->setSpacing(0);
-		back_Layout->setContentsMargins(0,0,0,0);
-		back_Layout->setAlignment(Qt::AlignCenter);
-
-		table->setCellWidget(current_Row, current_Column, back_Widget);
-
-		connect(check_Box, &QCheckBox::toggled, this, &Table_Of_Structures::refresh_Weights_Check_Box_Fit_Interlayer);
-		connect(check_Box, &QCheckBox::released, this, [=]
+		if(multilayer->imperfections_Model.use_Func[interlayer_Index] || struct_Data.parent_Item_Type == item_Type_Regular_Aperiodic)
 		{
-			// colorizing working fits
-			QTreeWidgetItem* item = check_Boxes_Map.value(check_Box);
-			Data data = item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
-			Interlayer& inter_Com = data.interlayer_Composition[interlayer_Index];
+			Interlayer& inter_Comp = interlayer_Composition[interlayer_Index];
 
-			if(inter_Com.interlayer.fit.is_Fitable && inter_Com.enabled && !inter_Com.interlayer.coupled.master.exist)
-			{
-				back_Widget->setStyleSheet(fit_Color);
-			} else
-			{
-				back_Widget->setStyleSheet(white_Color);
-			}
-		});
+			QCheckBox* check_Box = new QCheckBox("fit");
+			check_Box->setProperty(interlayer_Index_Property, interlayer_Index);
 
-		current_Column+=TABLE_COLUMN_ELEMENTS_SHIFT;
+			// for reloading
+			check_Box->setProperty(reload_Property, false);
+			check_Box->setProperty(tab_Index_Property, tab_Index);
+
+			// storage
+			check_Boxes_Fit_Map.			 insert(check_Box, -inter_Comp.interlayer.indicator.id); // negaive "id"!
+			check_Boxes_Map.				 insert(check_Box, structure_Item);
+			all_Widgets_To_Reload[tab_Index].append(check_Box);
+
+			check_Box->setChecked(inter_Comp.interlayer.fit.is_Fitable);
+
+			// alignment (back_Widget for alignment and color)
+			QWidget* back_Widget = new QWidget;
+			back_Widgets_Fit_Map.insert(back_Widget, inter_Comp.interlayer.indicator.id);
+			QVBoxLayout* back_Layout = new QVBoxLayout(back_Widget);
+			back_Layout->addWidget(check_Box);
+			back_Layout->setSpacing(0);
+			back_Layout->setContentsMargins(0,0,0,0);
+			back_Layout->setAlignment(Qt::AlignCenter);
+
+			table->setCellWidget(current_Row, current_Column, back_Widget);
+
+			connect(check_Box, &QCheckBox::toggled, this, &Table_Of_Structures::refresh_Weights_Check_Box_Fit_Interlayer);
+			connect(check_Box, &QCheckBox::released, this, [=]
+			{
+				// colorizing working fits
+				QTreeWidgetItem* item = check_Boxes_Map.value(check_Box);
+				Data data = item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+				Interlayer& inter_Com = data.interlayer_Composition[interlayer_Index];
+
+				if(inter_Com.interlayer.fit.is_Fitable && inter_Com.enabled && !inter_Com.interlayer.coupled.master.exist)
+				{
+					back_Widget->setStyleSheet(fit_Color);
+				} else
+				{
+					back_Widget->setStyleSheet(white_Color);
+				}
+			});
+
+			current_Column+=TABLE_COLUMN_ELEMENTS_SHIFT;
+		}
 	}
 }
 
@@ -2343,39 +2412,44 @@ void Table_Of_Structures::create_MySigma_Labels_Interlayer(My_Table_Widget* tabl
 	QVector<Interlayer>& interlayer_Composition = struct_Data.interlayer_Composition;
 
 	int current_Column = start_Column;
+	Multilayer* multilayer = qobject_cast<Multilayer*>(multilayer_Tabs->widget(tab_Index));
+
 	for(int interlayer_Index=0; interlayer_Index<interlayer_Composition.size(); ++interlayer_Index)
 	{
-		Parameter& my_Sigma = interlayer_Composition[interlayer_Index].my_Sigma;
-
-		// update tab_Index and full_Name
-		my_Sigma.indicator.tab_Index = tab_Index;
-		my_Sigma.indicator.full_Name = Global_Variables::parameter_Name(struct_Data, whats_This_Interlayer_My_Sigma, interlayer_Index);
-		QVariant var;
-		var.setValue(struct_Data);
-		structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
-
-		QLabel* label = new QLabel(Sigma_Sym+" "+transition_Layer_Functions[interlayer_Index]);
-		label->setAlignment(Qt::AlignCenter);
-		all_Widgets_To_Reload[tab_Index].append(label);
-
-		// set up BACK widget
-		if(struct_Data.parent_Item_Type != item_Type_Regular_Aperiodic)
+		if(multilayer->imperfections_Model.use_Func[interlayer_Index])
 		{
-			label->setProperty(coupling_Editor_Property, true);
+			Parameter& my_Sigma = interlayer_Composition[interlayer_Index].my_Sigma;
 
-			coupled_Back_Widget_and_Struct_Item.insert(label, structure_Item);
-			coupled_Back_Widget_and_Id.			insert(label, my_Sigma.indicator.id);
+			// update tab_Index and full_Name
+			my_Sigma.indicator.tab_Index = tab_Index;
+			my_Sigma.indicator.full_Name = Global_Variables::parameter_Name(struct_Data, whats_This_Interlayer_My_Sigma, interlayer_Index);
+			QVariant var;
+			var.setValue(struct_Data);
+			structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
 
-			// colorize
-			refresh_Reload_Colorize(colorize_Property, label, &my_Sigma);
-		} else
-		{
-			label->setStyleSheet("background-color: lightblue");
+			QLabel* label = new QLabel(Sigma_Sym+" "+transition_Layer_Functions[interlayer_Index]);
+			label->setAlignment(Qt::AlignCenter);
+			all_Widgets_To_Reload[tab_Index].append(label);
+
+			// set up BACK widget
+			if(struct_Data.parent_Item_Type != item_Type_Regular_Aperiodic)
+			{
+				label->setProperty(coupling_Editor_Property, true);
+
+				coupled_Back_Widget_and_Struct_Item.insert(label, structure_Item);
+				coupled_Back_Widget_and_Id.			insert(label, my_Sigma.indicator.id);
+
+				// colorize
+				refresh_Reload_Colorize(colorize_Property, label, &my_Sigma);
+			} else
+			{
+				label->setStyleSheet("background-color: lightblue");
+			}
+
+			table->setCellWidget(current_Row, current_Column, label);
+
+			current_Column+=TABLE_COLUMN_INTERLAYERS_SHIFT;
 		}
-
-		table->setCellWidget(current_Row, current_Column, label);
-
-		current_Column+=TABLE_COLUMN_INTERLAYERS_SHIFT;
 	}
 }
 
@@ -2386,57 +2460,80 @@ void Table_Of_Structures::create_MySigma_Line_Edits_Interlayer(My_Table_Widget* 
 
 	int current_Column = start_Column;
 
+	Multilayer* multilayer = qobject_cast<Multilayer*>(multilayer_Tabs->widget(tab_Index));
+
 	for(int interlayer_Index=0; interlayer_Index<interlayer_Composition.size(); ++interlayer_Index)
 	{
-		Parameter& sigma_Comp = interlayer_Composition[interlayer_Index].my_Sigma;
+		if(multilayer->imperfections_Model.use_Func[interlayer_Index])
+		{
+			Parameter& sigma_Comp = interlayer_Composition[interlayer_Index].my_Sigma;
 
-		MyDoubleSpinBox* spin_Box = new MyDoubleSpinBox;
-			spin_Box->setRange(0, MAX_DOUBLE);
-			spin_Box->setDecimals(line_edit_sigma_precision);
-			spin_Box->setValue(sigma_Comp.value);
-			spin_Box->setAccelerated(true);
-			spin_Box->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT_SHORT);
-			spin_Box->setButtonSymbols(QAbstractSpinBox::NoButtons);
-			spin_Box->installEventFilter(this);
+			MyDoubleSpinBox* spin_Box = new MyDoubleSpinBox;
+				spin_Box->setRange(0, MAX_DOUBLE);
+				spin_Box->setDecimals(line_edit_sigma_precision);
+				spin_Box->setValue(sigma_Comp.value);
+				spin_Box->setAccelerated(true);
+				spin_Box->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT_SHORT);
+				spin_Box->setButtonSymbols(QAbstractSpinBox::NoButtons);
+				spin_Box->installEventFilter(this);
 
-		spin_Box->setProperty(interlayer_Index_Property, interlayer_Index);
-		spin_Box->setProperty(min_Size_Property, spin_Box->width());
-		spin_Box->setProperty(column_Property, current_Column);
+			spin_Box->setProperty(interlayer_Index_Property, interlayer_Index);
+			spin_Box->setProperty(min_Size_Property, spin_Box->width());
+			spin_Box->setProperty(column_Property, current_Column);
 
-		// for reloading
-		spin_Box->setProperty(reload_Property, false);
-		spin_Box->setProperty(tab_Index_Property, tab_Index);
-		spin_Box->setProperty(id_Property, sigma_Comp.indicator.id);
+			// for reloading
+			spin_Box->setProperty(reload_Property, false);
+			spin_Box->setProperty(tab_Index_Property, tab_Index);
+			spin_Box->setProperty(id_Property, sigma_Comp.indicator.id);
 
-		// storage
-		spin_Boxes_ID_Map.insert(spin_Box,sigma_Comp.indicator.id);
-		spin_Boxes_Map.insert(spin_Box, structure_Item);
-		all_Widgets_To_Reload[tab_Index].append(spin_Box);
-		reload_Show_Dependence_Map.insertMulti(spin_Box, sigma_Comp.indicator.id);
+			// storage
+			spin_Boxes_ID_Map.insert(spin_Box,sigma_Comp.indicator.id);
+			spin_Boxes_Map.insert(spin_Box, structure_Item);
+			all_Widgets_To_Reload[tab_Index].append(spin_Box);
+			reload_Show_Dependence_Map.insertMulti(spin_Box, sigma_Comp.indicator.id);
 
-		// create item (set LineEdits_Map)
-		table->setCellWidget(current_Row, current_Column, spin_Box);
+			// create item (set LineEdits_Map)
+			table->setCellWidget(current_Row, current_Column, spin_Box);
 
-		connect(spin_Box, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]{resize_Line_Edit(table,spin_Box); });
-		connect(spin_Box, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]{refresh_MySigma_Interlayer();});
+			connect(spin_Box, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]{resize_Line_Edit(table,spin_Box); });
+			connect(spin_Box, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]{refresh_MySigma_Interlayer();});
 
-		spin_Box->setSingleStep(step_sigma);
-		sigma_Spin_Boxes_List.append(spin_Box);
+			spin_Box->setSingleStep(step_sigma);
+			sigma_Spin_Boxes_List.append(spin_Box);
 
-		current_Column+=TABLE_COLUMN_INTERLAYERS_SHIFT;
+			current_Column+=TABLE_COLUMN_INTERLAYERS_SHIFT;
+		}
 	}
 }
 
-void Table_Of_Structures::create_Simple_Label(My_Table_Widget* table, int current_Row, int current_Column, QString text)
+void Table_Of_Structures::create_Simple_Label(My_Table_Widget* table, int tab_Index, int current_Row, int current_Column, QString whats_This, QString text)
 {
 	add_Columns(table,current_Column);
 
 	QLabel* label = new QLabel(text);
-	label->setAlignment(Qt::AlignCenter);
-	label->setStyleSheet("background-color: lightblue");
+		label->setAlignment(Qt::AlignCenter);
+		label->setStyleSheet("background-color: lightblue");
+	all_Widgets_To_Reload[tab_Index].append(label);
 
 	// add widget to table
 	table->setCellWidget(current_Row, current_Column, label);
+
+	// for reloading
+	label->setProperty(reload_Property, false);
+	label->setProperty(tab_Index_Property, tab_Index);
+	label->setProperty(whats_This_Property, whats_This);
+
+	connect(label, &QLabel::windowTitleChanged, this, [=]
+	{
+		if(whats_This == whats_This_Thickness)
+		{
+			label->setText("z/d ["+length_units+"]");
+		}
+		if(whats_This == whats_This_Sigma)
+		{
+			label->setText(Sigma_Sym+" ["+length_units+"]");
+		}
+	});
 }
 
 void Table_Of_Structures::create_Min_Max_Button(My_Table_Widget* table, int tab_Index, int current_Row, int current_Column, QString whats_This)
@@ -2575,10 +2672,11 @@ void Table_Of_Structures::create_Step_Spin_Box(My_Table_Widget* table, int tab_I
 
 	add_Columns(table,current_Column);
 
-	QDoubleSpinBox* step_SpinBox = new QDoubleSpinBox;
+	MyDoubleSpinBox* step_SpinBox = new MyDoubleSpinBox;
 		step_SpinBox->setMinimumWidth(TABLE_FIX_WIDTH_LINE_EDIT_SHORT);
 		step_SpinBox->setRange(0, MAX_DOUBLE);
 		step_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
+		step_SpinBox->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
 		step_SpinBox->setAccelerated(true);
 		step_SpinBox->setProperty(column_Property,current_Column);
 		step_SpinBox->installEventFilter(this);
@@ -2598,7 +2696,7 @@ void Table_Of_Structures::create_Step_Spin_Box(My_Table_Widget* table, int tab_I
 		step_SpinBox->setFixedWidth(min_Width);
 		step_SpinBox->setProperty(min_Size_Property, step_SpinBox->width());
 
-	connect(step_SpinBox, static_cast<void(QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, [=]
+	connect(step_SpinBox, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
 	{
 		double length_Coeff = length_Coefficients_Map.value(length_units);
 
@@ -2617,17 +2715,18 @@ void Table_Of_Structures::create_Step_Spin_Box(My_Table_Widget* table, int tab_I
 	connect(main_Tabs, &QTabWidget::tabBarClicked, this,  [=]
 	{
 		double length_Coeff = length_Coefficients_Map.value(length_units);
-		int add_Decimals = /*min(*/log10(length_Coeff)/*,2.)*/;
-		double min_Step = max(0.1/length_Coeff,0.0001);
+//		int add_Decimals = /*min(*/log10(length_Coeff)/*,2.)*/;
+//		double min_Step = max(0.1/length_Coeff,0.0001);
 
-		if(whats_This == whats_This_Composition)			{ step_SpinBox->setDecimals(10);	step_SpinBox->setValue(step_composition);				step_SpinBox->setDecimals(3);					step_SpinBox->setSingleStep(0.1);		}
-		if(whats_This == whats_This_Density)				{ step_SpinBox->setDecimals(10);	step_SpinBox->setValue(step_density);					step_SpinBox->setDecimals(3);					step_SpinBox->setSingleStep(0.1);		}
-		if(whats_This == whats_This_Thickness)				{ step_SpinBox->setDecimals(10);	step_SpinBox->setValue(step_thickness/length_Coeff);	step_SpinBox->setDecimals(2+add_Decimals);	    step_SpinBox->setSingleStep(min_Step);	step_SpinBox->setSuffix(" "+length_units);}
-		if(whats_This == whats_This_Sigma)					{ step_SpinBox->setDecimals(10);	step_SpinBox->setValue(step_sigma/length_Coeff);		step_SpinBox->setDecimals(2+add_Decimals);	    step_SpinBox->setSingleStep(min_Step);	step_SpinBox->setSuffix(" "+length_units);}
-		if(whats_This == whats_This_Interlayer_Composition)	{ step_SpinBox->setDecimals(10);	step_SpinBox->setValue(step_interlayer);				step_SpinBox->setDecimals(3);					step_SpinBox->setSingleStep(0.1);		}
-		if(whats_This == whats_This_Gamma)					{ step_SpinBox->setDecimals(10);	step_SpinBox->setValue(step_gamma);						step_SpinBox->setDecimals(3);					step_SpinBox->setSingleStep(0.01);		}
-		if(whats_This == whats_This_Drift)					{ step_SpinBox->setDecimals(10);	step_SpinBox->setValue(step_drift);						step_SpinBox->setDecimals(4);					step_SpinBox->setSingleStep(0.001);		}
+		if(whats_This == whats_This_Composition)			{ step_SpinBox->setDecimals(10);	step_SpinBox->setValue(step_composition);				step_SpinBox->setDecimals(line_edit_composition_precision);		/*step_SpinBox->setSingleStep(0.1);*/		}
+		if(whats_This == whats_This_Density)				{ step_SpinBox->setDecimals(10);	step_SpinBox->setValue(step_density);					step_SpinBox->setDecimals(line_edit_density_precision);			/*step_SpinBox->setSingleStep(0.1);*/		}
+		if(whats_This == whats_This_Thickness)				{ step_SpinBox->setDecimals(10);	step_SpinBox->setValue(step_thickness/length_Coeff);	step_SpinBox->setDecimals(line_edit_thickness_precision);		/*step_SpinBox->setSingleStep(min_Step);*/	/*step_SpinBox->setSuffix(" "+length_units);*/}
+		if(whats_This == whats_This_Sigma)					{ step_SpinBox->setDecimals(10);	step_SpinBox->setValue(step_sigma/length_Coeff);		step_SpinBox->setDecimals(line_edit_sigma_precision);			/*step_SpinBox->setSingleStep(min_Step);*/	/*step_SpinBox->setSuffix(" "+length_units);*/}
+		if(whats_This == whats_This_Interlayer_Composition)	{ step_SpinBox->setDecimals(10);	step_SpinBox->setValue(step_interlayer);				step_SpinBox->setDecimals(line_edit_interlayer_precision);		/*step_SpinBox->setSingleStep(0.1);*/		}
+		if(whats_This == whats_This_Gamma)					{ step_SpinBox->setDecimals(10);	step_SpinBox->setValue(step_gamma);						step_SpinBox->setDecimals(line_edit_gamma_precision);			/*step_SpinBox->setSingleStep(0.01);*/		}
+		if(whats_This == whats_This_Drift)					{ step_SpinBox->setDecimals(10);	step_SpinBox->setValue(step_drift);						step_SpinBox->setDecimals(line_edit_drift_precision);			/*step_SpinBox->setSingleStep(0.001);*/		}
 
+		step_SpinBox->setRange(pow(10,-step_SpinBox->decimals()), MAX_DOUBLE);
 		step_SpinBox->valueChanged(step_SpinBox->value());
 	});
 
@@ -2692,7 +2791,7 @@ void Table_Of_Structures::spin_Box_Change_Dependent(My_Table_Widget* table, int 
 {
 	add_Columns(table,current_Column);
 
-	QCheckBox* checkbox_Dependent = new QCheckBox("Change Dependent");
+	QCheckBox* checkbox_Dependent = new QCheckBox("Change dependent");
 		checkbox_Dependent->setChecked(refill_Dependent_Table);
 	table->setCellWidget(current_Row, current_Column, checkbox_Dependent);
 
@@ -2720,6 +2819,21 @@ void Table_Of_Structures::spin_Box_Change_Dependent(My_Table_Widget* table, int 
 		checkbox_Dependent->setStyleSheet("QWidget { background: rgb(180, 255, 150); }");
 	else
 		checkbox_Dependent->setStyleSheet("background-color: white");
+}
+
+void Table_Of_Structures::change_Model(My_Table_Widget *table, int tab_Index, int current_Row, int current_Column)
+{
+	add_Columns(table,current_Column);
+
+	QPushButton* change_Button = new QPushButton("Set model");
+	table->setCellWidget(current_Row, current_Column, change_Button);
+
+	connect(change_Button, &QPushButton::clicked, this, [=]
+	{
+		Multilayer* multilayer = qobject_cast<Multilayer*>(multilayer_Tabs->widget(tab_Index));
+		Table_Roughness_Model_Editor* table_Roughness_Model_Editor = new Table_Roughness_Model_Editor(multilayer);
+			table_Roughness_Model_Editor->show();
+	});
 }
 
 void Table_Of_Structures::refill_All_Dependent()

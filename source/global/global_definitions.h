@@ -190,7 +190,7 @@ class Node;
 #define MAX_PRECISION_USED 10				// tthumbnail and lineedit precisions
 #define RAND_SHIFT	100000					// rand * RAND_SHIFT + rand
 #define TABLE_FIX_WIDTH_LINE_EDIT_SHORT		50  // qLineEdit.setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT)
-#define TABLE_FIX_WIDTH_LINE_EDIT_SIGMA		56
+#define TABLE_FIX_WIDTH_LINE_EDIT_SIGMA		62
 #define TABLE_FIX_WIDTH_LINE_EDIT_THICKNESS 60
 #define TABLE_FIX_WIDTH_LINE_EDIT_DENSITY	57
 #define TABLE_FIX_WIDTH_LINE_EDIT_LONG		64
@@ -233,6 +233,36 @@ class Node;
 #define symbol_S "S"
 #define gisas_Function			"GISAS map"
 #define symbol_G "G"
+
+// roughness scattering approximations
+#define PT_approximation	"PT"
+#define DWBA_approximation	"DWBA"
+#define SA_approximation	"SA"
+#define CSA_approximation	"CSA"
+
+// PSD models
+#define ABC_model_PSD				"ABC model PSD"
+#define ABC_model_PSD_1D_Expression	"2*G(a+0.5)*s^2*x/(sqrt(pi)*G(a)*(1+p^2*x^2)^(a+0.5))"
+#define ABC_model_PSD_2D_Expression	"s^2*x^2*a/(pi*(1+v^2*x^2)^(1+a))"
+
+#define linear_model_PSD				"linear model PSD"
+#define linear_model_PSD_1D_Expression	"no explicit PSD_1D"
+#define linear_model_PSD_2D_Expression	"W*(1-exp(-2b(v)*h))/(8pi^3*2b(v))"
+
+#define full_PSD_Correlation		"full PSD Correlation"
+#define no_PSD_Correlation			"no PSD Correlation"
+#define partial_PSD_Correlation		"partial PSD Correlation"
+
+// correlation function models
+#define gauss_model_Cor_2D			"gauss model Cor"
+#define gauss_model_Cor_2D_Expression"s^2*exp(-pow(r/l,2a))"
+
+#define ABC_model_Cor				"ABC model Cor"
+#define ABC_model_Cor_2D_Expression	"pow(2,1-a)*s^2*pow(r/l,a)*BesselK(a,r/l)/G(a)"
+
+#define full_Cor_Correlation		"full Cor Correlation"
+#define no_Cor_Correlation			"no Cor Correlation"
+#define partial_Cor_Correlation		"partial Cor Correlation"
 
 // whatsThis : delimiters
 #define whats_This_Delimiter ";"
@@ -740,8 +770,66 @@ struct Simple_Curve		       {
 
 								void read_Simple_Curve(QString bare_Filename);
 							   };
-struct Discretization_Parameters{bool enable_Discretization = false;
+struct Discretization_Parameters{
+								 bool enable_Discretization = false;
 								 double discretization_Step = 1.0;
+								};
+struct PSD						{
+								QString model = ABC_model_PSD;
+								QString expression = "";
+								QString crosscorrelation_Function = "";
+								QString inheritance_Exponenta = "";
+								double sigma_r = 0;
+								double cor_radius = 10000;
+								double fractal_alpha = 0.5;
+								};
+struct Cor						{
+								QString model = ABC_model_Cor;
+								QString expression = "";
+								QString crosscorrelation_Function = "";
+								double sigma_r = 0;
+								double cor_radius = 10000;
+								double fractal_alpha = 0.5;
+								};
+struct Imperfections_Model		{
+								// interlayer
+								bool use_Interlayer = true;
+								QVector<bool> use_Func;
+
+								Imperfections_Model() :
+									use_Func(6)
+								{
+									use_Func[0] = true;
+									use_Func[1] = true;
+									use_Func[2] = true;
+									use_Func[3] = true;
+									use_Func[4] = true;
+									use_Func[5] = true;
+								}
+
+								// drift
+								bool show_Drift = true;
+
+								bool show_Thickness_Drift_Line = true;
+								bool show_Thickness_Drift_Rand = true;
+								bool show_Thickness_Drift_Sine = false;
+
+								bool show_Sigma_Drift_Line = false;
+								bool show_Sigma_Drift_Rand = false;
+								bool show_Sigma_Drift_Sine = false;
+
+								// rougness
+								bool use_Roughness = false;
+
+								QString approximation = PT_approximation;
+
+								QString PSD_Correlation = full_PSD_Correlation;
+								bool use_Common_PSD = true;
+								PSD common_PSD;
+
+								QString Cor_Correlation = full_Cor_Correlation;
+								bool use_Common_Cor = true;
+								Cor common_Cor;
 								};
 
 // independent calculation functions
@@ -869,6 +957,15 @@ QDataStream& operator >>( QDataStream& stream,		 Old_Calculated_Values& old_Calc
 
 QDataStream& operator <<( QDataStream& stream, const Discretization_Parameters& discretization_Parameters );
 QDataStream& operator >>( QDataStream& stream,		 Discretization_Parameters& discretization_Parameters );
+
+QDataStream& operator <<( QDataStream& stream, const PSD& psd );
+QDataStream& operator >>( QDataStream& stream,		 PSD& psd );
+
+QDataStream& operator <<( QDataStream& stream, const Cor& cor );
+QDataStream& operator >>( QDataStream& stream,		 Cor& cor );
+
+QDataStream& operator <<( QDataStream& stream, const Imperfections_Model& imperfections_Model );
+QDataStream& operator >>( QDataStream& stream,		 Imperfections_Model& imperfections_Model );
 
 QDataStream& operator <<( QDataStream& stream, const Calc_Functions& calc_Functions );
 QDataStream& operator >>( QDataStream& stream,		 Calc_Functions& calc_Functions );

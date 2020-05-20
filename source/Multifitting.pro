@@ -124,6 +124,7 @@ SOURCES += \
     multilayer_approach/table_of_structures/my_table_widget.cpp \
     multilayer_approach/table_of_structures/table_of_structures.cpp \
     multilayer_approach/multilayer_approach.cpp \
+    multilayer_approach/table_of_structures/table_roughness_model_editor.cpp \
     standard/menu.cpp \
     standard/spoiler.cpp \
     multilayer_approach/multilayer/target_curve/target_curve_plot.cpp \
@@ -186,6 +187,7 @@ HEADERS += \
     multilayer_approach/table_of_structures/my_table_widget.h \
     multilayer_approach/table_of_structures/table_of_structures.h \
     multilayer_approach/multilayer_approach.h \
+    multilayer_approach/table_of_structures/table_roughness_model_editor.h \
     standard/menu.h \
     standard/spoiler.h \
     multilayer_approach/multilayer/target_curve/target_curve_plot.h \

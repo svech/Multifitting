@@ -25,9 +25,9 @@ void Grading_Editor::refresh_Data()
     drift.is_Drift_Sine = sine_Group_Box->isChecked();
     drift.is_Drift_Rand = rand_Group_Box->isChecked();
 
-	drift.show_Drift_Line = show_Line_CheckBox->isChecked();
-    drift.show_Drift_Rand = show_Rand_CheckBox->isChecked();
-    drift.show_Drift_Sine = show_Sine_CheckBox->isChecked();
+//	drift.show_Drift_Line = show_Line_CheckBox->isChecked();
+//  drift.show_Drift_Rand = show_Rand_CheckBox->isChecked();
+//  drift.show_Drift_Sine = show_Sine_CheckBox->isChecked();
 
 	drift.drift_Line_Value.value = Locale.toDouble(line_Value_Line->text());
 	drift.drift_Sine_Amplitude.value = Locale.toDouble(sine_Amplitude_Line->text());
@@ -52,7 +52,7 @@ void Grading_Editor::create_Main_Layout()
 		main_Layout->setSpacing(8);
 
     create_Interface();
-		main_Layout->addWidget(table_Group_Box);
+//		main_Layout->addWidget(table_Group_Box);
 		main_Layout->addWidget(line_Group_Box);
 		main_Layout->addWidget(sine_Group_Box);
 		main_Layout->addWidget(rand_Group_Box);
@@ -70,15 +70,15 @@ void Grading_Editor::create_Interface()
 {
 	// table show
 	{
-		table_Group_Box = new QGroupBox("Show in Structure Table", this);
-			table_Group_Box->setObjectName("table_Group_Box");
-			table_Group_Box->setStyleSheet("QGroupBox#table_Group_Box { border-radius: 2px;  border: 1px solid gray; margin-top: 2ex;} "
-										   "QGroupBox::title { subcontrol-origin: margin;	 left: 4px; padding: 0 0px 0 1px;}");
-			table_Group_Box->setCheckable(false);
+//		table_Group_Box = new QGroupBox("Show in Structure Table", this);
+//			table_Group_Box->setObjectName("table_Group_Box");
+//			table_Group_Box->setStyleSheet("QGroupBox#table_Group_Box { border-radius: 2px;  border: 1px solid gray; margin-top: 2ex;} "
+//										   "QGroupBox::title { subcontrol-origin: margin;	 left: 4px; padding: 0 0px 0 1px;}");
+//			table_Group_Box->setCheckable(false);
 
-		table_GB_Layout = new QHBoxLayout(table_Group_Box);
-			table_GB_Layout->setContentsMargins(10,15,10,10);
-			table_GB_Layout->setAlignment(Qt::AlignLeft);
+//		table_GB_Layout = new QHBoxLayout(table_Group_Box);
+//			table_GB_Layout->setContentsMargins(10,15,10,10);
+//			table_GB_Layout->setAlignment(Qt::AlignLeft);
 	}
 	// linear
 	{
@@ -119,9 +119,9 @@ void Grading_Editor::create_Interface()
 
 	read_Drift_From_Item();
 
-	connect(show_Line_CheckBox, &QCheckBox::toggled, this, [=]{refresh_Data();});
-	connect(show_Rand_CheckBox, &QCheckBox::toggled, this, [=]{refresh_Data();});
-	connect(show_Sine_CheckBox, &QCheckBox::toggled, this, [=]{refresh_Data();});
+//	connect(show_Line_CheckBox, &QCheckBox::toggled, this, [=]{refresh_Data();});
+//	connect(show_Rand_CheckBox, &QCheckBox::toggled, this, [=]{refresh_Data();});
+//	connect(show_Sine_CheckBox, &QCheckBox::toggled, this, [=]{refresh_Data();});
 
 	connect(line_Group_Box,     &QGroupBox::toggled, this, [=]{refresh_Data();});
 	connect(sine_Group_Box,     &QGroupBox::toggled, this, [=]{refresh_Data();});
@@ -141,17 +141,17 @@ void Grading_Editor::read_Drift_From_Item()
 
 	// table show
 	{
-		show_Line_CheckBox = new QCheckBox("Linear drift");
-			show_Line_CheckBox->setChecked(drift.show_Drift_Line);
-		table_GB_Layout->addWidget(show_Line_CheckBox);
+//		show_Line_CheckBox = new QCheckBox("Linear drift");
+//			show_Line_CheckBox->setChecked(drift.show_Drift_Line);
+//		table_GB_Layout->addWidget(show_Line_CheckBox);
 
-		show_Rand_CheckBox = new QCheckBox("Random drift");
-			show_Rand_CheckBox->setChecked(drift.show_Drift_Rand);
-		table_GB_Layout->addWidget(show_Rand_CheckBox);
+//		show_Rand_CheckBox = new QCheckBox("Random drift");
+//			show_Rand_CheckBox->setChecked(drift.show_Drift_Rand);
+//		table_GB_Layout->addWidget(show_Rand_CheckBox);
 
-		show_Sine_CheckBox = new QCheckBox("Sine drift");
-			show_Sine_CheckBox->setChecked(drift.show_Drift_Sine);
-		table_GB_Layout->addWidget(show_Sine_CheckBox);
+//		show_Sine_CheckBox = new QCheckBox("Sine drift");
+//			show_Sine_CheckBox->setChecked(drift.show_Drift_Sine);
+//		table_GB_Layout->addWidget(show_Sine_CheckBox);
 	}
 
 	// linear
