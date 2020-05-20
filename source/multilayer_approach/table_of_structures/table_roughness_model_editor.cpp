@@ -49,12 +49,12 @@ void Table_Roughness_Model_Editor::create_Interlayer_Groupbox()
 	{
 		multilayer->imperfections_Model.use_Interlayer = interlayer_Groupbox->isChecked();
 
-		refresh_Tree_Interlayer(Erf, multilayer->imperfections_Model.use_Func[Erf]   && multilayer->imperfections_Model.use_Interlayer);
-		refresh_Tree_Interlayer(Lin, multilayer->imperfections_Model.use_Func[Lin]   && multilayer->imperfections_Model.use_Interlayer);
-		refresh_Tree_Interlayer(Exp, multilayer->imperfections_Model.use_Func[Exp]   && multilayer->imperfections_Model.use_Interlayer);
-		refresh_Tree_Interlayer(Tanh, multilayer->imperfections_Model.use_Func[Tanh] && multilayer->imperfections_Model.use_Interlayer);
-		refresh_Tree_Interlayer(Sin, multilayer->imperfections_Model.use_Func[Sin]   && multilayer->imperfections_Model.use_Interlayer);
-		refresh_Tree_Interlayer(Step, multilayer->imperfections_Model.use_Func[Step] && multilayer->imperfections_Model.use_Interlayer);
+		refresh_Tree_Interlayer(Erf, multilayer->imperfections_Model.use_Func[Erf]  && multilayer->imperfections_Model.use_Interlayer);
+		refresh_Tree_Interlayer(Lin, multilayer->imperfections_Model.use_Func[Lin]  && multilayer->imperfections_Model.use_Interlayer);
+		refresh_Tree_Interlayer(Exp, multilayer->imperfections_Model.use_Func[Exp]  && multilayer->imperfections_Model.use_Interlayer);
+		refresh_Tree_Interlayer(Tanh,multilayer->imperfections_Model.use_Func[Tanh] && multilayer->imperfections_Model.use_Interlayer);
+		refresh_Tree_Interlayer(Sin, multilayer->imperfections_Model.use_Func[Sin]  && multilayer->imperfections_Model.use_Interlayer);
+		refresh_Tree_Interlayer(Step,multilayer->imperfections_Model.use_Func[Step] && multilayer->imperfections_Model.use_Interlayer);
 	});
 
 	QHBoxLayout* groupbox_Layout = new QHBoxLayout(interlayer_Groupbox);
@@ -206,7 +206,7 @@ void Table_Roughness_Model_Editor::create_Density_Fluctuations_Groupbox()
 {
 	density_Fluctuations_Groupbox = new QGroupBox("Use density fluctuations");
 		density_Fluctuations_Groupbox->setCheckable(true);
-		main_Layout->addWidget(density_Fluctuations_Groupbox);
+	main_Layout->addWidget(density_Fluctuations_Groupbox);
 }
 
 void Table_Roughness_Model_Editor::refresh_Tree_Interlayer(int interlayer_Index, bool state)
@@ -219,7 +219,7 @@ void Table_Roughness_Model_Editor::refresh_Tree_Interlayer(int interlayer_Index,
 		QTreeWidgetItem* item = *it;
 		Data struct_Data = item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
 
-		if(struct_Data.parent_Item_Type != item_Type_Regular_Aperiodic)
+		if( struct_Data.parent_Item_Type != item_Type_Regular_Aperiodic)
 		if( struct_Data.item_Type == item_Type_Layer ||
 			struct_Data.item_Type == item_Type_Substrate)
 		{

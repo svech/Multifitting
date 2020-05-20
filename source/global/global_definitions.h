@@ -811,7 +811,7 @@ struct Imperfections_Model		{
 								bool show_Drift = true;
 
 								bool show_Thickness_Drift_Line = true;
-								bool show_Thickness_Drift_Rand = true;
+								bool show_Thickness_Drift_Rand = false;
 								bool show_Thickness_Drift_Sine = false;
 
 								bool show_Sigma_Drift_Line = false;

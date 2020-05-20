@@ -206,9 +206,11 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 		bool has_Layers = false;
 		bool has_Boundaries = false;
 		bool has_Interlayer_Functions = false;
+		bool has_Interlayer_Show = false;
 		bool has_Drift = false;
 		bool has_Multilayers = false;
 		bool has_Gamma = false;
+		bool has_Regular_Aperiodic = false;
 
 		// calculate max_Number_Of_Elements for tabulation
 		int max_Number_Of_Elements=1;
@@ -220,7 +222,6 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 				structure_Item=*it;
 				Data struct_Data = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
 
-				// for min/max buttons
 				if(struct_Data.item_Type == item_Type_Layer)
 				{
 					has_Layers = true;
@@ -242,7 +243,17 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 					if(struct_Data.parent_Item_Type == item_Type_Regular_Aperiodic ||
 					  (interlayer_Types_To_Show>0 && multilayer->imperfections_Model.use_Interlayer))
 					{has_Interlayer_Functions = true;}
+
+					if(struct_Data.parent_Item_Type == item_Type_Regular_Aperiodic ||
+					  multilayer->imperfections_Model.use_Interlayer)
+					{has_Interlayer_Show = true;}
 				}
+
+				if(struct_Data.item_Type == item_Type_Regular_Aperiodic)
+				{
+					has_Regular_Aperiodic = true;
+				}
+
 				if(struct_Data.item_Type == item_Type_Multilayer)
 				{
 					has_Multilayers = true;
@@ -425,16 +436,16 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 			{
 				create_Simple_Label	(new_Table,	tab_Index, current_Row,   current_Column, whats_This_Thickness, "z/d ["+length_units+"]");
 				create_Step_Spin_Box(new_Table, tab_Index, current_Row+1, current_Column, whats_This_Thickness);
-				current_Column += 2;
 			}
+			current_Column += 2;
 
 			// sigma step
-			if(has_Boundaries)
+			if(has_Boundaries && has_Interlayer_Show)
 			{
 				create_Simple_Label	(new_Table,	tab_Index, current_Row,   current_Column, whats_This_Sigma, Sigma_Sym+" ["+length_units+"]");
 				create_Step_Spin_Box(new_Table, tab_Index, current_Row+1, current_Column, whats_This_Sigma);
+				current_Column += 1;
 			}
-			current_Column += 1;
 
 			// gamma step
 			if(has_Gamma)
@@ -449,8 +460,15 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 			{
 				create_Simple_Label	(new_Table,	tab_Index, current_Row,   current_Column, whats_This_Interlayer_Composition, "interl");
 				create_Step_Spin_Box(new_Table, tab_Index, current_Row+1, current_Column, whats_This_Interlayer_Composition);
+
+				if(has_Regular_Aperiodic && !multilayer->imperfections_Model.use_Interlayer)
+				{
+					current_Column += 1;
+				} else
+				{
+					current_Column += 1+interlayer_Types_To_Show;
+				}
 			}
-			current_Column += 1+interlayer_Types_To_Show;
 
 			// drift step
 			if(has_Multilayers && has_Drift)
@@ -599,8 +617,8 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 					// lastcolumn
 					create_Check_Box_Fit(new_Table, tab_Index, current_Row+2, current_Column, structure_Item, whats_This, 1, 2, 0, 0);
 
-					if(has_Boundaries) current_Column += 3;
-					else			   current_Column += 2;
+					if(has_Interlayer_Show) current_Column += 3;
+					else					current_Column += 2;
 
 					// gamma
 					if(structure_Item->childCount()==2)
@@ -655,8 +673,11 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 				create_Line_Edit	(new_Table, tab_Index, current_Row+4, current_Column, structure_Item, whats_This, MAX);
 				// last
 				create_Check_Box_Fit(new_Table, tab_Index, current_Row+2, current_Column, structure_Item, whats_This, 1, 2, 0, 0);
-			}
-			current_Column += 2;
+			}			
+			if(multilayer->imperfections_Model.use_Interlayer || struct_Data.parent_Item_Type == item_Type_Regular_Aperiodic)
+			{	current_Column += 2;}
+			else
+			{	if(has_Gamma) current_Column += 3;}
 			///--------------------------------------------------------------------------------------------
 
 			// common sigma
@@ -676,7 +697,11 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 					create_Check_Box_Fit  (new_Table, tab_Index, current_Row+2, current_Column, structure_Item, whats_This, 1, 2, 0, 0);
 				}
 				current_Column += 2;
+			} else
+			{
+				if(has_Regular_Aperiodic) current_Column += 2;
 			}
+
 			///--------------------------------------------------------------------------------------------
 
 			// interlayers: weights and sigmas
@@ -708,7 +733,19 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 				}
 
 				if(struct_Data.parent_Item_Type == item_Type_Regular_Aperiodic) current_Column += (1+transition_Layer_Functions_Size);
-				else															current_Column += (1+interlayer_Types_To_Show);
+				else
+				{
+					if(has_Regular_Aperiodic || interlayer_Types_To_Show>0) current_Column += (1+interlayer_Types_To_Show);
+					else													current_Column += (  interlayer_Types_To_Show);
+				}
+			} else
+			{
+				if(has_Regular_Aperiodic && !has_Gamma) current_Column += 3;
+				if(!has_Regular_Aperiodic)
+				{
+					if(has_Gamma) current_Column += 0;
+					else		  current_Column += 3;
+				}
 			}
 			///--------------------------------------------------------------------------------------------
 			/// DRIFTS
