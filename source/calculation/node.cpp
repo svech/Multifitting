@@ -173,11 +173,11 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 			if( struct_Data.item_Type == item_Type_Layer   ||
 				struct_Data.item_Type == item_Type_Substrate )
 			{
-				if(struct_Data.common_Sigma)
+				if(struct_Data.common_Sigma_Diffuse)
 				{
 					for(Interlayer& inter : struct_Data.interlayer_Composition)
 					{
-						inter.my_Sigma.value = struct_Data.sigma.value;
+						inter.my_Sigma_Diffuse.value = struct_Data.sigma_Diffuse.value;
 					}
 				}
 			}
@@ -289,16 +289,16 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 					bool is_Norm = false;
 					for(const Interlayer& inter : struct_Data.interlayer_Composition)
 					{
-						is_Norm = is_Norm || (inter.enabled && (inter.interlayer.value > DBL_MIN) && (inter.my_Sigma.value > DBL_MIN));
+						is_Norm = is_Norm || (inter.enabled && (inter.interlayer.value > DBL_MIN) && (inter.my_Sigma_Diffuse.value > DBL_MIN));
 					}
 
-					if( is_Norm && (abs(struct_Data.sigma.value) > DBL_MIN) && (!sigma_Grading) )
+					if( is_Norm && (abs(struct_Data.sigma_Diffuse.value) > DBL_MIN) && (!sigma_Grading) )
 					{
 						// temp variables
 						double a = M_PI/sqrt(M_PI*M_PI - 8.);
 
 						double norm = 0;
-						double my_Sigma = struct_Data.sigma.value;	// by default, otherwise we change it
+						double my_Sigma = struct_Data.sigma_Diffuse.value;	// by default, otherwise we change it
 						vector<complex<double>> s_r (num_Points);
 						vector<complex<double>> s_t (num_Points);
 
@@ -322,8 +322,8 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 						if(struct_Data.interlayer_Composition[Erf].interlayer.value > DBL_MIN)
 						{
 							norm += struct_Data.interlayer_Composition[Erf].interlayer.value;
-							if(!struct_Data.common_Sigma) {
-								my_Sigma = struct_Data.interlayer_Composition[Erf].my_Sigma.value;}
+							if(!struct_Data.common_Sigma_Diffuse) {
+								my_Sigma = struct_Data.interlayer_Composition[Erf].my_Sigma_Diffuse.value;}
 
 	//						Global_Variables::parallel_For(num_Points, reflectivity_Calc_Threads, [&](int n_Min, int n_Max)
 	//						{
@@ -348,8 +348,8 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 						if(struct_Data.interlayer_Composition[Lin].interlayer.value > DBL_MIN)
 						{
 							norm += struct_Data.interlayer_Composition[Lin].interlayer.value;
-							if(!struct_Data.common_Sigma) {
-								my_Sigma = struct_Data.interlayer_Composition[Lin].my_Sigma.value;}
+							if(!struct_Data.common_Sigma_Diffuse) {
+								my_Sigma = struct_Data.interlayer_Composition[Lin].my_Sigma_Diffuse.value;}
 
 	//						Global_Variables::parallel_For(num_Points, reflectivity_Calc_Threads, [&](int n_Min, int n_Max)
 	//						{
@@ -385,8 +385,8 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 						if(struct_Data.interlayer_Composition[Exp].interlayer.value > DBL_MIN)
 						{
 							norm += struct_Data.interlayer_Composition[Exp].interlayer.value;
-							if(!struct_Data.common_Sigma) {
-								my_Sigma = struct_Data.interlayer_Composition[Exp].my_Sigma.value;}
+							if(!struct_Data.common_Sigma_Diffuse) {
+								my_Sigma = struct_Data.interlayer_Composition[Exp].my_Sigma_Diffuse.value;}
 
 	//						Global_Variables::parallel_For(num_Points, reflectivity_Calc_Threads, [&](int n_Min, int n_Max)
 	//						{
@@ -413,8 +413,8 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 						if(struct_Data.interlayer_Composition[Tanh].interlayer.value > DBL_MIN)
 						{
 							norm += struct_Data.interlayer_Composition[Tanh].interlayer.value;
-							if(!struct_Data.common_Sigma) {
-								my_Sigma = struct_Data.interlayer_Composition[Tanh].my_Sigma.value;}
+							if(!struct_Data.common_Sigma_Diffuse) {
+								my_Sigma = struct_Data.interlayer_Composition[Tanh].my_Sigma_Diffuse.value;}
 
 	//						Global_Variables::parallel_For(num_Points, reflectivity_Calc_Threads, [&](int n_Min, int n_Max)
 	//						{
@@ -455,8 +455,8 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 						if(struct_Data.interlayer_Composition[Sin].interlayer.value > DBL_MIN)
 						{
 							norm += struct_Data.interlayer_Composition[Sin].interlayer.value;
-							if(!struct_Data.common_Sigma) {
-								my_Sigma = struct_Data.interlayer_Composition[Sin].my_Sigma.value;}
+							if(!struct_Data.common_Sigma_Diffuse) {
+								my_Sigma = struct_Data.interlayer_Composition[Sin].my_Sigma_Diffuse.value;}
 
 	//						Global_Variables::parallel_For(num_Points, reflectivity_Calc_Threads, [&](int n_Min, int n_Max)
 	//						{
@@ -493,8 +493,8 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 						if(struct_Data.interlayer_Composition[Step].interlayer.value > DBL_MIN)
 						{
 							norm += struct_Data.interlayer_Composition[Step].interlayer.value;
-							if(!struct_Data.common_Sigma) {
-								my_Sigma = struct_Data.interlayer_Composition[Step].my_Sigma.value;}
+							if(!struct_Data.common_Sigma_Diffuse) {
+								my_Sigma = struct_Data.interlayer_Composition[Step].my_Sigma_Diffuse.value;}
 
 	//						Global_Variables::parallel_For(num_Points, reflectivity_Calc_Threads, [&](int n_Min, int n_Max)
 	//						{

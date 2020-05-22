@@ -97,12 +97,12 @@ void Aperiodic_Load_Setup::create_GroupBox()
 		{
 			if(sigma_CheckBox->isChecked() && density_CheckBox->isChecked())
 			{
-				aperiodic_Settings.column_4 = whats_This_Sigma;
+				aperiodic_Settings.column_4 = whats_This_Sigma_Diffuse;
 				aperiodic_Settings.column_5 = whats_This_Density;
 			} else
 			if(sigma_CheckBox->isChecked() && !density_CheckBox->isChecked())
 			{
-				aperiodic_Settings.column_4 = whats_This_Sigma;
+				aperiodic_Settings.column_4 = whats_This_Sigma_Diffuse;
 				aperiodic_Settings.column_5 = "";
 			} else
 			if(!sigma_CheckBox->isChecked() && density_CheckBox->isChecked())

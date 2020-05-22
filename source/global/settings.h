@@ -132,7 +132,8 @@ extern double	layer_default_absorption;
 extern bool		layer_default_composed;
 extern double	layer_default_stoichiometry_composition;
 extern QString	layer_default_stoichiometry_element;
-extern double	layer_default_sigma;
+extern double	layer_default_sigma_diffuse;
+extern double	layer_default_sigma_roughness;
 extern double	layer_default_thickness;
 extern QString	layer_default_drift_model;
 extern double	layer_default_drift_coefficients;
@@ -146,7 +147,8 @@ extern double	substrate_default_absorption;
 extern bool		substrate_default_composed;
 extern double	substrate_default_stoichiometry_composition;
 extern QString	substrate_default_stoichiometry_element;
-extern double	substrate_default_sigma;
+extern double	substrate_default_sigma_diffuse;
+extern double	substrate_default_sigma_roughness;
 
 // Stack_Values
 extern int		stack_default_number_of_repetition;
@@ -158,7 +160,15 @@ extern double	step_thickness_transfer;
 extern double	step_composition;
 extern double	step_density;
 extern double	step_thickness;
-extern double	step_sigma;
+extern double	step_sigma_diffuse;
+
+extern double	step_sigma_roughness;
+extern double	step_sigma_cor_radius;
+extern double	step_sigma_fractal_alpha;
+extern double	step_sigma_vertical_cor_length;
+extern double	step_sigma_omega;
+extern double	step_sigma_mu;
+
 extern double	step_interlayer;
 extern double	step_gamma;
 extern double	step_drift;
@@ -181,7 +191,14 @@ extern int line_edit_permittivity_precision	;
 extern int line_edit_absorption_precision	;
 extern int line_edit_composition_precision	;
 extern int line_edit_thickness_precision	;
-extern int line_edit_sigma_precision		;
+
+extern int line_edit_sigma_precision				;
+extern int line_edit_cor_radius_precision			;
+extern int line_edit_fractal_alpha_precision		;
+extern int line_edit_vertical_cor_length_precision	;
+extern int line_edit_omega_precision				;
+extern int line_edit_mu_precision					;
+
 extern int line_edit_interlayer_precision	;
 extern int line_edit_drift_precision		;
 extern int line_edit_period_precision		;
@@ -201,7 +218,14 @@ extern int thumbnail_permittivity_precision	;
 extern int thumbnail_absorption_precision	;
 extern int thumbnail_composition_precision	;
 extern int thumbnail_thickness_precision	;
-extern int thumbnail_sigma_precision		;
+
+extern int thumbnail_sigma_precision				;
+extern int thumbnail_cor_radius_precision			;
+extern int thumbnail_fractal_alpha_precision		;
+extern int thumbnail_vertical_cor_length_precision	;
+extern int thumbnail_omega_precision				;
+extern int thumbnail_mu_precision					;
+
 extern int thumbnail_interlayer_precision	;
 extern int thumbnail_drift_precision		;
 extern int thumbnail_period_precision		;

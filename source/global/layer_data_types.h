@@ -96,10 +96,11 @@ public:
 	///---------------------------------------------
 	// Layer, Substrate
 	//---------------------------------------------
-		bool use_PSD = false;
-		bool common_Sigma = true;
-		Parameter sigma;
+		bool common_Sigma_Diffuse = true;
+		Parameter sigma_Diffuse;
 		QVector<Interlayer> interlayer_Composition;
+
+		Roughness_Model roughness_Model;
 	///---------------------------------------------
 	///---------------------------------------------
 	// Layer
@@ -109,7 +110,7 @@ public:
 		Parameter thickness;
 
 		Drift thickness_Drift;
-		Drift sigma_Drift;
+		Drift sigma_Diffuse_Drift;
 	///---------------------------------------------
 	///---------------------------------------------
 	// Multilayer, Aperiodic
@@ -163,15 +164,15 @@ struct Regular_Component		{id_Type top_Id;
 								 {
 									 min_Max_Values.thickness_Min = MAX_DOUBLE;
 									 min_Max_Values.thickness_Max = 0;
-									 min_Max_Values.sigma_Min = MAX_DOUBLE;
-									 min_Max_Values.sigma_Max = 0;
+									 min_Max_Values.sigma_Diffuse_Min = MAX_DOUBLE;
+									 min_Max_Values.sigma_Diffuse_Max = 0;
 
 									 for(Data& child : components)
 									 {
 										 min_Max_Values.thickness_Min = min(min_Max_Values.thickness_Min, child.thickness.value);
 										 min_Max_Values.thickness_Max = max(min_Max_Values.thickness_Max, child.thickness.value);
-										 min_Max_Values.sigma_Min = min(min_Max_Values.sigma_Min, child.sigma.value);
-										 min_Max_Values.sigma_Max = max(min_Max_Values.sigma_Max, child.sigma.value);
+										 min_Max_Values.sigma_Diffuse_Min = min(min_Max_Values.sigma_Diffuse_Min, child.sigma_Diffuse.value);
+										 min_Max_Values.sigma_Diffuse_Max = max(min_Max_Values.sigma_Diffuse_Max, child.sigma_Diffuse.value);
 									 }
 								 }
 								};

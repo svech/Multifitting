@@ -95,9 +95,9 @@ void Calculation_Tree::check_If_Graded()
 					if(struct_Data.thickness_Drift.is_Drift_Sine) depth_Grading = true;
 					if(struct_Data.thickness_Drift.is_Drift_Rand) depth_Grading = true;
 
-					if(struct_Data.sigma_Drift.is_Drift_Line) sigma_Grading = true;
-					if(struct_Data.sigma_Drift.is_Drift_Sine) sigma_Grading = true;
-					if(struct_Data.sigma_Drift.is_Drift_Rand) sigma_Grading = true;
+					if(struct_Data.sigma_Diffuse_Drift.is_Drift_Line) sigma_Grading = true;
+					if(struct_Data.sigma_Diffuse_Drift.is_Drift_Sine) sigma_Grading = true;
+					if(struct_Data.sigma_Diffuse_Drift.is_Drift_Rand) sigma_Grading = true;
 				}
 			}
 		}
@@ -125,6 +125,16 @@ void Calculation_Tree::fill_Tree_From_Scratch(tree<Node>& calc_Tree, QTreeWidget
 	if(last_Struct_Data.item_Type != item_Type_Substrate)
 	{
 		Data substrate = calc_Tree.child(calc_Tree.begin(), 0).node->data.struct_Data;
+
+		for(int interlayer_Index=0; interlayer_Index<transition_Layer_Functions_Size; interlayer_Index++)
+		{
+			if(!multilayer->imperfections_Model.use_Func[interlayer_Index] || !multilayer->imperfections_Model.use_Interlayer)
+			{
+				substrate.interlayer_Composition[interlayer_Index].enabled = false;
+			}
+		}
+		substrate.roughness_Model.is_Enabled = multilayer->imperfections_Model.use_Roughness;
+		substrate.roughness_Model.model = multilayer->imperfections_Model.common_Model;
 
 		// change id
 		substrate.reset_All_IDs();
@@ -206,21 +216,21 @@ void Calculation_Tree::renew_Item_Tree_From_Calc_Tree(const tree<Node>::iterator
 					if(interlayer.enabled)
 					{
 						sum += interlayer.interlayer.value;
-						temp_Sigma_Square += pow(interlayer.my_Sigma.value,2) * interlayer.interlayer.value;
+						temp_Sigma_Square += pow(interlayer.my_Sigma_Diffuse.value,2) * interlayer.interlayer.value;
 					}
 				}
 				if(abs(sum)<DBL_EPSILON) {sum = DBL_EPSILON;	qInfo() << "Calculation_Tree::renew_Item_Tree_From_Calc_Tree :: abs(sum)<DBL_EPSILON" << endl;}
 
 				// equalize sigma
-				if(struct_Data.common_Sigma)
+				if(struct_Data.common_Sigma_Diffuse)
 				{
 					for(Interlayer& interlayer : struct_Data.interlayer_Composition)
 					{
-						interlayer.my_Sigma.value = struct_Data.sigma.value;
+						interlayer.my_Sigma_Diffuse.value = struct_Data.sigma_Diffuse.value;
 					}
 				} else
 				{
-					struct_Data.sigma.value = sqrt(temp_Sigma_Square/sum);
+					struct_Data.sigma_Diffuse.value = sqrt(temp_Sigma_Square/sum);
 				}
 
 				// norm weights

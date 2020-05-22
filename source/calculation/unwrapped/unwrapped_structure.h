@@ -34,8 +34,8 @@ public:
 	vector<vector<complex<double>>> epsilon_Dependent;				//	[wavelength][media]
 
 	double max_Sigma;
-	vector<double> sigma;											//	[boundary]
-	vector<bool> common_Sigma;										//	[boundary]
+	vector<double> sigma_Diffuse;											//	[boundary]
+	vector<bool> common_Sigma_Diffuse;										//	[boundary]
 	vector<QVector<Interlayer>> boundary_Interlayer_Composition;	//  [boundary][function] not use in multithreaded mode
 	vector<vector<QVector<Interlayer>>> boundary_Interlayer_Composition_Threaded;	//  [thread][boundary][function]
 	vector<double> thickness;										//	[layer]

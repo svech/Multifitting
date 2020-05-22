@@ -183,7 +183,7 @@ public:
 
 	QList<QList<MyDoubleSpinBox*>> min_Max_Density_Spin_Boxes_List;
 	QList<QList<MyDoubleSpinBox*>> min_Max_Thickness_Spin_Boxes_List;
-	QList<QList<MyDoubleSpinBox*>> min_Max_Sigma_Spin_Boxes_List;
+	QList<QList<MyDoubleSpinBox*>> min_Max_Sigma_Diffuse_Spin_Boxes_List;
 
 	// coupling
 	QMap<QWidget*, QTreeWidgetItem*> coupled_Back_Widget_and_Struct_Item;
@@ -210,9 +210,16 @@ public:
 	QList<MyDoubleSpinBox*> density_Spin_Boxes_List;
 	QList<MyDoubleSpinBox*> thickness_Spin_Boxes_List;
 	QList<MyDoubleSpinBox*> gamma_Spin_Boxes_List;
-	QList<MyDoubleSpinBox*> sigma_Spin_Boxes_List;
+	QList<MyDoubleSpinBox*> sigma_Diffuse_Spin_Boxes_List;
 	QList<MyDoubleSpinBox*> interlayer_Spin_Boxes_List;
 	QList<MyDoubleSpinBox*> drift_Spin_Boxes_List;
+
+	QList<MyDoubleSpinBox*> sigma_Roughness_Spin_Boxes_List;
+	QList<MyDoubleSpinBox*> correlation_Radius_Roughness_Spin_Boxes_List;
+	QList<MyDoubleSpinBox*> fractal_Alpha_Spin_Boxes_List;
+	QList<MyDoubleSpinBox*> vertical_Correlation_Length_Spin_Boxes_List;
+	QList<MyDoubleSpinBox*> linear_PSD_Omega_Spin_Boxes_List;
+	QList<MyDoubleSpinBox*> Linear_PSD_Exponenta_Mu_Spin_Boxes_List;
 };
 
 #endif // TABLE_OF_STRUCTURES_H

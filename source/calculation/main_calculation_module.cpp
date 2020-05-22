@@ -685,8 +685,8 @@ void Main_Calculation_Module::find_Fittable_Confidence_Parameters(Data& struct_D
 	for(Parameter* parameter : struct_Data.potentially_Fitable_Parameters)
 	{
 		// for my_Sigmas
-		if( parameter->indicator.whats_This == whats_This_Interlayer_My_Sigma && !struct_Data.common_Sigma )
-		{	parameter->fit.is_Fitable = struct_Data.sigma.fit.is_Fitable; }
+		if( parameter->indicator.whats_This == whats_This_Interlayer_My_Sigma_Diffuse && !struct_Data.common_Sigma_Diffuse )
+		{	parameter->fit.is_Fitable = struct_Data.sigma_Diffuse.fit.is_Fitable; }
 
 		QString total_Name = "  " + Medium_BlackCircle_Sym + "  <" + multilayer_Tabs->tabText(parameter->indicator.tab_Index) + "> " + parameter->indicator.full_Name;
 
@@ -700,7 +700,7 @@ void Main_Calculation_Module::find_Fittable_Confidence_Parameters(Data& struct_D
 			if(parent_Data.item_Type == item_Type_Regular_Aperiodic)
 			{
 				if(!parent_Data.regular_Components[child_Index].is_Common_Thickness && parameter->indicator.whats_This == whats_This_Thickness) 	{ go = false; }
-				if(!parent_Data.regular_Components[child_Index].is_Common_Sigma     && parameter->indicator.whats_This == whats_This_Sigma) 	    { go = false; }
+				if(!parent_Data.regular_Components[child_Index].is_Common_Sigma     && parameter->indicator.whats_This == whats_This_Sigma_Diffuse) 	    { go = false; }
 			}
 
 			if(go)
@@ -719,10 +719,10 @@ void Main_Calculation_Module::find_Fittable_Confidence_Parameters(Data& struct_D
 
 				// sigma value is close to zero
 				Parameter sigma_Parameter;
-				if(parameter->indicator.whats_This == whats_This_Interlayer_My_Sigma) sigma_Parameter = struct_Data.sigma;
-				if(parameter->indicator.whats_This == whats_This_Sigma) sigma_Parameter = *parameter;
+				if(parameter->indicator.whats_This == whats_This_Interlayer_My_Sigma_Diffuse) sigma_Parameter = struct_Data.sigma_Diffuse;
+				if(parameter->indicator.whats_This == whats_This_Sigma_Diffuse) sigma_Parameter = *parameter;
 
-				if(parameter->indicator.whats_This == whats_This_Interlayer_My_Sigma || parameter->indicator.whats_This == whats_This_Sigma)
+				if(parameter->indicator.whats_This == whats_This_Interlayer_My_Sigma_Diffuse || parameter->indicator.whats_This == whats_This_Sigma_Diffuse)
 				if(sigma_Parameter.value < 0.1)
 				if(!fit_Rejected_Sigmas.param_IDs.contains(sigma_Parameter.indicator.id))
 				{

@@ -142,6 +142,9 @@ class Node;
 #define Minus_Three_Sym			Minus_Superscript+Cube_Sym
 #define Power_23_Sym			Quadro_Sym+Cube_Sym
 #define Sigma_Sym				QString(QChar(0x03C3))
+#define Xi_Sym					QString(QChar(0x03BE))
+#define Lambda_Big_Sym			QString(QChar(0x039B))
+#define Omega_Big_Sym			QString(QChar(0x03A9))
 #define Gamma_Sym				QString(QChar(0x03B3))
 #define Epsilon_Sym				QString(QChar(0x03B5))
 #define Cappa_Sym				QString(QChar(0x03F0))
@@ -240,9 +243,6 @@ class Node;
 #define SA_approximation	"SA"
 #define CSA_approximation	"CSA"
 
-#define PSD_usage	"use PSD"
-#define Cor_usage	"use Cor"
-
 #define full_Correlation		"full correlation"
 #define partial_Correlation		"partial correlation"
 #define zero_Correlation		"zero correlation"
@@ -257,7 +257,7 @@ class Node;
 #define linear_model_PSD_2D_Expression	"W*(1-exp(-2b(v)*h))/(8pi^3*2b(v))"
 
 // correlation function models
-#define gauss_model_Cor_2D			  "gauss model Cor"
+#define gauss_model_Cor			  "gauss model Cor"
 #define gauss_model_Cor_2D_Expression "s^2*exp(-pow(r/l,2a))"
 
 #define ABC_model_Cor				"ABC model Cor"
@@ -277,26 +277,32 @@ class Node;
 #define item_Type_Substrate			"Substrate"
 
 // whatsThis : specialized additions
-#define whats_This_Wavelength				"Wavelength"
-#define whats_This_Beam_Theta_0_Angle		"Theta_0 Angle"
-#define whats_This_Detector_Theta_Angle		"Theta Angle"
-#define whats_This_Detector_Phi_Angle		"Phi Angle"
-#define whats_This_Absolute_Density			"Absolute Density"
-#define whats_This_Relative_Density			"Relative Density"
-#define whats_This_Permittivity				"Permittivity"
-#define whats_This_Absorption				"Absorption"
-#define whats_This_Composition				"Composition"
-#define whats_This_Thickness				"Thickness"
-#define whats_This_Sigma					"Sigma"
-#define whats_This_Interlayer_Composition	"Interlayer Composition"
-#define whats_This_Interlayer_My_Sigma		"Interlayer My Sigma"
-#define whats_This_Num_Repetitions			"Num Repetitions"
-#define whats_This_Period					"Period"
-#define whats_This_Gamma					"Gamma"
+#define whats_This_Wavelength					"Wavelength"
+#define whats_This_Beam_Theta_0_Angle			"Theta_0 Angle"
+#define whats_This_Detector_Theta_Angle			"Theta Angle"
+#define whats_This_Detector_Phi_Angle			"Phi Angle"
+#define whats_This_Absolute_Density				"Absolute Density"
+#define whats_This_Relative_Density				"Relative Density"
+#define whats_This_Permittivity					"Permittivity"
+#define whats_This_Absorption					"Absorption"
+#define whats_This_Composition					"Composition"
+#define whats_This_Thickness					"Thickness"
+#define whats_This_Sigma_Diffuse				"Sigma Diffuse"
+#define whats_This_Sigma_Roughness				"Sigma Roughness"
+#define whats_This_Correlation_Radius			"Correlation Radius"
+#define whats_This_Fractal_Alpha				"Fractal Alpha"
+#define whats_This_Vertical_Correlation_Length	"Vertical Correlation Length"
+#define whats_This_Linear_PSD_Omega				"Linear PSD Omega"
+#define whats_This_Linear_PSD_Exponenta_Mu		"Linear PSD Exponenta Mu"
+#define whats_This_Interlayer_Composition		"Interlayer Composition"
+#define whats_This_Interlayer_My_Sigma_Diffuse	"Interlayer My Sigma"
+#define whats_This_Num_Repetitions				"Num Repetitions"
+#define whats_This_Period						"Period"
+#define whats_This_Gamma						"Gamma"
 
 #define whats_This_Density					"Density"
 #define whats_This_Common_Thickness			"Common Thickness"
-#define whats_This_Common_Sigma				"Common Sigma"
+#define whats_This_Common_Sigma_Diffuse				"Common Sigma"
 #define whats_This_Restrict_Thickness		"Restrict Thickness"
 
 // whatsThis : thickness drifts
@@ -324,7 +330,6 @@ class Node;
 #define window_Type_Item_Editor						"Item Editor"
 #define window_Type_Regular_Aperiodic_Table			"Regular Aperiodic Table"
 #define window_Type_Table_Of_Structures				"Table Of Structures"
-#define window_Type_Table_Of_Roughness				"Table Of Roughness"
 #define window_Type_Calculation_Settings_Editor		"Calculation Settings Editor"
 #define window_Type_Fitting_Settings_Editor			"Fitting Settings Editor"
 
@@ -554,8 +559,8 @@ struct Int_Independent			{int start = 1; int step = 1; int num_Steps = 3;
 									 return int(round(parameter.value));
 								 }
 								};
-struct Min_Max					{double thickness_Min = 0; double thickness_Max = 0;
-								 double sigma_Min = 0;     double sigma_Max = 0;
+struct Min_Max					{double thickness_Min = 0;		double thickness_Max = 0;
+								 double sigma_Diffuse_Min = 0;  double sigma_Diffuse_Max = 0;
 								};
 
 Q_DECLARE_METATYPE( Parameter )
@@ -570,11 +575,11 @@ struct Stoichiometry			{Parameter composition; QString type;
 									composition.independent.num_Points = 1;
 								 }
 								};
-struct Interlayer				{Parameter interlayer; Parameter my_Sigma; bool enabled;
+struct Interlayer				{Parameter interlayer; Parameter my_Sigma_Diffuse; bool enabled;
 								 Interlayer()
 								 {
 									interlayer.indicator.whats_This = whats_This_Interlayer_Composition;
-									my_Sigma.indicator.whats_This = whats_This_Interlayer_My_Sigma;
+									my_Sigma_Diffuse.indicator.whats_This = whats_This_Interlayer_My_Sigma_Diffuse;
 								 }
 								};
 struct Drift					{bool is_Drift_Line;  bool show_Drift_Line; Parameter drift_Line_Value;
@@ -634,7 +639,7 @@ struct Graph_2D_Positions		{
 struct Profile_Plot_Options		{QString type = PERMITTIVITY;
 								 QString permittivity_Type = DELTA_EPS;
 								 bool apply_Roughness = true;
-								 bool apply_Diffusiness = true;
+								 bool apply_Diffuseness = true;
 								 bool show_Sharp_Profile = true;
 								 bool show_Discretization = false;
 								 bool show_Cursor_Position = false;
@@ -717,8 +722,8 @@ struct Different_Norm_Layer
 
 	// only checking
 	double thickness = -2019;
-	double sigma_Left = -2019;
-	double sigma_Right = -2019;
+	double sigma_Diffuse_Left = -2019;
+	double sigma_Diffuse_Right = -2019;
 
 	double norm = -2019;
 };
@@ -773,22 +778,22 @@ struct Discretization_Parameters{
 								 bool enable_Discretization = false;
 								 double discretization_Step = 1.0;
 								};
-struct PSD						{
+struct Roughness_Model			{
+								bool is_Enabled = false;
 								QString model = ABC_model_PSD;
 								QString expression = "";
 								QString crosscorrelation_Function = "";
+								Parameter sigma;
+								Parameter cor_radius;
+								Parameter fractal_alpha;
+
+								// correlation function only
+								Parameter vertical_Cor_Length; // DEPRECATED
+
+								// PSD function only
 								QString inheritance_Exponenta = "";
-								double sigma_r = 0;
-								double cor_radius = 10000;
-								double fractal_alpha = 0.5;
-								};
-struct Cor						{
-								QString model = ABC_model_Cor;
-								QString expression = "";
-								QString crosscorrelation_Function = "";
-								double sigma_r = 0;
-								double cor_radius = 10000;
-								double fractal_alpha = 0.5;
+								Parameter omega;
+								Parameter mu;
 								};
 struct Imperfections_Model		{
 								// interlayer
@@ -821,11 +826,9 @@ struct Imperfections_Model		{
 								bool use_Roughness = false;
 
 								QString approximation = PT_approximation;
-								QString use_PSD_Cor = PSD_usage;
+								QString common_Model = ABC_model_PSD;
 								QString vertical_Correlation = full_Correlation;
-								bool use_Common_Statitics = true;
-								PSD common_PSD;
-								Cor common_Cor;
+								bool use_Common_Roughness_Function = true;
 
 								// density fluctuations
 								bool use_Fluctuations = false;
@@ -957,11 +960,8 @@ QDataStream& operator >>( QDataStream& stream,		 Old_Calculated_Values& old_Calc
 QDataStream& operator <<( QDataStream& stream, const Discretization_Parameters& discretization_Parameters );
 QDataStream& operator >>( QDataStream& stream,		 Discretization_Parameters& discretization_Parameters );
 
-QDataStream& operator <<( QDataStream& stream, const PSD& psd );
-QDataStream& operator >>( QDataStream& stream,		 PSD& psd );
-
-QDataStream& operator <<( QDataStream& stream, const Cor& cor );
-QDataStream& operator >>( QDataStream& stream,		 Cor& cor );
+QDataStream& operator <<( QDataStream& stream, const Roughness_Model& roughness_Model );
+QDataStream& operator >>( QDataStream& stream,		 Roughness_Model& roughness_Model );
 
 QDataStream& operator <<( QDataStream& stream, const Imperfections_Model& imperfections_Model );
 QDataStream& operator >>( QDataStream& stream,		 Imperfections_Model& imperfections_Model );

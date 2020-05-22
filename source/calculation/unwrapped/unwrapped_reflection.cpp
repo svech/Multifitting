@@ -462,7 +462,7 @@ void Unwrapped_Reflection::calc_Weak_Factor(int thread_Index)
 	double norm, a = M_PI/sqrt(M_PI*M_PI - 8.);
 	complex<double> s_r, factor_r, x_r, y_r, six_r, siy_r;
 	complex<double> s_t, factor_t, x_t, y_t, six_t, siy_t;
-	double my_Sigma = 0;
+	double my_Sigma_Diffuse = 0;
 	for (int i = 0; i < num_Boundaries; ++i)
 	{
 		// if >=1 interlayer is turned on
@@ -475,9 +475,9 @@ void Unwrapped_Reflection::calc_Weak_Factor(int thread_Index)
 		weak_Factor_R[thread_Index][i] = 0;
 		weak_Factor_T[thread_Index][i] = 0;
 
-		if(is_Norm && (abs(unwrapped_Structure->sigma[i]) > DBL_MIN)) //-V674
+		if(is_Norm && (abs(unwrapped_Structure->sigma_Diffuse[i]) > DBL_MIN)) //-V674
 		{
-			my_Sigma = unwrapped_Structure->sigma[i];	// by default, otherwise we change it
+			my_Sigma_Diffuse = unwrapped_Structure->sigma_Diffuse[i];	// by default, otherwise we change it
 			norm = 0;
 			s_r = sqrt(hi[thread_Index][i]*hi[thread_Index][i+1]);
 			s_t =     (hi[thread_Index][i]-hi[thread_Index][i+1])/2.;
@@ -487,15 +487,15 @@ void Unwrapped_Reflection::calc_Weak_Factor(int thread_Index)
 			if(unwrapped_Structure->boundary_Interlayer_Composition_Threaded[thread_Index][i][Erf].interlayer.value > DBL_MIN)
 			{
 				norm += unwrapped_Structure->boundary_Interlayer_Composition_Threaded[thread_Index][i][Erf].interlayer.value;
-				if(!unwrapped_Structure->common_Sigma[i]) {
-					my_Sigma = unwrapped_Structure->boundary_Interlayer_Composition_Threaded[thread_Index][i][Erf].my_Sigma.value; }
+				if(!unwrapped_Structure->common_Sigma_Diffuse[i]) {
+					my_Sigma_Diffuse = unwrapped_Structure->boundary_Interlayer_Composition_Threaded[thread_Index][i][Erf].my_Sigma_Diffuse.value; }
 
 				// reflectance
-				factor_r = exp( - s_r * s_r * my_Sigma * my_Sigma * 2.);
+				factor_r = exp( - s_r * s_r * my_Sigma_Diffuse * my_Sigma_Diffuse * 2.);
 				weak_Factor_R[thread_Index][i] += unwrapped_Structure->boundary_Interlayer_Composition_Threaded[thread_Index][i][Erf].interlayer.value * factor_r;
 
 				// transmittance
-				factor_t = exp( - s_t * s_t * my_Sigma * my_Sigma * 2.);
+				factor_t = exp( - s_t * s_t * my_Sigma_Diffuse * my_Sigma_Diffuse * 2.);
 				weak_Factor_T[thread_Index][i] += unwrapped_Structure->boundary_Interlayer_Composition_Threaded[thread_Index][i][Erf].interlayer.value * factor_t;
 			}
 			//-------------------------------------------------------------------------------
@@ -504,11 +504,11 @@ void Unwrapped_Reflection::calc_Weak_Factor(int thread_Index)
 			if(unwrapped_Structure->boundary_Interlayer_Composition_Threaded[thread_Index][i][Lin].interlayer.value > DBL_MIN)
 			{
 				norm += unwrapped_Structure->boundary_Interlayer_Composition_Threaded[thread_Index][i][Lin].interlayer.value;
-				if(!unwrapped_Structure->common_Sigma[i]) {
-					my_Sigma = unwrapped_Structure->boundary_Interlayer_Composition_Threaded[thread_Index][i][Lin].my_Sigma.value; }
+				if(!unwrapped_Structure->common_Sigma_Diffuse[i]) {
+					my_Sigma_Diffuse = unwrapped_Structure->boundary_Interlayer_Composition_Threaded[thread_Index][i][Lin].my_Sigma_Diffuse.value; }
 
 				// reflectance
-				x_r = sqrt(3.) * s_r * my_Sigma * 2.;
+				x_r = sqrt(3.) * s_r * my_Sigma_Diffuse * 2.;
 				if(abs(x_r)>DBL_MIN)	{
 					factor_r = sin(x_r) / (x_r);
 				} else {
@@ -517,7 +517,7 @@ void Unwrapped_Reflection::calc_Weak_Factor(int thread_Index)
 				weak_Factor_R[thread_Index][i] += unwrapped_Structure->boundary_Interlayer_Composition_Threaded[thread_Index][i][Lin].interlayer.value * factor_r;
 
 				// transmittance
-				x_t = sqrt(3.) * s_t * my_Sigma * 2.;
+				x_t = sqrt(3.) * s_t * my_Sigma_Diffuse * 2.;
 				if(abs(x_t)>DBL_MIN)	{
 					factor_t = sin(x_t) / (x_t);
 				} else {
@@ -531,16 +531,16 @@ void Unwrapped_Reflection::calc_Weak_Factor(int thread_Index)
 			if(unwrapped_Structure->boundary_Interlayer_Composition_Threaded[thread_Index][i][Exp].interlayer.value > DBL_MIN)
 			{
 				norm += unwrapped_Structure->boundary_Interlayer_Composition_Threaded[thread_Index][i][Exp].interlayer.value;
-				if(!unwrapped_Structure->common_Sigma[i]) {
-					my_Sigma = unwrapped_Structure->boundary_Interlayer_Composition_Threaded[thread_Index][i][Exp].my_Sigma.value; }
+				if(!unwrapped_Structure->common_Sigma_Diffuse[i]) {
+					my_Sigma_Diffuse = unwrapped_Structure->boundary_Interlayer_Composition_Threaded[thread_Index][i][Exp].my_Sigma_Diffuse.value; }
 
 				// reflectance
-				x_r = 2. * pow(s_r * my_Sigma, 2);
+				x_r = 2. * pow(s_r * my_Sigma_Diffuse, 2);
 				factor_r = 1. / (1. + x_r);
 				weak_Factor_R[thread_Index][i] += unwrapped_Structure->boundary_Interlayer_Composition_Threaded[thread_Index][i][Exp].interlayer.value * factor_r;
 
 				// transmittance
-				x_t = 2. * pow(s_t * my_Sigma, 2);
+				x_t = 2. * pow(s_t * my_Sigma_Diffuse, 2);
 				factor_t = 1. / (1. + x_t);
 				weak_Factor_T[thread_Index][i] += unwrapped_Structure->boundary_Interlayer_Composition_Threaded[thread_Index][i][Exp].interlayer.value * factor_t;
 			}
@@ -550,11 +550,11 @@ void Unwrapped_Reflection::calc_Weak_Factor(int thread_Index)
 			if(unwrapped_Structure->boundary_Interlayer_Composition_Threaded[thread_Index][i][Tanh].interlayer.value > DBL_MIN)
 			{
 				norm += unwrapped_Structure->boundary_Interlayer_Composition_Threaded[thread_Index][i][Tanh].interlayer.value;
-				if(!unwrapped_Structure->common_Sigma[i]) {
-					my_Sigma = unwrapped_Structure->boundary_Interlayer_Composition_Threaded[thread_Index][i][Tanh].my_Sigma.value; }
+				if(!unwrapped_Structure->common_Sigma_Diffuse[i]) {
+					my_Sigma_Diffuse = unwrapped_Structure->boundary_Interlayer_Composition_Threaded[thread_Index][i][Tanh].my_Sigma_Diffuse.value; }
 
 				// reflectance
-				x_r = 2 * sqrt(3.) * s_r * my_Sigma;
+				x_r = 2 * sqrt(3.) * s_r * my_Sigma_Diffuse;
 				if(abs(x_r)>DBL_MIN)				{
 					factor_r = x_r / sinh(x_r);
 				} else {
@@ -563,7 +563,7 @@ void Unwrapped_Reflection::calc_Weak_Factor(int thread_Index)
 				weak_Factor_R[thread_Index][i] += unwrapped_Structure->boundary_Interlayer_Composition_Threaded[thread_Index][i][Tanh].interlayer.value * factor_r;
 
 				// transmittance
-				x_t = 2 * sqrt(3.) * s_t * my_Sigma;
+				x_t = 2 * sqrt(3.) * s_t * my_Sigma_Diffuse;
 				if(abs(x_t)>DBL_MIN)				{
 					factor_t = x_t / sinh(x_t);
 				} else {
@@ -577,11 +577,11 @@ void Unwrapped_Reflection::calc_Weak_Factor(int thread_Index)
 			if(unwrapped_Structure->boundary_Interlayer_Composition_Threaded[thread_Index][i][Sin].interlayer.value > DBL_MIN)
 			{
 				norm += unwrapped_Structure->boundary_Interlayer_Composition_Threaded[thread_Index][i][Sin].interlayer.value;
-				if(!unwrapped_Structure->common_Sigma[i]) {
-					my_Sigma = unwrapped_Structure->boundary_Interlayer_Composition_Threaded[thread_Index][i][Sin].my_Sigma.value; }
+				if(!unwrapped_Structure->common_Sigma_Diffuse[i]) {
+					my_Sigma_Diffuse = unwrapped_Structure->boundary_Interlayer_Composition_Threaded[thread_Index][i][Sin].my_Sigma_Diffuse.value; }
 
 				// reflectance
-				x_r = 2 * a * s_r * my_Sigma - M_PI_2;
+				x_r = 2 * a * s_r * my_Sigma_Diffuse - M_PI_2;
 				y_r = x_r + M_PI;
 				if(abs(x_r)>DBL_MIN) six_r = sin(x_r)/x_r; else six_r = 1;
 				if(abs(y_r)>DBL_MIN) siy_r = sin(y_r)/y_r; else siy_r = 1;
@@ -589,7 +589,7 @@ void Unwrapped_Reflection::calc_Weak_Factor(int thread_Index)
 				weak_Factor_R[thread_Index][i] += unwrapped_Structure->boundary_Interlayer_Composition_Threaded[thread_Index][i][Sin].interlayer.value * factor_r;
 
 				// transmittance
-				x_t = 2 * a * s_t * my_Sigma - M_PI_2;
+				x_t = 2 * a * s_t * my_Sigma_Diffuse - M_PI_2;
 				y_t = x_t + M_PI;
 				if(abs(x_t)>DBL_MIN) six_t = sin(x_t)/x_t; else six_t = 1;
 				if(abs(y_t)>DBL_MIN) siy_t = sin(y_t)/y_t; else siy_t = 1;
@@ -602,15 +602,15 @@ void Unwrapped_Reflection::calc_Weak_Factor(int thread_Index)
 			if(unwrapped_Structure->boundary_Interlayer_Composition_Threaded[thread_Index][i][Step].interlayer.value > DBL_MIN)
 			{
 				norm += unwrapped_Structure->boundary_Interlayer_Composition_Threaded[thread_Index][i][Step].interlayer.value;
-				if(!unwrapped_Structure->common_Sigma[i]) {
-					my_Sigma = unwrapped_Structure->boundary_Interlayer_Composition_Threaded[thread_Index][i][Step].my_Sigma.value; }
+				if(!unwrapped_Structure->common_Sigma_Diffuse[i]) {
+					my_Sigma_Diffuse = unwrapped_Structure->boundary_Interlayer_Composition_Threaded[thread_Index][i][Step].my_Sigma_Diffuse.value; }
 
 				// reflectance
-				factor_r = cos(2. * s_r * my_Sigma);
+				factor_r = cos(2. * s_r * my_Sigma_Diffuse);
 				weak_Factor_R[thread_Index][i] += unwrapped_Structure->boundary_Interlayer_Composition_Threaded[thread_Index][i][Step].interlayer.value * factor_r;
 
 				// transmittance
-				factor_t = cos(2. * s_t * my_Sigma);
+				factor_t = cos(2. * s_t * my_Sigma_Diffuse);
 				weak_Factor_T[thread_Index][i] += unwrapped_Structure->boundary_Interlayer_Composition_Threaded[thread_Index][i][Step].interlayer.value * factor_t;
 			}
 			//-------------------------------------------------------------------------------

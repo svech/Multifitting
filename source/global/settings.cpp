@@ -128,7 +128,8 @@ double	layer_default_absorption;
 bool	layer_default_composed;
 double	layer_default_stoichiometry_composition;
 QString	layer_default_stoichiometry_element;
-double	layer_default_sigma;
+double	layer_default_sigma_diffuse;
+double	layer_default_sigma_roughness;
 double	layer_default_thickness;
 QString	layer_default_drift_model;
 double	layer_default_drift_coefficients;
@@ -142,7 +143,8 @@ double	substrate_default_absorption;
 bool	substrate_default_composed;
 double	substrate_default_stoichiometry_composition;
 QString	substrate_default_stoichiometry_element;
-double	substrate_default_sigma;
+double	substrate_default_sigma_diffuse;
+double	substrate_default_sigma_roughness;
 
 // Stack_Values
 int		stack_default_number_of_repetition;
@@ -154,7 +156,15 @@ double	step_thickness_transfer;
 double	step_composition;
 double	step_density;
 double	step_thickness;
-double	step_sigma;
+double	step_sigma_diffuse;
+
+double	step_sigma_roughness;
+double	step_sigma_cor_radius;
+double	step_sigma_fractal_alpha;
+double	step_sigma_vertical_cor_length;
+double	step_sigma_omega;
+double	step_sigma_mu;
+
 double	step_interlayer;
 double	step_gamma;
 double	step_drift;
@@ -177,7 +187,14 @@ int line_edit_permittivity_precision;
 int line_edit_absorption_precision	;
 int line_edit_composition_precision	;
 int line_edit_thickness_precision	;
-int line_edit_sigma_precision		;
+
+int line_edit_sigma_precision				;
+int line_edit_cor_radius_precision			;
+int line_edit_fractal_alpha_precision		;
+int line_edit_vertical_cor_length_precision	;
+int line_edit_omega_precision				;
+int line_edit_mu_precision					;
+
 int line_edit_interlayer_precision	;
 int line_edit_drift_precision		;
 int line_edit_period_precision		;
@@ -197,7 +214,14 @@ int thumbnail_permittivity_precision;
 int thumbnail_absorption_precision	;
 int thumbnail_composition_precision	;
 int thumbnail_thickness_precision	;
-int thumbnail_sigma_precision		;
+
+int thumbnail_sigma_precision				;
+int thumbnail_cor_radius_precision			;
+int thumbnail_fractal_alpha_precision		;
+int thumbnail_vertical_cor_length_precision	;
+int thumbnail_omega_precision				;
+int thumbnail_mu_precision					;
+
 int thumbnail_interlayer_precision	;
 int thumbnail_drift_precision		;
 int thumbnail_period_precision		;
@@ -581,7 +605,8 @@ void Settings::read_Structure_Default_Values(bool reset_to_default)
 				layer_default_composed					= structure_Default_Values.value( "layer_default_composed",					false		).toBool();
 				layer_default_stoichiometry_composition = structure_Default_Values.value( "layer_default_stoichiometry_composition",1			).toDouble();
 				layer_default_stoichiometry_element		= structure_Default_Values.value( "layer_default_stoichiometry_element",	"Al"		).toString();
-				layer_default_sigma						= structure_Default_Values.value( "layer_default_sigma",					0			).toDouble();
+				layer_default_sigma_diffuse				= structure_Default_Values.value( "layer_default_sigma",					0			).toDouble();
+				layer_default_sigma_roughness			= structure_Default_Values.value( "layer_default_sigma_roughness",			0			).toDouble();
 				layer_default_thickness					= structure_Default_Values.value( "layer_default_thickness",				10			).toDouble();
 				layer_default_drift_model				= structure_Default_Values.value( "layer_default_drift_model",				"no_drift"	).toString();
 				layer_default_drift_coefficients		= structure_Default_Values.value( "layer_default_drift_coefficients",		0			).toDouble();
@@ -595,7 +620,8 @@ void Settings::read_Structure_Default_Values(bool reset_to_default)
 				substrate_default_composed					= structure_Default_Values.value( "substrate_default_composed",				   false).toBool();
 				substrate_default_stoichiometry_composition = structure_Default_Values.value( "substrate_default_stoichiometry_composition",1	).toDouble();
 				substrate_default_stoichiometry_element		= structure_Default_Values.value( "substrate_default_stoichiometry_element",   "Si" ).toString();
-				substrate_default_sigma						= structure_Default_Values.value( "substrate_default_sigma",				   0	).toDouble();
+				substrate_default_sigma_diffuse				= structure_Default_Values.value( "substrate_default_sigma_diffuse",			0	).toDouble();
+				substrate_default_sigma_roughness			= structure_Default_Values.value( "substrate_default_sigma_roughness",		    0	).toDouble();
 			structure_Default_Values.endGroup();
 			structure_Default_Values.beginGroup( Stack_Values );
 				stack_default_number_of_repetition	= structure_Default_Values.value( "stack_default_number_of_repetition",	1	).toInt();
@@ -607,7 +633,15 @@ void Settings::read_Structure_Default_Values(bool reset_to_default)
 				step_composition		= structure_Default_Values.value( "step_composition",		0.1 ).toDouble();
 				step_density			= structure_Default_Values.value( "step_density",			0.1 ).toDouble();
 				step_thickness			= structure_Default_Values.value( "step_thickness",			0.1 ).toDouble();
-				step_sigma				= structure_Default_Values.value( "step_sigma",				0.1 ).toDouble();
+				step_sigma_diffuse		= structure_Default_Values.value( "step_sigma_diffuse",		0.1 ).toDouble();
+
+				step_sigma_roughness			= structure_Default_Values.value( "step_sigma_roughness",			0.1  ).toDouble();
+				step_sigma_cor_radius			= structure_Default_Values.value( "step_sigma_cor_radius",			100  ).toDouble();
+				step_sigma_fractal_alpha		= structure_Default_Values.value( "step_sigma_fractal_alpha",		0.02 ).toDouble();
+				step_sigma_vertical_cor_length	= structure_Default_Values.value( "step_sigma_vertical_cor_length",	10   ).toDouble();
+				step_sigma_omega				= structure_Default_Values.value( "step_sigma_omega",				0.1  ).toDouble();
+				step_sigma_mu					= structure_Default_Values.value( "step_sigma_mu",					10   ).toDouble();
+
 				step_interlayer			= structure_Default_Values.value( "step_interlayer",		0.1 ).toDouble();
 				step_gamma				= structure_Default_Values.value( "step_gamma",				0.01 ).toDouble();
 				step_drift				= structure_Default_Values.value( "step_drift",				0.001).toDouble();
@@ -649,7 +683,8 @@ void Settings::save_Structure_Default_Values()
 			structure_Default_Values.setValue( "layer_default_composed",					layer_default_composed					);
 			structure_Default_Values.setValue( "layer_default_stoichiometry_composition",	layer_default_stoichiometry_composition	);
 			structure_Default_Values.setValue( "layer_default_stoichiometry_element",		layer_default_stoichiometry_element		);
-			structure_Default_Values.setValue( "layer_default_sigma",						layer_default_sigma						);
+			structure_Default_Values.setValue( "layer_default_sigma_diffuse",				layer_default_sigma_diffuse				);
+			structure_Default_Values.setValue( "layer_default_sigma_roughness",				layer_default_sigma_roughness			);
 			structure_Default_Values.setValue( "layer_default_thickness",					layer_default_thickness					);
 			structure_Default_Values.setValue( "layer_default_drift_model",					layer_default_drift_model				);
 			structure_Default_Values.setValue( "layer_default_drift_coefficients",			layer_default_drift_coefficients		);
@@ -663,7 +698,8 @@ void Settings::save_Structure_Default_Values()
 			structure_Default_Values.setValue( "substrate_default_composed",					substrate_default_composed					);
 			structure_Default_Values.setValue( "substrate_default_stoichiometry_composition",	substrate_default_stoichiometry_composition	);
 			structure_Default_Values.setValue( "substrate_default_stoichiometry_element",		substrate_default_stoichiometry_element		);
-			structure_Default_Values.setValue( "substrate_default_sigma",						substrate_default_sigma						);
+			structure_Default_Values.setValue( "substrate_default_sigma_diffuse",				substrate_default_sigma_diffuse				);
+			structure_Default_Values.setValue( "substrate_default_sigma_roughness",				substrate_default_sigma_roughness			);
 		structure_Default_Values.endGroup();
 		structure_Default_Values.beginGroup( Stack_Values );
 			structure_Default_Values.setValue( "stack_default_number_of_repetition",	stack_default_number_of_repetition	);
@@ -675,7 +711,15 @@ void Settings::save_Structure_Default_Values()
 			structure_Default_Values.setValue( "step_composition",			step_composition		);
 			structure_Default_Values.setValue( "step_density",				step_density			);
 			structure_Default_Values.setValue( "step_thickness",			step_thickness			);
-			structure_Default_Values.setValue( "step_sigma",				step_sigma				);
+			structure_Default_Values.setValue( "step_sigma_diffuse",		step_sigma_diffuse		);
+
+			structure_Default_Values.setValue( "step_sigma_roughness",			step_sigma_roughness			);
+			structure_Default_Values.setValue( "step_sigma_cor_radius",			step_sigma_cor_radius			);
+			structure_Default_Values.setValue( "step_sigma_fractal_alpha",		step_sigma_fractal_alpha		);
+			structure_Default_Values.setValue( "step_sigma_vertical_cor_length",step_sigma_vertical_cor_length	);
+			structure_Default_Values.setValue( "step_sigma_omega",				step_sigma_omega				);
+			structure_Default_Values.setValue( "step_sigma_mu",					step_sigma_mu					);
+
 			structure_Default_Values.setValue( "step_interlayer",			step_interlayer			);
 			structure_Default_Values.setValue( "step_gamma",				step_gamma				);
 			structure_Default_Values.setValue( "step_drift",				step_drift				);
@@ -709,11 +753,18 @@ void Settings::read_Precisions(bool reset_to_default)
 			line_edit_absorption_precision			= precision_Values.value( "line_edit_absorption_precision",			4 ).toInt();
 			line_edit_composition_precision			= precision_Values.value( "line_edit_composition_precision",		4 ).toInt();
 			line_edit_thickness_precision			= precision_Values.value( "line_edit_thickness_precision",			4 ).toInt();
+
 			line_edit_sigma_precision				= precision_Values.value( "line_edit_sigma_precision",				4 ).toInt();	// = thickness precision
+			line_edit_cor_radius_precision			= precision_Values.value( "line_edit_cor_radius_precision",			0 ).toInt();
+			line_edit_fractal_alpha_precision		= precision_Values.value( "line_edit_fractal_alpha_precision",		2 ).toInt();
+			line_edit_vertical_cor_length_precision = precision_Values.value( "line_edit_vertical_cor_length_precision",1 ).toInt();
+			line_edit_omega_precision				= precision_Values.value( "line_edit_omega_precision",				3 ).toInt();
+			line_edit_mu_precision					= precision_Values.value( "line_edit_mu_precision",					3 ).toInt();
+
 			line_edit_interlayer_precision			= precision_Values.value( "line_edit_interlayer_precision",			3 ).toInt();
 			line_edit_drift_precision				= precision_Values.value( "line_edit_drift_precision",				4 ).toInt();
 			line_edit_period_precision				= precision_Values.value( "line_edit_period_precision",				4 ).toInt();	// = thickness precision
-			line_edit_gamma_precision				= precision_Values.value( "line_edit_gamma_precision",				7 ).toInt();	// = thickness precision
+			line_edit_gamma_precision				= precision_Values.value( "line_edit_gamma_precision",				7 ).toInt();
 		precision_Values.endGroup();
 		precision_Values.beginGroup( Thumbnail );
 			thumbnail_double_format	    = qvariant_cast<char>(precision_Values.value( "thumbnail_double_format",'f'));
@@ -729,15 +780,22 @@ void Settings::read_Precisions(bool reset_to_default)
 			thumbnail_absorption_precision			= precision_Values.value( "thumbnail_absorption_precision",			3 ).toInt();
 			thumbnail_composition_precision			= precision_Values.value( "thumbnail_composition_precision",		3 ).toInt();
 			thumbnail_thickness_precision			= precision_Values.value( "thumbnail_thickness_precision",			3 ).toInt();
+
 			thumbnail_sigma_precision				= precision_Values.value( "thumbnail_sigma_precision",				3 ).toInt();	// = thickness precision
+			thumbnail_cor_radius_precision			= precision_Values.value( "thumbnail_cor_radius_precision",			0 ).toInt();
+			thumbnail_fractal_alpha_precision		= precision_Values.value( "thumbnail_fractal_alpha_precision",		2 ).toInt();
+			thumbnail_vertical_cor_length_precision	= precision_Values.value( "thumbnail_vertical_cor_length_precision",1 ).toInt();
+			thumbnail_omega_precision				= precision_Values.value( "thumbnail_omega_precision",				1 ).toInt();
+			thumbnail_mu_precision					= precision_Values.value( "thumbnail_mu_precision",					1 ).toInt();
+
 			thumbnail_interlayer_precision			= precision_Values.value( "thumbnail_interlayer_precision",			3 ).toInt();
 			thumbnail_drift_precision				= precision_Values.value( "thumbnail_drift_precision",				4 ).toInt();
 			thumbnail_period_precision				= precision_Values.value( "thumbnail_period_precision",				3 ).toInt();	// = thickness precision
-			thumbnail_gamma_precision				= precision_Values.value( "thumbnail_gamma_precision",				3 ).toInt();	// = thickness precision
+			thumbnail_gamma_precision				= precision_Values.value( "thumbnail_gamma_precision",				3 ).toInt();
 		precision_Values.endGroup();
 		precision_Values.beginGroup( Other );
-			at_weight_precision						= precision_Values.value( "at_weight_precision",				5 ).toInt();
-			thickness_transfer_precision			= precision_Values.value( "thickness_transfer_precision",		4 ).toInt();
+			at_weight_precision						= precision_Values.value( "at_weight_precision",					5 ).toInt();
+			thickness_transfer_precision			= precision_Values.value( "thickness_transfer_precision",			4 ).toInt();
 		precision_Values.endGroup();
 	precision_Values.endGroup();
 }
@@ -758,7 +816,14 @@ void Settings::save_Precisions()
 			precision_Values.setValue( "line_edit_absorption_precision",	line_edit_absorption_precision		);
 			precision_Values.setValue( "line_edit_composition_precision",	line_edit_composition_precision		);
 			precision_Values.setValue( "line_edit_thickness_precision",		line_edit_thickness_precision		);
-			precision_Values.setValue( "line_edit_sigma_precision",			line_edit_sigma_precision			);
+
+			precision_Values.setValue( "line_edit_sigma_precision",				 line_edit_sigma_precision				);
+			precision_Values.setValue( "line_edit_cor_radius_precision",		 line_edit_cor_radius_precision			);
+			precision_Values.setValue( "line_edit_fractal_alpha_precision",		 line_edit_fractal_alpha_precision		);
+			precision_Values.setValue( "line_edit_vertical_cor_length_precision",line_edit_vertical_cor_length_precision);
+			precision_Values.setValue( "line_edit_omega_precision",				 line_edit_omega_precision				);
+			precision_Values.setValue( "line_edit_mu_precision",				 line_edit_mu_precision					);
+
 			precision_Values.setValue( "line_edit_interlayer_precision",	line_edit_interlayer_precision		);
 			precision_Values.setValue( "line_edit_drift_precision",			line_edit_drift_precision			);
 			precision_Values.setValue( "line_edit_period_precision",		line_edit_period_precision			);
@@ -773,7 +838,14 @@ void Settings::save_Precisions()
 			precision_Values.setValue( "thumbnail_absorption_precision",	thumbnail_absorption_precision		);
 			precision_Values.setValue( "thumbnail_composition_precision",	thumbnail_composition_precision		);
 			precision_Values.setValue( "thumbnail_thickness_precision",		thumbnail_thickness_precision		);
-			precision_Values.setValue( "thumbnail_sigma_precision",			thumbnail_sigma_precision			);
+
+			precision_Values.setValue( "thumbnail_sigma_precision",					thumbnail_sigma_precision				);
+			precision_Values.setValue( "thumbnail_cor_radius_precision",			thumbnail_cor_radius_precision			);
+			precision_Values.setValue( "thumbnail_fractal_alpha_precision",			thumbnail_fractal_alpha_precision		);
+			precision_Values.setValue( "thumbnail_vertical_cor_length_precision",	thumbnail_vertical_cor_length_precision	);
+			precision_Values.setValue( "thumbnail_omega_precision",					thumbnail_omega_precision				);
+			precision_Values.setValue( "thumbnail_mu_precision",					thumbnail_mu_precision					);
+
 			precision_Values.setValue( "thumbnail_interlayer_precision",	thumbnail_interlayer_precision		);
 			precision_Values.setValue( "thumbnail_drift_precision",			thumbnail_drift_precision			);
 			precision_Values.setValue( "thumbnail_period_precision",		thumbnail_period_precision			);

@@ -297,7 +297,7 @@ void Item_Editor::make_Thickness_Group_Box()
 		if(item->parent())
 		if(struct_Data.parent_Item_Type == item_Type_Multilayer)
 		{
-			depth_Grading_Button = new QPushButton(" Depth Grading");
+			depth_Grading_Button = new QPushButton(" Thickness drift");
 				depth_Grading_Button->adjustSize();
 				depth_Grading_Button->setFixedSize(depth_Grading_Button->size());
 				depth_Grading_Button->setFocusPolicy(Qt::NoFocus);
@@ -471,12 +471,12 @@ void Item_Editor::unique_Items_In_General_Aperiodic(QHBoxLayout* aperiodic_Group
 
 	QVBoxLayout* relate_Sigma_Layout = new QVBoxLayout;
 	aperiodic_Group_Box_Layout->addLayout(relate_Sigma_Layout);
-	QLabel* relate_Sigma_Label = new QLabel(" Relate \""+Sigma_Sym+"\" ");
+	QLabel* relate_Sigma_Label = new QLabel(" Relate \"s\" ");
 	relate_Sigma_Layout->addWidget(relate_Sigma_Label,0,Qt::AlignCenter);
 
 	QVBoxLayout* fit_Sigma_Layout = new QVBoxLayout;
 	aperiodic_Group_Box_Layout->addLayout(fit_Sigma_Layout);
-	QLabel* fit_Sigma_Label = new QLabel(" Fit \""+Sigma_Sym+"\" ");
+	QLabel* fit_Sigma_Label = new QLabel(" Fit \"s\" ");
 	fit_Sigma_Layout->addWidget(fit_Sigma_Label,0,Qt::AlignCenter);
 
 	for(int i=0; i<item->childCount(); i++)
@@ -509,9 +509,9 @@ void Item_Editor::unique_Items_In_General_Aperiodic(QHBoxLayout* aperiodic_Group
 						}
 
 						// relate sigma
-						for(Parameter_Indicator& slaves : current_Child_Data.sigma.coupled.slaves)
+						for(Parameter_Indicator& slaves : current_Child_Data.sigma_Diffuse.coupled.slaves)
 						{
-							if(slaves == temp_Data.sigma.indicator) is_Relate_Sigma = true;
+							if(slaves == temp_Data.sigma_Diffuse.indicator) is_Relate_Sigma = true;
 							else									is_Relate_Sigma = false;
 						}
 					}
@@ -520,7 +520,7 @@ void Item_Editor::unique_Items_In_General_Aperiodic(QHBoxLayout* aperiodic_Group
 					is_Fit_Thickness = is_Fit_Thickness && temp_Data.thickness.fit.is_Fitable;
 
 					// fit sigma
-					is_Fit_Sigma = is_Fit_Sigma && temp_Data.sigma.fit.is_Fitable;
+					is_Fit_Sigma = is_Fit_Sigma && temp_Data.sigma_Diffuse.fit.is_Fitable;
 				}
 			}
 
@@ -591,7 +591,7 @@ void Item_Editor::cell_Items_In_Regular_Aperiodic(QHBoxLayout *aperiodic_Group_B
 
 	QVBoxLayout* common_Sigma_Layout = new QVBoxLayout;
 	aperiodic_Group_Box_Layout->addLayout(common_Sigma_Layout);
-	QLabel* common_Sigma_Label = new QLabel(" Common \""+Sigma_Sym+"\" ");
+	QLabel* common_Sigma_Label = new QLabel(" Common \"s\" ");
 	common_Sigma_Layout->addWidget(common_Sigma_Label,0,Qt::AlignCenter);
 
 	QVBoxLayout* soft_Restriction_Layout = new QVBoxLayout;
@@ -637,7 +637,7 @@ void Item_Editor::cell_Items_In_Regular_Aperiodic(QHBoxLayout *aperiodic_Group_B
 			check_Item_Common_Thickness_Sigma(item_Common_Thickness, whats_This_Thickness, i);
 		});
 		connect(item_Common_Sigma,	   &QCheckBox::toggled, this, [=]{
-			check_Item_Common_Thickness_Sigma(item_Common_Sigma, whats_This_Sigma, i);
+			check_Item_Common_Thickness_Sigma(item_Common_Sigma, whats_This_Sigma_Diffuse, i);
 		});
 
 		// create additional restrictions
@@ -793,7 +793,7 @@ void Item_Editor::cell_Items_In_Regular_Aperiodic(QHBoxLayout *aperiodic_Group_B
 void Item_Editor::check_Item_Common_Thickness_Sigma(QCheckBox* common_CheckBox, QString whats_This, int i)
 {
 	if(whats_This == whats_This_Thickness) struct_Data.regular_Components[i].is_Common_Thickness = common_CheckBox->isChecked();
-	if(whats_This == whats_This_Sigma)     struct_Data.regular_Components[i].is_Common_Sigma     = common_CheckBox->isChecked();
+	if(whats_This == whats_This_Sigma_Diffuse)     struct_Data.regular_Components[i].is_Common_Sigma     = common_CheckBox->isChecked();
 
 	// set master/slaves thickness
 	{
@@ -832,31 +832,31 @@ void Item_Editor::check_Item_Common_Thickness_Sigma(QCheckBox* common_CheckBox, 
 					}
 				}
 			}
-			if(whats_This == whats_This_Sigma)
+			if(whats_This == whats_This_Sigma_Diffuse)
 			{
 				// set slaves and master
 				if(struct_Data.regular_Components[i].is_Common_Sigma)
 				{
 					// add to slave list (if still not)
-					if(!current_Child_Data.sigma.coupled.slaves.contains(regular_Data.sigma.indicator)) {
-						current_Child_Data.sigma.coupled.slaves.append  (regular_Data.sigma.indicator);
+					if(!current_Child_Data.sigma_Diffuse.coupled.slaves.contains(regular_Data.sigma_Diffuse.indicator)) {
+						current_Child_Data.sigma_Diffuse.coupled.slaves.append  (regular_Data.sigma_Diffuse.indicator);
 					}
 					// set as master (if still not)
-					if(!(regular_Data.sigma.coupled.master == current_Child_Data.sigma.indicator)) {
-						 regular_Data.sigma.coupled.master =  current_Child_Data.sigma.indicator;
+					if(!(regular_Data.sigma_Diffuse.coupled.master == current_Child_Data.sigma_Diffuse.indicator)) {
+						 regular_Data.sigma_Diffuse.coupled.master =  current_Child_Data.sigma_Diffuse.indicator;
 						 regular_Data.thickness.coupled.master.exist = true;
 					}
 				} else
 				// remove slaves and master
 				{
 					// remove from slave list (if still there)
-					if( current_Child_Data.sigma.coupled.slaves.contains (regular_Data.sigma.indicator)) {
-						current_Child_Data.sigma.coupled.slaves.removeOne(regular_Data.sigma.indicator);
+					if( current_Child_Data.sigma_Diffuse.coupled.slaves.contains (regular_Data.sigma_Diffuse.indicator)) {
+						current_Child_Data.sigma_Diffuse.coupled.slaves.removeOne(regular_Data.sigma_Diffuse.indicator);
 					}
 					// remove master (if still there)
-					if( regular_Data.sigma.coupled.master == current_Child_Data.sigma.indicator) {
-						regular_Data.sigma.coupled.master.id = 0;
-						regular_Data.sigma.coupled.master.exist = false;
+					if( regular_Data.sigma_Diffuse.coupled.master == current_Child_Data.sigma_Diffuse.indicator) {
+						regular_Data.sigma_Diffuse.coupled.master.id = 0;
+						regular_Data.sigma_Diffuse.coupled.master.exist = false;
 					}
 				}
 			}
@@ -872,7 +872,7 @@ void Item_Editor::check_Item_Common_Thickness_Sigma(QCheckBox* common_CheckBox, 
 		Regular_Aperiodic_Table* regular_Aperiodic_Table = global_Multilayer_Approach->runned_Regular_Aperiodic_Tables.value(struct_Data.id);
 			regular_Aperiodic_Table->colorize_Material();
 		if(whats_This == whats_This_Thickness) regular_Aperiodic_Table->thickness_Spinboxes_List[i]->valueChanged(regular_Aperiodic_Table->thickness_Spinboxes_List[i]->value());
-		if(whats_This == whats_This_Sigma)     regular_Aperiodic_Table->sigma_Spinboxes_List    [i]->valueChanged(regular_Aperiodic_Table->sigma_Spinboxes_List    [i]->value());
+		if(whats_This == whats_This_Sigma_Diffuse)     regular_Aperiodic_Table->sigma_Spinboxes_List    [i]->valueChanged(regular_Aperiodic_Table->sigma_Spinboxes_List    [i]->value());
 	}
 }
 
@@ -991,7 +991,7 @@ void Item_Editor::make_Sigma_Group_Box()
 
 		if(struct_Data.parent_Item_Type == item_Type_Multilayer)
 		{
-			sigma_Grading_Button = new QPushButton(" Sigma Grading");
+			sigma_Grading_Button = new QPushButton(" Diffuseness drift");
 				sigma_Grading_Button->adjustSize();
 				sigma_Grading_Button->setFixedSize(sigma_Grading_Button->size());
 				sigma_Grading_Button->setFocusPolicy(Qt::NoFocus);
@@ -1022,7 +1022,7 @@ void Item_Editor::make_Sigma_Group_Box()
 		QFrame* PSD_Frame = new QFrame;
 		QVBoxLayout* PSD_Layout = new QVBoxLayout(PSD_Frame);
 			PSD_Layout->setContentsMargins(10,0,0,0);
-		individual_Sigma_Check_Box = new QCheckBox("Use many " + Sigma_Sym);
+		individual_Sigma_Check_Box = new QCheckBox("Use many s");
 		if(item->parent())
 		if(struct_Data.parent_Item_Type == item_Type_Regular_Aperiodic)
 		{
@@ -1375,7 +1375,7 @@ void Item_Editor::read_Interlayers_From_Item()
 
 			check_Box->setChecked(struct_Data.interlayer_Composition[i].enabled);
 			comp_Line_Edit->setText(Locale.toString(struct_Data.interlayer_Composition[i].interlayer.value,line_edit_short_double_format,line_edit_interlayer_precision));
-			my_Sigma_Line_Edit->setText(Locale.toString(struct_Data.interlayer_Composition[i].my_Sigma.value/coeff,line_edit_short_double_format,line_edit_interlayer_precision));
+			my_Sigma_Line_Edit->setText(Locale.toString(struct_Data.interlayer_Composition[i].my_Sigma_Diffuse.value/coeff,line_edit_short_double_format,line_edit_interlayer_precision));
 //				Global_Variables::resize_Line_Edit(comp_Line_Edit);     // better not use
 //				Global_Variables::resize_Line_Edit(my_Sigma_Line_Edit); // better not use
 
@@ -1397,7 +1397,7 @@ void Item_Editor::read_Interlayers_From_Item()
 			interlayer_Composition_Layout_With_Elements_Vector->addLayout(vert_Layout);
 		}
 
-		individual_Sigma_Check_Box->setChecked(!struct_Data.common_Sigma);
+		individual_Sigma_Check_Box->setChecked(!struct_Data.common_Sigma_Diffuse);
 		connect(individual_Sigma_Check_Box, &QCheckBox::stateChanged, this, [=]{interlayer_Check();});
 	}
 
@@ -1489,9 +1489,9 @@ void Item_Editor::show_Sigma_Start(bool at_Start)
 	double coeff = length_Coefficients_Map.value(length_units);
 	roughness_Label->setText(sigma_Label_1+ length_units + sigma_Label_2);
 
-	if(!struct_Data.common_Sigma || at_Start)
+	if(!struct_Data.common_Sigma_Diffuse || at_Start)
 	{
-		sigma_Line_Edit->setText(Locale.toString(struct_Data.sigma.value/coeff,line_edit_double_format,line_edit_sigma_precision));
+		sigma_Line_Edit->setText(Locale.toString(struct_Data.sigma_Diffuse.value/coeff,line_edit_double_format,line_edit_sigma_precision));
 	}
 }
 
@@ -1542,7 +1542,7 @@ void Item_Editor::show_Interlayers(QObject* my_Sender)
 					interlayer_Composition_Comp_Line_Edit_Vec	 [i]->setText(Locale.toString(struct_Data.interlayer_Composition[i].interlayer.value,line_edit_short_double_format,line_edit_interlayer_precision));
 
 				if(interlayer_Composition_My_Sigma_Line_Edit_Vec [i]!=my_Sender)
-					interlayer_Composition_My_Sigma_Line_Edit_Vec[i]->setText(Locale.toString(struct_Data.interlayer_Composition[i].my_Sigma.value/coeff,line_edit_short_double_format,line_edit_sigma_precision));
+					interlayer_Composition_My_Sigma_Line_Edit_Vec[i]->setText(Locale.toString(struct_Data.interlayer_Composition[i].my_Sigma_Diffuse.value/coeff,line_edit_short_double_format,line_edit_sigma_precision));
 			}
 			my_Sigma_Label_Layer->setText(sigma_Label_3 + length_units + sigma_Label_2);
 		}
@@ -1574,7 +1574,7 @@ void Item_Editor::depth_Grading()
 
 void Item_Editor::sigma_Grading()
 {
-	Grading_Editor* sigma_Grading = new Grading_Editor(item, whats_This_Sigma);
+	Grading_Editor* sigma_Grading = new Grading_Editor(item, whats_This_Sigma_Diffuse);
 		sigma_Grading->setParent(this);
 		sigma_Grading->setModal(true);
 		sigma_Grading->setWindowFlags(Qt::Window);
@@ -1721,7 +1721,7 @@ void Item_Editor::refresh_Data()
 	if(sigma_Done)
 	if(struct_Data.item_Type == item_Type_Layer || struct_Data.item_Type == item_Type_Substrate)
 	{
-		struct_Data.common_Sigma = !individual_Sigma_Check_Box->isChecked();
+		struct_Data.common_Sigma_Diffuse = !individual_Sigma_Check_Box->isChecked();
 
 		double sum=0;
 		for(int i=0; i<struct_Data.interlayer_Composition.size(); ++i)
@@ -1737,12 +1737,12 @@ void Item_Editor::refresh_Data()
 		}
 		if(abs(sum)<DBL_EPSILON) {sum = DBL_EPSILON; /*qInfo() << "Item_Editor::refresh_Data :: abs(sum)<DBL_EPSILON" << endl;*/}
 
-		if(struct_Data.common_Sigma)
+		if(struct_Data.common_Sigma_Diffuse)
 		{
-			struct_Data.sigma.value = Locale.toDouble(sigma_Line_Edit->text())*coeff;
+			struct_Data.sigma_Diffuse.value = Locale.toDouble(sigma_Line_Edit->text())*coeff;
 			for(int i=0; i<struct_Data.interlayer_Composition.size(); ++i)
 			{
-				struct_Data.interlayer_Composition[i].my_Sigma.value = struct_Data.sigma.value;
+				struct_Data.interlayer_Composition[i].my_Sigma_Diffuse.value = struct_Data.sigma_Diffuse.value;
 			}
 		} else
 		{
@@ -1750,13 +1750,13 @@ void Item_Editor::refresh_Data()
 			double temp_Sigma_Square=0;
 			for(int i=0; i<struct_Data.interlayer_Composition.size(); ++i)
 			{
-				struct_Data.interlayer_Composition[i].my_Sigma.value = Locale.toDouble(interlayer_Composition_My_Sigma_Line_Edit_Vec[i]->text())*coeff;
+				struct_Data.interlayer_Composition[i].my_Sigma_Diffuse.value = Locale.toDouble(interlayer_Composition_My_Sigma_Line_Edit_Vec[i]->text())*coeff;
 				if(interlayer_Composition_Check_Box_Vec[i]->isChecked())
 				{
-					temp_Sigma_Square += pow(struct_Data.interlayer_Composition[i].my_Sigma.value,2) * struct_Data.interlayer_Composition[i].interlayer.value/sum;
+					temp_Sigma_Square += pow(struct_Data.interlayer_Composition[i].my_Sigma_Diffuse.value,2) * struct_Data.interlayer_Composition[i].interlayer.value/sum;
 				}
 			}
-			struct_Data.sigma.value = sqrt(temp_Sigma_Square);
+			struct_Data.sigma_Diffuse.value = sqrt(temp_Sigma_Square);
 		}
 	}
 
@@ -1931,8 +1931,8 @@ void Item_Editor::multilayer_Or_Regular_Aperiodic_To_General_Aperiodic()
 			if(	struct_Data.item_Type == item_Type_Regular_Aperiodic)
 			{
 				Data new_Layer_Data = new_Layer->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
-				new_Layer_Data.thickness.value = struct_Data.regular_Components[i].components[n].thickness.value;
-				new_Layer_Data.sigma.value     = struct_Data.regular_Components[i].components[n].sigma.value;
+				new_Layer_Data.thickness.value    = struct_Data.regular_Components[i].components[n].thickness.value;
+				new_Layer_Data.sigma_Diffuse.value= struct_Data.regular_Components[i].components[n].sigma_Diffuse.value;
 				QVariant var;
 				var.setValue( new_Layer_Data );
 				new_Layer->setData(DEFAULT_COLUMN, Qt::UserRole, var);
@@ -2216,8 +2216,8 @@ void Item_Editor::unique_Item_Do(QString action, int uniqueness)
 			}
 			if(action == relate_Sigma || action == fit_Sigma)
 			{
-				current_Child_Parameter = &current_Child_Data.sigma;
-				first_Child_Parameter   = &first_Child_Data.sigma;
+				current_Child_Parameter = &current_Child_Data.sigma_Diffuse;
+				first_Child_Parameter   = &first_Child_Data.sigma_Diffuse;
 			}
 			if(action == relate_Thickness || action == relate_Sigma)
 			if(!first)

@@ -185,12 +185,12 @@ QDataStream& operator >>( QDataStream& stream,		 Int_Independent& int_Independen
 
 QDataStream& operator <<( QDataStream& stream, const Min_Max& min_Max )
 {
-	return stream << min_Max.thickness_Min << min_Max.thickness_Max << min_Max.sigma_Min << min_Max.sigma_Max;  // since 1.8.11
+	return stream << min_Max.thickness_Min << min_Max.thickness_Max << min_Max.sigma_Diffuse_Min << min_Max.sigma_Diffuse_Max;  // since 1.8.11
 }
 QDataStream& operator >>( QDataStream& stream,		 Min_Max& min_Max )
 {
 	if(Global_Variables::check_Loaded_Version(1,8,11))
-	{      stream >> min_Max.thickness_Min >> min_Max.thickness_Max >> min_Max.sigma_Min >> min_Max.sigma_Max;} // since 1.8.11
+	{      stream >> min_Max.thickness_Min >> min_Max.thickness_Max >> min_Max.sigma_Diffuse_Min >> min_Max.sigma_Diffuse_Max;} // since 1.8.11
 
 	return stream;
 }
@@ -314,11 +314,11 @@ QDataStream& operator >>( QDataStream& stream,		 Stoichiometry& stoichiometry )
 
 QDataStream& operator <<( QDataStream& stream, const Interlayer& interlayer )
 {
-	return stream << interlayer.interlayer << interlayer.my_Sigma << interlayer.enabled;
+	return stream << interlayer.interlayer << interlayer.my_Sigma_Diffuse << interlayer.enabled;
 }
 QDataStream& operator >>( QDataStream& stream,		 Interlayer& interlayer )
 {
-	return stream >> interlayer.interlayer >> interlayer.my_Sigma >> interlayer.enabled;
+	return stream >> interlayer.interlayer >> interlayer.my_Sigma_Diffuse >> interlayer.enabled;
 }
 
 QDataStream& operator <<( QDataStream& stream, const Drift& drift )
@@ -418,7 +418,7 @@ QDataStream& operator >>( QDataStream& stream,		 Graph_2D_Positions& graph_2D_Po
 QDataStream& operator <<( QDataStream& stream, const Profile_Plot_Options& profile_Plot_Options )
 {
 	return stream << profile_Plot_Options.type << profile_Plot_Options.permittivity_Type
-				  << profile_Plot_Options.apply_Roughness << profile_Plot_Options.apply_Diffusiness
+				  << profile_Plot_Options.apply_Roughness << profile_Plot_Options.apply_Diffuseness
 				  << profile_Plot_Options.show_Sharp_Profile << profile_Plot_Options.show_Discretization << profile_Plot_Options.show_Cursor_Position
 				  << profile_Plot_Options.rescale_X << profile_Plot_Options.rescale_Y << profile_Plot_Options.y_Scale
 				  << profile_Plot_Options.old_X_Begin << profile_Plot_Options.old_X_End << profile_Plot_Options.old_Y_Begin << profile_Plot_Options.old_Y_End
@@ -427,7 +427,7 @@ QDataStream& operator <<( QDataStream& stream, const Profile_Plot_Options& profi
 QDataStream& operator >>( QDataStream& stream,		 Profile_Plot_Options& profile_Plot_Options )
 {
 	stream >> profile_Plot_Options.type >> profile_Plot_Options.permittivity_Type
-		   >> profile_Plot_Options.apply_Roughness >> profile_Plot_Options.apply_Diffusiness
+		   >> profile_Plot_Options.apply_Roughness >> profile_Plot_Options.apply_Diffuseness
 		   >> profile_Plot_Options.show_Sharp_Profile >> profile_Plot_Options.show_Discretization >> profile_Plot_Options.show_Cursor_Position
 		   >> profile_Plot_Options.rescale_X >> profile_Plot_Options.rescale_Y >> profile_Plot_Options.y_Scale
 		   >> profile_Plot_Options.old_X_Begin >> profile_Plot_Options.old_X_End >> profile_Plot_Options.old_Y_Begin >> profile_Plot_Options.old_Y_End
@@ -493,26 +493,27 @@ QDataStream& operator >>( QDataStream& stream,		 Discretization_Parameters& disc
 				  >> discretization_Parameters.discretization_Step;
 }
 
-QDataStream& operator <<( QDataStream& stream, const PSD& psd )
+QDataStream& operator <<( QDataStream& stream, const Roughness_Model& roughness_Model )
 {
-	return stream << psd.model << psd.expression << psd.crosscorrelation_Function << psd.inheritance_Exponenta
-				  << psd.sigma_r << psd.cor_radius << psd.fractal_alpha;
-}
-QDataStream& operator >>( QDataStream& stream,		 PSD& psd )
-{
-	return stream >> psd.model >> psd.expression >> psd.crosscorrelation_Function >> psd.inheritance_Exponenta
-				  >> psd.sigma_r >> psd.cor_radius >> psd.fractal_alpha;
-}
+	return stream << roughness_Model.is_Enabled << roughness_Model.model << roughness_Model.expression << roughness_Model.crosscorrelation_Function
+				  << roughness_Model.sigma << roughness_Model.cor_radius << roughness_Model.fractal_alpha
 
-QDataStream& operator <<( QDataStream& stream, const Cor& cor )
-{
-	return stream << cor.model << cor.expression << cor.crosscorrelation_Function
-				  << cor.sigma_r << cor.cor_radius << cor.fractal_alpha;
+				  // correlation function only
+				  << roughness_Model.vertical_Cor_Length
+
+				  // PSD function only
+				  << roughness_Model.omega << roughness_Model.mu;
 }
-QDataStream& operator >>( QDataStream& stream,		 Cor& cor )
+QDataStream& operator >>( QDataStream& stream,		 Roughness_Model& roughness_Model )
 {
-	return stream >> cor.model >> cor.expression >> cor.crosscorrelation_Function
-				  >> cor.sigma_r >> cor.cor_radius >> cor.fractal_alpha;
+	return stream >> roughness_Model.is_Enabled >> roughness_Model.model >> roughness_Model.expression >> roughness_Model.crosscorrelation_Function
+				  >> roughness_Model.sigma >> roughness_Model.cor_radius >> roughness_Model.fractal_alpha
+
+				  // correlation function only
+				  >> roughness_Model.vertical_Cor_Length
+
+				  // PSD function only
+				  >> roughness_Model.omega >> roughness_Model.mu;
 }
 
 QDataStream& operator <<( QDataStream& stream, const Imperfections_Model& imperfections_Model )
@@ -523,9 +524,9 @@ QDataStream& operator <<( QDataStream& stream, const Imperfections_Model& imperf
 				  << imperfections_Model.show_Thickness_Drift_Line << imperfections_Model.show_Thickness_Drift_Rand << imperfections_Model.show_Thickness_Drift_Sine
 				  << imperfections_Model.show_Sigma_Drift_Line << imperfections_Model.show_Sigma_Drift_Rand << imperfections_Model.show_Sigma_Drift_Sine
 
-				  << imperfections_Model.use_Roughness << imperfections_Model.approximation << imperfections_Model.use_PSD_Cor
-				  << imperfections_Model.vertical_Correlation << imperfections_Model.use_Common_Statitics
-				  << imperfections_Model.common_PSD << imperfections_Model.common_Cor
+				  << imperfections_Model.use_Roughness << imperfections_Model.approximation << imperfections_Model.common_Model
+				  << imperfections_Model.vertical_Correlation << imperfections_Model.use_Common_Roughness_Function
+
 				  << imperfections_Model.use_Fluctuations;
 }
 QDataStream& operator >>( QDataStream& stream,		 Imperfections_Model& imperfections_Model )
@@ -536,9 +537,8 @@ QDataStream& operator >>( QDataStream& stream,		 Imperfections_Model& imperfecti
 				  >> imperfections_Model.show_Thickness_Drift_Line >> imperfections_Model.show_Thickness_Drift_Rand >> imperfections_Model.show_Thickness_Drift_Sine
 				  >> imperfections_Model.show_Sigma_Drift_Line >> imperfections_Model.show_Sigma_Drift_Rand >> imperfections_Model.show_Sigma_Drift_Sine
 
-				  >> imperfections_Model.use_Roughness >> imperfections_Model.approximation >> imperfections_Model.use_PSD_Cor
-				  >> imperfections_Model.vertical_Correlation >> imperfections_Model.use_Common_Statitics
-				  >> imperfections_Model.common_PSD >> imperfections_Model.common_Cor
+				  >> imperfections_Model.use_Roughness >> imperfections_Model.approximation >> imperfections_Model.common_Model
+				  >> imperfections_Model.vertical_Correlation >> imperfections_Model.use_Common_Roughness_Function
 
 				  >> imperfections_Model.use_Fluctuations;
 }
@@ -586,8 +586,8 @@ bool operator ==( const Different_Norm_Layer& different_Norm_Layer_Left, const D
 			(different_Norm_Layer_Left.interlayer_My_Sigma_Left	 == different_Norm_Layer_Right.interlayer_My_Sigma_Left	) &&
 			(different_Norm_Layer_Left.interlayer_Composition_Weight_Right == different_Norm_Layer_Right.interlayer_Composition_Weight_Right) &&
 			(different_Norm_Layer_Left.interlayer_My_Sigma_Right == different_Norm_Layer_Right.interlayer_My_Sigma_Right) &&*/
-			(different_Norm_Layer_Left.sigma_Left == different_Norm_Layer_Right.sigma_Left) &&
-			(different_Norm_Layer_Left.sigma_Right == different_Norm_Layer_Right.sigma_Right) &&
+			(different_Norm_Layer_Left.sigma_Diffuse_Left == different_Norm_Layer_Right.sigma_Diffuse_Left) &&
+			(different_Norm_Layer_Left.sigma_Diffuse_Right == different_Norm_Layer_Right.sigma_Diffuse_Right) &&
 			(different_Norm_Layer_Left.thickness == different_Norm_Layer_Right.thickness);
 }
 
@@ -742,4 +742,3 @@ void Element_Data::read_Element(QString& filename)
 	}
 	file.close();
 }
-

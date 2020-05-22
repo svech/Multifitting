@@ -17,6 +17,8 @@ public:
 	void create_Density_Fluctuations_Groupbox();
 	void refresh_Tree_Interlayer(int interlayer_Index, bool state);
 	void refresh_Tree_Drift(QString whats_This, bool state);
+	void refresh_Tree_Roughness(bool state);
+	void refresh_Tree_Roughness_Model();
 
 	Multilayer* multilayer;
 

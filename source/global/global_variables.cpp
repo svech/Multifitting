@@ -804,9 +804,9 @@ QString Global_Variables::structure_Item_Name(const Data& struct_Data)
 	if(struct_Data.item_Type == item_Type_Substrate)		{text = struct_Data.material + " substrate";}
 	if(struct_Data.item_Type == item_Type_Multilayer)		{text = "Multilayer (" + Locale.toString(struct_Data.first_Layer_Index) +
 																		" - " + Locale.toString(struct_Data.last_Layer_Index) + ")";}
-	if(struct_Data.item_Type == item_Type_Regular_Aperiodic){text = "Regular Aperiodic ("  + Locale.toString(struct_Data.first_Layer_Index) +
+	if(struct_Data.item_Type == item_Type_Regular_Aperiodic){text = "Regular aperiodic ("  + Locale.toString(struct_Data.first_Layer_Index) +
 																		" - " + Locale.toString(struct_Data.last_Layer_Index) + ")";}
-	if(struct_Data.item_Type == item_Type_General_Aperiodic){text = "General Aperiodic ("  + Locale.toString(struct_Data.first_Layer_Index) +
+	if(struct_Data.item_Type == item_Type_General_Aperiodic){text = "General aperiodic ("  + Locale.toString(struct_Data.first_Layer_Index) +
 																		" - " + Locale.toString(struct_Data.last_Layer_Index) + ")";}
 	if(struct_Data.item_Type == item_Type_Measurement)		{text = "Measurement";}
 
@@ -824,9 +824,9 @@ QString Global_Variables::parameter_Name(const Data &struct_Data, QString whats_
 	if(struct_Data.item_Type == item_Type_Substrate)		{brackets = "(substrate)";}
 	if(struct_Data.item_Type == item_Type_Multilayer)		{brackets = "Multilayer (" + Locale.toString(struct_Data.first_Layer_Index) +
 																			" - " +	Locale.toString(struct_Data.last_Layer_Index) + ")";}
-	if(struct_Data.item_Type == item_Type_Regular_Aperiodic){brackets = "Regular Aperiodic ("  + Locale.toString(struct_Data.first_Layer_Index) +
+	if(struct_Data.item_Type == item_Type_Regular_Aperiodic){brackets = "Regular aperiodic ("  + Locale.toString(struct_Data.first_Layer_Index) +
 																			" - " + Locale.toString(struct_Data.last_Layer_Index) + ")";}
-	if(struct_Data.item_Type == item_Type_General_Aperiodic){brackets = "General Aperiodic ("  + Locale.toString(struct_Data.first_Layer_Index) +
+	if(struct_Data.item_Type == item_Type_General_Aperiodic){brackets = "General aperiodic ("  + Locale.toString(struct_Data.first_Layer_Index) +
 																			" - " + Locale.toString(struct_Data.last_Layer_Index) + ")";}
 
 	/// optical constants
@@ -835,36 +835,46 @@ QString Global_Variables::parameter_Name(const Data &struct_Data, QString whats_
 		struct_Data.item_Type == item_Type_Substrate )
 	{
 		if(whats_This == whats_This_Absolute_Density)				text = struct_Data.material + " " + brackets + " Density, " + Rho_Sym;
-		if(whats_This == whats_This_Relative_Density)				text = struct_Data.material + " " + brackets + " Relative Density, " + Rho_Sym;
+		if(whats_This == whats_This_Relative_Density)				text = struct_Data.material + " " + brackets + " Relative density, " + Rho_Sym;
 		if(whats_This == whats_This_Permittivity)					text = struct_Data.material + " " + brackets + " Permittivity, 1-" + Epsilon_Sym;
 		if(whats_This == whats_This_Absorption)						text = struct_Data.material + " " + brackets + " Absorption, " + Cappa_Sym;
-		if(whats_This == whats_This_Composition && index>=0)		text = struct_Data.material + " " + brackets + " " + struct_Data.composition[index].type + " Composition, " + Zeta_Sym + "_" + struct_Data.composition[index].type;
+		if(whats_This == whats_This_Composition && index>=0)		text = struct_Data.material + " " + brackets + " " + struct_Data.composition[index].type + " composition, " + Zeta_Sym + "_" + struct_Data.composition[index].type;
 	}
 
 	/// thickness parameters
 	if(	struct_Data.item_Type == item_Type_Layer )
 	{
 		if(whats_This == whats_This_Thickness)						text = struct_Data.material + " " + brackets + " Thickness, z";
-		if(whats_This == whats_This_Thickness_Drift_Line_Value)		text = struct_Data.material + " " + brackets + " Thickness Linear Drift, dz";
-		if(whats_This == whats_This_Thickness_Drift_Rand_Rms)		text = struct_Data.material + " " + brackets + " Thickness Random Drift, dz";
-		if(whats_This == whats_This_Thickness_Drift_Sine_Amplitude)	text = struct_Data.material + " " + brackets + " Thickness Sine Drift : Amplitude, dz";
-		if(whats_This == whats_This_Thickness_Drift_Sine_Frequency)	text = struct_Data.material + " " + brackets + " Thickness Sine Drift : Frequency, " + Nu_Sym;
-		if(whats_This == whats_This_Thickness_Drift_Sine_Phase)		text = struct_Data.material + " " + brackets + " Thickness Sine Drift : Phase, " + Phi_Sym;
+		if(whats_This == whats_This_Thickness_Drift_Line_Value)		text = struct_Data.material + " " + brackets + " Thickness linear drift, dz";
+		if(whats_This == whats_This_Thickness_Drift_Rand_Rms)		text = struct_Data.material + " " + brackets + " Thickness random drift, dz";
+		if(whats_This == whats_This_Thickness_Drift_Sine_Amplitude)	text = struct_Data.material + " " + brackets + " Thickness sine drift : amplitude, dz";
+		if(whats_This == whats_This_Thickness_Drift_Sine_Frequency)	text = struct_Data.material + " " + brackets + " Thickness sine drift : frequency, " + Nu_Sym;
+		if(whats_This == whats_This_Thickness_Drift_Sine_Phase)		text = struct_Data.material + " " + brackets + " Thickness sine drift : phase, " + Phi_Sym;
 	}
 
 	/// interface parameters
 	if(	struct_Data.item_Type == item_Type_Layer ||
 		struct_Data.item_Type == item_Type_Substrate  )
 	{
-		if(whats_This == whats_This_Sigma)							text = struct_Data.material + " " + brackets + " Roughness/Diffuseness, " + Sigma_Sym;
-		if(whats_This == whats_This_Sigma_Drift_Line_Value)			text = struct_Data.material + " " + brackets + " Roughness/Diffuseness Linear Drift, d" + Sigma_Sym;
-		if(whats_This == whats_This_Sigma_Drift_Rand_Rms)			text = struct_Data.material + " " + brackets + " Roughness/Diffuseness Random Drift, d" + Sigma_Sym;
-		if(whats_This == whats_This_Sigma_Drift_Sine_Amplitude)		text = struct_Data.material + " " + brackets + " Roughness/Diffuseness Sine Drift : Amplitude, d" + Sigma_Sym;
-		if(whats_This == whats_This_Sigma_Drift_Sine_Frequency)		text = struct_Data.material + " " + brackets + " Roughness/Diffuseness Sine Drift : Frequency, " + Nu_Sym;
-		if(whats_This == whats_This_Sigma_Drift_Sine_Phase)			text = struct_Data.material + " " + brackets + " Roughness/Diffuseness Sine Drift : Phase, " + Phi_Sym;
+		// interlayer
+		if(whats_This == whats_This_Sigma_Diffuse)					text = struct_Data.material + " " + brackets + " Diffuseness, s";
+		if(whats_This == whats_This_Sigma_Drift_Line_Value)			text = struct_Data.material + " " + brackets + " Diffuseness linear drift, ds";
+		if(whats_This == whats_This_Sigma_Drift_Rand_Rms)			text = struct_Data.material + " " + brackets + " Diffuseness random drift, ds";
+		if(whats_This == whats_This_Sigma_Drift_Sine_Amplitude)		text = struct_Data.material + " " + brackets + " Diffuseness sine drift : amplitude, ds";
+		if(whats_This == whats_This_Sigma_Drift_Sine_Frequency)		text = struct_Data.material + " " + brackets + " Diffuseness sine drift : frequency, " + Nu_Sym;
+		if(whats_This == whats_This_Sigma_Drift_Sine_Phase)			text = struct_Data.material + " " + brackets + " Diffuseness sine srift : phase, " + Phi_Sym;
 
-		if(whats_This == whats_This_Interlayer_Composition)			text = struct_Data.material + " " + brackets + " Interlayer Composition, " + transition_Layer_Functions[index];
-		if(whats_This == whats_This_Interlayer_My_Sigma)			text = struct_Data.material + " " + brackets + " Individual Roughness/Diffuseness, " + Sigma_Sym + "_" + transition_Layer_Functions[index];
+		// composition
+		if(whats_This == whats_This_Interlayer_Composition)			text = struct_Data.material + " " + brackets + " Interlayer composition, " + transition_Layer_Functions[index];
+		if(whats_This == whats_This_Interlayer_My_Sigma_Diffuse)	text = struct_Data.material + " " + brackets + " Individual diffuseness, s_" + transition_Layer_Functions[index];
+
+		// roughness
+		if(whats_This == whats_This_Sigma_Roughness)				text = struct_Data.material + " " + brackets + " Roughness, " + Sigma_Sym;
+		if(whats_This == whats_This_Correlation_Radius)				text = struct_Data.material + " " + brackets + " Correlation radius, " + Xi_Sym;
+		if(whats_This == whats_This_Fractal_Alpha)					text = struct_Data.material + " " + brackets + " Fractal parameter, " + Alpha_Sym;
+		if(whats_This == whats_This_Vertical_Correlation_Length)	text = struct_Data.material + " " + brackets + " Vertical correlation Length, " + Lambda_Big_Sym;
+		if(whats_This == whats_This_Linear_PSD_Omega)				text = struct_Data.material + " " + brackets + " Particle volume, " + Omega_Big_Sym;
+		if(whats_This == whats_This_Linear_PSD_Exponenta_Mu)		text = struct_Data.material + " " + brackets + " Exponenta inheritance factor, " + Mu_Sym;
 	}
 
 	/// stack parameters
@@ -872,7 +882,7 @@ QString Global_Variables::parameter_Name(const Data &struct_Data, QString whats_
 	{
 		if(whats_This == whats_This_Num_Repetitions)				text = brackets + " Number of repetitions, N";
 		if(whats_This == whats_This_Period)							text = brackets + " Period, d";
-		if(whats_This == whats_This_Gamma)							text = brackets + " Thickness Ratio, " + Gamma_Sym;
+		if(whats_This == whats_This_Gamma)							text = brackets + " Thickness ratio, " + Gamma_Sym;
 	}
 	// TODO
 	if(	struct_Data.item_Type == item_Type_General_Aperiodic )
@@ -929,17 +939,25 @@ Parameter* Global_Variables::get_Parameter_From_Struct_Item_by_Id(Data& struct_D
 	}
 
 	// interface
-	if(id == struct_Data.sigma.indicator.id)									return &struct_Data.sigma;
+	if(id == struct_Data.sigma_Diffuse.indicator.id)									return &struct_Data.sigma_Diffuse;
 	for(int i=0; i<transition_Layer_Functions_Size; ++i)
 	{
 		if(id == struct_Data.interlayer_Composition[i].interlayer.indicator.id)	return &struct_Data.interlayer_Composition[i].interlayer;
-		if(id == struct_Data.interlayer_Composition[i].my_Sigma.indicator.id)	return &struct_Data.interlayer_Composition[i].my_Sigma;
+		if(id == struct_Data.interlayer_Composition[i].my_Sigma_Diffuse.indicator.id)	return &struct_Data.interlayer_Composition[i].my_Sigma_Diffuse;
 	}
-	if(id == struct_Data.sigma_Drift.drift_Line_Value.indicator.id)				return &struct_Data.sigma_Drift.drift_Line_Value;
-	if(id == struct_Data.sigma_Drift.drift_Rand_Rms.indicator.id)				return &struct_Data.sigma_Drift.drift_Rand_Rms;
-	if(id == struct_Data.sigma_Drift.drift_Sine_Amplitude.indicator.id)			return &struct_Data.sigma_Drift.drift_Sine_Amplitude;
-	if(id == struct_Data.sigma_Drift.drift_Sine_Frequency.indicator.id)			return &struct_Data.sigma_Drift.drift_Sine_Frequency;
-	if(id == struct_Data.sigma_Drift.drift_Sine_Phase.indicator.id)				return &struct_Data.sigma_Drift.drift_Sine_Phase;
+	if(id == struct_Data.sigma_Diffuse_Drift.drift_Line_Value.indicator.id)				return &struct_Data.sigma_Diffuse_Drift.drift_Line_Value;
+	if(id == struct_Data.sigma_Diffuse_Drift.drift_Rand_Rms.indicator.id)				return &struct_Data.sigma_Diffuse_Drift.drift_Rand_Rms;
+	if(id == struct_Data.sigma_Diffuse_Drift.drift_Sine_Amplitude.indicator.id)			return &struct_Data.sigma_Diffuse_Drift.drift_Sine_Amplitude;
+	if(id == struct_Data.sigma_Diffuse_Drift.drift_Sine_Frequency.indicator.id)			return &struct_Data.sigma_Diffuse_Drift.drift_Sine_Frequency;
+	if(id == struct_Data.sigma_Diffuse_Drift.drift_Sine_Phase.indicator.id)				return &struct_Data.sigma_Diffuse_Drift.drift_Sine_Phase;
+
+	// roughness
+	if(id == struct_Data.roughness_Model.sigma.indicator.id)				return &struct_Data.roughness_Model.sigma;
+	if(id == struct_Data.roughness_Model.cor_radius.indicator.id)			return &struct_Data.roughness_Model.cor_radius;
+	if(id == struct_Data.roughness_Model.fractal_alpha.indicator.id)		return &struct_Data.roughness_Model.fractal_alpha;
+	if(id == struct_Data.roughness_Model.vertical_Cor_Length.indicator.id)	return &struct_Data.roughness_Model.vertical_Cor_Length;
+	if(id == struct_Data.roughness_Model.omega.indicator.id)				return &struct_Data.roughness_Model.omega;
+	if(id == struct_Data.roughness_Model.mu.indicator.id)					return &struct_Data.roughness_Model.mu;
 
 	// thickness
 	if(id == struct_Data.thickness.indicator.id)								return &struct_Data.thickness;
@@ -978,14 +996,22 @@ Parameter* Global_Variables::get_Parameter_From_Struct_Item_by_Whats_This(Data& 
 	if(whats_This == whats_This_Composition)					{*line_edit_precision = line_edit_composition_precision;	*thumbnail_precision = thumbnail_composition_precision;	*units = "";					*coeff = 1;	return nullptr;							}
 
 	// interface
-	if(whats_This == whats_This_Sigma)							{*line_edit_precision = line_edit_sigma_precision;			*thumbnail_precision = thumbnail_sigma_precision;		*units = " " + length_units;	*coeff = length_Coefficients_Map.value(length_units);	return &struct_Data.sigma;	}
-	if(whats_This == whats_This_Sigma_Drift_Line_Value)			{*line_edit_precision = line_edit_drift_precision;			*thumbnail_precision = thumbnail_drift_precision;		*units = "";					*coeff = 1; return &struct_Data.sigma_Drift.drift_Line_Value;		}
-	if(whats_This == whats_This_Sigma_Drift_Rand_Rms)			{*line_edit_precision = line_edit_drift_precision;			*thumbnail_precision = thumbnail_drift_precision;		*units = "";					*coeff = 1; return &struct_Data.sigma_Drift.drift_Rand_Rms;			}
-	if(whats_This == whats_This_Sigma_Drift_Sine_Amplitude)		{*line_edit_precision = line_edit_drift_precision;			*thumbnail_precision = thumbnail_drift_precision;		*units = "";					*coeff = 1; return &struct_Data.sigma_Drift.drift_Sine_Amplitude;	}
-	if(whats_This == whats_This_Sigma_Drift_Sine_Frequency)		{*line_edit_precision = line_edit_drift_precision;			*thumbnail_precision = thumbnail_drift_precision;		*units = "";					*coeff = 1; return &struct_Data.sigma_Drift.drift_Sine_Frequency;	}
-	if(whats_This == whats_This_Sigma_Drift_Sine_Phase)			{*line_edit_precision = line_edit_drift_precision;			*thumbnail_precision = thumbnail_drift_precision;		*units = "";					*coeff = 1;	return &struct_Data.sigma_Drift.drift_Sine_Phase;		}
+	if(whats_This == whats_This_Sigma_Diffuse)					{*line_edit_precision = line_edit_sigma_precision;			*thumbnail_precision = thumbnail_sigma_precision;		*units = " " + length_units;	*coeff = length_Coefficients_Map.value(length_units);	return &struct_Data.sigma_Diffuse;	}
+	if(whats_This == whats_This_Sigma_Drift_Line_Value)			{*line_edit_precision = line_edit_drift_precision;			*thumbnail_precision = thumbnail_drift_precision;		*units = "";					*coeff = 1; return &struct_Data.sigma_Diffuse_Drift.drift_Line_Value;		}
+	if(whats_This == whats_This_Sigma_Drift_Rand_Rms)			{*line_edit_precision = line_edit_drift_precision;			*thumbnail_precision = thumbnail_drift_precision;		*units = "";					*coeff = 1; return &struct_Data.sigma_Diffuse_Drift.drift_Rand_Rms;			}
+	if(whats_This == whats_This_Sigma_Drift_Sine_Amplitude)		{*line_edit_precision = line_edit_drift_precision;			*thumbnail_precision = thumbnail_drift_precision;		*units = "";					*coeff = 1; return &struct_Data.sigma_Diffuse_Drift.drift_Sine_Amplitude;	}
+	if(whats_This == whats_This_Sigma_Drift_Sine_Frequency)		{*line_edit_precision = line_edit_drift_precision;			*thumbnail_precision = thumbnail_drift_precision;		*units = "";					*coeff = 1; return &struct_Data.sigma_Diffuse_Drift.drift_Sine_Frequency;	}
+	if(whats_This == whats_This_Sigma_Drift_Sine_Phase)			{*line_edit_precision = line_edit_drift_precision;			*thumbnail_precision = thumbnail_drift_precision;		*units = "";					*coeff = 1;	return &struct_Data.sigma_Diffuse_Drift.drift_Sine_Phase;		}
 	if(whats_This == whats_This_Interlayer_Composition)			{*line_edit_precision = line_edit_interlayer_precision;		*thumbnail_precision = thumbnail_interlayer_precision;	*units = "";					*coeff = 1;	return nullptr;											}
-	if(whats_This == whats_This_Interlayer_My_Sigma)			{*line_edit_precision = line_edit_sigma_precision;			*thumbnail_precision = thumbnail_sigma_precision;		*units = " " + length_units;	*coeff = length_Coefficients_Map.value(length_units);	return nullptr;	}
+	if(whats_This == whats_This_Interlayer_My_Sigma_Diffuse)	{*line_edit_precision = line_edit_sigma_precision;			*thumbnail_precision = thumbnail_sigma_precision;		*units = " " + length_units;	*coeff = length_Coefficients_Map.value(length_units);	return nullptr;	}
+
+	// roughness
+	if(whats_This == whats_This_Sigma_Roughness)				{*line_edit_precision = line_edit_sigma_precision;				*thumbnail_precision = thumbnail_sigma_precision;				*units = " " + length_units;			*coeff = length_Coefficients_Map.value(length_units);		return &struct_Data.roughness_Model.sigma;				}
+	if(whats_This == whats_This_Correlation_Radius)				{*line_edit_precision = line_edit_cor_radius_precision;			*thumbnail_precision = thumbnail_cor_radius_precision;			*units = " " + length_units;			*coeff = length_Coefficients_Map.value(length_units);		return &struct_Data.roughness_Model.cor_radius;			}
+	if(whats_This == whats_This_Fractal_Alpha)					{*line_edit_precision = line_edit_fractal_alpha_precision;		*thumbnail_precision = thumbnail_fractal_alpha_precision;		*units = "";							*coeff = 1;													return &struct_Data.roughness_Model.fractal_alpha;		}
+	if(whats_This == whats_This_Vertical_Correlation_Length)	{*line_edit_precision = line_edit_vertical_cor_length_precision;*thumbnail_precision = thumbnail_vertical_cor_length_precision;	*units = " " + length_units;			*coeff = length_Coefficients_Map.value(length_units);		return &struct_Data.roughness_Model.vertical_Cor_Length;	}
+	if(whats_This == whats_This_Linear_PSD_Omega)				{*line_edit_precision = line_edit_omega_precision;				*thumbnail_precision = thumbnail_omega_precision;				*units = " " + length_units+Cube_Sym;   *coeff = pow(length_Coefficients_Map.value(length_units),3);return &struct_Data.roughness_Model.omega;				}
+	if(whats_This == whats_This_Linear_PSD_Exponenta_Mu)		{*line_edit_precision = line_edit_mu_precision;					*thumbnail_precision = thumbnail_mu_precision;					*units = " " + length_units;			*coeff = length_Coefficients_Map.value(length_units);		return &struct_Data.roughness_Model.mu;					}
 
 	// thickness
 	if(whats_This == whats_This_Thickness)						{*line_edit_precision = line_edit_thickness_precision;		*thumbnail_precision = thumbnail_thickness_precision;	*units = " " + length_units;	*coeff = length_Coefficients_Map.value(length_units);	return &struct_Data.thickness; }
@@ -1455,7 +1481,7 @@ double Global_Variables::interface_Profile_Function(double z, const QVector<Inte
 	if(interlayer_Composition[Erf].interlayer.value > DBL_MIN)
 	{
 		norm += interlayer_Composition[Erf].interlayer.value;
-		my_Sigma = interlayer_Composition[Erf].my_Sigma.value;
+		my_Sigma = interlayer_Composition[Erf].my_Sigma_Diffuse.value;
 
 		output += erf_Profile(z, my_Sigma) * interlayer_Composition[Erf].interlayer.value;
 	}
@@ -1465,7 +1491,7 @@ double Global_Variables::interface_Profile_Function(double z, const QVector<Inte
 	if(interlayer_Composition[Lin].interlayer.value > DBL_MIN)
 	{
 		norm += interlayer_Composition[Lin].interlayer.value;
-		my_Sigma = interlayer_Composition[Lin].my_Sigma.value;
+		my_Sigma = interlayer_Composition[Lin].my_Sigma_Diffuse.value;
 
 		if(for_Integration)
 		{
@@ -1481,7 +1507,7 @@ double Global_Variables::interface_Profile_Function(double z, const QVector<Inte
 	if(interlayer_Composition[Exp].interlayer.value > DBL_MIN)
 	{
 		norm += interlayer_Composition[Exp].interlayer.value;
-		my_Sigma = interlayer_Composition[Exp].my_Sigma.value;
+		my_Sigma = interlayer_Composition[Exp].my_Sigma_Diffuse.value;
 
 		output += exp_Profile(z, my_Sigma) * interlayer_Composition[Exp].interlayer.value;
 	}
@@ -1491,7 +1517,7 @@ double Global_Variables::interface_Profile_Function(double z, const QVector<Inte
 	if(interlayer_Composition[Tanh].interlayer.value > DBL_MIN)
 	{
 		norm += interlayer_Composition[Tanh].interlayer.value;
-		my_Sigma = interlayer_Composition[Tanh].my_Sigma.value;
+		my_Sigma = interlayer_Composition[Tanh].my_Sigma_Diffuse.value;
 
 		output += tanh_Profile(z, my_Sigma) * interlayer_Composition[Tanh].interlayer.value;
 	}
@@ -1501,7 +1527,7 @@ double Global_Variables::interface_Profile_Function(double z, const QVector<Inte
 	if(interlayer_Composition[Sin].interlayer.value > DBL_MIN)
 	{
 		norm += interlayer_Composition[Sin].interlayer.value;
-		my_Sigma = interlayer_Composition[Sin].my_Sigma.value;
+		my_Sigma = interlayer_Composition[Sin].my_Sigma_Diffuse.value;
 
 		output += sin_Profile(z, my_Sigma) * interlayer_Composition[Sin].interlayer.value;
 	}
@@ -1511,7 +1537,7 @@ double Global_Variables::interface_Profile_Function(double z, const QVector<Inte
 	if(interlayer_Composition[Step].interlayer.value > DBL_MIN)
 	{
 		norm += interlayer_Composition[Step].interlayer.value;
-		my_Sigma = interlayer_Composition[Step].my_Sigma.value;
+		my_Sigma = interlayer_Composition[Step].my_Sigma_Diffuse.value;
 
 		if(for_Integration)
 		{
@@ -1554,9 +1580,9 @@ double Global_Variables::get_Max_Sigma_From_Interlayer_Composition(QVector<Inter
 	{
 		if(interlayer_Composition[interlayer_Index].enabled)
 		{
-			if(max_Sigma<interlayer_Composition[interlayer_Index].my_Sigma.value)
+			if(max_Sigma<interlayer_Composition[interlayer_Index].my_Sigma_Diffuse.value)
 			{
-				max_Sigma=interlayer_Composition[interlayer_Index].my_Sigma.value;
+				max_Sigma=interlayer_Composition[interlayer_Index].my_Sigma_Diffuse.value;
 			}
 		}
 	}

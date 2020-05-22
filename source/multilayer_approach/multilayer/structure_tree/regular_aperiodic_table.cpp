@@ -186,7 +186,7 @@ void Regular_Aperiodic_Table::read_Data_File(QString fileName)
 			if(!int_Format || !column_3_Double_Format || !column_4_Double_Format || !size_Format)
 			{
 				QString addition_1 = "";
-				if(aperiodic_Settings.column_4 == whats_This_Sigma)		addition_1 = "  <sigma>";
+				if(aperiodic_Settings.column_4 == whats_This_Sigma_Diffuse)		addition_1 = "  <sigma>";
 
 				QMessageBox::information(nullptr, "Bad format", "Row " + Locale.toString(line_Index) + " has wrong format.\n\nData should be styled:\n <period index>  <material>  <thickness>" + addition_1);
 				return;
@@ -194,7 +194,7 @@ void Regular_Aperiodic_Table::read_Data_File(QString fileName)
 
 			materials.append(words[1]);
 			thicknesses.append(QString(words[2]).replace(",", ".").toDouble());
-			if(aperiodic_Settings.column_4 == whats_This_Sigma)		sigmas.append(QString(words[3]).replace(",", ".").toDouble());
+			if(aperiodic_Settings.column_4 == whats_This_Sigma_Diffuse)		sigmas.append(QString(words[3]).replace(",", ".").toDouble());
 		}
 	}
 	int num_Layers_Regular_Aperiodic = regular_Aperiodic_Data.num_Repetition.value()*regular_Aperiodic_Data.regular_Components.size();
@@ -211,7 +211,7 @@ void Regular_Aperiodic_Table::read_Data_File(QString fileName)
 	for(int i=0; i<regular_Aperiodic_Data.regular_Components.size(); i++)
 	{
 		regular_Aperiodic_Data.regular_Components[i].is_Common_Thickness = false;
-		if(aperiodic_Settings.column_4 == whats_This_Sigma)	{
+		if(aperiodic_Settings.column_4 == whats_This_Sigma_Diffuse)	{
 			regular_Aperiodic_Data.regular_Components[i].is_Common_Sigma = false;
 		}
 	}
@@ -231,8 +231,8 @@ void Regular_Aperiodic_Table::read_Data_File(QString fileName)
 			Data& regular_Layer = regular_Aperiodic_Data.regular_Components[i].components[n];
 
 			regular_Layer.thickness.value = thicknesses[absolute_Layer_Index];
-			if(aperiodic_Settings.column_4 == whats_This_Sigma)		{
-				regular_Layer.sigma.value = sigmas[absolute_Layer_Index];
+			if(aperiodic_Settings.column_4 == whats_This_Sigma_Diffuse)		{
+				regular_Layer.sigma_Diffuse.value = sigmas[absolute_Layer_Index];
 			}
 
 			// if inconsistent
@@ -309,7 +309,7 @@ void Regular_Aperiodic_Table::create_Table()
 	/// color legend
 	{
 		// common sigma
-		QLabel* sigma_Label = new QLabel("common "+Sigma_Sym);
+		QLabel* sigma_Label = new QLabel("common s");
 			sigma_Label->setAlignment(Qt::AlignCenter);
 			sigma_Label->setStyleSheet(common_Sigma_Color);
 			sigma_Label->setFixedWidth(102);
@@ -330,7 +330,7 @@ void Regular_Aperiodic_Table::create_Table()
 		regular_Table->setCellWidget(current_Row,4, fit_Label);
 
 		// common thickness and sigma
-		QLabel* thickness_Sigma_Label = new QLabel("common z and "+Sigma_Sym);
+		QLabel* thickness_Sigma_Label = new QLabel("common z and s");
 			thickness_Sigma_Label->setAlignment(Qt::AlignCenter);
 			thickness_Sigma_Label->setStyleSheet(common_Thickness_and_Sigma_Color);
 			thickness_Sigma_Label->setFixedWidth(APERIODIC_TABLE_DENSITY_VALUE_WIDTH);
@@ -358,13 +358,13 @@ void Regular_Aperiodic_Table::create_Table()
 	/// thickness step label
 	create_Simple_Label(current_Row,2," z step ");
 	/// sigma step label
-	create_Simple_Label(current_Row,4, Sigma_Sym+" step ");
+	create_Simple_Label(current_Row,4," s step ");
 	current_Row++;
 
 	/// thickness step spinbox
 	create_Step_Spin_Box(current_Row, 2, whats_This_Thickness);
 	/// thickness step spinbox
-	create_Step_Spin_Box(current_Row, 4, whats_This_Sigma);
+	create_Step_Spin_Box(current_Row, 4, whats_This_Sigma_Diffuse);
 
 	/// recalculate
 	QCheckBox* checkbox_Recalculate = new QCheckBox("Recalculate");
@@ -390,7 +390,7 @@ void Regular_Aperiodic_Table::create_Table()
 	auxiliary_Labels_List.append(thickness_Label);
 	create_Simple_Label(current_Row,3," Fit z ");
 	QLabel* sigma_Label = nullptr;
-	create_Simple_Label(current_Row,4," "+Sigma_Sym+" ["+length_units+"] ", sigma_Label);
+	create_Simple_Label(current_Row,4," s ["+length_units+"] ", sigma_Label);
 	auxiliary_Labels_List.append(sigma_Label);
 	create_Simple_Label(current_Row,5," "+Rho_Sym+" ");
 	current_Row++;
@@ -468,9 +468,9 @@ void Regular_Aperiodic_Table::create_Table()
 				sigma_Value_Spinbox->setAccelerated(true);
 				sigma_Value_Spinbox->setButtonSymbols(QAbstractSpinBox::NoButtons);
 				sigma_Value_Spinbox->installEventFilter(this);
-				sigma_Value_Spinbox->setValue(regular_Aperiodic_Data.regular_Components[i].components[n].sigma.value/length_Coefficients_Map.value(length_units));
+				sigma_Value_Spinbox->setValue(regular_Aperiodic_Data.regular_Components[i].components[n].sigma_Diffuse.value/length_Coefficients_Map.value(length_units));
 				sigma_Value_Spinbox->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT_SIGMA);
-				sigma_Value_Spinbox->setProperty(whats_This_Property, whats_This_Sigma);
+				sigma_Value_Spinbox->setProperty(whats_This_Property, whats_This_Sigma_Diffuse);
 			regular_Table->setCellWidget(current_Row, current_Column, sigma_Value_Spinbox);
 			sigma_Spinboxes_List.append(sigma_Value_Spinbox);
 			connect(sigma_Value_Spinbox, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
@@ -550,7 +550,7 @@ void Regular_Aperiodic_Table::create_Step_Spin_Box(int current_Row, int current_
 	step_Spinboxes_List.append(step_SpinBox);
 	regular_Table->setCellWidget(current_Row, current_Column, step_SpinBox);
 		if(whats_This == whats_This_Thickness)	step_SpinBox->setFixedWidth(APERIODIC_TABLE_THICKNESS_VALUE_WIDTH);
-		if(whats_This == whats_This_Sigma)		step_SpinBox->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT_SIGMA);
+		if(whats_This == whats_This_Sigma_Diffuse)		step_SpinBox->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT_SIGMA);
 
 	connect(step_SpinBox, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
 	{
@@ -565,11 +565,11 @@ void Regular_Aperiodic_Table::create_Step_Spin_Box(int current_Row, int current_
 			step_SpinBox->setSuffix(" "+length_units);
 
 			if(whats_This == whats_This_Thickness)		{ step_SpinBox->setValue(step_thickness_aperiodic/length_Coeff); }
-			if(whats_This == whats_This_Sigma)			{ step_SpinBox->setValue(step_sigma_aperiodic/length_Coeff);	}
+			if(whats_This == whats_This_Sigma_Diffuse)			{ step_SpinBox->setValue(step_sigma_aperiodic/length_Coeff);	}
 		}
 
 		if(whats_This == whats_This_Thickness)	{ step_thickness_aperiodic = step_SpinBox->value()*length_Coeff;  for(MyDoubleSpinBox* spb : thickness_Spinboxes_List)	spb->setSingleStep(step_thickness_aperiodic/length_Coeff);}
-		if(whats_This == whats_This_Sigma)		{ step_sigma_aperiodic = step_SpinBox->value()*length_Coeff;      for(MyDoubleSpinBox* spb : sigma_Spinboxes_List)		spb->setSingleStep(step_sigma_aperiodic/length_Coeff);	}
+		if(whats_This == whats_This_Sigma_Diffuse)		{ step_sigma_aperiodic = step_SpinBox->value()*length_Coeff;      for(MyDoubleSpinBox* spb : sigma_Spinboxes_List)		spb->setSingleStep(step_sigma_aperiodic/length_Coeff);	}
 	});
 
 	// initialize
@@ -691,16 +691,16 @@ void Regular_Aperiodic_Table::refresh_Regular_Component(Data& current_Layer, int
 				item->child(i)->setData(DEFAULT_COLUMN, Qt::UserRole, var);
 			}
 		}
-		if(whats_This == whats_This_Sigma)
+		if(whats_This == whats_This_Sigma_Diffuse)
 		{
 			if(regular_Aperiodic_Data.regular_Components[i].is_Common_Sigma)
 			{
 				for(int n=0; n<regular_Aperiodic_Data.num_Repetition.value(); ++n)
 				{
-					regular_Aperiodic_Data.regular_Components[i].components[n].sigma.value = parameter.value;
+					regular_Aperiodic_Data.regular_Components[i].components[n].sigma_Diffuse.value = parameter.value;
 
 					for(Interlayer& interlayer : regular_Aperiodic_Data.regular_Components[i].components[n].interlayer_Composition)	{
-						interlayer.my_Sigma.value = parameter.value;
+						interlayer.my_Sigma_Diffuse.value = parameter.value;
 					}
 
 					int position = n*regular_Aperiodic_Data.regular_Components.size() + i;
@@ -713,9 +713,9 @@ void Regular_Aperiodic_Table::refresh_Regular_Component(Data& current_Layer, int
 				}
 
 				Data child = item->child(i)->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
-				child.sigma.value = parameter.value;
+				child.sigma_Diffuse.value = parameter.value;
 				for(Interlayer& interlayer : child.interlayer_Composition)	{
-					interlayer.my_Sigma.value = child.sigma.value;
+					interlayer.my_Sigma_Diffuse.value = child.sigma_Diffuse.value;
 				}
 				QVariant var;
 				var.setValue( child );
@@ -723,7 +723,7 @@ void Regular_Aperiodic_Table::refresh_Regular_Component(Data& current_Layer, int
 			} else
 			{
 				for(Interlayer& interlayer : current_Layer.interlayer_Composition)	{
-					interlayer.my_Sigma.value = current_Layer.sigma.value;
+					interlayer.my_Sigma_Diffuse.value = current_Layer.sigma_Diffuse.value;
 				}
 			}
 		}
@@ -867,7 +867,7 @@ void Regular_Aperiodic_Table::reload_All_Widgets(QString identifier)
 		identifier == QString(whats_This_Thickness)+VAL ||
 		identifier == colorize_Property)							reload_Thicknesses();
 	if( identifier == "" ||
-		identifier == QString(whats_This_Sigma)+VAL ||
+		identifier == QString(whats_This_Sigma_Diffuse)+VAL ||
 		identifier == colorize_Property)							reload_Sigmas();
 	if( identifier == "" ||
 		identifier == QString(whats_This_Absolute_Density)+VAL ||

@@ -115,11 +115,11 @@ public:
 	QString AtWt = "At. Wt.=";
 	QString thickness_Label_1 = "Thickness, z [";
 	QString thickness_Label_2 = "]:";
-	QString period_Label_1 = "Period, d[";
+	QString period_Label_1 = "Period, d [";
 	QString period_Label_2 = "]:";
-	QString sigma_Label_1 = "Roughness/Diffuseness, " + Sigma_Sym + "[";
+	QString sigma_Label_1 = "Diffuseness, s [";
 	QString sigma_Label_2 = "]:";
-	QString sigma_Label_3 = Sigma_Sym + "[";
+	QString sigma_Label_3 = "s [";
 	QString sigma_Weight = "weight:";
 
 	bool auto_Density_On = false;

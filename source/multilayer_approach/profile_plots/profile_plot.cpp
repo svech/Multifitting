@@ -258,11 +258,11 @@ void Profile_Plot::create_Left_Side()
 //				multilayer->profile_Plot_Options.apply_Roughness = use_Roughness_CheckBox->isChecked();
 //			});
 
-//		use_Diffusiness_CheckBox = new QCheckBox("Apply diffusiness");
-//			// line_Type_Layout->addWidget(use_Diffusiness_CheckBox);
-//			connect(use_Diffusiness_CheckBox, &QCheckBox::toggled, this, [=]
+//		use_Diffuseness_CheckBox = new QCheckBox("Apply diffuseness");
+//			// line_Type_Layout->addWidget(use_Diffuseness_CheckBox);
+//			connect(use_Diffuseness_CheckBox, &QCheckBox::toggled, this, [=]
 //			{
-//				multilayer->profile_Plot_Options.apply_Diffusiness = use_Diffusiness_CheckBox->isChecked();
+//				multilayer->profile_Plot_Options.apply_Diffusiness = use_Diffuseness_CheckBox->isChecked();
 //			});
 
 		show_Sharp_CheckBox = new QCheckBox("Show sharp profile");
@@ -385,7 +385,7 @@ void Profile_Plot::create_Left_Side()
 	// - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 //	use_Roughness_CheckBox->setChecked(multilayer->profile_Plot_Options.apply_Roughness);
-//	use_Diffusiness_CheckBox->setChecked(multilayer->profile_Plot_Options.apply_Diffusiness);
+//	use_Diffuseness_CheckBox->setChecked(multilayer->profile_Plot_Options.apply_Diffuseness);
 	show_Sharp_CheckBox->setChecked(multilayer->profile_Plot_Options.show_Sharp_Profile);
 	discretization_CheckBox->setChecked(multilayer->profile_Plot_Options.show_Discretization);
 	cursor_Cordinate_CheckBox->blockSignals(true);
@@ -400,7 +400,7 @@ void Profile_Plot::create_Left_Side()
 	if(multilayer->profile_Plot_Options.y_Scale == log_Scale) {log_Y_RadioButton->setChecked(true);}
 
 //	use_Roughness_CheckBox->toggled(multilayer->profile_Plot_Options.apply_Roughness);		// already toggled when ->setChecked(true)
-//	use_Diffusiness_CheckBox->toggled(multilayer->profile_Plot_Options.apply_Diffusiness);	// already toggled when ->setChecked(true)
+//	use_Diffuseness_CheckBox->toggled(multilayer->profile_Plot_Options.apply_Diffuseness);	// already toggled when ->setChecked(true)
 //	show_Sharp_CheckBox->toggled(multilayer->profile_Plot_Options.show_Sharp_Profile);		// already toggled when ->setChecked(true)
 //	discretization_CheckBox->toggled(multilayer->profile_Plot_Options.show_Discretization);	// already toggled when ->setChecked(true)
 
@@ -739,8 +739,8 @@ void Profile_Plot::calculate_Profile()
 		if(thickness_Vector[layer_Index]>0)
 		{
 			temp_Dif_Norm.thickness = thickness_Vector[layer_Index];
-			temp_Dif_Norm.sigma_Left = struct_Data_Vector[layer_Index].sigma.value;
-			temp_Dif_Norm.sigma_Right = struct_Data_Vector[layer_Index+1].sigma.value;
+			temp_Dif_Norm.sigma_Diffuse_Left  = struct_Data_Vector[layer_Index  ].sigma_Diffuse.value;
+			temp_Dif_Norm.sigma_Diffuse_Right = struct_Data_Vector[layer_Index+1].sigma_Diffuse.value;
 
 			if(!different_Norm_Layer.contains(temp_Dif_Norm))
 			{
@@ -1593,9 +1593,9 @@ void Profile_Plot::unwrap_Subtree(QVector<Data>& struct_Data_Vector, QTreeWidget
 
 					// sigma drift
 					for(int func_Index=0; func_Index<transition_Layer_Functions_Size; ++func_Index)	{
-						Global_Variables::variable_Drift(struct_Data.interlayer_Composition[func_Index].my_Sigma.value, struct_Data.sigma_Drift, period_Index, num_Repetition, nullptr);
+						Global_Variables::variable_Drift(struct_Data.interlayer_Composition[func_Index].my_Sigma_Diffuse.value, struct_Data.sigma_Diffuse_Drift, period_Index, num_Repetition, nullptr);
 					}
-					Global_Variables::variable_Drift(struct_Data.sigma.value, struct_Data.sigma_Drift, period_Index, num_Repetition, nullptr);
+					Global_Variables::variable_Drift(struct_Data.sigma_Diffuse.value, struct_Data.sigma_Diffuse_Drift, period_Index, num_Repetition, nullptr);
 				}
 				struct_Data_Vector[struct_Data_Index] = struct_Data;
 				const Data& my_Little_Data = struct_Data_Vector[struct_Data_Index];
@@ -1772,9 +1772,9 @@ void Profile_Plot::unwrap_Subtree(QVector<Data>& struct_Data_Vector, QTreeWidget
 
 									// sigma drift
 									for(int func_Index=0; func_Index<transition_Layer_Functions_Size; ++func_Index)	{
-										Global_Variables::variable_Drift(child_Data.interlayer_Composition[func_Index].my_Sigma.value, child_Data.sigma_Drift, period_Index, struct_Data.num_Repetition.value(), nullptr);
+										Global_Variables::variable_Drift(child_Data.interlayer_Composition[func_Index].my_Sigma_Diffuse.value, child_Data.sigma_Diffuse_Drift, period_Index, struct_Data.num_Repetition.value(), nullptr);
 									}
-									Global_Variables::variable_Drift(child_Data.sigma.value, child_Data.sigma_Drift, period_Index, struct_Data.num_Repetition.value(), nullptr);
+									Global_Variables::variable_Drift(child_Data.sigma_Diffuse.value, child_Data.sigma_Diffuse_Drift, period_Index, struct_Data.num_Repetition.value(), nullptr);
 
 									// discretization
 									if(multilayer->discretization_Parameters.enable_Discretization && multilayer->profile_Plot_Options.show_Discretization)
@@ -1826,9 +1826,9 @@ void Profile_Plot::get_Max_My_Sigma(QTreeWidgetItem* item, int periods_Factor)
 				{
 					if(struct_Data.interlayer_Composition[interlayer_Index].enabled)
 					{
-						if(max_Sigma<struct_Data.interlayer_Composition[interlayer_Index].my_Sigma.value)
+						if(max_Sigma<struct_Data.interlayer_Composition[interlayer_Index].my_Sigma_Diffuse.value)
 						{
-							max_Sigma=struct_Data.interlayer_Composition[interlayer_Index].my_Sigma.value;
+							max_Sigma=struct_Data.interlayer_Composition[interlayer_Index].my_Sigma_Diffuse.value;
 						}
 					}
 				}
@@ -1848,9 +1848,9 @@ void Profile_Plot::get_Max_My_Sigma(QTreeWidgetItem* item, int periods_Factor)
 							{
 								if(component_Data.interlayer_Composition[interlayer_Index].enabled)
 								{
-									if(max_Sigma<component_Data.interlayer_Composition[interlayer_Index].my_Sigma.value)
+									if(max_Sigma<component_Data.interlayer_Composition[interlayer_Index].my_Sigma_Diffuse.value)
 									{
-										max_Sigma=component_Data.interlayer_Composition[interlayer_Index].my_Sigma.value;
+										max_Sigma=component_Data.interlayer_Composition[interlayer_Index].my_Sigma_Diffuse.value;
 									}
 								}
 							}

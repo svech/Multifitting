@@ -42,8 +42,8 @@ Unwrapped_Structure::Unwrapped_Structure(const Calc_Functions& calc_Functions, c
 	if( (max_Depth > depth_Threshold) || sigma_Grading || discretization_Parameters.enable_Discretization)
 	{
 		max_Sigma = 0.1;
-		sigma.resize(num_Boundaries);
-		common_Sigma.resize(num_Boundaries);
+		sigma_Diffuse.resize(num_Boundaries);
+		common_Sigma_Diffuse.resize(num_Boundaries);
 		boundary_Interlayer_Composition.resize(num_Boundaries, QVector<Interlayer>(transition_Layer_Functions_Size));
 		fill_Sigma(calc_Tree.begin(), max_Sigma);
 
@@ -147,8 +147,8 @@ void Unwrapped_Structure::layer_Normalizing()
 		if(thickness[layer_Index]>0)
 		{
 			temp_Dif_Norm.thickness = thickness[layer_Index];
-			temp_Dif_Norm.sigma_Left = sigma[layer_Index];
-			temp_Dif_Norm.sigma_Right = sigma[layer_Index+1];
+			temp_Dif_Norm.sigma_Diffuse_Left = sigma_Diffuse[layer_Index];
+			temp_Dif_Norm.sigma_Diffuse_Right = sigma_Diffuse[layer_Index+1];
 
 			if(!different_Norm_Layer.contains(temp_Dif_Norm))
 			{
@@ -582,8 +582,8 @@ int Unwrapped_Structure::fill_Sigma(const tree<Node>::iterator& parent, double& 
 			child.node->data.struct_Data.parent_Item_Type != item_Type_Regular_Aperiodic )
 		{
 			// TODO extreme layers			
-			sigma       [boundary_Index] = child.node->data.struct_Data.sigma.value;
-			common_Sigma[boundary_Index] = child.node->data.struct_Data.common_Sigma;
+			sigma_Diffuse       [boundary_Index] = child.node->data.struct_Data.sigma_Diffuse.value;
+			common_Sigma_Diffuse[boundary_Index] = child.node->data.struct_Data.common_Sigma_Diffuse;
 
 			for(int func_Index=0; func_Index<transition_Layer_Functions_Size; ++func_Index)
 			{
@@ -591,33 +591,33 @@ int Unwrapped_Structure::fill_Sigma(const tree<Node>::iterator& parent, double& 
 
 				if(boundary_Interlayer_Composition[boundary_Index][func_Index].enabled)
 				{
-					if(max_Sigma<boundary_Interlayer_Composition[boundary_Index][func_Index].my_Sigma.value)
+					if(max_Sigma<boundary_Interlayer_Composition[boundary_Index][func_Index].my_Sigma_Diffuse.value)
 					{
-						max_Sigma=boundary_Interlayer_Composition[boundary_Index][func_Index].my_Sigma.value;
+						max_Sigma=boundary_Interlayer_Composition[boundary_Index][func_Index].my_Sigma_Diffuse.value;
 					}
 				}
 
 				// can drift
-				Global_Variables::variable_Drift(boundary_Interlayer_Composition[boundary_Index][func_Index].my_Sigma.value, child.node->data.struct_Data.sigma_Drift, per_Index, child.node->data.struct_Data.num_Repetition.value(), r);
+				Global_Variables::variable_Drift(boundary_Interlayer_Composition[boundary_Index][func_Index].my_Sigma_Diffuse.value, child.node->data.struct_Data.sigma_Diffuse_Drift, per_Index, child.node->data.struct_Data.num_Repetition.value(), r);
 			}
 			// can drift
-			Global_Variables::variable_Drift(sigma[boundary_Index], child.node->data.struct_Data.sigma_Drift, per_Index, child.node->data.struct_Data.num_Repetition.value(), r);
+			Global_Variables::variable_Drift(sigma_Diffuse[boundary_Index], child.node->data.struct_Data.sigma_Diffuse_Drift, per_Index, child.node->data.struct_Data.num_Repetition.value(), r);
 			++boundary_Index;
 		}
 		if( child.node->data.struct_Data.item_Type == item_Type_Substrate )
 		{
 			// TODO extreme layers
-			sigma       [boundary_Index] = child.node->data.struct_Data.sigma.value;
-			common_Sigma[boundary_Index] = child.node->data.struct_Data.common_Sigma;
+			sigma_Diffuse       [boundary_Index] = child.node->data.struct_Data.sigma_Diffuse.value;
+			common_Sigma_Diffuse[boundary_Index] = child.node->data.struct_Data.common_Sigma_Diffuse;
 
 			for(int func_Index=0; func_Index<transition_Layer_Functions_Size; ++func_Index)
 			{
 				boundary_Interlayer_Composition[boundary_Index][func_Index] = child.node->data.struct_Data.interlayer_Composition[func_Index];
 				if(boundary_Interlayer_Composition[boundary_Index][func_Index].enabled)
 				{
-					if(max_Sigma<boundary_Interlayer_Composition[boundary_Index][func_Index].my_Sigma.value)
+					if(max_Sigma<boundary_Interlayer_Composition[boundary_Index][func_Index].my_Sigma_Diffuse.value)
 					{
-						max_Sigma=boundary_Interlayer_Composition[boundary_Index][func_Index].my_Sigma.value;
+						max_Sigma=boundary_Interlayer_Composition[boundary_Index][func_Index].my_Sigma_Diffuse.value;
 					}
 				}
 			}
@@ -642,17 +642,17 @@ int Unwrapped_Structure::fill_Sigma(const tree<Node>::iterator& parent, double& 
 			{
 				for(int cell_Index=0; cell_Index<regular_Aperiodic.regular_Components.size(); ++cell_Index)
 				{
-					sigma       [boundary_Index] = regular_Aperiodic.regular_Components[cell_Index].components[period_Index].sigma.value;
-					common_Sigma[boundary_Index] = true;
+					sigma_Diffuse[boundary_Index] = regular_Aperiodic.regular_Components[cell_Index].components[period_Index].sigma_Diffuse.value;
+					common_Sigma_Diffuse[boundary_Index] = true;
 
 					for(int func_Index=0; func_Index<transition_Layer_Functions_Size; ++func_Index)
 					{
 						boundary_Interlayer_Composition[boundary_Index][func_Index] = regular_Aperiodic.regular_Components[cell_Index].components[period_Index].interlayer_Composition[func_Index];
 						if(boundary_Interlayer_Composition[boundary_Index][func_Index].enabled)
 						{
-							if(max_Sigma<boundary_Interlayer_Composition[boundary_Index][func_Index].my_Sigma.value)
+							if(max_Sigma<boundary_Interlayer_Composition[boundary_Index][func_Index].my_Sigma_Diffuse.value)
 							{
-								max_Sigma=boundary_Interlayer_Composition[boundary_Index][func_Index].my_Sigma.value;
+								max_Sigma=boundary_Interlayer_Composition[boundary_Index][func_Index].my_Sigma_Diffuse.value;
 							}
 						}
 					}

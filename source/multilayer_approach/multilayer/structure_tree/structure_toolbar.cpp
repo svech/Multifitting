@@ -110,6 +110,17 @@ void Structure_Toolbar::add_Layer()
 	// data
 	QVariant var;
 	Data layer(item_Type_Layer);
+
+	for(int interlayer_Index=0; interlayer_Index<transition_Layer_Functions_Size; interlayer_Index++)
+	{
+		if(!structure_Tree->multilayer->imperfections_Model.use_Func[interlayer_Index] || !structure_Tree->multilayer->imperfections_Model.use_Interlayer)
+		{
+			layer.interlayer_Composition[interlayer_Index].enabled = false;
+		}
+	}
+	layer.roughness_Model.is_Enabled = structure_Tree->multilayer->imperfections_Model.use_Roughness;
+	layer.roughness_Model.model = structure_Tree->multilayer->imperfections_Model.common_Model;
+
 	var.setValue( layer );
 	new_Layer->setData(DEFAULT_COLUMN, Qt::UserRole, var);
 
@@ -157,6 +168,17 @@ void Structure_Toolbar::add_Multilayer()
 
 		// data
 		Data layer(item_Type_Layer);
+
+		for(int interlayer_Index=0; interlayer_Index<transition_Layer_Functions_Size; interlayer_Index++)
+		{
+			if(!structure_Tree->multilayer->imperfections_Model.use_Func[interlayer_Index] || !structure_Tree->multilayer->imperfections_Model.use_Interlayer)
+			{
+				layer.interlayer_Composition[interlayer_Index].enabled = false;
+			}
+		}
+		layer.roughness_Model.is_Enabled = structure_Tree->multilayer->imperfections_Model.use_Roughness;
+		layer.roughness_Model.model = structure_Tree->multilayer->imperfections_Model.common_Model;
+
 		QVariant var;
 		var.setValue( layer );
 		new_Child_Layer->setData(DEFAULT_COLUMN, Qt::UserRole, var);
@@ -255,9 +277,9 @@ void Structure_Toolbar::add_Aperiodic()
 						QString addition_1 = "";
 						QString addition_2 = "";
 
-						if(aperiodic_Settings.column_4 == whats_This_Sigma)		addition_1 = "  <sigma>";
+						if(aperiodic_Settings.column_4 == whats_This_Sigma_Diffuse)		addition_1 = "  <sigma>";
 						if(aperiodic_Settings.column_4 == whats_This_Density)	addition_1 = "  <density>";
-						if(aperiodic_Settings.column_5 == whats_This_Sigma)		addition_2 = "  <sigma>";
+						if(aperiodic_Settings.column_5 == whats_This_Sigma_Diffuse)		addition_2 = "  <sigma>";
 						if(aperiodic_Settings.column_5 == whats_This_Density)	addition_2 = "  <density>";
 
 						QMessageBox::information(nullptr, "Bad format", "Row " + Locale.toString(line_Index) + " has wrong format.\n\nData should be styled:\n <period index>  <material>  <thickness>" + addition_1 + addition_2);
@@ -266,9 +288,9 @@ void Structure_Toolbar::add_Aperiodic()
 
 					materials.append(words[1]);
 					thicknesses.append(QString(words[2]).replace(",", ".").toDouble());
-					if(aperiodic_Settings.column_4 == whats_This_Sigma)		sigmas.   append(QString(words[3]).replace(",", ".").toDouble());
+					if(aperiodic_Settings.column_4 == whats_This_Sigma_Diffuse)		sigmas.   append(QString(words[3]).replace(",", ".").toDouble());
 					if(aperiodic_Settings.column_4 == whats_This_Density)	densities.append(QString(words[3]).replace(",", ".").toDouble());
-					if(aperiodic_Settings.column_5 == whats_This_Sigma)		sigmas.   append(QString(words[4]).replace(",", ".").toDouble());
+					if(aperiodic_Settings.column_5 == whats_This_Sigma_Diffuse)		sigmas.   append(QString(words[4]).replace(",", ".").toDouble());
 					if(aperiodic_Settings.column_5 == whats_This_Density)	densities.append(QString(words[4]).replace(",", ".").toDouble());
 				}
 			}
@@ -276,17 +298,28 @@ void Structure_Toolbar::add_Aperiodic()
 			{
 				double length_Coeff = length_Coefficients_Map.value(aperiodic_Settings.length_Units);
 				Data layer(item_Type_Layer);
-				layer.common_Sigma = true;
+
+				for(int interlayer_Index=0; interlayer_Index<transition_Layer_Functions_Size; interlayer_Index++)
+				{
+					if(!structure_Tree->multilayer->imperfections_Model.use_Func[interlayer_Index] || !structure_Tree->multilayer->imperfections_Model.use_Interlayer)
+					{
+						layer.interlayer_Composition[interlayer_Index].enabled = false;
+					}
+				}
+				layer.roughness_Model.is_Enabled = structure_Tree->multilayer->imperfections_Model.use_Roughness;
+				layer.roughness_Model.model = structure_Tree->multilayer->imperfections_Model.common_Model;
+
+				layer.common_Sigma_Diffuse = true;
 				layer.material = materials[layer_Index];
 				layer.thickness.value = thicknesses[layer_Index]*length_Coeff;
 
-				if( aperiodic_Settings.column_4 == whats_This_Sigma ||
-					aperiodic_Settings.column_5 == whats_This_Sigma	)
+				if( aperiodic_Settings.column_4 == whats_This_Sigma_Diffuse ||
+					aperiodic_Settings.column_5 == whats_This_Sigma_Diffuse	)
 				{
-					layer.sigma.value = sigmas[layer_Index]*length_Coeff;
+					layer.sigma_Diffuse.value = sigmas[layer_Index]*length_Coeff;
 					for(Interlayer& interlayer : layer.interlayer_Composition)
 					{
-						interlayer.my_Sigma.value = layer.sigma.value;
+						interlayer.my_Sigma_Diffuse.value = layer.sigma_Diffuse.value;
 					}
 				}
 				if( aperiodic_Settings.column_4 == whats_This_Density ||
@@ -344,6 +377,17 @@ void Structure_Toolbar::add_Substrate()
 	// data
 	QVariant var;
 	Data data(item_Type_Substrate);
+
+	for(int interlayer_Index=0; interlayer_Index<transition_Layer_Functions_Size; interlayer_Index++)
+	{
+		if(!structure_Tree->multilayer->imperfections_Model.use_Func[interlayer_Index] || !structure_Tree->multilayer->imperfections_Model.use_Interlayer)
+		{
+			data.interlayer_Composition[interlayer_Index].enabled = false;
+		}
+	}
+	data.roughness_Model.is_Enabled = structure_Tree->multilayer->imperfections_Model.use_Roughness;
+	data.roughness_Model.model = structure_Tree->multilayer->imperfections_Model.common_Model;
+
 	var.setValue( data );
 	new_Substrate->setData(DEFAULT_COLUMN, Qt::UserRole, var);
 
@@ -703,7 +747,7 @@ void Structure_Toolbar::export_Structure()
 						out << qSetFieldWidth(index_Width) << QString::number(n+1) << qSetFieldWidth(0) << " " << qSetFieldWidth(my_material_Width) << regular_Data.material << qSetFieldWidth(0);
 						out.setFieldAlignment(QTextStream::AlignRight);
 						out << qSetFieldWidth(my_thickness_Width) << Locale.toString(regular_Data.thickness.value,'f',thickness_Precision) << qSetFieldWidth(0) << "    ";
-						out << qSetFieldWidth(my_sigma_Width)     << Locale.toString(regular_Data.sigma.value,    'f',sigma_Precision)     << qSetFieldWidth(0);
+						out << qSetFieldWidth(my_sigma_Width)     << Locale.toString(regular_Data.sigma_Diffuse.value,    'f',sigma_Precision)     << qSetFieldWidth(0);
 						out.setFieldAlignment(QTextStream::AlignLeft);
 						out	<< qSetFieldWidth(0) << endl;
 					}
@@ -829,7 +873,7 @@ void Structure_Toolbar::look_Over_Tree()
 			thickness_Width = max(thickness_Width, thickness_String.size());
 
 			// sigma_Width
-			QString sigma_String = QString::number(int(struct_Data.sigma.value));
+			QString sigma_String = QString::number(int(struct_Data.sigma_Diffuse.value));
 			sigma_Width = max(sigma_Width, sigma_String.size());
 		}
 
@@ -846,7 +890,7 @@ void Structure_Toolbar::look_Over_Tree()
 					thickness_Width = max(thickness_Width, thickness_String.size());
 
 					// sigma_Width
-					QString sigma_String = QString::number(int(regular_Data.sigma.value));
+					QString sigma_String = QString::number(int(regular_Data.sigma_Diffuse.value));
 					sigma_Width = max(sigma_Width, sigma_String.size());
 				}
 			}
@@ -884,7 +928,7 @@ void Structure_Toolbar::print_Structure_Item(QTextStream& out, QTreeWidgetItem* 
 		if(if_Full) {out << "   s=";}
 		else	    {out << "     ";}
 		out.setFieldAlignment(QTextStream::AlignRight);
-		out << qSetFieldWidth(my_sigma_Width) << Locale.toString(struct_Data.sigma.value,'f',sigma_Precision)  << qSetFieldWidth(0) << " " << temp_thickness_units;
+		out << qSetFieldWidth(my_sigma_Width) << Locale.toString(struct_Data.sigma_Diffuse.value,'f',sigma_Precision)  << qSetFieldWidth(0) << " " << temp_thickness_units;
 		out.setFieldAlignment(QTextStream::AlignLeft);
 		if(if_Full) {out << "   r=";}
 		else	    {out << "     ";}
@@ -900,7 +944,7 @@ void Structure_Toolbar::print_Structure_Item(QTextStream& out, QTreeWidgetItem* 
 	if(struct_Data.item_Type == item_Type_Substrate)
 	{
 		out << qSetFieldWidth(0) << current_Index_String << " Substrate " << qSetFieldWidth(my_material_Width) << struct_Data.material << qSetFieldWidth(0)
-			<< "   s="   << Locale.toString(struct_Data.sigma.value,'f',sigma_Precision) << " " << thickness_units;
+			<< "   s="   << Locale.toString(struct_Data.sigma_Diffuse.value,'f',sigma_Precision) << " " << thickness_units;
 		if(struct_Data.composed_Material) {
 		out	<< "   r="   << Locale.toString(struct_Data.absolute_Density.value,'f',density_Precision) << " " << absolute_Density_Units;
 		} else {

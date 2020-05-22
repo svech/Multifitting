@@ -9,7 +9,7 @@ Grading_Editor::Grading_Editor(QTreeWidgetItem* item, QString drift_Name, QWidge
 {
     create_Main_Layout();
 
-	setWindowTitle(drift_Name + " Grading");
+	setWindowTitle(drift_Name + " drift");
     setAttribute(Qt::WA_DeleteOnClose);
 }
 
@@ -36,7 +36,7 @@ void Grading_Editor::refresh_Data()
 	drift.drift_Rand_Rms.value = Locale.toDouble(rand_Rms_Line->text());
 
     if(drift_Name==whats_This_Thickness) { layer.thickness_Drift = drift;}
-    if(drift_Name==whats_This_Sigma)     { layer.sigma_Drift = drift;    }
+    if(drift_Name==whats_This_Sigma_Diffuse)     { layer.sigma_Diffuse_Drift = drift;    }
 
     QVariant var;
     var.setValue(layer);
@@ -137,7 +137,7 @@ void Grading_Editor::create_Interface()
 void Grading_Editor::read_Drift_From_Item()
 {
     if(drift_Name==whats_This_Thickness) { drift = layer.thickness_Drift;}
-	if(drift_Name==whats_This_Sigma)     { drift = layer.sigma_Drift;    }
+	if(drift_Name==whats_This_Sigma_Diffuse)     { drift = layer.sigma_Diffuse_Drift;    }
 
 	// table show
 	{

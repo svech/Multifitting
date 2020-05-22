@@ -22,7 +22,7 @@ void Table_Roughness_Model_Editor::create_Main_Layout()
 	create_Interlayer_Groupbox();
 	create_Drift_Groupbox();
 	create_Roughness_Groupbox();
-//	create_Density_Fluctuations_Groupbox();
+//	create_Density_Fluctuations_Groupbox(); // TODO
 
 	QHBoxLayout* buttons_Layout = new QHBoxLayout;
 	main_Layout->addLayout(buttons_Layout);
@@ -169,7 +169,7 @@ void Table_Roughness_Model_Editor::create_Drift_Groupbox()
 		refresh_Tree_Drift(whats_This_Thickness_Drift_Sine, multilayer->imperfections_Model.show_Thickness_Drift_Sine);
 	});
 	// --------------------------------------------------------------------
-	QCheckBox* sigma_Line_Drift_Checkbox = new QCheckBox("Show "+Sigma_Sym+" lin drift");
+	QCheckBox* sigma_Line_Drift_Checkbox = new QCheckBox("Show s lin drift");
 		sigma_Line_Drift_Checkbox->setChecked(multilayer->imperfections_Model.show_Sigma_Drift_Line);
 	row2_Layout->addWidget(sigma_Line_Drift_Checkbox);
 	connect(sigma_Line_Drift_Checkbox, &QCheckBox::toggled, this, [=]
@@ -178,7 +178,7 @@ void Table_Roughness_Model_Editor::create_Drift_Groupbox()
 		refresh_Tree_Drift(whats_This_Sigma_Drift_Line_Value, multilayer->imperfections_Model.show_Sigma_Drift_Line);
 	});
 	// --------------------------------------------------------------------
-	QCheckBox* sigma_Rand_Drift_Checkbox = new QCheckBox("Show "+Sigma_Sym+" rand drift");
+	QCheckBox* sigma_Rand_Drift_Checkbox = new QCheckBox("Show s rand drift");
 		sigma_Rand_Drift_Checkbox->setChecked(multilayer->imperfections_Model.show_Sigma_Drift_Rand);
 	row2_Layout->addWidget(sigma_Rand_Drift_Checkbox);
 	connect(sigma_Rand_Drift_Checkbox, &QCheckBox::toggled, this, [=]
@@ -187,7 +187,7 @@ void Table_Roughness_Model_Editor::create_Drift_Groupbox()
 		refresh_Tree_Drift(whats_This_Sigma_Drift_Rand_Rms, multilayer->imperfections_Model.show_Sigma_Drift_Rand);
 	});
 	// --------------------------------------------------------------------
-	QCheckBox* sigma_Sine_Drift_Checkbox = new QCheckBox("Show "+Sigma_Sym+" sine drift");
+	QCheckBox* sigma_Sine_Drift_Checkbox = new QCheckBox("Show s sine drift");
 		sigma_Sine_Drift_Checkbox->setChecked(multilayer->imperfections_Model.show_Sigma_Drift_Sine);
 	row2_Layout->addWidget(sigma_Sine_Drift_Checkbox);
 	connect(sigma_Sine_Drift_Checkbox, &QCheckBox::toggled, this, [=]
@@ -206,9 +206,11 @@ void Table_Roughness_Model_Editor::create_Roughness_Groupbox()
 	connect(roughness_Groupbox, &QGroupBox::toggled, this, [=]
 	{
 		multilayer->imperfections_Model.use_Roughness = roughness_Groupbox->isChecked();
+		refresh_Tree_Roughness(multilayer->imperfections_Model.use_Roughness);
 	});
 
-	QHBoxLayout* groupbox_Layout = new QHBoxLayout(roughness_Groupbox);
+	QGridLayout* groupbox_Layout = new QGridLayout(roughness_Groupbox);
+		groupbox_Layout->setAlignment(Qt::AlignTop);
 
 	// --------------------------------------------
 	// approximation
@@ -216,7 +218,7 @@ void Table_Roughness_Model_Editor::create_Roughness_Groupbox()
 
 		QVBoxLayout* approximation_Layout = new QVBoxLayout;
 			approximation_Layout->setAlignment(Qt::AlignTop);
-		groupbox_Layout->addLayout(approximation_Layout);
+		groupbox_Layout->addLayout(approximation_Layout,0,0,1,1,Qt::AlignTop);
 
 		QLabel* approximation_Label = new QLabel("Approximation");
 		approximation_Layout->addWidget(approximation_Label);
@@ -249,7 +251,7 @@ void Table_Roughness_Model_Editor::create_Roughness_Groupbox()
 
 		QVBoxLayout* vertical_Correlation_Layout = new QVBoxLayout;
 			vertical_Correlation_Layout->setAlignment(Qt::AlignTop);
-		groupbox_Layout->addLayout(vertical_Correlation_Layout);
+		groupbox_Layout->addLayout(vertical_Correlation_Layout,0,1,1,1,Qt::AlignTop);
 
 		QLabel* vertical_Correlation_Label = new QLabel("Vertical\ncorrelation");
 		vertical_Correlation_Layout->addWidget(vertical_Correlation_Label);
@@ -272,37 +274,52 @@ void Table_Roughness_Model_Editor::create_Roughness_Groupbox()
 			vertical_Correlation_Group->addButton(zero_Radiobutton);
 
 	// --------------------------------------------
-	// PSD or Cor
+	// PSD or Cor models
 	// --------------------------------------------
 
 		QVBoxLayout* PSD_Cor_Layout = new QVBoxLayout;
 			PSD_Cor_Layout->setAlignment(Qt::AlignTop);
-		groupbox_Layout->addLayout(PSD_Cor_Layout);
+		groupbox_Layout->addLayout(PSD_Cor_Layout,0,2,1,1,Qt::AlignTop);
 
-		QLabel* PSD_Cor_Label = new QLabel("Use");
+		QLabel* PSD_Cor_Label = new QLabel("Model");
 		PSD_Cor_Layout->addWidget(PSD_Cor_Label);
 
-		QRadioButton* PSD_Radiobutton = new QRadioButton("PSD function");
-			PSD_Radiobutton->setChecked(multilayer->imperfections_Model.use_PSD_Cor == PSD_usage);
-			PSD_Radiobutton->setDisabled(DWBA_Radiobutton->isChecked() || SA_Radiobutton->isChecked() || CSA_Radiobutton->isChecked());
-		PSD_Cor_Layout->addWidget(PSD_Radiobutton);
+		QRadioButton* PSD_ABC_Radiobutton = new QRadioButton("ABC model, PSD function");
+			PSD_ABC_Radiobutton->setChecked(multilayer->imperfections_Model.common_Model == ABC_model_PSD);
+			PSD_ABC_Radiobutton->setDisabled(DWBA_Radiobutton->isChecked() || SA_Radiobutton->isChecked() || CSA_Radiobutton->isChecked());
+		PSD_Cor_Layout->addWidget(PSD_ABC_Radiobutton);
 
-		QRadioButton* Cor_Radiobutton = new QRadioButton("Correlation function");
-			Cor_Radiobutton->setChecked(multilayer->imperfections_Model.use_PSD_Cor == Cor_usage);
-			Cor_Radiobutton->setDisabled(DWBA_Radiobutton->isChecked() || SA_Radiobutton->isChecked() || CSA_Radiobutton->isChecked());
-		PSD_Cor_Layout->addWidget(Cor_Radiobutton);
+		QRadioButton* PSD_Growth_Radiobutton = new QRadioButton("ABC+linear growth, PSD function");
+			PSD_Growth_Radiobutton->setChecked(multilayer->imperfections_Model.common_Model == linear_model_PSD);
+			PSD_Growth_Radiobutton->setDisabled(DWBA_Radiobutton->isChecked() ||
+												SA_Radiobutton->isChecked() ||
+												CSA_Radiobutton->isChecked() ||
+												multilayer->imperfections_Model.vertical_Correlation != partial_Correlation);
+		PSD_Cor_Layout->addWidget(PSD_Growth_Radiobutton);
+
+		QRadioButton* Cor_ABC_Radiobutton = new QRadioButton("ABC model, correlation function");
+			Cor_ABC_Radiobutton->setChecked(multilayer->imperfections_Model.common_Model == ABC_model_Cor);
+			Cor_ABC_Radiobutton->setDisabled(DWBA_Radiobutton->isChecked() || SA_Radiobutton->isChecked() || CSA_Radiobutton->isChecked());
+		PSD_Cor_Layout->addWidget(Cor_ABC_Radiobutton);
+
+		QRadioButton* Cor_Exp_Radiobutton = new QRadioButton("Exponential model, correlation function");
+			Cor_Exp_Radiobutton->setChecked(multilayer->imperfections_Model.common_Model == gauss_model_Cor);
+			Cor_Exp_Radiobutton->setDisabled(DWBA_Radiobutton->isChecked() || SA_Radiobutton->isChecked() || CSA_Radiobutton->isChecked());
+		PSD_Cor_Layout->addWidget(Cor_Exp_Radiobutton);
 
 		QButtonGroup* use_Group = new QButtonGroup;
-			use_Group->addButton(PSD_Radiobutton);
-			use_Group->addButton(Cor_Radiobutton);
+			use_Group->addButton(PSD_ABC_Radiobutton);
+			use_Group->addButton(PSD_Growth_Radiobutton);
+			use_Group->addButton(Cor_ABC_Radiobutton);
+			use_Group->addButton(Cor_Exp_Radiobutton);
 
-		// --------------------------------------------
-		// common statistics (in the same layout)
-		// --------------------------------------------
-		QCheckBox* common_Checkbox = new QCheckBox("Common function\nfor all boundaries");
-			common_Checkbox->setChecked(multilayer->imperfections_Model.use_Common_Statitics);
-			common_Checkbox->setDisabled(full_Radiobutton->isChecked());
-		PSD_Cor_Layout->addWidget(common_Checkbox);
+	// --------------------------------------------
+	// common statistics
+	// --------------------------------------------
+		QCheckBox* common_Checkbox = new QCheckBox("Common function for all layer boundaries");
+			common_Checkbox->setChecked(multilayer->imperfections_Model.use_Common_Roughness_Function);
+			common_Checkbox->setDisabled(full_Radiobutton->isChecked() || partial_Radiobutton->isChecked());
+		groupbox_Layout->addWidget(common_Checkbox,1,0,1,3);
 
 	// connections
 	connect(PT_Radiobutton, &QRadioButton::toggled, this, [=]
@@ -310,8 +327,10 @@ void Table_Roughness_Model_Editor::create_Roughness_Groupbox()
 		if(PT_Radiobutton->isChecked())
 		{
 			multilayer->imperfections_Model.approximation = PT_approximation;
-			PSD_Radiobutton->setDisabled(false);
-			Cor_Radiobutton->setDisabled(false);
+			PSD_ABC_Radiobutton->setDisabled(false);
+			if(partial_Radiobutton->isChecked()) PSD_Growth_Radiobutton->setDisabled(false);
+			Cor_ABC_Radiobutton->setDisabled(false);
+			Cor_Exp_Radiobutton->setDisabled(false);
 		}
 	});
 	connect(DWBA_Radiobutton, &QRadioButton::toggled, this, [=]
@@ -319,10 +338,15 @@ void Table_Roughness_Model_Editor::create_Roughness_Groupbox()
 		if(DWBA_Radiobutton->isChecked())
 		{
 			multilayer->imperfections_Model.approximation = DWBA_approximation;
-			PSD_Radiobutton->setDisabled(true);
-			Cor_Radiobutton->setDisabled(true);
-			Cor_Radiobutton->setChecked(true);
-			Cor_Radiobutton->toggled(true);
+			PSD_ABC_Radiobutton->setDisabled(true);
+			PSD_Growth_Radiobutton->setDisabled(true);
+
+			if( !Cor_ABC_Radiobutton->isChecked() &&
+				!Cor_Exp_Radiobutton->isChecked() )
+			{
+				Cor_ABC_Radiobutton->setChecked(true);
+				Cor_ABC_Radiobutton->toggled(true);
+			}
 		}
 	});
 	connect(SA_Radiobutton, &QRadioButton::toggled, this, [=]
@@ -330,10 +354,15 @@ void Table_Roughness_Model_Editor::create_Roughness_Groupbox()
 		if(SA_Radiobutton->isChecked())
 		{
 			multilayer->imperfections_Model.approximation = SA_approximation;
-			PSD_Radiobutton->setDisabled(true);
-			Cor_Radiobutton->setDisabled(true);
-			Cor_Radiobutton->setChecked(true);
-			Cor_Radiobutton->toggled(true);
+			PSD_ABC_Radiobutton->setDisabled(true);
+			PSD_Growth_Radiobutton->setDisabled(true);
+
+			if( !Cor_ABC_Radiobutton->isChecked() &&
+				!Cor_Exp_Radiobutton->isChecked() )
+			{
+				Cor_ABC_Radiobutton->setChecked(true);
+				Cor_ABC_Radiobutton->toggled(true);
+			}
 		}
 	});
 	connect(CSA_Radiobutton, &QRadioButton::toggled, this, [=]
@@ -341,10 +370,15 @@ void Table_Roughness_Model_Editor::create_Roughness_Groupbox()
 		if(CSA_Radiobutton->isChecked())
 		{
 			multilayer->imperfections_Model.approximation = CSA_approximation;
-			PSD_Radiobutton->setDisabled(true);
-			Cor_Radiobutton->setDisabled(true);
-			Cor_Radiobutton->setChecked(true);
-			Cor_Radiobutton->toggled(true);
+			PSD_ABC_Radiobutton->setDisabled(true);
+			PSD_Growth_Radiobutton->setDisabled(true);
+
+			if( !Cor_ABC_Radiobutton->isChecked() &&
+				!Cor_Exp_Radiobutton->isChecked() )
+			{
+				Cor_ABC_Radiobutton->setChecked(true);
+				Cor_ABC_Radiobutton->toggled(true);
+			}
 		}
 	});
 
@@ -354,6 +388,15 @@ void Table_Roughness_Model_Editor::create_Roughness_Groupbox()
 		if(full_Radiobutton->isChecked())
 		{
 			multilayer->imperfections_Model.vertical_Correlation = full_Correlation;
+
+			if(PSD_Growth_Radiobutton->isChecked())
+			{
+				PSD_Growth_Radiobutton->setChecked(false);
+				PSD_ABC_Radiobutton->setChecked(true);
+				PSD_ABC_Radiobutton->toggled(true);
+			}
+			PSD_Growth_Radiobutton->setDisabled(true);
+
 			common_Checkbox->setChecked(true);
 			common_Checkbox->toggled(true);
 			common_Checkbox->setDisabled(true);
@@ -364,7 +407,11 @@ void Table_Roughness_Model_Editor::create_Roughness_Groupbox()
 		if(partial_Radiobutton->isChecked())
 		{
 			multilayer->imperfections_Model.vertical_Correlation = partial_Correlation;
-			common_Checkbox->setDisabled(false);
+			if(PT_Radiobutton->isChecked()) PSD_Growth_Radiobutton->setDisabled(false);
+
+			common_Checkbox->setChecked(true);
+			common_Checkbox->toggled(true);
+			common_Checkbox->setDisabled(true);
 		}
 	});
 	connect(zero_Radiobutton, &QRadioButton::toggled, this, [=]
@@ -372,26 +419,57 @@ void Table_Roughness_Model_Editor::create_Roughness_Groupbox()
 		if(zero_Radiobutton->isChecked())
 		{
 			multilayer->imperfections_Model.vertical_Correlation = zero_Correlation;
+
+			if(PSD_Growth_Radiobutton->isChecked())
+			{
+				PSD_Growth_Radiobutton->setChecked(false);
+				PSD_ABC_Radiobutton->setChecked(true);
+				PSD_ABC_Radiobutton->toggled(true);
+			}
+			PSD_Growth_Radiobutton->setDisabled(true);
+
 			common_Checkbox->setDisabled(false);
 		}
 	});
-	connect(PSD_Radiobutton, &QRadioButton::toggled, this, [=]
+
+
+	connect(PSD_ABC_Radiobutton, &QRadioButton::toggled, this, [=]
 	{
-		if(PSD_Radiobutton->isChecked())
+		if(PSD_ABC_Radiobutton->isChecked())
 		{
-			multilayer->imperfections_Model.use_PSD_Cor = PSD_usage;
+			multilayer->imperfections_Model.common_Model = ABC_model_PSD;
+			refresh_Tree_Roughness_Model();
 		}
 	});
-	connect(Cor_Radiobutton, &QRadioButton::toggled, this, [=]
+	connect(PSD_Growth_Radiobutton, &QRadioButton::toggled, this, [=]
 	{
-		if(Cor_Radiobutton->isChecked())
+		if(PSD_Growth_Radiobutton->isChecked())
 		{
-			multilayer->imperfections_Model.use_PSD_Cor = Cor_usage;
+			multilayer->imperfections_Model.common_Model = linear_model_PSD;
+			refresh_Tree_Roughness_Model();
 		}
 	});
+	connect(Cor_ABC_Radiobutton, &QRadioButton::toggled, this, [=]
+	{
+		if(Cor_ABC_Radiobutton->isChecked())
+		{
+			multilayer->imperfections_Model.common_Model = ABC_model_Cor;
+			refresh_Tree_Roughness_Model();
+		}
+	});
+	connect(Cor_Exp_Radiobutton, &QRadioButton::toggled, this, [=]
+	{
+		if(Cor_Exp_Radiobutton->isChecked())
+		{
+			multilayer->imperfections_Model.common_Model = gauss_model_Cor;
+			refresh_Tree_Roughness_Model();
+		}
+	});
+
+
 	connect(common_Checkbox, &QCheckBox::toggled, this, [=]
 	{
-		multilayer->imperfections_Model.use_Common_Statitics = common_Checkbox->isChecked();
+		multilayer->imperfections_Model.use_Common_Roughness_Function = common_Checkbox->isChecked();
 	});
 }
 
@@ -422,9 +500,9 @@ void Table_Roughness_Model_Editor::refresh_Tree_Interlayer(int interlayer_Index,
 			struct_Data.item_Type == item_Type_Substrate)
 		{
 			struct_Data.interlayer_Composition[interlayer_Index].enabled = state;
-			if(!struct_Data.common_Sigma)
+			if(!struct_Data.common_Sigma_Diffuse)
 			{
-				struct_Data.sigma.value = Table_Of_Structures::recalculate_Sigma_From_Individuals(struct_Data.interlayer_Composition);
+				struct_Data.sigma_Diffuse.value = Table_Of_Structures::recalculate_Sigma_From_Individuals(struct_Data.interlayer_Composition);
 			}
 
 			QVariant var;
@@ -451,9 +529,50 @@ void Table_Roughness_Model_Editor::refresh_Tree_Drift(QString whats_This, bool s
 			if(whats_This == whats_This_Thickness_Drift_Rand_Rms  )	struct_Data.thickness_Drift.is_Drift_Rand = state;
 			if(whats_This == whats_This_Thickness_Drift_Sine      )	struct_Data.thickness_Drift.is_Drift_Sine = state;
 
-			if(whats_This == whats_This_Sigma_Drift_Line_Value)	struct_Data.sigma_Drift.is_Drift_Line = state;
-			if(whats_This == whats_This_Sigma_Drift_Rand_Rms  )	struct_Data.sigma_Drift.is_Drift_Rand = state;
-			if(whats_This == whats_This_Sigma_Drift_Sine	  )	struct_Data.sigma_Drift.is_Drift_Sine = state;
+			if(whats_This == whats_This_Sigma_Drift_Line_Value)	struct_Data.sigma_Diffuse_Drift.is_Drift_Line = state;
+			if(whats_This == whats_This_Sigma_Drift_Rand_Rms  )	struct_Data.sigma_Diffuse_Drift.is_Drift_Rand = state;
+			if(whats_This == whats_This_Sigma_Drift_Sine	  )	struct_Data.sigma_Diffuse_Drift.is_Drift_Sine = state;
+
+			QVariant var;
+			var.setValue( struct_Data );
+			item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+		}
+		++it;
+	}
+}
+
+void Table_Roughness_Model_Editor::refresh_Tree_Roughness(bool state)
+{
+	// enable and disable
+	QTreeWidgetItemIterator it(multilayer->structure_Tree->tree);
+	while(*it)
+	{
+		QTreeWidgetItem* item = *it;
+		Data struct_Data = item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+		if( struct_Data.item_Type == item_Type_Layer ||
+			struct_Data.item_Type == item_Type_Substrate )
+		{
+			struct_Data.roughness_Model.is_Enabled = state;
+
+			QVariant var;
+			var.setValue( struct_Data );
+			item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+		}
+		++it;
+	}
+}
+
+void Table_Roughness_Model_Editor::refresh_Tree_Roughness_Model()
+{
+	QTreeWidgetItemIterator it(multilayer->structure_Tree->tree);
+	while(*it)
+	{
+		QTreeWidgetItem* item = *it;
+		Data struct_Data = item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+		if( struct_Data.item_Type == item_Type_Layer ||
+			struct_Data.item_Type == item_Type_Substrate )
+		{
+			struct_Data.roughness_Model.model = multilayer->imperfections_Model.common_Model;
 
 			QVariant var;
 			var.setValue( struct_Data );

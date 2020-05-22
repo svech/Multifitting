@@ -41,7 +41,7 @@ void Menu::add_Menu_Points()
 		create_Item_Precision_Menu();
 			menu_Bar->addMenu(precision_Menu);
 	}
-	if(window_Type == window_Type_Table_Of_Structures || window_Type == window_Type_Table_Of_Roughness)
+	if(window_Type == window_Type_Table_Of_Structures)
 	{
 //		create_File_Menu();
 			menu_Bar->addMenu(file_Menu);
@@ -76,7 +76,7 @@ void Menu::create_File_Menu()
 {
 	file_Menu = new QMenu("File", this);
 	{
-		if(window_Type == window_Type_Multilayer_Approach || window_Type == window_Type_Table_Of_Structures || window_Type == window_Type_Table_Of_Roughness)
+		if(window_Type == window_Type_Multilayer_Approach || window_Type == window_Type_Table_Of_Structures)
 		{
 			QAction* act_Open = new QAction("Open last", this);
 				act_Open->setShortcut(Qt::Key_O | Qt::CTRL);
@@ -142,7 +142,7 @@ void Menu::create_File_Menu()
 			connect(act_Open_Launcher, &QAction::triggered, global_Multilayer_Approach, [=]{global_Multilayer_Approach->open_Launcher();});
 			file_Menu->addAction(act_Open_Launcher);
 		}
-		if(window_Type == window_Type_Table_Of_Structures || window_Type == window_Type_Table_Of_Roughness)
+		if(window_Type == window_Type_Table_Of_Structures)
 		{
 			QAction* act_Quit = new QAction("Close", this);
 			act_Quit->setShortcut(Qt::Key_D | Qt::CTRL);
@@ -177,7 +177,7 @@ void Menu::create_Calculate_Menu()
 		act_Abort->setShortcut(Qt::Key_Period | Qt::ALT);
 		act_Abort->setProperty(abort_Property,abort_Property);
 
-	if(window_Type == window_Type_Multilayer_Approach || window_Type == window_Type_Table_Of_Structures || window_Type == window_Type_Table_Of_Roughness)
+	if(window_Type == window_Type_Multilayer_Approach || window_Type == window_Type_Table_Of_Structures)
 	{
 		connect(act_Specular,	&QAction::triggered, global_Multilayer_Approach, [=]{global_Multilayer_Approach->calculate();			 });
 		connect(act_Fitting,	&QAction::triggered, global_Multilayer_Approach, [=]{global_Multilayer_Approach->start_Fitting();			 });
@@ -222,8 +222,8 @@ void Menu::create_Independent_Units_Menu()
 		units_Menu->setDisabled(true);
 	}
 	// if thickness, sigma or period
-	if((whats_This == whats_This_Thickness) ||
-	   (whats_This == whats_This_Sigma)	    ||
+	if((whats_This == whats_This_Thickness)		||
+	   (whats_This == whats_This_Sigma_Diffuse) ||
 	   (whats_This == whats_This_Period))
 	{
 		QActionGroup* group_Act_Unit = new QActionGroup(this);
@@ -239,7 +239,6 @@ void Menu::create_Independent_Units_Menu()
 				if(length_Units_List[index] == length_units) act_Unit->setChecked(true);
 
 			units_Menu->addAction(act_Unit);
-
 			connect(act_Unit, &QAction::triggered, this, &Menu::set_Length_Unit);
 		}
 	}
@@ -326,7 +325,7 @@ void Menu::create_Independent_Precision_Menu()
 			connect(precision_Edit, &QAction::triggered, this, &Menu::set_Line_Edit_Thickness_Precision);
 		}
 		// if sigma
-		if(whats_This == whats_This_Sigma)
+		if(whats_This == whats_This_Sigma_Diffuse)
 		{
 			if(index == thumbnail_sigma_precision) precision_Thumb->setChecked(true);
 			if(index == line_edit_sigma_precision) precision_Edit->setChecked(true);
@@ -501,9 +500,9 @@ void Menu::create_Table_Precision_Menu()
 	precision_Menu = new QMenu("Precision", this);
 
 	menu_Density	 = new QMenu("Density", this);
-	menu_Lengths	 = new QMenu("Lengths", this);
-	menu_Gamma		 = new QMenu("Gamma",   this);
 	menu_Composition = new QMenu("Atomic Composition", this);
+	menu_Lengths	 = new QMenu("Thickness & sigma", this);
+	menu_Gamma		 = new QMenu("Gamma",   this);
 	menu_Interlayer  = new QMenu("Interlayer Composition", this);
 
 	menu_Thumb  = new QMenu("Thumbnail precision", this);
@@ -532,7 +531,7 @@ void Menu::create_Table_Precision_Menu()
 			menu_Gamma->addMenu(menu_Thumb);
 			menu_Gamma->addMenu(menu_Edit);
 	}
-	if(window_Type == window_Type_Table_Of_Structures || window_Type == window_Type_Table_Of_Roughness )
+	if(window_Type == window_Type_Table_Of_Structures)
 	{
 		precision_Menu->addMenu(menu_Interlayer);
 			//menu_Interlayer->addMenu(menu_Thumb);

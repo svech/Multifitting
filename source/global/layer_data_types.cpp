@@ -213,20 +213,20 @@ Data::Data(QString item_Type_Passed)
 
 	// Layer, Substrate
 	{
-		// sigma
+		// sigma diffuse
 		{
-			if(item_Type == item_Type_Layer)		sigma.value =     layer_default_sigma;
-			if(item_Type == item_Type_Substrate)	sigma.value = substrate_default_sigma;
-			sigma.fit.is_Fitable = false;
-			sigma.fit.min = 1;//sigma_Dispersion_Min*sigma.value;
-			sigma.fit.max = max(sigma_Dispersion_Max*sigma.value, 20.);
-			sigma.indicator.whats_This = whats_This_Sigma;
-			sigma.indicator.item_Id = id;
+			if(item_Type == item_Type_Layer)		sigma_Diffuse.value = layer_default_sigma_diffuse;
+			if(item_Type == item_Type_Substrate)	sigma_Diffuse.value = substrate_default_sigma_diffuse;
+			sigma_Diffuse.fit.is_Fitable = false;
+			sigma_Diffuse.fit.min = 1;//sigma_Dispersion_Min*sigma.value;
+			sigma_Diffuse.fit.max = max(sigma_Dispersion_Max*sigma_Diffuse.value, 20.);
+			sigma_Diffuse.indicator.whats_This = whats_This_Sigma_Diffuse;
+			sigma_Diffuse.indicator.item_Id = id;
 
-			sigma.confidence.calc_Conf_Interval = false;
-			sigma.confidence.min = sigma.fit.min;
-			sigma.confidence.max = sigma.fit.max;
-			sigma.confidence.num_Points = default_num_confidence_points;
+			sigma_Diffuse.confidence.calc_Conf_Interval = false;
+			sigma_Diffuse.confidence.min = sigma_Diffuse.fit.min;
+			sigma_Diffuse.confidence.max = sigma_Diffuse.fit.max;
+			sigma_Diffuse.confidence.num_Points = default_num_confidence_points;
 		}
 		// interlayer composition
 		{
@@ -249,18 +249,110 @@ Data::Data(QString item_Type_Passed)
 					interlayer_Composition[i].interlayer.confidence.num_Points = default_num_confidence_points;
 				}
 				{
-					interlayer_Composition[i].my_Sigma.value=0;
-					interlayer_Composition[i].my_Sigma.fit.is_Fitable = false;
-					interlayer_Composition[i].my_Sigma.fit.min = sigma_Dispersion_Min*interlayer_Composition[i].my_Sigma.value;
-					interlayer_Composition[i].my_Sigma.fit.max = sigma_Dispersion_Max*interlayer_Composition[i].my_Sigma.value;
-					interlayer_Composition[i].my_Sigma.indicator.item_Id = id;
+					interlayer_Composition[i].my_Sigma_Diffuse.value=0;
+					interlayer_Composition[i].my_Sigma_Diffuse.fit.is_Fitable = false;
+					interlayer_Composition[i].my_Sigma_Diffuse.fit.min = sigma_Dispersion_Min*interlayer_Composition[i].my_Sigma_Diffuse.value;
+					interlayer_Composition[i].my_Sigma_Diffuse.fit.max = sigma_Dispersion_Max*interlayer_Composition[i].my_Sigma_Diffuse.value;
+					interlayer_Composition[i].my_Sigma_Diffuse.indicator.item_Id = id;
 
-					interlayer_Composition[i].my_Sigma.confidence.calc_Conf_Interval = false;
-					interlayer_Composition[i].my_Sigma.confidence.min = interlayer_Composition[i].my_Sigma.fit.min;
-					interlayer_Composition[i].my_Sigma.confidence.max = interlayer_Composition[i].my_Sigma.fit.max;
-					interlayer_Composition[i].my_Sigma.confidence.num_Points = default_num_confidence_points;
+					interlayer_Composition[i].my_Sigma_Diffuse.confidence.calc_Conf_Interval = false;
+					interlayer_Composition[i].my_Sigma_Diffuse.confidence.min = interlayer_Composition[i].my_Sigma_Diffuse.fit.min;
+					interlayer_Composition[i].my_Sigma_Diffuse.confidence.max = interlayer_Composition[i].my_Sigma_Diffuse.fit.max;
+					interlayer_Composition[i].my_Sigma_Diffuse.confidence.num_Points = default_num_confidence_points;
 				}
 			}
+		}
+		// roughness
+		{
+			roughness_Model.is_Enabled = false;
+			roughness_Model.model = linear_model_PSD;
+			roughness_Model.expression = "";
+			roughness_Model.crosscorrelation_Function = "";
+		}
+		// sigma roughness
+		{
+			if(item_Type == item_Type_Layer)		roughness_Model.sigma.value = layer_default_sigma_roughness;
+			if(item_Type == item_Type_Substrate)	roughness_Model.sigma.value = substrate_default_sigma_roughness;
+			roughness_Model.sigma.fit.is_Fitable = false;
+			roughness_Model.sigma.fit.min = 1;
+			roughness_Model.sigma.fit.max = max(sigma_Dispersion_Max*roughness_Model.sigma.value, 20.);
+			roughness_Model.sigma.indicator.whats_This = whats_This_Sigma_Roughness;
+			roughness_Model.sigma.indicator.item_Id = id;
+
+			roughness_Model.sigma.confidence.calc_Conf_Interval = false;
+			roughness_Model.sigma.confidence.min = roughness_Model.sigma.fit.min;
+			roughness_Model.sigma.confidence.max = roughness_Model.sigma.fit.max;
+			roughness_Model.sigma.confidence.num_Points = default_num_confidence_points;
+		}
+		// correlation radius
+		{
+			roughness_Model.cor_radius.value = 10000;
+			roughness_Model.cor_radius.fit.is_Fitable = false;
+			roughness_Model.cor_radius.fit.min = 100;
+			roughness_Model.cor_radius.fit.max = 100000;
+			roughness_Model.cor_radius.indicator.whats_This = whats_This_Correlation_Radius;
+			roughness_Model.cor_radius.indicator.item_Id = id;
+
+			roughness_Model.cor_radius.confidence.calc_Conf_Interval = false;
+			roughness_Model.cor_radius.confidence.min = roughness_Model.cor_radius.fit.min;
+			roughness_Model.cor_radius.confidence.max = roughness_Model.cor_radius.fit.max;
+			roughness_Model.cor_radius.confidence.num_Points = default_num_confidence_points;
+		}
+		// fractality / jagednesss
+		{
+			roughness_Model.fractal_alpha.value = 0.5;
+			roughness_Model.fractal_alpha.fit.is_Fitable = false;
+			roughness_Model.fractal_alpha.fit.min = 0;
+			roughness_Model.fractal_alpha.fit.max = 1;
+			roughness_Model.fractal_alpha.indicator.whats_This = whats_This_Fractal_Alpha;
+			roughness_Model.fractal_alpha.indicator.item_Id = id;
+
+			roughness_Model.fractal_alpha.confidence.calc_Conf_Interval = false;
+			roughness_Model.fractal_alpha.confidence.min = roughness_Model.fractal_alpha.fit.min;
+			roughness_Model.fractal_alpha.confidence.max = roughness_Model.fractal_alpha.fit.max;
+			roughness_Model.fractal_alpha.confidence.num_Points = default_num_confidence_points;
+		}
+		// common vertical correlation depth
+		{
+			roughness_Model.vertical_Cor_Length.value = 1000;
+			roughness_Model.vertical_Cor_Length.fit.is_Fitable = false;
+			roughness_Model.vertical_Cor_Length.fit.min = 100;
+			roughness_Model.vertical_Cor_Length.fit.max = 10000;
+			roughness_Model.vertical_Cor_Length.indicator.whats_This = whats_This_Vertical_Correlation_Length;
+			roughness_Model.vertical_Cor_Length.indicator.item_Id = id;
+
+			roughness_Model.vertical_Cor_Length.confidence.calc_Conf_Interval = false;
+			roughness_Model.vertical_Cor_Length.confidence.min = roughness_Model.vertical_Cor_Length.fit.min;
+			roughness_Model.vertical_Cor_Length.confidence.max = roughness_Model.vertical_Cor_Length.fit.max;
+			roughness_Model.vertical_Cor_Length.confidence.num_Points = default_num_confidence_points;
+		}
+		// particle volume omega
+		{
+			roughness_Model.omega.value = 20;
+			roughness_Model.omega.fit.is_Fitable = false;
+			roughness_Model.omega.fit.min = 5;
+			roughness_Model.omega.fit.max = 100;
+			roughness_Model.omega.indicator.whats_This = whats_This_Linear_PSD_Omega;
+			roughness_Model.omega.indicator.item_Id = id;
+
+			roughness_Model.omega.confidence.calc_Conf_Interval = false;
+			roughness_Model.omega.confidence.min = roughness_Model.omega.fit.min;
+			roughness_Model.omega.confidence.max = roughness_Model.omega.fit.max;
+			roughness_Model.omega.confidence.num_Points = default_num_confidence_points;
+		}
+		// factor in growth exponent (depends on alpha?)
+		{
+			roughness_Model.mu.value = 20;
+			roughness_Model.mu.fit.is_Fitable = false;
+			roughness_Model.mu.fit.min = 5;
+			roughness_Model.mu.fit.max = 100;
+			roughness_Model.mu.indicator.whats_This = whats_This_Linear_PSD_Exponenta_Mu;
+			roughness_Model.mu.indicator.item_Id = id;
+
+			roughness_Model.mu.confidence.calc_Conf_Interval = false;
+			roughness_Model.mu.confidence.min = roughness_Model.mu.fit.min;
+			roughness_Model.mu.confidence.max = roughness_Model.mu.fit.max;
+			roughness_Model.mu.confidence.num_Points = default_num_confidence_points;
 		}
 	}
 
@@ -352,72 +444,72 @@ Data::Data(QString item_Type_Passed)
 		}
 		// sigma drift
 		{
-			sigma_Drift.is_Drift_Line = false;
-			sigma_Drift.is_Drift_Sine = false;
-			sigma_Drift.is_Drift_Rand = false;
+			sigma_Diffuse_Drift.is_Drift_Line = false;
+			sigma_Diffuse_Drift.is_Drift_Sine = false;
+			sigma_Diffuse_Drift.is_Drift_Rand = false;
 
-			sigma_Drift.show_Drift_Line = false;
-			sigma_Drift.show_Drift_Rand = false;
-			sigma_Drift.show_Drift_Sine = false;
+			sigma_Diffuse_Drift.show_Drift_Line = false;
+			sigma_Diffuse_Drift.show_Drift_Rand = false;
+			sigma_Diffuse_Drift.show_Drift_Sine = false;
 			{
-				sigma_Drift.drift_Line_Value.value = 0;
-				sigma_Drift.drift_Line_Value.fit.min = -thickness_Drift.drift_Line_Value.value*2;
-				sigma_Drift.drift_Line_Value.fit.max =  thickness_Drift.drift_Line_Value.value*2;
-				sigma_Drift.drift_Line_Value.indicator.whats_This = whats_This_Sigma_Drift_Line_Value;
-				sigma_Drift.drift_Line_Value.indicator.item_Id = id;
+				sigma_Diffuse_Drift.drift_Line_Value.value = 0;
+				sigma_Diffuse_Drift.drift_Line_Value.fit.min = -thickness_Drift.drift_Line_Value.value*2;
+				sigma_Diffuse_Drift.drift_Line_Value.fit.max =  thickness_Drift.drift_Line_Value.value*2;
+				sigma_Diffuse_Drift.drift_Line_Value.indicator.whats_This = whats_This_Sigma_Drift_Line_Value;
+				sigma_Diffuse_Drift.drift_Line_Value.indicator.item_Id = id;
 
-				sigma_Drift.drift_Line_Value.confidence.calc_Conf_Interval = false;
-				sigma_Drift.drift_Line_Value.confidence.min = sigma_Drift.drift_Line_Value.fit.min;
-				sigma_Drift.drift_Line_Value.confidence.max = sigma_Drift.drift_Line_Value.fit.max;
-				sigma_Drift.drift_Line_Value.confidence.num_Points = default_num_confidence_points;
+				sigma_Diffuse_Drift.drift_Line_Value.confidence.calc_Conf_Interval = false;
+				sigma_Diffuse_Drift.drift_Line_Value.confidence.min = sigma_Diffuse_Drift.drift_Line_Value.fit.min;
+				sigma_Diffuse_Drift.drift_Line_Value.confidence.max = sigma_Diffuse_Drift.drift_Line_Value.fit.max;
+				sigma_Diffuse_Drift.drift_Line_Value.confidence.num_Points = default_num_confidence_points;
 			}
 			{
-				sigma_Drift.drift_Rand_Rms.value = 0;
-				sigma_Drift.drift_Rand_Rms.fit.min = 0;
-				sigma_Drift.drift_Rand_Rms.fit.max = thickness_Drift.drift_Rand_Rms.value*2;
-				sigma_Drift.drift_Rand_Rms.indicator.whats_This = whats_This_Sigma_Drift_Rand_Rms;
-				sigma_Drift.drift_Rand_Rms.indicator.item_Id = id;
+				sigma_Diffuse_Drift.drift_Rand_Rms.value = 0;
+				sigma_Diffuse_Drift.drift_Rand_Rms.fit.min = 0;
+				sigma_Diffuse_Drift.drift_Rand_Rms.fit.max = thickness_Drift.drift_Rand_Rms.value*2;
+				sigma_Diffuse_Drift.drift_Rand_Rms.indicator.whats_This = whats_This_Sigma_Drift_Rand_Rms;
+				sigma_Diffuse_Drift.drift_Rand_Rms.indicator.item_Id = id;
 
-				sigma_Drift.drift_Rand_Rms.confidence.calc_Conf_Interval = false;
-				sigma_Drift.drift_Rand_Rms.confidence.min = sigma_Drift.drift_Rand_Rms.fit.min;
-				sigma_Drift.drift_Rand_Rms.confidence.max = sigma_Drift.drift_Rand_Rms.fit.max;
-				sigma_Drift.drift_Rand_Rms.confidence.num_Points = default_num_confidence_points;
+				sigma_Diffuse_Drift.drift_Rand_Rms.confidence.calc_Conf_Interval = false;
+				sigma_Diffuse_Drift.drift_Rand_Rms.confidence.min = sigma_Diffuse_Drift.drift_Rand_Rms.fit.min;
+				sigma_Diffuse_Drift.drift_Rand_Rms.confidence.max = sigma_Diffuse_Drift.drift_Rand_Rms.fit.max;
+				sigma_Diffuse_Drift.drift_Rand_Rms.confidence.num_Points = default_num_confidence_points;
 			}
 			{
-				sigma_Drift.drift_Sine_Amplitude.value = 0;
-				sigma_Drift.drift_Sine_Amplitude.fit.min = 0;
-				sigma_Drift.drift_Sine_Amplitude.fit.max = thickness_Drift.drift_Sine_Amplitude.value*2;
-				sigma_Drift.drift_Sine_Amplitude.indicator.whats_This = whats_This_Sigma_Drift_Sine_Amplitude;
-				sigma_Drift.drift_Sine_Amplitude.indicator.item_Id = id;
+				sigma_Diffuse_Drift.drift_Sine_Amplitude.value = 0;
+				sigma_Diffuse_Drift.drift_Sine_Amplitude.fit.min = 0;
+				sigma_Diffuse_Drift.drift_Sine_Amplitude.fit.max = thickness_Drift.drift_Sine_Amplitude.value*2;
+				sigma_Diffuse_Drift.drift_Sine_Amplitude.indicator.whats_This = whats_This_Sigma_Drift_Sine_Amplitude;
+				sigma_Diffuse_Drift.drift_Sine_Amplitude.indicator.item_Id = id;
 
-				sigma_Drift.drift_Sine_Amplitude.confidence.calc_Conf_Interval = false;
-				sigma_Drift.drift_Sine_Amplitude.confidence.min = sigma_Drift.drift_Sine_Amplitude.fit.min;
-				sigma_Drift.drift_Sine_Amplitude.confidence.max = sigma_Drift.drift_Sine_Amplitude.fit.max;
-				sigma_Drift.drift_Sine_Amplitude.confidence.num_Points = default_num_confidence_points;
+				sigma_Diffuse_Drift.drift_Sine_Amplitude.confidence.calc_Conf_Interval = false;
+				sigma_Diffuse_Drift.drift_Sine_Amplitude.confidence.min = sigma_Diffuse_Drift.drift_Sine_Amplitude.fit.min;
+				sigma_Diffuse_Drift.drift_Sine_Amplitude.confidence.max = sigma_Diffuse_Drift.drift_Sine_Amplitude.fit.max;
+				sigma_Diffuse_Drift.drift_Sine_Amplitude.confidence.num_Points = default_num_confidence_points;
 			}
 			{
-				sigma_Drift.drift_Sine_Frequency.value = 0.333333333333333333333;
-				sigma_Drift.drift_Sine_Frequency.fit.min = thickness_Drift.drift_Sine_Frequency.value*(1-dispersion);
-				sigma_Drift.drift_Sine_Frequency.fit.max = thickness_Drift.drift_Sine_Frequency.value*(1+dispersion);
-				sigma_Drift.drift_Sine_Frequency.indicator.whats_This = whats_This_Sigma_Drift_Sine_Frequency;
-				sigma_Drift.drift_Sine_Frequency.indicator.item_Id = id;
+				sigma_Diffuse_Drift.drift_Sine_Frequency.value = 0.333333333333333333333;
+				sigma_Diffuse_Drift.drift_Sine_Frequency.fit.min = thickness_Drift.drift_Sine_Frequency.value*(1-dispersion);
+				sigma_Diffuse_Drift.drift_Sine_Frequency.fit.max = thickness_Drift.drift_Sine_Frequency.value*(1+dispersion);
+				sigma_Diffuse_Drift.drift_Sine_Frequency.indicator.whats_This = whats_This_Sigma_Drift_Sine_Frequency;
+				sigma_Diffuse_Drift.drift_Sine_Frequency.indicator.item_Id = id;
 
-				sigma_Drift.drift_Sine_Frequency.confidence.calc_Conf_Interval = false;
-				sigma_Drift.drift_Sine_Frequency.confidence.min = sigma_Drift.drift_Sine_Frequency.fit.min;
-				sigma_Drift.drift_Sine_Frequency.confidence.max = sigma_Drift.drift_Sine_Frequency.fit.max;
-				sigma_Drift.drift_Sine_Frequency.confidence.num_Points = default_num_confidence_points;
+				sigma_Diffuse_Drift.drift_Sine_Frequency.confidence.calc_Conf_Interval = false;
+				sigma_Diffuse_Drift.drift_Sine_Frequency.confidence.min = sigma_Diffuse_Drift.drift_Sine_Frequency.fit.min;
+				sigma_Diffuse_Drift.drift_Sine_Frequency.confidence.max = sigma_Diffuse_Drift.drift_Sine_Frequency.fit.max;
+				sigma_Diffuse_Drift.drift_Sine_Frequency.confidence.num_Points = default_num_confidence_points;
 			}
 			{
-				sigma_Drift.drift_Sine_Phase.value = 0;
-				sigma_Drift.drift_Sine_Phase.fit.min = 0;
-				sigma_Drift.drift_Sine_Phase.fit.max = 1;
-				sigma_Drift.drift_Sine_Phase.indicator.whats_This = whats_This_Sigma_Drift_Sine_Phase;
-				sigma_Drift.drift_Sine_Phase.indicator.item_Id = id;
+				sigma_Diffuse_Drift.drift_Sine_Phase.value = 0;
+				sigma_Diffuse_Drift.drift_Sine_Phase.fit.min = 0;
+				sigma_Diffuse_Drift.drift_Sine_Phase.fit.max = 1;
+				sigma_Diffuse_Drift.drift_Sine_Phase.indicator.whats_This = whats_This_Sigma_Drift_Sine_Phase;
+				sigma_Diffuse_Drift.drift_Sine_Phase.indicator.item_Id = id;
 
-				sigma_Drift.drift_Sine_Phase.confidence.calc_Conf_Interval = false;
-				sigma_Drift.drift_Sine_Phase.confidence.min = sigma_Drift.drift_Sine_Phase.fit.min;
-				sigma_Drift.drift_Sine_Phase.confidence.max = sigma_Drift.drift_Sine_Phase.fit.max;
-				sigma_Drift.drift_Sine_Phase.confidence.num_Points = default_num_confidence_points;
+				sigma_Diffuse_Drift.drift_Sine_Phase.confidence.calc_Conf_Interval = false;
+				sigma_Diffuse_Drift.drift_Sine_Phase.confidence.min = sigma_Diffuse_Drift.drift_Sine_Phase.fit.min;
+				sigma_Diffuse_Drift.drift_Sine_Phase.confidence.max = sigma_Diffuse_Drift.drift_Sine_Phase.fit.max;
+				sigma_Diffuse_Drift.drift_Sine_Phase.confidence.num_Points = default_num_confidence_points;
 			}
 		}
 	}
@@ -502,12 +594,19 @@ void Data::reset_All_IDs()
 	///---------------------------------------------
 	// Layer, Substrate
 	//---------------------------------------------
-		sigma.indicator.id = Global_Definitions::generate_Id(); sigma.indicator.item_Id = id;				sigma.coupled.clear_Coupled();
+		sigma_Diffuse.indicator.id = Global_Definitions::generate_Id();			sigma_Diffuse.indicator.item_Id = id;			sigma_Diffuse.coupled.clear_Coupled();
 		for(Interlayer& inter : interlayer_Composition)
 		{
 			inter.interlayer.indicator.id = Global_Definitions::generate_Id(); inter.interlayer	.indicator.item_Id = id;	inter.interlayer.coupled.clear_Coupled();
-			inter.my_Sigma	.indicator.id = Global_Definitions::generate_Id(); inter.my_Sigma	.indicator.item_Id = id;	inter.my_Sigma.	 coupled.clear_Coupled();
+			inter.my_Sigma_Diffuse	.indicator.id = Global_Definitions::generate_Id(); inter.my_Sigma_Diffuse	.indicator.item_Id = id;	inter.my_Sigma_Diffuse.	 coupled.clear_Coupled();
 		}
+
+		roughness_Model.sigma			   .indicator.id = Global_Definitions::generate_Id(); roughness_Model.sigma.			  indicator.item_Id = id;	roughness_Model.sigma.				coupled.clear_Coupled();
+		roughness_Model.cor_radius		   .indicator.id = Global_Definitions::generate_Id(); roughness_Model.cor_radius.		  indicator.item_Id = id;	roughness_Model.cor_radius.			coupled.clear_Coupled();
+		roughness_Model.fractal_alpha	   .indicator.id = Global_Definitions::generate_Id(); roughness_Model.fractal_alpha.	  indicator.item_Id = id;	roughness_Model.fractal_alpha.		coupled.clear_Coupled();
+		roughness_Model.vertical_Cor_Length.indicator.id = Global_Definitions::generate_Id(); roughness_Model.vertical_Cor_Length.indicator.item_Id = id;	roughness_Model.vertical_Cor_Length.coupled.clear_Coupled();
+		roughness_Model.omega			   .indicator.id = Global_Definitions::generate_Id(); roughness_Model.omega.			  indicator.item_Id = id;	roughness_Model.omega.				coupled.clear_Coupled();
+		roughness_Model.mu				   .indicator.id = Global_Definitions::generate_Id(); roughness_Model.mu.				  indicator.item_Id = id;	roughness_Model.mu.					coupled.clear_Coupled();
 	///---------------------------------------------
 	///---------------------------------------------
 	// Layer
@@ -522,11 +621,11 @@ void Data::reset_All_IDs()
 		thickness_Drift.drift_Sine_Phase	.indicator.id = Global_Definitions::generate_Id(); thickness_Drift.drift_Sine_Phase		.indicator.item_Id = id;	thickness_Drift.drift_Sine_Phase.		coupled.clear_Coupled();
 
 		// sigma drift
-		sigma_Drift.drift_Line_Value		.indicator.id = Global_Definitions::generate_Id(); sigma_Drift.drift_Line_Value		.indicator.item_Id = id;		sigma_Drift.drift_Line_Value	.coupled.clear_Coupled();
-		sigma_Drift.drift_Rand_Rms			.indicator.id = Global_Definitions::generate_Id(); sigma_Drift.drift_Rand_Rms		.indicator.item_Id = id;		sigma_Drift.drift_Rand_Rms		.coupled.clear_Coupled();
-		sigma_Drift.drift_Sine_Amplitude	.indicator.id = Global_Definitions::generate_Id(); sigma_Drift.drift_Sine_Amplitude	.indicator.item_Id = id;		sigma_Drift.drift_Sine_Amplitude.coupled.clear_Coupled();
-		sigma_Drift.drift_Sine_Frequency	.indicator.id = Global_Definitions::generate_Id(); sigma_Drift.drift_Sine_Frequency	.indicator.item_Id = id;		sigma_Drift.drift_Sine_Frequency.coupled.clear_Coupled();
-		sigma_Drift.drift_Sine_Phase		.indicator.id = Global_Definitions::generate_Id(); sigma_Drift.drift_Sine_Phase		.indicator.item_Id = id;		sigma_Drift.drift_Sine_Phase	.coupled.clear_Coupled();
+		sigma_Diffuse_Drift.drift_Line_Value		.indicator.id = Global_Definitions::generate_Id(); sigma_Diffuse_Drift.drift_Line_Value		.indicator.item_Id = id;		sigma_Diffuse_Drift.drift_Line_Value	.coupled.clear_Coupled();
+		sigma_Diffuse_Drift.drift_Rand_Rms			.indicator.id = Global_Definitions::generate_Id(); sigma_Diffuse_Drift.drift_Rand_Rms		.indicator.item_Id = id;		sigma_Diffuse_Drift.drift_Rand_Rms		.coupled.clear_Coupled();
+		sigma_Diffuse_Drift.drift_Sine_Amplitude	.indicator.id = Global_Definitions::generate_Id(); sigma_Diffuse_Drift.drift_Sine_Amplitude	.indicator.item_Id = id;		sigma_Diffuse_Drift.drift_Sine_Amplitude.coupled.clear_Coupled();
+		sigma_Diffuse_Drift.drift_Sine_Frequency	.indicator.id = Global_Definitions::generate_Id(); sigma_Diffuse_Drift.drift_Sine_Frequency	.indicator.item_Id = id;		sigma_Diffuse_Drift.drift_Sine_Frequency.coupled.clear_Coupled();
+		sigma_Diffuse_Drift.drift_Sine_Phase		.indicator.id = Global_Definitions::generate_Id(); sigma_Diffuse_Drift.drift_Sine_Phase		.indicator.item_Id = id;		sigma_Diffuse_Drift.drift_Sine_Phase	.coupled.clear_Coupled();
 	///---------------------------------------------
 	///---------------------------------------------
 	// Multilayer, Aperiodic
@@ -757,13 +856,28 @@ void Data::fill_Potentially_Fitable_Parameters_Vector()
 				++enabled_Counter;
 				potentially_Fitable_Parameters.push_back(&interlayer.interlayer);
 
-				if(!common_Sigma)
-					potentially_Fitable_Parameters.push_back(&interlayer.my_Sigma);
+				if(!common_Sigma_Diffuse)
+					potentially_Fitable_Parameters.push_back(&interlayer.my_Sigma_Diffuse);
 			}
 		}
 
-		if(common_Sigma && enabled_Counter>0)
-		{	potentially_Fitable_Parameters.push_back(&sigma); }
+		if(common_Sigma_Diffuse && enabled_Counter>0)
+		{	potentially_Fitable_Parameters.push_back(&sigma_Diffuse); }
+
+		// in some cases extra parameters can be loaded as fitable
+		if(roughness_Model.is_Enabled)
+		{
+			potentially_Fitable_Parameters.push_back(&roughness_Model.sigma);
+			potentially_Fitable_Parameters.push_back(&roughness_Model.cor_radius);
+			potentially_Fitable_Parameters.push_back(&roughness_Model.fractal_alpha);
+			potentially_Fitable_Parameters.push_back(&roughness_Model.vertical_Cor_Length);
+			potentially_Fitable_Parameters.push_back(&roughness_Model.mu);
+
+			if( roughness_Model.model == linear_model_PSD )
+			{
+				potentially_Fitable_Parameters.push_back(&roughness_Model.omega);
+			}
+		}
 	}
 	///---------------------------------------------
 	///---------------------------------------------
@@ -788,18 +902,18 @@ void Data::fill_Potentially_Fitable_Parameters_Vector()
 			potentially_Fitable_Parameters.push_back(&thickness_Drift.drift_Rand_Rms);
 
 		// sigma drift
-		if(sigma_Drift.is_Drift_Line)
-			potentially_Fitable_Parameters.push_back(&sigma_Drift.drift_Line_Value);
+		if(sigma_Diffuse_Drift.is_Drift_Line)
+			potentially_Fitable_Parameters.push_back(&sigma_Diffuse_Drift.drift_Line_Value);
 
-		if(sigma_Drift.is_Drift_Sine)
+		if(sigma_Diffuse_Drift.is_Drift_Sine)
 		{
-			potentially_Fitable_Parameters.push_back(&sigma_Drift.drift_Sine_Amplitude);
-			potentially_Fitable_Parameters.push_back(&sigma_Drift.drift_Sine_Frequency);
-			potentially_Fitable_Parameters.push_back(&sigma_Drift.drift_Sine_Phase);
+			potentially_Fitable_Parameters.push_back(&sigma_Diffuse_Drift.drift_Sine_Amplitude);
+			potentially_Fitable_Parameters.push_back(&sigma_Diffuse_Drift.drift_Sine_Frequency);
+			potentially_Fitable_Parameters.push_back(&sigma_Diffuse_Drift.drift_Sine_Phase);
 		}
 
-		if(sigma_Drift.is_Drift_Rand)
-		{	potentially_Fitable_Parameters.push_back(&sigma_Drift.drift_Rand_Rms); }
+		if(sigma_Diffuse_Drift.is_Drift_Rand)
+		{	potentially_Fitable_Parameters.push_back(&sigma_Diffuse_Drift.drift_Rand_Rms); }
 	}
 
 	///---------------------------------------------
@@ -825,7 +939,7 @@ void Data::fill_Potentially_Fitable_Parameters_Vector()
 			{
 				Data& regular_Data = regular_Components[i].components[n];
 				if(!regular_Components[i].is_Common_Thickness) {potentially_Fitable_Parameters.push_back(&regular_Data.thickness);}
-				if(!regular_Components[i].is_Common_Sigma)	   {potentially_Fitable_Parameters.push_back(&regular_Data.sigma);}
+				if(!regular_Components[i].is_Common_Sigma)	   {potentially_Fitable_Parameters.push_back(&regular_Data.sigma_Diffuse);}
 			}
 		}
 	}
@@ -852,13 +966,22 @@ void Data::prepare_Layer_For_Regular_Component()
 ///---------------------------------------------
 // Layer, Substrate
 //---------------------------------------------
-	common_Sigma = true;
-	make_Free(sigma);
+	common_Sigma_Diffuse = true;
+	make_Free(sigma_Diffuse);
 
-	for(Interlayer& inter : interlayer_Composition)	{
+	for(Interlayer& inter : interlayer_Composition)
+	{
 		make_Free(inter.interlayer);
-		make_Free(inter.my_Sigma);
+		make_Free(inter.my_Sigma_Diffuse);
 	}
+
+	make_Free(roughness_Model.sigma);
+	make_Free(roughness_Model.cor_radius);
+	make_Free(roughness_Model.fractal_alpha);
+	make_Free(roughness_Model.vertical_Cor_Length);
+	make_Free(roughness_Model.omega);
+	make_Free(roughness_Model.mu);
+
 ///---------------------------------------------
 ///---------------------------------------------
 // Layer
@@ -872,11 +995,11 @@ void Data::prepare_Layer_For_Regular_Component()
 	make_Free(thickness_Drift.drift_Sine_Phase);
 	make_Free(thickness_Drift.drift_Rand_Rms);
 
-	make_Free(sigma_Drift.drift_Line_Value);
-	make_Free(sigma_Drift.drift_Sine_Amplitude);
-	make_Free(sigma_Drift.drift_Sine_Frequency);
-	make_Free(sigma_Drift.drift_Sine_Phase);
-	make_Free(sigma_Drift.drift_Rand_Rms);
+	make_Free(sigma_Diffuse_Drift.drift_Line_Value);
+	make_Free(sigma_Diffuse_Drift.drift_Sine_Amplitude);
+	make_Free(sigma_Diffuse_Drift.drift_Sine_Frequency);
+	make_Free(sigma_Diffuse_Drift.drift_Sine_Phase);
+	make_Free(sigma_Diffuse_Drift.drift_Rand_Rms);
 ///---------------------------------------------
 ///---------------------------------------------
 // Multilayer, Aperiodic
@@ -941,9 +1064,10 @@ QDataStream& operator <<( QDataStream& stream, const Data& data )
 				<< data.composed_Material << data.material << data.approved_Material << data.absolute_Density << data.relative_Density
 				<< data.separate_Optical_Constants << data.permittivity << data.absorption << data.composition
 			// Layer, Substrate
-				<< data.use_PSD << data.common_Sigma << data.sigma << data.interlayer_Composition
+				<< data.common_Sigma_Diffuse << data.sigma_Diffuse << data.interlayer_Composition
+				<< data.roughness_Model
 			// Layer
-				<< data.layer_Index << data.has_Parent << data.thickness << data.thickness_Drift << data.sigma_Drift
+				<< data.layer_Index << data.has_Parent << data.thickness << data.thickness_Drift << data.sigma_Diffuse_Drift
 			// Multilayer
 				<< data.first_Layer_Index << data.last_Layer_Index << data.num_Repetition << data.period << data.gamma
 			// Layer, Multilayer, Aperiodic
@@ -1017,11 +1141,19 @@ QDataStream& operator >>( QDataStream& stream,		 Data& data )
 	}
 			// Ambient, Layer, Substrate
 		stream	>> data.composed_Material >> data.material >> data.approved_Material >> data.absolute_Density >> data.relative_Density
-				>> data.separate_Optical_Constants >> data.permittivity >> data.absorption >> data.composition
+				>> data.separate_Optical_Constants >> data.permittivity >> data.absorption >> data.composition;
 			// Layer, Substrate
-				>> data.use_PSD >> data.common_Sigma >> data.sigma >> data.interlayer_Composition
+		if(!Global_Variables::check_Loaded_Version(1,11,0))
+		{
+			bool use_PSD;
+			stream >> use_PSD;
+		}
+		stream >> data.common_Sigma_Diffuse >> data.sigma_Diffuse >> data.interlayer_Composition;
+		if(Global_Variables::check_Loaded_Version(1,11,0))
+		{stream >> data.roughness_Model;}
+
 			// Layer
-				>> data.layer_Index >> data.has_Parent >> data.thickness >> data.thickness_Drift >> data.sigma_Drift
+		stream  >> data.layer_Index >> data.has_Parent >> data.thickness >> data.thickness_Drift >> data.sigma_Diffuse_Drift
 			// Multilayer
 				>> data.first_Layer_Index >> data.last_Layer_Index >> data.num_Repetition >> data.period >> data.gamma;
 

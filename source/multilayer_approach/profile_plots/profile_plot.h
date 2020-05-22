@@ -44,7 +44,7 @@ public:
 
 		QGroupBox* line_Type_GroupBox;
 			QCheckBox* use_Roughness_CheckBox;
-			QCheckBox* use_Diffusiness_CheckBox;
+			QCheckBox* use_Diffuseness_CheckBox;
 			QCheckBox* show_Sharp_CheckBox;
 			QCheckBox* discretization_CheckBox;
 			QCheckBox* cursor_Cordinate_CheckBox;
