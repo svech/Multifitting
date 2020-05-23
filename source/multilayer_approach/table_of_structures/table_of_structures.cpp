@@ -507,7 +507,6 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 		bool steps_Are_Done_Alpha = false;
 		bool steps_Are_Done_Mu = false;
 		bool steps_Are_Done_Omega = false;
-		bool steps_Are_Done_Mu_1 = false;
 
 		while (*it)
 		{
@@ -991,12 +990,21 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 			}
 
 			// sigma roughness
-			if( struct_Data.item_Type == item_Type_Layer || struct_Data.item_Type == item_Type_Substrate )
-			if(	struct_Data.roughness_Model.is_Enabled &&
-				(struct_Data.roughness_Model.model == ABC_model_PSD ||
-				 struct_Data.roughness_Model.model == ABC_model_Cor ||
-				 struct_Data.roughness_Model.model == gauss_model_Cor ||
-				 (struct_Data.roughness_Model.model == linear_model_PSD && struct_Data.item_Type == item_Type_Substrate)))
+			bool show_Sigma = false;
+			if(	struct_Data.roughness_Model.is_Enabled )
+			{
+				if(struct_Data.item_Type == item_Type_Substrate) {show_Sigma = true;}
+				if( struct_Data.item_Type == item_Type_Layer)
+				{
+					if((struct_Data.roughness_Model.model == ABC_model ||
+						struct_Data.roughness_Model.model == fractal_Gauss_Model) &&
+						multilayer->imperfections_Model.use_Common_Roughness_Function == false)
+					{
+						show_Sigma = true;
+					}
+				}
+			}
+			if(show_Sigma)
 			{
 				QString whats_This = whats_This_Sigma_Roughness;
 				add_Columns			(new_Table, current_Column+1);
@@ -1009,7 +1017,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 
 				// sigma roughness step
 				if(!steps_Are_Done_Sigma)
-				if(struct_Data.roughness_Model.model != linear_model_PSD)
+				if(struct_Data.roughness_Model.model != linear_Growth_Model)
 				{
 					create_Simple_Label	(new_Table,	tab_Index, steps_Row,   current_Column, whats_This, Sigma_Sym+" ["+length_units+"]");
 					create_Step_Spin_Box(new_Table, tab_Index, steps_Row+1, current_Column, whats_This);
@@ -1021,12 +1029,21 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 			///--------------------------------------------------------------------------------------------
 
 			// correlation radius
-			if( struct_Data.item_Type == item_Type_Layer || struct_Data.item_Type == item_Type_Substrate )
-			if(	struct_Data.roughness_Model.is_Enabled &&
-				(struct_Data.roughness_Model.model == ABC_model_PSD ||
-				 struct_Data.roughness_Model.model == ABC_model_Cor ||
-				 struct_Data.roughness_Model.model == gauss_model_Cor ||
-				 (struct_Data.roughness_Model.model == linear_model_PSD && struct_Data.item_Type == item_Type_Substrate)))
+			bool show_Cor_Radius = false;
+			if(	struct_Data.roughness_Model.is_Enabled )
+			{
+				if(struct_Data.item_Type == item_Type_Substrate) {show_Cor_Radius = true;}
+				if( struct_Data.item_Type == item_Type_Layer)
+				{
+					if((struct_Data.roughness_Model.model == ABC_model ||
+						struct_Data.roughness_Model.model == fractal_Gauss_Model) &&
+						multilayer->imperfections_Model.use_Common_Roughness_Function == false)
+					{
+						show_Cor_Radius = true;
+					}
+				}
+			}
+			if(show_Cor_Radius)
 			{
 				QString whats_This = whats_This_Correlation_Radius;
 				add_Columns			(new_Table, current_Column+1);
@@ -1039,7 +1056,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 
 				// correlation radius step
 				if(!steps_Are_Done_Xi)
-				if(struct_Data.roughness_Model.model != linear_model_PSD)
+				if(struct_Data.roughness_Model.model != linear_Growth_Model)
 				{
 					create_Simple_Label	(new_Table,	tab_Index, steps_Row,   current_Column, whats_This, Xi_Sym+" ["+length_units+"]");
 					create_Step_Spin_Box(new_Table, tab_Index, steps_Row+1, current_Column, whats_This);
@@ -1050,9 +1067,18 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 			///--------------------------------------------------------------------------------------------
 
 			// omega
-			if( struct_Data.item_Type == item_Type_Layer || struct_Data.item_Type == item_Type_Substrate )
-			if(	struct_Data.roughness_Model.is_Enabled &&
-				struct_Data.roughness_Model.model == linear_model_PSD && struct_Data.item_Type != item_Type_Substrate)
+			bool show_Omega = false;
+			if(	struct_Data.roughness_Model.is_Enabled )
+			{
+				if( struct_Data.item_Type == item_Type_Layer)
+				{
+					if(struct_Data.roughness_Model.model == linear_Growth_Model)
+					{
+						show_Omega = true;
+					}
+				}
+			}
+			if(show_Omega)
 			{
 				QString whats_This = whats_This_Linear_PSD_Omega;
 				add_Columns			(new_Table, current_Column+1);
@@ -1075,10 +1101,20 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 			///--------------------------------------------------------------------------------------------
 
 			// mu
-			if( struct_Data.item_Type == item_Type_Layer || struct_Data.item_Type == item_Type_Substrate )
-			if(	struct_Data.roughness_Model.is_Enabled &&
-				struct_Data.roughness_Model.model == linear_model_PSD && struct_Data.item_Type != item_Type_Substrate)
+			bool show_Mu = false;
+			if(	struct_Data.roughness_Model.is_Enabled )
 			{
+				if( struct_Data.item_Type == item_Type_Layer)
+				{
+					if(multilayer->imperfections_Model.vertical_Correlation == partial_Correlation)
+					{
+						show_Mu = true;
+					}
+				}
+			}
+			if(show_Mu)
+			{
+				if(struct_Data.roughness_Model.model != linear_Growth_Model) current_Column+=1;
 				QString whats_This = whats_This_Linear_PSD_Exponenta_Mu;
 				add_Columns			(new_Table, current_Column+1);
 				create_Label		(new_Table, tab_Index, current_Row,   current_Column, structure_Item, whats_This, Mu_Sym+" ["+length_units+"]");
@@ -1100,12 +1136,20 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 			///--------------------------------------------------------------------------------------------
 
 			// fractal alpha
-			if( struct_Data.item_Type == item_Type_Layer || struct_Data.item_Type == item_Type_Substrate )
-			if(	struct_Data.roughness_Model.is_Enabled &&
-				(struct_Data.roughness_Model.model == ABC_model_PSD ||
-				 struct_Data.roughness_Model.model == ABC_model_Cor ||
-				 struct_Data.roughness_Model.model == gauss_model_Cor ||
-				 struct_Data.roughness_Model.model == linear_model_PSD))
+			bool show_Alpha = false;
+			if(	struct_Data.roughness_Model.is_Enabled )
+			{
+				if( struct_Data.item_Type == item_Type_Substrate) {show_Alpha = true;}
+				if( struct_Data.item_Type == item_Type_Layer)
+				{
+					if(	struct_Data.roughness_Model.model == linear_Growth_Model ||
+						multilayer->imperfections_Model.use_Common_Roughness_Function == false)
+					{
+						show_Alpha = true;
+					}
+				}
+			}
+			if(show_Alpha)
 			{
 				QString whats_This = whats_This_Fractal_Alpha;
 				add_Columns			(new_Table, current_Column+1);
@@ -1128,32 +1172,6 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 			}
 			///--------------------------------------------------------------------------------------------
 
-			// mu AGAIN
-			if( struct_Data.item_Type == item_Type_Layer )
-			if(	struct_Data.roughness_Model.is_Enabled &&
-				struct_Data.roughness_Model.model == ABC_model_PSD && multilayer->imperfections_Model.vertical_Correlation == partial_Correlation)
-			{
-				QString whats_This = whats_This_Linear_PSD_Exponenta_Mu;
-				add_Columns			(new_Table, current_Column+1);
-				create_Label		(new_Table, tab_Index, current_Row,   current_Column, structure_Item, whats_This, Mu_Sym+" ["+length_units+"]");
-				create_Line_Edit	(new_Table, tab_Index, current_Row+1, current_Column, structure_Item, whats_This, VAL);
-				create_Line_Edit	(new_Table, tab_Index, current_Row+3, current_Column, structure_Item, whats_This, MIN);
-				create_Line_Edit	(new_Table, tab_Index, current_Row+4, current_Column, structure_Item, whats_This, MAX);
-				// last
-				create_Check_Box_Fit(new_Table, tab_Index, current_Row+2, current_Column, structure_Item, whats_This, 1, 2, 0, 0);
-
-				// mu step
-				if(!steps_Are_Done_Mu_1)
-				{
-					create_Simple_Label	(new_Table,	tab_Index, steps_Row,   current_Column, whats_This, Mu_Sym+" ["+length_units+"]");
-					create_Step_Spin_Box(new_Table, tab_Index, steps_Row+1, current_Column, whats_This);
-					steps_Are_Done_Mu_1 = true;
-				}
-				last_Roughness_Column = max(current_Column,last_Roughness_Column);
-				current_Column+=2;
-			}
-			///--------------------------------------------------------------------------------------------
-
 			rows_List_To_Span.append(current_Row-1);
 			++it;
 		}
@@ -1161,24 +1179,18 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 		// big label about roughness model
 		if(multilayer->imperfections_Model.use_Roughness)
 		{
-			QWidget* w = new QWidget;
-			QVBoxLayout* lw = new QVBoxLayout(w);
-				lw->setContentsMargins(0,0,0,0);
-			QLabel* text_Label_1 = new QLabel(multilayer->imperfections_Model.common_Model);
-				text_Label_1->setAlignment(Qt::AlignCenter);
-				text_Label_1->setFont(QFont(text_Label_1->font().family(), 10, QFont::Bold));
-			lw->addWidget(text_Label_1);
-			QLabel* text_Label_2 = new QLabel(multilayer->imperfections_Model.vertical_Correlation);
-				text_Label_2->setAlignment(Qt::AlignCenter);
-				text_Label_2->setFont(QFont(text_Label_2->font().family(), 10, QFont::Bold));
-			lw->addWidget(text_Label_2);
-			new_Table->setSpan(1,first_Roughness_Column,3,last_Roughness_Column-first_Roughness_Column+1);
-			new_Table->setCellWidget(1, first_Roughness_Column, text_Label_1);
-//			new_Table->setSpan(3,first_Roughness_Column,1,last_Roughness_Column-first_Roughness_Column+1);
-//			new_Table->setCellWidget(3, first_Roughness_Column, text_Label_2);
+			QLabel* model_Label = new QLabel(multilayer->imperfections_Model.common_Model);
+				model_Label->setAlignment(Qt::AlignCenter);
+				model_Label->setFont(QFont(model_Label->font().family(), 10, QFont::Bold));
+			new_Table->setSpan(1,first_Roughness_Column,2,last_Roughness_Column-first_Roughness_Column+1);
+			new_Table->setCellWidget(1, first_Roughness_Column, model_Label);
+
+			QLabel* ver_Cor_Label = new QLabel(multilayer->imperfections_Model.vertical_Correlation);
+				ver_Cor_Label->setAlignment(Qt::AlignCenter);
+				ver_Cor_Label->setFont(QFont(ver_Cor_Label->font().family(), 10, QFont::Bold));
+			new_Table->setSpan(3,first_Roughness_Column,1,last_Roughness_Column-first_Roughness_Column+1);
+			new_Table->setCellWidget(3, first_Roughness_Column, ver_Cor_Label);
 		}
-
-
 
 //		new_Table->insertRow(new_Table->rowCount());
 		rows_List_To_Span.append(new_Table->rowCount()-1);
@@ -1324,7 +1336,6 @@ Parameter& Table_Of_Structures::get_Parameter(Data& struct_Data, QString whats_T
 	if(whats_This == whats_This_Sigma_Roughness)			{precision = line_edit_sigma_precision;					coeff = length_Coefficients_Map.value(length_units);	return struct_Data.roughness_Model.sigma;				}
 	if(whats_This == whats_This_Correlation_Radius)			{precision = line_edit_cor_radius_precision;			coeff = length_Coefficients_Map.value(length_units);	return struct_Data.roughness_Model.cor_radius;			}
 	if(whats_This == whats_This_Fractal_Alpha)				{precision = line_edit_fractal_alpha_precision;			coeff = 1;												return struct_Data.roughness_Model.fractal_alpha;		}
-	if(whats_This == whats_This_Vertical_Correlation_Length){precision = line_edit_vertical_cor_length_precision;	coeff = length_Coefficients_Map.value(length_units);	return struct_Data.roughness_Model.vertical_Cor_Length;	}
 	if(whats_This == whats_This_Linear_PSD_Omega)			{precision = line_edit_omega_precision;				coeff = pow(length_Coefficients_Map.value(length_units),3);	return struct_Data.roughness_Model.omega;				}
 	if(whats_This == whats_This_Linear_PSD_Exponenta_Mu)	{precision = line_edit_mu_precision;					coeff = length_Coefficients_Map.value(length_units);	return struct_Data.roughness_Model.mu;					}
 
@@ -2253,7 +2264,6 @@ void Table_Of_Structures::create_Line_Edit(My_Table_Widget* table, int tab_Index
 		whats_This == whats_This_Correlation_Radius ) spin_Box->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT_DENSITY);
 	if( whats_This == whats_This_Sigma_Diffuse ||
 		whats_This == whats_This_Sigma_Roughness ||
-		whats_This == whats_This_Vertical_Correlation_Length ||
 		whats_This == whats_This_Linear_PSD_Omega ||
 		whats_This == whats_This_Linear_PSD_Exponenta_Mu)       spin_Box->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT_SIGMA);
 	if( whats_This == whats_This_Thickness || whats_This == whats_This_Period) spin_Box->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT_THICKNESS);
@@ -2339,7 +2349,6 @@ void Table_Of_Structures::create_Line_Edit(My_Table_Widget* table, int tab_Index
 	if(whats_This == whats_This_Sigma_Roughness)			{ spin_Box->setSingleStep(step_sigma_roughness);		sigma_Roughness_Spin_Boxes_List.append(spin_Box); }
 	if(whats_This == whats_This_Correlation_Radius)			{ spin_Box->setSingleStep(step_sigma_cor_radius);		correlation_Radius_Roughness_Spin_Boxes_List.append(spin_Box); }
 	if(whats_This == whats_This_Fractal_Alpha)				{ spin_Box->setSingleStep(step_sigma_fractal_alpha);	fractal_Alpha_Spin_Boxes_List.append(spin_Box); }
-	if(whats_This == whats_This_Vertical_Correlation_Length){ spin_Box->setSingleStep(step_sigma_vertical_cor_length);vertical_Correlation_Length_Spin_Boxes_List.append(spin_Box); }
 	if(whats_This == whats_This_Linear_PSD_Omega)			{ spin_Box->setSingleStep(step_sigma_omega);			linear_PSD_Omega_Spin_Boxes_List.append(spin_Box); }
 	if(whats_This == whats_This_Linear_PSD_Exponenta_Mu)	{ spin_Box->setSingleStep(step_sigma_mu);				Linear_PSD_Exponenta_Mu_Spin_Boxes_List.append(spin_Box); }
 
@@ -3039,7 +3048,6 @@ void Table_Of_Structures::create_Step_Spin_Box(My_Table_Widget* table, int tab_I
 		if(whats_This == whats_This_Sigma_Roughness)			{ min_Width = TABLE_FIX_WIDTH_LINE_EDIT_SIGMA;	}
 		if(whats_This == whats_This_Correlation_Radius)			{ min_Width = TABLE_FIX_WIDTH_LINE_EDIT_DENSITY;}
 		if(whats_This == whats_This_Fractal_Alpha)				{ min_Width = TABLE_FIX_WIDTH_LINE_EDIT_SHORT;	}
-		if(whats_This == whats_This_Vertical_Correlation_Length){ min_Width = TABLE_FIX_WIDTH_LINE_EDIT_SIGMA;	}
 		if(whats_This == whats_This_Linear_PSD_Omega)			{ min_Width = TABLE_FIX_WIDTH_LINE_EDIT_SIGMA;	}
 		if(whats_This == whats_This_Linear_PSD_Exponenta_Mu)	{ min_Width = TABLE_FIX_WIDTH_LINE_EDIT_SIGMA;	}
 
@@ -3061,7 +3069,6 @@ void Table_Of_Structures::create_Step_Spin_Box(My_Table_Widget* table, int tab_I
 		if(whats_This == whats_This_Sigma_Roughness)			{ step_sigma_roughness = step_SpinBox->value()*length_Coeff;			for(MyDoubleSpinBox* spb : sigma_Roughness_Spin_Boxes_List)				spb->setSingleStep(step_sigma_roughness/length_Coeff);}
 		if(whats_This == whats_This_Correlation_Radius)			{ step_sigma_cor_radius = step_SpinBox->value()*length_Coeff;			for(MyDoubleSpinBox* spb : correlation_Radius_Roughness_Spin_Boxes_List)spb->setSingleStep(step_sigma_cor_radius/length_Coeff);}
 		if(whats_This == whats_This_Fractal_Alpha)				{ step_sigma_fractal_alpha = step_SpinBox->value();						for(MyDoubleSpinBox* spb : fractal_Alpha_Spin_Boxes_List)				spb->setSingleStep(step_sigma_fractal_alpha);}
-		if(whats_This == whats_This_Vertical_Correlation_Length){ step_sigma_vertical_cor_length = step_SpinBox->value()*length_Coeff;	for(MyDoubleSpinBox* spb : vertical_Correlation_Length_Spin_Boxes_List)	spb->setSingleStep(step_sigma_vertical_cor_length/length_Coeff);}
 		if(whats_This == whats_This_Linear_PSD_Omega)			{ step_sigma_omega = step_SpinBox->value()*pow(length_Coeff,3);			for(MyDoubleSpinBox* spb : linear_PSD_Omega_Spin_Boxes_List)			spb->setSingleStep(step_sigma_omega/pow(length_Coeff,3));}
 		if(whats_This == whats_This_Linear_PSD_Exponenta_Mu)	{ step_sigma_mu = step_SpinBox->value()*length_Coeff;					for(MyDoubleSpinBox* spb : Linear_PSD_Exponenta_Mu_Spin_Boxes_List)		spb->setSingleStep(step_sigma_mu/length_Coeff);}
 
@@ -3087,7 +3094,6 @@ void Table_Of_Structures::create_Step_Spin_Box(My_Table_Widget* table, int tab_I
 		if(whats_This == whats_This_Sigma_Roughness)			{ step_SpinBox->setDecimals(10);	step_SpinBox->setValue(step_sigma_roughness/length_Coeff);			step_SpinBox->setDecimals(line_edit_sigma_precision);				}
 		if(whats_This == whats_This_Correlation_Radius)			{ step_SpinBox->setDecimals(10);	step_SpinBox->setValue(step_sigma_cor_radius/length_Coeff);			step_SpinBox->setDecimals(line_edit_cor_radius_precision);			}
 		if(whats_This == whats_This_Fractal_Alpha)				{ step_SpinBox->setDecimals(10);	step_SpinBox->setValue(step_sigma_fractal_alpha);					step_SpinBox->setDecimals(line_edit_fractal_alpha_precision);		}
-		if(whats_This == whats_This_Vertical_Correlation_Length){ step_SpinBox->setDecimals(10);	step_SpinBox->setValue(step_sigma_vertical_cor_length/length_Coeff);step_SpinBox->setDecimals(line_edit_vertical_cor_length_precision);	}
 		if(whats_This == whats_This_Linear_PSD_Omega)			{ step_SpinBox->setDecimals(10);	step_SpinBox->setValue(step_sigma_omega/pow(length_Coeff,3));		step_SpinBox->setDecimals(line_edit_omega_precision);				}
 		if(whats_This == whats_This_Linear_PSD_Exponenta_Mu)	{ step_SpinBox->setDecimals(10);	step_SpinBox->setValue(step_sigma_mu/length_Coeff);					step_SpinBox->setDecimals(line_edit_mu_precision);					}
 
@@ -3821,12 +3827,11 @@ void Table_Of_Structures::refresh_Header(QString)
 	{
 		if(reload)
 		{
-			if(whats_This == whats_This_Thickness)			label->setText(         "z ["+length_units+"]");
-			if(whats_This == whats_This_Sigma_Roughness)	label->setText(Sigma_Sym+" ["+length_units+"]");
-			if(whats_This == whats_This_Correlation_Radius)	label->setText(Xi_Sym+   " ["+length_units+"]");
-			if(whats_This == whats_This_Vertical_Correlation_Length)label->setText(Lambda_Big_Sym+" ["+length_units+"]");
-			if(whats_This == whats_This_Linear_PSD_Omega)			label->setText(Omega_Big_Sym+" ["+length_units+Cube_Sym+"]");
-			if(whats_This == whats_This_Linear_PSD_Exponenta_Mu)	label->setText(Mu_Sym+" ["+length_units+"]");
+			if(whats_This == whats_This_Thickness)				label->setText(         "z ["+length_units+"]");
+			if(whats_This == whats_This_Sigma_Roughness)		label->setText(Sigma_Sym+" ["+length_units+"]");
+			if(whats_This == whats_This_Correlation_Radius)		label->setText(Xi_Sym+   " ["+length_units+"]");
+			if(whats_This == whats_This_Linear_PSD_Omega)		label->setText(Omega_Big_Sym+" ["+length_units+Cube_Sym+"]");
+			if(whats_This == whats_This_Linear_PSD_Exponenta_Mu)label->setText(Mu_Sym+" ["+length_units+"]");
 			return;
 		}
 	}

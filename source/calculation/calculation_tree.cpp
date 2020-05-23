@@ -133,8 +133,7 @@ void Calculation_Tree::fill_Tree_From_Scratch(tree<Node>& calc_Tree, QTreeWidget
 				substrate.interlayer_Composition[interlayer_Index].enabled = false;
 			}
 		}
-		substrate.roughness_Model.is_Enabled = multilayer->imperfections_Model.use_Roughness;
-		substrate.roughness_Model.model = multilayer->imperfections_Model.common_Model;
+		Global_Variables::enable_Disable_Roughness_Model(substrate, multilayer->imperfections_Model);
 
 		// change id
 		substrate.reset_All_IDs();

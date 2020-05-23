@@ -265,9 +265,7 @@ Data::Data(QString item_Type_Passed)
 		// roughness
 		{
 			roughness_Model.is_Enabled = false;
-			roughness_Model.model = linear_model_PSD;
-			roughness_Model.expression = "";
-			roughness_Model.crosscorrelation_Function = "";
+			roughness_Model.model = ABC_model;
 		}
 		// sigma roughness
 		{
@@ -312,23 +310,9 @@ Data::Data(QString item_Type_Passed)
 			roughness_Model.fractal_alpha.confidence.max = roughness_Model.fractal_alpha.fit.max;
 			roughness_Model.fractal_alpha.confidence.num_Points = default_num_confidence_points;
 		}
-		// common vertical correlation depth
-		{
-			roughness_Model.vertical_Cor_Length.value = 1000;
-			roughness_Model.vertical_Cor_Length.fit.is_Fitable = false;
-			roughness_Model.vertical_Cor_Length.fit.min = 100;
-			roughness_Model.vertical_Cor_Length.fit.max = 10000;
-			roughness_Model.vertical_Cor_Length.indicator.whats_This = whats_This_Vertical_Correlation_Length;
-			roughness_Model.vertical_Cor_Length.indicator.item_Id = id;
-
-			roughness_Model.vertical_Cor_Length.confidence.calc_Conf_Interval = false;
-			roughness_Model.vertical_Cor_Length.confidence.min = roughness_Model.vertical_Cor_Length.fit.min;
-			roughness_Model.vertical_Cor_Length.confidence.max = roughness_Model.vertical_Cor_Length.fit.max;
-			roughness_Model.vertical_Cor_Length.confidence.num_Points = default_num_confidence_points;
-		}
 		// particle volume omega
 		{
-			roughness_Model.omega.value = 20;
+			roughness_Model.omega.value = 1000;
 			roughness_Model.omega.fit.is_Fitable = false;
 			roughness_Model.omega.fit.min = 5;
 			roughness_Model.omega.fit.max = 100;
@@ -604,7 +588,6 @@ void Data::reset_All_IDs()
 		roughness_Model.sigma			   .indicator.id = Global_Definitions::generate_Id(); roughness_Model.sigma.			  indicator.item_Id = id;	roughness_Model.sigma.				coupled.clear_Coupled();
 		roughness_Model.cor_radius		   .indicator.id = Global_Definitions::generate_Id(); roughness_Model.cor_radius.		  indicator.item_Id = id;	roughness_Model.cor_radius.			coupled.clear_Coupled();
 		roughness_Model.fractal_alpha	   .indicator.id = Global_Definitions::generate_Id(); roughness_Model.fractal_alpha.	  indicator.item_Id = id;	roughness_Model.fractal_alpha.		coupled.clear_Coupled();
-		roughness_Model.vertical_Cor_Length.indicator.id = Global_Definitions::generate_Id(); roughness_Model.vertical_Cor_Length.indicator.item_Id = id;	roughness_Model.vertical_Cor_Length.coupled.clear_Coupled();
 		roughness_Model.omega			   .indicator.id = Global_Definitions::generate_Id(); roughness_Model.omega.			  indicator.item_Id = id;	roughness_Model.omega.				coupled.clear_Coupled();
 		roughness_Model.mu				   .indicator.id = Global_Definitions::generate_Id(); roughness_Model.mu.				  indicator.item_Id = id;	roughness_Model.mu.					coupled.clear_Coupled();
 	///---------------------------------------------
@@ -864,16 +847,14 @@ void Data::fill_Potentially_Fitable_Parameters_Vector()
 		if(common_Sigma_Diffuse && enabled_Counter>0)
 		{	potentially_Fitable_Parameters.push_back(&sigma_Diffuse); }
 
-		// in some cases extra parameters can be loaded as fitable
 		if(roughness_Model.is_Enabled)
 		{
 			potentially_Fitable_Parameters.push_back(&roughness_Model.sigma);
 			potentially_Fitable_Parameters.push_back(&roughness_Model.cor_radius);
 			potentially_Fitable_Parameters.push_back(&roughness_Model.fractal_alpha);
-			potentially_Fitable_Parameters.push_back(&roughness_Model.vertical_Cor_Length);
 			potentially_Fitable_Parameters.push_back(&roughness_Model.mu);
 
-			if( roughness_Model.model == linear_model_PSD )
+			if( roughness_Model.model == linear_Growth_Model )
 			{
 				potentially_Fitable_Parameters.push_back(&roughness_Model.omega);
 			}
@@ -978,7 +959,6 @@ void Data::prepare_Layer_For_Regular_Component()
 	make_Free(roughness_Model.sigma);
 	make_Free(roughness_Model.cor_radius);
 	make_Free(roughness_Model.fractal_alpha);
-	make_Free(roughness_Model.vertical_Cor_Length);
 	make_Free(roughness_Model.omega);
 	make_Free(roughness_Model.mu);
 

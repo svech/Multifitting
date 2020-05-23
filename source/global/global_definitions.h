@@ -243,25 +243,14 @@ class Node;
 #define SA_approximation	"SA"
 #define CSA_approximation	"CSA"
 
-#define full_Correlation		"full correlation"
-#define partial_Correlation		"partial correlation"
-#define zero_Correlation		"zero correlation"
+#define full_Correlation		"full vertical correlation"
+#define partial_Correlation		"partial vertical correlation"
+#define zero_Correlation		"zero vertical correlation"
 
 // PSD models
-#define ABC_model_PSD				"ABC model PSD"
-#define ABC_model_PSD_1D_Expression	"2*G(a+0.5)*s^2*x/(sqrt(pi)*G(a)*(1+p^2*x^2)^(a+0.5))"
-#define ABC_model_PSD_2D_Expression	"s^2*x^2*a/(pi*(1+v^2*x^2)^(1+a))"
-
-#define linear_model_PSD				"linear model PSD"
-#define linear_model_PSD_1D_Expression	"no explicit PSD_1D"
-#define linear_model_PSD_2D_Expression	"W*(1-exp(-2b(v)*h))/(8pi^3*2b(v))"
-
-// correlation function models
-#define gauss_model_Cor			  "gauss model Cor"
-#define gauss_model_Cor_2D_Expression "s^2*exp(-pow(r/l,2a))"
-
-#define ABC_model_Cor				"ABC model Cor"
-#define ABC_model_Cor_2D_Expression	"pow(2,1-a)*s^2*pow(r/l,a)*BesselK(a,r/l)/G(a)"
+#define ABC_model				"ABC model"
+#define linear_Growth_Model		"Linear growth model"
+#define fractal_Gauss_Model		"Fractal gauss model"
 
 // whatsThis : delimiters
 #define whats_This_Delimiter ";"
@@ -291,7 +280,6 @@ class Node;
 #define whats_This_Sigma_Roughness				"Sigma Roughness"
 #define whats_This_Correlation_Radius			"Correlation Radius"
 #define whats_This_Fractal_Alpha				"Fractal Alpha"
-#define whats_This_Vertical_Correlation_Length	"Vertical Correlation Length"
 #define whats_This_Linear_PSD_Omega				"Linear PSD Omega"
 #define whats_This_Linear_PSD_Exponenta_Mu		"Linear PSD Exponenta Mu"
 #define whats_This_Interlayer_Composition		"Interlayer Composition"
@@ -780,18 +768,10 @@ struct Discretization_Parameters{
 								};
 struct Roughness_Model			{
 								bool is_Enabled = false;
-								QString model = ABC_model_PSD;
-								QString expression = "";
-								QString crosscorrelation_Function = "";
+								QString model = ABC_model;
 								Parameter sigma;
 								Parameter cor_radius;
 								Parameter fractal_alpha;
-
-								// correlation function only
-								Parameter vertical_Cor_Length; // DEPRECATED
-
-								// PSD function only
-								QString inheritance_Exponenta = "";
 								Parameter omega;
 								Parameter mu;
 								};
@@ -826,7 +806,7 @@ struct Imperfections_Model		{
 								bool use_Roughness = false;
 
 								QString approximation = PT_approximation;
-								QString common_Model = ABC_model_PSD;
+								QString common_Model = ABC_model;
 								QString vertical_Correlation = full_Correlation;
 								bool use_Common_Roughness_Function = true;
 

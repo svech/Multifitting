@@ -195,7 +195,6 @@ extern int line_edit_thickness_precision	;
 extern int line_edit_sigma_precision				;
 extern int line_edit_cor_radius_precision			;
 extern int line_edit_fractal_alpha_precision		;
-extern int line_edit_vertical_cor_length_precision	;
 extern int line_edit_omega_precision				;
 extern int line_edit_mu_precision					;
 
@@ -222,7 +221,6 @@ extern int thumbnail_thickness_precision	;
 extern int thumbnail_sigma_precision				;
 extern int thumbnail_cor_radius_precision			;
 extern int thumbnail_fractal_alpha_precision		;
-extern int thumbnail_vertical_cor_length_precision	;
 extern int thumbnail_omega_precision				;
 extern int thumbnail_mu_precision					;
 

@@ -872,7 +872,6 @@ QString Global_Variables::parameter_Name(const Data &struct_Data, QString whats_
 		if(whats_This == whats_This_Sigma_Roughness)				text = struct_Data.material + " " + brackets + " Roughness, " + Sigma_Sym;
 		if(whats_This == whats_This_Correlation_Radius)				text = struct_Data.material + " " + brackets + " Correlation radius, " + Xi_Sym;
 		if(whats_This == whats_This_Fractal_Alpha)					text = struct_Data.material + " " + brackets + " Fractal parameter, " + Alpha_Sym;
-		if(whats_This == whats_This_Vertical_Correlation_Length)	text = struct_Data.material + " " + brackets + " Vertical correlation Length, " + Lambda_Big_Sym;
 		if(whats_This == whats_This_Linear_PSD_Omega)				text = struct_Data.material + " " + brackets + " Particle volume, " + Omega_Big_Sym;
 		if(whats_This == whats_This_Linear_PSD_Exponenta_Mu)		text = struct_Data.material + " " + brackets + " Exponenta inheritance factor, " + Mu_Sym;
 	}
@@ -955,7 +954,6 @@ Parameter* Global_Variables::get_Parameter_From_Struct_Item_by_Id(Data& struct_D
 	if(id == struct_Data.roughness_Model.sigma.indicator.id)				return &struct_Data.roughness_Model.sigma;
 	if(id == struct_Data.roughness_Model.cor_radius.indicator.id)			return &struct_Data.roughness_Model.cor_radius;
 	if(id == struct_Data.roughness_Model.fractal_alpha.indicator.id)		return &struct_Data.roughness_Model.fractal_alpha;
-	if(id == struct_Data.roughness_Model.vertical_Cor_Length.indicator.id)	return &struct_Data.roughness_Model.vertical_Cor_Length;
 	if(id == struct_Data.roughness_Model.omega.indicator.id)				return &struct_Data.roughness_Model.omega;
 	if(id == struct_Data.roughness_Model.mu.indicator.id)					return &struct_Data.roughness_Model.mu;
 
@@ -1009,7 +1007,6 @@ Parameter* Global_Variables::get_Parameter_From_Struct_Item_by_Whats_This(Data& 
 	if(whats_This == whats_This_Sigma_Roughness)				{*line_edit_precision = line_edit_sigma_precision;				*thumbnail_precision = thumbnail_sigma_precision;				*units = " " + length_units;			*coeff = length_Coefficients_Map.value(length_units);		return &struct_Data.roughness_Model.sigma;				}
 	if(whats_This == whats_This_Correlation_Radius)				{*line_edit_precision = line_edit_cor_radius_precision;			*thumbnail_precision = thumbnail_cor_radius_precision;			*units = " " + length_units;			*coeff = length_Coefficients_Map.value(length_units);		return &struct_Data.roughness_Model.cor_radius;			}
 	if(whats_This == whats_This_Fractal_Alpha)					{*line_edit_precision = line_edit_fractal_alpha_precision;		*thumbnail_precision = thumbnail_fractal_alpha_precision;		*units = "";							*coeff = 1;													return &struct_Data.roughness_Model.fractal_alpha;		}
-	if(whats_This == whats_This_Vertical_Correlation_Length)	{*line_edit_precision = line_edit_vertical_cor_length_precision;*thumbnail_precision = thumbnail_vertical_cor_length_precision;	*units = " " + length_units;			*coeff = length_Coefficients_Map.value(length_units);		return &struct_Data.roughness_Model.vertical_Cor_Length;	}
 	if(whats_This == whats_This_Linear_PSD_Omega)				{*line_edit_precision = line_edit_omega_precision;				*thumbnail_precision = thumbnail_omega_precision;				*units = " " + length_units+Cube_Sym;   *coeff = pow(length_Coefficients_Map.value(length_units),3);return &struct_Data.roughness_Model.omega;				}
 	if(whats_This == whats_This_Linear_PSD_Exponenta_Mu)		{*line_edit_precision = line_edit_mu_precision;					*thumbnail_precision = thumbnail_mu_precision;					*units = " " + length_units;			*coeff = length_Coefficients_Map.value(length_units);		return &struct_Data.roughness_Model.mu;					}
 
@@ -1026,6 +1023,73 @@ Parameter* Global_Variables::get_Parameter_From_Struct_Item_by_Whats_This(Data& 
 	if(whats_This == whats_This_Gamma)							{*line_edit_precision = line_edit_gamma_precision;			*thumbnail_precision = thumbnail_gamma_precision;		*units = "";					*coeff = 1;	return &struct_Data.gamma; }
 
 	return nullptr;
+}
+
+void Global_Variables::enable_Disable_Roughness_Model(Data& struct_Data, const Imperfections_Model& imperfections_Model)
+{
+	// common
+	if( struct_Data.item_Type == item_Type_Layer || struct_Data.item_Type == item_Type_Substrate )
+	{
+		struct_Data.roughness_Model.is_Enabled = imperfections_Model.use_Roughness;
+		struct_Data.roughness_Model.model = imperfections_Model.common_Model;
+	}
+
+	// detailed correction
+	if( struct_Data.item_Type == item_Type_Layer )
+	{
+		if( imperfections_Model.common_Model == ABC_model ||
+			imperfections_Model.common_Model == fractal_Gauss_Model )
+		{
+			if( imperfections_Model.vertical_Correlation == full_Correlation )
+			{
+				if(imperfections_Model.use_Common_Roughness_Function) // always
+				{
+					struct_Data.roughness_Model.is_Enabled = false;
+				}
+			}
+			if( imperfections_Model.vertical_Correlation == zero_Correlation )
+			{
+				if(imperfections_Model.use_Common_Roughness_Function)
+				{
+					struct_Data.roughness_Model.is_Enabled = false;
+				} else
+				{
+					// only sigma, ksi, alpha can be active
+					struct_Data.make_Free(struct_Data.roughness_Model.omega);
+					struct_Data.make_Free(struct_Data.roughness_Model.mu);
+				}
+			}
+			if(imperfections_Model.vertical_Correlation == partial_Correlation)
+			{
+				if(imperfections_Model.use_Common_Roughness_Function) // always
+				{
+					// only mu can be active
+					struct_Data.make_Free(struct_Data.roughness_Model.sigma);
+					struct_Data.make_Free(struct_Data.roughness_Model.cor_radius);
+					struct_Data.make_Free(struct_Data.roughness_Model.fractal_alpha);
+					struct_Data.make_Free(struct_Data.roughness_Model.omega);
+				}
+			}
+		}
+		if( imperfections_Model.common_Model == linear_Growth_Model )
+		{
+			if(imperfections_Model.vertical_Correlation == partial_Correlation) // the only case
+			{
+				if(imperfections_Model.use_Common_Roughness_Function) // always
+				{
+					// only omega, mu, alpha can be active
+					struct_Data.make_Free(struct_Data.roughness_Model.sigma);
+					struct_Data.make_Free(struct_Data.roughness_Model.cor_radius);
+				}
+			}
+		}
+	}
+	if( struct_Data.item_Type == item_Type_Substrate)
+	{
+		// only sigma, ksi, alpha can be active, always
+		struct_Data.make_Free(struct_Data.roughness_Model.omega);
+		struct_Data.make_Free(struct_Data.roughness_Model.mu);
+	}
 }
 
 void Global_Variables::copy_Tree(const QTreeWidget* from_Tree, QTreeWidget* to_Tree)

@@ -191,7 +191,6 @@ int line_edit_thickness_precision	;
 int line_edit_sigma_precision				;
 int line_edit_cor_radius_precision			;
 int line_edit_fractal_alpha_precision		;
-int line_edit_vertical_cor_length_precision	;
 int line_edit_omega_precision				;
 int line_edit_mu_precision					;
 
@@ -218,7 +217,6 @@ int thumbnail_thickness_precision	;
 int thumbnail_sigma_precision				;
 int thumbnail_cor_radius_precision			;
 int thumbnail_fractal_alpha_precision		;
-int thumbnail_vertical_cor_length_precision	;
 int thumbnail_omega_precision				;
 int thumbnail_mu_precision					;
 
@@ -757,8 +755,7 @@ void Settings::read_Precisions(bool reset_to_default)
 			line_edit_sigma_precision				= precision_Values.value( "line_edit_sigma_precision",				4 ).toInt();	// = thickness precision
 			line_edit_cor_radius_precision			= precision_Values.value( "line_edit_cor_radius_precision",			0 ).toInt();
 			line_edit_fractal_alpha_precision		= precision_Values.value( "line_edit_fractal_alpha_precision",		2 ).toInt();
-			line_edit_vertical_cor_length_precision = precision_Values.value( "line_edit_vertical_cor_length_precision",1 ).toInt();
-			line_edit_omega_precision				= precision_Values.value( "line_edit_omega_precision",				3 ).toInt();
+			line_edit_omega_precision				= precision_Values.value( "line_edit_omega_precision",				1 ).toInt();
 			line_edit_mu_precision					= precision_Values.value( "line_edit_mu_precision",					3 ).toInt();
 
 			line_edit_interlayer_precision			= precision_Values.value( "line_edit_interlayer_precision",			3 ).toInt();
@@ -784,7 +781,6 @@ void Settings::read_Precisions(bool reset_to_default)
 			thumbnail_sigma_precision				= precision_Values.value( "thumbnail_sigma_precision",				3 ).toInt();	// = thickness precision
 			thumbnail_cor_radius_precision			= precision_Values.value( "thumbnail_cor_radius_precision",			0 ).toInt();
 			thumbnail_fractal_alpha_precision		= precision_Values.value( "thumbnail_fractal_alpha_precision",		2 ).toInt();
-			thumbnail_vertical_cor_length_precision	= precision_Values.value( "thumbnail_vertical_cor_length_precision",1 ).toInt();
 			thumbnail_omega_precision				= precision_Values.value( "thumbnail_omega_precision",				1 ).toInt();
 			thumbnail_mu_precision					= precision_Values.value( "thumbnail_mu_precision",					1 ).toInt();
 
@@ -820,7 +816,6 @@ void Settings::save_Precisions()
 			precision_Values.setValue( "line_edit_sigma_precision",				 line_edit_sigma_precision				);
 			precision_Values.setValue( "line_edit_cor_radius_precision",		 line_edit_cor_radius_precision			);
 			precision_Values.setValue( "line_edit_fractal_alpha_precision",		 line_edit_fractal_alpha_precision		);
-			precision_Values.setValue( "line_edit_vertical_cor_length_precision",line_edit_vertical_cor_length_precision);
 			precision_Values.setValue( "line_edit_omega_precision",				 line_edit_omega_precision				);
 			precision_Values.setValue( "line_edit_mu_precision",				 line_edit_mu_precision					);
 
@@ -842,7 +837,6 @@ void Settings::save_Precisions()
 			precision_Values.setValue( "thumbnail_sigma_precision",					thumbnail_sigma_precision				);
 			precision_Values.setValue( "thumbnail_cor_radius_precision",			thumbnail_cor_radius_precision			);
 			precision_Values.setValue( "thumbnail_fractal_alpha_precision",			thumbnail_fractal_alpha_precision		);
-			precision_Values.setValue( "thumbnail_vertical_cor_length_precision",	thumbnail_vertical_cor_length_precision	);
 			precision_Values.setValue( "thumbnail_omega_precision",					thumbnail_omega_precision				);
 			precision_Values.setValue( "thumbnail_mu_precision",					thumbnail_mu_precision					);
 

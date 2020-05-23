@@ -206,11 +206,10 @@ void Table_Roughness_Model_Editor::create_Roughness_Groupbox()
 	connect(roughness_Groupbox, &QGroupBox::toggled, this, [=]
 	{
 		multilayer->imperfections_Model.use_Roughness = roughness_Groupbox->isChecked();
-		refresh_Tree_Roughness(multilayer->imperfections_Model.use_Roughness);
+		refresh_Tree_Roughness();
 	});
 
-	QGridLayout* groupbox_Layout = new QGridLayout(roughness_Groupbox);
-		groupbox_Layout->setAlignment(Qt::AlignTop);
+	QHBoxLayout* groupbox_Layout = new QHBoxLayout(roughness_Groupbox);
 
 	// --------------------------------------------
 	// approximation
@@ -218,7 +217,7 @@ void Table_Roughness_Model_Editor::create_Roughness_Groupbox()
 
 		QVBoxLayout* approximation_Layout = new QVBoxLayout;
 			approximation_Layout->setAlignment(Qt::AlignTop);
-		groupbox_Layout->addLayout(approximation_Layout,0,0,1,1,Qt::AlignTop);
+		groupbox_Layout->addLayout(approximation_Layout);
 
 		QLabel* approximation_Label = new QLabel("Approximation");
 		approximation_Layout->addWidget(approximation_Label);
@@ -251,7 +250,7 @@ void Table_Roughness_Model_Editor::create_Roughness_Groupbox()
 
 		QVBoxLayout* vertical_Correlation_Layout = new QVBoxLayout;
 			vertical_Correlation_Layout->setAlignment(Qt::AlignTop);
-		groupbox_Layout->addLayout(vertical_Correlation_Layout,0,1,1,1,Qt::AlignTop);
+		groupbox_Layout->addLayout(vertical_Correlation_Layout);
 
 		QLabel* vertical_Correlation_Label = new QLabel("Vertical\ncorrelation");
 		vertical_Correlation_Layout->addWidget(vertical_Correlation_Label);
@@ -279,47 +278,36 @@ void Table_Roughness_Model_Editor::create_Roughness_Groupbox()
 
 		QVBoxLayout* PSD_Cor_Layout = new QVBoxLayout;
 			PSD_Cor_Layout->setAlignment(Qt::AlignTop);
-		groupbox_Layout->addLayout(PSD_Cor_Layout,0,2,1,1,Qt::AlignTop);
+		groupbox_Layout->addLayout(PSD_Cor_Layout);
 
 		QLabel* PSD_Cor_Label = new QLabel("Model");
 		PSD_Cor_Layout->addWidget(PSD_Cor_Label);
 
-		QRadioButton* PSD_ABC_Radiobutton = new QRadioButton("ABC model, PSD function");
-			PSD_ABC_Radiobutton->setChecked(multilayer->imperfections_Model.common_Model == ABC_model_PSD);
-			PSD_ABC_Radiobutton->setDisabled(DWBA_Radiobutton->isChecked() || SA_Radiobutton->isChecked() || CSA_Radiobutton->isChecked());
-		PSD_Cor_Layout->addWidget(PSD_ABC_Radiobutton);
+		QRadioButton* ABC_Radiobutton = new QRadioButton("ABC model");
+			ABC_Radiobutton->setChecked(multilayer->imperfections_Model.common_Model == ABC_model);
+		PSD_Cor_Layout->addWidget(ABC_Radiobutton);
 
-		QRadioButton* PSD_Growth_Radiobutton = new QRadioButton("ABC+linear growth, PSD function");
-			PSD_Growth_Radiobutton->setChecked(multilayer->imperfections_Model.common_Model == linear_model_PSD);
-			PSD_Growth_Radiobutton->setDisabled(DWBA_Radiobutton->isChecked() ||
-												SA_Radiobutton->isChecked() ||
-												CSA_Radiobutton->isChecked() ||
-												multilayer->imperfections_Model.vertical_Correlation != partial_Correlation);
-		PSD_Cor_Layout->addWidget(PSD_Growth_Radiobutton);
+		QRadioButton* linear_Growth_Radiobutton = new QRadioButton("ABC+linear growth");
+			linear_Growth_Radiobutton->setChecked(multilayer->imperfections_Model.common_Model == linear_Growth_Model);
+			linear_Growth_Radiobutton->setDisabled(multilayer->imperfections_Model.vertical_Correlation != partial_Correlation);
+		PSD_Cor_Layout->addWidget(linear_Growth_Radiobutton);
 
-		QRadioButton* Cor_ABC_Radiobutton = new QRadioButton("ABC model, correlation function");
-			Cor_ABC_Radiobutton->setChecked(multilayer->imperfections_Model.common_Model == ABC_model_Cor);
-			Cor_ABC_Radiobutton->setDisabled(DWBA_Radiobutton->isChecked() || SA_Radiobutton->isChecked() || CSA_Radiobutton->isChecked());
-		PSD_Cor_Layout->addWidget(Cor_ABC_Radiobutton);
-
-		QRadioButton* Cor_Exp_Radiobutton = new QRadioButton("Exponential model, correlation function");
-			Cor_Exp_Radiobutton->setChecked(multilayer->imperfections_Model.common_Model == gauss_model_Cor);
-			Cor_Exp_Radiobutton->setDisabled(DWBA_Radiobutton->isChecked() || SA_Radiobutton->isChecked() || CSA_Radiobutton->isChecked());
-		PSD_Cor_Layout->addWidget(Cor_Exp_Radiobutton);
+		QRadioButton* fractal_Gauss_Radiobutton = new QRadioButton("Fractal Gauss model");
+			fractal_Gauss_Radiobutton->setChecked(multilayer->imperfections_Model.common_Model == fractal_Gauss_Model);
+		PSD_Cor_Layout->addWidget(fractal_Gauss_Radiobutton);
 
 		QButtonGroup* use_Group = new QButtonGroup;
-			use_Group->addButton(PSD_ABC_Radiobutton);
-			use_Group->addButton(PSD_Growth_Radiobutton);
-			use_Group->addButton(Cor_ABC_Radiobutton);
-			use_Group->addButton(Cor_Exp_Radiobutton);
+			use_Group->addButton(ABC_Radiobutton);
+			use_Group->addButton(linear_Growth_Radiobutton);
+			use_Group->addButton(fractal_Gauss_Radiobutton);
 
-	// --------------------------------------------
-	// common statistics
-	// --------------------------------------------
-		QCheckBox* common_Checkbox = new QCheckBox("Common function for all layer boundaries");
+		// --------------------------------------------
+		// common statistics
+		// --------------------------------------------
+		QCheckBox* common_Checkbox = new QCheckBox("Common function for all");
 			common_Checkbox->setChecked(multilayer->imperfections_Model.use_Common_Roughness_Function);
 			common_Checkbox->setDisabled(full_Radiobutton->isChecked() || partial_Radiobutton->isChecked());
-		groupbox_Layout->addWidget(common_Checkbox,1,0,1,3);
+		PSD_Cor_Layout->addWidget(common_Checkbox);
 
 	// connections
 	connect(PT_Radiobutton, &QRadioButton::toggled, this, [=]
@@ -327,10 +315,7 @@ void Table_Roughness_Model_Editor::create_Roughness_Groupbox()
 		if(PT_Radiobutton->isChecked())
 		{
 			multilayer->imperfections_Model.approximation = PT_approximation;
-			PSD_ABC_Radiobutton->setDisabled(false);
-			if(partial_Radiobutton->isChecked()) PSD_Growth_Radiobutton->setDisabled(false);
-			Cor_ABC_Radiobutton->setDisabled(false);
-			Cor_Exp_Radiobutton->setDisabled(false);
+			if(partial_Radiobutton->isChecked()) linear_Growth_Radiobutton->setDisabled(false);
 		}
 	});
 	connect(DWBA_Radiobutton, &QRadioButton::toggled, this, [=]
@@ -338,15 +323,7 @@ void Table_Roughness_Model_Editor::create_Roughness_Groupbox()
 		if(DWBA_Radiobutton->isChecked())
 		{
 			multilayer->imperfections_Model.approximation = DWBA_approximation;
-			PSD_ABC_Radiobutton->setDisabled(true);
-			PSD_Growth_Radiobutton->setDisabled(true);
-
-			if( !Cor_ABC_Radiobutton->isChecked() &&
-				!Cor_Exp_Radiobutton->isChecked() )
-			{
-				Cor_ABC_Radiobutton->setChecked(true);
-				Cor_ABC_Radiobutton->toggled(true);
-			}
+			if(partial_Radiobutton->isChecked()) linear_Growth_Radiobutton->setDisabled(false);
 		}
 	});
 	connect(SA_Radiobutton, &QRadioButton::toggled, this, [=]
@@ -354,15 +331,7 @@ void Table_Roughness_Model_Editor::create_Roughness_Groupbox()
 		if(SA_Radiobutton->isChecked())
 		{
 			multilayer->imperfections_Model.approximation = SA_approximation;
-			PSD_ABC_Radiobutton->setDisabled(true);
-			PSD_Growth_Radiobutton->setDisabled(true);
-
-			if( !Cor_ABC_Radiobutton->isChecked() &&
-				!Cor_Exp_Radiobutton->isChecked() )
-			{
-				Cor_ABC_Radiobutton->setChecked(true);
-				Cor_ABC_Radiobutton->toggled(true);
-			}
+			if(partial_Radiobutton->isChecked()) linear_Growth_Radiobutton->setDisabled(false);
 		}
 	});
 	connect(CSA_Radiobutton, &QRadioButton::toggled, this, [=]
@@ -370,15 +339,7 @@ void Table_Roughness_Model_Editor::create_Roughness_Groupbox()
 		if(CSA_Radiobutton->isChecked())
 		{
 			multilayer->imperfections_Model.approximation = CSA_approximation;
-			PSD_ABC_Radiobutton->setDisabled(true);
-			PSD_Growth_Radiobutton->setDisabled(true);
-
-			if( !Cor_ABC_Radiobutton->isChecked() &&
-				!Cor_Exp_Radiobutton->isChecked() )
-			{
-				Cor_ABC_Radiobutton->setChecked(true);
-				Cor_ABC_Radiobutton->toggled(true);
-			}
+			if(partial_Radiobutton->isChecked()) linear_Growth_Radiobutton->setDisabled(false);
 		}
 	});
 
@@ -389,17 +350,19 @@ void Table_Roughness_Model_Editor::create_Roughness_Groupbox()
 		{
 			multilayer->imperfections_Model.vertical_Correlation = full_Correlation;
 
-			if(PSD_Growth_Radiobutton->isChecked())
+			if(linear_Growth_Radiobutton->isChecked())
 			{
-				PSD_Growth_Radiobutton->setChecked(false);
-				PSD_ABC_Radiobutton->setChecked(true);
-				PSD_ABC_Radiobutton->toggled(true);
+				linear_Growth_Radiobutton->setChecked(false);
+				ABC_Radiobutton->setChecked(true);
+				ABC_Radiobutton->toggled(true);
 			}
-			PSD_Growth_Radiobutton->setDisabled(true);
+			linear_Growth_Radiobutton->setDisabled(true);
 
 			common_Checkbox->setChecked(true);
 			common_Checkbox->toggled(true);
 			common_Checkbox->setDisabled(true);
+
+			refresh_Tree_Roughness();
 		}
 	});
 	connect(partial_Radiobutton, &QRadioButton::toggled, this, [=]
@@ -407,11 +370,13 @@ void Table_Roughness_Model_Editor::create_Roughness_Groupbox()
 		if(partial_Radiobutton->isChecked())
 		{
 			multilayer->imperfections_Model.vertical_Correlation = partial_Correlation;
-			if(PT_Radiobutton->isChecked()) PSD_Growth_Radiobutton->setDisabled(false);
+			linear_Growth_Radiobutton->setDisabled(false);
 
 			common_Checkbox->setChecked(true);
 			common_Checkbox->toggled(true);
 			common_Checkbox->setDisabled(true);
+
+			refresh_Tree_Roughness();
 		}
 	});
 	connect(zero_Radiobutton, &QRadioButton::toggled, this, [=]
@@ -420,49 +385,42 @@ void Table_Roughness_Model_Editor::create_Roughness_Groupbox()
 		{
 			multilayer->imperfections_Model.vertical_Correlation = zero_Correlation;
 
-			if(PSD_Growth_Radiobutton->isChecked())
+			if(linear_Growth_Radiobutton->isChecked())
 			{
-				PSD_Growth_Radiobutton->setChecked(false);
-				PSD_ABC_Radiobutton->setChecked(true);
-				PSD_ABC_Radiobutton->toggled(true);
+				linear_Growth_Radiobutton->setChecked(false);
+				ABC_Radiobutton->setChecked(true);
+				ABC_Radiobutton->toggled(true);
 			}
-			PSD_Growth_Radiobutton->setDisabled(true);
-
+			linear_Growth_Radiobutton->setDisabled(true);
 			common_Checkbox->setDisabled(false);
+
+			refresh_Tree_Roughness();
 		}
 	});
 
 
-	connect(PSD_ABC_Radiobutton, &QRadioButton::toggled, this, [=]
+	connect(ABC_Radiobutton, &QRadioButton::toggled, this, [=]
 	{
-		if(PSD_ABC_Radiobutton->isChecked())
+		if(ABC_Radiobutton->isChecked())
 		{
-			multilayer->imperfections_Model.common_Model = ABC_model_PSD;
-			refresh_Tree_Roughness_Model();
+			multilayer->imperfections_Model.common_Model = ABC_model;
+			refresh_Tree_Roughness();
 		}
 	});
-	connect(PSD_Growth_Radiobutton, &QRadioButton::toggled, this, [=]
+	connect(linear_Growth_Radiobutton, &QRadioButton::toggled, this, [=]
 	{
-		if(PSD_Growth_Radiobutton->isChecked())
+		if(linear_Growth_Radiobutton->isChecked())
 		{
-			multilayer->imperfections_Model.common_Model = linear_model_PSD;
-			refresh_Tree_Roughness_Model();
+			multilayer->imperfections_Model.common_Model = linear_Growth_Model;
+			refresh_Tree_Roughness();
 		}
 	});
-	connect(Cor_ABC_Radiobutton, &QRadioButton::toggled, this, [=]
+	connect(fractal_Gauss_Radiobutton, &QRadioButton::toggled, this, [=]
 	{
-		if(Cor_ABC_Radiobutton->isChecked())
+		if(fractal_Gauss_Radiobutton->isChecked())
 		{
-			multilayer->imperfections_Model.common_Model = ABC_model_Cor;
-			refresh_Tree_Roughness_Model();
-		}
-	});
-	connect(Cor_Exp_Radiobutton, &QRadioButton::toggled, this, [=]
-	{
-		if(Cor_Exp_Radiobutton->isChecked())
-		{
-			multilayer->imperfections_Model.common_Model = gauss_model_Cor;
-			refresh_Tree_Roughness_Model();
+			multilayer->imperfections_Model.common_Model = fractal_Gauss_Model;
+			refresh_Tree_Roughness();
 		}
 	});
 
@@ -470,6 +428,7 @@ void Table_Roughness_Model_Editor::create_Roughness_Groupbox()
 	connect(common_Checkbox, &QCheckBox::toggled, this, [=]
 	{
 		multilayer->imperfections_Model.use_Common_Roughness_Function = common_Checkbox->isChecked();
+		refresh_Tree_Roughness();
 	});
 }
 
@@ -541,28 +500,7 @@ void Table_Roughness_Model_Editor::refresh_Tree_Drift(QString whats_This, bool s
 	}
 }
 
-void Table_Roughness_Model_Editor::refresh_Tree_Roughness(bool state)
-{
-	// enable and disable
-	QTreeWidgetItemIterator it(multilayer->structure_Tree->tree);
-	while(*it)
-	{
-		QTreeWidgetItem* item = *it;
-		Data struct_Data = item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
-		if( struct_Data.item_Type == item_Type_Layer ||
-			struct_Data.item_Type == item_Type_Substrate )
-		{
-			struct_Data.roughness_Model.is_Enabled = state;
-
-			QVariant var;
-			var.setValue( struct_Data );
-			item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
-		}
-		++it;
-	}
-}
-
-void Table_Roughness_Model_Editor::refresh_Tree_Roughness_Model()
+void Table_Roughness_Model_Editor::refresh_Tree_Roughness()
 {
 	QTreeWidgetItemIterator it(multilayer->structure_Tree->tree);
 	while(*it)
@@ -572,7 +510,7 @@ void Table_Roughness_Model_Editor::refresh_Tree_Roughness_Model()
 		if( struct_Data.item_Type == item_Type_Layer ||
 			struct_Data.item_Type == item_Type_Substrate )
 		{
-			struct_Data.roughness_Model.model = multilayer->imperfections_Model.common_Model;
+			Global_Variables::enable_Disable_Roughness_Model(struct_Data, multilayer->imperfections_Model);
 
 			QVariant var;
 			var.setValue( struct_Data );

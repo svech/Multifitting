@@ -118,8 +118,7 @@ void Structure_Toolbar::add_Layer()
 			layer.interlayer_Composition[interlayer_Index].enabled = false;
 		}
 	}
-	layer.roughness_Model.is_Enabled = structure_Tree->multilayer->imperfections_Model.use_Roughness;
-	layer.roughness_Model.model = structure_Tree->multilayer->imperfections_Model.common_Model;
+	Global_Variables::enable_Disable_Roughness_Model(layer, structure_Tree->multilayer->imperfections_Model);
 
 	var.setValue( layer );
 	new_Layer->setData(DEFAULT_COLUMN, Qt::UserRole, var);
@@ -176,8 +175,7 @@ void Structure_Toolbar::add_Multilayer()
 				layer.interlayer_Composition[interlayer_Index].enabled = false;
 			}
 		}
-		layer.roughness_Model.is_Enabled = structure_Tree->multilayer->imperfections_Model.use_Roughness;
-		layer.roughness_Model.model = structure_Tree->multilayer->imperfections_Model.common_Model;
+		Global_Variables::enable_Disable_Roughness_Model(layer, structure_Tree->multilayer->imperfections_Model);
 
 		QVariant var;
 		var.setValue( layer );
@@ -306,8 +304,7 @@ void Structure_Toolbar::add_Aperiodic()
 						layer.interlayer_Composition[interlayer_Index].enabled = false;
 					}
 				}
-				layer.roughness_Model.is_Enabled = structure_Tree->multilayer->imperfections_Model.use_Roughness;
-				layer.roughness_Model.model = structure_Tree->multilayer->imperfections_Model.common_Model;
+				Global_Variables::enable_Disable_Roughness_Model(layer, structure_Tree->multilayer->imperfections_Model);
 
 				layer.common_Sigma_Diffuse = true;
 				layer.material = materials[layer_Index];
@@ -385,8 +382,7 @@ void Structure_Toolbar::add_Substrate()
 			data.interlayer_Composition[interlayer_Index].enabled = false;
 		}
 	}
-	data.roughness_Model.is_Enabled = structure_Tree->multilayer->imperfections_Model.use_Roughness;
-	data.roughness_Model.model = structure_Tree->multilayer->imperfections_Model.common_Model;
+	Global_Variables::enable_Disable_Roughness_Model(data, structure_Tree->multilayer->imperfections_Model);
 
 	var.setValue( data );
 	new_Substrate->setData(DEFAULT_COLUMN, Qt::UserRole, var);
