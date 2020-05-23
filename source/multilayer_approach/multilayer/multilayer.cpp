@@ -47,7 +47,6 @@ void Multilayer::create_Structure_Tree()
 {
 	structure_Tree = new Structure_Tree(this, this);
 	main_Layout->addWidget(structure_Tree->tree);
-	structure_Tree->structure_Toolbar->toolbar->actions()[Add_Substrate]->triggered();
 }
 
 void Multilayer::create_Main_Tools()

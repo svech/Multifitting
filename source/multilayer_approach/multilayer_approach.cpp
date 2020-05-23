@@ -908,14 +908,6 @@ void Multilayer_Approach::open(QString filename)
 		// load tree
 		Global_Variables::deserialize_Tree(in, multilayer->structure_Tree->tree);
 
-		// check if have substrate
-		QTreeWidgetItem* last = multilayer->structure_Tree->tree->topLevelItem(multilayer->structure_Tree->tree->topLevelItemCount()-1);
-		Data data = last->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
-		if(data.item_Type != item_Type_Substrate)
-		{
-			multilayer->structure_Tree->structure_Toolbar->toolbar->actions()[Add_Substrate]->setDisabled(false);		// add_Substrate button
-		}
-
 		if(!Global_Variables::check_Loaded_Version(1,11,0))
 		{
 			int current_Variable_Tab_Index;
@@ -1045,13 +1037,6 @@ void Multilayer_Approach::open(QString filename)
 
 		// refresh all
 		multilayer->structure_Tree->structure_Toolbar->refresh_Toolbar();
-
-		// disable adding substrate if it already exists
-		QString item_Type = multilayer->structure_Tree->tree->topLevelItem(multilayer->structure_Tree->tree->topLevelItemCount()-1)->data(DEFAULT_COLUMN,Qt::UserRole).value<Data>().item_Type;
-		if(item_Type == item_Type_Substrate)
-		{
-			multilayer->structure_Tree->structure_Toolbar->toolbar->actions()[Add_Substrate]->setDisabled(true);
-		}
 	}
 
 	// load index of active multilayer tab

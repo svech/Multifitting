@@ -543,36 +543,44 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 			struct_Table_Map.insert(structure_Item, table_Item);
 
 			// make it checkable
-			QCheckBox* item_CheckBox = new QCheckBox(Global_Variables::structure_Item_Name(struct_Data));
-				item_CheckBox->setProperty(item_Table_CheckBox_Property,item_Table_CheckBox_Property);
-				item_CheckBox->setProperty(column_Property,current_Column);
-			if(struct_Data.item_Type == item_Type_Multilayer)			{
-				item_CheckBox->setProperty(multilayer_Item_Table_CheckBox_Property,multilayer_Item_Table_CheckBox_Property);
-							   setProperty(multilayer_Item_Table_CheckBox_Property,multilayer_Item_Table_CheckBox_Property);
-				coupled_Back_Widget_and_Struct_Item.insert(item_CheckBox, structure_Item);
-			}
-			if(struct_Data.item_Type == item_Type_Regular_Aperiodic)			{
-				item_CheckBox->setProperty(regular_Aperiodic_Item_Table_CheckBox_Property,regular_Aperiodic_Item_Table_CheckBox_Property);
-				coupled_Back_Widget_and_Struct_Item.insert(item_CheckBox, structure_Item);
-			}
-			new_Table->setCellWidget(current_Row, current_Column, item_CheckBox);
-			if(struct_Data.parent_Item_Type == item_Type_Regular_Aperiodic)
+			if(struct_Data.item_Type == item_Type_Substrate)
 			{
-				item_CheckBox->setAttribute(Qt::WA_TransparentForMouseEvents, true);
-				item_CheckBox->setFocusPolicy(true ? Qt::NoFocus : Qt::StrongFocus);
-			}
-			item_CheckBox->setChecked(struct_Data.item_Enabled);
-			check_Boxes_Map.insert(item_CheckBox, structure_Item);
-			item_Check_Boxes_Map.insert(structure_Item, item_CheckBox);
-			connect(item_CheckBox, &QCheckBox::toggled, this, [=]
+				table_Item->setText(Global_Variables::structure_Item_Name(struct_Data));
+			} else
 			{
-				// enable or disable widgets
-				disable_enable_One_Item(new_Table, table_Item);				
+				QCheckBox* item_CheckBox = new QCheckBox(Global_Variables::structure_Item_Name(struct_Data));
+					item_CheckBox->setProperty(item_Table_CheckBox_Property,item_Table_CheckBox_Property);
+					item_CheckBox->setProperty(column_Property,current_Column);
+				if(struct_Data.item_Type == item_Type_Multilayer)
+				{
+					item_CheckBox->setProperty(multilayer_Item_Table_CheckBox_Property,multilayer_Item_Table_CheckBox_Property);
+								   setProperty(multilayer_Item_Table_CheckBox_Property,multilayer_Item_Table_CheckBox_Property);
+					coupled_Back_Widget_and_Struct_Item.insert(item_CheckBox, structure_Item);
+				}
+				if(struct_Data.item_Type == item_Type_Regular_Aperiodic)
+				{
+					item_CheckBox->setProperty(regular_Aperiodic_Item_Table_CheckBox_Property,regular_Aperiodic_Item_Table_CheckBox_Property);
+					coupled_Back_Widget_and_Struct_Item.insert(item_CheckBox, structure_Item);
+				}
+				new_Table->setCellWidget(current_Row, current_Column, item_CheckBox);
+				if(struct_Data.parent_Item_Type == item_Type_Regular_Aperiodic)
+				{
+					item_CheckBox->setAttribute(Qt::WA_TransparentForMouseEvents, true);
+					item_CheckBox->setFocusPolicy(true ? Qt::NoFocus : Qt::StrongFocus);
+				}
+				item_CheckBox->setChecked(struct_Data.item_Enabled);
+				check_Boxes_Map.insert(item_CheckBox, structure_Item);
+				item_Check_Boxes_Map.insert(structure_Item, item_CheckBox);
+				connect(item_CheckBox, &QCheckBox::toggled, this, [=]
+				{
+					// enable or disable widgets
+					disable_enable_One_Item(new_Table, table_Item);
 
-				// refresh view in main window
-				emit_Data_Edited();
-				if(recalculate_Spinbox_Table) {global_Multilayer_Approach->calculate(true);}
-			});
+					// refresh view in main window
+					emit_Data_Edited();
+					if(recalculate_Spinbox_Table) {global_Multilayer_Approach->calculate(true);}
+				});
+			}
 
 			current_Column = max_Depth+1;
 
@@ -1451,7 +1459,7 @@ void Table_Of_Structures::disable_enable_One_Item_Content(My_Table_Widget* table
 	int col_Index = table_Item->column();
 
 	QString item_Type = table_Item->whatsThis();
-	if( item_Type == item_Type_Layer ||	item_Type == item_Type_Substrate || item_Type == item_Type_Multilayer || item_Type == item_Type_Regular_Aperiodic || item_Type == item_Type_General_Aperiodic)
+	if( item_Type == item_Type_Layer ||	/*item_Type == item_Type_Substrate || */item_Type == item_Type_Multilayer || item_Type == item_Type_Regular_Aperiodic || item_Type == item_Type_General_Aperiodic)
 	{
 		QCheckBox* check_Box = qobject_cast<QCheckBox*>(table->cellWidget(row_Index, col_Index));
 		QTreeWidgetItem* structure_Item = check_Boxes_Map.value(check_Box);
@@ -1469,7 +1477,7 @@ void Table_Of_Structures::disable_enable_One_Item_Content(My_Table_Widget* table
 		}
 
 		int rows = 0;
-		if( item_Type == item_Type_Layer    ||	item_Type == item_Type_Substrate || item_Type == item_Type_Multilayer)	rows = 5;
+		if( item_Type == item_Type_Layer    ||	/*item_Type == item_Type_Substrate || */item_Type == item_Type_Multilayer)	rows = 5;
 
 		for(int disable_Row_Index=row_Index  ; disable_Row_Index<row_Index+rows      ; ++disable_Row_Index)
 		for(int disable_Col_Index=col_Index+1; disable_Col_Index<table->columnCount(); ++disable_Col_Index)

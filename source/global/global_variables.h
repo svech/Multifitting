@@ -47,7 +47,7 @@ extern QStringList tril;
 enum multilayer_Toolbar_Enum    { Add_Layer,
 								  Add_Multilayer,
 								  Add_Aperiodic,
-								  Add_Substrate,
+//								  Add_Substrate,
 								  Edit,
 								  Remove,
 								  Cut,

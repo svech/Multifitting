@@ -121,9 +121,11 @@ void Calculation_Tree::fill_Tree_From_Scratch(tree<Node>& calc_Tree, QTreeWidget
 	fill_Calc_Tree_From_Item_Tree(calc_Tree.begin(), calc_Tree, item_Tree->invisibleRootItem());
 
 	// if no substrate then add it equal to ambient
+	// substrate is always exists but to be sure
 	Data last_Struct_Data = calc_Tree.child(calc_Tree.begin(), calc_Tree.begin().number_of_children()-1).node->data.struct_Data;
 	if(last_Struct_Data.item_Type != item_Type_Substrate)
 	{
+		qInfo()  << endl << "Calculation_Tree::fill_Tree_From_Scratch  :  last item is not a substrate!" << endl << endl;
 		Data substrate = calc_Tree.child(calc_Tree.begin(), 0).node->data.struct_Data;
 
 		for(int interlayer_Index=0; interlayer_Index<transition_Layer_Functions_Size; interlayer_Index++)

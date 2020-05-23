@@ -28,6 +28,7 @@ void Structure_Tree::create_Toolbar()
 
 	connect(tree, &QTreeWidget::itemSelectionChanged, structure_Toolbar, &Structure_Toolbar::if_Selected);
 	structure_Toolbar->add_Ambient();
+	structure_Toolbar->add_Substrate();
 	connect(structure_Toolbar, &Structure_Toolbar::refresh_Str_And_Independ_signal, multilayer, [=]{multilayer->refresh_Structure_And_Independent();});
 
 	// shortcuts

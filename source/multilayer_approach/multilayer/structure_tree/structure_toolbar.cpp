@@ -13,7 +13,7 @@ void Structure_Toolbar::create_Toolbar()
 	QPixmap add_Layer		(Paths_Icon_Path + "add_layer.bmp");
 	QPixmap add_Multilayer  (Paths_Icon_Path + "add_multilayer.bmp");
 	QPixmap add_Aperiodic	(Paths_Icon_Path + "taj.bmp");
-	QPixmap add_Substrate	(Paths_Icon_Path + "add_substrate.bmp");
+//	QPixmap add_Substrate	(Paths_Icon_Path + "add_substrate.bmp");
 	QPixmap edit			(Paths_Icon_Path + "roi.bmp");
 	QPixmap remove			(Paths_Icon_Path + "delete.bmp");
 	QPixmap cut				(Paths_Icon_Path + "cut.bmp");
@@ -32,7 +32,7 @@ void Structure_Toolbar::create_Toolbar()
 	toolbar->addAction(QIcon(add_Layer),		"Add Layer");						// 0
 	toolbar->addAction(QIcon(add_Multilayer),	"Add Multilayer");					// 1
 	toolbar->addAction(QIcon(add_Aperiodic),	"Add Aperiodic Multilayer");		// 2
-	toolbar->addAction(QIcon(add_Substrate),	"Add Substrate");					// 3
+//	toolbar->addAction(QIcon(add_Substrate),	"Add Substrate");					// 3
 	toolbar->addAction(QIcon(edit),				"Edit");							// 4
 	toolbar->addAction(QIcon(remove),			"Remove");							// 5
 	toolbar->addAction(QIcon(cut),				"Cut");								// 6
@@ -52,7 +52,7 @@ void Structure_Toolbar::create_Toolbar()
 	connect(toolbar->actions()[Add_Layer],		 &QAction::triggered, this, &Structure_Toolbar::add_Layer);
 	connect(toolbar->actions()[Add_Multilayer],  &QAction::triggered, this, &Structure_Toolbar::add_Multilayer);
 	connect(toolbar->actions()[Add_Aperiodic],   &QAction::triggered, this, &Structure_Toolbar::add_Aperiodic);
-	connect(toolbar->actions()[Add_Substrate],   &QAction::triggered, this, &Structure_Toolbar::add_Substrate);
+//	connect(toolbar->actions()[Add_Substrate],   &QAction::triggered, this, &Structure_Toolbar::add_Substrate);
 	connect(toolbar->actions()[Edit],			 &QAction::triggered, this, &Structure_Toolbar::edit);
 	connect(toolbar->actions()[Remove],			 &QAction::triggered, this, &Structure_Toolbar::remove);
 	connect(toolbar->actions()[Cut],			 &QAction::triggered, this, &Structure_Toolbar::cut);
@@ -389,7 +389,9 @@ void Structure_Toolbar::add_Substrate()
 
 	structure_Tree->tree->addTopLevelItem(new_Substrate);
 
-	toolbar->actions()[Add_Substrate]->setDisabled(true);
+//	toolbar->actions()[Add_Substrate]->setDisabled(true);
+	structure_Tree->set_Structure_Item_Text(new_Substrate);
+	structure_Tree->set_Item_Parent_Type(new_Substrate);
 	refresh_Toolbar();
 }
 
@@ -482,7 +484,7 @@ void Structure_Toolbar::remove()
 		{
 			if(!ask_Parent_Multilayer()) delete current;
 		}
-	} else
+	} /*else
 	if(data.item_Type == item_Type_Substrate)
 	{
 		QMessageBox::StandardButton reply = QMessageBox::question(this,"Removal", "Really remove substrate?", QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
@@ -492,7 +494,7 @@ void Structure_Toolbar::remove()
 			// cppcheck-suppress doubleFree
 			delete current;
 		}
-	}
+	}*/
 
 	refresh_Toolbar();
 }
@@ -661,7 +663,8 @@ void Structure_Toolbar::destroy()
 
 		structure_Tree->tree->clear();
 		add_Ambient();
-		toolbar->actions()[Add_Substrate]->setDisabled(false);		// add_Substrate
+		add_Substrate();
+//		toolbar->actions()[Add_Substrate]->setDisabled(false);		// add_Substrate
 		refresh_Toolbar();
 	}
 }
@@ -1111,6 +1114,7 @@ void Structure_Toolbar::if_Selected()
 					toolbar->actions()[Cut]->setDisabled(true);		// cut
 					toolbar->actions()[Copy]->setDisabled(true);	// copy
 					toolbar->actions()[Move_Up]->setDisabled(true);	// move_Up
+					toolbar->actions()[Remove]->setDisabled(true);	// remove
 				} else
 				{
 					// if second
