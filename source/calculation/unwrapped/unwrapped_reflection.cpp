@@ -1,6 +1,7 @@
 #include "unwrapped_reflection.h"
+#include "multilayer_approach/multilayer/multilayer.h"
 
-Unwrapped_Reflection::Unwrapped_Reflection(Unwrapped_Structure* unwrapped_Structure, int num_Media,
+Unwrapped_Reflection::Unwrapped_Reflection(Multilayer* multilayer, Unwrapped_Structure* unwrapped_Structure, int num_Media,
 										   const Data& measurement, bool depth_Grading, bool sigma_Grading,
 										   const Calc_Functions& calc_Functions, Calculated_Values& calculated_Values, QString calc_Mode):
 	num_Threads		(reflectivity_Calc_Threads),
@@ -15,6 +16,7 @@ Unwrapped_Reflection::Unwrapped_Reflection(Unwrapped_Structure* unwrapped_Struct
 	calculated_Values(calculated_Values),
 	calc_Mode		(calc_Mode),
 	unwrapped_Structure(unwrapped_Structure),
+	multilayer (multilayer),
 	measurement(measurement),
 
 	r_Fresnel_s(num_Threads,vector<complex<double>>(num_Boundaries)),
@@ -46,17 +48,12 @@ Unwrapped_Reflection::Unwrapped_Reflection(Unwrapped_Structure* unwrapped_Struct
 	weak_Factor_R (num_Threads,vector<complex<double>>(num_Boundaries)),
 	weak_Factor_T (num_Threads,vector<complex<double>>(num_Boundaries))
 {	
-	// PARAMETER
-	if( measurement.measurement_Type == measurement_Types[Specular_Scan] &&
-		measurement.argument_Type  == argument_Types[Beam_Grazing_Angle] )
+	if( measurement.measurement_Type == measurement_Types[Specular_Scan] )
 	{
-		num_Points = measurement.beam_Theta_0_Cos2_Vec.size();
+		if( measurement.argument_Type  == argument_Types[Beam_Grazing_Angle] )	num_Points = measurement.beam_Theta_0_Angle_Vec.size();
+		if( measurement.argument_Type  == argument_Types[Wavelength_Energy] )	num_Points = measurement.lambda_Vec.size();
 	}
-	if( measurement.measurement_Type == measurement_Types[Specular_Scan] &&
-		measurement.argument_Type  == argument_Types[Wavelength_Energy] )
-	{
-		num_Points = measurement.lambda_Vec.size();
-	}
+	if( measurement.measurement_Type == measurement_Types[Detector_Scan] )		num_Points = measurement.detector_Theta_Angle_Vec.size()+1; // scattered + 1 specular point
 
 	// reflectance
 	if(	unwrapped_Structure->calc_Functions.check_Reflectance ||
@@ -115,10 +112,10 @@ Unwrapped_Reflection::Unwrapped_Reflection(Unwrapped_Structure* unwrapped_Struct
 	// scattering
 	if(	unwrapped_Structure->calc_Functions.check_Scattering)
 	{
-		calculated_Values.S_s.resize(num_Points);
-		calculated_Values.S_p.resize(num_Points);
-		calculated_Values.S  .resize(num_Points);
-		calculated_Values.S_Instrumental.resize(num_Points);
+		calculated_Values.S_s.resize(measurement.detector_Theta_Angle_Vec.size());
+		calculated_Values.S_p.resize(measurement.detector_Theta_Angle_Vec.size());
+		calculated_Values.S  .resize(measurement.detector_Theta_Angle_Vec.size());
+		calculated_Values.S_Instrumental.resize(measurement.detector_Theta_Angle_Vec.size());
 	}
 	// GISAS
 	if(	unwrapped_Structure->calc_Functions.check_GISAS)
@@ -129,10 +126,30 @@ Unwrapped_Reflection::Unwrapped_Reflection(Unwrapped_Structure* unwrapped_Struct
 //		calculated_Values.GISAS_Map;
 //		calculated_Values.GISAS_Instrumental;
 	}
-}
 
-Unwrapped_Reflection::~Unwrapped_Reflection()
-{
+	// storing field amplitudes on boundaries at each point
+	if(	unwrapped_Structure->calc_Functions.check_Field ||
+		unwrapped_Structure->calc_Functions.check_Joule ||
+		unwrapped_Structure->calc_Functions.check_Scattering ||
+		unwrapped_Structure->calc_Functions.check_GISAS )
+	{
+		// s-polarization
+		if( (measurement.polarization + 1) > POLARIZATION_TOLERANCE)
+		{
+			calculated_Values.PT_Field_Term_s.resize(num_Points);
+			for(int i=0; i<num_Points; i++)		{
+				calculated_Values.PT_Field_Term_s[i].resize(num_Boundaries);
+			}
+		}
+		// p-polarization
+		if( (measurement.polarization - 1) < -POLARIZATION_TOLERANCE)
+		{
+			calculated_Values.PT_Field_Term_p.resize(num_Points);
+			for(int i=0; i<num_Points; i++)		{
+				calculated_Values.PT_Field_Term_p[i].resize(num_Boundaries);
+			}
+		}
+	}
 }
 
 int Unwrapped_Reflection::fill_s__Max_Depth_3(const tree<Node>::iterator& parent, int thread_Index, int point_Index, int media_Index)
@@ -440,19 +457,17 @@ int Unwrapped_Reflection::fill_sp_Max_Depth_3(const tree<Node>::iterator& parent
 	return media_Index;
 }
 
-void Unwrapped_Reflection::fill_Epsilon_Ambient_Substrate(int thread_Index, vector<complex<double>>& epsilon_In_Depth)
+void Unwrapped_Reflection::fill_Epsilon_Ambient_Substrate(int thread_Index, const vector<complex<double>>& epsilon_Vector)
 {
-	epsilon_Ambient  [thread_Index] = epsilon_In_Depth.front();
-	epsilon_Substrate[thread_Index] = epsilon_In_Depth.back();
+	epsilon_Ambient  [thread_Index] = epsilon_Vector.front();
+	epsilon_Substrate[thread_Index] = epsilon_Vector.back();
 }
 
-void Unwrapped_Reflection::calc_Hi(double k, double cos2,
-								   const vector<complex<double>>& eps,
-								   int thread_Index)
+void Unwrapped_Reflection::calc_Hi(int thread_Index, double k, double cos2, const vector<complex<double>>& epsilon_Vector)
 {
 	for (int i = 0; i < num_Media; ++i)
 	{
-		hi[thread_Index][i] = k*sqrt(eps[i] - cos2);
+		hi[thread_Index][i] = k*sqrt(epsilon_Vector[i] - cos2);
 	}
 }
 
@@ -634,15 +649,10 @@ void Unwrapped_Reflection::calc_Weak_Factor(int thread_Index)
 	}
 }
 
-void Unwrapped_Reflection::calc_Fresnel(double polarization,
-										const vector<complex<double>>& eps,
-//										const vector<double>& eps_RE,
-//										const vector<double>& eps_IM,
-//										const vector<double>& eps_NORM,
-										int thread_Index)
+void Unwrapped_Reflection::calc_Fresnel(int thread_Index, const vector<complex<double>>& epsilon_Vector)
 {
 	// s-polarization
-	if (polarization >-1)
+	if( (measurement.polarization + 1) > POLARIZATION_TOLERANCE)
 	{
 		// reflectance only
 		if( calc_Functions.if_Reflectance_Only() )
@@ -681,7 +691,7 @@ void Unwrapped_Reflection::calc_Fresnel(double polarization,
 		}
 	}
 	// p-polarization
-	if (polarization < 1)
+	if( (measurement.polarization - 1) < -POLARIZATION_TOLERANCE)
 	{
 		complex<double> hi_je, hi_j1e;
 		// reflectance only
@@ -689,8 +699,8 @@ void Unwrapped_Reflection::calc_Fresnel(double polarization,
 		{
 			for (int i = 0; i < num_Boundaries; ++i)
 			{
-				hi_je = hi[thread_Index][i]/eps[i];
-				hi_j1e = hi[thread_Index][i+1]/eps[i+1];
+				hi_je = hi[thread_Index][i]/epsilon_Vector[i];
+				hi_j1e = hi[thread_Index][i+1]/epsilon_Vector[i+1];
 
 				if ( abs(hi_je+hi_j1e) > DBL_MIN )
 				{
@@ -705,8 +715,8 @@ void Unwrapped_Reflection::calc_Fresnel(double polarization,
 		{
 			for (int i = 0; i < num_Boundaries; ++i)
 			{
-				hi_je = hi[thread_Index][i]/eps[i];
-				hi_j1e = hi[thread_Index][i+1]/eps[i+1];
+				hi_je = hi[thread_Index][i]/epsilon_Vector[i];
+				hi_j1e = hi[thread_Index][i+1]/epsilon_Vector[i+1];
 
 				if ( abs(hi_je+hi_j1e) > DBL_MIN )
 				{
@@ -746,10 +756,10 @@ void Unwrapped_Reflection::calc_Exponenta(int thread_Index, const vector<double>
 	}
 }
 
-void Unwrapped_Reflection::calc_Local(double polarization, int thread_Index)
+void Unwrapped_Reflection::calc_Local(int thread_Index)
 {
 	// s-polarization
-	if (polarization >-1)
+	if( (measurement.polarization + 1) > POLARIZATION_TOLERANCE)
 	{
 		// reflectance only
 		if( calc_Functions.if_Reflectance_Only() )
@@ -778,7 +788,7 @@ void Unwrapped_Reflection::calc_Local(double polarization, int thread_Index)
 		}
 	}
 	// p-polarization
-	if (polarization <1)
+	if( (measurement.polarization - 1) < -POLARIZATION_TOLERANCE)
 	{
 		// reflectance only
 		if( calc_Functions.if_Reflectance_Only() )
@@ -808,46 +818,53 @@ void Unwrapped_Reflection::calc_Local(double polarization, int thread_Index)
 	}
 }
 
-void Unwrapped_Reflection::calc_Field(double polarization, int thread_Index, int point_Index, const vector<complex<double>>& epsilon_Vector)
+void Unwrapped_Reflection::calc_Amplitudes_Field(int thread_Index, int point_Index)
+{
+	// s-polarization
+	if( (measurement.polarization + 1) > POLARIZATION_TOLERANCE)
+	{
+		U_i_s[thread_Index].front() = 1;
+		U_r_s[thread_Index].front() = r_Local_s[thread_Index].front();
+		calculated_Values.PT_Field_Term_s[point_Index].front() = U_i_s[thread_Index].front() + U_r_s[thread_Index].front();
+
+		for (int j = 1; j<num_Boundaries; j++)
+		{
+			U_i_s[thread_Index][j] = U_i_s[thread_Index][j-1] * t_Local_s[thread_Index][j-1] / t_Local_s[thread_Index][j  ];
+			U_r_s[thread_Index][j] = U_i_s[thread_Index][j] * r_Local_s[thread_Index][j];
+			calculated_Values.PT_Field_Term_s[point_Index][j] = U_i_s[thread_Index][j] + U_r_s[thread_Index][j];
+		}
+		U_i_s[thread_Index].back() = U_i_s[thread_Index][num_Boundaries-1] * t_Local_s[thread_Index].back();
+		U_r_s[thread_Index].back() = 0;
+	}
+	// p-polarization
+	if( (measurement.polarization - 1) < -POLARIZATION_TOLERANCE)
+	{
+		U_i_p[thread_Index].front() = 1;
+		U_r_p[thread_Index].front() = r_Local_p[thread_Index].front();
+		calculated_Values.PT_Field_Term_p[point_Index].front() = U_i_p[thread_Index].front() + U_r_p[thread_Index].front();
+
+		for (int j = 1; j<num_Boundaries; j++)
+		{
+			U_i_p[thread_Index][j] = U_i_p[thread_Index][j-1] * t_Local_p[thread_Index][j-1] / t_Local_p[thread_Index][j  ];
+			U_r_p[thread_Index][j] = U_i_p[thread_Index][j] * r_Local_p[thread_Index][j];
+			calculated_Values.PT_Field_Term_p[point_Index][j] = U_i_p[thread_Index][j] + U_r_p[thread_Index][j];
+		}
+		U_i_p[thread_Index].back() = U_i_p[thread_Index][num_Boundaries-1] * t_Local_p[thread_Index].back();
+		U_r_p[thread_Index].back() = 0;
+	}
+}
+
+void Unwrapped_Reflection::calc_Sliced_Field(int thread_Index, int point_Index, const vector<complex<double>>& epsilon_Vector)
 {
 	// s-polarization
 	if( calc_Functions.check_Field ||
 		calc_Functions.check_Joule )
 	{
-		// field in structure
-
-		if (polarization >-1)
-		{
-			U_i_s[thread_Index].front() = 1;
-			U_r_s[thread_Index].front() = r_Local_s[thread_Index].front();
-
-			for (int j = 1; j<num_Boundaries; j++)
-			{
-				U_i_s[thread_Index][j] = U_i_s[thread_Index][j-1] * t_Local_s[thread_Index][j-1] / t_Local_s[thread_Index][j  ];
-				U_r_s[thread_Index][j] = U_i_s[thread_Index][j] * r_Local_s[thread_Index][j];
-			}
-			U_i_s[thread_Index].back() = U_i_s[thread_Index][num_Boundaries-1] * t_Local_s[thread_Index].back();
-			U_r_s[thread_Index].back() = 0;
-		}
-
-		// p-polarization
-		if (polarization <1)
-		{
-			U_i_p[thread_Index].front() = 1;
-			U_r_p[thread_Index].front() = r_Local_p[thread_Index].front();
-
-			for (int j = 1; j<num_Boundaries; j++)
-			{
-				U_i_p[thread_Index][j] = U_i_p[thread_Index][j-1] * t_Local_p[thread_Index][j-1] / t_Local_p[thread_Index][j  ];
-				U_r_p[thread_Index][j] = U_i_p[thread_Index][j] * r_Local_p[thread_Index][j];
-			}
-			U_i_p[thread_Index].back() = U_i_p[thread_Index][num_Boundaries-1] * t_Local_p[thread_Index].back();
-			U_r_p[thread_Index].back() = 0;
-		}
+		calc_Amplitudes_Field(thread_Index, point_Index);
 
 		// field intensity
-		double s_Weight = (1. + polarization) / 2.;
-		double p_Weight = (1. - polarization) / 2.;
+		double s_Weight = (1. + measurement.polarization) / 2.;
+		double p_Weight = (1. - measurement.polarization) / 2.;
 
 		complex<double> U_s, U_p, iChi, e_i, e_r;
 		for(int z_Index=0; z_Index<unwrapped_Structure->num_Field_Slices; z_Index++)
@@ -861,12 +878,14 @@ void Unwrapped_Reflection::calc_Field(double polarization, int thread_Index, int
 			e_r = exp(iChi*(-z+boundaries_Enlarged[media_Index]));
 
 			double field_Value = 0;
-			if (polarization >-1)
+			// s-polarization
+			if( (measurement.polarization + 1) > POLARIZATION_TOLERANCE)
 			{
 				U_s = U_i_s[thread_Index][media_Index] * e_i + U_r_s[thread_Index][media_Index] * e_r;
 				field_Value+=s_Weight*pow(abs(U_s),2);
 			}
-			if (polarization < 1)
+			// p-polarization
+			if( (measurement.polarization - 1) < -POLARIZATION_TOLERANCE)
 			{
 				U_p = U_i_p[thread_Index][media_Index] * e_i + U_r_p[thread_Index][media_Index] * e_r;
 				field_Value+=p_Weight*pow(abs(U_p),2);
@@ -876,6 +895,45 @@ void Unwrapped_Reflection::calc_Field(double polarization, int thread_Index, int
 			calculated_Values.absorption_Map [point_Index][z_Index] = field_Value * imag(epsilon_Vector[media_Index]); // consider sigma?
 //			Kossel[point_Index] += field_Value*unwrapped_Structure->calc_Functions.field_Step;
 		}
+	}
+}
+
+void Unwrapped_Reflection::calc_PT_Sharp_Field_Terms(int point_Index, const vector<complex<double>>& epsilon_Vector)
+{
+	// s-polarization
+	if( (measurement.polarization + 1) > POLARIZATION_TOLERANCE)
+	{
+		for (int j = 0; j<num_Boundaries; j++)
+		{
+			calculated_Values.PT_Field_Term_s[point_Index][j] *= calculated_Values.PT_Field_Term_s[point_Index].back()*(epsilon_Vector[j+1]-epsilon_Vector[j]); // even for last term
+		}
+	}
+	// p-polarization
+	if( (measurement.polarization - 1) < -POLARIZATION_TOLERANCE)
+	{
+		for (int j = 0; j<num_Boundaries; j++)
+		{
+			calculated_Values.PT_Field_Term_p[point_Index][j] *= calculated_Values.PT_Field_Term_p[point_Index].back()*(epsilon_Vector[j+1]-epsilon_Vector[j]); // even for last term
+		}
+	}
+}
+
+double Unwrapped_Reflection::PSD_Common_Value(int point_Index)
+{
+	// get common PSD parameters
+	int substrate_Index = unwrapped_Structure->calc_Tree.begin().number_of_children()-1;
+	tree<Node>::post_order_iterator substrate_Child = tree<Node>::child(unwrapped_Structure->calc_Tree.begin(), substrate_Index);
+	const Data& substrate = substrate_Child.node->data.struct_Data;
+	if(substrate.item_Type != item_Type_Substrate ) {qInfo() << "Unwrapped_Reflection::calc_PT_PSD_Terms  :  last item is not substrate!" << endl;}
+
+	if(multilayer->imperfections_Model.common_Model == ABC_model)
+	{
+		return Global_Variables::PSD_ABC_1D(substrate.roughness_Model.sigma.value,
+											substrate.roughness_Model.cor_radius.value,
+											substrate.roughness_Model.fractal_alpha.value,
+											measurement.k_Value,
+											measurement.detector_Theta_Cos_Vec[point_Index],
+											measurement.beam_Theta_0_Cos_Value);
 	}
 }
 
@@ -891,12 +949,11 @@ void Unwrapped_Reflection::calc_Environmental_Factor(int thread_Index)
 	if(isnan(environment_Factor_p[thread_Index])) {environment_Factor_p[thread_Index] = 0;}
 }
 
-void Unwrapped_Reflection::multifly_Fresnel_And_Weak_Factor(double polarization, int thread_Index)
+void Unwrapped_Reflection::multifly_Fresnel_And_Weak_Factor(int thread_Index)
 {
-	/// used only in if Fresnel was taken from Node
-
+	/// used only in if Fresnel was taken from Node	
 	// s-polarization
-	if (polarization >-1)
+	if( (measurement.polarization + 1) > POLARIZATION_TOLERANCE)
 	{
 		for (int i = 0; i < num_Boundaries; ++i)
 		{
@@ -909,7 +966,7 @@ void Unwrapped_Reflection::multifly_Fresnel_And_Weak_Factor(double polarization,
 	}
 
 	// p-polarization
-	if (polarization < 1)
+	if( (measurement.polarization - 1) < -POLARIZATION_TOLERANCE)
 	{
 		for (int i = 0; i < num_Boundaries; ++i)
 		{
@@ -922,20 +979,19 @@ void Unwrapped_Reflection::multifly_Fresnel_And_Weak_Factor(double polarization,
 	}
 }
 
-void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(const Data& measurement, int thread_Index, int point_Index)
+void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int point_Index)
 {
 //	auto start = std::chrono::system_clock::now();
-	// PARAMETER
 	if(!unwrapped_Structure->discretization_Parameters.enable_Discretization)
 	{		
 		if( max_Depth <= depth_Threshold)
 		{
 			// in case of grading, some of these values are temporary and will be recalculated
-			if( abs(measurement.polarization - 1) < POLARIZATION_TOLERANCE )			// s-polarization only
+			if( (measurement.polarization - 1) > -POLARIZATION_TOLERANCE )		// s-polarization only
 			{
 				fill_s__Max_Depth_3(unwrapped_Structure->calc_Tree.begin(), thread_Index, point_Index);
 			} else
-			if( abs(measurement.polarization + 1) < POLARIZATION_TOLERANCE )			// p-polarization only
+			if( (measurement.polarization + 1) < POLARIZATION_TOLERANCE )		// p-polarization only
 			{
 				fill_p__Max_Depth_3(unwrapped_Structure->calc_Tree.begin(), thread_Index, point_Index);
 			} else																// both polarizations
@@ -948,42 +1004,40 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(const Data& measuremen
 			{
 				calc_Exponenta(thread_Index,unwrapped_Structure->thickness);
 			}
-			if( sigma_Grading )
+			if( sigma_Grading && measurement.measurement_Type == measurement_Types[Specular_Scan] )
 			{
 				calc_Weak_Factor(thread_Index);
-				multifly_Fresnel_And_Weak_Factor(measurement.polarization, thread_Index);
+				multifly_Fresnel_And_Weak_Factor(thread_Index);
 			}
 		} else
 		{
-			if( measurement.measurement_Type == measurement_Types[Specular_Scan] &&
-				measurement.argument_Type  == argument_Types[Beam_Grazing_Angle] )
-			{
-				fill_Epsilon_Ambient_Substrate(thread_Index, unwrapped_Structure->epsilon);
-				calc_Hi(measurement.k_Value, measurement.beam_Theta_0_Cos2_Vec[point_Index],
-						unwrapped_Structure->epsilon,
-						thread_Index);
-				calc_Weak_Factor(thread_Index);
-				calc_Exponenta(thread_Index,unwrapped_Structure->thickness);
-				calc_Fresnel(measurement.polarization,
-							 unwrapped_Structure->epsilon,
-							 thread_Index);
-			}
-			if( measurement.measurement_Type == measurement_Types[Specular_Scan] &&
-				measurement.argument_Type  == argument_Types[Wavelength_Energy] )
+			if( measurement.argument_Type  == argument_Types[Wavelength_Energy] )
 			{
 				fill_Epsilon_Ambient_Substrate(thread_Index, unwrapped_Structure->epsilon_Dependent[point_Index]);
-				calc_Hi(measurement.k_Vec[point_Index], measurement.beam_Theta_0_Cos2_Value,
-						unwrapped_Structure->epsilon_Dependent	 [point_Index],
-						thread_Index);
+				calc_Hi(thread_Index, measurement.k_Vec[point_Index], measurement.beam_Theta_0_Cos2_Value, unwrapped_Structure->epsilon_Dependent[point_Index]);
 				calc_Weak_Factor(thread_Index);
+				calc_Exponenta(thread_Index, unwrapped_Structure->thickness);
+				calc_Fresnel(thread_Index, unwrapped_Structure->epsilon_Dependent[point_Index]);
+			} else
+			// for all angular simulations, including scattering
+			{
+				fill_Epsilon_Ambient_Substrate(thread_Index, unwrapped_Structure->epsilon);
+				calc_Hi(thread_Index, measurement.k_Value, measurement.beam_Theta_0_Cos2_Vec[point_Index],unwrapped_Structure->epsilon);
+				if( measurement.measurement_Type == measurement_Types[Specular_Scan] )
+				{ calc_Weak_Factor(thread_Index); }
 				calc_Exponenta(thread_Index,unwrapped_Structure->thickness);
-				calc_Fresnel(measurement.polarization,
-							 unwrapped_Structure->epsilon_Dependent		[point_Index],
-							 thread_Index);
+				calc_Fresnel(thread_Index, unwrapped_Structure->epsilon);
 			}
 		}
 	} else
+	// discretization
 	{
+		// TODO scattering
+		if(measurement.measurement_Type != measurement_Types[Specular_Scan])
+		{
+			qInfo() <<  "Unwrapped_Reflection::calc_Specular_1_Point_1_Thread  :  discretization is not done" << endl;
+		}
+
 		// weak factors are "not used" with discretization. only formally
 		for(int thread_Index=0; thread_Index<num_Threads; thread_Index++)
 		{
@@ -992,61 +1046,95 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(const Data& measuremen
 		}
 
 		if( measurement.measurement_Type == measurement_Types[Specular_Scan] &&
-			measurement.argument_Type  == argument_Types[Beam_Grazing_Angle] )
-		{
-			fill_Epsilon_Ambient_Substrate(thread_Index, unwrapped_Structure->epsilon); // here can be passed non-discretized epsilon
-			calc_Hi(measurement.k_Value, measurement.beam_Theta_0_Cos2_Vec[point_Index],
-					unwrapped_Structure->discretized_Epsilon,
-					thread_Index);
-			calc_Exponenta(thread_Index,unwrapped_Structure->discretized_Thickness);
-			calc_Fresnel(measurement.polarization,
-						 unwrapped_Structure->discretized_Epsilon,
-						 thread_Index);
-		}
-		if( measurement.measurement_Type == measurement_Types[Specular_Scan] &&
 			measurement.argument_Type  == argument_Types[Wavelength_Energy] )
 		{
 			fill_Epsilon_Ambient_Substrate(thread_Index, unwrapped_Structure->epsilon_Dependent[point_Index]); // here can be passed non-discretized epsilon
-			calc_Hi(measurement.k_Vec[point_Index], measurement.beam_Theta_0_Cos2_Value,
-					unwrapped_Structure->discretized_Epsilon_Dependent[point_Index],
-					thread_Index);
+			calc_Hi(thread_Index, measurement.k_Vec[point_Index], measurement.beam_Theta_0_Cos2_Value, unwrapped_Structure->discretized_Epsilon_Dependent[point_Index]);
 			calc_Exponenta(thread_Index,unwrapped_Structure->discretized_Thickness);
-			calc_Fresnel(measurement.polarization,
-						 unwrapped_Structure->discretized_Epsilon_Dependent     [point_Index],
-						 thread_Index);
+			calc_Fresnel(thread_Index, unwrapped_Structure->discretized_Epsilon_Dependent[point_Index]);
+		}
+		if( measurement.measurement_Type == measurement_Types[Specular_Scan] &&
+			measurement.argument_Type  == argument_Types[Beam_Grazing_Angle] )
+		{
+			fill_Epsilon_Ambient_Substrate(thread_Index, unwrapped_Structure->epsilon); // here can be passed non-discretized epsilon
+			calc_Hi(thread_Index, measurement.k_Value, measurement.beam_Theta_0_Cos2_Vec[point_Index], unwrapped_Structure->discretized_Epsilon);
+			calc_Exponenta(thread_Index,unwrapped_Structure->discretized_Thickness);
+			calc_Fresnel(thread_Index, unwrapped_Structure->discretized_Epsilon);
 		}
 	}
 
 //	auto end = std::chrono::system_clock::now();
 
-	calc_Local(measurement.polarization, thread_Index);
+	calc_Local(thread_Index);
 
 //	auto enD = std::chrono::system_clock::now();
 //	auto elapseD = std::chrono::duration_cast<std::chrono::nanoseconds>(enD - end);
 
 //	auto start_Field = std::chrono::system_clock::now();
-	if( measurement.measurement_Type == measurement_Types[Specular_Scan] &&
-		measurement.argument_Type  == argument_Types[Beam_Grazing_Angle] )
+
+	// if we need to calculate detailed field distribution
+	if( measurement.measurement_Type == measurement_Types[Specular_Scan] )
+	{
+		if( measurement.argument_Type  == argument_Types[Beam_Grazing_Angle] )
+		{
+			if(!unwrapped_Structure->discretization_Parameters.enable_Discretization)	{
+				calc_Sliced_Field(thread_Index, point_Index, unwrapped_Structure->epsilon);
+			} else	{
+				calc_Sliced_Field(thread_Index, point_Index, unwrapped_Structure->discretized_Epsilon);
+			}
+		}
+		if( measurement.argument_Type == argument_Types[Wavelength_Energy] )
+		{
+			if(!unwrapped_Structure->discretization_Parameters.enable_Discretization)	{
+				calc_Sliced_Field(thread_Index, point_Index, unwrapped_Structure->epsilon_Dependent[point_Index]);
+			} else	{
+				calc_Sliced_Field(thread_Index, point_Index, unwrapped_Structure->discretized_Epsilon_Dependent[point_Index]);
+			}
+		}
+	}
+
+	if( measurement.measurement_Type == measurement_Types[Detector_Scan] )
 	{
 		if(!unwrapped_Structure->discretization_Parameters.enable_Discretization)
 		{
-			calc_Field(measurement.polarization, thread_Index, point_Index, unwrapped_Structure->epsilon);
-		} else
-		{
-			calc_Field(measurement.polarization, thread_Index, point_Index, unwrapped_Structure->discretized_Epsilon);
+			if(multilayer->imperfections_Model.approximation == PT_approximation)
+			{
+				calc_Amplitudes_Field(thread_Index, point_Index);
+				if(point_Index<measurement.detector_Theta_Angle_Vec.size())
+				{
+					calc_PT_Sharp_Field_Terms(point_Index, unwrapped_Structure->epsilon);
+
+					if(multilayer->imperfections_Model.vertical_Correlation == full_Correlation)
+					{
+						double e_Factor = pow(measurement.k_Value,3)/(16*M_PI*measurement.beam_Theta_0_Sin_Value*sqrt(measurement.beam_Theta_0_Cos_Value*measurement.detector_Theta_Cos_Vec[point_Index]));
+						double PSD_factor = PSD_Common_Value(point_Index);
+
+						// s-polarization
+						if( (measurement.polarization + 1) > POLARIZATION_TOLERANCE)
+						{
+							complex<double> field_Term_Sum_s = 0;
+							for (int j = 0; j<num_Boundaries; j++)
+							{
+								field_Term_Sum_s += calculated_Values.PT_Field_Term_s[point_Index][j];
+							}
+							calculated_Values.S_s[point_Index] = e_Factor * pow(abs(field_Term_Sum_s),2) * PSD_factor;
+						}
+						// p-polarization
+						if( (measurement.polarization - 1) < -POLARIZATION_TOLERANCE)
+						{
+							complex<double> field_Term_Sum_p = 0;
+							for (int j = 0; j<num_Boundaries; j++)
+							{
+								field_Term_Sum_p += calculated_Values.PT_Field_Term_p[point_Index][j];
+							}
+							calculated_Values.S_p[point_Index] = e_Factor * pow(abs(field_Term_Sum_p),2) * PSD_factor;
+						}
+					}
+				}
+			}
 		}
 	}
-	if( measurement.measurement_Type == measurement_Types[Specular_Scan] &&
-		measurement.argument_Type  == argument_Types[Wavelength_Energy] )
-	{
-		if(!unwrapped_Structure->discretization_Parameters.enable_Discretization)
-		{
-			calc_Field(measurement.polarization, thread_Index, point_Index, unwrapped_Structure->epsilon_Dependent[point_Index]);
-		} else
-		{
-			calc_Field(measurement.polarization, thread_Index, point_Index, unwrapped_Structure->discretized_Epsilon_Dependent[point_Index]);
-		}
-	}
+
 //	auto end_Field = std::chrono::system_clock::now();
 //	auto elapsed_Field = std::chrono::duration_cast<std::chrono::nanoseconds>(end_Field - start_Field);
 
@@ -1059,7 +1147,7 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(const Data& measuremen
 //	}
 }
 
-void Unwrapped_Reflection::fill_Specular_Values(const Data& measurement, int thread_Index, int point_Index)
+void Unwrapped_Reflection::fill_Specular_Values(int thread_Index, int point_Index)
 {
 	double s_Weight = (1. + measurement.polarization) / 2.;
 	double p_Weight = (1. - measurement.polarization) / 2.;
@@ -1076,7 +1164,7 @@ void Unwrapped_Reflection::fill_Specular_Values(const Data& measurement, int thr
 		calculated_Values.R_s	 [point_Index] = pow(abs(r_s),2);
 		calculated_Values.R_p	 [point_Index] = pow(abs(r_p),2);
 		calculated_Values.R		 [point_Index] = s_Weight * calculated_Values.R_s[point_Index] + p_Weight * calculated_Values.R_p[point_Index];
-		//	calculated_Values.R_Instrumental  later
+		calculated_Values.R_Instrumental[point_Index] = calculated_Values.R[point_Index];
 
 		// NaN
 		if(isnan(calculated_Values.R[point_Index]))
@@ -1103,7 +1191,7 @@ void Unwrapped_Reflection::fill_Specular_Values(const Data& measurement, int thr
 		calculated_Values.T_s	 [point_Index] = pow(abs(t_s),2)*environment_Factor_s[thread_Index];
 		calculated_Values.T_p	 [point_Index] = pow(abs(t_p),2)*environment_Factor_p[thread_Index];
 		calculated_Values.T		 [point_Index] = s_Weight * calculated_Values.T_s[point_Index] + p_Weight * calculated_Values.T_p[point_Index];
-		//	calculated_Values.T_Instrumental  later
+		calculated_Values.T_Instrumental[point_Index] = calculated_Values.T[point_Index];
 
 		// NaN
 		if(isnan(calculated_Values.T[point_Index]))
@@ -1140,11 +1228,13 @@ void Unwrapped_Reflection::fill_Specular_Values(const Data& measurement, int thr
 	// scattering
 	if(	unwrapped_Structure->calc_Functions.check_Scattering)
 	{
-		// TODO
-//		calculated_Values.S_s
-//		calculated_Values.S_p
-//		calculated_Values.S
-		//	calculated_Values.S_Instrumental  later
+		if(point_Index<measurement.detector_Theta_Angle_Vec.size())
+		{
+//			calculated_Values.S_s			[point_Index] = pow(abs(r_s),2);
+//			calculated_Values.S_p			[point_Index] = pow(abs(r_p),2);
+			calculated_Values.S				[point_Index] = s_Weight * calculated_Values.S_s[point_Index] + p_Weight * calculated_Values.S_p[point_Index];
+			calculated_Values.S_Instrumental[point_Index] = calculated_Values.S[point_Index];
+		}
 	}
 	// GISAS
 	if(	unwrapped_Structure->calc_Functions.check_GISAS)
@@ -1157,12 +1247,12 @@ void Unwrapped_Reflection::fill_Specular_Values(const Data& measurement, int thr
 	}
 }
 
-void Unwrapped_Reflection::calc_Specular_nMin_nMax_1_Thread(const Data& measurement, int n_Min, int n_Max, int thread_Index)
+void Unwrapped_Reflection::calc_Specular_nMin_nMax_1_Thread(int n_Min, int n_Max, int thread_Index)
 {
 	for(int point_Index = n_Min; point_Index<n_Max; ++point_Index)
 	{
-		calc_Specular_1_Point_1_Thread(measurement, thread_Index, point_Index);
-		fill_Specular_Values		  (measurement, thread_Index, point_Index);
+		calc_Specular_1_Point_1_Thread(thread_Index, point_Index);
+		fill_Specular_Values		  (thread_Index, point_Index);
 	}
 }
 
@@ -1183,7 +1273,7 @@ void Unwrapped_Reflection::calc_Specular()
 		{
 			n_Max = num_Points;
 		}
-		global_Workers[thread_Index] = thread(&Unwrapped_Reflection::calc_Specular_nMin_nMax_1_Thread, this, measurement, n_Min, n_Max, thread_Index);
+		global_Workers[thread_Index] = thread(&Unwrapped_Reflection::calc_Specular_nMin_nMax_1_Thread, this, n_Min, n_Max, thread_Index);
 	}
 	// join threads
 	for (int thread_Index = 0; thread_Index < num_Threads; ++thread_Index)

@@ -266,6 +266,7 @@ void Main_Calculation_Module::single_Calculation(bool print_And_Verbose)
 
 	for(int tab_Index=0; tab_Index<multilayers.size(); ++tab_Index)
 	{
+
 		for(Data_Element<Independent_Curve>& independent_Data_Element : calculation_Trees[tab_Index]->independent)
 		{
 			calculation_Trees[tab_Index]->calculate_1_Kind(independent_Data_Element);

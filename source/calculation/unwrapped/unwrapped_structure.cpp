@@ -14,38 +14,38 @@ Unwrapped_Structure::Unwrapped_Structure(const Calc_Functions& calc_Functions, c
 	calc_Tree		(calc_Tree),
 	calc_Functions  (calc_Functions)
 {
-	// recalculate all if depth is big
-	if( (max_Depth > depth_Threshold) || discretization_Parameters.enable_Discretization
-		|| calc_Functions.check_Field || calc_Functions.check_Joule)
+	// create vector of epsilon if we will need it
+	if( max_Depth>depth_Threshold ||
+		discretization_Parameters.enable_Discretization ||
+		calc_Functions.check_Field ||
+		calc_Functions.check_Joule ||
+		calc_Functions.check_Scattering )
 	{		
-		if( measurement.measurement_Type == measurement_Types[Specular_Scan] &&
-			measurement.argument_Type == argument_Types[Wavelength_Energy] )
+		if( measurement.argument_Type == argument_Types[Wavelength_Energy] )
 		{
 			int num_Lambda_Points = measurement.lambda_Vec.size();
 
 			epsilon_Dependent.resize(num_Lambda_Points, vector<complex<double>>(num_Media));
-//			epsilon_Dependent_RE.resize(num_Lambda_Points, vector<double>(num_Media));
-//			epsilon_Dependent_IM.resize(num_Lambda_Points, vector<double>(num_Media));
-//			epsilon_Dependent_NORM.resize(num_Lambda_Points, vector<double>(num_Media));
-
 			fill_Epsilon_Dependent(calc_Tree.begin(), num_Lambda_Points);
 		} else
+		// for all angular simulations, including scattering
 		{
 			epsilon.resize(num_Media);
-//			epsilon_RE.resize(num_Media);
-//			epsilon_IM.resize(num_Media);
-//			epsilon_NORM.resize(num_Media);
-			fill_Epsilon(calc_Tree.begin());
+			fill_Epsilon(calc_Tree.begin());			
+//			fill_Epsilon_Max_Depth_2(calc_Tree->begin());
 		}
 	}
-	// recalculate sigmas if depth is big or sigma grading
-	if( (max_Depth > depth_Threshold) || sigma_Grading || discretization_Parameters.enable_Discretization)
+	// create vectors of sigma/interlayer if we will need it
+	if( max_Depth>depth_Threshold ||
+		sigma_Grading ||
+		discretization_Parameters.enable_Discretization )
 	{
 		max_Sigma = 0.1;
 		sigma_Diffuse.resize(num_Boundaries);
 		common_Sigma_Diffuse.resize(num_Boundaries);
 		boundary_Interlayer_Composition.resize(num_Boundaries, QVector<Interlayer>(transition_Layer_Functions_Size));
 		fill_Sigma(calc_Tree.begin(), max_Sigma);
+//		fill_Sigma_Max_Depth_2(calc_Tree->begin());
 
 		// multithreading
 		boundary_Interlayer_Composition_Threaded.resize(reflectivity_Calc_Threads);
@@ -54,32 +54,25 @@ Unwrapped_Structure::Unwrapped_Structure(const Calc_Functions& calc_Functions, c
 		}
 	}
 
-	// recalculate thicknesses if depth is big or depth grading
-	if( (max_Depth > depth_Threshold) || depth_Grading || discretization_Parameters.enable_Discretization
-		|| calc_Functions.check_Field || calc_Functions.check_Joule)
+	// create vectors of boundaries and thicknesses if we will need it
+	if( max_Depth>depth_Threshold ||
+		depth_Grading ||
+		discretization_Parameters.enable_Discretization ||
+		calc_Functions.check_Field ||
+		calc_Functions.check_Joule )
 	{
 		thickness.resize(num_Layers);
 		boundaries.resize(num_Boundaries);
 		boundaries.front() = 0;
 		fill_Thickness_And_Boundaries(calc_Tree.begin());
+//		fill_Thickness_Max_Depth_2(calc_Tree->begin());
 
 		// multithreading
 		boundaries_Threaded.resize(reflectivity_Calc_Threads);
 		for(int thread_Index=0; thread_Index<reflectivity_Calc_Threads; thread_Index++)	{
 			boundaries_Threaded[thread_Index] = boundaries;
 		}
-	} /*else
-	{
-		epsilon.resize(num_Media);
-
-		sigma.resize(num_Boundaries);
-		boundary_Interlayer_Composition.resize(num_Boundaries, vector<Interlayer>(transition_Layer_Functions_Size));
-		thickness.resize(num_Layers);
-
-		fill_Epsilon_Max_Depth_2	(calc_Tree->begin());
-		fill_Sigma_Max_Depth_2		(calc_Tree->begin());
-		fill_Thickness_Max_Depth_2	(calc_Tree->begin());
-	}*/
+	}
 
 	if(discretization_Parameters.enable_Discretization)
 	{
@@ -94,7 +87,6 @@ Unwrapped_Structure::Unwrapped_Structure(const Calc_Functions& calc_Functions, c
 
 		find_Z_Positions();
 
-		// PARAMETER
 		if( measurement.measurement_Type == measurement_Types[Specular_Scan] &&
 			measurement.argument_Type == argument_Types[Wavelength_Energy] )
 		{
@@ -109,6 +101,7 @@ Unwrapped_Structure::Unwrapped_Structure(const Calc_Functions& calc_Functions, c
 
 			fill_Discretized_Epsilon_Dependent(num_Lambda_Points);
 		} else
+		// for all angular simulations, including scattering
 		{
 			discretized_Epsilon.resize(num_Discretized_Media);
 			discretized_Epsilon.assign(num_Discretized_Media,complex<double>(1,0));
@@ -118,18 +111,18 @@ Unwrapped_Structure::Unwrapped_Structure(const Calc_Functions& calc_Functions, c
 	}
 
 	// field functions
-	if(calc_Functions.check_Field || calc_Functions.check_Joule)
+	if( calc_Functions.check_Field ||
+		calc_Functions.check_Joule )
 	{
 		if(discretization_Parameters.enable_Discretization)
 		{
 			discretized_Slices_Boundaries.resize(discretized_Thickness.size()+1);
 			discretized_Slices_Boundaries.front() = -num_Prefix_Slices*discretized_Thickness.front();
-			for(int i=0; i<discretized_Thickness.size(); i++)
+			for(size_t i=0; i<discretized_Thickness.size(); i++)
 			{
 				discretized_Slices_Boundaries[i+1] = discretized_Slices_Boundaries[i]+discretized_Thickness[i];
 			}
 		}
-
 		find_Field_Spacing();
 	}
 }

@@ -20,6 +20,7 @@ public:
 
 	vector<complex<double>> delta_Epsilon;
 	vector<complex<double>> epsilon;
+	void fill_Epsilon_For_Angular_Measurements(vector<double>& spectral_Points);
 
 	/// ------------------------------------------------
 
@@ -33,8 +34,6 @@ public:
 
 	vector<complex<double>> weak_Factor_R;
 	vector<complex<double>> weak_Factor_T;
-
-	/// ------------------------------------------------
 };
 
 #endif // NODE_H

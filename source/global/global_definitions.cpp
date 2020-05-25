@@ -133,7 +133,7 @@ bool Calc_Functions::if_Reflectance_Only() const
 		!check_Scattering &&
 		!check_Field &&
 		!check_Joule &&
-		!check_GISAS)
+		!check_GISAS )
 	{
 		return true;
 	} else

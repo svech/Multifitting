@@ -32,12 +32,14 @@ public:
 		Parameter beam_Theta_0_Angle;
 		vector<double> beam_Theta_0_Cos2_Vec; double beam_Theta_0_Cos2_Value;	// wihout saving
 		vector<double> beam_Theta_0_Cos_Vec;  double beam_Theta_0_Cos_Value;	// wihout saving
+		vector<double> beam_Theta_0_Sin_Vec;  double beam_Theta_0_Sin_Value;	// wihout saving
 		vector<double>beam_Theta_0_Angle_Vec; double beam_Theta_0_Angle_Value;	// wihout saving
 
 		double beam_Theta_0_Specular_Position;
 
 		// theta angle
 		Parameter detector_Theta_Angle;
+		vector<double> detector_Theta_Cos2_Vec;  double detector_Theta_Cos2_Value;	// wihout saving
 		vector<double> detector_Theta_Cos_Vec;   double detector_Theta_Cos_Value;	// wihout saving
 		vector<double> detector_Theta_Angle_Vec; double detector_Theta_Angle_Value; // wihout saving
 

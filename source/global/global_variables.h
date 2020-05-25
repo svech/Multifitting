@@ -275,7 +275,6 @@ public:
 	static bool expression_Is_Valid(QString expression_String, QStringList expression_Variables);
 	static Parameter* get_Parameter_From_Struct_Item_by_Id		  (Data& struct_Data, id_Type id);
 	static Parameter* get_Parameter_From_Struct_Item_by_Whats_This(Data& struct_Data, QString whats_This, int* line_edit_precision = nullptr, int* thumbnail_precision = nullptr, QString* units = nullptr, double* coeff = nullptr);
-	static void enable_Disable_Roughness_Model(Data& struct_Data, const Imperfections_Model& imperfections_Model);
 
 	static void copy_Tree(const QTreeWidget* from_Tree, QTreeWidget* to_Tree);
 	static bool check_Loaded_Version(int MAJOR, int MINOR, int BUILD);
@@ -321,6 +320,11 @@ public:
 	// 2D plots
 	static void color_Scheme_Change(QCPColorMap* color_Map, QCustomPlot* main_Plot, QCPColorGradient::GradientPreset* color_Scheme);
 	static void color_Scheme_Example(QCustomPlot* plot, QCPColorGradient::GradientPreset preset);
+
+	// roughness
+	static void enable_Disable_Roughness_Model(Data& struct_Data, const Imperfections_Model& imperfections_Model);
+	static double PSD_ABC_1D(double sigma, double xi, double alpha, double k, double cos_Theta, double cos_Theta_0);
+	static double PSD_ABC_2D(double sigma, double xi, double alpha, double k, double cos_Theta, double cos_Theta_0, double cos_Phi);
 
 };
 

@@ -537,9 +537,9 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 
 			// print item name
 			QTableWidgetItem* table_Item = new QTableWidgetItem(/*Global_Variables::structure_Item_Name(struct_Data)*/);
+				table_Item->setWhatsThis(struct_Data.item_Type);
+				table_Item->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
 			new_Table->setItem(current_Row,current_Column, table_Item);
-			table_Item->setWhatsThis(struct_Data.item_Type);
-			table_Item->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEnabled);
 			struct_Table_Map.insert(structure_Item, table_Item);
 
 			// make it checkable

@@ -314,8 +314,8 @@ Data::Data(QString item_Type_Passed)
 		{
 			roughness_Model.omega.value = 1000;
 			roughness_Model.omega.fit.is_Fitable = false;
-			roughness_Model.omega.fit.min = 5;
-			roughness_Model.omega.fit.max = 100;
+			roughness_Model.omega.fit.min = 300;
+			roughness_Model.omega.fit.max = 20000;
 			roughness_Model.omega.indicator.whats_This = whats_This_Linear_PSD_Omega;
 			roughness_Model.omega.indicator.item_Id = id;
 

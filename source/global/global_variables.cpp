@@ -1092,6 +1092,18 @@ void Global_Variables::enable_Disable_Roughness_Model(Data& struct_Data, const I
 	}
 }
 
+double Global_Variables::PSD_ABC_1D(double sigma, double xi, double alpha, double k, double cos_Theta, double cos_Theta_0)
+{
+	double p = k*abs(cos_Theta-cos_Theta_0) / (2*M_PI);
+	return 4*sqrt(M_PI) * tgamma(alpha+1)/tgamma(alpha) * sigma*sigma*xi / pow(1+pow(2*M_PI*p*xi,2), alpha+0.5);
+}
+
+double Global_Variables::PSD_ABC_2D(double sigma, double xi, double alpha, double k, double cos_Theta, double cos_Theta_0, double cos_Phi)
+{
+	double nu = k*sqrt(cos_Theta*cos_Theta + cos_Theta_0*cos_Theta_0 - 2*cos_Theta_0*cos_Theta*cos_Phi) / (2*M_PI);
+	return 4*M_PI * sigma*sigma * xi*xi * alpha / pow(1+pow(2*M_PI*nu*xi,2), alpha+1);
+}
+
 void Global_Variables::copy_Tree(const QTreeWidget* from_Tree, QTreeWidget* to_Tree)
 {
 	to_Tree->clear();

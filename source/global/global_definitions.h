@@ -178,7 +178,7 @@ class Node;
 // -----------------------------------------------------------------------------------------
 
 // magic numbers
-#define POLARIZATION_TOLERANCE 0.0001
+#define POLARIZATION_TOLERANCE 0.000111111111
 #define MAX_DOUBLE 1E300
 #define CURVATURE_LIMIT 0.00005
 #define MAX_INTEGER INT_MAX					// MAXINT
@@ -632,7 +632,7 @@ struct Profile_Plot_Options		{QString type = PERMITTIVITY;
 								 bool show_Discretization = false;
 								 bool show_Cursor_Position = false;
 
-								 bool rescale_X = false;
+								 bool rescale_X = true;
 								 bool rescale_Y = true;
 								 QString y_Scale = lin_Scale;
 
@@ -747,6 +747,11 @@ struct Calculated_Values	  {	// reflectance
 								vector<double> S_p;
 								vector<double> S;
 								vector<double> S_Instrumental;
+
+								// storing field amplitudes on boundaries at each point
+								vector<vector<complex<double>>> PT_Field_Term_s;
+								vector<vector<complex<double>>> PT_Field_Term_p;
+
 
 								// GISAS
 								vector<vector<double>> GISAS_Map_s;

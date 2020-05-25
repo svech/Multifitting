@@ -5,13 +5,14 @@
 #include "gsl/gsl_integration.h"
 #include "iostream"
 
+class Multilayer;
+
 class Unwrapped_Reflection
 {
 public:
-	Unwrapped_Reflection(Unwrapped_Structure* unwrapped_Structure, int num_Media,
+	Unwrapped_Reflection(Multilayer* multilayer, Unwrapped_Structure* unwrapped_Structure, int num_Media,
 						 const Data& measurement, bool depth_Grading, bool sigma_Grading,
 						 const Calc_Functions& calc_Functions, Calculated_Values& calculated_Values, QString calc_Mode);
-	~Unwrapped_Reflection();
 
 	int num_Threads;
 	int num_Layers;
@@ -28,6 +29,7 @@ public:
 
 	QString calc_Mode;
 	Unwrapped_Structure* unwrapped_Structure;
+	Multilayer* multilayer;
 	const Data& measurement;
 
 	vector<vector<complex<double>>> r_Fresnel_s;	//	[thread][boundary]
@@ -56,22 +58,21 @@ public:
 	int fill_s__Max_Depth_3(const tree<Node>::iterator& parent, int thread_Index, int point_Index, int media_Index = 0);
 	int fill_p__Max_Depth_3(const tree<Node>::iterator& parent, int thread_Index, int point_Index, int media_Index = 0);
 	int fill_sp_Max_Depth_3(const tree<Node>::iterator& parent, int thread_Index, int point_Index, int media_Index = 0);
-	void fill_Epsilon_Ambient_Substrate(int thread_Index, vector<complex<double>>& epsilon_In_Depth);
+	void fill_Epsilon_Ambient_Substrate	(int thread_Index,						  const vector<complex<double>>& epsilon_Vector);
 
-	void calc_Hi		 (double k, double cos2,
-						  const vector<complex<double>>& eps,
-						  int thread_Index);
-	void calc_Weak_Factor(int thread_Index);
-	void calc_Fresnel	 (double polarization,
-						  const vector<complex<double>>& eps,
-						  int thread_Index);
-	void calc_Exponenta	 (int thread_Index, const vector<double>& thickness);
-	void calc_Local		 (double polarization, int thread_Index);
-	void calc_Field		 (double polarization, int thread_Index, int point_Index, const vector<complex<double>>& epsilon_Vector);
-	void calc_Environmental_Factor(int thread_Index);
+	void calc_Hi						(int thread_Index, double k, double cos2, const vector<complex<double>>& epsilon_Vector);
+	void calc_Weak_Factor				(int thread_Index);
+	void calc_Fresnel					(int thread_Index,						  const vector<complex<double>>& epsilon_Vector);
+	void calc_Exponenta					(int thread_Index, const vector<double>& thickness);
+	void calc_Local						(int thread_Index);
+	void calc_Amplitudes_Field			(int thread_Index, int point_Index);
+	void calc_Sliced_Field				(int thread_Index, int point_Index,		  const vector<complex<double>>& epsilon_Vector);
+	void calc_PT_Sharp_Field_Terms		(                  int point_Index,		  const vector<complex<double>>& epsilon_Vector);
+	double PSD_Common_Value				(                  int point_Index);
+	void calc_Environmental_Factor		(int thread_Index);
 
 	// for sigma grading
-	void multifly_Fresnel_And_Weak_Factor(double polarization, int thread_Index);
+	void multifly_Fresnel_And_Weak_Factor(int thread_Index);
 
 	// fields
 	vector<double> boundaries_Enlarged;
@@ -80,9 +81,9 @@ public:
 	vector<vector<complex<double>>> U_i_p;		//	[thread][media]
 	vector<vector<complex<double>>> U_r_p;		//	[thread][media]
 
-	void fill_Specular_Values            (const Data& measurement, int thread_Index, int point_Index);
-	void calc_Specular_1_Point_1_Thread  (const Data& measurement, int thread_Index, int point_Index);
-	void calc_Specular_nMin_nMax_1_Thread(const Data& measurement, int n_Min, int n_Max, int thread_Index);
+	void fill_Specular_Values            (int thread_Index, int point_Index);
+	void calc_Specular_1_Point_1_Thread  (int thread_Index, int point_Index);
+	void calc_Specular_nMin_nMax_1_Thread(int n_Min, int n_Max, int thread_Index);
 	void calc_Specular();
 
 	double find_Min_Mesh_Step(const QVector<double>& argument);

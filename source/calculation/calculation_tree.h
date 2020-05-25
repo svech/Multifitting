@@ -6,6 +6,8 @@
 #include "unwrapped/unwrapped_reflection.h"
 #include "unwrapped/unwrapped_structure.h"
 
+class Multilayer;
+
 using namespace std;
 
 template <class Type>
@@ -24,8 +26,6 @@ struct Data_Element
 	Calc_Functions calc_Functions;
 	tree<Node> calc_Tree; // each tree creates somehow 2 nodes at creation
 };
-
-class Multilayer;
 
 class Calculation_Tree
 {
