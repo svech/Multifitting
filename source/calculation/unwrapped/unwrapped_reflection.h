@@ -12,7 +12,13 @@ class Unwrapped_Reflection
 public:
 	Unwrapped_Reflection(Multilayer* multilayer, Unwrapped_Structure* unwrapped_Structure, int num_Media,
 						 const Data& measurement, bool depth_Grading, bool sigma_Grading,
-						 const Calc_Functions& calc_Functions, Calculated_Values& calculated_Values, QString calc_Mode);
+						 const Calc_Functions& calc_Functions, Calculated_Values& calculated_Values, QString calc_Mode, QString spec_Scat_mode);
+	~Unwrapped_Reflection();
+
+	// for integration of correlation function
+	gsl_integration_workspace* w;
+	gsl_integration_workspace* wc;
+	gsl_integration_qawo_table* wf;
 
 	int num_Threads;
 	int num_Layers;
@@ -20,7 +26,8 @@ public:
 	int num_Media;
 	int max_Depth;
 	int depth_Threshold;
-	int num_Points = 0;
+	int num_Points;
+	int phi_Points;
 
 	bool depth_Grading;
 	bool sigma_Grading;
@@ -28,6 +35,7 @@ public:
 	Calculated_Values& calculated_Values;
 
 	QString calc_Mode;
+	QString spec_Scat_mode;
 	Unwrapped_Structure* unwrapped_Structure;
 	Multilayer* multilayer;
 	const Data& measurement;
@@ -67,8 +75,8 @@ public:
 	void calc_Local						(int thread_Index);
 	void calc_Amplitudes_Field			(int thread_Index, int point_Index);
 	void calc_Sliced_Field				(int thread_Index, int point_Index,		  const vector<complex<double>>& epsilon_Vector);
-	void calc_PT_Sharp_Field_Terms		(                  int point_Index,		  const vector<complex<double>>& epsilon_Vector);
-	double PSD_Common_Value				(                  int point_Index);
+	double PSD_Common_Value				(                  int point_Index, int phi_Index = 0);
+	double calc_Field_Term_Sum_No_PSD(QString polarization,int point_Index);
 	void calc_Environmental_Factor		(int thread_Index);
 
 	// for sigma grading

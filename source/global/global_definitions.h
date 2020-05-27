@@ -290,7 +290,7 @@ class Node;
 
 #define whats_This_Density					"Density"
 #define whats_This_Common_Thickness			"Common Thickness"
-#define whats_This_Common_Sigma_Diffuse				"Common Sigma"
+#define whats_This_Common_Sigma_Diffuse		"Common Sigma"
 #define whats_This_Restrict_Thickness		"Restrict Thickness"
 
 // whatsThis : thickness drifts
@@ -426,6 +426,9 @@ class Node;
 #define CALCULATION	"CALCULATION"
 #define FITTING		"FITTING"
 #define CONFIDENCE	"CONFIDENCE"
+
+#define SPECULAR_MODE	"SPECULAR_MODE"
+#define SCATTERED_MODE  "SCATTERED_MODE"
 
 // name modificators
 #define current_State	"current_State"
@@ -749,8 +752,11 @@ struct Calculated_Values	  {	// reflectance
 								vector<double> S_Instrumental;
 
 								// storing field amplitudes on boundaries at each point
-								vector<vector<complex<double>>> PT_Field_Term_s;
-								vector<vector<complex<double>>> PT_Field_Term_p;
+								vector<vector<complex<double>>> q0_Boundary_Field_s;
+								vector<vector<complex<double>>> q0_Boundary_Field_p;
+
+								vector<vector<complex<double>>> q_Boundary_Field_s;
+								vector<vector<complex<double>>> q_Boundary_Field_p;
 
 
 								// GISAS

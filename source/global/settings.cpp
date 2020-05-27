@@ -242,13 +242,13 @@ int default_num_theta_angular_points;
 int default_num_alpha_angular_points;
 int default_num_phi_angular_points;
 
+double default_theta_0_angle_value;
+double default_min_theta_0_angle;
+double default_max_theta_0_angle;
+
 double default_theta_angle_value;
 double default_min_theta_angle;
 double default_max_theta_angle;
-
-double default_alpha_angle_value;
-double default_min_alpha_angle;
-double default_max_alpha_angle;
 
 double default_phi_angle_value;
 double default_min_phi_angle;
@@ -870,17 +870,17 @@ void Settings::read_Parameters_Default_Values(bool reset_to_default)
 		default_min_wavelength								= parameters_Default_Values.value( "default_min_wavelength",								100		).toDouble();
 		default_max_wavelength								= parameters_Default_Values.value( "default_max_wavelength",								200		).toDouble();
 
-		default_theta_angle_value							= parameters_Default_Values.value( "default_theta_angle_value",								90		).toDouble();
-		default_min_theta_angle								= parameters_Default_Values.value( "default_min_theta_angle",								0		).toDouble();
-		default_max_theta_angle								= parameters_Default_Values.value( "default_max_theta_angle",								7		).toDouble();
+		default_theta_0_angle_value							= parameters_Default_Values.value( "default_theta_0_angle_value",							0.5		).toDouble();
+		default_min_theta_0_angle							= parameters_Default_Values.value( "default_min_theta_0_angle",								0		).toDouble();
+		default_max_theta_0_angle							= parameters_Default_Values.value( "default_max_theta_0_angle",								7		).toDouble();
 
-		default_alpha_angle_value							= parameters_Default_Values.value( "default_alpha_angle_value",								2		).toDouble();
-		default_min_alpha_angle								= parameters_Default_Values.value( "default_min_alpha_angle",								1		).toDouble();
-		default_max_alpha_angle								= parameters_Default_Values.value( "default_max_alpha_angle",								3		).toDouble();
+		default_theta_angle_value							= parameters_Default_Values.value( "default_theta_angle_value",								1		).toDouble();
+		default_min_theta_angle								= parameters_Default_Values.value( "default_min_theta_angle",								0.3		).toDouble();
+		default_max_theta_angle								= parameters_Default_Values.value( "default_max_theta_angle",								3		).toDouble();
 
 		default_phi_angle_value								= parameters_Default_Values.value( "default_phi_angle_value",								0		).toDouble();
-		default_min_phi_angle								= parameters_Default_Values.value( "default_min_phi_angle",									-1		).toDouble();
-		default_max_phi_angle								= parameters_Default_Values.value( "default_max_phi_angle",									1		).toDouble();
+		default_min_phi_angle								= parameters_Default_Values.value( "default_min_phi_angle",									-0.3	).toDouble();
+		default_max_phi_angle								= parameters_Default_Values.value( "default_max_phi_angle",									0.3		).toDouble();
 
 		default_logarithmic_threshold_beta					= parameters_Default_Values.value( "default_logarithmic_threshold_beta",					1E-17	).toDouble();
 		default_logarithmic_threshold_material_density		= parameters_Default_Values.value( "default_logarithmic_threshold_material_density",		1E-7	).toDouble();
@@ -903,13 +903,13 @@ void Settings::save_Parameters_Default_Values()
 		parameters_Default_Values.setValue( "default_min_wavelength",						default_min_wavelength				   );
 		parameters_Default_Values.setValue( "default_max_wavelength",						default_max_wavelength				   );
 
+		parameters_Default_Values.setValue( "default_theta_0_angle_value",					default_theta_0_angle_value			   );
+		parameters_Default_Values.setValue( "default_min_theta_0_angle",					default_min_theta_0_angle			   );
+		parameters_Default_Values.setValue( "default_max_theta_0_angle",					default_max_theta_0_angle			   );
+
 		parameters_Default_Values.setValue( "default_theta_angle_value",					default_theta_angle_value			   );
 		parameters_Default_Values.setValue( "default_min_theta_angle",						default_min_theta_angle				   );
 		parameters_Default_Values.setValue( "default_max_theta_angle",						default_max_theta_angle				   );
-
-		parameters_Default_Values.setValue( "default_alpha_angle_value",					default_alpha_angle_value			   );
-		parameters_Default_Values.setValue( "default_min_alpha_angle",						default_min_alpha_angle				   );
-		parameters_Default_Values.setValue( "default_max_alpha_angle",						default_max_alpha_angle				   );
 
 		parameters_Default_Values.setValue( "default_phi_angle_value",						default_phi_angle_value				   );
 		parameters_Default_Values.setValue( "default_min_phi_angle",						default_min_phi_angle				   );

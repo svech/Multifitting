@@ -246,13 +246,13 @@ extern int default_num_theta_angular_points;
 extern int default_num_alpha_angular_points;
 extern int default_num_phi_angular_points;
 
+extern double default_theta_0_angle_value;
+extern double default_min_theta_0_angle;
+extern double default_max_theta_0_angle;
+
 extern double default_theta_angle_value;
 extern double default_min_theta_angle;
 extern double default_max_theta_angle;
-
-extern double default_alpha_angle_value;
-extern double default_min_alpha_angle;
-extern double default_max_alpha_angle;
 
 extern double default_phi_angle_value;
 extern double default_min_phi_angle;

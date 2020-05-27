@@ -269,12 +269,22 @@ void Main_Calculation_Module::single_Calculation(bool print_And_Verbose)
 
 		for(Data_Element<Independent_Curve>& independent_Data_Element : calculation_Trees[tab_Index]->independent)
 		{
-			calculation_Trees[tab_Index]->calculate_1_Kind(independent_Data_Element);
+			Independent_Curve* independent_Curve = qobject_cast<Independent_Curve*>(independent_Data_Element.the_Class);
+			calculation_Trees[tab_Index]->calculate_1_Kind(independent_Data_Element, SPECULAR_MODE);
+			if(independent_Curve->measurement.measurement_Type != measurement_Types[Specular_Scan])
+			{
+				calculation_Trees[tab_Index]->calculate_1_Kind(independent_Data_Element, SCATTERED_MODE);
+			}
 			if(lambda_Out_Of_Range) return;
 		}
 		for(Data_Element<Target_Curve>& target_Data_Element : calculation_Trees[tab_Index]->target)
 		{
-			calculation_Trees[tab_Index]->calculate_1_Kind(target_Data_Element);
+			Target_Curve* target_Curve = qobject_cast<Target_Curve*>(target_Data_Element.the_Class);
+			calculation_Trees[tab_Index]->calculate_1_Kind(target_Data_Element, SPECULAR_MODE);
+			if(target_Curve->measurement.measurement_Type != measurement_Types[Specular_Scan])
+			{
+				calculation_Trees[tab_Index]->calculate_1_Kind(target_Data_Element, SCATTERED_MODE);
+			}
 			// TODO
 //			decrease_Mesh_density(target_Data_Element);
 			if(lambda_Out_Of_Range) return;

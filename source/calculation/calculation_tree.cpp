@@ -370,10 +370,10 @@ template void Calculation_Tree::calculate_1_Kind_Preliminary<Independent_Curve>(
 template void Calculation_Tree::calculate_1_Kind_Preliminary<Target_Curve>		   (Data_Element<Target_Curve>&);
 
 template<typename Type>
-void Calculation_Tree::calculate_1_Kind(Data_Element<Type>& data_Element)
+void Calculation_Tree::calculate_1_Kind(Data_Element<Type>& data_Element, QString mode)
 {
 	auto start = std::chrono::system_clock::now();
-	calculate_Intermediate_Values_1_Tree(data_Element.calc_Tree, data_Element.the_Class->measurement, data_Element.calc_Tree.begin());
+	calculate_Intermediate_Values_1_Tree(data_Element.calc_Tree, data_Element.the_Class->measurement, data_Element.calc_Tree.begin(), mode);
 	if(lambda_Out_Of_Range) return;
 	auto end = std::chrono::system_clock::now();
 	auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
@@ -386,22 +386,22 @@ void Calculation_Tree::calculate_1_Kind(Data_Element<Type>& data_Element)
 	qInfo() << "Unwrap:         "<< elapsed.count()/1000000. << " seconds" << endl;
 
 	start = std::chrono::system_clock::now();
-	calculate_Unwrapped_Reflectivity	(data_Element.calc_Functions, data_Element.the_Class->calculated_Values, data_Element.the_Class->measurement, data_Element.unwrapped_Structure, data_Element.unwrapped_Reflection);
+	calculate_Unwrapped_Reflectivity	(data_Element.calc_Functions, data_Element.the_Class->calculated_Values, data_Element.the_Class->measurement, data_Element.unwrapped_Structure, data_Element.unwrapped_Reflection, mode);
 	end = std::chrono::system_clock::now();
 	elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
 	qInfo() << "Unwrap Reflect: "<< elapsed.count()/1000000. << " seconds" << endl;
 }
-template void Calculation_Tree::calculate_1_Kind<Independent_Curve>(Data_Element<Independent_Curve>&);
-template void Calculation_Tree::calculate_1_Kind<Target_Curve>	   (Data_Element<Target_Curve>&);
+template void Calculation_Tree::calculate_1_Kind<Independent_Curve>(Data_Element<Independent_Curve>&, QString);
+template void Calculation_Tree::calculate_1_Kind<Target_Curve>	   (Data_Element<Target_Curve>&, QString);
 
-void Calculation_Tree::calculate_Intermediate_Values_1_Tree(tree<Node>& calc_Tree, const Data& measurement, const tree<Node>::iterator& parent, Node* above_Node)
+void Calculation_Tree::calculate_Intermediate_Values_1_Tree(tree<Node>& calc_Tree, const Data& measurement, const tree<Node>::iterator& parent, QString mode, Node* above_Node)
 {
 	// iterate over tree
 	for(unsigned i=0; i<parent.number_of_children(); ++i)
 	{
 		tree<Node>::post_order_iterator child = calc_Tree.child(parent,i);
 
-		child.node->data.calculate_Intermediate_Points(measurement, above_Node, depth_Grading, sigma_Grading, multilayer->discretization_Parameters.enable_Discretization);
+		child.node->data.calculate_Intermediate_Points(measurement, above_Node, depth_Grading, sigma_Grading, multilayer->discretization_Parameters.enable_Discretization, mode);
 
 		if( child.node->data.struct_Data.item_Type != item_Type_Multilayer &&
 			child.node->data.struct_Data.item_Type != item_Type_Regular_Aperiodic &&
@@ -410,7 +410,7 @@ void Calculation_Tree::calculate_Intermediate_Values_1_Tree(tree<Node>& calc_Tre
 			above_Node = &child.node->data;
 		} else
 		{
-			calculate_Intermediate_Values_1_Tree(calc_Tree, measurement, child, above_Node);
+			calculate_Intermediate_Values_1_Tree(calc_Tree, measurement, child, mode, above_Node);
 		}
 	}
 }
@@ -429,14 +429,15 @@ void Calculation_Tree::calculate_Unwrapped_Structure(const Calc_Functions& calc_
 	}
 }
 
-void Calculation_Tree::calculate_Unwrapped_Reflectivity(const Calc_Functions& calc_Functions, Calculated_Values& calculated_Values, const Data& measurement, Unwrapped_Structure* unwrapped_Structure_Vec_Element, Unwrapped_Reflection*& unwrapped_Reflection_Vec_Element)
+void Calculation_Tree::calculate_Unwrapped_Reflectivity(const Calc_Functions& calc_Functions, Calculated_Values& calculated_Values, const Data& measurement, Unwrapped_Structure* unwrapped_Structure_Vec_Element, Unwrapped_Reflection*& unwrapped_Reflection_Vec_Element, QString mode)
 {
 	delete unwrapped_Reflection_Vec_Element;	
-	Unwrapped_Reflection* new_Unwrapped_Reflection = new Unwrapped_Reflection(multilayer, unwrapped_Structure_Vec_Element, num_Media, measurement, depth_Grading, sigma_Grading, calc_Functions, calculated_Values, calc_Mode);
+	Unwrapped_Reflection* new_Unwrapped_Reflection = new Unwrapped_Reflection(multilayer, unwrapped_Structure_Vec_Element, num_Media, measurement, depth_Grading, sigma_Grading, calc_Functions, calculated_Values, calc_Mode, mode);
 	unwrapped_Reflection_Vec_Element = new_Unwrapped_Reflection;
 
 //	auto start = std::chrono::system_clock::now();
 	unwrapped_Reflection_Vec_Element->calc_Specular();
+
 //	auto end = std::chrono::system_clock::now();
 //	auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
 //	qInfo() << "Bare Reflectivity:      "<< elapsed.count()/1000000. << " seconds" << endl;

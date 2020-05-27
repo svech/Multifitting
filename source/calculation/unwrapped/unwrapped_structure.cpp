@@ -19,7 +19,8 @@ Unwrapped_Structure::Unwrapped_Structure(const Calc_Functions& calc_Functions, c
 		discretization_Parameters.enable_Discretization ||
 		calc_Functions.check_Field ||
 		calc_Functions.check_Joule ||
-		calc_Functions.check_Scattering )
+		calc_Functions.check_Scattering	||
+		calc_Functions.check_GISAS )
 	{		
 		if( measurement.argument_Type == argument_Types[Wavelength_Energy] )
 		{

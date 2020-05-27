@@ -1095,13 +1095,56 @@ void Global_Variables::enable_Disable_Roughness_Model(Data& struct_Data, const I
 double Global_Variables::PSD_ABC_1D(double sigma, double xi, double alpha, double k, double cos_Theta, double cos_Theta_0)
 {
 	double p = k*abs(cos_Theta-cos_Theta_0) / (2*M_PI);
-	return 4*sqrt(M_PI) * tgamma(alpha+1)/tgamma(alpha) * sigma*sigma*xi / pow(1+pow(2*M_PI*p*xi,2), alpha+0.5);
+	return 4*sqrt(M_PI) * tgamma(alpha+0.5)/tgamma(alpha) * sigma*sigma*xi / pow(1+pow(2*M_PI*p*xi,2), alpha+0.5);
 }
 
 double Global_Variables::PSD_ABC_2D(double sigma, double xi, double alpha, double k, double cos_Theta, double cos_Theta_0, double cos_Phi)
 {
 	double nu = k*sqrt(cos_Theta*cos_Theta + cos_Theta_0*cos_Theta_0 - 2*cos_Theta_0*cos_Theta*cos_Phi) / (2*M_PI);
 	return 4*M_PI * sigma*sigma * xi*xi * alpha / pow(1+pow(2*M_PI*nu*xi,2), alpha+1);
+}
+
+double Global_Variables::PSD_Real_Gauss_1D(double sigma, double xi, double k, double cos_Theta, double cos_Theta_0)
+{
+	double p = k*abs(cos_Theta-cos_Theta_0) / (2*M_PI);
+	return 2*sqrt(M_PI) * sigma*sigma*xi * exp(-pow(M_PI*p*xi,2));
+}
+
+double Global_Variables::PSD_Real_Gauss_2D(double sigma, double xi, double k, double cos_Theta, double cos_Theta_0, double cos_Phi)
+{
+	double nu = k*sqrt(cos_Theta*cos_Theta + cos_Theta_0*cos_Theta_0 - 2*cos_Theta_0*cos_Theta*cos_Phi) / (2*M_PI);
+	return M_PI * sigma*sigma*xi*xi * exp(-pow(M_PI*nu*xi,2));
+}
+
+// fractal gauss integration
+struct Fractal_Gauss_Params
+{
+	double sigma;
+	double xi;
+	double alpha;
+};
+double Cor_Fractal_Gauss(double r, void* params)
+{
+	Fractal_Gauss_Params* p = reinterpret_cast<Fractal_Gauss_Params*>(params);
+
+	if(p->xi > 0)	return p->sigma*p->sigma * exp(-pow(r/p->xi,2*p->alpha));
+	else			return 0;
+}
+double Global_Variables::PSD_Fractal_Gauss_1D(double sigma, double xi, double alpha, double k, double cos_Theta, double cos_Theta_0,
+											  gsl_integration_workspace* w,
+											  gsl_integration_workspace* wc,
+											  gsl_integration_qawo_table* wf)
+{
+	wf->omega = k*abs(cos_Theta-cos_Theta_0);
+
+	Fractal_Gauss_Params params = {sigma, xi, alpha};
+	gsl_function F = { &Cor_Fractal_Gauss, &params };
+
+	double result = 0, error;
+	gsl_integration_qawf(&F, 0, 1e-4, w->limit, w, wc, wf, &result, &error);
+
+	result = max(result,DBL_EPSILON);
+	return 4*result;
 }
 
 void Global_Variables::copy_Tree(const QTreeWidget* from_Tree, QTreeWidget* to_Tree)

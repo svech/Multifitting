@@ -45,10 +45,10 @@ Data::Data(QString item_Type_Passed)
 
 		// theta_0 angle
 		{
-			beam_Theta_0_Angle.value = default_theta_angle_value;
+			beam_Theta_0_Angle.value = default_theta_0_angle_value;
 			beam_Theta_0_Angle.independent.is_Independent = true;
-			beam_Theta_0_Angle.independent.min = default_min_theta_angle;
-			beam_Theta_0_Angle.independent.max = default_max_theta_angle;
+			beam_Theta_0_Angle.independent.min = default_min_theta_0_angle;
+			beam_Theta_0_Angle.independent.max = default_max_theta_0_angle;
 			beam_Theta_0_Angle.independent.num_Points = default_num_theta_angular_points;
 			beam_Theta_0_Angle.indicator.whats_This = whats_This_Beam_Theta_0_Angle;
 			beam_Theta_0_Angle.indicator.item_Id = id;
@@ -58,10 +58,10 @@ Data::Data(QString item_Type_Passed)
 
 		// theta angle
 		{
-			detector_Theta_Angle.value = default_alpha_angle_value;
+			detector_Theta_Angle.value = default_theta_angle_value;
 			detector_Theta_Angle.independent.is_Independent = true;
-			detector_Theta_Angle.independent.min = default_min_alpha_angle;
-			detector_Theta_Angle.independent.max = default_max_alpha_angle;
+			detector_Theta_Angle.independent.min = default_min_theta_angle;
+			detector_Theta_Angle.independent.max = default_max_theta_angle;
 			detector_Theta_Angle.independent.num_Points = default_num_alpha_angular_points;
 			detector_Theta_Angle.indicator.whats_This = whats_This_Detector_Theta_Angle;
 			detector_Theta_Angle.indicator.item_Id = id;
