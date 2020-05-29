@@ -10,7 +10,7 @@ Node::Node()
 Node::Node(QTreeWidgetItem* item):
 	struct_Data(item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>())
 {
-//	qInfo() << "NODE" << struct_Data.item_Type << endl;
+	//	qInfo() << "NODE" << struct_Data.item_Type << endl;
 }
 
 void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_Node, bool depth_Grading, bool sigma_Grading, bool enable_Discretization, QString mode)
@@ -505,9 +505,21 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 					}
 				}
 			}
+
+			if( struct_Data.item_Type == item_Type_Layer ||
+				struct_Data.item_Type == item_Type_Substrate )
+			{
+				double sigma = struct_Data.roughness_Model.sigma.value;
+				double xi = struct_Data.roughness_Model.cor_radius.value;
+				double alpha = struct_Data.roughness_Model.fractal_alpha.value;
+
+				struct_Data.PSD_ABC_1D_Factor = 4*sqrt(M_PI) * tgamma(alpha+0.5)/tgamma(alpha) * sigma*sigma*xi;
+				struct_Data.PSD_ABC_2D_Factor = 4*M_PI * sigma*sigma * xi*xi * alpha;
+				struct_Data.PSD_Real_Gauss_1D_Factor = 2*sqrt(M_PI) * sigma*sigma*xi;
+				struct_Data.PSD_Real_Gauss_2D_Factor = M_PI * sigma*sigma*xi*xi;
+			}
 		}
 	}
-
 }
 
 void Node::fill_Epsilon_For_Angular_Measurements(vector<double>& spectral_Points)
@@ -559,3 +571,117 @@ void Node::fill_Epsilon_For_Angular_Measurements(vector<double>& spectral_Points
 		epsilon[point_Index] = epsilon_Ang;
 	}
 }
+
+// fractal gauss integration
+struct Fractal_Gauss_Params
+{
+	double sigma;
+	double xi;
+	double alpha;
+};
+double Cor_Fractal_Gauss(double r, void* params)
+{
+	Fractal_Gauss_Params* p = reinterpret_cast<Fractal_Gauss_Params*>(params);
+
+	if(p->xi > 0)	return p->sigma*p->sigma * exp(-pow(r/p->xi,2*p->alpha));
+	else			return 0;
+}
+void Node::create_Spline_PSD_Fractal_Gauss_1D(const Data& measurement)
+{
+	double sigma = struct_Data.roughness_Model.sigma.value;
+	double xi = struct_Data.roughness_Model.cor_radius.value;
+	double alpha = struct_Data.roughness_Model.fractal_alpha.value;
+
+	vector<double> temp_Cos = measurement.detector_Theta_Cos_Vec;
+
+	if( measurement.measurement_Type == measurement_Types[Detector_Scan] )
+	{
+		for(size_t i=0; i<temp_Cos.size(); i++) temp_Cos[i] = measurement.k_Value*abs(temp_Cos[i] - measurement.beam_Theta_0_Cos_Value);
+	}
+	if( measurement.measurement_Type == measurement_Types[Rocking_Curve] ||
+		measurement.measurement_Type == measurement_Types[Offset_Scan] )
+	{
+		for(size_t i=0; i<temp_Cos.size(); i++) temp_Cos[i] = measurement.k_Value*abs(temp_Cos[i] - measurement.beam_Theta_0_Cos_Vec[i]);
+	}
+	std::sort(temp_Cos.begin(), temp_Cos.end());
+	double p_Max = temp_Cos.back()+1E-7;
+
+
+	int num_Sections = 6; // plus zero point
+	vector<int> interpoints(num_Sections);
+	int common_Size = 0;
+	for(int i=0; i<num_Sections; i++)
+	{
+		interpoints[i] = 20-2*i;
+		common_Size+=interpoints[i];
+	}
+	vector<double> interpoints_Sum_Argum_Vec(1+common_Size);
+	vector<double> interpoints_Sum_Value_Vec(1+common_Size);
+
+	vector<double> starts(num_Sections); // open start
+	starts[0] = 0;
+	starts[1] = p_Max/300;
+	starts[2] = p_Max/40;
+	starts[3] = p_Max/10;
+	starts[4] = p_Max/5;
+	starts[5] = p_Max/2;
+
+	vector<double> dp(num_Sections);
+	for(int i=0; i<num_Sections-1; i++)
+	{
+		dp[i] = (starts[i+1] - starts[i])/interpoints[i];
+	}
+	dp.back() = (p_Max - starts.back())/interpoints.back();
+
+	// zero point
+	{
+		interpoints_Sum_Argum_Vec[0] = 0;
+		interpoints_Sum_Value_Vec[0] = 4*sigma*sigma*xi*tgamma(1.+1/(2*alpha));
+	}
+
+	gsl_integration_workspace* w = gsl_integration_workspace_alloc(1000);
+	gsl_integration_workspace* wc = gsl_integration_workspace_alloc(1000);
+
+	Fractal_Gauss_Params params = {sigma, xi, alpha};
+	gsl_function F = { &Cor_Fractal_Gauss, &params };
+
+	double p = 0, result = 0, error;
+	int counter = 1;
+	for(int sec=0; sec<num_Sections; sec++)
+	{
+		for(int i=0; i<interpoints[sec]; i++)
+		{
+			p += dp[sec];
+			gsl_integration_qawo_table* wf = gsl_integration_qawo_table_alloc(p, 1, GSL_INTEG_COSINE, 25);
+			gsl_integration_qawf(&F, 0, 1e-4, w->limit, w, wc, wf, &result, &error);
+			gsl_integration_qawo_table_free(wf);
+			interpoints_Sum_Argum_Vec[counter] = p;
+			interpoints_Sum_Value_Vec[counter] = 4*result;
+			counter++;
+		}
+	}
+	gsl_integration_workspace_free(wc);
+	gsl_integration_workspace_free(w);
+
+	// chech for artifacts
+//	for(int i=interpoints_Sum_Argum_Vec.size(); i>=0; i--)
+//	{
+//		if(interpoints_Sum_Value_Vec[i]/interpoints_Sum_Argum_Vec.front()<1E-5)
+//		{
+//			interpoints_Sum_Value_Vec.erase (interpoints_Sum_Value_Vec.begin()+i);
+//			interpoints_Sum_Argum_Vec.erase (interpoints_Sum_Argum_Vec.begin()+i);
+//		}
+//	}
+
+	const gsl_interp_type* interp_type = gsl_interp_steffen;
+	acc = gsl_interp_accel_alloc();
+	spline = gsl_spline_alloc(interp_type, interpoints_Sum_Value_Vec.size());
+	gsl_spline_init(spline, interpoints_Sum_Argum_Vec.data(), interpoints_Sum_Value_Vec.data(), interpoints_Sum_Value_Vec.size());
+}
+
+void Node::clear_Spline()
+{
+	gsl_spline_free(spline);
+	gsl_interp_accel_free(acc);
+}
+

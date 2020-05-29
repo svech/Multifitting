@@ -1092,59 +1092,84 @@ void Global_Variables::enable_Disable_Roughness_Model(Data& struct_Data, const I
 	}
 }
 
-double Global_Variables::PSD_ABC_1D(double sigma, double xi, double alpha, double k, double cos_Theta, double cos_Theta_0)
+double Global_Variables::PSD_ABC_1D(double factor, double xi, double alpha, double k, double cos_Theta, double cos_Theta_0)
 {
-	double p = k*abs(cos_Theta-cos_Theta_0) / (2*M_PI);
-	return 4*sqrt(M_PI) * tgamma(alpha+0.5)/tgamma(alpha) * sigma*sigma*xi / pow(1+pow(2*M_PI*p*xi,2), alpha+0.5);
+	double p = k*(cos_Theta-cos_Theta_0);
+	return /*4*sqrt(M_PI) * tgamma(alpha+0.5)/tgamma(alpha) * sigma*sigma*xi*/ factor / pow(1+p*p*xi*xi, alpha+0.5);
 }
 
-double Global_Variables::PSD_ABC_2D(double sigma, double xi, double alpha, double k, double cos_Theta, double cos_Theta_0, double cos_Phi)
+double Global_Variables::PSD_ABC_2D(double factor, double xi, double alpha, double k, double cos_Theta, double cos_Theta_0, double cos_Phi)
 {
-	double nu = k*sqrt(cos_Theta*cos_Theta + cos_Theta_0*cos_Theta_0 - 2*cos_Theta_0*cos_Theta*cos_Phi) / (2*M_PI);
-	return 4*M_PI * sigma*sigma * xi*xi * alpha / pow(1+pow(2*M_PI*nu*xi,2), alpha+1);
+	double nu2 = k*k*(cos_Theta*cos_Theta + cos_Theta_0*cos_Theta_0 - 2*cos_Theta_0*cos_Theta*cos_Phi);
+	return /*4*M_PI * sigma*sigma * xi*xi * alpha*/ factor / pow(1+nu2*xi*xi, alpha+1);
 }
 
-double Global_Variables::PSD_Real_Gauss_1D(double sigma, double xi, double k, double cos_Theta, double cos_Theta_0)
+double Global_Variables::PSD_Real_Gauss_1D(double factor, double xi, double k, double cos_Theta, double cos_Theta_0)
 {
-	double p = k*abs(cos_Theta-cos_Theta_0) / (2*M_PI);
-	return 2*sqrt(M_PI) * sigma*sigma*xi * exp(-pow(M_PI*p*xi,2));
+	double p = k*(cos_Theta-cos_Theta_0) / 2.;
+	return /*2*sqrt(M_PI) * sigma*sigma*xi*/ factor * exp(-p*p*xi*xi);
 }
 
-double Global_Variables::PSD_Real_Gauss_2D(double sigma, double xi, double k, double cos_Theta, double cos_Theta_0, double cos_Phi)
+double Global_Variables::PSD_Real_Gauss_2D(double factor, double xi, double alpha, double k, double cos_Theta, double cos_Theta_0, double cos_Phi)
 {
-	double nu = k*sqrt(cos_Theta*cos_Theta + cos_Theta_0*cos_Theta_0 - 2*cos_Theta_0*cos_Theta*cos_Phi) / (2*M_PI);
-	return M_PI * sigma*sigma*xi*xi * exp(-pow(M_PI*nu*xi,2));
+	Q_UNUSED(alpha)
+	double nu2 = k*k*(cos_Theta*cos_Theta + cos_Theta_0*cos_Theta_0 - 2*cos_Theta_0*cos_Theta*cos_Phi) / 4.;
+	return /*M_PI * sigma*sigma*xi*xi*/ factor * exp(-nu2*xi*xi);
 }
 
 // fractal gauss integration
-struct Fractal_Gauss_Params
+struct Fractall_Gauss_Params
 {
 	double sigma;
 	double xi;
 	double alpha;
 };
-double Cor_Fractal_Gauss(double r, void* params)
+double Corr_Fractal_Gauss(double r, void* params)
 {
-	Fractal_Gauss_Params* p = reinterpret_cast<Fractal_Gauss_Params*>(params);
+	Fractall_Gauss_Params* p = reinterpret_cast<Fractall_Gauss_Params*>(params);
 
 	if(p->xi > 0)	return p->sigma*p->sigma * exp(-pow(r/p->xi,2*p->alpha));
 	else			return 0;
 }
-double Global_Variables::PSD_Fractal_Gauss_1D(double sigma, double xi, double alpha, double k, double cos_Theta, double cos_Theta_0,
-											  gsl_integration_workspace* w,
-											  gsl_integration_workspace* wc,
-											  gsl_integration_qawo_table* wf)
+double Global_Variables::PSD_Fractal_Gauss_1D(double sigma, double xi, double alpha, double k, double cos_Theta, double cos_Theta_0
+//											  ,gsl_integration_workspace* w
+//											  ,gsl_integration_workspace* wc
+//											  ,gsl_integration_qawo_table* wf
+											  )
 {
-	wf->omega = k*abs(cos_Theta-cos_Theta_0);
-
-	Fractal_Gauss_Params params = {sigma, xi, alpha};
-	gsl_function F = { &Cor_Fractal_Gauss, &params };
-
 	double result = 0, error;
-	gsl_integration_qawf(&F, 0, 1e-4, w->limit, w, wc, wf, &result, &error);
+	double pw = k*abs(cos_Theta-cos_Theta_0);
 
-	result = max(result,DBL_EPSILON);
+	Fractall_Gauss_Params params = {sigma, xi, alpha};
+	gsl_function F = { &Corr_Fractal_Gauss, &params };
+
+	gsl_integration_workspace* w = gsl_integration_workspace_alloc(1000);
+	gsl_integration_workspace* wc = gsl_integration_workspace_alloc(1000);
+	gsl_integration_qawo_table* wf = gsl_integration_qawo_table_alloc(pw, 1 /* any */, GSL_INTEG_COSINE, 23);
+
+	if(abs(pw) < DBL_EPSILON)
+	{
+		result = sigma*sigma*xi*tgamma(1.+1/(2*alpha));
+	} else
+	{
+		gsl_integration_qawf(&F, 0, 1e-4, w->limit, w, wc, wf, &result, &error);
+
+//		result = max(result,DBL_EPSILON);
+	}
+	gsl_integration_qawo_table_free(wf);
+	gsl_integration_workspace_free(wc);
+	gsl_integration_workspace_free(w);
+
 	return 4*result;
+}
+
+double Global_Variables::PSD_Fractal_Gauss_2D(double factor, double xi, double alpha, double k, double cos_Theta, double cos_Theta_0, double cos_Phi
+//											  ,gsl_integration_workspace* w
+//											  ,gsl_integration_workspace* wc
+//											  ,gsl_integration_qawo_table* wf
+											  )
+{
+	return 0;
 }
 
 void Global_Variables::copy_Tree(const QTreeWidget* from_Tree, QTreeWidget* to_Tree)

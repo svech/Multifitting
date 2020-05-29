@@ -173,9 +173,10 @@ void Curve_Plot_2D::create_Main_Layout()
 		cur_Arg_Y = new QLabel("cur_Arg_Y");
 		cur_Bin_X = new QLabel("cur_Bin_X");
 		cur_Bin_Y = new QLabel("cur_Bin_Y");
-		cur_Val = new QLabel("cur_Val");
+		cur_Val   = new QLabel("cur_Val");
 
 		QVBoxLayout* corner_Layout = new QVBoxLayout(corner_Widget);
+			corner_Layout->setAlignment(Qt::AlignTop);
 			corner_Layout->addWidget(cur_Arg_X);
 			corner_Layout->addWidget(cur_Arg_Y);
 			corner_Layout->addWidget(cur_Bin_X);
@@ -584,8 +585,8 @@ void Curve_Plot_2D::plot_All_Data()
 			{
 				for(size_t j=0; j<values_2D_Calc->front().size(); j++)
 				{
-					//(*values_2D_Calc)[i][j] = 0;
-					(*values_2D_Calc)[i][j] = cos((i-values_2D_Calc->size()/2.)/50.)*cos((j-values_2D_Calc->front().size()/2.)/50.);
+					(*values_2D_Calc)[i][j] = 0;
+//					(*values_2D_Calc)[i][j] = cos((i-values_2D_Calc->size()/2.)/50.)*cos((j-values_2D_Calc->front().size()/2.)/50.);
 				}
 			}
 		}

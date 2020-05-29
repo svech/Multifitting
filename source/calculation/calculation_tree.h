@@ -54,6 +54,7 @@ public:
 	void calculate_1_Kind(Data_Element<Type>& data_Element, QString mode = SPECULAR_MODE);
 
 	void calculate_Intermediate_Values_1_Tree(tree<Node>& calc_Tree, const Data& measurement, const tree<Node>::iterator& parent, QString mode, Node* above_Node = NULL);
+	void clear_Spline_1_Tree(tree<Node>& calc_Tree, const tree<Node>::iterator& parent, QString mode);
 
 	void calculate_Unwrapped_Structure   (const Calc_Functions& calc_Functions, tree<Node>& calc_Tree,                const Data& measurement, Unwrapped_Structure*& unwrapped_Structure_Vec_Element);
 	void calculate_Unwrapped_Reflectivity(const Calc_Functions& calc_Functions, Calculated_Values& calculated_Values, const Data& measurement, Unwrapped_Structure*  unwrapped_Structure_Vec_Element, Unwrapped_Reflection*& unwrapped_Reflection_Vec_Element, QString mode);

@@ -75,6 +75,7 @@ void General_Settings_Editor::create_Calculation_Tab()
 		connect(reflectivity_Threads_Spinbox, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, [=]
 		{
 			reflectivity_Calc_Threads = reflectivity_Threads_Spinbox->value();
+			global_Workers.resize(reflectivity_Calc_Threads);
 		});
 		row++;
 		//----------------------------------------------------------------------------

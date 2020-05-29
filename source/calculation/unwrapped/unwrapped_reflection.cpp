@@ -49,10 +49,9 @@ Unwrapped_Reflection::Unwrapped_Reflection(Multilayer* multilayer, Unwrapped_Str
 	weak_Factor_R (num_Threads,vector<complex<double>>(num_Boundaries)),
 	weak_Factor_T (num_Threads,vector<complex<double>>(num_Boundaries))
 {	
-	double z;
-	w = gsl_integration_workspace_alloc (1000);
-	wc = gsl_integration_workspace_alloc (1000);
-	wf = gsl_integration_qawo_table_alloc(z, 1 /* any */, GSL_INTEG_COSINE, 20);
+//	w = gsl_integration_workspace_alloc (1000);
+//	wc = gsl_integration_workspace_alloc (1000);
+//	wf = gsl_integration_qawo_table_alloc(pw, 1 /* any */, GSL_INTEG_COSINE, 20);
 
 	if( measurement.measurement_Type == measurement_Types[Specular_Scan] )
 	{
@@ -139,30 +138,30 @@ Unwrapped_Reflection::Unwrapped_Reflection(Multilayer* multilayer, Unwrapped_Str
 	{
 		phi_Points = measurement.detector_Phi_Angle_Vec.size();
 
-		calculated_Values.GISAS_Map         .resize(phi_Points);
+//		calculated_Values.GISAS_Map         .resize(phi_Points);
 		calculated_Values.GISAS_Instrumental.resize(phi_Points);
 		for(int i=0; i<phi_Points; i++)
 		{
-			calculated_Values.GISAS_Map         [i].resize(num_Points);
+//			calculated_Values.GISAS_Map         [i].resize(num_Points);
 			calculated_Values.GISAS_Instrumental[i].resize(num_Points);
 		}
 
-		// s-polarization
-		if( (measurement.polarization + 1) > POLARIZATION_TOLERANCE)
-		{
-			calculated_Values.GISAS_Map_s.resize(phi_Points);
-			for(int i=0; i<phi_Points; i++)	{
-				calculated_Values.GISAS_Map_s[i].resize(num_Points);
-			}
-		}
-		// p-polarization
-		if( (measurement.polarization - 1) < -POLARIZATION_TOLERANCE)
-		{
-			calculated_Values.GISAS_Map_p.resize(phi_Points);
-			for(int i=0; i<phi_Points; i++)	{
-				calculated_Values.GISAS_Map_p[i].resize(num_Points);
-			}
-		}
+//		// s-polarization
+//		if( (measurement.polarization + 1) > POLARIZATION_TOLERANCE)
+//		{
+//			calculated_Values.GISAS_Map_s.resize(phi_Points);
+//			for(int i=0; i<phi_Points; i++)	{
+//				calculated_Values.GISAS_Map_s[i].resize(num_Points);
+//			}
+//		}
+//		// p-polarization
+//		if( (measurement.polarization - 1) < -POLARIZATION_TOLERANCE)
+//		{
+//			calculated_Values.GISAS_Map_p.resize(phi_Points);
+//			for(int i=0; i<phi_Points; i++)	{
+//				calculated_Values.GISAS_Map_p[i].resize(num_Points);
+//			}
+//		}
 	}
 
 	/// supplementary
@@ -208,14 +207,23 @@ Unwrapped_Reflection::Unwrapped_Reflection(Multilayer* multilayer, Unwrapped_Str
 				}
 			}
 		}
+
+		// for getting common PSD parameters
+		int substrate_Index = unwrapped_Structure->calc_Tree.begin().number_of_children()-1;
+		substrate_Child = tree<Node>::child(unwrapped_Structure->calc_Tree.begin(), substrate_Index);
+		substrate = substrate_Child.node->data.struct_Data;
+		if(substrate.item_Type != item_Type_Substrate ) {qInfo() << "Unwrapped_Reflection::Unwrapped_Reflection  :  last item is not substrate!" << endl;}
+
+		s_Weight = (1. + measurement.polarization) / 2.;
+		p_Weight = (1. - measurement.polarization) / 2.;
 	}
 }
 
 Unwrapped_Reflection::~Unwrapped_Reflection()
 {
-	gsl_integration_qawo_table_free(wf);
-	gsl_integration_workspace_free(wc);
-	gsl_integration_workspace_free(w);
+//	gsl_integration_qawo_table_free(wf);
+//	gsl_integration_workspace_free(wc);
+//	gsl_integration_workspace_free(w);
 }
 
 int Unwrapped_Reflection::fill_s__Max_Depth_3(const tree<Node>::iterator& parent, int thread_Index, int point_Index, int media_Index)
@@ -977,88 +985,56 @@ void Unwrapped_Reflection::calc_Sliced_Field(int thread_Index, int point_Index, 
 	}
 }
 
-double Unwrapped_Reflection::PSD_Common_Value(int point_Index, int phi_Index)
+double Unwrapped_Reflection::PSD_1D_Common_Value(int point_Index)
 {
-	// get common PSD parameters
-	int substrate_Index = unwrapped_Structure->calc_Tree.begin().number_of_children()-1;
-	tree<Node>::post_order_iterator substrate_Child = tree<Node>::child(unwrapped_Structure->calc_Tree.begin(), substrate_Index);
-	const Data& substrate = substrate_Child.node->data.struct_Data;
-	if(substrate.item_Type != item_Type_Substrate ) {qInfo() << "Unwrapped_Reflection::calc_PT_PSD_Terms  :  last item is not substrate!" << endl;}
+	double cos_Theta_0 = measurement.beam_Theta_0_Cos_Value;
+	if( measurement.measurement_Type == measurement_Types[Offset_Scan] ||
+		measurement.measurement_Type == measurement_Types[Rocking_Curve] )
+	{
+		cos_Theta_0 = measurement.beam_Theta_0_Cos_Vec[point_Index];
+	}
 
 	if(multilayer->imperfections_Model.common_Model == ABC_model)
 	{
-		if( measurement.measurement_Type == measurement_Types[Detector_Scan] ||
-			measurement.measurement_Type == measurement_Types[Rocking_Curve] ||
-			measurement.measurement_Type == measurement_Types[Offset_Scan] 	 )
-		{
-			return Global_Variables::PSD_ABC_1D(substrate.roughness_Model.sigma.value,
-												substrate.roughness_Model.cor_radius.value,
-												substrate.roughness_Model.fractal_alpha.value,
-												measurement.k_Value,
-												measurement.detector_Theta_Cos_Vec[point_Index],
-												measurement.beam_Theta_0_Cos_Value);
-		}
-		if( measurement.measurement_Type == measurement_Types[GISAS_Map] )
-		{
-			return Global_Variables::PSD_ABC_2D(substrate.roughness_Model.sigma.value,
-												substrate.roughness_Model.cor_radius.value,
-												substrate.roughness_Model.fractal_alpha.value,
-												measurement.k_Value,
-												measurement.detector_Theta_Cos_Vec[point_Index],
-												measurement.beam_Theta_0_Cos_Value,
-												measurement.detector_Phi_Cos_Vec[phi_Index]);
-		}
+		return Global_Variables::PSD_ABC_1D(substrate.PSD_ABC_1D_Factor,
+											substrate.roughness_Model.cor_radius.value,
+											substrate.roughness_Model.fractal_alpha.value,
+											measurement.k_Value,
+											measurement.detector_Theta_Cos_Vec[point_Index],
+											cos_Theta_0);
 	}
 	if(multilayer->imperfections_Model.common_Model == fractal_Gauss_Model)
 	{
 		if(substrate.roughness_Model.fractal_alpha.value<1)
 		{
-			if( measurement.measurement_Type == measurement_Types[Detector_Scan] ||
-				measurement.measurement_Type == measurement_Types[Rocking_Curve] ||
-				measurement.measurement_Type == measurement_Types[Offset_Scan] 	 )
+			if(abs(substrate.roughness_Model.fractal_alpha.value - 0.5) < DBL_EPSILON)
 			{
-				return Global_Variables::PSD_Fractal_Gauss_1D(substrate.roughness_Model.sigma.value,
-															  substrate.roughness_Model.cor_radius.value,
-															  substrate.roughness_Model.fractal_alpha.value,
-															  measurement.k_Value,
-															  measurement.detector_Theta_Cos_Vec[point_Index],
-															  measurement.beam_Theta_0_Cos_Value,
-															  w,wc,wf);
-			}
-			if( measurement.measurement_Type == measurement_Types[GISAS_Map] )
+				return Global_Variables::PSD_ABC_1D(substrate.PSD_ABC_1D_Factor,
+													substrate.roughness_Model.cor_radius.value,
+													substrate.roughness_Model.fractal_alpha.value,
+													measurement.k_Value,
+													measurement.detector_Theta_Cos_Vec[point_Index],
+													cos_Theta_0);
+			} else
 			{
-				// TODO
-//				return Global_Variables::PSD_Fractal_Gauss_2D(substrate.roughness_Model.sigma.value,
+				double p = measurement.k_Value*abs(measurement.detector_Theta_Cos_Vec[point_Index] - measurement.beam_Theta_0_Cos_Value);
+				return gsl_spline_eval(substrate_Child.node->data.spline, p, substrate_Child.node->data.acc);
+
+//				return Global_Variables::PSD_Fractal_Gauss_1D(substrate.roughness_Model.sigma.value,
 //															  substrate.roughness_Model.cor_radius.value,
 //															  substrate.roughness_Model.fractal_alpha.value,
 //															  measurement.k_Value,
 //															  measurement.detector_Theta_Cos_Vec[point_Index],
-//															  measurement.beam_Theta_0_Cos_Value,
-//															  measurement.detector_Phi_Cos_Vec[phi_Index],
-//															  w,wc,wf);
-				return 0;
+//															  cos_Theta_0
+//															  );
 			}
 		} else
 		{
-			if( measurement.measurement_Type == measurement_Types[Detector_Scan] ||
-				measurement.measurement_Type == measurement_Types[Rocking_Curve] ||
-				measurement.measurement_Type == measurement_Types[Offset_Scan] 	 )
-			{
-				return Global_Variables::PSD_Real_Gauss_1D(substrate.roughness_Model.sigma.value,
-														   substrate.roughness_Model.cor_radius.value,
-														   measurement.k_Value,
-														   measurement.detector_Theta_Cos_Vec[point_Index],
-														   measurement.beam_Theta_0_Cos_Value);
-			}
-			if( measurement.measurement_Type == measurement_Types[GISAS_Map] )
-			{
-				return Global_Variables::PSD_Real_Gauss_2D(substrate.roughness_Model.sigma.value,
-														   substrate.roughness_Model.cor_radius.value,
-														   measurement.k_Value,
-														   measurement.detector_Theta_Cos_Vec[point_Index],
-														   measurement.beam_Theta_0_Cos_Value,
-														   measurement.detector_Phi_Cos_Vec[phi_Index]);
-			}
+			return Global_Variables::PSD_Real_Gauss_1D(substrate.PSD_Real_Gauss_1D_Factor,
+													   substrate.roughness_Model.cor_radius.value,
+													   measurement.k_Value,
+													   measurement.detector_Theta_Cos_Vec[point_Index],
+													   cos_Theta_0);
 		}
 	}
 	return 0;
@@ -1259,7 +1235,8 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 	calc_Local(thread_Index);
 
 //	auto enD = std::chrono::system_clock::now();
-//	auto elapseD = std::chrono::duration_cast<std::chrono::nanoseconds>(enD - end);
+//	auto elapseD = std::chrono::duration_cast<std::chrono::nanoseconds>(enD - start);
+//	if(point_Index==0) qInfo() << endl << measurement.measurement_Type << spec_Scat_mode << elapseD.count()/1000000. << " seconds" << endl;
 
 
 	// if we need to calculate detailed field distribution
@@ -1306,8 +1283,17 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 						   (multilayer->imperfections_Model.vertical_Correlation == zero_Correlation &&
 							multilayer->imperfections_Model.use_Common_Roughness_Function) )
 						{
-							double e_Factor = pow(measurement.k_Value,3)/(16*M_PI*measurement.beam_Theta_0_Sin_Value*sqrt(measurement.beam_Theta_0_Cos_Value*measurement.detector_Theta_Cos_Vec[point_Index]));
-							double PSD_Factor = PSD_Common_Value(point_Index);
+							double sin_Theta_0 = max(measurement.beam_Theta_0_Sin_Value, DBL_EPSILON);
+							double cos_Theta_0 = max(measurement.beam_Theta_0_Cos_Value, DBL_EPSILON);
+							if( measurement.measurement_Type == measurement_Types[Offset_Scan] ||
+								measurement.measurement_Type == measurement_Types[Rocking_Curve] )
+							{
+								sin_Theta_0 = max(measurement.beam_Theta_0_Sin_Vec[point_Index], DBL_EPSILON);
+								cos_Theta_0 = max(measurement.beam_Theta_0_Cos_Vec[point_Index], DBL_EPSILON);
+							}
+
+							double e_Factor = pow(measurement.k_Value,3)/(16*M_PI*sin_Theta_0*sqrt(cos_Theta_0*measurement.detector_Theta_Cos_Vec[point_Index]));
+							double PSD_Factor = PSD_1D_Common_Value(point_Index);
 
 							// s-polarization
 							if( (measurement.polarization + 1) > POLARIZATION_TOLERANCE)
@@ -1340,10 +1326,18 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 						{
 							double e_Factor = pow(measurement.k_Value,4)/(16*M_PI*M_PI*measurement.beam_Theta_0_Sin_Value);
 
-							vector<double> PSD_Factor_Vec(phi_Points);
-							for(int phi_Index = 0; phi_Index<phi_Points; phi_Index++)
+							// choose PSD type
+							double(*PSD_2D_Func)(double, double, double, double, double, double, double);
+							double PSD_Factor;
+							if(multilayer->imperfections_Model.common_Model == ABC_model)			{PSD_2D_Func = Global_Variables::PSD_ABC_2D;			PSD_Factor = substrate.PSD_ABC_2D_Factor;}
+							if(multilayer->imperfections_Model.common_Model == fractal_Gauss_Model)
 							{
-								PSD_Factor_Vec[phi_Index] = PSD_Common_Value(point_Index, phi_Index);
+								if(substrate.roughness_Model.fractal_alpha.value < 1)
+								{
+									if(substrate.roughness_Model.fractal_alpha.value == 0.5)		{PSD_2D_Func = Global_Variables::PSD_ABC_2D;			PSD_Factor = substrate.PSD_ABC_2D_Factor;}
+									else															{PSD_2D_Func = Global_Variables::PSD_Fractal_Gauss_2D;	PSD_Factor = substrate.roughness_Model.sigma.value/*substrate.PSD_Fractal_Gauss_2D_Factor*/;}
+								}
+								else																{PSD_2D_Func = Global_Variables::PSD_Real_Gauss_2D;		PSD_Factor = substrate.PSD_Real_Gauss_2D_Factor;}
 							}
 
 							// s-polarization
@@ -1352,7 +1346,20 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 								double field_Term_Sum_s = calc_Field_Term_Sum_No_PSD("s", point_Index);
 								for(int phi_Index = 0; phi_Index<phi_Points; phi_Index++)
 								{
-									calculated_Values.GISAS_Map_s[phi_Index][point_Index] = e_Factor * field_Term_Sum_s * PSD_Factor_Vec[phi_Index];
+									calculated_Values.GISAS_Instrumental[phi_Index][point_Index] = s_Weight * e_Factor * field_Term_Sum_s * PSD_2D_Func(PSD_Factor,
+																																						substrate.roughness_Model.cor_radius.value,
+																																						substrate.roughness_Model.fractal_alpha.value,
+																																						measurement.k_Value,
+																																						measurement.detector_Theta_Cos_Vec[point_Index],
+																																						measurement.beam_Theta_0_Cos_Value,
+																																						measurement.detector_Phi_Cos_Vec[phi_Index]);
+								}
+							} else
+							// setting to 0 if only pure p polarization
+							{
+								for(int phi_Index = 0; phi_Index<phi_Points; phi_Index++)
+								{
+									calculated_Values.GISAS_Instrumental[phi_Index][point_Index] = 0;
 								}
 							}
 							// p-polarization
@@ -1361,7 +1368,13 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 								double field_Term_Sum_p = calc_Field_Term_Sum_No_PSD("p", point_Index);
 								for(int phi_Index = 0; phi_Index<phi_Points; phi_Index++)
 								{
-									calculated_Values.GISAS_Map_p[phi_Index][point_Index] = e_Factor * field_Term_Sum_p * PSD_Factor_Vec[phi_Index];
+									calculated_Values.GISAS_Instrumental[phi_Index][point_Index] += p_Weight * e_Factor * field_Term_Sum_p * PSD_2D_Func(substrate.roughness_Model.sigma.value,
+																																						 substrate.roughness_Model.cor_radius.value,
+																																						 substrate.roughness_Model.fractal_alpha.value,
+																																						 measurement.k_Value,
+																																						 measurement.detector_Theta_Cos_Vec[point_Index],
+																																						 measurement.beam_Theta_0_Cos_Value,
+																																						 measurement.detector_Phi_Cos_Vec[phi_Index]);
 								}
 							}
 						}
@@ -1383,9 +1396,6 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 
 void Unwrapped_Reflection::fill_Specular_Values(int thread_Index, int point_Index)
 {
-	double s_Weight = (1. + measurement.polarization) / 2.;
-	double p_Weight = (1. - measurement.polarization) / 2.;
-
 	// reflectance
 	if(	unwrapped_Structure->calc_Functions.check_Reflectance ||
 		unwrapped_Structure->calc_Functions.check_Absorptance )
@@ -1466,36 +1476,36 @@ void Unwrapped_Reflection::fill_Specular_Values(int thread_Index, int point_Inde
 		calculated_Values.S				[point_Index] = s_Weight * calculated_Values.S_s[point_Index] + p_Weight * calculated_Values.S_p[point_Index];
 		calculated_Values.S_Instrumental[point_Index] = calculated_Values.S[point_Index];
 	}
-	// GISAS
-	if(	unwrapped_Structure->calc_Functions.check_GISAS )
-	{		
-		for(int phi_Index = 0; phi_Index<phi_Points; phi_Index++)
-		{
-			calculated_Values.GISAS_Map			[phi_Index][point_Index] = 0;
-		}
-		// s-polarization
-		if( (measurement.polarization + 1) > POLARIZATION_TOLERANCE)
-		{
-			for(int phi_Index = 0; phi_Index<phi_Points; phi_Index++)
-			{
-				// calculated_Values.GISAS_Map_s[phi_Index][point_Index] already calculated
-				calculated_Values.GISAS_Map		[phi_Index][point_Index] += s_Weight * calculated_Values.GISAS_Map_s[phi_Index][point_Index];
-			}
-		}
-		// p-polarization
-		if( (measurement.polarization - 1) < -POLARIZATION_TOLERANCE)
-		{
-			for(int phi_Index = 0; phi_Index<phi_Points; phi_Index++)
-			{
-				// calculated_Values.GISAS_Map_p[phi_Index][point_Index] already calculated
-				calculated_Values.GISAS_Map		[phi_Index][point_Index] += p_Weight * calculated_Values.GISAS_Map_p[phi_Index][point_Index];
-			}
-		}
-		for(int phi_Index = 0; phi_Index<phi_Points; phi_Index++)
-		{
-			calculated_Values.GISAS_Instrumental[phi_Index][point_Index] = calculated_Values.GISAS_Map[phi_Index][point_Index];
-		}
-	}
+	// GISAS (too expensive for copying)
+//	if(	unwrapped_Structure->calc_Functions.check_GISAS )
+//	{
+//		for(int phi_Index = 0; phi_Index<phi_Points; phi_Index++)
+//		{
+//			calculated_Values.GISAS_Map			[phi_Index][point_Index] = 0;
+//		}
+//		// s-polarization
+//		if( (measurement.polarization + 1) > POLARIZATION_TOLERANCE)
+//		{
+//			for(int phi_Index = 0; phi_Index<phi_Points; phi_Index++)
+//			{
+//				// calculated_Values.GISAS_Map_s[phi_Index][point_Index] already calculated
+//				calculated_Values.GISAS_Map		[phi_Index][point_Index] += s_Weight * calculated_Values.GISAS_Map_s[phi_Index][point_Index];
+//			}
+//		}
+//		// p-polarization
+//		if( (measurement.polarization - 1) < -POLARIZATION_TOLERANCE)
+//		{
+//			for(int phi_Index = 0; phi_Index<phi_Points; phi_Index++)
+//			{
+//				// calculated_Values.GISAS_Map_p[phi_Index][point_Index] already calculated
+//				calculated_Values.GISAS_Map		[phi_Index][point_Index] += p_Weight * calculated_Values.GISAS_Map_p[phi_Index][point_Index];
+//			}
+//		}
+//		for(int phi_Index = 0; phi_Index<phi_Points; phi_Index++)
+//		{
+//			calculated_Values.GISAS_Instrumental[phi_Index][point_Index] = calculated_Values.GISAS_Map[phi_Index][point_Index];
+//		}
+//	}
 }
 
 void Unwrapped_Reflection::calc_Specular_nMin_nMax_1_Thread(int n_Min, int n_Max, int thread_Index)

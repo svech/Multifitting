@@ -323,14 +323,20 @@ public:
 
 	// roughness
 	static void enable_Disable_Roughness_Model(Data& struct_Data, const Imperfections_Model& imperfections_Model);
-	static double PSD_ABC_1D		  (double sigma, double xi, double alpha, double k, double cos_Theta, double cos_Theta_0);
-	static double PSD_ABC_2D		  (double sigma, double xi, double alpha, double k, double cos_Theta, double cos_Theta_0, double cos_Phi);
-	static double PSD_Real_Gauss_1D   (double sigma, double xi,               double k, double cos_Theta, double cos_Theta_0);
-	static double PSD_Real_Gauss_2D   (double sigma, double xi,               double k, double cos_Theta, double cos_Theta_0, double cos_Phi);
-	static double PSD_Fractal_Gauss_1D(double sigma, double xi, double alpha, double k, double cos_Theta, double cos_Theta_0,
-									   gsl_integration_workspace* w,
-									   gsl_integration_workspace* wc,
-									   gsl_integration_qawo_table* wf);
+	static double PSD_ABC_1D		  (double factor, double xi, double alpha, double k, double cos_Theta, double cos_Theta_0);
+	static double PSD_ABC_2D		  (double factor, double xi, double alpha, double k, double cos_Theta, double cos_Theta_0, double cos_Phi);
+	static double PSD_Real_Gauss_1D   (double factor, double xi,               double k, double cos_Theta, double cos_Theta_0);
+	static double PSD_Real_Gauss_2D   (double factor, double xi, double alpha, double k, double cos_Theta, double cos_Theta_0, double cos_Phi);
+	static double PSD_Fractal_Gauss_1D(double sigma, double xi, double alpha, double k, double cos_Theta, double cos_Theta_0
+//									   ,gsl_integration_workspace* w
+//									   ,gsl_integration_workspace* wc
+//									   ,gsl_integration_qawo_table* wf
+									   );
+	static double PSD_Fractal_Gauss_2D(double sigma, double xi, double alpha, double k, double cos_Theta, double cos_Theta_0, double cos_Phi
+//									   ,gsl_integration_workspace* w
+//									   ,gsl_integration_workspace* wc
+//									   ,gsl_integration_qawo_table* wf
+									   );
 
 };
 

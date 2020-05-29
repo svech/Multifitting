@@ -293,6 +293,7 @@ void Table_Roughness_Model_Editor::create_Roughness_Groupbox()
 		PSD_Cor_Layout->addWidget(linear_Growth_Radiobutton);
 
 		QRadioButton* fractal_Gauss_Radiobutton = new QRadioButton("Fractal Gauss model");
+			fractal_Gauss_Radiobutton->setDisabled(multilayer->imperfections_Model.vertical_Correlation == partial_Correlation);
 			fractal_Gauss_Radiobutton->setChecked(multilayer->imperfections_Model.common_Model == fractal_Gauss_Model);
 		PSD_Cor_Layout->addWidget(fractal_Gauss_Radiobutton);
 
@@ -357,6 +358,7 @@ void Table_Roughness_Model_Editor::create_Roughness_Groupbox()
 				ABC_Radiobutton->toggled(true);
 			}
 			linear_Growth_Radiobutton->setDisabled(true);
+			fractal_Gauss_Radiobutton->setDisabled(false);
 
 			common_Checkbox->setChecked(true);
 			common_Checkbox->toggled(true);
@@ -371,6 +373,14 @@ void Table_Roughness_Model_Editor::create_Roughness_Groupbox()
 		{
 			multilayer->imperfections_Model.vertical_Correlation = partial_Correlation;
 			linear_Growth_Radiobutton->setDisabled(false);
+
+			if(fractal_Gauss_Radiobutton->isChecked())
+			{
+				fractal_Gauss_Radiobutton->setChecked(false);
+				ABC_Radiobutton->setChecked(true);
+				ABC_Radiobutton->toggled(true);
+			}
+			fractal_Gauss_Radiobutton->setDisabled(true);
 
 			common_Checkbox->setChecked(true);
 			common_Checkbox->toggled(true);
@@ -392,6 +402,7 @@ void Table_Roughness_Model_Editor::create_Roughness_Groupbox()
 				ABC_Radiobutton->toggled(true);
 			}
 			linear_Growth_Radiobutton->setDisabled(true);
+			fractal_Gauss_Radiobutton->setDisabled(false);
 			common_Checkbox->setDisabled(false);
 
 			refresh_Tree_Roughness();

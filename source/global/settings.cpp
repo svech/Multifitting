@@ -635,7 +635,7 @@ void Settings::read_Structure_Default_Values(bool reset_to_default)
 
 				step_sigma_roughness			= structure_Default_Values.value( "step_sigma_roughness",			0.1  ).toDouble();
 				step_sigma_cor_radius			= structure_Default_Values.value( "step_sigma_cor_radius",			100  ).toDouble();
-				step_sigma_fractal_alpha		= structure_Default_Values.value( "step_sigma_fractal_alpha",		0.02 ).toDouble();
+				step_sigma_fractal_alpha		= structure_Default_Values.value( "step_sigma_fractal_alpha",		0.01 ).toDouble();
 				step_sigma_vertical_cor_length	= structure_Default_Values.value( "step_sigma_vertical_cor_length",	10   ).toDouble();
 				step_sigma_omega				= structure_Default_Values.value( "step_sigma_omega",				0.1  ).toDouble();
 				step_sigma_mu					= structure_Default_Values.value( "step_sigma_mu",					10   ).toDouble();

@@ -103,6 +103,12 @@ public:
 		QVector<Interlayer> interlayer_Composition;
 
 		Roughness_Model roughness_Model;
+
+		double PSD_ABC_1D_Factor;			// without saving
+		double PSD_ABC_2D_Factor;			// without saving
+		double PSD_Real_Gauss_1D_Factor;	// without saving
+		double PSD_Real_Gauss_2D_Factor;	// without saving
+
 	///---------------------------------------------
 	///---------------------------------------------
 	// Layer

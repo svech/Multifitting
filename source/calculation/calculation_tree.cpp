@@ -379,17 +379,19 @@ void Calculation_Tree::calculate_1_Kind(Data_Element<Type>& data_Element, QStrin
 	auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
 	qInfo() << "\nIntermediate:   "<< elapsed.count()/1000000. << " seconds" << endl;
 
-	start = std::chrono::system_clock::now();
+//	start = std::chrono::system_clock::now();
 	calculate_Unwrapped_Structure		(data_Element.calc_Functions, data_Element.calc_Tree, data_Element.the_Class->measurement, data_Element.unwrapped_Structure);
-	end = std::chrono::system_clock::now();
-	elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-	qInfo() << "Unwrap:         "<< elapsed.count()/1000000. << " seconds" << endl;
+//	end = std::chrono::system_clock::now();
+//	elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+//	qInfo() << "Unwrap:         "<< elapsed.count()/1000000. << " seconds" << endl;
 
 	start = std::chrono::system_clock::now();
 	calculate_Unwrapped_Reflectivity	(data_Element.calc_Functions, data_Element.the_Class->calculated_Values, data_Element.the_Class->measurement, data_Element.unwrapped_Structure, data_Element.unwrapped_Reflection, mode);
 	end = std::chrono::system_clock::now();
 	elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
 	qInfo() << "Unwrap Reflect: "<< elapsed.count()/1000000. << " seconds" << endl;
+
+	clear_Spline_1_Tree(data_Element.calc_Tree, data_Element.calc_Tree.begin(), mode);
 }
 template void Calculation_Tree::calculate_1_Kind<Independent_Curve>(Data_Element<Independent_Curve>&, QString);
 template void Calculation_Tree::calculate_1_Kind<Target_Curve>	   (Data_Element<Target_Curve>&, QString);
@@ -403,6 +405,22 @@ void Calculation_Tree::calculate_Intermediate_Values_1_Tree(tree<Node>& calc_Tre
 
 		child.node->data.calculate_Intermediate_Points(measurement, above_Node, depth_Grading, sigma_Grading, multilayer->discretization_Parameters.enable_Discretization, mode);
 
+		if( mode == SCATTERED_MODE &&
+			multilayer->imperfections_Model.common_Model == fractal_Gauss_Model)
+		{
+			if( child.node->data.struct_Data.item_Type == item_Type_Substrate )
+			{
+				child.node->data.create_Spline_PSD_Fractal_Gauss_1D(measurement);
+			}
+			if(multilayer->imperfections_Model.use_Common_Roughness_Function == false)
+			{
+				if( child.node->data.struct_Data.item_Type == item_Type_Layer )
+				{
+					child.node->data.create_Spline_PSD_Fractal_Gauss_1D(measurement);
+				}
+			}
+		}
+
 		if( child.node->data.struct_Data.item_Type != item_Type_Multilayer &&
 			child.node->data.struct_Data.item_Type != item_Type_Regular_Aperiodic &&
 			child.node->data.struct_Data.item_Type != item_Type_General_Aperiodic )
@@ -411,6 +429,38 @@ void Calculation_Tree::calculate_Intermediate_Values_1_Tree(tree<Node>& calc_Tre
 		} else
 		{
 			calculate_Intermediate_Values_1_Tree(calc_Tree, measurement, child, mode, above_Node);
+		}
+	}
+}
+
+void Calculation_Tree::clear_Spline_1_Tree(tree<Node>& calc_Tree, const tree<Node>::iterator& parent, QString mode)
+{
+	// iterate over tree
+	for(unsigned i=0; i<parent.number_of_children(); ++i)
+	{
+		tree<Node>::post_order_iterator child = calc_Tree.child(parent,i);
+
+		if( mode == SCATTERED_MODE &&
+			multilayer->imperfections_Model.common_Model == fractal_Gauss_Model)
+		{
+			if( child.node->data.struct_Data.item_Type == item_Type_Substrate )
+			{
+				child.node->data.clear_Spline();
+			}
+			if(multilayer->imperfections_Model.use_Common_Roughness_Function == false)
+			{
+				if( child.node->data.struct_Data.item_Type == item_Type_Layer )
+				{
+					child.node->data.clear_Spline();
+				}
+			}
+		}
+
+		if( child.node->data.struct_Data.item_Type == item_Type_Multilayer ||
+			child.node->data.struct_Data.item_Type == item_Type_Regular_Aperiodic ||
+			child.node->data.struct_Data.item_Type == item_Type_General_Aperiodic )
+		{
+			clear_Spline_1_Tree(calc_Tree, child, mode);
 		}
 	}
 }

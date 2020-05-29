@@ -2235,7 +2235,11 @@ void Table_Of_Structures::create_Line_Edit(My_Table_Widget* table, int tab_Index
 		}
 		if(whats_This == whats_This_Fractal_Alpha)
 		{
-			spin_Box->setRange(0.01, 1);
+			spin_Box->setRange(0.1, 1);
+		}
+		if(whats_This == whats_This_Correlation_Radius)
+		{
+			spin_Box->setMinimum(10);
 		}
 
 		id = parameter.indicator.id;

@@ -34,6 +34,13 @@ public:
 
 	vector<complex<double>> weak_Factor_R;
 	vector<complex<double>> weak_Factor_T;
+
+	/// ------------------------------------------------
+
+	void create_Spline_PSD_Fractal_Gauss_1D(const Data& measurement);
+	void clear_Spline();
+	gsl_spline* spline;
+	gsl_interp_accel* acc;
 };
 
 #endif // NODE_H

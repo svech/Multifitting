@@ -250,6 +250,15 @@ void Independent_Curve::calc_Independent_cos2_k()
 				measurement.beam_Theta_0_Cos_Value  = cos(measurement.beam_Theta_0_Angle_Value*M_PI/180.);
 				measurement.beam_Theta_0_Sin_Value  = sin(measurement.beam_Theta_0_Angle_Value*M_PI/180.);
 				measurement.beam_Theta_0_Cos2_Value = pow(measurement.beam_Theta_0_Cos_Value,2);
+
+				// for convenience of calculation
+				measurement.beam_Theta_0_Cos_Vec.resize(measurement.detector_Theta_Angle.independent.num_Points);
+				measurement.beam_Theta_0_Sin_Vec.resize(measurement.detector_Theta_Angle.independent.num_Points);
+				for(int i=0; i<measurement.detector_Theta_Angle.independent.num_Points; ++i)
+				{
+					measurement.beam_Theta_0_Cos_Vec [i] = measurement.beam_Theta_0_Cos_Value;
+					measurement.beam_Theta_0_Sin_Vec [i] = measurement.beam_Theta_0_Sin_Value;
+				}
 			}
 			// k : single value
 			{

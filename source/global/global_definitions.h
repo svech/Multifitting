@@ -760,9 +760,9 @@ struct Calculated_Values	  {	// reflectance
 
 
 								// GISAS
-								vector<vector<double>> GISAS_Map_s;
-								vector<vector<double>> GISAS_Map_p;
-								vector<vector<double>> GISAS_Map;
+//								vector<vector<double>> GISAS_Map_s;				// to expensive to handle
+//								vector<vector<double>> GISAS_Map_p;				// to expensive to handle
+//								vector<vector<double>> GISAS_Map;				// to expensive to handle
 								vector<vector<double>> GISAS_Instrumental;
 							   };
 struct Simple_Curve		       {

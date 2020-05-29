@@ -606,7 +606,7 @@ void Curve_Plot_1D::plot_All_Data()
 			{
 				qInfo() << "Target curve " << plot_Indicator << " : calculation of " << target_Curve->curve.value_Type << "is not done. Fake data are shown." << endl;
 				values = target_Curve->curve.shifted_Values;
-				for(size_t i=0; i<values.size(); i++) {values[i] /=10;}
+				for(size_t i=0; i<values.size(); i++) {values[i] = 0;}
 			}
 			plot_Data(argument, values, plot_Options_Second, 1);
 			get_Min_Max_For_Graph(plot_Options_Second, values, min_Value_Left, max_Value_Left);
@@ -674,7 +674,7 @@ void Curve_Plot_1D::plot_All_Data()
 			values.resize(argument.size());
 			for(size_t i=0; i<values.size(); i++)
 			{
-				values[i] = sin(argument[i])*sin(argument[i])+DBL_EPSILON;
+				values[i] = 0;//sin(argument[i])*sin(argument[i])+DBL_EPSILON;
 			}
 		}
 		plot_Data(argument, values, plot_Options_First, 0);

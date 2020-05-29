@@ -275,6 +275,7 @@ void Main_Calculation_Module::single_Calculation(bool print_And_Verbose)
 			{
 				calculation_Trees[tab_Index]->calculate_1_Kind(independent_Data_Element, SCATTERED_MODE);
 			}
+			qInfo() << endl;
 			if(lambda_Out_Of_Range) return;
 		}
 		for(Data_Element<Target_Curve>& target_Data_Element : calculation_Trees[tab_Index]->target)

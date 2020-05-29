@@ -565,6 +565,15 @@ void Target_Curve::calc_Measured_cos2_k()
 				measurement.beam_Theta_0_Cos_Value = cos(measurement.beam_Theta_0_Angle_Value*M_PI/180.);
 				measurement.beam_Theta_0_Sin_Value = sin(measurement.beam_Theta_0_Angle_Value*M_PI/180.);
 				measurement.beam_Theta_0_Cos2_Value = pow(measurement.beam_Theta_0_Cos_Value,2);
+
+				// for convenience of calculation
+				measurement.beam_Theta_0_Cos_Vec.resize(curve.shifted_Argument.size());
+				measurement.beam_Theta_0_Sin_Vec.resize(curve.shifted_Argument.size());
+				for(int i=0; i<curve.shifted_Argument.size(); ++i)
+				{
+					measurement.beam_Theta_0_Cos_Vec [i] = measurement.beam_Theta_0_Cos_Value;
+					measurement.beam_Theta_0_Sin_Vec [i] = measurement.beam_Theta_0_Sin_Value;
+				}
 			}
 			// k : single value
 			{

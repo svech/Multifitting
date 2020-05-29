@@ -16,9 +16,10 @@ public:
 	~Unwrapped_Reflection();
 
 	// for integration of correlation function
-	gsl_integration_workspace* w;
-	gsl_integration_workspace* wc;
-	gsl_integration_qawo_table* wf;
+//	gsl_integration_workspace* w;
+//	gsl_integration_workspace* wc;
+//	gsl_integration_qawo_table* wf;
+//	double pw;
 
 	int num_Threads;
 	int num_Layers;
@@ -39,6 +40,12 @@ public:
 	Unwrapped_Structure* unwrapped_Structure;
 	Multilayer* multilayer;
 	const Data& measurement;
+	tree<Node>::post_order_iterator substrate_Child;
+	Data substrate;
+
+	double s_Weight;
+	double p_Weight;
+
 
 	vector<vector<complex<double>>> r_Fresnel_s;	//	[thread][boundary]
 	vector<vector<complex<double>>> r_Fresnel_p;	//	[thread][boundary]
@@ -75,7 +82,7 @@ public:
 	void calc_Local						(int thread_Index);
 	void calc_Amplitudes_Field			(int thread_Index, int point_Index);
 	void calc_Sliced_Field				(int thread_Index, int point_Index,		  const vector<complex<double>>& epsilon_Vector);
-	double PSD_Common_Value				(                  int point_Index, int phi_Index = 0);
+	double PSD_1D_Common_Value			(				   int point_Index);
 	double calc_Field_Term_Sum_No_PSD(QString polarization,int point_Index);
 	void calc_Environmental_Factor		(int thread_Index);
 
