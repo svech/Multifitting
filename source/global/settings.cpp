@@ -875,7 +875,7 @@ void Settings::read_Parameters_Default_Values(bool reset_to_default)
 		default_max_theta_0_angle							= parameters_Default_Values.value( "default_max_theta_0_angle",								7		).toDouble();
 
 		default_theta_angle_value							= parameters_Default_Values.value( "default_theta_angle_value",								1		).toDouble();
-		default_min_theta_angle								= parameters_Default_Values.value( "default_min_theta_angle",								0.3		).toDouble();
+		default_min_theta_angle								= parameters_Default_Values.value( "default_min_theta_angle",								0.0		).toDouble();
 		default_max_theta_angle								= parameters_Default_Values.value( "default_max_theta_angle",								3		).toDouble();
 
 		default_phi_angle_value								= parameters_Default_Values.value( "default_phi_angle_value",								0		).toDouble();

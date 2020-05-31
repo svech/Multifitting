@@ -589,7 +589,7 @@ double Cor_Fractal_Gauss(double r, void* params)
 void Node::create_Spline_PSD_Fractal_Gauss_1D(const Data& measurement)
 {
 	double sigma = struct_Data.roughness_Model.sigma.value;
-	double xi = struct_Data.roughness_Model.cor_radius.value;
+	double xi =    struct_Data.roughness_Model.cor_radius.value;
 	double alpha = struct_Data.roughness_Model.fractal_alpha.value;
 
 	vector<double> temp_Cos = measurement.detector_Theta_Cos_Vec;

@@ -136,12 +136,6 @@ void Menu::create_File_Menu()
 				}
 			});
 		}
-		if(window_Type == window_Type_Multilayer_Approach)
-		{
-			QAction* act_Open_Launcher = new QAction("Open Launcher", this);
-			connect(act_Open_Launcher, &QAction::triggered, global_Multilayer_Approach, [=]{global_Multilayer_Approach->open_Launcher();});
-			file_Menu->addAction(act_Open_Launcher);
-		}
 		if(window_Type == window_Type_Table_Of_Structures)
 		{
 			QAction* act_Quit = new QAction("Close", this);
