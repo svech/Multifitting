@@ -66,6 +66,8 @@ public:
 	vector<vector<complex<double>>> weak_Factor_T;		//	[thread][boundary]
 
 	QMap<id_Type, int> id_Item_Map;
+	vector<Data> appropriate_Item_Vec;					//	[item_Index]
+	vector<Node> appropriate_Node_Vec;					//	[item_Index]
 	vector<int> boundary_Item_Vec;						//	[boundary]
 
 	vector<vector<double>> PSD_1D_Factor_Item;			//	[thread][item_Index]
@@ -73,7 +75,9 @@ public:
 	vector<double> PSD_1D_Factor_Single;				//	[thread]
 
 	vector<vector<vector<double>>> PSD_2D_Factor_Item;	//	[thread][item_Index][phi_Index]
-	vector<vector<double>> PSD_2D_Factor_Single;		//	[thread][phi_Index]
+	vector<vector<double>> field_Term_2D_Boundary_s;	//	[thread][boundary]
+	vector<vector<double>> field_Term_2D_Boundary_p;	//	[thread][boundary]
+//	vector<vector<double>> PSD_2D_Factor_Single;		//	[thread][phi_Index]
 
 	int fill_s__Max_Depth_3(const tree<Node>::iterator& parent, int thread_Index, int point_Index, int media_Index = 0);
 	int fill_p__Max_Depth_3(const tree<Node>::iterator& parent, int thread_Index, int point_Index, int media_Index = 0);
@@ -81,6 +85,7 @@ public:
 
 	void fill_Item_Id_Map();
 	void fill_Item_PSD_1D(int thread_Index, double cos_Theta, double cos_Theta_0);
+	void fill_Item_PSD_2D(int thread_Index, int point_Index, int phi_Index);
 	int fill_Boundary_Item_PSD(const tree<Node>::iterator &parent, int boundary_Index = 0);
 //	int fill_Boundary_PSD_1D  (const tree<Node>::iterator& parent, int thread_Index, int point_Index, int boundary_Index = 0);
 	void fill_Epsilon_Ambient_Substrate	(int thread_Index,						  const vector<complex<double>>& epsilon_Vector);
