@@ -335,7 +335,7 @@ void Table_Roughness_Model_Editor::create_Roughness_Groupbox()
 		PSD_Cor_Layout->addWidget(ABC_Radiobutton);
 
 		QRadioButton* linear_Growth_Radiobutton = new QRadioButton("ABC+linear growth");
-			linear_Growth_Radiobutton->setChecked(multilayer->imperfections_Model.common_Model == linear_Growth_Model);
+			linear_Growth_Radiobutton->setChecked(multilayer->imperfections_Model.common_Model == linear_Growth_and_ABC_Model);
 			linear_Growth_Radiobutton->setDisabled(multilayer->imperfections_Model.vertical_Correlation != partial_Correlation);
 		PSD_Cor_Layout->addWidget(linear_Growth_Radiobutton);
 
@@ -469,7 +469,7 @@ void Table_Roughness_Model_Editor::create_Roughness_Groupbox()
 	{
 		if(linear_Growth_Radiobutton->isChecked())
 		{
-			multilayer->imperfections_Model.common_Model = linear_Growth_Model;
+			multilayer->imperfections_Model.common_Model = linear_Growth_and_ABC_Model;
 			refresh_Tree_Roughness();
 		}
 	});

@@ -470,7 +470,7 @@ void Calculation_Tree::calculate_Unwrapped_Structure(const Calc_Functions& calc_
 	delete unwrapped_Structure_Vec_Element;
 	num_Media = get_Total_Num_Layers(calc_Tree.begin(), calc_Tree);
 
-	Unwrapped_Structure* new_Unwrapped_Structure = new Unwrapped_Structure (calc_Functions, calc_Tree, measurement, num_Media, max_Depth, depth_Threshold, depth_Grading, sigma_Grading, multilayer->discretization_Parameters, r);
+	Unwrapped_Structure* new_Unwrapped_Structure = new Unwrapped_Structure (multilayer, calc_Functions, calc_Tree, measurement, num_Media, max_Depth, depth_Threshold, depth_Grading, sigma_Grading, multilayer->discretization_Parameters, r);
 	unwrapped_Structure_Vec_Element = new_Unwrapped_Structure;
 
 	if(unwrapped_Structure_Vec_Element->discretization_Parameters.enable_Discretization)

@@ -1071,7 +1071,7 @@ void Global_Variables::enable_Disable_Roughness_Model(Data& struct_Data, const I
 				}
 			}
 		}
-		if( imperfections_Model.common_Model == linear_Growth_Model )
+		if( imperfections_Model.common_Model == linear_Growth_and_ABC_Model )
 		{
 			if(imperfections_Model.vertical_Correlation == partial_Correlation) // the only case
 			{
@@ -1124,8 +1124,23 @@ double Global_Variables::PSD_Real_Gauss_2D(double factor, double xi, double alph
 
 double Global_Variables::PSD_Fractal_Gauss_1D(double sigma, double xi, double alpha, double k, double cos_Theta, double cos_Theta_0, gsl_spline* spline, gsl_interp_accel* acc)
 {
+	Q_UNUSED(sigma)
+	Q_UNUSED(xi)
+	Q_UNUSED(alpha)
 	double p = k*abs(cos_Theta - cos_Theta_0);
 	return gsl_spline_eval(spline, p, acc);
+}
+
+double Global_Variables::inheritance_Exp_Nu_2D(double alpha, double k, double cos_Theta, double cos_Theta_0, double cos_Phi)
+{
+	double nu2 = k*k*(cos_Theta*cos_Theta + cos_Theta_0*cos_Theta_0 - 2*cos_Theta_0*cos_Theta*cos_Phi) / (4*M_PI*M_PI);
+	return exp(-pow(nu2,alpha+1));
+}
+
+long double Global_Variables::inheritance_Exp_Nu_2D_long(double alpha, double k, double cos_Theta, double cos_Theta_0, double cos_Phi)
+{
+	long double nu2 = k*k*(cos_Theta*cos_Theta + cos_Theta_0*cos_Theta_0 - 2*cos_Theta_0*cos_Theta*cos_Phi) / (4*M_PI*M_PI);
+	return exp(-pow(nu2,alpha+1));
 }
 
 void Global_Variables::copy_Tree(const QTreeWidget* from_Tree, QTreeWidget* to_Tree)

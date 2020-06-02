@@ -90,8 +90,14 @@ void Curve_Plot_1D::create_Main_Layout()
 
 	graph_Done = true;
 
-	// show
+	// rescale on opening
+	bool rescale = plot_Options_First.rescale;
+	plot_Options_First.rescale = true;
+
 	plot_All_Data();
+
+	plot_Options_First.rescale = rescale;
+
 }
 
 void Curve_Plot_1D::create_Subinterval_Rectangle()

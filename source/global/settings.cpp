@@ -238,8 +238,8 @@ int thickness_transfer_precision	;
 
 // angular and spectral independent variables
 int default_num_spectral_points;
+int default_num_theta_0_angular_points;
 int default_num_theta_angular_points;
-int default_num_alpha_angular_points;
 int default_num_phi_angular_points;
 
 double default_theta_0_angle_value;
@@ -862,9 +862,9 @@ void Settings::read_Parameters_Default_Values(bool reset_to_default)
 	// parameters default values
 	parameters_Default_Values.beginGroup( Independent_Values );
 		default_num_spectral_points							= parameters_Default_Values.value( "default_num_spectral_points",							400		).toInt();
+		default_num_theta_0_angular_points					= parameters_Default_Values.value( "default_num_theta_0_angular_points",					1000	).toInt();
 		default_num_theta_angular_points					= parameters_Default_Values.value( "default_num_theta_angular_points",						1000	).toInt();
-		default_num_alpha_angular_points					= parameters_Default_Values.value( "default_num_alpha_angular_points",						1000	).toInt();
-		default_num_phi_angular_points						= parameters_Default_Values.value( "default_num_phi_angular_points",						500		).toInt();
+		default_num_phi_angular_points						= parameters_Default_Values.value( "default_num_phi_angular_points",						501		).toInt();
 
 		default_wavelength_value							= parameters_Default_Values.value( "default_wavelength_value",								1.540562).toDouble();
 		default_min_wavelength								= parameters_Default_Values.value( "default_min_wavelength",								100		).toDouble();
@@ -895,8 +895,8 @@ void Settings::save_Parameters_Default_Values()
 	// parameters default values
 	parameters_Default_Values.beginGroup( Independent_Values );
 		parameters_Default_Values.setValue( "default_num_spectral_points",					default_num_spectral_points			   );
+		parameters_Default_Values.setValue( "default_num_theta_0_angular_points",			default_num_theta_0_angular_points	   );
 		parameters_Default_Values.setValue( "default_num_theta_angular_points",				default_num_theta_angular_points	   );
-		parameters_Default_Values.setValue( "default_num_alpha_angular_points",				default_num_alpha_angular_points	   );
 		parameters_Default_Values.setValue( "default_num_phi_angular_points",				default_num_phi_angular_points		   );
 
 		parameters_Default_Values.setValue( "default_wavelength_value",						default_wavelength_value			   );

@@ -199,6 +199,10 @@ void Curve_Plot_2D::create_Main_Layout()
 		left_Ver_Layout->setContentsMargins(0,shift_Left,0,0);
 	}
 
+	// rescale on opening
+	bool rescale = plot_Options.rescale;
+	plot_Options.rescale = true;
+
 	create_Section_Parts();
 	create_Plot_Frame_And_Scale();
 	plot_All_Data();
@@ -206,6 +210,8 @@ void Curve_Plot_2D::create_Main_Layout()
 	refresh_Corner_Labels();
 	create_Plot_Options_GroupBox();
 	touch_It();
+
+	plot_Options.rescale = rescale;
 
 	// color scheme editor
 	connect(main_2D_Custom_Plot, &QCustomPlot::axisDoubleClick, this, [=](QCPAxis* axis, QCPAxis::SelectablePart part, QMouseEvent* event)
@@ -333,8 +339,8 @@ void Curve_Plot_2D::create_Section_Parts()
 			left_Vertical_Custom_Plot->graph(1)->setPen(QPen(color_Calc, thickness_Current, Qt::SolidLine));
 
 			// fixed
-			left_Vertical_Custom_Plot->graph(2)->setPen(QPen(color_Meas, thickness_Fixed, Qt::DotLine));
-			left_Vertical_Custom_Plot->graph(3)->setPen(QPen(color_Calc, thickness_Fixed, Qt::DotLine));
+			left_Vertical_Custom_Plot->graph(2)->setPen(QPen(color_Meas, thickness_Fixed, Qt::SolidLine));
+			left_Vertical_Custom_Plot->graph(3)->setPen(QPen(color_Calc, thickness_Fixed, Qt::SolidLine));
 		}
 		if(curve_Class == INDEPENDENT)
 		{
@@ -342,7 +348,7 @@ void Curve_Plot_2D::create_Section_Parts()
 			left_Vertical_Custom_Plot->graph(0)->setPen(QPen(color_Calc, thickness_Current, Qt::SolidLine));
 
 			// fixed
-			left_Vertical_Custom_Plot->graph(1)->setPen(QPen(color_Calc, thickness_Fixed, Qt::DotLine));
+			left_Vertical_Custom_Plot->graph(1)->setPen(QPen(color_Calc, thickness_Fixed, Qt::SolidLine));
 		}
 	}
 	// bottom part
@@ -383,26 +389,26 @@ void Curve_Plot_2D::create_Section_Parts()
 			bottom_Horizontal_Custom_Plot->graph(0)->setPen(QPen(color_Meas, thickness_Current, Qt::SolidLine));
 			bottom_Horizontal_Custom_Plot->graph(1)->setPen(QPen(color_Calc, thickness_Current, Qt::SolidLine));
 			// fixed
-			bottom_Horizontal_Custom_Plot->graph(2)->setPen(QPen(color_Meas, thickness_Fixed, Qt::DotLine));
-			bottom_Horizontal_Custom_Plot->graph(3)->setPen(QPen(color_Calc, thickness_Fixed, Qt::DotLine));
+			bottom_Horizontal_Custom_Plot->graph(2)->setPen(QPen(color_Meas, thickness_Fixed, Qt::SolidLine));
+			bottom_Horizontal_Custom_Plot->graph(3)->setPen(QPen(color_Calc, thickness_Fixed, Qt::SolidLine));
 
 			// current
 			bottom_Vertical_Custom_Plot->graph(0)->setPen(QPen(color_Meas, thickness_Current, Qt::SolidLine));
 			bottom_Vertical_Custom_Plot->graph(1)->setPen(QPen(color_Calc, thickness_Current, Qt::SolidLine));
 			// fixed
-			bottom_Vertical_Custom_Plot->graph(2)->setPen(QPen(color_Meas, thickness_Fixed, Qt::DotLine));
-			bottom_Vertical_Custom_Plot->graph(3)->setPen(QPen(color_Calc, thickness_Fixed, Qt::DotLine));
+			bottom_Vertical_Custom_Plot->graph(2)->setPen(QPen(color_Meas, thickness_Fixed, Qt::SolidLine));
+			bottom_Vertical_Custom_Plot->graph(3)->setPen(QPen(color_Calc, thickness_Fixed, Qt::SolidLine));
 		}
 		if(curve_Class == INDEPENDENT)
 		{
 			// current
 			bottom_Horizontal_Custom_Plot->graph(0)->setPen(QPen(color_Calc, thickness_Current, Qt::SolidLine));
 			// fixed
-			bottom_Horizontal_Custom_Plot->graph(1)->setPen(QPen(color_Calc, thickness_Fixed, Qt::DotLine));
+			bottom_Horizontal_Custom_Plot->graph(1)->setPen(QPen(color_Calc, thickness_Fixed, Qt::SolidLine));
 			// current
 			bottom_Vertical_Custom_Plot->graph(0)->setPen(QPen(color_Calc, thickness_Current, Qt::SolidLine));
 			// fixed
-			bottom_Vertical_Custom_Plot->graph(1)->setPen(QPen(color_Calc, thickness_Fixed, Qt::DotLine));
+			bottom_Vertical_Custom_Plot->graph(1)->setPen(QPen(color_Calc, thickness_Fixed, Qt::SolidLine));
 		}
 	}
 }
@@ -647,8 +653,8 @@ void Curve_Plot_2D::plot_Data()
 	// x,y ranges
 	refresh_Axes_Range();
 	// z range
-//	color_Map->rescaleDataRange(); // rescale the data dimension (color) such that all data points lie in the span visualized by the color gradient
-	if(plot_Options.z_Scale == log_Scale) { min_Val = max(min_Val,max_Val/1e5); } // no more than 5 orders
+	//color_Map->rescaleDataRange(); // rescale the data dimension (color) such that all data points lie in the span visualized by the color gradient
+	if(plot_Options.z_Scale == log_Scale) { min_Val = max(min_Val,max_Val/pow(10,plot_Options.orders_To_Show)); max_Val*=1.4;} // no more than "orders_To_Show" orders
 	if(plot_Options.rescale) { color_Map->setDataRange(QCPRange(min_Val,max_Val)); }
 
 	color_Map->setInterpolate(plot_Options.use_Interpolation);
@@ -946,12 +952,31 @@ void Curve_Plot_2D::create_Plot_Options_GroupBox()
 	}
 	// interpolation
 	{
-		QCheckBox* use_Interpolation_CheckBox = new QCheckBox("Interpolate");
+		QCheckBox* use_Interpolation_CheckBox = new QCheckBox("Interpolate  |");
 			use_Interpolation_CheckBox->setChecked(plot_Options.use_Interpolation);
 		plot_Options_GroupBox_Layout->addWidget(use_Interpolation_CheckBox);
 		connect(use_Interpolation_CheckBox, &QCheckBox::clicked, this, [=]
 		{
 			plot_Options.use_Interpolation = use_Interpolation_CheckBox->isChecked();
+			plot_Data();
+		});
+	}
+	// z range to show
+	{
+		QLabel* orders_Label = new QLabel("Range to show, orders: ");
+		plot_Options_GroupBox_Layout->addWidget(orders_Label);
+
+		MyDoubleSpinBox* orders_Spinbox = new MyDoubleSpinBox;
+			orders_Spinbox->setRange(1,99);
+			orders_Spinbox->setDecimals(1);
+			orders_Spinbox->setSingleStep(0.1);
+			orders_Spinbox->setValue(plot_Options.orders_To_Show);
+			orders_Spinbox->setAccelerated(true);
+			orders_Spinbox->setButtonSymbols(QAbstractSpinBox::NoButtons);
+		plot_Options_GroupBox_Layout->addWidget(orders_Spinbox);
+		connect(orders_Spinbox, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
+		{
+			plot_Options.orders_To_Show = orders_Spinbox->value();
 			plot_Data();
 		});
 	}

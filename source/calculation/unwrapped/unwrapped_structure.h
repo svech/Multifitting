@@ -7,10 +7,12 @@
 #include <gsl/gsl_rng.h>
 #include <gsl/gsl_randist.h>
 
+class Multilayer;
+
 class Unwrapped_Structure
 {
 public:
-	Unwrapped_Structure(const Calc_Functions& calc_Functions, const tree<Node>& calc_Tree, const Data& measurement, int num_Media, int max_Depth, int depth_Threshold, bool depth_Grading, bool sigma_Grading, Discretization_Parameters discretization_Parameters, gsl_rng* r);
+	Unwrapped_Structure(Multilayer* multilayer, const Calc_Functions& calc_Functions, const tree<Node>& calc_Tree, const Data& measurement, int num_Media, int max_Depth, int depth_Threshold, bool depth_Grading, bool sigma_Grading, Discretization_Parameters discretization_Parameters, gsl_rng* r);
 
 	gsl_rng * r;
 
@@ -27,6 +29,7 @@ public:
 
 	const tree<Node>& calc_Tree;
 	const Calc_Functions& calc_Functions;
+	Multilayer* multilayer;
 
 	vector<complex<double>> epsilon;								//	[media]
 
@@ -39,7 +42,10 @@ public:
 	vector<QVector<Interlayer>> boundary_Interlayer_Composition;	//  [boundary][function] not use in multithreaded mode
 	vector<vector<QVector<Interlayer>>> boundary_Interlayer_Composition_Threaded;	//  [thread][boundary][function]
 	vector<double> thickness;										//	[layer]
+	vector<double> mu;												//	[layer]
+	vector<double> alpha;											//	[layer]
 	vector<double> boundaries;										//	[boundary]
+	vector<double> PSD_Inheritance_Powers;							//	[boundary]
 	vector<vector<double>> boundaries_Threaded;						//	[thread][boundary]
 	vector<double> layer_Norm_Vector;								//	[layer]
 	vector<vector<double>> layer_Norm_Vector_Threaded;				//	[thread][layer]
@@ -84,6 +90,8 @@ public:
 	int fill_Epsilon_Dependent(const tree<Node>::iterator& parent, int num_Lambda_Points, int media_Index = 0);
 	int fill_Sigma    (const tree<Node>::iterator& parent, double& max_Sigma, int boundary_Index = 0, int per_Index = 0);
 	int fill_Thickness_And_Boundaries(const tree<Node>::iterator& parent, int layer_Index = 0,    int per_Index = 0);
+	int fill_Thickness_Mu_And_Alpha		 (const tree<Node>::iterator& parent, int layer_Index = 0,    int per_Index = 0);
+	void fill_PSD_Inheritance_Powers();
 };
 
 #endif // UNWRAPPED_STRUCTURE_H

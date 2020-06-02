@@ -242,8 +242,8 @@ extern int thickness_transfer_precision		;
 
 // angular and spectral independent variables
 extern int default_num_spectral_points;
+extern int default_num_theta_0_angular_points;
 extern int default_num_theta_angular_points;
-extern int default_num_alpha_angular_points;
 extern int default_num_phi_angular_points;
 
 extern double default_theta_0_angle_value;

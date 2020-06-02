@@ -49,7 +49,7 @@ Data::Data(QString item_Type_Passed)
 			beam_Theta_0_Angle.independent.is_Independent = true;
 			beam_Theta_0_Angle.independent.min = default_min_theta_0_angle;
 			beam_Theta_0_Angle.independent.max = default_max_theta_0_angle;
-			beam_Theta_0_Angle.independent.num_Points = default_num_theta_angular_points;
+			beam_Theta_0_Angle.independent.num_Points = default_num_theta_0_angular_points;
 			beam_Theta_0_Angle.indicator.whats_This = whats_This_Beam_Theta_0_Angle;
 			beam_Theta_0_Angle.indicator.item_Id = id;
 
@@ -62,7 +62,7 @@ Data::Data(QString item_Type_Passed)
 			detector_Theta_Angle.independent.is_Independent = true;
 			detector_Theta_Angle.independent.min = default_min_theta_angle;
 			detector_Theta_Angle.independent.max = default_max_theta_angle;
-			detector_Theta_Angle.independent.num_Points = default_num_alpha_angular_points;
+			detector_Theta_Angle.independent.num_Points = default_num_theta_angular_points;
 			detector_Theta_Angle.indicator.whats_This = whats_This_Detector_Theta_Angle;
 			detector_Theta_Angle.indicator.item_Id = id;
 
@@ -854,7 +854,7 @@ void Data::fill_Potentially_Fitable_Parameters_Vector()
 			potentially_Fitable_Parameters.push_back(&roughness_Model.fractal_alpha);
 			potentially_Fitable_Parameters.push_back(&roughness_Model.mu);
 
-			if( roughness_Model.model == linear_Growth_Model )
+			if( roughness_Model.model == linear_Growth_and_ABC_Model )
 			{
 				potentially_Fitable_Parameters.push_back(&roughness_Model.omega);
 			}

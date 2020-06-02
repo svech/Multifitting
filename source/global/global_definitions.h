@@ -249,7 +249,7 @@ class Node;
 
 // PSD models
 #define ABC_model				"ABC model"
-#define linear_Growth_Model		"Linear growth model"
+#define linear_Growth_and_ABC_Model		"Linear growth model"
 #define fractal_Gauss_Model		"Fractal gauss model"
 
 // whatsThis : delimiters
@@ -602,6 +602,7 @@ struct Plot_Options				{ bool rescale = true;
 								  bool bottom_Section_Plot = false;
 								  int bottom_Section_Tab_Index = 0;
 								  QString data_To_Show = meas;
+								  double orders_To_Show = 9;
 								};
 struct Graph_Options			{int num_Target_Graph_Rows = 1;		 // rows in Graphs
 								 int num_Independent_Graph_Rows = 1; // rows in Graphs

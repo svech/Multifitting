@@ -1,6 +1,7 @@
 #include "unwrapped_structure.h"
+#include "multilayer_approach/multilayer/multilayer.h"
 
-Unwrapped_Structure::Unwrapped_Structure(const Calc_Functions& calc_Functions, const tree<Node>& calc_Tree, const Data& measurement, int num_Media, int max_Depth, int depth_Threshold, bool depth_Grading, bool sigma_Grading, Discretization_Parameters discretization_Parameters, gsl_rng* r):
+Unwrapped_Structure::Unwrapped_Structure(Multilayer* multilayer, const Calc_Functions& calc_Functions, const tree<Node>& calc_Tree, const Data& measurement, int num_Media, int max_Depth, int depth_Threshold, bool depth_Grading, bool sigma_Grading, Discretization_Parameters discretization_Parameters, gsl_rng* r):
 	r(r),
 	num_Threads		(epsilon_Partial_Fill_Threads),
 	num_Media		(num_Media),
@@ -12,7 +13,8 @@ Unwrapped_Structure::Unwrapped_Structure(const Calc_Functions& calc_Functions, c
 	sigma_Grading	(sigma_Grading),	
 	discretization_Parameters(discretization_Parameters),
 	calc_Tree		(calc_Tree),
-	calc_Functions  (calc_Functions)
+	calc_Functions  (calc_Functions),
+	multilayer		(multilayer)
 {
 	// create vector of epsilon if we will need it
 	if( max_Depth>depth_Threshold ||
@@ -74,7 +76,27 @@ Unwrapped_Structure::Unwrapped_Structure(const Calc_Functions& calc_Functions, c
 			boundaries_Threaded[thread_Index] = boundaries;
 		}
 	}
+	// create vectors of exponential powers for partially correlated roughness
+	if( calc_Functions.check_Scattering	||
+		calc_Functions.check_GISAS )
+	{
+		thickness.resize(num_Layers);
+		mu.resize(num_Layers);
+		alpha.resize(num_Layers);
+		PSD_Inheritance_Powers.resize(num_Boundaries);
+		fill_Thickness_Mu_And_Alpha(calc_Tree.begin());
+		//	fill_Thickness_Mu_And_Alpha_Depth_2(calc_Tree->begin());
+		if(multilayer->imperfections_Model.common_Model == ABC_model)
+		{
+			const Data& substrate = calc_Tree.child(calc_Tree.begin(), calc_Tree.begin().number_of_children()-1).node->data.struct_Data;
+			for(size_t i = 0; i<alpha.size(); i++)
+			{
+				alpha[i] = substrate.roughness_Model.fractal_alpha.value;
+			}
+		}
 
+		fill_PSD_Inheritance_Powers();
+	}
 	if(discretization_Parameters.enable_Discretization)
 	{
 		// discretized_Thickness is constructed here
@@ -704,4 +726,64 @@ int Unwrapped_Structure::fill_Thickness_And_Boundaries(const tree<Node>::iterato
 		}
 	}
 	return layer_Index;
+}
+
+int Unwrapped_Structure::fill_Thickness_Mu_And_Alpha(const tree<Node>::iterator &parent, int layer_Index, int per_Index)
+{
+	for(unsigned child_Index=0; child_Index<parent.number_of_children(); ++child_Index)
+	{
+		tree<Node>::post_order_iterator child = tree<Node>::child(parent,child_Index);
+		Data& struct_Data = child.node->data.struct_Data;
+
+		// layers that are not from regular aperiodic
+		if( struct_Data.item_Type == item_Type_Layer &&
+			struct_Data.parent_Item_Type != item_Type_Regular_Aperiodic )
+		{
+			// TODO extreme layers
+			thickness[layer_Index] = struct_Data.thickness.value;
+			mu       [layer_Index] = struct_Data.roughness_Model.mu.value;
+			alpha	 [layer_Index] = struct_Data.roughness_Model.fractal_alpha.value;
+
+			// can drift
+			Global_Variables::variable_Drift(thickness[layer_Index], struct_Data.thickness_Drift, per_Index, struct_Data.num_Repetition.value(), r);
+
+			++layer_Index;
+		}
+
+		if( child.node->data.struct_Data.item_Type == item_Type_Multilayer )
+		{
+			int per_Index_Amendment = 0;
+			if(struct_Data.num_Repetition.value()>=1) per_Index_Amendment=1;
+			for(int period_Index=0; period_Index<struct_Data.num_Repetition.value(); ++period_Index)
+			{
+				// TODO optimize for depth 2
+				layer_Index = fill_Thickness_Mu_And_Alpha(child, layer_Index, period_Index+per_Index_Amendment);
+			}
+		}
+
+		if( child.node->data.struct_Data.item_Type == item_Type_Regular_Aperiodic )
+		{
+			Data& regular_Aperiodic = child.node->data.struct_Data;
+			for(int period_Index=0; period_Index<regular_Aperiodic.num_Repetition.value(); ++period_Index)
+			{
+				for(int cell_Index=0; cell_Index<regular_Aperiodic.regular_Components.size(); ++cell_Index)
+				{
+					thickness[layer_Index] = regular_Aperiodic.regular_Components[cell_Index].components[period_Index].thickness.value;
+					mu       [layer_Index] = regular_Aperiodic.regular_Components[cell_Index].components[period_Index].roughness_Model.mu.value;
+					alpha	 [layer_Index] = regular_Aperiodic.regular_Components[cell_Index].components[period_Index].roughness_Model.fractal_alpha.value;
+					++layer_Index;
+				}
+			}
+		}
+	}
+	return layer_Index;
+}
+
+void Unwrapped_Structure::fill_PSD_Inheritance_Powers()
+{
+	PSD_Inheritance_Powers[num_Boundaries-1] = 0;
+	for(int boundary_Index = num_Boundaries-2; boundary_Index>=0; boundary_Index--)
+	{
+		PSD_Inheritance_Powers[boundary_Index] = PSD_Inheritance_Powers[boundary_Index+1] + pow(mu[boundary_Index], 2*alpha[boundary_Index]+1) * thickness[boundary_Index];
+	}
 }
