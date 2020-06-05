@@ -1031,7 +1031,6 @@ void Global_Variables::enable_Disable_Roughness_Model(Data& struct_Data, const I
 	if( struct_Data.item_Type == item_Type_Layer || struct_Data.item_Type == item_Type_Substrate )
 	{
 		struct_Data.roughness_Model.is_Enabled = imperfections_Model.use_Roughness;
-//		struct_Data.roughness_Model.model = imperfections_Model.common_Model;
 	}
 
 	// detailed correction

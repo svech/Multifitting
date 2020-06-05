@@ -1062,14 +1062,15 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 				// last
 				create_Check_Box_Fit(new_Table, tab_Index, current_Row+2, current_Column, structure_Item, whats_This, 1, 2, 0, 0);
 
-				// correlation radius step
-				if(!steps_Are_Done_Xi)
-				if(multilayer->imperfections_Model.common_Model != linear_Growth_and_ABC_Model)
-				{
-					create_Simple_Label	(new_Table,	tab_Index, steps_Row,   current_Column, whats_This, Xi_Sym+" ["+length_units+"]");
-					create_Step_Spin_Box(new_Table, tab_Index, steps_Row+1, current_Column, whats_This);
-					steps_Are_Done_Xi = true;
-				}
+				/// (adaptive step instead of fixed)
+//				// correlation radius step
+//				if(!steps_Are_Done_Xi)
+//				if(multilayer->imperfections_Model.common_Model != linear_Growth_and_ABC_Model)
+//				{
+//					create_Simple_Label	(new_Table,	tab_Index, steps_Row,   current_Column, whats_This, Xi_Sym+" ["+length_units+"]");
+//					create_Step_Spin_Box(new_Table, tab_Index, steps_Row+1, current_Column, whats_This);
+//					steps_Are_Done_Xi = true;
+//				}
 				current_Column+=2;
 			}
 			///--------------------------------------------------------------------------------------------
@@ -1097,6 +1098,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 				// last
 				create_Check_Box_Fit(new_Table, tab_Index, current_Row+2, current_Column, structure_Item, whats_This, 1, 2, 0, 0);
 
+				/// (adaptive step instead of fixed)
 //				// omega step
 //				if(!steps_Are_Done_Omega)
 //				{
@@ -1122,7 +1124,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 			}
 			if(show_Mu)
 			{
-				if(multilayer->imperfections_Model.common_Model != linear_Growth_and_ABC_Model) current_Column+=1;
+				if(multilayer->imperfections_Model.common_Model != linear_Growth_and_ABC_Model) current_Column+=2;
 				QString whats_This = whats_This_Linear_PSD_Exponenta_Mu;
 				add_Columns			(new_Table, current_Column+1);
 				create_Label		(new_Table, tab_Index, current_Row,   current_Column, structure_Item, whats_This, Mu_Sym+" ["+length_units+"]");
@@ -1132,6 +1134,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 				// last
 				create_Check_Box_Fit(new_Table, tab_Index, current_Row+2, current_Column, structure_Item, whats_This, 1, 2, 0, 0);
 
+				/// (adaptive step instead of fixed)
 //				// mu step
 //				if(!steps_Are_Done_Mu)
 //				{
@@ -2241,7 +2244,7 @@ void Table_Of_Structures::create_Line_Edit(My_Table_Widget* table, int tab_Index
 		{
 			spin_Box->setMinimum(10/coeff);
 		}
-		if(whats_This == whats_This_Linear_PSD_Exponenta_Mu || whats_This == whats_This_Linear_PSD_Omega)
+		if(whats_This == whats_This_Linear_PSD_Exponenta_Mu || whats_This == whats_This_Linear_PSD_Omega || whats_This_Correlation_Radius)
 		{
 			spin_Box->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
 		}

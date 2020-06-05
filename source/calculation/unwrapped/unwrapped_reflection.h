@@ -82,7 +82,6 @@ public:
 	vector<vector<vector<double>>> half_Sum_Field_Term_2D_s;	//	[thread][boundary][layer]
 	vector<vector<vector<double>>> half_Sum_Field_Term_2D_p;	//	[thread][boundary][layer]
 	vector<vector<vector<double>>> cross_Exp_Factor_2D;			//	[thread][boundary][layer]
-	vector<vector<double>> exp_Power_mu_h_2D;					//	[thread][layer]
 	vector<vector<double>> PSD_2D_Factor;						//	[thread][boundary]
 
 	int fill_s__Max_Depth_3(const tree<Node>::iterator& parent, int thread_Index, int point_Index, int media_Index = 0);

@@ -497,13 +497,13 @@ QDataStream& operator >>( QDataStream& stream,		 Discretization_Parameters& disc
 
 QDataStream& operator <<( QDataStream& stream, const Roughness_Model& roughness_Model )
 {
-	return stream << roughness_Model.is_Enabled //<< roughness_Model.model
+	return stream << roughness_Model.is_Enabled
 				  << roughness_Model.sigma << roughness_Model.cor_radius << roughness_Model.fractal_alpha
 				  << roughness_Model.omega << roughness_Model.mu;
 }
 QDataStream& operator >>( QDataStream& stream,		 Roughness_Model& roughness_Model )
 {
-	return stream >> roughness_Model.is_Enabled //>> roughness_Model.model
+	return stream >> roughness_Model.is_Enabled
 				  >> roughness_Model.sigma >> roughness_Model.cor_radius >> roughness_Model.fractal_alpha
 				  >> roughness_Model.omega >> roughness_Model.mu;
 }

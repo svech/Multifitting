@@ -780,7 +780,6 @@ struct Discretization_Parameters{
 								};
 struct Roughness_Model			{
 								bool is_Enabled = false;
-								//QString model = ABC_model;
 								Parameter sigma;
 								Parameter cor_radius;
 								Parameter fractal_alpha;

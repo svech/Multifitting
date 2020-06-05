@@ -265,7 +265,6 @@ Data::Data(QString item_Type_Passed)
 		// roughness
 		{
 			roughness_Model.is_Enabled = false;
-//			roughness_Model.model = ABC_model;
 		}
 		// sigma roughness
 		{
