@@ -329,7 +329,10 @@ public:
 	static double PSD_Real_Gauss_1D    (double factor, double xi, double alpha, double k, double cos_Theta, double cos_Theta_0, gsl_spline* spline = nullptr, gsl_interp_accel* acc = nullptr);
 	static double PSD_Real_Gauss_2D    (double factor, double xi, double alpha, double k, double cos_Theta, double cos_Theta_0, double cos_Phi);
 	static double PSD_Fractal_Gauss_1D (double sigma,  double xi, double alpha, double k, double cos_Theta, double cos_Theta_0, gsl_spline* spline, gsl_interp_accel* acc);
+
 	static double inheritance_Exp_Nu_2D(                          double alpha, double k, double cos_Theta, double cos_Theta_0, double cos_Phi);
+	static double nu_Alpha_2D		   (                          double alpha, double k, double cos_Theta, double cos_Theta_0, double cos_Phi);
+	static double PSD_Linear_Growth_2D (double exponent, double factor, double mu_Alpha, double omega, double thickness);
 	static long double inheritance_Exp_Nu_2D_long(				  double alpha, double k, double cos_Theta, double cos_Theta_0, double cos_Phi);
 };
 

@@ -80,7 +80,7 @@ public:
 	void spin_Box_Change_Dependent  (My_Table_Widget* table,				 int current_Row, int current_Column);
 	void change_Model				(My_Table_Widget* table, int tab_Index,	 int current_Row, int current_Column);
 	void refill_All_Dependent		();
-	void real_Tree_Iteration			(QTreeWidget* real_Struct_Tree, QVector<Parameter>& master_Parameters);
+	void real_Tree_Iteration			(Multilayer* multilayer, QTreeWidget* real_Struct_Tree, QVector<Parameter>& master_Parameters);
 	void change_Slaves_in_Structure_Tree(Parameter& master, const QVector<Parameter_Indicator>& slaves, QVector<id_Type>& ids);
 	void refresh_Dependents		(const QVector<id_Type>& ids, bool manual_Refresh = false, bool reload_Period_Gamma = true);
 	void lock_Unlock_Dependents	(const QVector<id_Type>& ids);

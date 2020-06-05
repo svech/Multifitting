@@ -372,7 +372,7 @@ void Main_Calculation_Module::fitting_and_Confidence()
 		if( calculation_Trees[tab_Index]->target.size()>0 )
 		{
 			// find fitables over tree
-			calc_Tree_Iteration(calculation_Trees[tab_Index]->real_Calc_Tree.begin());
+			calc_Tree_Iteration(calculation_Trees[tab_Index]->real_Calc_Tree.begin(), tab_Index);
 		}
 
 		// additional fitables: target curve scale factors
@@ -647,7 +647,7 @@ bool Main_Calculation_Module::reject()
 	return false;
 }
 
-void Main_Calculation_Module::calc_Tree_Iteration(const tree<Node>::iterator& parent, bool fitables_Period_Gamma, bool confidentials_Period_Gamma)
+void Main_Calculation_Module::calc_Tree_Iteration(const tree<Node>::iterator& parent, int tab_Index, bool fitables_Period_Gamma, bool confidentials_Period_Gamma)
 {
 	Data& parent_Data = parent.node->data.struct_Data;
 
@@ -657,7 +657,7 @@ void Main_Calculation_Module::calc_Tree_Iteration(const tree<Node>::iterator& pa
 		tree<Node>::pre_order_iterator child = tree<Node>::child(parent,i);
 		Data& struct_Data = child.node->data.struct_Data;
 
-		find_Fittable_Confidence_Parameters(struct_Data, parent_Data, child, i, fitables_Period_Gamma, confidentials_Period_Gamma);
+		find_Fittable_Confidence_Parameters(struct_Data, parent_Data, child, i, tab_Index, fitables_Period_Gamma, confidentials_Period_Gamma);
 
 		// get number_Of_Restricted_Regular_Components to enlarge number of effective residual points
 		if( struct_Data.item_Type == item_Type_Regular_Aperiodic )
@@ -686,14 +686,14 @@ void Main_Calculation_Module::calc_Tree_Iteration(const tree<Node>::iterator& pa
 			{
 				local_Confidentials_Period_Gamma = true;
 			}
-			calc_Tree_Iteration(child, local_Fitables_Period_Gamma, local_Confidentials_Period_Gamma);
+			calc_Tree_Iteration(child, tab_Index, local_Fitables_Period_Gamma, local_Confidentials_Period_Gamma);
 		}
 	}
 }
 
-void Main_Calculation_Module::find_Fittable_Confidence_Parameters(Data& struct_Data, const Data& parent_Data, const tree<Node>::iterator& current, int child_Index, bool fitables_Period_Gamma, bool confidentials_Period_Gamma)
+void Main_Calculation_Module::find_Fittable_Confidence_Parameters(Data& struct_Data, const Data& parent_Data, const tree<Node>::iterator& current, int child_Index, int tab_Index, bool fitables_Period_Gamma, bool confidentials_Period_Gamma)
 {
-	struct_Data.fill_Potentially_Fitable_Parameters_Vector();
+	struct_Data.fill_Potentially_Fitable_Parameters_Vector(multilayers[tab_Index]->imperfections_Model);
 	for(Parameter* parameter : struct_Data.potentially_Fitable_Parameters)
 	{
 		// for my_Sigmas

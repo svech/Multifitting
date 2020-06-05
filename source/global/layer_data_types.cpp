@@ -265,7 +265,7 @@ Data::Data(QString item_Type_Passed)
 		// roughness
 		{
 			roughness_Model.is_Enabled = false;
-			roughness_Model.model = ABC_model;
+//			roughness_Model.model = ABC_model;
 		}
 		// sigma roughness
 		{
@@ -784,7 +784,7 @@ QString Data::get_Composed_Material()
 	return composed;
 }
 
-void Data::fill_Potentially_Fitable_Parameters_Vector()
+void Data::fill_Potentially_Fitable_Parameters_Vector(const Imperfections_Model& imperfections_Model)
 {
 	potentially_Fitable_Parameters.clear();
 
@@ -811,10 +811,6 @@ void Data::fill_Potentially_Fitable_Parameters_Vector()
 		else
 			potentially_Fitable_Parameters.push_back(&absolute_Density);
 
-		// tabular material
-//		all_Parameters.push_back(&permittivity);
-//		all_Parameters.push_back(&absorption);
-
 		// material composition
 		if(composition.size()>1 && composed_Material)
 		{
@@ -832,31 +828,45 @@ void Data::fill_Potentially_Fitable_Parameters_Vector()
 		item_Type == item_Type_Substrate )
 	{
 		int enabled_Counter=0;
-		for(Interlayer& interlayer : interlayer_Composition)
+		if(imperfections_Model.use_Interlayer)
 		{
-			if(interlayer.enabled)
+			for(int i=0; i<interlayer_Composition.size(); i++)
 			{
-				++enabled_Counter;
-				potentially_Fitable_Parameters.push_back(&interlayer.interlayer);
+				if(imperfections_Model.use_Func[i] && interlayer_Composition[i].enabled)
+				{
+					++enabled_Counter;
+					potentially_Fitable_Parameters.push_back(&interlayer_Composition[i].interlayer);
 
-				if(!common_Sigma_Diffuse)
-					potentially_Fitable_Parameters.push_back(&interlayer.my_Sigma_Diffuse);
+					if(!common_Sigma_Diffuse)
+						potentially_Fitable_Parameters.push_back(&interlayer_Composition[i].my_Sigma_Diffuse);
+				}
 			}
+
+			if(common_Sigma_Diffuse && enabled_Counter>0)
+			{	potentially_Fitable_Parameters.push_back(&sigma_Diffuse); }
+
 		}
-
-		if(common_Sigma_Diffuse && enabled_Counter>0)
-		{	potentially_Fitable_Parameters.push_back(&sigma_Diffuse); }
-
-		if(roughness_Model.is_Enabled)
+		if(imperfections_Model.use_Roughness)
 		{
-			potentially_Fitable_Parameters.push_back(&roughness_Model.sigma);
-			potentially_Fitable_Parameters.push_back(&roughness_Model.cor_radius);
-			potentially_Fitable_Parameters.push_back(&roughness_Model.fractal_alpha);
-			potentially_Fitable_Parameters.push_back(&roughness_Model.mu);
-
-			if( roughness_Model.model == linear_Growth_and_ABC_Model )
+			if( imperfections_Model.common_Model == linear_Growth_and_ABC_Model )
 			{
 				potentially_Fitable_Parameters.push_back(&roughness_Model.omega);
+			}
+			if( imperfections_Model.vertical_Correlation == partial_Correlation )
+			{
+				potentially_Fitable_Parameters.push_back(&roughness_Model.mu);
+			}
+			if( item_Type == item_Type_Substrate ||
+				imperfections_Model.use_Common_Roughness_Function == false	)
+			{
+				potentially_Fitable_Parameters.push_back(&roughness_Model.cor_radius);
+				potentially_Fitable_Parameters.push_back(&roughness_Model.sigma);
+			}
+			if( item_Type == item_Type_Substrate ||
+				imperfections_Model.common_Model == linear_Growth_and_ABC_Model ||
+				imperfections_Model.use_Common_Roughness_Function == false	)
+			{
+				potentially_Fitable_Parameters.push_back(&roughness_Model.fractal_alpha);
 			}
 		}
 	}
@@ -868,33 +878,36 @@ void Data::fill_Potentially_Fitable_Parameters_Vector()
 	{
 		potentially_Fitable_Parameters.push_back(&thickness);
 
-		// thickness drift
-		if(thickness_Drift.is_Drift_Line)
-			potentially_Fitable_Parameters.push_back(&thickness_Drift.drift_Line_Value);
-
-		if(thickness_Drift.is_Drift_Sine)
+		if(imperfections_Model.show_Drift)
 		{
-			potentially_Fitable_Parameters.push_back(&thickness_Drift.drift_Sine_Amplitude);
-			potentially_Fitable_Parameters.push_back(&thickness_Drift.drift_Sine_Frequency);
-			potentially_Fitable_Parameters.push_back(&thickness_Drift.drift_Sine_Phase);
+			// thickness drift
+			if(thickness_Drift.is_Drift_Line && imperfections_Model.show_Thickness_Drift_Line)
+				potentially_Fitable_Parameters.push_back(&thickness_Drift.drift_Line_Value);
+
+			if(thickness_Drift.is_Drift_Sine && imperfections_Model.show_Thickness_Drift_Sine)
+			{
+				potentially_Fitable_Parameters.push_back(&thickness_Drift.drift_Sine_Amplitude);
+				potentially_Fitable_Parameters.push_back(&thickness_Drift.drift_Sine_Frequency);
+				potentially_Fitable_Parameters.push_back(&thickness_Drift.drift_Sine_Phase);
+			}
+
+			if(thickness_Drift.is_Drift_Rand && imperfections_Model.show_Thickness_Drift_Rand)
+				potentially_Fitable_Parameters.push_back(&thickness_Drift.drift_Rand_Rms);
+
+			// sigma drift
+			if(sigma_Diffuse_Drift.is_Drift_Line && imperfections_Model.show_Sigma_Drift_Line)
+				potentially_Fitable_Parameters.push_back(&sigma_Diffuse_Drift.drift_Line_Value);
+
+			if(sigma_Diffuse_Drift.is_Drift_Sine && imperfections_Model.show_Sigma_Drift_Sine)
+			{
+				potentially_Fitable_Parameters.push_back(&sigma_Diffuse_Drift.drift_Sine_Amplitude);
+				potentially_Fitable_Parameters.push_back(&sigma_Diffuse_Drift.drift_Sine_Frequency);
+				potentially_Fitable_Parameters.push_back(&sigma_Diffuse_Drift.drift_Sine_Phase);
+			}
+
+			if(sigma_Diffuse_Drift.is_Drift_Rand && imperfections_Model.show_Sigma_Drift_Rand)
+			{	potentially_Fitable_Parameters.push_back(&sigma_Diffuse_Drift.drift_Rand_Rms); }
 		}
-
-		if(thickness_Drift.is_Drift_Rand)
-			potentially_Fitable_Parameters.push_back(&thickness_Drift.drift_Rand_Rms);
-
-		// sigma drift
-		if(sigma_Diffuse_Drift.is_Drift_Line)
-			potentially_Fitable_Parameters.push_back(&sigma_Diffuse_Drift.drift_Line_Value);
-
-		if(sigma_Diffuse_Drift.is_Drift_Sine)
-		{
-			potentially_Fitable_Parameters.push_back(&sigma_Diffuse_Drift.drift_Sine_Amplitude);
-			potentially_Fitable_Parameters.push_back(&sigma_Diffuse_Drift.drift_Sine_Frequency);
-			potentially_Fitable_Parameters.push_back(&sigma_Diffuse_Drift.drift_Sine_Phase);
-		}
-
-		if(sigma_Diffuse_Drift.is_Drift_Rand)
-		{	potentially_Fitable_Parameters.push_back(&sigma_Diffuse_Drift.drift_Rand_Rms); }
 	}
 
 	///---------------------------------------------
@@ -923,6 +936,148 @@ void Data::fill_Potentially_Fitable_Parameters_Vector()
 				if(!regular_Components[i].is_Common_Sigma)	   {potentially_Fitable_Parameters.push_back(&regular_Data.sigma_Diffuse);}
 			}
 		}
+	}
+}
+
+void Data::fill_Table_Showed_Parameters_Vector(const Imperfections_Model& imperfections_Model)
+{
+	table_Showed_Parameters.clear();
+
+	///---------------------------------------------
+	// Measurement
+	//---------------------------------------------
+	if(item_Type == item_Type_Measurement)
+	{
+		table_Showed_Parameters.push_back(&wavelength);
+		table_Showed_Parameters.push_back(&beam_Theta_0_Angle);
+		table_Showed_Parameters.push_back(&detector_Theta_Angle);
+		table_Showed_Parameters.push_back(&detector_Phi_Angle);
+	}
+	///---------------------------------------------
+	///---------------------------------------------
+	// Ambient, Layer, Substrate
+	//---------------------------------------------
+	if( item_Type == item_Type_Ambient ||
+		item_Type == item_Type_Layer   ||
+		item_Type == item_Type_Substrate )
+	{
+		if(!composed_Material)
+			table_Showed_Parameters.push_back(&relative_Density);
+		else
+			table_Showed_Parameters.push_back(&absolute_Density);
+
+		// material composition
+		if(composition.size()>1 && composed_Material)
+		{
+			for(Stoichiometry& stoichiometry : composition)
+			{
+				table_Showed_Parameters.push_back(&stoichiometry.composition);
+			}
+		}
+	}
+	///---------------------------------------------
+	///---------------------------------------------
+	// Layer, Substrate
+	//---------------------------------------------
+	if( item_Type == item_Type_Layer   ||
+		item_Type == item_Type_Substrate )
+	{
+		if(imperfections_Model.use_Interlayer)
+		{
+			for(int i=0; i<interlayer_Composition.size(); i++)
+			{
+				if(imperfections_Model.use_Func[i])
+				{
+					table_Showed_Parameters.push_back(&interlayer_Composition[i].interlayer);
+					table_Showed_Parameters.push_back(&interlayer_Composition[i].my_Sigma_Diffuse);
+				}
+			}
+
+			table_Showed_Parameters.push_back(&sigma_Diffuse);
+		}
+
+		if(imperfections_Model.use_Roughness)
+		{
+			if( imperfections_Model.common_Model == linear_Growth_and_ABC_Model )
+			{
+				table_Showed_Parameters.push_back(&roughness_Model.omega);
+			}
+			if( imperfections_Model.vertical_Correlation == partial_Correlation )
+			{
+				table_Showed_Parameters.push_back(&roughness_Model.mu);
+			}
+			if( item_Type == item_Type_Substrate ||
+				imperfections_Model.use_Common_Roughness_Function == false	)
+			{
+				table_Showed_Parameters.push_back(&roughness_Model.cor_radius);
+				table_Showed_Parameters.push_back(&roughness_Model.sigma);
+			}
+			if( item_Type == item_Type_Substrate ||
+				imperfections_Model.common_Model == linear_Growth_and_ABC_Model ||
+				imperfections_Model.use_Common_Roughness_Function == false	)
+			{
+				table_Showed_Parameters.push_back(&roughness_Model.fractal_alpha);
+			}
+		}
+	}
+	///---------------------------------------------
+	///---------------------------------------------
+	// Layer
+	//---------------------------------------------
+	if( item_Type == item_Type_Layer )
+	{
+		table_Showed_Parameters.push_back(&thickness);
+
+		if(imperfections_Model.show_Drift)
+		{
+			// thickness drift
+			if(imperfections_Model.show_Thickness_Drift_Line)
+				table_Showed_Parameters.push_back(&thickness_Drift.drift_Line_Value);
+
+			if(imperfections_Model.show_Thickness_Drift_Sine)
+			{
+				table_Showed_Parameters.push_back(&thickness_Drift.drift_Sine_Amplitude);
+				table_Showed_Parameters.push_back(&thickness_Drift.drift_Sine_Frequency);
+				table_Showed_Parameters.push_back(&thickness_Drift.drift_Sine_Phase);
+			}
+
+			if(imperfections_Model.show_Thickness_Drift_Rand)
+				table_Showed_Parameters.push_back(&thickness_Drift.drift_Rand_Rms);
+
+			// sigma drift
+			if(imperfections_Model.show_Sigma_Drift_Line)
+				table_Showed_Parameters.push_back(&sigma_Diffuse_Drift.drift_Line_Value);
+
+			if(imperfections_Model.show_Sigma_Drift_Sine)
+			{
+				table_Showed_Parameters.push_back(&sigma_Diffuse_Drift.drift_Sine_Amplitude);
+				table_Showed_Parameters.push_back(&sigma_Diffuse_Drift.drift_Sine_Frequency);
+				table_Showed_Parameters.push_back(&sigma_Diffuse_Drift.drift_Sine_Phase);
+			}
+
+			if(imperfections_Model.show_Sigma_Drift_Rand)
+			{	table_Showed_Parameters.push_back(&sigma_Diffuse_Drift.drift_Rand_Rms); }
+		}
+	}
+
+	///---------------------------------------------
+	///---------------------------------------------
+	// Multilayer
+	//---------------------------------------------
+	if( item_Type == item_Type_Multilayer )
+	{
+		table_Showed_Parameters.push_back(&num_Repetition.parameter);
+		table_Showed_Parameters.push_back(&period);
+		table_Showed_Parameters.push_back(&gamma);
+	}
+
+	///---------------------------------------------
+	///---------------------------------------------
+	// Regular Aperiodic
+	//---------------------------------------------
+	if( item_Type == item_Type_Regular_Aperiodic )
+	{
+		// nothing special
 	}
 }
 

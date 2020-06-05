@@ -755,7 +755,7 @@ void Settings::read_Precisions(bool reset_to_default)
 			line_edit_sigma_precision				= precision_Values.value( "line_edit_sigma_precision",				4 ).toInt();	// = thickness precision
 			line_edit_cor_radius_precision			= precision_Values.value( "line_edit_cor_radius_precision",			0 ).toInt();
 			line_edit_fractal_alpha_precision		= precision_Values.value( "line_edit_fractal_alpha_precision",		2 ).toInt();
-			line_edit_omega_precision				= precision_Values.value( "line_edit_omega_precision",				1 ).toInt();
+			line_edit_omega_precision				= precision_Values.value( "line_edit_omega_precision",				2 ).toInt();
 			line_edit_mu_precision					= precision_Values.value( "line_edit_mu_precision",					3 ).toInt();
 
 			line_edit_interlayer_precision			= precision_Values.value( "line_edit_interlayer_precision",			3 ).toInt();

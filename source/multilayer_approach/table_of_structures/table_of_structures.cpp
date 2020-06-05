@@ -1004,8 +1004,8 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 				if(struct_Data.item_Type == item_Type_Substrate) {show_Sigma = true;}
 				if( struct_Data.item_Type == item_Type_Layer)
 				{
-					if((struct_Data.roughness_Model.model == ABC_model ||
-						struct_Data.roughness_Model.model == fractal_Gauss_Model) &&
+					if((multilayer->imperfections_Model.common_Model == ABC_model ||
+						multilayer->imperfections_Model.common_Model == fractal_Gauss_Model) &&
 						multilayer->imperfections_Model.use_Common_Roughness_Function == false)
 					{
 						show_Sigma = true;
@@ -1025,7 +1025,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 
 				// sigma roughness step
 				if(!steps_Are_Done_Sigma)
-				if(struct_Data.roughness_Model.model != linear_Growth_and_ABC_Model)
+				if(multilayer->imperfections_Model.common_Model != linear_Growth_and_ABC_Model)
 				{
 					create_Simple_Label	(new_Table,	tab_Index, steps_Row,   current_Column, whats_This, Sigma_Sym+" ["+length_units+"]");
 					create_Step_Spin_Box(new_Table, tab_Index, steps_Row+1, current_Column, whats_This);
@@ -1043,8 +1043,8 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 				if(struct_Data.item_Type == item_Type_Substrate) {show_Cor_Radius = true;}
 				if( struct_Data.item_Type == item_Type_Layer)
 				{
-					if((struct_Data.roughness_Model.model == ABC_model ||
-						struct_Data.roughness_Model.model == fractal_Gauss_Model) &&
+					if((multilayer->imperfections_Model.common_Model == ABC_model ||
+						multilayer->imperfections_Model.common_Model == fractal_Gauss_Model) &&
 						multilayer->imperfections_Model.use_Common_Roughness_Function == false)
 					{
 						show_Cor_Radius = true;
@@ -1064,7 +1064,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 
 				// correlation radius step
 				if(!steps_Are_Done_Xi)
-				if(struct_Data.roughness_Model.model != linear_Growth_and_ABC_Model)
+				if(multilayer->imperfections_Model.common_Model != linear_Growth_and_ABC_Model)
 				{
 					create_Simple_Label	(new_Table,	tab_Index, steps_Row,   current_Column, whats_This, Xi_Sym+" ["+length_units+"]");
 					create_Step_Spin_Box(new_Table, tab_Index, steps_Row+1, current_Column, whats_This);
@@ -1080,7 +1080,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 			{
 				if( struct_Data.item_Type == item_Type_Layer)
 				{
-					if(struct_Data.roughness_Model.model == linear_Growth_and_ABC_Model)
+					if(multilayer->imperfections_Model.common_Model == linear_Growth_and_ABC_Model)
 					{
 						show_Omega = true;
 					}
@@ -1097,13 +1097,13 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 				// last
 				create_Check_Box_Fit(new_Table, tab_Index, current_Row+2, current_Column, structure_Item, whats_This, 1, 2, 0, 0);
 
-				// omega step
-				if(!steps_Are_Done_Omega)
-				{
-					create_Simple_Label	(new_Table,	tab_Index, steps_Row,   current_Column, whats_This, Omega_Big_Sym+" ["+length_units+Cube_Sym+"]");
-					create_Step_Spin_Box(new_Table, tab_Index, steps_Row+1, current_Column, whats_This);
-					steps_Are_Done_Omega = true;
-				}
+//				// omega step
+//				if(!steps_Are_Done_Omega)
+//				{
+//					create_Simple_Label	(new_Table,	tab_Index, steps_Row,   current_Column, whats_This, Omega_Big_Sym+" ["+length_units+Cube_Sym+"]");
+//					create_Step_Spin_Box(new_Table, tab_Index, steps_Row+1, current_Column, whats_This);
+//					steps_Are_Done_Omega = true;
+//				}
 				current_Column+=2;
 			}
 			///--------------------------------------------------------------------------------------------
@@ -1122,7 +1122,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 			}
 			if(show_Mu)
 			{
-				if(struct_Data.roughness_Model.model != linear_Growth_and_ABC_Model) current_Column+=1;
+				if(multilayer->imperfections_Model.common_Model != linear_Growth_and_ABC_Model) current_Column+=1;
 				QString whats_This = whats_This_Linear_PSD_Exponenta_Mu;
 				add_Columns			(new_Table, current_Column+1);
 				create_Label		(new_Table, tab_Index, current_Row,   current_Column, structure_Item, whats_This, Mu_Sym+" ["+length_units+"]");
@@ -1150,7 +1150,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 				if( struct_Data.item_Type == item_Type_Substrate) {show_Alpha = true;}
 				if( struct_Data.item_Type == item_Type_Layer)
 				{
-					if(	struct_Data.roughness_Model.model == linear_Growth_and_ABC_Model ||
+					if(	multilayer->imperfections_Model.common_Model == linear_Growth_and_ABC_Model ||
 						multilayer->imperfections_Model.use_Common_Roughness_Function == false)
 					{
 						show_Alpha = true;
@@ -1344,7 +1344,7 @@ Parameter& Table_Of_Structures::get_Parameter(Data& struct_Data, QString whats_T
 	if(whats_This == whats_This_Sigma_Roughness)			{precision = line_edit_sigma_precision;					coeff = length_Coefficients_Map.value(length_units);	return struct_Data.roughness_Model.sigma;				}
 	if(whats_This == whats_This_Correlation_Radius)			{precision = line_edit_cor_radius_precision;			coeff = length_Coefficients_Map.value(length_units);	return struct_Data.roughness_Model.cor_radius;			}
 	if(whats_This == whats_This_Fractal_Alpha)				{precision = line_edit_fractal_alpha_precision;			coeff = 1;												return struct_Data.roughness_Model.fractal_alpha;		}
-	if(whats_This == whats_This_Linear_PSD_Omega)			{precision = line_edit_omega_precision;				coeff = pow(length_Coefficients_Map.value(length_units),3);	return struct_Data.roughness_Model.omega;				}
+	if(whats_This == whats_This_Linear_PSD_Omega)			{precision = line_edit_omega_precision;					coeff = pow(length_Coefficients_Map.value(length_units),3);	return struct_Data.roughness_Model.omega;				}
 	if(whats_This == whats_This_Linear_PSD_Exponenta_Mu)	{precision = line_edit_mu_precision;					coeff = length_Coefficients_Map.value(length_units);	return struct_Data.roughness_Model.mu;					}
 
 	// multilayer
@@ -2241,7 +2241,7 @@ void Table_Of_Structures::create_Line_Edit(My_Table_Widget* table, int tab_Index
 		{
 			spin_Box->setMinimum(10/coeff);
 		}
-		if(whats_This == whats_This_Linear_PSD_Exponenta_Mu)
+		if(whats_This == whats_This_Linear_PSD_Exponenta_Mu || whats_This == whats_This_Linear_PSD_Omega)
 		{
 			spin_Box->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
 		}
@@ -3238,7 +3238,7 @@ void Table_Of_Structures::refill_All_Dependent()
 	for(int tab_Index=0; tab_Index<multilayer_Tabs->count(); ++tab_Index)
 	{
 		Multilayer* multilayer = qobject_cast<Multilayer*>(multilayer_Tabs->widget(tab_Index));
-		real_Tree_Iteration(multilayer->structure_Tree->tree, master_Parameters);
+		real_Tree_Iteration(multilayer, multilayer->structure_Tree->tree, master_Parameters);
 	}
 
 	// change dependent chain
@@ -3255,7 +3255,7 @@ void Table_Of_Structures::refill_All_Dependent()
 	lock_Unlock_Dependents(ids);
 }
 
-void Table_Of_Structures::real_Tree_Iteration(QTreeWidget* real_Struct_Tree, QVector<Parameter>& master_Parameters)
+void Table_Of_Structures::real_Tree_Iteration(Multilayer* multilayer, QTreeWidget* real_Struct_Tree, QVector<Parameter>& master_Parameters)
 {
 	QTreeWidgetItem* structure_Item;
 	QTreeWidgetItemIterator it(real_Struct_Tree);
@@ -3267,9 +3267,12 @@ void Table_Of_Structures::real_Tree_Iteration(QTreeWidget* real_Struct_Tree, QVe
 		if(struct_Data.parent_Item_Type!=item_Type_Regular_Aperiodic)
 		{
 			// look for pure masters
-			struct_Data.fill_Potentially_Fitable_Parameters_Vector();
-			for(Parameter* parameter : struct_Data.potentially_Fitable_Parameters)
+//			struct_Data.fill_Potentially_Fitable_Parameters_Vector();
+			struct_Data.fill_Table_Showed_Parameters_Vector(multilayer->imperfections_Model);
+//			for(Parameter* parameter : struct_Data.potentially_Fitable_Parameters)
+			for(Parameter* parameter : struct_Data.table_Showed_Parameters)
 			{
+				if(parameter->indicator.whats_This == whats_This_Sigma_Diffuse) qInfo() << parameter->indicator.full_Name << endl;
 				// pure masters only
 				if(!parameter->coupled.master.exist && parameter->coupled.slaves.size()>0)
 				{

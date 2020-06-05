@@ -1031,7 +1031,7 @@ void Global_Variables::enable_Disable_Roughness_Model(Data& struct_Data, const I
 	if( struct_Data.item_Type == item_Type_Layer || struct_Data.item_Type == item_Type_Substrate )
 	{
 		struct_Data.roughness_Model.is_Enabled = imperfections_Model.use_Roughness;
-		struct_Data.roughness_Model.model = imperfections_Model.common_Model;
+//		struct_Data.roughness_Model.model = imperfections_Model.common_Model;
 	}
 
 	// detailed correction
@@ -1055,8 +1055,8 @@ void Global_Variables::enable_Disable_Roughness_Model(Data& struct_Data, const I
 				} else
 				{
 					// only sigma, ksi, alpha can be active
-					struct_Data.make_Free(struct_Data.roughness_Model.omega);
-					struct_Data.make_Free(struct_Data.roughness_Model.mu);
+//					struct_Data.make_Free(struct_Data.roughness_Model.omega);
+//					struct_Data.make_Free(struct_Data.roughness_Model.mu);
 				}
 			}
 			if(imperfections_Model.vertical_Correlation == partial_Correlation)
@@ -1064,10 +1064,10 @@ void Global_Variables::enable_Disable_Roughness_Model(Data& struct_Data, const I
 				if(imperfections_Model.use_Common_Roughness_Function) // always
 				{
 					// only mu can be active
-					struct_Data.make_Free(struct_Data.roughness_Model.sigma);
-					struct_Data.make_Free(struct_Data.roughness_Model.cor_radius);
-					struct_Data.make_Free(struct_Data.roughness_Model.fractal_alpha);
-					struct_Data.make_Free(struct_Data.roughness_Model.omega);
+//					struct_Data.make_Free(struct_Data.roughness_Model.sigma);
+//					struct_Data.make_Free(struct_Data.roughness_Model.cor_radius);
+//					struct_Data.make_Free(struct_Data.roughness_Model.fractal_alpha);
+//					struct_Data.make_Free(struct_Data.roughness_Model.omega);
 				}
 			}
 		}
@@ -1078,8 +1078,8 @@ void Global_Variables::enable_Disable_Roughness_Model(Data& struct_Data, const I
 				if(imperfections_Model.use_Common_Roughness_Function) // always
 				{
 					// only omega, mu, alpha can be active
-					struct_Data.make_Free(struct_Data.roughness_Model.sigma);
-					struct_Data.make_Free(struct_Data.roughness_Model.cor_radius);
+//					struct_Data.make_Free(struct_Data.roughness_Model.sigma);
+//					struct_Data.make_Free(struct_Data.roughness_Model.cor_radius);
 				}
 			}
 		}
@@ -1087,8 +1087,8 @@ void Global_Variables::enable_Disable_Roughness_Model(Data& struct_Data, const I
 	if( struct_Data.item_Type == item_Type_Substrate)
 	{
 		// only sigma, ksi, alpha can be active, always
-		struct_Data.make_Free(struct_Data.roughness_Model.omega);
-		struct_Data.make_Free(struct_Data.roughness_Model.mu);
+//		struct_Data.make_Free(struct_Data.roughness_Model.omega);
+//		struct_Data.make_Free(struct_Data.roughness_Model.mu);
 	}
 }
 
@@ -1134,7 +1134,22 @@ double Global_Variables::PSD_Fractal_Gauss_1D(double sigma, double xi, double al
 double Global_Variables::inheritance_Exp_Nu_2D(double alpha, double k, double cos_Theta, double cos_Theta_0, double cos_Phi)
 {
 	double nu2 = k*k*(cos_Theta*cos_Theta + cos_Theta_0*cos_Theta_0 - 2*cos_Theta_0*cos_Theta*cos_Phi) / (4*M_PI*M_PI);
-	return exp(-pow(nu2,alpha+1));
+	return exp(-2*pow(nu2,alpha+1));
+}
+
+double Global_Variables::nu_Alpha_2D(double alpha, double k, double cos_Theta, double cos_Theta_0, double cos_Phi)
+{
+	double nu2 = k*k*(cos_Theta*cos_Theta + cos_Theta_0*cos_Theta_0 - 2*cos_Theta_0*cos_Theta*cos_Phi) / (4*M_PI*M_PI);
+	return 2*pow(nu2,alpha+1);
+}
+
+double Global_Variables::PSD_Linear_Growth_2D(double exponent, double nu2_Alpha_2, double mu_Alpha, double omega, double thickness)
+{
+	// TODO cutoff and optimization
+	if(nu2_Alpha_2*mu_Alpha > DBL_EPSILON)
+		return omega/(8*M_PI*M_PI*M_PI) * (1-exponent) / (nu2_Alpha_2*mu_Alpha);
+	else
+		return omega/(8*M_PI*M_PI*M_PI) * thickness;
 }
 
 long double Global_Variables::inheritance_Exp_Nu_2D_long(double alpha, double k, double cos_Theta, double cos_Theta_0, double cos_Phi)

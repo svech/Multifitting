@@ -81,17 +81,34 @@ Unwrapped_Structure::Unwrapped_Structure(Multilayer* multilayer, const Calc_Func
 		calc_Functions.check_GISAS )
 	{
 		thickness.resize(num_Layers);
-		mu.resize(num_Layers);
-		alpha.resize(num_Layers);
-		PSD_Inheritance_Powers.resize(num_Boundaries);
+
+		thickness_Threaded.resize(num_Threads);
+		mu.resize(num_Threads);
+		omega.resize(num_Threads);
+		alpha.resize(num_Threads);
+		PSD_mu_alpha.resize(num_Threads);
+		PSD_mu_alpha_h.resize(num_Threads);
+		for(int thread_Index = 0; thread_Index<num_Threads; thread_Index++)
+		{
+			thickness_Threaded[thread_Index].resize(num_Layers);
+			mu[thread_Index].resize(num_Layers);
+			omega[thread_Index].resize(num_Layers);
+			alpha[thread_Index].resize(num_Layers);
+			PSD_mu_alpha[thread_Index].resize(num_Layers);
+			PSD_mu_alpha_h[thread_Index].resize(num_Layers);
+		}
+
 		fill_Thickness_Mu_And_Alpha(calc_Tree.begin());
 		//	fill_Thickness_Mu_And_Alpha_Depth_2(calc_Tree->begin());
 		if(multilayer->imperfections_Model.common_Model == ABC_model)
 		{
 			const Data& substrate = calc_Tree.child(calc_Tree.begin(), calc_Tree.begin().number_of_children()-1).node->data.struct_Data;
-			for(size_t i = 0; i<alpha.size(); i++)
+			for(int thread_Index = 0; thread_Index<num_Threads; thread_Index++)
 			{
-				alpha[i] = substrate.roughness_Model.fractal_alpha.value;
+				for(int i = 0; i<num_Layers; i++)
+				{
+					alpha[thread_Index][i] = substrate.roughness_Model.fractal_alpha.value;
+				}
 			}
 		}
 
@@ -741,8 +758,13 @@ int Unwrapped_Structure::fill_Thickness_Mu_And_Alpha(const tree<Node>::iterator 
 		{
 			// TODO extreme layers
 			thickness[layer_Index] = struct_Data.thickness.value;
-			mu       [layer_Index] = struct_Data.roughness_Model.mu.value;
-			alpha	 [layer_Index] = struct_Data.roughness_Model.fractal_alpha.value;
+			for(int thread_Index = 0; thread_Index<num_Threads; thread_Index++)
+			{
+				thickness_Threaded[thread_Index][layer_Index] = struct_Data.thickness.value;
+				mu				  [thread_Index][layer_Index] = struct_Data.roughness_Model.mu.value;
+				omega			  [thread_Index][layer_Index] = struct_Data.roughness_Model.omega.value;
+				alpha			  [thread_Index][layer_Index] = struct_Data.roughness_Model.fractal_alpha.value;
+			}
 
 			// can drift
 			Global_Variables::variable_Drift(thickness[layer_Index], struct_Data.thickness_Drift, per_Index, struct_Data.num_Repetition.value(), r);
@@ -769,8 +791,14 @@ int Unwrapped_Structure::fill_Thickness_Mu_And_Alpha(const tree<Node>::iterator 
 				for(int cell_Index=0; cell_Index<regular_Aperiodic.regular_Components.size(); ++cell_Index)
 				{
 					thickness[layer_Index] = regular_Aperiodic.regular_Components[cell_Index].components[period_Index].thickness.value;
-					mu       [layer_Index] = regular_Aperiodic.regular_Components[cell_Index].components[period_Index].roughness_Model.mu.value;
-					alpha	 [layer_Index] = regular_Aperiodic.regular_Components[cell_Index].components[period_Index].roughness_Model.fractal_alpha.value;
+					for(int thread_Index = 0; thread_Index<num_Threads; thread_Index++)
+					{
+						thickness_Threaded[thread_Index][layer_Index] = regular_Aperiodic.regular_Components[cell_Index].components[period_Index].thickness.value;
+						mu				  [thread_Index][layer_Index] = regular_Aperiodic.regular_Components[cell_Index].components[period_Index].roughness_Model.mu.value;
+						omega			  [thread_Index][layer_Index] = regular_Aperiodic.regular_Components[cell_Index].components[period_Index].roughness_Model.omega.value;
+						alpha			  [thread_Index][layer_Index] = regular_Aperiodic.regular_Components[cell_Index].components[period_Index].roughness_Model.fractal_alpha.value;
+					}
+
 					++layer_Index;
 				}
 			}
@@ -781,9 +809,12 @@ int Unwrapped_Structure::fill_Thickness_Mu_And_Alpha(const tree<Node>::iterator 
 
 void Unwrapped_Structure::fill_PSD_Inheritance_Powers()
 {
-	PSD_Inheritance_Powers[num_Boundaries-1] = 0;
-	for(int boundary_Index = num_Boundaries-2; boundary_Index>=0; boundary_Index--)
+	for(int thread_Index = 0; thread_Index<num_Threads; thread_Index++)
 	{
-		PSD_Inheritance_Powers[boundary_Index] = PSD_Inheritance_Powers[boundary_Index+1] + pow(mu[boundary_Index], 2*alpha[boundary_Index]+1) * thickness[boundary_Index];
+		for(int layer_Index = num_Layers-1; layer_Index>=0; layer_Index--)
+		{
+			PSD_mu_alpha  [thread_Index][layer_Index] = pow(mu[thread_Index][layer_Index], 2*alpha[thread_Index][layer_Index]+1);
+			PSD_mu_alpha_h[thread_Index][layer_Index] = PSD_mu_alpha[thread_Index][layer_Index] * thickness_Threaded[thread_Index][layer_Index];
+		}
 	}
 }
