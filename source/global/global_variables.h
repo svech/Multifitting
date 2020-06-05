@@ -332,7 +332,7 @@ public:
 
 	static double inheritance_Exp_Nu_2D(                          double alpha, double k, double cos_Theta, double cos_Theta_0, double cos_Phi);
 	static double nu_Alpha_2D		   (                          double alpha, double k, double cos_Theta, double cos_Theta_0, double cos_Phi);
-	static double PSD_Linear_Growth_2D (double exponent, double factor, double mu_Alpha, double omega, double thickness);
+	static double PSD_Linear_Growth_2D (double exponent, double nu2_mu_Alpha_2, double omega, double nu2_omega_23, double thickness);
 	static long double inheritance_Exp_Nu_2D_long(				  double alpha, double k, double cos_Theta, double cos_Theta_0, double cos_Phi);
 };
 

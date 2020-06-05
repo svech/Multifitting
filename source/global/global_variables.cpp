@@ -1142,13 +1142,16 @@ double Global_Variables::nu_Alpha_2D(double alpha, double k, double cos_Theta, d
 	return 2*pow(nu2,alpha+1);
 }
 
-double Global_Variables::PSD_Linear_Growth_2D(double exponent, double nu2_Alpha_2, double mu_Alpha, double omega, double thickness)
+double Global_Variables::PSD_Linear_Growth_2D(double exponent, double nu2_mu_Alpha_2, double omega, double nu2_omega_23, double thickness)
 {
-	// TODO cutoff and optimization
-	if(nu2_Alpha_2*mu_Alpha > DBL_EPSILON)
-		return omega/(8*M_PI*M_PI*M_PI) * (1-exponent) / (nu2_Alpha_2*mu_Alpha);
-	else
-		return omega/(8*M_PI*M_PI*M_PI) * thickness;
+	if(nu2_mu_Alpha_2 > DBL_EPSILON)
+	{
+		if(nu2_omega_23<2)	return omega * (1-exponent) / nu2_mu_Alpha_2;  // /(4*M_PI*M_PI)
+		else				return 0;
+	} else
+	{
+		return omega * thickness;  // /(4*M_PI*M_PI)
+	}
 }
 
 long double Global_Variables::inheritance_Exp_Nu_2D_long(double alpha, double k, double cos_Theta, double cos_Theta_0, double cos_Phi)

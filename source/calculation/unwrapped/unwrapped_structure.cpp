@@ -85,6 +85,7 @@ Unwrapped_Structure::Unwrapped_Structure(Multilayer* multilayer, const Calc_Func
 		thickness_Threaded.resize(num_Threads);
 		mu.resize(num_Threads);
 		omega.resize(num_Threads);
+		omega_pow23.resize(num_Threads);
 		alpha.resize(num_Threads);
 		PSD_mu_alpha.resize(num_Threads);
 		PSD_mu_alpha_h.resize(num_Threads);
@@ -93,6 +94,7 @@ Unwrapped_Structure::Unwrapped_Structure(Multilayer* multilayer, const Calc_Func
 			thickness_Threaded[thread_Index].resize(num_Layers);
 			mu[thread_Index].resize(num_Layers);
 			omega[thread_Index].resize(num_Layers);
+			omega_pow23[thread_Index].resize(num_Layers);
 			alpha[thread_Index].resize(num_Layers);
 			PSD_mu_alpha[thread_Index].resize(num_Layers);
 			PSD_mu_alpha_h[thread_Index].resize(num_Layers);
@@ -764,6 +766,7 @@ int Unwrapped_Structure::fill_Thickness_Mu_And_Alpha(const tree<Node>::iterator 
 				mu				  [thread_Index][layer_Index] = struct_Data.roughness_Model.mu.value;
 				omega			  [thread_Index][layer_Index] = struct_Data.roughness_Model.omega.value;
 				alpha			  [thread_Index][layer_Index] = struct_Data.roughness_Model.fractal_alpha.value;
+				omega_pow23		  [thread_Index][layer_Index] = pow(struct_Data.roughness_Model.omega.value, (2*alpha[thread_Index][layer_Index]+2)/3);
 			}
 
 			// can drift
@@ -797,6 +800,7 @@ int Unwrapped_Structure::fill_Thickness_Mu_And_Alpha(const tree<Node>::iterator 
 						mu				  [thread_Index][layer_Index] = regular_Aperiodic.regular_Components[cell_Index].components[period_Index].roughness_Model.mu.value;
 						omega			  [thread_Index][layer_Index] = regular_Aperiodic.regular_Components[cell_Index].components[period_Index].roughness_Model.omega.value;
 						alpha			  [thread_Index][layer_Index] = regular_Aperiodic.regular_Components[cell_Index].components[period_Index].roughness_Model.fractal_alpha.value;
+						omega_pow23		  [thread_Index][layer_Index] = pow(struct_Data.roughness_Model.omega.value, (2*alpha[thread_Index][layer_Index]+2)/3);
 					}
 
 					++layer_Index;

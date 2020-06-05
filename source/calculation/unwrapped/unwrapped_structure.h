@@ -45,6 +45,7 @@ public:
 	vector<vector<double>> thickness_Threaded;						//	[thread][layer]
 	vector<vector<double>> mu;										//	[thread][layer]
 	vector<vector<double>> omega;									//	[thread][layer]
+	vector<vector<double>> omega_pow23;								//	[thread][layer]
 	vector<vector<double>> alpha;									//	[thread][layer]
 	vector<double> boundaries;										//	[boundary]
 	vector<vector<double>> PSD_mu_alpha;							//	[thread][layer]
