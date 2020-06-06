@@ -102,6 +102,7 @@ public:
 	void calc_Environmental_Factor		(int thread_Index);
 	void choose_PSD_1D_Function(const Data& struct_Data, int thread_Index);
 	void choose_PSD_2D_Function(int point_Index, int thread_Index);
+	double azimuthal_Integration (gsl_function* function, double delta);
 
 	// for sigma grading
 	void multifly_Fresnel_And_Weak_Factor(int thread_Index);

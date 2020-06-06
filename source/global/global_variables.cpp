@@ -1105,6 +1105,11 @@ double Global_Variables::PSD_ABC_2D(double factor, double xi, double alpha, doub
 	return /*4*M_PI * sigma*sigma * xi*xi * alpha*/ factor / pow(1+nu2*xi*xi, alpha+1);
 }
 
+double Global_Variables::PSD_ABC_2D_nu2(double factor, double xi, double alpha, double nu2)
+{
+	return /*4*M_PI * sigma*sigma * xi*xi * alpha*/ factor / pow(1+4*M_PI*M_PI*nu2*xi*xi, alpha+1);
+}
+
 double Global_Variables::PSD_Real_Gauss_1D(double factor, double xi, double alpha, double k, double cos_Theta, double cos_Theta_0, gsl_spline* spline, gsl_interp_accel* acc)
 {
 	Q_UNUSED(alpha)
@@ -1136,10 +1141,21 @@ double Global_Variables::inheritance_Exp_Nu_2D(double alpha, double k, double co
 	return exp(-2*pow(nu2,alpha+1));
 }
 
+double Global_Variables::inheritance_Exp_Nu_2D_nu2(double alpha, double nu2)
+{
+	return exp(-2*pow(nu2,alpha+1));
+}
+
 double Global_Variables::nu_Alpha_2D(double alpha, double k, double cos_Theta, double cos_Theta_0, double cos_Phi)
 {
 	double nu2 = k*k*(cos_Theta*cos_Theta + cos_Theta_0*cos_Theta_0 - 2*cos_Theta_0*cos_Theta*cos_Phi) / (4*M_PI*M_PI);
 	return 2*pow(nu2,alpha+1);
+}
+
+double Global_Variables::nu2(double k, double cos_Theta, double cos_Theta_0, double phi)
+{
+	// phi in degrees
+	return k*k*(cos_Theta*cos_Theta + cos_Theta_0*cos_Theta_0 - 2*cos_Theta_0*cos_Theta*cos(phi*M_PI/180)) / (4*M_PI*M_PI);
 }
 
 double Global_Variables::PSD_Linear_Growth_2D(double exponent, double nu2_mu_Alpha_2, double omega, double nu2_omega_23, double thickness)

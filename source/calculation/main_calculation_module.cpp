@@ -1135,39 +1135,46 @@ void Main_Calculation_Module::print_Data(QTextStream &out, vector<double> &arg, 
 			out << qSetFieldWidth(width_Short) << argument  << qSetFieldWidth(width_Long);
 		}
 
+		if( (incident_Polarization + 1) > POLARIZATION_TOLERANCE)
+		if( (incident_Polarization - 1) <-POLARIZATION_TOLERANCE)
+
+
 		// reflectance
 		if(calc_Functions.check_Reflectance)
 		{
-											out << R_mixed;
-			if(incident_Polarization>-1)	out << R_s;
-			if(incident_Polarization< 1)	out << R_p;
-			if(incident_Polarization>-1)	out << Phi_R_s;
-			if(incident_Polarization< 1)	out << Phi_R_p;
+																		out << R_mixed;
+			if( (incident_Polarization + 1) > POLARIZATION_TOLERANCE)	out << R_s;
+			if( (incident_Polarization - 1) <-POLARIZATION_TOLERANCE)	out << R_p;
+			if( (incident_Polarization + 1) > POLARIZATION_TOLERANCE)	out << Phi_R_s;
+			if( (incident_Polarization - 1) <-POLARIZATION_TOLERANCE)	out << Phi_R_p;
 		}
 
 		// transmittance
 		if(calc_Functions.check_Transmittance)
 		{
-											out <<T_mixed;
-			if(incident_Polarization>-1)	out << T_s;
-			if(incident_Polarization< 1)	out << T_p;
-			if(incident_Polarization>-1)	out << Phi_T_s;
-			if(incident_Polarization< 1)	out << Phi_T_p;
+																		out <<T_mixed;
+			if( (incident_Polarization + 1) > POLARIZATION_TOLERANCE)	out << T_s;
+			if( (incident_Polarization - 1) <-POLARIZATION_TOLERANCE)	out << T_p;
+			if( (incident_Polarization + 1) > POLARIZATION_TOLERANCE)	out << Phi_T_s;
+			if( (incident_Polarization - 1) <-POLARIZATION_TOLERANCE)	out << Phi_T_p;
 		}
 
 		// absorptance
 		if(calc_Functions.check_Absorptance)
 		{
-											out << A_mixed;
-			if(incident_Polarization>-1)	out << A_s;
-			if(incident_Polarization< 1)	out << A_p;
+																		out << A_mixed;
+			if( (incident_Polarization + 1) > POLARIZATION_TOLERANCE)	out << A_s;
+			if( (incident_Polarization - 1) <-POLARIZATION_TOLERANCE)	out << A_p;
 		}
 
 		// scattering
 		if(calc_Functions.check_Scattering)
-		{									out << S_mixed;
-			if(incident_Polarization>-1)	out << S_s;
-			if(incident_Polarization< 1)	out << S_p;
+		{																out << S_mixed;
+			if(unwrapped_Reflection->multilayer->imperfections_Model.vertical_Correlation != partial_Correlation)
+			{
+				if((incident_Polarization + 1) > POLARIZATION_TOLERANCE) out << S_s;
+				if((incident_Polarization - 1) <-POLARIZATION_TOLERANCE) out << S_p;
+			}
 		}
 		out << qSetFieldWidth(arg_Shift) << endl  << qSetFieldWidth(width_Short);
 	}
@@ -1185,40 +1192,43 @@ void Main_Calculation_Module::print_Data(QTextStream &out, vector<double> &arg, 
 			if(calc_Functions.check_Reflectance)
 			if(unwrapped_Reflection->calculated_Values.R_Instrumental.size() == arg.size())
 			{
-												out << Locale.toString(unwrapped_Reflection->calculated_Values.R_Instrumental[i],'e',precision_R_T_A_S);
-				if(incident_Polarization>-1)	out << Locale.toString(unwrapped_Reflection->calculated_Values.R_s           [i],'e',precision_R_T_A_S);
-				if(incident_Polarization< 1)	out << Locale.toString(unwrapped_Reflection->calculated_Values.R_p           [i],'e',precision_R_T_A_S);
-				if(incident_Polarization>-1)	out << Locale.toString(unwrapped_Reflection->calculated_Values.Phi_R_s       [i],'f',precision_Phi);
-				if(incident_Polarization< 1)	out << Locale.toString(unwrapped_Reflection->calculated_Values.Phi_R_p       [i],'f',precision_Phi);
+																			out << Locale.toString(unwrapped_Reflection->calculated_Values.R_Instrumental[i],'e',precision_R_T_A_S);
+				if( (incident_Polarization + 1) > POLARIZATION_TOLERANCE)	out << Locale.toString(unwrapped_Reflection->calculated_Values.R_s           [i],'e',precision_R_T_A_S);
+				if( (incident_Polarization - 1) <-POLARIZATION_TOLERANCE)	out << Locale.toString(unwrapped_Reflection->calculated_Values.R_p           [i],'e',precision_R_T_A_S);
+				if( (incident_Polarization + 1) > POLARIZATION_TOLERANCE)	out << Locale.toString(unwrapped_Reflection->calculated_Values.Phi_R_s       [i],'f',precision_Phi);
+				if( (incident_Polarization - 1) <-POLARIZATION_TOLERANCE)	out << Locale.toString(unwrapped_Reflection->calculated_Values.Phi_R_p       [i],'f',precision_Phi);
 			}
 
 			// transmittance
 			if(calc_Functions.check_Transmittance)
 			if(unwrapped_Reflection->calculated_Values.T_Instrumental.size() == arg.size())
 			{
-												out << Locale.toString(unwrapped_Reflection->calculated_Values.T_Instrumental[i],'e',precision_R_T_A_S);
-				if(incident_Polarization>-1)	out << Locale.toString(unwrapped_Reflection->calculated_Values.T_s           [i],'e',precision_R_T_A_S);
-				if(incident_Polarization< 1)	out << Locale.toString(unwrapped_Reflection->calculated_Values.T_p           [i],'e',precision_R_T_A_S);
-				if(incident_Polarization>-1)	out << Locale.toString(unwrapped_Reflection->calculated_Values.Phi_T_s       [i],'f',precision_Phi);
-				if(incident_Polarization< 1)	out << Locale.toString(unwrapped_Reflection->calculated_Values.Phi_T_p       [i],'f',precision_Phi);
+																			out << Locale.toString(unwrapped_Reflection->calculated_Values.T_Instrumental[i],'e',precision_R_T_A_S);
+				if( (incident_Polarization + 1) > POLARIZATION_TOLERANCE)	out << Locale.toString(unwrapped_Reflection->calculated_Values.T_s           [i],'e',precision_R_T_A_S);
+				if( (incident_Polarization - 1) <-POLARIZATION_TOLERANCE)	out << Locale.toString(unwrapped_Reflection->calculated_Values.T_p           [i],'e',precision_R_T_A_S);
+				if( (incident_Polarization + 1) > POLARIZATION_TOLERANCE)	out << Locale.toString(unwrapped_Reflection->calculated_Values.Phi_T_s       [i],'f',precision_Phi);
+				if( (incident_Polarization - 1) <-POLARIZATION_TOLERANCE)	out << Locale.toString(unwrapped_Reflection->calculated_Values.Phi_T_p       [i],'f',precision_Phi);
 			}
 
 			// absorptance
 			if(calc_Functions.check_Absorptance)
 			if(unwrapped_Reflection->calculated_Values.A.size() == arg.size())
 			{
-												out << Locale.toString(unwrapped_Reflection->calculated_Values.A			 [i],'e',precision_R_T_A_S);
-				if(incident_Polarization>-1)	out << Locale.toString(unwrapped_Reflection->calculated_Values.A_s           [i],'e',precision_R_T_A_S);
-				if(incident_Polarization< 1)	out << Locale.toString(unwrapped_Reflection->calculated_Values.A_p           [i],'e',precision_R_T_A_S);
+																			out << Locale.toString(unwrapped_Reflection->calculated_Values.A			 [i],'e',precision_R_T_A_S);
+				if( (incident_Polarization + 1) > POLARIZATION_TOLERANCE)	out << Locale.toString(unwrapped_Reflection->calculated_Values.A_s           [i],'e',precision_R_T_A_S);
+				if( (incident_Polarization - 1) <-POLARIZATION_TOLERANCE)	out << Locale.toString(unwrapped_Reflection->calculated_Values.A_p           [i],'e',precision_R_T_A_S);
 			}
 
 			// scattering
 			if(calc_Functions.check_Scattering)
 			if(unwrapped_Reflection->calculated_Values.S_Instrumental.size() == arg.size())
 			{
-												out << Locale.toString(unwrapped_Reflection->calculated_Values.S_Instrumental[i],'e',precision_R_T_A_S);
-				if(incident_Polarization>-1)	out << Locale.toString(unwrapped_Reflection->calculated_Values.S_s           [i],'e',precision_R_T_A_S);
-				if(incident_Polarization< 1)	out << Locale.toString(unwrapped_Reflection->calculated_Values.S_p           [i],'e',precision_R_T_A_S);
+																			 out << Locale.toString(unwrapped_Reflection->calculated_Values.S_Instrumental[i],'e',precision_R_T_A_S);
+				if(unwrapped_Reflection->multilayer->imperfections_Model.vertical_Correlation != partial_Correlation)
+				{
+					if((incident_Polarization + 1) > POLARIZATION_TOLERANCE) out << Locale.toString(unwrapped_Reflection->calculated_Values.S_s           [i],'e',precision_R_T_A_S);
+					if((incident_Polarization - 1) <-POLARIZATION_TOLERANCE) out << Locale.toString(unwrapped_Reflection->calculated_Values.S_p           [i],'e',precision_R_T_A_S);
+				}
 			}
 
 			if(i!=arg.size()-1)	out << qSetFieldWidth(arg_Shift) << endl << qSetFieldWidth(width_Short);
