@@ -9,16 +9,22 @@ struct Params
 	double cos_Theta_0;
 	double incoherent_Sum_s;
 	double incoherent_Sum_p;
-	QString polarization;
+	bool phi_As_Angle;
 };
 
-double function_Coherent_Scattering_ABC_2D(double phi, void* p)
+double function_Coherent_Scattering_ABC_2D_s(double phi, void* p)
 {
 	Params* params = reinterpret_cast<Params*>(p);
 	int thread_Index = params->thread_Index;
 	Unwrapped_Reflection* unwrapped_Reflection = params->unwrapped_Reflection;
 
-	double cos_Phi = cos(phi*M_PI/180);
+	// passed argument: phi or cos(phi)
+	double cos_Phi;
+	if(params->phi_As_Angle)
+		cos_Phi = cos(phi*M_PI/180);
+	else
+		cos_Phi = phi;
+
 	double common_PSD_2D_Factor = Global_Variables::PSD_ABC_2D(unwrapped_Reflection->substrate.PSD_ABC_2D_Factor,
 															   unwrapped_Reflection->substrate.roughness_Model.cor_radius.value,
 															   unwrapped_Reflection->substrate.roughness_Model.fractal_alpha.value,
@@ -26,65 +32,106 @@ double function_Coherent_Scattering_ABC_2D(double phi, void* p)
 															   params->cos_Theta,
 															   params->cos_Theta_0,
 															   cos_Phi);
-
-	double  bare_Exp_Nu_Factor = Global_Variables::inheritance_Exp_Nu_2D(unwrapped_Reflection->substrate.roughness_Model.fractal_alpha.value,
-																		 unwrapped_Reflection->measurement.k_Value,
-																		 params->cos_Theta,
-																		 params->cos_Theta_0,
-																		 cos_Phi);
-	if(params->polarization == "s")
+	double nu_Alpha_2 = Global_Variables::nu_Alpha_2D(unwrapped_Reflection->unwrapped_Structure->alpha[thread_Index].back(), // substrate
+													  unwrapped_Reflection->measurement.k_Value,
+													  params->cos_Theta,
+													  params->cos_Theta_0,
+													  cos_Phi);
+	double partially_Coherent_Sum = 0;
+	for (int i = 1; i<unwrapped_Reflection->num_Boundaries; i++)
 	{
-		double partially_Coherent_Sum = 0;
-		for (int i = 1; i<unwrapped_Reflection->num_Boundaries; i++)
-		{
-			unwrapped_Reflection->cross_Exp_Factor_2D[thread_Index][i][i-1] = pow(bare_Exp_Nu_Factor, unwrapped_Reflection->unwrapped_Structure->PSD_mu_alpha_h[thread_Index][i-1]);
-			partially_Coherent_Sum += unwrapped_Reflection->cross_Exp_Factor_2D[thread_Index][i][i-1] * unwrapped_Reflection->half_Sum_Field_Term_s[thread_Index][i][i-1];
+		unwrapped_Reflection->cross_Exp_Factor_2D[thread_Index][i][i-1] = exp(-nu_Alpha_2 * unwrapped_Reflection->unwrapped_Structure->PSD_mu_alpha_h[thread_Index][i-1]);
+		partially_Coherent_Sum += unwrapped_Reflection->cross_Exp_Factor_2D[thread_Index][i][i-1] * unwrapped_Reflection->half_Sum_Field_Term_s[thread_Index][i][i-1];
 
-			for (int j = i-2; j>=0; j--)
-			{
-				unwrapped_Reflection->cross_Exp_Factor_2D[thread_Index][i][j] = unwrapped_Reflection->cross_Exp_Factor_2D[thread_Index][i][i-1] * unwrapped_Reflection->cross_Exp_Factor_2D[thread_Index][i-1][j];
-				partially_Coherent_Sum += unwrapped_Reflection->cross_Exp_Factor_2D[thread_Index][i][j] * unwrapped_Reflection->half_Sum_Field_Term_s[thread_Index][i][j];
-			}
-		}
-		return (partially_Coherent_Sum + params->incoherent_Sum_s) * common_PSD_2D_Factor;
-	} else
-	if(params->polarization == "p")
-	{
-		double partially_Coherent_Sum = 0;
-		for (int i = 1; i<unwrapped_Reflection->num_Boundaries; i++)
+		for (int j = i-2; j>=0; j--)
 		{
-			unwrapped_Reflection->cross_Exp_Factor_2D[thread_Index][i][i-1] = pow(bare_Exp_Nu_Factor, unwrapped_Reflection->unwrapped_Structure->PSD_mu_alpha_h[thread_Index][i-1]);
-			partially_Coherent_Sum += unwrapped_Reflection->cross_Exp_Factor_2D[thread_Index][i][i-1] * unwrapped_Reflection->half_Sum_Field_Term_p[thread_Index][i][i-1];
-
-			for (int j = i-2; j>=0; j--)
-			{
-				unwrapped_Reflection->cross_Exp_Factor_2D[thread_Index][i][j] = unwrapped_Reflection->cross_Exp_Factor_2D[thread_Index][i][i-1] * unwrapped_Reflection->cross_Exp_Factor_2D[thread_Index][i-1][j];
-				partially_Coherent_Sum += unwrapped_Reflection->cross_Exp_Factor_2D[thread_Index][i][j] * unwrapped_Reflection->half_Sum_Field_Term_p[thread_Index][i][j];
-			}
+			unwrapped_Reflection->cross_Exp_Factor_2D[thread_Index][i][j] = unwrapped_Reflection->cross_Exp_Factor_2D[thread_Index][i][i-1] * unwrapped_Reflection->cross_Exp_Factor_2D[thread_Index][i-1][j];
+			partially_Coherent_Sum += unwrapped_Reflection->cross_Exp_Factor_2D[thread_Index][i][j] * unwrapped_Reflection->half_Sum_Field_Term_s[thread_Index][i][j];
 		}
-		return (partially_Coherent_Sum + params->incoherent_Sum_p) * common_PSD_2D_Factor;
-	} else
-	if(params->polarization == "sp")
-	{
-		double partially_Coherent_Sum_s = 0;
-		double partially_Coherent_Sum_p = 0;
-		for (int i = 1; i<unwrapped_Reflection->num_Boundaries; i++)
-		{
-			unwrapped_Reflection->cross_Exp_Factor_2D[thread_Index][i][i-1] = pow(bare_Exp_Nu_Factor, unwrapped_Reflection->unwrapped_Structure->PSD_mu_alpha_h[thread_Index][i-1]);
-			partially_Coherent_Sum_s += unwrapped_Reflection->cross_Exp_Factor_2D[thread_Index][i][i-1] * unwrapped_Reflection->half_Sum_Field_Term_s[thread_Index][i][i-1];
-			partially_Coherent_Sum_p += unwrapped_Reflection->cross_Exp_Factor_2D[thread_Index][i][i-1] * unwrapped_Reflection->half_Sum_Field_Term_p[thread_Index][i][i-1];
-
-			for (int j = i-2; j>=0; j--)
-			{
-				unwrapped_Reflection->cross_Exp_Factor_2D[thread_Index][i][j] = unwrapped_Reflection->cross_Exp_Factor_2D[thread_Index][i][i-1] * unwrapped_Reflection->cross_Exp_Factor_2D[thread_Index][i-1][j];
-				partially_Coherent_Sum_s += unwrapped_Reflection->cross_Exp_Factor_2D[thread_Index][i][j] * unwrapped_Reflection->half_Sum_Field_Term_s[thread_Index][i][j];
-				partially_Coherent_Sum_p += unwrapped_Reflection->cross_Exp_Factor_2D[thread_Index][i][j] * unwrapped_Reflection->half_Sum_Field_Term_p[thread_Index][i][j];
-			}
-		}
-		return (unwrapped_Reflection->s_Weight*(params->incoherent_Sum_s + partially_Coherent_Sum_s) +
-				unwrapped_Reflection->p_Weight*(params->incoherent_Sum_p + partially_Coherent_Sum_p) ) * common_PSD_2D_Factor;
 	}
-	return -2020;
+	return (partially_Coherent_Sum + params->incoherent_Sum_s) * common_PSD_2D_Factor;
+}
+double function_Coherent_Scattering_ABC_2D_p(double phi, void* p)
+{
+	Params* params = reinterpret_cast<Params*>(p);
+	int thread_Index = params->thread_Index;
+	Unwrapped_Reflection* unwrapped_Reflection = params->unwrapped_Reflection;
+
+	// passed argument: phi or cos(phi)
+	double cos_Phi;
+	if(params->phi_As_Angle)
+		cos_Phi = cos(phi*M_PI/180);
+	else
+		cos_Phi = phi;
+
+	double common_PSD_2D_Factor = Global_Variables::PSD_ABC_2D(unwrapped_Reflection->substrate.PSD_ABC_2D_Factor,
+															   unwrapped_Reflection->substrate.roughness_Model.cor_radius.value,
+															   unwrapped_Reflection->substrate.roughness_Model.fractal_alpha.value,
+															   unwrapped_Reflection->measurement.k_Value,
+															   params->cos_Theta,
+															   params->cos_Theta_0,
+															   cos_Phi);
+	double nu_Alpha_2 = Global_Variables::nu_Alpha_2D(unwrapped_Reflection->unwrapped_Structure->alpha[thread_Index].back(), // substrate
+													  unwrapped_Reflection->measurement.k_Value,
+													  params->cos_Theta,
+													  params->cos_Theta_0,
+													  cos_Phi);
+	double partially_Coherent_Sum = 0;
+	for (int i = 1; i<unwrapped_Reflection->num_Boundaries; i++)
+	{
+		unwrapped_Reflection->cross_Exp_Factor_2D[thread_Index][i][i-1] = exp(-nu_Alpha_2 * unwrapped_Reflection->unwrapped_Structure->PSD_mu_alpha_h[thread_Index][i-1]);
+		partially_Coherent_Sum += unwrapped_Reflection->cross_Exp_Factor_2D[thread_Index][i][i-1] * unwrapped_Reflection->half_Sum_Field_Term_p[thread_Index][i][i-1];
+
+		for (int j = i-2; j>=0; j--)
+		{
+			unwrapped_Reflection->cross_Exp_Factor_2D[thread_Index][i][j] = unwrapped_Reflection->cross_Exp_Factor_2D[thread_Index][i][i-1] * unwrapped_Reflection->cross_Exp_Factor_2D[thread_Index][i-1][j];
+			partially_Coherent_Sum += unwrapped_Reflection->cross_Exp_Factor_2D[thread_Index][i][j] * unwrapped_Reflection->half_Sum_Field_Term_p[thread_Index][i][j];
+		}
+	}
+	return (partially_Coherent_Sum + params->incoherent_Sum_p) * common_PSD_2D_Factor;
+}
+double function_Coherent_Scattering_ABC_2D_sp(double phi, void* p)
+{
+	Params* params = reinterpret_cast<Params*>(p);
+	int thread_Index = params->thread_Index;
+	Unwrapped_Reflection* unwrapped_Reflection = params->unwrapped_Reflection;
+
+	// passed argument: phi or cos(phi)
+	double cos_Phi;
+	if(params->phi_As_Angle)
+		cos_Phi = cos(phi*M_PI/180);
+	else
+		cos_Phi = phi;
+
+	double common_PSD_2D_Factor = Global_Variables::PSD_ABC_2D(unwrapped_Reflection->substrate.PSD_ABC_2D_Factor,
+															   unwrapped_Reflection->substrate.roughness_Model.cor_radius.value,
+															   unwrapped_Reflection->substrate.roughness_Model.fractal_alpha.value,
+															   unwrapped_Reflection->measurement.k_Value,
+															   params->cos_Theta,
+															   params->cos_Theta_0,
+															   cos_Phi);
+	double nu_Alpha_2 = Global_Variables::nu_Alpha_2D(unwrapped_Reflection->unwrapped_Structure->alpha[thread_Index].back(), // substrate
+													  unwrapped_Reflection->measurement.k_Value,
+													  params->cos_Theta,
+													  params->cos_Theta_0,
+													  cos_Phi);
+	double partially_Coherent_Sum_s = 0;
+	double partially_Coherent_Sum_p = 0;
+	for (int i = 1; i<unwrapped_Reflection->num_Boundaries; i++)
+	{
+		unwrapped_Reflection->cross_Exp_Factor_2D[thread_Index][i][i-1] = exp(-nu_Alpha_2 * unwrapped_Reflection->unwrapped_Structure->PSD_mu_alpha_h[thread_Index][i-1]);
+		partially_Coherent_Sum_s += unwrapped_Reflection->cross_Exp_Factor_2D[thread_Index][i][i-1] * unwrapped_Reflection->half_Sum_Field_Term_s[thread_Index][i][i-1];
+		partially_Coherent_Sum_p += unwrapped_Reflection->cross_Exp_Factor_2D[thread_Index][i][i-1] * unwrapped_Reflection->half_Sum_Field_Term_p[thread_Index][i][i-1];
+
+		for (int j = i-2; j>=0; j--)
+		{
+			unwrapped_Reflection->cross_Exp_Factor_2D[thread_Index][i][j] = unwrapped_Reflection->cross_Exp_Factor_2D[thread_Index][i][i-1] * unwrapped_Reflection->cross_Exp_Factor_2D[thread_Index][i-1][j];
+			partially_Coherent_Sum_s += unwrapped_Reflection->cross_Exp_Factor_2D[thread_Index][i][j] * unwrapped_Reflection->half_Sum_Field_Term_s[thread_Index][i][j];
+			partially_Coherent_Sum_p += unwrapped_Reflection->cross_Exp_Factor_2D[thread_Index][i][j] * unwrapped_Reflection->half_Sum_Field_Term_p[thread_Index][i][j];
+		}
+	}
+	return (unwrapped_Reflection->s_Weight*(params->incoherent_Sum_s + partially_Coherent_Sum_s) +
+			unwrapped_Reflection->p_Weight*(params->incoherent_Sum_p + partially_Coherent_Sum_p) ) * common_PSD_2D_Factor;
 }
 
 Unwrapped_Reflection::Unwrapped_Reflection(Multilayer* multilayer, Unwrapped_Structure* unwrapped_Structure, int num_Media,
@@ -1599,8 +1646,8 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 								if( (measurement.polarization - 1) > -POLARIZATION_TOLERANCE)
 								{
 									double incoherent_Sum_s = calc_Field_Term_Sum("s", point_Index, thread_Index);
-									Params params { this, thread_Index, measurement.detector_Theta_Cos_Vec[point_Index], cos_Theta_0, incoherent_Sum_s, 0, "s"};
-									gsl_function F = { &function_Coherent_Scattering_ABC_2D, &params };
+									Params params { this, thread_Index, measurement.detector_Theta_Cos_Vec[point_Index], cos_Theta_0, incoherent_Sum_s, 0, true};
+									gsl_function F = { &function_Coherent_Scattering_ABC_2D_s, &params };
 
 									calculated_Values.S_s[point_Index] = e_Factor_2D * azimuthal_Integration(&F, measurement.detector_Theta_Cos_Vec[point_Index]-cos_Theta_0);
 								} else
@@ -1608,8 +1655,8 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 								if( (measurement.polarization + 1) < POLARIZATION_TOLERANCE)
 								{
 									double incoherent_Sum_p = calc_Field_Term_Sum("p", point_Index, thread_Index);
-									Params params { this, thread_Index, measurement.detector_Theta_Cos_Vec[point_Index], cos_Theta_0, 0, incoherent_Sum_p, "p"};
-									gsl_function F = { &function_Coherent_Scattering_ABC_2D, &params };
+									Params params { this, thread_Index, measurement.detector_Theta_Cos_Vec[point_Index], cos_Theta_0, 0, incoherent_Sum_p, true};
+									gsl_function F = { &function_Coherent_Scattering_ABC_2D_p, &params };
 
 									calculated_Values.S_p[point_Index] = e_Factor_2D * azimuthal_Integration(&F, measurement.detector_Theta_Cos_Vec[point_Index]-cos_Theta_0);
 								} else
@@ -1617,8 +1664,8 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 								{
 									double incoherent_Sum_s = calc_Field_Term_Sum("s", point_Index, thread_Index);
 									double incoherent_Sum_p = calc_Field_Term_Sum("p", point_Index, thread_Index);
-									Params params { this, thread_Index, measurement.detector_Theta_Cos_Vec[point_Index], cos_Theta_0, incoherent_Sum_s, incoherent_Sum_p, "sp"};
-									gsl_function F = { &function_Coherent_Scattering_ABC_2D, &params };
+									Params params { this, thread_Index, measurement.detector_Theta_Cos_Vec[point_Index], cos_Theta_0, incoherent_Sum_s, incoherent_Sum_p, true};
+									gsl_function F = { &function_Coherent_Scattering_ABC_2D_sp, &params };
 
 									// crutch: s and p only on mixed state. no different s and p calculations
 									calculated_Values.S_s[point_Index] = e_Factor_2D * azimuthal_Integration(&F, measurement.detector_Theta_Cos_Vec[point_Index]-cos_Theta_0);
@@ -1762,79 +1809,24 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 						{
 							if(multilayer->imperfections_Model.common_Model == ABC_model)
 							{
-								double common_PSD_2D_Factor, bare_Exp_Nu_Factor;
-
 								// pure s-polarization
 								if( (measurement.polarization - 1) > -POLARIZATION_TOLERANCE)
 								{
-									double incoherent_Sum = calc_Field_Term_Sum("s", point_Index, thread_Index);
+									double incoherent_Sum_s = calc_Field_Term_Sum("s", point_Index, thread_Index);
 									for(int phi_Index = 0; phi_Index<phi_Points; phi_Index++)
 									{
-										// common PSD as factor
-										common_PSD_2D_Factor = PSD_2D_Func_Vec[thread_Index](substrate.PSD_ABC_2D_Factor,
-																							 substrate.roughness_Model.cor_radius.value,
-																							 substrate.roughness_Model.fractal_alpha.value,
-																							 measurement.k_Value,
-																							 measurement.detector_Theta_Cos_Vec[point_Index],
-																							 measurement.beam_Theta_0_Cos_Value,
-																							 measurement.detector_Phi_Cos_Vec[phi_Index]);
-
-										bare_Exp_Nu_Factor = Global_Variables::inheritance_Exp_Nu_2D(substrate.roughness_Model.fractal_alpha.value,
-																									 measurement.k_Value,
-																									 measurement.detector_Theta_Cos_Vec[point_Index],
-																									 measurement.beam_Theta_0_Cos_Value,
-																									 measurement.detector_Phi_Cos_Vec[phi_Index]);
-
-										double partially_Coherent_Sum = 0;
-										for (int i = 1; i<num_Boundaries; i++)
-										{
-											cross_Exp_Factor_2D[thread_Index][i][i-1] = pow(bare_Exp_Nu_Factor, unwrapped_Structure->PSD_mu_alpha_h[thread_Index][i-1]);
-											partially_Coherent_Sum += cross_Exp_Factor_2D[thread_Index][i][i-1] * half_Sum_Field_Term_s[thread_Index][i][i-1];
-
-											for (int j = i-2; j>=0; j--)
-											{
-												cross_Exp_Factor_2D[thread_Index][i][j] = cross_Exp_Factor_2D[thread_Index][i][i-1] * cross_Exp_Factor_2D[thread_Index][i-1][j];
-												partially_Coherent_Sum += cross_Exp_Factor_2D[thread_Index][i][j] * half_Sum_Field_Term_s[thread_Index][i][j];
-											}
-										}
-										calculated_Values.GISAS_Instrumental[phi_Index][point_Index] = e_Factor * (incoherent_Sum + partially_Coherent_Sum)*common_PSD_2D_Factor;
+										Params params { this, thread_Index, measurement.detector_Theta_Cos_Vec[point_Index], measurement.beam_Theta_0_Cos_Value, incoherent_Sum_s, 0, false};
+										calculated_Values.GISAS_Instrumental[phi_Index][point_Index] = e_Factor * function_Coherent_Scattering_ABC_2D_s(measurement.detector_Phi_Cos_Vec[phi_Index], &params);
 									}
 								} else
 								// pure p-polarization
 								if( (measurement.polarization + 1) < POLARIZATION_TOLERANCE)
 								{
-									double incoherent_Sum = calc_Field_Term_Sum("p", point_Index, thread_Index);
-
+									double incoherent_Sum_p = calc_Field_Term_Sum("p", point_Index, thread_Index);
 									for(int phi_Index = 0; phi_Index<phi_Points; phi_Index++)
 									{
-										// common PSD as factor
-										common_PSD_2D_Factor = PSD_2D_Func_Vec[thread_Index](substrate.PSD_ABC_2D_Factor,
-																							 substrate.roughness_Model.cor_radius.value,
-																							 substrate.roughness_Model.fractal_alpha.value,
-																							 measurement.k_Value,
-																							 measurement.detector_Theta_Cos_Vec[point_Index],
-																							 measurement.beam_Theta_0_Cos_Value,
-																							 measurement.detector_Phi_Cos_Vec[phi_Index]);
-
-										bare_Exp_Nu_Factor = Global_Variables::inheritance_Exp_Nu_2D(substrate.roughness_Model.fractal_alpha.value,
-																									 measurement.k_Value,
-																									 measurement.detector_Theta_Cos_Vec[point_Index],
-																									 measurement.beam_Theta_0_Cos_Value,
-																									 measurement.detector_Phi_Cos_Vec[phi_Index]);
-
-										double partially_Coherent_Sum = 0;
-										for (int i = 1; i<num_Boundaries; i++)
-										{
-											cross_Exp_Factor_2D[thread_Index][i][i-1] = pow(bare_Exp_Nu_Factor, unwrapped_Structure->PSD_mu_alpha_h[thread_Index][i-1]);
-											partially_Coherent_Sum += cross_Exp_Factor_2D[thread_Index][i][i-1] * half_Sum_Field_Term_p[thread_Index][i][i-1];
-
-											for (int j = i-2; j>=0; j--)
-											{
-												cross_Exp_Factor_2D[thread_Index][i][j] = cross_Exp_Factor_2D[thread_Index][i][i-1] * cross_Exp_Factor_2D[thread_Index][i-1][j];
-												partially_Coherent_Sum += cross_Exp_Factor_2D[thread_Index][i][j] * half_Sum_Field_Term_p[thread_Index][i][j];
-											}
-										}
-										calculated_Values.GISAS_Instrumental[phi_Index][point_Index] = e_Factor * (incoherent_Sum + partially_Coherent_Sum)*common_PSD_2D_Factor;
+										Params params { this, thread_Index, measurement.detector_Theta_Cos_Vec[point_Index], measurement.beam_Theta_0_Cos_Value, 0, incoherent_Sum_p, false};
+										calculated_Values.GISAS_Instrumental[phi_Index][point_Index] = e_Factor * function_Coherent_Scattering_ABC_2D_p(measurement.detector_Phi_Cos_Vec[phi_Index], &params);
 									}
 								} else
 								// mixed sp-polarization
@@ -1843,38 +1835,8 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 									double incoherent_Sum_p = calc_Field_Term_Sum("p", point_Index, thread_Index);
 									for(int phi_Index = 0; phi_Index<phi_Points; phi_Index++)
 									{
-										// common PSD as factor
-										common_PSD_2D_Factor = PSD_2D_Func_Vec[thread_Index](substrate.PSD_ABC_2D_Factor,
-																							 substrate.roughness_Model.cor_radius.value,
-																							 substrate.roughness_Model.fractal_alpha.value,
-																							 measurement.k_Value,
-																							 measurement.detector_Theta_Cos_Vec[point_Index],
-																							 measurement.beam_Theta_0_Cos_Value,
-																							 measurement.detector_Phi_Cos_Vec[phi_Index]);
-
-										bare_Exp_Nu_Factor = Global_Variables::inheritance_Exp_Nu_2D(substrate.roughness_Model.fractal_alpha.value,
-																									 measurement.k_Value,
-																									 measurement.detector_Theta_Cos_Vec[point_Index],
-																									 measurement.beam_Theta_0_Cos_Value,
-																									 measurement.detector_Phi_Cos_Vec[phi_Index]);
-
-										double partially_Coherent_Sum_s = 0;
-										double partially_Coherent_Sum_p = 0;
-										for (int i = 1; i<num_Boundaries; i++)
-										{
-											cross_Exp_Factor_2D[thread_Index][i][i-1] = pow(bare_Exp_Nu_Factor, unwrapped_Structure->PSD_mu_alpha_h[thread_Index][i-1]);
-											partially_Coherent_Sum_s += cross_Exp_Factor_2D[thread_Index][i][i-1] * half_Sum_Field_Term_s[thread_Index][i][i-1];
-											partially_Coherent_Sum_p += cross_Exp_Factor_2D[thread_Index][i][i-1] * half_Sum_Field_Term_p[thread_Index][i][i-1];
-
-											for (int j = i-2; j>=0; j--)
-											{
-												cross_Exp_Factor_2D[thread_Index][i][j] = cross_Exp_Factor_2D[thread_Index][i][i-1] * cross_Exp_Factor_2D[thread_Index][i-1][j];
-												partially_Coherent_Sum_s += cross_Exp_Factor_2D[thread_Index][i][j] * half_Sum_Field_Term_s[thread_Index][i][j];
-												partially_Coherent_Sum_p += cross_Exp_Factor_2D[thread_Index][i][j] * half_Sum_Field_Term_p[thread_Index][i][j];
-											}
-										}
-										calculated_Values.GISAS_Instrumental[phi_Index][point_Index] = e_Factor * (s_Weight*(incoherent_Sum_s + partially_Coherent_Sum_s) +
-																												   p_Weight*(incoherent_Sum_p + partially_Coherent_Sum_p)) * common_PSD_2D_Factor;
+										Params params { this, thread_Index, measurement.detector_Theta_Cos_Vec[point_Index], measurement.beam_Theta_0_Cos_Value, incoherent_Sum_s, incoherent_Sum_p, false};
+										calculated_Values.GISAS_Instrumental[phi_Index][point_Index] = e_Factor * function_Coherent_Scattering_ABC_2D_sp(measurement.detector_Phi_Cos_Vec[phi_Index], &params);
 									}
 								}
 							} else
@@ -2054,6 +2016,8 @@ double Unwrapped_Reflection::azimuthal_Integration(gsl_function* function, doubl
 {
 	// TODO find more fast method
 
+	double phi_Min = 0, phi_Max = 20;
+
 
 	// faster, but less accurate
 //	double phi_Min = 0, phi_Inter = 0.05, phi_Inter_2 = 1, phi_Inter_3 = 5, phi_Max = 20;
@@ -2065,22 +2029,35 @@ double Unwrapped_Reflection::azimuthal_Integration(gsl_function* function, doubl
 //	result = temp+gsl_integration_glfixed(function, phi_Inter_3, phi_Max, t);
 //	gsl_integration_glfixed_table_free(t);
 
-	// slower, but more accurate
+	/// ----------------------------------------------------------------------------------------------------------------------
+
+	// mixed
 	double abserr, temp, result, epsabs = 1e0, epsrel = 1e0;
 	size_t neval;
-	if(abs(delta)<1e-5)
+	if(abs(delta)<1e-4)
 	{
-		double phi_Min = 0, phi_Inter_1 = 0.01, phi_Inter_2 = 0.05, phi_Inter_3 = 0.2, phi_Max = 20;
+		double phi_Inter_1 = 0.01, phi_Inter_2 = 0.05, phi_Inter_3 = 0.2;
 		gsl_integration_qng(function, phi_Min,     phi_Inter_1, epsabs, epsrel, &result, &abserr, &neval); temp=result;
 		gsl_integration_qng(function, phi_Inter_1, phi_Inter_2, epsabs, epsrel, &result, &abserr, &neval); temp+=result;
 		gsl_integration_qng(function, phi_Inter_2, phi_Inter_3, epsabs, epsrel, &result, &abserr, &neval); temp+=result;
 		gsl_integration_qng(function, phi_Inter_3, phi_Max,     epsabs, epsrel, &result, &abserr, &neval); result+=temp;
 	} else
+	if(abs(delta)<5e-4)
 	{
-		double phi_Min = 0, phi_Inter = 0.2, phi_Max = 20;
+		double phi_Inter = 0.5;
 		gsl_integration_qng(function, phi_Min, phi_Inter, epsabs, epsrel, &result, &abserr, &neval); temp=result;
 		gsl_integration_qng(function, phi_Inter, phi_Max, epsabs, epsrel, &result, &abserr, &neval); result+=temp;
+	} else
+	{
+		double phi_Inter = 4;
+		gsl_integration_qng(function, phi_Min, phi_Inter, epsabs, epsrel, &result, &abserr, &neval); temp=result;
+
+		gsl_integration_glfixed_table* t = gsl_integration_glfixed_table_alloc(3);
+		result = temp + gsl_integration_glfixed(function, phi_Inter, phi_Max, t);
+		gsl_integration_glfixed_table_free(t);
 	}
+
+	/// ----------------------------------------------------------------------------------------------------------------------
 
 	// the slowest
 //	gsl_integration_workspace* w = gsl_integration_workspace_alloc(100);
