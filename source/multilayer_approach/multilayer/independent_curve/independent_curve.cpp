@@ -381,14 +381,29 @@ void Independent_Curve::calc_Independent_cos2_k()
 				measurement.detector_Phi_Cos_Vec.  resize(measurement.detector_Phi_Angle.independent.num_Points);
 				measurement.detector_Phi_Sin_Vec.  resize(measurement.detector_Phi_Angle.independent.num_Points);
 
-				double angle_Step = (measurement.detector_Phi_Angle.independent.max - measurement.detector_Phi_Angle.independent.min) / (measurement.detector_Phi_Angle.independent.num_Points - 1);
-				double angle_Temp =  measurement.detector_Phi_Angle.independent.min;
-				for(int i=0; i<measurement.detector_Phi_Angle.independent.num_Points; ++i)
+				double minimum = min(measurement.detector_Phi_Angle.independent.max,measurement.detector_Phi_Angle.independent.min);
+				double maximum = max(measurement.detector_Phi_Angle.independent.max,measurement.detector_Phi_Angle.independent.min);
+				size_t num_Points_Phi = measurement.detector_Phi_Angle.independent.num_Points;
+
+				double angle_Step = (maximum - minimum) / (num_Points_Phi - 1);
+				double angle_Temp =  minimum;
+				for(int i=0; i<num_Points_Phi; ++i)
 				{
 					measurement.detector_Phi_Cos_Vec[i] = cos(angle_Temp*M_PI/180.);
 					measurement.detector_Phi_Sin_Vec[i] = sin(angle_Temp*M_PI/180.);
 					measurement.detector_Phi_Angle_Vec[i] = angle_Temp;
 					angle_Temp += angle_Step;
+				}
+
+				// splitting PHI points on two parts for honest calculation and interpolation
+
+				measurement.start_Phi_Index = 0;
+				measurement.end_Phi_Number = num_Points_Phi;
+				if( maximum * minimum < 0 && num_Points_Phi >=11 )
+				{
+					int index = std::lower_bound(measurement.detector_Phi_Angle_Vec.begin(), measurement.detector_Phi_Angle_Vec.end(), 0) - measurement.detector_Phi_Angle_Vec.begin() - 1;
+					if(abs(maximum) >= abs(minimum))	measurement.start_Phi_Index = index;
+					else								measurement.end_Phi_Number = index+2;
 				}
 			}
 			// beam angle_cos_sin_cos2 : single value

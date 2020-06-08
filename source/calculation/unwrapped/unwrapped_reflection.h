@@ -14,6 +14,8 @@ public:
 						 const Data& measurement, bool depth_Grading, bool sigma_Grading,
 						 const Calc_Functions& calc_Functions, Calculated_Values& calculated_Values, QString calc_Mode, QString spec_Scat_mode);
 
+	~Unwrapped_Reflection();
+
 	int num_Threads;
 	int num_Layers;
 	int num_Boundaries;
@@ -22,6 +24,7 @@ public:
 	int depth_Threshold;
 	int num_Points;
 	int phi_Points;
+	int short_Phi_Points;
 
 	bool depth_Grading;
 	bool sigma_Grading;
@@ -113,6 +116,12 @@ public:
 	vector<vector<complex<double>>> U_r_s;		//	[thread][media]
 	vector<vector<complex<double>>> U_i_p;		//	[thread][media]
 	vector<vector<complex<double>>> U_r_p;		//	[thread][media]
+
+	vector<gsl_spline*> spline_Vec;
+	vector<gsl_interp_accel*> acc_Vec;
+	vector<vector<double>> GISAS_Slice;
+	vector<vector<double>> phi_Slice;
+
 
 	void fill_Specular_Values            (int thread_Index, int point_Index);
 	void calc_Specular_1_Point_1_Thread  (int thread_Index, int point_Index);

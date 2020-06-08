@@ -50,6 +50,9 @@ public:
 		vector<double> detector_Phi_Cos_Vec;   double detector_Phi_Cos_Value;	// wihout saving
 		vector<double> detector_Phi_Sin_Vec;   double detector_Phi_Sin_Value;	// wihout saving
 		vector<double> detector_Phi_Angle_Vec; double detector_Phi_Angle_Value; // wihout saving
+		size_t start_Phi_Index;
+		size_t end_Phi_Number; // last index +1
+
 
 		// deam distribution
 		Distribution spectral_Distribution;		
