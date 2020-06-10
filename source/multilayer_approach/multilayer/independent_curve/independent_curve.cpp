@@ -387,7 +387,7 @@ void Independent_Curve::calc_Independent_cos2_k()
 
 				double angle_Step = (maximum - minimum) / (num_Points_Phi - 1);
 				double angle_Temp =  minimum;
-				for(int i=0; i<num_Points_Phi; ++i)
+				for(size_t i=0; i<num_Points_Phi; ++i)
 				{
 					measurement.detector_Phi_Cos_Vec[i] = cos(angle_Temp*M_PI/180.);
 					measurement.detector_Phi_Sin_Vec[i] = sin(angle_Temp*M_PI/180.);

@@ -181,7 +181,7 @@ void Optical_Constants::interpolation_Epsilon(QVector<Point>& input_Values, vect
 	gsl_spline_init(spline_Im, lambda.data(), im.data(), input_Values.size());
 
 	output_Values.resize(spectral_Points.size());
-	for(int l=0; l<spectral_Points.size(); ++l)
+	for(size_t l=0; l<spectral_Points.size(); ++l)
 	{
 		// range check
 		if((spectral_Points[l] <= lambda.first()) ||
@@ -235,14 +235,14 @@ void Optical_Constants::make_Epsilon_From_Factors(const QList<Stoichiometry>& co
 		element_Concentration[element_Index] = compound_Concentration * composition[element_Index].composition.value;
 		interpolation_Epsilon(temp_Element_Data.element_Data, spectral_Points, interpolated, element);
 
-		for(int point_Index=0; point_Index<spectral_Points.size(); ++point_Index)
+		for(size_t point_Index=0; point_Index<spectral_Points.size(); ++point_Index)
 		{
 			n[point_Index] -= spectral_Points[point_Index] * spectral_Points[point_Index] * Q * element_Concentration[element_Index] * interpolated[point_Index];
 		}
 	}
 
 	epsilon.resize(spectral_Points.size());
-	for(int point_Index=0; point_Index<spectral_Points.size(); ++point_Index)
+	for(size_t point_Index=0; point_Index<spectral_Points.size(); ++point_Index)
 	{
 		epsilon[point_Index] = conj(n[point_Index]*n[point_Index]);
 	}

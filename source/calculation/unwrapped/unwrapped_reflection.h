@@ -22,9 +22,9 @@ public:
 	int num_Media;
 	int max_Depth;
 	int depth_Threshold;
-	int num_Points;
-	int phi_Points;
-	int short_Phi_Points;
+	size_t num_Points;
+	size_t phi_Points;
+	size_t short_Phi_Points;
 
 	bool depth_Grading;
 	bool sigma_Grading;

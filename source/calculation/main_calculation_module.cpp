@@ -42,7 +42,7 @@ void Main_Calculation_Module::increase_Mesh_density(Data_Element<Target_Curve>& 
 			vector<double>& angle = target_Curve->measurement.beam_Theta_0_Angle_Vec;
 			vector<double> dense_Angle;
 			dense_Angle.resize((angle.size()-1)*target_Curve->curve.mesh_Density_Factor+1);
-			for(int i=0; i<angle.size()-1; i++)
+			for(size_t i=0; i<angle.size()-1; i++)
 			{
 				double delta_Angle = (angle[i+1]-angle[i])/target_Curve->curve.mesh_Density_Factor;
 				dense_Angle[i*target_Curve->curve.mesh_Density_Factor] = angle[i];
@@ -59,7 +59,7 @@ void Main_Calculation_Module::increase_Mesh_density(Data_Element<Target_Curve>& 
 			vector<double>& lambda = target_Curve->measurement.lambda_Vec;
 			vector<double> dense_Lambda;
 			dense_Lambda.resize((lambda.size()-1)*target_Curve->curve.mesh_Density_Factor+1);
-			for(int i=0; i<lambda.size()-1; i++)
+			for(size_t i=0; i<lambda.size()-1; i++)
 			{
 				double delta_Lambda = (lambda[i+1]-lambda[i])/target_Curve->curve.mesh_Density_Factor;
 				dense_Lambda[i*target_Curve->curve.mesh_Density_Factor] = lambda[i];

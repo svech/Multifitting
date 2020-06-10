@@ -455,7 +455,7 @@ Unwrapped_Reflection::Unwrapped_Reflection(Multilayer* multilayer, Unwrapped_Str
 
 		calculated_Values.field_Intensity.resize(num_Points);
 		calculated_Values.absorption_Map.resize(num_Points);
-		for(int i=0; i<num_Points; i++)
+		for(size_t i=0; i<num_Points; i++)
 		{
 			calculated_Values.field_Intensity[i].resize(unwrapped_Structure->num_Field_Slices);
 			calculated_Values.absorption_Map [i].resize(unwrapped_Structure->num_Field_Slices);
@@ -475,7 +475,7 @@ Unwrapped_Reflection::Unwrapped_Reflection(Multilayer* multilayer, Unwrapped_Str
 		phi_Points = measurement.detector_Phi_Angle_Vec.size();
 
 		calculated_Values.GISAS_Instrumental.resize(phi_Points);
-		for(int i=0; i<phi_Points; i++)
+		for(size_t i=0; i<phi_Points; i++)
 		{
 			calculated_Values.GISAS_Instrumental[i].resize(num_Points);
 		}
@@ -533,14 +533,14 @@ Unwrapped_Reflection::Unwrapped_Reflection(Multilayer* multilayer, Unwrapped_Str
 			if(spec_Scat_mode == SPECULAR_MODE)
 			{
 				calculated_Values.q0_Boundary_Field_s.resize(num_Points);
-				for(int i=0; i<num_Points; i++)		{
+				for(size_t i=0; i<num_Points; i++)		{
 					calculated_Values.q0_Boundary_Field_s[i].resize(num_Boundaries);
 				}
 			}
 			if(spec_Scat_mode == SCATTERED_MODE)
 			{
 				calculated_Values.q_Boundary_Field_s.resize(num_Points);
-				for(int i=0; i<num_Points; i++)		{
+				for(size_t i=0; i<num_Points; i++)		{
 					calculated_Values.q_Boundary_Field_s[i].resize(num_Boundaries);
 				}
 			}
@@ -551,14 +551,14 @@ Unwrapped_Reflection::Unwrapped_Reflection(Multilayer* multilayer, Unwrapped_Str
 			if(spec_Scat_mode == SPECULAR_MODE)
 			{
 				calculated_Values.q0_Boundary_Field_p.resize(num_Points);
-				for(int i=0; i<num_Points; i++)		{
+				for(size_t i=0; i<num_Points; i++)		{
 					calculated_Values.q0_Boundary_Field_p[i].resize(num_Boundaries);
 				}
 			}
 			if(spec_Scat_mode == SCATTERED_MODE)
 			{
 				calculated_Values.q_Boundary_Field_p.resize(num_Points);
-				for(int i=0; i<num_Points; i++)		{
+				for(size_t i=0; i<num_Points; i++)		{
 					calculated_Values.q_Boundary_Field_p[i].resize(num_Boundaries);
 				}
 			}
@@ -1460,8 +1460,8 @@ void Unwrapped_Reflection::calc_Sliced_Field(int thread_Index, int point_Index, 
 			int media_Index = layer_Index+1;
 
 			iChi = I*hi[thread_Index][media_Index];
-			e_i = exp(iChi*(+z-boundaries_Enlarged[media_Index]));
-			e_r = exp(iChi*(-z+boundaries_Enlarged[media_Index]));
+			e_i = exp(+iChi*(z-boundaries_Enlarged[media_Index]));
+			e_r = exp(-iChi*(z-boundaries_Enlarged[media_Index]));
 
 			double field_Value = 0;
 			// s-polarization
@@ -1930,7 +1930,7 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 								if( (measurement.polarization - 1) > -POLARIZATION_TOLERANCE)
 								{
 									double field_Term_Sum_s = calc_Field_Term_Sum("s", point_Index, thread_Index);
-									for(int phi_Index = measurement.start_Phi_Index; phi_Index<measurement.end_Phi_Number; phi_Index++)
+									for(size_t phi_Index = measurement.start_Phi_Index; phi_Index<measurement.end_Phi_Number; phi_Index++)
 //									for(int phi_Index = 0; phi_Index<phi_Points; phi_Index++)
 									{
 										PSD_2D_Factor = PSD_2D_Func_Vec[thread_Index](substrate.PSD_ABC_2D_Factor,
@@ -1948,7 +1948,7 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 								if( (measurement.polarization + 1) < POLARIZATION_TOLERANCE)
 								{
 									double field_Term_Sum_p = calc_Field_Term_Sum("p", point_Index, thread_Index);
-									for(int phi_Index = measurement.start_Phi_Index; phi_Index<measurement.end_Phi_Number; phi_Index++)
+									for(size_t phi_Index = measurement.start_Phi_Index; phi_Index<measurement.end_Phi_Number; phi_Index++)
 //									for(int phi_Index = 0; phi_Index<phi_Points; phi_Index++)
 									{
 										PSD_2D_Factor = PSD_2D_Func_Vec[thread_Index](substrate.PSD_ABC_2D_Factor,
@@ -1966,7 +1966,7 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 								{
 									double field_Term_Sum_s = calc_Field_Term_Sum("s", point_Index, thread_Index);
 									double field_Term_Sum_p = calc_Field_Term_Sum("p", point_Index, thread_Index);
-									for(int phi_Index = measurement.start_Phi_Index; phi_Index<measurement.end_Phi_Number; phi_Index++)
+									for(size_t phi_Index = measurement.start_Phi_Index; phi_Index<measurement.end_Phi_Number; phi_Index++)
 //									for(int phi_Index = 0; phi_Index<phi_Points; phi_Index++)
 									{
 										PSD_2D_Factor = PSD_2D_Func_Vec[thread_Index](substrate.PSD_ABC_2D_Factor,
@@ -1987,7 +1987,7 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 								if( (measurement.polarization - 1) > -POLARIZATION_TOLERANCE)
 								{
 									calc_Field_Term_Sum("s", point_Index, thread_Index);
-									for(int phi_Index = measurement.start_Phi_Index; phi_Index<measurement.end_Phi_Number; phi_Index++)
+									for(size_t phi_Index = measurement.start_Phi_Index; phi_Index<measurement.end_Phi_Number; phi_Index++)
 //									for(int phi_Index = 0; phi_Index<phi_Points; phi_Index++)
 									{
 										fill_Item_PSD_2D(thread_Index, point_Index, phi_Index);
@@ -2007,7 +2007,7 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 								if( (measurement.polarization + 1) < POLARIZATION_TOLERANCE)
 								{
 									calc_Field_Term_Sum("p", point_Index, thread_Index);
-									for(int phi_Index = measurement.start_Phi_Index; phi_Index<measurement.end_Phi_Number; phi_Index++)
+									for(size_t phi_Index = measurement.start_Phi_Index; phi_Index<measurement.end_Phi_Number; phi_Index++)
 //									for(int phi_Index = 0; phi_Index<phi_Points; phi_Index++)
 									{
 										fill_Item_PSD_2D(thread_Index, point_Index, phi_Index);
@@ -2027,7 +2027,7 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 								{
 									calc_Field_Term_Sum("s", point_Index, thread_Index);
 									calc_Field_Term_Sum("p", point_Index, thread_Index);
-									for(int phi_Index = measurement.start_Phi_Index; phi_Index<measurement.end_Phi_Number; phi_Index++)
+									for(size_t phi_Index = measurement.start_Phi_Index; phi_Index<measurement.end_Phi_Number; phi_Index++)
 //									for(int phi_Index = 0; phi_Index<phi_Points; phi_Index++)
 									{
 										fill_Item_PSD_2D(thread_Index, point_Index, phi_Index);
@@ -2055,7 +2055,7 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 								if( (measurement.polarization - 1) > -POLARIZATION_TOLERANCE)
 								{
 									double incoherent_Sum_s = calc_Field_Term_Sum("s", point_Index, thread_Index);
-									for(int phi_Index = measurement.start_Phi_Index; phi_Index<measurement.end_Phi_Number; phi_Index++)
+									for(size_t phi_Index = measurement.start_Phi_Index; phi_Index<measurement.end_Phi_Number; phi_Index++)
 //									for(int phi_Index = 0; phi_Index<phi_Points; phi_Index++)
 									{
 										Params params { this, thread_Index, measurement.detector_Theta_Cos_Vec[point_Index], measurement.beam_Theta_0_Cos_Value, incoherent_Sum_s, 0, false };
@@ -2066,7 +2066,7 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 								if( (measurement.polarization + 1) < POLARIZATION_TOLERANCE)
 								{
 									double incoherent_Sum_p = calc_Field_Term_Sum("p", point_Index, thread_Index);
-									for(int phi_Index = measurement.start_Phi_Index; phi_Index<measurement.end_Phi_Number; phi_Index++)
+									for(size_t phi_Index = measurement.start_Phi_Index; phi_Index<measurement.end_Phi_Number; phi_Index++)
 //									for(int phi_Index = 0; phi_Index<phi_Points; phi_Index++)
 									{
 										Params params { this, thread_Index, measurement.detector_Theta_Cos_Vec[point_Index], measurement.beam_Theta_0_Cos_Value, 0, incoherent_Sum_p, false };
@@ -2077,7 +2077,7 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 								{
 									double incoherent_Sum_s = calc_Field_Term_Sum("s", point_Index, thread_Index);
 									double incoherent_Sum_p = calc_Field_Term_Sum("p", point_Index, thread_Index);
-									for(int phi_Index = measurement.start_Phi_Index; phi_Index<measurement.end_Phi_Number; phi_Index++)
+									for(size_t phi_Index = measurement.start_Phi_Index; phi_Index<measurement.end_Phi_Number; phi_Index++)
 //									for(int phi_Index = 0; phi_Index<phi_Points; phi_Index++)
 									{
 										Params params { this, thread_Index, measurement.detector_Theta_Cos_Vec[point_Index], measurement.beam_Theta_0_Cos_Value, incoherent_Sum_s, incoherent_Sum_p, false };
@@ -2091,7 +2091,7 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 								if( (measurement.polarization - 1) > -POLARIZATION_TOLERANCE)
 								{
 									calc_Field_Term_Sum("s", point_Index, thread_Index);
-									for(int phi_Index = measurement.start_Phi_Index; phi_Index<measurement.end_Phi_Number; phi_Index++)
+									for(size_t phi_Index = measurement.start_Phi_Index; phi_Index<measurement.end_Phi_Number; phi_Index++)
 //									for(int phi_Index = 0; phi_Index<phi_Points; phi_Index++)
 									{
 										Params params { this, thread_Index, measurement.detector_Theta_Cos_Vec[point_Index], measurement.beam_Theta_0_Cos_Value, 0, 0, false };
@@ -2102,7 +2102,7 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 								if( (measurement.polarization + 1) < POLARIZATION_TOLERANCE)
 								{
 									calc_Field_Term_Sum("p", point_Index, thread_Index);
-									for(int phi_Index = measurement.start_Phi_Index; phi_Index<measurement.end_Phi_Number; phi_Index++)
+									for(size_t phi_Index = measurement.start_Phi_Index; phi_Index<measurement.end_Phi_Number; phi_Index++)
 //									for(int phi_Index = 0; phi_Index<phi_Points; phi_Index++)
 									{
 										Params params { this, thread_Index, measurement.detector_Theta_Cos_Vec[point_Index], measurement.beam_Theta_0_Cos_Value, 0, 0, false };
@@ -2113,7 +2113,7 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 								{
 									calc_Field_Term_Sum("s", point_Index, thread_Index);
 									calc_Field_Term_Sum("p", point_Index, thread_Index);
-									for(int phi_Index = measurement.start_Phi_Index; phi_Index<measurement.end_Phi_Number; phi_Index++)
+									for(size_t phi_Index = measurement.start_Phi_Index; phi_Index<measurement.end_Phi_Number; phi_Index++)
 //									for(int phi_Index = 0; phi_Index<phi_Points; phi_Index++)
 									{
 										Params params { this, thread_Index, measurement.detector_Theta_Cos_Vec[point_Index], measurement.beam_Theta_0_Cos_Value, 0, 0, false };
@@ -2276,7 +2276,7 @@ void Unwrapped_Reflection::fill_Specular_Values(int thread_Index, int point_Inde
 		// interpolate the other half
 		if(short_Phi_Points!=phi_Points)
 		{
-			for(int phi_Index = 0; phi_Index<short_Phi_Points; phi_Index++)
+			for(size_t phi_Index = 0; phi_Index<short_Phi_Points; phi_Index++)
 			{
 				GISAS_Slice[thread_Index][phi_Index] = calculated_Values.GISAS_Instrumental[measurement.start_Phi_Index+phi_Index][point_Index];
 				phi_Slice  [thread_Index][phi_Index] = measurement.detector_Phi_Angle_Vec  [measurement.start_Phi_Index+phi_Index];
@@ -2284,11 +2284,11 @@ void Unwrapped_Reflection::fill_Specular_Values(int thread_Index, int point_Inde
 			gsl_spline_init(spline_Vec[thread_Index], phi_Slice[thread_Index].data(), GISAS_Slice[thread_Index].data(), GISAS_Slice[thread_Index].size());
 			if(measurement.start_Phi_Index!=0)
 			{
-				for(int phi_Index = 1; phi_Index<measurement.start_Phi_Index; phi_Index++)
+				for(size_t phi_Index = 1; phi_Index<measurement.start_Phi_Index; phi_Index++)
 				{
 					calculated_Values.GISAS_Instrumental[phi_Index][point_Index] = gsl_spline_eval(spline_Vec[thread_Index], -measurement.detector_Phi_Angle_Vec[phi_Index], acc_Vec[thread_Index]);
 				}
-				int phi_Index = 0;
+				size_t phi_Index = 0;
 				if(abs(measurement.detector_Phi_Angle_Vec.back()+measurement.detector_Phi_Angle_Vec.front())<=1e-9)
 				{
 					calculated_Values.GISAS_Instrumental[phi_Index][point_Index] = calculated_Values.GISAS_Instrumental[phi_Points-1][point_Index];
@@ -2299,11 +2299,11 @@ void Unwrapped_Reflection::fill_Specular_Values(int thread_Index, int point_Inde
 			} else
 			if(measurement.end_Phi_Number!=phi_Points)
 			{
-				for(int phi_Index = measurement.end_Phi_Number; phi_Index<phi_Points-1; phi_Index++)
+				for(size_t phi_Index = measurement.end_Phi_Number; phi_Index<phi_Points-1; phi_Index++)
 				{
 					calculated_Values.GISAS_Instrumental[phi_Index][point_Index] = gsl_spline_eval(spline_Vec[thread_Index], -measurement.detector_Phi_Angle_Vec[phi_Index], acc_Vec[thread_Index]);
 				}
-				int phi_Index = phi_Points-1;
+				size_t phi_Index = phi_Points-1;
 				if(abs(measurement.detector_Phi_Angle_Vec.back()+measurement.detector_Phi_Angle_Vec.front())<=1e-9)
 				{
 					calculated_Values.GISAS_Instrumental[phi_Index][point_Index] = calculated_Values.GISAS_Instrumental[0][point_Index];

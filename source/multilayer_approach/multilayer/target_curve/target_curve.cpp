@@ -506,7 +506,7 @@ void Target_Curve::calc_Measured_cos2_k()
 				measurement.beam_Theta_0_Sin_Vec.  resize(curve.shifted_Argument.size());
 				measurement.beam_Theta_0_Cos2_Vec. resize(curve.shifted_Argument.size());
 
-				for(int i=0; i<curve.shifted_Argument.size(); ++i)
+				for(size_t i=0; i<curve.shifted_Argument.size(); ++i)
 				{
 					measurement.beam_Theta_0_Angle_Vec[i] = curve.shifted_Argument[i]*coeff_Angular;
 					measurement.beam_Theta_0_Cos_Vec [i] = cos(measurement.beam_Theta_0_Angle_Vec[i]*M_PI/180.);
@@ -534,7 +534,7 @@ void Target_Curve::calc_Measured_cos2_k()
 				measurement.lambda_Vec.resize(curve.shifted_Argument.size());
 				measurement.k_Vec.	   resize(curve.shifted_Argument.size());
 
-				for(int i=0; i<curve.shifted_Argument.size(); ++i)
+				for(size_t i=0; i<curve.shifted_Argument.size(); ++i)
 				{
 					measurement.lambda_Vec[i] = Global_Variables::wavelength_Energy(spectral_Units, curve.shifted_Argument[i]*coeff_Spectral);
 					measurement.k_Vec	  [i] = 2*M_PI/measurement.lambda_Vec[i];
@@ -552,7 +552,7 @@ void Target_Curve::calc_Measured_cos2_k()
 				measurement.detector_Theta_Cos_Vec.  resize(curve.shifted_Argument.size());
 				measurement.detector_Theta_Cos2_Vec. resize(curve.shifted_Argument.size());
 
-				for(int i=0; i<curve.shifted_Argument.size(); ++i)
+				for(size_t i=0; i<curve.shifted_Argument.size(); ++i)
 				{
 					measurement.detector_Theta_Angle_Vec[i] = curve.shifted_Argument[i]*coeff_Angular;;
 					measurement.detector_Theta_Cos_Vec [i] = cos(measurement.detector_Theta_Angle_Vec[i]*M_PI/180.);
@@ -569,7 +569,7 @@ void Target_Curve::calc_Measured_cos2_k()
 				// for convenience of calculation
 				measurement.beam_Theta_0_Cos_Vec.resize(curve.shifted_Argument.size());
 				measurement.beam_Theta_0_Sin_Vec.resize(curve.shifted_Argument.size());
-				for(int i=0; i<curve.shifted_Argument.size(); ++i)
+				for(size_t i=0; i<curve.shifted_Argument.size(); ++i)
 				{
 					measurement.beam_Theta_0_Cos_Vec [i] = measurement.beam_Theta_0_Cos_Value;
 					measurement.beam_Theta_0_Sin_Vec [i] = measurement.beam_Theta_0_Sin_Value;
@@ -594,7 +594,7 @@ void Target_Curve::calc_Measured_cos2_k()
 				measurement.beam_Theta_0_Sin_Vec.  resize(curve.shifted_Argument.size());
 				measurement.beam_Theta_0_Cos2_Vec. resize(curve.shifted_Argument.size());
 
-				for(int i=0; i<curve.shifted_Argument.size(); ++i)
+				for(size_t i=0; i<curve.shifted_Argument.size(); ++i)
 				{
 					measurement.beam_Theta_0_Angle_Vec[i] = curve.shifted_Argument[i]*coeff_Angular;
 					measurement.beam_Theta_0_Cos_Vec [i] = cos(measurement.beam_Theta_0_Angle_Vec[i]*M_PI/180.);
@@ -612,7 +612,7 @@ void Target_Curve::calc_Measured_cos2_k()
 				measurement.beam_Theta_0_Sin_Vec.  resize(curve.shifted_Argument.size());
 				measurement.beam_Theta_0_Cos2_Vec. resize(curve.shifted_Argument.size());
 
-				for(int i=0; i<curve.shifted_Argument.size(); ++i)
+				for(size_t i=0; i<curve.shifted_Argument.size(); ++i)
 				{
 					measurement.beam_Theta_0_Angle_Vec[i] = curve.shifted_Argument[i]*coeff_Angular + measurement.beam_Theta_0_Specular_Position;
 					measurement.beam_Theta_0_Cos_Vec [i] = cos(measurement.beam_Theta_0_Angle_Vec[i]*M_PI/180.);
@@ -631,7 +631,7 @@ void Target_Curve::calc_Measured_cos2_k()
 				measurement.detector_Theta_Cos_Vec.  resize(curve.shifted_Argument.size());
 				measurement.detector_Theta_Cos2_Vec. resize(curve.shifted_Argument.size());
 
-				for(int i=0; i<curve.shifted_Argument.size(); ++i)
+				for(size_t i=0; i<curve.shifted_Argument.size(); ++i)
 				{
 					double angle_Temp = 2*measurement.beam_Theta_0_Specular_Position - measurement.beam_Theta_0_Angle_Vec[i];
 					measurement.detector_Theta_Angle_Vec[i] = angle_Temp;
@@ -657,7 +657,7 @@ void Target_Curve::calc_Measured_cos2_k()
 				measurement.beam_Theta_0_Sin_Vec.  resize(curve.shifted_Argument.size());
 				measurement.beam_Theta_0_Cos2_Vec. resize(curve.shifted_Argument.size());
 
-				for(int i=0; i<curve.shifted_Argument.size(); ++i)
+				for(size_t i=0; i<curve.shifted_Argument.size(); ++i)
 				{
 					measurement.beam_Theta_0_Angle_Vec[i] = curve.shifted_Argument[i]*coeff_Angular;;
 					measurement.beam_Theta_0_Cos_Vec [i] = cos(measurement.beam_Theta_0_Angle_Vec[i]*M_PI/180.);
@@ -671,7 +671,7 @@ void Target_Curve::calc_Measured_cos2_k()
 				measurement.detector_Theta_Cos_Vec.  resize(curve.shifted_Argument.size());
 				measurement.detector_Theta_Cos2_Vec. resize(curve.shifted_Argument.size());
 
-				for(int i=0; i<curve.shifted_Argument.size(); ++i)
+				for(size_t i=0; i<curve.shifted_Argument.size(); ++i)
 				{
 					measurement.detector_Theta_Angle_Vec[i] = measurement.beam_Theta_0_Angle_Vec[i] + measurement.detector_Theta_Offset;;
 					measurement.detector_Theta_Cos_Vec [i] = cos(measurement.detector_Theta_Angle_Vec[i]*M_PI/180.);
@@ -718,7 +718,7 @@ void Target_Curve::calc_Measured_cos2_k()
 
 				double angle_Step = (maximum - minimum) / (num_Points_Phi - 1);
 				double angle_Temp =  minimum;
-				for(int i=0; i<num_Points_Phi; ++i)
+				for(size_t i=0; i<num_Points_Phi; ++i)
 				{
 					measurement.detector_Phi_Cos_Vec[i] = cos(angle_Temp*M_PI/180.);
 					measurement.detector_Phi_Sin_Vec[i] = sin(angle_Temp*M_PI/180.);
@@ -844,7 +844,7 @@ QDataStream& operator >>( QDataStream& stream,		 Curve& curve )
 
 		// instead of loading shifted_Values_No_Scaling_And_Offset // since 1.10.2
 		curve.shifted_Values_No_Scaling_And_Offset.resize(curve.shifted_Values.size());
-		for(int i=0; i<curve.shifted_Values.size(); i++)	{
+		for(size_t i=0; i<curve.shifted_Values.size(); i++)	{
 			curve.shifted_Values_No_Scaling_And_Offset[i] = (curve.shifted_Values[i] - curve.val_Shift)/curve.val_Factor.value; // since 1.10.2
 		}
 

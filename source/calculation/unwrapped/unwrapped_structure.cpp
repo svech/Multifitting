@@ -321,7 +321,7 @@ void Unwrapped_Structure::epsilon_Func(double z, int media_Index, bool is_Depend
 			discretized_Epsilon[media_Index] += complex<double>(real(epsilon_Vector[j+1])-1,imag(epsilon_Vector[j+1])) * geometry_Factor;
 		} else
 		{
-			for(int lambda_Point=0; lambda_Point<discretized_Epsilon_Dependent.size(); lambda_Point++)
+			for(size_t lambda_Point=0; lambda_Point<discretized_Epsilon_Dependent.size(); lambda_Point++)
 			{
 				discretized_Epsilon_Dependent[lambda_Point][media_Index] += complex<double>(real(epsilon_Dependent_Vector[lambda_Point][j+1])-1,imag(epsilon_Dependent_Vector[lambda_Point][j+1])) * geometry_Factor;
 			}
@@ -336,7 +336,7 @@ void Unwrapped_Structure::epsilon_Func(double z, int media_Index, bool is_Depend
 			discretized_Epsilon[media_Index] += complex<double>(real(epsilon_Vector.back())-1,imag(epsilon_Vector.back())) * geometry_Factor;
 		} else
 		{
-			for(int lambda_Point=0; lambda_Point<discretized_Epsilon_Dependent.size(); lambda_Point++)
+			for(size_t lambda_Point=0; lambda_Point<discretized_Epsilon_Dependent.size(); lambda_Point++)
 			{
 				discretized_Epsilon_Dependent[lambda_Point][media_Index] += complex<double>(real(epsilon_Dependent_Vector[lambda_Point].back())-1,imag(epsilon_Dependent_Vector[lambda_Point].back())) * geometry_Factor;
 			}
