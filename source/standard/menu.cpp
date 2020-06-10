@@ -135,6 +135,22 @@ void Menu::create_File_Menu()
 					multilayer->structure_Tree->structure_Toolbar->export_Structure();
 				}
 			});
+
+			QAction* act_Export_Curves = new QAction("Export curves", this);
+				act_Export_Curves->setShortcut(Qt::Key_T | Qt::CTRL | Qt::SHIFT);
+			file_Menu->addAction(act_Export_Curves);
+			connect(act_Export_Curves, &QAction::triggered, global_Multilayer_Approach, [=]
+			{
+				bool state_Print_1D = print_1D_Data_On_Recalculation;
+				bool state_Print_2D = print_2D_Data_On_Recalculation;
+				print_1D_Data_On_Recalculation = true;
+				print_2D_Data_On_Recalculation = true;
+
+				global_Multilayer_Approach->calculate();
+
+				print_1D_Data_On_Recalculation = state_Print_1D;
+				print_2D_Data_On_Recalculation = state_Print_2D;
+			});
 		}
 		if(window_Type == window_Type_Table_Of_Structures)
 		{

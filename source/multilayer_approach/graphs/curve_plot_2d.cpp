@@ -616,8 +616,8 @@ void Curve_Plot_2D::plot_All_Data()
 			{
 				for(size_t j=0; j<values_2D->front().size(); j++)
 				{
-					//(*values_2D)[i][j] = 0;
-					(*values_2D)[i][j] = cos((i-values_2D->size()/2.)/50.)*cos((j-values_2D->front().size()/2.)/50.);
+					(*values_2D)[i][j] = 0;
+//					(*values_2D)[i][j] = cos((i-values_2D->size()/2.)/50.)*cos((j-values_2D->front().size()/2.)/50.);
 				}
 			}
 		}

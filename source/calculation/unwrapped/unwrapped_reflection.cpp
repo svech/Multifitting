@@ -515,11 +515,14 @@ Unwrapped_Reflection::Unwrapped_Reflection(Multilayer* multilayer, Unwrapped_Str
 				cross_Exp_Factor_2D		 [thread_Index].resize(num_Boundaries);
 				PSD_Factor_Boundary		 [thread_Index].resize(num_Boundaries);
 
-				for(int boundary_Index = 0; boundary_Index<num_Boundaries; boundary_Index++)
+				if( multilayer->imperfections_Model.vertical_Correlation == partial_Correlation)
 				{
-					half_Sum_Field_Term_s[thread_Index][boundary_Index].resize(num_Boundaries-1);
-					half_Sum_Field_Term_p[thread_Index][boundary_Index].resize(num_Boundaries-1);
-					cross_Exp_Factor_2D	 [thread_Index][boundary_Index].resize(num_Boundaries-1);
+					for(int boundary_Index = 0; boundary_Index<num_Boundaries; boundary_Index++)
+					{
+						half_Sum_Field_Term_s[thread_Index][boundary_Index].resize(num_Boundaries-1);
+						half_Sum_Field_Term_p[thread_Index][boundary_Index].resize(num_Boundaries-1);
+						cross_Exp_Factor_2D	 [thread_Index][boundary_Index].resize(num_Boundaries-1);
+					}
 				}
 			}
 		}

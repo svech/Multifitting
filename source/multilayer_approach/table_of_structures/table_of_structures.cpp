@@ -441,7 +441,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 			}
 			current_Column += 2;
 
-			// sigma step
+			// sigma diffuse step
 			if(has_Boundaries && has_Interlayer_Show)
 			{
 				create_Simple_Label	(new_Table,	tab_Index, current_Row,   current_Column, whats_This_Sigma_Diffuse, "s ["+length_units+"]");
@@ -2248,7 +2248,7 @@ void Table_Of_Structures::create_Line_Edit(My_Table_Widget* table, int tab_Index
 		{
 			spin_Box->setMaximum(1e6/coeff);
 		}
-		if(whats_This == whats_This_Linear_PSD_Exponenta_Mu || whats_This == whats_This_Linear_PSD_Omega || whats_This_Correlation_Radius)
+		if(whats_This == whats_This_Linear_PSD_Exponenta_Mu || whats_This == whats_This_Linear_PSD_Omega || whats_This == whats_This_Correlation_Radius)
 		{
 			spin_Box->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
 		}

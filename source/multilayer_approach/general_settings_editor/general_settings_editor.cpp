@@ -212,7 +212,7 @@ void General_Settings_Editor::create_Output_Tab()
 				working_directory = temp_Directory.absolutePath();
 			} else
 			{
-				QMessageBox::information(nullptr,"No such directory", "Directory\n\""+working_directory+"\"\nis not exist");
+				QMessageBox::information(nullptr,"No such directory", "Directory\n\""+working_directory+"\"\ndoes not exist");
 			}
 		});
 
