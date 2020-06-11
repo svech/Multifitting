@@ -752,19 +752,68 @@ struct Calculated_Values	  {	// reflectance
 								vector<double> S;
 								vector<double> S_Instrumental;
 
+								// GISAS
+//								vector<vector<double>> GISAS_Map_s;				// to expensive to handle
+//								vector<vector<double>> GISAS_Map_p;				// to expensive to handle
+//								vector<vector<double>> GISAS_Map;				// to expensive to handle
+								vector<vector<double>> GISAS_Instrumental;
+
+
 								// storing field amplitudes on boundaries at each point
+								vector<vector<complex<double>>> q0_U_i_s;
+								vector<vector<complex<double>>> q0_U_r_s;
+								vector<vector<complex<double>>> q0_U_i_p;
+								vector<vector<complex<double>>> q0_U_r_p;
+
+								vector<vector<complex<double>>> q_U_i_s;
+								vector<vector<complex<double>>> q_U_r_s;
+								vector<vector<complex<double>>> q_U_i_p;
+								vector<vector<complex<double>>> q_U_r_p;
+
+								vector<vector<complex<double>>> q0_Hi;
+								vector<vector<complex<double>>> q_Hi;
+
+								vector<vector<complex<double>>> q0_Exponenta;
+								vector<vector<complex<double>>> q_Exponenta;
+
+								// PT
 								vector<vector<complex<double>>> q0_Boundary_Field_s;
 								vector<vector<complex<double>>> q0_Boundary_Field_p;
 
 								vector<vector<complex<double>>> q_Boundary_Field_s;
 								vector<vector<complex<double>>> q_Boundary_Field_p;
 
+								// DWBA CSA SA
 
-								// GISAS
-//								vector<vector<double>> GISAS_Map_s;				// to expensive to handle
-//								vector<vector<double>> GISAS_Map_p;				// to expensive to handle
-//								vector<vector<double>> GISAS_Map;				// to expensive to handle
-								vector<vector<double>> GISAS_Instrumental;
+								vector<vector<complex<double>>> b1_Up_Boundary_Field_s;
+								vector<vector<complex<double>>> b2_Up_Boundary_Field_s;
+								vector<vector<complex<double>>> b3_Up_Boundary_Field_s;
+								vector<vector<complex<double>>> b4_Up_Boundary_Field_s;
+
+								vector<vector<complex<double>>> b1_Up_Boundary_Field_p;
+								vector<vector<complex<double>>> b2_Up_Boundary_Field_p;
+								vector<vector<complex<double>>> b3_Up_Boundary_Field_p;
+								vector<vector<complex<double>>> b4_Up_Boundary_Field_p;
+
+								vector<vector<complex<double>>> k1_Up_Boundary;
+								vector<vector<complex<double>>> k2_Up_Boundary;
+								vector<vector<complex<double>>> k3_Up_Boundary;
+								vector<vector<complex<double>>> k4_Up_Boundary;
+
+								vector<vector<complex<double>>> b1_Low_Boundary_Field_s;
+								vector<vector<complex<double>>> b2_Low_Boundary_Field_s;
+								vector<vector<complex<double>>> b3_Low_Boundary_Field_s;
+								vector<vector<complex<double>>> b4_Low_Boundary_Field_s;
+
+								vector<vector<complex<double>>> b1_Low_Boundary_Field_p;
+								vector<vector<complex<double>>> b2_Low_Boundary_Field_p;
+								vector<vector<complex<double>>> b3_Low_Boundary_Field_p;
+								vector<vector<complex<double>>> b4_Low_Boundary_Field_p;
+
+								vector<vector<complex<double>>> k1_Low_Boundary;
+								vector<vector<complex<double>>> k2_Low_Boundary;
+								vector<vector<complex<double>>> k3_Low_Boundary;
+								vector<vector<complex<double>>> k4_Low_Boundary;
 							   };
 struct Simple_Curve		       {
 								Simple_Curve();
@@ -795,11 +844,11 @@ struct Imperfections_Model		{
 									use_Func(6)
 								{
 									use_Func[0] = true;
-									use_Func[1] = true;
-									use_Func[2] = true;
-									use_Func[3] = true;
-									use_Func[4] = true;
-									use_Func[5] = true;
+									use_Func[1] = false;
+									use_Func[2] = false;
+									use_Func[3] = false;
+									use_Func[4] = false;
+									use_Func[5] = false;
 								}
 
 								// drift

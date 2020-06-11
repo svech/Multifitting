@@ -55,8 +55,8 @@ public:
 	vector<vector<complex<double>>> t_Local_s;		//	[thread][boundary]
 	vector<vector<complex<double>>> t_Local_p;		//	[thread][boundary]
 
-	vector<vector<complex<double>>> hi;				//	[thread][media]
-	vector<vector<complex<double>>> exponenta;		//	[thread][layer]
+	vector<vector<complex<double>>>& hi;			//	[point][media]
+	vector<vector<complex<double>>>& exponenta;		//	[point][layer]
 	vector<vector<complex<double>>> exponenta_2;	//	[thread][layer]
 
 	vector<double> environment_Factor_s;	//	[thread]
@@ -94,15 +94,17 @@ public:
 	int fill_Boundary_Item_PSD(const tree<Node>::iterator &parent, int boundary_Index = 0);
 	void fill_Epsilon_Ambient_Substrate	(int thread_Index,						  const vector<complex<double>>& epsilon_Vector);
 
-	void calc_Hi						(int thread_Index, double k, double cos2, const vector<complex<double>>& epsilon_Vector);
-	void calc_Weak_Factor				(int thread_Index);
-	void calc_Fresnel					(int thread_Index,						  const vector<complex<double>>& epsilon_Vector);
-	void calc_Exponenta					(int thread_Index, const vector<double>& thickness);
-	void calc_Local						(int thread_Index);
-	void calc_Amplitudes_Field			(int thread_Index, int point_Index);
+	void calc_Hi						(int point_Index, double k, double cos2, const vector<complex<double>>& epsilon_Vector);
+	void calc_Weak_Factor				(int thread_Index, int point_Index);
+	void calc_Fresnel					(int thread_Index, int point_Index, const vector<complex<double>>& epsilon_Vector);
+	void calc_Exponenta					(int thread_Index, int point_Index, const vector<double>& thickness);
+	void calc_Local						(int thread_Index, int point_Index);
+	void calc_Amplitudes_Field			(int thread_Index, int point_Index, QString polarization);
+	void calc_k_Wavenumber_DWBA_SA_CSA	(                  int point_Index);
+	void calc_Field_DWBA_SA_CSA			(int thread_Index, int point_Index, QString polarization);
 	void calc_Sliced_Field				(int thread_Index, int point_Index,		  const vector<complex<double>>& epsilon_Vector);
 	double calc_Field_Term_Sum			(QString polarization, int point_Index, int thread_Index);
-	void calc_Environmental_Factor		(int thread_Index);
+	void calc_Environmental_Factor		(int thread_Index, int point_Index);
 	void choose_PSD_1D_Function(const Data& struct_Data, int thread_Index);
 	void choose_PSD_2D_Function(int point_Index, int thread_Index);
 	double azimuthal_Integration (gsl_function* function, double delta);
@@ -112,16 +114,15 @@ public:
 
 	// fields
 	vector<double> boundaries_Enlarged;
-	vector<vector<complex<double>>> U_i_s;		//	[thread][media]
-	vector<vector<complex<double>>> U_r_s;		//	[thread][media]
-	vector<vector<complex<double>>> U_i_p;		//	[thread][media]
-	vector<vector<complex<double>>> U_r_p;		//	[thread][media]
+	vector<vector<complex<double>>>& U_i_s;		//	[point][media]
+	vector<vector<complex<double>>>& U_r_s;		//	[point][media]
+	vector<vector<complex<double>>>& U_i_p;		//	[point][media]
+	vector<vector<complex<double>>>& U_r_p;		//	[point][media]
 
 	vector<gsl_spline*> spline_Vec;
 	vector<gsl_interp_accel*> acc_Vec;
 	vector<vector<double>> GISAS_Slice;
 	vector<vector<double>> phi_Slice;
-
 
 	void fill_Specular_Values            (int thread_Index, int point_Index);
 	void calc_Specular_1_Point_1_Thread  (int thread_Index, int point_Index);

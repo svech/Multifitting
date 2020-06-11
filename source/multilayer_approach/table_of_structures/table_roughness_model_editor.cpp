@@ -308,6 +308,7 @@ void Table_Roughness_Model_Editor::create_Roughness_Groupbox()
 
 		QRadioButton* partial_Radiobutton = new QRadioButton("Partial");
 			partial_Radiobutton->setChecked(multilayer->imperfections_Model.vertical_Correlation == partial_Correlation);
+			partial_Radiobutton->setEnabled(multilayer->imperfections_Model.approximation == PT_approximation);
 		vertical_Correlation_Layout->addWidget(partial_Radiobutton);
 
 		QRadioButton* zero_Radiobutton = new QRadioButton("Zero");
@@ -320,7 +321,7 @@ void Table_Roughness_Model_Editor::create_Roughness_Groupbox()
 			vertical_Correlation_Group->addButton(zero_Radiobutton);
 
 	// --------------------------------------------
-	// PSD or Cor models
+	// PSD models
 	// --------------------------------------------
 
 		QVBoxLayout* PSD_Cor_Layout = new QVBoxLayout;
@@ -363,6 +364,7 @@ void Table_Roughness_Model_Editor::create_Roughness_Groupbox()
 		if(PT_Radiobutton->isChecked())
 		{
 			multilayer->imperfections_Model.approximation = PT_approximation;
+			partial_Radiobutton->setEnabled(true);
 			if(partial_Radiobutton->isChecked()) linear_Growth_Radiobutton->setDisabled(false);
 		}
 	});
@@ -371,7 +373,21 @@ void Table_Roughness_Model_Editor::create_Roughness_Groupbox()
 		if(DWBA_Radiobutton->isChecked())
 		{
 			multilayer->imperfections_Model.approximation = DWBA_approximation;
-			if(partial_Radiobutton->isChecked()) linear_Growth_Radiobutton->setDisabled(false);
+			if(linear_Growth_Radiobutton->isChecked())
+			{
+				linear_Growth_Radiobutton->setChecked(false);
+				ABC_Radiobutton->setChecked(true);
+				ABC_Radiobutton->toggled(true);
+			}
+			linear_Growth_Radiobutton->setDisabled(true);
+
+			if(partial_Radiobutton->isChecked())
+			{
+				partial_Radiobutton->setChecked(false);
+				full_Radiobutton->setChecked(true);
+				full_Radiobutton->toggled(true);
+			}
+			partial_Radiobutton->setEnabled(false);
 		}
 	});
 	connect(SA_Radiobutton, &QRadioButton::toggled, this, [=]
@@ -379,7 +395,21 @@ void Table_Roughness_Model_Editor::create_Roughness_Groupbox()
 		if(SA_Radiobutton->isChecked())
 		{
 			multilayer->imperfections_Model.approximation = SA_approximation;
-			if(partial_Radiobutton->isChecked()) linear_Growth_Radiobutton->setDisabled(false);
+			if(linear_Growth_Radiobutton->isChecked())
+			{
+				linear_Growth_Radiobutton->setChecked(false);
+				ABC_Radiobutton->setChecked(true);
+				ABC_Radiobutton->toggled(true);
+			}
+			linear_Growth_Radiobutton->setDisabled(true);
+
+			if(partial_Radiobutton->isChecked())
+			{
+				partial_Radiobutton->setChecked(false);
+				full_Radiobutton->setChecked(true);
+				full_Radiobutton->toggled(true);
+			}
+			partial_Radiobutton->setEnabled(false);
 		}
 	});
 	connect(CSA_Radiobutton, &QRadioButton::toggled, this, [=]
@@ -387,7 +417,21 @@ void Table_Roughness_Model_Editor::create_Roughness_Groupbox()
 		if(CSA_Radiobutton->isChecked())
 		{
 			multilayer->imperfections_Model.approximation = CSA_approximation;
-			if(partial_Radiobutton->isChecked()) linear_Growth_Radiobutton->setDisabled(false);
+			if(linear_Growth_Radiobutton->isChecked())
+			{
+				linear_Growth_Radiobutton->setChecked(false);
+				ABC_Radiobutton->setChecked(true);
+				ABC_Radiobutton->toggled(true);
+			}
+			linear_Growth_Radiobutton->setDisabled(true);
+
+			if(partial_Radiobutton->isChecked())
+			{
+				partial_Radiobutton->setChecked(false);
+				full_Radiobutton->setChecked(true);
+				full_Radiobutton->toggled(true);
+			}
+			partial_Radiobutton->setEnabled(false);
 		}
 	});
 
