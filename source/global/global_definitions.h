@@ -238,10 +238,10 @@ class Node;
 #define symbol_G "G"
 
 // roughness scattering approximations
-#define PT_approximation	"PT"
-#define DWBA_approximation	"DWBA"
-#define SA_approximation	"SA"
-#define CSA_approximation	"CSA"
+#define PT_approximation	"PT approximation"
+#define DWBA_approximation	"DWBA approximation"
+#define SA_approximation	"SA approximation"
+#define CSA_approximation	"CSA approximation"
 
 #define full_Correlation		"full vertical correlation"
 #define partial_Correlation		"partial vertical correlation"
@@ -759,7 +759,8 @@ struct Calculated_Values	  {	// reflectance
 								vector<vector<double>> GISAS_Instrumental;
 
 
-								// storing field amplitudes on boundaries at each point
+								// storing field parameters on boundaries at each point
+								/// for DWBA SA CSA
 								vector<vector<complex<double>>> q0_U_i_s;
 								vector<vector<complex<double>>> q0_U_r_s;
 								vector<vector<complex<double>>> q0_U_i_p;
@@ -773,47 +774,12 @@ struct Calculated_Values	  {	// reflectance
 								vector<vector<complex<double>>> q0_Hi;
 								vector<vector<complex<double>>> q_Hi;
 
-								vector<vector<complex<double>>> q0_Exponenta;
-								vector<vector<complex<double>>> q_Exponenta;
-
-								// PT
+								/// for PT
 								vector<vector<complex<double>>> q0_Boundary_Field_s;
 								vector<vector<complex<double>>> q0_Boundary_Field_p;
 
 								vector<vector<complex<double>>> q_Boundary_Field_s;
 								vector<vector<complex<double>>> q_Boundary_Field_p;
-
-								// DWBA CSA SA
-
-								vector<vector<complex<double>>> b1_Up_Boundary_Field_s;
-								vector<vector<complex<double>>> b2_Up_Boundary_Field_s;
-								vector<vector<complex<double>>> b3_Up_Boundary_Field_s;
-								vector<vector<complex<double>>> b4_Up_Boundary_Field_s;
-
-								vector<vector<complex<double>>> b1_Up_Boundary_Field_p;
-								vector<vector<complex<double>>> b2_Up_Boundary_Field_p;
-								vector<vector<complex<double>>> b3_Up_Boundary_Field_p;
-								vector<vector<complex<double>>> b4_Up_Boundary_Field_p;
-
-								vector<vector<complex<double>>> k1_Up_Boundary;
-								vector<vector<complex<double>>> k2_Up_Boundary;
-								vector<vector<complex<double>>> k3_Up_Boundary;
-								vector<vector<complex<double>>> k4_Up_Boundary;
-
-								vector<vector<complex<double>>> b1_Low_Boundary_Field_s;
-								vector<vector<complex<double>>> b2_Low_Boundary_Field_s;
-								vector<vector<complex<double>>> b3_Low_Boundary_Field_s;
-								vector<vector<complex<double>>> b4_Low_Boundary_Field_s;
-
-								vector<vector<complex<double>>> b1_Low_Boundary_Field_p;
-								vector<vector<complex<double>>> b2_Low_Boundary_Field_p;
-								vector<vector<complex<double>>> b3_Low_Boundary_Field_p;
-								vector<vector<complex<double>>> b4_Low_Boundary_Field_p;
-
-								vector<vector<complex<double>>> k1_Low_Boundary;
-								vector<vector<complex<double>>> k2_Low_Boundary;
-								vector<vector<complex<double>>> k3_Low_Boundary;
-								vector<vector<complex<double>>> k4_Low_Boundary;
 							   };
 struct Simple_Curve		       {
 								Simple_Curve();

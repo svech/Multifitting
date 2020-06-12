@@ -1190,12 +1190,21 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 		// big label about roughness model
 		if(multilayer->imperfections_Model.use_Roughness)
 		{
+			// row 1
+			QLabel* approximation_Label = new QLabel(multilayer->imperfections_Model.approximation);
+				approximation_Label->setAlignment(Qt::AlignCenter);
+				approximation_Label->setFont(QFont(approximation_Label->font().family(), 10, QFont::Bold));
+			new_Table->setSpan(1,first_Roughness_Column,1,last_Roughness_Column-first_Roughness_Column+1);
+			new_Table->setCellWidget(1, first_Roughness_Column, approximation_Label);
+
+			// row 2
 			QLabel* model_Label = new QLabel(multilayer->imperfections_Model.common_Model);
 				model_Label->setAlignment(Qt::AlignCenter);
 				model_Label->setFont(QFont(model_Label->font().family(), 10, QFont::Bold));
-			new_Table->setSpan(1,first_Roughness_Column,2,last_Roughness_Column-first_Roughness_Column+1);
-			new_Table->setCellWidget(1, first_Roughness_Column, model_Label);
+			new_Table->setSpan(2,first_Roughness_Column,1,last_Roughness_Column-first_Roughness_Column+1);
+			new_Table->setCellWidget(2, first_Roughness_Column, model_Label);
 
+			// row 3
 			QLabel* ver_Cor_Label = new QLabel(multilayer->imperfections_Model.vertical_Correlation);
 				ver_Cor_Label->setAlignment(Qt::AlignCenter);
 				ver_Cor_Label->setFont(QFont(ver_Cor_Label->font().family(), 10, QFont::Bold));

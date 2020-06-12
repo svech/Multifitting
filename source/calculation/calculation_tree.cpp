@@ -405,18 +405,43 @@ void Calculation_Tree::calculate_Intermediate_Values_1_Tree(tree<Node>& calc_Tre
 
 		child.node->data.calculate_Intermediate_Points(measurement, above_Node, depth_Grading, sigma_Grading, multilayer->discretization_Parameters.enable_Discretization, mode);
 
-		if( mode == SCATTERED_MODE &&
-			multilayer->imperfections_Model.common_Model == fractal_Gauss_Model)
+		if( mode == SCATTERED_MODE )
 		{
-			if( child.node->data.struct_Data.item_Type == item_Type_Substrate )
+			if(multilayer->imperfections_Model.approximation == PT_approximation)
 			{
-				child.node->data.create_Spline_PSD_Fractal_Gauss_1D(measurement);
-			}
-			if(multilayer->imperfections_Model.use_Common_Roughness_Function == false)
-			{
-				if( child.node->data.struct_Data.item_Type == item_Type_Layer )
+				if( multilayer->imperfections_Model.common_Model == fractal_Gauss_Model)
 				{
-					child.node->data.create_Spline_PSD_Fractal_Gauss_1D(measurement);
+					if( child.node->data.struct_Data.item_Type == item_Type_Substrate )
+					{
+						child.node->data.create_Spline_PSD_Fractal_Gauss_1D(measurement);
+					}
+					if(multilayer->imperfections_Model.use_Common_Roughness_Function == false)
+					{
+						if( child.node->data.struct_Data.item_Type == item_Type_Layer )
+						{
+							child.node->data.create_Spline_PSD_Fractal_Gauss_1D(measurement);
+						}
+					}
+				}
+			}
+			if( multilayer->imperfections_Model.approximation == DWBA_approximation ||
+				multilayer->imperfections_Model.approximation == SA_approximation ||
+				multilayer->imperfections_Model.approximation == CSA_approximation )
+			{
+				if( child.node->data.struct_Data.item_Type == item_Type_Substrate ||
+					child.node->data.struct_Data.item_Type == item_Type_Layer     )
+				{
+					if( child.node->data.struct_Data.item_Type == item_Type_Substrate )
+					{
+						child.node->data.create_Spline_DWBA_SA_CSA_1D(measurement, multilayer->imperfections_Model.common_Model);
+					}
+					if(multilayer->imperfections_Model.use_Common_Roughness_Function == false)
+					{
+						if( child.node->data.struct_Data.item_Type == item_Type_Layer )
+						{
+							child.node->data.create_Spline_DWBA_SA_CSA_1D(measurement, multilayer->imperfections_Model.common_Model);
+						}
+					}
 				}
 			}
 		}
@@ -440,18 +465,43 @@ void Calculation_Tree::clear_Spline_1_Tree(tree<Node>& calc_Tree, const tree<Nod
 	{
 		tree<Node>::post_order_iterator child = calc_Tree.child(parent,i);
 
-		if( mode == SCATTERED_MODE &&
-			multilayer->imperfections_Model.common_Model == fractal_Gauss_Model)
+		if( mode == SCATTERED_MODE )
 		{
-			if( child.node->data.struct_Data.item_Type == item_Type_Substrate )
+			if(multilayer->imperfections_Model.approximation == PT_approximation)
 			{
-				child.node->data.clear_Spline();
-			}
-			if(multilayer->imperfections_Model.use_Common_Roughness_Function == false)
-			{
-				if( child.node->data.struct_Data.item_Type == item_Type_Layer )
+				if( multilayer->imperfections_Model.common_Model == fractal_Gauss_Model)
 				{
-					child.node->data.clear_Spline();
+					if( child.node->data.struct_Data.item_Type == item_Type_Substrate )
+					{
+						child.node->data.clear_Spline_PSD_Fractal_Gauss_1D();
+					}
+					if(multilayer->imperfections_Model.use_Common_Roughness_Function == false)
+					{
+						if( child.node->data.struct_Data.item_Type == item_Type_Layer )
+						{
+							child.node->data.clear_Spline_PSD_Fractal_Gauss_1D();
+						}
+					}
+				}
+			}
+			if( multilayer->imperfections_Model.approximation == DWBA_approximation ||
+				multilayer->imperfections_Model.approximation == SA_approximation ||
+				multilayer->imperfections_Model.approximation == CSA_approximation )
+			{
+				if( child.node->data.struct_Data.item_Type == item_Type_Substrate ||
+					child.node->data.struct_Data.item_Type == item_Type_Layer     )
+				{
+					if( child.node->data.struct_Data.item_Type == item_Type_Substrate )
+					{
+						child.node->data.clear_Spline_DWBA_SA_CSA_1D();
+					}
+					if(multilayer->imperfections_Model.use_Common_Roughness_Function == false)
+					{
+						if( child.node->data.struct_Data.item_Type == item_Type_Layer )
+						{
+							child.node->data.clear_Spline_DWBA_SA_CSA_1D();
+						}
+					}
 				}
 			}
 		}
