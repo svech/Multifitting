@@ -42,7 +42,7 @@ public:
 	gsl_spline* spline;
 	gsl_interp_accel* acc;
 
-	void create_Spline_DWBA_SA_CSA_1D(const Data& measurement, QString model);
+	void create_Spline_DWBA_SA_CSA_1D(const Data& measurement, QString model, int& n_Max_Series);
 	void clear_Spline_DWBA_SA_CSA_1D();
 	vector<gsl_spline*> spline_n_Vec;
 	vector<gsl_interp_accel*> acc_n_Vec;

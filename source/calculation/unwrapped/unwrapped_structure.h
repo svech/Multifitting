@@ -43,6 +43,7 @@ public:
 	vector<vector<QVector<Interlayer>>> boundary_Interlayer_Composition_Threaded;	//  [thread][boundary][function]
 	vector<double> thickness;										//	[layer]
 	vector<vector<double>> thickness_Threaded;						//	[thread][layer]
+	vector<vector<double>> sigma_Roughness_Threaded;				//	[thread][boundary]
 	vector<vector<double>> mu;										//	[thread][layer]
 	vector<vector<double>> omega;									//	[thread][layer]
 	vector<vector<double>> omega_pow23;								//	[thread][layer]
@@ -91,10 +92,10 @@ public:
 //	int fill_Thickness_Max_Depth_2(const tree<Node>::iterator& parent, int layer_Index = 0);
 
 	int fill_Epsilon		  (const tree<Node>::iterator& parent, int media_Index = 0);
-	int fill_Epsilon_Dependent(const tree<Node>::iterator& parent, int num_Lambda_Points, int media_Index = 0);
+	int fill_Epsilon_Dependent(const tree<Node>::iterator& parent, int num_Lambda_Points, size_t media_Index = 0);
 	int fill_Sigma    (const tree<Node>::iterator& parent, double& max_Sigma, int boundary_Index = 0, int per_Index = 0);
 	int fill_Thickness_And_Boundaries(const tree<Node>::iterator& parent, int layer_Index = 0,    int per_Index = 0);
-	int fill_Thickness_Mu_And_Alpha		 (const tree<Node>::iterator& parent, int layer_Index = 0,    int per_Index = 0);
+	int fill_Thickness_Sigma_Mu_And_Alpha(const tree<Node>::iterator& parent, int layer_Index = 0,    int per_Index = 0);
 	void fill_PSD_Inheritance_Powers();
 };
 

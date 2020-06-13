@@ -18,7 +18,7 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 	// crutch
 	struct_Data.relative_Density.value = max(struct_Data.relative_Density.value,DBL_EPSILON); // TODO vacuum crashes?
 
-	int num_Points = 0;
+	size_t num_Points = 0;
 	vector<double> cos2;
 	vector<double> k;
 
@@ -604,7 +604,7 @@ void Node::create_Spline_PSD_Fractal_Gauss_1D(const Data& measurement)
 		for(size_t i=0; i<temp_Cos.size(); i++) temp_Cos[i] = measurement.k_Value*abs(temp_Cos[i] - measurement.beam_Theta_0_Cos_Vec[i]);
 	}
 	std::sort(temp_Cos.begin(), temp_Cos.end());
-	double p_Max = temp_Cos.back()+1E-7;
+	double p_Max = temp_Cos.back()*(1+1E-7);
 
 
 	int num_Sections = 6; // plus zero point
@@ -668,7 +668,7 @@ void Node::create_Spline_PSD_Fractal_Gauss_1D(const Data& measurement)
 		}
 	}
 	// chech for artifacts
-	for(int i=interpoints_Sum_Argum_Vec.size()-1; i>=0; i--)
+	for(int i=interpoints_Sum_Argum_Vec.size()-2; i>=0; i--)
 	{
 		if(interpoints_Sum_Value_Vec[i]<0.5*interpoints_Sum_Value_Vec[i+1])
 		{
@@ -707,7 +707,7 @@ double Cor_ABC_Pow_n(double r, void* params)
 	if(p->xi > 0)	return p->factor*pow(r/p->xi, p->n*p->alpha) * pow(cyl_bessel_k(p->alpha, r/p->xi),p->n);
 	else			return 0;
 }
-void Node::create_Spline_DWBA_SA_CSA_1D(const Data& measurement, QString model)
+void Node::create_Spline_DWBA_SA_CSA_1D(const Data& measurement, QString model, int& n_Max_Series)
 {
 	double xi =    struct_Data.roughness_Model.cor_radius.value;
 	double alpha = struct_Data.roughness_Model.fractal_alpha.value;
@@ -724,7 +724,7 @@ void Node::create_Spline_DWBA_SA_CSA_1D(const Data& measurement, QString model)
 		for(size_t i=0; i<temp_Cos.size(); i++) temp_Cos[i] = measurement.k_Value*abs(temp_Cos[i] - measurement.beam_Theta_0_Cos_Vec[i]);
 	}
 	std::sort(temp_Cos.begin(), temp_Cos.end());
-	double p_Max = temp_Cos.back()+1E-7;
+	double p_Max = temp_Cos.back()*(1+1E-7);
 
 	// subintervals
 	int num_Sections = 6; // plus zero point
@@ -735,8 +735,6 @@ void Node::create_Spline_DWBA_SA_CSA_1D(const Data& measurement, QString model)
 		interpoints[i] = 20-2*i;
 		common_Size+=interpoints[i];
 	}
-	vector<double> interpoints_Sum_Argum_Vec(1+common_Size);
-	vector<double> interpoints_Sum_Value_Vec(1+common_Size);
 
 	vector<double> starts(num_Sections); // open start
 	starts[0] = 0;
@@ -760,8 +758,12 @@ void Node::create_Spline_DWBA_SA_CSA_1D(const Data& measurement, QString model)
 	acc_n_Vec.clear();
 
 	// n=35 is still ok
-	for(int n=1; n<2; n++)
+	n_Max_Series = 10;
+	for(int n=1; n<=n_Max_Series; n++)
 	{
+		vector<double> interpoints_Sum_Argum_Vec(1+common_Size);
+		vector<double> interpoints_Sum_Value_Vec(1+common_Size);
+
 		Cor_Func_Series_Params params = {xi, alpha, n, pow(pow(2,1-alpha)/tgamma(alpha),n)};
 		gsl_function F;
 		if(model == fractal_Gauss_Model) F = { &Cor_Fractal_Gauss_Pow_n, &params };
@@ -813,7 +815,7 @@ void Node::create_Spline_DWBA_SA_CSA_1D(const Data& measurement, QString model)
 		}
 
 		// chech for artifacts
-		for(int i=interpoints_Sum_Argum_Vec.size()-1; i>=0; i--)
+		for(int i=interpoints_Sum_Argum_Vec.size()-2; i>=0; i--)
 		{
 			if(interpoints_Sum_Value_Vec[i]<0.5*interpoints_Sum_Value_Vec[i+1])
 			{
@@ -822,12 +824,20 @@ void Node::create_Spline_DWBA_SA_CSA_1D(const Data& measurement, QString model)
 			}
 		}
 
+
+//		for(size_t i=0; i<interpoints_Sum_Argum_Vec.size()-1; i+=1)
+//		{
+//			qInfo() << "DWBA:" << interpoints_Sum_Argum_Vec[i] << interpoints_Sum_Value_Vec[i] << "  n=" << n << endl;
+//		}
+//		qInfo() << "DWBA:" << interpoints_Sum_Argum_Vec.back() << interpoints_Sum_Value_Vec.back() << "  n=" << n << endl;
+//		qInfo() << endl << interpoints_Sum_Argum_Vec.size() << endl << endl;
+
 		// splines
 		acc_n_Vec.resize(n);
 		spline_n_Vec.resize(n);
-		acc_n_Vec[n-1] = gsl_interp_accel_alloc();
-		spline_n_Vec[n-1] = gsl_spline_alloc(gsl_interp_steffen, interpoints_Sum_Value_Vec.size());
-		gsl_spline_init(spline_n_Vec[n-1], interpoints_Sum_Argum_Vec.data(), interpoints_Sum_Value_Vec.data(), interpoints_Sum_Value_Vec.size());
+		acc_n_Vec.back() = gsl_interp_accel_alloc();
+		spline_n_Vec.back() = gsl_spline_alloc(gsl_interp_steffen, interpoints_Sum_Value_Vec.size());
+		gsl_spline_init(spline_n_Vec.back(), interpoints_Sum_Argum_Vec.data(), interpoints_Sum_Value_Vec.data(), interpoints_Sum_Value_Vec.size());
 	}
 	gsl_integration_workspace_free(wc);
 	gsl_integration_workspace_free(w);

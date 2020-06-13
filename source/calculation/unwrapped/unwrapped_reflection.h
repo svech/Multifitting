@@ -12,7 +12,7 @@ class Unwrapped_Reflection
 public:
 	Unwrapped_Reflection(Multilayer* multilayer, Unwrapped_Structure* unwrapped_Structure, int num_Media,
 						 const Data& measurement, bool depth_Grading, bool sigma_Grading,
-						 const Calc_Functions& calc_Functions, Calculated_Values& calculated_Values, QString calc_Mode, QString spec_Scat_mode);
+						 const Calc_Functions& calc_Functions, Calculated_Values& calculated_Values, QString calc_Mode, QString spec_Scat_mode, int n_Max_Series);
 
 	~Unwrapped_Reflection();
 
@@ -25,6 +25,7 @@ public:
 	size_t num_Points;
 	size_t phi_Points;
 	size_t short_Phi_Points;
+	int n_Max_Series;
 
 	bool depth_Grading;
 	bool sigma_Grading;
@@ -138,6 +139,10 @@ public:
 	vector<vector<complex<double>>> k3_Low_Boundary;	//	[thread][boundary]
 	vector<vector<complex<double>>> k4_Low_Boundary;	//	[thread][boundary]
 
+	// K
+	vector<vector<vector<complex<double>>>> K_Factor_Boundary_s;	//	[thread][boundary][n]
+	vector<vector<vector<complex<double>>>> K_Factor_Boundary_p;	//	[thread][boundary][n]
+
 	///---------------------------------------------------------------------
 
 	int fill_s__Max_Depth_3(const tree<Node>::iterator& parent, int thread_Index, int point_Index, int media_Index = 0);
@@ -169,9 +174,10 @@ public:
 	double azimuthal_Integration (gsl_function* function, double delta);
 
 	// DWBA SA CSA
-	void calc_k_Wavenumber_DWBA_SA_CSA	(int thread_Index, int point_Index);
-	void calc_Field_DWBA_SA_CSA			(int thread_Index, int point_Index, QString polarization);
-
+	void calc_k_Wavenumber_DWBA_SA_CSA			(int thread_Index, int point_Index);
+	void calc_Field_DWBA_SA_CSA					(int thread_Index, int point_Index, QString polarization);
+	void calc_K_Factor_DWBA_SA_CSA				(int thread_Index,                  QString polarization);
+	double calc_K_Factor_Term_Sum_DWBA_SA_CSA	(int thread_Index, QString polarization, int n_Power);
 
 	// for sigma grading
 	void multifly_Fresnel_And_Weak_Factor(int thread_Index);

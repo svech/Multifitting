@@ -26,17 +26,17 @@ double function_Scattering_ABC_2D_s (double phi, void* p)
 		cos_Phi = phi;
 
 	double common_PSD_2D_Factor = Global_Variables::PSD_ABC_2D(u->substrate.PSD_ABC_2D_Factor,
-															   u->substrate.roughness_Model.cor_radius.value,
-															   u->substrate.roughness_Model.fractal_alpha.value,
-															   u->measurement.k_Value,
-															   params->cos_Theta,
-															   params->cos_Theta_0,
-															   cos_Phi);
+	                                                           u->substrate.roughness_Model.cor_radius.value,
+	                                                           u->substrate.roughness_Model.fractal_alpha.value,
+	                                                           u->measurement.k_Value,
+	                                                           params->cos_Theta,
+	                                                           params->cos_Theta_0,
+	                                                           cos_Phi);
 	double nu_Alpha_2 = Global_Variables::nu_Alpha_2D(u->unwrapped_Structure->alpha[thread_Index].back(), // substrate
-													  u->measurement.k_Value,
-													  params->cos_Theta,
-													  params->cos_Theta_0,
-													  cos_Phi);
+	                                                  u->measurement.k_Value,
+	                                                  params->cos_Theta,
+	                                                  params->cos_Theta_0,
+	                                                  cos_Phi);
 	double partially_Coherent_Sum = 0;
 	for (int i = 1; i<u->num_Boundaries; i++)
 	{
@@ -65,17 +65,17 @@ double function_Scattering_ABC_2D_p (double phi, void* p)
 		cos_Phi = phi;
 
 	double common_PSD_2D_Factor = Global_Variables::PSD_ABC_2D(u->substrate.PSD_ABC_2D_Factor,
-															   u->substrate.roughness_Model.cor_radius.value,
-															   u->substrate.roughness_Model.fractal_alpha.value,
-															   u->measurement.k_Value,
-															   params->cos_Theta,
-															   params->cos_Theta_0,
-															   cos_Phi);
+	                                                           u->substrate.roughness_Model.cor_radius.value,
+	                                                           u->substrate.roughness_Model.fractal_alpha.value,
+	                                                           u->measurement.k_Value,
+	                                                           params->cos_Theta,
+	                                                           params->cos_Theta_0,
+	                                                           cos_Phi);
 	double nu_Alpha_2 = Global_Variables::nu_Alpha_2D(u->unwrapped_Structure->alpha[thread_Index].back(), // substrate
-													  u->measurement.k_Value,
-													  params->cos_Theta,
-													  params->cos_Theta_0,
-													  cos_Phi);
+	                                                  u->measurement.k_Value,
+	                                                  params->cos_Theta,
+	                                                  params->cos_Theta_0,
+	                                                  cos_Phi);
 	double partially_Coherent_Sum = 0;
 	for (int i = 1; i<u->num_Boundaries; i++)
 	{
@@ -104,17 +104,17 @@ double function_Scattering_ABC_2D_sp(double phi, void* p)
 		cos_Phi = phi;
 
 	double common_PSD_2D_Factor = Global_Variables::PSD_ABC_2D(u->substrate.PSD_ABC_2D_Factor,
-															   u->substrate.roughness_Model.cor_radius.value,
-															   u->substrate.roughness_Model.fractal_alpha.value,
-															   u->measurement.k_Value,
-															   params->cos_Theta,
-															   params->cos_Theta_0,
-															   cos_Phi);
+	                                                           u->substrate.roughness_Model.cor_radius.value,
+	                                                           u->substrate.roughness_Model.fractal_alpha.value,
+	                                                           u->measurement.k_Value,
+	                                                           params->cos_Theta,
+	                                                           params->cos_Theta_0,
+	                                                           cos_Phi);
 	double nu_Alpha_2 = Global_Variables::nu_Alpha_2D(u->unwrapped_Structure->alpha[thread_Index].back(), // substrate
-													  u->measurement.k_Value,
-													  params->cos_Theta,
-													  params->cos_Theta_0,
-													  cos_Phi);
+	                                                  u->measurement.k_Value,
+	                                                  params->cos_Theta,
+	                                                  params->cos_Theta_0,
+	                                                  cos_Phi);
 	double partially_Coherent_Sum_s = 0;
 	double partially_Coherent_Sum_p = 0;
 	for (int i = 1; i<u->num_Boundaries; i++)
@@ -131,7 +131,7 @@ double function_Scattering_ABC_2D_sp(double phi, void* p)
 		}
 	}
 	return (u->s_Weight*(params->incoherent_Sum_s + partially_Coherent_Sum_s) +
-			u->p_Weight*(params->incoherent_Sum_p + partially_Coherent_Sum_p) ) * common_PSD_2D_Factor;
+	        u->p_Weight*(params->incoherent_Sum_p + partially_Coherent_Sum_p) ) * common_PSD_2D_Factor;
 }
 
 double function_Scattering_Linear_2D_s (double phi, void* p)
@@ -149,30 +149,30 @@ double function_Scattering_Linear_2D_s (double phi, void* p)
 
 	// incoherent part and PSD
 	u->PSD_Factor_Boundary[thread_Index][u->num_Boundaries-1] = Global_Variables::PSD_ABC_2D(u->substrate.PSD_ABC_2D_Factor,
-																							 u->substrate.roughness_Model.cor_radius.value,
-																							 u->substrate.roughness_Model.fractal_alpha.value,
-																							 u->measurement.k_Value,
-																							 params->cos_Theta,
-																							 params->cos_Theta_0,
-																							 cos_Phi);
+	                                                                                         u->substrate.roughness_Model.cor_radius.value,
+	                                                                                         u->substrate.roughness_Model.fractal_alpha.value,
+	                                                                                         u->measurement.k_Value,
+	                                                                                         params->cos_Theta,
+	                                                                                         params->cos_Theta_0,
+	                                                                                         cos_Phi);
 
 	double incoherent_Sum = u->intensity_Term_Boundary_s[thread_Index][u->num_Boundaries-1] * u->PSD_Factor_Boundary[thread_Index][u->num_Boundaries-1];
 	for (int i = u->num_Boundaries-2; i>=0; i--)
 	{
 		double nu_Alpha_2 = Global_Variables::nu_Alpha_2D(u->unwrapped_Structure->alpha[thread_Index][i],
-														  u->measurement.k_Value,
-														  params->cos_Theta,
-														  params->cos_Theta_0,
-														  cos_Phi);
+		                                                  u->measurement.k_Value,
+		                                                  params->cos_Theta,
+		                                                  params->cos_Theta_0,
+		                                                  cos_Phi);
 		u->cross_Exp_Factor_2D[thread_Index][i+1][i] = exp(-nu_Alpha_2 * u->unwrapped_Structure->PSD_mu_alpha_h[thread_Index][i]);
 
 
 		u->PSD_Factor_Boundary[thread_Index][i] = u->cross_Exp_Factor_2D[thread_Index][i+1][i]*u->PSD_Factor_Boundary[thread_Index][i+1]
-													   + Global_Variables::PSD_Linear_Growth_2D(u->cross_Exp_Factor_2D[thread_Index][i+1][i],
-																								nu_Alpha_2*u->unwrapped_Structure->PSD_mu_alpha[thread_Index][i],
-																								u->unwrapped_Structure->omega[thread_Index][i],
-																								nu_Alpha_2*u->unwrapped_Structure->omega_pow23[thread_Index][i],
-																								u->unwrapped_Structure->thickness_Threaded[thread_Index][i]);
+		                                               + Global_Variables::PSD_Linear_Growth_2D(u->cross_Exp_Factor_2D[thread_Index][i+1][i],
+		                                                                                        nu_Alpha_2*u->unwrapped_Structure->PSD_mu_alpha[thread_Index][i],
+		                                                                                        u->unwrapped_Structure->omega[thread_Index][i],
+		                                                                                        nu_Alpha_2*u->unwrapped_Structure->omega_pow23[thread_Index][i],
+		                                                                                        u->unwrapped_Structure->thickness_Threaded[thread_Index][i]);
 		incoherent_Sum += u->intensity_Term_Boundary_s[thread_Index][i] * u->PSD_Factor_Boundary[thread_Index][i];
 	}
 
@@ -206,30 +206,30 @@ double function_Scattering_Linear_2D_p (double phi, void* p)
 
 	// incoherent part and PSD
 	u->PSD_Factor_Boundary[thread_Index][u->num_Boundaries-1] = Global_Variables::PSD_ABC_2D(u->substrate.PSD_ABC_2D_Factor,
-																							 u->substrate.roughness_Model.cor_radius.value,
-																							 u->substrate.roughness_Model.fractal_alpha.value,
-																							 u->measurement.k_Value,
-																							 params->cos_Theta,
-																							 params->cos_Theta_0,
-																							 cos_Phi);
+	                                                                                         u->substrate.roughness_Model.cor_radius.value,
+	                                                                                         u->substrate.roughness_Model.fractal_alpha.value,
+	                                                                                         u->measurement.k_Value,
+	                                                                                         params->cos_Theta,
+	                                                                                         params->cos_Theta_0,
+	                                                                                         cos_Phi);
 
 	double incoherent_Sum = u->intensity_Term_Boundary_p[thread_Index][u->num_Boundaries-1] * u->PSD_Factor_Boundary[thread_Index][u->num_Boundaries-1];
 	for (int i = u->num_Boundaries-2; i>=0; i--)
 	{
 		double nu_Alpha_2 = Global_Variables::nu_Alpha_2D(u->unwrapped_Structure->alpha[thread_Index][i],
-														  u->measurement.k_Value,
-														  params->cos_Theta,
-														  params->cos_Theta_0,
-														  cos_Phi);
+		                                                  u->measurement.k_Value,
+		                                                  params->cos_Theta,
+		                                                  params->cos_Theta_0,
+		                                                  cos_Phi);
 		u->cross_Exp_Factor_2D[thread_Index][i+1][i] = exp(-nu_Alpha_2 * u->unwrapped_Structure->PSD_mu_alpha_h[thread_Index][i]);
 
 
 		u->PSD_Factor_Boundary[thread_Index][i] = u->cross_Exp_Factor_2D[thread_Index][i+1][i]*u->PSD_Factor_Boundary[thread_Index][i+1]
-													   + Global_Variables::PSD_Linear_Growth_2D(u->cross_Exp_Factor_2D[thread_Index][i+1][i],
-																								nu_Alpha_2*u->unwrapped_Structure->PSD_mu_alpha[thread_Index][i],
-																								u->unwrapped_Structure->omega[thread_Index][i],
-																								nu_Alpha_2*u->unwrapped_Structure->omega_pow23[thread_Index][i],
-																								u->unwrapped_Structure->thickness_Threaded[thread_Index][i]);
+		                                               + Global_Variables::PSD_Linear_Growth_2D(u->cross_Exp_Factor_2D[thread_Index][i+1][i],
+		                                                                                        nu_Alpha_2*u->unwrapped_Structure->PSD_mu_alpha[thread_Index][i],
+		                                                                                        u->unwrapped_Structure->omega[thread_Index][i],
+		                                                                                        nu_Alpha_2*u->unwrapped_Structure->omega_pow23[thread_Index][i],
+		                                                                                        u->unwrapped_Structure->thickness_Threaded[thread_Index][i]);
 		incoherent_Sum += u->intensity_Term_Boundary_p[thread_Index][i] * u->PSD_Factor_Boundary[thread_Index][i];
 	}
 
@@ -263,31 +263,31 @@ double function_Scattering_Linear_2D_sp(double phi, void* p)
 
 	// incoherent part and PSD
 	u->PSD_Factor_Boundary[thread_Index][u->num_Boundaries-1] = Global_Variables::PSD_ABC_2D(u->substrate.PSD_ABC_2D_Factor,
-																							 u->substrate.roughness_Model.cor_radius.value,
-																							 u->substrate.roughness_Model.fractal_alpha.value,
-																							 u->measurement.k_Value,
-																							 params->cos_Theta,
-																							 params->cos_Theta_0,
-																							 cos_Phi);
+	                                                                                         u->substrate.roughness_Model.cor_radius.value,
+	                                                                                         u->substrate.roughness_Model.fractal_alpha.value,
+	                                                                                         u->measurement.k_Value,
+	                                                                                         params->cos_Theta,
+	                                                                                         params->cos_Theta_0,
+	                                                                                         cos_Phi);
 
 	double incoherent_Sum_s = u->intensity_Term_Boundary_s[thread_Index][u->num_Boundaries-1] * u->PSD_Factor_Boundary[thread_Index][u->num_Boundaries-1];
 	double incoherent_Sum_p = u->intensity_Term_Boundary_p[thread_Index][u->num_Boundaries-1] * u->PSD_Factor_Boundary[thread_Index][u->num_Boundaries-1];
 	for (int i = u->num_Boundaries-2; i>=0; i--)
 	{
 		double nu_Alpha_2 = Global_Variables::nu_Alpha_2D(u->unwrapped_Structure->alpha[thread_Index][i],
-														  u->measurement.k_Value,
-														  params->cos_Theta,
-														  params->cos_Theta_0,
-														  cos_Phi);
+		                                                  u->measurement.k_Value,
+		                                                  params->cos_Theta,
+		                                                  params->cos_Theta_0,
+		                                                  cos_Phi);
 		u->cross_Exp_Factor_2D[thread_Index][i+1][i] = exp(-nu_Alpha_2 * u->unwrapped_Structure->PSD_mu_alpha_h[thread_Index][i]);
 
 
 		u->PSD_Factor_Boundary[thread_Index][i] = u->cross_Exp_Factor_2D[thread_Index][i+1][i]*u->PSD_Factor_Boundary[thread_Index][i+1]
-													   + Global_Variables::PSD_Linear_Growth_2D(u->cross_Exp_Factor_2D[thread_Index][i+1][i],
-																								nu_Alpha_2*u->unwrapped_Structure->PSD_mu_alpha[thread_Index][i],
-																								u->unwrapped_Structure->omega[thread_Index][i],
-																								nu_Alpha_2*u->unwrapped_Structure->omega_pow23[thread_Index][i],
-																								u->unwrapped_Structure->thickness_Threaded[thread_Index][i]);
+		                                               + Global_Variables::PSD_Linear_Growth_2D(u->cross_Exp_Factor_2D[thread_Index][i+1][i],
+		                                                                                        nu_Alpha_2*u->unwrapped_Structure->PSD_mu_alpha[thread_Index][i],
+		                                                                                        u->unwrapped_Structure->omega[thread_Index][i],
+		                                                                                        nu_Alpha_2*u->unwrapped_Structure->omega_pow23[thread_Index][i],
+		                                                                                        u->unwrapped_Structure->thickness_Threaded[thread_Index][i]);
 		incoherent_Sum_s += u->intensity_Term_Boundary_s[thread_Index][i] * u->PSD_Factor_Boundary[thread_Index][i];
 		incoherent_Sum_p += u->intensity_Term_Boundary_p[thread_Index][i] * u->PSD_Factor_Boundary[thread_Index][i];
 	}
@@ -310,86 +310,77 @@ double function_Scattering_Linear_2D_sp(double phi, void* p)
 		partially_Coherent_Sum_p += i_Term_p * u->PSD_Factor_Boundary[thread_Index][i];
 	}
 	return  u->s_Weight*(partially_Coherent_Sum_s + incoherent_Sum_s) +
-			u->p_Weight*(partially_Coherent_Sum_p + incoherent_Sum_p);
+	        u->p_Weight*(partially_Coherent_Sum_p + incoherent_Sum_p);
 }
 
 Unwrapped_Reflection::Unwrapped_Reflection(Multilayer* multilayer, Unwrapped_Structure* unwrapped_Structure, int num_Media,
-										   const Data& measurement, bool depth_Grading, bool sigma_Grading,
-										   const Calc_Functions& calc_Functions, Calculated_Values& calculated_Values, QString calc_Mode, QString spec_Scat_mode):
-	num_Threads		(reflectivity_Calc_Threads),
-	num_Layers		(num_Media-2),
-	num_Boundaries	(num_Media-1),
-	num_Media		(num_Media),
-	max_Depth		(unwrapped_Structure->max_Depth),
-	depth_Threshold	(unwrapped_Structure->depth_Threshold),
-	depth_Grading	(depth_Grading),
-	sigma_Grading	(sigma_Grading),
-	calc_Functions  (calc_Functions),
-	calculated_Values(calculated_Values),
-	calc_Mode		(calc_Mode),
-	spec_Scat_mode	(spec_Scat_mode),
-	unwrapped_Structure(unwrapped_Structure),
-	multilayer (multilayer),
-	measurement(measurement),
-	phi_Points (measurement.detector_Phi_Angle_Vec.size()),
-	short_Phi_Points(measurement.end_Phi_Number - measurement.start_Phi_Index),
+                                           const Data& measurement, bool depth_Grading, bool sigma_Grading,
+                                           const Calc_Functions& calc_Functions, Calculated_Values& calculated_Values, QString calc_Mode, QString spec_Scat_mode, int n_Max_Series):
+    num_Threads		(reflectivity_Calc_Threads),
+    num_Layers		(num_Media-2),
+    num_Boundaries	(num_Media-1),
+    num_Media		(num_Media),
+    max_Depth		(unwrapped_Structure->max_Depth),
+    depth_Threshold	(unwrapped_Structure->depth_Threshold),
+    depth_Grading	(depth_Grading),
+    sigma_Grading	(sigma_Grading),
+    calc_Functions  (calc_Functions),
+    calculated_Values(calculated_Values),
+    calc_Mode		(calc_Mode),
+    spec_Scat_mode	(spec_Scat_mode),
+    unwrapped_Structure(unwrapped_Structure),
+    multilayer (multilayer),
+    measurement(measurement),
+    phi_Points (measurement.detector_Phi_Angle_Vec.size()),
+    short_Phi_Points(measurement.end_Phi_Number - measurement.start_Phi_Index),
+    n_Max_Series(n_Max_Series),
 
-	r_Fresnel_s(num_Threads,vector<complex<double>>(num_Boundaries)),
-	r_Fresnel_p(num_Threads,vector<complex<double>>(num_Boundaries)),
-	r_Local_s  (num_Threads,vector<complex<double>>(num_Boundaries)),
-	r_Local_p  (num_Threads,vector<complex<double>>(num_Boundaries)),
+    r_Fresnel_s(num_Threads,vector<complex<double>>(num_Boundaries)),
+    r_Fresnel_p(num_Threads,vector<complex<double>>(num_Boundaries)),
+    r_Local_s  (num_Threads,vector<complex<double>>(num_Boundaries)),
+    r_Local_p  (num_Threads,vector<complex<double>>(num_Boundaries)),
 
-	t_Fresnel_s(num_Threads,vector<complex<double>>(num_Boundaries)),
-	t_Fresnel_p(num_Threads,vector<complex<double>>(num_Boundaries)),
-	t_Local_s  (num_Threads,vector<complex<double>>(num_Boundaries)),
-	t_Local_p  (num_Threads,vector<complex<double>>(num_Boundaries)),
+    t_Fresnel_s(num_Threads,vector<complex<double>>(num_Boundaries)),
+    t_Fresnel_p(num_Threads,vector<complex<double>>(num_Boundaries)),
+    t_Local_s  (num_Threads,vector<complex<double>>(num_Boundaries)),
+    t_Local_p  (num_Threads,vector<complex<double>>(num_Boundaries)),
 
 //	hi		   (num_Threads,vector<complex<double>>(num_Media)),
-	hi	(spec_Scat_mode == SPECULAR_MODE ? calculated_Values.q0_Hi : calculated_Values.q_Hi ),
+    hi	(spec_Scat_mode == SPECULAR_MODE ? calculated_Values.q0_Hi : calculated_Values.q_Hi ),
 
-	exponenta  (num_Threads,vector<complex<double>>(num_Boundaries)),
-	exponenta_2(num_Threads,vector<complex<double>>(num_Boundaries)),
+    exponenta  (num_Threads,vector<complex<double>>(num_Boundaries)),
+    exponenta_2(num_Threads,vector<complex<double>>(num_Boundaries)),
 
 //	U_i_s	(num_Threads, vector<complex<double>>(num_Media)),
 //	U_r_s	(num_Threads, vector<complex<double>>(num_Media)),
 //	U_i_p	(num_Threads, vector<complex<double>>(num_Media)),
 //	U_r_p	(num_Threads, vector<complex<double>>(num_Media)),
-	U_i_s	(spec_Scat_mode == SPECULAR_MODE ? calculated_Values.q0_U_i_s : calculated_Values.q_U_i_s ),
-	U_r_s	(spec_Scat_mode == SPECULAR_MODE ? calculated_Values.q0_U_r_s : calculated_Values.q_U_r_s ),
-	U_i_p	(spec_Scat_mode == SPECULAR_MODE ? calculated_Values.q0_U_i_p : calculated_Values.q_U_i_p ),
-	U_r_p	(spec_Scat_mode == SPECULAR_MODE ? calculated_Values.q0_U_r_p : calculated_Values.q_U_r_p ),
+    U_i_s	(spec_Scat_mode == SPECULAR_MODE ? calculated_Values.q0_U_i_s : calculated_Values.q_U_i_s ),
+    U_r_s	(spec_Scat_mode == SPECULAR_MODE ? calculated_Values.q0_U_r_s : calculated_Values.q_U_r_s ),
+    U_i_p	(spec_Scat_mode == SPECULAR_MODE ? calculated_Values.q0_U_i_p : calculated_Values.q_U_i_p ),
+    U_r_p	(spec_Scat_mode == SPECULAR_MODE ? calculated_Values.q0_U_r_p : calculated_Values.q_U_r_p ),
 
-	environment_Factor_s(num_Threads),
-	environment_Factor_p(num_Threads),
+    environment_Factor_s(num_Threads),
+    environment_Factor_p(num_Threads),
 
-	epsilon_Ambient(num_Threads),
-	epsilon_Substrate(num_Threads),
+    epsilon_Ambient(num_Threads),
+    epsilon_Substrate(num_Threads),
 
-	weak_Factor_R(num_Threads,vector<complex<double>>(num_Boundaries)),
-	weak_Factor_T(num_Threads,vector<complex<double>>(num_Boundaries)),
+    weak_Factor_R(num_Threads,vector<complex<double>>(num_Boundaries)),
+    weak_Factor_T(num_Threads,vector<complex<double>>(num_Boundaries)),
 
-	/// roughness
+    /// roughness
 
-	PSD_1D_Func_Vec(num_Threads),
-	PSD_2D_Func_Vec(num_Threads),
+    PSD_1D_Func_Vec(num_Threads),
+    PSD_2D_Func_Vec(num_Threads),
 
-	boundary_Item_Vec(num_Boundaries),
+    boundary_Item_Vec(num_Boundaries),
+    PSD_Factor_Item	 (num_Threads),
 
-	intensity_Term_Boundary_s(num_Threads),
-	intensity_Term_Boundary_p(num_Threads),
-	field_Term_Boundary_s	 (num_Threads),
-	field_Term_Boundary_p	 (num_Threads),
-	half_Sum_Field_Term_s	 (num_Threads),
-	half_Sum_Field_Term_p	 (num_Threads),
-
-	PSD_Factor_Item		(num_Threads),
-	PSD_Factor_Boundary	(num_Threads),
-	cross_Exp_Factor_2D	(num_Threads),
-
-	spline_Vec(num_Threads),
-	acc_Vec(num_Threads),
-	GISAS_Slice(num_Threads),
-	phi_Slice(num_Threads)
+    spline_Vec(num_Threads),
+    acc_Vec(num_Threads),
+    GISAS_Slice(num_Threads),
+    phi_Slice(num_Threads)
 {
 	s_Weight = (1. + measurement.polarization) / 2.;
 	p_Weight = (1. - measurement.polarization) / 2.;
@@ -400,13 +391,13 @@ Unwrapped_Reflection::Unwrapped_Reflection(Multilayer* multilayer, Unwrapped_Str
 		if( measurement.argument_Type  == argument_Types[Wavelength_Energy] )	num_Points = measurement.lambda_Vec.size();
 	}
 	if( measurement.measurement_Type == measurement_Types[Detector_Scan] ||
-		measurement.measurement_Type == measurement_Types[GISAS_Map] )
+	    measurement.measurement_Type == measurement_Types[GISAS_Map] )
 	{
 		if(spec_Scat_mode == SPECULAR_MODE) 	num_Points = 1;
 		if(spec_Scat_mode == SCATTERED_MODE) 	num_Points = measurement.detector_Theta_Angle_Vec.size();
 	}
 	if( measurement.measurement_Type == measurement_Types[Rocking_Curve] ||
-		measurement.measurement_Type == measurement_Types[Offset_Scan] )
+	    measurement.measurement_Type == measurement_Types[Offset_Scan] )
 	{
 		if(spec_Scat_mode == SPECULAR_MODE) 	num_Points = measurement.beam_Theta_0_Angle_Vec.size();
 		if(spec_Scat_mode == SCATTERED_MODE) 	num_Points = measurement.beam_Theta_0_Angle_Vec.size();
@@ -432,7 +423,7 @@ Unwrapped_Reflection::Unwrapped_Reflection(Multilayer* multilayer, Unwrapped_Str
 
 	// reflectance
 	if(	unwrapped_Structure->calc_Functions.check_Reflectance ||
-		unwrapped_Structure->calc_Functions.check_Absorptance)
+	    unwrapped_Structure->calc_Functions.check_Absorptance)
 	{
 		calculated_Values.Phi_R_s.resize(num_Points);
 		calculated_Values.Phi_R_p.resize(num_Points);
@@ -443,7 +434,7 @@ Unwrapped_Reflection::Unwrapped_Reflection(Multilayer* multilayer, Unwrapped_Str
 	}
 	// transmittance
 	if(	unwrapped_Structure->calc_Functions.check_Transmittance ||
-		unwrapped_Structure->calc_Functions.check_Absorptance)
+	    unwrapped_Structure->calc_Functions.check_Absorptance)
 	{
 		calculated_Values.Phi_T_s.resize(num_Points);
 		calculated_Values.Phi_T_p.resize(num_Points);
@@ -514,19 +505,28 @@ Unwrapped_Reflection::Unwrapped_Reflection(Multilayer* multilayer, Unwrapped_Str
 
 	/// supplementary
 	if(	unwrapped_Structure->calc_Functions.check_Field ||
-		unwrapped_Structure->calc_Functions.check_Joule ||
-		unwrapped_Structure->calc_Functions.check_Scattering ||
-		unwrapped_Structure->calc_Functions.check_GISAS )
+	    unwrapped_Structure->calc_Functions.check_Joule ||
+	    unwrapped_Structure->calc_Functions.check_Scattering ||
+	    unwrapped_Structure->calc_Functions.check_GISAS )
 	{
 		if( spec_Scat_mode == SCATTERED_MODE )
 		{
 			/// PT
 			if(  multilayer->imperfections_Model.vertical_Correlation == zero_Correlation &&
-				!multilayer->imperfections_Model.use_Common_Roughness_Function )
+			    !multilayer->imperfections_Model.use_Common_Roughness_Function )
 			{
 				fill_Item_Id_Map();
 				fill_Boundary_Item_PSD(unwrapped_Structure->calc_Tree.begin());
 			}
+			intensity_Term_Boundary_s.resize(num_Threads);
+			intensity_Term_Boundary_p.resize(num_Threads);
+			field_Term_Boundary_s	 .resize(num_Threads);
+			field_Term_Boundary_p	 .resize(num_Threads);
+			half_Sum_Field_Term_s	 .resize(num_Threads);
+			half_Sum_Field_Term_p	 .resize(num_Threads);
+			cross_Exp_Factor_2D		 .resize(num_Threads);
+			PSD_Factor_Boundary		 .resize(num_Threads);
+
 			for(int thread_Index = 0; thread_Index<num_Threads; thread_Index++)
 			{
 				intensity_Term_Boundary_s[thread_Index].resize(num_Boundaries);
@@ -551,8 +551,8 @@ Unwrapped_Reflection::Unwrapped_Reflection(Multilayer* multilayer, Unwrapped_Str
 
 			/// DWBA SA CSA
 			if( multilayer->imperfections_Model.approximation == DWBA_approximation ||
-				multilayer->imperfections_Model.approximation == SA_approximation   ||
-				multilayer->imperfections_Model.approximation == CSA_approximation  )
+			    multilayer->imperfections_Model.approximation == SA_approximation   ||
+			    multilayer->imperfections_Model.approximation == CSA_approximation  )
 			{
 				k1_Up_Boundary.resize(num_Threads);
 				k2_Up_Boundary.resize(num_Threads);
@@ -590,6 +590,8 @@ Unwrapped_Reflection::Unwrapped_Reflection(Multilayer* multilayer, Unwrapped_Str
 					b3_Low_Boundary_s.resize(num_Threads);
 					b4_Low_Boundary_s.resize(num_Threads);
 
+					K_Factor_Boundary_s.resize(num_Threads);
+
 					for(int thread_Index=0; thread_Index<num_Threads; thread_Index++)
 					{
 						b1_Up_Boundary_s[thread_Index].resize(num_Boundaries);
@@ -601,6 +603,13 @@ Unwrapped_Reflection::Unwrapped_Reflection(Multilayer* multilayer, Unwrapped_Str
 						b2_Low_Boundary_s[thread_Index].resize(num_Boundaries);
 						b3_Low_Boundary_s[thread_Index].resize(num_Boundaries);
 						b4_Low_Boundary_s[thread_Index].resize(num_Boundaries);
+
+						K_Factor_Boundary_s[thread_Index].resize(num_Boundaries);
+
+						for(int bound=0; bound<num_Boundaries; bound++)
+						{
+							K_Factor_Boundary_s[thread_Index][bound].resize(n_Max_Series);
+						}
 					}
 				}
 
@@ -617,6 +626,8 @@ Unwrapped_Reflection::Unwrapped_Reflection(Multilayer* multilayer, Unwrapped_Str
 					b3_Low_Boundary_p.resize(num_Threads);
 					b4_Low_Boundary_p.resize(num_Threads);
 
+					K_Factor_Boundary_p.resize(num_Threads);
+
 					for(int thread_Index=0; thread_Index<num_Threads; thread_Index++)
 					{
 						b1_Up_Boundary_p[thread_Index].resize(num_Boundaries);
@@ -628,6 +639,13 @@ Unwrapped_Reflection::Unwrapped_Reflection(Multilayer* multilayer, Unwrapped_Str
 						b2_Low_Boundary_p[thread_Index].resize(num_Boundaries);
 						b3_Low_Boundary_p[thread_Index].resize(num_Boundaries);
 						b4_Low_Boundary_p[thread_Index].resize(num_Boundaries);
+
+						K_Factor_Boundary_p[thread_Index].resize(num_Boundaries);
+
+						for(int bound=0; bound<num_Boundaries; bound++)
+						{
+							K_Factor_Boundary_p[thread_Index][bound].resize(n_Max_Series);
+						}
 					}
 				}
 			}
@@ -724,7 +742,7 @@ int Unwrapped_Reflection::fill_s__Max_Depth_3(const tree<Node>::iterator& parent
 			++media_Index;
 		} else
 		if( child_Data.item_Type == item_Type_Multilayer ||
-			child_Data.item_Type == item_Type_Regular_Aperiodic	)
+		    child_Data.item_Type == item_Type_Regular_Aperiodic	)
 		{
 			int start_Period = 0;
 			if(child_Data.item_Type == item_Type_Regular_Aperiodic) // only slight difference here
@@ -764,7 +782,7 @@ int Unwrapped_Reflection::fill_s__Max_Depth_3(const tree<Node>::iterator& parent
 							++media_Index;
 						} else
 						if( grandchild_Data.item_Type == item_Type_Multilayer ||
-							grandchild_Data.item_Type == item_Type_Regular_Aperiodic )
+						    grandchild_Data.item_Type == item_Type_Regular_Aperiodic )
 						{
 							int start_Period_1 = 0;
 							if(grandchild_Data.item_Type == item_Type_Regular_Aperiodic) // only slight difference here
@@ -822,7 +840,7 @@ int Unwrapped_Reflection::fill_p__Max_Depth_3(const tree<Node>::iterator& parent
 			++media_Index;
 		} else
 		if( child_Data.item_Type == item_Type_Multilayer ||
-			child_Data.item_Type == item_Type_Regular_Aperiodic )
+		    child_Data.item_Type == item_Type_Regular_Aperiodic )
 		{
 			int start_Period = 0;
 			if(child_Data.item_Type == item_Type_Regular_Aperiodic) // only slight difference here
@@ -862,7 +880,7 @@ int Unwrapped_Reflection::fill_p__Max_Depth_3(const tree<Node>::iterator& parent
 							++media_Index;
 						} else
 						if( grandchild_Data.item_Type == item_Type_Multilayer ||
-							grandchild_Data.item_Type == item_Type_Regular_Aperiodic )
+						    grandchild_Data.item_Type == item_Type_Regular_Aperiodic )
 						{
 							int start_Period_1 = 0;
 							if(grandchild_Data.item_Type == item_Type_Regular_Aperiodic) // only slight difference here
@@ -924,7 +942,7 @@ int Unwrapped_Reflection::fill_sp_Max_Depth_3(const tree<Node>::iterator& parent
 			++media_Index;
 		} else
 		if( child_Data.item_Type == item_Type_Multilayer ||
-			child_Data.item_Type == item_Type_Regular_Aperiodic )
+		    child_Data.item_Type == item_Type_Regular_Aperiodic )
 		{
 			int start_Period = 0;
 			if(child_Data.item_Type == item_Type_Regular_Aperiodic) // only slight difference here
@@ -968,7 +986,7 @@ int Unwrapped_Reflection::fill_sp_Max_Depth_3(const tree<Node>::iterator& parent
 							++media_Index;
 						} else
 						if( grandchild_Data.item_Type == item_Type_Multilayer ||
-							grandchild_Data.item_Type == item_Type_Regular_Aperiodic )
+						    grandchild_Data.item_Type == item_Type_Regular_Aperiodic )
 						{
 							int start_Period_1 = 0;
 							if(grandchild_Data.item_Type == item_Type_Regular_Aperiodic) // only slight difference here
@@ -1035,13 +1053,13 @@ inline void Unwrapped_Reflection::fill_Item_PSD_1D(int thread_Index, double cos_
 
 		choose_PSD_1D_Function(item, thread_Index);
 		double value = PSD_1D_Func_Vec[thread_Index](item.PSD_ABC_1D_Factor,
-													 item.roughness_Model.cor_radius.value,
-													 item.roughness_Model.fractal_alpha.value,
-													 measurement.k_Value,
-													 cos_Theta,
-													 cos_Theta_0,
-													 node.spline,
-													 node.acc);
+		                                             item.roughness_Model.cor_radius.value,
+		                                             item.roughness_Model.fractal_alpha.value,
+		                                             measurement.k_Value,
+		                                             cos_Theta,
+		                                             cos_Theta_0,
+		                                             node.spline,
+		                                             node.acc);
 		PSD_Factor_Item[thread_Index][item_Index] = max(value,0.);
 	}
 }
@@ -1052,12 +1070,12 @@ inline void Unwrapped_Reflection::fill_Item_PSD_2D(int thread_Index, int point_I
 	{
 		Data& item = appropriate_Item_Vec[item_Index];
 		double value = PSD_2D_Func_Vec[thread_Index](item.PSD_ABC_2D_Factor,
-													 item.roughness_Model.cor_radius.value,
-													 item.roughness_Model.fractal_alpha.value,
-													 measurement.k_Value,
-													 measurement.detector_Theta_Cos_Vec[point_Index],
-													 measurement.beam_Theta_0_Cos_Value,
-													 measurement.detector_Phi_Cos_Vec[phi_Index]);
+		                                             item.roughness_Model.cor_radius.value,
+		                                             item.roughness_Model.fractal_alpha.value,
+		                                             measurement.k_Value,
+		                                             measurement.detector_Theta_Cos_Vec[point_Index],
+		                                             measurement.beam_Theta_0_Cos_Value,
+		                                             measurement.detector_Phi_Cos_Vec[phi_Index]);
 		PSD_Factor_Item[thread_Index][item_Index] = value;
 	}
 }
@@ -1076,7 +1094,7 @@ int Unwrapped_Reflection::fill_Boundary_Item_PSD(const tree<Node>::iterator& par
 			++boundary_Index;
 		} else
 		if( child_Data.item_Type == item_Type_Multilayer ||
-			child_Data.item_Type == item_Type_Regular_Aperiodic )
+		    child_Data.item_Type == item_Type_Regular_Aperiodic )
 		{
 			int start_Period = 0;
 			if(child_Data.item_Type == item_Type_Regular_Aperiodic) // only slight difference here
@@ -1110,7 +1128,7 @@ int Unwrapped_Reflection::fill_Boundary_Item_PSD(const tree<Node>::iterator& par
 								++boundary_Index;
 							} else
 							if( grandchild_Data.item_Type == item_Type_Multilayer ||
-								grandchild_Data.item_Type == item_Type_Regular_Aperiodic )
+							    grandchild_Data.item_Type == item_Type_Regular_Aperiodic )
 							{
 								int start_Period_1 = 0;
 								if(grandchild_Data.item_Type == item_Type_Regular_Aperiodic) // only slight difference here
@@ -1343,7 +1361,7 @@ void Unwrapped_Reflection::calc_Fresnel(int thread_Index, int point_Index, const
 				if ( abs(hi[point_Index][i] + hi[point_Index][i+1]) > DBL_MIN )
 				{
 					r_Fresnel_s[thread_Index][i] = weak_Factor_R[thread_Index][i] * (hi[point_Index][i] - hi[point_Index][i+1]) /
-																					(hi[point_Index][i] + hi[point_Index][i+1]);
+					                                                                (hi[point_Index][i] + hi[point_Index][i+1]);
 				} else
 				{
 					r_Fresnel_s[thread_Index][i] = 0;
@@ -1358,7 +1376,7 @@ void Unwrapped_Reflection::calc_Fresnel(int thread_Index, int point_Index, const
 				{
 					// reflectance
 					r_Fresnel_s[thread_Index][i] = weak_Factor_R[thread_Index][i] * (hi[point_Index][i] - hi[point_Index][i+1]) /
-																					(hi[point_Index][i] + hi[point_Index][i+1]);
+					                                                                (hi[point_Index][i] + hi[point_Index][i+1]);
 					// transmittance
 					t_Fresnel_s[thread_Index][i] = weak_Factor_T[thread_Index][i] * 2.*hi[point_Index][i] / (hi[point_Index][i] + hi[point_Index][i+1]);
 				} else
@@ -1570,10 +1588,10 @@ void Unwrapped_Reflection::calc_k_Wavenumber_DWBA_SA_CSA(int thread_Index, int p
 	for (int boundary_Index = 0; boundary_Index<num_Boundaries; boundary_Index++)
 	{
 		if( measurement.measurement_Type == measurement_Types[GISAS_Map] ||
-			measurement.measurement_Type == measurement_Types[Detector_Scan] )	{ q0_Hi  = &(calculated_Values.q0_Hi.front()); }
+		    measurement.measurement_Type == measurement_Types[Detector_Scan] )	{ q0_Hi  = &(calculated_Values.q0_Hi.front()); }
 
 		if( measurement.measurement_Type == measurement_Types[Rocking_Curve] ||
-			measurement.measurement_Type == measurement_Types[Offset_Scan] )	{ q0_Hi  = &(calculated_Values.q0_Hi[point_Index]); }
+		    measurement.measurement_Type == measurement_Types[Offset_Scan] )	{ q0_Hi  = &(calculated_Values.q0_Hi[point_Index]); }
 
 		k1_Up_Boundary [thread_Index][boundary_Index] =  (*q0_Hi)[boundary_Index  ] + calculated_Values.q_Hi[point_Index][boundary_Index  ];
 		k2_Up_Boundary [thread_Index][boundary_Index] =  (*q0_Hi)[boundary_Index  ] - calculated_Values.q_Hi[point_Index][boundary_Index  ];
@@ -1607,12 +1625,12 @@ void Unwrapped_Reflection::calc_Field_DWBA_SA_CSA(int thread_Index, int point_In
 	if(polarization == "s")
 	{
 		if( measurement.measurement_Type == measurement_Types[GISAS_Map] ||
-			measurement.measurement_Type == measurement_Types[Detector_Scan] )	{ q0_U_i = &(calculated_Values.q0_U_i_s.front());
-																				  q0_U_r = &(calculated_Values.q0_U_r_s.front());}
+		    measurement.measurement_Type == measurement_Types[Detector_Scan] )	{ q0_U_i = &(calculated_Values.q0_U_i_s.front());
+			                                                                      q0_U_r = &(calculated_Values.q0_U_r_s.front());}
 
 		if( measurement.measurement_Type == measurement_Types[Rocking_Curve] ||
-			measurement.measurement_Type == measurement_Types[Offset_Scan] )	{ q0_U_i = &(calculated_Values.q0_U_i_s[point_Index]);
-																				  q0_U_r = &(calculated_Values.q0_U_r_s[point_Index]);}
+		    measurement.measurement_Type == measurement_Types[Offset_Scan] )	{ q0_U_i = &(calculated_Values.q0_U_i_s[point_Index]);
+			                                                                      q0_U_r = &(calculated_Values.q0_U_r_s[point_Index]);}
 		q_U_i = &(calculated_Values.q_U_i_s[point_Index]);
 		q_U_r = &(calculated_Values.q_U_r_s[point_Index]);
 
@@ -1621,20 +1639,20 @@ void Unwrapped_Reflection::calc_Field_DWBA_SA_CSA(int thread_Index, int point_In
 		b3_Up_Boundary = &(b3_Up_Boundary_s[thread_Index]);
 		b4_Up_Boundary = &(b4_Up_Boundary_s[thread_Index]);
 
-		b1_Low_Boundary = &(b1_Up_Boundary_s[thread_Index]);
-		b2_Low_Boundary = &(b2_Up_Boundary_s[thread_Index]);
-		b3_Low_Boundary = &(b3_Up_Boundary_s[thread_Index]);
-		b4_Low_Boundary = &(b4_Up_Boundary_s[thread_Index]);
+		b1_Low_Boundary = &(b1_Low_Boundary_s[thread_Index]);
+		b2_Low_Boundary = &(b2_Low_Boundary_s[thread_Index]);
+		b3_Low_Boundary = &(b3_Low_Boundary_s[thread_Index]);
+		b4_Low_Boundary = &(b4_Low_Boundary_s[thread_Index]);
 	}
 	if(polarization == "p")
 	{
 		if( measurement.measurement_Type == measurement_Types[GISAS_Map] ||
-			measurement.measurement_Type == measurement_Types[Detector_Scan] )	{ q0_U_i = &(calculated_Values.q0_U_i_p.front());
-																				  q0_U_r = &(calculated_Values.q0_U_r_p.front());}
+		    measurement.measurement_Type == measurement_Types[Detector_Scan] )	{ q0_U_i = &(calculated_Values.q0_U_i_p.front());
+			                                                                      q0_U_r = &(calculated_Values.q0_U_r_p.front());}
 
 		if( measurement.measurement_Type == measurement_Types[Rocking_Curve] ||
-			measurement.measurement_Type == measurement_Types[Offset_Scan] )	{ q0_U_i = &(calculated_Values.q0_U_i_p[point_Index]);
-																				  q0_U_r = &(calculated_Values.q0_U_r_p[point_Index]);}
+		    measurement.measurement_Type == measurement_Types[Offset_Scan] )	{ q0_U_i = &(calculated_Values.q0_U_i_p[point_Index]);
+			                                                                      q0_U_r = &(calculated_Values.q0_U_r_p[point_Index]);}
 
 		q_U_i  = &(calculated_Values.q_U_i_p[point_Index]);
 		q_U_r  = &(calculated_Values.q_U_r_p[point_Index]);
@@ -1644,10 +1662,10 @@ void Unwrapped_Reflection::calc_Field_DWBA_SA_CSA(int thread_Index, int point_In
 		b3_Up_Boundary = &(b3_Up_Boundary_p[thread_Index]);
 		b4_Up_Boundary = &(b4_Up_Boundary_p[thread_Index]);
 
-		b1_Low_Boundary = &(b1_Up_Boundary_p[thread_Index]);
-		b2_Low_Boundary = &(b2_Up_Boundary_p[thread_Index]);
-		b3_Low_Boundary = &(b3_Up_Boundary_p[thread_Index]);
-		b4_Low_Boundary = &(b4_Up_Boundary_p[thread_Index]);
+		b1_Low_Boundary = &(b1_Low_Boundary_p[thread_Index]);
+		b2_Low_Boundary = &(b2_Low_Boundary_p[thread_Index]);
+		b3_Low_Boundary = &(b3_Low_Boundary_p[thread_Index]);
+		b4_Low_Boundary = &(b4_Low_Boundary_p[thread_Index]);
 	}
 
 	for (int boundary_Index = 0; boundary_Index<num_Boundaries-1; boundary_Index++)
@@ -1677,11 +1695,162 @@ void Unwrapped_Reflection::calc_Field_DWBA_SA_CSA(int thread_Index, int point_In
 	}
 }
 
+void Unwrapped_Reflection::calc_K_Factor_DWBA_SA_CSA(int thread_Index, QString polarization)
+{
+	vector<complex<double>>* b1_Up_Boundary;
+	vector<complex<double>>* b2_Up_Boundary;
+	vector<complex<double>>* b3_Up_Boundary;
+	vector<complex<double>>* b4_Up_Boundary;
+
+	vector<complex<double>>* b1_Low_Boundary;
+	vector<complex<double>>* b2_Low_Boundary;
+	vector<complex<double>>* b3_Low_Boundary;
+	vector<complex<double>>* b4_Low_Boundary;
+
+	vector<complex<double>>* b1_Boundary;
+	vector<complex<double>>* b2_Boundary;
+	vector<complex<double>>* b3_Boundary;
+	vector<complex<double>>* b4_Boundary;
+
+	vector<complex<double>>* k1_Boundary;
+	vector<complex<double>>* k2_Boundary;
+	vector<complex<double>>* k3_Boundary;
+	vector<complex<double>>* k4_Boundary;
+
+	vector<vector<complex<double>>>* K_Factor_Boundary;
+
+	if(polarization == "s")
+	{
+		b1_Up_Boundary = &(b1_Up_Boundary_s[thread_Index]);
+		b2_Up_Boundary = &(b2_Up_Boundary_s[thread_Index]);
+		b3_Up_Boundary = &(b3_Up_Boundary_s[thread_Index]);
+		b4_Up_Boundary = &(b4_Up_Boundary_s[thread_Index]);
+
+		b1_Low_Boundary = &(b1_Low_Boundary_s[thread_Index]);
+		b2_Low_Boundary = &(b2_Low_Boundary_s[thread_Index]);
+		b3_Low_Boundary = &(b3_Low_Boundary_s[thread_Index]);
+		b4_Low_Boundary = &(b4_Low_Boundary_s[thread_Index]);
+
+		K_Factor_Boundary = &(K_Factor_Boundary_s[thread_Index]);
+	}
+	if(polarization == "p")
+	{
+		b1_Up_Boundary = &(b1_Up_Boundary_p[thread_Index]);
+		b2_Up_Boundary = &(b2_Up_Boundary_p[thread_Index]);
+		b3_Up_Boundary = &(b3_Up_Boundary_p[thread_Index]);
+		b4_Up_Boundary = &(b4_Up_Boundary_p[thread_Index]);
+
+		b1_Low_Boundary = &(b1_Low_Boundary_p[thread_Index]);
+		b2_Low_Boundary = &(b2_Low_Boundary_p[thread_Index]);
+		b3_Low_Boundary = &(b3_Low_Boundary_p[thread_Index]);
+		b4_Low_Boundary = &(b4_Low_Boundary_p[thread_Index]);
+
+		K_Factor_Boundary = &(K_Factor_Boundary_p[thread_Index]);
+	}
+
+	if(multilayer->imperfections_Model.approximation == SA_approximation)
+	{
+		b1_Boundary = b1_Low_Boundary;
+		b2_Boundary = b2_Low_Boundary;
+		b3_Boundary = b3_Low_Boundary;
+		b4_Boundary = b4_Low_Boundary;
+
+		k1_Boundary = &(k1_Low_Boundary[thread_Index]);
+		k2_Boundary = &(k2_Low_Boundary[thread_Index]);
+		k3_Boundary = &(k3_Low_Boundary[thread_Index]);
+		k4_Boundary = &(k4_Low_Boundary[thread_Index]);
+	}
+	if(multilayer->imperfections_Model.approximation == CSA_approximation)
+	{
+		b1_Boundary = b1_Up_Boundary;
+		b2_Boundary = b2_Up_Boundary;
+		b3_Boundary = b3_Up_Boundary;
+		b4_Boundary = b4_Up_Boundary;
+
+		k1_Boundary = &(k1_Up_Boundary[thread_Index]);
+		k2_Boundary = &(k2_Up_Boundary[thread_Index]);
+		k3_Boundary = &(k3_Up_Boundary[thread_Index]);
+		k4_Boundary = &(k4_Up_Boundary[thread_Index]);
+	}
+
+	vector<complex<double>> D1(n_Max_Series);
+	vector<complex<double>> D2(n_Max_Series);
+	vector<complex<double>> D3(n_Max_Series);
+	vector<complex<double>> D4(n_Max_Series);
+
+	if(multilayer->imperfections_Model.approximation == SA_approximation ||
+	   multilayer->imperfections_Model.approximation == CSA_approximation)
+	{
+		for (int boundary_Index = 0; boundary_Index<num_Boundaries; boundary_Index++)
+		{
+			double sigma_j = unwrapped_Structure->sigma_Roughness_Threaded[thread_Index][boundary_Index];
+			double sigma_j2_2 = sigma_j*sigma_j/2;
+			complex<double> factor = SQRT_PI * (unwrapped_Structure->epsilon[boundary_Index+1]-unwrapped_Structure->epsilon[boundary_Index]) * sigma_j;
+
+			complex<double>& k1 = (*k1_Boundary)[boundary_Index];
+			complex<double>& k2 = (*k2_Boundary)[boundary_Index];
+			complex<double>& k3 = (*k3_Boundary)[boundary_Index];
+			complex<double>& k4 = (*k4_Boundary)[boundary_Index];
+
+			complex<double>& b1 = (*b1_Boundary)[boundary_Index];
+			complex<double>& b2 = (*b2_Boundary)[boundary_Index];
+			complex<double>& b3 = (*b3_Boundary)[boundary_Index];
+			complex<double>& b4 = (*b4_Boundary)[boundary_Index];
+
+			int n=1;
+			{
+				D1[n-1] = factor * b1 * exp(-sigma_j2_2*k1*k1);
+				D2[n-1] = factor * b2 * exp(-sigma_j2_2*k2*k2);
+				D3[n-1] = factor * b3 * exp(-sigma_j2_2*k3*k3);
+				D4[n-1] = factor * b4 * exp(-sigma_j2_2*k4*k4);
+
+				(*K_Factor_Boundary)[boundary_Index][n-1] = D1[n-1] + D2[n-1] + D3[n-1] + D4[n-1];
+			}
+			for(int n=2; n<=n_Max_Series; n++)
+			{
+				D1[n-1] = D1[n-2] * ( I*M_SQRT2*sigma_j*k1 );
+				D2[n-1] = D2[n-2] * ( I*M_SQRT2*sigma_j*k2 );
+				D3[n-1] = D3[n-2] * ( I*M_SQRT2*sigma_j*k3 );
+				D4[n-1] = D4[n-2] * ( I*M_SQRT2*sigma_j*k4 );
+
+				(*K_Factor_Boundary)[boundary_Index][n-1] = D1[n-1] + D2[n-1] + D3[n-1] + D4[n-1];
+			}
+		}
+	}
+	if(multilayer->imperfections_Model.approximation == DWBA_approximation)
+	{
+		// TODO
+	}
+}
+
+double Unwrapped_Reflection::calc_K_Factor_Term_Sum_DWBA_SA_CSA(int thread_Index, QString polarization, int n_Power)
+{
+	vector<vector<complex<double>>>* K_Factor_Boundary;
+
+	if(polarization == "s")	K_Factor_Boundary = &(K_Factor_Boundary_s[thread_Index]);
+	if(polarization == "p")	K_Factor_Boundary = &(K_Factor_Boundary_p[thread_Index]);
+
+	double incoherent_Diagonal_Sum = 0;
+	complex<double> coherent_Diagonal_Sum = 0;
+	for (int boundary_Index = 0; boundary_Index<num_Boundaries; boundary_Index++)
+	{
+		// incoherent diagonal sum
+		incoherent_Diagonal_Sum += pow(abs((*K_Factor_Boundary)[boundary_Index][n_Power-1]),2);
+
+		// coherent diagonal sum
+		coherent_Diagonal_Sum += (*K_Factor_Boundary)[boundary_Index][n_Power-1];
+	}
+
+	if(multilayer->imperfections_Model.vertical_Correlation == full_Correlation) return pow(abs(coherent_Diagonal_Sum),2);
+	if(multilayer->imperfections_Model.vertical_Correlation == zero_Correlation) return incoherent_Diagonal_Sum;
+	return -2020;
+}
+
 void Unwrapped_Reflection::calc_Sliced_Field(int thread_Index, int point_Index, const vector<complex<double>>& epsilon_Vector)
 {
 	// s-polarization
 	if( calc_Functions.check_Field ||
-		calc_Functions.check_Joule )
+	    calc_Functions.check_Joule )
 	{
 		if( (measurement.polarization + 1) > POLARIZATION_TOLERANCE)  calc_Amplitudes_Field(thread_Index, point_Index, "s");
 		if( (measurement.polarization - 1) < -POLARIZATION_TOLERANCE) calc_Amplitudes_Field(thread_Index, point_Index, "p");
@@ -1733,10 +1902,10 @@ double Unwrapped_Reflection::calc_Field_Term_Sum(QString polarization, int point
 	if(polarization == "s")
 	{
 		if( measurement.measurement_Type == measurement_Types[GISAS_Map] ||
-			measurement.measurement_Type == measurement_Types[Detector_Scan] )	{ q0_Boundary_Field = &(calculated_Values.q0_Boundary_Field_s.front()); }
+		    measurement.measurement_Type == measurement_Types[Detector_Scan] )	{ q0_Boundary_Field = &(calculated_Values.q0_Boundary_Field_s.front()); }
 
 		if( measurement.measurement_Type == measurement_Types[Rocking_Curve] ||
-			measurement.measurement_Type == measurement_Types[Offset_Scan] )	{ q0_Boundary_Field = &(calculated_Values.q0_Boundary_Field_s[point_Index]); }
+		    measurement.measurement_Type == measurement_Types[Offset_Scan] )	{ q0_Boundary_Field = &(calculated_Values.q0_Boundary_Field_s[point_Index]); }
 
 		q_Boundary_Field = &(calculated_Values.q_Boundary_Field_s[point_Index]);
 		intensity_Term_Boundary = &(intensity_Term_Boundary_s);
@@ -1746,10 +1915,10 @@ double Unwrapped_Reflection::calc_Field_Term_Sum(QString polarization, int point
 	if(polarization == "p")
 	{
 		if( measurement.measurement_Type == measurement_Types[GISAS_Map] ||
-			measurement.measurement_Type == measurement_Types[Detector_Scan] )	{ q0_Boundary_Field = &(calculated_Values.q0_Boundary_Field_p.front());	}
+		    measurement.measurement_Type == measurement_Types[Detector_Scan] )	{ q0_Boundary_Field = &(calculated_Values.q0_Boundary_Field_p.front());	}
 
 		if( measurement.measurement_Type == measurement_Types[Rocking_Curve] ||
-			measurement.measurement_Type == measurement_Types[Offset_Scan] )	{ q0_Boundary_Field = &(calculated_Values.q0_Boundary_Field_p[point_Index]); }
+		    measurement.measurement_Type == measurement_Types[Offset_Scan] )	{ q0_Boundary_Field = &(calculated_Values.q0_Boundary_Field_p[point_Index]); }
 
 		q_Boundary_Field = &(calculated_Values.q_Boundary_Field_p[point_Index]);
 		intensity_Term_Boundary = &(intensity_Term_Boundary_p);
@@ -1766,8 +1935,8 @@ double Unwrapped_Reflection::calc_Field_Term_Sum(QString polarization, int point
 	{
 		// all fields
 		(*field_Term_Boundary)[thread_Index][j] = (*q_Boundary_Field)[j] *
-												  (*q0_Boundary_Field)[j]*
-												  (unwrapped_Structure->epsilon[j+1]-unwrapped_Structure->epsilon[j]);
+		                                          (*q0_Boundary_Field)[j]*
+		                                          (unwrapped_Structure->epsilon[j+1]-unwrapped_Structure->epsilon[j]);
 
 		// diagonal intensities
 		(*intensity_Term_Boundary)[thread_Index][j] = pow(abs((*field_Term_Boundary)[thread_Index][j]),2);
@@ -1791,7 +1960,7 @@ double Unwrapped_Reflection::calc_Field_Term_Sum(QString polarization, int point
 			for (int j = i-1; j>=0; j--)
 			{
 				(*half_Sum_Field_Term)[thread_Index][i][j] = 2*real((*field_Term_Boundary)[thread_Index][i]*
-															   conj((*field_Term_Boundary)[thread_Index][j]));
+				                                               conj((*field_Term_Boundary)[thread_Index][j]));
 			}
 		}
 		if(multilayer->imperfections_Model.common_Model == ABC_model)			 return incoherent_Diagonal_Sum;
@@ -1803,7 +1972,7 @@ void Unwrapped_Reflection::calc_Environmental_Factor(int thread_Index, int point
 {
 	environment_Factor_s[thread_Index] = real( hi[point_Index].back() /hi[point_Index].front());
 	environment_Factor_p[thread_Index] = real((hi[point_Index].back() /epsilon_Substrate[thread_Index] )/
-											  (hi[point_Index].front()/epsilon_Ambient  [thread_Index]));
+	                                          (hi[point_Index].front()/epsilon_Ambient  [thread_Index]));
 
 	if(isinf(environment_Factor_s[thread_Index])) {environment_Factor_s[thread_Index] = 0;}
 	if(isinf(environment_Factor_p[thread_Index])) {environment_Factor_p[thread_Index] = 0;}
@@ -1944,7 +2113,7 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 		}
 
 		if( measurement.measurement_Type == measurement_Types[Specular_Scan] &&
-			measurement.argument_Type  == argument_Types[Wavelength_Energy] )
+		    measurement.argument_Type  == argument_Types[Wavelength_Energy] )
 		{
 			fill_Epsilon_Ambient_Substrate(thread_Index, unwrapped_Structure->epsilon_Dependent[point_Index]); // here can be passed non-discretized epsilon
 			calc_Hi(thread_Index, measurement.k_Vec[point_Index], measurement.beam_Theta_0_Cos2_Value, unwrapped_Structure->discretized_Epsilon_Dependent[point_Index]);
@@ -1952,7 +2121,7 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 			calc_Fresnel(thread_Index, point_Index, unwrapped_Structure->discretized_Epsilon_Dependent[point_Index]);
 		}
 		if( measurement.measurement_Type == measurement_Types[Specular_Scan] &&
-			measurement.argument_Type  == argument_Types[Beam_Grazing_Angle] )
+		    measurement.argument_Type  == argument_Types[Beam_Grazing_Angle] )
 		{
 			fill_Epsilon_Ambient_Substrate(thread_Index, unwrapped_Structure->epsilon); // here can be passed non-discretized epsilon
 			calc_Hi(thread_Index, measurement.k_Value, measurement.beam_Theta_0_Cos2_Vec[point_Index], unwrapped_Structure->discretized_Epsilon);
@@ -1993,9 +2162,9 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 
 	/// SCATTERING
 	if( measurement.measurement_Type == measurement_Types[Detector_Scan] ||
-		measurement.measurement_Type == measurement_Types[GISAS_Map]     ||
-		measurement.measurement_Type == measurement_Types[Rocking_Curve] ||
-		measurement.measurement_Type == measurement_Types[Offset_Scan] )
+	    measurement.measurement_Type == measurement_Types[GISAS_Map]     ||
+	    measurement.measurement_Type == measurement_Types[Rocking_Curve] ||
+	    measurement.measurement_Type == measurement_Types[Offset_Scan] )
 	{
 		if(!unwrapped_Structure->discretization_Parameters.enable_Discretization)
 		{
@@ -2008,12 +2177,12 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 			{
 				double sin_Theta_0 = max(measurement.beam_Theta_0_Sin_Value, DBL_EPSILON);
 				double cos_Theta_0 = max(measurement.beam_Theta_0_Cos_Value, DBL_EPSILON);
-				double e_Factor_PT_1D     = pow(measurement.k_Value,3)/(16*M_PI     *sin_Theta_0*sqrt(cos_Theta_0*measurement.detector_Theta_Cos_Vec[point_Index]));
-				double e_Factor_PT_2D     = pow(measurement.k_Value,4)/(16*M_PI*M_PI*sin_Theta_0);
-				double e_Factor_SA_CSA_1D = pow(measurement.k_Value,3)/(4 *M_PI     *sin_Theta_0*sqrt(cos_Theta_0*measurement.detector_Theta_Cos_Vec[point_Index]));
+				double e_Factor_PT_1D		   = pow(measurement.k_Value,3)/(16*M_PI     *sin_Theta_0*sqrt(cos_Theta_0*measurement.detector_Theta_Cos_Vec[point_Index]));
+				double e_Factor_PT_2D		   = pow(measurement.k_Value,4)/(16*M_PI*M_PI*sin_Theta_0);
+				double e_Factor_DWBA_SA_CSA_1D = pow(measurement.k_Value,3)/(2 *M_PI*M_PI*sin_Theta_0*sqrt(cos_Theta_0*measurement.detector_Theta_Cos_Vec[point_Index]));
 
 				if( measurement.measurement_Type == measurement_Types[Offset_Scan] ||
-					measurement.measurement_Type == measurement_Types[Rocking_Curve] )
+				    measurement.measurement_Type == measurement_Types[Rocking_Curve] )
 				{
 					sin_Theta_0 = max(measurement.beam_Theta_0_Sin_Vec[point_Index], DBL_EPSILON);
 					cos_Theta_0 = max(measurement.beam_Theta_0_Cos_Vec[point_Index], DBL_EPSILON);
@@ -2022,23 +2191,23 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 				if(multilayer->imperfections_Model.approximation == PT_approximation)
 				{
 					if( measurement.measurement_Type == measurement_Types[Detector_Scan] ||
-						measurement.measurement_Type == measurement_Types[Rocking_Curve] ||
-						measurement.measurement_Type == measurement_Types[Offset_Scan] )
+					    measurement.measurement_Type == measurement_Types[Rocking_Curve] ||
+					    measurement.measurement_Type == measurement_Types[Offset_Scan] )
 					{
 						if( multilayer->imperfections_Model.vertical_Correlation == full_Correlation ||
-							multilayer->imperfections_Model.vertical_Correlation == zero_Correlation )
+						    multilayer->imperfections_Model.vertical_Correlation == zero_Correlation )
 						{
 							if(multilayer->imperfections_Model.use_Common_Roughness_Function)
 							{
 								choose_PSD_1D_Function(substrate, thread_Index);
 								double PSD_Factor = PSD_1D_Func_Vec[thread_Index](substrate.PSD_ABC_1D_Factor,
-																				 substrate.roughness_Model.cor_radius.value,
-																				 substrate.roughness_Model.fractal_alpha.value,
-																				 measurement.k_Value,
-																				 measurement.detector_Theta_Cos_Vec[point_Index],
-																				 cos_Theta_0,
-																				 substrate_Node->spline,
-																				 substrate_Node->acc);
+								                                                 substrate.roughness_Model.cor_radius.value,
+								                                                 substrate.roughness_Model.fractal_alpha.value,
+								                                                 measurement.k_Value,
+								                                                 measurement.detector_Theta_Cos_Vec[point_Index],
+								                                                 cos_Theta_0,
+								                                                 substrate_Node->spline,
+								                                                 substrate_Node->acc);
 								PSD_Factor = max(PSD_Factor,0.);
 
 								// s-polarization
@@ -2159,7 +2328,7 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 						choose_PSD_2D_Function(point_Index, thread_Index);
 
 						if( multilayer->imperfections_Model.vertical_Correlation == full_Correlation ||
-							multilayer->imperfections_Model.vertical_Correlation == zero_Correlation )
+						    multilayer->imperfections_Model.vertical_Correlation == zero_Correlation )
 						{
 							if( multilayer->imperfections_Model.use_Common_Roughness_Function )
 							{
@@ -2170,15 +2339,14 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 								{
 									double field_Term_Sum_s = calc_Field_Term_Sum("s", point_Index, thread_Index);
 									for(size_t phi_Index = measurement.start_Phi_Index; phi_Index<measurement.end_Phi_Number; phi_Index++)
-//									for(int phi_Index = 0; phi_Index<phi_Points; phi_Index++)
 									{
 										PSD_2D_Factor = PSD_2D_Func_Vec[thread_Index](substrate.PSD_ABC_2D_Factor,
-																					  substrate.roughness_Model.cor_radius.value,
-																					  substrate.roughness_Model.fractal_alpha.value,
-																					  measurement.k_Value,
-																					  measurement.detector_Theta_Cos_Vec[point_Index],
-																					  measurement.beam_Theta_0_Cos_Value,
-																					  measurement.detector_Phi_Cos_Vec[phi_Index]);
+										                                              substrate.roughness_Model.cor_radius.value,
+										                                              substrate.roughness_Model.fractal_alpha.value,
+										                                              measurement.k_Value,
+										                                              measurement.detector_Theta_Cos_Vec[point_Index],
+										                                              measurement.beam_Theta_0_Cos_Value,
+										                                              measurement.detector_Phi_Cos_Vec[phi_Index]);
 
 										calculated_Values.GISAS_Instrumental[phi_Index][point_Index] = e_Factor_PT_2D * field_Term_Sum_s * PSD_2D_Factor;
 									}
@@ -2188,15 +2356,14 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 								{
 									double field_Term_Sum_p = calc_Field_Term_Sum("p", point_Index, thread_Index);
 									for(size_t phi_Index = measurement.start_Phi_Index; phi_Index<measurement.end_Phi_Number; phi_Index++)
-//									for(int phi_Index = 0; phi_Index<phi_Points; phi_Index++)
 									{
 										PSD_2D_Factor = PSD_2D_Func_Vec[thread_Index](substrate.PSD_ABC_2D_Factor,
-																					  substrate.roughness_Model.cor_radius.value,
-																					  substrate.roughness_Model.fractal_alpha.value,
-																					  measurement.k_Value,
-																					  measurement.detector_Theta_Cos_Vec[point_Index],
-																					  measurement.beam_Theta_0_Cos_Value,
-																					  measurement.detector_Phi_Cos_Vec[phi_Index]);
+										                                              substrate.roughness_Model.cor_radius.value,
+										                                              substrate.roughness_Model.fractal_alpha.value,
+										                                              measurement.k_Value,
+										                                              measurement.detector_Theta_Cos_Vec[point_Index],
+										                                              measurement.beam_Theta_0_Cos_Value,
+										                                              measurement.detector_Phi_Cos_Vec[phi_Index]);
 
 										calculated_Values.GISAS_Instrumental[phi_Index][point_Index] = e_Factor_PT_2D * field_Term_Sum_p * PSD_2D_Factor;
 									}
@@ -2206,15 +2373,14 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 									double field_Term_Sum_s = calc_Field_Term_Sum("s", point_Index, thread_Index);
 									double field_Term_Sum_p = calc_Field_Term_Sum("p", point_Index, thread_Index);
 									for(size_t phi_Index = measurement.start_Phi_Index; phi_Index<measurement.end_Phi_Number; phi_Index++)
-//									for(int phi_Index = 0; phi_Index<phi_Points; phi_Index++)
 									{
 										PSD_2D_Factor = PSD_2D_Func_Vec[thread_Index](substrate.PSD_ABC_2D_Factor,
-																					  substrate.roughness_Model.cor_radius.value,
-																					  substrate.roughness_Model.fractal_alpha.value,
-																					  measurement.k_Value,
-																					  measurement.detector_Theta_Cos_Vec[point_Index],
-																					  measurement.beam_Theta_0_Cos_Value,
-																					  measurement.detector_Phi_Cos_Vec[phi_Index]);
+										                                              substrate.roughness_Model.cor_radius.value,
+										                                              substrate.roughness_Model.fractal_alpha.value,
+										                                              measurement.k_Value,
+										                                              measurement.detector_Theta_Cos_Vec[point_Index],
+										                                              measurement.beam_Theta_0_Cos_Value,
+										                                              measurement.detector_Phi_Cos_Vec[phi_Index]);
 
 										calculated_Values.GISAS_Instrumental[phi_Index][point_Index] = (s_Weight*field_Term_Sum_s + p_Weight*field_Term_Sum_p)*e_Factor_PT_2D*PSD_2D_Factor;
 									}
@@ -2227,7 +2393,6 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 								{
 									calc_Field_Term_Sum("s", point_Index, thread_Index);
 									for(size_t phi_Index = measurement.start_Phi_Index; phi_Index<measurement.end_Phi_Number; phi_Index++)
-//									for(int phi_Index = 0; phi_Index<phi_Points; phi_Index++)
 									{
 										fill_Item_PSD_2D(thread_Index, point_Index, phi_Index);
 
@@ -2247,7 +2412,6 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 								{
 									calc_Field_Term_Sum("p", point_Index, thread_Index);
 									for(size_t phi_Index = measurement.start_Phi_Index; phi_Index<measurement.end_Phi_Number; phi_Index++)
-//									for(int phi_Index = 0; phi_Index<phi_Points; phi_Index++)
 									{
 										fill_Item_PSD_2D(thread_Index, point_Index, phi_Index);
 
@@ -2267,7 +2431,6 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 									calc_Field_Term_Sum("s", point_Index, thread_Index);
 									calc_Field_Term_Sum("p", point_Index, thread_Index);
 									for(size_t phi_Index = measurement.start_Phi_Index; phi_Index<measurement.end_Phi_Number; phi_Index++)
-//									for(int phi_Index = 0; phi_Index<phi_Points; phi_Index++)
 									{
 										fill_Item_PSD_2D(thread_Index, point_Index, phi_Index);
 
@@ -2295,7 +2458,6 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 								{
 									double incoherent_Sum_s = calc_Field_Term_Sum("s", point_Index, thread_Index);
 									for(size_t phi_Index = measurement.start_Phi_Index; phi_Index<measurement.end_Phi_Number; phi_Index++)
-//									for(int phi_Index = 0; phi_Index<phi_Points; phi_Index++)
 									{
 										Params params { this, thread_Index, measurement.detector_Theta_Cos_Vec[point_Index], measurement.beam_Theta_0_Cos_Value, incoherent_Sum_s, 0, false };
 										calculated_Values.GISAS_Instrumental[phi_Index][point_Index] = e_Factor_PT_2D * function_Scattering_ABC_2D_s(measurement.detector_Phi_Cos_Vec[phi_Index], &params);
@@ -2306,7 +2468,6 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 								{
 									double incoherent_Sum_p = calc_Field_Term_Sum("p", point_Index, thread_Index);
 									for(size_t phi_Index = measurement.start_Phi_Index; phi_Index<measurement.end_Phi_Number; phi_Index++)
-//									for(int phi_Index = 0; phi_Index<phi_Points; phi_Index++)
 									{
 										Params params { this, thread_Index, measurement.detector_Theta_Cos_Vec[point_Index], measurement.beam_Theta_0_Cos_Value, 0, incoherent_Sum_p, false };
 										calculated_Values.GISAS_Instrumental[phi_Index][point_Index] = e_Factor_PT_2D * function_Scattering_ABC_2D_p(measurement.detector_Phi_Cos_Vec[phi_Index], &params);
@@ -2317,7 +2478,6 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 									double incoherent_Sum_s = calc_Field_Term_Sum("s", point_Index, thread_Index);
 									double incoherent_Sum_p = calc_Field_Term_Sum("p", point_Index, thread_Index);
 									for(size_t phi_Index = measurement.start_Phi_Index; phi_Index<measurement.end_Phi_Number; phi_Index++)
-//									for(int phi_Index = 0; phi_Index<phi_Points; phi_Index++)
 									{
 										Params params { this, thread_Index, measurement.detector_Theta_Cos_Vec[point_Index], measurement.beam_Theta_0_Cos_Value, incoherent_Sum_s, incoherent_Sum_p, false };
 										calculated_Values.GISAS_Instrumental[phi_Index][point_Index] = e_Factor_PT_2D * function_Scattering_ABC_2D_sp(measurement.detector_Phi_Cos_Vec[phi_Index], &params);
@@ -2331,7 +2491,6 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 								{
 									calc_Field_Term_Sum("s", point_Index, thread_Index);
 									for(size_t phi_Index = measurement.start_Phi_Index; phi_Index<measurement.end_Phi_Number; phi_Index++)
-//									for(int phi_Index = 0; phi_Index<phi_Points; phi_Index++)
 									{
 										Params params { this, thread_Index, measurement.detector_Theta_Cos_Vec[point_Index], measurement.beam_Theta_0_Cos_Value, 0, 0, false };
 										calculated_Values.GISAS_Instrumental[phi_Index][point_Index] = e_Factor_PT_2D * function_Scattering_Linear_2D_s(measurement.detector_Phi_Cos_Vec[phi_Index], &params);
@@ -2342,7 +2501,6 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 								{
 									calc_Field_Term_Sum("p", point_Index, thread_Index);
 									for(size_t phi_Index = measurement.start_Phi_Index; phi_Index<measurement.end_Phi_Number; phi_Index++)
-//									for(int phi_Index = 0; phi_Index<phi_Points; phi_Index++)
 									{
 										Params params { this, thread_Index, measurement.detector_Theta_Cos_Vec[point_Index], measurement.beam_Theta_0_Cos_Value, 0, 0, false };
 										calculated_Values.GISAS_Instrumental[phi_Index][point_Index] = e_Factor_PT_2D * function_Scattering_Linear_2D_p(measurement.detector_Phi_Cos_Vec[phi_Index], &params);
@@ -2353,7 +2511,6 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 									calc_Field_Term_Sum("s", point_Index, thread_Index);
 									calc_Field_Term_Sum("p", point_Index, thread_Index);
 									for(size_t phi_Index = measurement.start_Phi_Index; phi_Index<measurement.end_Phi_Number; phi_Index++)
-//									for(int phi_Index = 0; phi_Index<phi_Points; phi_Index++)
 									{
 										Params params { this, thread_Index, measurement.detector_Theta_Cos_Vec[point_Index], measurement.beam_Theta_0_Cos_Value, 0, 0, false };
 										calculated_Values.GISAS_Instrumental[phi_Index][point_Index] = e_Factor_PT_2D * function_Scattering_Linear_2D_sp(measurement.detector_Phi_Cos_Vec[phi_Index], &params);
@@ -2365,37 +2522,54 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 				}
 
 				if( multilayer->imperfections_Model.approximation == DWBA_approximation ||
-					multilayer->imperfections_Model.approximation == SA_approximation   ||
-					multilayer->imperfections_Model.approximation == CSA_approximation  )
+				    multilayer->imperfections_Model.approximation == SA_approximation   ||
+				    multilayer->imperfections_Model.approximation == CSA_approximation  )
 				{
 					calc_k_Wavenumber_DWBA_SA_CSA(thread_Index, point_Index);
-					if( (measurement.polarization + 1) >  POLARIZATION_TOLERANCE) calc_Field_DWBA_SA_CSA(thread_Index, point_Index, "s");
-					if( (measurement.polarization - 1) < -POLARIZATION_TOLERANCE) calc_Field_DWBA_SA_CSA(thread_Index, point_Index, "p");
-
-					if( multilayer->imperfections_Model.vertical_Correlation == full_Correlation )
+					if( (measurement.polarization + 1) >  POLARIZATION_TOLERANCE)
 					{
-						if(point_Index%100==0)
-						{
-//							if(point_Index==0)
-//							qInfo() << 0 <<
-//							Global_Variables::splined_Value_1D(0,
-//															   measurement.detector_Theta_Cos_Vec[point_Index],
-//															   cos_Theta_0,
-//															   substrate_Node->spline_n_Vec[0],
-//															   substrate_Node->acc_n_Vec[0]) << endl;
-
-//							qInfo() << measurement.k_Value*abs(measurement.detector_Theta_Cos_Vec[point_Index] - cos_Theta_0) <<
-//							Global_Variables::splined_Value_1D(measurement.k_Value,
-//															   measurement.detector_Theta_Cos_Vec[point_Index],
-//															   cos_Theta_0,
-//															   substrate_Node->spline_n_Vec[0],
-//															   substrate_Node->acc_n_Vec[0])
-//									<< endl;
-						}
+						calc_Field_DWBA_SA_CSA(thread_Index, point_Index, "s");
+						calc_K_Factor_DWBA_SA_CSA(thread_Index,           "s");
 					}
-					if( multilayer->imperfections_Model.vertical_Correlation == zero_Correlation )
+					if( (measurement.polarization - 1) < -POLARIZATION_TOLERANCE)
 					{
+						calc_Field_DWBA_SA_CSA(thread_Index, point_Index, "p");
+						calc_K_Factor_DWBA_SA_CSA(thread_Index,           "p");
+					}
 
+					if( multilayer->imperfections_Model.vertical_Correlation == full_Correlation ||
+					    multilayer->imperfections_Model.vertical_Correlation == zero_Correlation )
+					{
+						if( multilayer->imperfections_Model.use_Common_Roughness_Function )
+						{
+							// s-polarization
+							if( (measurement.polarization + 1) > POLARIZATION_TOLERANCE)
+							{
+								double denominator = 2;
+								for(int n_Power=1; n_Power<=n_Max_Series; n_Power++)
+								{
+									double fourier_Factor = Global_Variables::splined_Value_1D(measurement.k_Value,
+									                                                           measurement.detector_Theta_Cos_Vec[point_Index],
+									                                                           cos_Theta_0,
+									                                                           substrate_Node->spline_n_Vec[n_Power-1],
+									                                                           substrate_Node->acc_n_Vec[n_Power-1]);
+									fourier_Factor = max(fourier_Factor,0.);
+
+									double K_Factor_Term_Sum = calc_K_Factor_Term_Sum_DWBA_SA_CSA(thread_Index, "s", n_Power);
+									calculated_Values.S_s[point_Index] += e_Factor_DWBA_SA_CSA_1D * K_Factor_Term_Sum * fourier_Factor / denominator;
+									denominator = denominator * 2*n_Power;
+								}
+							}
+							// p-polarization
+							if( (measurement.polarization - 1) < -POLARIZATION_TOLERANCE)
+							{
+
+							}
+						} else
+						/// individual PSD of items
+						{
+
+						}
 					}
 				}
 			}
@@ -2466,7 +2640,7 @@ void Unwrapped_Reflection::fill_Specular_Values(int thread_Index, int point_Inde
 {
 	// reflectance
 	if(	unwrapped_Structure->calc_Functions.check_Reflectance ||
-		unwrapped_Structure->calc_Functions.check_Absorptance )
+	    unwrapped_Structure->calc_Functions.check_Absorptance )
 	{
 		complex<double> r_s = r_Local_s[thread_Index][0];
 		complex<double> r_p = r_Local_p[thread_Index][0];
@@ -2491,7 +2665,7 @@ void Unwrapped_Reflection::fill_Specular_Values(int thread_Index, int point_Inde
 	}
 	// transmittance
 	if(	unwrapped_Structure->calc_Functions.check_Transmittance ||
-		unwrapped_Structure->calc_Functions.check_Absorptance )
+	    unwrapped_Structure->calc_Functions.check_Absorptance )
 	{
 		calc_Environmental_Factor(thread_Index, point_Index);
 
@@ -2531,7 +2705,7 @@ void Unwrapped_Reflection::fill_Specular_Values(int thread_Index, int point_Inde
 	}
 	// field intensity in-depth
 	if( unwrapped_Structure->calc_Functions.check_Field ||
-		unwrapped_Structure->calc_Functions.check_Joule )
+	    unwrapped_Structure->calc_Functions.check_Joule )
 	{
 		// calculated_Values.field_Intensity	already calculated
 		// calculated_Values.absorption_Map		already calculated
@@ -2766,28 +2940,28 @@ double Unwrapped_Reflection::find_Min_Mesh_Step(const QVector<double>& argument)
 void Unwrapped_Reflection::wrap_Condensed_Curve(const QVector<double>& sparse_Argument, const vector<double>* sparse_Input_Curve, const vector<double>& dense_Argument, const vector<double>& dense_Curve, const vector<double>& resolution, vector<double>* output_Sparse_Curve)
 {
 #define Loop_Body 		{																																				\
-							(*output_Sparse_Curve)[point_Index] = 0;																										\
-							double weight_Accumulator = DBL_MIN;																										\
-							double weight = DBL_MIN;																													\
-							double distance;																															\
-																																										\
-							int near_Central_Dense_Position = int(abs(sparse_Argument[point_Index]-sparse_Argument[0])/delta);											\
-							int range = ceil(2*resolution[point_Index]/delta);																							\
-																																										\
-							for(int i=max(0, near_Central_Dense_Position-range); i<=min(near_Central_Dense_Position+range, int(dense_Argument.size())-1); i++)			\
-							{																																			\
-								distance = abs(dense_Argument[i] - sparse_Argument[point_Index]);																		\
-								weight = exp(-pow(distance/(resolution[point_Index]/2*1.18),2));																		\
-																																										\
-								(*output_Sparse_Curve)[point_Index] += weight*dense_Curve[i];																				\
-								weight_Accumulator += weight;																											\
-							}																																			\
-							double self_weight = 0.2;																													\
-							(*output_Sparse_Curve)[point_Index] += self_weight*(*sparse_Input_Curve)[point_Index];															\
-							weight_Accumulator += self_weight;																											\
-																																										\
-							(*output_Sparse_Curve)[point_Index] /= weight_Accumulator;																						\
-						}																																				\
+	                        (*output_Sparse_Curve)[point_Index] = 0;																									\
+	                        double weight_Accumulator = DBL_MIN;																										\
+	                        double weight = DBL_MIN;																													\
+	                        double distance;																															\
+	                                                                                                                                                                    \
+	                        int near_Central_Dense_Position = int(abs(sparse_Argument[point_Index]-sparse_Argument[0])/delta);											\
+	                        int range = ceil(2*resolution[point_Index]/delta);																							\
+	                                                                                                                                                                    \
+	                        for(int i=max(0, near_Central_Dense_Position-range); i<=min(near_Central_Dense_Position+range, int(dense_Argument.size())-1); i++)			\
+	                        {																																			\
+	                            distance = abs(dense_Argument[i] - sparse_Argument[point_Index]);																		\
+	                            weight = exp(-pow(distance/(resolution[point_Index]/2*1.18),2));																		\
+	                                                                                                                                                                    \
+	                            (*output_Sparse_Curve)[point_Index] += weight*dense_Curve[i];																			\
+	                            weight_Accumulator += weight;																											\
+                            }																																			\
+	                        double self_weight = 0.2;																													\
+	                        (*output_Sparse_Curve)[point_Index] += self_weight*(*sparse_Input_Curve)[point_Index];														\
+	                        weight_Accumulator += self_weight;																											\
+	                                                                                                                                                                    \
+	                        (*output_Sparse_Curve)[point_Index] /= weight_Accumulator;																					\
+                        }																																				\
 // 0.2 is tunable
 
 	// program
@@ -2806,7 +2980,7 @@ void Unwrapped_Reflection::wrap_Condensed_Curve(const QVector<double>& sparse_Ar
 	{
 		for(int point_Index=0; point_Index<sparse_Argument.size(); ++point_Index)
 		{
-				Loop_Body
+			Loop_Body
 		}
 	}
 }
@@ -2847,7 +3021,7 @@ void Unwrapped_Reflection::condense_Curve(const QVector<double>& sparse_Argument
 //	Global_Variables::parallel_For(output_Dense_Curve.size(), reflectivity_Calc_Threads, [&](int n_Min, int n_Max)
 //	{
 //		for(int point_Index=n_Min; point_Index<n_Max; ++point_Index)
-		for(uint point_Index=0; point_Index<output_Dense_Curve.size(); ++point_Index)
+	    for(uint point_Index=0; point_Index<output_Dense_Curve.size(); ++point_Index)
 		{
 			new_Arg = sparse_Argument.first()+point_Index*abs(real_Delta);
 			if(new_Arg>maximum) new_Arg = maximum; // control over machine precision
@@ -2881,7 +3055,7 @@ void Unwrapped_Reflection::interpolate_Curve(int res_Points, const QVector<doubl
 
 //	Global_Variables::parallel_For(input_Curve.size(), reflectivity_Calc_Threads, [&](int n_Min, int n_Max)
 //	{
-		for(uint point_Index=0; point_Index<input_Curve.size(); ++point_Index)
+	    for(uint point_Index=0; point_Index<input_Curve.size(); ++point_Index)
 //		for(int point_Index=n_Min; point_Index<n_Max; ++point_Index)
 		{
 			double delta = 2*resolution[point_Index]/res_Points; // spectral resolution is not constant in absolute values

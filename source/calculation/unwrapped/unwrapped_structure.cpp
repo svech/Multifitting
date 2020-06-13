@@ -3,7 +3,7 @@
 
 Unwrapped_Structure::Unwrapped_Structure(Multilayer* multilayer, const Calc_Functions& calc_Functions, const tree<Node>& calc_Tree, const Data& measurement, int num_Media, int max_Depth, int depth_Threshold, bool depth_Grading, bool sigma_Grading, Discretization_Parameters discretization_Parameters, gsl_rng* r):
 	r(r),
-	num_Threads		(epsilon_Partial_Fill_Threads),
+	num_Threads		(epsilon_Partial_Fill_Threads), // unused???
 	num_Media		(num_Media),
 	num_Boundaries	(num_Media - 1),
 	num_Layers		(num_Media - 2),
@@ -26,7 +26,7 @@ Unwrapped_Structure::Unwrapped_Structure(Multilayer* multilayer, const Calc_Func
 	{		
 		if( measurement.argument_Type == argument_Types[Wavelength_Energy] )
 		{
-			int num_Lambda_Points = measurement.lambda_Vec.size();
+			size_t num_Lambda_Points = measurement.lambda_Vec.size();
 
 			epsilon_Dependent.resize(num_Lambda_Points, vector<complex<double>>(num_Media));
 			fill_Epsilon_Dependent(calc_Tree.begin(), num_Lambda_Points);
@@ -72,7 +72,8 @@ Unwrapped_Structure::Unwrapped_Structure(Multilayer* multilayer, const Calc_Func
 
 		// multithreading
 		boundaries_Threaded.resize(reflectivity_Calc_Threads);
-		for(int thread_Index=0; thread_Index<reflectivity_Calc_Threads; thread_Index++)	{
+		for(int thread_Index=0; thread_Index<reflectivity_Calc_Threads; thread_Index++)
+		{
 			boundaries_Threaded[thread_Index] = boundaries;
 		}
 	}
@@ -82,16 +83,18 @@ Unwrapped_Structure::Unwrapped_Structure(Multilayer* multilayer, const Calc_Func
 	{
 		thickness.resize(num_Layers);
 
-		thickness_Threaded.resize(num_Threads);
-		mu.resize(num_Threads);
-		omega.resize(num_Threads);
-		omega_pow23.resize(num_Threads);
-		alpha.resize(num_Threads);
-		PSD_mu_alpha.resize(num_Threads);
-		PSD_mu_alpha_h.resize(num_Threads);
-		for(int thread_Index = 0; thread_Index<num_Threads; thread_Index++)
+		thickness_Threaded.resize(reflectivity_Calc_Threads);
+		sigma_Roughness_Threaded.resize(reflectivity_Calc_Threads);
+		mu.resize(reflectivity_Calc_Threads);
+		omega.resize(reflectivity_Calc_Threads);
+		omega_pow23.resize(reflectivity_Calc_Threads);
+		alpha.resize(reflectivity_Calc_Threads);
+		PSD_mu_alpha.resize(reflectivity_Calc_Threads);
+		PSD_mu_alpha_h.resize(reflectivity_Calc_Threads);
+		for(int thread_Index = 0; thread_Index<reflectivity_Calc_Threads; thread_Index++)
 		{
 			thickness_Threaded[thread_Index].resize(num_Layers);
+			sigma_Roughness_Threaded[thread_Index].resize(num_Boundaries);
 			mu[thread_Index].resize(num_Layers);
 			omega[thread_Index].resize(num_Layers);
 			omega_pow23[thread_Index].resize(num_Layers);
@@ -100,16 +103,29 @@ Unwrapped_Structure::Unwrapped_Structure(Multilayer* multilayer, const Calc_Func
 			PSD_mu_alpha_h[thread_Index].resize(num_Layers);
 		}
 
-		fill_Thickness_Mu_And_Alpha(calc_Tree.begin());
+		fill_Thickness_Sigma_Mu_And_Alpha(calc_Tree.begin());
 		//	fill_Thickness_Mu_And_Alpha_Depth_2(calc_Tree->begin());
-		if(multilayer->imperfections_Model.common_Model == ABC_model)
+		// common alpha for partial correlation
+		if(multilayer->imperfections_Model.common_Model == ABC_model || multilayer->imperfections_Model.common_Model == fractal_Gauss_Model)
 		{
 			const Data& substrate = calc_Tree.child(calc_Tree.begin(), calc_Tree.begin().number_of_children()-1).node->data.struct_Data;
-			for(int thread_Index = 0; thread_Index<num_Threads; thread_Index++)
+			for(int thread_Index = 0; thread_Index<reflectivity_Calc_Threads; thread_Index++)
 			{
 				for(int i = 0; i<num_Layers; i++)
 				{
 					alpha[thread_Index][i] = substrate.roughness_Model.fractal_alpha.value;
+				}
+			}
+		}
+		if(multilayer->imperfections_Model.use_Common_Roughness_Function)
+		if(multilayer->imperfections_Model.common_Model == ABC_model || multilayer->imperfections_Model.common_Model == fractal_Gauss_Model)
+		{
+			const Data& substrate = calc_Tree.child(calc_Tree.begin(), calc_Tree.begin().number_of_children()-1).node->data.struct_Data;
+			for(int thread_Index = 0; thread_Index<reflectivity_Calc_Threads; thread_Index++)
+			{
+				for(int i = 0; i<num_Boundaries; i++)
+				{
+					sigma_Roughness_Threaded[thread_Index][i] = substrate.roughness_Model.sigma.value;
 				}
 			}
 		}
@@ -555,7 +571,7 @@ int Unwrapped_Structure::fill_Epsilon(const tree<Node>::iterator& parent, int me
 	return media_Index;
 }
 
-int Unwrapped_Structure::fill_Epsilon_Dependent(const tree<Node>::iterator& parent, int num_Lambda_Points, int media_Index)
+int Unwrapped_Structure::fill_Epsilon_Dependent(const tree<Node>::iterator& parent, int num_Lambda_Points, size_t media_Index)
 {
 	// epsilon depends on variable
 	for(unsigned child_Index=0; child_Index<parent.number_of_children(); ++child_Index)
@@ -747,7 +763,7 @@ int Unwrapped_Structure::fill_Thickness_And_Boundaries(const tree<Node>::iterato
 	return layer_Index;
 }
 
-int Unwrapped_Structure::fill_Thickness_Mu_And_Alpha(const tree<Node>::iterator &parent, int layer_Index, int per_Index)
+int Unwrapped_Structure::fill_Thickness_Sigma_Mu_And_Alpha(const tree<Node>::iterator& parent, int layer_Index, int per_Index)
 {
 	for(unsigned child_Index=0; child_Index<parent.number_of_children(); ++child_Index)
 	{
@@ -758,23 +774,21 @@ int Unwrapped_Structure::fill_Thickness_Mu_And_Alpha(const tree<Node>::iterator 
 		if( struct_Data.item_Type == item_Type_Layer &&
 			struct_Data.parent_Item_Type != item_Type_Regular_Aperiodic )
 		{
-			// TODO extreme layers
 			thickness[layer_Index] = struct_Data.thickness.value;
-			for(int thread_Index = 0; thread_Index<num_Threads; thread_Index++)
+			for(int thread_Index = 0; thread_Index<reflectivity_Calc_Threads; thread_Index++)
 			{
-				thickness_Threaded[thread_Index][layer_Index] = struct_Data.thickness.value;
-				mu				  [thread_Index][layer_Index] = struct_Data.roughness_Model.mu.value;
-				omega			  [thread_Index][layer_Index] = struct_Data.roughness_Model.omega.value;
-				alpha			  [thread_Index][layer_Index] = struct_Data.roughness_Model.fractal_alpha.value;
-				omega_pow23		  [thread_Index][layer_Index] = pow(struct_Data.roughness_Model.omega.value, (2*alpha[thread_Index][layer_Index]+2)/3);
+				thickness_Threaded		[thread_Index][layer_Index] = struct_Data.thickness.value;
+				sigma_Roughness_Threaded[thread_Index][layer_Index] = struct_Data.roughness_Model.sigma.value;
+				mu						[thread_Index][layer_Index] = struct_Data.roughness_Model.mu.value;
+				omega					[thread_Index][layer_Index] = struct_Data.roughness_Model.omega.value;
+				alpha					[thread_Index][layer_Index] = struct_Data.roughness_Model.fractal_alpha.value;
+				omega_pow23				[thread_Index][layer_Index] = pow(struct_Data.roughness_Model.omega.value, (2*alpha[thread_Index][layer_Index]+2)/3);
 			}
 
 			// can drift
 			Global_Variables::variable_Drift(thickness[layer_Index], struct_Data.thickness_Drift, per_Index, struct_Data.num_Repetition.value(), r);
-
 			++layer_Index;
 		}
-
 		if( child.node->data.struct_Data.item_Type == item_Type_Multilayer )
 		{
 			int per_Index_Amendment = 0;
@@ -782,7 +796,7 @@ int Unwrapped_Structure::fill_Thickness_Mu_And_Alpha(const tree<Node>::iterator 
 			for(int period_Index=0; period_Index<struct_Data.num_Repetition.value(); ++period_Index)
 			{
 				// TODO optimize for depth 2
-				layer_Index = fill_Thickness_Mu_And_Alpha(child, layer_Index, period_Index+per_Index_Amendment);
+				layer_Index = fill_Thickness_Sigma_Mu_And_Alpha(child, layer_Index, period_Index+per_Index_Amendment);
 			}
 		}
 
@@ -794,18 +808,27 @@ int Unwrapped_Structure::fill_Thickness_Mu_And_Alpha(const tree<Node>::iterator 
 				for(int cell_Index=0; cell_Index<regular_Aperiodic.regular_Components.size(); ++cell_Index)
 				{
 					thickness[layer_Index] = regular_Aperiodic.regular_Components[cell_Index].components[period_Index].thickness.value;
-					for(int thread_Index = 0; thread_Index<num_Threads; thread_Index++)
+					for(int thread_Index = 0; thread_Index<reflectivity_Calc_Threads; thread_Index++)
 					{
-						thickness_Threaded[thread_Index][layer_Index] = regular_Aperiodic.regular_Components[cell_Index].components[period_Index].thickness.value;
-						mu				  [thread_Index][layer_Index] = regular_Aperiodic.regular_Components[cell_Index].components[period_Index].roughness_Model.mu.value;
-						omega			  [thread_Index][layer_Index] = regular_Aperiodic.regular_Components[cell_Index].components[period_Index].roughness_Model.omega.value;
-						alpha			  [thread_Index][layer_Index] = regular_Aperiodic.regular_Components[cell_Index].components[period_Index].roughness_Model.fractal_alpha.value;
-						omega_pow23		  [thread_Index][layer_Index] = pow(struct_Data.roughness_Model.omega.value, (2*alpha[thread_Index][layer_Index]+2)/3);
+						thickness_Threaded		[thread_Index][layer_Index] = regular_Aperiodic.regular_Components[cell_Index].components[period_Index].thickness.value;
+						sigma_Roughness_Threaded[thread_Index][layer_Index] = regular_Aperiodic.regular_Components[cell_Index].components[period_Index].roughness_Model.sigma.value;
+						mu						[thread_Index][layer_Index] = regular_Aperiodic.regular_Components[cell_Index].components[period_Index].roughness_Model.mu.value;
+						omega					[thread_Index][layer_Index] = regular_Aperiodic.regular_Components[cell_Index].components[period_Index].roughness_Model.omega.value;
+						alpha					[thread_Index][layer_Index] = regular_Aperiodic.regular_Components[cell_Index].components[period_Index].roughness_Model.fractal_alpha.value;
+						omega_pow23				[thread_Index][layer_Index] = pow(struct_Data.roughness_Model.omega.value, (2*alpha[thread_Index][layer_Index]+2)/3);
 					}
 
 					++layer_Index;
 				}
 			}
+		}
+		if( struct_Data.item_Type == item_Type_Substrate )
+		{
+			for(int thread_Index = 0; thread_Index<reflectivity_Calc_Threads; thread_Index++)
+			{
+				sigma_Roughness_Threaded[thread_Index][layer_Index] = struct_Data.roughness_Model.sigma.value;
+			}
+			++layer_Index;
 		}
 	}
 	return layer_Index;
@@ -813,7 +836,7 @@ int Unwrapped_Structure::fill_Thickness_Mu_And_Alpha(const tree<Node>::iterator 
 
 void Unwrapped_Structure::fill_PSD_Inheritance_Powers()
 {
-	for(int thread_Index = 0; thread_Index<num_Threads; thread_Index++)
+	for(int thread_Index = 0; thread_Index<reflectivity_Calc_Threads; thread_Index++)
 	{
 		for(int layer_Index = num_Layers-1; layer_Index>=0; layer_Index--)
 		{
