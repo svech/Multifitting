@@ -64,7 +64,7 @@ win32 {
 }
 
 unix {
-    LIBS += -lgsl -lgslcblas -lSwarmRandOps -lqcustomplot
+	LIBS += -lgsl -lgslcblas -lSwarmRandOps -lqcustomplot -lFaddeeva
     QMAKE_CXXFLAGS += -Wno-reorder
 }
 

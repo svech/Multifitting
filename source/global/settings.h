@@ -278,9 +278,11 @@ extern QString opt_const_units;
 // -----------------------------------------------------------------------------------------
 
 // general settings
+extern int general_Settings_Tab_Index;
 extern int optical_Constants_Read_Threads;
 extern int reflectivity_Calc_Threads;
 extern int epsilon_Partial_Fill_Threads;
+extern int n_Max_Series;
 
 extern bool recalculate_Spinbox_Global;
 extern bool recalculate_Spinbox_Table;

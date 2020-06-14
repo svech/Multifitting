@@ -1130,6 +1130,17 @@ double Global_Variables::PSD_Fractal_Gauss_1D(double sigma, double xi, double al
 	return gsl_spline_eval(spline, p, acc);
 }
 
+double Global_Variables::Cor_Fractal_Gauss_Pow_n(double xi, double alpha, double r, int n)
+{
+	if(xi > 0)	return exp(-n*pow(r/xi,2*alpha));
+	else		return 0;
+}
+double Global_Variables::Cor_ABC_Pow_n(double xi, double alpha, double r, double factor, int n)
+{
+	if(xi > 0)	return factor * pow(r/xi, n*alpha) * pow(cyl_bessel_k(alpha, r/xi),n);
+	else		return 0;
+}
+
 double Global_Variables::splined_Value_1D(double k, double cos_Theta, double cos_Theta_0, gsl_spline* spline, gsl_interp_accel* acc)
 {
 	double p = k*abs(cos_Theta - cos_Theta_0);

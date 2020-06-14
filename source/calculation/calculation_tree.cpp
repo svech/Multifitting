@@ -433,13 +433,13 @@ void Calculation_Tree::calculate_Intermediate_Values_1_Tree(tree<Node>& calc_Tre
 				{
 					if( child.node->data.struct_Data.item_Type == item_Type_Substrate )
 					{
-						child.node->data.create_Spline_DWBA_SA_CSA_1D(measurement, multilayer->imperfections_Model.common_Model, n_Max_Series);
+//						child.node->data.create_Spline_DWBA_SA_CSA_1D(measurement, multilayer->imperfections_Model.common_Model);
 					}
 					if(multilayer->imperfections_Model.use_Common_Roughness_Function == false)
 					{
 						if( child.node->data.struct_Data.item_Type == item_Type_Layer )
 						{
-							child.node->data.create_Spline_DWBA_SA_CSA_1D(measurement, multilayer->imperfections_Model.common_Model, n_Max_Series);
+//							child.node->data.create_Spline_DWBA_SA_CSA_1D(measurement, multilayer->imperfections_Model.common_Model);
 						}
 					}
 				}
@@ -493,13 +493,13 @@ void Calculation_Tree::clear_Spline_1_Tree(tree<Node>& calc_Tree, const tree<Nod
 				{
 					if( child.node->data.struct_Data.item_Type == item_Type_Substrate )
 					{
-						child.node->data.clear_Spline_DWBA_SA_CSA_1D();
+//						child.node->data.clear_Spline_DWBA_SA_CSA_1D();
 					}
 					if(multilayer->imperfections_Model.use_Common_Roughness_Function == false)
 					{
 						if( child.node->data.struct_Data.item_Type == item_Type_Layer )
 						{
-							child.node->data.clear_Spline_DWBA_SA_CSA_1D();
+//							child.node->data.clear_Spline_DWBA_SA_CSA_1D();
 						}
 					}
 				}
@@ -532,7 +532,7 @@ void Calculation_Tree::calculate_Unwrapped_Structure(const Calc_Functions& calc_
 void Calculation_Tree::calculate_Unwrapped_Reflectivity(const Calc_Functions& calc_Functions, Calculated_Values& calculated_Values, const Data& measurement, Unwrapped_Structure* unwrapped_Structure_Vec_Element, Unwrapped_Reflection*& unwrapped_Reflection_Vec_Element, QString mode)
 {
 	delete unwrapped_Reflection_Vec_Element;	
-	Unwrapped_Reflection* new_Unwrapped_Reflection = new Unwrapped_Reflection(multilayer, unwrapped_Structure_Vec_Element, num_Media, measurement, depth_Grading, sigma_Grading, calc_Functions, calculated_Values, calc_Mode, mode, n_Max_Series);
+	Unwrapped_Reflection* new_Unwrapped_Reflection = new Unwrapped_Reflection(multilayer, unwrapped_Structure_Vec_Element, num_Media, measurement, depth_Grading, sigma_Grading, calc_Functions, calculated_Values, calc_Mode, mode);
 	unwrapped_Reflection_Vec_Element = new_Unwrapped_Reflection;
 
 //	auto start = std::chrono::system_clock::now();

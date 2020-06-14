@@ -324,15 +324,17 @@ public:
 
 	// roughness
 	static void enable_Disable_Roughness_Model(Data& struct_Data, const Imperfections_Model& imperfections_Model);
-	static double PSD_ABC_1D		   (double factor, double xi, double alpha, double k, double cos_Theta, double cos_Theta_0, gsl_spline* spline = nullptr, gsl_interp_accel* acc = nullptr);
-	static double PSD_ABC_2D		   (double factor, double xi, double alpha, double k, double cos_Theta, double cos_Theta_0, double cos_Phi);
-	static double PSD_Real_Gauss_1D    (double factor, double xi, double alpha, double k, double cos_Theta, double cos_Theta_0, gsl_spline* spline = nullptr, gsl_interp_accel* acc = nullptr);
-	static double PSD_Real_Gauss_2D    (double factor, double xi, double alpha, double k, double cos_Theta, double cos_Theta_0, double cos_Phi);
-	static double PSD_Fractal_Gauss_1D (double sigma,  double xi, double alpha, double k, double cos_Theta, double cos_Theta_0, gsl_spline* spline, gsl_interp_accel* acc);
-	static double splined_Value_1D     (                                        double k, double cos_Theta, double cos_Theta_0, gsl_spline* spline, gsl_interp_accel* acc);
+	static double PSD_ABC_1D			 (double factor, double xi, double alpha, double k, double cos_Theta, double cos_Theta_0, gsl_spline* spline = nullptr, gsl_interp_accel* acc = nullptr);
+	static double PSD_ABC_2D			 (double factor, double xi, double alpha, double k, double cos_Theta, double cos_Theta_0, double cos_Phi);
+	static double PSD_Real_Gauss_1D		 (double factor, double xi, double alpha, double k, double cos_Theta, double cos_Theta_0, gsl_spline* spline = nullptr, gsl_interp_accel* acc = nullptr);
+	static double PSD_Real_Gauss_2D		 (double factor, double xi, double alpha, double k, double cos_Theta, double cos_Theta_0, double cos_Phi);
+	static double PSD_Fractal_Gauss_1D	 (double sigma,  double xi, double alpha, double k, double cos_Theta, double cos_Theta_0, gsl_spline* spline, gsl_interp_accel* acc);
+	static double Cor_Fractal_Gauss_Pow_n(				 double xi, double alpha, double r,                int n);
+	static double Cor_ABC_Pow_n		     (				 double xi, double alpha, double r, double factor, int n);
+	static double splined_Value_1D		 (                                        double k, double cos_Theta, double cos_Theta_0, gsl_spline* spline, gsl_interp_accel* acc);
 
-	static double nu_Alpha_2D		   (                          double alpha, double k, double cos_Theta, double cos_Theta_0, double cos_Phi);
-	static double PSD_Linear_Growth_2D (double exponent, double nu2_mu_Alpha_2, double omega, double nu2_omega_23, double thickness);
+	static double nu_Alpha_2D			 (                          double alpha, double k, double cos_Theta, double cos_Theta_0, double cos_Phi);
+	static double PSD_Linear_Growth_2D	 (double exponent, double nu2_mu_Alpha_2, double omega, double nu2_omega_23, double thickness);
 };
 
 #endif // GLOBAL_VARIABLES_H

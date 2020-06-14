@@ -11,6 +11,13 @@ struct Params
 	double incoherent_Sum_p;
 	bool phi_As_Angle;
 };
+struct Params_DWBA_SA_CSA
+{
+	Unwrapped_Reflection* unwrapped_Reflection;
+	int thread_Index;
+	Data* struct_Data;
+	double p;
+};
 
 double function_Scattering_ABC_2D_s (double phi, void* p)
 {
@@ -313,9 +320,38 @@ double function_Scattering_Linear_2D_sp(double phi, void* p)
 	        u->p_Weight*(partially_Coherent_Sum_p + incoherent_Sum_p);
 }
 
+double function_DWBA_SA_CSA_Batch_Integrand(double r, void* par)
+{
+	Params_DWBA_SA_CSA* params = reinterpret_cast<Params_DWBA_SA_CSA*>(par);
+	int thread_Index = params->thread_Index;
+	Unwrapped_Reflection* u = params->unwrapped_Reflection;
+	Data& struct_Data = *(params->struct_Data);
+//	double p = params->p;
+
+	double alpha = struct_Data.roughness_Model.fractal_alpha.value;
+	double sigma = struct_Data.roughness_Model.sigma.value;
+	double xi = struct_Data.roughness_Model.cor_radius.value;
+
+	double integrand = 0;
+	double cor = -2020;
+	if(u->multilayer->imperfections_Model.common_Model == ABC_model)
+		cor = Global_Variables::Cor_ABC_Pow_n		   (xi, alpha, r, pow(pow(2,1-alpha)/tgamma(alpha),1), 1);
+	if(u->multilayer->imperfections_Model.common_Model == fractal_Gauss_Model)
+		cor = Global_Variables::Cor_Fractal_Gauss_Pow_n(xi, alpha, r, 1);
+
+	double cor_n_Power = 1;
+	for(int n_Power=1; n_Power<=n_Max_Series; n_Power++)
+	{
+		cor_n_Power *= cor;
+		integrand += u->pre_Fourier_Factor[thread_Index][n_Power-1]*cor_n_Power;
+	}
+
+	return sigma*sigma*integrand;
+}
+
 Unwrapped_Reflection::Unwrapped_Reflection(Multilayer* multilayer, Unwrapped_Structure* unwrapped_Structure, int num_Media,
                                            const Data& measurement, bool depth_Grading, bool sigma_Grading,
-                                           const Calc_Functions& calc_Functions, Calculated_Values& calculated_Values, QString calc_Mode, QString spec_Scat_mode, int n_Max_Series):
+										   const Calc_Functions& calc_Functions, Calculated_Values& calculated_Values, QString calc_Mode, QString spec_Scat_mode):
     num_Threads		(reflectivity_Calc_Threads),
     num_Layers		(num_Media-2),
     num_Boundaries	(num_Media-1),
@@ -333,7 +369,6 @@ Unwrapped_Reflection::Unwrapped_Reflection(Multilayer* multilayer, Unwrapped_Str
     measurement(measurement),
     phi_Points (measurement.detector_Phi_Angle_Vec.size()),
     short_Phi_Points(measurement.end_Phi_Number - measurement.start_Phi_Index),
-    n_Max_Series(n_Max_Series),
 
     r_Fresnel_s(num_Threads,vector<complex<double>>(num_Boundaries)),
     r_Fresnel_p(num_Threads,vector<complex<double>>(num_Boundaries)),
@@ -554,6 +589,16 @@ Unwrapped_Reflection::Unwrapped_Reflection(Multilayer* multilayer, Unwrapped_Str
 			    multilayer->imperfections_Model.approximation == SA_approximation   ||
 			    multilayer->imperfections_Model.approximation == CSA_approximation  )
 			{
+				// Hermite polinomials tabulation
+				if(multilayer->imperfections_Model.approximation == DWBA_approximation)
+				{
+					hermites.resize(n_Max_Series-1);
+					for(int n=0; n<n_Max_Series-1; n++)
+					{
+						hermites[n] = hermite(n, 0);
+					}
+				}
+
 				k1_Up_Boundary.resize(num_Threads);
 				k2_Up_Boundary.resize(num_Threads);
 				k3_Up_Boundary.resize(num_Threads);
@@ -563,6 +608,18 @@ Unwrapped_Reflection::Unwrapped_Reflection(Multilayer* multilayer, Unwrapped_Str
 				k2_Low_Boundary.resize(num_Threads);
 				k3_Low_Boundary.resize(num_Threads);
 				k4_Low_Boundary.resize(num_Threads);
+
+				D1_Up.resize(num_Threads);
+				D2_Up.resize(num_Threads);
+				D3_Up.resize(num_Threads);
+				D4_Up.resize(num_Threads);
+
+				D1_Low.resize(num_Threads);
+				D2_Low.resize(num_Threads);
+				D3_Low.resize(num_Threads);
+				D4_Low.resize(num_Threads);
+
+				pre_Fourier_Factor.resize(num_Threads);
 
 				for(int thread_Index=0; thread_Index<num_Threads; thread_Index++)
 				{
@@ -575,6 +632,18 @@ Unwrapped_Reflection::Unwrapped_Reflection(Multilayer* multilayer, Unwrapped_Str
 					k2_Low_Boundary[thread_Index].resize(num_Boundaries);
 					k3_Low_Boundary[thread_Index].resize(num_Boundaries);
 					k4_Low_Boundary[thread_Index].resize(num_Boundaries);
+
+					D1_Up[thread_Index].resize(n_Max_Series);
+					D2_Up[thread_Index].resize(n_Max_Series);
+					D3_Up[thread_Index].resize(n_Max_Series);
+					D4_Up[thread_Index].resize(n_Max_Series);
+
+					D1_Low[thread_Index].resize(n_Max_Series);
+					D2_Low[thread_Index].resize(n_Max_Series);
+					D3_Low[thread_Index].resize(n_Max_Series);
+					D4_Low[thread_Index].resize(n_Max_Series);
+
+					pre_Fourier_Factor[thread_Index].resize(n_Max_Series);
 				}
 
 				// s-polarization
@@ -1717,6 +1786,11 @@ void Unwrapped_Reflection::calc_K_Factor_DWBA_SA_CSA(int thread_Index, QString p
 	vector<complex<double>>* k3_Boundary;
 	vector<complex<double>>* k4_Boundary;
 
+	vector<complex<double>>* D1;
+	vector<complex<double>>* D2;
+	vector<complex<double>>* D3;
+	vector<complex<double>>* D4;
+
 	vector<vector<complex<double>>>* K_Factor_Boundary;
 
 	if(polarization == "s")
@@ -1759,6 +1833,11 @@ void Unwrapped_Reflection::calc_K_Factor_DWBA_SA_CSA(int thread_Index, QString p
 		k2_Boundary = &(k2_Low_Boundary[thread_Index]);
 		k3_Boundary = &(k3_Low_Boundary[thread_Index]);
 		k4_Boundary = &(k4_Low_Boundary[thread_Index]);
+
+		D1 = &(D1_Low[thread_Index]);
+		D2 = &(D2_Low[thread_Index]);
+		D3 = &(D3_Low[thread_Index]);
+		D4 = &(D4_Low[thread_Index]);
 	}
 	if(multilayer->imperfections_Model.approximation == CSA_approximation)
 	{
@@ -1771,12 +1850,12 @@ void Unwrapped_Reflection::calc_K_Factor_DWBA_SA_CSA(int thread_Index, QString p
 		k2_Boundary = &(k2_Up_Boundary[thread_Index]);
 		k3_Boundary = &(k3_Up_Boundary[thread_Index]);
 		k4_Boundary = &(k4_Up_Boundary[thread_Index]);
-	}
 
-	vector<complex<double>> D1(n_Max_Series);
-	vector<complex<double>> D2(n_Max_Series);
-	vector<complex<double>> D3(n_Max_Series);
-	vector<complex<double>> D4(n_Max_Series);
+		D1 = &(D1_Up[thread_Index]);
+		D2 = &(D2_Up[thread_Index]);
+		D3 = &(D3_Up[thread_Index]);
+		D4 = &(D4_Up[thread_Index]);
+	}
 
 	if(multilayer->imperfections_Model.approximation == SA_approximation ||
 	   multilayer->imperfections_Model.approximation == CSA_approximation)
@@ -1785,7 +1864,7 @@ void Unwrapped_Reflection::calc_K_Factor_DWBA_SA_CSA(int thread_Index, QString p
 		{
 			double sigma_j = unwrapped_Structure->sigma_Roughness_Threaded[thread_Index][boundary_Index];
 			double sigma_j2_2 = sigma_j*sigma_j/2;
-			complex<double> factor = SQRT_PI * (unwrapped_Structure->epsilon[boundary_Index+1]-unwrapped_Structure->epsilon[boundary_Index]) * sigma_j;
+			complex<double> factor = SQRT_PI * (unwrapped_Structure->epsilon[boundary_Index+1]-unwrapped_Structure->epsilon[boundary_Index]);
 
 			complex<double>& k1 = (*k1_Boundary)[boundary_Index];
 			complex<double>& k2 = (*k2_Boundary)[boundary_Index];
@@ -1799,27 +1878,83 @@ void Unwrapped_Reflection::calc_K_Factor_DWBA_SA_CSA(int thread_Index, QString p
 
 			int n=1;
 			{
-				D1[n-1] = factor * b1 * exp(-sigma_j2_2*k1*k1);
-				D2[n-1] = factor * b2 * exp(-sigma_j2_2*k2*k2);
-				D3[n-1] = factor * b3 * exp(-sigma_j2_2*k3*k3);
-				D4[n-1] = factor * b4 * exp(-sigma_j2_2*k4*k4);
+				(*D1)[n-1] = factor * b1 * exp(-sigma_j2_2*k1*k1);
+				(*D2)[n-1] = factor * b2 * exp(-sigma_j2_2*k2*k2);
+				(*D3)[n-1] = factor * b3 * exp(-sigma_j2_2*k3*k3);
+				(*D4)[n-1] = factor * b4 * exp(-sigma_j2_2*k4*k4);
 
-				(*K_Factor_Boundary)[boundary_Index][n-1] = D1[n-1] + D2[n-1] + D3[n-1] + D4[n-1];
+				(*K_Factor_Boundary)[boundary_Index][n-1] = (*D1)[n-1] + (*D2)[n-1] + (*D3)[n-1] + (*D4)[n-1];
 			}
 			for(int n=2; n<=n_Max_Series; n++)
 			{
-				D1[n-1] = D1[n-2] * ( I*M_SQRT2*sigma_j*k1 );
-				D2[n-1] = D2[n-2] * ( I*M_SQRT2*sigma_j*k2 );
-				D3[n-1] = D3[n-2] * ( I*M_SQRT2*sigma_j*k3 );
-				D4[n-1] = D4[n-2] * ( I*M_SQRT2*sigma_j*k4 );
+				(*D1)[n-1] = (*D1)[n-2] * ( I*M_SQRT2*sigma_j*k1 );
+				(*D2)[n-1] = (*D2)[n-2] * ( I*M_SQRT2*sigma_j*k2 );
+				(*D3)[n-1] = (*D3)[n-2] * ( I*M_SQRT2*sigma_j*k3 );
+				(*D4)[n-1] = (*D4)[n-2] * ( I*M_SQRT2*sigma_j*k4 );
 
-				(*K_Factor_Boundary)[boundary_Index][n-1] = D1[n-1] + D2[n-1] + D3[n-1] + D4[n-1];
+				(*K_Factor_Boundary)[boundary_Index][n-1] = (*D1)[n-1] + (*D2)[n-1] + (*D3)[n-1] + (*D4)[n-1];
 			}
 		}
 	}
 	if(multilayer->imperfections_Model.approximation == DWBA_approximation)
 	{
-		// TODO
+		for (int boundary_Index = 0; boundary_Index<num_Boundaries; boundary_Index++)
+		{
+			double sigma_j = unwrapped_Structure->sigma_Roughness_Threaded[thread_Index][boundary_Index];
+
+			complex<double>& k1_Up = k1_Up_Boundary[thread_Index][boundary_Index];
+			complex<double>& k2_Up = k2_Up_Boundary[thread_Index][boundary_Index];
+			complex<double>& k3_Up = k3_Up_Boundary[thread_Index][boundary_Index];
+			complex<double>& k4_Up = k4_Up_Boundary[thread_Index][boundary_Index];
+
+			complex<double>& k1_Low = k1_Low_Boundary[thread_Index][boundary_Index];
+			complex<double>& k2_Low = k2_Low_Boundary[thread_Index][boundary_Index];
+			complex<double>& k3_Low = k3_Low_Boundary[thread_Index][boundary_Index];
+			complex<double>& k4_Low = k4_Low_Boundary[thread_Index][boundary_Index];
+
+			complex<double>& b1_Up = (*b1_Up_Boundary)[boundary_Index];
+			complex<double>& b2_Up = (*b2_Up_Boundary)[boundary_Index];
+			complex<double>& b3_Up = (*b3_Up_Boundary)[boundary_Index];
+			complex<double>& b4_Up = (*b4_Up_Boundary)[boundary_Index];
+
+			complex<double>& b1_Low = (*b1_Low_Boundary)[boundary_Index];
+			complex<double>& b2_Low = (*b2_Low_Boundary)[boundary_Index];
+			complex<double>& b3_Low = (*b3_Low_Boundary)[boundary_Index];
+			complex<double>& b4_Low = (*b4_Low_Boundary)[boundary_Index];
+
+			int n=1;
+			{
+				D1_Up [thread_Index][n-1] = SQRT_PI/2 * Faddeeva::erfcx( I*sigma_j*k1_Up/M_SQRT2 );
+				D2_Up [thread_Index][n-1] = SQRT_PI/2 * Faddeeva::erfcx( I*sigma_j*k2_Up/M_SQRT2 );
+				D3_Up [thread_Index][n-1] = SQRT_PI/2 * Faddeeva::erfcx( I*sigma_j*k3_Up/M_SQRT2 );
+				D4_Up [thread_Index][n-1] = SQRT_PI/2 * Faddeeva::erfcx( I*sigma_j*k4_Up/M_SQRT2 );
+
+				D1_Low[thread_Index][n-1] = SQRT_PI/2 * Faddeeva::erfcx(-I*sigma_j*k1_Low/M_SQRT2 );
+				D2_Low[thread_Index][n-1] = SQRT_PI/2 * Faddeeva::erfcx(-I*sigma_j*k2_Low/M_SQRT2 );
+				D3_Low[thread_Index][n-1] = SQRT_PI/2 * Faddeeva::erfcx(-I*sigma_j*k3_Low/M_SQRT2 );
+				D4_Low[thread_Index][n-1] = SQRT_PI/2 * Faddeeva::erfcx(-I*sigma_j*k4_Low/M_SQRT2 );
+
+				(*K_Factor_Boundary)[boundary_Index][n-1] = b1_Up *D1_Up [thread_Index][n-1] + b2_Up *D2_Up [thread_Index][n-1] + b3_Up *D3_Up [thread_Index][n-1] + b4_Up *D4_Up [thread_Index][n-1] +
+															b1_Low*D1_Low[thread_Index][n-1] + b2_Low*D2_Low[thread_Index][n-1] + b3_Low*D3_Low[thread_Index][n-1] + b4_Low*D4_Low[thread_Index][n-1];
+				(*K_Factor_Boundary)[boundary_Index][n-1] *= (unwrapped_Structure->epsilon[boundary_Index+1]-unwrapped_Structure->epsilon[boundary_Index]);
+			}
+			for(int n=2; n<=n_Max_Series; n++)
+			{
+				D1_Up [thread_Index][n-1] = D1_Up [thread_Index][n-2] * ( I*M_SQRT2*sigma_j*k1_Up  ) - hermites[n-2];
+				D2_Up [thread_Index][n-1] = D2_Up [thread_Index][n-2] * ( I*M_SQRT2*sigma_j*k2_Up  ) - hermites[n-2];
+				D3_Up [thread_Index][n-1] = D3_Up [thread_Index][n-2] * ( I*M_SQRT2*sigma_j*k3_Up  ) - hermites[n-2];
+				D4_Up [thread_Index][n-1] = D4_Up [thread_Index][n-2] * ( I*M_SQRT2*sigma_j*k4_Up  ) - hermites[n-2];
+
+				D1_Low[thread_Index][n-1] = D1_Low[thread_Index][n-2] * ( I*M_SQRT2*sigma_j*k1_Low ) + hermites[n-2];
+				D2_Low[thread_Index][n-1] = D2_Low[thread_Index][n-2] * ( I*M_SQRT2*sigma_j*k2_Low ) + hermites[n-2];
+				D3_Low[thread_Index][n-1] = D3_Low[thread_Index][n-2] * ( I*M_SQRT2*sigma_j*k3_Low ) + hermites[n-2];
+				D4_Low[thread_Index][n-1] = D4_Low[thread_Index][n-2] * ( I*M_SQRT2*sigma_j*k4_Low ) + hermites[n-2];
+
+				(*K_Factor_Boundary)[boundary_Index][n-1] = b1_Up *D1_Up [thread_Index][n-1] + b2_Up *D2_Up [thread_Index][n-1] + b3_Up *D3_Up [thread_Index][n-1] + b4_Up *D4_Up [thread_Index][n-1] +
+															b1_Low*D1_Low[thread_Index][n-1] + b2_Low*D2_Low[thread_Index][n-1] + b3_Low*D3_Low[thread_Index][n-1] + b4_Low*D4_Low[thread_Index][n-1];
+				(*K_Factor_Boundary)[boundary_Index][n-1] *= (unwrapped_Structure->epsilon[boundary_Index+1]-unwrapped_Structure->epsilon[boundary_Index]);
+			}
+		}
 	}
 }
 
@@ -2449,7 +2584,7 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 								}
 							}
 						}
-						if( multilayer->imperfections_Model.vertical_Correlation == partial_Correlation)
+						if( multilayer->imperfections_Model.vertical_Correlation == partial_Correlation )
 						{
 							if(multilayer->imperfections_Model.common_Model == ABC_model)
 							{
@@ -2545,20 +2680,66 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 							// s-polarization
 							if( (measurement.polarization + 1) > POLARIZATION_TOLERANCE)
 							{
-								double denominator = 2;
+								double denominator = 1;
 								for(int n_Power=1; n_Power<=n_Max_Series; n_Power++)
 								{
-									double fourier_Factor = Global_Variables::splined_Value_1D(measurement.k_Value,
-									                                                           measurement.detector_Theta_Cos_Vec[point_Index],
-									                                                           cos_Theta_0,
-									                                                           substrate_Node->spline_n_Vec[n_Power-1],
-									                                                           substrate_Node->acc_n_Vec[n_Power-1]);
-									fourier_Factor = max(fourier_Factor,0.);
-
-									double K_Factor_Term_Sum = calc_K_Factor_Term_Sum_DWBA_SA_CSA(thread_Index, "s", n_Power);
-									calculated_Values.S_s[point_Index] += e_Factor_DWBA_SA_CSA_1D * K_Factor_Term_Sum * fourier_Factor / denominator;
 									denominator = denominator * 2*n_Power;
+
+//									double fourier_Factor = Global_Variables::splined_Value_1D(measurement.k_Value,
+//																							   measurement.detector_Theta_Cos_Vec[point_Index],
+//																							   cos_Theta_0,
+//																							   substrate_Node->spline_n_Vec[n_Power-1],
+//																							   substrate_Node->acc_n_Vec[n_Power-1]);
+//									fourier_Factor = max(fourier_Factor,0.);
+									double K_Factor_Term_Sum = calc_K_Factor_Term_Sum_DWBA_SA_CSA(thread_Index, "s", n_Power);
+//									calculated_Values.S_s[point_Index] += e_Factor_DWBA_SA_CSA_1D * K_Factor_Term_Sum * fourier_Factor / denominator;
+
+									pre_Fourier_Factor[thread_Index][n_Power-1] = K_Factor_Term_Sum / denominator;
 								}
+
+								double p = measurement.k_Value*abs(cos_Theta_0-measurement.detector_Theta_Cos_Vec[point_Index]);
+								Params_DWBA_SA_CSA params { this, thread_Index, &substrate, p };
+								gsl_function F = { &function_DWBA_SA_CSA_Batch_Integrand, &params };
+
+								double result = 0, error;
+								double abs_Err = 1e-4;
+								double rel_Err = 1e-4;
+								double current_Point = 0, sum_Result = 0;
+
+								double alpha = substrate.roughness_Model.fractal_alpha.value;
+								double sigma = substrate.roughness_Model.sigma.value;
+								double xi = substrate.roughness_Model.cor_radius.value;
+
+
+								if(p>1e-6 || multilayer->imperfections_Model.common_Model == ABC_model)
+								{
+									double interval = 0.5*xi;
+									gsl_integration_workspace* w = gsl_integration_workspace_alloc(500);
+									gsl_integration_workspace* wc = gsl_integration_workspace_alloc(500);
+
+									gsl_integration_qawo_table* wf = gsl_integration_qawo_table_alloc(p, interval, GSL_INTEG_COSINE, size_t(10+n_Max_Series/3));
+
+									if(multilayer->imperfections_Model.common_Model == fractal_Gauss_Model)
+									{
+										for(int i=0; i<50; i++)
+										{
+											gsl_integration_qawo(&F, current_Point, abs_Err, rel_Err, w->limit, w, wf, &result, &error); sum_Result += result; current_Point += interval;
+										}
+									}
+									gsl_integration_qawf(&F, current_Point,         1e-1, w->limit, w, wc, wf, &result, &error); sum_Result += result; current_Point += interval;
+
+									gsl_integration_qawo_table_free(wf);
+									gsl_integration_workspace_free(wc);
+									gsl_integration_workspace_free(w);
+								} else
+								{
+									for(int n_Power=1; n_Power<=n_Max_Series; n_Power++)
+									{
+										sum_Result += sigma*sigma*pre_Fourier_Factor[thread_Index][n_Power-1] * xi*tgamma(1.+1/(2*alpha))/pow(n_Power,1/(2*alpha));
+									}
+								}
+
+								calculated_Values.S_s[point_Index] = e_Factor_DWBA_SA_CSA_1D * sum_Result;
 							}
 							// p-polarization
 							if( (measurement.polarization - 1) < -POLARIZATION_TOLERANCE)

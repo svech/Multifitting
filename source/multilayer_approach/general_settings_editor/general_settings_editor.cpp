@@ -11,6 +11,7 @@ General_Settings_Editor::General_Settings_Editor(QWidget *parent) : QWidget(pare
 void General_Settings_Editor::closeEvent(QCloseEvent *event)
 {
 	write_Window_Geometry();
+	general_Settings_Tab_Index = main_Tabs->currentIndex();
 	global_Multilayer_Approach->runned_General_Settings_Editor.remove(general_Settings_Key);
 	event->accept();
 }
@@ -41,6 +42,7 @@ void General_Settings_Editor::create_Main_Layout()
 		}
 	});
 	main_Tabs->currentChanged(0);
+	main_Tabs->setCurrentIndex(general_Settings_Tab_Index);
 
 	close_Button = new QPushButton("Close");
 		close_Button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
@@ -123,6 +125,29 @@ void General_Settings_Editor::create_Calculation_Tab()
 				}
 			}
 		});
+	}
+
+	QGroupBox* approximation_Groupbox = new QGroupBox("Approximations");
+	layout->addWidget(approximation_Groupbox);
+	{
+		QGridLayout* groupbox_Layout = new QGridLayout(approximation_Groupbox);
+		int row = 0;
+		//----------------------------------------------------------------------------
+		QLabel* n_Max_Series_Label = new QLabel("Number of terms for DWBA, SA, CSA");
+		groupbox_Layout->addWidget(n_Max_Series_Label,row,0);
+
+		QSpinBox* n_Max_Series_Spinbox = new QSpinBox;
+			n_Max_Series_Spinbox->setRange(1, 150);
+			n_Max_Series_Spinbox->setSingleStep(1);
+			n_Max_Series_Spinbox->setValue(n_Max_Series);
+			n_Max_Series_Spinbox->setButtonSymbols(QAbstractSpinBox::NoButtons);
+		groupbox_Layout->addWidget(n_Max_Series_Spinbox,row,1);
+		connect(n_Max_Series_Spinbox, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, [=]
+		{
+			n_Max_Series = n_Max_Series_Spinbox->value();
+			global_Multilayer_Approach->global_Recalculate();
+		});
+		row++;
 	}
 }
 

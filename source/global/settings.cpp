@@ -272,9 +272,11 @@ QString opt_const_units;
 // -----------------------------------------------------------------------------------------
 
 // general settings
+int general_Settings_Tab_Index;
 int optical_Constants_Read_Threads;
 int reflectivity_Calc_Threads;
 int epsilon_Partial_Fill_Threads;
+int n_Max_Series;
 
 bool recalculate_Spinbox_Global;
 bool recalculate_Spinbox_Table;
@@ -955,11 +957,12 @@ void Settings::read_General_Settings(bool reset_to_default)
 
 	QSettings general_Settings(General_Settings_Path + add_reset, QSettings::IniFormat);
 
-	// calculations
+	general_Settings_Tab_Index = general_Settings.value( "general_Settings_Tab_Index",	0 ).toInt();
 	general_Settings.beginGroup( Threads );
 		optical_Constants_Read_Threads = general_Settings.value( "optical_Constants_Read_Threads",	max(QThread::idealThreadCount(),1) ).toInt();
 		reflectivity_Calc_Threads	   = general_Settings.value( "reflectivity_Calc_Threads",		max(QThread::idealThreadCount(),1) ).toInt();
 		epsilon_Partial_Fill_Threads   = general_Settings.value( "epsilon_Partial_Fill_Threads",	max(QThread::idealThreadCount(),1) ).toInt();
+		n_Max_Series				   = general_Settings.value( "n_Max_Series",													 5 ).toInt();
 	general_Settings.endGroup();
 	general_Settings.beginGroup( Recalculation );
 		recalculate_Spinbox_Global			 = general_Settings.value( "recalculate_Spinbox_Global",			true  ).toBool();
@@ -983,11 +986,12 @@ void Settings::save_General_Settings()
 {
 	QSettings general_Settings(General_Settings_Path, QSettings::IniFormat);
 
-	// calculations
+	general_Settings.setValue( "general_Settings_Tab_Index", general_Settings_Tab_Index );
 	general_Settings.beginGroup( Threads );
 		general_Settings.setValue( "optical_Constants_Read_Threads", optical_Constants_Read_Threads );
 		general_Settings.setValue( "reflectivity_Calc_Threads",		 reflectivity_Calc_Threads		);
 		general_Settings.setValue( "epsilon_Partial_Fill_Threads",	 epsilon_Partial_Fill_Threads	);
+		general_Settings.setValue( "n_Max_Series",					 n_Max_Series					);
 	general_Settings.endGroup();
 	general_Settings.beginGroup( Recalculation );
 		general_Settings.setValue( "recalculate_Spinbox_Global", recalculate_Spinbox_Global	);

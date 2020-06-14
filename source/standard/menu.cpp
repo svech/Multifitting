@@ -686,6 +686,7 @@ void Menu::open_About()
 						"<a href='http://www.partow.net/programming/exprtk/'>ExprTk</a> by Arash Partow<br>"//(MIT licence)
 						"<a href='http://tree.phi-sci.com/'>tree.hh</a> by Kasper Peeters<br>" //(GNU GPL)
 						"<a href='https://www.qcustomplot.com/'>QCustomPlot</a> by Emanuel Eichhammer<br>"//(GNU GPL)
+						"<a href='http://ab-initio.mit.edu/wiki/index.php/Faddeeva_Package'>Faddeeva_Package</a> by Steven G. Johnson<br>"//(MIT licence)
 						"<br>"
 						"Main part of optical constants<br>"
 						"database and some pieces of design<br>"

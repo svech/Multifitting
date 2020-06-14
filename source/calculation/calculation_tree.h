@@ -78,7 +78,6 @@ public:
 	int max_Depth;
 	int depth_Threshold;
 	int num_Media;
-	int n_Max_Series = 1;
 
 	QVector<Data_Element<Independent_Curve>> independent;
 	QVector<Data_Element<Target_Curve>>			 target;

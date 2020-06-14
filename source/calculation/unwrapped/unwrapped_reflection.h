@@ -4,6 +4,7 @@
 #include "unwrapped_structure.h"
 #include "gsl/gsl_integration.h"
 #include "iostream"
+#include "faddeeva.hh"
 
 class Multilayer;
 
@@ -12,7 +13,7 @@ class Unwrapped_Reflection
 public:
 	Unwrapped_Reflection(Multilayer* multilayer, Unwrapped_Structure* unwrapped_Structure, int num_Media,
 						 const Data& measurement, bool depth_Grading, bool sigma_Grading,
-						 const Calc_Functions& calc_Functions, Calculated_Values& calculated_Values, QString calc_Mode, QString spec_Scat_mode, int n_Max_Series);
+						 const Calc_Functions& calc_Functions, Calculated_Values& calculated_Values, QString calc_Mode, QString spec_Scat_mode);
 
 	~Unwrapped_Reflection();
 
@@ -25,7 +26,6 @@ public:
 	size_t num_Points;
 	size_t phi_Points;
 	size_t short_Phi_Points;
-	int n_Max_Series;
 
 	bool depth_Grading;
 	bool sigma_Grading;
@@ -123,6 +123,11 @@ public:
 	vector<vector<complex<double>>> k3_Up_Boundary;		//	[thread][boundary]
 	vector<vector<complex<double>>> k4_Up_Boundary;		//	[thread][boundary]
 
+	vector<vector<complex<double>>> D1_Up;	//	[thread][n term]
+	vector<vector<complex<double>>> D2_Up;	//	[thread][n term]
+	vector<vector<complex<double>>> D3_Up;	//	[thread][n term]
+	vector<vector<complex<double>>> D4_Up;	//	[thread][n term]
+
 	// low
 	vector<vector<complex<double>>> b1_Low_Boundary_s;	//	[thread][boundary]
 	vector<vector<complex<double>>> b2_Low_Boundary_s;	//	[thread][boundary]
@@ -139,10 +144,16 @@ public:
 	vector<vector<complex<double>>> k3_Low_Boundary;	//	[thread][boundary]
 	vector<vector<complex<double>>> k4_Low_Boundary;	//	[thread][boundary]
 
+	vector<vector<complex<double>>> D1_Low;	//	[thread][n]
+	vector<vector<complex<double>>> D2_Low;	//	[thread][n]
+	vector<vector<complex<double>>> D3_Low;	//	[thread][n]
+	vector<vector<complex<double>>> D4_Low;	//	[thread][n]
+
 	// K
 	vector<vector<vector<complex<double>>>> K_Factor_Boundary_s;	//	[thread][boundary][n]
 	vector<vector<vector<complex<double>>>> K_Factor_Boundary_p;	//	[thread][boundary][n]
-
+	vector<double> hermites;				// [n]
+	vector<vector<double>> pre_Fourier_Factor;	//	[thread][n]
 	///---------------------------------------------------------------------
 
 	int fill_s__Max_Depth_3(const tree<Node>::iterator& parent, int thread_Index, int point_Index, int media_Index = 0);

@@ -658,8 +658,8 @@ void Node::create_Spline_PSD_Fractal_Gauss_1D(const Data& measurement)
 			p += dp[sec];
 			gsl_integration_qawo_table* wf = gsl_integration_qawo_table_alloc(p, interval, GSL_INTEG_COSINE, 25);
 			double current_Point = 0, sum_Result = 0;
-			gsl_integration_qawo(&F, current_Point, abs_Err, rel_Err, w->limit, w, wf, &result, &error); sum_Result += result; current_Point += interval;
-			gsl_integration_qawo(&F, current_Point, abs_Err, rel_Err, w->limit, w, wf, &result, &error); sum_Result += result; current_Point += interval;
+//			gsl_integration_qawo(&F, current_Point, abs_Err, rel_Err, w->limit, w, wf, &result, &error); sum_Result += result; current_Point += interval;
+//			gsl_integration_qawo(&F, current_Point, abs_Err, rel_Err, w->limit, w, wf, &result, &error); sum_Result += result; current_Point += interval;
 			gsl_integration_qawf(&F, current_Point,         1e-4, w->limit, w, wc, wf, &result, &error); sum_Result += result; current_Point += interval;
 			gsl_integration_qawo_table_free(wf);
 			interpoints_Sum_Argum_Vec[counter] = p;
@@ -688,6 +688,7 @@ void Node::create_Spline_PSD_Fractal_Gauss_1D(const Data& measurement)
 // fractal gauss integration
 struct Cor_Func_Series_Params
 {
+	double sigma;
 	double xi;
 	double alpha;
 	int n;
@@ -697,18 +698,19 @@ double Cor_Fractal_Gauss_Pow_n(double r, void* params)
 {
 	Cor_Func_Series_Params* p = reinterpret_cast<Cor_Func_Series_Params*>(params);
 
-	if(p->xi > 0)	return exp(-(p->n)*pow(r/p->xi,2*p->alpha));
+	if(p->xi > 0)	return p->sigma*p->sigma * exp(-(p->n)*pow(r/p->xi,2*p->alpha));
 	else			return 0;
 }
 double Cor_ABC_Pow_n(double r, void* params)
 {
 	Cor_Func_Series_Params* p = reinterpret_cast<Cor_Func_Series_Params*>(params);
 
-	if(p->xi > 0)	return p->factor*pow(r/p->xi, p->n*p->alpha) * pow(cyl_bessel_k(p->alpha, r/p->xi),p->n);
+	if(p->xi > 0)	return p->sigma*p->sigma * p->factor * pow(r/p->xi, p->n*p->alpha) * pow(cyl_bessel_k(p->alpha, r/p->xi),p->n);
 	else			return 0;
 }
-void Node::create_Spline_DWBA_SA_CSA_1D(const Data& measurement, QString model, int& n_Max_Series)
+void Node::create_Spline_DWBA_SA_CSA_1D(const Data& measurement, QString model)
 {
+	double sigma = struct_Data.roughness_Model.sigma.value;
 	double xi =    struct_Data.roughness_Model.cor_radius.value;
 	double alpha = struct_Data.roughness_Model.fractal_alpha.value;
 
@@ -758,20 +760,19 @@ void Node::create_Spline_DWBA_SA_CSA_1D(const Data& measurement, QString model, 
 	acc_n_Vec.clear();
 
 	// n=35 is still ok
-	n_Max_Series = 10;
 	for(int n=1; n<=n_Max_Series; n++)
 	{
 		vector<double> interpoints_Sum_Argum_Vec(1+common_Size);
 		vector<double> interpoints_Sum_Value_Vec(1+common_Size);
 
-		Cor_Func_Series_Params params = {xi, alpha, n, pow(pow(2,1-alpha)/tgamma(alpha),n)};
+		Cor_Func_Series_Params params = {sigma, xi, alpha, n, pow(pow(2,1-alpha)/tgamma(alpha),n)};
 		gsl_function F;
 		if(model == fractal_Gauss_Model) F = { &Cor_Fractal_Gauss_Pow_n, &params };
 		if(model == ABC_model)			 F = { &Cor_ABC_Pow_n,           &params };
 
 		double p = 0, result = 0, error;
-		double abs_Err = 1e-7;
-		double rel_Err = 1e-7;
+		double abs_Err = 1e-6;
+		double rel_Err = 1e-6;
 
 		// zero point
 		{
@@ -799,13 +800,13 @@ void Node::create_Spline_DWBA_SA_CSA_1D(const Data& measurement, QString model, 
 			for(int i=0; i<interpoints[sec]; i++)
 			{
 				p += dp[sec];
-				gsl_integration_qawo_table* wf = gsl_integration_qawo_table_alloc(p, interval, GSL_INTEG_COSINE, 45);
+				gsl_integration_qawo_table* wf = gsl_integration_qawo_table_alloc(p, interval, GSL_INTEG_COSINE, 25);
 				double current_Point = 0, sum_Result = 0;
-				if(model == fractal_Gauss_Model)
-				{
-				gsl_integration_qawo(&F, current_Point, abs_Err, rel_Err, w->limit, w, wf, &result, &error); sum_Result += result; current_Point += interval;
-				gsl_integration_qawo(&F, current_Point, abs_Err, rel_Err, w->limit, w, wf, &result, &error); sum_Result += result; current_Point += interval;
-				}
+//				if(model == fractal_Gauss_Model)
+//				{
+//				gsl_integration_qawo(&F, current_Point, abs_Err, rel_Err, w->limit, w, wf, &result, &error); sum_Result += result; current_Point += interval;
+//				gsl_integration_qawo(&F, current_Point, abs_Err, rel_Err, w->limit, w, wf, &result, &error); sum_Result += result; current_Point += interval;
+//				}
 				gsl_integration_qawf(&F, current_Point,         1e-4, w->limit, w, wc, wf, &result, &error); sum_Result += result; current_Point += interval;
 				gsl_integration_qawo_table_free(wf);
 				interpoints_Sum_Argum_Vec[counter] = p;
@@ -823,7 +824,6 @@ void Node::create_Spline_DWBA_SA_CSA_1D(const Data& measurement, QString model, 
 				interpoints_Sum_Argum_Vec.erase (interpoints_Sum_Argum_Vec.begin()+i);
 			}
 		}
-
 
 //		for(size_t i=0; i<interpoints_Sum_Argum_Vec.size()-1; i+=1)
 //		{
