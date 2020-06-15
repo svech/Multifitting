@@ -18,8 +18,9 @@ win32 {
 
     INCLUDEPATH +=  "C:/Program Files (x86)/C++ libraries" \
                     "C:/Program Files (x86)/C++ libraries/SwarmOps/include" \
-                    "C:/Program Files (x86)/C++ libraries/RandomOps/include" \
-                    "C:/Program Files (x86)/C++ libraries/QCustomPlot 2.0.1"
+					"C:/Program Files (x86)/C++ libraries/RandomOps/include" \
+					"C:/Program Files (x86)/C++ libraries/Faddeeva Package/include" \
+					"C:/Program Files (x86)/C++ libraries/QCustomPlot 2.0.1"
 
 #---MinGW---MinGW---MinGW---MinGW---MinGW---MinGW---MinGW---MinGW---
 # DOESN'T WORK
@@ -45,9 +46,10 @@ win32 {
             LIBS += "C:/Program Files (x86)/C++ libraries/RandomOps/msvc2017_32/RandomOps.lib" \
                     "C:/Program Files (x86)/C++ libraries/SwarmOps/msvc2017_32/SwarmOps.lib" \
                     "C:/Program Files (x86)/C++ libraries/GSL 2.2 Bruot/msvc2015_32/cblas.lib" \
-                    "C:/Program Files (x86)/C++ libraries/GSL 2.2 Bruot/msvc2015_32/gsl.lib" \
-                    "C:/Program Files (x86)/C++ libraries/QCustomPlot 2.0.1/qt_5.12.0/msvc2017_32/qcustomplot.lib"
-#                    "C:/Program Files (x86)/C++ libraries/QCustomPlot 2.0.1/qt_5.11.1/msvc2017_32/qcustomplot.lib"
+					"C:/Program Files (x86)/C++ libraries/GSL 2.2 Bruot/msvc2015_32/gsl.lib" \
+					"C:/Program Files (x86)/C++ libraries/Faddeeva Package/msvc2019_32/Faddeeva.lib" \
+					"C:/Program Files (x86)/C++ libraries/QCustomPlot 2.0.1/qt_5.12.0/msvc2017_32/qcustomplot.lib"
+#                   "C:/Program Files (x86)/C++ libraries/QCustomPlot 2.0.1/qt_5.11.1/msvc2017_32/qcustomplot.lib"
         } else {
         equals(QMAKE_TARGET.arch, x86_64) {
             message( "It's msvc2017_64" )
@@ -56,8 +58,9 @@ win32 {
                     "C:/Program Files (x86)/C++ libraries/SwarmOps/msvc2017_64/SwarmOps.lib" \
                     "C:/Program Files (x86)/C++ libraries/GSL 2.4 Bruot/msvc2015_64/cblas.lib" \
                     "C:/Program Files (x86)/C++ libraries/GSL 2.4 Bruot/msvc2015_64/gsl.lib" \
-                    "C:/Program Files (x86)/C++ libraries/QCustomPlot 2.0.1/qt_5.12.0/msvc2017_64/qcustomplot.lib"
-#                    "C:/Program Files (x86)/C++ libraries/QCustomPlot 2.0.1/qt_5.11.1/msvc2017_64/qcustomplot.lib"
+					"C:/Program Files (x86)/C++ libraries/Faddeeva Package/msvc2019_64/Faddeeva.lib" \
+					"C:/Program Files (x86)/C++ libraries/QCustomPlot 2.0.1/qt_5.12.0/msvc2017_64/qcustomplot.lib"
+#                   "C:/Program Files (x86)/C++ libraries/QCustomPlot 2.0.1/qt_5.11.1/msvc2017_64/qcustomplot.lib"
             }
         }
     }
