@@ -16,7 +16,8 @@ TEMPLATE = app
 
 win32 {
 
-    INCLUDEPATH +=  "C:/Program Files (x86)/C++ libraries" \
+    INCLUDEPATH +=  "C:/Program Files (x86)/C++ libraries/boost_1_73_0" \
+	                "C:/Program Files (x86)/C++ libraries" \
                     "C:/Program Files (x86)/C++ libraries/SwarmOps/include" \
 					"C:/Program Files (x86)/C++ libraries/RandomOps/include" \
 					"C:/Program Files (x86)/C++ libraries/Faddeeva Package/include" \

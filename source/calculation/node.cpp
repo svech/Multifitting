@@ -684,37 +684,23 @@ void Node::create_Spline_PSD_Fractal_Gauss_1D(const Data& measurement)
 	spline = gsl_spline_alloc(interp_type, interpoints_Sum_Value_Vec.size());
 	gsl_spline_init(spline, interpoints_Sum_Argum_Vec.data(), interpoints_Sum_Value_Vec.data(), interpoints_Sum_Value_Vec.size());
 }
-
-// fractal gauss integration
-struct Cor_Func_Series_Params
+void Node::clear_Spline_PSD_Fractal_Gauss_1D()
 {
-	double sigma;
-	double xi;
-	double alpha;
-	int n;
-	double factor;
-};
-double Cor_Fractal_Gauss_Pow_n(double r, void* params)
-{
-	Cor_Func_Series_Params* p = reinterpret_cast<Cor_Func_Series_Params*>(params);
-
-	if(p->xi > 0)	return p->sigma*p->sigma * exp(-(p->n)*pow(r/p->xi,2*p->alpha));
-	else			return 0;
+	gsl_spline_free(spline);
+	gsl_interp_accel_free(acc);
 }
-double Cor_ABC_Pow_n(double r, void* params)
-{
-	Cor_Func_Series_Params* p = reinterpret_cast<Cor_Func_Series_Params*>(params);
 
-	if(p->xi > 0)	return p->sigma*p->sigma * p->factor * pow(r/p->xi, p->n*p->alpha) * pow(cyl_bessel_k(p->alpha, r/p->xi),p->n);
-	else			return 0;
-}
+// too slow for big n_Power => unused
+#ifndef POSTINTEGRATION_DWBA_SA_CSA
 void Node::create_Spline_DWBA_SA_CSA_1D(const Data& measurement, QString model)
 {
-	double sigma = struct_Data.roughness_Model.sigma.value;
-	double xi =    struct_Data.roughness_Model.cor_radius.value;
-	double alpha = struct_Data.roughness_Model.fractal_alpha.value;
+	spline_n_Vec.clear();
+	acc_n_Vec.clear();
+	ooura_fourier_cos<double> integrator = ooura_fourier_cos<double>();
 
+	/// ----------------------------------------------------------------------
 	// taking p_Max
+	/// ----------------------------------------------------------------------
 	vector<double> temp_Cos = measurement.detector_Theta_Cos_Vec;
 	if( measurement.measurement_Type == measurement_Types[Detector_Scan] )
 	{
@@ -728,7 +714,9 @@ void Node::create_Spline_DWBA_SA_CSA_1D(const Data& measurement, QString model)
 	std::sort(temp_Cos.begin(), temp_Cos.end());
 	double p_Max = temp_Cos.back()*(1+1E-7);
 
+	/// ----------------------------------------------------------------------
 	// subintervals
+	/// ----------------------------------------------------------------------
 	int num_Sections = 6; // plus zero point
 	vector<int> interpoints(num_Sections);
 	int common_Size = 0;
@@ -737,7 +725,6 @@ void Node::create_Spline_DWBA_SA_CSA_1D(const Data& measurement, QString model)
 		interpoints[i] = 20-2*i;
 		common_Size+=interpoints[i];
 	}
-
 	vector<double> starts(num_Sections); // open start
 	starts[0] = 0;
 	starts[1] = p_Max/300;
@@ -753,94 +740,67 @@ void Node::create_Spline_DWBA_SA_CSA_1D(const Data& measurement, QString model)
 	}
 	dp.back() = (p_Max - starts.back())/interpoints.back();
 
-	gsl_integration_workspace* w = gsl_integration_workspace_alloc(1000);
-	gsl_integration_workspace* wc = gsl_integration_workspace_alloc(1000);
-
-	spline_n_Vec.clear();
-	acc_n_Vec.clear();
-
-	// n=35 is still ok
-	for(int n=1; n<=n_Max_Series; n++)
+	/// ----------------------------------------------------------------------
+	// integration
+	/// ----------------------------------------------------------------------
+	for(int n_Power=1; n_Power<=n_Max_Series; n_Power++)
 	{
+		double xi =    struct_Data.roughness_Model.cor_radius.value;
+		double alpha = struct_Data.roughness_Model.fractal_alpha.value;
+
 		vector<double> interpoints_Sum_Argum_Vec(1+common_Size);
 		vector<double> interpoints_Sum_Value_Vec(1+common_Size);
 
-		Cor_Func_Series_Params params = {sigma, xi, alpha, n, pow(pow(2,1-alpha)/tgamma(alpha),n)};
-		gsl_function F;
-		if(model == fractal_Gauss_Model) F = { &Cor_Fractal_Gauss_Pow_n, &params };
-		if(model == ABC_model)			 F = { &Cor_ABC_Pow_n,           &params };
+		// choose correlation function
+		double ABC_Pow_n_factor = pow(pow(2,1-alpha)/tgamma(alpha), n_Power);
+		double(*cor_Function)(double, double, double, double, int);
+		if(model == fractal_Gauss_Model) cor_Function = Global_Variables::Cor_Fractal_Gauss_Pow_n;
+		if(model == ABC_model)			 cor_Function = Global_Variables::Cor_ABC_Pow_n;
+		auto f = [&](double r){return cor_Function(xi, alpha, r, ABC_Pow_n_factor, n_Power);};
 
-		double p = 0, result = 0, error;
-		double abs_Err = 1e-6;
-		double rel_Err = 1e-6;
-
-		// zero point
+		double p = 0, error;
+		// zero point: p==0
 		{
-			interpoints_Sum_Argum_Vec[0] = 0;
-			if(model == fractal_Gauss_Model) interpoints_Sum_Value_Vec[0] = xi*tgamma(1.+1/(2*alpha))/pow(n,1/(2*alpha));
+				interpoints_Sum_Argum_Vec[0] = 0;
+			if(model == fractal_Gauss_Model)
+			{	interpoints_Sum_Value_Vec[0] = xi*tgamma(1.+1/(2*alpha)) / pow(n_Power,1/(2*alpha)); }
 			if(model == ABC_model)
 			{
-				double interval = 20*xi/sqrt(alpha);
-				double current_Point = 0, sum_Result = 0;
-				gsl_integration_qag  (&F, current_Point, current_Point+interval, abs_Err, rel_Err, w->limit, GSL_INTEG_GAUSS61, w, &result, &error); sum_Result += result; current_Point += interval;
-				gsl_integration_qag  (&F, current_Point, current_Point+interval, abs_Err, rel_Err, w->limit, GSL_INTEG_GAUSS61, w, &result, &error); sum_Result += result; current_Point += interval;
-				gsl_integration_qag  (&F, current_Point, current_Point+interval, abs_Err, rel_Err, w->limit, GSL_INTEG_GAUSS61, w, &result, &error); sum_Result += result; current_Point += interval;
-				gsl_integration_qag  (&F, current_Point, current_Point+interval, abs_Err, rel_Err, w->limit, GSL_INTEG_GAUSS61, w, &result, &error); sum_Result += result; current_Point += interval;
-				gsl_integration_qag  (&F, current_Point, current_Point+interval, abs_Err, rel_Err, w->limit, GSL_INTEG_GAUSS61, w, &result, &error); sum_Result += result; current_Point += interval;
-				//gsl_integration_qagiu(&F, current_Point,                         abs_Err, rel_Err, w->limit,                    w, &result, &error); sum_Result += result; current_Point += interval;
-				interpoints_Sum_Value_Vec[0] = sum_Result;
+				interpoints_Sum_Value_Vec[0] = gauss_kronrod<double, 61>::integrate(f, 0, std::numeric_limits<double>::infinity(), 5, 1e-7, &error);
 			}
 		}
 
-		// other points
-		double interval = 2*xi/sqrt(alpha);
+		// other points: p>0
 		int counter = 1;
 		for(int sec=0; sec<num_Sections; sec++)
 		{
 			for(int i=0; i<interpoints[sec]; i++)
 			{
 				p += dp[sec];
-				gsl_integration_qawo_table* wf = gsl_integration_qawo_table_alloc(p, interval, GSL_INTEG_COSINE, 25);
-				double current_Point = 0, sum_Result = 0;
-//				if(model == fractal_Gauss_Model)
-//				{
-//				gsl_integration_qawo(&F, current_Point, abs_Err, rel_Err, w->limit, w, wf, &result, &error); sum_Result += result; current_Point += interval;
-//				gsl_integration_qawo(&F, current_Point, abs_Err, rel_Err, w->limit, w, wf, &result, &error); sum_Result += result; current_Point += interval;
-//				}
-				gsl_integration_qawf(&F, current_Point,         1e-4, w->limit, w, wc, wf, &result, &error); sum_Result += result; current_Point += interval;
-				gsl_integration_qawo_table_free(wf);
 				interpoints_Sum_Argum_Vec[counter] = p;
-				interpoints_Sum_Value_Vec[counter] = sum_Result;
+				std::pair<double, double> result_Boost = integrator.integrate(f, p);
+				interpoints_Sum_Value_Vec[counter] = result_Boost.first;;
 				counter++;
 			}
 		}
 
-		// chech for artifacts
-		for(int i=interpoints_Sum_Argum_Vec.size()-2; i>=0; i--)
-		{
-			if(interpoints_Sum_Value_Vec[i]<0.5*interpoints_Sum_Value_Vec[i+1])
-			{
-				interpoints_Sum_Value_Vec.erase (interpoints_Sum_Value_Vec.begin()+i);
-				interpoints_Sum_Argum_Vec.erase (interpoints_Sum_Argum_Vec.begin()+i);
-			}
-		}
-
-//		for(size_t i=0; i<interpoints_Sum_Argum_Vec.size()-1; i+=1)
+		// check for artifacts
+//		for(int i=interpoints_Sum_Argum_Vec.size()-2; i>=0; i--)
 //		{
-//			qInfo() << "DWBA:" << interpoints_Sum_Argum_Vec[i] << interpoints_Sum_Value_Vec[i] << "  n=" << n << endl;
+//			if(interpoints_Sum_Value_Vec[i]<0.5*interpoints_Sum_Value_Vec[i+1])
+//			{
+//				interpoints_Sum_Value_Vec.erase (interpoints_Sum_Value_Vec.begin()+i);
+//				interpoints_Sum_Argum_Vec.erase (interpoints_Sum_Argum_Vec.begin()+i);
+//			}
 //		}
-//		qInfo() << "DWBA:" << interpoints_Sum_Argum_Vec.back() << interpoints_Sum_Value_Vec.back() << "  n=" << n << endl;
-//		qInfo() << endl << interpoints_Sum_Argum_Vec.size() << endl << endl;
 
 		// splines
-		acc_n_Vec.resize(n);
-		spline_n_Vec.resize(n);
+		acc_n_Vec.resize(n_Power);
+		spline_n_Vec.resize(n_Power);
 		acc_n_Vec.back() = gsl_interp_accel_alloc();
 		spline_n_Vec.back() = gsl_spline_alloc(gsl_interp_steffen, interpoints_Sum_Value_Vec.size());
 		gsl_spline_init(spline_n_Vec.back(), interpoints_Sum_Argum_Vec.data(), interpoints_Sum_Value_Vec.data(), interpoints_Sum_Value_Vec.size());
 	}
-	gsl_integration_workspace_free(wc);
-	gsl_integration_workspace_free(w);
 }
 
 void Node::clear_Spline_DWBA_SA_CSA_1D()
@@ -851,10 +811,4 @@ void Node::clear_Spline_DWBA_SA_CSA_1D()
 		gsl_interp_accel_free(acc_n_Vec[i]);
 	}
 }
-
-void Node::clear_Spline_PSD_Fractal_Gauss_1D()
-{
-	gsl_spline_free(spline);
-	gsl_interp_accel_free(acc);
-}
-
+#endif

@@ -682,11 +682,12 @@ void Menu::open_About()
 						"Multifitting is based on Qt5 framework<br>"//(GNU LGPL/GPL)
 						"and also uses the following libraries:<br><br>"
 						"<a href='https://www.gnu.org/software/gsl/'>GSL</a> - GNU Scientific Library<br>"//(GNU GPL)
+						"<a href='https://www.boost.org/'>Boost</a> - Boost C++ libraries<br>"//(Boost Software Licence (BSL))
+						"<a href='http://ab-initio.mit.edu/wiki/index.php/Faddeeva_Package'>Faddeeva Package</a> by Steven G. Johnson<br>"//(MIT licence)
 						"<a href='https://github.com/Hvass-Labs/swarmops-other'>SwarmOps</a> by Magnus Erik Hvass Pedersen<br>"//(MIT licence)
-						"<a href='http://www.partow.net/programming/exprtk/'>ExprTk</a> by Arash Partow<br>"//(MIT licence)
 						"<a href='http://tree.phi-sci.com/'>tree.hh</a> by Kasper Peeters<br>" //(GNU GPL)
+						"<a href='http://www.partow.net/programming/exprtk/'>ExprTk</a> by Arash Partow<br>"//(MIT licence)
 						"<a href='https://www.qcustomplot.com/'>QCustomPlot</a> by Emanuel Eichhammer<br>"//(GNU GPL)
-						"<a href='http://ab-initio.mit.edu/wiki/index.php/Faddeeva_Package'>Faddeeva_Package</a> by Steven G. Johnson<br>"//(MIT licence)
 						"<br>"
 						"Main part of optical constants<br>"
 						"database and some pieces of design<br>"

@@ -1,6 +1,9 @@
 #ifndef GLOBAL_DEFINITIONS_H
 #define GLOBAL_DEFINITIONS_H
 
+#include "boost/math/quadrature/ooura_fourier_integrals.hpp"
+#include <boost/math/quadrature/gauss_kronrod.hpp>
+#include <boost/math/quadrature/gauss.hpp>
 #include <QtWidgets>
 #include <vector>
 #include <complex>
@@ -12,11 +15,14 @@
 #define VERSION_BUILD 0
 
 using namespace std;
+using namespace boost::math::quadrature;
 class Node;
 
 //#define RELEASE
 
 //#define EXPRTK
+
+#define POSTINTEGRATION_DWBA_SA_CSA
 
 #ifdef RELEASE
    #define EXPRTK

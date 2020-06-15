@@ -424,6 +424,7 @@ void Calculation_Tree::calculate_Intermediate_Values_1_Tree(tree<Node>& calc_Tre
 					}
 				}
 			}
+			#ifndef POSTINTEGRATION_DWBA_SA_CSA
 			if( multilayer->imperfections_Model.approximation == DWBA_approximation ||
 				multilayer->imperfections_Model.approximation == SA_approximation ||
 				multilayer->imperfections_Model.approximation == CSA_approximation )
@@ -433,17 +434,18 @@ void Calculation_Tree::calculate_Intermediate_Values_1_Tree(tree<Node>& calc_Tre
 				{
 					if( child.node->data.struct_Data.item_Type == item_Type_Substrate )
 					{
-//						child.node->data.create_Spline_DWBA_SA_CSA_1D(measurement, multilayer->imperfections_Model.common_Model);
+						child.node->data.create_Spline_DWBA_SA_CSA_1D(measurement, multilayer->imperfections_Model.common_Model);
 					}
 					if(multilayer->imperfections_Model.use_Common_Roughness_Function == false)
 					{
 						if( child.node->data.struct_Data.item_Type == item_Type_Layer )
 						{
-//							child.node->data.create_Spline_DWBA_SA_CSA_1D(measurement, multilayer->imperfections_Model.common_Model);
+							child.node->data.create_Spline_DWBA_SA_CSA_1D(measurement, multilayer->imperfections_Model.common_Model);
 						}
 					}
 				}
 			}
+			#endif
 		}
 
 		if( child.node->data.struct_Data.item_Type != item_Type_Multilayer &&
@@ -484,6 +486,7 @@ void Calculation_Tree::clear_Spline_1_Tree(tree<Node>& calc_Tree, const tree<Nod
 					}
 				}
 			}
+			#ifndef POSTINTEGRATION_DWBA_SA_CSA
 			if( multilayer->imperfections_Model.approximation == DWBA_approximation ||
 				multilayer->imperfections_Model.approximation == SA_approximation ||
 				multilayer->imperfections_Model.approximation == CSA_approximation )
@@ -493,17 +496,18 @@ void Calculation_Tree::clear_Spline_1_Tree(tree<Node>& calc_Tree, const tree<Nod
 				{
 					if( child.node->data.struct_Data.item_Type == item_Type_Substrate )
 					{
-//						child.node->data.clear_Spline_DWBA_SA_CSA_1D();
+						child.node->data.clear_Spline_DWBA_SA_CSA_1D();
 					}
 					if(multilayer->imperfections_Model.use_Common_Roughness_Function == false)
 					{
 						if( child.node->data.struct_Data.item_Type == item_Type_Layer )
 						{
-//							child.node->data.clear_Spline_DWBA_SA_CSA_1D();
+							child.node->data.clear_Spline_DWBA_SA_CSA_1D();
 						}
 					}
 				}
 			}
+			#endif
 		}
 
 		if( child.node->data.struct_Data.item_Type == item_Type_Multilayer ||
