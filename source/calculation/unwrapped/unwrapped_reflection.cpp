@@ -2711,11 +2711,12 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 								double xi = substrate.roughness_Model.cor_radius.value;
 
 
-								if(p>1e-6 || multilayer->imperfections_Model.common_Model == ABC_model)
+								// || multilayer->imperfections_Model.common_Model == ABC_model
+								gsl_integration_workspace* w = gsl_integration_workspace_alloc(500);
+								gsl_integration_workspace* wc = gsl_integration_workspace_alloc(500);
+								if(p>1e-6)
 								{
 									double interval = 0.5*xi;
-									gsl_integration_workspace* w = gsl_integration_workspace_alloc(500);
-									gsl_integration_workspace* wc = gsl_integration_workspace_alloc(500);
 
 									gsl_integration_qawo_table* wf = gsl_integration_qawo_table_alloc(p, interval, GSL_INTEG_COSINE, size_t(10+n_Max_Series/3));
 
@@ -2729,15 +2730,33 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 									gsl_integration_qawf(&F, current_Point,         1e-1, w->limit, w, wc, wf, &result, &error); sum_Result += result; current_Point += interval;
 
 									gsl_integration_qawo_table_free(wf);
-									gsl_integration_workspace_free(wc);
-									gsl_integration_workspace_free(w);
 								} else
 								{
-									for(int n_Power=1; n_Power<=n_Max_Series; n_Power++)
+									if(multilayer->imperfections_Model.common_Model == fractal_Gauss_Model)
 									{
-										sum_Result += sigma*sigma*pre_Fourier_Factor[thread_Index][n_Power-1] * xi*tgamma(1.+1/(2*alpha))/pow(n_Power,1/(2*alpha));
+										for(int n_Power=1; n_Power<=n_Max_Series; n_Power++)
+										{
+											sum_Result += sigma*sigma*pre_Fourier_Factor[thread_Index][n_Power-1] * xi*tgamma(1.+1/(2*alpha))/pow(n_Power,1/(2*alpha));
+										}
+									}
+									if(multilayer->imperfections_Model.common_Model == ABC_model)
+									{
+										for(int n_Power=1; n_Power<=n_Max_Series; n_Power++)
+										{
+											double inter = 20*xi/sqrt(alpha);
+											double current_Point = 0, tmp = 0;
+											gsl_integration_qag  (&F, current_Point, current_Point+inter, abs_Err, rel_Err, w->limit, GSL_INTEG_GAUSS61, w, &result, &error); tmp += result; current_Point += inter;
+											gsl_integration_qag  (&F, current_Point, current_Point+inter, abs_Err, rel_Err, w->limit, GSL_INTEG_GAUSS61, w, &result, &error); tmp += result; current_Point += inter;
+											gsl_integration_qag  (&F, current_Point, current_Point+inter, abs_Err, rel_Err, w->limit, GSL_INTEG_GAUSS61, w, &result, &error); tmp += result; current_Point += inter;
+											gsl_integration_qag  (&F, current_Point, current_Point+inter, abs_Err, rel_Err, w->limit, GSL_INTEG_GAUSS61, w, &result, &error); tmp += result; current_Point += inter;
+											gsl_integration_qag  (&F, current_Point, current_Point+inter, abs_Err, rel_Err, w->limit, GSL_INTEG_GAUSS61, w, &result, &error); tmp += result; current_Point += inter;
+
+											sum_Result += sigma*sigma*pre_Fourier_Factor[thread_Index][n_Power-1] * tmp;
+										}
 									}
 								}
+								gsl_integration_workspace_free(wc);
+								gsl_integration_workspace_free(w);
 
 								calculated_Values.S_s[point_Index] = e_Factor_DWBA_SA_CSA_1D * sum_Result;
 							}
