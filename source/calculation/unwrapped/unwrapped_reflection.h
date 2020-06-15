@@ -155,13 +155,9 @@ public:
 	vector<vector<vector<complex<double>>>> K_Factor_Boundary_p;	//	[thread][boundary][n]
 	vector<double> hermites;							// [n]
 	vector<double> factorial;							// [n]
-	vector<double> factorial_Sqrt;						// [n]
 	vector<ooura_fourier_cos<double>> integrator_Vec;	//	[thread]
 
-	vector<vector<double>> pre_Fourier_Factor_s;					//	[thread][n]
-	vector<vector<double>> pre_Fourier_Factor_p;					//	[thread][n]
-	vector<vector<complex<double>>> pre_Fourier_Factor_Complex_s;	//	[thread][n]
-	vector<vector<complex<double>>> pre_Fourier_Factor_Complex_p;	//	[thread][n]
+	vector<vector<double>> pre_Fourier_Factor;						//	[thread][n]
 
 	///---------------------------------------------------------------------
 
@@ -199,7 +195,7 @@ public:
 	void calc_K_Factor_DWBA_SA_CSA				(int thread_Index,                  QString polarization);
 	double calc_K_Factor_Term_Sum_DWBA_SA_CSA	(int thread_Index, QString polarization, int n_Power);
 	void choose_Cor_Function					(int thread_Index);
-	double function_DWBA_SA_CSA_Batch_Integrand (double r, int thread_Index, const Data& struct_Data, const vector<vector<double>>& pre_Fourier_Factor);
+	double function_DWBA_SA_CSA_Batch_Integrand (double r, int thread_Index, const Data& struct_Data);
 
 	// for sigma grading
 	void multifly_Fresnel_And_Weak_Factor(int thread_Index);

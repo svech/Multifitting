@@ -1,3 +1,4 @@
+#include "boost/math/special_functions/bessel.hpp"
 #include "global_variables.h"
 #include "multilayer_approach/multilayer_approach.h"
 #include "standard/mydoublespinbox.h"
@@ -1143,12 +1144,14 @@ double Global_Variables::Cor_Fractal_Gauss_Pow_n(double xi, double alpha, double
 }
 double Global_Variables::Cor_ABC(double xi, double alpha, double r)
 {
+	if(xi > 0)	return pow(2,1-alpha)/tgamma(alpha) * pow(r/xi, alpha) * boost::math::cyl_bessel_k(alpha, r/xi);
 	if(xi > 0)	return pow(2,1-alpha)/tgamma(alpha) * pow(r/xi, alpha) * cyl_bessel_k(alpha, r/xi);
 	else		return 0;
 }
 double Global_Variables::Cor_ABC_Pow_n(double xi, double alpha, double r, double factor, int n)
 {
-	if(xi > 0)	return factor * pow(pow(r/xi, alpha)*cyl_bessel_k(alpha, r/xi),n);
+	if(xi > 0)	return factor * pow(pow(r/xi, alpha)*boost::math::cyl_bessel_k(alpha, r/xi),n);
+//	if(xi > 0)	return factor * pow(pow(r/xi, alpha)*cyl_bessel_k(alpha, r/xi),n);
 	else		return 0;
 }
 

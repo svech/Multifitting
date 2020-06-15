@@ -41,14 +41,6 @@ public:
 	void clear_Spline_PSD_Fractal_Gauss_1D();
 	gsl_spline* spline;
 	gsl_interp_accel* acc;
-
-	// too slow for big n_Power => unused
-	#ifndef POSTINTEGRATION_DWBA_SA_CSA
-	void create_Spline_DWBA_SA_CSA_1D(const Data& measurement, QString model);
-	void clear_Spline_DWBA_SA_CSA_1D();
-	vector<gsl_spline*> spline_n_Vec;
-	vector<gsl_interp_accel*> acc_n_Vec;
-	#endif
 };
 
 #endif // NODE_H
