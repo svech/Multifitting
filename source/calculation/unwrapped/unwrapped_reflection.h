@@ -85,6 +85,7 @@ public:
 	vector<Data> appropriate_Item_Vec;					//	[item_Index]
 	vector<Node> appropriate_Node_Vec;					//	[item_Index]
 	vector<int> boundary_Item_Vec;						//	[boundary]
+	vector<vector<int>> boundaries_Of_Item_Vec;			//	[item_Index][boundary]
 
 	vector<vector<double>> intensity_Term_Boundary_s;			//	[thread][boundary]
 	vector<vector<double>> intensity_Term_Boundary_p;			//	[thread][boundary]
@@ -157,7 +158,8 @@ public:
 	vector<double> factorial;							// [n]
 	vector<ooura_fourier_cos<double>> integrator_Vec;	//	[thread]
 
-	vector<vector<double>> pre_Fourier_Factor;						//	[thread][n]
+	vector<vector<double>> pre_Fourier_Factor;			//	[thread][n]
+	vector<vector<vector<double>>> incoherent_Diagonal_Term;	//	[thread][boundary][n]
 
 	///---------------------------------------------------------------------
 
@@ -166,9 +168,8 @@ public:
 	int fill_sp_Max_Depth_3(const tree<Node>::iterator& parent, int thread_Index, int point_Index, int media_Index = 0);
 
 	void fill_Item_Id_Map();
-	void fill_Item_PSD_1D(int thread_Index, double cos_Theta, double cos_Theta_0);
-	void fill_Item_PSD_2D(int thread_Index, int point_Index, int phi_Index);
-	int fill_Boundary_Item_PSD(const tree<Node>::iterator &parent, int boundary_Index = 0);
+	int fill_Boundary_Item(const tree<Node>::iterator &parent, int boundary_Index = 0);
+
 	void fill_Epsilon_Ambient_Substrate	(int thread_Index,						  const vector<complex<double>>& epsilon_Vector);
 
 	// specular
@@ -184,10 +185,12 @@ public:
 	void calc_Sliced_Field				(int thread_Index, int point_Index,		  const vector<complex<double>>& epsilon_Vector);
 
 	// PT
+	void fill_Item_PSD_1D				(int thread_Index, double cos_Theta, double cos_Theta_0);
+	void fill_Item_PSD_2D				(int thread_Index, int point_Index, int phi_Index);
 	double calc_Field_Term_Sum			(QString polarization, int point_Index, int thread_Index);
-	void choose_PSD_1D_Function(const Data& struct_Data, int thread_Index);
-	void choose_PSD_2D_Function(int point_Index, int thread_Index);
-	double azimuthal_Integration (gsl_function* function, double delta);
+	void choose_PSD_1D_Function			(const Data& struct_Data, int thread_Index);
+	void choose_PSD_2D_Function			(int point_Index, int thread_Index);
+	double azimuthal_Integration		(gsl_function* function, double delta);
 
 	// DWBA SA CSA
 	void calc_k_Wavenumber_DWBA_SA_CSA			(int thread_Index, int point_Index);
@@ -195,7 +198,10 @@ public:
 	void calc_K_Factor_DWBA_SA_CSA				(int thread_Index,                  QString polarization);
 	double calc_K_Factor_Term_Sum_DWBA_SA_CSA	(int thread_Index, QString polarization, int n_Power);
 	void choose_Cor_Function					(int thread_Index);
-	double function_DWBA_SA_CSA_Batch_Integrand (double r, int thread_Index, const Data& struct_Data);
+	double function_DWBA_SA_CSA_Batch_Common_Integrand	  (double r, int thread_Index, const Data& struct_Data);
+	double function_DWBA_SA_CSA_Batch_Individual_Integrand(double r, int thread_Index, int boundary, int item_Index);
+	double common_Cor_Function_Integration		(int point_Index, int thread_Index, double cos_Theta_0);
+	double individual_Cor_Function_Integration	(int point_Index, int thread_Index, double cos_Theta_0);
 
 	// for sigma grading
 	void multifly_Fresnel_And_Weak_Factor(int thread_Index);

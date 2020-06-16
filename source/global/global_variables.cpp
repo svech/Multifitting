@@ -1,4 +1,4 @@
-#include "boost/math/special_functions/bessel.hpp"
+#include <boost/math/special_functions/bessel.hpp>
 #include "global_variables.h"
 #include "multilayer_approach/multilayer_approach.h"
 #include "standard/mydoublespinbox.h"
@@ -1133,26 +1133,15 @@ double Global_Variables::PSD_Fractal_Gauss_1D(double sigma, double xi, double al
 
 double Global_Variables::Cor_Fractal_Gauss(double xi, double alpha, double r)
 {
-	if(xi > 0)	return exp(-pow(r/xi, 2*alpha));
-	else		return 0;
-}
-double Global_Variables::Cor_Fractal_Gauss_Pow_n(double xi, double alpha, double r, double factor, int n)
-{
-	Q_UNUSED(factor)
-	if(xi > 0)	return exp(-n*pow(r/xi, 2*alpha));
-	else		return 0;
+	return exp(-pow(r/xi, 2*alpha));
+//	if(xi > 0)	return exp(-pow(r/xi, 2*alpha));
+//	else		return 0;
 }
 double Global_Variables::Cor_ABC(double xi, double alpha, double r)
 {
-	if(xi > 0)	return pow(2,1-alpha)/tgamma(alpha) * pow(r/xi, alpha) * boost::math::cyl_bessel_k(alpha, r/xi);
-	if(xi > 0)	return pow(2,1-alpha)/tgamma(alpha) * pow(r/xi, alpha) * cyl_bessel_k(alpha, r/xi);
-	else		return 0;
-}
-double Global_Variables::Cor_ABC_Pow_n(double xi, double alpha, double r, double factor, int n)
-{
-	if(xi > 0)	return factor * pow(pow(r/xi, alpha)*boost::math::cyl_bessel_k(alpha, r/xi),n);
-//	if(xi > 0)	return factor * pow(pow(r/xi, alpha)*cyl_bessel_k(alpha, r/xi),n);
-	else		return 0;
+	return pow(2,1-alpha)/tgamma(alpha) * pow(r/xi+DBL_EPSILON, alpha) * boost::math::cyl_bessel_k(alpha, r/xi+DBL_EPSILON);
+//	if(xi > 0)	return pow(2,1-alpha)/tgamma(alpha) * pow(r/xi+DBL_EPSILON, alpha) * boost::math::cyl_bessel_k(alpha, r/xi+DBL_EPSILON);
+//	else		return 0;
 }
 
 double Global_Variables::splined_Value_1D(double k, double cos_Theta, double cos_Theta_0, gsl_spline* spline, gsl_interp_accel* acc)

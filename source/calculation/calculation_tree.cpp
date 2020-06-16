@@ -320,9 +320,10 @@ void Calculation_Tree::stratify_Calc_Tree(tree<Node>& calc_Tree)
 				{
 					// save number of periods and drift for drift calculation
 					tree<Node>::post_order_iterator layer = tree<Node>::child(chosen_Child,child_Index);
-					if(layer.node->data.struct_Data.item_Type == item_Type_Layer)
+					Data& layer_Data = layer.node->data.struct_Data;
+					if(layer_Data.item_Type == item_Type_Layer)
 					{
-						layer.node->data.struct_Data.num_Repetition.parameter.value = chosen_Child.node->data.struct_Data.num_Repetition.parameter.value;
+						layer_Data.num_Repetition.parameter.value = chosen_Child.node->data.struct_Data.num_Repetition.parameter.value;
 					}
 				}
 				// change data
@@ -331,7 +332,10 @@ void Calculation_Tree::stratify_Calc_Tree(tree<Node>& calc_Tree)
 
 				for(unsigned child_Index=0; child_Index<chosen_Child.number_of_children(); ++child_Index)
 				{
-					calc_Tree.insert_subtree(chosen_Child, tree<Node>::child(chosen_Child,child_Index));
+					tree<Node>::post_order_iterator inserted_Layer = calc_Tree.insert_subtree(chosen_Child, tree<Node>::child(chosen_Child,child_Index));
+					// change id after inserting
+//					Data& inserted_Layer_Data = inserted_Layer.node->data.struct_Data;
+//					inserted_Layer_Data.id = -inserted_Layer_Data.id;
 				}
 			}
 		}
