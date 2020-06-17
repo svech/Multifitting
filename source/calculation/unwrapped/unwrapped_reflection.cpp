@@ -320,8 +320,6 @@ Unwrapped_Reflection::Unwrapped_Reflection(Multilayer* multilayer, Unwrapped_Str
     num_Layers		(num_Media-2),
     num_Boundaries	(num_Media-1),
     num_Media		(num_Media),
-    max_Depth		(unwrapped_Structure->max_Depth),
-    depth_Threshold	(unwrapped_Structure->depth_Threshold),
     depth_Grading	(depth_Grading),
     sigma_Grading	(sigma_Grading),
     calc_Functions  (calc_Functions),
@@ -2242,7 +2240,7 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 //	auto start = std::chrono::system_clock::now();
 	if(!unwrapped_Structure->discretization_Parameters.enable_Discretization)
 	{
-		if( max_Depth <= depth_Threshold)
+		if( true/*max_Depth <= depth_Threshold*/)
 		{
 			// in case of grading, some of these values are temporary and will be recalculated
 			if( (measurement.polarization - 1) > -POLARIZATION_TOLERANCE )		// s-polarization only

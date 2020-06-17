@@ -25,6 +25,8 @@ struct Data_Element
 	Type* the_Class;
 	Calc_Functions calc_Functions;
 	tree<Node> calc_Tree; // each tree creates somehow 2 nodes at creation
+	vector<Node*> media_Node_Map_Vector;
+	vector<Data*> media_Data_Map_Vector;
 };
 
 class Calculation_Tree
@@ -40,12 +42,15 @@ public:
 	void fill_Calc_Tree_From_Item_Tree(const tree<Node>::iterator& parent, tree<Node>& calc_Tree, QTreeWidgetItem* item);
 	void fill_Calc_Trees();
 
+	int get_Total_Num_Layers(const tree<Node>::iterator& parent);
+
 	void renew_Item_Tree_From_Calc_Tree(const tree<Node>::iterator& parent, tree<Node>& calc_Tree, QTreeWidgetItem* item);
 
 //	void statify_Item_Tree();
 
 	void stratify_Calc_Tree_Iteration(const tree<Node>::iterator& parent, int depth, QVector<tree<Node>::iterator>& chosen_Nodes);
 	void stratify_Calc_Tree(tree<Node>& calc_Tree);
+	int unwrap_Calc_Tree(const tree<Node>::iterator& parent, vector<Node*>& media_Node_Map_Vector, vector<Data*>& media_Data_Map_Vector, int media_Index = 0);
 
 	template <typename Type>
 	void calculate_1_Kind_Preliminary(Data_Element<Type>& data_Element);
@@ -56,10 +61,9 @@ public:
 	void calculate_Intermediate_Values_1_Tree(tree<Node>& calc_Tree, const Data& measurement, const tree<Node>::iterator& parent, QString mode, Node* above_Node = NULL);
 	void clear_Spline_1_Tree(tree<Node>& calc_Tree, const tree<Node>::iterator& parent, QString mode);
 
-	void calculate_Unwrapped_Structure   (const Calc_Functions& calc_Functions, tree<Node>& calc_Tree,                const Data& measurement, Unwrapped_Structure*& unwrapped_Structure_Vec_Element);
+	void calculate_Unwrapped_Structure   (const Calc_Functions& calc_Functions, const tree<Node>& calc_Tree,          const Data& measurement, Unwrapped_Structure*& unwrapped_Structure_Vec_Element, const vector<Node*>& media_Node_Map_Vector);
 	void calculate_Unwrapped_Reflectivity(const Calc_Functions& calc_Functions, Calculated_Values& calculated_Values, const Data& measurement, Unwrapped_Structure*  unwrapped_Structure_Vec_Element, Unwrapped_Reflection*& unwrapped_Reflection_Vec_Element, QString mode);
 
-	int get_Total_Num_Layers(const tree<Node>::iterator& parent, const tree<Node>& calc_Tree);
 
 	void print_Tree(const tree<Node>::iterator& parent, tree<Node>& calc_Tree);
 //	void print_Flat_list(QList<Node> flat_List);
@@ -78,6 +82,7 @@ public:
 	int max_Depth;
 	int depth_Threshold;
 	int num_Media;
+	int num_Media_Sharp;
 
 	QVector<Data_Element<Independent_Curve>> independent;
 	QVector<Data_Element<Target_Curve>>			 target;

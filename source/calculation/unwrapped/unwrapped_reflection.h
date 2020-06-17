@@ -21,8 +21,7 @@ public:
 	int num_Layers;
 	int num_Boundaries;
 	int num_Media;
-	int max_Depth;
-	int depth_Threshold;
+	int max_Depth;  // TODO remove
 	size_t num_Points;
 	size_t phi_Points;
 	size_t short_Phi_Points;

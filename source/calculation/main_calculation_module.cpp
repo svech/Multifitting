@@ -237,16 +237,17 @@ void Main_Calculation_Module::preliminary_Calculation()
 	for(int tab_Index=0; tab_Index<multilayers.size(); ++tab_Index)
 	{
 		calculation_Trees[tab_Index]->fill_Calc_Trees();
-		for(Data_Element<Independent_Curve>& independent_Data_Element : calculation_Trees[tab_Index]->independent)
-		{
-			calculation_Trees[tab_Index]->calculate_1_Kind_Preliminary(independent_Data_Element);
-		}
-		for(Data_Element<Target_Curve>& target_Data_Element : calculation_Trees[tab_Index]->target)
-		{			
-			// TODO
-//			increase_Mesh_density(target_Data_Element);
-			calculation_Trees[tab_Index]->calculate_1_Kind_Preliminary(target_Data_Element);
-		}
+
+//		for(Data_Element<Independent_Curve>& independent_Data_Element : calculation_Trees[tab_Index]->independent)
+//		{
+//			calculation_Trees[tab_Index]->calculate_1_Kind_Preliminary(independent_Data_Element);
+//		}
+//		for(Data_Element<Target_Curve>& target_Data_Element : calculation_Trees[tab_Index]->target)
+//		{
+//			// TODO
+////			increase_Mesh_density(target_Data_Element);
+//			calculation_Trees[tab_Index]->calculate_1_Kind_Preliminary(target_Data_Element);
+//		}
 	}
 }
 
@@ -258,9 +259,9 @@ void Main_Calculation_Module::single_Calculation(bool print_And_Verbose)
 		return;
 	}
 
-	// prepare k and cos2 vectors
+	// prepare k and cos2 vectors; vector of Nodes is also filled for each calc_Tree
 	preliminary_Calculation();
-
+/*
 	// timer
 	std::chrono::system_clock::time_point start = std::chrono::system_clock::now();
 
@@ -310,6 +311,7 @@ void Main_Calculation_Module::single_Calculation(bool print_And_Verbose)
 //		auto elapsed1 = std::chrono::duration_cast<std::chrono::microseconds>(end1 - start1);
 //		qInfo() << "print_Calculated_To_File: "<< elapsed1.count()/1000000. << " seconds" << endl;
 	}
+	*/
 }
 
 void Main_Calculation_Module::fitting_and_Confidence()

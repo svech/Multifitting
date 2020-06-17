@@ -12,28 +12,34 @@ class Multilayer;
 class Unwrapped_Structure
 {
 public:
-	Unwrapped_Structure(Multilayer* multilayer, const Calc_Functions& calc_Functions, const tree<Node>& calc_Tree, const Data& measurement, int num_Media, int max_Depth, int depth_Threshold, bool depth_Grading, bool sigma_Grading, Discretization_Parameters discretization_Parameters, gsl_rng* r);
+	Unwrapped_Structure(Multilayer* multilayer,
+						const Calc_Functions& calc_Functions,
+						const tree<Node>& calc_Tree,
+						const Data& measurement,
+						const vector<Node*>& media_Node_Map_Vector,
+						int num_Media_Sharp,
+						bool depth_Grading,
+						bool sigma_Grading,
+						Discretization_Parameters discretization_Parameters,
+						gsl_rng* r);
 
 	gsl_rng * r;
 
 	int num_Threads;
-	int num_Media;
+	int num_Media_Sharp;
 	int num_Boundaries;
 	int num_Layers;
-	int max_Depth;
-	int depth_Threshold;
 
 	bool depth_Grading;
 	bool sigma_Grading;
 	Discretization_Parameters discretization_Parameters;
 
 	const tree<Node>& calc_Tree;
+	const vector<Node*>& media_Node_Map_Vector;
 	const Calc_Functions& calc_Functions;
 	Multilayer* multilayer;
 
 	vector<complex<double>> epsilon;								//	[media]
-
-	// if epsilon is dependent on variable
 	vector<vector<complex<double>>> epsilon_Dependent;				//	[wavelength][media]
 
 	double max_Sigma;
@@ -86,12 +92,12 @@ public:
 	void find_Field_Spacing();
 	int get_Layer_or_Slice_Index(double z);
 
-//	int fill_Epsilon_Angular_Max_Depth_2  (const tree<Node>::iterator& parent, int media_Index = 0);
-//	int fill_Epsilon_Spectra_Max_Depth_2  (const tree<Node>::iterator& parent, int media_Index = 0);
-//	int fill_Sigma_Max_Depth_2    (const tree<Node>::iterator& parent, int boundary_Index = 0);
-//	int fill_Thickness_Max_Depth_2(const tree<Node>::iterator& parent, int layer_Index = 0);
 
-	int fill_Epsilon		  (const tree<Node>::iterator& parent, int media_Index = 0);
+
+	void fill_Epsilon		  ();
+//	void fill_Epsilon_Dependent();
+
+//	int fill_Epsilon		  (const tree<Node>::iterator& parent, int media_Index = 0);
 	int fill_Epsilon_Dependent(const tree<Node>::iterator& parent, int num_Lambda_Points, size_t media_Index = 0);
 	int fill_Sigma    (const tree<Node>::iterator& parent, double& max_Sigma, int boundary_Index = 0, int per_Index = 0);
 	int fill_Thickness_And_Boundaries(const tree<Node>::iterator& parent, int layer_Index = 0,    int per_Index = 0);
