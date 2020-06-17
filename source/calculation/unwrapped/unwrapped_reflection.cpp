@@ -32,7 +32,7 @@ double function_Scattering_ABC_2D_s (double phi, void* p)
 	                                                           params->cos_Theta,
 	                                                           params->cos_Theta_0,
 	                                                           cos_Phi);
-	double nu_Alpha_2 = Global_Variables::nu_Alpha_2D(u->unwrapped_Structure->alpha[thread_Index].back(), // substrate
+	double nu_Alpha_2 = Global_Variables::nu_Alpha_2D(u->unwrapped_Structure->alpha_Threaded[thread_Index].back(), // substrate
 	                                                  u->measurement.k_Value,
 	                                                  params->cos_Theta,
 	                                                  params->cos_Theta_0,
@@ -40,7 +40,7 @@ double function_Scattering_ABC_2D_s (double phi, void* p)
 	double partially_Coherent_Sum = 0;
 	for (int i = 1; i<u->num_Boundaries; i++)
 	{
-		u->cross_Exp_Factor_2D[thread_Index][i][i-1] = exp(-nu_Alpha_2 * u->unwrapped_Structure->PSD_mu_alpha_h[thread_Index][i-1]);
+		u->cross_Exp_Factor_2D[thread_Index][i][i-1] = exp(-nu_Alpha_2 * u->unwrapped_Structure->PSD_mu_alpha_h_Threaded[thread_Index][i-1]);
 		partially_Coherent_Sum += u->cross_Exp_Factor_2D[thread_Index][i][i-1] * u->half_Sum_Field_Term_s[thread_Index][i][i-1];
 
 		for (int j = i-2; j>=0; j--)
@@ -71,7 +71,7 @@ double function_Scattering_ABC_2D_p (double phi, void* p)
 	                                                           params->cos_Theta,
 	                                                           params->cos_Theta_0,
 	                                                           cos_Phi);
-	double nu_Alpha_2 = Global_Variables::nu_Alpha_2D(u->unwrapped_Structure->alpha[thread_Index].back(), // substrate
+	double nu_Alpha_2 = Global_Variables::nu_Alpha_2D(u->unwrapped_Structure->alpha_Threaded[thread_Index].back(), // substrate
 	                                                  u->measurement.k_Value,
 	                                                  params->cos_Theta,
 	                                                  params->cos_Theta_0,
@@ -79,7 +79,7 @@ double function_Scattering_ABC_2D_p (double phi, void* p)
 	double partially_Coherent_Sum = 0;
 	for (int i = 1; i<u->num_Boundaries; i++)
 	{
-		u->cross_Exp_Factor_2D[thread_Index][i][i-1] = exp(-nu_Alpha_2 * u->unwrapped_Structure->PSD_mu_alpha_h[thread_Index][i-1]);
+		u->cross_Exp_Factor_2D[thread_Index][i][i-1] = exp(-nu_Alpha_2 * u->unwrapped_Structure->PSD_mu_alpha_h_Threaded[thread_Index][i-1]);
 		partially_Coherent_Sum += u->cross_Exp_Factor_2D[thread_Index][i][i-1] * u->half_Sum_Field_Term_p[thread_Index][i][i-1];
 
 		for (int j = i-2; j>=0; j--)
@@ -110,7 +110,7 @@ double function_Scattering_ABC_2D_sp(double phi, void* p)
 	                                                           params->cos_Theta,
 	                                                           params->cos_Theta_0,
 	                                                           cos_Phi);
-	double nu_Alpha_2 = Global_Variables::nu_Alpha_2D(u->unwrapped_Structure->alpha[thread_Index].back(), // substrate
+	double nu_Alpha_2 = Global_Variables::nu_Alpha_2D(u->unwrapped_Structure->alpha_Threaded[thread_Index].back(), // substrate
 	                                                  u->measurement.k_Value,
 	                                                  params->cos_Theta,
 	                                                  params->cos_Theta_0,
@@ -119,7 +119,7 @@ double function_Scattering_ABC_2D_sp(double phi, void* p)
 	double partially_Coherent_Sum_p = 0;
 	for (int i = 1; i<u->num_Boundaries; i++)
 	{
-		u->cross_Exp_Factor_2D[thread_Index][i][i-1] = exp(-nu_Alpha_2 * u->unwrapped_Structure->PSD_mu_alpha_h[thread_Index][i-1]);
+		u->cross_Exp_Factor_2D[thread_Index][i][i-1] = exp(-nu_Alpha_2 * u->unwrapped_Structure->PSD_mu_alpha_h_Threaded[thread_Index][i-1]);
 		partially_Coherent_Sum_s += u->cross_Exp_Factor_2D[thread_Index][i][i-1] * u->half_Sum_Field_Term_s[thread_Index][i][i-1];
 		partially_Coherent_Sum_p += u->cross_Exp_Factor_2D[thread_Index][i][i-1] * u->half_Sum_Field_Term_p[thread_Index][i][i-1];
 
@@ -159,19 +159,19 @@ double function_Scattering_Linear_2D_s (double phi, void* p)
 	double incoherent_Sum = u->intensity_Term_Boundary_s[thread_Index][u->num_Boundaries-1] * u->PSD_Factor_Boundary[thread_Index][u->num_Boundaries-1];
 	for (int i = u->num_Boundaries-2; i>=0; i--)
 	{
-		double nu_Alpha_2 = Global_Variables::nu_Alpha_2D(u->unwrapped_Structure->alpha[thread_Index][i],
+		double nu_Alpha_2 = Global_Variables::nu_Alpha_2D(u->unwrapped_Structure->alpha_Threaded[thread_Index][i],
 		                                                  u->measurement.k_Value,
 		                                                  params->cos_Theta,
 		                                                  params->cos_Theta_0,
 		                                                  cos_Phi);
-		u->cross_Exp_Factor_2D[thread_Index][i+1][i] = exp(-nu_Alpha_2 * u->unwrapped_Structure->PSD_mu_alpha_h[thread_Index][i]);
+		u->cross_Exp_Factor_2D[thread_Index][i+1][i] = exp(-nu_Alpha_2 * u->unwrapped_Structure->PSD_mu_alpha_h_Threaded[thread_Index][i]);
 
 
 		u->PSD_Factor_Boundary[thread_Index][i] = u->cross_Exp_Factor_2D[thread_Index][i+1][i]*u->PSD_Factor_Boundary[thread_Index][i+1]
 		                                               + Global_Variables::PSD_Linear_Growth_2D(u->cross_Exp_Factor_2D[thread_Index][i+1][i],
-		                                                                                        nu_Alpha_2*u->unwrapped_Structure->PSD_mu_alpha[thread_Index][i],
-		                                                                                        u->unwrapped_Structure->omega[thread_Index][i],
-		                                                                                        nu_Alpha_2*u->unwrapped_Structure->omega_pow23[thread_Index][i],
+																								nu_Alpha_2*u->unwrapped_Structure->PSD_mu_alpha_Threaded[thread_Index][i],
+																								u->unwrapped_Structure->omega_Threaded[thread_Index][i],
+																								nu_Alpha_2*u->unwrapped_Structure->omega_pow23_Threaded[thread_Index][i],
 		                                                                                        u->unwrapped_Structure->thickness_Threaded[thread_Index][i]);
 		incoherent_Sum += u->intensity_Term_Boundary_s[thread_Index][i] * u->PSD_Factor_Boundary[thread_Index][i];
 	}
@@ -216,19 +216,19 @@ double function_Scattering_Linear_2D_p (double phi, void* p)
 	double incoherent_Sum = u->intensity_Term_Boundary_p[thread_Index][u->num_Boundaries-1] * u->PSD_Factor_Boundary[thread_Index][u->num_Boundaries-1];
 	for (int i = u->num_Boundaries-2; i>=0; i--)
 	{
-		double nu_Alpha_2 = Global_Variables::nu_Alpha_2D(u->unwrapped_Structure->alpha[thread_Index][i],
+		double nu_Alpha_2 = Global_Variables::nu_Alpha_2D(u->unwrapped_Structure->alpha_Threaded[thread_Index][i],
 		                                                  u->measurement.k_Value,
 		                                                  params->cos_Theta,
 		                                                  params->cos_Theta_0,
 		                                                  cos_Phi);
-		u->cross_Exp_Factor_2D[thread_Index][i+1][i] = exp(-nu_Alpha_2 * u->unwrapped_Structure->PSD_mu_alpha_h[thread_Index][i]);
+		u->cross_Exp_Factor_2D[thread_Index][i+1][i] = exp(-nu_Alpha_2 * u->unwrapped_Structure->PSD_mu_alpha_h_Threaded[thread_Index][i]);
 
 
 		u->PSD_Factor_Boundary[thread_Index][i] = u->cross_Exp_Factor_2D[thread_Index][i+1][i]*u->PSD_Factor_Boundary[thread_Index][i+1]
 		                                               + Global_Variables::PSD_Linear_Growth_2D(u->cross_Exp_Factor_2D[thread_Index][i+1][i],
-		                                                                                        nu_Alpha_2*u->unwrapped_Structure->PSD_mu_alpha[thread_Index][i],
-		                                                                                        u->unwrapped_Structure->omega[thread_Index][i],
-		                                                                                        nu_Alpha_2*u->unwrapped_Structure->omega_pow23[thread_Index][i],
+																								nu_Alpha_2*u->unwrapped_Structure->PSD_mu_alpha_Threaded[thread_Index][i],
+																								u->unwrapped_Structure->omega_Threaded[thread_Index][i],
+																								nu_Alpha_2*u->unwrapped_Structure->omega_pow23_Threaded[thread_Index][i],
 		                                                                                        u->unwrapped_Structure->thickness_Threaded[thread_Index][i]);
 		incoherent_Sum += u->intensity_Term_Boundary_p[thread_Index][i] * u->PSD_Factor_Boundary[thread_Index][i];
 	}
@@ -274,19 +274,19 @@ double function_Scattering_Linear_2D_sp(double phi, void* p)
 	double incoherent_Sum_p = u->intensity_Term_Boundary_p[thread_Index][u->num_Boundaries-1] * u->PSD_Factor_Boundary[thread_Index][u->num_Boundaries-1];
 	for (int i = u->num_Boundaries-2; i>=0; i--)
 	{
-		double nu_Alpha_2 = Global_Variables::nu_Alpha_2D(u->unwrapped_Structure->alpha[thread_Index][i],
+		double nu_Alpha_2 = Global_Variables::nu_Alpha_2D(u->unwrapped_Structure->alpha_Threaded[thread_Index][i],
 		                                                  u->measurement.k_Value,
 		                                                  params->cos_Theta,
 		                                                  params->cos_Theta_0,
 		                                                  cos_Phi);
-		u->cross_Exp_Factor_2D[thread_Index][i+1][i] = exp(-nu_Alpha_2 * u->unwrapped_Structure->PSD_mu_alpha_h[thread_Index][i]);
+		u->cross_Exp_Factor_2D[thread_Index][i+1][i] = exp(-nu_Alpha_2 * u->unwrapped_Structure->PSD_mu_alpha_h_Threaded[thread_Index][i]);
 
 
 		u->PSD_Factor_Boundary[thread_Index][i] = u->cross_Exp_Factor_2D[thread_Index][i+1][i]*u->PSD_Factor_Boundary[thread_Index][i+1]
 		                                               + Global_Variables::PSD_Linear_Growth_2D(u->cross_Exp_Factor_2D[thread_Index][i+1][i],
-		                                                                                        nu_Alpha_2*u->unwrapped_Structure->PSD_mu_alpha[thread_Index][i],
-		                                                                                        u->unwrapped_Structure->omega[thread_Index][i],
-		                                                                                        nu_Alpha_2*u->unwrapped_Structure->omega_pow23[thread_Index][i],
+																								nu_Alpha_2*u->unwrapped_Structure->PSD_mu_alpha_Threaded[thread_Index][i],
+																								u->unwrapped_Structure->omega_Threaded[thread_Index][i],
+																								nu_Alpha_2*u->unwrapped_Structure->omega_pow23_Threaded[thread_Index][i],
 		                                                                                        u->unwrapped_Structure->thickness_Threaded[thread_Index][i]);
 		incoherent_Sum_s += u->intensity_Term_Boundary_s[thread_Index][i] * u->PSD_Factor_Boundary[thread_Index][i];
 		incoherent_Sum_p += u->intensity_Term_Boundary_p[thread_Index][i] * u->PSD_Factor_Boundary[thread_Index][i];
@@ -451,9 +451,9 @@ Unwrapped_Reflection::Unwrapped_Reflection(Multilayer* multilayer, Unwrapped_Str
 	// field intensity in-depth
 	if(unwrapped_Structure->calc_Functions.check_Field || unwrapped_Structure->calc_Functions.check_Joule)
 	{
-		if(!unwrapped_Structure->discretization_Parameters.enable_Discretization)
+		if(!multilayer->discretization_Parameters.enable_Discretization)
 		{
-			boundaries_Enlarged = unwrapped_Structure->boundaries;
+			boundaries_Enlarged = unwrapped_Structure->boundaries_Position;
 		} else
 		{
 			boundaries_Enlarged = unwrapped_Structure->discretized_Slices_Boundaries;
@@ -2238,7 +2238,7 @@ void Unwrapped_Reflection::multifly_Fresnel_And_Weak_Factor(int thread_Index)
 void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int point_Index)
 {
 //	auto start = std::chrono::system_clock::now();
-	if(!unwrapped_Structure->discretization_Parameters.enable_Discretization)
+	if(!multilayer->discretization_Parameters.enable_Discretization)
 	{
 		if( true/*max_Depth <= depth_Threshold*/)
 		{
@@ -2333,7 +2333,7 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 	{
 		if( measurement.argument_Type  == argument_Types[Beam_Grazing_Angle] )
 		{
-			if(!unwrapped_Structure->discretization_Parameters.enable_Discretization)	{
+			if(!multilayer->discretization_Parameters.enable_Discretization)	{
 				calc_Sliced_Field(thread_Index, point_Index, unwrapped_Structure->epsilon);
 			} else	{
 				calc_Sliced_Field(thread_Index, point_Index, unwrapped_Structure->discretized_Epsilon);
@@ -2341,7 +2341,7 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 		}
 		if( measurement.argument_Type == argument_Types[Wavelength_Energy] )
 		{
-			if(!unwrapped_Structure->discretization_Parameters.enable_Discretization)	{
+			if(!multilayer->discretization_Parameters.enable_Discretization)	{
 				calc_Sliced_Field(thread_Index, point_Index, unwrapped_Structure->epsilon_Dependent[point_Index]);
 			} else	{
 				calc_Sliced_Field(thread_Index, point_Index, unwrapped_Structure->discretized_Epsilon_Dependent[point_Index]);
@@ -2355,7 +2355,7 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 	    measurement.measurement_Type == measurement_Types[Rocking_Curve] ||
 	    measurement.measurement_Type == measurement_Types[Offset_Scan] )
 	{
-		if(!unwrapped_Structure->discretization_Parameters.enable_Discretization)
+		if(!multilayer->discretization_Parameters.enable_Discretization)
 		{
 			if( (measurement.polarization + 1) > POLARIZATION_TOLERANCE)  calc_Amplitudes_Field(thread_Index, point_Index, "s");
 			if( (measurement.polarization - 1) < -POLARIZATION_TOLERANCE) calc_Amplitudes_Field(thread_Index, point_Index, "p");

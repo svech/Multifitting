@@ -1401,6 +1401,11 @@ void Table_Of_Structures::span_Structure_Items(My_Table_Widget* table)
 					int rows = 5;
 					table->setSpan(row_Index,col_Index,rows,1);
 				}
+				if( item_Type == item_Type_Regular_Aperiodic )
+				{
+					int rows = 2;
+					table->setSpan(row_Index,col_Index,rows,1);
+				}
 			}
 		}
 	}
@@ -3288,7 +3293,6 @@ void Table_Of_Structures::real_Tree_Iteration(Multilayer* multilayer, QTreeWidge
 //			for(Parameter* parameter : struct_Data.potentially_Fitable_Parameters)
 			for(Parameter* parameter : struct_Data.table_Showed_Parameters)
 			{
-				if(parameter->indicator.whats_This == whats_This_Sigma_Diffuse) qInfo() << parameter->indicator.full_Name << endl;
 				// pure masters only
 				if(!parameter->coupled.master.exist && parameter->coupled.slaves.size()>0)
 				{

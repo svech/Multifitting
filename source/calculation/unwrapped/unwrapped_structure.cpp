@@ -3,13 +3,13 @@
 
 Unwrapped_Structure::Unwrapped_Structure(Multilayer* multilayer,
 										 const Calc_Functions& calc_Functions,
-										 const tree<Node>& calc_Tree,
-										 const Data& measurement,
 										 const vector<Node*>& media_Node_Map_Vector,
+										 const vector<Data*>& media_Data_Map_Vector,
+										 const vector<int>& media_Period_Index_Map_Vector,
+										 const Data& measurement,
 										 int num_Media_Sharp,
 										 bool depth_Grading,
 										 bool sigma_Grading,
-										 Discretization_Parameters discretization_Parameters,
 										 gsl_rng* r) :
 	r(r),
 	num_Media_Sharp	(num_Media_Sharp),
@@ -17,146 +17,53 @@ Unwrapped_Structure::Unwrapped_Structure(Multilayer* multilayer,
 	num_Layers		(num_Media_Sharp - 2),
 	depth_Grading	(depth_Grading),
 	sigma_Grading	(sigma_Grading),	
-	discretization_Parameters(discretization_Parameters),
-	calc_Tree		(calc_Tree),
+	multilayer			 (multilayer),
+	calc_Functions		 (calc_Functions),
 	media_Node_Map_Vector(media_Node_Map_Vector),
-	calc_Functions  (calc_Functions),
-	multilayer		(multilayer)
+	media_Data_Map_Vector(media_Data_Map_Vector),
+	media_Period_Index_Map_Vector(media_Period_Index_Map_Vector),
+	measurement			 (measurement)
 {
-	// create vector of epsilon if we will need it
-	if( measurement.argument_Type == argument_Types[Wavelength_Energy] )
+	if( multilayer->discretization_Parameters.enable_Discretization ||
+		calc_Functions.check_Field ||
+		calc_Functions.check_Joule ||
+		calc_Functions.check_Scattering	||
+		calc_Functions.check_GISAS )
 	{
-//		epsilon_Dependent.resize(measurement.lambda_Vec.size(), vector<complex<double>>(num_Media));
-//		fill_Epsilon_Dependent(calc_Tree.begin(), measurement.lambda_Vec.size());
-	} else
-	/// for all angular simulations, including scattering
-	{
-		fill_Epsilon();
+		fill_Epsilon_Sharp();
 	}
-//	if( max_Depth>depth_Threshold ||
-//		discretization_Parameters.enable_Discretization ||
-//		calc_Functions.check_Field ||
-//		calc_Functions.check_Joule ||
-//		calc_Functions.check_Scattering	||
-//		calc_Functions.check_GISAS )
-//	{
-//		if( measurement.argument_Type == argument_Types[Wavelength_Energy] )
-//		{
-//			size_t num_Lambda_Points = measurement.lambda_Vec.size();
-
-//			epsilon_Dependent.resize(num_Lambda_Points, vector<complex<double>>(num_Media));
-//			fill_Epsilon_Dependent(calc_Tree.begin(), num_Lambda_Points);
-//		} else
-//		// for all angular simulations, including scattering
-//		{
-//			epsilon.resize(num_Media);
-//			fill_Epsilon(calc_Tree.begin());
-////			fill_Epsilon_Max_Depth_2(calc_Tree->begin());
-//		}
-//	}
-	// create vectors of sigma/interlayer if we will need it
-//	if( max_Depth>depth_Threshold ||
-//		sigma_Grading ||
-//		discretization_Parameters.enable_Discretization )
+	if( multilayer->discretization_Parameters.enable_Discretization ||
+		depth_Grading ||
+		calc_Functions.check_Scattering	||
+		calc_Functions.check_GISAS )
 	{
-		max_Sigma = 0.1;
-		sigma_Diffuse.resize(num_Boundaries);
-		common_Sigma_Diffuse.resize(num_Boundaries);
-		boundary_Interlayer_Composition.resize(num_Boundaries, QVector<Interlayer>(transition_Layer_Functions_Size));
-		fill_Sigma(calc_Tree.begin(), max_Sigma);
-//		fill_Sigma_Max_Depth_2(calc_Tree->begin());
-
-		// multithreading
-		boundary_Interlayer_Composition_Threaded.resize(reflectivity_Calc_Threads);
-		for(int thread_Index=0; thread_Index<reflectivity_Calc_Threads; thread_Index++)	{
-			boundary_Interlayer_Composition_Threaded[thread_Index] = boundary_Interlayer_Composition;
-		}
+		fill_Sigma_Diffuse_And_Interlayers();
 	}
-
-	// create vectors of boundaries and thicknesses if we will need it
-//	if( max_Depth>depth_Threshold ||
-//		depth_Grading ||
-//		discretization_Parameters.enable_Discretization ||
-//		calc_Functions.check_Field ||
-//		calc_Functions.check_Joule )
+	if( multilayer->discretization_Parameters.enable_Discretization ||
+		calc_Functions.check_Field ||
+		calc_Functions.check_Joule ||
+		depth_Grading ||
+		calc_Functions.check_Scattering	||
+		calc_Functions.check_GISAS )
 	{
-		thickness.resize(num_Layers);
-		boundaries.resize(num_Boundaries);
-		boundaries.front() = 0;
-		fill_Thickness_And_Boundaries(calc_Tree.begin());
-//		fill_Thickness_Max_Depth_2(calc_Tree->begin());
-
-		// multithreading
-		boundaries_Threaded.resize(reflectivity_Calc_Threads);
-		for(int thread_Index=0; thread_Index<reflectivity_Calc_Threads; thread_Index++)
-		{
-			boundaries_Threaded[thread_Index] = boundaries;
-		}
+		fill_Thickness_And_Boundaries_Position();
 	}
-	// create vectors of exponential powers for partially correlated roughness
 	if( calc_Functions.check_Scattering	||
 		calc_Functions.check_GISAS )
 	{
-		thickness.resize(num_Layers);
-
-		thickness_Threaded.resize(reflectivity_Calc_Threads);
-		sigma_Roughness_Threaded.resize(reflectivity_Calc_Threads);
-		mu.resize(reflectivity_Calc_Threads);
-		omega.resize(reflectivity_Calc_Threads);
-		omega_pow23.resize(reflectivity_Calc_Threads);
-		alpha.resize(reflectivity_Calc_Threads);
-		PSD_mu_alpha.resize(reflectivity_Calc_Threads);
-		PSD_mu_alpha_h.resize(reflectivity_Calc_Threads);
-		for(int thread_Index = 0; thread_Index<reflectivity_Calc_Threads; thread_Index++)
-		{
-			thickness_Threaded[thread_Index].resize(num_Layers);
-			sigma_Roughness_Threaded[thread_Index].resize(num_Boundaries);
-			mu[thread_Index].resize(num_Layers);
-			omega[thread_Index].resize(num_Layers);
-			omega_pow23[thread_Index].resize(num_Layers);
-			alpha[thread_Index].resize(num_Layers);
-			PSD_mu_alpha[thread_Index].resize(num_Layers);
-			PSD_mu_alpha_h[thread_Index].resize(num_Layers);
-		}
-
-		fill_Thickness_Sigma_Mu_And_Alpha(calc_Tree.begin());
-		//	fill_Thickness_Mu_And_Alpha_Depth_2(calc_Tree->begin());
-		// common alpha for partial correlation
-		if(multilayer->imperfections_Model.common_Model == ABC_model || multilayer->imperfections_Model.common_Model == fractal_Gauss_Model)
-		{
-			const Data& substrate = calc_Tree.child(calc_Tree.begin(), calc_Tree.begin().number_of_children()-1).node->data.struct_Data;
-			for(int thread_Index = 0; thread_Index<reflectivity_Calc_Threads; thread_Index++)
-			{
-				for(int i = 0; i<num_Layers; i++)
-				{
-					alpha[thread_Index][i] = substrate.roughness_Model.fractal_alpha.value;
-				}
-			}
-		}
-		if(multilayer->imperfections_Model.use_Common_Roughness_Function)
-		if(multilayer->imperfections_Model.common_Model == ABC_model || multilayer->imperfections_Model.common_Model == fractal_Gauss_Model)
-		{
-			const Data& substrate = calc_Tree.child(calc_Tree.begin(), calc_Tree.begin().number_of_children()-1).node->data.struct_Data;
-			for(int thread_Index = 0; thread_Index<reflectivity_Calc_Threads; thread_Index++)
-			{
-				for(int i = 0; i<num_Boundaries; i++)
-				{
-					sigma_Roughness_Threaded[thread_Index][i] = substrate.roughness_Model.sigma.value;
-				}
-			}
-		}
-
+		fill_Roughness_Parameters();
 		fill_PSD_Inheritance_Powers();
 	}
-	if(discretization_Parameters.enable_Discretization)
+
+	if(multilayer->discretization_Parameters.enable_Discretization)
 	{
 		// discretized_Thickness is constructed here
-		find_Discretization();
 		layer_Normalizing();
+		find_Discretization();
 
 		// prolong discretization into ambient and substrate
 		Global_Variables::get_Prefix_Suffix(prefix, suffix, max_Sigma);
-		Global_Variables::discretize_Prefix_Suffix(prefix, suffix, num_Prefix_Slices, num_Suffix_Slices, discretized_Thickness, discretization_Parameters.discretization_Step);
+		Global_Variables::discretize_Prefix_Suffix(prefix, suffix, num_Prefix_Slices, num_Suffix_Slices, discretized_Thickness, multilayer->discretization_Parameters.discretization_Step);
 		num_Discretized_Media = discretized_Thickness.size()+2;
 
 		find_Z_Positions();
@@ -188,7 +95,7 @@ Unwrapped_Structure::Unwrapped_Structure(Multilayer* multilayer,
 	if( calc_Functions.check_Field ||
 		calc_Functions.check_Joule )
 	{
-		if(discretization_Parameters.enable_Discretization)
+		if(multilayer->discretization_Parameters.enable_Discretization)
 		{
 			discretized_Slices_Boundaries.resize(discretized_Thickness.size()+1);
 			discretized_Slices_Boundaries.front() = -num_Prefix_Slices*discretized_Thickness.front();
@@ -200,6 +107,189 @@ Unwrapped_Structure::Unwrapped_Structure(Multilayer* multilayer,
 		find_Field_Spacing();
 	}
 }
+
+void Unwrapped_Structure::fill_Epsilon_Sharp()
+{
+	if( measurement.argument_Type == argument_Types[Wavelength_Energy] )
+	{
+		size_t num_Lambda_Points = measurement.lambda_Vec.size();
+		epsilon_Dependent.resize(num_Lambda_Points, vector<complex<double>>(num_Media_Sharp));
+
+		Global_Variables::parallel_For(num_Lambda_Points, epsilon_Partial_Fill_Threads, [&](int n_Min, int n_Max, int thread_Index)
+		{
+			Q_UNUSED(thread_Index)
+			for(int point_Index = n_Min; point_Index<n_Max; ++point_Index)
+			{
+				for(int media_Index=0; media_Index<num_Media_Sharp; media_Index++)
+				{
+					epsilon_Dependent[point_Index][media_Index] = media_Node_Map_Vector[media_Index]->epsilon[point_Index];
+				}
+			}
+		});
+	}
+	else
+	// for all angular simulations, including scattering // Beam_Grazing_Angle, Deviation_From_Specular_Angle, Detector_Polar_Angle, Detector_Azimuthal_Angle, Detector_Theta_Phi_Angles
+	{
+		epsilon.resize(num_Media_Sharp);
+		for(int media_Index=0; media_Index<num_Media_Sharp; media_Index++)
+		{
+			epsilon[media_Index] = media_Node_Map_Vector[media_Index]->epsilon.front();
+		}
+	}
+}
+
+void Unwrapped_Structure::fill_Sigma_Diffuse_And_Interlayers()
+{
+	sigma_Diffuse.resize(num_Boundaries);
+	common_Sigma_Diffuse.resize(num_Boundaries);
+	boundary_Interlayer_Composition.resize(num_Boundaries, QVector<Interlayer>(transition_Layer_Functions_Size));
+
+	sigma_Roughness.resize(num_Boundaries);
+
+	for(int boundary_Index=0; boundary_Index<num_Boundaries; boundary_Index++)
+	{
+		int media_Index = boundary_Index+1;
+		sigma_Diffuse		[boundary_Index] = media_Data_Map_Vector[media_Index]->sigma_Diffuse.value;
+		common_Sigma_Diffuse[boundary_Index] = media_Data_Map_Vector[media_Index]->common_Sigma_Diffuse;
+		sigma_Roughness     [boundary_Index] = media_Data_Map_Vector[media_Index]->roughness_Model.sigma.value;
+
+		// interlayers
+		for(int func_Index=0; func_Index<transition_Layer_Functions_Size; ++func_Index)
+		{
+			boundary_Interlayer_Composition[boundary_Index][func_Index] = media_Data_Map_Vector[boundary_Index+1]->interlayer_Composition[func_Index];
+			// getting max_Sigma
+			if(boundary_Interlayer_Composition[boundary_Index][func_Index].enabled)	{
+				max_Sigma = max(max_Sigma, boundary_Interlayer_Composition[boundary_Index][func_Index].my_Sigma_Diffuse.value);
+			}
+			// can drift
+			Global_Variables::variable_Drift(boundary_Interlayer_Composition[boundary_Index][func_Index].my_Sigma_Diffuse.value,
+											 media_Data_Map_Vector[media_Index]->sigma_Diffuse_Drift,
+											 media_Period_Index_Map_Vector[media_Index],
+											 media_Data_Map_Vector[media_Index]->num_Repetition.value(),
+											 r);
+		}
+		// interlayers drift
+		Global_Variables::variable_Drift(sigma_Diffuse[boundary_Index],
+										 media_Data_Map_Vector[media_Index]->sigma_Diffuse_Drift,
+										 media_Period_Index_Map_Vector[media_Index],
+										 media_Data_Map_Vector[media_Index]->num_Repetition.value(),
+										 r);
+	}
+
+	// threaded copy
+	boundary_Interlayer_Composition_Threaded.resize(reflectivity_Calc_Threads);
+	sigma_Roughness_Threaded.resize(reflectivity_Calc_Threads);
+
+	for(int thread_Index=0; thread_Index<reflectivity_Calc_Threads; thread_Index++)
+	{
+		boundary_Interlayer_Composition_Threaded[thread_Index] = boundary_Interlayer_Composition;
+		sigma_Roughness_Threaded[thread_Index] = sigma_Roughness;
+	}
+}
+
+void Unwrapped_Structure::fill_Thickness_And_Boundaries_Position()
+{
+	thickness.resize(num_Layers);
+	boundaries_Position.resize(num_Boundaries);
+	boundaries_Position.front() = 0;
+
+	for(int layer_Index=0; layer_Index<num_Layers; layer_Index++)
+	{
+		int boundary_Index = layer_Index+1;
+		int media_Index = layer_Index+1; // not a mistake
+		thickness[layer_Index] = media_Data_Map_Vector[media_Index]->thickness.value;
+		boundaries_Position[boundary_Index] = boundaries_Position[boundary_Index-1] + thickness[layer_Index];
+
+		// can drift
+		Global_Variables::variable_Drift(thickness[layer_Index],
+										 media_Data_Map_Vector[media_Index]->thickness_Drift,
+										 media_Period_Index_Map_Vector[media_Index],
+										 media_Data_Map_Vector[media_Index]->num_Repetition.value(),
+										 r);
+	}
+
+	// threaded copy
+	boundaries_Position_Threaded.resize(reflectivity_Calc_Threads);
+	thickness_Threaded.resize(reflectivity_Calc_Threads);
+
+	for(int thread_Index=0; thread_Index<reflectivity_Calc_Threads; thread_Index++)	{
+		boundaries_Position_Threaded[thread_Index] = boundaries_Position;
+		thickness_Threaded[thread_Index] = thickness;
+	}
+}
+
+void Unwrapped_Structure::fill_Roughness_Parameters()
+{
+	sigma_Roughness.resize(num_Boundaries);
+	omega.resize(num_Layers);
+	mu.resize(num_Layers);
+	omega_pow23.resize(num_Layers);
+	alpha.resize(num_Boundaries);
+
+	for(int layer_Index=0; layer_Index<num_Layers; layer_Index++)
+	{
+		int media_Index = layer_Index+1;
+		sigma_Roughness [layer_Index] = media_Data_Map_Vector[media_Index]->roughness_Model.sigma.value;
+		mu				[layer_Index] = media_Data_Map_Vector[media_Index]->roughness_Model.mu.value;
+		omega			[layer_Index] = media_Data_Map_Vector[media_Index]->roughness_Model.omega.value;
+		alpha			[layer_Index] = media_Data_Map_Vector[media_Index]->roughness_Model.fractal_alpha.value;
+		omega_pow23		[layer_Index] = pow(omega[layer_Index], (2*alpha[layer_Index]+2)/3);
+	}
+	// substrate
+	sigma_Roughness [num_Layers] = media_Data_Map_Vector[num_Layers+1]->roughness_Model.sigma.value;
+	alpha           [num_Layers] = media_Data_Map_Vector[num_Layers+1]->roughness_Model.fractal_alpha.value;
+
+	// common alpha and sigma for partial correlation ( we dont need to recalculate omega_pow23 )
+	if(multilayer->imperfections_Model.use_Common_Roughness_Function)
+	if(multilayer->imperfections_Model.common_Model == ABC_model || multilayer->imperfections_Model.common_Model == fractal_Gauss_Model)
+	{
+		for(int boundary_Index=0; boundary_Index<num_Boundaries; boundary_Index++)
+		{
+			sigma_Roughness[boundary_Index] = sigma_Roughness.back();
+			alpha		   [boundary_Index] = alpha.back();
+		}
+	}
+
+	// threaded copy
+	sigma_Roughness_Threaded.resize(reflectivity_Calc_Threads);
+	omega_Threaded.			 resize(reflectivity_Calc_Threads);
+	mu_Threaded.			 resize(reflectivity_Calc_Threads);
+	omega_pow23_Threaded.	 resize(reflectivity_Calc_Threads);
+	alpha_Threaded.			 resize(reflectivity_Calc_Threads);
+	for(int thread_Index=0; thread_Index<reflectivity_Calc_Threads; thread_Index++)
+	{
+		sigma_Roughness_Threaded[thread_Index] = sigma_Roughness;
+		omega_Threaded			[thread_Index] = mu;
+		mu_Threaded				[thread_Index] = omega;
+		omega_pow23_Threaded	[thread_Index] = alpha;
+		alpha_Threaded			[thread_Index] = omega_pow23;
+	}
+}
+
+void Unwrapped_Structure::fill_PSD_Inheritance_Powers()
+{
+	PSD_mu_alpha.resize(num_Layers);
+	PSD_mu_alpha_h.resize(num_Layers);
+
+	for(int layer_Index=0; layer_Index<num_Layers; layer_Index++)
+	{
+		PSD_mu_alpha  [layer_Index] = pow(mu[layer_Index], 2*alpha[layer_Index]+1);
+		PSD_mu_alpha_h[layer_Index] = PSD_mu_alpha[layer_Index] * thickness[layer_Index];
+	}
+
+	// threaded copy
+	PSD_mu_alpha_Threaded.	resize(reflectivity_Calc_Threads);
+	PSD_mu_alpha_h_Threaded.resize(reflectivity_Calc_Threads);
+	for(int thread_Index=0; thread_Index<reflectivity_Calc_Threads; thread_Index++)
+	{
+		PSD_mu_alpha_Threaded  [thread_Index] = PSD_mu_alpha;
+		PSD_mu_alpha_h_Threaded[thread_Index] = PSD_mu_alpha_h;
+	}
+}
+
+///-------------------------------------------------------------
+// DISCRETIZATION
+///-------------------------------------------------------------
 
 void Unwrapped_Structure::layer_Normalizing()
 {
@@ -237,7 +327,7 @@ void Unwrapped_Structure::layer_Normalizing()
 	}
 	gsl_integration_workspace_free(w);
 
-	// multithreading
+	// threaded copy
 	layer_Norm_Vector_Threaded.resize(reflectivity_Calc_Threads);
 	for(int thread_Index=0; thread_Index<reflectivity_Calc_Threads; thread_Index++) {
 		layer_Norm_Vector_Threaded[thread_Index] = layer_Norm_Vector;
@@ -251,7 +341,7 @@ void Unwrapped_Structure::find_Discretization()
 
 	for(int layer_Index=0; layer_Index<num_Layers; layer_Index++)
 	{
-		int num_Slices = ceil(thickness[layer_Index]/discretization_Parameters.discretization_Step);
+		int num_Slices = ceil(thickness[layer_Index]/multilayer->discretization_Parameters.discretization_Step);
 		double adapted_Step = thickness[layer_Index]/num_Slices;
 
 		discretized_Thickness.resize(discretized_Thickness.size()+num_Slices);
@@ -334,19 +424,19 @@ void Unwrapped_Structure::epsilon_Func(double z, int media_Index, bool is_Depend
 {
 	// where we are
 	int sigma_Factor = 6;
-	std::vector<double>::iterator it_low = std::lower_bound(boundaries_Threaded[thread_Index].begin(), boundaries_Threaded[thread_Index].end(), z-sigma_Factor*max_Sigma);
-	std::vector<double>::iterator it_up  = std::upper_bound(boundaries_Threaded[thread_Index].begin(), boundaries_Threaded[thread_Index].end(), z+sigma_Factor*max_Sigma);
+	std::vector<double>::iterator it_low = std::lower_bound(boundaries_Position_Threaded[thread_Index].begin(), boundaries_Position_Threaded[thread_Index].end(), z-sigma_Factor*max_Sigma);
+	std::vector<double>::iterator it_up  = std::upper_bound(boundaries_Position_Threaded[thread_Index].begin(), boundaries_Position_Threaded[thread_Index].end(), z+sigma_Factor*max_Sigma);
 
-	int min_Boundary_Index = max(min(int(it_low-boundaries_Threaded[thread_Index].begin())-1, int(thickness.size()-1)),0);
-	int max_Boundary_Index = min(    int(it_up -boundaries_Threaded[thread_Index].begin()),   int(thickness.size()-1));
+	int min_Boundary_Index = max(min(int(it_low-boundaries_Position_Threaded[thread_Index].begin())-1, int(thickness.size()-1)),0);
+	int max_Boundary_Index = min(    int(it_up -boundaries_Position_Threaded[thread_Index].begin()),   int(thickness.size()-1));
 
 	double geometry_Factor = 1;
 
 	for(int j=min_Boundary_Index; j<=max_Boundary_Index; j++) // instead of old slow for(int j=0; j<thickness_Vector.size(); j++)
 	{
 		geometry_Factor = layer_Norm_Vector_Threaded[thread_Index][j] *
-				Global_Variables::interface_Profile_Function(z-boundaries_Threaded[thread_Index][j  ], boundary_Interlayer_Composition_Threaded[thread_Index][j]) *
-				Global_Variables::interface_Profile_Function(boundaries_Threaded[thread_Index][j+1]-z, boundary_Interlayer_Composition_Threaded[thread_Index][j+1]);
+				Global_Variables::interface_Profile_Function(z-boundaries_Position_Threaded[thread_Index][j  ], boundary_Interlayer_Composition_Threaded[thread_Index][j]) *
+				Global_Variables::interface_Profile_Function(boundaries_Position_Threaded[thread_Index][j+1]-z, boundary_Interlayer_Composition_Threaded[thread_Index][j+1]);
 
 		if(!is_Dependent)
 		{			
@@ -361,7 +451,7 @@ void Unwrapped_Structure::epsilon_Func(double z, int media_Index, bool is_Depend
 	}
 	if(max_Boundary_Index>=thickness.size()-1)
 	{
-		geometry_Factor = Global_Variables::interface_Profile_Function(z-boundaries_Threaded[thread_Index].back(), boundary_Interlayer_Composition_Threaded[thread_Index].back());
+		geometry_Factor = Global_Variables::interface_Profile_Function(z-boundaries_Position_Threaded[thread_Index].back(), boundary_Interlayer_Composition_Threaded[thread_Index].back());
 
 		if(!is_Dependent)
 		{
@@ -405,342 +495,13 @@ void Unwrapped_Structure::find_Field_Spacing()
 
 int Unwrapped_Structure::get_Layer_or_Slice_Index(double z)
 {
-	if(discretization_Parameters.enable_Discretization)
+	if(multilayer->discretization_Parameters.enable_Discretization)
 	{
 		std::vector<double>::iterator it_low = std::lower_bound(discretized_Slices_Boundaries.begin(), discretized_Slices_Boundaries.end(), z);
 		return int(it_low-discretized_Slices_Boundaries.begin())-1;
 	} else
 	{
-		std::vector<double>::iterator it_low = std::lower_bound(boundaries.begin(), boundaries.end(), z);
-		return int(it_low-boundaries.begin())-1;
-	}
-}
-
-void Unwrapped_Structure::fill_Epsilon()
-{
-	epsilon.resize(num_Media_Sharp);
-	for(int media_Index=0; media_Index<num_Media_Sharp; media_Index)
-	{
-		epsilon[media_Index] = media_Node_Map_Vector[media_Index]->epsilon.front();
-	}
-}
-
-
-//int Unwrapped_Structure::fill_Epsilon(const tree<Node>::iterator& parent, int media_Index)
-//{
-//	for(unsigned child_Index=0; child_Index<parent.number_of_children(); ++child_Index)
-//	{
-//		tree<Node>::post_order_iterator child = tree<Node>::child(parent,child_Index);
-
-//		// layers that are not from regular aperiodic
-//		if(child.node->data.struct_Data.parent_Item_Type != item_Type_Regular_Aperiodic)
-//		{
-//			if(child.node->data.struct_Data.item_Type == item_Type_Ambient ||
-//			   child.node->data.struct_Data.item_Type == item_Type_Layer   ||
-//			   child.node->data.struct_Data.item_Type == item_Type_Substrate )
-//			{
-//				// TODO extreme layers
-//				epsilon     [media_Index] = child.node->data.epsilon     .front();
-//				++media_Index;
-//			}
-//		}
-
-//		if(child.node->data.struct_Data.item_Type == item_Type_Multilayer)
-//		{
-//			for(int period_Index=0; period_Index<child.node->data.struct_Data.num_Repetition.value(); ++period_Index)
-//			{
-//				// TODO optimize for depth 2
-//				media_Index = fill_Epsilon(child, media_Index);
-//			}
-//		}
-
-//		if( child.node->data.struct_Data.item_Type == item_Type_Regular_Aperiodic )
-//		{
-//			for(int period_Index=0; period_Index<child.node->data.struct_Data.num_Repetition.value(); ++period_Index)
-//			{
-//				for(unsigned grandchild_Index=0; grandchild_Index<child.number_of_children(); ++grandchild_Index)
-//				{
-//					tree<Node>::post_order_iterator grandchild = tree<Node>::child(child,grandchild_Index);
-//					epsilon     [media_Index] = grandchild.node->data.epsilon     .front();
-//					++media_Index;
-//				}
-//			}
-//		}
-//	}
-//	return media_Index;
-//}
-
-int Unwrapped_Structure::fill_Epsilon_Dependent(const tree<Node>::iterator& parent, int num_Lambda_Points, size_t media_Index)
-{
-	// epsilon depends on variable
-	for(unsigned child_Index=0; child_Index<parent.number_of_children(); ++child_Index)
-	{
-		tree<Node>::post_order_iterator child = tree<Node>::child(parent,child_Index);
-
-		// layers that are not from regular aperiodic
-		if(child.node->data.struct_Data.parent_Item_Type != item_Type_Regular_Aperiodic)
-		{
-			if(child.node->data.struct_Data.item_Type == item_Type_Ambient ||
-			   child.node->data.struct_Data.item_Type == item_Type_Layer   ||
-			   child.node->data.struct_Data.item_Type == item_Type_Substrate )
-			{
-				for(int point_Index = 0; point_Index<num_Lambda_Points; ++point_Index)
-				{
-				// TODO extreme layers
-					epsilon_Dependent     [point_Index][media_Index] = child.node->data.epsilon     [point_Index];
-				}
-				++media_Index;
-			}
-		}
-
-		if(child.node->data.struct_Data.item_Type == item_Type_Multilayer)
-		{
-			for(int period_Index=0; period_Index<child.node->data.struct_Data.num_Repetition.value(); ++period_Index)
-			{
-				// TODO optimize for depth 2
-				media_Index = fill_Epsilon_Dependent(child, num_Lambda_Points, media_Index);
-			}
-		}
-
-		if( child.node->data.struct_Data.item_Type == item_Type_Regular_Aperiodic )
-		{
-			for(int period_Index=0; period_Index<child.node->data.struct_Data.num_Repetition.value(); ++period_Index)
-			{
-				for(unsigned grandchild_Index=0; grandchild_Index<child.number_of_children(); ++grandchild_Index)
-				{
-					tree<Node>::post_order_iterator grandchild = tree<Node>::child(child,grandchild_Index);
-					for(int point_Index = 0; point_Index<num_Lambda_Points; ++point_Index)
-					{
-						epsilon_Dependent     [point_Index][media_Index] = grandchild.node->data.epsilon     [point_Index];
-					}
-					++media_Index;
-				}
-			}
-		}
-	}
-	return media_Index;
-}
-
-int Unwrapped_Structure::fill_Sigma(const tree<Node>::iterator& parent, double& max_Sigma, int boundary_Index, int per_Index)
-{
-	for(unsigned child_Index=0; child_Index<parent.number_of_children(); ++child_Index)
-	{
-		tree<Node>::post_order_iterator child = tree<Node>::child(parent,child_Index);
-
-		// layers that are not from regular aperiodic
-		if( child.node->data.struct_Data.item_Type == item_Type_Layer &&
-			child.node->data.struct_Data.parent_Item_Type != item_Type_Regular_Aperiodic )
-		{
-			// TODO extreme layers			
-			sigma_Diffuse       [boundary_Index] = child.node->data.struct_Data.sigma_Diffuse.value;
-			common_Sigma_Diffuse[boundary_Index] = child.node->data.struct_Data.common_Sigma_Diffuse;
-
-			for(int func_Index=0; func_Index<transition_Layer_Functions_Size; ++func_Index)
-			{
-				boundary_Interlayer_Composition[boundary_Index][func_Index] = child.node->data.struct_Data.interlayer_Composition[func_Index];			
-
-				if(boundary_Interlayer_Composition[boundary_Index][func_Index].enabled)
-				{
-					if(max_Sigma<boundary_Interlayer_Composition[boundary_Index][func_Index].my_Sigma_Diffuse.value)
-					{
-						max_Sigma=boundary_Interlayer_Composition[boundary_Index][func_Index].my_Sigma_Diffuse.value;
-					}
-				}
-
-				// can drift
-				Global_Variables::variable_Drift(boundary_Interlayer_Composition[boundary_Index][func_Index].my_Sigma_Diffuse.value, child.node->data.struct_Data.sigma_Diffuse_Drift, per_Index, child.node->data.struct_Data.num_Repetition.value(), r);
-			}
-			// can drift
-			Global_Variables::variable_Drift(sigma_Diffuse[boundary_Index], child.node->data.struct_Data.sigma_Diffuse_Drift, per_Index, child.node->data.struct_Data.num_Repetition.value(), r);
-			++boundary_Index;
-		}
-		if( child.node->data.struct_Data.item_Type == item_Type_Substrate )
-		{
-			// TODO extreme layers
-			sigma_Diffuse       [boundary_Index] = child.node->data.struct_Data.sigma_Diffuse.value;
-			common_Sigma_Diffuse[boundary_Index] = child.node->data.struct_Data.common_Sigma_Diffuse;
-
-			for(int func_Index=0; func_Index<transition_Layer_Functions_Size; ++func_Index)
-			{
-				boundary_Interlayer_Composition[boundary_Index][func_Index] = child.node->data.struct_Data.interlayer_Composition[func_Index];
-				if(boundary_Interlayer_Composition[boundary_Index][func_Index].enabled)
-				{
-					if(max_Sigma<boundary_Interlayer_Composition[boundary_Index][func_Index].my_Sigma_Diffuse.value)
-					{
-						max_Sigma=boundary_Interlayer_Composition[boundary_Index][func_Index].my_Sigma_Diffuse.value;
-					}
-				}
-			}
-			++boundary_Index;
-		}
-
-		if( child.node->data.struct_Data.item_Type == item_Type_Multilayer )
-		{
-			int per_Index_Amendment = 0;
-			if(child.node->data.struct_Data.num_Repetition.value()>=1) per_Index_Amendment=1;
-			for(int period_Index=0; period_Index<child.node->data.struct_Data.num_Repetition.value(); ++period_Index)
-			{
-				// TODO optimize for depth 2
-				boundary_Index = fill_Sigma(child, max_Sigma, boundary_Index, period_Index+per_Index_Amendment);
-			}
-		}
-
-		if( child.node->data.struct_Data.item_Type == item_Type_Regular_Aperiodic )
-		{
-			Data& regular_Aperiodic = child.node->data.struct_Data;
-			for(int period_Index=0; period_Index<regular_Aperiodic.num_Repetition.value(); ++period_Index)
-			{
-				for(int cell_Index=0; cell_Index<regular_Aperiodic.regular_Components.size(); ++cell_Index)
-				{
-					sigma_Diffuse[boundary_Index] = regular_Aperiodic.regular_Components[cell_Index].components[period_Index].sigma_Diffuse.value;
-					common_Sigma_Diffuse[boundary_Index] = true;
-
-					for(int func_Index=0; func_Index<transition_Layer_Functions_Size; ++func_Index)
-					{
-						boundary_Interlayer_Composition[boundary_Index][func_Index] = regular_Aperiodic.regular_Components[cell_Index].components[period_Index].interlayer_Composition[func_Index];
-						if(boundary_Interlayer_Composition[boundary_Index][func_Index].enabled)
-						{
-							if(max_Sigma<boundary_Interlayer_Composition[boundary_Index][func_Index].my_Sigma_Diffuse.value)
-							{
-								max_Sigma=boundary_Interlayer_Composition[boundary_Index][func_Index].my_Sigma_Diffuse.value;
-							}
-						}
-					}
-					++boundary_Index;
-				}
-			}
-		}
-	}
-	return boundary_Index;
-}
-
-int Unwrapped_Structure::fill_Thickness_And_Boundaries(const tree<Node>::iterator& parent, int layer_Index, int per_Index)
-{
-	for(unsigned child_Index=0; child_Index<parent.number_of_children(); ++child_Index)
-	{
-		tree<Node>::post_order_iterator child = tree<Node>::child(parent,child_Index);
-
-		// layers that are not from regular aperiodic
-		if( child.node->data.struct_Data.item_Type == item_Type_Layer &&
-			child.node->data.struct_Data.parent_Item_Type != item_Type_Regular_Aperiodic )
-		{
-			// TODO extreme layers
-			thickness[layer_Index] = child.node->data.struct_Data.thickness.value;
-
-			// can drift
-			Global_Variables::variable_Drift(thickness[layer_Index], child.node->data.struct_Data.thickness_Drift, per_Index, child.node->data.struct_Data.num_Repetition.value(), r);
-			boundaries[layer_Index+1] = boundaries[layer_Index] + thickness[layer_Index];
-
-			++layer_Index;
-		}
-
-		if( child.node->data.struct_Data.item_Type == item_Type_Multilayer )
-		{
-			int per_Index_Amendment = 0;
-			if(child.node->data.struct_Data.num_Repetition.value()>=1) per_Index_Amendment=1;
-			for(int period_Index=0; period_Index<child.node->data.struct_Data.num_Repetition.value(); ++period_Index)
-			{
-				// TODO optimize for depth 2
-				layer_Index = fill_Thickness_And_Boundaries(child, layer_Index, period_Index+per_Index_Amendment);
-			}
-		}
-
-		if( child.node->data.struct_Data.item_Type == item_Type_Regular_Aperiodic )
-		{
-			Data& regular_Aperiodic = child.node->data.struct_Data;
-			for(int period_Index=0; period_Index<regular_Aperiodic.num_Repetition.value(); ++period_Index)
-			{
-				for(int cell_Index=0; cell_Index<regular_Aperiodic.regular_Components.size(); ++cell_Index)
-				{
-					thickness[layer_Index] = regular_Aperiodic.regular_Components[cell_Index].components[period_Index].thickness.value;
-					boundaries[layer_Index+1] = boundaries[layer_Index] + thickness[layer_Index];
-					++layer_Index;
-				}
-			}
-		}
-	}
-	return layer_Index;
-}
-
-int Unwrapped_Structure::fill_Thickness_Sigma_Mu_And_Alpha(const tree<Node>::iterator& parent, int layer_Index, int per_Index)
-{
-	for(unsigned child_Index=0; child_Index<parent.number_of_children(); ++child_Index)
-	{
-		tree<Node>::post_order_iterator child = tree<Node>::child(parent,child_Index);
-		Data& struct_Data = child.node->data.struct_Data;
-
-		// layers that are not from regular aperiodic
-		if( struct_Data.item_Type == item_Type_Layer &&
-			struct_Data.parent_Item_Type != item_Type_Regular_Aperiodic )
-		{
-			thickness[layer_Index] = struct_Data.thickness.value;
-			for(int thread_Index = 0; thread_Index<reflectivity_Calc_Threads; thread_Index++)
-			{
-				thickness_Threaded		[thread_Index][layer_Index] = struct_Data.thickness.value;
-				sigma_Roughness_Threaded[thread_Index][layer_Index] = struct_Data.roughness_Model.sigma.value;
-				mu						[thread_Index][layer_Index] = struct_Data.roughness_Model.mu.value;
-				omega					[thread_Index][layer_Index] = struct_Data.roughness_Model.omega.value;
-				alpha					[thread_Index][layer_Index] = struct_Data.roughness_Model.fractal_alpha.value;
-				omega_pow23				[thread_Index][layer_Index] = pow(struct_Data.roughness_Model.omega.value, (2*alpha[thread_Index][layer_Index]+2)/3);
-			}
-
-			// can drift
-			Global_Variables::variable_Drift(thickness[layer_Index], struct_Data.thickness_Drift, per_Index, struct_Data.num_Repetition.value(), r);
-			++layer_Index;
-		}
-		if( child.node->data.struct_Data.item_Type == item_Type_Multilayer )
-		{
-			int per_Index_Amendment = 0;
-			if(struct_Data.num_Repetition.value()>=1) per_Index_Amendment=1;
-			for(int period_Index=0; period_Index<struct_Data.num_Repetition.value(); ++period_Index)
-			{
-				// TODO optimize for depth 2
-				layer_Index = fill_Thickness_Sigma_Mu_And_Alpha(child, layer_Index, period_Index+per_Index_Amendment);
-			}
-		}
-
-		if( child.node->data.struct_Data.item_Type == item_Type_Regular_Aperiodic )
-		{
-			Data& regular_Aperiodic = child.node->data.struct_Data;
-			for(int period_Index=0; period_Index<regular_Aperiodic.num_Repetition.value(); ++period_Index)
-			{
-				for(int cell_Index=0; cell_Index<regular_Aperiodic.regular_Components.size(); ++cell_Index)
-				{
-					thickness[layer_Index] = regular_Aperiodic.regular_Components[cell_Index].components[period_Index].thickness.value;
-					for(int thread_Index = 0; thread_Index<reflectivity_Calc_Threads; thread_Index++)
-					{
-						thickness_Threaded		[thread_Index][layer_Index] = regular_Aperiodic.regular_Components[cell_Index].components[period_Index].thickness.value;
-						sigma_Roughness_Threaded[thread_Index][layer_Index] = regular_Aperiodic.regular_Components[cell_Index].components[period_Index].roughness_Model.sigma.value;
-						mu						[thread_Index][layer_Index] = regular_Aperiodic.regular_Components[cell_Index].components[period_Index].roughness_Model.mu.value;
-						omega					[thread_Index][layer_Index] = regular_Aperiodic.regular_Components[cell_Index].components[period_Index].roughness_Model.omega.value;
-						alpha					[thread_Index][layer_Index] = regular_Aperiodic.regular_Components[cell_Index].components[period_Index].roughness_Model.fractal_alpha.value;
-						omega_pow23				[thread_Index][layer_Index] = pow(struct_Data.roughness_Model.omega.value, (2*alpha[thread_Index][layer_Index]+2)/3);
-					}
-
-					++layer_Index;
-				}
-			}
-		}
-		if( struct_Data.item_Type == item_Type_Substrate )
-		{
-			for(int thread_Index = 0; thread_Index<reflectivity_Calc_Threads; thread_Index++)
-			{
-				sigma_Roughness_Threaded[thread_Index][layer_Index] = struct_Data.roughness_Model.sigma.value;
-			}
-			++layer_Index;
-		}
-	}
-	return layer_Index;
-}
-
-void Unwrapped_Structure::fill_PSD_Inheritance_Powers()
-{
-	for(int thread_Index = 0; thread_Index<reflectivity_Calc_Threads; thread_Index++)
-	{
-		for(int layer_Index = num_Layers-1; layer_Index>=0; layer_Index--)
-		{
-			PSD_mu_alpha  [thread_Index][layer_Index] = pow(mu[thread_Index][layer_Index], 2*alpha[thread_Index][layer_Index]+1);
-			PSD_mu_alpha_h[thread_Index][layer_Index] = PSD_mu_alpha[thread_Index][layer_Index] * thickness_Threaded[thread_Index][layer_Index];
-		}
+		std::vector<double>::iterator it_low = std::lower_bound(boundaries_Position.begin(), boundaries_Position.end(), z);
+		return int(it_low-boundaries_Position.begin())-1;
 	}
 }

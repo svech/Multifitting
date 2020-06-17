@@ -103,6 +103,7 @@ void Profile_Plot::create_Left_Side()
 			value_Type_Layout->setSpacing(2);
 			value_Type_Layout->setContentsMargins(8,5,8,5);
 
+
 		// ----------------------------------------------------
 		// permittivity
 		// ----------------------------------------------------

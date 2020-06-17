@@ -14,16 +14,16 @@ class Unwrapped_Structure
 public:
 	Unwrapped_Structure(Multilayer* multilayer,
 						const Calc_Functions& calc_Functions,
-						const tree<Node>& calc_Tree,
-						const Data& measurement,
 						const vector<Node*>& media_Node_Map_Vector,
+						const vector<Data*>& media_Data_Map_Vector,
+						const vector<int>& media_Period_Index_Map_Vector,
+						const Data& measurement,
 						int num_Media_Sharp,
 						bool depth_Grading,
 						bool sigma_Grading,
-						Discretization_Parameters discretization_Parameters,
 						gsl_rng* r);
 
-	gsl_rng * r;
+	gsl_rng* r;
 
 	int num_Threads;
 	int num_Media_Sharp;
@@ -32,36 +32,77 @@ public:
 
 	bool depth_Grading;
 	bool sigma_Grading;
-	Discretization_Parameters discretization_Parameters;
 
-	const tree<Node>& calc_Tree;
-	const vector<Node*>& media_Node_Map_Vector;
-	const Calc_Functions& calc_Functions;
 	Multilayer* multilayer;
+	const Calc_Functions& calc_Functions;
+	const vector<Node*>& media_Node_Map_Vector;
+	const vector<Data*>& media_Data_Map_Vector;
+	const vector<int>& media_Period_Index_Map_Vector;
+	const Data& measurement;
 
+	tree<Node> calc_Tree; // TODO remove
+
+	//-------------------------------------------------
+	/// sharp structure
+	//-------------------------------------------------
 	vector<complex<double>> epsilon;								//	[media]
 	vector<vector<complex<double>>> epsilon_Dependent;				//	[wavelength][media]
 
-	double max_Sigma;
+	double max_Sigma = 0.1;
 	vector<double> sigma_Diffuse;									//	[boundary]
 	vector<bool> common_Sigma_Diffuse;								//	[boundary]
+
 	vector<QVector<Interlayer>> boundary_Interlayer_Composition;	//  [boundary][function] not use in multithreaded mode
 	vector<vector<QVector<Interlayer>>> boundary_Interlayer_Composition_Threaded;	//  [thread][boundary][function]
+
 	vector<double> thickness;										//	[layer]
 	vector<vector<double>> thickness_Threaded;						//	[thread][layer]
+
+	vector<double> boundaries_Position;								//	[boundary]
+	vector<vector<double>> boundaries_Position_Threaded;			//	[thread][boundary]
+
+	//--------------------------------------------------------------
+	/// roughness
+	//--------------------------------------------------------------
+	vector<double> sigma_Roughness;									//	[boundary]
 	vector<vector<double>> sigma_Roughness_Threaded;				//	[thread][boundary]
-	vector<vector<double>> mu;										//	[thread][layer]
-	vector<vector<double>> omega;									//	[thread][layer]
-	vector<vector<double>> omega_pow23;								//	[thread][layer]
-	vector<vector<double>> alpha;									//	[thread][layer]
-	vector<double> boundaries;										//	[boundary]
-	vector<vector<double>> PSD_mu_alpha;							//	[thread][layer]
-	vector<vector<double>> PSD_mu_alpha_h;							//	[thread][layer]
-	vector<vector<double>> boundaries_Threaded;						//	[thread][boundary]
+
+	vector<double> omega;											//	[layer]
+	vector<vector<double>> omega_Threaded;							//	[thread][layer]
+
+	vector<double> mu;												//	[layer]
+	vector<vector<double>> mu_Threaded;								//	[thread][layer]
+
+	vector<double> omega_pow23;										//	[layer]
+	vector<vector<double>> omega_pow23_Threaded;					//	[thread][layer]
+
+	vector<double> alpha;											//	[boundary]
+	vector<vector<double>> alpha_Threaded;							//	[thread][boundary]
+
+	vector<double> PSD_mu_alpha;									//	[layer]
+	vector<vector<double>> PSD_mu_alpha_Threaded;					//	[thread][layer]
+
+	vector<double> PSD_mu_alpha_h;									//	[layer]
+	vector<vector<double>> PSD_mu_alpha_h_Threaded;					//	[thread][layer]
+
+	//--------------------------------------------------------------
+
+	void fill_Epsilon_Sharp();
+	void fill_Sigma_Diffuse_And_Interlayers();
+	void fill_Thickness_And_Boundaries_Position();
+	void fill_Roughness_Parameters();
+	void fill_PSD_Inheritance_Powers();
+
+	///-------------------------------------------------------------
+	// DISCRETIZATION
+	///-------------------------------------------------------------
+
 	vector<double> layer_Norm_Vector;								//	[layer]
 	vector<vector<double>> layer_Norm_Vector_Threaded;				//	[thread][layer]
 
-	// discretized structure
+	//-------------------------------------------------
+	/// discretized structure
+	//-------------------------------------------------
 	vector<complex<double>> discretized_Epsilon;
 	vector<vector<complex<double>>> discretized_Epsilon_Dependent;
 
@@ -94,15 +135,6 @@ public:
 
 
 
-	void fill_Epsilon		  ();
-//	void fill_Epsilon_Dependent();
-
-//	int fill_Epsilon		  (const tree<Node>::iterator& parent, int media_Index = 0);
-	int fill_Epsilon_Dependent(const tree<Node>::iterator& parent, int num_Lambda_Points, size_t media_Index = 0);
-	int fill_Sigma    (const tree<Node>::iterator& parent, double& max_Sigma, int boundary_Index = 0, int per_Index = 0);
-	int fill_Thickness_And_Boundaries(const tree<Node>::iterator& parent, int layer_Index = 0,    int per_Index = 0);
-	int fill_Thickness_Sigma_Mu_And_Alpha(const tree<Node>::iterator& parent, int layer_Index = 0,    int per_Index = 0);
-	void fill_PSD_Inheritance_Powers();
 };
 
 #endif // UNWRAPPED_STRUCTURE_H

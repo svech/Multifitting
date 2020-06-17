@@ -37,8 +37,8 @@ public:
 
 	/// ------------------------------------------------
 
-	void create_Spline_PSD_Fractal_Gauss_1D(const Data& measurement);
-	void clear_Spline_PSD_Fractal_Gauss_1D();
+	void create_Spline_PSD_Fractal_Gauss_1D(const Data& measurement, const Imperfections_Model& imperfections_Model);
+	void clear_Spline_PSD_Fractal_Gauss_1D(const Imperfections_Model& imperfections_Model);
 	gsl_spline* spline;
 	gsl_interp_accel* acc;
 };

@@ -190,33 +190,51 @@ void Calculation_Tree::fill_Calc_Trees()
 		for(Data_Element<Target_Curve>& target_Data_Element : target)
 		{
 			target_Data_Element.calc_Tree = real_Calc_Tree;
+
+			// unstratified
+			target_Data_Element.media_Data_Map_Vector.resize(num_Media_Sharp);
+			target_Data_Element.media_Period_Index_Map_Vector.resize(num_Media_Sharp);
+			unwrap_Calc_Tree_Data(target_Data_Element.calc_Tree.begin(), target_Data_Element.media_Data_Map_Vector, target_Data_Element.media_Period_Index_Map_Vector);
+
 			stratify_Calc_Tree(target_Data_Element.calc_Tree);
 
-			// unwrap tree: get vector of Nodes
+			// stratified
 			target_Data_Element.media_Node_Map_Vector.resize(num_Media_Sharp);
-			target_Data_Element.media_Data_Map_Vector.resize(num_Media_Sharp);
-			unwrap_Calc_Tree(target_Data_Element.calc_Tree.begin(), target_Data_Element.media_Node_Map_Vector, target_Data_Element.media_Data_Map_Vector);
+			flatten_Tree(target_Data_Element.calc_Tree, target_Data_Element.flat_Calc_Tree);
+			unwrap_Calc_Tree_Node(target_Data_Element.calc_Tree.begin(), target_Data_Element.media_Node_Map_Vector);
 		}
 		for(Data_Element<Independent_Curve>& independent_Data_Element : independent)
 		{
 			independent_Data_Element.calc_Tree = real_Calc_Tree;
+
+			// unstratified
+			independent_Data_Element.media_Data_Map_Vector.resize(num_Media_Sharp);
+			independent_Data_Element.media_Period_Index_Map_Vector.resize(num_Media_Sharp);
+			unwrap_Calc_Tree_Data(independent_Data_Element.calc_Tree.begin(), independent_Data_Element.media_Data_Map_Vector, independent_Data_Element.media_Period_Index_Map_Vector);
+
 			stratify_Calc_Tree(independent_Data_Element.calc_Tree);
 
-			// unwrap tree: get vector of Nodes
+			// stratified
 			independent_Data_Element.media_Node_Map_Vector.resize(num_Media_Sharp);
-			independent_Data_Element.media_Data_Map_Vector.resize(num_Media_Sharp);
-			unwrap_Calc_Tree(independent_Data_Element.calc_Tree.begin(), independent_Data_Element.media_Node_Map_Vector, independent_Data_Element.media_Data_Map_Vector);
+			flatten_Tree(independent_Data_Element.calc_Tree, independent_Data_Element.flat_Calc_Tree);
+			unwrap_Calc_Tree_Node(independent_Data_Element.calc_Tree.begin(), independent_Data_Element.media_Node_Map_Vector);
 
-			qInfo() << independent_Data_Element.media_Node_Map_Vector.size() << "nodes" << endl << endl;
-			qInfo() << independent_Data_Element.media_Data_Map_Vector.size() << "datas" << endl << endl;
-			for(int i=0; i<independent_Data_Element.media_Node_Map_Vector.size(); i++)
-			{
-				qInfo() << "Node" << independent_Data_Element.media_Node_Map_Vector[i]->struct_Data.item_Type << endl;
-				qInfo() << "Data" << independent_Data_Element.media_Data_Map_Vector[i]->item_Type << endl;
-			}
-			qInfo() << endl;
-			print_Tree(independent_Data_Element.calc_Tree.begin(), independent_Data_Element.calc_Tree);
-			qInfo() << endl << endl;
+//			qInfo() << independent_Data_Element.media_Node_Map_Vector.size() << "nodes" << endl << endl;
+//			qInfo() << independent_Data_Element.media_Data_Map_Vector.size() << "datas" << endl << endl;
+//			qInfo() << endl;
+//			for(int i=0; i<independent_Data_Element.flat_Calc_Tree.size(); i++)
+//			{
+//				qInfo() << "Flat" << independent_Data_Element.flat_Calc_Tree[i]->struct_Data.item_Type << independent_Data_Element.flat_Calc_Tree[i]->struct_Data.material << endl;
+//			}
+//			qInfo() << endl;
+//			for(int i=0; i<independent_Data_Element.media_Node_Map_Vector.size(); i++)
+//			{
+//				qInfo() << "Node" << independent_Data_Element.media_Node_Map_Vector[i]->struct_Data.item_Type << independent_Data_Element.media_Node_Map_Vector[i]->struct_Data.material << endl;
+//				qInfo() << "Data" << independent_Data_Element.media_Data_Map_Vector[i]->item_Type << independent_Data_Element.media_Data_Map_Vector[i]->material << endl;
+//			}
+//			qInfo() << endl;
+//			print_Tree(independent_Data_Element.calc_Tree.begin(), independent_Data_Element.calc_Tree);
+//			qInfo() << endl << endl;
 		}
 	}
 }
@@ -316,63 +334,79 @@ void Calculation_Tree::stratify_Calc_Tree(tree<Node>& calc_Tree)
 		{
 			tree<Node>::iterator chosen_Child = chosen_Nodes[vec_Index];
 
-			// if 0 periods
+			// if 0 periods ( Multilayers only )
 			if(chosen_Child.node->data.struct_Data.num_Repetition.value() == 0)
 			{
 				// delete
-				if(chosen_Child.node->data.struct_Data.item_Type != item_Type_Regular_Aperiodic)
 				{calc_Tree.erase(chosen_Child);} // anyway, not the case of regular aperiodic
 			} else
 
-			// if 1 period
+			// if 1 period ( Regular Aperiodic, Multilayer, General Aperiodic )
 			if(chosen_Child.node->data.struct_Data.num_Repetition.value() == 1)
 			{
+				if(chosen_Child.node->data.struct_Data.item_Type != item_Type_Regular_Aperiodic)
+				{
+					for(unsigned child_Index=0; child_Index<chosen_Child.number_of_children(); ++child_Index)
+					{
+						calc_Tree.insert_subtree(chosen_Child, tree<Node>::child(chosen_Child,child_Index));
+					}
+					// delete
+					{calc_Tree.erase(chosen_Child);}
+					// not delete
+//					chosen_Child.node->data.struct_Data.num_Repetition.value = 0;
+				}
+			} else
+
+			// if >=2 periods ( Regular Aperiodic and Multilayer )
+			if(chosen_Child.node->data.struct_Data.num_Repetition.value() >= 2)
+			{
+				if(chosen_Child.node->data.struct_Data.item_Type != item_Type_Regular_Aperiodic)
+				{
+					for(unsigned child_Index=0; child_Index<chosen_Child.number_of_children(); ++child_Index)
+					{
+						// save number of periods and drift for drift calculation
+						tree<Node>::post_order_iterator layer = tree<Node>::child(chosen_Child,child_Index);
+						Data& layer_Data = layer.node->data.struct_Data;
+						if(layer_Data.item_Type == item_Type_Layer)
+						{
+							layer_Data.num_Repetition.parameter.value = chosen_Child.node->data.struct_Data.num_Repetition.parameter.value;
+						}
+					}
+					// change data
+					{chosen_Child.node->data.struct_Data.num_Repetition.parameter.value -= 1;}
+				}
+
+				// both Regular and Multilayer
 				for(unsigned child_Index=0; child_Index<chosen_Child.number_of_children(); ++child_Index)
 				{
 					calc_Tree.insert_subtree(chosen_Child, tree<Node>::child(chosen_Child,child_Index));
-				}
-				// delete
-				if(chosen_Child.node->data.struct_Data.item_Type != item_Type_Regular_Aperiodic)
-				{calc_Tree.erase(chosen_Child);}
-				// not delete
-//				chosen_Child.node->data.struct_Data.num_Repetition.value = 0;
-			} else
-
-			// if >=2 periods
-			if(chosen_Child.node->data.struct_Data.num_Repetition.value() >= 2)
-			{
-				for(unsigned child_Index=0; child_Index<chosen_Child.number_of_children(); ++child_Index)
-				{
-					// save number of periods and drift for drift calculation
-					tree<Node>::post_order_iterator layer = tree<Node>::child(chosen_Child,child_Index);
-					Data& layer_Data = layer.node->data.struct_Data;
-					if(layer_Data.item_Type == item_Type_Layer)
-					{
-						layer_Data.num_Repetition.parameter.value = chosen_Child.node->data.struct_Data.num_Repetition.parameter.value;
-					}
-				}
-				// change data
-				if(chosen_Child.node->data.struct_Data.item_Type != item_Type_Regular_Aperiodic)
-				{chosen_Child.node->data.struct_Data.num_Repetition.parameter.value -= 1;}
-
-				for(unsigned child_Index=0; child_Index<chosen_Child.number_of_children(); ++child_Index)
-				{
-					tree<Node>::post_order_iterator inserted_Layer = calc_Tree.insert_subtree(chosen_Child, tree<Node>::child(chosen_Child,child_Index));
-					// change id after inserting
-//					Data& inserted_Layer_Data = inserted_Layer.node->data.struct_Data;
-//					inserted_Layer_Data.id = -inserted_Layer_Data.id;
 				}
 			}
 		}
 	}
 	//	print_Tree(calc_Tree.begin(), calc_Tree);
-		//	qInfo() << endl << endl;
+	//	qInfo() << endl << endl;
 }
 
-int Calculation_Tree::unwrap_Calc_Tree(const tree<Node>::iterator& parent,
-									   vector<Node*>& media_Node_Map_Vector,
-									   vector<Data*>& media_Data_Map_Vector,
-									   int media_Index)
+void Calculation_Tree::flatten_Tree(const tree<Node>& calc_Tree, vector<Node*>& flat_Calc_Tree)
+{
+	tree<Node>::pre_order_iterator iter = tree<Node>::child(calc_Tree.begin(),0);
+
+	flat_Calc_Tree.clear();
+	while(calc_Tree.is_valid(iter))
+	{
+		Node& node = iter.node->data;
+		const Data& item = node.struct_Data;
+
+		if(item.item_Type == item_Type_Ambient || item.item_Type == item_Type_Layer || item.item_Type == item_Type_Substrate)
+		{
+			flat_Calc_Tree.push_back(&node);
+		}
+		iter++;
+	}
+}
+
+int Calculation_Tree::unwrap_Calc_Tree_Node(const tree<Node>::iterator& parent, vector<Node*>& media_Node_Map_Vector, int media_Index)
 {
 	for(unsigned child_Index=0; child_Index<parent.number_of_children(); ++child_Index)
 	{
@@ -380,42 +414,80 @@ int Calculation_Tree::unwrap_Calc_Tree(const tree<Node>::iterator& parent,
 		Node& child_Node = child.node->data;
 		Data& child_Data = child_Node.struct_Data;
 
-		// layers that are not from regular aperiodic
+		if(child_Data.item_Type == item_Type_Ambient ||
+		   child_Data.item_Type == item_Type_Layer   ||
+		   child_Data.item_Type == item_Type_Substrate )
+		{
+			media_Node_Map_Vector[media_Index] = &child_Node;
+			++media_Index;
+		}
+		// for regular aperiodic and its children
+		if( child_Data.item_Type == item_Type_Regular_Aperiodic )
+		{
+			for(int period_Index=0; period_Index<child_Data.num_Repetition.value()-1; ++period_Index)
+			{
+				for(unsigned grandchild_Index=0; grandchild_Index<child.number_of_children(); ++grandchild_Index)
+				{
+					tree<Node>::post_order_iterator grandchild = tree<Node>::child(child,grandchild_Index);
+					Node& grandchild_Node = grandchild.node->data;
+					media_Node_Map_Vector[media_Index] = &grandchild_Node;
+					++media_Index;
+				}
+			}
+		}
+		// go deeper
+		if(child.node->data.struct_Data.item_Type == item_Type_Multilayer)
+		{
+			for(int period_Index=0; period_Index<child.node->data.struct_Data.num_Repetition.value(); ++period_Index)
+			{
+				media_Index = unwrap_Calc_Tree_Node(child, media_Node_Map_Vector, media_Index);
+			}
+		}
+	}
+	return media_Index;
+}
+
+int Calculation_Tree::unwrap_Calc_Tree_Data(const tree<Node>::iterator& parent, vector<Data*>& media_Data_Map_Vector, vector<int>& media_Period_Index_Map_Vector, int media_Index, int period_Index)
+{
+	for(unsigned child_Index=0; child_Index<parent.number_of_children(); ++child_Index)
+	{
+		tree<Node>::post_order_iterator child = tree<Node>::child(parent,child_Index);
+		Node& child_Node = child.node->data;
+		Data& child_Data = child_Node.struct_Data;
+
 		if(child_Data.parent_Item_Type != item_Type_Regular_Aperiodic)
 		{
 			if(child_Data.item_Type == item_Type_Ambient ||
 			   child_Data.item_Type == item_Type_Layer   ||
 			   child_Data.item_Type == item_Type_Substrate )
 			{
-				media_Node_Map_Vector[media_Index] = &child_Node;
 				media_Data_Map_Vector[media_Index] = &child_Data;
+				// for drifts
+				if(child_Data.parent_Item_Type == item_Type_Multilayer )
+				{
+					media_Period_Index_Map_Vector[media_Index] = period_Index;
+				}
 				++media_Index;
 			}
 		}
-
 		// for regular aperiodic and its children
-		if( child_Data.item_Type == item_Type_Regular_Aperiodic )
+		if(child_Data.item_Type == item_Type_Regular_Aperiodic)
 		{
 			for(int period_Index=0; period_Index<child_Data.num_Repetition.value(); ++period_Index)
 			{
-				for(unsigned grandchild_Index=0; grandchild_Index<child.number_of_children(); ++grandchild_Index)
+				for(int cell_Index=0; cell_Index<child_Data.regular_Components.size(); ++cell_Index)
 				{
-					tree<Node>::post_order_iterator grandchild = tree<Node>::child(child,grandchild_Index);
-					Node& grandchild_Node = grandchild.node->data;
-
-					media_Node_Map_Vector[media_Index] = &grandchild_Node;
-					media_Data_Map_Vector[media_Index] = &(child_Data.regular_Components[grandchild_Index].components[period_Index]);
+					media_Data_Map_Vector[media_Index] = &(child_Data.regular_Components[cell_Index].components[period_Index]);
 					++media_Index;
 				}
 			}
 		}
-
 		// go deeper
-		if(child.node->data.struct_Data.item_Type == item_Type_Multilayer)
+		if(child_Data.item_Type == item_Type_Multilayer)
 		{
-			for(int period_Index=0; period_Index<child.node->data.struct_Data.num_Repetition.value(); ++period_Index)
+			for(int period_Index=0; period_Index<child_Data.num_Repetition.value(); ++period_Index)
 			{
-				media_Index = unwrap_Calc_Tree(child, media_Node_Map_Vector, media_Data_Map_Vector, media_Index);
+				media_Index = unwrap_Calc_Tree_Data(child, media_Data_Map_Vector, media_Period_Index_Map_Vector, media_Index, period_Index);
 			}
 		}
 	}
@@ -454,128 +526,68 @@ template<typename Type>
 void Calculation_Tree::calculate_1_Kind(Data_Element<Type>& data_Element, QString mode)
 {
 	auto start = std::chrono::system_clock::now();
-	calculate_Intermediate_Values_1_Tree(data_Element.calc_Tree, data_Element.the_Class->measurement, data_Element.calc_Tree.begin(), mode);
+	calculate_Intermediate_Values_1_Tree(data_Element.flat_Calc_Tree, data_Element.the_Class->measurement, mode);
 	if(lambda_Out_Of_Range) return;
 	auto end = std::chrono::system_clock::now();
 	auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
 	qInfo() << "\nIntermediate:   "<< elapsed.count()/1000000. << " seconds" << endl;
 
 	start = std::chrono::system_clock::now();
-	calculate_Unwrapped_Structure		(data_Element.calc_Functions, data_Element.calc_Tree, data_Element.the_Class->measurement, data_Element.unwrapped_Structure, data_Element.media_Node_Map_Vector);
+	calculate_Unwrapped_Structure		(data_Element.calc_Functions, data_Element.media_Node_Map_Vector, data_Element.media_Data_Map_Vector, data_Element.media_Period_Index_Map_Vector, data_Element.the_Class->measurement, data_Element.unwrapped_Structure);
 	end = std::chrono::system_clock::now();
 	elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
 	qInfo() << "Unwrap:         "<< elapsed.count()/1000000. << " seconds" << endl;
 
-	start = std::chrono::system_clock::now();
-	calculate_Unwrapped_Reflectivity	(data_Element.calc_Functions, data_Element.the_Class->calculated_Values, data_Element.the_Class->measurement, data_Element.unwrapped_Structure, data_Element.unwrapped_Reflection, mode);
-	end = std::chrono::system_clock::now();
-	elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-	qInfo() << "Unwrap Reflect: "<< elapsed.count()/1000000. << " seconds" << endl;
+//	start = std::chrono::system_clock::now();
+//	calculate_Unwrapped_Reflectivity	(data_Element.calc_Functions, data_Element.the_Class->calculated_Values, data_Element.the_Class->measurement, data_Element.unwrapped_Structure, data_Element.unwrapped_Reflection, mode);
+//	end = std::chrono::system_clock::now();
+//	elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+//	qInfo() << "Unwrap Reflect: "<< elapsed.count()/1000000. << " seconds" << endl;
 
-	clear_Spline_1_Tree(data_Element.calc_Tree, data_Element.calc_Tree.begin(), mode);
+	clear_Spline_1_Tree(data_Element.flat_Calc_Tree, mode);
 }
 template void Calculation_Tree::calculate_1_Kind<Independent_Curve>(Data_Element<Independent_Curve>&, QString);
 template void Calculation_Tree::calculate_1_Kind<Target_Curve>	   (Data_Element<Target_Curve>&, QString);
 
-void Calculation_Tree::calculate_Intermediate_Values_1_Tree(tree<Node>& calc_Tree, const Data& measurement, const tree<Node>::iterator& parent, QString mode, Node* above_Node)
+void Calculation_Tree::calculate_Intermediate_Values_1_Tree(vector<Node*>& flat_Calc_Tree, const Data& measurement, QString mode)
 {
-	// iterate over tree
-	for(unsigned i=0; i<parent.number_of_children(); ++i)
+	for(size_t node_Index = 0; node_Index<flat_Calc_Tree.size(); node_Index++)
 	{
-		tree<Node>::post_order_iterator child = calc_Tree.child(parent,i);
-
-		child.node->data.calculate_Intermediate_Points(measurement, above_Node, depth_Grading, sigma_Grading, multilayer->discretization_Parameters.enable_Discretization, mode);
-
-		if( mode == SCATTERED_MODE )
-		{
-			if(multilayer->imperfections_Model.approximation == PT_approximation)
-			{
-				if( multilayer->imperfections_Model.common_Model == fractal_Gauss_Model)
-				{
-					if( child.node->data.struct_Data.item_Type == item_Type_Substrate )
-					{
-						child.node->data.create_Spline_PSD_Fractal_Gauss_1D(measurement);
-					}
-					if(multilayer->imperfections_Model.use_Common_Roughness_Function == false)
-					{
-						if( child.node->data.struct_Data.item_Type == item_Type_Layer )
-						{
-							child.node->data.create_Spline_PSD_Fractal_Gauss_1D(measurement);
-						}
-					}
-				}
-			}
-		}
-
-		if( child.node->data.struct_Data.item_Type != item_Type_Multilayer &&
-			child.node->data.struct_Data.item_Type != item_Type_Regular_Aperiodic &&
-			child.node->data.struct_Data.item_Type != item_Type_General_Aperiodic )
-		{
-			above_Node = &child.node->data;
-		} else
-		{
-			calculate_Intermediate_Values_1_Tree(calc_Tree, measurement, child, mode, above_Node);
-		}
+		Node* above_Node = NULL;
+		if(node_Index>=1) above_Node = flat_Calc_Tree[node_Index-1];
+		flat_Calc_Tree[node_Index]->calculate_Intermediate_Points(measurement, above_Node, depth_Grading, sigma_Grading, multilayer->discretization_Parameters.enable_Discretization, mode);
+		if( mode == SCATTERED_MODE ) flat_Calc_Tree[node_Index]->create_Spline_PSD_Fractal_Gauss_1D(measurement, multilayer->imperfections_Model);
 	}
 }
-
-void Calculation_Tree::clear_Spline_1_Tree(tree<Node>& calc_Tree, const tree<Node>::iterator& parent, QString mode)
+void Calculation_Tree::clear_Spline_1_Tree(vector<Node*>& flat_Calc_Tree, QString mode)
 {
-	// iterate over tree
-	for(unsigned i=0; i<parent.number_of_children(); ++i)
+	for(size_t node_Index = 0; node_Index<flat_Calc_Tree.size(); node_Index++)
 	{
-		tree<Node>::post_order_iterator child = calc_Tree.child(parent,i);
-
-		if( mode == SCATTERED_MODE )
-		{
-			if(multilayer->imperfections_Model.approximation == PT_approximation)
-			{
-				if( multilayer->imperfections_Model.common_Model == fractal_Gauss_Model)
-				{
-					if( child.node->data.struct_Data.item_Type == item_Type_Substrate )
-					{
-						child.node->data.clear_Spline_PSD_Fractal_Gauss_1D();
-					}
-					if(multilayer->imperfections_Model.use_Common_Roughness_Function == false)
-					{
-						if( child.node->data.struct_Data.item_Type == item_Type_Layer )
-						{
-							child.node->data.clear_Spline_PSD_Fractal_Gauss_1D();
-						}
-					}
-				}
-			}
-		}
-
-		if( child.node->data.struct_Data.item_Type == item_Type_Multilayer ||
-			child.node->data.struct_Data.item_Type == item_Type_Regular_Aperiodic ||
-			child.node->data.struct_Data.item_Type == item_Type_General_Aperiodic )
-		{
-			clear_Spline_1_Tree(calc_Tree, child, mode);
-		}
+		if( mode == SCATTERED_MODE )flat_Calc_Tree[node_Index]->clear_Spline_PSD_Fractal_Gauss_1D(multilayer->imperfections_Model);
 	}
 }
 
 void Calculation_Tree::calculate_Unwrapped_Structure(const Calc_Functions& calc_Functions,
-													 const tree<Node>& calc_Tree,
+													 const vector<Node*>& media_Node_Map_Vector,
+													 const vector<Data*>& media_Data_Map_Vector,
+													 const vector<int>& media_Period_Index_Map_Vector,
 													 const Data& measurement,
-													 Unwrapped_Structure*& unwrapped_Structure_Vec_Element,
-													 const vector<Node*>& media_Node_Map_Vector)
+													 Unwrapped_Structure*& unwrapped_Structure_Vec_Element)
 {
 	delete unwrapped_Structure_Vec_Element;
 	Unwrapped_Structure* new_Unwrapped_Structure = new Unwrapped_Structure (multilayer,
 																			calc_Functions,
-																			calc_Tree,
-																			measurement,
 																			media_Node_Map_Vector,
+																			media_Data_Map_Vector,
+																			media_Period_Index_Map_Vector,
+																			measurement,
 																			num_Media_Sharp,
 																			depth_Grading,
 																			sigma_Grading,
-																			multilayer->discretization_Parameters,
 																			r);
 	unwrapped_Structure_Vec_Element = new_Unwrapped_Structure;
 
-	if(unwrapped_Structure_Vec_Element->discretization_Parameters.enable_Discretization)
+	if(multilayer->discretization_Parameters.enable_Discretization)
 	{
 		num_Media = unwrapped_Structure_Vec_Element->num_Discretized_Media;
 	}
@@ -615,7 +627,8 @@ int Calculation_Tree::get_Total_Num_Layers(const tree<Node>::iterator& parent)
 		}		
 		if( child.node->data.struct_Data.item_Type == item_Type_Regular_Aperiodic)
 		{
-			num_Media_Local += (child.node->data.struct_Data.num_Repetition.value()-1) * get_Total_Num_Layers(child);
+			// previous and wrong: num_Media_Local += (child.node->data.struct_Data.num_Repetition.value()-1) * get_Total_Num_Layers(child);
+			num_Media_Local += (child.node->data.struct_Data.num_Repetition.value()) * get_Total_Num_Layers(child);
 		}
 		if(child.node->data.struct_Data.item_Type == item_Type_General_Aperiodic)
 		{
