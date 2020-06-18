@@ -2,7 +2,7 @@
 #include "multilayer_approach/multilayer/multilayer.h"
 #include <iostream>
 
-Calculation_Tree::Calculation_Tree(Multilayer* multilayer):
+Calculation_Tree::Calculation_Tree(Multilayer* multilayer, QString calc_Mode):
 	multilayer(multilayer),
 	real_Struct_Tree(multilayer->structure_Tree->tree)
 {	
@@ -51,7 +51,6 @@ Calculation_Tree::Calculation_Tree(Multilayer* multilayer):
 	prepare_Residual_Expressions();
 	create_Rand_Generator();
 	check_If_Graded();
-//	max_Depth = Global_Variables::get_Tree_Depth(real_Struct_Tree->invisibleRootItem());	// unstratified depth
 }
 
 void Calculation_Tree::prepare_Residual_Expressions()
@@ -192,6 +191,7 @@ void Calculation_Tree::fill_Calc_Trees()
 			// unstratified
 			target_Data_Element.media_Data_Map_Vector.resize(num_Media_Sharp);
 			target_Data_Element.media_Period_Index_Map_Vector.resize(num_Media_Sharp);
+			flatten_Tree(target_Data_Element.calc_Tree, target_Data_Element.flat_Calc_Tree_Unstratified);
 			unwrap_Calc_Tree_Data(target_Data_Element.calc_Tree.begin(), target_Data_Element.media_Data_Map_Vector, target_Data_Element.media_Period_Index_Map_Vector);
 
 			stratify_Calc_Tree(target_Data_Element.calc_Tree);
@@ -208,6 +208,7 @@ void Calculation_Tree::fill_Calc_Trees()
 			// unstratified
 			independent_Data_Element.media_Data_Map_Vector.resize(num_Media_Sharp);
 			independent_Data_Element.media_Period_Index_Map_Vector.resize(num_Media_Sharp);
+			flatten_Tree(independent_Data_Element.calc_Tree, independent_Data_Element.flat_Calc_Tree_Unstratified);
 			unwrap_Calc_Tree_Data(independent_Data_Element.calc_Tree.begin(), independent_Data_Element.media_Data_Map_Vector, independent_Data_Element.media_Period_Index_Map_Vector);
 
 			stratify_Calc_Tree(independent_Data_Element.calc_Tree);
@@ -322,6 +323,8 @@ void Calculation_Tree::stratify_Calc_Tree_Iteration(const tree<Node>::iterator& 
 
 void Calculation_Tree::stratify_Calc_Tree(tree<Node>& calc_Tree)
 {
+	int max_Depth = Global_Variables::get_Tree_Depth(real_Struct_Tree->invisibleRootItem());	// unstratified depth
+
 	for(int depth=max_Depth-1; depth>0; depth--)
 	{
 		QVector<tree<Node>::iterator> chosen_Nodes;
@@ -537,7 +540,7 @@ void Calculation_Tree::calculate_1_Kind(Data_Element<Type>& data_Element, QStrin
 	qInfo() << "Unwrap:         "<< elapsed.count()/1000000. << " seconds" << endl;
 
 	start = std::chrono::system_clock::now();
-	calculate_Unwrapped_Reflectivity(data_Element.the_Class->calculated_Values, data_Element.unwrapped_Structure, data_Element.unwrapped_Reflection, mode);
+	calculate_Unwrapped_Reflectivity(data_Element.flat_Calc_Tree_Unstratified, data_Element.the_Class->calculated_Values, data_Element.unwrapped_Structure, data_Element.unwrapped_Reflection, mode);
 	end = std::chrono::system_clock::now();
 	elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
 	qInfo() << "Unwrap Reflect: "<< elapsed.count()/1000000. << " seconds" << endl;
@@ -591,20 +594,21 @@ void Calculation_Tree::calculate_Unwrapped_Structure(const Calc_Functions& calc_
 //	}
 }
 
-void Calculation_Tree::calculate_Unwrapped_Reflectivity(Calculated_Values& calculated_Values,
+void Calculation_Tree::calculate_Unwrapped_Reflectivity(const vector<Node*>& flat_Calc_Tree,
+														Calculated_Values& calculated_Values,
 														Unwrapped_Structure* unwrapped_Structure,
 														Unwrapped_Reflection*& unwrapped_Reflection_Vec_Element,
 														QString mode)
 {
 	delete unwrapped_Reflection_Vec_Element;	
-	Unwrapped_Reflection* new_Unwrapped_Reflection = new Unwrapped_Reflection(calculated_Values, unwrapped_Structure, mode);
+	Unwrapped_Reflection* new_Unwrapped_Reflection = new Unwrapped_Reflection(flat_Calc_Tree, calculated_Values, unwrapped_Structure, mode);
 	unwrapped_Reflection_Vec_Element = new_Unwrapped_Reflection;
 
 //	auto start = std::chrono::system_clock::now();
 	unwrapped_Reflection_Vec_Element->calc_Specular();
 //	auto end = std::chrono::system_clock::now();
 //	auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-//	qInfo() << "Bare Reflectivity:      "<< elapsed.count()/1000000. << " seconds" << endl;
+//	qInfo() << "calc_Specular    :      "<< elapsed.count()/1000000. << " seconds" << endl;
 }
 
 int Calculation_Tree::get_Total_Num_Layers(const tree<Node>::iterator& parent)
@@ -663,37 +667,3 @@ void Calculation_Tree::print_Tree(const tree<Node>::iterator& parent, tree<Node>
 		}
 	}
 }
-
-//void Calculation_Tree::print_Flat_list(QList<Node> flat_List)
-//{
-//	for(int i=0; i<flat_List.size(); ++i)
-//	{
-//		std::cout << "list : \t\t" << flat_List[i].struct_Data.item_Type.toStdString() << std::endl;
-//	}
-//}
-
-//void Calculation_Tree::print_Item_Tree(QTreeWidgetItem* item)
-//{
-//	for(int i=0; i<item->childCount(); ++i)
-//	{
-//		QTreeWidgetItem* child = item->child(i);
-
-//		Data struct_Data = child->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
-
-//		{
-//			std::cout << "item :  depth : " << Global_Variables::get_Item_Depth(child) << "   ";
-//			for(int y=0; y<Global_Variables::get_Item_Depth(child)-1; y++)
-//			{	std::cout << "\t";}
-//			std::cout << child->whatsThis(DEFAULT_COLUMN).toStdString();
-//			if(struct_Data.item_Type == item_Type_Multilayer)
-//			{	std::cout << " : " << child->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>().num_Repetition.value;	}
-//			std::cout << std::endl;
-//		}
-
-//		if(struct_Data.item_Type == item_Type_Multilayer ||
-//		   struct_Data.item_Type == item_Type_Aperiodic  )
-//		{
-//			print_Item_Tree(child);
-//		}
-//	}
-//}

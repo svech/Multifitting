@@ -25,7 +25,8 @@ struct Data_Element
 	Type* the_Class;
 	Calc_Functions calc_Functions;
 	tree<Node> calc_Tree; // each tree creates somehow 2 nodes at creation
-	vector<Node*> flat_Calc_Tree;	// contains only appropriate nodes: Ambient, Layers, Substrate
+	vector<Node*> flat_Calc_Tree;	            // contains only appropriate nodes: Ambient, Layers, Substrate
+	vector<Node*> flat_Calc_Tree_Unstratified;	// contains only appropriate nodes: Ambient, Layers, Substrate
 	vector<Node*> media_Node_Map_Vector;
 	vector<Data*> media_Data_Map_Vector;
 	vector<int>   media_Period_Index_Map_Vector;
@@ -34,7 +35,7 @@ struct Data_Element
 class Calculation_Tree
 {
 public:
-	Calculation_Tree(Multilayer* multilayer);
+	Calculation_Tree(Multilayer* multilayer, QString calc_Mode);
 
 	void prepare_Residual_Expressions();
 	void create_Rand_Generator();
@@ -64,7 +65,7 @@ public:
 	void clear_Spline_1_Tree(vector<Node*>& flat_Calc_Tree, QString mode);
 
 	void calculate_Unwrapped_Structure   (const Calc_Functions& calc_Functions, const vector<Node*>& media_Node_Map_Vector, const vector<Data*>& media_Data_Map_Vector, const vector<int>& media_Period_Index_Map_Vector, const Data& measurement, Unwrapped_Structure*& unwrapped_Structure_Vec_Element);
-	void calculate_Unwrapped_Reflectivity(Calculated_Values& calculated_Values, Unwrapped_Structure*  unwrapped_Structure, Unwrapped_Reflection*& unwrapped_Reflection_Vec_Element, QString mode);
+	void calculate_Unwrapped_Reflectivity(const vector<Node*>& flat_Calc_Tree, Calculated_Values& calculated_Values, Unwrapped_Structure*  unwrapped_Structure, Unwrapped_Reflection*& unwrapped_Reflection_Vec_Element, QString mode);
 
 	static void print_Tree(const tree<Node>::iterator& parent, tree<Node>& calc_Tree);
 //	void print_Flat_list(QList<Node> flat_List);
@@ -79,7 +80,6 @@ public:
 	bool depth_Grading = false;
 	bool sigma_Grading = false;
 
-//	int max_Depth;
 	int num_Media;
 	int num_Media_Sharp;
 

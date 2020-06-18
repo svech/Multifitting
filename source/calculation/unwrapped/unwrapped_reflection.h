@@ -11,7 +11,7 @@ class Multilayer;
 class Unwrapped_Reflection
 {
 public:
-	Unwrapped_Reflection(Calculated_Values& calculated_Values, Unwrapped_Structure* unwrapped_Structure, QString spec_Scat_mode);
+	Unwrapped_Reflection(const vector<Node*>& flat_Calc_Tree, Calculated_Values& calculated_Values, Unwrapped_Structure* unwrapped_Structure, QString spec_Scat_mode);
 	~Unwrapped_Reflection();
 
 	int num_Threads;
@@ -31,6 +31,9 @@ public:
 	Multilayer* multilayer;
 	const Data& measurement;
 
+	const vector<Node*>& flat_Calc_Tree;		// unstratified, has no extreme layers
+	const vector<Node*>& media_Node_Map_Vector;
+	const vector<Data*>& media_Data_Map_Vector;
 	Node* substrate_Node;
 	Data substrate;
 
@@ -156,21 +159,20 @@ public:
 
 	///---------------------------------------------------------------------
 
+	void fill_Components_From_Node_Vector(int thread_Index, int point_Index);
 	int fill_s__Max_Depth_3(const tree<Node>::iterator& parent, int thread_Index, int point_Index, int media_Index = 0);
 	int fill_p__Max_Depth_3(const tree<Node>::iterator& parent, int thread_Index, int point_Index, int media_Index = 0);
 	int fill_sp_Max_Depth_3(const tree<Node>::iterator& parent, int thread_Index, int point_Index, int media_Index = 0);
 
 	void fill_Item_Id_Map();
-	int fill_Boundary_Item(const tree<Node>::iterator &parent, int boundary_Index = 0);
-
-	void fill_Epsilon_Ambient_Substrate	(int thread_Index,						  const vector<complex<double>>& epsilon_Vector);
+	void fill_Boundary_Item();
 
 	// specular
 	void calc_Hi						(int point_Index, double k, double cos2, const vector<complex<double>>& epsilon_Vector);
 	void calc_Weak_Factor				(int thread_Index, int point_Index);
 	void calc_Fresnel					(int thread_Index, int point_Index, const vector<complex<double>>& epsilon_Vector);
 	void calc_Exponenta					(int thread_Index, int point_Index, const vector<double>& thickness);
-	void calc_Local						(int thread_Index, int point_Index);
+	void calc_Local						(int thread_Index);
 	void calc_Environmental_Factor		(int thread_Index, int point_Index);
 
 	// fields

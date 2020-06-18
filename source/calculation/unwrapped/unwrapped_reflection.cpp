@@ -313,10 +313,10 @@ double function_Scattering_Linear_2D_sp(double phi, void* p)
 	        u->p_Weight*(partially_Coherent_Sum_p + incoherent_Sum_p);
 }
 
-Unwrapped_Reflection::Unwrapped_Reflection(Calculated_Values& calculated_Values, Unwrapped_Structure* unwrapped_Structure, QString spec_Scat_mode):
+Unwrapped_Reflection::Unwrapped_Reflection(const vector<Node*>& flat_Calc_Tree, Calculated_Values& calculated_Values, Unwrapped_Structure* unwrapped_Structure, QString spec_Scat_mode):
 	multilayer		(unwrapped_Structure->multilayer),
 	unwrapped_Structure(unwrapped_Structure),
-	num_Media		(multilayer->discretization_Parameters.enable_Discretization ? unwrapped_Structure->num_Media_Sharp : unwrapped_Structure->num_Discretized_Media ),
+	num_Media		(multilayer->discretization_Parameters.enable_Discretization ? unwrapped_Structure->num_Discretized_Media : unwrapped_Structure->num_Media_Sharp ),
 	num_Threads		(reflectivity_Calc_Threads),
     num_Layers		(num_Media-2),
     num_Boundaries	(num_Media-1),
@@ -324,6 +324,9 @@ Unwrapped_Reflection::Unwrapped_Reflection(Calculated_Values& calculated_Values,
     calculated_Values(calculated_Values),
     spec_Scat_mode	(spec_Scat_mode),
 	measurement		(measurement),
+	flat_Calc_Tree	(flat_Calc_Tree),
+	media_Node_Map_Vector(unwrapped_Structure->media_Node_Map_Vector),
+	media_Data_Map_Vector(unwrapped_Structure->media_Data_Map_Vector),
 
 	/// specular
 	epsilon_Ambient	 (num_Threads),
@@ -508,10 +511,10 @@ Unwrapped_Reflection::Unwrapped_Reflection(Calculated_Values& calculated_Values,
 			if(  multilayer->imperfections_Model.vertical_Correlation == zero_Correlation &&
 				!multilayer->imperfections_Model.use_Common_Roughness_Function )
 			{
-//				fill_Item_Id_Map();
-//				fill_Boundary_Item(unwrapped_Structure->calc_Tree.begin());
+				fill_Item_Id_Map();
+				fill_Boundary_Item();
 
-				// remove extreme layers
+//				// remove extreme layers
 //				for(int i=boundaries_Of_Item_Vec.size()-1; i>=0; i--)
 //				{
 //					if(boundaries_Of_Item_Vec[i].size()==0)
@@ -553,6 +556,43 @@ Unwrapped_Reflection::Unwrapped_Reflection(Calculated_Values& calculated_Values,
 							half_Sum_Field_Term_s[thread_Index][boundary_Index].resize(num_Boundaries-1);
 							half_Sum_Field_Term_p[thread_Index][boundary_Index].resize(num_Boundaries-1);
 							cross_Exp_Factor_2D	 [thread_Index][boundary_Index].resize(num_Boundaries-1);
+						}
+					}
+				}
+
+				// s-polarization
+				if( (measurement.polarization + 1) > POLARIZATION_TOLERANCE)
+				{
+					if(spec_Scat_mode == SPECULAR_MODE)
+					{
+						calculated_Values.q0_Boundary_Field_s.resize(num_Points);
+						for(size_t i=0; i<num_Points; i++)		{
+							calculated_Values.q0_Boundary_Field_s[i].resize(num_Boundaries);
+						}
+					}
+					if(spec_Scat_mode == SCATTERED_MODE)
+					{
+						calculated_Values.q_Boundary_Field_s.resize(num_Points);
+						for(size_t i=0; i<num_Points; i++)		{
+							calculated_Values.q_Boundary_Field_s[i].resize(num_Boundaries);
+						}
+					}
+				}
+				// p-polarization
+				if( (measurement.polarization - 1) < -POLARIZATION_TOLERANCE)
+				{
+					if(spec_Scat_mode == SPECULAR_MODE)
+					{
+						calculated_Values.q0_Boundary_Field_p.resize(num_Points);
+						for(size_t i=0; i<num_Points; i++)		{
+							calculated_Values.q0_Boundary_Field_p[i].resize(num_Boundaries);
+						}
+					}
+					if(spec_Scat_mode == SCATTERED_MODE)
+					{
+						calculated_Values.q_Boundary_Field_p.resize(num_Points);
+						for(size_t i=0; i<num_Points; i++)		{
+							calculated_Values.q_Boundary_Field_p[i].resize(num_Boundaries);
 						}
 					}
 				}
@@ -711,51 +751,9 @@ Unwrapped_Reflection::Unwrapped_Reflection(Calculated_Values& calculated_Values,
 			}
 		}
 
-		// s-polarization
-		if( (measurement.polarization + 1) > POLARIZATION_TOLERANCE)
-		{
-			/// PT
-			if(spec_Scat_mode == SPECULAR_MODE)
-			{
-				calculated_Values.q0_Boundary_Field_s.resize(num_Points);
-				for(size_t i=0; i<num_Points; i++)		{
-					calculated_Values.q0_Boundary_Field_s[i].resize(num_Boundaries);
-				}
-			}
-			if(spec_Scat_mode == SCATTERED_MODE)
-			{
-				calculated_Values.q_Boundary_Field_s.resize(num_Points);
-				for(size_t i=0; i<num_Points; i++)		{
-					calculated_Values.q_Boundary_Field_s[i].resize(num_Boundaries);
-				}
-			}
-		}
-		// p-polarization
-		if( (measurement.polarization - 1) < -POLARIZATION_TOLERANCE)
-		{
-			/// PT
-			if(spec_Scat_mode == SPECULAR_MODE)
-			{
-				calculated_Values.q0_Boundary_Field_p.resize(num_Points);
-				for(size_t i=0; i<num_Points; i++)		{
-					calculated_Values.q0_Boundary_Field_p[i].resize(num_Boundaries);
-				}
-			}
-			if(spec_Scat_mode == SCATTERED_MODE)
-			{
-				calculated_Values.q_Boundary_Field_p.resize(num_Points);
-				for(size_t i=0; i<num_Points; i++)		{
-					calculated_Values.q_Boundary_Field_p[i].resize(num_Boundaries);
-				}
-			}
-		}
-
 		// for getting common PSD parameters
-		int substrate_Index = unwrapped_Structure->calc_Tree.begin().number_of_children()-1;
-		tree<Node>::post_order_iterator substrate_Child = tree<Node>::child(unwrapped_Structure->calc_Tree.begin(), substrate_Index);
-		substrate_Node = &(substrate_Child.node->data);
+		substrate_Node = media_Node_Map_Vector.back();
 		substrate = substrate_Node->struct_Data;
-		if(substrate.item_Type != item_Type_Substrate ) {qInfo() << "Unwrapped_Reflection::Unwrapped_Reflection  :  last item is not substrate!" << endl;}
 	}
 }
 
@@ -771,337 +769,68 @@ Unwrapped_Reflection::~Unwrapped_Reflection()
 	}
 }
 
-int Unwrapped_Reflection::fill_s__Max_Depth_3(const tree<Node>::iterator& parent, int thread_Index, int point_Index, int media_Index)
+void Unwrapped_Reflection::fill_Components_From_Node_Vector(int thread_Index, int point_Index)
 {
-	for(unsigned child_Index=0; child_Index<parent.number_of_children(); ++child_Index)
+	// if have s-polarization
+	if( measurement.polarization > -1+POLARIZATION_TOLERANCE )
 	{
-		tree<Node>::post_order_iterator child = tree<Node>::child(parent,child_Index);
-		const Data& child_Data = child.node->data.struct_Data;
-
-		if(child_Data.item_Type == item_Type_Layer)
+		for(size_t boundary_Index = 0; boundary_Index<media_Node_Map_Vector.size(); boundary_Index++)
 		{
-			hi         [point_Index ][media_Index  ] = child.node->data.hi         [point_Index];
-			r_Fresnel_s[thread_Index][media_Index-1] = child.node->data.Fresnel_R_s[point_Index] * child.node->data.weak_Factor_R[point_Index];
-			t_Fresnel_s[thread_Index][media_Index-1] = child.node->data.Fresnel_T_s[point_Index] * child.node->data.weak_Factor_T[point_Index];
-			exponenta  [thread_Index][media_Index-1] = child.node->data.exponenta  [point_Index];
-			exponenta_2[thread_Index][media_Index-1] = child.node->data.exponenta_2[point_Index];
-			++media_Index;
-		} else
-		if(child_Data.item_Type == item_Type_Substrate )
-		{
-			epsilon_Substrate[thread_Index] = child.node->data.epsilon[point_Index];
-			hi         [point_Index ][media_Index  ] = child.node->data.hi		   [point_Index];
-			r_Fresnel_s[thread_Index][media_Index-1] = child.node->data.Fresnel_R_s[point_Index] * child.node->data.weak_Factor_R[point_Index];
-			t_Fresnel_s[thread_Index][media_Index-1] = child.node->data.Fresnel_T_s[point_Index] * child.node->data.weak_Factor_T[point_Index];
-			++media_Index;
-		} else
-		if(child_Data.item_Type == item_Type_Ambient)
-		{
-			epsilon_Ambient[thread_Index] = child.node->data.epsilon[point_Index];
-			hi[point_Index ][media_Index] = child.node->data.hi[point_Index];
-			++media_Index;
-		} else
-		if( child_Data.item_Type == item_Type_Multilayer ||
-		    child_Data.item_Type == item_Type_Regular_Aperiodic	)
-		{
-			int start_Period = 0;
-			if(child_Data.item_Type == item_Type_Regular_Aperiodic) // only slight difference here
-			{	start_Period = 1;	}
-
-			if(max_Depth == 2)
-			{
-				for(int period_Index=start_Period; period_Index<child_Data.num_Repetition.value(); ++period_Index)
-				{
-					for(unsigned grandchild_Index=0; grandchild_Index<child.number_of_children(); ++grandchild_Index)
-					{
-						tree<Node>::post_order_iterator grandchild = tree<Node>::child(child,grandchild_Index);
-						hi         [point_Index ][media_Index  ] = grandchild.node->data.hi			[point_Index];
-						r_Fresnel_s[thread_Index][media_Index-1] = grandchild.node->data.Fresnel_R_s[point_Index] * grandchild.node->data.weak_Factor_R[point_Index];
-						t_Fresnel_s[thread_Index][media_Index-1] = grandchild.node->data.Fresnel_T_s[point_Index] * grandchild.node->data.weak_Factor_T[point_Index];
-						exponenta  [thread_Index][media_Index-1] = grandchild.node->data.exponenta  [point_Index];
-						exponenta_2[thread_Index][media_Index-1] = grandchild.node->data.exponenta_2[point_Index];
-						++media_Index;
-					}
-				}
-			} else
-			{
-				for(int period_Index=start_Period; period_Index<child_Data.num_Repetition.value(); ++period_Index)
-				{
-					for(unsigned grandchild_Index=0; grandchild_Index<child.number_of_children(); ++grandchild_Index)
-					{
-						tree<Node>::post_order_iterator grandchild = tree<Node>::child(child,grandchild_Index);
-						const Data& grandchild_Data = grandchild.node->data.struct_Data;
-
-						if(grandchild_Data.item_Type == item_Type_Layer)
-						{
-							hi         [point_Index ][media_Index  ] = grandchild.node->data.hi			[point_Index];
-							r_Fresnel_s[thread_Index][media_Index-1] = grandchild.node->data.Fresnel_R_s[point_Index] * grandchild.node->data.weak_Factor_R[point_Index];
-							t_Fresnel_s[thread_Index][media_Index-1] = grandchild.node->data.Fresnel_T_s[point_Index] * grandchild.node->data.weak_Factor_T[point_Index];
-							exponenta  [thread_Index][media_Index-1] = grandchild.node->data.exponenta  [point_Index];
-							exponenta_2[thread_Index][media_Index-1] = grandchild.node->data.exponenta_2[point_Index];
-							++media_Index;
-						} else
-						if( grandchild_Data.item_Type == item_Type_Multilayer ||
-						    grandchild_Data.item_Type == item_Type_Regular_Aperiodic )
-						{
-							int start_Period_1 = 0;
-							if(grandchild_Data.item_Type == item_Type_Regular_Aperiodic) // only slight difference here
-							{	start_Period_1 = 1;	}
-
-							for(int period_Index_1=start_Period_1; period_Index_1<grandchild_Data.num_Repetition.value(); ++period_Index_1)
-							{
-								for(unsigned grandgrandchild_Index=0; grandgrandchild_Index<grandchild.number_of_children(); ++grandgrandchild_Index)
-								{
-									tree<Node>::post_order_iterator grandgrandchild = tree<Node>::child(grandchild,grandgrandchild_Index);
-									hi         [point_Index ][media_Index  ] = grandgrandchild.node->data.hi		 [point_Index];
-									r_Fresnel_s[thread_Index][media_Index-1] = grandgrandchild.node->data.Fresnel_R_s[point_Index] * grandgrandchild.node->data.weak_Factor_R[point_Index];
-									t_Fresnel_s[thread_Index][media_Index-1] = grandgrandchild.node->data.Fresnel_T_s[point_Index] * grandgrandchild.node->data.weak_Factor_T[point_Index];
-									exponenta  [thread_Index][media_Index-1] = grandgrandchild.node->data.exponenta  [point_Index];
-									exponenta_2[thread_Index][media_Index-1] = grandgrandchild.node->data.exponenta_2[point_Index];
-									++media_Index;
-								}
-							}
-						}
-					}
-				}
-			}
+			Node* node = media_Node_Map_Vector[boundary_Index+1];
+			r_Fresnel_s[thread_Index][boundary_Index] = node->Fresnel_R_s[point_Index] * node->weak_Factor_R[point_Index];
+			t_Fresnel_s[thread_Index][boundary_Index] = node->Fresnel_T_s[point_Index] * node->weak_Factor_T[point_Index];
 		}
 	}
-	return media_Index;
-}
-int Unwrapped_Reflection::fill_p__Max_Depth_3(const tree<Node>::iterator& parent, int thread_Index, int point_Index, int media_Index)
-{
-	for(unsigned child_Index=0; child_Index<parent.number_of_children(); ++child_Index)
+
+	// if have p-polarization
+	if (measurement.polarization < 1-POLARIZATION_TOLERANCE)
 	{
-		tree<Node>::post_order_iterator child = tree<Node>::child(parent,child_Index);
-		const Data& child_Data = child.node->data.struct_Data;
-
-		if(child_Data.item_Type == item_Type_Layer)
+		for(size_t boundary_Index = 0; boundary_Index<media_Node_Map_Vector.size(); boundary_Index++)
 		{
-			hi         [point_Index ][media_Index  ] = child.node->data.hi		   [point_Index];
-			r_Fresnel_p[thread_Index][media_Index-1] = child.node->data.Fresnel_R_p[point_Index] * child.node->data.weak_Factor_R[point_Index];
-			t_Fresnel_p[thread_Index][media_Index-1] = child.node->data.Fresnel_T_p[point_Index] * child.node->data.weak_Factor_T[point_Index];
-			exponenta  [thread_Index][media_Index-1] = child.node->data.exponenta  [point_Index];
-			exponenta_2[thread_Index][media_Index-1] = child.node->data.exponenta_2[point_Index];
-			++media_Index;
-		} else
-		if(child_Data.item_Type == item_Type_Substrate )
-		{
-			epsilon_Substrate[thread_Index] = child.node->data.epsilon[point_Index];
-			hi         [point_Index ][media_Index  ] = child.node->data.hi		   [point_Index];
-			r_Fresnel_p[thread_Index][media_Index-1] = child.node->data.Fresnel_R_p[point_Index] * child.node->data.weak_Factor_R[point_Index];
-			t_Fresnel_p[thread_Index][media_Index-1] = child.node->data.Fresnel_T_p[point_Index] * child.node->data.weak_Factor_T[point_Index];
-			++media_Index;
-		} else
-		if(child_Data.item_Type == item_Type_Ambient)
-		{
-			epsilon_Ambient[thread_Index] = child.node->data.epsilon[point_Index];
-			hi[point_Index ][media_Index] = child.node->data.hi[point_Index];
-			++media_Index;
-		} else
-		if( child_Data.item_Type == item_Type_Multilayer ||
-		    child_Data.item_Type == item_Type_Regular_Aperiodic )
-		{
-			int start_Period = 0;
-			if(child_Data.item_Type == item_Type_Regular_Aperiodic) // only slight difference here
-			{	start_Period = 1;	}
-
-			if(max_Depth == 2)
-			{
-				for(int period_Index=start_Period; period_Index<child_Data.num_Repetition.value(); ++period_Index)
-				{
-					for(unsigned grandchild_Index=0; grandchild_Index<child.number_of_children(); ++grandchild_Index)
-					{
-						tree<Node>::post_order_iterator grandchild = tree<Node>::child(child,grandchild_Index);
-						hi         [point_Index ][media_Index  ] = grandchild.node->data.hi		    [point_Index];
-						r_Fresnel_p[thread_Index][media_Index-1] = grandchild.node->data.Fresnel_R_p[point_Index] * grandchild.node->data.weak_Factor_R[point_Index];
-						t_Fresnel_p[thread_Index][media_Index-1] = grandchild.node->data.Fresnel_T_p[point_Index] * grandchild.node->data.weak_Factor_T[point_Index];
-						exponenta  [thread_Index][media_Index-1] = grandchild.node->data.exponenta  [point_Index];
-						exponenta_2[thread_Index][media_Index-1] = grandchild.node->data.exponenta_2[point_Index];
-						++media_Index;
-					}
-				}
-			} else
-			{
-				for(int period_Index=start_Period; period_Index<child_Data.num_Repetition.value(); ++period_Index)
-				{
-					for(unsigned grandchild_Index=0; grandchild_Index<child.number_of_children(); ++grandchild_Index)
-					{
-						tree<Node>::post_order_iterator grandchild = tree<Node>::child(child,grandchild_Index);
-						const Data& grandchild_Data = grandchild.node->data.struct_Data;
-
-						if(grandchild_Data.item_Type == item_Type_Layer)
-						{
-							hi         [point_Index ][media_Index  ] = grandchild.node->data.hi			[point_Index];
-							r_Fresnel_p[thread_Index][media_Index-1] = grandchild.node->data.Fresnel_R_p[point_Index] * grandchild.node->data.weak_Factor_R[point_Index];
-							t_Fresnel_p[thread_Index][media_Index-1] = grandchild.node->data.Fresnel_T_p[point_Index] * grandchild.node->data.weak_Factor_T[point_Index];
-							exponenta  [thread_Index][media_Index-1] = grandchild.node->data.exponenta  [point_Index];
-							exponenta_2[thread_Index][media_Index-1] = grandchild.node->data.exponenta_2[point_Index];
-							++media_Index;
-						} else
-						if( grandchild_Data.item_Type == item_Type_Multilayer ||
-						    grandchild_Data.item_Type == item_Type_Regular_Aperiodic )
-						{
-							int start_Period_1 = 0;
-							if(grandchild_Data.item_Type == item_Type_Regular_Aperiodic) // only slight difference here
-							{	start_Period_1 = 1;	}
-
-							for(int period_Index_1=start_Period_1; period_Index_1<grandchild_Data.num_Repetition.value(); ++period_Index_1)
-							{
-								for(unsigned grandgrandchild_Index=0; grandgrandchild_Index<grandchild.number_of_children(); ++grandgrandchild_Index)
-								{
-									tree<Node>::post_order_iterator grandgrandchild = tree<Node>::child(grandchild,grandgrandchild_Index);
-									hi         [point_Index ][media_Index  ] = grandgrandchild.node->data.hi		 [point_Index];
-									r_Fresnel_p[thread_Index][media_Index-1] = grandgrandchild.node->data.Fresnel_R_p[point_Index] * grandgrandchild.node->data.weak_Factor_R[point_Index];
-									t_Fresnel_p[thread_Index][media_Index-1] = grandgrandchild.node->data.Fresnel_T_p[point_Index] * grandgrandchild.node->data.weak_Factor_T[point_Index];
-									exponenta  [thread_Index][media_Index-1] = grandgrandchild.node->data.exponenta  [point_Index];
-									exponenta_2[thread_Index][media_Index-1] = grandgrandchild.node->data.exponenta_2[point_Index];
-									++media_Index;
-								}
-							}
-						}
-					}
-				}
-			}
+			Node* node = media_Node_Map_Vector[boundary_Index+1];
+			r_Fresnel_p[thread_Index][boundary_Index] = node->Fresnel_R_p[point_Index] * node->weak_Factor_R[point_Index];
+			t_Fresnel_p[thread_Index][boundary_Index] = node->Fresnel_T_p[point_Index] * node->weak_Factor_T[point_Index];
 		}
 	}
-	return media_Index;
-}
-int Unwrapped_Reflection::fill_sp_Max_Depth_3(const tree<Node>::iterator& parent, int thread_Index, int point_Index, int media_Index)
-{
-	for(unsigned child_Index=0; child_Index<parent.number_of_children(); ++child_Index)
+
+	// anyway
+
+	/// Ambient
+	hi[point_Index].front() = media_Node_Map_Vector.front()->hi[point_Index];
+
+	/// Layers
+	for(size_t media_Index = 1; media_Index<media_Node_Map_Vector.size()-1; media_Index++)
 	{
-		tree<Node>::post_order_iterator child = tree<Node>::child(parent,child_Index);
-		const Data& child_Data = child.node->data.struct_Data;
-
-		if(child_Data.item_Type == item_Type_Layer)
-		{
-			hi         [point_Index ][media_Index  ] = child.node->data.hi         [point_Index];
-			r_Fresnel_s[thread_Index][media_Index-1] = child.node->data.Fresnel_R_s[point_Index] * child.node->data.weak_Factor_R[point_Index];
-			r_Fresnel_p[thread_Index][media_Index-1] = child.node->data.Fresnel_R_p[point_Index] * child.node->data.weak_Factor_R[point_Index];
-			t_Fresnel_s[thread_Index][media_Index-1] = child.node->data.Fresnel_T_s[point_Index] * child.node->data.weak_Factor_T[point_Index];
-			t_Fresnel_p[thread_Index][media_Index-1] = child.node->data.Fresnel_T_p[point_Index] * child.node->data.weak_Factor_T[point_Index];
-			exponenta  [thread_Index][media_Index-1] = child.node->data.exponenta  [point_Index];
-			exponenta_2[thread_Index][media_Index-1] = child.node->data.exponenta_2[point_Index];
-			++media_Index;
-		} else
-		if(child_Data.item_Type == item_Type_Substrate )
-		{
-			epsilon_Substrate[thread_Index] = child.node->data.epsilon[point_Index];
-			hi         [point_Index ][media_Index  ] = child.node->data.hi[point_Index];
-			r_Fresnel_s[thread_Index][media_Index-1] = child.node->data.Fresnel_R_s[point_Index] * child.node->data.weak_Factor_R[point_Index];
-			r_Fresnel_p[thread_Index][media_Index-1] = child.node->data.Fresnel_R_p[point_Index] * child.node->data.weak_Factor_R[point_Index];
-			t_Fresnel_s[thread_Index][media_Index-1] = child.node->data.Fresnel_T_s[point_Index] * child.node->data.weak_Factor_T[point_Index];
-			t_Fresnel_p[thread_Index][media_Index-1] = child.node->data.Fresnel_T_p[point_Index] * child.node->data.weak_Factor_T[point_Index];
-			++media_Index;
-		} else
-		if(child_Data.item_Type == item_Type_Ambient)
-		{
-			epsilon_Ambient[thread_Index] = child.node->data.epsilon[point_Index];
-			hi[point_Index ][media_Index] = child.node->data.hi[point_Index];
-			++media_Index;
-		} else
-		if( child_Data.item_Type == item_Type_Multilayer ||
-		    child_Data.item_Type == item_Type_Regular_Aperiodic )
-		{
-			int start_Period = 0;
-			if(child_Data.item_Type == item_Type_Regular_Aperiodic) // only slight difference here
-			{   start_Period = 1;	}
-
-			if(max_Depth == 2)
-			{
-				for(int period_Index=start_Period; period_Index<child_Data.num_Repetition.value(); ++period_Index)
-				{
-					for(unsigned grandchild_Index=0; grandchild_Index<child.number_of_children(); ++grandchild_Index)
-					{
-						tree<Node>::post_order_iterator grandchild = tree<Node>::child(child,grandchild_Index);
-						hi         [point_Index ][media_Index  ] = grandchild.node->data.hi			[point_Index];
-						r_Fresnel_s[thread_Index][media_Index-1] = grandchild.node->data.Fresnel_R_s[point_Index] * grandchild.node->data.weak_Factor_R[point_Index];
-						r_Fresnel_p[thread_Index][media_Index-1] = grandchild.node->data.Fresnel_R_p[point_Index] * grandchild.node->data.weak_Factor_R[point_Index];
-						t_Fresnel_s[thread_Index][media_Index-1] = grandchild.node->data.Fresnel_T_s[point_Index] * grandchild.node->data.weak_Factor_T[point_Index];
-						t_Fresnel_p[thread_Index][media_Index-1] = grandchild.node->data.Fresnel_T_p[point_Index] * grandchild.node->data.weak_Factor_T[point_Index];
-						exponenta  [thread_Index][media_Index-1] = grandchild.node->data.exponenta  [point_Index];
-						exponenta_2[thread_Index][media_Index-1] = grandchild.node->data.exponenta_2[point_Index];
-						++media_Index;
-					}
-				}
-			} else
-			{
-				for(int period_Index=start_Period; period_Index<child_Data.num_Repetition.value(); ++period_Index)
-				{
-					for(unsigned grandchild_Index=0; grandchild_Index<child.number_of_children(); ++grandchild_Index)
-					{
-						tree<Node>::post_order_iterator grandchild = tree<Node>::child(child,grandchild_Index);
-						const Data& grandchild_Data = grandchild.node->data.struct_Data;
-
-						if(grandchild_Data.item_Type == item_Type_Layer)
-						{
-							hi         [point_Index ][media_Index  ] = grandchild.node->data.hi			[point_Index];
-							r_Fresnel_s[thread_Index][media_Index-1] = grandchild.node->data.Fresnel_R_s[point_Index] * grandchild.node->data.weak_Factor_R[point_Index];
-							r_Fresnel_p[thread_Index][media_Index-1] = grandchild.node->data.Fresnel_R_p[point_Index] * grandchild.node->data.weak_Factor_R[point_Index];
-							t_Fresnel_s[thread_Index][media_Index-1] = grandchild.node->data.Fresnel_T_s[point_Index] * grandchild.node->data.weak_Factor_T[point_Index];
-							t_Fresnel_p[thread_Index][media_Index-1] = grandchild.node->data.Fresnel_T_p[point_Index] * grandchild.node->data.weak_Factor_T[point_Index];
-							exponenta  [thread_Index][media_Index-1] = grandchild.node->data.exponenta  [point_Index];
-							exponenta_2[thread_Index][media_Index-1] = grandchild.node->data.exponenta_2[point_Index];
-							++media_Index;
-						} else
-						if( grandchild_Data.item_Type == item_Type_Multilayer ||
-						    grandchild_Data.item_Type == item_Type_Regular_Aperiodic )
-						{
-							int start_Period_1 = 0;
-							if(grandchild_Data.item_Type == item_Type_Regular_Aperiodic) // only slight difference here
-							{	start_Period_1 = 1;	}
-
-							for(int period_Index_1=start_Period_1; period_Index_1<grandchild_Data.num_Repetition.value(); ++period_Index_1)
-							{
-								for(unsigned grandgrandchild_Index=0; grandgrandchild_Index<grandchild.number_of_children(); ++grandgrandchild_Index)
-								{
-									tree<Node>::post_order_iterator grandgrandchild = tree<Node>::child(grandchild,grandgrandchild_Index);
-									hi         [point_Index ][media_Index  ] = grandgrandchild.node->data.hi		 [point_Index];
-									r_Fresnel_s[thread_Index][media_Index-1] = grandgrandchild.node->data.Fresnel_R_s[point_Index] * grandgrandchild.node->data.weak_Factor_R[point_Index];
-									r_Fresnel_p[thread_Index][media_Index-1] = grandgrandchild.node->data.Fresnel_R_p[point_Index] * grandgrandchild.node->data.weak_Factor_R[point_Index];
-									t_Fresnel_s[thread_Index][media_Index-1] = grandgrandchild.node->data.Fresnel_T_s[point_Index] * grandgrandchild.node->data.weak_Factor_T[point_Index];
-									t_Fresnel_p[thread_Index][media_Index-1] = grandgrandchild.node->data.Fresnel_T_p[point_Index] * grandgrandchild.node->data.weak_Factor_T[point_Index];
-									exponenta  [thread_Index][media_Index-1] = grandgrandchild.node->data.exponenta  [point_Index];
-									exponenta_2[thread_Index][media_Index-1] = grandgrandchild.node->data.exponenta_2[point_Index];
-									++media_Index;
-								}
-							}
-						}
-					}
-				}
-			}
-		}
+		Node* node = media_Node_Map_Vector[media_Index];
+		hi         [point_Index ][media_Index  ] = node->hi         [point_Index];
+		exponenta  [thread_Index][media_Index-1] = node->exponenta  [point_Index];
+		exponenta_2[thread_Index][media_Index-1] = node->exponenta_2[point_Index];
 	}
-	return media_Index;
+
+	/// Substrate
+	hi[point_Index].back() = media_Node_Map_Vector.back()->hi[point_Index];
 }
 
 void Unwrapped_Reflection::fill_Item_Id_Map()
 {
-	tree<Node>::pre_order_iterator iter = tree<Node>::child(unwrapped_Structure->calc_Tree.begin(),0);
-
-	int counter = 0;
 	appropriate_Item_Vec.clear();
 	appropriate_Node_Vec.clear();
-	while(unwrapped_Structure->calc_Tree.is_valid(iter))
+
+	// element flat_Calc_Tree[0] is ambient, so we skip it
+	for(size_t item_Index = 0; item_Index<flat_Calc_Tree.size(); item_Index++)
 	{
-		Node& node = iter.node->data;
+		Node& node = (*flat_Calc_Tree[item_Index+1]);
 		const Data& item = node.struct_Data;
 
-		if(item.item_Type == item_Type_Layer || item.item_Type == item_Type_Substrate)
-		{
-			id_Item_Map.insert(item.id, counter);
-			appropriate_Item_Vec.push_back(item);
-			appropriate_Node_Vec.push_back(node);
-			counter++;
-		}
-		iter++;
+		id_Item_Map.insert(item.id, item_Index);
+		appropriate_Item_Vec.push_back(item);
+		appropriate_Node_Vec.push_back(node);
 	}
-	boundaries_Of_Item_Vec.resize(counter);
+	boundaries_Of_Item_Vec.resize(appropriate_Item_Vec.size());
 
 	for(int thread_Index=0; thread_Index<num_Threads; thread_Index++)
 	{
-		PSD_Factor_Item[thread_Index].resize(counter);
+		PSD_Factor_Item[thread_Index].resize(appropriate_Item_Vec.size());
 	}
 }
 
@@ -1141,95 +870,17 @@ inline void Unwrapped_Reflection::fill_Item_PSD_2D(int thread_Index, int point_I
 	}
 }
 
-int Unwrapped_Reflection::fill_Boundary_Item(const tree<Node>::iterator& parent, int boundary_Index)
-{
-	for(unsigned child_Index=0; child_Index<parent.number_of_children(); ++child_Index)
+void Unwrapped_Reflection::fill_Boundary_Item()
+{	
+	// media_Data_Map_Vector[0] is Ambient, so we skip it
+	for(size_t boundary_Index=0; boundary_Index<media_Data_Map_Vector.size(); ++boundary_Index)
 	{
-		tree<Node>::post_order_iterator child = tree<Node>::child(parent,child_Index);
-		Node& child_Node = child.node->data;
-		const Data& child_Data = child_Node.struct_Data;
+		const Data& struct_Data = (*media_Data_Map_Vector[boundary_Index+1]);
 
-		if(child_Data.item_Type == item_Type_Layer || child_Data.item_Type == item_Type_Substrate)
-		{
-			int index_Of_Item = id_Item_Map.value(child_Data.id);
-			boundary_Item_Vec[boundary_Index] = index_Of_Item;
-			boundaries_Of_Item_Vec[index_Of_Item].push_back(boundary_Index);
-			++boundary_Index;
-		} else
-		if( child_Data.item_Type == item_Type_Multilayer ||
-		    child_Data.item_Type == item_Type_Regular_Aperiodic )
-		{
-			int start_Period = 0;
-			if(child_Data.item_Type == item_Type_Regular_Aperiodic) // only slight difference here
-			{   start_Period = 1;	}
-
-			if(max_Depth == 2)
-			{
-				for(int period_Index=start_Period; period_Index<child_Data.num_Repetition.value(); ++period_Index)
-				{
-					for(unsigned grandchild_Index=0; grandchild_Index<child.number_of_children(); ++grandchild_Index)
-					{
-						const Data& grandchild_Data = tree<Node>::child(child,grandchild_Index).node->data.struct_Data;
-
-						int index_Of_Item = id_Item_Map.value(grandchild_Data.id);
-						boundary_Item_Vec[boundary_Index] = index_Of_Item;
-						boundaries_Of_Item_Vec[index_Of_Item].push_back(boundary_Index);
-						++boundary_Index;
-					}
-				}
-			} else
-			{
-				if(max_Depth == 3)
-				{
-					for(int period_Index=start_Period; period_Index<child_Data.num_Repetition.value(); ++period_Index)
-					{
-						for(unsigned grandchild_Index=0; grandchild_Index<child.number_of_children(); ++grandchild_Index)
-						{
-							tree<Node>::post_order_iterator grandchild = tree<Node>::child(parent,child_Index);
-							const Data& grandchild_Data = grandchild.node->data.struct_Data;
-
-							if(grandchild_Data.item_Type == item_Type_Layer)
-							{
-								int index_Of_Item = id_Item_Map.value(grandchild_Data.id);
-								boundary_Item_Vec[boundary_Index] = index_Of_Item;
-								boundaries_Of_Item_Vec[index_Of_Item].push_back(boundary_Index);
-								++boundary_Index;
-							} else
-							if( grandchild_Data.item_Type == item_Type_Multilayer ||
-							    grandchild_Data.item_Type == item_Type_Regular_Aperiodic )
-							{
-								int start_Period_1 = 0;
-								if(grandchild_Data.item_Type == item_Type_Regular_Aperiodic) // only slight difference here
-								{	start_Period_1 = 1;	}
-
-								for(int period_Index_1=start_Period_1; period_Index_1<grandchild_Data.num_Repetition.value(); ++period_Index_1)
-								{
-									for(unsigned grandgrandchild_Index=0; grandgrandchild_Index<grandchild.number_of_children(); ++grandgrandchild_Index)
-									{
-										const Data& grandgrandchild_Data = tree<Node>::child(grandchild,grandgrandchild_Index).node->data.struct_Data;
-										int index_Of_Item = id_Item_Map.value(grandgrandchild_Data.id);
-										boundary_Item_Vec[boundary_Index] = index_Of_Item;
-										boundaries_Of_Item_Vec[index_Of_Item].push_back(boundary_Index);
-										++boundary_Index;
-									}
-								}
-							}
-						}
-					}
-				} else // if max_Depth >= 4
-				{
-					boundary_Index = fill_Boundary_Item(child, boundary_Index);
-				}
-			}
-		}
+		int index_Of_Item = id_Item_Map.value(struct_Data.id);
+		boundary_Item_Vec[boundary_Index] = index_Of_Item;
+		boundaries_Of_Item_Vec[index_Of_Item].push_back(boundary_Index);
 	}
-	return boundary_Index;
-}
-
-void Unwrapped_Reflection::fill_Epsilon_Ambient_Substrate(int thread_Index, const vector<complex<double>>& epsilon_Vector)
-{
-	epsilon_Ambient  [thread_Index] = epsilon_Vector.front();
-	epsilon_Substrate[thread_Index] = epsilon_Vector.back();
 }
 
 void Unwrapped_Reflection::calc_Hi(int point_Index, double k, double cos2, const vector<complex<double>>& epsilon_Vector)
@@ -1430,8 +1081,8 @@ void Unwrapped_Reflection::calc_Fresnel(int thread_Index, int point_Index, const
 			{
 				if ( norm(hi[point_Index][i] + hi[point_Index][i+1]) > DBL_MIN )
 				{
-					r_Fresnel_s[thread_Index][i] = weak_Factor_R[thread_Index][i] * (hi[point_Index][i] - hi[point_Index][i+1]) /
-					                                                                (hi[point_Index][i] + hi[point_Index][i+1]);
+					r_Fresnel_s[thread_Index][i] = (hi[point_Index][i] - hi[point_Index][i+1]) /
+												   (hi[point_Index][i] + hi[point_Index][i+1]);
 				} else
 				{
 					r_Fresnel_s[thread_Index][i] = 0;
@@ -1445,10 +1096,10 @@ void Unwrapped_Reflection::calc_Fresnel(int thread_Index, int point_Index, const
 				if ( norm(hi[point_Index][i] + hi[point_Index][i+1]) > DBL_MIN )
 				{
 					// reflectance
-					r_Fresnel_s[thread_Index][i] = weak_Factor_R[thread_Index][i] * (hi[point_Index][i] - hi[point_Index][i+1]) /
-					                                                                (hi[point_Index][i] + hi[point_Index][i+1]);
+					r_Fresnel_s[thread_Index][i] = (hi[point_Index][i] - hi[point_Index][i+1]) /
+												   (hi[point_Index][i] + hi[point_Index][i+1]);
 					// transmittance
-					t_Fresnel_s[thread_Index][i] = weak_Factor_T[thread_Index][i] * 2.*hi[point_Index][i] / (hi[point_Index][i] + hi[point_Index][i+1]);
+					t_Fresnel_s[thread_Index][i] = 2.*hi[point_Index][i] / (hi[point_Index][i] + hi[point_Index][i+1]);
 				} else
 				{
 					// reflectance
@@ -1473,7 +1124,7 @@ void Unwrapped_Reflection::calc_Fresnel(int thread_Index, int point_Index, const
 
 				if ( norm(hi_je+hi_j1e) > DBL_MIN )
 				{
-					r_Fresnel_p[thread_Index][i] = weak_Factor_R[thread_Index][i] * (hi_je-hi_j1e)/ (hi_je+hi_j1e);
+					r_Fresnel_p[thread_Index][i] = (hi_je-hi_j1e)/ (hi_je+hi_j1e);
 				} else
 				{
 					r_Fresnel_p[thread_Index][i] = 0;
@@ -1490,9 +1141,9 @@ void Unwrapped_Reflection::calc_Fresnel(int thread_Index, int point_Index, const
 				if ( norm(hi_je+hi_j1e) > DBL_MIN )
 				{
 					// reflectance
-					r_Fresnel_p[thread_Index][i] = weak_Factor_R[thread_Index][i] * (hi_je-hi_j1e)/ (hi_je+hi_j1e);
+					r_Fresnel_p[thread_Index][i] = (hi_je-hi_j1e)/ (hi_je+hi_j1e);
 					// transmittance
-					t_Fresnel_p[thread_Index][i] = weak_Factor_T[thread_Index][i] * 2.*hi_je/ (hi_je+hi_j1e);
+					t_Fresnel_p[thread_Index][i] = 2.*hi_je/ (hi_je+hi_j1e);
 				} else
 				{
 					// reflectance
@@ -1525,7 +1176,7 @@ void Unwrapped_Reflection::calc_Exponenta(int thread_Index, int point_Index, con
 	}
 }
 
-void Unwrapped_Reflection::calc_Local(int thread_Index, int point_Index)
+void Unwrapped_Reflection::calc_Local(int thread_Index)
 {
 	// s-polarization
 	if( (measurement.polarization + 1) > POLARIZATION_TOLERANCE)
@@ -2033,7 +1684,6 @@ double Unwrapped_Reflection::function_DWBA_SA_CSA_Batch_Individual_Integrand(dou
 
 void Unwrapped_Reflection::calc_Sliced_Field(int thread_Index, int point_Index, const vector<complex<double>>& epsilon_Vector)
 {
-	// s-polarization
 	if( calc_Functions.check_Field ||
 	    calc_Functions.check_Joule )
 	{
@@ -2234,54 +1884,29 @@ void Unwrapped_Reflection::multifly_Fresnel_And_Weak_Factor(int thread_Index)
 void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int point_Index)
 {
 //	auto start = std::chrono::system_clock::now();
+
+	// anyway
+	epsilon_Ambient  [thread_Index] = media_Node_Map_Vector.front()->epsilon[point_Index];
+	epsilon_Substrate[thread_Index] = media_Node_Map_Vector.back() ->epsilon[point_Index];
+
+	// if sharp structure
 	if(!multilayer->discretization_Parameters.enable_Discretization)
 	{
-		if( true/*max_Depth <= depth_Threshold*/)
-		{
-			// in case of grading, some of these values are temporary and will be recalculated
-			if( (measurement.polarization - 1) > -POLARIZATION_TOLERANCE )		// s-polarization only
-			{
-				fill_s__Max_Depth_3(unwrapped_Structure->calc_Tree.begin(), thread_Index, point_Index);
-			} else
-			if( (measurement.polarization + 1) < POLARIZATION_TOLERANCE )		// p-polarization only
-			{
-				fill_p__Max_Depth_3(unwrapped_Structure->calc_Tree.begin(), thread_Index, point_Index);
-			} else																// both polarizations
-			{
-				fill_sp_Max_Depth_3(unwrapped_Structure->calc_Tree.begin(), thread_Index, point_Index);
-			}
+		// in case of grading or regular aperiodic, some of these values are temporary and will be recalculated
+		fill_Components_From_Node_Vector(thread_Index, point_Index);
 
-			// if we have some grading
-			if( unwrapped_Structure->depth_Grading )
-			{
-				calc_Exponenta(thread_Index, point_Index,unwrapped_Structure->thickness);
-			}
-			if( unwrapped_Structure->sigma_Grading && measurement.measurement_Type == measurement_Types[Specular_Scan] )
-			{
-				calc_Weak_Factor(thread_Index, point_Index);
-				multifly_Fresnel_And_Weak_Factor(thread_Index);
-			}
-		} else
+		// if we have some grading
+		if( unwrapped_Structure->depth_Grading )
 		{
-			if( measurement.argument_Type  == argument_Types[Wavelength_Energy] )
-			{
-				fill_Epsilon_Ambient_Substrate(thread_Index, unwrapped_Structure->epsilon_Dependent[point_Index]);
-				calc_Hi(point_Index, measurement.k_Vec[point_Index], measurement.beam_Theta_0_Cos2_Value, unwrapped_Structure->epsilon_Dependent[point_Index]);
-				calc_Weak_Factor(thread_Index, point_Index);
-				calc_Exponenta(thread_Index, point_Index, unwrapped_Structure->thickness);
-				calc_Fresnel(thread_Index, point_Index, unwrapped_Structure->epsilon_Dependent[point_Index]);
-			} else
-			// for all angular simulations, including scattering
-			{
-				fill_Epsilon_Ambient_Substrate(thread_Index, unwrapped_Structure->epsilon);
-				calc_Hi(thread_Index, measurement.k_Value, measurement.beam_Theta_0_Cos2_Vec[point_Index],unwrapped_Structure->epsilon);
-				if( measurement.measurement_Type == measurement_Types[Specular_Scan] )
-				{ calc_Weak_Factor(thread_Index, point_Index); }
-				calc_Exponenta(thread_Index, point_Index,unwrapped_Structure->thickness);
-				calc_Fresnel(thread_Index, point_Index, unwrapped_Structure->epsilon);
-			}
+			calc_Exponenta(thread_Index, point_Index,unwrapped_Structure->thickness);
 		}
-	} else
+		if( unwrapped_Structure->sigma_Grading)
+		{
+			calc_Weak_Factor(thread_Index, point_Index);
+			multifly_Fresnel_And_Weak_Factor(thread_Index);
+		}
+	}
+	else
 	// discretization
 	{
 		// TODO scattering
@@ -2290,17 +1915,9 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 			qInfo() <<  "Unwrapped_Reflection::calc_Specular_1_Point_1_Thread  :  discretization is not done" << endl;
 		}
 
-		// weak factors are "not used" with discretization. only formally
-		for(int thread_Index=0; thread_Index<num_Threads; thread_Index++)
-		{
-			weak_Factor_R[thread_Index].assign(num_Boundaries,1);
-			weak_Factor_T[thread_Index].assign(num_Boundaries,1);
-		}
-
 		if( measurement.measurement_Type == measurement_Types[Specular_Scan] &&
 		    measurement.argument_Type  == argument_Types[Wavelength_Energy] )
-		{
-			fill_Epsilon_Ambient_Substrate(thread_Index, unwrapped_Structure->epsilon_Dependent[point_Index]); // here can be passed non-discretized epsilon
+		{			
 			calc_Hi(thread_Index, measurement.k_Vec[point_Index], measurement.beam_Theta_0_Cos2_Value, unwrapped_Structure->discretized_Epsilon_Dependent[point_Index]);
 			calc_Exponenta(thread_Index, point_Index,unwrapped_Structure->discretized_Thickness);
 			calc_Fresnel(thread_Index, point_Index, unwrapped_Structure->discretized_Epsilon_Dependent[point_Index]);
@@ -2308,7 +1925,6 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 		if( measurement.measurement_Type == measurement_Types[Specular_Scan] &&
 		    measurement.argument_Type  == argument_Types[Beam_Grazing_Angle] )
 		{
-			fill_Epsilon_Ambient_Substrate(thread_Index, unwrapped_Structure->epsilon); // here can be passed non-discretized epsilon
 			calc_Hi(thread_Index, measurement.k_Value, measurement.beam_Theta_0_Cos2_Vec[point_Index], unwrapped_Structure->discretized_Epsilon);
 			calc_Exponenta(thread_Index, point_Index,unwrapped_Structure->discretized_Thickness);
 			calc_Fresnel(thread_Index, point_Index, unwrapped_Structure->discretized_Epsilon);
@@ -2317,12 +1933,11 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 
 //	auto end = std::chrono::system_clock::now();
 
-	calc_Local(thread_Index, point_Index);
+	calc_Local(thread_Index);
 
 //	auto enD = std::chrono::system_clock::now();
 //	auto elapseD = std::chrono::duration_cast<std::chrono::nanoseconds>(enD - start);
 //	if(point_Index==0) qInfo() << endl << measurement.measurement_Type << spec_Scat_mode << elapseD.count()/1000000. << " seconds" << endl;
-
 
 	// if we need to calculate detailed field distribution
 	if( measurement.measurement_Type == measurement_Types[Specular_Scan] )
@@ -2410,34 +2025,34 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 							} else
 							/// individual PSD of items
 							{
-//								fill_Item_PSD_1D(thread_Index, measurement.detector_Theta_Cos_Vec[point_Index], cos_Theta_0);
+								fill_Item_PSD_1D(thread_Index, measurement.detector_Theta_Cos_Vec[point_Index], cos_Theta_0);
 
-//								// s-polarization
-//								if( (measurement.polarization + 1) > POLARIZATION_TOLERANCE)
-//								{
-//									calc_Field_Term_Sum("s", point_Index, thread_Index);
-//									double field_Term_Sum_PSD = 0;
-//									for (int j = 0; j<num_Boundaries; j++)
-//									{
-//										int item_Index = boundary_Item_Vec[j];
-//										double PSD_Factor = PSD_Factor_Item[thread_Index][item_Index];
-//										field_Term_Sum_PSD += intensity_Term_Boundary_s[thread_Index][j] * PSD_Factor;
-//									}
-//									calculated_Values.S_s[point_Index] = e_Factor_PT_1D * field_Term_Sum_PSD;
-//								}
-//								// p-polarization
-//								if( (measurement.polarization - 1) < -POLARIZATION_TOLERANCE)
-//								{
-//									calc_Field_Term_Sum("p", point_Index, thread_Index);
-//									double field_Term_Sum_PSD = 0;
-//									for (int j = 0; j<num_Boundaries; j++)
-//									{
-//										int item_Index = boundary_Item_Vec[j];
-//										double PSD_Factor = PSD_Factor_Item[thread_Index][item_Index];
-//										field_Term_Sum_PSD += intensity_Term_Boundary_p[thread_Index][j] * PSD_Factor;
-//									}
-//									calculated_Values.S_p[point_Index] = e_Factor_PT_1D * field_Term_Sum_PSD;
-//								}
+								// s-polarization
+								if( (measurement.polarization + 1) > POLARIZATION_TOLERANCE)
+								{
+									calc_Field_Term_Sum("s", point_Index, thread_Index);
+									double field_Term_Sum_PSD = 0;
+									for (int j = 0; j<num_Boundaries; j++)
+									{
+										int item_Index = boundary_Item_Vec[j];
+										double PSD_Factor = PSD_Factor_Item[thread_Index][item_Index];
+										field_Term_Sum_PSD += intensity_Term_Boundary_s[thread_Index][j] * PSD_Factor;
+									}
+									calculated_Values.S_s[point_Index] = e_Factor_PT_1D * field_Term_Sum_PSD;
+								}
+								// p-polarization
+								if( (measurement.polarization - 1) < -POLARIZATION_TOLERANCE)
+								{
+									calc_Field_Term_Sum("p", point_Index, thread_Index);
+									double field_Term_Sum_PSD = 0;
+									for (int j = 0; j<num_Boundaries; j++)
+									{
+										int item_Index = boundary_Item_Vec[j];
+										double PSD_Factor = PSD_Factor_Item[thread_Index][item_Index];
+										field_Term_Sum_PSD += intensity_Term_Boundary_p[thread_Index][j] * PSD_Factor;
+									}
+									calculated_Values.S_p[point_Index] = e_Factor_PT_1D * field_Term_Sum_PSD;
+								}
 							}
 						}
 						if( multilayer->imperfections_Model.vertical_Correlation == partial_Correlation )
@@ -2573,65 +2188,65 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 							} else
 							/// individual PSD of items
 							{
-//								// pure s-polarization
-//								if( (measurement.polarization - 1) > -POLARIZATION_TOLERANCE)
-//								{
-//									calc_Field_Term_Sum("s", point_Index, thread_Index);
-//									for(size_t phi_Index = measurement.start_Phi_Index; phi_Index<measurement.end_Phi_Number; phi_Index++)
-//									{
-//										fill_Item_PSD_2D(thread_Index, point_Index, phi_Index);
+								// pure s-polarization
+								if( (measurement.polarization - 1) > -POLARIZATION_TOLERANCE)
+								{
+									calc_Field_Term_Sum("s", point_Index, thread_Index);
+									for(size_t phi_Index = measurement.start_Phi_Index; phi_Index<measurement.end_Phi_Number; phi_Index++)
+									{
+										fill_Item_PSD_2D(thread_Index, point_Index, phi_Index);
 
-//										double field_With_PSD_2D_Factor = 0;
-//										for (int j = 0; j<num_Boundaries; j++)
-//										{
-//											int item_Index = boundary_Item_Vec[j];
-//											double PSD_2D_Factor = PSD_Factor_Item[thread_Index][item_Index];
+										double field_With_PSD_2D_Factor = 0;
+										for (int j = 0; j<num_Boundaries; j++)
+										{
+											int item_Index = boundary_Item_Vec[j];
+											double PSD_2D_Factor = PSD_Factor_Item[thread_Index][item_Index];
 
-//											field_With_PSD_2D_Factor += intensity_Term_Boundary_s[thread_Index][j] * PSD_2D_Factor;
-//										}
-//										calculated_Values.GISAS_Instrumental[phi_Index][point_Index] = e_Factor_PT_2D * field_With_PSD_2D_Factor;
-//									}
-//								} else
-//								// pure p-polarization
-//								if( (measurement.polarization + 1) < POLARIZATION_TOLERANCE)
-//								{
-//									calc_Field_Term_Sum("p", point_Index, thread_Index);
-//									for(size_t phi_Index = measurement.start_Phi_Index; phi_Index<measurement.end_Phi_Number; phi_Index++)
-//									{
-//										fill_Item_PSD_2D(thread_Index, point_Index, phi_Index);
+											field_With_PSD_2D_Factor += intensity_Term_Boundary_s[thread_Index][j] * PSD_2D_Factor;
+										}
+										calculated_Values.GISAS_Instrumental[phi_Index][point_Index] = e_Factor_PT_2D * field_With_PSD_2D_Factor;
+									}
+								} else
+								// pure p-polarization
+								if( (measurement.polarization + 1) < POLARIZATION_TOLERANCE)
+								{
+									calc_Field_Term_Sum("p", point_Index, thread_Index);
+									for(size_t phi_Index = measurement.start_Phi_Index; phi_Index<measurement.end_Phi_Number; phi_Index++)
+									{
+										fill_Item_PSD_2D(thread_Index, point_Index, phi_Index);
 
-//										double field_With_PSD_2D_Factor = 0;
-//										for (int j = 0; j<num_Boundaries; j++)
-//										{
-//											int item_Index = boundary_Item_Vec[j];
-//											double PSD_2D_Factor = PSD_Factor_Item[thread_Index][item_Index];
+										double field_With_PSD_2D_Factor = 0;
+										for (int j = 0; j<num_Boundaries; j++)
+										{
+											int item_Index = boundary_Item_Vec[j];
+											double PSD_2D_Factor = PSD_Factor_Item[thread_Index][item_Index];
 
-//											field_With_PSD_2D_Factor += intensity_Term_Boundary_p[thread_Index][j] * PSD_2D_Factor;
-//										}
-//										calculated_Values.GISAS_Instrumental[phi_Index][point_Index] = e_Factor_PT_2D * field_With_PSD_2D_Factor;
-//									}
-//								} else
-//								// mixed sp-polarization
-//								{
-//									calc_Field_Term_Sum("s", point_Index, thread_Index);
-//									calc_Field_Term_Sum("p", point_Index, thread_Index);
-//									for(size_t phi_Index = measurement.start_Phi_Index; phi_Index<measurement.end_Phi_Number; phi_Index++)
-//									{
-//										fill_Item_PSD_2D(thread_Index, point_Index, phi_Index);
+											field_With_PSD_2D_Factor += intensity_Term_Boundary_p[thread_Index][j] * PSD_2D_Factor;
+										}
+										calculated_Values.GISAS_Instrumental[phi_Index][point_Index] = e_Factor_PT_2D * field_With_PSD_2D_Factor;
+									}
+								} else
+								// mixed sp-polarization
+								{
+									calc_Field_Term_Sum("s", point_Index, thread_Index);
+									calc_Field_Term_Sum("p", point_Index, thread_Index);
+									for(size_t phi_Index = measurement.start_Phi_Index; phi_Index<measurement.end_Phi_Number; phi_Index++)
+									{
+										fill_Item_PSD_2D(thread_Index, point_Index, phi_Index);
 
-//										double field_With_PSD_2D_Factor_s = 0;
-//										double field_With_PSD_2D_Factor_p = 0;
-//										for (int j = 0; j<num_Boundaries; j++)
-//										{
-//											int item_Index = boundary_Item_Vec[j];
-//											double PSD_2D_Factor = PSD_Factor_Item[thread_Index][item_Index];
+										double field_With_PSD_2D_Factor_s = 0;
+										double field_With_PSD_2D_Factor_p = 0;
+										for (int j = 0; j<num_Boundaries; j++)
+										{
+											int item_Index = boundary_Item_Vec[j];
+											double PSD_2D_Factor = PSD_Factor_Item[thread_Index][item_Index];
 
-//											field_With_PSD_2D_Factor_s += intensity_Term_Boundary_p[thread_Index][j] * PSD_2D_Factor;
-//											field_With_PSD_2D_Factor_p += intensity_Term_Boundary_p[thread_Index][j] * PSD_2D_Factor;
-//										}
-//										calculated_Values.GISAS_Instrumental[phi_Index][point_Index] = (s_Weight*field_With_PSD_2D_Factor_s + p_Weight*field_With_PSD_2D_Factor_p)*e_Factor_PT_2D;
-//									}
-//								}
+											field_With_PSD_2D_Factor_s += intensity_Term_Boundary_p[thread_Index][j] * PSD_2D_Factor;
+											field_With_PSD_2D_Factor_p += intensity_Term_Boundary_p[thread_Index][j] * PSD_2D_Factor;
+										}
+										calculated_Values.GISAS_Instrumental[phi_Index][point_Index] = (s_Weight*field_With_PSD_2D_Factor_s + p_Weight*field_With_PSD_2D_Factor_p)*e_Factor_PT_2D;
+									}
+								}
 							}
 						}
 						if( multilayer->imperfections_Model.vertical_Correlation == partial_Correlation )
@@ -2750,36 +2365,36 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 						} else
 						/// individual PSD of items
 						{
-////							choose_Cor_Function(thread_Index);
+//							choose_Cor_Function(thread_Index);
 
-//							// s-polarization
-//							if( (measurement.polarization + 1) > POLARIZATION_TOLERANCE)
-//							{
-//								if(point_Index==0)
-//								{
-//									qInfo() << boundaries_Of_Item_Vec.size() << endl;
-//									for(int i=0; i<boundaries_Of_Item_Vec.size(); i++)
-//									{
-//										qInfo() << boundaries_Of_Item_Vec[i] << endl;
-//									}
-//									qInfo() << endl << boundary_Item_Vec << endl;
-//									for(int i=0; i<appropriate_Item_Vec.size(); i++)
-//									{
-//										qInfo() << appropriate_Item_Vec[i].item_Type << endl;
-//									}
-//									qInfo() << endl << id_Item_Map << endl;
-//								}
-//								for(int n_Power=1; n_Power<=n_Max_Series; n_Power++)
-//								{
-//									calc_K_Factor_Term_Sum_DWBA_SA_CSA(thread_Index, "s", n_Power);
-//								}
-//								calculated_Values.S_s[point_Index] = e_Factor_DWBA_SA_CSA_1D * individual_Cor_Function_Integration(point_Index, thread_Index, cos_Theta_0);
-//							}
-//							// p-polarization
-//							if( (measurement.polarization - 1) < -POLARIZATION_TOLERANCE)
-//							{
+							// s-polarization
+							if( (measurement.polarization + 1) > POLARIZATION_TOLERANCE)
+							{
+								if(point_Index==0)
+								{
+									qInfo() << boundaries_Of_Item_Vec.size() << endl;
+									for(int i=0; i<boundaries_Of_Item_Vec.size(); i++)
+									{
+										qInfo() << boundaries_Of_Item_Vec[i] << endl;
+									}
+									qInfo() << endl << boundary_Item_Vec << endl;
+									for(int i=0; i<appropriate_Item_Vec.size(); i++)
+									{
+										qInfo() << appropriate_Item_Vec[i].item_Type << endl;
+									}
+									qInfo() << endl << id_Item_Map << endl;
+								}
+								for(int n_Power=1; n_Power<=n_Max_Series; n_Power++)
+								{
+									calc_K_Factor_Term_Sum_DWBA_SA_CSA(thread_Index, "s", n_Power);
+								}
+								calculated_Values.S_s[point_Index] = e_Factor_DWBA_SA_CSA_1D * individual_Cor_Function_Integration(point_Index, thread_Index, cos_Theta_0);
+							}
+							// p-polarization
+							if( (measurement.polarization - 1) < -POLARIZATION_TOLERANCE)
+							{
 
-//							}
+							}
 						}
 					}
 				}
