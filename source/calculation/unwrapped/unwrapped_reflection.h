@@ -11,37 +11,31 @@ class Multilayer;
 class Unwrapped_Reflection
 {
 public:
-	Unwrapped_Reflection(Multilayer* multilayer, Unwrapped_Structure* unwrapped_Structure, int num_Media,
-						 const Data& measurement, bool depth_Grading, bool sigma_Grading,
-						 const Calc_Functions& calc_Functions, Calculated_Values& calculated_Values, QString calc_Mode, QString spec_Scat_mode);
-
+	Unwrapped_Reflection(Calculated_Values& calculated_Values, Unwrapped_Structure* unwrapped_Structure, QString spec_Scat_mode);
 	~Unwrapped_Reflection();
 
 	int num_Threads;
 	int num_Layers;
 	int num_Boundaries;
 	int num_Media;
-	int max_Depth;  // TODO remove
+
 	size_t num_Points;
 	size_t phi_Points;
 	size_t short_Phi_Points;
 
-	bool depth_Grading;
-	bool sigma_Grading;
 	const Calc_Functions& calc_Functions;
 	Calculated_Values& calculated_Values;
 
-	QString calc_Mode;
 	QString spec_Scat_mode;
 	Unwrapped_Structure* unwrapped_Structure;
 	Multilayer* multilayer;
 	const Data& measurement;
+
 	Node* substrate_Node;
 	Data substrate;
 
 	double s_Weight;
 	double p_Weight;
-
 
 	vector<vector<complex<double>>> r_Fresnel_s;	//	[thread][boundary]
 	vector<vector<complex<double>>> r_Fresnel_p;	//	[thread][boundary]

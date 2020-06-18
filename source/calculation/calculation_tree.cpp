@@ -2,8 +2,7 @@
 #include "multilayer_approach/multilayer/multilayer.h"
 #include <iostream>
 
-Calculation_Tree::Calculation_Tree(Multilayer* multilayer, QString calc_Mode):
-	calc_Mode(calc_Mode),
+Calculation_Tree::Calculation_Tree(Multilayer* multilayer):
 	multilayer(multilayer),
 	real_Struct_Tree(multilayer->structure_Tree->tree)
 {	
@@ -52,8 +51,7 @@ Calculation_Tree::Calculation_Tree(Multilayer* multilayer, QString calc_Mode):
 	prepare_Residual_Expressions();
 	create_Rand_Generator();
 	check_If_Graded();
-	max_Depth = Global_Variables::get_Tree_Depth(real_Struct_Tree->invisibleRootItem());	// unstratified depth
-	depth_Threshold = 3;
+//	max_Depth = Global_Variables::get_Tree_Depth(real_Struct_Tree->invisibleRootItem());	// unstratified depth
 }
 
 void Calculation_Tree::prepare_Residual_Expressions()
@@ -533,16 +531,16 @@ void Calculation_Tree::calculate_1_Kind(Data_Element<Type>& data_Element, QStrin
 	qInfo() << "\nIntermediate:   "<< elapsed.count()/1000000. << " seconds" << endl;
 
 	start = std::chrono::system_clock::now();
-	calculate_Unwrapped_Structure		(data_Element.calc_Functions, data_Element.media_Node_Map_Vector, data_Element.media_Data_Map_Vector, data_Element.media_Period_Index_Map_Vector, data_Element.the_Class->measurement, data_Element.unwrapped_Structure);
+	calculate_Unwrapped_Structure(data_Element.calc_Functions, data_Element.media_Node_Map_Vector, data_Element.media_Data_Map_Vector, data_Element.media_Period_Index_Map_Vector, data_Element.the_Class->measurement, data_Element.unwrapped_Structure);
 	end = std::chrono::system_clock::now();
 	elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
 	qInfo() << "Unwrap:         "<< elapsed.count()/1000000. << " seconds" << endl;
 
-//	start = std::chrono::system_clock::now();
-//	calculate_Unwrapped_Reflectivity	(data_Element.calc_Functions, data_Element.the_Class->calculated_Values, data_Element.the_Class->measurement, data_Element.unwrapped_Structure, data_Element.unwrapped_Reflection, mode);
-//	end = std::chrono::system_clock::now();
-//	elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-//	qInfo() << "Unwrap Reflect: "<< elapsed.count()/1000000. << " seconds" << endl;
+	start = std::chrono::system_clock::now();
+	calculate_Unwrapped_Reflectivity(data_Element.the_Class->calculated_Values, data_Element.unwrapped_Structure, data_Element.unwrapped_Reflection, mode);
+	end = std::chrono::system_clock::now();
+	elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+	qInfo() << "Unwrap Reflect: "<< elapsed.count()/1000000. << " seconds" << endl;
 
 	clear_Spline_1_Tree(data_Element.flat_Calc_Tree, mode);
 }
@@ -587,21 +585,23 @@ void Calculation_Tree::calculate_Unwrapped_Structure(const Calc_Functions& calc_
 																			r);
 	unwrapped_Structure_Vec_Element = new_Unwrapped_Structure;
 
-	if(multilayer->discretization_Parameters.enable_Discretization)
-	{
-		num_Media = unwrapped_Structure_Vec_Element->num_Discretized_Media;
-	}
+//	if(multilayer->discretization_Parameters.enable_Discretization)
+//	{
+//		num_Media = unwrapped_Structure_Vec_Element->num_Discretized_Media;
+//	}
 }
 
-void Calculation_Tree::calculate_Unwrapped_Reflectivity(const Calc_Functions& calc_Functions, Calculated_Values& calculated_Values, const Data& measurement, Unwrapped_Structure* unwrapped_Structure_Vec_Element, Unwrapped_Reflection*& unwrapped_Reflection_Vec_Element, QString mode)
+void Calculation_Tree::calculate_Unwrapped_Reflectivity(Calculated_Values& calculated_Values,
+														Unwrapped_Structure* unwrapped_Structure,
+														Unwrapped_Reflection*& unwrapped_Reflection_Vec_Element,
+														QString mode)
 {
 	delete unwrapped_Reflection_Vec_Element;	
-	Unwrapped_Reflection* new_Unwrapped_Reflection = new Unwrapped_Reflection(multilayer, unwrapped_Structure_Vec_Element, num_Media, measurement, depth_Grading, sigma_Grading, calc_Functions, calculated_Values, calc_Mode, mode);
+	Unwrapped_Reflection* new_Unwrapped_Reflection = new Unwrapped_Reflection(calculated_Values, unwrapped_Structure, mode);
 	unwrapped_Reflection_Vec_Element = new_Unwrapped_Reflection;
 
 //	auto start = std::chrono::system_clock::now();
 	unwrapped_Reflection_Vec_Element->calc_Specular();
-
 //	auto end = std::chrono::system_clock::now();
 //	auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
 //	qInfo() << "Bare Reflectivity:      "<< elapsed.count()/1000000. << " seconds" << endl;

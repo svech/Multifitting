@@ -313,24 +313,26 @@ double function_Scattering_Linear_2D_sp(double phi, void* p)
 	        u->p_Weight*(partially_Coherent_Sum_p + incoherent_Sum_p);
 }
 
-Unwrapped_Reflection::Unwrapped_Reflection(Multilayer* multilayer, Unwrapped_Structure* unwrapped_Structure, int num_Media,
-                                           const Data& measurement, bool depth_Grading, bool sigma_Grading,
-										   const Calc_Functions& calc_Functions, Calculated_Values& calculated_Values, QString calc_Mode, QString spec_Scat_mode):
-    num_Threads		(reflectivity_Calc_Threads),
+Unwrapped_Reflection::Unwrapped_Reflection(Calculated_Values& calculated_Values, Unwrapped_Structure* unwrapped_Structure, QString spec_Scat_mode):
+	multilayer		(unwrapped_Structure->multilayer),
+	unwrapped_Structure(unwrapped_Structure),
+	num_Media		(multilayer->discretization_Parameters.enable_Discretization ? unwrapped_Structure->num_Media_Sharp : unwrapped_Structure->num_Discretized_Media ),
+	num_Threads		(reflectivity_Calc_Threads),
     num_Layers		(num_Media-2),
     num_Boundaries	(num_Media-1),
-    num_Media		(num_Media),
-    depth_Grading	(depth_Grading),
-    sigma_Grading	(sigma_Grading),
-    calc_Functions  (calc_Functions),
+	calc_Functions  (unwrapped_Structure->calc_Functions),
     calculated_Values(calculated_Values),
-    calc_Mode		(calc_Mode),
     spec_Scat_mode	(spec_Scat_mode),
-    unwrapped_Structure(unwrapped_Structure),
-    multilayer (multilayer),
-    measurement(measurement),
-    phi_Points (measurement.detector_Phi_Angle_Vec.size()),
-    short_Phi_Points(measurement.end_Phi_Number - measurement.start_Phi_Index),
+	measurement		(measurement),
+
+	/// specular
+	epsilon_Ambient	 (num_Threads),
+	epsilon_Substrate(num_Threads),
+
+	environment_Factor_s(num_Threads),
+	environment_Factor_p(num_Threads),
+
+	hi	(spec_Scat_mode == SPECULAR_MODE ? calculated_Values.q0_Hi : calculated_Values.q_Hi ),
 
     r_Fresnel_s(num_Threads,vector<complex<double>>(num_Boundaries)),
     r_Fresnel_p(num_Threads,vector<complex<double>>(num_Boundaries)),
@@ -342,29 +344,18 @@ Unwrapped_Reflection::Unwrapped_Reflection(Multilayer* multilayer, Unwrapped_Str
     t_Local_s  (num_Threads,vector<complex<double>>(num_Boundaries)),
     t_Local_p  (num_Threads,vector<complex<double>>(num_Boundaries)),
 
-//	hi		   (num_Threads,vector<complex<double>>(num_Media)),
-    hi	(spec_Scat_mode == SPECULAR_MODE ? calculated_Values.q0_Hi : calculated_Values.q_Hi ),
-
     exponenta  (num_Threads,vector<complex<double>>(num_Boundaries)),
     exponenta_2(num_Threads,vector<complex<double>>(num_Boundaries)),
 
-//	U_i_s	(num_Threads, vector<complex<double>>(num_Media)),
-//	U_r_s	(num_Threads, vector<complex<double>>(num_Media)),
-//	U_i_p	(num_Threads, vector<complex<double>>(num_Media)),
-//	U_r_p	(num_Threads, vector<complex<double>>(num_Media)),
-    U_i_s	(spec_Scat_mode == SPECULAR_MODE ? calculated_Values.q0_U_i_s : calculated_Values.q_U_i_s ),
+	weak_Factor_R(num_Threads,vector<complex<double>>(num_Boundaries)),
+	weak_Factor_T(num_Threads,vector<complex<double>>(num_Boundaries)),
+
+	/// fields
+
+	U_i_s	(spec_Scat_mode == SPECULAR_MODE ? calculated_Values.q0_U_i_s : calculated_Values.q_U_i_s ),
     U_r_s	(spec_Scat_mode == SPECULAR_MODE ? calculated_Values.q0_U_r_s : calculated_Values.q_U_r_s ),
     U_i_p	(spec_Scat_mode == SPECULAR_MODE ? calculated_Values.q0_U_i_p : calculated_Values.q_U_i_p ),
     U_r_p	(spec_Scat_mode == SPECULAR_MODE ? calculated_Values.q0_U_r_p : calculated_Values.q_U_r_p ),
-
-    environment_Factor_s(num_Threads),
-    environment_Factor_p(num_Threads),
-
-    epsilon_Ambient(num_Threads),
-    epsilon_Substrate(num_Threads),
-
-    weak_Factor_R(num_Threads,vector<complex<double>>(num_Boundaries)),
-    weak_Factor_T(num_Threads,vector<complex<double>>(num_Boundaries)),
 
     /// roughness
 
@@ -402,6 +393,7 @@ Unwrapped_Reflection::Unwrapped_Reflection(Multilayer* multilayer, Unwrapped_Str
 	}
 
 	// initial procedure for both SPECULAR_MODE and SCATTERED_MODE
+	// takes time only at first calculation or significant changes in points and boundaries
 	{
 		hi.resize(num_Points);
 		U_i_s.resize(num_Points);
@@ -419,85 +411,89 @@ Unwrapped_Reflection::Unwrapped_Reflection(Multilayer* multilayer, Unwrapped_Str
 		}
 	}
 
-	// reflectance
-	if(	unwrapped_Structure->calc_Functions.check_Reflectance ||
-	    unwrapped_Structure->calc_Functions.check_Absorptance)
+	if( spec_Scat_mode == SPECULAR_MODE )
 	{
-		calculated_Values.Phi_R_s.resize(num_Points);
-		calculated_Values.Phi_R_p.resize(num_Points);
-		calculated_Values.R_s.resize(num_Points);
-		calculated_Values.R_p.resize(num_Points);
-		calculated_Values.R  .resize(num_Points);
-		calculated_Values.R_Instrumental.resize(num_Points);
-	}
-	// transmittance
-	if(	unwrapped_Structure->calc_Functions.check_Transmittance ||
-	    unwrapped_Structure->calc_Functions.check_Absorptance)
-	{
-		calculated_Values.Phi_T_s.resize(num_Points);
-		calculated_Values.Phi_T_p.resize(num_Points);
-		calculated_Values.T_s.resize(num_Points);
-		calculated_Values.T_p.resize(num_Points);
-		calculated_Values.T  .resize(num_Points);
-		calculated_Values.T_Instrumental.resize(num_Points);
-	}
-	// absorptance
-	if(	unwrapped_Structure->calc_Functions.check_Absorptance)
-	{
-		calculated_Values.A_s.resize(num_Points);
-		calculated_Values.A_p.resize(num_Points);
-		calculated_Values.A  .resize(num_Points);
-	}
-	// field intensity in-depth
-	if(unwrapped_Structure->calc_Functions.check_Field || unwrapped_Structure->calc_Functions.check_Joule)
-	{
-		if(!multilayer->discretization_Parameters.enable_Discretization)
+		// reflectance
+		if(	calc_Functions.check_Reflectance ||
+			calc_Functions.check_Absorptance)
 		{
-			boundaries_Enlarged = unwrapped_Structure->boundaries_Position;
-		} else
-		{
-			boundaries_Enlarged = unwrapped_Structure->discretized_Slices_Boundaries;
+			calculated_Values.Phi_R_s.resize(num_Points);
+			calculated_Values.Phi_R_p.resize(num_Points);
+			calculated_Values.R_s.resize(num_Points);
+			calculated_Values.R_p.resize(num_Points);
+			calculated_Values.R  .resize(num_Points);
+			calculated_Values.R_Instrumental.resize(num_Points);
 		}
-		// plus one element to end
-		boundaries_Enlarged.push_back(boundaries_Enlarged.back());
-
-		// if too much slices
-//		unwrapped_Structure->num_Field_Slices = min(unwrapped_Structure->num_Field_Slices, 1000000/num_Points);
-//		unwrapped_Structure->field_Z_Positions.resize(unwrapped_Structure->num_Field_Slices);
-
-		calculated_Values.field_Intensity.resize(num_Points);
-		calculated_Values.absorption_Map.resize(num_Points);
-		for(size_t i=0; i<num_Points; i++)
+		// transmittance
+		if(	calc_Functions.check_Transmittance ||
+			calc_Functions.check_Absorptance)
 		{
-			calculated_Values.field_Intensity[i].resize(unwrapped_Structure->num_Field_Slices);
-			calculated_Values.absorption_Map [i].resize(unwrapped_Structure->num_Field_Slices);
+			calculated_Values.Phi_T_s.resize(num_Points);
+			calculated_Values.Phi_T_p.resize(num_Points);
+			calculated_Values.T_s.resize(num_Points);
+			calculated_Values.T_p.resize(num_Points);
+			calculated_Values.T  .resize(num_Points);
+			calculated_Values.T_Instrumental.resize(num_Points);
+		}
+		// absorptance
+		if(	calc_Functions.check_Absorptance)
+		{
+			calculated_Values.A_s.resize(num_Points);
+			calculated_Values.A_p.resize(num_Points);
+			calculated_Values.A  .resize(num_Points);
+		}
+		// field intensity in-depth
+		if( calc_Functions.check_Field || calc_Functions.check_Joule)
+		{
+			if(multilayer->discretization_Parameters.enable_Discretization)	boundaries_Enlarged = unwrapped_Structure->discretized_Slices_Boundaries;
+			else															boundaries_Enlarged = unwrapped_Structure->boundaries_Position;
+			// plus one element to end
+			boundaries_Enlarged.push_back(boundaries_Enlarged.back());
+
+			// if too much slices
+			//unwrapped_Structure->num_Field_Slices = min(unwrapped_Structure->num_Field_Slices, 1000000/num_Points);
+			//unwrapped_Structure->field_Z_Positions.resize(unwrapped_Structure->num_Field_Slices);
+
+			calculated_Values.field_Intensity.resize(num_Points);
+			calculated_Values.absorption_Map.resize(num_Points);
+			for(size_t i=0; i<num_Points; i++)
+			{
+				calculated_Values.field_Intensity[i].resize(unwrapped_Structure->num_Field_Slices);
+				calculated_Values.absorption_Map [i].resize(unwrapped_Structure->num_Field_Slices);
+			}
 		}
 	}
-	// scattering
-	if(	unwrapped_Structure->calc_Functions.check_Scattering)
-	{
-		calculated_Values.S_s.resize(num_Points);
-		calculated_Values.S_p.resize(num_Points);
-		calculated_Values.S  .resize(num_Points);
-		calculated_Values.S_Instrumental.resize(num_Points);
-	}
-	// GISAS
-	if(	unwrapped_Structure->calc_Functions.check_GISAS && spec_Scat_mode == SCATTERED_MODE)
-	{
-		phi_Points = measurement.detector_Phi_Angle_Vec.size();
 
-		calculated_Values.GISAS_Instrumental.resize(phi_Points);
-		for(size_t i=0; i<phi_Points; i++)
+	if( spec_Scat_mode == SCATTERED_MODE )
+	{
+		// scattering
+		if(	unwrapped_Structure->calc_Functions.check_Scattering)
 		{
-			calculated_Values.GISAS_Instrumental[i].resize(num_Points);
+			calculated_Values.S_s.resize(num_Points);
+			calculated_Values.S_p.resize(num_Points);
+			calculated_Values.S  .resize(num_Points);
+			calculated_Values.S_Instrumental.resize(num_Points);
 		}
-
-		for(int thread_Index = 0; thread_Index<num_Threads; thread_Index++)
+		// GISAS
+		if(	unwrapped_Structure->calc_Functions.check_GISAS)
 		{
-			acc_Vec[thread_Index] = gsl_interp_accel_alloc();
-			spline_Vec[thread_Index] = gsl_spline_alloc(gsl_interp_steffen, short_Phi_Points);
-			GISAS_Slice[thread_Index].resize(short_Phi_Points);
-			phi_Slice[thread_Index].resize(short_Phi_Points);
+			phi_Points = measurement.detector_Phi_Angle_Vec.size();
+			short_Phi_Points = measurement.end_Phi_Number - measurement.start_Phi_Index,
+
+			calculated_Values.GISAS_Instrumental.resize(phi_Points);
+			for(size_t i=0; i<phi_Points; i++)
+			{
+				calculated_Values.GISAS_Instrumental[i].resize(num_Points);
+			}
+
+			// interpolation to the minor half of phi values due to symmetry of PSD
+			for(int thread_Index = 0; thread_Index<num_Threads; thread_Index++)
+			{
+				acc_Vec[thread_Index] = gsl_interp_accel_alloc();
+				spline_Vec[thread_Index] = gsl_spline_alloc(gsl_interp_steffen, short_Phi_Points);
+				GISAS_Slice[thread_Index].resize(short_Phi_Points);
+				phi_Slice[thread_Index].resize(short_Phi_Points);
+			}
 		}
 	}
 
@@ -2256,11 +2252,11 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 			}
 
 			// if we have some grading
-			if( depth_Grading )
+			if( unwrapped_Structure->depth_Grading )
 			{
 				calc_Exponenta(thread_Index, point_Index,unwrapped_Structure->thickness);
 			}
-			if( sigma_Grading && measurement.measurement_Type == measurement_Types[Specular_Scan] )
+			if( unwrapped_Structure->sigma_Grading && measurement.measurement_Type == measurement_Types[Specular_Scan] )
 			{
 				calc_Weak_Factor(thread_Index, point_Index);
 				multifly_Fresnel_And_Weak_Factor(thread_Index);

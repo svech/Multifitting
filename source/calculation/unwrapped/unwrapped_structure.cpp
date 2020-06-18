@@ -49,6 +49,7 @@ Unwrapped_Structure::Unwrapped_Structure(Multilayer* multilayer,
 		fill_PSD_Inheritance_Powers();
 	}
 
+	// discretized structure
 	if(multilayer->discretization_Parameters.enable_Discretization)
 	{
 		// discretized_Thickness is constructed here
@@ -62,8 +63,7 @@ Unwrapped_Structure::Unwrapped_Structure(Multilayer* multilayer,
 
 		find_Z_Positions();
 
-		if( measurement.measurement_Type == measurement_Types[Specular_Scan] &&
-			measurement.argument_Type == argument_Types[Wavelength_Energy] )
+		if( measurement.argument_Type == argument_Types[Wavelength_Energy] )
 		{
 			int num_Lambda_Points = measurement.lambda_Vec.size();
 
@@ -253,10 +253,10 @@ void Unwrapped_Structure::fill_Roughness_Parameters()
 	for(int thread_Index=0; thread_Index<reflectivity_Calc_Threads; thread_Index++)
 	{
 		sigma_Roughness_Threaded[thread_Index] = sigma_Roughness;
-		omega_Threaded			[thread_Index] = mu;
-		mu_Threaded				[thread_Index] = omega;
-		omega_pow23_Threaded	[thread_Index] = alpha;
-		alpha_Threaded			[thread_Index] = omega_pow23;
+		omega_Threaded			[thread_Index] = omega;
+		mu_Threaded				[thread_Index] = mu;
+		omega_pow23_Threaded	[thread_Index] = omega_pow23;
+		alpha_Threaded			[thread_Index] = alpha;
 	}
 }
 

@@ -22,7 +22,6 @@ public:
 						bool depth_Grading,
 						bool sigma_Grading,
 						gsl_rng* r);
-
 	gsl_rng* r;
 
 	int num_Threads;
@@ -40,11 +39,9 @@ public:
 	const vector<int>& media_Period_Index_Map_Vector;
 	const Data& measurement;
 
-	tree<Node> calc_Tree; // TODO remove
-
-	//-------------------------------------------------
-	/// sharp structure
-	//-------------------------------------------------
+	///-------------------------------------------------
+	// SHARP STRUCTURE
+	///-------------------------------------------------
 	vector<complex<double>> epsilon;								//	[media]
 	vector<vector<complex<double>>> epsilon_Dependent;				//	[wavelength][media]
 
@@ -100,9 +97,6 @@ public:
 	vector<double> layer_Norm_Vector;								//	[layer]
 	vector<vector<double>> layer_Norm_Vector_Threaded;				//	[thread][layer]
 
-	//-------------------------------------------------
-	/// discretized structure
-	//-------------------------------------------------
 	vector<complex<double>> discretized_Epsilon;
 	vector<vector<complex<double>>> discretized_Epsilon_Dependent;
 
@@ -132,9 +126,6 @@ public:
 	vector<double> field_Z_Positions;
 	void find_Field_Spacing();
 	int get_Layer_or_Slice_Index(double z);
-
-
-
 };
 
 #endif // UNWRAPPED_STRUCTURE_H
