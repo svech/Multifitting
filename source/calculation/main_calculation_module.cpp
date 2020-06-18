@@ -300,7 +300,7 @@ void Main_Calculation_Module::single_Calculation(bool print_And_Verbose)
 
 //	// replot graphs
 //	Global_Variables::plot_All_Data_in_Graphs();
-//	Global_Variables::plot_All_Data_in_Profiles();
+	Global_Variables::plot_All_Data_in_Profiles();
 
 //	if(print_And_Verbose)
 //	{
@@ -368,7 +368,7 @@ void Main_Calculation_Module::fitting_and_Confidence()
 	for(int tab_Index=0; tab_Index<multilayers.size(); ++tab_Index)
 	{
 		// prepare real_Calc_Tree  (for all multilayers!)
-		calculation_Trees[tab_Index]->fill_Tree_From_Scratch(calculation_Trees[tab_Index]->real_Calc_Tree, calculation_Trees[tab_Index]->real_Struct_Tree);
+		calculation_Trees[tab_Index]->fill_Tree_From_Scratch(calculation_Trees[tab_Index]->real_Calc_Tree, calculation_Trees[tab_Index]->real_Struct_Tree, multilayers[tab_Index]);
 
 		if( calculation_Trees[tab_Index]->target.size()>0 )
 		{

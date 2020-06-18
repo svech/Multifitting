@@ -692,33 +692,35 @@ void Profile_Plot::plot_Data(bool recalculate_Profile)
 
 void Profile_Plot::calculate_Profile()
 {
-	struct_Data_Counter = 1; // ambient is the first
+	Calculation_Tree::fill_Tree_From_Scratch(calc_Tree, multilayer->structure_Tree->tree, multilayer);
+
 	max_Sigma = 0.1;
 	get_Max_My_Sigma(multilayer->structure_Tree->tree->invisibleRootItem());
+	struct_Data_Counter = Calculation_Tree::get_Total_Num_Layers(calc_Tree.begin());
 
 	different_Materials.clear();
 	different_Elements.clear();
 	discrete_Step_Vector.clear();
+
 	struct_Data_Vector.resize(struct_Data_Counter);
+	media_Period_Index_Map_Vector.resize(struct_Data_Counter);
+
 	delta_Epsilon_Vector.resize(struct_Data_Vector.size());
 	beta_Epsilon_Vector.resize(struct_Data_Vector.size());
 	element_Concentration_Map_Vector.resize(struct_Data_Vector.size());
-	struct_Data_Index = 0;
 
-	unwrap_Subtree(struct_Data_Vector, multilayer->structure_Tree->tree->invisibleRootItem(), 0, 0);
 
-	// if has no substrate, add it
-	if(struct_Data_Vector.last().item_Type != item_Type_Substrate)
+	/// unwrap to vector of pointers
+	vector<Data*> struct_Data_Pointer_Vector(struct_Data_Counter);
+	Calculation_Tree::unwrap_Calc_Tree_Data(calc_Tree.begin(), struct_Data_Pointer_Vector, media_Period_Index_Map_Vector);
+
+	// copy
+	for(int struct_Index=0; struct_Index<struct_Data_Counter; struct_Index++)
 	{
-		Data substrate = struct_Data_Vector.first();
-
-		// change id
-		substrate.reset_All_IDs();
-		substrate.item_Type = item_Type_Substrate;
-
-		// add to the end
-		struct_Data_Vector.append(substrate);
+		struct_Data_Vector[struct_Index] = (*struct_Data_Pointer_Vector[struct_Index]);
 	}
+
+	fill_All_Data_From_Struct_Vector();
 
 	// thicknesses and boundaries position
 	boundary_Vector.resize(struct_Data_Vector.size()-1);	boundary_Vector.first() = 0;
@@ -796,7 +798,7 @@ void Profile_Plot::calculate_Profile()
 		{
 			boundary_Vector_Std_Threaded[thread_Index] = boundary_Vector.toStdVector();
 			layer_Norm_Vector_Threaded[thread_Index] = layer_Norm_Vector.toStdVector();
-			struct_Data_Vector_Threaded[thread_Index] = struct_Data_Vector.toStdVector();
+			struct_Data_Vector_Threaded[thread_Index] = struct_Data_Vector;
 			delta_Epsilon_Vector_Threaded[thread_Index] = delta_Epsilon_Vector.toStdVector();
 			beta_Epsilon_Vector_Threaded[thread_Index] = beta_Epsilon_Vector.toStdVector();
 			element_Concentration_Map_Vector_Threaded[thread_Index] = element_Concentration_Map_Vector.toStdVector();
@@ -824,7 +826,7 @@ void Profile_Plot::calculate_Profile()
 				val_Sharp.first() = delta_Epsilon_Vector.first();
 			}
 			// main part
-			for(int media_Index=1; media_Index<struct_Data_Vector.size()-1; media_Index++)
+			for(size_t media_Index=1; media_Index<struct_Data_Vector.size()-1; media_Index++)
 			{
 				sharp_Delta_To_Plot_Vector[media_Index].key   = boundary_Vector[media_Index-1]/length_Coefficients_Map.value(multilayer->profile_Plot_Options.local_length_units);
 				sharp_Delta_To_Plot_Vector[media_Index].value = delta_Epsilon_Vector[media_Index];
@@ -955,7 +957,7 @@ void Profile_Plot::calculate_Profile()
 				val_Sharp.first() = beta_Epsilon_Vector.first();
 			}
 			// main part
-			for(int media_Index=1; media_Index<struct_Data_Vector.size()-1; media_Index++)
+			for(size_t media_Index=1; media_Index<struct_Data_Vector.size()-1; media_Index++)
 			{
 				sharp_Beta_To_Plot_Vector[media_Index].key   = boundary_Vector[media_Index-1]/length_Coefficients_Map.value(multilayer->profile_Plot_Options.local_length_units);
 				sharp_Beta_To_Plot_Vector[media_Index].value = beta_Epsilon_Vector[media_Index];
@@ -1090,9 +1092,9 @@ void Profile_Plot::calculate_Profile()
 				// first point
 				{
 					sharp_Materials_To_Plot_Vector_Vector[material_index].first().key = -prefix/length_Coefficients_Map.value(multilayer->profile_Plot_Options.local_length_units);
-					if(struct_Data_Vector.first().approved_Material == different_Materials[material_index])
+					if(struct_Data_Vector.front().approved_Material == different_Materials[material_index])
 					{
-						sharp_Materials_To_Plot_Vector_Vector[material_index].first().value = struct_Data_Vector.first().relative_Density.value;
+						sharp_Materials_To_Plot_Vector_Vector[material_index].first().value = struct_Data_Vector.front().relative_Density.value;
 					} else
 					{
 						sharp_Materials_To_Plot_Vector_Vector[material_index].first().value = 0;
@@ -1100,7 +1102,7 @@ void Profile_Plot::calculate_Profile()
 					val_Sharp_Multiple[material_index].first() = sharp_Materials_To_Plot_Vector_Vector[material_index].first().value;
 				}
 				// main part
-				for(int media_Index=1; media_Index<struct_Data_Vector.size()-1; media_Index++)
+				for(size_t media_Index=1; media_Index<struct_Data_Vector.size()-1; media_Index++)
 				{
 					sharp_Materials_To_Plot_Vector_Vector[material_index][media_Index].key = boundary_Vector[media_Index-1]/length_Coefficients_Map.value(multilayer->profile_Plot_Options.local_length_units);
 					if(struct_Data_Vector[media_Index].approved_Material == different_Materials[material_index])
@@ -1115,9 +1117,9 @@ void Profile_Plot::calculate_Profile()
 				// last point
 				{
 					sharp_Materials_To_Plot_Vector_Vector[material_index][sharp_Materials_To_Plot_Vector_Vector[material_index].size()-2].key = boundary_Vector.last()/length_Coefficients_Map.value(multilayer->profile_Plot_Options.local_length_units);
-					if(struct_Data_Vector.last().approved_Material == different_Materials[material_index])
+					if(struct_Data_Vector.back().approved_Material == different_Materials[material_index])
 					{
-						sharp_Materials_To_Plot_Vector_Vector[material_index][sharp_Materials_To_Plot_Vector_Vector[material_index].size()-2].value = struct_Data_Vector.last().relative_Density.value;
+						sharp_Materials_To_Plot_Vector_Vector[material_index][sharp_Materials_To_Plot_Vector_Vector[material_index].size()-2].value = struct_Data_Vector.back().relative_Density.value;
 					} else
 					{
 						sharp_Materials_To_Plot_Vector_Vector[material_index][sharp_Materials_To_Plot_Vector_Vector[material_index].size()-2].value = 0;
@@ -1178,7 +1180,7 @@ void Profile_Plot::calculate_Profile()
 					// add substrate
 					QCPGraphData substrate;
 						substrate.key = materials_To_Plot_Vector_Vector[material_index].last().key+discrete_Step_Vector.back()/length_Coefficients_Map.value(multilayer->profile_Plot_Options.local_length_units);
-						substrate.value = struct_Data_Vector.last().relative_Density.value;
+						substrate.value = struct_Data_Vector.back().relative_Density.value;
 					materials_To_Plot_Vector_Vector[material_index].append(substrate);
 					arg.append(materials_To_Plot_Vector_Vector[material_index].last().key);
 					val_Multiple[material_index].append(materials_To_Plot_Vector_Vector[material_index].last().value);
@@ -1260,7 +1262,7 @@ void Profile_Plot::calculate_Profile()
 					val_Sharp_Multiple[element_Index].first() = sharp_Elements_To_Plot_Vector_Vector[element_Index].first().value;
 				}
 				// main part
-				for(int media_Index=1; media_Index<struct_Data_Vector.size()-1; media_Index++)
+				for(size_t media_Index=1; media_Index<struct_Data_Vector.size()-1; media_Index++)
 				{
 					sharp_Elements_To_Plot_Vector_Vector[element_Index][media_Index].key = boundary_Vector[media_Index-1]/length_Coefficients_Map.value(multilayer->profile_Plot_Options.local_length_units);
 					if(element_Concentration_Map_Vector[media_Index].contains(different_Elements[element_Index]))
@@ -1574,239 +1576,60 @@ void Profile_Plot::get_Element_Map(const Data& struct_Data, QMap<QString, double
 	}
 }
 
-void Profile_Plot::unwrap_Subtree(QVector<Data>& struct_Data_Vector, QTreeWidgetItem* item, int num_Repetition, int period_Index)
+void Profile_Plot::fill_All_Data_From_Struct_Vector()
 {
-	for(int i=0; i<item->childCount(); ++i)
+	for(int struct_Index = 0; struct_Index<struct_Data_Counter; struct_Index++)
 	{
-		Data struct_Data = item->child(i)->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+		Data& struct_Data = struct_Data_Vector[struct_Index];
 		if(struct_Data.item_Enabled)
 		{
-			if(struct_Data.item_Type == item_Type_Ambient ||
-			   struct_Data.item_Type == item_Type_Layer   ||
-			   struct_Data.item_Type == item_Type_Substrate)
+			// drift
+			if(struct_Data.item_Type == item_Type_Layer &&
+			   struct_Data.parent_Item_Type != item_Type_Regular_Aperiodic)
 			{
-				// drift
-				if(struct_Data.item_Type == item_Type_Layer &&
-				   struct_Data.parent_Item_Type != item_Type_Regular_Aperiodic)
-				{
-					// thickness drift
-					Global_Variables::variable_Drift(struct_Data.thickness.value, struct_Data.thickness_Drift, period_Index, num_Repetition, nullptr);
+				// thickness drift
+				Global_Variables::variable_Drift(struct_Data.thickness.value, struct_Data.thickness_Drift, media_Period_Index_Map_Vector[struct_Index], struct_Data.num_Repetition.value(), nullptr);
 
-					// sigma drift
-					for(int func_Index=0; func_Index<transition_Layer_Functions_Size; ++func_Index)	{
-						Global_Variables::variable_Drift(struct_Data.interlayer_Composition[func_Index].my_Sigma_Diffuse.value, struct_Data.sigma_Diffuse_Drift, period_Index, num_Repetition, nullptr);
-					}
-					Global_Variables::variable_Drift(struct_Data.sigma_Diffuse.value, struct_Data.sigma_Diffuse_Drift, period_Index, num_Repetition, nullptr);
+				// sigma drift
+				for(int func_Index=0; func_Index<transition_Layer_Functions_Size; ++func_Index)	{
+					Global_Variables::variable_Drift(struct_Data.interlayer_Composition[func_Index].my_Sigma_Diffuse.value, struct_Data.sigma_Diffuse_Drift, media_Period_Index_Map_Vector[struct_Index], struct_Data.num_Repetition.value(), nullptr);
 				}
-				struct_Data_Vector[struct_Data_Index] = struct_Data;
-				const Data& my_Little_Data = struct_Data_Vector[struct_Data_Index];
+				Global_Variables::variable_Drift(struct_Data.sigma_Diffuse.value, struct_Data.sigma_Diffuse_Drift, media_Period_Index_Map_Vector[struct_Index], struct_Data.num_Repetition.value(), nullptr);
+			}
+			const Data& my_Little_Data = struct_Data_Vector[struct_Index];
 
-				// discretization
-				if(struct_Data.item_Type == item_Type_Layer &&
-				   struct_Data.parent_Item_Type != item_Type_Regular_Aperiodic &&
-				   multilayer->discretization_Parameters.enable_Discretization && multilayer->profile_Plot_Options.show_Discretization)
-				{
-					int num_Slices_Local = ceil(struct_Data.thickness.value/multilayer->discretization_Parameters.discretization_Step);
-					double adapted_Step = struct_Data.thickness.value/num_Slices_Local;
+			// discretization
+			if(struct_Data.item_Type == item_Type_Layer &&
+			   struct_Data.parent_Item_Type != item_Type_Regular_Aperiodic &&
+			   multilayer->discretization_Parameters.enable_Discretization && multilayer->profile_Plot_Options.show_Discretization)
+			{
+				int num_Slices_Local = ceil(struct_Data.thickness.value/multilayer->discretization_Parameters.discretization_Step);
+				double adapted_Step = struct_Data.thickness.value/num_Slices_Local;
 
-					discrete_Step_Vector.resize(discrete_Step_Vector.size()+num_Slices_Local);
-					size_t last_Index = discrete_Step_Vector.size()-1;
-					for(int i=0; i<num_Slices_Local; i++)
-					{
-						discrete_Step_Vector[last_Index-i] = adapted_Step;
-					}
-				}
-
-				/// -----------------------------------------------------------------------------------------------------------
-				// get target data
-				/// -----------------------------------------------------------------------------------------------------------
-				if(multilayer->profile_Plot_Options.type == PERMITTIVITY)
+				discrete_Step_Vector.resize(discrete_Step_Vector.size()+num_Slices_Local);
+				size_t last_Index = discrete_Step_Vector.size()-1;
+				for(int i=0; i<num_Slices_Local; i++)
 				{
-					get_Delta_Epsilon(my_Little_Data, delta_Epsilon_Vector[struct_Data_Index], beta_Epsilon_Vector[struct_Data_Index]);
+					discrete_Step_Vector[last_Index-i] = adapted_Step;
 				}
-				if(multilayer->profile_Plot_Options.type == MATERIAL && !my_Little_Data.composed_Material)
-				{
-					get_Material(my_Little_Data);
-				}
-				if(multilayer->profile_Plot_Options.type == ELEMENTS && my_Little_Data.composed_Material)
-				{
-					get_Element_Map(my_Little_Data, element_Concentration_Map_Vector[struct_Data_Index]);
-				}
-				/// -----------------------------------------------------------------------------------------------------------
-
-				struct_Data_Index++;
 			}
 
-			if(item->child(i)->childCount()>0)
+			/// -----------------------------------------------------------------------------------------------------------
+			// get target data
+			/// -----------------------------------------------------------------------------------------------------------
+			if(multilayer->profile_Plot_Options.type == PERMITTIVITY)
 			{
-				if(struct_Data.item_Type == item_Type_Regular_Aperiodic)
-				{
-					/// -----------------------------------------------------------------------------------------------------------
-					// get target data for one unit cell
-					/// -----------------------------------------------------------------------------------------------------------
-					QVector<double> delta_Vector; delta_Vector.resize(struct_Data.regular_Components.size());
-					QVector<double> beta_Vector;  beta_Vector .resize(struct_Data.regular_Components.size());
-					QVector<QMap<QString,double>> concentration_Map_Vector;  concentration_Map_Vector.resize(struct_Data.regular_Components.size());
-
-					for(int component_Index=0; component_Index<struct_Data.regular_Components.size(); component_Index++)
-					{
-						const Data& my_Little_Data = struct_Data.regular_Components[component_Index].components.first();
-						if(multilayer->profile_Plot_Options.type == PERMITTIVITY)
-						{
-							get_Delta_Epsilon(my_Little_Data, delta_Vector[component_Index], beta_Vector[component_Index]);
-						}
-						if(multilayer->profile_Plot_Options.type == MATERIAL && !my_Little_Data.composed_Material)
-						{
-							get_Material(my_Little_Data);
-						}
-						if(multilayer->profile_Plot_Options.type == ELEMENTS && my_Little_Data.composed_Material)
-						{
-							get_Element_Map(my_Little_Data, concentration_Map_Vector[component_Index]);
-						}
-					}
-					/// -----------------------------------------------------------------------------------------------------------
-
-					for(int layer_Index=0; layer_Index<struct_Data.regular_Components.first().components.size(); layer_Index++)
-					{
-						for(int component_Index=0; component_Index<struct_Data.regular_Components.size(); component_Index++)
-						{
-							struct_Data_Vector[struct_Data_Index] = struct_Data.regular_Components[component_Index].components[layer_Index];
-
-							/// -----------------------------------------------------------------------------------------------------------
-							// copy already obtained epsilon
-							/// -----------------------------------------------------------------------------------------------------------
-							if(multilayer->profile_Plot_Options.type == PERMITTIVITY)
-							{
-								delta_Epsilon_Vector[struct_Data_Index] = delta_Vector[component_Index];
-								beta_Epsilon_Vector [struct_Data_Index] = beta_Vector [component_Index];
-							}
-							if(multilayer->profile_Plot_Options.type == ELEMENTS && struct_Data_Vector[struct_Data_Index].composed_Material)
-							{
-								element_Concentration_Map_Vector[struct_Data_Index] = concentration_Map_Vector[component_Index];
-							}
-							/// -----------------------------------------------------------------------------------------------------------
-
-							// discretization
-							if(multilayer->discretization_Parameters.enable_Discretization && multilayer->profile_Plot_Options.show_Discretization)
-							{
-								int num_Slices_Local = ceil(struct_Data_Vector[struct_Data_Index].thickness.value/multilayer->discretization_Parameters.discretization_Step);
-								double adapted_Step = struct_Data_Vector[struct_Data_Index].thickness.value/num_Slices_Local;
-
-								discrete_Step_Vector.resize(discrete_Step_Vector.size()+num_Slices_Local);
-								size_t last_Index = discrete_Step_Vector.size()-1;
-								for(int i=0; i<num_Slices_Local; i++)
-								{
-									discrete_Step_Vector[last_Index-i] = adapted_Step;
-								}
-							}
-							struct_Data_Index++;
-						}
-					}
-				}
-
-				if(struct_Data.item_Type == item_Type_Multilayer)
-				{
-					// prepare list
-					bool all_Layers = true;
-					QList<Data> child_Data_List;
-					for(int child_Index=0; child_Index<item->child(i)->childCount(); child_Index++)
-					{
-						Data child_Data = item->child(i)->child(child_Index)->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
-						all_Layers = all_Layers && (child_Data.item_Type == item_Type_Layer);
-						child_Data_List.append(child_Data);
-					}
-
-					if(all_Layers)
-					{
-						/// -----------------------------------------------------------------------------------------------------------
-						// get target data for one period
-						/// -----------------------------------------------------------------------------------------------------------
-						QVector<double> delta_Vector; delta_Vector.resize(item->child(i)->childCount());
-						QVector<double> beta_Vector;  beta_Vector .resize(item->child(i)->childCount());
-						QVector<QMap<QString,double>> concentration_Map_Vector;  concentration_Map_Vector.resize(item->child(i)->childCount());
-
-						for(int child_Index=0; child_Index<item->child(i)->childCount(); child_Index++)
-						{
-							const Data& my_Little_Data = child_Data_List[child_Index];
-							if(multilayer->profile_Plot_Options.type == PERMITTIVITY)
-							{
-								get_Delta_Epsilon(my_Little_Data, delta_Vector[child_Index], beta_Vector[child_Index]);
-							}
-							if(multilayer->profile_Plot_Options.type == MATERIAL && !my_Little_Data.composed_Material)
-							{
-								get_Material(my_Little_Data);
-							}
-							if(multilayer->profile_Plot_Options.type == ELEMENTS && my_Little_Data.composed_Material)
-							{
-								get_Element_Map(my_Little_Data, concentration_Map_Vector[child_Index]);
-							}
-						}
-						/// -----------------------------------------------------------------------------------------------------------
-
-						for(int period_Index=0; period_Index<struct_Data.num_Repetition.value(); period_Index++)
-						{
-							for(int child_Index=0; child_Index<item->child(i)->childCount(); child_Index++)
-							{
-								// here we know that all child_Data are layers
-								struct_Data_Vector[struct_Data_Index] = child_Data_List[child_Index];
-								Data& child_Data = struct_Data_Vector[struct_Data_Index];
-
-								if(child_Data.item_Enabled)
-								{
-									/// -----------------------------------------------------------------------------------------------------------
-									// copy already obtained epsilon
-									/// -----------------------------------------------------------------------------------------------------------
-									if(multilayer->profile_Plot_Options.type == PERMITTIVITY)
-									{
-										delta_Epsilon_Vector[struct_Data_Index] = delta_Vector[child_Index];
-										beta_Epsilon_Vector [struct_Data_Index] = beta_Vector [child_Index];
-									}
-									if(multilayer->profile_Plot_Options.type == ELEMENTS && child_Data.composed_Material)
-									{
-										element_Concentration_Map_Vector[struct_Data_Index] = concentration_Map_Vector[child_Index];
-									}
-									/// -----------------------------------------------------------------------------------------------------------
-									struct_Data_Index++;
-
-									// thickness drift
-									Global_Variables::variable_Drift(child_Data.thickness.value, child_Data.thickness_Drift, period_Index, struct_Data.num_Repetition.value(), nullptr);
-
-									// sigma drift
-									for(int func_Index=0; func_Index<transition_Layer_Functions_Size; ++func_Index)	{
-										Global_Variables::variable_Drift(child_Data.interlayer_Composition[func_Index].my_Sigma_Diffuse.value, child_Data.sigma_Diffuse_Drift, period_Index, struct_Data.num_Repetition.value(), nullptr);
-									}
-									Global_Variables::variable_Drift(child_Data.sigma_Diffuse.value, child_Data.sigma_Diffuse_Drift, period_Index, struct_Data.num_Repetition.value(), nullptr);
-
-									// discretization
-									if(multilayer->discretization_Parameters.enable_Discretization && multilayer->profile_Plot_Options.show_Discretization)
-									{
-										int num_Slices_Local = ceil(child_Data.thickness.value/multilayer->discretization_Parameters.discretization_Step);
-										double adapted_Step = child_Data.thickness.value/num_Slices_Local;
-
-										discrete_Step_Vector.resize(discrete_Step_Vector.size()+num_Slices_Local);
-										size_t last_Index = discrete_Step_Vector.size()-1;
-										for(int i=0; i<num_Slices_Local; i++)
-										{
-											discrete_Step_Vector[last_Index-i] = adapted_Step;
-										}
-									}
-								}
-							}
-						}
-					} else
-					{
-						for(int period_Index=0; period_Index<struct_Data.num_Repetition.value(); period_Index++)
-						{
-							unwrap_Subtree(struct_Data_Vector, item->child(i), struct_Data.num_Repetition.value(), period_Index);
-						}
-					}
-				}
-
-				if(struct_Data.item_Type == item_Type_General_Aperiodic)
-				{
-					unwrap_Subtree(struct_Data_Vector, item->child(i), 1, 0);
-				}
+				get_Delta_Epsilon(my_Little_Data, delta_Epsilon_Vector[struct_Index], beta_Epsilon_Vector[struct_Index]);
 			}
+			if(multilayer->profile_Plot_Options.type == MATERIAL && !my_Little_Data.composed_Material)
+			{
+				get_Material(my_Little_Data);
+			}
+			if(multilayer->profile_Plot_Options.type == ELEMENTS && my_Little_Data.composed_Material)
+			{
+				get_Element_Map(my_Little_Data, element_Concentration_Map_Vector[struct_Index]);
+			}
+			/// -----------------------------------------------------------------------------------------------------------
 		}
 	}
 }
@@ -1822,7 +1645,6 @@ void Profile_Plot::get_Max_My_Sigma(QTreeWidgetItem* item, int periods_Factor)
 			if(struct_Data.item_Type == item_Type_Layer   ||
 			   struct_Data.item_Type == item_Type_Substrate)
 			{
-				struct_Data_Counter+=1*periods_Factor;
 				for(int interlayer_Index=0; interlayer_Index<transition_Layer_Functions_Size; interlayer_Index++)
 				{
 					if(struct_Data.interlayer_Composition[interlayer_Index].enabled)
@@ -1843,7 +1665,6 @@ void Profile_Plot::get_Max_My_Sigma(QTreeWidgetItem* item, int periods_Factor)
 					{
 						for(int component_Index=0; component_Index<struct_Data.regular_Components.size(); component_Index++)
 						{
-							struct_Data_Counter++;
 							Data& component_Data = struct_Data.regular_Components[component_Index].components[layer_Index];
 							for(int interlayer_Index=0; interlayer_Index<transition_Layer_Functions_Size; interlayer_Index++)
 							{

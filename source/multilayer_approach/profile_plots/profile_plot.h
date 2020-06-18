@@ -21,6 +21,7 @@ public:
 	void get_Delta_Epsilon(const Data& struct_Data, double& delta, double& beta);
 	void get_Material(const Data& struct_Data);
 	void get_Element_Map(const Data& struct_Data, QMap<QString,double>& element_Map);
+	void fill_All_Data_From_Struct_Vector();
 	void unwrap_Subtree(QVector<Data>& struct_Data_Vector, QTreeWidgetItem* item, int num_Repetition, int period_Index);
 	void get_Max_My_Sigma(QTreeWidgetItem* item, int periods_Factor = 1);
 	complex<double> delta_Beta_Epsilon_Func(double z, int thread_Index = 0, QString given_Material_or_Element = "no material or element");
@@ -62,10 +63,11 @@ public:
 	double scrollbar_Factor = 200.0;
 
 	int struct_Data_Counter = 1; // ambient is the first
-	int struct_Data_Index = 0;
 	int num_Slices;
 	double max_Sigma = 0.1;
-	QVector<Data> struct_Data_Vector;
+	tree<Node> calc_Tree;
+	vector<Data> struct_Data_Vector;
+	vector<int> media_Period_Index_Map_Vector;
 	vector<vector<Data>> struct_Data_Vector_Threaded;
 	QVector<double> boundary_Vector;
 	vector<vector<double>> boundary_Vector_Std_Threaded;

@@ -40,11 +40,11 @@ public:
 	void create_Rand_Generator();
 	void check_If_Graded();
 
-	void fill_Tree_From_Scratch(tree<Node>& calc_Tree, QTreeWidget* item_Tree);
-	void fill_Calc_Tree_From_Item_Tree(const tree<Node>::iterator& parent, tree<Node>& calc_Tree, QTreeWidgetItem* item);
+	static void fill_Tree_From_Scratch(tree<Node>& calc_Tree, QTreeWidget* item_Tree, Multilayer* multilayer);
+	static void fill_Calc_Tree_From_Item_Tree(const tree<Node>::iterator& parent, tree<Node>& calc_Tree, QTreeWidgetItem* item);
 	void fill_Calc_Trees();
 
-	int get_Total_Num_Layers(const tree<Node>::iterator& parent);
+	static int get_Total_Num_Layers(const tree<Node>::iterator& parent);
 
 	void renew_Item_Tree_From_Calc_Tree(const tree<Node>::iterator& parent, tree<Node>& calc_Tree, QTreeWidgetItem* item);
 
@@ -52,7 +52,7 @@ public:
 	void stratify_Calc_Tree(tree<Node>& calc_Tree);
 	void flatten_Tree(const tree<Node> &calc_Tree, vector<Node*>& flat_Calc_Tree);
 	int unwrap_Calc_Tree_Node(const tree<Node>::iterator& parent, vector<Node*>& media_Node_Map_Vector, int media_Index = 0);
-	int unwrap_Calc_Tree_Data(const tree<Node>::iterator& parent, vector<Data*>& media_Data_Map_Vector, vector<int>& media_Period_Index_Map_Vector, int media_Index = 0, int period_Index = 0);
+	static int unwrap_Calc_Tree_Data(const tree<Node>::iterator& parent, vector<Data*>& media_Data_Map_Vector, vector<int>& media_Period_Index_Map_Vector, int media_Index = 0, int period_Index = 0);
 
 	template <typename Type>
 	void calculate_1_Kind_Preliminary(Data_Element<Type>& data_Element);
@@ -67,7 +67,7 @@ public:
 	void calculate_Unwrapped_Reflectivity(const Calc_Functions& calc_Functions, Calculated_Values& calculated_Values, const Data& measurement, Unwrapped_Structure*  unwrapped_Structure_Vec_Element, Unwrapped_Reflection*& unwrapped_Reflection_Vec_Element, QString mode);
 
 
-	void print_Tree(const tree<Node>::iterator& parent, tree<Node>& calc_Tree);
+	static void print_Tree(const tree<Node>::iterator& parent, tree<Node>& calc_Tree);
 //	void print_Flat_list(QList<Node> flat_List);
 //	void print_Item_Tree(QTreeWidgetItem* item);
 

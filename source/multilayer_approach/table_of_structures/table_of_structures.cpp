@@ -3778,8 +3778,10 @@ void Table_Of_Structures::refresh_Material(My_Table_Widget* table, QString)
 		if(struct_Data.parent_Item_Type == item_Type_Regular_Aperiodic)
 		{
 			int my_I = -2019;
-			for(int i=0; i<structure_Item->parent()->childCount(); i++)	{
-				if(structure_Item->parent()->child(i)==structure_Item)	{
+			for(int i=0; i<structure_Item->parent()->childCount(); i++)
+			{
+				if(structure_Item->parent()->child(i)==structure_Item)
+				{
 					my_I = i;
 				}
 			}
@@ -3789,6 +3791,15 @@ void Table_Of_Structures::refresh_Material(My_Table_Widget* table, QString)
 			{
 				Data& regular_Data = parent_Data.regular_Components[my_I].components[n];
 				regular_Data.material = line_Edit->text();
+
+				// checking here for regular aperiodic components
+				if(optical_Constants->material_Map.contains(regular_Data.material + nk_Ext))
+				{
+					regular_Data.approved_Material = regular_Data.material;
+				} else
+				{
+					regular_Data.material = regular_Data.approved_Material;
+				}
 			}
 
 			QVariant var;

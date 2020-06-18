@@ -113,7 +113,7 @@ void Calculation_Tree::check_If_Graded()
 	}
 }
 
-void Calculation_Tree::fill_Tree_From_Scratch(tree<Node>& calc_Tree, QTreeWidget* item_Tree)
+void Calculation_Tree::fill_Tree_From_Scratch(tree<Node>& calc_Tree, QTreeWidget* item_Tree, Multilayer* multilayer)
 {
 	Node empty_Top_Node;
 	calc_Tree.insert(calc_Tree.begin(), empty_Top_Node);	// according to the tree.hh API
@@ -179,7 +179,7 @@ void Calculation_Tree::fill_Calc_Trees()
 		// fill one "common" real_Calc_Tree for the multilayer
 		///--------------------------------------------------------------------
 		/// here is the entry point for fitting
-		fill_Tree_From_Scratch(real_Calc_Tree, real_Struct_Tree);
+		fill_Tree_From_Scratch(real_Calc_Tree, real_Struct_Tree, multilayer);
 
 		// get common number of media
 		num_Media = get_Total_Num_Layers(real_Calc_Tree.begin()); // non-discretized
