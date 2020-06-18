@@ -2014,9 +2014,9 @@ void Table_Of_Structures::create_Check_Box_Label(My_Table_Widget* table, int tab
 				}
 			}
 
-			if(whats_This == whats_This_Common_Thickness)	{bool_Check = parent_Data.regular_Components[my_I].is_Common_Thickness;}
-			if(whats_This == whats_This_Common_Sigma_Diffuse)		{bool_Check = parent_Data.regular_Components[my_I].is_Common_Sigma;}
-			if(whats_This == whats_This_Restrict_Thickness)	{bool_Check = parent_Data.regular_Components[my_I].use_Soft_Restrictions;}
+			if(whats_This == whats_This_Common_Thickness)		{bool_Check = parent_Data.regular_Components[my_I].is_Common_Thickness;}
+			if(whats_This == whats_This_Common_Sigma_Diffuse)	{bool_Check = parent_Data.regular_Components[my_I].is_Common_Sigma;}
+			if(whats_This == whats_This_Restrict_Thickness)		{bool_Check = parent_Data.regular_Components[my_I].use_Soft_Restrictions;}
 		}
 	}
 
@@ -3933,9 +3933,9 @@ void Table_Of_Structures::refresh_Check_Box_Header(bool)
 		{
 			Data parent_Data = structure_Item->parent()->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
 			int i = check_Box->property(index_Property).toInt();
-			if(whats_This == whats_This_Common_Thickness)	{check_Box->setChecked(parent_Data.regular_Components[i].is_Common_Thickness);	}
-			if(whats_This == whats_This_Common_Sigma_Diffuse)		{check_Box->setChecked(parent_Data.regular_Components[i].is_Common_Sigma);		}
-			if(whats_This == whats_This_Restrict_Thickness)	{check_Box->setChecked(parent_Data.regular_Components[i].use_Soft_Restrictions);}
+			if(whats_This == whats_This_Common_Thickness)		{check_Box->setChecked(parent_Data.regular_Components[i].is_Common_Thickness);	}
+			if(whats_This == whats_This_Common_Sigma_Diffuse)	{check_Box->setChecked(parent_Data.regular_Components[i].is_Common_Sigma);		}
+			if(whats_This == whats_This_Restrict_Thickness)		{check_Box->setChecked(parent_Data.regular_Components[i].use_Soft_Restrictions);}
 			colorize_Regular_Aperiodic_Check_Box_Header(check_Box);
 		}
 
@@ -3997,7 +3997,7 @@ void Table_Of_Structures::refresh_Check_Box_Header(bool)
 			}
 			if(whats_This == whats_This_Common_Sigma_Diffuse)
 			{
-				parent_Data.regular_Components[i].is_Common_Sigma       = check_Box->isChecked();
+				parent_Data.regular_Components[i].is_Common_Sigma = check_Box->isChecked();
 
 				for(int n=0; n<parent_Data.num_Repetition.value(); n++)
 				{
@@ -4007,6 +4007,10 @@ void Table_Of_Structures::refresh_Check_Box_Header(bool)
 					{
 						// set common value
 						regular_Data.sigma_Diffuse.value = struct_Data.sigma_Diffuse.value;
+						for(Interlayer& interlayer : regular_Data.interlayer_Composition)
+						{
+							interlayer.my_Sigma_Diffuse.value = struct_Data.sigma_Diffuse.value;
+						}
 
 						// add to slave list (if still not)
 						if(!struct_Data.sigma_Diffuse.coupled.slaves.contains(regular_Data.sigma_Diffuse.indicator)) {

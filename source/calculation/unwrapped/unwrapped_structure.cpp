@@ -25,31 +25,25 @@ Unwrapped_Structure::Unwrapped_Structure(Multilayer* multilayer,
 	measurement			 (measurement)
 {
 	if( multilayer->discretization_Parameters.enable_Discretization ||
-		calc_Functions.check_Field ||
-		calc_Functions.check_Joule ||
-		calc_Functions.check_Scattering	||
-		calc_Functions.check_GISAS )
+		calc_Functions.check_Field || calc_Functions.check_Joule ||
+		calc_Functions.check_Scattering	|| calc_Functions.check_GISAS )
 	{
 		fill_Epsilon_Sharp();
 	}
 	if( multilayer->discretization_Parameters.enable_Discretization ||
-		depth_Grading ||
-		calc_Functions.check_Scattering	||
-		calc_Functions.check_GISAS )
+		calc_Functions.check_Scattering	|| calc_Functions.check_GISAS ||
+		sigma_Grading )
 	{
 		fill_Sigma_Diffuse_And_Interlayers();
 	}
 	if( multilayer->discretization_Parameters.enable_Discretization ||
-		calc_Functions.check_Field ||
-		calc_Functions.check_Joule ||
-		depth_Grading ||
-		calc_Functions.check_Scattering	||
-		calc_Functions.check_GISAS )
+		calc_Functions.check_Field || calc_Functions.check_Joule ||
+		calc_Functions.check_Scattering	|| calc_Functions.check_GISAS ||
+		depth_Grading )
 	{
 		fill_Thickness_And_Boundaries_Position();
 	}
-	if( calc_Functions.check_Scattering	||
-		calc_Functions.check_GISAS )
+	if( calc_Functions.check_Scattering	|| calc_Functions.check_GISAS )
 	{
 		fill_Roughness_Parameters();
 		fill_PSD_Inheritance_Powers();

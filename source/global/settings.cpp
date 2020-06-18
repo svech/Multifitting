@@ -970,6 +970,7 @@ void Settings::read_General_Settings(bool reset_to_default)
 		mouse_Wheel_Spinbox_Table			 = general_Settings.value( "mouse_Wheel_Spinbox_Table",				false ).toBool();
 		refill_Dependent_Table				 = general_Settings.value( "refill_Dependent_Table",				false ).toBool();
 		aperiodic_Recalculate_Spinbox_Table	 = general_Settings.value( "aperiodic_Recalculate_Spinbox_Table",	false ).toBool();
+		aperiodic_Mouse_Wheel_Spinbox_Table	 = general_Settings.value( "aperiodic_Mouse_Wheel_Spinbox_Table",	false ).toBool();
 		replot_Graphs_During_Fitting_1D		 = general_Settings.value( "replot_Graphs_During_Fitting_1D",		true  ).toBool();
 		replot_Graphs_During_Fitting_2D		 = general_Settings.value( "replot_Graphs_During_Fitting_2D",		false ).toBool();
 	general_Settings.endGroup();
