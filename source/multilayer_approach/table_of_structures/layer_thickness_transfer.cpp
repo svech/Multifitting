@@ -177,7 +177,7 @@ void Layer_Thickness_Transfer::create_Layer_Lines()
 			Global_Variables::resize_Line_Edit(current_Child_SpinBox);
 
 			// mapping
-			map_Line_Edit(current_Child_Parameter.indicator.id,current_Child_SpinBox);
+			map_Line_Edit(current_Child_Parameter.indicator.id, current_Child_SpinBox);
 			map_Of_Items.insert(current_Child_SpinBox,current_Child_Item);
 			map_Of_Identicals.insert(current_Child_SpinBox, current_Child_Data.id);
 
@@ -198,7 +198,7 @@ void Layer_Thickness_Transfer::create_Layer_Lines()
 			Global_Variables::resize_Line_Edit(partner_SpinBox);
 
 			// mapping
-			map_Line_Edit(partner_Parameter.indicator.id,partner_SpinBox);
+			map_Line_Edit(partner_Parameter.indicator.id, partner_SpinBox);
 			map_Of_Items.insert(partner_SpinBox,partner_Item);
 			map_Of_Identicals.insert(partner_SpinBox, partner_Data.id);
 
@@ -257,7 +257,8 @@ void Layer_Thickness_Transfer::create_Layer_Lines()
 		{
 			int N=1;
 			const Data data = map_Of_Items.value(spinboxes)->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
-			if(data.item_Type == item_Type_Multilayer) N=data.num_Repetition.value();
+			if(data.item_Type == item_Type_Multilayer)		  N=data.num_Repetition.value();
+			if(data.item_Type == item_Type_Regular_Aperiodic) N=data.num_Repetition.value();
 
 			spinboxes->blockSignals(true);
 			spinboxes->setValue(spinboxes->value()*period_Coeff);
@@ -282,8 +283,8 @@ void Layer_Thickness_Transfer::create_Layer_Lines()
 		reload();
 
 		// recalculate
-		if(recalculate_Spinbox_Table) {global_Multilayer_Approach->calculate(true);}
 		recalculate_Spinbox_Table = copy_Recalculate;
+		if(recalculate_Spinbox_Table) {global_Multilayer_Approach->calculate(true);}
 	});
 }
 
@@ -301,11 +302,11 @@ void Layer_Thickness_Transfer::spinBox_Lambda(MyDoubleSpinBox* current_Child_Spi
 	double N_partner = 1;
 	if(current_Child_Data.item_Type == item_Type_Layer)				{ N_current = 1; }
 	if(current_Child_Data.item_Type == item_Type_Multilayer)		{ N_current = current_Child_Data.num_Repetition.value();}
-	if(current_Child_Data.item_Type == item_Type_Regular_Aperiodic) { N_current = 1; }
+	if(current_Child_Data.item_Type == item_Type_Regular_Aperiodic) { N_current = current_Child_Data.num_Repetition.value();}
 	if(current_Child_Data.item_Type == item_Type_General_Aperiodic) { N_current = 1; }
 	if(partner_Data.item_Type == item_Type_Layer)					{ N_partner = 1; }
 	if(partner_Data.item_Type == item_Type_Multilayer)				{ N_partner = partner_Data.num_Repetition.value();}
-	if(partner_Data.item_Type == item_Type_Regular_Aperiodic)		{ N_partner = 1; }
+	if(partner_Data.item_Type == item_Type_Regular_Aperiodic)		{ N_partner = current_Child_Data.num_Repetition.value();}
 	if(partner_Data.item_Type == item_Type_General_Aperiodic)		{ N_partner = 1; }
 
 	current_Child_SpinBox->setDisabled(false);
@@ -356,8 +357,8 @@ void Layer_Thickness_Transfer::spinBox_Lambda(MyDoubleSpinBox* current_Child_Spi
 	Global_Variables::resize_Line_Edit(current_Child_SpinBox);
 
 	// recalculate
-	if(recalculate_Spinbox_Table) {global_Multilayer_Approach->calculate(true);}
 	recalculate_Spinbox_Table = copy_Recalculate;
+	if(recalculate_Spinbox_Table) {global_Multilayer_Approach->calculate(true);}
 }
 
 void Layer_Thickness_Transfer::refresh(MyDoubleSpinBox* spinbox)
@@ -398,13 +399,11 @@ void Layer_Thickness_Transfer::lock_Unlock_Thickness_Transfer(QTreeWidgetItem* i
 {
 	Data data = item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();	
 
-	if( data.item_Type == item_Type_Regular_Aperiodic ||
-		data.item_Type == item_Type_General_Aperiodic)
+	if( data.item_Type == item_Type_Regular_Aperiodic || data.item_Type == item_Type_General_Aperiodic || data.item_Type == item_Type_Multilayer || !data.item_Enabled)
 	{
-		data.num_Repetition.parameter.value = 0; // aperiodic is locked, this change is not saved
 		period_SpinBox->setDisabled(true);
 	}
-	if(data.num_Repetition.value() == 0 && data.item_Type != item_Type_Layer)
+	if( data.item_Type == item_Type_Regular_Aperiodic || data.item_Type == item_Type_General_Aperiodic || data.item_Type == item_Type_Multilayer || !data.item_Enabled)
 	{
 		for(MyDoubleSpinBox* spinbox : map_Of_Items.keys(item))
 		{
@@ -419,13 +418,11 @@ void Layer_Thickness_Transfer::lock_Unlock_Thickness_Transfer(QTreeWidgetItem* i
 			QTreeWidgetItem* partner_Item = map_Of_Items.value(partner);
 			Data partner_Data = partner_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
 
-			if( partner_Data.item_Type == item_Type_Regular_Aperiodic ||
-				partner_Data.item_Type == item_Type_General_Aperiodic)
+			if( partner_Data.item_Type == item_Type_Regular_Aperiodic || partner_Data.item_Type == item_Type_General_Aperiodic || partner_Data.item_Type == item_Type_Multilayer || !partner_Data.item_Enabled)
 			{
-				partner_Data.num_Repetition.parameter.value = 0; // aperiodic is also locked
 				period_SpinBox->setDisabled(true);
 			}
-			if(partner_Data.num_Repetition.value() == 0 && partner_Data.item_Type != item_Type_Layer)
+			if( partner_Data.item_Type == item_Type_Regular_Aperiodic || partner_Data.item_Type == item_Type_General_Aperiodic || partner_Data.item_Type == item_Type_Multilayer || !partner_Data.item_Enabled)
 			{
 				spinbox->setDisabled(true);
 				map_Of_Partners.value(spinbox)->setDisabled(true);
