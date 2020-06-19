@@ -328,6 +328,7 @@ void Specular_Independent_Curve_Part::refresh_Angular_Units()
 	{
 		// at fixed
 		at_Fixed_SpinBox->setRange(0,90./coeff);
+
 		at_Fixed_SpinBox->setValue(90./*independent_Curve->measurement.beam_Theta_0_Angle.value*//coeff);
 		at_Fixed_Units_Label->setText(independent_Curve->angular_Units);
 	}
@@ -601,6 +602,13 @@ void Specular_Independent_Curve_Part::connecting()
 	connect(arg_Type_ComboBox,	&QComboBox::currentTextChanged, this, [=]
 	{
 		independent_Curve->measurement.argument_Type = arg_Type_ComboBox->currentText();
+
+		// TODO check all and make it better
+		refresh_Angular_Units();
+		refresh_Spectral_Units();
+		refresh_Argument_Values();
+		refresh_At_Fixed_Value();
+		disable_Crystal_Detector_Type();
 
 		fill_At_Fixed_Label();
 		fill_At_Fixed_Value();

@@ -11,13 +11,14 @@ class Multilayer;
 class Unwrapped_Reflection
 {
 public:
-	Unwrapped_Reflection(const vector<Node*>& flat_Calc_Tree, Calculated_Values& calculated_Values, Unwrapped_Structure* unwrapped_Structure, QString spec_Scat_mode);
+	Unwrapped_Reflection(const vector<Node*>& short_Flat_Calc_Tree, Calculated_Values& calculated_Values, Unwrapped_Structure* unwrapped_Structure, QString spec_Scat_mode);
 	~Unwrapped_Reflection();
 
 	int num_Threads;
 	int num_Layers;
 	int num_Boundaries;
 	int num_Media;
+	int num_Media_Sharp;
 
 	size_t num_Points;
 	size_t phi_Points;
@@ -31,7 +32,7 @@ public:
 	Multilayer* multilayer;
 	const Data& measurement;
 
-	const vector<Node*>& flat_Calc_Tree;		// unstratified, has no extreme layers
+	const vector<Node*>& short_Flat_Calc_Tree;
 	const vector<Node*>& media_Node_Map_Vector;
 	const vector<Data*>& media_Data_Map_Vector;
 	Node* substrate_Node;
@@ -79,7 +80,6 @@ public:
 
 	QMap<id_Type, int> id_Item_Map;
 	vector<Data> appropriate_Item_Vec;					//	[item_Index]
-	vector<Node> appropriate_Node_Vec;					//	[item_Index]
 	vector<int> boundary_Item_Vec;						//	[boundary]
 	vector<vector<int>> boundaries_Of_Item_Vec;			//	[item_Index][boundary]
 
@@ -180,7 +180,7 @@ public:
 	void calc_Sliced_Field				(int thread_Index, int point_Index,		  const vector<complex<double>>& epsilon_Vector);
 
 	// PT
-	void fill_Item_PSD_1D				(int thread_Index, double cos_Theta, double cos_Theta_0);
+	void fill_Item_PSD_1D				(int thread_Index, int point_Index, double cos_Theta_0);
 	void fill_Item_PSD_2D				(int thread_Index, int point_Index, int phi_Index);
 	double calc_Field_Term_Sum			(QString polarization, int point_Index, int thread_Index);
 	void choose_PSD_1D_Function			(const Data& struct_Data, int thread_Index);

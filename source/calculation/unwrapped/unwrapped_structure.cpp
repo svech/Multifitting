@@ -109,7 +109,7 @@ void Unwrapped_Structure::fill_Epsilon_Sharp()
 		size_t num_Lambda_Points = measurement.lambda_Vec.size();
 		epsilon_Dependent.resize(num_Lambda_Points, vector<complex<double>>(num_Media_Sharp));
 
-		Global_Variables::parallel_For(num_Lambda_Points, epsilon_Partial_Fill_Threads, [&](int n_Min, int n_Max, int thread_Index)
+		Global_Variables::parallel_For(num_Lambda_Points, reflectivity_Calc_Threads, [&](int n_Min, int n_Max, int thread_Index)
 		{
 			Q_UNUSED(thread_Index)
 			for(int point_Index = n_Min; point_Index<n_Max; ++point_Index)
@@ -189,17 +189,14 @@ void Unwrapped_Structure::fill_Thickness_And_Boundaries_Position()
 
 	for(int layer_Index=0; layer_Index<num_Layers; layer_Index++)
 	{
-		int boundary_Index = layer_Index+1;
-		int media_Index = layer_Index+1; // not a mistake
-		thickness[layer_Index] = media_Data_Map_Vector[media_Index]->thickness.value;
-		boundaries_Position[boundary_Index] = boundaries_Position[boundary_Index-1] + thickness[layer_Index];
-
+		thickness[layer_Index] = media_Data_Map_Vector[layer_Index+1]->thickness.value;
 		// can drift
 		Global_Variables::variable_Drift(thickness[layer_Index],
-										 media_Data_Map_Vector[media_Index]->thickness_Drift,
-										 media_Period_Index_Map_Vector[media_Index],
-										 media_Data_Map_Vector[media_Index]->num_Repetition.value(),
+										 media_Data_Map_Vector[layer_Index+1]->thickness_Drift,
+										 media_Period_Index_Map_Vector[layer_Index+1],
+										 media_Data_Map_Vector[layer_Index+1]->num_Repetition.value(),
 										 r);
+		boundaries_Position[layer_Index+1] = boundaries_Position[layer_Index] + thickness[layer_Index];
 	}
 
 	// threaded copy
@@ -478,7 +475,7 @@ void Unwrapped_Structure::find_Field_Spacing()
 	}
 
 	// ambient
-	int num_Ambient_Slices = floor(calc_Functions.field_Ambient_Distance/calc_Functions.field_Step);
+	int num_Ambient_Slices = ceil(calc_Functions.field_Ambient_Distance/calc_Functions.field_Step);
 	num_Field_Slices += num_Ambient_Slices;
 	for(int i=0; i<num_Ambient_Slices; ++i)
 	{

@@ -191,14 +191,14 @@ void Calculation_Tree::fill_Calc_Trees()
 			// unstratified
 			target_Data_Element.media_Data_Map_Vector.resize(num_Media_Sharp);
 			target_Data_Element.media_Period_Index_Map_Vector.resize(num_Media_Sharp);
-			flatten_Tree(target_Data_Element.calc_Tree, target_Data_Element.flat_Calc_Tree_Unstratified);
-			unwrap_Calc_Tree_Data(target_Data_Element.calc_Tree.begin(), target_Data_Element.media_Data_Map_Vector, target_Data_Element.media_Period_Index_Map_Vector);
+			unwrap_Calc_Tree_Data(real_Calc_Tree.begin(), target_Data_Element.media_Data_Map_Vector, target_Data_Element.media_Period_Index_Map_Vector);
 
 			stratify_Calc_Tree(target_Data_Element.calc_Tree);
 
 			// stratified
 			target_Data_Element.media_Node_Map_Vector.resize(num_Media_Sharp);
 			flatten_Tree(target_Data_Element.calc_Tree, target_Data_Element.flat_Calc_Tree);
+			short_Tree(target_Data_Element.flat_Calc_Tree, target_Data_Element.short_Flat_Calc_Tree);
 			unwrap_Calc_Tree_Node(target_Data_Element.calc_Tree.begin(), target_Data_Element.media_Node_Map_Vector);
 		}
 		for(Data_Element<Independent_Curve>& independent_Data_Element : independent)
@@ -208,32 +208,15 @@ void Calculation_Tree::fill_Calc_Trees()
 			// unstratified
 			independent_Data_Element.media_Data_Map_Vector.resize(num_Media_Sharp);
 			independent_Data_Element.media_Period_Index_Map_Vector.resize(num_Media_Sharp);
-			flatten_Tree(independent_Data_Element.calc_Tree, independent_Data_Element.flat_Calc_Tree_Unstratified);
-			unwrap_Calc_Tree_Data(independent_Data_Element.calc_Tree.begin(), independent_Data_Element.media_Data_Map_Vector, independent_Data_Element.media_Period_Index_Map_Vector);
+			unwrap_Calc_Tree_Data(real_Calc_Tree.begin(), independent_Data_Element.media_Data_Map_Vector, independent_Data_Element.media_Period_Index_Map_Vector);
 
 			stratify_Calc_Tree(independent_Data_Element.calc_Tree);
 
 			// stratified
 			independent_Data_Element.media_Node_Map_Vector.resize(num_Media_Sharp);
 			flatten_Tree(independent_Data_Element.calc_Tree, independent_Data_Element.flat_Calc_Tree);
+			short_Tree(independent_Data_Element.flat_Calc_Tree, independent_Data_Element.short_Flat_Calc_Tree);
 			unwrap_Calc_Tree_Node(independent_Data_Element.calc_Tree.begin(), independent_Data_Element.media_Node_Map_Vector);
-
-//			qInfo() << independent_Data_Element.media_Node_Map_Vector.size() << "nodes" << endl << endl;
-//			qInfo() << independent_Data_Element.media_Data_Map_Vector.size() << "datas" << endl << endl;
-//			qInfo() << endl;
-//			for(int i=0; i<independent_Data_Element.flat_Calc_Tree.size(); i++)
-//			{
-//				qInfo() << "Flat" << independent_Data_Element.flat_Calc_Tree[i]->struct_Data.item_Type << independent_Data_Element.flat_Calc_Tree[i]->struct_Data.material << endl;
-//			}
-//			qInfo() << endl;
-//			for(int i=0; i<independent_Data_Element.media_Node_Map_Vector.size(); i++)
-//			{
-//				qInfo() << "Node" << independent_Data_Element.media_Node_Map_Vector[i]->struct_Data.item_Type << independent_Data_Element.media_Node_Map_Vector[i]->struct_Data.material << endl;
-//				qInfo() << "Data" << independent_Data_Element.media_Data_Map_Vector[i]->item_Type << independent_Data_Element.media_Data_Map_Vector[i]->material << endl;
-//			}
-//			qInfo() << endl;
-//			print_Tree(independent_Data_Element.calc_Tree.begin(), independent_Data_Element.calc_Tree);
-//			qInfo() << endl << endl;
 		}
 	}
 }
@@ -407,6 +390,25 @@ void Calculation_Tree::flatten_Tree(const tree<Node>& calc_Tree, vector<Node*>& 
 	}
 }
 
+void Calculation_Tree::short_Tree(const vector<Node*>& flat_Calc_Tree, vector<Node*>& short_Flat_Calc_Tree)
+{
+	for(int i=flat_Calc_Tree.size()-1; i>=1; i--)
+	{
+		Node* node = flat_Calc_Tree[i];
+
+		// look for existing nodes
+		bool contains = false;
+		for(size_t k=0; k<short_Flat_Calc_Tree.size(); k++)
+		{
+			if(short_Flat_Calc_Tree[k]->struct_Data.id == node->struct_Data.id) contains = true;
+		}
+		if(!contains)
+		{
+			short_Flat_Calc_Tree.insert(short_Flat_Calc_Tree.begin(), node);
+		}
+	}
+}
+
 int Calculation_Tree::unwrap_Calc_Tree_Node(const tree<Node>::iterator& parent, vector<Node*>& media_Node_Map_Vector, int media_Index)
 {
 	for(unsigned child_Index=0; child_Index<parent.number_of_children(); ++child_Index)
@@ -450,6 +452,7 @@ int Calculation_Tree::unwrap_Calc_Tree_Node(const tree<Node>::iterator& parent, 
 
 int Calculation_Tree::unwrap_Calc_Tree_Data(const tree<Node>::iterator& parent, vector<Data*>& media_Data_Map_Vector, vector<int>& media_Period_Index_Map_Vector, int media_Index, int period_Index)
 {
+	const Data& parent_Data = parent.node->data.struct_Data;
 	for(unsigned child_Index=0; child_Index<parent.number_of_children(); ++child_Index)
 	{
 		tree<Node>::post_order_iterator child = tree<Node>::child(parent,child_Index);
@@ -467,6 +470,7 @@ int Calculation_Tree::unwrap_Calc_Tree_Data(const tree<Node>::iterator& parent, 
 				if(child_Data.parent_Item_Type == item_Type_Multilayer )
 				{
 					media_Period_Index_Map_Vector[media_Index] = period_Index;
+					media_Data_Map_Vector[media_Index]->num_Repetition.parameter.value = parent_Data.num_Repetition.value();
 				}
 				++media_Index;
 			}
@@ -527,20 +531,20 @@ template<typename Type>
 void Calculation_Tree::calculate_1_Kind(Data_Element<Type>& data_Element, QString mode)
 {
 	auto start = std::chrono::system_clock::now();
-	calculate_Intermediate_Values_1_Tree(data_Element.flat_Calc_Tree, data_Element.the_Class->measurement, mode);
+	calculate_Intermediate_Values_1_Tree(data_Element.flat_Calc_Tree, data_Element.short_Flat_Calc_Tree, data_Element.the_Class->measurement, mode);
 	if(lambda_Out_Of_Range) return;
 	auto end = std::chrono::system_clock::now();
 	auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
 	qInfo() << "\nIntermediate:   "<< elapsed.count()/1000000. << " seconds" << endl;
 
-	start = std::chrono::system_clock::now();
+//	start = std::chrono::system_clock::now();
 	calculate_Unwrapped_Structure(data_Element.calc_Functions, data_Element.media_Node_Map_Vector, data_Element.media_Data_Map_Vector, data_Element.media_Period_Index_Map_Vector, data_Element.the_Class->measurement, data_Element.unwrapped_Structure);
-	end = std::chrono::system_clock::now();
-	elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-	qInfo() << "Unwrap:         "<< elapsed.count()/1000000. << " seconds" << endl;
+//	end = std::chrono::system_clock::now();
+//	elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+//	qInfo() << "Unwrap:         "<< elapsed.count()/1000000. << " seconds" << endl;
 
 	start = std::chrono::system_clock::now();
-	calculate_Unwrapped_Reflectivity(data_Element.flat_Calc_Tree_Unstratified, data_Element.the_Class->calculated_Values, data_Element.unwrapped_Structure, data_Element.unwrapped_Reflection, mode);
+	calculate_Unwrapped_Reflectivity(data_Element.short_Flat_Calc_Tree, data_Element.the_Class->calculated_Values, data_Element.unwrapped_Structure, data_Element.unwrapped_Reflection, mode);
 	end = std::chrono::system_clock::now();
 	elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
 	qInfo() << "Unwrap Reflect: "<< elapsed.count()/1000000. << " seconds" << endl;
@@ -550,21 +554,24 @@ void Calculation_Tree::calculate_1_Kind(Data_Element<Type>& data_Element, QStrin
 template void Calculation_Tree::calculate_1_Kind<Independent_Curve>(Data_Element<Independent_Curve>&, QString);
 template void Calculation_Tree::calculate_1_Kind<Target_Curve>	   (Data_Element<Target_Curve>&, QString);
 
-void Calculation_Tree::calculate_Intermediate_Values_1_Tree(vector<Node*>& flat_Calc_Tree, const Data& measurement, QString mode)
+void Calculation_Tree::calculate_Intermediate_Values_1_Tree(vector<Node*>& flat_Calc_Tree, vector<Node*>& short_Flat_Calc_Tree, const Data& measurement, QString mode)
 {
 	for(size_t node_Index = 0; node_Index<flat_Calc_Tree.size(); node_Index++)
 	{
 		Node* above_Node = NULL;
 		if(node_Index>=1) above_Node = flat_Calc_Tree[node_Index-1];
 		flat_Calc_Tree[node_Index]->calculate_Intermediate_Points(measurement, above_Node, depth_Grading, sigma_Grading, multilayer->discretization_Parameters.enable_Discretization, mode);
-		if( mode == SCATTERED_MODE ) flat_Calc_Tree[node_Index]->create_Spline_PSD_Fractal_Gauss_1D(measurement, multilayer->imperfections_Model);
+	}
+	for(size_t node_Index = 0; node_Index<short_Flat_Calc_Tree.size(); node_Index++)
+	{
+		if( mode == SCATTERED_MODE ) short_Flat_Calc_Tree[node_Index]->create_Spline_PSD_Fractal_Gauss_1D(measurement, multilayer->imperfections_Model);
 	}
 }
-void Calculation_Tree::clear_Spline_1_Tree(vector<Node*>& flat_Calc_Tree, QString mode)
+void Calculation_Tree::clear_Spline_1_Tree(vector<Node*>& short_Flat_Calc_Tree, QString mode)
 {
-	for(size_t node_Index = 0; node_Index<flat_Calc_Tree.size(); node_Index++)
+	for(size_t node_Index = 0; node_Index<short_Flat_Calc_Tree.size(); node_Index++)
 	{
-		if( mode == SCATTERED_MODE )flat_Calc_Tree[node_Index]->clear_Spline_PSD_Fractal_Gauss_1D(multilayer->imperfections_Model);
+		if( mode == SCATTERED_MODE ) short_Flat_Calc_Tree[node_Index]->clear_Spline_PSD_Fractal_Gauss_1D(multilayer->imperfections_Model);
 	}
 }
 
@@ -587,28 +594,29 @@ void Calculation_Tree::calculate_Unwrapped_Structure(const Calc_Functions& calc_
 																			sigma_Grading,
 																			r);
 	unwrapped_Structure_Vec_Element = new_Unwrapped_Structure;
-
-//	if(multilayer->discretization_Parameters.enable_Discretization)
-//	{
-//		num_Media = unwrapped_Structure_Vec_Element->num_Discretized_Media;
-//	}
 }
 
-void Calculation_Tree::calculate_Unwrapped_Reflectivity(const vector<Node*>& flat_Calc_Tree,
+void Calculation_Tree::calculate_Unwrapped_Reflectivity(const vector<Node*>& short_Flat_Calc_Tree,
 														Calculated_Values& calculated_Values,
 														Unwrapped_Structure* unwrapped_Structure,
 														Unwrapped_Reflection*& unwrapped_Reflection_Vec_Element,
 														QString mode)
 {
 	delete unwrapped_Reflection_Vec_Element;	
-	Unwrapped_Reflection* new_Unwrapped_Reflection = new Unwrapped_Reflection(flat_Calc_Tree, calculated_Values, unwrapped_Structure, mode);
-	unwrapped_Reflection_Vec_Element = new_Unwrapped_Reflection;
 
 //	auto start = std::chrono::system_clock::now();
-	unwrapped_Reflection_Vec_Element->calc_Specular();
+	Unwrapped_Reflection* new_Unwrapped_Reflection = new Unwrapped_Reflection(short_Flat_Calc_Tree, calculated_Values, unwrapped_Structure, mode);
 //	auto end = std::chrono::system_clock::now();
 //	auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-//	qInfo() << "calc_Specular    :      "<< elapsed.count()/1000000. << " seconds" << endl;
+//	qInfo() << "new_Unwrapped_Reflection    :      "<< elapsed.count()/1000000. << " seconds" << endl;
+
+	unwrapped_Reflection_Vec_Element = new_Unwrapped_Reflection;
+
+//	auto start1 = std::chrono::system_clock::now();
+	unwrapped_Reflection_Vec_Element->calc_Specular();
+//	auto end1 = std::chrono::system_clock::now();
+//	auto elapsed1 = std::chrono::duration_cast<std::chrono::microseconds>(end1 - start1);
+//	qInfo() << "calc_Specular    :      "<< elapsed1.count()/1000000. << " seconds" << endl;
 }
 
 int Calculation_Tree::get_Total_Num_Layers(const tree<Node>::iterator& parent)

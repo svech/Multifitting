@@ -291,25 +291,21 @@ void Main_Calculation_Module::single_Calculation(bool print_And_Verbose)
 			if(lambda_Out_Of_Range) return;
 		}
 	}
-//	if(print_And_Verbose)
-//	{
-//		auto end = std::chrono::system_clock::now();
-//		auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-//		qInfo() << "\nCalculation: "<< elapsed.count()/1000000. << " seconds" << endl;
-//	}
+	if(print_And_Verbose)
+	{
+		auto end = std::chrono::system_clock::now();
+		auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+		qInfo() << "\nCalculation: "<< elapsed.count()/1000000. << " seconds" << endl;
+	}
 
-//	// replot graphs
-//	Global_Variables::plot_All_Data_in_Graphs();
+	// replot graphs
+	Global_Variables::plot_All_Data_in_Graphs();
 	Global_Variables::plot_All_Data_in_Profiles();
 
-//	if(print_And_Verbose)
-//	{
-////		auto start1 = std::chrono::system_clock::now();
-//		print_Calculated_To_File();
-////		auto end1 = std::chrono::system_clock::now();
-////		auto elapsed1 = std::chrono::duration_cast<std::chrono::microseconds>(end1 - start1);
-////		qInfo() << "print_Calculated_To_File: "<< elapsed1.count()/1000000. << " seconds" << endl;
-//	}
+	if(print_And_Verbose)
+	{
+		print_Calculated_To_File();
+	}
 }
 
 void Main_Calculation_Module::fitting_and_Confidence()
