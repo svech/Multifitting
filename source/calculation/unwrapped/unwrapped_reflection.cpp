@@ -2310,62 +2310,67 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 				    multilayer->imperfections_Model.approximation == SA_approximation   ||
 				    multilayer->imperfections_Model.approximation == CSA_approximation  )
 				{
-					calc_k_Wavenumber_DWBA_SA_CSA(thread_Index, point_Index);
-					if( (measurement.polarization + 1) >  POLARIZATION_TOLERANCE)
+					if( measurement.measurement_Type == measurement_Types[Detector_Scan] ||
+						measurement.measurement_Type == measurement_Types[Rocking_Curve] ||
+						measurement.measurement_Type == measurement_Types[Offset_Scan] )
 					{
-						calc_Field_DWBA_SA_CSA(thread_Index, point_Index, "s");
-						calc_K_Factor_DWBA_SA_CSA(thread_Index,           "s");
-					}
-					if( (measurement.polarization - 1) < -POLARIZATION_TOLERANCE)
-					{
-						calc_Field_DWBA_SA_CSA(thread_Index, point_Index, "p");
-						calc_K_Factor_DWBA_SA_CSA(thread_Index,           "p");
-					}
-					choose_Cor_Function(thread_Index);
+						calc_k_Wavenumber_DWBA_SA_CSA(thread_Index, point_Index);
+						if( (measurement.polarization + 1) >  POLARIZATION_TOLERANCE)
+						{
+							calc_Field_DWBA_SA_CSA(thread_Index, point_Index, "s");
+							calc_K_Factor_DWBA_SA_CSA(thread_Index,           "s");
+						}
+						if( (measurement.polarization - 1) < -POLARIZATION_TOLERANCE)
+						{
+							calc_Field_DWBA_SA_CSA(thread_Index, point_Index, "p");
+							calc_K_Factor_DWBA_SA_CSA(thread_Index,           "p");
+						}
+						choose_Cor_Function(thread_Index);
 
-					if( multilayer->imperfections_Model.vertical_Correlation == full_Correlation ||
-					    multilayer->imperfections_Model.vertical_Correlation == zero_Correlation )
-					{
-						if( multilayer->imperfections_Model.use_Common_Roughness_Function )
+						if( multilayer->imperfections_Model.vertical_Correlation == full_Correlation ||
+							multilayer->imperfections_Model.vertical_Correlation == zero_Correlation )
 						{
-							// s-polarization
-							if( (measurement.polarization + 1) > POLARIZATION_TOLERANCE)
+							if( multilayer->imperfections_Model.use_Common_Roughness_Function )
 							{
-								for(int n_Power=1; n_Power<=n_Max_Series; n_Power++)
+								// s-polarization
+								if( (measurement.polarization + 1) > POLARIZATION_TOLERANCE)
 								{
-									pre_Fourier_Factor[thread_Index][n_Power-1] = calc_K_Factor_Term_Sum_DWBA_SA_CSA(thread_Index, "s", n_Power) / factorial[n_Power];
+									for(int n_Power=1; n_Power<=n_Max_Series; n_Power++)
+									{
+										pre_Fourier_Factor[thread_Index][n_Power-1] = calc_K_Factor_Term_Sum_DWBA_SA_CSA(thread_Index, "s", n_Power) / factorial[n_Power];
+									}
+									calculated_Values.S_s[point_Index] = e_Factor_DWBA_SA_CSA_1D * cor_Function_Integration(point_Index, thread_Index, cos_Theta_0);
 								}
-								calculated_Values.S_s[point_Index] = e_Factor_DWBA_SA_CSA_1D * common_Cor_Function_Integration(point_Index, thread_Index, cos_Theta_0);
-							}
-							// p-polarization
-							if( (measurement.polarization - 1) < -POLARIZATION_TOLERANCE)
+								// p-polarization
+								if( (measurement.polarization - 1) < -POLARIZATION_TOLERANCE)
+								{
+									for(int n_Power=1; n_Power<=n_Max_Series; n_Power++)
+									{
+										pre_Fourier_Factor[thread_Index][n_Power-1] = calc_K_Factor_Term_Sum_DWBA_SA_CSA(thread_Index, "p", n_Power) / factorial[n_Power];
+									}
+									calculated_Values.S_p[point_Index] = e_Factor_DWBA_SA_CSA_1D * cor_Function_Integration(point_Index, thread_Index, cos_Theta_0);
+								}
+							} else
+							/// individual PSD of items
 							{
-								for(int n_Power=1; n_Power<=n_Max_Series; n_Power++)
+								// s-polarization
+								if( (measurement.polarization + 1) > POLARIZATION_TOLERANCE)
 								{
-									pre_Fourier_Factor[thread_Index][n_Power-1] = calc_K_Factor_Term_Sum_DWBA_SA_CSA(thread_Index, "p", n_Power) / factorial[n_Power];
+									for(int n_Power=1; n_Power<=n_Max_Series; n_Power++)
+									{
+										calc_K_Factor_Term_Sum_DWBA_SA_CSA(thread_Index, "s", n_Power);
+									}
+									calculated_Values.S_s[point_Index] = e_Factor_DWBA_SA_CSA_1D * cor_Function_Integration(point_Index, thread_Index, cos_Theta_0);
 								}
-								calculated_Values.S_p[point_Index] = e_Factor_DWBA_SA_CSA_1D * common_Cor_Function_Integration(point_Index, thread_Index, cos_Theta_0);
-							}
-						} else
-						/// individual PSD of items
-						{
-							// s-polarization
-							if( (measurement.polarization + 1) > POLARIZATION_TOLERANCE)
-							{
-								for(int n_Power=1; n_Power<=n_Max_Series; n_Power++)
+								// p-polarization
+								if( (measurement.polarization - 1) < -POLARIZATION_TOLERANCE)
 								{
-									calc_K_Factor_Term_Sum_DWBA_SA_CSA(thread_Index, "s", n_Power);
+									for(int n_Power=1; n_Power<=n_Max_Series; n_Power++)
+									{
+										calc_K_Factor_Term_Sum_DWBA_SA_CSA(thread_Index, "p", n_Power);
+									}
+									calculated_Values.S_p[point_Index] = e_Factor_DWBA_SA_CSA_1D * cor_Function_Integration(point_Index, thread_Index, cos_Theta_0);
 								}
-								calculated_Values.S_s[point_Index] = e_Factor_DWBA_SA_CSA_1D * individual_Cor_Function_Integration(point_Index, thread_Index, cos_Theta_0);
-							}
-							// p-polarization
-							if( (measurement.polarization - 1) < -POLARIZATION_TOLERANCE)
-							{
-								for(int n_Power=1; n_Power<=n_Max_Series; n_Power++)
-								{
-									calc_K_Factor_Term_Sum_DWBA_SA_CSA(thread_Index, "p", n_Power);
-								}
-								calculated_Values.S_p[point_Index] = e_Factor_DWBA_SA_CSA_1D * individual_Cor_Function_Integration(point_Index, thread_Index, cos_Theta_0);
 							}
 						}
 					}
@@ -2375,26 +2380,11 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 	}
 }
 
-double Unwrapped_Reflection::common_Cor_Function_Integration(int point_Index, int thread_Index, double cos_Theta_0)
+double Unwrapped_Reflection::cor_Function_Integration(int point_Index, int thread_Index, double cos_Theta_0)
 {
-	auto f = [&](double r){return function_DWBA_SA_CSA_Batch_Common_Integrand(r, thread_Index);};
-	double p = measurement.k_Value*abs(cos_Theta_0-measurement.detector_Theta_Cos_Vec[point_Index]);
-
-	double integral = -2020, error;
-	if( p > DBL_EPSILON )
-	{
-		std::pair<double, double> result_Boost = integrator_Vec[thread_Index].integrate(f, p);
-		integral = result_Boost.first;
-	} else
-	{
-		integral = gauss_kronrod<double, 61>::integrate(f, 0, std::numeric_limits<double>::infinity(), 5, 1e-7, &error);
-	}
-	return integral;
-}
-
-double Unwrapped_Reflection::individual_Cor_Function_Integration(int point_Index, int thread_Index, double cos_Theta_0)
-{
-	auto f = [&](double r){return function_DWBA_SA_CSA_Batch_Individual_Integrand(r, thread_Index);};
+	function<double(double)> f;
+	if(multilayer->imperfections_Model.use_Common_Roughness_Function) f = [&](double r){return function_DWBA_SA_CSA_Batch_Common_Integrand    (r, thread_Index);};
+	else															  f = [&](double r){return function_DWBA_SA_CSA_Batch_Individual_Integrand(r, thread_Index);};
 	double p = measurement.k_Value*abs(cos_Theta_0-measurement.detector_Theta_Cos_Vec[point_Index]);
 
 	double integral = -2020, error;
@@ -2411,52 +2401,74 @@ double Unwrapped_Reflection::individual_Cor_Function_Integration(int point_Index
 
 double Unwrapped_Reflection::azimuthal_Integration(gsl_function* function, double delta)
 {
-	// TODO find more fast method
-
 	double phi_Min = 0, phi_Max = 90;
-
-	// faster, but less accurate
-//	double phi_Min = 0, phi_Inter = 0.05, phi_Inter_2 = 1, phi_Inter_3 = 5, phi_Max = 20;
-//	gsl_integration_glfixed_table* t = gsl_integration_glfixed_table_alloc(3);
-//	double result;
-//	double temp = gsl_integration_glfixed(function, phi_Min, phi_Inter, t);
-//	temp   = temp+gsl_integration_glfixed(function, phi_Inter, phi_Inter_2, t);
-//	temp   = temp+gsl_integration_glfixed(function, phi_Inter_2, phi_Inter_3, t);
-//	result = temp+gsl_integration_glfixed(function, phi_Inter_3, phi_Max, t);
-//	gsl_integration_glfixed_table_free(t);
 
 	/// ----------------------------------------------------------------------------------------------------------------------
 
-	// mixed
-	double abserr, temp, result, epsabs = 1e0, epsrel = 1e0;
-	gsl_integration_glfixed_table* t = gsl_integration_glfixed_table_alloc(3);
-	size_t neval;
+	auto f = [&](double phi){return function->function(phi, function->params);};
+	double result = 0, error;
 	if(delta<1e-4)
 	{
-		double phi_Inter_1 = 0.01, phi_Inter_2 = 0.05, phi_Inter_3 = 0.2, phi_Inter_4 = 20;
-		gsl_integration_qng(function, phi_Min,     phi_Inter_1, epsabs, epsrel, &result, &abserr, &neval); temp=result;
-		gsl_integration_qng(function, phi_Inter_1, phi_Inter_2, epsabs, epsrel, &result, &abserr, &neval); temp+=result;
-		gsl_integration_qng(function, phi_Inter_2, phi_Inter_3, epsabs, epsrel, &result, &abserr, &neval); temp+=result;
-		gsl_integration_qng(function, phi_Inter_3, phi_Inter_4, epsabs, epsrel, &result, &abserr, &neval); temp+=result;
-
-		result = temp + gsl_integration_glfixed(function, phi_Inter_4, phi_Max, t);
+		double phi_Inter_1 = 0.002, phi_Inter_2 = 0.01, phi_Inter_3 = 0.1, phi_Inter_4 = 1, phi_Inter_5 = 5, phi_Inter_6 = 20;
+		result += gauss_kronrod<double,15>::integrate(f, phi_Min,     phi_Inter_1, 0, 1e-7, &error);
+		result += gauss_kronrod<double, 5>::integrate(f, phi_Inter_1, phi_Inter_2, 0, 1e-7, &error);
+		result += gauss_kronrod<double, 5>::integrate(f, phi_Inter_2, phi_Inter_3, 0, 1e-7, &error);
+		result += gauss_kronrod<double, 5>::integrate(f, phi_Inter_3, phi_Inter_4, 0, 1e-7, &error);
+		result += gauss_kronrod<double, 5>::integrate(f, phi_Inter_4, phi_Inter_5, 0, 1e-7, &error);
+		result += gauss_kronrod<double, 5>::integrate(f, phi_Inter_5, phi_Inter_6, 0, 1e-7, &error);
+		result += gauss_kronrod<double, 5>::integrate(f, phi_Inter_6, phi_Max,	   0, 1e-7, &error);
 	} else
 	if(delta<5e-4)
 	{
-		double phi_Inter_1 = 0.5, phi_Inter_2 = 20;
-		gsl_integration_qng(function, phi_Min,     phi_Inter_1, epsabs, epsrel, &result, &abserr, &neval); temp=result;
-		gsl_integration_qng(function, phi_Inter_1, phi_Inter_2, epsabs, epsrel, &result, &abserr, &neval); temp+=result;
-
-		result = temp + gsl_integration_glfixed(function, phi_Inter_2, phi_Max, t);
+		double phi_Inter_1 = 0.05, phi_Inter_2 = 0.3, phi_Inter_3 = 2, phi_Inter_4 = 7, phi_Inter_5 = 20;
+		result += gauss_kronrod<double,11>::integrate(f, phi_Min,     phi_Inter_1, 0, 1e-7, &error);
+		result += gauss_kronrod<double, 5>::integrate(f, phi_Inter_1, phi_Inter_2, 0, 1e-7, &error);
+		result += gauss_kronrod<double, 5>::integrate(f, phi_Inter_2, phi_Inter_3, 0, 1e-7, &error);
+		result += gauss_kronrod<double, 5>::integrate(f, phi_Inter_3, phi_Inter_4, 0, 1e-7, &error);
+		result += gauss_kronrod<double, 5>::integrate(f, phi_Inter_4, phi_Inter_5, 0, 1e-7, &error);
+		result += gauss_kronrod<double, 5>::integrate(f, phi_Inter_5, phi_Max,	   0, 1e-7, &error);
 	} else
 	{
-		double phi_Inter_1 = 4, phi_Inter_2 = 20;
-		gsl_integration_qng(function, phi_Min, phi_Inter_1, epsabs, epsrel, &result, &abserr, &neval); temp=result;
-
-		temp   = temp + gsl_integration_glfixed(function, phi_Inter_1, phi_Inter_2, t);
-		result = temp + gsl_integration_glfixed(function, phi_Inter_2, phi_Max,     t);
+		double phi_Inter_1 = 0.05, phi_Inter_2 = 0.2, phi_Inter_3 = 1, phi_Inter_4 = 10, phi_Inter_5 = 20;
+		result += gauss_kronrod<double, 5>::integrate(f, phi_Min,     phi_Inter_1, 0, 1e-7, &error);
+		result += gauss_kronrod<double, 5>::integrate(f, phi_Inter_1, phi_Inter_2, 0, 1e-7, &error);
+		result += gauss_kronrod<double, 5>::integrate(f, phi_Inter_2, phi_Inter_3, 0, 1e-7, &error);
+		result += gauss_kronrod<double, 5>::integrate(f, phi_Inter_3, phi_Inter_4, 0, 1e-7, &error);
+		result += gauss_kronrod<double, 5>::integrate(f, phi_Inter_4, phi_Inter_5, 0, 1e-7, &error);
+		result += gauss_kronrod<double, 5>::integrate(f, phi_Inter_5, phi_Max,	   0, 1e-7, &error);
 	}
-	gsl_integration_glfixed_table_free(t);
+	/// ----------------------------------------------------------------------------------------------------------------------
+
+	// slower
+//	double abserr, temp, result, epsabs = 1e0, epsrel = 1e0;
+//	gsl_integration_glfixed_table* t = gsl_integration_glfixed_table_alloc(3);
+//	size_t neval;
+//	if(delta<1e-4)
+//	{
+//		double phi_Inter_1 = 0.01, phi_Inter_2 = 0.05, phi_Inter_3 = 0.2, phi_Inter_4 = 20;
+//		gsl_integration_qng(function, phi_Min,     phi_Inter_1, epsabs, epsrel, &result, &abserr, &neval); temp=result;
+//		gsl_integration_qng(function, phi_Inter_1, phi_Inter_2, epsabs, epsrel, &result, &abserr, &neval); temp+=result;
+//		gsl_integration_qng(function, phi_Inter_2, phi_Inter_3, epsabs, epsrel, &result, &abserr, &neval); temp+=result;
+//		gsl_integration_qng(function, phi_Inter_3, phi_Inter_4, epsabs, epsrel, &result, &abserr, &neval); temp+=result;
+
+//		result = temp + gsl_integration_glfixed(function, phi_Inter_4, phi_Max, t);
+//	} else
+//	if(delta<5e-4)
+//	{
+//		double phi_Inter_1 = 0.5, phi_Inter_2 = 20;
+//		gsl_integration_qng(function, phi_Min,     phi_Inter_1, epsabs, epsrel, &result, &abserr, &neval); temp=result;
+//		gsl_integration_qng(function, phi_Inter_1, phi_Inter_2, epsabs, epsrel, &result, &abserr, &neval); temp+=result;
+
+//		result = temp + gsl_integration_glfixed(function, phi_Inter_2, phi_Max, t);
+//	} else
+//	{
+//		double phi_Inter_1 = 4, phi_Inter_2 = 20;
+//		gsl_integration_qng(function, phi_Min, phi_Inter_1, epsabs, epsrel, &result, &abserr, &neval); temp=result;
+
+//		temp   = temp + gsl_integration_glfixed(function, phi_Inter_1, phi_Inter_2, t);
+//		result = temp + gsl_integration_glfixed(function, phi_Inter_2, phi_Max,     t);
+//	}
+//	gsl_integration_glfixed_table_free(t);
 
 	/// ----------------------------------------------------------------------------------------------------------------------
 
@@ -2638,6 +2650,15 @@ void Unwrapped_Reflection::calc_Specular_nMin_nMax_1_Thread(int n_Min, int n_Max
 void Unwrapped_Reflection::calc_Specular()
 {
 //	auto start = std::chrono::system_clock::now();
+	if( measurement.measurement_Type == measurement_Types[GISAS_Map] )
+	{
+		if( multilayer->imperfections_Model.approximation == DWBA_approximation ||
+			multilayer->imperfections_Model.approximation == SA_approximation   ||
+			multilayer->imperfections_Model.approximation == CSA_approximation  )
+		{
+			return;
+		}
+	}
 
 	/// ----------------------------------------------------------------------------------------------------------------------
 	/// parallelization

@@ -196,8 +196,7 @@ public:
 	void choose_Cor_Function					(int thread_Index);
 	double function_DWBA_SA_CSA_Batch_Common_Integrand	  (double r, int thread_Index);
 	double function_DWBA_SA_CSA_Batch_Individual_Integrand(double r, int thread_Index);
-	double common_Cor_Function_Integration		(int point_Index, int thread_Index, double cos_Theta_0);
-	double individual_Cor_Function_Integration	(int point_Index, int thread_Index, double cos_Theta_0);
+	double cor_Function_Integration		(int point_Index, int thread_Index, double cos_Theta_0);
 
 	// for sigma grading
 	void multifly_Fresnel_And_Weak_Factor(int thread_Index);

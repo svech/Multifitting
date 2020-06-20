@@ -311,16 +311,16 @@ void Calculation_Settings_Editor::load_Target_Parameters(int tab_Index)
 			}
 			if(target_Curve->measurement.measurement_Type == measurement_Types[GISAS_Map])
 			{
-				if(multilayer->imperfections_Model.common_Model == fractal_Gauss_Model)
-				{
-					QMessageBox::information(this,"Fractal Gauss model", "2D scattering can't be simulated with fractal Gauss model of roughness.\nChange the model in Structure Table.");
-					target_Curve->fit_Params.calculate = false;
-					box->setChecked(false);
-				} else
-				{
+//				if(multilayer->imperfections_Model.common_Model == fractal_Gauss_Model)
+//				{
+//					QMessageBox::information(this,"Fractal Gauss model", "2D scattering can't be simulated with fractal Gauss model of roughness.\nChange the model in Structure Table.");
+//					target_Curve->fit_Params.calculate = false;
+//					box->setChecked(false);
+//				} else
+//				{
 					global_Multilayer_Approach->target_Added_2D = box->isChecked();
 					global_Multilayer_Approach->reopen_Optical_Graphs_2D(true, TARGET);
-				}
+//				}
 			}
 			activateWindow();
 		});
@@ -745,7 +745,7 @@ void Calculation_Settings_Editor::load_Independent_Parameters(int tab_Index)
 					QCheckBox* gisas_Functions = new QCheckBox(gisas_Function);
 						gisas_Functions->setChecked(independent_Curve->calc_Functions.check_GISAS);
 					standard_Functions_Layout->addWidget(gisas_Functions);
-					connect(gisas_Functions, &QCheckBox::toggled, this, [=]{ qInfo() << "asd" << endl;refresh_Independent_Calc_Properties(tab_Index, independent_Index, box); });
+					connect(gisas_Functions, &QCheckBox::toggled, this, [=]{ refresh_Independent_Calc_Properties(tab_Index, independent_Index, box); });
 				}
 			}
 
@@ -899,18 +899,18 @@ void Calculation_Settings_Editor::refresh_Independent_Calc_Properties(int tab_In
 		if(check_Box->text() == joule_Function)			{independent_Curve->calc_Functions.check_Joule = check_Box->isChecked(); global_Multilayer_Approach->reopen_Optical_Graphs_2D(true);}
 		if(check_Box->text() == gisas_Function)
 		{
-			if(multilayer->imperfections_Model.common_Model == fractal_Gauss_Model)
-			{
-				QMessageBox::information(this,"Fractal Gauss model", "2D scattering can't be simulated with fractal Gauss model of roughness.\nChange the model in Structure Table.");
-				independent_Curve->calc_Functions.check_GISAS = false;
-				check_Box->blockSignals(true);
-				check_Box->setChecked(false);
-				check_Box->blockSignals(false);
-			} else
-			{
+//			if(multilayer->imperfections_Model.common_Model == fractal_Gauss_Model)
+//			{
+//				QMessageBox::information(this,"Fractal Gauss model", "2D scattering can't be simulated with fractal Gauss model of roughness.\nChange the model in Structure Table.");
+//				independent_Curve->calc_Functions.check_GISAS = false;
+//				check_Box->blockSignals(true);
+//				check_Box->setChecked(false);
+//				check_Box->blockSignals(false);
+//			} else
+//			{
 				independent_Curve->calc_Functions.check_GISAS = check_Box->isChecked();
 				global_Multilayer_Approach->reopen_Optical_Graphs_2D(true);
-			}
+//			}
 		}
 
 		global_Multilayer_Approach->global_Recalculate();
