@@ -369,6 +369,8 @@ Unwrapped_Reflection::Unwrapped_Reflection(const vector<Node*>& short_Flat_Calc_
 
     boundary_Item_Vec(num_Boundaries),
     PSD_Factor_Item	 (num_Threads),
+	cor_Func_Item	 (num_Threads),
+	incoherent_Diagonal_Term(num_Threads),
 
     spline_Vec(num_Threads),
     acc_Vec(num_Threads),
@@ -547,11 +549,18 @@ Unwrapped_Reflection::Unwrapped_Reflection(const vector<Node*>& short_Flat_Calc_
 
 		if( spec_Scat_mode == SCATTERED_MODE )
 		{
-			if(  multilayer->imperfections_Model.vertical_Correlation == zero_Correlation &&
-				!multilayer->imperfections_Model.use_Common_Roughness_Function )
+			fill_Item_Id_Map();
+			fill_Boundary_Item();
+			for(int thread_Index=0; thread_Index<num_Threads; thread_Index++)
 			{
-				fill_Item_Id_Map();
-				fill_Boundary_Item();
+				PSD_Factor_Item[thread_Index].resize(short_Flat_Calc_Tree.size());
+				cor_Func_Item[thread_Index].resize(short_Flat_Calc_Tree.size());
+				incoherent_Diagonal_Term[thread_Index].resize(short_Flat_Calc_Tree.size());
+
+				for(size_t item_Index=0; item_Index<short_Flat_Calc_Tree.size(); item_Index++)
+				{
+					incoherent_Diagonal_Term[thread_Index][item_Index].resize(n_Max_Series);
+				}
 			}
 
 			/// PT
@@ -660,12 +669,6 @@ Unwrapped_Reflection::Unwrapped_Reflection(const vector<Node*>& short_Flat_Calc_
 					D4_Low[thread_Index].resize(n_Max_Series);
 
 					pre_Fourier_Factor[thread_Index].resize(n_Max_Series);
-
-					incoherent_Diagonal_Term[thread_Index].resize(num_Boundaries);
-					for(int bound=0; bound<num_Boundaries; bound++)
-					{
-						incoherent_Diagonal_Term[thread_Index][bound].resize(n_Max_Series);
-					}
 				}
 
 				// s-polarization
@@ -805,7 +808,6 @@ void Unwrapped_Reflection::fill_Components_From_Node_Vector(int thread_Index, in
 void Unwrapped_Reflection::fill_Item_Id_Map()
 {
 	appropriate_Item_Vec.clear();
-
 	for(size_t item_Index = 0; item_Index<short_Flat_Calc_Tree.size(); item_Index++)
 	{
 		const Data& item = short_Flat_Calc_Tree[item_Index]->struct_Data;
@@ -814,11 +816,6 @@ void Unwrapped_Reflection::fill_Item_Id_Map()
 		appropriate_Item_Vec.push_back(item);
 	}
 	boundaries_Of_Item_Vec.resize(short_Flat_Calc_Tree.size());
-
-	for(int thread_Index=0; thread_Index<num_Threads; thread_Index++)
-	{
-		PSD_Factor_Item[thread_Index].resize(short_Flat_Calc_Tree.size());
-	}
 }
 
 inline void Unwrapped_Reflection::fill_Item_PSD_1D(int thread_Index, int point_Index, double cos_Theta_0)
@@ -827,8 +824,6 @@ inline void Unwrapped_Reflection::fill_Item_PSD_1D(int thread_Index, int point_I
 	{
 		Node* node = short_Flat_Calc_Tree[item_Index];
 		Data& item = appropriate_Item_Vec[item_Index];
-
-
 		choose_PSD_1D_Function(item, thread_Index);
 		double value = PSD_1D_Func_Vec[thread_Index](item.PSD_ABC_1D_Factor,
 													 item.roughness_Model.cor_radius.value,
@@ -1619,10 +1614,16 @@ double Unwrapped_Reflection::calc_K_Factor_Term_Sum_DWBA_SA_CSA(int thread_Index
 	if(multilayer->imperfections_Model.vertical_Correlation == zero_Correlation)
 	{
 		double incoherent_Diagonal_Sum = 0;
-		for (int boundary_Index = 0; boundary_Index<num_Boundaries; boundary_Index++)
+		for (size_t item_Index = 0; item_Index<short_Flat_Calc_Tree.size(); item_Index++)
 		{
-			incoherent_Diagonal_Term[thread_Index][boundary_Index][n_Power-1] = norm((*K_Factor_Boundary)[boundary_Index][n_Power-1]);
-			incoherent_Diagonal_Sum += incoherent_Diagonal_Term[thread_Index][boundary_Index][n_Power-1];
+			incoherent_Diagonal_Term[thread_Index][item_Index][n_Power-1] = 0;
+
+			for(size_t similar_Boundaries=0; similar_Boundaries<boundaries_Of_Item_Vec[item_Index].size(); similar_Boundaries++)
+			{
+				int boundary_Index = boundaries_Of_Item_Vec[item_Index][similar_Boundaries];
+				incoherent_Diagonal_Term[thread_Index][item_Index][n_Power-1] += norm((*K_Factor_Boundary)[boundary_Index][n_Power-1]);
+			}
+			incoherent_Diagonal_Sum += incoherent_Diagonal_Term[thread_Index][item_Index][n_Power-1];
 		}
 		return incoherent_Diagonal_Sum;
 	}
@@ -1641,10 +1642,11 @@ void Unwrapped_Reflection::choose_Cor_Function(int thread_Index)
 	}
 }
 
-double Unwrapped_Reflection::function_DWBA_SA_CSA_Batch_Common_Integrand(double r, int thread_Index, const Data& struct_Data)
+double Unwrapped_Reflection::function_DWBA_SA_CSA_Batch_Common_Integrand(double r, int thread_Index)
 {
-	double alpha = struct_Data.roughness_Model.fractal_alpha.value;
-	double xi    = struct_Data.roughness_Model.cor_radius.value;
+	double sigma = substrate.roughness_Model.sigma.value;
+	double alpha = substrate.roughness_Model.fractal_alpha.value;
+	double xi    = substrate.roughness_Model.cor_radius.value;
 
 	double cor = Cor_Func_Vec[thread_Index](xi, alpha, r);
 	double integrand = 0, cor_n_Power = 1;
@@ -1653,22 +1655,29 @@ double Unwrapped_Reflection::function_DWBA_SA_CSA_Batch_Common_Integrand(double 
 		cor_n_Power *= cor;
 		integrand += pre_Fourier_Factor[thread_Index][n_Power-1]*cor_n_Power;
 	}
-	return integrand;
+	return sigma*sigma * integrand;
 }
 
-double Unwrapped_Reflection::function_DWBA_SA_CSA_Batch_Individual_Integrand(double r, int thread_Index, int boundary, int item_Index)
+double Unwrapped_Reflection::function_DWBA_SA_CSA_Batch_Individual_Integrand(double r, int thread_Index)
 {
-//	double alpha = struct_Data.roughness_Model.fractal_alpha.value;
-//	double xi    = struct_Data.roughness_Model.cor_radius.value;
+	double integrand = 0, cor_n_Power = 1;
+	for(size_t item_Index = 0; item_Index<short_Flat_Calc_Tree.size(); item_Index++)
+	{
+		const Data& struct_Data = short_Flat_Calc_Tree[item_Index]->struct_Data;
+		double sigma = struct_Data.roughness_Model.sigma.value;
+		double alpha = struct_Data.roughness_Model.fractal_alpha.value;
+		double xi    = struct_Data.roughness_Model.cor_radius.value;
 
-//	double cor = Cor_Func_Vec[thread_Index](xi, alpha, r);
-//	double integrand = 0, cor_n_Power = 1;
-//	for(int n_Power=1; n_Power<=n_Max_Series; n_Power++)
-//	{
-//		cor_n_Power *= cor;
-//		integrand += pre_Fourier_Factor[thread_Index][n_Power-1]*cor_n_Power;
-//	}
-	return 0/*integrand*/;
+		double cor = Cor_Func_Vec[thread_Index](xi, alpha, r);
+
+		cor_n_Power = 1;
+		for(int n_Power=1; n_Power<=n_Max_Series; n_Power++)
+		{
+			cor_n_Power *= cor;
+			integrand += sigma*sigma * incoherent_Diagonal_Term[thread_Index][item_Index][n_Power-1]*cor_n_Power / factorial[n_Power];
+		}
+	}
+	return integrand;
 }
 
 void Unwrapped_Reflection::calc_Sliced_Field(int thread_Index, int point_Index, const vector<complex<double>>& epsilon_Vector)
@@ -2103,7 +2112,6 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 					if( measurement.measurement_Type == measurement_Types[GISAS_Map] )
 					{
 						choose_PSD_2D_Function(point_Index, thread_Index);
-
 						if( multilayer->imperfections_Model.vertical_Correlation == full_Correlation ||
 						    multilayer->imperfections_Model.vertical_Correlation == zero_Correlation )
 						{
@@ -2313,14 +2321,13 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 						calc_Field_DWBA_SA_CSA(thread_Index, point_Index, "p");
 						calc_K_Factor_DWBA_SA_CSA(thread_Index,           "p");
 					}
+					choose_Cor_Function(thread_Index);
 
 					if( multilayer->imperfections_Model.vertical_Correlation == full_Correlation ||
 					    multilayer->imperfections_Model.vertical_Correlation == zero_Correlation )
 					{
 						if( multilayer->imperfections_Model.use_Common_Roughness_Function )
 						{
-							choose_Cor_Function(thread_Index);
-
 							// s-polarization
 							if( (measurement.polarization + 1) > POLARIZATION_TOLERANCE)
 							{
@@ -2342,25 +2349,9 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 						} else
 						/// individual PSD of items
 						{
-//							choose_Cor_Function(thread_Index);
-
 							// s-polarization
 							if( (measurement.polarization + 1) > POLARIZATION_TOLERANCE)
 							{
-								if(point_Index==0)
-								{
-									qInfo() << boundaries_Of_Item_Vec.size() << endl;
-									for(int i=0; i<boundaries_Of_Item_Vec.size(); i++)
-									{
-										qInfo() << boundaries_Of_Item_Vec[i] << endl;
-									}
-									qInfo() << endl << boundary_Item_Vec << endl;
-									for(int i=0; i<appropriate_Item_Vec.size(); i++)
-									{
-										qInfo() << appropriate_Item_Vec[i].item_Type << endl;
-									}
-									qInfo() << endl << id_Item_Map << endl;
-								}
 								for(int n_Power=1; n_Power<=n_Max_Series; n_Power++)
 								{
 									calc_K_Factor_Term_Sum_DWBA_SA_CSA(thread_Index, "s", n_Power);
@@ -2370,7 +2361,11 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 							// p-polarization
 							if( (measurement.polarization - 1) < -POLARIZATION_TOLERANCE)
 							{
-
+								for(int n_Power=1; n_Power<=n_Max_Series; n_Power++)
+								{
+									calc_K_Factor_Term_Sum_DWBA_SA_CSA(thread_Index, "p", n_Power);
+								}
+								calculated_Values.S_p[point_Index] = e_Factor_DWBA_SA_CSA_1D * individual_Cor_Function_Integration(point_Index, thread_Index, cos_Theta_0);
 							}
 						}
 					}
@@ -2382,8 +2377,7 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 
 double Unwrapped_Reflection::common_Cor_Function_Integration(int point_Index, int thread_Index, double cos_Theta_0)
 {
-	auto f = [&](double r){return function_DWBA_SA_CSA_Batch_Common_Integrand(r, thread_Index, substrate);};
-	double sigma = substrate.roughness_Model.sigma.value;
+	auto f = [&](double r){return function_DWBA_SA_CSA_Batch_Common_Integrand(r, thread_Index);};
 	double p = measurement.k_Value*abs(cos_Theta_0-measurement.detector_Theta_Cos_Vec[point_Index]);
 
 	double integral = -2020, error;
@@ -2395,25 +2389,24 @@ double Unwrapped_Reflection::common_Cor_Function_Integration(int point_Index, in
 	{
 		integral = gauss_kronrod<double, 61>::integrate(f, 0, std::numeric_limits<double>::infinity(), 5, 1e-7, &error);
 	}
-	return sigma*sigma * integral;
+	return integral;
 }
 
 double Unwrapped_Reflection::individual_Cor_Function_Integration(int point_Index, int thread_Index, double cos_Theta_0)
 {
-//	auto f = [&](double r){return function_DWBA_SA_CSA_Batch_Common_Integrand(r, thread_Index, substrate);};
-//	double sigma = substrate.roughness_Model.sigma.value;
-//	double p = measurement.k_Value*abs(cos_Theta_0-measurement.detector_Theta_Cos_Vec[point_Index]);
+	auto f = [&](double r){return function_DWBA_SA_CSA_Batch_Individual_Integrand(r, thread_Index);};
+	double p = measurement.k_Value*abs(cos_Theta_0-measurement.detector_Theta_Cos_Vec[point_Index]);
 
-//	double integral = -2020, error;
-//	if( p > DBL_EPSILON )
-//	{
-//		std::pair<double, double> result_Boost = integrator_Vec[thread_Index].integrate(f, p);
-//		integral = result_Boost.first;
-//	} else
-//	{
-//		integral = gauss_kronrod<double, 61>::integrate(f, 0, std::numeric_limits<double>::infinity(), 5, 1e-7, &error);
-//	}
-	return 0/*sigma*sigma * integral*/;
+	double integral = -2020, error;
+	if( p > DBL_EPSILON )
+	{
+		std::pair<double, double> result_Boost = integrator_Vec[thread_Index].integrate(f, p);
+		integral = result_Boost.first;
+	} else
+	{
+		integral = gauss_kronrod<double, 61>::integrate(f, 0, std::numeric_limits<double>::infinity(), 5, 1e-7, &error);
+	}
+	return integral;
 }
 
 double Unwrapped_Reflection::azimuthal_Integration(gsl_function* function, double delta)

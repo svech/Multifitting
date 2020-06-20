@@ -155,7 +155,8 @@ public:
 	vector<ooura_fourier_cos<double>> integrator_Vec;	//	[thread]
 
 	vector<vector<double>> pre_Fourier_Factor;			//	[thread][n]
-	vector<vector<vector<double>>> incoherent_Diagonal_Term;	//	[thread][boundary][n]
+	vector<vector<vector<double>>> incoherent_Diagonal_Term;	//	[thread][item_Index][n]
+	vector<vector<double>> cor_Func_Item;						//	[thread][item_Index]
 
 	///---------------------------------------------------------------------
 
@@ -193,8 +194,8 @@ public:
 	void calc_K_Factor_DWBA_SA_CSA				(int thread_Index,                  QString polarization);
 	double calc_K_Factor_Term_Sum_DWBA_SA_CSA	(int thread_Index, QString polarization, int n_Power);
 	void choose_Cor_Function					(int thread_Index);
-	double function_DWBA_SA_CSA_Batch_Common_Integrand	  (double r, int thread_Index, const Data& struct_Data);
-	double function_DWBA_SA_CSA_Batch_Individual_Integrand(double r, int thread_Index, int boundary, int item_Index);
+	double function_DWBA_SA_CSA_Batch_Common_Integrand	  (double r, int thread_Index);
+	double function_DWBA_SA_CSA_Batch_Individual_Integrand(double r, int thread_Index);
 	double common_Cor_Function_Integration		(int point_Index, int thread_Index, double cos_Theta_0);
 	double individual_Cor_Function_Integration	(int point_Index, int thread_Index, double cos_Theta_0);
 

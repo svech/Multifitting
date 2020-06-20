@@ -549,7 +549,7 @@ void Calculation_Tree::calculate_1_Kind(Data_Element<Type>& data_Element, QStrin
 	elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
 	qInfo() << "Unwrap Reflect: "<< elapsed.count()/1000000. << " seconds" << endl;
 
-	clear_Spline_1_Tree(data_Element.flat_Calc_Tree, mode);
+	clear_Spline_1_Tree(data_Element.short_Flat_Calc_Tree, mode);
 }
 template void Calculation_Tree::calculate_1_Kind<Independent_Curve>(Data_Element<Independent_Curve>&, QString);
 template void Calculation_Tree::calculate_1_Kind<Target_Curve>	   (Data_Element<Target_Curve>&, QString);
