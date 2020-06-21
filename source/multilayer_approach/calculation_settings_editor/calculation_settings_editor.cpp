@@ -311,16 +311,27 @@ void Calculation_Settings_Editor::load_Target_Parameters(int tab_Index)
 			}
 			if(target_Curve->measurement.measurement_Type == measurement_Types[GISAS_Map])
 			{
-//				if(multilayer->imperfections_Model.common_Model == fractal_Gauss_Model)
-//				{
-//					QMessageBox::information(this,"Fractal Gauss model", "2D scattering can't be simulated with fractal Gauss model of roughness.\nChange the model in Structure Table.");
-//					target_Curve->fit_Params.calculate = false;
-//					box->setChecked(false);
-//				} else
-//				{
+				if( multilayer->imperfections_Model.common_Model == fractal_Gauss_Model ||
+					multilayer->imperfections_Model.approximation == DWBA_approximation ||
+					multilayer->imperfections_Model.approximation == SA_approximation ||
+					multilayer->imperfections_Model.approximation == CSA_approximation )
+				{
+					QString text;
+					if( multilayer->imperfections_Model.common_Model == fractal_Gauss_Model ) text = "2D scattering can't be simulated with fractal Gauss model of roughness.\nChange the model in Structure Table.";
+					if( multilayer->imperfections_Model.approximation == DWBA_approximation ) text = "2D scattering can't be simulated in DWBA approximation.\nChange the approximation in Structure Table.";
+					if( multilayer->imperfections_Model.approximation == SA_approximation   ) text = "2D scattering can't be simulated in SA approximation.\nChange the approximation in Structure Table.";
+					if( multilayer->imperfections_Model.approximation == CSA_approximation  ) text = "2D scattering can't be simulated in CSA approximation.\nChange the approximation in Structure Table.";
+
+					QMessageBox::information(this,"GISAS simulation", text);
+					target_Curve->fit_Params.calculate = false;
+					box->blockSignals(true);
+					box->setChecked(false);
+					box->blockSignals(false);
+				} else
+				{
 					global_Multilayer_Approach->target_Added_2D = box->isChecked();
 					global_Multilayer_Approach->reopen_Optical_Graphs_2D(true, TARGET);
-//				}
+				}
 			}
 			activateWindow();
 		});
@@ -886,6 +897,7 @@ void Calculation_Settings_Editor::refresh_Independent_Calc_Properties(int tab_In
 
 	if(qobject_cast<QCheckBox*>(sender()))
 	{
+		bool recalc = true;
 		QCheckBox* check_Box = qobject_cast<QCheckBox*>(sender());
 		// 1D
 		if(check_Box->text() == reflectance_Function)	{independent_Curve->calc_Functions.check_Reflectance = check_Box->isChecked();	global_Multilayer_Approach->reopen_Optical_Graphs_1D(true);}
@@ -899,21 +911,31 @@ void Calculation_Settings_Editor::refresh_Independent_Calc_Properties(int tab_In
 		if(check_Box->text() == joule_Function)			{independent_Curve->calc_Functions.check_Joule = check_Box->isChecked(); global_Multilayer_Approach->reopen_Optical_Graphs_2D(true);}
 		if(check_Box->text() == gisas_Function)
 		{
-//			if(multilayer->imperfections_Model.common_Model == fractal_Gauss_Model)
-//			{
-//				QMessageBox::information(this,"Fractal Gauss model", "2D scattering can't be simulated with fractal Gauss model of roughness.\nChange the model in Structure Table.");
-//				independent_Curve->calc_Functions.check_GISAS = false;
-//				check_Box->blockSignals(true);
-//				check_Box->setChecked(false);
-//				check_Box->blockSignals(false);
-//			} else
-//			{
+			if( multilayer->imperfections_Model.common_Model == fractal_Gauss_Model ||
+				multilayer->imperfections_Model.approximation == DWBA_approximation ||
+				multilayer->imperfections_Model.approximation == SA_approximation ||
+				multilayer->imperfections_Model.approximation == CSA_approximation )
+			{
+				QString text;
+				if( multilayer->imperfections_Model.common_Model == fractal_Gauss_Model ) text = "2D scattering can't be simulated with fractal Gauss model of roughness.\nChange the model in Structure Table.";
+				if( multilayer->imperfections_Model.approximation == DWBA_approximation ) text = "2D scattering can't be simulated in DWBA approximation.\nChange the approximation in Structure Table.";
+				if( multilayer->imperfections_Model.approximation == SA_approximation   ) text = "2D scattering can't be simulated in SA approximation.\nChange the approximation in Structure Table.";
+				if( multilayer->imperfections_Model.approximation == CSA_approximation  ) text = "2D scattering can't be simulated in CSA approximation.\nChange the approximation in Structure Table.";
+
+				QMessageBox::information(this,"GISAS simulation", text);
+				independent_Curve->calc_Functions.check_GISAS = false;
+				check_Box->blockSignals(true);
+				check_Box->setChecked(false);
+				check_Box->blockSignals(false);
+				recalc = false;
+			} else
+			{
 				independent_Curve->calc_Functions.check_GISAS = check_Box->isChecked();
 				global_Multilayer_Approach->reopen_Optical_Graphs_2D(true);
-//			}
+			}
 		}
 
-		global_Multilayer_Approach->global_Recalculate();
+		if(recalc) global_Multilayer_Approach->global_Recalculate();
 		activateWindow();
 	}
 	multilayer->independent_Curve_Tabs->setTabText(independent_Index, independent_Curve->tab_Name + independent_Curve->enlarge_Tab_Name());

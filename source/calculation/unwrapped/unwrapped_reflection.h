@@ -161,9 +161,6 @@ public:
 	///---------------------------------------------------------------------
 
 	void fill_Components_From_Node_Vector(int thread_Index, int point_Index);
-	int fill_s__Max_Depth_3(const tree<Node>::iterator& parent, int thread_Index, int point_Index, int media_Index = 0);
-	int fill_p__Max_Depth_3(const tree<Node>::iterator& parent, int thread_Index, int point_Index, int media_Index = 0);
-	int fill_sp_Max_Depth_3(const tree<Node>::iterator& parent, int thread_Index, int point_Index, int media_Index = 0);
 
 	void fill_Item_Id_Map();
 	void fill_Boundary_Item();

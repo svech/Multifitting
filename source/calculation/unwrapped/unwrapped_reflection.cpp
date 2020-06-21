@@ -2650,15 +2650,6 @@ void Unwrapped_Reflection::calc_Specular_nMin_nMax_1_Thread(int n_Min, int n_Max
 void Unwrapped_Reflection::calc_Specular()
 {
 //	auto start = std::chrono::system_clock::now();
-	if( measurement.measurement_Type == measurement_Types[GISAS_Map] )
-	{
-		if( multilayer->imperfections_Model.approximation == DWBA_approximation ||
-			multilayer->imperfections_Model.approximation == SA_approximation   ||
-			multilayer->imperfections_Model.approximation == CSA_approximation  )
-		{
-			return;
-		}
-	}
 
 	/// ----------------------------------------------------------------------------------------------------------------------
 	/// parallelization

@@ -256,7 +256,7 @@ class Node;
 // PSD models
 #define ABC_model				"ABC model"
 #define linear_Growth_and_ABC_Model		"Linear growth model"
-#define fractal_Gauss_Model		"Fractal gauss model"
+#define fractal_Gauss_Model		"Fractal Gauss model"
 
 // whatsThis : delimiters
 #define whats_This_Delimiter ";"
