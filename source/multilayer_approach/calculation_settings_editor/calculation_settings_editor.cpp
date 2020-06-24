@@ -220,6 +220,7 @@ void Calculation_Settings_Editor::load_Discretization_Parameters(int tab_Index)
 					}
 				}
 			}
+			global_Multilayer_Approach->global_Recalculate();
 		});
 
 		QLabel* step_Units_Label = new QLabel(" "+Angstrom_Sym);
@@ -809,6 +810,7 @@ void Calculation_Settings_Editor::load_Independent_Parameters(int tab_Index)
 				connect(field_Step_SpinBox, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
 				{
 					independent_Curve->calc_Functions.field_Step = field_Step_SpinBox->value();
+					global_Multilayer_Approach->global_Recalculate();
 				});
 				QLabel* field_Step_Units_Label = new QLabel(Angstrom_Sym);
 					field_Step_Layout->addWidget(field_Step_Units_Label);
@@ -834,6 +836,7 @@ void Calculation_Settings_Editor::load_Independent_Parameters(int tab_Index)
 				connect(field_Ambient_SpinBox, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
 				{
 					independent_Curve->calc_Functions.field_Ambient_Distance = field_Ambient_SpinBox->value();
+					global_Multilayer_Approach->global_Recalculate();
 				});
 				QLabel* field_Ambient_Units_Label = new QLabel(Angstrom_Sym);
 					field_Ambient_Substrate_Layout->addWidget(field_Ambient_Units_Label,0,2);
@@ -856,6 +859,7 @@ void Calculation_Settings_Editor::load_Independent_Parameters(int tab_Index)
 				connect(field_Substrate_SpinBox, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
 				{
 					independent_Curve->calc_Functions.field_Substrate_Distance = field_Substrate_SpinBox->value();
+					global_Multilayer_Approach->global_Recalculate();
 				});
 				QLabel* field_Substrate_Units_Label = new QLabel(Angstrom_Sym);
 					field_Ambient_Substrate_Layout->addWidget(field_Substrate_Units_Label,1,2);

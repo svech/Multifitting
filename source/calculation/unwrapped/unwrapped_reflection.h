@@ -174,8 +174,9 @@ public:
 	void calc_Environmental_Factor		(int thread_Index, int point_Index);
 
 	// fields
+	void calc_Field_Epsilon_Integral	(int thread_Index, int point_Index, QString polarization);
 	void calc_Amplitudes_Field			(int thread_Index, int point_Index, QString polarization);
-	void calc_Sliced_Field				(int thread_Index, int point_Index,		  const vector<complex<double>>& epsilon_Vector);
+	void calc_Sliced_Field				(int thread_Index, int point_Index, const vector<complex<double>>& epsilon_Vector);
 
 	// PT
 	void fill_Item_PSD_1D				(int thread_Index, int point_Index, double cos_Theta_0);

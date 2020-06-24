@@ -1287,6 +1287,71 @@ void Unwrapped_Reflection::calc_Amplitudes_Field(int thread_Index, int point_Ind
 	(*U_r)[point_Index].back() = 0;
 }
 
+void Unwrapped_Reflection::calc_Field_Epsilon_Integral(int thread_Index, int point_Index, QString polarization)
+{
+	vector<vector<complex<double>>>& q0_U_i				 = polarization == "s" ? calculated_Values.q0_U_i_s : calculated_Values.q0_U_i_p;
+	vector<vector<complex<double>>>& q0_U_r				 = polarization == "s" ? calculated_Values.q0_U_r_s : calculated_Values.q0_U_r_p;
+	vector<vector<complex<double>>>& q_U_i				 = polarization == "s" ? calculated_Values.q_U_i_s  : calculated_Values.q_U_i_p;
+	vector<vector<complex<double>>>& q_U_r				 = polarization == "s" ? calculated_Values.q_U_r_s  : calculated_Values.q_U_r_p;
+	vector<vector<complex<double>>>& field_Term_Boundary = polarization == "s" ? field_Term_Boundary_s      : field_Term_Boundary_p;
+
+	double d_Eps_Re, d_Eps_Im;
+	complex<double> iChi_q0, iChi_q, e_i_q0, e_r_q0, e_i_q, e_r_q, field_q0, field_q, d_Eps, integrad_Value;
+	int layer_Index, media_Index;
+
+	auto f_Calc = [&](double z)
+	{
+		layer_Index = unwrapped_Structure->get_Layer_or_Slice_Index(z);
+		media_Index = layer_Index+1;
+
+		iChi_q0 = I*calculated_Values.q0_Hi[point_Index][media_Index];
+		iChi_q  = I*calculated_Values.q_Hi [point_Index][media_Index];
+
+		e_i_q0 = exp(+iChi_q0*(z-boundaries_Enlarged[media_Index]));
+		e_r_q0 = exp(-iChi_q0*(z-boundaries_Enlarged[media_Index]));
+
+		e_i_q  = exp(+iChi_q *(z-boundaries_Enlarged[media_Index]));
+		e_r_q  = exp(-iChi_q *(z-boundaries_Enlarged[media_Index]));
+
+		field_q0 = q0_U_i[point_Index][media_Index] * e_i_q0 + q0_U_r[point_Index][media_Index] * e_r_q0;
+		field_q  = q_U_i [point_Index][media_Index] * e_i_q  + q_U_r [point_Index][media_Index] * e_r_q;
+
+		d_Eps_Re = gsl_spline_eval_deriv(unwrapped_Structure->discretized_Epsilon_Spline_Re, z, unwrapped_Structure->discretized_Epsilon_Acc_Re);
+		d_Eps_Im = gsl_spline_eval_deriv(unwrapped_Structure->discretized_Epsilon_Spline_Im, z, unwrapped_Structure->discretized_Epsilon_Acc_Im);
+		d_Eps = complex<double>(d_Eps_Re, d_Eps_Im);
+
+		return field_q0 * field_q * d_Eps;
+	};
+	auto f_Real = [&](double z)
+	{
+		integrad_Value = f_Calc(z);
+		return real(integrad_Value);
+	};
+	auto f_Imag = [&](double z)
+	{
+		integrad_Value = f_Calc(z);
+		return imag(integrad_Value);
+	};
+
+	// top boundary
+
+//	result += gauss_kronrod<double, 5>::integrate(f, phi_Inter_4, phi_Inter_5, 0, 1e-7, &error);
+
+//	field_Term_Boundary[point_Index].front() = 1;
+//	(*U_r)[point_Index].front() = (*r_Local)[thread_Index].front();
+
+//	(*boundary_Field)[point_Index].front() = (*U_i)[point_Index].front() + (*U_r)[point_Index].front();
+
+//	for (int j = 1; j<num_Boundaries; j++)
+//	{
+//		(*U_i)[point_Index][j] = (*U_i)[point_Index][j-1] * (*t_Local)[thread_Index][j-1] / (*t_Local)[thread_Index][j];
+//		(*U_r)[point_Index][j] = (*U_i)[point_Index][j  ] * (*r_Local)[thread_Index][j];
+//		(*boundary_Field)[point_Index][j] = (*U_i)[point_Index][j] + (*U_r)[point_Index][j];
+//	}
+//	(*U_i)[point_Index].back() = (*U_i)[point_Index][num_Boundaries-1] * (*t_Local)[thread_Index].back();
+//	(*U_r)[point_Index].back() = 0;
+}
+
 void Unwrapped_Reflection::calc_k_Wavenumber_DWBA_SA_CSA(int thread_Index, int point_Index)
 {
 	vector<complex<double>>* q0_Hi;
@@ -1911,14 +1976,14 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 		if( measurement.measurement_Type == measurement_Types[Specular_Scan] &&
 		    measurement.argument_Type  == argument_Types[Wavelength_Energy] )
 		{			
-			calc_Hi(thread_Index, measurement.k_Vec[point_Index], measurement.beam_Theta_0_Cos2_Value, unwrapped_Structure->discretized_Epsilon_Dependent[point_Index]);
+			calc_Hi(point_Index, measurement.k_Vec[point_Index], measurement.beam_Theta_0_Cos2_Value, unwrapped_Structure->discretized_Epsilon_Dependent[point_Index]);
 			calc_Exponenta(thread_Index, point_Index,unwrapped_Structure->discretized_Thickness);
 			calc_Fresnel(thread_Index, point_Index, unwrapped_Structure->discretized_Epsilon_Dependent[point_Index]);
 		}
 		if( measurement.measurement_Type == measurement_Types[Specular_Scan] &&
 		    measurement.argument_Type  == argument_Types[Beam_Grazing_Angle] )
 		{
-			calc_Hi(thread_Index, measurement.k_Value, measurement.beam_Theta_0_Cos2_Vec[point_Index], unwrapped_Structure->discretized_Epsilon);
+			calc_Hi(point_Index, measurement.k_Value, measurement.beam_Theta_0_Cos2_Vec[point_Index], unwrapped_Structure->discretized_Epsilon);
 			calc_Exponenta(thread_Index, point_Index,unwrapped_Structure->discretized_Thickness);
 			calc_Fresnel(thread_Index, point_Index, unwrapped_Structure->discretized_Epsilon);
 		}
@@ -1961,6 +2026,9 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 			// in scattered mode we go further and use calculated q and q0 fields
 			if(spec_Scat_mode == SCATTERED_MODE)
 			{
+				if( (measurement.polarization + 1) > POLARIZATION_TOLERANCE)  calc_Field_Epsilon_Integral(thread_Index, point_Index, "s");
+				if( (measurement.polarization - 1) < -POLARIZATION_TOLERANCE) calc_Field_Epsilon_Integral(thread_Index, point_Index, "p");
+
 				double sin_Theta_0 = max(measurement.beam_Theta_0_Sin_Value, DBL_EPSILON);
 				double cos_Theta_0 = max(measurement.beam_Theta_0_Cos_Value, DBL_EPSILON);
 				double e_Factor_PT_1D		   = pow(measurement.k_Value,3)/(16*M_PI     *sin_Theta_0*sqrt(cos_Theta_0*measurement.detector_Theta_Cos_Vec[point_Index]));

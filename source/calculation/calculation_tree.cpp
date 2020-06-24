@@ -537,11 +537,11 @@ void Calculation_Tree::calculate_1_Kind(Data_Element<Type>& data_Element, QStrin
 	auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
 	qInfo() << "\nIntermediate:   "<< elapsed.count()/1000000. << " seconds" << endl;
 
-//	start = std::chrono::system_clock::now();
+	start = std::chrono::system_clock::now();
 	calculate_Unwrapped_Structure(data_Element.calc_Functions, data_Element.media_Node_Map_Vector, data_Element.media_Data_Map_Vector, data_Element.media_Period_Index_Map_Vector, data_Element.the_Class->measurement, data_Element.unwrapped_Structure);
-//	end = std::chrono::system_clock::now();
-//	elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-//	qInfo() << "Unwrap:         "<< elapsed.count()/1000000. << " seconds" << endl;
+	end = std::chrono::system_clock::now();
+	elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+	qInfo() << "Unwrap:         "<< elapsed.count()/1000000. << " seconds" << endl;
 
 	start = std::chrono::system_clock::now();
 	calculate_Unwrapped_Reflectivity(data_Element.short_Flat_Calc_Tree, data_Element.the_Class->calculated_Values, data_Element.unwrapped_Structure, data_Element.unwrapped_Reflection, mode);

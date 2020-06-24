@@ -22,6 +22,8 @@ public:
 						bool depth_Grading,
 						bool sigma_Grading,
 						gsl_rng* r);
+	~Unwrapped_Structure();
+
 	gsl_rng* r;
 
 	int num_Threads;
@@ -46,6 +48,7 @@ public:
 	vector<vector<complex<double>>> epsilon_Dependent;				//	[wavelength][media]
 
 	double max_Sigma = 0.1;
+	double min_Sigma = 1000;
 	vector<double> sigma_Diffuse;									//	[boundary]
 	vector<bool> common_Sigma_Diffuse;								//	[boundary]
 
@@ -93,6 +96,12 @@ public:
 	///-------------------------------------------------------------
 	// DISCRETIZATION
 	///-------------------------------------------------------------
+
+	double discretization_Step_We_Use;
+	gsl_spline* discretized_Epsilon_Spline_Re;
+	gsl_spline* discretized_Epsilon_Spline_Im;
+	gsl_interp_accel* discretized_Epsilon_Acc_Re;
+	gsl_interp_accel* discretized_Epsilon_Acc_Im;
 
 	vector<double> layer_Norm_Vector;								//	[layer]
 	vector<vector<double>> layer_Norm_Vector_Threaded;				//	[thread][layer]

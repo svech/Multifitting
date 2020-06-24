@@ -49,8 +49,12 @@ Unwrapped_Structure::Unwrapped_Structure(Multilayer* multilayer,
 		fill_PSD_Inheritance_Powers();
 	}
 
-	// discretized structure
-	if(multilayer->discretization_Parameters.enable_Discretization)
+	if(multilayer->discretization_Parameters.enable_Discretization)	discretization_Step_We_Use = multilayer->discretization_Parameters.discretization_Step;
+	else															discretization_Step_We_Use = max(min_Sigma, 1.); // not less than 1 angstrom
+
+	// discretized structure (if discretization is on or just field-epsilon integration for scattering with interlayer)
+	if( multilayer->discretization_Parameters.enable_Discretization ||
+		calc_Functions.check_Scattering || calc_Functions.check_GISAS )
 	{
 		// discretized_Thickness is constructed here
 		layer_Normalizing();
@@ -58,7 +62,7 @@ Unwrapped_Structure::Unwrapped_Structure(Multilayer* multilayer,
 
 		// prolong discretization into ambient and substrate
 		Global_Variables::get_Prefix_Suffix(prefix, suffix, max_Sigma);
-		Global_Variables::discretize_Prefix_Suffix(prefix, suffix, num_Prefix_Slices, num_Suffix_Slices, discretized_Thickness, multilayer->discretization_Parameters.discretization_Step);
+		Global_Variables::discretize_Prefix_Suffix(prefix, suffix, num_Prefix_Slices, num_Suffix_Slices, discretized_Thickness, discretization_Step_We_Use);
 		num_Discretized_Media = discretized_Thickness.size()+2;
 
 		find_Z_Positions();
@@ -82,6 +86,25 @@ Unwrapped_Structure::Unwrapped_Structure(Multilayer* multilayer,
 			discretized_Epsilon.assign(num_Discretized_Media,complex<double>(1,0));
 
 			fill_Discretized_Epsilon();
+
+			// spline of discretized epsilon
+			vector<double> discretized_Epsilon_Re(num_Discretized_Media);
+			vector<double> discretized_Epsilon_Im(num_Discretized_Media);
+			for(int i=0; i<num_Discretized_Media; i++)
+			{
+				discretized_Epsilon_Re[i] = real(discretized_Epsilon[i]);
+				discretized_Epsilon_Im[i] = imag(discretized_Epsilon[i]);
+			}
+			z_Positions.insert(z_Positions.begin(),z_Positions.front()-10000);
+			z_Positions.push_back(z_Positions.back()+10000);
+
+			discretized_Epsilon_Acc_Re = gsl_interp_accel_alloc();
+			discretized_Epsilon_Acc_Im = gsl_interp_accel_alloc();
+			discretized_Epsilon_Spline_Re = gsl_spline_alloc(gsl_interp_steffen, num_Discretized_Media);
+			discretized_Epsilon_Spline_Im = gsl_spline_alloc(gsl_interp_steffen, num_Discretized_Media);
+
+			gsl_spline_init(discretized_Epsilon_Spline_Re, z_Positions.data(), discretized_Epsilon_Re.data(), num_Discretized_Media);
+			gsl_spline_init(discretized_Epsilon_Spline_Im, z_Positions.data(), discretized_Epsilon_Im.data(), num_Discretized_Media);
 		}
 	}
 
@@ -99,6 +122,21 @@ Unwrapped_Structure::Unwrapped_Structure(Multilayer* multilayer,
 			}
 		}
 		find_Field_Spacing();
+	}
+}
+
+Unwrapped_Structure::~Unwrapped_Structure()
+{
+	if( multilayer->discretization_Parameters.enable_Discretization ||
+		calc_Functions.check_Scattering || calc_Functions.check_GISAS )
+	{
+		if( measurement.argument_Type != argument_Types[Wavelength_Energy] )
+		{
+			gsl_spline_free(discretized_Epsilon_Spline_Re);
+			gsl_spline_free(discretized_Epsilon_Spline_Im);
+			gsl_interp_accel_free(discretized_Epsilon_Acc_Re);
+			gsl_interp_accel_free(discretized_Epsilon_Acc_Im);
+		}
 	}
 }
 
@@ -154,6 +192,7 @@ void Unwrapped_Structure::fill_Sigma_Diffuse_And_Interlayers()
 			// getting max_Sigma
 			if(boundary_Interlayer_Composition[boundary_Index][func_Index].enabled)	{
 				max_Sigma = max(max_Sigma, boundary_Interlayer_Composition[boundary_Index][func_Index].my_Sigma_Diffuse.value);
+				min_Sigma = min(min_Sigma, boundary_Interlayer_Composition[boundary_Index][func_Index].my_Sigma_Diffuse.value);
 			}
 			// can drift
 			Global_Variables::variable_Drift(boundary_Interlayer_Composition[boundary_Index][func_Index].my_Sigma_Diffuse.value,
@@ -332,7 +371,7 @@ void Unwrapped_Structure::find_Discretization()
 
 	for(int layer_Index=0; layer_Index<num_Layers; layer_Index++)
 	{
-		int num_Slices = ceil(thickness[layer_Index]/multilayer->discretization_Parameters.discretization_Step);
+		int num_Slices = ceil(thickness[layer_Index]/discretization_Step_We_Use);
 		double adapted_Step = thickness[layer_Index]/num_Slices;
 
 		discretized_Thickness.resize(discretized_Thickness.size()+num_Slices);

@@ -1260,7 +1260,7 @@ void Main_Calculation_Module::print_Matrix(QString function, const Calc_Function
 		if(function == intensity_Function || function == joule_Function)
 		{
 			out << "Depth    :   (" << Locale.toString(-calc_Functions.field_Ambient_Distance,'f', 2)
-						   << " , " << Locale.toString(-calc_Functions.field_Ambient_Distance + matrix.front().size()*calc_Functions.field_Step,'f', 2) << ") angstrom, step = "
+						   << " , " << Locale.toString(-calc_Functions.field_Ambient_Distance + (matrix.front().size()-1)*calc_Functions.field_Step,'f', 2) << ") angstrom, step = "
 						   << Locale.toString(calc_Functions.field_Step,'f', 2) << " angstrom" << endl;
 
 			if(measurement.argument_Type == argument_Types[Beam_Grazing_Angle])
