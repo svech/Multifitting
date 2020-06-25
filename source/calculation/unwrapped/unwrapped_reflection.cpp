@@ -451,6 +451,11 @@ Unwrapped_Reflection::Unwrapped_Reflection(const vector<Node*>& short_Flat_Calc_
 		// field intensity in-depth
 		if( calc_Functions.check_Field || calc_Functions.check_Joule)
 		{
+			if(multilayer->discretization_Parameters.enable_Discretization)	boundaries_Enlarged = unwrapped_Structure->discretized_Slices_Boundaries;
+			else															boundaries_Enlarged = unwrapped_Structure->boundaries_Position;
+			// plus one element to end
+			boundaries_Enlarged.push_back(boundaries_Enlarged.back());
+
 			// if too much slices
 			//unwrapped_Structure->num_Field_Slices = min(unwrapped_Structure->num_Field_Slices, 1000000/num_Points);
 			//unwrapped_Structure->field_Z_Positions.resize(unwrapped_Structure->num_Field_Slices);
@@ -478,11 +483,6 @@ Unwrapped_Reflection::Unwrapped_Reflection(const vector<Node*>& short_Flat_Calc_
 		// GISAS
 		if(	unwrapped_Structure->calc_Functions.check_GISAS)
 		{
-			if(multilayer->discretization_Parameters.enable_Discretization)	boundaries_Enlarged = unwrapped_Structure->discretized_Slices_Boundaries;
-			else															boundaries_Enlarged = unwrapped_Structure->boundaries_Position;
-			// plus one element to end
-			boundaries_Enlarged.push_back(boundaries_Enlarged.back());
-
 			phi_Points = measurement.detector_Phi_Angle_Vec.size();
 			short_Phi_Points = measurement.end_Phi_Number - measurement.start_Phi_Index,
 
@@ -1682,7 +1682,7 @@ void Unwrapped_Reflection::calc_Sliced_Field(int thread_Index, int point_Index, 
 
 			iChi = I*hi[point_Index][media_Index];
 			e_i = exp(+iChi*(z-boundaries_Enlarged[media_Index]));
-			e_r = exp(-iChi*(z-boundaries_Enlarged[media_Index]));
+			e_r = 1./e_i;//exp(-iChi*(z-boundaries_Enlarged[media_Index]));
 
 			double field_Value = 0;
 			// s-polarization
@@ -1948,6 +1948,7 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 			}
 		}
 	}
+
 
 	/// SCATTERING
 	if( measurement.measurement_Type == measurement_Types[Detector_Scan] ||
