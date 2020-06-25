@@ -1333,9 +1333,14 @@ void Unwrapped_Reflection::calc_Field_Epsilon_Integral(int thread_Index, int poi
 		return imag(integrad_Value);
 	};
 
-	// top boundary
+	/// integration
+	double upper_Media, lower_Media;
 
-//	result += gauss_kronrod<double, 5>::integrate(f, phi_Inter_4, phi_Inter_5, 0, 1e-7, &error);
+	// top boundary
+	upper_Media = gauss_kronrod<double, 5>::integrate(f_Real, unwrapped_Structure->boundaries_Position.front(), phi_Inter_5, 0, 1e-7, &error);
+
+	field_Term_Boundary[thread_Index].front() =
+//	result +=
 
 //	field_Term_Boundary[point_Index].front() = 1;
 //	(*U_r)[point_Index].front() = (*r_Local)[thread_Index].front();
