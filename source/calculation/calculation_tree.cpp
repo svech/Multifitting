@@ -618,7 +618,7 @@ void Calculation_Tree::calculate_Unwrapped_Reflectivity(const vector<Node*>& sho
 														Unwrapped_Reflection*& unwrapped_Reflection_Vec_Element,
 														QString mode)
 {
-	delete unwrapped_Reflection_Vec_Element;	
+	delete unwrapped_Reflection_Vec_Element;
 
 //	auto start = std::chrono::system_clock::now();
 	Unwrapped_Reflection* new_Unwrapped_Reflection = new Unwrapped_Reflection(short_Flat_Calc_Tree, calculated_Values, unwrapped_Structure, mode);

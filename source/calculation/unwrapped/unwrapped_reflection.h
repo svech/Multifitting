@@ -98,6 +98,7 @@ public:
 	vector<gsl_interp_accel*> acc_Vec;
 	vector<vector<double>> GISAS_Slice;
 	vector<vector<double>> phi_Slice;
+	bool delete_Spline = false;
 
 	///---------------------------------------------------------------------
 	// DWBA SA CSA
@@ -174,7 +175,6 @@ public:
 	void calc_Environmental_Factor		(int thread_Index, int point_Index);
 
 	// fields
-	void calc_Field_Epsilon_Integral	(int thread_Index, int point_Index, QString polarization);
 	void calc_Amplitudes_Field			(int thread_Index, int point_Index, QString polarization);
 	void calc_Sliced_Field				(int thread_Index, int point_Index, const vector<complex<double>>& epsilon_Vector);
 
@@ -187,8 +187,8 @@ public:
 	double azimuthal_Integration		(gsl_function* function, double delta);
 
 	// DWBA SA CSA
-	void calc_k_Wavenumber_DWBA_SA_CSA			(int thread_Index, int point_Index);
-	void calc_Field_DWBA_SA_CSA					(int thread_Index, int point_Index, QString polarization);
+	void calc_k_Wavenumber_Up_Low			(int thread_Index, int point_Index);
+	void calc_Field_Up_Low					(int thread_Index, int point_Index, QString polarization);
 	void calc_K_Factor_DWBA_SA_CSA				(int thread_Index,                  QString polarization);
 	double calc_K_Factor_Term_Sum_DWBA_SA_CSA	(int thread_Index, QString polarization, int n_Power);
 	void choose_Cor_Function					(int thread_Index);

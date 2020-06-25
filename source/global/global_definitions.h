@@ -4,6 +4,7 @@
 #include "boost/math/quadrature/ooura_fourier_integrals.hpp"
 #include <boost/math/quadrature/gauss_kronrod.hpp>
 #include <boost/math/quadrature/gauss.hpp>
+#include <boost/math/quadrature/trapezoidal.hpp>
 #include <QtWidgets>
 #include <vector>
 #include <complex>
@@ -780,13 +781,6 @@ struct Calculated_Values	  {	// reflectance
 
 								vector<vector<complex<double>>> q0_Hi;
 								vector<vector<complex<double>>> q_Hi;
-
-								/// for PT
-								vector<vector<complex<double>>> q0_Boundary_Field_s;
-								vector<vector<complex<double>>> q0_Boundary_Field_p;
-
-								vector<vector<complex<double>>> q_Boundary_Field_s;
-								vector<vector<complex<double>>> q_Boundary_Field_p;
 							   };
 struct Simple_Curve		       {
 								Simple_Curve();

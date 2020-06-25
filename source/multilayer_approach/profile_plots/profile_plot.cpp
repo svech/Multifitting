@@ -735,7 +735,7 @@ void Profile_Plot::calculate_Profile()
 	layer_Norm_Vector.resize(thickness_Vector.size());
 	QList<Different_Norm_Layer> different_Norm_Layer;
 	Different_Norm_Layer temp_Dif_Norm;
-	gsl_integration_workspace* w = gsl_integration_workspace_alloc(1000);
+//	gsl_integration_workspace* w = gsl_integration_workspace_alloc(1000);
 	for(int layer_Index=0; layer_Index<thickness_Vector.size(); layer_Index++)
 	{
 		// thickness
@@ -748,9 +748,13 @@ void Profile_Plot::calculate_Profile()
 			if(!different_Norm_Layer.contains(temp_Dif_Norm))
 			{
 				layer_Norm_Vector[layer_Index] = thickness_Vector[layer_Index] /
-						Global_Variables::layer_Normalization(	thickness_Vector[layer_Index],
-																struct_Data_Vector[layer_Index+1].interlayer_Composition,
-																struct_Data_Vector[layer_Index+2].interlayer_Composition, w);
+//						Global_Variables::layer_Normalization_GSL(	thickness_Vector[layer_Index],
+//																	struct_Data_Vector[layer_Index+1].interlayer_Composition,
+//																	struct_Data_Vector[layer_Index+2].interlayer_Composition, w);
+						Global_Variables::layer_Normalization(thickness_Vector[layer_Index],
+																	struct_Data_Vector[layer_Index+1].interlayer_Composition,
+																	struct_Data_Vector[layer_Index+2].interlayer_Composition);
+
 				temp_Dif_Norm.norm = layer_Norm_Vector[layer_Index];
 				different_Norm_Layer.append(temp_Dif_Norm);
 			} else
@@ -763,7 +767,7 @@ void Profile_Plot::calculate_Profile()
 			layer_Norm_Vector[layer_Index] = 1;
 		}
 	}
-	gsl_integration_workspace_free(w);
+//	gsl_integration_workspace_free(w);
 
 	// profiling
 	double step = 0.2;	// in angstroms

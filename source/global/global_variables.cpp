@@ -1607,7 +1607,7 @@ double Global_Variables::step_Profile(double z, double sigma)
 	return theta_Function(z);
 }
 
-double Global_Variables::interface_Profile_Function(double z, const QVector<Interlayer>& interlayer_Composition, bool for_Integration)
+double Global_Variables::interface_Profile_Function(double z, const QVector<Interlayer>& interlayer_Composition/*, bool for_Integration*/)
 {
 	double output = 0;
 
@@ -1633,13 +1633,13 @@ double Global_Variables::interface_Profile_Function(double z, const QVector<Inte
 		norm += interlayer_Composition[Lin].interlayer.value;
 		my_Sigma = interlayer_Composition[Lin].my_Sigma_Diffuse.value;
 
-		if(for_Integration)
-		{
-			output += sin_Profile(z, my_Sigma) * interlayer_Composition[Lin].interlayer.value;  // otherwise integration crashes
-		} else
-		{
+//		if(for_Integration)
+//		{
+//			output += sin_Profile(z, my_Sigma) * interlayer_Composition[Lin].interlayer.value;  // otherwise GSL integration crashes
+//		} else
+//		{
 			output += lin_Profile(z, my_Sigma) * interlayer_Composition[Lin].interlayer.value;
-		}
+//		}
 	}
 	//-------------------------------------------------------------------------------
 	// exp interlayer
@@ -1679,13 +1679,13 @@ double Global_Variables::interface_Profile_Function(double z, const QVector<Inte
 		norm += interlayer_Composition[Step].interlayer.value;
 		my_Sigma = interlayer_Composition[Step].my_Sigma_Diffuse.value;
 
-		if(for_Integration)
-		{
-			output += sin_Profile(z, my_Sigma) * interlayer_Composition[Step].interlayer.value;  // otherwise integration crashes
-		} else
-		{
+//		if(for_Integration)
+//		{
+//			output += sin_Profile(z, my_Sigma) * interlayer_Composition[Step].interlayer.value;  // otherwise GSL integration crashes
+//		} else
+//		{
 			output += step_Profile(z, my_Sigma) * interlayer_Composition[Step].interlayer.value;
-		}
+//		}
 	}
 	//-------------------------------------------------------------------------------
 	// normalization
@@ -1703,16 +1703,6 @@ struct f_params
 	QVector<Interlayer> right_Interlayer_Composition;
 };
 
-double f(double z, void* p)
-{
-	f_params& params= *reinterpret_cast<f_params*>(p);
-
-	double output = Global_Variables::interface_Profile_Function(                 z, params.left_Interlayer_Composition ,true) *
-					Global_Variables::interface_Profile_Function(params.thickness-z, params.right_Interlayer_Composition,true);
-
-	return output;
-}
-
 double Global_Variables::get_Max_Sigma_From_Interlayer_Composition(QVector<Interlayer>& interlayer_Composition)
 {
 	double max_Sigma = 0;
@@ -1729,56 +1719,79 @@ double Global_Variables::get_Max_Sigma_From_Interlayer_Composition(QVector<Inter
 	return max_Sigma;
 }
 
-double Global_Variables::layer_Normalization(double thickness, QVector<Interlayer>& left_Interlayer_Composition, QVector<Interlayer>& right_Interlayer_Composition, gsl_integration_workspace* w)
+//double Global_Variables::layer_Normalization_GSL(double thickness, QVector<Interlayer>& left_Interlayer_Composition, QVector<Interlayer>& right_Interlayer_Composition, gsl_integration_workspace* w)
+//{
+//	f_params params;
+//	params.thickness = thickness;
+//	params.left_Interlayer_Composition = left_Interlayer_Composition;
+//	params.right_Interlayer_Composition= right_Interlayer_Composition;
+
+//	gsl_function F;
+//	F.function = &f;
+//	F.params = reinterpret_cast<void*>(&params);
+
+//	double result=0, error=0;
+//	size_t limit=10;
+
+//	double max_Sigma_Left  = get_Max_Sigma_From_Interlayer_Composition(left_Interlayer_Composition );
+//	double max_Sigma_Right = get_Max_Sigma_From_Interlayer_Composition(right_Interlayer_Composition);
+
+//	const double xlow =0        -3*max_Sigma_Left;
+//	const double xhigh=thickness+3*max_Sigma_Right;
+//	const double epsabs=1e-5;
+//	const double epsrel=1e-5;
+
+//	int code = 0;
+//	if(thickness<3*(max_Sigma_Left+max_Sigma_Right))
+//	{
+//		code=gsl_integration_qag( &F,
+//								  xlow,
+//								  xhigh,
+//								  epsabs,
+//								  epsrel,
+//								  limit,
+//								  GSL_INTEG_GAUSS61,
+//								  w,
+//								  &result,
+//								  &error);
+//	} else
+//	{
+//		result = thickness;
+//	}
+
+////	if(code)
+////	{
+////	  qInfo() << "There was a problem with integration: code " << code << endl;
+////	}
+////	else
+////	{
+////	  qInfo() << "Result" << result << "+/-" << error << "from" << neval << "evaluations" << endl;
+////	}
+//	return result;
+//}
+
+double Global_Variables::layer_Normalization(double thickness, QVector<Interlayer>& left_Interlayer_Composition, QVector<Interlayer>& right_Interlayer_Composition)
 {
-	f_params params;
-	params.thickness = thickness;
-	params.left_Interlayer_Composition = left_Interlayer_Composition;
-	params.right_Interlayer_Composition= right_Interlayer_Composition;
-
-	gsl_function F;
-	F.function = &f;
-	F.params = reinterpret_cast<void*>(&params);
-
+	auto f_Calc = [&](double z)
+	{
+		return Global_Variables::interface_Profile_Function(          z, left_Interlayer_Composition ) *
+			   Global_Variables::interface_Profile_Function(thickness-z, right_Interlayer_Composition);
+	};
 	double result=0, error=0;
-	size_t limit=10;
 
 	double max_Sigma_Left  = get_Max_Sigma_From_Interlayer_Composition(left_Interlayer_Composition );
 	double max_Sigma_Right = get_Max_Sigma_From_Interlayer_Composition(right_Interlayer_Composition);
 
 	const double xlow =0        -3*max_Sigma_Left;
 	const double xhigh=thickness+3*max_Sigma_Right;
-	const double epsabs=1e-5;
-	const double epsrel=1e-5;
 
-
-	vector<double> pts = {xlow,xhigh};
-	int code = 0;
 	if(thickness<3*(max_Sigma_Left+max_Sigma_Right))
 	{
-		code=gsl_integration_qag( &F,
-								  xlow,
-								  xhigh,
-								  epsabs,
-								  epsrel,
-								  limit,
-								  GSL_INTEG_GAUSS61,
-								  w,
-								  &result,
-								  &error);
+		result = gauss_kronrod<double, 31>::integrate(f_Calc, xlow, xhigh, 0, 1e-5, &error);
 	} else
 	{
 		result = thickness;
 	}
-
-//	if(code)
-//	{
-//	  qInfo() << "There was a problem with integration: code " << code << endl;
-//	}
-//	else
-//	{
-//	  qInfo() << "Result" << result << "+/-" << error << "from" << neval << "evaluations" << endl;
-//	}
 	return result;
 }
 
