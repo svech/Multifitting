@@ -7,7 +7,7 @@ Table_Roughness_Model_Editor::Table_Roughness_Model_Editor(Multilayer* multilaye
 	setWindowTitle("Set imperfections model");
 	setWindowModality(Qt::ApplicationModal);
 	setAttribute(Qt::WA_DeleteOnClose);
-	setWindowFlags(Qt::Window);
+	setWindowFlags(Qt::Window | Qt::WindowMaximizeButtonHint);
 
 	create_Main_Layout();
 }
@@ -34,9 +34,16 @@ void Table_Roughness_Model_Editor::create_Main_Layout()
 	buttons_Layout->addWidget(ok_Button,0,Qt::AlignCenter);
 	connect(ok_Button, &QPushButton::clicked, this, [=]
 	{
+		bool have_Scattering = false;
 		bool have_GISAS = false;
 		for(Target_Curve* target_Curve : multilayer->target_Profiles_Vector)
 		{
+			if((target_Curve->measurement.measurement_Type == measurement_Types[Detector_Scan] ||
+				target_Curve->measurement.measurement_Type == measurement_Types[Rocking_Curve] ||
+				target_Curve->measurement.measurement_Type == measurement_Types[Offset_Scan] ) && target_Curve->fit_Params.calculate)
+			{
+				have_Scattering = true;
+			}
 			if(target_Curve->measurement.measurement_Type == measurement_Types[GISAS_Map] && target_Curve->fit_Params.calculate)
 			{
 				have_GISAS = true;
@@ -45,47 +52,116 @@ void Table_Roughness_Model_Editor::create_Main_Layout()
 		for(int independent_Index=0; independent_Index<multilayer->independent_Curve_Tabs->count(); ++independent_Index)
 		{
 			Independent_Curve* independent_Curve = qobject_cast<Independent_Curve*>(multilayer->independent_Curve_Tabs->widget(independent_Index));
+			if((independent_Curve->measurement.measurement_Type == measurement_Types[Detector_Scan] ||
+				independent_Curve->measurement.measurement_Type == measurement_Types[Rocking_Curve] ||
+				independent_Curve->measurement.measurement_Type == measurement_Types[Offset_Scan] ) && independent_Curve->calc_Functions.check_Scattering)
+			{
+				have_Scattering = true;
+			}
 			if(independent_Curve->measurement.measurement_Type == measurement_Types[GISAS_Map] && independent_Curve->calc_Functions.check_GISAS)
 			{
 				have_GISAS = true;
 			}
 		}
 
-		if(have_GISAS &&
+		// cases
+		bool GISAS_DWBA_SA_CSA = false;
+		bool discretization_DWBA_SA_CSA = false;
+
+		if( have_GISAS &&
 		   (multilayer->imperfections_Model.common_Model == fractal_Gauss_Model ||
 			multilayer->imperfections_Model.approximation == DWBA_approximation ||
-			multilayer->imperfections_Model.approximation == SA_approximation ||
-			multilayer->imperfections_Model.approximation == CSA_approximation ))
+			multilayer->imperfections_Model.approximation == SA_approximation   ||
+			multilayer->imperfections_Model.approximation == CSA_approximation  ))
 		{
-			QString text;
-			if( multilayer->imperfections_Model.common_Model == fractal_Gauss_Model ) text = "Fractal Gauss model";
-			if( multilayer->imperfections_Model.approximation == DWBA_approximation ) text = "DWBA approximation";
-			if( multilayer->imperfections_Model.approximation == SA_approximation   ) text = "SA approximation";
-			if( multilayer->imperfections_Model.approximation == CSA_approximation  ) text = "CSA approximation";
+			GISAS_DWBA_SA_CSA = true;
+		}
+		if( have_Scattering && multilayer->discretization_Parameters.enable_Discretization &&
+		   (multilayer->imperfections_Model.approximation == DWBA_approximation ||
+			multilayer->imperfections_Model.approximation == SA_approximation   ||
+			multilayer->imperfections_Model.approximation == CSA_approximation  ))
+		{
+			discretization_DWBA_SA_CSA = true;
+		}
 
-			QMessageBox::StandardButton reply = QMessageBox::question(nullptr,"GISAS simulation", text+" can't be used with 2D scattering.\nGISAS map will be disabled.\nContinue?",
-																	  QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
-			if (reply == QMessageBox::Yes)
+		if(GISAS_DWBA_SA_CSA || discretization_DWBA_SA_CSA)
+		{
+			if(GISAS_DWBA_SA_CSA)
 			{
-				for(Target_Curve* target_Curve : multilayer->target_Profiles_Vector)
-				{
-					if(target_Curve->measurement.measurement_Type == measurement_Types[GISAS_Map])
-					{
-						target_Curve->fit_Params.calculate = false;
-					}
-				}
-				for(int independent_Index=0; independent_Index<multilayer->independent_Curve_Tabs->count(); ++independent_Index)
-				{
-					Independent_Curve* independent_Curve = qobject_cast<Independent_Curve*>(multilayer->independent_Curve_Tabs->widget(independent_Index));
-					if(independent_Curve->measurement.measurement_Type == measurement_Types[GISAS_Map])
-					{
-						independent_Curve->calc_Functions.check_GISAS = false;
-					}
-				}
+				QString text;
+				if( multilayer->imperfections_Model.common_Model == fractal_Gauss_Model ) text = "Fractal Gauss model";
+				if( multilayer->imperfections_Model.approximation == DWBA_approximation ) text = "DWBA approximation";
+				if( multilayer->imperfections_Model.approximation == SA_approximation   ) text = "SA approximation";
+				if( multilayer->imperfections_Model.approximation == CSA_approximation  ) text = "CSA approximation";
 
+				QMessageBox::StandardButton reply = QMessageBox::question(nullptr,"GISAS simulation", text+" can't be used with 2D scattering.\nGISAS map will be disabled.\nContinue?",
+																		  QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
+				activateWindow();
+				if (reply == QMessageBox::Yes)
+				{
+					for(Target_Curve* target_Curve : multilayer->target_Profiles_Vector)
+					{
+						if(target_Curve->measurement.measurement_Type == measurement_Types[GISAS_Map])
+						{
+							target_Curve->fit_Params.calculate = false;
+						}
+					}
+					for(int independent_Index=0; independent_Index<multilayer->independent_Curve_Tabs->count(); ++independent_Index)
+					{
+						Independent_Curve* independent_Curve = qobject_cast<Independent_Curve*>(multilayer->independent_Curve_Tabs->widget(independent_Index));
+						if(independent_Curve->measurement.measurement_Type == measurement_Types[GISAS_Map])
+						{
+							independent_Curve->calc_Functions.check_GISAS = false;
+						}
+					}
+
+					GISAS_DWBA_SA_CSA = false; // no more
+					global_Multilayer_Approach->reopen_Optical_Graphs_2D(true);
+					global_Multilayer_Approach->reopen_Calculation_Settings(true);
+				}
+			}
+			if(discretization_DWBA_SA_CSA)
+			{
+				QString text;
+				if( multilayer->imperfections_Model.approximation == DWBA_approximation ) text = "DWBA approximation.";
+				if( multilayer->imperfections_Model.approximation == SA_approximation   ) text = "SA approximation.";
+				if( multilayer->imperfections_Model.approximation == CSA_approximation  ) text = "CSA approximation.";
+
+				QMessageBox::StandardButton reply = QMessageBox::question(nullptr,"Discretization", "Discretization can't be used with "+text+"\nDiscretization will be disabled.\nContinue?",
+																		  QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
+				activateWindow();
+				if (reply == QMessageBox::Yes)
+				{
+					// disable discretization
+					multilayer->discretization_Parameters.enable_Discretization = false;
+					// disable scattering
+//					for(Target_Curve* target_Curve : multilayer->target_Profiles_Vector)
+//					{
+//						if( target_Curve->measurement.measurement_Type == measurement_Types[Detector_Scan] ||
+//							target_Curve->measurement.measurement_Type == measurement_Types[Rocking_Curve] ||
+//							target_Curve->measurement.measurement_Type == measurement_Types[Offset_Scan] )
+//						{
+//							target_Curve->fit_Params.calculate = false;
+//						}
+//					}
+//					for(int independent_Index=0; independent_Index<multilayer->independent_Curve_Tabs->count(); ++independent_Index)
+//					{
+//						Independent_Curve* independent_Curve = qobject_cast<Independent_Curve*>(multilayer->independent_Curve_Tabs->widget(independent_Index));
+//						if( independent_Curve->measurement.measurement_Type == measurement_Types[Detector_Scan] ||
+//							independent_Curve->measurement.measurement_Type == measurement_Types[Rocking_Curve] ||
+//							independent_Curve->measurement.measurement_Type == measurement_Types[Offset_Scan])
+//						{
+//							independent_Curve->calc_Functions.check_Scattering = false;
+//						}
+//					}
+					discretization_DWBA_SA_CSA = false; // no more
+//					global_Multilayer_Approach->reopen_Optical_Graphs_1D(true);
+					global_Multilayer_Approach->reopen_Calculation_Settings(true);
+				}
+			}
+			if(!GISAS_DWBA_SA_CSA && !discretization_DWBA_SA_CSA)
+			{
 				close();
-				global_Multilayer_Approach->reopen_Optical_Graphs_2D(true);
-				global_Multilayer_Approach->reopen_Calculation_Settings(true);
 				global_Multilayer_Approach->reopen_Table_Of_Structures(true);
 			}
 		} else

@@ -158,27 +158,67 @@ void Calculation_Settings_Editor::load_Discretization_Parameters(int tab_Index)
 	discretization_Group_Box_Vec[tab_Index]->setChecked(multilayer->discretization_Parameters.enable_Discretization);
 	connect(discretization_Group_Box_Vec[tab_Index],  &QGroupBox::toggled, this, [=]
 	{
-		multilayer->discretization_Parameters.enable_Discretization = discretization_Group_Box_Vec[tab_Index]->isChecked();
-
-		if(global_Multilayer_Approach->runned_Profile_Plots_Window.contains(profile_Plots_Key))
+		bool have_Scattering = false;
+		for(Target_Curve* target_Curve : multilayer->target_Profiles_Vector)
 		{
-			Profile_Plot* profile_Plot = global_Multilayer_Approach->profile_Plots_Window->profile_Plot_Vector[tab_Index];
-			profile_Plot->discretization_CheckBox->setEnabled(multilayer->discretization_Parameters.enable_Discretization);
-			profile_Plot->plot_Data(true);
-		}
-		// threshold line only for 1D
-		if(global_Multilayer_Approach->runned_Optical_Graphs_1D.contains(optical_Graphs_1D_Key))
-		{
-			QVector<Curve_Plot_1D*>& tab_Plots = global_Multilayer_Approach->optical_Graphs_1D->plots_1D[tab_Index];
-			for(Curve_Plot_1D* curve_Plot : tab_Plots)
+			if((target_Curve->measurement.measurement_Type == measurement_Types[Detector_Scan] ||
+				target_Curve->measurement.measurement_Type == measurement_Types[Rocking_Curve] ||
+				target_Curve->measurement.measurement_Type == measurement_Types[Offset_Scan] ) && target_Curve->fit_Params.calculate)
 			{
-				if( curve_Plot->measurement.measurement_Type == measurement_Types[Specular_Scan] )
-				{
-					curve_Plot->discretized_Threshold_Line();
-				}
+				have_Scattering = true;
 			}
 		}
-		global_Multilayer_Approach->global_Recalculate();
+		for(int independent_Index=0; independent_Index<multilayer->independent_Curve_Tabs->count(); ++independent_Index)
+		{
+			Independent_Curve* independent_Curve = qobject_cast<Independent_Curve*>(multilayer->independent_Curve_Tabs->widget(independent_Index));
+			if((independent_Curve->measurement.measurement_Type == measurement_Types[Detector_Scan] ||
+				independent_Curve->measurement.measurement_Type == measurement_Types[Rocking_Curve] ||
+				independent_Curve->measurement.measurement_Type == measurement_Types[Offset_Scan] ) && independent_Curve->calc_Functions.check_Scattering)
+			{
+				have_Scattering = true;
+			}
+		}
+
+		if( have_Scattering &&
+		   (multilayer->imperfections_Model.approximation == DWBA_approximation ||
+			multilayer->imperfections_Model.approximation == SA_approximation   ||
+			multilayer->imperfections_Model.approximation == CSA_approximation  ))
+		{
+			QString text;
+			if( multilayer->imperfections_Model.approximation == DWBA_approximation ) text = "Discretization can't be used with DWBA approximation.\nChange the approximation in Structure Table or disable scattering calculation.";
+			if( multilayer->imperfections_Model.approximation == SA_approximation   ) text = "Discretization can't be used with SA approximation.\nChange the approximation in Structure Table or disable scattering calculation.";
+			if( multilayer->imperfections_Model.approximation == CSA_approximation  ) text = "Discretization can't be used with CSA approximation.\nChange the approximation in Structure Table or disable scattering calculation.";
+
+			QMessageBox::information(this,"Discretization", text);
+
+			multilayer->discretization_Parameters.enable_Discretization = false;
+			discretization_Group_Box_Vec[tab_Index]->blockSignals(true);
+			discretization_Group_Box_Vec[tab_Index]->setChecked(false);
+			discretization_Group_Box_Vec[tab_Index]->blockSignals(false);
+		} else
+		{
+			multilayer->discretization_Parameters.enable_Discretization = discretization_Group_Box_Vec[tab_Index]->isChecked();
+
+			if(global_Multilayer_Approach->runned_Profile_Plots_Window.contains(profile_Plots_Key))
+			{
+				Profile_Plot* profile_Plot = global_Multilayer_Approach->profile_Plots_Window->profile_Plot_Vector[tab_Index];
+				profile_Plot->discretization_CheckBox->setEnabled(multilayer->discretization_Parameters.enable_Discretization);
+				profile_Plot->plot_Data(true);
+			}
+			// threshold line only for 1D
+			if(global_Multilayer_Approach->runned_Optical_Graphs_1D.contains(optical_Graphs_1D_Key))
+			{
+				QVector<Curve_Plot_1D*>& tab_Plots = global_Multilayer_Approach->optical_Graphs_1D->plots_1D[tab_Index];
+				for(Curve_Plot_1D* curve_Plot : tab_Plots)
+				{
+					if( curve_Plot->measurement.measurement_Type == measurement_Types[Specular_Scan] )
+					{
+						curve_Plot->discretized_Threshold_Line();
+					}
+				}
+			}
+			global_Multilayer_Approach->global_Recalculate();
+		}
 	});
 
 	QVBoxLayout* discretization_Layout = new QVBoxLayout(discretization_Group_Box_Vec[tab_Index]);
@@ -307,8 +347,29 @@ void Calculation_Settings_Editor::load_Target_Parameters(int tab_Index)
 			target_Curve->fit_Params.calculate = box->isChecked();
 			if(target_Curve->measurement.measurement_Type != measurement_Types[GISAS_Map])
 			{
-				global_Multilayer_Approach->target_Added_1D = box->isChecked();
-				global_Multilayer_Approach->reopen_Optical_Graphs_1D(true, TARGET);
+				if((target_Curve->measurement.measurement_Type == measurement_Types[Detector_Scan] ||
+					target_Curve->measurement.measurement_Type == measurement_Types[Rocking_Curve] ||
+					target_Curve->measurement.measurement_Type == measurement_Types[Offset_Scan] ) &&
+				   (multilayer->imperfections_Model.approximation == DWBA_approximation ||
+					multilayer->imperfections_Model.approximation == SA_approximation   ||
+					multilayer->imperfections_Model.approximation == CSA_approximation  ))
+				{
+					QString text;
+					if( multilayer->imperfections_Model.approximation == DWBA_approximation ) text = "Discretization can't be used with DWBA approximation.\nChange the approximation in Structure Table.";
+					if( multilayer->imperfections_Model.approximation == SA_approximation   ) text = "Discretization can't be used with SA approximation.\nChange the approximation in Structure Table.";
+					if( multilayer->imperfections_Model.approximation == CSA_approximation  ) text = "Discretization can't be used with CSA approximation.\nChange the approximation in Structure Table.";
+
+					QMessageBox::information(this,"Discretization", text);
+
+					target_Curve->fit_Params.calculate = false;
+					box->blockSignals(true);
+					box->setChecked(false);
+					box->blockSignals(false);
+				} else
+				{
+					global_Multilayer_Approach->target_Added_1D = box->isChecked();
+					global_Multilayer_Approach->reopen_Optical_Graphs_1D(true, TARGET);
+				}
 			}
 			if(target_Curve->measurement.measurement_Type == measurement_Types[GISAS_Map])
 			{
@@ -908,7 +969,32 @@ void Calculation_Settings_Editor::refresh_Independent_Calc_Properties(int tab_In
 		if(check_Box->text() == transmittance_Function) {independent_Curve->calc_Functions.check_Transmittance = check_Box->isChecked();global_Multilayer_Approach->reopen_Optical_Graphs_1D(true);}
 		if(check_Box->text() == absorptance_Function)	{independent_Curve->calc_Functions.check_Absorptance = check_Box->isChecked();	global_Multilayer_Approach->reopen_Optical_Graphs_1D(true);}
 		if(check_Box->text() == QString(scattering_Function) + " (" + independent_Curve->measurement.measurement_Type + ")")
-														{independent_Curve->calc_Functions.check_Scattering = check_Box->isChecked();	global_Multilayer_Approach->reopen_Optical_Graphs_1D(true);}
+		{
+			if( multilayer->discretization_Parameters.enable_Discretization &&
+			   (independent_Curve->measurement.measurement_Type == measurement_Types[Detector_Scan] ||
+				independent_Curve->measurement.measurement_Type == measurement_Types[Rocking_Curve] ||
+				independent_Curve->measurement.measurement_Type == measurement_Types[Offset_Scan] ) &&
+			   (multilayer->imperfections_Model.approximation == DWBA_approximation ||
+				multilayer->imperfections_Model.approximation == SA_approximation   ||
+				multilayer->imperfections_Model.approximation == CSA_approximation  ))
+			{
+				QString text;
+				if( multilayer->imperfections_Model.approximation == DWBA_approximation ) text = "Discretization can't be used with DWBA approximation.\nChange the approximation in Structure Table.";
+				if( multilayer->imperfections_Model.approximation == SA_approximation   ) text = "Discretization can't be used with SA approximation.\nChange the approximation in Structure Table.";
+				if( multilayer->imperfections_Model.approximation == CSA_approximation  ) text = "Discretization can't be used with CSA approximation.\nChange the approximation in Structure Table.";
+
+				QMessageBox::information(this,"Discretization", text);
+				independent_Curve->calc_Functions.check_Scattering = false;
+				check_Box->blockSignals(true);
+				check_Box->setChecked(false);
+				check_Box->blockSignals(false);
+				recalc = false;
+			} else
+			{
+				independent_Curve->calc_Functions.check_Scattering = check_Box->isChecked();
+				global_Multilayer_Approach->reopen_Optical_Graphs_1D(true);
+			}
+		}
 
 		// 2D
 		if(check_Box->text() == intensity_Function)		{independent_Curve->calc_Functions.check_Field = check_Box->isChecked(); global_Multilayer_Approach->reopen_Optical_Graphs_2D(true);}
