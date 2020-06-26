@@ -16,7 +16,9 @@ public:
 
 	int num_Threads;
 	int num_Layers;
+	int num_Layers_Sharp;
 	int num_Boundaries;
+	int num_Boundaries_Sharp;
 	int num_Media;
 	int num_Media_Sharp;
 

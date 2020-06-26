@@ -314,17 +314,19 @@ double function_Scattering_Linear_2D_sp(double phi, void* p)
 }
 
 Unwrapped_Reflection::Unwrapped_Reflection(const vector<Node*>& short_Flat_Calc_Tree, Calculated_Values& calculated_Values, Unwrapped_Structure* unwrapped_Structure, QString spec_Scat_mode):
-	unwrapped_Structure(unwrapped_Structure),
-	multilayer		(unwrapped_Structure->multilayer),
-	num_Threads		(reflectivity_Calc_Threads),
-	num_Media_Sharp (unwrapped_Structure->num_Media_Sharp),
-	num_Media		(unwrapped_Structure->multilayer->discretization_Parameters.enable_Discretization ? unwrapped_Structure->num_Discretized_Media   : unwrapped_Structure->num_Media_Sharp   ),
-	num_Layers		(unwrapped_Structure->multilayer->discretization_Parameters.enable_Discretization ? unwrapped_Structure->num_Discretized_Media-2 : unwrapped_Structure->num_Media_Sharp-2 ),
-	num_Boundaries	(unwrapped_Structure->multilayer->discretization_Parameters.enable_Discretization ? unwrapped_Structure->num_Discretized_Media-1 : unwrapped_Structure->num_Media_Sharp-1 ),
-	calc_Functions  (unwrapped_Structure->calc_Functions),
-    calculated_Values(calculated_Values),
-    spec_Scat_mode	(spec_Scat_mode),
-	measurement		(unwrapped_Structure->measurement),
+	unwrapped_Structure  (unwrapped_Structure),
+	multilayer			 (unwrapped_Structure->multilayer),
+	num_Threads			 (reflectivity_Calc_Threads),
+	num_Media_Sharp		 (unwrapped_Structure->num_Media_Sharp),
+	num_Layers_Sharp	 (unwrapped_Structure->num_Media_Sharp-2 ),
+	num_Boundaries_Sharp (unwrapped_Structure->num_Media_Sharp-1 ),
+	num_Media			 (unwrapped_Structure->multilayer->discretization_Parameters.enable_Discretization ? unwrapped_Structure->num_Discretized_Media   : unwrapped_Structure->num_Media_Sharp   ),
+	num_Layers			 (unwrapped_Structure->multilayer->discretization_Parameters.enable_Discretization ? unwrapped_Structure->num_Discretized_Media-2 : unwrapped_Structure->num_Media_Sharp-2 ),
+	num_Boundaries		 (unwrapped_Structure->multilayer->discretization_Parameters.enable_Discretization ? unwrapped_Structure->num_Discretized_Media-1 : unwrapped_Structure->num_Media_Sharp-1 ),
+	calc_Functions		 (unwrapped_Structure->calc_Functions),
+	calculated_Values	 (calculated_Values),
+	spec_Scat_mode		 (spec_Scat_mode),
+	measurement			 (unwrapped_Structure->measurement),
 	short_Flat_Calc_Tree (short_Flat_Calc_Tree),
 	media_Node_Map_Vector(unwrapped_Structure->media_Node_Map_Vector),
 	media_Data_Map_Vector(unwrapped_Structure->media_Data_Map_Vector),
@@ -473,7 +475,7 @@ Unwrapped_Reflection::Unwrapped_Reflection(const vector<Node*>& short_Flat_Calc_
 	if( spec_Scat_mode == SCATTERED_MODE )
 	{
 		// scattering
-		if(	unwrapped_Structure->calc_Functions.check_Scattering)
+		if(	unwrapped_Structure->calc_Functions.check_Scattering )
 		{
 			calculated_Values.S_s.resize(num_Points);
 			calculated_Values.S_p.resize(num_Points);
@@ -481,7 +483,7 @@ Unwrapped_Reflection::Unwrapped_Reflection(const vector<Node*>& short_Flat_Calc_
 			calculated_Values.S_Instrumental.resize(num_Points);
 		}
 		// GISAS
-		if(	unwrapped_Structure->calc_Functions.check_GISAS)
+		if(	unwrapped_Structure->calc_Functions.check_GISAS )
 		{
 			phi_Points = measurement.detector_Phi_Angle_Vec.size();
 			short_Phi_Points = measurement.end_Phi_Number - measurement.start_Phi_Index,

@@ -137,7 +137,6 @@ void Unwrapped_Structure::fill_Sigma_Diffuse_And_Interlayers()
 {
 	sigma_Diffuse.resize(num_Boundaries);
 	common_Sigma_Diffuse.resize(num_Boundaries);
-	interlayer_Enabled.resize(num_Boundaries);
 	boundary_Interlayer_Composition.resize(num_Boundaries, QVector<Interlayer>(transition_Layer_Functions_Size));
 
 	sigma_Roughness.resize(num_Boundaries);
@@ -149,8 +148,6 @@ void Unwrapped_Structure::fill_Sigma_Diffuse_And_Interlayers()
 		common_Sigma_Diffuse[boundary_Index] = media_Data_Map_Vector[media_Index]->common_Sigma_Diffuse;
 		sigma_Roughness     [boundary_Index] = media_Data_Map_Vector[media_Index]->roughness_Model.sigma.value;
 
-		interlayer_Enabled[boundary_Index] = false;
-
 		// interlayers
 		for(int func_Index=0; func_Index<transition_Layer_Functions_Size; ++func_Index)
 		{
@@ -158,8 +155,6 @@ void Unwrapped_Structure::fill_Sigma_Diffuse_And_Interlayers()
 			// getting max_Sigma
 			if(boundary_Interlayer_Composition[boundary_Index][func_Index].enabled)	{
 				max_Sigma = max(max_Sigma, boundary_Interlayer_Composition[boundary_Index][func_Index].my_Sigma_Diffuse.value);
-				min_Sigma = min(min_Sigma, boundary_Interlayer_Composition[boundary_Index][func_Index].my_Sigma_Diffuse.value);
-				interlayer_Enabled[boundary_Index] = true;
 			}
 			// can drift
 			Global_Variables::variable_Drift(boundary_Interlayer_Composition[boundary_Index][func_Index].my_Sigma_Diffuse.value,
@@ -175,7 +170,6 @@ void Unwrapped_Structure::fill_Sigma_Diffuse_And_Interlayers()
 										 media_Data_Map_Vector[media_Index]->num_Repetition.value(),
 										 r);
 	}
-	if(min_Sigma > MAX_DOUBLE/2) min_Sigma = 0;
 
 	// threaded copy
 	boundary_Interlayer_Composition_Threaded.resize(reflectivity_Calc_Threads);
