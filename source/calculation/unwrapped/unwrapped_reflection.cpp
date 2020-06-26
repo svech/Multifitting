@@ -1731,9 +1731,9 @@ double Unwrapped_Reflection::calc_Field_Term_Sum(QString polarization, int point
 	/// ------------------------------------------------------
 	double incoherent_Diagonal_Sum = 0;
 	complex<double> coherent_Diagonal_Sum = 0;
-	for (int j = 0; j<num_Boundaries_Sharp; j++)
+
+	auto field_Term_Boundary_Func_Sharp = [&](int j)
 	{
-		// all fields
 		double sigma_j_s2 = unwrapped_Structure->sigma_Diffuse[j] / M_SQRT2;
 
 		complex<double>& k1_Up = k1_Up_Boundary[thread_Index][j];
@@ -1763,18 +1763,25 @@ double Unwrapped_Reflection::calc_Field_Term_Sum(QString polarization, int point
 		complex<double> erf_Low_1 = Faddeeva::erf( I*sigma_j_s2*k1_Low );
 		complex<double> erf_Low_2 = Faddeeva::erf( I*sigma_j_s2*k2_Low );
 
-		field_Term_Boundary[j] = 0.5*(unwrapped_Structure->epsilon[j+1]-unwrapped_Structure->epsilon[j]) *
-									 (
-									  b1_Up*exp_Up_1*(1.-erf_Up_1) +
-									  b2_Up*exp_Up_2*(1.-erf_Up_2) +
-									  b3_Up*exp_Up_2*(1.+erf_Up_2) +
-									  b4_Up*exp_Up_1*(1.+erf_Up_1) +
+		return 0.5*(unwrapped_Structure->epsilon[j+1]-unwrapped_Structure->epsilon[j]) *
+				   (
+					b1_Up*exp_Up_1*(1.-erf_Up_1) +
+					b2_Up*exp_Up_2*(1.-erf_Up_2) +
+					b3_Up*exp_Up_2*(1.+erf_Up_2) +
+					b4_Up*exp_Up_1*(1.+erf_Up_1) +
 
-									  b1_Low*exp_Low_1*(1.+erf_Low_1) +
-									  b2_Low*exp_Low_2*(1.+erf_Low_2) +
-									  b3_Low*exp_Low_2*(1.-erf_Low_2) +
-									  b4_Low*exp_Low_1*(1.-erf_Low_1)
-									 );
+					b1_Low*exp_Low_1*(1.+erf_Low_1) +
+					b2_Low*exp_Low_2*(1.+erf_Low_2) +
+					b3_Low*exp_Low_2*(1.-erf_Low_2) +
+					b4_Low*exp_Low_1*(1.-erf_Low_1)
+				   );
+	};
+
+	for (int j = 0; j<num_Boundaries_Sharp; j++)
+	{
+		// all fields
+		field_Term_Boundary[j] = field_Term_Boundary_Func_Sharp(j);
+
 		// diagonal intensities
 		intensity_Term_Boundary[j] = norm(field_Term_Boundary[j]);
 
