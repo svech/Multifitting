@@ -355,9 +355,9 @@ void Calculation_Settings_Editor::load_Target_Parameters(int tab_Index)
 					multilayer->imperfections_Model.approximation == CSA_approximation  ))
 				{
 					QString text;
-					if( multilayer->imperfections_Model.approximation == DWBA_approximation ) text = "Discretization can't be used with DWBA approximation.\nChange the approximation in Structure Table.";
-					if( multilayer->imperfections_Model.approximation == SA_approximation   ) text = "Discretization can't be used with SA approximation.\nChange the approximation in Structure Table.";
-					if( multilayer->imperfections_Model.approximation == CSA_approximation  ) text = "Discretization can't be used with CSA approximation.\nChange the approximation in Structure Table.";
+					if( multilayer->imperfections_Model.approximation == DWBA_approximation ) text = "Discretization can't be used with DWBA approximation.\nChange the approximation in Structure Table or disable discretization.";
+					if( multilayer->imperfections_Model.approximation == SA_approximation   ) text = "Discretization can't be used with SA approximation.\nChange the approximation in Structure Table or disable discretization.";
+					if( multilayer->imperfections_Model.approximation == CSA_approximation  ) text = "Discretization can't be used with CSA approximation.\nChange the approximation in Structure Table or disable discretization.";
 
 					QMessageBox::information(this,"Discretization", text);
 
@@ -979,9 +979,9 @@ void Calculation_Settings_Editor::refresh_Independent_Calc_Properties(int tab_In
 				multilayer->imperfections_Model.approximation == CSA_approximation  ))
 			{
 				QString text;
-				if( multilayer->imperfections_Model.approximation == DWBA_approximation ) text = "Discretization can't be used with DWBA approximation.\nChange the approximation in Structure Table.";
-				if( multilayer->imperfections_Model.approximation == SA_approximation   ) text = "Discretization can't be used with SA approximation.\nChange the approximation in Structure Table.";
-				if( multilayer->imperfections_Model.approximation == CSA_approximation  ) text = "Discretization can't be used with CSA approximation.\nChange the approximation in Structure Table.";
+				if( multilayer->imperfections_Model.approximation == DWBA_approximation ) text = "Discretization can't be used with DWBA approximation.\nChange the approximation in Structure Table or disable discretization.";
+				if( multilayer->imperfections_Model.approximation == SA_approximation   ) text = "Discretization can't be used with SA approximation.\nChange the approximation in Structure Table or disable discretization.";
+				if( multilayer->imperfections_Model.approximation == CSA_approximation  ) text = "Discretization can't be used with CSA approximation.\nChange the approximation in Structure Table or disable discretization.";
 
 				QMessageBox::information(this,"Discretization", text);
 				independent_Curve->calc_Functions.check_Scattering = false;

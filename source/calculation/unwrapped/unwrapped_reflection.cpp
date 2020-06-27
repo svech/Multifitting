@@ -1943,51 +1943,6 @@ double Unwrapped_Reflection::calc_Field_Term_Sum(QString polarization, int point
 	double incoherent_Diagonal_Sum = 0;
 	complex<double> coherent_Diagonal_Sum = 0;
 
-//	auto field_Term_Boundary_Func_Sharp = [&](int j)
-//	{
-//		double sigma_j_s2 = unwrapped_Structure->sigma_Diffuse[j] / M_SQRT2;
-
-//		complex<double>& k1_Up = k1_Up_Boundary[thread_Index][j];
-//		complex<double>& k2_Up = k2_Up_Boundary[thread_Index][j];
-
-//		complex<double>& k1_Low = k1_Low_Boundary[thread_Index][j];
-//		complex<double>& k2_Low = k2_Low_Boundary[thread_Index][j];
-
-//		complex<double>& b1_Up = b1_Up_Boundary[j];
-//		complex<double>& b2_Up = b2_Up_Boundary[j];
-//		complex<double>& b3_Up = b3_Up_Boundary[j];
-//		complex<double>& b4_Up = b4_Up_Boundary[j];
-
-//		complex<double>& b1_Low = b1_Low_Boundary[j];
-//		complex<double>& b2_Low = b2_Low_Boundary[j];
-//		complex<double>& b3_Low = b3_Low_Boundary[j];
-//		complex<double>& b4_Low = b4_Low_Boundary[j];
-
-
-//		complex<double> exp_Up_1  = exp(-sigma_j_s2*sigma_j_s2 * k1_Up *k1_Up);
-//		complex<double> exp_Up_2  = exp(-sigma_j_s2*sigma_j_s2 * k2_Up *k2_Up);
-//		complex<double> exp_Low_1 = exp(-sigma_j_s2*sigma_j_s2 * k1_Low*k1_Low);
-//		complex<double> exp_Low_2 = exp(-sigma_j_s2*sigma_j_s2 * k2_Low*k2_Low);
-
-//		complex<double> erf_Up_1  = Faddeeva::erf( I*sigma_j_s2*k1_Up );
-//		complex<double> erf_Up_2  = Faddeeva::erf( I*sigma_j_s2*k2_Up );
-//		complex<double> erf_Low_1 = Faddeeva::erf( I*sigma_j_s2*k1_Low );
-//		complex<double> erf_Low_2 = Faddeeva::erf( I*sigma_j_s2*k2_Low );
-
-//		return 0.5*(unwrapped_Structure->epsilon[j+1]-unwrapped_Structure->epsilon[j]) *
-//				   (
-//					b1_Up*exp_Up_1*(1.-erf_Up_1) +
-//					b2_Up*exp_Up_2*(1.-erf_Up_2) +
-//					b3_Up*exp_Up_2*(1.+erf_Up_2) +
-//					b4_Up*exp_Up_1*(1.+erf_Up_1) +
-
-//					b1_Low*exp_Low_1*(1.+erf_Low_1) +
-//					b2_Low*exp_Low_2*(1.+erf_Low_2) +
-//					b3_Low*exp_Low_2*(1.-erf_Low_2) +
-//					b4_Low*exp_Low_1*(1.-erf_Low_1)
-//				   );
-//	};
-
 	for (int j = 0; j<num_Boundaries_Sharp; j++)
 	{
 		// all fields
@@ -2556,17 +2511,8 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 						measurement.measurement_Type == measurement_Types[Rocking_Curve] ||
 						measurement.measurement_Type == measurement_Types[Offset_Scan] )
 					{
-//						calc_k_Wavenumber_DWBA_SA_CSA(thread_Index, point_Index);
-						if( (measurement.polarization + 1) >  POLARIZATION_TOLERANCE)
-						{
-//							calc_Field_DWBA_SA_CSA(thread_Index, point_Index, "s");
-							calc_K_Factor_DWBA_SA_CSA(thread_Index,           "s");
-						}
-						if( (measurement.polarization - 1) < -POLARIZATION_TOLERANCE)
-						{
-//							calc_Field_DWBA_SA_CSA(thread_Index, point_Index, "p");
-							calc_K_Factor_DWBA_SA_CSA(thread_Index,           "p");
-						}
+						if( (measurement.polarization + 1) >  POLARIZATION_TOLERANCE)	calc_K_Factor_DWBA_SA_CSA(thread_Index, "s");
+						if( (measurement.polarization - 1) < -POLARIZATION_TOLERANCE)	calc_K_Factor_DWBA_SA_CSA(thread_Index, "p");
 						choose_Cor_Function(thread_Index);
 
 						if( multilayer->imperfections_Model.vertical_Correlation == full_Correlation ||
