@@ -183,6 +183,15 @@ public:
 	// PT
 	void fill_Item_PSD_1D				(int thread_Index, int point_Index, double cos_Theta_0);
 	void fill_Item_PSD_2D				(int thread_Index, int point_Index, int phi_Index);
+	complex<double> calc_Field_Term_j	(int j, int thread_Index, const vector<complex<double>>& b1_Up_Boundary,
+																  const vector<complex<double>>& b2_Up_Boundary,
+																  const vector<complex<double>>& b3_Up_Boundary,
+																  const vector<complex<double>>& b4_Up_Boundary,
+
+																  const vector<complex<double>>& b1_Low_Boundary,
+																  const vector<complex<double>>& b2_Low_Boundary,
+																  const vector<complex<double>>& b3_Low_Boundary,
+																  const vector<complex<double>>& b4_Low_Boundary);
 	double calc_Field_Term_Sum			(QString polarization, int point_Index, int thread_Index);
 	void choose_PSD_1D_Function			(const Data& struct_Data, int thread_Index);
 	void choose_PSD_2D_Function			(int point_Index, int thread_Index);
