@@ -501,18 +501,20 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 			}
 		}
 
-		if( struct_Data.item_Type == item_Type_Layer ||
-			struct_Data.item_Type == item_Type_Substrate )
-		{
-			double sigma = struct_Data.roughness_Model.sigma.value;
-			double xi = struct_Data.roughness_Model.cor_radius.value;
-			double alpha = struct_Data.roughness_Model.fractal_alpha.value;
+	}
 
-			struct_Data.PSD_ABC_1D_Factor = 4*sqrt(M_PI) * tgamma(alpha+0.5)/tgamma(alpha) * sigma*sigma*xi;
-			struct_Data.PSD_ABC_2D_Factor = 4*M_PI * sigma*sigma * xi*xi * alpha;
-			struct_Data.PSD_Real_Gauss_1D_Factor = 2*sqrt(M_PI) * sigma*sigma*xi;
-			struct_Data.PSD_Real_Gauss_2D_Factor = M_PI * sigma*sigma*xi*xi;
-		}
+	// with and without discretization
+	if( struct_Data.item_Type == item_Type_Layer ||
+		struct_Data.item_Type == item_Type_Substrate )
+	{
+		double sigma = struct_Data.roughness_Model.sigma.value;
+		double xi = struct_Data.roughness_Model.cor_radius.value;
+		double alpha = struct_Data.roughness_Model.fractal_alpha.value;
+
+		struct_Data.PSD_ABC_1D_Factor = 4*sqrt(M_PI) * tgamma(alpha+0.5)/tgamma(alpha) * sigma*sigma*xi;
+		struct_Data.PSD_ABC_2D_Factor = 4*M_PI * sigma*sigma * xi*xi * alpha;
+		struct_Data.PSD_Real_Gauss_1D_Factor = 2*sqrt(M_PI) * sigma*sigma*xi;
+		struct_Data.PSD_Real_Gauss_2D_Factor = M_PI * sigma*sigma*xi*xi;
 	}
 }
 

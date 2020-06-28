@@ -7,6 +7,14 @@
 #include <gsl/gsl_rng.h>
 #include <gsl/gsl_randist.h>
 
+struct Subbounds
+{
+	bool top_Half_Boundary = false;
+	size_t top_Boundary;
+	size_t bottom_Boundary;
+	bool bottom_Half_Boundary = false;
+};
+
 class Multilayer;
 
 class Unwrapped_Structure
@@ -100,6 +108,9 @@ public:
 	vector<complex<double>> discretized_Epsilon;
 	vector<vector<complex<double>>> discretized_Epsilon_Dependent;
 
+	vector<int> num_Slices_Vec;										//	[layer]
+	vector<Subbounds> boundary_Subboundary_Map_Vector;				//	[boundary]
+
 	vector<double> discretized_Thickness;
 	vector<double> discretized_Slices_Boundaries;
 	vector<double> z_Positions;
@@ -110,6 +121,7 @@ public:
 	void layer_Normalizing();
 	void find_Discretization();
 	void find_Z_Positions();
+	void find_Subbounds_Limits();
 	void fill_Discretized_Epsilon_Dependent(int num_Lambda_Points);
 	void fill_Discretized_Epsilon();
 	void epsilon_Func(double z, int media_Index, bool is_Dependent,

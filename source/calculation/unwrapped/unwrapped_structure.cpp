@@ -63,6 +63,7 @@ Unwrapped_Structure::Unwrapped_Structure(Multilayer* multilayer,
 		num_Discretized_Media = discretized_Thickness.size()+2;
 
 		find_Z_Positions();
+		find_Subbounds_Limits();
 
 		if( measurement.argument_Type == argument_Types[Wavelength_Energy] )
 		{
@@ -334,6 +335,7 @@ void Unwrapped_Structure::find_Discretization()
 {
 	discretized_Thickness.clear();
 	discretized_Thickness.reserve(100000);
+	num_Slices_Vec.resize(num_Layers);
 
 	for(int layer_Index=0; layer_Index<num_Layers; layer_Index++)
 	{
@@ -346,7 +348,8 @@ void Unwrapped_Structure::find_Discretization()
 		{
 			discretized_Thickness[last_Index-i] = adapted_Step;
 		}
-	}
+		num_Slices_Vec[layer_Index] = num_Slices;
+	}	
 }
 
 void Unwrapped_Structure::find_Z_Positions()
@@ -364,6 +367,31 @@ void Unwrapped_Structure::find_Z_Positions()
 			z += discretized_Thickness[i]; // real z, where we calculate epsilon
 		}
 	}
+}
+
+void Unwrapped_Structure::find_Subbounds_Limits()
+{
+	boundary_Subboundary_Map_Vector.resize(num_Boundaries);
+	boundary_Subboundary_Map_Vector.front().top_Boundary = 0;
+
+	int current_Boundary = num_Prefix_Slices;
+	for(int layer_Index=0; layer_Index<num_Layers; layer_Index++)
+	{
+		if(num_Slices_Vec[layer_Index]%2==0) // 2, 4, 6...
+		{
+			boundary_Subboundary_Map_Vector[layer_Index].bottom_Boundary = current_Boundary + num_Slices_Vec[layer_Index]/2-1;
+			boundary_Subboundary_Map_Vector[layer_Index+1].top_Boundary  = current_Boundary + num_Slices_Vec[layer_Index]/2+1;
+
+			boundary_Subboundary_Map_Vector[layer_Index].bottom_Half_Boundary = true;
+			boundary_Subboundary_Map_Vector[layer_Index+1].top_Half_Boundary = true;
+		} else
+		{
+			boundary_Subboundary_Map_Vector[layer_Index].bottom_Boundary = current_Boundary + floor(double(num_Slices_Vec[layer_Index])/2);
+			boundary_Subboundary_Map_Vector[layer_Index+1].top_Boundary  = current_Boundary + ceil (double(num_Slices_Vec[layer_Index])/2);
+		}
+		current_Boundary += num_Slices_Vec[layer_Index];
+	}
+	boundary_Subboundary_Map_Vector.back().bottom_Boundary = discretized_Thickness.size();
 }
 
 void Unwrapped_Structure::fill_Discretized_Epsilon()
