@@ -344,6 +344,8 @@ Unwrapped_Reflection::Unwrapped_Reflection(const vector<Node*>& short_Flat_Calc_
     r_Fresnel_p(num_Threads,vector<complex<double>>(num_Boundaries)),
     r_Local_s  (num_Threads,vector<complex<double>>(num_Boundaries)),
     r_Local_p  (num_Threads,vector<complex<double>>(num_Boundaries)),
+	r_Exp_s    (num_Threads,vector<complex<double>>(num_Boundaries)),
+	r_Exp_p    (num_Threads,vector<complex<double>>(num_Boundaries)),
 
     t_Fresnel_s(num_Threads,vector<complex<double>>(num_Boundaries)),
     t_Fresnel_p(num_Threads,vector<complex<double>>(num_Boundaries)),
@@ -1151,24 +1153,23 @@ void Unwrapped_Reflection::calc_Local(int thread_Index)
 		// reflectance only
 		if( calc_Functions.if_Reflectance_Only() )
 		{
-			complex<double> r_exp;
 			r_Local_s[thread_Index].back() = r_Fresnel_s[thread_Index].back();	// last boundary
 			for (int i = num_Layers-1; i >= 0; --i)
 			{
-				r_exp = r_Local_s[thread_Index][i+1]*exponenta_2[thread_Index][i];
-				r_Local_s[thread_Index][i] = (r_Fresnel_s[thread_Index][i] + r_exp) / (1. + r_Fresnel_s[thread_Index][i]*r_exp);
+				r_Exp_s[thread_Index][i] = r_Local_s[thread_Index][i+1]*exponenta_2[thread_Index][i];
+				r_Local_s[thread_Index][i] = (r_Fresnel_s[thread_Index][i] + r_Exp_s[thread_Index][i]) / (1. + r_Fresnel_s[thread_Index][i]*r_Exp_s[thread_Index][i]);
 			}
 		} else
 		// reflectance and transmittance
 		{
-			complex<double> r_exp,denom;
+			complex<double> denom;
 			r_Local_s[thread_Index].back() = r_Fresnel_s[thread_Index].back();	// last boundary
 			t_Local_s[thread_Index].back() = t_Fresnel_s[thread_Index].back();	// last boundary
 			for (int i = num_Layers-1; i >= 0; --i)
 			{
-				r_exp = r_Local_s[thread_Index][i+1]*exponenta_2[thread_Index][i];
-				denom = 1. + r_Fresnel_s[thread_Index][i]*r_exp;
-				r_Local_s[thread_Index][i] = (r_Fresnel_s[thread_Index][i] + r_exp) / denom;
+				r_Exp_s[thread_Index][i] = r_Local_s[thread_Index][i+1]*exponenta_2[thread_Index][i];
+				denom = 1. + r_Fresnel_s[thread_Index][i]*r_Exp_s[thread_Index][i];
+				r_Local_s[thread_Index][i] = (r_Fresnel_s[thread_Index][i] + r_Exp_s[thread_Index][i]) / denom;
 
 				t_Local_s[thread_Index][i] = (t_Local_s[thread_Index][i+1]*t_Fresnel_s[thread_Index][i]*exponenta[thread_Index][i]) / denom;
 			}
@@ -1180,24 +1181,23 @@ void Unwrapped_Reflection::calc_Local(int thread_Index)
 		// reflectance only
 		if( calc_Functions.if_Reflectance_Only() )
 		{
-			complex<double> r_exp;
 			r_Local_p[thread_Index].back() = r_Fresnel_p[thread_Index].back();	// last boundary
 			for (int i = num_Layers-1; i >= 0; --i)
 			{
-				r_exp = r_Local_p[thread_Index][i+1]*exponenta_2[thread_Index][i];
-				r_Local_p[thread_Index][i] = (r_Fresnel_p[thread_Index][i] + r_exp) / (1. + r_Fresnel_p[thread_Index][i]*r_exp);
+				r_Exp_p[thread_Index][i] = r_Local_p[thread_Index][i+1]*exponenta_2[thread_Index][i];
+				r_Local_p[thread_Index][i] = (r_Fresnel_p[thread_Index][i] + r_Exp_p[thread_Index][i]) / (1. + r_Fresnel_p[thread_Index][i]*r_Exp_p[thread_Index][i]);
 			}
 		} else
 		// reflectance and transmittance
 		{
-			complex<double> r_exp,denom;
+			complex<double> denom;
 			r_Local_p[thread_Index].back() = r_Fresnel_p[thread_Index].back();	// last boundary
 			t_Local_p[thread_Index].back() = t_Fresnel_p[thread_Index].back();	// last boundary
 			for (int i = num_Layers-1; i >= 0; --i)
 			{
-				r_exp = r_Local_p[thread_Index][i+1]*exponenta_2[thread_Index][i];
-				denom = 1. + r_Fresnel_p[thread_Index][i]*r_exp;
-				r_Local_p[thread_Index][i] = (r_Fresnel_p[thread_Index][i] + r_exp) / denom;
+				r_Exp_p[thread_Index][i] = r_Local_p[thread_Index][i+1]*exponenta_2[thread_Index][i];
+				denom = 1. + r_Fresnel_p[thread_Index][i]*r_Exp_p[thread_Index][i];
+				r_Local_p[thread_Index][i] = (r_Fresnel_p[thread_Index][i] + r_Exp_p[thread_Index][i]) / denom;
 
 				t_Local_p[thread_Index][i] = (t_Local_p[thread_Index][i+1]*t_Fresnel_p[thread_Index][i]*exponenta[thread_Index][i]) / denom;
 			}
@@ -1207,56 +1207,29 @@ void Unwrapped_Reflection::calc_Local(int thread_Index)
 
 void Unwrapped_Reflection::calc_Amplitudes_Field(int thread_Index, int point_Index, QString polarization)
 {
-	vector<vector<complex<double>>>* U_i;
-	vector<vector<complex<double>>>* U_r;
-	vector<vector<complex<double>>>* r_Local;
-	vector<vector<complex<double>>>* t_Local;
+	vector<complex<double>>& U_i_s = spec_Scat_mode == SPECULAR_MODE ? calculated_Values.q0_U_i_s[point_Index] : calculated_Values.q_U_i_s[point_Index];
+	vector<complex<double>>& U_r_s = spec_Scat_mode == SPECULAR_MODE ? calculated_Values.q0_U_r_s[point_Index] : calculated_Values.q_U_r_s[point_Index];
+	vector<complex<double>>& U_i_p = spec_Scat_mode == SPECULAR_MODE ? calculated_Values.q0_U_i_p[point_Index] : calculated_Values.q_U_i_p[point_Index];
+	vector<complex<double>>& U_r_p = spec_Scat_mode == SPECULAR_MODE ? calculated_Values.q0_U_r_p[point_Index] : calculated_Values.q_U_r_p[point_Index];
 
-	if(polarization == "s")
-	{
-		r_Local = &(r_Local_s);
-		t_Local = &(t_Local_s);
-
-		if(spec_Scat_mode == SPECULAR_MODE)
-		{
-			U_i = &(calculated_Values.q0_U_i_s);
-			U_r = &(calculated_Values.q0_U_r_s);
-		}
-		if(spec_Scat_mode == SCATTERED_MODE)
-		{
-			U_i = &(calculated_Values.q_U_i_s);
-			U_r = &(calculated_Values.q_U_r_s);
-		}
-	}
-	if(polarization == "p")
-	{
-		r_Local = &(r_Local_p);
-		t_Local = &(t_Local_p);
-
-		if(spec_Scat_mode == SPECULAR_MODE)
-		{
-			U_i = &(calculated_Values.q0_U_i_p);
-			U_r = &(calculated_Values.q0_U_r_p);
-		}
-		if(spec_Scat_mode == SCATTERED_MODE)
-		{
-			U_i = &(calculated_Values.q_U_i_p);
-			U_r = &(calculated_Values.q_U_r_p);
-		}
-	}
+	vector<complex<double>>& U_i = polarization == "s" ? U_i_s : U_i_p;
+	vector<complex<double>>& U_r = polarization == "s" ? U_r_s : U_r_p;
+	vector<complex<double>>& r_Local = polarization == "s" ? r_Local_s[thread_Index] : r_Local_p[thread_Index];
+	vector<complex<double>>& t_Local = polarization == "s" ? t_Local_s[thread_Index] : t_Local_p[thread_Index];
+	vector<complex<double>>& r_Exp   = polarization == "s" ? r_Exp_s  [thread_Index] : r_Exp_p  [thread_Index];
 
 	// main part
-
-	(*U_i)[point_Index].front() = 1;
-	(*U_r)[point_Index].front() = (*r_Local)[thread_Index].front();
-
-	for (int j = 1; j<num_Boundaries; j++)
+	complex<double> factor = 1;
+	U_i[0] = 1;
+	U_r[0] = r_Local[0];
+	for (int j = 1; (j<num_Boundaries); j++)
 	{
-		(*U_i)[point_Index][j] = (*U_i)[point_Index][j-1] * (*t_Local)[thread_Index][j-1] / (*t_Local)[thread_Index][j];
-		(*U_r)[point_Index][j] = (*U_i)[point_Index][j  ] * (*r_Local)[thread_Index][j];
+		factor = exponenta[thread_Index][j-1]/(1. + r_Exp[j-1]);
+		U_i[j] = (U_i[j-1] + U_r[j-1])*factor;
+		U_r[j] = U_i[j] * r_Local[j];
 	}
-	(*U_i)[point_Index].back() = (*U_i)[point_Index][num_Boundaries-1] * (*t_Local)[thread_Index].back();
-	(*U_r)[point_Index].back() = 0;
+	U_i[num_Boundaries] = U_i[num_Boundaries-1] * t_Local.back();
+	U_r[num_Boundaries] = 0;
 }
 
 void Unwrapped_Reflection::calc_k_Wavenumber_Up_Low(int thread_Index, int point_Index)

@@ -47,6 +47,8 @@ public:
 	vector<vector<complex<double>>> r_Fresnel_p;	//	[thread][boundary]
 	vector<vector<complex<double>>> r_Local_s;		//	[thread][boundary]
 	vector<vector<complex<double>>> r_Local_p;		//	[thread][boundary]
+	vector<vector<complex<double>>> r_Exp_s;		//	[thread][boundary]
+	vector<vector<complex<double>>> r_Exp_p;		//	[thread][boundary]
 
 	vector<vector<complex<double>>> t_Fresnel_s;	//	[thread][boundary]
 	vector<vector<complex<double>>> t_Fresnel_p;	//	[thread][boundary]
