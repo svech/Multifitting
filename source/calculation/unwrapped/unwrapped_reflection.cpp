@@ -2181,7 +2181,6 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 	{		
 		if( (measurement.polarization + 1) > POLARIZATION_TOLERANCE)  calc_Amplitudes_Field(thread_Index, point_Index, "s");
 		if( (measurement.polarization - 1) < -POLARIZATION_TOLERANCE) calc_Amplitudes_Field(thread_Index, point_Index, "p");
-
 		// in specular mode we stop here
 		// in scattered mode we go further and use calculated q and q0 fields
 		if(spec_Scat_mode == SCATTERED_MODE)
