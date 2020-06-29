@@ -22,6 +22,8 @@ public:
 	int num_Media;
 	int num_Media_Sharp;
 
+	bool if_Single_Beam_Value = false;
+
 	size_t num_Points;
 	size_t phi_Points;
 	size_t short_Phi_Points;
@@ -56,8 +58,8 @@ public:
 	vector<vector<complex<double>>> t_Local_p;		//	[thread][boundary]
 
 	vector<vector<complex<double>>>& hi;			//	[point][media]
-	vector<vector<complex<double>>> exponenta;		//	[thread][boundary/layer]
-	vector<vector<complex<double>>> exponenta_2;	//	[thread][boundary/layer]
+	vector<vector<complex<double>>>& exponenta;		//	[point][boundary/layer]
+	vector<vector<complex<double>>>  exponenta_2;	//	[thread][boundary/layer]
 
 	vector<double> environment_Factor_s;	//	[thread]
 	vector<double> environment_Factor_p;	//	[thread]
@@ -175,7 +177,7 @@ public:
 	void calc_Weak_Factor				(int thread_Index, int point_Index);
 	void calc_Fresnel					(int thread_Index, int point_Index, const vector<complex<double>>& epsilon_Vector);
 	void calc_Exponenta					(int thread_Index, int point_Index, const vector<double>& thickness);
-	void calc_Local						(int thread_Index);
+	void calc_Local						(int thread_Index, int point_Index);
 	void calc_Environmental_Factor		(int thread_Index, int point_Index);
 
 	// fields
@@ -185,15 +187,19 @@ public:
 	// PT
 	void fill_Item_PSD_1D				(int thread_Index, int point_Index, double cos_Theta_0);
 	void fill_Item_PSD_2D				(int thread_Index, int point_Index, int phi_Index);
-	complex<double> calc_Field_Term_j	(int point_Index, int j, int thread_Index, const vector<complex<double>>& b1_Up_Boundary,
-																  const vector<complex<double>>& b2_Up_Boundary,
-																  const vector<complex<double>>& b3_Up_Boundary,
-																  const vector<complex<double>>& b4_Up_Boundary,
+	complex<double> calc_Field_Term_j	(int point_Index, int j, int thread_Index,
+																 const vector<complex<double>>& q0_Hi,
+																 const vector<complex<double>>& q_Hi,
 
-																  const vector<complex<double>>& b1_Low_Boundary,
-																  const vector<complex<double>>& b2_Low_Boundary,
-																  const vector<complex<double>>& b3_Low_Boundary,
-																  const vector<complex<double>>& b4_Low_Boundary);
+																 const vector<complex<double>>& b1_Up_Boundary,
+																 const vector<complex<double>>& b2_Up_Boundary,
+																 const vector<complex<double>>& b3_Up_Boundary,
+																 const vector<complex<double>>& b4_Up_Boundary,
+
+																 const vector<complex<double>>& b1_Low_Boundary,
+																 const vector<complex<double>>& b2_Low_Boundary,
+																 const vector<complex<double>>& b3_Low_Boundary,
+																 const vector<complex<double>>& b4_Low_Boundary);
 	complex<double> calc_Field_Term_j_Discrete	(int point_Index, int j, const vector<complex<double>>& q0_U_i,
 														const vector<complex<double>>& q0_U_r,
 														const vector<complex<double>>& q_U_i,

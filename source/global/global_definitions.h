@@ -781,6 +781,9 @@ struct Calculated_Values	  {	// reflectance
 
 								vector<vector<complex<double>>> q0_Hi;
 								vector<vector<complex<double>>> q_Hi;
+
+								vector<vector<complex<double>>> q0_Exponenta;
+								vector<vector<complex<double>>> q_Exponenta;
 							   };
 struct Simple_Curve		       {
 								Simple_Curve();

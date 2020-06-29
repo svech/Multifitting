@@ -352,8 +352,8 @@ Unwrapped_Reflection::Unwrapped_Reflection(const vector<Node*>& short_Flat_Calc_
     t_Local_s  (num_Threads,vector<complex<double>>(num_Boundaries)),
     t_Local_p  (num_Threads,vector<complex<double>>(num_Boundaries)),
 
-    exponenta  (num_Threads,vector<complex<double>>(num_Boundaries)),
-    exponenta_2(num_Threads,vector<complex<double>>(num_Boundaries)),
+	exponenta  (spec_Scat_mode == SPECULAR_MODE ? calculated_Values.q0_Exponenta : calculated_Values.q_Exponenta ),
+	exponenta_2(num_Threads,vector<complex<double>>(num_Boundaries)),
 
 	weak_Factor_R(num_Threads,vector<complex<double>>(num_Boundaries_Sharp)),
 	weak_Factor_T(num_Threads,vector<complex<double>>(num_Boundaries_Sharp)),
@@ -384,6 +384,7 @@ Unwrapped_Reflection::Unwrapped_Reflection(const vector<Node*>& short_Flat_Calc_
 	s_Weight = (1. + measurement.polarization) / 2.;
 	p_Weight = (1. - measurement.polarization) / 2.;
 
+
 	if( measurement.measurement_Type == measurement_Types[Specular_Scan] )
 	{
 		if( measurement.argument_Type  == argument_Types[Beam_Grazing_Angle] )	num_Points = measurement.beam_Theta_0_Angle_Vec.size();
@@ -392,6 +393,7 @@ Unwrapped_Reflection::Unwrapped_Reflection(const vector<Node*>& short_Flat_Calc_
 	if( measurement.measurement_Type == measurement_Types[Detector_Scan] ||
 	    measurement.measurement_Type == measurement_Types[GISAS_Map] )
 	{
+		if_Single_Beam_Value = true;
 		if(spec_Scat_mode == SPECULAR_MODE) 	num_Points = 1;
 		if(spec_Scat_mode == SCATTERED_MODE) 	num_Points = measurement.detector_Theta_Angle_Vec.size();
 	}
@@ -406,6 +408,7 @@ Unwrapped_Reflection::Unwrapped_Reflection(const vector<Node*>& short_Flat_Calc_
 	// takes time only at first calculation or significant changes in points and boundaries
 	{
 		hi.resize(num_Points);
+		exponenta.resize(num_Points);
 		U_i_s.resize(num_Points);
 		U_r_s.resize(num_Points);
 		U_i_p.resize(num_Points);
@@ -414,6 +417,7 @@ Unwrapped_Reflection::Unwrapped_Reflection(const vector<Node*>& short_Flat_Calc_
 		for(size_t point_Index = 0; point_Index<num_Points; point_Index++)
 		{
 			hi[point_Index].resize(num_Media);
+			exponenta[point_Index].resize(num_Boundaries);
 			U_i_s[point_Index].resize(num_Media);
 			U_r_s[point_Index].resize(num_Media);
 			U_i_p[point_Index].resize(num_Media);
@@ -783,7 +787,7 @@ void Unwrapped_Reflection::fill_Components_From_Node_Vector(int thread_Index, in
 	{
 		Node* node = media_Node_Map_Vector[media_Index];
 		hi         [point_Index ][media_Index  ] = node->hi         [point_Index];
-		exponenta  [thread_Index][media_Index-1] = node->exponenta  [point_Index];
+		exponenta  [point_Index ][media_Index-1] = node->exponenta  [point_Index];
 		exponenta_2[thread_Index][media_Index-1] = node->exponenta_2[point_Index];
 	}
 
@@ -1139,13 +1143,13 @@ void Unwrapped_Reflection::calc_Exponenta(int thread_Index, int point_Index, con
 	{
 		for (int i = 0; i < num_Layers; ++i)
 		{
-			exponenta[thread_Index][i] = exp(I*hi[point_Index][i+1]*thickness[i]);
-			exponenta_2[thread_Index][i] = pow(exponenta[thread_Index][i],2);
+			exponenta[point_Index][i] = exp(I*hi[point_Index][i+1]*thickness[i]);
+			exponenta_2[thread_Index][i] = pow(exponenta[point_Index][i],2);
 		}
 	}
 }
 
-void Unwrapped_Reflection::calc_Local(int thread_Index)
+void Unwrapped_Reflection::calc_Local(int thread_Index, int point_Index)
 {
 	// s-polarization
 	if( (measurement.polarization + 1) > POLARIZATION_TOLERANCE)
@@ -1171,7 +1175,7 @@ void Unwrapped_Reflection::calc_Local(int thread_Index)
 				denom = 1. + r_Fresnel_s[thread_Index][i]*r_Exp_s[thread_Index][i];
 				r_Local_s[thread_Index][i] = (r_Fresnel_s[thread_Index][i] + r_Exp_s[thread_Index][i]) / denom;
 
-				t_Local_s[thread_Index][i] = (t_Local_s[thread_Index][i+1]*t_Fresnel_s[thread_Index][i]*exponenta[thread_Index][i]) / denom;
+				t_Local_s[thread_Index][i] = (t_Local_s[thread_Index][i+1]*t_Fresnel_s[thread_Index][i]*exponenta[point_Index][i]) / denom;
 			}
 		}
 	}
@@ -1199,7 +1203,7 @@ void Unwrapped_Reflection::calc_Local(int thread_Index)
 				denom = 1. + r_Fresnel_p[thread_Index][i]*r_Exp_p[thread_Index][i];
 				r_Local_p[thread_Index][i] = (r_Fresnel_p[thread_Index][i] + r_Exp_p[thread_Index][i]) / denom;
 
-				t_Local_p[thread_Index][i] = (t_Local_p[thread_Index][i+1]*t_Fresnel_p[thread_Index][i]*exponenta[thread_Index][i]) / denom;
+				t_Local_p[thread_Index][i] = (t_Local_p[thread_Index][i+1]*t_Fresnel_p[thread_Index][i]*exponenta[point_Index][i]) / denom;
 			}
 		}
 	}
@@ -1224,7 +1228,7 @@ void Unwrapped_Reflection::calc_Amplitudes_Field(int thread_Index, int point_Ind
 	U_r[0] = r_Local[0];
 	for (int j = 1; (j<num_Boundaries); j++)
 	{
-		factor = exponenta[thread_Index][j-1]/(1. + r_Exp[j-1]);
+		factor = exponenta[point_Index][j-1]/(1. + r_Exp[j-1]);
 		U_i[j] = (U_i[j-1] + U_r[j-1])*factor;
 		U_r[j] = U_i[j] * r_Local[j];
 	}
@@ -1234,27 +1238,17 @@ void Unwrapped_Reflection::calc_Amplitudes_Field(int thread_Index, int point_Ind
 
 void Unwrapped_Reflection::calc_k_Wavenumber_Up_Low(int thread_Index, int point_Index)
 {
-	vector<complex<double>>* q0_Hi;
-
-	if( measurement.measurement_Type == measurement_Types[GISAS_Map] ||
-		measurement.measurement_Type == measurement_Types[Detector_Scan] )	{ q0_Hi  = &(calculated_Values.q0_Hi.front()); }
-
-	if( measurement.measurement_Type == measurement_Types[Rocking_Curve] ||
-		measurement.measurement_Type == measurement_Types[Offset_Scan] )	{ q0_Hi  = &(calculated_Values.q0_Hi[point_Index]); }
+	vector<complex<double>>& q0_Hi = if_Single_Beam_Value ? calculated_Values.q0_Hi.front() : calculated_Values.q0_Hi[point_Index];
 
 	for (int boundary_Index = 0; boundary_Index<num_Boundaries_Sharp; boundary_Index++)
 	{
-		k1_Up_Boundary [thread_Index][boundary_Index] =  (*q0_Hi)[boundary_Index  ] + calculated_Values.q_Hi[point_Index][boundary_Index  ];
-		k2_Up_Boundary [thread_Index][boundary_Index] =  (*q0_Hi)[boundary_Index  ] - calculated_Values.q_Hi[point_Index][boundary_Index  ];
-//		k3_Up_Boundary [thread_Index][boundary_Index] = -(*q0_Hi)[boundary_Index  ] + calculated_Values.q_Hi[point_Index][boundary_Index  ];
-//		k4_Up_Boundary [thread_Index][boundary_Index] = -(*q0_Hi)[boundary_Index  ] - calculated_Values.q_Hi[point_Index][boundary_Index  ];
+		k1_Up_Boundary [thread_Index][boundary_Index] =  q0_Hi[boundary_Index] + calculated_Values.q_Hi[point_Index][boundary_Index];
+		k2_Up_Boundary [thread_Index][boundary_Index] =  q0_Hi[boundary_Index] - calculated_Values.q_Hi[point_Index][boundary_Index];
 		k3_Up_Boundary [thread_Index][boundary_Index] = -k2_Up_Boundary [thread_Index][boundary_Index];
 		k4_Up_Boundary [thread_Index][boundary_Index] = -k1_Up_Boundary [thread_Index][boundary_Index];
 
-		k1_Low_Boundary[thread_Index][boundary_Index] =  (*q0_Hi)[boundary_Index+1] + calculated_Values.q_Hi[point_Index][boundary_Index+1];
-		k2_Low_Boundary[thread_Index][boundary_Index] =  (*q0_Hi)[boundary_Index+1] - calculated_Values.q_Hi[point_Index][boundary_Index+1];
-//		k3_Low_Boundary[thread_Index][boundary_Index] = -(*q0_Hi)[boundary_Index+1] + calculated_Values.q_Hi[point_Index][boundary_Index+1];
-//		k4_Low_Boundary[thread_Index][boundary_Index] = -(*q0_Hi)[boundary_Index+1] - calculated_Values.q_Hi[point_Index][boundary_Index+1];
+		k1_Low_Boundary[thread_Index][boundary_Index] =  q0_Hi[boundary_Index+1] + calculated_Values.q_Hi[point_Index][boundary_Index+1];
+		k2_Low_Boundary[thread_Index][boundary_Index] =  q0_Hi[boundary_Index+1] - calculated_Values.q_Hi[point_Index][boundary_Index+1];
 		k3_Low_Boundary[thread_Index][boundary_Index] = -k2_Low_Boundary[thread_Index][boundary_Index];
 		k4_Low_Boundary[thread_Index][boundary_Index] = -k1_Low_Boundary[thread_Index][boundary_Index];
 	}
@@ -1262,101 +1256,56 @@ void Unwrapped_Reflection::calc_k_Wavenumber_Up_Low(int thread_Index, int point_
 
 void Unwrapped_Reflection::calc_Field_Up_Low(int thread_Index, int point_Index, QString polarization)
 {
-	vector<complex<double>>* q0_U_i;
-	vector<complex<double>>* q0_U_r;
-	vector<complex<double>>* q_U_i;
-	vector<complex<double>>* q_U_r;
+	vector<complex<double>>& q0_U_i_s = if_Single_Beam_Value ? calculated_Values.q0_U_i_s.front() : calculated_Values.q0_U_i_s[point_Index];
+	vector<complex<double>>& q0_U_r_s = if_Single_Beam_Value ? calculated_Values.q0_U_r_s.front() : calculated_Values.q0_U_r_s[point_Index];
+	vector<complex<double>>& q0_U_i_p = if_Single_Beam_Value ? calculated_Values.q0_U_i_p.front() : calculated_Values.q0_U_i_p[point_Index];
+	vector<complex<double>>& q0_U_r_p = if_Single_Beam_Value ? calculated_Values.q0_U_r_p.front() : calculated_Values.q0_U_r_p[point_Index];
 
-	vector<complex<double>>* b1_Up_Boundary;
-	vector<complex<double>>* b2_Up_Boundary;
-	vector<complex<double>>* b3_Up_Boundary;
-	vector<complex<double>>* b4_Up_Boundary;
+	vector<complex<double>>& q0_U_i = polarization == "s" ? q0_U_i_s : q0_U_i_p;
+	vector<complex<double>>& q0_U_r = polarization == "s" ? q0_U_r_s : q0_U_r_p;
+	vector<complex<double>>& q_U_i  = polarization == "s" ? calculated_Values.q_U_i_s[point_Index] : calculated_Values.q_U_i_p[point_Index];
+	vector<complex<double>>& q_U_r  = polarization == "s" ? calculated_Values.q_U_r_s[point_Index] : calculated_Values.q_U_r_p[point_Index];
 
-	vector<complex<double>>* b1_Low_Boundary;
-	vector<complex<double>>* b2_Low_Boundary;
-	vector<complex<double>>* b3_Low_Boundary;
-	vector<complex<double>>* b4_Low_Boundary;
+	vector<complex<double>>& q0_Exponenta = if_Single_Beam_Value ? calculated_Values.q0_Exponenta.front() : calculated_Values.q0_Exponenta[point_Index];
+	vector<complex<double>>& q_Exponenta = calculated_Values.q_Exponenta[point_Index];
 
-	if(polarization == "s")
-	{
-		if( measurement.measurement_Type == measurement_Types[GISAS_Map] ||
-		    measurement.measurement_Type == measurement_Types[Detector_Scan] )	{ q0_U_i = &(calculated_Values.q0_U_i_s.front());
-			                                                                      q0_U_r = &(calculated_Values.q0_U_r_s.front());}
+	vector<complex<double>>& b1_Up_Boundary  = polarization == "s" ? b1_Up_Boundary_s[thread_Index] : b1_Up_Boundary_p[thread_Index];
+	vector<complex<double>>& b2_Up_Boundary  = polarization == "s" ? b2_Up_Boundary_s[thread_Index] : b2_Up_Boundary_p[thread_Index];
+	vector<complex<double>>& b3_Up_Boundary  = polarization == "s" ? b3_Up_Boundary_s[thread_Index] : b3_Up_Boundary_p[thread_Index];
+	vector<complex<double>>& b4_Up_Boundary  = polarization == "s" ? b4_Up_Boundary_s[thread_Index] : b4_Up_Boundary_p[thread_Index];
 
-		if( measurement.measurement_Type == measurement_Types[Rocking_Curve] ||
-		    measurement.measurement_Type == measurement_Types[Offset_Scan] )	{ q0_U_i = &(calculated_Values.q0_U_i_s[point_Index]);
-			                                                                      q0_U_r = &(calculated_Values.q0_U_r_s[point_Index]);}
-		q_U_i = &(calculated_Values.q_U_i_s[point_Index]);
-		q_U_r = &(calculated_Values.q_U_r_s[point_Index]);
-
-		b1_Up_Boundary = &(b1_Up_Boundary_s[thread_Index]);
-		b2_Up_Boundary = &(b2_Up_Boundary_s[thread_Index]);
-		b3_Up_Boundary = &(b3_Up_Boundary_s[thread_Index]);
-		b4_Up_Boundary = &(b4_Up_Boundary_s[thread_Index]);
-
-		b1_Low_Boundary = &(b1_Low_Boundary_s[thread_Index]);
-		b2_Low_Boundary = &(b2_Low_Boundary_s[thread_Index]);
-		b3_Low_Boundary = &(b3_Low_Boundary_s[thread_Index]);
-		b4_Low_Boundary = &(b4_Low_Boundary_s[thread_Index]);
-	}
-	if(polarization == "p")
-	{
-		if( measurement.measurement_Type == measurement_Types[GISAS_Map] ||
-		    measurement.measurement_Type == measurement_Types[Detector_Scan] )	{ q0_U_i = &(calculated_Values.q0_U_i_p.front());
-			                                                                      q0_U_r = &(calculated_Values.q0_U_r_p.front());}
-
-		if( measurement.measurement_Type == measurement_Types[Rocking_Curve] ||
-		    measurement.measurement_Type == measurement_Types[Offset_Scan] )	{ q0_U_i = &(calculated_Values.q0_U_i_p[point_Index]);
-			                                                                      q0_U_r = &(calculated_Values.q0_U_r_p[point_Index]);}
-
-		q_U_i  = &(calculated_Values.q_U_i_p[point_Index]);
-		q_U_r  = &(calculated_Values.q_U_r_p[point_Index]);
-
-		b1_Up_Boundary = &(b1_Up_Boundary_p[thread_Index]);
-		b2_Up_Boundary = &(b2_Up_Boundary_p[thread_Index]);
-		b3_Up_Boundary = &(b3_Up_Boundary_p[thread_Index]);
-		b4_Up_Boundary = &(b4_Up_Boundary_p[thread_Index]);
-
-		b1_Low_Boundary = &(b1_Low_Boundary_p[thread_Index]);
-		b2_Low_Boundary = &(b2_Low_Boundary_p[thread_Index]);
-		b3_Low_Boundary = &(b3_Low_Boundary_p[thread_Index]);
-		b4_Low_Boundary = &(b4_Low_Boundary_p[thread_Index]);
-	}
+	vector<complex<double>>& b1_Low_Boundary = polarization == "s" ? b1_Low_Boundary_s[thread_Index] : b1_Low_Boundary_p[thread_Index];
+	vector<complex<double>>& b2_Low_Boundary = polarization == "s" ? b2_Low_Boundary_s[thread_Index] : b2_Low_Boundary_p[thread_Index];
+	vector<complex<double>>& b3_Low_Boundary = polarization == "s" ? b3_Low_Boundary_s[thread_Index] : b3_Low_Boundary_p[thread_Index];
+	vector<complex<double>>& b4_Low_Boundary = polarization == "s" ? b4_Low_Boundary_s[thread_Index] : b4_Low_Boundary_p[thread_Index];
 
 	complex<double> exp_1, exp_2;
-
 	for (int boundary_Index = 0; boundary_Index<num_Boundaries_Sharp-1; boundary_Index++)
 	{
-		(*b1_Up_Boundary)[boundary_Index] = (*q0_U_i)[boundary_Index] * (*q_U_i)[boundary_Index];
-		(*b2_Up_Boundary)[boundary_Index] = (*q0_U_i)[boundary_Index] * (*q_U_r)[boundary_Index];
-		(*b3_Up_Boundary)[boundary_Index] = (*q0_U_r)[boundary_Index] * (*q_U_i)[boundary_Index];
-		(*b4_Up_Boundary)[boundary_Index] = (*q0_U_r)[boundary_Index] * (*q_U_r)[boundary_Index];
+		b1_Up_Boundary[boundary_Index] = q0_U_i[boundary_Index] * q_U_i[boundary_Index];
+		b2_Up_Boundary[boundary_Index] = q0_U_i[boundary_Index] * q_U_r[boundary_Index];
+		b3_Up_Boundary[boundary_Index] = q0_U_r[boundary_Index] * q_U_i[boundary_Index];
+		b4_Up_Boundary[boundary_Index] = q0_U_r[boundary_Index] * q_U_r[boundary_Index];
 
-		exp_1 = exp(-I*k1_Low_Boundary[thread_Index][boundary_Index]*unwrapped_Structure->thickness[boundary_Index]);
-		exp_2 = exp(-I*k2_Low_Boundary[thread_Index][boundary_Index]*unwrapped_Structure->thickness[boundary_Index]);
-
-		(*b1_Low_Boundary)[boundary_Index] = (*q0_U_i)[boundary_Index+1] * (*q_U_i)[boundary_Index+1] * exp_1;
-		(*b2_Low_Boundary)[boundary_Index] = (*q0_U_i)[boundary_Index+1] * (*q_U_r)[boundary_Index+1] * exp_2;
-		(*b3_Low_Boundary)[boundary_Index] = (*q0_U_r)[boundary_Index+1] * (*q_U_i)[boundary_Index+1] / exp_2;
-		(*b4_Low_Boundary)[boundary_Index] = (*q0_U_r)[boundary_Index+1] * (*q_U_r)[boundary_Index+1] / exp_1;
-
-//		(*b1_Low_Boundary)[boundary_Index] = (*q0_U_i)[boundary_Index+1] * (*q_U_i)[boundary_Index+1] * exp(-I*k1_Low_Boundary[thread_Index][boundary_Index]*unwrapped_Structure->thickness[boundary_Index]);
-//		(*b2_Low_Boundary)[boundary_Index] = (*q0_U_i)[boundary_Index+1] * (*q_U_r)[boundary_Index+1] * exp(-I*k2_Low_Boundary[thread_Index][boundary_Index]*unwrapped_Structure->thickness[boundary_Index]);
-//		(*b3_Low_Boundary)[boundary_Index] = (*q0_U_r)[boundary_Index+1] * (*q_U_i)[boundary_Index+1] * exp(-I*k3_Low_Boundary[thread_Index][boundary_Index]*unwrapped_Structure->thickness[boundary_Index]);
-//		(*b4_Low_Boundary)[boundary_Index] = (*q0_U_r)[boundary_Index+1] * (*q_U_r)[boundary_Index+1] * exp(-I*k4_Low_Boundary[thread_Index][boundary_Index]*unwrapped_Structure->thickness[boundary_Index]);
+		exp_1 = q0_Exponenta[boundary_Index] * q_Exponenta[boundary_Index];
+		exp_2 = q0_Exponenta[boundary_Index] / q_Exponenta[boundary_Index];
+		b1_Low_Boundary[boundary_Index] = q0_U_i[boundary_Index+1] * q_U_i[boundary_Index+1] / exp_1;
+		b2_Low_Boundary[boundary_Index] = q0_U_i[boundary_Index+1] * q_U_r[boundary_Index+1] / exp_2;
+		b3_Low_Boundary[boundary_Index] = q0_U_r[boundary_Index+1] * q_U_i[boundary_Index+1] * exp_2;
+		b4_Low_Boundary[boundary_Index] = q0_U_r[boundary_Index+1] * q_U_r[boundary_Index+1] * exp_1;
 	}
 	// last boundary
 	int boundary_Index = num_Boundaries_Sharp-1;
 	{
-		(*b1_Up_Boundary)[boundary_Index] = (*q0_U_i)[boundary_Index] * (*q_U_i)[boundary_Index];
-		(*b2_Up_Boundary)[boundary_Index] = (*q0_U_i)[boundary_Index] * (*q_U_r)[boundary_Index];
-		(*b3_Up_Boundary)[boundary_Index] = (*q0_U_r)[boundary_Index] * (*q_U_i)[boundary_Index];
-		(*b4_Up_Boundary)[boundary_Index] = (*q0_U_r)[boundary_Index] * (*q_U_r)[boundary_Index];
+		b1_Up_Boundary[boundary_Index] = q0_U_i[boundary_Index] * q_U_i[boundary_Index];
+		b2_Up_Boundary[boundary_Index] = q0_U_i[boundary_Index] * q_U_r[boundary_Index];
+		b3_Up_Boundary[boundary_Index] = q0_U_r[boundary_Index] * q_U_i[boundary_Index];
+		b4_Up_Boundary[boundary_Index] = q0_U_r[boundary_Index] * q_U_r[boundary_Index];
 
-		(*b1_Low_Boundary)[boundary_Index] = (*q0_U_i)[boundary_Index+1] * (*q_U_i)[boundary_Index+1];
-		(*b2_Low_Boundary)[boundary_Index] = 0;
-		(*b3_Low_Boundary)[boundary_Index] = 0;
-		(*b4_Low_Boundary)[boundary_Index] = 0;
+		b1_Low_Boundary[boundary_Index] = q0_U_i[boundary_Index+1] * q_U_i[boundary_Index+1];
+		b2_Low_Boundary[boundary_Index] = 0;
+		b3_Low_Boundary[boundary_Index] = 0;
+		b4_Low_Boundary[boundary_Index] = 0;
 	}
 }
 
@@ -1681,25 +1630,32 @@ void Unwrapped_Reflection::calc_Sliced_Field(int thread_Index, int point_Index, 
 }
 
 complex<double> Unwrapped_Reflection::calc_Field_Term_j(int point_Index, int j, int thread_Index,
-															   const vector<complex<double>>& b1_Up_Boundary,
-															   const vector<complex<double>>& b2_Up_Boundary,
-															   const vector<complex<double>>& b3_Up_Boundary,
-															   const vector<complex<double>>& b4_Up_Boundary,
+																const vector<complex<double>>& q0_Hi,
+																const vector<complex<double>>& q_Hi,
 
-															   const vector<complex<double>>& b1_Low_Boundary,
-															   const vector<complex<double>>& b2_Low_Boundary,
-															   const vector<complex<double>>& b3_Low_Boundary,
-															   const vector<complex<double>>& b4_Low_Boundary)
+																const vector<complex<double>>& b1_Up_Boundary,
+																const vector<complex<double>>& b2_Up_Boundary,
+																const vector<complex<double>>& b3_Up_Boundary,
+																const vector<complex<double>>& b4_Up_Boundary,
+
+																const vector<complex<double>>& b1_Low_Boundary,
+																const vector<complex<double>>& b2_Low_Boundary,
+																const vector<complex<double>>& b3_Low_Boundary,
+																const vector<complex<double>>& b4_Low_Boundary)
 {
-	const complex<double>& k1_Up = k1_Up_Boundary[thread_Index][j];
-	const complex<double>& k2_Up = k2_Up_Boundary[thread_Index][j];
-	const complex<double>  k3_Up = -k2_Up;
-	const complex<double>  k4_Up = -k1_Up;
+	const complex<double> k1_Up = q0_Hi[j] + q_Hi[j];
+	const complex<double> k2_Up = q0_Hi[j] - q_Hi[j];
+//	const complex<double>&k1_Up = k1_Up_Boundary[thread_Index][j];
+//	const complex<double>&k2_Up = k2_Up_Boundary[thread_Index][j];
+	const complex<double> k3_Up = -k2_Up;
+	const complex<double> k4_Up = -k1_Up;
 
-	const complex<double>& k1_Low = k1_Low_Boundary[thread_Index][j];
-	const complex<double>& k2_Low = k2_Low_Boundary[thread_Index][j];
-	const complex<double>  k3_Low = -k2_Low;
-	const complex<double>  k4_Low = -k1_Low;
+	const complex<double> k1_Low = q0_Hi[j+1] + q_Hi[j+1];
+	const complex<double> k2_Low = q0_Hi[j+1] - q_Hi[j+1];
+//	const complex<double>&k1_Low = k1_Low_Boundary[thread_Index][j];
+//	const complex<double>&k2_Low = k2_Low_Boundary[thread_Index][j];
+	const complex<double> k3_Low = -k2_Low;
+	const complex<double> k4_Low = -k1_Low;
 
 	const complex<double>& b1_Up = b1_Up_Boundary[j];
 	const complex<double>& b2_Up = b2_Up_Boundary[j];
@@ -1891,7 +1847,8 @@ complex<double> Unwrapped_Reflection::calc_Field_Term_j(int point_Index, int j, 
 	return result*(unwrapped_Structure->epsilon[j+1]-unwrapped_Structure->epsilon[j]);
 }
 
-complex<double> Unwrapped_Reflection::calc_Field_Term_j_Discrete(int point_Index, int j, const vector<complex<double>>& q0_U_i,
+complex<double> Unwrapped_Reflection::calc_Field_Term_j_Discrete(int point_Index, int j,
+																		const vector<complex<double>>& q0_U_i,
 																		const vector<complex<double>>& q0_U_r,
 																		const vector<complex<double>>& q_U_i,
 																		const vector<complex<double>>& q_U_r)
@@ -1922,6 +1879,9 @@ complex<double> Unwrapped_Reflection::calc_Field_Term_j_Discrete(int point_Index
 double Unwrapped_Reflection::calc_Field_Term_Sum(QString polarization, int point_Index, int thread_Index)
 {
 	// used only without discretization
+	vector<complex<double>>& q0_Hi = if_Single_Beam_Value ? calculated_Values.q0_Hi.front() : calculated_Values.q0_Hi[point_Index];
+	vector<complex<double>>& q_Hi = calculated_Values.q_Hi[point_Index];
+
 	vector<complex<double>>& b1_Up_Boundary = polarization == "s" ? b1_Up_Boundary_s[thread_Index] : b1_Up_Boundary_p[thread_Index];
 	vector<complex<double>>& b2_Up_Boundary = polarization == "s" ? b2_Up_Boundary_s[thread_Index] : b2_Up_Boundary_p[thread_Index];
 	vector<complex<double>>& b3_Up_Boundary = polarization == "s" ? b3_Up_Boundary_s[thread_Index] : b3_Up_Boundary_p[thread_Index];
@@ -1933,17 +1893,10 @@ double Unwrapped_Reflection::calc_Field_Term_Sum(QString polarization, int point
 	vector<complex<double>>& b4_Low_Boundary = polarization == "s" ? b4_Low_Boundary_s[thread_Index] : b4_Low_Boundary_p[thread_Index];
 
 	// for discretization only
-	vector<complex<double>>& q0_U_i_s = (measurement.measurement_Type == measurement_Types[GISAS_Map] ||
-										 measurement.measurement_Type == measurement_Types[Detector_Scan]) ? calculated_Values.q0_U_i_s.front() : calculated_Values.q0_U_i_s[point_Index];
-
-	vector<complex<double>>& q0_U_r_s = (measurement.measurement_Type == measurement_Types[GISAS_Map] ||
-										 measurement.measurement_Type == measurement_Types[Detector_Scan]) ? calculated_Values.q0_U_r_s.front() : calculated_Values.q0_U_r_s[point_Index];
-
-	vector<complex<double>>& q0_U_i_p = (measurement.measurement_Type == measurement_Types[GISAS_Map] ||
-										 measurement.measurement_Type == measurement_Types[Detector_Scan]) ? calculated_Values.q0_U_i_p.front() : calculated_Values.q0_U_i_p[point_Index];
-
-	vector<complex<double>>& q0_U_r_p = (measurement.measurement_Type == measurement_Types[GISAS_Map] ||
-										 measurement.measurement_Type == measurement_Types[Detector_Scan]) ? calculated_Values.q0_U_r_p.front() : calculated_Values.q0_U_r_p[point_Index];
+	vector<complex<double>>& q0_U_i_s = if_Single_Beam_Value ? calculated_Values.q0_U_i_s.front() : calculated_Values.q0_U_i_s[point_Index];
+	vector<complex<double>>& q0_U_r_s = if_Single_Beam_Value ? calculated_Values.q0_U_r_s.front() : calculated_Values.q0_U_r_s[point_Index];
+	vector<complex<double>>& q0_U_i_p = if_Single_Beam_Value ? calculated_Values.q0_U_i_p.front() : calculated_Values.q0_U_i_p[point_Index];
+	vector<complex<double>>& q0_U_r_p = if_Single_Beam_Value ? calculated_Values.q0_U_r_p.front() : calculated_Values.q0_U_r_p[point_Index];
 
 	vector<complex<double>>& q0_U_i = polarization == "s" ? q0_U_i_s : q0_U_i_p;
 	vector<complex<double>>& q0_U_r = polarization == "s" ? q0_U_r_s : q0_U_r_p;
@@ -1967,6 +1920,9 @@ double Unwrapped_Reflection::calc_Field_Term_Sum(QString polarization, int point
 		{
 			// all fields
 			field_Term_Boundary[j] = calc_Field_Term_j(point_Index, j, thread_Index,
+																		q0_Hi,
+																		q_Hi,
+
 																		b1_Up_Boundary,
 																		b2_Up_Boundary,
 																		b3_Up_Boundary,
@@ -2150,7 +2106,7 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 			calc_Fresnel(thread_Index, point_Index, unwrapped_Structure->discretized_Epsilon);
 		}
 	}
-	calc_Local(thread_Index);
+	calc_Local(thread_Index, point_Index);
 
 	// if we need to calculate detailed field distribution
 	if( measurement.measurement_Type == measurement_Types[Specular_Scan] )
@@ -2211,6 +2167,7 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 					calc_Field_Up_Low(thread_Index, point_Index, "p");
 				}
 			}
+//			return;
 
 			if(multilayer->imperfections_Model.approximation == PT_approximation)
 			{
