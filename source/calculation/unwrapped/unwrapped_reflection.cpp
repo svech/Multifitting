@@ -1512,6 +1512,11 @@ void Unwrapped_Reflection::calc_Field_Up_Low(int thread_Index, int point_Index, 
 	vector<complex<double>>& b4_Low_Boundary = polarization == "s" ? b4_Low_Boundary_s[thread_Index] : b4_Low_Boundary_p[thread_Index];
 
 	complex<double> exp_1, exp_2;
+
+	if(	multilayer->imperfections_Model.approximation != DWBA_approximation &&
+		multilayer->imperfections_Model.approximation != SA_approximation   &&
+		multilayer->imperfections_Model.approximation != CSA_approximation  )
+	{
 	for (int boundary_Index = 0; boundary_Index<num_Boundaries_Sharp-1; boundary_Index++)
 	{
 		b1_Up_Boundary[boundary_Index] = q0_U_i[boundary_Index] * q_U_i[boundary_Index];
@@ -1549,13 +1554,6 @@ void Unwrapped_Reflection::calc_Field_Up_Low(int thread_Index, int point_Index, 
 		b3_Low_Boundary[boundary_Index] = 0;
 		b4_Low_Boundary[boundary_Index] = 0;
 
-//		if(point_Index ==100)
-//		{
-//			cout << "before" << endl;
-//			cout << "b1_Up_Boundary" << b1_Up_Boundary[boundary_Index] << "  "<< q0_U_i[boundary_Index] << "  " << q_U_i[boundary_Index] << endl;
-//			cout << "b1_Low_Boundary" << b1_Low_Boundary[boundary_Index] << "  "<< q0_U_i[boundary_Index+1] << "  " << q_U_i[boundary_Index+1] << endl;
-//		}
-
 		calc_Weak_b_Terms_j( boundary_Index, thread_Index, q0_Hi, q_Hi, b1_Up_Boundary[boundary_Index],
 																		b2_Up_Boundary[boundary_Index],
 																		b3_Up_Boundary[boundary_Index],
@@ -1565,13 +1563,37 @@ void Unwrapped_Reflection::calc_Field_Up_Low(int thread_Index, int point_Index, 
 																		b2_Low_Boundary[boundary_Index],
 																		b3_Low_Boundary[boundary_Index],
 																		b4_Low_Boundary[boundary_Index]);
-//		if(point_Index ==100)
-//		{
-//			cout << "after" << endl;
-//			cout << "b1_Up_Boundary" << b1_Up_Boundary[boundary_Index] << "  "<< q0_U_i[boundary_Index] << "  " << q_U_i[boundary_Index] << endl;
-//			cout << "b1_Low_Boundary" << b1_Low_Boundary[boundary_Index] << "  "<< q0_U_i[boundary_Index+1] << "  " << q_U_i[boundary_Index+1] << endl;
-//		}
 	}	
+	} else
+	{
+		for (int boundary_Index = 0; boundary_Index<num_Boundaries_Sharp-1; boundary_Index++)
+		{
+			b1_Up_Boundary[boundary_Index] = q0_U_i[boundary_Index] * q_U_i[boundary_Index];
+			b2_Up_Boundary[boundary_Index] = q0_U_i[boundary_Index] * q_U_r[boundary_Index];
+			b3_Up_Boundary[boundary_Index] = q0_U_r[boundary_Index] * q_U_i[boundary_Index];
+			b4_Up_Boundary[boundary_Index] = q0_U_r[boundary_Index] * q_U_r[boundary_Index];
+
+			exp_1 = q0_Exponenta[boundary_Index] * q_Exponenta[boundary_Index];
+			exp_2 = q0_Exponenta[boundary_Index] / q_Exponenta[boundary_Index];
+			b1_Low_Boundary[boundary_Index] = q0_U_i[boundary_Index+1] * q_U_i[boundary_Index+1] / exp_1;
+			b2_Low_Boundary[boundary_Index] = q0_U_i[boundary_Index+1] * q_U_r[boundary_Index+1] / exp_2;
+			b3_Low_Boundary[boundary_Index] = q0_U_r[boundary_Index+1] * q_U_i[boundary_Index+1] * exp_2;
+			b4_Low_Boundary[boundary_Index] = q0_U_r[boundary_Index+1] * q_U_r[boundary_Index+1] * exp_1;
+		}
+		// last boundary
+		int boundary_Index = num_Boundaries_Sharp-1;
+		{
+			b1_Up_Boundary[boundary_Index] = q0_U_i[boundary_Index] * q_U_i[boundary_Index];
+			b2_Up_Boundary[boundary_Index] = q0_U_i[boundary_Index] * q_U_r[boundary_Index];
+			b3_Up_Boundary[boundary_Index] = q0_U_r[boundary_Index] * q_U_i[boundary_Index];
+			b4_Up_Boundary[boundary_Index] = q0_U_r[boundary_Index] * q_U_r[boundary_Index];
+
+			b1_Low_Boundary[boundary_Index] = q0_U_i[boundary_Index+1] * q_U_i[boundary_Index+1];
+			b2_Low_Boundary[boundary_Index] = 0;
+			b3_Low_Boundary[boundary_Index] = 0;
+			b4_Low_Boundary[boundary_Index] = 0;
+		}
+	}
 }
 
 void Unwrapped_Reflection::calc_K_Factor_DWBA_SA_CSA(int point_Index, int thread_Index, QString polarization)
@@ -2116,7 +2138,10 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 		{
 			calc_Exponenta(thread_Index, point_Index,unwrapped_Structure->thickness);
 		}
-		if( unwrapped_Structure->sigma_Grading)
+		if( unwrapped_Structure->sigma_Grading &&
+			multilayer->imperfections_Model.approximation != DWBA_approximation &&
+			multilayer->imperfections_Model.approximation != SA_approximation   &&
+			multilayer->imperfections_Model.approximation != CSA_approximation  )
 		{
 			calc_Weak_Factor(thread_Index, point_Index);
 			multifly_Fresnel_And_Weak_Factor(thread_Index);
@@ -2561,10 +2586,6 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 								for(int n_Power=1; n_Power<=n_Max_Series; n_Power++)
 								{
 									pre_Fourier_Factor[thread_Index][n_Power-1] = calc_K_Factor_Term_Sum_DWBA_SA_CSA(thread_Index, "s", n_Power) / factorial[n_Power];
-//									if(point_Index == 100)
-//									{
-//										cout << "pre_Fourier_Factor  " <<  pre_Fourier_Factor[thread_Index][n_Power-1] << endl;
-//									}
 								}
 								calculated_Values.S_s[point_Index] = e_Factor_DWBA_SA_CSA_1D * cor_Function_Integration(point_Index, thread_Index, cos_Theta_0);
 							}

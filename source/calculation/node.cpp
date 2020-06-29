@@ -13,7 +13,7 @@ Node::Node(QTreeWidgetItem* item):
 	//	qInfo() << "NODE" << struct_Data.item_Type << endl;
 }
 
-void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_Node, bool depth_Grading, bool sigma_Grading, bool enable_Discretization, QString mode)
+void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_Node, bool depth_Grading, bool inconvenient_Approximation, bool sigma_Grading, bool enable_Discretization, QString mode)
 {			
 	// crutch
 	struct_Data.relative_Density.value = max(struct_Data.relative_Density.value,DBL_EPSILON); // TODO vacuum crashes?
@@ -254,7 +254,7 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 				is_Norm = is_Norm || (inter.enabled && (inter.interlayer.value > DBL_MIN) && (inter.my_Sigma_Diffuse.value > DBL_MIN));
 			}
 
-			if( is_Norm && (abs(struct_Data.sigma_Diffuse.value) > DBL_MIN) && !sigma_Grading && measurement.measurement_Type == measurement_Types[Specular_Scan] )
+			if( is_Norm && (abs(struct_Data.sigma_Diffuse.value) > DBL_MIN) && !sigma_Grading && !inconvenient_Approximation && measurement.measurement_Type == measurement_Types[Specular_Scan] )
 			{
 				// temp variables
 				double a = M_PI/sqrt(M_PI*M_PI - 8.);

@@ -560,7 +560,11 @@ void Calculation_Tree::calculate_Intermediate_Values_1_Tree(vector<Node*>& flat_
 	{
 		Node* above_Node = NULL;
 		if(node_Index>=1) above_Node = flat_Calc_Tree[node_Index-1];
-		flat_Calc_Tree[node_Index]->calculate_Intermediate_Points(measurement, above_Node, depth_Grading, sigma_Grading, multilayer->discretization_Parameters.enable_Discretization, mode);
+
+		bool inconvenient_Approximation = (multilayer->imperfections_Model.approximation == DWBA_approximation ||
+										   multilayer->imperfections_Model.approximation == SA_approximation   ||
+										   multilayer->imperfections_Model.approximation == CSA_approximation  ) && (measurement.measurement_Type != measurement_Types[Specular_Scan]);
+		flat_Calc_Tree[node_Index]->calculate_Intermediate_Points(measurement, above_Node, depth_Grading, sigma_Grading, inconvenient_Approximation, multilayer->discretization_Parameters.enable_Discretization, mode);
 	}
 	for(size_t node_Index = 0; node_Index<short_Flat_Calc_Tree.size(); node_Index++)
 	{
