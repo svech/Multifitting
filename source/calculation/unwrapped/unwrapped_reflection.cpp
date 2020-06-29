@@ -1254,20 +1254,252 @@ void Unwrapped_Reflection::calc_k_Wavenumber_Up_Low(int thread_Index, int point_
 	}
 }
 
+void Unwrapped_Reflection::calc_Weak_b_Terms_j(int j, int thread_Index,
+																const vector<complex<double>>& q0_Hi,
+																const vector<complex<double>>& q_Hi,
+
+																complex<double>& b1_Up,
+																complex<double>& b2_Up,
+																complex<double>& b3_Up,
+																complex<double>& b4_Up,
+
+																complex<double>& b1_Low,
+																complex<double>& b2_Low,
+																complex<double>& b3_Low,
+																complex<double>& b4_Low)
+{
+	const complex<double> k1_Up = q0_Hi[j] + q_Hi[j];
+	const complex<double> k2_Up = q0_Hi[j] - q_Hi[j];
+	const complex<double> k3_Up = -k2_Up;
+	const complex<double> k4_Up = -k1_Up;
+
+	const complex<double> k1_Low = q0_Hi[j+1] + q_Hi[j+1];
+	const complex<double> k2_Low = q0_Hi[j+1] - q_Hi[j+1];
+	const complex<double> k3_Low = -k2_Low;
+	const complex<double> k4_Low = -k1_Low;
+
+	complex<double> b1_Up_Factor = 0;
+	complex<double> b2_Up_Factor = 0;
+	complex<double> b3_Up_Factor = 0;
+	complex<double> b4_Up_Factor = 0;
+
+	complex<double> b1_Low_Factor = 0;
+	complex<double> b2_Low_Factor = 0;
+	complex<double> b3_Low_Factor = 0;
+	complex<double> b4_Low_Factor = 0;
+
+	// main part
+	double sigma_j = unwrapped_Structure->sigma_Diffuse[j];
+	double inter_Value, norma = 0, a = 1./sqrt(M_PI*M_PI - 8.);
+	bool is_Enabled = false;
+	for(int func_Index=0; func_Index<transition_Layer_Functions_Size; ++func_Index)
+	{
+		is_Enabled = is_Enabled || unwrapped_Structure->boundary_Interlayer_Composition_Threaded[thread_Index][j][func_Index].enabled;
+	}
+
+	if(is_Enabled && sigma_j>0.01)
+	{
+		// erf
+		if(unwrapped_Structure->boundary_Interlayer_Composition_Threaded[thread_Index][j][Erf].enabled)
+		{
+			inter_Value = unwrapped_Structure->boundary_Interlayer_Composition_Threaded[thread_Index][j][Erf].interlayer.value;
+			norma += inter_Value;
+			if(!unwrapped_Structure->common_Sigma_Diffuse[j]) {
+				sigma_j = unwrapped_Structure->boundary_Interlayer_Composition_Threaded[thread_Index][j][Erf].my_Sigma_Diffuse.value; }
+
+			double sigma_j_s2 = sigma_j / M_SQRT2;
+			complex<double> exp_Up_1  = exp(-sigma_j_s2*sigma_j_s2 * k1_Up *k1_Up);
+			complex<double> exp_Up_2  = exp(-sigma_j_s2*sigma_j_s2 * k2_Up *k2_Up);
+			complex<double> exp_Low_1 = exp(-sigma_j_s2*sigma_j_s2 * k1_Low*k1_Low);
+			complex<double> exp_Low_2 = exp(-sigma_j_s2*sigma_j_s2 * k2_Low*k2_Low);
+
+			complex<double> erf_Up_1  = Faddeeva::erf( I*sigma_j_s2*k1_Up );
+			complex<double> erf_Up_2  = Faddeeva::erf( I*sigma_j_s2*k2_Up );
+			complex<double> erf_Low_1 = Faddeeva::erf( I*sigma_j_s2*k1_Low);
+			complex<double> erf_Low_2 = Faddeeva::erf( I*sigma_j_s2*k2_Low);
+
+			b1_Up_Factor += exp_Up_1*(1.-erf_Up_1)*inter_Value;
+			b2_Up_Factor += exp_Up_2*(1.-erf_Up_2)*inter_Value;
+			b3_Up_Factor += exp_Up_2*(1.+erf_Up_2)*inter_Value;
+			b4_Up_Factor += exp_Up_1*(1.+erf_Up_1)*inter_Value;
+
+			b1_Low_Factor += exp_Low_1*(1.+erf_Low_1)*inter_Value;
+			b2_Low_Factor += exp_Low_2*(1.+erf_Low_2)*inter_Value;
+			b3_Low_Factor += exp_Low_2*(1.-erf_Low_2)*inter_Value;
+			b4_Low_Factor += exp_Low_1*(1.-erf_Low_1)*inter_Value;
+		}
+		// lin
+		if(unwrapped_Structure->boundary_Interlayer_Composition_Threaded[thread_Index][j][Lin].enabled)
+		{
+			inter_Value = unwrapped_Structure->boundary_Interlayer_Composition_Threaded[thread_Index][j][Lin].interlayer.value;
+			norma += inter_Value;
+			if(!unwrapped_Structure->common_Sigma_Diffuse[j]) {
+				sigma_j = unwrapped_Structure->boundary_Interlayer_Composition_Threaded[thread_Index][j][Lin].my_Sigma_Diffuse.value + 10*DBL_EPSILON; }
+
+			double sqrt_3 = sqrt(3);
+			complex<double> exp_Up_1  = exp(-I*sqrt_3*sigma_j * k1_Up);
+			complex<double> exp_Up_2  = exp(-I*sqrt_3*sigma_j * k2_Up);
+			complex<double> exp_Low_1 = exp( I*sqrt_3*sigma_j * k1_Low);
+			complex<double> exp_Low_2 = exp( I*sqrt_3*sigma_j * k2_Low);
+
+			b1_Up_Factor += I/sqrt_3/(sigma_j * k1_Up)*(   exp_Up_1-1.)*inter_Value;
+			b2_Up_Factor +=	I/sqrt_3/(sigma_j * k2_Up)*(   exp_Up_2-1.)*inter_Value;
+			b3_Up_Factor += I/sqrt_3/(sigma_j * k3_Up)*(1./exp_Up_2-1.)*inter_Value;
+			b4_Up_Factor += I/sqrt_3/(sigma_j * k4_Up)*(1./exp_Up_1-1.)*inter_Value;
+
+			b1_Low_Factor += I/sqrt_3/(sigma_j * k1_Low)*(1.-   exp_Low_1)*inter_Value;
+			b2_Low_Factor += I/sqrt_3/(sigma_j * k2_Low)*(1.-   exp_Low_2)*inter_Value;
+			b3_Low_Factor += I/sqrt_3/(sigma_j * k3_Low)*(1.-1./exp_Low_2)*inter_Value;
+			b4_Low_Factor += I/sqrt_3/(sigma_j * k4_Low)*(1.-1./exp_Low_1)*inter_Value;
+		}
+		// exp
+		if(unwrapped_Structure->boundary_Interlayer_Composition_Threaded[thread_Index][j][Exp].enabled)
+		{
+			inter_Value = unwrapped_Structure->boundary_Interlayer_Composition_Threaded[thread_Index][j][Exp].interlayer.value;
+			norma += inter_Value;
+			if(!unwrapped_Structure->common_Sigma_Diffuse[j]) {
+				sigma_j = unwrapped_Structure->boundary_Interlayer_Composition_Threaded[thread_Index][j][Exp].my_Sigma_Diffuse.value; }
+
+			b1_Up_Factor += M_SQRT2/(M_SQRT2 + I*sigma_j*k1_Up)*inter_Value;
+			b2_Up_Factor += M_SQRT2/(M_SQRT2 + I*sigma_j*k2_Up)*inter_Value;
+			b3_Up_Factor += M_SQRT2/(M_SQRT2 + I*sigma_j*k3_Up)*inter_Value;
+			b4_Up_Factor += M_SQRT2/(M_SQRT2 + I*sigma_j*k4_Up)*inter_Value;
+
+			b1_Low_Factor += M_SQRT2/(M_SQRT2 - I*sigma_j*k1_Low)*inter_Value;
+			b2_Low_Factor += M_SQRT2/(M_SQRT2 - I*sigma_j*k2_Low)*inter_Value;
+			b3_Low_Factor += M_SQRT2/(M_SQRT2 - I*sigma_j*k3_Low)*inter_Value;
+			b4_Low_Factor += M_SQRT2/(M_SQRT2 - I*sigma_j*k4_Low)*inter_Value;
+		}
+		// tanh == erf
+		if(unwrapped_Structure->boundary_Interlayer_Composition_Threaded[thread_Index][j][Tanh].enabled)
+		{
+			inter_Value = unwrapped_Structure->boundary_Interlayer_Composition_Threaded[thread_Index][j][Tanh].interlayer.value;
+			norma += inter_Value;
+			if(!unwrapped_Structure->common_Sigma_Diffuse[j]) {
+				sigma_j = unwrapped_Structure->boundary_Interlayer_Composition_Threaded[thread_Index][j][Tanh].my_Sigma_Diffuse.value; }
+
+			double sigma_j_s2 = sigma_j / M_SQRT2;
+			complex<double> exp_Up_1  = exp(-sigma_j_s2*sigma_j_s2 * k1_Up *k1_Up);
+			complex<double> exp_Up_2  = exp(-sigma_j_s2*sigma_j_s2 * k2_Up *k2_Up);
+			complex<double> exp_Low_1 = exp(-sigma_j_s2*sigma_j_s2 * k1_Low*k1_Low);
+			complex<double> exp_Low_2 = exp(-sigma_j_s2*sigma_j_s2 * k2_Low*k2_Low);
+
+			complex<double> erf_Up_1  = Faddeeva::erf( I*sigma_j_s2*k1_Up );
+			complex<double> erf_Up_2  = Faddeeva::erf( I*sigma_j_s2*k2_Up );
+			complex<double> erf_Low_1 = Faddeeva::erf( I*sigma_j_s2*k1_Low);
+			complex<double> erf_Low_2 = Faddeeva::erf( I*sigma_j_s2*k2_Low);
+
+			b1_Up_Factor += exp_Up_1*(1.-erf_Up_1)*inter_Value;
+			b2_Up_Factor += exp_Up_2*(1.-erf_Up_2)*inter_Value;
+			b3_Up_Factor += exp_Up_2*(1.+erf_Up_2)*inter_Value;
+			b4_Up_Factor += exp_Up_1*(1.+erf_Up_1)*inter_Value;
+
+			b1_Low_Factor += exp_Low_1*(1.+erf_Low_1)*inter_Value;
+			b2_Low_Factor += exp_Low_2*(1.+erf_Low_2)*inter_Value;
+			b3_Low_Factor += exp_Low_2*(1.-erf_Low_2)*inter_Value;
+			b4_Low_Factor += exp_Low_1*(1.-erf_Low_1)*inter_Value;
+		}
+		// sin
+		if(unwrapped_Structure->boundary_Interlayer_Composition_Threaded[thread_Index][j][Sin].enabled)
+		{
+			inter_Value = unwrapped_Structure->boundary_Interlayer_Composition_Threaded[thread_Index][j][Sin].interlayer.value;
+			norma += inter_Value;
+			if(!unwrapped_Structure->common_Sigma_Diffuse[j]) {
+				sigma_j = unwrapped_Structure->boundary_Interlayer_Composition_Threaded[thread_Index][j][Sin].my_Sigma_Diffuse.value; }
+
+			complex<double> exp_Up_1  = exp(-I* M_PI*a * sigma_j * k1_Up);
+			complex<double> exp_Up_2  = exp(-I* M_PI*a * sigma_j * k2_Up);
+			complex<double> exp_Low_1 = exp( I* M_PI*a * sigma_j * k1_Low);
+			complex<double> exp_Low_2 = exp( I* M_PI*a * sigma_j * k2_Low);
+
+			b1_Up_Factor += (1.*exp_Up_1 + 2.*I*a*k1_Up*sigma_j)/(1. - 4. * a*a * sigma_j*sigma_j * k1_Up*k1_Up)*inter_Value;
+			b2_Up_Factor += (1.*exp_Up_2 + 2.*I*a*k2_Up*sigma_j)/(1. - 4. * a*a * sigma_j*sigma_j * k2_Up*k2_Up)*inter_Value;
+			b3_Up_Factor += (1./exp_Up_2 + 2.*I*a*k3_Up*sigma_j)/(1. - 4. * a*a * sigma_j*sigma_j * k3_Up*k3_Up)*inter_Value;
+			b4_Up_Factor += (1./exp_Up_1 + 2.*I*a*k4_Up*sigma_j)/(1. - 4. * a*a * sigma_j*sigma_j * k4_Up*k4_Up)*inter_Value;
+
+			b1_Low_Factor += (1.*exp_Low_1 - 2.*I*a*k1_Low*sigma_j)/(1. - 4. * a*a * sigma_j*sigma_j * k1_Low*k1_Low)*inter_Value;
+			b2_Low_Factor += (1.*exp_Low_2 - 2.*I*a*k2_Low*sigma_j)/(1. - 4. * a*a * sigma_j*sigma_j * k2_Low*k2_Low)*inter_Value;
+			b3_Low_Factor += (1./exp_Low_2 - 2.*I*a*k3_Low*sigma_j)/(1. - 4. * a*a * sigma_j*sigma_j * k3_Low*k3_Low)*inter_Value;
+			b4_Low_Factor += (1./exp_Low_1 - 2.*I*a*k4_Low*sigma_j)/(1. - 4. * a*a * sigma_j*sigma_j * k4_Low*k4_Low)*inter_Value;
+		}
+		// step
+		if(unwrapped_Structure->boundary_Interlayer_Composition_Threaded[thread_Index][j][Step].enabled)
+		{
+			inter_Value = unwrapped_Structure->boundary_Interlayer_Composition_Threaded[thread_Index][j][Step].interlayer.value;
+			norma += unwrapped_Structure->boundary_Interlayer_Composition_Threaded[thread_Index][j][Step].interlayer.value;
+			if(!unwrapped_Structure->common_Sigma_Diffuse[j]) {
+				sigma_j = unwrapped_Structure->boundary_Interlayer_Composition_Threaded[thread_Index][j][Step].my_Sigma_Diffuse.value; }
+
+			complex<double> exp_Up_1  = exp(-I * sigma_j * k1_Up);
+			complex<double> exp_Up_2  = exp(-I * sigma_j * k2_Up);
+			complex<double> exp_Low_1 = exp( I * sigma_j * k1_Low);
+			complex<double> exp_Low_2 = exp( I * sigma_j * k2_Low);
+
+			b1_Up_Factor +=    exp_Up_1*inter_Value;
+			b2_Up_Factor +=    exp_Up_2*inter_Value;
+			b3_Up_Factor += 1./exp_Up_2*inter_Value;
+			b4_Up_Factor += 1./exp_Up_1*inter_Value;
+
+			b1_Low_Factor +=    exp_Low_1*inter_Value;
+			b2_Low_Factor +=    exp_Low_2*inter_Value;
+			b3_Low_Factor += 1./exp_Low_2*inter_Value;
+			b4_Low_Factor += 1./exp_Low_1*inter_Value;
+		}
+
+		if( abs(norma) > DBL_MIN )
+		{
+			b1_Up_Factor /= norma;
+			b2_Up_Factor /= norma;
+			b3_Up_Factor /= norma;
+			b4_Up_Factor /= norma;
+
+			b1_Low_Factor /= norma;
+			b2_Low_Factor /= norma;
+			b3_Low_Factor /= norma;
+			b4_Low_Factor /= norma;
+		} else
+		{
+			b1_Up_Factor = 1.;
+			b2_Up_Factor = 1.;
+			b3_Up_Factor = 1.;
+			b4_Up_Factor = 1.;
+
+			b1_Low_Factor = 1.;
+			b2_Low_Factor = 1.;
+			b3_Low_Factor = 1.;
+			b4_Low_Factor = 1.;
+		}
+
+		// change input data
+		b1_Up *= b1_Up_Factor;
+		b2_Up *= b2_Up_Factor;
+		b3_Up *= b3_Up_Factor;
+		b4_Up *= b4_Up_Factor;
+
+		b1_Low *= b1_Low_Factor;
+		b2_Low *= b2_Low_Factor;
+		b3_Low *= b3_Low_Factor;
+		b4_Low *= b4_Low_Factor;
+	}
+}
+
 void Unwrapped_Reflection::calc_Field_Up_Low(int thread_Index, int point_Index, QString polarization)
 {
-	vector<complex<double>>& q0_U_i_s = if_Single_Beam_Value ? calculated_Values.q0_U_i_s.front() : calculated_Values.q0_U_i_s[point_Index];
-	vector<complex<double>>& q0_U_r_s = if_Single_Beam_Value ? calculated_Values.q0_U_r_s.front() : calculated_Values.q0_U_r_s[point_Index];
-	vector<complex<double>>& q0_U_i_p = if_Single_Beam_Value ? calculated_Values.q0_U_i_p.front() : calculated_Values.q0_U_i_p[point_Index];
-	vector<complex<double>>& q0_U_r_p = if_Single_Beam_Value ? calculated_Values.q0_U_r_p.front() : calculated_Values.q0_U_r_p[point_Index];
+	const vector<complex<double>>& q0_U_i_s = if_Single_Beam_Value ? calculated_Values.q0_U_i_s.front() : calculated_Values.q0_U_i_s[point_Index];
+	const vector<complex<double>>& q0_U_r_s = if_Single_Beam_Value ? calculated_Values.q0_U_r_s.front() : calculated_Values.q0_U_r_s[point_Index];
+	const vector<complex<double>>& q0_U_i_p = if_Single_Beam_Value ? calculated_Values.q0_U_i_p.front() : calculated_Values.q0_U_i_p[point_Index];
+	const vector<complex<double>>& q0_U_r_p = if_Single_Beam_Value ? calculated_Values.q0_U_r_p.front() : calculated_Values.q0_U_r_p[point_Index];
 
-	vector<complex<double>>& q0_U_i = polarization == "s" ? q0_U_i_s : q0_U_i_p;
-	vector<complex<double>>& q0_U_r = polarization == "s" ? q0_U_r_s : q0_U_r_p;
-	vector<complex<double>>& q_U_i  = polarization == "s" ? calculated_Values.q_U_i_s[point_Index] : calculated_Values.q_U_i_p[point_Index];
-	vector<complex<double>>& q_U_r  = polarization == "s" ? calculated_Values.q_U_r_s[point_Index] : calculated_Values.q_U_r_p[point_Index];
+	const vector<complex<double>>& q0_U_i = polarization == "s" ? q0_U_i_s : q0_U_i_p;
+	const vector<complex<double>>& q0_U_r = polarization == "s" ? q0_U_r_s : q0_U_r_p;
+	const vector<complex<double>>& q_U_i  = polarization == "s" ? calculated_Values.q_U_i_s[point_Index] : calculated_Values.q_U_i_p[point_Index];
+	const vector<complex<double>>& q_U_r  = polarization == "s" ? calculated_Values.q_U_r_s[point_Index] : calculated_Values.q_U_r_p[point_Index];
 
-	vector<complex<double>>& q0_Exponenta = if_Single_Beam_Value ? calculated_Values.q0_Exponenta.front() : calculated_Values.q0_Exponenta[point_Index];
-	vector<complex<double>>& q_Exponenta = calculated_Values.q_Exponenta[point_Index];
+	const vector<complex<double>>& q0_Exponenta = if_Single_Beam_Value ? calculated_Values.q0_Exponenta.front() : calculated_Values.q0_Exponenta[point_Index];
+	const vector<complex<double>>& q_Exponenta = calculated_Values.q_Exponenta[point_Index];
+
+	const vector<complex<double>>& q0_Hi = if_Single_Beam_Value ? calculated_Values.q0_Hi.front() : calculated_Values.q0_Hi[point_Index];
+	const vector<complex<double>>& q_Hi  = calculated_Values.q_Hi[point_Index];
 
 	vector<complex<double>>& b1_Up_Boundary  = polarization == "s" ? b1_Up_Boundary_s[thread_Index] : b1_Up_Boundary_p[thread_Index];
 	vector<complex<double>>& b2_Up_Boundary  = polarization == "s" ? b2_Up_Boundary_s[thread_Index] : b2_Up_Boundary_p[thread_Index];
@@ -1293,6 +1525,16 @@ void Unwrapped_Reflection::calc_Field_Up_Low(int thread_Index, int point_Index, 
 		b2_Low_Boundary[boundary_Index] = q0_U_i[boundary_Index+1] * q_U_r[boundary_Index+1] / exp_2;
 		b3_Low_Boundary[boundary_Index] = q0_U_r[boundary_Index+1] * q_U_i[boundary_Index+1] * exp_2;
 		b4_Low_Boundary[boundary_Index] = q0_U_r[boundary_Index+1] * q_U_r[boundary_Index+1] * exp_1;
+
+		calc_Weak_b_Terms_j( boundary_Index, thread_Index, q0_Hi, q_Hi, b1_Up_Boundary[boundary_Index],
+																		b2_Up_Boundary[boundary_Index],
+																		b3_Up_Boundary[boundary_Index],
+																		b4_Up_Boundary[boundary_Index],
+
+																		b1_Low_Boundary[boundary_Index],
+																		b2_Low_Boundary[boundary_Index],
+																		b3_Low_Boundary[boundary_Index],
+																		b4_Low_Boundary[boundary_Index]);
 	}
 	// last boundary
 	int boundary_Index = num_Boundaries_Sharp-1;
@@ -1306,10 +1548,33 @@ void Unwrapped_Reflection::calc_Field_Up_Low(int thread_Index, int point_Index, 
 		b2_Low_Boundary[boundary_Index] = 0;
 		b3_Low_Boundary[boundary_Index] = 0;
 		b4_Low_Boundary[boundary_Index] = 0;
-	}
+
+//		if(point_Index ==100)
+//		{
+//			cout << "before" << endl;
+//			cout << "b1_Up_Boundary" << b1_Up_Boundary[boundary_Index] << "  "<< q0_U_i[boundary_Index] << "  " << q_U_i[boundary_Index] << endl;
+//			cout << "b1_Low_Boundary" << b1_Low_Boundary[boundary_Index] << "  "<< q0_U_i[boundary_Index+1] << "  " << q_U_i[boundary_Index+1] << endl;
+//		}
+
+		calc_Weak_b_Terms_j( boundary_Index, thread_Index, q0_Hi, q_Hi, b1_Up_Boundary[boundary_Index],
+																		b2_Up_Boundary[boundary_Index],
+																		b3_Up_Boundary[boundary_Index],
+																		b4_Up_Boundary[boundary_Index],
+
+																		b1_Low_Boundary[boundary_Index],
+																		b2_Low_Boundary[boundary_Index],
+																		b3_Low_Boundary[boundary_Index],
+																		b4_Low_Boundary[boundary_Index]);
+//		if(point_Index ==100)
+//		{
+//			cout << "after" << endl;
+//			cout << "b1_Up_Boundary" << b1_Up_Boundary[boundary_Index] << "  "<< q0_U_i[boundary_Index] << "  " << q_U_i[boundary_Index] << endl;
+//			cout << "b1_Low_Boundary" << b1_Low_Boundary[boundary_Index] << "  "<< q0_U_i[boundary_Index+1] << "  " << q_U_i[boundary_Index+1] << endl;
+//		}
+	}	
 }
 
-void Unwrapped_Reflection::calc_K_Factor_DWBA_SA_CSA(int thread_Index, QString polarization)
+void Unwrapped_Reflection::calc_K_Factor_DWBA_SA_CSA(int point_Index, int thread_Index, QString polarization)
 {
 	vector<complex<double>>* b1_Up_Boundary;
 	vector<complex<double>>* b2_Up_Boundary;
@@ -1421,6 +1686,14 @@ void Unwrapped_Reflection::calc_K_Factor_DWBA_SA_CSA(int thread_Index, QString p
 			complex<double>& b3 = (*b3_Boundary)[boundary_Index];
 			complex<double>& b4 = (*b4_Boundary)[boundary_Index];
 
+//			if(point_Index==100)
+//			{
+//				cout << "b1_Boundary  " << b1 << endl;
+//				cout << "b2_Boundary  " << b2 << endl;
+//				cout << "b3_Boundary  " << b3 << endl;
+//				cout << "b4_Boundary  " << b4 << endl;
+//			}
+
 			int n=1;
 			{
 				(*D1)[n-1] = factor * b1 * exp(-sigma_j2_2*k1*k1);
@@ -1430,6 +1703,10 @@ void Unwrapped_Reflection::calc_K_Factor_DWBA_SA_CSA(int thread_Index, QString p
 
 				(*K_Factor_Boundary)[boundary_Index][n-1] = (*D1)[n-1] + (*D2)[n-1] + (*D3)[n-1] + (*D4)[n-1];
 			}
+//			if(point_Index==100)
+//			{
+//				cout << "K_n=0  " << (*K_Factor_Boundary)[boundary_Index][n-1] << endl;
+//			}
 			for(int n=2; n<=n_Max_Series; n++)
 			{
 				(*D1)[n-1] = (*D1)[n-2] * ( I*M_SQRT2*sigma_j*k1 );
@@ -1505,17 +1782,14 @@ void Unwrapped_Reflection::calc_K_Factor_DWBA_SA_CSA(int thread_Index, QString p
 
 double Unwrapped_Reflection::calc_K_Factor_Term_Sum_DWBA_SA_CSA(int thread_Index, QString polarization, int n_Power)
 {
-	vector<vector<complex<double>>>* K_Factor_Boundary;
-
-	if(polarization == "s")	K_Factor_Boundary = &(K_Factor_Boundary_s[thread_Index]);
-	if(polarization == "p")	K_Factor_Boundary = &(K_Factor_Boundary_p[thread_Index]);
+	const vector<vector<complex<double>>>& K_Factor_Boundary = polarization == "s" ? K_Factor_Boundary_s[thread_Index] : K_Factor_Boundary_p[thread_Index];
 
 	if(multilayer->imperfections_Model.vertical_Correlation == full_Correlation)
 	{
 		complex<double> coherent_Diagonal_Sum = 0;
 		for (int boundary_Index = 0; boundary_Index<num_Boundaries_Sharp; boundary_Index++)
 		{
-			coherent_Diagonal_Sum += (*K_Factor_Boundary)[boundary_Index][n_Power-1];
+			coherent_Diagonal_Sum += K_Factor_Boundary[boundary_Index][n_Power-1];
 		}
 		return norm(coherent_Diagonal_Sum);
 	}
@@ -1529,7 +1803,7 @@ double Unwrapped_Reflection::calc_K_Factor_Term_Sum_DWBA_SA_CSA(int thread_Index
 			for(size_t similar_Boundaries=0; similar_Boundaries<boundaries_Of_Item_Vec[item_Index].size(); similar_Boundaries++)
 			{
 				int boundary_Index = boundaries_Of_Item_Vec[item_Index][similar_Boundaries];
-				incoherent_Diagonal_Term[thread_Index][item_Index][n_Power-1] += norm((*K_Factor_Boundary)[boundary_Index][n_Power-1]);
+				incoherent_Diagonal_Term[thread_Index][item_Index][n_Power-1] += norm(K_Factor_Boundary[boundary_Index][n_Power-1]);
 			}
 			incoherent_Diagonal_Sum += incoherent_Diagonal_Term[thread_Index][item_Index][n_Power-1];
 		}
@@ -1629,230 +1903,13 @@ void Unwrapped_Reflection::calc_Sliced_Field(int thread_Index, int point_Index, 
 	}
 }
 
-complex<double> Unwrapped_Reflection::calc_Field_Term_j(int point_Index, int j, int thread_Index,
-																const vector<complex<double>>& q0_Hi,
-																const vector<complex<double>>& q_Hi,
-
-																const vector<complex<double>>& b1_Up_Boundary,
-																const vector<complex<double>>& b2_Up_Boundary,
-																const vector<complex<double>>& b3_Up_Boundary,
-																const vector<complex<double>>& b4_Up_Boundary,
-
-																const vector<complex<double>>& b1_Low_Boundary,
-																const vector<complex<double>>& b2_Low_Boundary,
-																const vector<complex<double>>& b3_Low_Boundary,
-																const vector<complex<double>>& b4_Low_Boundary)
-{
-	const complex<double> k1_Up = q0_Hi[j] + q_Hi[j];
-	const complex<double> k2_Up = q0_Hi[j] - q_Hi[j];
-//	const complex<double>&k1_Up = k1_Up_Boundary[thread_Index][j];
-//	const complex<double>&k2_Up = k2_Up_Boundary[thread_Index][j];
-	const complex<double> k3_Up = -k2_Up;
-	const complex<double> k4_Up = -k1_Up;
-
-	const complex<double> k1_Low = q0_Hi[j+1] + q_Hi[j+1];
-	const complex<double> k2_Low = q0_Hi[j+1] - q_Hi[j+1];
-//	const complex<double>&k1_Low = k1_Low_Boundary[thread_Index][j];
-//	const complex<double>&k2_Low = k2_Low_Boundary[thread_Index][j];
-	const complex<double> k3_Low = -k2_Low;
-	const complex<double> k4_Low = -k1_Low;
-
-	const complex<double>& b1_Up = b1_Up_Boundary[j];
-	const complex<double>& b2_Up = b2_Up_Boundary[j];
-	const complex<double>& b3_Up = b3_Up_Boundary[j];
-	const complex<double>& b4_Up = b4_Up_Boundary[j];
-
-	const complex<double>& b1_Low = b1_Low_Boundary[j];
-	const complex<double>& b2_Low = b2_Low_Boundary[j];
-	const complex<double>& b3_Low = b3_Low_Boundary[j];
-	const complex<double>& b4_Low = b4_Low_Boundary[j];
-
-	double sigma_j = unwrapped_Structure->sigma_Diffuse[j];
-
-	complex<double> result = 0, factor;
-	double norma = 0, a = 1./sqrt(M_PI*M_PI - 8.);
-
-	bool is_Norm = false;
-	for(int func_Index=0; func_Index<transition_Layer_Functions_Size; ++func_Index)
-	{
-		is_Norm = is_Norm || unwrapped_Structure->boundary_Interlayer_Composition_Threaded[thread_Index][j][func_Index].enabled;
-	}
-
-	if(!is_Norm || sigma_j<0.01)
-	{
-		result = b1_Up + b2_Up + b3_Up + b4_Up; // up and down are equal if no interlayer
-	} else
-	{
-		// erf
-		if(unwrapped_Structure->boundary_Interlayer_Composition_Threaded[thread_Index][j][Erf].enabled)
-		{
-			norma += unwrapped_Structure->boundary_Interlayer_Composition_Threaded[thread_Index][j][Erf].interlayer.value;
-			if(!unwrapped_Structure->common_Sigma_Diffuse[j]) {
-				sigma_j = unwrapped_Structure->boundary_Interlayer_Composition_Threaded[thread_Index][j][Erf].my_Sigma_Diffuse.value; }
-
-			double sigma_j_s2 = sigma_j / M_SQRT2;
-			complex<double> exp_Up_1  = exp(-sigma_j_s2*sigma_j_s2 * k1_Up *k1_Up);
-			complex<double> exp_Up_2  = exp(-sigma_j_s2*sigma_j_s2 * k2_Up *k2_Up);
-			complex<double> exp_Low_1 = exp(-sigma_j_s2*sigma_j_s2 * k1_Low*k1_Low);
-			complex<double> exp_Low_2 = exp(-sigma_j_s2*sigma_j_s2 * k2_Low*k2_Low);
-
-			complex<double> erf_Up_1  = Faddeeva::erf( I*sigma_j_s2*k1_Up );
-			complex<double> erf_Up_2  = Faddeeva::erf( I*sigma_j_s2*k2_Up );
-			complex<double> erf_Low_1 = Faddeeva::erf( I*sigma_j_s2*k1_Low);
-			complex<double> erf_Low_2 = Faddeeva::erf( I*sigma_j_s2*k2_Low);
-
-			factor = 0.5*(b1_Up*exp_Up_1*(1.-erf_Up_1) +
-						  b2_Up*exp_Up_2*(1.-erf_Up_2) +
-						  b3_Up*exp_Up_2*(1.+erf_Up_2) +
-						  b4_Up*exp_Up_1*(1.+erf_Up_1) +
-
-						  b1_Low*exp_Low_1*(1.+erf_Low_1) +
-						  b2_Low*exp_Low_2*(1.+erf_Low_2) +
-						  b3_Low*exp_Low_2*(1.-erf_Low_2) +
-						  b4_Low*exp_Low_1*(1.-erf_Low_1)
-						 );
-			result += unwrapped_Structure->boundary_Interlayer_Composition_Threaded[thread_Index][j][Erf].interlayer.value*factor;
-		}
-		// lin
-		if(unwrapped_Structure->boundary_Interlayer_Composition_Threaded[thread_Index][j][Lin].enabled)
-		{
-			norma += unwrapped_Structure->boundary_Interlayer_Composition_Threaded[thread_Index][j][Lin].interlayer.value;
-			if(!unwrapped_Structure->common_Sigma_Diffuse[j]) {
-				sigma_j = unwrapped_Structure->boundary_Interlayer_Composition_Threaded[thread_Index][j][Lin].my_Sigma_Diffuse.value + 10*DBL_EPSILON; }
-
-			double sqrt_3 = sqrt(3);
-			complex<double> exp_Up_1  = exp(-I*sqrt_3*sigma_j * k1_Up);
-			complex<double> exp_Up_2  = exp(-I*sqrt_3*sigma_j * k2_Up);
-			complex<double> exp_Low_1 = exp( I*sqrt_3*sigma_j * k1_Low);
-			complex<double> exp_Low_2 = exp( I*sqrt_3*sigma_j * k2_Low);
-
-			factor = I/(2*sqrt_3)*( b1_Up/(sigma_j * k1_Up)*(   exp_Up_1-1.) +
-									b2_Up/(sigma_j * k2_Up)*(   exp_Up_2-1.) +
-									b3_Up/(sigma_j * k3_Up)*(1./exp_Up_2-1.) +
-									b4_Up/(sigma_j * k4_Up)*(1./exp_Up_1-1.) +
-
-									b1_Low/(sigma_j * k1_Low)*(1.-   exp_Low_1) +
-									b2_Low/(sigma_j * k2_Low)*(1.-   exp_Low_2) +
-									b3_Low/(sigma_j * k3_Low)*(1.-1./exp_Low_2) +
-									b4_Low/(sigma_j * k4_Low)*(1.-1./exp_Low_1)
-									);
-			result += unwrapped_Structure->boundary_Interlayer_Composition_Threaded[thread_Index][j][Lin].interlayer.value*factor;
-		}
-		// exp
-		if(unwrapped_Structure->boundary_Interlayer_Composition_Threaded[thread_Index][j][Exp].enabled)
-		{
-			norma += unwrapped_Structure->boundary_Interlayer_Composition_Threaded[thread_Index][j][Exp].interlayer.value;
-			if(!unwrapped_Structure->common_Sigma_Diffuse[j]) {
-				sigma_j = unwrapped_Structure->boundary_Interlayer_Composition_Threaded[thread_Index][j][Exp].my_Sigma_Diffuse.value; }
-
-			factor = M_SQRT1_2*(b1_Up/(M_SQRT2 + I*sigma_j*k1_Up) +
-								b2_Up/(M_SQRT2 + I*sigma_j*k2_Up) +
-								b3_Up/(M_SQRT2 + I*sigma_j*k3_Up) +
-								b4_Up/(M_SQRT2 + I*sigma_j*k4_Up) +
-
-								b1_Low/(M_SQRT2 - I*sigma_j*k1_Low) +
-								b2_Low/(M_SQRT2 - I*sigma_j*k2_Low) +
-								b3_Low/(M_SQRT2 - I*sigma_j*k3_Low) +
-								b4_Low/(M_SQRT2 - I*sigma_j*k4_Low)
-								);
-			result += unwrapped_Structure->boundary_Interlayer_Composition_Threaded[thread_Index][j][Exp].interlayer.value*factor;
-		}
-		// tanh == erf
-		if(unwrapped_Structure->boundary_Interlayer_Composition_Threaded[thread_Index][j][Tanh].enabled)
-		{
-			norma += unwrapped_Structure->boundary_Interlayer_Composition_Threaded[thread_Index][j][Tanh].interlayer.value;
-			if(!unwrapped_Structure->common_Sigma_Diffuse[j]) {
-				sigma_j = unwrapped_Structure->boundary_Interlayer_Composition_Threaded[thread_Index][j][Tanh].my_Sigma_Diffuse.value; }
-
-			double sigma_j_s2 = sigma_j / M_SQRT2;
-			complex<double> exp_Up_1  = exp(-sigma_j_s2*sigma_j_s2 * k1_Up *k1_Up);
-			complex<double> exp_Up_2  = exp(-sigma_j_s2*sigma_j_s2 * k2_Up *k2_Up);
-			complex<double> exp_Low_1 = exp(-sigma_j_s2*sigma_j_s2 * k1_Low*k1_Low);
-			complex<double> exp_Low_2 = exp(-sigma_j_s2*sigma_j_s2 * k2_Low*k2_Low);
-
-			complex<double> erf_Up_1  = Faddeeva::erf( I*sigma_j_s2*k1_Up );
-			complex<double> erf_Up_2  = Faddeeva::erf( I*sigma_j_s2*k2_Up );
-			complex<double> erf_Low_1 = Faddeeva::erf( I*sigma_j_s2*k1_Low);
-			complex<double> erf_Low_2 = Faddeeva::erf( I*sigma_j_s2*k2_Low);
-
-			factor = 0.5*(b1_Up*exp_Up_1*(1.-erf_Up_1) +
-						  b2_Up*exp_Up_2*(1.-erf_Up_2) +
-						  b3_Up*exp_Up_2*(1.+erf_Up_2) +
-						  b4_Up*exp_Up_1*(1.+erf_Up_1) +
-
-						  b1_Low*exp_Low_1*(1.+erf_Low_1) +
-						  b2_Low*exp_Low_2*(1.+erf_Low_2) +
-						  b3_Low*exp_Low_2*(1.-erf_Low_2) +
-						  b4_Low*exp_Low_1*(1.-erf_Low_1)
-						  );
-			result += unwrapped_Structure->boundary_Interlayer_Composition_Threaded[thread_Index][j][Tanh].interlayer.value*factor;
-		}
-		// sin
-		if(unwrapped_Structure->boundary_Interlayer_Composition_Threaded[thread_Index][j][Sin].enabled)
-		{
-			norma += unwrapped_Structure->boundary_Interlayer_Composition_Threaded[thread_Index][j][Sin].interlayer.value;
-			if(!unwrapped_Structure->common_Sigma_Diffuse[j]) {
-				sigma_j = unwrapped_Structure->boundary_Interlayer_Composition_Threaded[thread_Index][j][Sin].my_Sigma_Diffuse.value; }
-
-			complex<double> exp_Up_1  = exp(-I* M_PI*a * sigma_j * k1_Up);
-			complex<double> exp_Up_2  = exp(-I* M_PI*a * sigma_j * k2_Up);
-			complex<double> exp_Low_1 = exp( I* M_PI*a * sigma_j * k1_Low);
-			complex<double> exp_Low_2 = exp( I* M_PI*a * sigma_j * k2_Low);
-
-			factor = 0.5*(b1_Up/(1. - 4. * a*a * sigma_j*sigma_j * k1_Up*k1_Up)*(1.*exp_Up_1 + 2.*I*a*k1_Up*sigma_j) +
-						  b2_Up/(1. - 4. * a*a * sigma_j*sigma_j * k2_Up*k2_Up)*(1.*exp_Up_2 + 2.*I*a*k2_Up*sigma_j) +
-						  b3_Up/(1. - 4. * a*a * sigma_j*sigma_j * k3_Up*k3_Up)*(1./exp_Up_2 + 2.*I*a*k3_Up*sigma_j) +
-						  b4_Up/(1. - 4. * a*a * sigma_j*sigma_j * k4_Up*k4_Up)*(1./exp_Up_1 + 2.*I*a*k4_Up*sigma_j) +
-
-						  b1_Low/(1. - 4. * a*a * sigma_j*sigma_j * k1_Low*k1_Low)*(1.*exp_Low_1 - 2.*I*a*k1_Low*sigma_j) +
-						  b2_Low/(1. - 4. * a*a * sigma_j*sigma_j * k2_Low*k2_Low)*(1.*exp_Low_2 - 2.*I*a*k2_Low*sigma_j) +
-						  b3_Low/(1. - 4. * a*a * sigma_j*sigma_j * k3_Low*k3_Low)*(1./exp_Low_2 - 2.*I*a*k3_Low*sigma_j) +
-						  b4_Low/(1. - 4. * a*a * sigma_j*sigma_j * k4_Low*k4_Low)*(1./exp_Low_1 - 2.*I*a*k4_Low*sigma_j)
-						 );
-			result += unwrapped_Structure->boundary_Interlayer_Composition_Threaded[thread_Index][j][Sin].interlayer.value*factor;
-		}
-		// step
-		if(unwrapped_Structure->boundary_Interlayer_Composition_Threaded[thread_Index][j][Step].enabled)
-		{
-			norma += unwrapped_Structure->boundary_Interlayer_Composition_Threaded[thread_Index][j][Step].interlayer.value;
-			if(!unwrapped_Structure->common_Sigma_Diffuse[j]) {
-				sigma_j = unwrapped_Structure->boundary_Interlayer_Composition_Threaded[thread_Index][j][Step].my_Sigma_Diffuse.value; }
-
-			complex<double> exp_Up_1  = exp(-I * sigma_j * k1_Up);
-			complex<double> exp_Up_2  = exp(-I * sigma_j * k2_Up);
-			complex<double> exp_Low_1 = exp( I * sigma_j * k1_Low);
-			complex<double> exp_Low_2 = exp( I * sigma_j * k2_Low);
-
-			factor = 0.5*(b1_Up*exp_Up_1 +
-						  b2_Up*exp_Up_2 +
-						  b3_Up/exp_Up_2 +
-						  b4_Up/exp_Up_1 +
-
-						  b1_Low*exp_Low_1 +
-						  b2_Low*exp_Low_2 +
-						  b3_Low/exp_Low_2 +
-						  b4_Low/exp_Low_1
-						 );
-			result += unwrapped_Structure->boundary_Interlayer_Composition_Threaded[thread_Index][j][Step].interlayer.value*factor;
-		}
-
-		if( abs(norma) > DBL_MIN )
-		{
-			result /= norma;
-		} else
-		{
-			result = b1_Up + b2_Up + b3_Up + b4_Up; // up and down are equal if no interlayer
-		}
-	}
-	return result*(unwrapped_Structure->epsilon[j+1]-unwrapped_Structure->epsilon[j]);
-}
-
 complex<double> Unwrapped_Reflection::calc_Field_Term_j_Discrete(int point_Index, int j,
 																		const vector<complex<double>>& q0_U_i,
 																		const vector<complex<double>>& q0_U_r,
 																		const vector<complex<double>>& q_U_i,
 																		const vector<complex<double>>& q_U_r)
 {
+	Q_UNUSED(point_Index)
 	const vector<Subbounds>& boundary_Subboundary_Map_Vector = unwrapped_Structure->boundary_Subboundary_Map_Vector;
 	const vector<complex<double>>& eps = unwrapped_Structure->discretized_Epsilon;
 
@@ -1879,9 +1936,6 @@ complex<double> Unwrapped_Reflection::calc_Field_Term_j_Discrete(int point_Index
 double Unwrapped_Reflection::calc_Field_Term_Sum(QString polarization, int point_Index, int thread_Index)
 {
 	// used only without discretization
-	vector<complex<double>>& q0_Hi = if_Single_Beam_Value ? calculated_Values.q0_Hi.front() : calculated_Values.q0_Hi[point_Index];
-	vector<complex<double>>& q_Hi = calculated_Values.q_Hi[point_Index];
-
 	vector<complex<double>>& b1_Up_Boundary = polarization == "s" ? b1_Up_Boundary_s[thread_Index] : b1_Up_Boundary_p[thread_Index];
 	vector<complex<double>>& b2_Up_Boundary = polarization == "s" ? b2_Up_Boundary_s[thread_Index] : b2_Up_Boundary_p[thread_Index];
 	vector<complex<double>>& b3_Up_Boundary = polarization == "s" ? b3_Up_Boundary_s[thread_Index] : b3_Up_Boundary_p[thread_Index];
@@ -1919,19 +1973,9 @@ double Unwrapped_Reflection::calc_Field_Term_Sum(QString polarization, int point
 		for (int j = 0; j<num_Boundaries_Sharp; j++)
 		{
 			// all fields
-			field_Term_Boundary[j] = calc_Field_Term_j(point_Index, j, thread_Index,
-																		q0_Hi,
-																		q_Hi,
-
-																		b1_Up_Boundary,
-																		b2_Up_Boundary,
-																		b3_Up_Boundary,
-																		b4_Up_Boundary,
-
-																		b1_Low_Boundary,
-																		b2_Low_Boundary,
-																		b3_Low_Boundary,
-																		b4_Low_Boundary);
+			field_Term_Boundary[j] = 0.5*( b1_Up_Boundary [j] + b2_Up_Boundary [j] + b3_Up_Boundary [j] + b4_Up_Boundary [j] +
+										   b1_Low_Boundary[j] + b2_Low_Boundary[j] + b3_Low_Boundary[j] + b4_Low_Boundary[j]) *
+										 (unwrapped_Structure->epsilon[j+1]-unwrapped_Structure->epsilon[j]);
 			// diagonal intensities
 			intensity_Term_Boundary[j] = norm(field_Term_Boundary[j]);
 
@@ -2157,17 +2201,9 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 			// common
 			if(!multilayer->discretization_Parameters.enable_Discretization)
 			{
-				calc_k_Wavenumber_Up_Low(thread_Index, point_Index);
-				if( (measurement.polarization + 1) >  POLARIZATION_TOLERANCE)
-				{
-					calc_Field_Up_Low(thread_Index, point_Index, "s");
-				}
-				if( (measurement.polarization - 1) < -POLARIZATION_TOLERANCE)
-				{
-					calc_Field_Up_Low(thread_Index, point_Index, "p");
-				}
+				if( (measurement.polarization + 1) >  POLARIZATION_TOLERANCE)	calc_Field_Up_Low(thread_Index, point_Index, "s");
+				if( (measurement.polarization - 1) < -POLARIZATION_TOLERANCE)	calc_Field_Up_Low(thread_Index, point_Index, "p");
 			}
-//			return;
 
 			if(multilayer->imperfections_Model.approximation == PT_approximation)
 			{
@@ -2509,8 +2545,9 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 					measurement.measurement_Type == measurement_Types[Rocking_Curve] ||
 					measurement.measurement_Type == measurement_Types[Offset_Scan] )
 				{
-					if( (measurement.polarization + 1) >  POLARIZATION_TOLERANCE)	calc_K_Factor_DWBA_SA_CSA(thread_Index, "s");
-					if( (measurement.polarization - 1) < -POLARIZATION_TOLERANCE)	calc_K_Factor_DWBA_SA_CSA(thread_Index, "p");
+					calc_k_Wavenumber_Up_Low(thread_Index, point_Index);
+					if( (measurement.polarization + 1) >  POLARIZATION_TOLERANCE)	calc_K_Factor_DWBA_SA_CSA(point_Index, thread_Index, "s");
+					if( (measurement.polarization - 1) < -POLARIZATION_TOLERANCE)	calc_K_Factor_DWBA_SA_CSA(point_Index, thread_Index, "p");
 					choose_Cor_Function(thread_Index);
 
 					if( multilayer->imperfections_Model.vertical_Correlation == full_Correlation ||
@@ -2524,6 +2561,10 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 								for(int n_Power=1; n_Power<=n_Max_Series; n_Power++)
 								{
 									pre_Fourier_Factor[thread_Index][n_Power-1] = calc_K_Factor_Term_Sum_DWBA_SA_CSA(thread_Index, "s", n_Power) / factorial[n_Power];
+//									if(point_Index == 100)
+//									{
+//										cout << "pre_Fourier_Factor  " <<  pre_Fourier_Factor[thread_Index][n_Power-1] << endl;
+//									}
 								}
 								calculated_Values.S_s[point_Index] = e_Factor_DWBA_SA_CSA_1D * cor_Function_Integration(point_Index, thread_Index, cos_Theta_0);
 							}

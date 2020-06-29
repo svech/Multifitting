@@ -187,20 +187,8 @@ public:
 	// PT
 	void fill_Item_PSD_1D				(int thread_Index, int point_Index, double cos_Theta_0);
 	void fill_Item_PSD_2D				(int thread_Index, int point_Index, int phi_Index);
-	complex<double> calc_Field_Term_j	(int point_Index, int j, int thread_Index,
-																 const vector<complex<double>>& q0_Hi,
-																 const vector<complex<double>>& q_Hi,
-
-																 const vector<complex<double>>& b1_Up_Boundary,
-																 const vector<complex<double>>& b2_Up_Boundary,
-																 const vector<complex<double>>& b3_Up_Boundary,
-																 const vector<complex<double>>& b4_Up_Boundary,
-
-																 const vector<complex<double>>& b1_Low_Boundary,
-																 const vector<complex<double>>& b2_Low_Boundary,
-																 const vector<complex<double>>& b3_Low_Boundary,
-																 const vector<complex<double>>& b4_Low_Boundary);
-	complex<double> calc_Field_Term_j_Discrete	(int point_Index, int j, const vector<complex<double>>& q0_U_i,
+	complex<double> calc_Field_Term_j_Discrete	(int point_Index, int j,
+														const vector<complex<double>>& q0_U_i,
 														const vector<complex<double>>& q0_U_r,
 														const vector<complex<double>>& q_U_i,
 														const vector<complex<double>>& q_U_r );
@@ -211,9 +199,21 @@ public:
 	double azimuthal_Integration		(gsl_function* function, double delta);
 
 	// DWBA SA CSA
-	void calc_k_Wavenumber_Up_Low			(int thread_Index, int point_Index);
+	void calc_k_Wavenumber_Up_Low		(int thread_Index, int point_Index);
+	void calc_Weak_b_Terms_j			(int j, int thread_Index,const vector<complex<double>>& q0_Hi,
+																 const vector<complex<double>>& q_Hi,
+
+																 complex<double>& b1_Up,
+																 complex<double>& b2_Up,
+																 complex<double>& b3_Up,
+																 complex<double>& b4_Up,
+
+																 complex<double>& b1_Low,
+																 complex<double>& b2_Low,
+																 complex<double>& b3_Low,
+																 complex<double>& b4_Low);
 	void calc_Field_Up_Low					(int thread_Index, int point_Index, QString polarization);
-	void calc_K_Factor_DWBA_SA_CSA				(int thread_Index,                  QString polarization);
+	void calc_K_Factor_DWBA_SA_CSA				(int point_Index, int thread_Index,                  QString polarization);
 	double calc_K_Factor_Term_Sum_DWBA_SA_CSA	(int thread_Index, QString polarization, int n_Power);
 	void choose_Cor_Function					(int thread_Index);
 	double function_DWBA_SA_CSA_Batch_Common_Integrand	  (double r, int thread_Index);
