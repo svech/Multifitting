@@ -138,6 +138,7 @@ void Unwrapped_Structure::fill_Sigma_Diffuse_And_Interlayers()
 {
 	sigma_Diffuse.resize(num_Boundaries);
 	common_Sigma_Diffuse.resize(num_Boundaries);
+	enabled_Interlayer.resize(num_Boundaries);
 	boundary_Interlayer_Composition.resize(num_Boundaries, QVector<Interlayer>(transition_Layer_Functions_Size));
 
 	sigma_Roughness.resize(num_Boundaries);
@@ -148,6 +149,7 @@ void Unwrapped_Structure::fill_Sigma_Diffuse_And_Interlayers()
 		sigma_Diffuse		[boundary_Index] = media_Data_Map_Vector[media_Index]->sigma_Diffuse.value;
 		common_Sigma_Diffuse[boundary_Index] = media_Data_Map_Vector[media_Index]->common_Sigma_Diffuse;
 		sigma_Roughness     [boundary_Index] = media_Data_Map_Vector[media_Index]->roughness_Model.sigma.value;
+		enabled_Interlayer  [boundary_Index] = false;
 
 		// interlayers
 		for(int func_Index=0; func_Index<transition_Layer_Functions_Size; ++func_Index)
@@ -155,6 +157,7 @@ void Unwrapped_Structure::fill_Sigma_Diffuse_And_Interlayers()
 			boundary_Interlayer_Composition[boundary_Index][func_Index] = media_Data_Map_Vector[boundary_Index+1]->interlayer_Composition[func_Index];
 			// getting max_Sigma
 			if(boundary_Interlayer_Composition[boundary_Index][func_Index].enabled)	{
+				enabled_Interlayer[boundary_Index] = true;
 				max_Sigma = max(max_Sigma, boundary_Interlayer_Composition[boundary_Index][func_Index].my_Sigma_Diffuse.value);
 			}
 			// can drift

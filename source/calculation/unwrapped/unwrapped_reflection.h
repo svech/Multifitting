@@ -212,7 +212,7 @@ public:
 																 complex<double>& b2_Low,
 																 complex<double>& b3_Low,
 																 complex<double>& b4_Low);
-	void calc_Field_Up_Low					(int thread_Index, int point_Index, QString polarization);
+	void calc_Field_Up_Low						(int thread_Index, int point_Index, QString polarization);
 	void calc_K_Factor_DWBA_SA_CSA				(int point_Index, int thread_Index,                  QString polarization);
 	double calc_K_Factor_Term_Sum_DWBA_SA_CSA	(int thread_Index, QString polarization, int n_Power);
 	void choose_Cor_Function					(int thread_Index);
