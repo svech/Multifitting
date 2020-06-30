@@ -165,7 +165,7 @@ void Table_Roughness_Model_Editor::create_Main_Layout()
 					multilayer->imperfections_Model.approximation == SA_approximation   ||
 					multilayer->imperfections_Model.approximation == CSA_approximation  )
 				{
-					QMessageBox::information(this,"Interlayer will not be used", "In DWBA, SA, CSA approximations\nthe diffuse interlayer is neglected");
+					QMessageBox::information(this,"Interlayer will not be used", "In DWBA, SA, CSA approximations\ndiffuse interlayers are neglected");
 				}
 				close();
 				global_Multilayer_Approach->reopen_Table_Of_Structures(true);
@@ -176,7 +176,7 @@ void Table_Roughness_Model_Editor::create_Main_Layout()
 				multilayer->imperfections_Model.approximation == SA_approximation   ||
 				multilayer->imperfections_Model.approximation == CSA_approximation  )
 			{
-				QMessageBox::information(this,"Interlayer will not be used", "In DWBA, SA, CSA approximations\nthe diffuse interlayer is neglected");
+				QMessageBox::information(this,"Interlayer will not be used", "In DWBA, SA, CSA approximations\ndiffuse interlayers are neglected");
 			}
 			close();
 			global_Multilayer_Approach->reopen_Table_Of_Structures(true);

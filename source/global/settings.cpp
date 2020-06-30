@@ -277,6 +277,7 @@ int optical_Constants_Read_Threads;
 int reflectivity_Calc_Threads;
 int epsilon_Partial_Fill_Threads;
 int n_Max_Series;
+bool use_Simplified_Scattering_Weak_Factor;
 
 bool recalculate_Spinbox_Global;
 bool recalculate_Spinbox_Table;
@@ -963,6 +964,7 @@ void Settings::read_General_Settings(bool reset_to_default)
 		reflectivity_Calc_Threads	   = general_Settings.value( "reflectivity_Calc_Threads",		max(QThread::idealThreadCount(),1) ).toInt();
 		epsilon_Partial_Fill_Threads   = general_Settings.value( "epsilon_Partial_Fill_Threads",	max(QThread::idealThreadCount(),1) ).toInt();
 		n_Max_Series				   = general_Settings.value( "n_Max_Series",													 5 ).toInt();
+		use_Simplified_Scattering_Weak_Factor  = general_Settings.value( "use_Simplified_Scattering_Weak_Factor",			     false ).toBool();
 	general_Settings.endGroup();
 	general_Settings.beginGroup( Recalculation );
 		recalculate_Spinbox_Global			 = general_Settings.value( "recalculate_Spinbox_Global",			false  ).toBool();
@@ -993,6 +995,7 @@ void Settings::save_General_Settings()
 		general_Settings.setValue( "reflectivity_Calc_Threads",		 reflectivity_Calc_Threads		);
 		general_Settings.setValue( "epsilon_Partial_Fill_Threads",	 epsilon_Partial_Fill_Threads	);
 		general_Settings.setValue( "n_Max_Series",					 n_Max_Series					);
+		general_Settings.setValue( "use_Simplified_Scattering_Weak_Factor", use_Simplified_Scattering_Weak_Factor);
 	general_Settings.endGroup();
 	general_Settings.beginGroup( Recalculation );
 		general_Settings.setValue( "recalculate_Spinbox_Global", recalculate_Spinbox_Global	);

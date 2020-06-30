@@ -192,6 +192,32 @@ public:
 														const vector<complex<double>>& q0_U_r,
 														const vector<complex<double>>& q_U_i,
 														const vector<complex<double>>& q_U_r );
+	complex<double> calc_Field_Term_j	(int point_Index, int j, int thread_Index,
+														const vector<complex<double>>& q0_Hi,
+														const vector<complex<double>>& q_Hi,
+
+														const vector<complex<double>>& b1_Up_Boundary,
+														const vector<complex<double>>& b2_Up_Boundary,
+														const vector<complex<double>>& b3_Up_Boundary,
+														const vector<complex<double>>& b4_Up_Boundary,
+
+														const vector<complex<double>>& b1_Low_Boundary,
+														const vector<complex<double>>& b2_Low_Boundary,
+														const vector<complex<double>>& b3_Low_Boundary,
+														const vector<complex<double>>& b4_Low_Boundary);
+	complex<double> calc_Field_Term_j_Simplified(int point_Index, int j, int thread_Index,
+														const vector<complex<double>>& q0_Hi,
+														const vector<complex<double>>& q_Hi,
+
+														 const vector<complex<double>>& b1_Up_Boundary,
+														 const vector<complex<double>>& b2_Up_Boundary,
+														 const vector<complex<double>>& b3_Up_Boundary,
+														 const vector<complex<double>>& b4_Up_Boundary,
+
+														 const vector<complex<double>>& b1_Low_Boundary,
+														 const vector<complex<double>>& b2_Low_Boundary,
+														 const vector<complex<double>>& b3_Low_Boundary,
+														 const vector<complex<double>>& b4_Low_Boundary);
 
 	double calc_Field_Term_Sum			(QString polarization, int point_Index, int thread_Index);
 	void choose_PSD_1D_Function			(const Data& struct_Data, int thread_Index);
@@ -200,18 +226,6 @@ public:
 
 	// DWBA SA CSA
 	void calc_k_Wavenumber_Up_Low		(int thread_Index, int point_Index);
-	void calc_Weak_b_Terms_j			(int j, int thread_Index,const vector<complex<double>>& q0_Hi,
-																 const vector<complex<double>>& q_Hi,
-
-																 complex<double>& b1_Up,
-																 complex<double>& b2_Up,
-																 complex<double>& b3_Up,
-																 complex<double>& b4_Up,
-
-																 complex<double>& b1_Low,
-																 complex<double>& b2_Low,
-																 complex<double>& b3_Low,
-																 complex<double>& b4_Low);
 	void calc_Field_Up_Low						(int thread_Index, int point_Index, QString polarization);
 	void calc_K_Factor_DWBA_SA_CSA				(int point_Index, int thread_Index,                  QString polarization);
 	double calc_K_Factor_Term_Sum_DWBA_SA_CSA	(int thread_Index, QString polarization, int n_Power);

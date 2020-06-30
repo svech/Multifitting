@@ -148,6 +148,16 @@ void General_Settings_Editor::create_Calculation_Tab()
 			global_Multilayer_Approach->global_Recalculate();
 		});
 		row++;
+//		//----------------------------------------------------------------------------
+//		QCheckBox* simplified_Scattering_Weak_Factor = new QCheckBox("Simplified interlayers with scattering");
+//			simplified_Scattering_Weak_Factor->setChecked(use_Simplified_Scattering_Weak_Factor);
+//		groupbox_Layout->addWidget(simplified_Scattering_Weak_Factor,row,0,1,2);
+//		connect(simplified_Scattering_Weak_Factor, &QCheckBox::toggled, this, [=]
+//		{
+//			use_Simplified_Scattering_Weak_Factor = simplified_Scattering_Weak_Factor->isChecked();
+//			global_Multilayer_Approach->global_Recalculate();
+//		});
+//		row++;
 	}
 }
 

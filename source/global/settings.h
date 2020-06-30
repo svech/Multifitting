@@ -283,6 +283,7 @@ extern int optical_Constants_Read_Threads;
 extern int reflectivity_Calc_Threads;
 extern int epsilon_Partial_Fill_Threads;
 extern int n_Max_Series;
+extern bool use_Simplified_Scattering_Weak_Factor;
 
 extern bool recalculate_Spinbox_Global;
 extern bool recalculate_Spinbox_Table;
