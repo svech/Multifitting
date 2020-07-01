@@ -1156,7 +1156,7 @@ void Unwrapped_Reflection::calc_Local(int thread_Index, int point_Index)
 			r_Local_s[thread_Index].back() = r_Fresnel_s[thread_Index].back();	// last boundary
 			for (int i = num_Layers-1; i >= 0; --i)
 			{
-				r_Exp_s[thread_Index][i] = r_Local_s[thread_Index][i+1]*exponenta_2[thread_Index][i];
+				r_Exp_s[thread_Index][i] = r_Local_s[thread_Index][i+1]*exponenta_2[thread_Index][i]+I*10.*DBL_MIN;
 				r_Local_s[thread_Index][i] = (r_Fresnel_s[thread_Index][i] + r_Exp_s[thread_Index][i]) / (1. + r_Fresnel_s[thread_Index][i]*r_Exp_s[thread_Index][i]);
 			}
 		} else
@@ -1167,7 +1167,7 @@ void Unwrapped_Reflection::calc_Local(int thread_Index, int point_Index)
 			t_Local_s[thread_Index].back() = t_Fresnel_s[thread_Index].back();	// last boundary
 			for (int i = num_Layers-1; i >= 0; --i)
 			{
-				r_Exp_s[thread_Index][i] = r_Local_s[thread_Index][i+1]*exponenta_2[thread_Index][i];
+				r_Exp_s[thread_Index][i] = r_Local_s[thread_Index][i+1]*exponenta_2[thread_Index][i]+I*10.*DBL_MIN;
 				denom = 1. + r_Fresnel_s[thread_Index][i]*r_Exp_s[thread_Index][i];
 				r_Local_s[thread_Index][i] = (r_Fresnel_s[thread_Index][i] + r_Exp_s[thread_Index][i]) / denom;
 
@@ -1655,15 +1655,15 @@ complex<double> Unwrapped_Reflection::calc_Field_Term_j(int point_Index, int j, 
 																const vector<complex<double>>& b3_Low_Boundary,
 																const vector<complex<double>>& b4_Low_Boundary)
 {
-	const complex<double> k1_Up = q0_Hi[j] + q_Hi[j];
-	const complex<double> k2_Up = q0_Hi[j] - q_Hi[j];
-	const complex<double> k3_Up = -k2_Up;
-	const complex<double> k4_Up = -k1_Up;
+	complex<double> k1_Up = q0_Hi[j] + q_Hi[j];
+	complex<double> k2_Up = q0_Hi[j] - q_Hi[j];
+	complex<double> k3_Up = -k2_Up;
+	complex<double> k4_Up = -k1_Up;
 
-	const complex<double> k1_Low = q0_Hi[j+1] + q_Hi[j+1];
-	const complex<double> k2_Low = q0_Hi[j+1] - q_Hi[j+1];
-	const complex<double> k3_Low = -k2_Low;
-	const complex<double> k4_Low = -k1_Low;
+	complex<double> k1_Low = q0_Hi[j+1] + q_Hi[j+1];
+	complex<double> k2_Low = q0_Hi[j+1] - q_Hi[j+1];
+	complex<double> k3_Low = -k2_Low;
+	complex<double> k4_Low = -k1_Low;
 
 	const complex<double>& b1_Up = b1_Up_Boundary[j];
 	const complex<double>& b2_Up = b2_Up_Boundary[j];
@@ -1720,6 +1720,11 @@ complex<double> Unwrapped_Reflection::calc_Field_Term_j(int point_Index, int j, 
 				sigma_j = unwrapped_Structure->boundary_Interlayer_Composition_Threaded[thread_Index][j][Lin].my_Sigma_Diffuse.value + 10*DBL_EPSILON; }
 
 			double sqrt_3 = sqrt(3);
+			if(norm(k1_Up )<DBL_EPSILON) {k1_Up =DBL_EPSILON; k4_Up =-DBL_EPSILON;}
+			if(norm(k2_Up )<DBL_EPSILON) {k2_Up =DBL_EPSILON; k3_Up =-DBL_EPSILON;}
+			if(norm(k1_Low)<DBL_EPSILON) {k1_Low=DBL_EPSILON; k4_Low=-DBL_EPSILON;}
+			if(norm(k2_Low)<DBL_EPSILON) {k2_Low=DBL_EPSILON; k3_Low=-DBL_EPSILON;}
+
 			complex<double> exp_Up_1  = exp(-I*sqrt_3*sigma_j * k1_Up);
 			complex<double> exp_Up_2  = exp(-I*sqrt_3*sigma_j * k2_Up);
 			complex<double> exp_Low_1 = exp( I*sqrt_3*sigma_j * k1_Low);
@@ -1864,10 +1869,10 @@ complex<double> Unwrapped_Reflection::calc_Field_Term_j_Simplified(int point_Ind
 																   const vector<complex<double>>& b3_Low_Boundary,
 																   const vector<complex<double>>& b4_Low_Boundary)
 {
-	const complex<double> k1 = sqrt((q0_Hi[j] + q_Hi[j])*(q0_Hi[j+1] + q_Hi[j+1]));
-	const complex<double> k2 = sqrt((q0_Hi[j] - q_Hi[j])*(q0_Hi[j+1] - q_Hi[j+1]));
-	const complex<double> k3 = -k2;
-	const complex<double> k4 = -k1;
+	complex<double> k1 = sqrt((q0_Hi[j] + q_Hi[j])*(q0_Hi[j+1] + q_Hi[j+1]));
+	complex<double> k2 = sqrt((q0_Hi[j] - q_Hi[j])*(q0_Hi[j+1] - q_Hi[j+1]));
+	complex<double> k3 = -k2;
+	complex<double> k4 = -k1;
 
 	const complex<double> b1 = (b1_Up_Boundary[j] + b1_Low_Boundary[j])/2.;
 	const complex<double> b2 = (b2_Up_Boundary[j] + b2_Low_Boundary[j])/2.;
@@ -1906,6 +1911,8 @@ complex<double> Unwrapped_Reflection::calc_Field_Term_j_Simplified(int point_Ind
 				sigma_j = unwrapped_Structure->boundary_Interlayer_Composition_Threaded[thread_Index][j][Lin].my_Sigma_Diffuse.value + 10*DBL_EPSILON; }
 
 			double sqrt_3 = sqrt(3);
+			if(norm(k1)<DBL_EPSILON) {k1=DBL_EPSILON;k4=-DBL_EPSILON;}
+			if(norm(k2)<DBL_EPSILON) {k2=DBL_EPSILON;k3=-DBL_EPSILON;}
 			complex<double> sin_1 = sin(sqrt_3*sigma_j * k1);
 			complex<double> sin_2 = sin(sqrt_3*sigma_j * k2);
 
@@ -1998,9 +2005,6 @@ complex<double> Unwrapped_Reflection::calc_Field_Term_j_Simplified(int point_Ind
 double Unwrapped_Reflection::calc_Field_Term_Sum(QString polarization, int point_Index, int thread_Index)
 {
 	// used only without discretization
-	const vector<complex<double>>& q0_Exponenta = if_Single_Beam_Value ? calculated_Values.q0_Exponenta.front() : calculated_Values.q0_Exponenta[point_Index];
-	const vector<complex<double>>& q_Exponenta = calculated_Values.q_Exponenta[point_Index];
-
 	const vector<complex<double>>& q0_Hi = if_Single_Beam_Value ? calculated_Values.q0_Hi.front() : calculated_Values.q0_Hi[point_Index];
 	const vector<complex<double>>& q_Hi = calculated_Values.q_Hi[point_Index];
 
@@ -2271,16 +2275,15 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 		{
 			double sin_Theta_0 = max(measurement.beam_Theta_0_Sin_Value, DBL_EPSILON);
 			double cos_Theta_0 = max(measurement.beam_Theta_0_Cos_Value, DBL_EPSILON);
-			double e_Factor_PT_1D		   = pow(measurement.k_Value,3)/(16*M_PI     *sin_Theta_0*sqrt(cos_Theta_0*measurement.detector_Theta_Cos_Vec[point_Index]));
-			double e_Factor_PT_2D		   = pow(measurement.k_Value,4)/(16*M_PI*M_PI*sin_Theta_0);
-			double e_Factor_DWBA_SA_CSA_1D = pow(measurement.k_Value,3)/(2 *M_PI*M_PI*sin_Theta_0*sqrt(cos_Theta_0*measurement.detector_Theta_Cos_Vec[point_Index]));
-
 			if( measurement.measurement_Type == measurement_Types[Offset_Scan] ||
 				measurement.measurement_Type == measurement_Types[Rocking_Curve] )
 			{
 				sin_Theta_0 = max(measurement.beam_Theta_0_Sin_Vec[point_Index], DBL_EPSILON);
 				cos_Theta_0 = max(measurement.beam_Theta_0_Cos_Vec[point_Index], DBL_EPSILON);
 			}
+			double e_Factor_PT_1D		   = pow(measurement.k_Value,3)/(16*M_PI     *sin_Theta_0*sqrt(cos_Theta_0*measurement.detector_Theta_Cos_Vec[point_Index]));
+			double e_Factor_PT_2D		   = pow(measurement.k_Value,4)/(16*M_PI*M_PI*sin_Theta_0);
+			double e_Factor_DWBA_SA_CSA_1D = pow(measurement.k_Value,3)/(2 *M_PI*M_PI*sin_Theta_0*sqrt(cos_Theta_0*measurement.detector_Theta_Cos_Vec[point_Index]));
 
 			// common
 			if(!multilayer->discretization_Parameters.enable_Discretization)

@@ -14,9 +14,8 @@ Node::Node(QTreeWidgetItem* item):
 }
 
 void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_Node, bool depth_Grading, bool inconvenient_Approximation, bool sigma_Grading, bool enable_Discretization, QString mode)
-{			
-	// crutch
-	struct_Data.relative_Density.value = max(struct_Data.relative_Density.value,DBL_EPSILON); // TODO vacuum crashes?
+{				
+//	struct_Data.relative_Density.value = max(struct_Data.relative_Density.value, DBL_EPSILON); // crutch
 
 	size_t num_Points = 0;
 	vector<double> cos2;
@@ -30,7 +29,7 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 			num_Points = measurement.beam_Theta_0_Cos2_Vec.size();
 			cos2 = measurement.beam_Theta_0_Cos2_Vec;
 			k.resize(num_Points);
-			for(int point_Index = 0; point_Index<num_Points; ++point_Index)
+			for(size_t point_Index = 0; point_Index<num_Points; ++point_Index)
 			{
 				k[point_Index] = measurement.k_Value;
 			}
@@ -45,7 +44,7 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 			num_Points = measurement.lambda_Vec.size();
 			k = measurement.k_Vec;
 			cos2.resize(num_Points);
-			for(int point_Index = 0; point_Index<num_Points; ++point_Index)
+			for(size_t point_Index = 0; point_Index<num_Points; ++point_Index)
 			{
 				cos2[point_Index] = measurement.beam_Theta_0_Cos2_Value;
 			}
@@ -66,9 +65,10 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 				vector<complex<double>> n;
 				optical_Constants->interpolation_Epsilon(temp_Material_Data.material_Data, spectral_Points, n, struct_Data.approved_Material);
 
-				for(int point_Index = 0; point_Index<num_Points; ++point_Index)
+				for(size_t point_Index = 0; point_Index<num_Points; ++point_Index)
 				{
 					delta_Epsilon[point_Index] = 1. - n[point_Index]*n[point_Index];
+//					if(abs(imag(delta_Epsilon[point_Index]))<DBL_EPSILON) delta_Epsilon[point_Index] -= complex<double>(0,DBL_EPSILON);
 				}
 			} else
 			// compile from elements
@@ -76,9 +76,10 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 				vector<complex<double>> temp_Epsilon;
 				optical_Constants->make_Epsilon_From_Factors(struct_Data.composition, struct_Data.absolute_Density.value, spectral_Points, temp_Epsilon);
 
-				for(int point_Index = 0; point_Index<num_Points; ++point_Index)
+				for(size_t point_Index = 0; point_Index<num_Points; ++point_Index)
 				{
 					delta_Epsilon[point_Index] = 1. - temp_Epsilon[point_Index];
+//					if(abs(imag(delta_Epsilon[point_Index]))<DBL_EPSILON) delta_Epsilon[point_Index] -= complex<double>(0,DBL_EPSILON);
 				}
 			}
 
@@ -91,19 +92,19 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 			{
 				// if absolute density
 				if(struct_Data.composed_Material)
-														for(int point_Index = 0; point_Index<num_Points; ++point_Index)
+														for(size_t point_Index = 0; point_Index<num_Points; ++point_Index)
 														{
 															epsilon[point_Index] = 1. - delta_Epsilon[point_Index];
 														}
 				// if relative density
-				else									for(int point_Index = 0; point_Index<num_Points; ++point_Index)
+				else									for(size_t point_Index = 0; point_Index<num_Points; ++point_Index)
 														{
 															epsilon[point_Index] = 1. - struct_Data.relative_Density.value * delta_Epsilon[point_Index];
 														}
 			} else
 			// if separate optical constants
 			{
-				for(int point_Index = 0; point_Index<num_Points; ++point_Index)
+				for(size_t point_Index = 0; point_Index<num_Points; ++point_Index)
 				{
 					delta_Epsilon[point_Index] = complex<double>(real(delta_Epsilon[point_Index]) * struct_Data.permittivity.value / 100.,
 																 imag(delta_Epsilon[point_Index]) * struct_Data.absorption  .value / 100.);
@@ -131,12 +132,6 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 			{
 				num_Points = measurement.beam_Theta_0_Cos2_Vec.size();
 				cos2 = measurement.beam_Theta_0_Cos2_Vec;
-
-				// just in case
-				if(measurement.beam_Theta_0_Cos2_Vec.size() != measurement.detector_Theta_Cos2_Vec.size())
-				{
-					qInfo() << "Rocking_Curve, Offset_Scan  :  measurement.beam_Theta_0_Cos2_Vec.size() != measurement.detector_Theta_Cos2_Vec.size()" << endl;
-				}
 			}
 		}
 		if(mode == SCATTERED_MODE)
@@ -147,7 +142,7 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 
 		// common
 		k.resize(num_Points);
-		for(int point_Index = 0; point_Index<num_Points; ++point_Index)
+		for(size_t point_Index = 0; point_Index<num_Points; ++point_Index)
 		{
 			k[point_Index] = measurement.k_Value;
 		}
@@ -264,7 +259,7 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 				vector<complex<double>> s_r (num_Points);
 				vector<complex<double>> s_t (num_Points);
 
-				for(int i=0; i<num_Points; ++i)
+				for(size_t i=0; i<num_Points; ++i)
 				{
 					// reflectance
 					weak_Factor_R[i] = 0;
@@ -285,7 +280,7 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 						my_Sigma = struct_Data.interlayer_Composition[Erf].my_Sigma_Diffuse.value;}
 
 					complex<double> factor_r, factor_t;
-					for(int i=0; i<num_Points; ++i)
+					for(size_t i=0; i<num_Points; ++i)
 					{
 						// reflectance
 						factor_r = exp( - s_r[i] * s_r[i] * my_Sigma * my_Sigma * 2. );
@@ -467,7 +462,7 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 				}
 			} else
 			{
-				for(int i=0; i<num_Points; ++i)
+				for(size_t i=0; i<num_Points; ++i)
 				{
 					weak_Factor_R[i] = 1;
 					weak_Factor_T[i] = 1;
@@ -540,6 +535,7 @@ void Node::fill_Epsilon_For_Angular_Measurements(vector<double>& spectral_Points
 		optical_Constants->make_Epsilon_From_Factors(struct_Data.composition, struct_Data.absolute_Density.value, spectral_Points, temp_Epsilon);
 		delta_Epsilon_Ang = 1. - temp_Epsilon.front();
 	}
+//	if(abs(imag(delta_Epsilon_Ang))<DBL_EPSILON) delta_Epsilon_Ang -= complex<double>(0,DBL_EPSILON);
 
 	/// ---------------------------------------------------------------------------------------------------------------
 	/// epsilon
@@ -568,18 +564,6 @@ void Node::fill_Epsilon_For_Angular_Measurements(vector<double>& spectral_Points
 	}
 }
 
-// fractal gauss integration
-struct Fractal_Gauss_Params
-{
-	double sigma;
-	double xi;
-	double alpha;
-};
-double Cor_Fractal_Gauss(double r, void* params)
-{
-	Fractal_Gauss_Params* p = reinterpret_cast<Fractal_Gauss_Params*>(params);
-	return p->sigma*p->sigma * exp(-pow(r/p->xi,2*p->alpha));
-}
 void Node::create_Spline_PSD_Fractal_Gauss_1D(const Data& measurement, const Imperfections_Model& imperfections_Model)
 {
 	if(imperfections_Model.approximation != PT_approximation) return;
@@ -605,7 +589,8 @@ void Node::create_Spline_PSD_Fractal_Gauss_1D(const Data& measurement, const Imp
 		for(size_t i=0; i<temp_Cos.size(); i++) temp_Cos[i] = measurement.k_Value*abs(temp_Cos[i] - measurement.beam_Theta_0_Cos_Vec[i]);
 	}
 	std::sort(temp_Cos.begin(), temp_Cos.end());
-	double p_Max = temp_Cos.back()*(1+1E-7);
+	double addition = 1E-8;
+	double p_Max = temp_Cos.back()+addition;
 
 
 	int num_Sections = 6; // plus zero point
@@ -640,49 +625,42 @@ void Node::create_Spline_PSD_Fractal_Gauss_1D(const Data& measurement, const Imp
 		interpoints_Sum_Value_Vec[0] = 4*sigma*sigma*xi*tgamma(1.+1/(2*alpha));
 	}
 
-	gsl_integration_workspace* w = gsl_integration_workspace_alloc(1000);
-	gsl_integration_workspace* wc = gsl_integration_workspace_alloc(1000);
-
-	Fractal_Gauss_Params params = {sigma, xi, alpha};
-	gsl_function F = { &Cor_Fractal_Gauss, &params };
-
-	double abs_Err = 1e-7;
-	double rel_Err = 1e-7;
-
-	double p = 0, result = 0, error;
-	double interval = 2*xi/sqrt(alpha);
+	double p = 0, result = 0;
 	int counter = 1;
+	// boost integrator
+	auto f = [&](double r) {return sigma*sigma * exp(-pow(r/xi,2*alpha));};
+
+	ooura_fourier_cos<double> integrator;
 	for(int sec=0; sec<num_Sections; sec++)
 	{
 		for(int i=0; i<interpoints[sec]; i++)
 		{
 			p += dp[sec];
-			gsl_integration_qawo_table* wf = gsl_integration_qawo_table_alloc(p, interval, GSL_INTEG_COSINE, 25);
-			double current_Point = 0, sum_Result = 0;
-//			gsl_integration_qawo(&F, current_Point, abs_Err, rel_Err, w->limit, w, wf, &result, &error); sum_Result += result; current_Point += interval;
-//			gsl_integration_qawo(&F, current_Point, abs_Err, rel_Err, w->limit, w, wf, &result, &error); sum_Result += result; current_Point += interval;
-			gsl_integration_qawf(&F, current_Point,         1e-4, w->limit, w, wc, wf, &result, &error); sum_Result += result; current_Point += interval;
-			gsl_integration_qawo_table_free(wf);
+
+			// second part
+			std::pair<double, double> result_Boost = integrator.integrate(f, p);
+			result = result_Boost.first;
+
 			interpoints_Sum_Argum_Vec[counter] = p;
-			interpoints_Sum_Value_Vec[counter] = 4*sum_Result;
+			interpoints_Sum_Value_Vec[counter] = 4*result;
 			counter++;
 		}
 	}
-	// chech for artifacts
-	for(int i=interpoints_Sum_Argum_Vec.size()-2; i>=0; i--)
-	{
-		if(interpoints_Sum_Value_Vec[i]<0.5*interpoints_Sum_Value_Vec[i+1])
-		{
-			interpoints_Sum_Value_Vec.erase (interpoints_Sum_Value_Vec.begin()+i);
-			interpoints_Sum_Argum_Vec.erase (interpoints_Sum_Argum_Vec.begin()+i);
-		}
-	}
-	gsl_integration_workspace_free(wc);
-	gsl_integration_workspace_free(w);
 
-	const gsl_interp_type* interp_type = gsl_interp_steffen;
+//	// chech for artifacts
+//	for(int i=interpoints_Sum_Argum_Vec.size()-2; i>=0; i--)
+//	{
+//		if(interpoints_Sum_Value_Vec[i]<0.5*interpoints_Sum_Value_Vec[i+1])
+//		{
+//			interpoints_Sum_Value_Vec.erase (interpoints_Sum_Value_Vec.begin()+i);
+//			interpoints_Sum_Argum_Vec.erase (interpoints_Sum_Argum_Vec.begin()+i);
+//		}
+//	}
+
 	acc = gsl_interp_accel_alloc();
-	spline = gsl_spline_alloc(interp_type, interpoints_Sum_Value_Vec.size());
+	if(p_Max<10*addition) 	spline = gsl_spline_alloc(gsl_interp_linear, interpoints_Sum_Value_Vec.size());
+	else					spline = gsl_spline_alloc(gsl_interp_steffen,interpoints_Sum_Value_Vec.size());
+
 	gsl_spline_init(spline, interpoints_Sum_Argum_Vec.data(), interpoints_Sum_Value_Vec.data(), interpoints_Sum_Value_Vec.size());
 }
 
