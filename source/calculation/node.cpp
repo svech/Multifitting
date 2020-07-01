@@ -175,7 +175,7 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 		if(true)
 		{
 			hi.resize(num_Points);
-			for(int i=0; i<num_Points; ++i)
+			for(size_t i=0; i<num_Points; ++i)
 			{
 				hi[i] = k[i]*sqrt(epsilon[i] - cos2[i]);
 			}
@@ -193,7 +193,7 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 			{
 				Fresnel_R_s.resize(num_Points);
 				Fresnel_T_s.resize(num_Points);
-				for(int i=0; i<num_Points; ++i)
+				for(size_t i=0; i<num_Points; ++i)
 				{
 					if ( norm(above_Node->hi[i] + hi[i]) > DBL_MIN)
 					{
@@ -213,7 +213,7 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 				complex<double> hi_je, hi_j1e;
 				Fresnel_R_p.resize(num_Points);
 				Fresnel_T_p.resize(num_Points);
-				for(int i=0; i<num_Points; ++i)
+				for(size_t i=0; i<num_Points; ++i)
 				{
 					hi_je = above_Node->hi[i]/above_Node->epsilon[i];
 					hi_j1e = hi[i]/epsilon[i];
@@ -301,7 +301,7 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 						my_Sigma = struct_Data.interlayer_Composition[Lin].my_Sigma_Diffuse.value;}
 
 					complex<double> factor_r, x_r, factor_t, x_t;
-					for(int i=0; i<num_Points; ++i)
+					for(size_t i=0; i<num_Points; ++i)
 					{
 						// reflectance
 						x_r = sqrt(3.) * s_r[i] * my_Sigma * 2.;
@@ -332,7 +332,7 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 						my_Sigma = struct_Data.interlayer_Composition[Exp].my_Sigma_Diffuse.value;}
 
 					complex<double> factor_r, x_r, factor_t, x_t;
-					for(int i=0; i<num_Points; ++i)
+					for(size_t i=0; i<num_Points; ++i)
 					{
 						// reflectance
 						x_r = pow(s_r[i] * my_Sigma, 2) * 2.;
@@ -355,7 +355,7 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 						my_Sigma = struct_Data.interlayer_Composition[Tanh].my_Sigma_Diffuse.value;}
 
 					complex<double> factor_r, x_r, factor_t, x_t;
-					for(int i=0; i<num_Points; ++i)
+					for(size_t i=0; i<num_Points; ++i)
 					{
 						// reflectance
 						x_r = sqrt(3.) * s_r[i] * my_Sigma * 2.;
@@ -392,7 +392,7 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 						my_Sigma = struct_Data.interlayer_Composition[Sin].my_Sigma_Diffuse.value;}
 
 					complex<double> factor_r, x_r, y_r, six_r, siy_r, factor_t, x_t, y_t, six_t, siy_t;
-					for(int i=0; i<num_Points; ++i)
+					for(size_t i=0; i<num_Points; ++i)
 					{
 						// reflectance
 						x_r = a * my_Sigma * s_r[i] * 2. - M_PI_2;
@@ -430,7 +430,7 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 
 					complex<double> factor_r;
 					complex<double> factor_t;
-					for(int i=0; i<num_Points; ++i)
+					for(size_t i=0; i<num_Points; ++i)
 					{
 						// reflectance
 						factor_r = cos(s_r[i] * my_Sigma * 2.);
@@ -446,14 +446,14 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 				{
 					if( abs(norm) > DBL_MIN )
 					{
-						for(int i=0; i<num_Points; ++i)
+						for(size_t i=0; i<num_Points; ++i)
 						{
 							weak_Factor_R[i] /= norm;
 							weak_Factor_T[i] /= norm;
 						}
 					} else
 					{
-						for(int i=0; i<num_Points; ++i)
+						for(size_t i=0; i<num_Points; ++i)
 						{
 							weak_Factor_R[i] = 1;
 							weak_Factor_T[i] = 1;
@@ -481,14 +481,14 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 			exponenta_2.resize(num_Points);
 			if( depth_Grading )
 			{
-				for(int i=0; i<num_Points; ++i)
+				for(size_t i=0; i<num_Points; ++i)
 				{
 					exponenta[i]   = 1.;
 					exponenta_2[i] = 1.;
 				}
 			} else
 			{
-				for(int i=0; i<num_Points; ++i)
+				for(size_t i=0; i<num_Points; ++i)
 				{
 					exponenta[i] = exp(I*hi[i]*struct_Data.thickness.value);
 					exponenta_2[i] = pow(exponenta[i],2);
@@ -666,6 +666,8 @@ void Node::create_Spline_PSD_Fractal_Gauss_1D(const Data& measurement, const Imp
 
 void Node::create_Spline_PSD_Fractal_Gauss_2D(const Data& measurement, const Imperfections_Model& imperfections_Model)
 {
+	Q_UNUSED(measurement)
+	Q_UNUSED(imperfections_Model)
 	// TODO integration of 2D fractal gauss
 //	if(imperfections_Model.approximation != PT_approximation) return;
 //	if(imperfections_Model.common_Model != fractal_Gauss_Model) return;

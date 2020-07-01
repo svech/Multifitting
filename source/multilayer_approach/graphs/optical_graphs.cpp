@@ -271,30 +271,46 @@ void Optical_Graphs::save_Geometry()
 		if(dimension == dim_1D)
 		{
 			global_Multilayer_Approach->target_Independent_Splitter_Position_1D_Vec[tab_Index] = target_Independent_Splitter_Vec[tab_Index]->saveState();
-			global_Multilayer_Approach->target_Vertical_Splitter_Position_1D_Vec[tab_Index] = target_Vertical_Splitter_Vec[tab_Index]->saveState();
-			for(int row=0; row<multilayer->graph_Options_1D.num_Target_Graph_Rows; row++)
+
+			if(multilayer->graph_Options_1D.num_Target_Graph_Rows == global_Multilayer_Approach->target_Horizontal_Splitter_Position_1D_Vec_Vec[tab_Index].size())
 			{
-				global_Multilayer_Approach->target_Horizontal_Splitter_Position_1D_Vec_Vec[tab_Index][row] = target_Horizontal_Splitter_Vec_Vec[tab_Index][row]->saveState();
+				global_Multilayer_Approach->target_Vertical_Splitter_Position_1D_Vec[tab_Index] = target_Vertical_Splitter_Vec[tab_Index]->saveState();
+				for(int row=0; row<multilayer->graph_Options_1D.num_Target_Graph_Rows; row++)
+				{
+					global_Multilayer_Approach->target_Horizontal_Splitter_Position_1D_Vec_Vec[tab_Index][row] = target_Horizontal_Splitter_Vec_Vec[tab_Index][row]->saveState();
+				}
 			}
-			global_Multilayer_Approach->independent_Vertical_Splitter_Position_1D_Vec[tab_Index] = independent_Vertical_Splitter_Vec[tab_Index]->saveState();
-			for(int row=0; row<multilayer->graph_Options_1D.num_Independent_Graph_Rows; row++)
+
+			if(multilayer->graph_Options_1D.num_Independent_Graph_Rows == global_Multilayer_Approach->independent_Horizontal_Splitter_Position_1D_Vec_Vec[tab_Index].size())
 			{
-				global_Multilayer_Approach->independent_Horizontal_Splitter_Position_1D_Vec_Vec[tab_Index][row] = independent_Horizontal_Splitter_Vec_Vec[tab_Index][row]->saveState();
+				global_Multilayer_Approach->independent_Vertical_Splitter_Position_1D_Vec[tab_Index] = independent_Vertical_Splitter_Vec[tab_Index]->saveState();
+				for(int row=0; row<multilayer->graph_Options_1D.num_Independent_Graph_Rows; row++)
+				{
+					global_Multilayer_Approach->independent_Horizontal_Splitter_Position_1D_Vec_Vec[tab_Index][row] = independent_Horizontal_Splitter_Vec_Vec[tab_Index][row]->saveState();
+				}
 			}
 		}
 		// 2D
 		if(dimension == dim_2D)
 		{
 			global_Multilayer_Approach->target_Independent_Splitter_Position_2D_Vec[tab_Index] = target_Independent_Splitter_Vec[tab_Index]->saveState();
-			global_Multilayer_Approach->target_Vertical_Splitter_Position_2D_Vec[tab_Index] = target_Vertical_Splitter_Vec[tab_Index]->saveState();
-			for(int row=0; row<multilayer->graph_Options_2D.num_Target_Graph_Rows; row++)
+
+			if(multilayer->graph_Options_2D.num_Target_Graph_Rows == global_Multilayer_Approach->target_Horizontal_Splitter_Position_2D_Vec_Vec[tab_Index].size())
 			{
-				global_Multilayer_Approach->target_Horizontal_Splitter_Position_2D_Vec_Vec[tab_Index][row] = target_Horizontal_Splitter_Vec_Vec[tab_Index][row]->saveState();
+				global_Multilayer_Approach->target_Vertical_Splitter_Position_2D_Vec[tab_Index] = target_Vertical_Splitter_Vec[tab_Index]->saveState();
+				for(int row=0; row<multilayer->graph_Options_2D.num_Target_Graph_Rows; row++)
+				{
+					global_Multilayer_Approach->target_Horizontal_Splitter_Position_2D_Vec_Vec[tab_Index][row] = target_Horizontal_Splitter_Vec_Vec[tab_Index][row]->saveState();
+				}
 			}
-			global_Multilayer_Approach->independent_Vertical_Splitter_Position_2D_Vec[tab_Index] = independent_Vertical_Splitter_Vec[tab_Index]->saveState();
-			for(int row=0; row<multilayer->graph_Options_2D.num_Independent_Graph_Rows; row++)
+
+			if(multilayer->graph_Options_2D.num_Independent_Graph_Rows == global_Multilayer_Approach->independent_Horizontal_Splitter_Position_2D_Vec_Vec[tab_Index].size())
 			{
-				global_Multilayer_Approach->independent_Horizontal_Splitter_Position_2D_Vec_Vec[tab_Index][row] = independent_Horizontal_Splitter_Vec_Vec[tab_Index][row]->saveState();
+				global_Multilayer_Approach->independent_Vertical_Splitter_Position_2D_Vec[tab_Index] = independent_Vertical_Splitter_Vec[tab_Index]->saveState();
+				for(int row=0; row<multilayer->graph_Options_2D.num_Independent_Graph_Rows; row++)
+				{
+					global_Multilayer_Approach->independent_Horizontal_Splitter_Position_2D_Vec_Vec[tab_Index][row] = independent_Horizontal_Splitter_Vec_Vec[tab_Index][row]->saveState();
+				}
 			}
 		}
 	}
