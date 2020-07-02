@@ -1,6 +1,8 @@
 #include "node.h"
 #include <iostream>
-
+#include <gsl/gsl_sf_hyperg.h>
+#include <boost/math/special_functions/hypergeometric_pFq.hpp>
+#include <boost/math/policies/policy.hpp>
 
 Node::Node()
 {
@@ -564,6 +566,161 @@ void Node::fill_Epsilon_For_Angular_Measurements(vector<double>& spectral_Points
 	}
 }
 
+void Node::calc_Debye_Waller_Sigma(const Data& measurement, const Imperfections_Model& imperfections_Model)
+{
+	// angular width of detector
+	double max_Delta_Theta_Detector = 0;
+	if(measurement.detector_1D.detector_Type == detectors[Slit])
+	{
+		double w_2 = (measurement.detector_1D.slit_Width/2);
+		double d = (measurement.detector_1D.distance_To_Sample);
+		max_Delta_Theta_Detector = atan(w_2/d) * 180./M_PI;  // in degrees
+	}
+	if(measurement.detector_1D.detector_Type == detectors[Crystal])
+	{
+		max_Delta_Theta_Detector = measurement.detector_1D.detector_Theta_Resolution.FWHM_distribution/2 * 180./M_PI;
+	}
+
+	// measurement points
+	size_t num_Points;
+	vector<double> cos_Theta_0;
+	vector<double> angle_Theta_0;
+	vector<double> k;
+
+	if( measurement.argument_Type == argument_Types[Beam_Grazing_Angle] )
+	{
+		num_Points = measurement.beam_Theta_0_Cos2_Vec.size();
+		cos_Theta_0 = measurement.beam_Theta_0_Cos_Vec;
+		angle_Theta_0 = measurement.beam_Theta_0_Angle_Vec;
+		k.resize(num_Points);
+		for(size_t point_Index = 0; point_Index<num_Points; ++point_Index)
+		{
+			k[point_Index] = measurement.k_Value;
+		}
+	}
+	if( measurement.argument_Type == argument_Types[Wavelength_Energy] )
+	{
+		num_Points = measurement.lambda_Vec.size();
+		k = measurement.k_Vec;
+		cos_Theta_0.resize(num_Points);
+		angle_Theta_0.resize(num_Points);
+		for(size_t point_Index = 0; point_Index<num_Points; ++point_Index)
+		{
+			cos_Theta_0[point_Index] = measurement.beam_Theta_0_Cos2_Value;
+			angle_Theta_0[point_Index] = measurement.beam_Theta_0_Angle_Value;
+		}
+	}
+
+	// max frequency to detector
+	vector<double> p0(num_Points);
+	for(size_t i = 0; i<num_Points; ++i)
+	{
+		p0[i] = k[i]*abs(cos_Theta_0[i] - cos((angle_Theta_0[i] + max_Delta_Theta_Detector) * M_PI/180.));
+	}
+
+	// integration
+	double sigma = struct_Data.roughness_Model.sigma.value;
+	double xi =    struct_Data.roughness_Model.cor_radius.value;
+	double alpha = struct_Data.roughness_Model.fractal_alpha.value;
+
+	vector<double> delta_Sigma_2(num_Points);
+	if(imperfections_Model.common_Model == ABC_model)
+	{
+		auto f_2 = [&](double p){return 2./sqrt(M_PI) * tgamma(alpha+0.5)/tgamma(alpha) * sigma*sigma*xi / pow(1+p*p*xi*xi, alpha+0.5);};
+
+		for(size_t i = 0; i<num_Points; ++i)
+		{
+//			double hp = boost::math::hypergeometric_pFq({2,3,4}, {5,6,7,8}, 12.2);//gsl_sf_hyperg_2F1(0.5, 0.5+alpha, 1.5, -p0[i]*p0[i]*xi*xi);
+//			delta_Sigma_2[i] = 2*p0[i]*xi*sigma*sigma*tgamma(alpha+0.5) * hp / (sqrt(M_PI) * tgamma(alpha));
+			delta_Sigma_2[i] = min(gauss_kronrod<double, 15>::integrate(f_2, 0, p0[i], 0, 1e-7), sigma*sigma);
+		}
+		qInfo() << "f_2 =" << f_2(0) << endl;
+	}
+	if(imperfections_Model.common_Model == fractal_Gauss_Model)
+	{
+		vector<double> sorted_p0 = p0;
+		std::sort(sorted_p0.begin(), sorted_p0.end());
+		double addition = 1E-10;
+		double p_Max = sorted_p0.back() + addition;
+
+		int num_Sections = 3; // plus zero point
+		vector<int> interpoints(num_Sections);
+		int common_Size = 0;
+		for(int i=0; i<num_Sections; i++)
+		{
+			interpoints[i] = 10-2*i;
+			common_Size+=interpoints[i];
+		}
+		vector<double> interpoints_Sum_Argum_Vec(1+common_Size);
+		vector<double> interpoints_Sum_Value_Vec(1+common_Size);
+
+		vector<double> starts(num_Sections); // open start
+		starts[0] = 0;
+		starts[1] = p_Max/20;
+		starts[2] = p_Max/2;
+
+		vector<double> dp(num_Sections);
+		for(int i=0; i<num_Sections-1; i++)
+		{
+			dp[i] = (starts[i+1] - starts[i])/interpoints[i];
+		}
+		dp.back() = (p_Max - starts.back())/interpoints.back();
+
+		// zero point
+		{
+			interpoints_Sum_Argum_Vec[0] = 0;
+			interpoints_Sum_Value_Vec[0] = sigma*sigma*xi*tgamma(1.+1/(2*alpha));
+		}
+
+		double p = 0, result = 0;
+		int counter = 1;
+		// boost integrator
+		auto f = [&](double r) {return sigma*sigma * exp(-pow(r/xi,2*alpha));};
+
+		ooura_fourier_cos<double> integrator;
+		for(int sec=0; sec<num_Sections; sec++)
+		{
+			for(int i=0; i<interpoints[sec]; i++)
+			{
+				p += dp[sec];
+
+				// second part
+				std::pair<double, double> result_Boost = integrator.integrate(f, p);
+				result = result_Boost.first;
+
+				interpoints_Sum_Argum_Vec[counter] = p;
+				interpoints_Sum_Value_Vec[counter] = result;
+				counter++;
+			}
+		}
+
+		acc = gsl_interp_accel_alloc();
+		if(p_Max<10*addition) 	spline = gsl_spline_alloc(gsl_interp_linear, interpoints_Sum_Value_Vec.size());
+		else					spline = gsl_spline_alloc(gsl_interp_steffen,interpoints_Sum_Value_Vec.size());
+		gsl_spline_init(spline, interpoints_Sum_Argum_Vec.data(), interpoints_Sum_Value_Vec.data(), interpoints_Sum_Value_Vec.size());
+
+
+		// integration
+		auto f_2 = [&](double p){return gsl_spline_eval(spline, p, acc);};
+		for(size_t i = 0; i<num_Points; ++i)
+		{
+			delta_Sigma_2[i] = min(gauss_kronrod<double, 31>::integrate(f_2, 0, p0[i], 0, 1e-7), sigma*sigma);
+		}
+		qInfo() << "f_2 =" << f_2(0) << endl;
+
+		gsl_spline_free(spline);
+		gsl_interp_accel_free(acc);
+	}
+
+	qInfo() << "delta_Sigma_2 =" << delta_Sigma_2 << endl;
+
+	specular_Debye_Waller_Sigma_Roughness.resize(num_Points);
+	for(size_t i = 0; i<num_Points; ++i)
+	{
+		specular_Debye_Waller_Sigma_Roughness[i] = sqrt(sigma*sigma - delta_Sigma_2[i]);
+	}
+}
+
 void Node::create_Spline_PSD_Fractal_Gauss_1D(const Data& measurement, const Imperfections_Model& imperfections_Model)
 {
 	if(imperfections_Model.approximation != PT_approximation) return;
@@ -646,16 +803,6 @@ void Node::create_Spline_PSD_Fractal_Gauss_1D(const Data& measurement, const Imp
 			counter++;
 		}
 	}
-
-//	// chech for artifacts
-//	for(int i=interpoints_Sum_Argum_Vec.size()-2; i>=0; i--)
-//	{
-//		if(interpoints_Sum_Value_Vec[i]<0.5*interpoints_Sum_Value_Vec[i+1])
-//		{
-//			interpoints_Sum_Value_Vec.erase (interpoints_Sum_Value_Vec.begin()+i);
-//			interpoints_Sum_Argum_Vec.erase (interpoints_Sum_Argum_Vec.begin()+i);
-//		}
-//	}
 
 	acc = gsl_interp_accel_alloc();
 	if(p_Max<10*addition) 	spline = gsl_spline_alloc(gsl_interp_linear, interpoints_Sum_Value_Vec.size());
