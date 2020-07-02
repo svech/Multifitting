@@ -1156,15 +1156,19 @@ double Global_Variables::nu_Alpha_2D(double alpha, double k, double cos_Theta, d
 	return 2*pow(nu2,alpha+1);
 }
 
-double Global_Variables::PSD_Linear_Growth_2D(double exponent, double nu2_mu_Alpha_2, double omega, double nu2_omega_23, double thickness)
+double Global_Variables::PSD_Linear_Growth_2D(double exponent, double nu2_mu_Alpha_2, double omega, double nu2_omega_23, double alpha, double thickness)
 {
+	Q_UNUSED(nu2_omega_23)
+	const double factor = 4*M_PI*M_PI;
 	if(nu2_mu_Alpha_2 > DBL_EPSILON)
 	{
-		if(nu2_omega_23<2)	return omega * (1-exponent) / nu2_mu_Alpha_2;  // /(4*M_PI*M_PI)
-		else				return 0;
+//		if(nu2_omega_23<2*factor)
+			return omega * alpha * (1-exponent) / nu2_mu_Alpha_2 / factor;
+//		else
+//			return 0;
 	} else
 	{
-		return omega * thickness;  // /(4*M_PI*M_PI)
+		return omega * alpha * thickness / factor;
 	}
 }
 

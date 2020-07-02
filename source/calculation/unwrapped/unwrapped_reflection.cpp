@@ -172,6 +172,7 @@ double function_Scattering_Linear_2D_s (double phi, void* p)
 																								nu_Alpha_2*u->unwrapped_Structure->PSD_mu_alpha_Threaded[thread_Index][i],
 																								u->unwrapped_Structure->omega_Threaded[thread_Index][i],
 																								nu_Alpha_2*u->unwrapped_Structure->omega_pow23_Threaded[thread_Index][i],
+																								u->unwrapped_Structure->alpha_Threaded[thread_Index][i],
 		                                                                                        u->unwrapped_Structure->thickness_Threaded[thread_Index][i]);
 		incoherent_Sum += u->intensity_Term_Boundary_s[thread_Index][i] * u->PSD_Factor_Boundary[thread_Index][i];
 	}
@@ -229,7 +230,8 @@ double function_Scattering_Linear_2D_p (double phi, void* p)
 																								nu_Alpha_2*u->unwrapped_Structure->PSD_mu_alpha_Threaded[thread_Index][i],
 																								u->unwrapped_Structure->omega_Threaded[thread_Index][i],
 																								nu_Alpha_2*u->unwrapped_Structure->omega_pow23_Threaded[thread_Index][i],
-		                                                                                        u->unwrapped_Structure->thickness_Threaded[thread_Index][i]);
+																								u->unwrapped_Structure->alpha_Threaded[thread_Index][i],
+																								u->unwrapped_Structure->thickness_Threaded[thread_Index][i]);
 		incoherent_Sum += u->intensity_Term_Boundary_p[thread_Index][i] * u->PSD_Factor_Boundary[thread_Index][i];
 	}
 
@@ -287,6 +289,7 @@ double function_Scattering_Linear_2D_sp(double phi, void* p)
 																								nu_Alpha_2*u->unwrapped_Structure->PSD_mu_alpha_Threaded[thread_Index][i],
 																								u->unwrapped_Structure->omega_Threaded[thread_Index][i],
 																								nu_Alpha_2*u->unwrapped_Structure->omega_pow23_Threaded[thread_Index][i],
+																								u->unwrapped_Structure->alpha_Threaded[thread_Index][i],
 		                                                                                        u->unwrapped_Structure->thickness_Threaded[thread_Index][i]);
 		incoherent_Sum_s += u->intensity_Term_Boundary_s[thread_Index][i] * u->PSD_Factor_Boundary[thread_Index][i];
 		incoherent_Sum_p += u->intensity_Term_Boundary_p[thread_Index][i] * u->PSD_Factor_Boundary[thread_Index][i];
