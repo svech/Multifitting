@@ -5,6 +5,7 @@
 #include <boost/math/quadrature/gauss_kronrod.hpp>
 #include <boost/math/quadrature/gauss.hpp>
 #include <boost/math/quadrature/trapezoidal.hpp>
+#include <boost/math/special_functions/hypergeometric_pFq.hpp>
 #include <QtWidgets>
 #include <vector>
 #include <complex>
@@ -22,8 +23,6 @@ class Node;
 //#define RELEASE
 
 //#define EXPRTK
-
-#define POSTINTEGRATION_DWBA_SA_CSA
 
 #ifdef RELEASE
    #define EXPRTK
@@ -342,7 +341,6 @@ class Node;
 // 2D data to show
 #define meas		"meas"
 #define calc		"calc"
-#define diff		"diff"
 
 // insert items with or without changing IDs
 #define copy_Type_Copy	"copy"
