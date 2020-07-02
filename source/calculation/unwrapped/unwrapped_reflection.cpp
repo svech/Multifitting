@@ -360,6 +360,7 @@ Unwrapped_Reflection::Unwrapped_Reflection(const vector<Node*>& short_Flat_Calc_
 
 	weak_Factor_R(num_Threads,vector<complex<double>>(num_Boundaries_Sharp)),
 	weak_Factor_T(num_Threads,vector<complex<double>>(num_Boundaries_Sharp)),
+	specular_Debye_Waller_Weak_Factor_R(num_Threads,vector<double>(num_Boundaries_Sharp)),
 
 	/// fields
 
@@ -778,6 +779,12 @@ void Unwrapped_Reflection::fill_Components_From_Node_Vector(int thread_Index, in
 		}
 	}
 
+//	if(point_Index==0)
+//	{
+//		qInfo() << "ololo" << endl;
+//		qInfo() << specular_Debye_Waller_Weak_Factor_R[thread_Index].size() << endl;
+//	}
+
 	// anyway
 
 	/// Ambient
@@ -790,12 +797,17 @@ void Unwrapped_Reflection::fill_Components_From_Node_Vector(int thread_Index, in
 		hi         [point_Index ][media_Index  ] = node->hi         [point_Index];
 		exponenta  [point_Index ][media_Index-1] = node->exponenta  [point_Index];
 		exponenta_2[thread_Index][media_Index-1] = node->exponenta_2[point_Index];
+//		qInfo() << specular_Debye_Waller_Weak_Factor_R[thread_Index].size()
+//		specular_Debye_Waller_Weak_Factor_R[thread_Index][media_Index-1] = node->specular_Debye_Waller_Weak_Factor_R[point_Index];
 	}
 	exponenta  [point_Index ][num_Boundaries_Sharp-1] = 1.;
 	exponenta_2[thread_Index][num_Boundaries_Sharp-1] = 1.;
 
 	/// Substrate
 	hi[point_Index].back() = media_Node_Map_Vector.back()->hi[point_Index];
+//	specular_Debye_Waller_Weak_Factor_R[thread_Index].back() = media_Node_Map_Vector.back()->specular_Debye_Waller_Weak_Factor_R[point_Index];
+
+//	if(point_Index==3) qInfo() << specular_Debye_Waller_Weak_Factor_R[thread_Index] << endl;
 }
 
 void Unwrapped_Reflection::fill_Item_Id_Map()
@@ -1034,6 +1046,7 @@ void Unwrapped_Reflection::calc_Weak_Factor(int thread_Index, int point_Index)
 			weak_Factor_R[thread_Index][i] = 1;
 			weak_Factor_T[thread_Index][i] = 1;
 		}
+
 	}
 }
 

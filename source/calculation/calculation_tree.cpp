@@ -570,6 +570,7 @@ void Calculation_Tree::calculate_Intermediate_Values_1_Tree(vector<Node*>& flat_
 	{
 		if( measurement.measurement_Type == measurement_Types[Specular_Scan])
 		{
+			// here we create DW sigmas
 			short_Flat_Calc_Tree[node_Index]->calc_Debye_Waller_Sigma(measurement, multilayer->imperfections_Model);
 		}
 		if( mode == SCATTERED_MODE )

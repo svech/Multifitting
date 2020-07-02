@@ -565,9 +565,6 @@ void Node::fill_Epsilon_For_Angular_Measurements(vector<double>& spectral_Points
 
 void Node::calc_Debye_Waller_Sigma(const Data& measurement, const Imperfections_Model& imperfections_Model)
 {
-	if(struct_Data.item_Type == item_Type_Ambient ) return;
-	if(struct_Data.item_Type == item_Type_Layer && imperfections_Model.use_Common_Roughness_Function) return;
-
 	// angular width of detector
 	double max_Delta_Theta_Detector = 0;
 	if(measurement.detector_1D.detector_Type == detectors[Slit])
@@ -611,6 +608,16 @@ void Node::calc_Debye_Waller_Sigma(const Data& measurement, const Imperfections_
 		}
 	}
 
+	double sigma = struct_Data.roughness_Model.sigma.value;
+	double xi =    struct_Data.roughness_Model.cor_radius.value;
+	double alpha = struct_Data.roughness_Model.fractal_alpha.value;
+
+	specular_Debye_Waller_Weak_Factor_R.resize(num_Points,1);
+	specular_Debye_Waller_Sigma_Roughness.resize(num_Points,sigma);
+	if(struct_Data.item_Type == item_Type_Ambient ) return;
+	if(struct_Data.item_Type == item_Type_Layer && imperfections_Model.use_Common_Roughness_Function) return;
+	if(sigma<DBL_EPSILON) return;
+
 	// max frequency to detector
 	vector<double> p0(num_Points);
 	for(size_t i = 0; i<num_Points; ++i)
@@ -619,10 +626,6 @@ void Node::calc_Debye_Waller_Sigma(const Data& measurement, const Imperfections_
 	}
 
 	// integration
-	double sigma = struct_Data.roughness_Model.sigma.value;
-	double xi =    struct_Data.roughness_Model.cor_radius.value;
-	double alpha = struct_Data.roughness_Model.fractal_alpha.value;
-
 	vector<double> delta_Sigma_2(num_Points);
 	if(imperfections_Model.common_Model == ABC_model)
 	{
@@ -727,10 +730,11 @@ void Node::calc_Debye_Waller_Sigma(const Data& measurement, const Imperfections_
 		gsl_interp_accel_free(acc);
 	}
 
-	specular_Debye_Waller_Sigma_Roughness.resize(num_Points);
 	for(size_t i = 0; i<num_Points; ++i)
 	{
 		specular_Debye_Waller_Sigma_Roughness[i] = sqrt(sigma*sigma - delta_Sigma_2[i]);
+		double hi = k[i]*sin(angle_Theta_0[i] * M_PI/180.);
+		specular_Debye_Waller_Weak_Factor_R[i] = exp( - 4. * hi*hi * sigma*sigma );
 	}
 }
 

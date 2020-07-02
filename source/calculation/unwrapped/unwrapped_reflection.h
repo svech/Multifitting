@@ -69,7 +69,7 @@ public:
 
 	vector<vector<complex<double>>> weak_Factor_R;		//	[thread][boundary]
 	vector<vector<complex<double>>> weak_Factor_T;		//	[thread][boundary]
-
+	vector<vector<double>> specular_Debye_Waller_Weak_Factor_R; //	[thread][boundary]
 	// fields
 	vector<double> boundaries_Enlarged;
 	vector<vector<complex<double>>>& U_i_s;		//	[point][media]

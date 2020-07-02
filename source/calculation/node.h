@@ -37,7 +37,7 @@ public:
 
 	/// ------------------------------------------------
 
-	vector<complex<double>> contrast_To_Above_Media;
+	vector<double> specular_Debye_Waller_Weak_Factor_R;
 	vector<double> specular_Debye_Waller_Sigma_Roughness;
 	void calc_Debye_Waller_Sigma(const Data& measurement, const Imperfections_Model& imperfections_Model);
 
