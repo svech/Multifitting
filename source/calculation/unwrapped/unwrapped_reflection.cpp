@@ -360,7 +360,7 @@ Unwrapped_Reflection::Unwrapped_Reflection(const vector<Node*>& short_Flat_Calc_
 
 	weak_Factor_R(num_Threads,vector<complex<double>>(num_Boundaries_Sharp)),
 	weak_Factor_T(num_Threads,vector<complex<double>>(num_Boundaries_Sharp)),
-	specular_Debye_Waller_Weak_Factor_R(num_Threads,vector<double>(num_Boundaries_Sharp)),
+	specular_Debye_Waller_Weak_Factor_R_Final(num_Threads),
 
 	/// fields
 
@@ -433,7 +433,9 @@ Unwrapped_Reflection::Unwrapped_Reflection(const vector<Node*>& short_Flat_Calc_
 	{
 		// reflectance
 		if(	calc_Functions.check_Reflectance ||
-			calc_Functions.check_Absorptance)
+			calc_Functions.check_Absorptance ||
+			calc_Functions.check_Scattering ||
+			calc_Functions.check_GISAS )
 		{
 			calculated_Values.Phi_R_s.resize(num_Points);
 			calculated_Values.Phi_R_p.resize(num_Points);
@@ -482,6 +484,9 @@ Unwrapped_Reflection::Unwrapped_Reflection(const vector<Node*>& short_Flat_Calc_
 		}
 	}
 
+	fill_Item_Id_Map();
+	fill_Boundary_Item();
+
 	if( spec_Scat_mode == SCATTERED_MODE )
 	{
 		// scattering
@@ -524,8 +529,6 @@ Unwrapped_Reflection::Unwrapped_Reflection(const vector<Node*>& short_Flat_Calc_
 	{
 		if( spec_Scat_mode == SCATTERED_MODE )
 		{
-			fill_Item_Id_Map();
-			fill_Boundary_Item();
 			for(int thread_Index=0; thread_Index<num_Threads; thread_Index++)
 			{
 				PSD_Factor_Item[thread_Index].resize(short_Flat_Calc_Tree.size());
@@ -779,12 +782,6 @@ void Unwrapped_Reflection::fill_Components_From_Node_Vector(int thread_Index, in
 		}
 	}
 
-//	if(point_Index==0)
-//	{
-//		qInfo() << "ololo" << endl;
-//		qInfo() << specular_Debye_Waller_Weak_Factor_R[thread_Index].size() << endl;
-//	}
-
 	// anyway
 
 	/// Ambient
@@ -797,17 +794,68 @@ void Unwrapped_Reflection::fill_Components_From_Node_Vector(int thread_Index, in
 		hi         [point_Index ][media_Index  ] = node->hi         [point_Index];
 		exponenta  [point_Index ][media_Index-1] = node->exponenta  [point_Index];
 		exponenta_2[thread_Index][media_Index-1] = node->exponenta_2[point_Index];
-//		qInfo() << specular_Debye_Waller_Weak_Factor_R[thread_Index].size()
-//		specular_Debye_Waller_Weak_Factor_R[thread_Index][media_Index-1] = node->specular_Debye_Waller_Weak_Factor_R[point_Index];
 	}
 	exponenta  [point_Index ][num_Boundaries_Sharp-1] = 1.;
 	exponenta_2[thread_Index][num_Boundaries_Sharp-1] = 1.;
 
 	/// Substrate
 	hi[point_Index].back() = media_Node_Map_Vector.back()->hi[point_Index];
-//	specular_Debye_Waller_Weak_Factor_R[thread_Index].back() = media_Node_Map_Vector.back()->specular_Debye_Waller_Weak_Factor_R[point_Index];
+}
 
-//	if(point_Index==3) qInfo() << specular_Debye_Waller_Weak_Factor_R[thread_Index] << endl;
+void Unwrapped_Reflection::fill_DW_Factors_From_Node_Vector(int thread_Index, int point_Index)
+{
+	if(measurement.measurement_Type == measurement_Types[Specular_Scan])
+	{
+		if(multilayer->imperfections_Model.use_Common_Roughness_Function)
+		{
+			Node* node_Substrate = short_Flat_Calc_Tree.back();
+			specular_Debye_Waller_Weak_Factor_R_Final[thread_Index] = node_Substrate->specular_Debye_Waller_Weak_Factor_R[point_Index];
+		} else
+		{
+			for (size_t item_Index = 0; item_Index<short_Flat_Calc_Tree.size(); item_Index++)
+			{
+				Node* node = short_Flat_Calc_Tree[item_Index];
+				for(size_t similar_Boundaries=0; similar_Boundaries<boundaries_Of_Item_Vec[item_Index].size(); similar_Boundaries++)
+				{
+					specular_Debye_Waller_Weak_Factor_R_Final[thread_Index] += node->specular_Debye_Waller_Weak_Factor_R[point_Index];
+				}
+			}
+			specular_Debye_Waller_Weak_Factor_R_Final[thread_Index] /= num_Boundaries_Sharp; // average DW
+		}
+	} else
+	{
+		if(spec_Scat_mode == SPECULAR_MODE)
+		{
+			double angle_Theta_0;
+			double k = measurement.k_Value;
+
+			if( measurement.measurement_Type == measurement_Types[Detector_Scan] ||
+				measurement.measurement_Type == measurement_Types[GISAS_Map] )
+			{
+				angle_Theta_0 = measurement.beam_Theta_0_Angle_Value;
+			}
+			if( measurement.measurement_Type == measurement_Types[Rocking_Curve] ||
+				measurement.measurement_Type == measurement_Types[Offset_Scan] )
+			{
+				angle_Theta_0 = measurement.beam_Theta_0_Angle_Vec[point_Index];
+			}
+			double hi = k*sin(angle_Theta_0 * M_PI/180.);
+
+			if(multilayer->imperfections_Model.use_Common_Roughness_Function)
+			{
+				double sigma = unwrapped_Structure->sigma_Roughness_Threaded[thread_Index].back();
+				specular_Debye_Waller_Weak_Factor_R_Final[thread_Index] = exp( - 4. * hi*hi * sigma*sigma );
+			} else
+			{
+				for(int boundary_Index = 0; boundary_Index<num_Boundaries_Sharp; boundary_Index++)
+				{
+					double sigma = unwrapped_Structure->sigma_Roughness_Threaded[thread_Index][boundary_Index];
+					specular_Debye_Waller_Weak_Factor_R_Final[thread_Index] += exp( - 4. * hi*hi * sigma*sigma );
+				}
+				specular_Debye_Waller_Weak_Factor_R_Final[thread_Index] /= num_Boundaries_Sharp;
+			}
+		}
+	}
 }
 
 void Unwrapped_Reflection::fill_Item_Id_Map()
@@ -2205,6 +2253,7 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 	// anyway
 	epsilon_Ambient  [thread_Index] = media_Node_Map_Vector.front()->epsilon[point_Index];
 	epsilon_Substrate[thread_Index] = media_Node_Map_Vector.back() ->epsilon[point_Index];
+	fill_DW_Factors_From_Node_Vector(thread_Index, point_Index);
 
 	// if sharp structure
 	if(!multilayer->discretization_Parameters.enable_Discretization)
@@ -2808,16 +2857,19 @@ double Unwrapped_Reflection::azimuthal_Integration(gsl_function* function, doubl
 void Unwrapped_Reflection::fill_Specular_Values(int thread_Index, int point_Index)
 {
 	// reflectance
-	if(	unwrapped_Structure->calc_Functions.check_Reflectance ||
-	    unwrapped_Structure->calc_Functions.check_Absorptance )
+	if(	spec_Scat_mode == SPECULAR_MODE &&
+	   (unwrapped_Structure->calc_Functions.check_Reflectance ||
+		unwrapped_Structure->calc_Functions.check_Absorptance ||
+		unwrapped_Structure->calc_Functions.check_Scattering  ||
+		unwrapped_Structure->calc_Functions.check_GISAS) )
 	{
 		complex<double> r_s = r_Local_s[thread_Index][0];
 		complex<double> r_p = r_Local_p[thread_Index][0];
 
 		calculated_Values.Phi_R_s[point_Index] = arg(r_s)/M_PI*180.;
 		calculated_Values.Phi_R_p[point_Index] = arg(r_p)/M_PI*180.;
-		calculated_Values.R_s	 [point_Index] = norm(r_s);
-		calculated_Values.R_p	 [point_Index] = norm(r_p);
+		calculated_Values.R_s	 [point_Index] = norm(r_s)*specular_Debye_Waller_Weak_Factor_R_Final[thread_Index];
+		calculated_Values.R_p	 [point_Index] = norm(r_p)*specular_Debye_Waller_Weak_Factor_R_Final[thread_Index];
 		calculated_Values.R		 [point_Index] = s_Weight * calculated_Values.R_s[point_Index] + p_Weight * calculated_Values.R_p[point_Index];
 		calculated_Values.R_Instrumental[point_Index] = calculated_Values.R[point_Index];
 
@@ -2832,9 +2884,11 @@ void Unwrapped_Reflection::fill_Specular_Values(int thread_Index, int point_Inde
 			qInfo() << "r_Local_p_RE" << real(r_Local_p[thread_Index][0]) << "r_Local_p_IM" << imag(r_Local_p[thread_Index][0]) << endl  << endl;
 		}
 	}
+
 	// transmittance
-	if(	unwrapped_Structure->calc_Functions.check_Transmittance ||
-	    unwrapped_Structure->calc_Functions.check_Absorptance )
+	if(	measurement.measurement_Type == measurement_Types[Specular_Scan] &&
+	   (unwrapped_Structure->calc_Functions.check_Transmittance ||
+		unwrapped_Structure->calc_Functions.check_Absorptance) )
 	{
 		calc_Environmental_Factor(thread_Index, point_Index);
 
@@ -2860,8 +2914,10 @@ void Unwrapped_Reflection::fill_Specular_Values(int thread_Index, int point_Inde
 			qInfo() << "environment_Factor_s" << environment_Factor_s[thread_Index] << "environment_Factor_p" << environment_Factor_p[thread_Index]  << endl  << endl;
 		}
 	}
+
 	// absorptance (simple, without scattering!)
-	if(	unwrapped_Structure->calc_Functions.check_Absorptance )
+	if(	measurement.measurement_Type == measurement_Types[Specular_Scan] &&
+		unwrapped_Structure->calc_Functions.check_Absorptance )
 	{
 		calculated_Values.A_s[point_Index] = 1.-calculated_Values.T_s[point_Index]-calculated_Values.R_s[point_Index];
 		calculated_Values.A_p[point_Index] = 1.-calculated_Values.T_p[point_Index]-calculated_Values.R_p[point_Index];
@@ -2872,23 +2928,29 @@ void Unwrapped_Reflection::fill_Specular_Values(int thread_Index, int point_Inde
 		if(calculated_Values.A_p[point_Index] < DBL_MIN) {calculated_Values.A_p[point_Index] = DBL_MIN;}
 		if(calculated_Values.A  [point_Index] < DBL_MIN) {calculated_Values.A  [point_Index] = DBL_MIN;}
 	}
+
 	// field intensity in-depth
-	if( unwrapped_Structure->calc_Functions.check_Field ||
-	    unwrapped_Structure->calc_Functions.check_Joule )
+	if(measurement.measurement_Type == measurement_Types[Specular_Scan] &&
+	   (unwrapped_Structure->calc_Functions.check_Field ||
+		unwrapped_Structure->calc_Functions.check_Joule) )
 	{
 		// calculated_Values.field_Intensity	already calculated
 		// calculated_Values.absorption_Map		already calculated
 	}
+
 	// scattering
-	if(	unwrapped_Structure->calc_Functions.check_Scattering )
+	if(	spec_Scat_mode == SCATTERED_MODE &&
+		unwrapped_Structure->calc_Functions.check_Scattering )
 	{
 		// calculated_Values.S_s		[point_Index] already calculated
 		// calculated_Values.S_p		[point_Index] already calculated
 		calculated_Values.S				[point_Index] = s_Weight * calculated_Values.S_s[point_Index] + p_Weight * calculated_Values.S_p[point_Index];
 		calculated_Values.S_Instrumental[point_Index] = calculated_Values.S[point_Index];
 	}
+
 	// GISAS
-	if(	unwrapped_Structure->calc_Functions.check_GISAS)
+	if(	spec_Scat_mode == SCATTERED_MODE &&
+		unwrapped_Structure->calc_Functions.check_GISAS)
 	{
 		// interpolate the other half
 		if(short_Phi_Points!=phi_Points)
@@ -2965,10 +3027,7 @@ void Unwrapped_Reflection::calc_Specular_nMin_nMax_1_Thread(int n_Min, int n_Max
 	for(int point_Index = n_Min; point_Index<n_Max; ++point_Index)
 	{
 		calc_Specular_1_Point_1_Thread(thread_Index, point_Index);
-		if(measurement.measurement_Type == measurement_Types[Specular_Scan] || spec_Scat_mode == SCATTERED_MODE)
-		{
-			fill_Specular_Values	  (thread_Index, point_Index);
-		}
+		fill_Specular_Values	  (thread_Index, point_Index);
 	}
 }
 

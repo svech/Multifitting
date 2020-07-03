@@ -947,6 +947,27 @@ void Calculation_Settings_Editor::load_Independent_Parameters(int tab_Index)
 					step_Widget->setEnabled(field_Intensity->isChecked() || joule_Absorption->isChecked());
 				}
 			}
+
+			// specular peak
+			if(	independent_Curve->measurement.measurement_Type == measurement_Types[Detector_Scan] ||
+				independent_Curve->measurement.measurement_Type == measurement_Types[Rocking_Curve] ||
+				independent_Curve->measurement.measurement_Type == measurement_Types[Offset_Scan]   ||
+				independent_Curve->measurement.measurement_Type == measurement_Types[GISAS_Map] )
+			{
+				QHBoxLayout* additional_Layout = new QHBoxLayout;
+					additional_Layout->setAlignment(Qt::AlignLeft);
+					additional_Layout->setContentsMargins(10,0,0,0);
+				box_Layout->addLayout(additional_Layout);
+
+				QCheckBox* add_Specular_Peak = new QCheckBox("Add specular peak");
+					add_Specular_Peak->setChecked(independent_Curve->calc_Functions.add_Specular_Peak);
+				additional_Layout->addWidget(add_Specular_Peak);
+				connect(add_Specular_Peak,&QCheckBox::toggled, this, [=]
+				{
+					independent_Curve->calc_Functions.add_Specular_Peak = add_Specular_Peak->isChecked();
+					global_Multilayer_Approach->global_Recalculate();
+				});
+			}
 		}
 		independent_Index++;
 	}

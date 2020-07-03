@@ -568,14 +568,17 @@ void Calculation_Tree::calculate_Intermediate_Values_1_Tree(vector<Node*>& flat_
 	}
 	for(size_t node_Index = 0; node_Index<short_Flat_Calc_Tree.size(); node_Index++)
 	{
+		if( mode == SCATTERED_MODE )
+		{
+			short_Flat_Calc_Tree[node_Index]->create_Spline_PSD_Fractal_Gauss_1D(measurement, multilayer->imperfections_Model);
+		}
+	}
+	for(size_t node_Index = 0; node_Index<short_Flat_Calc_Tree.size(); node_Index++)
+	{
 		if( measurement.measurement_Type == measurement_Types[Specular_Scan])
 		{
 			// here we create DW sigmas
 			short_Flat_Calc_Tree[node_Index]->calc_Debye_Waller_Sigma(measurement, multilayer->imperfections_Model);
-		}
-		if( mode == SCATTERED_MODE )
-		{
-			short_Flat_Calc_Tree[node_Index]->create_Spline_PSD_Fractal_Gauss_1D(measurement, multilayer->imperfections_Model);
 		}
 	}
 }

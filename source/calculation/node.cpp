@@ -734,7 +734,7 @@ void Node::calc_Debye_Waller_Sigma(const Data& measurement, const Imperfections_
 	{
 		specular_Debye_Waller_Sigma_Roughness[i] = sqrt(sigma*sigma - delta_Sigma_2[i]);
 		double hi = k[i]*sin(angle_Theta_0[i] * M_PI/180.);
-		specular_Debye_Waller_Weak_Factor_R[i] = exp( - 4. * hi*hi * sigma*sigma );
+		specular_Debye_Waller_Weak_Factor_R[i] = exp( - 4. * hi*hi * specular_Debye_Waller_Sigma_Roughness[i]*specular_Debye_Waller_Sigma_Roughness[i] );
 	}
 }
 

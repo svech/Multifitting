@@ -311,10 +311,10 @@ Data::Data(QString item_Type_Passed)
 		}
 		// particle volume omega
 		{
-			roughness_Model.omega.value = 1000;
+			roughness_Model.omega.value = 100;
 			roughness_Model.omega.fit.is_Fitable = false;
-			roughness_Model.omega.fit.min = 300;
-			roughness_Model.omega.fit.max = 20000;
+			roughness_Model.omega.fit.min = 30;
+			roughness_Model.omega.fit.max = 2000;
 			roughness_Model.omega.indicator.whats_This = whats_This_Linear_PSD_Omega;
 			roughness_Model.omega.indicator.item_Id = id;
 
@@ -325,10 +325,10 @@ Data::Data(QString item_Type_Passed)
 		}
 		// factor in growth exponent (depends on alpha?)
 		{
-			roughness_Model.mu.value = 20;
+			roughness_Model.mu.value = 200;
 			roughness_Model.mu.fit.is_Fitable = false;
-			roughness_Model.mu.fit.min = 5;
-			roughness_Model.mu.fit.max = 100;
+			roughness_Model.mu.fit.min = 10;
+			roughness_Model.mu.fit.max = 1000;
 			roughness_Model.mu.indicator.whats_This = whats_This_Linear_PSD_Exponenta_Mu;
 			roughness_Model.mu.indicator.item_Id = id;
 

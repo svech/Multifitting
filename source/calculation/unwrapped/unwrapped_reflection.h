@@ -69,7 +69,8 @@ public:
 
 	vector<vector<complex<double>>> weak_Factor_R;		//	[thread][boundary]
 	vector<vector<complex<double>>> weak_Factor_T;		//	[thread][boundary]
-	vector<vector<double>> specular_Debye_Waller_Weak_Factor_R; //	[thread][boundary]
+	vector<double> specular_Debye_Waller_Weak_Factor_R_Final; //	[thread]
+
 	// fields
 	vector<double> boundaries_Enlarged;
 	vector<vector<complex<double>>>& U_i_s;		//	[point][media]
@@ -168,6 +169,7 @@ public:
 	///---------------------------------------------------------------------
 
 	void fill_Components_From_Node_Vector(int thread_Index, int point_Index);
+	void fill_DW_Factors_From_Node_Vector(int thread_Index, int point_Index);
 
 	void fill_Item_Id_Map();
 	void fill_Boundary_Item();
