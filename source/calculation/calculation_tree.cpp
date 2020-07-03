@@ -519,7 +519,6 @@ void Calculation_Tree::calculate_1_Kind_Preliminary(Data_Element<Type>& data_Ele
 		if( target_Curve->curve.value_Type == value_Types[GISAS]   )		{ data_Element.calc_Functions.check_GISAS = true; }
 	}
 
-	// TODO
 	// calculate instrumental function
 	data_Element.the_Class->measurement.calc_Instrumental_Factor();
 	data_Element.the_Class->measurement.calc_Mixed_Resolution();

@@ -643,91 +643,91 @@ double beam_Func(double z, void* params)
 void Data::calc_Instrumental_Factor()
 {
 	// TODO
-//	int num_Points = 0;
+	int num_Points = 0;
 
-//	// effect of beam size
-//	double error;
-//	int key = GSL_INTEG_GAUSS15;
-//	const double epsabs = 1e-3;
-//	const double epsrel = 1e-3;
-//	size_t limit = 1000;
-//	gsl_integration_workspace* w = gsl_integration_workspace_alloc (limit);
-//	gsl_function F = { &beam_Func, &beam_Geometry };
+	// effect of beam size
+	double error;
+	int key = GSL_INTEG_GAUSS15;
+	const double epsabs = 1e-3;
+	const double epsrel = 1e-3;
+	size_t limit = 1000;
+	gsl_integration_workspace* w = gsl_integration_workspace_alloc (limit);
+	gsl_function F = { &beam_Func, &beam_Geometry };
 
-//	// calculate denominator
-//	double denominator=1;
-//	gsl_integration_qag(&F,-5*beam_Geometry.size, 5*beam_Geometry.size, epsabs, epsrel, limit, key, w, &denominator, &error);
+	// calculate denominator
+	double denominator=1;
+	gsl_integration_qag(&F,-5*beam_Geometry.size, 5*beam_Geometry.size, epsabs, epsrel, limit, key, w, &denominator, &error);
 
-//	if(active_Parameter_Whats_This == whats_This_Beam_Theta_0_Angle)		{ num_Points = beam_Theta_0_Cos2_Vec.size();	  }
-//	if(active_Parameter_Whats_This == whats_This_Wavelength){ num_Points = lambda_Vec.size(); }
-//	footprint_Factor_Vec.resize(num_Points, 1);
+	if(active_Parameter_Whats_This == whats_This_Beam_Theta_0_Angle)		{ num_Points = beam_Theta_0_Cos2_Vec.size();	  }
+	if(active_Parameter_Whats_This == whats_This_Wavelength){ num_Points = lambda_Vec.size(); }
+	footprint_Factor_Vec.resize(num_Points, 1);
 
-//	// special cases
-//	if( (denominator < DBL_MIN) || (beam_Geometry.size<DBL_EPSILON) )	{return;}
+	// special cases
+	if( (denominator < DBL_MIN) || (beam_Geometry.size<DBL_EPSILON) )	{return;}
 
-//	// calculate factor
-//	if(active_Parameter_Whats_This == whats_This_Beam_Theta_0_Angle)
-//	{
-//		double sin_Grad, min, max, result;
-//		for(int i=0; i<num_Points; ++i)
-//		{
-//			sin_Grad = sqrt(1-beam_Theta_0_Cos2_Vec[i]);
+	// calculate factor
+	if(active_Parameter_Whats_This == whats_This_Beam_Theta_0_Angle)
+	{
+		double sin_Grad, min, max, result;
+		for(int i=0; i<num_Points; ++i)
+		{
+			sin_Grad = sqrt(1-beam_Theta_0_Cos2_Vec[i]);
 
-//			if(sin_Grad > DBL_EPSILON)
-//			{
-//				min = (sample_Geometry.x_Position-sample_Geometry.size/2.)*sin_Grad;
-//				max = (sample_Geometry.x_Position+sample_Geometry.size/2.)*sin_Grad;
+			if(sin_Grad > DBL_EPSILON)
+			{
+				min = (sample_Geometry.x_Position-sample_Geometry.size/2.)*sin_Grad;
+				max = (sample_Geometry.x_Position+sample_Geometry.size/2.)*sin_Grad;
 
-//				// if reasonable to integrate
-//				if( min>-3*beam_Geometry.size ||
-//					max< 3*beam_Geometry.size )
-//				{
-//					gsl_integration_qag(&F,min,max,epsabs,epsrel,limit,key,w,&result,&error);
-//				} else
-//				{
-//					result = denominator;
-//				}
-//			} else
-//			{
-//				result = 0.5*denominator;
-//			}
-//			// fill
-//			footprint_Factor_Vec[i] = result/denominator;
-//		}
-//	} else
-//	if(active_Parameter_Whats_This == whats_This_Wavelength)
-//	{
-//		double sin_Grad, min, max, result;
-//		sin_Grad = sqrt(1-beam_Theta_0_Cos2_Value);
+				// if reasonable to integrate
+				if( min>-3*beam_Geometry.size ||
+					max< 3*beam_Geometry.size )
+				{
+					gsl_integration_qag(&F,min,max,epsabs,epsrel,limit,key,w,&result,&error);
+				} else
+				{
+					result = denominator;
+				}
+			} else
+			{
+				result = 0.5*denominator;
+			}
+			// fill
+			footprint_Factor_Vec[i] = result/denominator;
+		}
+	} else
+	if(active_Parameter_Whats_This == whats_This_Wavelength)
+	{
+		double sin_Grad, min, max, result;
+		sin_Grad = sqrt(1-beam_Theta_0_Cos2_Value);
 
-//		if(sin_Grad > DBL_EPSILON)
-//		{
-//			min = (sample_Geometry.x_Position-sample_Geometry.size/2.)*sin_Grad;
-//			max = (sample_Geometry.x_Position+sample_Geometry.size/2.)*sin_Grad;
+		if(sin_Grad > DBL_EPSILON)
+		{
+			min = (sample_Geometry.x_Position-sample_Geometry.size/2.)*sin_Grad;
+			max = (sample_Geometry.x_Position+sample_Geometry.size/2.)*sin_Grad;
 
-//			// if reasonable to integrate
-//			if( min>-1*beam_Geometry.size ||
-//				max< 1*beam_Geometry.size )
-//			{
-//				gsl_integration_qag(&F,min,max,epsabs,epsrel,limit,key,w,&result,&error);
-//			} else
-//			{
-//				result = denominator;
-//			}
-//		} else
-//		{
-//			result = 0.5*denominator;
-//		}
-//		result /= denominator;
+			// if reasonable to integrate
+			if( min>-1*beam_Geometry.size ||
+				max< 1*beam_Geometry.size )
+			{
+				gsl_integration_qag(&F,min,max,epsabs,epsrel,limit,key,w,&result,&error);
+			} else
+			{
+				result = denominator;
+			}
+		} else
+		{
+			result = 0.5*denominator;
+		}
+		result /= denominator;
 
-//		// fill
-//		for(int i=0; i<num_Points; ++i)
-//		{
-//			footprint_Factor_Vec[i] = result;
-//		}
-//	}
+		// fill
+		for(int i=0; i<num_Points; ++i)
+		{
+			footprint_Factor_Vec[i] = result;
+		}
+	}
 
-//	gsl_integration_workspace_free(w);
+	gsl_integration_workspace_free(w);
 }
 
 void Data::calc_Mixed_Resolution()
