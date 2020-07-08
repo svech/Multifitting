@@ -617,117 +617,78 @@ void Data::reset_All_IDs()
 		gamma .indicator.id					  = Global_Definitions::generate_Id(); gamma	.indicator.item_Id				   = id;	gamma. coupled.clear_Coupled();
 }
 
-struct integration_Params_Beam
-{
-	double beam_Profile_Spreading;
-	double beam_Size;
-};
-
-double beam_Func(double z, void* params)
-{
-	Beam_Geometry* iPB = reinterpret_cast<Beam_Geometry*>(params);
-
-	double aConst = 2.*pow(1.-1./sqrt(2.),1./2);
-	if((z>(-iPB->size/aConst) ) &&	(z< (iPB->size/aConst)))
-	{
-		double output = pow(1.- pow(abs(z)*aConst/iPB->size,2),2);
-		if(output!=output) qInfo()<< "Unwrapped_Reflection::beam_Func  :  NaN" << endl;
-		return output;
-	}
-	else
-	{
-		return 0;
-	}
-}
-
 void Data::calc_Instrumental_Factor()
 {
-	// TODO
+	bool is_Single_Beam_Point = false;
 	int num_Points = 0;
+	if( measurement_Type == measurement_Types[Specular_Scan] )
+	{
+		if( argument_Type  == argument_Types[Beam_Grazing_Angle] )	{num_Points = beam_Theta_0_Angle_Vec.size();   is_Single_Beam_Point = false;}
+		if( argument_Type  == argument_Types[Wavelength_Energy] )	{num_Points = lambda_Vec.size();			   is_Single_Beam_Point = true;}
+	}
+	if( measurement_Type == measurement_Types[Detector_Scan] ||
+		measurement_Type == measurement_Types[GISAS_Map] )			{num_Points = detector_Theta_Angle_Vec.size(); is_Single_Beam_Point = true;}
 
-	// effect of beam size
-	double error;
-	int key = GSL_INTEG_GAUSS15;
-	const double epsabs = 1e-3;
-	const double epsrel = 1e-3;
-	size_t limit = 1000;
-	gsl_integration_workspace* w = gsl_integration_workspace_alloc (limit);
-	gsl_function F = { &beam_Func, &beam_Geometry };
+	if( measurement_Type == measurement_Types[Rocking_Curve] ||
+		measurement_Type == measurement_Types[Offset_Scan] )		{num_Points = beam_Theta_0_Angle_Vec.size();   is_Single_Beam_Point = false;}
+
+	footprint_Factor_Vec.resize(num_Points);
+	for(int i=0; i<num_Points; ++i)
+	{
+		footprint_Factor_Vec[i] = 1;
+	}
 
 	// calculate denominator
-	double denominator=1;
-	gsl_integration_qag(&F,-5*beam_Geometry.size, 5*beam_Geometry.size, epsabs, epsrel, limit, key, w, &denominator, &error);
+	if( beam_Geometry.size<DBL_EPSILON || sample_Geometry.size<DBL_EPSILON) return;
+	auto f = [&](double x){return Global_Variables::beam_Profile(x, beam_Geometry.size, beam_Geometry.smoothing);};
+	double denominator = gauss_kronrod<double,15>::integrate(f, -3*beam_Geometry.size, 3*beam_Geometry.size, 3, 1e-7);
+	if(beam_Geometry.smoothing<DBL_EPSILON) denominator = beam_Geometry.size;
+	if( denominator < DBL_EPSILON ) return;
 
-	if(active_Parameter_Whats_This == whats_This_Beam_Theta_0_Angle)		{ num_Points = beam_Theta_0_Cos2_Vec.size();	  }
-	if(active_Parameter_Whats_This == whats_This_Wavelength){ num_Points = lambda_Vec.size(); }
-	footprint_Factor_Vec.resize(num_Points, 1);
-
-	// special cases
-	if( (denominator < DBL_MIN) || (beam_Geometry.size<DBL_EPSILON) )	{return;}
-
-	// calculate factor
-	if(active_Parameter_Whats_This == whats_This_Beam_Theta_0_Angle)
+	auto factor = [&](double sin_Theta_0)
 	{
-		double sin_Grad, min, max, result;
-		for(int i=0; i<num_Points; ++i)
+		if(sin_Theta_0 > DBL_EPSILON)
 		{
-			sin_Grad = sqrt(1-beam_Theta_0_Cos2_Vec[i]);
+			double ctan = sqrt(1.-sin_Theta_0*sin_Theta_0)/sin_Theta_0;
+			double minimum, maximum;
+			minimum = (sample_Geometry.x_Position + sample_Geometry.z_Position*ctan - sample_Geometry.size/2.)*sin_Theta_0;
+			maximum = (sample_Geometry.x_Position + sample_Geometry.z_Position*ctan + sample_Geometry.size/2.)*sin_Theta_0;
 
-			if(sin_Grad > DBL_EPSILON)
+			// if reasonable to integrate
+			if( minimum>-3*beam_Geometry.size ||
+				maximum< 3*beam_Geometry.size )
 			{
-				min = (sample_Geometry.x_Position-sample_Geometry.size/2.)*sin_Grad;
-				max = (sample_Geometry.x_Position+sample_Geometry.size/2.)*sin_Grad;
-
-				// if reasonable to integrate
-				if( min>-3*beam_Geometry.size ||
-					max< 3*beam_Geometry.size )
+				if(beam_Geometry.smoothing<DBL_EPSILON)
 				{
-					gsl_integration_qag(&F,min,max,epsabs,epsrel,limit,key,w,&result,&error);
+					return (min(maximum, beam_Geometry.size/2.) - max(minimum, -beam_Geometry.size/2.));
 				} else
 				{
-					result = denominator;
+					return gauss_kronrod<double,15>::integrate(f, minimum, maximum, 3, 1e-7);
 				}
 			} else
 			{
-				result = 0.5*denominator;
+				return denominator;
 			}
-			// fill
-			footprint_Factor_Vec[i] = result/denominator;
 		}
-	} else
-	if(active_Parameter_Whats_This == whats_This_Wavelength)
+		double shutter_Factor = gauss_kronrod<double,15>::integrate(f, sample_Geometry.z_Position, sample_Geometry.z_Position+3*beam_Geometry.size, 3, 1e-7);
+		return shutter_Factor;
+	};
+
+	// calculate factor
+	if(!is_Single_Beam_Point) // for dependence from theta_0
 	{
-		double sin_Grad, min, max, result;
-		sin_Grad = sqrt(1-beam_Theta_0_Cos2_Value);
-
-		if(sin_Grad > DBL_EPSILON)
+		for(int i=0; i<num_Points; ++i)
 		{
-			min = (sample_Geometry.x_Position-sample_Geometry.size/2.)*sin_Grad;
-			max = (sample_Geometry.x_Position+sample_Geometry.size/2.)*sin_Grad;
-
-			// if reasonable to integrate
-			if( min>-1*beam_Geometry.size ||
-				max< 1*beam_Geometry.size )
-			{
-				gsl_integration_qag(&F,min,max,epsabs,epsrel,limit,key,w,&result,&error);
-			} else
-			{
-				result = denominator;
-			}
-		} else
-		{
-			result = 0.5*denominator;
+			footprint_Factor_Vec[i] = factor(beam_Theta_0_Sin_Vec[i])/denominator;
 		}
-		result /= denominator;
-
-		// fill
+	} else // for single theta_0 point
+	{
+		double result = factor(beam_Theta_0_Sin_Value)/denominator;
 		for(int i=0; i<num_Points; ++i)
 		{
 			footprint_Factor_Vec[i] = result;
 		}
 	}
-
-	gsl_integration_workspace_free(w);
 }
 
 void Data::calc_Mixed_Resolution()

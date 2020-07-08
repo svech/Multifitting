@@ -2516,7 +2516,7 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 																				  measurement.beam_Theta_0_Cos_Value,
 																				  measurement.detector_Phi_Cos_Vec[phi_Index]);
 
-									calculated_Values.GISAS_Instrumental[phi_Index][point_Index] = e_Factor_PT_2D * field_Term_Sum_s * PSD_2D_Factor;
+									calculated_Values.GISAS_Instrumental[phi_Index][point_Index] = e_Factor_PT_2D * field_Term_Sum_s * PSD_2D_Factor * measurement.footprint_Factor_Vec[point_Index] + measurement.background;
 								}
 							} else
 							// pure p-polarization
@@ -2533,7 +2533,7 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 																				  measurement.beam_Theta_0_Cos_Value,
 																				  measurement.detector_Phi_Cos_Vec[phi_Index]);
 
-									calculated_Values.GISAS_Instrumental[phi_Index][point_Index] = e_Factor_PT_2D * field_Term_Sum_p * PSD_2D_Factor;
+									calculated_Values.GISAS_Instrumental[phi_Index][point_Index] = e_Factor_PT_2D * field_Term_Sum_p * PSD_2D_Factor * measurement.footprint_Factor_Vec[point_Index] + measurement.background;
 								}
 							} else
 							// mixed sp-polarization
@@ -2550,7 +2550,7 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 																				  measurement.beam_Theta_0_Cos_Value,
 																				  measurement.detector_Phi_Cos_Vec[phi_Index]);
 
-									calculated_Values.GISAS_Instrumental[phi_Index][point_Index] = (s_Weight*field_Term_Sum_s + p_Weight*field_Term_Sum_p)*e_Factor_PT_2D*PSD_2D_Factor;
+									calculated_Values.GISAS_Instrumental[phi_Index][point_Index] = (s_Weight*field_Term_Sum_s + p_Weight*field_Term_Sum_p)*e_Factor_PT_2D*PSD_2D_Factor * measurement.footprint_Factor_Vec[point_Index] + measurement.background;
 								}
 							}
 						} else
@@ -2572,7 +2572,7 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 
 										field_With_PSD_2D_Factor += intensity_Term_Boundary_s[thread_Index][j] * PSD_2D_Factor;
 									}
-									calculated_Values.GISAS_Instrumental[phi_Index][point_Index] = e_Factor_PT_2D * field_With_PSD_2D_Factor;
+									calculated_Values.GISAS_Instrumental[phi_Index][point_Index] = e_Factor_PT_2D * field_With_PSD_2D_Factor * measurement.footprint_Factor_Vec[point_Index] + measurement.background;
 								}
 							} else
 							// pure p-polarization
@@ -2591,7 +2591,7 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 
 										field_With_PSD_2D_Factor += intensity_Term_Boundary_p[thread_Index][j] * PSD_2D_Factor;
 									}
-									calculated_Values.GISAS_Instrumental[phi_Index][point_Index] = e_Factor_PT_2D * field_With_PSD_2D_Factor;
+									calculated_Values.GISAS_Instrumental[phi_Index][point_Index] = e_Factor_PT_2D * field_With_PSD_2D_Factor * measurement.footprint_Factor_Vec[point_Index] + measurement.background;
 								}
 							} else
 							// mixed sp-polarization
@@ -2612,7 +2612,7 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 										field_With_PSD_2D_Factor_s += intensity_Term_Boundary_p[thread_Index][j] * PSD_2D_Factor;
 										field_With_PSD_2D_Factor_p += intensity_Term_Boundary_p[thread_Index][j] * PSD_2D_Factor;
 									}
-									calculated_Values.GISAS_Instrumental[phi_Index][point_Index] = (s_Weight*field_With_PSD_2D_Factor_s + p_Weight*field_With_PSD_2D_Factor_p)*e_Factor_PT_2D;
+									calculated_Values.GISAS_Instrumental[phi_Index][point_Index] = (s_Weight*field_With_PSD_2D_Factor_s + p_Weight*field_With_PSD_2D_Factor_p)*e_Factor_PT_2D * measurement.footprint_Factor_Vec[point_Index] + measurement.background;
 								}
 							}
 						}
@@ -2628,7 +2628,7 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 								for(size_t phi_Index = measurement.start_Phi_Index; phi_Index<measurement.end_Phi_Number; phi_Index++)
 								{
 									Params params { this, thread_Index, measurement.detector_Theta_Cos_Vec[point_Index], measurement.beam_Theta_0_Cos_Value, incoherent_Sum_s, 0, false };
-									calculated_Values.GISAS_Instrumental[phi_Index][point_Index] = e_Factor_PT_2D * function_Scattering_ABC_2D_s(measurement.detector_Phi_Cos_Vec[phi_Index], &params);
+									calculated_Values.GISAS_Instrumental[phi_Index][point_Index] = e_Factor_PT_2D * function_Scattering_ABC_2D_s(measurement.detector_Phi_Cos_Vec[phi_Index], &params) * measurement.footprint_Factor_Vec[point_Index] + measurement.background;
 								}
 							} else
 							// pure p-polarization
@@ -2638,7 +2638,7 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 								for(size_t phi_Index = measurement.start_Phi_Index; phi_Index<measurement.end_Phi_Number; phi_Index++)
 								{
 									Params params { this, thread_Index, measurement.detector_Theta_Cos_Vec[point_Index], measurement.beam_Theta_0_Cos_Value, 0, incoherent_Sum_p, false };
-									calculated_Values.GISAS_Instrumental[phi_Index][point_Index] = e_Factor_PT_2D * function_Scattering_ABC_2D_p(measurement.detector_Phi_Cos_Vec[phi_Index], &params);
+									calculated_Values.GISAS_Instrumental[phi_Index][point_Index] = e_Factor_PT_2D * function_Scattering_ABC_2D_p(measurement.detector_Phi_Cos_Vec[phi_Index], &params) * measurement.footprint_Factor_Vec[point_Index] + measurement.background;
 								}
 							} else
 							// mixed sp-polarization
@@ -2648,7 +2648,7 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 								for(size_t phi_Index = measurement.start_Phi_Index; phi_Index<measurement.end_Phi_Number; phi_Index++)
 								{
 									Params params { this, thread_Index, measurement.detector_Theta_Cos_Vec[point_Index], measurement.beam_Theta_0_Cos_Value, incoherent_Sum_s, incoherent_Sum_p, false };
-									calculated_Values.GISAS_Instrumental[phi_Index][point_Index] = e_Factor_PT_2D * function_Scattering_ABC_2D_sp(measurement.detector_Phi_Cos_Vec[phi_Index], &params);
+									calculated_Values.GISAS_Instrumental[phi_Index][point_Index] = e_Factor_PT_2D * function_Scattering_ABC_2D_sp(measurement.detector_Phi_Cos_Vec[phi_Index], &params) * measurement.footprint_Factor_Vec[point_Index] + measurement.background;
 								}
 							}
 						} else
@@ -2661,7 +2661,7 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 								for(size_t phi_Index = measurement.start_Phi_Index; phi_Index<measurement.end_Phi_Number; phi_Index++)
 								{
 									Params params { this, thread_Index, measurement.detector_Theta_Cos_Vec[point_Index], measurement.beam_Theta_0_Cos_Value, 0, 0, false };
-									calculated_Values.GISAS_Instrumental[phi_Index][point_Index] = e_Factor_PT_2D * function_Scattering_Linear_2D_s(measurement.detector_Phi_Cos_Vec[phi_Index], &params);
+									calculated_Values.GISAS_Instrumental[phi_Index][point_Index] = e_Factor_PT_2D * function_Scattering_Linear_2D_s(measurement.detector_Phi_Cos_Vec[phi_Index], &params) * measurement.footprint_Factor_Vec[point_Index] + measurement.background;
 								}
 							} else
 							// pure p-polarization
@@ -2671,7 +2671,7 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 								for(size_t phi_Index = measurement.start_Phi_Index; phi_Index<measurement.end_Phi_Number; phi_Index++)
 								{
 									Params params { this, thread_Index, measurement.detector_Theta_Cos_Vec[point_Index], measurement.beam_Theta_0_Cos_Value, 0, 0, false };
-									calculated_Values.GISAS_Instrumental[phi_Index][point_Index] = e_Factor_PT_2D * function_Scattering_Linear_2D_p(measurement.detector_Phi_Cos_Vec[phi_Index], &params);
+									calculated_Values.GISAS_Instrumental[phi_Index][point_Index] = e_Factor_PT_2D * function_Scattering_Linear_2D_p(measurement.detector_Phi_Cos_Vec[phi_Index], &params) * measurement.footprint_Factor_Vec[point_Index] + measurement.background;
 								}
 							} else
 							// mixed sp-polarization
@@ -2681,7 +2681,7 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 								for(size_t phi_Index = measurement.start_Phi_Index; phi_Index<measurement.end_Phi_Number; phi_Index++)
 								{
 									Params params { this, thread_Index, measurement.detector_Theta_Cos_Vec[point_Index], measurement.beam_Theta_0_Cos_Value, 0, 0, false };
-									calculated_Values.GISAS_Instrumental[phi_Index][point_Index] = e_Factor_PT_2D * function_Scattering_Linear_2D_sp(measurement.detector_Phi_Cos_Vec[phi_Index], &params);
+									calculated_Values.GISAS_Instrumental[phi_Index][point_Index] = e_Factor_PT_2D * function_Scattering_Linear_2D_sp(measurement.detector_Phi_Cos_Vec[phi_Index], &params) * measurement.footprint_Factor_Vec[point_Index] + measurement.background;
 								}
 							}
 						}
@@ -3123,23 +3123,48 @@ void Unwrapped_Reflection::calc_Specular()
 //			}
 //		}
 
-//		// instrumental function (after interpolation!)
-//		if(measurement.beam_Geometry.size>DBL_EPSILON)
-//		for(size_t point_Index=0; point_Index<R.size(); ++point_Index)
-//		{
-//			R_Instrumental[point_Index] *= measurement.footprint_Factor_Vec[point_Index];
-//		}
-
-		// any way
-		if( calc_Functions.check_Reflectance)	{
-			for(size_t point_Index=0; point_Index<calculated_Values.R.size(); ++point_Index)	{
-				calculated_Values.R_Instrumental[point_Index] += measurement.background;
+		/// FOOTPRINT
+		// footprint for R
+		if(	measurement.measurement_Type == measurement_Types[Specular_Scan] &&
+		   (unwrapped_Structure->calc_Functions.check_Reflectance ||
+			unwrapped_Structure->calc_Functions.check_Absorptance) )
+		{
+			for(size_t point_Index=0; point_Index<num_Points; ++point_Index)
+			{
+				calculated_Values.R_Instrumental[point_Index] *= measurement.footprint_Factor_Vec[point_Index];
 			}
 		}
-		if( calc_Functions.check_Transmittance)	{
-			for(size_t point_Index=0; point_Index<calculated_Values.T.size(); ++point_Index)	{
-				calculated_Values.T_Instrumental[point_Index] += measurement.background;
+		// footprint for scattering
+		if(	spec_Scat_mode == SCATTERED_MODE && unwrapped_Structure->calc_Functions.check_Scattering)
+		{
+			for(size_t point_Index=0; point_Index<num_Points; ++point_Index)
+			{
+				calculated_Values.S_Instrumental[point_Index] *= measurement.footprint_Factor_Vec[point_Index];
 			}
+		}
+		// footprint for GISAS is done in main loop before interpolation
+
+		/// BACKGROUND
+		if(	measurement.measurement_Type == measurement_Types[Specular_Scan] )
+		{
+			if( calc_Functions.check_Reflectance)	{
+				for(size_t point_Index=0; point_Index<num_Points; ++point_Index)	{
+					calculated_Values.R_Instrumental[point_Index] += measurement.background;
+				}
+			}
+			if( calc_Functions.check_Transmittance)	{
+				for(size_t point_Index=0; point_Index<num_Points; ++point_Index)	{
+					calculated_Values.T_Instrumental[point_Index] += measurement.background;
+				}
+			}
+		} else
+		{
+			if( calc_Functions.check_Scattering)	{
+				for(size_t point_Index=0; point_Index<num_Points; ++point_Index)	{
+					calculated_Values.S_Instrumental[point_Index] += measurement.background;
+				}
+			}
+			// background for GISAS is done in main loop before interpolation
 		}
 
 //		auto end = std::chrono::system_clock::now();

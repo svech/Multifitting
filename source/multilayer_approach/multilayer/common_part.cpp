@@ -312,7 +312,7 @@ void Common_Part::create_Footptint_GroupBox()
 			beam_Footprint_Width_SpinBox->setRange(0, MAX_DOUBLE);
 			beam_Footprint_Width_SpinBox->setDecimals(3);
 			beam_Footprint_Width_SpinBox->setValue(measurement.beam_Geometry.size);
-			beam_Footprint_Width_SpinBox->setSingleStep(0.01);
+			beam_Footprint_Width_SpinBox->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
 			beam_Footprint_Width_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
 			beam_Footprint_Width_SpinBox->setProperty(min_Size_Property,TARGET_LINE_EDIT_WIDTH);
 		beam_Footprint_GroupBox_Layout->addWidget(beam_Footprint_Width_SpinBox,0,1,Qt::AlignLeft);
