@@ -2,12 +2,13 @@
 #include "multilayer_approach/multilayer_approach.h"
 class Multilayer_Approach;
 
-Distribution_Box::Distribution_Box(Distribution& distribution, QString name, MyDoubleSpinBox* related_SpinBox, QString angular_Units, bool use_Sampling, QWidget *parent) :
+Distribution_Box::Distribution_Box(Distribution& distribution, QString pre_Name, QString symbolic_Name, MyDoubleSpinBox* related_SpinBox, QString angular_Units, bool totally_Forbid_Sampling, QWidget *parent) :
 	distribution(distribution),
-	name(name),
+	pre_Name(pre_Name),
+	symbolic_Name(symbolic_Name),
 	related_SpinBox(related_SpinBox),
 	angular_Units(angular_Units),
-	use_Sampling(use_Sampling),
+	totally_Forbid_Sampling(totally_Forbid_Sampling),
 	QWidget(parent)
 {
 	create_Main_Layout();
@@ -28,6 +29,12 @@ void Distribution_Box::create_Plot()
 		distribution_Plot->setMinimumHeight(270);
 	main_Layout->addWidget(distribution_Plot);
 
+	// title
+	QCPTextElement* plot_Title = new QCPTextElement(distribution_Plot, symbolic_Name, QFont("Times", 12, QFont::DemiBold));
+	distribution_Plot->plotLayout()->insertRow(0);
+	distribution_Plot->plotLayout()->setRowSpacing(0);
+	distribution_Plot->plotLayout()->addElement(0,0,plot_Title);
+
 	distribution_Plot->setNoAntialiasingOnDrag(false);
 	distribution_Plot->clearGraphs();
 	distribution_Plot->addGraph();
@@ -43,15 +50,12 @@ void Distribution_Box::create_Plot()
 	// curve
 	distribution_Plot->graph()->setPen(QPen(QColor(0, 0, 255),1.5));
 
-	if(use_Sampling)
-	{
-		// bars
-		bars = new QCPBars(distribution_Plot->xAxis, distribution_Plot->yAxis);
-			bars->setWidthType(QCPBars::wtAbsolute);
-			bars->setWidth(8);
-			bars->setPen(QPen(QColor(0, 0, 255),1));
-			bars->setBrush(QBrush(QColor(0, 255, 0, 100)));
-	}
+	// bars
+	bars = new QCPBars(distribution_Plot->xAxis, distribution_Plot->yAxis);
+		bars->setWidthType(QCPBars::wtAbsolute);
+		bars->setWidth(8);
+		bars->setPen(QPen(QColor(0, 0, 255),1));
+		bars->setBrush(QBrush(QColor(0, 255, 0, 100)));
 
 	// make top right axes clones of bottom left axes:
 	distribution_Plot->xAxis2->setVisible(true);
@@ -83,7 +87,7 @@ void Distribution_Box::create_Box()
 
 	// - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-	resolution_Label = new QLabel(name);
+	resolution_Label = new QLabel(pre_Name+symbolic_Name);
 	groupbox_Layout->addWidget(resolution_Label,0,0,Qt::AlignLeft);
 
 	// - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -118,26 +122,16 @@ void Distribution_Box::create_Box()
 
 	// - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-	samples_Label = new QLabel("Number of samples");
-	groupbox_Layout->addWidget(samples_Label,2,0,Qt::AlignLeft);
-	if(!use_Sampling)	{samples_Label->setDisabled(true);}
-
-
-	sample_SpinBox = new QSpinBox;
-		sample_SpinBox->setAccelerated(true);
-		sample_SpinBox->setRange(1, MAX_INTEGER);
-		sample_SpinBox->setValue(distribution.number_of_Samples);
-		sample_SpinBox->setSingleStep(1);
-		sample_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
-		sample_SpinBox->setFixedWidth(DISTRIBUTION_BOX_FIELD_WIDTH);
-	groupbox_Layout->addWidget(sample_SpinBox,2,1,Qt::AlignLeft);
-	if(!use_Sampling)	{sample_SpinBox->setDisabled(true);}
+	sampling_Checkbox = new QCheckBox("Use sampling");
+		sampling_Checkbox->setChecked(distribution.use_Sampling);
+	groupbox_Layout->addWidget(sampling_Checkbox,2,0,Qt::AlignLeft);
+	sampling_Checkbox->setDisabled(totally_Forbid_Sampling);
 
 	// - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 	coverage_Label = new QLabel("Coverage (in units of FWHM)");
 	groupbox_Layout->addWidget(coverage_Label,3,0,Qt::AlignLeft);
-	if(!use_Sampling)	{coverage_Label->setDisabled(true);}
+	coverage_Label->setDisabled(totally_Forbid_Sampling || !distribution.use_Sampling);
 
 	coverage_SpinBox = new MyDoubleSpinBox(this,false);
 		coverage_SpinBox->setAccelerated(true);
@@ -148,7 +142,23 @@ void Distribution_Box::create_Box()
 		coverage_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
 		coverage_SpinBox->setFixedWidth(DISTRIBUTION_BOX_FIELD_WIDTH);
 	groupbox_Layout->addWidget(coverage_SpinBox,3,1,Qt::AlignLeft);
-	if(!use_Sampling)	{coverage_SpinBox->setDisabled(true);}
+	coverage_SpinBox->setDisabled(totally_Forbid_Sampling || !distribution.use_Sampling);
+
+	// - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+	samples_Label = new QLabel("Number of samples");
+	groupbox_Layout->addWidget(samples_Label,4,0,Qt::AlignLeft);
+	samples_Label->setDisabled(totally_Forbid_Sampling || !distribution.use_Sampling);
+
+	sample_SpinBox = new QSpinBox;
+		sample_SpinBox->setAccelerated(true);
+		sample_SpinBox->setRange(1, MAX_INTEGER);
+		sample_SpinBox->setValue(distribution.number_of_Samples);
+		sample_SpinBox->setSingleStep(1);
+		sample_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
+		sample_SpinBox->setFixedWidth(DISTRIBUTION_BOX_FIELD_WIDTH);
+	groupbox_Layout->addWidget(sample_SpinBox,4,1,Qt::AlignLeft);
+	sample_SpinBox->setDisabled(totally_Forbid_Sampling || !distribution.use_Sampling);
 }
 
 double Distribution_Box::set_From_Value(double real_input)
@@ -192,12 +202,12 @@ void Distribution_Box::replot()
 	}
 	distribution_Plot->graph()->data()->set(data_To_Plot);
 
-	if(use_Sampling)
+	if(!totally_Forbid_Sampling && distribution.use_Sampling)
 	{
 		// bars
 		QVector<double> x_Bars(distribution.number_of_Samples);
 		QVector<double> y_Bars(distribution.number_of_Samples);
-		if(distribution.number_of_Samples>1 && FWHM > DBL_EPSILON)
+		if(distribution.number_of_Samples>1 && FWHM>DBL_EPSILON)
 		{
 			double delta_Bars = (distribution.coverage*FWHM)/(distribution.number_of_Samples-1);
 			for (int i=0; i<distribution.number_of_Samples; ++i)
@@ -206,12 +216,17 @@ void Distribution_Box::replot()
 				x_Bars[i] = x;
 				y_Bars[i] = Global_Variables::distribution_Function(distribution.distribution_Function, FWHM, x);
 			}
-		} else
+		}
+		else
 		{
 			x_Bars[0] = 0;
 			y_Bars[0] = 1;
 		}
 		bars->setData(x_Bars, y_Bars);
+		bars->setVisible(true);
+	} else
+	{
+		bars->setVisible(false);
 	}
 
 	if(FWHM > DBL_EPSILON)	{distribution_Plot->xAxis->setRange(-limit,limit);}
@@ -242,23 +257,35 @@ void Distribution_Box::connecting()
 		replot();
 		global_Multilayer_Approach->global_Recalculate();
 	});
-	if(use_Sampling)
+
+	// use sampling
+	connect(sampling_Checkbox, &QCheckBox::toggled, this, [=]
 	{
-		// sampling
-		connect(sample_SpinBox,  static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, [=]
-		{
-			distribution.number_of_Samples = sample_SpinBox->value();
+		distribution.use_Sampling = sampling_Checkbox->isChecked();
 
-			replot();
-			global_Multilayer_Approach->global_Recalculate();
-		});
-		// coverage
-		connect(coverage_SpinBox,  static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
-		{
-			distribution.coverage = coverage_SpinBox->value();
+		coverage_Label  ->setDisabled(totally_Forbid_Sampling || !distribution.use_Sampling);
+		coverage_SpinBox->setDisabled(totally_Forbid_Sampling || !distribution.use_Sampling);
+		samples_Label   ->setDisabled(totally_Forbid_Sampling || !distribution.use_Sampling);
+		sample_SpinBox  ->setDisabled(totally_Forbid_Sampling || !distribution.use_Sampling);
 
-			replot();
-			global_Multilayer_Approach->global_Recalculate();
-		});
-	}
+		replot();
+		global_Multilayer_Approach->global_Recalculate();
+	});
+
+	// sampling
+	connect(sample_SpinBox,  static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, [=]
+	{
+		distribution.number_of_Samples = sample_SpinBox->value();
+
+		replot();
+		global_Multilayer_Approach->global_Recalculate();
+	});
+	// coverage
+	connect(coverage_SpinBox,  static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
+	{
+		distribution.coverage = coverage_SpinBox->value();
+
+		replot();
+		global_Multilayer_Approach->global_Recalculate();
+	});
 }

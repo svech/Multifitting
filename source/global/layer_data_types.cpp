@@ -83,18 +83,21 @@ Data::Data(QString item_Type_Passed)
 		// resolution
 		spectral_Distribution.FWHM_distribution = 0;
 		spectral_Distribution.distribution_Function = distributions[Lorentz];
-		spectral_Distribution.number_of_Samples = 5;
 		spectral_Distribution.coverage = 2;
+		spectral_Distribution.use_Sampling = false;
+		spectral_Distribution.number_of_Samples = 5;
 
 		beam_Theta_0_Distribution.FWHM_distribution = 0;
 		beam_Theta_0_Distribution.distribution_Function = distributions[Lorentz];
-		beam_Theta_0_Distribution.number_of_Samples = 5;
 		beam_Theta_0_Distribution.coverage = 2;
+		beam_Theta_0_Distribution.use_Sampling = false;
+		beam_Theta_0_Distribution.number_of_Samples = 5;
 
 		beam_Phi_0_Distribution.FWHM_distribution = 0;
 		beam_Phi_0_Distribution.distribution_Function = distributions[Lorentz];
-		beam_Phi_0_Distribution.number_of_Samples = 5;
 		beam_Phi_0_Distribution.coverage = 2;
+		beam_Phi_0_Distribution.use_Sampling = false;
+		beam_Phi_0_Distribution.number_of_Samples = 5;
 
 		// detector
 		detector_1D.detector_Type = detectors[Slit];
@@ -102,18 +105,23 @@ Data::Data(QString item_Type_Passed)
 		detector_1D.distance_To_Sample = 320;
 		detector_1D.detector_Theta_Resolution.FWHM_distribution = 0;
 		detector_1D.detector_Theta_Resolution.distribution_Function = distributions[Lorentz];
-		detector_1D.detector_Theta_Resolution.number_of_Samples = 5;
 		detector_1D.detector_Theta_Resolution.coverage = 2;
+		beam_Phi_0_Distribution.use_Sampling = false;
+		detector_1D.detector_Theta_Resolution.number_of_Samples = 5;
 
-		detector_2D.detector_Type = detectors[Spherical];
+
+		detector_2D.detector_Type = detectors[Spherical];		
 		detector_2D.detector_Theta_Resolution.FWHM_distribution = 0;
 		detector_2D.detector_Theta_Resolution.distribution_Function = distributions[Lorentz];
-		detector_2D.detector_Theta_Resolution.number_of_Samples = 5;
 		detector_2D.detector_Theta_Resolution.coverage = 2;
+		detector_2D.detector_Theta_Resolution.use_Sampling = false;
+		detector_2D.detector_Theta_Resolution.number_of_Samples = 5;
+
 		detector_2D.detector_Phi_Resolution.FWHM_distribution = 0;
 		detector_2D.detector_Phi_Resolution.distribution_Function = distributions[Lorentz];
-		detector_2D.detector_Phi_Resolution.number_of_Samples = 5;
 		detector_2D.detector_Phi_Resolution.coverage = 2;
+		detector_2D.detector_Phi_Resolution.use_Sampling = false;
+		detector_2D.detector_Phi_Resolution.number_of_Samples = 5;
 
 		// footprint
 		beam_Geometry.size = 0.055;

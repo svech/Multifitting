@@ -29,23 +29,38 @@ void Distribution_Editor::create_Main_Layout()
 	// ---------------------------------------------
 	// wavelength
 	// ---------------------------------------------
-	QString name = "Spectral width, FWHM, ";
+	QString pre_Name = "Spectral width, FWHM, ";
+	QString symbolic_Name;
 	if(	spectral_Units == wavelength_Units_List[angstrom] ||
 		spectral_Units == wavelength_Units_List[nm]	   )
 	{
-		name += " " + Delta_Big_Sym + Lambda_Sym + "/" + Lambda_Sym ;
+		symbolic_Name = Delta_Big_Sym + Lambda_Sym + "/" + Lambda_Sym;
 	} else
 	{
-		name += " " + Delta_Big_Sym + "E/E" ;
+		symbolic_Name = Delta_Big_Sym + "E/E";
 	}
-	Distribution_Box* spectral_Distribution_Box = new Distribution_Box(measurement.spectral_Distribution, name, related_Spectral_SpinBox);
+	bool totally_Forbid_Sampling = false;
+	if((measurement.measurement_Type == measurement_Types[Specular_Scan]) &&
+	   (measurement.argument_Type    == argument_Types[Wavelength_Energy]))
+	{
+		totally_Forbid_Sampling = true;
+	}
+
+	Distribution_Box* spectral_Distribution_Box = new Distribution_Box(measurement.spectral_Distribution, pre_Name, symbolic_Name, related_Spectral_SpinBox, spectral_Units, totally_Forbid_Sampling);
 		hor_Layout->addWidget(spectral_Distribution_Box);
 
 	// ---------------------------------------------
 	// theta_0
 	// ---------------------------------------------
-	name = "Angular divergence, FWHM, " + Delta_Big_Sym + Theta_Sym + Zero_Subscript_Sym;
-	Distribution_Box* theta_0_Distribution_Box = new Distribution_Box(measurement.beam_Theta_0_Distribution, name, related_Theta_0_SpinBox, angular_Units);
+	pre_Name = "Angular divergence, FWHM, ";
+	symbolic_Name = Delta_Big_Sym + Theta_Sym + Zero_Subscript_Sym;
+	totally_Forbid_Sampling = false;
+	if((measurement.argument_Type == argument_Types[Deviation_From_Specular_Angle]) ||
+	   (measurement.argument_Type == argument_Types[Beam_Grazing_Angle]))
+	{
+		totally_Forbid_Sampling = true;
+	}
+	Distribution_Box* theta_0_Distribution_Box = new Distribution_Box(measurement.beam_Theta_0_Distribution, pre_Name, symbolic_Name, related_Theta_0_SpinBox, angular_Units, totally_Forbid_Sampling);
 	hor_Layout->addWidget(theta_0_Distribution_Box);
 
 	// ---------------------------------------------
@@ -53,8 +68,9 @@ void Distribution_Editor::create_Main_Layout()
 	// ---------------------------------------------
 	if( measurement.measurement_Type == measurement_Types[GISAS_Map] )
 	{
-		name = "Angular divergence, FWHM, " + Delta_Big_Sym + Phi_Sym + Zero_Subscript_Sym;
-		Distribution_Box* phi_0_Distribution_Box = new Distribution_Box(measurement.beam_Phi_0_Distribution, name, related_Phi_0_SpinBox, angular_Units, false);
+		pre_Name = "Angular divergence, FWHM, ";
+		symbolic_Name = Delta_Big_Sym + Phi_Sym + Zero_Subscript_Sym;
+		Distribution_Box* phi_0_Distribution_Box = new Distribution_Box(measurement.beam_Phi_0_Distribution, pre_Name, symbolic_Name, related_Phi_0_SpinBox, angular_Units, true);
 			hor_Layout->addWidget(phi_0_Distribution_Box);
 	}
 

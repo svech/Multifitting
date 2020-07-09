@@ -254,11 +254,11 @@ QDataStream& operator >>( QDataStream& stream,		 Parameter& parameter )
 
 QDataStream& operator <<( QDataStream& stream, const Distribution& resolution )
 {
-	return stream << resolution.FWHM_distribution << resolution.distribution_Function << resolution.number_of_Samples << resolution.coverage;
+	return stream << resolution.FWHM_distribution << resolution.distribution_Function << resolution.coverage << resolution.use_Sampling << resolution.number_of_Samples;
 }
 QDataStream& operator >>( QDataStream& stream,		 Distribution& resolution )
 {
-	return stream >> resolution.FWHM_distribution >> resolution.distribution_Function >> resolution.number_of_Samples >> resolution.coverage;
+	return stream >> resolution.FWHM_distribution >> resolution.distribution_Function >> resolution.coverage >> resolution.use_Sampling >> resolution.number_of_Samples;
 }
 
 QDataStream& operator <<( QDataStream& stream, const Detector_1D& detector_1D )

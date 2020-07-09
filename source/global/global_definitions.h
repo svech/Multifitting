@@ -517,8 +517,9 @@ struct Parameter				{double value; Independent independent; Coupled coupled; Con
 								 }};
 struct Distribution             { double FWHM_distribution = 0;
 								  QString distribution_Function = "Lorentz"; // see distributions in global_variables
-								  int number_of_Samples = 1;
 								  double coverage = 2; // in units of FWHM
+								  bool use_Sampling = false;
+								  int number_of_Samples = 1;
 								};
 
 struct Detector_1D				{ QString detector_Type;
