@@ -36,6 +36,7 @@ class Calculation_Tree
 {
 public:
 	Calculation_Tree(Multilayer* multilayer, QString calc_Mode);
+	~Calculation_Tree();
 
 	void prepare_Residual_Expressions();
 	void create_Rand_Generator();

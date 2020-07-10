@@ -144,7 +144,7 @@ void Common_Part::create_Detector_GroupBox()
 
 		crystal_Resolution_SpinBox = new MyDoubleSpinBox;
 			crystal_Resolution_SpinBox->setAccelerated(true);
-			crystal_Resolution_SpinBox->setRange(0, MAX_DOUBLE);
+			crystal_Resolution_SpinBox->setRange(0, 90/arg_Coeff);
 			crystal_Resolution_SpinBox->setDecimals(6);
 			crystal_Resolution_SpinBox->setValue(measurement.detector_1D.detector_Theta_Resolution.FWHM_distribution/arg_Coeff);
 			crystal_Resolution_SpinBox->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
@@ -171,6 +171,9 @@ void Common_Part::create_Detector_GroupBox()
 			resolution_Function_ComboBox->setFixedWidth(DISTRIBUTION_BOX_FIELD_WIDTH);
 		crystal_Layout->addWidget(resolution_Function_ComboBox,0,Qt::AlignLeft);
 	}
+
+	if(measurement.detector_1D.detector_Type == detectors[Slit])	detectors_Stack->setCurrentIndex(0);
+	if(measurement.detector_1D.detector_Type == detectors[Crystal]) detectors_Stack->setCurrentIndex(1);
 }
 
 void Common_Part::create_2D_Detector_GroupBox()
@@ -284,6 +287,9 @@ void Common_Part::create_2D_Detector_GroupBox()
 			resolution_Function_ComboBox->setFixedWidth(DISTRIBUTION_BOX_FIELD_WIDTH);
 		spherical_Layout->addWidget(resolution_Function_ComboBox,0,4,2,1,Qt::AlignLeft);
 	}
+
+	if(measurement.detector_2D.detector_Type == detectors[Spherical])	detectors_Stack->setCurrentIndex(0);
+	if(measurement.detector_2D.detector_Type == detectors[Rectangular]) detectors_Stack->setCurrentIndex(1);
 }
 
 void Common_Part::create_Footptint_GroupBox()
@@ -435,7 +441,7 @@ void Common_Part::create_Footptint_GroupBox()
 
 		sample_Curvature_SpinBox = new MyDoubleSpinBox;
 			sample_Curvature_SpinBox->setAccelerated(true);
-			sample_Curvature_SpinBox->setRange(-1000, MAX_DOUBLE);
+			sample_Curvature_SpinBox->setRange(-1, 1);
 			sample_Curvature_SpinBox->setDecimals(4);
 			sample_Curvature_SpinBox->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
 			sample_Curvature_SpinBox->setValue(measurement.sample_Geometry.curvature);

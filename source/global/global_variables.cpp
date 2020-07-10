@@ -1855,7 +1855,7 @@ double Global_Variables::distribution_Cosine(double FWHM, double x)
 
 double Global_Variables::distribution_Gaussian(double FWHM, double x)
 {
-	if(-1.5*FWHM <= x && x <= 1.5*FWHM)
+	if(-2*FWHM <= x && x <= 2*FWHM)
 	{
 		if(FWHM>DBL_EPSILON)
 		{
@@ -1871,8 +1871,8 @@ double Global_Variables::distribution_Gaussian(double FWHM, double x)
 
 double Global_Variables::distribution_Lorentz(double FWHM, double x)
 {
-	if(-10*FWHM <= x && x <= 10*FWHM)
-	{
+//	if(-100*FWHM <= x && x <= 100*FWHM)
+//	{
 		if(FWHM>DBL_EPSILON)
 		{
 			return 1./(1.+pow(2*x/FWHM,2));
@@ -1880,9 +1880,9 @@ double Global_Variables::distribution_Lorentz(double FWHM, double x)
 		{
 			return 1;
 		}
-	}
-	else
-		return 0;
+//	}
+//	else
+//		return 0;
 }
 
 void Global_Variables::color_Scheme_Change(QCPColorMap* color_Map, QCustomPlot* main_Plot, QCPColorGradient::GradientPreset* color_Scheme)

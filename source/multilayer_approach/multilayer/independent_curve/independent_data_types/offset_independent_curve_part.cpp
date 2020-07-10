@@ -236,7 +236,7 @@ void Offset_Independent_Curve_Part::create_Beam_GroupBox()
 
 		spectral_Width_SpinBox = new MyDoubleSpinBox;
 		spectral_Width_SpinBox->setAccelerated(true);
-		spectral_Width_SpinBox->setRange(0, MAX_DOUBLE);
+		spectral_Width_SpinBox->setRange(0, 1);
 		spectral_Width_SpinBox->setDecimals(7);
 		spectral_Width_SpinBox->setValue(independent_Curve->measurement.spectral_Distribution.FWHM_distribution);
 		spectral_Width_SpinBox->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
@@ -256,7 +256,7 @@ void Offset_Independent_Curve_Part::create_Beam_GroupBox()
 
 		angular_Divergence_SpinBox = new MyDoubleSpinBox;
 		angular_Divergence_SpinBox->setAccelerated(true);
-		angular_Divergence_SpinBox->setRange(0, MAX_DOUBLE);
+		angular_Divergence_SpinBox->setRange(0, 90/arg_Coeff);
 		angular_Divergence_SpinBox->setDecimals(7);
 		angular_Divergence_SpinBox->setValue(independent_Curve->measurement.beam_Theta_0_Distribution.FWHM_distribution/arg_Coeff);
 		angular_Divergence_SpinBox->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
@@ -318,10 +318,12 @@ void Offset_Independent_Curve_Part::refresh_Angular_Units()
 	fill_Offset();
 
 	// beam divergence
+	angular_Divergence_SpinBox->setRange(0,90./coeff);
 	angular_Divergence_SpinBox->setValue(independent_Curve->measurement.beam_Theta_0_Distribution.FWHM_distribution/coeff);
 	angular_Divergence_Units_Label->setText(independent_Curve->angular_Units);
 
 	// crystal resolution
+	independent_Common_Part->crystal_Resolution_SpinBox->setRange(0,90./coeff);
 	independent_Common_Part->crystal_Resolution_SpinBox->setValue(independent_Curve->measurement.detector_1D.detector_Theta_Resolution.FWHM_distribution/coeff);
 	independent_Common_Part->crystal_Resolution_Units_Label->setText(independent_Curve->angular_Units);
 

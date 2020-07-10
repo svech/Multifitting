@@ -211,7 +211,7 @@ void Specular_Independent_Curve_Part::create_Beam_GroupBox()
 
 		spectral_Width_SpinBox = new MyDoubleSpinBox;
 			spectral_Width_SpinBox->setAccelerated(true);
-			spectral_Width_SpinBox->setRange(0, MAX_DOUBLE);
+			spectral_Width_SpinBox->setRange(0, 1);
 			spectral_Width_SpinBox->setDecimals(7);
 			spectral_Width_SpinBox->setValue(independent_Curve->measurement.spectral_Distribution.FWHM_distribution);
 			spectral_Width_SpinBox->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
@@ -231,7 +231,7 @@ void Specular_Independent_Curve_Part::create_Beam_GroupBox()
 
 		angular_Divergence_SpinBox = new MyDoubleSpinBox;
 			angular_Divergence_SpinBox->setAccelerated(true);
-			angular_Divergence_SpinBox->setRange(0, MAX_DOUBLE);
+			angular_Divergence_SpinBox->setRange(0, 90/arg_Coeff);
 			angular_Divergence_SpinBox->setDecimals(7);
 			angular_Divergence_SpinBox->setValue(independent_Curve->measurement.beam_Theta_0_Distribution.FWHM_distribution/arg_Coeff);
 			angular_Divergence_SpinBox->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
@@ -334,10 +334,12 @@ void Specular_Independent_Curve_Part::refresh_Angular_Units()
 	}
 
 	// beam divergence
+	angular_Divergence_SpinBox->setRange(0,90./coeff);
 	angular_Divergence_SpinBox->setValue(independent_Curve->measurement.beam_Theta_0_Distribution.FWHM_distribution/coeff);
 	angular_Divergence_Units_Label->setText(independent_Curve->angular_Units);
 
 	// crystal resolution
+	independent_Common_Part->crystal_Resolution_SpinBox->setRange(0,90./coeff);
 	independent_Common_Part->crystal_Resolution_SpinBox->setValue(independent_Curve->measurement.detector_1D.detector_Theta_Resolution.FWHM_distribution/coeff);
 	independent_Common_Part->crystal_Resolution_Units_Label->setText(independent_Curve->angular_Units);
 
@@ -532,6 +534,17 @@ void Specular_Independent_Curve_Part::disable_Crystal_Detector_Type()
 	independent_Common_Part->detector_Type_ComboBox->blockSignals(false);
 }
 
+void Specular_Independent_Curve_Part::disable_Sampling()
+{
+	if(	independent_Curve->measurement.argument_Type == argument_Types[Wavelength_Energy] )
+	{
+		independent_Curve->measurement.spectral_Distribution.use_Sampling = false;
+	} else
+	{
+		independent_Curve->measurement.beam_Theta_0_Distribution.use_Sampling = false;
+	}
+}
+
 void Specular_Independent_Curve_Part::fill_At_Fixed_Label()
 {
 	if(independent_Curve->measurement.argument_Type == argument_Types[Beam_Grazing_Angle])
@@ -618,6 +631,7 @@ void Specular_Independent_Curve_Part::connecting()
 		fill_At_Fixed_Units();
 		fill_Argument_Values();
 
+		disable_Sampling();
 		disable_Crystal_Detector_Type();
 
 		independent_Curve->refresh_Description_Label();

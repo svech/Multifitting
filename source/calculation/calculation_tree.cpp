@@ -53,6 +53,11 @@ Calculation_Tree::Calculation_Tree(Multilayer* multilayer, QString calc_Mode):
 	check_If_Graded();
 }
 
+Calculation_Tree::~Calculation_Tree()
+{
+	gsl_rng_free (r);
+}
+
 void Calculation_Tree::prepare_Residual_Expressions()
 {
 	for(Data_Element<Target_Curve>& target_Element : target)
@@ -524,7 +529,7 @@ void Calculation_Tree::calculate_1_Kind_Preliminary(Data_Element<Type>& data_Ele
 	data_Element.the_Class->measurement.calc_Mixed_Resolution();
 }
 template void Calculation_Tree::calculate_1_Kind_Preliminary<Independent_Curve>(Data_Element<Independent_Curve>&);
-template void Calculation_Tree::calculate_1_Kind_Preliminary<Target_Curve>		   (Data_Element<Target_Curve>&);
+template void Calculation_Tree::calculate_1_Kind_Preliminary<Target_Curve>	   (Data_Element<Target_Curve>&);
 
 template<typename Type>
 void Calculation_Tree::calculate_1_Kind(Data_Element<Type>& data_Element, QString mode)

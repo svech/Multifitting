@@ -3068,60 +3068,80 @@ void Unwrapped_Reflection::calc_Specular()
 //		auto start = std::chrono::system_clock::now();
 
 		// interpolation
+		vector<double>* calculated_Curve = nullptr;
+		vector<double>* working_Curve = nullptr;
+		if( calc_Functions.check_Reflectance)
+		{	calculated_Curve = &calculated_Values.R; calculated_Values.R_Instrumental = calculated_Values.R; working_Curve = &calculated_Values.R_Instrumental;}
+		if( calc_Functions.check_Transmittance)
+		{	calculated_Curve = &calculated_Values.T; calculated_Values.T_Instrumental = calculated_Values.T; working_Curve = &calculated_Values.T_Instrumental;}
+		if( calc_Functions.check_Scattering)
+		{	calculated_Curve = &calculated_Values.S; calculated_Values.S_Instrumental = calculated_Values.S; working_Curve = &calculated_Values.S_Instrumental;}
 
-//		vector<double>* calculated_Curve = &calculated_Values.R;
-//		vector<double>* working_Curve = &calculated_Values.R_Instrumental;
-//		if( calc_Functions.check_Reflectance)
-//		{	calculated_Curve = &calculated_Values.R; calculated_Values.R_Instrumental = calculated_Values.R; working_Curve = &calculated_Values.R_Instrumental;}
-//		if( calc_Functions.check_Transmittance)
-//		{	calculated_Curve = &calculated_Values.T; calculated_Values.T_Instrumental = calculated_Values.T; working_Curve = &calculated_Values.T_Instrumental;}
-		// TODO GISAS Scattering
 
-//		if( measurement.measurement_Type == measurement_Types[Specular_Scan] &&
-//			measurement.argument_Type  == argument_Types[Beam_Grazing_Angle] )
-//		{
-//			if( (measurement.beam_Theta_0_Distribution.FWHM_distribution>0 || measurement.spectral_Distribution.FWHM_distribution>0) && measurement.beam_Theta_0_Angle_Vec.size()>=MIN_ANGULAR_RESOLUTION_POINTS)
-//			{
-//				// interpolation on dense mesh (tunable)
-//				double min_Step_As_Is = find_Min_Mesh_Step(measurement.beam_Theta_0_Angle_Vec);
-//				double preliminary_Delta = min_Step_As_Is;//min(min_Step_As_Is/1, min_Resolution/2);  // tunable
+		/// Specular_Scan
+		if( measurement.measurement_Type == measurement_Types[Specular_Scan] )
+		{
+			if( measurement.argument_Type == argument_Types[Beam_Grazing_Angle] )
+			{
+				// spectral distribution
+				if(measurement.spectral_Distribution.FWHM_distribution>DBL_EPSILON && !measurement.spectral_Distribution.use_Sampling)	{
+					wrap_Curve(measurement.beam_Theta_0_Angle_Vec, calculated_Curve, measurement.theta_0_Resolution_From_Spectral_Vec, working_Curve, measurement.spectral_Distribution.distribution_Function);
+					*calculated_Curve = *working_Curve;
+				}
+				// theta_0 distribution
+				if(measurement.beam_Theta_0_Distribution.FWHM_distribution>DBL_EPSILON || abs(measurement.sample_Geometry.curvature)>DBL_EPSILON)		{
+					wrap_Curve(measurement.beam_Theta_0_Angle_Vec, calculated_Curve, measurement.theta_0_Resolution_Vec, working_Curve, measurement.beam_Theta_0_Distribution.distribution_Function);
+				}
+			}
+			if( measurement.argument_Type  == argument_Types[Wavelength_Energy] )
+			{
+				// spectral distribution
+				if(measurement.spectral_Distribution.FWHM_distribution>DBL_EPSILON)	{
+					wrap_Curve(measurement.lambda_Vec, calculated_Curve, measurement.spectral_Resolution_Vec, working_Curve, measurement.spectral_Distribution.distribution_Function);
+					*calculated_Curve = *working_Curve;
+				}
+				// theta_0 distribution
+				if((measurement.beam_Theta_0_Distribution.FWHM_distribution>DBL_EPSILON || abs(measurement.sample_Geometry.curvature)>DBL_EPSILON) && !measurement.beam_Theta_0_Distribution.use_Sampling)		{
+					wrap_Curve(measurement.lambda_Vec, calculated_Curve, measurement.spectral_Resolution_From_Theta_0_Vec, working_Curve, measurement.beam_Theta_0_Distribution.distribution_Function);
+				}
+			}
+		}
+		/// Detector_Scan
+		/// Rocking_Curve
+		/// Offset_Scan
+		if( measurement.measurement_Type == measurement_Types[Detector_Scan] ||
+			measurement.measurement_Type == measurement_Types[Offset_Scan]   ||
+			measurement.measurement_Type == measurement_Types[Rocking_Curve] )
+		{
+			// spectral distribution
+			if(measurement.spectral_Distribution.FWHM_distribution>DBL_EPSILON && !measurement.spectral_Distribution.use_Sampling)	{
+				wrap_Curve(measurement.detector_Theta_Angle_Vec, calculated_Curve, measurement.theta_0_Resolution_From_Spectral_Vec, working_Curve, measurement.spectral_Distribution.distribution_Function);
+				*calculated_Curve = *working_Curve;
+			}
+			// theta_0 distribution
+			if((measurement.beam_Theta_0_Distribution.FWHM_distribution>DBL_EPSILON || abs(measurement.sample_Geometry.curvature)>DBL_EPSILON) && !measurement.beam_Theta_0_Distribution.use_Sampling)		{
+				wrap_Curve(measurement.detector_Theta_Angle_Vec, calculated_Curve, measurement.theta_0_Resolution_Vec, working_Curve, measurement.beam_Theta_0_Distribution.distribution_Function);
+				*calculated_Curve = *working_Curve;
+			}
+			// detector
+			if(measurement.theta_Resolution_FWHM>DBL_EPSILON)		{
+				wrap_Curve(measurement.detector_Theta_Angle_Vec, calculated_Curve, measurement.theta_Resolution_Vec, working_Curve, measurement.theta_Distribution);
+			}
+		}
+		/// GISAS_Map
+		if( measurement.measurement_Type == measurement_Types[GISAS_Map] )
+		{
+			// TODO
 
-//				double first_Argument = measurement.beam_Theta_0_Angle_Vec.first();
-//				double last_Argument  = measurement.beam_Theta_0_Angle_Vec.last();
-//				unsigned long long num_Points_in_Dense_Mesh = ceil( abs(last_Argument - first_Argument)/preliminary_Delta );
-//								   num_Points_in_Dense_Mesh = min(num_Points_in_Dense_Mesh, (unsigned long long)(202020));
-//				double real_Delta = (last_Argument - first_Argument)/(num_Points_in_Dense_Mesh-1);  // interpolated curve is equidistant
-
-//				// create dense mesh
-//				vector<double> dense_Mesh(num_Points_in_Dense_Mesh);
-//				vector<double> dense_Mesh_Interpolated_Curve(num_Points_in_Dense_Mesh);
-//				condense_Curve      (measurement.beam_Theta_0_Angle_Vec, calculated_Curve, real_Delta, dense_Mesh_Interpolated_Curve, dense_Mesh);
-//				wrap_Condensed_Curve(measurement.beam_Theta_0_Angle_Vec, calculated_Curve, dense_Mesh, dense_Mesh_Interpolated_Curve, measurement.angular_Resolution_Mixed, working_Curve);
-//			}
-//		}
-
-//		if( measurement.measurement_Type == measurement_Types[Specular_Scan] &&
-//			measurement.argument_Type  == argument_Types[Wavelength_Energy] )
-//		{
-//			if( (measurement.beam_Theta_0_Distribution.FWHM_distribution>0 || measurement.spectral_Distribution.FWHM_distribution>0) && measurement.lambda_Vec.size()>=MIN_SPECTRAL_RESOLUTION_POINTS)
-//			{
-//				// interpolation on dense mesh (tunable)
-//				double min_Step_As_Is = find_Min_Mesh_Step(measurement.lambda_Vec);
-//				double preliminary_Delta = min_Step_As_Is;//min(min_Step_As_Is/1, min_Resolution/2);  // tunable
-
-//				double first_Argument = measurement.lambda_Vec.first();
-//				double last_Argument  = measurement.lambda_Vec.last();
-//				unsigned long long num_Points_in_Dense_Mesh = ceil( abs(last_Argument - first_Argument)/preliminary_Delta );
-//								   num_Points_in_Dense_Mesh = min(num_Points_in_Dense_Mesh, (unsigned long long)(202020));
-//				double real_Delta = (last_Argument - first_Argument)/(num_Points_in_Dense_Mesh-1);  // interpolated curve is equidistant
-
-//				// create dense mesh
-//				vector<double> dense_Mesh(num_Points_in_Dense_Mesh);
-//				vector<double> dense_Mesh_Interpolated_Curve(num_Points_in_Dense_Mesh);
-//				condense_Curve      (measurement.lambda_Vec, calculated_Curve, real_Delta, dense_Mesh_Interpolated_Curve, dense_Mesh);
-//				wrap_Condensed_Curve(measurement.lambda_Vec, calculated_Curve, dense_Mesh, dense_Mesh_Interpolated_Curve, measurement.spectral_Resolution_Mixed, working_Curve);
-//			}
-//		}
+//			vector<double>* calculated_Curve = nullptr;
+//			vector<double>* working_Curve = nullptr;
+//			if( calc_Functions.check_Reflectance)
+//			{	calculated_Curve = &calculated_Values.R; calculated_Values.R_Instrumental = calculated_Values.R; working_Curve = &calculated_Values.R_Instrumental;}
+//			if( calc_Functions.check_Transmittance)
+//			{	calculated_Curve = &calculated_Values.T; calculated_Values.T_Instrumental = calculated_Values.T; working_Curve = &calculated_Values.T_Instrumental;}
+//			if( calc_Functions.check_Scattering)
+//			{	calculated_Curve = &calculated_Values.S; calculated_Values.S_Instrumental = calculated_Values.S; working_Curve = &calculated_Values.S_Instrumental;}
+		}
 
 		/// FOOTPRINT
 		// footprint for R
@@ -3147,11 +3167,13 @@ void Unwrapped_Reflection::calc_Specular()
 		/// BACKGROUND
 		if(	measurement.measurement_Type == measurement_Types[Specular_Scan] )
 		{
+			// footprint for R
 			if( calc_Functions.check_Reflectance)	{
 				for(size_t point_Index=0; point_Index<num_Points; ++point_Index)	{
 					calculated_Values.R_Instrumental[point_Index] += measurement.background;
 				}
 			}
+			// footprint for T
 			if( calc_Functions.check_Transmittance)	{
 				for(size_t point_Index=0; point_Index<num_Points; ++point_Index)	{
 					calculated_Values.T_Instrumental[point_Index] += measurement.background;
@@ -3159,6 +3181,7 @@ void Unwrapped_Reflection::calc_Specular()
 			}
 		} else
 		{
+			// background for scattering
 			if( calc_Functions.check_Scattering)	{
 				for(size_t point_Index=0; point_Index<num_Points; ++point_Index)	{
 					calculated_Values.S_Instrumental[point_Index] += measurement.background;
@@ -3173,57 +3196,52 @@ void Unwrapped_Reflection::calc_Specular()
 	}
 }
 
-double Unwrapped_Reflection::find_Min_Mesh_Step(const QVector<double>& argument)
+void Unwrapped_Reflection::wrap_Curve(const vector<double>& sparse_Argument,
+									  const vector<double>* sparse_Input_Curve,
+									  const vector<double>& resolution_FWHM,
+									  vector<double>* output_Sparse_Curve,
+									  QString distribution_Function)
 {
-	vector<double> steps;
-	steps.resize(argument.size()-1);
+	double range_Limit = 3;
+	double(*distribution)(double, double);
+	if(distribution_Function == distributions[Gate])	{distribution = Global_Variables::distribution_Gate;	range_Limit = 0.5; } else
+	if(distribution_Function == distributions[Cosine])	{distribution = Global_Variables::distribution_Cosine;	range_Limit = 1;   } else
+	if(distribution_Function == distributions[Gaussian]){distribution = Global_Variables::distribution_Gaussian;range_Limit = 2;   } else
+	if(distribution_Function == distributions[Lorentz])	{distribution = Global_Variables::distribution_Lorentz;	range_Limit = MAX_DOUBLE;} else return;
 
-	for(int i=0; i<argument.size()-1; i++)
-	{
-		steps[i] = abs(argument[i+1]-argument[i]);
-	}
-
-	std::sort(steps.begin(), steps.end());		// sort steps from min to max
-	// minimal index
-	size_t min_Index = std::min(int(steps.size()),7);// not the first from bottom. At least, 7th from bottom
-	double min = max(steps[min_Index], DBL_EPSILON); // not extremely small step
-	return min;
-}
-
-void Unwrapped_Reflection::wrap_Condensed_Curve(const QVector<double>& sparse_Argument, const vector<double>* sparse_Input_Curve, const vector<double>& dense_Argument, const vector<double>& dense_Curve, const vector<double>& resolution, vector<double>* output_Sparse_Curve)
-{
-#define Loop_Body 		{																																				\
-	                        (*output_Sparse_Curve)[point_Index] = 0;																									\
-	                        double weight_Accumulator = DBL_MIN;																										\
-	                        double weight = DBL_MIN;																													\
-	                        double distance;																															\
-	                                                                                                                                                                    \
-	                        int near_Central_Dense_Position = int(abs(sparse_Argument[point_Index]-sparse_Argument[0])/delta);											\
-	                        int range = ceil(2*resolution[point_Index]/delta);																							\
-	                                                                                                                                                                    \
-	                        for(int i=max(0, near_Central_Dense_Position-range); i<=min(near_Central_Dense_Position+range, int(dense_Argument.size())-1); i++)			\
-	                        {																																			\
-	                            distance = abs(dense_Argument[i] - sparse_Argument[point_Index]);																		\
-	                            weight = exp(-pow(distance/(resolution[point_Index]/2*1.18),2));																		\
-	                                                                                                                                                                    \
-	                            (*output_Sparse_Curve)[point_Index] += weight*dense_Curve[i];																			\
-	                            weight_Accumulator += weight;																											\
-                            }																																			\
-	                        double self_weight = 0.2;																													\
-	                        (*output_Sparse_Curve)[point_Index] += self_weight*(*sparse_Input_Curve)[point_Index];														\
-	                        weight_Accumulator += self_weight;																											\
-	                                                                                                                                                                    \
-	                        (*output_Sparse_Curve)[point_Index] /= weight_Accumulator;																					\
-                        }																																				\
-// 0.2 is tunable
-
+#define Loop_Body 		{																														\
+							(*output_Sparse_Curve)[point_Index] = (*sparse_Input_Curve)[point_Index];											\
+							double weight_Accumulator = 1;																						\
+							double weight = DBL_MIN;																							\
+																																				\
+							/*  positive direction  */																							\
+							double distance = 0;;																								\
+							for(size_t i=point_Index+1; (distance<range_Limit*resolution_FWHM[point_Index] && i<sparse_Argument.size()); i++)	\
+							{																													\
+								distance = abs(sparse_Argument[i] - sparse_Argument[point_Index]);												\
+								weight = distribution(resolution_FWHM[point_Index], distance);													\
+																																				\
+								(*output_Sparse_Curve)[point_Index] += weight*(*sparse_Input_Curve)[i];											\
+								weight_Accumulator += weight;																					\
+							}																													\
+							/*  negative direction  */																							\
+							distance = 0;																										\
+							for(int i=point_Index-1; (distance<range_Limit*resolution_FWHM[point_Index] && i>=0); i--)							\
+							{																													\
+								distance = abs(sparse_Argument[i] - sparse_Argument[point_Index]);												\
+								weight = distribution(resolution_FWHM[point_Index], distance);													\
+																																				\
+								(*output_Sparse_Curve)[point_Index] += weight*(*sparse_Input_Curve)[i];											\
+								weight_Accumulator += weight;																					\
+							}																													\
+							(*output_Sparse_Curve)[point_Index] /= weight_Accumulator;															\
+						}																														\
 	// program
-	double delta = abs(dense_Argument[1]-dense_Argument[0]);
-
-	if(sparse_Argument.size()*resolution[0]>50) // tunable
+	if(sparse_Argument.size()*resolution_FWHM[0]>50) // tunable
 	{
 		Global_Variables::parallel_For(sparse_Argument.size(), reflectivity_Calc_Threads, [&](int n_Min, int n_Max, int thread_Index)
 		{
+			Q_UNUSED(thread_Index)
 			for(int point_Index=n_Min; point_Index<n_Max; ++point_Index)
 			{
 				Loop_Body
@@ -3231,106 +3249,9 @@ void Unwrapped_Reflection::wrap_Condensed_Curve(const QVector<double>& sparse_Ar
 		});
 	} else
 	{
-		for(int point_Index=0; point_Index<sparse_Argument.size(); ++point_Index)
+		for(size_t point_Index=0; point_Index<sparse_Argument.size(); ++point_Index)
 		{
 			Loop_Body
 		}
 	}
-}
-
-void Unwrapped_Reflection::condense_Curve(const QVector<double>& sparse_Argument_As_Is, const vector<double>* input_Sparse_Curve_As_Is, double real_Delta, vector<double>& output_Dense_Curve, vector<double>& output_Dense_Argument)
-{
-	// OPTIMIZE
-
-	// make argument strictly increasing if necessary
-	QVector<double> sparse_Argument = sparse_Argument_As_Is;
-	vector<double> input_Sparse_Curve = (*input_Sparse_Curve_As_Is);
-	bool was_Reversed = false;
-	if(sparse_Argument.first() >= sparse_Argument.last())
-	{
-		reverse(sparse_Argument.begin(),sparse_Argument.end());
-		reverse(input_Sparse_Curve.begin(),input_Sparse_Curve.end());
-		was_Reversed = true;
-	}
-
-	// remove non-monotomic areas
-	for(int i=0; i<sparse_Argument.size()-1; i++)
-	{
-		if(sparse_Argument[i+1]<=sparse_Argument[i])
-		{
-			sparse_Argument.remove(i+1);
-			input_Sparse_Curve.erase(input_Sparse_Curve.begin()+i+1);
-		}
-	}
-
-	const gsl_interp_type* interp_type = gsl_interp_steffen;
-	gsl_interp_accel* Acc = gsl_interp_accel_alloc();
-	gsl_spline* Spline = gsl_spline_alloc(interp_type, input_Sparse_Curve.size());
-	gsl_spline_init(Spline, sparse_Argument.data(), input_Sparse_Curve.data(), input_Sparse_Curve.size());
-
-	double minimum = min(sparse_Argument.first(),sparse_Argument.last());
-	double maximum = max(sparse_Argument.first(),sparse_Argument.last());
-	double new_Arg;
-//	Global_Variables::parallel_For(output_Dense_Curve.size(), reflectivity_Calc_Threads, [&](int n_Min, int n_Max)
-//	{
-//		for(int point_Index=n_Min; point_Index<n_Max; ++point_Index)
-	    for(uint point_Index=0; point_Index<output_Dense_Curve.size(); ++point_Index)
-		{
-			new_Arg = sparse_Argument.first()+point_Index*abs(real_Delta);
-			if(new_Arg>maximum) new_Arg = maximum; // control over machine precision
-			if(new_Arg<minimum) new_Arg = minimum; // control over machine precision
-			output_Dense_Argument[point_Index] = new_Arg;
-			output_Dense_Curve   [point_Index] = gsl_spline_eval(Spline, new_Arg, Acc);
-		}
-//	});
-
-	if(was_Reversed)
-	{
-		reverse(output_Dense_Argument.begin(),output_Dense_Argument.end());
-		reverse(output_Dense_Curve.begin(),output_Dense_Curve.end());
-	}
-
-	gsl_spline_free(Spline);
-	gsl_interp_accel_free(Acc);
-}
-
-void Unwrapped_Reflection::interpolate_Curve(int res_Points, const QVector<double> &argument, const vector<double>& resolution, const vector<double>& input_Curve, vector<double>& output_Curve)
-{
-	// OPTIMIZE
-	const gsl_interp_type* interp_type = gsl_interp_steffen;
-	gsl_interp_accel* Acc = gsl_interp_accel_alloc();
-	gsl_spline* Spline = gsl_spline_alloc(interp_type, input_Curve.size());
-
-	gsl_spline_init(Spline, argument.data(), input_Curve.data(), input_Curve.size());
-
-	double minimum = min(argument.first(),argument.last());
-	double maximum = max(argument.first(),argument.last());
-
-//	Global_Variables::parallel_For(input_Curve.size(), reflectivity_Calc_Threads, [&](int n_Min, int n_Max)
-//	{
-	    for(uint point_Index=0; point_Index<input_Curve.size(); ++point_Index)
-//		for(int point_Index=n_Min; point_Index<n_Max; ++point_Index)
-		{
-			double delta = 2*resolution[point_Index]/res_Points; // spectral resolution is not constant in absolute values
-
-			output_Curve[point_Index] = 0;
-			double weight, x;
-			double weight_Accumulator = 0;
-			for(int i=-res_Points; i<res_Points; ++i)
-			{
-				x = i*delta;
-				if((argument[point_Index]+x>=minimum)&&
-				   (argument[point_Index]+x<=maximum))
-				{
-					weight = exp(-pow(x/(resolution[point_Index]/2),2));
-					weight_Accumulator += weight;
-					output_Curve[point_Index] += weight*gsl_spline_eval(Spline, argument[point_Index]+i*delta, Acc);
-				}
-			}
-			output_Curve[point_Index] /= weight_Accumulator;
-		}
-//	});
-
-	gsl_spline_free(Spline);
-	gsl_interp_accel_free(Acc);
 }

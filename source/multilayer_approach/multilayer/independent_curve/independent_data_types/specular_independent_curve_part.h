@@ -30,6 +30,7 @@ public:
 	void refresh_At_Fixed_Value();
 
 	void disable_Crystal_Detector_Type();
+	void disable_Sampling();
 
 	void connecting();
 

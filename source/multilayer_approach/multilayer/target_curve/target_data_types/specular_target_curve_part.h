@@ -31,6 +31,7 @@ public:
 	void refresh_Value_Type();
 
 	void disable_Crystal_Detector_Type();
+	void disable_Sampling();
 	void refresh_Plot_Axes_Labels();
 
 	void connecting();

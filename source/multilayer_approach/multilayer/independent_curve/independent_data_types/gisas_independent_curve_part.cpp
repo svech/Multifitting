@@ -302,7 +302,7 @@ void GISAS_Independent_Curve_Part::create_Beam_GroupBox()
 
 		spectral_Width_SpinBox = new MyDoubleSpinBox;
 			spectral_Width_SpinBox->setAccelerated(true);
-			spectral_Width_SpinBox->setRange(0, MAX_DOUBLE);
+			spectral_Width_SpinBox->setRange(0, 1);
 			spectral_Width_SpinBox->setDecimals(7);
 			spectral_Width_SpinBox->setValue(independent_Curve->measurement.spectral_Distribution.FWHM_distribution);
 			spectral_Width_SpinBox->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
