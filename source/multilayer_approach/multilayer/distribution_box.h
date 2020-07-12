@@ -9,7 +9,7 @@ class Distribution_Box : public QWidget
 {
 	Q_OBJECT
 public:
-	explicit Distribution_Box(Distribution& distribution, QString pre_Name, QString symbolic_Name, MyDoubleSpinBox* related_SpinBox, QString angular_Units = "", bool totally_Forbid_Sampling = false, QWidget *parent = nullptr);
+	explicit Distribution_Box(QString measurement_Type, Distribution& distribution, QString pre_Name, QString symbolic_Name, MyDoubleSpinBox* related_SpinBox, QString angular_Units = "", bool totally_Forbid_Sampling = false, QString phi = "", QWidget *parent = nullptr);
 
 	void create_Main_Layout();
 	void create_Plot();
@@ -25,6 +25,8 @@ public:
 	MyDoubleSpinBox* related_SpinBox;
 	QString angular_Units;
 	bool totally_Forbid_Sampling;
+	QString measurement_Type;
+	QString phi;
 
 	QVBoxLayout* main_Layout;
 

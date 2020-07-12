@@ -2,13 +2,15 @@
 #include "multilayer_approach/multilayer_approach.h"
 class Multilayer_Approach;
 
-Distribution_Box::Distribution_Box(Distribution& distribution, QString pre_Name, QString symbolic_Name, MyDoubleSpinBox* related_SpinBox, QString angular_Units, bool totally_Forbid_Sampling, QWidget *parent) :
+Distribution_Box::Distribution_Box(QString measurement_Type, Distribution& distribution, QString pre_Name, QString symbolic_Name, MyDoubleSpinBox* related_SpinBox, QString angular_Units, bool totally_Forbid_Sampling, QString phi, QWidget *parent) :
 	distribution(distribution),
 	pre_Name(pre_Name),
 	symbolic_Name(symbolic_Name),
 	related_SpinBox(related_SpinBox),
 	angular_Units(angular_Units),
 	totally_Forbid_Sampling(totally_Forbid_Sampling),
+	measurement_Type(measurement_Type),
+	phi(phi),
 	QWidget(parent)
 {
 	create_Main_Layout();
@@ -115,9 +117,11 @@ void Distribution_Box::create_Box()
 	groupbox_Layout->addWidget(distribution_Label,1,0,Qt::AlignLeft);
 
 	distribution_ComboBox = new QComboBox;
-		distribution_ComboBox->addItems(distributions);
+		if(measurement_Type != measurement_Types[GISAS_Map]) distribution_ComboBox->addItems(distributions);
+		else												 distribution_ComboBox->addItems(distributions_No_Lorentz);
 		distribution_ComboBox->setCurrentText(distribution.distribution_Function);
 		distribution_ComboBox->setFixedWidth(DISTRIBUTION_BOX_FIELD_WIDTH);
+		if(phi == "phi") distribution_ComboBox->setDisabled(true);
 	groupbox_Layout->addWidget(distribution_ComboBox,1,1,Qt::AlignLeft);
 
 	// - - - - - - - - - - - - - - - - - - - - - - - - - - - -

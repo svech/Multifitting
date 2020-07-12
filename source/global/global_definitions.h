@@ -516,7 +516,7 @@ struct Parameter				{double value; Independent independent; Coupled coupled; Con
 									indicator.id = Global_Definitions::generate_Id();	// create unique id
 								 }};
 struct Distribution             { double FWHM_distribution = 0;
-								  QString distribution_Function = "Lorentz"; // see distributions in global_variables
+								  QString distribution_Function = "Gaussian"; // see distributions in global_variables
 								  double coverage = 2; // in units of FWHM
 								  bool use_Sampling = false;
 								  int number_of_Samples = 1;
@@ -762,7 +762,7 @@ struct Calculated_Values	  {	// reflectance
 								// GISAS
 //								vector<vector<double>> GISAS_Map_s;				// to expensive to handle
 //								vector<vector<double>> GISAS_Map_p;				// to expensive to handle
-//								vector<vector<double>> GISAS_Map;				// to expensive to handle
+								vector<vector<double>> GISAS_Map;				// for preliminary calculations
 								vector<vector<double>> GISAS_Instrumental;
 
 

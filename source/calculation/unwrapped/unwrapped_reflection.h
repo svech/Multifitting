@@ -245,6 +245,7 @@ public:
 	void calc_Specular();
 
 	void wrap_Curve(const vector<double>& sparse_Argument, const vector<double>* sparse_Input_Curve, const vector<double>& resolution_FWHM, vector<double>* output_Sparse_Curve, QString distribution_Function);
+	void wrap_2D_Curve(const vector<double>& resolution_FWHM, QString distribution_Function, QString theta_Phi);
 };
 
 #endif // UNWRAPPED_REFLECTION_H

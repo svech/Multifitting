@@ -46,7 +46,7 @@ void Distribution_Editor::create_Main_Layout()
 		totally_Forbid_Sampling = true;
 	}
 
-	Distribution_Box* spectral_Distribution_Box = new Distribution_Box(measurement.spectral_Distribution, pre_Name, symbolic_Name, related_Spectral_SpinBox, spectral_Units, totally_Forbid_Sampling);
+	Distribution_Box* spectral_Distribution_Box = new Distribution_Box(measurement.measurement_Type, measurement.spectral_Distribution, pre_Name, symbolic_Name, related_Spectral_SpinBox, spectral_Units, totally_Forbid_Sampling);
 		hor_Layout->addWidget(spectral_Distribution_Box);
 
 	// ---------------------------------------------
@@ -60,7 +60,7 @@ void Distribution_Editor::create_Main_Layout()
 	{
 		totally_Forbid_Sampling = true;
 	}
-	Distribution_Box* theta_0_Distribution_Box = new Distribution_Box(measurement.beam_Theta_0_Distribution, pre_Name, symbolic_Name, related_Theta_0_SpinBox, angular_Units, totally_Forbid_Sampling);
+	Distribution_Box* theta_0_Distribution_Box = new Distribution_Box(measurement.measurement_Type, measurement.beam_Theta_0_Distribution, pre_Name, symbolic_Name, related_Theta_0_SpinBox, angular_Units, totally_Forbid_Sampling);
 	hor_Layout->addWidget(theta_0_Distribution_Box);
 
 	// ---------------------------------------------
@@ -70,7 +70,7 @@ void Distribution_Editor::create_Main_Layout()
 	{
 		pre_Name = "Angular divergence, FWHM, ";
 		symbolic_Name = Delta_Big_Sym + Phi_Sym + Zero_Subscript_Sym;
-		Distribution_Box* phi_0_Distribution_Box = new Distribution_Box(measurement.beam_Phi_0_Distribution, pre_Name, symbolic_Name, related_Phi_0_SpinBox, angular_Units, true);
+		Distribution_Box* phi_0_Distribution_Box = new Distribution_Box(measurement.measurement_Type, measurement.beam_Phi_0_Distribution, pre_Name, symbolic_Name, related_Phi_0_SpinBox, angular_Units, true, "phi");
 			hor_Layout->addWidget(phi_0_Distribution_Box);
 	}
 

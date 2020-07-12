@@ -282,7 +282,8 @@ void Common_Part::create_2D_Detector_GroupBox()
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 		resolution_Function_ComboBox = new QComboBox;
-			resolution_Function_ComboBox->addItems(distributions);
+//			resolution_Function_ComboBox->addItems(distributions);
+			resolution_Function_ComboBox->addItems(distributions_No_Lorentz);
 			resolution_Function_ComboBox->setCurrentText(measurement.detector_2D.detector_Theta_Resolution.distribution_Function); // detector_Theta_Resolution.distribution_Function = detector_Phi_Resolution.distribution_Function
 			resolution_Function_ComboBox->setFixedWidth(DISTRIBUTION_BOX_FIELD_WIDTH);
 		spherical_Layout->addWidget(resolution_Function_ComboBox,0,4,2,1,Qt::AlignLeft);
