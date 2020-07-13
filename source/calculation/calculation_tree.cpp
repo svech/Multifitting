@@ -532,6 +532,31 @@ template void Calculation_Tree::calculate_1_Kind_Preliminary<Independent_Curve>(
 template void Calculation_Tree::calculate_1_Kind_Preliminary<Target_Curve>	   (Data_Element<Target_Curve>&);
 
 template<typename Type>
+void Calculation_Tree::calculate_1_Curve(Data_Element<Type>& data_Element)
+{
+	if(data_Element.curve_Class == INDEPENDENT)
+	{
+		Independent_Curve* independent_Curve = qobject_cast<Independent_Curve*>(data_Element.the_Class);
+		calculate_1_Kind(data_Element, SPECULAR_MODE);
+		if(independent_Curve->measurement.measurement_Type != measurement_Types[Specular_Scan])
+		{
+			calculate_1_Kind(data_Element, SCATTERED_MODE);
+		}
+	}
+	if(data_Element.curve_Class == TARGET)
+	{
+		Target_Curve* target_Curve = qobject_cast<Target_Curve*>(data_Element.the_Class);
+		calculate_1_Kind(data_Element, SPECULAR_MODE);
+		if(target_Curve->measurement.measurement_Type != measurement_Types[Specular_Scan])
+		{
+			calculate_1_Kind(data_Element, SCATTERED_MODE);
+		}
+	}
+}
+template void Calculation_Tree::calculate_1_Curve<Independent_Curve>(Data_Element<Independent_Curve>&);
+template void Calculation_Tree::calculate_1_Curve<Target_Curve>	    (Data_Element<Target_Curve>&);
+
+template<typename Type>
 void Calculation_Tree::calculate_1_Kind(Data_Element<Type>& data_Element, QString mode)
 {
 	auto start = std::chrono::system_clock::now();
@@ -697,3 +722,4 @@ void Calculation_Tree::print_Tree(const tree<Node>::iterator& parent, tree<Node>
 		}
 	}
 }
+

@@ -139,7 +139,7 @@ void Distribution_Box::create_Box()
 
 	coverage_SpinBox = new MyDoubleSpinBox(this,false);
 		coverage_SpinBox->setAccelerated(true);
-		coverage_SpinBox->setRange(0.1, 15);
+		coverage_SpinBox->setRange(0.1, 50);
 		coverage_SpinBox->setDecimals(3);
 		coverage_SpinBox->setValue(distribution.coverage);
 		coverage_SpinBox->setSingleStep(0.1);
@@ -213,13 +213,7 @@ void Distribution_Box::replot()
 		QVector<double> y_Bars(distribution.number_of_Samples);
 		if(distribution.number_of_Samples>1 && FWHM>DBL_EPSILON)
 		{
-			double delta_Bars = (distribution.coverage*FWHM)/(distribution.number_of_Samples-1);
-			for (int i=0; i<distribution.number_of_Samples; ++i)
-			{
-				double x = -distribution.coverage*FWHM/2 + delta_Bars*i;
-				x_Bars[i] = x;
-				y_Bars[i] = Global_Variables::distribution_Function(distribution.distribution_Function, FWHM, x);
-			}
+			Global_Variables::distribution_Sampling(distribution, x_Bars, y_Bars);
 		}
 		else
 		{

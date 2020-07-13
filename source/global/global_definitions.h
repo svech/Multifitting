@@ -728,7 +728,7 @@ struct Different_Norm_Layer
 };
 
 // calculated functions for plotting WITHOUT SAVING
-struct Calculated_Values	  {	// reflectance
+struct Calculated_Values	  { // reflectance
 								vector<double> Phi_R_s;
 								vector<double> Phi_R_p;
 								vector<double> R_s;

@@ -39,7 +39,17 @@ public:
 	void increase_Mesh_density(Data_Element<Target_Curve>& target);
 	void decrease_Mesh_density(Data_Element<Target_Curve>& target, bool fit_Mode = false);
 	void preliminary_Calculation();
+	template <typename Type>
+	void calculation_With_Sampling(Calculation_Tree* calculation_Tree, Data_Element<Type>& data_Element);
+	template <typename Type>
+	void calculation_With_Sampling_1_Case(Calculation_Tree* calculation_Tree, Data_Element<Type>& data_Element, size_t num_Points, vector<double>* calculated_Curve, QString spectral_Angular, bool R_and_T = false);
 	void single_Calculation(bool print_And_Verbose = true);
+
+	void wrap_Curve(const vector<double>& sparse_Argument, const vector<double>* sparse_Input_Curve, const vector<double>& resolution_FWHM, vector<double>* output_Sparse_Curve, QString distribution_Function);
+	void wrap_2D_Curve(const Data& measurement, Calculated_Values& calculated_Values, const vector<double>& resolution_FWHM, QString distribution_Function, QString theta_Phi);
+	template <typename Type>
+	void postprocessing(Data_Element<Type>& data_Element);
+
 	void fitting_and_Confidence();
 	void save_Init_State_Trees();
 	void load_Init_State_Trees();

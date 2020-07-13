@@ -1821,6 +1821,18 @@ double Global_Variables::beam_Profile(double x, double FWHM, double smoothing)
 		}
 		if(x >=  limit) return 0;
 	}
+	return 0;
+}
+
+void Global_Variables::distribution_Sampling(Distribution distribution, QVector<double>& positions, QVector<double>& heights)
+{
+	double delta_Bars = (distribution.coverage*distribution.FWHM_distribution)/(distribution.number_of_Samples-1);
+	for (int i=0; i<distribution.number_of_Samples; ++i)
+	{
+		double x = -distribution.coverage*distribution.FWHM_distribution/2 + delta_Bars*i;
+		positions[i] = x;
+		heights[i] = distribution_Function(distribution.distribution_Function, distribution.FWHM_distribution, x);
+	}
 }
 
 double Global_Variables::distribution_Function(QString function, double FWHM, double x)
@@ -1835,7 +1847,7 @@ double Global_Variables::distribution_Function(QString function, double FWHM, do
 double Global_Variables::distribution_Gate(double FWHM, double x)
 {
 	if(-FWHM/2-DBL_EPSILON<= x && x <= FWHM/2+DBL_EPSILON) return 1;
-	else							return 0;
+	else												   return 0;
 }
 
 double Global_Variables::distribution_Cosine(double FWHM, double x)

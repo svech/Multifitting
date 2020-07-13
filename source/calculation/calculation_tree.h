@@ -62,6 +62,8 @@ public:
 
 	template <typename Type>
 	void calculate_1_Kind(Data_Element<Type>& data_Element, QString mode = SPECULAR_MODE);
+	template <typename Type>
+	void calculate_1_Curve(Data_Element<Type>& data_Element);
 
 	void calculate_Intermediate_Values_1_Tree(vector<Node*>& flat_Calc_Tree, vector<Node*>& short_Flat_Calc_Tree, const Data& measurement, QString mode);
 	void clear_Spline_1_Tree(vector<Node*>& short_Flat_Calc_Tree, QString mode);

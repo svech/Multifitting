@@ -251,6 +251,260 @@ void Main_Calculation_Module::preliminary_Calculation()
 	}
 }
 
+template <typename Type>
+void Main_Calculation_Module::calculation_With_Sampling(Calculation_Tree* calculation_Tree, Data_Element<Type>& data_Element)
+{
+	Data& measurement = data_Element.the_Class->measurement;
+	Calculated_Values& calculated_Values = data_Element.the_Class->calculated_Values;
+	vector<double>* calculated_Curve = nullptr;
+
+	/// Specular_Scan
+	if( measurement.measurement_Type == measurement_Types[Specular_Scan] )
+	{
+		// single calculation without any distribution
+		bool state_Absorptance = data_Element.calc_Functions.check_Absorptance;
+		bool state_Field = data_Element.calc_Functions.check_Field;
+		bool state_Joule = data_Element.calc_Functions.check_Joule;
+		if( state_Absorptance || state_Field || state_Joule )
+		{
+			calculation_Tree->calculate_1_Curve(data_Element);
+		}
+		data_Element.calc_Functions.check_Absorptance = false;
+		data_Element.calc_Functions.check_Field = false;
+		data_Element.calc_Functions.check_Joule = false;
+
+		if(data_Element.calc_Functions.check_Reflectance || data_Element.calc_Functions.check_Transmittance)
+		{
+			bool R_and_T = false;
+			if(data_Element.calc_Functions.check_Reflectance && data_Element.calc_Functions.check_Transmittance)
+			{
+				R_and_T = true;
+			} else
+			{
+				if( data_Element.calc_Functions.check_Reflectance)	 calculated_Curve = &calculated_Values.R;
+				if( data_Element.calc_Functions.check_Transmittance) calculated_Curve = &calculated_Values.T;
+			}
+
+			if( measurement.argument_Type == argument_Types[Beam_Grazing_Angle] )
+			{
+				// spectral distribution
+				calculation_With_Sampling_1_Case(calculation_Tree, data_Element, measurement.beam_Theta_0_Angle_Vec.size(), calculated_Curve, "spectral", R_and_T);
+			}
+			if( measurement.argument_Type  == argument_Types[Wavelength_Energy] )
+			{
+				// theta_0 distribution
+				calculation_With_Sampling_1_Case(calculation_Tree, data_Element, measurement.lambda_Vec.size(), calculated_Curve, "angular", R_and_T);
+			}
+		}
+		data_Element.calc_Functions.check_Absorptance = state_Absorptance;
+		data_Element.calc_Functions.check_Field = state_Field;
+		data_Element.calc_Functions.check_Joule = state_Joule;
+	}
+	/// Detector_Scan
+	/// Rocking_Curve
+	/// Offset_Scan
+	if( measurement.measurement_Type == measurement_Types[Detector_Scan] ||
+		measurement.measurement_Type == measurement_Types[Offset_Scan]   ||
+		measurement.measurement_Type == measurement_Types[Rocking_Curve] )
+	{
+		//	if( data_Element.calc_Functions.check_Scattering)	calculated_Curve = &calculated_Values.S;
+
+		//	if( measurement.measurement_Type == measurement_Types[Detector_Scan] ||
+		//	    measurement.measurement_Type == measurement_Types[GISAS_Map] )
+		//	{
+		//		if_Single_Beam_Value = true;
+		//		if(spec_Scat_mode == SPECULAR_MODE) 	num_Points = 1;
+		//		if(spec_Scat_mode == SCATTERED_MODE) 	num_Points = measurement.detector_Theta_Angle_Vec.size();
+		//	}
+		//	if( measurement.measurement_Type == measurement_Types[Rocking_Curve] ||
+		//	    measurement.measurement_Type == measurement_Types[Offset_Scan] )
+		//	{
+		//		if(spec_Scat_mode == SPECULAR_MODE) 	num_Points = measurement.beam_Theta_0_Angle_Vec.size();
+		//		if(spec_Scat_mode == SCATTERED_MODE) 	num_Points = measurement.beam_Theta_0_Angle_Vec.size();
+		//	}
+
+//		// spectral distribution
+//		if(measurement.spectral_Distribution.FWHM_distribution>DBL_EPSILON && !measurement.spectral_Distribution.use_Sampling)	{
+//			wrap_Curve(measurement.detector_Theta_Angle_Vec, calculated_Curve, measurement.theta_0_Resolution_From_Spectral_Vec, working_Curve, measurement.spectral_Distribution.distribution_Function);
+//			*calculated_Curve = *working_Curve;
+//		}
+//		// theta_0 distribution
+//		if((measurement.beam_Theta_0_Distribution.FWHM_distribution>DBL_EPSILON || abs(measurement.sample_Geometry.curvature)>DBL_EPSILON) && !measurement.beam_Theta_0_Distribution.use_Sampling)		{
+//			wrap_Curve(measurement.detector_Theta_Angle_Vec, calculated_Curve, measurement.theta_0_Resolution_Vec, working_Curve, measurement.beam_Theta_0_Distribution.distribution_Function);
+//			*calculated_Curve = *working_Curve;
+//		}
+	}
+//	/// GISAS_Map
+//	if( measurement.measurement_Type == measurement_Types[GISAS_Map] )
+//	{
+//		bool recalc = false;
+//		// spectral distribution
+//		if(measurement.spectral_Distribution.FWHM_distribution>DBL_EPSILON && !measurement.spectral_Distribution.use_Sampling)	{
+//			wrap_2D_Curve(measurement, calculated_Values, measurement.theta_0_Resolution_From_Spectral_Vec, measurement.spectral_Distribution.distribution_Function, "theta");
+//			calculated_Values.GISAS_Map = calculated_Values.GISAS_Instrumental;
+//			recalc = true;
+//		}
+//		// theta_0 distribution
+//		if((measurement.beam_Theta_0_Distribution.FWHM_distribution>DBL_EPSILON || abs(measurement.sample_Geometry.curvature)>DBL_EPSILON) && !measurement.beam_Theta_0_Distribution.use_Sampling)		{
+//			wrap_2D_Curve(measurement, calculated_Values, measurement.theta_0_Resolution_Vec, measurement.beam_Theta_0_Distribution.distribution_Function, "theta");
+//			calculated_Values.GISAS_Map = calculated_Values.GISAS_Instrumental;
+//			recalc = true;
+//		}
+//		if(!recalc) calculated_Values.GISAS_Instrumental = calculated_Values.GISAS_Map;
+//	}
+}
+template void Main_Calculation_Module::calculation_With_Sampling<Independent_Curve>(Calculation_Tree*, Data_Element<Independent_Curve>&);
+template void Main_Calculation_Module::calculation_With_Sampling<Target_Curve>	   (Calculation_Tree*, Data_Element<Target_Curve>&);
+
+
+template<typename Type>
+void Main_Calculation_Module::calculation_With_Sampling_1_Case(Calculation_Tree* calculation_Tree, Data_Element<Type>& data_Element, size_t num_Points, vector<double>* calculated_Curve, QString spectral_Angular, bool R_and_T)
+{
+	Calculated_Values& calculated_Values = data_Element.the_Class->calculated_Values;
+	Data& measurement = data_Element.the_Class->measurement;
+
+	double* param_Value;
+	Distribution distribution;
+	if(spectral_Angular == "spectral")
+	{
+		param_Value = &measurement.wavelength.value;
+		distribution = measurement.spectral_Distribution;
+	} else // angular
+	{
+		param_Value = &measurement.beam_Theta_0_Angle.value;
+		distribution = measurement.beam_Theta_0_Distribution;
+	}
+
+
+	// anyway
+	QVector<double> sampled_Position_Vec(1, *param_Value);
+	QVector<double> sampled_Weight_Vec(1, 1.);
+
+	// if sampled
+	if( distribution.use_Sampling &&
+		distribution.FWHM_distribution>DBL_EPSILON &&
+		distribution.number_of_Samples>1)
+	{
+		sampled_Position_Vec.resize(distribution.number_of_Samples);
+		sampled_Weight_Vec  .resize(distribution.number_of_Samples);
+		Global_Variables::distribution_Sampling(distribution, sampled_Position_Vec, sampled_Weight_Vec);
+
+		// go to absolute values and remove out of range points
+		if(spectral_Angular == "spectral")
+		{
+			for(int sampling_Point = 0; sampling_Point<distribution.number_of_Samples; sampling_Point++)
+			{
+				sampled_Position_Vec[sampling_Point] = (*param_Value)*(1+sampled_Position_Vec[sampling_Point]);
+				if(sampled_Position_Vec[sampling_Point] <= DBL_EPSILON)
+				{
+					sampled_Position_Vec[sampling_Point] = DBL_EPSILON;
+					sampled_Weight_Vec  [sampling_Point] = 0;
+				}
+			}
+		} else // angular
+		{
+			for(int sampling_Point = 0; sampling_Point<distribution.number_of_Samples; sampling_Point++)
+			{
+				sampled_Position_Vec[sampling_Point] = (*param_Value)+sampled_Position_Vec[sampling_Point];
+				if(sampled_Position_Vec[sampling_Point] < DBL_EPSILON)
+				{
+					sampled_Position_Vec[sampling_Point] = DBL_EPSILON;
+					sampled_Weight_Vec  [sampling_Point] = 0;
+				}
+				if(sampled_Position_Vec[sampling_Point] > 90)
+				{
+					sampled_Position_Vec[sampling_Point] = 180-sampled_Position_Vec[sampling_Point];
+				}
+				if(sampled_Position_Vec[sampling_Point] >= 180)
+				{
+					sampled_Position_Vec[sampling_Point] = DBL_EPSILON;
+					sampled_Weight_Vec  [sampling_Point] = 0;
+				}
+			}
+		}
+	}
+
+	// main part
+	if(sampled_Position_Vec.size()>1)
+	{
+		// initialization of accumulator
+		vector<double> temporary_State(num_Points);
+		vector<double> temporary_State_T(num_Points);// special case
+
+
+		double initial_Parameter = *param_Value;
+		double weight = 0;
+		for(int sampling_Point = 0; sampling_Point<sampled_Position_Vec.size(); sampling_Point++)
+		{
+			*param_Value = sampled_Position_Vec[sampling_Point];
+			if(data_Element.curve_Class == INDEPENDENT)
+			{
+				Independent_Curve* independent_Curve = qobject_cast<Independent_Curve*>(data_Element.the_Class);
+				independent_Curve->calc_Independent_cos2_k();
+			}
+			if(data_Element.curve_Class == TARGET)
+			{
+				Target_Curve* target_Curve = qobject_cast<Target_Curve*>(data_Element.the_Class);
+				target_Curve->calc_Measured_cos2_k();
+			}
+			///---------------------------------------------------------------
+			calculation_Tree->calculate_1_Curve(data_Element);
+			///---------------------------------------------------------------
+			weight += sampled_Weight_Vec[sampling_Point];
+			if(R_and_T)
+			{
+				for(size_t point_Index = 0; point_Index<num_Points; point_Index++)
+				{
+					temporary_State  [point_Index] += sampled_Weight_Vec[sampling_Point]*calculated_Values.R[point_Index];
+					temporary_State_T[point_Index] += sampled_Weight_Vec[sampling_Point]*calculated_Values.T[point_Index];
+				}
+			} else
+			{
+				for(size_t point_Index = 0; point_Index<num_Points; point_Index++)
+				{
+					temporary_State[point_Index] += sampled_Weight_Vec[sampling_Point]*(*calculated_Curve)[point_Index];
+				}
+			}
+		}
+		if(R_and_T)
+		{
+			for(size_t point_Index = 0; point_Index<num_Points; point_Index++)
+			{
+				temporary_State  [point_Index] /= weight;
+				temporary_State_T[point_Index] /= weight;
+			}
+			calculated_Values.R = temporary_State;
+			calculated_Values.T = temporary_State;
+		} else
+		{
+			for(size_t point_Index = 0; point_Index<num_Points; point_Index++)
+			{
+				temporary_State[point_Index] /= weight;
+			}
+			(*calculated_Curve) = temporary_State;
+		}
+
+		*param_Value = initial_Parameter;
+		if(data_Element.curve_Class == INDEPENDENT)
+		{
+			Independent_Curve* independent_Curve = qobject_cast<Independent_Curve*>(data_Element.the_Class);
+			independent_Curve->calc_Independent_cos2_k();
+		}
+		if(data_Element.curve_Class == TARGET)
+		{
+			Target_Curve* target_Curve = qobject_cast<Target_Curve*>(data_Element.the_Class);
+			target_Curve->calc_Measured_cos2_k();
+		}
+	} else
+	{
+		///---------------------------------------------------------------
+		calculation_Tree->calculate_1_Curve(data_Element);
+		///---------------------------------------------------------------
+	}
+}
+template void Main_Calculation_Module::calculation_With_Sampling_1_Case<Independent_Curve>(Calculation_Tree*, Data_Element<Independent_Curve>&, size_t, vector<double>*, QString, bool);
+template void Main_Calculation_Module::calculation_With_Sampling_1_Case<Target_Curve>	  (Calculation_Tree*, Data_Element<Target_Curve>&,      size_t, vector<double>*, QString, bool);
+
 void Main_Calculation_Module::single_Calculation(bool print_And_Verbose)
 {
 	if(calc_Mode!=CALCULATION)
@@ -269,26 +523,17 @@ void Main_Calculation_Module::single_Calculation(bool print_And_Verbose)
 	{
 		for(Data_Element<Independent_Curve>& independent_Data_Element : calculation_Trees[tab_Index]->independent)
 		{
-			Independent_Curve* independent_Curve = qobject_cast<Independent_Curve*>(independent_Data_Element.the_Class);
-			calculation_Trees[tab_Index]->calculate_1_Kind(independent_Data_Element, SPECULAR_MODE);
-			if(independent_Curve->measurement.measurement_Type != measurement_Types[Specular_Scan])
-			{
-				calculation_Trees[tab_Index]->calculate_1_Kind(independent_Data_Element, SCATTERED_MODE);
-			}
+			calculation_With_Sampling(calculation_Trees[tab_Index], independent_Data_Element);
 			qInfo() << endl << endl;
 			if(lambda_Out_Of_Range) return;
+			postprocessing(independent_Data_Element);
 		}
 		for(Data_Element<Target_Curve>& target_Data_Element : calculation_Trees[tab_Index]->target)
 		{
-			Target_Curve* target_Curve = qobject_cast<Target_Curve*>(target_Data_Element.the_Class);
-			calculation_Trees[tab_Index]->calculate_1_Kind(target_Data_Element, SPECULAR_MODE);
-			if(target_Curve->measurement.measurement_Type != measurement_Types[Specular_Scan])
-			{
-				calculation_Trees[tab_Index]->calculate_1_Kind(target_Data_Element, SCATTERED_MODE);
-			}
-			// TODO
+			calculation_With_Sampling(calculation_Trees[tab_Index], target_Data_Element);
 //			decrease_Mesh_density(target_Data_Element);
 			if(lambda_Out_Of_Range) return;
+			postprocessing(target_Data_Element);
 		}
 	}
 	if(print_And_Verbose)
@@ -307,6 +552,320 @@ void Main_Calculation_Module::single_Calculation(bool print_And_Verbose)
 		print_Calculated_To_File();
 	}
 }
+
+void Main_Calculation_Module::wrap_Curve(const vector<double>& sparse_Argument,
+										 const vector<double>* sparse_Input_Curve,
+										 const vector<double>& resolution_FWHM,
+										 vector<double>* output_Sparse_Curve,
+										 QString distribution_Function)
+{
+	double range_Limit = 3;
+	double(*distribution)(double, double);
+	if(distribution_Function == distributions[Gate])	{distribution = Global_Variables::distribution_Gate;	range_Limit = 0.5; } else
+	if(distribution_Function == distributions[Cosine])	{distribution = Global_Variables::distribution_Cosine;	range_Limit = 1;   } else
+	if(distribution_Function == distributions[Gaussian]){distribution = Global_Variables::distribution_Gaussian;range_Limit = 2;   } else
+	if(distribution_Function == distributions[Lorentz])	{distribution = Global_Variables::distribution_Lorentz;	range_Limit = MAX_DOUBLE;} else return;
+
+	auto f = [&](double point_Index)
+	{
+		(*output_Sparse_Curve)[point_Index] = (*sparse_Input_Curve)[point_Index];
+		double weight_Accumulator = 1;
+		double weight = DBL_MIN;
+
+		/*  positive direction  */
+		double distance = 0;;
+		for(size_t i=point_Index+1; (distance<range_Limit*resolution_FWHM[point_Index] && i<sparse_Argument.size()); i++)
+		{
+			distance = abs(sparse_Argument[i] - sparse_Argument[point_Index]);
+			weight = distribution(resolution_FWHM[point_Index], distance);
+
+			(*output_Sparse_Curve)[point_Index] += weight*(*sparse_Input_Curve)[i];
+			weight_Accumulator += weight;
+		}
+		/*  negative direction  */
+		distance = 0;
+		for(int i=point_Index-1; (distance<range_Limit*resolution_FWHM[point_Index] && i>=0); i--)
+		{
+			distance = abs(sparse_Argument[i] - sparse_Argument[point_Index]);
+			weight = distribution(resolution_FWHM[point_Index], distance);
+
+			(*output_Sparse_Curve)[point_Index] += weight*(*sparse_Input_Curve)[i];
+			weight_Accumulator += weight;
+		}
+		(*output_Sparse_Curve)[point_Index] /= weight_Accumulator;
+	};
+
+	// program
+	if(sparse_Argument.size()*resolution_FWHM[0]>50) // tunable
+	{
+		Global_Variables::parallel_For(sparse_Argument.size(), reflectivity_Calc_Threads, [&](int n_Min, int n_Max, int thread_Index)
+		{
+			Q_UNUSED(thread_Index)
+			for(int point_Index=n_Min; point_Index<n_Max; ++point_Index)
+			{
+				f(point_Index);
+			}
+		});
+	} else
+	{
+		for(size_t point_Index=0; point_Index<sparse_Argument.size(); ++point_Index)
+		{
+			f(point_Index);
+		}
+	}
+}
+
+void Main_Calculation_Module::wrap_2D_Curve(const Data& measurement, Calculated_Values& calculated_Values, const vector<double>& resolution_FWHM, QString distribution_Function, QString theta_Phi)
+{
+	double range_Limit = 3;
+	double(*distribution)(double, double);
+	if(distribution_Function == distributions[Gate])	{distribution = Global_Variables::distribution_Gate;	range_Limit = 0.5; } else
+	if(distribution_Function == distributions[Cosine])  {distribution = Global_Variables::distribution_Cosine;  range_Limit = 1;   } else
+	if(distribution_Function == distributions[Gaussian]){distribution = Global_Variables::distribution_Gaussian;range_Limit = 2;   } else
+	if(distribution_Function == distributions[Lorentz]) {distribution = Global_Variables::distribution_Lorentz; range_Limit = MAX_DOUBLE;} else return;
+
+	vector<vector<double>>& calculated = calculated_Values.GISAS_Map;
+	vector<vector<double>>& wrapped = calculated_Values.GISAS_Instrumental;
+
+	size_t num_Points = calculated.front().size();
+	size_t phi_Points = calculated.size();
+
+	auto f_Theta = [&](double theta_Index, double phi_Index)
+	{
+		wrapped[phi_Index][theta_Index] = calculated[phi_Index][theta_Index];
+		double weight_Accumulator = 1;
+		double weight = DBL_MIN;
+
+		/*  positive theta direction  */
+		double theta_Distance = 0;
+		for(size_t t=theta_Index+1; (theta_Distance<range_Limit*resolution_FWHM[theta_Index] && t<num_Points); t++)
+		{
+			theta_Distance = abs(measurement.detector_Theta_Angle_Vec[t] - measurement.detector_Theta_Angle_Vec[theta_Index]);
+			weight = distribution(resolution_FWHM[theta_Index], theta_Distance);
+
+			wrapped[phi_Index][theta_Index] += weight*calculated[phi_Index][t];
+			weight_Accumulator += weight;
+		}
+		/*  negative theta direction  */
+		theta_Distance = 0;
+		for(int t=theta_Index-1; (theta_Distance<range_Limit*resolution_FWHM[theta_Index] && t>=0); t--)
+		{
+			theta_Distance = abs(measurement.detector_Theta_Angle_Vec[t] - measurement.detector_Theta_Angle_Vec[theta_Index]);
+			weight = distribution(resolution_FWHM[theta_Index], theta_Distance);
+
+			wrapped[phi_Index][theta_Index] += weight*calculated[phi_Index][t];
+			weight_Accumulator += weight;
+		}
+		wrapped[phi_Index][theta_Index] /= weight_Accumulator;
+	};
+
+	auto f_Phi = [&](double theta_Index, double phi_Index)
+	{
+		wrapped[phi_Index][theta_Index] = calculated[phi_Index][theta_Index];
+		double weight_Accumulator = 1;
+		double weight = DBL_MIN;
+
+		/*  positive phi direction  */
+		double phi_Distance = 0;
+		for(size_t p=phi_Index+1; (phi_Distance<range_Limit*resolution_FWHM[phi_Index] && p<phi_Points); p++)
+		{
+			phi_Distance = abs(measurement.detector_Phi_Angle_Vec[p] - measurement.detector_Phi_Angle_Vec[phi_Index]);
+			weight = distribution(resolution_FWHM[phi_Index], phi_Distance);
+
+			wrapped[phi_Index][theta_Index] += weight*calculated[p][theta_Index];
+			weight_Accumulator += weight;
+		}
+		/*  negative phi direction  */
+		phi_Distance = 0;
+		for(int p=phi_Index-1; (phi_Distance<range_Limit*resolution_FWHM[phi_Index] && p>=0); p--)
+		{
+			phi_Distance = abs(measurement.detector_Phi_Angle_Vec[p] - measurement.detector_Phi_Angle_Vec[phi_Index]);
+			weight = distribution(resolution_FWHM[phi_Index], phi_Distance);
+
+			wrapped[phi_Index][theta_Index] += weight*calculated[p][theta_Index];
+			weight_Accumulator += weight;
+		}
+		wrapped[phi_Index][theta_Index] /= weight_Accumulator;
+	};
+
+	// program
+	Global_Variables::parallel_For(measurement.detector_Theta_Angle_Vec.size(), reflectivity_Calc_Threads, [&](int n_Min, int n_Max, int thread_Index)
+	{
+		Q_UNUSED(thread_Index)
+		if(theta_Phi == "theta")
+		{
+			for(int theta_Index=n_Min; theta_Index<n_Max; ++theta_Index)
+			{
+				for(size_t phi_Index=0; phi_Index<phi_Points; ++phi_Index)
+				{
+					f_Theta(theta_Index, phi_Index);
+				}
+			}
+		} else
+		{
+			for(int theta_Index=n_Min; theta_Index<n_Max; ++theta_Index)
+			{
+				for(size_t phi_Index=0; phi_Index<phi_Points; ++phi_Index)
+				{
+					f_Phi(theta_Index, phi_Index);
+				}
+			}
+		}
+	});
+}
+
+template<class Type>
+void Main_Calculation_Module::postprocessing(Data_Element<Type>& data_Element)
+{
+	auto start = std::chrono::system_clock::now();
+
+	const Data& measurement = data_Element.the_Class->measurement;
+	Calculated_Values& calculated_Values = data_Element.the_Class->calculated_Values;
+
+	// interpolation
+	vector<double>* calculated_Curve = nullptr;
+	vector<double>* working_Curve = nullptr;
+	if( data_Element.calc_Functions.check_Reflectance)
+	{	calculated_Curve = &calculated_Values.R; calculated_Values.R_Instrumental = calculated_Values.R; working_Curve = &calculated_Values.R_Instrumental;}
+	if( data_Element.calc_Functions.check_Transmittance)
+	{	calculated_Curve = &calculated_Values.T; calculated_Values.R_Instrumental = calculated_Values.T; working_Curve = &calculated_Values.T_Instrumental;}
+	if( data_Element.calc_Functions.check_Scattering)
+	{	calculated_Curve = &calculated_Values.S; calculated_Values.R_Instrumental = calculated_Values.S; working_Curve = &calculated_Values.S_Instrumental;}
+
+
+	/// Specular_Scan
+	if( measurement.measurement_Type == measurement_Types[Specular_Scan] )
+	{
+		if( measurement.argument_Type == argument_Types[Beam_Grazing_Angle] )
+		{
+			// spectral distribution
+			if(measurement.spectral_Distribution.FWHM_distribution>DBL_EPSILON && !measurement.spectral_Distribution.use_Sampling)	{
+				wrap_Curve(measurement.beam_Theta_0_Angle_Vec, calculated_Curve, measurement.theta_0_Resolution_From_Spectral_Vec, working_Curve, measurement.spectral_Distribution.distribution_Function);
+				*calculated_Curve = *working_Curve;
+			}
+			// theta_0 distribution
+			if(measurement.beam_Theta_0_Distribution.FWHM_distribution>DBL_EPSILON || abs(measurement.sample_Geometry.curvature)>DBL_EPSILON)		{
+				wrap_Curve(measurement.beam_Theta_0_Angle_Vec, calculated_Curve, measurement.theta_0_Resolution_Vec, working_Curve, measurement.beam_Theta_0_Distribution.distribution_Function);
+			}
+		}
+		if( measurement.argument_Type  == argument_Types[Wavelength_Energy] )
+		{
+			// spectral distribution
+			if(measurement.spectral_Distribution.FWHM_distribution>DBL_EPSILON)	{
+				wrap_Curve(measurement.lambda_Vec, calculated_Curve, measurement.spectral_Resolution_Vec, working_Curve, measurement.spectral_Distribution.distribution_Function);
+				*calculated_Curve = *working_Curve;
+			}
+			// theta_0 distribution
+			if((measurement.beam_Theta_0_Distribution.FWHM_distribution>DBL_EPSILON || abs(measurement.sample_Geometry.curvature)>DBL_EPSILON) && !measurement.beam_Theta_0_Distribution.use_Sampling)		{
+				wrap_Curve(measurement.lambda_Vec, calculated_Curve, measurement.spectral_Resolution_From_Theta_0_Vec, working_Curve, measurement.beam_Theta_0_Distribution.distribution_Function);
+			}
+		}
+	}
+	/// Detector_Scan
+	/// Rocking_Curve
+	/// Offset_Scan
+	if( measurement.measurement_Type == measurement_Types[Detector_Scan] ||
+		measurement.measurement_Type == measurement_Types[Offset_Scan]   ||
+		measurement.measurement_Type == measurement_Types[Rocking_Curve] )
+	{
+		// spectral distribution
+		if(measurement.spectral_Distribution.FWHM_distribution>DBL_EPSILON && !measurement.spectral_Distribution.use_Sampling)	{
+			wrap_Curve(measurement.detector_Theta_Angle_Vec, calculated_Curve, measurement.theta_0_Resolution_From_Spectral_Vec, working_Curve, measurement.spectral_Distribution.distribution_Function);
+			*calculated_Curve = *working_Curve;
+		}
+		// theta_0 distribution
+		if((measurement.beam_Theta_0_Distribution.FWHM_distribution>DBL_EPSILON || abs(measurement.sample_Geometry.curvature)>DBL_EPSILON) && !measurement.beam_Theta_0_Distribution.use_Sampling)		{
+			wrap_Curve(measurement.detector_Theta_Angle_Vec, calculated_Curve, measurement.theta_0_Resolution_Vec, working_Curve, measurement.beam_Theta_0_Distribution.distribution_Function);
+			*calculated_Curve = *working_Curve;
+		}
+		// detector
+		if(measurement.theta_Resolution_FWHM>DBL_EPSILON)	{
+			wrap_Curve(measurement.detector_Theta_Angle_Vec, calculated_Curve, measurement.theta_Resolution_Vec, working_Curve, measurement.theta_Distribution);
+		}
+	}
+	/// GISAS_Map
+	if( measurement.measurement_Type == measurement_Types[GISAS_Map] )
+	{
+		bool recalc = false;
+		// spectral distribution
+		if(measurement.spectral_Distribution.FWHM_distribution>DBL_EPSILON && !measurement.spectral_Distribution.use_Sampling)	{
+			wrap_2D_Curve(measurement, calculated_Values, measurement.theta_0_Resolution_From_Spectral_Vec, measurement.spectral_Distribution.distribution_Function, "theta");
+			calculated_Values.GISAS_Map = calculated_Values.GISAS_Instrumental;
+			recalc = true;
+		}
+		// theta_0 distribution
+		if((measurement.beam_Theta_0_Distribution.FWHM_distribution>DBL_EPSILON || abs(measurement.sample_Geometry.curvature)>DBL_EPSILON) && !measurement.beam_Theta_0_Distribution.use_Sampling)		{
+			wrap_2D_Curve(measurement, calculated_Values, measurement.theta_0_Resolution_Vec, measurement.beam_Theta_0_Distribution.distribution_Function, "theta");
+			calculated_Values.GISAS_Map = calculated_Values.GISAS_Instrumental;
+			recalc = true;
+		}
+		// detector phi
+		if(measurement.phi_Resolution_FWHM>DBL_EPSILON || measurement.beam_Phi_0_Distribution.FWHM_distribution>DBL_EPSILON)		{
+			wrap_2D_Curve(measurement, calculated_Values, measurement.phi_Resolution_Vec, measurement.phi_Distribution, "phi");
+			calculated_Values.GISAS_Map = calculated_Values.GISAS_Instrumental;
+			recalc = true;
+		}
+		// detector theta
+		if(measurement.theta_Resolution_FWHM>DBL_EPSILON)	{
+			wrap_2D_Curve(measurement, calculated_Values, measurement.theta_Resolution_Vec, measurement.theta_Distribution, "theta");
+			recalc = true;
+		}
+		if(!recalc) calculated_Values.GISAS_Instrumental = calculated_Values.GISAS_Map;
+	}
+
+	/// FOOTPRINT
+	// footprint for R
+	if(	measurement.measurement_Type == measurement_Types[Specular_Scan] &&
+	   (data_Element.calc_Functions.check_Reflectance ||
+		data_Element.calc_Functions.check_Absorptance) )
+	{
+		for(size_t point_Index=0; point_Index<calculated_Values.R_Instrumental.size(); ++point_Index)
+		{
+			calculated_Values.R_Instrumental[point_Index] *= measurement.footprint_Factor_Vec[point_Index];
+		}
+	}
+	// footprint for scattering
+	if(	data_Element.calc_Functions.check_Scattering)
+	{
+		for(size_t point_Index=0; point_Index<calculated_Values.S_Instrumental.size(); ++point_Index)
+		{
+			calculated_Values.S_Instrumental[point_Index] *= measurement.footprint_Factor_Vec[point_Index];
+		}
+	}
+	// footprint for GISAS is done in unwrapped_reflection
+
+	/// BACKGROUND
+	if(	measurement.measurement_Type == measurement_Types[Specular_Scan] )
+	{
+		// footprint for R
+		if( data_Element.calc_Functions.check_Reflectance)	{
+			for(size_t point_Index=0; point_Index<calculated_Values.R_Instrumental.size(); ++point_Index)	{
+				calculated_Values.R_Instrumental[point_Index] += measurement.background;
+			}
+		}
+		// footprint for T
+		if( data_Element.calc_Functions.check_Transmittance)	{
+			for(size_t point_Index=0; point_Index<calculated_Values.T_Instrumental.size(); ++point_Index)	{
+				calculated_Values.T_Instrumental[point_Index] += measurement.background;
+			}
+		}
+	} else
+	{
+		// background for scattering
+		if( data_Element.calc_Functions.check_Scattering)	{
+			for(size_t point_Index=0; point_Index<calculated_Values.S_Instrumental.size(); ++point_Index)	{
+				calculated_Values.S_Instrumental[point_Index] += measurement.background;
+			}
+		}
+		// background for GISAS is done in unwrapped_reflection
+	}
+
+	auto end = std::chrono::system_clock::now();
+	auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+	qInfo() << "postprocessing:    "<< elapsed.count()/1000000. << " seconds" << endl << endl;
+}
+template void Main_Calculation_Module::postprocessing<Independent_Curve>(Data_Element<Independent_Curve>&);
+template void Main_Calculation_Module::postprocessing<Target_Curve>     (Data_Element<Target_Curve>&);
 
 void Main_Calculation_Module::fitting_and_Confidence()
 {
@@ -1304,3 +1863,4 @@ void Main_Calculation_Module::add_Fit(QString name_Modificator, int run)
 	}
 	global_Multilayer_Approach->add_Fitted_Structure(fitted_Trees, name_Modificator, run);
 }
+

@@ -314,6 +314,7 @@ public:
 	static double beam_Profile(double x, double FWHM, double smoothing);
 
 	// resolution/distribution functions
+	static void   distribution_Sampling(Distribution distribution, QVector<double>& positions, QVector<double>& heights);
 	static double distribution_Function(QString function, double FWHM, double x);
 	static double distribution_Gate		(double FWHM, double x);
 	static double distribution_Cosine	(double FWHM, double x);
