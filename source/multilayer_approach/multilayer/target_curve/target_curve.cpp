@@ -490,7 +490,7 @@ void Target_Curve::refresh_Description_Label()
 	}
 }
 
-void Target_Curve::calc_Measured_cos2_k()
+void Target_Curve::calc_Measured_cos2_k(double angle_Shift)
 {
 	double coeff_Spectral = wavelength_Coefficients_Map.value(spectral_Units);
 	double coeff_Angular = angle_Coefficients_Map.value(angular_Units);
@@ -596,9 +596,9 @@ void Target_Curve::calc_Measured_cos2_k()
 
 				for(size_t i=0; i<curve.shifted_Argument.size(); ++i)
 				{
-					measurement.beam_Theta_0_Angle_Vec[i] = curve.shifted_Argument[i]*coeff_Angular;
+					measurement.beam_Theta_0_Angle_Vec[i] = curve.shifted_Argument[i]*coeff_Angular + angle_Shift;
 					measurement.beam_Theta_0_Cos_Vec [i] = cos(measurement.beam_Theta_0_Angle_Vec[i]*M_PI/180.);
-					measurement.beam_Theta_0_Sin_Vec [i] = sin(measurement.beam_Theta_0_Angle_Vec[i]*M_PI/180.);
+					measurement.beam_Theta_0_Sin_Vec [i] = sin(abs(measurement.beam_Theta_0_Angle_Vec[i])*M_PI/180.);
 					measurement.beam_Theta_0_Cos2_Vec[i] = pow(measurement.beam_Theta_0_Cos_Vec[i],2);
 				}
 			}
@@ -614,9 +614,9 @@ void Target_Curve::calc_Measured_cos2_k()
 
 				for(size_t i=0; i<curve.shifted_Argument.size(); ++i)
 				{
-					measurement.beam_Theta_0_Angle_Vec[i] = curve.shifted_Argument[i]*coeff_Angular + measurement.beam_Theta_0_Specular_Position;
+					measurement.beam_Theta_0_Angle_Vec[i] = curve.shifted_Argument[i]*coeff_Angular + measurement.beam_Theta_0_Specular_Position + angle_Shift;
 					measurement.beam_Theta_0_Cos_Vec [i] = cos(measurement.beam_Theta_0_Angle_Vec[i]*M_PI/180.);
-					measurement.beam_Theta_0_Sin_Vec [i] = sin(measurement.beam_Theta_0_Angle_Vec[i]*M_PI/180.);
+					measurement.beam_Theta_0_Sin_Vec [i] = sin(abs(measurement.beam_Theta_0_Angle_Vec[i])*M_PI/180.);
 					measurement.beam_Theta_0_Cos2_Vec[i] = pow(measurement.beam_Theta_0_Cos_Vec[i],2);
 				}
 			}
@@ -633,7 +633,7 @@ void Target_Curve::calc_Measured_cos2_k()
 
 				for(size_t i=0; i<curve.shifted_Argument.size(); ++i)
 				{
-					double angle_Temp = 2*measurement.beam_Theta_0_Specular_Position - measurement.beam_Theta_0_Angle_Vec[i];
+					double angle_Temp = 2*measurement.beam_Theta_0_Specular_Position - measurement.beam_Theta_0_Angle_Vec[i] + angle_Shift;
 					measurement.detector_Theta_Angle_Vec[i] = angle_Temp;
 					measurement.detector_Theta_Cos_Vec [i] = cos(angle_Temp*M_PI/180.);
 					measurement.detector_Theta_Cos2_Vec[i] = pow(measurement.detector_Theta_Cos_Vec[i],2);
@@ -659,9 +659,9 @@ void Target_Curve::calc_Measured_cos2_k()
 
 				for(size_t i=0; i<curve.shifted_Argument.size(); ++i)
 				{
-					measurement.beam_Theta_0_Angle_Vec[i] = curve.shifted_Argument[i]*coeff_Angular;;
+					measurement.beam_Theta_0_Angle_Vec[i] = curve.shifted_Argument[i]*coeff_Angular + angle_Shift;
 					measurement.beam_Theta_0_Cos_Vec [i] = cos(measurement.beam_Theta_0_Angle_Vec[i]*M_PI/180.);
-					measurement.beam_Theta_0_Sin_Vec [i] = sin(measurement.beam_Theta_0_Angle_Vec[i]*M_PI/180.);
+					measurement.beam_Theta_0_Sin_Vec [i] = sin(abs(measurement.beam_Theta_0_Angle_Vec[i])*M_PI/180.);
 					measurement.beam_Theta_0_Cos2_Vec[i] = pow(measurement.beam_Theta_0_Cos_Vec[i],2);
 				}
 			}
@@ -673,7 +673,7 @@ void Target_Curve::calc_Measured_cos2_k()
 
 				for(size_t i=0; i<curve.shifted_Argument.size(); ++i)
 				{
-					measurement.detector_Theta_Angle_Vec[i] = measurement.beam_Theta_0_Angle_Vec[i] + measurement.detector_Theta_Offset;;
+					measurement.detector_Theta_Angle_Vec[i] = measurement.beam_Theta_0_Angle_Vec[i] + measurement.detector_Theta_Offset - angle_Shift;
 					measurement.detector_Theta_Cos_Vec [i] = cos(measurement.detector_Theta_Angle_Vec[i]*M_PI/180.);
 					measurement.detector_Theta_Cos2_Vec[i] = pow(measurement.detector_Theta_Cos_Vec[i],2);
 				}

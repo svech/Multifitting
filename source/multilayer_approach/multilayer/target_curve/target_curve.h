@@ -97,7 +97,7 @@ public:
 			void rotate_Data_From_Previous_State(QString left_Right);
 	void refresh_Description_Label();
 
-	void calc_Measured_cos2_k();
+	void calc_Measured_cos2_k(double angle_Shift = 0);
 
 	Curve curve;
 	Fit_Params fit_Params;

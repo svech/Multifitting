@@ -42,7 +42,11 @@ public:
 	template <typename Type>
 	void calculation_With_Sampling(Calculation_Tree* calculation_Tree, Data_Element<Type>& data_Element);
 	template <typename Type>
-	void calculation_With_Sampling_1_Case(Calculation_Tree* calculation_Tree, Data_Element<Type>& data_Element, size_t num_Points, vector<double>* calculated_Curve, QString spectral_Angular, bool R_and_T = false);
+	void calculation_With_Sampling_Spectral_Single(Calculation_Tree* calculation_Tree, Data_Element<Type>& data_Element, size_t num_Points, vector<double>* calculated_Curve, bool R_and_T = false);
+	template <typename Type>
+	void calculation_With_Sampling_Theta_0_Single(Calculation_Tree* calculation_Tree, Data_Element<Type>& data_Element, size_t num_Points, vector<double>* calculated_Curve, bool R_and_T = false);
+	template <typename Type>
+	void calculation_With_Sampling_Theta_0_Vector(Calculation_Tree* calculation_Tree, Data_Element<Type>& data_Element, size_t num_Points, vector<double>* calculated_Curve);
 	void single_Calculation(bool print_And_Verbose = true);
 
 	void wrap_Curve(const vector<double>& sparse_Argument, const vector<double>* sparse_Input_Curve, const vector<double>& resolution_FWHM, vector<double>* output_Sparse_Curve, QString distribution_Function);

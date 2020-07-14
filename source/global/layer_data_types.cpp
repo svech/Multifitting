@@ -82,29 +82,30 @@ Data::Data(QString item_Type_Passed)
 
 		// resolution
 		spectral_Distribution.FWHM_distribution = 0;
-		spectral_Distribution.distribution_Function = distributions[Lorentz];
+		spectral_Distribution.distribution_Function = distributions[Gaussian];
 		spectral_Distribution.coverage = 2;
 		spectral_Distribution.use_Sampling = false;
 		spectral_Distribution.number_of_Samples = 5;
 
 		beam_Theta_0_Distribution.FWHM_distribution = 0;
-		beam_Theta_0_Distribution.distribution_Function = distributions[Lorentz];
+		beam_Theta_0_Distribution.distribution_Function = distributions[Gaussian];
 		beam_Theta_0_Distribution.coverage = 2;
 		beam_Theta_0_Distribution.use_Sampling = false;
 		beam_Theta_0_Distribution.number_of_Samples = 5;
 
 		beam_Phi_0_Distribution.FWHM_distribution = 0;
-		beam_Phi_0_Distribution.distribution_Function = distributions[Lorentz];
+		beam_Phi_0_Distribution.distribution_Function = distributions[Gaussian];
 		beam_Phi_0_Distribution.coverage = 2;
 		beam_Phi_0_Distribution.use_Sampling = false;
 		beam_Phi_0_Distribution.number_of_Samples = 5;
 
 		// detector
 		detector_1D.detector_Type = detectors[Slit];
-		detector_1D.slit_Width = 0.8;
+//		detector_1D.slit_Width = 0.8;
+		detector_1D.slit_Width=0.05;
 		detector_1D.distance_To_Sample = 320;
 		detector_1D.detector_Theta_Resolution.FWHM_distribution = 0;
-		detector_1D.detector_Theta_Resolution.distribution_Function = distributions[Lorentz];
+		detector_1D.detector_Theta_Resolution.distribution_Function = distributions[Gaussian];
 		detector_1D.detector_Theta_Resolution.coverage = 2;
 		beam_Phi_0_Distribution.use_Sampling = false;
 		detector_1D.detector_Theta_Resolution.number_of_Samples = 5;
@@ -112,13 +113,13 @@ Data::Data(QString item_Type_Passed)
 
 		detector_2D.detector_Type = detectors[Spherical];		
 		detector_2D.detector_Theta_Resolution.FWHM_distribution = 0;
-		detector_2D.detector_Theta_Resolution.distribution_Function = distributions[Lorentz];
+		detector_2D.detector_Theta_Resolution.distribution_Function = distributions[Gaussian];
 		detector_2D.detector_Theta_Resolution.coverage = 2;
 		detector_2D.detector_Theta_Resolution.use_Sampling = false;
 		detector_2D.detector_Theta_Resolution.number_of_Samples = 5;
 
 		detector_2D.detector_Phi_Resolution.FWHM_distribution = 0;
-		detector_2D.detector_Phi_Resolution.distribution_Function = distributions[Lorentz];
+		detector_2D.detector_Phi_Resolution.distribution_Function = distributions[Gaussian];
 		detector_2D.detector_Phi_Resolution.coverage = 2;
 		detector_2D.detector_Phi_Resolution.use_Sampling = false;
 		detector_2D.detector_Phi_Resolution.number_of_Samples = 5;
@@ -740,6 +741,14 @@ void Data::calc_Mixed_Resolution()
 			}
 			theta_0_Resolution_Vec[i] = abs(alpha_Max-2*beta_Max);
 		}
+		if(measurement_Type == measurement_Types[Rocking_Curve])
+		{
+			for(size_t i=0; i<theta_0_Resolution_Vec.size(); ++i)
+			{
+				theta_0_Resolution_Vec[i] = theta_0_Resolution_Vec[i]/2;
+			}
+		}
+
 
 		// from spectral resolution
 		theta_0_Resolution_From_Spectral_Vec.resize(beam_Theta_0_Angle_Vec.size());
@@ -801,9 +810,18 @@ void Data::calc_Mixed_Resolution()
 		if(detector_1D.detector_Type == detectors[Slit])	{theta_Resolution_FWHM = detector_1D.slit_Width/detector_1D.distance_To_Sample*180/M_PI; theta_Distribution = distributions[Gate];}
 		if(detector_1D.detector_Type == detectors[Crystal]) {theta_Resolution_FWHM = detector_1D.detector_Theta_Resolution.FWHM_distribution;		 theta_Distribution = detector_1D.detector_Theta_Resolution.distribution_Function;}
 		theta_Resolution_Vec.resize(detector_Theta_Angle_Vec.size());
-		for(size_t i=0; i<theta_Resolution_Vec.size(); ++i)
+		if(measurement_Type != measurement_Types[Rocking_Curve])
 		{
-			theta_Resolution_Vec[i] = theta_Resolution_FWHM;
+			for(size_t i=0; i<theta_Resolution_Vec.size(); ++i)
+			{
+				theta_Resolution_Vec[i] = theta_Resolution_FWHM;
+			}
+		} else // Rocking_Curve
+		{
+			for(size_t i=0; i<theta_Resolution_Vec.size(); ++i)
+			{
+				theta_Resolution_Vec[i] = theta_Resolution_FWHM/2;
+			}
 		}
 	}
 	// 2D detector, theta & phi dependence

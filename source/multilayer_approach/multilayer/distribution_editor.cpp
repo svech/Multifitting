@@ -40,8 +40,8 @@ void Distribution_Editor::create_Main_Layout()
 		symbolic_Name = Delta_Big_Sym + "E/E";
 	}
 	bool totally_Forbid_Sampling = false;
-	if((measurement.measurement_Type == measurement_Types[Specular_Scan]) &&
-	   (measurement.argument_Type    == argument_Types[Wavelength_Energy]))
+	if(measurement.measurement_Type == measurement_Types[Specular_Scan] &&
+	   measurement.argument_Type    == argument_Types[Wavelength_Energy])
 	{
 		totally_Forbid_Sampling = true;
 	}
@@ -55,8 +55,8 @@ void Distribution_Editor::create_Main_Layout()
 	pre_Name = "Angular divergence, FWHM, ";
 	symbolic_Name = Delta_Big_Sym + Theta_Sym + Zero_Subscript_Sym;
 	totally_Forbid_Sampling = false;
-	if((measurement.argument_Type == argument_Types[Deviation_From_Specular_Angle]) ||
-	   (measurement.argument_Type == argument_Types[Beam_Grazing_Angle]))
+	if(measurement.measurement_Type == measurement_Types[Specular_Scan] &&
+	   measurement.argument_Type == argument_Types[Beam_Grazing_Angle] )
 	{
 		totally_Forbid_Sampling = true;
 	}

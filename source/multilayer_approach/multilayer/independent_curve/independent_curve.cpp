@@ -166,7 +166,7 @@ void Independent_Curve::refresh_Description_Label()
 	}
 }
 
-void Independent_Curve::calc_Independent_cos2_k()
+void Independent_Curve::calc_Independent_cos2_k(double angle_Shift)
 {
 	// if parameter is active, num points >=3
 
@@ -281,11 +281,11 @@ void Independent_Curve::calc_Independent_cos2_k()
 				measurement.beam_Theta_0_Cos2_Vec. resize(measurement.beam_Theta_0_Angle.independent.num_Points);
 
 				double angle_Step = (measurement.beam_Theta_0_Angle.independent.max - measurement.beam_Theta_0_Angle.independent.min) / (measurement.beam_Theta_0_Angle.independent.num_Points - 1);
-				double angle_Temp =  measurement.beam_Theta_0_Angle.independent.min;
+				double angle_Temp =  measurement.beam_Theta_0_Angle.independent.min + angle_Shift;
 				for(int i=0; i<measurement.beam_Theta_0_Angle.independent.num_Points; ++i)
 				{
 					measurement.beam_Theta_0_Cos_Vec [i] = cos(angle_Temp*M_PI/180.);
-					measurement.beam_Theta_0_Sin_Vec [i] = sin(angle_Temp*M_PI/180.);
+					measurement.beam_Theta_0_Sin_Vec [i] = sin(abs(angle_Temp)*M_PI/180.);
 					measurement.beam_Theta_0_Cos2_Vec[i] = pow(measurement.beam_Theta_0_Cos_Vec[i],2);
 					measurement.beam_Theta_0_Angle_Vec[i] = angle_Temp;
 					angle_Temp += angle_Step;
@@ -299,7 +299,7 @@ void Independent_Curve::calc_Independent_cos2_k()
 
 				for(int i=0; i<measurement.beam_Theta_0_Angle.independent.num_Points; ++i)
 				{
-					double angle_Temp = 2*measurement.beam_Theta_0_Specular_Position - measurement.beam_Theta_0_Angle_Vec[i];
+					double angle_Temp = 2*measurement.beam_Theta_0_Specular_Position - measurement.beam_Theta_0_Angle_Vec[i] + angle_Shift;
 					measurement.detector_Theta_Angle_Vec[i] = angle_Temp;
 					measurement.detector_Theta_Cos_Vec [i] = cos(angle_Temp*M_PI/180.);
 					measurement.detector_Theta_Cos2_Vec[i] = pow(measurement.detector_Theta_Cos_Vec[i],2);
@@ -324,11 +324,11 @@ void Independent_Curve::calc_Independent_cos2_k()
 				measurement.beam_Theta_0_Cos2_Vec. resize(measurement.beam_Theta_0_Angle.independent.num_Points);
 
 				double angle_Step = (measurement.beam_Theta_0_Angle.independent.max - measurement.beam_Theta_0_Angle.independent.min) / (measurement.beam_Theta_0_Angle.independent.num_Points - 1);
-				double angle_Temp =  measurement.beam_Theta_0_Angle.independent.min;
+				double angle_Temp =  measurement.beam_Theta_0_Angle.independent.min + angle_Shift;
 				for(int i=0; i<measurement.beam_Theta_0_Angle.independent.num_Points; ++i)
 				{
 					measurement.beam_Theta_0_Cos_Vec [i] = cos(angle_Temp*M_PI/180.);
-					measurement.beam_Theta_0_Sin_Vec [i] = sin(angle_Temp*M_PI/180.);
+					measurement.beam_Theta_0_Sin_Vec [i] = sin(abs(angle_Temp)*M_PI/180.);
 					measurement.beam_Theta_0_Cos2_Vec[i] = pow(measurement.beam_Theta_0_Cos_Vec[i],2);
 					measurement.beam_Theta_0_Angle_Vec[i] = angle_Temp;
 					angle_Temp += angle_Step;
@@ -342,7 +342,7 @@ void Independent_Curve::calc_Independent_cos2_k()
 
 				for(int i=0; i<measurement.beam_Theta_0_Angle.independent.num_Points; ++i)
 				{
-					double angle_Temp = measurement.beam_Theta_0_Angle_Vec[i] + measurement.detector_Theta_Offset;
+					double angle_Temp = measurement.beam_Theta_0_Angle_Vec[i] + measurement.detector_Theta_Offset -  angle_Shift;
 					measurement.detector_Theta_Angle_Vec[i] = angle_Temp;
 					measurement.detector_Theta_Cos_Vec [i] = cos(angle_Temp*M_PI/180.);
 					measurement.detector_Theta_Cos2_Vec[i] = pow(measurement.detector_Theta_Cos_Vec[i],2);

@@ -12,7 +12,7 @@ public:
 	void create_Main_Layout();
 	QString enlarge_Tab_Name();
 	void refresh_Description_Label();
-	void calc_Independent_cos2_k();
+	void calc_Independent_cos2_k(double angle_Shift = 0);
 
 	QHBoxLayout* main_Layout;
 	QPushButton* setup_Button;

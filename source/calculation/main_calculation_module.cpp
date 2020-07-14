@@ -273,6 +273,7 @@ void Main_Calculation_Module::calculation_With_Sampling(Calculation_Tree* calcul
 		data_Element.calc_Functions.check_Field = false;
 		data_Element.calc_Functions.check_Joule = false;
 
+		// distribution for R and T only
 		if(data_Element.calc_Functions.check_Reflectance || data_Element.calc_Functions.check_Transmittance)
 		{
 			bool R_and_T = false;
@@ -288,26 +289,51 @@ void Main_Calculation_Module::calculation_With_Sampling(Calculation_Tree* calcul
 			if( measurement.argument_Type == argument_Types[Beam_Grazing_Angle] )
 			{
 				// spectral distribution
-				calculation_With_Sampling_1_Case(calculation_Tree, data_Element, measurement.beam_Theta_0_Angle_Vec.size(), calculated_Curve, "spectral", R_and_T);
+				calculation_With_Sampling_Spectral_Single(calculation_Tree, data_Element, measurement.beam_Theta_0_Angle_Vec.size(), calculated_Curve, R_and_T);
 			}
 			if( measurement.argument_Type  == argument_Types[Wavelength_Energy] )
 			{
 				// theta_0 distribution
-				calculation_With_Sampling_1_Case(calculation_Tree, data_Element, measurement.lambda_Vec.size(), calculated_Curve, "angular", R_and_T);
+				calculation_With_Sampling_Theta_0_Single(calculation_Tree, data_Element, measurement.lambda_Vec.size(), calculated_Curve, R_and_T);
 			}
 		}
 		data_Element.calc_Functions.check_Absorptance = state_Absorptance;
 		data_Element.calc_Functions.check_Field = state_Field;
 		data_Element.calc_Functions.check_Joule = state_Joule;
 	}
-	/// Detector_Scan
 	/// Rocking_Curve
 	/// Offset_Scan
-	if( measurement.measurement_Type == measurement_Types[Detector_Scan] ||
-		measurement.measurement_Type == measurement_Types[Offset_Scan]   ||
+	if( measurement.measurement_Type == measurement_Types[Offset_Scan]   ||
 		measurement.measurement_Type == measurement_Types[Rocking_Curve] )
 	{
-		//	if( data_Element.calc_Functions.check_Scattering)	calculated_Curve = &calculated_Values.S;
+		if( data_Element.calc_Functions.check_Scattering)	 calculated_Curve = &calculated_Values.S;
+
+		bool if_Spectral_Sampling = measurement.spectral_Distribution.use_Sampling &&
+									measurement.spectral_Distribution.FWHM_distribution>DBL_EPSILON &&
+									measurement.spectral_Distribution.number_of_Samples>1;
+		bool if_Theta_0_Sampling =  measurement.beam_Theta_0_Distribution.use_Sampling &&
+									measurement.beam_Theta_0_Distribution.FWHM_distribution>DBL_EPSILON &&
+									measurement.beam_Theta_0_Distribution.number_of_Samples>1;
+		// spectral distribution only
+		if( if_Spectral_Sampling && !if_Theta_0_Sampling )
+		{
+			calculation_With_Sampling_Spectral_Single(calculation_Tree, data_Element, measurement.beam_Theta_0_Angle_Vec.size(), calculated_Curve);
+		}
+		// theta_0 distribution only
+		if( !if_Spectral_Sampling && if_Theta_0_Sampling )
+		{
+			calculation_With_Sampling_Theta_0_Vector(calculation_Tree, data_Element, measurement.beam_Theta_0_Angle_Vec.size(), calculated_Curve);
+		}
+		// both distribution
+		if( if_Spectral_Sampling && if_Theta_0_Sampling )
+		{
+			// TODO
+			calculation_Tree->calculate_1_Curve(data_Element);
+		}
+		if( !if_Spectral_Sampling && !if_Theta_0_Sampling )
+		{
+			calculation_Tree->calculate_1_Curve(data_Element);
+		}
 
 		//	if( measurement.measurement_Type == measurement_Types[Detector_Scan] ||
 		//	    measurement.measurement_Type == measurement_Types[GISAS_Map] )
@@ -316,12 +342,7 @@ void Main_Calculation_Module::calculation_With_Sampling(Calculation_Tree* calcul
 		//		if(spec_Scat_mode == SPECULAR_MODE) 	num_Points = 1;
 		//		if(spec_Scat_mode == SCATTERED_MODE) 	num_Points = measurement.detector_Theta_Angle_Vec.size();
 		//	}
-		//	if( measurement.measurement_Type == measurement_Types[Rocking_Curve] ||
-		//	    measurement.measurement_Type == measurement_Types[Offset_Scan] )
-		//	{
-		//		if(spec_Scat_mode == SPECULAR_MODE) 	num_Points = measurement.beam_Theta_0_Angle_Vec.size();
-		//		if(spec_Scat_mode == SCATTERED_MODE) 	num_Points = measurement.beam_Theta_0_Angle_Vec.size();
-		//	}
+
 
 //		// spectral distribution
 //		if(measurement.spectral_Distribution.FWHM_distribution>DBL_EPSILON && !measurement.spectral_Distribution.use_Sampling)	{
@@ -334,6 +355,7 @@ void Main_Calculation_Module::calculation_With_Sampling(Calculation_Tree* calcul
 //			*calculated_Curve = *working_Curve;
 //		}
 	}
+//	if( measurement.measurement_Type == measurement_Types[Detector_Scan] ||
 //	/// GISAS_Map
 //	if( measurement.measurement_Type == measurement_Types[GISAS_Map] )
 //	{
@@ -356,28 +378,16 @@ void Main_Calculation_Module::calculation_With_Sampling(Calculation_Tree* calcul
 template void Main_Calculation_Module::calculation_With_Sampling<Independent_Curve>(Calculation_Tree*, Data_Element<Independent_Curve>&);
 template void Main_Calculation_Module::calculation_With_Sampling<Target_Curve>	   (Calculation_Tree*, Data_Element<Target_Curve>&);
 
-
 template<typename Type>
-void Main_Calculation_Module::calculation_With_Sampling_1_Case(Calculation_Tree* calculation_Tree, Data_Element<Type>& data_Element, size_t num_Points, vector<double>* calculated_Curve, QString spectral_Angular, bool R_and_T)
+void Main_Calculation_Module::calculation_With_Sampling_Spectral_Single(Calculation_Tree* calculation_Tree, Data_Element<Type>& data_Element, size_t num_Points, vector<double>* calculated_Curve, bool R_and_T)
 {
 	Calculated_Values& calculated_Values = data_Element.the_Class->calculated_Values;
 	Data& measurement = data_Element.the_Class->measurement;
-
-	double* param_Value;
-	Distribution distribution;
-	if(spectral_Angular == "spectral")
-	{
-		param_Value = &measurement.wavelength.value;
-		distribution = measurement.spectral_Distribution;
-	} else // angular
-	{
-		param_Value = &measurement.beam_Theta_0_Angle.value;
-		distribution = measurement.beam_Theta_0_Distribution;
-	}
-
+	double& param_Value = measurement.wavelength.value;
+	Distribution& distribution = measurement.spectral_Distribution;
 
 	// anyway
-	QVector<double> sampled_Position_Vec(1, *param_Value);
+	QVector<double> sampled_Position_Vec(1, param_Value);
 	QVector<double> sampled_Weight_Vec(1, 1.);
 
 	// if sampled
@@ -390,53 +400,77 @@ void Main_Calculation_Module::calculation_With_Sampling_1_Case(Calculation_Tree*
 		Global_Variables::distribution_Sampling(distribution, sampled_Position_Vec, sampled_Weight_Vec);
 
 		// go to absolute values and remove out of range points
-		if(spectral_Angular == "spectral")
+		for(int sampling_Point = 0; sampling_Point<distribution.number_of_Samples; sampling_Point++)
 		{
-			for(int sampling_Point = 0; sampling_Point<distribution.number_of_Samples; sampling_Point++)
+			sampled_Position_Vec[sampling_Point] = param_Value*(1+sampled_Position_Vec[sampling_Point]);
+			if(sampled_Position_Vec[sampling_Point] <= DBL_EPSILON)
 			{
-				sampled_Position_Vec[sampling_Point] = (*param_Value)*(1+sampled_Position_Vec[sampling_Point]);
-				if(sampled_Position_Vec[sampling_Point] <= DBL_EPSILON)
-				{
-					sampled_Position_Vec[sampling_Point] = DBL_EPSILON;
-					sampled_Weight_Vec  [sampling_Point] = 0;
-				}
-			}
-		} else // angular
-		{
-			for(int sampling_Point = 0; sampling_Point<distribution.number_of_Samples; sampling_Point++)
-			{
-				sampled_Position_Vec[sampling_Point] = (*param_Value)+sampled_Position_Vec[sampling_Point];
-				if(sampled_Position_Vec[sampling_Point] < DBL_EPSILON)
-				{
-					sampled_Position_Vec[sampling_Point] = DBL_EPSILON;
-					sampled_Weight_Vec  [sampling_Point] = 0;
-				}
-				if(sampled_Position_Vec[sampling_Point] > 90)
-				{
-					sampled_Position_Vec[sampling_Point] = 180-sampled_Position_Vec[sampling_Point];
-				}
-				if(sampled_Position_Vec[sampling_Point] >= 180)
-				{
-					sampled_Position_Vec[sampling_Point] = DBL_EPSILON;
-					sampled_Weight_Vec  [sampling_Point] = 0;
-				}
+				sampled_Position_Vec[sampling_Point] = DBL_EPSILON;
+				sampled_Weight_Vec  [sampling_Point] = 0;
 			}
 		}
-	}
 
-	// main part
-	if(sampled_Position_Vec.size()>1)
-	{
-		// initialization of accumulator
-		vector<double> temporary_State(num_Points);
-		vector<double> temporary_State_T(num_Points);// special case
-
-
-		double initial_Parameter = *param_Value;
-		double weight = 0;
-		for(int sampling_Point = 0; sampling_Point<sampled_Position_Vec.size(); sampling_Point++)
+		// main part
+		if(sampled_Position_Vec.size()>1)
 		{
-			*param_Value = sampled_Position_Vec[sampling_Point];
+			// initialization of accumulator
+			vector<double> temporary_State(num_Points);
+			vector<double> temporary_State_T;// special case
+			if(R_and_T) temporary_State_T.resize(num_Points);
+
+			double initial_Parameter = param_Value;
+			double weight = 0;
+			for(int sampling_Point = 0; sampling_Point<sampled_Position_Vec.size(); sampling_Point++)
+			{
+				param_Value = sampled_Position_Vec[sampling_Point];
+				if(data_Element.curve_Class == INDEPENDENT)
+				{
+					Independent_Curve* independent_Curve = qobject_cast<Independent_Curve*>(data_Element.the_Class);
+					independent_Curve->calc_Independent_cos2_k();
+				}
+				if(data_Element.curve_Class == TARGET)
+				{
+					Target_Curve* target_Curve = qobject_cast<Target_Curve*>(data_Element.the_Class);
+					target_Curve->calc_Measured_cos2_k();
+				}
+				///---------------------------------------------------------------
+				calculation_Tree->calculate_1_Curve(data_Element);
+				///---------------------------------------------------------------
+				weight += sampled_Weight_Vec[sampling_Point];
+				if(R_and_T)
+				{
+					for(size_t point_Index = 0; point_Index<num_Points; point_Index++)
+					{
+						temporary_State  [point_Index] += sampled_Weight_Vec[sampling_Point]*calculated_Values.R[point_Index];
+						temporary_State_T[point_Index] += sampled_Weight_Vec[sampling_Point]*calculated_Values.T[point_Index];
+					}
+				} else
+				{
+					for(size_t point_Index = 0; point_Index<num_Points; point_Index++)
+					{
+						temporary_State[point_Index] += sampled_Weight_Vec[sampling_Point]*(*calculated_Curve)[point_Index];
+					}
+				}
+			}
+			if(R_and_T)
+			{
+				for(size_t point_Index = 0; point_Index<num_Points; point_Index++)
+				{
+					temporary_State  [point_Index] /= weight;
+					temporary_State_T[point_Index] /= weight;
+				}
+				calculated_Values.R = temporary_State;
+				calculated_Values.T = temporary_State;
+			} else
+			{
+				for(size_t point_Index = 0; point_Index<num_Points; point_Index++)
+				{
+					temporary_State[point_Index] /= weight;
+				}
+				(*calculated_Curve) = temporary_State;
+			}
+
+			param_Value = initial_Parameter;
 			if(data_Element.curve_Class == INDEPENDENT)
 			{
 				Independent_Curve* independent_Curve = qobject_cast<Independent_Curve*>(data_Element.the_Class);
@@ -447,53 +481,11 @@ void Main_Calculation_Module::calculation_With_Sampling_1_Case(Calculation_Tree*
 				Target_Curve* target_Curve = qobject_cast<Target_Curve*>(data_Element.the_Class);
 				target_Curve->calc_Measured_cos2_k();
 			}
+		} else
+		{
 			///---------------------------------------------------------------
 			calculation_Tree->calculate_1_Curve(data_Element);
 			///---------------------------------------------------------------
-			weight += sampled_Weight_Vec[sampling_Point];
-			if(R_and_T)
-			{
-				for(size_t point_Index = 0; point_Index<num_Points; point_Index++)
-				{
-					temporary_State  [point_Index] += sampled_Weight_Vec[sampling_Point]*calculated_Values.R[point_Index];
-					temporary_State_T[point_Index] += sampled_Weight_Vec[sampling_Point]*calculated_Values.T[point_Index];
-				}
-			} else
-			{
-				for(size_t point_Index = 0; point_Index<num_Points; point_Index++)
-				{
-					temporary_State[point_Index] += sampled_Weight_Vec[sampling_Point]*(*calculated_Curve)[point_Index];
-				}
-			}
-		}
-		if(R_and_T)
-		{
-			for(size_t point_Index = 0; point_Index<num_Points; point_Index++)
-			{
-				temporary_State  [point_Index] /= weight;
-				temporary_State_T[point_Index] /= weight;
-			}
-			calculated_Values.R = temporary_State;
-			calculated_Values.T = temporary_State;
-		} else
-		{
-			for(size_t point_Index = 0; point_Index<num_Points; point_Index++)
-			{
-				temporary_State[point_Index] /= weight;
-			}
-			(*calculated_Curve) = temporary_State;
-		}
-
-		*param_Value = initial_Parameter;
-		if(data_Element.curve_Class == INDEPENDENT)
-		{
-			Independent_Curve* independent_Curve = qobject_cast<Independent_Curve*>(data_Element.the_Class);
-			independent_Curve->calc_Independent_cos2_k();
-		}
-		if(data_Element.curve_Class == TARGET)
-		{
-			Target_Curve* target_Curve = qobject_cast<Target_Curve*>(data_Element.the_Class);
-			target_Curve->calc_Measured_cos2_k();
 		}
 	} else
 	{
@@ -502,8 +494,215 @@ void Main_Calculation_Module::calculation_With_Sampling_1_Case(Calculation_Tree*
 		///---------------------------------------------------------------
 	}
 }
-template void Main_Calculation_Module::calculation_With_Sampling_1_Case<Independent_Curve>(Calculation_Tree*, Data_Element<Independent_Curve>&, size_t, vector<double>*, QString, bool);
-template void Main_Calculation_Module::calculation_With_Sampling_1_Case<Target_Curve>	  (Calculation_Tree*, Data_Element<Target_Curve>&,      size_t, vector<double>*, QString, bool);
+template void Main_Calculation_Module::calculation_With_Sampling_Spectral_Single<Independent_Curve>(Calculation_Tree*, Data_Element<Independent_Curve>&, size_t, vector<double>*, bool);
+template void Main_Calculation_Module::calculation_With_Sampling_Spectral_Single<Target_Curve>	   (Calculation_Tree*, Data_Element<Target_Curve>&,      size_t, vector<double>*, bool);
+
+template<typename Type>
+void Main_Calculation_Module::calculation_With_Sampling_Theta_0_Single(Calculation_Tree* calculation_Tree, Data_Element<Type>& data_Element, size_t num_Points, vector<double>* calculated_Curve, bool R_and_T)
+{
+	Calculated_Values& calculated_Values = data_Element.the_Class->calculated_Values;
+	Data& measurement = data_Element.the_Class->measurement;
+	double& param_Value = measurement.beam_Theta_0_Angle.value;
+	Distribution& distribution = measurement.beam_Theta_0_Distribution;
+
+	// anyway
+	QVector<double> sampled_Position_Vec(1, param_Value);
+	QVector<double> sampled_Weight_Vec(1, 1.);
+
+	// if sampled
+	if( distribution.use_Sampling &&
+		distribution.FWHM_distribution>DBL_EPSILON &&
+		distribution.number_of_Samples>1)
+	{
+		sampled_Position_Vec.resize(distribution.number_of_Samples);
+		sampled_Weight_Vec  .resize(distribution.number_of_Samples);
+		Global_Variables::distribution_Sampling(distribution, sampled_Position_Vec, sampled_Weight_Vec);
+
+		// go to absolute values and remove out of range points
+		for(int sampling_Point = 0; sampling_Point<distribution.number_of_Samples; sampling_Point++)
+		{
+			sampled_Position_Vec[sampling_Point] = param_Value+sampled_Position_Vec[sampling_Point];
+			if(sampled_Position_Vec[sampling_Point] < DBL_EPSILON)
+			{
+				sampled_Position_Vec[sampling_Point] = DBL_EPSILON;
+				sampled_Weight_Vec  [sampling_Point] = 0;
+			}
+			if(sampled_Position_Vec[sampling_Point] > 90)
+			{
+				sampled_Position_Vec[sampling_Point] = 180-sampled_Position_Vec[sampling_Point];
+			}
+			if(sampled_Position_Vec[sampling_Point] >= 180)
+			{
+				sampled_Position_Vec[sampling_Point] = DBL_EPSILON;
+				sampled_Weight_Vec  [sampling_Point] = 0;
+			}
+		}
+
+		// main part
+		if(sampled_Position_Vec.size()>1)
+		{
+			// initialization of accumulator
+			vector<double> temporary_State(num_Points);
+			vector<double> temporary_State_T;// special case
+			if(R_and_T) temporary_State_T.resize(num_Points);
+
+			double initial_Parameter = param_Value;
+			double weight = 0;
+			for(int sampling_Point = 0; sampling_Point<sampled_Position_Vec.size(); sampling_Point++)
+			{
+				param_Value = sampled_Position_Vec[sampling_Point];
+				if(data_Element.curve_Class == INDEPENDENT)
+				{
+					Independent_Curve* independent_Curve = qobject_cast<Independent_Curve*>(data_Element.the_Class);
+					independent_Curve->calc_Independent_cos2_k();
+				}
+				if(data_Element.curve_Class == TARGET)
+				{
+					Target_Curve* target_Curve = qobject_cast<Target_Curve*>(data_Element.the_Class);
+					target_Curve->calc_Measured_cos2_k();
+				}
+				///---------------------------------------------------------------
+				calculation_Tree->calculate_1_Curve(data_Element);
+				///---------------------------------------------------------------
+				weight += sampled_Weight_Vec[sampling_Point];
+				if(R_and_T)
+				{
+					for(size_t point_Index = 0; point_Index<num_Points; point_Index++)
+					{
+						temporary_State  [point_Index] += sampled_Weight_Vec[sampling_Point]*calculated_Values.R[point_Index];
+						temporary_State_T[point_Index] += sampled_Weight_Vec[sampling_Point]*calculated_Values.T[point_Index];
+					}
+				} else
+				{
+					for(size_t point_Index = 0; point_Index<num_Points; point_Index++)
+					{
+						temporary_State[point_Index] += sampled_Weight_Vec[sampling_Point]*(*calculated_Curve)[point_Index];
+					}
+				}
+			}
+			if(R_and_T)
+			{
+				for(size_t point_Index = 0; point_Index<num_Points; point_Index++)
+				{
+					temporary_State  [point_Index] /= weight;
+					temporary_State_T[point_Index] /= weight;
+				}
+				calculated_Values.R = temporary_State;
+				calculated_Values.T = temporary_State;
+			} else
+			{
+				for(size_t point_Index = 0; point_Index<num_Points; point_Index++)
+				{
+					temporary_State[point_Index] /= weight;
+				}
+				(*calculated_Curve) = temporary_State;
+			}
+
+			param_Value = initial_Parameter;
+			if(data_Element.curve_Class == INDEPENDENT)
+			{
+				Independent_Curve* independent_Curve = qobject_cast<Independent_Curve*>(data_Element.the_Class);
+				independent_Curve->calc_Independent_cos2_k();
+			}
+			if(data_Element.curve_Class == TARGET)
+			{
+				Target_Curve* target_Curve = qobject_cast<Target_Curve*>(data_Element.the_Class);
+				target_Curve->calc_Measured_cos2_k();
+			}
+		} else
+		{
+			///---------------------------------------------------------------
+			calculation_Tree->calculate_1_Curve(data_Element);
+			///---------------------------------------------------------------
+		}
+	} else
+	{
+		///---------------------------------------------------------------
+		calculation_Tree->calculate_1_Curve(data_Element);
+		///---------------------------------------------------------------
+	}
+}
+template void Main_Calculation_Module::calculation_With_Sampling_Theta_0_Single<Independent_Curve>(Calculation_Tree*, Data_Element<Independent_Curve>&, size_t, vector<double>*, bool);
+template void Main_Calculation_Module::calculation_With_Sampling_Theta_0_Single<Target_Curve>	  (Calculation_Tree*, Data_Element<Target_Curve>&,      size_t, vector<double>*, bool);
+template<typename Type>
+
+void Main_Calculation_Module::calculation_With_Sampling_Theta_0_Vector(Calculation_Tree* calculation_Tree, Data_Element<Type>& data_Element, size_t num_Points, vector<double>* calculated_Curve)
+{
+	Data& measurement = data_Element.the_Class->measurement;
+	Distribution& distribution = measurement.beam_Theta_0_Distribution;
+
+	// anyway
+	QVector<double> sampled_Position_Vec(1);
+	QVector<double> sampled_Weight_Vec(1);
+
+	// if sampled
+	if( distribution.use_Sampling &&
+		distribution.FWHM_distribution>DBL_EPSILON &&
+		distribution.number_of_Samples>1)
+	{
+		sampled_Position_Vec.resize(distribution.number_of_Samples);
+		sampled_Weight_Vec  .resize(distribution.number_of_Samples);
+		Global_Variables::distribution_Sampling(distribution, sampled_Position_Vec, sampled_Weight_Vec);
+
+		// main part
+		if(sampled_Position_Vec.size()>1)
+		{
+			// initialization of accumulator
+			vector<double> temporary_State(num_Points);
+			double weight = 0;
+			for(int sampling_Point = 0; sampling_Point<sampled_Position_Vec.size(); sampling_Point++)
+			{
+				if(data_Element.curve_Class == INDEPENDENT)
+				{
+					Independent_Curve* independent_Curve = qobject_cast<Independent_Curve*>(data_Element.the_Class);
+					independent_Curve->calc_Independent_cos2_k(sampled_Position_Vec[sampling_Point]);
+				}
+				if(data_Element.curve_Class == TARGET)
+				{
+					Target_Curve* target_Curve = qobject_cast<Target_Curve*>(data_Element.the_Class);
+					target_Curve->calc_Measured_cos2_k(sampled_Position_Vec[sampling_Point]);
+				}
+				///---------------------------------------------------------------
+				calculation_Tree->calculate_1_Curve(data_Element);
+				///---------------------------------------------------------------
+				weight += sampled_Weight_Vec[sampling_Point];
+				for(size_t point_Index = 0; point_Index<num_Points; point_Index++)
+				{
+					temporary_State[point_Index] += sampled_Weight_Vec[sampling_Point]*(*calculated_Curve)[point_Index];
+				}
+			}
+			for(size_t point_Index = 0; point_Index<num_Points; point_Index++)
+			{
+				temporary_State[point_Index] /= weight;
+			}
+			(*calculated_Curve) = temporary_State;
+
+			// back to normal values
+			if(data_Element.curve_Class == INDEPENDENT)
+			{
+				Independent_Curve* independent_Curve = qobject_cast<Independent_Curve*>(data_Element.the_Class);
+				independent_Curve->calc_Independent_cos2_k();
+			}
+			if(data_Element.curve_Class == TARGET)
+			{
+				Target_Curve* target_Curve = qobject_cast<Target_Curve*>(data_Element.the_Class);
+				target_Curve->calc_Measured_cos2_k();
+			}
+		} else
+		{
+			///---------------------------------------------------------------
+			calculation_Tree->calculate_1_Curve(data_Element);
+			///---------------------------------------------------------------
+		}
+	} else
+	{
+		///---------------------------------------------------------------
+		calculation_Tree->calculate_1_Curve(data_Element);
+		///---------------------------------------------------------------
+	}
+}
+template void Main_Calculation_Module::calculation_With_Sampling_Theta_0_Vector<Independent_Curve>(Calculation_Tree*, Data_Element<Independent_Curve>&, size_t, vector<double>*);
+template void Main_Calculation_Module::calculation_With_Sampling_Theta_0_Vector<Target_Curve>	  (Calculation_Tree*, Data_Element<Target_Curve>&,      size_t, vector<double>*);
 
 void Main_Calculation_Module::single_Calculation(bool print_And_Verbose)
 {
@@ -728,9 +927,9 @@ void Main_Calculation_Module::postprocessing(Data_Element<Type>& data_Element)
 	if( data_Element.calc_Functions.check_Reflectance)
 	{	calculated_Curve = &calculated_Values.R; calculated_Values.R_Instrumental = calculated_Values.R; working_Curve = &calculated_Values.R_Instrumental;}
 	if( data_Element.calc_Functions.check_Transmittance)
-	{	calculated_Curve = &calculated_Values.T; calculated_Values.R_Instrumental = calculated_Values.T; working_Curve = &calculated_Values.T_Instrumental;}
+	{	calculated_Curve = &calculated_Values.T; calculated_Values.T_Instrumental = calculated_Values.T; working_Curve = &calculated_Values.T_Instrumental;}
 	if( data_Element.calc_Functions.check_Scattering)
-	{	calculated_Curve = &calculated_Values.S; calculated_Values.R_Instrumental = calculated_Values.S; working_Curve = &calculated_Values.S_Instrumental;}
+	{	calculated_Curve = &calculated_Values.S; calculated_Values.S_Instrumental = calculated_Values.S; working_Curve = &calculated_Values.S_Instrumental;}
 
 
 	/// Specular_Scan
@@ -779,7 +978,7 @@ void Main_Calculation_Module::postprocessing(Data_Element<Type>& data_Element)
 			*calculated_Curve = *working_Curve;
 		}
 		// detector
-		if(measurement.theta_Resolution_FWHM>DBL_EPSILON)	{
+		if(measurement.theta_Resolution_FWHM>DBL_EPSILON)		{
 			wrap_Curve(measurement.detector_Theta_Angle_Vec, calculated_Curve, measurement.theta_Resolution_Vec, working_Curve, measurement.theta_Distribution);
 		}
 	}
@@ -1863,4 +2062,3 @@ void Main_Calculation_Module::add_Fit(QString name_Modificator, int run)
 	}
 	global_Multilayer_Approach->add_Fitted_Structure(fitted_Trees, name_Modificator, run);
 }
-

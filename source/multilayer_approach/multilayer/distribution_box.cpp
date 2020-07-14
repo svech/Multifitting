@@ -128,8 +128,9 @@ void Distribution_Box::create_Box()
 
 	sampling_Checkbox = new QCheckBox("Use sampling");
 		sampling_Checkbox->setChecked(distribution.use_Sampling);
-	groupbox_Layout->addWidget(sampling_Checkbox,2,0,Qt::AlignLeft);
+	groupbox_Layout->addWidget(sampling_Checkbox,2,0,Qt::AlignLeft);	
 	sampling_Checkbox->setDisabled(totally_Forbid_Sampling);
+//	if(measurement_Type == measurement_Types[Rocking_Curve]) sampling_Checkbox->setDisabled(true);
 
 	// - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
