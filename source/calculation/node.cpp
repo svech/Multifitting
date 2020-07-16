@@ -34,7 +34,7 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 			}
 
 			epsilon.resize(num_Points);
-			vector<double> spectral_Points (1, measurement.wavelength.value);
+			vector<double> spectral_Points (1, measurement.lambda_Value);
 			fill_Epsilon_For_Angular_Measurements(spectral_Points);
 		}
 		if( measurement.argument_Type == argument_Types[Wavelength_Energy] )
@@ -147,7 +147,7 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 		}
 
 		epsilon.resize(num_Points);
-		vector<double> spectral_Points (1, measurement.wavelength.value);
+		vector<double> spectral_Points (1, measurement.lambda_Value);
 		fill_Epsilon_For_Angular_Measurements(spectral_Points);
 	}
 

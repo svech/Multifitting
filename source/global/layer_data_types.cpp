@@ -727,28 +727,39 @@ void Data::calc_Mixed_Resolution()
 	{
 		// pure angular
 		theta_0_Resolution_Vec.resize(beam_Theta_0_Angle_Vec.size());
-		for(size_t i=0; i<theta_0_Resolution_Vec.size(); ++i)
-		{
-			double alpha_Max = 0, beta_Max = 0;
-			if(beam_Geometry.size > sample_Geometry.size*beam_Theta_0_Sin_Vec[i])
-			{
-				alpha_Max = sample_Geometry.size*beam_Theta_0_Sin_Vec[i]/beam_Geometry.size*beam_Theta_0_Distribution.FWHM_distribution;	// in degrees
-				beta_Max = asin(sample_Geometry.size/2*curvature_In_Mm)*180/M_PI;			// in degrees, fixed
-			} else
-			{
-				alpha_Max = beam_Theta_0_Distribution.FWHM_distribution;										 // in degrees, fixed
-				beta_Max = asin(beam_Geometry.size/2/beam_Theta_0_Sin_Vec[i]*curvature_In_Mm)*180/M_PI;// in degrees
-			}
-			theta_0_Resolution_Vec[i] = abs(alpha_Max-2*beta_Max);
-		}
-		if(measurement_Type == measurement_Types[Rocking_Curve])
+		if( measurement_Type == measurement_Types[Specular_Scan] && argument_Type == argument_Types[Beam_Grazing_Angle])
 		{
 			for(size_t i=0; i<theta_0_Resolution_Vec.size(); ++i)
 			{
-				theta_0_Resolution_Vec[i] = theta_0_Resolution_Vec[i]/2;
+				double alpha_Max = 0, beta_Max = 0;
+				if(beam_Geometry.size > sample_Geometry.size*beam_Theta_0_Sin_Vec[i])
+				{
+					alpha_Max = sample_Geometry.size*beam_Theta_0_Sin_Vec[i]/beam_Geometry.size*beam_Theta_0_Distribution.FWHM_distribution;	// in degrees
+					beta_Max = asin(sample_Geometry.size/2*curvature_In_Mm)*180/M_PI;						// in degrees, fixed
+				} else
+				{
+					alpha_Max = beam_Theta_0_Distribution.FWHM_distribution;								// in degrees, fixed
+					beta_Max = asin(beam_Geometry.size/2/beam_Theta_0_Sin_Vec[i]*curvature_In_Mm)*180/M_PI; // in degrees
+				}
+				theta_0_Resolution_Vec[i] = abs(alpha_Max-2*beta_Max);
 			}
 		}
-
+		if( measurement_Type == measurement_Types[Rocking_Curve] ||
+			measurement_Type == measurement_Types[Offset_Scan])
+		{
+			for(size_t i=0; i<theta_0_Resolution_Vec.size(); ++i)
+			{
+				double alpha_Max = 0;
+				if(beam_Geometry.size > sample_Geometry.size*beam_Theta_0_Sin_Vec[i])
+				{
+					alpha_Max = sample_Geometry.size*beam_Theta_0_Sin_Vec[i]/beam_Geometry.size*beam_Theta_0_Distribution.FWHM_distribution;	// in degrees
+				} else
+				{
+					alpha_Max = beam_Theta_0_Distribution.FWHM_distribution;										 // in degrees, fixed
+				}
+				theta_0_Resolution_Vec[i] = alpha_Max/2;
+			}
+		}
 
 		// from spectral resolution
 		theta_0_Resolution_From_Spectral_Vec.resize(beam_Theta_0_Angle_Vec.size());
@@ -790,15 +801,18 @@ void Data::calc_Mixed_Resolution()
 		theta_0_Resolution_Vec.resize(detector_Theta_Angle_Vec.size());
 		for(size_t i=0; i<theta_0_Resolution_Vec.size(); ++i)
 		{
-			theta_0_Resolution_Vec[i] = real_Alpha;
+			theta_0_Resolution_Vec[i] = alpha_Max;
 		}
 
 		// from spectral
-		double angle_Temp = beam_Theta_0_Angle_Value*M_PI/180.; // in radians
+		double angle_Temp_0 = beam_Theta_0_Angle_Value*M_PI/180.; // in radians
 		theta_0_Resolution_From_Spectral_Vec.resize(detector_Theta_Angle_Vec.size());
 		for(size_t i=0; i<theta_0_Resolution_From_Spectral_Vec.size(); ++i)
 		{
-			theta_0_Resolution_From_Spectral_Vec[i] = 2*( angle_Temp - asin((1.-spectral_Distribution.FWHM_distribution/2)*sin(angle_Temp)) ) * 180./M_PI; // in degrees
+			double d_th_0 = 2*( angle_Temp_0 - asin((1.-spectral_Distribution.FWHM_distribution/2)*sin(angle_Temp_0)) ) * 180./M_PI; // in degrees
+			double angle_Temp = detector_Theta_Angle_Vec[i]*M_PI/180.; // in radians
+			double d_th   = 2*( angle_Temp   - asin((1.-spectral_Distribution.FWHM_distribution/2)*sin(angle_Temp  )) ) * 180./M_PI; // in degrees
+			theta_0_Resolution_From_Spectral_Vec[i] = sqrt(d_th_0*d_th_0 + d_th*d_th);
 		}
 	}
 	// 1D detector, theta dependence
@@ -810,19 +824,17 @@ void Data::calc_Mixed_Resolution()
 		if(detector_1D.detector_Type == detectors[Slit])	{theta_Resolution_FWHM = detector_1D.slit_Width/detector_1D.distance_To_Sample*180/M_PI; theta_Distribution = distributions[Gate];}
 		if(detector_1D.detector_Type == detectors[Crystal]) {theta_Resolution_FWHM = detector_1D.detector_Theta_Resolution.FWHM_distribution;		 theta_Distribution = detector_1D.detector_Theta_Resolution.distribution_Function;}
 		theta_Resolution_Vec.resize(detector_Theta_Angle_Vec.size());
-		if(measurement_Type != measurement_Types[Rocking_Curve])
+		for(size_t i=0; i<theta_Resolution_Vec.size(); ++i)
 		{
-			for(size_t i=0; i<theta_Resolution_Vec.size(); ++i)
-			{
-				theta_Resolution_Vec[i] = theta_Resolution_FWHM;
-			}
-		} else // Rocking_Curve
-		{
-			for(size_t i=0; i<theta_Resolution_Vec.size(); ++i)
-			{
-				theta_Resolution_Vec[i] = theta_Resolution_FWHM/2;
-			}
+			theta_Resolution_Vec[i] = theta_Resolution_FWHM;
 		}
+
+//		theta_Resolution_From_Spectral_Vec.resize(detector_Theta_Angle_Vec.size());
+//		for(size_t i=0; i<theta_Resolution_From_Spectral_Vec.size(); ++i)
+//		{
+//			double angle_Temp = detector_Theta_Angle_Vec[i]*M_PI/180.; // in radians
+//			theta_Resolution_From_Spectral_Vec[i] = 2*( angle_Temp - asin((1.-spectral_Distribution.FWHM_distribution/2)*sin(angle_Temp)) ) * 180./M_PI; // in degrees
+//		}
 	}
 	// 2D detector, theta & phi dependence
 	if( measurement_Type == measurement_Types[GISAS_Map] )
@@ -837,6 +849,12 @@ void Data::calc_Mixed_Resolution()
 		{
 			theta_Resolution_Vec[i] = theta_Resolution_FWHM;
 		}
+//		theta_Resolution_From_Spectral_Vec.resize(detector_Theta_Angle_Vec.size());
+//		for(size_t i=0; i<theta_Resolution_From_Spectral_Vec.size(); ++i)
+//		{
+//			double angle_Temp = detector_Theta_Angle_Vec[i]*M_PI/180.; // in radians
+//			theta_Resolution_From_Spectral_Vec[i] = 2*( angle_Temp - asin((1.-spectral_Distribution.FWHM_distribution/2)*sin(angle_Temp)) ) * 180./M_PI; // in degrees
+//		}
 
 		if(detector_2D.detector_Type == detectors[Spherical])	{phi_Resolution_FWHM = detector_2D.detector_Phi_Resolution.FWHM_distribution; phi_Distribution = detector_2D.detector_Phi_Resolution.distribution_Function;}
 		// TODO

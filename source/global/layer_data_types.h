@@ -57,7 +57,7 @@ public:
 		// deam distribution
 		Distribution spectral_Distribution;		
 		Distribution beam_Theta_0_Distribution;
-		Distribution beam_Phi_0_Distribution;		
+		Distribution beam_Phi_0_Distribution;
 
 		// detector
 		Detector_1D	detector_1D;
@@ -75,7 +75,8 @@ public:
 		vector<double>  theta_0_Resolution_From_Spectral_Vec;	// without saving, arg = Beam_Grazing_Angle
 		vector<double>  spectral_Resolution_Vec;				// without saving, arg = Wavelength_Energy
 		vector<double>  spectral_Resolution_From_Theta_0_Vec;	// without saving, arg = Wavelength_Energy
-		vector<double>  theta_Resolution_Vec;		// without saving, arg = Detector_Polar_Angle
+		vector<double>  theta_Resolution_Vec;				// without saving, arg = Detector_Polar_Angle
+//		vector<double>  theta_Resolution_From_Spectral_Vec;	// without saving, arg = Detector_Polar_Angle
 		vector<double>  phi_Resolution_Vec;			// without saving, arg = Detector_Azimuthal_Angle
 		double theta_Resolution_FWHM = 0;			// without saving, arg = Detector_Polar_Angle
 		QString theta_Distribution;					// without saving, arg = Detector_Polar_Angle

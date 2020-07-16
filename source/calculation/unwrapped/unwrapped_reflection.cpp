@@ -2348,9 +2348,9 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 				sin_Theta_0 = max(measurement.beam_Theta_0_Sin_Vec[point_Index], DBL_EPSILON);
 				cos_Theta_0 = max(measurement.beam_Theta_0_Cos_Vec[point_Index], DBL_EPSILON);
 			}
-			double e_Factor_PT_1D		   = pow(measurement.k_Value,3)/(16*M_PI     *sin_Theta_0*sqrt(cos_Theta_0*measurement.detector_Theta_Cos_Vec[point_Index]));
+			double e_Factor_PT_1D		   = pow(measurement.k_Value,3)/(16*M_PI     *sin_Theta_0*sqrt(abs(cos_Theta_0*measurement.detector_Theta_Cos_Vec[point_Index])));
 			double e_Factor_PT_2D		   = pow(measurement.k_Value,4)/(16*M_PI*M_PI*sin_Theta_0);
-			double e_Factor_DWBA_SA_CSA_1D = pow(measurement.k_Value,3)/(2 *M_PI*M_PI*sin_Theta_0*sqrt(cos_Theta_0*measurement.detector_Theta_Cos_Vec[point_Index]));
+			double e_Factor_DWBA_SA_CSA_1D = pow(measurement.k_Value,3)/(2 *M_PI*M_PI*sin_Theta_0*sqrt(abs(cos_Theta_0*measurement.detector_Theta_Cos_Vec[point_Index])));
 
 			// common
 			if(!multilayer->discretization_Parameters.enable_Discretization)

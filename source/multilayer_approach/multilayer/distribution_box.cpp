@@ -95,8 +95,15 @@ void Distribution_Box::create_Box()
 	// - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 	resolution_SpinBox = new MyDoubleSpinBox(this,false);
-		resolution_SpinBox->setAccelerated(true);
-		resolution_SpinBox->setRange(0, MAX_DOUBLE);
+		resolution_SpinBox->setAccelerated(true);				
+		if(angle_Units_List.contains(angular_Units))
+		{
+			double coeff = angle_Coefficients_Map.value(angular_Units);
+			resolution_SpinBox->setRange(0, 90/coeff);
+		} else
+		{
+			resolution_SpinBox->setRange(0, MAX_DOUBLE);
+		}
 		resolution_SpinBox->setDecimals(7);
 		resolution_SpinBox->setValue(set_From_Value(distribution.FWHM_distribution));
 		resolution_SpinBox->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
@@ -130,7 +137,6 @@ void Distribution_Box::create_Box()
 		sampling_Checkbox->setChecked(distribution.use_Sampling);
 	groupbox_Layout->addWidget(sampling_Checkbox,2,0,Qt::AlignLeft);	
 	sampling_Checkbox->setDisabled(totally_Forbid_Sampling);
-//	if(measurement_Type == measurement_Types[Rocking_Curve]) sampling_Checkbox->setDisabled(true);
 
 	// - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 

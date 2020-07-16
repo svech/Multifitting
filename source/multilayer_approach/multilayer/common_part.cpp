@@ -52,7 +52,7 @@ void Common_Part::create_Detector_GroupBox()
 			detector_Type_ComboBox->addItem(detectors[Slit]);
 			detector_Type_ComboBox->addItem(detectors[Crystal]);
 			detector_Type_ComboBox->setCurrentText(measurement.detector_1D.detector_Type);
-			detector_Type_ComboBox->setFixedWidth(130);
+			detector_Type_ComboBox->setFixedWidth(100);
 		detector_Type_Layout->addWidget(detector_Type_ComboBox,0,Qt::AlignLeft);
 
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - -
