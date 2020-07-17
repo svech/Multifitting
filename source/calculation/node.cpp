@@ -248,7 +248,9 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 				is_Norm = is_Norm || (inter.enabled && (inter.interlayer.value > DBL_MIN) && (inter.my_Sigma_Diffuse.value > DBL_MIN));
 			}
 
-			if( is_Norm && (abs(struct_Data.sigma_Diffuse.value) > DBL_MIN) && !sigma_Grading && !inconvenient_Approximation && measurement.measurement_Type == measurement_Types[Specular_Scan] )
+			if( is_Norm && (abs(struct_Data.sigma_Diffuse.value) > DBL_MIN) && !sigma_Grading && !inconvenient_Approximation
+				&& (measurement.measurement_Type == measurement_Types[Specular_Scan] || mode == SPECULAR_MODE)
+				)
 			{
 				// temp variables
 				double a = M_PI/sqrt(M_PI*M_PI - 8.);

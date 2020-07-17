@@ -823,11 +823,25 @@ void Data::calc_Mixed_Resolution()
 		// pure detector
 		if(detector_1D.detector_Type == detectors[Slit])	{theta_Resolution_FWHM = detector_1D.slit_Width/detector_1D.distance_To_Sample*180/M_PI; theta_Distribution = distributions[Gate];}
 		if(detector_1D.detector_Type == detectors[Crystal]) {theta_Resolution_FWHM = detector_1D.detector_Theta_Resolution.FWHM_distribution;		 theta_Distribution = detector_1D.detector_Theta_Resolution.distribution_Function;}
+
 		theta_Resolution_Vec.resize(detector_Theta_Angle_Vec.size());
-		for(size_t i=0; i<theta_Resolution_Vec.size(); ++i)
+		if( measurement_Type == measurement_Types[Detector_Scan] )
 		{
-			theta_Resolution_Vec[i] = theta_Resolution_FWHM;
+			for(size_t i=0; i<theta_Resolution_Vec.size(); ++i)
+			{
+				theta_Resolution_Vec[i] = theta_Resolution_FWHM;
+			}
 		}
+		if( measurement_Type == measurement_Types[Rocking_Curve] ||
+			measurement_Type == measurement_Types[Offset_Scan] )
+		{
+			for(size_t i=0; i<theta_Resolution_Vec.size(); ++i)
+			{
+				theta_Resolution_Vec[i] = theta_Resolution_FWHM/2;
+			}
+		}
+
+
 
 //		theta_Resolution_From_Spectral_Vec.resize(detector_Theta_Angle_Vec.size());
 //		for(size_t i=0; i<theta_Resolution_From_Spectral_Vec.size(); ++i)

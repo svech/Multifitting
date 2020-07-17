@@ -166,7 +166,14 @@ void Common_Part::create_Detector_GroupBox()
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 		resolution_Function_ComboBox = new QComboBox;
+		if( measurement.measurement_Type != measurement_Types[Rocking_Curve] &&
+			measurement.measurement_Type != measurement_Types[Offset_Scan])
+		{
 			resolution_Function_ComboBox->addItems(distributions);
+		} else
+		{
+			resolution_Function_ComboBox->addItems(distributions_No_Lorentz);
+		}
 			resolution_Function_ComboBox->setCurrentText(measurement.detector_1D.detector_Theta_Resolution.distribution_Function);
 			resolution_Function_ComboBox->setFixedWidth(DISTRIBUTION_BOX_FIELD_WIDTH);
 		crystal_Layout->addWidget(resolution_Function_ComboBox,0,Qt::AlignLeft);
