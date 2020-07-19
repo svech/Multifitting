@@ -238,9 +238,9 @@ void Target_Curve::parse_2D_Data()
 	}
 
 	// decision
-	if(curve.value_2D.size()>3)
+	if(curve.value_2D.size()>=3)
 	{
-		if(curve.value_2D.front().size()>3)
+		if(curve.value_2D.front().size()>=3)
 		{
 			loaded_And_Ready = true;
 		} else
@@ -492,6 +492,8 @@ void Target_Curve::refresh_Description_Label()
 
 void Target_Curve::calc_Measured_cos2_k(double angle_Shift, double lambda_Shift)
 {
+	if(!loaded_And_Ready) return;
+
 	double coeff_Spectral = wavelength_Coefficients_Map.value(spectral_Units);
 	double coeff_Angular = angle_Coefficients_Map.value(angular_Units);
 
@@ -702,7 +704,7 @@ void Target_Curve::calc_Measured_cos2_k(double angle_Shift, double lambda_Shift)
 				{
 					measurement.detector_Theta_Angle_Vec[i] = angle_Temp;
 					measurement.detector_Theta_Cos_Vec [i] = cos(angle_Temp*M_PI/180.);
-					measurement.detector_Theta_Cos2_Vec[i] = pow(angle_Temp,2);
+					measurement.detector_Theta_Cos2_Vec[i] = pow(measurement.detector_Theta_Cos_Vec [i],2);
 					angle_Temp += angle_Step;
 				}
 			}
@@ -925,6 +927,7 @@ QDataStream& operator <<( QDataStream& stream, const Target_Curve* target_Curve 
 {
 	return stream	<< target_Curve->curve << target_Curve->fit_Params << target_Curve->measurement
 					<< target_Curve->filename << target_Curve->filepath
+					<< target_Curve->calc_Functions
 					<< target_Curve->plot_Options_Experimental
 					<< target_Curve->plot_Options_Calculated
 					<< target_Curve->header << target_Curve->label_Text
@@ -937,6 +940,7 @@ QDataStream& operator >>(QDataStream& stream,		 Target_Curve* target_Curve )
 	{
 		stream	>> target_Curve->curve >> target_Curve->fit_Params >> target_Curve->measurement
 				>> target_Curve->filename >> target_Curve->filepath
+				>> target_Curve->calc_Functions
 				>> target_Curve->plot_Options_Experimental
 				>> target_Curve->plot_Options_Calculated
 				>> target_Curve->header >> target_Curve->label_Text

@@ -684,6 +684,46 @@ void Calculation_Settings_Editor::load_Target_Parameters(int tab_Index)
 				chi2_CheckBox->toggled(chi2_CheckBox->isChecked());
 				if(target_Curve->fit_Params.maximize_Integral)
 				{maximize_Integral_Checkbox->toggled(maximize_Integral_Checkbox->isChecked());}
+			}			
+
+			// scattering: smoothing and specular peak
+			if(	target_Curve->measurement.measurement_Type == measurement_Types[Detector_Scan] ||
+				target_Curve->measurement.measurement_Type == measurement_Types[Rocking_Curve] ||
+				target_Curve->measurement.measurement_Type == measurement_Types[Offset_Scan] ||
+				target_Curve->measurement.measurement_Type == measurement_Types[GISAS_Map] )
+			{
+				QHBoxLayout* row_5_Layout = new QHBoxLayout;
+				box_Layout->addLayout(row_5_Layout);
+
+				// -------------------------------------------------------
+
+				QHBoxLayout* row_Left_Layout = new QHBoxLayout;
+					row_Left_Layout->setAlignment(Qt::AlignLeft);
+				row_5_Layout->addLayout(row_Left_Layout);
+
+				QCheckBox* use_Instrumental_Smoothing = new QCheckBox("Instrumental smoothing");
+					use_Instrumental_Smoothing->setChecked(target_Curve->calc_Functions.instrumental_Smoothing);
+				row_Left_Layout->addWidget(use_Instrumental_Smoothing,0,Qt::AlignLeft);
+				connect(use_Instrumental_Smoothing,&QCheckBox::toggled, this, [=]
+				{
+					target_Curve->calc_Functions.instrumental_Smoothing = use_Instrumental_Smoothing->isChecked();
+					global_Multilayer_Approach->global_Recalculate();
+				});
+
+				// -------------------------------------------------------
+
+				QHBoxLayout* row_Right_Layout = new QHBoxLayout;
+					row_Right_Layout->setAlignment(Qt::AlignRight);
+				row_5_Layout->addLayout(row_Right_Layout);
+
+				QCheckBox* add_Specular_Peak = new QCheckBox("Add specular peak");
+					add_Specular_Peak->setChecked(target_Curve->calc_Functions.add_Specular_Peak);
+				row_Right_Layout->addWidget(add_Specular_Peak,0,Qt::AlignRight);
+				connect(add_Specular_Peak,&QCheckBox::toggled, this, [=]
+				{
+					target_Curve->calc_Functions.add_Specular_Peak = add_Specular_Peak->isChecked();
+					global_Multilayer_Approach->global_Recalculate();
+				});
 			}
 		}
 		target_Index++;
@@ -808,17 +848,23 @@ void Calculation_Settings_Editor::load_Independent_Parameters(int tab_Index)
 					independent_Curve->measurement.measurement_Type == measurement_Types[Rocking_Curve] ||
 					independent_Curve->measurement.measurement_Type == measurement_Types[Offset_Scan]   )
 				{
-					QCheckBox* scattering_Functions = new QCheckBox(QString(scattering_Function) + " (" + independent_Curve->measurement.measurement_Type + ")");
-						scattering_Functions->setChecked(independent_Curve->calc_Functions.check_Scattering);
+					QLabel* scattering_Functions = new QLabel(QString(scattering_Function) + " (" + independent_Curve->measurement.measurement_Type + ")");
 					standard_Functions_Layout->addWidget(scattering_Functions);
-					connect(scattering_Functions,&QCheckBox::toggled, this, [=]{ refresh_Independent_Calc_Properties(tab_Index, independent_Index, box); });
+
+//					QCheckBox* scattering_Functions = new QCheckBox(QString(scattering_Function) + " (" + independent_Curve->measurement.measurement_Type + ")");
+//						scattering_Functions->setChecked(independent_Curve->calc_Functions.check_Scattering);
+//					standard_Functions_Layout->addWidget(scattering_Functions);
+//					connect(scattering_Functions,&QCheckBox::toggled, this, [=]{ refresh_Independent_Calc_Properties(tab_Index, independent_Index, box); });
 				}
 				if(	independent_Curve->measurement.measurement_Type == measurement_Types[GISAS_Map] )
 				{
-					QCheckBox* gisas_Functions = new QCheckBox(gisas_Function);
-						gisas_Functions->setChecked(independent_Curve->calc_Functions.check_GISAS);
+					QLabel* gisas_Functions = new QLabel(gisas_Function);
 					standard_Functions_Layout->addWidget(gisas_Functions);
-					connect(gisas_Functions, &QCheckBox::toggled, this, [=]{ refresh_Independent_Calc_Properties(tab_Index, independent_Index, box); });
+
+//					QCheckBox* gisas_Functions = new QCheckBox(gisas_Function);
+//						gisas_Functions->setChecked(independent_Curve->calc_Functions.check_GISAS);
+//					standard_Functions_Layout->addWidget(gisas_Functions);
+//					connect(gisas_Functions, &QCheckBox::toggled, this, [=]{ refresh_Independent_Calc_Properties(tab_Index, independent_Index, box); });
 				}
 			}
 
@@ -948,6 +994,27 @@ void Calculation_Settings_Editor::load_Independent_Parameters(int tab_Index)
 				}
 			}
 
+			// instrumental smoothing for scattering
+			if(	independent_Curve->measurement.measurement_Type == measurement_Types[Detector_Scan] ||
+				independent_Curve->measurement.measurement_Type == measurement_Types[Rocking_Curve] ||
+				independent_Curve->measurement.measurement_Type == measurement_Types[Offset_Scan]   ||
+				independent_Curve->measurement.measurement_Type == measurement_Types[GISAS_Map] )
+			{
+				QHBoxLayout* additional_Layout = new QHBoxLayout;
+					additional_Layout->setAlignment(Qt::AlignLeft);
+					additional_Layout->setContentsMargins(10,0,0,0);
+				box_Layout->addLayout(additional_Layout);
+
+				QCheckBox* use_Instrumental_Smoothing = new QCheckBox("Apply instrumental smoothing");
+					use_Instrumental_Smoothing->setChecked(independent_Curve->calc_Functions.instrumental_Smoothing);
+				additional_Layout->addWidget(use_Instrumental_Smoothing);
+				connect(use_Instrumental_Smoothing,&QCheckBox::toggled, this, [=]
+				{
+					independent_Curve->calc_Functions.instrumental_Smoothing = use_Instrumental_Smoothing->isChecked();
+					global_Multilayer_Approach->global_Recalculate();
+				});
+			}
+
 			// specular peak
 			if(	independent_Curve->measurement.measurement_Type == measurement_Types[Detector_Scan] ||
 				independent_Curve->measurement.measurement_Type == measurement_Types[Rocking_Curve] ||
@@ -979,6 +1046,25 @@ void Calculation_Settings_Editor::refresh_Independent_Calc_Properties(int tab_In
 	Multilayer* multilayer = qobject_cast<Multilayer*>(multilayer_Tabs->widget(tab_Index));
 	Independent_Curve* independent_Curve = qobject_cast<Independent_Curve*>(multilayer->independent_Curve_Tabs->widget(independent_Index));
 
+	if(independent_Curve->measurement.measurement_Type == measurement_Types[GISAS_Map])
+	{
+		if( multilayer->imperfections_Model.common_Model == fractal_Gauss_Model ||
+			multilayer->imperfections_Model.approximation == DWBA_approximation ||
+			multilayer->imperfections_Model.approximation == SA_approximation ||
+			multilayer->imperfections_Model.approximation == CSA_approximation )
+		{
+			QString text;
+			if( multilayer->imperfections_Model.common_Model == fractal_Gauss_Model ) text = "2D scattering can't be simulated with fractal Gauss model of roughness.\nChange the model in Structure Table.";
+			if( multilayer->imperfections_Model.approximation == DWBA_approximation ) text = "2D scattering can't be simulated in DWBA approximation.\nChange the approximation in Structure Table.";
+			if( multilayer->imperfections_Model.approximation == SA_approximation   ) text = "2D scattering can't be simulated in SA approximation.\nChange the approximation in Structure Table.";
+			if( multilayer->imperfections_Model.approximation == CSA_approximation  ) text = "2D scattering can't be simulated in CSA approximation.\nChange the approximation in Structure Table.";
+
+			QMessageBox::information(this,"GISAS simulation", text);
+			box->blockSignals(true);
+			box->setChecked(false);
+			box->blockSignals(false);
+		}
+	}
 	independent_Curve->calc_Functions.check_Enabled = box->isChecked();
 
 	if(qobject_cast<QCheckBox*>(sender()))

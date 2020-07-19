@@ -111,7 +111,7 @@ void Table_Roughness_Model_Editor::create_Main_Layout()
 						Independent_Curve* independent_Curve = qobject_cast<Independent_Curve*>(multilayer->independent_Curve_Tabs->widget(independent_Index));
 						if(independent_Curve->measurement.measurement_Type == measurement_Types[GISAS_Map])
 						{
-							independent_Curve->calc_Functions.check_GISAS = false;
+							independent_Curve->calc_Functions.check_Enabled = false;
 						}
 					}
 

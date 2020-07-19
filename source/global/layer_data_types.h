@@ -72,6 +72,7 @@ public:
 		double background;
 
 		vector<double>  theta_0_Resolution_Vec;		// without saving, arg = Beam_Grazing_Angle
+		vector<double>  theta_0_Resolution_Vec_Rocking_Offset;		// without saving, arg = Beam_Grazing_Angle
 		vector<double>  theta_0_Resolution_From_Spectral_Vec;	// without saving, arg = Beam_Grazing_Angle
 		vector<double>  spectral_Resolution_Vec;				// without saving, arg = Wavelength_Energy
 		vector<double>  spectral_Resolution_From_Theta_0_Vec;	// without saving, arg = Wavelength_Energy

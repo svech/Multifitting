@@ -140,6 +140,7 @@ void Rocking_Target_Curve_Part::create_Value_GroupBox()
 	if(target_Curve->curve.value_Type == no_Value_Type)
 	{
 		target_Curve->curve.value_Type = value_Types[Scattering];
+		target_Curve->calc_Functions.check_Scattering = true;
 	}
 
 	QGroupBox* value_GroupBox = new QGroupBox("Value");

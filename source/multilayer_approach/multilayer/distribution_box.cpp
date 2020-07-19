@@ -124,10 +124,11 @@ void Distribution_Box::create_Box()
 	groupbox_Layout->addWidget(distribution_Label,1,0,Qt::AlignLeft);
 
 	distribution_ComboBox = new QComboBox;
-		if( measurement_Type != measurement_Types[GISAS_Map] &&
-			measurement_Type != measurement_Types[Rocking_Curve] &&
-			measurement_Type != measurement_Types[Offset_Scan]) distribution_ComboBox->addItems(distributions);
-		else												 distribution_ComboBox->addItems(distributions_No_Lorentz);
+//		if( measurement_Type != measurement_Types[GISAS_Map] &&
+//			measurement_Type != measurement_Types[Rocking_Curve] &&
+//			measurement_Type != measurement_Types[Offset_Scan]) distribution_ComboBox->addItems(distributions);
+//		else
+		distribution_ComboBox->addItems(distributions_No_Lorentz);
 		distribution_ComboBox->setCurrentText(distribution.distribution_Function);
 		distribution_ComboBox->setFixedWidth(DISTRIBUTION_BOX_FIELD_WIDTH);
 		if(phi == "phi") distribution_ComboBox->setDisabled(true);

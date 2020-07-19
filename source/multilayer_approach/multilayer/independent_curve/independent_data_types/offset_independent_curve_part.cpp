@@ -179,7 +179,7 @@ void Offset_Independent_Curve_Part::create_Beam_GroupBox()
 		at_Fixed_Detector_Offset_SpinBox = new MyDoubleSpinBox;
 			at_Fixed_Detector_Offset_SpinBox->setAccelerated(true);
 			at_Fixed_Detector_Offset_SpinBox->setDecimals(7);
-			at_Fixed_Detector_Offset_SpinBox->setSingleStep(0.01);
+			at_Fixed_Detector_Offset_SpinBox->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
 			at_Fixed_Detector_Offset_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
 			at_Fixed_Detector_Offset_SpinBox->setProperty(min_Size_Property, TARGET_LINE_AT_FIXED_WIDTH);
 		beam_GroupBox_Layout->addWidget(at_Fixed_Detector_Offset_SpinBox,1,1,Qt::AlignLeft);

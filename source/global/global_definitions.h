@@ -861,6 +861,7 @@ struct Calc_Functions			{bool check_Enabled = true;
 								 double field_Ambient_Distance = 0;
 								 double field_Substrate_Distance = 0;
 								 bool add_Specular_Peak = true;
+								 bool instrumental_Smoothing = true;
 
 								 bool if_Something_Enabled_1D() const;
 								 bool if_Something_Enabled_2D() const;

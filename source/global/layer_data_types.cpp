@@ -727,26 +727,25 @@ void Data::calc_Mixed_Resolution()
 	{
 		// pure angular
 		theta_0_Resolution_Vec.resize(beam_Theta_0_Angle_Vec.size());
-		if( measurement_Type == measurement_Types[Specular_Scan] && argument_Type == argument_Types[Beam_Grazing_Angle])
+		for(size_t i=0; i<theta_0_Resolution_Vec.size(); ++i)
 		{
-			for(size_t i=0; i<theta_0_Resolution_Vec.size(); ++i)
+			double alpha_Max = 0, beta_Max = 0;
+			if(beam_Geometry.size > sample_Geometry.size*beam_Theta_0_Sin_Vec[i])
 			{
-				double alpha_Max = 0, beta_Max = 0;
-				if(beam_Geometry.size > sample_Geometry.size*beam_Theta_0_Sin_Vec[i])
-				{
-					alpha_Max = sample_Geometry.size*beam_Theta_0_Sin_Vec[i]/beam_Geometry.size*beam_Theta_0_Distribution.FWHM_distribution;	// in degrees
-					beta_Max = asin(sample_Geometry.size/2*curvature_In_Mm)*180/M_PI;						// in degrees, fixed
-				} else
-				{
-					alpha_Max = beam_Theta_0_Distribution.FWHM_distribution;								// in degrees, fixed
-					beta_Max = asin(beam_Geometry.size/2/beam_Theta_0_Sin_Vec[i]*curvature_In_Mm)*180/M_PI; // in degrees
-				}
-				theta_0_Resolution_Vec[i] = abs(alpha_Max-2*beta_Max);
+				alpha_Max = sample_Geometry.size*beam_Theta_0_Sin_Vec[i]/beam_Geometry.size*beam_Theta_0_Distribution.FWHM_distribution;	// in degrees
+				beta_Max = asin(sample_Geometry.size/2*curvature_In_Mm)*180/M_PI;						// in degrees, fixed
+			} else
+			{
+				alpha_Max = beam_Theta_0_Distribution.FWHM_distribution;								// in degrees, fixed
+				beta_Max = asin(beam_Geometry.size/2/beam_Theta_0_Sin_Vec[i]*curvature_In_Mm)*180/M_PI; // in degrees
 			}
+			theta_0_Resolution_Vec[i] = abs(alpha_Max-2*beta_Max);
 		}
+
 		if( measurement_Type == measurement_Types[Rocking_Curve] ||
 			measurement_Type == measurement_Types[Offset_Scan])
 		{
+			theta_0_Resolution_Vec_Rocking_Offset.resize(beam_Theta_0_Angle_Vec.size());
 			for(size_t i=0; i<theta_0_Resolution_Vec.size(); ++i)
 			{
 				double alpha_Max = 0;
@@ -757,7 +756,7 @@ void Data::calc_Mixed_Resolution()
 				{
 					alpha_Max = beam_Theta_0_Distribution.FWHM_distribution;										 // in degrees, fixed
 				}
-				theta_0_Resolution_Vec[i] = alpha_Max/2;
+				theta_0_Resolution_Vec_Rocking_Offset[i] = alpha_Max/2;
 			}
 		}
 

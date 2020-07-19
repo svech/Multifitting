@@ -1288,7 +1288,7 @@ void Unwrapped_Reflection::calc_Amplitudes_Field(int thread_Index, int point_Ind
 	complex<double> factor = 1;
 	U_i[0] = 1;
 	U_r[0] = r_Local[0];
-	for (int j = 1; (j<num_Boundaries); j++)
+	for (int j = 1; j<num_Boundaries; j++)
 	{
 		factor = exponenta[point_Index][j-1]/(1. + r_Exp[j-1]);
 		U_i[j] = (U_i[j-1] + U_r[j-1])*factor;
@@ -1343,19 +1343,19 @@ void Unwrapped_Reflection::calc_Field_Up_Low(int thread_Index, int point_Index, 
 
 	complex<double> exp_1, exp_2;
 
-	for (int boundary_Index = 0; boundary_Index<num_Boundaries_Sharp; boundary_Index++)
+	for (int j = 0; j<num_Boundaries_Sharp; j++)
 	{
-		b1_Up_Boundary[boundary_Index] = q0_U_i[boundary_Index] * q_U_i[boundary_Index];
-		b2_Up_Boundary[boundary_Index] = q0_U_i[boundary_Index] * q_U_r[boundary_Index];
-		b3_Up_Boundary[boundary_Index] = q0_U_r[boundary_Index] * q_U_i[boundary_Index];
-		b4_Up_Boundary[boundary_Index] = q0_U_r[boundary_Index] * q_U_r[boundary_Index];
+		b1_Up_Boundary[j] = q0_U_i[j] * q_U_i[j];
+		b2_Up_Boundary[j] = q0_U_i[j] * q_U_r[j];
+		b3_Up_Boundary[j] = q0_U_r[j] * q_U_i[j];
+		b4_Up_Boundary[j] = q0_U_r[j] * q_U_r[j];
 
-		exp_1 = q0_Exponenta[boundary_Index] * q_Exponenta[boundary_Index];
-		exp_2 = q0_Exponenta[boundary_Index] / q_Exponenta[boundary_Index];
-		b1_Low_Boundary[boundary_Index] = q0_U_i[boundary_Index+1] * q_U_i[boundary_Index+1] / exp_1;
-		b2_Low_Boundary[boundary_Index] = q0_U_i[boundary_Index+1] * q_U_r[boundary_Index+1] / exp_2;
-		b3_Low_Boundary[boundary_Index] = q0_U_r[boundary_Index+1] * q_U_i[boundary_Index+1] * exp_2;
-		b4_Low_Boundary[boundary_Index] = q0_U_r[boundary_Index+1] * q_U_r[boundary_Index+1] * exp_1;
+		exp_1 = q0_Exponenta[j] * q_Exponenta[j];
+		exp_2 = q0_Exponenta[j] / q_Exponenta[j];
+		b1_Low_Boundary[j] = q0_U_i[j+1] * q_U_i[j+1] / exp_1;
+		b2_Low_Boundary[j] = q0_U_i[j+1] * q_U_r[j+1] / exp_2;
+		b3_Low_Boundary[j] = q0_U_r[j+1] * q_U_i[j+1] * exp_2;
+		b4_Low_Boundary[j] = q0_U_r[j+1] * q_U_r[j+1] * exp_1;
 	}
 }
 
@@ -2520,6 +2520,7 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 
 									calculated_Values.GISAS_Map[phi_Index][point_Index] = e_Factor_PT_2D * field_Term_Sum_s * PSD_2D_Factor * measurement.footprint_Factor_Vec[point_Index] + measurement.background;
 								}
+
 							} else
 							// pure p-polarization
 							if( (measurement.polarization + 1) < POLARIZATION_TOLERANCE)

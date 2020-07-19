@@ -139,6 +139,7 @@ void Specular_Target_Curve_Part::create_Value_GroupBox()
 	if(target_Curve->curve.value_Type == no_Value_Type)
 	{
 		target_Curve->curve.value_Type = value_Types[Reflectance];
+		target_Curve->calc_Functions.check_Reflectance = true;
 	}
 
 	QGroupBox* value_GroupBox = new QGroupBox("Value");
@@ -631,6 +632,10 @@ void Specular_Target_Curve_Part::refresh_At_Fixed_Value()
 void Specular_Target_Curve_Part::refresh_Value_Type()
 {
 	target_Curve->curve.value_Type = value_Type_ComboBox->currentText();
+
+	if(target_Curve->curve.value_Type == value_Types[Reflectance])   {target_Curve->calc_Functions.check_Reflectance = true;  target_Curve->calc_Functions.check_Transmittance = false;}
+	if(target_Curve->curve.value_Type == value_Types[Transmittance]) {target_Curve->calc_Functions.check_Reflectance = false; target_Curve->calc_Functions.check_Transmittance = true; }
+
 	target_Curve->refresh_Description_Label();
 	refresh_Plot_Axes_Labels();
 

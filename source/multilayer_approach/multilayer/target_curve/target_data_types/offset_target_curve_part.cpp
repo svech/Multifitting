@@ -139,6 +139,7 @@ void Offset_Target_Curve_Part::create_Value_GroupBox()
 	if(target_Curve->curve.value_Type == no_Value_Type)
 	{
 		target_Curve->curve.value_Type = value_Types[Scattering];
+		target_Curve->calc_Functions.check_Scattering = true;
 	}
 
 	QGroupBox* value_GroupBox = new QGroupBox("Value");
@@ -327,7 +328,7 @@ void Offset_Target_Curve_Part::create_Beam_GroupBox()
 			at_Fixed_Detector_Offset_SpinBox->setRange(0,180./coeff);
 			at_Fixed_Detector_Offset_SpinBox->setDecimals(7);
 			at_Fixed_Detector_Offset_SpinBox->setValue(target_Curve->measurement.detector_Theta_Offset/coeff);
-			at_Fixed_Detector_Offset_SpinBox->setSingleStep(0.01);
+			at_Fixed_Detector_Offset_SpinBox->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
 			at_Fixed_Detector_Offset_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
 			at_Fixed_Detector_Offset_SpinBox->setProperty(min_Size_Property, TARGET_LINE_AT_FIXED_WIDTH);
 		beam_GroupBox_Layout->addWidget(at_Fixed_Detector_Offset_SpinBox,1,2,1,2,Qt::AlignRight);

@@ -518,6 +518,10 @@ void Calculation_Tree::calculate_1_Kind_Preliminary(Data_Element<Type>& data_Ele
 		Target_Curve* target_Curve = qobject_cast<Target_Curve*>(data_Element.the_Class);
 		target_Curve->calc_Measured_cos2_k();
 
+		// new version has calc_Functions in target_Curve
+		data_Element.calc_Functions = target_Curve->calc_Functions;
+
+		// for old version files
 		if( target_Curve->curve.value_Type == value_Types[Reflectance]   )	{ data_Element.calc_Functions.check_Reflectance = true; }
 		if( target_Curve->curve.value_Type == value_Types[Transmittance] )	{ data_Element.calc_Functions.check_Transmittance = true; }
 		if( target_Curve->curve.value_Type == value_Types[Scattering]   )	{ data_Element.calc_Functions.check_Scattering = true; }

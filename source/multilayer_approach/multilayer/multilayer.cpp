@@ -382,7 +382,7 @@ void Multilayer::open_Editor_Window(Type_Curve* type_Curve, Type_Curve_Editor* t
 			connect(offset_Button,    &QPushButton::clicked, this, [=]{type_Curve->measurement.measurement_Type = measurement_Types[Offset_Scan];   type_Curve->measurement.spectral_Distribution.use_Sampling = true; choice_Data_Type_Window->close(); open_Editor_Window(type_Curve, type_Curve_Editor);});
 				choice_Data_Type_Group_Box_Layout->addWidget(offset_Button);
 			QPushButton* gisas_Button    = new QPushButton(measurement_Types[GISAS_Map]);
-			connect(gisas_Button,     &QPushButton::clicked, this, [=]{type_Curve->measurement.measurement_Type = measurement_Types[GISAS_Map];		choice_Data_Type_Window->close(); open_Editor_Window(type_Curve, type_Curve_Editor);});
+			connect(gisas_Button,     &QPushButton::clicked, this, [=]{type_Curve->measurement.measurement_Type = measurement_Types[GISAS_Map];		type_Curve->calc_Functions.instrumental_Smoothing = false; choice_Data_Type_Window->close(); open_Editor_Window(type_Curve, type_Curve_Editor);});
 				choice_Data_Type_Group_Box_Layout->addWidget(gisas_Button);
 		} else
 		{
