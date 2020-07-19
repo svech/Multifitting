@@ -228,11 +228,18 @@ void Fitting::calc_Residual(const gsl_vector* x, Fitting_Params* params, gsl_vec
 			// calculation
 			params->calculation_Trees[tab_Index]->calculate_1_Kind(target_Element);
 			// TODO
-//			params->main_Calculation_Module->decrease_Mesh_density(target_Element, true);
+//			params->main_Calculation_Module->decrease_Mesh_Density(target_Element, true);
 			// fill residual
 			fill_Residual(params, residual_Shift, target_Element, f, target_Index);
 			target_Index++;
 		}
+
+//			for(Data_Element<Target_Curve>& target_Data_Element : calculation_Trees[tab_Index]->target)
+//			{
+//				calculation_With_Sampling(calculation_Trees[tab_Index], target_Data_Element);
+//				postprocessing(target_Data_Element, true);
+//				if(lambda_Out_Of_Range) return;
+//			}
 	}
 
 	/// addition to residual from restrictions of regular aperiodics

@@ -420,6 +420,7 @@ void Calculation_Settings_Editor::load_Target_Parameters(int tab_Index)
 				fit->toggled(fit->isChecked());
 			}
 			// mesh density & shift
+			if(target_Curve->measurement.measurement_Type != measurement_Types[GISAS_Map])
 			{
 				QHBoxLayout* row_Right_Layout = new QHBoxLayout;
 					row_Right_Layout->setAlignment(Qt::AlignRight);
@@ -491,14 +492,6 @@ void Calculation_Settings_Editor::load_Target_Parameters(int tab_Index)
 						global_Multilayer_Approach->global_Recalculate();
 					}
 				});
-
-				//-------------------------------------
-
-				if(target_Curve->measurement.measurement_Type == measurement_Types[GISAS_Map])
-				{
-					shift_Label->setDisabled(true);
-					shift_SpinBox->setDisabled(true);
-				}
 			}
 
 			QHBoxLayout* row_2_Layout = new QHBoxLayout;

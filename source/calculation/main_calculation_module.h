@@ -36,8 +36,7 @@ public:
 	QString parametrization_Type = triangle;
 	size_t number_Of_Restricted_Regular_Components = 0;
 
-	void increase_Mesh_density(Data_Element<Target_Curve>& target);
-	void decrease_Mesh_density(Data_Element<Target_Curve>& target, bool fit_Mode = false);
+	void decrease_Mesh_Density(Target_Curve* target_Curve, bool fit_Mode = false);
 	void preliminary_Calculation();
 	template <typename Type>
 	void calculation_With_Sampling(Calculation_Tree* calculation_Tree, Data_Element<Type>& data_Element);
@@ -59,7 +58,7 @@ public:
 	void wrap_With_Specular_2D(Calculated_Values& calculated_Values, const Data& measurement);
 	void wrap_2D_Curve(const Data& measurement, Calculated_Values& calculated_Values, const vector<double>& resolution_FWHM, QString distribution_Function, QString theta_Phi);
 	template <typename Type>
-	void postprocessing(Data_Element<Type>& data_Element);
+	void postprocessing(Data_Element<Type>& data_Element, bool fit_Mode = false);
 
 	void fitting_and_Confidence();
 	void save_Init_State_Trees();
