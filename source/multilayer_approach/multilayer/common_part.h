@@ -12,7 +12,7 @@ class Common_Part : public QWidget
 {
 	Q_OBJECT
 public:
-	explicit Common_Part(Independent_Curve* independent_Curve, Target_Curve* target_Curve, QWidget *parent = nullptr);
+	explicit Common_Part(Independent_Curve* independent_Curve, Target_Curve* target_Curve, bool is_Independent = false, QWidget *parent = nullptr);
 
 	void create_Detector_GroupBox();
 	void create_2D_Detector_GroupBox();

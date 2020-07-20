@@ -420,12 +420,11 @@ void Calculation_Settings_Editor::load_Target_Parameters(int tab_Index)
 				fit->toggled(fit->isChecked());
 			}
 			// mesh density & shift
-			if(target_Curve->measurement.measurement_Type != measurement_Types[GISAS_Map])
+			if(target_Curve->measurement.measurement_Type == measurement_Types[Specular_Scan])
 			{
 				QHBoxLayout* row_Right_Layout = new QHBoxLayout;
 					row_Right_Layout->setAlignment(Qt::AlignRight);
 				row_1_Layout->addLayout(row_Right_Layout);
-
 
 				// in advance
 				QLabel* shift_Label = new QLabel("Shift");

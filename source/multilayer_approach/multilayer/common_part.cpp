@@ -1,10 +1,10 @@
 #include "common_part.h"
 
-Common_Part::Common_Part(Independent_Curve* independent_Curve, Target_Curve* target_Curve, QWidget *parent) :
-	measurement   (independent_Curve != nullptr ? independent_Curve->measurement    : target_Curve->measurement),
-	angular_Units (independent_Curve != nullptr ? independent_Curve->angular_Units  : target_Curve->angular_Units),
-	spectral_Units(independent_Curve != nullptr ? independent_Curve->spectral_Units : target_Curve->spectral_Units),
-	is_Independent(independent_Curve != nullptr),
+Common_Part::Common_Part(Independent_Curve* independent_Curve, Target_Curve* target_Curve, bool is_Independent, QWidget *parent) :
+	measurement   (is_Independent ? independent_Curve->measurement    : target_Curve->measurement),
+	angular_Units (is_Independent ? independent_Curve->angular_Units  : target_Curve->angular_Units),
+	spectral_Units(is_Independent ? independent_Curve->spectral_Units : target_Curve->spectral_Units),
+	is_Independent(is_Independent),
 	QWidget(parent)
 {
 	main_Layout = new QVBoxLayout(this);
@@ -306,8 +306,10 @@ void Common_Part::create_Footptint_GroupBox()
 	main_Layout->addWidget(footprint_GroupBox);
 
 	QGridLayout* footprint_GroupBox_Layout = new QGridLayout(footprint_GroupBox);
-	footprint_GroupBox_Layout->setAlignment(Qt::AlignLeft);
-	footprint_GroupBox_Layout->setSpacing(0);
+		footprint_GroupBox_Layout->setAlignment(Qt::AlignLeft);
+		if(is_Independent)	footprint_GroupBox_Layout->setHorizontalSpacing(10);
+		else				footprint_GroupBox_Layout->setHorizontalSpacing(0);
+		footprint_GroupBox_Layout->setVerticalSpacing(0);
 
 	// beam
 	{
@@ -371,9 +373,10 @@ void Common_Part::create_Footptint_GroupBox()
 	// sample
 	{
 		QGroupBox* sample_Footprint_GroupBox = new QGroupBox("Sample");
+			sample_Footprint_GroupBox->setFixedWidth(215);
 
 		QGridLayout* sample_GroupBox_Layout = new QGridLayout(sample_Footprint_GroupBox);
-		sample_GroupBox_Layout->setAlignment(Qt::AlignLeft);
+			sample_GroupBox_Layout->setAlignment(Qt::AlignLeft);
 
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -489,12 +492,11 @@ void Common_Part::create_Beam_Plot()
 	beam_Profile_CustomPlot = new QCustomPlot;
 	if(is_Independent)
 	{
-		beam_Profile_CustomPlot->setMinimumSize(270,190);
+		beam_Profile_CustomPlot->setMinimumSize(215,160);
 	} else
 	{
-		beam_Profile_CustomPlot->setMinimumWidth(240);
+		beam_Profile_CustomPlot->setMinimumWidth(200);
 	}
-
 	beam_Profile_CustomPlot->setNoAntialiasingOnDrag(false);
 	beam_Profile_CustomPlot->clearGraphs();
 	beam_Profile_CustomPlot->addGraph();
@@ -558,12 +560,11 @@ void Common_Part::create_Sample_Plot()
 	sample_Profile_CustomPlot = new QCustomPlot;
 	if(is_Independent)
 	{
-		sample_Profile_CustomPlot->setMinimumSize(270,190);
+		sample_Profile_CustomPlot->setMinimumSize(215,160);
 	} else
 	{
-		sample_Profile_CustomPlot->setMinimumWidth(240);
+		sample_Profile_CustomPlot->setMinimumWidth(200);
 	}
-
 	sample_Profile_CustomPlot->setNoAntialiasingOnDrag(false);
 	sample_Profile_CustomPlot->clearGraphs();
 	sample_Profile_CustomPlot->addGraph();

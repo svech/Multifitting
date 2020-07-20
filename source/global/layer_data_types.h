@@ -71,14 +71,14 @@ public:
 		double polarization;
 		double background;
 
-		vector<double>  theta_0_Resolution_Vec;		// without saving, arg = Beam_Grazing_Angle
-		vector<double>  theta_0_Resolution_Vec_Rocking_Offset;		// without saving, arg = Beam_Grazing_Angle
-		vector<double>  theta_0_Resolution_From_Spectral_Vec;	// without saving, arg = Beam_Grazing_Angle
-		vector<double>  spectral_Resolution_Vec;				// without saving, arg = Wavelength_Energy
-		vector<double>  spectral_Resolution_From_Theta_0_Vec;	// without saving, arg = Wavelength_Energy
-		vector<double>  theta_Resolution_Vec;				// without saving, arg = Detector_Polar_Angle
-//		vector<double>  theta_Resolution_From_Spectral_Vec;	// without saving, arg = Detector_Polar_Angle
-		vector<double>  phi_Resolution_Vec;			// without saving, arg = Detector_Azimuthal_Angle
+		vector<double> theta_0_Resolution_Vec;					// without saving, arg = Beam_Grazing_Angle
+		vector<double> theta_0_Resolution_Vec_Rocking_Offset;	// without saving, arg = Beam_Grazing_Angle
+		vector<double> theta_0_Resolution_From_Spectral_Vec;	// without saving, arg = Beam_Grazing_Angle
+		vector<double> spectral_Resolution_Vec;					// without saving, arg = Wavelength_Energy
+		vector<double> spectral_Resolution_From_Theta_0_Vec;	// without saving, arg = Wavelength_Energy
+		vector<double> theta_Resolution_Vec;					// without saving, arg = Detector_Polar_Angle
+//		vector<double> theta_Resolution_From_Spectral_Vec;		// without saving, arg = Detector_Polar_Angle
+		vector<double> phi_Resolution_Vec;			// without saving, arg = Detector_Azimuthal_Angle
 		double theta_Resolution_FWHM = 0;			// without saving, arg = Detector_Polar_Angle
 		QString theta_Distribution;					// without saving, arg = Detector_Polar_Angle
 		double phi_Resolution_FWHM = 0;				// without saving, arg = Detector_Azimuthal_Angle

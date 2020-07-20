@@ -13,7 +13,7 @@ GISAS_Independent_Curve_Part::GISAS_Independent_Curve_Part(Independent_Curve* in
 	create_Beam_GroupBox();
 
 	Target_Curve* target_Curve;
-	independent_Common_Part = new Common_Part(independent_Curve, target_Curve);
+	independent_Common_Part = new Common_Part(independent_Curve, target_Curve, true);
 	main_Layout->addWidget(independent_Common_Part);
 
 	connecting();
