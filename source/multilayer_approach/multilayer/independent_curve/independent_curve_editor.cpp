@@ -11,6 +11,7 @@ Independent_Curve_Editor::Independent_Curve_Editor(Independent_Curve* independen
 	create_Main_Layout();
 	setWindowTitle(independent_Curve->measurement.measurement_Type);
 	setAttribute(Qt::WA_DeleteOnClose);
+	setGeometry(independent_x_corner, independent_y_corner,0,0);
 
 	/// now we have measurement type and consequently have a new curve
 	if(new_curve)
@@ -29,9 +30,19 @@ Independent_Curve_Editor::Independent_Curve_Editor(Independent_Curve* independen
 	}
 }
 
+void Independent_Curve_Editor::write_Window_Geometry()
+{
+	if(!isMaximized())
+	{
+		independent_x_corner = frameGeometry().x()-corner_x_shift;
+		independent_y_corner = frameGeometry().y()-corner_y_shift;
+	}
+}
+
 void Independent_Curve_Editor::closeEvent(QCloseEvent *event)
 {
 	multilayer_Parent->runned_Independent_Curve_Editors.remove(multilayer_Parent->runned_Independent_Curve_Editors.key(this));
+	write_Window_Geometry();
 	event->accept();
 }
 

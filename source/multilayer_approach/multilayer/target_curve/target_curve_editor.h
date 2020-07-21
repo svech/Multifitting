@@ -41,6 +41,7 @@ public:
 	void read_Data_File(QString filepath);
 	void browse_Data_File();
 	void export_Data_File();
+	void write_Window_Geometry();
 
 	void resize_ComboBox(QLineEdit* line_Edit = nullptr);
 

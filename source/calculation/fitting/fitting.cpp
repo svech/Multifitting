@@ -221,25 +221,32 @@ void Fitting::calc_Residual(const gsl_vector* x, Fitting_Params* params, gsl_vec
 		// if use reference Data_Element<Target_Curve>& then addresses of slaves are changing!!! WTF?
 		for(Data_Element<Target_Curve>& target_Element : params->calculation_Trees[tab_Index]->target)
 		{
-			// replication of real_Calc_Tree for each target
 			target_Element.calc_Tree = params->calculation_Trees[tab_Index]->real_Calc_Tree;
+
+			// unstratified
+			target_Element.media_Data_Map_Vector.resize(params->calculation_Trees[tab_Index]->num_Media_Sharp);
+			target_Element.media_Period_Index_Map_Vector.resize(params->calculation_Trees[tab_Index]->num_Media_Sharp);
+			params->calculation_Trees[tab_Index]->unwrap_Calc_Tree_Data(params->calculation_Trees[tab_Index]->real_Calc_Tree.begin(), target_Element.media_Data_Map_Vector, target_Element.media_Period_Index_Map_Vector);
+
 			params->calculation_Trees[tab_Index]->stratify_Calc_Tree(target_Element.calc_Tree);
 
+			// stratified
+			target_Element.media_Node_Map_Vector.resize(params->calculation_Trees[tab_Index]->num_Media_Sharp);
+			params->calculation_Trees[tab_Index]->flatten_Tree(target_Element.calc_Tree, target_Element.flat_Calc_Tree);
+			params->calculation_Trees[tab_Index]->short_Tree(target_Element.flat_Calc_Tree, target_Element.short_Flat_Calc_Tree);
+			params->calculation_Trees[tab_Index]->unwrap_Calc_Tree_Node(target_Element.calc_Tree.begin(), target_Element.media_Node_Map_Vector);
+
 			// calculation
-			params->calculation_Trees[tab_Index]->calculate_1_Kind(target_Element);
-			// TODO
-//			params->main_Calculation_Module->decrease_Mesh_Density(target_Element, true);
+			qInfo() << 1 << endl;
+			params->main_Calculation_Module->calculation_With_Sampling(params->calculation_Trees[tab_Index], target_Element);
+			qInfo() << 2 << endl;
+			params->main_Calculation_Module->postprocessing(target_Element, true);
+			qInfo() << 3 << endl;
+
 			// fill residual
 			fill_Residual(params, residual_Shift, target_Element, f, target_Index);
 			target_Index++;
 		}
-
-//			for(Data_Element<Target_Curve>& target_Data_Element : calculation_Trees[tab_Index]->target)
-//			{
-//				calculation_With_Sampling(calculation_Trees[tab_Index], target_Data_Element);
-//				postprocessing(target_Data_Element, true);
-//				if(lambda_Out_Of_Range) return;
-//			}
 	}
 
 	/// addition to residual from restrictions of regular aperiodics

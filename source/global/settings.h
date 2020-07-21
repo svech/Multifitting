@@ -23,6 +23,14 @@ extern int multilayer_min_height;
 extern int multilayer_width;
 extern int multilayer_height;
 
+// independent curve window geometry
+extern int independent_x_corner;
+extern int independent_y_corner;
+
+// target curve window geometry
+extern int target_x_corner;
+extern int target_y_corner;
+
 // structure table window geometry
 extern int structure_table_x_corner;
 extern int structure_table_y_corner;

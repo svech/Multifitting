@@ -70,6 +70,7 @@ class Node;
 	#define Application_Style						"Application_Style"
 	#define Launcher_Geometry						"Launcher_Geometry"
 	#define Multilayer_Window_Geometry				"Multilayer_Window_Geometry"
+	#define Curve_Window_Geometry					"Curve_Window_Geometry"
 	#define Structure_Table_Window_Geometry			"Structure_Table_Window_Geometry"
 	#define Roughness_Table_Window_Geometry			"Roughness_Table_Window_Geometry"
 	#define Regular_Aperiodic_Table_Window_Geometry	"Regular_Aperiodic_Table_Window_Geometry"

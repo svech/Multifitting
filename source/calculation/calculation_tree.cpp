@@ -589,6 +589,7 @@ template void Calculation_Tree::calculate_1_Kind<Target_Curve>	   (Data_Element<
 
 void Calculation_Tree::calculate_Intermediate_Values_1_Tree(vector<Node*>& flat_Calc_Tree, vector<Node*>& short_Flat_Calc_Tree, const Data& measurement, QString mode)
 {
+	qInfo() << 1.1 << endl;
 	for(size_t node_Index = 0; node_Index<flat_Calc_Tree.size(); node_Index++)
 	{
 		Node* above_Node = NULL;
@@ -599,6 +600,7 @@ void Calculation_Tree::calculate_Intermediate_Values_1_Tree(vector<Node*>& flat_
 										   multilayer->imperfections_Model.approximation == CSA_approximation  ) && (measurement.measurement_Type != measurement_Types[Specular_Scan]);
 		flat_Calc_Tree[node_Index]->calculate_Intermediate_Points(measurement, above_Node, depth_Grading, sigma_Grading, inconvenient_Approximation, multilayer->discretization_Parameters.enable_Discretization, mode);
 	}
+	qInfo() << 1.2 << endl;
 	for(size_t node_Index = 0; node_Index<short_Flat_Calc_Tree.size(); node_Index++)
 	{
 		if( mode == SCATTERED_MODE )
@@ -606,14 +608,18 @@ void Calculation_Tree::calculate_Intermediate_Values_1_Tree(vector<Node*>& flat_
 			short_Flat_Calc_Tree[node_Index]->create_Spline_PSD_Fractal_Gauss_1D(measurement, multilayer->imperfections_Model);
 		}
 	}
+	qInfo() << 1.3 << endl;
 	for(size_t node_Index = 0; node_Index<short_Flat_Calc_Tree.size(); node_Index++)
 	{
 		if( measurement.measurement_Type == measurement_Types[Specular_Scan])
 		{
 			// here we create DW sigmas
+			qInfo() << 1.31 << endl;
 			short_Flat_Calc_Tree[node_Index]->calc_Debye_Waller_Sigma(measurement, multilayer->imperfections_Model);
+			qInfo() << 1.32 << endl;
 		}
 	}
+	qInfo() << 1.4 << endl;
 }
 void Calculation_Tree::clear_Spline_1_Tree(vector<Node*>& short_Flat_Calc_Tree, QString mode)
 {

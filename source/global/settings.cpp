@@ -19,6 +19,14 @@ int multilayer_min_height;
 int multilayer_width;
 int multilayer_height;
 
+// independent curve window geometry
+int independent_x_corner;
+int independent_y_corner;
+
+// target curve window geometry
+int target_x_corner;
+int target_y_corner;
+
 // structure table window geometry
 int structure_table_x_corner;
 int structure_table_y_corner;
@@ -380,6 +388,14 @@ void Settings::read_Gui_Settings(bool reset_to_default)
 		multilayer_height			= gui_Settings.value( "multilayer_height",			450 ).toInt();
 	gui_Settings.endGroup();
 
+	// curve window geometry
+	gui_Settings.beginGroup( Curve_Window_Geometry );
+		independent_x_corner	= gui_Settings.value( "independent_x_corner",	300 ).toInt();
+		independent_y_corner	= gui_Settings.value( "independent_y_corner",	200 ).toInt();
+		target_x_corner			= gui_Settings.value( "target_x_corner",		300 ).toInt();
+		target_y_corner			= gui_Settings.value( "target_y_corner",		10 ).toInt();
+	gui_Settings.endGroup();
+
 	// structure table window geometry
 	gui_Settings.beginGroup( Structure_Table_Window_Geometry );
 		structure_table_x_corner	= gui_Settings.value( "structure_table_x_corner",	500 ).toInt();
@@ -486,6 +502,14 @@ void Settings::save_Gui_Settings()
 		gui_Settings.setValue( "multilayer_min_height",			multilayer_min_height );
 		gui_Settings.setValue( "multilayer_width",				multilayer_width );
 		gui_Settings.setValue( "multilayer_height",				multilayer_height );
+	gui_Settings.endGroup();
+
+	// curve window geometry
+	gui_Settings.beginGroup( Curve_Window_Geometry );
+		gui_Settings.setValue( "independent_x_corner",		independent_x_corner );
+		gui_Settings.setValue( "independent_y_corner",		independent_y_corner );
+		gui_Settings.setValue( "target_x_corner",			target_x_corner );
+		gui_Settings.setValue( "target_y_corner",			target_y_corner );
 	gui_Settings.endGroup();
 
 	// structure table window geometry

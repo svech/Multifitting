@@ -1366,18 +1366,9 @@ void Main_Calculation_Module::fitting_and_Confidence()
 		calculation_Trees[tab_Index]->fill_Calc_Trees();
 		for(Data_Element<Target_Curve>& target_Element : calculation_Trees[tab_Index]->target)
 		{
-			// TODO scattered and specular cases
-			calculation_Trees[tab_Index]->calculate_1_Kind(target_Element);			
-			if(lambda_Out_Of_Range)
-			{
-				// TODO
-//				decrease_Mesh_density(target_Element);
-				return;
-			} else
-			{
-				// TODO
-//				decrease_Mesh_density(target_Element,true);
-			}
+			calculation_With_Sampling(calculation_Trees[tab_Index], target_Element);
+			postprocessing(target_Element, true);
+			if(lambda_Out_Of_Range)	return;
 		}
 	}
 
@@ -1464,7 +1455,8 @@ void Main_Calculation_Module::fitting_and_Confidence()
 			for(Data_Element<Target_Curve>& target_Element : calculation_Trees[tab_Index]->target)
 			{
 				// TODO
-//				decrease_Mesh_density(target_Element);
+				qInfo() << "curve.shifted_Argument.size()" << target_Element.the_Class->curve.shifted_Argument.size() << endl;
+//				decrease_Mesh_Density(target_Element, true);
 			}
 		}
 		if(!go) return;

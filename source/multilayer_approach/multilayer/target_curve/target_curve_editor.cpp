@@ -9,11 +9,22 @@ Target_Curve_Editor::Target_Curve_Editor(Target_Curve* target_Curve, Multilayer*
 	setWindowTitle("Import Data: "+target_Curve->measurement.measurement_Type);
 	setAttribute(Qt::WA_DeleteOnClose);
 	setAcceptDrops(true);
+	setGeometry(target_x_corner, target_y_corner,0,0);
+}
+
+void Target_Curve_Editor::write_Window_Geometry()
+{
+	if(!isMaximized())
+	{
+		target_x_corner = frameGeometry().x()-corner_x_shift;
+		target_y_corner = frameGeometry().y()-corner_y_shift;
+	}
 }
 
 void Target_Curve_Editor::closeEvent(QCloseEvent *event)
 {
 	multilayer_Parent->runned_Target_Curve_Editors.remove(multilayer_Parent->runned_Target_Curve_Editors.key(this));
+	write_Window_Geometry();
 	event->accept();
 }
 

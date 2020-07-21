@@ -26,6 +26,7 @@ public:
 	void closeEvent(QCloseEvent *event);
 	void create_Main_Layout();
 	void create_Main_Part();
+	void write_Window_Geometry();
 
 	Independent_Curve* independent_Curve;
 	Multilayer* multilayer_Parent;
