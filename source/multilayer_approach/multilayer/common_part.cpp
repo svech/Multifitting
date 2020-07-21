@@ -492,10 +492,12 @@ void Common_Part::create_Beam_Plot()
 	beam_Profile_CustomPlot = new QCustomPlot;
 	if(is_Independent)
 	{
-		beam_Profile_CustomPlot->setMinimumSize(215,160);
+//		beam_Profile_CustomPlot->setMinimumSize(215,160);
+		beam_Profile_CustomPlot->setMinimumSize(240,170);
 	} else
 	{
-		beam_Profile_CustomPlot->setMinimumWidth(200);
+//		beam_Profile_CustomPlot->setMinimumWidth(200);
+		beam_Profile_CustomPlot->setMinimumWidth(250);
 	}
 	beam_Profile_CustomPlot->setNoAntialiasingOnDrag(false);
 	beam_Profile_CustomPlot->clearGraphs();
@@ -557,13 +559,15 @@ void Common_Part::plot_Beam_Profile()
 
 void Common_Part::create_Sample_Plot()
 {
-	sample_Profile_CustomPlot = new QCustomPlot;
+	sample_Profile_CustomPlot = new QCustomPlot;	
 	if(is_Independent)
 	{
-		sample_Profile_CustomPlot->setMinimumSize(215,160);
+//		sample_Profile_CustomPlot->setMinimumSize(215,160);
+		sample_Profile_CustomPlot->setMinimumSize(240,170);
 	} else
 	{
-		sample_Profile_CustomPlot->setMinimumWidth(200);
+//		sample_Profile_CustomPlot->setMinimumWidth(200);
+		sample_Profile_CustomPlot->setMinimumWidth(250);
 	}
 	sample_Profile_CustomPlot->setNoAntialiasingOnDrag(false);
 	sample_Profile_CustomPlot->clearGraphs();
