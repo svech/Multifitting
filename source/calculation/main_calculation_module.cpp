@@ -1339,6 +1339,7 @@ void Main_Calculation_Module::fitting_and_Confidence()
 	}
 
 	// prepare cos2 and active_Parameter_Whats_This
+	qInfo() << "fitting_and_Confidence" << endl;
 	preliminary_Calculation();
 
 	// reload dependences
@@ -1360,7 +1361,7 @@ void Main_Calculation_Module::fitting_and_Confidence()
 	fit_Rejected_Thicknesses_and_Periods.clear_All();
 	fit_Rejected_Periods.clear_All();
 
-	// cheking for lambda_Out_Of_Range
+	// checking for lambda_Out_Of_Range
 	for(int tab_Index=0; tab_Index<multilayers.size(); ++tab_Index)
 	{
 		calculation_Trees[tab_Index]->fill_Calc_Trees();
@@ -1376,7 +1377,7 @@ void Main_Calculation_Module::fitting_and_Confidence()
 	/// create calc tree, fitables and confidentials;
 	for(int tab_Index=0; tab_Index<multilayers.size(); ++tab_Index)
 	{
-		// prepare real_Calc_Tree  (for all multilayers!)
+		// prepare real_Calc_Tree (for all multilayers!)
 		calculation_Trees[tab_Index]->fill_Tree_From_Scratch(calculation_Trees[tab_Index]->real_Calc_Tree, calculation_Trees[tab_Index]->real_Struct_Tree, multilayers[tab_Index]);
 
 		if( calculation_Trees[tab_Index]->target.size()>0 )
@@ -1455,7 +1456,7 @@ void Main_Calculation_Module::fitting_and_Confidence()
 			for(Data_Element<Target_Curve>& target_Element : calculation_Trees[tab_Index]->target)
 			{
 				// TODO
-				qInfo() << "curve.shifted_Argument.size()" << target_Element.the_Class->curve.shifted_Argument.size() << endl;
+//				qInfo() << "curve.shifted_Argument.size()" << target_Element.the_Class->curve.shifted_Argument.size() << endl;
 //				decrease_Mesh_Density(target_Element, true);
 			}
 		}
@@ -1723,7 +1724,7 @@ void Main_Calculation_Module::find_Fittable_Confidence_Parameters(Data& struct_D
 			if(parent_Data.item_Type == item_Type_Regular_Aperiodic)
 			{
 				if(!parent_Data.regular_Components[child_Index].is_Common_Thickness && parameter->indicator.whats_This == whats_This_Thickness) 	{ go = false; }
-				if(!parent_Data.regular_Components[child_Index].is_Common_Sigma     && parameter->indicator.whats_This == whats_This_Sigma_Diffuse) 	    { go = false; }
+				if(!parent_Data.regular_Components[child_Index].is_Common_Sigma     && parameter->indicator.whats_This == whats_This_Sigma_Diffuse) { go = false; }
 			}
 
 			if(go)
@@ -1734,6 +1735,7 @@ void Main_Calculation_Module::find_Fittable_Confidence_Parameters(Data& struct_D
 				fitables.param_IDs			.push_back(parameter->indicator.id);
 
 				// changeable
+				qInfo() << "added :" << parameter  << parameter->value << parameter->fit.min << parameter->fit.max << endl;
 				fitables.param_Pointers		.push_back(parameter);
 				fitables.values_Parametrized.push_back(parametrize(parameter->value, parameter->fit.min, parameter->fit.max)); // will be recalculated at solver initialization
 				fitables.parent_Iterators	.push_back(current);					// used for period and gamma only, but should be filled for all for the length purpose!
@@ -1743,9 +1745,12 @@ void Main_Calculation_Module::find_Fittable_Confidence_Parameters(Data& struct_D
 				// sigma value is close to zero
 				Parameter sigma_Parameter;
 				if(parameter->indicator.whats_This == whats_This_Interlayer_My_Sigma_Diffuse) sigma_Parameter = struct_Data.sigma_Diffuse;
-				if(parameter->indicator.whats_This == whats_This_Sigma_Diffuse) sigma_Parameter = *parameter;
+				if(parameter->indicator.whats_This == whats_This_Sigma_Diffuse)				  sigma_Parameter = *parameter;
+				if(parameter->indicator.whats_This == whats_This_Sigma_Roughness)			  sigma_Parameter = *parameter;
 
-				if(parameter->indicator.whats_This == whats_This_Interlayer_My_Sigma_Diffuse || parameter->indicator.whats_This == whats_This_Sigma_Diffuse)
+				if( parameter->indicator.whats_This == whats_This_Interlayer_My_Sigma_Diffuse ||
+					parameter->indicator.whats_This == whats_This_Sigma_Diffuse ||
+					parameter->indicator.whats_This == whats_This_Sigma_Roughness)
 				if(sigma_Parameter.value < 0.1)
 				if(!fit_Rejected_Sigmas.param_IDs.contains(sigma_Parameter.indicator.id))
 				{

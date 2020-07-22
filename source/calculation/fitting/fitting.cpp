@@ -189,6 +189,7 @@ void Fitting::calc_Residual(const gsl_vector* x, Fitting_Params* params, gsl_vec
 		params->fitables.param_Pointers[i]->value = params->main_Calculation_Module->unparametrize(	gsl_vector_get(x, i),
 																									params->fitables.param_Pointers[i]->fit.min,
 																									params->fitables.param_Pointers[i]->fit.max);
+		qInfo() << "ss" << params->fitables.param_Pointers[i] << params->fitables.param_Pointers[i]->value << gsl_vector_get(x, i) << endl;
 		double new_Value = params->fitables.param_Pointers[i]->value;
 		change_Real_Fitables_and_Dependent(params, old_Value, new_Value, i, FITTING);
 	}
@@ -236,12 +237,22 @@ void Fitting::calc_Residual(const gsl_vector* x, Fitting_Params* params, gsl_vec
 			params->calculation_Trees[tab_Index]->short_Tree(target_Element.flat_Calc_Tree, target_Element.short_Flat_Calc_Tree);
 			params->calculation_Trees[tab_Index]->unwrap_Calc_Tree_Node(target_Element.calc_Tree.begin(), target_Element.media_Node_Map_Vector);
 
+//			for(size_t node_Index = 0; node_Index<target_Element.short_Flat_Calc_Tree.size(); node_Index++)
+//			{
+//				qInfo() << "di" << &(target_Element.short_Flat_Calc_Tree[node_Index]->struct_Data.sigma_Diffuse.value) << target_Element.short_Flat_Calc_Tree[node_Index]->struct_Data.sigma_Diffuse.value << endl;
+//				qInfo() << "ro" << &(target_Element.short_Flat_Calc_Tree[node_Index]->struct_Data.roughness_Model.sigma.value) << target_Element.short_Flat_Calc_Tree[node_Index]->struct_Data.roughness_Model.sigma.value << endl;
+//			} qInfo() << endl;
+
+
+			for(size_t node_Index = 0; node_Index<target_Element.short_Flat_Calc_Tree.size(); node_Index++)
+			{
+				qInfo() << "di" << &(target_Element.flat_Calc_Tree[node_Index]->struct_Data.sigma_Diffuse.value)		 << target_Element.flat_Calc_Tree[node_Index]->struct_Data.sigma_Diffuse.value << endl;
+				qInfo() << "ro" << &(target_Element.flat_Calc_Tree[node_Index]->struct_Data.roughness_Model.sigma.value) << target_Element.flat_Calc_Tree[node_Index]->struct_Data.roughness_Model.sigma.value << endl;
+			} qInfo() << endl;
+
 			// calculation
-			qInfo() << 1 << endl;
 			params->main_Calculation_Module->calculation_With_Sampling(params->calculation_Trees[tab_Index], target_Element);
-			qInfo() << 2 << endl;
 			params->main_Calculation_Module->postprocessing(target_Element, true);
-			qInfo() << 3 << endl;
 
 			// fill residual
 			fill_Residual(params, residual_Shift, target_Element, f, target_Index);

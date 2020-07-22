@@ -488,16 +488,22 @@ void Common_Part::create_Footptint_GroupBox()
 
 
 void Common_Part::create_Beam_Plot()
-{
+{	
 	beam_Profile_CustomPlot = new QCustomPlot;
 	if(is_Independent)
 	{
+#ifdef __linux__
+		beam_Profile_CustomPlot->setMinimumSize(240,170); // linux, 2560x1440
+#else
 		beam_Profile_CustomPlot->setMinimumSize(215,160); // windows, 1920x1080
-//		beam_Profile_CustomPlot->setMinimumSize(240,170); // linux, 2560x1440
+#endif
 	} else
 	{
+#ifdef __linux__
+		beam_Profile_CustomPlot->setMinimumWidth(250);  // linux, 2560x1440
+#else
 		beam_Profile_CustomPlot->setMinimumWidth(210);  // windows, 1920x1080
-//		beam_Profile_CustomPlot->setMinimumWidth(250);  // linux, 2560x1440
+#endif
 	}
 	beam_Profile_CustomPlot->setNoAntialiasingOnDrag(false);
 	beam_Profile_CustomPlot->clearGraphs();
@@ -562,12 +568,18 @@ void Common_Part::create_Sample_Plot()
 	sample_Profile_CustomPlot = new QCustomPlot;	
 	if(is_Independent)
 	{
+#ifdef __linux__
+		sample_Profile_CustomPlot->setMinimumSize(240,170);	  // linux, 2560x1440
+#else
 		sample_Profile_CustomPlot->setMinimumSize(215,160);	  // windows, 1920x1080
-//		sample_Profile_CustomPlot->setMinimumSize(240,170);	  // linux, 2560x1440
+#endif
 	} else
 	{
+#ifdef __linux__
+		sample_Profile_CustomPlot->setMinimumWidth(250);	// linux, 2560x1440
+#else
 		sample_Profile_CustomPlot->setMinimumWidth(210);	// windows, 1920x1080
-//		sample_Profile_CustomPlot->setMinimumWidth(250);	// linux, 2560x1440
+#endif
 	}
 	sample_Profile_CustomPlot->setNoAntialiasingOnDrag(false);
 	sample_Profile_CustomPlot->clearGraphs();

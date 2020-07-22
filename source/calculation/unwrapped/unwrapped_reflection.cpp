@@ -862,6 +862,7 @@ void Unwrapped_Reflection::fill_DW_Factors_From_Node_Vector(int thread_Index, in
 
 void Unwrapped_Reflection::fill_Item_Id_Map()
 {
+	id_Item_Map.clear();
 	appropriate_Item_Vec.clear();
 	for(size_t item_Index = 0; item_Index<short_Flat_Calc_Tree.size(); item_Index++)
 	{

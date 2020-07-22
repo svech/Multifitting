@@ -615,7 +615,6 @@ void Node::calc_Debye_Waller_Sigma(const Data& measurement, const Imperfections_
 	double alpha = struct_Data.roughness_Model.fractal_alpha.value;
 
 	specular_Debye_Waller_Weak_Factor_R.resize(num_Points,1);
-	specular_Debye_Waller_Sigma_Roughness.resize(num_Points,sigma);
 	if(struct_Data.item_Type == item_Type_Ambient ) return;
 	if(struct_Data.item_Type == item_Type_Layer && imperfections_Model.use_Common_Roughness_Function) return;
 	if(sigma<DBL_EPSILON) return;
@@ -732,11 +731,12 @@ void Node::calc_Debye_Waller_Sigma(const Data& measurement, const Imperfections_
 		gsl_interp_accel_free(acc);
 	}
 
+	qInfo() << "node:sigma" << sigma << endl;
 	for(size_t i = 0; i<num_Points; ++i)
 	{
-		specular_Debye_Waller_Sigma_Roughness[i] = sqrt(sigma*sigma - delta_Sigma_2[i]);
+		double s2 = sigma*sigma - delta_Sigma_2[i];
 		double hi = k[i]*sin(angle_Theta_0[i] * M_PI/180.);
-		specular_Debye_Waller_Weak_Factor_R[i] = exp( - 4. * hi*hi * specular_Debye_Waller_Sigma_Roughness[i]*specular_Debye_Waller_Sigma_Roughness[i] );
+		specular_Debye_Waller_Weak_Factor_R[i] = exp( - 4. * hi*hi * s2 );
 	}
 }
 

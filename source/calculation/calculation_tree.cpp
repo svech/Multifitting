@@ -205,6 +205,7 @@ void Calculation_Tree::fill_Calc_Trees()
 			flatten_Tree(target_Data_Element.calc_Tree, target_Data_Element.flat_Calc_Tree);
 			short_Tree(target_Data_Element.flat_Calc_Tree, target_Data_Element.short_Flat_Calc_Tree);
 			unwrap_Calc_Tree_Node(target_Data_Element.calc_Tree.begin(), target_Data_Element.media_Node_Map_Vector);
+//			qInfo() << "sigma" << target_Data_Element.short_Flat_Calc_Tree[1]->struct_Data.roughness_Model.sigma.value << endl << endl;
 		}
 		for(Data_Element<Independent_Curve>& independent_Data_Element : independent)
 		{
@@ -393,10 +394,12 @@ void Calculation_Tree::flatten_Tree(const tree<Node>& calc_Tree, vector<Node*>& 
 		}
 		iter++;
 	}
+	qInfo() << "flat_Calc_Tree.size()" << flat_Calc_Tree.size() << endl;
 }
 
 void Calculation_Tree::short_Tree(const vector<Node*>& flat_Calc_Tree, vector<Node*>& short_Flat_Calc_Tree)
 {
+	short_Flat_Calc_Tree.clear();
 	for(int i=flat_Calc_Tree.size()-1; i>=1; i--)
 	{
 		Node* node = flat_Calc_Tree[i];
@@ -410,7 +413,9 @@ void Calculation_Tree::short_Tree(const vector<Node*>& flat_Calc_Tree, vector<No
 		if(!contains)
 		{
 			short_Flat_Calc_Tree.insert(short_Flat_Calc_Tree.begin(), node);
+			qInfo() << "short_Tree" << flat_Calc_Tree[i]->struct_Data.roughness_Model.sigma.value << short_Flat_Calc_Tree.back()->struct_Data.roughness_Model.sigma.value << endl;
 		}
+		qInfo() << "short_Tree" << false << i << node->struct_Data.item_Type << node->struct_Data.id << endl;
 	}
 }
 
@@ -563,24 +568,24 @@ template void Calculation_Tree::calculate_1_Curve<Target_Curve>	    (Data_Elemen
 template<typename Type>
 void Calculation_Tree::calculate_1_Kind(Data_Element<Type>& data_Element, QString mode)
 {
-	auto start = std::chrono::system_clock::now();
+//	auto start = std::chrono::system_clock::now();
 	calculate_Intermediate_Values_1_Tree(data_Element.flat_Calc_Tree, data_Element.short_Flat_Calc_Tree, data_Element.the_Class->measurement, mode);
 	if(lambda_Out_Of_Range) return;
-	auto end = std::chrono::system_clock::now();
-	auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-	qInfo() << "\nIntermediate:   "<< elapsed.count()/1000000. << " seconds" << endl;
+//	auto end = std::chrono::system_clock::now();
+//	auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+//	qInfo() << "\nIntermediate:   "<< elapsed.count()/1000000. << " seconds" << endl;
 
-	start = std::chrono::system_clock::now();
+//	start = std::chrono::system_clock::now();
 	calculate_Unwrapped_Structure(data_Element.calc_Functions, data_Element.media_Node_Map_Vector, data_Element.media_Data_Map_Vector, data_Element.media_Period_Index_Map_Vector, data_Element.the_Class->measurement, data_Element.unwrapped_Structure);
-	end = std::chrono::system_clock::now();
-	elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-	qInfo() << "Unwrap:         "<< elapsed.count()/1000000. << " seconds" << endl;
+//	end = std::chrono::system_clock::now();
+//	elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+//	qInfo() << "Unwrap:         "<< elapsed.count()/1000000. << " seconds" << endl;
 
-	start = std::chrono::system_clock::now();
+//	start = std::chrono::system_clock::now();
 	calculate_Unwrapped_Reflectivity(data_Element.short_Flat_Calc_Tree, data_Element.the_Class->calculated_Values, data_Element.unwrapped_Structure, data_Element.unwrapped_Reflection, mode);
-	end = std::chrono::system_clock::now();
-	elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-	qInfo() << "Unwrap Reflect: "<< elapsed.count()/1000000. << " seconds" << endl;
+//	end = std::chrono::system_clock::now();
+//	elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+//	qInfo() << "Unwrap Reflect: "<< elapsed.count()/1000000. << " seconds" << endl;
 
 	clear_Spline_1_Tree(data_Element.short_Flat_Calc_Tree, mode);
 }
@@ -589,7 +594,6 @@ template void Calculation_Tree::calculate_1_Kind<Target_Curve>	   (Data_Element<
 
 void Calculation_Tree::calculate_Intermediate_Values_1_Tree(vector<Node*>& flat_Calc_Tree, vector<Node*>& short_Flat_Calc_Tree, const Data& measurement, QString mode)
 {
-	qInfo() << 1.1 << endl;
 	for(size_t node_Index = 0; node_Index<flat_Calc_Tree.size(); node_Index++)
 	{
 		Node* above_Node = NULL;
@@ -600,7 +604,6 @@ void Calculation_Tree::calculate_Intermediate_Values_1_Tree(vector<Node*>& flat_
 										   multilayer->imperfections_Model.approximation == CSA_approximation  ) && (measurement.measurement_Type != measurement_Types[Specular_Scan]);
 		flat_Calc_Tree[node_Index]->calculate_Intermediate_Points(measurement, above_Node, depth_Grading, sigma_Grading, inconvenient_Approximation, multilayer->discretization_Parameters.enable_Discretization, mode);
 	}
-	qInfo() << 1.2 << endl;
 	for(size_t node_Index = 0; node_Index<short_Flat_Calc_Tree.size(); node_Index++)
 	{
 		if( mode == SCATTERED_MODE )
@@ -608,18 +611,14 @@ void Calculation_Tree::calculate_Intermediate_Values_1_Tree(vector<Node*>& flat_
 			short_Flat_Calc_Tree[node_Index]->create_Spline_PSD_Fractal_Gauss_1D(measurement, multilayer->imperfections_Model);
 		}
 	}
-	qInfo() << 1.3 << endl;
 	for(size_t node_Index = 0; node_Index<short_Flat_Calc_Tree.size(); node_Index++)
 	{
 		if( measurement.measurement_Type == measurement_Types[Specular_Scan])
 		{
 			// here we create DW sigmas
-			qInfo() << 1.31 << endl;
 			short_Flat_Calc_Tree[node_Index]->calc_Debye_Waller_Sigma(measurement, multilayer->imperfections_Model);
-			qInfo() << 1.32 << endl;
 		}
 	}
-	qInfo() << 1.4 << endl;
 }
 void Calculation_Tree::clear_Spline_1_Tree(vector<Node*>& short_Flat_Calc_Tree, QString mode)
 {
