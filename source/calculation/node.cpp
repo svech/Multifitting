@@ -731,7 +731,7 @@ void Node::calc_Debye_Waller_Sigma(const Data& measurement, const Imperfections_
 		gsl_interp_accel_free(acc);
 	}
 
-	qInfo() << "node:sigma" << sigma << endl;
+//	qInfo() << "node:sigma" << sigma << endl;
 	for(size_t i = 0; i<num_Points; ++i)
 	{
 		double s2 = sigma*sigma - delta_Sigma_2[i];

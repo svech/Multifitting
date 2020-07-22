@@ -231,6 +231,11 @@ void Fitting::calc_Residual(const gsl_vector* x, Fitting_Params* params, gsl_vec
 
 			params->calculation_Trees[tab_Index]->stratify_Calc_Tree(target_Element.calc_Tree);
 
+			qInfo() << "real_Calc_Tree" << endl;
+			params->calculation_Trees[tab_Index]->print_Tree(params->calculation_Trees[tab_Index]->real_Calc_Tree.begin(), params->calculation_Trees[tab_Index]->real_Calc_Tree);
+			qInfo() << "calc_Tree" << endl;
+			params->calculation_Trees[tab_Index]->print_Tree(target_Element.calc_Tree.begin(), target_Element.calc_Tree);
+
 			// stratified
 			target_Element.media_Node_Map_Vector.resize(params->calculation_Trees[tab_Index]->num_Media_Sharp);
 			params->calculation_Trees[tab_Index]->flatten_Tree(target_Element.calc_Tree, target_Element.flat_Calc_Tree);
@@ -244,11 +249,11 @@ void Fitting::calc_Residual(const gsl_vector* x, Fitting_Params* params, gsl_vec
 //			} qInfo() << endl;
 
 
-			for(size_t node_Index = 0; node_Index<target_Element.short_Flat_Calc_Tree.size(); node_Index++)
-			{
-				qInfo() << "di" << &(target_Element.flat_Calc_Tree[node_Index]->struct_Data.sigma_Diffuse.value)		 << target_Element.flat_Calc_Tree[node_Index]->struct_Data.sigma_Diffuse.value << endl;
-				qInfo() << "ro" << &(target_Element.flat_Calc_Tree[node_Index]->struct_Data.roughness_Model.sigma.value) << target_Element.flat_Calc_Tree[node_Index]->struct_Data.roughness_Model.sigma.value << endl;
-			} qInfo() << endl;
+//			for(size_t node_Index = 0; node_Index<target_Element.short_Flat_Calc_Tree.size(); node_Index++)
+//			{
+//				qInfo() << "di" << &(target_Element.flat_Calc_Tree[node_Index]->struct_Data.sigma_Diffuse.value)		 << target_Element.flat_Calc_Tree[node_Index]->struct_Data.sigma_Diffuse.value << endl;
+//				qInfo() << "ro" << &(target_Element.flat_Calc_Tree[node_Index]->struct_Data.roughness_Model.sigma.value) << target_Element.flat_Calc_Tree[node_Index]->struct_Data.roughness_Model.sigma.value << endl;
+//			} qInfo() << endl;
 
 			// calculation
 			params->main_Calculation_Module->calculation_With_Sampling(params->calculation_Trees[tab_Index], target_Element);

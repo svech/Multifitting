@@ -383,18 +383,22 @@ void Calculation_Tree::flatten_Tree(const tree<Node>& calc_Tree, vector<Node*>& 
 	tree<Node>::pre_order_iterator iter = tree<Node>::child(calc_Tree.begin(),0);
 
 	flat_Calc_Tree.clear();
+	int counter = 0;
 	while(calc_Tree.is_valid(iter))
 	{
 		Node& node = iter.node->data;
 		const Data& item = node.struct_Data;
+		qInfo() << counter++ << "calc_Tree" <<  node.struct_Data.item_Type << node.struct_Data.id << endl;
 
 		if(item.item_Type == item_Type_Ambient || item.item_Type == item_Type_Layer || item.item_Type == item_Type_Substrate)
 		{
 			flat_Calc_Tree.push_back(&node);
+
+//			qInfo() << "flat_Calc_Tree" <<  node.struct_Data.item_Type << node.struct_Data.id << endl;
 		}
 		iter++;
 	}
-	qInfo() << "flat_Calc_Tree.size()" << flat_Calc_Tree.size() << endl;
+//	qInfo() << "flat_Calc_Tree.size()" << flat_Calc_Tree.size() << endl << endl << endl;
 }
 
 void Calculation_Tree::short_Tree(const vector<Node*>& flat_Calc_Tree, vector<Node*>& short_Flat_Calc_Tree)
@@ -413,9 +417,9 @@ void Calculation_Tree::short_Tree(const vector<Node*>& flat_Calc_Tree, vector<No
 		if(!contains)
 		{
 			short_Flat_Calc_Tree.insert(short_Flat_Calc_Tree.begin(), node);
-			qInfo() << "short_Tree" << flat_Calc_Tree[i]->struct_Data.roughness_Model.sigma.value << short_Flat_Calc_Tree.back()->struct_Data.roughness_Model.sigma.value << endl;
+//			qInfo() << "short_Tree" << flat_Calc_Tree[i]->struct_Data.roughness_Model.sigma.value << short_Flat_Calc_Tree.back()->struct_Data.roughness_Model.sigma.value << endl;
 		}
-		qInfo() << "short_Tree" << false << i << node->struct_Data.item_Type << node->struct_Data.id << endl;
+//		qInfo() << "short_Tree" << false << i << node->struct_Data.item_Type << node->struct_Data.id << endl;
 	}
 }
 
