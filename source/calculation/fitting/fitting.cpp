@@ -7,6 +7,7 @@ Fitting::Fitting(Main_Calculation_Module* main_Calculation_Module):
 	confidentials		(main_Calculation_Module->confidentials),
 	number_Of_Restricted_Regular_Components(main_Calculation_Module->number_Of_Restricted_Regular_Components),
 
+	n_Full_With_GISAS(num_Residual_Points_Full_With_GISAS()+main_Calculation_Module->number_Of_Restricted_Regular_Components),
 	n(num_Residual_Points()+main_Calculation_Module->number_Of_Restricted_Regular_Components),
 	p(fitables.param_Pointers.size()),
 
@@ -17,6 +18,7 @@ Fitting::Fitting(Main_Calculation_Module* main_Calculation_Module):
 		   main_Calculation_Module->calc_Mode,
 		   p,
 		   f,
+		   n_Full_With_GISAS,
 		   n,
 		   x,
 
@@ -63,7 +65,35 @@ size_t Fitting::num_Residual_Points()
 		for(Data_Element<Target_Curve>& target_Element : calculation_Trees[tab_Index]->target)
 		{
 			// over points
-			residual_Points += target_Element.the_Class->curve.shifted_Values.size();
+			if(target_Element.the_Class->measurement.measurement_Type != measurement_Types[GISAS_Map] )
+			{
+				residual_Points += target_Element.the_Class->curve.shifted_Values.size();
+			} else
+			{
+				residual_Points += target_Element.the_Class->curve.value_2D_Shifted.front().size();
+			}
+		}
+	}
+	return residual_Points;
+}
+
+size_t Fitting::num_Residual_Points_Full_With_GISAS()
+{
+	size_t residual_Points = 0;
+	// over multilayers
+	for(int tab_Index=0; tab_Index<calculation_Trees.size(); ++tab_Index)
+	{
+		// over target curves
+		for(Data_Element<Target_Curve>& target_Element : calculation_Trees[tab_Index]->target)
+		{
+			// over points
+			if(target_Element.the_Class->measurement.measurement_Type != measurement_Types[GISAS_Map] )
+			{
+				residual_Points += target_Element.the_Class->curve.shifted_Values.size();
+			} else
+			{
+				residual_Points += target_Element.the_Class->curve.value_2D_Shifted.front().size()*target_Element.the_Class->curve.value_2D_Shifted.size();
+			}
 		}
 	}
 	return residual_Points;
@@ -189,7 +219,6 @@ void Fitting::calc_Residual(const gsl_vector* x, Fitting_Params* params, gsl_vec
 		params->fitables.param_Pointers[i]->value = params->main_Calculation_Module->unparametrize(	gsl_vector_get(x, i),
 																									params->fitables.param_Pointers[i]->fit.min,
 																									params->fitables.param_Pointers[i]->fit.max);
-		qInfo() << "ss" << params->fitables.param_Pointers[i] << params->fitables.param_Pointers[i]->value << gsl_vector_get(x, i) << endl;
 		double new_Value = params->fitables.param_Pointers[i]->value;
 		change_Real_Fitables_and_Dependent(params, old_Value, new_Value, i, FITTING);
 	}
@@ -219,6 +248,9 @@ void Fitting::calc_Residual(const gsl_vector* x, Fitting_Params* params, gsl_vec
 		// over target curves
 		int target_Index = 0;
 
+		// refresh common number of media
+		params->calculation_Trees[tab_Index]->num_Media_Sharp = params->calculation_Trees[tab_Index]->get_Total_Num_Layers(params->calculation_Trees[tab_Index]->real_Calc_Tree.begin()); // non-discretized
+
 		// if use reference Data_Element<Target_Curve>& then addresses of slaves are changing!!! WTF?
 		for(Data_Element<Target_Curve>& target_Element : params->calculation_Trees[tab_Index]->target)
 		{
@@ -231,29 +263,12 @@ void Fitting::calc_Residual(const gsl_vector* x, Fitting_Params* params, gsl_vec
 
 			params->calculation_Trees[tab_Index]->stratify_Calc_Tree(target_Element.calc_Tree);
 
-			qInfo() << "real_Calc_Tree" << endl;
-			params->calculation_Trees[tab_Index]->print_Tree(params->calculation_Trees[tab_Index]->real_Calc_Tree.begin(), params->calculation_Trees[tab_Index]->real_Calc_Tree);
-			qInfo() << "calc_Tree" << endl;
-			params->calculation_Trees[tab_Index]->print_Tree(target_Element.calc_Tree.begin(), target_Element.calc_Tree);
-
 			// stratified
 			target_Element.media_Node_Map_Vector.resize(params->calculation_Trees[tab_Index]->num_Media_Sharp);
-			params->calculation_Trees[tab_Index]->flatten_Tree(target_Element.calc_Tree, target_Element.flat_Calc_Tree);
+			target_Element.flat_Calc_Tree.clear();
+			params->calculation_Trees[tab_Index]->flatten_Tree(target_Element.calc_Tree.begin(), target_Element.calc_Tree, target_Element.flat_Calc_Tree);
 			params->calculation_Trees[tab_Index]->short_Tree(target_Element.flat_Calc_Tree, target_Element.short_Flat_Calc_Tree);
 			params->calculation_Trees[tab_Index]->unwrap_Calc_Tree_Node(target_Element.calc_Tree.begin(), target_Element.media_Node_Map_Vector);
-
-//			for(size_t node_Index = 0; node_Index<target_Element.short_Flat_Calc_Tree.size(); node_Index++)
-//			{
-//				qInfo() << "di" << &(target_Element.short_Flat_Calc_Tree[node_Index]->struct_Data.sigma_Diffuse.value) << target_Element.short_Flat_Calc_Tree[node_Index]->struct_Data.sigma_Diffuse.value << endl;
-//				qInfo() << "ro" << &(target_Element.short_Flat_Calc_Tree[node_Index]->struct_Data.roughness_Model.sigma.value) << target_Element.short_Flat_Calc_Tree[node_Index]->struct_Data.roughness_Model.sigma.value << endl;
-//			} qInfo() << endl;
-
-
-//			for(size_t node_Index = 0; node_Index<target_Element.short_Flat_Calc_Tree.size(); node_Index++)
-//			{
-//				qInfo() << "di" << &(target_Element.flat_Calc_Tree[node_Index]->struct_Data.sigma_Diffuse.value)		 << target_Element.flat_Calc_Tree[node_Index]->struct_Data.sigma_Diffuse.value << endl;
-//				qInfo() << "ro" << &(target_Element.flat_Calc_Tree[node_Index]->struct_Data.roughness_Model.sigma.value) << target_Element.flat_Calc_Tree[node_Index]->struct_Data.roughness_Model.sigma.value << endl;
-//			} qInfo() << endl;
 
 			// calculation
 			params->main_Calculation_Module->calculation_With_Sampling(params->calculation_Trees[tab_Index], target_Element);
@@ -392,29 +407,36 @@ void Fitting::fill_Residual(Fitting_Params* params, int& residual_Shift, Data_El
 
 	Target_Curve* target_Curve = target_Element.the_Class;
 	double fi_1, fi_2, fi_1_next, fi_2_next, factor;
-	int N = target_Curve->curve.shifted_Values.size();
-	double N_sqrt = sqrt(double(N));
-	double n_P_sqrt = sqrt(double(params->n-params->fitables.param_Names.size()));
+	int N = -2020;
+	double N_sqrt = -2020;
+	double n_P_sqrt = 2020;
+	if(target_Curve->measurement.measurement_Type != measurement_Types[GISAS_Map] )
+	{
+		n_P_sqrt = sqrt(double(params->n - params->fitables.param_Names.size()));
+		N = target_Curve->curve.shifted_Values.size();
+		N_sqrt = sqrt(double(N));
+	} else
+	// GISAS
+	{
+		n_P_sqrt = sqrt(double(params->n_Full_With_GISAS - params->fitables.param_Names.size()));
+		N = target_Curve->curve.value_2D_Shifted.front().size();
+		size_t phi_N = target_Curve->curve.value_2D_Shifted.size();
+		N_sqrt = sqrt(double(N*phi_N));
+	}
 	double power = target_Curve->fit_Params.power/2.;
 
 	vector<double> model_Curve(N);
 
-	/// -------------------------------------------------------------------------------
-	/// reflectance
-	/// -------------------------------------------------------------------------------
-
-	if(target_Curve->curve.value_Type == value_Types[Reflectance] )				// R
+	if(target_Curve->measurement.measurement_Type == measurement_Types[Specular_Scan] )
 	{
-		model_Curve = target_Element.unwrapped_Reflection->calculated_Values.R_Instrumental;
+		if(target_Curve->curve.value_Type == value_Types[Reflectance] )		model_Curve = target_Element.unwrapped_Reflection->calculated_Values.R_Instrumental;
+		if(target_Curve->curve.value_Type == value_Types[Transmittance] )	model_Curve = target_Element.unwrapped_Reflection->calculated_Values.T_Instrumental;
 	}
-
-	/// -------------------------------------------------------------------------------
-	/// transmittance
-	/// -------------------------------------------------------------------------------
-
-	if(target_Curve->curve.value_Type == value_Types[Transmittance] )				// T
+	if( target_Curve->measurement.measurement_Type == measurement_Types[Detector_Scan] ||
+		target_Curve->measurement.measurement_Type == measurement_Types[Rocking_Curve] ||
+		target_Curve->measurement.measurement_Type == measurement_Types[Offset_Scan])
 	{
-		model_Curve = target_Element.unwrapped_Reflection->calculated_Values.T_Instrumental;
+		model_Curve = target_Element.unwrapped_Reflection->calculated_Values.S_Instrumental;
 	}
 
 	// use_Chi2
@@ -422,70 +444,147 @@ void Fitting::fill_Residual(Fitting_Params* params, int& residual_Shift, Data_El
 	{
 		if(target_Curve->fit_Params.use_Chi2)
 		{
+			factor = target_Curve->fit_Params.weight_Sqrt/n_P_sqrt;
 			for(int point_Index=0; point_Index<N; ++point_Index)
 			{
-				factor = target_Curve->fit_Params.weight_Sqrt/n_P_sqrt;
-//				fi_1 = target_Curve->curve.shifted_Values[point_Index].val_1;
-				fi_1 = target_Curve->curve.shifted_Values_No_Scaling_And_Offset[point_Index]*
-					   target_Curve->curve.val_Factor.value +
-					   target_Curve->curve.val_Shift;
-				fi_2 = model_Curve[point_Index];
-
-				// use only data from subinterval
-				if( target_Curve->curve.use_Subinterval &&
-					((target_Curve->curve.shifted_Argument[point_Index]<target_Curve->curve.subinterval_Left) ||
-					(target_Curve->curve.shifted_Argument[point_Index]>target_Curve->curve.subinterval_Right))	)
+				double f_Val = 0;
+				if(target_Curve->measurement.measurement_Type != measurement_Types[GISAS_Map] )
 				{
-					factor = 0;
+					// if subinterval then use only data from inside
+					if( !target_Curve->curve.use_Subinterval ||
+					   ((target_Curve->curve.shifted_Argument[point_Index]>=target_Curve->curve.subinterval_Left) &&
+						(target_Curve->curve.shifted_Argument[point_Index]<=target_Curve->curve.subinterval_Right))	)
+					{
+//						fi_1 = target_Curve->curve.shifted_Values[point_Index].val_1;
+						fi_1 = target_Curve->curve.shifted_Values_No_Scaling_And_Offset[point_Index]*
+							   target_Curve->curve.val_Factor.value +
+							   target_Curve->curve.val_Shift;
+						fi_2 = max(model_Curve[point_Index], DBL_MIN);
+						f_Val = factor*(fi_1-fi_2)*sqrt((target_Curve->curve.beam_Intensity_Initial+target_Curve->curve.beam_Intensity_Final)/(2*fi_2));
+					}
+				} else
+				// GISAS
+				{
+					f_Val = 0;
+					fi_2 = DBL_EPSILON;
+					for(size_t phi_Index = 0; phi_Index<target_Curve->curve.value_2D_Shifted.size(); phi_Index++)
+					{
+						// if subinterval then use only data from inside
+						if( !target_Curve->curve.use_Subinterval ||
+						   ((target_Curve->measurement.detector_Theta_Angle_Vec[point_Index]>=target_Curve->curve.subinterval_Left)  &&
+							(target_Curve->measurement.detector_Theta_Angle_Vec[point_Index]<=target_Curve->curve.subinterval_Right) &&
+							(target_Curve->measurement.detector_Phi_Angle_Vec  [point_Index]>=target_Curve->curve.subinterval_Bottom)&&
+							(target_Curve->measurement.detector_Phi_Angle_Vec  [point_Index]<=target_Curve->curve.subinterval_Top))	)
+						{
+							fi_2 += target_Element.unwrapped_Reflection->calculated_Values.GISAS_Instrumental[phi_Index][point_Index];
+							f_Val += pow(target_Curve->curve.value_2D_No_Scaling_And_Offset[phi_Index][point_Index] *
+										 target_Curve->curve.val_Factor.value +
+										 target_Curve->curve.val_Shift
+										 -
+										 target_Element.unwrapped_Reflection->calculated_Values.GISAS_Instrumental[phi_Index][point_Index]
+										,2);
+						}
+					}
+					f_Val = factor * sqrt(f_Val) * sqrt((target_Curve->curve.beam_Intensity_Initial+target_Curve->curve.beam_Intensity_Final)/(2*fi_2));
 				}
 
 				// fill
-				gsl_vector_set(f, residual_Shift+point_Index, factor*(fi_1-fi_2)*sqrt((target_Curve->curve.beam_Intensity_Initial+target_Curve->curve.beam_Intensity_Final)/(2*fi_2))   );
+				gsl_vector_set(f, residual_Shift+point_Index, f_Val );
 			}
 		} else
 		// use custom expression
 		{
+			// weight
+			factor = target_Curve->fit_Params.weight_Sqrt;
+			if(target_Curve->fit_Params.norm) { factor /= N_sqrt; }
+
 			for(int point_Index=0; point_Index<N; ++point_Index)
 			{
 				// calculate with expression
+				double f_Val = 0;
+				if(target_Curve->measurement.measurement_Type != measurement_Types[GISAS_Map] )
 				{
+					// if subinterval then use only data from inside
+					if( !target_Curve->curve.use_Subinterval ||
+					   ((target_Curve->curve.shifted_Argument[point_Index]>=target_Curve->curve.subinterval_Left) &&
+						(target_Curve->curve.shifted_Argument[point_Index]<=target_Curve->curve.subinterval_Right))	)
+					{
+						{
 #ifdef EXPRTK
-//					target_Curve->fit_Params.expression_Argument = target_Curve->curve.shifted_Values[point_Index].val_1;
-					target_Curve->fit_Params.expression_Argument = target_Curve->curve.shifted_Values_No_Scaling_And_Offset[point_Index]*
-																   target_Curve->curve.val_Factor.value +
-																   target_Curve->curve.val_Offset;
+//							target_Curve->fit_Params.expression_Argument = target_Curve->curve.shifted_Values[point_Index].val_1;
+							target_Curve->fit_Params.expression_Argument = target_Curve->curve.shifted_Values_No_Scaling_And_Offset[point_Index]*
+																		   target_Curve->curve.val_Factor.value +
+																		   target_Curve->curve.val_Offset;
 
-					fi_1 = target_Curve->fit_Params.expression_Vec[0].value();
+							fi_1 = target_Curve->fit_Params.expression_Vec[0].value();
 #else
-//					fi_1 = func(target_Curve->curve.shifted_Values[point_Index].val_1, index);
-					fi_1 = func(target_Curve->curve.shifted_Values_No_Scaling_And_Offset[point_Index]*
-								target_Curve->curve.val_Factor.value +
-								target_Curve->curve.val_Shift, index);
+//							fi_1 = func(target_Curve->curve.shifted_Values[point_Index].val_1, index);
+							fi_1 = func(target_Curve->curve.shifted_Values_No_Scaling_And_Offset[point_Index]*
+										target_Curve->curve.val_Factor.value +
+										target_Curve->curve.val_Shift, index);
 #endif
-				}
-				{
+						}
+						{
 #ifdef EXPRTK
-					target_Curve->fit_Params.expression_Argument = model_Curve[point_Index];
-					fi_2 = target_Curve->fit_Params.expression_Vec[0].value();
+							target_Curve->fit_Params.expression_Argument = model_Curve[point_Index];
+							fi_2 = target_Curve->fit_Params.expression_Vec[0].value();
 #else
-					fi_2 = func(model_Curve[point_Index], index);
+							fi_2 = func(model_Curve[point_Index], index);
 #endif
-				}
-
-				// weight
-				factor = target_Curve->fit_Params.weight_Sqrt;
-				if(target_Curve->fit_Params.norm) { factor /= N_sqrt; }
-
-				// use only data from subinterval
-				if( target_Curve->curve.use_Subinterval &&
-					((target_Curve->curve.shifted_Argument[point_Index]<target_Curve->curve.subinterval_Left) ||
-					(target_Curve->curve.shifted_Argument[point_Index]>target_Curve->curve.subinterval_Right))	)
+						}
+						f_Val = factor*pow(abs(fi_1-fi_2),power);
+					}
+				} else
+				// GISAS
 				{
-					factor = 0;
+					f_Val = 0;
+					fi_2 = DBL_EPSILON;
+					for(size_t phi_Index = 0; phi_Index<target_Curve->curve.value_2D_Shifted.size(); phi_Index++)
+					{
+						// if subinterval then use only data from inside
+						if( !target_Curve->curve.use_Subinterval ||
+						   ((target_Curve->measurement.detector_Theta_Angle_Vec[point_Index]>=target_Curve->curve.subinterval_Left)  &&
+							(target_Curve->measurement.detector_Theta_Angle_Vec[point_Index]<=target_Curve->curve.subinterval_Right) &&
+							(target_Curve->measurement.detector_Phi_Angle_Vec  [point_Index]>=target_Curve->curve.subinterval_Bottom)&&
+							(target_Curve->measurement.detector_Phi_Angle_Vec  [point_Index]<=target_Curve->curve.subinterval_Top))	)
+						{
+							{
+#ifdef EXPRTK
+//								target_Curve->fit_Params.expression_Argument = target_Curve->curve.value_2D_Shifted[phi_Index][point_Index];
+								target_Curve->fit_Params.expression_Argument = target_Curve->curve.value_2D_No_Scaling_And_Offset[phi_Index][point_Index] *
+																			   target_Curve->curve.val_Factor.value +
+																			   target_Curve->curve.val_Shift;
+
+								fi_1 = target_Curve->fit_Params.expression_Vec[0].value();
+#else
+//								fi_1 = func(target_Curve->curve.value_2D_Shifted[phi_Index][point_Index], index);
+								fi_1 = func(target_Curve->curve.value_2D_No_Scaling_And_Offset[phi_Index][point_Index] *
+											target_Curve->curve.val_Factor.value +
+											target_Curve->curve.val_Shift, index);
+#endif
+							}
+							{
+#ifdef EXPRTK
+								target_Curve->fit_Params.expression_Argument = target_Element.unwrapped_Reflection->calculated_Values.GISAS_Instrumental[phi_Index][point_Index];
+								fi_2 = target_Curve->fit_Params.expression_Vec[0].value();
+#else
+								fi_2 = func(target_Element.unwrapped_Reflection->calculated_Values.GISAS_Instrumental[phi_Index][point_Index], index);
+#endif
+							}
+							fi_2 += target_Element.unwrapped_Reflection->calculated_Values.GISAS_Instrumental[phi_Index][point_Index];
+							f_Val += pow(target_Curve->curve.value_2D_No_Scaling_And_Offset[phi_Index][point_Index] *
+										 target_Curve->curve.val_Factor.value +
+										 target_Curve->curve.val_Shift
+										 -
+										 target_Element.unwrapped_Reflection->calculated_Values.GISAS_Instrumental[phi_Index][point_Index]
+										,2);
+						}
+					}
+					f_Val = factor * pow(sqrt(f_Val),power);
 				}
 
 				// fill
-				gsl_vector_set(f, residual_Shift+point_Index, factor*pow(abs(fi_1-fi_2),power));
+				gsl_vector_set(f, residual_Shift+point_Index, f_Val);
 			}
 		}
 	} else

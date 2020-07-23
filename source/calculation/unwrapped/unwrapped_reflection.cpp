@@ -3031,7 +3031,7 @@ void Unwrapped_Reflection::calc_Specular_nMin_nMax_1_Thread(int n_Min, int n_Max
 	for(int point_Index = n_Min; point_Index<n_Max; ++point_Index)
 	{
 		calc_Specular_1_Point_1_Thread(thread_Index, point_Index);
-		fill_Specular_Values	  (thread_Index, point_Index);
+		fill_Specular_Values		  (thread_Index, point_Index);
 	}
 }
 

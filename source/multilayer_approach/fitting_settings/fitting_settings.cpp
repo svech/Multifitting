@@ -11,7 +11,7 @@ Fitting_Settings::Fitting_Settings(QWidget* parent) :
 
 	/// for GSL TRS
 	// main
-	max_Iter = 20;
+	max_Iter = 100;
 	x_Tolerance = 1.0e-8;
 	g_Tolerance = 1.0e-8;
 	f_Tolerance = 1.0e-8;

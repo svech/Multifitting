@@ -22,6 +22,7 @@ struct Fitting_Params
 	const size_t p;
 	gsl_vector* f;
 
+	const size_t n_Full_With_GISAS;
 	const size_t n;
 	gsl_vector* x;
 
@@ -47,6 +48,7 @@ public:
 	Fitables& confidentials;
 	size_t number_Of_Restricted_Regular_Components;
 
+	const size_t n_Full_With_GISAS;
 	const size_t n;
 	const size_t p;
 	gsl_vector* f;
@@ -56,6 +58,7 @@ public:
 
 	static double func(double argument, int index);
 	size_t num_Residual_Points();
+	size_t num_Residual_Points_Full_With_GISAS();
 	static void period_Subtree_Iteration(const tree<Node>::iterator& parent, double coeff);
 	static void gamma_Subtree_Iteration(const tree<Node>::iterator& parent, double old_Value);
 	static void slaves_Recalculation(Parameter* master, Fitting_Params* params);

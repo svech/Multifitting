@@ -1339,7 +1339,6 @@ void Main_Calculation_Module::fitting_and_Confidence()
 	}
 
 	// prepare cos2 and active_Parameter_Whats_This
-	qInfo() << "fitting_and_Confidence" << endl;
 	preliminary_Calculation();
 
 	// reload dependences
@@ -1451,15 +1450,6 @@ void Main_Calculation_Module::fitting_and_Confidence()
 		fitting_Instance.check_Maximization();
 		bool is_Load_Init_State_Trees = false;
 		bool go = fitting_Instance.fit();
-		for(int tab_Index=0; tab_Index<multilayers.size(); ++tab_Index)
-		{
-			for(Data_Element<Target_Curve>& target_Element : calculation_Trees[tab_Index]->target)
-			{
-				// TODO
-//				qInfo() << "curve.shifted_Argument.size()" << target_Element.the_Class->curve.shifted_Argument.size() << endl;
-//				decrease_Mesh_Density(target_Element, true);
-			}
-		}
 		if(!go) return;
 		print_Calculated_To_File();
 
@@ -1735,7 +1725,6 @@ void Main_Calculation_Module::find_Fittable_Confidence_Parameters(Data& struct_D
 				fitables.param_IDs			.push_back(parameter->indicator.id);
 
 				// changeable
-				qInfo() << "added :" << parameter  << parameter->value << parameter->fit.min << parameter->fit.max << endl;
 				fitables.param_Pointers		.push_back(parameter);
 				fitables.values_Parametrized.push_back(parametrize(parameter->value, parameter->fit.min, parameter->fit.max)); // will be recalculated at solver initialization
 				fitables.parent_Iterators	.push_back(current);					// used for period and gamma only, but should be filled for all for the length purpose!
@@ -2295,9 +2284,9 @@ void Main_Calculation_Module::print_Matrix(QString function, const Calc_Function
 		out << endl;
 
 		int precision = 6;
-		for(size_t j=0; j<matrix.front().size(); ++j)
+		for(size_t i=0; i<matrix.size(); ++i)
 		{
-			for(size_t i=0; i<matrix.size(); ++i)
+			for(size_t j=0; j<matrix.front().size(); ++j)
 			{
 				out << Locale.toString(matrix[i][j],'e',precision) << "\t";
 			}

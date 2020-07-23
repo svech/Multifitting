@@ -839,15 +839,6 @@ void Data::calc_Mixed_Resolution()
 				theta_Resolution_Vec[i] = theta_Resolution_FWHM/2;
 			}
 		}
-
-
-
-//		theta_Resolution_From_Spectral_Vec.resize(detector_Theta_Angle_Vec.size());
-//		for(size_t i=0; i<theta_Resolution_From_Spectral_Vec.size(); ++i)
-//		{
-//			double angle_Temp = detector_Theta_Angle_Vec[i]*M_PI/180.; // in radians
-//			theta_Resolution_From_Spectral_Vec[i] = 2*( angle_Temp - asin((1.-spectral_Distribution.FWHM_distribution/2)*sin(angle_Temp)) ) * 180./M_PI; // in degrees
-//		}
 	}
 	// 2D detector, theta & phi dependence
 	if( measurement_Type == measurement_Types[GISAS_Map] )
@@ -862,12 +853,6 @@ void Data::calc_Mixed_Resolution()
 		{
 			theta_Resolution_Vec[i] = theta_Resolution_FWHM;
 		}
-//		theta_Resolution_From_Spectral_Vec.resize(detector_Theta_Angle_Vec.size());
-//		for(size_t i=0; i<theta_Resolution_From_Spectral_Vec.size(); ++i)
-//		{
-//			double angle_Temp = detector_Theta_Angle_Vec[i]*M_PI/180.; // in radians
-//			theta_Resolution_From_Spectral_Vec[i] = 2*( angle_Temp - asin((1.-spectral_Distribution.FWHM_distribution/2)*sin(angle_Temp)) ) * 180./M_PI; // in degrees
-//		}
 
 		if(detector_2D.detector_Type == detectors[Spherical])	{phi_Resolution_FWHM = detector_2D.detector_Phi_Resolution.FWHM_distribution; phi_Distribution = detector_2D.detector_Phi_Resolution.distribution_Function;}
 		// TODO

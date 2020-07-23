@@ -184,8 +184,7 @@ void Calculation_Tree::fill_Calc_Trees()
 		fill_Tree_From_Scratch(real_Calc_Tree, real_Struct_Tree, multilayer);
 
 		// get common number of media
-		num_Media = get_Total_Num_Layers(real_Calc_Tree.begin()); // non-discretized
-		num_Media_Sharp = num_Media;							  // store it here anyway
+		num_Media_Sharp = get_Total_Num_Layers(real_Calc_Tree.begin()); // non-discretized
 		///--------------------------------------------------------------------
 
 		// replication of real_Calc_Tree for each target and independent
@@ -202,10 +201,10 @@ void Calculation_Tree::fill_Calc_Trees()
 
 			// stratified
 			target_Data_Element.media_Node_Map_Vector.resize(num_Media_Sharp);
-			flatten_Tree(target_Data_Element.calc_Tree, target_Data_Element.flat_Calc_Tree);
+			target_Data_Element.flat_Calc_Tree.clear();
+			flatten_Tree(target_Data_Element.calc_Tree.begin(), target_Data_Element.calc_Tree, target_Data_Element.flat_Calc_Tree);
 			short_Tree(target_Data_Element.flat_Calc_Tree, target_Data_Element.short_Flat_Calc_Tree);
 			unwrap_Calc_Tree_Node(target_Data_Element.calc_Tree.begin(), target_Data_Element.media_Node_Map_Vector);
-//			qInfo() << "sigma" << target_Data_Element.short_Flat_Calc_Tree[1]->struct_Data.roughness_Model.sigma.value << endl << endl;
 		}
 		for(Data_Element<Independent_Curve>& independent_Data_Element : independent)
 		{
@@ -220,7 +219,8 @@ void Calculation_Tree::fill_Calc_Trees()
 
 			// stratified
 			independent_Data_Element.media_Node_Map_Vector.resize(num_Media_Sharp);
-			flatten_Tree(independent_Data_Element.calc_Tree, independent_Data_Element.flat_Calc_Tree);
+			independent_Data_Element.flat_Calc_Tree.clear();
+			flatten_Tree(independent_Data_Element.calc_Tree.begin(), independent_Data_Element.calc_Tree, independent_Data_Element.flat_Calc_Tree);
 			short_Tree(independent_Data_Element.flat_Calc_Tree, independent_Data_Element.short_Flat_Calc_Tree);
 			unwrap_Calc_Tree_Node(independent_Data_Element.calc_Tree.begin(), independent_Data_Element.media_Node_Map_Vector);
 		}
@@ -378,27 +378,27 @@ void Calculation_Tree::stratify_Calc_Tree(tree<Node>& calc_Tree)
 	//	qInfo() << endl << endl;
 }
 
-void Calculation_Tree::flatten_Tree(const tree<Node>& calc_Tree, vector<Node*>& flat_Calc_Tree)
+void Calculation_Tree::flatten_Tree(const tree<Node>::iterator& parent, const tree<Node>& calc_Tree, vector<Node*>& flat_Calc_Tree)
 {
-	tree<Node>::pre_order_iterator iter = tree<Node>::child(calc_Tree.begin(),0);
-
-	flat_Calc_Tree.clear();
-	int counter = 0;
-	while(calc_Tree.is_valid(iter))
+	for(unsigned i=0; i<parent.number_of_children(); ++i)
 	{
-		Node& node = iter.node->data;
+		tree<Node>::post_order_iterator child = calc_Tree.child(parent,i);
+
+		Node& node = child.node->data;
 		const Data& item = node.struct_Data;
-		qInfo() << counter++ << "calc_Tree" <<  node.struct_Data.item_Type << node.struct_Data.id << endl;
 
 		if(item.item_Type == item_Type_Ambient || item.item_Type == item_Type_Layer || item.item_Type == item_Type_Substrate)
 		{
 			flat_Calc_Tree.push_back(&node);
-
-//			qInfo() << "flat_Calc_Tree" <<  node.struct_Data.item_Type << node.struct_Data.id << endl;
 		}
-		iter++;
+
+		if( child.node->data.struct_Data.item_Type == item_Type_Multilayer ||
+			child.node->data.struct_Data.item_Type == item_Type_Regular_Aperiodic ||
+			child.node->data.struct_Data.item_Type == item_Type_General_Aperiodic )
+		{
+			flatten_Tree(child, calc_Tree, flat_Calc_Tree);
+		}
 	}
-//	qInfo() << "flat_Calc_Tree.size()" << flat_Calc_Tree.size() << endl << endl << endl;
 }
 
 void Calculation_Tree::short_Tree(const vector<Node*>& flat_Calc_Tree, vector<Node*>& short_Flat_Calc_Tree)
@@ -417,9 +417,7 @@ void Calculation_Tree::short_Tree(const vector<Node*>& flat_Calc_Tree, vector<No
 		if(!contains)
 		{
 			short_Flat_Calc_Tree.insert(short_Flat_Calc_Tree.begin(), node);
-//			qInfo() << "short_Tree" << flat_Calc_Tree[i]->struct_Data.roughness_Model.sigma.value << short_Flat_Calc_Tree.back()->struct_Data.roughness_Model.sigma.value << endl;
 		}
-//		qInfo() << "short_Tree" << false << i << node->struct_Data.item_Type << node->struct_Data.id << endl;
 	}
 }
 
