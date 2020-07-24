@@ -690,7 +690,7 @@ void Curve_Plot_2D::refresh_Axes_Labels()
 				}
 				if(measurement.argument_Type == argument_Types[Wavelength_Energy])
 				{
-					argument_Type_Text = Global_Variables::wavelength_Energy_Name(spectral_Units); + ", " + spectral_Units;
+					argument_Type_Text = Global_Variables::wavelength_Energy_Name(spectral_Units) + " " + Global_Variables::wavelength_Energy_Symbol(spectral_Units) + ", " + spectral_Units;
 					argument_Sym_Text = "";
 					argument_Units_Text = spectral_Units;
 				}

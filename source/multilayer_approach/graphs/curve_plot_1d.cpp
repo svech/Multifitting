@@ -766,7 +766,8 @@ void Curve_Plot_1D::refresh_Labels()
 	// argument
 	QString argument_Label;
 	if(measurement.argument_Type == argument_Types[Beam_Grazing_Angle])				argument_Label = measurement.argument_Type + ", " + angular_Units;
-	if(measurement.argument_Type == argument_Types[Wavelength_Energy])				argument_Label = Global_Variables::wavelength_Energy_Name(spectral_Units) + ", " + spectral_Units;
+	if(measurement.argument_Type == argument_Types[Wavelength_Energy])
+		argument_Label = Global_Variables::wavelength_Energy_Name(spectral_Units) + " " + Global_Variables::wavelength_Energy_Symbol(spectral_Units) + ", " + spectral_Units;
 	if(measurement.argument_Type == argument_Types[Detector_Polar_Angle])			argument_Label = measurement.argument_Type + ", " + angular_Units;
 	if(measurement.argument_Type == argument_Types[Deviation_From_Specular_Angle])	argument_Label = measurement.argument_Type + ", " + angular_Units;
 

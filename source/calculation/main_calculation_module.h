@@ -89,9 +89,12 @@ public:
 	void print_Data(QTextStream& out, vector<double>& arg,
 									 Unwrapped_Reflection* unwrapped_Reflection,
 									 Calc_Functions& calc_Functions,
-									 double incident_Polarization
-									 );
-	void print_Matrix(QString function, const Calc_Functions& calc_Functions, QTextStream& out, const vector<vector<double>>& matrix, const Data& measurement);
+									 double incident_Polarization,
+									 QString argument_Heading,
+									 QString at_Fixed_Heading,
+									 QString instrumental_Heading,
+									 QString geometry_Heading);
+	void print_Matrix(QString function, const Calc_Functions& calc_Functions, QTextStream& out, const vector<vector<double>>& matrix, const Data& measurement, QString angular_Units, QString spectral_Units);
 
 	void add_Fit(QString name_Modificator, int run=0);
 };

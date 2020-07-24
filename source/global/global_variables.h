@@ -190,7 +190,7 @@ enum SO_Methods_Enum	{	/* Mesh Iteration. */
 // -----------------------------------------------------------------------------------------
 
 // units
-extern QStringList wavelength_Units_List;	extern QMap<QString, double> wavelength_Coefficients_Map;
+extern QStringList wavelength_Units_List;	extern QMap<QString, double> wavelength_Coefficients_Map;	extern QMap<QString, QString> wavelength_Units_Legend_Map;
 enum wavelength_Units_List_Enum		{ angstrom, nm, eV, keV }; // mcm
 
 extern QStringList length_Units_List;		extern QMap<QString, double> length_Coefficients_Map;
@@ -264,7 +264,7 @@ public:
 	static void deserialize_Variables_List(QDataStream &in,  QListWidget* list);
 	static void pseudo_Deserialize_Variables_List(QDataStream &in);
 	static double wavelength_Energy(QString wavelength_Units, double y);
-	static QString wavelength_Energy_Name(QString wavelength_Units);
+	static QString wavelength_Energy_Name(QString wavelength_Units, bool if_small = false);
 	static QString wavelength_Energy_Symbol(QString spectral_Units);
 	static double angstrom_eV(double x);
 	static void fill_Units_Maps();

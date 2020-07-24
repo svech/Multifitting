@@ -26,7 +26,7 @@ public:
 		// wavelength
 		Parameter wavelength;
 		vector<double> k_Vec;		double k_Value;		// wihout saving
-		vector<double>	lambda_Vec;	double lambda_Value;// wihout saving
+		vector<double> lambda_Vec;	double lambda_Value;// wihout saving
 
 		// theta_0 angle
 		Parameter beam_Theta_0_Angle;

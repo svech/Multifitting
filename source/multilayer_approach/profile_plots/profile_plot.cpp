@@ -113,7 +113,7 @@ void Profile_Plot::create_Left_Side()
 		permittivity_RadioButton = new QRadioButton("Permittivity");
 			permittivity_Layout->addWidget(permittivity_RadioButton,0,0,1,6);
 
-		at_Wavelength_Label = new QLabel("At fixed " + Global_Variables::wavelength_Energy_Name(multilayer->profile_Plot_Options.local_wavelength_units));
+		at_Wavelength_Label = new QLabel("At fixed " + Global_Variables::wavelength_Energy_Name(multilayer->profile_Plot_Options.local_wavelength_units, true) + " " + Global_Variables::wavelength_Energy_Symbol(multilayer->profile_Plot_Options.local_wavelength_units));
 			permittivity_Layout->addWidget(at_Wavelength_Label,1,2,1,4);
 		at_Wavelength_LineEdit = new QLineEdit(Locale.toString(Global_Variables::wavelength_Energy(multilayer->profile_Plot_Options.local_wavelength_units, multilayer->profile_Plot_Options.local_Wavelength)/wavelength_Coefficients_Map.value(multilayer->profile_Plot_Options.local_wavelength_units),line_edit_double_format));
 			at_Wavelength_LineEdit->setFixedWidth(80);

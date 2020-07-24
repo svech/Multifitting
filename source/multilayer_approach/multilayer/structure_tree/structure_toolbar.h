@@ -50,7 +50,7 @@ public:
 	void iterate_Over_Tree(QTextStream& out, QTreeWidgetItem* parent_Item, QString parent_Index_String = "");
 	void print_Structure_Header(QTextStream& out);
 	void look_Over_Tree();
-	void print_Structure_Item(QTextStream& out, QTreeWidgetItem* structure_Item, QString current_Index_String, int item_Depth, int item_Index);
+	void print_Structure_Item(QTextStream& out, QTreeWidgetItem* structure_Item, QString current_Index_String, int item_Depth, int item_Index, const Data& substrate);
 
 	bool ask_Parent_Multilayer();
 	void if_Selected();

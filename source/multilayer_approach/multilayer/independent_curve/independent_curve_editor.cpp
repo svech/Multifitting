@@ -36,6 +36,10 @@ void Independent_Curve_Editor::write_Window_Geometry()
 	{
 		independent_x_corner = frameGeometry().x()-corner_x_shift;
 		independent_y_corner = frameGeometry().y()-corner_y_shift;
+#ifndef _linux_
+		independent_x_corner += 1;
+		independent_y_corner += 31;
+#endif
 	}
 }
 

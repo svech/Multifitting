@@ -1991,42 +1991,69 @@ void Main_Calculation_Module::print_Reflect_To_File(Data_Element<Type>& data_Ele
 
 	if(print_1D_Data_On_Recalculation)
 	{
+		int prec = 10;
+		const Data& measurement = data_Element.the_Class->measurement;
+		double angular_Coeff = angle_Coefficients_Map.value(data_Element.the_Class->angular_Units);
+		double spectral_Coeff = wavelength_Coefficients_Map.value(data_Element.the_Class->spectral_Units);
+		QString angular_Units_Name = angle_Units_Legend_Map.value(data_Element.the_Class->angular_Units);
+		QString spectral_Units_Name = wavelength_Units_Legend_Map.value(data_Element.the_Class->spectral_Units);
+
+		QString argument_Heading;
+		QString at_Fixed_Heading = Global_Variables::wavelength_Energy_Name(data_Element.the_Class->spectral_Units, true) + " = " +
+								   Locale.toString(Global_Variables::wavelength_Energy(data_Element.the_Class->spectral_Units, measurement.lambda_Value)/spectral_Coeff, 'g', prec) + " " +
+								   spectral_Units_Name;
+		QString instrumental_Heading =  "spectral resolution (FWHM) = " + Locale.toString(measurement.spectral_Distribution.FWHM_distribution, 'g', prec) +
+										"\n; beam divergence (FWHM) = " + Locale.toString(measurement.beam_Theta_0_Distribution.FWHM_distribution/angular_Coeff, 'g', prec) + " " + angular_Units_Name;
+		QString geometry_Heading =  "beam width = " + Locale.toString(measurement.beam_Geometry.size, 'g', prec) + " mm" +
+									"\n; sample size = " + Locale.toString(measurement.sample_Geometry.size, 'g', prec) + " mm";
+
+		QString detector_Width_Heading = "\n; detector angular width (FWHM) = " + Locale.toString(measurement.theta_Resolution_FWHM/angular_Coeff, 'g', prec) + " " + angular_Units_Name;
 		if(	data_Element.calc_Functions.check_Reflectance   ||
 			data_Element.calc_Functions.check_Transmittance ||
 			data_Element.calc_Functions.check_Absorptance   ||
 			data_Element.calc_Functions.check_Scattering	)
 		{
-			double angular_Coeff = angle_Coefficients_Map.value(data_Element.the_Class->angular_Units);
-			double spectral_Coeff = wavelength_Coefficients_Map.value(data_Element.the_Class->spectral_Units);
-
 			vector<double> argument;
 			if(	data_Element.the_Class->measurement.measurement_Type == measurement_Types[Specular_Scan] )
 			{
 				if( data_Element.the_Class->measurement.argument_Type == argument_Types[Beam_Grazing_Angle] )
 				{
+					argument_Heading = "Grazing angle (" + angular_Units_Name + ")";
 					argument = data_Element.the_Class->measurement.beam_Theta_0_Angle_Vec;
-					for(double arg : argument)	arg = arg/angular_Coeff;
+					for(double& arg : argument)	arg = arg/angular_Coeff;
 				}
 				if( data_Element.the_Class->measurement.argument_Type == argument_Types[Wavelength_Energy] )
 				{
+					at_Fixed_Heading = "grazing angle = " + Locale.toString(measurement.beam_Theta_0_Angle_Value/angular_Coeff, 'g', prec) + " " + angular_Units_Name;
+
+					argument_Heading = Global_Variables::wavelength_Energy_Name(data_Element.the_Class->spectral_Units) + " (" + spectral_Units_Name + ")";
 					argument = data_Element.the_Class->measurement.lambda_Vec;
-					for(double arg : argument)	arg = Global_Variables::wavelength_Energy(data_Element.the_Class->spectral_Units,arg)/spectral_Coeff;
+					for(double& arg : argument)	arg = Global_Variables::wavelength_Energy(data_Element.the_Class->spectral_Units,arg)/spectral_Coeff;
 				}
 			}
 			if(	data_Element.the_Class->measurement.measurement_Type == measurement_Types[Detector_Scan] )
 			{
+				at_Fixed_Heading += "\n; beam grazing angle = " + Locale.toString(measurement.beam_Theta_0_Angle_Value/angular_Coeff, 'g', prec) + " " + angular_Units_Name;
+				instrumental_Heading += detector_Width_Heading;
+				argument_Heading = "Detector angle (" + angular_Units_Name + ")";
 				argument = data_Element.the_Class->measurement.detector_Theta_Angle_Vec;
-				for(double arg : argument)	arg = arg/angular_Coeff;
+				for(double& arg : argument)	arg = arg/angular_Coeff;
 			}
 			if(	data_Element.the_Class->measurement.measurement_Type == measurement_Types[Rocking_Curve] )
 			{
+				at_Fixed_Heading += "\n; specular grazing angle direction = " + Locale.toString(measurement.beam_Theta_0_Specular_Position/angular_Coeff, 'g', prec) + " " + angular_Units_Name;
+				instrumental_Heading += detector_Width_Heading;
+				argument_Heading = "Beam grazing angle (" + angular_Units_Name + ")";
 				argument = data_Element.the_Class->measurement.beam_Theta_0_Angle_Vec;
-				for(double arg : argument)	arg = arg/angular_Coeff;
+				for(double& arg : argument)	arg = arg/angular_Coeff;
 			}
-			if(	data_Element.the_Class->measurement.measurement_Type == measurement_Types[Offset_Scan]   )
+			if(	data_Element.the_Class->measurement.measurement_Type == measurement_Types[Offset_Scan] )
 			{
+				at_Fixed_Heading += "\n; detector offset from specular direction = " + Locale.toString(measurement.detector_Theta_Offset/angular_Coeff, 'g', prec) + " " + angular_Units_Name;
+				instrumental_Heading += detector_Width_Heading;
+				argument_Heading = "Beam grazing angle (" + angular_Units_Name + ")";
 				argument = data_Element.the_Class->measurement.beam_Theta_0_Angle_Vec;
-				for(double arg : argument)	arg = arg/angular_Coeff;
+				for(double& arg : argument)	arg = arg/angular_Coeff;
 			}
 
 			QString name = path + first_Name+"_"+Locale.toString(index)+".txt";
@@ -2039,8 +2066,11 @@ void Main_Calculation_Module::print_Reflect_To_File(Data_Element<Type>& data_Ele
 					   argument,
 					   data_Element.unwrapped_Reflection,
 					   data_Element.calc_Functions,
-					   data_Element.the_Class->measurement.polarization
-					   );
+					   data_Element.the_Class->measurement.polarization,
+					   argument_Heading,
+					   at_Fixed_Heading,
+					   instrumental_Heading,
+					   geometry_Heading);
 			file.close();
 		}
 	}
@@ -2060,7 +2090,7 @@ void Main_Calculation_Module::print_Reflect_To_File(Data_Element<Type>& data_Ele
 			file.open(QIODevice::WriteOnly);
 			QTextStream out(&file);
 			out.setFieldAlignment(QTextStream::AlignLeft);
-			print_Matrix(intensity_Function, data_Element.calc_Functions, out, data_Element.the_Class->calculated_Values.field_Intensity, data_Element.the_Class->measurement);
+			print_Matrix(intensity_Function, data_Element.calc_Functions, out, data_Element.the_Class->calculated_Values.field_Intensity, data_Element.the_Class->measurement, data_Element.the_Class->angular_Units, data_Element.the_Class->spectral_Units);
 			file.close();
 		}
 
@@ -2073,7 +2103,7 @@ void Main_Calculation_Module::print_Reflect_To_File(Data_Element<Type>& data_Ele
 			file.open(QIODevice::WriteOnly);
 			QTextStream out(&file);
 			out.setFieldAlignment(QTextStream::AlignLeft);
-			print_Matrix(joule_Function, data_Element.calc_Functions, out, data_Element.the_Class->calculated_Values.absorption_Map, data_Element.the_Class->measurement);
+			print_Matrix(joule_Function, data_Element.calc_Functions, out, data_Element.the_Class->calculated_Values.absorption_Map, data_Element.the_Class->measurement, data_Element.the_Class->angular_Units, data_Element.the_Class->spectral_Units);
 			file.close();
 		}
 
@@ -2086,7 +2116,7 @@ void Main_Calculation_Module::print_Reflect_To_File(Data_Element<Type>& data_Ele
 			file.open(QIODevice::WriteOnly);
 			QTextStream out(&file);
 			out.setFieldAlignment(QTextStream::AlignLeft);
-			print_Matrix(gisas_Function, data_Element.calc_Functions, out, data_Element.the_Class->calculated_Values.GISAS_Instrumental, data_Element.the_Class->measurement);
+			print_Matrix(gisas_Function, data_Element.calc_Functions, out, data_Element.the_Class->calculated_Values.GISAS_Instrumental, data_Element.the_Class->measurement, data_Element.the_Class->angular_Units, data_Element.the_Class->spectral_Units);
 			file.close();
 		}
 	}
@@ -2094,13 +2124,21 @@ void Main_Calculation_Module::print_Reflect_To_File(Data_Element<Type>& data_Ele
 template void Main_Calculation_Module::print_Reflect_To_File<Independent_Curve>(Data_Element<Independent_Curve>&, QString, int);
 template void Main_Calculation_Module::print_Reflect_To_File<Target_Curve>	   (Data_Element<Target_Curve>&,      QString, int);
 
-void Main_Calculation_Module::print_Data(QTextStream &out, vector<double> &arg, Unwrapped_Reflection* unwrapped_Reflection, Calc_Functions& calc_Functions, double incident_Polarization)
+void Main_Calculation_Module::print_Data(QTextStream &out,
+										 vector<double> &arg,
+										 Unwrapped_Reflection* unwrapped_Reflection,
+										 Calc_Functions& calc_Functions,
+										 // heading
+										 double incident_Polarization,
+										 QString argument_Heading,
+										 QString at_Fixed_Heading,
+										 QString instrumental_Heading,
+										 QString geometry_Heading)
 {
 	// point as decimal separator
 	Locale=QLocale::c();
 
 	// headline
-	QString argument = "argument";
 
 	QString R_mixed  = "R_mixed";
 	QString R_s      = "R_s";
@@ -2133,11 +2171,18 @@ void Main_Calculation_Module::print_Data(QTextStream &out, vector<double> &arg, 
 	///------------------------------------------------------------------------
 	/// headline
 	{
-		// argument
+		// top header
 		{
 			out << "; polarization = " << Locale.toString(incident_Polarization,'f', 3) << endl;
+			out << "; " << at_Fixed_Heading << endl << endl;
+			out << "; " << instrumental_Heading << endl << endl;
+			out << "; " << geometry_Heading << endl << endl;
+		}
+
+		// argument
+		{
 			out << qSetFieldWidth(arg_Shift-1) << ";";
-			out << qSetFieldWidth(width_Short) << argument  << qSetFieldWidth(width_Long);
+			out << qSetFieldWidth(width_Short) << argument_Heading  << qSetFieldWidth(width_Long);
 		}
 
 		// reflectance
@@ -2240,7 +2285,7 @@ void Main_Calculation_Module::print_Data(QTextStream &out, vector<double> &arg, 
 	Locale = QLocale::system();
 }
 
-void Main_Calculation_Module::print_Matrix(QString function, const Calc_Functions& calc_Functions, QTextStream &out, const vector<vector<double>>& matrix, const Data& measurement)
+void Main_Calculation_Module::print_Matrix(QString function, const Calc_Functions& calc_Functions, QTextStream &out, const vector<vector<double>>& matrix, const Data& measurement, QString angular_Units, QString spectral_Units)
 {
 	// point as decimal separator
 	Locale = QLocale::c();
@@ -2250,37 +2295,78 @@ void Main_Calculation_Module::print_Matrix(QString function, const Calc_Function
 		if(function == intensity_Function)	out << "Field intensity distribution" << endl;
 		if(function == joule_Function)		out << "Photoabsorption distribution" << endl;
 		if(function == gisas_Function)		out << "GISAS data" << endl;
-		out << "(" << matrix.front().size() << " x " << matrix.size() << ") points" << endl;
+		out << "(" << matrix.front().size() << " x " << matrix.size() << ") points" << endl << endl;
+
+		double angular_Coeff = angle_Coefficients_Map.value(angular_Units);
+		double spectral_Coeff = wavelength_Coefficients_Map.value(spectral_Units);
+		QString angular_Units_Name = angle_Units_Legend_Map.value(angular_Units);
+		QString spectral_Units_Name = wavelength_Units_Legend_Map.value(spectral_Units);
+
+		QString shift = "";
+		for(int i=0; i<wavelength_Units_List.size(); ++i)
+		{
+			if(spectral_Units == wavelength_Units_List[i])
+			{
+				if( 0<=i && i<=nm)                           shift = "";
+				if( eV<=i && i<wavelength_Units_List.size()) shift = "    ";
+			}
+		}
+
+		int prec = 6;
+		QString at_Fixed_Angle          = "beam grazing angle          :  "  + Locale.toString(measurement.beam_Theta_0_Angle.value/angular_Coeff,'f', prec) + " " + angular_Units_Name;
+		QString at_Fixed_Wavelength = Global_Variables::wavelength_Energy_Name(spectral_Units, true) + shift + "                  :  " +
+									  Locale.toString(Global_Variables::wavelength_Energy(spectral_Units, measurement.lambda_Value)/spectral_Coeff, 'f', prec) + " " +
+									  spectral_Units_Name;
+		QString spectral_Resolution     = "spectral resolution         :  " + Locale.toString(measurement.spectral_Distribution.FWHM_distribution, 'f', prec);
+		QString beam_Theta_0_Divergence = "beam vertical divergence    :  " + Locale.toString(measurement.beam_Theta_0_Distribution.FWHM_distribution/angular_Coeff, 'f', prec) + " " + angular_Units_Name;
+		QString beam_Phi_0_Divergence   = "beam horizontal divergence  :  " + Locale.toString(measurement.beam_Phi_0_Distribution.FWHM_distribution/angular_Coeff, 'f', prec) + " " + angular_Units_Name;
+		QString beam_Geometry           = "beam width                  :  " + Locale.toString(measurement.beam_Geometry.size, 'f', prec) + " mm";
+		QString sample_Geometry		    = "sample size                 :  " + Locale.toString(measurement.sample_Geometry.size, 'f', prec) + " mm";
 
 		if(function == gisas_Function)
 		{
-			out << "Theta    :   (" << Locale.toString(measurement.detector_Theta_Angle.independent.min,'f', 6)
-						   << " , " << Locale.toString(measurement.detector_Theta_Angle.independent.max,'f', 6) << ") degrees" << endl;
-			out << "Phi      :   (" << Locale.toString(measurement.detector_Phi_Angle.independent.min,'f', 6)
-						   << " , " << Locale.toString(measurement.detector_Phi_Angle.independent.max,'f', 6) << ") degrees" << endl;
-			out << "Theta_0  :   "  << Locale.toString(measurement.beam_Theta_0_Angle.value,'f', 6) << " degrees" << endl;
-			out << "Lambda   :   "  << Locale.toString(measurement.wavelength.value,'f', 6) << " angstrom" << endl;
+			out << "polarization                :  " << Locale.toString(measurement.polarization,'f', prec) << endl;
+			out << at_Fixed_Angle << endl;
+			out << at_Fixed_Wavelength << endl;
+			out << spectral_Resolution << endl;
+			out << beam_Theta_0_Divergence << endl;
+			out << beam_Phi_0_Divergence << endl;
+			out << beam_Geometry << endl;
+			out << sample_Geometry << endl;
+			out << endl;
+
+			out << "detector point size Theta   :  " << Locale.toString(measurement.theta_Resolution_FWHM/angular_Coeff,'f', prec) << " " << angular_Units_Name << endl;
+			out << "detector point size Phi     :  " << Locale.toString(measurement.phi_Resolution_FWHM/angular_Coeff,'f', prec) << " " << angular_Units_Name << endl;
+			out << endl;
+
+			out << "detector Theta    :   (" << Locale.toString(measurement.detector_Theta_Angle.independent.min/angular_Coeff,'f', prec)
+						   << " , " << Locale.toString(measurement.detector_Theta_Angle.independent.max/angular_Coeff,'f', prec) << ") " << angular_Units_Name << endl;
+			out << "detector Phi      :   (" << Locale.toString(measurement.detector_Phi_Angle.independent.min/angular_Coeff,'f', prec)
+						   << " , " << Locale.toString(measurement.detector_Phi_Angle.independent.max/angular_Coeff,'f', prec) << ") " << angular_Units_Name << endl;
 		}
 		if(function == intensity_Function || function == joule_Function)
 		{
-			out << "Depth    :   (" << Locale.toString(-calc_Functions.field_Ambient_Distance,'f', 2)
+			out << "polarization       :  " << Locale.toString(measurement.polarization,'f', prec) << endl;
+			out << "depth              :  (" << Locale.toString(-calc_Functions.field_Ambient_Distance,'f', 2)
 						   << " , " << Locale.toString(-calc_Functions.field_Ambient_Distance + (matrix.front().size()-1)*calc_Functions.field_Step,'f', 2) << ") angstrom, step = "
 						   << Locale.toString(calc_Functions.field_Step,'f', 2) << " angstrom" << endl;
 
 			if(measurement.argument_Type == argument_Types[Beam_Grazing_Angle])
 			{
-			out << "Theta_0  :   (" << Locale.toString(measurement.beam_Theta_0_Angle.independent.min,'f', 6)
-						   << " , " << Locale.toString(measurement.beam_Theta_0_Angle.independent.max,'f', 6) << ") degrees" << endl;
-			out << "Lambda   :   "  << Locale.toString(measurement.wavelength.value,'f', 6) << " angstrom" << endl;
+			out << Global_Variables::wavelength_Energy_Name(spectral_Units, true) << shift << "         :  " <<
+				   Locale.toString(Global_Variables::wavelength_Energy(spectral_Units, measurement.lambda_Value)/spectral_Coeff, 'f', prec) << " " <<
+				   spectral_Units_Name << endl;
+			out << "beam grazing angle :  (" << Locale.toString(measurement.beam_Theta_0_Angle.independent.min/angular_Coeff,'f', prec)
+						   << " , " << Locale.toString(measurement.beam_Theta_0_Angle.independent.max/angular_Coeff,'f', prec) << ") " << angular_Units_Name << endl;
 			}
 			if(measurement.argument_Type == argument_Types[Wavelength_Energy])
 			{
-			out << "Lambda   :   (" << Locale.toString(measurement.wavelength.independent.min,'f', 6)
-						   << " , " << Locale.toString(measurement.wavelength.independent.max,'f', 6) << ") angstrom" << endl;
-			out << "Theta_0  :   "  << Locale.toString(measurement.beam_Theta_0_Angle.value,'f', 6) << " degrees" << endl;
+			out << Global_Variables::wavelength_Energy_Name(spectral_Units, true) << shift << "         :  ("
+							<< Locale.toString(Global_Variables::wavelength_Energy(spectral_Units, measurement.wavelength.independent.min)/spectral_Coeff, 'f', prec) << " , "
+							<< Locale.toString(Global_Variables::wavelength_Energy(spectral_Units, measurement.wavelength.independent.max)/spectral_Coeff, 'f', prec) << ") " << spectral_Units_Name << endl;
+			out << "beam grazing angle :  "  << Locale.toString(measurement.beam_Theta_0_Angle.value/angular_Coeff,'f', prec) << " " << angular_Units_Name << endl;
 			}
 		}
-			out << "pol      :   " << Locale.toString(measurement.polarization,'f', 3) << endl;
 		out << endl;
 
 		int precision = 6;
