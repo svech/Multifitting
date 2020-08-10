@@ -170,10 +170,24 @@ void General_Settings_Editor::create_Interface_Tab()
 
 	//----------------------------------------------------------------------------
 
-	QCheckBox* synchronize_Tabs = new QCheckBox("Structural tabs synchronization");
-		synchronize_Tabs->setChecked(tab_synchronization);
-	layout->addWidget(synchronize_Tabs);
-	connect(synchronize_Tabs, &QCheckBox::toggled,	[=]{tab_synchronization = synchronize_Tabs->isChecked();});
+	QCheckBox* synchronize_Tabs_CheckBox = new QCheckBox("Structural tabs synchronization");
+		synchronize_Tabs_CheckBox->setChecked(tab_synchronization);
+	layout->addWidget(synchronize_Tabs_CheckBox);
+	connect(synchronize_Tabs_CheckBox, &QCheckBox::toggled,	[=]{tab_synchronization = synchronize_Tabs_CheckBox->isChecked();});
+
+	//----------------------------------------------------------------------------
+
+	QCheckBox* calculation_Time_CheckBox = new QCheckBox("Show single calculation time");
+		calculation_Time_CheckBox->setChecked(calculation_time);
+	layout->addWidget(calculation_Time_CheckBox);
+	connect(calculation_Time_CheckBox, &QCheckBox::toggled,	[=]{calculation_time = calculation_Time_CheckBox->isChecked();});
+
+	//----------------------------------------------------------------------------
+
+	QCheckBox* individual_Residuals_CheckBox = new QCheckBox("Show individual residuals");
+		individual_Residuals_CheckBox->setChecked(individual_residuals);
+	layout->addWidget(individual_Residuals_CheckBox);
+	connect(individual_Residuals_CheckBox, &QCheckBox::toggled,	[=]{individual_residuals = individual_Residuals_CheckBox->isChecked();});
 }
 
 void General_Settings_Editor::create_Output_Tab()

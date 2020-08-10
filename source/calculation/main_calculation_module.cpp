@@ -539,7 +539,6 @@ void Main_Calculation_Module::single_Calculation(bool print_And_Verbose)
 		for(Data_Element<Independent_Curve>& independent_Data_Element : calculation_Trees[tab_Index]->independent)
 		{
 			calculation_With_Sampling(calculation_Trees[tab_Index], independent_Data_Element);
-			qInfo() << endl << endl;
 			postprocessing(independent_Data_Element);
 			if(lambda_Out_Of_Range) return;
 		}
@@ -550,11 +549,20 @@ void Main_Calculation_Module::single_Calculation(bool print_And_Verbose)
 			if(lambda_Out_Of_Range) return;
 		}
 	}
-	if(print_And_Verbose)
+	if(print_And_Verbose && individual_residuals)
+	{
+//		qInfo() <<  "\n\n-------------------------------------------------------"
+//					"\n  Calculation...      " << elapsed.count()/1000000. << " seconds" <<
+//					"\n-------------------------------------------------------\n\n";
+	}
+	if(print_And_Verbose && calculation_time)
 	{
 		auto end = std::chrono::system_clock::now();
 		auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-		qInfo() << "\nCalculation: "<< elapsed.count()/1000000. << " seconds" << endl;
+
+		qInfo() <<  "\n\n-------------------------------------------------------"
+					"\n  Calculation...      " << elapsed.count()/1000000. << " seconds" <<
+					"\n-------------------------------------------------------\n\n";
 	}
 
 	// replot graphs

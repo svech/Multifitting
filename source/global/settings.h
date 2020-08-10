@@ -307,6 +307,8 @@ extern bool print_2D_Data_On_Recalculation;
 // -----------------------------------------------------------------------------------------
 
 extern bool tab_synchronization;
+extern bool calculation_time;
+extern bool individual_residuals;
 
 // -----------------------------------------------------------------------------------------
 

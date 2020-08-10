@@ -1385,17 +1385,8 @@ void Multilayer_Approach::save_As()
 
 void Multilayer_Approach::calculate(bool silent)
 {
-	// TODO
-	silent = false; // remove this line
-
 	if(!fitting_Settings->in_Calculation)
 	{
-		if(!silent)
-		{
-			qInfo() << "\n\n-------------------------------------------------------"
-						 "\ncalculation..."
-						 "\n-------------------------------------------------------\n\n";
-		}
 		Main_Calculation_Module* main_Calculation_Module = new Main_Calculation_Module(CALCULATION);
 		main_Calculation_Module->single_Calculation(!silent);
 		delete main_Calculation_Module;
