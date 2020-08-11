@@ -61,7 +61,7 @@ void Calculation_Settings_Editor::create_Main_Layout()
 			global_Norm_Button->setDefault(true);
 //		button_Layout->addWidget(global_Norm_Button);
 	}
-	main_Layout->addLayout(button_Layout);
+//	main_Layout->addLayout(button_Layout);
 
 	// TODO
 	global_Norm_Button->setDisabled(true);

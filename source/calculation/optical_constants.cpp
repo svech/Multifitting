@@ -26,7 +26,6 @@ void Optical_Constants::reload()
 
 void Optical_Constants::read_All()
 {
-	// TODO timers
 	auto start = std::chrono::system_clock::now();
 
 	read_All_Materials();

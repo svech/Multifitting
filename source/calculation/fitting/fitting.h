@@ -56,16 +56,16 @@ public:
 	Fitting_Params params;
 	QVector<int> widths;
 
-	static double func(double argument, int index);
-	size_t num_Residual_Points();
-	size_t num_Residual_Points_Full_With_GISAS();
+	static double func(double argument);
+	static size_t num_Residual_Points(QVector<Calculation_Tree*>& calculation_Trees);
+	static size_t num_Residual_Points_Full_With_GISAS(QVector<Calculation_Tree*>& calculation_Trees);
 	static void period_Subtree_Iteration(const tree<Node>::iterator& parent, double coeff);
 	static void gamma_Subtree_Iteration(const tree<Node>::iterator& parent, double old_Value);
 	static void slaves_Recalculation(Parameter* master, Fitting_Params* params);
 	static void calc_Residual(const gsl_vector* x, Fitting_Params* params, gsl_vector* f);
 	static void regular_Restriction_Tree_Iteration(const tree<Node>::iterator& parent, Fitting_Params* params, gsl_vector* f, size_t& counter);
 	static void change_Real_Fitables_and_Dependent(Fitting_Params* params, double old_Value, double new_Value, size_t i, QString fit_Conf);
-	static void fill_Residual(Fitting_Params* params, int& residual_Shift, Data_Element<Target_Curve>& target_Element, gsl_vector* f, int index);
+	static void fill_Residual(Fitting_Params* params, int& residual_Shift, Data_Element<Target_Curve>& target_Element, gsl_vector* f);
 	void initialize_Position();
 	void randomize_Position(bool randomize = true);
 	void check_Maximization();

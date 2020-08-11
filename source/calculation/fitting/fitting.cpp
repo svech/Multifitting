@@ -7,8 +7,8 @@ Fitting::Fitting(Main_Calculation_Module* main_Calculation_Module):
 	confidentials		(main_Calculation_Module->confidentials),
 	number_Of_Restricted_Regular_Components(main_Calculation_Module->number_Of_Restricted_Regular_Components),
 
-	n_Full_With_GISAS(num_Residual_Points_Full_With_GISAS()+main_Calculation_Module->number_Of_Restricted_Regular_Components),
-	n(num_Residual_Points()+main_Calculation_Module->number_Of_Restricted_Regular_Components),
+	n_Full_With_GISAS(num_Residual_Points_Full_With_GISAS(main_Calculation_Module->calculation_Trees)+main_Calculation_Module->number_Of_Restricted_Regular_Components),
+	n(num_Residual_Points(main_Calculation_Module->calculation_Trees)+main_Calculation_Module->number_Of_Restricted_Regular_Components),
 	p(fitables.param_Pointers.size()),
 
 	params({main_Calculation_Module,
@@ -42,20 +42,12 @@ Fitting::~Fitting()
 	gsl_vector_free(x);
 }
 
-double Fitting::func(double argument, int index)
+double Fitting::func(double argument)
 {
-	Q_UNUSED(index)
-	// TODO
-//	if(index == 0)
-//	{
-		return log(argument+1E-6);
-//	} else
-//	{
-//		return argument;
-//	}
+	return log(argument+1E-6);
 }
 
-size_t Fitting::num_Residual_Points()
+size_t Fitting::num_Residual_Points(QVector<Calculation_Tree*>& calculation_Trees)
 {
 	size_t residual_Points = 0;
 	// over multilayers
@@ -77,7 +69,7 @@ size_t Fitting::num_Residual_Points()
 	return residual_Points;
 }
 
-size_t Fitting::num_Residual_Points_Full_With_GISAS()
+size_t Fitting::num_Residual_Points_Full_With_GISAS(QVector<Calculation_Tree*>& calculation_Trees)
 {
 	size_t residual_Points = 0;
 	// over multilayers
@@ -245,9 +237,6 @@ void Fitting::calc_Residual(const gsl_vector* x, Fitting_Params* params, gsl_vec
 	// iterate over structures
 	for(int tab_Index=0; tab_Index<params->calculation_Trees.size(); ++tab_Index)
 	{
-		// over target curves
-		int target_Index = 0;
-
 		// refresh common number of media
 		params->calculation_Trees[tab_Index]->num_Media_Sharp = params->calculation_Trees[tab_Index]->get_Total_Num_Layers(params->calculation_Trees[tab_Index]->real_Calc_Tree.begin()); // non-discretized
 
@@ -275,8 +264,7 @@ void Fitting::calc_Residual(const gsl_vector* x, Fitting_Params* params, gsl_vec
 			params->main_Calculation_Module->postprocessing(target_Element, true);
 
 			// fill residual
-			fill_Residual(params, residual_Shift, target_Element, f, target_Index);
-			target_Index++;
+			fill_Residual(params, residual_Shift, target_Element, f);
 		}
 	}
 
@@ -401,24 +389,23 @@ void Fitting::change_Real_Fitables_and_Dependent(Fitting_Params* params, double 
 	}
 }
 
-void Fitting::fill_Residual(Fitting_Params* params, int& residual_Shift, Data_Element<Target_Curve>& target_Element, gsl_vector* f, int index)
+void Fitting::fill_Residual(Fitting_Params* params, int& residual_Shift, Data_Element<Target_Curve>& target_Element, gsl_vector* f)
 {
-	Q_UNUSED(index)
-
 	Target_Curve* target_Curve = target_Element.the_Class;
 	double fi_1, fi_2, fi_1_next, fi_2_next, factor;
-	int N = -2020;
+	size_t N = -2020;
 	double N_sqrt = -2020;
 	double n_P_sqrt = 2020;
+	size_t param_Names_Size = params->fitables.param_Names.size();
 	if(target_Curve->measurement.measurement_Type != measurement_Types[GISAS_Map] )
 	{
-		n_P_sqrt = sqrt(double(params->n - params->fitables.param_Names.size()));
+		n_P_sqrt = sqrt(double(params->n - param_Names_Size));
 		N = target_Curve->curve.shifted_Values.size();
 		N_sqrt = sqrt(double(N));
 	} else
 	// GISAS
 	{
-		n_P_sqrt = sqrt(double(params->n_Full_With_GISAS - params->fitables.param_Names.size()));
+		n_P_sqrt = sqrt(double(params->n_Full_With_GISAS - param_Names_Size));
 		N = target_Curve->curve.value_2D_Shifted.front().size();
 		size_t phi_N = target_Curve->curve.value_2D_Shifted.size();
 		N_sqrt = sqrt(double(N*phi_N));
@@ -445,7 +432,7 @@ void Fitting::fill_Residual(Fitting_Params* params, int& residual_Shift, Data_El
 		if(target_Curve->fit_Params.use_Chi2)
 		{
 			factor = target_Curve->fit_Params.weight_Sqrt/n_P_sqrt;
-			for(int point_Index=0; point_Index<N; ++point_Index)
+			for(size_t point_Index=0; point_Index<N; ++point_Index)
 			{
 				double f_Val = 0;
 				if(target_Curve->measurement.measurement_Type != measurement_Types[GISAS_Map] )
@@ -498,7 +485,7 @@ void Fitting::fill_Residual(Fitting_Params* params, int& residual_Shift, Data_El
 			factor = target_Curve->fit_Params.weight_Sqrt;
 			if(target_Curve->fit_Params.norm) { factor /= N_sqrt; }
 
-			for(int point_Index=0; point_Index<N; ++point_Index)
+			for(size_t point_Index=0; point_Index<N; ++point_Index)
 			{
 				// calculate with expression
 				double f_Val = 0;
@@ -521,7 +508,7 @@ void Fitting::fill_Residual(Fitting_Params* params, int& residual_Shift, Data_El
 //							fi_1 = func(target_Curve->curve.shifted_Values[point_Index].val_1, index);
 							fi_1 = func(target_Curve->curve.shifted_Values_No_Scaling_And_Offset[point_Index]*
 										target_Curve->curve.val_Factor.value +
-										target_Curve->curve.val_Shift, index);
+										target_Curve->curve.val_Shift);
 #endif
 						}
 						{
@@ -529,7 +516,7 @@ void Fitting::fill_Residual(Fitting_Params* params, int& residual_Shift, Data_El
 							target_Curve->fit_Params.expression_Argument = model_Curve[point_Index];
 							fi_2 = target_Curve->fit_Params.expression_Vec[0].value();
 #else
-							fi_2 = func(model_Curve[point_Index], index);
+							fi_2 = func(model_Curve[point_Index]);
 #endif
 						}
 						f_Val = factor*pow(abs(fi_1-fi_2),power);
@@ -560,7 +547,7 @@ void Fitting::fill_Residual(Fitting_Params* params, int& residual_Shift, Data_El
 //								fi_1 = func(target_Curve->curve.value_2D_Shifted[phi_Index][point_Index], index);
 								fi_1 = func(target_Curve->curve.value_2D_No_Scaling_And_Offset[phi_Index][point_Index] *
 											target_Curve->curve.val_Factor.value +
-											target_Curve->curve.val_Shift, index);
+											target_Curve->curve.val_Shift);
 #endif
 							}
 							{
@@ -568,7 +555,7 @@ void Fitting::fill_Residual(Fitting_Params* params, int& residual_Shift, Data_El
 								target_Curve->fit_Params.expression_Argument = target_Element.unwrapped_Reflection->calculated_Values.GISAS_Instrumental[phi_Index][point_Index];
 								fi_2 = target_Curve->fit_Params.expression_Vec[0].value();
 #else
-								fi_2 = func(target_Element.unwrapped_Reflection->calculated_Values.GISAS_Instrumental[phi_Index][point_Index], index);
+								fi_2 = func(target_Element.unwrapped_Reflection->calculated_Values.GISAS_Instrumental[phi_Index][point_Index]);
 #endif
 							}
 							fi_2 += target_Element.unwrapped_Reflection->calculated_Values.GISAS_Instrumental[phi_Index][point_Index];
@@ -595,7 +582,7 @@ void Fitting::fill_Residual(Fitting_Params* params, int& residual_Shift, Data_El
 		double delta_Lambda = 0;
 
 		// calculate with expression
-		for(int point_Index=0; point_Index<N-1; ++point_Index)
+		for(size_t point_Index=0; point_Index<N-1; ++point_Index)
 		{
 			fi_1      = target_Curve->curve.shifted_Values[point_Index  ];
 			fi_1_next = target_Curve->curve.shifted_Values[point_Index+1];
@@ -626,7 +613,7 @@ void Fitting::fill_Residual(Fitting_Params* params, int& residual_Shift, Data_El
 
 		// fill
 		double filling = pow(abs(params->max_Integral-integral)/N,0.5);
-		for(int point_Index=0; point_Index<N; ++point_Index)
+		for(size_t point_Index=0; point_Index<N; ++point_Index)
 		{
 			gsl_vector_set(f, residual_Shift+point_Index, filling);
 		}

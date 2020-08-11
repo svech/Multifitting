@@ -302,7 +302,7 @@ bool print_2D_Data_On_Recalculation;
 
 bool tab_synchronization;
 bool calculation_time;
-bool individual_residuals;
+bool show_residuals;
 
 // -----------------------------------------------------------------------------------------
 
@@ -479,7 +479,7 @@ void Settings::read_Gui_Settings(bool reset_to_default)
 		default_independent_variable_tab_name = gui_Settings.value( "default_independent_variable_tab_name", "Plot_"   ).toString();
 		tab_synchronization					  = gui_Settings.value( "tab_synchronization",					  true     ).toBool();
 		calculation_time					  = gui_Settings.value( "calculation_time",						  true     ).toBool();
-		individual_residuals				  = gui_Settings.value( "individual_residuals",					  true     ).toBool();
+		show_residuals						  = gui_Settings.value( "show_residuals",					  true     ).toBool();
 	gui_Settings.endGroup();
 }
 
@@ -595,9 +595,9 @@ void Settings::save_Gui_Settings()
 	gui_Settings.beginGroup( Multilayer_Tabs );
 		gui_Settings.setValue( "default_multilayer_tab_name",			default_multilayer_tab_name );
 		gui_Settings.setValue( "default_independent_variable_tab_name", default_independent_variable_tab_name   );
-		gui_Settings.setValue( "tab_synchronization",				    tab_synchronization		);
-		gui_Settings.setValue( "calculation_time",						calculation_time		);
-		gui_Settings.setValue( "individual_residuals",				    individual_residuals	);
+		gui_Settings.setValue( "tab_synchronization",				    tab_synchronization	);
+		gui_Settings.setValue( "calculation_time",						calculation_time	);
+		gui_Settings.setValue( "individual_residuals",				    show_residuals		);
 	gui_Settings.endGroup();
 }
 

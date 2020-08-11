@@ -49,7 +49,6 @@ void Multilayer_Approach::closeEvent(QCloseEvent* event)
 	write_Window_Geometry();
 	Settings::save_All_Settings();
 
-	// TODO
 	qApp->quit();
 	event->accept();
 	emit closed();
@@ -733,7 +732,6 @@ void Multilayer_Approach::dropEvent(QDropEvent* event)
 
 void Multilayer_Approach::open(QString filename)
 {
-	// TODO
 	int max_Num_Targets=0;
 
 	// check filepath
@@ -1179,8 +1177,6 @@ void Multilayer_Approach::open_As()
 
 void Multilayer_Approach::save(QString filename)
 {	
-	// TODO
-
 	// resaving file from older version
 	if(filename == last_file)
 	{
@@ -1501,7 +1497,6 @@ void Multilayer_Approach::reload_Optical_Constants()
 {
 	if(!fitting_Settings->in_Calculation)
 	{
-		// TODO
 		qInfo() << "\n\n-------------------------------------------------------"
 					 "\nreload optical constants..."
 					 "\n-------------------------------------------------------\n\n";

@@ -17,11 +17,15 @@ void Fitting_GSL::callback(const size_t iter, void* bare_Params, const gsl_multi
 	Q_UNUSED(w);
 	Fitting_Params* params = ((struct Fitting_Params*)bare_Params);
 
+	double residual = -2020;
+	gsl_blas_ddot(w->f, w->f, &residual);
+	if(params->maximize) residual = params->max_Integral-residual;
+
 	// print out current location
-	printf("iter %zu :", iter);
+	printf("iter %zu : ", iter);
 	for(size_t i=0; i<params->fitables.param_Pointers.size(); ++i)
 	{
-		printf("%f ", params->fitables.param_Pointers[i]->value);
+		printf("%f\t|f|=%g", params->fitables.param_Pointers[i]->value, residual);
 	}
 	printf("\n\n");
 }

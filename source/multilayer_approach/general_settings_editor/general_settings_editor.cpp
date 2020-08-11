@@ -185,9 +185,9 @@ void General_Settings_Editor::create_Interface_Tab()
 	//----------------------------------------------------------------------------
 
 	QCheckBox* individual_Residuals_CheckBox = new QCheckBox("Show individual residuals");
-		individual_Residuals_CheckBox->setChecked(individual_residuals);
+		individual_Residuals_CheckBox->setChecked(show_residuals);
 	layout->addWidget(individual_Residuals_CheckBox);
-	connect(individual_Residuals_CheckBox, &QCheckBox::toggled,	[=]{individual_residuals = individual_Residuals_CheckBox->isChecked();});
+	connect(individual_Residuals_CheckBox, &QCheckBox::toggled,	[=]{show_residuals = individual_Residuals_CheckBox->isChecked();});
 }
 
 void General_Settings_Editor::create_Output_Tab()

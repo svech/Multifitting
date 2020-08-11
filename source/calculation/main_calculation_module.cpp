@@ -534,6 +534,26 @@ void Main_Calculation_Module::single_Calculation(bool print_And_Verbose)
 	// timer
 	std::chrono::system_clock::time_point start = std::chrono::system_clock::now();
 
+	vector<vector<double>> individual_Residuals_Vec_Vec(multilayers.size());
+
+	// common residual
+	int residual_Shift = 0;
+	double common_Residual = 0;
+	Fitting_Params common_Params = {this,
+									calculation_Trees,
+									fitables,
+									confidentials,
+									calc_Mode,
+									0,
+									gsl_vector_calloc(Fitting::num_Residual_Points(calculation_Trees) + number_Of_Restricted_Regular_Components),
+									  Fitting::num_Residual_Points_Full_With_GISAS(calculation_Trees) + number_Of_Restricted_Regular_Components,
+												   Fitting::num_Residual_Points(calculation_Trees) + number_Of_Restricted_Regular_Components,
+									gsl_vector_calloc(0),
+									-2018,
+									-2018,
+									0
+								   };
+
 	for(int tab_Index=0; tab_Index<multilayers.size(); ++tab_Index)
 	{
 		for(Data_Element<Independent_Curve>& independent_Data_Element : calculation_Trees[tab_Index]->independent)
@@ -547,24 +567,79 @@ void Main_Calculation_Module::single_Calculation(bool print_And_Verbose)
 			calculation_With_Sampling(calculation_Trees[tab_Index], target_Data_Element);
 			postprocessing(target_Data_Element);
 			if(lambda_Out_Of_Range) return;
+
+			if(show_residuals)
+			{
+				// individual residual
+				{
+					// enlarge
+					individual_Residuals_Vec_Vec[tab_Index].resize(individual_Residuals_Vec_Vec[tab_Index].size()+1);
+					double& individual_Residual = individual_Residuals_Vec_Vec[tab_Index].back();
+
+					size_t n;
+					if(target_Data_Element.the_Class->measurement.measurement_Type != measurement_Types[GISAS_Map] )	{
+						n = target_Data_Element.the_Class->curve.shifted_Values.size();
+					} else {
+						n = target_Data_Element.the_Class->curve.value_2D_Shifted.front().size();
+					}
+
+					size_t n_Full_With_GISAS;
+					if(target_Data_Element.the_Class->measurement.measurement_Type != measurement_Types[GISAS_Map] )	{
+						n_Full_With_GISAS = target_Data_Element.the_Class->curve.shifted_Values.size();
+					} else	{
+						n_Full_With_GISAS = target_Data_Element.the_Class->curve.value_2D_Shifted.front().size()*target_Data_Element.the_Class->curve.value_2D_Shifted.size();
+					}
+
+					Fitting_Params params = {this,
+											 calculation_Trees,
+											 fitables,
+											 confidentials,
+											 calc_Mode,
+											 0,
+											 gsl_vector_calloc(n+number_Of_Restricted_Regular_Components),
+											 n_Full_With_GISAS + number_Of_Restricted_Regular_Components,
+											 n+number_Of_Restricted_Regular_Components,
+											 gsl_vector_calloc(0),
+											 -2018,
+											 -2018,
+											 0
+											 };
+					int temp = 0;
+					Fitting::fill_Residual(&params, temp, target_Data_Element, params.f);
+					gsl_blas_ddot(params.f, params.f, &individual_Residual);
+					gsl_vector_free(params.f);
+				}
+				// common residual
+				{
+					Fitting::fill_Residual(&common_Params, residual_Shift, target_Data_Element, common_Params.f);
+					gsl_blas_ddot(common_Params.f, common_Params.f, &common_Residual);
+				}
+			}
 		}
 	}
-	if(print_And_Verbose && individual_residuals)
-	{
-//		qInfo() <<  "\n\n-------------------------------------------------------"
-//					"\n  Calculation...      " << elapsed.count()/1000000. << " seconds" <<
-//					"\n-------------------------------------------------------\n\n";
-	}
+	gsl_vector_free(common_Params.f);
 	if(print_And_Verbose && calculation_time)
 	{
 		auto end = std::chrono::system_clock::now();
 		auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
 
-		qInfo() <<  "\n\n-------------------------------------------------------"
+		qInfo() <<  "\n-------------------------------------------------------"
 					"\n  Calculation...      " << elapsed.count()/1000000. << " seconds" <<
 					"\n-------------------------------------------------------\n\n";
 	}
-
+	if(print_And_Verbose && show_residuals)
+	{
+		bool show = false;
+		for(int tab_Index=0; tab_Index<multilayers.size(); ++tab_Index)
+		{
+			for(size_t target_Index = 0; target_Index<calculation_Trees[tab_Index]->target.size(); target_Index++)
+			{
+				show = true;
+				qInfo() << "  struct" << tab_Index << "    curve" << target_Index << "    residual   " << individual_Residuals_Vec_Vec[tab_Index][target_Index] << endl;
+			}
+		}
+		if(show) qInfo() << "  common residual ...................." << common_Residual << "\n-------------------------------------------------------\n\n\n";
+	}
 	// replot graphs
 	Global_Variables::plot_All_Data_in_Graphs();
 	Global_Variables::plot_All_Data_in_Profiles();
