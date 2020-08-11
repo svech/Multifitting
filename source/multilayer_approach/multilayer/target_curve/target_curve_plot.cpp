@@ -391,14 +391,17 @@ void Target_Curve_Plot::create_Plot_Options_GroupBox_2D()
 		rotate_Button_Layout->addWidget(rotate_Left_Button);
 		connect(rotate_Left_Button, &QToolButton::clicked, this, [=]
 		{
-			target_Curve->plot_Options_Experimental.rotation_Angle += 90;
-			target_Curve->plot_Options_Calculated.rotation_Angle += 90;
-			target_Curve->plot_Options_Experimental.rotation_Angle = (target_Curve->plot_Options_Experimental.rotation_Angle+2*360)%360;
-			target_Curve->plot_Options_Calculated.rotation_Angle   = (target_Curve->plot_Options_Calculated.rotation_Angle  +2*360)%360;
+			if(target_Curve->loaded_And_Ready)
+			{
+				target_Curve->plot_Options_Experimental.rotation_Angle += 90;
+				target_Curve->plot_Options_Calculated.rotation_Angle += 90;
+				target_Curve->plot_Options_Experimental.rotation_Angle = (target_Curve->plot_Options_Experimental.rotation_Angle+2*360)%360;
+				target_Curve->plot_Options_Calculated.rotation_Angle   = (target_Curve->plot_Options_Calculated.rotation_Angle  +2*360)%360;
 
-			target_Curve->rotate_Data_From_Previous_State(left);
-			plot_Data_2D();
-//			global_Multilayer_Approach->calculate(true);
+				target_Curve->rotate_Data_From_Previous_State(left);
+				plot_Data_2D();
+//				global_Multilayer_Approach->calculate(true);
+			}
 		});
 
 		QToolButton* rotate_Right_Button = new QToolButton;
@@ -407,14 +410,17 @@ void Target_Curve_Plot::create_Plot_Options_GroupBox_2D()
 		rotate_Button_Layout->addWidget(rotate_Right_Button);
 		connect(rotate_Right_Button, &QToolButton::clicked, this, [=]
 		{
-			target_Curve->plot_Options_Experimental.rotation_Angle -= 90;
-			target_Curve->plot_Options_Calculated.rotation_Angle -= 90;
-			target_Curve->plot_Options_Experimental.rotation_Angle = (target_Curve->plot_Options_Experimental.rotation_Angle+2*360)%360;
-			target_Curve->plot_Options_Calculated.rotation_Angle   = (target_Curve->plot_Options_Calculated.rotation_Angle  +2*360)%360;
+			if(target_Curve->loaded_And_Ready)
+			{
+				target_Curve->plot_Options_Experimental.rotation_Angle -= 90;
+				target_Curve->plot_Options_Calculated.rotation_Angle -= 90;
+				target_Curve->plot_Options_Experimental.rotation_Angle = (target_Curve->plot_Options_Experimental.rotation_Angle+2*360)%360;
+				target_Curve->plot_Options_Calculated.rotation_Angle   = (target_Curve->plot_Options_Calculated.rotation_Angle  +2*360)%360;
 
-			target_Curve->rotate_Data_From_Previous_State(right);
-			plot_Data_2D();
-//			global_Multilayer_Approach->calculate(true);
+				target_Curve->rotate_Data_From_Previous_State(right);
+				plot_Data_2D();
+//				global_Multilayer_Approach->calculate(true);
+			}
 		});
 	}
 	//  interpolation
@@ -483,15 +489,22 @@ void Target_Curve_Plot::create_Subinterval_Rectangle_2D()
 
 void Target_Curve_Plot::subinterval_Changed_Replot_1D()
 {
-	start_Rect->topLeft->setCoords(custom_Plot->xAxis->range().lower, custom_Plot->yAxis->range().upper);
-	start_Rect->bottomRight->setCoords(target_Curve->curve.subinterval_Left,custom_Plot->yAxis->range().lower);
+	if(target_Curve->curve.outer_Area)
+	{
+		start_Rect->topLeft->setCoords(target_Curve->curve.subinterval_Left, custom_Plot->yAxis->range().upper);
+		start_Rect->bottomRight->setCoords(target_Curve->curve.subinterval_Right,custom_Plot->yAxis->range().lower);
+	} else
+	{
+		start_Rect->topLeft->setCoords(custom_Plot->xAxis->range().lower, custom_Plot->yAxis->range().upper);
+		start_Rect->bottomRight->setCoords(target_Curve->curve.subinterval_Left,custom_Plot->yAxis->range().lower);
 
-	end_Rect->topLeft->setCoords(target_Curve->curve.subinterval_Right,custom_Plot->yAxis->range().upper);
-	end_Rect->bottomRight->setCoords(custom_Plot->xAxis->range().upper, custom_Plot->yAxis->range().lower);
+		end_Rect->topLeft->setCoords(target_Curve->curve.subinterval_Right,custom_Plot->yAxis->range().upper);
+		end_Rect->bottomRight->setCoords(custom_Plot->xAxis->range().upper, custom_Plot->yAxis->range().lower);
+	}
 
 	// show/hide
 	start_Rect->setVisible(target_Curve->curve.use_Subinterval);
-	end_Rect->setVisible(target_Curve->curve.use_Subinterval);
+	end_Rect->setVisible(target_Curve->curve.use_Subinterval && !target_Curve->curve.outer_Area);
 
 	custom_Plot->replot();
 
@@ -510,23 +523,30 @@ void Target_Curve_Plot::subinterval_Changed_Replot_2D()
 {
 	double coeff = angle_Coefficients_Map.value(target_Curve->angular_Units);
 
-	start_Rect->topLeft->setCoords(custom_Plot->xAxis->range().lower, custom_Plot->yAxis->range().upper);
-	start_Rect->bottomRight->setCoords(target_Curve->curve.subinterval_Left/coeff,custom_Plot->yAxis->range().lower);
+	if(target_Curve->curve.outer_Area)
+	{
+		start_Rect->topLeft->setCoords(target_Curve->curve.subinterval_Left/coeff, target_Curve->curve.subinterval_Top/coeff);
+		start_Rect->bottomRight->setCoords(target_Curve->curve.subinterval_Right/coeff,target_Curve->curve.subinterval_Bottom/coeff);
+	} else
+	{
+		start_Rect->topLeft->setCoords(custom_Plot->xAxis->range().lower, custom_Plot->yAxis->range().upper);
+		start_Rect->bottomRight->setCoords(target_Curve->curve.subinterval_Left/coeff,custom_Plot->yAxis->range().lower);
 
-	end_Rect->topLeft->setCoords(target_Curve->curve.subinterval_Right/coeff,custom_Plot->yAxis->range().upper);
-	end_Rect->bottomRight->setCoords(custom_Plot->xAxis->range().upper, custom_Plot->yAxis->range().lower);
+		end_Rect->topLeft->setCoords(target_Curve->curve.subinterval_Right/coeff,custom_Plot->yAxis->range().upper);
+		end_Rect->bottomRight->setCoords(custom_Plot->xAxis->range().upper, custom_Plot->yAxis->range().lower);
 
-	top_Rect->topLeft->setCoords(target_Curve->curve.subinterval_Left/coeff, custom_Plot->yAxis->range().upper);
-	top_Rect->bottomRight->setCoords(target_Curve->curve.subinterval_Right/coeff,target_Curve->curve.subinterval_Top/coeff);
+		top_Rect->topLeft->setCoords(target_Curve->curve.subinterval_Left/coeff, custom_Plot->yAxis->range().upper);
+		top_Rect->bottomRight->setCoords(target_Curve->curve.subinterval_Right/coeff,target_Curve->curve.subinterval_Top/coeff);
 
-	bottom_Rect->topLeft->setCoords(target_Curve->curve.subinterval_Left/coeff, target_Curve->curve.subinterval_Bottom/coeff);
-	bottom_Rect->bottomRight->setCoords(target_Curve->curve.subinterval_Right/coeff, custom_Plot->yAxis->range().lower);
+		bottom_Rect->topLeft->setCoords(target_Curve->curve.subinterval_Left/coeff, target_Curve->curve.subinterval_Bottom/coeff);
+		bottom_Rect->bottomRight->setCoords(target_Curve->curve.subinterval_Right/coeff, custom_Plot->yAxis->range().lower);
+	}
 
 	// show/hide
 	start_Rect->setVisible(target_Curve->curve.use_Subinterval);
-	end_Rect->setVisible(target_Curve->curve.use_Subinterval);
-	top_Rect->setVisible(target_Curve->curve.use_Subinterval);
-	bottom_Rect->setVisible(target_Curve->curve.use_Subinterval);
+	end_Rect->setVisible(target_Curve->curve.use_Subinterval && !target_Curve->curve.outer_Area);
+	top_Rect->setVisible(target_Curve->curve.use_Subinterval && !target_Curve->curve.outer_Area);
+	bottom_Rect->setVisible(target_Curve->curve.use_Subinterval && !target_Curve->curve.outer_Area);
 
 	custom_Plot->replot();
 

@@ -210,7 +210,8 @@ class Node;
 #define APERIODIC_TABLE_DENSITY_VALUE_WIDTH    110
 #define MIN_FORMULA_WIDTH_LINE_EDIT 80		// master/slave width for dependance formula
 #define id_Of_Thicknesses 9					// used fore refresh/reload of corresponding line_Edits
-#define TARGET_LINE_EDIT_WIDTH 65			// for target_Curve_Editor
+#define TARGET_LINE_EDIT_WIDTH_SUB 52		// for target_Curve_Editor
+#define TARGET_LINE_EDIT_WIDTH 63			// for target_Curve_Editor
 #define TARGET_LINE_AT_FIXED_WIDTH 105		// for target_Curve_Editor
 #define TARGET_LINE_RESOLUTION_WIDTH 80		// for target_Curve_Editor
 #define TARGET_BEAM_INTENSITY_WIDTH 25		// for target_Curve_Editor

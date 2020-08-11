@@ -108,7 +108,7 @@ void Rocking_Target_Curve_Part::create_Argument_GroupBox()
 			horizontal_From_Subinterval_SpinBox->setDecimals(4);
 			horizontal_From_Subinterval_SpinBox->setSingleStep((target_Curve->curve.subinterval_Right-target_Curve->curve.subinterval_Left)/100.);
 			horizontal_From_Subinterval_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
-			horizontal_From_Subinterval_SpinBox->setProperty(min_Size_Property,TARGET_LINE_EDIT_WIDTH);
+			horizontal_From_Subinterval_SpinBox->setProperty(min_Size_Property,TARGET_LINE_EDIT_WIDTH_SUB);
 			horizontal_From_Subinterval_SpinBox->setEnabled(target_Curve->curve.use_Subinterval);
 		argument_GroupBox_Layout->addWidget(horizontal_From_Subinterval_SpinBox,0,Qt::AlignLeft);
 		Global_Variables::resize_Line_Edit(horizontal_From_Subinterval_SpinBox);
@@ -126,9 +126,18 @@ void Rocking_Target_Curve_Part::create_Argument_GroupBox()
 			horizontal_To_Subinterval_SpinBox->setDecimals(4);
 			horizontal_To_Subinterval_SpinBox->setSingleStep((target_Curve->curve.subinterval_Right-target_Curve->curve.subinterval_Left)/100.);
 			horizontal_To_Subinterval_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
+			horizontal_To_Subinterval_SpinBox->setProperty(min_Size_Property,TARGET_LINE_EDIT_WIDTH_SUB);
 			horizontal_To_Subinterval_SpinBox->setEnabled(target_Curve->curve.use_Subinterval);
 		argument_GroupBox_Layout->addWidget(horizontal_To_Subinterval_SpinBox,0,Qt::AlignLeft);
 		Global_Variables::resize_Line_Edit(horizontal_To_Subinterval_SpinBox);
+
+		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+		invert_Subinterval_Checkbox = new QCheckBox("Fit outer area");
+			invert_Subinterval_Checkbox->setCheckable(true);
+			invert_Subinterval_Checkbox->setEnabled(target_Curve->curve.use_Subinterval);
+			invert_Subinterval_Checkbox->setChecked(target_Curve->curve.outer_Area);
+		argument_GroupBox_Layout->addWidget(invert_Subinterval_Checkbox,0,Qt::AlignLeft);
 
 		reset_Subinterval();
 	}
@@ -704,9 +713,26 @@ void Rocking_Target_Curve_Part::connecting()
 	{
 		target_Curve->curve.use_Subinterval = main_Subinterval_Checkbox->isChecked();
 
+		invert_Subinterval_Checkbox		   ->setEnabled(target_Curve->curve.use_Subinterval);
 		horizontal_From_Subinterval_SpinBox->setEnabled(target_Curve->curve.use_Subinterval);
 		horizontal_And_Subinterval_Label   ->setEnabled(target_Curve->curve.use_Subinterval);
 		horizontal_To_Subinterval_SpinBox  ->setEnabled(target_Curve->curve.use_Subinterval);
+
+		target_Curve_Plot->subinterval_Changed_Replot_1D();
+		// curve plots
+		if(global_Multilayer_Approach->runned_Optical_Graphs_1D.contains(optical_Graphs_1D_Key))
+		{
+			if(global_Multilayer_Approach->optical_Graphs_1D->meas_Id_Curve_1D_Map.contains(target_Curve->measurement.id))
+			{
+				Curve_Plot_1D* curve_Plot_1D = global_Multilayer_Approach->optical_Graphs_1D->meas_Id_Curve_1D_Map.value(target_Curve->measurement.id);
+				curve_Plot_1D->subinterval_Changed_Replot();
+			}
+		}
+	});
+	// outer area
+	connect(invert_Subinterval_Checkbox, &QCheckBox::toggled, this, [=]
+	{
+		target_Curve->curve.outer_Area = invert_Subinterval_Checkbox->isChecked();
 
 		target_Curve_Plot->subinterval_Changed_Replot_1D();
 		// curve plots

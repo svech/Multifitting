@@ -159,7 +159,15 @@ void GISAS_Target_Curve_Part::create_Argument_GroupBox()
 		main_Subinterval_Checkbox = new QCheckBox("Fit only data between argument");
 			main_Subinterval_Checkbox->setCheckable(true);
 			main_Subinterval_Checkbox->setChecked(target_Curve->curve.use_Subinterval);
-		argument_GroupBox_Layout->addWidget(main_Subinterval_Checkbox,0,8,2,1,Qt::AlignLeft);
+		argument_GroupBox_Layout->addWidget(main_Subinterval_Checkbox,0,8,1,1,Qt::AlignLeft);
+
+		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+		invert_Subinterval_Checkbox = new QCheckBox("Fit outer area");
+			invert_Subinterval_Checkbox->setCheckable(true);
+			invert_Subinterval_Checkbox->setEnabled(target_Curve->curve.use_Subinterval);
+			invert_Subinterval_Checkbox->setChecked(target_Curve->curve.outer_Area);
+		argument_GroupBox_Layout->addWidget(invert_Subinterval_Checkbox,1,8,1,1,Qt::AlignHCenter);
 
 		// theta
 		{
@@ -890,6 +898,8 @@ void GISAS_Target_Curve_Part::connecting()
 	{
 		target_Curve->curve.use_Subinterval = main_Subinterval_Checkbox->isChecked();
 
+		invert_Subinterval_Checkbox->setEnabled(target_Curve->curve.use_Subinterval);
+
 		from_Subinterval_Theta_SpinBox->setEnabled(target_Curve->curve.use_Subinterval);
 		and_Subinterval_Theta_Label   ->setEnabled(target_Curve->curve.use_Subinterval);
 		to_Subinterval_Theta_SpinBox  ->setEnabled(target_Curve->curve.use_Subinterval);
@@ -902,6 +912,22 @@ void GISAS_Target_Curve_Part::connecting()
 
 		target_Curve_Plot->subinterval_Changed_Replot_2D();
 
+		// curve plots
+		if(global_Multilayer_Approach->runned_Optical_Graphs_2D.contains(optical_Graphs_2D_Key))
+		{
+			if(global_Multilayer_Approach->optical_Graphs_2D->meas_Id_Curve_2D_Map.contains(target_Curve->measurement.id))
+			{
+				Curve_Plot_2D* curve_Plot_2D = global_Multilayer_Approach->optical_Graphs_2D->meas_Id_Curve_2D_Map.value(target_Curve->measurement.id);
+				curve_Plot_2D->subinterval_Changed_Replot();
+			}
+		}
+	});
+	// outer area
+	connect(invert_Subinterval_Checkbox, &QCheckBox::toggled, this, [=]
+	{
+		target_Curve->curve.outer_Area = invert_Subinterval_Checkbox->isChecked();
+
+		target_Curve_Plot->subinterval_Changed_Replot_2D();
 		// curve plots
 		if(global_Multilayer_Approach->runned_Optical_Graphs_2D.contains(optical_Graphs_2D_Key))
 		{

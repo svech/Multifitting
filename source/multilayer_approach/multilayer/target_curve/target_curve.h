@@ -16,6 +16,7 @@ struct Curve
 
 	// subinterval
 	bool use_Subinterval;
+	bool outer_Area;
 	double subinterval_Left;
 	double subinterval_Right;
 	// 2D only

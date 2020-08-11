@@ -811,7 +811,7 @@ QDataStream& operator >>( QDataStream& stream,		 Value& value )
 QDataStream& operator <<( QDataStream& stream, const Curve& curve )
 {
 	return stream	<< curve.mesh_Density_Factor << curve.mesh_Density_Shift
-					<< curve.use_Subinterval << curve.subinterval_Left << curve.subinterval_Right << curve.subinterval_Top << curve.subinterval_Bottom
+					<< curve.use_Subinterval << curve.outer_Area << curve.subinterval_Left << curve.subinterval_Right << curve.subinterval_Top << curve.subinterval_Bottom
 					<< curve.horizontal_Arg_Shift << curve.horizontal_Arg_Factor
 					<< curve.val_Shift << curve.val_Factor
 					<< curve.divide_On_Beam_Intensity << curve.beam_Intensity_Initial << curve.use_Final_Intensity << curve.beam_Intensity_Final
@@ -822,7 +822,7 @@ QDataStream& operator >>( QDataStream& stream,		 Curve& curve )
 	if(Global_Variables::check_Loaded_Version(1,11,0))		// since 1.11.0
 	{
 		stream	>> curve.mesh_Density_Factor >> curve.mesh_Density_Shift
-				>> curve.use_Subinterval >> curve.subinterval_Left >> curve.subinterval_Right >> curve.subinterval_Top >> curve.subinterval_Bottom
+				>> curve.use_Subinterval >> curve.outer_Area >> curve.subinterval_Left >> curve.subinterval_Right >> curve.subinterval_Top >> curve.subinterval_Bottom
 				>> curve.horizontal_Arg_Shift >> curve.horizontal_Arg_Factor
 				>> curve.val_Shift >> curve.val_Factor
 				>> curve.divide_On_Beam_Intensity >> curve.beam_Intensity_Initial >> curve.use_Final_Intensity >> curve.beam_Intensity_Final

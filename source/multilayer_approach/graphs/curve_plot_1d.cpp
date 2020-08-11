@@ -118,13 +118,20 @@ void Curve_Plot_1D::create_Subinterval_Rectangle()
 void Curve_Plot_1D::subinterval_Changed_Replot()
 {
 	start_Rect->setVisible(target_Curve->curve.use_Subinterval);
-	end_Rect->setVisible(target_Curve->curve.use_Subinterval);
+	end_Rect->setVisible(target_Curve->curve.use_Subinterval && !target_Curve->curve.outer_Area);
 
-	start_Rect->topLeft->setCoords(custom_Plot->xAxis->range().lower, custom_Plot->yAxis->range().upper);
-	start_Rect->bottomRight->setCoords(target_Curve->curve.subinterval_Left,custom_Plot->yAxis->range().lower);
+	if(target_Curve->curve.outer_Area)
+	{
+		start_Rect->topLeft->setCoords(target_Curve->curve.subinterval_Left, custom_Plot->yAxis->range().upper);
+		start_Rect->bottomRight->setCoords(target_Curve->curve.subinterval_Right,custom_Plot->yAxis->range().lower);
+	} else
+	{
+		start_Rect->topLeft->setCoords(custom_Plot->xAxis->range().lower, custom_Plot->yAxis->range().upper);
+		start_Rect->bottomRight->setCoords(target_Curve->curve.subinterval_Left,custom_Plot->yAxis->range().lower);
 
-	end_Rect->topLeft->setCoords(target_Curve->curve.subinterval_Right,custom_Plot->yAxis->range().upper);
-	end_Rect->bottomRight->setCoords(custom_Plot->xAxis->range().upper, custom_Plot->yAxis->range().lower);
+		end_Rect->topLeft->setCoords(target_Curve->curve.subinterval_Right,custom_Plot->yAxis->range().upper);
+		end_Rect->bottomRight->setCoords(custom_Plot->xAxis->range().upper, custom_Plot->yAxis->range().lower);
+	}
 	custom_Plot->replot();
 }
 

@@ -14,10 +14,9 @@ Fitting_GSL::Fitting_GSL(Fitting* fitting):
 
 void Fitting_GSL::callback(const size_t iter, void* bare_Params, const gsl_multifit_nlinear_workspace* w)
 {
-	Q_UNUSED(w);
 	Fitting_Params* params = ((struct Fitting_Params*)bare_Params);
 
-	double residual = -2020;
+	double residual = 0;
 	gsl_blas_ddot(w->f, w->f, &residual);
 	if(params->maximize) residual = params->max_Integral-residual;
 
@@ -25,6 +24,13 @@ void Fitting_GSL::callback(const size_t iter, void* bare_Params, const gsl_multi
 	printf("iter %zu : ", iter);
 	for(size_t i=0; i<params->fitables.param_Pointers.size(); ++i)
 	{
+		double gradient = 0;
+		gsl_blas_ddot(w->g, w->g, &gradient);
+		if(gradient<DBL_MIN)
+		{
+			qInfo() << endl << "Zero gradient : residual doesn't depend on the variables" << endl << endl;
+			longjmp(buffer_GSL, 2020); // not zero! zero means repeating in infinite loop!
+		}
 		printf("%f\t|f|=%g", params->fitables.param_Pointers[i]->value, residual);
 	}
 	printf("\n\n");

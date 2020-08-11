@@ -43,6 +43,7 @@ public:
 	MyDoubleSpinBox* arg_Shift_SpinBox;
 	MyDoubleSpinBox* arg_Factor_SpinBox;
 	QCheckBox* main_Subinterval_Checkbox;
+	QCheckBox* invert_Subinterval_Checkbox;
 	MyDoubleSpinBox* horizontal_From_Subinterval_SpinBox;
 	QLabel* horizontal_And_Subinterval_Label;
 	MyDoubleSpinBox* horizontal_To_Subinterval_SpinBox;

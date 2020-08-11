@@ -40,6 +40,7 @@ public:
 	// argument
 	QComboBox* arg_Units_ComboBox;
 	QCheckBox* main_Subinterval_Checkbox;
+	QCheckBox* invert_Subinterval_Checkbox;
 
 	// theta
 	QComboBox* arg_Type_Theta_ComboBox;

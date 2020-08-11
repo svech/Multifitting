@@ -437,10 +437,19 @@ void Fitting::fill_Residual(Fitting_Params* params, int& residual_Shift, Data_El
 				double f_Val = 0;
 				if(target_Curve->measurement.measurement_Type != measurement_Types[GISAS_Map] )
 				{
+					bool in_Interval = false;
+					if(target_Curve->curve.outer_Area)
+					{
+						in_Interval = (target_Curve->curve.shifted_Argument[point_Index]<target_Curve->curve.subinterval_Left) ||
+									  (target_Curve->curve.shifted_Argument[point_Index]>target_Curve->curve.subinterval_Right);
+					} else
+					{
+						in_Interval = (target_Curve->curve.shifted_Argument[point_Index]>=target_Curve->curve.subinterval_Left) &&
+									  (target_Curve->curve.shifted_Argument[point_Index]<=target_Curve->curve.subinterval_Right);
+					}
+
 					// if subinterval then use only data from inside
-					if( !target_Curve->curve.use_Subinterval ||
-					   ((target_Curve->curve.shifted_Argument[point_Index]>=target_Curve->curve.subinterval_Left) &&
-						(target_Curve->curve.shifted_Argument[point_Index]<=target_Curve->curve.subinterval_Right))	)
+					if( !target_Curve->curve.use_Subinterval || in_Interval	)
 					{
 //						fi_1 = target_Curve->curve.shifted_Values[point_Index].val_1;
 						fi_1 = target_Curve->curve.shifted_Values_No_Scaling_And_Offset[point_Index]*
@@ -456,12 +465,23 @@ void Fitting::fill_Residual(Fitting_Params* params, int& residual_Shift, Data_El
 					fi_2 = DBL_EPSILON;
 					for(size_t phi_Index = 0; phi_Index<target_Curve->curve.value_2D_Shifted.size(); phi_Index++)
 					{
+						bool in_Rectangle = false;
+						if(target_Curve->curve.outer_Area)
+						{
+							in_Rectangle = (target_Curve->measurement.detector_Theta_Angle_Vec[point_Index]<target_Curve->curve.subinterval_Left)  ||
+										   (target_Curve->measurement.detector_Theta_Angle_Vec[point_Index]>target_Curve->curve.subinterval_Right) ||
+										   (target_Curve->measurement.detector_Phi_Angle_Vec  [point_Index]<target_Curve->curve.subinterval_Bottom)||
+										   (target_Curve->measurement.detector_Phi_Angle_Vec  [point_Index]>target_Curve->curve.subinterval_Top);
+						} else
+						{
+							in_Rectangle = (target_Curve->measurement.detector_Theta_Angle_Vec[point_Index]>=target_Curve->curve.subinterval_Left)  &&
+										   (target_Curve->measurement.detector_Theta_Angle_Vec[point_Index]<=target_Curve->curve.subinterval_Right) &&
+										   (target_Curve->measurement.detector_Phi_Angle_Vec  [point_Index]>=target_Curve->curve.subinterval_Bottom)&&
+										   (target_Curve->measurement.detector_Phi_Angle_Vec  [point_Index]<=target_Curve->curve.subinterval_Top);
+						}
+
 						// if subinterval then use only data from inside
-						if( !target_Curve->curve.use_Subinterval ||
-						   ((target_Curve->measurement.detector_Theta_Angle_Vec[point_Index]>=target_Curve->curve.subinterval_Left)  &&
-							(target_Curve->measurement.detector_Theta_Angle_Vec[point_Index]<=target_Curve->curve.subinterval_Right) &&
-							(target_Curve->measurement.detector_Phi_Angle_Vec  [point_Index]>=target_Curve->curve.subinterval_Bottom)&&
-							(target_Curve->measurement.detector_Phi_Angle_Vec  [point_Index]<=target_Curve->curve.subinterval_Top))	)
+						if( !target_Curve->curve.use_Subinterval || in_Rectangle	)
 						{
 							fi_2 += target_Element.unwrapped_Reflection->calculated_Values.GISAS_Instrumental[phi_Index][point_Index];
 							f_Val += pow(target_Curve->curve.value_2D_No_Scaling_And_Offset[phi_Index][point_Index] *
@@ -491,10 +511,19 @@ void Fitting::fill_Residual(Fitting_Params* params, int& residual_Shift, Data_El
 				double f_Val = 0;
 				if(target_Curve->measurement.measurement_Type != measurement_Types[GISAS_Map] )
 				{
+					bool in_Interval = false;
+					if(target_Curve->curve.outer_Area)
+					{
+						in_Interval = (target_Curve->curve.shifted_Argument[point_Index]<target_Curve->curve.subinterval_Left) ||
+									  (target_Curve->curve.shifted_Argument[point_Index]>target_Curve->curve.subinterval_Right);
+					} else
+					{
+						in_Interval = (target_Curve->curve.shifted_Argument[point_Index]>=target_Curve->curve.subinterval_Left) &&
+									  (target_Curve->curve.shifted_Argument[point_Index]<=target_Curve->curve.subinterval_Right);
+					}
+
 					// if subinterval then use only data from inside
-					if( !target_Curve->curve.use_Subinterval ||
-					   ((target_Curve->curve.shifted_Argument[point_Index]>=target_Curve->curve.subinterval_Left) &&
-						(target_Curve->curve.shifted_Argument[point_Index]<=target_Curve->curve.subinterval_Right))	)
+					if( !target_Curve->curve.use_Subinterval || in_Interval	)
 					{
 						{
 #ifdef EXPRTK
@@ -528,12 +557,23 @@ void Fitting::fill_Residual(Fitting_Params* params, int& residual_Shift, Data_El
 					fi_2 = DBL_EPSILON;
 					for(size_t phi_Index = 0; phi_Index<target_Curve->curve.value_2D_Shifted.size(); phi_Index++)
 					{
+						bool in_Rectangle = false;
+						if(target_Curve->curve.outer_Area)
+						{
+							in_Rectangle = (target_Curve->measurement.detector_Theta_Angle_Vec[point_Index]<target_Curve->curve.subinterval_Left)  ||
+										   (target_Curve->measurement.detector_Theta_Angle_Vec[point_Index]>target_Curve->curve.subinterval_Right) ||
+										   (target_Curve->measurement.detector_Phi_Angle_Vec  [point_Index]<target_Curve->curve.subinterval_Bottom)||
+										   (target_Curve->measurement.detector_Phi_Angle_Vec  [point_Index]>target_Curve->curve.subinterval_Top);
+						} else
+						{
+							in_Rectangle = (target_Curve->measurement.detector_Theta_Angle_Vec[point_Index]>=target_Curve->curve.subinterval_Left)  &&
+										   (target_Curve->measurement.detector_Theta_Angle_Vec[point_Index]<=target_Curve->curve.subinterval_Right) &&
+										   (target_Curve->measurement.detector_Phi_Angle_Vec  [point_Index]>=target_Curve->curve.subinterval_Bottom)&&
+										   (target_Curve->measurement.detector_Phi_Angle_Vec  [point_Index]<=target_Curve->curve.subinterval_Top);
+						}
+
 						// if subinterval then use only data from inside
-						if( !target_Curve->curve.use_Subinterval ||
-						   ((target_Curve->measurement.detector_Theta_Angle_Vec[point_Index]>=target_Curve->curve.subinterval_Left)  &&
-							(target_Curve->measurement.detector_Theta_Angle_Vec[point_Index]<=target_Curve->curve.subinterval_Right) &&
-							(target_Curve->measurement.detector_Phi_Angle_Vec  [point_Index]>=target_Curve->curve.subinterval_Bottom)&&
-							(target_Curve->measurement.detector_Phi_Angle_Vec  [point_Index]<=target_Curve->curve.subinterval_Top))	)
+						if( !target_Curve->curve.use_Subinterval || in_Rectangle )
 						{
 							{
 #ifdef EXPRTK
