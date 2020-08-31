@@ -692,6 +692,9 @@ void Menu::open_About()
 						"Main part of optical constants<br>"
 						"database and some pieces of design<br>"
 						"are borrowed from <a href='http://www.rxollc.com/idl/'>IMD</a> by Dawid Windt<br>"
+						"<br>"
+						"Form factors for scattering on<br>"
+						"particles are taken from <a href='https://www.bornagainproject.org/'>BornAgain</a><br>"
 					  );
 	about_Box.setIcon(QMessageBox::Information);
 	about_Box.exec();

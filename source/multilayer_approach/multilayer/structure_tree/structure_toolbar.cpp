@@ -119,6 +119,8 @@ void Structure_Toolbar::add_Layer()
 		}
 	}
 	Global_Variables::enable_Disable_Roughness_Model(layer, structure_Tree->multilayer->imperfections_Model);
+	Global_Variables::new_Layer_Fluctuations_Model  (layer, structure_Tree->multilayer->imperfections_Model);
+
 
 	var.setValue( layer );
 	new_Layer->setData(DEFAULT_COLUMN, Qt::UserRole, var);
@@ -176,6 +178,7 @@ void Structure_Toolbar::add_Multilayer()
 			}
 		}
 		Global_Variables::enable_Disable_Roughness_Model(layer, structure_Tree->multilayer->imperfections_Model);
+		Global_Variables::new_Layer_Fluctuations_Model  (layer, structure_Tree->multilayer->imperfections_Model);
 
 		QVariant var;
 		var.setValue( layer );
@@ -305,6 +308,7 @@ void Structure_Toolbar::add_Aperiodic()
 					}
 				}
 				Global_Variables::enable_Disable_Roughness_Model(layer, structure_Tree->multilayer->imperfections_Model);
+				Global_Variables::new_Layer_Fluctuations_Model  (layer, structure_Tree->multilayer->imperfections_Model);
 
 				layer.common_Sigma_Diffuse = true;
 				layer.material = materials[layer_Index];

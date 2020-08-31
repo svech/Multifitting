@@ -115,6 +115,7 @@ public:
 		QVector<Interlayer> interlayer_Composition;
 
 		Roughness_Model roughness_Model;
+		Fluctuations_Model fluctuations_Model;
 
 		double PSD_ABC_1D_Factor;			// without saving
 		double PSD_ABC_2D_Factor;			// without saving

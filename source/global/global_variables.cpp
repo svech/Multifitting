@@ -1105,6 +1105,25 @@ void Global_Variables::enable_Disable_Roughness_Model(Data& struct_Data, const I
 	}
 }
 
+void Global_Variables::enable_Disable_Fluctuations_Model(Data& struct_Data, const Imperfections_Model& imperfections_Model)
+{
+	// common
+	if( struct_Data.item_Type == item_Type_Layer )
+	{
+		struct_Data.fluctuations_Model.is_Enabled = imperfections_Model.use_Fluctuations;
+	}
+}
+
+void Global_Variables::new_Layer_Fluctuations_Model(Data &struct_Data, const Imperfections_Model &imperfections_Model)
+{
+	// common
+	if( struct_Data.item_Type == item_Type_Layer )
+	{
+		struct_Data.fluctuations_Model.particle_Shape = imperfections_Model.initial_Particle_Shape;
+		struct_Data.fluctuations_Model.interference_Function = imperfections_Model.initial_Interference_Function;
+	}
+}
+
 double Global_Variables::PSD_ABC_1D(double factor, double xi, double alpha, double k, double cos_Theta, double cos_Theta_0, gsl_spline* spline, gsl_interp_accel* acc)
 {
 	Q_UNUSED(spline)

@@ -503,10 +503,10 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 		int last_Roughness_Column = 0;
 
 		bool steps_Are_Done_Sigma = false;
-		bool steps_Are_Done_Xi = false;
+		bool steps_Are_Done_Xi = false;		// adaptive step
 		bool steps_Are_Done_Alpha = false;
-		bool steps_Are_Done_Mu = false;
-		bool steps_Are_Done_Omega = false;
+		bool steps_Are_Done_Mu = false;		// adaptive step
+		bool steps_Are_Done_Omega = false;  // adaptive step
 
 		while (*it)
 		{
@@ -1181,6 +1181,12 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 				last_Roughness_Column = max(current_Column,last_Roughness_Column);
 				current_Column+=2;
 			}
+
+			///--------------------------------------------------------------------------------------------
+			/// DENSITY FLUCTUATIONS
+			///--------------------------------------------------------------------------------------------
+
+
 			///--------------------------------------------------------------------------------------------
 
 			rows_List_To_Span.append(current_Row-1);

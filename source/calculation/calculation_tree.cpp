@@ -137,7 +137,8 @@ void Calculation_Tree::fill_Tree_From_Scratch(tree<Node>& calc_Tree, QTreeWidget
 				substrate.interlayer_Composition[interlayer_Index].enabled = false;
 			}
 		}
-		Global_Variables::enable_Disable_Roughness_Model(substrate, multilayer->imperfections_Model);
+		Global_Variables::enable_Disable_Roughness_Model   (substrate, multilayer->imperfections_Model);
+		Global_Variables::enable_Disable_Fluctuations_Model(substrate, multilayer->imperfections_Model);
 
 		// change id
 		substrate.reset_All_IDs();

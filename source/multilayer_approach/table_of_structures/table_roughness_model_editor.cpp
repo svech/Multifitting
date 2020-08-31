@@ -19,10 +19,13 @@ void Table_Roughness_Model_Editor::create_Main_Layout()
 		main_Layout->setSpacing(15);
 //		main_Layout->setContentsMargins(0,0,0,0);
 
+	QString old_Common_Particle_Shape = multilayer->imperfections_Model.initial_Particle_Shape;
+	QString old_Common_Interference_Function = multilayer->imperfections_Model.initial_Interference_Function;
+
 	create_Interlayer_Groupbox();
 	create_Drift_Groupbox();
 	create_Roughness_Groupbox();
-//	create_Density_Fluctuations_Groupbox(); // TODO
+	create_Density_Fluctuations_Groupbox();
 
 	QHBoxLayout* buttons_Layout = new QHBoxLayout;
 	main_Layout->addLayout(buttons_Layout);
@@ -34,6 +37,11 @@ void Table_Roughness_Model_Editor::create_Main_Layout()
 	buttons_Layout->addWidget(ok_Button,0,Qt::AlignCenter);
 	connect(ok_Button, &QPushButton::clicked, this, [=]
 	{
+		// fluctuations
+		refresh_Tree_Fluctuations(old_Common_Particle_Shape        != multilayer->imperfections_Model.initial_Particle_Shape,
+								  old_Common_Interference_Function != multilayer->imperfections_Model.initial_Interference_Function);
+
+		// common
 		bool have_Scattering = false;
 		bool have_GISAS = false;
 		for(Target_Curve* target_Curve : multilayer->target_Profiles_Vector)
@@ -641,6 +649,100 @@ void Table_Roughness_Model_Editor::create_Density_Fluctuations_Groupbox()
 	connect(density_Fluctuations_Groupbox, &QGroupBox::toggled, this, [=]
 	{
 		multilayer->imperfections_Model.use_Fluctuations = density_Fluctuations_Groupbox->isChecked();
+		refresh_Tree_Fluctuations();
+	});
+
+	QHBoxLayout* groupbox_Layout = new QHBoxLayout(density_Fluctuations_Groupbox);
+
+	// --------------------------------------------
+	// initial common particles shape
+	// --------------------------------------------
+
+		QVBoxLayout* shape_Layout = new QVBoxLayout;
+			shape_Layout->setAlignment(Qt::AlignTop);
+		groupbox_Layout->addLayout(shape_Layout);
+
+		QLabel* shape_Label = new QLabel("Particle shape");
+		shape_Layout->addWidget(shape_Label);
+
+		QRadioButton* full_Sphere_Radiobutton = new QRadioButton("Spheres ");
+			full_Sphere_Radiobutton->setChecked(multilayer->imperfections_Model.initial_Particle_Shape == full_Sphere);
+		shape_Layout->addWidget(full_Sphere_Radiobutton);
+
+		QRadioButton* full_Spheroid_Radiobutton = new QRadioButton("Spheroids ");
+			full_Spheroid_Radiobutton->setChecked(multilayer->imperfections_Model.initial_Particle_Shape == full_Spheroid);
+		shape_Layout->addWidget(full_Spheroid_Radiobutton);
+
+		QRadioButton* full_Cylinder_Radiobutton = new QRadioButton("Cylinders ");
+			full_Cylinder_Radiobutton->setChecked(multilayer->imperfections_Model.initial_Particle_Shape == cylinder);
+		shape_Layout->addWidget(full_Cylinder_Radiobutton);
+
+		QButtonGroup* shape_Group = new QButtonGroup;
+			shape_Group->addButton(full_Sphere_Radiobutton);
+			shape_Group->addButton(full_Spheroid_Radiobutton);
+			shape_Group->addButton(full_Cylinder_Radiobutton);
+
+	// --------------------------------------------
+	// initial common in-layer interference function
+	// --------------------------------------------
+
+		QVBoxLayout* interference_Function_Layout = new QVBoxLayout;
+			interference_Function_Layout->setAlignment(Qt::AlignTop);
+		groupbox_Layout->addLayout(interference_Function_Layout);
+
+		QLabel* interference_Function_Label = new QLabel("Interference function");
+		interference_Function_Layout->addWidget(interference_Function_Label);
+
+		QRadioButton* disorder_Radiobutton = new QRadioButton("Disorder");
+			disorder_Radiobutton->setChecked(multilayer->imperfections_Model.initial_Interference_Function == disorder);
+		interference_Function_Layout->addWidget(disorder_Radiobutton);
+
+		QRadioButton* radial_Paracrystal_Radiobutton = new QRadioButton("Radial paracrystal");
+			radial_Paracrystal_Radiobutton->setChecked(multilayer->imperfections_Model.initial_Interference_Function == radial_Paracrystal);
+		interference_Function_Layout->addWidget(radial_Paracrystal_Radiobutton);
+
+		QButtonGroup* interference_Function_Group = new QButtonGroup;
+			interference_Function_Group->addButton(disorder_Radiobutton);
+			interference_Function_Group->addButton(radial_Paracrystal_Radiobutton);
+
+
+	// connections
+	connect(full_Sphere_Radiobutton, &QRadioButton::toggled, this, [=]
+	{
+		if(full_Sphere_Radiobutton->isChecked())
+		{
+			multilayer->imperfections_Model.initial_Particle_Shape = full_Sphere;
+		}
+	});
+	connect(full_Spheroid_Radiobutton, &QRadioButton::toggled, this, [=]
+	{
+		if(full_Spheroid_Radiobutton->isChecked())
+		{
+			multilayer->imperfections_Model.initial_Particle_Shape = full_Spheroid;
+		}
+	});
+	connect(full_Cylinder_Radiobutton, &QRadioButton::toggled, this, [=]
+	{
+		if(full_Cylinder_Radiobutton->isChecked())
+		{
+			multilayer->imperfections_Model.initial_Particle_Shape = cylinder;
+		}
+	});
+
+
+	connect(disorder_Radiobutton, &QRadioButton::toggled, this, [=]
+	{
+		if(disorder_Radiobutton->isChecked())
+		{
+			multilayer->imperfections_Model.initial_Interference_Function = disorder;
+		}
+	});
+	connect(radial_Paracrystal_Radiobutton, &QRadioButton::toggled, this, [=]
+	{
+		if(radial_Paracrystal_Radiobutton->isChecked())
+		{
+			multilayer->imperfections_Model.initial_Interference_Function = radial_Paracrystal;
+		}
 	});
 }
 
@@ -711,6 +813,34 @@ void Table_Roughness_Model_Editor::refresh_Tree_Roughness()
 			struct_Data.item_Type == item_Type_Substrate )
 		{
 			Global_Variables::enable_Disable_Roughness_Model(struct_Data, multilayer->imperfections_Model);
+
+			QVariant var;
+			var.setValue( struct_Data );
+			item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+		}
+		++it;
+	}
+}
+
+void Table_Roughness_Model_Editor::refresh_Tree_Fluctuations(bool refresh_Shape, bool refresh_Interference_Function)
+{
+	QTreeWidgetItemIterator it(multilayer->structure_Tree->tree);
+	while(*it)
+	{
+		QTreeWidgetItem* item = *it;
+		Data struct_Data = item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+		if( struct_Data.item_Type == item_Type_Layer )
+		{
+			Global_Variables::enable_Disable_Fluctuations_Model(struct_Data, multilayer->imperfections_Model);
+
+			if(refresh_Shape)
+			{
+				struct_Data.fluctuations_Model.particle_Shape        = multilayer->imperfections_Model.initial_Particle_Shape;
+			}
+			if(refresh_Interference_Function)
+			{
+				struct_Data.fluctuations_Model.interference_Function = multilayer->imperfections_Model.initial_Interference_Function;
+			}
 
 			QVariant var;
 			var.setValue( struct_Data );

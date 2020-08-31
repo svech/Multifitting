@@ -1295,7 +1295,7 @@ QDataStream& operator <<( QDataStream& stream, const Data& data )
 				<< data.separate_Optical_Constants << data.permittivity << data.absorption << data.composition
 			// Layer, Substrate
 				<< data.common_Sigma_Diffuse << data.sigma_Diffuse << data.interlayer_Composition
-				<< data.roughness_Model
+				<< data.roughness_Model << data.fluctuations_Model
 			// Layer
 				<< data.layer_Index << data.has_Parent << data.thickness << data.thickness_Drift << data.sigma_Diffuse_Drift
 			// Multilayer
@@ -1380,7 +1380,7 @@ QDataStream& operator >>( QDataStream& stream,		 Data& data )
 		}
 		stream >> data.common_Sigma_Diffuse >> data.sigma_Diffuse >> data.interlayer_Composition;
 		if(Global_Variables::check_Loaded_Version(1,11,0))
-		{stream >> data.roughness_Model;}
+		{stream >> data.roughness_Model >> data.fluctuations_Model;}
 
 			// Layer
 		stream  >> data.layer_Index >> data.has_Parent >> data.thickness >> data.thickness_Drift >> data.sigma_Diffuse_Drift

@@ -245,6 +245,18 @@ class Node;
 #define gisas_Function			"GISAS map"
 #define symbol_G "G"
 
+// particle types
+#define full_Sphere		"full_Sphere"
+#define full_Spheroid	"full_Spheroid"
+#define cylinder		"cylinder"
+
+// particle interference function
+#define disorder			"disorder"
+#define radial_Paracrystal	"radial paracrystal"
+
+// particle cross-layer interference
+#define no_Cross_Layer_Interference		"no cross layer interference"
+
 // roughness scattering approximations
 #define PT_approximation	"PT approximation"
 #define DWBA_approximation	"DWBA approximation"
@@ -806,6 +818,31 @@ struct Roughness_Model			{
 								Parameter omega;
 								Parameter mu;
 								};
+struct Fluctuations_Model		{
+								bool is_Enabled = false;
+								bool is_Used = true;
+
+								// particle
+								QString particle_Shape = full_Spheroid;
+								Parameter absolute_Density;
+								Parameter relative_Density;
+								Parameter radius;
+								Parameter height;
+
+								// in-plane interference
+								QString interference_Function = radial_Paracrystal;
+
+								// disorder
+								Parameter average_Distance;
+
+								// radial paracrystal
+								Parameter radial_Distance;
+								Parameter radial_Distance_Deviation;
+
+								// common
+								Parameter z_Position;
+								Parameter z_Position_Deviation;
+								};
 struct Imperfections_Model		{
 								// interlayer
 								bool use_Interlayer = true;
@@ -843,6 +880,11 @@ struct Imperfections_Model		{
 
 								// density fluctuations
 								bool use_Fluctuations = false;
+
+								QString cross_Layer_Interference = no_Cross_Layer_Interference;
+
+								QString initial_Particle_Shape = full_Spheroid;
+								QString initial_Interference_Function = radial_Paracrystal;
 								};
 
 // independent calculation functions
@@ -975,6 +1017,9 @@ QDataStream& operator >>( QDataStream& stream,		 Discretization_Parameters& disc
 
 QDataStream& operator <<( QDataStream& stream, const Roughness_Model& roughness_Model );
 QDataStream& operator >>( QDataStream& stream,		 Roughness_Model& roughness_Model );
+
+QDataStream& operator <<( QDataStream& stream, const Fluctuations_Model& fluctuations_Model );
+QDataStream& operator >>( QDataStream& stream,		 Fluctuations_Model& fluctuations_Model );
 
 QDataStream& operator <<( QDataStream& stream, const Imperfections_Model& imperfections_Model );
 QDataStream& operator >>( QDataStream& stream,		 Imperfections_Model& imperfections_Model );
