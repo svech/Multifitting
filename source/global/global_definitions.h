@@ -181,6 +181,8 @@ class Node;
 #define Element_Sym				QString(QChar(0x2208))
 #define Multiply_Sym			QString(QChar(0x00D7))
 #define Infinity_Sym			QString(QChar(0x221E))
+#define Subscript_a_Sym			QString(QChar(0x2090))
+#define Subscript_p_Sym			QString(QChar(0x209A))
 
 // -----------------------------------------------------------------------------------------
 
@@ -246,13 +248,13 @@ class Node;
 #define symbol_G "G"
 
 // particle types
-#define full_Sphere		"full_Sphere"
-#define full_Spheroid	"full_Spheroid"
-#define cylinder		"cylinder"
+#define full_Sphere		"Sphere"
+#define full_Spheroid	"Spheroid"
+#define cylinder		"Cylinder"
 
 // particle interference function
-#define disorder			"disorder"
-#define radial_Paracrystal	"radial paracrystal"
+#define disorder			"Disorder"
+#define radial_Paracrystal	"Radial PC"
 
 // particle cross-layer interference
 #define no_Cross_Layer_Interference		"no cross layer interference"
@@ -307,6 +309,16 @@ class Node;
 #define whats_This_Num_Repetitions				"Num Repetitions"
 #define whats_This_Period						"Period"
 #define whats_This_Gamma						"Gamma"
+
+#define whats_This_Particle_Absolute_Density			"Particle Absolute Density"
+#define whats_This_Particle_Relative_Density			"Particle Relative Density"
+#define whats_This_Particle_Radius						"Particle Radius"
+#define whats_This_Particle_Height						"Particle Height"
+#define whats_This_Particle_Average_Distance			"Particle Average Distance"
+#define whats_This_Particle_Radial_Distance				"Particle Radial Distance"
+#define whats_This_Particle_Radial_Distance_Deviation	"Particle Radial Distance Deviation"
+#define whats_This_Particle_Z_Position					"Particle Z Position"
+#define whats_This_Particle_Z_Position_Deviation		"Particle Z Position Deviation"
 
 #define whats_This_Density					"Density"
 #define whats_This_Common_Thickness			"Common Thickness"
@@ -824,24 +836,24 @@ struct Fluctuations_Model		{
 
 								// particle
 								QString particle_Shape = full_Spheroid;
-								Parameter absolute_Density;
-								Parameter relative_Density;
-								Parameter radius;
-								Parameter height;
+								Parameter particle_Absolute_Density;
+								Parameter particle_Relative_Density;
+								Parameter particle_Radius;
+								Parameter particle_Height;
 
 								// in-plane interference
-								QString interference_Function = radial_Paracrystal;
+								QString particle_Interference_Function = radial_Paracrystal;
 
 								// disorder
-								Parameter average_Distance;
+								Parameter particle_Average_Distance;
 
 								// radial paracrystal
-								Parameter radial_Distance;
-								Parameter radial_Distance_Deviation;
+								Parameter particle_Radial_Distance;
+								Parameter particle_Radial_Distance_Deviation;
 
 								// common
-								Parameter z_Position;
-								Parameter z_Position_Deviation;
+								Parameter particle_Z_Position;
+								Parameter particle_Z_Position_Deviation;
 								};
 struct Imperfections_Model		{
 								// interlayer

@@ -51,6 +51,12 @@ public:
 	void create_Label				(My_Table_Widget* table, int tab_Index, int current_Row, int current_Column, QTreeWidgetItem* structure_Item, QString whats_This, QString text);
 	void create_Check_Box_Label		(My_Table_Widget* table, int tab_Index, int current_Row, int current_Column, QTreeWidgetItem* structure_Item, QString whats_This, QString text, int r_S, int r_F, int c_S, int c_F);
 
+	// for density fluctuations
+	void create_Check_Box_Usage		(My_Table_Widget* table, int tab_Index, int current_Row, int current_Column, QTreeWidgetItem* structure_Item, QString text, int r_S, int r_F, int c_S, int c_F);
+	void create_Shape_Button		(My_Table_Widget* table,                int current_Row, int current_Column, QTreeWidgetItem* structure_Item);
+	void create_Pattern_Button		(My_Table_Widget* table,                int current_Row, int current_Column, QTreeWidgetItem* structure_Item);
+	void open_Shape_Pattern_Dialog	(QTreeWidgetItem* structure_Item, QString shape_Pattern);
+
 	// for regular aperiodic
 	void create_Thickness_Restriction(My_Table_Widget* table, int current_Row, int current_Column, QTreeWidgetItem* structure_Item);
 
@@ -140,7 +146,7 @@ public:
 	static double recalculate_Sigma_From_Individuals(QVector<Interlayer>& interlayer_Composition);
 
 	// general
-	void cells_On_Off		(My_Table_Widget* table);
+	void cells_On_Off		(My_Table_Widget* table, bool borders = true);
 	void cells_On_Off_2		(My_Table_Widget* table, QTreeWidgetItem* structure_Item);
 
 	template <typename Type>

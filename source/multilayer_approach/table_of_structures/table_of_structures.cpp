@@ -1186,6 +1186,56 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 			/// DENSITY FLUCTUATIONS
 			///--------------------------------------------------------------------------------------------
 
+			// usage, shape and interference function
+			bool show_Usage_Buttons = false;
+			if(	struct_Data.fluctuations_Model.is_Enabled )
+			{
+				show_Usage_Buttons = true;
+			}
+			if(show_Usage_Buttons)
+			{
+				add_Columns			   (new_Table, current_Column+1);
+
+				create_Shape_Button  (new_Table,            current_Row+2, current_Column, structure_Item);
+				create_Pattern_Button(new_Table,            current_Row+4, current_Column, structure_Item);
+				// last
+				create_Check_Box_Usage (new_Table, tab_Index, current_Row,   current_Column, structure_Item, "on/off", 0, 4, 0, new_Table->columnCount()-1-current_Column);
+			}
+
+			// particle radius
+			bool show_Particle_Radius = false;
+			if(	struct_Data.fluctuations_Model.is_Enabled )
+			{
+				if( struct_Data.fluctuations_Model.particle_Shape == full_Sphere ||
+					struct_Data.fluctuations_Model.particle_Shape == full_Spheroid ||
+					struct_Data.fluctuations_Model.particle_Shape == cylinder )
+				{
+					show_Particle_Radius = true;
+				}
+			}
+			if(show_Particle_Radius)
+			{
+				QString whats_This = whats_This_Fractal_Alpha;
+//				add_Columns			(new_Table, current_Column+1);
+//				create_Label		(new_Table, tab_Index, current_Row,   current_Column, structure_Item, whats_This, Alpha_Sym);
+//				create_Line_Edit	(new_Table, tab_Index, current_Row+1, current_Column, structure_Item, whats_This, VAL);
+//				create_Line_Edit	(new_Table, tab_Index, current_Row+3, current_Column, structure_Item, whats_This, MIN);
+//				create_Line_Edit	(new_Table, tab_Index, current_Row+4, current_Column, structure_Item, whats_This, MAX);
+//				// last
+//				create_Check_Box_Fit(new_Table, tab_Index, current_Row+2, current_Column, structure_Item, whats_This, 1, 2, 0, 0);
+
+//				// alpha step
+//				if(!steps_Are_Done_Alpha)
+//				{
+//					create_Simple_Label	(new_Table,	tab_Index, steps_Row,   current_Column, whats_This, Alpha_Sym);
+//					create_Step_Spin_Box(new_Table, tab_Index, steps_Row+1, current_Column, whats_This);
+//					steps_Are_Done_Alpha = true;
+//				}
+//				last_Roughness_Column = max(current_Column,last_Roughness_Column);
+//				current_Column+=2;
+			}
+			///--------------------------------------------------------------------------------------------
+
 
 			///--------------------------------------------------------------------------------------------
 
@@ -2105,6 +2155,222 @@ void Table_Of_Structures::create_Check_Box_Label(My_Table_Widget* table, int tab
 	check_Box->setProperty(reload_Property,false);
 
 	table->setCellWidget(current_Row, current_Column, back_Widget);
+}
+
+void Table_Of_Structures::create_Check_Box_Usage(My_Table_Widget* table, int tab_Index, int current_Row, int current_Column, QTreeWidgetItem* structure_Item, QString text, int r_S, int r_F, int c_S, int c_F)
+{
+	QCheckBox* check_Box = new QCheckBox(text);
+
+	Data layer_Data = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+	check_Box->setChecked(layer_Data.fluctuations_Model.is_Used);
+
+	// enable/disable function
+	check_Box->setProperty(row_Property, current_Row);
+	check_Box->setProperty(column_Property, current_Column);
+	check_Box->setProperty(relative_Rows_To_Disable_Start_Property, r_S);
+	check_Box->setProperty(relative_Rows_To_Disable_Finish_Property, r_F);
+	check_Box->setProperty(relative_Columns_To_Disable_Start_Property, c_S);
+	check_Box->setProperty(relative_Columns_To_Disable_Finish_Property, c_F);
+
+	// for reloading
+	check_Box->setProperty(reload_Property, false);
+	check_Box->setProperty(tab_Index_Property, tab_Index);
+
+	// storage
+	check_Boxes_Map.	       insert	   (check_Box, structure_Item);
+	all_Widgets_To_Reload[tab_Index].append(check_Box);
+
+	// set up BACK widget
+	// alignment
+	QWidget* back_Widget = new QWidget;
+	QVBoxLayout* back_Layout = new QVBoxLayout(back_Widget);
+	back_Layout->addWidget(check_Box);
+	back_Layout->setSpacing(0);
+	back_Layout->setContentsMargins(0,0,0,0);
+	back_Layout->setAlignment(Qt::AlignCenter);
+
+	connect(check_Box, &QCheckBox::toggled, this, [=]
+	{
+		cells_On_Off(table, false);
+
+		Data layer_Data = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+		layer_Data.fluctuations_Model.is_Used = check_Box->isChecked();
+
+		if(layer_Data.fluctuations_Model.is_Used)
+			back_Widget->setStyleSheet("background-color: lightgray");
+		else
+			back_Widget->setStyleSheet("background-color: white");
+
+		QVariant var;
+		var.setValue(layer_Data);
+		structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+	});
+
+	table->setCellWidget(current_Row, current_Column, back_Widget);
+}
+
+void Table_Of_Structures::create_Shape_Button(My_Table_Widget* table, int current_Row, int current_Column, QTreeWidgetItem* structure_Item)
+{
+	Data layer_Data = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+
+	QPushButton* shape_Button = new QPushButton(layer_Data.fluctuations_Model.particle_Shape);
+		shape_Button->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT_THICKNESS);
+	table->setCellWidget(current_Row, current_Column, shape_Button);
+
+	connect(shape_Button, &QPushButton::clicked, this, [=]{open_Shape_Pattern_Dialog(structure_Item, "shape");});
+}
+
+void Table_Of_Structures::create_Pattern_Button(My_Table_Widget* table, int current_Row, int current_Column, QTreeWidgetItem* structure_Item)
+{
+	Data layer_Data = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+
+	QPushButton* pattern_Button = new QPushButton(layer_Data.fluctuations_Model.particle_Interference_Function);
+		pattern_Button->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT_THICKNESS);
+	table->setCellWidget(current_Row, current_Column, pattern_Button);
+
+	connect(pattern_Button, &QPushButton::clicked, this, [=]{open_Shape_Pattern_Dialog(structure_Item, "pattern");});
+}
+
+void Table_Of_Structures::open_Shape_Pattern_Dialog(QTreeWidgetItem* structure_Item, QString shape_Pattern)
+{
+	Data layer_Data = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+
+	QDialog* choice_Window = new QDialog(this);
+		choice_Window->setWindowTitle(Global_Variables::structure_Item_Name(layer_Data));
+		choice_Window->setWindowModality(Qt::ApplicationModal);
+		choice_Window->setAttribute(Qt::WA_DeleteOnClose);
+		choice_Window->setWindowFlags(Qt::Tool);
+		choice_Window->show();
+		choice_Window->activateWindow();
+
+	QVBoxLayout* choice_Layout = new QVBoxLayout(choice_Window);
+		choice_Layout->setSizeConstraint(QLayout::SetFixedSize);
+		choice_Layout->setSpacing(5);
+		choice_Layout->setContentsMargins(5,5,5,5);
+
+	// settings group box
+	QGroupBox*  choice_Group_Box = new QGroupBox();
+//	QGroupBox*  choice_Group_Box = new QGroupBox;
+//		choice_Group_Box->setObjectName("choice_Group_Box");
+//		choice_Group_Box->setStyleSheet("QGroupBox#choice_Group_Box { border-radius: 2px;  border: 1px solid gray; margin-top: 0ex;}"
+//												"QGroupBox::title   { subcontrol-origin: margin;   left: 9px; padding: 0 0px 0 1px;}");
+	choice_Layout->addWidget(choice_Group_Box);
+
+	QVBoxLayout* choice_Group_Box_Layout = new QVBoxLayout(choice_Group_Box);
+		choice_Group_Box_Layout->setSpacing(5);
+		choice_Group_Box_Layout->setContentsMargins(5,9,5,5);
+
+
+	if(shape_Pattern == "shape")
+	{
+		choice_Group_Box->setTitle("Particle shape");
+
+		// buttons
+		QRadioButton* full_Sphere_Radiobutton = new QRadioButton("Sphere");
+			full_Sphere_Radiobutton->setChecked(layer_Data.fluctuations_Model.particle_Shape == full_Sphere);
+		choice_Group_Box_Layout->addWidget(full_Sphere_Radiobutton);
+
+		QRadioButton* full_Spheroid_Radiobutton = new QRadioButton("Spheroid");
+			full_Spheroid_Radiobutton->setChecked(layer_Data.fluctuations_Model.particle_Shape == full_Spheroid);
+		choice_Group_Box_Layout->addWidget(full_Spheroid_Radiobutton);
+
+		QRadioButton* full_Cylinder_Radiobutton = new QRadioButton("Cylinder");
+			full_Cylinder_Radiobutton->setChecked(layer_Data.fluctuations_Model.particle_Shape == cylinder);
+		choice_Group_Box_Layout->addWidget(full_Cylinder_Radiobutton);
+
+		QButtonGroup* shape_Group = new QButtonGroup;
+			shape_Group->addButton(full_Sphere_Radiobutton);
+			shape_Group->addButton(full_Spheroid_Radiobutton);
+			shape_Group->addButton(full_Cylinder_Radiobutton);
+
+		// connections
+		connect(full_Sphere_Radiobutton, &QRadioButton::toggled, this, [=]
+		{
+			if(full_Sphere_Radiobutton->isChecked())
+			{
+				Data layer_Data = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+				layer_Data.fluctuations_Model.particle_Shape = full_Sphere;
+
+				QVariant var;
+				var.setValue(layer_Data);
+				structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+			}
+		});
+		connect(full_Spheroid_Radiobutton, &QRadioButton::toggled, this, [=]
+		{
+			if(full_Spheroid_Radiobutton->isChecked())
+			{
+				Data layer_Data = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+				layer_Data.fluctuations_Model.particle_Shape = full_Spheroid;
+
+				QVariant var;
+				var.setValue(layer_Data);
+				structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+			}
+		});
+		connect(full_Cylinder_Radiobutton, &QRadioButton::toggled, this, [=]
+		{
+			if(full_Cylinder_Radiobutton->isChecked())
+			{
+				Data layer_Data = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+				layer_Data.fluctuations_Model.particle_Shape = cylinder;
+
+				QVariant var;
+				var.setValue(layer_Data);
+				structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+			}
+		});
+	}
+	if(shape_Pattern == "pattern")
+	{
+		// settings group box
+		choice_Group_Box->setTitle("Interference function");
+
+		// buttons
+		QRadioButton* disorder_Radiobutton = new QRadioButton("Disorder");
+			disorder_Radiobutton->setChecked(layer_Data.fluctuations_Model.particle_Interference_Function == disorder);
+		choice_Group_Box_Layout->addWidget(disorder_Radiobutton);
+
+		QRadioButton* radial_Paracrystal_Radiobutton = new QRadioButton("Radial paracrystal");
+			radial_Paracrystal_Radiobutton->setChecked(layer_Data.fluctuations_Model.particle_Interference_Function == radial_Paracrystal);
+		choice_Group_Box_Layout->addWidget(radial_Paracrystal_Radiobutton);
+
+		QButtonGroup* interference_Function_Group = new QButtonGroup;
+			interference_Function_Group->addButton(disorder_Radiobutton);
+			interference_Function_Group->addButton(radial_Paracrystal_Radiobutton);
+
+
+		// connections
+		connect(disorder_Radiobutton, &QRadioButton::toggled, this, [=]
+		{
+			if(disorder_Radiobutton->isChecked())
+			{
+				Data layer_Data = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+				layer_Data.fluctuations_Model.particle_Interference_Function = disorder;
+
+				QVariant var;
+				var.setValue(layer_Data);
+				structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+			}
+		});
+		connect(radial_Paracrystal_Radiobutton, &QRadioButton::toggled, this, [=]
+		{
+			if(radial_Paracrystal_Radiobutton->isChecked())
+			{
+				Data layer_Data = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+				layer_Data.fluctuations_Model.particle_Interference_Function = radial_Paracrystal;
+
+				QVariant var;
+				var.setValue(layer_Data);
+				structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+			}
+		});
+	}
+
+	connect(choice_Window, &QDialog::finished, this, [=]
+	{
+		global_Multilayer_Approach->reopen_Table_Of_Structures(true);
+	});
 }
 
 void Table_Of_Structures::create_Thickness_Restriction(My_Table_Widget *table, int current_Row, int current_Column, QTreeWidgetItem *structure_Item)
@@ -4923,7 +5189,7 @@ double Table_Of_Structures::recalculate_Sigma_From_Individuals(QVector<Interlaye
 }
 
 //// general
-void Table_Of_Structures::cells_On_Off(My_Table_Widget* table)
+void Table_Of_Structures::cells_On_Off(My_Table_Widget* table, bool borders)
 {
 	QCheckBox* check_Box = qobject_cast<QCheckBox*>(QObject::sender());
 
@@ -4933,20 +5199,23 @@ void Table_Of_Structures::cells_On_Off(My_Table_Widget* table)
 	int row_Start = check_Box->property(relative_Rows_To_Disable_Start_Property).toInt();
 	int row_Finish = check_Box->property(relative_Rows_To_Disable_Finish_Property).toInt();
 	int column_Start = check_Box->property(relative_Columns_To_Disable_Start_Property).toInt();
-	int column_Finish = check_Box->property(relative_Columns_To_Disable_Finish_Property).toInt();
+	int column_Finish = min(check_Box->property(relative_Columns_To_Disable_Finish_Property).toInt(), table->columnCount()-1);
 
 	for(int row=row_Start; row<=row_Finish; ++row)
 		for(int col=column_Start; col<=column_Finish; ++col)
 		{
 			QWidget* widget = table->cellWidget(current_Row+row,current_Column+col);
-			if(widget)
+			if(widget && check_Box->parent()!=widget)
 			{
 				widget->setDisabled(!check_Box->isChecked());
 
-				if(!check_Box->isChecked())
-					widget->setStyleSheet("border: 0px solid grey");
-				else
-					widget->setStyleSheet("border: 1px solid grey");
+				if(borders)
+				{
+					if(!check_Box->isChecked())
+						widget->setStyleSheet("border: 0px solid grey");
+					else
+						widget->setStyleSheet("border: 1px solid grey");
+				}
 			}
 		}
 }

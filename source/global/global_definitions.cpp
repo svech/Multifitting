@@ -513,23 +513,23 @@ QDataStream& operator <<( QDataStream& stream, const Fluctuations_Model& fluctua
 	return stream << fluctuations_Model.is_Enabled << fluctuations_Model.is_Used
 
 				  << fluctuations_Model.particle_Shape
-				  << fluctuations_Model.absolute_Density << fluctuations_Model.relative_Density << fluctuations_Model.radius << fluctuations_Model.height
+				  << fluctuations_Model.particle_Absolute_Density << fluctuations_Model.particle_Relative_Density << fluctuations_Model.particle_Radius << fluctuations_Model.particle_Height
 
-				  << fluctuations_Model.interference_Function
-				  << fluctuations_Model.average_Distance
-				  << fluctuations_Model.radial_Distance << fluctuations_Model.radial_Distance_Deviation
-				  << fluctuations_Model.z_Position << fluctuations_Model.z_Position_Deviation;
+				  << fluctuations_Model.particle_Interference_Function
+				  << fluctuations_Model.particle_Average_Distance
+				  << fluctuations_Model.particle_Radial_Distance << fluctuations_Model.particle_Radial_Distance_Deviation
+				  << fluctuations_Model.particle_Z_Position << fluctuations_Model.particle_Z_Position_Deviation;
 }
 QDataStream& operator >>( QDataStream& stream,		 Fluctuations_Model& fluctuations_Model )
 {
 	return stream >> fluctuations_Model.is_Enabled >> fluctuations_Model.is_Used
 				  >> fluctuations_Model.particle_Shape
-				  >> fluctuations_Model.absolute_Density >> fluctuations_Model.relative_Density >> fluctuations_Model.radius >> fluctuations_Model.height
+				  >> fluctuations_Model.particle_Absolute_Density >> fluctuations_Model.particle_Relative_Density >> fluctuations_Model.particle_Radius >> fluctuations_Model.particle_Height
 
-				  >> fluctuations_Model.interference_Function
-				  >> fluctuations_Model.average_Distance
-				  >> fluctuations_Model.radial_Distance >> fluctuations_Model.radial_Distance_Deviation
-				  >> fluctuations_Model.z_Position >> fluctuations_Model.z_Position_Deviation;
+				  >> fluctuations_Model.particle_Interference_Function
+				  >> fluctuations_Model.particle_Average_Distance
+				  >> fluctuations_Model.particle_Radial_Distance >> fluctuations_Model.particle_Radial_Distance_Deviation
+				  >> fluctuations_Model.particle_Z_Position >> fluctuations_Model.particle_Z_Position_Deviation;
 }
 
 QDataStream& operator <<( QDataStream& stream, const Imperfections_Model& imperfections_Model )

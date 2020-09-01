@@ -691,7 +691,7 @@ void Table_Roughness_Model_Editor::create_Density_Fluctuations_Groupbox()
 		groupbox_Layout->addLayout(interference_Function_Layout);
 
 		QLabel* interference_Function_Label = new QLabel("Interference function");
-		interference_Function_Layout->addWidget(interference_Function_Label);
+			interference_Function_Layout->addWidget(interference_Function_Label);
 
 		QRadioButton* disorder_Radiobutton = new QRadioButton("Disorder");
 			disorder_Radiobutton->setChecked(multilayer->imperfections_Model.initial_Interference_Function == disorder);
@@ -704,7 +704,6 @@ void Table_Roughness_Model_Editor::create_Density_Fluctuations_Groupbox()
 		QButtonGroup* interference_Function_Group = new QButtonGroup;
 			interference_Function_Group->addButton(disorder_Radiobutton);
 			interference_Function_Group->addButton(radial_Paracrystal_Radiobutton);
-
 
 	// connections
 	connect(full_Sphere_Radiobutton, &QRadioButton::toggled, this, [=]
@@ -839,7 +838,7 @@ void Table_Roughness_Model_Editor::refresh_Tree_Fluctuations(bool refresh_Shape,
 			}
 			if(refresh_Interference_Function)
 			{
-				struct_Data.fluctuations_Model.interference_Function = multilayer->imperfections_Model.initial_Interference_Function;
+				struct_Data.fluctuations_Model.particle_Interference_Function = multilayer->imperfections_Model.initial_Interference_Function;
 			}
 
 			QVariant var;
