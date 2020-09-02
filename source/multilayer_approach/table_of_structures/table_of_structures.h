@@ -146,7 +146,7 @@ public:
 	static double recalculate_Sigma_From_Individuals(QVector<Interlayer>& interlayer_Composition);
 
 	// general
-	void cells_On_Off		(My_Table_Widget* table, bool borders = true);
+	void cells_On_Off		(My_Table_Widget* table, bool borders = true, bool keep_Disabled = false, bool can_Enable = false);
 	void cells_On_Off_2		(My_Table_Widget* table, QTreeWidgetItem* structure_Item);
 
 	template <typename Type>
@@ -226,6 +226,14 @@ public:
 	QList<MyDoubleSpinBox*> vertical_Correlation_Length_Spin_Boxes_List;
 	QList<MyDoubleSpinBox*> linear_PSD_Omega_Spin_Boxes_List;
 	QList<MyDoubleSpinBox*> Linear_PSD_Exponenta_Mu_Spin_Boxes_List;
+
+	QList<MyDoubleSpinBox*> particle_Density_Spin_Boxes_List;
+	QList<MyDoubleSpinBox*> particle_Radius_Spin_Boxes_List;
+	QList<MyDoubleSpinBox*> particle_Height_Spin_Boxes_List;
+	QList<MyDoubleSpinBox*> particle_Distance_Spin_Boxes_List;
+	QList<MyDoubleSpinBox*> particle_Distance_Deviation_Spin_Boxes_List;
+	QList<MyDoubleSpinBox*> particle_Z_Position_Spin_Boxes_List;
+	QList<MyDoubleSpinBox*> particle_Z_Position_Deviation_Spin_Boxes_List;
 };
 
 #endif // TABLE_OF_STRUCTURES_H

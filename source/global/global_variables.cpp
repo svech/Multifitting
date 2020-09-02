@@ -900,8 +900,8 @@ QString Global_Variables::parameter_Name(const Data &struct_Data, QString whats_
 		if(whats_This == whats_This_Particle_Average_Distance)			text = struct_Data.material + " " + brackets + " Particle average distance, r" + Subscript_a_Sym;
 		if(whats_This == whats_This_Particle_Radial_Distance)			text = struct_Data.material + " " + brackets + " Particle radial distance, r";
 		if(whats_This == whats_This_Particle_Radial_Distance_Deviation)	text = struct_Data.material + " " + brackets + " Particle radial distance deviation, " + Delta_Small_Sym + "r";
-		if(whats_This == whats_This_Particle_Z_Position)				text = struct_Data.material + " " + brackets + " Particle Z position, Z";
-		if(whats_This == whats_This_Particle_Z_Position_Deviation)		text = struct_Data.material + " " + brackets + " Particle Z position deviation, " + Delta_Small_Sym + "Z";
+		if(whats_This == whats_This_Particle_Z_Position)				text = struct_Data.material + " " + brackets + " Particle z position, z" + Subscript_p_Sym;
+		if(whats_This == whats_This_Particle_Z_Position_Deviation)		text = struct_Data.material + " " + brackets + " Particle z position deviation, " + Delta_Small_Sym + "z" + Subscript_p_Sym;
 	}
 
 	/// stack parameters
@@ -1043,23 +1043,22 @@ Parameter* Global_Variables::get_Parameter_From_Struct_Item_by_Whats_This(Data& 
 	if(whats_This == whats_This_Interlayer_My_Sigma_Diffuse)	{*line_edit_precision = line_edit_sigma_precision;			*thumbnail_precision = thumbnail_sigma_precision;		*units = " " + length_units;	*coeff = length_Coefficients_Map.value(length_units);	return nullptr;	}
 
 	// roughness
-	if(whats_This == whats_This_Sigma_Roughness)				{*line_edit_precision = line_edit_sigma_precision;				*thumbnail_precision = thumbnail_sigma_precision;				*units = " " + length_units;			*coeff = length_Coefficients_Map.value(length_units);		return &struct_Data.roughness_Model.sigma;				}
-	if(whats_This == whats_This_Correlation_Radius)				{*line_edit_precision = line_edit_cor_radius_precision;			*thumbnail_precision = thumbnail_cor_radius_precision;			*units = " " + length_units;			*coeff = length_Coefficients_Map.value(length_units);		return &struct_Data.roughness_Model.cor_radius;			}
-	if(whats_This == whats_This_Fractal_Alpha)					{*line_edit_precision = line_edit_fractal_alpha_precision;		*thumbnail_precision = thumbnail_fractal_alpha_precision;		*units = "";							*coeff = 1;													return &struct_Data.roughness_Model.fractal_alpha;		}
-	if(whats_This == whats_This_Linear_PSD_Omega)				{*line_edit_precision = line_edit_omega_precision;				*thumbnail_precision = thumbnail_omega_precision;				*units = " " + length_units+Cube_Sym;   *coeff = pow(length_Coefficients_Map.value(length_units),3);return &struct_Data.roughness_Model.omega;				}
-	if(whats_This == whats_This_Linear_PSD_Exponenta_Mu)		{*line_edit_precision = line_edit_mu_precision;					*thumbnail_precision = thumbnail_mu_precision;					*units = " " + length_units;			*coeff = length_Coefficients_Map.value(length_units);		return &struct_Data.roughness_Model.mu;					}
+	if(whats_This == whats_This_Sigma_Roughness)				{*line_edit_precision = line_edit_sigma_precision;			*thumbnail_precision = thumbnail_sigma_precision;			*units = " " + length_units;			*coeff = length_Coefficients_Map.value(length_units);		return &struct_Data.roughness_Model.sigma;				}
+	if(whats_This == whats_This_Correlation_Radius)				{*line_edit_precision = line_edit_cor_radius_precision;		*thumbnail_precision = thumbnail_cor_radius_precision;		*units = " " + length_units;			*coeff = length_Coefficients_Map.value(length_units);		return &struct_Data.roughness_Model.cor_radius;			}
+	if(whats_This == whats_This_Fractal_Alpha)					{*line_edit_precision = line_edit_fractal_alpha_precision;	*thumbnail_precision = thumbnail_fractal_alpha_precision;	*units = "";							*coeff = 1;													return &struct_Data.roughness_Model.fractal_alpha;		}
+	if(whats_This == whats_This_Linear_PSD_Omega)				{*line_edit_precision = line_edit_omega_precision;			*thumbnail_precision = thumbnail_omega_precision;			*units = " " + length_units+Cube_Sym;   *coeff = pow(length_Coefficients_Map.value(length_units),3);return &struct_Data.roughness_Model.omega;				}
+	if(whats_This == whats_This_Linear_PSD_Exponenta_Mu)		{*line_edit_precision = line_edit_mu_precision;				*thumbnail_precision = thumbnail_mu_precision;				*units = " " + length_units;			*coeff = length_Coefficients_Map.value(length_units);		return &struct_Data.roughness_Model.mu;					}
 
 	// density fluctuations
-	if(whats_This == whats_This_Particle_Absolute_Density)			text = struct_Data.material + " " + brackets + " Particle material density, " + Rho_Sym + Subscript_p_Sym;
-	if(whats_This == whats_This_Particle_Relative_Density)			text = struct_Data.material + " " + brackets + " Particle material relative density, " + Rho_Sym + Subscript_p_Sym;
-	if(whats_This == whats_This_Particle_Radius)					text = struct_Data.material + " " + brackets + " Particle radius, R";
-	if(whats_This == whats_This_Particle_Height)					text = struct_Data.material + " " + brackets + " Particle height, H";
-	if(whats_This == whats_This_Particle_Average_Distance)			text = struct_Data.material + " " + brackets + " Particle average distance, r" + Subscript_a_Sym;
-	if(whats_This == whats_This_Particle_Radial_Distance)			text = struct_Data.material + " " + brackets + " Particle radial distance, r";
-	if(whats_This == whats_This_Particle_Radial_Distance_Deviation)	text = struct_Data.material + " " + brackets + " Particle radial distance deviation, " + Delta_Small_Sym + "r";
-	if(whats_This == whats_This_Particle_Z_Position)				text = struct_Data.material + " " + brackets + " Particle Z position, Z";
-	if(whats_This == whats_This_Particle_Z_Position_Deviation)		text = struct_Data.material + " " + brackets + " Particle Z position deviation, " + Delta_Small_Sym + "Z";
-
+	if(whats_This == whats_This_Particle_Absolute_Density)		{*line_edit_precision = line_edit_density_precision;	*thumbnail_precision = thumbnail_density_precision;	*units = " " + density_units;	*coeff = 1;												return &struct_Data.fluctuations_Model.particle_Absolute_Density;			}
+	if(whats_This == whats_This_Particle_Relative_Density)		{*line_edit_precision = line_edit_density_precision;	*thumbnail_precision = thumbnail_density_precision;	*units = "" ;					*coeff = 1;												return &struct_Data.fluctuations_Model.particle_Relative_Density;			}
+	if(whats_This == whats_This_Particle_Radius)				{*line_edit_precision = line_edit_sigma_precision;		*thumbnail_precision = thumbnail_sigma_precision;	*units = " " + length_units;	*coeff = length_Coefficients_Map.value(length_units);	return &struct_Data.fluctuations_Model.particle_Radius;						}
+	if(whats_This == whats_This_Particle_Height)				{*line_edit_precision = line_edit_sigma_precision;		*thumbnail_precision = thumbnail_sigma_precision;	*units = " " + length_units;	*coeff = length_Coefficients_Map.value(length_units);	return &struct_Data.fluctuations_Model.particle_Height;						}
+	if(whats_This == whats_This_Particle_Average_Distance)		{*line_edit_precision = line_edit_sigma_precision;		*thumbnail_precision = thumbnail_sigma_precision;	*units = " " + length_units;	*coeff = length_Coefficients_Map.value(length_units);	return &struct_Data.fluctuations_Model.particle_Average_Distance;			}
+	if(whats_This == whats_This_Particle_Radial_Distance)		{*line_edit_precision = line_edit_sigma_precision;		*thumbnail_precision = thumbnail_sigma_precision;	*units = " " + length_units;	*coeff = length_Coefficients_Map.value(length_units);	return &struct_Data.fluctuations_Model.particle_Radial_Distance;			}
+if(whats_This == whats_This_Particle_Radial_Distance_Deviation)	{*line_edit_precision = line_edit_sigma_precision;		*thumbnail_precision = thumbnail_sigma_precision;	*units = " " + length_units;	*coeff = length_Coefficients_Map.value(length_units);	return &struct_Data.fluctuations_Model.particle_Radial_Distance_Deviation;	}
+	if(whats_This == whats_This_Particle_Z_Position)			{*line_edit_precision = line_edit_sigma_precision;		*thumbnail_precision = thumbnail_sigma_precision;	*units = " " + length_units;	*coeff = length_Coefficients_Map.value(length_units);	return &struct_Data.fluctuations_Model.particle_Z_Position;					}
+	if(whats_This == whats_This_Particle_Z_Position_Deviation)	{*line_edit_precision = line_edit_sigma_precision;		*thumbnail_precision = thumbnail_sigma_precision;	*units = " " + length_units;	*coeff = length_Coefficients_Map.value(length_units);	return &struct_Data.fluctuations_Model.particle_Z_Position_Deviation;		}
 
 	// thickness
 	if(whats_This == whats_This_Thickness)						{*line_edit_precision = line_edit_thickness_precision;		*thumbnail_precision = thumbnail_thickness_precision;	*units = " " + length_units;	*coeff = length_Coefficients_Map.value(length_units);	return &struct_Data.thickness; }
@@ -1156,6 +1155,7 @@ void Global_Variables::new_Layer_Fluctuations_Model(Data &struct_Data, const Imp
 	// common
 	if( struct_Data.item_Type == item_Type_Layer )
 	{
+		struct_Data.fluctuations_Model.is_Enabled = imperfections_Model.use_Fluctuations;
 		struct_Data.fluctuations_Model.particle_Shape = imperfections_Model.initial_Particle_Shape;
 		struct_Data.fluctuations_Model.particle_Interference_Function = imperfections_Model.initial_Interference_Function;
 	}

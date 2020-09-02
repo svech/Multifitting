@@ -320,6 +320,8 @@ class Node;
 #define whats_This_Particle_Z_Position					"Particle Z Position"
 #define whats_This_Particle_Z_Position_Deviation		"Particle Z Position Deviation"
 
+#define whats_This_Particle_Density			"Particle Density"
+#define whats_This_Particle_Distance		"Particle Distance"
 #define whats_This_Density					"Density"
 #define whats_This_Common_Thickness			"Common Thickness"
 #define whats_This_Common_Sigma_Diffuse		"Common Sigma"

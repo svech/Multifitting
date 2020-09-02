@@ -503,10 +503,18 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 		int last_Roughness_Column = 0;
 
 		bool steps_Are_Done_Sigma = false;
-		bool steps_Are_Done_Xi = false;		// adaptive step
+		bool steps_Are_Done_Xi = false;		Q_UNUSED(steps_Are_Done_Xi)	  // adaptive step
 		bool steps_Are_Done_Alpha = false;
-		bool steps_Are_Done_Mu = false;		// adaptive step
-		bool steps_Are_Done_Omega = false;  // adaptive step
+		bool steps_Are_Done_Mu = false;		Q_UNUSED(steps_Are_Done_Mu)	  // adaptive step
+		bool steps_Are_Done_Omega = false;  Q_UNUSED(steps_Are_Done_Omega)// adaptive step
+
+		bool steps_Are_Done_Particle_Density = false;
+		bool steps_Are_Done_Particle_Radius = false;
+		bool steps_Are_Done_Particle_Height = false;
+		bool steps_Are_Done_Particle_Distance = false;
+		bool steps_Are_Done_Particle_Distance_Deviation = false;
+		bool steps_Are_Done_Particle_Z_Position = false;
+		bool steps_Are_Done_Particle_Z_Position_Deviation = false;
 
 		while (*it)
 		{
@@ -986,6 +994,26 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 
 			// align columns
 			column_Difference-=(transition_Layer_Functions_Size-interlayer_Types_To_Show);
+
+			if( multilayer->imperfections_Model.show_Drift &&
+				struct_Data.item_Type == item_Type_Layer &&
+				struct_Data.parent_Item_Type == item_Type_Multilayer)
+			{
+				int drift_Counter = 0;
+				bool thickness_Drift = false;
+				if(multilayer->imperfections_Model.show_Thickness_Drift_Line)	{drift_Counter++;  thickness_Drift = true;}
+				if(multilayer->imperfections_Model.show_Thickness_Drift_Rand)	{drift_Counter++;  thickness_Drift = true;}
+				if(multilayer->imperfections_Model.show_Thickness_Drift_Sine)	{drift_Counter+=3; thickness_Drift = true;}
+
+				bool sigma_Drift = false;
+				if(multilayer->imperfections_Model.show_Sigma_Drift_Line)	{drift_Counter++;  sigma_Drift = true;}
+				if(multilayer->imperfections_Model.show_Sigma_Drift_Rand)	{drift_Counter++;  sigma_Drift = true;}
+				if(multilayer->imperfections_Model.show_Sigma_Drift_Sine)	{drift_Counter+=3; sigma_Drift = true;}
+
+				if(thickness_Drift && sigma_Drift) drift_Counter++;
+
+				column_Difference += drift_Counter;
+			}
 			if(has_Regular_Aperiodic)
 			{
 				if(column_Difference<0)
@@ -1182,6 +1210,26 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 				current_Column+=2;
 			}
 
+			// alignment
+			if(	multilayer->imperfections_Model.use_Roughness )
+			{
+				if( struct_Data.item_Type == item_Type_Layer)
+				{
+					if( multilayer->imperfections_Model.vertical_Correlation != partial_Correlation &&
+						multilayer->imperfections_Model.use_Common_Roughness_Function == true)
+					{
+						add_Columns	(new_Table, current_Column+5);
+						current_Column+=6;
+					}
+					if( multilayer->imperfections_Model.vertical_Correlation == partial_Correlation &&
+						multilayer->imperfections_Model.common_Model != linear_Growth_and_ABC_Model )
+					{
+						add_Columns	(new_Table, current_Column+1);
+						current_Column+=2;
+					}
+				}
+			}
+
 			///--------------------------------------------------------------------------------------------
 			/// DENSITY FLUCTUATIONS
 			///--------------------------------------------------------------------------------------------
@@ -1199,8 +1247,51 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 				create_Shape_Button  (new_Table,            current_Row+2, current_Column, structure_Item);
 				create_Pattern_Button(new_Table,            current_Row+4, current_Column, structure_Item);
 				// last
-				create_Check_Box_Usage (new_Table, tab_Index, current_Row,   current_Column, structure_Item, "on/off", 0, 4, 0, new_Table->columnCount()-1-current_Column);
+				create_Check_Box_Usage (new_Table, tab_Index, current_Row,   current_Column, structure_Item, "on/off", 0, 4, 0, 2020); // more than table size, it is like inf
+				current_Column+=2;
 			}
+
+			// particle density
+			bool show_Particle_Density = false;
+			if(	struct_Data.fluctuations_Model.is_Enabled )
+			{
+				show_Particle_Density = true;
+			}
+			if(show_Particle_Density)
+			{
+				QString whats_This;
+				add_Columns			(new_Table, current_Column+1);
+				if(struct_Data.composed_Material)
+				{
+					whats_This = whats_This_Particle_Absolute_Density;
+					create_Label	(new_Table, tab_Index, current_Row,   current_Column, structure_Item, whats_This, Rho_Sym + Subscript_p_Sym + " ["+density_units+"]");
+				} else
+				{
+					whats_This = whats_This_Particle_Relative_Density;
+					create_Label	(new_Table, tab_Index, current_Row,   current_Column, structure_Item, whats_This, Rho_Sym + Subscript_p_Sym + " [r.u.]");
+				}
+				create_Line_Edit	(new_Table, tab_Index, current_Row+1, current_Column, structure_Item, whats_This, VAL);
+				create_Line_Edit	(new_Table, tab_Index, current_Row+3, current_Column, structure_Item, whats_This, MIN);
+				create_Line_Edit	(new_Table, tab_Index, current_Row+4, current_Column, structure_Item, whats_This, MAX);
+				// last
+				create_Check_Box_Fit(new_Table, tab_Index, current_Row+2, current_Column, structure_Item, whats_This, 1, 2, 0, 0);
+
+				// particle density step
+				if(!steps_Are_Done_Particle_Density)
+				{
+					if(struct_Data.composed_Material)
+					{
+						create_Simple_Label(new_Table, tab_Index, steps_Row, current_Column, whats_This, Rho_Sym + Subscript_p_Sym + " ["+density_units+"]");
+					} else
+					{
+						create_Simple_Label(new_Table, tab_Index, steps_Row, current_Column, whats_This, Rho_Sym + Subscript_p_Sym + " [r.u.]");
+					}
+					create_Step_Spin_Box(new_Table, tab_Index, steps_Row+1, current_Column, whats_This_Particle_Density);
+					steps_Are_Done_Particle_Density = true;
+				}
+				current_Column+=2;
+			}
+			///--------------------------------------------------------------------------------------------
 
 			// particle radius
 			bool show_Particle_Radius = false;
@@ -1215,28 +1306,215 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 			}
 			if(show_Particle_Radius)
 			{
-				QString whats_This = whats_This_Fractal_Alpha;
-//				add_Columns			(new_Table, current_Column+1);
-//				create_Label		(new_Table, tab_Index, current_Row,   current_Column, structure_Item, whats_This, Alpha_Sym);
-//				create_Line_Edit	(new_Table, tab_Index, current_Row+1, current_Column, structure_Item, whats_This, VAL);
-//				create_Line_Edit	(new_Table, tab_Index, current_Row+3, current_Column, structure_Item, whats_This, MIN);
-//				create_Line_Edit	(new_Table, tab_Index, current_Row+4, current_Column, structure_Item, whats_This, MAX);
-//				// last
-//				create_Check_Box_Fit(new_Table, tab_Index, current_Row+2, current_Column, structure_Item, whats_This, 1, 2, 0, 0);
+				QString whats_This = whats_This_Particle_Radius;
+				add_Columns			(new_Table, current_Column+1);
+				create_Label		(new_Table, tab_Index, current_Row,   current_Column, structure_Item, whats_This, "R ["+length_units+"]");
+				create_Line_Edit	(new_Table, tab_Index, current_Row+1, current_Column, structure_Item, whats_This, VAL);
+				create_Line_Edit	(new_Table, tab_Index, current_Row+3, current_Column, structure_Item, whats_This, MIN);
+				create_Line_Edit	(new_Table, tab_Index, current_Row+4, current_Column, structure_Item, whats_This, MAX);
+				// last
+				create_Check_Box_Fit(new_Table, tab_Index, current_Row+2, current_Column, structure_Item, whats_This, 1, 2, 0, 0);
 
-//				// alpha step
-//				if(!steps_Are_Done_Alpha)
-//				{
-//					create_Simple_Label	(new_Table,	tab_Index, steps_Row,   current_Column, whats_This, Alpha_Sym);
-//					create_Step_Spin_Box(new_Table, tab_Index, steps_Row+1, current_Column, whats_This);
-//					steps_Are_Done_Alpha = true;
-//				}
-//				last_Roughness_Column = max(current_Column,last_Roughness_Column);
-//				current_Column+=2;
+				// particle radius step
+				if(!steps_Are_Done_Particle_Radius)
+				{
+					create_Simple_Label	(new_Table,	tab_Index, steps_Row,   current_Column, whats_This, "R ["+length_units+"]");
+					create_Step_Spin_Box(new_Table, tab_Index, steps_Row+1, current_Column, whats_This);
+					steps_Are_Done_Particle_Radius = true;
+				}
+				current_Column+=2;
 			}
 			///--------------------------------------------------------------------------------------------
 
+			// particle height
+			bool show_Particle_Height = false;
+			if(	struct_Data.fluctuations_Model.is_Enabled )
+			{
+				if( struct_Data.fluctuations_Model.particle_Shape == full_Spheroid ||
+					struct_Data.fluctuations_Model.particle_Shape == cylinder )
+				{
+					show_Particle_Height = true;
+				}
+			}
+			if(show_Particle_Height)
+			{
+				QString whats_This = whats_This_Particle_Height;
+				add_Columns			(new_Table, current_Column+1);
+				create_Label		(new_Table, tab_Index, current_Row,   current_Column, structure_Item, whats_This, "H ["+length_units+"]");
+				create_Line_Edit	(new_Table, tab_Index, current_Row+1, current_Column, structure_Item, whats_This, VAL);
+				create_Line_Edit	(new_Table, tab_Index, current_Row+3, current_Column, structure_Item, whats_This, MIN);
+				create_Line_Edit	(new_Table, tab_Index, current_Row+4, current_Column, structure_Item, whats_This, MAX);
+				// last
+				create_Check_Box_Fit(new_Table, tab_Index, current_Row+2, current_Column, structure_Item, whats_This, 1, 2, 0, 0);
 
+				// particle radius step
+				if(!steps_Are_Done_Particle_Height)
+				{
+					create_Simple_Label	(new_Table,	tab_Index, steps_Row,   current_Column, whats_This, "H ["+length_units+"]");
+					create_Step_Spin_Box(new_Table, tab_Index, steps_Row+1, current_Column, whats_This);
+					steps_Are_Done_Particle_Height = true;
+				}
+				current_Column+=2;
+			}
+			if(!show_Particle_Height && struct_Data.fluctuations_Model.is_Enabled) // keep empty place
+			{
+				add_Columns	(new_Table, current_Column+1);
+				current_Column+=2;
+			}
+			///--------------------------------------------------------------------------------------------
+
+			// particle average distance
+			bool show_Particle_Average_Distance = false;
+			if(	struct_Data.fluctuations_Model.is_Enabled )
+			{
+				if( struct_Data.fluctuations_Model.particle_Interference_Function == disorder)
+				{
+					show_Particle_Average_Distance = true;
+				}
+			}
+			if(show_Particle_Average_Distance)
+			{
+				QString whats_This = whats_This_Particle_Average_Distance;
+				add_Columns			(new_Table, current_Column+1);
+				create_Label		(new_Table, tab_Index, current_Row,   current_Column, structure_Item, whats_This, "r" + Subscript_a_Sym + " ["+length_units+"]");
+				create_Line_Edit	(new_Table, tab_Index, current_Row+1, current_Column, structure_Item, whats_This, VAL);
+				create_Line_Edit	(new_Table, tab_Index, current_Row+3, current_Column, structure_Item, whats_This, MIN);
+				create_Line_Edit	(new_Table, tab_Index, current_Row+4, current_Column, structure_Item, whats_This, MAX);
+				// last
+				create_Check_Box_Fit(new_Table, tab_Index, current_Row+2, current_Column, structure_Item, whats_This, 1, 2, 0, 0);
+
+				// particle distance step
+				if(!steps_Are_Done_Particle_Distance)
+				{
+					create_Simple_Label	(new_Table,	tab_Index, steps_Row,   current_Column, whats_This_Particle_Distance, "r ["+length_units+"]");
+					create_Step_Spin_Box(new_Table, tab_Index, steps_Row+1, current_Column, whats_This_Particle_Distance);
+					steps_Are_Done_Particle_Distance = true;
+				}
+				current_Column+=1;
+			}
+			///--------------------------------------------------------------------------------------------
+
+			// particle radial distance
+			bool show_Particle_Radial_Distance = false;
+			if(	struct_Data.fluctuations_Model.is_Enabled )
+			{
+				if( struct_Data.fluctuations_Model.particle_Interference_Function == radial_Paracrystal)
+				{
+					show_Particle_Radial_Distance = true;
+				}
+			}
+			if(show_Particle_Radial_Distance)
+			{
+				QString whats_This = whats_This_Particle_Radial_Distance;
+				add_Columns			(new_Table, current_Column+1);
+				create_Label		(new_Table, tab_Index, current_Row,   current_Column, structure_Item, whats_This, "r ["+length_units+"]");
+				create_Line_Edit	(new_Table, tab_Index, current_Row+1, current_Column, structure_Item, whats_This, VAL);
+				create_Line_Edit	(new_Table, tab_Index, current_Row+3, current_Column, structure_Item, whats_This, MIN);
+				create_Line_Edit	(new_Table, tab_Index, current_Row+4, current_Column, structure_Item, whats_This, MAX);
+				// last
+				create_Check_Box_Fit(new_Table, tab_Index, current_Row+2, current_Column, structure_Item, whats_This, 1, 2, 0, 0);
+
+				// particle distance step
+				if(!steps_Are_Done_Particle_Distance)
+				{
+					create_Simple_Label	(new_Table,	tab_Index, steps_Row,   current_Column, whats_This_Particle_Distance, "r ["+length_units+"]");
+					create_Step_Spin_Box(new_Table, tab_Index, steps_Row+1, current_Column, whats_This_Particle_Distance);
+					steps_Are_Done_Particle_Distance = true;
+				}
+				current_Column+=1;
+			}
+			///--------------------------------------------------------------------------------------------
+
+			// particle radial distance deviation
+			bool show_Particle_Radial_Distance_Deviation = false;
+			if(	struct_Data.fluctuations_Model.is_Enabled )
+			{
+				if( struct_Data.fluctuations_Model.particle_Interference_Function == radial_Paracrystal)
+				{
+					show_Particle_Radial_Distance_Deviation = true;
+				}
+			}
+			if(show_Particle_Radial_Distance_Deviation)
+			{
+				QString whats_This = whats_This_Particle_Radial_Distance_Deviation;
+				add_Columns			(new_Table, current_Column+1);
+				create_Label		(new_Table, tab_Index, current_Row,   current_Column, structure_Item, whats_This, Delta_Small_Sym + "r ["+length_units+"]");
+				create_Line_Edit	(new_Table, tab_Index, current_Row+1, current_Column, structure_Item, whats_This, VAL);
+				create_Line_Edit	(new_Table, tab_Index, current_Row+3, current_Column, structure_Item, whats_This, MIN);
+				create_Line_Edit	(new_Table, tab_Index, current_Row+4, current_Column, structure_Item, whats_This, MAX);
+				// last
+				create_Check_Box_Fit(new_Table, tab_Index, current_Row+2, current_Column, structure_Item, whats_This, 1, 2, 0, 0);
+
+				// particle radial distance deviation step
+				if(!steps_Are_Done_Particle_Distance_Deviation)
+				{
+					create_Simple_Label	(new_Table,	tab_Index, steps_Row,   current_Column, whats_This, Delta_Small_Sym + "r ["+length_units+"]");
+					create_Step_Spin_Box(new_Table, tab_Index, steps_Row+1, current_Column, whats_This);
+					steps_Are_Done_Particle_Distance_Deviation = true;
+				}
+				current_Column+=2;
+			}
+			if(!show_Particle_Radial_Distance_Deviation && struct_Data.fluctuations_Model.is_Enabled) // keep empty place
+			{
+				add_Columns	(new_Table, current_Column+1);
+				current_Column+=2;
+			}
+			///--------------------------------------------------------------------------------------------
+
+			// particle z position
+			bool show_Particle_Z_Position = false;
+			if(	struct_Data.fluctuations_Model.is_Enabled )
+			{
+				show_Particle_Z_Position = true;
+			}
+			if(show_Particle_Z_Position)
+			{
+				QString whats_This = whats_This_Particle_Z_Position;
+				add_Columns			(new_Table, current_Column+1);
+				create_Label		(new_Table, tab_Index, current_Row,   current_Column, structure_Item, whats_This,"z" + Subscript_p_Sym + " ["+length_units+"]");
+				create_Line_Edit	(new_Table, tab_Index, current_Row+1, current_Column, structure_Item, whats_This, VAL);
+				create_Line_Edit	(new_Table, tab_Index, current_Row+3, current_Column, structure_Item, whats_This, MIN);
+				create_Line_Edit	(new_Table, tab_Index, current_Row+4, current_Column, structure_Item, whats_This, MAX);
+				// last
+				create_Check_Box_Fit(new_Table, tab_Index, current_Row+2, current_Column, structure_Item, whats_This, 1, 2, 0, 0);
+
+				// particle radial distance step
+				if(!steps_Are_Done_Particle_Z_Position)
+				{
+					create_Simple_Label	(new_Table,	tab_Index, steps_Row,   current_Column, whats_This, "z" + Subscript_p_Sym + " ["+length_units+"]");
+					create_Step_Spin_Box(new_Table, tab_Index, steps_Row+1, current_Column, whats_This);
+					steps_Are_Done_Particle_Z_Position = true;
+				}
+				current_Column+=1;
+			}
+			///--------------------------------------------------------------------------------------------
+
+			// particle z position deviation
+			bool show_Particle_Z_Position_Deviation = false;
+			if(	struct_Data.fluctuations_Model.is_Enabled )
+			{
+				show_Particle_Z_Position_Deviation = true;
+			}
+			if(show_Particle_Z_Position_Deviation)
+			{
+				QString whats_This = whats_This_Particle_Z_Position_Deviation;
+				add_Columns			(new_Table, current_Column+1);
+				create_Label		(new_Table, tab_Index, current_Row,   current_Column, structure_Item, whats_This, Delta_Small_Sym + "z" + Subscript_p_Sym + " ["+length_units+"]");
+				create_Line_Edit	(new_Table, tab_Index, current_Row+1, current_Column, structure_Item, whats_This, VAL);
+				create_Line_Edit	(new_Table, tab_Index, current_Row+3, current_Column, structure_Item, whats_This, MIN);
+				create_Line_Edit	(new_Table, tab_Index, current_Row+4, current_Column, structure_Item, whats_This, MAX);
+				// last
+				create_Check_Box_Fit(new_Table, tab_Index, current_Row+2, current_Column, structure_Item, whats_This, 1, 2, 0, 0);
+
+				// particle radial distance deviation step
+				if(!steps_Are_Done_Particle_Z_Position_Deviation)
+				{
+					create_Simple_Label	(new_Table,	tab_Index, steps_Row,   current_Column, whats_This, Delta_Small_Sym + "z" + Subscript_p_Sym + " ["+length_units+"]");
+					create_Step_Spin_Box(new_Table, tab_Index, steps_Row+1, current_Column, whats_This);
+					steps_Are_Done_Particle_Z_Position_Deviation = true;
+				}
+				current_Column+=2;
+			}
 			///--------------------------------------------------------------------------------------------
 
 			rows_List_To_Span.append(current_Row-1);
@@ -1412,8 +1690,19 @@ Parameter& Table_Of_Structures::get_Parameter(Data& struct_Data, QString whats_T
 	if(whats_This == whats_This_Sigma_Roughness)			{precision = line_edit_sigma_precision;					coeff = length_Coefficients_Map.value(length_units);	return struct_Data.roughness_Model.sigma;				}
 	if(whats_This == whats_This_Correlation_Radius)			{precision = line_edit_cor_radius_precision;			coeff = length_Coefficients_Map.value(length_units);	return struct_Data.roughness_Model.cor_radius;			}
 	if(whats_This == whats_This_Fractal_Alpha)				{precision = line_edit_fractal_alpha_precision;			coeff = 1;												return struct_Data.roughness_Model.fractal_alpha;		}
-	if(whats_This == whats_This_Linear_PSD_Omega)			{precision = line_edit_omega_precision;					coeff = pow(length_Coefficients_Map.value(length_units),3);	return struct_Data.roughness_Model.omega;				}
+	if(whats_This == whats_This_Linear_PSD_Omega)			{precision = line_edit_omega_precision;					coeff = pow(length_Coefficients_Map.value(length_units),3);	return struct_Data.roughness_Model.omega;			}
 	if(whats_This == whats_This_Linear_PSD_Exponenta_Mu)	{precision = line_edit_mu_precision;					coeff = length_Coefficients_Map.value(length_units);	return struct_Data.roughness_Model.mu;					}
+
+	// density fluctuations
+	if(whats_This == whats_This_Particle_Absolute_Density)		{precision = line_edit_density_precision;	coeff = 1;												return struct_Data.fluctuations_Model.particle_Absolute_Density;			}
+	if(whats_This == whats_This_Particle_Relative_Density)		{precision = line_edit_density_precision;	coeff = 1;												return struct_Data.fluctuations_Model.particle_Relative_Density;			}
+	if(whats_This == whats_This_Particle_Radius)				{precision = line_edit_sigma_precision;		coeff = length_Coefficients_Map.value(length_units);	return struct_Data.fluctuations_Model.particle_Radius;						}
+	if(whats_This == whats_This_Particle_Height)				{precision = line_edit_sigma_precision;		coeff = length_Coefficients_Map.value(length_units);	return struct_Data.fluctuations_Model.particle_Height;						}
+	if(whats_This == whats_This_Particle_Average_Distance)		{precision = line_edit_sigma_precision;		coeff = length_Coefficients_Map.value(length_units);	return struct_Data.fluctuations_Model.particle_Average_Distance;			}
+	if(whats_This == whats_This_Particle_Radial_Distance)		{precision = line_edit_sigma_precision;		coeff = length_Coefficients_Map.value(length_units);	return struct_Data.fluctuations_Model.particle_Radial_Distance;				}
+if(whats_This == whats_This_Particle_Radial_Distance_Deviation)	{precision = line_edit_sigma_precision;		coeff = length_Coefficients_Map.value(length_units);	return struct_Data.fluctuations_Model.particle_Radial_Distance_Deviation;	}
+	if(whats_This == whats_This_Particle_Z_Position)			{precision = line_edit_sigma_precision;		coeff = length_Coefficients_Map.value(length_units);	return struct_Data.fluctuations_Model.particle_Z_Position;					}
+	if(whats_This == whats_This_Particle_Z_Position_Deviation)	{precision = line_edit_sigma_precision;		coeff = length_Coefficients_Map.value(length_units);	return struct_Data.fluctuations_Model.particle_Z_Position_Deviation;		}
 
 	// multilayer
 	if(whats_This == whats_This_Num_Repetitions)			{precision = 0;								coeff = 1;						return struct_Data.num_Repetition.parameter;			}
@@ -1624,7 +1913,7 @@ void Table_Of_Structures::fit_Column(QTableWidget* table, int start_Width, int c
 		if(current_Spin_Box) not_Fit_Spinbox = current_Spin_Box->property(fit_Column_Property).toBool();
 
 		if(current_Line_Edit || current_Spin_Box || fit_Labels)
-		{			
+		{
 			int width = 0;
 			if(current_Line_Edit) width = current_Line_Edit->width();
 			if(current_Spin_Box && !not_Fit_Spinbox) width = current_Spin_Box->width();
@@ -1656,7 +1945,7 @@ void Table_Of_Structures::fit_Column(QTableWidget* table, int start_Width, int c
 			}
 		}
 	}
-	table->setColumnWidth(current_Column,max_Width);
+	table->setColumnWidth(current_Column, max_Width);
 
 	// fit other line edits
 //	for(int row = 0; row<table->rowCount(); ++row)
@@ -2197,7 +2486,7 @@ void Table_Of_Structures::create_Check_Box_Usage(My_Table_Widget* table, int tab
 		layer_Data.fluctuations_Model.is_Used = check_Box->isChecked();
 
 		if(layer_Data.fluctuations_Model.is_Used)
-			back_Widget->setStyleSheet("background-color: lightgray");
+			back_Widget->setStyleSheet("QWidget { background: rgb(100, 255, 220); }");
 		else
 			back_Widget->setStyleSheet("background-color: white");
 
@@ -2485,6 +2774,7 @@ void Table_Of_Structures::create_Line_Edit(My_Table_Widget* table, int tab_Index
 		spin_Box->setButtonSymbols(QAbstractSpinBox::NoButtons);
 		spin_Box->setRange(-100000, MAX_DOUBLE); // by default
 		spin_Box->installEventFilter(this);
+		spin_Box->setStyleSheet("background-color: white");
 
 	if(whats_This == whats_This_Num_Repetitions)
 	{
@@ -2572,10 +2862,22 @@ void Table_Of_Structures::create_Line_Edit(My_Table_Widget* table, int tab_Index
 
 	spin_Box->setValue(value/coeff);
 	spin_Box->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT_SHORT);
-	if( whats_This == whats_This_Absolute_Density ||
-		whats_This == whats_This_Relative_Density ||
-		whats_This == whats_This_Num_Repetitions ||
-		whats_This == whats_This_Correlation_Radius ) spin_Box->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT_DENSITY);
+
+	if(whats_This == whats_This_Particle_Absolute_Density ||
+	   whats_This == whats_This_Particle_Relative_Density)	spin_Box->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT_DENSITY);
+
+	if(whats_This == whats_This_Particle_Radius)					spin_Box->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT_SHORT);
+	if(whats_This == whats_This_Particle_Height)					spin_Box->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT_SHORT);
+	if(whats_This == whats_This_Particle_Average_Distance ||
+	   whats_This == whats_This_Particle_Radial_Distance)			spin_Box->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT_SHORT);
+	if(whats_This == whats_This_Particle_Radial_Distance_Deviation)	spin_Box->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT_SHORT);
+	if(whats_This == whats_This_Particle_Z_Position)				spin_Box->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT_SHORT);
+	if(whats_This == whats_This_Particle_Z_Position_Deviation)		spin_Box->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT_SHORT);
+
+	if( whats_This == whats_This_Absolute_Density  ||
+		whats_This == whats_This_Relative_Density  ||
+		whats_This == whats_This_Num_Repetitions   ||
+		whats_This == whats_This_Correlation_Radius)	spin_Box->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT_DENSITY);
 	if( whats_This == whats_This_Sigma_Diffuse ||
 		whats_This == whats_This_Sigma_Roughness ||
 		whats_This == whats_This_Linear_PSD_Omega ||
@@ -2665,6 +2967,16 @@ void Table_Of_Structures::create_Line_Edit(My_Table_Widget* table, int tab_Index
 	if(whats_This == whats_This_Fractal_Alpha)				{ spin_Box->setSingleStep(step_sigma_fractal_alpha);	fractal_Alpha_Spin_Boxes_List.append(spin_Box); }
 	if(whats_This == whats_This_Linear_PSD_Omega)			{ spin_Box->setSingleStep(step_sigma_omega);			linear_PSD_Omega_Spin_Boxes_List.append(spin_Box); }
 	if(whats_This == whats_This_Linear_PSD_Exponenta_Mu)	{ spin_Box->setSingleStep(step_sigma_mu);				Linear_PSD_Exponenta_Mu_Spin_Boxes_List.append(spin_Box); }
+
+	if(whats_This == whats_This_Particle_Absolute_Density ||
+	   whats_This == whats_This_Particle_Relative_Density)			{ spin_Box->setSingleStep(step_particle_density);			  particle_Density_Spin_Boxes_List.append(spin_Box); }
+	if(whats_This == whats_This_Particle_Radius)					{ spin_Box->setSingleStep(step_particle_radius);			  particle_Radius_Spin_Boxes_List.append(spin_Box); }
+	if(whats_This == whats_This_Particle_Height)					{ spin_Box->setSingleStep(step_particle_height);			  particle_Height_Spin_Boxes_List.append(spin_Box); }
+	if(whats_This == whats_This_Particle_Average_Distance ||
+	   whats_This == whats_This_Particle_Radial_Distance)			{ spin_Box->setSingleStep(step_particle_distance);			  particle_Distance_Spin_Boxes_List.append(spin_Box); }
+	if(whats_This == whats_This_Particle_Radial_Distance_Deviation)	{ spin_Box->setSingleStep(step_particle_distance_deviation);  particle_Distance_Deviation_Spin_Boxes_List.append(spin_Box); }
+	if(whats_This == whats_This_Particle_Z_Position)				{ spin_Box->setSingleStep(step_particle_z_position);		  particle_Z_Position_Spin_Boxes_List.append(spin_Box); }
+	if(whats_This == whats_This_Particle_Z_Position_Deviation)		{ spin_Box->setSingleStep(step_particle_z_position_deviation);particle_Z_Position_Deviation_Spin_Boxes_List.append(spin_Box); }
 
 	if( whats_This == whats_This_Gamma)						{ spin_Box->setSingleStep(step_gamma);					gamma_Spin_Boxes_List.append(spin_Box); }
 	if(	whats_This == whats_This_Thickness_Drift_Line_Value     ||
@@ -2761,7 +3073,7 @@ void Table_Of_Structures::create_Check_Box_Fit(My_Table_Widget* table, int tab_I
 		if( struct_Data.parent_Item_Type != item_Type_Regular_Aperiodic ||
 			whats_This != whats_This_Thickness)
 		{
-			cells_On_Off(table);
+			cells_On_Off(table, true, !check_Box->isChecked(), true); // mark disabled widgets as non-enablable, but we can enable them from here
 		}
 
 		// colorizing working fits
@@ -3177,6 +3489,8 @@ void Table_Of_Structures::create_MySigma_Line_Edits_Interlayer(My_Table_Widget* 
 
 void Table_Of_Structures::create_Simple_Label(My_Table_Widget* table, int tab_Index, int current_Row, int current_Column, QString whats_This, QString text)
 {
+	// PARAMETER
+
 	add_Columns(table,current_Column);
 
 	QLabel* label = new QLabel(text);
@@ -3194,12 +3508,19 @@ void Table_Of_Structures::create_Simple_Label(My_Table_Widget* table, int tab_In
 
 	connect(label, &QLabel::windowTitleChanged, this, [=]
 	{
-		if(whats_This == whats_This_Thickness)				{	label->setText("z/d ["+length_units+"]");		}
-		if(whats_This == whats_This_Sigma_Diffuse)			{	label->setText("s ["+length_units+"]");			}
-		if(whats_This == whats_This_Sigma_Roughness)		{	label->setText(Sigma_Sym+" ["+length_units+"]");}
-		if(whats_This == whats_This_Correlation_Radius)		{	label->setText(Xi_Sym+" ["+length_units+"]");	}
-		if(whats_This == whats_This_Linear_PSD_Omega)		{	label->setText(Omega_Big_Sym+" ["+length_units+Cube_Sym+"]");}
-		if(whats_This == whats_This_Linear_PSD_Exponenta_Mu){	label->setText(Mu_Sym+" ["+length_units+"]");}
+		if(whats_This == whats_This_Thickness)							label->setText("z/d ["+length_units+"]");
+		if(whats_This == whats_This_Sigma_Diffuse)						label->setText("s ["+length_units+"]");
+		if(whats_This == whats_This_Sigma_Roughness)					label->setText(Sigma_Sym+" ["+length_units+"]");
+		if(whats_This == whats_This_Correlation_Radius)					label->setText(Xi_Sym+" ["+length_units+"]");
+		if(whats_This == whats_This_Linear_PSD_Omega)					label->setText(Omega_Big_Sym+" ["+length_units+Cube_Sym+"]");
+		if(whats_This == whats_This_Linear_PSD_Exponenta_Mu)			label->setText(Mu_Sym+" ["+length_units+"]");
+
+		if(whats_This == whats_This_Particle_Radius)					label->setText("R ["+length_units+"]");
+		if(whats_This == whats_This_Particle_Height)					label->setText("H ["+length_units+"]");
+		if(whats_This == whats_This_Particle_Distance)					label->setText("r ["+length_units+"]");
+		if(whats_This == whats_This_Particle_Radial_Distance_Deviation)	label->setText(Delta_Small_Sym + "r ["+length_units+"]");
+		if(whats_This == whats_This_Particle_Z_Position)				label->setText("z" + Subscript_p_Sym + " ["+length_units+"]");
+		if(whats_This == whats_This_Particle_Z_Position_Deviation)		label->setText(Delta_Small_Sym + "z" + Subscript_p_Sym + " ["+length_units+"]");
 	});
 }
 
@@ -3365,6 +3686,14 @@ void Table_Of_Structures::create_Step_Spin_Box(My_Table_Widget* table, int tab_I
 		if(whats_This == whats_This_Linear_PSD_Omega)			{ min_Width = TABLE_FIX_WIDTH_LINE_EDIT_SIGMA;	}
 		if(whats_This == whats_This_Linear_PSD_Exponenta_Mu)	{ min_Width = TABLE_FIX_WIDTH_LINE_EDIT_SIGMA;	}
 
+		if(whats_This == whats_This_Particle_Density)					{ min_Width = TABLE_FIX_WIDTH_LINE_EDIT_DENSITY;}
+		if(whats_This == whats_This_Particle_Radius)					{ min_Width = TABLE_FIX_WIDTH_LINE_EDIT_SHORT;}
+		if(whats_This == whats_This_Particle_Height)					{ min_Width = TABLE_FIX_WIDTH_LINE_EDIT_SHORT;}
+		if(whats_This == whats_This_Particle_Distance)					{ min_Width = TABLE_FIX_WIDTH_LINE_EDIT_SHORT;}
+		if(whats_This == whats_This_Particle_Radial_Distance_Deviation)	{ min_Width = TABLE_FIX_WIDTH_LINE_EDIT_SHORT;}
+		if(whats_This == whats_This_Particle_Z_Position)				{ min_Width = TABLE_FIX_WIDTH_LINE_EDIT_SHORT;}
+		if(whats_This == whats_This_Particle_Z_Position_Deviation)		{ min_Width = TABLE_FIX_WIDTH_LINE_EDIT_SHORT;}
+
 		if(whats_This == whats_This_Gamma)					{ min_Width = TABLE_FIX_WIDTH_LINE_EDIT_LONG; step_SpinBox->setRange(0, 0.5);}
 		if(whats_This == whats_This_Drift)					{ min_Width = TABLE_FIX_WIDTH_LINE_EDIT_LONG;	}
 		step_SpinBox->setFixedWidth(min_Width);
@@ -3385,6 +3714,14 @@ void Table_Of_Structures::create_Step_Spin_Box(My_Table_Widget* table, int tab_I
 		if(whats_This == whats_This_Fractal_Alpha)				{ step_sigma_fractal_alpha = step_SpinBox->value();						for(MyDoubleSpinBox* spb : fractal_Alpha_Spin_Boxes_List)				spb->setSingleStep(step_sigma_fractal_alpha);}
 		if(whats_This == whats_This_Linear_PSD_Omega)			{ step_sigma_omega = step_SpinBox->value()*pow(length_Coeff,3);			for(MyDoubleSpinBox* spb : linear_PSD_Omega_Spin_Boxes_List)			spb->setSingleStep(step_sigma_omega/pow(length_Coeff,3));}
 		if(whats_This == whats_This_Linear_PSD_Exponenta_Mu)	{ step_sigma_mu = step_SpinBox->value()*length_Coeff;					for(MyDoubleSpinBox* spb : Linear_PSD_Exponenta_Mu_Spin_Boxes_List)		spb->setSingleStep(step_sigma_mu/length_Coeff);}
+
+		if(whats_This == whats_This_Particle_Density)					{ step_particle_density  = step_SpinBox->value();			 for(MyDoubleSpinBox* spb : particle_Density_Spin_Boxes_List)				spb->setSingleStep(step_particle_density);	}
+		if(whats_This == whats_This_Particle_Radius)					{ step_particle_radius   = step_SpinBox->value();			 for(MyDoubleSpinBox* spb : particle_Radius_Spin_Boxes_List)				spb->setSingleStep(step_particle_radius);	}
+		if(whats_This == whats_This_Particle_Height)					{ step_particle_height   = step_SpinBox->value();			 for(MyDoubleSpinBox* spb : particle_Height_Spin_Boxes_List)				spb->setSingleStep(step_particle_height);	}
+		if(whats_This == whats_This_Particle_Distance)					{ step_particle_distance = step_SpinBox->value();			 for(MyDoubleSpinBox* spb : particle_Distance_Spin_Boxes_List)				spb->setSingleStep(step_particle_distance);	}
+		if(whats_This == whats_This_Particle_Radial_Distance_Deviation)	{ step_particle_distance_deviation = step_SpinBox->value();	 for(MyDoubleSpinBox* spb : particle_Distance_Deviation_Spin_Boxes_List)	spb->setSingleStep(step_particle_distance_deviation);	}
+		if(whats_This == whats_This_Particle_Z_Position)				{ step_particle_z_position = step_SpinBox->value();			 for(MyDoubleSpinBox* spb : particle_Z_Position_Spin_Boxes_List)			spb->setSingleStep(step_particle_z_position);	}
+		if(whats_This == whats_This_Particle_Z_Position_Deviation)		{ step_particle_z_position_deviation = step_SpinBox->value();for(MyDoubleSpinBox* spb : particle_Z_Position_Deviation_Spin_Boxes_List)	spb->setSingleStep(step_particle_z_position_deviation);	}
 
 		if(whats_This == whats_This_Gamma)					{ step_gamma = step_SpinBox->value();					for(MyDoubleSpinBox* spb : gamma_Spin_Boxes_List)		spb->setSingleStep(step_gamma);					}
 		if(whats_This == whats_This_Drift)					{ step_drift = step_SpinBox->value();					for(MyDoubleSpinBox* spb : drift_Spin_Boxes_List)		spb->setSingleStep(step_drift);					}
@@ -3410,6 +3747,14 @@ void Table_Of_Structures::create_Step_Spin_Box(My_Table_Widget* table, int tab_I
 		if(whats_This == whats_This_Fractal_Alpha)				{ step_SpinBox->setDecimals(10);	step_SpinBox->setValue(step_sigma_fractal_alpha);					step_SpinBox->setDecimals(line_edit_fractal_alpha_precision);		}
 		if(whats_This == whats_This_Linear_PSD_Omega)			{ step_SpinBox->setDecimals(10);	step_SpinBox->setValue(step_sigma_omega/pow(length_Coeff,3));		step_SpinBox->setDecimals(line_edit_omega_precision);				}
 		if(whats_This == whats_This_Linear_PSD_Exponenta_Mu)	{ step_SpinBox->setDecimals(10);	step_SpinBox->setValue(step_sigma_mu/length_Coeff);					step_SpinBox->setDecimals(line_edit_mu_precision);					}
+
+		if(whats_This == whats_This_Particle_Density)					{ step_SpinBox->setDecimals(10); step_SpinBox->setValue(step_particle_density);								step_SpinBox->setDecimals(line_edit_density_precision);	}
+		if(whats_This == whats_This_Particle_Radius)					{ step_SpinBox->setDecimals(10); step_SpinBox->setValue(step_particle_radius/length_Coeff);					step_SpinBox->setDecimals(line_edit_sigma_precision);	}
+		if(whats_This == whats_This_Particle_Height)					{ step_SpinBox->setDecimals(10); step_SpinBox->setValue(step_particle_height/length_Coeff);					step_SpinBox->setDecimals(line_edit_sigma_precision);	}
+		if(whats_This == whats_This_Particle_Distance)					{ step_SpinBox->setDecimals(10); step_SpinBox->setValue(step_particle_distance/length_Coeff);				step_SpinBox->setDecimals(line_edit_sigma_precision);	}
+		if(whats_This == whats_This_Particle_Radial_Distance_Deviation)	{ step_SpinBox->setDecimals(10); step_SpinBox->setValue(step_particle_distance_deviation/length_Coeff);  	step_SpinBox->setDecimals(line_edit_sigma_precision);	}
+		if(whats_This == whats_This_Particle_Z_Position)				{ step_SpinBox->setDecimals(10); step_SpinBox->setValue(step_particle_z_position/length_Coeff);				step_SpinBox->setDecimals(line_edit_sigma_precision);	}
+		if(whats_This == whats_This_Particle_Z_Position_Deviation)		{ step_SpinBox->setDecimals(10); step_SpinBox->setValue(step_particle_z_position_deviation/length_Coeff);   step_SpinBox->setDecimals(line_edit_sigma_precision);	}
 
 		if(whats_This == whats_This_Gamma)					{ step_SpinBox->setDecimals(10);	step_SpinBox->setValue(step_gamma);						step_SpinBox->setDecimals(line_edit_gamma_precision);			}
 		if(whats_This == whats_This_Drift)					{ step_SpinBox->setDecimals(10);	step_SpinBox->setValue(step_drift);						step_SpinBox->setDecimals(line_edit_drift_precision);			}
@@ -4154,11 +4499,20 @@ void Table_Of_Structures::refresh_Header(QString)
 	{
 		if(reload)
 		{
-			if(whats_This == whats_This_Thickness)				label->setText(         "z ["+length_units+"]");
-			if(whats_This == whats_This_Sigma_Roughness)		label->setText(Sigma_Sym+" ["+length_units+"]");
-			if(whats_This == whats_This_Correlation_Radius)		label->setText(Xi_Sym+   " ["+length_units+"]");
-			if(whats_This == whats_This_Linear_PSD_Omega)		label->setText(Omega_Big_Sym+" ["+length_units+Cube_Sym+"]");
-			if(whats_This == whats_This_Linear_PSD_Exponenta_Mu)label->setText(Mu_Sym+" ["+length_units+"]");
+			if(whats_This == whats_This_Thickness)							label->setText(         "z ["+length_units+"]");
+			if(whats_This == whats_This_Sigma_Roughness)					label->setText(Sigma_Sym+" ["+length_units+"]");
+			if(whats_This == whats_This_Correlation_Radius)					label->setText(Xi_Sym+   " ["+length_units+"]");
+			if(whats_This == whats_This_Linear_PSD_Omega)					label->setText(Omega_Big_Sym+" ["+length_units+Cube_Sym+"]");
+			if(whats_This == whats_This_Linear_PSD_Exponenta_Mu)			label->setText(Mu_Sym+" ["+length_units+"]");
+
+			if(whats_This == whats_This_Particle_Radius)					label->setText("R ["+length_units+"]");
+			if(whats_This == whats_This_Particle_Height)					label->setText("H ["+length_units+"]");
+			if(whats_This == whats_This_Particle_Average_Distance)			label->setText("r" + Subscript_a_Sym + " ["+length_units+"]");
+			if(whats_This == whats_This_Particle_Radial_Distance)			label->setText("r ["+length_units+"]");
+			if(whats_This == whats_This_Particle_Radial_Distance_Deviation)	label->setText( Delta_Small_Sym + "r ["+length_units+"]");
+			if(whats_This == whats_This_Particle_Z_Position)				label->setText("z" + Subscript_p_Sym + " ["+length_units+"]");
+			if(whats_This == whats_This_Particle_Z_Position_Deviation)		label->setText(Delta_Small_Sym + "z" + Subscript_p_Sym + " ["+length_units+"]");
+
 			return;
 		}
 	}
@@ -5189,7 +5543,7 @@ double Table_Of_Structures::recalculate_Sigma_From_Individuals(QVector<Interlaye
 }
 
 //// general
-void Table_Of_Structures::cells_On_Off(My_Table_Widget* table, bool borders)
+void Table_Of_Structures::cells_On_Off(My_Table_Widget* table, bool borders, bool keep_Disabled, bool can_Enable)
 {
 	QCheckBox* check_Box = qobject_cast<QCheckBox*>(QObject::sender());
 
@@ -5205,9 +5559,19 @@ void Table_Of_Structures::cells_On_Off(My_Table_Widget* table, bool borders)
 		for(int col=column_Start; col<=column_Finish; ++col)
 		{
 			QWidget* widget = table->cellWidget(current_Row+row,current_Column+col);
-			if(widget && check_Box->parent()!=widget)
+			if(widget && check_Box->parent()!=widget /* do not disable itself */)
 			{
-				widget->setDisabled(!check_Box->isChecked());
+				// god mode always satisfies condition
+				if(can_Enable)
+					widget->setProperty("keep_Disabled_Property", keep_Disabled);
+
+				// non-god mode should check
+				if(!widget->property("keep_Disabled_Property").toBool())
+					widget->setDisabled(!check_Box->isChecked());
+				else
+					widget->setDisabled(true);
+
+//				widget->setDisabled(!check_Box->isChecked()); // plain old version
 
 				if(borders)
 				{

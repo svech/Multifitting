@@ -173,6 +173,14 @@ double	step_sigma_vertical_cor_length;
 double	step_sigma_omega;
 double	step_sigma_mu;
 
+double	step_particle_density;
+double	step_particle_radius;
+double	step_particle_height;
+double	step_particle_distance;
+double	step_particle_distance_deviation;
+double	step_particle_z_position;
+double	step_particle_z_position_deviation;
+
 double	step_interlayer;
 double	step_gamma;
 double	step_drift;
@@ -673,6 +681,14 @@ void Settings::read_Structure_Default_Values(bool reset_to_default)
 				step_sigma_omega				= structure_Default_Values.value( "step_sigma_omega",				0.1  ).toDouble();
 				step_sigma_mu					= structure_Default_Values.value( "step_sigma_mu",					10   ).toDouble();
 
+				step_particle_density			   = structure_Default_Values.value( "step_particle_density",			   0.1  ).toDouble();
+				step_particle_radius			   = structure_Default_Values.value( "step_particle_radius",			   0.1  ).toDouble();
+				step_particle_height			   = structure_Default_Values.value( "step_particle_height",			   0.1  ).toDouble();
+				step_particle_distance			   = structure_Default_Values.value( "step_particle_distance",			   1    ).toDouble();
+				step_particle_distance_deviation   = structure_Default_Values.value( "step_particle_distance_deviation",   0.1  ).toDouble();
+				step_particle_z_position		   = structure_Default_Values.value( "step_particle_z_position",		   0.1  ).toDouble();
+				step_particle_z_position_deviation = structure_Default_Values.value( "step_particle_z_position_deviation", 0.1  ).toDouble();
+
 				step_interlayer			= structure_Default_Values.value( "step_interlayer",		0.1 ).toDouble();
 				step_gamma				= structure_Default_Values.value( "step_gamma",				0.01 ).toDouble();
 				step_drift				= structure_Default_Values.value( "step_drift",				0.001).toDouble();
@@ -750,6 +766,14 @@ void Settings::save_Structure_Default_Values()
 			structure_Default_Values.setValue( "step_sigma_vertical_cor_length",step_sigma_vertical_cor_length	);
 			structure_Default_Values.setValue( "step_sigma_omega",				step_sigma_omega				);
 			structure_Default_Values.setValue( "step_sigma_mu",					step_sigma_mu					);
+
+			structure_Default_Values.setValue( "step_particle_density",				step_particle_density				);
+			structure_Default_Values.setValue( "step_particle_radius",				step_particle_radius				);
+			structure_Default_Values.setValue( "step_particle_height",				step_particle_height				);
+			structure_Default_Values.setValue( "step_particle_distance",			step_particle_distance				);
+			structure_Default_Values.setValue( "step_particle_distance_deviation",	step_particle_distance_deviation	);
+			structure_Default_Values.setValue( "step_particle_z_position",			step_particle_z_position			);
+			structure_Default_Values.setValue( "step_particle_z_position_deviation",step_particle_z_position_deviation	);
 
 			structure_Default_Values.setValue( "step_interlayer",			step_interlayer			);
 			structure_Default_Values.setValue( "step_gamma",				step_gamma				);

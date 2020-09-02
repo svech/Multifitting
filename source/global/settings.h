@@ -177,6 +177,14 @@ extern double	step_sigma_vertical_cor_length;
 extern double	step_sigma_omega;
 extern double	step_sigma_mu;
 
+extern double	step_particle_density;
+extern double	step_particle_radius;
+extern double	step_particle_height;
+extern double	step_particle_distance;
+extern double	step_particle_distance_deviation;
+extern double	step_particle_z_position;
+extern double	step_particle_z_position_deviation;
+
 extern double	step_interlayer;
 extern double	step_gamma;
 extern double	step_drift;

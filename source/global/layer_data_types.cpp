@@ -3,6 +3,8 @@
 
 Data::Data(QString item_Type_Passed)
 {
+	// PARAMETER
+
 	id = Global_Definitions::generate_Id();
 
 	if(item_Type_Passed != "empty")
@@ -688,6 +690,8 @@ Data::Data(QString item_Type_Passed)
 
 void Data::reset_All_IDs()
 {
+	// PARAMETER
+
 	id = Global_Definitions::generate_Id();
 	///---------------------------------------------
 	// Measurement
@@ -725,16 +729,27 @@ void Data::reset_All_IDs()
 			inter.my_Sigma_Diffuse	.indicator.id = Global_Definitions::generate_Id(); inter.my_Sigma_Diffuse	.indicator.item_Id = id;	inter.my_Sigma_Diffuse.	 coupled.clear_Coupled();
 		}
 
-		roughness_Model.sigma			   .indicator.id = Global_Definitions::generate_Id(); roughness_Model.sigma.			  indicator.item_Id = id;	roughness_Model.sigma.				coupled.clear_Coupled();
-		roughness_Model.cor_radius		   .indicator.id = Global_Definitions::generate_Id(); roughness_Model.cor_radius.		  indicator.item_Id = id;	roughness_Model.cor_radius.			coupled.clear_Coupled();
-		roughness_Model.fractal_alpha	   .indicator.id = Global_Definitions::generate_Id(); roughness_Model.fractal_alpha.	  indicator.item_Id = id;	roughness_Model.fractal_alpha.		coupled.clear_Coupled();
-		roughness_Model.omega			   .indicator.id = Global_Definitions::generate_Id(); roughness_Model.omega.			  indicator.item_Id = id;	roughness_Model.omega.				coupled.clear_Coupled();
-		roughness_Model.mu				   .indicator.id = Global_Definitions::generate_Id(); roughness_Model.mu.				  indicator.item_Id = id;	roughness_Model.mu.					coupled.clear_Coupled();
+		roughness_Model.sigma			.indicator.id = Global_Definitions::generate_Id(); roughness_Model.sigma.			  indicator.item_Id = id;	roughness_Model.sigma.				coupled.clear_Coupled();
+		roughness_Model.cor_radius		.indicator.id = Global_Definitions::generate_Id(); roughness_Model.cor_radius.		  indicator.item_Id = id;	roughness_Model.cor_radius.			coupled.clear_Coupled();
+		roughness_Model.fractal_alpha	.indicator.id = Global_Definitions::generate_Id(); roughness_Model.fractal_alpha.	  indicator.item_Id = id;	roughness_Model.fractal_alpha.		coupled.clear_Coupled();
+		roughness_Model.omega			.indicator.id = Global_Definitions::generate_Id(); roughness_Model.omega.			  indicator.item_Id = id;	roughness_Model.omega.				coupled.clear_Coupled();
+		roughness_Model.mu				.indicator.id = Global_Definitions::generate_Id(); roughness_Model.mu.				  indicator.item_Id = id;	roughness_Model.mu.					coupled.clear_Coupled();
 	///---------------------------------------------
 	///---------------------------------------------
 	// Layer
 	//---------------------------------------------
 		thickness.indicator.id = Global_Definitions::generate_Id(); thickness.indicator.item_Id = id;		thickness.coupled.clear_Coupled();
+
+		// density fluctuations
+		fluctuations_Model.particle_Absolute_Density		 .indicator.id = Global_Definitions::generate_Id(); fluctuations_Model.particle_Absolute_Density.			indicator.item_Id = id;		fluctuations_Model.particle_Absolute_Density.			coupled.clear_Coupled();
+		fluctuations_Model.particle_Relative_Density		 .indicator.id = Global_Definitions::generate_Id(); fluctuations_Model.particle_Relative_Density.			indicator.item_Id = id;		fluctuations_Model.particle_Relative_Density.			coupled.clear_Coupled();
+		fluctuations_Model.particle_Radius					 .indicator.id = Global_Definitions::generate_Id(); fluctuations_Model.particle_Radius.						indicator.item_Id = id;		fluctuations_Model.particle_Radius.						coupled.clear_Coupled();
+		fluctuations_Model.particle_Height					 .indicator.id = Global_Definitions::generate_Id(); fluctuations_Model.particle_Height.						indicator.item_Id = id;		fluctuations_Model.particle_Height.						coupled.clear_Coupled();
+		fluctuations_Model.particle_Average_Distance		 .indicator.id = Global_Definitions::generate_Id(); fluctuations_Model.particle_Average_Distance.			indicator.item_Id = id;		fluctuations_Model.particle_Average_Distance.			coupled.clear_Coupled();
+		fluctuations_Model.particle_Radial_Distance			 .indicator.id = Global_Definitions::generate_Id(); fluctuations_Model.particle_Radial_Distance.			indicator.item_Id = id;		fluctuations_Model.particle_Radial_Distance.			coupled.clear_Coupled();
+		fluctuations_Model.particle_Radial_Distance_Deviation.indicator.id = Global_Definitions::generate_Id(); fluctuations_Model.particle_Radial_Distance_Deviation.	indicator.item_Id = id;		fluctuations_Model.particle_Radial_Distance_Deviation.	coupled.clear_Coupled();
+		fluctuations_Model.particle_Z_Position				 .indicator.id = Global_Definitions::generate_Id(); fluctuations_Model.particle_Z_Position.					indicator.item_Id = id;		fluctuations_Model.particle_Z_Position.					coupled.clear_Coupled();
+		fluctuations_Model.particle_Z_Position_Deviation	 .indicator.id = Global_Definitions::generate_Id(); fluctuations_Model.particle_Z_Position_Deviation.		indicator.item_Id = id;		fluctuations_Model.particle_Z_Position_Deviation.		coupled.clear_Coupled();
 
 		// thickness drift
 		thickness_Drift.drift_Line_Value	.indicator.id = Global_Definitions::generate_Id(); thickness_Drift.drift_Line_Value		.indicator.item_Id = id;	thickness_Drift.drift_Line_Value.		coupled.clear_Coupled();
@@ -1013,6 +1028,8 @@ QString Data::get_Composed_Material()
 
 void Data::fill_Potentially_Fitable_Parameters_Vector(const Imperfections_Model& imperfections_Model)
 {
+	// PARAMETER
+
 	potentially_Fitable_Parameters.clear();
 
 	///---------------------------------------------
@@ -1073,7 +1090,7 @@ void Data::fill_Potentially_Fitable_Parameters_Vector(const Imperfections_Model&
 			{	potentially_Fitable_Parameters.push_back(&sigma_Diffuse); }
 
 		}
-		if(imperfections_Model.use_Roughness)
+		if(imperfections_Model.use_Roughness && roughness_Model.is_Enabled) // automatically imperfections_Model.use_Roughness == roughness_Model.is_Enabled
 		{
 			if( imperfections_Model.common_Model == linear_Growth_and_ABC_Model )
 			{
@@ -1104,6 +1121,20 @@ void Data::fill_Potentially_Fitable_Parameters_Vector(const Imperfections_Model&
 	if( item_Type == item_Type_Layer )
 	{
 		potentially_Fitable_Parameters.push_back(&thickness);
+
+		if(imperfections_Model.use_Fluctuations && fluctuations_Model.is_Enabled && fluctuations_Model.is_Used)	 // automatically imperfections_Model.use_Fluctuations == fluctuations_Model.is_Enabled
+		{
+			// density fluctuations
+			potentially_Fitable_Parameters.push_back(&fluctuations_Model.particle_Absolute_Density);
+			potentially_Fitable_Parameters.push_back(&fluctuations_Model.particle_Relative_Density);
+			potentially_Fitable_Parameters.push_back(&fluctuations_Model.particle_Radius);
+			potentially_Fitable_Parameters.push_back(&fluctuations_Model.particle_Height);
+			potentially_Fitable_Parameters.push_back(&fluctuations_Model.particle_Average_Distance);
+			potentially_Fitable_Parameters.push_back(&fluctuations_Model.particle_Radial_Distance);
+			potentially_Fitable_Parameters.push_back(&fluctuations_Model.particle_Radial_Distance_Deviation);
+			potentially_Fitable_Parameters.push_back(&fluctuations_Model.particle_Z_Position);
+			potentially_Fitable_Parameters.push_back(&fluctuations_Model.particle_Z_Position_Deviation);
+		}
 
 		if(imperfections_Model.show_Drift)
 		{
@@ -1168,6 +1199,8 @@ void Data::fill_Potentially_Fitable_Parameters_Vector(const Imperfections_Model&
 
 void Data::fill_Table_Showed_Parameters_Vector(const Imperfections_Model& imperfections_Model)
 {
+	// PARAMETER
+
 	table_Showed_Parameters.clear();
 
 	///---------------------------------------------
@@ -1255,6 +1288,20 @@ void Data::fill_Table_Showed_Parameters_Vector(const Imperfections_Model& imperf
 	{
 		table_Showed_Parameters.push_back(&thickness);
 
+		if(imperfections_Model.use_Fluctuations)
+		{
+			// density fluctuations
+			table_Showed_Parameters.push_back(&fluctuations_Model.particle_Absolute_Density);
+			table_Showed_Parameters.push_back(&fluctuations_Model.particle_Relative_Density);
+			table_Showed_Parameters.push_back(&fluctuations_Model.particle_Radius);
+			table_Showed_Parameters.push_back(&fluctuations_Model.particle_Height);
+			table_Showed_Parameters.push_back(&fluctuations_Model.particle_Average_Distance);
+			table_Showed_Parameters.push_back(&fluctuations_Model.particle_Radial_Distance);
+			table_Showed_Parameters.push_back(&fluctuations_Model.particle_Radial_Distance_Deviation);
+			table_Showed_Parameters.push_back(&fluctuations_Model.particle_Z_Position);
+			table_Showed_Parameters.push_back(&fluctuations_Model.particle_Z_Position_Deviation);
+		}
+
 		if(imperfections_Model.show_Drift)
 		{
 			// thickness drift
@@ -1310,6 +1357,8 @@ void Data::fill_Table_Showed_Parameters_Vector(const Imperfections_Model& imperf
 
 void Data::prepare_Layer_For_Regular_Component()
 {
+	// PARAMETER
+
 	item_Enabled = true;
 ///---------------------------------------------
 ///---------------------------------------------
@@ -1349,7 +1398,16 @@ void Data::prepare_Layer_For_Regular_Component()
 // Layer
 //---------------------------------------------
 	make_Free(thickness);
-	make_Free(thickness);
+
+	make_Free(fluctuations_Model.particle_Absolute_Density);
+	make_Free(fluctuations_Model.particle_Relative_Density);
+	make_Free(fluctuations_Model.particle_Radius);
+	make_Free(fluctuations_Model.particle_Height);
+	make_Free(fluctuations_Model.particle_Average_Distance);
+	make_Free(fluctuations_Model.particle_Radial_Distance);
+	make_Free(fluctuations_Model.particle_Radial_Distance_Deviation);
+	make_Free(fluctuations_Model.particle_Z_Position);
+	make_Free(fluctuations_Model.particle_Z_Position_Deviation);
 
 	make_Free(thickness_Drift.drift_Line_Value);
 	make_Free(thickness_Drift.drift_Sine_Amplitude);
