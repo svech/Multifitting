@@ -212,6 +212,8 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 		bool has_Multilayers = false;
 		bool has_Gamma = false;
 		bool has_Regular_Aperiodic = false;
+		bool has_Particle_Height = false;
+		bool has_Particle_Distance_Deviation = false;
 
 		// calculate max_Number_Of_Elements for tabulation
 		int max_Number_Of_Elements=1;
@@ -235,6 +237,16 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 						multilayer->imperfections_Model.show_Sigma_Drift_Rand ||
 						multilayer->imperfections_Model.show_Sigma_Drift_Sine ))
 					has_Drift = true;
+
+					if( struct_Data.fluctuations_Model.particle_Shape == full_Spheroid ||
+						struct_Data.fluctuations_Model.particle_Shape == cylinder )
+					{
+						has_Particle_Height = true;
+					}
+					if( struct_Data.fluctuations_Model.particle_Interference_Function == radial_Paracrystal )
+					{
+						has_Particle_Distance_Deviation = true;
+					}
 				}
 				if(struct_Data.item_Type == item_Type_Layer    ||
 				   struct_Data.item_Type == item_Type_Substrate )
@@ -501,6 +513,9 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 
 		int first_Roughness_Column = 0;
 		int last_Roughness_Column = 0;
+
+		int first_Fluctuations_Column = 0;
+		int last_Fluctuations_Column = 0;
 
 		bool steps_Are_Done_Sigma = false;
 		bool steps_Are_Done_Xi = false;		Q_UNUSED(steps_Are_Done_Xi)	  // adaptive step
@@ -1242,12 +1257,14 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 			}
 			if(show_Usage_Buttons)
 			{
-				add_Columns			   (new_Table, current_Column+1);
+				add_Columns			 (new_Table,                           current_Column+1);
 
 				create_Shape_Button  (new_Table,            current_Row+2, current_Column, structure_Item);
 				create_Pattern_Button(new_Table,            current_Row+4, current_Column, structure_Item);
 				// last
 				create_Check_Box_Usage (new_Table, tab_Index, current_Row,   current_Column, structure_Item, "on/off", 0, 4, 0, 2020); // more than table size, it is like inf
+
+				first_Fluctuations_Column = current_Column;
 				current_Column+=2;
 			}
 
@@ -1356,7 +1373,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 				}
 				current_Column+=2;
 			}
-			if(!show_Particle_Height && struct_Data.fluctuations_Model.is_Enabled) // keep empty place
+			if(has_Particle_Height && !show_Particle_Height && struct_Data.fluctuations_Model.is_Enabled) // keep empty place
 			{
 				add_Columns	(new_Table, current_Column+1);
 				current_Column+=2;
@@ -1390,7 +1407,8 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 					create_Step_Spin_Box(new_Table, tab_Index, steps_Row+1, current_Column, whats_This_Particle_Distance);
 					steps_Are_Done_Particle_Distance = true;
 				}
-				current_Column+=1;
+				if(has_Particle_Distance_Deviation)	{current_Column+=1;}
+				else								{current_Column+=2;}
 			}
 			///--------------------------------------------------------------------------------------------
 
@@ -1454,7 +1472,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 				}
 				current_Column+=2;
 			}
-			if(!show_Particle_Radial_Distance_Deviation && struct_Data.fluctuations_Model.is_Enabled) // keep empty place
+			if(has_Particle_Distance_Deviation && !show_Particle_Radial_Distance_Deviation && struct_Data.fluctuations_Model.is_Enabled) // keep empty place
 			{
 				add_Columns	(new_Table, current_Column+1);
 				current_Column+=2;
@@ -1513,6 +1531,7 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 					create_Step_Spin_Box(new_Table, tab_Index, steps_Row+1, current_Column, whats_This);
 					steps_Are_Done_Particle_Z_Position_Deviation = true;
 				}
+				last_Fluctuations_Column = max(current_Column,last_Fluctuations_Column);
 				current_Column+=2;
 			}
 			///--------------------------------------------------------------------------------------------
@@ -1544,6 +1563,31 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 				ver_Cor_Label->setFont(QFont(ver_Cor_Label->font().family(), 10, QFont::Bold));
 			new_Table->setSpan(3,first_Roughness_Column,1,last_Roughness_Column-first_Roughness_Column+1);
 			new_Table->setCellWidget(3, first_Roughness_Column, ver_Cor_Label);
+		}
+
+		// big label about fluctuations model
+		if(multilayer->imperfections_Model.use_Fluctuations)
+		{
+			// row 1
+			QLabel* approximation_Label = new QLabel("DWBA approximation");
+				approximation_Label->setAlignment(Qt::AlignCenter);
+				approximation_Label->setFont(QFont(approximation_Label->font().family(), 10, QFont::Bold));
+			new_Table->setSpan(1,first_Fluctuations_Column,1,last_Fluctuations_Column-first_Fluctuations_Column+1);
+			new_Table->setCellWidget(1, first_Fluctuations_Column, approximation_Label);
+
+			// row 2
+			QLabel* model_Label = new QLabel("in-layer interference");
+				model_Label->setAlignment(Qt::AlignCenter);
+				model_Label->setFont(QFont(model_Label->font().family(), 10, QFont::Bold));
+			new_Table->setSpan(2,first_Fluctuations_Column,1,last_Fluctuations_Column-first_Fluctuations_Column+1);
+			new_Table->setCellWidget(2, first_Fluctuations_Column, model_Label);
+
+			// row 3
+			QLabel* ver_Cor_Label = new QLabel("zero cross-layer correlation");
+				ver_Cor_Label->setAlignment(Qt::AlignCenter);
+				ver_Cor_Label->setFont(QFont(ver_Cor_Label->font().family(), 10, QFont::Bold));
+			new_Table->setSpan(3,first_Fluctuations_Column,1,last_Fluctuations_Column-first_Fluctuations_Column+1);
+			new_Table->setCellWidget(3, first_Fluctuations_Column, ver_Cor_Label);
 		}
 
 //		new_Table->insertRow(new_Table->rowCount());
