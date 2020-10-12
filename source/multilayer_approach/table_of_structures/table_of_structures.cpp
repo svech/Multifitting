@@ -2537,6 +2537,8 @@ void Table_Of_Structures::create_Check_Box_Usage(My_Table_Widget* table, int tab
 		QVariant var;
 		var.setValue(layer_Data);
 		structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+
+		emit_Data_Edited();
 	});
 
 	table->setCellWidget(current_Row, current_Column, back_Widget);

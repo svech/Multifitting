@@ -1026,6 +1026,53 @@ QString Data::get_Composed_Material()
 	return composed;
 }
 
+double Data::average_Layer_density() const
+{
+	if(fluctuations_Model.is_Used)
+	{
+		// particle shape
+		double particle_Volume = 0;
+		if(fluctuations_Model.particle_Shape == full_Sphere)
+		{
+			particle_Volume = 4*M_PI/3.*pow(fluctuations_Model.particle_Radius.value,3);
+		}
+		if(fluctuations_Model.particle_Shape == full_Spheroid)
+		{
+			particle_Volume = 2*M_PI/3.*pow(fluctuations_Model.particle_Radius.value,2)*fluctuations_Model.particle_Height.value;
+		}
+		if(fluctuations_Model.particle_Shape == cylinder)
+		{
+			particle_Volume = M_PI*pow(fluctuations_Model.particle_Radius.value,2)*fluctuations_Model.particle_Height.value;
+		}
+
+		// for radially averaged paracrystal we use hexagonal approximation for area per particle
+		double average_Distance = 1;
+		if(fluctuations_Model.particle_Interference_Function == radial_Paracrystal)
+		{
+			average_Distance = fluctuations_Model.particle_Radial_Distance.value;
+		}
+		if(fluctuations_Model.particle_Interference_Function == disorder)
+		{
+			average_Distance = fluctuations_Model.particle_Average_Distance.value;
+		}
+		double layer_Volume = thickness.value*M_SQRT3/2*average_Distance*average_Distance;
+
+		if(layer_Volume<DBL_MIN) layer_Volume = DBL_MIN;
+
+		// resultin density
+		double average_Density;
+		if(composed_Material)	{average_Density = (absolute_Density.value*(layer_Volume-particle_Volume) + fluctuations_Model.particle_Absolute_Density.value*particle_Volume)/layer_Volume;	}
+		else					{average_Density = (relative_Density.value*(layer_Volume-particle_Volume) + fluctuations_Model.particle_Relative_Density.value*particle_Volume)/layer_Volume;	}
+
+//		return max(average_Density, 0.);
+		return average_Density;
+	} else
+	{
+		if(composed_Material)	{return absolute_Density.value;	}
+		else					{return relative_Density.value;	}
+	}
+}
+
 void Data::fill_Potentially_Fitable_Parameters_Vector(const Imperfections_Model& imperfections_Model)
 {
 	// PARAMETER

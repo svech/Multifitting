@@ -1619,7 +1619,7 @@ double Global_Variables::theta_Function(double z)
 
 double Global_Variables::erf_Profile(double z, double sigma)
 {
-	if(abs(sigma)>DBL_EPSILON)	{return 0.5+0.5*erf(z/(sqrt(2)*sigma));}
+	if(abs(sigma)>DBL_EPSILON)	{return 0.5+0.5*erf(z/(M_SQRT2*sigma));}
 	return theta_Function(z);
 }
 
@@ -1627,10 +1627,10 @@ double Global_Variables::lin_Profile(double z, double sigma)
 {
 	if(abs(sigma)>DBL_EPSILON)
 	{
-		if( z< -sqrt(3)*sigma )	{return 0;}
-		if((z>=-sqrt(3)*sigma ) &&
-		   (z<= sqrt(3)*sigma))	{return 0.5+z/(2*sqrt(3)*sigma);}
-		if( z>  sqrt(3)*sigma )	{return 1;}
+		if( z< -M_SQRT3*sigma )	{return 0;}
+		if((z>=-M_SQRT3*sigma ) &&
+		   (z<= M_SQRT3*sigma))	{return 0.5+z/(2*M_SQRT3*sigma);}
+		if( z>  M_SQRT3*sigma )	{return 1;}
 	}
 	return theta_Function(z);
 }
@@ -1639,8 +1639,8 @@ double Global_Variables::exp_Profile(double z, double sigma)
 {
 	if(abs(sigma)>DBL_EPSILON)
 	{
-		if( z<0  )	{return 0.5*exp(sqrt(2)*z/sigma);}
-		if( z>=0 )	{return 1-0.5*exp(-sqrt(2)*z/sigma);}
+		if( z<0  )	{return 0.5*exp(M_SQRT2*z/sigma);}
+		if( z>=0 )	{return 1-0.5*exp(-M_SQRT2*z/sigma);}
 	}
 	return theta_Function(z);
 }
@@ -1649,7 +1649,7 @@ double Global_Variables::tanh_Profile(double z, double sigma)
 {
 	if(abs(sigma)>DBL_EPSILON)
 	{
-		return 0.5+0.5*tanh(M_PI*z/(2*sqrt(3)*sigma));
+		return 0.5+0.5*tanh(M_PI*z/(2*M_SQRT3*sigma));
 	}
 	return theta_Function(z);
 }

@@ -425,10 +425,13 @@ void Structure_Tree::set_Structure_Item_Text(QTreeWidgetItem* item, int i)
 					if(abs(data.sigma_Diffuse.value)>2*DBL_EPSILON) { sigma_Text = ", " + temp_Sigma_Sym + "=" + Locale.toString(data.sigma_Diffuse.value/length_Coeff,thumbnail_double_format,thumbnail_sigma_precision) + length_units; }
 				}
 
-				if(data.composed_Material)	{density_Text = Locale.toString(data.absolute_Density.value,thumbnail_double_format,thumbnail_density_precision) + density_units;	}
-				else						{density_Text = Locale.toString(data.relative_Density.value,thumbnail_double_format,thumbnail_density_precision);					}
+				QString left_Bracket = "";
+				QString right_Bracket = "";
+				if(data.fluctuations_Model.is_Used) {left_Bracket = "<"; right_Bracket = ">";}
+				if(data.composed_Material)	{density_Text = Locale.toString(data.average_Layer_density(),thumbnail_double_format,thumbnail_density_precision) + density_units;	}
+				else						{density_Text = Locale.toString(data.average_Layer_density(),thumbnail_double_format,thumbnail_density_precision);					}
 
-				item->setText(DEFAULT_COLUMN, Global_Variables::structure_Item_Name(data) + thickness_Text + ", " + Rho_Sym + "=" + density_Text);
+				item->setText(DEFAULT_COLUMN, Global_Variables::structure_Item_Name(data) + thickness_Text + ", " + left_Bracket + Rho_Sym + right_Bracket + "=" + density_Text);
 
 
 				item->setText(DEFAULT_COLUMN, item->text(DEFAULT_COLUMN) + sigma_Text);
