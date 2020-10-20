@@ -256,6 +256,10 @@ class Node;
 #define disorder			"Disorder"
 #define radial_Paracrystal	"Radial PC"
 
+// paracrystal internal model
+#define square_Paracrystal		"Square Paracrystal"
+#define hexagonal_Paracrystal	"Hexagonal Paracrystal"
+
 // particle cross-layer interference
 #define no_Cross_Layer_Interference		"no cross layer interference"
 
@@ -845,6 +849,9 @@ struct Fluctuations_Model		{
 
 								// in-plane interference
 								QString particle_Interference_Function = radial_Paracrystal;
+
+								// paracrystal internal model
+								QString radial_Paracrystal_Internal_Model = hexagonal_Paracrystal;
 
 								// disorder
 								Parameter particle_Average_Distance;
