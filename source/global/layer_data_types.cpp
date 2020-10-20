@@ -1045,7 +1045,6 @@ double Data::average_Layer_density() const
 			particle_Volume = M_PI*pow(fluctuations_Model.particle_Radius.value,2)*fluctuations_Model.particle_Height.value;
 		}
 
-		// for radially averaged paracrystal we use hexagonal approximation for area per particle
 		double average_Distance = 1;
 		if(fluctuations_Model.particle_Interference_Function == radial_Paracrystal)
 		{
@@ -1055,8 +1054,16 @@ double Data::average_Layer_density() const
 		{
 			average_Distance = fluctuations_Model.particle_Average_Distance.value;
 		}
-		double layer_Volume = thickness.value*M_SQRT3/2*average_Distance*average_Distance;
 
+		double layer_Volume = 1;
+		if(fluctuations_Model.geometric_Model == hexagonal_Model)
+		{
+			layer_Volume = thickness.value*M_SQRT3/2*average_Distance*average_Distance;
+		}
+		if(fluctuations_Model.geometric_Model == square_Model)
+		{
+			layer_Volume = thickness.value*average_Distance*average_Distance;
+		}
 		if(layer_Volume<DBL_MIN) layer_Volume = DBL_MIN;
 
 		// resultin density

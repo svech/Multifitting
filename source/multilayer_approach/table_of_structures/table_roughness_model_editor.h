@@ -18,7 +18,7 @@ public:
 	void refresh_Tree_Interlayer(int interlayer_Index, bool state);
 	void refresh_Tree_Drift(QString whats_This, bool state);
 	void refresh_Tree_Roughness();
-	void refresh_Tree_Fluctuations(bool refresh_Shape = false, bool refresh_Interference_Function = false);
+	void refresh_Tree_Fluctuations(bool refresh_Shape = false, bool refresh_Interference_Function = false, bool refresh_Geometry = false);
 
 	Multilayer* multilayer;
 

@@ -515,7 +515,7 @@ QDataStream& operator <<( QDataStream& stream, const Fluctuations_Model& fluctua
 				  << fluctuations_Model.particle_Shape
 				  << fluctuations_Model.particle_Absolute_Density << fluctuations_Model.particle_Relative_Density << fluctuations_Model.particle_Radius << fluctuations_Model.particle_Height
 
-				  << fluctuations_Model.particle_Interference_Function << fluctuations_Model.radial_Paracrystal_Internal_Model
+				  << fluctuations_Model.particle_Interference_Function << fluctuations_Model.geometric_Model
 				  << fluctuations_Model.particle_Average_Distance
 				  << fluctuations_Model.particle_Radial_Distance << fluctuations_Model.particle_Radial_Distance_Deviation
 				  << fluctuations_Model.particle_Z_Position << fluctuations_Model.particle_Z_Position_Deviation;
@@ -526,7 +526,7 @@ QDataStream& operator >>( QDataStream& stream,		 Fluctuations_Model& fluctuation
 				  >> fluctuations_Model.particle_Shape
 				  >> fluctuations_Model.particle_Absolute_Density >> fluctuations_Model.particle_Relative_Density >> fluctuations_Model.particle_Radius >> fluctuations_Model.particle_Height
 
-				  >> fluctuations_Model.particle_Interference_Function >> fluctuations_Model.radial_Paracrystal_Internal_Model
+				  >> fluctuations_Model.particle_Interference_Function >> fluctuations_Model.geometric_Model
 				  >> fluctuations_Model.particle_Average_Distance
 				  >> fluctuations_Model.particle_Radial_Distance >> fluctuations_Model.particle_Radial_Distance_Deviation
 				  >> fluctuations_Model.particle_Z_Position >> fluctuations_Model.particle_Z_Position_Deviation;
@@ -544,7 +544,7 @@ QDataStream& operator <<( QDataStream& stream, const Imperfections_Model& imperf
 				  << imperfections_Model.vertical_Correlation << imperfections_Model.use_Common_Roughness_Function
 
 				  << imperfections_Model.use_Fluctuations << imperfections_Model.cross_Layer_Interference << imperfections_Model.initial_Particle_Shape
-				  << imperfections_Model.initial_Interference_Function;
+				  << imperfections_Model.initial_Interference_Function << imperfections_Model.initial_Geometric_Model;
 }
 QDataStream& operator >>( QDataStream& stream,		 Imperfections_Model& imperfections_Model )
 {
@@ -558,7 +558,7 @@ QDataStream& operator >>( QDataStream& stream,		 Imperfections_Model& imperfecti
 				  >> imperfections_Model.vertical_Correlation >> imperfections_Model.use_Common_Roughness_Function
 
 				  >> imperfections_Model.use_Fluctuations >> imperfections_Model.cross_Layer_Interference >> imperfections_Model.initial_Particle_Shape
-				  >> imperfections_Model.initial_Interference_Function;
+				  >> imperfections_Model.initial_Interference_Function >> imperfections_Model.initial_Geometric_Model;
 }
 
 QDataStream& operator <<( QDataStream& stream, const Calc_Functions& calc_Functions )

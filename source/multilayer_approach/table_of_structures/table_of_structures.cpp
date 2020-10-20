@@ -1260,7 +1260,8 @@ void Table_Of_Structures::create_Table(My_Table_Widget* new_Table, int tab_Index
 				add_Columns			 (new_Table,                           current_Column+1);
 
 				create_Shape_Button  (new_Table,            current_Row+2, current_Column, structure_Item);
-				create_Pattern_Button(new_Table,            current_Row+4, current_Column, structure_Item);
+				create_Pattern_Button(new_Table,            current_Row+3, current_Column, structure_Item);
+				create_Model_Button	 (new_Table,            current_Row+4, current_Column, structure_Item);
 				// last
 				create_Check_Box_Usage (new_Table, tab_Index, current_Row,   current_Column, structure_Item, "on/off", 0, 4, 0, 2020); // more than table size, it is like inf
 
@@ -2552,7 +2553,7 @@ void Table_Of_Structures::create_Shape_Button(My_Table_Widget* table, int curren
 		shape_Button->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT_THICKNESS);
 	table->setCellWidget(current_Row, current_Column, shape_Button);
 
-	connect(shape_Button, &QPushButton::clicked, this, [=]{open_Shape_Pattern_Dialog(structure_Item, "shape");});
+	connect(shape_Button, &QPushButton::clicked, this, [=]{open_Shape_Pattern_Model_Dialog(structure_Item, "shape");});
 }
 
 void Table_Of_Structures::create_Pattern_Button(My_Table_Widget* table, int current_Row, int current_Column, QTreeWidgetItem* structure_Item)
@@ -2563,10 +2564,21 @@ void Table_Of_Structures::create_Pattern_Button(My_Table_Widget* table, int curr
 		pattern_Button->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT_THICKNESS);
 	table->setCellWidget(current_Row, current_Column, pattern_Button);
 
-	connect(pattern_Button, &QPushButton::clicked, this, [=]{open_Shape_Pattern_Dialog(structure_Item, "pattern");});
+	connect(pattern_Button, &QPushButton::clicked, this, [=]{open_Shape_Pattern_Model_Dialog(structure_Item, "pattern");});
 }
 
-void Table_Of_Structures::open_Shape_Pattern_Dialog(QTreeWidgetItem* structure_Item, QString shape_Pattern)
+void Table_Of_Structures::create_Model_Button(My_Table_Widget *table, int current_Row, int current_Column, QTreeWidgetItem* structure_Item)
+{
+	Data layer_Data = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+
+	QPushButton* model_Button = new QPushButton(layer_Data.fluctuations_Model.geometric_Model);
+		model_Button->setFixedWidth(TABLE_FIX_WIDTH_LINE_EDIT_THICKNESS);
+	table->setCellWidget(current_Row, current_Column, model_Button);
+
+	connect(model_Button, &QPushButton::clicked, this, [=]{open_Shape_Pattern_Model_Dialog(structure_Item, "model");});
+}
+
+void Table_Of_Structures::open_Shape_Pattern_Model_Dialog(QTreeWidgetItem* structure_Item, QString shape_Pattern_Model)
 {
 	Data layer_Data = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
 
@@ -2596,7 +2608,7 @@ void Table_Of_Structures::open_Shape_Pattern_Dialog(QTreeWidgetItem* structure_I
 		choice_Group_Box_Layout->setContentsMargins(5,9,5,5);
 
 
-	if(shape_Pattern == "shape")
+	if(shape_Pattern_Model == "shape")
 	{
 		choice_Group_Box->setTitle("Particle shape");
 
@@ -2656,10 +2668,10 @@ void Table_Of_Structures::open_Shape_Pattern_Dialog(QTreeWidgetItem* structure_I
 			}
 		});
 	}
-	if(shape_Pattern == "pattern")
+	if(shape_Pattern_Model == "pattern")
 	{
 		// settings group box
-		choice_Group_Box->setTitle("Interference function");
+		choice_Group_Box->setTitle("Particle order");
 
 		// buttons
 		QRadioButton* disorder_Radiobutton = new QRadioButton("Disorder");
@@ -2694,6 +2706,51 @@ void Table_Of_Structures::open_Shape_Pattern_Dialog(QTreeWidgetItem* structure_I
 			{
 				Data layer_Data = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
 				layer_Data.fluctuations_Model.particle_Interference_Function = radial_Paracrystal;
+
+				QVariant var;
+				var.setValue(layer_Data);
+				structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+			}
+		});
+	}
+	if(shape_Pattern_Model == "model")
+	{
+		// settings group box
+		choice_Group_Box->setTitle("Model");
+
+		// buttons
+		QRadioButton* hexagonal_Radiobutton = new QRadioButton("Hexagonal");
+			hexagonal_Radiobutton->setChecked(layer_Data.fluctuations_Model.geometric_Model == hexagonal_Model);
+		choice_Group_Box_Layout->addWidget(hexagonal_Radiobutton);
+
+		QRadioButton* square_Radiobutton = new QRadioButton("Square");
+			square_Radiobutton->setChecked(layer_Data.fluctuations_Model.geometric_Model == square_Model);
+		choice_Group_Box_Layout->addWidget(square_Radiobutton);
+
+		QButtonGroup* model_Group = new QButtonGroup;
+			model_Group->addButton(hexagonal_Radiobutton);
+			model_Group->addButton(square_Radiobutton);
+
+
+		// connections
+		connect(hexagonal_Radiobutton, &QRadioButton::toggled, this, [=]
+		{
+			if(hexagonal_Radiobutton->isChecked())
+			{
+				Data layer_Data = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+				layer_Data.fluctuations_Model.geometric_Model = hexagonal_Model;
+
+				QVariant var;
+				var.setValue(layer_Data);
+				structure_Item->setData(DEFAULT_COLUMN, Qt::UserRole, var);
+			}
+		});
+		connect(square_Radiobutton, &QRadioButton::toggled, this, [=]
+		{
+			if(square_Radiobutton->isChecked())
+			{
+				Data layer_Data = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
+				layer_Data.fluctuations_Model.geometric_Model = square_Model;
 
 				QVariant var;
 				var.setValue(layer_Data);

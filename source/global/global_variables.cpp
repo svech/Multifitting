@@ -1150,7 +1150,7 @@ void Global_Variables::enable_Disable_Fluctuations_Model(Data& struct_Data, cons
 	}
 }
 
-void Global_Variables::new_Layer_Fluctuations_Model(Data &struct_Data, const Imperfections_Model &imperfections_Model)
+void Global_Variables::new_Layer_Fluctuations_Model(Data &struct_Data, const Imperfections_Model& imperfections_Model)
 {
 	// common
 	if( struct_Data.item_Type == item_Type_Layer )
@@ -1158,6 +1158,7 @@ void Global_Variables::new_Layer_Fluctuations_Model(Data &struct_Data, const Imp
 		struct_Data.fluctuations_Model.is_Enabled = imperfections_Model.use_Fluctuations;
 		struct_Data.fluctuations_Model.particle_Shape = imperfections_Model.initial_Particle_Shape;
 		struct_Data.fluctuations_Model.particle_Interference_Function = imperfections_Model.initial_Interference_Function;
+		struct_Data.fluctuations_Model.geometric_Model = imperfections_Model.initial_Geometric_Model;
 	}
 }
 
