@@ -2277,8 +2277,7 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 			calc_Weak_Factor(thread_Index, point_Index);
 			multifly_Fresnel_And_Weak_Factor(thread_Index);
 		}
-	}
-	else
+	} else
 	// discretization
 	{
 		if( measurement.argument_Type  == argument_Types[Wavelength_Energy] ) // specular only
@@ -2311,7 +2310,7 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 	// if we need to calculate detailed field distribution
 	if( measurement.measurement_Type == measurement_Types[Specular_Scan] )
 	{
-		if( measurement.argument_Type  == argument_Types[Beam_Grazing_Angle] )
+		if( measurement.argument_Type == argument_Types[Beam_Grazing_Angle] )
 		{
 			if(!multilayer->discretization_Parameters.enable_Discretization)	{
 				calc_Sliced_Field(thread_Index, point_Index, unwrapped_Structure->epsilon);
@@ -2335,7 +2334,7 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 	    measurement.measurement_Type == measurement_Types[Rocking_Curve] ||
 	    measurement.measurement_Type == measurement_Types[Offset_Scan] )
 	{		
-		if( (measurement.polarization + 1) > POLARIZATION_TOLERANCE)  calc_Amplitudes_Field(thread_Index, point_Index, "s");
+		if( (measurement.polarization + 1) >  POLARIZATION_TOLERANCE) calc_Amplitudes_Field(thread_Index, point_Index, "s");
 		if( (measurement.polarization - 1) < -POLARIZATION_TOLERANCE) calc_Amplitudes_Field(thread_Index, point_Index, "p");
 		// in specular mode we stop here
 		// in scattered mode we go further and use calculated q and q0 fields
@@ -2360,332 +2359,398 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 				if( (measurement.polarization - 1) < -POLARIZATION_TOLERANCE)	calc_Field_Up_Low(thread_Index, point_Index, "p");
 			}
 
-			if(multilayer->imperfections_Model.approximation == PT_approximation)
+			// roughness
+			if(multilayer->imperfections_Model.use_Roughness)
 			{
-				if( measurement.measurement_Type == measurement_Types[Detector_Scan] ||
-					measurement.measurement_Type == measurement_Types[Rocking_Curve] ||
-					measurement.measurement_Type == measurement_Types[Offset_Scan] )
+				if(multilayer->imperfections_Model.approximation == PT_approximation)
 				{
-					if( multilayer->imperfections_Model.vertical_Correlation == full_Correlation ||
-						multilayer->imperfections_Model.vertical_Correlation == zero_Correlation )
+					if( measurement.measurement_Type == measurement_Types[Detector_Scan] ||
+						measurement.measurement_Type == measurement_Types[Rocking_Curve] ||
+						measurement.measurement_Type == measurement_Types[Offset_Scan] )
 					{
-						if(multilayer->imperfections_Model.use_Common_Roughness_Function)
+						if( multilayer->imperfections_Model.vertical_Correlation == full_Correlation ||
+							multilayer->imperfections_Model.vertical_Correlation == zero_Correlation )
 						{
-							choose_PSD_1D_Function(substrate, thread_Index);
-							double PSD_Factor = PSD_1D_Func_Vec[thread_Index](substrate.PSD_ABC_1D_Factor,
-																			 substrate.roughness_Model.cor_radius.value,
-																			 substrate.roughness_Model.fractal_alpha.value,
-																			 measurement.k_Value,
-																			 measurement.detector_Theta_Cos_Vec[point_Index],
-																			 cos_Theta_0,
-																			 substrate_Node->spline,
-																			 substrate_Node->acc);
-							PSD_Factor = max(PSD_Factor,0.);
+							if(multilayer->imperfections_Model.use_Common_Roughness_Function)
+							{
+								choose_PSD_1D_Function(substrate, thread_Index);
+								double PSD_Factor = PSD_1D_Func_Vec[thread_Index](substrate.PSD_ABC_1D_Factor,
+																				 substrate.roughness_Model.cor_radius.value,
+																				 substrate.roughness_Model.fractal_alpha.value,
+																				 measurement.k_Value,
+																				 measurement.detector_Theta_Cos_Vec[point_Index],
+																				 cos_Theta_0,
+																				 substrate_Node->spline,
+																				 substrate_Node->acc);
+								PSD_Factor = max(PSD_Factor,0.);
 
-							// s-polarization
-							if( (measurement.polarization + 1) > POLARIZATION_TOLERANCE)
+								// s-polarization
+								if( (measurement.polarization + 1) > POLARIZATION_TOLERANCE)
+								{
+									double field_Term_Sum = calc_Field_Term_Sum("s", point_Index, thread_Index);
+									calculated_Values.S_s[point_Index] = e_Factor_PT_1D * field_Term_Sum * PSD_Factor;
+								}
+								// p-polarization
+								if( (measurement.polarization - 1) < -POLARIZATION_TOLERANCE)
+								{
+									double field_Term_Sum = calc_Field_Term_Sum("p", point_Index, thread_Index);
+									calculated_Values.S_p[point_Index] = e_Factor_PT_1D * field_Term_Sum * PSD_Factor;
+								}
+							} else
+							/// individual PSD of items
 							{
-								double field_Term_Sum = calc_Field_Term_Sum("s", point_Index, thread_Index);
-								calculated_Values.S_s[point_Index] = e_Factor_PT_1D * field_Term_Sum * PSD_Factor;
+								fill_Item_PSD_1D(thread_Index, point_Index, cos_Theta_0);
+
+								// s-polarization
+								if( (measurement.polarization + 1) > POLARIZATION_TOLERANCE)
+								{
+									calc_Field_Term_Sum("s", point_Index, thread_Index);
+									double field_Term_Sum_PSD = 0;
+									for (int j = 0; j<num_Boundaries_Sharp; j++)
+									{
+										int item_Index = boundary_Item_Vec[j];
+										double PSD_Factor = PSD_Factor_Item[thread_Index][item_Index];
+										field_Term_Sum_PSD += intensity_Term_Boundary_s[thread_Index][j] * PSD_Factor;
+									}
+									calculated_Values.S_s[point_Index] = e_Factor_PT_1D * field_Term_Sum_PSD;
+								}
+								// p-polarization
+								if( (measurement.polarization - 1) < -POLARIZATION_TOLERANCE)
+								{
+									calc_Field_Term_Sum("p", point_Index, thread_Index);
+									double field_Term_Sum_PSD = 0;
+									for (int j = 0; j<num_Boundaries_Sharp; j++)
+									{
+										int item_Index = boundary_Item_Vec[j];
+										double PSD_Factor = PSD_Factor_Item[thread_Index][item_Index];
+										field_Term_Sum_PSD += intensity_Term_Boundary_p[thread_Index][j] * PSD_Factor;
+									}
+									calculated_Values.S_p[point_Index] = e_Factor_PT_1D * field_Term_Sum_PSD;
+								}
 							}
-							// p-polarization
-							if( (measurement.polarization - 1) < -POLARIZATION_TOLERANCE)
-							{
-								double field_Term_Sum = calc_Field_Term_Sum("p", point_Index, thread_Index);
-								calculated_Values.S_p[point_Index] = e_Factor_PT_1D * field_Term_Sum * PSD_Factor;
-							}
-						} else
-						/// individual PSD of items
+						}
+						if( multilayer->imperfections_Model.vertical_Correlation == partial_Correlation )
 						{
-							fill_Item_PSD_1D(thread_Index, point_Index, cos_Theta_0);
+							if(multilayer->imperfections_Model.common_Model == ABC_model)
+							{
+								// pure s-polarization
+								if( (measurement.polarization - 1) > -POLARIZATION_TOLERANCE)
+								{
+									double incoherent_Sum_s = calc_Field_Term_Sum("s", point_Index, thread_Index);
+									Params params { this, thread_Index, measurement.detector_Theta_Cos_Vec[point_Index], cos_Theta_0, incoherent_Sum_s, 0, true };
+									gsl_function F = { &function_Scattering_ABC_2D_s, &params };
 
-							// s-polarization
-							if( (measurement.polarization + 1) > POLARIZATION_TOLERANCE)
-							{
-								calc_Field_Term_Sum("s", point_Index, thread_Index);
-								double field_Term_Sum_PSD = 0;
-								for (int j = 0; j<num_Boundaries_Sharp; j++)
+									calculated_Values.S_s[point_Index] = e_Factor_PT_2D * azimuthal_Integration(&F, abs(measurement.detector_Theta_Cos_Vec[point_Index]-cos_Theta_0));
+								} else
+								// pure p-polarization
+								if( (measurement.polarization + 1) < POLARIZATION_TOLERANCE)
 								{
-									int item_Index = boundary_Item_Vec[j];
-									double PSD_Factor = PSD_Factor_Item[thread_Index][item_Index];
-									field_Term_Sum_PSD += intensity_Term_Boundary_s[thread_Index][j] * PSD_Factor;
-								}
-								calculated_Values.S_s[point_Index] = e_Factor_PT_1D * field_Term_Sum_PSD;
-							}
-							// p-polarization
-							if( (measurement.polarization - 1) < -POLARIZATION_TOLERANCE)
-							{
-								calc_Field_Term_Sum("p", point_Index, thread_Index);
-								double field_Term_Sum_PSD = 0;
-								for (int j = 0; j<num_Boundaries_Sharp; j++)
+									double incoherent_Sum_p = calc_Field_Term_Sum("p", point_Index, thread_Index);
+									Params params { this, thread_Index, measurement.detector_Theta_Cos_Vec[point_Index], cos_Theta_0, 0, incoherent_Sum_p, true };
+									gsl_function F = { &function_Scattering_ABC_2D_p, &params };
+
+									calculated_Values.S_p[point_Index] = e_Factor_PT_2D * azimuthal_Integration(&F, abs(measurement.detector_Theta_Cos_Vec[point_Index]-cos_Theta_0));
+								} else
+								// mixed sp-polarization
 								{
-									int item_Index = boundary_Item_Vec[j];
-									double PSD_Factor = PSD_Factor_Item[thread_Index][item_Index];
-									field_Term_Sum_PSD += intensity_Term_Boundary_p[thread_Index][j] * PSD_Factor;
+									double incoherent_Sum_s = calc_Field_Term_Sum("s", point_Index, thread_Index);
+									double incoherent_Sum_p = calc_Field_Term_Sum("p", point_Index, thread_Index);
+									Params params { this, thread_Index, measurement.detector_Theta_Cos_Vec[point_Index], cos_Theta_0, incoherent_Sum_s, incoherent_Sum_p, true };
+									gsl_function F = { &function_Scattering_ABC_2D_sp, &params };
+
+									// crutch: s and p only on mixed state. no different s and p calculations
+									calculated_Values.S_s[point_Index] = e_Factor_PT_2D * azimuthal_Integration(&F, abs(measurement.detector_Theta_Cos_Vec[point_Index]-cos_Theta_0));
+									calculated_Values.S_p[point_Index] = calculated_Values.S_s[point_Index];
 								}
-								calculated_Values.S_p[point_Index] = e_Factor_PT_1D * field_Term_Sum_PSD;
+							} else
+							if(multilayer->imperfections_Model.common_Model == linear_Growth_and_ABC_Model)
+							{
+								// pure s-polarization
+								if( (measurement.polarization - 1) > -POLARIZATION_TOLERANCE)
+								{
+									calc_Field_Term_Sum("s", point_Index, thread_Index);
+									Params params { this, thread_Index, measurement.detector_Theta_Cos_Vec[point_Index], cos_Theta_0, 0, 0, true };
+									gsl_function F = { &function_Scattering_Linear_2D_s, &params };
+
+									calculated_Values.S_s[point_Index] = e_Factor_PT_2D * azimuthal_Integration(&F, abs(measurement.detector_Theta_Cos_Vec[point_Index]-cos_Theta_0));
+								} else
+								// pure p-polarization
+								if( (measurement.polarization + 1) < POLARIZATION_TOLERANCE)
+								{
+									calc_Field_Term_Sum("p", point_Index, thread_Index);
+									Params params { this, thread_Index, measurement.detector_Theta_Cos_Vec[point_Index], cos_Theta_0, 0, 0, true };
+									gsl_function F = { &function_Scattering_Linear_2D_p, &params };
+
+									calculated_Values.S_p[point_Index] = e_Factor_PT_2D * azimuthal_Integration(&F, abs(measurement.detector_Theta_Cos_Vec[point_Index]-cos_Theta_0));
+								} else
+								// mixed sp-polarization
+								{
+									calc_Field_Term_Sum("s", point_Index, thread_Index);
+									calc_Field_Term_Sum("p", point_Index, thread_Index);
+									Params params { this, thread_Index, measurement.detector_Theta_Cos_Vec[point_Index], cos_Theta_0, 0, 0, true };
+									gsl_function F = { &function_Scattering_Linear_2D_sp, &params };
+
+									// crutch: s and p only on mixed state. no different s and p calculations
+									calculated_Values.S_s[point_Index] = e_Factor_PT_2D * azimuthal_Integration(&F, abs(measurement.detector_Theta_Cos_Vec[point_Index]-cos_Theta_0));
+									calculated_Values.S_p[point_Index] = calculated_Values.S_s[point_Index];
+								}
 							}
 						}
 					}
-					if( multilayer->imperfections_Model.vertical_Correlation == partial_Correlation )
+					if( measurement.measurement_Type == measurement_Types[GISAS_Map] )
 					{
-						if(multilayer->imperfections_Model.common_Model == ABC_model)
+						choose_PSD_2D_Function(point_Index, thread_Index);
+						if( multilayer->imperfections_Model.vertical_Correlation == full_Correlation ||
+							multilayer->imperfections_Model.vertical_Correlation == zero_Correlation )
 						{
-							// pure s-polarization
-							if( (measurement.polarization - 1) > -POLARIZATION_TOLERANCE)
+							if( multilayer->imperfections_Model.use_Common_Roughness_Function )
 							{
-								double incoherent_Sum_s = calc_Field_Term_Sum("s", point_Index, thread_Index);
-								Params params { this, thread_Index, measurement.detector_Theta_Cos_Vec[point_Index], cos_Theta_0, incoherent_Sum_s, 0, true };
-								gsl_function F = { &function_Scattering_ABC_2D_s, &params };
+								double PSD_2D_Factor;
 
-								calculated_Values.S_s[point_Index] = e_Factor_PT_2D * azimuthal_Integration(&F, abs(measurement.detector_Theta_Cos_Vec[point_Index]-cos_Theta_0));
+								// pure s-polarization
+								if( (measurement.polarization - 1) > -POLARIZATION_TOLERANCE)
+								{
+									double field_Term_Sum_s = calc_Field_Term_Sum("s", point_Index, thread_Index);
+									for(size_t phi_Index = measurement.start_Phi_Index; phi_Index<measurement.end_Phi_Number; phi_Index++)
+									{
+										PSD_2D_Factor = PSD_2D_Func_Vec[thread_Index](substrate.PSD_ABC_2D_Factor,
+																					  substrate.roughness_Model.cor_radius.value,
+																					  substrate.roughness_Model.fractal_alpha.value,
+																					  measurement.k_Value,
+																					  measurement.detector_Theta_Cos_Vec[point_Index],
+																					  measurement.beam_Theta_0_Cos_Value,
+																					  measurement.detector_Phi_Cos_Vec[phi_Index]);
+
+										calculated_Values.GISAS_Map[phi_Index][point_Index] = e_Factor_PT_2D * field_Term_Sum_s * PSD_2D_Factor * measurement.footprint_Factor_Vec[point_Index] + measurement.background;
+									}
+
+								} else
+								// pure p-polarization
+								if( (measurement.polarization + 1) < POLARIZATION_TOLERANCE)
+								{
+									double field_Term_Sum_p = calc_Field_Term_Sum("p", point_Index, thread_Index);
+									for(size_t phi_Index = measurement.start_Phi_Index; phi_Index<measurement.end_Phi_Number; phi_Index++)
+									{
+										PSD_2D_Factor = PSD_2D_Func_Vec[thread_Index](substrate.PSD_ABC_2D_Factor,
+																					  substrate.roughness_Model.cor_radius.value,
+																					  substrate.roughness_Model.fractal_alpha.value,
+																					  measurement.k_Value,
+																					  measurement.detector_Theta_Cos_Vec[point_Index],
+																					  measurement.beam_Theta_0_Cos_Value,
+																					  measurement.detector_Phi_Cos_Vec[phi_Index]);
+
+										calculated_Values.GISAS_Map[phi_Index][point_Index] = e_Factor_PT_2D * field_Term_Sum_p * PSD_2D_Factor * measurement.footprint_Factor_Vec[point_Index] + measurement.background;
+									}
+								} else
+								// mixed sp-polarization
+								{
+									double field_Term_Sum_s = calc_Field_Term_Sum("s", point_Index, thread_Index);
+									double field_Term_Sum_p = calc_Field_Term_Sum("p", point_Index, thread_Index);
+									for(size_t phi_Index = measurement.start_Phi_Index; phi_Index<measurement.end_Phi_Number; phi_Index++)
+									{
+										PSD_2D_Factor = PSD_2D_Func_Vec[thread_Index](substrate.PSD_ABC_2D_Factor,
+																					  substrate.roughness_Model.cor_radius.value,
+																					  substrate.roughness_Model.fractal_alpha.value,
+																					  measurement.k_Value,
+																					  measurement.detector_Theta_Cos_Vec[point_Index],
+																					  measurement.beam_Theta_0_Cos_Value,
+																					  measurement.detector_Phi_Cos_Vec[phi_Index]);
+
+										calculated_Values.GISAS_Map[phi_Index][point_Index] = (s_Weight*field_Term_Sum_s + p_Weight*field_Term_Sum_p)*e_Factor_PT_2D*PSD_2D_Factor * measurement.footprint_Factor_Vec[point_Index] + measurement.background;
+									}
+								}
 							} else
-							// pure p-polarization
-							if( (measurement.polarization + 1) < POLARIZATION_TOLERANCE)
+							/// individual PSD of items
 							{
-								double incoherent_Sum_p = calc_Field_Term_Sum("p", point_Index, thread_Index);
-								Params params { this, thread_Index, measurement.detector_Theta_Cos_Vec[point_Index], cos_Theta_0, 0, incoherent_Sum_p, true };
-								gsl_function F = { &function_Scattering_ABC_2D_p, &params };
+								// pure s-polarization
+								if( (measurement.polarization - 1) > -POLARIZATION_TOLERANCE)
+								{
+									calc_Field_Term_Sum("s", point_Index, thread_Index);
+									for(size_t phi_Index = measurement.start_Phi_Index; phi_Index<measurement.end_Phi_Number; phi_Index++)
+									{
+										fill_Item_PSD_2D(thread_Index, point_Index, phi_Index);
 
-								calculated_Values.S_p[point_Index] = e_Factor_PT_2D * azimuthal_Integration(&F, abs(measurement.detector_Theta_Cos_Vec[point_Index]-cos_Theta_0));
-							} else
-							// mixed sp-polarization
-							{
-								double incoherent_Sum_s = calc_Field_Term_Sum("s", point_Index, thread_Index);
-								double incoherent_Sum_p = calc_Field_Term_Sum("p", point_Index, thread_Index);
-								Params params { this, thread_Index, measurement.detector_Theta_Cos_Vec[point_Index], cos_Theta_0, incoherent_Sum_s, incoherent_Sum_p, true };
-								gsl_function F = { &function_Scattering_ABC_2D_sp, &params };
+										double field_With_PSD_2D_Factor = 0;
+										for (int j = 0; j<num_Boundaries_Sharp; j++)
+										{
+											int item_Index = boundary_Item_Vec[j];
+											double PSD_2D_Factor = PSD_Factor_Item[thread_Index][item_Index];
 
-								// crutch: s and p only on mixed state. no different s and p calculations
-								calculated_Values.S_s[point_Index] = e_Factor_PT_2D * azimuthal_Integration(&F, abs(measurement.detector_Theta_Cos_Vec[point_Index]-cos_Theta_0));
-								calculated_Values.S_p[point_Index] = calculated_Values.S_s[point_Index];
+											field_With_PSD_2D_Factor += intensity_Term_Boundary_s[thread_Index][j] * PSD_2D_Factor;
+										}
+										calculated_Values.GISAS_Map[phi_Index][point_Index] = e_Factor_PT_2D * field_With_PSD_2D_Factor * measurement.footprint_Factor_Vec[point_Index] + measurement.background;
+									}
+								} else
+								// pure p-polarization
+								if( (measurement.polarization + 1) < POLARIZATION_TOLERANCE)
+								{
+									calc_Field_Term_Sum("p", point_Index, thread_Index);
+									for(size_t phi_Index = measurement.start_Phi_Index; phi_Index<measurement.end_Phi_Number; phi_Index++)
+									{
+										fill_Item_PSD_2D(thread_Index, point_Index, phi_Index);
+
+										double field_With_PSD_2D_Factor = 0;
+										for (int j = 0; j<num_Boundaries_Sharp; j++)
+										{
+											int item_Index = boundary_Item_Vec[j];
+											double PSD_2D_Factor = PSD_Factor_Item[thread_Index][item_Index];
+
+											field_With_PSD_2D_Factor += intensity_Term_Boundary_p[thread_Index][j] * PSD_2D_Factor;
+										}
+										calculated_Values.GISAS_Map[phi_Index][point_Index] = e_Factor_PT_2D * field_With_PSD_2D_Factor * measurement.footprint_Factor_Vec[point_Index] + measurement.background;
+									}
+								} else
+								// mixed sp-polarization
+								{
+									calc_Field_Term_Sum("s", point_Index, thread_Index);
+									calc_Field_Term_Sum("p", point_Index, thread_Index);
+									for(size_t phi_Index = measurement.start_Phi_Index; phi_Index<measurement.end_Phi_Number; phi_Index++)
+									{
+										fill_Item_PSD_2D(thread_Index, point_Index, phi_Index);
+
+										double field_With_PSD_2D_Factor_s = 0;
+										double field_With_PSD_2D_Factor_p = 0;
+										for (int j = 0; j<num_Boundaries_Sharp; j++)
+										{
+											int item_Index = boundary_Item_Vec[j];
+											double PSD_2D_Factor = PSD_Factor_Item[thread_Index][item_Index];
+
+											field_With_PSD_2D_Factor_s += intensity_Term_Boundary_p[thread_Index][j] * PSD_2D_Factor;
+											field_With_PSD_2D_Factor_p += intensity_Term_Boundary_p[thread_Index][j] * PSD_2D_Factor;
+										}
+										calculated_Values.GISAS_Map[phi_Index][point_Index] = (s_Weight*field_With_PSD_2D_Factor_s + p_Weight*field_With_PSD_2D_Factor_p)*e_Factor_PT_2D * measurement.footprint_Factor_Vec[point_Index] + measurement.background;
+									}
+								}
 							}
-						} else
-						if(multilayer->imperfections_Model.common_Model == linear_Growth_and_ABC_Model)
+						}
+						if( multilayer->imperfections_Model.vertical_Correlation == partial_Correlation )
 						{
-							// pure s-polarization
-							if( (measurement.polarization - 1) > -POLARIZATION_TOLERANCE)
+							if(multilayer->imperfections_Model.common_Model == ABC_model)
 							{
-								calc_Field_Term_Sum("s", point_Index, thread_Index);
-								Params params { this, thread_Index, measurement.detector_Theta_Cos_Vec[point_Index], cos_Theta_0, 0, 0, true };
-								gsl_function F = { &function_Scattering_Linear_2D_s, &params };
-
-								calculated_Values.S_s[point_Index] = e_Factor_PT_2D * azimuthal_Integration(&F, abs(measurement.detector_Theta_Cos_Vec[point_Index]-cos_Theta_0));
+								// pure s-polarization
+								if( (measurement.polarization - 1) > -POLARIZATION_TOLERANCE)
+								{
+									double incoherent_Sum_s = calc_Field_Term_Sum("s", point_Index, thread_Index);
+									for(size_t phi_Index = measurement.start_Phi_Index; phi_Index<measurement.end_Phi_Number; phi_Index++)
+									{
+										Params params { this, thread_Index, measurement.detector_Theta_Cos_Vec[point_Index], measurement.beam_Theta_0_Cos_Value, incoherent_Sum_s, 0, false };
+										calculated_Values.GISAS_Map[phi_Index][point_Index] = e_Factor_PT_2D * function_Scattering_ABC_2D_s(measurement.detector_Phi_Cos_Vec[phi_Index], &params) * measurement.footprint_Factor_Vec[point_Index] + measurement.background;
+									}
+								} else
+								// pure p-polarization
+								if( (measurement.polarization + 1) < POLARIZATION_TOLERANCE)
+								{
+									double incoherent_Sum_p = calc_Field_Term_Sum("p", point_Index, thread_Index);
+									for(size_t phi_Index = measurement.start_Phi_Index; phi_Index<measurement.end_Phi_Number; phi_Index++)
+									{
+										Params params { this, thread_Index, measurement.detector_Theta_Cos_Vec[point_Index], measurement.beam_Theta_0_Cos_Value, 0, incoherent_Sum_p, false };
+										calculated_Values.GISAS_Map[phi_Index][point_Index] = e_Factor_PT_2D * function_Scattering_ABC_2D_p(measurement.detector_Phi_Cos_Vec[phi_Index], &params) * measurement.footprint_Factor_Vec[point_Index] + measurement.background;
+									}
+								} else
+								// mixed sp-polarization
+								{
+									double incoherent_Sum_s = calc_Field_Term_Sum("s", point_Index, thread_Index);
+									double incoherent_Sum_p = calc_Field_Term_Sum("p", point_Index, thread_Index);
+									for(size_t phi_Index = measurement.start_Phi_Index; phi_Index<measurement.end_Phi_Number; phi_Index++)
+									{
+										Params params { this, thread_Index, measurement.detector_Theta_Cos_Vec[point_Index], measurement.beam_Theta_0_Cos_Value, incoherent_Sum_s, incoherent_Sum_p, false };
+										calculated_Values.GISAS_Map[phi_Index][point_Index] = e_Factor_PT_2D * function_Scattering_ABC_2D_sp(measurement.detector_Phi_Cos_Vec[phi_Index], &params) * measurement.footprint_Factor_Vec[point_Index] + measurement.background;
+									}
+								}
 							} else
-							// pure p-polarization
-							if( (measurement.polarization + 1) < POLARIZATION_TOLERANCE)
+							if(multilayer->imperfections_Model.common_Model == linear_Growth_and_ABC_Model)
 							{
-								calc_Field_Term_Sum("p", point_Index, thread_Index);
-								Params params { this, thread_Index, measurement.detector_Theta_Cos_Vec[point_Index], cos_Theta_0, 0, 0, true };
-								gsl_function F = { &function_Scattering_Linear_2D_p, &params };
-
-								calculated_Values.S_p[point_Index] = e_Factor_PT_2D * azimuthal_Integration(&F, abs(measurement.detector_Theta_Cos_Vec[point_Index]-cos_Theta_0));
-							} else
-							// mixed sp-polarization
-							{
-								calc_Field_Term_Sum("s", point_Index, thread_Index);
-								calc_Field_Term_Sum("p", point_Index, thread_Index);
-								Params params { this, thread_Index, measurement.detector_Theta_Cos_Vec[point_Index], cos_Theta_0, 0, 0, true };
-								gsl_function F = { &function_Scattering_Linear_2D_sp, &params };
-
-								// crutch: s and p only on mixed state. no different s and p calculations
-								calculated_Values.S_s[point_Index] = e_Factor_PT_2D * azimuthal_Integration(&F, abs(measurement.detector_Theta_Cos_Vec[point_Index]-cos_Theta_0));
-								calculated_Values.S_p[point_Index] = calculated_Values.S_s[point_Index];
+								// pure s-polarization
+								if( (measurement.polarization - 1) > -POLARIZATION_TOLERANCE)
+								{
+									calc_Field_Term_Sum("s", point_Index, thread_Index);
+									for(size_t phi_Index = measurement.start_Phi_Index; phi_Index<measurement.end_Phi_Number; phi_Index++)
+									{
+										Params params { this, thread_Index, measurement.detector_Theta_Cos_Vec[point_Index], measurement.beam_Theta_0_Cos_Value, 0, 0, false };
+										calculated_Values.GISAS_Map[phi_Index][point_Index] = e_Factor_PT_2D * function_Scattering_Linear_2D_s(measurement.detector_Phi_Cos_Vec[phi_Index], &params) * measurement.footprint_Factor_Vec[point_Index] + measurement.background;
+									}
+								} else
+								// pure p-polarization
+								if( (measurement.polarization + 1) < POLARIZATION_TOLERANCE)
+								{
+									calc_Field_Term_Sum("p", point_Index, thread_Index);
+									for(size_t phi_Index = measurement.start_Phi_Index; phi_Index<measurement.end_Phi_Number; phi_Index++)
+									{
+										Params params { this, thread_Index, measurement.detector_Theta_Cos_Vec[point_Index], measurement.beam_Theta_0_Cos_Value, 0, 0, false };
+										calculated_Values.GISAS_Map[phi_Index][point_Index] = e_Factor_PT_2D * function_Scattering_Linear_2D_p(measurement.detector_Phi_Cos_Vec[phi_Index], &params) * measurement.footprint_Factor_Vec[point_Index] + measurement.background;
+									}
+								} else
+								// mixed sp-polarization
+								{
+									calc_Field_Term_Sum("s", point_Index, thread_Index);
+									calc_Field_Term_Sum("p", point_Index, thread_Index);
+									for(size_t phi_Index = measurement.start_Phi_Index; phi_Index<measurement.end_Phi_Number; phi_Index++)
+									{
+										Params params { this, thread_Index, measurement.detector_Theta_Cos_Vec[point_Index], measurement.beam_Theta_0_Cos_Value, 0, 0, false };
+										calculated_Values.GISAS_Map[phi_Index][point_Index] = e_Factor_PT_2D * function_Scattering_Linear_2D_sp(measurement.detector_Phi_Cos_Vec[phi_Index], &params) * measurement.footprint_Factor_Vec[point_Index] + measurement.background;
+									}
+								}
 							}
 						}
 					}
 				}
-				if( measurement.measurement_Type == measurement_Types[GISAS_Map] )
+
+				if( multilayer->imperfections_Model.approximation == DWBA_approximation ||
+					multilayer->imperfections_Model.approximation == SA_approximation   ||
+					multilayer->imperfections_Model.approximation == CSA_approximation  )
 				{
-					choose_PSD_2D_Function(point_Index, thread_Index);
-					if( multilayer->imperfections_Model.vertical_Correlation == full_Correlation ||
-						multilayer->imperfections_Model.vertical_Correlation == zero_Correlation )
+					if( measurement.measurement_Type == measurement_Types[Detector_Scan] ||
+						measurement.measurement_Type == measurement_Types[Rocking_Curve] ||
+						measurement.measurement_Type == measurement_Types[Offset_Scan] )
 					{
-						if( multilayer->imperfections_Model.use_Common_Roughness_Function )
+						calc_k_Wavenumber_Up_Low(thread_Index, point_Index);
+						if( (measurement.polarization + 1) >  POLARIZATION_TOLERANCE)	calc_K_Factor_DWBA_SA_CSA(point_Index, thread_Index, "s");
+						if( (measurement.polarization - 1) < -POLARIZATION_TOLERANCE)	calc_K_Factor_DWBA_SA_CSA(point_Index, thread_Index, "p");
+						choose_Cor_Function(thread_Index);
+
+						if( multilayer->imperfections_Model.vertical_Correlation == full_Correlation ||
+							multilayer->imperfections_Model.vertical_Correlation == zero_Correlation )
 						{
-							double PSD_2D_Factor;
-
-							// pure s-polarization
-							if( (measurement.polarization - 1) > -POLARIZATION_TOLERANCE)
+							if( multilayer->imperfections_Model.use_Common_Roughness_Function )
 							{
-								double field_Term_Sum_s = calc_Field_Term_Sum("s", point_Index, thread_Index);
-								for(size_t phi_Index = measurement.start_Phi_Index; phi_Index<measurement.end_Phi_Number; phi_Index++)
+								// s-polarization
+								if( (measurement.polarization + 1) > POLARIZATION_TOLERANCE)
 								{
-									PSD_2D_Factor = PSD_2D_Func_Vec[thread_Index](substrate.PSD_ABC_2D_Factor,
-																				  substrate.roughness_Model.cor_radius.value,
-																				  substrate.roughness_Model.fractal_alpha.value,
-																				  measurement.k_Value,
-																				  measurement.detector_Theta_Cos_Vec[point_Index],
-																				  measurement.beam_Theta_0_Cos_Value,
-																				  measurement.detector_Phi_Cos_Vec[phi_Index]);
-
-									calculated_Values.GISAS_Map[phi_Index][point_Index] = e_Factor_PT_2D * field_Term_Sum_s * PSD_2D_Factor * measurement.footprint_Factor_Vec[point_Index] + measurement.background;
-								}
-
-							} else
-							// pure p-polarization
-							if( (measurement.polarization + 1) < POLARIZATION_TOLERANCE)
-							{
-								double field_Term_Sum_p = calc_Field_Term_Sum("p", point_Index, thread_Index);
-								for(size_t phi_Index = measurement.start_Phi_Index; phi_Index<measurement.end_Phi_Number; phi_Index++)
-								{
-									PSD_2D_Factor = PSD_2D_Func_Vec[thread_Index](substrate.PSD_ABC_2D_Factor,
-																				  substrate.roughness_Model.cor_radius.value,
-																				  substrate.roughness_Model.fractal_alpha.value,
-																				  measurement.k_Value,
-																				  measurement.detector_Theta_Cos_Vec[point_Index],
-																				  measurement.beam_Theta_0_Cos_Value,
-																				  measurement.detector_Phi_Cos_Vec[phi_Index]);
-
-									calculated_Values.GISAS_Map[phi_Index][point_Index] = e_Factor_PT_2D * field_Term_Sum_p * PSD_2D_Factor * measurement.footprint_Factor_Vec[point_Index] + measurement.background;
-								}
-							} else
-							// mixed sp-polarization
-							{
-								double field_Term_Sum_s = calc_Field_Term_Sum("s", point_Index, thread_Index);
-								double field_Term_Sum_p = calc_Field_Term_Sum("p", point_Index, thread_Index);
-								for(size_t phi_Index = measurement.start_Phi_Index; phi_Index<measurement.end_Phi_Number; phi_Index++)
-								{
-									PSD_2D_Factor = PSD_2D_Func_Vec[thread_Index](substrate.PSD_ABC_2D_Factor,
-																				  substrate.roughness_Model.cor_radius.value,
-																				  substrate.roughness_Model.fractal_alpha.value,
-																				  measurement.k_Value,
-																				  measurement.detector_Theta_Cos_Vec[point_Index],
-																				  measurement.beam_Theta_0_Cos_Value,
-																				  measurement.detector_Phi_Cos_Vec[phi_Index]);
-
-									calculated_Values.GISAS_Map[phi_Index][point_Index] = (s_Weight*field_Term_Sum_s + p_Weight*field_Term_Sum_p)*e_Factor_PT_2D*PSD_2D_Factor * measurement.footprint_Factor_Vec[point_Index] + measurement.background;
-								}
-							}
-						} else
-						/// individual PSD of items
-						{
-							// pure s-polarization
-							if( (measurement.polarization - 1) > -POLARIZATION_TOLERANCE)
-							{
-								calc_Field_Term_Sum("s", point_Index, thread_Index);
-								for(size_t phi_Index = measurement.start_Phi_Index; phi_Index<measurement.end_Phi_Number; phi_Index++)
-								{
-									fill_Item_PSD_2D(thread_Index, point_Index, phi_Index);
-
-									double field_With_PSD_2D_Factor = 0;
-									for (int j = 0; j<num_Boundaries_Sharp; j++)
+									for(int n_Power=1; n_Power<=n_Max_Series; n_Power++)
 									{
-										int item_Index = boundary_Item_Vec[j];
-										double PSD_2D_Factor = PSD_Factor_Item[thread_Index][item_Index];
-
-										field_With_PSD_2D_Factor += intensity_Term_Boundary_s[thread_Index][j] * PSD_2D_Factor;
+										pre_Fourier_Factor[thread_Index][n_Power-1] = calc_K_Factor_Term_Sum_DWBA_SA_CSA(thread_Index, "s", n_Power) / factorial[n_Power];
 									}
-									calculated_Values.GISAS_Map[phi_Index][point_Index] = e_Factor_PT_2D * field_With_PSD_2D_Factor * measurement.footprint_Factor_Vec[point_Index] + measurement.background;
+									calculated_Values.S_s[point_Index] = e_Factor_DWBA_SA_CSA_1D * cor_Function_Integration(point_Index, thread_Index, cos_Theta_0);
 								}
-							} else
-							// pure p-polarization
-							if( (measurement.polarization + 1) < POLARIZATION_TOLERANCE)
-							{
-								calc_Field_Term_Sum("p", point_Index, thread_Index);
-								for(size_t phi_Index = measurement.start_Phi_Index; phi_Index<measurement.end_Phi_Number; phi_Index++)
+								// p-polarization
+								if( (measurement.polarization - 1) < -POLARIZATION_TOLERANCE)
 								{
-									fill_Item_PSD_2D(thread_Index, point_Index, phi_Index);
-
-									double field_With_PSD_2D_Factor = 0;
-									for (int j = 0; j<num_Boundaries_Sharp; j++)
+									for(int n_Power=1; n_Power<=n_Max_Series; n_Power++)
 									{
-										int item_Index = boundary_Item_Vec[j];
-										double PSD_2D_Factor = PSD_Factor_Item[thread_Index][item_Index];
-
-										field_With_PSD_2D_Factor += intensity_Term_Boundary_p[thread_Index][j] * PSD_2D_Factor;
+										pre_Fourier_Factor[thread_Index][n_Power-1] = calc_K_Factor_Term_Sum_DWBA_SA_CSA(thread_Index, "p", n_Power) / factorial[n_Power];
 									}
-									calculated_Values.GISAS_Map[phi_Index][point_Index] = e_Factor_PT_2D * field_With_PSD_2D_Factor * measurement.footprint_Factor_Vec[point_Index] + measurement.background;
+									calculated_Values.S_p[point_Index] = e_Factor_DWBA_SA_CSA_1D * cor_Function_Integration(point_Index, thread_Index, cos_Theta_0);
 								}
 							} else
-							// mixed sp-polarization
+							/// individual PSD of items
 							{
-								calc_Field_Term_Sum("s", point_Index, thread_Index);
-								calc_Field_Term_Sum("p", point_Index, thread_Index);
-								for(size_t phi_Index = measurement.start_Phi_Index; phi_Index<measurement.end_Phi_Number; phi_Index++)
+								// s-polarization
+								if( (measurement.polarization + 1) > POLARIZATION_TOLERANCE)
 								{
-									fill_Item_PSD_2D(thread_Index, point_Index, phi_Index);
-
-									double field_With_PSD_2D_Factor_s = 0;
-									double field_With_PSD_2D_Factor_p = 0;
-									for (int j = 0; j<num_Boundaries_Sharp; j++)
+									for(int n_Power=1; n_Power<=n_Max_Series; n_Power++)
 									{
-										int item_Index = boundary_Item_Vec[j];
-										double PSD_2D_Factor = PSD_Factor_Item[thread_Index][item_Index];
-
-										field_With_PSD_2D_Factor_s += intensity_Term_Boundary_p[thread_Index][j] * PSD_2D_Factor;
-										field_With_PSD_2D_Factor_p += intensity_Term_Boundary_p[thread_Index][j] * PSD_2D_Factor;
+										calc_K_Factor_Term_Sum_DWBA_SA_CSA(thread_Index, "s", n_Power);
 									}
-									calculated_Values.GISAS_Map[phi_Index][point_Index] = (s_Weight*field_With_PSD_2D_Factor_s + p_Weight*field_With_PSD_2D_Factor_p)*e_Factor_PT_2D * measurement.footprint_Factor_Vec[point_Index] + measurement.background;
+									calculated_Values.S_s[point_Index] = e_Factor_DWBA_SA_CSA_1D * cor_Function_Integration(point_Index, thread_Index, cos_Theta_0);
 								}
-							}
-						}
-					}
-					if( multilayer->imperfections_Model.vertical_Correlation == partial_Correlation )
-					{
-						if(multilayer->imperfections_Model.common_Model == ABC_model)
-						{
-							// pure s-polarization
-							if( (measurement.polarization - 1) > -POLARIZATION_TOLERANCE)
-							{
-								double incoherent_Sum_s = calc_Field_Term_Sum("s", point_Index, thread_Index);
-								for(size_t phi_Index = measurement.start_Phi_Index; phi_Index<measurement.end_Phi_Number; phi_Index++)
+								// p-polarization
+								if( (measurement.polarization - 1) < -POLARIZATION_TOLERANCE)
 								{
-									Params params { this, thread_Index, measurement.detector_Theta_Cos_Vec[point_Index], measurement.beam_Theta_0_Cos_Value, incoherent_Sum_s, 0, false };
-									calculated_Values.GISAS_Map[phi_Index][point_Index] = e_Factor_PT_2D * function_Scattering_ABC_2D_s(measurement.detector_Phi_Cos_Vec[phi_Index], &params) * measurement.footprint_Factor_Vec[point_Index] + measurement.background;
-								}
-							} else
-							// pure p-polarization
-							if( (measurement.polarization + 1) < POLARIZATION_TOLERANCE)
-							{
-								double incoherent_Sum_p = calc_Field_Term_Sum("p", point_Index, thread_Index);
-								for(size_t phi_Index = measurement.start_Phi_Index; phi_Index<measurement.end_Phi_Number; phi_Index++)
-								{
-									Params params { this, thread_Index, measurement.detector_Theta_Cos_Vec[point_Index], measurement.beam_Theta_0_Cos_Value, 0, incoherent_Sum_p, false };
-									calculated_Values.GISAS_Map[phi_Index][point_Index] = e_Factor_PT_2D * function_Scattering_ABC_2D_p(measurement.detector_Phi_Cos_Vec[phi_Index], &params) * measurement.footprint_Factor_Vec[point_Index] + measurement.background;
-								}
-							} else
-							// mixed sp-polarization
-							{
-								double incoherent_Sum_s = calc_Field_Term_Sum("s", point_Index, thread_Index);
-								double incoherent_Sum_p = calc_Field_Term_Sum("p", point_Index, thread_Index);
-								for(size_t phi_Index = measurement.start_Phi_Index; phi_Index<measurement.end_Phi_Number; phi_Index++)
-								{
-									Params params { this, thread_Index, measurement.detector_Theta_Cos_Vec[point_Index], measurement.beam_Theta_0_Cos_Value, incoherent_Sum_s, incoherent_Sum_p, false };
-									calculated_Values.GISAS_Map[phi_Index][point_Index] = e_Factor_PT_2D * function_Scattering_ABC_2D_sp(measurement.detector_Phi_Cos_Vec[phi_Index], &params) * measurement.footprint_Factor_Vec[point_Index] + measurement.background;
-								}
-							}
-						} else
-						if(multilayer->imperfections_Model.common_Model == linear_Growth_and_ABC_Model)
-						{
-							// pure s-polarization
-							if( (measurement.polarization - 1) > -POLARIZATION_TOLERANCE)
-							{
-								calc_Field_Term_Sum("s", point_Index, thread_Index);
-								for(size_t phi_Index = measurement.start_Phi_Index; phi_Index<measurement.end_Phi_Number; phi_Index++)
-								{
-									Params params { this, thread_Index, measurement.detector_Theta_Cos_Vec[point_Index], measurement.beam_Theta_0_Cos_Value, 0, 0, false };
-									calculated_Values.GISAS_Map[phi_Index][point_Index] = e_Factor_PT_2D * function_Scattering_Linear_2D_s(measurement.detector_Phi_Cos_Vec[phi_Index], &params) * measurement.footprint_Factor_Vec[point_Index] + measurement.background;
-								}
-							} else
-							// pure p-polarization
-							if( (measurement.polarization + 1) < POLARIZATION_TOLERANCE)
-							{
-								calc_Field_Term_Sum("p", point_Index, thread_Index);
-								for(size_t phi_Index = measurement.start_Phi_Index; phi_Index<measurement.end_Phi_Number; phi_Index++)
-								{
-									Params params { this, thread_Index, measurement.detector_Theta_Cos_Vec[point_Index], measurement.beam_Theta_0_Cos_Value, 0, 0, false };
-									calculated_Values.GISAS_Map[phi_Index][point_Index] = e_Factor_PT_2D * function_Scattering_Linear_2D_p(measurement.detector_Phi_Cos_Vec[phi_Index], &params) * measurement.footprint_Factor_Vec[point_Index] + measurement.background;
-								}
-							} else
-							// mixed sp-polarization
-							{
-								calc_Field_Term_Sum("s", point_Index, thread_Index);
-								calc_Field_Term_Sum("p", point_Index, thread_Index);
-								for(size_t phi_Index = measurement.start_Phi_Index; phi_Index<measurement.end_Phi_Number; phi_Index++)
-								{
-									Params params { this, thread_Index, measurement.detector_Theta_Cos_Vec[point_Index], measurement.beam_Theta_0_Cos_Value, 0, 0, false };
-									calculated_Values.GISAS_Map[phi_Index][point_Index] = e_Factor_PT_2D * function_Scattering_Linear_2D_sp(measurement.detector_Phi_Cos_Vec[phi_Index], &params) * measurement.footprint_Factor_Vec[point_Index] + measurement.background;
+									for(int n_Power=1; n_Power<=n_Max_Series; n_Power++)
+									{
+										calc_K_Factor_Term_Sum_DWBA_SA_CSA(thread_Index, "p", n_Power);
+									}
+									calculated_Values.S_p[point_Index] = e_Factor_DWBA_SA_CSA_1D * cor_Function_Integration(point_Index, thread_Index, cos_Theta_0);
 								}
 							}
 						}
@@ -2693,66 +2758,10 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 				}
 			}
 
-			if( multilayer->imperfections_Model.approximation == DWBA_approximation ||
-				multilayer->imperfections_Model.approximation == SA_approximation   ||
-				multilayer->imperfections_Model.approximation == CSA_approximation  )
+			// density fluctuations
+			if(multilayer->imperfections_Model.use_Fluctuations)
 			{
-				if( measurement.measurement_Type == measurement_Types[Detector_Scan] ||
-					measurement.measurement_Type == measurement_Types[Rocking_Curve] ||
-					measurement.measurement_Type == measurement_Types[Offset_Scan] )
-				{
-					calc_k_Wavenumber_Up_Low(thread_Index, point_Index);
-					if( (measurement.polarization + 1) >  POLARIZATION_TOLERANCE)	calc_K_Factor_DWBA_SA_CSA(point_Index, thread_Index, "s");
-					if( (measurement.polarization - 1) < -POLARIZATION_TOLERANCE)	calc_K_Factor_DWBA_SA_CSA(point_Index, thread_Index, "p");
-					choose_Cor_Function(thread_Index);
 
-					if( multilayer->imperfections_Model.vertical_Correlation == full_Correlation ||
-						multilayer->imperfections_Model.vertical_Correlation == zero_Correlation )
-					{
-						if( multilayer->imperfections_Model.use_Common_Roughness_Function )
-						{
-							// s-polarization
-							if( (measurement.polarization + 1) > POLARIZATION_TOLERANCE)
-							{
-								for(int n_Power=1; n_Power<=n_Max_Series; n_Power++)
-								{
-									pre_Fourier_Factor[thread_Index][n_Power-1] = calc_K_Factor_Term_Sum_DWBA_SA_CSA(thread_Index, "s", n_Power) / factorial[n_Power];
-								}
-								calculated_Values.S_s[point_Index] = e_Factor_DWBA_SA_CSA_1D * cor_Function_Integration(point_Index, thread_Index, cos_Theta_0);
-							}
-							// p-polarization
-							if( (measurement.polarization - 1) < -POLARIZATION_TOLERANCE)
-							{
-								for(int n_Power=1; n_Power<=n_Max_Series; n_Power++)
-								{
-									pre_Fourier_Factor[thread_Index][n_Power-1] = calc_K_Factor_Term_Sum_DWBA_SA_CSA(thread_Index, "p", n_Power) / factorial[n_Power];
-								}
-								calculated_Values.S_p[point_Index] = e_Factor_DWBA_SA_CSA_1D * cor_Function_Integration(point_Index, thread_Index, cos_Theta_0);
-							}
-						} else
-						/// individual PSD of items
-						{
-							// s-polarization
-							if( (measurement.polarization + 1) > POLARIZATION_TOLERANCE)
-							{
-								for(int n_Power=1; n_Power<=n_Max_Series; n_Power++)
-								{
-									calc_K_Factor_Term_Sum_DWBA_SA_CSA(thread_Index, "s", n_Power);
-								}
-								calculated_Values.S_s[point_Index] = e_Factor_DWBA_SA_CSA_1D * cor_Function_Integration(point_Index, thread_Index, cos_Theta_0);
-							}
-							// p-polarization
-							if( (measurement.polarization - 1) < -POLARIZATION_TOLERANCE)
-							{
-								for(int n_Power=1; n_Power<=n_Max_Series; n_Power++)
-								{
-									calc_K_Factor_Term_Sum_DWBA_SA_CSA(thread_Index, "p", n_Power);
-								}
-								calculated_Values.S_p[point_Index] = e_Factor_DWBA_SA_CSA_1D * cor_Function_Integration(point_Index, thread_Index, cos_Theta_0);
-							}
-						}
-					}
-				}
 			}
 		}
 	}
@@ -2946,9 +2955,15 @@ void Unwrapped_Reflection::fill_Specular_Values(int thread_Index, int point_Inde
 	if(	spec_Scat_mode == SCATTERED_MODE &&
 		unwrapped_Structure->calc_Functions.check_Scattering )
 	{
-		// calculated_Values.S_s		[point_Index] already calculated
-		// calculated_Values.S_p		[point_Index] already calculated
-		calculated_Values.S				[point_Index] = s_Weight * calculated_Values.S_s[point_Index] + p_Weight * calculated_Values.S_p[point_Index];
+		if(multilayer->imperfections_Model.use_Roughness && multilayer->imperfections_Model.use_Fluctuations)
+		{
+			// calculated_Values.S_s	[point_Index] already calculated
+			// calculated_Values.S_p	[point_Index] already calculated
+			calculated_Values.S			[point_Index] = s_Weight * calculated_Values.S_s[point_Index] + p_Weight * calculated_Values.S_p[point_Index];
+		} else
+		{
+			calculated_Values.S			[point_Index] = 0;
+		}
 		calculated_Values.S_Instrumental[point_Index] = calculated_Values.S[point_Index];
 	}
 
@@ -2956,44 +2971,53 @@ void Unwrapped_Reflection::fill_Specular_Values(int thread_Index, int point_Inde
 	if(	spec_Scat_mode == SCATTERED_MODE &&
 		unwrapped_Structure->calc_Functions.check_GISAS)
 	{
-		// interpolate the other half
-		if(short_Phi_Points!=phi_Points)
+		if(multilayer->imperfections_Model.use_Roughness && multilayer->imperfections_Model.use_Fluctuations)
 		{
-			for(size_t phi_Index = 0; phi_Index<short_Phi_Points; phi_Index++)
+			// interpolate the other half
+			if(short_Phi_Points!=phi_Points)
 			{
-				GISAS_Slice[thread_Index][phi_Index] = calculated_Values.GISAS_Map[measurement.start_Phi_Index+phi_Index][point_Index];
-				phi_Slice  [thread_Index][phi_Index] = measurement.detector_Phi_Angle_Vec  [measurement.start_Phi_Index+phi_Index];
+				for(size_t phi_Index = 0; phi_Index<short_Phi_Points; phi_Index++)
+				{
+					GISAS_Slice[thread_Index][phi_Index] = calculated_Values.GISAS_Map[measurement.start_Phi_Index+phi_Index][point_Index];
+					phi_Slice  [thread_Index][phi_Index] = measurement.detector_Phi_Angle_Vec  [measurement.start_Phi_Index+phi_Index];
+				}
+				gsl_spline_init(spline_Vec[thread_Index], phi_Slice[thread_Index].data(), GISAS_Slice[thread_Index].data(), GISAS_Slice[thread_Index].size());
+				if(measurement.start_Phi_Index!=0)
+				{
+					for(size_t phi_Index = 1; phi_Index<measurement.start_Phi_Index; phi_Index++)
+					{
+						calculated_Values.GISAS_Map[phi_Index][point_Index] = gsl_spline_eval(spline_Vec[thread_Index], -measurement.detector_Phi_Angle_Vec[phi_Index], acc_Vec[thread_Index]);
+					}
+					size_t phi_Index = 0;
+					if(abs(measurement.detector_Phi_Angle_Vec.back()+measurement.detector_Phi_Angle_Vec.front())<=1e-9)
+					{
+						calculated_Values.GISAS_Map[phi_Index][point_Index] = calculated_Values.GISAS_Map[phi_Points-1][point_Index];
+					} else
+					{
+						calculated_Values.GISAS_Map[phi_Index][point_Index] = gsl_spline_eval(spline_Vec[thread_Index], -measurement.detector_Phi_Angle_Vec[phi_Index], acc_Vec[thread_Index]);
+					}
+				} else
+				if(measurement.end_Phi_Number!=phi_Points)
+				{
+					for(size_t phi_Index = measurement.end_Phi_Number; phi_Index<phi_Points-1; phi_Index++)
+					{
+						calculated_Values.GISAS_Map[phi_Index][point_Index] = gsl_spline_eval(spline_Vec[thread_Index], -measurement.detector_Phi_Angle_Vec[phi_Index], acc_Vec[thread_Index]);
+					}
+					size_t phi_Index = phi_Points-1;
+					if(abs(measurement.detector_Phi_Angle_Vec.back()+measurement.detector_Phi_Angle_Vec.front())<=1e-9)
+					{
+						calculated_Values.GISAS_Map[phi_Index][point_Index] = calculated_Values.GISAS_Map[0][point_Index];
+					} else
+					{
+						calculated_Values.GISAS_Map[phi_Index][point_Index] = gsl_spline_eval(spline_Vec[thread_Index], -measurement.detector_Phi_Angle_Vec[phi_Index], acc_Vec[thread_Index]);
+					}
+				}
 			}
-			gsl_spline_init(spline_Vec[thread_Index], phi_Slice[thread_Index].data(), GISAS_Slice[thread_Index].data(), GISAS_Slice[thread_Index].size());
-			if(measurement.start_Phi_Index!=0)
+		} else
+		{
+			for(size_t phi_Index = 0; phi_Index<phi_Points; phi_Index++)
 			{
-				for(size_t phi_Index = 1; phi_Index<measurement.start_Phi_Index; phi_Index++)
-				{
-					calculated_Values.GISAS_Map[phi_Index][point_Index] = gsl_spline_eval(spline_Vec[thread_Index], -measurement.detector_Phi_Angle_Vec[phi_Index], acc_Vec[thread_Index]);
-				}
-				size_t phi_Index = 0;
-				if(abs(measurement.detector_Phi_Angle_Vec.back()+measurement.detector_Phi_Angle_Vec.front())<=1e-9)
-				{
-					calculated_Values.GISAS_Map[phi_Index][point_Index] = calculated_Values.GISAS_Map[phi_Points-1][point_Index];
-				} else
-				{
-					calculated_Values.GISAS_Map[phi_Index][point_Index] = gsl_spline_eval(spline_Vec[thread_Index], -measurement.detector_Phi_Angle_Vec[phi_Index], acc_Vec[thread_Index]);
-				}
-			} else
-			if(measurement.end_Phi_Number!=phi_Points)
-			{
-				for(size_t phi_Index = measurement.end_Phi_Number; phi_Index<phi_Points-1; phi_Index++)
-				{
-					calculated_Values.GISAS_Map[phi_Index][point_Index] = gsl_spline_eval(spline_Vec[thread_Index], -measurement.detector_Phi_Angle_Vec[phi_Index], acc_Vec[thread_Index]);
-				}
-				size_t phi_Index = phi_Points-1;
-				if(abs(measurement.detector_Phi_Angle_Vec.back()+measurement.detector_Phi_Angle_Vec.front())<=1e-9)
-				{
-					calculated_Values.GISAS_Map[phi_Index][point_Index] = calculated_Values.GISAS_Map[0][point_Index];
-				} else
-				{
-					calculated_Values.GISAS_Map[phi_Index][point_Index] = gsl_spline_eval(spline_Vec[thread_Index], -measurement.detector_Phi_Angle_Vec[phi_Index], acc_Vec[thread_Index]);
-				}
+				calculated_Values.GISAS_Map[phi_Index][point_Index] = 0;
 			}
 		}
 		/// (too expensive for copying)
