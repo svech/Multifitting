@@ -111,8 +111,6 @@ public:
 	// DWBA SA CSA
 	///---------------------------------------------------------------------
 
-	/// DWBA CSA SA
-
 	// up
 	vector<vector<complex<double>>> b1_Up_Boundary_s;	//	[thread][boundary]
 	vector<vector<complex<double>>> b2_Up_Boundary_s;	//	[thread][boundary]
@@ -165,6 +163,15 @@ public:
 	vector<vector<double>> pre_Fourier_Factor;			//	[thread][n]
 	vector<vector<vector<double>>> incoherent_Diagonal_Term;	//	[thread][item_Index][n]
 	vector<vector<double>> cor_Func_Item;						//	[thread][item_Index]
+
+	///---------------------------------------------------------------------
+	// density fluctuations
+	///---------------------------------------------------------------------
+
+	vector<vector<complex<double>>> k1;	//	[thread][layer]
+	vector<vector<complex<double>>> k2;	//	[thread][layer]
+	vector<vector<complex<double>>> k3;	//	[thread][layer]
+	vector<vector<complex<double>>> k4;	//	[thread][layer]
 
 	///---------------------------------------------------------------------
 
@@ -235,6 +242,9 @@ public:
 	double function_DWBA_SA_CSA_Batch_Common_Integrand	  (double r, int thread_Index);
 	double function_DWBA_SA_CSA_Batch_Individual_Integrand(double r, int thread_Index);
 	double cor_Function_Integration		(int point_Index, int thread_Index, double cos_Theta_0);
+
+	// density fluctuations
+	void calc_k_Wavenumber_Layer		(int thread_Index, int point_Index);
 
 	// for sigma grading
 	void multifly_Fresnel_And_Weak_Factor(int thread_Index);

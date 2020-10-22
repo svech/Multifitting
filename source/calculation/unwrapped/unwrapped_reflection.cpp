@@ -740,6 +740,22 @@ Unwrapped_Reflection::Unwrapped_Reflection(const vector<Node*>& short_Flat_Calc_
 					}
 				}
 			}
+
+			// density fluctuations
+			{
+				k1.resize(num_Threads);
+				k2.resize(num_Threads);
+				k3.resize(num_Threads);
+				k4.resize(num_Threads);
+
+				for(int thread_Index=0; thread_Index<num_Threads; thread_Index++)
+				{
+					k1[thread_Index].resize(num_Layers);
+					k2[thread_Index].resize(num_Layers);
+					k3[thread_Index].resize(num_Layers);
+					k4[thread_Index].resize(num_Layers);
+				}
+			}
 		}
 
 		// for getting common PSD parameters
@@ -2761,7 +2777,31 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 			// density fluctuations
 			if(multilayer->imperfections_Model.use_Fluctuations)
 			{
+				/// here we have only zero correlation between layers and individual items
+				if( measurement.measurement_Type == measurement_Types[Detector_Scan] ||
+					measurement.measurement_Type == measurement_Types[Rocking_Curve] ||
+					measurement.measurement_Type == measurement_Types[Offset_Scan] )
+				{
+					// TODO
+				}
+				if( measurement.measurement_Type == measurement_Types[GISAS_Map] )
+				{
+					// pure s-polarization
+					if( (measurement.polarization - 1) > -POLARIZATION_TOLERANCE)
+					{
+						calc_k_Wavenumber_Layer(thread_Index, point_Index);
 
+					} else
+					// pure p-polarization
+					if( (measurement.polarization + 1) < POLARIZATION_TOLERANCE)
+					{
+						// TODO
+					} else
+					// mixed sp-polarization
+					{
+						// TODO
+					}
+				}
 			}
 		}
 	}
@@ -2784,6 +2824,20 @@ double Unwrapped_Reflection::cor_Function_Integration(int point_Index, int threa
 		integral = gauss_kronrod<double, 61>::integrate(f, 0, std::numeric_limits<double>::infinity(), 5, 1e-7, &error);
 	}
 	return integral;
+}
+
+void Unwrapped_Reflection::calc_k_Wavenumber_Layer(int thread_Index, int point_Index)
+{
+	vector<complex<double>>& q0_Hi = if_Single_Beam_Value ? calculated_Values.q0_Hi.front() : calculated_Values.q0_Hi[point_Index];
+
+	for (int layer_Index = 0; layer_Index<num_Layers; layer_Index++)
+	{
+		int boundary_Index = layer_Index + 1;
+		k1[thread_Index][layer_Index] =  q0_Hi[boundary_Index] + calculated_Values.q_Hi[point_Index][boundary_Index];
+		k2[thread_Index][layer_Index] =  q0_Hi[boundary_Index] - calculated_Values.q_Hi[point_Index][boundary_Index];
+		k3[thread_Index][layer_Index] = -k2[thread_Index][layer_Index];
+		k4[thread_Index][layer_Index] = -k1[thread_Index][layer_Index];
+	}
 }
 
 double Unwrapped_Reflection::azimuthal_Integration(gsl_function* function, double delta)
