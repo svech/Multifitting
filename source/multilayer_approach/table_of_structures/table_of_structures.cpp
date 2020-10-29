@@ -2542,6 +2542,13 @@ void Table_Of_Structures::create_Check_Box_Usage(My_Table_Widget* table, int tab
 		emit_Data_Edited();
 	});
 
+	// only by user
+	connect(check_Box, &QCheckBox::clicked, this, [=]
+	{
+		// recalculation at change
+		if(recalculate_Spinbox_Table) {global_Multilayer_Approach->calculate(true);}
+	});
+
 	table->setCellWidget(current_Row, current_Column, back_Widget);
 }
 

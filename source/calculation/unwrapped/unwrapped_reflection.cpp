@@ -750,10 +750,10 @@ Unwrapped_Reflection::Unwrapped_Reflection(const vector<Node*>& short_Flat_Calc_
 
 				for(int thread_Index=0; thread_Index<num_Threads; thread_Index++)
 				{
-					k1[thread_Index].resize(num_Layers);
-					k2[thread_Index].resize(num_Layers);
-					k3[thread_Index].resize(num_Layers);
-					k4[thread_Index].resize(num_Layers);
+					k1[thread_Index].resize(num_Layers_Sharp);
+					k2[thread_Index].resize(num_Layers_Sharp);
+					k3[thread_Index].resize(num_Layers_Sharp);
+					k4[thread_Index].resize(num_Layers_Sharp);
 				}
 			}
 		}
@@ -2786,11 +2786,26 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 				}
 				if( measurement.measurement_Type == measurement_Types[GISAS_Map] )
 				{
+					calc_k_Wavenumber_Layer(thread_Index, point_Index);
+
 					// pure s-polarization
 					if( (measurement.polarization - 1) > -POLARIZATION_TOLERANCE)
 					{
-						calc_k_Wavenumber_Layer(thread_Index, point_Index);
+//						calc_Field_Term_Sum("s", point_Index, thread_Index);
+//						for(size_t phi_Index = measurement.start_Phi_Index; phi_Index<measurement.end_Phi_Number; phi_Index++)
+//						{
+//							fill_Item_PSD_2D(thread_Index, point_Index, phi_Index);
 
+//							double field_With_PSD_2D_Factor = 0;
+//							for (int l = 0; l<num_Layers_Sharp; j++)
+//							{
+//								int item_Index = boundary_Item_Vec[j];
+//								double PSD_2D_Factor = PSD_Factor_Item[thread_Index][item_Index];
+
+//								field_With_PSD_2D_Factor += intensity_Term_Boundary_s[thread_Index][j] * PSD_2D_Factor;
+//							}
+//							calculated_Values.GISAS_Map[phi_Index][point_Index] = e_Factor_PT_2D * field_With_PSD_2D_Factor * measurement.footprint_Factor_Vec[point_Index] + measurement.background;
+//						}
 					} else
 					// pure p-polarization
 					if( (measurement.polarization + 1) < POLARIZATION_TOLERANCE)
@@ -2830,7 +2845,7 @@ void Unwrapped_Reflection::calc_k_Wavenumber_Layer(int thread_Index, int point_I
 {
 	vector<complex<double>>& q0_Hi = if_Single_Beam_Value ? calculated_Values.q0_Hi.front() : calculated_Values.q0_Hi[point_Index];
 
-	for (int layer_Index = 0; layer_Index<num_Layers; layer_Index++)
+	for (int layer_Index = 0; layer_Index<num_Layers_Sharp; layer_Index++)
 	{
 		int boundary_Index = layer_Index + 1;
 		k1[thread_Index][layer_Index] =  q0_Hi[boundary_Index] + calculated_Values.q_Hi[point_Index][boundary_Index];

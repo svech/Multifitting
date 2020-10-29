@@ -20,7 +20,10 @@ public:
 
 	vector<complex<double>> delta_Epsilon;
 	vector<complex<double>> epsilon;
-	void fill_Epsilon_For_Angular_Measurements(vector<double>& spectral_Points);
+	void fill_Epsilon_For_Angular_Measurements(vector<double>& spectral_Points, bool specular_Case = false);
+
+	complex<double> delta_Epsilon_Contrast;
+	void fill_Epsilon_Contrast_For_Density_Fluctuations(vector<double>& spectral_Points);
 
 	/// ------------------------------------------------
 

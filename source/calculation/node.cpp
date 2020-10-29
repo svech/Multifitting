@@ -35,7 +35,7 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 
 			epsilon.resize(num_Points);
 			vector<double> spectral_Points (1, measurement.lambda_Value);
-			fill_Epsilon_For_Angular_Measurements(spectral_Points);
+			fill_Epsilon_For_Angular_Measurements(spectral_Points, true);
 		}
 		if( measurement.argument_Type == argument_Types[Wavelength_Energy] )
 		{
@@ -73,7 +73,7 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 			// compile from elements
 			{
 				vector<complex<double>> temp_Epsilon;
-				optical_Constants->make_Epsilon_From_Factors(struct_Data.composition, struct_Data.absolute_Density.value, spectral_Points, temp_Epsilon);
+				optical_Constants->make_Epsilon_From_Factors(struct_Data.composition, struct_Data.average_Layer_density(), spectral_Points, temp_Epsilon);
 
 				for(size_t point_Index = 0; point_Index<num_Points; ++point_Index)
 				{
@@ -98,7 +98,7 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 				// if relative density
 				else									for(size_t point_Index = 0; point_Index<num_Points; ++point_Index)
 														{
-															epsilon[point_Index] = 1. - struct_Data.relative_Density.value * delta_Epsilon[point_Index];
+															epsilon[point_Index] = 1. - struct_Data.average_Layer_density() * delta_Epsilon[point_Index];
 														}
 			} else
 			// if separate optical constants
@@ -149,6 +149,12 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 		epsilon.resize(num_Points);
 		vector<double> spectral_Points (1, measurement.lambda_Value);
 		fill_Epsilon_For_Angular_Measurements(spectral_Points);
+
+		// for scattering on density fluctuation
+		if(mode == SCATTERED_MODE)
+		{
+			fill_Epsilon_Contrast_For_Density_Fluctuations(spectral_Points);
+		}
 	}
 
 	// anyway
@@ -514,7 +520,7 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 	}
 }
 
-void Node::fill_Epsilon_For_Angular_Measurements(vector<double>& spectral_Points)
+void Node::fill_Epsilon_For_Angular_Measurements(vector<double>& spectral_Points, bool specular_Case)
 {
 	complex<double> delta_Epsilon_Ang, epsilon_Ang;
 
@@ -532,8 +538,10 @@ void Node::fill_Epsilon_For_Angular_Measurements(vector<double>& spectral_Points
 	} else
 	// compile from elements
 	{
+		double density = struct_Data.absolute_Density.value;
+		if(specular_Case) density = struct_Data.average_Layer_density();
 		vector<complex<double>> temp_Epsilon;
-		optical_Constants->make_Epsilon_From_Factors(struct_Data.composition, struct_Data.absolute_Density.value, spectral_Points, temp_Epsilon);
+		optical_Constants->make_Epsilon_From_Factors(struct_Data.composition, density, spectral_Points, temp_Epsilon);
 		delta_Epsilon_Ang = 1. - temp_Epsilon.front();
 	}
 //	if(abs(imag(delta_Epsilon_Ang))<DBL_EPSILON) delta_Epsilon_Ang -= complex<double>(0,DBL_EPSILON);
@@ -548,7 +556,12 @@ void Node::fill_Epsilon_For_Angular_Measurements(vector<double>& spectral_Points
 		// if absolute density
 		if(struct_Data.composed_Material)		epsilon_Ang = 1. - delta_Epsilon_Ang;
 		// if relative density
-		else									epsilon_Ang = 1. - struct_Data.relative_Density.value * delta_Epsilon_Ang;
+		else
+		{
+			double density = struct_Data.relative_Density.value;
+			if(specular_Case) density = struct_Data.average_Layer_density();
+			epsilon_Ang = 1. - density * delta_Epsilon_Ang;
+		}
 
 	} else
 	// if separate optical constants
@@ -562,6 +575,45 @@ void Node::fill_Epsilon_For_Angular_Measurements(vector<double>& spectral_Points
 	for(size_t point_Index = 0; point_Index<epsilon.size(); ++point_Index)
 	{
 		epsilon[point_Index] = epsilon_Ang;
+	}
+}
+
+void Node::fill_Epsilon_Contrast_For_Density_Fluctuations(vector<double>& spectral_Points)
+{
+	if(struct_Data.fluctuations_Model.is_Used)
+	{
+		complex<double> delta_Epsilon_Ang, epsilon_Ang;
+
+		/// ---------------------------------------------------------------------------------------------------------------
+		/// delta_Epsilon
+		/// ---------------------------------------------------------------------------------------------------------------
+
+		// if known material
+		if(struct_Data.composed_Material == false)
+		{
+			Material_Data temp_Material_Data = optical_Constants->material_Map.value(struct_Data.approved_Material + nk_Ext);
+			vector<complex<double>> n;
+			optical_Constants->interpolation_Epsilon(temp_Material_Data.material_Data, spectral_Points, n, struct_Data.approved_Material);
+			delta_Epsilon_Ang = 1. - n.front()*n.front();
+		} else
+		// compile from elements
+		{
+			vector<complex<double>> temp_Epsilon;
+			optical_Constants->make_Epsilon_From_Factors(struct_Data.composition, struct_Data.fluctuations_Model.particle_Absolute_Density.value, spectral_Points, temp_Epsilon);
+			delta_Epsilon_Ang = 1. - temp_Epsilon.front();
+		}
+
+		/// ---------------------------------------------------------------------------------------------------------------
+		/// epsilon
+		/// ---------------------------------------------------------------------------------------------------------------
+
+		// if absolute density
+		if(struct_Data.composed_Material)	epsilon_Ang = 1. - delta_Epsilon_Ang;
+		// if relative density
+		else								epsilon_Ang = 1. - struct_Data.fluctuations_Model.particle_Relative_Density.value * delta_Epsilon_Ang;
+
+
+		delta_Epsilon_Contrast = epsilon.front() - epsilon_Ang;
 	}
 }
 

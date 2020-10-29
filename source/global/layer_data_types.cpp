@@ -510,7 +510,8 @@ Data::Data(QString item_Type_Passed)
 		// density fluctuations
 		{
 			fluctuations_Model.is_Enabled = false;
-			fluctuations_Model.is_Used = true;
+			if(item_Type == item_Type_Layer)	fluctuations_Model.is_Used = true;
+			else								fluctuations_Model.is_Used = false;
 		}
 		// particle absolute density
 		{
