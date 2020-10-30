@@ -1,4 +1,5 @@
 #include <boost/math/special_functions/bessel.hpp>
+#include <boost/math/special_functions/sinc.hpp>
 #include "global_variables.h"
 #include "multilayer_approach/multilayer_approach.h"
 #include "standard/mydoublespinbox.h"
@@ -1240,6 +1241,44 @@ double Global_Variables::PSD_Linear_Growth_2D(double exponent, double nu2_mu_Alp
 	{
 		return omega * alpha * thickness / factor;
 	}
+}
+
+double Global_Variables::G1_Square(double a)
+{
+	return 1./(a*a);
+}
+
+double Global_Variables::G2_Square(double q, double phi, double a,  double sigma, double N,  double M)
+{
+	double qa = q*cos(phi);
+	double qb = q*sin(phi);
+
+	double damp = exp(-0.5*q*q*sigma*sigma);
+
+	complex<double> alpha = exp(I*qa*a)*damp;
+	complex<double> beta  = exp(I*qb*a)*damp;
+
+	double bracket_N = (1. + 2*real(alpha/(1.-alpha)*(1.-(1.-pow(alpha,N))/(1.-alpha)/N)))/a;
+	double bracket_M = (1. + 2*real(beta /(1.-beta )*(1.-(1.-pow(beta ,M))/(1.-beta )/M)))/a;
+
+	complex<double> specular_N = (1.-pow(alpha,N))/(1.-alpha)*
+			( boost::math::sinc_pi(0.5*qa*a)*(1.+(sigma*sigma/(a*a)-pow(sigma*sigma*qa/(2*a),2.))/1.5) - sigma*sigma/(a*a)*cos(0.5*qa*a) );
+	complex<double> specular_M = (1.-pow(beta ,M))/(1.-beta )*
+			( boost::math::sinc_pi(0.5*qb*a)*(1.+(sigma*sigma/(a*a)-pow(sigma*sigma*qb/(2*a),2.))/1.5) - sigma*sigma/(a*a)*cos(0.5*qb*a) );
+
+	double specular_Mix = norm(specular_N*specular_M)*exp(-0.25*q*q*sigma*sigma)/(N*M*a*a);
+
+	return bracket_N*bracket_M - specular_Mix - 1./(a*a);
+}
+
+double Global_Variables::G1_Hexagone(double a)
+{
+	return 2./(M_SQRT3*a*a);
+}
+
+double Global_Variables::G2_Hexagone(double q, double phi, double a, double sigma, double N, double M)
+{
+
 }
 
 void Global_Variables::copy_Tree(const QTreeWidget* from_Tree, QTreeWidget* to_Tree)
