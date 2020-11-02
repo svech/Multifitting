@@ -755,6 +755,40 @@ Unwrapped_Reflection::Unwrapped_Reflection(const vector<Node*>& short_Flat_Calc_
 					k3[thread_Index].resize(num_Layers_Sharp);
 					k4[thread_Index].resize(num_Layers_Sharp);
 				}
+
+				// s-polarization
+				if( (measurement.polarization + 1) > POLARIZATION_TOLERANCE)
+				{
+					C1_s.resize(num_Threads);
+					C2_s.resize(num_Threads);
+					C3_s.resize(num_Threads);
+					C4_s.resize(num_Threads);
+
+					for(int thread_Index=0; thread_Index<num_Threads; thread_Index++)
+					{
+						C1_s[thread_Index].resize(num_Layers_Sharp);
+						C2_s[thread_Index].resize(num_Layers_Sharp);
+						C3_s[thread_Index].resize(num_Layers_Sharp);
+						C4_s[thread_Index].resize(num_Layers_Sharp);
+					}
+				}
+
+				// p-polarization
+				if( (measurement.polarization - 1) < -POLARIZATION_TOLERANCE)
+				{
+					C1_p.resize(num_Threads);
+					C2_p.resize(num_Threads);
+					C3_p.resize(num_Threads);
+					C4_p.resize(num_Threads);
+
+					for(int thread_Index=0; thread_Index<num_Threads; thread_Index++)
+					{
+						C1_p[thread_Index].resize(num_Layers_Sharp);
+						C2_p[thread_Index].resize(num_Layers_Sharp);
+						C3_p[thread_Index].resize(num_Layers_Sharp);
+						C4_p[thread_Index].resize(num_Layers_Sharp);
+					}
+				}
 			}
 		}
 
@@ -2777,6 +2811,11 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 			// density fluctuations
 			if(multilayer->imperfections_Model.use_Fluctuations)
 			{
+				calc_k_Wavenumber_Layer(thread_Index, point_Index);
+				// factors from field amplitudes
+				if( (measurement.polarization + 1) >  POLARIZATION_TOLERANCE) calc_C_Factor("s", thread_Index, point_Index);
+				if( (measurement.polarization - 1) < -POLARIZATION_TOLERANCE) calc_C_Factor("p", thread_Index, point_Index);
+
 				/// here we have only zero correlation between layers and individual items
 				if( measurement.measurement_Type == measurement_Types[Detector_Scan] ||
 					measurement.measurement_Type == measurement_Types[Rocking_Curve] ||
@@ -2786,12 +2825,9 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 				}
 				if( measurement.measurement_Type == measurement_Types[GISAS_Map] )
 				{
-					calc_k_Wavenumber_Layer(thread_Index, point_Index);
-
 					// pure s-polarization
 					if( (measurement.polarization - 1) > -POLARIZATION_TOLERANCE)
 					{
-//						calc_Field_Term_Sum("s", point_Index, thread_Index);
 //						for(size_t phi_Index = measurement.start_Phi_Index; phi_Index<measurement.end_Phi_Number; phi_Index++)
 //						{
 //							fill_Item_PSD_2D(thread_Index, point_Index, phi_Index);
@@ -2852,6 +2888,34 @@ void Unwrapped_Reflection::calc_k_Wavenumber_Layer(int thread_Index, int point_I
 		k2[thread_Index][layer_Index] =  q0_Hi[boundary_Index] - calculated_Values.q_Hi[point_Index][boundary_Index];
 		k3[thread_Index][layer_Index] = -k2[thread_Index][layer_Index];
 		k4[thread_Index][layer_Index] = -k1[thread_Index][layer_Index];
+	}
+}
+
+void Unwrapped_Reflection::calc_C_Factor(QString polarization, int thread_Index, int point_Index)
+{
+	const vector<complex<double>>& q0_U_i_s = if_Single_Beam_Value ? calculated_Values.q0_U_i_s.front() : calculated_Values.q0_U_i_s[point_Index];
+	const vector<complex<double>>& q0_U_r_s = if_Single_Beam_Value ? calculated_Values.q0_U_r_s.front() : calculated_Values.q0_U_r_s[point_Index];
+	const vector<complex<double>>& q0_U_i_p = if_Single_Beam_Value ? calculated_Values.q0_U_i_p.front() : calculated_Values.q0_U_i_p[point_Index];
+	const vector<complex<double>>& q0_U_r_p = if_Single_Beam_Value ? calculated_Values.q0_U_r_p.front() : calculated_Values.q0_U_r_p[point_Index];
+
+	const vector<complex<double>>& q0_U_i = polarization == "s" ? q0_U_i_s : q0_U_i_p;
+	const vector<complex<double>>& q0_U_r = polarization == "s" ? q0_U_r_s : q0_U_r_p;
+	const vector<complex<double>>& q_U_i  = polarization == "s" ? calculated_Values.q_U_i_s [point_Index] : calculated_Values.q_U_i_p [point_Index];
+	const vector<complex<double>>& q_U_r  = polarization == "s" ? calculated_Values.q_U_r_s [point_Index] : calculated_Values.q_U_r_p [point_Index];
+
+	vector<complex<double>>& C1 = polarization == "s" ? C1_s[thread_Index] : C1_p[thread_Index];
+	vector<complex<double>>& C2 = polarization == "s" ? C2_s[thread_Index] : C2_p[thread_Index];
+	vector<complex<double>>& C3 = polarization == "s" ? C3_s[thread_Index] : C3_p[thread_Index];
+	vector<complex<double>>& C4 = polarization == "s" ? C4_s[thread_Index] : C4_p[thread_Index];
+
+	for (int layer_Index = 0; layer_Index<num_Layers_Sharp; layer_Index++)
+	{
+		int boundary_Index = layer_Index + 1;
+
+		C1[layer_Index] = q0_U_i[boundary_Index]*q_U_i[boundary_Index]*exp(-I*k1[thread_Index][layer_Index]*unwrapped_Structure->thickness[layer_Index]/2.);
+		C2[layer_Index] = q0_U_i[boundary_Index]*q_U_r[boundary_Index]*exp(-I*k2[thread_Index][layer_Index]*unwrapped_Structure->thickness[layer_Index]/2.);
+		C3[layer_Index] = q0_U_r[boundary_Index]*q_U_i[boundary_Index]*exp(-I*k3[thread_Index][layer_Index]*unwrapped_Structure->thickness[layer_Index]/2.);
+		C4[layer_Index] = q0_U_r[boundary_Index]*q_U_r[boundary_Index]*exp(-I*k4[thread_Index][layer_Index]*unwrapped_Structure->thickness[layer_Index]/2.);
 	}
 }
 

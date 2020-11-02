@@ -173,6 +173,16 @@ public:
 	vector<vector<complex<double>>> k3;	//	[thread][layer]
 	vector<vector<complex<double>>> k4;	//	[thread][layer]
 
+	vector<vector<complex<double>>> C1_s;	//	[thread][layer]
+	vector<vector<complex<double>>> C2_s;	//	[thread][layer]
+	vector<vector<complex<double>>> C3_s;	//	[thread][layer]
+	vector<vector<complex<double>>> C4_s;	//	[thread][layer]
+
+	vector<vector<complex<double>>> C1_p;	//	[thread][layer]
+	vector<vector<complex<double>>> C2_p;	//	[thread][layer]
+	vector<vector<complex<double>>> C3_p;	//	[thread][layer]
+	vector<vector<complex<double>>> C4_p;	//	[thread][layer]
+
 	///---------------------------------------------------------------------
 
 	void fill_Components_From_Node_Vector(int thread_Index, int point_Index);
@@ -244,7 +254,8 @@ public:
 	double cor_Function_Integration		(int point_Index, int thread_Index, double cos_Theta_0);
 
 	// density fluctuations
-	void calc_k_Wavenumber_Layer		(int thread_Index, int point_Index);
+	void calc_k_Wavenumber_Layer	(                      int thread_Index, int point_Index);
+	void calc_C_Factor				(QString polarization, int thread_Index, int point_Index);
 
 	// for sigma grading
 	void multifly_Fresnel_And_Weak_Factor(int thread_Index);

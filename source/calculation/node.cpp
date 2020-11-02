@@ -147,7 +147,7 @@ void Node::calculate_Intermediate_Points(const Data& measurement, Node* above_No
 		}
 
 		epsilon.resize(num_Points);
-		vector<double> spectral_Points (1, measurement.lambda_Value);
+		vector<double> spectral_Points(1, measurement.lambda_Value);
 		fill_Epsilon_For_Angular_Measurements(spectral_Points);
 
 		// for scattering on density fluctuation
