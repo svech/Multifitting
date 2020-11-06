@@ -296,11 +296,17 @@ QDataStream& operator >>( QDataStream& stream,		 Sample_Geometry& sample_Geometr
 
 QDataStream& operator <<( QDataStream& stream, const Beam_Geometry& beam_Geometry )
 {
-	return stream << beam_Geometry.size << beam_Geometry.smoothing;
+	return stream << beam_Geometry.size << beam_Geometry.lateral_Width << beam_Geometry.smoothing;
 }
 QDataStream& operator >>( QDataStream& stream,		 Beam_Geometry& beam_Geometry )
 {
-	return stream >> beam_Geometry.size >> beam_Geometry.smoothing;
+	stream >> beam_Geometry.size;
+
+	if(Global_Variables::check_Loaded_Version(1,11,0))
+	{stream >> beam_Geometry.lateral_Width;}
+
+	stream >> beam_Geometry.smoothing;
+	return stream;
 }
 
 QDataStream& operator <<( QDataStream& stream, const Stoichiometry& stoichiometry )

@@ -578,6 +578,7 @@ struct Sample_Geometry			{ double size = 20;
 								};
 
 struct Beam_Geometry			{ double size = 0.055;
+								  double lateral_Width = 10.0;
 								  double smoothing = 0.5;
 								};
 

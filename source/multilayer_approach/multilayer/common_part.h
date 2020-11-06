@@ -53,6 +53,7 @@ public:
 
 	// footprint
 	MyDoubleSpinBox* beam_Footprint_Width_SpinBox;
+	MyDoubleSpinBox* beam_Footprint_Lateral_Width_SpinBox;
 	MyDoubleSpinBox* beam_Footprint_Shape_SpinBox;
 	QCustomPlot* beam_Profile_CustomPlot;
 	MyDoubleSpinBox* sample_Size_SpinBox;

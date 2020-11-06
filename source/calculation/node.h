@@ -53,7 +53,10 @@ public:
 
 	/// ------------------------------------------------
 
+	double (*G2_Type)(double, double, double, double, double, double);
+	double (*G2_Type_long)(long double, long double, long double, long double sigma, long double N, long double M);
 	void create_Spline_G2_2D(const Data& measurement, const Imperfections_Model& imperfections_Model);
+	void clear_Spline_G2_2D(const Imperfections_Model& imperfections_Model);
 	gsl_spline* spline_G2;
 	gsl_interp_accel* acc_G2;
 };

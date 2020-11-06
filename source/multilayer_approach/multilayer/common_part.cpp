@@ -341,8 +341,29 @@ void Common_Part::create_Footptint_GroupBox()
 
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+		QLabel* beam_Footprint_Lateral_Width_Label = new QLabel("Beam lateral width");
+		beam_Footprint_GroupBox_Layout->addWidget(beam_Footprint_Lateral_Width_Label,1,0,Qt::AlignLeft);
+
+		beam_Footprint_Lateral_Width_SpinBox = new MyDoubleSpinBox;
+			beam_Footprint_Lateral_Width_SpinBox->setAccelerated(true);
+			beam_Footprint_Lateral_Width_SpinBox->setRange(0, MAX_DOUBLE);
+			beam_Footprint_Lateral_Width_SpinBox->setDecimals(3);
+			beam_Footprint_Lateral_Width_SpinBox->setValue(measurement.beam_Geometry.lateral_Width);
+			beam_Footprint_Lateral_Width_SpinBox->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
+			beam_Footprint_Lateral_Width_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
+			beam_Footprint_Lateral_Width_SpinBox->setProperty(min_Size_Property,TARGET_LINE_EDIT_WIDTH);
+		beam_Footprint_GroupBox_Layout->addWidget(beam_Footprint_Lateral_Width_SpinBox,1,1,Qt::AlignLeft);
+		Global_Variables::resize_Line_Edit(beam_Footprint_Lateral_Width_SpinBox);
+
+		// - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+		QLabel* mm_beam_Footprint_Lateral_Width_Label = new QLabel("mm");
+		beam_Footprint_GroupBox_Layout->addWidget(mm_beam_Footprint_Lateral_Width_Label,1,2,Qt::AlignLeft);
+
+		// - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
 		QLabel* beam_Footprint_Shape_Label = new QLabel("Beam profile smoothing");
-		beam_Footprint_GroupBox_Layout->addWidget(beam_Footprint_Shape_Label,1,0,Qt::AlignLeft);
+		beam_Footprint_GroupBox_Layout->addWidget(beam_Footprint_Shape_Label,2,0,Qt::AlignLeft);
 
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -354,7 +375,7 @@ void Common_Part::create_Footptint_GroupBox()
 			beam_Footprint_Shape_SpinBox->setSingleStep(0.01);
 			beam_Footprint_Shape_SpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
 			beam_Footprint_Shape_SpinBox->setProperty(min_Size_Property,TARGET_LINE_EDIT_WIDTH);
-		beam_Footprint_GroupBox_Layout->addWidget(beam_Footprint_Shape_SpinBox,1,1,Qt::AlignLeft);
+		beam_Footprint_GroupBox_Layout->addWidget(beam_Footprint_Shape_SpinBox,2,1,Qt::AlignLeft);
 		Global_Variables::resize_Line_Edit(beam_Footprint_Shape_SpinBox);
 
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -812,6 +833,13 @@ void Common_Part::connecting()
 		measurement.beam_Geometry.size = beam_Footprint_Width_SpinBox->value();
 
 		plot_Beam_Profile();
+		global_Multilayer_Approach->global_Recalculate();
+	});
+	// beam lateral width
+	connect(beam_Footprint_Lateral_Width_SpinBox, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
+	{
+		measurement.beam_Geometry.lateral_Width = beam_Footprint_Lateral_Width_SpinBox->value();
+
 		global_Multilayer_Approach->global_Recalculate();
 	});
 	// beam shape

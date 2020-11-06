@@ -633,7 +633,7 @@ void Calculation_Tree::clear_Spline_1_Tree(vector<Node*>& short_Flat_Calc_Tree, 
 		{
 			short_Flat_Calc_Tree[node_Index]->clear_Spline_PSD_Fractal_Gauss(multilayer->imperfections_Model);
 			// TODO when 2D, when 1D
-//			short_Flat_Calc_Tree[node_Index]->clear_Spline_G2_2D
+			short_Flat_Calc_Tree[node_Index]->clear_Spline_G2_2D(multilayer->imperfections_Model);
 		}
 	}
 }
