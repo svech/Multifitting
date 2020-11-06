@@ -168,20 +168,14 @@ public:
 	// density fluctuations
 	///---------------------------------------------------------------------
 
-	vector<vector<complex<double>>> k1;	//	[thread][layer]
-	vector<vector<complex<double>>> k2;	//	[thread][layer]
-	vector<vector<complex<double>>> k3;	//	[thread][layer]
-	vector<vector<complex<double>>> k4;	//	[thread][layer]
+	vector<vector<vector<complex<double>>>> k_03;	//	[thread][layer][0-3]
+	vector<vector<vector<complex<double>>>> C_03_s;	//	[thread][layer][0-3]
+	vector<vector<vector<complex<double>>>> C_03_p;	//	[thread][layer][0-3]
 
-	vector<vector<complex<double>>> C1_s;	//	[thread][layer]
-	vector<vector<complex<double>>> C2_s;	//	[thread][layer]
-	vector<vector<complex<double>>> C3_s;	//	[thread][layer]
-	vector<vector<complex<double>>> C4_s;	//	[thread][layer]
-
-	vector<vector<complex<double>>> C1_p;	//	[thread][layer]
-	vector<vector<complex<double>>> C2_p;	//	[thread][layer]
-	vector<vector<complex<double>>> C3_p;	//	[thread][layer]
-	vector<vector<complex<double>>> C4_p;	//	[thread][layer]
+	vector<vector<complex<double>(*)(double, complex<double>, double, double)>> form_Factor_2D_Func_Vec; // [thread][item_Index]
+	vector<vector<vector<complex<double>>>> F_03;	//	[thread][item_Index][0-3]
+	vector<vector<vector<complex<double>>>> w_03;	//	[thread][item_Index][0-3]
+	vector<vector<vector<vector<complex<double>>>>> g_03_03;//	[thread][item_Index][0-3][0-3]
 
 	///---------------------------------------------------------------------
 
@@ -256,6 +250,11 @@ public:
 	// density fluctuations
 	void calc_k_Wavenumber_Layer	(                      int thread_Index, int point_Index);
 	void calc_C_Factor				(QString polarization, int thread_Index, int point_Index);
+	void calc_Omega_Factor			(                      int thread_Index, int point_Index);
+	void calc_Gamma_Factor			(                      int thread_Index, int point_Index);
+
+	void choose_Form_Factor_2D_Function	(int thread_Index);
+	void fill_Item_Form_Factor_2D		(int thread_Index, int point_Index, int phi_Index);
 
 	// for sigma grading
 	void multifly_Fresnel_And_Weak_Factor(int thread_Index);

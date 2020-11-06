@@ -349,9 +349,12 @@ public:
 	static double G2_Hexagone(double q, double phi, double a,  double sigma, double N,  double M);
 	static double G2_Hexagone_long	 (long double q, long double phi, long double a,  long double sigma, long double N,  long double M);
 
-	static complex<double> full_Sphere_FF  (double q, complex<double> qz, double R);
+	static complex<double> full_Sphere_FF  (double q, complex<double> qz, double R, double H);
 	static complex<double> full_Spheroid_FF(double q, complex<double> qz, double R, double H);
 	static complex<double> cylinder_FF	   (double q, complex<double> qz, double R, double H);
+
+	static complex<double> gamma_Factor (complex<double> kl, complex<double> kr, double sigma);
+	static complex<double> omega_Factor (complex<double> k,                      double sigma);
 
 };
 

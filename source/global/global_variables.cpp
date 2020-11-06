@@ -1387,8 +1387,9 @@ double Global_Variables::G2_Hexagone_long(long double q, long double phi, long d
 	return (bracket_N*bracket_M - specular_Mix - N*M)/(N*M*a*b);
 }
 
-complex<double> Global_Variables::full_Sphere_FF(double q, complex<double> qz, double R)
+complex<double> Global_Variables::full_Sphere_FF(double q, complex<double> qz, double R, double H)
 {
+	Q_UNUSED(H)
 	complex<double> q_Full = sqrt(q*q+qz*qz);
 	return 4*M_PI * exp(I*qz*R) * (sin(q_Full*R)-q_Full*R*cos(q_Full*R))/pow(q_Full,3);
 }
@@ -1404,6 +1405,16 @@ complex<double> Global_Variables::cylinder_FF(double q, complex<double> qz, doub
 {
 	double h = H/2;
 	return 2*M_PI*R*R*H * boost::math::sinc_pi(qz*h) * exp(I*qz*h) * boost::math::cyl_bessel_j(1,q*R)/(q*R);
+}
+
+complex<double> Global_Variables::gamma_Factor(complex<double> kl, complex<double> kr, double sigma)
+{
+	return exp(-0.5*pow((kl-conj(kr)),2)*sigma*sigma);
+}
+
+complex<double> Global_Variables::omega_Factor(complex<double> k, double sigma)
+{
+	return exp(-0.5*k*k*sigma*sigma);
 }
 
 void Global_Variables::copy_Tree(const QTreeWidget* from_Tree, QTreeWidget* to_Tree)

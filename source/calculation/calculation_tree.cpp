@@ -612,6 +612,8 @@ void Calculation_Tree::calculate_Intermediate_Values_1_Tree(vector<Node*>& flat_
 		if( mode == SCATTERED_MODE )
 		{
 			short_Flat_Calc_Tree[node_Index]->create_Spline_PSD_Fractal_Gauss_1D(measurement, multilayer->imperfections_Model);
+			// TODO when 2D, when 1D
+			short_Flat_Calc_Tree[node_Index]->create_Spline_G2_2D(measurement, multilayer->imperfections_Model);
 		}
 	}
 	for(size_t node_Index = 0; node_Index<short_Flat_Calc_Tree.size(); node_Index++)
@@ -630,6 +632,8 @@ void Calculation_Tree::clear_Spline_1_Tree(vector<Node*>& short_Flat_Calc_Tree, 
 		if( mode == SCATTERED_MODE )
 		{
 			short_Flat_Calc_Tree[node_Index]->clear_Spline_PSD_Fractal_Gauss(multilayer->imperfections_Model);
+			// TODO when 2D, when 1D
+//			short_Flat_Calc_Tree[node_Index]->clear_Spline_G2_2D
 		}
 	}
 }

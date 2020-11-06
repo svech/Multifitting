@@ -761,13 +761,13 @@ void Node::calc_Debye_Waller_Sigma(const Data& measurement, const Imperfections_
 			}
 		}
 
-		acc = gsl_interp_accel_alloc();
-		if(p_Max<10*addition) 	spline = gsl_spline_alloc(gsl_interp_linear, interpoints_Sum_Value_Vec.size());
-		else					spline = gsl_spline_alloc(gsl_interp_steffen,interpoints_Sum_Value_Vec.size());
-		gsl_spline_init(spline, interpoints_Sum_Argum_Vec.data(), interpoints_Sum_Value_Vec.data(), interpoints_Sum_Value_Vec.size());
+		acc_PSD = gsl_interp_accel_alloc();
+		if(p_Max<10*addition) 	spline_PSD = gsl_spline_alloc(gsl_interp_linear, interpoints_Sum_Value_Vec.size());
+		else					spline_PSD = gsl_spline_alloc(gsl_interp_steffen,interpoints_Sum_Value_Vec.size());
+		gsl_spline_init(spline_PSD, interpoints_Sum_Argum_Vec.data(), interpoints_Sum_Value_Vec.data(), interpoints_Sum_Value_Vec.size());
 
 		// integration
-		auto f_2 = [&](double p){return gsl_spline_eval(spline, p, acc);};
+		auto f_2 = [&](double p){return gsl_spline_eval(spline_PSD, p, acc_PSD);};
 		for(size_t i = 0; i<num_Points; ++i)
 		{
 			if(p0[i]>DBL_MIN)
@@ -779,8 +779,8 @@ void Node::calc_Debye_Waller_Sigma(const Data& measurement, const Imperfections_
 				delta_Sigma_2[i] = 0;
 			}
 		}
-		gsl_spline_free(spline);
-		gsl_interp_accel_free(acc);
+		gsl_spline_free(spline_PSD);
+		gsl_interp_accel_free(acc_PSD);
 	}
 
 	for(size_t i = 0; i<num_Points; ++i)
@@ -874,11 +874,11 @@ void Node::create_Spline_PSD_Fractal_Gauss_1D(const Data& measurement, const Imp
 		}
 	}
 
-	acc = gsl_interp_accel_alloc();
-	if(p_Max<10*addition) 	spline = gsl_spline_alloc(gsl_interp_linear, interpoints_Sum_Value_Vec.size());
-	else					spline = gsl_spline_alloc(gsl_interp_steffen,interpoints_Sum_Value_Vec.size());
+	acc_PSD = gsl_interp_accel_alloc();
+	if(p_Max<10*addition) 	spline_PSD = gsl_spline_alloc(gsl_interp_linear, interpoints_Sum_Value_Vec.size());
+	else					spline_PSD = gsl_spline_alloc(gsl_interp_steffen,interpoints_Sum_Value_Vec.size());
 
-	gsl_spline_init(spline, interpoints_Sum_Argum_Vec.data(), interpoints_Sum_Value_Vec.data(), interpoints_Sum_Value_Vec.size());
+	gsl_spline_init(spline_PSD, interpoints_Sum_Argum_Vec.data(), interpoints_Sum_Value_Vec.data(), interpoints_Sum_Value_Vec.size());
 }
 
 void Node::create_Spline_PSD_Fractal_Gauss_2D(const Data& measurement, const Imperfections_Model& imperfections_Model)
@@ -995,6 +995,131 @@ void Node::clear_Spline_PSD_Fractal_Gauss(const Imperfections_Model& imperfectio
 
 	// in other cases ( substrate or layer-with-individual-function ) go further
 
-	gsl_spline_free(spline);
-	gsl_interp_accel_free(acc);
+	gsl_spline_free(spline_PSD);
+	gsl_interp_accel_free(acc_PSD);
+}
+
+void Node::create_Spline_G2_2D(const Data& measurement, const Imperfections_Model& imperfections_Model)
+{
+	if(!imperfections_Model.use_Fluctuations) return;
+	if(!struct_Data.fluctuations_Model.is_Used) return;
+	if(struct_Data.fluctuations_Model.particle_Interference_Function != radial_Paracrystal) return;
+	if(struct_Data.item_Type != item_Type_Layer ) return;
+
+	// in other cases ( layer with radial paracrystal ) go further
+
+	vector<double> temp_q2(measurement.detector_Theta_Cos_Vec.size());
+
+	double min_Cos_Phi = min(measurement.detector_Phi_Cos_Vec.front(), measurement.detector_Phi_Cos_Vec.back());
+	for(size_t i=0; i<temp_q2.size(); i++)
+	{
+		temp_q2[i] = measurement.k_Value*measurement.k_Value*( measurement.detector_Theta_Cos_Vec[i]*measurement.detector_Theta_Cos_Vec[i] +
+																measurement.beam_Theta_0_Cos_Value*measurement.beam_Theta_0_Cos_Value -
+															  2*measurement.beam_Theta_0_Cos_Value*measurement.detector_Theta_Cos_Vec[i]*min_Cos_Phi);
+	}
+	std::sort(temp_q2.begin(), temp_q2.end());
+	double q_Max = sqrt(temp_q2.back())*(1+1E-8);
+
+	qInfo() << "q_Max =" << q_Max << endl;
+
+	double q = q_Max;
+
+	qInfo() << "    " << 1+Global_Variables::G2_Square     (q /*q*/, 0 /*phi*/, 1 /*a*/, 0.1 /*sigma*/, 1500000 /*N*/, 1500000 /*M*/) << endl;
+	qInfo() << "long" << 1+Global_Variables::G2_Square_long(q /*q*/, 0 /*phi*/, 1 /*a*/, 0.1 /*sigma*/, 1500000 /*N*/, 1500000 /*M*/) << endl;
+	qInfo() << "long" << 1+Global_Variables::G2_Square_long(q /*q*/, 0.1 /*phi*/, 1 /*a*/, 0.1 /*sigma*/, 1500000 /*N*/, 1500000 /*M*/) << endl;
+
+	auto func = [&](double phi)
+	{
+		return (1+Global_Variables::G2_Square_long(q /*q*/, phi, 1 /*a*/, 0.1 /*sigma*/, 1500000 /*N*/, 1500000 /*M*/))/M_PI_4;
+	};
+	double phi_Max = M_PI_4;
+	double phi_1 = phi_Max/100;
+	double phi_2 = phi_Max/30;
+	double phi_3 = phi_Max/10;
+	double phi_4 = phi_Max/2;
+	double integral  = gauss_kronrod<double,31>::integrate(func,     0, phi_1, 0, 1e-7);
+		   integral += gauss_kronrod<double,31>::integrate(func, phi_1, phi_2, 0, 1e-7);
+		   integral += gauss_kronrod<double,31>::integrate(func, phi_2, phi_3, 0, 1e-7);
+		   integral += gauss_kronrod<double,31>::integrate(func, phi_3, phi_4, 0, 1e-7);
+		   integral += gauss_kronrod<double,31>::integrate(func, phi_4, phi_Max, 0, 1e-7);
+	qInfo() << "l ave" << integral << endl << endl;
+
+
+
+//	int num_Sections = 6; // plus zero point
+//	vector<int> interpoints(num_Sections);
+//	int common_Size = 0;
+//	for(int i=0; i<num_Sections; i++)
+//	{
+//		interpoints[i] = 20-2*i;
+//		common_Size+=interpoints[i];
+//	}
+//	vector<double> interpoints_Sum_Argum_Vec(1+common_Size);
+//	vector<double> interpoints_Sum_Value_Vec(1+common_Size);
+
+//	vector<double> starts(num_Sections); // open start
+//	starts[0] = 0;
+//	starts[1] = nu_Max/300;
+//	starts[2] = nu_Max/40;
+//	starts[3] = nu_Max/10;
+//	starts[4] = nu_Max/5;
+//	starts[5] = nu_Max/2;
+
+//	vector<double> dnu(num_Sections);
+//	for(int i=0; i<num_Sections-1; i++)
+//	{
+//		dnu[i] = (starts[i+1] - starts[i])/interpoints[i];
+//	}
+//	dnu.back() = (nu_Max - starts.back())/interpoints.back();
+
+//	// zero point
+//	{
+//		interpoints_Sum_Argum_Vec[0] = 0;
+//		interpoints_Sum_Value_Vec[0] = M_PI*sigma*sigma*xi*xi*tgamma(1.+1/alpha);
+//	}
+
+//	ooura_fourier_cos<double> integrator;
+
+//	double nu = 0, error;
+//	int counter = 1;
+//	for(int sec=0; sec<num_Sections; sec++)
+//	{
+//		for(int i=0; i<interpoints[sec]; i++)
+//		{
+//			nu += dnu[sec];
+
+//			double integral = 0;
+//			double start_Point = 2*M_PI*(10+0.125)/nu;
+//			// first part
+//			auto f_1 = [&](double r) {return 2*M_PI * sigma*sigma*exp(-pow(r/xi,2*alpha)) * cyl_bessel_j(0, nu*r) * r;};
+//			integral = gauss_kronrod<double, 31>::integrate(f_1, 0, start_Point, 2, 1e-7, &error);
+//			// second part
+//			double factor = 2*sqrt(2*M_PI/nu);
+//			auto f_2 = [&](double r) {return factor * sigma*sigma * exp(-pow((r+start_Point)/xi,2*alpha)) * sqrt(r+start_Point);};
+//			std::pair<double, double> result_Boost = integrator.integrate(f_2, nu);
+//			integral += result_Boost.first;
+
+//			interpoints_Sum_Argum_Vec[counter] = nu;
+//			interpoints_Sum_Value_Vec[counter] = integral;
+//			counter++;
+//		}
+//	}
+//	// chech for artifacts
+////	for(int i=interpoints_Sum_Argum_Vec.size()-2; i>=0; i--)
+////	{
+////		if(interpoints_Sum_Value_Vec[i]<0.5*interpoints_Sum_Value_Vec[i+1])
+////		{
+////			interpoints_Sum_Value_Vec.erase (interpoints_Sum_Value_Vec.begin()+i);
+////			interpoints_Sum_Argum_Vec.erase (interpoints_Sum_Argum_Vec.begin()+i);
+////		}
+////	}
+//	for(int i=0; i<interpoints_Sum_Argum_Vec.size(); i+=1)
+//	{
+//		qInfo() << interpoints_Sum_Argum_Vec[i] << interpoints_Sum_Value_Vec[i] << endl;
+//	}
+
+//	const gsl_interp_type* interp_type = gsl_interp_steffen;
+//	acc = gsl_interp_accel_alloc();
+//	spline = gsl_spline_alloc(interp_type, interpoints_Sum_Value_Vec.size());
+//	gsl_spline_init(spline, interpoints_Sum_Argum_Vec.data(), interpoints_Sum_Value_Vec.data(), interpoints_Sum_Value_Vec.size());
 }
