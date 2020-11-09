@@ -1021,11 +1021,10 @@ void Node::create_Spline_G2_2D(const Data& measurement, const Imperfections_Mode
 	// choose pattern
 	double phi_Max;
 	double a = struct_Data.fluctuations_Model.particle_Radial_Distance.value;
-	double b;
+	double b = a;
 	double sigma = struct_Data.fluctuations_Model.particle_Radial_Distance_Deviation.value;
 	if(struct_Data.fluctuations_Model.geometric_Model == square_Model)
 	{
-		qInfo() << "square" << endl;
 		G2_Type      = Global_Variables::G2_Square;
 		G2_Type_long = Global_Variables::G2_Square_long;
 		phi_Max = M_PI_4;
@@ -1033,7 +1032,6 @@ void Node::create_Spline_G2_2D(const Data& measurement, const Imperfections_Mode
 	}
 	if(struct_Data.fluctuations_Model.geometric_Model == hexagonal_Model)
 	{
-		qInfo() << "hexagone" << endl;
 		G2_Type      = Global_Variables::G2_Hexagone;
 		G2_Type_long = Global_Variables::G2_Hexagone_long;
 		phi_Max = M_PI/6;
@@ -1045,7 +1043,7 @@ void Node::create_Spline_G2_2D(const Data& measurement, const Imperfections_Mode
 	int common_Size = 0;
 	for(int i=0; i<num_Sections; i++)
 	{
-		interpoints[i] = 30-2*i;
+		interpoints[i] = 100-10*i;
 		common_Size += interpoints[i];
 	}
 	vector<double> interpoints_Sum_Argum_Vec(1+common_Size);
@@ -1069,7 +1067,7 @@ void Node::create_Spline_G2_2D(const Data& measurement, const Imperfections_Mode
 	// G2 at zero point
 	{
 		interpoints_Sum_Argum_Vec[0] = 0;
-		interpoints_Sum_Value_Vec[0] = -1;
+		interpoints_Sum_Value_Vec[0] = 0;//-1./(a*b);
 	}
 
 	// additional parameters
@@ -1081,7 +1079,7 @@ void Node::create_Spline_G2_2D(const Data& measurement, const Imperfections_Mode
 	double q = 0;
 	int counter = 1;
 
-	int phi_Division = 4;
+	int phi_Division = 3;
 	vector<double> phi_Vec(phi_Division+1);
 	for(int i=0; i<=phi_Division; i++)
 	{
@@ -1099,19 +1097,34 @@ void Node::create_Spline_G2_2D(const Data& measurement, const Imperfections_Mode
 			double integral = 0;
 			for(int phi_Index=0; phi_Index<phi_Division; phi_Index++)
 			{
-				integral += gauss_kronrod<double,15>::integrate(func, phi_Vec[phi_Index], phi_Vec[phi_Index+1], 0, 1e-7);
+				integral += gauss_kronrod<double,61>::integrate(func, phi_Vec[phi_Index], phi_Vec[phi_Index+1], 0, 1e-7);
 			}
 
 			interpoints_Sum_Argum_Vec[counter] = q;
 			interpoints_Sum_Value_Vec[counter] = integral;
+//			interpoints_Sum_Value_Vec[counter] = G2_Type_long(q, 0.001, a, sigma, 15000, 15000);
 			counter++;
 		}
 	}
 
-	for(int i=0; i<interpoints_Sum_Argum_Vec.size(); i+=1)
+	qInfo() << "N" << N << "M" << M << endl;
+//	qInfo() << "q" << q << "G2" << G2_Type_long(q, 0.001, a, sigma, 15000, 15000) << endl << endl;
+
+//	for(int i=interpoints_Sum_Argum_Vec.size()-50; i<interpoints_Sum_Argum_Vec.size(); i+=10)
+//	{
+//		qInfo() << interpoints_Sum_Argum_Vec[i] << interpoints_Sum_Value_Vec[i] << endl;
+//	}
+
+	QFile file("G2.txt");
+	file.open(QIODevice::WriteOnly);
+	QTextStream out(&file);
+	out.setFieldAlignment(QTextStream::AlignLeft);
+	for(size_t i=0; i<interpoints_Sum_Value_Vec.size(); ++i)
 	{
-		qInfo() << interpoints_Sum_Argum_Vec[i] << interpoints_Sum_Value_Vec[i] << endl;
+		out << interpoints_Sum_Argum_Vec[i] << "\t" << interpoints_Sum_Value_Vec[i] << endl;
 	}
+	file.close();
+
 
 	const gsl_interp_type* interp_type = gsl_interp_steffen;
 	acc_G2 = gsl_interp_accel_alloc();
