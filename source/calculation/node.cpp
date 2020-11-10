@@ -1006,17 +1006,27 @@ void Node::create_Spline_G2_2D(const Data& measurement, const Imperfections_Mode
 
 	// in other cases ( layer with radial paracrystal ) go further
 
-	vector<double> temp_q2(measurement.detector_Theta_Cos_Vec.size());
+	vector<double> temp_q2_Max(measurement.detector_Theta_Cos_Vec.size());
+	vector<double> temp_q2_Min(measurement.detector_Theta_Cos_Vec.size());
 
+	double max_Cos_Phi = max(measurement.detector_Phi_Cos_Vec.front(), measurement.detector_Phi_Cos_Vec.back());
 	double min_Cos_Phi = min(measurement.detector_Phi_Cos_Vec.front(), measurement.detector_Phi_Cos_Vec.back());
-	for(size_t i=0; i<temp_q2.size(); i++)
+	for(size_t i=0; i<measurement.detector_Theta_Cos_Vec.size(); i++)
 	{
-		temp_q2[i] = measurement.k_Value*measurement.k_Value*( measurement.detector_Theta_Cos_Vec[i]*measurement.detector_Theta_Cos_Vec[i] +
-																measurement.beam_Theta_0_Cos_Value*measurement.beam_Theta_0_Cos_Value -
-															  2*measurement.beam_Theta_0_Cos_Value*measurement.detector_Theta_Cos_Vec[i]*min_Cos_Phi);
+		temp_q2_Max[i] = measurement.k_Value*measurement.k_Value*( measurement.detector_Theta_Cos_Vec[i]*measurement.detector_Theta_Cos_Vec[i] +
+																   measurement.beam_Theta_0_Cos_Value*measurement.beam_Theta_0_Cos_Value -
+																 2*measurement.beam_Theta_0_Cos_Value*measurement.detector_Theta_Cos_Vec[i]*min_Cos_Phi);
+		temp_q2_Min[i] = measurement.k_Value*measurement.k_Value*( measurement.detector_Theta_Cos_Vec[i]*measurement.detector_Theta_Cos_Vec[i] +
+																   measurement.beam_Theta_0_Cos_Value*measurement.beam_Theta_0_Cos_Value -
+																 2*measurement.beam_Theta_0_Cos_Value*measurement.detector_Theta_Cos_Vec[i]*max_Cos_Phi);
 	}
-	std::sort(temp_q2.begin(), temp_q2.end());
-	double q_Max = sqrt(temp_q2.back())*(1+1E-8);
+	std::sort(temp_q2_Max.begin(), temp_q2_Max.end());
+	std::sort(temp_q2_Min.begin(), temp_q2_Min.end());
+	double q_Max = sqrt(temp_q2_Max.back())*(1+1E-8);
+	double q_Min = sqrt(temp_q2_Min.front())*(1-1E-8);
+	double q_Range = q_Max-q_Min;
+
+	qInfo() << endl << "q_Min" << q_Min << "q_Max" << q_Max << endl << endl;
 
 	// choose pattern
 	double phi_Max;
@@ -1043,26 +1053,26 @@ void Node::create_Spline_G2_2D(const Data& measurement, const Imperfections_Mode
 	int common_Size = 0;
 	for(int i=0; i<num_Sections; i++)
 	{
-		interpoints[i] = 100-10*i;
+		interpoints[i] = 5000-10*i;
 		common_Size += interpoints[i];
 	}
 	vector<double> interpoints_Sum_Argum_Vec(1+common_Size);
 	vector<double> interpoints_Sum_Value_Vec(1+common_Size);
 
 	vector<double> starts(num_Sections); // open start
-	starts[0] = 0;
-	starts[1] = q_Max*0.1;
-	starts[2] = q_Max*0.2;
-	starts[3] = q_Max*0.3;
-	starts[4] = q_Max*0.5;
-	starts[5] = q_Max*0.7;
+	starts[0] = q_Min;
+	starts[1] = q_Min+q_Range*0.1;
+	starts[2] = q_Min+q_Range*0.2;
+	starts[3] = q_Min+q_Range*0.3;
+	starts[4] = q_Min+q_Range*0.5;
+	starts[5] = q_Min+q_Range*0.7;
+	starts[6] = q_Max;
 
 	vector<double> dq(num_Sections);
-	for(int i=0; i<num_Sections-1; i++)
+	for(int i=0; i<num_Sections; i++)
 	{
 		dq[i] = (starts[i+1] - starts[i])/interpoints[i];
 	}
-	dq.back() = (q_Max - starts.back())/interpoints.back();
 
 	// G2 at zero point
 	{
@@ -1076,10 +1086,10 @@ void Node::create_Spline_G2_2D(const Data& measurement, const Imperfections_Mode
 	N = max(N,1.);
 	M = max(M,1.);
 
-	double q = 0;
+	double q = q_Min;
 	int counter = 1;
 
-	int phi_Division = 3;
+	int phi_Division = 1;
 	vector<double> phi_Vec(phi_Division+1);
 	for(int i=0; i<=phi_Division; i++)
 	{
@@ -1102,7 +1112,7 @@ void Node::create_Spline_G2_2D(const Data& measurement, const Imperfections_Mode
 
 			interpoints_Sum_Argum_Vec[counter] = q;
 			interpoints_Sum_Value_Vec[counter] = integral;
-//			interpoints_Sum_Value_Vec[counter] = G2_Type_long(q, 0.001, a, sigma, 15000, 15000);
+//			interpoints_Sum_Value_Vec[counter] = G2_Type_long(q, 0.001, a, sigma, N, M);
 			counter++;
 		}
 	}
@@ -1119,7 +1129,7 @@ void Node::create_Spline_G2_2D(const Data& measurement, const Imperfections_Mode
 	file.open(QIODevice::WriteOnly);
 	QTextStream out(&file);
 	out.setFieldAlignment(QTextStream::AlignLeft);
-	for(size_t i=0; i<interpoints_Sum_Value_Vec.size(); ++i)
+	for(size_t i=1; i<interpoints_Sum_Value_Vec.size(); ++i)
 	{
 		out << interpoints_Sum_Argum_Vec[i] << "\t" << interpoints_Sum_Value_Vec[i] << endl;
 	}

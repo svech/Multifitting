@@ -1250,20 +1250,24 @@ double Global_Variables::G1_Square(double a)
 
 double Global_Variables::G2_Square(double q, double phi, double a,  double sigma, double N, double M)
 {
+	double b = a;
+
 	double qa = q*cos(phi);
 	double qb = q*sin(phi);
 
 	double low_damp = exp(-0.25*q*q*sigma*sigma);
 	double damp = low_damp*low_damp;
+	double damp_N = pow(damp,N);
+	double damp_M = pow(damp,M);
 
 	complex<double> alpha = exp(I*qa*a)*damp;
-	complex<double> beta  = exp(I*qb*a)*damp;
+	complex<double> beta  = exp(I*qb*b)*damp;
 
 	complex<double> alpha_denom = 1./(1.-alpha);
-	complex<double> alpha_1_N = (1.-pow(alpha,N));
+	complex<double> alpha_1_N = (1.-exp(I*qa*a*N)*damp_N);
 
 	complex<double> beta_denom = 1./(1.-beta);
-	complex<double> beta_1_M = (1.-pow(beta,M));
+	complex<double> beta_1_M = (1.-exp(I*qb*b*M)*damp_M);
 
 	double bracket_N = N + 2*real(alpha*alpha_denom*(N-alpha_1_N*alpha_denom));
 	double bracket_M = M + 2*real(beta * beta_denom*(M- beta_1_M* beta_denom));
@@ -1271,31 +1275,35 @@ double Global_Variables::G2_Square(double q, double phi, double a,  double sigma
 	complex<double> specular_N = alpha_1_N*alpha_denom*
 			( boost::math::sinc_pi(0.5*qa*a)*(1.+(sigma*sigma/(a*a)-pow(sigma*sigma*qa/(2*a),2.))/1.5) - sigma*sigma/(a*a)*cos(0.5*qa*a) );
 	complex<double> specular_M =  beta_1_M* beta_denom*
-			( boost::math::sinc_pi(0.5*qb*a)*(1.+(sigma*sigma/(a*a)-pow(sigma*sigma*qb/(2*a),2.))/1.5) - sigma*sigma/(a*a)*cos(0.5*qb*a) );
+			( boost::math::sinc_pi(0.5*qb*b)*(1.+(sigma*sigma/(b*b)-pow(sigma*sigma*qb/(2*b),2.))/1.5) - sigma*sigma/(b*b)*cos(0.5*qb*b) );
 
 	double specular_Mix = norm(specular_N*specular_M)*low_damp;
 
-	return (bracket_N*bracket_M - specular_Mix/* - N*M*/)/(N*M/**a*a*/);
+	return (bracket_N*bracket_M - specular_Mix/* - N*M*/)/(N*M/**a*b*/);
 }
 double Global_Variables::G2_Square_long(long double q, long double phi, long double a, long double sigma, long double N, long double M)
 {
+	long double b = a;
+
 	long double qa = q*cos(phi);
 	long double qb = q*sin(phi);
 
 	long double low_damp = exp(-0.25*q*q*sigma*sigma);
 	long double damp = low_damp*low_damp;
+	long double damp_N = pow(damp,N);
+	long double damp_M = pow(damp,M);
 
 	complex<long double> long_I = complex<long double>(0,1);
 	long double long_One = 1;
 
 	complex<long double> alpha = exp(long_I*qa*a)*damp;
-	complex<long double> beta  = exp(long_I*qb*a)*damp;
+	complex<long double> beta  = exp(long_I*qb*b)*damp;
 
 	complex<long double> alpha_denom = long_One/(long_One-alpha);
-	complex<long double> alpha_1_N = (long_One-pow(alpha,N));
+	complex<long double> alpha_1_N = (long_One-exp(long_I*qa*a*N)*damp_N);
 
-	complex<long double> beta_denom = long_One/(long_One-beta);
-	complex<long double> beta_1_M = (long_One-pow(beta,M));
+	complex<long double> beta_denom  = long_One/(long_One-beta);
+	complex<long double> beta_1_M  = (long_One-exp(long_I*qb*b*M)*damp_M);
 
 	long double bracket_N = N + 2*real(alpha*alpha_denom*(N-alpha_1_N*alpha_denom));
 	long double bracket_M = M + 2*real(beta * beta_denom*(M- beta_1_M* beta_denom));
@@ -1303,11 +1311,11 @@ double Global_Variables::G2_Square_long(long double q, long double phi, long dou
 	complex<long double> specular_N = alpha_1_N*alpha_denom*
 			( boost::math::sinc_pi(0.5*qa*a)*(long_One+(sigma*sigma/(a*a)-pow(sigma*sigma*qa/(2*a),2.))/1.5) - sigma*sigma/(a*a)*cos(0.5*qa*a) );
 	complex<long double> specular_M =  beta_1_M* beta_denom*
-			( boost::math::sinc_pi(0.5*qb*a)*(long_One+(sigma*sigma/(a*a)-pow(sigma*sigma*qb/(2*a),2.))/1.5) - sigma*sigma/(a*a)*cos(0.5*qb*a) );
+			( boost::math::sinc_pi(0.5*qb*b)*(long_One+(sigma*sigma/(b*b)-pow(sigma*sigma*qb/(2*b),2.))/1.5) - sigma*sigma/(b*b)*cos(0.5*qb*b) );
 
 	long double specular_Mix = norm(specular_N*specular_M)*low_damp;
 
-	return (bracket_N*bracket_M - specular_Mix/* - N*M*/)/(N*M/**a*a*/);
+	return (bracket_N*bracket_M - specular_Mix/* - N*M*/)/(N*M/**a*b*/);
 }
 
 double Global_Variables::G1_Hexagone(double a)
@@ -1317,28 +1325,33 @@ double Global_Variables::G1_Hexagone(double a)
 
 double Global_Variables::G2_Hexagone(double q, double phi, double a, double sigma, double N, double M)
 {
+	double b = a*M_SQRT3/2;
+
 	double qa = q*cos(phi);
 	double qb = q*sin(phi);
 
 	double low_damp = exp(-0.25*q*q*sigma*sigma);
 	double damp = low_damp*low_damp;
-
-	double b = a*M_SQRT3/2;
+	double damp_N = pow(damp,N);
+	double damp_M = pow(damp,M);
+	double damp_M_1 = pow(damp,M-1);
 
 	complex<double> alpha = exp(I*qa*a)*damp;
 	complex<double> beta  = exp(I*qb*b)*damp;
 	complex<double> lambda= exp(I*qa*0.5*a);
 
 	complex<double> alpha_denom = 1./(1.-alpha);
-	complex<double> alpha_1_N = (1.-pow(alpha,N));
+	complex<double> alpha_1_N = (1.-exp(I*qa*a*N)*damp_N);
+
+	complex<double> beta_M   = exp(I*qb*b*M)*damp_M;
+	complex<double> beta_M_1 = exp(I*qb*b*(M-1))*damp_M_1;
 
 	double bracket_N = N + 2*real(alpha*alpha_denom*(N-alpha_1_N*alpha_denom));
 	double bracket_M = M + 2*real(beta /(1.-beta )*(
 									  (M-1)*(beta+real(lambda))/(1.+beta)-
-									  (1.-pow(beta,M-1))*beta*(1.+beta*lambda)*(1.+beta*conj(lambda))/((1.-beta)*pow(1.+beta,2.))
+									  (1.-beta_M_1)*beta*(1.+beta*lambda)*(1.+beta*conj(lambda))/((1.-beta)*pow(1.+beta,2.))
 									  ));
 
-	complex<double> beta_M = pow(beta,M);
 
 	complex<double> specular_N = alpha_1_N*alpha_denom*
 			( boost::math::sinc_pi(0.5*qa*a)*(1.+(sigma*sigma/(a*a)-pow(sigma*sigma*qa/(2*a),2.))/1.5) - sigma*sigma/(a*a)*cos(0.5*qa*a) );
@@ -1354,28 +1367,33 @@ double Global_Variables::G2_Hexagone_long(long double q, long double phi, long d
 	complex<long double> long_I = complex<long double>(0,1);
 	long double long_One = 1;
 
+	long double b = a*M_SQRT3/2;
+
 	long double qa = q*cos(phi);
 	long double qb = q*sin(phi);
 
 	long double low_damp = exp(-0.25*q*q*sigma*sigma);
 	long double damp = low_damp*low_damp;
-
-	long double b = a*M_SQRT3/2;
+	long double damp_N = pow(damp,N);
+	long double damp_M = pow(damp,M);
+	long double damp_M_1 = pow(damp,M-1);
 
 	complex<long double> alpha = exp(long_I*qa*a)*damp;
 	complex<long double> beta  = exp(long_I*qb*b)*damp;
 	complex<long double> lambda= exp(long_I*qa*(0.5*a));
 
 	complex<long double> alpha_denom = long_One/(long_One-alpha);
-	complex<long double> alpha_1_N = (long_One-pow(alpha,N));
+	complex<long double> alpha_1_N = (long_One-exp(long_I*qa*a*N)*damp_N);
+
+	complex<long double> beta_M   = exp(long_I*qb*b*M)*damp_M;
+	complex<long double> beta_M_1 = exp(long_I*qb*b*(M-1))*damp_M_1;
 
 	long double bracket_N = N + 2*real(alpha*alpha_denom*(N-alpha_1_N*alpha_denom));
 	long double bracket_M = M + 2*real(beta /(long_One-beta )*(
 									  (M-1)*(beta+real(lambda))/(long_One+beta)-
-									  (long_One-pow(beta,M-1))*beta*(long_One+beta*lambda)*(long_One+beta*conj(lambda))/((long_One-beta)*pow(long_One+beta,2.))
+									  (long_One-beta_M_1)*beta*(long_One+beta*lambda)*(long_One+beta*conj(lambda))/((long_One-beta)*pow(long_One+beta,2.))
 									  ));
 
-	complex<long double> beta_M = pow(beta,M);
 
 	complex<long double> specular_N = alpha_1_N*alpha_denom*
 			( boost::math::sinc_pi(0.5*qa*a)*(long_One+(sigma*sigma/(a*a)-pow(sigma*sigma*qa/(2*a),2.))/1.5) - sigma*sigma/(a*a)*cos(0.5*qa*a) );
