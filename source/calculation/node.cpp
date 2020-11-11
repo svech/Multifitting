@@ -1025,8 +1025,9 @@ void Node::create_Spline_G2_2D(const Data& measurement, const Imperfections_Mode
 	double q_Max = sqrt(temp_q2_Max.back())*(1+1E-8);
 	double q_Min = sqrt(temp_q2_Min.front())*(1-1E-8);
 	double q_Range = q_Max-q_Min;
+	vector<double> q_Peak;
 
-	qInfo() << endl << "q_Min" << q_Min << "q_Max" << q_Max << endl << endl;
+	qInfo() << "q_Min" << q_Min << "q_Max" << q_Max << endl;
 
 	// choose pattern
 	double phi_Max;
@@ -1039,6 +1040,23 @@ void Node::create_Spline_G2_2D(const Data& measurement, const Imperfections_Mode
 		G2_Type_long = Global_Variables::G2_Square_long;
 		phi_Max = M_PI_4;
 		b = a;
+
+		// peak positions
+		int n_Max = ceil(q_Max*a/(2*M_PI));
+		for(int n = 0; n<=n_Max; n++)
+		{
+			for(int m = n; m<=n_Max; m++)
+			{
+				double q = 2*M_PI/a*sqrt(n*n+m*m);
+				if(	(q < q_Max) &&
+					(q > q_Min)
+				  )
+				{
+					q_Peak.push_back(q);
+				}
+			}
+		}
+		std::sort(q_Peak.begin(), q_Peak.end());
 	}
 	if(struct_Data.fluctuations_Model.geometric_Model == hexagonal_Model)
 	{
@@ -1046,14 +1064,82 @@ void Node::create_Spline_G2_2D(const Data& measurement, const Imperfections_Mode
 		G2_Type_long = Global_Variables::G2_Hexagone_long;
 		phi_Max = M_PI/6;
 		b = a*M_SQRT3/2;
-	}	
+
+		// peak positions
+		int n_Max = ceil(q_Max*a/(2*M_PI));
+		int m_Max = ceil(q_Max*b/(  M_PI));
+		for(int n = 1; n<=n_Max; n++)
+		{
+			for(int m = 1; m<=m_Max; m++)
+			{
+				double q = 2*M_PI/a*sqrt(n*n+m*m/3.);
+				if(	(q < q_Max) &&
+					(q > q_Min) &&
+					((n+m)%2 == 0)
+				  )
+				{
+					bool contains = false;
+					for(double& qp : q_Peak)	{
+						if( norm(qp-q) < 1E-6 ) contains = true;
+					}
+					if(!contains) q_Peak.push_back(q);
+				}
+			}
+		}
+		std::sort(q_Peak.begin(), q_Peak.end());
+	}
+
+	// peak half-widths
+	vector<double> hw_Peak(q_Peak.size());
+	for(int i=0; i<q_Peak.size(); i++)
+	{
+		double damp = exp(-0.5*q_Peak[i]*q_Peak[i]*sigma*sigma);
+		hw_Peak[i] = acos( 2*damp / (1.+damp*damp) ) / a;
+	}
+
+	// points
+	vector<double> q_Vec; q_Vec.reserve(100000);
+	q_Vec.push_back(q_Min);
+
+	// num points if no peaks in range
+	int num_Bare_Points = 200;
+
+	// no peaks in range
+	if(q_Peak.size() == 0)
+	{
+		q_Vec.resize(num_Bare_Points);
+		double dq = q_Range/(num_Bare_Points-1);
+		for(int i=0; i<num_Bare_Points; i++)
+		{
+			q_Vec[i] = q_Min+dq*i;
+		}
+	} else
+	{
+		// before first peak
+		double dq = q_Range/(num_Bare_Points-1);
+		qInfo() << q_Vec.back() << endl;
+
+		for(int peak_Index = 0; peak_Index<q_Peak.size(); q_Peak++)
+		{
+			while(q_Vec.back()+dq<q_Peak.front()-2*hw_Peak.front())
+			{
+				q_Vec.push_back(q_Vec.back()+dq);
+				qInfo() << q_Vec.back() << endl;
+			}
+		}
+
+
+
+
+	}
+
 
 	int num_Sections = 6; // plus zero point
 	vector<int> interpoints(num_Sections);
 	int common_Size = 0;
 	for(int i=0; i<num_Sections; i++)
 	{
-		interpoints[i] = 5000-10*i;
+		interpoints[i] = 2000-10*i;
 		common_Size += interpoints[i];
 	}
 	vector<double> interpoints_Sum_Argum_Vec(1+common_Size);
@@ -1117,7 +1203,7 @@ void Node::create_Spline_G2_2D(const Data& measurement, const Imperfections_Mode
 		}
 	}
 
-	qInfo() << "N" << N << "M" << M << endl;
+	qInfo() << endl << "N" << N << "M" << M << endl;
 //	qInfo() << "q" << q << "G2" << G2_Type_long(q, 0.001, a, sigma, 15000, 15000) << endl << endl;
 
 //	for(int i=interpoints_Sum_Argum_Vec.size()-50; i<interpoints_Sum_Argum_Vec.size(); i+=10)
