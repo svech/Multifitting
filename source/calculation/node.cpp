@@ -1027,8 +1027,6 @@ void Node::create_Spline_G2_2D(const Data& measurement, const Imperfections_Mode
 	double q_Range = q_Max-q_Min;
 	vector<double> q_Peak;
 
-	qInfo() << "q_Min" << q_Min << "q_Max" << q_Max << endl;
-
 	// choose pattern
 	double phi_Max;
 	double a = struct_Data.fluctuations_Model.particle_Radial_Distance.value;
@@ -1089,6 +1087,11 @@ void Node::create_Spline_G2_2D(const Data& measurement, const Imperfections_Mode
 		std::sort(q_Peak.begin(), q_Peak.end());
 	}
 
+	double N = 1e7*min(measurement.sample_Geometry.size, measurement.beam_Geometry.size/max(measurement.beam_Theta_0_Sin_Value, DBL_EPSILON))/a;
+	double M = 1e7*measurement.beam_Geometry.lateral_Width/b;
+	N = max(N,1.);
+	M = max(M,1.);
+
 	// peak half-widths
 	vector<double> hw_Peak(q_Peak.size());
 	for(int i=0; i<q_Peak.size(); i++)
@@ -1096,13 +1099,18 @@ void Node::create_Spline_G2_2D(const Data& measurement, const Imperfections_Mode
 		double damp = exp(-0.5*q_Peak[i]*q_Peak[i]*sigma*sigma);
 		hw_Peak[i] = acos( 2*damp / (1.+damp*damp) ) / a;
 	}
+	double damp_Max = exp(-0.5*q_Max*q_Max/4*sigma*sigma);
+	double hw_Peak_Max = acos( 2*damp_Max / (1.+damp_Max*damp_Max) ) / a;
+	if(hw_Peak.size()>=1) hw_Peak_Max = hw_Peak.front();
 
 	// points
 	vector<double> q_Vec; q_Vec.reserve(100000);
 	q_Vec.push_back(q_Min);
 
 	// num points if no peaks in range
-	int num_Bare_Points = 200;
+	int num_Bare_Points = 300;
+	int num_Peak_Points = 51; // inside hw_Factor/2 FWHM
+	int hw_Factor = 5;
 
 	// no peaks in range
 	if(q_Peak.size() == 0)
@@ -1115,117 +1123,192 @@ void Node::create_Spline_G2_2D(const Data& measurement, const Imperfections_Mode
 		}
 	} else
 	{
-		// before first peak
-		double dq = q_Range/(num_Bare_Points-1);
-		qInfo() << q_Vec.back() << endl;
+		double dq_Bare = q_Range/(num_Bare_Points-1);
 
-		for(int peak_Index = 0; peak_Index<q_Peak.size(); q_Peak++)
+		// except last peak
+		for(size_t peak_Index = 0; peak_Index<q_Peak.size()-1; peak_Index++)
 		{
-			while(q_Vec.back()+dq<q_Peak.front()-2*hw_Peak.front())
+			// before each peak
+			while(q_Vec.back()+dq_Bare < q_Peak[peak_Index]-hw_Factor*hw_Peak[peak_Index])
 			{
-				q_Vec.push_back(q_Vec.back()+dq);
-				qInfo() << q_Vec.back() << endl;
+				q_Vec.push_back(q_Vec.back()+dq_Bare);
+			}
+
+			// inside each peak
+			q_Vec.push_back(q_Peak[peak_Index]-hw_Factor*hw_Peak[peak_Index]);
+
+			double dq_Peak = 2*hw_Factor*hw_Peak[peak_Index]/(num_Peak_Points-1);
+
+			while( (q_Vec.back()+dq_Peak < q_Peak[peak_Index  ]+hw_Factor*hw_Peak[peak_Index  ]) &&
+				   (q_Vec.back()+dq_Peak < q_Peak[peak_Index+1]-hw_Factor*hw_Peak[peak_Index+1]) // before next peak starts
+				   )
+			{
+				q_Vec.push_back(q_Vec.back()+dq_Peak);
 			}
 		}
 
-
-
-
-	}
-
-
-	int num_Sections = 6; // plus zero point
-	vector<int> interpoints(num_Sections);
-	int common_Size = 0;
-	for(int i=0; i<num_Sections; i++)
-	{
-		interpoints[i] = 2000-10*i;
-		common_Size += interpoints[i];
-	}
-	vector<double> interpoints_Sum_Argum_Vec(1+common_Size);
-	vector<double> interpoints_Sum_Value_Vec(1+common_Size);
-
-	vector<double> starts(num_Sections); // open start
-	starts[0] = q_Min;
-	starts[1] = q_Min+q_Range*0.1;
-	starts[2] = q_Min+q_Range*0.2;
-	starts[3] = q_Min+q_Range*0.3;
-	starts[4] = q_Min+q_Range*0.5;
-	starts[5] = q_Min+q_Range*0.7;
-	starts[6] = q_Max;
-
-	vector<double> dq(num_Sections);
-	for(int i=0; i<num_Sections; i++)
-	{
-		dq[i] = (starts[i+1] - starts[i])/interpoints[i];
-	}
-
-	// G2 at zero point
-	{
-		interpoints_Sum_Argum_Vec[0] = 0;
-		interpoints_Sum_Value_Vec[0] = 0;//-1./(a*b);
-	}
-
-	// additional parameters
-	double N = 1e7*min(measurement.sample_Geometry.size, measurement.beam_Geometry.size/max(measurement.beam_Theta_0_Sin_Value, DBL_EPSILON))/a;
-	double M = 1e7*measurement.beam_Geometry.lateral_Width/b;
-	N = max(N,1.);
-	M = max(M,1.);
-
-	double q = q_Min;
-	int counter = 1;
-
-	int phi_Division = 1;
-	vector<double> phi_Vec(phi_Division+1);
-	for(int i=0; i<=phi_Division; i++)
-	{
-		phi_Vec[i] = phi_Max/phi_Division*i;
-	}
-
-	for(int sec=0; sec<num_Sections; sec++)
-	{
-		for(int i=0; i<interpoints[sec]; i++)
+		// last peak
+		size_t peak_Index = q_Peak.size()-1;
 		{
-			q += dq[sec];
-
-			auto func = [&](double phi)	{return G2_Type_long(q, phi, a, sigma, N, M)/phi_Max;};
-
-			double integral = 0;
-			for(int phi_Index=0; phi_Index<phi_Division; phi_Index++)
+			// before last peak
+			while(q_Vec.back()+dq_Bare < q_Peak[peak_Index]-hw_Factor*hw_Peak[peak_Index])
 			{
-				integral += gauss_kronrod<double,61>::integrate(func, phi_Vec[phi_Index], phi_Vec[phi_Index+1], 0, 1e-7);
+				q_Vec.push_back(q_Vec.back()+dq_Bare);
 			}
 
-			interpoints_Sum_Argum_Vec[counter] = q;
-			interpoints_Sum_Value_Vec[counter] = integral;
-//			interpoints_Sum_Value_Vec[counter] = G2_Type_long(q, 0.001, a, sigma, N, M);
-			counter++;
+			// inside last peak
+			q_Vec.push_back(q_Peak[peak_Index]-hw_Factor*hw_Peak[peak_Index]);
+
+			double dq_Peak = 2*hw_Factor*hw_Peak[peak_Index]/(num_Peak_Points-1);
+
+			while( (q_Vec.back()+dq_Peak < q_Peak[peak_Index]+hw_Factor*hw_Peak[peak_Index]) &&
+				   (q_Vec.back()+dq_Peak < q_Max)
+				   )
+			{
+				q_Vec.push_back(q_Vec.back()+dq_Peak);
+			}
+
+			// after last peak
+			while(q_Vec.back()+dq_Bare < q_Max)
+			{
+				q_Vec.push_back(q_Vec.back()+dq_Bare);
+			}
+			q_Vec.push_back(q_Max);
 		}
 	}
 
-	qInfo() << endl << "N" << N << "M" << M << endl;
-//	qInfo() << "q" << q << "G2" << G2_Type_long(q, 0.001, a, sigma, 15000, 15000) << endl << endl;
+	// sorting
+	std::sort(q_Vec.begin(), q_Vec.end());
+	for(int i=q_Vec.size()-1; i>=1; i--)
+	{
+		if(q_Vec[i]-q_Vec[i-1] < DBL_EPSILON) q_Vec.erase(q_Vec.begin()+i);
+	}
 
-//	for(int i=interpoints_Sum_Argum_Vec.size()-50; i<interpoints_Sum_Argum_Vec.size(); i+=10)
+	// calculation
+	const int gk_points = 61;
+	int num_Phi_Points_Per_hw = 1;
+	int max_Phi_Division = 15;
+	vector<double> phi_Vec; phi_Vec.reserve(max_Phi_Division+1);
+	vector<double> G2_Vec(q_Vec.size());
+	bool too_Narrow = false;
+	for(size_t q_Index = 0; q_Index<q_Vec.size(); q_Index++)
+	{
+		double q = q_Vec[q_Index];
+
+		// phi division
+		double damp = exp(-0.5*q*q*sigma*sigma);
+		double hw_q = max(acos( 2*damp / (1.+damp*damp) ) / a, 4*hw_Peak_Max);
+		double arc_q = phi_Max*q;
+
+		int phi_Division = ceil( arc_q/gk_points * num_Phi_Points_Per_hw/hw_q);
+		phi_Division = max(phi_Division, 1);
+		phi_Division = min(phi_Division, max_Phi_Division); // reasonable limit
+		if(phi_Division == max_Phi_Division) too_Narrow = true;
+		phi_Vec.resize(phi_Division+1);
+		for(int i=0; i<=phi_Division; i++)
+		{
+			phi_Vec[i] = phi_Max/phi_Division*i;
+		}
+
+		// integration
+		auto func = [&](double phi)	{return G2_Type_long(q, phi, a, sigma, N, M)/phi_Max;};
+		double integral = 0;
+		for(int phi_Index=0; phi_Index<phi_Division; phi_Index++)
+		{
+			integral += gauss_kronrod<double,gk_points>::integrate(func, phi_Vec[phi_Index], phi_Vec[phi_Index+1], 0, 1e-7);
+		}
+		G2_Vec[q_Index] = integral;
+	}
+
+	if(too_Narrow)
+	{
+		qInfo() << endl << "WARNING: in " << Global_Variables::structure_Item_Name(struct_Data) << " in density fluctuations r/dr is too high" << endl << endl;
+	}
+
+//	QFile file("G2.txt");
+//	file.open(QIODevice::WriteOnly);
+//	QTextStream out(&file);
+//	out.setFieldAlignment(QTextStream::AlignLeft);
+//	for(size_t i=0; i<q_Vec.size(); ++i)
 //	{
-//		qInfo() << interpoints_Sum_Argum_Vec[i] << interpoints_Sum_Value_Vec[i] << endl;
+//		out << q_Vec[i] << "\t" << G2_Vec[i] << endl;
 //	}
-
-	QFile file("G2.txt");
-	file.open(QIODevice::WriteOnly);
-	QTextStream out(&file);
-	out.setFieldAlignment(QTextStream::AlignLeft);
-	for(size_t i=1; i<interpoints_Sum_Value_Vec.size(); ++i)
-	{
-		out << interpoints_Sum_Argum_Vec[i] << "\t" << interpoints_Sum_Value_Vec[i] << endl;
-	}
-	file.close();
-
+//	file.close();
 
 	const gsl_interp_type* interp_type = gsl_interp_steffen;
 	acc_G2 = gsl_interp_accel_alloc();
-	spline_G2 = gsl_spline_alloc(interp_type, interpoints_Sum_Value_Vec.size());
-	gsl_spline_init(spline_G2, interpoints_Sum_Argum_Vec.data(), interpoints_Sum_Value_Vec.data(), interpoints_Sum_Value_Vec.size());
+	spline_G2 = gsl_spline_alloc(interp_type, q_Vec.size());
+	gsl_spline_init(spline_G2, q_Vec.data(), G2_Vec.data(), q_Vec.size());
+
+	/// ------------------------------------------------------------------------------
+//	int num_Sections = 6; // plus zero point
+//	vector<int> interpoints(num_Sections);
+//	int common_Size = 0;
+//	for(int i=0; i<num_Sections; i++)
+//	{
+//		interpoints[i] = 3000-10*i;
+//		common_Size += interpoints[i];
+//	}
+//	vector<double> interpoints_Sum_Argum_Vec(1+common_Size);
+//	vector<double> interpoints_Sum_Value_Vec(1+common_Size);
+
+//	vector<double> starts(num_Sections); // open start
+//	starts[0] = q_Min;
+//	starts[1] = q_Min+q_Range*0.1;
+//	starts[2] = q_Min+q_Range*0.2;
+//	starts[3] = q_Min+q_Range*0.3;
+//	starts[4] = q_Min+q_Range*0.5;
+//	starts[5] = q_Min+q_Range*0.7;
+//	starts[6] = q_Max;
+
+//	vector<double> dq(num_Sections);
+//	for(int i=0; i<num_Sections; i++)
+//	{
+//		dq[i] = (starts[i+1] - starts[i])/interpoints[i];
+//	}
+
+//	// G2 at zero point
+//	{
+//		interpoints_Sum_Argum_Vec[0] = 0;
+//		interpoints_Sum_Value_Vec[0] = 0;//-1./(a*b);
+//	}
+
+//	double q = q_Min;
+//	int counter = 1;
+
+//	// additional parameters
+//	for(int sec=0; sec<num_Sections; sec++)
+//	{
+//		for(int i=0; i<interpoints[sec]; i++)
+//		{
+//			q += dq[sec];
+
+//			auto func = [&](double phi)	{return G2_Type_long(q, phi, a, sigma, N, M)/phi_Max;};
+
+//			double integral = 0;
+//			for(int phi_Index=0; phi_Index<phi_Division; phi_Index++)
+//			{
+//				integral += gauss_kronrod<double,61>::integrate(func, phi_Vec[phi_Index], phi_Vec[phi_Index+1], 0, 1e-7);
+//			}
+
+//			interpoints_Sum_Argum_Vec[counter] = q;
+//			interpoints_Sum_Value_Vec[counter] = integral;
+//			counter++;
+//		}
+//	}
+
+//	QFile file2("G2_Ethalon.txt");
+//	file2.open(QIODevice::WriteOnly);
+//	QTextStream out2(&file2);
+//	out2.setFieldAlignment(QTextStream::AlignLeft);
+//	for(size_t i=1; i<interpoints_Sum_Value_Vec.size(); ++i)
+//	{
+//		out2 << interpoints_Sum_Argum_Vec[i] << "\t" << interpoints_Sum_Value_Vec[i] << endl;
+//	}
+//	file2.close();
+
+	/// ------------------------------------------------------------------------------
+
 }
 
 void Node::clear_Spline_G2_2D(const Imperfections_Model& imperfections_Model)
