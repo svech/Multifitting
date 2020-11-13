@@ -2922,6 +2922,8 @@ void Table_Of_Structures::create_Line_Edit(My_Table_Widget* table, int tab_Index
 		{
 			spin_Box->setRange(0, 1);
 		}
+
+		// roughness
 		if(whats_This == whats_This_Fractal_Alpha)
 		{
 			spin_Box->setRange(0.1, 1);
@@ -2935,9 +2937,22 @@ void Table_Of_Structures::create_Line_Edit(My_Table_Widget* table, int tab_Index
 			spin_Box->setMinimum(1e0/coeff);
 			spin_Box->setMaximum(1e6/coeff);
 		}
-		if(whats_This == whats_This_Linear_PSD_Exponenta_Mu || whats_This == whats_This_Linear_PSD_Omega || whats_This == whats_This_Correlation_Radius)
+		if( whats_This == whats_This_Linear_PSD_Exponenta_Mu ||
+			whats_This == whats_This_Linear_PSD_Omega ||
+			whats_This == whats_This_Correlation_Radius)
 		{
 			spin_Box->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
+		}
+
+		// fluctuations
+		if( whats_This == whats_This_Particle_Average_Distance ||
+			whats_This == whats_This_Particle_Radial_Distance)
+		{
+			spin_Box->setMinimum(1/coeff);
+		}
+		if( whats_This == whats_This_Particle_Radial_Distance_Deviation)
+		{
+			spin_Box->setMinimum(0.5/coeff);
 		}
 
 		id = parameter.indicator.id;
@@ -3825,13 +3840,13 @@ void Table_Of_Structures::create_Step_Spin_Box(My_Table_Widget* table, int tab_I
 		if(whats_This == whats_This_Linear_PSD_Omega)			{ step_sigma_omega = step_SpinBox->value()*pow(length_Coeff,3);			for(MyDoubleSpinBox* spb : linear_PSD_Omega_Spin_Boxes_List)			spb->setSingleStep(step_sigma_omega/pow(length_Coeff,3));}
 		if(whats_This == whats_This_Linear_PSD_Exponenta_Mu)	{ step_sigma_mu = step_SpinBox->value()*length_Coeff;					for(MyDoubleSpinBox* spb : Linear_PSD_Exponenta_Mu_Spin_Boxes_List)		spb->setSingleStep(step_sigma_mu/length_Coeff);}
 
-		if(whats_This == whats_This_Particle_Density)					{ step_particle_density  = step_SpinBox->value();			 for(MyDoubleSpinBox* spb : particle_Density_Spin_Boxes_List)				spb->setSingleStep(step_particle_density);	}
-		if(whats_This == whats_This_Particle_Radius)					{ step_particle_radius   = step_SpinBox->value();			 for(MyDoubleSpinBox* spb : particle_Radius_Spin_Boxes_List)				spb->setSingleStep(step_particle_radius);	}
-		if(whats_This == whats_This_Particle_Height)					{ step_particle_height   = step_SpinBox->value();			 for(MyDoubleSpinBox* spb : particle_Height_Spin_Boxes_List)				spb->setSingleStep(step_particle_height);	}
-		if(whats_This == whats_This_Particle_Distance)					{ step_particle_distance = step_SpinBox->value();			 for(MyDoubleSpinBox* spb : particle_Distance_Spin_Boxes_List)				spb->setSingleStep(step_particle_distance);	}
-		if(whats_This == whats_This_Particle_Radial_Distance_Deviation)	{ step_particle_distance_deviation = step_SpinBox->value();	 for(MyDoubleSpinBox* spb : particle_Distance_Deviation_Spin_Boxes_List)	spb->setSingleStep(step_particle_distance_deviation);	}
-		if(whats_This == whats_This_Particle_Z_Position)				{ step_particle_z_position = step_SpinBox->value();			 for(MyDoubleSpinBox* spb : particle_Z_Position_Spin_Boxes_List)			spb->setSingleStep(step_particle_z_position);	}
-		if(whats_This == whats_This_Particle_Z_Position_Deviation)		{ step_particle_z_position_deviation = step_SpinBox->value();for(MyDoubleSpinBox* spb : particle_Z_Position_Deviation_Spin_Boxes_List)	spb->setSingleStep(step_particle_z_position_deviation);	}
+		if(whats_This == whats_This_Particle_Density)					{ step_particle_density  = step_SpinBox->value();						  for(MyDoubleSpinBox* spb : particle_Density_Spin_Boxes_List)				spb->setSingleStep(step_particle_density);	}
+		if(whats_This == whats_This_Particle_Radius)					{ step_particle_radius   = step_SpinBox->value()*length_Coeff;			  for(MyDoubleSpinBox* spb : particle_Radius_Spin_Boxes_List)				spb->setSingleStep(step_particle_radius/length_Coeff);	}
+		if(whats_This == whats_This_Particle_Height)					{ step_particle_height   = step_SpinBox->value()*length_Coeff;			  for(MyDoubleSpinBox* spb : particle_Height_Spin_Boxes_List)				spb->setSingleStep(step_particle_height/length_Coeff);	}
+		if(whats_This == whats_This_Particle_Distance)					{ step_particle_distance = step_SpinBox->value()*length_Coeff;			  for(MyDoubleSpinBox* spb : particle_Distance_Spin_Boxes_List)				spb->setSingleStep(step_particle_distance/length_Coeff);	}
+		if(whats_This == whats_This_Particle_Radial_Distance_Deviation)	{ step_particle_distance_deviation = step_SpinBox->value()*length_Coeff;  for(MyDoubleSpinBox* spb : particle_Distance_Deviation_Spin_Boxes_List)	spb->setSingleStep(step_particle_distance_deviation/length_Coeff);	}
+		if(whats_This == whats_This_Particle_Z_Position)				{ step_particle_z_position = step_SpinBox->value()*length_Coeff;		  for(MyDoubleSpinBox* spb : particle_Z_Position_Spin_Boxes_List)			spb->setSingleStep(step_particle_z_position/length_Coeff);	}
+		if(whats_This == whats_This_Particle_Z_Position_Deviation)		{ step_particle_z_position_deviation = step_SpinBox->value()*length_Coeff;for(MyDoubleSpinBox* spb : particle_Z_Position_Deviation_Spin_Boxes_List)	spb->setSingleStep(step_particle_z_position_deviation/length_Coeff);	}
 
 		if(whats_This == whats_This_Gamma)					{ step_gamma = step_SpinBox->value();					for(MyDoubleSpinBox* spb : gamma_Spin_Boxes_List)		spb->setSingleStep(step_gamma);					}
 		if(whats_This == whats_This_Drift)					{ step_drift = step_SpinBox->value();					for(MyDoubleSpinBox* spb : drift_Spin_Boxes_List)		spb->setSingleStep(step_drift);					}
@@ -5054,6 +5069,16 @@ void Table_Of_Structures::refresh_Parameter(My_Table_Widget* table)
 			{
 				spin_Box->setMinimum(1e0/coeff);
 				spin_Box->setMaximum(1e6/coeff);
+			}			
+			// fluctuations
+			if( whats_This == whats_This_Particle_Average_Distance ||
+				whats_This == whats_This_Particle_Radial_Distance)
+			{
+				spin_Box->setMinimum(1/coeff);
+			}
+			if( whats_This == whats_This_Particle_Radial_Distance_Deviation)
+			{
+				spin_Box->setMinimum(0.5/coeff);
 			}
 
 			spin_Box->blockSignals(false);

@@ -353,8 +353,8 @@ public:
 	static complex<double> full_Spheroid_FF(double q, complex<double> qz, double R, double H);
 	static complex<double> cylinder_FF	   (double q, complex<double> qz, double R, double H);
 
-	static complex<double> gamma_Factor (complex<double> kl, complex<double> kr, double sigma);
 	static complex<double> omega_Factor (complex<double> k,                      double sigma);
+	static complex<double> gamma_Factor (complex<double> kl, complex<double> kr, double sigma);
 
 };
 

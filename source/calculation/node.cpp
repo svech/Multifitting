@@ -997,6 +997,26 @@ void Node::clear_Spline_PSD_Fractal_Gauss(const Imperfections_Model& imperfectio
 	gsl_interp_accel_free(acc_PSD);
 }
 
+double Node::G1_Type_Outer()
+{
+	if(struct_Data.fluctuations_Model.geometric_Model == square_Model)
+	{
+		return Global_Variables::G1_Square(struct_Data.fluctuations_Model.particle_Radial_Distance.value);
+	}
+	if(struct_Data.fluctuations_Model.geometric_Model == hexagonal_Model)
+	{
+		return Global_Variables::G1_Hexagone(struct_Data.fluctuations_Model.particle_Radial_Distance.value);
+	}
+	qInfo() << endl << "Node::G1_Type_Outer  :  wrong fluctuations_Model.geometric_Model" << endl << endl;
+	return -2020;
+}
+
+double Node::G2_Type_Outer(double k, double cos_Theta, double cos_Theta_0, double cos_Phi)
+{
+	double q = k*sqrt(cos_Theta*cos_Theta + cos_Theta_0*cos_Theta_0 - 2*cos_Theta_0*cos_Theta*cos_Phi);
+	return gsl_spline_eval(spline_G2, q, acc_G2);
+}
+
 void Node::create_Spline_G2_2D(const Data& measurement, const Imperfections_Model& imperfections_Model)
 {
 	if(!imperfections_Model.use_Fluctuations) return;
@@ -1011,6 +1031,7 @@ void Node::create_Spline_G2_2D(const Data& measurement, const Imperfections_Mode
 
 	double max_Cos_Phi = max(measurement.detector_Phi_Cos_Vec.front(), measurement.detector_Phi_Cos_Vec.back());
 	double min_Cos_Phi = min(measurement.detector_Phi_Cos_Vec.front(), measurement.detector_Phi_Cos_Vec.back());
+	if(measurement.detector_Phi_Angle_Vec.front()*measurement.detector_Phi_Angle_Vec.back() < DBL_EPSILON ) max_Cos_Phi = 1;
 	for(size_t i=0; i<measurement.detector_Theta_Cos_Vec.size(); i++)
 	{
 		temp_q2_Max[i] = measurement.k_Value*measurement.k_Value*( measurement.detector_Theta_Cos_Vec[i]*measurement.detector_Theta_Cos_Vec[i] +
@@ -1032,10 +1053,16 @@ void Node::create_Spline_G2_2D(const Data& measurement, const Imperfections_Mode
 	double a = struct_Data.fluctuations_Model.particle_Radial_Distance.value;
 	double b = a;
 	double sigma = struct_Data.fluctuations_Model.particle_Radial_Distance_Deviation.value;
+	G2_Type.resize(reflectivity_Calc_Threads);
+	G2_Type_long.resize(reflectivity_Calc_Threads);
 	if(struct_Data.fluctuations_Model.geometric_Model == square_Model)
 	{
-		G2_Type      = Global_Variables::G2_Square;
-		G2_Type_long = Global_Variables::G2_Square_long;
+		G1_Type = Global_Variables::G1_Square;
+		for(int thread_Index = 0; thread_Index<reflectivity_Calc_Threads; thread_Index++)
+		{
+			G2_Type     [thread_Index] = Global_Variables::G2_Square;
+			G2_Type_long[thread_Index] = Global_Variables::G2_Square_long;
+		}
 		phi_Max = M_PI_4;
 		b = a;
 
@@ -1058,8 +1085,12 @@ void Node::create_Spline_G2_2D(const Data& measurement, const Imperfections_Mode
 	}
 	if(struct_Data.fluctuations_Model.geometric_Model == hexagonal_Model)
 	{
-		G2_Type      = Global_Variables::G2_Hexagone;
-		G2_Type_long = Global_Variables::G2_Hexagone_long;
+		G1_Type = Global_Variables::G1_Hexagone;
+		for(int thread_Index = 0; thread_Index<reflectivity_Calc_Threads; thread_Index++)
+		{
+			G2_Type     [thread_Index] = Global_Variables::G2_Hexagone;
+			G2_Type_long[thread_Index] = Global_Variables::G2_Hexagone_long;
+		}
 		phi_Max = M_PI/6;
 		b = a*M_SQRT3/2;
 
@@ -1109,7 +1140,7 @@ void Node::create_Spline_G2_2D(const Data& measurement, const Imperfections_Mode
 
 	// num points if no peaks in range
 	int num_Bare_Points = 300;
-	int num_Peak_Points = 51; // inside hw_Factor/2 FWHM
+	int num_Peak_Points = 51; // points inside FWHM * hw_Factor/2
 	int hw_Factor = 5;
 
 	// no peaks in range
@@ -1185,42 +1216,60 @@ void Node::create_Spline_G2_2D(const Data& measurement, const Imperfections_Mode
 	}
 
 	// calculation
-	const int gk_points = 61;
 	int num_Phi_Points_Per_hw = 1;
-	int max_Phi_Division = 15;
-	vector<double> phi_Vec; phi_Vec.reserve(max_Phi_Division+1);
+	int max_Phi_Division = 20;
 	vector<double> G2_Vec(q_Vec.size());
-	bool too_Narrow = false;
-	for(size_t q_Index = 0; q_Index<q_Vec.size(); q_Index++)
+	vector<bool> too_Narrow(reflectivity_Calc_Threads);
+
+	Global_Variables::parallel_For(int(q_Vec.size()), reflectivity_Calc_Threads, [&](int n_Min, int n_Max, int thread_Index)
 	{
-		double q = q_Vec[q_Index];
-
-		// phi division
-		double damp = exp(-0.5*q*q*sigma*sigma);
-		double hw_q = max(acos( 2*damp / (1.+damp*damp) ) / a, 4*hw_Peak_Max);
-		double arc_q = phi_Max*q;
-
-		int phi_Division = ceil( arc_q/gk_points * num_Phi_Points_Per_hw/hw_q);
-		phi_Division = max(phi_Division, 1);
-		phi_Division = min(phi_Division, max_Phi_Division); // reasonable limit
-		if(phi_Division == max_Phi_Division) too_Narrow = true;
-		phi_Vec.resize(phi_Division+1);
-		for(int i=0; i<=phi_Division; i++)
+		too_Narrow[thread_Index] = false;
+		vector<double> phi_Vec; phi_Vec.reserve(max_Phi_Division+1);
+		for(size_t q_Index = n_Min; q_Index<n_Max; q_Index++)
 		{
-			phi_Vec[i] = phi_Max/phi_Division*i;
-		}
+			double q = q_Vec[q_Index];
 
-		// integration
-		auto func = [&](double phi)	{return G2_Type_long(q, phi, a, sigma, N, M)/phi_Max;};
-		double integral = 0;
-		for(int phi_Index=0; phi_Index<phi_Division; phi_Index++)
-		{
-			integral += gauss_kronrod<double,gk_points>::integrate(func, phi_Vec[phi_Index], phi_Vec[phi_Index+1], 0, 1e-7);
+			// phi division
+			double damp = exp(-0.5*q*q*sigma*sigma);
+			double hw_q = max(acos( 2*damp / (1.+damp*damp) ) / a, 4*hw_Peak_Max);
+			double arc_q = phi_Max*q;
+
+			const int gk_points = 61;
+			int phi_Division = ceil( arc_q/gk_points * num_Phi_Points_Per_hw/hw_q);
+			phi_Division = max(phi_Division, 1);
+			phi_Division = min(phi_Division, max_Phi_Division); // reasonable limit
+			if(phi_Division == max_Phi_Division) too_Narrow[thread_Index] = true;
+			phi_Vec.resize(phi_Division+1);
+			for(int i=0; i<=phi_Division; i++)
+			{
+				phi_Vec[i] = phi_Max/phi_Division*i;
+			}
+
+			// integration
+			auto func = [&](double phi)	{return G2_Type_long[thread_Index](q, phi, a, sigma, N, M)/phi_Max;};
+			double integral = 0;
+
+			if(q>DBL_EPSILON)
+			{
+				for(int phi_Index=0; phi_Index<phi_Division; phi_Index++)
+				{
+					integral += gauss_kronrod<double,gk_points>::integrate(func, phi_Vec[phi_Index], phi_Vec[phi_Index+1], 0, 1e-7);
+				}
+			} else
+			{
+				integral = -G1_Type(a);
+			}
+
+			G2_Vec[q_Index] = integral;
 		}
-		G2_Vec[q_Index] = integral;
+	});
+
+	bool narrow = false;
+	for(size_t i=0; i<too_Narrow.size(); i++)
+	{
+		if(too_Narrow[i]) narrow = true;
 	}
-
-	if(too_Narrow)
+	if(narrow)
 	{
 		qInfo() << endl << "WARNING: in " << Global_Variables::structure_Item_Name(struct_Data) << " in density fluctuations r/dr is too high" << endl << endl;
 	}
@@ -1239,76 +1288,6 @@ void Node::create_Spline_G2_2D(const Data& measurement, const Imperfections_Mode
 	acc_G2 = gsl_interp_accel_alloc();
 	spline_G2 = gsl_spline_alloc(interp_type, q_Vec.size());
 	gsl_spline_init(spline_G2, q_Vec.data(), G2_Vec.data(), q_Vec.size());
-
-	/// ------------------------------------------------------------------------------
-//	int num_Sections = 6; // plus zero point
-//	vector<int> interpoints(num_Sections);
-//	int common_Size = 0;
-//	for(int i=0; i<num_Sections; i++)
-//	{
-//		interpoints[i] = 3000-10*i;
-//		common_Size += interpoints[i];
-//	}
-//	vector<double> interpoints_Sum_Argum_Vec(1+common_Size);
-//	vector<double> interpoints_Sum_Value_Vec(1+common_Size);
-
-//	vector<double> starts(num_Sections); // open start
-//	starts[0] = q_Min;
-//	starts[1] = q_Min+q_Range*0.1;
-//	starts[2] = q_Min+q_Range*0.2;
-//	starts[3] = q_Min+q_Range*0.3;
-//	starts[4] = q_Min+q_Range*0.5;
-//	starts[5] = q_Min+q_Range*0.7;
-//	starts[6] = q_Max;
-
-//	vector<double> dq(num_Sections);
-//	for(int i=0; i<num_Sections; i++)
-//	{
-//		dq[i] = (starts[i+1] - starts[i])/interpoints[i];
-//	}
-
-//	// G2 at zero point
-//	{
-//		interpoints_Sum_Argum_Vec[0] = 0;
-//		interpoints_Sum_Value_Vec[0] = 0;//-1./(a*b);
-//	}
-
-//	double q = q_Min;
-//	int counter = 1;
-
-//	// additional parameters
-//	for(int sec=0; sec<num_Sections; sec++)
-//	{
-//		for(int i=0; i<interpoints[sec]; i++)
-//		{
-//			q += dq[sec];
-
-//			auto func = [&](double phi)	{return G2_Type_long(q, phi, a, sigma, N, M)/phi_Max;};
-
-//			double integral = 0;
-//			for(int phi_Index=0; phi_Index<phi_Division; phi_Index++)
-//			{
-//				integral += gauss_kronrod<double,61>::integrate(func, phi_Vec[phi_Index], phi_Vec[phi_Index+1], 0, 1e-7);
-//			}
-
-//			interpoints_Sum_Argum_Vec[counter] = q;
-//			interpoints_Sum_Value_Vec[counter] = integral;
-//			counter++;
-//		}
-//	}
-
-//	QFile file2("G2_Ethalon.txt");
-//	file2.open(QIODevice::WriteOnly);
-//	QTextStream out2(&file2);
-//	out2.setFieldAlignment(QTextStream::AlignLeft);
-//	for(size_t i=1; i<interpoints_Sum_Value_Vec.size(); ++i)
-//	{
-//		out2 << interpoints_Sum_Argum_Vec[i] << "\t" << interpoints_Sum_Value_Vec[i] << endl;
-//	}
-//	file2.close();
-
-	/// ------------------------------------------------------------------------------
-
 }
 
 void Node::clear_Spline_G2_2D(const Imperfections_Model& imperfections_Model)

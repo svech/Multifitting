@@ -571,9 +571,9 @@ Data::Data(QString item_Type_Passed)
 		}
 		// particle average distance (disorder case)
 		{
-			fluctuations_Model.particle_Average_Distance.value = 5*thickness.value;
+			fluctuations_Model.particle_Average_Distance.value = max(5*thickness.value,1.);
 			fluctuations_Model.particle_Average_Distance.fit.is_Fitable = false;
-			fluctuations_Model.particle_Average_Distance.fit.min = 0;
+			fluctuations_Model.particle_Average_Distance.fit.min = 1;
 			fluctuations_Model.particle_Average_Distance.fit.max = 10*thickness.value;
 			fluctuations_Model.particle_Average_Distance.indicator.whats_This = whats_This_Particle_Average_Distance;
 			fluctuations_Model.particle_Average_Distance.indicator.item_Id = id;
@@ -585,9 +585,9 @@ Data::Data(QString item_Type_Passed)
 		}
 		// particle radial distance (radial paracrystal case)
 		{
-			fluctuations_Model.particle_Radial_Distance.value = 5*thickness.value;
+			fluctuations_Model.particle_Radial_Distance.value = max(5*thickness.value,1.);
 			fluctuations_Model.particle_Radial_Distance.fit.is_Fitable = false;
-			fluctuations_Model.particle_Radial_Distance.fit.min = 0;
+			fluctuations_Model.particle_Radial_Distance.fit.min = 1;
 			fluctuations_Model.particle_Radial_Distance.fit.max = 10*thickness.value;
 			fluctuations_Model.particle_Radial_Distance.indicator.whats_This = whats_This_Particle_Radial_Distance;
 			fluctuations_Model.particle_Radial_Distance.indicator.item_Id = id;
@@ -599,9 +599,9 @@ Data::Data(QString item_Type_Passed)
 		}
 		// particle radial distance deviation (radial paracrystal case)
 		{
-			fluctuations_Model.particle_Radial_Distance_Deviation.value = 0;
+			fluctuations_Model.particle_Radial_Distance_Deviation.value = 0.5;
 			fluctuations_Model.particle_Radial_Distance_Deviation.fit.is_Fitable = false;
-			fluctuations_Model.particle_Radial_Distance_Deviation.fit.min = 0;
+			fluctuations_Model.particle_Radial_Distance_Deviation.fit.min = 0.5;
 			fluctuations_Model.particle_Radial_Distance_Deviation.fit.max = 1*fluctuations_Model.particle_Radial_Distance.value;
 			fluctuations_Model.particle_Radial_Distance_Deviation.indicator.whats_This = whats_This_Particle_Radial_Distance_Deviation;
 			fluctuations_Model.particle_Radial_Distance_Deviation.indicator.item_Id = id;

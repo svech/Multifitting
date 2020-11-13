@@ -250,11 +250,13 @@ public:
 	// density fluctuations
 	void calc_k_Wavenumber_Layer	(                      int thread_Index, int point_Index);
 	void calc_C_Factor				(QString polarization, int thread_Index, int point_Index);
-	void calc_Omega_Factor			(                      int thread_Index, int point_Index);
-	void calc_Gamma_Factor			(                      int thread_Index, int point_Index);
+	void calc_Omega_Factor			(					   int thread_Index);
+	void calc_Gamma_Factor			(					   int thread_Index);
 
 	void choose_Form_Factor_2D_Function	(int thread_Index);
 	void fill_Item_Form_Factor_2D		(int thread_Index, int point_Index, int phi_Index);
+	double calc_G1_Field_Sum		(QString polarization, int thread_Index,int item_Index, int layer_Index);
+	double calc_G2_Field_Sum		(QString polarization, int thread_Index,int item_Index, int layer_Index);
 
 	// for sigma grading
 	void multifly_Fresnel_And_Weak_Factor(int thread_Index);

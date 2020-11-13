@@ -2832,11 +2832,13 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 			if(multilayer->imperfections_Model.use_Fluctuations)
 			{
 				// TODO
-				return;
 				calc_k_Wavenumber_Layer(thread_Index, point_Index);
 				// factors from field amplitudes
 				if( (measurement.polarization + 1) >  POLARIZATION_TOLERANCE) calc_C_Factor("s", thread_Index, point_Index);
 				if( (measurement.polarization - 1) < -POLARIZATION_TOLERANCE) calc_C_Factor("p", thread_Index, point_Index);
+				// factors from particle z-deviations
+				calc_Omega_Factor(thread_Index);
+				calc_Gamma_Factor(thread_Index);
 
 				/// here we have only zero correlation between layers and individual items
 				if( measurement.measurement_Type == measurement_Types[Detector_Scan] ||
@@ -2856,15 +2858,32 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 						{
 							fill_Item_Form_Factor_2D(thread_Index, point_Index, phi_Index);
 
-//							double field_With_PSD_2D_Factor = 0;
-//							for (int l = 0; l<num_Layers_Sharp; j++)
-//							{
-//								int item_Index = boundary_Item_Vec[j];
-//								double PSD_2D_Factor = PSD_Factor_Item[thread_Index][item_Index];
+							double field_With_G_2D_Factor = 0;
+							for (int layer_Index = 0; layer_Index<num_Layers_Sharp; layer_Index++)
+							{
+								int item_Index = boundary_Item_Vec[layer_Index];
+								Data& item = appropriate_Item_Vec[item_Index];
 
-//								field_With_PSD_2D_Factor += intensity_Term_Boundary_s[thread_Index][j] * PSD_2D_Factor;
-//							}
-//							calculated_Values.GISAS_Map[phi_Index][point_Index] = e_Factor_PT_2D * field_With_PSD_2D_Factor * measurement.footprint_Factor_Vec[point_Index] + measurement.background;
+								if(item.fluctuations_Model.is_Used)
+								{
+									Node* node = short_Flat_Calc_Tree[item_Index];
+									complex<double> d_Eps = node->delta_Epsilon_Contrast;
+
+									double k = measurement.k_Value;
+									double cos_Theta = measurement.detector_Theta_Cos_Vec[point_Index];
+									double cos_Theta_0 = measurement.beam_Theta_0_Cos_Value;
+									double cos_Phi = measurement.detector_Phi_Cos_Vec[phi_Index];
+
+									field_With_G_2D_Factor += norm(d_Eps) *
+											(
+											 node->G1_Type_Outer() *                                   calc_G1_Field_Sum("s", thread_Index, item_Index, layer_Index)
+												+
+											 node->G2_Type_Outer(k, cos_Theta, cos_Theta_0, cos_Phi) * calc_G2_Field_Sum("s", thread_Index, item_Index, layer_Index)
+											);
+								}
+							}
+//							// TODO roughness + fluctuations
+							calculated_Values.GISAS_Map[phi_Index][point_Index] = e_Factor_PT_2D * field_With_G_2D_Factor * measurement.footprint_Factor_Vec[point_Index] + measurement.background;
 						}
 					} else
 					// pure p-polarization
@@ -2940,24 +2959,46 @@ void Unwrapped_Reflection::calc_C_Factor(QString polarization, int thread_Index,
 	}
 }
 
-void Unwrapped_Reflection::calc_Omega_Factor(int thread_Index, int point_Index)
+void Unwrapped_Reflection::calc_Omega_Factor(int thread_Index)
 {
-	// point_Index is used in k_03
-	for (int layer_Index = 0; layer_Index<num_Layers_Sharp; layer_Index++)
+	// only layers
+	for(size_t item_Index = 0; item_Index<appropriate_Item_Vec.size()-1; item_Index++)
 	{
-//		w_03[thread_Index][layer_Index][0] = Global_Variables::omega_Factor(k_03[thread_Index][layer_Index][0], double sigma)
+		Data& item = appropriate_Item_Vec[item_Index];
 
-//		C_03[layer_Index][0] = q0_U_i[boundary_Index]*q_U_i[boundary_Index]*exp(-I*k_03[thread_Index][layer_Index][0]*unwrapped_Structure->thickness[layer_Index]/2.);
-//		C_03[layer_Index][1] = q0_U_i[boundary_Index]*q_U_r[boundary_Index]*exp(-I*k_03[thread_Index][layer_Index][1]*unwrapped_Structure->thickness[layer_Index]/2.);
-//		C_03[layer_Index][2] = q0_U_r[boundary_Index]*q_U_i[boundary_Index]*exp(-I*k_03[thread_Index][layer_Index][2]*unwrapped_Structure->thickness[layer_Index]/2.);
-//		C_03[layer_Index][3] = q0_U_r[boundary_Index]*q_U_r[boundary_Index]*exp(-I*k_03[thread_Index][layer_Index][3]*unwrapped_Structure->thickness[layer_Index]/2.);
+		if(item.fluctuations_Model.is_Used)
+		{
+			int first_Layer_Of_Item = boundaries_Of_Item_Vec[item_Index].front();
+			for(int i=0; i<4; i++)
+			{
+				w_03[thread_Index][item_Index][i] = Global_Variables::omega_Factor(k_03[thread_Index][first_Layer_Of_Item][i],
+																				   item.fluctuations_Model.particle_Z_Position_Deviation.value);
+			}
+		}
 	}
 }
 
-void Unwrapped_Reflection::calc_Gamma_Factor(int thread_Index, int point_Index)
+void Unwrapped_Reflection::calc_Gamma_Factor(int thread_Index)
 {
+	// only layers
+	for(size_t item_Index = 0; item_Index<appropriate_Item_Vec.size()-1; item_Index++)
+	{
+		Data& item = appropriate_Item_Vec[item_Index];
 
-}
+		if(item.fluctuations_Model.is_Used)
+		{
+			int first_Layer_Of_Item = boundaries_Of_Item_Vec[item_Index].front();
+			for(int i=0; i<4; i++)
+			{
+				for(int j=0; j<4; j++)
+				{
+					g_03_03[thread_Index][item_Index][i][j] = Global_Variables::gamma_Factor(k_03[thread_Index][first_Layer_Of_Item][i],
+																							 k_03[thread_Index][first_Layer_Of_Item][j],
+																							 item.fluctuations_Model.particle_Z_Position_Deviation.value);
+				}
+			}
+		}
+	}}
 
 void Unwrapped_Reflection::choose_Form_Factor_2D_Function(int thread_Index)
 {
@@ -3007,6 +3048,45 @@ void Unwrapped_Reflection::fill_Item_Form_Factor_2D(int thread_Index, int point_
 			}
 		}
 	}
+}
+
+double Unwrapped_Reflection::calc_G1_Field_Sum(QString polarization, int thread_Index, int item_Index, int layer_Index)
+{
+	vector<vector<complex<double>>>& C_03 = polarization == "s" ? C_03_s[thread_Index] : C_03_p[thread_Index];
+
+	complex<double> return_Sum = 0;
+
+	// second part
+	for (int i = 0; i<4; i++)
+	{
+		for (int j = i+1; j<4; j++)
+		{
+			return_Sum +=      C_03[layer_Index][i]*F_03[thread_Index][item_Index][i]  *
+						  conj(C_03[layer_Index][j]*F_03[thread_Index][item_Index][j]) * g_03_03[thread_Index][item_Index][i][j];
+		}
+	}
+	return_Sum += conj(return_Sum);
+
+	// first part
+	for (int i = 0; i<4; i++)
+	{
+		return_Sum += norm(C_03[layer_Index][i]*F_03[thread_Index][item_Index][i]) * g_03_03[thread_Index][item_Index][i][i];
+	}
+
+	return real(return_Sum); // it should be internally real, by design
+}
+
+double Unwrapped_Reflection::calc_G2_Field_Sum(QString polarization, int thread_Index, int item_Index, int layer_Index)
+{
+	vector<vector<complex<double>>>& C_03 = polarization == "s" ? C_03_s[thread_Index] : C_03_p[thread_Index];
+
+	complex<double> return_Sum = 0.;
+
+	for (int i = 0; i<4; i++)
+	{
+		return_Sum += C_03[layer_Index][i]*F_03[thread_Index][item_Index][i] * w_03[thread_Index][item_Index][i];
+	}
+	return norm(return_Sum);
 }
 
 double Unwrapped_Reflection::azimuthal_Integration(gsl_function* function, double delta)
@@ -3194,7 +3274,7 @@ void Unwrapped_Reflection::fill_Specular_Values(int thread_Index, int point_Inde
 	if(	spec_Scat_mode == SCATTERED_MODE &&
 		unwrapped_Structure->calc_Functions.check_GISAS)
 	{
-		if(multilayer->imperfections_Model.use_Roughness && multilayer->imperfections_Model.use_Fluctuations)
+		if(multilayer->imperfections_Model.use_Roughness || multilayer->imperfections_Model.use_Fluctuations)
 		{
 			// interpolate the other half
 			if(short_Phi_Points!=phi_Points)

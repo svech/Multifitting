@@ -1279,7 +1279,7 @@ double Global_Variables::G2_Square(double q, double phi, double a,  double sigma
 
 	double specular_Mix = norm(specular_N*specular_M)*low_damp;
 
-	return (bracket_N*bracket_M - specular_Mix/* - N*M*/)/(N*M/**a*b*/);
+	return (bracket_N*bracket_M - specular_Mix - N*M)/(N*M*a*b);
 }
 double Global_Variables::G2_Square_long(long double q, long double phi, long double a, long double sigma, long double N, long double M)
 {
@@ -1315,7 +1315,7 @@ double Global_Variables::G2_Square_long(long double q, long double phi, long dou
 
 	long double specular_Mix = norm(specular_N*specular_M)*low_damp;
 
-	return (bracket_N*bracket_M - specular_Mix/* - N*M*/)/(N*M/**a*b*/);
+	return (bracket_N*bracket_M - specular_Mix - N*M)/(N*M*a*b);
 }
 
 double Global_Variables::G1_Hexagone(double a)
@@ -1360,7 +1360,7 @@ double Global_Variables::G2_Hexagone(double q, double phi, double a, double sigm
 
 	double specular_Mix = norm(specular_N*specular_M)*low_damp;
 
-	return (bracket_N*bracket_M - specular_Mix/* - N*M*/)/(N*M/**a*b*/);
+	return (bracket_N*bracket_M - specular_Mix - N*M)/(N*M*a*b);
 }
 double Global_Variables::G2_Hexagone_long(long double q, long double phi, long double a, long double sigma, long double N, long double M)
 {
@@ -1402,7 +1402,7 @@ double Global_Variables::G2_Hexagone_long(long double q, long double phi, long d
 
 	long double specular_Mix = norm(specular_N*specular_M)*low_damp;
 
-	return (bracket_N*bracket_M - specular_Mix/* - N*M*/)/(N*M/**a*b*/);
+	return (bracket_N*bracket_M - specular_Mix - N*M)/(N*M*a*b);
 }
 
 complex<double> Global_Variables::full_Sphere_FF(double q, complex<double> qz, double R, double H)
@@ -1425,14 +1425,14 @@ complex<double> Global_Variables::cylinder_FF(double q, complex<double> qz, doub
 	return 2*M_PI*R*R*H * boost::math::sinc_pi(qz*h) * exp(I*qz*h) * boost::math::cyl_bessel_j(1,q*R)/(q*R);
 }
 
-complex<double> Global_Variables::gamma_Factor(complex<double> kl, complex<double> kr, double sigma)
-{
-	return exp(-0.5*pow((kl-conj(kr)),2)*sigma*sigma);
-}
-
 complex<double> Global_Variables::omega_Factor(complex<double> k, double sigma)
 {
 	return exp(-0.5*k*k*sigma*sigma);
+}
+
+complex<double> Global_Variables::gamma_Factor(complex<double> kl, complex<double> kr, double sigma)
+{
+	return exp(-0.5*pow((kl-conj(kr)),2)*sigma*sigma);
 }
 
 void Global_Variables::copy_Tree(const QTreeWidget* from_Tree, QTreeWidget* to_Tree)
@@ -2341,7 +2341,7 @@ void Global_Variables::color_Scheme_Example(QCustomPlot* plot, QCPColorGradient:
 		for (int y_Index=0; y_Index<ny; ++y_Index)
 		{
 			map->data()->cellToCoord(x_Index, y_Index, &x, &y);
-			double r = sqrt(x*x+y*y)/r;
+//			double r = sqrt(x*x+y*y)/r; // WTF?
 			double val = sin(x)*sin(y);
 			map->data()->setCell(x_Index, y_Index, val);
 		}
