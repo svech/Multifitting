@@ -2874,12 +2874,19 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 									double cos_Theta_0 = measurement.beam_Theta_0_Cos_Value;
 									double cos_Phi = measurement.detector_Phi_Cos_Vec[phi_Index];
 
-									field_With_G_2D_Factor += norm(d_Eps) *
-											(
-											 node->G1_Type_Outer() *                                   calc_G1_Field_Sum("s", thread_Index, item_Index, layer_Index)
-												+
-											 node->G2_Type_Outer(k, cos_Theta, cos_Theta_0, cos_Phi) * calc_G2_Field_Sum("s", thread_Index, item_Index, layer_Index)
-											);
+									if(item.fluctuations_Model.particle_Interference_Function == radial_Paracrystal)
+									{
+										field_With_G_2D_Factor += norm(d_Eps) *
+												(
+												 node->G1_Type_Outer() *                                   calc_G1_Field_Sum("s", thread_Index, item_Index, layer_Index)
+													+
+												 node->G2_Type_Outer(k, cos_Theta, cos_Theta_0, cos_Phi) * calc_G2_Field_Sum("s", thread_Index, item_Index, layer_Index)
+												);
+									}
+									if(item.fluctuations_Model.particle_Interference_Function == disorder)
+									{
+										field_With_G_2D_Factor += norm(d_Eps) * node->G1_Type_Outer() * calc_G1_Field_Sum("s", thread_Index, item_Index, layer_Index);
+									}
 								}
 							}
 //							// TODO roughness + fluctuations

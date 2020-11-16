@@ -1249,20 +1249,31 @@ void Node::create_Spline_G2_2D(const Data& measurement, const Imperfections_Mode
 			auto func = [&](double phi)	{return G2_Type_long[thread_Index](q, phi, a, sigma, N, M)/phi_Max;};
 			double integral = 0;
 
-			if(q>DBL_EPSILON)
+			// threshold
+			for(int phi_Index=0; phi_Index<phi_Division; phi_Index++)
 			{
-				for(int phi_Index=0; phi_Index<phi_Division; phi_Index++)
-				{
-					integral += gauss_kronrod<double,gk_points>::integrate(func, phi_Vec[phi_Index], phi_Vec[phi_Index+1], 0, 1e-7);
-				}
-			} else
-			{
-				integral = -G1_Type(a);
+				integral += gauss_kronrod<double,gk_points>::integrate(func, phi_Vec[phi_Index], phi_Vec[phi_Index+1], 0, 1e-7);
 			}
-
 			G2_Vec[q_Index] = integral;
 		}
 	});
+	// thresholds
+	for(int q_Index = q_Vec.size()-1; q_Index>=0; q_Index--)
+	{
+		if(q_Vec[q_Index]<2e-6)
+		{
+			if(q_Vec[q_Index]<DBL_EPSILON)
+			{
+				G2_Vec[q_Index] = -G1_Type(a);
+			} else
+			{
+				if(q_Index<q_Vec.size()-1)
+				{
+					G2_Vec[q_Index] = G2_Vec[q_Index+1];
+				}
+			}
+		}
+	}
 
 	bool narrow = false;
 	for(size_t i=0; i<too_Narrow.size(); i++)
