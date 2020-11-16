@@ -91,33 +91,33 @@ void Curve_Plot_2D::create_Main_Layout()
 	{
 		left_Vertical_Custom_Plot = new QCustomPlot;
 		left_Ver_Widget = new QWidget;
+		left_Splitter->addWidget(left_Ver_Widget);
 			left_Ver_Widget->setHidden(!plot_Options.left_Section_Plot);
 			left_Ver_Widget->setMaximumWidth(graph_2D_Positions.left_Min_Width);
 			left_Ver_Widget->setMinimumWidth(graph_2D_Positions.left_Min_Width);
 		left_Ver_Layout = new QHBoxLayout(left_Ver_Widget);
 			left_Ver_Layout->setContentsMargins(0,shift_Left,0,0);
 			left_Ver_Layout->addWidget(left_Vertical_Custom_Plot);
-		left_Splitter->addWidget(left_Ver_Widget);
 
 		main_2D_Custom_Plot = new QCustomPlot;
 		left_Splitter->addWidget(main_2D_Custom_Plot);
 		bottom_Splitter->setStretchFactor(0,0);
 
 		corner_Widget = new QWidget;
+		bottom_Left_Splitter->addWidget(corner_Widget);
 			corner_Widget->setHidden(!plot_Options.left_Section_Plot || !plot_Options.bottom_Section_Plot);
 			corner_Widget->setMinimumWidth(graph_2D_Positions.left_Min_Width);
 			corner_Widget->setMaximumWidth(graph_2D_Positions.left_Min_Width);
-		bottom_Left_Splitter->addWidget(corner_Widget);
 		bottom_Splitter->setStretchFactor(0,0);
 
 		bottom_Section_Tabs = new QTabWidget;
+		bottom_Left_Splitter->addWidget(bottom_Section_Tabs);
 			bottom_Section_Tabs->setTabsClosable(false);
 			bottom_Section_Tabs->setTabPosition(QTabWidget::South);
 			bottom_Section_Tabs->setMovable(false);
 			bottom_Section_Tabs->setHidden(!plot_Options.bottom_Section_Plot);
 			bottom_Section_Tabs->setMinimumHeight(graph_2D_Positions.bottom_Min_Width);
 			bottom_Section_Tabs->setMaximumHeight(graph_2D_Positions.bottom_Min_Width);
-		bottom_Left_Splitter->addWidget(bottom_Section_Tabs);
 		bottom_Left_Splitter->setStretchFactor(0,0);
 	}
 	//------------------------------------------------------
@@ -208,7 +208,7 @@ void Curve_Plot_2D::create_Main_Layout()
 	plot_All_Data();
 	refresh_Axes_Labels();
 	refresh_Corner_Labels();
-	create_Plot_Options_GroupBox();
+	create_Plot_Options_GroupBox(rescale);
 	touch_It();
 
 	plot_Options.rescale = rescale;
@@ -841,7 +841,7 @@ void Curve_Plot_2D::replot_All()
 	bottom_Vertical_Custom_Plot->replot();
 }
 
-void Curve_Plot_2D::create_Plot_Options_GroupBox()
+void Curve_Plot_2D::create_Plot_Options_GroupBox(bool rescale)
 {
 	QGroupBox* plot_Options_GroupBox = new QGroupBox;
 	main_Layout->addWidget(plot_Options_GroupBox);
@@ -891,7 +891,7 @@ void Curve_Plot_2D::create_Plot_Options_GroupBox()
 	// rescale
 	{
 		QCheckBox* rescale_Check_Box = new QCheckBox("Rescale  |");
-			rescale_Check_Box->setChecked(plot_Options.rescale);
+			rescale_Check_Box->setChecked(rescale);
 		plot_Options_GroupBox_Layout->addWidget(rescale_Check_Box);
 		connect(rescale_Check_Box, &QCheckBox::toggled, this, [=]{ plot_Options.rescale = rescale_Check_Box->isChecked(); });
 	}
@@ -979,6 +979,47 @@ void Curve_Plot_2D::create_Plot_Options_GroupBox()
 			plot_Options.orders_To_Show = orders_Spinbox->value();
 			plot_Data();
 		});
+	}
+	// plot orientation
+	{
+		QHBoxLayout* radio_Button_Layout = new QHBoxLayout;
+			radio_Button_Layout->setAlignment(Qt::AlignLeft);
+		plot_Options_GroupBox_Layout->addLayout(radio_Button_Layout);
+
+		QLabel* orient_Label = new QLabel("|  Orientation: ");
+		radio_Button_Layout->addWidget(orient_Label);
+
+		QRadioButton* horizontal_Radio_Button = new QRadioButton("Hor");
+			horizontal_Radio_Button->setChecked(plot_Options.orientation == horizontal);
+		radio_Button_Layout->addWidget(horizontal_Radio_Button);
+		connect(horizontal_Radio_Button, &QRadioButton::clicked, this, [=]
+		{
+			qInfo() << "hor" << endl;
+			if(horizontal_Radio_Button->isChecked())	plot_Options.orientation = horizontal;
+
+//			plot_Data();
+//			apply_Lin_Scale();
+		});
+//		connect(horizontal_Radio_Button, &QRadioButton::toggled, horizontal_Radio_Button, &QRadioButton::clicked);
+//		connect(horizontal_Radio_Button, &QRadioButton::released, this, [=]{horizontal_Radio_Button->clicked();});
+
+		QRadioButton* vertical_Radio_Button = new QRadioButton("Ver");
+			vertical_Radio_Button->setChecked(plot_Options.orientation == vertical);
+		radio_Button_Layout->addWidget(vertical_Radio_Button);
+		connect(vertical_Radio_Button, &QRadioButton::clicked, this, [=]
+		{
+			if(vertical_Radio_Button->isChecked())	plot_Options.orientation = vertical;
+
+			qInfo() << "ver" << endl;
+//			plot_Data();
+//			apply_Log_Scale();
+		});
+//		connect(vertical_Radio_Button, &QRadioButton::toggled, vertical_Radio_Button, &QRadioButton::clicked);
+//		connect(vertical_Radio_Button, &QRadioButton::released, this, [=]{vertical_Radio_Button->clicked();});
+
+		QButtonGroup* orientation_ButtonGroup = new QButtonGroup;
+			orientation_ButtonGroup->addButton(horizontal_Radio_Button);
+			orientation_ButtonGroup->addButton(vertical_Radio_Button);
 	}
 	// mark on click
 	{

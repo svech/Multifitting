@@ -1408,21 +1408,21 @@ double Global_Variables::G2_Hexagone_long(long double q, long double phi, long d
 complex<double> Global_Variables::full_Sphere_FF(double q, complex<double> qz, double R, double H)
 {
 	Q_UNUSED(H)
-	complex<double> q_Full = sqrt(q*q+qz*qz);
+	complex<double> q_Full = sqrt(q*q+qz*qz)+DBL_MIN;
 	return 4*M_PI * exp(I*qz*R) * (sin(q_Full*R)-q_Full*R*cos(q_Full*R))/pow(q_Full,3);
 }
 
 complex<double> Global_Variables::full_Spheroid_FF(double q, complex<double> qz, double R, double H)
 {
 	double h = H/2;
-	complex<double> s = sqrt(R*R*q*q + h*h*qz*qz);
+	complex<double> s = sqrt(R*R*q*q + h*h*qz*qz)+DBL_MIN;
 	return 4*M_PI*R*R*h * exp(I*qz*R) * (sin(s)-s*cos(s))/pow(s,3);
 }
 
 complex<double> Global_Variables::cylinder_FF(double q, complex<double> qz, double R, double H)
 {
 	double h = H/2;
-	return 2*M_PI*R*R*H * boost::math::sinc_pi(qz*h) * exp(I*qz*h) * boost::math::cyl_bessel_j(1,q*R)/(q*R);
+	return 2*M_PI*R*R*H * boost::math::sinc_pi(qz*h) * exp(I*qz*h) * boost::math::cyl_bessel_j(1,q*R+DBL_MIN)/(q*R+DBL_MIN);
 }
 
 complex<double> Global_Variables::omega_Factor(complex<double> k, double sigma)

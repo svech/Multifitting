@@ -12,11 +12,11 @@ Optical_Graphs::Optical_Graphs(QString dimension, QString keep_Splitter, QWidget
 	independent_Horizontal_Splitter_Vec_Vec(global_Multilayer_Approach->multilayer_Tabs->count()),
 	QWidget(parent) // nullptr!
 {
-	if(	dimension == dim_1D )	setWindowTitle("1D graphs");
-	if(	dimension == dim_2D )	setWindowTitle("2D graphs");
-	create_Main_Layout();
-	set_Window_Geometry();
-	setAttribute(Qt::WA_DeleteOnClose);	
+		if(	dimension == dim_1D )	setWindowTitle("1D graphs");
+		if(	dimension == dim_2D )	setWindowTitle("2D graphs");
+		create_Main_Layout();
+		set_Window_Geometry();
+		setAttribute(Qt::WA_DeleteOnClose);
 }
 
 void Optical_Graphs::contextMenuEvent(QContextMenuEvent* event)

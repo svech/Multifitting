@@ -370,6 +370,10 @@ class Node;
 #define left			"left"
 #define right			"right"
 
+// 2D plot orientation
+#define horizontal		"horizontal"
+#define vertical		"vertical"
+
 // 2D data to show
 #define meas		"meas"
 #define calc		"calc"
@@ -643,6 +647,7 @@ struct Plot_Options				{ bool rescale = true;
 								  int bottom_Section_Tab_Index = 0;
 								  QString data_To_Show = meas;
 								  double orders_To_Show = 9;
+								  QString orientation = vertical;
 								};
 struct Graph_Options			{int num_Target_Graph_Rows = 1;		 // rows in Graphs
 								 int num_Independent_Graph_Rows = 1; // rows in Graphs

@@ -1029,22 +1029,27 @@ void Node::create_Spline_G2_2D(const Data& measurement, const Imperfections_Mode
 	vector<double> temp_q2_Max(measurement.detector_Theta_Cos_Vec.size());
 	vector<double> temp_q2_Min(measurement.detector_Theta_Cos_Vec.size());
 
-	double max_Cos_Phi = max(measurement.detector_Phi_Cos_Vec.front(), measurement.detector_Phi_Cos_Vec.back());
-	double min_Cos_Phi = min(measurement.detector_Phi_Cos_Vec.front(), measurement.detector_Phi_Cos_Vec.back());
+	double min_Cos_Phi_0 = min(measurement.detector_Phi_Cos_Vec.front(), measurement.detector_Phi_Cos_Vec.back());
+	double max_Cos_Phi_0 = max(measurement.detector_Phi_Cos_Vec.front(), measurement.detector_Phi_Cos_Vec.back());
+	double min_Cos_Phi = min(min_Cos_Phi_0,max_Cos_Phi_0);
+	double max_Cos_Phi = max(min_Cos_Phi_0,max_Cos_Phi_0);
 	if(measurement.detector_Phi_Angle_Vec.front()*measurement.detector_Phi_Angle_Vec.back() < DBL_EPSILON ) max_Cos_Phi = 1;
-	for(size_t i=0; i<measurement.detector_Theta_Cos_Vec.size(); i++)
+
+	vector<double> detector_Theta_Cos_Sorted_Vec = measurement.detector_Theta_Cos_Vec;
+	std::sort(detector_Theta_Cos_Sorted_Vec.begin(), detector_Theta_Cos_Sorted_Vec.end());
+	for(size_t i=0; i<detector_Theta_Cos_Sorted_Vec.size(); i++)
 	{
-		temp_q2_Max[i] = measurement.k_Value*measurement.k_Value*( measurement.detector_Theta_Cos_Vec[i]*measurement.detector_Theta_Cos_Vec[i] +
+		temp_q2_Max[i] = measurement.k_Value*measurement.k_Value*( detector_Theta_Cos_Sorted_Vec[i]*detector_Theta_Cos_Sorted_Vec[i] +
 																   measurement.beam_Theta_0_Cos_Value*measurement.beam_Theta_0_Cos_Value -
-																 2*measurement.beam_Theta_0_Cos_Value*measurement.detector_Theta_Cos_Vec[i]*min_Cos_Phi);
-		temp_q2_Min[i] = measurement.k_Value*measurement.k_Value*( measurement.detector_Theta_Cos_Vec[i]*measurement.detector_Theta_Cos_Vec[i] +
+																 2*measurement.beam_Theta_0_Cos_Value*detector_Theta_Cos_Sorted_Vec[i]*min_Cos_Phi);
+		temp_q2_Min[i] = measurement.k_Value*measurement.k_Value*( detector_Theta_Cos_Sorted_Vec[i]*detector_Theta_Cos_Sorted_Vec[i] +
 																   measurement.beam_Theta_0_Cos_Value*measurement.beam_Theta_0_Cos_Value -
-																 2*measurement.beam_Theta_0_Cos_Value*measurement.detector_Theta_Cos_Vec[i]*max_Cos_Phi);
+																 2*measurement.beam_Theta_0_Cos_Value*detector_Theta_Cos_Sorted_Vec[i]*max_Cos_Phi);
 	}
 	std::sort(temp_q2_Max.begin(), temp_q2_Max.end());
 	std::sort(temp_q2_Min.begin(), temp_q2_Min.end());
-	double q_Max = sqrt(temp_q2_Max.back())*(1+1E-8);
-	double q_Min = sqrt(temp_q2_Min.front())*(1-1E-8);
+	double q_Max = sqrt(max(temp_q2_Max.back(),DBL_EPSILON))*(1+1E-8);
+	double q_Min = sqrt(max(temp_q2_Min.front(),0. ))*(1-1E-8);
 	double q_Range = q_Max-q_Min;
 	vector<double> q_Peak;
 
@@ -1166,7 +1171,7 @@ void Node::create_Spline_G2_2D(const Data& measurement, const Imperfections_Mode
 			}
 
 			// inside each peak
-			q_Vec.push_back(q_Peak[peak_Index]-hw_Factor*hw_Peak[peak_Index]);
+			q_Vec.push_back(q_Peak[peak_Index]-hw_Factor*hw_Peak[peak_Index]); // may be < 0
 
 			double dq_Peak = 2*hw_Factor*hw_Peak[peak_Index]/(num_Peak_Points-1);
 
@@ -1214,6 +1219,10 @@ void Node::create_Spline_G2_2D(const Data& measurement, const Imperfections_Mode
 	{
 		if(q_Vec[i]-q_Vec[i-1] < DBL_EPSILON) q_Vec.erase(q_Vec.begin()+i);
 	}
+	for(int i=q_Vec.size()-1; i>=0; i--)
+	{
+		if(q_Vec[i] < q_Min) q_Vec.erase(q_Vec.begin()+i);
+	}
 
 	// calculation
 	int num_Phi_Points_Per_hw = 1;
@@ -1260,12 +1269,13 @@ void Node::create_Spline_G2_2D(const Data& measurement, const Imperfections_Mode
 	// thresholds
 	for(int q_Index = q_Vec.size()-1; q_Index>=0; q_Index--)
 	{
+		// TODO
 		if(q_Vec[q_Index]<2e-6)
 		{
-			if(q_Vec[q_Index]<DBL_EPSILON)
-			{
-				G2_Vec[q_Index] = -G1_Type(a);
-			} else
+//			if(q_Vec[q_Index]<DBL_EPSILON)
+//			{
+//				G2_Vec[q_Index] = -G1_Type(a); // TODO why not working?
+//			} else
 			{
 				if(q_Index<q_Vec.size()-1)
 				{

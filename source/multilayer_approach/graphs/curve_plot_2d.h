@@ -30,7 +30,7 @@ public:
 	void touch_It();
 	void replot_All();
 
-	void create_Plot_Options_GroupBox();
+	void create_Plot_Options_GroupBox(bool rescale);
 	void create_Subinterval_Rectangle();
 	void subinterval_Changed_Replot();
 

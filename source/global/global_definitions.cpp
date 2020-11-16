@@ -354,7 +354,7 @@ QDataStream& operator <<( QDataStream& stream, const Plot_Options& plot_Options 
 				  << plot_Options.use_Interpolation << plot_Options.z_Scale << plot_Options.color_Scheme
 				  << plot_Options.rotation_Angle << plot_Options.left_Section_Plot
 				  << plot_Options.bottom_Section_Plot << plot_Options.bottom_Section_Tab_Index
-				  << plot_Options.data_To_Show << plot_Options.orders_To_Show;
+				  << plot_Options.data_To_Show << plot_Options.orders_To_Show << plot_Options.orientation;
 }
 QDataStream& operator >>( QDataStream& stream,		 Plot_Options& plot_Options )
 {
@@ -368,7 +368,7 @@ QDataStream& operator >>( QDataStream& stream,		 Plot_Options& plot_Options )
 			  >> plot_Options.use_Interpolation >> plot_Options.z_Scale >> plot_Options.color_Scheme
 			  >> plot_Options.rotation_Angle >> plot_Options.left_Section_Plot
 			  >> plot_Options.bottom_Section_Plot >> plot_Options.bottom_Section_Tab_Index
-			  >> plot_Options.data_To_Show >> plot_Options.orders_To_Show;
+			  >> plot_Options.data_To_Show >> plot_Options.orders_To_Show >> plot_Options.orientation;
 	} else
 	{
 		stream >> plot_Options.y_Scale;
