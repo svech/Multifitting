@@ -1125,8 +1125,8 @@ void Node::create_Spline_G2_2D(const Data& measurement, const Imperfections_Mode
 
 	double N = 1e7*min(measurement.sample_Geometry.size, measurement.beam_Geometry.size/max(measurement.beam_Theta_0_Sin_Value, DBL_EPSILON))/a;
 	double M = 1e7*measurement.beam_Geometry.lateral_Width/b;
-	N = max(N,1.);
-	M = max(M,1.);
+	N = max(N,100.);
+	M = max(M,100.);
 
 	// peak half-widths
 	vector<double> hw_Peak(q_Peak.size());
@@ -1223,6 +1223,13 @@ void Node::create_Spline_G2_2D(const Data& measurement, const Imperfections_Mode
 	{
 		if(q_Vec[i] < q_Min) q_Vec.erase(q_Vec.begin()+i);
 	}
+	// threshold
+	double q_Threshold = q_Min;
+	if(q_Peak.size()>=1) q_Threshold = q_Peak.front()/2;
+	for(int i=q_Vec.size()-1; i>=1; i--)
+	{
+		if(q_Vec[i] < q_Threshold) q_Vec.erase(q_Vec.begin()+i);
+	}
 
 	// calculation
 	int num_Phi_Points_Per_hw = 1;
@@ -1266,23 +1273,9 @@ void Node::create_Spline_G2_2D(const Data& measurement, const Imperfections_Mode
 			G2_Vec[q_Index] = integral;
 		}
 	});
-	// thresholds
-	for(int q_Index = q_Vec.size()-1; q_Index>=0; q_Index--)
+	if(q_Min<DBL_EPSILON)
 	{
-		// TODO
-		if(q_Vec[q_Index]<2e-6)
-		{
-//			if(q_Vec[q_Index]<DBL_EPSILON)
-//			{
-//				G2_Vec[q_Index] = -G1_Type(a); // TODO why not working?
-//			} else
-			{
-				if(q_Index<q_Vec.size()-1)
-				{
-					G2_Vec[q_Index] = G2_Vec[q_Index+1];
-				}
-			}
-		}
+		G2_Vec.front() = -G1_Type(a);
 	}
 
 	bool narrow = false;

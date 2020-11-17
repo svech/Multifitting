@@ -344,6 +344,7 @@ public:
 	// density fluctuations
 	static double G1_Square	 (double a);
 	static double G2_Square	 (double q, double phi, double a,  double sigma, double N, double M);
+	static double G2_Square_Diff	 (double q, double phi, double a,  double sigma, double N, double M);
 	static double G2_Square_long	 (long double q, long double phi, long double a, long double sigma, long double N, long double M);
 	static double G1_Hexagone(double a);
 	static double G2_Hexagone(double q, double phi, double a,  double sigma, double N, double M);
