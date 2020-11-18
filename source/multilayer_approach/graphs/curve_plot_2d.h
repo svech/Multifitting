@@ -19,11 +19,11 @@ public:
 	void create_Position_Lines();
 	void create_Plot_Frame_And_Scale();
 	void create_Section_Parts();
-	void refresh_Axes_Range();
+	void refresh_Axes_Range(bool rescale_Axes = false);
 	void apply_Log_Scale();
 	void apply_Lin_Scale();
-	void plot_All_Data();
-	void plot_Data();
+	void plot_All_Data(bool rescale_Axes = false);
+	void plot_Data(bool rescale_Axes = false);
 	void refresh_Axes_Labels();
 	void refresh_Corner_Labels(double x = -MAX_DOUBLE, double y = -MAX_DOUBLE, int x_Cell = -2020, int y_Cell = -2020);
 	void set_Title_Text();

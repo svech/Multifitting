@@ -1745,7 +1745,7 @@ Parameter& Table_Of_Structures::get_Parameter(Data& struct_Data, QString whats_T
 	if(whats_This == whats_This_Particle_Height)				{precision = line_edit_sigma_precision;		coeff = length_Coefficients_Map.value(length_units);	return struct_Data.fluctuations_Model.particle_Height;						}
 	if(whats_This == whats_This_Particle_Average_Distance)		{precision = line_edit_sigma_precision;		coeff = length_Coefficients_Map.value(length_units);	return struct_Data.fluctuations_Model.particle_Average_Distance;			}
 	if(whats_This == whats_This_Particle_Radial_Distance)		{precision = line_edit_sigma_precision;		coeff = length_Coefficients_Map.value(length_units);	return struct_Data.fluctuations_Model.particle_Radial_Distance;				}
-if(whats_This == whats_This_Particle_Radial_Distance_Deviation)	{precision = line_edit_sigma_precision;		coeff = length_Coefficients_Map.value(length_units);	return struct_Data.fluctuations_Model.particle_Radial_Distance_Deviation;	}
+	if(whats_This == whats_This_Particle_Radial_Distance_Deviation)	{precision = line_edit_sigma_precision;	coeff = length_Coefficients_Map.value(length_units);	return struct_Data.fluctuations_Model.particle_Radial_Distance_Deviation;	}
 	if(whats_This == whats_This_Particle_Z_Position)			{precision = line_edit_sigma_precision;		coeff = length_Coefficients_Map.value(length_units);	return struct_Data.fluctuations_Model.particle_Z_Position;					}
 	if(whats_This == whats_This_Particle_Z_Position_Deviation)	{precision = line_edit_sigma_precision;		coeff = length_Coefficients_Map.value(length_units);	return struct_Data.fluctuations_Model.particle_Z_Position_Deviation;		}
 
@@ -2953,6 +2953,10 @@ void Table_Of_Structures::create_Line_Edit(My_Table_Widget* table, int tab_Index
 		if( whats_This == whats_This_Particle_Radial_Distance_Deviation)
 		{
 			spin_Box->setMinimum(0.5/coeff);
+		}
+		if( whats_This == whats_This_Particle_Z_Position)
+		{
+			spin_Box->setMinimum(-10000/coeff);
 		}
 
 		id = parameter.indicator.id;
@@ -5079,6 +5083,10 @@ void Table_Of_Structures::refresh_Parameter(My_Table_Widget* table)
 			if( whats_This == whats_This_Particle_Radial_Distance_Deviation)
 			{
 				spin_Box->setMinimum(0.5/coeff);
+			}
+			if( whats_This == whats_This_Particle_Z_Position)
+			{
+				spin_Box->setMinimum(-10000/coeff);
 			}
 
 			spin_Box->blockSignals(false);

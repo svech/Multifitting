@@ -3051,7 +3051,8 @@ void Unwrapped_Reflection::fill_Item_Form_Factor_2D(int thread_Index, int point_
 															(q,
 															 k_03[thread_Index][first_Layer_Of_Item][i],
 															 item.fluctuations_Model.particle_Radius.value,
-															 item.fluctuations_Model.particle_Height.value);
+															 item.fluctuations_Model.particle_Height.value,
+															 item.fluctuations_Model.particle_Z_Position.value);
 			}
 		}
 	}

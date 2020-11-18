@@ -413,9 +413,9 @@ void Curve_Plot_2D::create_Section_Parts()
 	}
 }
 
-void Curve_Plot_2D::refresh_Axes_Range()
+void Curve_Plot_2D::refresh_Axes_Range(bool rescale_Axes)
 {
-	if(plot_Options.rescale)
+//	if(plot_Options.rescale)
 	{
 		double spectral_Coeff = wavelength_Coefficients_Map.value(spectral_Units);
 		double angular_Coeff = angle_Coefficients_Map.value(angular_Units);
@@ -424,7 +424,10 @@ void Curve_Plot_2D::refresh_Axes_Range()
 		{
 			color_Map->data()->setRange(QCPRange(measurement.detector_Theta_Angle.independent.min/angular_Coeff, measurement.detector_Theta_Angle.independent.max/angular_Coeff),
 										QCPRange(measurement.detector_Phi_Angle.independent.min/angular_Coeff,   measurement.detector_Phi_Angle.independent.max/angular_Coeff));
-			main_2D_Custom_Plot->rescaleAxes();
+			if(plot_Options.rescale || rescale_Axes)
+			{
+				main_2D_Custom_Plot->rescaleAxes();
+			}
 		}
 		// fields
 		if(curve_Class == INDEPENDENT)
@@ -448,7 +451,10 @@ void Curve_Plot_2D::refresh_Axes_Range()
 										   Global_Variables::wavelength_Energy(spectral_Units,measurement.wavelength.independent.max)/spectral_Coeff);
 					}
 					color_Map->data()->setRange(x_Range,y_Range);
-					main_2D_Custom_Plot->rescaleAxes();
+					if(plot_Options.rescale || rescale_Axes)
+					{
+						main_2D_Custom_Plot->rescaleAxes();
+					}
 				}
 			}
 		}
@@ -566,7 +572,7 @@ void Curve_Plot_2D::apply_Lin_Scale()
 	bottom_Ver_Layout->setContentsMargins(0,0,shift_Bottom,0);
 }
 
-void Curve_Plot_2D::plot_All_Data()
+void Curve_Plot_2D::plot_All_Data(bool rescale_Axes)
 {
 	refresh_Axes_Labels();
 
@@ -624,14 +630,14 @@ void Curve_Plot_2D::plot_All_Data()
 		values_Hor_Calc.resize(values_2D->front().size());
 		values_Ver_Calc.resize(values_2D->size());
 	}
-	plot_Data();
+	plot_Data(rescale_Axes);
 
 	// show me on recalculate
 	restore_Marks();
 	main_2D_Custom_Plot->mouseMove(new QMouseEvent(QEvent::MouseMove, QPointF(graph_2D_Positions.current_Pos), Qt::NoButton, Qt::NoButton, Qt::NoModifier));
 }
 
-void Curve_Plot_2D::plot_Data()
+void Curve_Plot_2D::plot_Data(bool rescale_Axes)
 {
 	int nx = values_2D->front().size();
 	int ny = values_2D->size();
@@ -651,7 +657,7 @@ void Curve_Plot_2D::plot_Data()
 		}
 	}
 	// x,y ranges
-	refresh_Axes_Range();
+	refresh_Axes_Range(rescale_Axes);
 	// z range
 	//color_Map->rescaleDataRange(); // rescale the data dimension (color) such that all data points lie in the span visualized by the color gradient
 	if(plot_Options.z_Scale == log_Scale) { min_Val = max(min_Val,max_Val/pow(10,plot_Options.orders_To_Show)); max_Val*=1.4;} // no more than "orders_To_Show" orders

@@ -999,13 +999,23 @@ void Node::clear_Spline_PSD_Fractal_Gauss(const Imperfections_Model& imperfectio
 
 double Node::G1_Type_Outer()
 {
+	double a = 1;
+	if(struct_Data.fluctuations_Model.particle_Interference_Function == radial_Paracrystal)
+	{
+		a = struct_Data.fluctuations_Model.particle_Radial_Distance.value;
+	}
+	if(struct_Data.fluctuations_Model.particle_Interference_Function == disorder)
+	{
+		a = struct_Data.fluctuations_Model.particle_Average_Distance.value;
+	}
+
 	if(struct_Data.fluctuations_Model.geometric_Model == square_Model)
 	{
-		return Global_Variables::G1_Square(struct_Data.fluctuations_Model.particle_Radial_Distance.value);
+		return Global_Variables::G1_Square(a);
 	}
 	if(struct_Data.fluctuations_Model.geometric_Model == hexagonal_Model)
 	{
-		return Global_Variables::G1_Hexagone(struct_Data.fluctuations_Model.particle_Radial_Distance.value);
+		return Global_Variables::G1_Hexagone(a);
 	}
 	qInfo() << endl << "Node::G1_Type_Outer  :  wrong fluctuations_Model.geometric_Model" << endl << endl;
 	return -2020;
@@ -1125,8 +1135,8 @@ void Node::create_Spline_G2_2D(const Data& measurement, const Imperfections_Mode
 
 	double N = 1e7*min(measurement.sample_Geometry.size, measurement.beam_Geometry.size/max(measurement.beam_Theta_0_Sin_Value, DBL_EPSILON))/a;
 	double M = 1e7*measurement.beam_Geometry.lateral_Width/b;
-	N = max(N,100.);
-	M = max(M,100.);
+	N = max(N,51.);
+	M = max(M,51.);
 
 	// peak half-widths
 	vector<double> hw_Peak(q_Peak.size());
@@ -1224,12 +1234,11 @@ void Node::create_Spline_G2_2D(const Data& measurement, const Imperfections_Mode
 		if(q_Vec[i] < q_Min) q_Vec.erase(q_Vec.begin()+i);
 	}
 	// threshold
-	double q_Threshold = q_Min;
-	if(q_Peak.size()>=1) q_Threshold = q_Peak.front()/2;
-	for(int i=q_Vec.size()-1; i>=1; i--)
-	{
-		if(q_Vec[i] < q_Threshold) q_Vec.erase(q_Vec.begin()+i);
-	}
+//	if(q_Peak.size()>=1) q_Threshold = q_Peak.front()/2;
+//	for(int i=q_Vec.size()-1; i>=1; i--)
+//	{
+//		if(q_Vec[i] < q_Threshold) q_Vec.erase(q_Vec.begin()+i);
+//	}
 
 	// calculation
 	int num_Phi_Points_Per_hw = 1;
@@ -1273,10 +1282,18 @@ void Node::create_Spline_G2_2D(const Data& measurement, const Imperfections_Mode
 			G2_Vec[q_Index] = integral;
 		}
 	});
-	if(q_Min<DBL_EPSILON)
+	// TODO crutch
+	// threshold
+	double q_Threshold = 1e-8;
+	for(int i=q_Vec.size()-1; i>=0; i--)
 	{
-		G2_Vec.front() = -G1_Type(a);
+		if(q_Vec[i] < q_Threshold) G2_Vec[i] = G2_Vec[i+1];
 	}
+//	if(q_Min<DBL_EPSILON)
+//	{
+//		G2_Vec.front() = (N*M-1.)/(a*b);//G1_Type(a);
+//		G2_Vec.front() = G2_Vec[1];
+//	}
 
 	bool narrow = false;
 	for(size_t i=0; i<too_Narrow.size(); i++)

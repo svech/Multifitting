@@ -467,7 +467,7 @@ void GISAS_Independent_Curve_Part::refresh_Spectral_Units()
 	}
 }
 
-void GISAS_Independent_Curve_Part::refresh_Theta_Argument_Values()
+void GISAS_Independent_Curve_Part::refresh_Theta_Argument_Values(bool rescale_Axes)
 {
 	double coeff = angle_Coefficients_Map.value(independent_Curve->angular_Units);
 	independent_Curve->measurement.detector_Theta_Angle.independent.num_Points = num_Points_Theta_Spinbox->value();
@@ -485,12 +485,12 @@ void GISAS_Independent_Curve_Part::refresh_Theta_Argument_Values()
 		if(global_Multilayer_Approach->optical_Graphs_2D->meas_Id_Curve_2D_Map.contains(independent_Curve->measurement.id))
 		{
 			Curve_Plot_2D* curve_Plot_2D = global_Multilayer_Approach->optical_Graphs_2D->meas_Id_Curve_2D_Map.value(independent_Curve->measurement.id);
-			curve_Plot_2D->plot_All_Data();
+			curve_Plot_2D->plot_All_Data(rescale_Axes);
 		}
 	}
 }
 
-void GISAS_Independent_Curve_Part::refresh_Phi_Argument_Values()
+void GISAS_Independent_Curve_Part::refresh_Phi_Argument_Values(bool rescale_Axes)
 {
 	double coeff = angle_Coefficients_Map.value(independent_Curve->angular_Units);
 	independent_Curve->measurement.detector_Phi_Angle.independent.num_Points = num_Points_Phi_Spinbox->value();
@@ -508,7 +508,7 @@ void GISAS_Independent_Curve_Part::refresh_Phi_Argument_Values()
 		if(global_Multilayer_Approach->optical_Graphs_2D->meas_Id_Curve_2D_Map.contains(independent_Curve->measurement.id))
 		{
 			Curve_Plot_2D* curve_Plot_2D = global_Multilayer_Approach->optical_Graphs_2D->meas_Id_Curve_2D_Map.value(independent_Curve->measurement.id);
-			curve_Plot_2D->plot_All_Data();
+			curve_Plot_2D->plot_All_Data(rescale_Axes);
 		}
 	}
 }
@@ -612,23 +612,23 @@ void GISAS_Independent_Curve_Part::connecting()
 	// start value
 	connect(start_Argument_Theta_Spinbox, static_cast<void (MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
 	{
-		refresh_Theta_Argument_Values();
+		refresh_Theta_Argument_Values(true);
 		global_Multilayer_Approach->global_Recalculate();
 	});
 	connect(start_Argument_Phi_Spinbox, static_cast<void (MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
 	{
-		refresh_Phi_Argument_Values();
+		refresh_Phi_Argument_Values(true);
 		global_Multilayer_Approach->global_Recalculate();
 	});
 	// final value
 	connect(final_Argument_Theta_Spinbox, static_cast<void (MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
 	{
-		refresh_Theta_Argument_Values();
+		refresh_Theta_Argument_Values(true);
 		global_Multilayer_Approach->global_Recalculate();
 	});
 	connect(final_Argument_Phi_Spinbox, static_cast<void (MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
 	{
-		refresh_Phi_Argument_Values();
+		refresh_Phi_Argument_Values(true);
 		global_Multilayer_Approach->global_Recalculate();
 	});
 

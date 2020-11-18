@@ -172,7 +172,7 @@ public:
 	vector<vector<vector<complex<double>>>> C_03_s;	//	[thread][layer][0-3]
 	vector<vector<vector<complex<double>>>> C_03_p;	//	[thread][layer][0-3]
 
-	vector<vector<complex<double>(*)(double, complex<double>, double, double)>> form_Factor_2D_Func_Vec; // [thread][item_Index]
+	vector<vector<complex<double>(*)(double, complex<double>, double, double, double)>> form_Factor_2D_Func_Vec; // [thread][item_Index]
 	vector<vector<vector<complex<double>>>> F_03;	//	[thread][item_Index][0-3]
 	vector<vector<vector<complex<double>>>> w_03;	//	[thread][item_Index][0-3]
 	vector<vector<vector<vector<complex<double>>>>> g_03_03;//	[thread][item_Index][0-3][0-3]

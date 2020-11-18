@@ -22,8 +22,8 @@ public:
 
 	void refresh_Angular_Units();
 	void refresh_Spectral_Units();
-	void refresh_Theta_Argument_Values();
-	void refresh_Phi_Argument_Values();
+	void refresh_Theta_Argument_Values(bool rescale_Axes = false);
+	void refresh_Phi_Argument_Values(bool rescale_Axes = false);
 	void refresh_At_Fixed_Wavelength_Value();
 	void refresh_At_Fixed_Beam_Theta_0_Value();
 
