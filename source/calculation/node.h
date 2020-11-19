@@ -54,7 +54,7 @@ public:
 	/// ------------------------------------------------
 
 	double G1_Type_Outer();
-	double G2_Type_Outer(double k, double cos_Theta, double cos_Theta_0, double cos_Phi);
+	double G2_Type_Outer(double q);
 	double(*G1_Type)(double);
 	vector<double(*)(double, double, double, double, double, double)> G2_Type;
 	vector<double(*)(long double, long double, long double, long double sigma, long double N, long double M)> G2_Type_long;

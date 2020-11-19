@@ -1021,9 +1021,8 @@ double Node::G1_Type_Outer()
 	return -2020;
 }
 
-double Node::G2_Type_Outer(double k, double cos_Theta, double cos_Theta_0, double cos_Phi)
+double Node::G2_Type_Outer(double q)
 {
-	double q = k*sqrt(cos_Theta*cos_Theta + cos_Theta_0*cos_Theta_0 - 2*cos_Theta_0*cos_Theta*cos_Phi);
 	return gsl_spline_eval(spline_G2, q, acc_G2);
 }
 

@@ -168,7 +168,8 @@ public:
 	// density fluctuations
 	///---------------------------------------------------------------------
 
-	vector<vector<vector<complex<double>>>> k_03;	//	[thread][layer][0-3]
+	vector<vector<vector<complex<double>>>> k_03;	//	[thread][item_Index][0-3]
+	vector<vector<vector<complex<double>>>> exp_03;	//	[thread][layer][0-3]
 	vector<vector<vector<complex<double>>>> C_03_s;	//	[thread][layer][0-3]
 	vector<vector<vector<complex<double>>>> C_03_p;	//	[thread][layer][0-3]
 
@@ -248,13 +249,14 @@ public:
 	double cor_Function_Integration		(int point_Index, int thread_Index, double cos_Theta_0);
 
 	// density fluctuations
-	void calc_k_Wavenumber_Layer	(                      int thread_Index, int point_Index);
-	void calc_C_Factor				(QString polarization, int thread_Index, int point_Index);
-	void calc_Omega_Factor			(					   int thread_Index);
-	void calc_Gamma_Factor			(					   int thread_Index);
+	void calc_k_Wavenumber_Layer	(						int thread_Index, int point_Index);
+	void calc_Half_Layer_Exponents	(						int thread_Index);
+	void calc_C_Factor				(QString polarization,	int thread_Index, int point_Index);
+	void calc_Omega_Factor			(						int thread_Index);
+	void calc_Gamma_Factor			(						int thread_Index);
 
 	void choose_Form_Factor_2D_Function	(int thread_Index);
-	void fill_Item_Form_Factor_2D		(int thread_Index, int point_Index, int phi_Index);
+	void calc_Item_Form_Factor_2D		(int thread_Index, size_t item_Index, double q);
 	double calc_G1_Field_Sum		(QString polarization, int thread_Index,int item_Index, int layer_Index);
 	double calc_G2_Field_Sum		(QString polarization, int thread_Index,int item_Index, int layer_Index);
 
