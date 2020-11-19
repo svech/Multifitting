@@ -2641,7 +2641,7 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 										fill_Item_PSD_2D(thread_Index, point_Index, phi_Index);
 
 										double field_With_PSD_2D_Factor = 0;
-										for (int j = 0; j<num_Boundaries_Sharp; j++)
+										for(int j = 0; j<num_Boundaries_Sharp; j++)
 										{
 											int item_Index = boundary_Item_Vec[j];
 											double PSD_2D_Factor = PSD_Factor_Item[thread_Index][item_Index];
@@ -2849,59 +2849,59 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 				}
 				if( measurement.measurement_Type == measurement_Types[GISAS_Map] )
 				{
-					choose_Form_Factor_2D_Function(thread_Index);
+//					choose_Form_Factor_2D_Function(thread_Index);
 
-					// pure s-polarization
-					if( (measurement.polarization - 1) > -POLARIZATION_TOLERANCE)
-					{
-						for(size_t phi_Index = measurement.start_Phi_Index; phi_Index<measurement.end_Phi_Number; phi_Index++)
-						{
-							fill_Item_Form_Factor_2D(thread_Index, point_Index, phi_Index);
+//					// pure s-polarization
+//					if( (measurement.polarization - 1) > -POLARIZATION_TOLERANCE)
+//					{
+//						for(size_t phi_Index = measurement.start_Phi_Index; phi_Index<measurement.end_Phi_Number; phi_Index++)
+//						{
+//							fill_Item_Form_Factor_2D(thread_Index, point_Index, phi_Index);
 
-							double field_With_G_2D_Factor = 0;
-							for (int layer_Index = 0; layer_Index<num_Layers_Sharp; layer_Index++)
-							{
-								int item_Index = boundary_Item_Vec[layer_Index];
-								Data& item = appropriate_Item_Vec[item_Index];
+//							double field_With_G_2D_Factor = 0;
+//							for (int layer_Index = 0; layer_Index<num_Layers_Sharp; layer_Index++)
+//							{
+//								int item_Index = boundary_Item_Vec[layer_Index];
+//								Data& item = appropriate_Item_Vec[item_Index];
 
-								if(item.fluctuations_Model.is_Used)
-								{
-									Node* node = short_Flat_Calc_Tree[item_Index];
-									complex<double> d_Eps = node->delta_Epsilon_Contrast;
+//								if(item.fluctuations_Model.is_Used)
+//								{
+//									Node* node = short_Flat_Calc_Tree[item_Index];
+//									complex<double> d_Eps = node->delta_Epsilon_Contrast;
 
-									double k = measurement.k_Value;
-									double cos_Theta = measurement.detector_Theta_Cos_Vec[point_Index];
-									double cos_Theta_0 = measurement.beam_Theta_0_Cos_Value;
-									double cos_Phi = measurement.detector_Phi_Cos_Vec[phi_Index];
+//									double k = measurement.k_Value;
+//									double cos_Theta = measurement.detector_Theta_Cos_Vec[point_Index];
+//									double cos_Theta_0 = measurement.beam_Theta_0_Cos_Value;
+//									double cos_Phi = measurement.detector_Phi_Cos_Vec[phi_Index];
 
-									if(item.fluctuations_Model.particle_Interference_Function == radial_Paracrystal)
-									{
-										field_With_G_2D_Factor += norm(d_Eps) *
-												(
-												 node->G1_Type_Outer() *                                   calc_G1_Field_Sum("s", thread_Index, item_Index, layer_Index)
-													+
-												 node->G2_Type_Outer(k, cos_Theta, cos_Theta_0, cos_Phi) * calc_G2_Field_Sum("s", thread_Index, item_Index, layer_Index)
-												);
-									}
-									if(item.fluctuations_Model.particle_Interference_Function == disorder)
-									{
-										field_With_G_2D_Factor += norm(d_Eps) * node->G1_Type_Outer() * calc_G1_Field_Sum("s", thread_Index, item_Index, layer_Index);
-									}
-								}
-							}
+//									if(item.fluctuations_Model.particle_Interference_Function == radial_Paracrystal)
+//									{
+//										field_With_G_2D_Factor += norm(d_Eps) *
+//												(
+//												 node->G1_Type_Outer() *                                   calc_G1_Field_Sum("s", thread_Index, item_Index, layer_Index)
+//													+
+//												 node->G2_Type_Outer(k, cos_Theta, cos_Theta_0, cos_Phi) * calc_G2_Field_Sum("s", thread_Index, item_Index, layer_Index)
+//												);
+//									}
+//									if(item.fluctuations_Model.particle_Interference_Function == disorder)
+//									{
+//										field_With_G_2D_Factor += norm(d_Eps) * node->G1_Type_Outer() * calc_G1_Field_Sum("s", thread_Index, item_Index, layer_Index);
+//									}
+//								}
+//							}
 //							// TODO roughness + fluctuations
-							calculated_Values.GISAS_Map[phi_Index][point_Index] = e_Factor_PT_2D * field_With_G_2D_Factor * measurement.footprint_Factor_Vec[point_Index] + measurement.background;
-						}
-					} else
-					// pure p-polarization
-					if( (measurement.polarization + 1) < POLARIZATION_TOLERANCE)
-					{
-						// TODO
-					} else
-					// mixed sp-polarization
-					{
-						// TODO
-					}
+//							calculated_Values.GISAS_Map[phi_Index][point_Index] = e_Factor_PT_2D * field_With_G_2D_Factor * measurement.footprint_Factor_Vec[point_Index] + measurement.background;
+//						}
+//					} else
+//					// pure p-polarization
+//					if( (measurement.polarization + 1) < POLARIZATION_TOLERANCE)
+//					{
+//						// TODO
+//					} else
+//					// mixed sp-polarization
+//					{
+//						// TODO
+//					}
 				}
 			}
 		}

@@ -145,13 +145,30 @@ void Curve_Plot_2D::create_Main_Layout()
 			bottom_Ver_Layout->addWidget(bottom_Vertical_Custom_Plot);
 		bottom_Section_Tabs->addTab(bottom_Ver_Widget, "Vertical");
 
-		connect(main_2D_Custom_Plot->xAxis, SIGNAL(rangeChanged(QCPRange)), bottom_Horizontal_Custom_Plot->xAxis, SLOT(setRange(QCPRange)));
-		connect(main_2D_Custom_Plot->yAxis, SIGNAL(rangeChanged(QCPRange)), bottom_Vertical_Custom_Plot->xAxis, SLOT(setRange(QCPRange)));
-		connect(main_2D_Custom_Plot->yAxis, SIGNAL(rangeChanged(QCPRange)), left_Vertical_Custom_Plot->yAxis, SLOT(setRange(QCPRange)));
+		connect(main_2D_Custom_Plot->xAxis, static_cast<void(QCPAxis::*)(const QCPRange &)>(&QCPAxis::rangeChanged), this, [=](const QCPRange& new_Range)
+		{
+			bottom_Horizontal_Custom_Plot->xAxis->setRange(new_Range);
+			bottom_Horizontal_Custom_Plot->replot();
+		});
+		connect(main_2D_Custom_Plot->yAxis, static_cast<void(QCPAxis::*)(const QCPRange &)>(&QCPAxis::rangeChanged), this, [=](const QCPRange& new_Range)
+		{
+			bottom_Vertical_Custom_Plot->xAxis->setRange(new_Range);
+			bottom_Vertical_Custom_Plot->replot();
 
-		connect(color_Scale->axis(), SIGNAL(rangeChanged(QCPRange)), bottom_Horizontal_Custom_Plot->yAxis, SLOT(setRange(QCPRange)));
-		connect(color_Scale->axis(), SIGNAL(rangeChanged(QCPRange)), bottom_Vertical_Custom_Plot->yAxis, SLOT(setRange(QCPRange)));
-		connect(color_Scale->axis(), SIGNAL(rangeChanged(QCPRange)), left_Vertical_Custom_Plot->xAxis, SLOT(setRange(QCPRange)));
+			left_Vertical_Custom_Plot->yAxis->setRange(new_Range);
+			left_Vertical_Custom_Plot->replot();
+		});
+		connect(color_Scale->axis(), static_cast<void(QCPAxis::*)(const QCPRange &)>(&QCPAxis::rangeChanged), this, [=](const QCPRange& new_Range)
+		{
+			bottom_Horizontal_Custom_Plot->yAxis->setRange(new_Range);
+			bottom_Horizontal_Custom_Plot->replot();
+
+			bottom_Vertical_Custom_Plot->yAxis->setRange(new_Range);
+			bottom_Vertical_Custom_Plot->replot();
+
+			left_Vertical_Custom_Plot->xAxis->setRange(new_Range);
+			left_Vertical_Custom_Plot->replot();
+		});
 	}
 	//------------------------------------------------------
 	/// create lines
