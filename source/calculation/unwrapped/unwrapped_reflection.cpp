@@ -751,6 +751,9 @@ Unwrapped_Reflection::Unwrapped_Reflection(const vector<Node*>& short_Flat_Calc_
 				w_03.resize(num_Threads);
 				g_03_03.resize(num_Threads);
 
+				alfa_03_03.resize(num_Threads);
+				alfa_nn_03.resize(num_Threads);
+
 				for(int thread_Index=0; thread_Index<num_Threads; thread_Index++)
 				{
 					exp_03[thread_Index].resize(num_Layers_Sharp);
@@ -767,6 +770,9 @@ Unwrapped_Reflection::Unwrapped_Reflection(const vector<Node*>& short_Flat_Calc_
 					w_03[thread_Index].resize(num_Layer_Items);
 					g_03_03[thread_Index].resize(num_Layer_Items);
 
+					alfa_03_03[thread_Index].resize(num_Layer_Items);
+					alfa_nn_03[thread_Index].resize(num_Layer_Items);
+
 					for(int item_Index=0; item_Index<num_Layer_Items; item_Index++)
 					{
 						k_03[thread_Index][item_Index].resize(4);
@@ -774,9 +780,13 @@ Unwrapped_Reflection::Unwrapped_Reflection(const vector<Node*>& short_Flat_Calc_
 						w_03[thread_Index][item_Index].resize(4);
 						g_03_03[thread_Index][item_Index].resize(4);
 
+						alfa_03_03[thread_Index][item_Index].resize(4);
+						alfa_nn_03[thread_Index][item_Index].resize(4);
+
 						for(int i=0; i<4; i++)
 						{
 							g_03_03[thread_Index][item_Index][i].resize(4);
+							alfa_03_03[thread_Index][item_Index][i].resize(4);
 						}
 					}
 				}
@@ -2832,9 +2842,15 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 			} else
 			// if no roughness set GISAS to zero
 			{
-				for(size_t phi_Index = measurement.start_Phi_Index; phi_Index<measurement.end_Phi_Number; phi_Index++)
+				if( measurement.measurement_Type == measurement_Types[GISAS_Map] )
 				{
-					calculated_Values.GISAS_Map[phi_Index][point_Index] = 0;
+					if(multilayer->imperfections_Model.use_Fluctuations)
+					{
+						for(size_t phi_Index = measurement.start_Phi_Index; phi_Index<measurement.end_Phi_Number; phi_Index++)
+						{
+							calculated_Values.GISAS_Map[phi_Index][point_Index] = 0;
+						}
+					}
 				}
 			}
 
@@ -2884,49 +2900,27 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 									double cos_Phi = measurement.detector_Phi_Cos_Vec[phi_Index];
 									double q = measurement.k_Value*sqrt(cos_Theta*cos_Theta + cos_Theta_0*cos_Theta_0 - 2*cos_Theta_0*cos_Theta*cos_Phi);
 
-									calc_Item_Form_Factor_2D(thread_Index, item_Index, q);
-
-									double G2_Type_Value = node->G2_Type_Outer(q);
+									calc_Item_Form_Factor(thread_Index, item_Index, q);
+///									this case if(item.fluctuations_Model.particle_Interference_Function == radial_Paracrystal)
+									calc_Item_Alfa_Factor(thread_Index, item_Index, q, G1_Type_Value);
 
 									double field_With_G_2D_Factor = 0;
 									for(int& layer_Index : boundaries_Of_Item_Vec[item_Index])
 									{
-//										complex<double> return_Sum = 0;
-//										// second part
-//										for (int i = 0; i<4; i++)
-//										{
-//											for (int j = i+1; j<4; j++)
-//											{
-//												return_Sum +=      C_03_s[thread_Index][layer_Index][i]*F_03[thread_Index][item_Index][i]  *
-//															  conj(C_03_s[thread_Index][layer_Index][j]*F_03[thread_Index][item_Index][j]) * g_03_03[thread_Index][item_Index][i][j];
-//											}
-//										}
-//										return_Sum += conj(return_Sum);
-//										// first part
-//										for (int i = 0; i<4; i++)
-//										{
-//											return_Sum += norm(C_03_s[thread_Index][layer_Index][i]*F_03[thread_Index][item_Index][i]) * g_03_03[thread_Index][item_Index][i][i];
-//										}
-//										double G1_Field_Sum = real(return_Sum); // it should be internally real, by design
-
-
-
-//										if(item.fluctuations_Model.particle_Interference_Function == radial_Paracrystal)
+										for (int i = 0; i<4; i++)
 										{
-											field_With_G_2D_Factor += d_Eps_Norm *
-													(
-													 G1_Type_Value /** G1_Field_Sum*/ * calc_G1_Field_Sum("s", thread_Index, item_Index, layer_Index)
-														+
-													 G2_Type_Value //* calc_G2_Field_Sum("s", thread_Index, item_Index, layer_Index)
-													);
+											field_With_G_2D_Factor += norm(C_03_s[thread_Index][layer_Index][i]) * alfa_nn_03[thread_Index][item_Index][i];
+											for (int j = 0; j<i; j++)
+											{
+												field_With_G_2D_Factor += 2*real(    C_03_s[thread_Index][layer_Index][i] *
+																				conj(C_03_s[thread_Index][layer_Index][j])*
+																				 alfa_03_03[thread_Index][item_Index][i][j]
+																				);
+											}
 										}
-//										if(item.fluctuations_Model.particle_Interference_Function == disorder)
-//										{
-//											field_With_G_2D_Factor += d_Eps_Norm * G1_Type_Value * calc_G1_Field_Sum("s", thread_Index, item_Index, layer_Index);
-//										}
 									}
 									// for each item at each point, so GISAS_Map += ...
-									calculated_Values.GISAS_Map[phi_Index][point_Index] += e_Factor_PT_2D * field_With_G_2D_Factor * measurement.footprint_Factor_Vec[point_Index] + measurement.background;
+									calculated_Values.GISAS_Map[phi_Index][point_Index] += e_Factor_PT_2D * d_Eps_Norm * field_With_G_2D_Factor * measurement.footprint_Factor_Vec[point_Index] + measurement.background;
 								}
 							} else
 							// pure p-polarization
@@ -3103,7 +3097,8 @@ void Unwrapped_Reflection::calc_Gamma_Factor(int thread_Index)
 				}
 			}
 		}
-	}}
+	}
+}
 
 void Unwrapped_Reflection::choose_Form_Factor_2D_Function(int thread_Index)
 {
@@ -3127,7 +3122,7 @@ void Unwrapped_Reflection::choose_Form_Factor_2D_Function(int thread_Index)
 	}
 }
 
-void Unwrapped_Reflection::calc_Item_Form_Factor_2D(int thread_Index, size_t item_Index, double q)
+void Unwrapped_Reflection::calc_Item_Form_Factor(int thread_Index, size_t item_Index, double q)
 {
 	Data& item = appropriate_Item_Vec[item_Index];
 
@@ -3139,6 +3134,34 @@ void Unwrapped_Reflection::calc_Item_Form_Factor_2D(int thread_Index, size_t ite
 													 item.fluctuations_Model.particle_Radius.value,
 													 item.fluctuations_Model.particle_Height.value,
 													 item.fluctuations_Model.particle_Z_Position.value);
+	}
+}
+
+void Unwrapped_Reflection::calc_Item_Alfa_Factor(int thread_Index, size_t item_Index, double q, double G1_Type_Value)
+{
+	Node* node = short_Flat_Calc_Tree[item_Index];
+	double G2_Type_Value = node->G2_Type_Outer(q);
+
+	double g_nn, w_n2, F_n2;
+	complex<double> g_ij, w_i, w_ijc, F_i, F_ijc;
+	for(int i=0; i<4; i++)
+	{
+		// diagonal part
+		g_nn = real(g_03_03[thread_Index][item_Index][i][i]);
+		w_n2 = norm(   w_03[thread_Index][item_Index][i]);
+		F_n2 = norm(   F_03[thread_Index][item_Index][i]);
+		alfa_nn_03[thread_Index][item_Index][i] = F_n2 * (G1_Type_Value * (g_nn - w_n2) + w_n2 * G2_Type_Value);
+
+		// non-diagonal part
+		w_i = w_03[thread_Index][item_Index][i];
+		F_i = F_03[thread_Index][item_Index][i];
+		for(int j=0; j<i; j++)
+		{
+			g_ij  =       g_03_03[thread_Index][item_Index][i][j];
+			w_ijc = w_i*conj(w_03[thread_Index][item_Index][j]);
+			F_ijc = F_i*conj(F_03[thread_Index][item_Index][j]);
+			alfa_03_03[thread_Index][item_Index][i][j] = F_ijc * (G1_Type_Value * (g_ij - w_ijc) + w_ijc * G2_Type_Value);
+		}
 	}
 }
 

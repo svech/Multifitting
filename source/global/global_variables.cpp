@@ -1279,40 +1279,9 @@ double Global_Variables::G2_Square(double q, double phi, double a,  double sigma
 
 //	double specular_Mix = norm(specular_N*specular_M)*low_damp;
 
-	return (bracket_N*bracket_M/* - specular_Mix*/ - N*M)/(N*M*a*b);
+	return (bracket_N*bracket_M/* - specular_Mix*/ /*- N*M*/)/(N*M*a*b);
 }
 
-double Global_Variables::G2_Square_Diff(double q, double phi, double a, double sigma, double N, double M)
-{
-	double b = a;
-
-	double qa = q*cos(phi);
-	double qb = q*sin(phi);
-
-	double low_damp = exp(-0.25*q*q*sigma*sigma);
-	double damp = low_damp*low_damp;
-	double damp2 = damp*damp;
-	double damp4 = damp2*damp2;
-	double damp6 = damp2*damp4;
-	double damp8 = damp4*damp4;
-
-	double cos_a = cos(a*qa);
-	double cos_b = cos(b*qb);
-
-	double result =
-	(-1.+M*N + 2*(-1.+2*M+2*N)*damp2 + (15.-2*M*N)*damp4 - 4*(M+N)*damp6 + M*N*damp8
-
-	 - 2*damp*( -1.+(3.+4*M)*damp2-4*(-1.+M)*damp4 + N*(-1.-M+(-1.+M)*damp2)*(-1.+damp4) )*cos_b
-	 - 2*damp*( -1.+(3.+4*N)*damp2-4*(-1.+N)*damp4 + M*(-1.-N+(-1.+N)*damp2)*(-1.+damp4) )*cos_a
-
-	 + 4*damp2*(M+N+M*N - 2*(-1.+M*N)*damp2 + (-1.+M)*(-1.+N)*damp4)*cos_a*cos_b
-	 ) / (
-	 pow((1.+damp2-2*damp*cos_a),2)*
-	 pow((1.+damp2-2*damp*cos_b),2)
-	);
-
-	return result/(N*M - N*M)/(N*M*a*b);
-}
 double Global_Variables::G2_Square_long(long double q, long double phi, long double a, long double sigma, long double N, long double M)
 {
 	long double b = a;
@@ -1347,7 +1316,7 @@ double Global_Variables::G2_Square_long(long double q, long double phi, long dou
 
 //	long double specular_Mix = norm(specular_N*specular_M)*low_damp;
 
-	return (bracket_N*bracket_M/* - specular_Mix*/ - N*M)/(N*M*a*b);
+	return (bracket_N*bracket_M/* - specular_Mix*/ /*- N*M*/)/(N*M*a*b);
 }
 
 double Global_Variables::G1_Hexagone(double a)
@@ -1392,7 +1361,7 @@ double Global_Variables::G2_Hexagone(double q, double phi, double a, double sigm
 
 //	double specular_Mix = norm(specular_N*specular_M)*low_damp;
 
-	return (bracket_N*bracket_M/* - specular_Mix*/ - N*M)/(N*M*a*b);
+	return (bracket_N*bracket_M/* - specular_Mix*/ /*- N*M*/)/(N*M*a*b);
 }
 double Global_Variables::G2_Hexagone_long(long double q, long double phi, long double a, long double sigma, long double N, long double M)
 {
@@ -1434,21 +1403,21 @@ double Global_Variables::G2_Hexagone_long(long double q, long double phi, long d
 
 //	long double specular_Mix = norm(specular_N*specular_M)*low_damp;
 
-	return (bracket_N*bracket_M/* - specular_Mix*/ - N*M)/(N*M*a*b);
+	return (bracket_N*bracket_M/* - specular_Mix*/ /*- N*M*/)/(N*M*a*b);
 }
 
 complex<double> Global_Variables::full_Sphere_FF(double q, complex<double> qz, double R, double H, double z)
 {
 	Q_UNUSED(H)
-	complex<double> q_Full = sqrt(q*q+qz*qz)+DBL_MIN;
-	return 4*M_PI * exp(I*qz*z) * exp(I*qz*R) * (sin(q_Full*R)-q_Full*R*cos(q_Full*R))/pow(q_Full,3);
+	complex<double> s = R*sqrt(q*q+qz*qz)+DBL_MIN;
+	return 4*M_PI*R*R*R * exp(I*qz*z) * exp(I*qz*R) * (sin(s)-s*cos(s))/pow(s,3);
 }
 
 complex<double> Global_Variables::full_Spheroid_FF(double q, complex<double> qz, double R, double H, double z)
 {
 	double h = H/2;
 	complex<double> s = sqrt(R*R*q*q + h*h*qz*qz)+DBL_MIN;
-	return 4*M_PI*R*R*h * exp(I*qz*z) * exp(I*qz*R) * (sin(s)-s*cos(s))/pow(s,3);
+	return 4*M_PI*R*R*h * exp(I*qz*z) * exp(I*qz*h) * (sin(s)-s*cos(s))/pow(s,3);
 }
 
 complex<double> Global_Variables::cylinder_FF(double q, complex<double> qz, double R, double H, double z)

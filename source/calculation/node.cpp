@@ -1283,14 +1283,14 @@ void Node::create_Spline_G2_2D(const Data& measurement, const Imperfections_Mode
 	});
 	// TODO crutch
 	// threshold
-	double q_Threshold = 1e-8;
+	double q_Threshold = 1e-6;
 	for(int i=q_Vec.size()-1; i>=0; i--)
 	{
 		if(q_Vec[i] < q_Threshold) G2_Vec[i] = G2_Vec[i+1];
 	}
 //	if(q_Min<DBL_EPSILON)
 //	{
-//		G2_Vec.front() = (N*M-1.)/(a*b);//G1_Type(a);
+//		G2_Vec.front() = 0;
 //		G2_Vec.front() = G2_Vec[1];
 //	}
 

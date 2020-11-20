@@ -177,6 +177,8 @@ public:
 	vector<vector<vector<complex<double>>>> F_03;	//	[thread][item_Index][0-3]
 	vector<vector<vector<complex<double>>>> w_03;	//	[thread][item_Index][0-3]
 	vector<vector<vector<vector<complex<double>>>>> g_03_03;//	[thread][item_Index][0-3][0-3]
+	vector<vector<vector<vector<complex<double>>>>> alfa_03_03;//	[thread][item_Index][0-3][0-3]
+	vector<vector<vector<double>>>                  alfa_nn_03;//	[thread][item_Index][0-3]
 
 	///---------------------------------------------------------------------
 
@@ -256,7 +258,8 @@ public:
 	void calc_Gamma_Factor			(						int thread_Index);
 
 	void choose_Form_Factor_2D_Function	(int thread_Index);
-	void calc_Item_Form_Factor_2D		(int thread_Index, size_t item_Index, double q);
+	void calc_Item_Form_Factor			(int thread_Index, size_t item_Index, double q);
+	void calc_Item_Alfa_Factor			(int thread_Index, size_t item_Index, double q, double G1_Type_Value);
 	double calc_G1_Field_Sum		(QString polarization, int thread_Index,int item_Index, int layer_Index);
 	double calc_G2_Field_Sum		(QString polarization, int thread_Index,int item_Index, int layer_Index);
 
