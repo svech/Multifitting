@@ -1330,3 +1330,310 @@ void Node::clear_Spline_G2_2D(const Imperfections_Model& imperfections_Model)
 	gsl_spline_free(spline_G2);
 	gsl_interp_accel_free(acc_G2);
 }
+
+void Node::create_Spline_F_2D(const Data& measurement, const Imperfections_Model& imperfections_Model)
+{
+	if(!imperfections_Model.use_Fluctuations) return;
+	if(!struct_Data.fluctuations_Model.is_Used) return;
+	if(struct_Data.item_Type != item_Type_Layer ) return;
+
+	// in other cases ( layer ) go further
+
+	complex<double> hi_Beam = real(measurement.k_Value*sqrt(epsilon.front() - measurement.beam_Theta_0_Cos2_Value));
+	vector<complex<double>> hi_0(measurement.detector_Theta_Cos_Vec.size());
+	vector<double> hi_re_1(measurement.detector_Theta_Cos_Vec.size());
+	vector<double> hi_im_0(measurement.detector_Theta_Cos_Vec.size());
+	vector<double> hi_im_1(measurement.detector_Theta_Cos_Vec.size());
+	for(size_t i=0; i<detector_Theta_Cos_Sorted_Vec.size(); i++)
+	{
+		hi_re_0[i] = real(measurement.k_Value*sqrt(epsilon.front() - measurement.detector_Theta_Cos2_Vec[i]) + hi_Beam);
+		hi_re_1[i] = real(measurement.k_Value*sqrt(epsilon.front() - measurement.detector_Theta_Cos2_Vec[i]) - hi_Beam);
+		hi_im_0[i] = -hi_re_1[i];
+		hi_im_1[i] = -hi_re_0[i];
+	}
+	vector<doub>
+
+
+	vector<double> temp_q2_Min(measurement.detector_Theta_Cos_Vec.size());
+
+	double min_Cos_Phi_0 = min(measurement.detector_Phi_Cos_Vec.front(), measurement.detector_Phi_Cos_Vec.back());
+	double max_Cos_Phi_0 = max(measurement.detector_Phi_Cos_Vec.front(), measurement.detector_Phi_Cos_Vec.back());
+	double min_Cos_Phi = min(min_Cos_Phi_0,max_Cos_Phi_0);
+	double max_Cos_Phi = max(min_Cos_Phi_0,max_Cos_Phi_0);
+	if(measurement.detector_Phi_Angle_Vec.front()*measurement.detector_Phi_Angle_Vec.back() < DBL_EPSILON ) max_Cos_Phi = 1;
+
+	vector<double> detector_Theta_Cos_Sorted_Vec = measurement.detector_Theta_Cos_Vec;
+	std::sort(detector_Theta_Cos_Sorted_Vec.begin(), detector_Theta_Cos_Sorted_Vec.end());
+	for(size_t i=0; i<detector_Theta_Cos_Sorted_Vec.size(); i++)
+	{
+		temp_q2_Max[i] = measurement.k_Value*measurement.k_Value*( detector_Theta_Cos_Sorted_Vec[i]*detector_Theta_Cos_Sorted_Vec[i] +
+																   measurement.beam_Theta_0_Cos_Value*measurement.beam_Theta_0_Cos_Value -
+																 2*measurement.beam_Theta_0_Cos_Value*detector_Theta_Cos_Sorted_Vec[i]*min_Cos_Phi);
+		temp_q2_Min[i] = measurement.k_Value*measurement.k_Value*( detector_Theta_Cos_Sorted_Vec[i]*detector_Theta_Cos_Sorted_Vec[i] +
+																   measurement.beam_Theta_0_Cos_Value*measurement.beam_Theta_0_Cos_Value -
+																 2*measurement.beam_Theta_0_Cos_Value*detector_Theta_Cos_Sorted_Vec[i]*max_Cos_Phi);
+	}
+	std::sort(temp_q2_Max.begin(), temp_q2_Max.end());
+	std::sort(temp_q2_Min.begin(), temp_q2_Min.end());
+	double q_Max = sqrt(max(temp_q2_Max.back(),DBL_EPSILON))*(1+1E-8);
+	double q_Min = sqrt(max(temp_q2_Min.front(),0. ))*(1-1E-8);
+	double q_Range = q_Max-q_Min;
+	vector<double> q_Peak;
+
+	// choose pattern
+	double phi_Max;
+	double a = struct_Data.fluctuations_Model.particle_Radial_Distance.value;
+	double b = a;
+	double sigma = struct_Data.fluctuations_Model.particle_Radial_Distance_Deviation.value;
+	G2_Type.resize(reflectivity_Calc_Threads);
+	G2_Type_long.resize(reflectivity_Calc_Threads);
+	if(struct_Data.fluctuations_Model.geometric_Model == square_Model)
+	{
+		G1_Type = Global_Variables::G1_Square;
+		for(int thread_Index = 0; thread_Index<reflectivity_Calc_Threads; thread_Index++)
+		{
+			G2_Type     [thread_Index] = Global_Variables::G2_Square;
+			G2_Type_long[thread_Index] = Global_Variables::G2_Square_long;
+		}
+		phi_Max = M_PI_4;
+		b = a;
+
+		// peak positions
+		int n_Max = ceil(q_Max*a/(2*M_PI));
+		for(int n = 0; n<=n_Max; n++)
+		{
+			for(int m = n; m<=n_Max; m++)
+			{
+				double q = 2*M_PI/a*sqrt(n*n+m*m);
+				if(	(q < q_Max) &&
+					(q > q_Min)
+				  )
+				{
+					q_Peak.push_back(q);
+				}
+			}
+		}
+		std::sort(q_Peak.begin(), q_Peak.end());
+	}
+	if(struct_Data.fluctuations_Model.geometric_Model == hexagonal_Model)
+	{
+		G1_Type = Global_Variables::G1_Hexagone;
+		for(int thread_Index = 0; thread_Index<reflectivity_Calc_Threads; thread_Index++)
+		{
+			G2_Type     [thread_Index] = Global_Variables::G2_Hexagone;
+			G2_Type_long[thread_Index] = Global_Variables::G2_Hexagone_long;
+		}
+		phi_Max = M_PI/6;
+		b = a*M_SQRT3/2;
+
+		// peak positions
+		int n_Max = ceil(q_Max*a/(2*M_PI));
+		int m_Max = ceil(q_Max*b/(  M_PI));
+		for(int n = 1; n<=n_Max; n++)
+		{
+			for(int m = 1; m<=m_Max; m++)
+			{
+				double q = 2*M_PI/a*sqrt(n*n+m*m/3.);
+				if(	(q < q_Max) &&
+					(q > q_Min) &&
+					((n+m)%2 == 0)
+				  )
+				{
+					bool contains = false;
+					for(double& qp : q_Peak)	{
+						if( norm(qp-q) < 1E-6 ) contains = true;
+					}
+					if(!contains) q_Peak.push_back(q);
+				}
+			}
+		}
+		std::sort(q_Peak.begin(), q_Peak.end());
+	}
+
+	double N = 1e7*min(measurement.sample_Geometry.size, measurement.beam_Geometry.size/max(measurement.beam_Theta_0_Sin_Value, DBL_EPSILON))/a;
+	double M = 1e7*measurement.beam_Geometry.lateral_Width/b;
+	N = max(N,51.);
+	M = max(M,51.);
+
+	// peak half-widths
+	vector<double> hw_Peak(q_Peak.size());
+	for(int i=0; i<q_Peak.size(); i++)
+	{
+		double damp = exp(-0.5*q_Peak[i]*q_Peak[i]*sigma*sigma);
+		hw_Peak[i] = acos( 2*damp / (1.+damp*damp) ) / a;
+	}
+	double damp_Max = exp(-0.5*q_Max*q_Max/4*sigma*sigma);
+	double hw_Peak_Max = acos( 2*damp_Max / (1.+damp_Max*damp_Max) ) / a;
+	if(hw_Peak.size()>=1) hw_Peak_Max = hw_Peak.front();
+
+	// points
+	vector<double> q_Vec; q_Vec.reserve(100000);
+	q_Vec.push_back(q_Min);
+
+	// num points if no peaks in range
+	int num_Bare_Points = 300;
+	int num_Peak_Points = 51; // points inside FWHM * hw_Factor/2
+	int hw_Factor = 5;
+
+	// no peaks in range
+	if(q_Peak.size() == 0)
+	{
+		q_Vec.resize(num_Bare_Points);
+		double dq = q_Range/(num_Bare_Points-1);
+		for(int i=0; i<num_Bare_Points; i++)
+		{
+			q_Vec[i] = q_Min+dq*i;
+		}
+	} else
+	{
+		double dq_Bare = q_Range/(num_Bare_Points-1);
+
+		// except last peak
+		for(size_t peak_Index = 0; peak_Index<q_Peak.size()-1; peak_Index++)
+		{
+			// before each peak
+			while(q_Vec.back()+dq_Bare < q_Peak[peak_Index]-hw_Factor*hw_Peak[peak_Index])
+			{
+				q_Vec.push_back(q_Vec.back()+dq_Bare);
+			}
+
+			// inside each peak
+			q_Vec.push_back(q_Peak[peak_Index]-hw_Factor*hw_Peak[peak_Index]); // may be < 0
+
+			double dq_Peak = 2*hw_Factor*hw_Peak[peak_Index]/(num_Peak_Points-1);
+
+			while( (q_Vec.back()+dq_Peak < q_Peak[peak_Index  ]+hw_Factor*hw_Peak[peak_Index  ]) &&
+				   (q_Vec.back()+dq_Peak < q_Peak[peak_Index+1]-hw_Factor*hw_Peak[peak_Index+1]) // before next peak starts
+				   )
+			{
+				q_Vec.push_back(q_Vec.back()+dq_Peak);
+			}
+		}
+
+		// last peak
+		size_t peak_Index = q_Peak.size()-1;
+		{
+			// before last peak
+			while(q_Vec.back()+dq_Bare < q_Peak[peak_Index]-hw_Factor*hw_Peak[peak_Index])
+			{
+				q_Vec.push_back(q_Vec.back()+dq_Bare);
+			}
+
+			// inside last peak
+			q_Vec.push_back(q_Peak[peak_Index]-hw_Factor*hw_Peak[peak_Index]);
+
+			double dq_Peak = 2*hw_Factor*hw_Peak[peak_Index]/(num_Peak_Points-1);
+
+			while( (q_Vec.back()+dq_Peak < q_Peak[peak_Index]+hw_Factor*hw_Peak[peak_Index]) &&
+				   (q_Vec.back()+dq_Peak < q_Max)
+				   )
+			{
+				q_Vec.push_back(q_Vec.back()+dq_Peak);
+			}
+
+			// after last peak
+			while(q_Vec.back()+dq_Bare < q_Max)
+			{
+				q_Vec.push_back(q_Vec.back()+dq_Bare);
+			}
+			q_Vec.push_back(q_Max);
+		}
+	}
+
+	// sorting
+	std::sort(q_Vec.begin(), q_Vec.end());
+	for(int i=q_Vec.size()-1; i>=1; i--)
+	{
+		if(q_Vec[i]-q_Vec[i-1] < DBL_EPSILON) q_Vec.erase(q_Vec.begin()+i);
+	}
+	for(int i=q_Vec.size()-1; i>=0; i--)
+	{
+		if(q_Vec[i] < q_Min) q_Vec.erase(q_Vec.begin()+i);
+	}
+	// threshold
+//	if(q_Peak.size()>=1) q_Threshold = q_Peak.front()/2;
+//	for(int i=q_Vec.size()-1; i>=1; i--)
+//	{
+//		if(q_Vec[i] < q_Threshold) q_Vec.erase(q_Vec.begin()+i);
+//	}
+
+	// calculation
+	int num_Phi_Points_Per_hw = 1;
+	int max_Phi_Division = 20;
+	vector<double> G2_Vec(q_Vec.size());
+	vector<bool> too_Narrow(reflectivity_Calc_Threads);
+
+	Global_Variables::parallel_For(int(q_Vec.size()), reflectivity_Calc_Threads, [&](int n_Min, int n_Max, int thread_Index)
+	{
+		too_Narrow[thread_Index] = false;
+		vector<double> phi_Vec; phi_Vec.reserve(max_Phi_Division+1);
+		for(size_t q_Index = n_Min; q_Index<n_Max; q_Index++)
+		{
+			double q = q_Vec[q_Index];
+
+			// phi division
+			double damp = exp(-0.5*q*q*sigma*sigma);
+			double hw_q = max(acos( 2*damp / (1.+damp*damp) ) / a, 4*hw_Peak_Max);
+			double arc_q = phi_Max*q;
+
+			const int gk_points = 61;
+			int phi_Division = ceil( arc_q/gk_points * num_Phi_Points_Per_hw/hw_q);
+			phi_Division = max(phi_Division, 1);
+			phi_Division = min(phi_Division, max_Phi_Division); // reasonable limit
+			if(phi_Division == max_Phi_Division) too_Narrow[thread_Index] = true;
+			phi_Vec.resize(phi_Division+1);
+			for(int i=0; i<=phi_Division; i++)
+			{
+				phi_Vec[i] = phi_Max/phi_Division*i;
+			}
+
+			// integration
+			auto func = [&](double phi)	{return G2_Type_long[thread_Index](q, phi, a, sigma, N, M)/phi_Max;};
+			double integral = 0;
+
+			// threshold
+			for(int phi_Index=0; phi_Index<phi_Division; phi_Index++)
+			{
+				integral += gauss_kronrod<double,gk_points>::integrate(func, phi_Vec[phi_Index], phi_Vec[phi_Index+1], 0, 1e-7);
+			}
+			G2_Vec[q_Index] = integral;
+		}
+	});
+	// TODO crutch
+	// threshold
+	double q_Threshold = 1e-6;
+	for(int i=q_Vec.size()-1; i>=0; i--)
+	{
+		if(q_Vec[i] < q_Threshold) G2_Vec[i] = G2_Vec[i+1];
+	}
+//	if(q_Min<DBL_EPSILON)
+//	{
+//		G2_Vec.front() = 0;
+//		G2_Vec.front() = G2_Vec[1];
+//	}
+
+	bool narrow = false;
+	for(size_t i=0; i<too_Narrow.size(); i++)
+	{
+		if(too_Narrow[i]) narrow = true;
+	}
+	if(narrow)
+	{
+		qInfo() << endl << "WARNING: in " << Global_Variables::structure_Item_Name(struct_Data) << " in density fluctuations r/dr is too high" << endl << endl;
+	}
+
+//	QFile file("G2.txt");
+//	file.open(QIODevice::WriteOnly);
+//	QTextStream out(&file);
+//	out.setFieldAlignment(QTextStream::AlignLeft);
+//	for(size_t i=0; i<q_Vec.size(); ++i)
+//	{
+//		out << q_Vec[i] << "\t" << G2_Vec[i] << endl;
+//	}
+//	file.close();
+
+	const gsl_interp_type* interp_type = gsl_interp_steffen;
+	acc_G2 = gsl_interp_accel_alloc();
+	spline_G2 = gsl_spline_alloc(interp_type, q_Vec.size());
+	gsl_spline_init(spline_G2, q_Vec.data(), G2_Vec.data(), q_Vec.size());
+}

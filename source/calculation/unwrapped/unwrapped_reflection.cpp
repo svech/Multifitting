@@ -795,14 +795,25 @@ Unwrapped_Reflection::Unwrapped_Reflection(const vector<Node*>& short_Flat_Calc_
 				if( (measurement.polarization + 1) > POLARIZATION_TOLERANCE)
 				{
 					C_03_s.resize(num_Threads);
+					C_03_03_s.resize(num_Threads);
+					C_03_s_norm.resize(num_Threads);
 
 					for(int thread_Index=0; thread_Index<num_Threads; thread_Index++)
 					{
 						C_03_s[thread_Index].resize(num_Layers_Sharp);
+						C_03_03_s[thread_Index].resize(num_Layers_Sharp);
+						C_03_s_norm[thread_Index].resize(num_Layers_Sharp);
 
 						for(int layer_Index=0; layer_Index<num_Layers_Sharp; layer_Index++)
 						{
 							C_03_s[thread_Index][layer_Index].resize(4);
+							C_03_03_s[thread_Index][layer_Index].resize(4);
+							C_03_s_norm[thread_Index][layer_Index].resize(4);
+
+							for(int i=0; i<4; i++)
+							{
+								C_03_03_s[thread_Index][layer_Index][i].resize(4);
+							}
 						}
 					}
 				}
@@ -811,14 +822,25 @@ Unwrapped_Reflection::Unwrapped_Reflection(const vector<Node*>& short_Flat_Calc_
 				if( (measurement.polarization - 1) < -POLARIZATION_TOLERANCE)
 				{
 					C_03_p.resize(num_Threads);
+					C_03_03_p.resize(num_Threads);
+					C_03_p_norm.resize(num_Threads);
 
 					for(int thread_Index=0; thread_Index<num_Threads; thread_Index++)
 					{
 						C_03_p[thread_Index].resize(num_Layers_Sharp);
+						C_03_03_p[thread_Index].resize(num_Layers_Sharp);
+						C_03_p_norm[thread_Index].resize(num_Layers_Sharp);
 
 						for(int layer_Index=0; layer_Index<num_Layers_Sharp; layer_Index++)
 						{
 							C_03_p[thread_Index][layer_Index].resize(4);
+							C_03_03_p[thread_Index][layer_Index].resize(4);
+							C_03_p_norm[thread_Index][layer_Index].resize(4);
+
+							for(int i=0; i<4; i++)
+							{
+								C_03_03_p[thread_Index][layer_Index][i].resize(4);
+							}
 						}
 					}
 				}
@@ -2909,11 +2931,10 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 									{
 										for (int i = 0; i<4; i++)
 										{
-											field_With_G_2D_Factor += norm(C_03_s[thread_Index][layer_Index][i]) * alfa_nn_03[thread_Index][item_Index][i];
+											field_With_G_2D_Factor += C_03_s_norm[thread_Index][layer_Index][i] * alfa_nn_03[thread_Index][item_Index][i];
 											for (int j = 0; j<i; j++)
 											{
-												field_With_G_2D_Factor += 2*real(    C_03_s[thread_Index][layer_Index][i] *
-																				conj(C_03_s[thread_Index][layer_Index][j])*
+												field_With_G_2D_Factor += 2*real( C_03_03_s[thread_Index][layer_Index][i][j] *
 																				 alfa_03_03[thread_Index][item_Index][i][j]
 																				);
 											}
@@ -3034,7 +3055,11 @@ void Unwrapped_Reflection::calc_C_Factor(QString polarization, int thread_Index,
 	const vector<complex<double>>& q_U_i  = polarization == "s" ? calculated_Values.q_U_i_s [point_Index] : calculated_Values.q_U_i_p [point_Index];
 	const vector<complex<double>>& q_U_r  = polarization == "s" ? calculated_Values.q_U_r_s [point_Index] : calculated_Values.q_U_r_p [point_Index];
 
-	vector<vector<complex<double>>>& C_03 = polarization == "s" ? C_03_s[thread_Index] : C_03_p[thread_Index];
+	vector<vector<complex<double>>>&		C_03		= polarization == "s" ? C_03_s			[thread_Index] : C_03_p			[thread_Index];
+	vector<vector<vector<complex<double>>>>&C_03_03		= polarization == "s" ? C_03_03_s		[thread_Index] : C_03_03_p		[thread_Index];
+//	vector<vector<vector<double>>>&			C_03_03_real= polarization == "s" ? C_03_03_s_real  [thread_Index] : C_03_03_p_real [thread_Index];
+//	vector<vector<vector<double>>>&			C_03_03_imag= polarization == "s" ? C_03_03_s_imag  [thread_Index] : C_03_03_p_imag [thread_Index];
+	vector<vector<double>>&					C_03_norm	= polarization == "s" ? C_03_s_norm		[thread_Index] : C_03_p_norm	[thread_Index];
 
 	for(size_t item_Index = 0; item_Index<appropriate_Item_Vec.size()-1; item_Index++)
 	{
@@ -3055,6 +3080,15 @@ void Unwrapped_Reflection::calc_C_Factor(QString polarization, int thread_Index,
 				C_03[layer_Index][1] = q0_U_i[boundary_Index]*q_U_r[boundary_Index]*exp_03[thread_Index][layer_Index][1];
 				C_03[layer_Index][2] = q0_U_r[boundary_Index]*q_U_i[boundary_Index]*exp_03[thread_Index][layer_Index][2];
 				C_03[layer_Index][3] = q0_U_r[boundary_Index]*q_U_r[boundary_Index]*exp_03[thread_Index][layer_Index][3];
+
+				for (int i = 0; i<4; i++)
+				{
+					C_03_norm[layer_Index][i] = norm(C_03[layer_Index][i]);
+					for (int j = 0; j<i; j++)
+					{
+						C_03_03[layer_Index][i][j] = C_03[layer_Index][i] * conj(C_03[layer_Index][j]);
+					}
+				}
 			}
 		}
 	}
@@ -3160,7 +3194,7 @@ void Unwrapped_Reflection::calc_Item_Alfa_Factor(int thread_Index, size_t item_I
 			g_ij  =       g_03_03[thread_Index][item_Index][i][j];
 			w_ijc = w_i*conj(w_03[thread_Index][item_Index][j]);
 			F_ijc = F_i*conj(F_03[thread_Index][item_Index][j]);
-			alfa_03_03[thread_Index][item_Index][i][j] = F_ijc * (G1_Type_Value * (g_ij - w_ijc) + w_ijc * G2_Type_Value);
+			alfa_03_03	   [thread_Index][item_Index][i][j] = F_ijc * (G1_Type_Value * (g_ij - w_ijc) + w_ijc * G2_Type_Value);
 		}
 	}
 }
