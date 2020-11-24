@@ -2914,18 +2914,24 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 
 							double G1_Type_Value = node->G1_Type_Outer();
 
-							// pure s-polarization
-							if( (measurement.polarization - 1) > -POLARIZATION_TOLERANCE)
+							for(size_t phi_Index = measurement.start_Phi_Index; phi_Index<measurement.end_Phi_Number; phi_Index++)
 							{
-								for(size_t phi_Index = measurement.start_Phi_Index; phi_Index<measurement.end_Phi_Number; phi_Index++)
+								double cos_Phi = measurement.detector_Phi_Cos_Vec[phi_Index];
+								double q = measurement.k_Value*sqrt(cos_Theta*cos_Theta + cos_Theta_0*cos_Theta_0 - 2*cos_Theta_0*cos_Theta*cos_Phi);
+
+								calc_Item_Form_Factor(thread_Index, item_Index, q);
+								if(item.fluctuations_Model.particle_Interference_Function == radial_Paracrystal)
 								{
-									double cos_Phi = measurement.detector_Phi_Cos_Vec[phi_Index];
-									double q = measurement.k_Value*sqrt(cos_Theta*cos_Theta + cos_Theta_0*cos_Theta_0 - 2*cos_Theta_0*cos_Theta*cos_Phi);
+									calc_Item_Alfa_Factor_With_G2(thread_Index, item_Index, q, G1_Type_Value);
+								} else
+								if(item.fluctuations_Model.particle_Interference_Function == disorder)
+								{
+									calc_Item_Alfa_Factor_No_G2(thread_Index, item_Index, q, G1_Type_Value);
+								}
 
-									calc_Item_Form_Factor(thread_Index, item_Index, q);
-///									this case if(item.fluctuations_Model.particle_Interference_Function == radial_Paracrystal)
-									calc_Item_Alfa_Factor(thread_Index, item_Index, q, G1_Type_Value);
-
+								// pure s-polarization
+								if( (measurement.polarization - 1) > -POLARIZATION_TOLERANCE)
+								{
 									double field_With_G_2D_Factor = 0;
 									for(int& layer_Index : boundaries_Of_Item_Vec[item_Index])
 									{
@@ -2942,16 +2948,48 @@ void Unwrapped_Reflection::calc_Specular_1_Point_1_Thread(int thread_Index, int 
 									}
 									// for each item at each point, so GISAS_Map += ...
 									calculated_Values.GISAS_Map[phi_Index][point_Index] += e_Factor_PT_2D * d_Eps_Norm * field_With_G_2D_Factor * measurement.footprint_Factor_Vec[point_Index] + measurement.background;
+								} else
+								// pure p-polarization
+								if( (measurement.polarization + 1) < POLARIZATION_TOLERANCE)
+								{
+									double field_With_G_2D_Factor = 0;
+									for(int& layer_Index : boundaries_Of_Item_Vec[item_Index])
+									{
+										for (int i = 0; i<4; i++)
+										{
+											field_With_G_2D_Factor += C_03_p_norm[thread_Index][layer_Index][i] * alfa_nn_03[thread_Index][item_Index][i];
+											for (int j = 0; j<i; j++)
+											{
+												field_With_G_2D_Factor += 2*real( C_03_03_p[thread_Index][layer_Index][i][j] *
+																				 alfa_03_03[thread_Index][item_Index][i][j]
+																				);
+											}
+										}
+									}
+									// for each item at each point, so GISAS_Map += ...
+									calculated_Values.GISAS_Map[phi_Index][point_Index] += e_Factor_PT_2D * d_Eps_Norm * field_With_G_2D_Factor * measurement.footprint_Factor_Vec[point_Index] + measurement.background;
+								} else
+								// mixed sp-polarization
+								{
+									double field_With_G_2D_Factor = 0;
+									for(int& layer_Index : boundaries_Of_Item_Vec[item_Index])
+									{
+										for (int i = 0; i<4; i++)
+										{
+											field_With_G_2D_Factor += (s_Weight*C_03_s_norm[thread_Index][layer_Index][i] +
+																	   p_Weight*C_03_p_norm[thread_Index][layer_Index][i]) * alfa_nn_03[thread_Index][item_Index][i];
+											for (int j = 0; j<i; j++)
+											{
+												field_With_G_2D_Factor += 2*real( (s_Weight*C_03_03_s[thread_Index][layer_Index][i][j] +
+																				   p_Weight*C_03_03_p[thread_Index][layer_Index][i][j])*
+																				   alfa_03_03[thread_Index][item_Index][i][j]
+																				);
+											}
+										}
+									}
+									// for each item at each point, so GISAS_Map += ...
+									calculated_Values.GISAS_Map[phi_Index][point_Index] += e_Factor_PT_2D * d_Eps_Norm * field_With_G_2D_Factor * measurement.footprint_Factor_Vec[point_Index] + measurement.background;
 								}
-							} else
-							// pure p-polarization
-							if( (measurement.polarization + 1) < POLARIZATION_TOLERANCE)
-							{
-								// TODO
-							} else
-							// mixed sp-polarization
-							{
-								// TODO
 							}
 						}
 					}
@@ -3171,7 +3209,7 @@ void Unwrapped_Reflection::calc_Item_Form_Factor(int thread_Index, size_t item_I
 	}
 }
 
-void Unwrapped_Reflection::calc_Item_Alfa_Factor(int thread_Index, size_t item_Index, double q, double G1_Type_Value)
+void Unwrapped_Reflection::calc_Item_Alfa_Factor_With_G2(int thread_Index, size_t item_Index, double q, double G1_Type_Value)
 {
 	Node* node = short_Flat_Calc_Tree[item_Index];
 	double G2_Type_Value = node->G2_Type_Outer(q);
@@ -3195,6 +3233,31 @@ void Unwrapped_Reflection::calc_Item_Alfa_Factor(int thread_Index, size_t item_I
 			w_ijc = w_i*conj(w_03[thread_Index][item_Index][j]);
 			F_ijc = F_i*conj(F_03[thread_Index][item_Index][j]);
 			alfa_03_03	   [thread_Index][item_Index][i][j] = F_ijc * (G1_Type_Value * (g_ij - w_ijc) + w_ijc * G2_Type_Value);
+		}
+	}
+}
+
+void Unwrapped_Reflection::calc_Item_Alfa_Factor_No_G2(int thread_Index, size_t item_Index, double q, double G1_Type_Value)
+{
+	double g_nn, w_n2, F_n2;
+	complex<double> g_ij, w_i, w_ijc, F_i, F_ijc;
+	for(int i=0; i<4; i++)
+	{
+		// diagonal part
+		g_nn = real(g_03_03[thread_Index][item_Index][i][i]);
+		w_n2 = norm(   w_03[thread_Index][item_Index][i]);
+		F_n2 = norm(   F_03[thread_Index][item_Index][i]);
+		alfa_nn_03[thread_Index][item_Index][i] = F_n2 * (G1_Type_Value * g_nn);
+
+		// non-diagonal part
+		w_i = w_03[thread_Index][item_Index][i];
+		F_i = F_03[thread_Index][item_Index][i];
+		for(int j=0; j<i; j++)
+		{
+			g_ij  =       g_03_03[thread_Index][item_Index][i][j];
+			w_ijc = w_i*conj(w_03[thread_Index][item_Index][j]);
+			F_ijc = F_i*conj(F_03[thread_Index][item_Index][j]);
+			alfa_03_03	   [thread_Index][item_Index][i][j] = F_ijc * (G1_Type_Value * g_ij);
 		}
 	}
 }

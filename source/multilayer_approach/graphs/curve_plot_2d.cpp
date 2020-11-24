@@ -451,9 +451,17 @@ void Curve_Plot_2D::refresh_Axes_Range(bool rescale_Axes)
 		{
 			if(independent_Curve->calc_Functions.check_Field || independent_Curve->calc_Functions.check_Joule)
 			{
-				QCPRange y_Range;
-				QCPRange x_Range = QCPRange(-independent_Curve->calc_Functions.field_Ambient_Distance,
-											-independent_Curve->calc_Functions.field_Ambient_Distance + (values_2D->front().size()-1)*independent_Curve->calc_Functions.field_Step);
+				QCPRange y_Range, x_Range;
+
+				if(plot_Options.orientation == vertical)
+				{
+					y_Range = QCPRange(-independent_Curve->calc_Functions.field_Ambient_Distance,
+									   -independent_Curve->calc_Functions.field_Ambient_Distance + (values_2D->size()-1)*independent_Curve->calc_Functions.field_Step);
+				} else
+				{
+					x_Range = QCPRange(-independent_Curve->calc_Functions.field_Ambient_Distance,
+									   -independent_Curve->calc_Functions.field_Ambient_Distance + (values_2D->front().size()-1)*independent_Curve->calc_Functions.field_Step);
+				}
 
 				if(	measurement.measurement_Type == measurement_Types[Specular_Scan] )
 				{
@@ -891,8 +899,8 @@ void Curve_Plot_2D::create_Plot_Options_GroupBox(bool rescale)
 			plot_Data();
 			apply_Lin_Scale();
 		});
-		connect(lin_Radio_Button, &QRadioButton::toggled, lin_Radio_Button, &QRadioButton::clicked);
-		connect(lin_Radio_Button, &QRadioButton::released, this, [=]{lin_Radio_Button->clicked();});
+//		connect(lin_Radio_Button, &QRadioButton::toggled, lin_Radio_Button, &QRadioButton::clicked);
+//		connect(lin_Radio_Button, &QRadioButton::released, this, [=]{lin_Radio_Button->clicked();});
 
 		QRadioButton* log_Radio_Button = new QRadioButton("Log");
 			log_Radio_Button->setChecked(plot_Options.z_Scale == log_Scale);
@@ -904,8 +912,8 @@ void Curve_Plot_2D::create_Plot_Options_GroupBox(bool rescale)
 			plot_Data();
 			apply_Log_Scale();
 		});
-		connect(log_Radio_Button, &QRadioButton::toggled, log_Radio_Button, &QRadioButton::clicked);
-		connect(log_Radio_Button, &QRadioButton::released, this, [=]{log_Radio_Button->clicked();});
+//		connect(log_Radio_Button, &QRadioButton::toggled, log_Radio_Button, &QRadioButton::clicked);
+//		connect(log_Radio_Button, &QRadioButton::released, this, [=]{log_Radio_Button->clicked();});
 
 		QButtonGroup* Z_ButtonGroup = new QButtonGroup;
 			Z_ButtonGroup->addButton(lin_Radio_Button);

@@ -265,7 +265,9 @@ public:
 
 	void choose_Form_Factor_2D_Function	(int thread_Index);
 	void calc_Item_Form_Factor			(int thread_Index, size_t item_Index, double q);
-	void calc_Item_Alfa_Factor			(int thread_Index, size_t item_Index, double q, double G1_Type_Value);
+	void choose_disorder_Paracrystal	(int thread_Index);
+	void calc_Item_Alfa_Factor_With_G2	(int thread_Index, size_t item_Index, double q, double G1_Type_Value);
+	void calc_Item_Alfa_Factor_No_G2	(int thread_Index, size_t item_Index, double q, double G1_Type_Value);
 	double calc_G1_Field_Sum		(QString polarization, int thread_Index,int item_Index, int layer_Index);
 	double calc_G2_Field_Sum		(QString polarization, int thread_Index,int item_Index, int layer_Index);
 

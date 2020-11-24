@@ -1410,20 +1410,23 @@ complex<double> Global_Variables::full_Sphere_FF(double q, complex<double> qz, d
 {
 	Q_UNUSED(H)
 	complex<double> s = R*sqrt(q*q+qz*qz)+DBL_MIN;
-	return 4*M_PI*R*R*R * exp(I*qz*z) * exp(I*qz*R) * (sin(s)-s*cos(s))/pow(s,3);
+	z+=R;
+	return 4*M_PI*R*R*R * exp(I*qz*z) * (sin(s)-s*cos(s))/pow(s,3);
 }
 
 complex<double> Global_Variables::full_Spheroid_FF(double q, complex<double> qz, double R, double H, double z)
 {
 	double h = H/2;
+	z+=h;
 	complex<double> s = sqrt(R*R*q*q + h*h*qz*qz)+DBL_MIN;
-	return 4*M_PI*R*R*h * exp(I*qz*z) * exp(I*qz*h) * (sin(s)-s*cos(s))/pow(s,3);
+	return 4*M_PI*R*R*h * exp(I*qz*z) * (sin(s)-s*cos(s))/pow(s,3);
 }
 
 complex<double> Global_Variables::cylinder_FF(double q, complex<double> qz, double R, double H, double z)
 {
 	double h = H/2;
-	return 2*M_PI*R*R*H * exp(I*qz*z) * boost::math::sinc_pi(qz*h) * exp(I*qz*h) * boost::math::cyl_bessel_j(1,q*R+DBL_MIN)/(q*R+DBL_MIN);
+	z+=h;
+	return 2*M_PI*R*R*H * exp(I*qz*z) * boost::math::sinc_pi(qz*h) * boost::math::cyl_bessel_j(1,q*R+DBL_MIN)/(q*R+DBL_MIN);
 }
 
 complex<double> Global_Variables::omega_Factor(complex<double> k, double sigma)

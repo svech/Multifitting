@@ -62,13 +62,6 @@ public:
 	void clear_Spline_G2_2D(const Imperfections_Model& imperfections_Model);
 	gsl_spline* spline_G2;
 	gsl_interp_accel* acc_G2;
-
-	double F_Outer();
-	complex<double>(*form_Factor_Func)(double, complex<double>, double, double, double) ;
-	void create_Spline_F_2D(const Data& measurement, const Imperfections_Model& imperfections_Model);
-	void clear_Spline_F_2D(const Imperfections_Model& imperfections_Model);
-	gsl_spline* spline_F;
-	gsl_interp_accel* acc_F;
 };
 
 #endif // NODE_H
