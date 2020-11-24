@@ -342,6 +342,8 @@ void Curve_Plot_2D::create_Section_Parts()
 		left_Vertical_Custom_Plot->yAxis ->setTicker(linTicker);
 		left_Vertical_Custom_Plot->yAxis2->setTicker(linTicker);
 
+		reverse_Field_Left_Plot_Axes(plot_Options.orientation == vertical);
+
 		QPen pen = left_Vertical_Custom_Plot->yAxis->grid()->pen();
 			pen.setStyle(Qt::DashLine);
 		left_Vertical_Custom_Plot->yAxis->grid()->setSubGridVisible(true);
@@ -437,10 +439,16 @@ void Curve_Plot_2D::refresh_Axes_Range(bool rescale_Axes)
 		double spectral_Coeff = wavelength_Coefficients_Map.value(spectral_Units);
 		double angular_Coeff = angle_Coefficients_Map.value(angular_Units);
 
+		QCPRange x_Range, y_Range;
+		QCPRange& x_Range_Real = plot_Options.orientation == horizontal ? x_Range : y_Range;
+		QCPRange& y_Range_Real = plot_Options.orientation == horizontal ? y_Range : x_Range;
+
 		if(	measurement.measurement_Type == measurement_Types[GISAS_Map] ) // both independent and target
 		{
-			color_Map->data()->setRange(QCPRange(measurement.detector_Theta_Angle.independent.min/angular_Coeff, measurement.detector_Theta_Angle.independent.max/angular_Coeff),
-										QCPRange(measurement.detector_Phi_Angle.independent.min/angular_Coeff,   measurement.detector_Phi_Angle.independent.max/angular_Coeff));
+			x_Range_Real = QCPRange(measurement.detector_Theta_Angle.independent.min/angular_Coeff, measurement.detector_Theta_Angle.independent.max/angular_Coeff);
+			y_Range_Real = QCPRange(measurement.detector_Phi_Angle.independent.min/angular_Coeff,   measurement.detector_Phi_Angle.independent.max/angular_Coeff);
+
+			color_Map->data()->setRange(x_Range, y_Range);
 			if(plot_Options.rescale || rescale_Axes)
 			{
 				main_2D_Custom_Plot->rescaleAxes();
@@ -451,33 +459,26 @@ void Curve_Plot_2D::refresh_Axes_Range(bool rescale_Axes)
 		{
 			if(independent_Curve->calc_Functions.check_Field || independent_Curve->calc_Functions.check_Joule)
 			{
-				QCPRange y_Range, x_Range;
-
-				if(plot_Options.orientation == vertical)
-				{
-					y_Range = QCPRange(-independent_Curve->calc_Functions.field_Ambient_Distance,
-									   -independent_Curve->calc_Functions.field_Ambient_Distance + (values_2D->size()-1)*independent_Curve->calc_Functions.field_Step);
-				} else
-				{
-					x_Range = QCPRange(-independent_Curve->calc_Functions.field_Ambient_Distance,
-									   -independent_Curve->calc_Functions.field_Ambient_Distance + (values_2D->front().size()-1)*independent_Curve->calc_Functions.field_Step);
-				}
+				x_Range_Real = QCPRange(-independent_Curve->calc_Functions.field_Ambient_Distance,
+										-independent_Curve->calc_Functions.field_Ambient_Distance + (values_2D->front().size()-1)*independent_Curve->calc_Functions.field_Step);
 
 				if(	measurement.measurement_Type == measurement_Types[Specular_Scan] )
 				{
 					if(measurement.argument_Type == argument_Types[Beam_Grazing_Angle])
-					{
-						y_Range = QCPRange(measurement.beam_Theta_0_Angle.independent.min/angular_Coeff,
-										   measurement.beam_Theta_0_Angle.independent.max/angular_Coeff);
+					{						
+						y_Range_Real = QCPRange(measurement.beam_Theta_0_Angle.independent.min/angular_Coeff,
+												measurement.beam_Theta_0_Angle.independent.max/angular_Coeff);
 					}
 					if(measurement.argument_Type == argument_Types[Wavelength_Energy])
 					{
-						y_Range = QCPRange(Global_Variables::wavelength_Energy(spectral_Units,measurement.wavelength.independent.min)/spectral_Coeff,
-										   Global_Variables::wavelength_Energy(spectral_Units,measurement.wavelength.independent.max)/spectral_Coeff);
+						y_Range_Real = QCPRange(Global_Variables::wavelength_Energy(spectral_Units,measurement.wavelength.independent.min)/spectral_Coeff,
+												Global_Variables::wavelength_Energy(spectral_Units,measurement.wavelength.independent.max)/spectral_Coeff);
 					}
 					color_Map->data()->setRange(x_Range,y_Range);
 					if(plot_Options.rescale || rescale_Axes)
 					{
+						main_2D_Custom_Plot->yAxis->setRangeReversed(plot_Options.orientation == vertical);
+						main_2D_Custom_Plot->yAxis2->setRangeReversed(plot_Options.orientation == vertical);
 						main_2D_Custom_Plot->rescaleAxes();
 					}
 				}
@@ -627,10 +628,19 @@ void Curve_Plot_2D::plot_All_Data(bool rescale_Axes)
 				}
 			}
 		}
-		values_Hor_Meas.resize(values_2D_Meas->front().size());
-		values_Hor_Calc.resize(values_2D_Calc->front().size());
-		values_Ver_Meas.resize(values_2D_Meas->size());
-		values_Ver_Calc.resize(values_2D_Calc->size());
+		if(plot_Options.orientation == horizontal)
+		{
+			values_Hor_Meas.resize(values_2D_Meas->front().size());
+			values_Hor_Calc.resize(values_2D_Calc->front().size());
+			values_Ver_Meas.resize(values_2D_Meas->size());
+			values_Ver_Calc.resize(values_2D_Calc->size());
+		} else
+		{
+			values_Hor_Meas.resize(values_2D_Meas->size());
+			values_Hor_Meas.resize(values_2D_Calc->size());
+			values_Ver_Calc.resize(values_2D_Meas->front().size());
+			values_Ver_Calc.resize(values_2D_Calc->front().size());
+		}
 	}
 	// GISAS or field or joule
 	if(curve_Class == INDEPENDENT)
@@ -652,8 +662,15 @@ void Curve_Plot_2D::plot_All_Data(bool rescale_Axes)
 				}
 			}
 		}
-		values_Hor_Calc.resize(values_2D->front().size());
-		values_Ver_Calc.resize(values_2D->size());
+		if(plot_Options.orientation == horizontal)
+		{
+			values_Hor_Calc.resize(values_2D->front().size());
+			values_Ver_Calc.resize(values_2D->size());
+		} else
+		{
+			values_Hor_Calc.resize(values_2D->size());
+			values_Ver_Calc.resize(values_2D->front().size());
+		}
 	}
 	plot_Data(rescale_Axes);
 
@@ -664,8 +681,8 @@ void Curve_Plot_2D::plot_All_Data(bool rescale_Axes)
 
 void Curve_Plot_2D::plot_Data(bool rescale_Axes)
 {
-	int nx = values_2D->front().size();
-	int ny = values_2D->size();
+	int nx = plot_Options.orientation == horizontal ? values_2D->front().size() : values_2D->size();
+	int ny = plot_Options.orientation == horizontal ? values_2D->size() : values_2D->front().size();
 	color_Map->data()->setSize(nx, ny);
 
 	double min_Val = DBL_MAX;
@@ -674,7 +691,7 @@ void Curve_Plot_2D::plot_Data(bool rescale_Axes)
 	{
 		for (int y_Index=0; y_Index<ny; ++y_Index)
 		{
-			double val = (*values_2D)[y_Index][x_Index];
+			double val = plot_Options.orientation == horizontal ? (*values_2D)[y_Index][x_Index] : (*values_2D)[x_Index][y_Index];
 			color_Map->data()->setCell(x_Index, y_Index, val);
 
 			if(max_Val<val && (plot_Options.z_Scale == lin_Scale || val > DBL_MIN)) {max_Val = val;}
@@ -721,7 +738,7 @@ void Curve_Plot_2D::refresh_Axes_Labels()
 				}
 				if(measurement.argument_Type == argument_Types[Wavelength_Energy])
 				{
-					argument_Type_Text = Global_Variables::wavelength_Energy_Name(spectral_Units) + " " + Global_Variables::wavelength_Energy_Symbol(spectral_Units) + ", " + spectral_Units;
+					argument_Type_Text = Global_Variables::wavelength_Energy_Name(spectral_Units) + " " + Global_Variables::wavelength_Energy_Symbol(spectral_Units);
 					argument_Sym_Text = "";
 					argument_Units_Text = spectral_Units;
 				}
@@ -799,8 +816,15 @@ void Curve_Plot_2D::refresh_Corner_Labels(double x, double y, int x_Cell, int y_
 
 	if(x_Cell>=0 && y_Cell>=0)
 	{
-		cur_Arg_X->setText(base_Arg_X+add_Arg_X);
-		cur_Arg_Y->setText(base_Arg_Y+add_Arg_Y);
+		if(plot_Options.orientation == horizontal)
+		{
+			cur_Arg_X->setText(base_Arg_X+add_Arg_X);
+			cur_Arg_Y->setText(base_Arg_Y+add_Arg_Y);
+		} else
+		{
+			cur_Arg_X->setText(base_Arg_X+add_Arg_Y);
+			cur_Arg_Y->setText(base_Arg_Y+add_Arg_X);
+		}
 		cur_Bin_X->setText(base_Bin_X+add_Bin_X);
 		cur_Bin_Y->setText(base_Bin_Y+add_Bin_Y);
 		cur_Val  ->setText(base_Val  +add_Val);
@@ -870,6 +894,48 @@ void Curve_Plot_2D::replot_All()
 	left_Vertical_Custom_Plot->replot();
 	bottom_Horizontal_Custom_Plot->replot();
 	bottom_Vertical_Custom_Plot->replot();
+}
+
+void Curve_Plot_2D::clear_Section_Plots()
+{
+	graph_2D_Positions.x_Mark = -MAX_DOUBLE;
+	graph_2D_Positions.y_Mark = -MAX_DOUBLE;
+
+	// remove lines
+	hor_Line_Fixed->point1->setCoords(0, -MAX_DOUBLE);
+	hor_Line_Fixed->point2->setCoords(1, -MAX_DOUBLE);
+	ver_Line_Fixed->point1->setCoords(-MAX_DOUBLE, 0);
+	ver_Line_Fixed->point2->setCoords(-MAX_DOUBLE, 1);
+
+	// remove sections
+	if(curve_Class == TARGET)
+	{
+		bottom_Horizontal_Custom_Plot->graph(2)->data()->clear();
+		bottom_Horizontal_Custom_Plot->graph(3)->data()->clear();
+		bottom_Vertical_Custom_Plot->graph(2)->data()->clear();
+		bottom_Vertical_Custom_Plot->graph(3)->data()->clear();
+		left_Vertical_Custom_Plot->graph(2)->data()->clear();
+		left_Vertical_Custom_Plot->graph(3)->data()->clear();
+	}
+	if(curve_Class == INDEPENDENT)
+	{
+		bottom_Horizontal_Custom_Plot->graph(1)->data()->clear();
+		bottom_Vertical_Custom_Plot->graph(1)->data()->clear();
+		left_Vertical_Custom_Plot->graph(1)->data()->clear();
+	}
+	replot_All();
+}
+
+void Curve_Plot_2D::reverse_Field_Left_Plot_Axes(bool reverse)
+{
+	if(curve_Class == INDEPENDENT)
+	{
+		if(independent_Curve->calc_Functions.check_Field || independent_Curve->calc_Functions.check_Joule)
+		{
+			left_Vertical_Custom_Plot->yAxis->setRangeReversed(reverse);
+			left_Vertical_Custom_Plot->yAxis2->setRangeReversed(reverse);
+		}
+	}
 }
 
 void Curve_Plot_2D::create_Plot_Options_GroupBox(bool rescale)
@@ -1025,11 +1091,10 @@ void Curve_Plot_2D::create_Plot_Options_GroupBox(bool rescale)
 		radio_Button_Layout->addWidget(horizontal_Radio_Button);
 		connect(horizontal_Radio_Button, &QRadioButton::clicked, this, [=]
 		{
-			qInfo() << "hor" << endl;
 			if(horizontal_Radio_Button->isChecked())	plot_Options.orientation = horizontal;
-
-//			plot_Data();
-//			apply_Lin_Scale();
+			clear_Section_Plots();
+			reverse_Field_Left_Plot_Axes(false);
+			plot_All_Data(true);
 		});
 //		connect(horizontal_Radio_Button, &QRadioButton::toggled, horizontal_Radio_Button, &QRadioButton::clicked);
 //		connect(horizontal_Radio_Button, &QRadioButton::released, this, [=]{horizontal_Radio_Button->clicked();});
@@ -1040,10 +1105,9 @@ void Curve_Plot_2D::create_Plot_Options_GroupBox(bool rescale)
 		connect(vertical_Radio_Button, &QRadioButton::clicked, this, [=]
 		{
 			if(vertical_Radio_Button->isChecked())	plot_Options.orientation = vertical;
-
-			qInfo() << "ver" << endl;
-//			plot_Data();
-//			apply_Log_Scale();
+			clear_Section_Plots();
+			reverse_Field_Left_Plot_Axes(true);
+			plot_All_Data(true);
 		});
 //		connect(vertical_Radio_Button, &QRadioButton::toggled, vertical_Radio_Button, &QRadioButton::clicked);
 //		connect(vertical_Radio_Button, &QRadioButton::released, this, [=]{vertical_Radio_Button->clicked();});
@@ -1063,42 +1127,20 @@ void Curve_Plot_2D::create_Plot_Options_GroupBox(bool rescale)
 
 			color_Map->data()->coordToCell(x,y,&x_Cell_Fix,&y_Cell_Fix);
 
+			int x_Cell_Size = plot_Options.orientation == horizontal ? int(values_2D->front().size())-1 : int(values_2D->size())-1;
+			int y_Cell_Size = plot_Options.orientation == horizontal ? int(values_2D->size())-1 : int(values_2D->front().size())-1;
+
 			bool mark = true;
 			mark = mark && x_Cell_Fix>=0;
 			mark = mark && y_Cell_Fix>=0;
-			mark = mark && x_Cell_Fix<=int(values_2D->front().size())-1;
-			mark = mark && y_Cell_Fix<=int(values_2D->size())-1;
+			mark = mark && x_Cell_Fix<=x_Cell_Size;
+			mark = mark && y_Cell_Fix<=y_Cell_Size;
 
 			if(mark)
 			{
 				if(event->button() & Qt::RightButton)
 				{
-					graph_2D_Positions.x_Mark = -MAX_DOUBLE;
-					graph_2D_Positions.y_Mark = -MAX_DOUBLE;
-
-					// remove lines
-					hor_Line_Fixed->point1->setCoords(0, -MAX_DOUBLE);
-					hor_Line_Fixed->point2->setCoords(1, -MAX_DOUBLE);
-					ver_Line_Fixed->point1->setCoords(-MAX_DOUBLE, 0);
-					ver_Line_Fixed->point2->setCoords(-MAX_DOUBLE, 1);
-
-					// remove sections
-					if(curve_Class == TARGET)
-					{
-						bottom_Horizontal_Custom_Plot->graph(2)->data()->clear();
-						bottom_Horizontal_Custom_Plot->graph(3)->data()->clear();
-						bottom_Vertical_Custom_Plot->graph(2)->data()->clear();
-						bottom_Vertical_Custom_Plot->graph(3)->data()->clear();
-						left_Vertical_Custom_Plot->graph(2)->data()->clear();
-						left_Vertical_Custom_Plot->graph(3)->data()->clear();
-					}
-					if(curve_Class == INDEPENDENT)
-					{
-						bottom_Horizontal_Custom_Plot->graph(1)->data()->clear();
-						bottom_Vertical_Custom_Plot->graph(1)->data()->clear();
-						left_Vertical_Custom_Plot->graph(1)->data()->clear();
-					}
-					replot_All();
+					clear_Section_Plots();
 				}
 				if(event->button() & Qt::LeftButton)
 				{
@@ -1119,10 +1161,10 @@ void Curve_Plot_2D::create_Plot_Options_GroupBox(bool rescale)
 						for (int j=0; j<values_Hor_Meas.size(); ++j)
 						{
 							color_Map->data()->cellToCoord(j,y_Cell_Fix,&(values_Hor_Meas[j].key),&temp);
-							values_Hor_Meas[j].value = (*values_2D_Meas)[y_Cell_Fix][j];
+							values_Hor_Meas[j].value = plot_Options.orientation == horizontal ? (*values_2D_Meas)[y_Cell_Fix][j] : (*values_2D_Meas)[j][y_Cell_Fix];
 
 							color_Map->data()->cellToCoord(j,y_Cell_Fix,&(values_Hor_Calc[j].key),&temp);
-							values_Hor_Calc[j].value = (*values_2D_Calc)[y_Cell_Fix][j];
+							values_Hor_Calc[j].value = plot_Options.orientation == horizontal ? (*values_2D_Calc)[y_Cell_Fix][j] : (*values_2D_Calc)[j][y_Cell_Fix];
 						}
 						bottom_Horizontal_Custom_Plot->graph(2)->data()->set(values_Hor_Meas);
 						bottom_Horizontal_Custom_Plot->graph(3)->data()->set(values_Hor_Calc);
@@ -1131,10 +1173,10 @@ void Curve_Plot_2D::create_Plot_Options_GroupBox(bool rescale)
 						for (int i=0; i<values_Ver_Meas.size(); ++i)
 						{
 							color_Map->data()->cellToCoord(x_Cell_Fix,i,&temp,&(values_Ver_Meas[i].key));
-							values_Ver_Meas[i].value = (*values_2D_Meas)[i][x_Cell_Fix];
+							values_Ver_Meas[i].value = plot_Options.orientation == horizontal ? (*values_2D_Meas)[i][x_Cell_Fix] : (*values_2D_Meas)[x_Cell_Fix][i];
 
 							color_Map->data()->cellToCoord(x_Cell_Fix,i,&temp,&(values_Ver_Calc[i].key));
-							values_Ver_Calc[i].value = (*values_2D_Calc)[i][x_Cell_Fix];
+							values_Ver_Calc[i].value = plot_Options.orientation == horizontal ? (*values_2D_Calc)[i][x_Cell_Fix] : (*values_2D_Calc)[x_Cell_Fix][i];
 						}
 						bottom_Vertical_Custom_Plot->graph(2)->data()->set(values_Ver_Meas);
 						bottom_Vertical_Custom_Plot->graph(3)->data()->set(values_Ver_Calc);
@@ -1148,7 +1190,7 @@ void Curve_Plot_2D::create_Plot_Options_GroupBox(bool rescale)
 						for (int j=0; j<values_Hor_Calc.size(); ++j)
 						{
 							color_Map->data()->cellToCoord(j,y_Cell_Fix,&(values_Hor_Calc[j].key),&temp);
-							values_Hor_Calc[j].value = (*values_2D)[y_Cell_Fix][j];
+							values_Hor_Calc[j].value = plot_Options.orientation == horizontal ? (*values_2D)[y_Cell_Fix][j] : (*values_2D)[j][y_Cell_Fix];
 						}
 						bottom_Horizontal_Custom_Plot->graph(1)->data()->set(values_Hor_Calc);
 
@@ -1156,7 +1198,7 @@ void Curve_Plot_2D::create_Plot_Options_GroupBox(bool rescale)
 						for (int i=0; i<values_Ver_Calc.size(); ++i)
 						{
 							color_Map->data()->cellToCoord(x_Cell_Fix,i,&temp,&(values_Ver_Calc[i].key));
-							values_Ver_Calc[i].value = (*values_2D)[i][x_Cell_Fix];
+							values_Ver_Calc[i].value = plot_Options.orientation == horizontal ? (*values_2D)[i][x_Cell_Fix] : (*values_2D)[x_Cell_Fix][i];
 						}
 						bottom_Vertical_Custom_Plot->graph(1)->data()->set(values_Ver_Calc);
 
@@ -1203,11 +1245,14 @@ void Curve_Plot_2D::create_Plot_Options_GroupBox(bool rescale)
 					ver_Line_Current->point2->setCoords(-MAX_DOUBLE, 1);
 				}
 
+				int x_Cell_Size = plot_Options.orientation == horizontal ? int(values_2D->front().size())-1 : int(values_2D->size())-1;
+				int y_Cell_Size = plot_Options.orientation == horizontal ? int(values_2D->size())-1 : int(values_2D->front().size())-1;
+
 				bool show = true;
 				show = show && x_Cell_Cur>=0;
 				show = show && y_Cell_Cur>=0;
-				show = show && x_Cell_Cur<=int(values_2D->front().size())-1;
-				show = show && y_Cell_Cur<=int(values_2D->size())-1;
+				show = show && x_Cell_Cur<=x_Cell_Size;
+				show = show && y_Cell_Cur<=y_Cell_Size;
 
 				if(show)
 				{
@@ -1218,10 +1263,10 @@ void Curve_Plot_2D::create_Plot_Options_GroupBox(bool rescale)
 						for (int j=0; j<values_Hor_Meas.size(); ++j)
 						{
 							color_Map->data()->cellToCoord(j,y_Cell_Cur,&(values_Hor_Meas[j].key),&temp);
-							values_Hor_Meas[j].value = (*values_2D_Meas)[y_Cell_Cur][j];
+							values_Hor_Meas[j].value = plot_Options.orientation == horizontal ? (*values_2D_Meas)[y_Cell_Cur][j] : (*values_2D_Meas)[j][y_Cell_Cur];
 
 							color_Map->data()->cellToCoord(j,y_Cell_Cur,&(values_Hor_Calc[j].key),&temp);
-							values_Hor_Calc[j].value = (*values_2D_Calc)[y_Cell_Cur][j];
+							values_Hor_Calc[j].value = plot_Options.orientation == horizontal ? (*values_2D_Calc)[y_Cell_Cur][j] : (*values_2D_Calc)[j][y_Cell_Cur];
 						}
 						bottom_Horizontal_Custom_Plot->graph(0)->data()->set(values_Hor_Meas);
 						bottom_Horizontal_Custom_Plot->graph(1)->data()->set(values_Hor_Calc);
@@ -1230,10 +1275,10 @@ void Curve_Plot_2D::create_Plot_Options_GroupBox(bool rescale)
 						for (int i=0; i<values_Ver_Meas.size(); ++i)
 						{
 							color_Map->data()->cellToCoord(x_Cell_Cur,i,&temp,&(values_Ver_Meas[i].key));
-							values_Ver_Meas[i].value = (*values_2D_Meas)[i][x_Cell_Cur];
+							values_Ver_Meas[i].value = plot_Options.orientation == horizontal ? (*values_2D_Meas)[i][x_Cell_Cur] : (*values_2D_Meas)[x_Cell_Cur][i];
 
 							color_Map->data()->cellToCoord(x_Cell_Cur,i,&temp,&(values_Ver_Calc[i].key));
-							values_Ver_Calc[i].value = (*values_2D_Calc)[i][x_Cell_Cur];
+							values_Ver_Calc[i].value = plot_Options.orientation == horizontal ? (*values_2D_Calc)[i][x_Cell_Cur] : (*values_2D_Calc)[x_Cell_Cur][i];
 						}
 						bottom_Vertical_Custom_Plot->graph(0)->data()->set(values_Ver_Meas);
 						bottom_Vertical_Custom_Plot->graph(1)->data()->set(values_Ver_Calc);
@@ -1247,7 +1292,7 @@ void Curve_Plot_2D::create_Plot_Options_GroupBox(bool rescale)
 						for (int j=0; j<values_Hor_Calc.size(); ++j)
 						{
 							color_Map->data()->cellToCoord(j,y_Cell_Cur,&(values_Hor_Calc[j].key),&temp);
-							values_Hor_Calc[j].value = (*values_2D)[y_Cell_Cur][j];
+							values_Hor_Calc[j].value = plot_Options.orientation == horizontal ? (*values_2D)[y_Cell_Cur][j] : (*values_2D)[j][y_Cell_Cur];
 						}
 						bottom_Horizontal_Custom_Plot->graph(0)->data()->set(values_Hor_Calc);
 
@@ -1255,7 +1300,7 @@ void Curve_Plot_2D::create_Plot_Options_GroupBox(bool rescale)
 						for (int i=0; i<values_Ver_Calc.size(); ++i)
 						{
 							color_Map->data()->cellToCoord(x_Cell_Cur,i,&temp,&(values_Ver_Calc[i].key));
-							values_Ver_Calc[i].value = (*values_2D)[i][x_Cell_Cur];
+							values_Ver_Calc[i].value = plot_Options.orientation == horizontal ? (*values_2D)[i][x_Cell_Cur] : (*values_2D)[x_Cell_Cur][i];
 						}
 						bottom_Vertical_Custom_Plot->graph(0)->data()->set(values_Ver_Calc);
 

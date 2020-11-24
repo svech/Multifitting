@@ -29,6 +29,8 @@ public:
 	void set_Title_Text();
 	void touch_It();
 	void replot_All();
+	void clear_Section_Plots();
+	void reverse_Field_Left_Plot_Axes(bool reverse);
 
 	void create_Plot_Options_GroupBox(bool rescale);
 	void create_Subinterval_Rectangle();
