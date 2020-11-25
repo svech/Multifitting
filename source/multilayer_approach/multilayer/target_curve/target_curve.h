@@ -52,6 +52,11 @@ struct Curve
 	QVector<QVector<double>> value_2D;
 	vector<vector<double>>   value_2D_Shifted;					// without saving
 	vector<vector<double>>   value_2D_No_Scaling_And_Offset;	// without saving
+
+	// for old files support
+	QString argument_Type;	// without saving
+	QString angular_Units;	// without saving
+	QString spectral_Units;	// without saving
 };
 
 struct Fit_Params

@@ -1551,7 +1551,7 @@ QDataStream& operator <<( QDataStream& stream, const Data& data )
 }
 QDataStream& operator >>( QDataStream& stream,		 Data& data )
 {
-	stream		>> data.parent_Item_Type >> data.item_Type >> data.id;
+	stream	>> data.parent_Item_Type >> data.item_Type >> data.id;
 	if(Global_Variables::check_Loaded_Version(1,7,7))
 	{stream >> data.item_Enabled; }	// since 1.7.7
 

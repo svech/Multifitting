@@ -890,11 +890,8 @@ QDataStream& operator >>( QDataStream& stream,		 Curve& curve )
 		{stream >> curve.divide_On_Beam_Intensity; }	// since 1.8.1
 
 		{
-			QString argument_Type;
 			QString angle_Type;
-			QString angular_Units;
-			QString spectral_Units;
-			stream >> argument_Type >> angle_Type >> angular_Units >> spectral_Units;
+			stream >> curve.argument_Type >> angle_Type >> curve.angular_Units >> curve.spectral_Units;
 		}
 		stream >> curve.value_Type;
 		{
@@ -970,12 +967,12 @@ QDataStream& operator >>(QDataStream& stream,		 Target_Curve* target_Curve )
 		stream	>> target_Curve->curve >> target_Curve->fit_Params >> target_Curve->measurement
 				>> target_Curve->filename >> target_Curve->filepath;
 
-		stream >> target_Curve->loaded_And_Ready;
+		stream  >> target_Curve->loaded_And_Ready;
 
 		stream	>> target_Curve->plot_Options_Experimental;
 
 		if(Global_Variables::check_Loaded_Version(1,7,4))
-		{stream >> target_Curve->plot_Options_Calculated ; }
+		{stream >> target_Curve->plot_Options_Calculated;}
 
 		Old_Calculated_Values old_Calculated_Values;
 		stream  >> old_Calculated_Values;
@@ -990,6 +987,12 @@ QDataStream& operator >>(QDataStream& stream,		 Target_Curve* target_Curve )
 		// --------------------------------------------------------------------------
 
 		stream >> target_Curve->label_Text;
+
+		// argument type and units from old files
+		if(target_Curve->curve.argument_Type == "Wavelength") target_Curve->measurement.argument_Type = argument_Types[Wavelength_Energy];
+		if(target_Curve->curve.argument_Type == "Angle")	  target_Curve->measurement.argument_Type = argument_Types[Beam_Grazing_Angle];
+		if(angle_Units_List.	 contains(target_Curve->curve.angular_Units )) target_Curve->angular_Units  = target_Curve->curve.angular_Units;
+		if(wavelength_Units_List.contains(target_Curve->curve.spectral_Units)) target_Curve->spectral_Units = target_Curve->curve.spectral_Units;
 	}
 
 	target_Curve->fill_Measurement_And_Curve_With_Shifted_Data();
