@@ -1019,9 +1019,14 @@ void Multilayer_Approach::open(QString filename)
 		if(Global_Variables::check_Loaded_Version(1,10,2))
 		{in >> multilayer->discretization_Parameters;}	  // since 1.10.2
 
-		/// roughness
+		/// roughness and other
 		if(Global_Variables::check_Loaded_Version(1,11,0))
 		{in >> multilayer->imperfections_Model;}	  // since 1.11.0
+		else
+		{
+			for(int ii=0; ii<multilayer->imperfections_Model.use_Func.size(); ii++)
+			{multilayer->imperfections_Model.use_Func[ii] = true;}
+		}
 
 		/// fitting settings
 		{
@@ -1281,7 +1286,7 @@ void Multilayer_Approach::save(QString filename)
 		/// discretization
 		out << multilayer->discretization_Parameters;	  // since 1.10.2
 
-		/// roughness
+		/// roughness and other
 		out << multilayer->imperfections_Model;	  // since 1.11.0
 
 		/// fitting settings
