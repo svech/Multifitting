@@ -161,13 +161,10 @@ void Curve_Plot_2D::create_Main_Layout()
 		connect(color_Scale->axis(), static_cast<void(QCPAxis::*)(const QCPRange &)>(&QCPAxis::rangeChanged), this, [=](const QCPRange& new_Range)
 		{
 			bottom_Horizontal_Custom_Plot->yAxis->setRange(new_Range);
-			bottom_Horizontal_Custom_Plot->replot();
-
 			bottom_Vertical_Custom_Plot->yAxis->setRange(new_Range);
-			bottom_Vertical_Custom_Plot->replot();
-
 			left_Vertical_Custom_Plot->xAxis->setRange(new_Range);
-			left_Vertical_Custom_Plot->replot();
+
+			replot_All();
 		});
 	}
 	//------------------------------------------------------
@@ -223,7 +220,7 @@ void Curve_Plot_2D::create_Main_Layout()
 	create_Section_Parts();
 	create_Plot_Frame_And_Scale();
 	plot_All_Data();
-	refresh_Axes_Labels();
+//	refresh_Axes_Labels();
 	refresh_Corner_Labels();
 	create_Plot_Options_GroupBox(rescale);
 	touch_It();
@@ -613,8 +610,9 @@ void Curve_Plot_2D::plot_All_Data(bool rescale_Axes)
 
 		// in data are not calculated
 		bool show_Fake_Data = false;
-		if( values_2D_Calc->size() != values_2D_Meas->size() )																		show_Fake_Data = true;
-		else if( values_2D_Calc->size()==values_2D_Meas->size()	&& values_2D_Calc->front().size()!=values_2D_Meas->front().size() ) show_Fake_Data = true;
+		if( values_2D_Calc->size() != values_2D_Meas->size() )																	show_Fake_Data = true;
+		else
+		if( values_2D_Calc->size()==values_2D_Meas->size() && values_2D_Calc->front().size()!=values_2D_Meas->front().size() ) show_Fake_Data = true;
 		if(show_Fake_Data)
 		{
 			qInfo() << "Curve_Plot_2D::plot_All_Data  :  Target curve " << plot_Indicator << " : calculation of " << target_Curve->curve.value_Type << "is not done" << endl;
@@ -631,15 +629,15 @@ void Curve_Plot_2D::plot_All_Data(bool rescale_Axes)
 		if(plot_Options.orientation == horizontal)
 		{
 			values_Hor_Meas.resize(values_2D_Meas->front().size());
-			values_Hor_Calc.resize(values_2D_Calc->front().size());
+			values_Hor_Calc.resize(values_2D_Meas->front().size());
 			values_Ver_Meas.resize(values_2D_Meas->size());
-			values_Ver_Calc.resize(values_2D_Calc->size());
+			values_Ver_Calc.resize(values_2D_Meas->size());
 		} else
 		{
 			values_Hor_Meas.resize(values_2D_Meas->size());
-			values_Hor_Meas.resize(values_2D_Calc->size());
+			values_Hor_Calc.resize(values_2D_Meas->size());
+			values_Ver_Meas.resize(values_2D_Meas->front().size());
 			values_Ver_Calc.resize(values_2D_Meas->front().size());
-			values_Ver_Calc.resize(values_2D_Calc->front().size());
 		}
 	}
 	// GISAS or field or joule
@@ -718,8 +716,15 @@ void Curve_Plot_2D::refresh_Axes_Labels()
 		argument_Sym_Text = "";
 		argument_Units_Text = angular_Units;
 
-		main_2D_Custom_Plot->xAxis->setLabel(argument_Type_Text + ", " + argument_Units_Text);
-		main_2D_Custom_Plot->yAxis->setLabel(value_Type_Text + ", " + argument_Units_Text);
+		if(plot_Options.orientation == horizontal)
+		{
+			main_2D_Custom_Plot->xAxis->setLabel(argument_Type_Text + ", " + argument_Units_Text);
+			main_2D_Custom_Plot->yAxis->setLabel(value_Type_Text + ", " + argument_Units_Text);
+		} else
+		{
+			main_2D_Custom_Plot->xAxis->setLabel(value_Type_Text + ", " + argument_Units_Text);
+			main_2D_Custom_Plot->yAxis->setLabel(argument_Type_Text + ", " + argument_Units_Text);
+		}
 	}
 
 	// fields
@@ -743,8 +748,15 @@ void Curve_Plot_2D::refresh_Axes_Labels()
 					argument_Units_Text = spectral_Units;
 				}
 			}
-			main_2D_Custom_Plot->yAxis->setLabel(argument_Type_Text + ", " + argument_Units_Text);
-			main_2D_Custom_Plot->xAxis->setLabel(value_Type_Text );
+			if(plot_Options.orientation == horizontal)
+			{
+				main_2D_Custom_Plot->xAxis->setLabel(value_Type_Text );
+				main_2D_Custom_Plot->yAxis->setLabel(argument_Type_Text + ", " + argument_Units_Text);
+			} else
+			{
+				main_2D_Custom_Plot->xAxis->setLabel(argument_Type_Text + ", " + argument_Units_Text);
+				main_2D_Custom_Plot->yAxis->setLabel(value_Type_Text );
+			}
 		}
 	}
 	replot_All();

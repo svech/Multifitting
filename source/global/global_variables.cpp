@@ -1403,6 +1403,7 @@ double Global_Variables::G2_Hexagone_long(long double q, long double phi, long d
 
 //	long double specular_Mix = norm(specular_N*specular_M)*low_damp;
 
+	// TODO
 	return (bracket_N*bracket_M/* - specular_Mix*/ /*- N*M*/)/(N*M*a*b);
 }
 

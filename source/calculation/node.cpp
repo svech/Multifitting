@@ -1233,6 +1233,7 @@ void Node::create_Spline_G2_2D(const Data& measurement, const Imperfections_Mode
 	{
 		if(q_Vec[i] < q_Min) q_Vec.erase(q_Vec.begin()+i);
 	}
+	// TODO
 	// threshold
 //	if(q_Peak.size()>=1) q_Threshold = q_Peak.front()/2;
 //	for(int i=q_Vec.size()-1; i>=1; i--)
