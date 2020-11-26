@@ -449,8 +449,11 @@ void Optical_Graphs::create_Tab_Content(QWidget* new_Widget, int tab_Index)
 			target_Vertical_Splitter->setStyleSheet("QSplitter::handle{border: 0px solid gray; background: gray;}");
 		target_Layout->addWidget(target_Vertical_Splitter);
 		target_Vertical_Splitter_Vec[tab_Index] = target_Vertical_Splitter;
-		target_Horizontal_Splitter_Vec_Vec[tab_Index].resize(multilayer->graph_Options_1D.num_Target_Graph_Rows);
-		for(int row=0; row<multilayer->graph_Options_1D.num_Target_Graph_Rows; row++)
+
+		int num_Target_Rows = dimension == dim_1D ? multilayer->graph_Options_1D.num_Target_Graph_Rows : multilayer->graph_Options_2D.num_Target_Graph_Rows;
+
+		target_Horizontal_Splitter_Vec_Vec[tab_Index].resize(num_Target_Rows);
+		for(int row=0; row<num_Target_Rows; row++)
 		{
 			QSplitter* target_Horizontal_Splitter = new QSplitter;
 				target_Horizontal_Splitter->setOrientation(Qt::Horizontal);
@@ -462,9 +465,9 @@ void Optical_Graphs::create_Tab_Content(QWidget* new_Widget, int tab_Index)
 		}
 
 		// fill splitters with graphs
-		int graphs_in_Short_Row = total_Number_of_Target_Graphs[tab_Index]/multilayer->graph_Options_1D.num_Target_Graph_Rows;
-		int additional_Graphs = total_Number_of_Target_Graphs[tab_Index]%multilayer->graph_Options_1D.num_Target_Graph_Rows;
-		int first_Long_Row_Index = multilayer->graph_Options_1D.num_Target_Graph_Rows-additional_Graphs;
+		int graphs_in_Short_Row = total_Number_of_Target_Graphs[tab_Index]/num_Target_Rows;
+		int additional_Graphs = total_Number_of_Target_Graphs[tab_Index]%num_Target_Rows;
+		int first_Long_Row_Index = num_Target_Rows-additional_Graphs;
 
 		int current_Row = 0;
 		int graphs_in_Filled_Rows = 0;
@@ -496,7 +499,6 @@ void Optical_Graphs::create_Tab_Content(QWidget* new_Widget, int tab_Index)
 		}
 		target_GroupBox_Vec.append(target_Group_Box);
 	}
-
 	// independent
 	{
 		// calculate total number of graphs
@@ -538,9 +540,12 @@ void Optical_Graphs::create_Tab_Content(QWidget* new_Widget, int tab_Index)
 			independent_Vertical_Splitter->setHandleWidth(1);
 			independent_Vertical_Splitter->setStyleSheet("QSplitter::handle{border: 0px solid gray; background: gray;}");
 		independent_Layout->addWidget(independent_Vertical_Splitter);
+
+		int num_Independent_Rows = dimension == dim_1D ? multilayer->graph_Options_1D.num_Independent_Graph_Rows : multilayer->graph_Options_2D.num_Independent_Graph_Rows;
+
 		independent_Vertical_Splitter_Vec[tab_Index] = independent_Vertical_Splitter;
-		independent_Horizontal_Splitter_Vec_Vec[tab_Index].resize(multilayer->graph_Options_1D.num_Independent_Graph_Rows);
-		for(int row=0; row<multilayer->graph_Options_1D.num_Independent_Graph_Rows; row++)
+		independent_Horizontal_Splitter_Vec_Vec[tab_Index].resize(num_Independent_Rows);
+		for(int row=0; row<num_Independent_Rows; row++)
 		{
 			QSplitter* independent_Horizontal_Splitter = new QSplitter;
 				independent_Horizontal_Splitter->setOrientation(Qt::Horizontal);
@@ -552,9 +557,9 @@ void Optical_Graphs::create_Tab_Content(QWidget* new_Widget, int tab_Index)
 		}
 
 		// fill splitters with graphs
-		int graphs_in_Short_Row = total_Number_of_Independent_Graphs[tab_Index]/multilayer->graph_Options_1D.num_Independent_Graph_Rows;
-		int additional_Graphs = total_Number_of_Independent_Graphs[tab_Index]%multilayer->graph_Options_1D.num_Independent_Graph_Rows;
-		int first_Long_Row_Index = multilayer->graph_Options_1D.num_Independent_Graph_Rows-additional_Graphs;
+		int graphs_in_Short_Row = total_Number_of_Independent_Graphs[tab_Index]/num_Independent_Rows;
+		int additional_Graphs = total_Number_of_Independent_Graphs[tab_Index]%num_Independent_Rows;
+		int first_Long_Row_Index = num_Independent_Rows-additional_Graphs;
 
 		int current_Row = 0;
 		int graphs_in_Filled_Rows = 0;
@@ -586,6 +591,7 @@ void Optical_Graphs::create_Tab_Content(QWidget* new_Widget, int tab_Index)
 		}
 		independent_GroupBox_Vec.append(independent_Group_Box);
 	}
+
 	if(	dimension == dim_1D ) plots_1D.append(tab_Plots_1D);
 	if(	dimension == dim_2D ) plots_2D.append(tab_Plots_2D);
 

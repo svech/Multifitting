@@ -960,21 +960,22 @@ void Curve_Plot_2D::create_Plot_Options_GroupBox(bool rescale)
 
 	// scale radiobuttons
 	{
-		QHBoxLayout* radio_Button_Layout = new QHBoxLayout;
+		QGridLayout* radio_Button_Layout = new QGridLayout;
 			radio_Button_Layout->setAlignment(Qt::AlignLeft);
 		plot_Options_GroupBox_Layout->addLayout(radio_Button_Layout);
 
 		QLabel* scale_Label = new QLabel("Scale: ");
-		radio_Button_Layout->addWidget(scale_Label);
+		radio_Button_Layout->addWidget(scale_Label,0,0,2,1);
 
 		QRadioButton* lin_Radio_Button = new QRadioButton("Lin");
 			lin_Radio_Button->setChecked(plot_Options.z_Scale == lin_Scale);
-		radio_Button_Layout->addWidget(lin_Radio_Button);
+		radio_Button_Layout->addWidget(lin_Radio_Button,0,1);
 		connect(lin_Radio_Button, &QRadioButton::clicked, this, [=]
 		{
 			if(lin_Radio_Button->isChecked())	plot_Options.z_Scale = lin_Scale;
 
 			plot_Data();
+			apply_Lin_Scale();
 			apply_Lin_Scale();
 		});
 //		connect(lin_Radio_Button, &QRadioButton::toggled, lin_Radio_Button, &QRadioButton::clicked);
@@ -982,12 +983,13 @@ void Curve_Plot_2D::create_Plot_Options_GroupBox(bool rescale)
 
 		QRadioButton* log_Radio_Button = new QRadioButton("Log");
 			log_Radio_Button->setChecked(plot_Options.z_Scale == log_Scale);
-		radio_Button_Layout->addWidget(log_Radio_Button);
+		radio_Button_Layout->addWidget(log_Radio_Button,1,1);
 		connect(log_Radio_Button, &QRadioButton::clicked, this, [=]
 		{
 			if(log_Radio_Button->isChecked())	plot_Options.z_Scale = log_Scale;
 
 			plot_Data();
+			apply_Log_Scale();
 			apply_Log_Scale();
 		});
 //		connect(log_Radio_Button, &QRadioButton::toggled, log_Radio_Button, &QRadioButton::clicked);
@@ -997,18 +999,38 @@ void Curve_Plot_2D::create_Plot_Options_GroupBox(bool rescale)
 			Z_ButtonGroup->addButton(lin_Radio_Button);
 			Z_ButtonGroup->addButton(log_Radio_Button);
 	}
-	// rescale
+	// rescale and interpolation
 	{
-		QCheckBox* rescale_Check_Box = new QCheckBox("Rescale  |");
+		QVBoxLayout* rescale_Interpol_Layout = new QVBoxLayout;
+			rescale_Interpol_Layout->setAlignment(Qt::AlignLeft);
+		plot_Options_GroupBox_Layout->addLayout(rescale_Interpol_Layout);
+
+		// rescale
+		QCheckBox* rescale_Check_Box = new QCheckBox("Rescale");
 			rescale_Check_Box->setChecked(rescale);
-		plot_Options_GroupBox_Layout->addWidget(rescale_Check_Box);
+		rescale_Interpol_Layout->addWidget(rescale_Check_Box);
 		connect(rescale_Check_Box, &QCheckBox::toggled, this, [=]{ plot_Options.rescale = rescale_Check_Box->isChecked(); });
+
+		// interpolation
+		QCheckBox* use_Interpolation_CheckBox = new QCheckBox("Interpolate");
+			use_Interpolation_CheckBox->setChecked(plot_Options.use_Interpolation);
+		rescale_Interpol_Layout->addWidget(use_Interpolation_CheckBox);
+		connect(use_Interpolation_CheckBox, &QCheckBox::clicked, this, [=]
+		{
+			plot_Options.use_Interpolation = use_Interpolation_CheckBox->isChecked();
+			plot_Data();
+		});
 	}
-	// left panel
+	// panels
 	{
+		QVBoxLayout* panels_Layout = new QVBoxLayout;
+			panels_Layout->setAlignment(Qt::AlignLeft);
+		plot_Options_GroupBox_Layout->addLayout(panels_Layout);
+
+		// left panel
 		QCheckBox* show_Left_Panel_CheckBox = new QCheckBox("Left panel");
 			show_Left_Panel_CheckBox->setChecked(plot_Options.left_Section_Plot);
-		plot_Options_GroupBox_Layout->addWidget(show_Left_Panel_CheckBox);
+		panels_Layout->addWidget(show_Left_Panel_CheckBox);
 		connect(show_Left_Panel_CheckBox, &QCheckBox::clicked, this, [=]
 		{
 			plot_Options.left_Section_Plot = show_Left_Panel_CheckBox->isChecked();
@@ -1016,12 +1038,11 @@ void Curve_Plot_2D::create_Plot_Options_GroupBox(bool rescale)
 			left_Ver_Widget->setHidden(!plot_Options.left_Section_Plot);
 			corner_Widget->setHidden(!plot_Options.left_Section_Plot || !plot_Options.bottom_Section_Plot);
 		});
-	}
-	// bottom panel
-	{
-		QCheckBox* show_Bottom_Panel_CheckBox = new QCheckBox("Bottom panel  |");
+
+		// bottom panel
+		QCheckBox* show_Bottom_Panel_CheckBox = new QCheckBox("Bottom panel");
 			show_Bottom_Panel_CheckBox->setChecked(plot_Options.bottom_Section_Plot);
-		plot_Options_GroupBox_Layout->addWidget(show_Bottom_Panel_CheckBox);
+		panels_Layout->addWidget(show_Bottom_Panel_CheckBox);
 		connect(show_Bottom_Panel_CheckBox, &QCheckBox::clicked, this, [=]
 		{
 			plot_Options.bottom_Section_Plot = show_Bottom_Panel_CheckBox->isChecked();
@@ -1033,16 +1054,16 @@ void Curve_Plot_2D::create_Plot_Options_GroupBox(bool rescale)
 	// data to show
 	if(curve_Class == TARGET)
 	{
-		QHBoxLayout* radio_Button_Layout = new QHBoxLayout;
-			radio_Button_Layout->setAlignment(Qt::AlignLeft);
-		plot_Options_GroupBox_Layout->addLayout(radio_Button_Layout);
+		QVBoxLayout* meas_Calc_Layout = new QVBoxLayout;
+			meas_Calc_Layout->setAlignment(Qt::AlignLeft);
+		plot_Options_GroupBox_Layout->addLayout(meas_Calc_Layout);
 
-		QRadioButton* meas_Button = new QRadioButton("meas");
-		QRadioButton* calc_Button = new QRadioButton("calc  |");
+		QRadioButton* meas_Button = new QRadioButton("Measured  |");
+		QRadioButton* calc_Button = new QRadioButton("Calculated |");
 			meas_Button->setChecked(plot_Options.data_To_Show == meas);
 			calc_Button->setChecked(plot_Options.data_To_Show == calc);
-		radio_Button_Layout->addWidget(meas_Button);
-		radio_Button_Layout->addWidget(calc_Button);
+		meas_Calc_Layout->addWidget(meas_Button);
+		meas_Calc_Layout->addWidget(calc_Button);
 
 		QButtonGroup* data_ButtonGroup = new QButtonGroup;
 			data_ButtonGroup->addButton(meas_Button);
@@ -1059,43 +1080,18 @@ void Curve_Plot_2D::create_Plot_Options_GroupBox(bool rescale)
 			plot_All_Data();
 		});
 	}
-	// interpolation
+	// range and orientation
 	{
-		QCheckBox* use_Interpolation_CheckBox = new QCheckBox("Interpolate  |");
-			use_Interpolation_CheckBox->setChecked(plot_Options.use_Interpolation);
-		plot_Options_GroupBox_Layout->addWidget(use_Interpolation_CheckBox);
-		connect(use_Interpolation_CheckBox, &QCheckBox::clicked, this, [=]
-		{
-			plot_Options.use_Interpolation = use_Interpolation_CheckBox->isChecked();
-			plot_Data();
-		});
-	}
-	// z range to show
-	{
-		QLabel* orders_Label = new QLabel("Range to show, orders: ");
-		plot_Options_GroupBox_Layout->addWidget(orders_Label);
+		QVBoxLayout* meas_Calc_Layout = new QVBoxLayout;
+			meas_Calc_Layout->setAlignment(Qt::AlignLeft);
+		plot_Options_GroupBox_Layout->addLayout(meas_Calc_Layout);
 
-		MyDoubleSpinBox* orders_Spinbox = new MyDoubleSpinBox;
-			orders_Spinbox->setRange(1,99);
-			orders_Spinbox->setDecimals(1);
-			orders_Spinbox->setSingleStep(0.1);
-			orders_Spinbox->setValue(plot_Options.orders_To_Show);
-			orders_Spinbox->setAccelerated(true);
-			orders_Spinbox->setButtonSymbols(QAbstractSpinBox::NoButtons);
-		plot_Options_GroupBox_Layout->addWidget(orders_Spinbox);
-		connect(orders_Spinbox, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
-		{
-			plot_Options.orders_To_Show = orders_Spinbox->value();
-			plot_Data();
-		});
-	}
-	// plot orientation
-	{
+		// plot orientation
 		QHBoxLayout* radio_Button_Layout = new QHBoxLayout;
 			radio_Button_Layout->setAlignment(Qt::AlignLeft);
-		plot_Options_GroupBox_Layout->addLayout(radio_Button_Layout);
+		meas_Calc_Layout->addLayout(radio_Button_Layout);
 
-		QLabel* orient_Label = new QLabel("|  Orientation: ");
+		QLabel* orient_Label = new QLabel("Orientation: ");
 		radio_Button_Layout->addWidget(orient_Label);
 
 		QRadioButton* horizontal_Radio_Button = new QRadioButton("Hor");
@@ -1127,6 +1123,29 @@ void Curve_Plot_2D::create_Plot_Options_GroupBox(bool rescale)
 		QButtonGroup* orientation_ButtonGroup = new QButtonGroup;
 			orientation_ButtonGroup->addButton(horizontal_Radio_Button);
 			orientation_ButtonGroup->addButton(vertical_Radio_Button);
+
+
+		// z range to show
+		QHBoxLayout* z_Range_Layout = new QHBoxLayout;
+			z_Range_Layout->setAlignment(Qt::AlignLeft);
+		meas_Calc_Layout->addLayout(z_Range_Layout);
+
+		QLabel* orders_Label = new QLabel("Range to show, orders: ");
+		z_Range_Layout->addWidget(orders_Label);
+
+		MyDoubleSpinBox* orders_Spinbox = new MyDoubleSpinBox;
+			orders_Spinbox->setRange(1,99);
+			orders_Spinbox->setDecimals(1);
+			orders_Spinbox->setSingleStep(0.1);
+			orders_Spinbox->setValue(plot_Options.orders_To_Show);
+			orders_Spinbox->setAccelerated(true);
+			orders_Spinbox->setButtonSymbols(QAbstractSpinBox::NoButtons);
+		z_Range_Layout->addWidget(orders_Spinbox);
+		connect(orders_Spinbox, static_cast<void(MyDoubleSpinBox::*)(double)>(&MyDoubleSpinBox::valueChanged), this, [=]
+		{
+			plot_Options.orders_To_Show = orders_Spinbox->value();
+			plot_Data();
+		});
 	}
 	// mark on click
 	{

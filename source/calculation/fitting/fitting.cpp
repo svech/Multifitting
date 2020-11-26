@@ -693,7 +693,7 @@ void Fitting::randomize_Position(bool randomize)
 		gsl_vector_set(x, i, fitables.values_Parametrized[i]);
 	}
 
-	gsl_rng_free (r);
+	gsl_rng_free(r);
 }
 
 void Fitting::check_Maximization()
