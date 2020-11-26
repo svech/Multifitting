@@ -17,6 +17,7 @@ class Multilayer : public QWidget
 	Q_OBJECT
 public:	
 	explicit Multilayer(QWidget *parent = 0);
+	~Multilayer();
 
 signals:
 	void refresh_All_Multilayers();

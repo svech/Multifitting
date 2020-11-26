@@ -8,6 +8,10 @@ Structure_Toolbar::Structure_Toolbar(Structure_Tree* structure_Tree, QWidget *pa
 	create_Toolbar();
 }
 
+Structure_Toolbar::~Structure_Toolbar()
+{
+}
+
 void Structure_Toolbar::create_Toolbar()
 {
 	QPixmap add_Layer		(Paths_Icon_Path + "add_layer.bmp");
@@ -28,7 +32,7 @@ void Structure_Toolbar::create_Toolbar()
 	QPixmap destroy			(Paths_Icon_Path + "bomb.bmp");
 	QPixmap export_Structure(Paths_Icon_Path + "save.bmp");
 
-	toolbar = new QToolBar;
+	toolbar = new QToolBar(this);
 	toolbar->addAction(QIcon(add_Layer),		"Add Layer");						// 0
 	toolbar->addAction(QIcon(add_Multilayer),	"Add Multilayer");					// 1
 	toolbar->addAction(QIcon(add_Aperiodic),	"Add Aperiodic Multilayer");		// 2

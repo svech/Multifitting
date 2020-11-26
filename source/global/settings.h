@@ -99,9 +99,13 @@ extern bool use_multifitting_directory;
 extern bool use_last_directory;
 //extern QString icon_path;
 extern QString working_directory;
+extern QString preliminary_last_directory;
+extern QString preliminary_last_data_directory;
+extern QString preliminary_last_file;
 extern QString last_directory;
 extern QString last_data_directory;
 extern QString last_file;
+
 
 // measurement default file
 extern QString default_Measured_Filename;

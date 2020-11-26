@@ -719,11 +719,11 @@ void Multilayer_Approach::dropEvent(QDropEvent* event)
 			QFileInfo filename = url.toLocalFile();
 			QMessageBox::StandardButton reply = QMessageBox::question(this, "Open", "Open file " + filename.fileName() + " ?", QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
 			if (reply == QMessageBox::Yes)
-			{
-				last_file = filename.absoluteFilePath();
-				last_directory = filename.absolutePath();
+			{			
+				preliminary_last_file = filename.absoluteFilePath();
+				preliminary_last_directory = filename.absolutePath();
 
-				open(last_file);
+				open(preliminary_last_file);
 			}
 		}
 		++counter;
@@ -761,6 +761,10 @@ void Multilayer_Approach::open(QString filename)
 		file.close();
 		return;
 	}
+
+	// only here approve last file
+	last_file = preliminary_last_file;
+	last_directory = preliminary_last_directory;
 
 	// read version
 	in >> loaded_Version_Major;
@@ -1172,11 +1176,11 @@ void Multilayer_Approach::open_As()
 
 	QFileInfo filename = QDir::toNativeSeparators(QFileDialog::getOpenFileName(this, "Open saved file", directory_To_Open, "Multifitting files " + QString("*.fit") + ";;All files (*.*)"));
 	if(!filename.completeBaseName().isEmpty())
-	{
-		last_file = filename.absoluteFilePath();
-		last_directory = filename.absolutePath();
+	{	
+		preliminary_last_file = filename.absoluteFilePath();
+		preliminary_last_directory = filename.absolutePath();
 
-		open(last_file);
+		open(preliminary_last_file);
 	}
 }
 

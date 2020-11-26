@@ -507,10 +507,11 @@ void Fitting::fill_Residual(Fitting_Params* params, int& residual_Shift, Data_El
 
 			for(size_t point_Index=0; point_Index<N; ++point_Index)
 			{
-				// calculate with expression
 				double f_Val = 0;
+				// calculate with expression
 				if(target_Curve->measurement.measurement_Type != measurement_Types[GISAS_Map] )
 				{
+					f_Val = 0;
 					bool in_Interval = false;
 					if(target_Curve->curve.outer_Area)
 					{
@@ -554,6 +555,7 @@ void Fitting::fill_Residual(Fitting_Params* params, int& residual_Shift, Data_El
 				// GISAS
 				{
 					f_Val = 0;
+					double f_Temp_Phi = 0;
 					fi_2 = DBL_EPSILON;
 					for(size_t phi_Index = 0; phi_Index<target_Curve->curve.value_2D_Shifted.size(); phi_Index++)
 					{
@@ -562,18 +564,18 @@ void Fitting::fill_Residual(Fitting_Params* params, int& residual_Shift, Data_El
 						{
 							in_Rectangle = (target_Curve->measurement.detector_Theta_Angle_Vec[point_Index]<target_Curve->curve.subinterval_Left)  ||
 										   (target_Curve->measurement.detector_Theta_Angle_Vec[point_Index]>target_Curve->curve.subinterval_Right) ||
-										   (target_Curve->measurement.detector_Phi_Angle_Vec  [point_Index]<target_Curve->curve.subinterval_Bottom)||
-										   (target_Curve->measurement.detector_Phi_Angle_Vec  [point_Index]>target_Curve->curve.subinterval_Top);
+										   (target_Curve->measurement.detector_Phi_Angle_Vec  [phi_Index]<target_Curve->curve.subinterval_Bottom)||
+										   (target_Curve->measurement.detector_Phi_Angle_Vec  [phi_Index]>target_Curve->curve.subinterval_Top);
 						} else
 						{
 							in_Rectangle = (target_Curve->measurement.detector_Theta_Angle_Vec[point_Index]>=target_Curve->curve.subinterval_Left)  &&
 										   (target_Curve->measurement.detector_Theta_Angle_Vec[point_Index]<=target_Curve->curve.subinterval_Right) &&
-										   (target_Curve->measurement.detector_Phi_Angle_Vec  [point_Index]>=target_Curve->curve.subinterval_Bottom)&&
-										   (target_Curve->measurement.detector_Phi_Angle_Vec  [point_Index]<=target_Curve->curve.subinterval_Top);
+										   (target_Curve->measurement.detector_Phi_Angle_Vec  [phi_Index]>=target_Curve->curve.subinterval_Bottom)&&
+										   (target_Curve->measurement.detector_Phi_Angle_Vec  [phi_Index]<=target_Curve->curve.subinterval_Top);
 						}
 
 						// if subinterval then use only data from inside
-						if( !target_Curve->curve.use_Subinterval || in_Rectangle )
+						if( (!target_Curve->curve.use_Subinterval) || in_Rectangle )
 						{
 							{
 #ifdef EXPRTK
@@ -585,6 +587,7 @@ void Fitting::fill_Residual(Fitting_Params* params, int& residual_Shift, Data_El
 								fi_1 = target_Curve->fit_Params.expression_Vec[0].value();
 #else
 //								fi_1 = func(target_Curve->curve.value_2D_Shifted[phi_Index][point_Index], index);
+
 								fi_1 = func(target_Curve->curve.value_2D_No_Scaling_And_Offset[phi_Index][point_Index] *
 											target_Curve->curve.val_Factor.value +
 											target_Curve->curve.val_Shift);
@@ -598,16 +601,10 @@ void Fitting::fill_Residual(Fitting_Params* params, int& residual_Shift, Data_El
 								fi_2 = func(target_Element.unwrapped_Reflection->calculated_Values.GISAS_Instrumental[phi_Index][point_Index]);
 #endif
 							}
-							fi_2 += target_Element.unwrapped_Reflection->calculated_Values.GISAS_Instrumental[phi_Index][point_Index];
-							f_Val += pow(target_Curve->curve.value_2D_No_Scaling_And_Offset[phi_Index][point_Index] *
-										 target_Curve->curve.val_Factor.value +
-										 target_Curve->curve.val_Shift
-										 -
-										 target_Element.unwrapped_Reflection->calculated_Values.GISAS_Instrumental[phi_Index][point_Index]
-										,2);
+							f_Temp_Phi += pow(fi_1 - fi_2, 2);
 						}
 					}
-					f_Val = factor * pow(sqrt(f_Val),power);
+					f_Val = factor * pow(f_Temp_Phi, power/2);
 				}
 
 				// fill
@@ -658,7 +655,7 @@ void Fitting::fill_Residual(Fitting_Params* params, int& residual_Shift, Data_El
 			gsl_vector_set(f, residual_Shift+point_Index, filling);
 		}
 	}
-	residual_Shift += N;	
+	residual_Shift += int(N);
 }
 
 void Fitting::initialize_Position()

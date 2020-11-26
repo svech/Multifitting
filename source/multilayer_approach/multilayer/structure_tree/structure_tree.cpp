@@ -8,6 +8,10 @@ Structure_Tree::Structure_Tree(Multilayer* multilayer, QWidget *parent) :
 	create_Toolbar();
 }
 
+Structure_Tree::~Structure_Tree()
+{
+}
+
 void Structure_Tree::create_Tree()
 {
 	tree = new QTreeWidget(this);

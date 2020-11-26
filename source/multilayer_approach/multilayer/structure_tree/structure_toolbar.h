@@ -10,6 +10,7 @@ class Structure_Toolbar : public QWidget
 	Q_OBJECT
 public:
 	explicit Structure_Toolbar(Structure_Tree* structure_Tree, QWidget *parent = 0);
+	~Structure_Toolbar();
 
 signals:
 	void refresh_Str_And_Independ_signal();

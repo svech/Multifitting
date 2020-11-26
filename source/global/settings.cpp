@@ -95,6 +95,9 @@ bool use_multifitting_directory;
 bool use_last_directory;
 //QString icon_path;
 QString working_directory;
+QString preliminary_last_directory;
+QString preliminary_last_data_directory;
+QString preliminary_last_file;
 QString last_directory;
 QString last_data_directory;
 QString last_file;
@@ -333,8 +336,6 @@ void Settings::read_Paths(bool reset_to_default)
 		use_multifitting_directory	= paths_Settings.value( "use_multifitting_directory",	true ).toBool();
 		use_working_directory		= paths_Settings.value( "use_working_directory",		false ).toBool();
 		use_last_directory			= paths_Settings.value( "use_last_directory",			false ).toBool();
-		working_directory	= paths_Settings.value( "working_directory",	QDir::currentPath() ).toString();
-		working_directory	= paths_Settings.value( "working_directory",	QDir::currentPath() ).toString();
 		working_directory	= paths_Settings.value( "working_directory",	QDir::currentPath() ).toString();
 		last_directory		= paths_Settings.value( "last_directory",		QDir::currentPath() ).toString();
 		last_data_directory = paths_Settings.value( "last_data_directory",	QDir::currentPath() ).toString();

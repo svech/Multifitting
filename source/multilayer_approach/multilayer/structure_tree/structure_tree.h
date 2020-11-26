@@ -17,6 +17,7 @@ class Structure_Tree : public QWidget
 	Q_INVOKABLE void refreshStructureTreeDataAndText() { Structure_Tree::refresh__StructureTree__Data_and_Text(); }
 public:
 	explicit Structure_Tree(Multilayer* multilayer, QWidget *parent = 0);
+	~Structure_Tree();
 
 	void create_Tree();
 	void create_Toolbar();

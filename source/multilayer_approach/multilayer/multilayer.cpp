@@ -10,6 +10,10 @@ Multilayer::Multilayer(QWidget *parent) :
 	create_Main_Layout();
 }
 
+Multilayer::~Multilayer()
+{
+}
+
 void Multilayer::create_Main_Layout()
 {
 	main_Layout = new QVBoxLayout(this);
@@ -230,8 +234,8 @@ void Multilayer::add_Target_Curve(int index_Pressed, bool opening)
 	QPushButton* new_Add_Button    = new QPushButton("Add Row");
 	QPushButton* new_Remove_Button = new QPushButton("Remove");
 
-	QFrame* new_Frame = new QFrame;
-	Target_Curve* new_Target_Curve = new Target_Curve(new_Description_Label);
+	QFrame* new_Frame = new QFrame(this);
+	Target_Curve* new_Target_Curve = new Target_Curve(new_Description_Label, this);
 	Target_Curve_Editor* new_Target_Curve_Editor;
 
 	add_Buttons_To_Lock.insert(index_Pressed,new_Add_Button);
