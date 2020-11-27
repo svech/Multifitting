@@ -394,7 +394,7 @@ void Common_Part::create_Footptint_GroupBox()
 	// sample
 	{
 		QGroupBox* sample_Footprint_GroupBox = new QGroupBox("Sample");
-			sample_Footprint_GroupBox->setFixedWidth(215);
+//			sample_Footprint_GroupBox->setFixedWidth(215);
 
 		QGridLayout* sample_GroupBox_Layout = new QGridLayout(sample_Footprint_GroupBox);
 			sample_GroupBox_Layout->setAlignment(Qt::AlignLeft);
