@@ -164,6 +164,7 @@ public:
 	int temp_Counter = 0;       // TEMPORARY
 	int temp_Counter_1 = 0;     // TEMPORARY
 	bool table_Is_Created = false;
+	bool table_Is_Fully_Created = false;
 	bool layer_Thickness_Transfer_Is_Created = false;
 	bool layer_Thickness_Transfer_Reload_Block = false;
 	int basic_Row_Number = 0;
@@ -202,6 +203,8 @@ public:
 	QMap<QCheckBox*,id_Type>		check_Boxes_Fit_Map;
 	QMap<QWidget*,id_Type>			back_Widgets_Fit_Map;
 	QMap<MyDoubleSpinBox*,id_Type>	spin_Boxes_ID_Map;
+	QList<QCheckBox*>				check_Boxes_Fluctuations_Usage_List;
+
 
 	// refresh/reload regular aperiodic
 	QList<QList<QWidget*>>			regular_Aperiodic_Widgets_To_Reload;

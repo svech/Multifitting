@@ -502,7 +502,7 @@ void GISAS_Target_Curve_Part::create_Beam_GroupBox()
 	}
 	// phi_0 angular divergence
 	{
-		QLabel* angular_Divergence_Label = new QLabel("      Angular divergence, FWHM, " + Delta_Big_Sym + Theta_Sym + Zero_Subscript_Sym);
+		QLabel* angular_Divergence_Label = new QLabel("      Angular divergence, FWHM, " + Delta_Big_Sym + Phi_Sym + Zero_Subscript_Sym);
 		beam_GroupBox_Layout->addWidget(angular_Divergence_Label,2,5,Qt::AlignLeft);
 
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

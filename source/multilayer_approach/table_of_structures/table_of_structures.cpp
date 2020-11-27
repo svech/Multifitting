@@ -176,6 +176,11 @@ void Table_Of_Structures::add_Tabs()
 		main_Tabs->setCurrentIndex(tab_Index);
 		reload_All_Widgets();
 	}
+	table_Is_Fully_Created = true;
+	for(QCheckBox* check_Box_Usage : check_Boxes_Fluctuations_Usage_List)
+	{
+		check_Box_Usage->toggled(check_Box_Usage->isChecked());
+	}
 	main_Tabs->setCurrentIndex(multilayer_Tabs->currentIndex());
 }
 
@@ -2513,6 +2518,7 @@ void Table_Of_Structures::create_Check_Box_Usage(My_Table_Widget* table, int tab
 	// storage
 	check_Boxes_Map.	       insert	   (check_Box, structure_Item);
 	all_Widgets_To_Reload[tab_Index].append(check_Box);
+	check_Boxes_Fluctuations_Usage_List.append(check_Box);
 
 	// set up BACK widget
 	// alignment
@@ -2525,7 +2531,10 @@ void Table_Of_Structures::create_Check_Box_Usage(My_Table_Widget* table, int tab
 
 	connect(check_Box, &QCheckBox::toggled, this, [=]
 	{
-		cells_On_Off(table, false);
+		if(table_Is_Fully_Created)
+		{
+			cells_On_Off(table, false);
+		}
 
 		Data layer_Data = structure_Item->data(DEFAULT_COLUMN, Qt::UserRole).value<Data>();
 		layer_Data.fluctuations_Model.is_Used = check_Box->isChecked();
@@ -2544,7 +2553,7 @@ void Table_Of_Structures::create_Check_Box_Usage(My_Table_Widget* table, int tab
 
 	// only by user
 	connect(check_Box, &QCheckBox::clicked, this, [=]
-	{
+	{		
 		// recalculation at change
 		if(recalculate_Spinbox_Table) {global_Multilayer_Approach->calculate(true);}
 	});
